@@ -224,6 +224,18 @@ public class SakaiProxyImpl implements SakaiProxy {
 		}
 		return site;
 	}
+	
+	/**
+	 * {@inheritDoc}
+	 */
+	public Site getSiteById(String siteId){
+		Site site = null;
+		try {
+			site = siteService.getSite(siteId);
+		} catch (IdUnusedException e) {
+		}
+		return site;
+	}
 
 	/**
 	 * {@inheritDoc}

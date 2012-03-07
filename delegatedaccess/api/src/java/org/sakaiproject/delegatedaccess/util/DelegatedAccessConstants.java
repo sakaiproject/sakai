@@ -20,7 +20,7 @@ public class DelegatedAccessConstants {
 	public static final int SEARCH_COMPARE_TERM = 3;
 	public static final int SEARCH_COMPARE_INSTRUCTOR = 4;
 	public static final int SEARCH_COMPARE_AUTHORIZATION = 5;
-	public static final int SEARCH_COMPARE_SHOPPERS_BECOME = 6;
+	public static final int SEARCH_COMPARE_ACCESS = 6;
 	public static final int SEARCH_COMPARE_START_DATE = 7;
 	public static final int SEARCH_COMPARE_END_DATE = 8;
 	public static final int SEARCH_COMPARE_SHOW_TOOLS = 9;
@@ -47,6 +47,7 @@ public class DelegatedAccessConstants {
 	public static final String EVENT_ADD_USER_PERMS = "delegatedaccess.nodeperms.add";
 	public static final String EVENT_DELETE_USER_PERMS = "delegatedaccess.nodeperms.delete";
 	public static final String SESSION_ATTRIBUTE_ACCESS_MAP = "delegatedaccess.accessmap";
+	public static final String SESSION_ATTRIBUTE_DELEGATED_ACCESS_FLAG = "delegatedaccess.accessmapflag";
 	public static final String SESSION_ATTRIBUTE_DENIED_TOOLS = "delegatedaccess.deniedToolsMap";
 	public static final String SHOPPING_PERIOD_USER = "120dv0f43cv90sdf0asv9";	
 	public static final int TYPE_ACCESS = 1;
@@ -74,4 +75,5 @@ public class DelegatedAccessConstants {
 	public static final int MAX_SITES_PER_PAGE = 10000;
 	public static final String PROP_DISABLE_USER_TREE_VIEW = "delegatedaccess.disable.user.tree.view";
 	public static final String PROP_DISABLE_SHOPPING_TREE_VIEW = "delegatedaccess.disable.shopping.tree.view";
+	public static final String[] DEFAULT_HIERARCHY = new String[]{SCHOOL_PROPERTY, DEPEARTMENT_PROPERTY, SUBJECT_PROPERTY};
 }

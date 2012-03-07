@@ -1,8 +1,5 @@
 package org.sakaiproject.delegatedaccess.tool.pages;
 
-import javax.swing.tree.DefaultMutableTreeNode;
-import javax.swing.tree.TreeModel;
-
 import org.apache.log4j.Logger;
 import org.apache.wicket.AttributeModifier;
 import org.apache.wicket.Component;
@@ -103,11 +100,7 @@ public class BasePage extends WebPage implements IHeaderContributor {
 		shoppingStatsLink = new Link<Void>("shoppingStatsLink") {
 			private static final long serialVersionUID = 1L;
 			public void onClick() {
-				TreeModel treeModel = projectLogic.getTreeModelForShoppingPeriod(true);
-				if(treeModel != null && ((DefaultMutableTreeNode) treeModel.getRoot()).getChildCount() == 0){
-					treeModel = null;
-				}
-				setResponsePage(new UserPageSiteSearch("", null, treeModel, true, true));
+				setResponsePage(new UserPageSiteSearch("", null, true, true));
 			}
 			@Override
 			public boolean isVisible() {

@@ -57,9 +57,7 @@ public class DelegatedAccessSiteHierarchyJob implements Job{
 	private DelegatedAccessDao dao;
 	@Getter @Setter
 	private ProjectLogic projectLogic;
-	
-	private static final String[] defaultHierarchy = new String[]{DelegatedAccessConstants.SCHOOL_PROPERTY, DelegatedAccessConstants.DEPEARTMENT_PROPERTY, DelegatedAccessConstants.SUBJECT_PROPERTY};
-	
+		
 	private static boolean semaphore = false;
 
 	public void init() {
@@ -95,7 +93,7 @@ public class DelegatedAccessSiteHierarchyJob implements Job{
 			//get hierarchy structure:
 			String[] hierarchy = sakaiProxy.getServerConfigurationStrings(DelegatedAccessConstants.HIERARCHY_SITE_PROPERTIES);
 			if(hierarchy == null || hierarchy.length == 0){
-				hierarchy = defaultHierarchy;
+				hierarchy = DelegatedAccessConstants.DEFAULT_HIERARCHY;
 			}
 
 			int page = 1;

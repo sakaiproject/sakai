@@ -1,28 +1,19 @@
 Index: kernel-impl/src/main/java/org/sakaiproject/authz/impl/DbAuthzGroupService.java
 ===================================================================
---- kernel-impl/src/main/java/org/sakaiproject/authz/impl/DbAuthzGroupService.java	(revision 100539)
+--- kernel-impl/src/main/java/org/sakaiproject/authz/impl/DbAuthzGroupService.java	(revision 105530)
 +++ kernel-impl/src/main/java/org/sakaiproject/authz/impl/DbAuthzGroupService.java	(working copy)
-@@ -1618,11 +1618,27 @@
+@@ -1636,11 +1636,18 @@
  			// Would be better to get this initially to make the code more efficient, but the realms collection
  			// does not have a common order for the site's id which is needed to determine if the session variable exists
  			String roleswap = SecurityService.getUserEffectiveRole(siteRef);
 -			
-+			Map<String, String[]> delegatedAccessMap = null;
 +			//Delegated access essentially behaves like roleswap except instead of just specifying which role, you can also specify
 +			//the realm as well.  The access map is populated during login and through the delegatedaccess tool and is stored in the session
 +			//attribute: delegatedaccess.accessmap.  This is a map of: SiteRef -> String[]{realmId, roleId}.  Delegated access
 +			//will defer to roleswap if it's set.
-+			boolean delegatedAccess = false;
-+			String[] delegatedAccessGroupAndRole = null;
-+			try{
-+				delegatedAccessMap = (Map<String, String[]>) sessionManager().getCurrentSession().getAttribute("delegatedaccess.accessmap");
-+				if(delegatedAccessMap != null && delegatedAccessMap.containsKey(siteRef)){
-+					delegatedAccess = true;
-+					delegatedAccessGroupAndRole = delegatedAccessMap.get(siteRef);
-+				}
-+			}catch (Exception e) {
-+				//doesn't exist, don't worry about it
-+			}
++			String[] delegatedAccessGroupAndRole = SecurityService.getUserDelegatedAccessRealmRole(siteRef);
++			boolean delegatedAccess = delegatedAccessGroupAndRole != null && delegatedAccessGroupAndRole.length == 2;
++
  			List results = null;
  			
  			// Only check roleswap if the method is being called for the current user
@@ -32,7 +23,7 @@ Index: kernel-impl/src/main/java/org/sakaiproject/authz/impl/DbAuthzGroupService
              {
  				
  				// First check in the user's own my workspace site realm if it's in the list
-@@ -1635,9 +1651,18 @@
+@@ -1653,9 +1660,18 @@
  				// Then check the site where there's a roleswap effective
  				
  				Object[] fields2 = new Object[3];
@@ -53,7 +44,7 @@ Index: kernel-impl/src/main/java/org/sakaiproject/authz/impl/DbAuthzGroupService
  
  				statement = dbAuthzGroupSql.getCountRoleFunctionSql();
  				
-@@ -1668,7 +1693,7 @@
+@@ -1686,7 +1702,7 @@
  					return true;
  				
  				// Then check the rest of the realms. For example these could be subfolders under /content/group/...
@@ -62,7 +53,7 @@ Index: kernel-impl/src/main/java/org/sakaiproject/authz/impl/DbAuthzGroupService
  				for (String realmId : realms)
  				{
  					if (realmId == siteRef || realmId == userSiteRef) // we've already checked these so no need to do it again
-@@ -1701,7 +1726,7 @@
+@@ -1719,7 +1735,7 @@
  					if (rv) // if true, go ahead and return
  						return true;
  				}
@@ -71,3 +62,128 @@ Index: kernel-impl/src/main/java/org/sakaiproject/authz/impl/DbAuthzGroupService
  				// No successful results for roleswap
  				return false;
              }
+Index: kernel-impl/src/main/java/org/sakaiproject/authz/impl/SakaiSecurity.java
+===================================================================
+--- kernel-impl/src/main/java/org/sakaiproject/authz/impl/SakaiSecurity.java	(revision 105530)
++++ kernel-impl/src/main/java/org/sakaiproject/authz/impl/SakaiSecurity.java	(working copy)
+@@ -33,6 +33,7 @@
+ import org.sakaiproject.authz.api.AuthzGroupService;
+ import org.sakaiproject.authz.api.SecurityAdvisor;
+ import org.sakaiproject.authz.api.SecurityService;
++import org.sakaiproject.delegatedaccess.logic.ProjectLogic;
+ import org.sakaiproject.entity.api.Entity;
+ import org.sakaiproject.entity.api.EntityManager;
+ import org.sakaiproject.entity.api.Reference;
+@@ -106,6 +107,8 @@
+ 	 * @return the EventTrackingService collaborator.
+ 	 */
+ 	protected abstract EventTrackingService eventTrackingService();
++	
++	protected abstract ProjectLogic delegatedAccessProjectLogic();
+ 
+ 	/**********************************************************************************************************************************************************************************************************************************************************
+ 	 * Configuration
+@@ -557,4 +560,14 @@
+ 		
+ 		return;
+ 	}
++	
++	public String[] getUserDelegatedAccessRealmRole(String siteRef){
++		//returns 2 lists, first list is {realm, role} and the 2nd list is a list of tools that are denied to that user in that site {toolid, toolid,...}
++		List<List> access = delegatedAccessProjectLogic().grantAccessToSite(siteRef);
++		if(access != null && access.size() > 0 && access.get(0).size() == 2){
++			return new String[]{access.get(0).get(0).toString(), access.get(0).get(1).toString()};
++		}else{
++			return null;
++		}
++	}
+ }
+Index: kernel-impl/src/main/java/org/sakaiproject/authz/impl/SakaiSecurityTest.java
+===================================================================
+--- kernel-impl/src/main/java/org/sakaiproject/authz/impl/SakaiSecurityTest.java	(revision 105530)
++++ kernel-impl/src/main/java/org/sakaiproject/authz/impl/SakaiSecurityTest.java	(working copy)
+@@ -22,6 +22,7 @@
+ package org.sakaiproject.authz.impl;
+ 
+ import org.sakaiproject.authz.api.AuthzGroupService;
++import org.sakaiproject.delegatedaccess.logic.ProjectLogic;
+ import org.sakaiproject.entity.api.EntityManager;
+ import org.sakaiproject.event.api.EventTrackingService;
+ import org.sakaiproject.memory.api.MemoryService;
+@@ -91,4 +92,11 @@
+ 	{
+ 		return null;
+ 	}
++
++	/**
++	 * @return the ProjectLogic for delegated access
++	 */
++	protected ProjectLogic delegatedAccessProjectLogic() {
++		return null;
++	}
+ }
+Index: kernel-impl/pom.xml
+===================================================================
+--- kernel-impl/pom.xml	(revision 105530)
++++ kernel-impl/pom.xml	(working copy)
+@@ -45,6 +45,11 @@
+   </build>
+   <dependencies>
+     <dependency>
++      <groupId>org.sakaiproject.delegatedaccess</groupId>
++      <artifactId>delegatedaccess-api</artifactId>
++      <version>1.0-SNAPSHOT</version>
++    </dependency>
++    <dependency>
+       <groupId>org.sakaiproject.kernel</groupId>
+       <artifactId>sakai-kernel-api</artifactId>
+       <version>${project.version}</version>
+Index: kernel-component/src/main/webapp/WEB-INF/authz-components.xml
+===================================================================
+--- kernel-component/src/main/webapp/WEB-INF/authz-components.xml	(revision 105530)
++++ kernel-component/src/main/webapp/WEB-INF/authz-components.xml	(working copy)
+@@ -55,6 +55,7 @@
+  		<lookup-method name="entityManager" bean="org.sakaiproject.entity.api.EntityManager" />
+ 		<lookup-method name="sessionManager" bean="org.sakaiproject.tool.api.SessionManager" />
+ 		<lookup-method name="eventTrackingService" bean="org.sakaiproject.event.api.EventTrackingService" />
++		<lookup-method name="delegatedAccessProjectLogic" bean="org.sakaiproject.delegatedaccess.logic.ProjectLogic" />
+ 
+   		<property name="cacheMinutes"><value>5</value></property>
+ 	</bean>
+Index: api/src/main/java/org/sakaiproject/authz/api/SecurityService.java
+===================================================================
+--- api/src/main/java/org/sakaiproject/authz/api/SecurityService.java	(revision 105530)
++++ api/src/main/java/org/sakaiproject/authz/api/SecurityService.java	(working copy)
+@@ -187,4 +187,16 @@
+ 	 */
+ 	void clearUserEffectiveRoles();
+ 	
++	/**
++	 * Returns a string[] of the realm and role the user will assume for this site.
++	 * Returns null if there are no permissions
++	 * 
++	 * arr[0] = realm
++	 * arr[1] = role
++	 * 
++	 * @param siteRef
++	 * @return
++	 */
++	String[] getUserDelegatedAccessRealmRole(String siteRef);
++	
+ }
+Index: api/src/main/java/org/sakaiproject/authz/cover/SecurityService.java
+===================================================================
+--- api/src/main/java/org/sakaiproject/authz/cover/SecurityService.java	(revision 105530)
++++ api/src/main/java/org/sakaiproject/authz/cover/SecurityService.java	(working copy)
+@@ -178,4 +178,11 @@
+ 
+ 		service.clearUserEffectiveRoles();
+ 	}
++	
++	public static String[] getUserDelegatedAccessRealmRole(String siteRef){
++		org.sakaiproject.authz.api.SecurityService service = getInstance();
++		if (service == null) return null;
++
++		return service.getUserDelegatedAccessRealmRole(siteRef);
++	}
+ }

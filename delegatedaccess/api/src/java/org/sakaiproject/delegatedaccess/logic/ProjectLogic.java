@@ -10,6 +10,7 @@ import org.sakaiproject.delegatedaccess.model.HierarchyNodeSerialized;
 import org.sakaiproject.delegatedaccess.model.NodeModel;
 import org.sakaiproject.delegatedaccess.model.SearchResult;
 import org.sakaiproject.delegatedaccess.model.ListOptionSerialized;
+import org.sakaiproject.delegatedaccess.model.SiteSearchResult;
 import org.sakaiproject.hierarchy.model.HierarchyNode;
 
 
@@ -22,14 +23,25 @@ import org.sakaiproject.hierarchy.model.HierarchyNode;
  */
 public interface ProjectLogic {
 
+	
 	/**
 	 * updates the user's Session to include the site and their access to the delegatedaccess.accessmap Session attribute.  This controls the user's 
 	 * permissions for that site.  If the nodeId doesn't have an access role specified, it will grant the inherited access role.
-	 * 
-	 * @param nodeModel
+	 *
+	 * @param siteRef
+	 * @return
 	 */
-	public void grantAccessToSite(NodeModel nodeModel);
+	public List<List> grantAccessToSite(String siteRef);
 
+	/**
+	 * gets the access permissions and tools for the shopping period user
+	 * 
+	 * @param siteRef
+	 * @param shoppingPeriod
+	 * @return
+	 */
+	public List<List> grantAccessToSite(String siteRef, boolean shoppingPeriod);
+	
 	/**
 	 * Returns a list of SearchResults for the user search
 	 * 
@@ -56,13 +68,14 @@ public interface ProjectLogic {
 	public void initializeDelegatedAccessSession();
 
 	/**
-	 * Searches user access sites by siteId and siteTitle
+	 * Searches user access sites by siteId and siteTitle and props
 	 * 
 	 * @param search
-	 * @param treeModel
+	 * @param advancedOptions
+	 * @param shoppingPeriod
 	 * @return
 	 */
-	public List<NodeModel> searchUserSites(String search, TreeModel treeModel, Map<String, String> advancedOptions);
+	public List<SiteSearchResult> searchUserSites(String search, Map<String, String> advancedOptions, boolean shoppingPeriod);
 
 	/**
 	 * returns the tree model of a user's delegated access.  Each node in the tree has the NodeModel object

@@ -1,8 +1,8 @@
 Index: site-manage-tool/tool/src/java/org/sakaiproject/site/tool/SiteAction.java
 ===================================================================
---- site-manage-tool/tool/src/java/org/sakaiproject/site/tool/SiteAction.java	(revision 104834)
+--- site-manage-tool/tool/src/java/org/sakaiproject/site/tool/SiteAction.java	(revision 105530)
 +++ site-manage-tool/tool/src/java/org/sakaiproject/site/tool/SiteAction.java	(working copy)
-@@ -2298,7 +2298,7 @@
+@@ -2330,7 +2330,7 @@
  				}
  				context.put("published", state.getAttribute(STATE_SITE_ACCESS_PUBLISH));
  				context.put("include", state.getAttribute(STATE_SITE_ACCESS_INCLUDE));
@@ -13,7 +13,7 @@ Index: site-manage-tool/tool/src/java/org/sakaiproject/site/tool/SiteAction.java
  					context.put("disableJoinable", Boolean.FALSE);
 Index: site-manage-tool/tool/src/bundle/sitesetupgeneric.properties
 ===================================================================
---- site-manage-tool/tool/src/bundle/sitesetupgeneric.properties	(revision 104834)
+--- site-manage-tool/tool/src/bundle/sitesetupgeneric.properties	(revision 105530)
 +++ site-manage-tool/tool/src/bundle/sitesetupgeneric.properties	(working copy)
 @@ -1057,3 +1057,20 @@
  sitegen.siteinfolist.usermodify = Modified by
@@ -38,7 +38,7 @@ Index: site-manage-tool/tool/src/bundle/sitesetupgeneric.properties
 +shopping.optout.label=Opt My Site Out of Shopping Period
 Index: site-manage-tool/tool/src/webapp/vm/sitesetup/chef_site-siteInfo-editAccess.vm
 ===================================================================
---- site-manage-tool/tool/src/webapp/vm/sitesetup/chef_site-siteInfo-editAccess.vm	(revision 104834)
+--- site-manage-tool/tool/src/webapp/vm/sitesetup/chef_site-siteInfo-editAccess.vm	(revision 105530)
 +++ site-manage-tool/tool/src/webapp/vm/sitesetup/chef_site-siteInfo-editAccess.vm	(working copy)
 @@ -4,6 +4,9 @@
  <script type="text/javascript" src="/library/js/jquery/jquery-ui/js/jquery-ui.js"></script>

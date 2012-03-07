@@ -43,7 +43,7 @@ public class DelegatedAccessObserver implements Observer {
 		// check the event function against the functions we have notifications watching for
 		if (UsageSessionService.EVENT_LOGIN.equals(event.getEvent())
 				|| UsageSessionService.EVENT_LOGIN_CONTAINER.equals(event.getEvent())) {
-	//		projectLogic.initializeDelegatedAccessSession();
+			projectLogic.initializeDelegatedAccessSession();
 		}else if(SiteService.SECURE_REMOVE_SITE.equals(event.getEvent())){
 			//Site has been deleted, check if it exists and remove all nodes:
 			boolean deleted = false;

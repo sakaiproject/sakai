@@ -1,9 +1,7 @@
 package org.sakaiproject.delegatedaccess.tool.pages;
 
-import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Collections;
-import java.util.Date;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
@@ -32,13 +30,13 @@ import org.apache.wicket.model.IModel;
 import org.apache.wicket.model.PropertyModel;
 import org.apache.wicket.model.ResourceModel;
 import org.apache.wicket.model.StringResourceModel;
+import org.sakaiproject.site.api.Site;
 import org.sakaiproject.delegatedaccess.model.ListOptionSerialized;
 import org.sakaiproject.delegatedaccess.model.NodeModel;
 import org.sakaiproject.delegatedaccess.model.SelectOption;
+import org.sakaiproject.delegatedaccess.model.SiteSearchResult;
 import org.sakaiproject.delegatedaccess.util.DelegatedAccessConstants;
-import org.sakaiproject.delegatedaccess.util.NodeModelComparator;
-import org.sakaiproject.site.api.Site;
-import org.sakaiproject.user.api.User;
+import org.sakaiproject.delegatedaccess.util.SiteSearchResultComparator;
 
 /**
  * 
@@ -51,20 +49,21 @@ public class UserPageSiteSearch extends BasePage {
 
 	private int orderBy = DelegatedAccessConstants.SEARCH_COMPARE_DEFAULT;
 	private boolean orderAsc = true;
-	private NodeModelDataProvider provider;
+	private SiteSearchResultDataProvider provider;
 	private String search = "";
 	private String instructorField = "";
 	private SelectOption termField;;
 	private TreeModel treeModel;
 	private List<SelectOption> termOptions;
 	private boolean statistics = false;
-	private SimpleDateFormat format = new SimpleDateFormat("MM/dd/yyyy");
+	private boolean currentStatisticsFlag = false;
 	private Map<String, String> toolsMap;
 
-	public UserPageSiteSearch(final String search, final Map<String, String> advancedFields, TreeModel treeModel, final boolean statistics, final boolean currentStatisticsFlag){
+	public UserPageSiteSearch(final String search, final Map<String, String> advancedFields, final boolean statistics, final boolean currentStatisticsFlag){
 		this.search = search;
 		this.treeModel = treeModel;
 		this.statistics = statistics;
+		this.currentStatisticsFlag = currentStatisticsFlag;
 		if(statistics){
 			disableLink(shoppingStatsLink);
 		}
@@ -82,7 +81,7 @@ public class UserPageSiteSearch extends BasePage {
 				if(treeModel != null && ((DefaultMutableTreeNode) treeModel.getRoot()).getChildCount() == 0){
 					treeModel = null;
 				}
-				setResponsePage(new UserPageSiteSearch("", null, treeModel, true, true));
+				setResponsePage(new UserPageSiteSearch("", null, true, true));
 			}
 			@Override
 			public boolean isVisible() {
@@ -104,7 +103,7 @@ public class UserPageSiteSearch extends BasePage {
 				if(treeModel != null && ((DefaultMutableTreeNode) treeModel.getRoot()).getChildCount() == 0){
 					treeModel = null;
 				}
-				setResponsePage(new UserPageSiteSearch("", null, treeModel, true, false));
+				setResponsePage(new UserPageSiteSearch("", null, true, false));
 			}
 			@Override
 			public boolean isVisible() {
@@ -260,13 +259,13 @@ public class UserPageSiteSearch extends BasePage {
 		};
 		add(authorizationSort);
 		
-		Link<Void> shoppersBecomeSort = new Link<Void>("shoppersBecomeSortLink"){
+		Link<Void> accessSort = new Link<Void>("accessSortLink"){
 			private static final long serialVersionUID = 1L;
 			public void onClick() {
-				changeOrder(DelegatedAccessConstants.SEARCH_COMPARE_SHOPPERS_BECOME);
+				changeOrder(DelegatedAccessConstants.SEARCH_COMPARE_ACCESS);
 			}
 		};
-		add(shoppersBecomeSort);
+		add(accessSort);
 		
 		Link<Void> startDateSort = new Link<Void>("startDateSortLink"){
 			private static final long serialVersionUID = 1L;
@@ -285,51 +284,42 @@ public class UserPageSiteSearch extends BasePage {
 		add(endDateSort);
 
 		//Data:
-		provider = new NodeModelDataProvider();
-		final DataView<NodeModel> dataView = new DataView<NodeModel>("searchResult", provider) {
+		provider = new SiteSearchResultDataProvider();
+		final DataView<SiteSearchResult> dataView = new DataView<SiteSearchResult>("searchResult", provider) {
 			@Override
 			public void populateItem(final Item item) {
-				final NodeModel nodeModel = (NodeModel) item.getModelObject();
+				final SiteSearchResult siteSearchResult = (SiteSearchResult) item.getModelObject();
 				AjaxLink<Void> siteTitleLink = new AjaxLink("siteTitleLink"){
 					private static final long serialVersionUID = 1L;
 					public void onClick(AjaxRequestTarget target) {
-						Site site = sakaiProxy.getSiteByRef(nodeModel.getNode().title);
-						if(site != null){
-							if(!isShoppingPeriodTool()){
-								//ensure the access for this user has been granted
-								projectLogic.grantAccessToSite(nodeModel);
-							}
+						if(siteSearchResult.getSiteUrl() != null){
 							//redirect the user to the site
-							target.appendJavascript("window.open('" + site.getUrl() + "')");
+							target.appendJavascript("window.open('" + siteSearchResult.getSiteUrl() + "')");
 						}
 					}
 				};
-				siteTitleLink.add(new Label("siteTitle", nodeModel.getNode().description));
+				siteTitleLink.add(new Label("siteTitle", siteSearchResult.getSiteTitle()));
 				item.add(siteTitleLink);
-				String siteId = nodeModel.getNode().title;
-				if(siteId.startsWith("/site/")){
-					siteId = siteId.substring(6);
-				}
-
+				String siteId = siteSearchResult.getSiteId();
 				item.add(new Label("siteId", siteId));
-				item.add(new Label("term", nodeModel.getSiteTerm()));
-				item.add(new Label("instructor", nodeModel.getSiteInstructors()){
+				item.add(new Label("term", siteSearchResult.getSiteTerm()));
+				item.add(new Label("instructor", siteSearchResult.getInstructorsString()){
 					@Override
 					public boolean isVisible() {
 						return instructorField != null && !"".equals(instructorField);
 					}
 				});
-				item.add(new Label("authorization", getAuthString(nodeModel)){
+				item.add(new Label("authorization", getAuthString(siteSearchResult)){
 					@Override
 					public boolean isVisible() {
 						//this helps hide all the extra columns with the wicket:enclosure in the html
 						return statistics;
 					}
 				});
-				item.add(new Label("shoppersBecome", getAccessRealmRoleString(nodeModel)));
-				item.add(new Label("startDate", getDateString(nodeModel, true)));
-				item.add(new Label("endDate", getDateString(nodeModel, false)));
-				item.add(new Label("showTools", getToolsString(nodeModel)));
+				item.add(new Label("access", siteSearchResult.getAccessString()));
+				item.add(new Label("startDate", siteSearchResult.getShoppingPeriodStartDateStr()));
+				item.add(new Label("endDate", siteSearchResult.getShoppingPeriodEndDateStr()));
+				item.add(new Label("showTools", siteSearchResult.getToolsString(toolsMap)));
 			}
 			@Override
 			public boolean isVisible() {
@@ -381,39 +371,16 @@ public class UserPageSiteSearch extends BasePage {
 
 
 	}
-
-	private String getDateString(NodeModel nodeModel, boolean startDate){
-		Date date = null;
-		if(startDate)
-			date = nodeModel.getNodeShoppingPeriodStartDate();
-		else
-				date = nodeModel.getNodeShoppingPeriodEndDate();
-		if(date == null){
-			return "";
-		}else{
-			return format.format(date);
-		}
-	}
 	
-	private String getAuthString(NodeModel nodeModel){
-		String auth = nodeModel.getNodeShoppingPeriodAuth();
+	private String getAuthString(SiteSearchResult siteSearchResult){
+		String auth = siteSearchResult.getShoppingPeriodAuth();
 		if(auth != null && !"".equals(auth)){
 			return new StringResourceModel(auth, null).getString();
 		}else{
 			return "";
 		}
 	}
-	
-	private String getAccessRealmRoleString(NodeModel nodeModel){
-		String[] inheritedAccess;
-		inheritedAccess = nodeModel.getNodeAccessRealmRole();
-		if("".equals(inheritedAccess[0])){
-			return "";
-		}else{
-			return inheritedAccess[0] + " : " + inheritedAccess[1];
-		}
-	}
-	
+
 	private String getToolsString(NodeModel nodeModel){
 		String restrictedTools = "";
 		for(String tool : nodeModel.getNodeRestrictedTools()){
@@ -446,28 +413,28 @@ public class UserPageSiteSearch extends BasePage {
 	 * A data provider for the search results table.  This calls the search functions in Sakai
 	 *
 	 */
-	private class NodeModelDataProvider implements IDataProvider<NodeModel>{
+	private class SiteSearchResultDataProvider implements IDataProvider<SiteSearchResult>{
 
 		private static final long serialVersionUID = 1L;
 
 		private boolean lastOrderAsc = true;
 		private int lastOrderBy = DelegatedAccessConstants.SEARCH_COMPARE_DEFAULT;
 
-		private List<NodeModel> list;
+		private List<SiteSearchResult> list;
 		public void detach() {
 			list = null;
 		}
 
-		public Iterator<? extends NodeModel> iterator(int first, int count) {
+		public Iterator<? extends SiteSearchResult> iterator(int first, int count) {
 			return getData().subList(first, first + count).iterator();
 		}
 
-		public IModel<NodeModel> model(final NodeModel object) {
-			return new AbstractReadOnlyModel<NodeModel>() {
+		public IModel<SiteSearchResult> model(final SiteSearchResult object) {
+			return new AbstractReadOnlyModel<SiteSearchResult>() {
 				private static final long serialVersionUID = 1L;
 
 				@Override
-				public NodeModel getObject() {
+				public SiteSearchResult getObject() {
 					return object;
 				}
 			};
@@ -477,7 +444,7 @@ public class UserPageSiteSearch extends BasePage {
 			return getData().size();
 		}
 
-		private List<NodeModel> getData(){
+		private List<SiteSearchResult> getData(){
 			if(list == null){
 				Map<String, String> advancedOptions = new HashMap<String,String>();
 				if(termField != null && !"".equals(termField)){
@@ -490,13 +457,22 @@ public class UserPageSiteSearch extends BasePage {
 					search = "";
 				}
 				if(!"".equals(search) || (advancedOptions != null && !advancedOptions.isEmpty())){
-					list = projectLogic.searchUserSites(getSearch(), treeModel, advancedOptions.isEmpty() ? null : advancedOptions);
-				}else {
-					if(treeModel != null && treeModel.getRoot() != null){
-						list = getAllSites((DefaultMutableTreeNode) treeModel.getRoot());
-					}else{
-						list = new ArrayList<NodeModel>();
+					list = projectLogic.searchUserSites(getSearch(), advancedOptions.isEmpty() ? null : advancedOptions, (isShoppingPeriodTool() || statistics));
+					if(currentStatisticsFlag){
+						//need to filter out the results and find only current shopping period results:
+						for (Iterator iterator = list.iterator(); iterator
+								.hasNext();) {
+							SiteSearchResult result = (SiteSearchResult) iterator.next();
+							List<String> nodes = projectLogic.getNodesBySiteRef(result.getSiteReference(), DelegatedAccessConstants.SHOPPING_PERIOD_HIERARCHY_ID);
+							if(nodes == null || nodes.size() == 0){
+								//this site doesn't exist in the current shopping period hierarchy, so remove it
+								iterator.remove();
+							}
+						}
+						
 					}
+				}else {
+					list = new ArrayList<SiteSearchResult>();
 				}
 				sortList();
 			}else if(lastOrderAsc != orderAsc || lastOrderBy != orderBy){
@@ -506,7 +482,7 @@ public class UserPageSiteSearch extends BasePage {
 		}
 
 		private void sortList(){
-			Collections.sort(list, new NodeModelComparator(orderBy));
+			Collections.sort(list, new SiteSearchResultComparator(orderBy));
 			if(!orderAsc){
 				Collections.reverse(list);
 			}
@@ -516,23 +492,6 @@ public class UserPageSiteSearch extends BasePage {
 
 	}
 	
-	private List<NodeModel> getAllSites(DefaultMutableTreeNode node){
-		List<NodeModel> returnList = new ArrayList<NodeModel>();
-		if(node != null){
-			NodeModel nodeModel = (NodeModel) node.getUserObject();
-			if(nodeModel.getNode().title.startsWith("/site/")){
-				//don't bother showing the term until they search for it
-				nodeModel.setSiteTerm("-");
-				returnList.add(nodeModel);
-			}
-			for(int i = 0; i < node.getChildCount(); i++){
-				returnList.addAll(getAllSites((DefaultMutableTreeNode) node.getChildAt(i)));
-			}
-		}
-
-		return returnList;
-	}
-
 	public String getSearch() {
 		return search;
 	}

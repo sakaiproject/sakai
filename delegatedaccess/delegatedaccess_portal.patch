@@ -1,6 +1,6 @@
 Index: portal-impl/impl/src/java/org/sakaiproject/portal/charon/ToolHelperImpl.java
 ===================================================================
---- portal-impl/impl/src/java/org/sakaiproject/portal/charon/ToolHelperImpl.java	(revision 101737)
+--- portal-impl/impl/src/java/org/sakaiproject/portal/charon/ToolHelperImpl.java	(revision 103349)
 +++ portal-impl/impl/src/java/org/sakaiproject/portal/charon/ToolHelperImpl.java	(working copy)
 @@ -22,6 +22,8 @@
  package org.sakaiproject.portal.charon;

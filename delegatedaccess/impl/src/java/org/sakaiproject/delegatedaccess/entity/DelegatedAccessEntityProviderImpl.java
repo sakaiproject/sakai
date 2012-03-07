@@ -14,6 +14,7 @@ import lombok.Getter;
 import lombok.Setter;
 
 import org.sakaiproject.delegatedaccess.logic.ProjectLogic;
+import org.sakaiproject.delegatedaccess.logic.SakaiProxy;
 import org.sakaiproject.delegatedaccess.model.ListOptionSerialized;
 import org.sakaiproject.delegatedaccess.model.NodeModel;
 import org.sakaiproject.delegatedaccess.util.DelegatedAccessConstants;
@@ -42,6 +43,8 @@ public class DelegatedAccessEntityProviderImpl implements DelegatedAccessEntityP
 
 	@Getter @Setter
 	private ProjectLogic projectLogic;
+	@Getter @Setter
+	private SakaiProxy sakaiProxy;
 
 	public String getEntityPrefix() {
 		return ENTITY_PREFIX;
@@ -270,6 +273,24 @@ public class DelegatedAccessEntityProviderImpl implements DelegatedAccessEntityP
     			return arg0.getValue().compareToIgnoreCase(arg1.getValue());
     		}
 		});
+	}
+	
+	@EntityCustomAction(action="initialize",viewKey=EntityView.VIEW_LIST)
+	public List initializeAccessForSite(EntityView view, Map<String, Object> params) {
+		String option = view.getPathSegment(2);
+        if(option == null || "".equals(option)){
+        	throw new IllegalArgumentException("Expected url path is /initialize/site/{id}");
+        }
+        if("site".equals(option)){
+        	String siteId = view.getPathSegment(3);
+        	if(siteId != null && !"".equals(siteId)){
+        		return projectLogic.grantAccessToSite("/site/" + siteId);
+        	}else{
+        		throw new IllegalArgumentException("Expected url path is /initialize/site/{id}");
+        	}
+        }else{
+        	throw new IllegalArgumentException("Expected url path is /initialize/site/{id}");
+        }
 	}
 	
 	public void deleteEntity(EntityReference ref, Map<String, Object> params) {

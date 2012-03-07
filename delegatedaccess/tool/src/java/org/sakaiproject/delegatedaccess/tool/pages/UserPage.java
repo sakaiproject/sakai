@@ -89,7 +89,7 @@ public class UserPage  extends BaseTreePage{
 		}
 		add(description);
 		
-		setTreeMode(userId, false);
+		setTreeModel(userId, false);
 		
 		final List<ListOptionSerialized> blankRestrictedTools = projectLogic.getEntireToolsList();
 		final List<ListOptionSerialized> blankTerms = projectLogic.getEntireTermsList();
@@ -115,10 +115,6 @@ public class UserPage  extends BaseTreePage{
 					if(nodeModel.getNode().title != null && nodeModel.getNode().title.startsWith("/site/")){
 						Site site = sakaiProxy.getSiteByRef(nodeModel.getNode().title);
 						if(site != null){
-							if(!isShoppingPeriodTool()){
-								//ensure the access for this user has been granted
-								projectLogic.grantAccessToSite(nodeModel);
-							}
 							//redirect the user to the site
 							target.appendJavascript("window.open('" + site.getUrl() + "')");
 						}
@@ -196,8 +192,7 @@ public class UserPage  extends BaseTreePage{
 					advancedOptions.put(DelegatedAccessConstants.ADVANCED_SEARCH_INSTRUCTOR, instructorField);
 				}
 				//need to set the tree model so that is is the full model
-				setTreeMode(userId, true);
-				setResponsePage(new UserPageSiteSearch(search, advancedOptions, treeModel, false, false));
+				setResponsePage(new UserPageSiteSearch(search, advancedOptions, false, false));
 			}
 			@Override
 			public boolean isVisible() {
@@ -223,7 +218,7 @@ public class UserPage  extends BaseTreePage{
 
 	}
 	
-	private void setTreeMode(String userId, boolean cascade){
+	private void setTreeModel(String userId, boolean cascade){
 		if(isShoppingPeriodTool()){
 			treeModel = projectLogic.getTreeModelForShoppingPeriod(false);
 			if(treeModel != null && ((DefaultMutableTreeNode) treeModel.getRoot()).getChildCount() == 0){

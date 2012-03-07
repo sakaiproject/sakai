@@ -107,6 +107,14 @@ public interface SakaiProxy {
 	 * @return
 	 */
 	public Site getSiteByRef(String siteRef);
+	
+	/**
+	 * Returns the site for that Id
+	 * 
+	 * @param siteRef
+	 * @return
+	 */
+	public Site getSiteById(String siteRef);
 
 
 	/**
