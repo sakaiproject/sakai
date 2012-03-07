@@ -1556,7 +1556,9 @@ public abstract class BaseCitationService implements CitationService
 			for(int i=0; i< risImportList.size(); i++)
 			{
 				// get current RIS line
-				currentLine = (String) risImportList.get(i);
+				String dirtyString = (String) risImportList.get(i);
+				currentLine = dirtyString.replaceAll("[\uFEFF-\uFFFF]", "");
+				currentLine = currentLine.trim();
 				logger.debug("importFromRisList: currentLine = " + currentLine);
 
 				// If the RIS line is less than 4, it isn't really a valid line. Set some default values
