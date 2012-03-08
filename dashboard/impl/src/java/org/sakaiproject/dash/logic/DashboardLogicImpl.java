@@ -1535,48 +1535,54 @@ public class DashboardLogicImpl implements DashboardLogic, Observer
 		}
 
 		public void run() {
-			dashboardEventProcessorThreadId = Thread.currentThread().getId();
-			logger.info("Started Dashboard Event Processing Thread: " + dashboardEventProcessorThreadId);
-			boolean timeToHandleAvailabilityChecks = true;
-			sakaiProxy.startAdminSession();
-			while(! timeToQuit) {
-				if(logger.isDebugEnabled()) {
-					logger.debug("Dashboard Event Processing Thread checking event queue: " + eventQueue.size());
-				}
-				if(eventQueue.isEmpty()) {
-					if(timeToHandleAvailabilityChecks) {
-						handleAvailabilityChecks();
-						timeToHandleAvailabilityChecks = false;
-					} else {
-						updateRepeatingEvents();
-						timeToHandleAvailabilityChecks = true;
-					}
-					try {
-						Thread.sleep(sleepTime * 1000L);
-					} catch (InterruptedException e) {
-						logger.warn("InterruptedException in Dashboard Event Processing Thread: " + e);
-					}
-				} else {
-					EventCopy event = eventQueue.poll();
+			try {
+				dashboardEventProcessorThreadId = Thread.currentThread().getId();
+				logger.info("Started Dashboard Event Processing Thread: " + dashboardEventProcessorThreadId);
+				boolean timeToHandleAvailabilityChecks = true;
+				sakaiProxy.startAdminSession();
+				while(! timeToQuit) {
 					if(logger.isDebugEnabled()) {
-						logger.debug("Dashboard Event Processing Thread is processing event: " + event.getEvent());
+						logger.debug("Dashboard Event Processing Thread checking event queue: " + eventQueue.size());
 					}
-					EventProcessor eventProcessor = eventProcessors.get(event.getEvent());
-					
-					SecurityAdvisor advisor = new DashboardLogicSecurityAdvisor();
-					sakaiProxy.pushSecurityAdvisor(advisor);
-					try {
-						eventProcessor.processEvent(event);
-					} catch (Exception e) {
-						logger.warn("Error processing event: " + event, e);
-					} finally {
-						sakaiProxy.popSecurityAdvisor(advisor);
-						sakaiProxy.clearThreadLocalCache();
+					if(eventQueue.isEmpty()) {
+						if(timeToHandleAvailabilityChecks) {
+							handleAvailabilityChecks();
+							timeToHandleAvailabilityChecks = false;
+						} else {
+							updateRepeatingEvents();
+							timeToHandleAvailabilityChecks = true;
+						}
+						try {
+							Thread.sleep(sleepTime * 1000L);
+						} catch (InterruptedException e) {
+							logger.warn("InterruptedException in Dashboard Event Processing Thread: " + e);
+						}
+					} else {
+						EventCopy event = eventQueue.poll();
+						if(logger.isDebugEnabled()) {
+							logger.debug("Dashboard Event Processing Thread is processing event: " + event.getEvent());
+						}
+						EventProcessor eventProcessor = eventProcessors.get(event.getEvent());
+						
+						SecurityAdvisor advisor = new DashboardLogicSecurityAdvisor();
+						sakaiProxy.pushSecurityAdvisor(advisor);
+						try {
+							eventProcessor.processEvent(event);
+						} catch (Exception e) {
+							logger.warn("Error processing event: " + event, e);
+						} finally {
+							sakaiProxy.popSecurityAdvisor(advisor);
+							sakaiProxy.clearThreadLocalCache();
+						}
 					}
 				}
+				
+				logger.warn(EVENT_PROCESSING_THREAD_SHUT_DOWN_MESSAGE);
+				
+			} catch(Throwable t) {
+				logger.error("Unhandled throwable is stopping Dashboard Event Processing Thread", t);
+				throw new RuntimeException(t);
 			}
-			
-			logger.warn(EVENT_PROCESSING_THREAD_SHUT_DOWN_MESSAGE);
 		}
 
 		/**
