@@ -91,8 +91,7 @@ public class DashboardLogicImpl implements DashboardLogic, Observer
 	
 	protected DashboardEventProcessingThread eventProcessingThread = new DashboardEventProcessingThread();
 	protected Queue<EventCopy> eventQueue = new ConcurrentLinkedQueue<EventCopy>();
-		
-	protected static boolean timeToQuit = false;
+	protected Object eventQueueLock = new Object();
 	
 	protected static long dashboardEventProcessorThreadId = 0L;
 	
@@ -146,6 +145,7 @@ public class DashboardLogicImpl implements DashboardLogic, Observer
 	}
 
 	protected Cache cache;
+
 	public void setCache(Cache cache) {
 		this.cache = cache;
 	}
@@ -1363,10 +1363,21 @@ public class DashboardLogicImpl implements DashboardLogic, Observer
 	public void destroy() {
 		logger.info("destroy()");
 		
-		// shut down daemon once it's done processing events
-		timeToQuit = true;
-		
-		
+		synchronized(eventQueueLock) {
+			if(this.eventQueue != null) {
+				// empty the event queue 
+				this.eventQueue.clear();
+				
+				// shut down daemon once it's done processing events
+				if(this.eventProcessingThread != null) {
+					this.eventProcessingThread.close();
+					this.eventProcessingThread = null;
+				}
+				
+				// destroy the event queue 
+				this.eventQueue = null;
+			}
+		}
 	}
 
 	/************************************************************************
@@ -1383,10 +1394,24 @@ public class DashboardLogicImpl implements DashboardLogic, Observer
 				if(logger.isDebugEnabled()) {
 					logger.debug("adding event to queue: " + event.getEvent());
 				}
-				this.eventQueue.add(new EventCopy(event));				
+				synchronized(this.eventQueueLock) {
+					if(this.eventQueue != null) {
+						this.eventQueue.add(new EventCopy(event));	
+					}
+				}
+				if(this.eventProcessingThread == null || ! this.eventProcessingThread.isAlive()) {
+					if( eventQueue != null) {
+						// the update() method gets called if and only if DashboardLogic is registered as an observer.
+						// DashboardLogic is registered as an observer if and only if event processing is enabled.
+						// So if the eventProcessingThread is null or disabled in some way, we should restart it, 
+						// unless the eventQueue is null, which should happen if and only if we are shutting down.
+						this.eventProcessingThread = null;
+						this.eventProcessingThread = new DashboardEventProcessingThread();
+						this.eventProcessingThread.start();
+					}
+				}
 			}
 		}
-		
 	}
 
 	/************************************************************************
@@ -1518,6 +1543,8 @@ public class DashboardLogicImpl implements DashboardLogic, Observer
 		protected static final String EVENT_PROCESSING_THREAD_SHUT_DOWN_MESSAGE = 
 			"\n===================================================\n  Dashboard Event Processing Thread shutting down  \n===================================================";
 
+		protected boolean timeToQuit = false;
+		
 		private long sleepTime = 2L;
 
 		public DashboardEventProcessingThread() {
@@ -1534,6 +1561,10 @@ public class DashboardLogicImpl implements DashboardLogic, Observer
 			});
 		}
 
+		public void close() {
+			timeToQuit = true;
+		}
+
 		public void run() {
 			try {
 				dashboardEventProcessorThreadId = Thread.currentThread().getId();
@@ -1544,7 +1575,13 @@ public class DashboardLogicImpl implements DashboardLogic, Observer
 					if(logger.isDebugEnabled()) {
 						logger.debug("Dashboard Event Processing Thread checking event queue: " + eventQueue.size());
 					}
-					if(eventQueue.isEmpty()) {
+					EventCopy event = null;
+					synchronized(eventQueueLock) {
+						if(eventQueue != null && ! eventQueue.isEmpty()) {
+							event = eventQueue.poll();
+						}
+					}
+					if(event == null) {
 						if(timeToHandleAvailabilityChecks) {
 							handleAvailabilityChecks();
 							timeToHandleAvailabilityChecks = false;
@@ -1558,7 +1595,6 @@ public class DashboardLogicImpl implements DashboardLogic, Observer
 							logger.warn("InterruptedException in Dashboard Event Processing Thread: " + e);
 						}
 					} else {
-						EventCopy event = eventQueue.poll();
 						if(logger.isDebugEnabled()) {
 							logger.debug("Dashboard Event Processing Thread is processing event: " + event.getEvent());
 						}
