@@ -25,22 +25,13 @@ public interface ProjectLogic {
 
 	
 	/**
-	 * updates the user's Session to include the site and their access to the delegatedaccess.accessmap Session attribute.  This controls the user's 
-	 * permissions for that site.  If the nodeId doesn't have an access role specified, it will grant the inherited access role.
-	 *
-	 * @param siteRef
-	 * @return
-	 */
-	public List<List> grantAccessToSite(String siteRef);
-
-	/**
-	 * gets the access permissions and tools for the shopping period user
+	 * This returns an array of {realm, role} for which the user has delegated access to.  If nothing is found, then it returns null.
+	 * This function also updates the denied tools session map
 	 * 
 	 * @param siteRef
-	 * @param shoppingPeriod
 	 * @return
 	 */
-	public List<List> grantAccessToSite(String siteRef, boolean shoppingPeriod);
+	public String[] getCurrentUsersAccessToSite(String siteRef);
 	
 	/**
 	 * Returns a list of SearchResults for the user search

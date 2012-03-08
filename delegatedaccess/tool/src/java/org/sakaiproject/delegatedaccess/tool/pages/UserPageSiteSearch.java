@@ -8,9 +8,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
 
-import javax.swing.tree.DefaultMutableTreeNode;
-import javax.swing.tree.TreeModel;
-
 import org.apache.wicket.AttributeModifier;
 import org.apache.wicket.ajax.AjaxRequestTarget;
 import org.apache.wicket.ajax.markup.html.AjaxLink;
@@ -53,7 +50,6 @@ public class UserPageSiteSearch extends BasePage {
 	private String search = "";
 	private String instructorField = "";
 	private SelectOption termField;;
-	private TreeModel treeModel;
 	private List<SelectOption> termOptions;
 	private boolean statistics = false;
 	private boolean currentStatisticsFlag = false;
@@ -61,7 +57,6 @@ public class UserPageSiteSearch extends BasePage {
 
 	public UserPageSiteSearch(final String search, final Map<String, String> advancedFields, final boolean statistics, final boolean currentStatisticsFlag){
 		this.search = search;
-		this.treeModel = treeModel;
 		this.statistics = statistics;
 		this.currentStatisticsFlag = currentStatisticsFlag;
 		if(statistics){
@@ -77,10 +72,6 @@ public class UserPageSiteSearch extends BasePage {
 		Link<Void> currentLink = new Link<Void>("currentLink") {
 			private static final long serialVersionUID = 1L;
 			public void onClick() {
-				TreeModel treeModel = projectLogic.getTreeModelForShoppingPeriod(true);
-				if(treeModel != null && ((DefaultMutableTreeNode) treeModel.getRoot()).getChildCount() == 0){
-					treeModel = null;
-				}
 				setResponsePage(new UserPageSiteSearch("", null, true, true));
 			}
 			@Override
@@ -99,10 +90,6 @@ public class UserPageSiteSearch extends BasePage {
 		Link<Void> allLink = new Link<Void>("allLink") {
 			private static final long serialVersionUID = 1L;
 			public void onClick() {
-				TreeModel treeModel = projectLogic.createEntireTreeModelForUser(DelegatedAccessConstants.SHOPPING_PERIOD_USER, false, true);
-				if(treeModel != null && ((DefaultMutableTreeNode) treeModel.getRoot()).getChildCount() == 0){
-					treeModel = null;
-				}
 				setResponsePage(new UserPageSiteSearch("", null, true, false));
 			}
 			@Override

@@ -2,6 +2,7 @@ package org.sakaiproject.delegatedaccess.entity;
 
 import java.io.Serializable;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.Date;
@@ -284,7 +285,7 @@ public class DelegatedAccessEntityProviderImpl implements DelegatedAccessEntityP
         if("site".equals(option)){
         	String siteId = view.getPathSegment(3);
         	if(siteId != null && !"".equals(siteId)){
-        		return projectLogic.grantAccessToSite("/site/" + siteId);
+        		return Arrays.asList(projectLogic.getCurrentUsersAccessToSite("/site/" + siteId));
         	}else{
         		throw new IllegalArgumentException("Expected url path is /initialize/site/{id}");
         	}
