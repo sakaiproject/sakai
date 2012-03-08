@@ -226,10 +226,10 @@ public interface SiteService extends EntityProducer
 		public static final SelectionType PUBVIEW = new SelectionType("pubView", true, true, true, true);
 
 		/** Get any sites. */
-		public static final SelectionType ANY = new SelectionType("any", false, false, true, true);
+		public static final SelectionType ANY = new SelectionType("any", false, false, false, true);
 
 		/** Get any non-user sites. */
-		public static final SelectionType NON_USER = new SelectionType("nonUser", false, true, true, true);
+		public static final SelectionType NON_USER = new SelectionType("nonUser", false, true, false, true);
 	}
 
 	/**
