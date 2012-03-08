@@ -1349,6 +1349,9 @@ public class DashboardLogicImpl implements DashboardLogic, Observer
 		logger.info("init()");
 		if (!sakaiProxy.isEventProcessingThreadDisabled())
 		{
+			if(this.eventProcessingThread == null) {
+				this.eventProcessingThread = new DashboardEventProcessingThread();
+			}
 			this.eventProcessingThread.start();
 			
 			this.sakaiProxy.addLocalEventListener(this);
@@ -1512,11 +1515,23 @@ public class DashboardLogicImpl implements DashboardLogic, Observer
 	 */
 	public class DashboardEventProcessingThread extends Thread
 	{
+		protected static final String EVENT_PROCESSING_THREAD_SHUT_DOWN_MESSAGE = 
+			"\n===================================================\n  Dashboard Event Processing Thread shutting down  \n===================================================";
+
 		private long sleepTime = 2L;
 
 		public DashboardEventProcessingThread() {
 			super("Dashboard Event Processing Thread");
 			logger.info("Created Dashboard Event Processing Thread");
+			
+			this.setUncaughtExceptionHandler(new Thread.UncaughtExceptionHandler(){
+
+				public void uncaughtException(Thread arg0, Throwable arg1) {
+					logger.error(EVENT_PROCESSING_THREAD_SHUT_DOWN_MESSAGE, arg1);
+					
+				}
+				
+			});
 		}
 
 		public void run() {
@@ -1560,6 +1575,8 @@ public class DashboardLogicImpl implements DashboardLogic, Observer
 					}
 				}
 			}
+			
+			logger.warn(EVENT_PROCESSING_THREAD_SHUT_DOWN_MESSAGE);
 		}
 
 		/**

@@ -32,7 +32,7 @@
 	
 	<bean id="org.sakaiproject.dash.logic.DashboardLogic" 
     	class="org.sakaiproject.dash.logic.DashboardLogicImpl"
-    	init-method="init">
+    	init-method="init" destroy-method="destroy">
     	<property name="sakaiProxy" ref="org.sakaiproject.dash.logic.SakaiProxy"></property>
     	<property name="dao" ref="org.sakaiproject.dash.dao.DashboardDao" />	
     	<property name="cache" ref="org.sakaiproject.dash.cache" />	
