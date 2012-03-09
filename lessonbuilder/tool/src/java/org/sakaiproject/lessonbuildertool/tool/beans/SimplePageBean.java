@@ -429,24 +429,27 @@ public class SimplePageBean {
 		return ret;
 	}
 
-	public String errMessage() {
+	public List<String> errMessages() {
 		ToolSession toolSession = sessionManager.getCurrentToolSession();
-		String error = (String)toolSession.getAttribute("lessonbuilder.error");
-		if (error != null)
-			toolSession.removeAttribute("lessonbuilder.error");
-		return error;
+		List<String> errors = (List<String>)toolSession.getAttribute("lessonbuilder.errors");
+		if (errors != null)
+			toolSession.removeAttribute("lessonbuilder.errors");
+		return errors;
 	}
 
 	public void setErrMessage(String s) {
 		ToolSession toolSession = sessionManager.getCurrentToolSession();
-		toolSession.setAttribute("lessonbuilder.error", s);
+		List<String> errors = (List<String>)toolSession.getAttribute("lessonbuilder.errors");
+		if (errors == null)
+		    errors = new ArrayList<String>();
+		errors.add(s);
+		toolSession.setAttribute("lessonbuilder.errors", errors);
 	}
 
 	public void setErrKey(String key, String text ) {
 		if (text == null)
 		    text = "";
-		ToolSession toolSession = sessionManager.getCurrentToolSession();
-		toolSession.setAttribute("lessonbuilder.error", messageLocator.getMessage(key).replace("{}", text));
+		setErrMessage(messageLocator.getMessage(key).replace("{}", text));
 	}
 
        public void setTopRefresh() {

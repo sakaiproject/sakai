@@ -20,6 +20,7 @@ import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
 import org.w3c.dom.NamedNodeMap;
 import org.w3c.dom.DOMException;
+import org.sakaiproject.lessonbuildertool.tool.beans.SimplePageBean;
 
 public class QtiImport {
 
@@ -31,12 +32,14 @@ public class QtiImport {
     boolean needHeader = true;
     CharArrayWriter charout = null;
     String filebase = null;
+    SimplePageBean bean = null;
 
     boolean feedbackpermitted = true;
     String timelimit = null;
     boolean allowlate = true;
     String maxattempts = "1";
     String siteId = null;
+    boolean usesPatternMatch = false;
 
     class Pair {
 	String left;
@@ -759,6 +762,36 @@ public class QtiImport {
 
 	boolean casesens = false; // case sensitive
 	Double score = 0.0;
+	boolean isPattern = false;
+
+        for (Node meta = getFirstByName(item, "qtimetadatafield");
+	     meta != null;
+	     meta = getNextByName(meta,"qtimetadatafield")) {
+
+            Node labelNode = getFirstByName(meta, "fieldlabel");
+            if (labelNode== null) {
+                System.err.println("No fieldlabel for qtimetadatafield");
+                return false;
+            }
+
+            String label = getNodeText(labelNode);
+            if (!"cc_profile".equals(label))
+                continue;
+
+            Node valueNode = getFirstByName(meta, "fieldentry");
+            if (valueNode== null) {
+                System.err.println("No fieldentry for qtimetadatafield");
+                return false;
+            }
+
+            String value = getNodeText(valueNode);
+            if (value.startsWith("cc.pattern_match")) {
+                isPattern = true;
+		usesPatternMatch = true;
+                break;
+            }
+
+        }
 
 	title = getAttribute(item, "title");
 	ident = getAttribute(item, "ident");
@@ -773,6 +806,10 @@ public class QtiImport {
 	Node material = getFirstByName(presentation, "material");
 
 	question = getMatText(material);
+
+	// flag pattern match questions as needing review.
+	if (isPattern)
+            question = bean.getMessageLocator().getMessage("simplepage.import_cc_pattern") + " " + question;
 
 	if (debug) System.err.println("question: " + question);
 
@@ -1544,11 +1581,12 @@ public class QtiImport {
     }
 
 
-    public void mainproc (InputStream i, PrintWriter o, boolean isBank, String base, String s) throws IOException {
+    public boolean mainproc (InputStream i, PrintWriter o, boolean isBank, String base, String s, SimplePageBean b) throws IOException {
 
         out = o;
 	filebase = base;
 	siteId = s;
+	bean = b;
 
 	DocumentBuilderFactory factory = DocumentBuilderFactory.newInstance();
 
@@ -1687,6 +1725,9 @@ public class QtiImport {
 	    // I/O error
 	    ioe.printStackTrace();
 	}
+
+	return usesPatternMatch;
+
     }
 
 }

@@ -449,10 +449,13 @@ public class ShowPageProducer implements ViewComponentProducer, DefaultView, Nav
 
 		// error from previous operation
 		// consumes the message, so don't do it if refreshing
-		String errMessage = simplePageBean.errMessage();
-		if (errMessage != null) {
+		List<String> errMessages = simplePageBean.errMessages();
+		if (errMessages != null) {
 		    UIOutput.make(tofill, "error-div");
-		    UIOutput.make(tofill, "error", errMessage);
+		    for (String e: errMessages) {
+			UIBranchContainer er = UIBranchContainer.make(tofill, "errors:");
+			UIOutput.make(er, "error-message", e);
+		    }
 		}
 
 

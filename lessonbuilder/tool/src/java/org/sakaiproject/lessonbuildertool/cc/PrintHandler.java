@@ -53,6 +53,7 @@ import java.util.Map;
 import java.util.HashMap;
 import java.util.Properties;
 import java.util.Iterator;
+import java.io.File;
 import java.io.InputStream;
 import java.io.FileInputStream;
 import java.io.PrintWriter;
@@ -115,6 +116,7 @@ public class PrintHandler extends DefaultHandler implements AssessmentHandler, D
   private static final String STRING="string";
   private static final String ATTACHMENT="attachment";
   private static final String ATTACHMENTS="attachments";
+  private static final String INTENDEDUSE="intendeduse";
     
   private static final String CC_ITEM_TITLE="title";
   private static final String CC_WEBCONTENT="webcontent";
@@ -146,6 +148,9 @@ public class PrintHandler extends DefaultHandler implements AssessmentHandler, D
   private LessonEntity topictool = null;
   private LessonEntity bltitool = null;
   private Set<String>roles = null;
+  boolean usesRole = false;
+  boolean usesMentor = false;
+  boolean usesPatternMatch = false;
 
     // this is the CC file name for all files added
   private Set<String> filesAdded = new HashSet<String>();
@@ -304,7 +309,11 @@ public class PrintHandler extends DefaultHandler implements AssessmentHandler, D
 	  while (mdroles.hasNext()) {
 	      Element role = (Element)mdroles.next();
 	      if ("Learner".equals(role.getChildText("value",  ns.lom_ns())))
-		  hide = false;
+		  hide = false; // all other roles hide the item
+	      else
+		  usesRole = true;
+	      if ("Mentor".equals(role.getChildText("value",  ns.lom_ns())))
+		  usesMentor = true;
 	  }
       }	  
 
@@ -328,10 +337,18 @@ public class PrintHandler extends DefaultHandler implements AssessmentHandler, D
 	      String sakaiId = baseName + resource.getAttributeValue(HREF);
 	      String extension = Validator.getFileExtension(sakaiId);
 	      String mime = ContentTypeImageService.getContentType(extension);
+	      String intendedUse = resource.getAttributeValue(INTENDEDUSE);
 
 	      SimplePageItem item = simplePageToolDao.makeItem(page.getPageId(), seq, SimplePageItem.RESOURCE, sakaiId, title);
 	      item.setHtml(mime);
 	      item.setSameWindow(true);
+	      if (intendedUse != null) {
+		  intendedUse = intendedUse.toLowerCase();
+		  if (intendedUse.equals("lessonplan"))
+		      item.setDescription(simplePageBean.getMessageLocator().getMessage("simplepage.import_cc_lessonplan"));
+		  else if (intendedUse.equals("syllabus"))
+		      item.setDescription(simplePageBean.getMessageLocator().getMessage("simplepage.import_cc_syllabus"));
+	      }
 	      simplePageBean.saveItem(item);
 	      sequences.set(top, seq+1);
 	  }
@@ -428,8 +445,10 @@ public class PrintHandler extends DefaultHandler implements AssessmentHandler, D
 		  itemsAdded.put(fileName, SimplePageItem.DUMMY); // don't add the same test more than once
 
 		  InputStream instream = utils.getFile(fileName);
-		  ByteArrayOutputStream baos = new ByteArrayOutputStream();
-		  PrintWriter outwriter = new PrintWriter(baos);
+		  //		  ByteArrayOutputStream baos = new ByteArrayOutputStream();
+		  //PrintWriter outwriter = new PrintWriter(baos);
+		  File qtitemp = File.createTempFile("ccqti", "txt");
+		  PrintWriter outwriter = new PrintWriter(qtitemp);
 	      
 		  // I'm going to assume that URLs in the CC files are legal, but if
 		  // I add to them I nneed to URLencode what I add
@@ -440,16 +459,17 @@ public class PrintHandler extends DefaultHandler implements AssessmentHandler, D
 
 		  QtiImport imp = new QtiImport();
 		  try {
-		      imp.mainproc(instream, outwriter, isBank, base, siteId);
+		      boolean thisUsesPattern = imp.mainproc(instream, outwriter, isBank, base, siteId, simplePageBean);
+		      if (thisUsesPattern)
+			  usesPatternMatch = true;
 		  } catch (Exception e) {
 		      e.printStackTrace();
 		  }
 
-		  
+		  outwriter.close();
+		  InputStream inputStream = new FileInputStream(qtitemp);
+
 		  try {
-
-		      InputStream inputStream = new ByteArrayInputStream(baos.toByteArray());
-
 		      DocumentBuilderFactory builderFactory =
 			  DocumentBuilderFactory.newInstance();
 		      builderFactory.setNamespaceAware(true);
@@ -466,6 +486,9 @@ public class PrintHandler extends DefaultHandler implements AssessmentHandler, D
 		      System.out.println(e);
 		      simplePageBean.setErrKey("simplepage.resource100", e.toString());
 		  }
+
+		  inputStream.close();
+		  qtitemp.delete();
 
 	      }
 
@@ -556,6 +579,12 @@ public class PrintHandler extends DefaultHandler implements AssessmentHandler, D
   public void endManifest() {
       if (all)
 	  System.err.println("end manifest");
+      if (usesRole)
+	  simplePageBean.setErrKey("simplepage.cc-uses-role", 
+	     (usesMentor ? simplePageBean.getMessageLocator().getMessage("simplepage.cc-uses-mentor") : null));
+      if (usesPatternMatch)
+	  simplePageBean.setErrKey("simplepage.import_cc_usespattern", null);
+
   }
 
   public void startDiscussion(String topic_name, String text_type, String text, boolean isProtected) {
