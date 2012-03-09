@@ -52,7 +52,7 @@
 							<th id="Email">$tlang.getString("useconrem.ema")</th>
 							<th id="Password">$tlang.getString("useconrem.pass")</th>
 							<th id="Type">$tlang.getString("usecre.typ")</th>
-							<th id="Type">$tlang.getString("import.user.properties")</th>
+							<th id="Properties">$tlang.getString("import.user.properties")</th>
     					</tr>
 					</thead>
 					<tbody>
@@ -64,7 +64,13 @@
 							<td headers="Email">$validator.escapeHtml($user.email)</td>
 							<td headers="Password">$validator.escapeHtml($user.password)</td>
 							<td headers="Type">$validator.escapeHtml($user.type)</td>
-							<td headers="Properties">$validator.escapeHtml($user.rawProps)</td>
+							<td headers="Properties">
+								#set ($paramNames = $user.Properties.PropertyNames)
+								#foreach ($paramName in $paramNames)
+									#set ($paramValue = $user.Properties.getPropertyFormatted($paramName))
+									$validator.escapeHtml($paramName) = $validator.escapeHtml($paramValue)<br />
+								#end
+							</td>
 						</tr>
 					#end
                     </tbody>

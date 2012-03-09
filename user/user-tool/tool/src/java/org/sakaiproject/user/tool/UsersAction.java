@@ -24,6 +24,7 @@ package org.sakaiproject.user.tool;
 import java.io.InputStreamReader;
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 
@@ -35,6 +36,7 @@ import net.tanesha.recaptcha.ReCaptchaFactory;
 import net.tanesha.recaptcha.ReCaptchaResponse;
 
 import org.apache.commons.lang.StringUtils;
+import org.apache.commons.lang.builder.ToStringBuilder;
 import org.apache.commons.validator.routines.EmailValidator;
 import org.sakaiproject.authz.cover.SecurityService;
 import org.sakaiproject.cheftool.Context;
@@ -53,6 +55,7 @@ import org.sakaiproject.content.api.ContentResource;
 import org.sakaiproject.content.api.FilePickerHelper;
 import org.sakaiproject.content.cover.ContentHostingService;
 import org.sakaiproject.entity.api.Reference;
+import org.sakaiproject.entity.api.ResourceProperties;
 import org.sakaiproject.event.api.SessionState;
 import org.sakaiproject.event.cover.UsageSessionService;
 import org.sakaiproject.thread_local.cover.ThreadLocalManager;
@@ -71,6 +74,7 @@ import org.sakaiproject.user.api.UserNotDefinedException;
 import org.sakaiproject.user.api.UserPermissionException;
 import org.sakaiproject.user.cover.AuthenticationManager;
 import org.sakaiproject.user.cover.UserDirectoryService;
+import org.sakaiproject.util.BaseResourcePropertiesEdit;
 import org.sakaiproject.util.ExternalTrustedEvidence;
 import org.sakaiproject.util.RequestFilter;
 import org.sakaiproject.util.ResourceLoader;
@@ -91,6 +95,14 @@ public class UsersAction extends PagedResourceActionII
 		
 	//private static final String XLS_MIME_TYPE="application/vnd.ms-excel";
 	private static final String CSV_MIME_TYPE="text/csv";
+	
+	//the column headings in the imported file, which will be used as the primary user attributes
+	private static final String IMPORT_USER_ID="user id";
+	private static final String IMPORT_FIRST_NAME="first name";
+	private static final String IMPORT_LAST_NAME="last name";
+	private static final String IMPORT_EMAIL="email";
+	private static final String IMPORT_PASSWORD="password";
+	private static final String IMPORT_TYPE="type";
 
 	/**
 	 * {@inheritDoc}
@@ -1386,7 +1398,8 @@ public class UsersAction extends PagedResourceActionII
 				addAlert(state, rb.getString("import.error"));
 				return;
 			}
-			
+			//SAK-21405 SAK-21884 original parse method, auto maps column headers to bean properties
+			/*
 			HeaderColumnNameTranslateMappingStrategy<ImportedUser> strat = new HeaderColumnNameTranslateMappingStrategy<ImportedUser>();
 			strat.setType(ImportedUser.class);
 
@@ -1406,6 +1419,27 @@ public class UsersAction extends PagedResourceActionII
 			List<ImportedUser> list = new ArrayList<ImportedUser>();
 			
 			list = csv.parse(strat, new CSVReader(new InputStreamReader(resource.streamContent())));
+			*/
+			
+			//SAK-21884 manual parse method so we can support arbitrary columns
+			CSVReader reader = new CSVReader(new InputStreamReader(resource.streamContent()));
+		    String [] nextLine;
+		    int lineCount = 0;
+		    List<ImportedUser> list = new ArrayList<ImportedUser>();
+		    Map<Integer,String> mapping = null;
+		    
+		    while ((nextLine = reader.readNext()) != null) {
+		        
+		    	if(lineCount == 0) {
+		        	//header row, capture it
+		    		mapping = mapHeaderRow(nextLine);
+		        } else {
+		        	//map the fields into the object
+		        	list.add(mapLine(nextLine, mapping));
+		        }
+		    	
+		        lineCount++;
+		    }
 			
 			state.setAttribute("importedUsers", list);
 			context.put("importedUsers", list);
@@ -1418,6 +1452,69 @@ public class UsersAction extends PagedResourceActionII
 		
 		return;
 
+	}
+	
+	/**
+	 * Takes the header row from the CSV to determines the position of the columns so that we can 
+	 * correctly parse any arbitrary CSV file. This is required because when we iterate over the rest of the lines, 
+	 * we need to know what the column header is, so we can set the approriate ImportedUser property
+	 * or add into the ResourceProperties list, which ever is required.
+	 * 
+	 * @param line	the already split line
+	 * @return
+	 */
+	private Map<Integer,String> mapHeaderRow(String[] line) {
+		
+		Map<Integer,String> mapping = new LinkedHashMap<Integer,String>();
+		
+		for(int i=0;i<line.length;i++){
+			mapping.put(i, line[i]);
+		}
+		
+		return mapping;
+		
+	}
+	
+	/**
+	 * Takes a row of data and maps it into the appropriate ImportedUser properties
+	 * We have a fixed list of properties, anything else goes into ResourceProperties
+	 * @param line
+	 * @param mapping
+	 * @return
+	 */
+	private ImportedUser mapLine(String[] line, Map<Integer,String> mapping){
+		
+		ImportedUser u = new ImportedUser();
+		ResourceProperties p = new BaseResourcePropertiesEdit();
+		
+		for(Map.Entry<Integer,String> entry: mapping.entrySet()) {
+			int i = entry.getKey();
+			String col = entry.getValue();
+			
+			//now check each of the main properties in turn to determine which one to set, otherwise set into props
+			if(StringUtils.equals(col, IMPORT_USER_ID)) {
+				u.setEid(line[i]);
+			} else if(StringUtils.equals(col, IMPORT_FIRST_NAME)) {
+				u.setFirstName(line[i]);
+			} else if(StringUtils.equals(col, IMPORT_LAST_NAME)) {
+				u.setLastName(line[i]);
+			} else if(StringUtils.equals(col, IMPORT_EMAIL)) {
+				u.setEmail(line[i]);
+			} else if(StringUtils.equals(col, IMPORT_PASSWORD)) {
+				u.setPassword(line[i]);
+			} else if(StringUtils.equals(col, IMPORT_TYPE)) {
+				u.setType(line[i]);
+			} else {
+				//only add if not blank
+				if(StringUtils.isNotBlank(line[i])) {
+					p.addProperty(col, line[i]);
+				}
+			}
+		}
+		
+		u.setProperties(p);
+		
+		return u;
 	}
 	
 	
