@@ -65,6 +65,8 @@ import org.springframework.jdbc.core.support.JdbcDaoSupport;
 public class DashboardDaoImpl extends JdbcDaoSupport implements DashboardDao {
 
 	private static final Logger log = Logger.getLogger(DashboardDaoImpl.class);
+
+	private static final int MAX_LENGTH_SUBTYPE_FIELD = 255;
 	
 	protected ServerConfigurationService serverConfigurationService;
 	public void setServerConfigurationService(ServerConfigurationService serverConfigurationService) {
@@ -113,6 +115,17 @@ public class DashboardDaoImpl extends JdbcDaoSupport implements DashboardDao {
 		
 		// calendar_time, title , entity_url, entity_ref, source_type, context_id, realm_id
 
+		String subtype = calendarItem.getSubtype();
+		// DASH-191
+		if(subtype != null && subtype.length() > MAX_LENGTH_SUBTYPE_FIELD) {
+			StringBuilder buf = new StringBuilder();
+			buf.append("addCalendarItem().  Truncating subtype ");
+			buf.append(subtype);
+			buf.append(" for entity ");
+			buf.append(calendarItem.getEntityReference());
+			logger.warn(buf);
+			subtype = subtype.substring(0, MAX_LENGTH_SUBTYPE_FIELD - 1);
+		}
 		try {
 			JdbcTemplate template = getJdbcTemplate();
 			Object[] params = null;
@@ -120,12 +133,12 @@ public class DashboardDaoImpl extends JdbcDaoSupport implements DashboardDao {
 			if(calendarItem.getRepeatingCalendarItem() == null) {
 				sql = getStatement("insert.CalendarItem");
 				params = new Object[]{calendarItem.getCalendarTime(), calendarItem.getCalendarTimeLabelKey(), calendarItem.getTitle(), 
-						calendarItem.getEntityReference(), calendarItem.getSubtype(),
+						calendarItem.getEntityReference(), subtype,
 						calendarItem.getSourceType().getId(), calendarItem.getContext().getId()};
 			} else {
 				sql = getStatement("insert.CalendarItem.repeats");
 				params = new Object[]{calendarItem.getCalendarTime(), calendarItem.getCalendarTimeLabelKey(), calendarItem.getTitle(), 
-						calendarItem.getEntityReference(), calendarItem.getSubtype(),
+						calendarItem.getEntityReference(), subtype,
 						calendarItem.getSourceType().getId(), calendarItem.getContext().getId(), 
 						calendarItem.getRepeatingCalendarItem().getId(), calendarItem.getSequenceNumber()};
 			}
@@ -200,11 +213,22 @@ public class DashboardDaoImpl extends JdbcDaoSupport implements DashboardDao {
 		}
 		
 		// news_time, title , entity_url, entity_ref, source_type, context_id, realm_id
+		String subtype = newsItem.getSubtype();
+		// DASH-191
+		if(subtype != null && subtype.length() > MAX_LENGTH_SUBTYPE_FIELD) {
+			StringBuilder buf = new StringBuilder();
+			buf.append("addNewsItem().  Truncating subtype ");
+			buf.append(subtype);
+			buf.append(" for entity ");
+			buf.append(newsItem.getEntityReference());
+			logger.warn(buf);
+			subtype = subtype.substring(0, MAX_LENGTH_SUBTYPE_FIELD - 1);
+		}
 		
 		try {
 			getJdbcTemplate().update(getStatement("insert.NewsItem"),
 				new Object[]{newsItem.getNewsTime(), newsItem.getTitle(), newsItem.getNewsTimeLabelKey(), newsItem.getEntityReference(),
-						newsItem.getSubtype(), newsItem.getSourceType().getId(), newsItem.getContext().getId(), newsItem.getGroupingIdentifier()}
+						subtype, newsItem.getSourceType().getId(), newsItem.getContext().getId(), newsItem.getGroupingIdentifier()}
 			);
 			return true;
 		} catch (DataAccessException ex) {
@@ -270,11 +294,22 @@ public class DashboardDaoImpl extends JdbcDaoSupport implements DashboardDao {
 		//System.out.println("addRepeatingCalendarItem() sql == " + sql);
 		long sourceTypeId = repeatingCalendarItem.getSourceType().getId();
 		long contextId = repeatingCalendarItem.getContext().getId();
+		String subtype = repeatingCalendarItem.getSubtype();
+		// DASH-191
+		if(subtype != null && subtype.length() > MAX_LENGTH_SUBTYPE_FIELD) {
+			StringBuilder buf = new StringBuilder();
+			buf.append("addRepeatingCalendarItem().  Truncating subtype ");
+			buf.append(subtype);
+			buf.append(" for entity ");
+			buf.append(repeatingCalendarItem.getEntityReference());
+			logger.warn(buf);
+			subtype = subtype.substring(0, MAX_LENGTH_SUBTYPE_FIELD - 1);
+		}
 		Object[] params = new Object[]{
 				repeatingCalendarItem.getFirstTime(), repeatingCalendarItem.getLastTime(), 
 				repeatingCalendarItem.getFrequency(), repeatingCalendarItem.getMaxCount(), 
 				repeatingCalendarItem.getCalendarTimeLabelKey(), repeatingCalendarItem.getTitle(),
-				repeatingCalendarItem.getEntityReference(), repeatingCalendarItem.getSubtype(), sourceTypeId, contextId
+				repeatingCalendarItem.getEntityReference(), subtype, sourceTypeId, contextId
 			};
 		
 		try {
