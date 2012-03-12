@@ -933,6 +933,7 @@ public class DeliveryBean
     // to the local settings variable as to avoid changing any more behavior
     // than is needed. This is effectively a failsafe and diagnostic that
     // should not really be necessary.
+	  
     if (settings == null) {
       Session session = SessionManager.getCurrentSession();
       StringBuilder sb = new StringBuilder(400);
@@ -953,12 +954,12 @@ public class DeliveryBean
         sb.append(publishedAssessment.getPublishedAssessmentId()).append("\n");
         sb.append("         - Assessment Title       : ").append(publishedAssessment.getTitle()).append("\n");
         sb.append("         - Assessment Site ID     : ").append(publishedAssessment.getOwnerSiteId());
-        settings.setAssessmentAccessControl(publishedAssessment);
+        tempSettings.setAssessmentAccessControl(publishedAssessment);
       }
       log.warn(sb.toString());
       return tempSettings;
     }
-
+	
     return settings;
   }
 
@@ -1426,8 +1427,14 @@ public class DeliveryBean
 	  if (this.actionMode == PREVIEW_ASSESSMENT) {
 		  return "editAssessment";
 	  }	  
+	  
+	  EventTrackingService.post(EventTrackingService.newEvent("sam.assessment.submit.click_sub", "siteId=" + AgentFacade.getCurrentSiteId() + ", submissionId=" + adata.getAssessmentGradingId(), siteId, true, NotificationService.NOTI_REQUIRED)); 
+
 	  String nextAction = checkBeforeProceed(true, isFromTimer);
 	  log.debug("***** next Action="+nextAction);
+	  
+	  EventTrackingService.post(EventTrackingService.newEvent("sam.assessment.submit.checked", "siteId=" + AgentFacade.getCurrentSiteId() + ", submissionId=" + adata.getAssessmentGradingId(), siteId, true, NotificationService.NOTI_REQUIRED)); 
+
 	  if (!("safeToProceed").equals(nextAction)){
 		  return nextAction;
 	  }
@@ -1514,6 +1521,8 @@ public class DeliveryBean
 
   public String confirmSubmit()
   {
+	  EventTrackingService.post(EventTrackingService.newEvent("sam.submit.from_last_page", "siteId=" + AgentFacade.getCurrentSiteId() + ", submissionId=" + adata.getAssessmentGradingId(), siteId, true, NotificationService.NOTI_REQUIRED)); 
+
 	  String nextAction = checkBeforeProceed();
 	  log.debug("***** next Action="+nextAction);
 	  if (!("safeToProceed").equals(nextAction)){
@@ -1549,6 +1558,8 @@ public class DeliveryBean
   
   public String confirmSubmitTOC()
   {
+	  EventTrackingService.post(EventTrackingService.newEvent("sam.submit.from_toc", "siteId=" + AgentFacade.getCurrentSiteId() + ", submissionId=" + adata.getAssessmentGradingId(), siteId, true, NotificationService.NOTI_REQUIRED)); 
+
 	  String nextAction = checkBeforeProceed();
 	  log.debug("***** next Action="+nextAction);
 	  if (!("safeToProceed").equals(nextAction)){
