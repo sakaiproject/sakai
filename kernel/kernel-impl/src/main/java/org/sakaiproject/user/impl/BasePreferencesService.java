@@ -58,7 +58,7 @@ import org.sakaiproject.user.api.PreferencesService;
 import org.sakaiproject.user.api.UserDirectoryService;
 import org.sakaiproject.util.BaseResourceProperties;
 import org.sakaiproject.util.BaseResourcePropertiesEdit;
-import org.sakaiproject.util.StorageUser;
+import org.sakaiproject.util.SingleStorageUser;
 import org.sakaiproject.util.StringUtil;
 import org.sakaiproject.tool.api.Session;
 import org.sakaiproject.tool.api.SessionBindingEvent;
@@ -74,7 +74,7 @@ import org.w3c.dom.NodeList;
  * BasePreferencesService is a Sakai Preferences implementation.
  * </p>
  */
-public abstract class BasePreferencesService implements PreferencesService, StorageUser
+public abstract class BasePreferencesService implements PreferencesService, SingleStorageUser
 {
 	
 
@@ -1229,78 +1229,6 @@ public abstract class BasePreferencesService implements PreferencesService, Stor
 	/**
 	 * @inheritDoc
 	 */
-	public Entity newContainer(String ref)
-	{
-		return null;
-	}
-
-	/**
-	 * @inheritDoc
-	 */
-	public Entity newContainer(Element element)
-	{
-		return null;
-	}
-
-	/**
-	 * @inheritDoc
-	 */
-	public Entity newContainer(Entity other)
-	{
-		return null;
-	}
-
-	/**
-	 * @inheritDoc
-	 */
-	public Entity newResource(Entity container, String id, Object[] others)
-	{
-		return new BasePreferences(id);
-	}
-
-	/**
-	 * @inheritDoc
-	 */
-	public Entity newResource(Entity container, Element element)
-	{
-		return new BasePreferences(element);
-	}
-
-	/**
-	 * @inheritDoc
-	 */
-	public Entity newResource(Entity container, Entity other)
-	{
-		return new BasePreferences((Preferences) other);
-	}
-
-	/**
-	 * @inheritDoc
-	 */
-	public Edit newContainerEdit(String ref)
-	{
-		return null;
-	}
-
-	/**
-	 * @inheritDoc
-	 */
-	public Edit newContainerEdit(Element element)
-	{
-		return null;
-	}
-
-	/**
-	 * @inheritDoc
-	 */
-	public Edit newContainerEdit(Entity other)
-	{
-		return null;
-	}
-
-	/**
-	 * @inheritDoc
-	 */
 	public Edit newResourceEdit(Entity container, String id, Object[] others)
 	{
 		BasePreferences e = new BasePreferences(id);
@@ -1336,27 +1264,4 @@ public abstract class BasePreferencesService implements PreferencesService, Stor
 		return null;
 	}
 
-	/**
-	 * @inheritDoc
-	 */
-	public boolean isDraft(Entity r)
-	{
-		return false;
-	}
-
-	/**
-	 * @inheritDoc
-	 */
-	public String getOwnerId(Entity r)
-	{
-		return null;
-	}
-
-	/**
-	 * @inheritDoc
-	 */
-	public Time getDate(Entity r)
-	{
-		return null;
-	}
 }

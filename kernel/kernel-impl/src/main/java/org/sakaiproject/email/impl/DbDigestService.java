@@ -29,7 +29,7 @@ import org.sakaiproject.db.api.SqlService;
 import org.sakaiproject.email.api.Digest;
 import org.sakaiproject.email.api.DigestEdit;
 import org.sakaiproject.util.BaseDbSingleStorage;
-import org.sakaiproject.util.StorageUser;
+import org.sakaiproject.util.SingleStorageUser;
 
 /**
  * <p>
@@ -157,7 +157,7 @@ public class DbDigestService extends BaseDigestService
 		 * @param realm
 		 *        The StorageUser class to call back for creation of Resource and Edit objects.
 		 */
-		public DbStorage(StorageUser user)
+		public DbStorage(SingleStorageUser user)
 		{
 			super(m_tableName, "DIGEST_ID", null, m_locksInDb, "digest", user, sqlService);
 		}

@@ -51,7 +51,7 @@ import org.sakaiproject.time.api.Time;
 import org.sakaiproject.tool.api.SessionBindingEvent;
 import org.sakaiproject.tool.api.SessionBindingListener;
 import org.sakaiproject.util.BaseResourcePropertiesEdit;
-import org.sakaiproject.util.StorageUser;
+import org.sakaiproject.util.SingleStorageUser;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 import org.w3c.dom.Node;
@@ -62,7 +62,7 @@ import org.w3c.dom.NodeList;
  * BaseNotificationService ...
  * </p>
  */
-public abstract class BaseNotificationService implements NotificationService, Observer, StorageUser, CacheRefresher
+public abstract class BaseNotificationService implements NotificationService, Observer, SingleStorageUser, CacheRefresher
 {
 	/** Our logger. */
 	private static Log M_log = LogFactory.getLog(BaseNotificationService.class);
@@ -709,42 +709,6 @@ public abstract class BaseNotificationService implements NotificationService, Ob
 	 *********************************************************************************************************************************************************************************************************************************************************/
 
 	/**
-	 * Construct a new continer given just an id.
-	 * 
-	 * @param id
-	 *        The id for the new object.
-	 * @return The new containe Resource.
-	 */
-	public Entity newContainer(String ref)
-	{
-		return null;
-	}
-
-	/**
-	 * Construct a new container resource, from an XML element.
-	 * 
-	 * @param element
-	 *        The XML.
-	 * @return The new container resource.
-	 */
-	public Entity newContainer(Element element)
-	{
-		return null;
-	}
-
-	/**
-	 * Construct a new container resource, as a copy of another
-	 * 
-	 * @param other
-	 *        The other contianer to copy.
-	 * @return The new container resource.
-	 */
-	public Entity newContainer(Entity other)
-	{
-		return null;
-	}
-
-	/**
 	 * Construct a new rsource given just an id.
 	 * 
 	 * @param container
@@ -786,42 +750,6 @@ public abstract class BaseNotificationService implements NotificationService, Ob
 	public Entity newResource(Entity container, Entity other)
 	{
 		return new BaseNotification((Notification) other);
-	}
-
-	/**
-	 * Construct a new continer given just an id.
-	 * 
-	 * @param id
-	 *        The id for the new object.
-	 * @return The new containe Resource.
-	 */
-	public Edit newContainerEdit(String ref)
-	{
-		return null;
-	}
-
-	/**
-	 * Construct a new container resource, from an XML element.
-	 * 
-	 * @param element
-	 *        The XML.
-	 * @return The new container resource.
-	 */
-	public Edit newContainerEdit(Element element)
-	{
-		return null;
-	}
-
-	/**
-	 * Construct a new container resource, as a copy of another
-	 * 
-	 * @param other
-	 *        The other contianer to copy.
-	 * @return The new container resource.
-	 */
-	public Edit newContainerEdit(Entity other)
-	{
-		return null;
 	}
 
 	/**

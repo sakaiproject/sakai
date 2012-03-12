@@ -82,7 +82,7 @@ import org.sakaiproject.user.api.UsersShareEmailUDP;
 import org.sakaiproject.util.BaseResourceProperties;
 import org.sakaiproject.util.BaseResourcePropertiesEdit;
 import org.sakaiproject.util.api.FormattedText;
-import org.sakaiproject.util.StorageUser;
+import org.sakaiproject.util.SingleStorageUser;
 import org.sakaiproject.util.StringUtil;
 import org.sakaiproject.util.Validator;
 import org.w3c.dom.Document;
@@ -101,7 +101,7 @@ import org.w3c.dom.NodeList;
  * Each User that ever goes through Sakai is allocated a Sakai unique UUID. Even if we don't keep the User record in Sakai, we keep a map of this id to the external eid.
  * </p>
  */
-public abstract class BaseUserDirectoryService implements UserDirectoryService, StorageUser, UserFactory
+public abstract class BaseUserDirectoryService implements UserDirectoryService, SingleStorageUser, UserFactory
 {
 	/** Our log (commons). */
 	private static Log M_log = LogFactory.getLog(BaseUserDirectoryService.class);
@@ -2967,141 +2967,4 @@ public abstract class BaseUserDirectoryService implements UserDirectoryService, 
 		public List<User> getUsersByEids(Collection<String> eids);
 	}
 
-	/**********************************************************************************************************************************************************************************************************************************************************
-	 * StorageUser implementation (no container)
-	 *********************************************************************************************************************************************************************************************************************************************************/
-
-	/**
-	 * @inheritDoc
-	 */
-	public Entity newContainer(String ref)
-	{
-		return null;
-	}
-
-	/**
-	 * @inheritDoc
-	 */
-	public Entity newContainer(Element element)
-	{
-		return null;
-	}
-
-	/**
-	 * @inheritDoc
-	 */
-	public Entity newContainer(Entity other)
-	{
-		return null;
-	}
-
-	/**
-	 * @inheritDoc
-	 */
-	public Entity newResource(Entity container, String id, Object[] others)
-	{
-		return new BaseUserEdit(id);
-	}
-
-	/**
-	 * @inheritDoc
-	 */
-	public Entity newResource(Entity container, Element element)
-	{
-		return new BaseUserEdit(element);
-	}
-
-	/**
-	 * @inheritDoc
-	 */
-	public Entity newResource(Entity container, Entity other)
-	{
-		return new BaseUserEdit((User) other);
-	}
-
-	/**
-	 * @inheritDoc
-	 */
-	public Edit newContainerEdit(String ref)
-	{
-		return null;
-	}
-
-	/**
-	 * @inheritDoc
-	 */
-	public Edit newContainerEdit(Element element)
-	{
-		return null;
-	}
-
-	/**
-	 * @inheritDoc
-	 */
-	public Edit newContainerEdit(Entity other)
-	{
-		return null;
-	}
-
-	/**
-	 * @inheritDoc
-	 */
-	public Edit newResourceEdit(Entity container, String id, Object[] others)
-	{
-		BaseUserEdit e = new BaseUserEdit(id);
-		e.activate();
-		return e;
-	}
-
-	/**
-	 * @inheritDoc
-	 */
-	public Edit newResourceEdit(Entity container, Element element)
-	{
-		BaseUserEdit e = new BaseUserEdit(element);
-		e.activate();
-		return e;
-	}
-
-	/**
-	 * @inheritDoc
-	 */
-	public Edit newResourceEdit(Entity container, Entity other)
-	{
-		BaseUserEdit e = new BaseUserEdit((User) other);
-		e.activate();
-		return e;
-	}
-
-	/**
-	 * @inheritDoc
-	 */
-	public Object[] storageFields(Entity r)
-	{
-		return null;
-	}
-
-	/**
-	 * @inheritDoc
-	 */
-	public boolean isDraft(Entity r)
-	{
-		return false;
-	}
-
-	/**
-	 * @inheritDoc
-	 */
-	public String getOwnerId(Entity r)
-	{
-		return null;
-	}
-
-	/**
-	 * @inheritDoc
-	 */
-	public Time getDate(Entity r)
-	{
-		return null;
-	}
 }

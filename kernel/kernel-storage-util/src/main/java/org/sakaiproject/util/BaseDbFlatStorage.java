@@ -51,8 +51,10 @@ import org.sakaiproject.memory.cover.MemoryServiceLocator;
 
 /**
  * <p>
- * BaseDbFlatStorage is a class that stores Resources (of some type) in a database, provides (optional) locked access, <br />
+ * BaseDbFlatStorage is a class that stores Resources (of some type) and associated properties
+ * in a database, provides (optional) locked access, <br />
  * and generally implements a services "storage" class. <br />
+ * The reason you would want to use this class is if you want to perform a DB query against the resource properties.
  * The service's storage class can extend this to provide covers to turn Resource and Edit into something more type specific to the service.
  * </p>
  * <p>

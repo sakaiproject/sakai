@@ -48,6 +48,7 @@ import org.w3c.dom.NodeList;
  * "storage" class. The service's storage class can extend this to provide covers to <br />
  * turn Resource and Edit into something more type specific to the service.
  * </p>
+ * @deprecated This was used in earlier versions of Sakai and isn't supported any longer.
  */
 public class BaseXmlFileStorage
 {

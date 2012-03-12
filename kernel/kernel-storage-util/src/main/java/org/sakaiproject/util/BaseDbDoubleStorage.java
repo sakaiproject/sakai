@@ -52,7 +52,7 @@ import org.w3c.dom.Element;
 
 /**
  * <p>
- * BaseDbDoubleStorage is a class that stores Resources (of some type) in a database, <br />
+ * BaseDbDoubleStorage is a class that stores collections of Resources (of some type) in a database, <br />
  * provides locked access, and generally implements a services "storage" class. The <br />
  * service's storage class can extend this to provide covers to turn Resource and <br />
  * Edit into something more type specific to the service.
@@ -125,7 +125,7 @@ public class BaseDbDoubleStorage
 	protected boolean m_locksAreInTable = true;
 
 	/** The StorageUser to callback for new Resource and Edit objects. */
-	protected StorageUser m_user = null;
+	protected DoubleStorageUser m_user = null;
 
 	/**
 	 * Locks, keyed by reference, holding Connections (or, if locks are done locally, holding an Edit). Note: keying by reference allows botu
@@ -204,7 +204,7 @@ public class BaseDbDoubleStorage
 			String resourceTableOwnerField, String resourceTableDraftField,
 			String resourceTablePubViewField, String[] resourceTableOtherFields, String[] resourceTableSearchFields, 
 			boolean locksInDb, String containerEntryName,
-			String resourceEntryName, StorageUser user, SqlService sqlService)
+			String resourceEntryName, DoubleStorageUser user, SqlService sqlService)
 	{
 		m_containerTableName = containerTableName;
 		m_containerTableIdField = containerTableIdField;
@@ -234,7 +234,7 @@ public class BaseDbDoubleStorage
 			String resourceTableOwnerField, String resourceTableDraftField,
 			String resourceTablePubViewField, String[] resourceTableOtherFields, // String[] resourceTableSearchFields, 
 			boolean locksInDb, String containerEntryName,
-			String resourceEntryName, StorageUser user, SqlService sqlService)
+			String resourceEntryName, DoubleStorageUser user, SqlService sqlService)
 	{
 		m_containerTableName = containerTableName;
 		m_containerTableIdField = containerTableIdField;

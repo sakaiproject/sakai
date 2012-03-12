@@ -100,7 +100,7 @@ public class BaseDbBinarySingleStorage implements DbSingleStorage
 	protected boolean m_locksAreInTable = true;
 
 	/** The StorageUser to callback for new Resource and Edit objects. */
-	protected StorageUser m_user = null;
+	protected SingleStorageUser m_user = null;
 
 	/**
 	 * Locks, keyed by reference, holding Connections (or, if locks are done
@@ -178,13 +178,13 @@ public class BaseDbBinarySingleStorage implements DbSingleStorage
 	 *        entry.
 	 * @param user
 	 *        The StorageUser class to call back for creation of Resource and
-	 *        Edit objects.
+	 *        Edit objects. This also needs to implement EntityReader.
 	 * @param sqlService
 	 *        The SqlService.
 	 */
 	public BaseDbBinarySingleStorage(String resourceTableName, String resourceTableIdField,
 			String[] resourceTableOtherFields, boolean locksInDb,
-			String resourceEntryName, StorageUser user, SqlService sqlService)
+			String resourceEntryName, SingleStorageUser user, SqlService sqlService)
 	{
 	    this(resourceTableName, resourceTableIdField, resourceTableOtherFields, locksInDb, resourceEntryName, user, sqlService, null);
 	}
@@ -211,7 +211,7 @@ public class BaseDbBinarySingleStorage implements DbSingleStorage
      *        entry.
      * @param user
      *        The StorageUser class to call back for creation of Resource and
-     *        Edit objects.
+     *        Edit objects. This also needs to implement EntityReader.
      * @param sqlService
      *        The SqlService.
      * @param storage
@@ -219,7 +219,7 @@ public class BaseDbBinarySingleStorage implements DbSingleStorage
      */
     public BaseDbBinarySingleStorage(String resourceTableName, String resourceTableIdField,
 	        String[] resourceTableOtherFields, boolean locksInDb,
-	        String resourceEntryName, StorageUser user, SqlService sqlService,
+	        String resourceEntryName, SingleStorageUser user, SqlService sqlService,
 	        DbSingleStorage storage)
 	{
 	    m_resourceTableName = resourceTableName;

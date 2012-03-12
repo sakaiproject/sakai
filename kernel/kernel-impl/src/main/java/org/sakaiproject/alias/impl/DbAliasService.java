@@ -41,6 +41,7 @@ import org.sakaiproject.entity.api.ResourcePropertiesEdit;
 import org.sakaiproject.time.api.Time;
 import org.sakaiproject.util.BaseDbFlatStorage;
 import org.sakaiproject.util.BaseDbSingleStorage;
+import org.sakaiproject.util.SingleStorageUser;
 import org.sakaiproject.util.StorageUser;
 import org.sakaiproject.util.StringUtil;
 
@@ -202,7 +203,7 @@ public abstract class DbAliasService extends BaseAliasService
 		 * @param user
 		 *        The StorageUser class to call back for creation of Resource and Edit objects.
 		 */
-		public DbStorage(StorageUser user)
+		public DbStorage(SingleStorageUser user)
 		{
 			super(m_tableName, m_idFieldName, m_fieldNames, m_propTableName, m_useExternalLocks, null, sqlService());
 			m_reader = this;
@@ -589,7 +590,7 @@ public abstract class DbAliasService extends BaseAliasService
 		 * @param user
 		 *        The StorageUser class to call back for creation of Resource and Edit objects.
 		 */
-		public DbStorageOld(StorageUser user)
+		public DbStorageOld(SingleStorageUser user)
 		{
 			super("CHEF_ALIAS", "ALIAS_ID", null, false, "alias", user, sqlService());
 			setCaseInsensitivity(true);

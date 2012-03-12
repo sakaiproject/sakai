@@ -63,7 +63,7 @@ import org.sakaiproject.user.api.UserDirectoryService;
 import org.sakaiproject.util.BaseResourcePropertiesEdit;
 import org.sakaiproject.util.Resource;
 import org.sakaiproject.util.ResourceLoader;
-import org.sakaiproject.util.StorageUser;
+import org.sakaiproject.util.SingleStorageUser;
 import org.sakaiproject.util.Xml;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
@@ -75,7 +75,7 @@ import org.w3c.dom.NodeList;
  * BaseDigestService is the base service for DigestService.
  * </p>
  */
-public abstract class BaseDigestService implements DigestService, StorageUser //, Runnable
+public abstract class BaseDigestService implements DigestService, SingleStorageUser
 {
 	/** Our logger. */
 	private static Log M_log = LogFactory.getLog(BasicEmailService.class);
@@ -1472,30 +1472,6 @@ public abstract class BaseDigestService implements DigestService, StorageUser //
 	/**
 	 * @inheritDoc
 	 */
-	public Entity newContainer(String ref)
-	{
-		return null;
-	}
-
-	/**
-	 * @inheritDoc
-	 */
-	public Entity newContainer(Element element)
-	{
-		return null;
-	}
-
-	/**
-	 * @inheritDoc
-	 */
-	public Entity newContainer(Entity other)
-	{
-		return null;
-	}
-
-	/**
-	 * @inheritDoc
-	 */
 	public Entity newResource(Entity container, String id, Object[] others)
 	{
 		return new BaseDigest(id);
@@ -1515,30 +1491,6 @@ public abstract class BaseDigestService implements DigestService, StorageUser //
 	public Entity newResource(Entity container, Entity other)
 	{
 		return new BaseDigest((Digest) other);
-	}
-
-	/**
-	 * @inheritDoc
-	 */
-	public Edit newContainerEdit(String ref)
-	{
-		return null;
-	}
-
-	/**
-	 * @inheritDoc
-	 */
-	public Edit newContainerEdit(Element element)
-	{
-		return null;
-	}
-
-	/**
-	 * @inheritDoc
-	 */
-	public Edit newContainerEdit(Entity other)
-	{
-		return null;
 	}
 
 	/**
@@ -1575,30 +1527,6 @@ public abstract class BaseDigestService implements DigestService, StorageUser //
 	 * @inheritDoc
 	 */
 	public Object[] storageFields(Entity r)
-	{
-		return null;
-	}
-
-	/**
-	 * @inheritDoc
-	 */
-	public boolean isDraft(Entity r)
-	{
-		return false;
-	}
-
-	/**
-	 * @inheritDoc
-	 */
-	public String getOwnerId(Entity r)
-	{
-		return null;
-	}
-
-	/**
-	 * @inheritDoc
-	 */
-	public Time getDate(Entity r)
 	{
 		return null;
 	}

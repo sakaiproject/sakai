@@ -24,7 +24,7 @@ import org.sakaiproject.entity.api.Entity;
 import org.sakaiproject.entity.api.ResourceProperties;
 import org.sakaiproject.exception.ServerOverloadException;
 import org.sakaiproject.exception.TypeException;
-import org.sakaiproject.util.StorageUser;
+import org.sakaiproject.util.SingleStorageUser;
 
 /**
  * <p>
@@ -53,9 +53,9 @@ public class ContentHostingHandlerResolverImpl implements ContentHostingHandlerR
 
 	private static final Log log = LogFactory.getLog(ContentHostingHandlerResolverImpl.class);
 
-	protected StorageUser resourceStorageUser;
+	protected SingleStorageUser resourceStorageUser;
 
-	protected StorageUser collectionStorageUser;
+	protected SingleStorageUser collectionStorageUser;
 
 	private Storage storage;
 
@@ -634,12 +634,12 @@ public class ContentHostingHandlerResolverImpl implements ContentHostingHandlerR
 	}
 
 
-	public void setResourceUser(org.sakaiproject.util.StorageUser rsu)
+	public void setResourceUser(SingleStorageUser rsu)
 	{
 		resourceStorageUser = rsu;
 	}
 
-	public void setCollectionUser(org.sakaiproject.util.StorageUser csu)
+	public void setCollectionUser(SingleStorageUser csu)
 	{
 		collectionStorageUser = csu;
 	}

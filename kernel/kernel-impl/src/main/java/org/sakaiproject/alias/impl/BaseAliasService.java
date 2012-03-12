@@ -64,7 +64,7 @@ import org.sakaiproject.user.api.User;
 import org.sakaiproject.user.api.UserDirectoryService;
 import org.sakaiproject.util.BaseResourceProperties;
 import org.sakaiproject.util.BaseResourcePropertiesEdit;
-import org.sakaiproject.util.StorageUser;
+import org.sakaiproject.util.SingleStorageUser;
 import org.sakaiproject.util.StringUtil;
 import org.sakaiproject.util.Validator;
 import org.w3c.dom.Document;
@@ -77,7 +77,7 @@ import org.w3c.dom.NodeList;
  * BaseAliasService is ...
  * </p>
  */
-public abstract class BaseAliasService implements AliasService, StorageUser
+public abstract class BaseAliasService implements AliasService, SingleStorageUser
 {
 	/** Our logger. */
 	private static Log M_log = LogFactory.getLog(BaseAliasService.class);
@@ -1706,42 +1706,6 @@ public abstract class BaseAliasService implements AliasService, StorageUser
 	 *********************************************************************************************************************************************************************************************************************************************************/
 
 	/**
-	 * Construct a new continer given just an id.
-	 * 
-	 * @param id
-	 *        The id for the new object.
-	 * @return The new containe Resource.
-	 */
-	public Entity newContainer(String ref)
-	{
-		return null;
-	}
-
-	/**
-	 * Construct a new container resource, from an XML element.
-	 * 
-	 * @param element
-	 *        The XML.
-	 * @return The new container resource.
-	 */
-	public Entity newContainer(Element element)
-	{
-		return null;
-	}
-
-	/**
-	 * Construct a new container resource, as a copy of another
-	 * 
-	 * @param other
-	 *        The other contianer to copy.
-	 * @return The new container resource.
-	 */
-	public Entity newContainer(Entity other)
-	{
-		return null;
-	}
-
-	/**
 	 * Construct a new resource given just an id.
 	 * 
 	 * @param container
@@ -1783,42 +1747,6 @@ public abstract class BaseAliasService implements AliasService, StorageUser
 	public Entity newResource(Entity container, Entity other)
 	{
 		return new BaseAliasEdit((BaseAliasEdit) other);
-	}
-
-	/**
-	 * Construct a new continer given just an id.
-	 * 
-	 * @param id
-	 *        The id for the new object.
-	 * @return The new containe Resource.
-	 */
-	public Edit newContainerEdit(String ref)
-	{
-		return null;
-	}
-
-	/**
-	 * Construct a new container resource, from an XML element.
-	 * 
-	 * @param element
-	 *        The XML.
-	 * @return The new container resource.
-	 */
-	public Edit newContainerEdit(Element element)
-	{
-		return null;
-	}
-
-	/**
-	 * Construct a new container resource, as a copy of another
-	 * 
-	 * @param other
-	 *        The other contianer to copy.
-	 * @return The new container resource.
-	 */
-	public Edit newContainerEdit(Entity other)
-	{
-		return null;
 	}
 
 	/**
@@ -1877,42 +1805,6 @@ public abstract class BaseAliasService implements AliasService, StorageUser
 	 * @return An array of field values to store in the record outside the XML (for the resource).
 	 */
 	public Object[] storageFields(Entity r)
-	{
-		return null;
-	}
-
-	/**
-	 * Check if this resource is in draft mode.
-	 * 
-	 * @param r
-	 *        The resource.
-	 * @return true if the resource is in draft mode, false if not.
-	 */
-	public boolean isDraft(Entity r)
-	{
-		return false;
-	}
-
-	/**
-	 * Access the resource owner user id.
-	 * 
-	 * @param r
-	 *        The resource.
-	 * @return The resource owner user id.
-	 */
-	public String getOwnerId(Entity r)
-	{
-		return null;
-	}
-
-	/**
-	 * Access the resource date.
-	 * 
-	 * @param r
-	 *        The resource.
-	 * @return The resource date.
-	 */
-	public Time getDate(Entity r)
 	{
 		return null;
 	}

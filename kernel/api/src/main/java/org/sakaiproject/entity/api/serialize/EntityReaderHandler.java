@@ -24,11 +24,8 @@ package org.sakaiproject.entity.api.serialize;
 import org.sakaiproject.entity.api.Entity;
 
 /**
- * <pre>
- *  An Entity Reader handler provides methods to read resources and containers
- *  from storage and to serialize them back out to storage.
- *  
- * </pre>
+ *  An Entity Reader handler provides methods to read(parse) resources and containers
+ *  from storage and to write(serialise) them back out to storage.
  * 
  * @author ieb
  */
@@ -56,6 +53,7 @@ public interface EntityReaderHandler
 	 * @throws EntityParseException
 	 */
 	Entity parse(Entity container, String xml, byte[] blob) throws EntityParseException;
+
 	/**
 	 * returns true if the implementation will parse the target
 	 * 

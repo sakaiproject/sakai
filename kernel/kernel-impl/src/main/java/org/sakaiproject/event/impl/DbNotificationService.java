@@ -31,7 +31,7 @@ import org.sakaiproject.db.api.SqlService;
 import org.sakaiproject.event.api.Notification;
 import org.sakaiproject.event.api.NotificationEdit;
 import org.sakaiproject.util.BaseDbSingleStorage;
-import org.sakaiproject.util.StorageUser;
+import org.sakaiproject.util.SingleStorageUser;
 
 /**
  * <p>
@@ -151,7 +151,7 @@ public abstract class DbNotificationService extends BaseNotificationService
 		 * @param user
 		 *        The StorageUser class to call back for creation of Resource and Edit objects.
 		 */
-		public DbStorage(StorageUser user)
+		public DbStorage(SingleStorageUser user)
 		{
 			super(m_tableName, "NOTIFICATION_ID", null, m_locksInDb, "notification", user, sqlService());
 		}

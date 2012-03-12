@@ -29,8 +29,9 @@ import org.sakaiproject.entity.api.Entity;
 import org.sakaiproject.javax.Filter;
 
 /**
- * @author ieb
- *
+ * This interface was extracted so that we could have multiple implementations of SingleStorage.
+ * Originally the entity was serialise to XML in a DB column, but due to performance issues a 
+ * binary serialisation was also developed and this interface is a common API into all of them.
  */
 @SuppressWarnings("rawtypes")
 public interface DbSingleStorage

@@ -152,6 +152,7 @@ import org.sakaiproject.util.DefaultEntityHandler;
 import org.sakaiproject.util.Resource;
 import org.sakaiproject.util.ResourceLoader;
 import org.sakaiproject.util.SAXEntityReader;
+import org.sakaiproject.util.SingleStorageUser;
 import org.sakaiproject.util.StorageUser;
 import org.sakaiproject.util.StringUtil;
 import org.sakaiproject.util.Validator;
@@ -854,26 +855,11 @@ SiteContentAdvisorProvider, SiteContentAdvisorTypeRegistry, EntityTransferrerRef
 	/**
 	 * Storage user for collections - in the resource side, not container
 	 */
-	protected class CollectionStorageUser implements StorageUser, SAXEntityReader, EntityReaderHandler, EntityReader
+	protected class CollectionStorageUser implements SingleStorageUser, SAXEntityReader, EntityReaderHandler, EntityReader
 	{
 		private Map<String,Object> m_services;
 
 		private EntityReaderHandler entityReaderAdapter;
-
-		public Entity newContainer(String ref)
-		{
-			return null;
-		}
-
-		public Entity newContainer(Element element)
-		{
-			return null;
-		}
-
-		public Entity newContainer(Entity other)
-		{
-			return null;
-		}
 
 		public Entity newResource(Entity container, String id, Object[] others)
 		{
@@ -888,21 +874,6 @@ SiteContentAdvisorProvider, SiteContentAdvisorTypeRegistry, EntityTransferrerRef
 		public Entity newResource(Entity container, Entity other)
 		{
 			return new BaseCollectionEdit((ContentCollection) other);
-		}
-
-		public Edit newContainerEdit(String ref)
-		{
-			return null;
-		}
-
-		public Edit newContainerEdit(Element element)
-		{
-			return null;
-		}
-
-		public Edit newContainerEdit(Entity other)
-		{
-			return null;
 		}
 
 		public Edit newResourceEdit(Entity container, String id, Object[] others)
@@ -936,42 +907,6 @@ SiteContentAdvisorProvider, SiteContentAdvisorTypeRegistry, EntityTransferrerRef
 			Object[] rv = new Object[1];
 			rv[0] = StringUtil.referencePath(((ContentCollection) r).getId());
 			return rv;
-		}
-
-		/**
-		 * Check if this resource is in draft mode.
-		 * 
-		 * @param r
-		 *        The resource.
-		 * @return true if the resource is in draft mode, false if not.
-		 */
-		public boolean isDraft(Entity r)
-		{
-			return false;
-		}
-
-		/**
-		 * Access the resource owner user id.
-		 * 
-		 * @param r
-		 *        The resource.
-		 * @return The resource owner user id.
-		 */
-		public String getOwnerId(Entity r)
-		{
-			return null;
-		}
-
-		/**
-		 * Access the resource date.
-		 * 
-		 * @param r
-		 *        The resource.
-		 * @return The resource date.
-		 */
-		public Time getDate(Entity r)
-		{
-			return null;
 		}
 
 		/***********************************************************************
@@ -1111,26 +1046,11 @@ SiteContentAdvisorProvider, SiteContentAdvisorTypeRegistry, EntityTransferrerRef
 	/**
 	 * Storage user for resources - in the resource side, not container
 	 */
-	protected class ResourceStorageUser implements StorageUser, SAXEntityReader, EntityReaderHandler, EntityReader
+	protected class ResourceStorageUser implements SingleStorageUser, SAXEntityReader, EntityReaderHandler, EntityReader
 	{
 		private Map<String, Object> m_services;
 
 		private EntityReaderHandler entityReaderAdapter;
-
-		public Entity newContainer(String ref)
-		{
-			return null;
-		}
-
-		public Entity newContainer(Element element)
-		{
-			return null;
-		}
-
-		public Entity newContainer(Entity other)
-		{
-			return null;
-		}
 
 		public Entity newResource(Entity container, String id, Object[] others)
 		{
@@ -1145,21 +1065,6 @@ SiteContentAdvisorProvider, SiteContentAdvisorTypeRegistry, EntityTransferrerRef
 		public Entity newResource(Entity container, Entity other)
 		{
 			return new BaseResourceEdit((ContentResource) other);
-		}
-
-		public Edit newContainerEdit(String ref)
-		{
-			return null;
-		}
-
-		public Edit newContainerEdit(Element element)
-		{
-			return null;
-		}
-
-		public Edit newContainerEdit(Entity other)
-		{
-			return null;
 		}
 
 		public Edit newResourceEdit(Entity container, String id, Object[] others)
@@ -1235,42 +1140,6 @@ SiteContentAdvisorProvider, SiteContentAdvisorTypeRegistry, EntityTransferrerRef
 				}
 
 			}
-		}
-
-		/**
-		 * Check if this resource is in draft mode.
-		 * 
-		 * @param r
-		 *        The resource.
-		 * @return true if the resource is in draft mode, false if not.
-		 */
-		public boolean isDraft(Entity r)
-		{
-			return false;
-		}
-
-		/**
-		 * Access the resource owner user id.
-		 * 
-		 * @param r
-		 *        The resource.
-		 * @return The resource owner user id.
-		 */
-		public String getOwnerId(Entity r)
-		{
-			return null;
-		}
-
-		/**
-		 * Access the resource date.
-		 * 
-		 * @param r
-		 *        The resource.
-		 * @return The resource date.
-		 */
-		public Time getDate(Entity r)
-		{
-			return null;
 		}
 
 		/***********************************************************************

@@ -81,7 +81,7 @@ import org.sakaiproject.util.BaseDbSingleStorage;
 import org.sakaiproject.util.ByteStorageConversion;
 import org.sakaiproject.util.DbSingleStorage;
 import org.sakaiproject.util.EntityReaderAdapter;
-import org.sakaiproject.util.StorageUser;
+import org.sakaiproject.util.SingleStorageUser;
 import org.sakaiproject.util.Xml;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
@@ -875,7 +875,7 @@ public class DbContentService extends BaseContentService
         /** A storage for resources. */
         protected DbSingleStorage m_resourceStore = null;
 
-        /** htripath- Storage for resources delete */
+        /** htripath- Storage for resources delete.*/
         protected DbSingleStorage m_resourceDeleteStore = null;
 
         protected ContentHostingHandlerResolverImpl resolver = null;
@@ -894,7 +894,7 @@ public class DbContentService extends BaseContentService
          * @param resourceUser
          *        The StorageUser class to call back for creation of resource objects.
          */
-        public DbStorage(StorageUser collectionUser, StorageUser resourceUser, boolean bodyInFile, ContentHostingHandlerResolverImpl resolver)
+        public DbStorage(SingleStorageUser collectionUser, SingleStorageUser resourceUser, boolean bodyInFile, ContentHostingHandlerResolverImpl resolver)
         {
             this.resolver = resolver;
             if (resolver != null)

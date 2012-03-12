@@ -210,7 +210,7 @@ public abstract class DbUserService extends BaseUserDirectoryService
 	 */
 	protected Storage newStorage()
 	{
-		return new DbStorage(this);
+		return new DbStorage();
 	}
 
 	/*************************************************************************************************************************************************
@@ -224,17 +224,12 @@ public abstract class DbUserService extends BaseUserDirectoryService
 	{
 		private static final String EIDCACHE = "eid:";
 		private static final String IDCACHE = "id:";
-		
-		/** A prior version's storage model. */
-		protected Storage m_oldStorage = null;
-		
+
 		/**
 		 * Construct.
 		 * 
-		 * @param user
-		 *        The StorageUser class to call back for creation of Resource and Edit objects.
 		 */
-		public DbStorage(StorageUser user)
+		public DbStorage()
 		{
 			super(m_tableName, m_idFieldName, m_fieldNames, m_propTableName, m_useExternalLocks, null, sqlService());
 			setSortField(m_sortField1, m_sortField2);

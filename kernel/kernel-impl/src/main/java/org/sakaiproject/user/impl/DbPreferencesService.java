@@ -27,7 +27,7 @@ import org.sakaiproject.db.api.SqlService;
 import org.sakaiproject.user.api.Preferences;
 import org.sakaiproject.user.api.PreferencesEdit;
 import org.sakaiproject.util.BaseDbSingleStorage;
-import org.sakaiproject.util.StorageUser;
+import org.sakaiproject.util.SingleStorageUser;
 
 /**
  * <p>
@@ -150,7 +150,7 @@ public abstract class DbPreferencesService extends BasePreferencesService
 		 * @param realm
 		 *        The StorageUser class to call back for creation of Resource and Edit objects.
 		 */
-		public DbStorage(StorageUser user)
+		public DbStorage(SingleStorageUser user)
 		{
 			super(m_tableName, "PREFERENCES_ID", null, m_locksInDb, "preferences", user, sqlService());
 		}
