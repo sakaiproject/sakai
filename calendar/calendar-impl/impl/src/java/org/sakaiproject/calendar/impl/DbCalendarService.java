@@ -34,7 +34,7 @@ import org.sakaiproject.calendar.api.CalendarEventEdit;
 import org.sakaiproject.db.api.SqlService;
 import org.sakaiproject.entity.api.Entity;
 import org.sakaiproject.util.BaseDbDoubleStorage;
-import org.sakaiproject.util.StorageUser;
+import org.sakaiproject.util.DoubleStorageUser;
 
 /**
 * <p>DbCalendarService fills out the BaseCalendarService with a database implementation.</p>
@@ -174,7 +174,7 @@ public class DbCalendarService
 		* Construct.
 		* @param user The StorageUser class to call back for creation of Resource and Edit objects.
 		*/
-		public DbStorage(StorageUser user)
+		public DbStorage(DoubleStorageUser user)
 		{
 			// TODO: what about owner, draft?
 			super(m_cTableName, "CALENDAR_ID", m_rTableName, "EVENT_ID", "CALENDAR_ID",
