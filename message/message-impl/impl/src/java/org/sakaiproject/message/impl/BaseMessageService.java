@@ -96,9 +96,9 @@ import org.sakaiproject.user.api.User;
 import org.sakaiproject.user.api.UserDirectoryService;
 import org.sakaiproject.user.api.UserNotDefinedException;
 import org.sakaiproject.util.BaseResourcePropertiesEdit;
+import org.sakaiproject.util.DoubleStorageUser;
 import org.sakaiproject.util.EntityCollections;
 import org.sakaiproject.util.FormattedText;
-import org.sakaiproject.util.StorageUser;
 import org.sakaiproject.util.Validator;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
@@ -109,7 +109,7 @@ import org.w3c.dom.NodeList;
 /**
  * BaseMessageService is...
  */
-public abstract class BaseMessageService implements MessageService, StorageUser, CacheRefresher
+public abstract class BaseMessageService implements MessageService, DoubleStorageUser, CacheRefresher
 {
 	/** Our logger. */
 	private static Log M_log = LogFactory.getLog(BaseMessageService.class);
