@@ -273,6 +273,7 @@ public interface UserDirectoryService extends EntityProducer
 	 * Access the user object associated with the "current" request.
 	 * 
 	 * @see #getAnonymousUser()
+	 * @see org.sakaiproject.tool.api.Session#getUserId()
 	 * @return The current user (may be anon).
 	 */
 	User getCurrentUser();
