@@ -47,7 +47,6 @@ import org.sakaiproject.dash.model.Context;
 import org.sakaiproject.dash.model.NewsItem;
 import org.sakaiproject.dash.model.NewsLink;
 import org.sakaiproject.dash.model.Person;
-import org.sakaiproject.dash.model.Realm;
 import org.sakaiproject.dash.model.RepeatingCalendarItem;
 import org.sakaiproject.dash.model.SourceType;
 import org.springframework.dao.DataAccessException;
@@ -123,7 +122,7 @@ public class DashboardDaoImpl extends JdbcDaoSupport implements DashboardDao {
 			buf.append(subtype);
 			buf.append(" for entity ");
 			buf.append(calendarItem.getEntityReference());
-			logger.warn(buf);
+			log.warn(buf);
 			subtype = subtype.substring(0, MAX_LENGTH_SUBTYPE_FIELD - 1);
 		}
 		try {
@@ -221,7 +220,7 @@ public class DashboardDaoImpl extends JdbcDaoSupport implements DashboardDao {
 			buf.append(subtype);
 			buf.append(" for entity ");
 			buf.append(newsItem.getEntityReference());
-			logger.warn(buf);
+			log.warn(buf);
 			subtype = subtype.substring(0, MAX_LENGTH_SUBTYPE_FIELD - 1);
 		}
 		
@@ -302,7 +301,7 @@ public class DashboardDaoImpl extends JdbcDaoSupport implements DashboardDao {
 			buf.append(subtype);
 			buf.append(" for entity ");
 			buf.append(repeatingCalendarItem.getEntityReference());
-			logger.warn(buf);
+			log.warn(buf);
 			subtype = subtype.substring(0, MAX_LENGTH_SUBTYPE_FIELD - 1);
 		}
 		Object[] params = new Object[]{
@@ -728,7 +727,7 @@ public class DashboardDaoImpl extends JdbcDaoSupport implements DashboardDao {
 			}
 			params = new Object[]{sakaiUserId, contextId};
 		}
-		//log.info("getCalendarItems(" + sakaiUserId + "," + contextId + ") sql = " + sql);
+		
 		try {
 			return (List<CalendarItem>) getJdbcTemplate().query(sql,params,
 				new CalendarItemMapper()
@@ -756,7 +755,9 @@ public class DashboardDaoImpl extends JdbcDaoSupport implements DashboardDao {
 			sql = getStatement("select.CalendarItems.by.contextId");
 			params = new Object[]{contextId};
 		} 
-		log.info("getCalendarItemsByContext(" + contextId + ") sql = " + sql);
+		if(log.isDebugEnabled()) {
+			log.debug("getCalendarItemsByContext(" + contextId + ") sql = " + sql);
+		}
 		// TODO: what do do if sql and/or params null ??
 		try {
 			return (List<CalendarItem>) getJdbcTemplate().query(sql,params,
@@ -824,7 +825,7 @@ public class DashboardDaoImpl extends JdbcDaoSupport implements DashboardDao {
 		}
 		
 		if(sakaiUserId == null) {
-			logger.warn("getFutureCalendarLinks() called with null sakaiUserId");
+			log.warn("getFutureCalendarLinks() called with null sakaiUserId");
 			return null;
 		}
 		String sql = null;
@@ -861,7 +862,7 @@ public class DashboardDaoImpl extends JdbcDaoSupport implements DashboardDao {
 		}
 		
 		if(sakaiUserId == null) {
-			logger.warn("getPastCalendarLinks() called with null sakaiUserId");
+			log.warn("getPastCalendarLinks() called with null sakaiUserId");
 			return null;
 		}
 		String sql = null;
@@ -898,7 +899,7 @@ public class DashboardDaoImpl extends JdbcDaoSupport implements DashboardDao {
 		}
 		
 		if(sakaiUserId == null) {
-			logger.warn("getStarredCalendarLinks() called with null sakaiUserId");
+			log.warn("getStarredCalendarLinks() called with null sakaiUserId");
 			return null;
 		}
 		String sql = null;
@@ -1038,7 +1039,9 @@ public class DashboardDaoImpl extends JdbcDaoSupport implements DashboardDao {
 			sql = getStatement("select.NewsItems.by.contextId");
 			params = new Object[]{contextId};
 		} 
-		log.info("getNewsItemsByContext(" + contextId + ") sql = " + sql);
+		if(log.isDebugEnabled()) {
+			log.debug("getNewsItemsByContext(" + contextId + ") sql = " + sql);
+		}
 		// TODO: what do do if sql and/or params null ??
 		try {
 			return (List<NewsItem>) getJdbcTemplate().query(sql,params,
@@ -1703,7 +1706,7 @@ public class DashboardDaoImpl extends JdbcDaoSupport implements DashboardDao {
 
 		} catch(Exception e) {
 	        //System.out.println("\ninitTables: Error executing query: " + e.getClass() + ":\n" + e.getMessage() + "\n");
-			logger.warn("initTables() " + e);
+			log.warn("initTables() " + e);
 		}
 	}
 
