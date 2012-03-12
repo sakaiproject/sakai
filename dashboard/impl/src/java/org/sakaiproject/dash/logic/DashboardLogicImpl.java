@@ -255,7 +255,7 @@ public class DashboardLogicImpl implements DashboardLogic, Observer
 				message.append(") for new user (");
 				message.append(sakaiUserId);
 				message.append(")");
-				logger.info(message.toString());
+				logger.warn(message.toString());
 			} else {
 				for(CalendarItem item: items) {
 					SourceType sourceType = item.getSourceType();
@@ -290,7 +290,7 @@ public class DashboardLogicImpl implements DashboardLogic, Observer
 				message.append(") for new user (");
 				message.append(sakaiUserId);
 				message.append(")");
-				logger.info(message.toString());
+				logger.warn(message.toString());
 			} else {
 				for(NewsItem item: items) {
 					SourceType sourceType = item.getSourceType();
@@ -615,11 +615,15 @@ public class DashboardLogicImpl implements DashboardLogic, Observer
 	 */
 	public Map<String, Object> getEntityMapping(String entityType, String entityReference, Locale locale) {
 		Map<String, Object> map = new HashMap<String, Object>();
-		logger.info("getEntityMapping(" + entityType + "," + entityReference + "," + locale + ")");
+		if(logger.isDebugEnabled()) {
+			logger.debug("getEntityMapping(" + entityType + "," + entityReference + "," + locale + ")");
+		}
 
 		EntityType entityTypeDef = this.entityTypes.get(entityType);
 		if(entityTypeDef != null) {
-			logger.info("getEntityMapping(" + entityType + "," + entityReference + "," + locale + ") " + entityTypeDef);
+			if(logger.isDebugEnabled()) {
+				logger.debug("getEntityMapping(" + entityType + "," + entityReference + "," + locale + ") " + entityTypeDef);
+			}
 			Map<String, Object> values = processFormattedText(entityTypeDef.getValues(entityReference, locale.toString()), 6);
 			map.putAll(values);
 			map.putAll(entityTypeDef.getProperties(entityReference, locale.toString()));
@@ -931,7 +935,7 @@ public class DashboardLogicImpl implements DashboardLogic, Observer
 	 */
 	public void removeCalendarLinks(String sakaiUserId, String contextId) {
 		if(logger.isDebugEnabled()) {
-			logger.info("removeCalendarLinks(" + sakaiUserId + "," + contextId + ") ");
+			logger.debug("removeCalendarLinks(" + sakaiUserId + "," + contextId + ") ");
 		}
 		Person person = dao.getPersonBySakaiId(sakaiUserId);
 		if(person != null) {
@@ -958,7 +962,7 @@ public class DashboardLogicImpl implements DashboardLogic, Observer
 	 */
 	public void removeNewsLinks(String sakaiUserId, String contextId) {
 		if(logger.isDebugEnabled()) {
-			logger.info("removeNewsLinks(" + sakaiUserId + "," + contextId + ") ");
+			logger.debug("removeNewsLinks(" + sakaiUserId + "," + contextId + ") ");
 		}
 		Person person = dao.getPersonBySakaiId(sakaiUserId);
 		if(person != null) {
