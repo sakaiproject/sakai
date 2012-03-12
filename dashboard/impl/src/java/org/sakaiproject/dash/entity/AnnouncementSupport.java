@@ -447,6 +447,10 @@ public class AnnouncementSupport{
 		public void processEvent(Event event) {
 			
 			if(logger.isDebugEnabled()) {
+				logger.debug("\n\n\n=============================================================\n" + event  
+						+ "\n=============================================================\n\n\n");
+			}
+			if(logger.isDebugEnabled()) {
 				logger.debug("Announcement new: create news links and news item for " + event.getResource());
 			}
 			
@@ -457,9 +461,13 @@ public class AnnouncementSupport{
 				AnnouncementMessage annc = (AnnouncementMessage) entity;
 				createUpdateDashboardItemLinks(event, annc);
 			
-				} else {
+			} else {
 				// for now, let's log the error
-				logger.info(eventId + " is not processed for entityReference " + event.getResource());
+				StringBuilder buf = new StringBuilder();
+				buf.append(eventId);
+				buf.append(" is not processed for entityReference ");
+				buf.append(event.getResource());
+				logger.info(buf);
 			}
 		}
 	}
@@ -483,6 +491,10 @@ public class AnnouncementSupport{
 		 */
 		public void processEvent(Event event) {
 			
+			if(logger.isDebugEnabled()) {
+				logger.debug("\n\n\n=============================================================\n" + event  
+						+ "\n=============================================================\n\n\n");
+			}
 			if(logger.isDebugEnabled()) {
 				logger.debug("Announcement remove any: removing news links and news item for " + event.getResource());
 			}
@@ -514,6 +526,10 @@ public class AnnouncementSupport{
 		public void processEvent(Event event) {
 			
 			if(logger.isDebugEnabled()) {
+				logger.debug("\n\n\n=============================================================\n" + event  
+						+ "\n=============================================================\n\n\n");
+			}
+			if(logger.isDebugEnabled()) {
 				logger.debug("Announcement remove own: removing news links and news item for " + event.getResource());
 			}
 			dashboardLogic.removeNewsItem(event.getResource());
@@ -543,6 +559,10 @@ public class AnnouncementSupport{
 		 */
 		public void processEvent(Event event) {
 			
+			if(logger.isDebugEnabled()) {
+				logger.debug("\n\n\n=============================================================\n" + event  
+						+ "\n=============================================================\n\n\n");
+			}
 			if(logger.isDebugEnabled()) {
 				logger.debug("removing calendar links and calendar item for " + event.getResource());
 			}
@@ -596,6 +616,10 @@ public class AnnouncementSupport{
 		public void processEvent(Event event) {
 			
 			if(logger.isDebugEnabled()) {
+				logger.debug("\n\n\n=============================================================\n" + event  
+						+ "\n=============================================================\n\n\n");
+			}
+			if(logger.isDebugEnabled()) {
 				logger.debug("removing calendar links and calendar item for " + event.getResource());
 			}
 			// clean the threadlocal cache
@@ -637,7 +661,12 @@ public class AnnouncementSupport{
 		 * @see org.sakaiproject.dash.listener.EventProcessor#processEvent(org.sakaiproject.event.api.Event)
 		 */
 		public void processEvent(Event event) {
-			
+
+			if(logger.isDebugEnabled()) {
+				logger.debug("\n\n\n=============================================================\n" + event  
+						+ "\n=============================================================\n\n\n");
+			}
+
 			if(logger.isDebugEnabled()) {
 				logger.debug("removing calendar links and calendar item for " + event.getResource());
 			}
@@ -683,6 +712,10 @@ public class AnnouncementSupport{
 		 */
 		public void processEvent(Event event) {
 			
+			if(logger.isDebugEnabled()) {
+				logger.debug("\n\n\n=============================================================\n" + event  
+						+ "\n=============================================================\n\n\n");
+			}
 			if(logger.isDebugEnabled()) {
 				logger.debug("Announcement update own:" + event.getResource());
 			}

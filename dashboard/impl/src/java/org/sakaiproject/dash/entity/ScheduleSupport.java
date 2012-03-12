@@ -302,7 +302,9 @@ public class ScheduleSupport{
 		 * @see org.sakaiproject.dash.entity.RepeatingEventGenerator#generateRepeatingEventDates(java.lang.String, java.util.Date, java.util.Date)
 		 */
 		public Map<Integer,Date> generateRepeatingEventDates(String entityReference, Date beginDate, Date endDate) {
-			logger.info("generateRepeatingEventDates(" + entityReference + ", " + endDate + ") ");
+			if(logger.isDebugEnabled()) {
+				logger.debug("generateRepeatingEventDates(" + entityReference + ", " + endDate + ") ");
+			}
 			Map<Integer, Date> dateMap = new HashMap<Integer, Date>();
 			CalendarEvent cEvent = (CalendarEvent) sakaiProxy.getEntity(entityReference);
 			
@@ -391,8 +393,8 @@ public class ScheduleSupport{
 		 */
 		public void processEvent(Event event) {
 			
-			if(logger.isInfoEnabled()) {
-				logger.info("\n\n\n=============================================================\n" + event  
+			if(logger.isDebugEnabled()) {
+				logger.debug("\n\n\n=============================================================\n" + event  
 						+ "\n=============================================================\n\n\n");
 			}
 			if(logger.isDebugEnabled()) {
@@ -452,13 +454,13 @@ public class ScheduleSupport{
 					RepeatingCalendarItem repeatingCalendarItem = dashboardLogic.createRepeatingCalendarItem(cEvent.getDisplayName(), new Date(cEvent.getRange().firstTime().getTime()), 
 							lastDate, key, cEventReference, context, sourceType, frequency, maxCount);
 						
-					logger.info(repeatingCalendarItem);
+					logger.debug(repeatingCalendarItem);
 				} 
 				
 			} else {
 				// for now, let's log the error. 
 				// this event is posted for creation of a calendar as well as for creation of calendar events, so this is not necessarily an error.
-				logger.info(eventId + " is not processed for entityReference " + event.getResource());
+				logger.debug(eventId + " is not processed for entityReference " + event.getResource());
 			}
 		}
 		
@@ -484,8 +486,8 @@ public class ScheduleSupport{
 		 */
 		public void processEvent(Event event) {
 			
-			if(logger.isInfoEnabled()) {
-				logger.info("\n\n\n=============================================================\n" + event  
+			if(logger.isDebugEnabled()) {
+				logger.debug("\n\n\n=============================================================\n" + event  
 						+ "\n=============================================================\n\n\n");
 			}
 			if(logger.isDebugEnabled()) {
@@ -520,8 +522,8 @@ public class ScheduleSupport{
 		 */
 		public void processEvent(Event event) {
 			
-			if(logger.isInfoEnabled()) {
-				logger.info("\n\n\n=============================================================\n" + event  
+			if(logger.isDebugEnabled()) {
+				logger.debug("\n\n\n=============================================================\n" + event  
 						+ "\n=============================================================\n\n\n");
 			}
 			if(logger.isDebugEnabled()) {
@@ -591,8 +593,8 @@ public class ScheduleSupport{
 		 */
 		public void processEvent(Event event) {
 			
-			if(logger.isInfoEnabled()) {
-				logger.info("\n\n\n=============================================================\n" + event  
+			if(logger.isDebugEnabled()) {
+				logger.debug("\n\n\n=============================================================\n" + event  
 						+ "\n=============================================================\n\n\n");
 			}
 			if(logger.isDebugEnabled()) {
@@ -670,8 +672,8 @@ public class ScheduleSupport{
 		 */
 		public void processEvent(Event event) {
 			
-			if(logger.isInfoEnabled()) {
-				logger.info("\n\n\n=============================================================\n" + event  
+			if(logger.isDebugEnabled()) {
+				logger.debug("\n\n\n=============================================================\n" + event  
 						+ "\n=============================================================\n\n\n");
 			}
 			if(logger.isDebugEnabled()) {
@@ -724,8 +726,8 @@ public class ScheduleSupport{
 		}
 
 		public void processEvent(Event event) {
-			if(logger.isInfoEnabled()) {
-				logger.info("\n\n\n=============================================================\n" + event  
+			if(logger.isDebugEnabled()) {
+				logger.debug("\n\n\n=============================================================\n" + event  
 						+ "\n=============================================================\n\n\n");
 			}
 			if(logger.isDebugEnabled()) {
@@ -746,8 +748,8 @@ public class ScheduleSupport{
 		}
 
 		public void processEvent(Event event) {
-			if(logger.isInfoEnabled()) {
-				logger.info("\n\n\n=============================================================\n" + event  
+			if(logger.isDebugEnabled()) {
+				logger.debug("\n\n\n=============================================================\n" + event  
 						+ "\n=============================================================\n\n\n");
 			}
 			if(logger.isDebugEnabled()) {
@@ -785,8 +787,8 @@ public class ScheduleSupport{
 		}
 
 		public void processEvent(Event event) {
-			if(logger.isInfoEnabled()) {
-				logger.info("\n\n\n=============================================================\n" + event  
+			if(logger.isDebugEnabled()) {
+				logger.debug("\n\n\n=============================================================\n" + event  
 						+ "\n=============================================================\n\n\n");
 			}
 			if(logger.isDebugEnabled()) {
@@ -875,8 +877,8 @@ public class ScheduleSupport{
 		}
 
 		public void processEvent(Event event) {
-			if(logger.isInfoEnabled()) {
-				logger.info("\n\n\n=============================================================\n" + event  
+			if(logger.isDebugEnabled()) {
+				logger.debug("\n\n\n=============================================================\n" + event  
 						+ "\n=============================================================\n\n\n");
 			}
 			
@@ -941,8 +943,8 @@ public class ScheduleSupport{
 		}
 
 		public void processEvent(Event event) {
-			if(logger.isInfoEnabled()) {
-				logger.info("\n\n\n=============================================================\n" + event  
+			if(logger.isDebugEnabled()) {
+				logger.debug("\n\n\n=============================================================\n" + event  
 						+ "\n=============================================================\n\n\n");
 			}
 			
@@ -980,7 +982,9 @@ public class ScheduleSupport{
 					}
 					entityReference = buf.toString();
 				}
-				logger.info("processEvent() " + entityReference + " " + sequenceNumber);
+				if(logger.isDebugEnabled()) {
+					logger.info("processEvent() " + entityReference + " " + sequenceNumber);
+				}
 				
 				if(entityReference != null && sequenceNumber >= -1) {
 					String calendarTimeLabelKey = null;

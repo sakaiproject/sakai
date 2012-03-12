@@ -350,6 +350,10 @@ public class AssignmentSupport {
 		 */
 		public void processEvent(Event event) {
 			
+			if(logger.isDebugEnabled()) {
+				logger.debug("\n\n\n=============================================================\n" + event  
+						+ "\n=============================================================\n\n\n");
+			}
 			Entity entity = sakaiProxy.getEntity(event.getResource());
 			
 			if(entity != null && entity instanceof Assignment) {
@@ -423,6 +427,10 @@ public class AssignmentSupport {
 		public void processEvent(Event event) {
 			
 			if(logger.isDebugEnabled()) {
+				logger.debug("\n\n\n=============================================================\n" + event  
+						+ "\n=============================================================\n\n\n");
+			}
+			if(logger.isDebugEnabled()) {
 				logger.debug("removing calendar links and calendar item for " + event.getResource());
 			}
 			
@@ -458,6 +466,10 @@ public class AssignmentSupport {
 		 */
 		public void processEvent(Event event) {
 			
+			if(logger.isDebugEnabled()) {
+				logger.debug("\n\n\n=============================================================\n" + event  
+						+ "\n=============================================================\n\n\n");
+			}
 			if(logger.isDebugEnabled()) {
 				logger.debug("removing calendar links and calendar item for " + event.getResource());
 			}
@@ -508,6 +520,10 @@ public class AssignmentSupport {
 		public void processEvent(Event event) {
 			
 			if(logger.isDebugEnabled()) {
+				logger.debug("\n\n\n=============================================================\n" + event  
+						+ "\n=============================================================\n\n\n");
+			}
+			if(logger.isDebugEnabled()) {
 				logger.debug("removing calendar links and calendar item for " + event.getResource());
 			}
 			Entity entity = sakaiProxy.getEntity(event.getResource());
@@ -555,6 +571,10 @@ public class AssignmentSupport {
 		 */
 		public void processEvent(Event event) {
 			
+			if(logger.isDebugEnabled()) {
+				logger.debug("\n\n\n=============================================================\n" + event  
+						+ "\n=============================================================\n\n\n");
+			}
 			if(logger.isDebugEnabled()) {
 				logger.debug("assignment update event processor " + event.getResource());
 			}
@@ -625,6 +645,10 @@ public class AssignmentSupport {
 		 */
 		public void processEvent(Event event) {
 			
+			if(logger.isDebugEnabled()) {
+				logger.debug("\n\n\n=============================================================\n" + event  
+						+ "\n=============================================================\n\n\n");
+			}
 			if(logger.isDebugEnabled()) {
 				logger.debug("update assignment event " + event.getResource());
 			}

@@ -58,6 +58,10 @@ public class SiteMembershipNewEventProcessor implements EventProcessor {
 	 * @see org.sakaiproject.dash.listener.EventProcessor#processEvent(org.sakaiproject.event.api.Event)
 	 */
 	public void processEvent(Event event) {
+		if(logger.isDebugEnabled()) {
+			logger.debug("\n\n\n=============================================================\n" + event  
+					+ "\n=============================================================\n\n\n");
+		}
 		String context = event.getContext();
 		// here is the format of resource string. We need to parse it to get uid, role, provide, group id separately
 		//uid=8f6f32b0-2a25-4661-9be8-6cda2b479e14;role=access;active=true;provided=false

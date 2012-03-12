@@ -358,9 +358,11 @@ public class ResourceSupport {
 		 * @see org.sakaiproject.dash.listener.EventProcessor#processEvent(org.sakaiproject.event.api.Event)
 		 */
 		public void processEvent(Event event) {
-			// TODO Auto-generated method stub
-			logger.info("\n\n\n=============================================================\n" + event  
-					+ "\n=============================================================\n\n\n");
+			
+			if(logger.isDebugEnabled()) {
+				logger.debug("\n\n\n=============================================================\n" + event  
+						+ "\n=============================================================\n\n\n");
+			}
 
 		}
 	}
@@ -382,8 +384,10 @@ public class ResourceSupport {
 		 * @see org.sakaiproject.dash.listener.EventProcessor#processEvent(org.sakaiproject.event.api.Event)
 		 */
 		public void processEvent(Event event) {
-			logger.info("\n\n\n=============================================================\n" + event  
-					+ "\n=============================================================\n\n\n");
+			if(logger.isDebugEnabled()) {
+				logger.debug("\n\n\n=============================================================\n" + event  
+						+ "\n=============================================================\n\n\n");
+			}
 			
 			Entity entity = sakaiProxy.getEntity(event.getResource());
 			if(entity != null && entity instanceof ContentResource) {
@@ -420,8 +424,10 @@ public class ResourceSupport {
 		 */
 		public void processEvent(Event event) {
 
-			logger.info("\n\n\n=============================================================\n" + event  
-					+ "\n=============================================================\n\n\n");
+			if(logger.isDebugEnabled()) {
+				logger.debug("\n\n\n=============================================================\n" + event  
+						+ "\n=============================================================\n\n\n");
+			}
 			Entity entity = sakaiProxy.getEntity(event.getResource());
 			if(entity != null && entity instanceof ContentResource) {
 				ContentResource resource = (ContentResource) entity;
@@ -449,8 +455,10 @@ public class ResourceSupport {
 		 */
 		public void processEvent(Event event) {
 			
-			logger.info("\n\n\n=============================================================\n" + event  
-					+ "\n=============================================================\n\n\n");
+			if(logger.isDebugEnabled()) {
+				logger.debug("\n\n\n=============================================================\n" + event  
+						+ "\n=============================================================\n\n\n");
+			}
 			if(logger.isDebugEnabled()) {
 				logger.debug("removing news links and news item for " + event.getResource());
 			}
@@ -473,8 +481,10 @@ public class ResourceSupport {
 		 */
 		public void processEvent(Event event) {
 			
-			logger.info("\n\n\n=============================================================\n" + event  
-					+ "\n=============================================================\n\n\n");
+			if(logger.isDebugEnabled()) {
+				logger.debug("\n\n\n=============================================================\n" + event  
+						+ "\n=============================================================\n\n\n");
+			}
 			
 			Entity entity = sakaiProxy.getEntity(event.getResource());
 			if(entity != null && entity instanceof ContentResource) {
@@ -520,8 +530,10 @@ public class ResourceSupport {
 		 */
 		public void processEvent(Event event) {
 		
-			logger.info("\n\n\n=============================================================\n" + event  
-					+ "\n=============================================================\n\n\n");
+			if(logger.isDebugEnabled()) {
+				logger.debug("\n\n\n=============================================================\n" + event  
+						+ "\n=============================================================\n\n\n");
+			}
 			
 			Entity entity = sakaiProxy.getEntity(event.getResource());
 			if(entity != null && entity instanceof ContentResource) {
@@ -599,8 +611,8 @@ public class ResourceSupport {
 		 */
 		public void processEvent(Event event) {
 			
-			if(logger.isInfoEnabled()) {
-				logger.info("\n\n\n=============================================================\n" + event  
+			if(logger.isDebugEnabled()) {
+				logger.debug("\n\n\n=============================================================\n" + event  
 						+ "\n=============================================================\n\n\n");
 			}
 			
