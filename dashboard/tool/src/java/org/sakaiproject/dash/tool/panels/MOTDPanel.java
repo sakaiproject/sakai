@@ -232,10 +232,10 @@ public class MOTDPanel extends Panel {
 	                	
 						@Override
 						public void onClick(AjaxRequestTarget target) {
-							logger.info("starringAction onClick() called -- star ");
+							logger.debug("starringAction onClick() called -- star ");
 							// need to keep one item
-							logger.info(newsItemId);
-							//logger.info(this.getModelObject());
+							logger.debug(newsItemId);
+							//logger.debug(this.getModelObject());
 							
 							String sakaiUserId = sakaiProxy.getCurrentUserId();
 							boolean success = dashboardLogic.keepNewsItem(sakaiUserId, newsItemId);

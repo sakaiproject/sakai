@@ -133,7 +133,7 @@ public class CalendarLinksPanel extends Panel {
 
 			@Override
 			public void onClick(AjaxRequestTarget target) {
-				logger.info("upcomingCalendarLink onClick called");
+				logger.debug("upcomingCalendarLink onClick called");
 				// set currentCalendarTab to "upcoming"
 				selectedCalendarTab = TAB_ID_UPCOMING;
 				// reset calendar dataview to show upcoming stuff
@@ -165,7 +165,7 @@ public class CalendarLinksPanel extends Panel {
 
 			@Override
 			public void onClick(AjaxRequestTarget target) {
-				logger.info("pastCalendarLink onClick called");
+				logger.debug("pastCalendarLink onClick called");
 				// set currentCalendarTab to "past"
 				selectedCalendarTab = TAB_ID_PAST;
 				
@@ -197,7 +197,7 @@ public class CalendarLinksPanel extends Panel {
 
 			@Override
 			public void onClick(AjaxRequestTarget target) {
-				logger.info("starredCalendarLink onClick called");
+				logger.debug("starredCalendarLink onClick called");
 				// set currentCalendarTab to "starred"
 				selectedCalendarTab = TAB_ID_STARRED;
 				
@@ -229,7 +229,7 @@ public class CalendarLinksPanel extends Panel {
 
 			@Override
 			public void onClick(AjaxRequestTarget target) {
-				logger.info("hiddenCalendarLink onClick called");
+				logger.debug("hiddenCalendarLink onClick called");
 				// set currentCalendarTab to "hidden"
 				selectedCalendarTab = TAB_ID_HIDDEN;
 				
@@ -334,10 +334,10 @@ public class CalendarLinksPanel extends Panel {
 		                	
 							@Override
 							public void onClick(AjaxRequestTarget target) {
-								logger.info("starringAction onClick() called -- unstar ");
+								logger.debug("starringAction onClick() called -- unstar ");
 								// need to keep one item
-								logger.info(calendarItemId);
-								//logger.info(this.getModelObject());
+								logger.debug(calendarItemId);
+								//logger.debug(this.getModelObject());
 								
 								String sakaiUserId = sakaiProxy.getCurrentUserId();
 								boolean success = dashboardLogic.unkeepCalendarItem(sakaiUserId, calendarItemId);
@@ -398,10 +398,10 @@ public class CalendarLinksPanel extends Panel {
 		                	
 							@Override
 							public void onClick(AjaxRequestTarget target) {
-								logger.info("starringAction onClick() called -- star ");
+								logger.debug("starringAction onClick() called -- star ");
 								// need to keep one item
-								logger.info(calendarItemId);
-								//logger.info(this.getModelObject());
+								logger.debug(calendarItemId);
+								//logger.debug(this.getModelObject());
 								
 								ResourceLoader rl = new ResourceLoader("dash_entity");
 
@@ -456,10 +456,10 @@ public class CalendarLinksPanel extends Panel {
 
 							@Override
 							public void onClick(AjaxRequestTarget target) {
-								logger.info("hidingAction onClick() called -- show");
+								logger.debug("hidingAction onClick() called -- show");
 								// need to trash one item
-								logger.info(calendarItemId);
-								//logger.info(this.getModelObject());
+								logger.debug(calendarItemId);
+								//logger.debug(this.getModelObject());
 								String sakaiUserId = sakaiProxy.getCurrentUserId();
 								boolean success = dashboardLogic.unhideCalendarItem(sakaiUserId, calendarItemId);
 								dashboardLogic.recordDashboardActivity(DashboardLogic.EVENT_DASH_SHOW, "/dashboard/calendar/" + selectedCalendarTab + "/" + calendarItemId);
@@ -517,10 +517,10 @@ public class CalendarLinksPanel extends Panel {
 
 							@Override
 							public void onClick(AjaxRequestTarget target) {
-								logger.info("hidingAction onClick() called -- hide");
+								logger.debug("hidingAction onClick() called -- hide");
 								// need to trash one item
-								logger.info(calendarItemId);
-								//logger.info(this.getModelObject());
+								logger.debug(calendarItemId);
+								//logger.debug(this.getModelObject());
 								String sakaiUserId = sakaiProxy.getCurrentUserId();
 								boolean success = dashboardLogic.hideCalendarItem(sakaiUserId, calendarItemId);
 								dashboardLogic.recordDashboardActivity(DashboardLogic.EVENT_DASH_HIDE, "/dashboard/calendar/" + selectedCalendarTab + "/" + calendarItemId);
@@ -611,7 +611,9 @@ public class CalendarLinksPanel extends Panel {
 						pagerStatus = "0";
 					}
 				}
-				logger.info("getPageLabel() " + pagerStatus);
+				if(logger.isDebugEnabled()) {
+					logger.debug("getPageLabel() " + pagerStatus);
+				}
 				return pagerStatus;
 			}
         };

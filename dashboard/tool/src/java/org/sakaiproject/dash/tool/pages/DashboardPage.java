@@ -89,7 +89,7 @@ public class DashboardPage extends BasePage {
 
 			public void onRequest() {
 				
-				logger.info("entityDetailRequest.onClick() ");
+				logger.debug("entityDetailRequest.onClick() ");
 				
 				//get parameters
                 final RequestCycle requestCycle = RequestCycle.get();
@@ -112,7 +112,7 @@ public class DashboardPage extends BasePage {
                    }
                    else {
                 	   if(logger.isDebugEnabled()) {
-                		   logger.info(" json  is :"+ jsonString);
+                		   logger.debug(" json  is :"+ jsonString);
                 	   }
                        JSONObject jsonObject = JSONObject.fromObject(jsonString);
                        
@@ -159,7 +159,9 @@ public class DashboardPage extends BasePage {
 						
 						JsonHelper jsonHelper = new JsonHelper(dashboardLogic, dashboardConfig);
 						String jsonString = jsonHelper.getJsonObjectFromMap(results).toString();
-		                logger.debug("Returning JSON:\n" + jsonString);
+						if(logger.isDebugEnabled()) {
+							logger.debug("Returning JSON:\n" + jsonString);
+						}
 		                IRequestTarget t = new StringRequestTarget("application/json", "UTF-8", jsonString);
 		                getRequestCycle().setRequestTarget(t);
 						dashboardLogic.recordDashboardActivity(DashboardLogic.EVENT_DASH_VIEW_GROUP, "/dashboard/news/current/" + entityReference);
@@ -167,7 +169,9 @@ public class DashboardPage extends BasePage {
  		                Map<String,Object> entityMap = dashboardLogic.getEntityMapping(entityType, entityReference, locale);
 		                
 		                String jsonString = getJsonStringFromMap(entityMap);
-		                logger.debug("Returning JSON:\n" + jsonString);
+		                if(logger.isDebugEnabled()) {
+		                	logger.debug("Returning JSON:\n" + jsonString);
+		                }
 		                IRequestTarget t = new StringRequestTarget("application/json", "UTF-8", jsonString);
 		                getRequestCycle().setRequestTarget(t);
 						dashboardLogic.recordDashboardActivity(DashboardLogic.EVENT_DASH_ITEM_DETAILS, "/dashboard/?/?/" + entityReference);
@@ -184,7 +188,7 @@ public class DashboardPage extends BasePage {
         AbstractAjaxBehavior starHandler = new AbstractAjaxBehavior() {
 
 			public void onRequest() {
-				logger.info("starHandler.onRequest() ");
+				logger.debug("starHandler.onRequest() ");
 
 				String message = null;
 				boolean success = true;
@@ -209,7 +213,7 @@ public class DashboardPage extends BasePage {
 					}
 					else {
 						if(logger.isDebugEnabled()) {
-							logger.info(" json  is :"+ jsonString);
+							logger.debug(" json  is :"+ jsonString);
 						}
 						JSONObject jsonObject = JSONObject.fromObject(jsonString);
 
@@ -291,7 +295,9 @@ public class DashboardPage extends BasePage {
                 	results.put("newIcon", newIcon);
                 }
                 String jsonString = getJsonStringFromMap(results);
-                logger.debug("Returning JSON:\n" + jsonString);
+                if(logger.isDebugEnabled()) {
+                	logger.debug("Returning JSON:\n" + jsonString);
+                }
                 IRequestTarget t = new StringRequestTarget("application/json", "UTF-8", jsonString);
                 getRequestCycle().setRequestTarget(t);				
 				
@@ -309,7 +315,7 @@ public class DashboardPage extends BasePage {
 	protected String getJsonStringFromMap(Map<String, Object> map) {
 		JsonHelper jsonHelper = new JsonHelper(dashboardLogic, dashboardConfig);
 		JSONObject json = jsonHelper.getJsonObjectFromMap(map);
-		//logger.info("Returning json: " + json.toString(3));
+		//logger.debug("Returning json: " + json.toString(3));
 		return json.toString();
 	}
 

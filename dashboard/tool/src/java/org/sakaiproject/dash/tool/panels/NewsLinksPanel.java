@@ -297,10 +297,10 @@ public class NewsLinksPanel extends Panel {
 	                	
 						@Override
 						public void onClick(AjaxRequestTarget target) {
-							logger.info("starringAction onClick() called -- unstar ");
+							logger.debug("starringAction onClick() called -- unstar ");
 							// need to keep one item
-							logger.info(newsItemId);
-							//logger.info(this.getModelObject());
+							logger.debug(newsItemId);
+							//logger.debug(this.getModelObject());
 							
 							String sakaiUserId = sakaiProxy.getCurrentUserId();
 							boolean success = dashboardLogic.unkeepNewsItem(sakaiUserId, newsItemId);
@@ -359,10 +359,10 @@ public class NewsLinksPanel extends Panel {
 	                	
 						@Override
 						public void onClick(AjaxRequestTarget target) {
-							logger.info("starringAction onClick() called -- star ");
+							logger.debug("starringAction onClick() called -- star ");
 							// need to keep one item
-							logger.info(newsItemId);
-							//logger.info(this.getModelObject());
+							logger.debug(newsItemId);
+							//logger.debug(this.getModelObject());
 							
 							String sakaiUserId = sakaiProxy.getCurrentUserId();
 							boolean success = dashboardLogic.keepNewsItem(sakaiUserId, newsItemId);
@@ -414,10 +414,10 @@ public class NewsLinksPanel extends Panel {
 
 						@Override
 						public void onClick(AjaxRequestTarget target) {
-							logger.info("hidingAction onClick() called -- show");
+							logger.debug("hidingAction onClick() called -- show");
 							// need to trash one item
-							logger.info(newsItemId);
-							//logger.info(this.getModelObject());
+							logger.debug(newsItemId);
+							//logger.debug(this.getModelObject());
 							String sakaiUserId = sakaiProxy.getCurrentUserId();
 							boolean success = dashboardLogic.unhideNewsItem(sakaiUserId, newsItemId);
 							dashboardLogic.recordDashboardActivity(DashboardLogic.EVENT_DASH_SHOW, "/dashboard/news/" + selectedNewsTab + "/" + newsItemId);
@@ -473,10 +473,10 @@ public class NewsLinksPanel extends Panel {
 
 						@Override
 						public void onClick(AjaxRequestTarget target) {
-							logger.info("hidingAction onClick() called -- hide");
+							logger.debug("hidingAction onClick() called -- hide");
 							// need to trash one item
-							logger.info(newsItemId);
-							//logger.info(this.getModelObject());
+							logger.debug(newsItemId);
+							//logger.debug(this.getModelObject());
 							String sakaiUserId = sakaiProxy.getCurrentUserId();
 							boolean success = dashboardLogic.hideNewsItem(sakaiUserId, newsItemId);
 							dashboardLogic.recordDashboardActivity(DashboardLogic.EVENT_DASH_HIDE, "/dashboard/news/" + selectedNewsTab + "/" + newsItemId);
@@ -565,7 +565,9 @@ public class NewsLinksPanel extends Panel {
 						pagerStatus = "0";
 					}
 				}
-				logger.info("getPageLabel() " + pagerStatus);
+				if(logger.isDebugEnabled()) {
+					logger.info("getPageLabel() " + pagerStatus);
+				}
 				return pagerStatus;
 			}
         };
