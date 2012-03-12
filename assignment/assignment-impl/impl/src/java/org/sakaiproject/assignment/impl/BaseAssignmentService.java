@@ -144,8 +144,8 @@ import org.sakaiproject.util.EntityCollections;
 import org.sakaiproject.util.FormattedText;
 import org.sakaiproject.util.ResourceLoader;
 import org.sakaiproject.util.SAXEntityReader;
+import org.sakaiproject.util.SingleStorageUser;
 import org.sakaiproject.util.SortedIterator;
-import org.sakaiproject.util.StorageUser;
 import org.sakaiproject.util.StringUtil;
 import org.sakaiproject.util.Validator;
 import org.sakaiproject.util.Xml;
@@ -11349,45 +11349,9 @@ public abstract class BaseAssignmentService implements AssignmentService, Entity
 	 * AssignmentStorageUser implementation
 	 *********************************************************************************************************************************************************************************************************************************************************/
 
-	protected class AssignmentStorageUser implements StorageUser, SAXEntityReader
+	protected class AssignmentStorageUser implements SingleStorageUser, SAXEntityReader
 	{
 		private Map<String,Object> m_services;
-		
-		/**
-		 * Construct a new continer given just an id.
-		 * 
-		 * @param id
-		 *        The id for the new object.
-		 * @return The new container Resource.
-		 */
-		public Entity newContainer(String ref)
-		{
-			return null;
-		}
-
-		/**
-		 * Construct a new container resource, from an XML element.
-		 * 
-		 * @param element
-		 *        The XML.
-		 * @return The new container resource.
-		 */
-		public Entity newContainer(Element element)
-		{
-			return null;
-		}
-
-		/**
-		 * Construct a new container resource, as a copy of another
-		 * 
-		 * @param other
-		 *        The other contianer to copy.
-		 * @return The new container resource.
-		 */
-		public Entity newContainer(Entity other)
-		{
-			return null;
-		}
 
 		/**
 		 * Construct a new resource given just an id.
@@ -11431,42 +11395,6 @@ public abstract class BaseAssignmentService implements AssignmentService, Entity
 		public Entity newResource(Entity container, Entity other)
 		{
 			return new BaseAssignment((Assignment) other);
-		}
-
-		/**
-		 * Construct a new continer given just an id.
-		 * 
-		 * @param id
-		 *        The id for the new object.
-		 * @return The new containe Resource.
-		 */
-		public Edit newContainerEdit(String ref)
-		{
-			return null;
-		}
-
-		/**
-		 * Construct a new container resource, from an XML element.
-		 * 
-		 * @param element
-		 *        The XML.
-		 * @return The new container resource.
-		 */
-		public Edit newContainerEdit(Element element)
-		{
-			return null;
-		}
-
-		/**
-		 * Construct a new container resource, as a copy of another
-		 * 
-		 * @param other
-		 *        The other contianer to copy.
-		 * @return The new container resource.
-		 */
-		public Edit newContainerEdit(Entity other)
-		{
-			return null;
 		}
 
 		/**
@@ -11531,42 +11459,6 @@ public abstract class BaseAssignmentService implements AssignmentService, Entity
 			return rv;
 		}
 
-		/**
-		 * Check if this resource is in draft mode.
-		 * 
-		 * @param r
-		 *        The resource.
-		 * @return true if the resource is in draft mode, false if not.
-		 */
-		public boolean isDraft(Entity r)
-		{
-			return false;
-		}
-
-		/**
-		 * Access the resource owner user id.
-		 * 
-		 * @param r
-		 *        The resource.
-		 * @return The resource owner user id.
-		 */
-		public String getOwnerId(Entity r)
-		{
-			return null;
-		}
-
-		/**
-		 * Access the resource date.
-		 * 
-		 * @param r
-		 *        The resource.
-		 * @return The resource date.
-		 */
-		public Time getDate(Entity r)
-		{
-			return null;
-		}
-		
 		/***********************************************************************
 		 * SAXEntityReader
 		 */
@@ -11634,45 +11526,9 @@ public abstract class BaseAssignmentService implements AssignmentService, Entity
 	 * AssignmentContentStorageUser implementation
 	 *********************************************************************************************************************************************************************************************************************************************************/
 
-	protected class AssignmentContentStorageUser implements StorageUser, SAXEntityReader
+	protected class AssignmentContentStorageUser implements SingleStorageUser, SAXEntityReader
 	{
 		private Map<String,Object> m_services;
-		
-		/**
-		 * Construct a new continer given just an id.
-		 * 
-		 * @param id
-		 *        The id for the new object.
-		 * @return The new container Resource.
-		 */
-		public Entity newContainer(String ref)
-		{
-			return null;
-		}
-
-		/**
-		 * Construct a new container resource, from an XML element.
-		 * 
-		 * @param element
-		 *        The XML.
-		 * @return The new container resource.
-		 */
-		public Entity newContainer(Element element)
-		{
-			return null;
-		}
-
-		/**
-		 * Construct a new container resource, as a copy of another
-		 * 
-		 * @param other
-		 *        The other contianer to copy.
-		 * @return The new container resource.
-		 */
-		public Entity newContainer(Entity other)
-		{
-			return null;
-		}
 
 		/**
 		 * Construct a new resource given just an id.
@@ -11716,42 +11572,6 @@ public abstract class BaseAssignmentService implements AssignmentService, Entity
 		public Entity newResource(Entity container, Entity other)
 		{
 			return new BaseAssignmentContent((AssignmentContent) other);
-		}
-
-		/**
-		 * Construct a new continer given just an id.
-		 * 
-		 * @param id
-		 *        The id for the new object.
-		 * @return The new containe Resource.
-		 */
-		public Edit newContainerEdit(String ref)
-		{
-			return null;
-		}
-
-		/**
-		 * Construct a new container resource, from an XML element.
-		 * 
-		 * @param element
-		 *        The XML.
-		 * @return The new container resource.
-		 */
-		public Edit newContainerEdit(Element element)
-		{
-			return null;
-		}
-
-		/**
-		 * Construct a new container resource, as a copy of another
-		 * 
-		 * @param other
-		 *        The other contianer to copy.
-		 * @return The new container resource.
-		 */
-		public Edit newContainerEdit(Entity other)
-		{
-			return null;
 		}
 
 		/**
@@ -11816,42 +11636,6 @@ public abstract class BaseAssignmentService implements AssignmentService, Entity
 			return rv;
 		}
 
-		/**
-		 * Check if this resource is in draft mode.
-		 * 
-		 * @param r
-		 *        The resource.
-		 * @return true if the resource is in draft mode, false if not.
-		 */
-		public boolean isDraft(Entity r)
-		{
-			return false;
-		}
-
-		/**
-		 * Access the resource owner user id.
-		 * 
-		 * @param r
-		 *        The resource.
-		 * @return The resource owner user id.
-		 */
-		public String getOwnerId(Entity r)
-		{
-			return null;
-		}
-
-		/**
-		 * Access the resource date.
-		 * 
-		 * @param r
-		 *        The resource.
-		 * @return The resource date.
-		 */
-		public Time getDate(Entity r)
-		{
-			return null;
-		}
-		
 		/***********************************************************************
 		 * SAXEntityReader
 		 */
@@ -11919,45 +11703,9 @@ public abstract class BaseAssignmentService implements AssignmentService, Entity
 	 * SubmissionStorageUser implementation
 	 *********************************************************************************************************************************************************************************************************************************************************/
 
-	protected class AssignmentSubmissionStorageUser implements StorageUser, SAXEntityReader
+	protected class AssignmentSubmissionStorageUser implements SingleStorageUser, SAXEntityReader
 	{
 		private Map<String,Object> m_services;
-		
-		/**
-		 * Construct a new continer given just an id.
-		 * 
-		 * @param id
-		 *        The id for the new object.
-		 * @return The new container Resource.
-		 */
-		public Entity newContainer(String ref)
-		{
-			return null;
-		}
-
-		/**
-		 * Construct a new container resource, from an XML element.
-		 * 
-		 * @param element
-		 *        The XML.
-		 * @return The new container resource.
-		 */
-		public Entity newContainer(Element element)
-		{
-			return null;
-		}
-
-		/**
-		 * Construct a new container resource, as a copy of another
-		 * 
-		 * @param other
-		 *        The other contianer to copy.
-		 * @return The new container resource.
-		 */
-		public Entity newContainer(Entity other)
-		{
-			return null;
-		}
 
 		/**
 		 * Construct a new resource given just an id.
@@ -12001,42 +11749,6 @@ public abstract class BaseAssignmentService implements AssignmentService, Entity
 		public Entity newResource(Entity container, Entity other)
 		{
 			return new BaseAssignmentSubmission((AssignmentSubmission) other);
-		}
-
-		/**
-		 * Construct a new continer given just an id.
-		 * 
-		 * @param id
-		 *        The id for the new object.
-		 * @return The new containe Resource.
-		 */
-		public Edit newContainerEdit(String ref)
-		{
-			return null;
-		}
-
-		/**
-		 * Construct a new container resource, from an XML element.
-		 * 
-		 * @param element
-		 *        The XML.
-		 * @return The new container resource.
-		 */
-		public Edit newContainerEdit(Element element)
-		{
-			return null;
-		}
-
-		/**
-		 * Construct a new container resource, as a copy of another
-		 * 
-		 * @param other
-		 *        The other contianer to copy.
-		 * @return The new container resource.
-		 */
-		public Edit newContainerEdit(Entity other)
-		{
-			return null;
 		}
 
 		/**
@@ -12118,42 +11830,6 @@ public abstract class BaseAssignmentService implements AssignmentService, Entity
 			return rv;
 		}
 
-		/**
-		 * Check if this resource is in draft mode.
-		 * 
-		 * @param r
-		 *        The resource.
-		 * @return true if the resource is in draft mode, false if not.
-		 */
-		public boolean isDraft(Entity r)
-		{
-			return false;
-		}
-
-		/**
-		 * Access the resource owner user id.
-		 * 
-		 * @param r
-		 *        The resource.
-		 * @return The resource owner user id.
-		 */
-		public String getOwnerId(Entity r)
-		{
-			return null;
-		}
-
-		/**
-		 * Access the resource date.
-		 * 
-		 * @param r
-		 *        The resource.
-		 * @return The resource date.
-		 */
-		public Time getDate(Entity r)
-		{
-			return null;
-		}
-		
 		/***********************************************************************
 		 * SAXEntityReader
 		 */
