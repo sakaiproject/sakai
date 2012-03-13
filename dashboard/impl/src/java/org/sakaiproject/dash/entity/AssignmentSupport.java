@@ -94,6 +94,7 @@ public class AssignmentSupport {
 		this.dashboardLogic.registerEventProcessor(new AssignmentUpdateTitleEventProcessor());
 		this.dashboardLogic.registerEventProcessor(new AssignmentUpdateAccessEventProcessor());
 		this.dashboardLogic.registerEventProcessor(new AssignmentUpdateOpenDateEventProcessor());
+		this.dashboardLogic.registerEventProcessor(new AssignmentUpdateDueDateEventProcessor());
 		this.dashboardLogic.registerEventProcessor(new AssignmentUpdateEventProcessor());
 	}
 	
@@ -576,7 +577,7 @@ public class AssignmentSupport {
 						+ "\n=============================================================\n\n\n");
 			}
 			if(logger.isDebugEnabled()) {
-				logger.debug("assignment update event processor " + event.getResource());
+				logger.debug("assignment update open date event processor " + event.getResource());
 			}
 			Entity entity = sakaiProxy.getEntity(event.getResource());
 			Context context = dashboardLogic.getContext(event.getContext());
@@ -622,6 +623,53 @@ public class AssignmentSupport {
 						nItem = dashboardLogic.createNewsItem(assn.getTitle(), event.getEventTime(), "assignment.added", assnReference, context, sourceType, null);
 						dashboardLogic.createNewsLinks(nItem);
 					}
+				}
+			}
+		}
+	}
+	
+	/**
+	 * Inner Class: AssignmentUpdateDueDateEventProcessor
+	 */
+	public class AssignmentUpdateDueDateEventProcessor implements EventProcessor {
+		
+		/* (non-Javadoc)
+		 * @see org.sakaiproject.dash.listener.EventProcessor#getEventIdentifer()
+		 */
+		public String getEventIdentifer() {
+			
+			return SakaiProxy.EVENT_UPDATE_ASSIGNMENT_DUEDATE;
+		}
+
+		/* (non-Javadoc)
+		 * @see org.sakaiproject.dash.listener.EventProcessor#processEvent(org.sakaiproject.event.api.Event)
+		 */
+		public void processEvent(Event event) {
+			
+			if(logger.isDebugEnabled()) {
+				logger.debug("assignment update due date event processor " + event.getResource());
+			}
+			Entity entity = sakaiProxy.getEntity(event.getResource());
+			Context context = dashboardLogic.getContext(event.getContext());
+			if(context == null) {
+				context = dashboardLogic.createContext(event.getContext());
+			}
+            
+			SourceType sourceType = dashboardLogic.getSourceType(IDENTIFIER);
+			if(sourceType == null) {
+				sourceType = dashboardLogic.createSourceType(IDENTIFIER, SakaiProxy.PERMIT_ASSIGNMENT_ACCESS, EntityLinkStrategy.SHOW_PROPERTIES);
+			}
+			
+			if(entity != null && entity instanceof Assignment) {
+				// get the assignment entity and its current title
+				Assignment assn = (Assignment) entity;
+				String assnReference = assn.getReference();
+				CalendarItem cItem = dashboardLogic.getCalendarItem(assnReference, "assignment.due.date", null);
+				
+				if (cItem != null)
+				{
+					Date newTime = new Date(assn.getDueTime().getTime());
+					cItem.setCalendarTime(newTime);
 				}
 			}
 		}
