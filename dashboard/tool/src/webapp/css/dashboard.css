@@ -121,10 +121,10 @@ h3.withNav {
     margin:1em 0;
 }
 
-.pagerCell{
-    position:absolute;
-    top:40px;
-    right:0;
+.pagerCell {
+    position: absolute;
+    right: 3px;
+    top: 63px;
 }
 .pager {
     width:100%;
@@ -369,12 +369,10 @@ a.itemLink {
 
 .sched .four,.news .five{
     width: 5%;
-}    
+}
 .listHeader {
-    margin-bottom:10px;
-    margin-bottom:5px;
-    border-bottom:10px solid #ddd;
-    
+    border-bottom: 25px solid #DDDDDD;
+    margin-bottom: 5px;
 }
 .listHeader td{
     border:2xp solid red  !important;
