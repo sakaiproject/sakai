@@ -865,6 +865,28 @@ public class ShowPageProducer implements ViewComponentProducer, DefaultView, Nav
 					continue;
 				}
 
+				// set class name showing what the type is, so people can do funky CSS
+
+				String itemClassName = null;
+
+				switch (i.getType()) {
+				case SimplePageItem.RESOURCE: itemClassName = "resourceType"; break;
+				case SimplePageItem.PAGE: itemClassName = "pageType"; break;
+				case SimplePageItem.ASSIGNMENT: itemClassName = "assignmentType"; break;
+				case SimplePageItem.ASSESSMENT: itemClassName = "assessmentType"; break;
+				case SimplePageItem.TEXT: itemClassName = "textType"; break;
+				case SimplePageItem.URL: itemClassName = "urlType"; break;
+				case SimplePageItem.MULTIMEDIA: itemClassName = "multimediaType"; break;
+				case SimplePageItem.FORUM: itemClassName = "forumType"; break;
+				case SimplePageItem.COMMENTS: itemClassName = "commentsType"; break;
+				case SimplePageItem.STUDENT_CONTENT: itemClassName = "studentContentType"; break;
+				case SimplePageItem.BLTI: itemClassName = "bltiType"; break;
+				}
+
+				if (listItem)
+				    itemClassName = itemClassName + " listType";
+				tableRow.decorate(new UIFreeAttributeDecorator("class", itemClassName));
+
 				// you really need the HTML file open at the same time to make
 				// sense of the following code
 				if (listItem) { // Not an HTML Text, Element or Multimedia
