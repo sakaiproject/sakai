@@ -5464,6 +5464,9 @@ public class AssignmentAction extends PagedResourceActionII
 		
 		// assignment old due date setting
 		Time oldDueTime = null;
+		
+		// assignment old close date setting
+		Time oldCloseTime = null;
 
 		// assignment old associated Gradebook entry if any
 		String oAssociateGradebookAssignment = null;
@@ -5598,6 +5601,8 @@ public class AssignmentAction extends PagedResourceActionII
 				oldOpenTime = a.getOpenTime();
 				// old due time
 				oldDueTime = a.getDueTime();
+				// old close time
+				oldCloseTime = a.getCloseTime();
 				
 				// commit the changes to AssignmentContent object
 				commitAssignmentContentEdit(state, ac, title, submissionType,useReviewService,allowStudentViewReport, gradeType, gradePoints, description, checkAddHonorPledge, attachments, submitReviewRepo, generateOriginalityReport, checkTurnitin, checkInternet, checkPublications, checkInstitution, openTime, dueTime, closeTime);
@@ -5737,6 +5742,18 @@ public class AssignmentAction extends PagedResourceActionII
 						{
 							// open time change
 							m_eventTrackingService.post(m_eventTrackingService.newEvent(AssignmentConstants.EVENT_UPDATE_ASSIGNMENT_OPENDATE, assignmentId, true));
+						}
+						
+						if (oldDueTime != null && !oldDueTime.equals(a.getDueTime()))
+						{
+							// due time change
+							m_eventTrackingService.post(m_eventTrackingService.newEvent(AssignmentConstants.EVENT_UPDATE_ASSIGNMENT_DUEDATE, assignmentId, true));
+						}
+						
+						if (oldCloseTime != null && !oldCloseTime.equals(a.getCloseTime()))
+						{
+							// due time change
+							m_eventTrackingService.post(m_eventTrackingService.newEvent(AssignmentConstants.EVENT_UPDATE_ASSIGNMENT_CLOSEDATE, assignmentId, true));
 						}
 					}
 					
