@@ -48,6 +48,7 @@ import org.sakaiproject.event.api.SessionState;
 import org.sakaiproject.exception.IdUnusedException;
 import org.sakaiproject.exception.InUseException;
 import org.sakaiproject.exception.PermissionException;
+import org.sakaiproject.exception.IdInvalidException;
 import org.sakaiproject.javax.Filter;
 import org.sakaiproject.javax.Order;
 import org.sakaiproject.javax.PagingPosition;
@@ -957,6 +958,9 @@ public class MailboxAction extends PagedResourceActionII
 							AliasService.setAlias(alias, channel.getReference());
 						}
 					}
+          catch (IdInvalidException iie) {
+              addAlert(state, rb.getString("theemaali4"));
+          }
 					catch (Exception any)
 					{
 						addAlert(state, rb.getString("theemaali2"));
