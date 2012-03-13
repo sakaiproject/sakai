@@ -130,7 +130,9 @@ public class NewsLinksPanel extends Panel {
 
 			@Override
 			public void onClick(AjaxRequestTarget target) {
-				logger.info("currentNewsLink onClick called");
+				if(logger.isDebugEnabled()) {
+					logger.debug("currentNewsLink onClick called");
+				}
 				// set currentNewsTab to "current"
 				selectedNewsTab = TAB_ID_CURRENT;
 				// reset news dataview to show current stuff
@@ -162,7 +164,9 @@ public class NewsLinksPanel extends Panel {
 
 			@Override
 			public void onClick(AjaxRequestTarget target) {
-				logger.info("starredNewsLink onClick called");
+				if(logger.isDebugEnabled()) {
+					logger.debug("starredNewsLink onClick called");
+				}
 				// set currentNewsTab to "starred"
 				selectedNewsTab = TAB_ID_STARRED;
 				// reset news dataview to show starred stuff
@@ -193,7 +197,9 @@ public class NewsLinksPanel extends Panel {
 
 			@Override
 			public void onClick(AjaxRequestTarget target) {
-				logger.info("hiddenNewsLink onClick called");
+				if(logger.isDebugEnabled()) {
+					logger.debug("hiddenNewsLink onClick called");
+				}
 				// set currentNewsTab to "hidden"
 				selectedNewsTab = TAB_ID_HIDDEN;
 				// reset news dataview to show hidden stuff
@@ -566,7 +572,7 @@ public class NewsLinksPanel extends Panel {
 					}
 				}
 				if(logger.isDebugEnabled()) {
-					logger.info("getPageLabel() " + pagerStatus);
+					logger.debug("getPageLabel() " + pagerStatus);
 				}
 				return pagerStatus;
 			}
