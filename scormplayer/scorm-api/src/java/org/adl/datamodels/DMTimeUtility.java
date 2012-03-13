@@ -24,6 +24,10 @@
 
 package org.adl.datamodels;
 
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
+
+import org.apache.commons.lang.StringUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
@@ -52,6 +56,7 @@ import org.apache.commons.logging.LogFactory;
  * @author ADL Technical Team
  */
 public class DMTimeUtility {
+	private static final Pattern TIME_STRING_PATTERN = Pattern.compile("P(?:(\\d*)Y)?(?:(\\d*)M)?(?:(\\d*)D)?T?(?:(\\d*)H)?(?:(\\d*)M)?(?:(\\d*)(?:[.])?(\\d{0,2})?S)?");
 	static final Log log = LogFactory.getLog(DMTimeUtility.class);
 
 	/**
@@ -72,6 +77,9 @@ public class DMTimeUtility {
 		// P[yY][mM][dD][T[hH][mM][s[.s]S] 
 		// P1Y3M2DT3H
 		// PT3H5M
+
+		// Regex
+		// P(?:(\d+)Y)?(?:(\d+)M)?(?:(\d+)D)?T(?:(\d+)H)?(?:(\d+)M)?(?:([0-9.]+)S)? 
 
 		String mTimeString = null;
 		int multiple = 1;
@@ -116,8 +124,19 @@ public class DMTimeUtility {
 			mFirstTime[2] += multiple;
 		}
 
+		boolean hasItems = false;
+		for (int i = 0; i < mFirstTime.length; i++) {
+			if (mFirstTime[i] != 0) {
+				hasItems = true;
+				break;
+			}
+		}
+
 		// create the new timeInterval string
-		mTimeString = "P";
+		mTimeString = "";
+		if (hasItems) {
+			mTimeString += "P";
+		}
 		if (mFirstTime[0] != 0) {
 			Integer tempInt = Integer.valueOf(mFirstTime[0]);
 			mTimeString += tempInt.toString();
@@ -192,120 +211,15 @@ public class DMTimeUtility {
 		// P1Y3M2DT3H
 		// PT3H5M
 
-		String mInitArray[];
-		String mTempArray2[] = { "0", "0", "0" };
-		String mDate = "0";
-		String mTime = "0";
-
-		// make sure the string is not null
-		if (iTime == null)
-			return;
-
-		// make sure that the string has the right format to split
-		if ((iTime.length() == 1) || (iTime.indexOf("P") == -1))
-			return;
-
-		try {
-			mInitArray = iTime.split("P");
-
-			// T is present so split into day and time part
-			// when "P" is first character in string, rest of string goes in
-			// array index 1
-			if (mInitArray[1].indexOf("T") != -1) {
-				mTempArray2 = mInitArray[1].split("T");
-				mDate = mTempArray2[0];
-				mTime = mTempArray2[1];
-			} else {
-				mDate = mInitArray[1];
-			}
-
-			// Y is present so get year
-			if (mDate.indexOf("Y") != -1) {
-				mInitArray = mDate.split("Y");
-				Integer tempInt = Integer.valueOf(mInitArray[0]);
-				ioArray[0] = tempInt.intValue();
-			} else {
-				mInitArray[1] = mDate;
-			}
-
-			// M is present so get month
-			if (mDate.indexOf("M") != -1) {
-				mTempArray2 = mInitArray[1].split("M");
-				Integer tempInt = Integer.valueOf(mTempArray2[0]);
-				ioArray[1] = tempInt.intValue();
-			} else {
-				if (mInitArray.length != 2) {
-					mTempArray2[1] = "";
-				} else {
-					mTempArray2[1] = mInitArray[1];
+		Matcher matcher = TIME_STRING_PATTERN.matcher(iTime);
+		if (matcher.matches()) {
+			for (int i = 0; i < ioArray.length; i++) {
+				if (i < matcher.groupCount()) {
+					String value = matcher.group(i + 1);
+					ioArray[i] = ((StringUtils.isNotEmpty(value) && StringUtils.isNumeric(value)) ? Integer.parseInt(value) : 0);
 				}
-			}
-
-			// D is present so get day
-			if (mDate.indexOf("D") != -1) {
-				mInitArray = mTempArray2[1].split("D");
-				Integer tempInt = Integer.valueOf(mInitArray[0]);
-				ioArray[2] = tempInt.intValue();
-			} else {
-				mInitArray = new String[2];
-			}
-
-			// if string has time portion
-			if (!mTime.equals("0")) {
-				// H is present so get hour
-				if (mTime.indexOf("H") != -1) {
-					mInitArray = mTime.split("H");
-					Integer tempInt = Integer.valueOf(mInitArray[0]);
-					ioArray[3] = tempInt.intValue();
-				} else {
-					mInitArray[1] = mTime;
-				}
-
-				// M is present so get minute
-				if (mTime.indexOf("M") != -1) {
-					mTempArray2 = mInitArray[1].split("M");
-					Integer tempInt = Integer.valueOf(mTempArray2[0]);
-					ioArray[4] = tempInt.intValue();
-				} else {
-					if (mInitArray.length != 2) {
-						mTempArray2[1] = "";
-					} else {
-						mTempArray2[1] = mInitArray[1];
-					}
-				}
-
-				// S is present so get seconds
-				if (mTime.indexOf("S") != -1) {
-					mInitArray = mTempArray2[1].split("S");
-
-					if (mTime.indexOf(".") != -1) {
-						// split requires this regular expression for "."
-						mTempArray2 = mInitArray[0].split("[.]");
-
-						// correct for case such as ".2"
-						if (mTempArray2[1].length() == 1) {
-							mTempArray2[1] = mTempArray2[1] + "0";
-						}
-
-						Integer tempInt2 = Integer.valueOf(mTempArray2[1]);
-						ioArray[6] = tempInt2.intValue();
-						Integer tempInt = Integer.valueOf(mTempArray2[0]);
-						ioArray[5] = tempInt.intValue();
-					} else {
-						Integer tempInt = Integer.valueOf(mInitArray[0]);
-						ioArray[5] = tempInt.intValue();
-					}
-				}
-			}
-		} catch (Throwable t) {
-			if (log.isDebugEnabled()) {
-				log.warn(t.getClass() + ": Not able to extract number from " + iTime + ", the exception message is: " + t.getMessage(), t);
-			} else {
-				log.warn(t.getClass() + ": Not able to extract number from " + iTime + ", the exception message is: " + t.getMessage());
 			}
 		}
-
-		return;
 	}
 
 }
