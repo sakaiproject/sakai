@@ -48,6 +48,8 @@ public interface SakaiProxy {
 	public final static String EVENT_ASSIGNMENT_REMOVE = AssignmentConstants.EVENT_REMOVE_ASSIGNMENT;
 	public final static String EVENT_UPDATE_ASSIGNMENT_TITLE = AssignmentConstants.EVENT_UPDATE_ASSIGNMENT_TITLE;
 	public static final String EVENT_UPDATE_ASSIGNMENT_OPENDATE = AssignmentConstants.EVENT_UPDATE_ASSIGNMENT_OPENDATE;
+	public static final String EVENT_UPDATE_ASSIGNMENT_DUEDATE = AssignmentConstants.EVENT_UPDATE_ASSIGNMENT_DUEDATE;
+	public static final String EVENT_UPDATE_ASSIGNMENT_CLOSEDATE = AssignmentConstants.EVENT_UPDATE_ASSIGNMENT_CLOSEDATE;
 	public static final String EVENT_UPDATE_ASSIGNMENT_ACCESS = AssignmentConstants.EVENT_UPDATE_ASSIGNMENT_ACCESS;
 	public static final String EVENT_UPDATE_ASSIGNMENT = AssignmentConstants.EVENT_UPDATE_ASSIGNMENT;
 	
