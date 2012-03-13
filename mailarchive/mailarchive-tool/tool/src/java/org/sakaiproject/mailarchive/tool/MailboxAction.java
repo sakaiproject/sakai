@@ -98,6 +98,8 @@ public class MailboxAction extends PagedResourceActionII
 
 	private static final String FORM_ALIAS = "alias";
 
+	private static final int FORM_ALIAS_MAX_LENGTH = 99;
+
         private static final String FORM_ITEM_NUMBER  = "item_number";
 
 	/** List request parameters. */
@@ -819,6 +821,7 @@ public class MailboxAction extends PagedResourceActionII
 		context.put("form-reply", FORM_REPLY);
 		context.put("form-sendto", FORM_SENDTO);
 		context.put("form-alias", FORM_ALIAS);
+		context.put("form-alias-max-length",FORM_ALIAS_MAX_LENGTH);
 		context.put("form-submit", BUTTON + "doUpdate");
 		context.put("form-cancel", BUTTON + "doCancel");
 
