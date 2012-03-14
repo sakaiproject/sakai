@@ -53,6 +53,9 @@ import org.sakaiproject.exception.PermissionException;
 import org.sakaiproject.message.api.Message;
 import org.sakaiproject.thread_local.api.ThreadLocalManager;
 import org.sakaiproject.time.api.Time;
+import org.sakaiproject.site.api.Site;
+import org.sakaiproject.site.api.ToolConfiguration;
+import org.sakaiproject.tool.api.Tool;
 import org.sakaiproject.user.api.User;
 import org.sakaiproject.util.ResourceLoader;
 
@@ -64,6 +67,8 @@ import org.sakaiproject.util.ResourceLoader;
 public class AnnouncementSupport{
 	
 	private Log logger = LogFactory.getLog(AnnouncementSupport.class);
+	
+	private String ANNOUNCEMENT_TOOL_ID ="sakai.announcements";
 	
 	ResourceLoader rl = new ResourceLoader("dash_entity");
 	
@@ -244,7 +249,24 @@ public class AnnouncementSupport{
 				// more info
 				List<Map<String,String>> infoList = new ArrayList<Map<String,String>>();
 				Map<String,String> infoItem = new HashMap<String,String>();
-				infoItem.put(VALUE_INFO_LINK_URL, announcement.getUrl());
+				// to view announcement url in context of the announcement tool, the url pattern should be of the following format
+				//http://<serverurl>/portal/tool/<toolid>?itemReference=<announcementRef>&panel=Main&sakai_action=doShowmetadata
+				String announcementUrl = "";
+				Reference entityRef = entityManager.newReference(entityReference);
+				if (entityRef != null)
+				{
+					Site site = sakaiProxy.getSite(entityRef.getContext());
+					if (site != null)
+					{
+						ToolConfiguration tc = site.getToolForCommonId(ANNOUNCEMENT_TOOL_ID);
+						if (tc != null)
+						{
+							String toolId = tc.getId();
+							announcementUrl = sakaiProxy.getServerUrl() + "/portal/tool/" + toolId + "?itemReference=" + announcement.getReference() + "&panel=Main&sakai_action=doShowmetadata";
+						}
+					}
+				}
+				infoItem.put(VALUE_INFO_LINK_URL, announcementUrl);
 				infoItem.put(VALUE_INFO_LINK_TITLE, rl.getString("announcement.info.link"));
 				infoItem.put(VALUE_INFO_LINK_TARGET, "_top");
 				infoList.add(infoItem);

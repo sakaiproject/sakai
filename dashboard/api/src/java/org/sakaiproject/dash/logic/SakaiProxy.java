@@ -283,5 +283,11 @@ public interface SakaiProxy {
 	 * @return
 	 */
 	public boolean isEventProcessingThreadDisabled();
+	
+	/**
+	 * returns the server url
+	 * @return
+	 */
+	public String getServerUrl();
 
 }

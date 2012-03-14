@@ -370,6 +370,14 @@ public class SakaiProxyImpl implements SakaiProxy {
 	/**
 	 * {@inheritDoc}
 	 */
+	public String getServerUrl()
+	{
+		return serverConfigurationService.getServerUrl();
+	}
+	
+	/**
+	 * {@inheritDoc}
+	 */
 	public List<User> unlockUsers(String lock, String reference)
 	{
 		return securityService.unlockUsers(lock, reference);

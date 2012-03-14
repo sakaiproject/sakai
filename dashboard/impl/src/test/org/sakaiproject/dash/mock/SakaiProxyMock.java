@@ -214,5 +214,9 @@ public class SakaiProxyMock implements SakaiProxy {
 		// TODO Auto-generated method stub
 		
 	}
+	
+	public String getServerUrl() {
+		return null;
+	}
 
 }
