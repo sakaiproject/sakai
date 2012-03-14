@@ -284,16 +284,24 @@ public class AssignmentSupport {
 		
 		public boolean isAvailable(String entityReference) {
 			Assignment assn = (Assignment) sakaiProxy.getEntity(entityReference);
-			Date openTime = new Date(assn.getOpenTime().getTime());
-			
-			if (openTime != null && openTime.after(new Date()))
+			if (assn != null)
 			{
-				// assignment is not open yet, don't create links
-				return false;
+				Date openTime = new Date(assn.getOpenTime().getTime());
+				
+				if (openTime != null && openTime.after(new Date()))
+				{
+					// assignment is not open yet, don't create links
+					return false;
+				}
+				else
+				{
+					return true;
+				}
 			}
 			else
 			{
-				return true;
+				logger.info("isAvailable: cannot find assignment for " + entityReference);
+				return false;
 			}
 		}
 
