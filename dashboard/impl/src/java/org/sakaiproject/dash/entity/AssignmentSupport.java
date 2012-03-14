@@ -95,6 +95,7 @@ public class AssignmentSupport {
 		this.dashboardLogic.registerEventProcessor(new AssignmentUpdateAccessEventProcessor());
 		this.dashboardLogic.registerEventProcessor(new AssignmentUpdateOpenDateEventProcessor());
 		this.dashboardLogic.registerEventProcessor(new AssignmentUpdateDueDateEventProcessor());
+		this.dashboardLogic.registerEventProcessor(new AssignmentUpdateCloseDateEventProcessor());
 		this.dashboardLogic.registerEventProcessor(new AssignmentUpdateEventProcessor());
 	}
 	
@@ -374,11 +375,7 @@ public class AssignmentSupport {
 				
 				NewsItem newsItem = dashboardLogic.createNewsItem(assn.getTitle(), event.getEventTime(), "assignment.added", assnReference, context, sourceType, null);
 				CalendarItem calendarDueDateItem = null;
-				if (assn.getProperties().getProperty(ResourceProperties.NEW_ASSIGNMENT_CHECK_ADD_DUE_DATE)  == null || assn.getProperties().getProperty(ResourceProperties.NEW_ASSIGNMENT_CHECK_ADD_DUE_DATE).equalsIgnoreCase(Boolean.toString(false)))
-				{
-					// don't create calendar item now, if the assignment is posting to schedule tool, dashboard will get the calendar item from schedule tool post event
-					calendarDueDateItem = dashboardLogic.createCalendarItem(assn.getTitle(), new Date(assn.getDueTime().getTime()), "assignment.due.date", assnReference, context, sourceType, (String) null, (RepeatingCalendarItem) null, (Integer) null);
-				}
+				calendarDueDateItem = dashboardLogic.createCalendarItem(assn.getTitle(), new Date(assn.getDueTime().getTime()), "assignment.due.date", assnReference, context, sourceType, (String) null, (RepeatingCalendarItem) null, (Integer) null);
 				CalendarItem calendarCloseDateItem = assn.getCloseTime().equals(assn.getDueTime())? null : dashboardLogic.createCalendarItem(assn.getTitle(), new Date(assn.getCloseTime().getTime()), "assignment.close.date", assnReference, context, sourceType, (String) null, (RepeatingCalendarItem) null, (Integer) null);
 				
 				if(dashboardLogic.isAvailable(assnReference, IDENTIFIER)) {
@@ -669,7 +666,54 @@ public class AssignmentSupport {
 				if (cItem != null)
 				{
 					Date newTime = new Date(assn.getDueTime().getTime());
-					cItem.setCalendarTime(newTime);
+					dashboardLogic.reviseCalendarItemTime(assnReference, "assignment.due.date", null, newTime);
+				}
+			}
+		}
+	}
+	
+	/**
+	 * Inner Class: AssignmentUpdateDueDateEventProcessor
+	 */
+	public class AssignmentUpdateCloseDateEventProcessor implements EventProcessor {
+		
+		/* (non-Javadoc)
+		 * @see org.sakaiproject.dash.listener.EventProcessor#getEventIdentifer()
+		 */
+		public String getEventIdentifer() {
+			
+			return SakaiProxy.EVENT_UPDATE_ASSIGNMENT_CLOSEDATE;
+		}
+
+		/* (non-Javadoc)
+		 * @see org.sakaiproject.dash.listener.EventProcessor#processEvent(org.sakaiproject.event.api.Event)
+		 */
+		public void processEvent(Event event) {
+			
+			if(logger.isDebugEnabled()) {
+				logger.debug("assignment update closedate event processor " + event.getResource());
+			}
+			Entity entity = sakaiProxy.getEntity(event.getResource());
+			Context context = dashboardLogic.getContext(event.getContext());
+			if(context == null) {
+				context = dashboardLogic.createContext(event.getContext());
+			}
+            
+			SourceType sourceType = dashboardLogic.getSourceType(IDENTIFIER);
+			if(sourceType == null) {
+				sourceType = dashboardLogic.createSourceType(IDENTIFIER, SakaiProxy.PERMIT_ASSIGNMENT_ACCESS, EntityLinkStrategy.SHOW_PROPERTIES);
+			}
+			
+			if(entity != null && entity instanceof Assignment) {
+				// get the assignment entity and its current title
+				Assignment assn = (Assignment) entity;
+				String assnReference = assn.getReference();
+				CalendarItem cItem = dashboardLogic.getCalendarItem(assnReference, "assignment.close.date", null);
+				
+				if (cItem != null)
+				{
+					Date newTime = new Date(assn.getCloseTime().getTime());
+					dashboardLogic.reviseCalendarItemTime(assnReference, "assignment.close.date", null, newTime);
 				}
 			}
 		}
