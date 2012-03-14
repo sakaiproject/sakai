@@ -23,13 +23,13 @@
 package org.sakaiproject.tool.assessment.shared.impl.grading;
 
 import org.sakaiproject.tool.assessment.data.dao.assessment.PublishedAssessmentData;
+import org.sakaiproject.tool.assessment.data.dao.grading.AssessmentGradingData;
 import org.sakaiproject.tool.assessment.data.ifc.assessment.PublishedAssessmentIfc;
-import org.sakaiproject.tool.assessment.data.ifc.grading.AssessmentGradingIfc;
 import org.sakaiproject.tool.assessment.facade.PublishedAssessmentFacade;
+import org.sakaiproject.tool.assessment.services.GradingServiceException;
 import org.sakaiproject.tool.assessment.services.assessment.PublishedAssessmentService;
 import org.sakaiproject.tool.assessment.services.gradebook.GradebookServiceHelper;
 import org.sakaiproject.tool.assessment.shared.api.grading.GradebookServiceAPI;
-import org.sakaiproject.tool.assessment.services.GradingServiceException;
 
 /**
  * The GradebookServiceAPI describes an interface for gradebook information
@@ -106,7 +106,7 @@ public class GradebookServiceImpl implements GradebookServiceAPI
    * @param ag the assessment grading data
    * @param agentIdString agent id
    */
-  public void updateExternalAssessment(AssessmentGradingIfc ag, String agentIdString)
+  public void updateExternalAssessment(AssessmentGradingData ag, String agentIdString)
   {
     try
     {
@@ -141,7 +141,7 @@ public class GradebookServiceImpl implements GradebookServiceAPI
    * Update the score in the gradebook.
    * @param ag the assessment grading interface
    */
-  public void updateExternalAssessmentScore(AssessmentGradingIfc ag)
+  public void updateExternalAssessmentScore(AssessmentGradingData ag)
   {
     try
     {

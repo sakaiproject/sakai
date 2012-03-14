@@ -31,12 +31,10 @@ import java.util.Map;
 import java.util.Set;
 
 import org.sakaiproject.tool.assessment.data.dao.grading.AssessmentGradingData;
+import org.sakaiproject.tool.assessment.data.dao.grading.ItemGradingAttachment;
 import org.sakaiproject.tool.assessment.data.dao.grading.ItemGradingData;
 import org.sakaiproject.tool.assessment.data.dao.grading.MediaData;
 import org.sakaiproject.tool.assessment.data.ifc.assessment.PublishedAssessmentIfc;
-import org.sakaiproject.tool.assessment.data.ifc.grading.AssessmentGradingIfc;
-import org.sakaiproject.tool.assessment.data.ifc.grading.ItemGradingAttachmentIfc;
-import org.sakaiproject.tool.assessment.data.ifc.grading.ItemGradingIfc;
 import org.sakaiproject.tool.assessment.data.ifc.grading.StudentGradingSummaryIfc;
 
 public interface AssessmentGradingFacadeQueriesAPI
@@ -80,7 +78,7 @@ public interface AssessmentGradingFacadeQueriesAPI
   /**
    * Assume this is a new item.
    */
-  //public void storeGrades(AssessmentGradingIfc data);
+  //public void storeGrades(AssessmentGradingData data);
 
   /**
    * This is the big, complicated mess where we take all the items in
@@ -90,7 +88,7 @@ public interface AssessmentGradingFacadeQueriesAPI
    * If regrade is true, we just recalculate the graded score.  If it's
    * false, we do everything from scratch.
    */
-  //public void storeGrades(AssessmentGradingIfc data, boolean regrade);
+  //public void storeGrades(AssessmentGradingData data, boolean regrade);
 
   /**
    * This grades multiple choice and true false questions.  Since
@@ -135,7 +133,7 @@ public interface AssessmentGradingFacadeQueriesAPI
 
   public ItemGradingData getItemGrading(Long id);
 
-  public AssessmentGradingIfc getLastAssessmentGradingByAgentId(
+  public AssessmentGradingData getLastAssessmentGradingByAgentId(
       Long publishedAssessmentId, String agentIdString);
 
   public AssessmentGradingData getLastSavedAssessmentGradingByAgentId(
@@ -150,18 +148,18 @@ public interface AssessmentGradingFacadeQueriesAPI
   
   public List getLastSubmittedOrGradedAssessmentGradingList(Long publishedAssessmentId);
 
-  public void saveItemGrading(ItemGradingIfc item);
+  public void saveItemGrading(ItemGradingData item);
 
-  public void saveOrUpdateAssessmentGrading(AssessmentGradingIfc assessment);
+  public void saveOrUpdateAssessmentGrading(AssessmentGradingData assessment);
 
-    //public void setIsLate(AssessmentGradingIfc assessment);
+    //public void setIsLate(AssessmentGradingData assessment);
 
   public List getAssessmentGradingIds(Long publishedItemId);
 
-  public AssessmentGradingIfc getHighestAssessmentGrading(
+  public AssessmentGradingData getHighestAssessmentGrading(
       Long publishedAssessmentId, String agentId);
 
-  public AssessmentGradingIfc getHighestSubmittedAssessmentGrading(
+  public AssessmentGradingData getHighestSubmittedAssessmentGrading(
 		  Long publishedAssessmentId, String agentId, Long assessmentGradingId);
 
   public HashMap getLastAssessmentGradingByPublishedItem(Long publishedAssessmentId);
@@ -220,7 +218,7 @@ public interface AssessmentGradingFacadeQueriesAPI
   
   public boolean getHasGradingData(Long publishedAssessmentId);
 
-  public void removeUnsubmittedAssessmentGradingData(AssessmentGradingIfc data);
+  public void removeUnsubmittedAssessmentGradingData(AssessmentGradingData data);
     
   public ArrayList getHasGradingDataAndHasSubmission(Long publishedAssessmentId);
   
@@ -233,7 +231,7 @@ public interface AssessmentGradingFacadeQueriesAPI
   
   public void autoSubmitAssessments();
   
-  public ItemGradingAttachmentIfc createItemGradingtAttachment(ItemGradingIfc itemGrading, String resourceId, String filename, String protocol);
+  public ItemGradingAttachment createItemGradingtAttachment(ItemGradingData itemGrading, String resourceId, String filename, String protocol);
   
   public void removeItemGradingAttachment(Long attachmentId);
   

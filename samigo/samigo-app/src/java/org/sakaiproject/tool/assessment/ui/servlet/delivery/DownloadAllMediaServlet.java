@@ -22,21 +22,12 @@
 
 
 package org.sakaiproject.tool.assessment.ui.servlet.delivery;
-import org.sakaiproject.tool.assessment.services.assessment.PublishedAssessmentService;
-import org.sakaiproject.tool.assessment.services.GradingService;
-import org.sakaiproject.tool.assessment.shared.impl.assessment.PublishedAssessmentServiceImpl;
-import org.sakaiproject.tool.assessment.data.dao.grading.ItemGradingData;
-import org.sakaiproject.tool.assessment.data.ifc.assessment.ItemDataIfc;
-import org.sakaiproject.tool.assessment.data.ifc.assessment.PublishedAssessmentIfc;
-import org.sakaiproject.tool.assessment.data.ifc.grading.MediaIfc;
-import org.sakaiproject.tool.assessment.facade.AgentFacade;
-import org.sakaiproject.tool.assessment.integration.helper.integrated.AgentHelperImpl;
-import org.sakaiproject.tool.assessment.ui.bean.authz.AuthorizationBean;
-import org.sakaiproject.tool.assessment.ui.bean.evaluation.QuestionScoresBean;
-import org.sakaiproject.tool.assessment.ui.bean.shared.PersonBean;
-import org.sakaiproject.tool.assessment.ui.listener.util.ContextUtil;
-
-import java.io.*;
+import java.io.BufferedInputStream;
+import java.io.ByteArrayInputStream;
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileNotFoundException;
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashMap;
@@ -46,14 +37,28 @@ import java.util.Map;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipOutputStream;
 
+import javax.servlet.RequestDispatcher;
 import javax.servlet.ServletException;
 import javax.servlet.ServletOutputStream;
 import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
-import javax.servlet.RequestDispatcher;
+
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
+import org.sakaiproject.tool.assessment.data.dao.grading.ItemGradingData;
+import org.sakaiproject.tool.assessment.data.dao.grading.MediaData;
+import org.sakaiproject.tool.assessment.data.ifc.assessment.ItemDataIfc;
+import org.sakaiproject.tool.assessment.data.ifc.assessment.PublishedAssessmentIfc;
+import org.sakaiproject.tool.assessment.facade.AgentFacade;
+import org.sakaiproject.tool.assessment.integration.helper.integrated.AgentHelperImpl;
+import org.sakaiproject.tool.assessment.services.GradingService;
+import org.sakaiproject.tool.assessment.services.assessment.PublishedAssessmentService;
+import org.sakaiproject.tool.assessment.shared.impl.assessment.PublishedAssessmentServiceImpl;
+import org.sakaiproject.tool.assessment.ui.bean.authz.AuthorizationBean;
+import org.sakaiproject.tool.assessment.ui.bean.evaluation.QuestionScoresBean;
+import org.sakaiproject.tool.assessment.ui.bean.shared.PersonBean;
+import org.sakaiproject.tool.assessment.ui.listener.util.ContextUtil;
 
 /**
  * <p>Title: Samigo</p>
@@ -144,7 +149,7 @@ private static Log log = LogFactory.getLog(DownloadAllMediaServlet.class);
 	  GradingService gradingService = new GradingService();
 	  List mediaList = gradingService.getMediaArray(publishedId,publishedItemId, scoringType);
 
-	  MediaIfc mediaData;
+	  MediaData mediaData;
 	  log.debug("mediaList.size() = " + mediaList.size());
 
 	  ZipOutputStream zos = null;
@@ -152,7 +157,7 @@ private static Log log = LogFactory.getLog(DownloadAllMediaServlet.class);
     	  ServletOutputStream outputStream = res.getOutputStream();
     	  zos = new ZipOutputStream(outputStream);
     	  for (int i = 0; i < mediaList.size(); i++){
-    		  mediaData = (MediaIfc) mediaList.get(i);
+    		  mediaData = (MediaData) mediaList.get(i);
     		  processOneMediaData(zos, mediaData, true, -1); 
     	  }  
       }
@@ -182,7 +187,7 @@ private static Log log = LogFactory.getLog(DownloadAllMediaServlet.class);
 	  
       HashMap hashByAgentId = new HashMap();
       HashMap subHashByAssessmentGradingId;
-      MediaIfc mediaData;
+      MediaData mediaData;
       ArrayList list;
       ItemGradingData itemGradingData;
 
@@ -197,7 +202,7 @@ private static Log log = LogFactory.getLog(DownloadAllMediaServlet.class);
 	  String agentId;
 	  Long assessmentGradingId;
 	  for (int i = 0; i < mediaList.size(); i++) {
-		  mediaData = (MediaIfc) mediaList.get(i);
+		  mediaData = (MediaData) mediaList.get(i);
 		  itemGradingData = (ItemGradingData) mediaData.getItemGradingData();
 		  agentId = itemGradingData.getAgentId();
 		  assessmentGradingId = itemGradingData.getAssessmentGradingId();
@@ -273,7 +278,7 @@ private static Log log = LogFactory.getLog(DownloadAllMediaServlet.class);
    					  valueList = (ArrayList) hashMap.get(sortedKey);
    					  for (int j = 0; j < valueList.size(); j++) {
    						  log.debug("j = " + j);
-   						  mediaData = (MediaIfc) valueList.get(j);
+   						  mediaData = (MediaData) valueList.get(j);
    						  processOneMediaData(zos, mediaData, false, i+1);
    					  }
    				  }
@@ -286,7 +291,7 @@ private static Log log = LogFactory.getLog(DownloadAllMediaServlet.class);
    					log.debug("valueList.size() = " + valueList.size());
    					for (int i = 0; i < valueList.size(); i++) {
    						log.debug("i = " + i);
-   						mediaData = (MediaIfc) valueList.get(i);
+   						mediaData = (MediaData) valueList.get(i);
    						// we use "-1" to indicate one submission
    						// "sub" will not be instered into filename
    						processOneMediaData(zos, mediaData, false, -1); 
@@ -311,7 +316,7 @@ private static Log log = LogFactory.getLog(DownloadAllMediaServlet.class);
 	  }	  
   }
   
-  private void processOneMediaData(ZipOutputStream zos, MediaIfc mediaData, boolean anonymous, int numberSubmission) 
+  private void processOneMediaData(ZipOutputStream zos, MediaData mediaData, boolean anonymous, int numberSubmission) 
   throws IOException {
 	  int BUFFER_SIZE = 2048;
 	  byte data[] = new byte[ BUFFER_SIZE ];
@@ -425,7 +430,7 @@ private static Log log = LogFactory.getLog(DownloadAllMediaServlet.class);
 	  return partAndQues.toString();
   }
 
-  private String getFilename(MediaIfc mediaData, boolean anonymous, int numberSubmission) {
+  private String getFilename(MediaData mediaData, boolean anonymous, int numberSubmission) {
 	  log.debug("numberSubmission = " + numberSubmission);
 	  StringBuilder filename = new StringBuilder();
 	  ItemGradingData itemGradingData = (ItemGradingData) mediaData.getItemGradingData();

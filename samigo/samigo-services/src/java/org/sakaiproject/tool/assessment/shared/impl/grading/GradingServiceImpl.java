@@ -25,19 +25,16 @@ package org.sakaiproject.tool.assessment.shared.impl.grading;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
-import java.util.HashMap;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
-
+import org.sakaiproject.tool.assessment.data.dao.grading.AssessmentGradingData;
 import org.sakaiproject.tool.assessment.data.dao.grading.ItemGradingData;
+import org.sakaiproject.tool.assessment.data.dao.grading.MediaData;
 import org.sakaiproject.tool.assessment.data.ifc.assessment.PublishedAssessmentIfc;
-import org.sakaiproject.tool.assessment.data.ifc.grading.AssessmentGradingIfc;
-import org.sakaiproject.tool.assessment.data.ifc.grading.ItemGradingIfc;
-import org.sakaiproject.tool.assessment.data.ifc.grading.MediaIfc;
 import org.sakaiproject.tool.assessment.services.GradingService;
-import org.sakaiproject.tool.assessment.shared.api.grading.GradingServiceAPI;
 import org.sakaiproject.tool.assessment.services.GradingServiceException;
+import org.sakaiproject.tool.assessment.shared.api.grading.GradingServiceAPI;
 
 /**
  *
@@ -68,7 +65,7 @@ public class GradingServiceImpl implements GradingServiceAPI
 
   /**
    * Get all submissions for a published assessment from the back end.
-   * @return List of AssessmentGradingIfcIfs
+   * @return List of AssessmentGradingDataIfs
    */
   public List getAllSubmissions(String publishedId)
   {
@@ -209,7 +206,7 @@ public class GradingServiceImpl implements GradingServiceAPI
    * @param data
    */
     /*
-  public void storeGrades(AssessmentGradingIfc data)
+  public void storeGrades(AssessmentGradingData data)
   {
     try
     {
@@ -264,7 +261,7 @@ public class GradingServiceImpl implements GradingServiceAPI
    * @param mediaData
    * @return
    */
-  public Long saveMedia(MediaIfc mediaData)
+  public Long saveMedia(MediaData mediaData)
   {
     try
     {
@@ -283,7 +280,7 @@ public class GradingServiceImpl implements GradingServiceAPI
    * @param mediaId
    * @return
    */
-  public MediaIfc getMedia(String mediaId)
+  public MediaData getMedia(String mediaId)
   {
     try
     {
@@ -319,7 +316,7 @@ public class GradingServiceImpl implements GradingServiceAPI
    * @param i
    * @return
    */
-  public List getMediaArray(ItemGradingIfc itemGrading)
+  public List getMediaArray(ItemGradingData itemGrading)
   {
     try
     {
@@ -343,7 +340,7 @@ public class GradingServiceImpl implements GradingServiceAPI
    * @param agentId
    * @return
    */
-  public ItemGradingIfc getLastItemGradingByAgent(String publishedItemId, String agentId)
+  public ItemGradingData getLastItemGradingByAgent(String publishedItemId, String agentId)
   {
     try
     {
@@ -362,7 +359,7 @@ public class GradingServiceImpl implements GradingServiceAPI
    * @param publishedItemId
    * @return
    */
-  public ItemGradingIfc getItemGrading(String assessmentGradingId, String publishedItemId)
+  public ItemGradingData getItemGrading(String assessmentGradingId, String publishedItemId)
   {
     try
     {
@@ -382,7 +379,7 @@ public class GradingServiceImpl implements GradingServiceAPI
  * @param assessmentGradingId
  * @return
  */
-  public AssessmentGradingIfc load(String assessmentGradingId)
+  public AssessmentGradingData load(String assessmentGradingId)
   {
     try
     {
@@ -401,7 +398,7 @@ public class GradingServiceImpl implements GradingServiceAPI
    * @param agentIdString
    * @return
    */
-  public AssessmentGradingIfc getLastAssessmentGradingByAgentId(String publishedAssessmentId, String agentIdString)
+  public AssessmentGradingData getLastAssessmentGradingByAgentId(String publishedAssessmentId, String agentIdString)
   {
     try
     {
@@ -415,28 +412,12 @@ public class GradingServiceImpl implements GradingServiceAPI
     }
   }
 
-  /**
-   * Save item grading information.
-   * @param item
-   */
-  public void saveItemGrading(ItemGradingIfc item)
-  {
-    try
-    {
-      GradingService service = new GradingService();
-      service.saveItemGrading(item);
-    }
-    catch (Exception ex)
-    {
-      throw new GradingServiceException(ex);
-    }
-  }
 
   /**
-   * Save assesment grading.
+   * Save assessment grading.
    * @param assessment
    */
-  public void saveOrUpdateAssessmentGrading(AssessmentGradingIfc assessment)
+  public void saveOrUpdateAssessmentGrading(AssessmentGradingData assessment)
   {
     try
     {
@@ -447,5 +428,18 @@ public class GradingServiceImpl implements GradingServiceAPI
     {
       throw new GradingServiceException(ex);
     }
+  }
+
+
+  public void saveItemGrading(ItemGradingData item) {
+	  try {
+		  GradingService service = new GradingService();
+		  service.saveItemGrading(item);
+	  }
+	  catch (Exception e)
+	  {
+		  throw new GradingServiceException(e);
+	  }
+
   }
 }

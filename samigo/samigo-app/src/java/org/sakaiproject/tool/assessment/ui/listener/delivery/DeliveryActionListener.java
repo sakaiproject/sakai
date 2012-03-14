@@ -29,10 +29,10 @@ import java.util.Comparator;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.Iterator;
+import java.util.List;
 import java.util.Map;
 import java.util.Random;
 import java.util.Set;
-import java.util.List;
 import java.util.StringTokenizer;
 
 import javax.faces.context.FacesContext;
@@ -44,13 +44,8 @@ import javax.servlet.http.HttpServletRequest;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
-
-import org.apache.commons.lang.StringEscapeUtils;
-import org.apache.commons.lang.StringUtils;
-
 import org.sakaiproject.event.cover.EventTrackingService;
 import org.sakaiproject.event.cover.NotificationService;
-import org.sakaiproject.tool.assessment.data.dao.assessment.Answer;
 import org.sakaiproject.tool.assessment.api.SamigoApiFactory;
 import org.sakaiproject.tool.assessment.data.dao.assessment.AssessmentAccessControl;
 import org.sakaiproject.tool.assessment.data.dao.grading.AssessmentGradingData;
@@ -64,7 +59,6 @@ import org.sakaiproject.tool.assessment.data.ifc.assessment.ItemDataIfc;
 import org.sakaiproject.tool.assessment.data.ifc.assessment.ItemMetaDataIfc;
 import org.sakaiproject.tool.assessment.data.ifc.assessment.ItemTextIfc;
 import org.sakaiproject.tool.assessment.data.ifc.assessment.SectionDataIfc;
-import org.sakaiproject.tool.assessment.data.ifc.grading.ItemGradingIfc;
 import org.sakaiproject.tool.assessment.data.ifc.shared.TypeIfc;
 import org.sakaiproject.tool.assessment.facade.AgentFacade;
 import org.sakaiproject.tool.assessment.facade.PublishedAssessmentFacade;
@@ -80,9 +74,9 @@ import org.sakaiproject.tool.assessment.ui.bean.delivery.FibBean;
 import org.sakaiproject.tool.assessment.ui.bean.delivery.FinBean;
 import org.sakaiproject.tool.assessment.ui.bean.delivery.ItemContentsBean;
 import org.sakaiproject.tool.assessment.ui.bean.delivery.MatchingBean;
+import org.sakaiproject.tool.assessment.ui.bean.delivery.MatrixSurveyBean;
 import org.sakaiproject.tool.assessment.ui.bean.delivery.SectionContentsBean;
 import org.sakaiproject.tool.assessment.ui.bean.delivery.SelectionBean;
-import org.sakaiproject.tool.assessment.ui.bean.delivery.MatrixSurveyBean;
 import org.sakaiproject.tool.assessment.ui.bean.evaluation.StudentScoresBean;
 import org.sakaiproject.tool.assessment.ui.bean.shared.PersonBean;
 import org.sakaiproject.tool.assessment.ui.listener.util.ContextUtil;
@@ -489,15 +483,21 @@ public class DeliveryActionListener
    */
   private void setDeliveryFeedbackOnforEvaluation(DeliveryBean delivery)
   {
-    delivery.getFeedbackComponent().setShowCorrectResponse(true);
-    delivery.getFeedbackComponent().setShowGraderComment(true);
-    delivery.getFeedbackComponent().setShowItemLevel(true);
-    delivery.getFeedbackComponent().setShowQuestion(true);
-    delivery.getFeedbackComponent().setShowResponse(true);
-    delivery.getFeedbackComponent().setShowSelectionLevel(true);
-    delivery.getFeedbackComponent().setShowStats(true);
-    delivery.getFeedbackComponent().setShowStudentScore(true);
-    delivery.getFeedbackComponent().setShowStudentQuestionScore(true);
+	  if (delivery.getFeedbackComponent() == null)
+	  {
+		  delivery.setFeedbackComponent(new FeedbackComponent());
+	  }
+	  delivery.getFeedbackComponent().setShowCorrectResponse(true);
+	  delivery.getFeedbackComponent().setShowGraderComment(true);
+	  delivery.getFeedbackComponent().setShowItemLevel(true);
+	  delivery.getFeedbackComponent().setShowQuestion(true);
+	  delivery.getFeedbackComponent().setShowResponse(true);
+	  delivery.getFeedbackComponent().setShowSelectionLevel(true);
+	  delivery.getFeedbackComponent().setShowStats(true);
+	  delivery.getFeedbackComponent().setShowStudentScore(true);
+	  delivery.getFeedbackComponent().setShowStudentQuestionScore(true);
+
+
   }
 
   /**
@@ -1145,7 +1145,7 @@ public class DeliveryActionListener
     	while (iterAnswer.hasNext())
     	{
     		
-    		ItemGradingIfc data = (ItemGradingIfc) iterAnswer.next();
+    		ItemGradingData data = (ItemGradingData) iterAnswer.next();
     		
     		  AnswerIfc answer = (AnswerIfc) publishedAnswerHash.get(data.getPublishedAnswerId());
     		  
@@ -2598,7 +2598,7 @@ public class DeliveryActionListener
 		  			return "error";
 		  		}
 		  		Iterator iterForAgent = itemBean.getItemGradingDataArray().iterator();
-		  		ItemGradingIfc dataForAgent = (ItemGradingIfc) iterForAgent.next();
+		  		ItemGradingData dataForAgent = (ItemGradingData) iterForAgent.next();
 		  		agentId = dataForAgent.getAgentId();
 		  	}
 	  }

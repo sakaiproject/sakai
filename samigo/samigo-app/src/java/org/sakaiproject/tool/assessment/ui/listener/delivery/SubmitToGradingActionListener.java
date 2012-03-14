@@ -22,13 +22,10 @@
 package org.sakaiproject.tool.assessment.ui.listener.delivery;
 
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Iterator;
-import java.util.List;
-import java.util.Random;
 import java.util.Set;
 
 import javax.faces.application.FacesMessage;
@@ -39,15 +36,10 @@ import javax.faces.event.ActionListener;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
-import org.sakaiproject.tool.assessment.data.dao.assessment.PublishedItemData;
-import org.sakaiproject.tool.assessment.data.dao.assessment.PublishedSectionData;
 import org.sakaiproject.tool.assessment.data.dao.grading.AssessmentGradingData;
 import org.sakaiproject.tool.assessment.data.dao.grading.ItemGradingData;
 import org.sakaiproject.tool.assessment.data.ifc.assessment.AssessmentAccessControlIfc;
 import org.sakaiproject.tool.assessment.data.ifc.assessment.PublishedAssessmentIfc;
-import org.sakaiproject.tool.assessment.data.ifc.assessment.SectionDataIfc;
-import org.sakaiproject.tool.assessment.data.ifc.grading.AssessmentGradingIfc;
-import org.sakaiproject.tool.assessment.data.ifc.grading.ItemGradingIfc;
 import org.sakaiproject.tool.assessment.facade.AgentFacade;
 import org.sakaiproject.tool.assessment.facade.PublishedAssessmentFacade;
 import org.sakaiproject.tool.assessment.services.FinFormatException;
@@ -382,7 +374,7 @@ public class SubmitToGradingActionListener implements ActionListener {
 
 				Iterator iter = adds.iterator();
 				while (iter.hasNext()) {
-					((ItemGradingIfc) iter.next()).setAssessmentGradingId(adata
+					((ItemGradingData) iter.next()).setAssessmentGradingId(adata
 							.getAssessmentGradingId());
 				}
 				// make update to old item and insert new item
@@ -407,7 +399,7 @@ public class SubmitToGradingActionListener implements ActionListener {
 		
 		// If this assessment grading data has been updated (comments or adj. score) by grader and then republic and allow student to resubmit
 		// when the student submit his answers, we update the status back to 0 and remove the grading entry/info.
-		if (AssessmentGradingIfc.ASSESSMENT_UPDATED_NEED_RESUBMIT.equals(adata.getStatus()) || AssessmentGradingIfc.ASSESSMENT_UPDATED.equals(adata.getStatus())) {
+		if (AssessmentGradingData.ASSESSMENT_UPDATED_NEED_RESUBMIT.equals(adata.getStatus()) || AssessmentGradingData.ASSESSMENT_UPDATED.equals(adata.getStatus())) {
 			adata.setStatus(Integer.valueOf(0));
 			adata.setGradedBy(null);
 			adata.setGradedDate(null);
@@ -483,15 +475,15 @@ public class SubmitToGradingActionListener implements ActionListener {
 		Iterator iter = oldItemGradingSet.iterator();
 		HashMap map = new HashMap();
 		while (iter.hasNext()) { // create a map with old itemGrading
-			ItemGradingIfc item = (ItemGradingIfc) iter.next();
+			ItemGradingData item = (ItemGradingData) iter.next();
 			map.put(item.getItemGradingId(), item);
 		}
 
 		// go through new itemGrading
 		Iterator iter1 = newItemGradingSet.iterator();
 		while (iter1.hasNext()) {
-			ItemGradingIfc newItem = (ItemGradingIfc) iter1.next();
-			ItemGradingIfc oldItem = (ItemGradingIfc) map.get(newItem
+			ItemGradingData newItem = (ItemGradingData) iter1.next();
+			ItemGradingData oldItem = (ItemGradingData) map.get(newItem
 					.getItemGradingId());
 			if (oldItem != null) {
 				// itemGrading exists and value has been change, then need

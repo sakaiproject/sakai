@@ -24,8 +24,6 @@ package org.sakaiproject.tool.assessment.data.dao.grading;
 import java.util.Date;
 
 import org.sakaiproject.tool.assessment.data.ifc.assessment.PublishedAssessmentIfc;
-import org.sakaiproject.tool.assessment.data.ifc.grading.AssessmentGradingIfc;
-import org.sakaiproject.tool.assessment.data.ifc.grading.AssessmentGradingSummaryIfc;
 
 /**
  * <p>Title: </p>
@@ -37,7 +35,7 @@ import org.sakaiproject.tool.assessment.data.ifc.grading.AssessmentGradingSummar
  */
 
 public class AssessmentGradingSummaryData
-    implements AssessmentGradingSummaryIfc
+    
 // need to implement org.osid.assessment.ItemTaken in the future
 // - daisyf 10/11/04
 {
@@ -50,7 +48,7 @@ private Long assessmentGradingSummaryId;
   private String agentId;
   private Integer totalSubmitted;
   private Integer totalSubmittedForGrade;
-  private AssessmentGradingIfc lastSubmittedAssessmentGrading;
+  private AssessmentGradingData lastSubmittedAssessmentGrading;
   private Date lastSubmittedDate;
   private Boolean lastSubmittedAssessmentIsLate;
   private Float sumOf_autoScoreForGrade;
@@ -64,7 +62,7 @@ private Long assessmentGradingSummaryId;
   private Float lowest_overrideScoreForGrade;
   private Float last_overrideScoreForGrade;
   private Integer scoringType;
-  private AssessmentGradingIfc acceptedAssessmentGrading;
+  private AssessmentGradingData acceptedAssessmentGrading;
   private Boolean acceptedAssessmentIsLate;
   private Float finalAssessmentScore;
   private Boolean feedToGradeBook;
@@ -101,10 +99,10 @@ private Long assessmentGradingSummaryId;
   public void setTotalSubmittedForGrade(Integer totalSubmittedForGrade) {
     this.totalSubmittedForGrade = totalSubmittedForGrade;
   }
-  public AssessmentGradingIfc getLastSubmittedAssessmentGrading() {
+  public AssessmentGradingData getLastSubmittedAssessmentGrading() {
     return lastSubmittedAssessmentGrading;
   }
-  public void setLastSubmittedAssessmentGrading(AssessmentGradingIfc lastSubmittedAssessmentGrading) {
+  public void setLastSubmittedAssessmentGrading(AssessmentGradingData lastSubmittedAssessmentGrading) {
     this.lastSubmittedAssessmentGrading = lastSubmittedAssessmentGrading;
   }
   public Date getLastSubmittedDate() {
@@ -186,10 +184,10 @@ private Long assessmentGradingSummaryId;
     this.scoringType = scoringType;
   }
 
-  public AssessmentGradingIfc getAcceptedAssessmentGrading() {
+  public AssessmentGradingData getAcceptedAssessmentGrading() {
     return acceptedAssessmentGrading;
   }
-  public void setAcceptedAssessmentGrading(AssessmentGradingIfc acceptedAssessmentGrading) {
+  public void setAcceptedAssessmentGrading(AssessmentGradingData acceptedAssessmentGrading) {
     this.acceptedAssessmentGrading = acceptedAssessmentGrading;
   }
   public Boolean getAcceptedAssessmentIsLate() {

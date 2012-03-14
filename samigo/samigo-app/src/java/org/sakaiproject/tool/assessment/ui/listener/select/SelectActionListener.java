@@ -27,11 +27,10 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Date;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
-import java.util.HashSet;
 
-import javax.faces.component.html.HtmlSelectOneMenu;
 import javax.faces.context.FacesContext;
 import javax.faces.event.AbortProcessingException;
 import javax.faces.event.ActionEvent;
@@ -47,9 +46,7 @@ import org.sakaiproject.tool.assessment.data.ifc.assessment.AssessmentAccessCont
 import org.sakaiproject.tool.assessment.data.ifc.assessment.AssessmentFeedbackIfc;
 import org.sakaiproject.tool.assessment.data.ifc.assessment.AssessmentIfc;
 import org.sakaiproject.tool.assessment.data.ifc.assessment.EvaluationModelIfc;
-import org.sakaiproject.tool.assessment.data.ifc.assessment.PublishedAssessmentIfc;
 import org.sakaiproject.tool.assessment.facade.AgentFacade;
-import org.sakaiproject.tool.assessment.facade.AssessmentGradingFacade;
 import org.sakaiproject.tool.assessment.facade.PublishedAssessmentFacade;
 import org.sakaiproject.tool.assessment.facade.PublishedAssessmentFacadeQueries;
 import org.sakaiproject.tool.assessment.services.GradingService;
@@ -58,8 +55,8 @@ import org.sakaiproject.tool.assessment.shared.api.assessment.SecureDeliveryServ
 import org.sakaiproject.tool.assessment.ui.bean.authz.AuthorizationBean;
 import org.sakaiproject.tool.assessment.ui.bean.delivery.DeliveryBean;
 import org.sakaiproject.tool.assessment.ui.bean.delivery.DeliveryBeanie;
-import org.sakaiproject.tool.assessment.ui.bean.shared.PersonBean;
 import org.sakaiproject.tool.assessment.ui.bean.select.SelectAssessmentBean;
+import org.sakaiproject.tool.assessment.ui.bean.shared.PersonBean;
 import org.sakaiproject.tool.assessment.ui.listener.util.ContextUtil;
 import org.sakaiproject.tool.assessment.util.BeanSort;
 import org.sakaiproject.util.ResourceLoader;
@@ -208,7 +205,7 @@ public class SelectActionListener
     HashSet<Long> recentSubmittedIds = new HashSet<Long>();
     select.setHasAnyAssessmentRetractForEdit(false);
     for (int k = 0; k < recentSubmittedList.size(); k++) {
-    	AssessmentGradingFacade g = (AssessmentGradingFacade)
+    	AssessmentGradingData g = (AssessmentGradingData)
     	recentSubmittedList.get(k);
     	recentSubmittedIds.add(g.getPublishedAssessmentId());
     }
@@ -219,7 +216,7 @@ public class SelectActionListener
     	hasHighest = false;
     	hasMultipleSubmission = false;
 
-    	AssessmentGradingFacade g = (AssessmentGradingFacade)
+    	AssessmentGradingData g = (AssessmentGradingData)
     	recentSubmittedList.get(k);
 
         DeliveryBeanie delivery = new DeliveryBeanie();
@@ -712,7 +709,7 @@ public class SelectActionListener
 	  return false;
   }
   
-  private String hasStats(AssessmentGradingFacade a, HashMap feedbackHash){
+  private String hasStats(AssessmentGradingData a, HashMap feedbackHash){
     String hasStats = "false";
 
     AssessmentFeedbackIfc f= (AssessmentFeedbackIfc)feedbackHash.get(a.getPublishedAssessmentId());
@@ -727,7 +724,7 @@ public class SelectActionListener
     return hasStats;
   }
 
-  private String showScore(AssessmentGradingFacade a,
+  private String showScore(AssessmentGradingData a,
                            String hasFeedback, HashMap feedbackHash){
     String showScore = "na";
     // must meet 2 conditions: hasFeedback==true && feedback.getShowStudentScore()==true
@@ -796,7 +793,7 @@ public class SelectActionListener
 	      return null;
 	  }
   
-  private boolean getHasAssessmentBeenModified(SelectAssessmentBean select, AssessmentGradingFacade g, HashMap publishedAssessmentHash){
+  private boolean getHasAssessmentBeenModified(SelectAssessmentBean select, AssessmentGradingData g, HashMap publishedAssessmentHash){
 	    PublishedAssessmentFacade p = (PublishedAssessmentFacade)publishedAssessmentHash.
 	        get(g.getPublishedAssessmentId());
 	    if (p != null) {

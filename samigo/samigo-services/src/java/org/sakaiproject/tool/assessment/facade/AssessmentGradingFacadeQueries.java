@@ -76,15 +76,11 @@ import org.sakaiproject.tool.assessment.data.ifc.assessment.ItemDataIfc;
 import org.sakaiproject.tool.assessment.data.ifc.assessment.ItemTextIfc;
 import org.sakaiproject.tool.assessment.data.ifc.assessment.PublishedAssessmentIfc;
 import org.sakaiproject.tool.assessment.data.ifc.assessment.SectionDataIfc;
-import org.sakaiproject.tool.assessment.data.ifc.grading.AssessmentGradingIfc;
-import org.sakaiproject.tool.assessment.data.ifc.grading.ItemGradingAttachmentIfc;
-import org.sakaiproject.tool.assessment.data.ifc.grading.ItemGradingIfc;
 import org.sakaiproject.tool.assessment.data.ifc.grading.StudentGradingSummaryIfc;
 import org.sakaiproject.tool.assessment.data.ifc.shared.TypeIfc;
 import org.sakaiproject.tool.assessment.integration.context.IntegrationContextFactory;
 import org.sakaiproject.tool.assessment.integration.helper.ifc.GradebookServiceHelper;
 import org.sakaiproject.tool.assessment.services.GradebookServiceException;
-import org.sakaiproject.tool.assessment.services.GradingService;
 import org.sakaiproject.tool.assessment.services.ItemService;
 import org.sakaiproject.tool.assessment.services.PersistenceHelper;
 import org.sakaiproject.tool.assessment.services.assessment.PublishedAssessmentService;
@@ -168,7 +164,7 @@ public class AssessmentGradingFacadeQueries extends HibernateDaoSupport implemen
       			q.setLong(0, Long.parseLong(publishedId));
       			q.setBoolean(1, true);
       			q.setBoolean(2, false);
-      			q.setInteger(3, AssessmentGradingIfc.NO_SUBMISSION.intValue());
+      			q.setInteger(3, AssessmentGradingData.NO_SUBMISSION.intValue());
       		}
       		return q.list();
       	};
@@ -200,7 +196,7 @@ public class AssessmentGradingFacadeQueries extends HibernateDaoSupport implemen
 	      			q.setLong(0, Long.parseLong(publishedId));
 	      			q.setBoolean(1, true);
 	      			q.setBoolean(2, false);
-	      			q.setInteger(3, AssessmentGradingIfc.NO_SUBMISSION.intValue());
+	      			q.setInteger(3, AssessmentGradingData.NO_SUBMISSION.intValue());
 	      		}
 	    		return q.list();
     	    };
@@ -273,7 +269,7 @@ public class AssessmentGradingFacadeQueries extends HibernateDaoSupport implemen
       		Query q = session.createQuery(
       				"from AssessmentGradingData a where a.publishedAssessmentId=? and a.status <> ? order by a.agentId asc, a.submittedDate desc");
       		q.setLong(0, publishedId.longValue());
-    		q.setInteger(1, AssessmentGradingIfc.NO_SUBMISSION.intValue());
+    		q.setInteger(1, AssessmentGradingData.NO_SUBMISSION.intValue());
       		return q.list();
       	};
       };
@@ -395,7 +391,7 @@ public class AssessmentGradingFacadeQueries extends HibernateDaoSupport implemen
       		q.setLong(0, publishedId.longValue());
       		q.setString(1, agentId);
       		q.setBoolean(2, false);
-    		q.setInteger(3, AssessmentGradingIfc.NO_SUBMISSION.intValue());
+    		q.setInteger(3, AssessmentGradingData.NO_SUBMISSION.intValue());
       		return q.list();
       	};
       };
@@ -783,7 +779,7 @@ public class AssessmentGradingFacadeQueries extends HibernateDaoSupport implemen
     			/** make list from AssessmentGradingData ids */
     			List itemGradingIdList = new ArrayList();
     			for (int i = 0; i < list.size() ; i++) {
-    				ItemGradingIfc itemGradingData = (ItemGradingIfc) list.get(i);
+    				ItemGradingData itemGradingData = (ItemGradingData) list.get(i);
     				itemGradingIdList.add(itemGradingData.getItemGradingId());
     			}
 
@@ -881,7 +877,7 @@ public class AssessmentGradingFacadeQueries extends HibernateDaoSupport implemen
     		q.setLong(0, publishedAssessmentId.longValue());
     		q.setString(1, agentIdString);
     		q.setBoolean(2, false);
-    		q.setInteger(3, AssessmentGradingIfc.NO_SUBMISSION.intValue());
+    		q.setInteger(3, AssessmentGradingData.NO_SUBMISSION.intValue());
     		return q.list();
     	};
     };
@@ -931,7 +927,7 @@ public class AssessmentGradingFacadeQueries extends HibernateDaoSupport implemen
 	    return ag;
   }
   
-  public AssessmentGradingIfc getLastAssessmentGradingByAgentId(final Long publishedAssessmentId, final String agentIdString) {
+  public AssessmentGradingData getLastAssessmentGradingByAgentId(final Long publishedAssessmentId, final String agentIdString) {
     AssessmentGradingData ag = null;
 
     final HibernateCallback hcb = new HibernateCallback(){
@@ -957,7 +953,7 @@ public class AssessmentGradingFacadeQueries extends HibernateDaoSupport implemen
   }
 
 
-  public void saveItemGrading(ItemGradingIfc item) {
+  public void saveItemGrading(ItemGradingData item) {
     int retryCount = persistenceHelper.getRetryCount().intValue();
     while (retryCount > 0){ 
       try {
@@ -971,7 +967,7 @@ public class AssessmentGradingFacadeQueries extends HibernateDaoSupport implemen
     }
   }
 
-  public void saveOrUpdateAssessmentGrading(AssessmentGradingIfc assessment) {
+  public void saveOrUpdateAssessmentGrading(AssessmentGradingData assessment) {
     int retryCount = persistenceHelper.getRetryCount().intValue();
     while (retryCount > 0){ 
       try {
@@ -1083,7 +1079,7 @@ public class AssessmentGradingFacadeQueries extends HibernateDaoSupport implemen
 //         new org.hibernate.type.Type[] { Hibernate.LONG });
   }
 
-  public AssessmentGradingIfc getHighestAssessmentGrading(
+  public AssessmentGradingData getHighestAssessmentGrading(
          final Long publishedAssessmentId, final String agentId)
   {
     AssessmentGradingData ag = null;
@@ -1111,7 +1107,7 @@ public class AssessmentGradingFacadeQueries extends HibernateDaoSupport implemen
     return ag;
   }
   
-  public AssessmentGradingIfc getHighestSubmittedAssessmentGrading(
+  public AssessmentGradingData getHighestSubmittedAssessmentGrading(
 	         final Long publishedAssessmentId, final String agentId, Long assessmentGradingId)
 	  {
 	    AssessmentGradingData ag = null;
@@ -1211,7 +1207,7 @@ public class AssessmentGradingFacadeQueries extends HibernateDaoSupport implemen
 	    		q.setLong(0, publishedAssessmentId.longValue());
 	    		q.setBoolean(1, true);
 	    		q.setBoolean(2, false);
-	    		q.setInteger(3, AssessmentGradingIfc.NO_SUBMISSION.intValue());
+	    		q.setInteger(3, AssessmentGradingData.NO_SUBMISSION.intValue());
 	    		return q.list();
 	    	};
 	    };
@@ -1267,7 +1263,7 @@ public class AssessmentGradingFacadeQueries extends HibernateDaoSupport implemen
 	    		q.setLong(0, publishedAssessmentId.longValue());
 	    		q.setBoolean(1, true);
 	    		q.setBoolean(2, false);
-	    		q.setInteger(3, AssessmentGradingIfc.NO_SUBMISSION.intValue());
+	    		q.setInteger(3, AssessmentGradingData.NO_SUBMISSION.intValue());
 	    		return q.list();
 	    	};
 	    };
@@ -1971,7 +1967,7 @@ public class AssessmentGradingFacadeQueries extends HibernateDaoSupport implemen
       		q.setLong(0, Long.parseLong(publishedId));
       		q.setBoolean(1, true);
       		q.setBoolean(2, false);
-    		q.setInteger(3, AssessmentGradingIfc.NO_SUBMISSION.intValue());
+    		q.setInteger(3, AssessmentGradingData.NO_SUBMISSION.intValue());
       		return q.list();
       	};
       };
@@ -2108,7 +2104,7 @@ public class AssessmentGradingFacadeQueries extends HibernateDaoSupport implemen
                 	index++;
                     PublishedItemData pid = (PublishedItemData)pido;
                     if(index == grades.size() ||
-                                ((ItemGradingIfc)((List)grades.get(index)).get(0)).getPublishedItemId().longValue() != pid.getItemId().longValue()){
+                                ((ItemGradingData)((List)grades.get(index)).get(0)).getPublishedItemId().longValue() != pid.getItemId().longValue()){
 						//have to add the placeholder
                         List newList = new ArrayList();
                         newList.add(new EmptyItemGrading(pid.getSection().getSequence(), pid.getItemId(), pid.getSequence()));
@@ -2133,7 +2129,7 @@ public class AssessmentGradingFacadeQueries extends HibernateDaoSupport implemen
 
 				  // loop over answers per question
 				  int count = 0;
-				  ItemGradingIfc grade = null;
+				  ItemGradingData grade = null;
 				  //boolean isAudioFileUpload = false;
 				  boolean isFinFib = false;
 
@@ -2142,7 +2138,7 @@ public class AssessmentGradingFacadeQueries extends HibernateDaoSupport implemen
 
                   //Add the missing sequences!
 				  for (Object ooo: l) {
-					  grade = (ItemGradingIfc)ooo;
+					  grade = (ItemGradingData)ooo;
 					  if (grade == null || EmptyItemGrading.class.isInstance(grade)) {
 						  continue;
 					  }
@@ -2401,8 +2397,8 @@ public class AssessmentGradingFacadeQueries extends HibernateDaoSupport implemen
 		}
 
 		public int compare(Object a, Object b) {
-			ItemGradingIfc agrade = (ItemGradingIfc) a;
-			ItemGradingIfc bgrade = (ItemGradingIfc) b;
+			ItemGradingData agrade = (ItemGradingData) a;
+			ItemGradingData bgrade = (ItemGradingData) b;
 
 			Long aindex = agrade.getItemGradingId();
 			Long bindex = bgrade.getItemGradingId();
@@ -2460,8 +2456,8 @@ public class AssessmentGradingFacadeQueries extends HibernateDaoSupport implemen
 		}
 
 		public int compare(Object a, Object b) {
-			ItemGradingIfc agrade = (ItemGradingIfc) ((List) a).get(0);
-			ItemGradingIfc bgrade = (ItemGradingIfc) ((List) b).get(0);
+			ItemGradingData agrade = (ItemGradingData) ((List) a).get(0);
+			ItemGradingData bgrade = (ItemGradingData) ((List) b).get(0);
 
 			ItemDataIfc aitem = (ItemDataIfc) publishedItemHash.get(agrade
 					.getPublishedItemId());
@@ -2564,7 +2560,7 @@ public class AssessmentGradingFacadeQueries extends HibernateDaoSupport implemen
             }
         }
 
-	  public void removeUnsubmittedAssessmentGradingData(final AssessmentGradingIfc data) {
+	  public void removeUnsubmittedAssessmentGradingData(final AssessmentGradingData data) {
 		    final HibernateCallback hcb = new HibernateCallback(){
 		    	public Object doInHibernate(Session session) throws HibernateException, SQLException {
 		    		Query q = session.createQuery(
@@ -2574,7 +2570,7 @@ public class AssessmentGradingFacadeQueries extends HibernateDaoSupport implemen
 		    		q.setLong(0, data.getPublishedAssessmentId().longValue());
 		    		q.setString(1, data.getAgentId());
 		    		q.setBoolean(2, false);
-		    		q.setInteger(3, AssessmentGradingIfc.NO_SUBMISSION.intValue());
+		    		q.setInteger(3, AssessmentGradingData.NO_SUBMISSION.intValue());
 		    		return q.list();
 		    	};
 		    };
@@ -2752,7 +2748,7 @@ public class AssessmentGradingFacadeQueries extends HibernateDaoSupport implemen
 		ArrayList updatedAssessmentList = new ArrayList();
 		ArrayList updatedAssessmentNeedResubmitListList = new ArrayList();
 		
-		Object[] values = { agentId, siteId, "OWN_PUBLISHED_ASSESSMENT", false, AssessmentGradingIfc.ASSESSMENT_UPDATED, AssessmentGradingIfc.ASSESSMENT_UPDATED_NEED_RESUBMIT};
+		Object[] values = { agentId, siteId, "OWN_PUBLISHED_ASSESSMENT", false, AssessmentGradingData.ASSESSMENT_UPDATED, AssessmentGradingData.ASSESSMENT_UPDATED_NEED_RESUBMIT};
 
 		List list = getHibernateTemplate()
 				.find("select a.publishedAssessmentId, a.status from AssessmentGradingData a, AuthorizationData az " +
@@ -2767,7 +2763,7 @@ public class AssessmentGradingFacadeQueries extends HibernateDaoSupport implemen
 		Iterator iter = list.iterator();
 		while (iter.hasNext()) {
 			Object o[] = (Object[]) iter.next();
-			if (AssessmentGradingIfc.ASSESSMENT_UPDATED_NEED_RESUBMIT.compareTo((Integer) o[1]) == 0) {
+			if (AssessmentGradingData.ASSESSMENT_UPDATED_NEED_RESUBMIT.compareTo((Integer) o[1]) == 0) {
 				updatedAssessmentNeedResubmitListList.add(o[0]);
 			}
 			else {
@@ -2941,7 +2937,7 @@ public class AssessmentGradingFacadeQueries extends HibernateDaoSupport implemen
 		}
 	}
 	
-	public ItemGradingAttachmentIfc createItemGradingtAttachment(ItemGradingIfc itemGrading, String resourceId, String filename, String protocol) {
+	public ItemGradingAttachment createItemGradingtAttachment(ItemGradingData itemGrading, String resourceId, String filename, String protocol) {
 		ItemGradingAttachment attach = null;
 		Boolean isLink = Boolean.FALSE;
 		try {
@@ -2988,7 +2984,7 @@ public class AssessmentGradingFacadeQueries extends HibernateDaoSupport implemen
 	  public void removeItemGradingAttachment(Long attachmentId) {
 		  ItemGradingAttachment itemGradingAttachment = (ItemGradingAttachment) getHibernateTemplate()
 				.load(ItemGradingAttachment.class, attachmentId);
-		ItemGradingIfc itemGrading = itemGradingAttachment.getItemGrading();
+		ItemGradingData itemGrading = itemGradingAttachment.getItemGrading();
 		// String resourceId = assessmentAttachment.getResourceId();
 		int retryCount = persistenceHelper.getRetryCount()
 				.intValue();
@@ -3141,8 +3137,8 @@ public class AssessmentGradingFacadeQueries extends HibernateDaoSupport implemen
 		  Long itemTextId = itemService.getItemTextId(publishedItemId);
 		  log.debug("itemTextId = " + itemTextId);
 		  itemGradingData.setPublishedItemTextId(itemTextId);
-		  GradingService gradingService = new GradingService();
-		  gradingService.saveItemGrading(itemGradingData);
+		  //we're in the DAO su we can use the DAO method directly
+		  saveItemGrading(itemGradingData);
 	  }
 	  
 	  /***
@@ -3266,174 +3262,32 @@ public class AssessmentGradingFacadeQueries extends HibernateDaoSupport implemen
      * This is a dummy class for sections that are made up of random questions
      * from a pool
      */
-    class EmptyItemGrading implements ItemGradingIfc {
-        private Integer sectionSequence;
-        private Long publishedItemId;
-        private Integer itemSequence;
+	  private static class EmptyItemGrading extends ItemGradingData {
+		  /**
+		 * 
+		 */
+		private static final long serialVersionUID = 1444166131103415747L;
+		private Integer sectionSequence;
+		  private Long publishedItemId;
+		  private Integer itemSequence;
 
-        EmptyItemGrading(Integer sectionSequence, Long publishedItemId, Integer itemSequence){
-            this.sectionSequence = sectionSequence;
-            this.publishedItemId = publishedItemId;
-            this.itemSequence = itemSequence;
-        }
+		  EmptyItemGrading(Integer sectionSequence, Long publishedItemId, Integer itemSequence){
+			  this.sectionSequence = sectionSequence;
+			  this.publishedItemId = publishedItemId;
+			  this.itemSequence = itemSequence;
+		  }
 
-        /**
-         * @return the itemSequence
-         */
-        public Integer getItemSequence() {
-            return itemSequence;
-        }
+		  /**
+		   * @return the itemSequence
+		   */
 
-        public Integer getSectionSequence(){
-            return sectionSequence;
-        }
-        
-        public Long getItemGradingId() {
-            throw new UnsupportedOperationException("Not supported yet.");
-        }
+		  public Integer getItemSequence() {
+			  return itemSequence;
+		  }
 
-        public void setItemGradingId(Long itemGradingId) {
-            throw new UnsupportedOperationException("Not supported yet.");
-        }
+		  public Integer getSectionSequence(){
+			  return sectionSequence;
+		  }
 
-        public Long getAssessmentGradingId() {
-            throw new UnsupportedOperationException("Not supported yet.");
-        }
-
-        public void setAssessmentGradingId(Long assessmentGradingId) {
-            throw new UnsupportedOperationException("Not supported yet.");
-        }
-
-        public Long getPublishedItemId() {
-            return publishedItemId;
-        }
-
-        public void setPublishedItemId(Long publishedItemId) {
-            this.publishedItemId = publishedItemId;
-        }
-
-        public Long getPublishedItemTextId() {
-            throw new UnsupportedOperationException("Not supported yet.");
-        }
-
-        public void setPublishedItemTextId(Long publishedItemTextId) {
-            throw new UnsupportedOperationException("Not supported yet.");
-        }
-
-        public String getAgentId() {
-            throw new UnsupportedOperationException("Not supported yet.");
-        }
-
-        public void setAgentId(String agentId) {
-            throw new UnsupportedOperationException("Not supported yet.");
-        }
-
-        public void setPublishedAnswerId(Long publishedAnswerId) {
-            throw new UnsupportedOperationException("Not supported yet.");
-        }
-
-        public Long getPublishedAnswerId() {
-            throw new UnsupportedOperationException("Not supported yet.");
-        }
-
-        public AnswerIfc getPublishedAnswer() {
-            throw new UnsupportedOperationException("Not supported yet.");
-        }
-
-        public void setPublishedAnswer(AnswerIfc PublishedAnswer) {
-            throw new UnsupportedOperationException("Not supported yet.");
-        }
-
-        public String getRationale() {
-            return null;
-        }
-
-        public void setRationale(String rationale) {
-            throw new UnsupportedOperationException("Not supported yet.");
-        }
-
-        public String getAnswerText() {
-            return " ";
-        }
-
-        public void setAnswerText(String answerText) {
-            throw new UnsupportedOperationException("Not supported yet.");
-        }
-
-        public Date getSubmittedDate() {
-            throw new UnsupportedOperationException("Not supported yet.");
-        }
-
-        public void setSubmittedDate(Date submittedDate) {
-            throw new UnsupportedOperationException("Not supported yet.");
-        }
-
-        public Float getAutoScore() {
-            return 0.0F;
-        }
-
-        public void setAutoScore(Float autoScore) {
-            throw new UnsupportedOperationException("Not supported yet.");
-        }
-
-        public Float getOverrideScore() {
-            throw new UnsupportedOperationException("Not supported yet.");
-        }
-
-        public void setOverrideScore(Float overrideScore) {
-            throw new UnsupportedOperationException("Not supported yet.");
-        }
-
-        public String getComments() {
-            return null;
-        }
-
-        public void setComments(String comments) {
-            throw new UnsupportedOperationException("Not supported yet.");
-        }
-
-        public String getGradedBy() {
-            throw new UnsupportedOperationException("Not supported yet.");
-        }
-
-        public void setGradedBy(String gradedBy) {
-            throw new UnsupportedOperationException("Not supported yet.");
-        }
-
-        public Date getGradedDate() {
-            throw new UnsupportedOperationException("Not supported yet.");
-        }
-
-        public void setGradedDate(Date gradedDate) {
-            throw new UnsupportedOperationException("Not supported yet.");
-        }
-
-        public Boolean getReview() {
-            return Boolean.FALSE;
-        }
-
-        public void setReview(Boolean review) {
-            throw new UnsupportedOperationException("Not supported yet.");
-        }
-
-        public Integer getAttemptsRemaining() {
-            throw new UnsupportedOperationException("Not supported yet.");
-        }
-
-        public void setAttemptsRemaining(Integer attemptsRemaining) {
-            throw new UnsupportedOperationException("Not supported yet.");
-        }
-
-        public Set getItemGradingAttachmentSet() {
-            throw new UnsupportedOperationException("Not supported yet.");
-        }
-
-        public void setItemGradingAttachmentSet(Set itemGradingAttachmentSet) {
-            throw new UnsupportedOperationException("Not supported yet.");
-        }
-
-        public List getItemGradingAttachmentList() {
-            throw new UnsupportedOperationException("Not supported yet.");
-        }
-    }
+	  }
 }
