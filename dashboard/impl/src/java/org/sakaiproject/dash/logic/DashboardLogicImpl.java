@@ -1587,8 +1587,17 @@ public class DashboardLogicImpl implements DashboardLogic, Observer
 					}
 					if(event == null) {
 						if(timeToHandleAvailabilityChecks) {
-							handleAvailabilityChecks();
-							timeToHandleAvailabilityChecks = false;
+							SecurityAdvisor advisor = new DashboardLogicSecurityAdvisor();
+							sakaiProxy.pushSecurityAdvisor(advisor);
+							try {
+								handleAvailabilityChecks();
+								timeToHandleAvailabilityChecks = false;
+							} catch (Exception e) {
+								logger.warn("run: " + event, e);
+							} finally {
+								sakaiProxy.popSecurityAdvisor(advisor);
+								sakaiProxy.clearThreadLocalCache();
+							}
 						} else {
 							updateRepeatingEvents();
 							timeToHandleAvailabilityChecks = true;
