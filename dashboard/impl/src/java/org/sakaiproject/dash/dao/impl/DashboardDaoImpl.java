@@ -1393,9 +1393,13 @@ public class DashboardDaoImpl extends JdbcDaoSupport implements DashboardDao {
 		}
 		
 		try {
-			getJdbcTemplate().update(getStatement("update.CalendarItem.calendarTime.entityReference.labelKey.sequenceNumber"),
-				new Object[]{newDate, entityReference, labelKey, sequenceNumber }
-			);
+			if(sequenceNumber == null) {
+				getJdbcTemplate().update(getStatement("update.CalendarItem.calendarTime.entityReference.labelKey"),
+						new Object[]{newDate, entityReference, labelKey });
+			} else {
+				getJdbcTemplate().update(getStatement("update.CalendarItem.calendarTime.entityReference.labelKey.sequenceNumber"),
+						new Object[]{newDate, entityReference, labelKey, sequenceNumber });
+			}
 			return true;
 		} catch (DataAccessException ex) {
            log.warn("updateCalendarItemTime: Error executing query: " + ex.getClass() + ":" + ex.getMessage());
