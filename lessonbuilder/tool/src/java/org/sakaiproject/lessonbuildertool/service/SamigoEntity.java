@@ -53,12 +53,12 @@ import org.sakaiproject.tool.assessment.facade.AssessmentFacade;
 import org.sakaiproject.tool.assessment.facade.AuthzQueriesFacadeAPI;
 import org.sakaiproject.tool.assessment.facade.PublishedAssessmentFacadeQueriesAPI;
 import org.sakaiproject.tool.assessment.data.dao.authz.AuthorizationData;
-import org.sakaiproject.tool.assessment.data.ifc.grading.AssessmentGradingIfc;
 import org.sakaiproject.tool.assessment.data.ifc.assessment.EvaluationModelIfc;
 import org.sakaiproject.tool.assessment.data.ifc.assessment.AssessmentAccessControlIfc;
 import org.sakaiproject.tool.assessment.data.dao.assessment.PublishedAssessmentData;
 import org.sakaiproject.tool.assessment.data.dao.assessment.AssessmentData;
 import org.sakaiproject.tool.assessment.data.dao.assessment.AssessmentAccessControl;
+import org.sakaiproject.tool.assessment.data.dao.grading.AssessmentGradingData;
 import org.sakaiproject.tool.assessment.services.GradingService;
 import org.sakaiproject.tool.assessment.services.PersistenceService;
 
@@ -508,7 +508,7 @@ public class SamigoEntity implements LessonEntity, QuizEntity {
 
 	Session ses = SessionManager.getCurrentSession();
 
-	AssessmentGradingIfc grading = null;
+	AssessmentGradingData grading = null;
 	if (assessment.getEvaluationModel().getScoringType() == EvaluationModelIfc.LAST_SCORE) {
 	    grading = gradingService.getLastSubmittedAssessmentGradingByAgentId(Long.toString(id), ses.getUserId(), null);
 	} else {
