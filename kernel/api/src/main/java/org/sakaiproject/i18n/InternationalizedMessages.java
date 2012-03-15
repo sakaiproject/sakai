@@ -44,7 +44,7 @@ public interface InternationalizedMessages extends Map
 	 *        parameters to format and insert according to above pattern
 	 * @return formatted message
 	 */
-	String getFormattedMessage(String key, Object[] args);
+	String getFormattedMessage(String key, Object... args);
 
 	/**
 	 * Return user's prefered locale

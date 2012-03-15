@@ -170,7 +170,7 @@ public class ResourceLoader extends DummyMap implements InternationalizedMessage
     ** @author Jean-Francois Leveque (Universite Pierre et Marie Curie - Paris 6)
     **
     **/
-	public String getFormattedMessage(String key, Object[] args)
+	public String getFormattedMessage(String key, Object... args)
 	{
 		if ( getLocale().toString().equals(DEBUG_LOCALE) )
 			return formatDebugPropertiesString( key );
