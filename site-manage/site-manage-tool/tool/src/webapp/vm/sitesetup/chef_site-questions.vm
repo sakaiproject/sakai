@@ -1,9 +1,3 @@
-<script type="text/javascript">
-<!-- hide from non-JS browsers
-
-// -->
-</script>
-
 <div class="portletBody">
 	#if ($alertMessage)<div class="alertMessage">$tlang.getString("gen.alert") $validator.escapeHtml($alertMessage)</div>#end
 	<h4>

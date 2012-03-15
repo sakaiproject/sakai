@@ -12,9 +12,6 @@
 
 *#
 
-<script type="text/javascript" src="/library/js/jquery-ui-latest/js/jquery.min.js"></script>
-<script type="text/javascript" src="/sakai-site-manage-tool/js/site-manage.js"></script>
-<link type="text/css" href="/sakai-site-manage-tool/css/site-manage.css" rel="stylesheet" media="screen" />
 <script type="text/javascript" language="JavaScript">
     $(document).ready(function(){
 		sakai.siteTypeSetup()

@@ -1,5 +1,4 @@
 ##<!-- $Header: /cvs/sakai2/legacy/tools/src/webapp/vm/sitesetup/chef_site-newSiteFeatures.vm,v 1.1 2005/04/14 20:22:06 ggolden.umich.edu Exp $ -->
-<script type="text/javascript" language="JavaScript" src="/library/js/jquery.js"></script>
 <script type="text/javascript">
       $(document).ready(function() {
           $(".listHier :checked").parents("tr").addClass("selectedSelected");
