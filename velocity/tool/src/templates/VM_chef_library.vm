@@ -196,6 +196,34 @@
 ## no comment
 #end
 
+
+#* ------------------------------------------------------------------
+# Macros for adding content to the header
+*# ------------------------------------------------------------------
+
+#* ------------------------------------------------------------------
+# Prepends a line to the <head> section of the page.
+# This is useful for adding CSS which should go before the skin CSS
+# so that it can be easily overridden by the skin.
+*# ------------------------------------------------------------------
+
+#macro (header_prepend $extra)
+#set($sakai_head="${extra}
+${sakai_head}")
+#end
+
+#* ------------------------------------------------------------------
+# Appends a line to the <head> section of the page.
+# This is useful for adding JavaScript which needs to exist after the
+# standard JavaScript.
+*# ------------------------------------------------------------------
+
+#macro (header_append $extra)
+#set($sakai_head="${sakai_head}
+${extra}")
+#end
+
+
 #* ------------------------------------------------------------------
 # The standard way to end a vm file - deal with fragment or not
 *# ------------------------------------------------------------------
