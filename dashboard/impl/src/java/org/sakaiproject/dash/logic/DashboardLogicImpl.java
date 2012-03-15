@@ -23,6 +23,7 @@ package org.sakaiproject.dash.logic;
 
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
+import java.util.ArrayList;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -270,6 +271,44 @@ public class DashboardLogicImpl implements DashboardLogic, Observer
 	}
 	
 	/* (non-Javadoc)
+	 * @see org.sakaiproject.dash.logic.DashboardLogic#addCalendarLinksForMaintainers(org.sakaiproject.dash.model.CalendarItem)
+	 */
+	public void addCalendarLinksForMaintainers(CalendarItem calendarItem) {
+		// get a list of existing links to the item
+		Set<String> existingLinks = dao.getSakaIdsForUserWithCalendarLinks(calendarItem.getEntityReference());
+		if(existingLinks == null) {
+			existingLinks = new HashSet<String>();
+		}
+		
+		Set<String> sakaiUserIds = new HashSet<String>();
+		if(calendarItem != null && calendarItem.getSourceType() != null && calendarItem.getSourceType().getAlwaysAccessPermission() != null && calendarItem.getSourceType().getAlwaysAccessPermission().length > 0) {
+			for(String permission : calendarItem.getSourceType().getAlwaysAccessPermission()) {
+				List<String> userNames = sakaiProxy.getUsersWithReadAccess(calendarItem.getEntityReference(), permission);
+				if(userNames != null && userNames.size() > 0) {
+					sakaiUserIds.addAll(userNames);
+				}
+			}
+			for(String sakaiUserId : sakaiUserIds) {
+				// if this user already has a link, don't add a new link & delete that link from the list of existing links
+				if(existingLinks.contains(sakaiUserId)) {
+					// no need to add a link
+					existingLinks.remove(sakaiUserId);
+				} else {
+					Person person = this.getOrCreatePerson(sakaiUserId);
+					CalendarLink link = new CalendarLink(person, calendarItem, calendarItem.getContext(), false, false);
+					dao.addCalendarLink(link);
+				}
+			}
+		}
+		
+		// if there are any links still in the list of existing links, delete them from the database
+		for(String sakaiUserId : existingLinks) {
+			Person person = dao.getPersonBySakaiId(sakaiUserId);
+			dao.deleteCalendarLink(person.getId(), calendarItem.getId());
+		}
+	}
+
+	/* (non-Javadoc)
 	 * @see org.sakaiproject.dash.logic.DashboardLogic#addNewsLinks(java.lang.String, java.lang.String)
 	 */
 	public void addNewsLinks(String sakaiUserId, String contextId) {
@@ -300,6 +339,44 @@ public class DashboardLogicImpl implements DashboardLogic, Observer
 					}
 				}
 			}
+		}
+	}
+	
+	/* (non-Javadoc)
+	 * @see org.sakaiproject.dash.logic.DashboardLogic#addNewsLinksForMaintainers(org.sakaiproject.dash.model.NewsItem)
+	 */
+	public void addNewsLinksForMaintainers(NewsItem newsItem) {
+		// get a list of existing links to the item
+		Set<String> existingLinks = dao.getSakaiIdsForUserWithNewsLinks(newsItem.getEntityReference());
+		if(existingLinks == null) {
+			existingLinks = new HashSet<String>();
+		}
+		
+		Set<String> sakaiUserIds = new HashSet<String>();
+		if(newsItem != null && newsItem.getSourceType() != null && newsItem.getSourceType().getAlwaysAccessPermission() != null && newsItem.getSourceType().getAlwaysAccessPermission().length > 0) {
+			for(String permission : newsItem.getSourceType().getAlwaysAccessPermission()) {
+				List<String> userNames = sakaiProxy.getUsersWithReadAccess(newsItem.getEntityReference(), permission);
+				if(userNames != null && userNames.size() > 0) {
+					sakaiUserIds.addAll(userNames);
+				}
+			}
+			for(String sakaiUserId : sakaiUserIds) {
+				// if this user already has a link, don't add a new link & delete that link from the list of existing links
+				if(existingLinks.contains(sakaiUserId)) {
+					// no need to add a link
+					existingLinks.remove(sakaiUserId);
+				} else {
+					Person person = this.getOrCreatePerson(sakaiUserId);
+					NewsLink link = new NewsLink(person, newsItem, newsItem.getContext(), false, false);
+					dao.addNewsLink(link);
+				}
+			}
+		}
+		
+		// if there are any links still in the list of existing links, delete them from the database
+		for(String sakaiUserId : existingLinks) {
+			Person person = dao.getPersonBySakaiId(sakaiUserId);
+			dao.deleteNewsLink(person.getId(), newsItem.getId());
 		}
 	}
 
@@ -1233,6 +1310,8 @@ public class DashboardLogicImpl implements DashboardLogic, Observer
 							createNewsLinks(newsItem);
 						}
 					} else {
+						// verify that users with permissions in alwaysAllowPermission have links and others do not
+						
 						// need to remove all links, if there are any
 						this.removeCalendarLinks(check.getEntityReference());
 						this.removeNewsLinks(check.getEntityReference());

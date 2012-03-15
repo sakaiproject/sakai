@@ -72,6 +72,13 @@ public interface DashboardLogic {
 	public void addCalendarLinks(String sakaiUserId, String contextId);
 	
 	/**
+	 * Add links to a calendar item for users who can see it even when it is hidden or in draft mode (i.e. not "available").
+	 * Also removes links for any users who do not have adequate permissions to see the entity when it is not available.
+	 * @param calendarItem
+	 */
+	public void addCalendarLinksForMaintainers(CalendarItem calendarItem);
+
+	/**
 	 * Add links to news items in a context for a particular user. Links
 	 * will be limited to items referencing entities for which the user has 
 	 * access permission. This action may be limited by time or number, depending 
@@ -80,6 +87,13 @@ public interface DashboardLogic {
 	 * @param contextId
 	 */
 	public void addNewsLinks(String sakaiUserId, String contextId);
+
+	/**
+	 * Add links to a news item for users who can see it even when it is hidden or in draft mode (i.e. not "available").
+	 * Also removes links for any users who do not have adequate permissions to see the entity when it is not available.
+	 * @param newsItem
+	 */
+	public void addNewsLinksForMaintainers(NewsItem newsItem);
 
 	/**
 	 * Creates and persists a CalendarItem with specified attributes. Returns the complete CalendarItem object.

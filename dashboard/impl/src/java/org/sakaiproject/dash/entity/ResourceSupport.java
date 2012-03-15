@@ -694,7 +694,12 @@ public class ResourceSupport {
 						dashboardLogic.scheduleAvailabilityCheck(newsItem.getEntityReference(), RESOURCE_TYPE_IDENTIFIER, retractDate);
 					}
 				} else {
-					
+					// verify that users with permissions in alwaysAllowPermission have links and others do not
+					if(sourceType != null && sourceType.getAlwaysAccessPermission() != null && sourceType.getAlwaysAccessPermission().length > 0) {
+						
+						dashboardLogic.addNewsLinksForMaintainers(newsItem);
+					}
+					// schedule availability checks
 					Date releaseDate = getReleaseDate(newsItem.getEntityReference());
 					if(releaseDate != null && releaseDate.after(new Date())) {
 						dashboardLogic.scheduleAvailabilityCheck(newsItem.getEntityReference(), RESOURCE_TYPE_IDENTIFIER, releaseDate);
@@ -703,4 +708,5 @@ public class ResourceSupport {
 			}
 		}
 	}
+
 }
