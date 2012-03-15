@@ -125,14 +125,6 @@ public class AssignmentSupport {
 		public static final String VALUE_OPEN_TIME = "open-time";
 
 		/* (non-Javadoc)
-		 * @see org.sakaiproject.dash.entity.EntityType#getEntityLinkStrategy(java.lang.String)
-		 */
-		public EntityLinkStrategy getEntityLinkStrategy(String entityReference) {
-			
-			return EntityLinkStrategy.SHOW_PROPERTIES;
-		}
-
-		/* (non-Javadoc)
 		 * @see org.sakaiproject.dash.entity.EntityType#getValues(java.lang.String, java.lang.String)
 		 */
 		public Map<String, Object> getValues(String entityReference,
@@ -376,7 +368,7 @@ public class AssignmentSupport {
 	            
 				SourceType sourceType = dashboardLogic.getSourceType(IDENTIFIER);
 				if(sourceType == null) {
-					sourceType = dashboardLogic.createSourceType(IDENTIFIER, SakaiProxy.PERMIT_ASSIGNMENT_ACCESS, EntityLinkStrategy.SHOW_PROPERTIES);
+					sourceType = dashboardLogic.createSourceType(IDENTIFIER, SakaiProxy.PERMIT_ASSIGNMENT_ACCESS);
 				}
 				
 				String assnReference = assn.getReference();
@@ -592,7 +584,7 @@ public class AssignmentSupport {
             
 			SourceType sourceType = dashboardLogic.getSourceType(IDENTIFIER);
 			if(sourceType == null) {
-				sourceType = dashboardLogic.createSourceType(IDENTIFIER, SakaiProxy.PERMIT_ASSIGNMENT_ACCESS, EntityLinkStrategy.SHOW_PROPERTIES);
+				sourceType = dashboardLogic.createSourceType(IDENTIFIER, SakaiProxy.PERMIT_ASSIGNMENT_ACCESS);
 			}
 			
 			if(entity != null && entity instanceof Assignment) {
@@ -662,7 +654,7 @@ public class AssignmentSupport {
             
 			SourceType sourceType = dashboardLogic.getSourceType(IDENTIFIER);
 			if(sourceType == null) {
-				sourceType = dashboardLogic.createSourceType(IDENTIFIER, SakaiProxy.PERMIT_ASSIGNMENT_ACCESS, EntityLinkStrategy.SHOW_PROPERTIES);
+				sourceType = dashboardLogic.createSourceType(IDENTIFIER, SakaiProxy.PERMIT_ASSIGNMENT_ACCESS);
 			}
 			
 			if(entity != null && entity instanceof Assignment) {
@@ -709,7 +701,7 @@ public class AssignmentSupport {
             
 			SourceType sourceType = dashboardLogic.getSourceType(IDENTIFIER);
 			if(sourceType == null) {
-				sourceType = dashboardLogic.createSourceType(IDENTIFIER, SakaiProxy.PERMIT_ASSIGNMENT_ACCESS, EntityLinkStrategy.SHOW_PROPERTIES);
+				sourceType = dashboardLogic.createSourceType(IDENTIFIER, SakaiProxy.PERMIT_ASSIGNMENT_ACCESS);
 			}
 			
 			if(entity != null && entity instanceof Assignment) {

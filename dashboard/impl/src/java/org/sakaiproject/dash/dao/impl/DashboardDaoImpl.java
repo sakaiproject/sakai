@@ -34,6 +34,8 @@ import java.util.Set;
 import java.util.SortedSet;
 import java.util.TreeSet;
 
+import net.sf.json.JSONArray;
+
 import org.apache.commons.configuration.ConfigurationException;
 import org.apache.commons.configuration.PropertiesConfiguration;
 import org.apache.commons.configuration.reloading.InvariantReloadingStrategy;
@@ -66,6 +68,8 @@ public class DashboardDaoImpl extends JdbcDaoSupport implements DashboardDao {
 	private static final Logger log = Logger.getLogger(DashboardDaoImpl.class);
 
 	private static final int MAX_LENGTH_SUBTYPE_FIELD = 255;
+
+	private static final int ALWAYS_ACCESS_PERMISSION_SIZE = 1024;
 	
 	protected ServerConfigurationService serverConfigurationService;
 	public void setServerConfigurationService(ServerConfigurationService serverConfigurationService) {
@@ -329,11 +333,22 @@ public class DashboardDaoImpl extends JdbcDaoSupport implements DashboardDao {
 			log.debug("addSourceType( " + sourceType.toString() + ")");
 		}
 		
-		// identifier, accessPermission
+		// identifier, accessPermission, alwaysAccessPermission
 		
+		String alwaysAccessPermission = null;
+		if(sourceType.getAlwaysAccessPermission() != null) {
+			JSONArray json = JSONArray.fromObject(sourceType.getAlwaysAccessPermission());
+			if(json != null) {
+				alwaysAccessPermission = json.toString();
+				while(alwaysAccessPermission.length() > ALWAYS_ACCESS_PERMISSION_SIZE) {
+					json.remove(json.size() - 1);
+					alwaysAccessPermission = json.toString();
+				}
+			}
+		}		
 		try {
 			getJdbcTemplate().update(getStatement("insert.SourceType"),
-				new Object[]{sourceType.getIdentifier(), sourceType.getAccessPermission()}
+				new Object[]{sourceType.getIdentifier(), sourceType.getAccessPermission(), alwaysAccessPermission }
 			
 			);
 			return true;

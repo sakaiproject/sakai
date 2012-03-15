@@ -23,7 +23,7 @@ package org.sakaiproject.dash.entity;
 
 /**
  * 
- *
+ * @deprecated
  */
 public enum EntityLinkStrategy {
 	

@@ -42,7 +42,6 @@ import net.sf.ehcache.Cache;
 import org.apache.log4j.Logger;
 import org.sakaiproject.authz.api.SecurityAdvisor;
 import org.sakaiproject.dash.dao.DashboardDao;
-import org.sakaiproject.dash.entity.EntityLinkStrategy;
 import org.sakaiproject.dash.entity.EntityType;
 import org.sakaiproject.dash.entity.RepeatingEventGenerator;
 import org.sakaiproject.dash.listener.EventProcessor;
@@ -429,9 +428,9 @@ public class DashboardLogicImpl implements DashboardLogic, Observer
 	/* (non-Javadoc)
 	 * @see org.sakaiproject.dash.logic.DashboardLogic#createSourceType(java.lang.String, java.lang.String, org.sakaiproject.dash.entity.EntityLinkStrategy)
 	 */
-	public SourceType createSourceType(String identifier, String accessPermission, EntityLinkStrategy entityLinkStrategy) {
+	public SourceType createSourceType(String identifier, String accessPermission) {
 		
-		SourceType sourceType = new SourceType(identifier, accessPermission, entityLinkStrategy); 
+		SourceType sourceType = new SourceType(identifier, accessPermission); 
 		dao.addSourceType(sourceType);
 		return dao.getSourceType(identifier);
 	}

@@ -171,7 +171,7 @@ public class AnnouncementSupport{
 		
 		SourceType sourceType = dashboardLogic.getSourceType(IDENTIFIER);
 		if(sourceType == null) {
-			sourceType = dashboardLogic.createSourceType(IDENTIFIER, SakaiProxy.PERMIT_ANNOUNCEMENT_ACCESS, EntityLinkStrategy.SHOW_PROPERTIES);
+			sourceType = dashboardLogic.createSourceType(IDENTIFIER, SakaiProxy.PERMIT_ANNOUNCEMENT_ACCESS);
 		}
 		
 		NewsItem newsItem = dashboardLogic.getNewsItem(anncReference);
@@ -216,14 +216,6 @@ public class AnnouncementSupport{
 		 */
 		public String getIdentifier() {
 			return IDENTIFIER;
-		}
-
-		/* (non-Javadoc)
-		 * @see org.sakaiproject.dash.entity.EntityType#getEntityLinkStrategy(java.lang.String)
-		 */
-		public EntityLinkStrategy getEntityLinkStrategy(String entityReference) {
-			
-			return EntityLinkStrategy.SHOW_PROPERTIES;
 		}
 
 		/* (non-Javadoc)

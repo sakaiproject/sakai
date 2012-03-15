@@ -22,6 +22,7 @@
 package org.sakaiproject.dash.model;
 
 import java.io.Serializable;
+import java.util.Arrays;
 
 import org.sakaiproject.dash.entity.EntityLinkStrategy;
 
@@ -37,7 +38,7 @@ public class SourceType implements Serializable {
 	protected Long id;
 	protected String identifier;
 	protected String accessPermission;
-	protected EntityLinkStrategy entityLinkStrategy;
+	protected String[] alwaysAccessPermission;
 
 	/**
 	 * 
@@ -49,35 +50,52 @@ public class SourceType implements Serializable {
 	public SourceType(String identifier) {
 		super();
 		this.identifier = identifier;
-		this.entityLinkStrategy = EntityLinkStrategy.ACCESS_URL;
 	}
 	
 	/**
 	 * @param identifier
 	 * @param accessPermission
-	 * @param entityLinkStrategy TODO
 	 */
-	public SourceType(String identifier, String accessPermission, EntityLinkStrategy entityLinkStrategy) {
+	public SourceType(String identifier, String accessPermission) {
 		super();
 		this.identifier = identifier;
 		this.accessPermission = accessPermission;
-		this.entityLinkStrategy = entityLinkStrategy;
 	}
 
 	/**
 	 * @param id
 	 * @param identifier
 	 * @param accessPermission
-	 * @param entityLinkStrategy TODO
 	 */
-	public SourceType(Long id, String identifier, String accessPermission, EntityLinkStrategy entityLinkStrategy) {
+	public SourceType(Long id, String identifier, String accessPermission) {
 		super();
 		this.id = id;
 		this.identifier = identifier;
 		this.accessPermission = accessPermission;
-		this.entityLinkStrategy = entityLinkStrategy;
 	}
 
+	/**
+	 * 
+	 * @param id
+	 * @param identifier
+	 * @param accessPermission
+	 * @param alwaysAccessPermission
+	 */
+	public SourceType(Long id, String identifier, String accessPermission,
+			String[] alwaysAccessPermission) {
+		super();
+		this.id = id;
+		this.identifier = identifier;
+		this.accessPermission = accessPermission;
+		if(alwaysAccessPermission != null) {
+			this.alwaysAccessPermission = alwaysAccessPermission.clone();
+		}
+	}
+
+	/**
+	 * 
+	 * @param other
+	 */
 	public SourceType(SourceType other) {
 		super();
 		if(other.id != null) {
@@ -85,7 +103,9 @@ public class SourceType implements Serializable {
 		}
 		this.identifier = other.identifier;
 		this.accessPermission = other.accessPermission;
-		this.entityLinkStrategy = other.entityLinkStrategy;
+		if(other.alwaysAccessPermission != null && other.alwaysAccessPermission.length > 0) {
+			this.alwaysAccessPermission = other.alwaysAccessPermission.clone();
+		}
 	}
 
 	/**
@@ -103,6 +123,7 @@ public class SourceType implements Serializable {
 	}
 
 	/**
+	 * The permission needed to view items of this type when they are available.
 	 * @return the accessPermission
 	 */
 	public String getAccessPermission() {
@@ -110,10 +131,15 @@ public class SourceType implements Serializable {
 	}
 
 	/**
-	 * @return the entityLinkStrategy
+	 * The permissions with which users can view items of this type when they are not available.
+	 * @return the alwaysAccessPermission
 	 */
-	public EntityLinkStrategy getEntityLinkStrategy() {
-		return entityLinkStrategy;
+	public String[] getAlwaysAccessPermission() {
+		String[] array = null;
+		if(alwaysAccessPermission != null) {
+			array = alwaysAccessPermission.clone();
+		}
+		return array;
 	}
 
 	/**
@@ -131,6 +157,7 @@ public class SourceType implements Serializable {
 	}
 
 	/**
+	 * The permission needed to view items of this type when they are available.
 	 * @param accessPermission the accessPermission to set
 	 */
 	public void setAccessPermission(String accessPermission) {
@@ -138,10 +165,13 @@ public class SourceType implements Serializable {
 	}
 
 	/**
-	 * @param entityLinkStrategy the entityLinkStrategy to set
+	 * The permissions with which users can view items of this type when they are not available.
+	 * These will be checked in the order given and access will be granted if a user can unlock 
+	 * access to the entity with any one of these permissions.  
+	 * @param alwaysAccessPermission the alwaysAccessPermission to set
 	 */
-	public void setEntityLinkStrategy(EntityLinkStrategy entityLinkStrategy) {
-		this.entityLinkStrategy = entityLinkStrategy;
+	public void setAlwaysAccessPermission(String[] alwaysAccessPermission) {
+		this.alwaysAccessPermission = alwaysAccessPermission;
 	}
 
 	/* (non-Javadoc)
@@ -166,9 +196,9 @@ public class SourceType implements Serializable {
 			builder.append(accessPermission);
 			builder.append(", ");
 		}
-		if (entityLinkStrategy != null) {
-			builder.append("entityLinkStrategy=");
-			builder.append(entityLinkStrategy);
+		if (alwaysAccessPermission != null) {
+			builder.append("alwaysAccessPermission=");
+			builder.append(Arrays.toString(alwaysAccessPermission));
 		}
 		builder.append("]");
 		return builder.toString();

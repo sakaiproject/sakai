@@ -418,7 +418,7 @@ public class ScheduleSupport{
 				}
 				SourceType sourceType = dashboardLogic.getSourceType(IDENTIFIER);
 				if(sourceType == null) {
-					sourceType = dashboardLogic.createSourceType(IDENTIFIER, SakaiProxy.PERMIT_SCHEDULE_ACCESS, EntityLinkStrategy.SHOW_PROPERTIES);
+					sourceType = dashboardLogic.createSourceType(IDENTIFIER, SakaiProxy.PERMIT_SCHEDULE_ACCESS);
 				}
 				
 				// Third parameter in dashboardLogic.createCalendarItem() below should be a key for a label such as "Due Date: " or "Accept Until: " 
@@ -903,7 +903,7 @@ public class ScheduleSupport{
 				}
 				SourceType sourceType = dashboardLogic.getSourceType(IDENTIFIER);
 				if(sourceType == null) {
-					sourceType = dashboardLogic.createSourceType(IDENTIFIER, SakaiProxy.PERMIT_SCHEDULE_ACCESS, EntityLinkStrategy.SHOW_PROPERTIES);
+					sourceType = dashboardLogic.createSourceType(IDENTIFIER, SakaiProxy.PERMIT_SCHEDULE_ACCESS);
 				}
 				
 				// Third parameter in dashboardLogic.createCalendarItem() below should be a key for a label such as "Due Date: " or "Accept Until: " 

@@ -26,7 +26,6 @@ import java.util.List;
 import java.util.concurrent.atomic.AtomicInteger;
 
 import org.sakaiproject.dash.dao.DashboardDao;
-import org.sakaiproject.dash.entity.EntityLinkStrategy;
 import org.sakaiproject.dash.listener.EventProcessor;
 import org.sakaiproject.dash.logic.DashboardLogic;
 import org.sakaiproject.dash.logic.DashboardLogicImpl;
@@ -285,7 +284,7 @@ public class DashboardLogicTest extends AbstractTransactionalSpringContextTests
 		
 		String identifier1 = getUniqueIdentifier();
 		String accessPermission = getUniqueIdentifier();
-		SourceType sourceType = new  SourceType(identifier1, accessPermission, EntityLinkStrategy.ACCESS_URL);
+		SourceType sourceType = new  SourceType(identifier1, accessPermission);
 		
 		String contextId = getUniqueIdentifier();
 		String contextTitle = getUniqueIdentifier();

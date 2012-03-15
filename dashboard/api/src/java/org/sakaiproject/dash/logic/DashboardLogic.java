@@ -27,7 +27,6 @@ import java.util.Locale;
 import java.util.Map;
 import java.util.SortedSet;
 
-import org.sakaiproject.dash.entity.EntityLinkStrategy;
 import org.sakaiproject.dash.entity.EntityType;
 import org.sakaiproject.dash.listener.EventProcessor;
 import org.sakaiproject.dash.model.CalendarItem;
@@ -158,10 +157,9 @@ public interface DashboardLogic {
 	 * Returns the complete SourceType object.
 	 * @param identifier
 	 * @param accessPermission
-	 * @param entityLinkStrategy
 	 * @return
 	 */
-	public SourceType createSourceType(String identifier, String accessPermission, EntityLinkStrategy entityLinkStrategy);
+	public SourceType createSourceType(String identifier, String accessPermission);
 
 	/**
 	 * Retrieve a CalendarItem object based on the unique identifier assigned to it when it was persisted.

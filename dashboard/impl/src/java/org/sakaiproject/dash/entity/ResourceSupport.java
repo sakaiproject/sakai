@@ -142,14 +142,6 @@ public class ResourceSupport {
 		}
 
 		/* (non-Javadoc)
-		 * @see org.sakaiproject.dash.entity.EntityType#getEntityLinkStrategy(java.lang.String)
-		 */
-		public EntityLinkStrategy getEntityLinkStrategy(String entityReference) {
-			
-			return EntityLinkStrategy.SHOW_PROPERTIES;
-		}
-
-		/* (non-Javadoc)
 		 * @see org.sakaiproject.dash.entity.EntityType#getValues(java.lang.String, java.lang.String)
 		 */
 		public Map<String, Object> getValues(String entityReference,
@@ -641,13 +633,13 @@ public class ResourceSupport {
 			if(isDropboxResource ) {
 				sourceType = dashboardLogic.getSourceType(DROPBOX_TYPE_IDENTIFIER);
 				if(sourceType == null) {
-					sourceType = dashboardLogic.createSourceType(DROPBOX_TYPE_IDENTIFIER, SakaiProxy.PERMIT_DROPBOX_MAINTAIN, EntityLinkStrategy.ACCESS_URL);
+					sourceType = dashboardLogic.createSourceType(DROPBOX_TYPE_IDENTIFIER, SakaiProxy.PERMIT_DROPBOX_MAINTAIN);
 				}
 				labelKey = "dropbox.added";
 			} else {
 				sourceType = dashboardLogic.getSourceType(RESOURCE_TYPE_IDENTIFIER);
 				if(sourceType == null) {
-					sourceType = dashboardLogic.createSourceType(RESOURCE_TYPE_IDENTIFIER, SakaiProxy.PERMIT_RESOURCE_ACCESS, EntityLinkStrategy.ACCESS_URL);
+					sourceType = dashboardLogic.createSourceType(RESOURCE_TYPE_IDENTIFIER, SakaiProxy.PERMIT_RESOURCE_ACCESS);
 				}
 			}
 			

@@ -27,7 +27,6 @@ import java.util.List;
 import java.util.concurrent.atomic.AtomicInteger;
 
 import org.sakaiproject.dash.dao.DashboardDao;
-import org.sakaiproject.dash.entity.EntityLinkStrategy;
 import org.sakaiproject.dash.model.CalendarItem;
 import org.sakaiproject.dash.model.CalendarLink;
 import org.sakaiproject.dash.model.Context;
@@ -100,7 +99,7 @@ public class DashboardDaoTest extends AbstractTransactionalSpringContextTests {
 		
 		String sourceTypeIdentifier = getUniqueIdentifier();
 		String accessPermission = getUniqueIdentifier();
-		SourceType sourceType = new SourceType(sourceTypeIdentifier, accessPermission, EntityLinkStrategy.ACCESS_URL );
+		SourceType sourceType = new SourceType(sourceTypeIdentifier, accessPermission);
 		dao.addSourceType(sourceType);
 		sourceType = dao.getSourceType(sourceTypeIdentifier);
 
@@ -154,7 +153,7 @@ public class DashboardDaoTest extends AbstractTransactionalSpringContextTests {
 		
 		String sourceTypeIdentifier = getUniqueIdentifier();
 		String accessPermission = getUniqueIdentifier();
-		SourceType sourceType = new SourceType(sourceTypeIdentifier, accessPermission, EntityLinkStrategy.ACCESS_URL );
+		SourceType sourceType = new SourceType(sourceTypeIdentifier, accessPermission );
 		dao.addSourceType(sourceType);
 		sourceType = dao.getSourceType(sourceTypeIdentifier);
 
@@ -243,7 +242,7 @@ public class DashboardDaoTest extends AbstractTransactionalSpringContextTests {
 		
 		String sourceTypeIdentifier = getUniqueIdentifier();
 		String accessPermission = getUniqueIdentifier();
-		SourceType sourceType = new SourceType(sourceTypeIdentifier, accessPermission, EntityLinkStrategy.ACCESS_URL);
+		SourceType sourceType = new SourceType(sourceTypeIdentifier, accessPermission);
 		dao.addSourceType(sourceType);
 		sourceType = dao.getSourceType(sourceTypeIdentifier);
 
@@ -295,7 +294,7 @@ public class DashboardDaoTest extends AbstractTransactionalSpringContextTests {
 		
 		String sourceTypeIdentifier = getUniqueIdentifier();
 		String accessPermission = getUniqueIdentifier();
-		SourceType sourceType = new SourceType(sourceTypeIdentifier, accessPermission, EntityLinkStrategy.ACCESS_URL );
+		SourceType sourceType = new SourceType(sourceTypeIdentifier, accessPermission );
 		dao.addSourceType(sourceType);
 		sourceType = dao.getSourceType(sourceTypeIdentifier);
 
@@ -371,7 +370,7 @@ public class DashboardDaoTest extends AbstractTransactionalSpringContextTests {
 		
 		String identifier1 = getUniqueIdentifier();
 		String accessPermission = getUniqueIdentifier();
-		SourceType sourceType = new  SourceType(identifier1, accessPermission, EntityLinkStrategy.ACCESS_URL);
+		SourceType sourceType = new  SourceType(identifier1, accessPermission);
 		dao.addSourceType(sourceType);
 		sourceType = dao.getSourceType(identifier1);
 		assertNotNull(sourceType);
@@ -421,7 +420,7 @@ public class DashboardDaoTest extends AbstractTransactionalSpringContextTests {
 	public void testAddSourceType() {
 		String identifier = getUniqueIdentifier();
 		String accessPermission = getUniqueIdentifier();
-		SourceType sourceType = new SourceType(identifier,accessPermission, EntityLinkStrategy.ACCESS_URL);
+		SourceType sourceType = new SourceType(identifier,accessPermission);
 		boolean saved = dao.addSourceType(sourceType);
 		assertTrue(saved);
 		
@@ -452,7 +451,7 @@ public class DashboardDaoTest extends AbstractTransactionalSpringContextTests {
 		
 		String sourceTypeIdentifier = getUniqueIdentifier();
 		String accessPermission = getUniqueIdentifier();
-		SourceType sourceType = new SourceType(sourceTypeIdentifier, accessPermission, EntityLinkStrategy.ACCESS_URL );
+		SourceType sourceType = new SourceType(sourceTypeIdentifier, accessPermission );
 		dao.addSourceType(sourceType);
 		sourceType = dao.getSourceType(sourceTypeIdentifier);
 
@@ -485,7 +484,7 @@ public class DashboardDaoTest extends AbstractTransactionalSpringContextTests {
 		
 		String sourceTypeIdentifier = getUniqueIdentifier();
 		String accessPermission = getUniqueIdentifier();
-		SourceType sourceType = new SourceType(sourceTypeIdentifier, accessPermission, EntityLinkStrategy.ACCESS_URL );
+		SourceType sourceType = new SourceType(sourceTypeIdentifier, accessPermission );
 		dao.addSourceType(sourceType);
 		sourceType = dao.getSourceType(sourceTypeIdentifier);
 
@@ -547,7 +546,7 @@ public class DashboardDaoTest extends AbstractTransactionalSpringContextTests {
 		
 		String sourceTypeIdentifier = getUniqueIdentifier();
 		String accessPermission = getUniqueIdentifier();
-		SourceType sourceType = new SourceType(sourceTypeIdentifier, accessPermission, EntityLinkStrategy.ACCESS_URL );
+		SourceType sourceType = new SourceType(sourceTypeIdentifier, accessPermission );
 		dao.addSourceType(sourceType);
 		sourceType = dao.getSourceType(sourceTypeIdentifier);
 
@@ -615,7 +614,7 @@ public class DashboardDaoTest extends AbstractTransactionalSpringContextTests {
 		
 		String sourceTypeIdentifier = getUniqueIdentifier();
 		String accessPermission = getUniqueIdentifier();
-		SourceType sourceType = new SourceType(sourceTypeIdentifier, accessPermission, EntityLinkStrategy.ACCESS_URL );
+		SourceType sourceType = new SourceType(sourceTypeIdentifier, accessPermission );
 		dao.addSourceType(sourceType);
 		sourceType = dao.getSourceType(sourceTypeIdentifier);
 
@@ -659,7 +658,7 @@ public class DashboardDaoTest extends AbstractTransactionalSpringContextTests {
 		
 		String sourceTypeIdentifier = getUniqueIdentifier();
 		String accessPermission = getUniqueIdentifier();
-		SourceType sourceType = new SourceType(sourceTypeIdentifier, accessPermission, EntityLinkStrategy.ACCESS_URL );
+		SourceType sourceType = new SourceType(sourceTypeIdentifier, accessPermission );
 		dao.addSourceType(sourceType);
 		sourceType = dao.getSourceType(sourceTypeIdentifier);
 
@@ -739,7 +738,7 @@ public class DashboardDaoTest extends AbstractTransactionalSpringContextTests {
 		
 		String sourceTypeIdentifier = getUniqueIdentifier();
 		String accessPermission = getUniqueIdentifier();
-		SourceType sourceType = new SourceType(sourceTypeIdentifier, accessPermission, EntityLinkStrategy.ACCESS_URL );
+		SourceType sourceType = new SourceType(sourceTypeIdentifier, accessPermission );
 		dao.addSourceType(sourceType);
 		sourceType = dao.getSourceType(sourceTypeIdentifier);
 
@@ -789,7 +788,7 @@ public class DashboardDaoTest extends AbstractTransactionalSpringContextTests {
 		
 		String sourceTypeIdentifier = getUniqueIdentifier();
 		String accessPermission = getUniqueIdentifier();
-		SourceType sourceType = new SourceType(sourceTypeIdentifier, accessPermission, EntityLinkStrategy.ACCESS_URL );
+		SourceType sourceType = new SourceType(sourceTypeIdentifier, accessPermission );
 		dao.addSourceType(sourceType);
 		sourceType = dao.getSourceType(sourceTypeIdentifier);
 
@@ -878,7 +877,7 @@ public class DashboardDaoTest extends AbstractTransactionalSpringContextTests {
 		
 		String sourceTypeIdentifier = getUniqueIdentifier();
 		String accessPermission = getUniqueIdentifier();
-		SourceType sourceType = new SourceType(sourceTypeIdentifier, accessPermission, EntityLinkStrategy.ACCESS_URL);
+		SourceType sourceType = new SourceType(sourceTypeIdentifier, accessPermission);
 		dao.addSourceType(sourceType);
 		sourceType = dao.getSourceType(sourceTypeIdentifier);
 
@@ -918,7 +917,7 @@ public class DashboardDaoTest extends AbstractTransactionalSpringContextTests {
 		
 		String sourceTypeIdentifier = getUniqueIdentifier();
 		String accessPermission = getUniqueIdentifier();
-		SourceType sourceType = new SourceType(sourceTypeIdentifier, accessPermission, EntityLinkStrategy.ACCESS_URL);
+		SourceType sourceType = new SourceType(sourceTypeIdentifier, accessPermission);
 		dao.addSourceType(sourceType);
 		sourceType = dao.getSourceType(sourceTypeIdentifier);
 
@@ -961,7 +960,7 @@ public class DashboardDaoTest extends AbstractTransactionalSpringContextTests {
 		
 		String sourceTypeIdentifier = getUniqueIdentifier();
 		String accessPermission = getUniqueIdentifier();
-		SourceType sourceType = new SourceType(sourceTypeIdentifier, accessPermission, EntityLinkStrategy.ACCESS_URL);
+		SourceType sourceType = new SourceType(sourceTypeIdentifier, accessPermission);
 		dao.addSourceType(sourceType);
 		sourceType = dao.getSourceType(sourceTypeIdentifier);
 
@@ -1005,7 +1004,7 @@ public class DashboardDaoTest extends AbstractTransactionalSpringContextTests {
 		
 		String identifier1 = getUniqueIdentifier();
 		String accessPermission = getUniqueIdentifier();
-		SourceType sourceType = new  SourceType(identifier1, accessPermission, EntityLinkStrategy.ACCESS_URL);
+		SourceType sourceType = new  SourceType(identifier1, accessPermission);
 		dao.addSourceType(sourceType);
 		sourceType = dao.getSourceType(identifier1);
 		assertNotNull(sourceType);

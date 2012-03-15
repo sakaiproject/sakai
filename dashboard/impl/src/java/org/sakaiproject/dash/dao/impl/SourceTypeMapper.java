@@ -24,15 +24,9 @@ package org.sakaiproject.dash.dao.impl;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 
-import org.sakaiproject.dash.model.CalendarItem;
-import org.sakaiproject.dash.model.CalendarLink;
-import org.sakaiproject.dash.model.Context;
-import org.sakaiproject.dash.model.NewsItem;
-import org.sakaiproject.dash.model.NewsLink;
-import org.sakaiproject.dash.model.Person;
-import org.sakaiproject.dash.model.Realm;
-import org.sakaiproject.dash.model.SourceType;
+import net.sf.json.JSONArray;
 
+import org.sakaiproject.dash.model.SourceType;
 import org.springframework.jdbc.core.RowMapper;
 
 /**
@@ -52,6 +46,15 @@ public class SourceTypeMapper implements RowMapper {
 		sourceType.setIdentifier(rs.getString("type_identifier"));
 		sourceType.setAccessPermission(rs.getString("type_accessPermission"));
 		
+		String alwaysAccessPermissionStr = rs.getString("type_alwaysAccessPermission");
+		if(alwaysAccessPermissionStr != null && !alwaysAccessPermissionStr.trim().equals("")) {
+			JSONArray json = JSONArray.fromObject(alwaysAccessPermissionStr);
+			String[] alwaysAccessPermission = new String[json.size()];
+			for(int i = 0; i < json.size(); i++) {
+				alwaysAccessPermission[i] = json.getString(i);
+			}
+			sourceType.setAlwaysAccessPermission(alwaysAccessPermission);
+		}
 		
 		return sourceType;
 	}
