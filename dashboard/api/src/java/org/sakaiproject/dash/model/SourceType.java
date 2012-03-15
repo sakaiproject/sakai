@@ -81,6 +81,23 @@ public class SourceType implements Serializable {
 	 * @param accessPermission
 	 * @param alwaysAccessPermission
 	 */
+	public SourceType(String identifier, String accessPermission,
+			String[] alwaysAccessPermission) {
+		super();
+		this.identifier = identifier;
+		this.accessPermission = accessPermission;
+		if(alwaysAccessPermission != null) {
+			this.alwaysAccessPermission = alwaysAccessPermission.clone();
+		}
+	}
+
+	/**
+	 * 
+	 * @param id
+	 * @param identifier
+	 * @param accessPermission
+	 * @param alwaysAccessPermission
+	 */
 	public SourceType(Long id, String identifier, String accessPermission,
 			String[] alwaysAccessPermission) {
 		super();

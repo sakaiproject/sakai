@@ -429,6 +429,31 @@ public class DashboardDaoTest extends AbstractTransactionalSpringContextTests {
 		assertNotNull(sourceType.getId());
 		assertEquals(identifier,sourceType.getIdentifier());
 		assertEquals(accessPermission,sourceType.getAccessPermission());
+		assertNull(sourceType.getAlwaysAccessPermission());
+
+		String identifier1 = getUniqueIdentifier();
+		String accessPermission1 = getUniqueIdentifier();
+		String[] alwaysAccessPermission1 = new String[]{
+				getUniqueIdentifier(),
+				getUniqueIdentifier(),
+				getUniqueIdentifier(),
+				getUniqueIdentifier()
+		};
+		SourceType sourceType1 = new SourceType(identifier1,accessPermission1, alwaysAccessPermission1);
+		boolean saved1 = dao.addSourceType(sourceType1);
+		assertTrue(saved1);
+		
+		sourceType1 = dao.getSourceType(identifier1);
+		assertNotNull(sourceType1);
+		assertNotNull(sourceType1.getId());
+		assertEquals(identifier1,sourceType1.getIdentifier());
+		assertEquals(accessPermission1,sourceType1.getAccessPermission());
+		String[] array = sourceType1.getAlwaysAccessPermission();
+		assertNotNull(array);
+		assertEquals(4, array.length);
+		for(int i = 0; i < array.length; i ++) {
+			assertEquals(alwaysAccessPermission1[i], array[i]);
+		}
 	}
 
     /**
