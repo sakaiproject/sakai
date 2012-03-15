@@ -1,9 +1,5 @@
 <!-- $Id$ -->
 <!-- start: chef_assignments_student_view_submission.vm  -->
-#parse("/vm/assignment/assignment_macros.vm")
-<script type="text/javascript" src="/library/js/jquery.js"></script>
-<link href="/sakai-assignment-tool/css/assignment.css" type="text/css" rel="stylesheet" media="all" />
-<script type="text/javascript"  src="/sakai-assignment-tool/js/assignments.js"></script>
 <script type="text/javascript">
 $(document).ready(function(){
     setupToggleAreas('toggleAnchor', 'toggledContent', false, 'fast');

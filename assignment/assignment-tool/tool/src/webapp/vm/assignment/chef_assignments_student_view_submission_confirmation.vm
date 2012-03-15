@@ -1,6 +1,5 @@
 <!-- $Id$ -->
 <!-- start:  chef_assignments_student_view_submission_confirmation.vm  -->
-#parse("/vm/assignment/assignment_macros.vm")
 ## showing the submission confirmation page
 <div class="portletBody">
 	<h3>

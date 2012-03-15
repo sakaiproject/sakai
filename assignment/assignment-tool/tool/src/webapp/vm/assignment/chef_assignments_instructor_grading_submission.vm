@@ -1,8 +1,6 @@
 <!-- $Id$ -->
 <!-- start: check_assignments_instructor_grading_submission.vm  -->
 ##<!-- $Header: /cvs/sakai2/legacy/tools/src/webapp/vm/assignment/chef_assignments_instructor_grading_submission.vm,v 1.10 2005/06/03 15:32:15 zqian.umich.edu Exp $ -->
-#parse("/vm/assignment/assignment_macros.vm")
-<link href="/sakai-assignment-tool/css/assignment.css" type="text/css" rel="stylesheet" media="all" />
 <script type="text/javascript">
 focus_path = [ '$fField' ];
 function handleEnterKeyPress(ev)
@@ -14,8 +12,6 @@ function handleEnterKeyPress(ev)
 			 }
 		 }
 </script>
-<script type="text/javascript" src="/library/js/jquery.js"></script>
-<script type="text/javascript"  src="/sakai-assignment-tool/js/assignments.js"></script>
 <script type="text/javascript">
     $(document).ready(function(){
         setupToggleAreas('toggleAnchor', 'toggledContent', false, 'fast');

@@ -2,10 +2,6 @@
 <!-- start: chef_assignments_instructor_new_edit_assignment.vm  -->
 ##<!-- $Header: Exp $ -->
 ## Assignments - Instructor new Assignment view
-#parse("/vm/assignment/assignment_macros.vm")
-<script type="text/javascript" src="/library/js/jquery.js"></script>
-##<script type="text/javascript" src="/library/js/form.js"></script>
-<script type="text/javascript"  src="/sakai-assignment-tool/js/assignments.js"></script>
 <script type="text/javascript">
 $(document).ready(function() {
 	 setupAssignNew();
