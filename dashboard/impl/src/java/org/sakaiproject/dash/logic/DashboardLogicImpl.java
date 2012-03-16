@@ -1675,8 +1675,17 @@ public class DashboardLogicImpl implements DashboardLogic, Observer
 								sakaiProxy.clearThreadLocalCache();
 							}
 						} else {
-							updateRepeatingEvents();
-							timeToHandleAvailabilityChecks = true;
+							SecurityAdvisor advisor = new DashboardLogicSecurityAdvisor();
+							sakaiProxy.pushSecurityAdvisor(advisor);
+							try {
+								updateRepeatingEvents();
+								timeToHandleAvailabilityChecks = true;
+							} catch (Exception e) {
+								logger.warn("run: " + event, e);
+							} finally {
+								sakaiProxy.popSecurityAdvisor(advisor);
+							}
+								
 						}
 						try {
 							Thread.sleep(sleepTime * 1000L);
