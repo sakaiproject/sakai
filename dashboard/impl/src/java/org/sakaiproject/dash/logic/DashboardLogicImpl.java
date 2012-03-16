@@ -499,15 +499,18 @@ public class DashboardLogicImpl implements DashboardLogic, Observer
 		}
 	}
 
+	public SourceType createSourceType(String identifier, String accessPermission, String[] maintainPermissions) {
+		
+		SourceType sourceType = new SourceType(identifier, accessPermission, maintainPermissions); 
+		dao.addSourceType(sourceType);
+		return dao.getSourceType(identifier);
+	}
 
 	/* (non-Javadoc)
 	 * @see org.sakaiproject.dash.logic.DashboardLogic#createSourceType(java.lang.String, java.lang.String, org.sakaiproject.dash.entity.EntityLinkStrategy)
 	 */
 	public SourceType createSourceType(String identifier, String accessPermission) {
-		
-		SourceType sourceType = new SourceType(identifier, accessPermission); 
-		dao.addSourceType(sourceType);
-		return dao.getSourceType(identifier);
+		return this.createSourceType(identifier, accessPermission, null);
 	}
 	
 	/* (non-Javadoc)

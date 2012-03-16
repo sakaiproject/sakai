@@ -178,6 +178,17 @@ public interface DashboardLogic {
 	public SourceType createSourceType(String identifier, String accessPermission);
 
 	/**
+	 * Creates and persists a SourceType object with specified attributes. Each registered EntityType must have one (and only one) SourceType definition. 
+	 * Returns the complete SourceType object.
+	 * @param resourceTypeIdentifier
+	 * @param accessPermission
+	 * @param maintainPermissions
+	 * @return
+	 */
+	public SourceType createSourceType(String resourceTypeIdentifier, String accessPermission, String[] maintainPermissions);
+
+
+	/**
 	 * Retrieve a CalendarItem object based on the unique identifier assigned to it when it was persisted.
 	 * @param id
 	 * @return

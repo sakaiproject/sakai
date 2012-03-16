@@ -386,6 +386,7 @@ public class ResourceSupport {
 				ContentResource resource = (ContentResource) entity;
 				if (resource.isHidden())
 				{
+					
 					// hide the resource, the need to remove all links in dashboard
 					//dashboardLogic.removeNewsItem(event.getResource());
 				}
@@ -483,9 +484,17 @@ public class ResourceSupport {
 				if(logger.isDebugEnabled()) {
 					logger.debug("updating links to resource " + entity.getId());
 				}
+				NewsItem newsItem = dashboardLogic.getNewsItem(event.getResource());
+				if(newsItem == null) {
+					// create it
+					newsItem = addContentNewsItem(event, (ContentResource) entity);
+				}
 				if (((ContentResource) entity).isHidden())
 				{
-					dashboardLogic.removeNewsLinks(entity.getReference());
+					if(newsItem != null) {
+						dashboardLogic.addNewsLinksForMaintainers(newsItem);
+					}
+					//dashboardLogic.removeNewsLinks(entity.getReference());
 				}
 				else
 				{
@@ -617,8 +626,10 @@ public class ResourceSupport {
 	 * inner class to handle the logic of adding NewsItem for resource.
 	 * @param event
 	 * @param resource
+	 * @return 
 	 */
-	private void addContentNewsItem(Event event, ContentResource resource) {
+	private NewsItem addContentNewsItem(Event event, ContentResource resource) {
+		NewsItem newsItem = null;
 		if (!sakaiProxy.isAttachmentResource(resource.getId()))
 		{
 			// only when the resource is not attachment
@@ -639,7 +650,9 @@ public class ResourceSupport {
 			} else {
 				sourceType = dashboardLogic.getSourceType(RESOURCE_TYPE_IDENTIFIER);
 				if(sourceType == null) {
-					sourceType = dashboardLogic.createSourceType(RESOURCE_TYPE_IDENTIFIER, SakaiProxy.PERMIT_RESOURCE_ACCESS);
+					sourceType = dashboardLogic.createSourceType(RESOURCE_TYPE_IDENTIFIER, SakaiProxy.PERMIT_RESOURCE_ACCESS, new String[]{
+							SakaiProxy.PERMIT_RESOURCE_MAINTAIN_1, SakaiProxy.PERMIT_RESOURCE_MAINTAIN_2, SakaiProxy.PERMIT_RESOURCE_MAINTAIN_3
+					});
 				}
 			}
 			
@@ -686,7 +699,7 @@ public class ResourceSupport {
 			}
 			if (dashboardLogic.getNewsItem(resourceReference) == null)
 			{
-				NewsItem newsItem = dashboardLogic.createNewsItem(title, eventTime, labelKey , resourceReference, context, sourceType, resource.getContentType());
+				newsItem = dashboardLogic.createNewsItem(title, eventTime, labelKey , resourceReference, context, sourceType, resource.getContentType());
 				if(dashboardLogic.isAvailable(newsItem.getEntityReference(), RESOURCE_TYPE_IDENTIFIER)) {
 					dashboardLogic.createNewsLinks(newsItem);
 					Date retractDate = getRetractDate(newsItem.getEntityReference());
@@ -696,7 +709,6 @@ public class ResourceSupport {
 				} else {
 					// verify that users with permissions in alwaysAllowPermission have links and others do not
 					if(sourceType != null && sourceType.getAlwaysAccessPermission() != null && sourceType.getAlwaysAccessPermission().length > 0) {
-						
 						dashboardLogic.addNewsLinksForMaintainers(newsItem);
 					}
 					// schedule availability checks
@@ -707,6 +719,7 @@ public class ResourceSupport {
 				}
 			}
 		}
+		return newsItem;
 	}
 
 }
