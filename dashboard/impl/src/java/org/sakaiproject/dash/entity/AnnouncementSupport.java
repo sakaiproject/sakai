@@ -245,7 +245,7 @@ public class AnnouncementSupport{
 				//http://<serverurl>/portal/tool/<toolid>?itemReference=<announcementRef>&panel=Main&sakai_action=doShowmetadata
 				String announcementUrl = "";
 				Reference entityRef = entityManager.newReference(entityReference);
-				if (entityRef != null)
+				if (entityRef != null && entityRef.getContext() != null && ! DashboardLogic.MOTD_CONTEXT.equals(entityRef.getContext()))
 				{
 					Site site = sakaiProxy.getSite(entityRef.getContext());
 					if (site != null)

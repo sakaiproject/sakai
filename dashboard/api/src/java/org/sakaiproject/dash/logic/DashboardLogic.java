@@ -60,6 +60,8 @@ public interface DashboardLogic {
 	public static final String EVENT_DASH_HIDE = "dash.hide.item";
 	public static final String EVENT_DASH_SHOW = "dash.show.item";
 	public static final String EVENT_DASH_HIDE_MOTD = "dash.hide.motd";
+	
+	public static final String MOTD_CONTEXT = "!site";
 		
 	/**
 	 * Add links to calendar items in a context for a particular user. Links

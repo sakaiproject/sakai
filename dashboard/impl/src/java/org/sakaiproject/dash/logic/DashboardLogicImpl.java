@@ -79,8 +79,6 @@ public class DashboardLogicImpl implements DashboardLogic, Observer
 	private static final long ONE_DAY = 1000L * 60L * 60L * 24L;
 	private static final long ONE_YEAR = ONE_DAY * 365L;
 	
-	public static final String MOTD_CONTEXT = "!site";
-	
 	protected Date nextHorizonUpdate = new Date();
 	private Date horizon = new Date();
 		
