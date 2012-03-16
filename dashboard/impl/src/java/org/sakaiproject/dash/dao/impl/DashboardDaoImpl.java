@@ -1718,11 +1718,6 @@ public class DashboardDaoImpl extends JdbcDaoSupport implements DashboardDao {
 			executeSqlStatement("create.Config.table");
 			executeSqlStatement("create.EventLog.table");
 
-			// TODO: eliminate all references to these three tables in the sql files and the dao, including these three lines
-			executeSqlStatement("create.PersonContext.table");
-			executeSqlStatement("create.PersonContextSourceType.table");
-			executeSqlStatement("create.PersonSourceType.table");
-
 		} catch(Exception e) {
 	        //System.out.println("\ninitTables: Error executing query: " + e.getClass() + ":\n" + e.getMessage() + "\n");
 			log.warn("initTables() " + e);
