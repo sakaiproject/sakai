@@ -21,7 +21,6 @@
 
 package org.sakaiproject.dash.tool.util;
 
-import java.util.Collection;
 import java.util.List;
 import java.util.Map;
 
@@ -30,7 +29,6 @@ import net.sf.json.JSONObject;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
-import org.apache.wicket.spring.injection.annot.SpringBean;
 import org.sakaiproject.dash.logic.DashboardConfig;
 import org.sakaiproject.dash.logic.DashboardLogic;
 import org.sakaiproject.dash.model.CalendarItem;
