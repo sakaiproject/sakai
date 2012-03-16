@@ -384,17 +384,18 @@ public class ResourceSupport {
 			Entity entity = sakaiProxy.getEntity(event.getResource());
 			if(entity != null && entity instanceof ContentResource) {
 				ContentResource resource = (ContentResource) entity;
-				if (resource.isHidden())
-				{
-					
-					// hide the resource, the need to remove all links in dashboard
-					//dashboardLogic.removeNewsItem(event.getResource());
-				}
-				else
-				{
-					// add the links to dashboard
-					addContentNewsItem(event, resource);
-				}
+				addContentNewsItem(event, resource);
+				//				if (resource.isHidden())
+				//				{
+				//					
+				//					// hide the resource, the need to remove all links in dashboard
+				//					//dashboardLogic.removeNewsItem(event.getResource());
+				//				}
+				//				else
+				//				{
+				//					// add the links to dashboard
+				//					addContentNewsItem(event, resource);
+				//				}
 			}
 		}
 	}
@@ -651,7 +652,7 @@ public class ResourceSupport {
 				sourceType = dashboardLogic.getSourceType(RESOURCE_TYPE_IDENTIFIER);
 				if(sourceType == null) {
 					sourceType = dashboardLogic.createSourceType(RESOURCE_TYPE_IDENTIFIER, SakaiProxy.PERMIT_RESOURCE_ACCESS, new String[]{
-							SakaiProxy.PERMIT_RESOURCE_MAINTAIN_1, SakaiProxy.PERMIT_RESOURCE_MAINTAIN_2, SakaiProxy.PERMIT_RESOURCE_MAINTAIN_3
+							SakaiProxy.PERMIT_RESOURCE_MAINTAIN_1, SakaiProxy.PERMIT_RESOURCE_MAINTAIN_2
 					});
 				}
 			}

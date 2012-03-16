@@ -87,7 +87,6 @@ public interface SakaiProxy {
 	public static final String PERMIT_RESOURCE_ACCESS = ContentHostingService.AUTH_RESOURCE_READ;
 	public static final String PERMIT_RESOURCE_MAINTAIN_1 = ContentHostingService.AUTH_RESOURCE_HIDDEN;
 	public static final String PERMIT_RESOURCE_MAINTAIN_2 = ContentHostingService.AUTH_RESOURCE_WRITE_ANY;
-	public static final String PERMIT_RESOURCE_MAINTAIN_3 = ContentHostingService.AUTH_RESOURCE_WRITE_OWN;
 	public static final String PERMIT_DROPBOX_ACCESS = ContentHostingService.AUTH_DROPBOX_OWN;
 	public static final String PERMIT_DROPBOX_MAINTAIN = ContentHostingService.AUTH_DROPBOX_MAINTAIN;
 	public static final String PERMIT_SCHEDULE_ACCESS = CalendarService.AUTH_READ_CALENDAR;
