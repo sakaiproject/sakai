@@ -977,6 +977,8 @@ public class ShowPageProducer implements ViewComponentProducer, DefaultView, Nav
 					// done so the user never has to request a refresh.
 					//   FYI: this actually puts in an IFRAME for inline BLTI items
 					showRefresh = !makeLink(tableRow, "link", i, canEditPage, currentPage, notDone, status) || showRefresh;
+					UILink.make(tableRow, "copylink", i.getName(), "http://lessonbuilder.sakaiproject.org/" + i.getId() + "/").
+					    decorate(new UIFreeAttributeDecorator("title", messageLocator.getMessage("simplepage.copylink2").replace("{}", i.getName())));
 
 					// dummy is used when an assignment, quiz, or forum item is
 					// copied
@@ -1898,6 +1900,7 @@ public class ShowPageProducer implements ViewComponentProducer, DefaultView, Nav
 			boolean canEditPage, SimplePage currentPage, boolean notDone, Status status) {
 		String URL = "";
 		boolean available = simplePageBean.isItemAvailable(i);
+		String itemString = Long.toString(i.getId());
 
 		if (i.getSakaiId().equals(SimplePageItem.DUMMY)) {
 			UILink link = UILink.make(container, ID);
@@ -1906,6 +1909,8 @@ public class ShowPageProducer implements ViewComponentProducer, DefaultView, Nav
 			link.decorate(new UIFreeAttributeDecorator("onclick", "return false"));
 			link.decorate(new UIDisabledDecorator());
 			link.decorate(new UIStyleDecorator("disabled"));
+			link.decorate(new UIFreeAttributeDecorator("onclick", "return false"));
+			link.decorate(new UIFreeAttributeDecorator("lessonbuilderitem", itemString));
 		} else if (i.getType() == SimplePageItem.RESOURCE || i.getType() == SimplePageItem.URL) {
 
 			if (i.getType() == SimplePageItem.RESOURCE && i.isSameWindow()) {
@@ -1914,9 +1919,11 @@ public class ShowPageProducer implements ViewComponentProducer, DefaultView, Nav
 					params.setSendingPage(currentPage.getPageId());
 					params.setSource(i.getItemURL(simplePageBean.getCurrentSiteId(),currentPage.getOwner()));
 					params.setItemId(i.getId());
-					UIInternalLink.make(container, "link", params);
+					UILink link = UIInternalLink.make(container, "link", params);
+					link.decorate(new UIFreeAttributeDecorator("lessonbuilderitem", itemString));
 				} else {
 					UIInternalLink link = LinkTrackerProducer.make(container, ID, i.getName(), URL, i.getId(), notDone);
+					link.decorate(new UIFreeAttributeDecorator("lessonbuilderitem", itemString));
 					disableLink(link, messageLocator);
 				}
 			} else {
@@ -1925,6 +1932,7 @@ public class ShowPageProducer implements ViewComponentProducer, DefaultView, Nav
 				}
 
 				UIInternalLink link = LinkTrackerProducer.make(container, ID, i.getName(), URL, i.getId(), notDone);
+				link.decorate(new UIFreeAttributeDecorator("lessonbuilderitem", itemString));
 
 				if (available) {
 					link.decorate(new UIFreeAttributeDecorator("target", "_blank"));
@@ -1964,6 +1972,8 @@ public class ShowPageProducer implements ViewComponentProducer, DefaultView, Nav
 				UILink link;
 				if (available) {
 					link = UIInternalLink.make(container, ID, eParams);
+					link.decorate(new UIFreeAttributeDecorator("lessonbuilderitem", itemString));
+
 					if (i.isPrerequisite()) {
 						simplePageBean.checkItemPermissions(i, true);
 					}
@@ -1977,9 +1987,11 @@ public class ShowPageProducer implements ViewComponentProducer, DefaultView, Nav
 					// students see
 				} else if (canEditPage) {
 					link = UIInternalLink.make(container, ID, eParams);
+					link.decorate(new UIFreeAttributeDecorator("lessonbuilderitem", itemString));
 					fakeDisableLink(link, messageLocator);
 				} else {
 					link = UILink.make(container, ID);
+					link.decorate(new UIFreeAttributeDecorator("lessonbuilderitem", itemString));
 					disableLink(link, messageLocator);
 				}
 			}else {
@@ -1997,12 +2009,14 @@ public class ShowPageProducer implements ViewComponentProducer, DefaultView, Nav
 				LessonEntity lessonEntity = assignmentEntity.getEntity(i.getSakaiId(), simplePageBean);
 				params.setSource((lessonEntity == null) ? "dummy" : lessonEntity.getUrl());
 				params.setItemId(i.getId());
-				UIInternalLink.make(container, "link", params);
+				UILink link = UIInternalLink.make(container, "link", params);
+				link.decorate(new UIFreeAttributeDecorator("lessonbuilderitem", itemString));
 			} else {
 				if (i.isPrerequisite()) {
 					simplePageBean.checkItemPermissions(i, false);
 				}
 				UILink link = UILink.make(container, ID);
+				link.decorate(new UIFreeAttributeDecorator("lessonbuilderitem", itemString));
 				disableLink(link, messageLocator);
 			}
 		} else if (i.getType() == SimplePageItem.ASSESSMENT) {
@@ -2023,12 +2037,14 @@ public class ShowPageProducer implements ViewComponentProducer, DefaultView, Nav
 				LessonEntity lessonEntity = quizEntity.getEntity(i.getSakaiId());
 				view.setSource((lessonEntity == null) ? "dummy" : lessonEntity.getUrl());
 				view.setItemId(i.getId());
-				UIInternalLink.make(container, "link", view);
+				UILink link = UIInternalLink.make(container, "link", view);
+				link.decorate(new UIFreeAttributeDecorator("lessonbuilderitem", itemString));
 			} else {
 				if (i.isPrerequisite()) {
 					simplePageBean.checkItemPermissions(i, false);
 				}
 				UILink link = UILink.make(container, ID, "");
+				link.decorate(new UIFreeAttributeDecorator("lessonbuilderitem", itemString));
 				disableLink(link, messageLocator);
 			}
 		} else if (i.getType() == SimplePageItem.FORUM) {
@@ -2041,12 +2057,14 @@ public class ShowPageProducer implements ViewComponentProducer, DefaultView, Nav
 				view.setItemId(i.getId());
 				LessonEntity lessonEntity = forumEntity.getEntity(i.getSakaiId());
 				view.setSource((lessonEntity == null) ? "dummy" : lessonEntity.getUrl());
-				UIInternalLink.make(container, "link", view);
+				UILink link = UIInternalLink.make(container, "link", view);
+				link.decorate(new UIFreeAttributeDecorator("lessonbuilderitem", itemString));
 			} else {
 				if (i.isPrerequisite()) {
 					simplePageBean.checkItemPermissions(i, false);
 				}
 				UILink link = UILink.make(container, ID);
+				link.decorate(new UIFreeAttributeDecorator("lessonbuilderitem", itemString));
 				disableLink(link, messageLocator);
 			}
 		} else if (i.getType() == SimplePageItem.BLTI) {
@@ -2079,13 +2097,14 @@ public class ShowPageProducer implements ViewComponentProducer, DefaultView, Nav
 				view.setSendingPage(currentPage.getPageId());
 				view.setItemId(i.getId());
 				view.setSource((lessonEntity==null)?"dummy":lessonEntity.getUrl());
-				UIInternalLink.make(container, "link", view);
-
+				UIInternalLink.make(container, "link", view)
+				    .decorate(new UIFreeAttributeDecorator("lessonbuilderitem", itemString));
 			} else {
 				if (i.isPrerequisite()) {
 					simplePageBean.checkItemPermissions(i, false);
 				}
 				UILink link = UILink.make(container, ID);
+				link.decorate(new UIFreeAttributeDecorator("lessonbuilderitem", itemString));
 				disableLink(link, messageLocator);
 			}
 		    } else {
@@ -2094,6 +2113,7 @@ public class ShowPageProducer implements ViewComponentProducer, DefaultView, Nav
 			    URL = (lessonEntity==null)?"dummy":lessonEntity.getUrl();
 			}
 			UIInternalLink link = LinkTrackerProducer.make(container, ID, i.getName(), URL, i.getId(), notDone);
+			link.decorate(new UIFreeAttributeDecorator("lessonbuilderitem", itemString));
 
 			if (available) {
 				link.decorate(new UIFreeAttributeDecorator("target", "_blank"));

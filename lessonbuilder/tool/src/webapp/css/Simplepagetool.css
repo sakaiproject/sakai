@@ -369,3 +369,16 @@ img {
 .linkCell {
 	  margin-top:1em
 }
+.itemcopylink {
+	 display:none;
+	 border: 1px solid black;
+	 padding: 2px;
+	 margin-left: 2px;
+	 text-decoration:none !important;
+         background-color: #ffc;
+	-moz-border-radius: 2px;
+	-webkit-border-radius: 2px;
+	border-radius: 2px;
+	color:black !important;
+
+}

@@ -1053,6 +1053,7 @@ $(function() {
 			return false;
 		});
 
+
 	} // Closes admin if statement
 
 	if (!(navigator.userAgent.indexOf("Firefox/2.") > 0)) {
@@ -1071,7 +1072,6 @@ $(function() {
 	    return href;
 	}
 
-	
 
 	function fixitemshows(){
 		var val = $(".format:checked").val();
@@ -1086,6 +1086,15 @@ $(function() {
 		}
 	}
 
+	$('.textbox a[class!=itemcopylink]').each(function(index) {
+		try {
+		    if ($(this).attr('href').match("^http://lessonbuilder.sakaiproject.org/") != null) {
+			var item = $(this).attr('href').substring(38).replace('/','');
+			var a = $('a[lessonbuilderitem=' + item + ']').first();
+			$(this).replaceWith(a);
+		    }
+		} catch (err) {};
+	    });
 	
 	
 	$('#edit-title-error-container').hide();
