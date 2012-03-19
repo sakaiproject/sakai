@@ -490,16 +490,14 @@ public class ResourceSupport {
 					// create it
 					newsItem = addContentNewsItem(event, (ContentResource) entity);
 				}
-				if (((ContentResource) entity).isHidden())
-				{
-					if(newsItem != null) {
-						dashboardLogic.addNewsLinksForMaintainers(newsItem);
-					}
-					//dashboardLogic.removeNewsLinks(entity.getReference());
-				}
-				else
-				{
+				if(newsItem == null) {
+					
+				} else if(newsItem.getSourceType() == null) {
+					
+				} else if (dashboardLogic.isAvailable(newsItem.getEntityReference(), newsItem.getSourceType().getIdentifier())) {
 					dashboardLogic.updateNewsLinks(event.getResource());
+				} else {
+					dashboardLogic.addNewsLinksForMaintainers(newsItem);
 				}
 			} else if(entity!= null && entity instanceof ContentCollection) {
 				ContentCollection collection = (ContentCollection) entity;
