@@ -1,3 +1,34 @@
+Index: kernel-impl/src/test/java/org/sakaiproject/jcr/test/mock/MockSecurityService.java
+===================================================================
+--- kernel-impl/src/test/java/org/sakaiproject/jcr/test/mock/MockSecurityService.java	(revision 106066)
++++ kernel-impl/src/test/java/org/sakaiproject/jcr/test/mock/MockSecurityService.java	(working copy)
+@@ -208,6 +208,11 @@
+ 		return null;
+ 	}
+ 
++	public String[] getUserDelegatedAccessRealmRole(String siteRef) {
++		// TODO Auto-generated method stub
++		return null;
++	}
++
+ 	
+ 
+ }
+Index: kernel-impl/src/test/java/org/sakai/memory/impl/test/MockSecurityService.java
+===================================================================
+--- kernel-impl/src/test/java/org/sakai/memory/impl/test/MockSecurityService.java	(revision 106066)
++++ kernel-impl/src/test/java/org/sakai/memory/impl/test/MockSecurityService.java	(working copy)
+@@ -156,5 +156,10 @@
+ 		return null;
+ 	}
+ 
++	public String[] getUserDelegatedAccessRealmRole(String siteRef) {
++		// TODO Auto-generated method stub
++		return null;
++	}
+ 
++
+ }
 Index: kernel-impl/src/main/java/org/sakaiproject/authz/impl/DbAuthzGroupService.java
 ===================================================================
 --- kernel-impl/src/main/java/org/sakaiproject/authz/impl/DbAuthzGroupService.java	(revision 106066)
