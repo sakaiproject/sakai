@@ -333,7 +333,7 @@ public class IMSPOXRequest {
 
 	static final String fatalMessage = 
 		"<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n" +
-		"<imsx_POXEnvelopeResponse xmlns = \"http://www.imsglobal.org/lis/oms1p0/pox\">\n" +
+		"<imsx_POXEnvelopeResponse xmlns = \"http://www.imsglobal.org/services/ltiv1p1/xsd/imsoms_v1p0\">\n" +
 		"    <imsx_POXHeader>\n" +
 		"        <imsx_POXResponseHeaderInfo>\n" + 
 		"            <imsx_version>V1.0</imsx_version>\n" +
@@ -360,7 +360,7 @@ public class IMSPOXRequest {
 
 	static final String responseMessage = 
 		"<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n" +
-		"<imsx_POXEnvelopeResponse xmlns = \"http://www.imsglobal.org/lis/oms1p0/pox\">\n" +
+		"<imsx_POXEnvelopeResponse xmlns = \"http://www.imsglobal.org/services/ltiv1p1/xsd/imsoms_v1p0\">\n" +
 		"  <imsx_POXHeader>\n" +
 		"    <imsx_POXResponseHeaderInfo>\n" + 
 		"      <imsx_version>V1.0</imsx_version>\n" +
@@ -467,7 +467,7 @@ public class IMSPOXRequest {
 
 	/** Unit Tests */
 	static final String inputTestData = "<?xml version = \"1.0\" encoding = \"UTF-8\"?>\n" +  
-		"<imsx_POXEnvelopeRequest xmlns = \"http://www.imsglobal.org/lis/oms1p0/pox\">\n" + 
+		"<imsx_POXEnvelopeRequest xmlns = \"http://www.imsglobal.org/services/ltiv1p1/xsd/imsoms_v1p0\">\n" + 
 		"<imsx_POXHeader>\n" + 
 		"<imsx_POXRequestHeaderInfo>\n" + 
 		"<imsx_version>V1.0</imsx_version>\n" + 
