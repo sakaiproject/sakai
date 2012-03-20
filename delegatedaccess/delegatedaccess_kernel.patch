@@ -1,6 +1,6 @@
 Index: kernel-impl/src/test/java/org/sakaiproject/jcr/test/mock/MockSecurityService.java
 ===================================================================
---- kernel-impl/src/test/java/org/sakaiproject/jcr/test/mock/MockSecurityService.java	(revision 106066)
+--- kernel-impl/src/test/java/org/sakaiproject/jcr/test/mock/MockSecurityService.java	(revision 106071)
 +++ kernel-impl/src/test/java/org/sakaiproject/jcr/test/mock/MockSecurityService.java	(working copy)
 @@ -208,6 +208,11 @@
  		return null;
@@ -16,7 +16,7 @@ Index: kernel-impl/src/test/java/org/sakaiproject/jcr/test/mock/MockSecurityServ
  }
 Index: kernel-impl/src/test/java/org/sakai/memory/impl/test/MockSecurityService.java
 ===================================================================
---- kernel-impl/src/test/java/org/sakai/memory/impl/test/MockSecurityService.java	(revision 106066)
+--- kernel-impl/src/test/java/org/sakai/memory/impl/test/MockSecurityService.java	(revision 106071)
 +++ kernel-impl/src/test/java/org/sakai/memory/impl/test/MockSecurityService.java	(working copy)
 @@ -156,5 +156,10 @@
  		return null;
@@ -31,7 +31,7 @@ Index: kernel-impl/src/test/java/org/sakai/memory/impl/test/MockSecurityService.
  }
 Index: kernel-impl/src/main/java/org/sakaiproject/authz/impl/DbAuthzGroupService.java
 ===================================================================
---- kernel-impl/src/main/java/org/sakaiproject/authz/impl/DbAuthzGroupService.java	(revision 106066)
+--- kernel-impl/src/main/java/org/sakaiproject/authz/impl/DbAuthzGroupService.java	(revision 106071)
 +++ kernel-impl/src/main/java/org/sakaiproject/authz/impl/DbAuthzGroupService.java	(working copy)
 @@ -1636,11 +1636,18 @@
  			// Would be better to get this initially to make the code more efficient, but the realms collection
@@ -93,45 +93,23 @@ Index: kernel-impl/src/main/java/org/sakaiproject/authz/impl/DbAuthzGroupService
  				// No successful results for roleswap
  				return false;
              }
-Index: kernel-impl/src/main/java/org/sakaiproject/authz/impl/SakaiSecurity.java
+Index: kernel-impl/src/main/java/org/sakaiproject/authz/impl/NoSecurity.java
 ===================================================================
---- kernel-impl/src/main/java/org/sakaiproject/authz/impl/SakaiSecurity.java	(revision 106066)
-+++ kernel-impl/src/main/java/org/sakaiproject/authz/impl/SakaiSecurity.java	(working copy)
-@@ -33,6 +33,7 @@
- import org.sakaiproject.authz.api.AuthzGroupService;
- import org.sakaiproject.authz.api.SecurityAdvisor;
- import org.sakaiproject.authz.api.SecurityService;
-+import org.sakaiproject.delegatedaccess.logic.ProjectLogic;
- import org.sakaiproject.entity.api.Entity;
- import org.sakaiproject.entity.api.EntityManager;
- import org.sakaiproject.entity.api.Reference;
-@@ -106,6 +107,8 @@
- 	 * @return the EventTrackingService collaborator.
- 	 */
- 	protected abstract EventTrackingService eventTrackingService();
-+	
-+	protected abstract ProjectLogic delegatedAccessProjectLogic();
- 
- 	/**********************************************************************************************************************************************************************************************************************************************************
- 	 * Configuration
-@@ -557,4 +560,14 @@
- 		
- 		return;
+--- kernel-impl/src/main/java/org/sakaiproject/authz/impl/NoSecurity.java	(revision 106071)
++++ kernel-impl/src/main/java/org/sakaiproject/authz/impl/NoSecurity.java	(working copy)
+@@ -190,4 +190,9 @@
+ 	public void clearAdvisors()
+ 	{
  	}
 +	
-+	public String[] getUserDelegatedAccessRealmRole(String siteRef){
-+		//returns an array of {realm, role} as well as sets the users session denied tools map
-+		String[] access = delegatedAccessProjectLogic().getCurrentUsersAccessToSite(siteRef);
-+		if(access != null && access.length == 2){
-+			return access;
-+		}else{
-+			return null;
-+		}
++	public String[] getUserDelegatedAccessRealmRole(String siteRef) {
++		// TODO Auto-generated method stub
++		return null;
 +	}
  }
 Index: kernel-impl/src/main/java/org/sakaiproject/authz/impl/SakaiSecurityTest.java
 ===================================================================
---- kernel-impl/src/main/java/org/sakaiproject/authz/impl/SakaiSecurityTest.java	(revision 106066)
+--- kernel-impl/src/main/java/org/sakaiproject/authz/impl/SakaiSecurityTest.java	(revision 106071)
 +++ kernel-impl/src/main/java/org/sakaiproject/authz/impl/SakaiSecurityTest.java	(working copy)
 @@ -22,6 +22,7 @@
  package org.sakaiproject.authz.impl;
@@ -153,9 +131,49 @@ Index: kernel-impl/src/main/java/org/sakaiproject/authz/impl/SakaiSecurityTest.j
 +		return null;
 +	}
  }
+Index: kernel-impl/src/main/java/org/sakaiproject/authz/impl/SakaiSecurity.java
+===================================================================
+--- kernel-impl/src/main/java/org/sakaiproject/authz/impl/SakaiSecurity.java	(revision 106071)
++++ kernel-impl/src/main/java/org/sakaiproject/authz/impl/SakaiSecurity.java	(working copy)
+@@ -33,6 +33,7 @@
+ import org.sakaiproject.authz.api.AuthzGroupService;
+ import org.sakaiproject.authz.api.SecurityAdvisor;
+ import org.sakaiproject.authz.api.SecurityService;
++import org.sakaiproject.delegatedaccess.logic.ProjectLogic;
+ import org.sakaiproject.entity.api.Entity;
+ import org.sakaiproject.entity.api.EntityManager;
+ import org.sakaiproject.entity.api.Reference;
+@@ -106,6 +107,8 @@
+ 	 * @return the EventTrackingService collaborator.
+ 	 */
+ 	protected abstract EventTrackingService eventTrackingService();
++	
++	protected abstract ProjectLogic delegatedAccessProjectLogic();
+ 
+ 	/**********************************************************************************************************************************************************************************************************************************************************
+ 	 * Configuration
+@@ -557,4 +560,18 @@
+ 		
+ 		return;
+ 	}
++	
++	public String[] getUserDelegatedAccessRealmRole(String siteRef){
++		//returns an array of {realm, role} as well as sets the users session denied tools map
++		try{
++			String[] access = delegatedAccessProjectLogic().getCurrentUsersAccessToSite(siteRef);
++			if(access != null && access.length == 2){
++				return access;
++			}else{
++				return null;
++			}
++		}catch(Exception e){
++			return null;
++		}
++	}
+ }
 Index: kernel-impl/pom.xml
 ===================================================================
---- kernel-impl/pom.xml	(revision 106066)
+--- kernel-impl/pom.xml	(revision 106071)
 +++ kernel-impl/pom.xml	(working copy)
 @@ -45,6 +45,11 @@
    </build>
@@ -171,7 +189,7 @@ Index: kernel-impl/pom.xml
        <version>${project.version}</version>
 Index: kernel-component/src/main/webapp/WEB-INF/authz-components.xml
 ===================================================================
---- kernel-component/src/main/webapp/WEB-INF/authz-components.xml	(revision 106066)
+--- kernel-component/src/main/webapp/WEB-INF/authz-components.xml	(revision 106071)
 +++ kernel-component/src/main/webapp/WEB-INF/authz-components.xml	(working copy)
 @@ -51,6 +51,7 @@
   		<lookup-method name="entityManager" bean="org.sakaiproject.entity.api.EntityManager" />
@@ -183,7 +201,7 @@ Index: kernel-component/src/main/webapp/WEB-INF/authz-components.xml
  	</bean>
 Index: api/src/main/java/org/sakaiproject/authz/api/SecurityService.java
 ===================================================================
---- api/src/main/java/org/sakaiproject/authz/api/SecurityService.java	(revision 106066)
+--- api/src/main/java/org/sakaiproject/authz/api/SecurityService.java	(revision 106071)
 +++ api/src/main/java/org/sakaiproject/authz/api/SecurityService.java	(working copy)
 @@ -187,4 +187,16 @@
  	 */
@@ -204,7 +222,7 @@ Index: api/src/main/java/org/sakaiproject/authz/api/SecurityService.java
  }
 Index: api/src/main/java/org/sakaiproject/authz/cover/SecurityService.java
 ===================================================================
---- api/src/main/java/org/sakaiproject/authz/cover/SecurityService.java	(revision 106066)
+--- api/src/main/java/org/sakaiproject/authz/cover/SecurityService.java	(revision 106071)
 +++ api/src/main/java/org/sakaiproject/authz/cover/SecurityService.java	(working copy)
 @@ -178,4 +178,11 @@
  
