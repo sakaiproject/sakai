@@ -101,7 +101,7 @@ import org.w3c.dom.NodeList;
  * Each User that ever goes through Sakai is allocated a Sakai unique UUID. Even if we don't keep the User record in Sakai, we keep a map of this id to the external eid.
  * </p>
  */
-public abstract class BaseUserDirectoryService implements UserDirectoryService, SingleStorageUser, UserFactory
+public abstract class BaseUserDirectoryService implements UserDirectoryService, UserFactory
 {
 	/** Our log (commons). */
 	private static Log M_log = LogFactory.getLog(BaseUserDirectoryService.class);

@@ -1229,6 +1229,30 @@ public abstract class BasePreferencesService implements PreferencesService, Sing
 	/**
 	 * @inheritDoc
 	 */
+	public Entity newResource(Entity container, String id, Object[] others)
+	{
+		return new BasePreferences(id);
+	}
+
+	/**
+	 * @inheritDoc
+	 */
+	public Entity newResource(Entity container, Element element)
+	{
+		return new BasePreferences(element);
+	}
+
+	/**
+	 * @inheritDoc
+	 */
+	public Entity newResource(Entity container, Entity other)
+	{
+		return new BasePreferences((Preferences) other);
+	}
+
+	/**
+	 * @inheritDoc
+	 */
 	public Edit newResourceEdit(Entity container, String id, Object[] others)
 	{
 		BasePreferences e = new BasePreferences(id);
