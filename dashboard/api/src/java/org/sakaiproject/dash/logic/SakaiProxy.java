@@ -83,6 +83,7 @@ public interface SakaiProxy {
 	public static final String EVENT_MODIFY_CALENDAR_EVENT_EXCLUSIONS = CalendarService.EVENT_MODIFY_CALENDAR_EVENT_EXCLUSIONS;
 	
 	public static final String PERMIT_ANNOUNCEMENT_ACCESS = AnnouncementService.SECURE_ANNC_READ;
+    public static final String PERMIT_ANNOUNCEMENT_ACCESS_DRAFT = AnnouncementService.SECURE_ANNC_READ_DRAFT;
 	public static final String PERMIT_ASSIGNMENT_ACCESS = AssignmentService.SECURE_ACCESS_ASSIGNMENT;
 	public static final String PERMIT_RESOURCE_ACCESS = ContentHostingService.AUTH_RESOURCE_READ;
 	public static final String PERMIT_RESOURCE_MAINTAIN_1 = ContentHostingService.AUTH_RESOURCE_HIDDEN;

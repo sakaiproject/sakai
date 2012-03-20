@@ -164,36 +164,42 @@ public class AnnouncementSupport{
 		
 		String anncTitle = annc.getAnnouncementHeader().getSubject();
 		
-		Context context = dashboardLogic.getContext(event.getContext());
-		if(context == null) {
-			context = dashboardLogic.createContext(event.getContext());
-		}
-		
-		SourceType sourceType = dashboardLogic.getSourceType(IDENTIFIER);
-		if(sourceType == null) {
-			sourceType = dashboardLogic.createSourceType(IDENTIFIER, SakaiProxy.PERMIT_ANNOUNCEMENT_ACCESS);
-		}
-		
+		boolean updatingExistingLinks = true;
 		NewsItem newsItem = dashboardLogic.getNewsItem(anncReference);
 		if (newsItem == null)
 		{
+			Context context = dashboardLogic.getContext(event.getContext());
+			if(context == null) {
+				context = dashboardLogic.createContext(event.getContext());
+			}
+			
+			SourceType sourceType = dashboardLogic.getSourceType(IDENTIFIER);
+			if(sourceType == null) {
+				sourceType = dashboardLogic.createSourceType(IDENTIFIER, SakaiProxy.PERMIT_ANNOUNCEMENT_ACCESS, new String[]{ SakaiProxy.PERMIT_ANNOUNCEMENT_ACCESS_DRAFT });
+			}
+			
 			// create NewsItem if not exist yet
 			newsItem = dashboardLogic.createNewsItem(anncTitle, event.getEventTime(), "announcement.added", anncReference, context, sourceType, null);
-		}
-		else
-		{
-			// remove all existing links
-			dashboardLogic.removeNewsLinks(anncReference);
+			updatingExistingLinks = false;
 		}
 		if(dashboardLogic.isAvailable(newsItem.getEntityReference(), IDENTIFIER)) {
-			
-			// availabe now
-			dashboardLogic.createNewsLinks(newsItem);
+			// available now
+			if(updatingExistingLinks) {
+				dashboardLogic.updateNewsLinks(newsItem.getEntityReference());
+			} else {
+				dashboardLogic.createNewsLinks(newsItem);
+			}
 			Date retractDate = getRetractDate(annc);
 			if(retractDate != null && retractDate.after(new Date())) {
 				dashboardLogic.scheduleAvailabilityCheck(newsItem.getEntityReference(), IDENTIFIER, retractDate);
 			}
 		} else {
+			// verify that users with permissions in alwaysAllowPermission have links and others do not
+			SourceType sourceType = newsItem.getSourceType();
+			if(sourceType != null && sourceType.getAlwaysAccessPermission() != null && sourceType.getAlwaysAccessPermission().length > 0) {
+				dashboardLogic.addNewsLinksForMaintainers(newsItem);
+			}
+
 			// not available now
 			Date releaseDate = getReleaseDate(annc);
 			if(releaseDate != null && releaseDate.after(new Date())) {
@@ -690,15 +696,16 @@ public class AnnouncementSupport{
 			Entity entity = sakaiProxy.getEntity(entityReference);
 			if(entity != null && entity instanceof AnnouncementMessage) {
 				AnnouncementMessage annc = (AnnouncementMessage) entity;
-				boolean isDraft = annc.getHeader().getDraft();
-				if (isDraft)
-				{
-					// if the announcement becomes draft, remove it from the dashboard tool
-					dashboardLogic.removeNewsItem(entityReference);
-				}
-				else
-				{
-					createUpdateDashboardItemLinks(event, annc);	
+				NewsItem newsItem = dashboardLogic.getNewsItem(event.getResource());
+				if(newsItem == null) {
+					// create it
+					createUpdateDashboardItemLinks(event, annc);
+				} else if(dashboardLogic.isAvailable(entityReference, IDENTIFIER)) {
+					// if the announcement is available, show it to all users with read access
+					createUpdateDashboardItemLinks(event, annc);
+				} else {
+					// if the announcement is unavailable, limit access to users with maintainer permissions
+					dashboardLogic.addNewsLinksForMaintainers(newsItem);
 				}
 			}
 			
