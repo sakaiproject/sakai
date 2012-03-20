@@ -448,6 +448,10 @@
     
     <bean id="org.sakaiproject.api.app.messageforums.ForumTopicEntityProvider" class="org.sakaiproject.component.app.messageforums.entity.ForumTopicEntityProviderImpl">
 		<property name="forumManager" ref="org.sakaiproject.api.app.messageforums.ui.DiscussionForumManager" />
+    </bean>
+    
+    <bean id="org.sakaiproject.api.app.messageforums.TopicEntityProvider" class="org.sakaiproject.component.app.messageforums.entity.TopicEntityProviderImpl">
+		<property name="forumManager" ref="org.sakaiproject.api.app.messageforums.ui.DiscussionForumManager" />
 		<property name="uiPermissionsManager">
              <ref bean="org.sakaiproject.api.app.messageforums.ui.UIPermissionsManager"/>
 		</property>
