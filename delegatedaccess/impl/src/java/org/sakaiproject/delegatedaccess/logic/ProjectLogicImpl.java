@@ -1379,7 +1379,7 @@ public class ProjectLogicImpl implements ProjectLogic {
 
 			//set default to no access and override it if the user does have access
 			//this is so we don't have to keep looking up their access for the same site:
-			deniedToolsMap.put(siteRef, new String[0]);
+			deniedToolsMap.put(siteRef, null);
 			//find the node for the site
 			List<String> siteNodes = getNodesBySiteRef(siteRef, DelegatedAccessConstants.HIERARCHY_ID);
 			if(siteNodes != null && siteNodes.size() == 1){

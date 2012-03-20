@@ -1,6 +1,6 @@
 Index: kernel-impl/src/main/java/org/sakaiproject/authz/impl/DbAuthzGroupService.java
 ===================================================================
---- kernel-impl/src/main/java/org/sakaiproject/authz/impl/DbAuthzGroupService.java	(revision 105635)
+--- kernel-impl/src/main/java/org/sakaiproject/authz/impl/DbAuthzGroupService.java	(revision 106066)
 +++ kernel-impl/src/main/java/org/sakaiproject/authz/impl/DbAuthzGroupService.java	(working copy)
 @@ -1636,11 +1636,18 @@
  			// Would be better to get this initially to make the code more efficient, but the realms collection
@@ -62,33 +62,9 @@ Index: kernel-impl/src/main/java/org/sakaiproject/authz/impl/DbAuthzGroupService
  				// No successful results for roleswap
  				return false;
              }
-Index: kernel-impl/src/main/java/org/sakaiproject/authz/impl/SakaiSecurityTest.java
-===================================================================
---- kernel-impl/src/main/java/org/sakaiproject/authz/impl/SakaiSecurityTest.java	(revision 105635)
-+++ kernel-impl/src/main/java/org/sakaiproject/authz/impl/SakaiSecurityTest.java	(working copy)
-@@ -22,6 +22,7 @@
- package org.sakaiproject.authz.impl;
- 
- import org.sakaiproject.authz.api.AuthzGroupService;
-+import org.sakaiproject.delegatedaccess.logic.ProjectLogic;
- import org.sakaiproject.entity.api.EntityManager;
- import org.sakaiproject.event.api.EventTrackingService;
- import org.sakaiproject.memory.api.MemoryService;
-@@ -91,4 +92,11 @@
- 	{
- 		return null;
- 	}
-+
-+	/**
-+	 * @return the ProjectLogic for delegated access
-+	 */
-+	protected ProjectLogic delegatedAccessProjectLogic() {
-+		return null;
-+	}
- }
 Index: kernel-impl/src/main/java/org/sakaiproject/authz/impl/SakaiSecurity.java
 ===================================================================
---- kernel-impl/src/main/java/org/sakaiproject/authz/impl/SakaiSecurity.java	(revision 105635)
+--- kernel-impl/src/main/java/org/sakaiproject/authz/impl/SakaiSecurity.java	(revision 106066)
 +++ kernel-impl/src/main/java/org/sakaiproject/authz/impl/SakaiSecurity.java	(working copy)
 @@ -33,6 +33,7 @@
  import org.sakaiproject.authz.api.AuthzGroupService;
@@ -122,9 +98,33 @@ Index: kernel-impl/src/main/java/org/sakaiproject/authz/impl/SakaiSecurity.java
 +		}
 +	}
  }
+Index: kernel-impl/src/main/java/org/sakaiproject/authz/impl/SakaiSecurityTest.java
+===================================================================
+--- kernel-impl/src/main/java/org/sakaiproject/authz/impl/SakaiSecurityTest.java	(revision 106066)
++++ kernel-impl/src/main/java/org/sakaiproject/authz/impl/SakaiSecurityTest.java	(working copy)
+@@ -22,6 +22,7 @@
+ package org.sakaiproject.authz.impl;
+ 
+ import org.sakaiproject.authz.api.AuthzGroupService;
++import org.sakaiproject.delegatedaccess.logic.ProjectLogic;
+ import org.sakaiproject.entity.api.EntityManager;
+ import org.sakaiproject.event.api.EventTrackingService;
+ import org.sakaiproject.memory.api.MemoryService;
+@@ -91,4 +92,11 @@
+ 	{
+ 		return null;
+ 	}
++
++	/**
++	 * @return the ProjectLogic for delegated access
++	 */
++	protected ProjectLogic delegatedAccessProjectLogic() {
++		return null;
++	}
+ }
 Index: kernel-impl/pom.xml
 ===================================================================
---- kernel-impl/pom.xml	(revision 105635)
+--- kernel-impl/pom.xml	(revision 106066)
 +++ kernel-impl/pom.xml	(working copy)
 @@ -45,6 +45,11 @@
    </build>
@@ -140,9 +140,9 @@ Index: kernel-impl/pom.xml
        <version>${project.version}</version>
 Index: kernel-component/src/main/webapp/WEB-INF/authz-components.xml
 ===================================================================
---- kernel-component/src/main/webapp/WEB-INF/authz-components.xml	(revision 105635)
+--- kernel-component/src/main/webapp/WEB-INF/authz-components.xml	(revision 106066)
 +++ kernel-component/src/main/webapp/WEB-INF/authz-components.xml	(working copy)
-@@ -55,6 +55,7 @@
+@@ -51,6 +51,7 @@
   		<lookup-method name="entityManager" bean="org.sakaiproject.entity.api.EntityManager" />
  		<lookup-method name="sessionManager" bean="org.sakaiproject.tool.api.SessionManager" />
  		<lookup-method name="eventTrackingService" bean="org.sakaiproject.event.api.EventTrackingService" />
@@ -152,7 +152,7 @@ Index: kernel-component/src/main/webapp/WEB-INF/authz-components.xml
  	</bean>
 Index: api/src/main/java/org/sakaiproject/authz/api/SecurityService.java
 ===================================================================
---- api/src/main/java/org/sakaiproject/authz/api/SecurityService.java	(revision 105635)
+--- api/src/main/java/org/sakaiproject/authz/api/SecurityService.java	(revision 106066)
 +++ api/src/main/java/org/sakaiproject/authz/api/SecurityService.java	(working copy)
 @@ -187,4 +187,16 @@
  	 */
@@ -173,7 +173,7 @@ Index: api/src/main/java/org/sakaiproject/authz/api/SecurityService.java
  }
 Index: api/src/main/java/org/sakaiproject/authz/cover/SecurityService.java
 ===================================================================
---- api/src/main/java/org/sakaiproject/authz/cover/SecurityService.java	(revision 105635)
+--- api/src/main/java/org/sakaiproject/authz/cover/SecurityService.java	(revision 106066)
 +++ api/src/main/java/org/sakaiproject/authz/cover/SecurityService.java	(working copy)
 @@ -178,4 +178,11 @@
  
