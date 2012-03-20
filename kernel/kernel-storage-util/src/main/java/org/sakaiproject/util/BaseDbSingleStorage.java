@@ -129,10 +129,8 @@ public class BaseDbSingleStorage implements DbSingleStorage
 	static
 	{
 		databaseBeans = new Hashtable<String, SingleStorageSql>();
-		databaseBeans.put("db2", new SingleStorageSqlDb2());
 		databaseBeans.put("default", new SingleStorageSqlDefault());
 		databaseBeans.put("hsql", new SingleStorageSqlHSql());
-		databaseBeans.put("mssql", new SingleStorageSqlMsSql());
 		databaseBeans.put("mysql", new SingleStorageSqlMySql());
 		databaseBeans.put("oracle", new SingleStorageSqlOracle());
 	}

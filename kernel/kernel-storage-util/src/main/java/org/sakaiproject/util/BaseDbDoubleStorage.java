@@ -162,10 +162,8 @@ public class BaseDbDoubleStorage
 	static
 	{
 		databaseBeans = new Hashtable<String, DoubleStorageSql>();
-		databaseBeans.put("db2", new DoubleStorageSqlDb2());
 		databaseBeans.put("default", new DoubleStorageSqlDefault());
 		databaseBeans.put("hsqldb", new DoubleStorageSqlHSql());
-		databaseBeans.put("mssql", new DoubleStorageSqlMsSql());
 		databaseBeans.put("mysql", new DoubleStorageSqlMySql());
 		databaseBeans.put("oracle", new DoubleStorageSqlOracle());
 	}
@@ -1562,13 +1560,6 @@ public class BaseDbDoubleStorage
 				buf.append("select messages.XML from (");
 				buf.append("select XML from " + m_resourceTableName);
 			}
-			else if ("mssql".equals(m_sql.getVendor()))
-			{
-				buf.append("select top (" + limitedToLatest + ") XML from " + m_resourceTableName);
-			}
-         else if ("db2".equals(m_sql.getVendor())) {
-            buf.append("select XML from " + m_resourceTableName);
-         }
 			else
 			// if ("hsqldb".equals(m_sql.getVendor()))
 			{
@@ -1634,17 +1625,6 @@ public class BaseDbDoubleStorage
 				buf.append(" ) AS messages LIMIT " + limitedToLatest);
 				useLimitField = false;
 			}
-			else if ("mssql".equals(m_sql.getVendor()))
-			{
-				// explicitly do nothing here, we handle with 'top' clause above
-				useLimitField = false;
-			}
-         else if ("db2".equals(m_sql.getVendor()))
-         {
-            buf.append(" FETCH FIRST " + limitedToLatest + " ROWS ONLY");
-            useLimitField = false;
-         }
-
          else
 			// if ("hsqldb".equals(m_sql.getVendor()))
 			{

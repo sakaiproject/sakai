@@ -5,9 +5,7 @@
 
     <!-- database beans -->
     <bean id="org.sakaiproject.db.impl.BasicSqlServiceSqlDefault"   class="org.sakaiproject.db.impl.BasicSqlServiceSqlDefault" singleton="true"/>
-    <bean id="org.sakaiproject.db.impl.BasicSqlServiceSqlDb2"       class="org.sakaiproject.db.impl.BasicSqlServiceSqlDb2"     singleton="true"/>
     <bean id="org.sakaiproject.db.impl.BasicSqlServiceSqlHSql"      class="org.sakaiproject.db.impl.BasicSqlServiceSqlHSql"    singleton="true"/>
-    <bean id="org.sakaiproject.db.impl.BasicSqlServiceSqlMsSql"     class="org.sakaiproject.db.impl.BasicSqlServiceSqlMsSql"   singleton="true"/>
     <bean id="org.sakaiproject.db.impl.BasicSqlServiceSqlMySql"     class="org.sakaiproject.db.impl.BasicSqlServiceSqlMySql"   singleton="true"/>
     <bean id="org.sakaiproject.db.impl.BasicSqlServiceSqlOracle"    class="org.sakaiproject.db.impl.BasicSqlServiceSqlOracle"  singleton="true"/>
         
@@ -43,9 +41,7 @@
         <property name="databaseBeans">
            <map>
               <entry key="default"><ref bean="org.sakaiproject.db.impl.BasicSqlServiceSqlDefault"/></entry>
-              <entry key="db2"    ><ref bean="org.sakaiproject.db.impl.BasicSqlServiceSqlDb2"    /></entry>
               <entry key="hsqldb" ><ref bean="org.sakaiproject.db.impl.BasicSqlServiceSqlHSql"   /></entry>
-              <entry key="mssql"  ><ref bean="org.sakaiproject.db.impl.BasicSqlServiceSqlMsSql"  /></entry>
               <entry key="mysql"  ><ref bean="org.sakaiproject.db.impl.BasicSqlServiceSqlMySql"  /></entry>
               <entry key="oracle" ><ref bean="org.sakaiproject.db.impl.BasicSqlServiceSqlOracle" /></entry>
            </map>

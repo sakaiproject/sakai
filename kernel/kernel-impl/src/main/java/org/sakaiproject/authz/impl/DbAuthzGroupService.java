@@ -2743,6 +2743,7 @@ public abstract class DbAuthzGroupService extends BaseAuthzGroupService implemen
 
 	/**
 	 * Get value for query & return that; needed for mssql which doesn't support select stmts in VALUES clauses
+	 * Note that MSSQL support was removed in KNL-880, so this is a no-op.
 	 * 
 	 * @param sqlQuery
 	 * @param bindParameter
@@ -2750,15 +2751,7 @@ public abstract class DbAuthzGroupService extends BaseAuthzGroupService implemen
 	 */
 	protected Object getValueForSubquery(String sqlQuery, Object bindParameter)
 	{
-		if (!"mssql".equals(sqlService().getVendor()))
-		{
-			return bindParameter;
-		}
-		else
-		{
-			List result = sqlService().dbRead(sqlQuery, new Object[] {bindParameter}, null);
-			return (result.size() > 0 ? result.get(0) : null);
-		}
+		return bindParameter;
 	}
 	
 	

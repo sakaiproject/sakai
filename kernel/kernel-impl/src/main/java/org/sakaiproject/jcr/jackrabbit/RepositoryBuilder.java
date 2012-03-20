@@ -44,13 +44,11 @@ import org.apache.commons.logging.LogFactory;
 import org.apache.jackrabbit.core.RepositoryImpl;
 import org.apache.jackrabbit.core.config.RepositoryConfig;
 import org.apache.jackrabbit.core.nodetype.NodeTypeManagerImpl;
-import org.apache.jackrabbit.core.persistence.bundle.MSSqlPersistenceManager;
 import org.sakaiproject.component.api.ServerConfigurationService;
 import org.sakaiproject.db.api.SqlService;
 import org.sakaiproject.jcr.api.internal.StartupAction;
 import org.sakaiproject.jcr.jackrabbit.persistance.BundleDbSharedPersistenceManager;
 import org.sakaiproject.jcr.jackrabbit.persistance.DerbySharedPersistenceManager;
-import org.sakaiproject.jcr.jackrabbit.persistance.MSSqlSharedPersistenceManager;
 import org.sakaiproject.jcr.jackrabbit.persistance.MySqlSharedPersistenceManager;
 import org.sakaiproject.jcr.jackrabbit.persistance.Oracle9SharedPersistenceManager;
 import org.sakaiproject.jcr.jackrabbit.persistance.OracleSharedPersistenceManager;
@@ -152,7 +150,6 @@ public class RepositoryBuilder
 		vendors.put("mysql", "mysql");
 		vendors.put("oracle", "oracle");
 		vendors.put("oracle9", "oracle9");
-		vendors.put("mssql", "mssql");
 		vendors.put("hsqldb", "default");
 		vendors.put("derby", "derby");
 	}
@@ -165,7 +162,6 @@ public class RepositoryBuilder
 		persistanceManagers.put("mysql", MySqlSharedPersistenceManager.class.getName());
 		persistanceManagers.put("oracle", OracleSharedPersistenceManager.class.getName());
 		persistanceManagers.put("oracle9", Oracle9SharedPersistenceManager.class.getName());
-		persistanceManagers.put("mssql", MSSqlSharedPersistenceManager.class.getName());
 		persistanceManagers.put("derby", DerbySharedPersistenceManager.class.getName());
 		persistanceManagers.put("default", BundleDbSharedPersistenceManager.class.getName());
 	}

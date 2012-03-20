@@ -151,10 +151,8 @@ public class BaseDbFlatStorage
 	static
 	{
 		databaseBeans = new Hashtable<String, FlatStorageSql>();
-		databaseBeans.put("db2", new FlatStorageSqlDb2());
 		databaseBeans.put("default", new FlatStorageSqlDefault());
 		databaseBeans.put("hsql", new FlatStorageSqlHSql());
-		databaseBeans.put("mssql", new FlatStorageSqlMsSql());
 		databaseBeans.put("mysql", new FlatStorageSqlMySql());
 		databaseBeans.put("oracle", new FlatStorageSqlOracle());
 	}
@@ -396,14 +394,6 @@ public class BaseDbFlatStorage
 					m_resourceTableSortField1, m_resourceTableSortField2,0,0);
 			fields = flatStorageSql.getSelectFieldsFields(first, last);
 		}
-		else if ("mssql".equals(m_sql.getVendor()) || "db2".equals(m_sql.getVendor()))
-		{
-			sql = flatStorageSql.getSelectFieldsSql1(m_resourceTableName, fieldList(m_resourceTableReadFields, null), m_resourceTableIdField,
-					m_resourceTableSortField1, m_resourceTableSortField2, 0, 0);
-			sql += flatStorageSql.getSelectFieldsSql2(m_resourceTableName, fieldList(m_resourceTableReadFields, null), m_resourceTableIdField,
-					m_resourceTableSortField1, m_resourceTableSortField2, 0, 0);
-			fields = flatStorageSql.getSelectFieldsFields(first, last);
-		}
 		else
 		{
 			sql = flatStorageSql.getSelectFieldsSql1(m_resourceTableName, fieldList(m_resourceTableReadFields, null), null,
@@ -594,25 +584,6 @@ public class BaseDbFlatStorage
 			fields[fields.length - 2] = Long.valueOf(last);
 			fields[fields.length - 1] = Long.valueOf(first);
 		}
-		else if ("mssql".equals(m_sql.getVendor()) || "db2".equals(m_sql.getVendor()))
-		{
-			if (values != null)
-			{
-				fields = new Object[2 + values.length];
-				System.arraycopy(values, 0, fields, 0, values.length);
-			}
-			else
-			{
-				fields = new Object[2];
-			}
-
-			sql = flatStorageSql.getSelectFieldsSql3(m_resourceTableName, fieldList(m_resourceTableReadFields, null), m_resourceTableIdField,
-					m_resourceTableSortField1, m_resourceTableSortField2, (first - 1), (last - first + 1), join, where, order);
-			sql += flatStorageSql.getSelectFieldsSql4(m_resourceTableName, fieldList(m_resourceTableReadFields, null), m_resourceTableIdField,
-					m_resourceTableSortField1, m_resourceTableSortField2, (first - 1), (last - first + 1), join, where, order);
-			fields[fields.length - 2] = Long.valueOf(first);
-			fields[fields.length - 1] = Long.valueOf(last);
-		}
 		else
 		{
 			sql = flatStorageSql.getSelectFieldsSql3(m_resourceTableName, fieldList(m_resourceTableReadFields, null), null,
@@ -683,6 +654,7 @@ public class BaseDbFlatStorage
 		// we need to process and store results since MSSQL doesn't support selects in the VALUES clause
 		// bind values come from 'fields' array
 		// store results in fieldOverrides
+		// Note: MSSQL support removed in KNL-880
 
 		// will be a copy of table's insert values, with overrides as necessary
 		String[] overrideTableInsertValues = new String[m_resourceTableInsertValues.length];
@@ -691,41 +663,8 @@ public class BaseDbFlatStorage
 
 		for (int i = 0; i < m_resourceTableInsertValues.length; i++)
 		{
-			if ("mssql".equals(m_sql.getVendor()) && m_resourceTableInsertValues[i].startsWith("("))
-			{
-				String sql = m_resourceTableInsertValues[i];
-				List result = null;
-				if (sql.indexOf("?") < 0)
-				{ // if there are no parms in sql stmt, do read directly
-					result = m_sql.dbRead(sql);
-				}
-				else
-				{
-					Object[] bindValue = new Object[1];
-					bindValue[0] = fields[i];
-					result = m_sql.dbRead(conn, sql, bindValue, null);
-				}
-				if (result.size() > 0)
-				{
-					fieldOverrides[i] = result.get(0);
-				}
-				else
-				{
-					fieldOverrides[i] = "";
-				}
-			}
-			else
-			{
-				fieldOverrides[i] = fields[i];
-			}
-			if ("mssql".equals(m_sql.getVendor()))
-			{
-				overrideTableInsertValues[i] = "?";
-			}
-			else
-			{
-				overrideTableInsertValues[i] = m_resourceTableInsertValues[i];
-			}
+			fieldOverrides[i] = fields[i];
+			overrideTableInsertValues[i] = m_resourceTableInsertValues[i];
 		}
 		String statement = "insert into " + m_resourceTableName + "( " + fieldList(m_resourceTableInsertFields, m_resourceTableDbidField) + " )"
 				+ " values ( " + valuesParams(overrideTableInsertValues, (m_resourceTableDbidField)) + " )";
@@ -1506,9 +1445,9 @@ public class BaseDbFlatStorage
 
 		if (dbidField != null)
 		{
-			if (!"mysql".equals(m_sql.getVendor()) && !"mssql".equals(m_sql.getVendor()))
+			if (!"mysql".equals(m_sql.getVendor()))
 			{
-				// MySQL and ms sql server don't need this field, but oracle and HSQLDB do
+				// MySQL doesn't need this field, but oracle and HSQLDB do
 				buf.append("," + qualifyField(dbidField, m_resourceTableName));
 			}
 		}

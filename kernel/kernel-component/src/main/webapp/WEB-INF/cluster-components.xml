@@ -4,10 +4,8 @@
 <beans>
 
     <!-- database beans -->
-    <bean id="org.sakaiproject.cluster.impl.SakaiClusterServiceSqlDb2"       class="org.sakaiproject.cluster.impl.SakaiClusterServiceSqlDb2"     singleton="true"/>
     <bean id="org.sakaiproject.cluster.impl.SakaiClusterServiceSqlDefault"   class="org.sakaiproject.cluster.impl.SakaiClusterServiceSqlDefault" singleton="true"/>
     <bean id="org.sakaiproject.cluster.impl.SakaiClusterServiceSqlHSql"      class="org.sakaiproject.cluster.impl.SakaiClusterServiceSqlHSql"    singleton="true"/>
-    <bean id="org.sakaiproject.cluster.impl.SakaiClusterServiceSqlMsSql"     class="org.sakaiproject.cluster.impl.SakaiClusterServiceSqlMsSql"   singleton="true"/>
     <bean id="org.sakaiproject.cluster.impl.SakaiClusterServiceSqlMySql"     class="org.sakaiproject.cluster.impl.SakaiClusterServiceSqlMySql"   singleton="true"/>
     <bean id="org.sakaiproject.cluster.impl.SakaiClusterServiceSqlOracle"    class="org.sakaiproject.cluster.impl.SakaiClusterServiceSqlOracle"  singleton="true"/>
 
@@ -27,10 +25,8 @@
         <property name="databaseBeans">
            <map>
               <entry key="default"><ref bean="org.sakaiproject.cluster.impl.SakaiClusterServiceSqlDefault"/></entry>
-              <entry key="db2"    ><ref bean="org.sakaiproject.cluster.impl.SakaiClusterServiceSqlDb2"    /></entry>
               <entry key="hsqldb" ><ref bean="org.sakaiproject.cluster.impl.SakaiClusterServiceSqlHSql"   /></entry>
               <entry key="oracle" ><ref bean="org.sakaiproject.cluster.impl.SakaiClusterServiceSqlOracle" /></entry>
-              <entry key="mssql"  ><ref bean="org.sakaiproject.cluster.impl.SakaiClusterServiceSqlMsSql"  /></entry>
               <entry key="mysql"  ><ref bean="org.sakaiproject.cluster.impl.SakaiClusterServiceSqlMySql"  /></entry>
            </map>
         </property>
