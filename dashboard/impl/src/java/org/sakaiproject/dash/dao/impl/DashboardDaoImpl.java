@@ -52,6 +52,7 @@ import org.sakaiproject.dash.model.Person;
 import org.sakaiproject.dash.model.RepeatingCalendarItem;
 import org.sakaiproject.dash.model.SourceType;
 import org.springframework.dao.DataAccessException;
+import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.dao.EmptyResultDataAccessException;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.jdbc.core.RowMapper;
@@ -99,6 +100,10 @@ public class DashboardDaoImpl extends JdbcDaoSupport implements DashboardDao {
 						availabilityCheck.getScheduledTime()}
 			);
 			return true;
+		} catch (DataIntegrityViolationException e) {
+			// this means we're trying to insert a duplicate
+			log.debug("addAvailabilityCheck() " + e);
+			return false;
 		} catch (DataAccessException ex) {
             log.warn("addAvailabilityCheck: Error executing query: " + ex.getClass() + ":" + ex.getMessage());
             return false;
@@ -148,6 +153,10 @@ public class DashboardDaoImpl extends JdbcDaoSupport implements DashboardDao {
 
 			template.update(sql,params);
 			return true;
+		} catch (DataIntegrityViolationException e) {
+			// this means we're trying to insert a duplicate
+			log.debug("addCalendarItem() " + e);
+			return false;
 		} catch (DataAccessException ex) {
             log.warn("addCalendarItem: Error executing query: " + ex.getClass() + ":" + ex.getMessage());
 	        //System.out.println("addCalendarItem: Error executing query: " + ex.getClass() + ":" + ex.getMessage());
@@ -175,6 +184,10 @@ public class DashboardDaoImpl extends JdbcDaoSupport implements DashboardDao {
 						calendarLink.getContext().getId(), calendarLink.isHidden(), calendarLink.isSticky()}
 			);
 			return true;
+		} catch (DataIntegrityViolationException e) {
+			// this means we're trying to insert a duplicate
+			log.debug("addCalendarLink() " + e);
+			return false;
 		} catch (DataAccessException ex) {
            log.warn("addCalendarLink: Error executing query: " + ex.getClass() + ":" + ex.getMessage());
            return false;
@@ -198,6 +211,10 @@ public class DashboardDaoImpl extends JdbcDaoSupport implements DashboardDao {
 				context.getContextTitle()}
 			);
 			return true;
+		} catch (DataIntegrityViolationException e) {
+			// this means we're trying to insert a duplicate
+			log.debug("addContext() " + e);
+			return false;
 		} catch (DataAccessException ex) {
            log.warn("addContext: Error executing query: " + ex.getClass() + ":" + ex.getMessage());
            return false;
@@ -234,6 +251,10 @@ public class DashboardDaoImpl extends JdbcDaoSupport implements DashboardDao {
 						subtype, newsItem.getSourceType().getId(), newsItem.getContext().getId(), newsItem.getGroupingIdentifier()}
 			);
 			return true;
+		} catch (DataIntegrityViolationException e) {
+			// this means we're trying to insert a duplicate
+			log.debug("addNewsItem() " + e);
+			return false;
 		} catch (DataAccessException ex) {
            log.warn("addNewsItem: Error executing query: " + ex.getClass() + ":" + ex.getMessage());
            return false;
@@ -256,6 +277,10 @@ public class DashboardDaoImpl extends JdbcDaoSupport implements DashboardDao {
 						newsLink.getContext().getId(), newsLink.isHidden(), newsLink.isSticky()}
 			);
 			return true;
+		} catch (DataIntegrityViolationException e) {
+			// this means we're trying to insert a duplicate
+			log.debug("addNewsLink() " + e);
+			return false;
 		} catch (DataAccessException ex) {
            log.warn("addNewsLink: Error executing query: " + ex.getClass() + ":" + ex.getMessage());
            return false;
@@ -277,6 +302,10 @@ public class DashboardDaoImpl extends JdbcDaoSupport implements DashboardDao {
 				new Object[]{person.getUserId(), person.getSakaiId()}
 			);
 			return true;
+		} catch (DataIntegrityViolationException e) {
+			// this means we're trying to insert a duplicate
+			log.debug("addPerson() " + e);
+			return false;
 		} catch (DataAccessException ex) {
            log.warn("addPerson: Error executing query: " + ex.getClass() + ":" + ex.getMessage());
 			return false;
@@ -318,6 +347,10 @@ public class DashboardDaoImpl extends JdbcDaoSupport implements DashboardDao {
 		try {
 			getJdbcTemplate().update(sql, params);
 			return true;
+		} catch (DataIntegrityViolationException e) {
+			// this means we're trying to insert a duplicate
+			log.debug("addRepeatingCalendarItem() " + e);
+			return false;
 		} catch (DataAccessException ex) {
 			log.warn("addRepeatingCalendarItem: Error executing query: " + ex.getClass() + ":" + ex.getMessage());
 			//System.out.println("addRepeatingCalendarItem: Error executing query: " + ex.getClass() + ":" + ex.getMessage());
@@ -352,6 +385,10 @@ public class DashboardDaoImpl extends JdbcDaoSupport implements DashboardDao {
 			
 			);
 			return true;
+		} catch (DataIntegrityViolationException e) {
+			// this means we're trying to insert a duplicate
+			log.debug("addSourceType() " + e);
+			return false;
 		} catch (DataAccessException ex) {
            log.warn("addSourceType: Error executing query: " + ex.getClass() + ":" + ex.getMessage());
            return false;
@@ -1371,6 +1408,10 @@ public class DashboardDaoImpl extends JdbcDaoSupport implements DashboardDao {
 		try {
 			getJdbcTemplate().update(sql, params);
 			return true;
+		} catch (DataIntegrityViolationException e) {
+			// this means we're trying to insert a duplicate
+			log.debug("addEvent() " + e);
+			return false;
 		} catch (DataAccessException ex) {
 			log.warn("saveEvent: Error executing query: " + ex.getClass() + ":" + ex.getMessage());
 			//System.out.println("addRepeatingCalendarItem: Error executing query: " + ex.getClass() + ":" + ex.getMessage());
@@ -1717,7 +1758,6 @@ public class DashboardDaoImpl extends JdbcDaoSupport implements DashboardDao {
 			executeSqlStatement("create.RepeatingEvent.table");
 			executeSqlStatement("create.Config.table");
 			executeSqlStatement("create.EventLog.table");
-
 		} catch(Exception e) {
 	        //System.out.println("\ninitTables: Error executing query: " + e.getClass() + ":\n" + e.getMessage() + "\n");
 			log.warn("initTables() " + e);
@@ -1739,6 +1779,9 @@ public class DashboardDaoImpl extends JdbcDaoSupport implements DashboardDao {
 						try {
 							getJdbcTemplate().execute(sql.trim());
 							
+						} catch(DataIntegrityViolationException e) {
+							// this means we're trying to insert a duplicate
+							log.debug("executeSqlStatement() " + e);
 						} catch (DataAccessException ex) {
 							log.warn("Error executing SQL statement with key: " + key + " -- " + ex.getClass() + ": " + ex.getMessage());
 					        //System.out.println("\nError executing SQL statement with key: " + key + " -- " + ex.getClass() + ": \n" + ex.getMessage() + "\n");
@@ -1800,6 +1843,9 @@ public class DashboardDaoImpl extends JdbcDaoSupport implements DashboardDao {
 		JdbcTemplate jdbcTemplate = getJdbcTemplate();
 		try {
 			jdbcTemplate.update(sql_insert, params_insert);
+		} catch (DataIntegrityViolationException e) {
+			// this means we're trying to insert a duplicate
+			log.debug("setConfigProperty() " + e);
 		} catch (Exception e) {
 			// insert failed -- try update instead of insert
 	        try {

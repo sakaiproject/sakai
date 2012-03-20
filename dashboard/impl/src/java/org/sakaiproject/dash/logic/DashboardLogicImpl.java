@@ -179,8 +179,8 @@ public class DashboardLogicImpl implements DashboardLogic, Observer
 								// create an instance
 								CalendarItem calendarItem = createCalendarItem(repeatingEvent.getTitle(), entry.getValue(), repeatingEvent.getCalendarTimeLabelKey(), 
 										repeatingEvent.getEntityReference(), repeatingEvent.getContext(), repeatingEvent.getSourceType(), repeatingEvent.getSubtype(), repeatingEvent, entry.getKey());
-								dao.addCalendarItem(calendarItem);
-								calendarItem = dao.getCalendarItem(repeatingEvent.getEntityReference(), repeatingEvent.getCalendarTimeLabelKey(), entry.getKey());
+								// dao.addCalendarItem(calendarItem);
+								// calendarItem = dao.getCalendarItem(repeatingEvent.getEntityReference(), repeatingEvent.getCalendarTimeLabelKey(), entry.getKey());
 								createCalendarLinks(calendarItem);
 							} catch(Exception e) {
 								// this could occur if we are trying to add an instance that has already been added
