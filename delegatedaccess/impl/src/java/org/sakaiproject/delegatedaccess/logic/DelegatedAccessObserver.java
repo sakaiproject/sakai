@@ -55,6 +55,9 @@ public class DelegatedAccessObserver implements Observer {
 				projectLogic.clearNodeCache();
 			}
 			
+		}else if(DelegatedAccessConstants.EVENT_CHECK_ACCESS.equals(event.getEvent())){
+			//this will set the Session attribute for this site and user
+			projectLogic.getCurrentUsersAccessToSite(event.getResource());
 		}
 	}
 

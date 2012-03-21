@@ -1343,43 +1343,58 @@ public class ProjectLogicImpl implements ProjectLogic {
 	}
 	
 	public String[] getCurrentUsersAccessToSite(String siteRef){
-		AccessNode access = grantAccessToSite(siteRef, false);
-		if(access != null){
-			return access.getAccess();
+		//check the session first:
+		if(sakaiProxy.getCurrentSession().getAttribute(DelegatedAccessConstants.SESSION_ATTRIBUTE_ACCESS_MAP) != null 
+				&& ((Map) sakaiProxy.getCurrentSession().getAttribute(DelegatedAccessConstants.SESSION_ATTRIBUTE_ACCESS_MAP)).containsKey(siteRef)){
+			return (String[]) ((Map) sakaiProxy.getCurrentSession().getAttribute(DelegatedAccessConstants.SESSION_ATTRIBUTE_ACCESS_MAP)).get(siteRef);
 		}else{
-			return null;
+			AccessNode access = grantAccessToSite(siteRef, false);
+			if(access != null){
+				return access.getAccess();
+			}else{
+				return null;
+			}
 		}
 	}
 	
 	private AccessNode grantAccessToSite(String siteRef, boolean shoppingPeriod){
 		AccessNode returnNode = null;
 		Session session = sakaiProxy.getCurrentSession();
-		
+		Map<String, String[]> deniedToolsMap = new HashMap<String, String[]>();
+		if(!shoppingPeriod){
+			//only worry about the session for non shopping period queries
+			Object sessionDeniedToolsMap = session.getAttribute(DelegatedAccessConstants.SESSION_ATTRIBUTE_DENIED_TOOLS);
+			if(sessionDeniedToolsMap != null){
+				deniedToolsMap = (Map<String, String[]>) sessionDeniedToolsMap;
+			}
+		}
+
+		Map<String, String[]> accessMap = new HashMap<String, String[]>();
+		if(!shoppingPeriod){
+			//only worry about the session for non shopping period queries
+			Object sessionaccessMap = session.getAttribute(DelegatedAccessConstants.SESSION_ATTRIBUTE_ACCESS_MAP);
+			if(sessionaccessMap != null){
+				accessMap = (Map<String, String[]>) sessionaccessMap;
+			}
+		}
+		//set default to no access and override it if the user does have access
+		//this is so we don't have to keep looking up their access for the same site:
+		deniedToolsMap.put(siteRef, null);
+		accessMap.put(siteRef, null);
+
+		String userId = sakaiProxy.getCurrentUserId();
+		if(shoppingPeriod){
+			userId = DelegatedAccessConstants.SHOPPING_PERIOD_USER;
+		}
+
 		//this is a simple flag set in the delegated access login observer which
-//		//determines if there is a need to lookup access information for this user.
-//		//if it's not set, then don't worry about looking up anything
+		//determines if there is a need to lookup access information for this user.
+		//if it's not set, then don't worry about looking up anything
 		Object dAMapFlag = null;
 		if(!shoppingPeriod){
 			dAMapFlag = session.getAttribute(DelegatedAccessConstants.SESSION_ATTRIBUTE_DELEGATED_ACCESS_FLAG);
 		}
 		if(dAMapFlag != null || shoppingPeriod){
-			String userId = sakaiProxy.getCurrentUserId();
-			if(shoppingPeriod){
-				userId = DelegatedAccessConstants.SHOPPING_PERIOD_USER;
-			}
-
-			Map<String, String[]> deniedToolsMap = new HashMap<String, String[]>();
-			if(!shoppingPeriod){
-				//only worry about the session for non shopping period queries
-				Object sessionDeniedToolsMap = session.getAttribute(DelegatedAccessConstants.SESSION_ATTRIBUTE_DENIED_TOOLS);
-				if(sessionDeniedToolsMap != null){
-					deniedToolsMap = (Map<String, String[]>) sessionDeniedToolsMap;
-				}
-			}
-
-			//set default to no access and override it if the user does have access
-			//this is so we don't have to keep looking up their access for the same site:
-			deniedToolsMap.put(siteRef, null);
 			//find the node for the site
 			List<String> siteNodes = getNodesBySiteRef(siteRef, DelegatedAccessConstants.HIERARCHY_ID);
 			if(siteNodes != null && siteNodes.size() == 1){
@@ -1402,6 +1417,8 @@ public class ProjectLogicImpl implements ProjectLogic {
 							access = new String[]{"", ""};
 						}
 
+						accessMap.put(siteRef, access);
+						
 						//Denied Tools List
 						List<String> deniedTools = getRestrictedToolsForUser(perms);
 						String[] deniedToolsArr = (String[]) deniedTools.toArray(new String[deniedTools.size()]);
@@ -1410,6 +1427,7 @@ public class ProjectLogicImpl implements ProjectLogic {
 						}else{
 							deniedToolsMap.put(siteRef, new String[0]);
 						}
+						
 
 						String shoppingAuth = getShoppingPeriodAuth(perms);
 						
@@ -1432,14 +1450,16 @@ public class ProjectLogicImpl implements ProjectLogic {
 						}
 					}
 				}
-				if(!shoppingPeriod){
-					//we want to set the session map no matter what so we don't have to look it up again:
-					session.setAttribute(DelegatedAccessConstants.SESSION_ATTRIBUTE_DENIED_TOOLS, deniedToolsMap);
-					//update restrictedToolsCache
-					restrictedToolsCache.put(new Element(userId, deniedToolsMap));
-				}
 			}
 		}
+		if(!shoppingPeriod){
+			//we want to set the session map no matter what so we don't have to look it up again:
+			session.setAttribute(DelegatedAccessConstants.SESSION_ATTRIBUTE_DENIED_TOOLS, deniedToolsMap);
+			session.setAttribute(DelegatedAccessConstants.SESSION_ATTRIBUTE_ACCESS_MAP, accessMap);
+			//update restrictedToolsCache
+			restrictedToolsCache.put(new Element(userId, deniedToolsMap));
+		}
+		
 		return returnNode;
 	}
 	
