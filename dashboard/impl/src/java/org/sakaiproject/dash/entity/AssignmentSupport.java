@@ -278,16 +278,25 @@ public class AssignmentSupport {
 			Assignment assn = (Assignment) sakaiProxy.getEntity(entityReference);
 			if (assn != null)
 			{
-				Date openTime = new Date(assn.getOpenTime().getTime());
-				
-				if (openTime != null && openTime.after(new Date()))
+				if (assn.getDraft())
 				{
-					// assignment is not open yet, don't create links
+					// draft
 					return false;
 				}
 				else
 				{
-					return true;
+					Date openTime = new Date(assn.getOpenTime().getTime());
+					
+					if (openTime != null && openTime.after(new Date()))
+					{
+						// assignment is not open yet, don't create links
+						return false;
+					}
+					else
+					{
+						// open assignment
+						return true;
+					}
 				}
 			}
 			else
@@ -361,15 +370,9 @@ public class AssignmentSupport {
 			if(entity != null && entity instanceof Assignment) {
 			
 				Assignment assn = (Assignment) entity;
-				Context context = dashboardLogic.getContext(event.getContext());
-				if(context == null) {
-					context = dashboardLogic.createContext(event.getContext());
-				}
+				Context context = getOrCreateContext(event);
 	            
-				SourceType sourceType = dashboardLogic.getSourceType(IDENTIFIER);
-				if(sourceType == null) {
-					sourceType = dashboardLogic.createSourceType(IDENTIFIER, SakaiProxy.PERMIT_ASSIGNMENT_ACCESS);
-				}
+				SourceType sourceType = getOrCreateSourceType();
 				
 				String assnReference = assn.getReference();
 				
@@ -397,6 +400,11 @@ public class AssignmentSupport {
 				{
 					// assignment is not open yet, schedule for check later
 					dashboardLogic.scheduleAvailabilityCheck(assnReference, IDENTIFIER, new Date(assn.getOpenTime().getTime()));
+					
+					// verify that users with permissions in alwaysAllowPermission have links and others do not
+					if(sourceType != null && sourceType.getAlwaysAccessPermission() != null && sourceType.getAlwaysAccessPermission().length > 0) {
+						dashboardLogic.addNewsLinksForMaintainers(newsItem);
+					}
 				}
 				
 			} else {
@@ -404,6 +412,22 @@ public class AssignmentSupport {
 				logger.warn("Error trying to process " + this.getEventIdentifer() + " event for entityReference " + event.getResource());
 			}
 		}
+	}
+	
+	private SourceType getOrCreateSourceType() {
+		SourceType sourceType = dashboardLogic.getSourceType(IDENTIFIER);
+		if(sourceType == null) {
+			sourceType = dashboardLogic.createSourceType(IDENTIFIER, SakaiProxy.PERMIT_ASSIGNMENT_ACCESS, new String[]{ SakaiProxy.PERMIT_ASSIGNMENT_SHARE_DRAFTS});
+		}
+		return sourceType;
+	}
+
+	private Context getOrCreateContext(Event event) {
+		Context context = dashboardLogic.getContext(event.getContext());
+		if(context == null) {
+			context = dashboardLogic.createContext(event.getContext());
+		}
+		return context;
 	}
 	
 	/**
@@ -577,15 +601,10 @@ public class AssignmentSupport {
 				logger.debug("assignment update open date event processor " + event.getResource());
 			}
 			Entity entity = sakaiProxy.getEntity(event.getResource());
-			Context context = dashboardLogic.getContext(event.getContext());
-			if(context == null) {
-				context = dashboardLogic.createContext(event.getContext());
-			}
+			
+			Context context = getOrCreateContext(event);
             
-			SourceType sourceType = dashboardLogic.getSourceType(IDENTIFIER);
-			if(sourceType == null) {
-				sourceType = dashboardLogic.createSourceType(IDENTIFIER, SakaiProxy.PERMIT_ASSIGNMENT_ACCESS);
-			}
+			SourceType sourceType = getOrCreateSourceType();
 			
 			if(entity != null && entity instanceof Assignment) {
 				// get the assignment entity and its current title
@@ -620,6 +639,16 @@ public class AssignmentSupport {
 						nItem = dashboardLogic.createNewsItem(assn.getTitle(), event.getEventTime(), "assignment.added", assnReference, context, sourceType, null);
 						dashboardLogic.createNewsLinks(nItem);
 					}
+					else
+					{
+						// assignment is not open yet, schedule for check later
+						dashboardLogic.scheduleAvailabilityCheck(assnReference, IDENTIFIER, new Date(assn.getOpenTime().getTime()));
+						
+						// verify that users with permissions in alwaysAllowPermission have links and others do not
+						if(sourceType != null && sourceType.getAlwaysAccessPermission() != null && sourceType.getAlwaysAccessPermission().length > 0) {
+							dashboardLogic.addNewsLinksForMaintainers(nItem);
+						}
+					}
 				}
 			}
 		}
@@ -647,15 +676,10 @@ public class AssignmentSupport {
 				logger.debug("assignment update due date event processor " + event.getResource());
 			}
 			Entity entity = sakaiProxy.getEntity(event.getResource());
-			Context context = dashboardLogic.getContext(event.getContext());
-			if(context == null) {
-				context = dashboardLogic.createContext(event.getContext());
-			}
+			
+			Context context = getOrCreateContext(event);
             
-			SourceType sourceType = dashboardLogic.getSourceType(IDENTIFIER);
-			if(sourceType == null) {
-				sourceType = dashboardLogic.createSourceType(IDENTIFIER, SakaiProxy.PERMIT_ASSIGNMENT_ACCESS);
-			}
+			SourceType sourceType = getOrCreateSourceType();
 			
 			if(entity != null && entity instanceof Assignment) {
 				// get the assignment entity and its current title
@@ -694,15 +718,10 @@ public class AssignmentSupport {
 				logger.debug("assignment update closedate event processor " + event.getResource());
 			}
 			Entity entity = sakaiProxy.getEntity(event.getResource());
-			Context context = dashboardLogic.getContext(event.getContext());
-			if(context == null) {
-				context = dashboardLogic.createContext(event.getContext());
-			}
+			
+			Context context = getOrCreateContext(event);
             
-			SourceType sourceType = dashboardLogic.getSourceType(IDENTIFIER);
-			if(sourceType == null) {
-				sourceType = dashboardLogic.createSourceType(IDENTIFIER, SakaiProxy.PERMIT_ASSIGNMENT_ACCESS);
-			}
+			SourceType sourceType = getOrCreateSourceType();
 			
 			if(entity != null && entity instanceof Assignment) {
 				// get the assignment entity and its current title
