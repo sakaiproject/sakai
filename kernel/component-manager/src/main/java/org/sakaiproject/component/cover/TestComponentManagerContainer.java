@@ -104,8 +104,14 @@ public class TestComponentManagerContainer {
 		
 		ac.refresh();
 
-		log.debug("Finished starting the component manager");
-		// TODO Auto-generated constructor stub
+		// SAK-20908 - band-aid for TLM sync issues causing tests to fail
+		// This sleep shouldn't be needed but it seems these tests are starting before ThreadLocalManager has finished its startup.
+        try {
+            Thread.sleep(500); // 1/2 second
+            log.debug("Finished starting the component manager");
+        } catch (InterruptedException e) {
+            log.error("Component manager startup interrupted...");
+        }
 	}
 
 	/**
