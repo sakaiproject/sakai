@@ -368,7 +368,7 @@ public class AddPollProducer implements ViewComponentProducer,NavigationCaseRepo
 
 			PollViewParameters ecvp = (PollViewParameters) incoming;
 
-			if(null == ecvp || null == ecvp.id ) {
+			if(null == ecvp || null == ecvp.id || "New 0".equals(ecvp.id)) {
 				return;
 
 			} else {
