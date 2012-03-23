@@ -633,9 +633,6 @@ public class ResourceSupport {
 		{
 			// only when the resource is not attachment
 			Context context = dashboardLogic.getContext(event.getContext());
-			if(context == null) {
-				context = dashboardLogic.createContext(event.getContext());
-			}
 			
 			String labelKey = "resource.added";
 			SourceType sourceType = null;

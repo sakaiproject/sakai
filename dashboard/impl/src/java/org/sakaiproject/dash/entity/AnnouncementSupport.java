@@ -169,9 +169,6 @@ public class AnnouncementSupport{
 		if (newsItem == null)
 		{
 			Context context = dashboardLogic.getContext(event.getContext());
-			if(context == null) {
-				context = dashboardLogic.createContext(event.getContext());
-			}
 			
 			SourceType sourceType = dashboardLogic.getSourceType(IDENTIFIER);
 			if(sourceType == null) {

@@ -370,7 +370,7 @@ public class AssignmentSupport {
 			if(entity != null && entity instanceof Assignment) {
 			
 				Assignment assn = (Assignment) entity;
-				Context context = getOrCreateContext(event);
+				Context context = dashboardLogic.getContext(event.getContext());
 	            
 				SourceType sourceType = getOrCreateSourceType();
 				
@@ -420,14 +420,6 @@ public class AssignmentSupport {
 			sourceType = dashboardLogic.createSourceType(IDENTIFIER, SakaiProxy.PERMIT_ASSIGNMENT_ACCESS, new String[]{ SakaiProxy.PERMIT_ASSIGNMENT_SHARE_DRAFTS});
 		}
 		return sourceType;
-	}
-
-	private Context getOrCreateContext(Event event) {
-		Context context = dashboardLogic.getContext(event.getContext());
-		if(context == null) {
-			context = dashboardLogic.createContext(event.getContext());
-		}
-		return context;
 	}
 	
 	/**
@@ -602,7 +594,7 @@ public class AssignmentSupport {
 			}
 			Entity entity = sakaiProxy.getEntity(event.getResource());
 			
-			Context context = getOrCreateContext(event);
+			Context context = dashboardLogic.getContext(event.getContext());
             
 			SourceType sourceType = getOrCreateSourceType();
 			
@@ -677,7 +669,7 @@ public class AssignmentSupport {
 			}
 			Entity entity = sakaiProxy.getEntity(event.getResource());
 			
-			Context context = getOrCreateContext(event);
+			Context context = dashboardLogic.getContext(event.getContext());
             
 			SourceType sourceType = getOrCreateSourceType();
 			
@@ -719,7 +711,7 @@ public class AssignmentSupport {
 			}
 			Entity entity = sakaiProxy.getEntity(event.getResource());
 			
-			Context context = getOrCreateContext(event);
+			Context context = dashboardLogic.getContext(event.getContext());
             
 			SourceType sourceType = getOrCreateSourceType();
 			

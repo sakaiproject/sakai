@@ -575,14 +575,20 @@ public class DashboardLogicImpl implements DashboardLogic, Observer
 	 * @see org.sakaiproject.dash.logic.DashboardLogic#getContext(java.lang.String)
 	 */
 	public Context getContext(String contextId) {
+		Context rv = null;
 		try {
-			return dao.getContext(contextId);
+			rv = dao.getContext(contextId);
 			
 		} catch(Exception e) {
 			logger.debug("No context retrieved for contextId: " + contextId);
 		}
 		
-		return null;
+		if (rv == null)
+		{
+			// create context
+			rv = createContext(contextId);
+		}
+		return rv;
 	}
 	
 	/* (non-Javadoc)

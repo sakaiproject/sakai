@@ -413,9 +413,7 @@ public class ScheduleSupport{
 				String cEventReference = cEvent.getReference();
 				
 				Context context = dashboardLogic.getContext(eventContextString);
-				if(context == null) {
-					context = dashboardLogic.createContext(eventContextString);
-				}
+				
 				SourceType sourceType = dashboardLogic.getSourceType(IDENTIFIER);
 				if(sourceType == null) {
 					sourceType = dashboardLogic.createSourceType(IDENTIFIER, SakaiProxy.PERMIT_SCHEDULE_ACCESS);
@@ -898,9 +896,7 @@ public class ScheduleSupport{
 				String cEventReference = cEvent.getReference();
 				
 				Context context = dashboardLogic.getContext(eventContextString);
-				if(context == null) {
-					context = dashboardLogic.createContext(eventContextString);
-				}
+				
 				SourceType sourceType = dashboardLogic.getSourceType(IDENTIFIER);
 				if(sourceType == null) {
 					sourceType = dashboardLogic.createSourceType(IDENTIFIER, SakaiProxy.PERMIT_SCHEDULE_ACCESS);
