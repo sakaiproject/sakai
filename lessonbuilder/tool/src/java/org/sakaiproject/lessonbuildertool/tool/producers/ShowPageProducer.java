@@ -2011,6 +2011,8 @@ public class ShowPageProducer implements ViewComponentProducer, DefaultView, Nav
 				params.setItemId(i.getId());
 				UILink link = UIInternalLink.make(container, "link", params);
 				link.decorate(new UIFreeAttributeDecorator("lessonbuilderitem", itemString));
+				if (lessonEntity == null)
+				    disableLink(link, messageLocator);
 			} else {
 				if (i.isPrerequisite()) {
 					simplePageBean.checkItemPermissions(i, false);
@@ -2039,6 +2041,8 @@ public class ShowPageProducer implements ViewComponentProducer, DefaultView, Nav
 				view.setItemId(i.getId());
 				UILink link = UIInternalLink.make(container, "link", view);
 				link.decorate(new UIFreeAttributeDecorator("lessonbuilderitem", itemString));
+				if (lessonEntity == null)
+				    disableLink(link, messageLocator);
 			} else {
 				if (i.isPrerequisite()) {
 					simplePageBean.checkItemPermissions(i, false);
@@ -2059,6 +2063,8 @@ public class ShowPageProducer implements ViewComponentProducer, DefaultView, Nav
 				view.setSource((lessonEntity == null) ? "dummy" : lessonEntity.getUrl());
 				UILink link = UIInternalLink.make(container, "link", view);
 				link.decorate(new UIFreeAttributeDecorator("lessonbuilderitem", itemString));
+				if (lessonEntity == null)
+				    disableLink(link, messageLocator);
 			} else {
 				if (i.isPrerequisite()) {
 					simplePageBean.checkItemPermissions(i, false);
@@ -2097,8 +2103,10 @@ public class ShowPageProducer implements ViewComponentProducer, DefaultView, Nav
 				view.setSendingPage(currentPage.getPageId());
 				view.setItemId(i.getId());
 				view.setSource((lessonEntity==null)?"dummy":lessonEntity.getUrl());
-				UIInternalLink.make(container, "link", view)
+				UIComponent link = UIInternalLink.make(container, "link", view)
 				    .decorate(new UIFreeAttributeDecorator("lessonbuilderitem", itemString));
+				if (lessonEntity == null)
+				    disableLink(link, messageLocator);
 			} else {
 				if (i.isPrerequisite()) {
 					simplePageBean.checkItemPermissions(i, false);

@@ -27,6 +27,7 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
 import java.util.SortedSet;
 import java.util.TreeSet;
@@ -529,6 +530,16 @@ public class JForumEntity implements LessonEntity, ForumInterface {
     // set the item to be accessible only to the specific groups.
     // null to make it accessible to the whole site
     public void setGroups(Collection<String> groups) {
+    }
+
+    public String getObjectId(){
+	return null;
+    }
+
+    public String findObject(String objectid, Map<String,String>objectMap, String siteid) {
+	if (nextEntity != null)
+	    return nextEntity.findObject(objectid, objectMap, siteid);
+	return null;
     }
 
 }

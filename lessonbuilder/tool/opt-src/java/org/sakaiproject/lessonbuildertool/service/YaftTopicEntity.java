@@ -28,6 +28,7 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
 import java.util.Date;
+import java.util.Map;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
@@ -338,4 +339,14 @@ public class YaftTopicEntity implements LessonEntity, ForumInterface {
 	 */
 	public void setGroups(Collection<String> groups) {
 	}
+
+    public String getObjectId(){
+	return null;
+    }
+
+    public String findObject(String objectid, Map<String,String>objectMap, String siteid) {
+	if (nextEntity != null)
+	    return nextEntity.findObject(objectid, objectMap, siteid);
+	return null;
+    }
 }

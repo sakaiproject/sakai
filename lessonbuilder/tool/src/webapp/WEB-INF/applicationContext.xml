@@ -162,6 +162,7 @@ simplePageBean.youtubeURL
     <property name="publishedAssessmentFacadeQueries"><ref bean="PublishedAssessmentFacadeQueries" /></property>
     <property name="memoryService"><ref bean="org.sakaiproject.memory.api.MemoryService"/></property>
     <property name="messageLocator" ref="messageLocator"/>
+    <property name="simplePageToolDao" ref="org.sakaiproject.lessonbuildertool.model.SimplePageToolDao" />
   </bean>
 
   <bean id="org.sakaiproject.lessonbuildertool.service.AssignmentEntity"

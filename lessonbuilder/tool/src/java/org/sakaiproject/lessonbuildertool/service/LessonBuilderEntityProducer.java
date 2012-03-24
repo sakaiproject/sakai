@@ -1,3 +1,4 @@
+
 /**********************************************************************************
  * $URL: $
  * $Id: $
@@ -53,6 +54,7 @@ import org.sakaiproject.component.cover.ServerConfigurationService;
 import org.sakaiproject.entity.api.Entity;
 import org.sakaiproject.entity.api.EntityProducer;
 import org.sakaiproject.entity.api.EntityTransferrer;
+import org.sakaiproject.entity.api.EntityTransferrerRefMigrator;
 import org.sakaiproject.entity.api.HttpAccess;
 import org.sakaiproject.entity.api.Reference;
 import org.sakaiproject.entity.api.ResourceProperties;
@@ -91,7 +93,7 @@ import org.w3c.dom.NodeList;
  *
  */
 public class LessonBuilderEntityProducer extends AbstractEntityProvider
-    implements EntityProducer, EntityTransferrer, Serializable, 
+    implements EntityProducer, EntityTransferrer, EntityTransferrerRefMigrator, Serializable, 
 	       CoreEntityProvider, AutoRegisterEntityProvider, Statisticable  {
 
    protected final Log logger = LogFactory.getLog(getClass());
@@ -109,6 +111,12 @@ public class LessonBuilderEntityProducer extends AbstractEntityProvider
    public static final String ATTR_TOP_REFRESH = "sakai.vppa.top.refresh";
 
    public final static String ENTITY_PREFIX = "lessonbuilder";
+
+   public final static String REF_LB = "lessonbuilder/fix/";
+   public final static String REF_LB_ASSIGNMENT = "lessonbuilder/fix/assignment/";
+   public final static String REF_LB_ASSESSMENT = "lessonbuilder/fix/assessment/";
+   public final static String REF_LB_FORUM = "lessonbuilder/fix/forum/";
+
 
     // other tools don't copy group access restrictions, so I think we probably shouldn't. The data is
     // there in the archive
@@ -357,6 +365,22 @@ public class LessonBuilderEntityProducer extends AbstractEntityProvider
 		addAttr(doc, itemElement, "altPoints", String.valueOf(item.getAltPoints()));
 		addAttr(doc, itemElement, "altGradebookTitle", item.getAltGradebookTitle());
 		
+		if (item.getType() == SimplePageItem.FORUM || item.getType() == SimplePageItem.ASSESSMENT || item.getType() == SimplePageItem.ASSIGNMENT) {
+		    LessonEntity e = null;
+		    if (item.getType() == SimplePageItem.FORUM)
+			e = forumEntity;
+		    else if (item.getType() == SimplePageItem.ASSESSMENT)
+			e = quizEntity;
+		    else
+			e = assignmentEntity;
+		    e = e.getEntity(item.getSakaiId());
+		    if (e != null) {
+			String objectid = e.getObjectId();
+			if (objectid!= null)
+			    addAttr(doc, itemElement, "objectid", objectid);
+		    }
+		}
+
 		if (item.isSameWindow() != null)
 		    addAttr(doc, itemElement, "samewindow", item.isSameWindow() ? "true" : "false");
 		
@@ -520,7 +544,7 @@ public class LessonBuilderEntityProducer extends AbstractEntityProvider
    }
 
     // the pages are already made. this adds the elements
-    private Long makePage(Element element, String oldServer, String siteId, String fromSiteId, Map<Long,Long> pageMap, Map<Long,Long> itemMap) {
+    private Long makePage(Element element, String oldServer, String siteId, String fromSiteId, Map<Long,Long> pageMap, Map<Long,Long> itemMap, Map<String,String> entityMap) {
   
        String oldSiteId = element.getAttribute("siteid");
        String oldPageIdString = element.getAttribute("pageid");
@@ -545,7 +569,6 @@ public class LessonBuilderEntityProducer extends AbstractEntityProvider
 
 	       Element itemElement = (Element) node;
 	       if (itemElement.getTagName().equals("item")) {
-		   
 		   String s = itemElement.getAttribute("sequence");
 		   int sequence = new Integer(s);
 		   s = itemElement.getAttribute("type");
@@ -568,8 +591,10 @@ public class LessonBuilderEntityProducer extends AbstractEntityProvider
 		       // sakaiId should be the new page ID
 		       sakaiId = pageMap.get(Long.valueOf(sakaiId)).toString();
 		   }
-		   if (type == SimplePageItem.ASSIGNMENT || type == SimplePageItem.ASSESSMENT || type == SimplePageItem.FORUM)
+
+		   if (type == SimplePageItem.ASSIGNMENT || type == SimplePageItem.ASSESSMENT || type == SimplePageItem.FORUM) {
 		       sakaiId = SimplePageItem.DUMMY;
+		   }
 
 		   SimplePageItem item = simplePageToolDao.makeItem(pageId, sequence, type, sakaiId, name);
 
@@ -689,6 +714,27 @@ public class LessonBuilderEntityProducer extends AbstractEntityProvider
 
 		   simplePageToolDao.quickSaveItem(item);
 		   itemMap.put(itemId, item.getId());
+
+		   // this needs item id, so it has to be done here
+		   // save item ID to object id. This will allow references to be fixed up.
+		   // object id identifies the Sakai object in the old site. The fixup will
+		   // find the object in the new site and fix up the item. Hence we need
+		   // a mapping of item ID to object id.
+		   if (type == SimplePageItem.ASSIGNMENT || type == SimplePageItem.ASSESSMENT || type == SimplePageItem.FORUM) {
+		       String objectid = itemElement.getAttribute("objectid");
+		       if (objectid != null) {
+			   String entityid = null;
+			   if (type == SimplePageItem.ASSIGNMENT)
+			       entityid = REF_LB_ASSIGNMENT + item.getId();
+			   else if (type == SimplePageItem.ASSESSMENT)
+			       entityid = REF_LB_ASSESSMENT + item.getId();
+			   else
+			       entityid = REF_LB_FORUM + item.getId();
+			   if (entityMap != null)
+			       entityMap.put(entityid, objectid);
+		       }
+		   }
+
 	       }
 	   }
        }
@@ -736,11 +782,16 @@ public class LessonBuilderEntityProducer extends AbstractEntityProvider
    }
 
 
+   public String merge(String siteId, Element root, String archivePath, String fromSiteId, Map attachmentNames, Map userIdTrans,
+		       Set userListAllowImport) {
+       return merge(siteId, root, archivePath, fromSiteId, attachmentNames, userIdTrans, userListAllowImport, null);
+   }
+
    /**
     * {@inheritDoc}
     */
    public String merge(String siteId, Element root, String archivePath, String fromSiteId, Map attachmentNames, Map userIdTrans,
-         Set userListAllowImport)
+		       Set userListAllowImport, Map<String, String> entityMap)
    {
       StringBuilder results = new StringBuilder();
       // map old to new page ids
@@ -785,7 +836,7 @@ public class LessonBuilderEntityProducer extends AbstractEntityProvider
 		 Node pageNode = pageNodes.item(p);
 		 if (pageNode.getNodeType() == Node.ELEMENT_NODE) {
 		     Element pageElement = (Element) pageNode;
-		     makePage(pageElement, oldServer, siteId, fromSiteId, pageMap, itemMap);
+		     makePage(pageElement, oldServer, siteId, fromSiteId, pageMap, itemMap, entityMap);
 		 }
 	     }
 
@@ -989,11 +1040,25 @@ public class LessonBuilderEntityProducer extends AbstractEntityProvider
    
 	public void transferCopyEntities(String fromContext, String toContext, List ids)
 	{
-	    transferCopyEntities(fromContext, toContext, ids, false);
+	    transferCopyEntitiesImpl(fromContext, toContext, ids, false);
 	}
 
-	public void transferCopyEntities(String fromContext, String toContext, List ids, boolean cleanup)
+	public void transferCopyEntities(String fromContext, String toContext, List ids, boolean cleanup) {
+	    transferCopyEntitiesImpl(fromContext, toContext, ids, cleanup);
+	}    
+
+	public Map<String, String> transferCopyEntitiesRefMigrator(String fromContext, String toContext, List<String> ids) {
+	    return transferCopyEntitiesImpl(fromContext, toContext, ids, false);
+	}
+
+	public Map<String, String> transferCopyEntitiesRefMigrator(String fromContext, String toContext, List<String> ids, boolean cleanup) {
+	    return transferCopyEntitiesImpl(fromContext, toContext, ids, cleanup);
+	}
+   
+	public Map<String,String> transferCopyEntitiesImpl(String fromContext, String toContext, List ids, boolean cleanup)
 	{	
+	    Map<String,String> entityMap = new HashMap<String,String>();
+
 	    try {
    
 		if(cleanup == true) {
@@ -1051,7 +1116,7 @@ public class LessonBuilderEntityProducer extends AbstractEntityProvider
 		
 		stack.pop();
 	  
-		merge(toContext,  (Element)doc.getFirstChild().getFirstChild(), "/tmp/archive", fromContext, null, null, null);
+		merge(toContext,  (Element)doc.getFirstChild().getFirstChild(), "/tmp/archive", fromContext, null, null, null, entityMap);
 
 		ToolSession session = SessionManager.getCurrentToolSession();
 
@@ -1062,7 +1127,51 @@ public class LessonBuilderEntityProducer extends AbstractEntityProvider
 	    } catch (Exception e) {
 		logger.error(e.getMessage(), e);
 	    }
+
+	    return entityMap;
+
 	}
+    
+    // update our references to Sakai objects that live in other tools. ID numbers in new site
+    // will of course be different than in the old site
+
+    // map has entities for all objects. Look for all entities that look like /ref/lessonbuilder.
+    // this is mapping from LB item id to underlying object in old site.
+    // find the object in the new site and fix up the item id
+    public void updateEntityReferences(String toContext, Map<String, String> transversalMap) {
+	for (Map.Entry<String,String> entry: transversalMap.entrySet()) {
+	    String entityid = entry.getKey();
+	    String objectid = entry.getValue();
+	    if (entityid == null || objectid == null || !entityid.startsWith(REF_LB))
+		continue;
+
+	    LessonEntity e = null;
+	    String itemstring = null;
+	    if (entityid.startsWith(REF_LB_ASSIGNMENT)) {
+		e = assignmentEntity;
+		itemstring = entityid.substring(REF_LB_ASSIGNMENT.length());
+	    } else if (entityid.startsWith(REF_LB_ASSESSMENT)) {
+		e = quizEntity;
+		itemstring = entityid.substring(REF_LB_ASSESSMENT.length());
+	    } else {
+		e = forumEntity;
+		itemstring = entityid.substring(REF_LB_FORUM.length());
+	    }
+		
+	    String sakaiid = e.findObject(objectid, transversalMap, toContext);
+	    if (sakaiid != null) {
+		long itemid = -1;
+		try {
+		    itemid = Long.parseLong(itemstring);
+		} catch (Exception ignore) {}
+		SimplePageItem item = simplePageToolDao.findItem(itemid);
+		if (item != null) {
+		    item.setSakaiId(sakaiid);
+		    simplePageToolDao.quickUpdate(item);
+		}
+	    }
+	}
+    }
 
     public void setSimplePageToolDao(Object dao) {
 	simplePageToolDao = (SimplePageToolDao) dao;

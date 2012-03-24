@@ -682,4 +682,22 @@ public class AssignmentEntity implements LessonEntity {
 
     }
 
+    public String getObjectId() {
+	return "assignment/" + id;
+    }
+
+    public String findObject(String objectid, Map<String,String>objectMap, String siteid) {
+	if (!objectid.startsWith("assignment/")) {
+	    if (nextEntity != null) {
+		return nextEntity.findObject(objectid, objectMap, siteid);
+	    }
+	}
+	String newassignment = objectMap.get(objectid);
+	if (newassignment != null)
+	    return "/" + newassignment;  // sakaiid is /assignment/ID
+	else
+	    return null;
+
+    }
+
 }

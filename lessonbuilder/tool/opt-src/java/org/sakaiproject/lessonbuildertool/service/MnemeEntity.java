@@ -397,4 +397,14 @@ public class MnemeEntity implements LessonEntity, QuizEntity {
     public void setGroups(Collection<String> groups) {
     }
 
+    public String getObjectId(){
+	return null;
+    }
+
+    public String findObject(String objectid, Map<String,String>objectMap, String siteid) {
+	if (nextEntity != null)
+	    return nextEntity.findObject(objectid, objectMap, siteid);
+	return null;
+    }
+
 }

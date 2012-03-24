@@ -28,6 +28,7 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
 import java.util.Set;
+import java.util.Map;
 import java.util.Date;
 
 import org.sakaiproject.lessonbuildertool.service.LessonSubmission;
@@ -157,5 +158,25 @@ public interface LessonEntity {
     // set the item to be accessible only to the specific groups.
     // null to make it accessible to the whole site
     public void setGroups(Collection<String> groups);
+
+    // for saved XML. used for objectid property. It's data
+    // about the Sakai object in the old site that we need
+    // to locate it again. If the tool implements transferCopyRefMigrator,
+    // this should be the normal Sakai object reference, as it will
+    // appear in the map. For other tools, typically something like
+    // the title is the only thing that will work.
+    //   This objectid needs to include a tool name, because findObject is
+    // going to have to know which of several tool implementations
+    // to use. So a typical one might be assignment/NNNN
+    // i.e. tool ID, assignment ID. Can return null if
+    // this functionality isn't implemented. WIll result in a dummy
+    // reference in the new site.
+    public String getObjectId();
+
+    // return a sakaiid for an object copied from another site.
+    // If we can't identify it, return null; will need to chain
+    // to other implementations of the tool type if the object ID 
+    // isn't ours.
+    public String findObject(String objectid, Map<String,String>objectMap, String siteid);
 
 }

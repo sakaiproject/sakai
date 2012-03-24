@@ -82,6 +82,9 @@ public interface SimplePageToolDao {
 	public SimplePageComment findCommentByUUID(String commentUUID);
 	
 	public SimplePageItem findCommentsToolBySakaiId(String sakaiId);
+
+    // this is a generic one. Only use it for nearly unique sakaiids.
+	public List<SimplePageItem> findItemsBySakaiId(String sakaiId);
 	
 	public SimpleStudentPage findStudentPage(long itemId, String owner);
 	

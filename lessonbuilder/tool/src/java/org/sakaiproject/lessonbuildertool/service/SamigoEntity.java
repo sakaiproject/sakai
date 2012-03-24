@@ -50,6 +50,7 @@ import org.sakaiproject.tool.assessment.data.dao.assessment.PublishedMetaData;
 import org.sakaiproject.tool.assessment.services.assessment.AssessmentService;
 import org.sakaiproject.tool.assessment.facade.PublishedAssessmentFacade;
 import org.sakaiproject.tool.assessment.facade.AssessmentFacade;
+import org.sakaiproject.tool.assessment.facade.AssessmentFacadeQueries;
 import org.sakaiproject.tool.assessment.facade.AuthzQueriesFacadeAPI;
 import org.sakaiproject.tool.assessment.facade.PublishedAssessmentFacadeQueriesAPI;
 import org.sakaiproject.tool.assessment.data.dao.authz.AuthorizationData;
@@ -79,6 +80,14 @@ import org.sakaiproject.memory.api.MemoryService;
 
 import uk.org.ponder.messageutil.MessageLocator;
 
+import org.sakaiproject.lessonbuildertool.SimplePageItem;
+import org.sakaiproject.lessonbuildertool.model.SimplePageToolDao;
+import org.sakaiproject.db.cover.SqlService;
+import org.sakaiproject.db.api.SqlReader;
+import java.sql.Connection;
+import java.sql.ResultSet;
+
+
 /**
  * Interface to Message Forums, the forum that comes with Sakai
  *
@@ -105,6 +114,13 @@ public class SamigoEntity implements LessonEntity, QuizEntity {
     private static boolean samigo_linked = false;
 
     PublishedAssessmentService pService = new PublishedAssessmentService();
+    AssessmentService assessmentService = new AssessmentService();
+
+    private SimplePageToolDao simplePageToolDao;
+
+    public void setSimplePageToolDao(Object dao) {
+	simplePageToolDao = (SimplePageToolDao) dao;
+    }
 
     private SimplePageBean simplePageBean;
 
@@ -312,6 +328,31 @@ public class SamigoEntity implements LessonEntity, QuizEntity {
     }
 
     public LessonEntity getEntity(String ref) {
+	// if the site was copied, all sakaiids for tests are set to something like /sam_core/NNN
+	// the problem is that published asessments aren't copied. So all we can do is poitn to
+	// the core assessment. Of course you can't really take that, so we try to find a published
+	// assessment based on that core. If we find one, we fix up the sakaiids, and we're ok.
+	if (ref.startsWith("/sam_core/")) {
+	    Object fields[] = new Object[1];
+	    fields[0] = new Long(ref.substring("/sam_core/".length()));
+
+	    // assessmentid is indexed, so this is a pretty lightweight query
+	    List <String> publishedIds = SqlService.dbRead("select ID from SAM_PUBLISHEDASSESSMENT_T where ASSESSMENTID=?", fields, null);
+	    if (publishedIds != null && publishedIds.size() > 0) {
+		// found it, update all sakaiids to use the published assessment
+		String newid = publishedIds.get(0);
+		List <SimplePageItem> items = simplePageToolDao.findItemsBySakaiId(ref);
+		ref = "/sam_pub/" + newid;
+		for (SimplePageItem item: items) {
+		    item.setSakaiId(ref);
+		    simplePageToolDao.quickUpdate(item);
+		}
+	    } else
+		return null;
+
+	    // ref has now been updated, so the rest of the code should work as is
+	}
+
 	int i = ref.indexOf("/",1);
 	if (i < 0) {
 	    // old format, just the number
@@ -584,7 +625,6 @@ public class SamigoEntity implements LessonEntity, QuizEntity {
 	} else {
 	    assessment = qtiService.createImportedAssessment(document, QTIVersion.VERSION_1_2);
 	    try {
-		AssessmentService assessmentService = new AssessmentService();
 		// can't find a way to do this in the metadata, and in fact the real import
 		// code does hack on this stuff
 		AssessmentAccessControl control = new AssessmentAccessControl();
@@ -791,6 +831,49 @@ public class SamigoEntity implements LessonEntity, QuizEntity {
 	    authz.createAuthorization(groupId, "TAKE_PUBLISHED_ASSESSMENT", Long.toString(id));
 	}
 
+    }
+
+    // this is what goes into the XML file. Samigo doesn't support RefMigrator, so the only way
+    // we can connect tests in the new site with the old one is by title. Thus what we save is
+    // use sam_core/TITLE
+    // this is the title of the core assessment, since that's what gets copied.
+    public String getObjectId(){
+	if (assessment == null)
+	    assessment = getPublishedAssessment(id);
+	if (assessment == null)
+	    return null;
+	Long coreId = assessment.getAssessmentId();
+	AssessmentFacade facade = assessmentService.getAssessment(coreId.toString());
+	if (facade == null)
+	    return null;
+	String title = facade.getTitle();
+	return "sam_core/" + title;
+    }
+
+    // normally this will look up the object ID and find the corresponding sakaiid in the
+    // new site. Unfortunately, the assessment hasn't been published, so the best we
+    // can do is return the corresponding core assessment. When we try to refer to it,
+    // getEntity will see if it's been published yet.
+    // returns sam_core/NNNN
+    public String findObject(String objectid, Map<String,String>objectMap, String siteid) {
+
+        if (!objectid.startsWith("sam_core/")) {
+            if (nextEntity != null) {
+                return nextEntity.findObject(objectid, objectMap, siteid);
+            }
+	}
+
+	String title = objectid.substring("sam_core/".length());
+
+	// this is an expensive query, but this is called pretty rarely, so it's probably better to do this than
+	// got to the database ourselves. We'd be a lot better with a getBasicInfo version
+	List<AssessmentData> list = assessmentService.getAllActiveAssessmentsbyAgent(siteid);
+	for (AssessmentData data: list) {
+	    if (data.getTitle().equals(title)) {
+		return "/sam_core/" + data.getAssessmentBaseId();
+	    }
+	}
+	return null;
     }
 
 }

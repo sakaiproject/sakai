@@ -512,4 +512,15 @@ public class BltiEntity implements LessonEntity, BltiInterface {
     }
     return null;
   }
+
+    public String getObjectId(){
+	return null;
+    }
+
+    public String findObject(String objectid, Map<String,String>objectMap, String siteid) {
+	if (nextEntity != null)
+	    return nextEntity.findObject(objectid, objectMap, siteid);
+	return null;
+    }
+
 }

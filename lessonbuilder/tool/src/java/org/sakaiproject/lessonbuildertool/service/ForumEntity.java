@@ -26,6 +26,7 @@ package org.sakaiproject.lessonbuildertool.service;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Map;
 import java.util.Collection;
 import java.util.List;
 import java.util.Set;
@@ -1129,6 +1130,23 @@ public class ForumEntity extends HibernateDaoSupport implements LessonEntity, Fo
 		session.close();
 	}
 	
+    }
+
+    public String getObjectId(){
+	return "forum_topic/" + id;
+    }
+
+    public String findObject(String objectid, Map<String,String>objectMap, String siteid) {
+        if (!objectid.startsWith("forum_topic/")) {
+            if (nextEntity != null) {
+                return nextEntity.findObject(objectid, objectMap, siteid);
+            }
+	}
+	String newtopic = objectMap.get(objectid);
+	if (newtopic != null)
+	    return "/" + newtopic;  // sakaiid is /forum_topic/ID
+	else
+	    return null;
     }
 
 }

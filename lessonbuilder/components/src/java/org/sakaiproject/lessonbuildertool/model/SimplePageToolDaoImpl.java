@@ -282,6 +282,12 @@ public class SimplePageToolDaoImpl extends HibernateDaoSupport implements Simple
 		return null;
 	}
 	
+	public List<SimplePageItem> findItemsBySakaiId(String sakaiId) {
+		DetachedCriteria d = DetachedCriteria.forClass(SimplePageItem.class).add(Restrictions.eq("sakaiId", sakaiId));
+		return getHibernateTemplate().findByCriteria(d);
+	}
+	
+
 	public SimpleStudentPage findStudentPage(long itemId, String owner) {
 		DetachedCriteria d = DetachedCriteria.forClass(SimpleStudentPage.class).add(Restrictions.eq("itemId", itemId))
 			.add(Restrictions.eq("owner", owner)).add(Restrictions.eq("deleted", false));
