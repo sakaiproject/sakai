@@ -1339,7 +1339,8 @@ function checkEditItemForm() {
 		$('#edit-item-error').text(msg("simplepage.item_notblank"));
 		$('#edit-item-error-container').show();
 		return false;
-        } else if ((requirementType == 3 || requirementType == 6) && isNaN(parseFloat($("#assignment-points").val()))) {
+        } else if ((requirementType == 3 || requirementType == 6) && 
+		   $("#item-required2").attr("checked") && isNaN(parseFloat($("#assignment-points").val()))) {
 		$('#edit-item-error').text(msg("simplepage.integer-expected"));
 		$('#edit-item-error-container').show();
 		return false;
