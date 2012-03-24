@@ -1132,8 +1132,17 @@ public class ForumEntity extends HibernateDaoSupport implements LessonEntity, Fo
 	
     }
 
+    // only used for topics
     public String getObjectId(){
-	return "forum_topic/" + id;
+	String title = getTitle();
+	// fetches topic as well
+	if (title == null)
+	    return null;
+
+	BaseForum forum = topic.getBaseForum();
+	
+	return "forum_topic/" + id + "/" + title + "\n" + forum.getTitle();
+
     }
 
     public String findObject(String objectid, Map<String,String>objectMap, String siteid) {
@@ -1142,11 +1151,44 @@ public class ForumEntity extends HibernateDaoSupport implements LessonEntity, Fo
                 return nextEntity.findObject(objectid, objectMap, siteid);
             }
 	}
-	String newtopic = objectMap.get(objectid);
+
+	// isolate forum_topic/NNN from title
+	int i = objectid.indexOf("/", "forum_topic/".length());
+	if (i <= 0)
+	    return null;
+	String realobjectid = objectid.substring(0, i);
+
+	// now see if it's in the map
+	String newtopic = objectMap.get(realobjectid);
 	if (newtopic != null)
 	    return "/" + newtopic;  // sakaiid is /forum_topic/ID
-	else
-	    return null;
+
+	// this must be 2.8. Can't find the topic in the map
+	// i is start of title
+	int j = objectid.indexOf("\n");
+	String title = objectid.substring(i+1,j);
+	String forumtitle = objectid.substring(j+1);
+
+	// unfortunately we have to search the topic tree to find it.
+	SortedSet<DiscussionForum> forums = new TreeSet<DiscussionForum>(new ForumBySortIndexAscAndCreatedDateDesc());
+	for (DiscussionForum forum: forumManager.getForumsForMainPage())
+	    forums.add(forum);
+
+	// security. assume this is only used in places where it's OK, so skip security checks
+	// ignore draft status. We want to show drafts.
+	for (DiscussionForum forum: forums) {
+	    if (forum.getTitle().equals(forumtitle)) {
+		for (Object o: forum.getTopicsSet()) {
+		    DiscussionTopic topic = (DiscussionTopic)o;
+		    if (topic.getTitle().equals(title)) {
+			return "/forum_topic/" + topic.getId();
+		    }
+		}
+	    }
+	}
+
+	return null;
+
     }
 
 }
