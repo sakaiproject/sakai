@@ -294,6 +294,8 @@ public class ShowPageProducer implements ViewComponentProducer, DefaultView, Nav
 
 	public void fillComponents(UIContainer tofill, ViewParameters viewParams, ComponentChecker checker) {
 		GeneralViewParameters params = (GeneralViewParameters) viewParams;
+
+		boolean iframeJavascriptDone = false;
 		
 		// security model:
 		// canEditPage and canReadPage are normal Sakai privileges. They apply
@@ -1446,8 +1448,9 @@ public class ShowPageProducer implements ViewComponentProducer, DefaultView, Nav
 					} else {
 						// finally, HTML. Use an iframe
 						// definition of resizeiframe, at top of page
-						if (getOrig(height).equals("auto")) {
+						if (!iframeJavascriptDone && getOrig(height).equals("auto")) {
 							UIOutput.make(tofill, "iframeJavascript");
+							iframeJavascriptDone = true;
 						}
 
 						UIOutput.make(tableRow, "iframeSpan");
@@ -1840,8 +1843,10 @@ public class ShowPageProducer implements ViewComponentProducer, DefaultView, Nav
 				    .decorate(new UIFreeAttributeDecorator("src", 
 					getLocalizedURL( (pageItem.getType() == SimplePageItem.STUDENT_CONTENT) ? "student.html" : "general.html")))
 				    .decorate(new UIFreeAttributeDecorator("id", "iframe"));
-				UIOutput.make(tofill, "iframeJavascript");
-
+				if (!iframeJavascriptDone) {
+				    UIOutput.make(tofill, "iframeJavascript");
+				    iframeJavascriptDone = true;
+				}
 			} else {
 				UIOutput.make(tofill, "error-div");
 				UIOutput.make(tofill, "error", messageLocator.getMessage("simplepage.noitems_error_user"));
