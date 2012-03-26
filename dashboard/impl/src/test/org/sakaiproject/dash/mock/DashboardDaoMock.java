@@ -712,4 +712,9 @@ public class DashboardDaoMock implements DashboardDao {
 
 	}
 
+	public boolean updateSourceType(SourceType sourceType) {
+		// TODO Auto-generated method stub
+		return false;
+	}
+
 }

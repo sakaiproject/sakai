@@ -80,6 +80,8 @@ public class ResourceSupport {
 	public void init() {
 		logger.info("init()");
 		
+		this.createOrUpdateSourceTypeDefinition();
+		
 		this.dashboardLogic.registerEntityType(new ResourceEntityType());
 		this.dashboardLogic.registerEntityType(new DropboxEntityType());
 		this.dashboardLogic.registerEventProcessor(new ContentNewEventProcessor());
@@ -646,9 +648,7 @@ public class ResourceSupport {
 			} else {
 				sourceType = dashboardLogic.getSourceType(RESOURCE_TYPE_IDENTIFIER);
 				if(sourceType == null) {
-					sourceType = dashboardLogic.createSourceType(RESOURCE_TYPE_IDENTIFIER, SakaiProxy.PERMIT_RESOURCE_ACCESS, new String[]{
-							SakaiProxy.PERMIT_RESOURCE_MAINTAIN_1, SakaiProxy.PERMIT_RESOURCE_MAINTAIN_2
-					});
+					sourceType = createOrUpdateSourceTypeDefinition();
 				}
 			}
 			
@@ -716,6 +716,15 @@ public class ResourceSupport {
 			}
 		}
 		return newsItem;
+	}
+
+	/**
+	 * @return
+	 */
+	protected SourceType createOrUpdateSourceTypeDefinition() {
+		return dashboardLogic.createSourceType(RESOURCE_TYPE_IDENTIFIER, SakaiProxy.PERMIT_RESOURCE_ACCESS, new String[]{
+				SakaiProxy.PERMIT_RESOURCE_MAINTAIN_1, SakaiProxy.PERMIT_RESOURCE_MAINTAIN_2
+		});
 	}
 
 }

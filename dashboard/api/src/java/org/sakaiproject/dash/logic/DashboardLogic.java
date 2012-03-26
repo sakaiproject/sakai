@@ -169,8 +169,10 @@ public interface DashboardLogic {
 			SourceType sourceType, String frequency, int count);
 	
 	/**
-	 * Creates and persists a SourceType object with specified attributes. Each registered EntityType must have one (and only one) SourceType definition. 
-	 * Returns the complete SourceType object.
+	 * Creates and persists a SourceType object  or updates an existing definition with no values for maintainPermissions, 
+	 * which define permissions required to see references to an entity that is not "available". Each registered EntityType 
+	 * must have one (and only one) SourceType definition. After creating or updating the SourceType definition, the method 
+	 * returns the complete SourceType object.
 	 * @param identifier
 	 * @param accessPermission
 	 * @return
@@ -178,8 +180,11 @@ public interface DashboardLogic {
 	public SourceType createSourceType(String identifier, String accessPermission);
 
 	/**
-	 * Creates and persists a SourceType object with specified attributes. Each registered EntityType must have one (and only one) SourceType definition. 
-	 * Returns the complete SourceType object.
+	 * Creates and persists a SourceType object with specified attributes or updates an existing definition. If definition 
+	 * has already been persisted for a SourceType object with specified resourceTypeIdentifier and other properties are not 
+	 * the same, the existing SourceType definition will be updated. If the resourceTypeIdentifier is not yet in use, a new 
+	 * definition is persisted with the specified parameters.  Each registered EntityType must have one (and only one) SourceType 
+	 * definition. After creating or updating the SourceType definition, the method returns the complete SourceType object.
 	 * @param resourceTypeIdentifier
 	 * @param accessPermission
 	 * @param maintainPermissions

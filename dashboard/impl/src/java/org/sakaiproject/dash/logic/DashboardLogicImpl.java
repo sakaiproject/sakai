@@ -23,7 +23,7 @@ package org.sakaiproject.dash.logic;
 
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
-import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -53,7 +53,6 @@ import org.sakaiproject.dash.model.Context;
 import org.sakaiproject.dash.model.NewsItem;
 import org.sakaiproject.dash.model.NewsLink;
 import org.sakaiproject.dash.model.Person;
-import org.sakaiproject.dash.model.Realm;
 import org.sakaiproject.dash.model.RepeatingCalendarItem;
 import org.sakaiproject.dash.model.SourceType;
 import org.sakaiproject.event.api.Event;
@@ -500,10 +499,36 @@ public class DashboardLogicImpl implements DashboardLogic, Observer
 	}
 
 	public SourceType createSourceType(String identifier, String accessPermission, String[] maintainPermissions) {
-		
-		SourceType sourceType = new SourceType(identifier, accessPermission, maintainPermissions); 
-		dao.addSourceType(sourceType);
-		return dao.getSourceType(identifier);
+		SourceType sourceType = dao.getSourceType(identifier);
+		if(sourceType == null) {
+			sourceType = new SourceType(identifier, accessPermission, maintainPermissions); 
+			dao.addSourceType(sourceType);
+			sourceType = dao.getSourceType(identifier);
+		} else {
+			boolean changed = false;
+			if(!sourceType.getAccessPermission().equals(accessPermission)) {
+				sourceType.setAccessPermission(accessPermission);
+				changed = true;
+			}
+			if(sourceType.getAlwaysAccessPermission() == null && maintainPermissions != null) {
+				sourceType.setAlwaysAccessPermission(maintainPermissions);
+				changed = true;
+			} else if(sourceType.getAlwaysAccessPermission() != null && maintainPermissions == null) {
+				sourceType.setAlwaysAccessPermission(maintainPermissions);
+				changed = true;
+			} else if (sourceType.getAlwaysAccessPermission() == null && maintainPermissions == null) {
+				// do nothing
+			} else if(Arrays.equals(sourceType.getAlwaysAccessPermission(), maintainPermissions)) {
+				// do nothing
+			} else {
+				sourceType.setAlwaysAccessPermission(maintainPermissions);
+				changed = true;
+			}
+			if(changed) {
+				dao.updateSourceType(sourceType);
+			}
+		}
+		return sourceType;
 	}
 
 	/* (non-Javadoc)

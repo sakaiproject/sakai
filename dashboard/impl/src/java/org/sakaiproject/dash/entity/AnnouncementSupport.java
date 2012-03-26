@@ -103,6 +103,8 @@ public class AnnouncementSupport{
 	public void init() {
 		logger.info("init()");
 		
+		this.createOrUpdateSourceTypeDefinition();
+		
 		this.dashboardLogic.registerEntityType(new AnnouncementEntityType());
 		this.dashboardLogic.registerEventProcessor(new AnnouncementNewEventProcessor());
 		this.dashboardLogic.registerEventProcessor(new AnnouncementRemoveAnyEventProcessor());
@@ -158,6 +160,13 @@ public class AnnouncementSupport{
 		return retractDate;
 	}
 	
+	/**
+	 * @return
+	 */
+	protected SourceType createOrUpdateSourceTypeDefinition() {
+		return dashboardLogic.createSourceType(IDENTIFIER, SakaiProxy.PERMIT_ANNOUNCEMENT_ACCESS, new String[]{ SakaiProxy.PERMIT_ANNOUNCEMENT_ACCESS_DRAFT });
+	}
+	
 	private void createUpdateDashboardItemLinks(Event event, AnnouncementMessage annc) {
 		
 		String anncReference = annc.getReference();
@@ -172,7 +181,7 @@ public class AnnouncementSupport{
 			
 			SourceType sourceType = dashboardLogic.getSourceType(IDENTIFIER);
 			if(sourceType == null) {
-				sourceType = dashboardLogic.createSourceType(IDENTIFIER, SakaiProxy.PERMIT_ANNOUNCEMENT_ACCESS, new String[]{ SakaiProxy.PERMIT_ANNOUNCEMENT_ACCESS_DRAFT });
+				sourceType = createOrUpdateSourceTypeDefinition();
 			}
 			
 			// create NewsItem if not exist yet
@@ -204,7 +213,7 @@ public class AnnouncementSupport{
 			}
 		}
 	}
-	
+
 	/**
 	 * Inner class: AnnouncementEntityType
 	 * @author zqian

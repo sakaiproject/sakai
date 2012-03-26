@@ -489,6 +489,12 @@ public interface DashboardDao {
 			String newTitle);
 
 	/**
+	 * Update the properties of an existing SourceType object.
+	 * @param sourceType
+	 */
+	public boolean updateSourceType(SourceType sourceType);
+
+	/**
 	 * @param propertyName
 	 * @return
 	 */
