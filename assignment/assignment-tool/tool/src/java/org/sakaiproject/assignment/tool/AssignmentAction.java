@@ -13130,7 +13130,7 @@ public class AssignmentAction extends PagedResourceActionII
 			Site site = SiteService.getSite(siteId);
 			ToolConfiguration tc=site.getToolForCommonId(ASSIGNMENT_TOOL_ID);
 			String currentSetting = tc.getPlacementConfig().getProperty(SUBMISSIONS_SEARCH_ONLY);
-			if (currentSetting != null && !currentSetting.equals(Boolean.toString(submissionsSearchOnly)))
+			if (currentSetting == null || !currentSetting.equals(Boolean.toString(submissionsSearchOnly)))
 			{
 				// save the change
 				tc.getPlacementConfig().setProperty(SUBMISSIONS_SEARCH_ONLY, Boolean.toString(submissionsSearchOnly));
