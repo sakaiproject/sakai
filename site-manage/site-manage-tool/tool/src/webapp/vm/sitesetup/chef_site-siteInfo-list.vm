@@ -446,7 +446,7 @@ function printPreview(target){
 						<th id="remove" class="screenOnly attach" align="center" >
 							
 							<input type="checkbox" name="toggleAllSelected" value="" id="toggleAllSelected" onclick="javascript:toggleSelectAll(this, 'selectedUser')" title="$tlang.getString('check.all')"/>
-							<label for="toggleAllSelected">$tlang.getString("check.all")</label>
+							<label for="toggleAllSelected">$tlang.getString("sitegen.siteinfolist.remove")</label>
 						</th>
 					#end
 				</tr>
