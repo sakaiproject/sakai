@@ -295,4 +295,12 @@ public interface SakaiProxy {
 	 */
 	public String getServerUrl();
 
+	/**
+	 * Access the unique id of this server within a cluster.
+	 * @return
+	 */
+	public String getServerId();
+
+	public void registerFunction(String functionName);
+
 }

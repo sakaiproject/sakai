@@ -219,4 +219,14 @@ public class SakaiProxyMock implements SakaiProxy {
 		return null;
 	}
 
+	public String getServerId() {
+		// TODO Auto-generated method stub
+		return null;
+	}
+
+	public void registerFunction(String functionName) {
+		// TODO Auto-generated method stub
+		
+	}
+
 }

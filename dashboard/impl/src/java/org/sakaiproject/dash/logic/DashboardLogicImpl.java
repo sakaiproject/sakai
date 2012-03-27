@@ -72,6 +72,9 @@ public class DashboardLogicImpl implements DashboardLogic, Observer
 {
 	private static Logger logger = Logger.getLogger(DashboardLogicImpl.class);
 	
+	public static final String DASHBOARD_NEGOTIATE_AVAILABILITY_CHECKS = "dash.negotiate.availCheck";
+	public static final String DASHBOARD_NEGOTIATE_REPEAT_EVENTS = "dash.negotiate.repeatEvents";
+	
 	public static final long TIME_BETWEEN_AVAILABILITY_CHECKS = 1000L * 60L * 1L;
 
 	private static final long ONE_DAY = 1000L * 60L * 60L * 24L;
@@ -90,7 +93,14 @@ public class DashboardLogicImpl implements DashboardLogic, Observer
 	protected Object eventQueueLock = new Object();
 	
 	protected static long dashboardEventProcessorThreadId = 0L;
+
+	protected String serverId = null;
+	protected String serverHandlingAvailabilityChecks = "";
+	protected String serverHandlingRepeatEvents = "";
 	
+	protected Date claimAvailabilityCheckDutyTime = null;
+	protected Date claimRepeatEventsDutyTime = null;
+
 	public static final Set<String> NAVIGATION_EVENTS = new HashSet<String>();
 	public static final Set<String> DASH_NAV_EVENTS = new HashSet<String>();
 	public static final Set<String> ITEM_DETAIL_EVENTS = new HashSet<String>();
@@ -342,7 +352,7 @@ public class DashboardLogicImpl implements DashboardLogic, Observer
 			logger.debug("createCalendarLinks(" + calendarItem + ")");
 		}
 		if(calendarItem != null) {
-			EntityType entityType = this.entityTypes.get(calendarItem.getSourceType().getIdentifier());
+			EntityType entityType = this.entityTypes.get(calendarItem.getEntityReference());
 			List<String> sakaiIds = entityType.getUsersWithAccess(calendarItem.getEntityReference());
 			for(String sakaiId : sakaiIds) {
 				Person person = getOrCreatePerson(sakaiId);
@@ -1352,12 +1362,18 @@ public class DashboardLogicImpl implements DashboardLogic, Observer
 		
 	}
 
+	protected void initServerId() {
+		serverId = sakaiProxy.getServerId();
+		
+	}
+	
 	/************************************************************************
 	 * init() and destroy()
 	 ************************************************************************/
 
 	public void init() {
 		logger.info("init()");
+		
 		if (!sakaiProxy.isEventProcessingThreadDisabled())
 		{
 			if(this.eventProcessingThread == null) {
@@ -1365,10 +1381,15 @@ public class DashboardLogicImpl implements DashboardLogic, Observer
 			}
 			this.eventProcessingThread.start();
 			
+			this.sakaiProxy.registerFunction(DASHBOARD_NEGOTIATE_AVAILABILITY_CHECKS);
+			this.sakaiProxy.registerFunction(DASHBOARD_NEGOTIATE_REPEAT_EVENTS);
 			this.sakaiProxy.addLocalEventListener(this);
+			
 			Integer weeksToHorizon = dashboardConfig.getConfigValue(DashboardConfig.PROP_WEEKS_TO_HORIZON, new Integer(4));
 			this.horizon = new Date(System.currentTimeMillis() + weeksToHorizon.longValue() * 7L * ONE_DAY);
 		}
+		
+		
 	}
 	
 	public void destroy() {
@@ -1554,7 +1575,18 @@ public class DashboardLogicImpl implements DashboardLogic, Observer
 		protected static final String EVENT_PROCESSING_THREAD_SHUT_DOWN_MESSAGE = 
 			"\n===================================================\n  Dashboard Event Processing Thread shutting down  \n===================================================";
 
+		/** time to allow negotaion among servers -- 2 minutes */
+		private static final long NEGOTIATING_TIME = 1000L * 60L * 2L;
+
 		protected boolean timeToQuit = false;
+		
+		protected boolean handlingAvailabilityChecks = false;
+		protected boolean notHandlingAvailabilityChecks = false;
+		protected boolean handlingRepeatedEvents = false;
+		protected boolean notHandlingRepeatedEvents = false;
+		
+		protected Date handlingAvailabilityChecksTimer = null;
+		protected Date handlingRepeatedEventsTimer = null;
 		
 		private long sleepTime = 2L;
 
@@ -1580,6 +1612,10 @@ public class DashboardLogicImpl implements DashboardLogic, Observer
 			try {
 				dashboardEventProcessorThreadId = Thread.currentThread().getId();
 				logger.info("Started Dashboard Event Processing Thread: " + dashboardEventProcessorThreadId);
+				
+				registerEventProcessor(new DashboardNegotiateAvailabilityChecksEventProcessor());
+				registerEventProcessor(new DashboardNegotiateRepeatEventsEventProcessor());
+				
 				boolean timeToHandleAvailabilityChecks = true;
 				sakaiProxy.startAdminSession();
 				while(! timeToQuit) {
@@ -1593,30 +1629,70 @@ public class DashboardLogicImpl implements DashboardLogic, Observer
 						}
 					}
 					if(event == null) {
+						if(serverId == null) {
+							initServerId();
+						}
+												
 						if(timeToHandleAvailabilityChecks) {
-							SecurityAdvisor advisor = new DashboardLogicSecurityAdvisor();
-							sakaiProxy.pushSecurityAdvisor(advisor);
-							try {
-								handleAvailabilityChecks();
-								timeToHandleAvailabilityChecks = false;
-							} catch (Exception e) {
-								logger.warn("run: " + event, e);
-							} finally {
-								sakaiProxy.popSecurityAdvisor(advisor);
-								sakaiProxy.clearThreadLocalCache();
-							}
-						} else {
-							SecurityAdvisor advisor = new DashboardLogicSecurityAdvisor();
-							sakaiProxy.pushSecurityAdvisor(advisor);
-							try {
-								updateRepeatingEvents();
-								timeToHandleAvailabilityChecks = true;
-							} catch (Exception e) {
-								logger.warn("run: " + event, e);
-							} finally {
-								sakaiProxy.popSecurityAdvisor(advisor);
-							}
+							if(handlingAvailabilityChecks) {
+								SecurityAdvisor advisor = new DashboardLogicSecurityAdvisor();
+								sakaiProxy.pushSecurityAdvisor(advisor);
+								try {
+									handleAvailabilityChecks();
+									//timeToHandleAvailabilityChecks = false;
+								} catch (Exception e) {
+									logger.warn("run: " + event, e);
+								} finally {
+									sakaiProxy.popSecurityAdvisor(advisor);
+									sakaiProxy.clearThreadLocalCache();
+								}
+							} else if(notHandlingAvailabilityChecks) {
+								// do nothing
+							} else if ("".equals(serverHandlingAvailabilityChecks)) {
+								claimAvailabilityCheckDuty();
+							} else {
+								if(handlingAvailabilityChecksTimer == null) {
+									handlingAvailabilityChecksTimer = new Date(System.currentTimeMillis() + NEGOTIATING_TIME);
+								} else if (handlingAvailabilityChecksTimer.before(new Date())) {
+									if(serverHandlingAvailabilityChecks.equals(serverId)) {
+										handlingAvailabilityChecks = true;
+									} else {
+										notHandlingAvailabilityChecks = true;
+									}
+									logger.info("Server handling availability checks is " + serverHandlingAvailabilityChecks);
+								}
 								
+							} 
+							timeToHandleAvailabilityChecks = false;
+						} else {
+							if(handlingRepeatedEvents) {
+								SecurityAdvisor advisor = new DashboardLogicSecurityAdvisor();
+								sakaiProxy.pushSecurityAdvisor(advisor);
+								try {
+									updateRepeatingEvents();
+									//timeToHandleAvailabilityChecks = true;
+								} catch (Exception e) {
+									logger.warn("run: " + event, e);
+								} finally {
+									sakaiProxy.popSecurityAdvisor(advisor);
+								}	
+							} else if(notHandlingRepeatedEvents) {
+								// do nothing
+							} else if("".equals(serverHandlingRepeatEvents)) {
+								claimRepeatEventsDuty();
+							} else {
+								if(handlingRepeatedEventsTimer == null) {
+									handlingRepeatedEventsTimer = new Date(System.currentTimeMillis() + NEGOTIATING_TIME);
+								} else if (handlingRepeatedEventsTimer.before(new Date())) {
+									if(serverHandlingRepeatEvents.equals(serverId)) {
+										handlingRepeatedEvents = true;
+									} else {
+										notHandlingRepeatedEvents = true;
+									}
+									logger.info("Server handling repeated events is " + serverHandlingRepeatEvents);
+								}
+							}
+							timeToHandleAvailabilityChecks= true;
 						}
 						try {
 							Thread.sleep(sleepTime * 1000L);
@@ -1675,6 +1751,23 @@ public class DashboardLogicImpl implements DashboardLogic, Observer
 			}
 		}
 
+		protected void claimAvailabilityCheckDuty() {
+			if(claimAvailabilityCheckDutyTime == null) {
+				sakaiProxy.postEvent(DASHBOARD_NEGOTIATE_AVAILABILITY_CHECKS, serverId, true);
+				
+				claimAvailabilityCheckDutyTime = new Date();
+			} 
+		}
+		
+		protected void claimRepeatEventsDuty() {
+			if(claimRepeatEventsDutyTime == null) {
+				sakaiProxy.postEvent(DASHBOARD_NEGOTIATE_REPEAT_EVENTS, serverId, true);
+				
+				claimRepeatEventsDutyTime = new Date();
+			} 
+		}
+
+
 	}
 	
 	/**
@@ -1706,4 +1799,46 @@ public class DashboardLogicImpl implements DashboardLogic, Observer
 		
 	}
 
+	public class DashboardNegotiateAvailabilityChecksEventProcessor implements EventProcessor {
+
+		public String getEventIdentifer() {
+			return DASHBOARD_NEGOTIATE_AVAILABILITY_CHECKS;
+		}
+
+		public void processEvent(Event event) {
+			if(logger.isDebugEnabled()) {
+				logger.debug("\n\n\n=============================================================\n" + event  
+						+ "\n=============================================================\n\n\n");
+			}
+			if(event.getEventTime() != null && (claimAvailabilityCheckDutyTime == null || event.getEventTime().before(claimAvailabilityCheckDutyTime))) {
+				synchronized(serverHandlingAvailabilityChecks) {
+					claimAvailabilityCheckDutyTime = event.getEventTime();
+					serverHandlingAvailabilityChecks = event.getResource();
+				}
+			}
+			
+		}
+		
+	}
+	public class DashboardNegotiateRepeatEventsEventProcessor implements EventProcessor {
+
+		public String getEventIdentifer() {
+			return DASHBOARD_NEGOTIATE_REPEAT_EVENTS;
+		}
+
+		public void processEvent(Event event) {
+			if(logger.isDebugEnabled()) {
+				logger.debug("\n\n\n=============================================================\n" + event  
+						+ "\n=============================================================\n\n\n");
+			}
+			if(event.getEventTime() != null && (claimRepeatEventsDutyTime == null || event.getEventTime().before(claimRepeatEventsDutyTime))) {
+				synchronized(serverHandlingRepeatEvents) {
+					claimRepeatEventsDutyTime = event.getEventTime();
+					serverHandlingRepeatEvents = event.getResource();
+				}
+			}
+			
+		}
+		
+	}
 }

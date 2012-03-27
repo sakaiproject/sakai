@@ -31,6 +31,7 @@ import java.util.TreeSet;
 import org.apache.log4j.Logger;
 import org.sakaiproject.assignment.api.AssignmentService;
 import org.sakaiproject.authz.api.AuthzGroupService;
+import org.sakaiproject.authz.api.FunctionManager;
 import org.sakaiproject.authz.api.SecurityAdvisor;
 import org.sakaiproject.authz.api.SecurityService;
 import org.sakaiproject.component.api.ServerConfigurationService;
@@ -370,12 +371,23 @@ public class SakaiProxyImpl implements SakaiProxy {
 		return siteService.siteReference(siteId);
 	}
 	
+	/* (non-Javadoc)
+	 * @see org.sakaiproject.dash.logic.SakaiProxy#getServerId()
+	 */
+	public String getServerId() {
+		return this.serverConfigurationService.getServerId();
+	}
+	
 	/**
 	 * {@inheritDoc}
 	 */
 	public String getServerUrl()
 	{
 		return serverConfigurationService.getServerUrl();
+	}
+	
+	public void registerFunction(String functionName) {
+		this.functionManager.registerFunction(functionName);
 	}
 	
 	/**
@@ -426,6 +438,8 @@ public class SakaiProxyImpl implements SakaiProxy {
 	protected ContentTypeImageService contentTypeImageService;
 	
 	protected ThreadLocalManager threadLocalManager;
+	
+	protected FunctionManager functionManager;
 	
 	/**
 	 * @param toolManager the toolManager to set
@@ -519,6 +533,13 @@ public class SakaiProxyImpl implements SakaiProxy {
 		this.threadLocalManager = threadLocalManager;
 	}
 	
+	/**
+	 * @param functionManager the functionManager to set
+	 */
+	public void setFunctionManager(FunctionManager functionManager) {
+		this.functionManager = functionManager;
+	}
+
 	/************************************************************************
 	 * init() and destroy()
 	 ************************************************************************/
