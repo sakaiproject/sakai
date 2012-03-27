@@ -344,7 +344,7 @@ public class DashboardLogicImpl implements DashboardLogic, Observer
 		}
 		if(calendarItem != null) {
 			EntityType entityType = this.entityTypes.get(calendarItem.getSourceType().getIdentifier());
-			List<String> sakaiIds = entityType.getUsersWithAccess(calendarItem.getSourceType().getIdentifier());
+			List<String> sakaiIds = entityType.getUsersWithAccess(calendarItem.getEntityReference());
 			for(String sakaiId : sakaiIds) {
 				Person person = getOrCreatePerson(sakaiId);
 				if(person == null) {
