@@ -36,6 +36,7 @@ import java.util.TreeSet;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.sakaiproject.announcement.api.AnnouncementMessage;
+import org.sakaiproject.calendar.api.Calendar;
 import org.sakaiproject.calendar.api.CalendarEvent;
 import org.sakaiproject.calendar.api.RecurrenceRule;
 import org.sakaiproject.content.api.ContentResource;
@@ -373,7 +374,29 @@ public class ScheduleSupport{
 		}
 
 		public List<String> getUsersWithAccess(String entityReference) {
-			return new ArrayList<String>(sakaiProxy.getAuthorizedUsers(SakaiProxy.PERMIT_SCHEDULE_ACCESS, entityReference));
+			List<String> list = null;
+			CalendarEvent cEvent = (CalendarEvent) sakaiProxy.getEntity(entityReference);
+			if(cEvent == null) {
+				logger.warn("error trying to get users with access to schedule event. entityReference failed to retreive event: " + entityReference);
+			} else {
+				String calRef = cEvent.getCalendarReference();
+				if(calRef == null) {
+					logger.warn("error trying to get users with access to schedule event. Event has null calendarReference: " + entityReference);
+				} else {
+					Calendar cal = (Calendar) sakaiProxy.getEntity(calRef);
+					if(cal == null) {
+						logger.warn("error trying to get users with access to schedule event. Calendar is null: " + calRef);
+					} else {
+						String contextId = cal.getContext();
+						if(contextId == null) {
+							logger.warn("error trying to get users with access to schedule event. Calendar has null context: " + calRef);
+						} else {
+							list = new ArrayList<String>(sakaiProxy.getAuthorizedUsers(SakaiProxy.PERMIT_SCHEDULE_ACCESS, contextId));
+						}
+					}
+				}
+			}
+			return list;
 		}
 	}
 	
