@@ -9,7 +9,7 @@
     <bean id="org.sakaiproject.user.impl.UserServiceSqlOracle"    class="org.sakaiproject.user.impl.UserServiceSqlOracle"  singleton="true"/>
 
 	<bean id="org.sakaiproject.user.api.UserDirectoryService"
-			class="org.sakaiproject.user.impl.DbUserService"
+			class="org.sakaiproject.user.impl.PrecachingDbUserService"
 			init-method="init"
 			destroy-method="destroy"
 			singleton="true">
@@ -49,7 +49,14 @@
            </map>
         </property>
 
+        <property name="directDbAccess" ><ref bean="org.sakaiproject.user.api.UserDirectoryService.directDbAccess" /></property>
+
 	</bean>
+
+    <bean id="org.sakaiproject.user.api.UserDirectoryService.directDbAccess" 
+            class="org.sakaiproject.user.impl.DirectDbAccess">
+        <property name="dataSource" ref="javax.sql.DataSource" />
+    </bean>
 
 	<bean id="org.sakaiproject.user.api.AuthenticationManager"
 			class="org.sakaiproject.user.impl.UserAuthnComponent"
@@ -125,8 +132,8 @@
         <property name="maxElementsInMemory" value="100000" />
         <property name="diskPersistent" value="false" />
         <property name="eternal" value="false" />
-        <property name="timeToLive" value="7200" />
-        <property name="timeToIdle" value="7200" />
+        <property name="timeToLive" value="86400" /><!-- 1 day -->
+        <property name="timeToIdle" value="86400" /><!-- 1 day -->
 	</bean>
 
     <!-- Password service, create this as a named bean so it can be configured if required. -->
@@ -151,6 +158,6 @@
 		<property name="userDirectoryService" ref="org.sakaiproject.user.api.UserDirectoryService"/>
 		<property name="eventTrackingService" ref="org.sakaiproject.event.api.EventTrackingService"/>
 		<property name="userCache" ><ref bean="org.sakaiproject.user.api.UserDirectoryService.idEidCache" /></property>
-	</bean>  
+	</bean>
 
 </beans>
