@@ -99,9 +99,8 @@ public class SiteMembershipNewEventProcessor implements EventProcessor {
 		// now we have user id and active status for the context. This method will then call a 
 		// method in DashboardLogic to add links for this user to dashboard items related
 		// to this site. The implementation of the new DashboardLogic method will iterate
-		// through all CalendarItems and NewsItems related to that site, check permissions
-		// for this user based on the accessPermission defined in the SourceType object 
-		// related to the dashboard item, and add a link if the user has that permission. 
+		// through all CalendarItems and NewsItems related to that site, and add a link if 
+		// the user has that permission. 
 		// Is that right? 
 		if (uid != null && active != null && active.equals("true"))
 		{

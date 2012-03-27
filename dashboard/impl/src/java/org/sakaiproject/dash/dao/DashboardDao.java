@@ -33,7 +33,6 @@ import org.sakaiproject.dash.model.Context;
 import org.sakaiproject.dash.model.NewsItem;
 import org.sakaiproject.dash.model.NewsLink;
 import org.sakaiproject.dash.model.Person;
-import org.sakaiproject.dash.model.Realm;
 import org.sakaiproject.dash.model.RepeatingCalendarItem;
 import org.sakaiproject.dash.model.SourceType;
 
@@ -487,12 +486,6 @@ public interface DashboardDao {
 	 */
 	public boolean updateRepeatingCalendarItemTitle(String entityReference,
 			String newTitle);
-
-	/**
-	 * Update the properties of an existing SourceType object.
-	 * @param sourceType
-	 */
-	public boolean updateSourceType(SourceType sourceType);
 
 	/**
 	 * @param propertyName

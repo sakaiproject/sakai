@@ -277,10 +277,12 @@ public class ScheduleSupport{
 			return true;
 		}
 		
-		public boolean isUserPermitted(String sakaiUserId, String accessPermission,
-				String entityReference, String contextId) {
+		public boolean isUserPermitted(String sakaiUserId, String entityReference,
+				String contextId) {
 			// use message read permission
-			List users = sakaiProxy.unlockUsers(accessPermission, sakaiProxy.getSiteReference(contextId));
+			
+			String accessPermission = SakaiProxy.PERMIT_SCHEDULE_ACCESS;
+			List users = sakaiProxy.unlockUsers(accessPermission , sakaiProxy.getSiteReference(contextId));
 			for (Object user : users)
 			{
 				if (sakaiUserId.equals(((User) user).getId()))
@@ -369,6 +371,10 @@ public class ScheduleSupport{
 			}
 			return url ;
 		}
+
+		public List<String> getUsersWithAccess(String entityReference) {
+			return new ArrayList<String>(sakaiProxy.getAuthorizedUsers(SakaiProxy.PERMIT_SCHEDULE_ACCESS, entityReference));
+		}
 	}
 	
 	/**
@@ -416,7 +422,7 @@ public class ScheduleSupport{
 				
 				SourceType sourceType = dashboardLogic.getSourceType(IDENTIFIER);
 				if(sourceType == null) {
-					sourceType = dashboardLogic.createSourceType(IDENTIFIER, SakaiProxy.PERMIT_SCHEDULE_ACCESS);
+					sourceType = dashboardLogic.createSourceType(IDENTIFIER);
 				}
 				
 				// Third parameter in dashboardLogic.createCalendarItem() below should be a key for a label such as "Due Date: " or "Accept Until: " 
@@ -899,7 +905,7 @@ public class ScheduleSupport{
 				
 				SourceType sourceType = dashboardLogic.getSourceType(IDENTIFIER);
 				if(sourceType == null) {
-					sourceType = dashboardLogic.createSourceType(IDENTIFIER, SakaiProxy.PERMIT_SCHEDULE_ACCESS);
+					sourceType = dashboardLogic.createSourceType(IDENTIFIER);
 				}
 				
 				// Third parameter in dashboardLogic.createCalendarItem() below should be a key for a label such as "Due Date: " or "Accept Until: " 

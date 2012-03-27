@@ -37,8 +37,6 @@ public class SourceType implements Serializable {
 
 	protected Long id;
 	protected String identifier;
-	protected String accessPermission;
-	protected String[] alwaysAccessPermission;
 
 	/**
 	 * 
@@ -53,63 +51,6 @@ public class SourceType implements Serializable {
 	}
 	
 	/**
-	 * @param identifier
-	 * @param accessPermission
-	 */
-	public SourceType(String identifier, String accessPermission) {
-		super();
-		this.identifier = identifier;
-		this.accessPermission = accessPermission;
-	}
-
-	/**
-	 * @param id
-	 * @param identifier
-	 * @param accessPermission
-	 */
-	public SourceType(Long id, String identifier, String accessPermission) {
-		super();
-		this.id = id;
-		this.identifier = identifier;
-		this.accessPermission = accessPermission;
-	}
-
-	/**
-	 * 
-	 * @param id
-	 * @param identifier
-	 * @param accessPermission
-	 * @param alwaysAccessPermission
-	 */
-	public SourceType(String identifier, String accessPermission,
-			String[] alwaysAccessPermission) {
-		super();
-		this.identifier = identifier;
-		this.accessPermission = accessPermission;
-		if(alwaysAccessPermission != null) {
-			this.alwaysAccessPermission = alwaysAccessPermission.clone();
-		}
-	}
-
-	/**
-	 * 
-	 * @param id
-	 * @param identifier
-	 * @param accessPermission
-	 * @param alwaysAccessPermission
-	 */
-	public SourceType(Long id, String identifier, String accessPermission,
-			String[] alwaysAccessPermission) {
-		super();
-		this.id = id;
-		this.identifier = identifier;
-		this.accessPermission = accessPermission;
-		if(alwaysAccessPermission != null) {
-			this.alwaysAccessPermission = alwaysAccessPermission.clone();
-		}
-	}
-
-	/**
 	 * 
 	 * @param other
 	 */
@@ -119,10 +60,6 @@ public class SourceType implements Serializable {
 			this.id = new Long(other.id.longValue());
 		}
 		this.identifier = other.identifier;
-		this.accessPermission = other.accessPermission;
-		if(other.alwaysAccessPermission != null && other.alwaysAccessPermission.length > 0) {
-			this.alwaysAccessPermission = other.alwaysAccessPermission.clone();
-		}
 	}
 
 	/**
@@ -140,26 +77,6 @@ public class SourceType implements Serializable {
 	}
 
 	/**
-	 * The permission needed to view items of this type when they are available.
-	 * @return the accessPermission
-	 */
-	public String getAccessPermission() {
-		return accessPermission;
-	}
-
-	/**
-	 * The permissions with which users can view items of this type when they are not available.
-	 * @return the alwaysAccessPermission
-	 */
-	public String[] getAlwaysAccessPermission() {
-		String[] array = null;
-		if(alwaysAccessPermission != null) {
-			array = alwaysAccessPermission.clone();
-		}
-		return array;
-	}
-
-	/**
 	 * @param id the id to set
 	 */
 	public void setId(Long id) {
@@ -171,24 +88,6 @@ public class SourceType implements Serializable {
 	 */
 	public void setIdentifier(String identifier) {
 		this.identifier = identifier;
-	}
-
-	/**
-	 * The permission needed to view items of this type when they are available.
-	 * @param accessPermission the accessPermission to set
-	 */
-	public void setAccessPermission(String accessPermission) {
-		this.accessPermission = accessPermission;
-	}
-
-	/**
-	 * The permissions with which users can view items of this type when they are not available.
-	 * These will be checked in the order given and access will be granted if a user can unlock 
-	 * access to the entity with any one of these permissions.  
-	 * @param alwaysAccessPermission the alwaysAccessPermission to set
-	 */
-	public void setAlwaysAccessPermission(String[] alwaysAccessPermission) {
-		this.alwaysAccessPermission = alwaysAccessPermission;
 	}
 
 	/* (non-Javadoc)
@@ -208,18 +107,8 @@ public class SourceType implements Serializable {
 			builder.append(identifier);
 			builder.append(", ");
 		}
-		if (accessPermission != null) {
-			builder.append("accessPermission=");
-			builder.append(accessPermission);
-			builder.append(", ");
-		}
-		if (alwaysAccessPermission != null) {
-			builder.append("alwaysAccessPermission=");
-			builder.append(Arrays.toString(alwaysAccessPermission));
-		}
 		builder.append("]");
 		return builder.toString();
 	}
-
 	
 }

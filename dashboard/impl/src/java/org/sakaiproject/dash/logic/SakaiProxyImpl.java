@@ -27,6 +27,7 @@ import java.util.Collection;
 import java.util.List;
 import java.util.Observer;
 import java.util.Set;
+import java.util.TreeSet;
 
 import org.apache.log4j.Logger;
 import org.sakaiproject.assignment.api.AssignmentService;
@@ -83,6 +84,23 @@ public class SakaiProxyImpl implements SakaiProxy {
 	public List<ContentResource> getAllContentResources(String contentCollectionId) {
 		
 		return this.contentHostingService.getAllResources(contentCollectionId);
+	}
+
+	/* (non-Javadoc)
+	 * @see org.sakaiproject.dash.logic.SakaiProxy#getAuthorizedUsers(java.lang.String, java.lang.String, java.lang.String)
+	 */
+	public Collection<String> getAuthorizedUsers(String permission, String entityReference) {
+		List<User> users = null;
+		if(entityReference != null && permission != null) {
+			users = this.securityService.unlockUsers(permission, entityReference);
+		} 
+		Set<String> userIds = new TreeSet<String>();
+		if(users != null) {
+			for(User user : users) {
+				userIds.add(user.getId());
+			}
+		}
+		return userIds;
 	}
 
 	/*
@@ -227,20 +245,6 @@ public class SakaiProxyImpl implements SakaiProxy {
 		return null;
 	}
 
-	/*
-	 * (non-Javadoc)
-	 * @see org.sakaiproject.dash.logic.SakaiProxy#getUsersWithReadAccess(java.lang.String)
- 	*/
-	public List<String> getUsersWithReadAccess(String entityReference, String accessPermission) {
-		List<String> users = new ArrayList<String>();
-		Reference ref = this.entityManager.newReference(entityReference);
-		Collection<String> azGroups = ref.getEntityProducer().getEntityAuthzGroups(ref, null);
-		
-		Set<String> sakaiIds = this.authzGroupService.getUsersIsAllowed(accessPermission, azGroups );
-		
-		return new ArrayList<String>(sakaiIds);
-	}
-	
 	public boolean isDropboxResource(String resourceId) {
 		return contentHostingService.isInDropbox(resourceId);
 	}

@@ -29,6 +29,8 @@ import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.SortedSet;
+import java.util.TreeSet;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
@@ -279,9 +281,16 @@ public class ResourceSupport {
 			return isAvailable;
 		}
 		
-		public boolean isUserPermitted(String sakaiUserId, String accessPermission,
-				String entityReference, String contextId) {
-			return sakaiProxy.isUserPermitted(sakaiUserId, accessPermission, entityReference);
+		public boolean isUserPermitted(String sakaiUserId, String entityReference,
+				String contextId) {
+			boolean permitted = false;
+			if(this.isAvailable(entityReference)) {
+				permitted = sakaiProxy.isUserPermitted(sakaiUserId, SakaiProxy.PERMIT_RESOURCE_ACCESS, entityReference);
+			} else {
+				permitted = sakaiProxy.isUserPermitted(sakaiUserId, SakaiProxy.PERMIT_RESOURCE_MAINTAIN_1, entityReference)
+					|| sakaiProxy.isUserPermitted(sakaiUserId, SakaiProxy.PERMIT_RESOURCE_MAINTAIN_2, entityReference);
+			}
+			return permitted;
 		}
 
 		public String getString(String key, String dflt) {
@@ -311,6 +320,17 @@ public class ResourceSupport {
 				url = "/library/image/" + url;
 			}
 			return url ;
+		}
+
+		public List<String> getUsersWithAccess(String entityReference) {
+			SortedSet<String> list = new TreeSet<String>();
+			if(this.isAvailable(entityReference)) {
+				list.addAll(sakaiProxy.getAuthorizedUsers(SakaiProxy.PERMIT_RESOURCE_ACCESS , entityReference));
+			} else {
+				list.addAll(sakaiProxy.getAuthorizedUsers(SakaiProxy.PERMIT_RESOURCE_MAINTAIN_1 , entityReference));
+				list.addAll(sakaiProxy.getAuthorizedUsers(SakaiProxy.PERMIT_RESOURCE_MAINTAIN_2 , entityReference));
+			}
+			return new ArrayList<String>(list);
 		}
 	}
 	
@@ -493,15 +513,13 @@ public class ResourceSupport {
 					newsItem = addContentNewsItem(event, (ContentResource) entity);
 				}
 				if(newsItem == null) {
-					
+					logger.warn("error processing visibility change -- newsItem cannot be created for entity " + event.getResource());
 				} else if(newsItem.getSourceType() == null) {
-					
-				} else if (dashboardLogic.isAvailable(newsItem.getEntityReference(), newsItem.getSourceType().getIdentifier())) {
-					dashboardLogic.updateNewsLinks(event.getResource());
+					logger.warn("error processing visibility change -- newsItem has null sourcetype " + newsItem.toString());
 				} else {
-					dashboardLogic.addNewsLinksForMaintainers(newsItem);
+					dashboardLogic.updateNewsLinks(event.getResource());
 				}
-			} else if(entity!= null && entity instanceof ContentCollection) {
+			} else if(entity != null && entity instanceof ContentCollection) {
 				ContentCollection collection = (ContentCollection) entity;
 				List<ContentResource> resources = sakaiProxy.getAllContentResources(collection.getId());
 				if(resources != null) {
@@ -642,7 +660,7 @@ public class ResourceSupport {
 			if(isDropboxResource ) {
 				sourceType = dashboardLogic.getSourceType(DROPBOX_TYPE_IDENTIFIER);
 				if(sourceType == null) {
-					sourceType = dashboardLogic.createSourceType(DROPBOX_TYPE_IDENTIFIER, SakaiProxy.PERMIT_DROPBOX_MAINTAIN);
+					sourceType = dashboardLogic.createSourceType(DROPBOX_TYPE_IDENTIFIER);
 				}
 				labelKey = "dropbox.added";
 			} else {
@@ -696,18 +714,16 @@ public class ResourceSupport {
 			if (dashboardLogic.getNewsItem(resourceReference) == null)
 			{
 				newsItem = dashboardLogic.createNewsItem(title, eventTime, labelKey , resourceReference, context, sourceType, resource.getContentType());
+				dashboardLogic.createNewsLinks(newsItem);
+				
 				if(dashboardLogic.isAvailable(newsItem.getEntityReference(), RESOURCE_TYPE_IDENTIFIER)) {
-					dashboardLogic.createNewsLinks(newsItem);
+					// entity is available now -- check for retract date
 					Date retractDate = getRetractDate(newsItem.getEntityReference());
 					if(retractDate != null && retractDate.after(new Date())) {
 						dashboardLogic.scheduleAvailabilityCheck(newsItem.getEntityReference(), RESOURCE_TYPE_IDENTIFIER, retractDate);
 					}
 				} else {
-					// verify that users with permissions in alwaysAllowPermission have links and others do not
-					if(sourceType != null && sourceType.getAlwaysAccessPermission() != null && sourceType.getAlwaysAccessPermission().length > 0) {
-						dashboardLogic.addNewsLinksForMaintainers(newsItem);
-					}
-					// schedule availability checks
+					// entity is not available now -- check for release date
 					Date releaseDate = getReleaseDate(newsItem.getEntityReference());
 					if(releaseDate != null && releaseDate.after(new Date())) {
 						dashboardLogic.scheduleAvailabilityCheck(newsItem.getEntityReference(), RESOURCE_TYPE_IDENTIFIER, releaseDate);
@@ -722,9 +738,7 @@ public class ResourceSupport {
 	 * @return
 	 */
 	protected SourceType createOrUpdateSourceTypeDefinition() {
-		return dashboardLogic.createSourceType(RESOURCE_TYPE_IDENTIFIER, SakaiProxy.PERMIT_RESOURCE_ACCESS, new String[]{
-				SakaiProxy.PERMIT_RESOURCE_MAINTAIN_1, SakaiProxy.PERMIT_RESOURCE_MAINTAIN_2
-		});
+		return dashboardLogic.createSourceType(RESOURCE_TYPE_IDENTIFIER);
 	}
 
 }

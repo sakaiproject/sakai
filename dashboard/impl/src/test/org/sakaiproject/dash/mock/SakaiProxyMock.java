@@ -116,12 +116,6 @@ public class SakaiProxyMock implements SakaiProxy {
 		return null;
 	}
 
-	public List<String> getUsersWithReadAccess(String entityReference,
-			String accessPermission) {
-		// TODO Auto-generated method stub
-		return null;
-	}
-
 	public boolean isSuperUser() {
 		// TODO Auto-generated method stub
 		return false;
@@ -216,6 +210,12 @@ public class SakaiProxyMock implements SakaiProxy {
 	}
 	
 	public String getServerUrl() {
+		return null;
+	}
+
+	public Collection<String> getAuthorizedUsers(String permission,
+			String entityReference) {
+		// TODO Auto-generated method stub
 		return null;
 	}
 

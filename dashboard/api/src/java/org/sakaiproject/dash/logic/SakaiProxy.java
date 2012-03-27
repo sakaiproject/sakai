@@ -190,14 +190,6 @@ public interface SakaiProxy {
 	public String getToolSkinCSS(String skinRepo);
 	
 	/**
-	 * 
-	 * @param entityReference
-	 * @param accessPermission
-	 * @return
-	 */
-	public List<String> getUsersWithReadAccess(String entityReference, String accessPermission);
-	
-	/**
 	 * Is the current user a superUser? (anyone in admin realm)
 	 * @return
 	 */
@@ -259,6 +251,15 @@ public interface SakaiProxy {
 
 	public List<ContentResource> getAllContentResources(String contentCollectionId);
 	
+	/**
+	 * Access a collection of sakai-ids for users who have the specified permission 
+	 * with respect to the entity identified by the entityReference. 
+	 * @param permission
+	 * @param entityReference
+	 * @return
+	 */
+	public Collection<String> getAuthorizedUsers(String permission, String entityReference);
+
 	/**
 	 * get the deep link of schedule event
 	 * @param eventRef

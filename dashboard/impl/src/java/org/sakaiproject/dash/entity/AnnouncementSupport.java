@@ -51,11 +51,10 @@ import org.sakaiproject.event.api.Event;
 import org.sakaiproject.exception.IdUnusedException;
 import org.sakaiproject.exception.PermissionException;
 import org.sakaiproject.message.api.Message;
-import org.sakaiproject.thread_local.api.ThreadLocalManager;
-import org.sakaiproject.time.api.Time;
 import org.sakaiproject.site.api.Site;
 import org.sakaiproject.site.api.ToolConfiguration;
-import org.sakaiproject.tool.api.Tool;
+import org.sakaiproject.thread_local.api.ThreadLocalManager;
+import org.sakaiproject.time.api.Time;
 import org.sakaiproject.user.api.User;
 import org.sakaiproject.util.ResourceLoader;
 
@@ -164,7 +163,7 @@ public class AnnouncementSupport{
 	 * @return
 	 */
 	protected SourceType createOrUpdateSourceTypeDefinition() {
-		return dashboardLogic.createSourceType(IDENTIFIER, SakaiProxy.PERMIT_ANNOUNCEMENT_ACCESS, new String[]{ SakaiProxy.PERMIT_ANNOUNCEMENT_ACCESS_DRAFT });
+		return dashboardLogic.createSourceType(IDENTIFIER);
 	}
 	
 	private void createUpdateDashboardItemLinks(Event event, AnnouncementMessage annc) {
@@ -188,29 +187,26 @@ public class AnnouncementSupport{
 			newsItem = dashboardLogic.createNewsItem(anncTitle, event.getEventTime(), "announcement.added", anncReference, context, sourceType, null);
 			updatingExistingLinks = false;
 		}
+		
 		if(dashboardLogic.isAvailable(newsItem.getEntityReference(), IDENTIFIER)) {
-			// available now
-			if(updatingExistingLinks) {
-				dashboardLogic.updateNewsLinks(newsItem.getEntityReference());
-			} else {
-				dashboardLogic.createNewsLinks(newsItem);
-			}
+			// available now -- check whether it has a retract date
 			Date retractDate = getRetractDate(annc);
 			if(retractDate != null && retractDate.after(new Date())) {
 				dashboardLogic.scheduleAvailabilityCheck(newsItem.getEntityReference(), IDENTIFIER, retractDate);
 			}
 		} else {
-			// verify that users with permissions in alwaysAllowPermission have links and others do not
-			SourceType sourceType = newsItem.getSourceType();
-			if(sourceType != null && sourceType.getAlwaysAccessPermission() != null && sourceType.getAlwaysAccessPermission().length > 0) {
-				dashboardLogic.addNewsLinksForMaintainers(newsItem);
-			}
-
-			// not available now
+			// not available now -- check whether it has a release date
 			Date releaseDate = getReleaseDate(annc);
 			if(releaseDate != null && releaseDate.after(new Date())) {
 				dashboardLogic.scheduleAvailabilityCheck(newsItem.getEntityReference(), IDENTIFIER, releaseDate);
 			}
+		}
+		
+		// add links
+		if(updatingExistingLinks) {
+			dashboardLogic.updateNewsLinks(newsItem.getEntityReference());
+		} else {
+			dashboardLogic.createNewsLinks(newsItem);
 		}
 	}
 
@@ -386,8 +382,8 @@ public class AnnouncementSupport{
 			return channelId;
 		} // getChannelIdFromReference
 		
-		public boolean isUserPermitted(String sakaiUserId, String accessPermission,
-				String entityReference, String contextId) {
+		public boolean isUserPermitted(String sakaiUserId, String entityReference,
+				String contextId) {
 			boolean rv = false;
 			
 			String channelId = getChannelIdFromReference(entityReference);
@@ -449,6 +445,11 @@ public class AnnouncementSupport{
 			String label = rl.getString(key);
 			
 			return label;
+		}
+
+		public List<String> getUsersWithAccess(String entityReference) {
+			// TODO Auto-generated method stub
+			return null;
 		}
 	}
 	
@@ -706,13 +707,10 @@ public class AnnouncementSupport{
 				if(newsItem == null) {
 					// create it
 					createUpdateDashboardItemLinks(event, annc);
-				} else if(dashboardLogic.isAvailable(entityReference, IDENTIFIER)) {
+				} else {
 					// if the announcement is available, show it to all users with read access
 					createUpdateDashboardItemLinks(event, annc);
-				} else {
-					// if the announcement is unavailable, limit access to users with maintainer permissions
-					dashboardLogic.addNewsLinksForMaintainers(newsItem);
-				}
+				} 
 			}
 			
 			if(logger.isDebugEnabled()) {

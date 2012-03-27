@@ -200,13 +200,12 @@ public interface EntityType {
 	 * Determine whether a user has permission to access a particular entity, using 
 	 * whichever parameters is appropriate for determining this permission.
 	 * @param sakaiUserId
-	 * @param accessPermission
 	 * @param entityReference
 	 * @param contextId
 	 * @return
 	 */
-	public boolean isUserPermitted(String sakaiUserId, String accessPermission,
-			String entityReference, String contextId);
+	public boolean isUserPermitted(String sakaiUserId, String entityReference,
+			String contextId);
 	
 	/**
 	 * Determine the correct icon to use for a particular entity in the dashboard list 
@@ -216,4 +215,10 @@ public interface EntityType {
 	 */
 	public String getIconUrl(String subtype);
 
+	/**
+	 * 
+	 * @param entityReference
+	 * @return
+	 */
+	public List<String> getUsersWithAccess(String entityReference);
 }

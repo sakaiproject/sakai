@@ -366,12 +366,11 @@ public class DashboardDaoImpl extends JdbcDaoSupport implements DashboardDao {
 			log.debug("addSourceType( " + sourceType.toString() + ")");
 		}
 		
-		// identifier, accessPermission, alwaysAccessPermission
+		// identifier
 		
-		String alwaysAccessPermission = serializeAlwaysAccessPermissions(sourceType);		
 		try {
 			getJdbcTemplate().update(getStatement("insert.SourceType"),
-				new Object[]{sourceType.getIdentifier(), sourceType.getAccessPermission(), alwaysAccessPermission }
+				new Object[]{ sourceType.getIdentifier() }
 			
 			);
 			return true;
@@ -1677,35 +1676,6 @@ public class DashboardDaoImpl extends JdbcDaoSupport implements DashboardDao {
 		}				
 	}
 	
-	/* (non-Javadoc)
-	 * @see org.sakaiproject.dash.dao.DashboardDao#updateSourceType(org.sakaiproject.dash.model.SourceType)
-	 */
-	public boolean updateSourceType(SourceType sourceType) {
-		if(log.isDebugEnabled()) {
-			log.debug("updateSourceType( " + sourceType.toString() + ")");
-		}
-		
-		// identifier, accessPermission, alwaysAccessPermission
-		
-		String alwaysAccessPermission = null;
-		if(sourceType.getAlwaysAccessPermission() != null) {
-			alwaysAccessPermission = serializeAlwaysAccessPermissions(sourceType);		
-		}
-		try {
-			getJdbcTemplate().update(getStatement("update.SourceType.identifier"),
-				new Object[]{sourceType.getAccessPermission(), alwaysAccessPermission, sourceType.getIdentifier()}
-			);
-			return true;
-		} catch (DataIntegrityViolationException e) {
-			// this means we're trying to insert a duplicate
-			log.debug("updateSourceType() " + e);
-			return false;
-		} catch (DataAccessException ex) {
-           log.warn("updateSourceType: Error executing query: " + ex.getClass() + ":" + ex.getMessage());
-           return false;
-		}
-	}
-	
 	/**
 	 * Get an SQL statement for the appropriate vendor from the bundle
 	
@@ -1890,25 +1860,6 @@ public class DashboardDaoImpl extends JdbcDaoSupport implements DashboardDao {
 		midnight.set(Calendar.HOUR, 0);
 		thisAM = midnight.getTime();
 		return thisAM;
-	}
-
-	/**
-	 * @param sourceType
-	 * @return
-	 */
-	public String serializeAlwaysAccessPermissions(SourceType sourceType) {
-		String alwaysAccessPermission = null;
-		if(sourceType.getAlwaysAccessPermission() != null) {
-			JSONArray json = JSONArray.fromObject(sourceType.getAlwaysAccessPermission());
-			if(json != null) {
-				alwaysAccessPermission = json.toString();
-				while(alwaysAccessPermission.length() > ALWAYS_ACCESS_PERMISSION_SIZE) {
-					json.remove(json.size() - 1);
-					alwaysAccessPermission = json.toString();
-				}
-			}
-		}
-		return alwaysAccessPermission;
 	}
 
 }

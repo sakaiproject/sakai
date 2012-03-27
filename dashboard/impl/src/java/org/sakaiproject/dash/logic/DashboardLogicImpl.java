@@ -257,7 +257,7 @@ public class DashboardLogicImpl implements DashboardLogic, Observer
 				for(CalendarItem item: items) {
 					SourceType sourceType = item.getSourceType();
 					EntityType entityType = this.entityTypes.get(sourceType.getIdentifier());
-					if(entityType != null && entityType.isUserPermitted(sakaiUserId, sourceType.getAccessPermission(), item.getEntityReference(), item.getContext().getContextId())) {
+					if(entityType != null && entityType.isUserPermitted(sakaiUserId, item.getEntityReference(), item.getContext().getContextId())) {
 						CalendarLink calendarLink = new CalendarLink(person, item, item.getContext(), false, false);
 						dao.addCalendarLink(calendarLink);
 					}
@@ -267,44 +267,6 @@ public class DashboardLogicImpl implements DashboardLogic, Observer
 		
 	}
 	
-	/* (non-Javadoc)
-	 * @see org.sakaiproject.dash.logic.DashboardLogic#addCalendarLinksForMaintainers(org.sakaiproject.dash.model.CalendarItem)
-	 */
-	public void addCalendarLinksForMaintainers(CalendarItem calendarItem) {
-		// get a list of existing links to the item
-		Set<String> existingLinks = dao.getSakaIdsForUserWithCalendarLinks(calendarItem.getEntityReference());
-		if(existingLinks == null) {
-			existingLinks = new HashSet<String>();
-		}
-		
-		Set<String> sakaiUserIds = new HashSet<String>();
-		if(calendarItem != null && calendarItem.getSourceType() != null && calendarItem.getSourceType().getAlwaysAccessPermission() != null && calendarItem.getSourceType().getAlwaysAccessPermission().length > 0) {
-			for(String permission : calendarItem.getSourceType().getAlwaysAccessPermission()) {
-				List<String> userNames = sakaiProxy.getUsersWithReadAccess(calendarItem.getEntityReference(), permission);
-				if(userNames != null && userNames.size() > 0) {
-					sakaiUserIds.addAll(userNames);
-				}
-			}
-			for(String sakaiUserId : sakaiUserIds) {
-				// if this user already has a link, don't add a new link & delete that link from the list of existing links
-				if(existingLinks.contains(sakaiUserId)) {
-					// no need to add a link
-					existingLinks.remove(sakaiUserId);
-				} else {
-					Person person = this.getOrCreatePerson(sakaiUserId);
-					CalendarLink link = new CalendarLink(person, calendarItem, calendarItem.getContext(), false, false);
-					dao.addCalendarLink(link);
-				}
-			}
-		}
-		
-		// if there are any links still in the list of existing links, delete them from the database
-		for(String sakaiUserId : existingLinks) {
-			Person person = dao.getPersonBySakaiId(sakaiUserId);
-			dao.deleteCalendarLink(person.getId(), calendarItem.getId());
-		}
-	}
-
 	/* (non-Javadoc)
 	 * @see org.sakaiproject.dash.logic.DashboardLogic#addNewsLinks(java.lang.String, java.lang.String)
 	 */
@@ -330,7 +292,7 @@ public class DashboardLogicImpl implements DashboardLogic, Observer
 				for(NewsItem item: items) {
 					SourceType sourceType = item.getSourceType();
 					EntityType entityType = this.entityTypes.get(sourceType.getIdentifier());
-					if(entityType != null && entityType.isUserPermitted(sakaiUserId, sourceType.getAccessPermission(), item.getEntityReference() , item.getContext().getContextId()) ) {
+					if(entityType != null && entityType.isUserPermitted(sakaiUserId, item.getEntityReference(), item.getContext().getContextId()) ) {
 						NewsLink newsLink = new NewsLink(person, item, item.getContext(), false, false);
 						dao.addNewsLink(newsLink);
 					}
@@ -339,44 +301,6 @@ public class DashboardLogicImpl implements DashboardLogic, Observer
 		}
 	}
 	
-	/* (non-Javadoc)
-	 * @see org.sakaiproject.dash.logic.DashboardLogic#addNewsLinksForMaintainers(org.sakaiproject.dash.model.NewsItem)
-	 */
-	public void addNewsLinksForMaintainers(NewsItem newsItem) {
-		// get a list of existing links to the item
-		Set<String> existingLinks = dao.getSakaiIdsForUserWithNewsLinks(newsItem.getEntityReference());
-		if(existingLinks == null) {
-			existingLinks = new HashSet<String>();
-		}
-		
-		Set<String> sakaiUserIds = new HashSet<String>();
-		if(newsItem != null && newsItem.getSourceType() != null && newsItem.getSourceType().getAlwaysAccessPermission() != null && newsItem.getSourceType().getAlwaysAccessPermission().length > 0) {
-			for(String permission : newsItem.getSourceType().getAlwaysAccessPermission()) {
-				List<String> userNames = sakaiProxy.getUsersWithReadAccess(newsItem.getEntityReference(), permission);
-				if(userNames != null && userNames.size() > 0) {
-					sakaiUserIds.addAll(userNames);
-				}
-			}
-			for(String sakaiUserId : sakaiUserIds) {
-				// if this user already has a link, don't add a new link & delete that link from the list of existing links
-				if(existingLinks.contains(sakaiUserId)) {
-					// no need to add a link
-					existingLinks.remove(sakaiUserId);
-				} else {
-					Person person = this.getOrCreatePerson(sakaiUserId);
-					NewsLink link = new NewsLink(person, newsItem, newsItem.getContext(), false, false);
-					dao.addNewsLink(link);
-				}
-			}
-		}
-		
-		// if there are any links still in the list of existing links, delete them from the database
-		for(String sakaiUserId : existingLinks) {
-			Person person = dao.getPersonBySakaiId(sakaiUserId);
-			dao.deleteNewsLink(person.getId(), newsItem.getId());
-		}
-	}
-
 	/* (non-Javadoc)
 	 * @see org.sakaiproject.dash.logic.DashboardLogic#createCalendarItem(java.lang.String, java.util.Date, java.lang.String, java.lang.String, org.sakaiproject.dash.model.Context, org.sakaiproject.dash.model.SourceType, java.lang.String, org.sakaiproject.dash.model.RepeatingCalendarItem, java.lang.Integer)
 	 */
@@ -419,7 +343,8 @@ public class DashboardLogicImpl implements DashboardLogic, Observer
 			logger.debug("createCalendarLinks(" + calendarItem + ")");
 		}
 		if(calendarItem != null) {
-			List<String> sakaiIds = this.sakaiProxy.getUsersWithReadAccess(calendarItem.getEntityReference(), calendarItem.getSourceType().getAccessPermission());
+			EntityType entityType = this.entityTypes.get(calendarItem.getSourceType().getIdentifier());
+			List<String> sakaiIds = entityType.getUsersWithAccess(calendarItem.getSourceType().getIdentifier());
 			for(String sakaiId : sakaiIds) {
 				Person person = getOrCreatePerson(sakaiId);
 				if(person == null) {
@@ -481,7 +406,8 @@ public class DashboardLogicImpl implements DashboardLogic, Observer
 			logger.debug("createNewsLinks(" + newsItem + ")");
 		}
 		if(newsItem != null) {
-			List<String> sakaiIds = this.sakaiProxy.getUsersWithReadAccess(newsItem.getEntityReference(), newsItem.getSourceType().getAccessPermission());
+			EntityType entityType = this.entityTypes.get(newsItem.getSourceType().getIdentifier());
+			List<String> sakaiIds = entityType.getUsersWithAccess(newsItem.getEntityReference());
 			if(sakaiIds != null && sakaiIds.size() > 0) {
 				for(String sakaiId : sakaiIds) {
 					try {
@@ -498,46 +424,16 @@ public class DashboardLogicImpl implements DashboardLogic, Observer
 		}
 	}
 
-	public SourceType createSourceType(String identifier, String accessPermission, String[] maintainPermissions) {
+	public SourceType createSourceType(String identifier) {
 		SourceType sourceType = dao.getSourceType(identifier);
 		if(sourceType == null) {
-			sourceType = new SourceType(identifier, accessPermission, maintainPermissions); 
+			sourceType = new SourceType(identifier); 
 			dao.addSourceType(sourceType);
 			sourceType = dao.getSourceType(identifier);
-		} else {
-			boolean changed = false;
-			if(!sourceType.getAccessPermission().equals(accessPermission)) {
-				sourceType.setAccessPermission(accessPermission);
-				changed = true;
-			}
-			if(sourceType.getAlwaysAccessPermission() == null && maintainPermissions != null) {
-				sourceType.setAlwaysAccessPermission(maintainPermissions);
-				changed = true;
-			} else if(sourceType.getAlwaysAccessPermission() != null && maintainPermissions == null) {
-				sourceType.setAlwaysAccessPermission(maintainPermissions);
-				changed = true;
-			} else if (sourceType.getAlwaysAccessPermission() == null && maintainPermissions == null) {
-				// do nothing
-			} else if(Arrays.equals(sourceType.getAlwaysAccessPermission(), maintainPermissions)) {
-				// do nothing
-			} else {
-				sourceType.setAlwaysAccessPermission(maintainPermissions);
-				changed = true;
-			}
-			if(changed) {
-				dao.updateSourceType(sourceType);
-			}
-		}
+		} 
 		return sourceType;
 	}
 
-	/* (non-Javadoc)
-	 * @see org.sakaiproject.dash.logic.DashboardLogic#createSourceType(java.lang.String, java.lang.String, org.sakaiproject.dash.entity.EntityLinkStrategy)
-	 */
-	public SourceType createSourceType(String identifier, String accessPermission) {
-		return this.createSourceType(identifier, accessPermission, null);
-	}
-	
 	/* (non-Javadoc)
 	 * @see org.sakaiproject.dash.logic.DashboardLogic#getCalendarItem(long)
 	 */
@@ -1208,8 +1104,9 @@ public class DashboardLogicImpl implements DashboardLogic, Observer
 		List<CalendarItem> items = dao.getCalendarItems(entityReference);
 		if(items != null && items.size() > 0) {
 			CalendarItem firstItem = items.get(0);
+			EntityType entityType = this.entityTypes.get(firstItem.getSourceType().getIdentifier());
 			Set<String> oldUserSet = dao.getSakaIdsForUserWithCalendarLinks(entityReference);
-			Set<String> newUserSet = new TreeSet<String>(this.sakaiProxy.getUsersWithReadAccess(entityReference, firstItem.getSourceType().getAccessPermission()));
+			Set<String> newUserSet = new TreeSet<String>(entityType.getUsersWithAccess(entityReference));
 			
 			Set<String> removeSet = new TreeSet(oldUserSet);
 			removeSet.removeAll(newUserSet);
@@ -1252,8 +1149,9 @@ public class DashboardLogicImpl implements DashboardLogic, Observer
 		if(item == null) {
 			
 		} else {
+			EntityType entityType = this.entityTypes.get(item.getSourceType().getIdentifier());
 			Set<String> oldUserSet = dao.getSakaiIdsForUserWithNewsLinks(entityReference);
-			Set<String> newUserSet = new TreeSet<String>(this.sakaiProxy.getUsersWithReadAccess(entityReference, item.getSourceType().getAccessPermission()));
+			Set<String> newUserSet = new TreeSet<String>(entityType.getUsersWithAccess(entityReference));
 			
 			Set<String> removeSet = new TreeSet(oldUserSet);
 			removeSet.removeAll(newUserSet);

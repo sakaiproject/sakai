@@ -312,8 +312,8 @@ public class AssignmentSupport {
 			return rl.getString(key, dflt);
 		}
 		
-		public boolean isUserPermitted(String sakaiUserId, String accessPermission,
-				String entityReference, String contextId) {
+		public boolean isUserPermitted(String sakaiUserId, String entityReference,
+				String contextId) {
 			// for now just check the permission for submit assignment
 			List users = assignmentService.allowAddSubmissionUsers(entityReference);
 			for (Object user : users)
@@ -340,6 +340,11 @@ public class AssignmentSupport {
 		public String getIconUrl(String subtype) {
 			// we will use the Assignment tool icon for now
 			return "/library/image/silk/page_edit.png";
+		}
+
+		public List<String> getUsersWithAccess(String entityReference) {
+			// TODO Auto-generated method stub
+			return null;
 		}
 	}
 	
@@ -380,10 +385,11 @@ public class AssignmentSupport {
 				CalendarItem calendarDueDateItem = null;
 				calendarDueDateItem = dashboardLogic.createCalendarItem(assn.getTitle(), new Date(assn.getDueTime().getTime()), "assignment.due.date", assnReference, context, sourceType, (String) null, (RepeatingCalendarItem) null, (Integer) null);
 				CalendarItem calendarCloseDateItem = assn.getCloseTime().equals(assn.getDueTime())? null : dashboardLogic.createCalendarItem(assn.getTitle(), new Date(assn.getCloseTime().getTime()), "assignment.close.date", assnReference, context, sourceType, (String) null, (RepeatingCalendarItem) null, (Integer) null);
-				
+
+				// add the news links as appropriate
+				dashboardLogic.createNewsLinks(newsItem);
+
 				if(dashboardLogic.isAvailable(assnReference, IDENTIFIER)) {
-					// if the assignment is open, add the news links
-					dashboardLogic.createNewsLinks(newsItem);
 					if (calendarDueDateItem != null)
 					{
 						// create links for due date Calendar item
@@ -400,11 +406,6 @@ public class AssignmentSupport {
 				{
 					// assignment is not open yet, schedule for check later
 					dashboardLogic.scheduleAvailabilityCheck(assnReference, IDENTIFIER, new Date(assn.getOpenTime().getTime()));
-					
-					// verify that users with permissions in alwaysAllowPermission have links and others do not
-					if(sourceType != null && sourceType.getAlwaysAccessPermission() != null && sourceType.getAlwaysAccessPermission().length > 0) {
-						dashboardLogic.addNewsLinksForMaintainers(newsItem);
-					}
 				}
 				
 			} else {
@@ -417,7 +418,7 @@ public class AssignmentSupport {
 	private SourceType getOrCreateSourceType() {
 		SourceType sourceType = dashboardLogic.getSourceType(IDENTIFIER);
 		if(sourceType == null) {
-			sourceType = dashboardLogic.createSourceType(IDENTIFIER, SakaiProxy.PERMIT_ASSIGNMENT_ACCESS, new String[]{ SakaiProxy.PERMIT_ASSIGNMENT_SHARE_DRAFTS});
+			sourceType = dashboardLogic.createSourceType(IDENTIFIER);
 		}
 		return sourceType;
 	}
@@ -612,8 +613,8 @@ public class AssignmentSupport {
 					dashboardLogic.reviseNewsItemTime(assnReference, newTime, nItem.getGroupingIdentifier());
 					
 					if(!dashboardLogic.isAvailable(assnReference, IDENTIFIER)) {
-						// remove all NewsItem links if any
-						dashboardLogic.removeNewsLinks(assnReference);
+						// update NewsItem links 
+						dashboardLogic.updateNewsLinks(assnReference);
 						// schedule the availability check into future date
 						dashboardLogic.scheduleAvailabilityCheck(assnReference, IDENTIFIER, new Date(assn.getOpenTime().getTime()));
 					}
@@ -625,21 +626,14 @@ public class AssignmentSupport {
 				}
 				else
 				{
-					if(dashboardLogic.isAvailable(assnReference, IDENTIFIER))
-					{
-						// add NewsItem and links
-						nItem = dashboardLogic.createNewsItem(assn.getTitle(), event.getEventTime(), "assignment.added", assnReference, context, sourceType, null);
-						dashboardLogic.createNewsLinks(nItem);
-					}
-					else
+					// add NewsItem and links
+					nItem = dashboardLogic.createNewsItem(assn.getTitle(), event.getEventTime(), "assignment.added", assnReference, context, sourceType, null);
+					dashboardLogic.createNewsLinks(nItem);
+					
+					if(! dashboardLogic.isAvailable(assnReference, IDENTIFIER))
 					{
 						// assignment is not open yet, schedule for check later
 						dashboardLogic.scheduleAvailabilityCheck(assnReference, IDENTIFIER, new Date(assn.getOpenTime().getTime()));
-						
-						// verify that users with permissions in alwaysAllowPermission have links and others do not
-						if(sourceType != null && sourceType.getAlwaysAccessPermission() != null && sourceType.getAlwaysAccessPermission().length > 0) {
-							dashboardLogic.addNewsLinksForMaintainers(nItem);
-						}
 					}
 				}
 			}

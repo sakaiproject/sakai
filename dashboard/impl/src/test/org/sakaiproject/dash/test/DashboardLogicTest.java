@@ -176,7 +176,6 @@ public class DashboardLogicTest extends AbstractTransactionalSpringContextTests
 
 	public void testCreateSourceType() {
 		String identifier;
-		String accessPermission;
 
 		// create and save a SourceType object
 		// retrieve the SourceType object
@@ -283,8 +282,7 @@ public class DashboardLogicTest extends AbstractTransactionalSpringContextTests
 		int maxCount = 5;
 		
 		String identifier1 = getUniqueIdentifier();
-		String accessPermission = getUniqueIdentifier();
-		SourceType sourceType = new  SourceType(identifier1, accessPermission);
+		SourceType sourceType = new  SourceType(identifier1);
 		
 		String contextId = getUniqueIdentifier();
 		String contextTitle = getUniqueIdentifier();
