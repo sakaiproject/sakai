@@ -1,9 +1,8 @@
 /**
- * $Id: Deleteable.java 59674 2009-04-03 23:05:58Z arwhyte@umich.edu $
- * $URL: https://source.sakaiproject.org/svn/entitybroker/trunk/api/src/java/org/sakaiproject/entitybroker/entityprovider/capabilities/Deleteable.java $
- * Deleteable.java - entity-broker - Apr 8, 2008 11:31:26 AM - azeckoski
+ * $Id$
+ * $URL$
  **************************************************************************
- * Copyright (c) 2008 The Sakai Foundation
+ * Copyright (c) 2011 The Sakai Foundation
  *
  * Licensed under the Educational Community License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
