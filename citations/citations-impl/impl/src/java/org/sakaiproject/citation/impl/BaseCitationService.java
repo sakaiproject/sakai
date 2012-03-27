@@ -89,6 +89,7 @@ import org.sakaiproject.entity.api.EntityManager;
 import org.sakaiproject.entity.api.HttpAccess;
 import org.sakaiproject.entity.api.Reference;
 import org.sakaiproject.entity.api.ResourceProperties;
+import org.sakaiproject.event.api.NotificationService;
 import org.sakaiproject.exception.IdUnusedException;
 import org.sakaiproject.exception.InUseException;
 import org.sakaiproject.exception.OverQuotaException;
@@ -5512,7 +5513,9 @@ public abstract class BaseCitationService implements CitationService
 			newCollection.copy((BasicCitationCollection) oldCollection);
 			save(newCollection);
 			edit.setContent(newCollection.getId().getBytes());
-			contentService.commitResource(edit);
+			// When duplicating/copying a citations list notifications shouldn't be sent so that 
+			// this follow the behaviour of the standard resource types in Sakai.
+			contentService.commitResource(edit, NotificationService.NOTI_NONE);
 		}
 		catch(IdUnusedException e)
 		{
