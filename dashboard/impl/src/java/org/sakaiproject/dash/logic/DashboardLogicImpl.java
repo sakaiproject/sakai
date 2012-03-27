@@ -75,6 +75,9 @@ public class DashboardLogicImpl implements DashboardLogic, Observer
 	public static final String DASHBOARD_NEGOTIATE_AVAILABILITY_CHECKS = "dash.negotiate.availCheck";
 	public static final String DASHBOARD_NEGOTIATE_REPEAT_EVENTS = "dash.negotiate.repeatEvents";
 	
+	/** time to allow negotaion among servers -- 2 minutes */
+	public static final long NEGOTIATING_TIME = 1000L * 60L * 2L;
+	
 	public static final long TIME_BETWEEN_AVAILABILITY_CHECKS = 1000L * 60L * 1L;
 
 	private static final long ONE_DAY = 1000L * 60L * 60L * 24L;
@@ -97,6 +100,11 @@ public class DashboardLogicImpl implements DashboardLogic, Observer
 	protected String serverId = null;
 	protected String serverHandlingAvailabilityChecks = "";
 	protected String serverHandlingRepeatEvents = "";
+
+	protected boolean handlingAvailabilityChecks = false;
+	protected boolean notHandlingAvailabilityChecks = false;
+	protected boolean handlingRepeatedEvents = false;
+	protected boolean notHandlingRepeatedEvents = false;
 	
 	protected Date claimAvailabilityCheckDutyTime = null;
 	protected Date claimRepeatEventsDutyTime = null;
@@ -1575,15 +1583,7 @@ public class DashboardLogicImpl implements DashboardLogic, Observer
 		protected static final String EVENT_PROCESSING_THREAD_SHUT_DOWN_MESSAGE = 
 			"\n===================================================\n  Dashboard Event Processing Thread shutting down  \n===================================================";
 
-		/** time to allow negotaion among servers -- 2 minutes */
-		private static final long NEGOTIATING_TIME = 1000L * 60L * 2L;
-
 		protected boolean timeToQuit = false;
-		
-		protected boolean handlingAvailabilityChecks = false;
-		protected boolean notHandlingAvailabilityChecks = false;
-		protected boolean handlingRepeatedEvents = false;
-		protected boolean notHandlingRepeatedEvents = false;
 		
 		protected Date handlingAvailabilityChecksTimer = null;
 		protected Date handlingRepeatedEventsTimer = null;
@@ -1810,13 +1810,31 @@ public class DashboardLogicImpl implements DashboardLogic, Observer
 				logger.debug("\n\n\n=============================================================\n" + event  
 						+ "\n=============================================================\n\n\n");
 			}
-			if(event.getEventTime() != null && (claimAvailabilityCheckDutyTime == null || event.getEventTime().before(claimAvailabilityCheckDutyTime))) {
-				synchronized(serverHandlingAvailabilityChecks) {
-					claimAvailabilityCheckDutyTime = event.getEventTime();
-					serverHandlingAvailabilityChecks = event.getResource();
+			if(event.getModify()) {
+				// this is a message indicating an attempt to claim availability-check processing
+				if(handlingAvailabilityChecks) {
+					// availability-check processing is already claimed by this server -- report that
+					sakaiProxy.postEvent(DASHBOARD_NEGOTIATE_AVAILABILITY_CHECKS, serverHandlingAvailabilityChecks, false);
+				} else if (notHandlingAvailabilityChecks) {
+					// do nothing
+				} else if(event.getEventTime() != null && (claimAvailabilityCheckDutyTime == null || event.getEventTime().before(claimAvailabilityCheckDutyTime))) {
+					// negotiate
+					synchronized(serverHandlingAvailabilityChecks) {
+						claimAvailabilityCheckDutyTime = event.getEventTime();
+						serverHandlingAvailabilityChecks = event.getResource();
+					}
 				}
-			}
-			
+			} else {
+				// this message indicates that availability-check processing has been claimed by another server
+				if(! handlingAvailabilityChecks && ! notHandlingAvailabilityChecks) {
+					// we're trying to claim availability-check processing and it's already claimed, so stop trying
+					synchronized(serverHandlingAvailabilityChecks) {
+						claimAvailabilityCheckDutyTime = new Date(System.currentTimeMillis() - NEGOTIATING_TIME);
+						serverHandlingAvailabilityChecks = event.getResource();
+					}
+				}
+				
+			}			
 		}
 		
 	}
@@ -1831,13 +1849,30 @@ public class DashboardLogicImpl implements DashboardLogic, Observer
 				logger.debug("\n\n\n=============================================================\n" + event  
 						+ "\n=============================================================\n\n\n");
 			}
-			if(event.getEventTime() != null && (claimRepeatEventsDutyTime == null || event.getEventTime().before(claimRepeatEventsDutyTime))) {
-				synchronized(serverHandlingRepeatEvents) {
-					claimRepeatEventsDutyTime = event.getEventTime();
-					serverHandlingRepeatEvents = event.getResource();
+			if(event.getModify()) {
+				// this is a message indicating an attempt to claim repeated events processing
+				if(handlingRepeatedEvents) {
+					// repeated events processing is already claimed by this server -- report that
+					sakaiProxy.postEvent(DASHBOARD_NEGOTIATE_REPEAT_EVENTS, serverHandlingRepeatEvents, false);
+				} else if (notHandlingRepeatedEvents) {
+					// do nothing
+				} else if(event.getEventTime() != null && (claimRepeatEventsDutyTime == null || event.getEventTime().before(claimRepeatEventsDutyTime))) {
+					// negotiate
+					synchronized(serverHandlingRepeatEvents) {
+						claimRepeatEventsDutyTime = event.getEventTime();
+						serverHandlingRepeatEvents = event.getResource();
+					}
+				}
+			} else {
+				// this message indicates that repeated events processing has been claimed by another server
+				if(! handlingRepeatedEvents && ! notHandlingRepeatedEvents) {
+					// we're trying to claim repeated events processing and it's already claimed, so stop trying
+					synchronized(serverHandlingRepeatEvents) {
+						claimRepeatEventsDutyTime = new Date(System.currentTimeMillis() - NEGOTIATING_TIME);
+						serverHandlingRepeatEvents = event.getResource();
+					}
 				}
 			}
-			
 		}
 		
 	}
