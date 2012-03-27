@@ -57,7 +57,7 @@
 
   <h:panelGroup rendered="#{!author.isEditPendingAssessmentFlow && !author.isRepublishAndRegrade}">
 	<h:panelGrid  columns="1">
-   	   <h:outputText value="#{assessmentSettingsMessages.republish_confirm_message_1} <b>#{assessmentSettingsMessages.republish_confirm_message_2}</b> #{assessmentSettingsMessages.republish_confirm_message_3}" escape="false"/>
+   	   <h:outputText value="#{assessmentSettingsMessages.republish_confirm_message}" escape="false"/>
 		<h:outputFormat value="#{assessmentSettingsMessages.cancel_message}" escape="false">		
 		<f:param value="#{commonMessages.cancel_action}"/>
 		</h:outputFormat>	
