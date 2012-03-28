@@ -1988,18 +1988,19 @@ public class SiteAction extends PagedResourceActionII {
 				}
 				
 				Collection<Group> groups = null;
-				if ((allowUpdateSite || allowUpdateGroupMembership) 
-						&& (!isMyWorkspace
-							&& (ServerConfigurationService.getString("wsetup.group.support") == "" 
-							|| ServerConfigurationService.getString("wsetup.group.support").equalsIgnoreCase(Boolean.TRUE.toString())))) 
+				if (ServerConfigurationService.getBoolean("wsetup.group.support.summary", true))
 				{
-					// show all site groups
-					groups = site.getGroups();
-				}
-				else
-				{
-					// show groups that the current user is member of
-					groups = site.getGroupsWithMember(UserDirectoryService.getCurrentUser().getId());
+					if ((allowUpdateSite || allowUpdateGroupMembership) 
+							&& (!isMyWorkspace && ServerConfigurationService.getBoolean("wsetup.group.support", true)))
+					{
+						// show all site groups
+						groups = site.getGroups();
+					}
+					else
+					{
+						// show groups that the current user is member of
+						groups = site.getGroupsWithMember(UserDirectoryService.getCurrentUser().getId());
+					}
 				}
 				if (groups != null)
 				{
