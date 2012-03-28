@@ -1402,6 +1402,31 @@ public class DashboardDaoImpl extends JdbcDaoSupport implements DashboardDao {
 		}
 	}
 	
+	public Set<String> listUsersWithLinks(CalendarItem calendarItem) {
+		if(log.isDebugEnabled()) {
+			log.debug("listUsersWithAccess(" + calendarItem + ")");
+		}
+		
+		try {
+			
+			String sql = getStatement("select.Person.sakaiId.by.calendarLink");
+				Object[] args = new Object[]{ calendarItem.getId() };
+			List items = getJdbcTemplate().queryForList(sql, args, String.class);
+			if(items == null || items.isEmpty()) {
+				return new TreeSet<String>();
+			}
+			return new TreeSet<String>(items);
+			
+		} catch (EmptyResultDataAccessException ex) {
+			log.debug("listUsersWithAccess: Empty result executing query: " + ex.getClass() + ":" + ex.getMessage());
+	        return new TreeSet<String>();
+		} catch (DataAccessException ex) {
+           log.warn("listUsersWithAccess: Error executing query: " + ex.getClass() + ":" + ex.getMessage());
+           return new TreeSet<String>();
+		}
+
+	}
+	
 	/* (non-Javadoc)
 	 * @see org.sakaiproject.dash.dao.DashboardDao#addEvent(java.util.Date, java.lang.String, java.lang.String, java.lang.String, java.lang.String, java.lang.String)
 	 */

@@ -515,4 +515,6 @@ public interface DashboardDao {
 	public void setConfigProperty(String propertyName,
 			Integer propertyValue);
 
+	public Set<String> listUsersWithLinks(CalendarItem calendarItem);
+
 }

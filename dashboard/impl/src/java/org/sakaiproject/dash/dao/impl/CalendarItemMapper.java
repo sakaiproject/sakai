@@ -52,6 +52,7 @@ public class CalendarItemMapper implements RowMapper {
 		calendarItem.setTitle(rs.getString("ci_title"));
 		calendarItem.setEntityReference(rs.getString("ci_entity_ref"));
 		calendarItem.setSubtype(rs.getString("ci_subtype"));
+		calendarItem.setSequenceNumber(rs.getInt("ci_sequence_num"));
 		
 		// repeating_event_id
 		RepeatingCalendarItem repeatingCalendarItem = (RepeatingCalendarItem) (new RepeatingCalendarItemMapper()).mapRow(rs, rowNum);

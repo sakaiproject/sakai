@@ -189,8 +189,9 @@ public class DashboardLogicImpl implements DashboardLogic, Observer
 					List<CalendarItem> oldDates = dao.getCalendarItems(repeatingEvent);
 					Map<Date, CalendarItem> oldDatesMap = new HashMap<Date, CalendarItem>();
 					for(CalendarItem cItem: oldDates) {
-						if(cItem.getSequenceNumber() == null) {
-							logger.warn("addCalendarItemsForRepeatingCalendarItem() -- Deleting bogus CalendarItem: " + cItem);
+						if(cItem.getSequenceNumber() == null || cItem.getCalendarTime() == null) {
+							logger.warn("addCalendarItemsForRepeatingCalendarItem() -- Deleting bogus CalendarItem and all links to it: " + cItem);
+							dao.deleteCalendarLinks(cItem.getId());
 							dao.deleteCalendarItem(cItem.getId());
 						} else {
 							oldDatesMap.put(cItem.getCalendarTime(), cItem);
@@ -464,15 +465,23 @@ public class DashboardLogicImpl implements DashboardLogic, Observer
 			logger.debug("createCalendarLinks(" + calendarItem + ")");
 		}
 		if(calendarItem != null) {
-			EntityType entityType = this.entityTypes.get(calendarItem.getEntityReference());
-			List<String> sakaiIds = entityType.getUsersWithAccess(calendarItem.getEntityReference());
-			for(String sakaiId : sakaiIds) {
-				Person person = getOrCreatePerson(sakaiId);
-				if(person == null) {
-					logger.warn("Error retrieving user " + sakaiId);
-				} else {
-					CalendarLink link = new CalendarLink(person, calendarItem, calendarItem.getContext(), false, false);
-					dao.addCalendarLink(link);
+			EntityType entityType = this.entityTypes.get(calendarItem.getSourceType().getIdentifier());
+			if(entityType != null) {
+				Set<String> usersWithLinks = dao.listUsersWithLinks(calendarItem);
+				
+				List<String> sakaiIds = entityType.getUsersWithAccess(calendarItem.getEntityReference());
+				for(String sakaiId : sakaiIds) {
+					if(usersWithLinks.contains(sakaiId)) {
+						// do nothing -- link already exists
+					} else {
+						Person person = getOrCreatePerson(sakaiId);
+						if(person == null) {
+							logger.warn("Error retrieving user " + sakaiId);
+						} else {
+							CalendarLink link = new CalendarLink(person, calendarItem, calendarItem.getContext(), false, false);
+							dao.addCalendarLink(link);
+						}
+					}
 				}
 			}
 		}

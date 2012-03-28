@@ -728,4 +728,9 @@ public class DashboardDaoMock implements DashboardDao {
 		return false;
 	}
 
+	public Set<String> listUsersWithLinks(CalendarItem calendarItem) {
+		// TODO Auto-generated method stub
+		return null;
+	}
+
 }
