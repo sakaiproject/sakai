@@ -21,6 +21,7 @@
 		<property name="contentHostingService" ref="org.sakaiproject.content.api.ContentHostingService" />
 		<property name="contentTypeImageService" ref="org.sakaiproject.content.api.ContentTypeImageService" />
     	<property name="threadLocalManager" ref="org.sakaiproject.thread_local.api.ThreadLocalManager"/>
+    	<property name="functionManager" ref="org.sakaiproject.authz.api.FunctionManager"/>
 	</bean>
 	
     <bean id="org.sakaiproject.dash.logic.DashboardConfig" 
