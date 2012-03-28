@@ -186,18 +186,50 @@ public class DashboardLogicImpl implements DashboardLogic, Observer
 					logger.warn("TODO: handle error: entityType cannot be null");
 				} else if(entityType instanceof RepeatingEventGenerator) {
 					
-					Map<Integer, Date> dates = ((RepeatingEventGenerator) entityType).generateRepeatingEventDates(repeatingEvent.getEntityReference(), beginDate, endDate);
-					if(dates == null) {
+					List<CalendarItem> oldDates = dao.getCalendarItems(repeatingEvent);
+					Map<Date, CalendarItem> oldDatesMap = new HashMap<Date, CalendarItem>();
+					for(CalendarItem cItem: oldDates) {
+						if(cItem.getSequenceNumber() == null) {
+							logger.warn("addCalendarItemsForRepeatingCalendarItem() -- Deleting bogus CalendarItem: " + cItem);
+							dao.deleteCalendarItem(cItem.getId());
+						} else {
+							oldDatesMap.put(cItem.getCalendarTime(), cItem);
+						}
+					}
+					Map<Integer, Date> newDates = ((RepeatingEventGenerator) entityType).generateRepeatingEventDates(repeatingEvent.getEntityReference(), beginDate, endDate);
+					if(newDates == null) {
 						// ignore: there are no new dates to add at this time
 					} else {
-						for(Map.Entry<Integer, Date> entry : dates.entrySet()) {
+						for(Map.Entry<Integer, Date> entry : newDates.entrySet()) {
 							try {
-								// create an instance
-								CalendarItem calendarItem = createCalendarItem(repeatingEvent.getTitle(), entry.getValue(), repeatingEvent.getCalendarTimeLabelKey(), 
-										repeatingEvent.getEntityReference(), repeatingEvent.getContext(), repeatingEvent.getSourceType(), repeatingEvent.getSubtype(), repeatingEvent, entry.getKey());
-								// dao.addCalendarItem(calendarItem);
-								// calendarItem = dao.getCalendarItem(repeatingEvent.getEntityReference(), repeatingEvent.getCalendarTimeLabelKey(), entry.getKey());
-								createCalendarLinks(calendarItem);
+								if(oldDatesMap.containsKey(entry.getValue())) {
+									verifyCalendarItem(oldDatesMap.get(entry.getValue()), repeatingEvent, entry.getKey(), entry.getValue());
+								} else {
+									// create an instance
+									CalendarItem calendarItem = createCalendarItem(repeatingEvent.getTitle(), entry.getValue(), repeatingEvent.getCalendarTimeLabelKey(), 
+											repeatingEvent.getEntityReference(), repeatingEvent.getContext(), repeatingEvent.getSourceType(), repeatingEvent.getSubtype(), repeatingEvent, entry.getKey());
+									// dao.addCalendarItem(calendarItem);
+									// calendarItem = dao.getCalendarItem(repeatingEvent.getEntityReference(), repeatingEvent.getCalendarTimeLabelKey(), entry.getKey());
+									if(calendarItem == null) {
+										// this could occur if we are trying to add an instance that has already been added
+										StringBuilder buf = new StringBuilder();
+										buf.append("Error trying to add calendar item for repeating event (");
+										buf.append(repeatingEvent);
+										buf.append(") for date (");
+										buf.append(entry.getValue());
+										buf.append(") and sequence number (");
+										buf.append(entry.getKey());
+										buf.append("). Calendar item is null for repeating event: ");
+										buf.append(repeatingEvent);
+										buf.append(" :: Sequence Number: ");
+										buf.append(entry.getKey());
+										buf.append(" Date: ");
+										buf.append(entry.getValue());
+										logger.warn(buf);
+									} else {
+										createCalendarLinks(calendarItem);
+									}
+								}
 							} catch(Exception e) {
 								// this could occur if we are trying to add an instance that has already been added
 								StringBuilder buf = new StringBuilder();
@@ -226,6 +258,74 @@ public class DashboardLogicImpl implements DashboardLogic, Observer
 		}
 	}
 	
+	/**
+	 * Verify that all properties of a CalendarItem correspond to the values of a RepeatingCalendarItem, 
+	 * a sequenceNumber and a calendarTime.  Update any incorrect values in the database.  
+	 * @param calendarItem
+	 * @param repeatingEvent
+	 * @param sequenceNumber
+	 * @param calendarTime
+	 * @return true if updates have been made, false otherwise.
+	 */
+	protected boolean verifyCalendarItem(CalendarItem calendarItem,
+			RepeatingCalendarItem repeatingEvent, Integer sequenceNumber, Date calendarTime) {
+		
+		boolean saveChanges = false;
+		if(sequenceNumber != null && sequenceNumber.equals(calendarItem.getSequenceNumber())) {
+			// do nothing
+		} else {
+			calendarItem.setSequenceNumber(sequenceNumber);
+			saveChanges = true;
+		}
+		if(repeatingEvent.getEntityReference() != null && repeatingEvent.getEntityReference().equals(calendarItem.getEntityReference())) {
+			// do nothing
+		} else {
+			calendarItem.setEntityReference(repeatingEvent.getEntityReference());
+			saveChanges = true;
+		}
+		if(calendarTime != null && calendarTime.equals(calendarItem.getCalendarTime())) {
+			// do nothing
+		} else {
+			calendarItem.setCalendarTime(calendarTime);
+			saveChanges = true;
+		}
+		if(repeatingEvent.getTitle() != null && repeatingEvent.getTitle().equals(calendarItem.getTitle())) {
+			// do nothing
+		} else {
+			calendarItem.setTitle(repeatingEvent.getTitle());
+			saveChanges = true;
+		}
+		if(repeatingEvent.getCalendarTimeLabelKey() != null && repeatingEvent.getCalendarTimeLabelKey().equals(calendarItem.getCalendarTimeLabelKey())) {
+			// do nothing
+		} else {
+			calendarItem.setCalendarTimeLabelKey(repeatingEvent.getCalendarTimeLabelKey());
+			saveChanges = true;
+		}
+		if(repeatingEvent.getContext() != null && repeatingEvent.getContext().equals(calendarItem.getContext())) {
+			// do nothing
+		} else {
+			calendarItem.setContext(repeatingEvent.getContext());
+			saveChanges = true;
+		}
+		if(repeatingEvent.getSourceType() != null && repeatingEvent.getSourceType().getIdentifier() != null 
+				&& calendarItem.getSourceType() != null && calendarItem.getSourceType().getIdentifier() != null && repeatingEvent.getSourceType().getIdentifier().equals(calendarItem.getSourceType().getIdentifier()) ) {
+			// do nothing
+		} else {
+			calendarItem.setSourceType(repeatingEvent.getSourceType());
+			saveChanges = true;
+		}
+		if(repeatingEvent.getSubtype() != null && repeatingEvent.getSubtype().equals(calendarItem.getSubtype())) {
+			// do nothing
+		} else {
+			calendarItem.setSubtype(repeatingEvent.getSubtype());
+			saveChanges = true;
+		}
+		if(saveChanges) {
+			dao.updateCalendarItem(calendarItem);
+		}
+		return saveChanges;
+	}
+
 	public void updateTimeOfRepeatingCalendarItem(RepeatingCalendarItem repeatingEvent, Date oldTime, Date newTime) {
 		if(repeatingEvent == null) {
 			logger.warn("updateTimeOfRepeatingCalendarItem() called with null parameter ");
@@ -328,9 +428,13 @@ public class DashboardLogicImpl implements DashboardLogic, Observer
 		CalendarItem calendarItem = new CalendarItem(title, calendarTime,
 				calendarTimeLabelKey, entityReference, context, sourceType, subtype, repeatingCalendarItem, sequenceNumber);
 		
-		dao.addCalendarItem(calendarItem);
+		CalendarItem rv = null;
+		boolean success = dao.addCalendarItem(calendarItem);
+		if(success) {
+			rv = dao.getCalendarItem(entityReference, calendarTimeLabelKey, sequenceNumber);
+		}
 		
-		return dao.getCalendarItem(entityReference, calendarTimeLabelKey, sequenceNumber);
+		return rv;
 	}
 
 	/* (non-Javadoc)
@@ -1755,7 +1859,7 @@ public class DashboardLogicImpl implements DashboardLogic, Observer
 			if(claimAvailabilityCheckDutyTime == null) {
 				sakaiProxy.postEvent(DASHBOARD_NEGOTIATE_AVAILABILITY_CHECKS, serverId, true);
 				
-				claimAvailabilityCheckDutyTime = new Date();
+				claimAvailabilityCheckDutyTime = new Date(System.currentTimeMillis() + NEGOTIATING_TIME);
 			} 
 		}
 		
@@ -1763,7 +1867,7 @@ public class DashboardLogicImpl implements DashboardLogic, Observer
 			if(claimRepeatEventsDutyTime == null) {
 				sakaiProxy.postEvent(DASHBOARD_NEGOTIATE_REPEAT_EVENTS, serverId, true);
 				
-				claimRepeatEventsDutyTime = new Date();
+				claimRepeatEventsDutyTime = new Date(System.currentTimeMillis() + NEGOTIATING_TIME);
 			} 
 		}
 

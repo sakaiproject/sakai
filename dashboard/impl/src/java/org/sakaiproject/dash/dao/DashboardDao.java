@@ -23,6 +23,7 @@ package org.sakaiproject.dash.dao;
 
 import java.util.Date;
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
 import java.util.SortedSet;
 
@@ -110,7 +111,14 @@ public interface DashboardDao {
 	 * @return
 	 */
 	public CalendarItem getCalendarItem(String entityReference, String calendarTimeLabelKey, Integer sequenceNumber);
-	
+
+	/**
+	 * 
+	 * @param repeatingEvent
+	 * @return
+	 */
+	public List<CalendarItem> getCalendarItems(RepeatingCalendarItem repeatingEvent);
+
 	/**
 	 * @param entityReference
 	 * @return
@@ -348,6 +356,13 @@ public interface DashboardDao {
 	 */
 	public boolean addEvent(Date eventDate, String event, String itemRef,
 			String contextId, String sessionId, String eventCode);
+
+	/**
+	 * 
+	 * @param calendarItem
+	 * @return
+	 */
+	public boolean updateCalendarItem(CalendarItem calendarItem);
 
 	/**
 	 * Revise the calendarTime property of one CalendarItem, if it exists.

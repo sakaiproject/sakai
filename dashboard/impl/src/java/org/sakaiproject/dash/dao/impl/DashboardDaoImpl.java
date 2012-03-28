@@ -27,8 +27,10 @@ import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Date;
+import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
+import java.util.Map;
 import java.util.NoSuchElementException;
 import java.util.Set;
 import java.util.SortedSet;
@@ -59,7 +61,7 @@ import org.springframework.jdbc.core.RowMapper;
 import org.springframework.jdbc.core.support.JdbcDaoSupport;
 
 /**
- * Implementation of ProjectDao
+ * Implementation of ProjectDao 
  * 
  * 
  *
@@ -632,6 +634,27 @@ public class DashboardDaoImpl extends JdbcDaoSupport implements DashboardDao {
            return new ArrayList<RepeatingCalendarItem>();
 		}
 	}
+	
+	public List<CalendarItem> getCalendarItems(RepeatingCalendarItem repeatingEvent) {
+		if(log.isDebugEnabled()) {
+			log.debug("getInstancesOfRepeatingEvents(" + repeatingEvent + ")");
+		}
+		String sql  = getStatement("select.CalendarItems.by.repeatingEvent");
+		Object[] params = new Object[]{repeatingEvent.getId()};
+		
+		try {
+			return (List<CalendarItem>) getJdbcTemplate().query(sql,params,
+				new CalendarItemMapper()
+			);
+		} catch (EmptyResultDataAccessException ex) {
+			log.debug("getInstancesOfRepeatingEvents: Empty result executing query: " + ex.getClass() + ":" + ex.getMessage());
+			return null;
+		} catch (DataAccessException ex) {
+           log.warn("getInstancesOfRepeatingEvents: Error executing query: " + ex.getClass() + ":" + ex.getMessage());
+           return new ArrayList<CalendarItem>();
+		}
+	}
+
 
 	/* (non-Javadoc)
 	 * @see org.sakaiproject.dash.dao.DashboardDao#getSourceType(java.lang.String)
@@ -1407,6 +1430,43 @@ public class DashboardDaoImpl extends JdbcDaoSupport implements DashboardDao {
 			return false;
 		}
 		
+	}
+	
+	public boolean updateCalendarItem(CalendarItem calendarItem) {
+		if(log.isDebugEnabled()) {
+			log.debug("updateCalendarItem( " + calendarItem + ")");
+		}
+		
+		String subtype = calendarItem.getSubtype();
+		// DASH-191
+		if(subtype != null && subtype.length() > MAX_LENGTH_SUBTYPE_FIELD) {
+			StringBuilder buf = new StringBuilder();
+			buf.append("addCalendarItem().  Truncating subtype ");
+			buf.append(subtype);
+			buf.append(" for entity ");
+			buf.append(calendarItem.getEntityReference());
+			log.warn(buf);
+			subtype = subtype.substring(0, MAX_LENGTH_SUBTYPE_FIELD - 1);
+		}
+		
+		JdbcTemplate template = getJdbcTemplate();
+		Object[] params = null;
+		String sql = null;
+		if(calendarItem.getRepeatingCalendarItem() == null) {
+			sql = getStatement("update.CalendarItem");
+			params = new Object[]{calendarItem.getCalendarTime(), calendarItem.getCalendarTimeLabelKey(), calendarItem.getTitle(), 
+					calendarItem.getEntityReference(), subtype,
+					calendarItem.getSourceType().getId(), calendarItem.getContext().getId(), calendarItem.getId()};
+		} else {
+			sql = getStatement("update.CalendarItem.repeats");
+			params = new Object[]{calendarItem.getCalendarTime(), calendarItem.getCalendarTimeLabelKey(), calendarItem.getTitle(), 
+					calendarItem.getEntityReference(), subtype,
+					calendarItem.getSourceType().getId(), calendarItem.getContext().getId(), 
+					calendarItem.getRepeatingCalendarItem().getId(), calendarItem.getSequenceNumber(), calendarItem.getId()};
+		}
+
+		template.update(sql,params);
+		return true;
 	}
 
 	/* (non-Javadoc)

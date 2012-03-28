@@ -42,7 +42,7 @@ import org.sakaiproject.dash.model.RepeatingCalendarItem;
 import org.sakaiproject.dash.model.SourceType;
 
 /**
- * @author jimeng
+ * 
  *
  */
 public class DashboardDaoMock implements DashboardDao {
@@ -713,6 +713,17 @@ public class DashboardDaoMock implements DashboardDao {
 	}
 
 	public boolean updateSourceType(SourceType sourceType) {
+		// TODO Auto-generated method stub
+		return false;
+	}
+
+	public List<CalendarItem> getCalendarItems(
+			RepeatingCalendarItem repeatingEvent) {
+		// TODO Auto-generated method stub
+		return null;
+	}
+
+	public boolean updateCalendarItem(CalendarItem calendarItem) {
 		// TODO Auto-generated method stub
 		return false;
 	}
