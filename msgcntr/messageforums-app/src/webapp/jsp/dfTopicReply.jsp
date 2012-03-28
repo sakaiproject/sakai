@@ -135,7 +135,7 @@
         </sakai:panel_titled>
 --%>
       <sakai:button_bar>
-        <sakai:button_bar_item action="#{ForumTool.processDfReplyTopicPost}" value="#{msgs.cdfm_button_bar_post_message}" accesskey="s" styleClass="active"/>
+        <sakai:button_bar_item id="post" action="#{ForumTool.processDfReplyTopicPost}" value="#{msgs.cdfm_button_bar_post_message}" accesskey="s" styleClass="active" onclick="disable()"/>
    <%--     <sakai:button_bar_item action="#{ForumTool.processDfReplyTopicSaveDraft}" value="#{msgs.cdfm_button_bar_save_draft}" /> --%>
         <sakai:button_bar_item action="#{ForumTool.processDfReplyTopicCancel}" value="#{msgs.cdfm_button_bar_cancel}" immediate="true" accesskey="x" />
       </sakai:button_bar>

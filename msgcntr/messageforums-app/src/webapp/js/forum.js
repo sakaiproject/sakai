@@ -595,3 +595,12 @@ var setupdfAIncMenus = function(){
         }).toggle();
     })
 }
+var clicked = 'false';
+function disable() {
+    if (clicked == 'false') {
+        clicked = 'true'
+    }
+    else {
+        document.forms[0].elements['dfCompose:post'].disabled=true;
+    }
+}
