@@ -27,6 +27,8 @@ import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.SortedSet;
+import java.util.TreeSet;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
@@ -448,8 +450,18 @@ public class AnnouncementSupport{
 		}
 
 		public List<String> getUsersWithAccess(String entityReference) {
-			// TODO Auto-generated method stub
-			return null;
+			SortedSet<String> list = new TreeSet<String>();
+			if(this.isAvailable(entityReference)) {
+				list.addAll(sakaiProxy.getAuthorizedUsers(SakaiProxy.PERMIT_ANNOUNCEMENT_ACCESS , entityReference));
+			} else {
+				list.addAll(sakaiProxy.getAuthorizedUsers(SakaiProxy.PERMIT_ANNOUNCEMENT_ACCESS_DRAFT, entityReference));
+				Entity entity = sakaiProxy.getEntity(entityReference);
+				if (entity != null)
+				{
+					list.add(((AnnouncementMessage) entity).getHeader().getFrom().getId());
+				}
+			}
+			return new ArrayList<String>(list);
 		}
 	}
 	
