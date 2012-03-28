@@ -24,7 +24,6 @@ package org.sakaiproject.component.app.help;
 import java.io.IOException;
 import java.net.URL;
 import java.util.Collection;
-import java.util.Enumeration;
 import java.util.Map;
 import java.util.Properties;
 import java.util.TreeMap;
@@ -44,7 +43,7 @@ public class DefaultGlossary implements Glossary
 
   private String file;
   private String url;
-  private Map glossary = new TreeMap();
+  private Map<String, GlossaryEntry> glossary = new TreeMap<String, GlossaryEntry>();
   private boolean initialized = false;
   protected final Log logger = LogFactory.getLog(getClass());
 
@@ -58,9 +57,9 @@ public class DefaultGlossary implements Glossary
     try
     {
       glossaryTerms.load(glossaryFile.openStream());
-      for (Enumeration i = glossaryTerms.propertyNames(); i.hasMoreElements();)
+      
+      for (String term : glossaryTerms.stringPropertyNames())
       {
-        String term = (String) i.nextElement();
         glossary.put(term.toLowerCase(), new GlossaryEntryBean(term
             .toLowerCase(), glossaryTerms.getProperty(term)));
       }
@@ -78,13 +77,13 @@ public class DefaultGlossary implements Glossary
   public GlossaryEntry find(String keyword)
   {
     if (!initialized) init();
-    return (GlossaryEntryBean) glossary.get(keyword.toLowerCase());
+    return glossary.get(keyword.toLowerCase());
   }
 
   /**
    * @see org.sakaiproject.api.app.help.Glossary#findAll()
    */
-  public Collection findAll()
+  public Collection<GlossaryEntry> findAll()
   {
     if (!initialized) init();
     return glossary.values();

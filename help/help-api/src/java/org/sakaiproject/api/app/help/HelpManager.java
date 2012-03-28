@@ -156,7 +156,7 @@ public interface HelpManager
    * @param session
    * @return map of resources keyed by active contexts
    */
-  public Map getResourcesForActiveContexts(Map session);
+  public Map<String, Set<Resource>> getResourcesForActiveContexts(Map session);
 
   /**
    *
@@ -164,7 +164,7 @@ public interface HelpManager
    * @return set of resources found by searching with the supplied query.
    * @throws RuntimeException - if query can't be parsed
    */
-  public Set searchResources(String query) throws RuntimeException;
+  public Set<Resource> searchResources(String query) throws RuntimeException;
 
   /**
    * get table of contents of manager

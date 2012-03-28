@@ -24,6 +24,7 @@ package org.sakaiproject.component.app.help.model;
 import java.util.HashSet;
 import java.util.Set;
 
+import org.sakaiproject.api.app.help.Category;
 import org.sakaiproject.api.app.help.TableOfContents;
 
 /**
@@ -35,7 +36,7 @@ public class TableOfContentsBean implements TableOfContents
 {
 
   private String name;
-  private Set categories = new HashSet();
+  private Set<Category> categories = new HashSet<Category>();
 
   /**
    * @see org.sakaiproject.api.app.help.TableOfContents#getName()
@@ -57,7 +58,7 @@ public class TableOfContentsBean implements TableOfContents
   /**
    * @see org.sakaiproject.api.app.help.TableOfContents#getCategories()
    */
-  public Set getCategories()
+  public Set<Category> getCategories()
   {
     return categories;
   }
@@ -65,7 +66,7 @@ public class TableOfContentsBean implements TableOfContents
   /**
    * @see org.sakaiproject.api.app.help.TableOfContents#setCategories(java.util.Set)
    */
-  public void setCategories(Set categories)
+  public void setCategories(Set<Category> categories)
   {
     this.categories = categories;
   }

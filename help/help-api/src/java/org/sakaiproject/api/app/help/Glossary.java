@@ -40,7 +40,7 @@ public interface Glossary
    * returns the list of all GlossaryEntries
    * @return a Collection
    */
-  public Collection findAll();
+  public Collection<GlossaryEntry> findAll();
 
   /**
    * url to glossary web page

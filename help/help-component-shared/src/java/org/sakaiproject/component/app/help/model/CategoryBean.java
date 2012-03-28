@@ -25,18 +25,19 @@ import java.util.HashSet;
 import java.util.Set;
 
 import org.sakaiproject.api.app.help.Category;
+import org.sakaiproject.api.app.help.Resource;
 import org.sakaiproject.component.cover.ServerConfigurationService;
 
 /**
  * category bean
  * @version $Id$
  */
-public class CategoryBean implements Category, Comparable
+public class CategoryBean implements Category, Comparable<CategoryBean>
 {
   private Long id;
   private String name;
-  private Set resources = new HashSet();
-  private Set categories = new HashSet();
+  private Set<Resource> resources = new HashSet<Resource>();
+  private Set<Category> categories = new HashSet<Category>();
   private Category parent;
 
   /**
@@ -60,7 +61,7 @@ public class CategoryBean implements Category, Comparable
   /**
    * @see org.sakaiproject.api.app.help.Category#getCategories()
    */
-  public Set getCategories()
+  public Set<Category> getCategories()
   {
     return categories;
   }
@@ -76,7 +77,7 @@ public class CategoryBean implements Category, Comparable
   /**
    * @see org.sakaiproject.api.app.help.Category#getResources()
    */
-  public Set getResources()
+  public Set<Resource> getResources()
   {
     return resources;
   }
@@ -84,7 +85,7 @@ public class CategoryBean implements Category, Comparable
   /**
    * @see org.sakaiproject.api.app.help.Category#setCategories(java.util.Set)
    */
-  public void setCategories(Set categories)
+  public void setCategories(Set<Category> categories)
   {
     this.categories = categories;
   }
@@ -100,7 +101,7 @@ public class CategoryBean implements Category, Comparable
   /**
    * @see org.sakaiproject.api.app.help.Category#setResources(java.util.Set)
    */
-  public void setResources(Set resources)
+  public void setResources(Set<Resource> resources)
   {
     this.resources = resources;
   }
@@ -135,9 +136,8 @@ public class CategoryBean implements Category, Comparable
     return name.hashCode();
   }
 
-  public int compareTo(Object o)
-  {
-    CategoryBean cb = (CategoryBean) o;
+  public int compareTo(CategoryBean cb)
+  {;
     
     if (!"".equals(ServerConfigurationService.getString("help.location"))){
       return id.compareTo(cb.id);	

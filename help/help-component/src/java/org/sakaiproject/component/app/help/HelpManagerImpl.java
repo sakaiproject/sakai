@@ -39,7 +39,6 @@ import java.util.Collection;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.HashSet;
-import java.util.Iterator;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
@@ -323,14 +322,13 @@ public class HelpManagerImpl extends HibernateDaoSupport implements HelpManager
 	 */
 	public Map getResourcesForActiveContexts(Map session)
 	{
-		Map resourceMap = new HashMap();
-		List activeContexts = getActiveContexts(session);
-		for (Iterator i = activeContexts.iterator(); i.hasNext();)
+		Map<String, Set<Resource>> resourceMap = new HashMap<String, Set<Resource>>();
+		List<String> activeContexts = getActiveContexts(session);
+		for(String context : activeContexts)
 		{
-			String context = (String) i.next();
 			try
 			{
-				Set resources = searchResources(new TermQuery(new Term("context", "\""
+				Set<Resource> resources = searchResources(new TermQuery(new Term("context", "\""
 						+ context + "\"")));
 				if (resources != null && resources.size() > 0)
 				{
@@ -348,7 +346,7 @@ public class HelpManagerImpl extends HibernateDaoSupport implements HelpManager
 	/**
 	 * @see org.sakaiproject.api.app.help.HelpManager#searchResources(java.lang.String)
 	 */
-	public Set searchResources(String queryStr)
+	public Set<Resource> searchResources(String queryStr)
 	{
 		initialize();
 
@@ -479,7 +477,7 @@ public class HelpManagerImpl extends HibernateDaoSupport implements HelpManager
 	 * Get entire Collection of Resources.
 	 * @return collection of resources
 	 */
-	protected Collection getResources()
+	protected Collection<Resource> getResources()
 	{
 		return getHibernateTemplate().loadAll(ResourceBean.class);
 	}
@@ -514,10 +512,9 @@ public class HelpManagerImpl extends HibernateDaoSupport implements HelpManager
 		Document doc = new Document();
 		if (resource.getContexts() != null)
 		{
-			for (Iterator<String> i = resource.getContexts().iterator(); i.hasNext();)
+			for (String context : resource.getContexts())
 			{
-				//doc.add(Field.Keyword("context", "\"" + ((String) i.next()) + "\""));
-				doc.add(new Field("context", "\"" + ((String) i.next()) + "\"", Field.Store.YES, Field.Index.NOT_ANALYZED));
+				doc.add(new Field("context", "\"" + context + "\"", Field.Store.YES, Field.Index.NOT_ANALYZED));
 			}
 		}
 
@@ -772,19 +769,14 @@ public class HelpManagerImpl extends HibernateDaoSupport implements HelpManager
 	 */
 	private void indexRecursive(IndexWriter indexWriter, Set<Category> categories)
 	{
-		Iterator<Category> i = categories.iterator();
-		while (i.hasNext())
+		for (Category category: categories)
 		{
-			Category category = (Category) i.next();
-			Set<ResourceBean> resourcesList = category.getResources();
+			Set<Resource> resourcesList = category.getResources();
 
-			for (Iterator<ResourceBean> resourceIterator = resourcesList.iterator(); resourceIterator
-			.hasNext();)
-			{
-				ResourceBean resource = (ResourceBean) resourceIterator.next();
+			for (Resource resource : resourcesList) {
 				try
 				{
-					Document doc = getDocument(resource);
+					Document doc = getDocument((ResourceBean)resource);
 					if (doc != null)
 					{
 						indexWriter.addDocument(doc);
@@ -803,7 +795,7 @@ public class HelpManagerImpl extends HibernateDaoSupport implements HelpManager
 				}
 			}
 
-			Set subCategories = category.getCategories();
+			Set<Category> subCategories = category.getCategories();
 			indexRecursive(indexWriter, subCategories);
 		}
 	}
@@ -812,20 +804,15 @@ public class HelpManagerImpl extends HibernateDaoSupport implements HelpManager
 	 * Store the mapping of Categories and Resources
 	 * @param categories
 	 */
-	private void storeRecursive(Set categories)
+	private void storeRecursive(Set<Category> categories)
 	{
-		Iterator<Category> i = categories.iterator();
-		while (i.hasNext())
+		for(Category category: categories)
 		{
-			Category category = (Category) i.next();
-
 			Set<Resource> resourcesList = category.getResources();
 			category.setResources(null);
 
-			for (Iterator<Resource> resourceIterator = resourcesList.iterator(); resourceIterator
-			.hasNext();)
+			for (Resource resource: resourcesList)
 			{
-				Resource resource = (Resource) resourceIterator.next();
 				resource.setDocId(resource.getDocId().toLowerCase());
 				resource.setCategory(category);
 			}
@@ -833,7 +820,7 @@ public class HelpManagerImpl extends HibernateDaoSupport implements HelpManager
 			category.setResources(resourcesList);
 			this.storeCategory(category);
 
-			Set subCategories = category.getCategories();
+			Set<Category> subCategories = category.getCategories();
 			storeRecursive(subCategories);
 		}
 	}
@@ -1030,9 +1017,8 @@ public class HelpManagerImpl extends HibernateDaoSupport implements HelpManager
 		}
 
 		// Create lucene indexes for each toc (which key is either a locale or 'default')
-		for (Iterator<String> j = toc.keySet().iterator(); j.hasNext();)
+		for (String key : toc.keySet())
 		{
-			String key = (String) j.next();
 			String luceneIndexPath = LUCENE_INDEX_PATH + File.separator + key;
 			TableOfContentsBean currentToc = toc.get(key);
 
@@ -1078,7 +1064,7 @@ public class HelpManagerImpl extends HibernateDaoSupport implements HelpManager
 	 */
 	public void registerExternalHelpContent(String helpFile)
 	{
-		Set categories = new TreeSet();
+		Set<Category> categories = new TreeSet<Category>();
 		URL urlResource = null;
 		InputStream ism = null;
 		BufferedInputStream bis = null;
@@ -1288,11 +1274,9 @@ public class HelpManagerImpl extends HibernateDaoSupport implements HelpManager
 		Set<Tool> toolSet = toolManager.findTools(null, null);
 
 		// find out what we want to ignore
-		List hideHelp = Arrays.asList(StringUtil.split(serverConfigurationService.getString("help.hide"), ","));
+		List<String> hideHelp = Arrays.asList(StringUtil.split(serverConfigurationService.getString("help.hide"), ","));
 
-		for (Iterator<Tool> i = toolSet.iterator(); i.hasNext();)
-		{
-			Tool tool = (Tool) i.next();
+		for (Tool tool : toolSet) {
 			if (tool != null && tool.getId() != null && !hideHelp.contains(tool.getId()))
 			{
 				String[] extraCollections = {};
@@ -1302,10 +1286,8 @@ public class HelpManagerImpl extends HibernateDaoSupport implements HelpManager
 					extraCollections = StringUtil.split(toolHelpCollections, ",");
 
 				// Loop throughout the locales list
-				for (Iterator<String> j = locales.iterator(); j.hasNext();)
+				for (String locale : locales)
 				{
-					String locale = (String) j.next();
-
 					// Add localized tool helps
 					addToolHelp("/" + tool.getId().toLowerCase().replaceAll("\\.", "_"), locale);
 
@@ -1319,16 +1301,13 @@ public class HelpManagerImpl extends HibernateDaoSupport implements HelpManager
 		}
 
 		// Sort the help topics for each locale
-		for (Iterator<String> j = locales.iterator(); j.hasNext();)
-		{
-			String locale = (String) j.next();
-
+		for (String locale : locales) {
 			TableOfContentsBean localizedToc = toc.get(locale);
 
 			// Sort this localized toc categories with a TreeSet
 			if (localizedToc != null) {
-				Set sortedCategories = new TreeSet();		    
-				Set categories = localizedToc.getCategories();
+				Set<Category> sortedCategories = new TreeSet<Category>();		    
+				Set<Category> categories = localizedToc.getCategories();
 				sortedCategories.addAll(categories);
 				localizedToc.setCategories(sortedCategories);
 			}
@@ -1343,7 +1322,7 @@ public class HelpManagerImpl extends HibernateDaoSupport implements HelpManager
 	 * @param n
 	 * @param category
 	 */
-	public void recursiveExternalReg(Node n, Category category, Set categories)
+	public void recursiveExternalReg(Node n, Category category, Set<Category> categories)
 	{
 
 		if (n == null)

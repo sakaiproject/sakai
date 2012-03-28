@@ -45,25 +45,25 @@ public interface Category
    * get resources
    * @return resources
    */
-  public Set getResources();
+  public Set<Resource> getResources();
 
   /**
    * set resources
    * @param resources
    */
-  public void setResources(Set resources);
+  public void setResources(Set<Resource> resources);
 
   /**
    * get categories
    * @return set of categories
    */
-  public Set getCategories();
+  public Set<Category> getCategories();
 
   /**
    * set categories
    * @param categories
    */
-  public void setCategories(Set categories);
+  public void setCategories(Set<Category> categories);
   
   /**
    * get parent category

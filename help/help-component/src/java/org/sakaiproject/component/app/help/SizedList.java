@@ -23,14 +23,15 @@ package org.sakaiproject.component.app.help;
 
 import java.util.ArrayList;
 import java.util.Collection;
-import java.util.Iterator;
 
 /**
- * size list
+ * A List that won't grow any larger that the specified size.
+ * 
  * @version $Id$
  */
-public class SizedList extends ArrayList
+public class SizedList<T> extends ArrayList<T>
 {
+  private static final long serialVersionUID = 1L;
   private int size = -1;
 
   /**
@@ -51,10 +52,12 @@ public class SizedList extends ArrayList
     this.size = size;
   }
 
-  /** 
+  /**
+   * Add an item to the list, if the list is already full then and item is also removed from the
+   * end of the list. 
    * @see java.util.Collection#add(java.lang.Object)
    */
-  public boolean add(Object item)
+  public boolean add(T item)
   {
     if (this.contains(item))
     {
@@ -71,11 +74,10 @@ public class SizedList extends ArrayList
   /** 
    * @see java.util.Collection#addAll(java.util.Collection)
    */
-  public boolean addAll(Collection c)
+  public boolean addAll(Collection<? extends T> c)
   {
-    for (Iterator i = c.iterator(); i.hasNext();)
-    {
-      add(i.next());
+    for (T name : c) {
+      add(name);
     }
     return true;
   }

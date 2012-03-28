@@ -45,13 +45,13 @@ public interface TableOfContents
    * get categories
    * @return categories
    */
-  public Set getCategories();
+  public Set<Category> getCategories();
 
   /**
    * set categories
    * @param categories
    */
-  public void setCategories(Set categories);
+  public void setCategories(Set<Category> categories);
 }
 
 

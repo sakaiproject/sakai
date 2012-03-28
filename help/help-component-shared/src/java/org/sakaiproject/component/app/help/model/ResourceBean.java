@@ -33,17 +33,17 @@ import org.sakaiproject.api.app.help.Resource;
  * resource bean
  * @version $Id$
  */
-public class ResourceBean implements Resource, Comparable
+public class ResourceBean implements Resource, Comparable<ResourceBean>
 {
   private Long id;
   private String docId;
   private String name;
-  private Set contexts = new HashSet();
+  private Set<String> contexts = new HashSet<String>(); // Not persisted
   private String location;
   private String source;
   private Long tstamp;
-  private float score;
-  private String formattedScore;
+  private float score; // Not persisted
+  private String formattedScore; // Not persisted
   private String defaultForTool;
   private String welcomePage;
   private Category category;
@@ -101,7 +101,7 @@ public class ResourceBean implements Resource, Comparable
   /**
    * @see org.sakaiproject.api.app.help.Resource#getContexts()
    */
-  public Set getContexts()
+  public Set<String> getContexts()
   {
     return contexts;
   }
@@ -109,7 +109,7 @@ public class ResourceBean implements Resource, Comparable
   /**
    * @see org.sakaiproject.api.app.help.Resource#setContexts(java.util.Set)
    */
-  public void setContexts(Set contexts)
+  public void setContexts(Set<String> contexts)
   {
     this.contexts = contexts;
   }
@@ -215,9 +215,8 @@ public class ResourceBean implements Resource, Comparable
   /**
    * @see java.lang.Comparable#compareTo(java.lang.Object)
    */
-  public int compareTo(Object object)
+  public int compareTo(ResourceBean resourceBean)
   {
-    ResourceBean resourceBean = (ResourceBean) object;
     if (resourceBean.score != 0){
       return Float.compare(resourceBean.score, score);
     }

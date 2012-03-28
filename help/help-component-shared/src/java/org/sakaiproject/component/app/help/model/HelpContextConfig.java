@@ -30,7 +30,9 @@ import java.util.Map;
  */
 public class HelpContextConfig extends HashMap
 {
-  /**
+  private static final long serialVersionUID = 1L;
+
+/**
    * overloaded constructor
    * @param map
    */
