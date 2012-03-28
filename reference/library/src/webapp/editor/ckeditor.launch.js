@@ -48,7 +48,7 @@ sakai.editor.editors.ckeditor.launch = function(targetId, config, w, h) {
         filebrowserBrowseUrl :'/library/editor/FCKeditor/editor/filemanager/browser/default/browser.html?Connector=/sakai-fck-connector/web/editor/filemanager/browser/default/connectors/jsp/connector' + collectionId + folder,
         filebrowserImageBrowseUrl : '/library/editor/FCKeditor/editor/filemanager/browser/default/browser.html?Type=Image&Connector=/sakai-fck-connector/web/editor/filemanager/browser/default/connectors/jsp/connector' + collectionId + folder,
         filebrowserFlashBrowseUrl :'/library/editor/FCKeditor/editor/filemanager/browser/default/browser.html?Type=Flash&Connector=/sakai-fck-connector/web/editor/filemanager/browser/default/connectors/jsp/connector' + collectionId + folder,
-        extraPlugins: (sakai.editor.enableResourceSearch ? 'resourcesearch' : ''),
+        extraPlugins: (sakai.editor.enableResourceSearch ? 'resourcesearch' : '','movieplayer'),
 
         // These two settings enable the browser's native spell checking and context menus.
         // Control-Right-Click (Windows/Linux) or Command-Right-Click (Mac) on highlighted words
@@ -76,8 +76,8 @@ sakai.editor.editors.ckeditor.launch = function(targetId, config, w, h) {
             ['BidiLtr', 'BidiRtl' ],
             ['Link','Unlink','Anchor'],
             (sakai.editor.enableResourceSearch
-                ? ['ResourceSearch', 'Image','Flash','Table','HorizontalRule','Smiley','SpecialChar','PageBreak']
-                : ['Image','Flash','Table','HorizontalRule','Smiley','SpecialChar','PageBreak']),
+                ? ['ResourceSearch', 'Image','Movie','Flash','Table','HorizontalRule','Smiley','SpecialChar','PageBreak']
+                : ['Image','Movie','Flash','Table','HorizontalRule','Smiley','SpecialChar','PageBreak']),
             '/',
             ['Styles','Format','Font','FontSize'],
             ['TextColor','BGColor'],
