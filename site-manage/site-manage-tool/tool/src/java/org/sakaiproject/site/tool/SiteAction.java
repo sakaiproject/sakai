@@ -21,6 +21,11 @@
 package org.sakaiproject.site.tool;
 
 import java.io.IOException;
+import java.io.FileNotFoundException;
+import java.io.InputStream;
+import java.io.FileOutputStream;
+import java.io.File;
+
 import java.lang.reflect.Method;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -99,6 +104,7 @@ import org.sakaiproject.id.cover.IdManager;
 import org.sakaiproject.importer.api.ImportDataSource;
 import org.sakaiproject.importer.api.ImportService;
 import org.sakaiproject.importer.api.SakaiArchive;
+import org.sakaiproject.importer.util.ResetOnCloseInputStream;
 import org.sakaiproject.javax.PagingPosition;
 import org.sakaiproject.site.api.Group;
 import org.sakaiproject.site.api.Site;
@@ -141,7 +147,6 @@ import org.sakaiproject.util.ResourceLoader;
 import org.sakaiproject.util.SortedIterator;
 import org.sakaiproject.util.Validator;
 import org.sakaiproject.util.Web;
-
 
 /**
  * <p>
@@ -3476,15 +3481,46 @@ public class SiteAction extends PagedResourceActionII {
 				|| fileFromUpload.getFileName().length() == 0) {
 			addAlert(state, rb.getString("importFile.choosefile"));
 		} else {
-			byte[] fileData = fileFromUpload.get();
-
-			if (fileData.length >= max_bytes) {
+			//Need some other kind of input stream?
+			ResetOnCloseInputStream fileInput = null; 
+			long fileSize=0;
+			try { 
+			    // Write to temp file, this should probably be in the velocity util?
+				File tempFile = null;
+			    tempFile = File.createTempFile("importFile", ".tmp");
+			    // Delete temp file when program exits.
+			    tempFile.deleteOnExit();
+	
+			    InputStream fileInputStream = fileFromUpload.getInputStream();
+			    
+			    FileOutputStream outBuf = new FileOutputStream(tempFile);
+			    byte[] bytes = new byte[102400];
+			    int read = 0;
+				while ((read = fileInputStream.read(bytes)) != -1) {
+					outBuf.write(bytes, 0, read);
+				}
+			 
+				fileInputStream.close();
+				outBuf.flush();
+				outBuf.close();
+			
+				fileSize = tempFile.length();
+				fileInput = new ResetOnCloseInputStream(tempFile);
+			}
+			catch (FileNotFoundException fnfe) {
+				M_log.warn("FileNotFoundException creating temp import file",fnfe);
+			}
+			catch (IOException ioe) {
+				M_log.warn("IOException creating temp import file",ioe);
+			}
+			if (fileSize >= max_bytes) {
 				addAlert(state, rb.getFormattedMessage("importFile.size", new Object[]{max_file_size_mb}));
-			} else if (fileData.length > 0) {
+			}
+		    else if (fileSize > 0) {
 
-				if (importService.isValidArchive(fileData)) {
+				if (fileInput != null && importService.isValidArchive(fileInput)) {
 					ImportDataSource importDataSource = importService
-							.parseFromFile(fileData);
+							.parseFromFile(fileInput);
 					Log.info("chef", "Getting import items from manifest.");
 					List lst = importDataSource.getItemCategories();
 					if (lst != null && lst.size() > 0) {
