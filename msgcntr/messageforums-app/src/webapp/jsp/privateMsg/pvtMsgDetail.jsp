@@ -115,7 +115,7 @@
             	 <h:outputText value="#{PrivateMessagesTool.detailMsg.recipientsAsText}" />
             </td>
           </tr>
-          <f:subview id="bccRecipients" rendered="#{PrivateMessagesTool.detailMsg.recipientsAsTextBcc != null && PrivateMessagesTool.detailMsg.recipientsAsTextBcc != ''}">
+          <f:subview id="bccRecipients" rendered="#{ForumTool.userId == PrivateMessagesTool.detailMsg.msg.createdBy && PrivateMessagesTool.detailMsg.recipientsAsTextBcc != null && PrivateMessagesTool.detailMsg.recipientsAsTextBcc != ''}">
 	          <f:verbatim>
 	          <tr>
 	            <th>
