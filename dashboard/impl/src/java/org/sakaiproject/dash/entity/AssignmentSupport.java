@@ -27,6 +27,8 @@ import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.SortedSet;
+import java.util.TreeSet;
 
 import org.apache.log4j.Logger;
 import org.sakaiproject.assignment.api.Assignment;
@@ -343,8 +345,18 @@ public class AssignmentSupport {
 		}
 
 		public List<String> getUsersWithAccess(String entityReference) {
-			// TODO Auto-generated method stub
-			return null;
+			SortedSet<String> list = new TreeSet<String>();
+			if(this.isAvailable(entityReference)) {
+				list.addAll(sakaiProxy.getAuthorizedUsers(SakaiProxy.PERMIT_ASSIGNMENT_ACCESS , entityReference));
+			} else {
+				list.addAll(sakaiProxy.getAuthorizedUsers(SakaiProxy.PERMIT_ASSIGNMENT_SHARE_DRAFTS, entityReference));
+				Entity entity = sakaiProxy.getEntity(entityReference);
+				if (entity != null)
+				{
+					list.add(entity.getProperties().getProperty(ResourceProperties.PROP_CREATOR));
+				}
+			}
+			return new ArrayList<String>(list);
 		}
 	}
 	
