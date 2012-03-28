@@ -21,14 +21,16 @@
 
 package org.sakaiproject.importer.impl.importables;
 
+import java.io.InputStream;
+
 public class FileResource extends AbstractImportable {
 	private String destinationResourcePath;
 	private String contentType;
-	private byte[] fileBytes;
 	private String title;
 	private String description;
 	private String fileName;
-
+    private InputStream fileInputStream;
+    
 	public String getTypeName() {
 		return "sakai-file-resource";
 	}
@@ -57,12 +59,12 @@ public class FileResource extends AbstractImportable {
 		this.destinationResourcePath = destinationResourcePath;
 	}
 
-	public byte[] getFileBytes() {
-		return fileBytes;
+	public InputStream getInputStream() {
+		return fileInputStream;
 	}
 
-	public void setFileBytes(byte[] fileBytes) {
-		this.fileBytes = fileBytes;
+	public void setInputStream(InputStream fileInputStream) {
+		this.fileInputStream = fileInputStream;
 	}
 
 	public String getTitle() {

@@ -93,7 +93,7 @@ public abstract class IMSFileParser extends ZipFileParser {
 		this.translatorMap = translatorMap;	
 	}
 	
-	public boolean isValidArchive(byte[] fileData) {
+	public boolean isValidArchive(InputStream fileData) {
 		if (super.isValidArchive(fileData)) {
 			if (!fileExistsInArchive("/imsmanifest.xml", fileData)) 
 				return false;
@@ -202,7 +202,9 @@ public abstract class IMSFileParser extends ZipFileParser {
 				if (node.getParentNode().getChildNodes().getLength() > 1) {
 					file.setDescription("");
 				} else file.setDescription(resourceHelper.getDescription(node.getParentNode()));
-				file.setFileBytes(fileHelper.getFileBytesForNode(node, contextPath));
+				//Takes too much memory just pass file
+				//file.setFileBytes(fileHelper.getFileBytesForNode(node, contextPath));
+				file.setInputStream(fileHelper.getInputStreamForNode(node,contextPath));
 				file.setDestinationResourcePath(fileHelper.getFilePathForNode(node, contextPath));
 				file.setContentType(this.mimeTypes.getContentType(fileName));
 				file.setTitle(fileHelper.getTitle(node));
@@ -305,9 +307,17 @@ public abstract class IMSFileParser extends ZipFileParser {
 	
 	protected abstract class FileHelper implements ManifestFile {
 		
+		//This should be avoided
 		public byte[] getFileBytesForNode(Node node, String contextPath) throws IOException {
 			String filePath = getFilePathForNode(node, contextPath);
 			return getBytesFromFile(new File(pathToData + "/" + filePath));
+		}
+		
+		
+		public InputStream getInputStreamForNode(Node node, String contextPath) throws IOException{
+			String filePath = getFilePathForNode(node,contextPath);
+			InputStream is = new FileInputStream(filePath);
+			return is;
 		}
 		
 		public String getFilePathForNode(Node node, String contextPath) {

@@ -39,26 +39,23 @@ import junit.framework.TestCase;
 
 public class SakaiArchiveTest extends TestCase {
 	private static ImportFileParser parser;
-	private byte[] archiveData;
+	//private byte[] archiveData;
 	private FileInputStream archiveStream;
 	
 	public void setUp() throws IOException {
 		System.out.println("doing setUp()");
 		parser = new SakaiArchiveFileParser();
 		archiveStream = new FileInputStream(new File("/Users/zach/Downloads/sakai_course_export.zip"));
-		archiveData = new byte[archiveStream.available()];
-		archiveStream.read(archiveData,0,archiveStream.available());
-		archiveStream.close();
 	}
 	public void testCanGetDataSource() {
-		ImportDataSource dataSource = (ImportDataSource) parser.parse(archiveData, "/Users/zach/Desktop");
+		ImportDataSource dataSource = (ImportDataSource) parser.parse(archiveStream, "/Users/zach/Desktop");
 		assertNotNull(dataSource);
 		System.out.println("There are " + dataSource.getItemCategories().size() + " categories in this archive.");
 		((SakaiArchiveDataSource)dataSource).buildSourceFolder(dataSource.getItemCategories());
 	}
 	
 	public void testArchiveIsValid() {
-		assertTrue(parser.isValidArchive(archiveData));
+		assertTrue(parser.isValidArchive(archiveStream));
 	}
 	
 

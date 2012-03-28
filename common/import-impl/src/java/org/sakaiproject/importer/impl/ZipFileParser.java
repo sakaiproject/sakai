@@ -28,6 +28,7 @@ import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
+
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
@@ -45,25 +46,33 @@ import org.sakaiproject.importer.api.ImportDataSource;
 import org.sakaiproject.importer.api.ImportFileParser;
 import org.w3c.dom.Document;
 import org.xml.sax.SAXException;
+import java.io.InputStream;
 
 public abstract class ZipFileParser implements ImportFileParser {
 	protected MimetypesFileTypeMap mimeTypes = new MimetypesFileTypeMap();
 	protected String pathToData;
 	protected String localArchiveLocation;
 
-	public boolean isValidArchive(byte[] fileData) {
-		ZipInputStream zipStream = new ZipInputStream(new ByteArrayInputStream(fileData));
+	public boolean isValidArchive(InputStream fileData) {
+		ZipInputStream zipStream = new ZipInputStream(fileData);
 		ZipEntry entry;
 		try {
 			entry = (ZipEntry) zipStream.getNextEntry();
 		} catch (IOException e) {
 			// IOException definitely indicates not a valid archive
 			return false;
+		} finally {
+		    try {
+                zipStream.close();
+            } catch (IOException e) {
+                // we tried
+            }
 		}
+		
 	    return (entry != null);
 	}
 
-	public ImportDataSource parse(byte[] fileData, String unArchiveLocation) {
+	public ImportDataSource parse(InputStream fileData, String unArchiveLocation) {
 		this.localArchiveLocation = unzipArchive(fileData, unArchiveLocation);
 		this.pathToData = unArchiveLocation + File.separator + localArchiveLocation;
 		awakeFromUnzip(pathToData);
@@ -84,7 +93,7 @@ public abstract class ZipFileParser implements ImportFileParser {
 
 	protected abstract Collection getCategoriesFromArchive(String pathToData);
 
-	protected String unzipArchive(byte[] fileData, String unArchiveLocation) {
+	protected String unzipArchive(InputStream fileData, String unArchiveLocation) {
 	    String localArchiveLocation = Long.toString(new java.util.Date().getTime());
 	    String pathToData = unArchiveLocation + "/" + localArchiveLocation;
 	    File dir = new File(pathToData); //directory where file would be saved
@@ -93,7 +102,7 @@ public abstract class ZipFileParser implements ImportFileParser {
 	    }
 
 	    Set<String> dirsMade = new TreeSet<String>();
-	    ZipInputStream zipStream = new ZipInputStream(new ByteArrayInputStream(fileData));
+	    ZipInputStream zipStream = new ZipInputStream(fileData);
 	    try {
     	    ZipEntry entry = null;
     	    try {
@@ -182,8 +191,8 @@ public abstract class ZipFileParser implements ImportFileParser {
 	    return localArchiveLocation;
 	}
 	
-	protected boolean fileExistsInArchive(String pathAndFilename, byte[] archive) {
-		ZipInputStream zipStream = new ZipInputStream(new ByteArrayInputStream(archive));
+	protected boolean fileExistsInArchive(String pathAndFilename, InputStream archive) {
+		ZipInputStream zipStream = new ZipInputStream(archive);
 		ZipEntry entry;
 		String entryName;
 		if (pathAndFilename.charAt(0) == '/') {
@@ -198,12 +207,20 @@ public abstract class ZipFileParser implements ImportFileParser {
 		    }
 		    return false;
 		} catch (IOException e) {
+			
 			return false;
+		} finally {
+		    try {
+                zipStream.close();
+            } catch (IOException e) {
+                // we tried
+            }
 		}
+		
 	}
 	
-	protected Document extractFileAsDOM(String pathAndFilename, byte[] archive) {
-		ZipInputStream zipStream = new ZipInputStream(new ByteArrayInputStream(archive));
+	protected Document extractFileAsDOM(String pathAndFilename, InputStream archive) {
+		ZipInputStream zipStream = new ZipInputStream(archive);
 		ZipEntry entry;
 		String entryName;
 		if (pathAndFilename.charAt(0) == '/') {
@@ -241,8 +258,10 @@ public abstract class ZipFileParser implements ImportFileParser {
             } catch (IOException e) {
                 // we tried
             }
+		    
 		}
 	}
+	
 	
 	protected byte[] getBytesFromFile(File file) throws IOException {
         InputStream is = new FileInputStream(file);

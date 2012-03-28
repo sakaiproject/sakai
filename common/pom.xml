@@ -41,6 +41,7 @@
         <module>archive-assembly</module>
         <module>import-handlers/content-handlers</module>
         <module>import-pack</module>
+	<module>import-util</module>
         <module>import-parsers/common-cartridge</module>
         <module>import-parsers/sakai-archive</module>
 

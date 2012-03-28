@@ -32,6 +32,7 @@ import org.sakaiproject.importer.api.ImportService;
 import org.sakaiproject.importer.api.Importable;
 
 import org.sakaiproject.component.api.ServerConfigurationService;
+import java.io.InputStream;
 
 public class BasicImportService implements ImportService {
 	
@@ -54,7 +55,7 @@ public class BasicImportService implements ImportService {
 
 	}
 
-	public boolean isValidArchive(byte[] archiveFileData) {
+	public boolean isValidArchive(InputStream archiveFileData) {
 		boolean isValid = false;
 		for(Iterator i = this.parsers.iterator();i.hasNext();) {
 			if(((ImportFileParser)i.next()).isValidArchive(archiveFileData)){
@@ -65,7 +66,7 @@ public class BasicImportService implements ImportService {
 		return isValid;
 	}
 
-	public ImportDataSource parseFromFile(byte[] archiveFileData) {
+	public ImportDataSource parseFromFile(InputStream archiveFileData) {
 		for(Iterator i = this.parsers.iterator();i.hasNext();){
 			ImportFileParser parser = (ImportFileParser)i.next();
 			if(parser.isValidArchive(archiveFileData)){

@@ -24,6 +24,9 @@ package org.sakaiproject.importer.impl.handlers;
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
+import java.io.InputStream;
+import java.io.ByteArrayInputStream;
+
 import java.text.Format;
 import java.text.SimpleDateFormat;
 import java.util.Date;
@@ -101,11 +104,12 @@ public class ResourcesHandler implements HandlesImportable {
 			});
 			String id = null;
 			String contentType = null;
-			byte[] contents = null;
 			int notifyOption = NotificationService.NOTI_NONE;
 			String title = null;
 			String description = null;
 			Map resourceProps = new HashMap();
+			
+			InputStream contents = null;
 			if ("sakai-file-resource".equals(thing.getTypeName())) {
 				//title = ((FileResource)thing).getTitle();
 				description = ((FileResource)thing).getDescription();
@@ -124,7 +128,7 @@ public class ResourcesHandler implements HandlesImportable {
 				
 				id = id + contextPath;
 				contentType = new MimetypesFileTypeMap().getContentType(fileName);
-				contents = ((FileResource)thing).getFileBytes();
+				contents = ((FileResource)thing).getInputStream();
 //				if((title == null) || (title.equals(""))) {
 //					title = fileName;
 //				}
@@ -165,7 +169,7 @@ public class ResourcesHandler implements HandlesImportable {
 					absoluteUrl = serverConfigurationService.getServerUrl() + "/access/content" + 
 						contentHostingService.getSiteCollection(siteId) + ((WebLink)thing).getUrl();
 				}
-				contents = absoluteUrl.getBytes();
+				contents = new ByteArrayInputStream(absoluteUrl.getBytes());
 				if((title == null) || (title.equals(""))) {
 					title = ((WebLink)thing).getUrl();
 				}
@@ -190,7 +194,7 @@ public class ResourcesHandler implements HandlesImportable {
 
 			} else if ("sakai-html-document".equals(thing.getTypeName())) {
 				title = ((HtmlDocument)thing).getTitle();
-				contents = ((HtmlDocument)thing).getContent().getBytes();
+				contents = new ByteArrayInputStream(((HtmlDocument)thing).getContent().getBytes());
 				id = contentHostingService.getSiteCollection(siteId) + thing.getContextPath();
 				contentType = "text/html";
 				resourceProps.put(ResourceProperties.PROP_DISPLAY_NAME, title);
@@ -200,7 +204,7 @@ public class ResourcesHandler implements HandlesImportable {
 				addContentResource(id, contentType, contents, resourceProps, notifyOption);
 			} else if ("sakai-text-document".equals(thing.getTypeName())) {
 				title = ((TextDocument)thing).getTitle();
-				contents = ((TextDocument)thing).getContent().getBytes();
+				contents = new ByteArrayInputStream(((TextDocument)thing).getContent().getBytes());
 				id = contentHostingService.getSiteCollection(siteId) + thing.getContextPath();
 				contentType = "text/plain";
 				resourceProps.put(ResourceProperties.PROP_DISPLAY_NAME, title);
@@ -228,8 +232,8 @@ public class ResourcesHandler implements HandlesImportable {
 
 	}
 	
-	protected void addAllResources(byte[] archive, String path, int notifyOption) {
-		ZipInputStream zipStream = new ZipInputStream(new ByteArrayInputStream(archive));
+	protected void addAllResources(InputStream archive, String path, int notifyOption) {
+		ZipInputStream zipStream = new ZipInputStream(archive);
 		ZipEntry entry;
 		String contentType;
 		if (path.charAt(0) == '/') {
@@ -263,10 +267,10 @@ public class ResourcesHandler implements HandlesImportable {
 				if (entry.isDirectory()) {
 
 					addContentCollection(path + entry.getName(), resourceProps);
-					addAllResources(contents.toByteArray(), path + entry.getName(), notifyOption);
+					addAllResources(new ByteArrayInputStream(contents.toByteArray()), path + entry.getName(), notifyOption);
 				}
 				else {
-					addContentResource(path + entry.getName(), contentType, contents.toByteArray(), resourceProps, notifyOption);
+					addContentResource(path + entry.getName(), contentType, new ByteArrayInputStream(contents.toByteArray()), resourceProps, notifyOption);
 				}
 				
 			}
@@ -275,7 +279,7 @@ public class ResourcesHandler implements HandlesImportable {
 		} 
 	}
 
-	protected ContentResource addContentResource(String id, String contentType, byte[] contents, Map properties, int notifyOption) {
+	protected ContentResource addContentResource(String id, String contentType, InputStream contents, Map properties, int notifyOption) {
 		try {
 			id = makeIdCleanAndLengthCompliant(id);
 			ResourcePropertiesEdit resourceProps = contentHostingService.newResourceProperties();

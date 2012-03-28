@@ -25,6 +25,7 @@ import java.util.Collection;
 
 import org.sakaiproject.importer.api.ImportDataSource;
 import org.sakaiproject.component.cover.ComponentManager;
+import java.io.InputStream;
 
 public class ImportService {
 	/**
@@ -50,11 +51,11 @@ public class ImportService {
 		getInstance().doImportItems(importables, siteId);
 	}
 	
-	public static boolean isValidArchive(byte[] archiveFileData) {
+	public static boolean isValidArchive(InputStream archiveFileData) {
 		return getInstance().isValidArchive(archiveFileData);
 	}
 	
-	public static ImportDataSource parseFromFile(byte[] archiveFileData) {
+	public static ImportDataSource parseFromFile(InputStream archiveFileData) {
 		return getInstance().parseFromFile(archiveFileData);
 	}
 
