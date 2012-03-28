@@ -39,7 +39,7 @@
 			<h:outputText value="#{msgs.search}" />
 		<f:verbatim></h1></f:verbatim>
 		<h:outputLabel value="#{msgs.search}" for="searchField" styleClass="skip"/>
-		<h:inputText value="#{SearchTool.searchString}" required="true" onclick="clearText(this)" id="searchField"/>
+		<h:inputText value="#{SearchTool.searchString}" onclick="clearText(this)" id="searchField"/>
 		<h:commandButton action="#{SearchTool.processActionSearch}" id="searchButton" value="#{msgs.search_button}"  onclick="document.getElementById('message').style.display = 'block';"> 
 			<help:defaultAction/>
 		</h:commandButton>
