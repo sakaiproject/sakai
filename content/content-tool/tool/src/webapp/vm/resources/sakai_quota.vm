@@ -8,7 +8,7 @@
 		$tlang.getString("quota.instr")
 	</div>
 	<div class="highlightPanel">
-	$tlang.getString("quota.using") $usage / $quota #if($usagePercent)($usagePercent%)#end
+	$tlang.getFormattedMessage("quota.using.param", $usagePercent, $usage, $quota)
 	</div>
 	<form action="#toolForm("ResourcesAction")" name="quotaForm" method="post" >
 		<p class ="act">
