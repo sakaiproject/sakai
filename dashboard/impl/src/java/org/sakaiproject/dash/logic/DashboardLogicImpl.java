@@ -735,13 +735,20 @@ public class DashboardLogicImpl implements DashboardLogic, Observer
 	 * @see org.sakaiproject.dash.logic.DashboardLogic#getSourceType(java.lang.String)
 	 */
 	public SourceType getSourceType(String identifier) {
+		SourceType  rv = null;
 		try {
-			return dao.getSourceType(identifier);
+			rv = dao.getSourceType(identifier);
 		} catch(Exception e) {
 			logger.debug("No context retrieved for identifier: " + identifier);
 		}
 		
-		return null ;
+		if (rv == null)
+		{
+			// create SourceType
+			rv = createSourceType(identifier);
+		}
+		
+		return rv ;
 	}
 
 	/* (non-Javadoc)
@@ -798,7 +805,7 @@ public class DashboardLogicImpl implements DashboardLogic, Observer
 			if(entityType == null) {
 				logger.warn("getString() invalid entityTypeId: " + entityTypeId);
 			} else {
-				str = entityType.getString(key, dflt);
+				str = entityType.getEventDisplayString(key, dflt);
 			}
 		}
 		return str;

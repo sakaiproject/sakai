@@ -104,8 +104,6 @@ public class AnnouncementSupport{
 	public void init() {
 		logger.info("init()");
 		
-		this.createOrUpdateSourceTypeDefinition();
-		
 		this.dashboardLogic.registerEntityType(new AnnouncementEntityType());
 		this.dashboardLogic.registerEventProcessor(new AnnouncementNewEventProcessor());
 		this.dashboardLogic.registerEventProcessor(new AnnouncementRemoveAnyEventProcessor());
@@ -161,13 +159,6 @@ public class AnnouncementSupport{
 		return retractDate;
 	}
 	
-	/**
-	 * @return
-	 */
-	protected SourceType createOrUpdateSourceTypeDefinition() {
-		return dashboardLogic.createSourceType(IDENTIFIER);
-	}
-	
 	private void createUpdateDashboardItemLinks(Event event, AnnouncementMessage annc) {
 		
 		String anncReference = annc.getReference();
@@ -181,9 +172,6 @@ public class AnnouncementSupport{
 			Context context = dashboardLogic.getContext(event.getContext());
 			
 			SourceType sourceType = dashboardLogic.getSourceType(IDENTIFIER);
-			if(sourceType == null) {
-				sourceType = createOrUpdateSourceTypeDefinition();
-			}
 			
 			// create NewsItem if not exist yet
 			newsItem = dashboardLogic.createNewsItem(anncTitle, event.getEventTime(), "announcement.added", anncReference, context, sourceType, null);
@@ -420,7 +408,10 @@ public class AnnouncementSupport{
 			return rv;
 		}
 
-		public String getString(String key, String dflt) {
+		/**
+		 * {@inheritDoc}
+		 */
+		public String getEventDisplayString(String key, String dflt) {
 			ResourceLoader rl = new ResourceLoader("dash_entity");
 			return rl.getString(key, dflt);
 		}

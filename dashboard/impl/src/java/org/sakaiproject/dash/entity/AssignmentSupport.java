@@ -308,7 +308,10 @@ public class AssignmentSupport {
 			}
 		}
 
-		public String getString(String key, String dflt) {
+		/**
+		 * {@inheritDoc}
+		 */
+		public String getEventDisplayString(String key, String dflt) {
 			logger.debug("getString() " + key);
 			ResourceLoader rl = new ResourceLoader("dash_entity");
 			return rl.getString(key, dflt);
@@ -389,7 +392,7 @@ public class AssignmentSupport {
 				Assignment assn = (Assignment) entity;
 				Context context = dashboardLogic.getContext(event.getContext());
 	            
-				SourceType sourceType = getOrCreateSourceType();
+				SourceType sourceType = dashboardLogic.getSourceType(IDENTIFIER);;
 				
 				String assnReference = assn.getReference();
 				
@@ -425,14 +428,6 @@ public class AssignmentSupport {
 				logger.warn("Error trying to process " + this.getEventIdentifer() + " event for entityReference " + event.getResource());
 			}
 		}
-	}
-	
-	private SourceType getOrCreateSourceType() {
-		SourceType sourceType = dashboardLogic.getSourceType(IDENTIFIER);
-		if(sourceType == null) {
-			sourceType = dashboardLogic.createSourceType(IDENTIFIER);
-		}
-		return sourceType;
 	}
 	
 	/**
@@ -609,7 +604,7 @@ public class AssignmentSupport {
 			
 			Context context = dashboardLogic.getContext(event.getContext());
             
-			SourceType sourceType = getOrCreateSourceType();
+			SourceType sourceType =  dashboardLogic.getSourceType(IDENTIFIER);
 			
 			if(entity != null && entity instanceof Assignment) {
 				// get the assignment entity and its current title
@@ -677,7 +672,7 @@ public class AssignmentSupport {
 			
 			Context context = dashboardLogic.getContext(event.getContext());
             
-			SourceType sourceType = getOrCreateSourceType();
+			SourceType sourceType =  dashboardLogic.getSourceType(IDENTIFIER);
 			
 			if(entity != null && entity instanceof Assignment) {
 				// get the assignment entity and its current title
@@ -719,7 +714,7 @@ public class AssignmentSupport {
 			
 			Context context = dashboardLogic.getContext(event.getContext());
             
-			SourceType sourceType = getOrCreateSourceType();
+			SourceType sourceType =  dashboardLogic.getSourceType(IDENTIFIER);
 			
 			if(entity != null && entity instanceof Assignment) {
 				// get the assignment entity and its current title

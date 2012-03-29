@@ -179,12 +179,12 @@ public interface EntityType {
 	public boolean isAvailable(String entityReference);
 	
 	/**
-	 * Retrieve a single string from a properties bundle.
+	 * Get the event display string
 	 * @param key
 	 * @param dflt TODO
 	 * @return
 	 */
-	public String getString(String key, String dflt);
+	public String getEventDisplayString(String key, String dflt);
 
 	/**
 	 * Retrieve a localized string from the properties bundle suitable for use as the title 

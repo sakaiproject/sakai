@@ -295,7 +295,10 @@ public class ScheduleSupport{
 			return false;
 		}
 		
-		public String getString(String key, String dflt) {
+		/**
+		 * {@inheritDoc}
+		 */
+		public String getEventDisplayString(String key, String dflt) {
 			ResourceLoader rl = new ResourceLoader("dash_entity");
 			return rl.getString(key, dflt);
 		}
@@ -428,9 +431,6 @@ public class ScheduleSupport{
 				Context context = dashboardLogic.getContext(eventContextString);
 				
 				SourceType sourceType = dashboardLogic.getSourceType(IDENTIFIER);
-				if(sourceType == null) {
-					sourceType = dashboardLogic.createSourceType(IDENTIFIER);
-				}
 				
 				// Third parameter in dashboardLogic.createCalendarItem() below should be a key for a label such as "Due Date: " or "Accept Until: " 
 				// from dash_entity properties bundle for use in the dashboard list
@@ -911,9 +911,6 @@ public class ScheduleSupport{
 				Context context = dashboardLogic.getContext(eventContextString);
 				
 				SourceType sourceType = dashboardLogic.getSourceType(IDENTIFIER);
-				if(sourceType == null) {
-					sourceType = dashboardLogic.createSourceType(IDENTIFIER);
-				}
 				
 				// Third parameter in dashboardLogic.createCalendarItem() below should be a key for a label such as "Due Date: " or "Accept Until: " 
 				// from dash_entity properties bundle for use in the dashboard list

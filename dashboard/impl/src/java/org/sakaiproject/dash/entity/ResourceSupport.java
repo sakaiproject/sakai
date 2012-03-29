@@ -82,8 +82,6 @@ public class ResourceSupport {
 	public void init() {
 		logger.info("init()");
 		
-		this.createOrUpdateSourceTypeDefinition();
-		
 		this.dashboardLogic.registerEntityType(new ResourceEntityType());
 		this.dashboardLogic.registerEntityType(new DropboxEntityType());
 		this.dashboardLogic.registerEventProcessor(new ContentNewEventProcessor());
@@ -293,7 +291,10 @@ public class ResourceSupport {
 			return permitted;
 		}
 
-		public String getString(String key, String dflt) {
+		/**
+		 * {@inheritDoc}
+		 */
+		public String getEventDisplayString(String key, String dflt) {
 			ResourceLoader rl = new ResourceLoader("dash_entity");
 			return rl.getString(key, dflt);
 		}
@@ -659,15 +660,9 @@ public class ResourceSupport {
 			boolean isDropboxResource = sakaiProxy.isDropboxResource(resource.getId());
 			if(isDropboxResource ) {
 				sourceType = dashboardLogic.getSourceType(DROPBOX_TYPE_IDENTIFIER);
-				if(sourceType == null) {
-					sourceType = dashboardLogic.createSourceType(DROPBOX_TYPE_IDENTIFIER);
-				}
 				labelKey = "dropbox.added";
 			} else {
 				sourceType = dashboardLogic.getSourceType(RESOURCE_TYPE_IDENTIFIER);
-				if(sourceType == null) {
-					sourceType = createOrUpdateSourceTypeDefinition();
-				}
 			}
 			
 			ResourceProperties props = resource.getProperties();
@@ -733,12 +728,4 @@ public class ResourceSupport {
 		}
 		return newsItem;
 	}
-
-	/**
-	 * @return
-	 */
-	protected SourceType createOrUpdateSourceTypeDefinition() {
-		return dashboardLogic.createSourceType(RESOURCE_TYPE_IDENTIFIER);
-	}
-
 }
