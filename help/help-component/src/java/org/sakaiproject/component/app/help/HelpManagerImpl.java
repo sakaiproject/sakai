@@ -51,6 +51,7 @@ import javax.xml.parsers.DocumentBuilderFactory;
 import javax.xml.parsers.ParserConfigurationException;
 
 import org.apache.commons.codec.binary.Base64;
+import org.apache.commons.lang.StringUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.apache.lucene.analysis.Analyzer;
@@ -90,7 +91,6 @@ import org.sakaiproject.tool.api.Tool;
 import org.sakaiproject.tool.api.ToolManager;
 import org.sakaiproject.user.api.PreferencesService;
 import org.sakaiproject.user.api.UserDirectoryService;
-import org.sakaiproject.util.StringUtil;
 import org.springframework.beans.factory.BeanFactory;
 import org.springframework.beans.factory.xml.XmlBeanFactory;
 import org.springframework.core.io.UrlResource;
@@ -1274,7 +1274,7 @@ public class HelpManagerImpl extends HibernateDaoSupport implements HelpManager
 		Set<Tool> toolSet = toolManager.findTools(null, null);
 
 		// find out what we want to ignore
-		List<String> hideHelp = Arrays.asList(StringUtil.split(serverConfigurationService.getString("help.hide"), ","));
+		List<String> hideHelp = Arrays.asList(StringUtils.split(serverConfigurationService.getString("help.hide"), ","));
 
 		for (Tool tool : toolSet) {
 			if (tool != null && tool.getId() != null && !hideHelp.contains(tool.getId()))
@@ -1283,7 +1283,7 @@ public class HelpManagerImpl extends HibernateDaoSupport implements HelpManager
 				String toolHelpCollections = tool.getRegisteredConfig().getProperty(TOOLCONFIG_HELP_COLLECTIONS);
 
 				if (toolHelpCollections != null)
-					extraCollections = StringUtil.split(toolHelpCollections, ",");
+					extraCollections = StringUtils.split(toolHelpCollections, ",");
 
 				// Loop throughout the locales list
 				for (String locale : locales)
