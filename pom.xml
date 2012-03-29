@@ -51,9 +51,6 @@
                 <!-- TEMP -->
                 <module>deploy</module>
             
-                <!-- Indie purepoms -->
-                <module>purepoms</module>
-            
                 <!-- Indie services -->
                 <module>kernel</module>
                 <module>common</module>

@@ -1,6 +1,3 @@
-# Indie purepoms
-purepoms https://source.sakaiproject.org/svn/pure-poms/trunk
-
 # Indie services
 kernel https://source.sakaiproject.org/svn/kernel/trunk
 common https://source.sakaiproject.org/svn/common/trunk
