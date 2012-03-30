@@ -66,6 +66,10 @@ public class AssessmentParser extends AbstractQTIParser implements ContentParser
                CartridgeLoader the_cartridge, 
                Element the_resource,
                boolean isProtected) throws ParseException {
+
+      // this is now handled by the import object method for the appropriate testing engine.
+      // I've seen this generate a spurious error, so don't do it
+      if (false) {
     try {
       String href=((Element)the_resource.getChildren(FILE, handler.getNs().cc_ns()).get(0)).getAttributeValue(HREF);
       Element qti=getXML(the_cartridge,href);
@@ -86,6 +90,7 @@ public class AssessmentParser extends AbstractQTIParser implements ContentParser
     } catch (IOException e) {
       throw new ParseException(e.getMessage(), e);
     } 
+      }
     handler.endAssessment();
   }  
 }
