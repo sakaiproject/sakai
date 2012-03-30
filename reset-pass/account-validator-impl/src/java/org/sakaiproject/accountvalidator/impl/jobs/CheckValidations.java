@@ -129,10 +129,18 @@ public class CheckValidations implements Job {
 		
 		
 		Calendar cal = new GregorianCalendar();
+		String maxDaysLocalStr = serverConfigurationService.getString("accountValidator.maxDays", "" + maxDays);
+		try{
+			maxDays = Integer.parseInt(maxDaysLocalStr);
+		}catch (Exception e) {}
 		cal.add(Calendar.DAY_OF_MONTH, (maxDays * -1));
 		Date maxAge = cal.getTime();
 		int maxAttempts =10;
-
+		String maxAttemptsStr = serverConfigurationService.getString("accountValidator.maxResendAttempts", "" + maxAttempts);
+		try{
+			maxAttempts = Integer.parseInt(maxAttemptsStr);
+		}catch (Exception e) {}
+		
 		StringBuilder usedAccounts = new StringBuilder();
 		List<String> oldAccounts = new ArrayList<String>();
 		//we need sent and resent
@@ -159,19 +167,20 @@ public class CheckValidations implements Job {
 				loggedInAccounts++;
 
 
-				if (account.getValidationSent().before(maxAge) && account.getValidationsSent().intValue() <= maxAttempts) {
-					if (serverConfigurationService.getBoolean("accountValidator.resendValidations", true)) {
+				if (account.getValidationsSent().intValue() < maxAttempts
+						&& serverConfigurationService.getBoolean(
+								"accountValidator.resendValidations", true)) {
 						validationLogic.resendValidation(account.getValidationToken());
-					} else {
-						//Seeing the account is used assume Validated in Some way
-						account.setStatus(ValidationAccount.STATUS_CONFIRMED);
-						validationLogic.save(account);
-					}
-					usedAccounts.append(account.getUserId() + "\n");
-				} else if (account.getValidationsSent().intValue() > maxAttempts) {
+				} else if (account.getValidationSent().before(maxAge) || account.getValidationsSent().intValue() >= maxAttempts) {
+					account.setStatus(ValidationAccount.STATUS_EXPIRED);
+					//set the received date so that it will create a new token the next time the user requests a reset
+					cal = new GregorianCalendar();
+					account.setvalidationReceived(cal.getTime());
+					validationLogic.save(account);
+				} else {
 					//TODO What do we do in this case?
 				}
-
+				usedAccounts.append(account.getUserId() + "\n");
 			} else {
 				//user has never logged in
 				log.debug("realm: " + "/site/~" + account.getUserId() + " does not seem to exist");

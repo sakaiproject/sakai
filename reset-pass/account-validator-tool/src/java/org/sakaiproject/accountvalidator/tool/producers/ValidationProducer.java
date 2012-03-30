@@ -134,6 +134,10 @@ ViewParamsReporter, ActionResultInterceptor {
 				Object[] args = new Object[]{ vvp.tokenId};
 				tml.addMessage(new TargettedMessage("msg.alreadyValidated", args, TargettedMessage.SEVERITY_ERROR));
 				return;
+			} else if (ValidationAccount.STATUS_EXPIRED.equals((va.getStatus()))){
+				Object[] args = new Object[]{ vvp.tokenId};
+				tml.addMessage(new TargettedMessage("msg.expiredValidation", args, TargettedMessage.SEVERITY_ERROR));
+				return;
 			}
 		} else {
 			//with no VP we need to exit

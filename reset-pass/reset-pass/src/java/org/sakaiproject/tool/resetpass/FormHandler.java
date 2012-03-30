@@ -148,7 +148,9 @@ public class FormHandler {
 
 			//securityService.popAdvisor(sa);
 
-			String productionSiteName = serverConfigurationService.getString("ui.service", "");
+			String productionSiteName = serverConfigurationService.getString("reset-pass.productionSiteName", "");
+			if(productionSiteName == null || "".equals(productionSiteName))
+				productionSiteName = serverConfigurationService.getString("ui.service", "");
 
 			StringBuffer buff = new StringBuffer();
 			buff.setLength(0);
