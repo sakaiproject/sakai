@@ -124,6 +124,9 @@ function loadpicker(address) {
 // checks if we're in pda mode on a small screen to see if the popup should be loaded
 // or if the original method of redirecting the frame should be used
 function picker() {
+        // allow site to choose whether to use this
+	if ($('#newui').text() != 'true') return false;
+
 	if (window == window.top && $(window).height() < 600) return false;	
 	
 	return true;
