@@ -96,7 +96,7 @@ public class HtmlPageFilter implements ContentFilter {
 
 	public HttpServletResponse wrap(final HttpServletResponse response, final ContentResource content) {
 		Reference contentRef = entityManager.newReference(content.getReference());
-		Reference siteRef = entityManager.newReference(contentRef.getContext());
+		Reference siteRef = entityManager.newReference("/site/"+ contentRef.getContext());
 		Entity entity = siteRef.getEntity();
 		
 		String addHtml = content.getProperties().getProperty(ResourceProperties.PROP_ADD_HTML);
