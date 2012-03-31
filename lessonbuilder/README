@@ -77,6 +77,16 @@ you will want to create the indices using
 You may get an error because there is one index created by
 the first sql script.
 
+TOMCAT
+
+We strongly recommend using "-Dfile.encoding=UTF-8" in JAVAOPTS for Tomcat. 
+Without this you may get strange failures when importing Common Cartridge
+files. Lesson Builder is not the only application that requires this. 
+Problems have been reported in Samigo as well.
+
+This option goes on the command line in start-sakai.sh or start-sakai.bat
+in the demo. Normally for production setups JAVAOPTS is set in tomcat/bin/catalina.sh
+or tomcat/bin/setenv.sh.
 
 BLTI
 
@@ -105,14 +115,6 @@ The most recent version of Lesson Builder is set up so that it should
 be usable without any setup after simply installing the code. However
 some work will be needed to get full functionality. How much work that
 is depends upon the version of Sakai.
-
-There's one exception. If you want to test Common Cartridge import,
-you must set 
-     content.html.forcedownload=false
-in sakai.properties, or have an adminstrator set "allow HTML files"
-in "edit details" for the main collection in your site. This change
-will not be necessay for the final version of Lesson Builder in 
-Sakai 2.9.
 
 
 FOR A MORE PERMANENT SETUP:
