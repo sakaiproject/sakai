@@ -27,32 +27,8 @@
 
 
 (function() {
-    CKEDITOR.plugins.wordcount = {
-    };
-
 		//From elementpath
-		var spaceId; 
-		var spaceElement;
-		var getSpaceElement = function()
-		{
-				if ( !spaceElement )
-						spaceElement = CKEDITOR.document.getById( spaceId );
-				return spaceElement;
-		}
-
 		var emptyHtml = '<span class="cke_empty">&nbsp;</span>';
-    
-    var plugin = CKEDITOR.plugins.wordcount;
-
-    /**
-    * Shows word count
-    * 
-    */
-    function ShowWordCount(evt) {
-        var editor = evt.editor;
-				space = getSpaceElement();
-				space.setHtml( editor.lang.WordCountTxt + " : " + getWordCount(editor.getData()) );
-    }
     
     /**
 	  * Counts the words, from forum.js 
@@ -74,19 +50,41 @@
     CKEDITOR.plugins.add('wordcount', {
 				lang: ['en'], 
         init: function(editor) {
-						spaceId = 'cke_wordcount_' + editor.name;
-						editor.on('instanceReady', function(){
+						var spaceId = 'cke_wordcount_' + editor.name;
+						var spaceElement;
+						var getSpaceElement = function()
+						{
+								if ( !spaceElement )
+										spaceElement = CKEDITOR.document.getById( spaceId );
+								return spaceElement;
+						}
+
+						/**
+						* Shows word count
+						*/
+						var ShowWordCount = function (evt) {
+								if (evt) {
+										var editor = evt.editor;
+										space = getSpaceElement(editor);
+										space.setHtml( editor.lang.WordCountTxt + " : " + getWordCount(editor.getData()) );
+								}
+						}
+
+						editor.on('instanceReady', function(evt){
 										//Word count div needs to exist?? themeSpace can wait for it now
-						});
+										//Show initial count
+										ShowWordCount(evt)
+								});
+
             editor.on('key', ShowWordCount);
             editor.on('paste', ShowWordCount);
 
-						editor.on( 'themeSpace', function( event )
+						editor.on( 'themeSpace', function( evt )
 								{
 										//Creating bottom
-										if ( event.data.space == 'bottom' )
+										if ( evt.data.space == 'bottom' )
 										{
-												event.data.html +=
+												evt.data.html +=
 														'<span id="' + spaceId + '_label" class="cke_voice_label">' + editor.lang.elementsPath.eleLabel + '</span>' +
 														'<div id="' + spaceId + '" style="float:right" class="cke_wordcount" role="group" aria-labelledby="' + spaceId + '_label">' + emptyHtml + '</div>';
 										}
