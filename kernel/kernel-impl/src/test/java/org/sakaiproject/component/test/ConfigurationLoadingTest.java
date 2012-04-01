@@ -122,6 +122,40 @@ public class ConfigurationLoadingTest extends SakaiKernelTestBase {
 		assertEquals("Property value for \"overrideString1@org.sakaiproject.component.test.ITestComponent2\" not dereferenced",
 				"str1-str2-str3", serverConfigurationService.getString("overrideString1@org.sakaiproject.component.test.ITestComponent2"));
 	}
+
+    /**
+     * Verifies that multi-valued parsing is working properly. There are two
+     * syntaxes that work: 1) traditional ".count" and ".1", ".2", etc., values,
+     * and 2) Comma-separated values directly on a property.
+     */
+    public void testMultipleStrings() {
+        String[] countAndList = serverConfigurationService.getStrings("stringCountAndList");
+        assertEquals("Property with count not loaded properly.", 3, countAndList.length);
+        assertEquals("Property with count should not parse CSV", "this,will,not,split", countAndList[0]);
+        String splitError = "CSV strings should be split";
+
+        String[] stringList = serverConfigurationService.getStrings("stringList");
+        assertEquals(splitError, 3, stringList.length);
+        assertEquals(splitError, "this", stringList[0]);
+        assertEquals(splitError, "should", stringList[1]);
+        assertEquals(splitError, "split", stringList[2]);
+
+        // These are commented for now, since Commons Configuration would
+        // require some customization to parse values according to the CSV RFC.
+        /*
+        String[] stringCsv = serverConfigurationService.getStrings("stringCsv");
+        assertEquals(splitError, 3, stringCsv.length);
+        assertEquals(splitError, "this", stringCsv[0]);
+        assertEquals(splitError, "should", stringCsv[1]);
+        assertEquals(splitError, "split", stringCsv[2]);
+
+        String[] stringMixedCsv = serverConfigurationService.getStrings("stringMixedCsv");
+        assertEquals(splitError, 3, stringMixedCsv.length);
+        assertEquals(splitError, "this", stringMixedCsv[0]);
+        assertEquals(splitError, "should", stringMixedCsv[1]);
+        assertEquals(splitError, "also,split", stringMixedCsv[2]);
+        */
+    }
 	
 	/**
 	 * Verifies that property placeholders are dereferenced appropriately for special 

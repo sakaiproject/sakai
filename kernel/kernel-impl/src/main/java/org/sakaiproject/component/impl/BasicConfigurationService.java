@@ -37,6 +37,8 @@ import java.util.Properties;
 import java.util.Vector;
 import java.util.concurrent.ConcurrentHashMap;
 
+import org.apache.commons.configuration.BaseConfiguration;
+import org.apache.commons.configuration.ConversionException;
 import org.apache.commons.lang.StringUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
@@ -510,6 +512,23 @@ public class BasicConfigurationService implements ServerConfigurationService, Ap
             // store the array in the properties
             this.addConfigItem(new ConfigItemImpl(name, rv, TYPE_ARRAY, SOURCE_GET_STRINGS), SOURCE_GET_STRINGS);
             return rv;
+        } else {
+            String value = getString(name);
+            if (value != null) {
+                BaseConfiguration conf = new BaseConfiguration();
+                conf.addProperty(name, value);
+                try {
+                    String[] rv = conf.getStringArray(name);
+                    this.addConfigItem(new ConfigItemImpl(name, rv, TYPE_ARRAY, SOURCE_GET_STRINGS), SOURCE_GET_STRINGS);
+                    return rv;
+                } catch (ConversionException e) {
+                    if (M_log.isDebugEnabled()) {
+                        M_log.debug("Config property '" + name + "' read as multi-valued "
+                                  + "string, but does not have a count and is not a "
+                                  + "string or string list.", e);
+                    }
+                }
+            }
         }
 
         return null;
