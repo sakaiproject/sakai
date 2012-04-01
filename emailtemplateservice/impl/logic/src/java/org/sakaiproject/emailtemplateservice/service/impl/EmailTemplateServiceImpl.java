@@ -370,7 +370,7 @@ public void sendRenderedMessages(String key, List<String> userReferences,
 			
 				message.append(TERMINATION_LINE);
 				
-				// we need to manually contruct the headers
+				// we need to manually construct the headers
 				List<String> headers = new ArrayList<String>();
 				//the template may specify a from address
 				if (rt.getFrom() != null) {
@@ -390,7 +390,8 @@ public void sendRenderedMessages(String key, List<String> userReferences,
 				
 				headers.add("To: \"" + toName + "\" <" + toEmail + ">" );
 				
-				headers.add("Subject: " + rt.getSubject());
+				//SAK-21742 we need the rendered subject
+				headers.add("Subject: " + rt.getRenderedSubject());
 				headers.add("Content-Type: multipart/alternative; boundary=\"" + MULTIPART_BOUNDARY + "\"");
 				headers.add("Mime-Version: 1.0");
 				headers.add("Precedence: bulk");
