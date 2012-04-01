@@ -34,6 +34,7 @@ import javax.servlet.http.HttpServletResponse;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.sakaiproject.tool.api.Tool;
+import org.sakaiproject.util.ResourceLoader;
 import org.sakaiproject.util.Web;
 
 /**
@@ -59,6 +60,9 @@ public class SakaiViewHandler extends ViewHandler
 	/** The wrapped ViewHandler. */
 	private ViewHandler m_wrapped = null;
 
+	/** Resource bundle using current language locale. */
+	private ResourceLoader rb;
+
 	private SakaiViewHandler()
 	{
 	}
@@ -66,6 +70,7 @@ public class SakaiViewHandler extends ViewHandler
 	public SakaiViewHandler(ViewHandler wrapped)
 	{
 		m_wrapped = wrapped;
+		rb = new ResourceLoader();
 	}
 
 	public String getActionURL(FacesContext context, String viewId)
@@ -107,7 +112,7 @@ public class SakaiViewHandler extends ViewHandler
 
 	public Locale calculateLocale(FacesContext arg0)
 	{
-		return m_wrapped.calculateLocale(arg0);
+		return rb.getLocale();
 	}
 
 	public String calculateRenderKitId(FacesContext arg0)
