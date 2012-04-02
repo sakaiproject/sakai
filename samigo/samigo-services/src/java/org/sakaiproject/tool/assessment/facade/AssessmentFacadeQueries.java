@@ -550,15 +550,11 @@ public class AssessmentFacadeQueries extends HibernateDaoSupport implements
 		assessment.setSectionSet(new HashSet());
 		getHibernateTemplate().save(assessment);
 
-		// register assessmnet with current site
+		// register assessment with current site
 		registerWithSite(assessment.getAssessmentId().toString(), siteId);
 		return new AssessmentFacade(assessment);
 	}
 
-	private AssessmentData prepareAssessment(String title, String description,
-			Long typeId, Long templateId) throws Exception {
-		return prepareAssessment(title, description, typeId, templateId, null);
-	}
 
 	private AssessmentData prepareAssessment(String title, String description,
 			Long typeId, Long templateId, String siteId) throws Exception {
