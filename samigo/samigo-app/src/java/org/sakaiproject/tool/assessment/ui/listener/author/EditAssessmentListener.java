@@ -221,9 +221,23 @@ public class EditAssessmentListener
   }
   
   public static void showPrintLink(AssessmentBean assessmentBean) {
-	  log.debug("first condition = " + (ToolManager.getTool("sakai.questionbank.printout") != null));
-	  log.debug("second conditon = " + !ServerConfigurationService.getString("stealthTools@org.sakaiproject.tool.api.ActiveToolManager").contains("sakai.questionbank.printout"));
-	  log.debug("third condition = " + !ServerConfigurationService.getString("hiddenTools@org.sakaiproject.tool.api.ActiveToolManager").contains("sakai.questionbank.printout"));
+	  //Doing lots of string appends so only do this if we're in debug
+	  if (log.isDebugEnabled()) {
+		  log.debug("first condition = " + (ToolManager.getTool("sakai.questionbank.printout") != null));
+		  //Its possible for stealthTools and HiddenTools to be empty or null - DH
+		  String stealthTools =ServerConfigurationService.getString("stealthTools@org.sakaiproject.tool.api.ActiveToolManager"); 
+		  if (stealthTools != null && !"".equals(stealthTools)) {
+			  log.debug("second conditon = " + !stealthTools.contains("sakai.questionbank.printout"));
+		  } else {
+			  log.debug("second conditon = steathTools is empyty");
+		  }
+		  String hiddenTools = ServerConfigurationService.getString("hiddenTools@org.sakaiproject.tool.api.ActiveToolManager");
+		  if (hiddenTools != null && !"".equals(hiddenTools)) {
+		  log.debug("third condition = " + !hiddenTools.contains("sakai.questionbank.printout"));
+		  } else {
+			  log.debug("third condition = hiddenTools is empty");
+		  }
+	  }
 	  String printAssessment = ServerConfigurationService.getString("samigo.printAssessment");
 
 	  if (((ToolManager.getTool("sakai.questionbank.printout") != null)
