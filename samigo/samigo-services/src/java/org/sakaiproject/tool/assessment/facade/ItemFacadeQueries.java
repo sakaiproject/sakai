@@ -47,6 +47,7 @@ import org.sakaiproject.tool.assessment.data.ifc.assessment.SectionDataIfc;
 import org.sakaiproject.tool.assessment.osid.shared.impl.IdImpl;
 import org.sakaiproject.tool.assessment.services.PersistenceService;
 import org.sakaiproject.tool.assessment.services.assessment.AssessmentService;
+import org.springframework.dao.DataAccessException;
 import org.springframework.orm.hibernate3.HibernateCallback;
 import org.springframework.orm.hibernate3.support.HibernateDaoSupport;
 
@@ -492,8 +493,13 @@ public class ItemFacadeQueries extends HibernateDaoSupport implements ItemFacade
   }
 
   public ItemFacade getItem(Long itemId) {
-    ItemData item = (ItemData) getHibernateTemplate().load(ItemData.class, itemId);
-    return new ItemFacade(item);
+	  ItemData item = null;
+	  try {
+		  item = (ItemData) getHibernateTemplate().load(ItemData.class, itemId);
+	  } catch (DataAccessException e) {
+		  return null;
+	  }
+	  return new ItemFacade(item);
   }
 
 

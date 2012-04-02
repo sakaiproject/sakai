@@ -69,28 +69,10 @@ public interface ItemFacadeQueriesAPI
   public ItemFacade saveItem(ItemFacade item) throws DataFacadeException;
 
   /**
-   private void exportXml(ItemDataIfc item) {
-   XStream xstream = new XStream();
-   xstream = new XStream(new DomDriver());
-   xstream.alias("item", ItemData.class);
-   xstream.alias("itemText", ItemText.class);
-   xstream.alias("itemFeedback", ItemFeedback.class);
-   xstream.alias("itemMetaData", ItemMetaData.class);
-   xstream.alias("answer", Answer.class);
-   xstream.alias("answerFeedback", AnswerFeedback.class);
-   String xml = xstream.toXML(item);
-   byte[] b = xml.getBytes();
-   try {
-   FileOutputStream out = new FileOutputStream("out");
-   out.write(b);
-   }
-   catch (FileNotFoundException ex) {
-   }
-   catch (IOException ex1) {
-   }
-   }
+   * Retrieve an item from storage
+   * @param itemId the item id
+   * @return the item or null if not found
    */
-
   public ItemFacade getItem(Long itemId);
 
   public HashMap getItemsByKeyword(String keyword);
