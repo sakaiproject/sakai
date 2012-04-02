@@ -31,7 +31,7 @@ import java.util.Map;
 /**
  * originally Tree.java
  * @author esmiley@stanford.edu
- * @version $Id: Tree.java 632 2005-07-14 21:22:50Z janderse@umich.edu $
+ * @version $Id$
  */
 public interface Tree extends Serializable
 {

@@ -1,6 +1,6 @@
 /**********************************************************************************
- * $URL: https://source.sakaiproject.org/svn/sam/trunk/component/src/java/org/sakaiproject/tool/assessment/qti/helper/assessment/AssessmentHelperIfc.java $
- * $Id: AssessmentHelperIfc.java 9274 2006-05-10 22:50:48Z daisyf@stanford.edu $
+ * $URL$
+ * $Id$
  ***********************************************************************************
  *
  * Copyright (c) 2003, 2004, 2005, 2006, 2007, 2008 The Sakai Foundation
@@ -37,7 +37,7 @@ import java.util.Set;
  * <p>Copyright: Copyright (c) 2005</p>
  * <p>Organization: Sakai Project</p>
  * @author Ed Smiley esmiley@stanford.edu
- * @version $Id: AssessmentHelperIfc.java 9274 2006-05-10 22:50:48Z daisyf@stanford.edu $
+ * @version $Id$
  */
 public interface AssessmentHelperIfc
 {

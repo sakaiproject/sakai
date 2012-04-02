@@ -1,6 +1,6 @@
 /**********************************************************************************
- * $URL: https://source.sakaiproject.org/svn/sam/trunk/component/src/java/org/sakaiproject/tool/assessment/util/BeanSortComparator.java $
- * $Id: BeanSortComparator.java 9273 2006-05-10 22:34:28Z daisyf@stanford.edu $
+ * $URL$
+ * $Id$
  ***********************************************************************************
  *
  * Copyright (c) 2005, 2006, 2008, 2009 The Sakai Foundation
@@ -37,7 +37,7 @@ import org.apache.commons.logging.LogFactory;
  * DOCUMENTATION PENDING
  *
  * @author $author$
- * @version $Id: BeanSortComparator.java 9273 2006-05-10 22:34:28Z daisyf@stanford.edu $
+ * @version $Id$
  */
 public class BeanSortComparator
   implements Comparator

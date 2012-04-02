@@ -1,6 +1,6 @@
 /**********************************************************************************
- * $URL: https://source.sakaiproject.org/svn/sam/trunk/component/src/java/org/sakaiproject/tool/assessment/util/BeanDateComparator.java $
- * $Id: BeanDateComparator.java 9273 2006-05-10 22:34:28Z daisyf@stanford.edu $
+ * $URL$
+ * $Id$
  ***********************************************************************************
  *
  * Copyright (c) 2005, 2006, 2007, 2008 The Sakai Foundation
@@ -30,7 +30,7 @@ import java.text.*;
  * DOCUMENTATION PENDING
  *
  * @author $author$
- * @version $Id: BeanDateComparator.java 9273 2006-05-10 22:34:28Z daisyf@stanford.edu $
+ * @version $Id$
  */
 public class BeanDateComparator
   extends BeanSortComparator

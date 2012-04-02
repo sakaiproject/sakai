@@ -1,6 +1,6 @@
 /**********************************************************************************
- * $URL: https://source.sakaiproject.org/svn/sam/trunk/component/src/java/org/sakaiproject/tool/assessment/facade/QuestionPoolFacadeQueriesAPI.java $
- * $Id: QuestionPoolFacadeQueriesAPI.java 9343 2006-05-12 23:30:02Z lydial@stanford.edu $
+ * $URL$
+ * $Id$
  ***********************************************************************************
  *
  * Copyright (c) 2004, 2005, 2006, 2007, 2008 The Sakai Foundation

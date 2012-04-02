@@ -1,6 +1,6 @@
 /**********************************************************************************
- * $URL: https://source.sakaiproject.org/svn/sam/trunk/component/src/java/org/sakaiproject/tool/assessment/qti/helper/item/ItemHelper20Impl.java $
- * $Id: ItemHelper20Impl.java 9274 2006-05-10 22:50:48Z daisyf@stanford.edu $
+ * $URL$
+ * $Id$
  ***********************************************************************************
  *
  * Copyright (c) 2003, 2004, 2005, 2006, 2008, 2009 The Sakai Foundation
@@ -47,7 +47,7 @@ import org.sakaiproject.tool.assessment.qti.helper.AuthoringXml;
  * <p>Organization: Sakai Project</p>
  * <p>Version for QTI 2.0 item XML, significant differences between 1.2 and 2.0</p>
  * @author Ed Smiley esmiley@stanford.edu
- * @version $Id: ItemHelper20Impl.java 9274 2006-05-10 22:50:48Z daisyf@stanford.edu $
+ * @version $Id$
  */
 
 public class ItemHelper20Impl extends ItemHelperBase

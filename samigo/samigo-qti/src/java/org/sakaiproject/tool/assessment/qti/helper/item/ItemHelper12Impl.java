@@ -1,6 +1,6 @@
 /**********************************************************************************
- * $URL: https://source.sakaiproject.org/svn/sam/trunk/component/src/java/org/sakaiproject/tool/assessment/qti/helper/item/ItemHelper12Impl.java $
- * $Id: ItemHelper12Impl.java 9274 2006-05-10 22:50:48Z daisyf@stanford.edu $
+ * $URL$
+ * $Id$
  ***********************************************************************************
  *
  * Copyright (c) 2003, 2004, 2005, 2006, 2007, 2008, 2009 The Sakai Foundation
@@ -50,7 +50,7 @@ import org.sakaiproject.tool.assessment.data.ifc.assessment.AnswerFeedbackIfc;
 
 /**
  * <p>Version for QTI 1.2 item XML, significant differences between 1.2 and 2.0</p>
- * * @version $Id: ItemHelper12Impl.java 9274 2006-05-10 22:50:48Z daisyf@stanford.edu $
+ * * @version $Id$
  * 
  * Many methods in Fill in Blank and Numerical Responses(FIN) are identical for now.  
  * This might change if we want to add random variable, parameterized calculation....

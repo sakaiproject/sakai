@@ -40,7 +40,7 @@ import org.sakaiproject.tool.assessment.ui.listener.util.ContextUtil;
  * <p>Title: Samigo</p>
  * <p>Description: Sakai Assessment Manager Export to QTI</p>
  * @author Ed Smiley
- * @version $Id: ShowMediaServlet.java 244 2005-06-24 04:06:14Z daisyf@stanford.edu $
+ * @version $Id$
  */
 
 public class ShowQTIServlet extends HttpServlet

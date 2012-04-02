@@ -1,6 +1,6 @@
 /**********************************************************************************
- * $URL: https://source.sakaiproject.org/svn/sam/trunk/component/src/java/org/sakaiproject/tool/assessment/qti/util/Iso8601DateFormat.java $
- * $Id: Iso8601DateFormat.java 9274 2006-05-10 22:50:48Z daisyf@stanford.edu $
+ * $URL$
+ * $Id$
  ***********************************************************************************
  *
  * Copyright (c) 2005, 2006, 2008, 2009 The Sakai Foundation
@@ -39,7 +39,7 @@ import org.sakaiproject.tool.assessment.qti.exception.Iso8601FormatException;
  * Based on ISO8601 Specification.
  *
  * @author <a href="mailto:lance@indiana.edu">Lance Speelmon</a>
- * @version $Id: Iso8601DateFormat.java 9274 2006-05-10 22:50:48Z daisyf@stanford.edu $
+ * @version $Id$
  */
 public class Iso8601DateFormat
 {

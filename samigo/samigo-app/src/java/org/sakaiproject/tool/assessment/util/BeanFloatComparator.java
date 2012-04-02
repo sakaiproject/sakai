@@ -1,6 +1,6 @@
 /**********************************************************************************
- * $URL: https://source.sakaiproject.org/svn/sam/trunk/component/src/java/org/sakaiproject/tool/assessment/util/BeanFloatComparator.java $
- * $Id: BeanFloatComparator.java 9273 2006-05-10 22:34:28Z daisyf@stanford.edu $
+ * $URL$
+ * $Id$
  ***********************************************************************************
  *
  * Copyright (c) 2005, 2006, 2008 The Sakai Foundation
@@ -31,7 +31,7 @@ import java.util.Map;
  * DOCUMENTATION PENDING
  *
  * @author $author$
- * @version $Id: BeanFloatComparator.java 9273 2006-05-10 22:34:28Z daisyf@stanford.edu $
+ * @version $Id$
  */
 public class BeanFloatComparator
   extends BeanSortComparator

@@ -1,6 +1,6 @@
 /**********************************************************************************
- * $URL: https://source.sakaiproject.org/svn/sam/trunk/component/src/java/org/sakaiproject/tool/assessment/util/TextFormat.java $
- * $Id: TextFormat.java 9273 2006-05-10 22:34:28Z daisyf@stanford.edu $
+ * $URL$
+ * $Id$
  ***********************************************************************************
  *
  * Copyright (c) 2005, 2006, 2007, 2008, 2009 The Sakai Foundation
@@ -36,7 +36,7 @@ import org.apache.commons.logging.LogFactory;
  * <p>Organization: Sakai Project</p>
  * @author jlannan
  * @author Ed Smiley esmiley@stanford.edu
- * @version $Id: TextFormat.java 9273 2006-05-10 22:34:28Z daisyf@stanford.edu $
+ * @version $Id$
  */
 public class TextFormat
 {

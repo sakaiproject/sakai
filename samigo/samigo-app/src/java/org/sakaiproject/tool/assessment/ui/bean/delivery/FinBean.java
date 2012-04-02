@@ -1,6 +1,6 @@
 /**********************************************************************************
- * $URL:  $
- * $Id: $
+ * $URL$
+ * $Id$
  ***********************************************************************************
  *
  * Copyright (c) 2004, 2005, 2006, 2008 The Sakai Foundation
@@ -29,7 +29,7 @@ import org.sakaiproject.tool.assessment.data.dao.grading.ItemGradingData;
 import org.sakaiproject.tool.assessment.data.ifc.assessment.AnswerIfc;
 
 /**
- * $Id:  $
+ * $Id$
  */
 public class FinBean
 {

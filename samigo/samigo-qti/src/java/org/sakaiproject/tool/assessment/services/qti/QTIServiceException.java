@@ -1,6 +1,6 @@
 /**********************************************************************************
- * $URL: https://source.sakaiproject.org/svn/sam/trunk/component/src/java/org/sakaiproject/tool/assessment/services/qti/QTIServiceException.java $
- * $Id: QTIServiceException.java 9273 2006-05-10 22:34:28Z daisyf@stanford.edu $
+ * $URL$
+ * $Id$
  ***********************************************************************************
  *
  * Copyright (c) 2005, 2006, 2008 The Sakai Foundation
@@ -27,7 +27,7 @@ package org.sakaiproject.tool.assessment.services.qti;
  * <p>Copyright: Copyright (c) 2005 Sakai</p>
  * <p> </p>
  * @author Ed Smiley esmiley@stanford.edu
- * @version $Id: QTIServiceException.java 9273 2006-05-10 22:34:28Z daisyf@stanford.edu $
+ * @version $Id$
  */
 
 public class QTIServiceException extends RuntimeException

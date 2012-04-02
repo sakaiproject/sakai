@@ -1,6 +1,6 @@
 /**********************************************************************************
- * $URL: https://source.sakaiproject.org/svn/sam/trunk/samigo-app/src/java/org/sakaiproject/tool/assessment/ui/listener/author/ConfirmRemoveAssessmentListener.java $
- * $Id: ConfirmRemoveAssessmentListener.java 16926 2006-10-09 23:19:51Z ktsao@stanford.edu $
+ * $URL$
+ * $Id$
  ***********************************************************************************
  *
  * Copyright (c) 2007, 2008 The Sakai Foundation
@@ -45,7 +45,7 @@ import org.apache.commons.logging.LogFactory;
  * <p>Title: Samigo</p>
  * <p>Description: Sakai Assessment Manager</p>
  * @author Ed Smiley
- * @version $Id: ConfirmRemoveAssessmentListener.java 16926 2006-10-09 23:19:51Z ktsao@stanford.edu $
+ * @version $Id$
  */
 
 public class ConfirmRemovePublishedAssessmentListener implements ActionListener

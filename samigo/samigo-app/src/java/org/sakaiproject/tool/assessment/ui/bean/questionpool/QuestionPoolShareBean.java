@@ -1,6 +1,6 @@
 /**********************************************************************************
- * $URL: https://source.sakaiproject.org/svn/sam/trunk/samigo-app/src/java/org/sakaiproject/tool/assessment/ui/bean/questionpool/QuestionPoolBean.java $
- * $Id: QuestionPoolBean.java 46438 2008-05-14 22:05:27Z ktsao@stanford.edu $
+ * $URL$
+ * $Id$
  ***********************************************************************************
  *
  * Copyright (c) 2006, 2008, 2009 The Sakai Foundation
@@ -52,7 +52,7 @@ import org.sakaiproject.tool.assessment.business.questionpool.QuestionPoolTreeIm
  *
  * @author Rachel Gollub <rgollub@stanford.edu>
  * @author Lydia Li<lydial@stanford.edu>
- * $Id: QuestionPoolBean.java 46438 2008-05-14 22:05:27Z ktsao@stanford.edu $
+ * $Id$
  */
 public class QuestionPoolShareBean implements Serializable
 {

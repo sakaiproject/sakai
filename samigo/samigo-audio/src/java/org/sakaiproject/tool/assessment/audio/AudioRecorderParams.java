@@ -1,6 +1,6 @@
 /**********************************************************************************
- * $URL: https://source.sakaiproject.org/svn/sam/tags/sakai_2-2-002/audio/src/java/org/sakaiproject/tool/assessment/audio/AudioRecorderParams.java $
- * $Id: AudioRecorderParams.java 9270 2006-05-10 21:38:40Z daisyf@stanford.edu $
+ * $URL$
+ * $Id$
  ***********************************************************************************
  *
  * Copyright (c) 2005, 2006, 2007, 2008 The Sakai Foundation

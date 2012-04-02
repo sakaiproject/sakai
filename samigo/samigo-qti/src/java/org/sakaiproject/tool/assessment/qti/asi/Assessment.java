@@ -1,6 +1,6 @@
 /**********************************************************************************
- * $URL: https://source.sakaiproject.org/svn/sam/trunk/component/src/java/org/sakaiproject/tool/assessment/qti/asi/Assessment.java $
- * $Id: Assessment.java 9274 2006-05-10 22:50:48Z daisyf@stanford.edu $
+ * $URL$
+ * $Id$
  ***********************************************************************************
  *
  * Copyright (c) 2003, 2004, 2005, 2006, 2007, 2008 The Sakai Foundation
@@ -46,7 +46,7 @@ import org.sakaiproject.tool.assessment.qti.constants.QTIConstantStrings;
  * <p>Organization: Sakai Project</p>
  * @author casong
  * @author Ed Smiley esmiley@stanford.edu
- * @version $Id: Assessment.java 9274 2006-05-10 22:50:48Z daisyf@stanford.edu $
+ * @version $Id$
  */
 public class Assessment  extends ASIBaseClass
 {

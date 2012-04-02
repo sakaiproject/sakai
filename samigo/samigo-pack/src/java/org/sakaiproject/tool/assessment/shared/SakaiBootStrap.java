@@ -1,6 +1,6 @@
 /**********************************************************************************
- * $URL: https://source.sakaiproject.org/svn/sam/trunk/samigo-hibernate/src/java/org/sakaiproject/tool/assessment/data/dao/shared/SakaiBootStrap.java $
- * $Id: SakaiBootStrap.java 9273 2006-05-10 22:34:28Z daisyf@stanford.edu $
+ * $URL$
+ * $Id$
  ***********************************************************************************
  *
  * Copyright (c) 2004, 2005, 2006, 2007, 2008 The Sakai Foundation
@@ -31,7 +31,7 @@ import org.sakaiproject.db.api.SqlService;
  * This class will be used to initialize the state of the application.
  * 
  * @author <a href="mailto:lance@indiana.edu">Lance Speelmon</a>
- * @version $Id: SakaiBootStrap.java 9273 2006-05-10 22:34:28Z daisyf@stanford.edu $
+ * @version $Id$
  */
 public class SakaiBootStrap
 {

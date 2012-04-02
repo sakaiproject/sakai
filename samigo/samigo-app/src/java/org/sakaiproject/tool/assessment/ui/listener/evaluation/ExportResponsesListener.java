@@ -1,6 +1,6 @@
 /**********************************************************************************
- * $URL: https://source.sakaiproject.org/svn/sam/trunk/samigo-app/src/java/org/sakaiproject/tool/assessment/ui/listener/evaluation/TotalScoreListener.java $
- * $Id: TotalScoreListener.java 30029 2007-05-04 15:41:31Z ktsao@stanford.edu $
+ * $URL$
+ * $Id$
  ***********************************************************************************
  *
  * Copyright (c) 2007, 2008 The Sakai Foundation
@@ -37,7 +37,7 @@ import org.sakaiproject.tool.assessment.ui.listener.util.ContextUtil;
  * This handles the export of student responses.
  * </p>
  * <p>Description: Action Listener for Evaluation Total Score front door</p>
- * @version $Id: TotalScoreListener.java 30029 2007-05-04 15:41:31Z ktsao@stanford.edu $
+ * @version $Id$
  */
 
 public class ExportResponsesListener

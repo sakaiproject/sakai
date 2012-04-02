@@ -1,6 +1,6 @@
 /**********************************************************************************
-* $URL: * $URL: https://source.sakaiproject.org/svn/sam/trunk/component/src/java/org/sakaiproject/spring/SpringBeanLocator.java $
-* $Id: SpringBeanLocator.java 13802 2006-08-16 23:13:50Z ktsao@stanford.edu $
+* $URL$URL: https://source.sakaiproject.org/svn/sam/trunk/component/src/java/org/sakaiproject/spring/SpringBeanLocator.java $
+* $Id$
 ***********************************************************************************
 *
  * Copyright (c) 2005, 2006, 2008, 2009 The Sakai Foundation

@@ -1,6 +1,6 @@
 /**********************************************************************************
- * $URL: https://source.sakaiproject.org/svn/sam/tags/samigo-2.7.0/samigo-app/src/java/org/sakaiproject/tool/assessment/ui/bean/delivery/FibBean.java $
- * $Id: FibBean.java 59684 2009-04-03 23:33:27Z arwhyte@umich.edu $
+ * $URL$
+ * $Id$
  ***********************************************************************************
  *
  * Copyright (c) 2004, 2005, 2006, 2008 The Sakai Foundation
@@ -32,7 +32,7 @@ import org.sakaiproject.tool.assessment.data.ifc.assessment.ItemTextIfc;
 
 /**
  * @author kimhuang@rutgers.edu
- * $Id: MatrixSurveyBean.java 59684 2009-04-03 23:33:27Z kimhuang@rutgers.edu $
+ * $Id$
  */
 public class MatrixSurveyBean
 {

@@ -1,6 +1,6 @@
 /**********************************************************************************
- * $URL: https://source.sakaiproject.org/svn/sam/trunk/component/src/java/org/sakaiproject/tool/assessment/qti/asi/Item.java $
- * $Id: Item.java 9274 2006-05-10 22:50:48Z daisyf@stanford.edu $
+ * $URL$
+ * $Id$
  ***********************************************************************************
  *
  * Copyright (c) 2003, 2004, 2005, 2006, 2007, 2008 The Sakai Foundation
@@ -48,7 +48,7 @@ import org.sakaiproject.tool.assessment.qti.helper.item.ItemHelperIfc;
  * <p>Organization: Sakai Project</p>
  * @author rshastri
  * @author Ed Smiley esmiley@stanford.edu
- * @version $Id: Item.java 9274 2006-05-10 22:50:48Z daisyf@stanford.edu $
+ * @version $Id$
  */
 public class Item extends ASIBaseClass
 {

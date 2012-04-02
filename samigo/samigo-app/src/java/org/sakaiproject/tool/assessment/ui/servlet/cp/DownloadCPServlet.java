@@ -52,7 +52,7 @@ import org.sakaiproject.tool.assessment.ui.listener.util.ContextUtil;
 
 /**
  * <p>Title: Samigo</p>
- * @version $Id: ShowMediaServlet.java 17070 2006-10-12 00:07:52Z ktsao@stanford.edu $
+ * @version $Id$
  */
 
 public class DownloadCPServlet extends HttpServlet {

@@ -49,7 +49,7 @@ import org.sakaiproject.tool.assessment.ui.listener.util.ContextUtil;
  * <p>Purpose:  this module handles the beginning of the assessment
  * <p>Description: Sakai Assessment Manager</p>
  * @author Ed Smiley
- * @version $Id: TableOfContentsActionListener.java 5215 2006-01-09 22:26:01Z daisyf@stanford.edu $
+ * @version $Id$
  */
 
 public class TableOfContentsActionListener implements ActionListener

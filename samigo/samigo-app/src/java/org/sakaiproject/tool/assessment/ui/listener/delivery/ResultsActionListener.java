@@ -1,6 +1,6 @@
 /**********************************************************************************
- * $URL: https://source.sakaiproject.org/svn/sam/branches/sakai_2-5-x/samigo-app/src/java/org/sakaiproject/tool/assessment/ui/listener/delivery/ResultsActionListener.java $
- * $Id: ResultsActionListener.java 34256 2007-08-22 18:00:32Z ktsao@stanford.edu $
+ * $URL$
+ * $Id$
  ***********************************************************************************
  *
  * Copyright (c) 2006, 2008 The Sakai Foundation
@@ -33,7 +33,7 @@ import org.sakaiproject.tool.assessment.ui.listener.util.ContextUtil;
 /**
  * <p>Title: Samigo</p>
  * <p>Organization: Sakai Project</p>
- * @version $Id: ResultsActionListener.java 34256 2007-08-22 18:00:32Z ktsao@stanford.edu $
+ * @version $Id$
  */
 
 public class ResultsActionListener implements ActionListener

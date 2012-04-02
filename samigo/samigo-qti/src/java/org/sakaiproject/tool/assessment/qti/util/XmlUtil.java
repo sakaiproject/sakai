@@ -1,6 +1,6 @@
 /**********************************************************************************
- * $URL: https://source.sakaiproject.org/svn/sam/trunk/component/src/java/org/sakaiproject/tool/assessment/qti/util/XmlUtil.java $
- * $Id: XmlUtil.java 9274 2006-05-10 22:50:48Z daisyf@stanford.edu $
+ * $URL$
+ * $Id$
  ***********************************************************************************
  *
  * Copyright (c) 2005, 2006, 2007, 2008, 2009 The Sakai Foundation
@@ -61,7 +61,7 @@ import java.io.ByteArrayInputStream;
  * mods:
  * @author Rachel Gollub rgollub@stanford.edu
  * @author Ed Smiley esmiley@stanford.edu
- * @version $Id: XmlUtil.java 9274 2006-05-10 22:50:48Z daisyf@stanford.edu $
+ * @version $Id$
  */
 
 public final class XmlUtil

@@ -35,7 +35,7 @@ import org.sakaiproject.tool.assessment.ui.bean.delivery.DeliveryBean;
 import org.sakaiproject.tool.assessment.ui.listener.util.ContextUtil; 
 
 /**
- * @version $Id: UpdateTimerTOCListener.java 694 2005-07-20 04:56:48Z daisyf@stanford.edu $
+ * @version $Id$
  */
 
 public class UpdateTimerFromTOCListener implements ActionListener

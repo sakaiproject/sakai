@@ -41,7 +41,7 @@ import java.util.HashMap;
  * <p>Title: Samigo</p>
  * <p>Purpose:  this module handles the beginning of the assessment
  * <p>Description: Sakai Assessment Manager</p>
- * @version $Id: ResetDeliveryListener.java 694 2005-07-20 04:56:48Z daisyf@stanford.edu $
+ * @version $Id$
  */
 
 public class ResetDeliveryListener implements ActionListener

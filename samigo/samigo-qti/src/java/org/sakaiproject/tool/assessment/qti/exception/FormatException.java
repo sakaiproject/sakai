@@ -1,6 +1,6 @@
 /**********************************************************************************
- * $URL: https://source.sakaiproject.org/svn/sam/trunk/component/src/java/org/sakaiproject/tool/assessment/qti/exception/FormatException.java $
- * $Id: FormatException.java 9274 2006-05-10 22:50:48Z daisyf@stanford.edu $
+ * $URL$
+ * $Id$
  ***********************************************************************************
  *
  * Copyright (c) 2005, 2006, 2008 The Sakai Foundation
@@ -30,7 +30,7 @@ package org.sakaiproject.tool.assessment.qti.exception;
  * <p>Copyright: Copyright 2003 Trustees of Indiana University</p>
  * <p>Company: </p>
  * @author <a href="mailto:lance@indiana.edu">Lance Speelmon</a>
- * @version $Id: FormatException.java 9274 2006-05-10 22:50:48Z daisyf@stanford.edu $
+ * @version $Id$
  */
 public class FormatException
   extends RuntimeException

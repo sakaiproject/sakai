@@ -1,6 +1,6 @@
 /**********************************************************************************
- * $URL: https://source.sakaiproject.org/svn/sam/trunk/component/src/java/org/sakaiproject/tool/assessment/qti/helper/ExtractionHelper.java $
- * $Id: ExtractionHelper.java 9274 2006-05-10 22:50:48Z daisyf@stanford.edu $
+ * $URL$
+ * $Id$
  ***********************************************************************************
  *
  * Copyright (c) 2005, 2006, 2007, 2008, 2009 The Sakai Foundation
@@ -99,7 +99,7 @@ import org.xml.sax.SAXException;
  * <p> </p>
  * <p>Copyright: Copyright (c) 2005 Sakai</p>
  * @author Ed Smiley esmiley@stanford.edu
- * @version $Id: ExtractionHelper.java 9274 2006-05-10 22:50:48Z daisyf@stanford.edu $
+ * @version $Id$
  */
 
 public class ExtractionHelper

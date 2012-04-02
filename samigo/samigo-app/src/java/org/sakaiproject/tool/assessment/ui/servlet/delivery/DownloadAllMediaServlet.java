@@ -1,6 +1,6 @@
 /**********************************************************************************
- * $URL: https://source.sakaiproject.org/svn/sam/trunk/samigo-app/src/java/org/sakaiproject/tool/assessment/ui/servlet/delivery/DownloadAllMediaServlet.java $
- * $Id: DownloadAllMediaServlet.java 11494 2006-07-05 21:15:29Z daisyf@stanford.edu $
+ * $URL$
+ * $Id$
  ***********************************************************************************
  *
  * Copyright (c) 2005, 2006, 2007, 2008, 2009 The Sakai Foundation
@@ -64,7 +64,7 @@ import org.sakaiproject.tool.assessment.ui.listener.util.ContextUtil;
  * <p>Title: Samigo</p>
  * <p>Description: Sakai Assessment Manager</p>
  * @author Ed Smiley
- * @version $Id: DownloadAllMediaServlet 11494 2006-07-05 21:15:29Z daisyf@stanford.edu $
+ * @version $Id$
  */
 
 public class DownloadAllMediaServlet extends HttpServlet

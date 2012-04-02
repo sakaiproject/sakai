@@ -44,7 +44,7 @@ import org.sakaiproject.tool.cover.SessionManager;
 /**
  * <p>Title: Samigo</p>
  * <p>Description: Sakai Assessment Manager</p>
- * @version $Id: SubmitTimedAssessmentThread.java 1294 2005-08-19 17:22:35Z esmiley@stanford.edu $
+ * @version $Id$
  */
 
 public class SubmitTimedAssessmentThread extends TimerTask

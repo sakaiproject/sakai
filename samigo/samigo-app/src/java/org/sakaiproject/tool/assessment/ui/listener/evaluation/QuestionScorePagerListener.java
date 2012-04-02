@@ -1,6 +1,6 @@
 /**********************************************************************************
- * $URL: https://source.sakaiproject.org/svn/sam/trunk/samigo-app/src/java/org/sakaiproject/tool/assessment/ui/listener/evaluation/QuestionScoreUpdateListener.java $
- * $Id: QuestionScoreUpdateListener.java 13037 2006-07-27 20:29:15Z lydial@stanford.edu $
+ * $URL$
+ * $Id$
  ***********************************************************************************
  *
  * Copyright (c) 2004, 2005, 2006, 2008 The Sakai Foundation
@@ -58,7 +58,7 @@ import org.sakaiproject.tool.assessment.util.BeanSort;
  * <p>Copyright: Copyright (c) 2004</p>
  * <p>Organization: Sakai Project</p>
  * @author Ed Smiley
- * @version $Id: QuestionScoreUpdateListener.java 13037 2006-07-27 20:29:15Z lydial@stanford.edu $
+ * @version $Id$
  */
 
 public class QuestionScorePagerListener

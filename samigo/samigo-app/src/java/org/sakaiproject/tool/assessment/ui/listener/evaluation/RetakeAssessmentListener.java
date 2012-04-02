@@ -1,6 +1,6 @@
 /**********************************************************************************
- * $URL: https://source.sakaiproject.org/svn/sam/trunk/samigo-app/src/java/org/sakaiproject/tool/assessment/ui/listener/author/ConfirmRemovePartListener.java $
- * $Id: ConfirmRemovePartListener.java 16897 2006-10-09 00:28:33Z ktsao@stanford.edu $
+ * $URL$
+ * $Id$
  ***********************************************************************************
  *
  * Copyright (c) 2004, 2005, 2006, 2007, 2008 The Sakai Foundation
@@ -38,7 +38,7 @@ import org.sakaiproject.tool.assessment.ui.listener.util.ContextUtil;
  * <p>Title: Samigo</p>
  * <p>Description: Sakai Assessment Manager</p>
  * @author Ed Smiley
- * @version $Id: ConfirmRemovePartListener.java 16897 2006-10-09 00:28:33Z ktsao@stanford.edu $
+ * @version $Id$
  */
 
 public class RetakeAssessmentListener implements ActionListener {

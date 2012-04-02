@@ -41,7 +41,7 @@ import java.util.HashMap;
  * <p>Purpose:  this module handles the beginning of the assessment
  * <p>Description: Sakai Assessment Manager</p>
  * @author Ed Smiley
- * @version $Id: ResetQuestionScoreListener.java 694 2005-07-20 04:56:48Z daisyf@stanford.edu $
+ * @version $Id$
  */
 
 public class ResetQuestionScoreListener implements ActionListener

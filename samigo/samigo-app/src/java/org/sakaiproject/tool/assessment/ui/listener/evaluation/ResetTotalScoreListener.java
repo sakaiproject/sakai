@@ -41,7 +41,7 @@ import java.util.ArrayList;
  * <p>Purpose:  this module handles the beginning of the assessment
  * <p>Description: Sakai Assessment Manager</p>
  * @author Ed Smiley
- * @version $Id: ResetTotalScoreListener.java 694 2005-07-20 04:56:48Z daisyf@stanford.edu $
+ * @version $Id$
  */
 
 public class ResetTotalScoreListener implements ActionListener

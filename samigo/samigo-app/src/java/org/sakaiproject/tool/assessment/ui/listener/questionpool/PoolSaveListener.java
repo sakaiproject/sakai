@@ -1,6 +1,6 @@
 /**********************************************************************************
- * $URL: https://source.sakaiproject.org/svn/sam/trunk/samigo-app/src/java/org/sakaiproject/tool/assessment/ui/listener/questionpool/PoolSaveListener.java $
- * $Id: PoolSaveListener.java 17186 2006-10-18 07:10:01Z lydial@stanford.edu $
+ * $URL$
+ * $Id$
  ***********************************************************************************
  *
  * Copyright (c) 2004, 2005, 2006, 2008 The Sakai Foundation
@@ -48,7 +48,7 @@ import org.sakaiproject.tool.assessment.util.TextFormat;
 /**
  * <p>Title: Samigo</p>
  * <p>Description: Sakai Assessment Manager</p>
- * @version $Id: PoolSaveListener.java 17186 2006-10-18 07:10:01Z lydial@stanford.edu $
+ * @version $Id$
  */
 
 public class PoolSaveListener implements ActionListener

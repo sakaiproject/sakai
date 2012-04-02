@@ -1,6 +1,6 @@
 /**********************************************************************************
- * $URL: https://source.sakaiproject.org/svn/sam/branches/SAM-1139/samigo-app/src/java/org/sakaiproject/tool/assessment/ui/listener/author/ItemAddListener.java $
- * $Id: ItemAddListener.java 100321 2011-11-01 21:14:54Z mgillian@unicon.net $
+ * $URL$
+ * $Id$
  ***********************************************************************************
  *
  * Copyright (c) 2004, 2005, 2006, 2007, 2008, 2009 The Sakai Foundation
