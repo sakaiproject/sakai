@@ -94,6 +94,11 @@ public interface AssessmentFacadeQueriesAPI {
 	 */
 	public ArrayList getTitleOfAllActiveAssessmentTemplates();
 
+	/**
+	 * 
+	 * @param assessmentId
+	 * @return the assement or null if non found
+	 */
 	public AssessmentFacade getAssessment(Long assessmentId);
 
 	public void removeAssessment(Long assessmentId);

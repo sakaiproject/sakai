@@ -33,17 +33,18 @@ import java.util.Set;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.hibernate.HibernateException;
+import org.hibernate.ObjectNotFoundException;
 import org.hibernate.Query;
 import org.hibernate.Session;
 import org.sakaiproject.component.cover.ServerConfigurationService;
-import org.sakaiproject.site.api.Site;
-import org.sakaiproject.site.cover.SiteService;
 import org.sakaiproject.content.api.ContentResource;
 import org.sakaiproject.entity.api.ResourceProperties;
 import org.sakaiproject.exception.IdUnusedException;
 import org.sakaiproject.exception.PermissionException;
 import org.sakaiproject.exception.TypeException;
 import org.sakaiproject.service.gradebook.shared.GradebookService;
+import org.sakaiproject.site.api.Site;
+import org.sakaiproject.site.cover.SiteService;
 import org.sakaiproject.spring.SpringBeanLocator;
 import org.sakaiproject.tool.assessment.data.dao.assessment.Answer;
 import org.sakaiproject.tool.assessment.data.dao.assessment.AnswerFeedback;
@@ -87,6 +88,7 @@ import org.sakaiproject.tool.assessment.qti.constants.AuthoringConstantStrings;
 import org.sakaiproject.tool.assessment.services.PersistenceService;
 import org.sakaiproject.tool.assessment.services.QuestionPoolService;
 import org.sakaiproject.tool.assessment.services.assessment.AssessmentService;
+import org.springframework.dao.DataAccessException;
 import org.springframework.orm.hibernate3.HibernateCallback;
 import org.springframework.orm.hibernate3.HibernateQueryException;
 import org.springframework.orm.hibernate3.support.HibernateDaoSupport;
@@ -360,10 +362,16 @@ public class AssessmentFacadeQueries extends HibernateDaoSupport implements
 	}
 
 	public AssessmentFacade getAssessment(Long assessmentId) {
-		AssessmentData assessment = (AssessmentData) getHibernateTemplate()
-				.load(AssessmentData.class, assessmentId);
-		assessment.setSectionSet(getSectionSetForAssessment(assessment));
-		return new AssessmentFacade(assessment);
+		try {
+			AssessmentData assessment = (AssessmentData) getHibernateTemplate()
+			.load(AssessmentData.class, assessmentId);
+			assessment.setSectionSet(getSectionSetForAssessment(assessment));
+			return new AssessmentFacade(assessment);
+		}
+		catch (DataAccessException e) {
+			log.warn("error retieving assemement: " + assessmentId.toString() + " " +  e.getMessage());
+		}
+		return null;
 	}
 
 	/**
