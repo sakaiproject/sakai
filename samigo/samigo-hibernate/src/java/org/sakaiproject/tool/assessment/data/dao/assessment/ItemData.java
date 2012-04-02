@@ -824,7 +824,7 @@ public class ItemData
 		  }
 	  }
 	  for (int k=0; k< stringList.size(); k++){
-		  columnIndexList.add(new Integer(k));
+		  columnIndexList.add(Integer.valueOf(k));
 	  }
 	  return columnIndexList;
   }
