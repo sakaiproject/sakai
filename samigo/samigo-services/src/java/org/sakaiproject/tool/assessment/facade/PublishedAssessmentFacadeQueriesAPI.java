@@ -126,6 +126,11 @@ public interface PublishedAssessmentFacadeQueriesAPI
 
   public AssessmentData loadAssessment(Long assessmentId);
 
+  /**
+   *  Retrieve a published Assessment
+   * @param assessmentId the id of the assessment
+   * @return the Assessment object or null if none found
+   */
   public PublishedAssessmentData loadPublishedAssessment(Long assessmentId);
 
   public ArrayList getAllTakeableAssessments(String orderBy, boolean ascending,

@@ -106,11 +106,11 @@ import org.sakaiproject.tool.assessment.integration.context.IntegrationContextFa
 import org.sakaiproject.tool.assessment.integration.helper.ifc.GradebookServiceHelper;
 import org.sakaiproject.tool.assessment.integration.helper.ifc.PublishingTargetHelper;
 import org.sakaiproject.tool.assessment.osid.shared.impl.IdImpl;
-import org.sakaiproject.tool.assessment.qti.constants.AuthoringConstantStrings;
 import org.sakaiproject.tool.assessment.services.PersistenceService;
 import org.sakaiproject.tool.assessment.services.assessment.AssessmentService;
 import org.sakaiproject.tool.cover.ToolManager;
 import org.sakaiproject.user.cover.UserDirectoryService;
+import org.springframework.dao.DataAccessException;
 import org.springframework.orm.hibernate3.HibernateCallback;
 import org.springframework.orm.hibernate3.support.HibernateDaoSupport;
 
@@ -837,8 +837,14 @@ public class PublishedAssessmentFacadeQueries extends HibernateDaoSupport
 	}
 
 	public PublishedAssessmentData loadPublishedAssessment(Long assessmentId) {
-		return (PublishedAssessmentData) getHibernateTemplate().load(
-				PublishedAssessmentData.class, assessmentId);
+		PublishedAssessmentData ret = null;
+		try {
+			ret = (PublishedAssessmentData) getHibernateTemplate().load(
+					PublishedAssessmentData.class, assessmentId);
+		} catch (DataAccessException e) {
+			log.warn("Error accessing Published Assesment: " + assessmentId + " storage returned: " + e);
+		}
+		return ret;
 	}
 
 	public ArrayList getAllTakeableAssessments(String orderBy,
