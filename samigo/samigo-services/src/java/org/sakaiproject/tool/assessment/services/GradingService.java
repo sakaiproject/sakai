@@ -2653,7 +2653,7 @@ Here are the definition and 12 cases I came up with (lydia, 01/2006):
 		Iterator<AnswerIfc> answerIter = answers.iterator();
 		while (answerIter.hasNext()) {
 			AnswerIfc answer = answerIter.next();
-			if (answer.getIsCorrect() != null && answer.getIsCorrect() == Boolean.TRUE) {
+			if (answer.getIsCorrect() != null && answer.getIsCorrect().booleanValue()) {
 				hasCorrectAnswer = true;
 				break;
 			}
