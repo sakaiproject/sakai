@@ -167,7 +167,7 @@ public class CalculatedQuestionExtractListener implements ActionListener{
             if (!formulas.containsKey(formulaName)) {
                 CalculatedQuestionFormulaBean bean = new CalculatedQuestionFormulaBean();
                 bean.setName(formulaName);
-                bean.setSequence(new Long(variables.size() + formulas.size() + 1));
+                bean.setSequence(Long.valueOf(variables.size() + formulas.size() + 1));
                 item.getCalculatedQuestion().addFormula(bean);
             } else {
                 CalculatedQuestionFormulaBean bean = formulas.get(formulaName);
@@ -196,7 +196,7 @@ public class CalculatedQuestionExtractListener implements ActionListener{
             if (!variables.containsKey(variableName)) {
                 CalculatedQuestionVariableBean bean = new CalculatedQuestionVariableBean();
                 bean.setName(variableName);
-                bean.setSequence(new Long(variables.size() + formulas.size() + 1));
+                bean.setSequence(Long.valueOf(variables.size() + formulas.size() + 1));
                 item.getCalculatedQuestion().addVariable(bean);
             } else {
                 CalculatedQuestionVariableBean bean = variables.get(variableName);

@@ -90,8 +90,8 @@ public class UploadFilter implements Filter {
       }
       ServletContext context = config.getServletContext();
       context.setAttribute("FILEUPLOAD_REPOSITORY_PATH",repositoryPath);
-      context.setAttribute("FILEUPLOAD_SIZE_THRESHOLD",new Integer(sizeThreshold));
-      context.setAttribute("FILEUPLOAD_SIZE_MAX",new Long(sizeMax));
+      context.setAttribute("FILEUPLOAD_SIZE_THRESHOLD", Integer.valueOf(sizeThreshold));
+      context.setAttribute("FILEUPLOAD_SIZE_MAX", Long.valueOf(sizeMax));
       context.setAttribute("FILEUPLOAD_SAVE_MEDIA_TO_DB", saveMediaToDb);
    }
 

@@ -162,7 +162,7 @@ public class PDFAssessmentBean implements Serializable {
 					for (int t=0; t<answers.size(); t++) {
 						PublishedAnswer answer = (PublishedAnswer)answers.get(t);
 						if (answer.getLabel() != null && !answer.getLabel().equals(""))
-							answer.setSequence(new Long(answer.getLabel().charAt(0) - 64));
+							answer.setSequence(Long.valueOf(answer.getLabel().charAt(0) - 64));
 					}
 				}
 			}
@@ -502,7 +502,7 @@ public class PDFAssessmentBean implements Serializable {
 			pdfPart.setQuestions(pdfItems);
 			pdfPart.setResources(resources);
 			if (resources.size() > 0)
-				pdfPart.setHasResources(new Boolean(true));
+				pdfPart.setHasResources(Boolean.valueOf(true));
 			pdfParts.add(pdfPart);
 
 		}

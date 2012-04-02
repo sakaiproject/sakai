@@ -32,7 +32,7 @@ public class PDFPartBean {
 	}
 
 	public Boolean getHasResources() {
-		return new Boolean(hasResources);
+		return Boolean.valueOf(hasResources);
 	}
 
 	public void setHasResources(Boolean hasResources) {

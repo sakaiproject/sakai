@@ -1905,7 +1905,7 @@ public class DeliveryActionListener
 	  }
 
 	  for (int k=0; k<stringList.size(); k++){
-		  columnIndexList.add(new Integer(k));
+		  columnIndexList.add(Integer.valueOf(k));
 	  }	
 
 	  String [] columnChoices = stringList.toArray(new String[stringList.size()]);

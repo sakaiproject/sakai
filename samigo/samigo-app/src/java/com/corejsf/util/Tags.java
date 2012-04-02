@@ -65,7 +65,7 @@ public class Tags {
          setValueBinding(component, attributeName, attributeValue);
       else
          component.getAttributes().put(attributeName,
-               new Double(attributeValue));
+               Double.valueOf(attributeValue));
    }
 
    public static void setBoolean(UIComponent component,
@@ -75,7 +75,7 @@ public class Tags {
          setValueBinding(component, attributeName, attributeValue);
       else
          component.getAttributes().put(attributeName,
-               new Boolean(attributeValue));
+               Boolean.valueOf(attributeValue));
    }
 
    public static void setStrings(UIComponent component, Map map) {
@@ -181,9 +181,9 @@ public class Tags {
          Object r = app.createValueBinding(expression).getValue(context);
          if (r == null) return null;
          else if (r instanceof Boolean) return (Boolean) r;
-         else return new Boolean(r.toString());
+         else return Boolean.valueOf(r.toString());
       }
-      else return new Boolean(expression);
+      else return Boolean.valueOf(expression);
    }
 
    private static class ActionMethodBinding

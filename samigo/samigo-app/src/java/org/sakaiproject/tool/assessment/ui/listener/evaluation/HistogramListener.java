@@ -1471,7 +1471,7 @@ private void getCalculatedQuestionScores(List<ItemGradingData> scores, Histogram
 			  }			
 		  }
 		  if(!isIn){
-			  String ansStr = new String(answer.getText().trim());
+			  String ansStr = answer.getText().trim();
 			  answerTextList.add(ansStr);
 		  }
 	  }

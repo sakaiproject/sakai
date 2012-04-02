@@ -839,7 +839,7 @@ public class ItemAddListener
         	}
         	temp = stringList.toArray(new String[stringList.size()]);
         	for(int i=0; i<temp.length; i++){
-        		FavoriteColChoicesItem favoriteChoiceItem = new FavoriteColChoicesItem(StringUtils.chomp(temp[i]),new Integer(i));
+        		FavoriteColChoicesItem favoriteChoiceItem = new FavoriteColChoicesItem(StringUtils.chomp(temp[i]),Integer.valueOf(i));
         		favoriteChoiceItem.setFavoriteChoice(favorite);
         		favorite.getFavoriteItems().add(favoriteChoiceItem);
         	}

@@ -173,7 +173,7 @@ public class RichTextEditArea extends Renderer
     else
     {
       outRow = "80";
-      outCol = new Integer(col).toString();
+      outCol = Integer.valueOf(col).toString();
       lineOfToolBar = 3;
     }
 

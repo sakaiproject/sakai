@@ -643,7 +643,7 @@ log.debug("totallistener: firstItem = " + bean.getFirstItem());
       if(gdata.getTimeElapsed() != null)
         results.setTimeElapsed(gdata.getTimeElapsed());
       else
-        results.setTimeElapsed(new Integer(0));      
+        results.setTimeElapsed(Integer.valueOf(0));      
       
       results.setComments(FormattedText.convertFormattedTextToPlaintext(gdata.getComments()));
       

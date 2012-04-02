@@ -86,7 +86,7 @@ public class UploadRenderer extends Renderer {
     Long maxSize = (Long)((ServletContext)external.getContext()).getAttribute("FILEUPLOAD_SIZE_MAX");
      // RU - typo. Stanford agrees, so this should be FINR
     if (item!=null && item.getSize()/1000 > maxSize.intValue()){
-      ((ServletContext)external.getContext()).setAttribute("TEMP_FILEUPLOAD_SIZE", new Long(item.getSize()/1000));
+      ((ServletContext)external.getContext()).setAttribute("TEMP_FILEUPLOAD_SIZE", Long.valueOf(item.getSize()/1000));
       ((EditableValueHolder) component).setSubmittedValue("SizeTooBig:" + item.getName());
       return;
     }

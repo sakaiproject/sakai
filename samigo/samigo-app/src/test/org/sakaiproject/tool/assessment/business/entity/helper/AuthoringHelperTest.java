@@ -154,7 +154,7 @@ public class AuthoringHelperTest {
       assessment.setLastModifiedBy(me);
       assessment.setLastModifiedDate(assessment.getCreatedDate());
       assessment.setTypeId(TypeIfc.QUIZ);
-      assessment.setStatus(new Integer(1));
+      assessment.setStatus(Integer.valueOf(1));
 
       // process each section and each item within each section
       List sectionList = exHelper.getSectionXmlList(assessmentXml);
@@ -179,9 +179,9 @@ public class AuthoringHelperTest {
         section.setLastModifiedBy(me);
         section.setLastModifiedDate(assessment.getCreatedDate());
         section.setTypeId(TypeIfc.DEFAULT_SECTION);
-        section.setStatus(new Integer(1));
+        section.setStatus(Integer.valueOf(1));
         // set the sequence
-        section.setSequence(new Integer(sec + 1));
+        section.setSequence(Integer.valueOf(sec + 1));
 //        // add the section to the assessment
 //        section.setAssessmentId(assessment.getAssessmentId());//many to one
 //        section.setAssessment(assessment);
@@ -205,7 +205,7 @@ public class AuthoringHelperTest {
           log.debug("ITEM TYPE IS: " +item.getTypeId());
           item.setStatus(ItemDataIfc.ACTIVE_STATUS);
           // assign the next sequence number
-          item.setSequence(new Integer(itm + 1));
+          item.setSequence(Integer.valueOf(itm + 1));
           // add item to section
           item.setSection(section);// one to many
           section.addItem(item);// many to one
