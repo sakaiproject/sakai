@@ -115,10 +115,13 @@ public class BasicAuth {
 		if (morepatterns != null) {
 			for (int i = 0; i < morepatterns.length; i++) {
 				String line = morepatterns[i];
-				String check = line.substring(0, 1);
-				mat.add(check);
-				line = line.substring(1);
-				pat.add(Pattern.compile(line));
+				// line shouldn't be null (API contract), but it might be empty.
+				if (line != null && line.length() > 0) {
+					String check = line.substring(0, 1);
+					mat.add(check);
+					line = line.substring(1);
+					pat.add(Pattern.compile(line));
+				}
 			}
 		}
 		for (int i = 0; i < matchPatterns.length; i++) {
