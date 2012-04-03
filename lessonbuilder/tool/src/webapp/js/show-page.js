@@ -1471,6 +1471,7 @@ function removeHighlight() {
 		}
 	}
 	//$(this).removeClass("hovering");
+	return false;
 }
 
 function toggleDropdown() {

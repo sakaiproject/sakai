@@ -35,7 +35,7 @@ $('#ipickerdialog').dialog({
 	position: ['left', 'top']
 });
 
-$('.add-forum-link').click(function(event){
+$('.add-forum-link, #change-forum').click(function(event){
 	if (!picker) return true;	// default to previous workflow if on pda mode, where a new window opens to pick a new item
 
 	var title = $(this).text();
@@ -49,7 +49,7 @@ $('.add-forum-link').click(function(event){
 	return false;
 });
 
-$('.add-assignment-link').click(function(event){
+$('.add-assignment-link, #change-assignment').click(function(event){
 	if (!picker) return true;
 
 	var title = $(this).text();
@@ -63,7 +63,7 @@ $('.add-assignment-link').click(function(event){
 	return false;
 });
 
-$('.add-quiz-link').click(function(event){
+$('.add-quiz-link, #change-quiz').click(function(event){
 	if (!picker) return true;
 
 	var title = $(this).text();
@@ -88,7 +88,7 @@ $('#mm-choose').click(function(){
 	openDialog(title, true, pageToRequest);
 });
 
-$('#subpage-choose').click(function(){
+$('#subpage-choose, #change-page').click(function(){
 	if (!picker) return true;
 
 	event.preventDefault();
@@ -99,7 +99,7 @@ $('#subpage-choose').click(function(){
 	openDialog(title, true, pageToRequest)
 });
 
-$('.add-text-link').click(function(){
+$('.add-text-link, .itemLink').click(function(){
 	if (!picker) return true;
 
 	event.preventDefault();
@@ -109,10 +109,22 @@ $('.add-text-link').click(function(){
 	$('#ipickerdialog').dialog('option', 'width', 850);
 	openDialog(title, true, pageToRequest);
 });
+/*
+$('#edit-item-object').click(function(){
+	if (!picker) return true;
+
+//	event.preventDefault();
+
+	var title = $(this).text();
+	var pageToRequest = $(this).attr("href");
+	$('#ipickerdialog').dialog('option', 'width', 850);
+	openDialog(title, true, pageToRequest);
+});*/
+
 
 // this will also be called by child pages to update the div
 function loadpicker(address) {
-	address += "&time=" + new Date().getTime();
+	address += "&time=" + new Date().getTime(); // prevent caching in IE
 
 	$('#pickerdiv').load(address);
 	setTimeout(divsize, 250);
@@ -184,7 +196,7 @@ function hideidialog() {
 }
 
 var intervalID = 0;
-								        
+										
 // when a window is opened to create a new forum/quiz/etc,
 // we check constantly if that window (wind) has been closed
 // and then we refresh the picker by clicking the link that loads it
@@ -213,7 +225,11 @@ function openDialog(title, iframe, src, event) {
 		event.preventDefault();
 	}
 
+	$('#edit-item-dialog').dialog('close');
+
 	$('div.ui-dialog:visible').dialog('close');
+	hideMultimedia();
+	w = $(window).width() - 10;
 	if (!iframe){
 		$('#pickerdialog').dialog('option','title', title);
 		$('#pickerdialog').dialog('open');
