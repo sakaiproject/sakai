@@ -4,6 +4,34 @@
 	focus_path = [#if(!$user)"id"#else"first-name"#end];
 </script>
 
+<script language="javascript" type="text/javascript" src="/library/js/jquery/1.4.2/jquery-1.4.2.min.js"></script>
+
+<script language="javascript" type="text/javascript">
+
+function addOptionalAttributeBlock() {
+	
+	//set the html for the select list
+	$("#optionalAttributes").append('#AddOptionalAttributeBlock($optionalAttributes)');
+	
+	//determine how many optional attribute select lists we currently have
+	var count = $("#optionalAttributes > p > select").length;
+	
+	//update the attributes for both the select list and input field we just added
+	$('select[name="SELECT_LIST_ATTR"]').attr("name", "optionalAttr_"+count);
+	$('input[name="INPUT_ATTR"]').attr("name", "optionalAttrValue_"+count);
+	
+	//resize iframe
+	setMainFrameHeight(window.name);
+}
+
+function removeOptionalAttributeBlock(elem) {
+
+	$(elem).parent("p").remove();
+}
+
+
+</script>
+
 <div class="portletBody">
 #if($menu)
 	#toolbar($menu)
@@ -134,28 +162,38 @@
 				$validator.escapeHtml($user.Id)
 			</p>
 #end
-#set ($paramNames = $user.Properties.PropertyNames)
-#if($!superUser && $user)
-<p class="shorttext"></p>
-<table class="itemSummary" summary="$tlang.getString("sitedi.pro")">
-				##avoid val error on empty table
-				<tr><th>$tlang.getString("useProperties")</th><td></td></tr>
-				#foreach ($paramName in $paramNames)
-					#set ($paramValue = $user.Properties.getPropertyFormatted($paramName))
-					<tr>
-						<th>
-							<label for="param_$paramName">
-								$paramName:
-							</label>
-						</th>
-						<td>
-							$validator.escapeHtml($paramValue)
-						</td>
-					</tr>
-				#end
-			</table>
-#end
 
+		## optional attributes block
+		#if($superUser)
+			<p class="shorttext"></p>
+			<div id="optionalAttributes">
+				<p><strong>$tlang.getString("optional.attributes")</strong></p>
+				
+				#set($attrNum = 1)
+				
+				## for those attributes that are in the master list
+				## print a select list for each  that is already set
+				#foreach ($c_entry in $currentAttributes.entrySet())
+					#if ($optionalAttributes.containsKey($c_entry.key))
+						<p class="shorttext">
+							#optionalAttributesSelectList($optionalAttributes, $c_entry.key, $c_entry.value)
+						</p>						
+						#set($attrNum = $attrNum+1)
+					#end
+				#end
+				
+			</div>
+			
+			##link to add a new attribute
+			<p>
+				<a href="#" onclick="javascript:addOptionalAttributeBlock();return false">$tlang.getString("optional.attributes.add")</a>
+			</p>
+		#end
+		
+
+
+#set ($paramNames = $user.Properties.PropertyNames)
+			
 			<div class="act">
 				#if($user)
 					<input type="submit" class="active" name="eventSubmit_doSave" value="$tlang.getString("useedi.sav")" accesskey="s" />
@@ -168,3 +206,23 @@
 		</form>
 	</div>
 
+
+## create a dropdown of existing attributes, takes the full list as an argument as well as a given attribute and the value so we can match them up
+#macro( optionalAttributesSelectList $m $attr $val)
+	
+	<select name="optionalAttr_$attrNum">
+		#foreach ($m_entry in $m.entrySet())
+			<option value="$m_entry.key" #if($m_entry.key == $attr) selected="selected" #end>$m_entry.value</option>
+		#end
+	</select>
+	&nbsp;
+	<input type="text" name="optionalAttrValue_$attrNum" value="$val" />
+	&nbsp;
+	<a href="#" onclick="javascript:removeOptionalAttributeBlock(this);return false"><img src="/library/image/silk/cross.png" alt="$tlang.getString("optional.attributes.remove")" /></a>
+
+#end
+
+##default attribute form, used by javascript
+## must be on one line
+## contains placeholders for the values that will be replaced
+#macro( AddOptionalAttributeBlock $map )<p class="shorttext"><select name="SELECT_LIST_ATTR">#foreach ($entry in $map.entrySet())<option value="$entry.key">$entry.value</option>#end</select>&nbsp;<input type="text" name="INPUT_ATTR" />&nbsp;<a href="#" onclick="javascript:removeOptionalAttributeBlock(this);return false"><img src="/library/image/silk/cross.png" alt="$tlang.getString("optional.attributes.remove")" /></a></p>#end

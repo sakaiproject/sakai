@@ -23,7 +23,7 @@ package org.sakaiproject.user.tool;
 
 import java.io.InputStreamReader;
 import java.util.ArrayList;
-import java.util.HashMap;
+import java.util.Iterator;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
@@ -36,7 +36,6 @@ import net.tanesha.recaptcha.ReCaptchaFactory;
 import net.tanesha.recaptcha.ReCaptchaResponse;
 
 import org.apache.commons.lang.StringUtils;
-import org.apache.commons.lang.builder.ToStringBuilder;
 import org.apache.commons.validator.routines.EmailValidator;
 import org.sakaiproject.authz.cover.SecurityService;
 import org.sakaiproject.cheftool.Context;
@@ -56,6 +55,7 @@ import org.sakaiproject.content.api.FilePickerHelper;
 import org.sakaiproject.content.cover.ContentHostingService;
 import org.sakaiproject.entity.api.Reference;
 import org.sakaiproject.entity.api.ResourceProperties;
+import org.sakaiproject.entity.api.ResourcePropertiesEdit;
 import org.sakaiproject.event.api.SessionState;
 import org.sakaiproject.event.cover.UsageSessionService;
 import org.sakaiproject.thread_local.cover.ThreadLocalManager;
@@ -81,8 +81,6 @@ import org.sakaiproject.util.ResourceLoader;
 import org.sakaiproject.util.StringUtil;
 
 import au.com.bytecode.opencsv.CSVReader;
-import au.com.bytecode.opencsv.bean.CsvToBean;
-import au.com.bytecode.opencsv.bean.HeaderColumnNameTranslateMappingStrategy;
 
 /**
  * <p>
@@ -388,7 +386,10 @@ public class UsersAction extends PagedResourceActionII
 
 		value = (String) state.getAttribute("valueType");
 		if (value != null) context.put("valueType", value);
-
+		
+		//optional attributes list
+		context.put("optionalAttributes", getOptionalAttributes());
+		
 		return "_edit";
 
 	} // buildNewContext
@@ -487,6 +488,11 @@ public class UsersAction extends PagedResourceActionII
 
 		value = (String) state.getAttribute("valueType");
 		if (value != null) context.put("valueType", value);
+		
+		//optional attributes lists
+		context.put("optionalAttributes", getOptionalAttributes());
+		context.put("currentAttributes", getCurrentAttributes((UserEdit) state.getAttribute("user")));
+
 
 		return "_edit";
 
@@ -1081,9 +1087,61 @@ public class UsersAction extends PagedResourceActionII
 				addAlert(state, rb.getString("useact.invemail"));	
 				return false;
 		}
-
+		
 		// get the user
 		UserEdit user = (UserEdit) state.getAttribute("user");
+		
+		//process any additional attributes
+		//we continue processing these until we get an empty attribute KEY
+		//counter starts at 1
+		
+		//data is of the form:
+		//	optionalAttr_1:att1
+		//	optionalAttrValue_1:value1
+		//	optionalAttr_2:att2
+		//	optionalAttrValue_2:value2
+		
+		int count = 1;
+		boolean continueProcessingOptionalAttributes = true;
+		
+		ResourcePropertiesEdit properties;
+		if(user == null) {
+			properties = new BaseResourcePropertiesEdit();
+		} else {
+			properties = user.getPropertiesEdit();
+		}
+		
+		//remove all properties that are in the confugred list
+		//then add back in only the ones that were sent
+		//this allows us to remove items via javascript and they get persisted to the db on form save
+		Map<String,String> configuredProperties = getOptionalAttributes();
+		for(String cp: configuredProperties.keySet()) {
+			properties.removeProperty(cp);
+		}
+		
+		
+		while(continueProcessingOptionalAttributes) {
+			
+			//this stores the key
+			String optionalAttributeKey = data.getParameters().getString("optionalAttr_"+count);
+			
+			if(StringUtils.isBlank(optionalAttributeKey)){
+				continueProcessingOptionalAttributes = false;
+				break;
+			}
+			
+			String optionalAttributeValue = data.getParameters().getString("optionalAttrValue_"+count);
+			
+			//only single values properties
+			//any null ones will wipe out existing ones
+			//and any duplicate ones will override previous ones (currently)
+			properties.addProperty(optionalAttributeKey, optionalAttributeValue);
+			
+			System.out.println("optionalAttributeKey: " + optionalAttributeKey + ", optionalAttributeValue: " + optionalAttributeValue);
+			
+			count++;
+		}
+		
 
 		// add if needed
 		if (user == null)
@@ -1121,7 +1179,7 @@ public class UsersAction extends PagedResourceActionII
 				if (!SecurityService.isSuperUser()) {
 					id = null;
 				}
-				User newUser = UserDirectoryService.addUser(id, eid, firstName, lastName, email, pw, type, null);
+				User newUser = UserDirectoryService.addUser(id, eid, firstName, lastName, email, pw, type, properties);
 
 				// put the user in the state
 				state.setAttribute("newuser", newUser);
@@ -1183,6 +1241,9 @@ public class UsersAction extends PagedResourceActionII
 			user.setEmail(email);
 			if (type != null) user.setType(type);
 			
+			//add in the updated props
+			user.getPropertiesEdit().addAll(properties);
+			
       // make sure the old password matches, but don't check for super users
       if (!SecurityService.isSuperUser()) {
             if (!user.checkPassword(pwcur)) {
@@ -1204,6 +1265,66 @@ public class UsersAction extends PagedResourceActionII
 		}
 
 		return true;
+	}
+	
+	/**
+	 * Get the Map of optional attributes from sakai.properties
+	 * 
+	 * First list defines the attribute , second the display value. If no display value the attribute name is used.
+	 * 
+	 * Format is:
+	 * 
+	 * user.additional.attribute.count=3
+	 * user.additional.attribute.1=att1
+	 * user.additional.attribute.2=att2
+	 * user.additional.attribute.3=att3
+	 *
+	 * user.additional.attribute.display.att1=Attribute 1
+	 * user.additional.attribute.display.att2=Attribute 2
+	 * user.additional.attribute.display.att3=Attribute 3
+	 * @return
+	 */
+	private Map<String,String> getOptionalAttributes() {
+		
+		Map<String,String> atts = new LinkedHashMap<String,String>();
+		
+		String configs[] = ServerConfigurationService.getStrings("user.additional.attribute");
+		if (configs != null) {
+			for (int i = 0; i < configs.length; i++) {
+				String key = configs[i];
+				String value = ServerConfigurationService.getString("user.additional.attribute.display." + key, key);
+				atts.put(key, value);
+			}
+		}
+		
+		return atts;
+		
+	}
+	
+	/**
+	 * Gets the current attributes (properties) for a user. Converts the ResourceProperties into a Map
+	 * @param user
+	 * @return
+	 */
+	private Map<String,String> getCurrentAttributes(UserEdit user) {
+		
+		Map<String,String> atts = new LinkedHashMap<String,String>();
+		
+		ResourceProperties rprops = user.getProperties();
+		
+		// no props
+		if(rprops == null) {
+			return atts;
+		}
+		
+		Iterator<String> props = user.getProperties().getPropertyNames();
+		
+		while(props.hasNext()){
+			String prop = props.next();
+			atts.put(prop, rprops.getProperty(prop));
+		}
+		
+		return atts;
 	}
 	
 	public void doAttachments(RunData rundata, Context context) {
