@@ -15,6 +15,7 @@
             <supported-locale>de</supported-locale>
             <supported-locale>fr</supported-locale>
             <supported-locale>es</supported-locale>
+            <supported-locale>sv</supported-locale>
         </locale-config>
     </application>
 
