@@ -74,11 +74,13 @@ public class DashboardLogicImpl implements DashboardLogic, Observer
 	
 	public static final String DASHBOARD_NEGOTIATE_AVAILABILITY_CHECKS = "dash.negotiate.availCheck";
 	public static final String DASHBOARD_NEGOTIATE_REPEAT_EVENTS = "dash.negotiate.repeatEvents";
+	public static final String DASHBOARD_NEGOTIATE_EXPIRATION_AND_PURGING = "dash.negotiate.expireAndPurge";
 	
 	/** time to allow negotaion among servers -- 2 minutes */
 	public static final long NEGOTIATING_TIME = 1000L * 60L * 2L;
 	
-	public static final long TIME_BETWEEN_AVAILABILITY_CHECKS = 1000L * 60L * 1L;
+	public static final long TIME_BETWEEN_AVAILABILITY_CHECKS = 1000L * 60L * 1L;  // one minute
+	public static final long TIME_BETWEEN_EXPIRING_AND_PURGING = 1000L * 60L * 60L; // one hour
 
 	private static final long ONE_DAY = 1000L * 60L * 60L * 24L;
 	private static final long ONE_YEAR = ONE_DAY * 365L;
@@ -87,6 +89,7 @@ public class DashboardLogicImpl implements DashboardLogic, Observer
 	private Date horizon = new Date();
 		
 	protected long nextTimeToQueryAvailabilityChecks = System.currentTimeMillis();
+	protected long nextTimeToExpireAndPurge = System.currentTimeMillis();
 	
 	protected Map<String,EntityType> entityTypes = new HashMap<String,EntityType>();
 	protected Map<String,EventProcessor> eventProcessors = new HashMap<String,EventProcessor>();
@@ -100,14 +103,21 @@ public class DashboardLogicImpl implements DashboardLogic, Observer
 	protected String serverId = null;
 	protected String serverHandlingAvailabilityChecks = "";
 	protected String serverHandlingRepeatEvents = "";
+	protected String serverHandlingExpirationAndPurging = "";
 
 	protected boolean handlingAvailabilityChecks = false;
 	protected boolean notHandlingAvailabilityChecks = false;
 	protected boolean handlingRepeatedEvents = false;
 	protected boolean notHandlingRepeatedEvents = false;
+	protected boolean handlingExpirationAndPurging = false;
+	protected boolean notHandlingExpirationAndPurging = false;
 	
 	protected Date claimAvailabilityCheckDutyTime = null;
 	protected Date claimRepeatEventsDutyTime = null;
+	protected Date claimExpirationAndPurgingTime = null;
+	
+	protected static final Integer DEFAULT_NEWS_ITEM_EXPIRATION = new Integer(26);
+	protected static final Integer DEFAULT_CALENDAR_ITEM_EXPIRATION = new Integer(2);
 
 	public static final Set<String> NAVIGATION_EVENTS = new HashSet<String>();
 	public static final Set<String> DASH_NAV_EVENTS = new HashSet<String>();
@@ -1511,6 +1521,8 @@ public class DashboardLogicImpl implements DashboardLogic, Observer
 			
 			this.sakaiProxy.registerFunction(DASHBOARD_NEGOTIATE_AVAILABILITY_CHECKS);
 			this.sakaiProxy.registerFunction(DASHBOARD_NEGOTIATE_REPEAT_EVENTS);
+			this.sakaiProxy.registerFunction(DASHBOARD_NEGOTIATE_EXPIRATION_AND_PURGING);
+			
 			this.sakaiProxy.addLocalEventListener(this);
 			
 			Integer weeksToHorizon = dashboardConfig.getConfigValue(DashboardConfig.PROP_WEEKS_TO_HORIZON, new Integer(4));
@@ -1703,10 +1715,13 @@ public class DashboardLogicImpl implements DashboardLogic, Observer
 		protected static final String EVENT_PROCESSING_THREAD_SHUT_DOWN_MESSAGE = 
 			"\n===================================================\n  Dashboard Event Processing Thread shutting down  \n===================================================";
 
+		private static final long ONE_WEEK_IN_MILLIS = 1000L * 60L * 60L * 24L * 7L;
+
 		protected boolean timeToQuit = false;
 		
 		protected Date handlingAvailabilityChecksTimer = null;
 		protected Date handlingRepeatedEventsTimer = null;
+		protected Date handlingExpirationAndPurgingTime = null;
 		
 		private long sleepTime = 2L;
 
@@ -1735,8 +1750,12 @@ public class DashboardLogicImpl implements DashboardLogic, Observer
 				
 				registerEventProcessor(new DashboardNegotiateAvailabilityChecksEventProcessor());
 				registerEventProcessor(new DashboardNegotiateRepeatEventsEventProcessor());
+				registerEventProcessor(new DashboardNegotiateExpirationAndPurgingProcessor());
 				
 				boolean timeToHandleAvailabilityChecks = true;
+				boolean timeToHandleRepeatedEvents = false;
+				boolean timeToHandleExpirationAndPurging = false;
+				
 				sakaiProxy.startAdminSession();
 				while(! timeToQuit) {
 					if(logger.isDebugEnabled()) {
@@ -1783,8 +1802,9 @@ public class DashboardLogicImpl implements DashboardLogic, Observer
 								}
 								
 							} 
+							timeToHandleRepeatedEvents = true;
 							timeToHandleAvailabilityChecks = false;
-						} else {
+						} else if(timeToHandleRepeatedEvents) {
 							if(handlingRepeatedEvents) {
 								SecurityAdvisor advisor = new DashboardLogicSecurityAdvisor();
 								sakaiProxy.pushSecurityAdvisor(advisor);
@@ -1812,8 +1832,41 @@ public class DashboardLogicImpl implements DashboardLogic, Observer
 									logger.info("Server handling repeated events is " + serverHandlingRepeatEvents);
 								}
 							}
+							timeToHandleExpirationAndPurging = true;
+							timeToHandleRepeatedEvents = false;
+						} else if(timeToHandleExpirationAndPurging) {
+							
+							if(handlingExpirationAndPurging) {
+								SecurityAdvisor advisor = new DashboardLogicSecurityAdvisor();
+								sakaiProxy.pushSecurityAdvisor(advisor);
+								try {
+									expireAndPurge();
+									//timeToHandleAvailabilityChecks = true;
+								} catch (Exception e) {
+									logger.warn("run: " + event, e);
+								} finally {
+									sakaiProxy.popSecurityAdvisor(advisor);
+								}	
+							} else if(notHandlingExpirationAndPurging) {
+								// do nothing
+							} else if("".equals(serverHandlingExpirationAndPurging)) {
+								claimExpirationAndPurging();
+							} else {
+								if(handlingExpirationAndPurgingTime == null) {
+									handlingExpirationAndPurgingTime = new Date(System.currentTimeMillis() + NEGOTIATING_TIME);
+								} else if (handlingExpirationAndPurgingTime.before(new Date())) {
+									if(serverHandlingExpirationAndPurging.equals(serverId)) {
+										handlingExpirationAndPurging = true;
+									} else {
+										notHandlingExpirationAndPurging = true;
+									}
+									logger.info("Server handling expiration and purging is " + serverHandlingExpirationAndPurging);
+								}
+							}
 							timeToHandleAvailabilityChecks= true;
+							timeToHandleExpirationAndPurging = false;
 						}
+						
 						try {
 							Thread.sleep(sleepTime * 1000L);
 						} catch (InterruptedException e) {
@@ -1844,6 +1897,58 @@ public class DashboardLogicImpl implements DashboardLogic, Observer
 				logger.error("Unhandled throwable is stopping Dashboard Event Processing Thread", t);
 				throw new RuntimeException(t);
 			}
+		}
+
+		protected void expireAndPurge() {
+			if(System.currentTimeMillis() > nextTimeToExpireAndPurge ) {
+				expireAndPurgeCalendarItems();
+				expireAndPurgeNewsItems();
+				
+				nextTimeToQueryAvailabilityChecks = System.currentTimeMillis() + TIME_BETWEEN_EXPIRING_AND_PURGING;
+			}
+			// TODO Auto-generated method stub
+			
+		}
+
+		protected void expireAndPurgeNewsItems() {
+			Integer weeksToExpireItems = dashboardConfig.getConfigValue(DashboardConfig.PROP_REMOVE_NEWS_ITEMS_AFTER_WEEKS, DEFAULT_NEWS_ITEM_EXPIRATION);
+			Integer weeksToExpireStarredItems = dashboardConfig.getConfigValue(DashboardConfig.PROP_REMOVE_STARRED_NEWS_ITEMS_AFTER_WEEKS, DEFAULT_NEWS_ITEM_EXPIRATION);
+			Integer weeksToExpireHiddenItems = dashboardConfig.getConfigValue(DashboardConfig.PROP_REMOVE_HIDDEN_NEWS_ITEMS_AFTER_WEEKS, DEFAULT_NEWS_ITEM_EXPIRATION);
+
+			expireNewsLinks(new Date(System.currentTimeMillis() - weeksToExpireItems.intValue() * ONE_WEEK_IN_MILLIS), false, false);
+			expireNewsLinks(new Date(System.currentTimeMillis() - weeksToExpireStarredItems.intValue() * ONE_WEEK_IN_MILLIS), false, false);
+			expireNewsLinks(new Date(System.currentTimeMillis() - weeksToExpireHiddenItems.intValue() * ONE_WEEK_IN_MILLIS), false, true);
+			purgeNewsItems();
+			
+		}
+
+		private void purgeNewsItems() {
+			dao.deleteNewsItemsWithoutLinks();
+		}
+
+		protected void expireNewsLinks(Date expireBefore, boolean starred, boolean hidden) {
+			dao.deleteNewsLinksBefore(expireBefore,starred,hidden);
+			
+		}
+
+		protected void expireAndPurgeCalendarItems() {
+			Integer weeksToExpireItems = dashboardConfig.getConfigValue(DashboardConfig.PROP_REMOVE_CALENDAR_ITEMS_AFTER_WEEKS, DEFAULT_CALENDAR_ITEM_EXPIRATION);
+			Integer weeksToExpireStarredItems = dashboardConfig.getConfigValue(DashboardConfig.PROP_REMOVE_STARRED_CALENDAR_ITEMS_AFTER_WEEKS, DEFAULT_CALENDAR_ITEM_EXPIRATION);
+			Integer weeksToExpireHiddenItems = dashboardConfig.getConfigValue(DashboardConfig.PROP_REMOVE_HIDDEN_CALENDAR_ITEMS_AFTER_WEEKS, DEFAULT_CALENDAR_ITEM_EXPIRATION);
+
+			expireCalendarLinks(new Date(System.currentTimeMillis() - weeksToExpireItems.intValue() * ONE_WEEK_IN_MILLIS), false, false);
+			expireCalendarLinks(new Date(System.currentTimeMillis() - weeksToExpireStarredItems.intValue() * ONE_WEEK_IN_MILLIS), false, false);
+			expireCalendarLinks(new Date(System.currentTimeMillis() - weeksToExpireHiddenItems.intValue() * ONE_WEEK_IN_MILLIS), false, true);
+			purgeCalendarItems();
+		}
+
+		private void purgeCalendarItems() {
+			dao.deleteCalendarItemsWithoutLinks();
+			
+		}
+
+		protected void expireCalendarLinks(Date expireBefore, boolean starred, boolean hidden) {
+			dao.deleteCalendarLinksBefore(expireBefore, starred, hidden);
 		}
 
 		/**
@@ -1887,7 +1992,13 @@ public class DashboardLogicImpl implements DashboardLogic, Observer
 			} 
 		}
 
-
+		protected void claimExpirationAndPurging() {
+			if(claimExpirationAndPurgingTime == null) {
+				sakaiProxy.postEvent(DASHBOARD_NEGOTIATE_EXPIRATION_AND_PURGING, serverId, true);
+				
+				claimExpirationAndPurgingTime = new Date(System.currentTimeMillis() + NEGOTIATING_TIME);
+			}
+		}
 	}
 	
 	/**
@@ -1990,6 +2101,44 @@ public class DashboardLogicImpl implements DashboardLogic, Observer
 					synchronized(serverHandlingRepeatEvents) {
 						claimRepeatEventsDutyTime = new Date(System.currentTimeMillis() - NEGOTIATING_TIME);
 						serverHandlingRepeatEvents = event.getResource();
+					}
+				}
+			}
+		}
+		
+	}
+	public class DashboardNegotiateExpirationAndPurgingProcessor implements EventProcessor {
+
+		public String getEventIdentifer() {
+			return DASHBOARD_NEGOTIATE_EXPIRATION_AND_PURGING;
+		}
+
+		public void processEvent(Event event) {
+			if(logger.isDebugEnabled()) {
+				logger.debug("\n\n\n=============================================================\n" + event  
+						+ "\n=============================================================\n\n\n");
+			}
+			if(event.getModify()) {
+				// this is a message indicating an attempt to claim expiration and purging 
+				if(handlingExpirationAndPurging) {
+					// expiration and purging is already claimed by this server -- report that
+					sakaiProxy.postEvent(DASHBOARD_NEGOTIATE_EXPIRATION_AND_PURGING, serverHandlingExpirationAndPurging, false);
+				} else if (notHandlingExpirationAndPurging) {
+					// do nothing
+				} else if(event.getEventTime() != null && (claimExpirationAndPurgingTime == null || event.getEventTime().before(claimExpirationAndPurgingTime))) {
+					// negotiate
+					synchronized(serverHandlingExpirationAndPurging) {
+						claimExpirationAndPurgingTime = event.getEventTime();
+						serverHandlingExpirationAndPurging = event.getResource();
+					}
+				}
+			} else {
+				// this message indicates that expiration and purging has been claimed by another server
+				if(! handlingExpirationAndPurging && ! notHandlingExpirationAndPurging) {
+					// we're trying to claim expiration and purging and it's already claimed, so stop trying
+					synchronized(serverHandlingExpirationAndPurging) {
+						claimExpirationAndPurgingTime = new Date(System.currentTimeMillis() - NEGOTIATING_TIME);
+						serverHandlingExpirationAndPurging = event.getResource();
 					}
 				}
 			}

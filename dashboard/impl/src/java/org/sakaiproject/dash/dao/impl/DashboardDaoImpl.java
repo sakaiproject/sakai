@@ -445,6 +445,23 @@ public class DashboardDaoImpl extends JdbcDaoSupport implements DashboardDao {
 	}
 
 	/* (non-Javadoc)
+	 * @see org.sakaiproject.dash.dao.DashboardDao#deleteCalendarItemsWithoutLinks()
+	 */
+	public boolean deleteCalendarItemsWithoutLinks() {
+		if(log.isDebugEnabled()) {
+			log.debug("deleteCalendarItemsWithoutLinks()");
+		}
+		
+		try {
+			getJdbcTemplate().update(getStatement("delete.CalendarItems.no.links"));
+			return true;
+		} catch (DataAccessException ex) {
+           log.warn("deleteCalendarItemsWithoutLinks: Error executing query: " + ex.getClass() + ":" + ex.getMessage());
+           return false;
+		}
+	}
+
+	/* (non-Javadoc)
 	 * @see org.sakaiproject.dash.dao.DashboardDao#deleteNewsItem(java.lang.Long)
 	 */
 	public boolean deleteNewsItem(Long id) {
@@ -521,6 +538,43 @@ public class DashboardDaoImpl extends JdbcDaoSupport implements DashboardDao {
 	}
 
 	/* (non-Javadoc)
+	 * @see org.sakaiproject.dash.dao.DashboardDao#deleteCalendarLinksBefore(java.util.Date, boolean, boolean)
+	 */
+	public boolean deleteCalendarLinksBefore(Date expireBefore, boolean starred,
+			boolean hidden) {
+		if(log.isDebugEnabled()) {
+			log.debug("deleteCalendarLinksBefore( " + expireBefore + "," + starred + "," + hidden + ")");
+		}
+		
+		try {
+			getJdbcTemplate().update(getStatement("delete.CalendarLinks.by.item_calendarTime.starred.hidden"),
+				new Object[]{expireBefore, new Boolean(starred), new Boolean(hidden)}
+			);
+			return true;
+		} catch (DataAccessException ex) {
+           log.warn("deleteCalendarLinksBefore: Error executing query: " + ex.getClass() + ":" + ex.getMessage());
+           return false;
+		}
+	}
+
+	/* (non-Javadoc)
+	 * @see org.sakaiproject.dash.dao.DashboardDao#deleteNewsItemsWithoutLinks()
+	 */
+	public boolean deleteNewsItemsWithoutLinks() {
+		if(log.isDebugEnabled()) {
+			log.debug("deleteNewsItemsWithoutLinks()");
+		}
+		
+		try {
+			getJdbcTemplate().update(getStatement("delete.NewsItems.no.links"));
+			return true;
+		} catch (DataAccessException ex) {
+           log.warn("deleteNewsItemsWithoutLinks: Error executing query: " + ex.getClass() + ":" + ex.getMessage());
+           return false;
+		}
+	}
+
+	/* (non-Javadoc)
 	 * @see org.sakaiproject.dash.dao.DashboardDao#deleteNewsLink(java.lang.Long, java.lang.Long)
 	 */
 	public boolean deleteNewsLink(Long personId, Long newsItemId) {
@@ -575,6 +629,26 @@ public class DashboardDaoImpl extends JdbcDaoSupport implements DashboardDao {
            log.warn("deleteCalendarLinks: Error executing query: " + ex.getClass() + ":" + ex.getMessage());
            return false;
 		}		
+	}
+	
+	/* (non-Javadoc)
+	 * @see org.sakaiproject.dash.dao.DashboardDao#deleteNewsLinksBefore(java.util.Date, boolean, boolean)
+	 */
+	public boolean deleteNewsLinksBefore(Date expireBefore, boolean starred,
+			boolean hidden) {
+		if(log.isDebugEnabled()) {
+			log.debug("deleteNewsLinksBefore( " + expireBefore + "," + starred + "," + hidden + ")");
+		}
+		
+		try {
+			getJdbcTemplate().update(getStatement("delete.NewsLinks.by.item_newsTime.starred.hidden"),
+				new Object[]{expireBefore, new Boolean(starred), new Boolean(hidden)}
+			);
+			return true;
+		} catch (DataAccessException ex) {
+           log.warn("deleteNewsLinksBefore: Error executing query: " + ex.getClass() + ":" + ex.getMessage());
+           return false;
+		}
 	}
 	
 	/* (non-Javadoc)

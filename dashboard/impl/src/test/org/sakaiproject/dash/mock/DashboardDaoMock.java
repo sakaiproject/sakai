@@ -733,4 +733,26 @@ public class DashboardDaoMock implements DashboardDao {
 		return null;
 	}
 
+	public boolean deleteCalendarLinksBefore(Date expireBefore, boolean starred,
+			boolean hidden) {
+		// TODO Auto-generated method stub
+		return false;
+	}
+
+	public boolean deleteCalendarItemsWithoutLinks() {
+		// TODO Auto-generated method stub
+		return false;
+	}
+
+	public boolean deleteNewsLinksBefore(Date expireBefore, boolean starred,
+			boolean hidden) {
+		// TODO Auto-generated method stub
+		return false;
+	}
+
+	public boolean deleteNewsItemsWithoutLinks() {
+		// TODO Auto-generated method stub
+		return false;
+	}
+
 }

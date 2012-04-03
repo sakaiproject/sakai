@@ -294,6 +294,12 @@ public interface DashboardDao {
 	public boolean deleteCalendarItem(Long id);
 	
 	/**
+	 * Remove all calendar items for which no calendar links exist.
+	 * @return
+	 */
+	public boolean deleteCalendarItemsWithoutLinks();
+
+	/**
 	 * Remove a link between a person and a calendar item.
 	 * @param personId
 	 * @param calendarItemId
@@ -316,11 +322,28 @@ public interface DashboardDao {
 	public boolean deleteCalendarLinks(Long personId, Long contextId);
 
 	/**
+	 * Delete calendar links prior to a specified time with the specified values 
+	 * for properties "starred" and "hidden".
+	 * @param expireBefore
+	 * @param starred
+	 * @param hidden
+	 * @return
+	 */
+	public boolean deleteCalendarLinksBefore(Date expireBefore, boolean starred,
+			boolean hidden);
+
+	/**
 	 * Removes the NewsItem with the id indicated, if it exists. 
 	 * @param id
 	 * @return true if an item is removed, false otherwise. 
 	 */
 	public boolean deleteNewsItem(Long id);
+
+	/**
+	 * Remove all news items for which no news links exist.
+	 * @return
+	 */
+	public boolean deleteNewsItemsWithoutLinks();
 
 	/**
 	 * Remove a link between a person and a new item.
@@ -343,6 +366,17 @@ public interface DashboardDao {
 	 * @return
 	 */
 	public boolean deleteNewsLinks(Long personId, Long contextId);
+
+	/**
+	 * Delete news links prior to a specified time with the specified values 
+	 * for properties "starred" and "hidden".
+	 * @param expireBefore
+	 * @param starred
+	 * @param hidden
+	 * @return
+	 */
+	public boolean deleteNewsLinksBefore(Date expireBefore, boolean starred,
+			boolean hidden);
 
 	/**
 	 * 
@@ -516,5 +550,6 @@ public interface DashboardDao {
 			Integer propertyValue);
 
 	public Set<String> listUsersWithLinks(CalendarItem calendarItem);
+
 
 }
