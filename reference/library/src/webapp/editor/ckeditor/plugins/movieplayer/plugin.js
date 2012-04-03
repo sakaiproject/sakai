@@ -221,3 +221,15 @@ function getContentType(url) {
     return contentType;
 }
 
+Movie.prototype.setObjectElement = function (e){
+		if (!e) return ;
+		this.width = GetAttribute( e, 'width', this.width );
+		this.height = GetAttribute( e, 'height', this.height );
+};
+
+String.prototype.endsWith = function(str)
+{return (this.match(str+"$")==str)}
+
+String.prototype.contains = function(str)
+{return (this.match(str)==str)}
+
