@@ -22,6 +22,7 @@
 package org.sakaiproject.dash.test;
 
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.Date;
 import java.util.List;
 import java.util.concurrent.atomic.AtomicInteger;
@@ -1033,6 +1034,427 @@ public class DashboardDaoTest extends AbstractTransactionalSpringContextTests {
 //		assertEquals(subtype2, repeatingCalendarItem2.getSubtype());
 
 	}
+	
+	public void testDeleteCalendarItemsWithoutLinks() {
+		
+		String sakaiId = getUniqueIdentifier();
+		String userId = getUniqueIdentifier();
+		Person person = new Person(sakaiId, userId);
+		boolean personSaved = dao.addPerson(person);
+		assertTrue(personSaved);
+		person = dao.getPersonBySakaiId(sakaiId);
+		assertNotNull(person);
+		
+		String title = getUniqueIdentifier();
+		String entityReference = getUniqueIdentifier();
+		
+		String contextId = getUniqueIdentifier();
+		String contextTitle = getUniqueIdentifier();
+		String contextUrl = getUniqueIdentifier();
+		Context context = new Context(contextId, contextTitle, contextUrl );
+		dao.addContext(context);
+		context = dao.getContext(contextId);
+		
+		String sourceTypeIdentifier = getUniqueIdentifier();
+		SourceType sourceType = new SourceType(sourceTypeIdentifier);
+		dao.addSourceType(sourceType);
+		sourceType = dao.getSourceType(sourceTypeIdentifier);
+
+		int totalItems = 0;
+		int itemsWithLinks = 0;
+		
+		for(int i = -7; i <= 7; i++) {
+
+			String calendarTimeLabelKey = getUniqueIdentifier();
+			Date calendarTime = new Date(System.currentTimeMillis() + (i * ONE_DAY));
+			CalendarItem calendarItem = new CalendarItem(title, calendarTime,
+					calendarTimeLabelKey, entityReference, context, sourceType, null, null, null);
+			boolean saved = dao.addCalendarItem(calendarItem);
+			assertTrue(saved);
+			calendarItem = dao.getCalendarItem(entityReference, calendarTimeLabelKey, null);
+			assertNotNull(calendarItem);
+			assertNotNull(calendarItem.getId());
+			
+			if(i % 2 == 1 || i % 2 == -1) {
+				CalendarLink link = new CalendarLink(person,calendarItem,context,false,false);
+				boolean linkSaved = dao.addCalendarLink(link);
+				assertTrue(linkSaved);
+				link = dao.getCalendarLink(calendarItem.getId(), person.getId());
+				assertNotNull(link);
+				itemsWithLinks++;
+			}
+			totalItems++;
+		}
+		
+		List<CalendarItem> before = dao.getCalendarItems(entityReference);
+		assertNotNull(before);
+		assertEquals(totalItems, before.size());
+		
+		boolean linksDeleted = dao.deleteCalendarItemsWithoutLinks();
+		assertTrue(linksDeleted);
+		
+		List<CalendarItem> after = dao.getCalendarItems(entityReference);
+		assertNotNull(after);
+		assertEquals(itemsWithLinks, after.size());
+		
+	}
+	
+	public void testDeleteCalendarLinksBefore() {
+		String sakaiId = getUniqueIdentifier();
+		String userId = getUniqueIdentifier();
+		Person person = new Person(sakaiId, userId);
+		boolean personSaved = dao.addPerson(person);
+		
+		assertTrue(personSaved);
+		person = dao.getPersonBySakaiId(sakaiId);
+		assertNotNull(person);
+		
+		String contextId = getUniqueIdentifier();
+		String contextTitle = getUniqueIdentifier();
+		String contextUrl = getUniqueIdentifier();
+		Context context = new Context(contextId, contextTitle, contextUrl );
+		
+		dao.addContext(context);
+		context = dao.getContext(contextId);
+		
+		String sourceTypeIdentifier = getUniqueIdentifier();
+		SourceType sourceType = new SourceType(sourceTypeIdentifier);
+		dao.addSourceType(sourceType);
+		sourceType = dao.getSourceType(sourceTypeIdentifier);
+		
+		String subtype = getUniqueIdentifier();
+
+		int totalCount = 0;
+		int hiddenCount = 0;
+		int stickyCount = 0;
+		
+		int stickyAndHiddenCount1 = 0;
+		int hiddenNotStickyCount1 = 0;
+		int stickyNotHiddenCount1 = 0;
+		int notStickyNotHiddenCount1 = 0;
+		
+		int stickyAndHiddenCount2 = 0;
+		int hiddenNotStickyCount2 = 0;
+		int stickyNotHiddenCount2 = 0;
+		
+		Date deleteDate1 = new Date(System.currentTimeMillis() + 4 * ONE_DAY);
+		Date deleteDate2 = new Date(System.currentTimeMillis() + 6 * ONE_DAY);
+		
+		
+		for(int i = 0; i <= 10; i++) {
+			String title = getUniqueIdentifier();
+			String entityReference = getUniqueIdentifier();
+			
+			String calendarTimeLabelKey = getUniqueIdentifier();
+			Date calendarTime = new Date(System.currentTimeMillis() + (i * ONE_DAY));
+			CalendarItem calendarItem = new CalendarItem(title, calendarTime,
+					calendarTimeLabelKey, entityReference, context, sourceType, subtype, null, null);
+			boolean saved = dao.addCalendarItem(calendarItem);
+			assertTrue(saved);
+			calendarItem = dao.getCalendarItem(entityReference, calendarTimeLabelKey, null);
+			assertNotNull(calendarItem);
+			assertNotNull(calendarItem.getId());
+			
+			boolean hidden = i % 2 == 1;
+			boolean sticky = i % 3 == 1;
+			CalendarLink link = new CalendarLink(person,calendarItem,context,hidden,sticky);
+			boolean linkSaved = dao.addCalendarLink(link);
+			assertTrue(linkSaved);
+			link = dao.getCalendarLink(calendarItem.getId(), person.getId());
+			assertNotNull(link);
+
+			totalCount++;
+			if(hidden) {
+				hiddenCount++;
+			}
+			if(sticky) {
+				stickyCount++;
+			}
+			if(calendarTime.before(deleteDate1)) {
+				if(hidden) {
+					if(sticky) {
+						stickyAndHiddenCount1++;
+					} else {
+						hiddenNotStickyCount1++;
+					}
+				} else if(sticky) {
+					stickyNotHiddenCount1++;
+				} else {
+					notStickyNotHiddenCount1++;
+				}
+			}  
+			if(calendarTime.before(deleteDate2)) {
+				if(hidden) {
+					if(sticky) {
+						stickyAndHiddenCount2++;
+					} else {
+						hiddenNotStickyCount2++;
+					}
+				} else if(sticky) {
+					stickyNotHiddenCount2++;
+				}
+			}
+		}
+		
+		int expectedCount = totalCount - hiddenCount;
+		List<CalendarLink> links = dao.getFutureCalendarLinks(sakaiId, contextId, false);
+		assertNotNull(links);
+		assertEquals(expectedCount, links.size());
+		
+		links = dao.getStarredCalendarLinks(sakaiId, contextId);
+		assertNotNull(links);
+		assertEquals(stickyCount, links.size());
+		
+		links = dao.getFutureCalendarLinks(sakaiId, contextId, true);
+		assertNotNull(links);
+		assertEquals(hiddenCount, links.size());
+		
+		expectedCount = expectedCount - notStickyNotHiddenCount1;
+		dao.deleteCalendarLinksBefore(deleteDate1, false, false);
+		links = dao.getFutureCalendarLinks(sakaiId, contextId, false);
+		assertNotNull(links);
+		assertEquals(expectedCount, links.size());
+
+		expectedCount = expectedCount - stickyNotHiddenCount1;
+		dao.deleteCalendarLinksBefore(deleteDate1, true, false);
+		links = dao.getFutureCalendarLinks(sakaiId, contextId, false);
+		assertNotNull(links);
+		assertEquals(expectedCount, links.size());
+		
+		links = dao.getStarredCalendarLinks(sakaiId, contextId);
+		assertNotNull(links);
+		assertEquals(stickyCount - stickyNotHiddenCount1, links.size());
+		
+		dao.deleteCalendarLinksBefore(deleteDate1, false, true);
+		links = dao.getFutureCalendarLinks(sakaiId, contextId, true);
+		assertNotNull(links);
+		assertEquals(hiddenCount - hiddenNotStickyCount1, links.size());
+
+		dao.deleteCalendarLinksBefore(deleteDate1, true, true);
+		links = dao.getFutureCalendarLinks(sakaiId, contextId, true);
+		assertNotNull(links);
+		assertEquals(hiddenCount - hiddenNotStickyCount1 - stickyAndHiddenCount1, links.size());
+		
+		expectedCount = expectedCount - stickyNotHiddenCount2;
+		dao.deleteCalendarLinksBefore(deleteDate2, true, false);
+		links = dao.getFutureCalendarLinks(sakaiId, contextId, false);
+		assertNotNull(links);
+		assertEquals(expectedCount, links.size());	
+		
+	}
+
+	public void testDeleteNewsItemsWithoutLinks() {
+		
+		String sakaiId = getUniqueIdentifier();
+		String userId = getUniqueIdentifier();
+		Person person = new Person(sakaiId, userId);
+		boolean personSaved = dao.addPerson(person);
+		
+		assertTrue(personSaved);
+		person = dao.getPersonBySakaiId(sakaiId);
+		assertNotNull(person);
+		
+		String contextId = getUniqueIdentifier();
+		String contextTitle = getUniqueIdentifier();
+		String contextUrl = getUniqueIdentifier();
+		Context context = new Context(contextId, contextTitle, contextUrl );
+		
+		dao.addContext(context);
+		context = dao.getContext(contextId);
+		
+		String sourceTypeIdentifier = getUniqueIdentifier();
+		SourceType sourceType = new SourceType(sourceTypeIdentifier);
+		dao.addSourceType(sourceType);
+		sourceType = dao.getSourceType(sourceTypeIdentifier);
+		
+		String subtype = getUniqueIdentifier();
+
+		int totalItems = 0;
+		int itemsWithLinks = 0;
+		
+		for(int i = -7; i <= 7; i++) {
+			String title = getUniqueIdentifier();
+			String entityReference = getUniqueIdentifier();
+			
+			String newsTimeLabelKey = getUniqueIdentifier();
+			Date newsTime = new Date(System.currentTimeMillis() + (i * ONE_DAY));
+			NewsItem newsItem = new NewsItem(title, newsTime,
+					newsTimeLabelKey, entityReference, context, sourceType, subtype);
+			boolean saved = dao.addNewsItem(newsItem);
+			assertTrue(saved);
+			newsItem = dao.getNewsItem(entityReference);
+			assertNotNull(newsItem);
+			assertNotNull(newsItem.getId());
+			
+			if(i % 2 == 1 || i % 2 == -1) {
+				NewsLink link = new NewsLink(person,newsItem,context,false,false);
+				boolean linkSaved = dao.addNewsLink(link);
+				assertTrue(linkSaved);
+				link = dao.getNewsLink(newsItem.getId(), person.getId());
+				assertNotNull(link);
+				itemsWithLinks++;
+			}
+			totalItems++;
+		}
+		
+		List<NewsItem> before = dao.getNewsItemsByContext(context.getContextId());
+		assertNotNull(before);
+		assertEquals(totalItems, before.size());
+		
+		boolean linksDeleted = dao.deleteNewsItemsWithoutLinks();
+		assertTrue(linksDeleted);
+		
+		List<NewsItem> after = dao.getNewsItemsByContext(context.getContextId());
+		assertNotNull(after);
+		assertEquals(itemsWithLinks, after.size());
+	}
+	
+	public void testDeleteNewsLinksBefore() {
+		String sakaiId = getUniqueIdentifier();
+		String userId = getUniqueIdentifier();
+		Person person = new Person(sakaiId, userId);
+		boolean personSaved = dao.addPerson(person);
+		
+		assertTrue(personSaved);
+		person = dao.getPersonBySakaiId(sakaiId);
+		assertNotNull(person);
+		
+		String contextId = getUniqueIdentifier();
+		String contextTitle = getUniqueIdentifier();
+		String contextUrl = getUniqueIdentifier();
+		Context context = new Context(contextId, contextTitle, contextUrl );
+		
+		dao.addContext(context);
+		context = dao.getContext(contextId);
+		
+		String sourceTypeIdentifier = getUniqueIdentifier();
+		SourceType sourceType = new SourceType(sourceTypeIdentifier);
+		dao.addSourceType(sourceType);
+		sourceType = dao.getSourceType(sourceTypeIdentifier);
+		
+		String subtype = getUniqueIdentifier();
+
+		int totalCount = 0;
+		int hiddenCount = 0;
+		int stickyCount = 0;
+		
+		int stickyAndHiddenCount1 = 0;
+		int hiddenNotStickyCount1 = 0;
+		int stickyNotHiddenCount1 = 0;
+		int notStickyNotHiddenCount1 = 0;
+		
+		int stickyAndHiddenCount2 = 0;
+		int hiddenNotStickyCount2 = 0;
+		int stickyNotHiddenCount2 = 0;
+		
+		Date deleteDate1 = new Date(System.currentTimeMillis() + 4 * ONE_DAY);
+		Date deleteDate2 = new Date(System.currentTimeMillis() + 6 * ONE_DAY);
+		
+		
+		for(int i = 0; i <= 10; i++) {
+			String title = getUniqueIdentifier();
+			String entityReference = getUniqueIdentifier();
+			
+			String newsTimeLabelKey = getUniqueIdentifier();
+			Date newsTime = new Date(System.currentTimeMillis() + (i * ONE_DAY));
+			NewsItem newsItem = new NewsItem(title, newsTime,
+					newsTimeLabelKey, entityReference, context, sourceType, subtype);
+			boolean saved = dao.addNewsItem(newsItem);
+			assertTrue(saved);
+			newsItem = dao.getNewsItem(entityReference);
+			assertNotNull(newsItem);
+			assertNotNull(newsItem.getId());
+			
+			boolean hidden = i % 2 == 1;
+			boolean sticky = i % 3 == 1;
+			NewsLink link = new NewsLink(person,newsItem,context,hidden,sticky);
+			boolean linkSaved = dao.addNewsLink(link);
+			assertTrue(linkSaved);
+			link = dao.getNewsLink(newsItem.getId(), person.getId());
+			assertNotNull(link);
+
+			totalCount++;
+			if(hidden) {
+				hiddenCount++;
+			}
+			if(sticky) {
+				stickyCount++;
+			}
+			if(newsTime.before(deleteDate1)) {
+				if(hidden) {
+					if(sticky) {
+						stickyAndHiddenCount1++;
+					} else {
+						hiddenNotStickyCount1++;
+					}
+				} else if(sticky) {
+					stickyNotHiddenCount1++;
+				} else {
+					notStickyNotHiddenCount1++;
+				}
+			}  
+			if(newsTime.before(deleteDate2)) {
+				if(hidden) {
+					if(sticky) {
+						stickyAndHiddenCount2++;
+					} else {
+						hiddenNotStickyCount2++;
+					}
+				} else if(sticky) {
+					stickyNotHiddenCount2++;
+				}
+			}
+		}
+		
+		List<NewsItem> items = dao.getNewsItemsByContext(context.getContextId());
+		assertNotNull(items);
+		assertEquals(totalCount, items.size());
+		
+		int expectedCount = totalCount - hiddenCount;
+		List<NewsLink> links = dao.getCurrentNewsLinks(sakaiId, contextId);
+		assertNotNull(links);
+		assertEquals(expectedCount, links.size());
+		
+		links = dao.getStarredNewsLinks(sakaiId, contextId);
+		assertNotNull(links);
+		assertEquals(stickyCount, links.size());
+		
+		links = dao.getHiddenNewsLinks(sakaiId, contextId);
+		assertNotNull(links);
+		assertEquals(hiddenCount, links.size());
+		
+		expectedCount = expectedCount - notStickyNotHiddenCount1;
+		dao.deleteNewsLinksBefore(deleteDate1, false, false);
+		links = dao.getCurrentNewsLinks(sakaiId, contextId);
+		assertNotNull(links);
+		assertEquals(expectedCount, links.size());
+
+		expectedCount = expectedCount - stickyNotHiddenCount1;
+		dao.deleteNewsLinksBefore(deleteDate1, true, false);
+		links = dao.getCurrentNewsLinks(sakaiId, contextId);
+		assertNotNull(links);
+		assertEquals(expectedCount, links.size());
+		
+		links = dao.getStarredNewsLinks(sakaiId, contextId);
+		assertNotNull(links);
+		assertEquals(stickyCount - stickyNotHiddenCount1, links.size());
+		
+		dao.deleteNewsLinksBefore(deleteDate1, false, true);
+		links = dao.getHiddenNewsLinks(sakaiId, contextId);
+		assertNotNull(links);
+		assertEquals(hiddenCount - hiddenNotStickyCount1, links.size());
+
+		dao.deleteNewsLinksBefore(deleteDate1, true, true);
+		links = dao.getHiddenNewsLinks(sakaiId, contextId);
+		assertNotNull(links);
+		assertEquals(hiddenCount - hiddenNotStickyCount1 - stickyAndHiddenCount1, links.size());
+		
+		expectedCount = expectedCount - stickyNotHiddenCount2;
+		dao.deleteNewsLinksBefore(deleteDate2, true, false);
+		links = dao.getCurrentNewsLinks(sakaiId, contextId);
+		assertNotNull(links);
+		assertEquals(expectedCount, links.size());	
+}
 
 
 
