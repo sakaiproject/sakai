@@ -184,7 +184,7 @@ public class SamigoPoolHandler implements HandlesImportable {
 						answer.setText(contextualizeUrls(importableAnswer.getAnswerText(), siteId));
 					}
 					
-					answer.setIsCorrect(new Boolean(correctAnswerIDs.contains(answerId)));
+					answer.setIsCorrect(Boolean.valueOf(correctAnswerIDs.contains(answerId)));
 					answerSet.add(answer);
 				}
 				text.setAnswerSet(answerSet);
