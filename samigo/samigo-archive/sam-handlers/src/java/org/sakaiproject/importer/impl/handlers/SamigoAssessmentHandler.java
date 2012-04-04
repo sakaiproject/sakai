@@ -84,8 +84,8 @@ public class SamigoAssessmentHandler implements HandlesImportable {
 			data.setLastModifiedBy(SessionManager.getCurrentSessionUserId());
 			data.setLastModifiedDate(new Date());
 			// have no idea what the magic number 30 is for, but Samigo used it when I created a question pool in the tool
-			data.setStatus(new Integer(1));
-			data.setIsTemplate(new Boolean(false));
+			data.setStatus(Integer.valueOf(1));
+			data.setIsTemplate(Boolean.valueOf(false));
 			data.setCreatedDate(new Date());
 			Set questionItems = new HashSet();
 			questionItems.addAll(doQuestions(importAssessment.getEssayQuestions(), siteId));
@@ -99,13 +99,13 @@ public class SamigoAssessmentHandler implements HandlesImportable {
 			
 			Set sectionSet = new HashSet();
 			SectionFacade section = new SectionFacade();
-			section.setTypeId(new Long(21));
+			section.setTypeId(Long.valueOf(21));
 			section.setCreatedBy(SessionManager.getCurrentSessionUserId());
 			section.setCreatedDate(new Date());
 			section.setLastModifiedBy(SessionManager.getCurrentSessionUserId());
 			section.setLastModifiedDate(new Date());
-			section.setStatus(new Integer(1));
-			section.setSequence(new Integer(1));
+			section.setStatus(Integer.valueOf(1));
+			section.setSequence(Integer.valueOf(1));
 			section.setAssessmentId(assessment.getAssessmentId());
 			section.setAssessment(assessment);
 			as.saveOrUpdateSection(section);
@@ -120,7 +120,7 @@ public class SamigoAssessmentHandler implements HandlesImportable {
 			  });
 			for (int i = 0;i < questionItemsArray.length; i++) {
 				ItemFacade item = (ItemFacade)questionItemsArray[i];
-				item.setSequence(new Integer(i + 1));
+				item.setSequence(Integer.valueOf(i + 1));
 				item.setSection(section);
 				section.addItem(itemService.saveItem(item));
 			}
@@ -166,7 +166,7 @@ public class SamigoAssessmentHandler implements HandlesImportable {
 				for (Iterator j = answers.iterator();j.hasNext();) {
 					importableAnswer = (AssessmentAnswer)j.next();
 					text = new ItemText();
-					text.setSequence(new Long(answerIndex));
+					text.setSequence(Long.valueOf(answerIndex));
 					answerIndex++;
 					text.setText(contextualizeUrls(importableAnswer.getAnswerText(), siteId));
 					answerSet = new HashSet();
@@ -181,7 +181,7 @@ public class SamigoAssessmentHandler implements HandlesImportable {
 						// set label A, B, C, D, etc. on answer based on its sequence number
 						answer.setLabel(new Character((char)(64 + choiceIndex)).toString());
 						answer.setText(contextualizeUrls(importableChoice.getAnswerText(), siteId));
-						answer.setIsCorrect(new Boolean(importableAnswer.getChoiceId().equals(importableChoice.getAnswerId())));
+						answer.setIsCorrect(Boolean.valueOf(importableAnswer.getChoiceId().equals(importableChoice.getAnswerId())));
 						answerSet.add(answer);
 					}
 					text.setAnswerSet(answerSet);
@@ -191,7 +191,7 @@ public class SamigoAssessmentHandler implements HandlesImportable {
 			} else {
 			
 				text = new ItemText();
-				text.setSequence(new Long(1));
+				text.setSequence(Long.valueOf(1));
 				text.setText(questionTextString);
 				
 				answerSet = new HashSet();
@@ -235,11 +235,11 @@ public class SamigoAssessmentHandler implements HandlesImportable {
 			itemFacade.setItemTextSet(textSet);
 			itemFacade.setCorrectItemFeedback(importableQuestion.getFeedbackWhenCorrect());
 			itemFacade.setInCorrectItemFeedback(importableQuestion.getFeedbackWhenIncorrect());
-			itemFacade.setTypeId(new Long(importableQuestion.getQuestionType()));
+			itemFacade.setTypeId(Long.valueOf(importableQuestion.getQuestionType()));
 			itemFacade.setScore(importableQuestion.getPointValue());
 			itemFacade.setSequence(importableQuestion.getPosition());
 			// status is 0=inactive or 1=active
-			itemFacade.setStatus(new Integer(1));
+			itemFacade.setStatus(Integer.valueOf(1));
 			itemFacade.setHasRationale(Boolean.FALSE);
 			itemFacade.setCreatedBy(SessionManager.getCurrentSessionUserId());
 			itemFacade.setCreatedDate(new java.util.Date());

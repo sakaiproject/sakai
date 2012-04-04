@@ -69,7 +69,7 @@ public class SamigoPoolHandler implements HandlesImportable {
 		pool.setTitle(importPool.getTitle());
 		pool.setDescription(importPool.getDescription());
 		// have no idea what the magic number 30 is for, but Samigo used it when I created a question pool in the tool
-		pool.setAccessTypeId(new Long(30));
+		pool.setAccessTypeId(Long.valueOf(30));
 		Set questionItems = new HashSet();
 		questionItems.addAll(doQuestions(importPool.getEssayQuestions(), siteId));
 		questionItems.addAll(doQuestions(importPool.getFillBlankQuestions(), siteId));
@@ -91,7 +91,7 @@ public class SamigoPoolHandler implements HandlesImportable {
 		  });
 		for (int i = 0;i < questionItemsArray.length; i++) {
 			ItemFacade item = (ItemFacade)questionItemsArray[i];
-			item.setSequence(new Integer(i + 1));
+			item.setSequence(Integer.valueOf(i + 1));
 			qps.addItemToPool(item.getItemIdString(),savedPool.getQuestionPoolId());
 		}
 	}
@@ -125,7 +125,7 @@ public class SamigoPoolHandler implements HandlesImportable {
 				for (Iterator j = answers.iterator();j.hasNext();) {
 					importableAnswer = (AssessmentAnswer)j.next();
 					text = new ItemText();
-					text.setSequence(new Long(answerIndex));
+					text.setSequence(Long.valueOf(answerIndex));
 					answerIndex++;
 					text.setText(contextualizeUrls(importableAnswer.getAnswerText(), siteId));
 					answerSet = new HashSet();
@@ -140,7 +140,7 @@ public class SamigoPoolHandler implements HandlesImportable {
 						// set label A, B, C, D, etc. on answer based on its sequence number
 						answer.setLabel(new Character((char)(64 + choiceIndex)).toString());
 						answer.setText(contextualizeUrls(importableChoice.getAnswerText(), siteId));
-						answer.setIsCorrect(new Boolean(importableAnswer.getChoiceId().equals(importableChoice.getAnswerId())));
+						answer.setIsCorrect(Boolean.valueOf(importableAnswer.getChoiceId().equals(importableChoice.getAnswerId())));
 						answerSet.add(answer);
 					}
 					text.setAnswerSet(answerSet);
@@ -198,7 +198,7 @@ public class SamigoPoolHandler implements HandlesImportable {
 			itemFacade.setScore(importableQuestion.getPointValue());
 			itemFacade.setSequence(importableQuestion.getPosition());
 			// status is 0=inactive or 1=active
-			itemFacade.setStatus(new Integer(1));
+			itemFacade.setStatus(Integer.valueOf(1));
 			itemFacade.setHasRationale(Boolean.FALSE);
 			itemFacade.setCreatedBy(SessionManager.getCurrentSessionUserId());
 			itemFacade.setCreatedDate(new java.util.Date());
