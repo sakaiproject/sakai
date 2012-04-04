@@ -1797,3 +1797,47 @@ form[action$="selectQuestionType"] .number {
     height:13px;
     width:10px;
 }
+
+/*
+overrides for selects and cancel buttons
+*/
+select {
+    border: 1px solid #A9A9A9 !important;
+    height: 20px;
+}
+select option {
+    padding:3px 5px !important;
+}
+input[accesskey="x"], form#takeAssessmentForm .act input[id$="cancel1"],
+ form#assessmentSettingsAction .act input:last-child,
+ form#modifyPartForm .act input[style="act"],
+ form#itemForm .act input:last-child,
+ .portletBody + .act input:last-child,
+ form#editTotalResults .act input:last-child,
+ form#templateEditorForm .act input:last-child,
+ form#removeTemplateForm .act input:last-child,
+ form#questionpool .act input:last-child[style="act"],
+ form#importPoolForm .tier1  > input:last-child,
+ form#copyPool .act input[name$="cancel"],
+ form#movePool .act input[name$="cancel"],
+ form#questionpoolshare .act input[name$="cancel"],
+ form#gbForm .calendarPadding input:last-child,
+ form#gbForm[action$="calculateCourseGrades"] .act input:last-child,
+ form#gbForm[action$="gradeOptions"] .act input:last-child,
+ form#gbForm[action$="removeAssignment"] .act input:last-child,
+ form#editStudentResults .act input:last-child {
+    background: none !important;
+    border: none;
+    color: #2683BC;
+    display: inline-block;
+    font-family: Arial,Helvetica,sans-serif;
+    font-size: 11px;
+    margin: 0;
+    padding: 0;
+    text-align: left;
+    font-weight:bold;
+    cursor:pointer;
+}
+ form#takeAssessmentForm .act input[disabled="disabled"] {
+     color:#777 !important;
+}
