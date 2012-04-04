@@ -984,7 +984,7 @@ public class Foorm {
 
 			if ("true".equals(info.getProperty("required")) && (dataField == null)) {
 				if (sb.length() > 0) sb.append(", ");
-				error = getI18N("foorm.missing.field", "Required Field: ", loader) + getI18N(label, loader);
+				error = getI18N("foorm.missing.field", "Required Field:", loader) + " " + getI18N(label, loader);
 				sb.append(error);
 				if ( errors != null ) errors.put(label, error);
 			}
@@ -1000,8 +1000,8 @@ public class Foorm {
 					} else {
 						if (sb.length() > 0)
 							sb.append(", ");
-						error = getI18N("foorm.maxlength.field", "Field > " + maxlength
-								+ " Field: ", loader) + getI18N(label, loader);
+						error = getI18N("foorm.maxlength.field", "Field >", loader) + " " + maxlength
+								+ " " + getI18N(label, loader);
 						sb.append(error);
 						if ( errors != null ) errors.put(label, error);
 					}
@@ -1023,7 +1023,7 @@ public class Foorm {
 					} catch (Exception e) {
 						if (sb.length() > 0)
 							sb.append(", ");
-						error = getI18N("foorm.integer.field", "Field should be an integer: ", loader) + getI18N(label, loader);
+						error = getI18N("foorm.integer.field", "Field should be an integer:", loader) + " " + getI18N(label, loader);
 						sb.append(error);
 						if ( errors != null ) errors.put(label, error);
 					}
@@ -1040,7 +1040,7 @@ public class Foorm {
 				} else {
 					if (sb.length() > 0)
 						sb.append(", ");
-					error = getI18N("foorm.id.field", "Field has invalid characters: ", loader) + getI18N(label, loader);
+					error = getI18N("foorm.id.field", "Field has invalid characters:", loader) + " " + getI18N(label, loader);
 					sb.append(error);
 					if ( errors != null ) errors.put(label, error);
 				}
@@ -1056,7 +1056,7 @@ public class Foorm {
 				} else {
 					if (sb.length() > 0)
 						sb.append(", ");
-					error = getI18N("foorm.url.field", "Field is not a url: ", loader) + getI18N(label, loader);
+					error = getI18N("foorm.url.field", "Field is not a url:", loader) + " " + getI18N(label, loader);
 					sb.append(error);
 					if ( errors != null ) errors.put(label, error);
 				}
