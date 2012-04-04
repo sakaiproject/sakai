@@ -24,10 +24,9 @@ package org.sakaiproject.tool.assessment.integration.helper.integrated;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
-
-import org.sakaiproject.tool.api.Placement; 
-import org.sakaiproject.tool.cover.ToolManager; 
+import org.sakaiproject.tool.api.Placement;
 import org.sakaiproject.tool.assessment.integration.helper.ifc.GradebookHelper;
+import org.sakaiproject.tool.cover.ToolManager;
 
 /**
  *

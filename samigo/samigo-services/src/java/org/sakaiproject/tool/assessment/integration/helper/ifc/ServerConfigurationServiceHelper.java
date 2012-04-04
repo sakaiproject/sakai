@@ -22,7 +22,6 @@
 
 package org.sakaiproject.tool.assessment.integration.helper.ifc;
 
-import java.util.*;
 
 public interface ServerConfigurationServiceHelper{
     public String getString(String key, String defaultValue);

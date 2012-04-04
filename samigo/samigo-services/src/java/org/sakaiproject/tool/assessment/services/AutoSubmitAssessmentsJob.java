@@ -2,27 +2,20 @@ package org.sakaiproject.tool.assessment.services;
 
 
 
-import java.util.ArrayList;
-import java.util.Collection;
 import java.util.Date;
-import java.util.Iterator;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
-import org.quartz.StatefulJob;
 import org.quartz.JobExecutionContext;
 import org.quartz.JobExecutionException;
-
-import org.sakaiproject.tool.api.Session;
-import org.sakaiproject.tool.cover.SessionManager;
-
-import org.sakaiproject.site.cover.SiteService;
-
+import org.quartz.StatefulJob;
+import org.sakaiproject.authz.cover.AuthzGroupService;
 import org.sakaiproject.component.cover.ServerConfigurationService;
 import org.sakaiproject.event.api.UsageSession;
 import org.sakaiproject.event.cover.EventTrackingService;
 import org.sakaiproject.event.cover.UsageSessionService;
-import org.sakaiproject.authz.cover.AuthzGroupService;
+import org.sakaiproject.tool.api.Session;
+import org.sakaiproject.tool.cover.SessionManager;
 
 
 public class AutoSubmitAssessmentsJob implements StatefulJob {

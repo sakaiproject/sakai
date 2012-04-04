@@ -1,41 +1,37 @@
 package org.sakaiproject.tool.assessment.integration.helper.integrated;
 
-import org.sakaiproject.tool.assessment.integration.helper.ifc.CalendarServiceHelper;
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.HashMap;
+import java.util.Iterator;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
+
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
-
 import org.sakaiproject.calendar.api.Calendar;
-import org.sakaiproject.calendar.api.CalendarEventEdit;
-import org.sakaiproject.calendar.api.CalendarService;
-import org.sakaiproject.exception.IdUnusedException;
-import org.sakaiproject.exception.PermissionException;
-
-import org.sakaiproject.component.cover.ServerConfigurationService;
-import org.sakaiproject.site.cover.SiteService;
-
-
-import org.sakaiproject.exception.InUseException;
-
-import org.sakaiproject.time.api.TimeRange;
-import org.sakaiproject.time.cover.TimeService;
-import org.sakaiproject.site.api.Group;
 import org.sakaiproject.calendar.api.CalendarEvent;
 import org.sakaiproject.calendar.api.CalendarEventEdit;
+import org.sakaiproject.calendar.api.CalendarService;
+import org.sakaiproject.component.cover.ServerConfigurationService;
 import org.sakaiproject.entity.cover.EntityManager;
-
-import org.sakaiproject.tool.assessment.data.dao.assessment.PublishedMetaData;
-import org.sakaiproject.tool.assessment.facade.PublishedAssessmentFacade;
-
+import org.sakaiproject.exception.IdUnusedException;
+import org.sakaiproject.exception.InUseException;
+import org.sakaiproject.exception.PermissionException;
 import org.sakaiproject.site.api.Group;
 import org.sakaiproject.site.api.Site;
-import org.sakaiproject.tool.cover.ToolManager;
+import org.sakaiproject.site.cover.SiteService;
+import org.sakaiproject.time.api.TimeRange;
+import org.sakaiproject.time.cover.TimeService;
+import org.sakaiproject.tool.assessment.data.dao.assessment.PublishedMetaData;
+import org.sakaiproject.tool.assessment.data.ifc.assessment.AssessmentAccessControlIfc;
 import org.sakaiproject.tool.assessment.data.ifc.assessment.AssessmentMetaDataIfc;
 import org.sakaiproject.tool.assessment.facade.AgentFacade;
+import org.sakaiproject.tool.assessment.facade.PublishedAssessmentFacade;
+import org.sakaiproject.tool.assessment.integration.helper.ifc.CalendarServiceHelper;
 import org.sakaiproject.tool.assessment.services.assessment.PublishedAssessmentService;
-import org.sakaiproject.tool.assessment.data.ifc.assessment.AssessmentAccessControlIfc;
-
-
-import java.util.*;
+import org.sakaiproject.tool.cover.ToolManager;
 
 public class CalendarServiceHelperImpl implements CalendarServiceHelper {
 	private static final Log log = LogFactory.getLog(CalendarServiceHelperImpl.class);

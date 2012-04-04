@@ -22,11 +22,8 @@
 
 package org.sakaiproject.tool.assessment.integration.helper.standalone;
 
-import java.util.*;
-
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
-
 import org.sakaiproject.tool.assessment.integration.helper.ifc.ServerConfigurationServiceHelper;
 
 public class ServerConfigurationServiceHelperImpl implements ServerConfigurationServiceHelper {

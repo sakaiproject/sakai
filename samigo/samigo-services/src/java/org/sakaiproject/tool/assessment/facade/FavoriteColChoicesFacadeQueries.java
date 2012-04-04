@@ -1,10 +1,8 @@
 package org.sakaiproject.tool.assessment.facade;
 
 import java.sql.SQLException;
-
 import java.util.Iterator;
 import java.util.List;
-import java.util.HashSet;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
@@ -12,12 +10,9 @@ import org.hibernate.HibernateException;
 import org.hibernate.Query;
 import org.hibernate.Session;
 import org.sakaiproject.tool.assessment.data.dao.assessment.FavoriteColChoices;
-import org.sakaiproject.tool.assessment.data.dao.assessment.FavoriteColChoicesItem;
-import org.sakaiproject.tool.assessment.data.dao.shared.TypeD;
-
+import org.sakaiproject.tool.assessment.services.PersistenceService;
 import org.springframework.orm.hibernate3.HibernateCallback;
 import org.springframework.orm.hibernate3.support.HibernateDaoSupport;
-import org.sakaiproject.tool.assessment.services.PersistenceService;
 
 
 public class FavoriteColChoicesFacadeQueries extends HibernateDaoSupport 

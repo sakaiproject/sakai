@@ -29,15 +29,12 @@ import java.util.Set;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.osid.assessment.AssessmentException;
-import org.osid.assessment.Section;
-import org.sakaiproject.tool.assessment.data.dao.assessment.AssessmentData;
 import org.sakaiproject.tool.assessment.data.dao.assessment.PublishedAssessmentData;
 import org.sakaiproject.tool.assessment.data.dao.assessment.PublishedSectionMetaData;
 import org.sakaiproject.tool.assessment.data.ifc.assessment.AssessmentIfc;
 import org.sakaiproject.tool.assessment.data.ifc.assessment.ItemDataIfc;
 import org.sakaiproject.tool.assessment.data.ifc.assessment.SectionDataIfc;
 import org.sakaiproject.tool.assessment.data.ifc.assessment.SectionMetaDataIfc;
-import org.sakaiproject.tool.assessment.osid.assessment.impl.SectionImpl;
 import org.sakaiproject.tool.assessment.services.PersistenceService;
 
 public class PublishedSectionFacade extends SectionFacade implements Serializable, Comparable {

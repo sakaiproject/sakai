@@ -21,7 +21,6 @@
 
 package org.sakaiproject.tool.assessment.facade.authz.resource;
 
-import java.util.ListResourceBundle;
 
 /**
  *
