@@ -16,6 +16,7 @@ import java.util.Map;
  * For clustered environments, you may experience discrepancies when a new node comes online as the cache will start afresh
  * so users will only be repopulated into the cache once they start publishing events.</p>
  * 
+ * @since 1.2.1
  */
 public interface ActivityService {
 
