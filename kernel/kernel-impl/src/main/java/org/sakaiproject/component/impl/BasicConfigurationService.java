@@ -514,7 +514,7 @@ public class BasicConfigurationService implements ServerConfigurationService, Ap
             return rv;
         } else {
             String value = getString(name);
-            if (value != null) {
+            if (value != null && !"".equals(value)) {
                 BaseConfiguration conf = new BaseConfiguration();
                 conf.addProperty(name, value);
                 try {
