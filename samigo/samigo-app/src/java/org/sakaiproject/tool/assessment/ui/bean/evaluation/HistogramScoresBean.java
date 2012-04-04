@@ -1035,16 +1035,16 @@ publishedId = ppublishedId;
         String defaultStr = ContextUtil.getLocalizedString("org.sakaiproject.tool.assessment.bundle.CommonMessages","default");
         String partStr = ContextUtil.getLocalizedString("org.sakaiproject.tool.assessment.bundle.EvaluationMessages","part") + " ";
         String poolStr = ", " + ContextUtil.getLocalizedString("org.sakaiproject.tool.assessment.bundle.EvaluationMessages","pool") + ": ";
-        String text = null;
+        StringBuilder text = new StringBuilder();
         for(PublishedSectionData section: assesmentParts){
-            text = partStr + String.valueOf(section.getSequence());
+            text.append(partStr + String.valueOf(section.getSequence()));
             if(!defaultStr.equals(section.getTitle())){
-                text = text + ": " + section.getTitle();
+                text.append(": " + section.getTitle());
             }
             if(section.getSectionMetaDataByLabel(SectionDataIfc.POOLNAME_FOR_RANDOM_DRAW) != null){
-                text = text + poolStr + section.getSectionMetaDataByLabel(SectionDataIfc.POOLNAME_FOR_RANDOM_DRAW);
+                text.append(poolStr + section.getSectionMetaDataByLabel(SectionDataIfc.POOLNAME_FOR_RANDOM_DRAW));
             }
-            selectItemParts.add(new SelectItem(String.valueOf(section.getSequence()), text));
+            selectItemParts.add(new SelectItem(String.valueOf(section.getSequence()), text.toString()));
         }
     }
 
