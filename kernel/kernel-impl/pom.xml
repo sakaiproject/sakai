@@ -73,13 +73,6 @@
       <scope>test</scope>
     </dependency>
     <dependency>
-    	<groupId>backport-util-concurrent</groupId>
-    	<artifactId>backport-util-concurrent</artifactId>
-    	<version>3.0</version>
-    </dependency>
-
-
-    <dependency>
       <groupId>commons-logging</groupId>
       <artifactId>commons-logging</artifactId>
     </dependency>
@@ -185,6 +178,12 @@
       <artifactId>jmock</artifactId>
       <version>2.5.1</version>
       <scope>test</scope>
+    </dependency>
+    <dependency>
+        <groupId>org.jmock</groupId>
+        <artifactId>jmock-junit4</artifactId>
+        <version>2.5.1</version>
+        <scope>test</scope>
     </dependency>
     <dependency>
       <groupId>org.jmock</groupId>
