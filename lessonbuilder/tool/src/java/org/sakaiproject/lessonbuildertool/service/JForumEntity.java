@@ -532,14 +532,175 @@ public class JForumEntity implements LessonEntity, ForumInterface {
     public void setGroups(Collection<String> groups) {
     }
 
-    public String getObjectId(){
-	return null;
+
+    // WARNING:
+    // At least in the version of jforum we have, copying doesn't work. It copies only topics flagged as "reuse",
+    // but fails to copy the iitial posting. THat causes the UI to say the topic is not found. This code correctly
+    // copies the reference. But to test I had to hack the database to simulate a correct copying. Hopefully
+    // newer versions of jForum work.
+
+    class JForumTitle {
+	String topic;
+	String forum;
+	String category;
     }
 
+    // only used for topics
+    public String getObjectId(){
+
+	String sql="select a.topic_title,b.forum_name,c.title from jforum_topics a,jforum_forums b,jforum_categories c where topic_id=? and b.forum_id=a.forum_id and b.categories_id=c.categories_id";
+	Object fields[] = new Object[1];
+	fields[0] = (Integer)id;
+
+	List<JForumTitle>titles = SqlService.dbRead(sql, fields, new SqlReader()
+		{
+		    public Object readSqlResultRecord(ResultSet result)
+		    {
+			try {
+			    JForumTitle title = new JForumTitle();
+			    title.topic = result.getString(1);
+			    title.forum = result.getString(2);
+			    title.category = result.getString(3);
+			    return title;
+			} catch (Exception ignore) {};
+			return null;
+		    }
+		});
+
+	if (titles.size() != 1)
+	    return null;
+
+	JForumTitle title = titles.get(0);
+
+	System.out.println("object " + "jforum_topic/" + title.category + "\n" + title.forum + "\n" + title.topic);
+	return "jforum_topic/" + title.category + "\n" + title.forum + "\n" + title.topic;
+
+    }
+
+    // objectid is titles of category, forum, topic. find the topic and return a string with its ID
     public String findObject(String objectid, Map<String,String>objectMap, String siteid) {
-	if (nextEntity != null)
-	    return nextEntity.findObject(objectid, objectMap, siteid);
+	System.out.println("findobject " + objectid);
+	if (!haveJforum || !objectid.startsWith("jforum_topic/")) {
+	    if (nextEntity != null) 
+		return nextEntity.findObject(objectid, objectMap, siteid);
+	    else
+		return null;
+	}
+
+	// LSNBLDR-21. If the tool is not in the current site we shouldn't query
+	// for topics owned by the tool.
+	Site site = null;
+	try {
+	    site = SiteService.getSite(siteid);
+	} catch (Exception impossible) {
+	    return null;
+	}
+	ToolConfiguration siteTool = site.getToolForCommonId("sakai.jforum.tool");
+	if(siteTool == null)
+	    return null;
+
+	// isolate 3 titles
+	int i = objectid.indexOf("\n");
+	if (i <= 0)
+	    return null;
+	final String category = objectid.substring("jforum_topic/".length(), i);
+	
+	int j = objectid.indexOf("\n", i+1);
+	if (j <= 0)
+	    return null;
+	final String forum = objectid.substring(i+1, j);
+
+	final String topic = objectid.substring(j+1);
+	    
+	// unfortunately we have to search the topic tree to find it.
+
+	System.out.println("parsed " + category + ">" + forum +">" + topic);
+
+	List<LessonEntity>ret = new ArrayList<LessonEntity>();
+	
+	String sql="select b.categories_id, b.title from jforum_sakai_course_categories a, jforum_categories b where a.course_id=? and a.categories_id = b.categories_id order by b.display_order";
+	Object fields[] = new Object[1];
+	fields[0] = siteid;
+
+	List<Integer>categories = SqlService.dbRead(sql, fields, new SqlReader()
+	    {
+		public Object readSqlResultRecord(ResultSet result)
+		{
+		    try {
+			if (result.getString(2).equals(category))
+			    return result.getInt(1);
+		    } catch (Exception ignore) {};
+		    return null;
+		}
+	    });
+
+	System.out.println("found categories" + categories);
+	if (categories == null || categories.size() < 1)
+	    return null;
+
+	List<Integer>forums = null;
+	// there will be only one non-null category id
+	for (Integer c : categories) {
+	    if (c != null) {
+		sql = "select forum_id,forum_name from jforum_forums where categories_id = ? order by forum_order";
+		fields[0] = c;
+		
+		forums = SqlService.dbRead(sql, fields, new SqlReader()
+		    {
+			public Object readSqlResultRecord(ResultSet result)
+			{
+			    try {
+				if (result.getString(2).equals(forum))
+				    return result.getInt(1);
+			    } catch (Exception ignore) {};
+			    return null;
+			}
+		    });
+		
+	    }
+	}
+
+	System.out.println("found forums " + forums);
+	if (forums == null || forums.size() < 1) 
+	    return null;
+
+	List<Integer>topics = null;
+
+	// this will be only one non-null forum
+	for (Integer f : forums) {
+	    if (f != null) {
+		sql = "select topic_id,topic_title from jforum_topics where forum_id = ? order by topic_time";
+		fields[0] = f;
+		
+		topics = SqlService.dbRead(sql, fields, new SqlReader()
+		    {
+			public Object readSqlResultRecord(ResultSet result)
+			{
+			    try {
+				if (result.getString(2).equals(topic))
+				    return result.getInt(1);
+			    } catch (Exception ignore) {};
+			    return null;
+			}
+		    });
+		
+	    }
+	}
+	
+	System.out.println("topics " + topics);
+	if (topics == null || topics.size() < 1)
+	    return null;
+
+	// there will be only one non-null topic
+	for (Integer t: topics) {
+	    if (t != null) {
+		System.out.println("return " + "/jforum_topic/" + t);
+		return "/jforum_topic/" + t;
+	    }
+	}
+
 	return null;
+
     }
 
 }
