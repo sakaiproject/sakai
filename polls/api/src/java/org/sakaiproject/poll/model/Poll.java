@@ -33,6 +33,8 @@ import org.sakaiproject.entity.api.Entity;
 import org.sakaiproject.entity.api.ResourceProperties;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
+import java.text.DateFormat;
+import java.text.ParseException;
 
 public class Poll implements Entity  {
 
@@ -62,7 +64,6 @@ public class Poll implements Entity  {
     private String entityID;
     
     private boolean isPublic = false;
-
 
     public Poll() {
         //set the defaults
@@ -336,6 +337,23 @@ public class Poll implements Entity  {
         return null;
     }
 
+
+    /* Constants used for conversion to and from XML */
+    private static final String ID = "id";
+    private static final String POLL_ID = "pollid";
+    private static final String POLL_TEXT = "title";
+    private static final String DESCRIPTION = "description";
+    private static final String VOTE_OPEN = "open-time";
+    private static final String VOTE_CLOSE = "close-time";
+    private static final String LIMIT_VOTING = "limit-voting";
+    private static final String MIN_OPTIONS = "min-options";
+    private static final String MAX_OPTIONS = "max-options";
+
+    private static DateFormat getDateFormatForXML() {
+        return DateFormat.getDateTimeInstance(DateFormat.SHORT, DateFormat.SHORT);
+    }
+
+
     public Element toXml(Document doc, Stack stack) {
         Element poll = doc.createElement("poll");
 
@@ -350,15 +368,18 @@ public class Poll implements Entity  {
 
         stack.push(poll);
 
-        poll.setAttribute("id", getId());
-        poll.setAttribute("pollid", getPollId().toString());
-        poll.setAttribute("title", getText());
+        poll.setAttribute(ID, getId());
+        poll.setAttribute(POLL_ID, getPollId().toString());
+        poll.setAttribute(POLL_TEXT, getText());
+        poll.setAttribute(MIN_OPTIONS, (new Integer(getMinOptions()).toString()));
+        poll.setAttribute(MAX_OPTIONS, (new Integer(getMaxOptions()).toString()));
 
-        if (description != null) poll.setAttribute("description", description);
+        if (description != null) poll.setAttribute(DESCRIPTION, description);
 
-        poll.setAttribute("open-time", this.voteOpen.toString());
-        poll.setAttribute("close-time", this.voteClose.toString());
-        poll.setAttribute("limit-voting", Boolean.valueOf(limitVoting).toString());
+        DateFormat dformat  = getDateFormatForXML();
+        poll.setAttribute(VOTE_OPEN, dformat.format(this.voteOpen));
+        poll.setAttribute(VOTE_CLOSE, dformat.format(this.voteClose));
+        poll.setAttribute(LIMIT_VOTING, Boolean.valueOf(limitVoting).toString());
         // properties
         //getProperties().toXml(doc, stack);
         //apppend the options as chidren
@@ -366,6 +387,44 @@ public class Poll implements Entity  {
 
         stack.pop();
 
+        return poll;
+    }
+
+    public static Poll fromXML(Element element) {
+        Poll poll = new Poll();
+        poll.setId(element.getAttribute(ID));
+        poll.setText(element.getAttribute(POLL_TEXT));
+        poll.setDescription(element.getAttribute(DESCRIPTION));
+        DateFormat dformat  = getDateFormatForXML();
+        if (!"".equals(element.getAttribute(VOTE_OPEN))) {
+            try {
+                poll.setVoteOpen(dformat.parse(element.getAttribute(VOTE_OPEN)));
+            } catch (ParseException e) {
+                //should log this
+            }
+        }
+        if (!"".equals(element.getAttribute(VOTE_CLOSE))) {
+            try {
+                poll.setVoteOpen(dformat.parse(element.getAttribute(VOTE_CLOSE)));
+            } catch (ParseException e) {
+                //should log this
+            }
+        }
+        if (!"".equals(element.getAttribute(MIN_OPTIONS))) {
+            try {
+                poll.setMinOptions(Integer.parseInt(element.getAttribute(MIN_OPTIONS)));
+            } catch (NumberFormatException e) {
+                //should log this
+            }
+        }
+        if (!"".equals(element.getAttribute(MAX_OPTIONS))) {
+            try {
+                poll.setMaxOptions(Integer.parseInt(element.getAttribute(MAX_OPTIONS)));
+            } catch (NumberFormatException e) {
+                //should log this
+            }
+        }
+        poll.setLimitVoting(Boolean.parseBoolean(element.getAttribute(LIMIT_VOTING)));
         return poll;
     }
 }

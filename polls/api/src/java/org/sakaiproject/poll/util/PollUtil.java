@@ -29,6 +29,13 @@ import org.w3c.dom.Element;
 
 public class PollUtil {
 
+    /** Attribute names **/
+    private static final String UUID = "id";
+    private static final String OPTION_ID = "optionid";
+    private static final String TEXT = "title";
+    private static final String DELETED = "deleted";
+    
+
     public static Element optionToXml(Option option, Document doc, Stack<Element> stack) {
         Element element = doc.createElement("option");
 
@@ -50,5 +57,20 @@ public class PollUtil {
         stack.pop();
 
         return element;
+    }
+
+    public static Option xmlToOption(Element element) {
+        Option option = new Option();
+        option.setUUId(element.getAttribute(UUID));
+        if (!"".equals(element.getAttribute(OPTION_ID))) {
+            try {
+                option.setOptionId(Long.parseLong(element.getAttribute(OPTION_ID)));
+            } catch (NumberFormatException e) {
+                //LOG THIS
+            }
+        }
+        option.setOptionText(element.getAttribute(TEXT));
+        option.setDeleted(Boolean.parseBoolean(element.getAttribute(DELETED)));
+        return option;
     }
 }

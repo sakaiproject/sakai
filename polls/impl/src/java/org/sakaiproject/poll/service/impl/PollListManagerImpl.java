@@ -55,7 +55,7 @@ import org.sakaiproject.site.api.SiteService;
 import org.springframework.dao.DataAccessException;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
-
+import org.w3c.dom.NodeList;
 
 
 public class PollListManagerImpl implements PollListManager,EntityTransferrer {
@@ -63,7 +63,6 @@ public class PollListManagerImpl implements PollListManager,EntityTransferrer {
     // use commons logger
     private static Log log = LogFactory.getLog(PollListManagerImpl.class);
     public static final String REFERENCE_ROOT = Entity.SEPARATOR + "poll";
-
 
 
     private EntityManager entityManager;
@@ -403,8 +402,9 @@ public class PollListManagerImpl implements PollListManager,EntityTransferrer {
         StringBuilder results = new StringBuilder();
 
         // String assignRef = assignmentReference(siteId, SiteService.MAIN_CONTAINER);
-        results.append("archiving " + getLabel() + " context " + Entity.SEPARATOR + siteId
-                + Entity.SEPARATOR + SiteService.MAIN_CONTAINER + ".\n");
+        results.append("archiving " + getLabel() + " context " + Entity.SEPARATOR 
+                       + siteId + Entity.SEPARATOR + SiteService.MAIN_CONTAINER 
+                       + ".\n");
 
         // start with an element with our very own (service) name
         Element element = doc.createElement(PollListManager.class.getName());
@@ -443,9 +443,22 @@ public class PollListManagerImpl implements PollListManager,EntityTransferrer {
         return results.toString();
     }
 
-    public String merge(String arg0, Element arg1, String arg2, String arg3, Map arg4, Map arg5,
-            Set arg6) {
-        // TODO Auto-generated method stub
+	public String merge(String siteId, Element root, String archivePath, String fromSiteId, Map<String, String> attachmentNames, Map<String, String> userIdTrans, Set<String> userListAllowImport) {
+        /* USERS ARE NOT MERGED */
+        NodeList polls = root.getElementsByTagName("poll");
+        for (int i=0; i<polls.getLength(); ++i) {
+            Element pollElement = (Element) polls.item(i);
+            Poll poll = Poll.fromXML(pollElement);
+            poll.setSiteId(siteId);
+            savePoll(poll);
+            NodeList options = pollElement.getElementsByTagName("option");
+            for (int j=0; j<options.getLength(); ++j) {
+                Element optionElement = (Element) options.item(j);
+                Option option = PollUtil.xmlToOption(optionElement);
+                option.setPollId(poll.getPollId());
+                saveOption(option);
+            }
+        }
         return null;
     }
 

@@ -26,7 +26,7 @@
 	<bean id="pollToolBean"
 		class="org.sakaiproject.poll.tool.params.PollToolBean">
 		<property name="pollListManager"
-			ref="org.sakaiproject.tool.poll.api.PollListManager" />
+			ref="org.sakaiproject.poll.logic.PollListManager"/>
 		<property name="voteBean" ref="voteBean" />
 		<property name="pollVoteManager"
 			ref="org.sakaiproject.tool.poll.api.PollVoteManager" />
@@ -53,7 +53,7 @@
 	<bean id="pollListProducer"
 		class="org.sakaiproject.poll.tool.producers.PollToolProducer">
 		<property name="pollListManager"
-			ref="org.sakaiproject.tool.poll.api.PollListManager" />
+			ref="org.sakaiproject.poll.logic.PollListManager" />
 		<property name="localeGetter" ref="requestLocaleProxy" />
 		<property name="messageLocator" ref="messageLocator" />
 		<property name="pollVoteManager"
@@ -79,7 +79,7 @@
 		class="org.sakaiproject.poll.tool.producers.PollOptionProducer">
 		<property name="messageLocator" ref="messageLocator" />
 		<property name="pollListManager"
-			ref="org.sakaiproject.tool.poll.api.PollListManager" />
+			ref="org.sakaiproject.poll.logic.PollListManager" />
 		<property name="targettedMessageList"
 			ref="targettedMessageList" />
 		<property name="richTextEvolver" ref="richTextEvolver" />
@@ -90,7 +90,7 @@
 		class="org.sakaiproject.poll.tool.producers.PollOptionDeleteProducer">
 		<property name="messageLocator" ref="messageLocator" />
 		<property name="pollListManager"
-			ref="org.sakaiproject.tool.poll.api.PollListManager" />
+			ref="org.sakaiproject.poll.logic.PollListManager" />
 		<property name="pollVoteManager"
 			ref="org.sakaiproject.tool.poll.api.PollVoteManager" />
 	</bean>
@@ -100,7 +100,7 @@
 		<property name="voteBean" ref="voteBean" />
 		<property name="messageLocator" ref="messageLocator" />
 		<property name="pollListManager"
-			ref="org.sakaiproject.tool.poll.api.PollListManager" />
+			ref="org.sakaiproject.poll.logic.PollListManager" />
 		<property name="richTextEvolver" ref="richTextEvolver" />
 		<property name="targettedMessageList"
 			ref="targettedMessageList" />
@@ -114,7 +114,7 @@
 	<bean id="pollVoteProducer"
 		class="org.sakaiproject.poll.tool.producers.PollVoteProducer">
 		<property name="pollListManager"
-			ref="org.sakaiproject.tool.poll.api.PollListManager" />
+			ref="org.sakaiproject.poll.logic.PollListManager" />
 		<property name="messageLocator" ref="messageLocator" />
 		<property name="pollVoteManager"
 			ref="org.sakaiproject.tool.poll.api.PollVoteManager" />
@@ -127,7 +127,7 @@
 		class="org.sakaiproject.poll.tool.producers.ResultsProducer">
 		<property name="messageLocator" ref="messageLocator" />
 		<property name="pollListManager"
-			ref="org.sakaiproject.tool.poll.api.PollListManager" />
+			ref="org.sakaiproject.poll.logic.PollListManager" />
 		<property name="pollVoteManager"
 			ref="org.sakaiproject.tool.poll.api.PollVoteManager" />
 		<property name="localeGetter" ref="requestLocaleProxy" />
@@ -157,7 +157,7 @@
 	<bean id="pollBeanLocator"
 		class="org.sakaiproject.poll.tool.locators.PollBeanLocator">
 		<property name="pollListManager"
-			ref="org.sakaiproject.tool.poll.api.PollListManager" />
+			ref="org.sakaiproject.poll.logic.PollListManager" />
 	</bean>
 
 	<bean id="voteBean" class="org.sakaiproject.poll.tool.params.VoteBean" />
