@@ -31,6 +31,8 @@
 			ref="org.sakaiproject.tool.poll.api.PollVoteManager" />
 		<property name="usageSessionService"
 			ref="org.sakaiproject.event.api.UsageSessionService"/>
+			<property name="userDirectoryService"
+                       ref="org.sakaiproject.user.api.UserDirectoryService"/>
 	</bean>
 	<!--
 		Spring messageSource replaces JSF message-bundle from faces-config.xml
