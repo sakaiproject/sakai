@@ -81,6 +81,8 @@ $('.add-quiz-link, #change-quiz').click(function(event){
 $('#mm-choose').click(function(){
 	if (!picker) return true;
 
+//	$('#add-multimedia-dialog').dialog('close');	
+
 	event.preventDefault();
 
 	var title = $(this).text();
@@ -109,18 +111,18 @@ $('.add-text-link, .itemLink').click(function(){
 	$('#ipickerdialog').dialog('option', 'width', 850);
 	openDialog(title, true, pageToRequest);
 });
-/*
-$('#edit-item-object').click(function(){
+
+$('#edit-item-object, #edit-item-settings').click(function(){
 	if (!picker) return true;
 
-//	event.preventDefault();
+	event.preventDefault();
 
 	var title = $(this).text();
 	var pageToRequest = $(this).attr("href");
 	$('#ipickerdialog').dialog('option', 'width', 850);
 	openDialog(title, true, pageToRequest);
-});*/
 
+});
 
 // this will also be called by child pages to update the div
 function loadpicker(address) {
