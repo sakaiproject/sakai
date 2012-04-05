@@ -399,5 +399,5 @@ public class BasicLTIConstants {
 	 * See BLTI-151
 	 */
 	public static final String NEW_SITE_TYPE = "lti";
-	
+
 }
