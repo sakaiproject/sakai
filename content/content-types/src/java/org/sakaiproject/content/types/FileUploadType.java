@@ -51,10 +51,16 @@ import org.sakaiproject.user.api.UserDirectoryService;
 import org.sakaiproject.util.Resource;
 import org.sakaiproject.util.ResourceLoader;
 
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
+
 public class FileUploadType extends BaseResourceType 
 {
 	protected String typeId = ResourceType.TYPE_UPLOAD;
 	protected String helperId = "sakai.resource.type.helper";
+
+	private static final Log LOG = LogFactory.getLog(FileUploadType.class);
+
 	
 	/** localized tool properties **/
 	private static final String DEFAULT_RESOURCECLASS = "org.sakaiproject.localization.util.TypeProperties";
@@ -81,11 +87,13 @@ public class FileUploadType extends BaseResourceType
 	protected Map<String, ResourceToolAction> actions = new HashMap<String, ResourceToolAction>();	
 	protected UserDirectoryService userDirectoryService;
 	protected ContentTypeImageService contentTypeImageService;
+	protected ContentHostingService contentHostingService;
 	
 	public FileUploadType()
 	{
 		this.userDirectoryService = (UserDirectoryService) ComponentManager.get("org.sakaiproject.user.api.UserDirectoryService");
 		this.contentTypeImageService = (ContentTypeImageService) ComponentManager.get("org.sakaiproject.content.api.ContentTypeImageService");
+		this.contentHostingService = (ContentHostingService) ComponentManager.get("org.sakaiproject.content.api.ContentHostingService");
 		
 		BaseInteractionAction createAction = new BaseInteractionAction(CREATE, ActionType.NEW_UPLOAD, typeId, helperId, localizer("create.uploads"));
 		createAction.setRequiredPropertyKeys(Collections.singletonList(ResourceProperties.PROP_CONTENT_ENCODING));
@@ -183,12 +191,9 @@ public class FileUploadType extends BaseResourceType
 		@Override
 		public void initializeAction(Reference reference) {
 			try {
-				if(extractZipArchive.getZipManifest(reference.getId()) != null 
-						&& extractZipArchive.getZipManifest(reference.getId()).size() < ZipContentUtil.getMaxZipExtractFiles()){
-					extractZipArchive.extractArchive(reference.getId());
-				}
+					contentHostingService.expandZippedResource(reference.getId());
 			} catch (Exception e) {
-				System.out.println(e.getMessage());
+				LOG.warn("Exception extracting zip content", e);
 			}
 		}
 		
