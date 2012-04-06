@@ -3704,7 +3704,7 @@ private   int   getNum(char letter,   String   a)
     String activate=getActivatePvtMsg() ;
     String forward=getForwardPvtMsg() ;
     if (email != null && (!SET_AS_NO.equals(forward)) 
-            && EmailValidator.getInstance().isValid(email) ) {
+            && !EmailValidator.getInstance().isValid(email) ) {
       setValidEmail(false);
       setErrorMessage(getResourceBundleString(PROVIDE_VALID_EMAIL));
       setActivatePvtMsg(activate);
