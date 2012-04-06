@@ -4760,13 +4760,21 @@ public class AnnouncementAction extends PagedResourceActionII
 				try {
 				//grab all messages before the order changes:	
 				List<Message> allMessages = AnnouncementService.getChannel(state.getChannelId()).getMessages(null, true);
+				int msgCount =  allMessages.size(); //used to find msg order number
 				//store the updated message ids so we know which ones didn't get updated
 				List<String> updatedMessageIds = new ArrayList<String>();
 				Vector v2 = new Vector();
+				
+				//find starting message index (0 - x) based on number of messages displayed per page
 				int j= allMessages.size();
-				for (int i = 0; i < messageReferences2.length; i++)
+				if ((sstate.getAttribute(STATE_TOP_PAGE_MESSAGE) != null) && (sstate.getAttribute(STATE_PAGESIZE) != null))
 				{
-					// get the message object through service
+					j = ((Integer) sstate.getAttribute(STATE_TOP_PAGE_MESSAGE)).intValue();
+				}
+				
+				for (int i = 0; i < messageReferences2.length; i++, j++)
+				{
+					// get the updated/reordered message object through service
 					try
 					{
 						// get the channel id throught announcement service
@@ -4777,7 +4785,7 @@ public class AnnouncementAction extends PagedResourceActionII
 								.getMessageIDFromReference(messageReferences2[i]));
 						AnnouncementMessageEdit msg =(AnnouncementMessageEdit)message2;
 						AnnouncementMessageHeaderEdit header2 = msg.getAnnouncementHeaderEdit();
-						header2.setMessage_order(j--);						
+						header2.setMessage_order(msgCount - j);
 						channel2.commitMessage_order(msg);
 						updatedMessageIds.add(msg.getId());
 						//v2.addElement(message2);
@@ -4794,7 +4802,7 @@ public class AnnouncementAction extends PagedResourceActionII
 					}
 				}
 				if(allMessages.size() > messageReferences2.length){
-					//need to update the message order of the remaining messages (only sorts the top 10)
+					//need to update the message order of the remaining untouched messages (only sorts the top 10)
 				
 					//order by message order:
 					SortedIterator messagesSorted = new SortedIterator(allMessages.iterator(), new AnnouncementComparator(SORT_MESSAGE_ORDER, true));
@@ -4813,8 +4821,8 @@ public class AnnouncementAction extends PagedResourceActionII
 							AnnouncementMessageHeaderEdit header2 = msg.getAnnouncementHeaderEdit();
 							header2.setMessage_order(messageOrder);						
 							channel2.commitMessage_order(msg);
-							messageOrder++;
 						}
+						messageOrder++;
 					}
 				}
 				} catch (PermissionException e1) {
