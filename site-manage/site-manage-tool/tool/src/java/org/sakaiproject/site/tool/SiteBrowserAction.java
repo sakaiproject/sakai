@@ -181,10 +181,10 @@ public class SiteBrowserAction extends PagedResourceActionII implements SiteHelp
 			state.setAttribute(SEARCH_TERM_PROP, termSearchProperty);
 		}
 
-		String noSearchSiteType = StringUtils.trimToNull(ServerConfigurationService.getString("sitesearch.noshow.sitetype"));
-		if (noSearchSiteType != null)
+		String[] noSearchSiteTypes = ServerConfigurationService.getStrings("sitesearch.noshow.sitetype");
+		if (noSearchSiteTypes != null)
 		{
-			state.setAttribute(NO_SHOW_SEARCH_TYPE, noSearchSiteType);
+			state.setAttribute(NO_SHOW_SEARCH_TYPE, noSearchSiteTypes);
 		}
 
 		// Make sure we have a permission to be looking for.
@@ -334,20 +334,22 @@ public class SiteBrowserAction extends PagedResourceActionII implements SiteHelp
 	 */
 	private String buildSimpleSearchContext(SessionState state, Context context)
 	{
-
 		List newTypes = new Vector();
 		if (state.getAttribute(NO_SHOW_SEARCH_TYPE) != null)
 		{
-			String noType = state.getAttribute(NO_SHOW_SEARCH_TYPE).toString();
-			List oldTypes = SiteService.getSiteTypes();
-			for (int i = 0; i < oldTypes.size(); i++)
-			{
-				String siteType = oldTypes.get(i).toString();
-				if ((siteType.indexOf(noType)) == -1)
-				{
-					newTypes.add(siteType);
+			// SAK-19287
+			String[] noTypes = (String[]) state.getAttribute(NO_SHOW_SEARCH_TYPE);
+			List<String> oldTypes = SiteService.getSiteTypes();
+			
+			for (int i = 0; i < noTypes.length; i++) {
+				if (noTypes[i] != null && noTypes[i].length() > 0) {
+					String noType = noTypes[i].trim();
+					if (oldTypes.contains(noType)) {
+						oldTypes.remove(noType);
+					}
 				}
 			}
+			newTypes.addAll(oldTypes);
 		}
 		else
 		{
