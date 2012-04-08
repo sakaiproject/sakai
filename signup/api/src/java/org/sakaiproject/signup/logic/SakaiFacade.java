@@ -25,6 +25,7 @@ package org.sakaiproject.signup.logic;
 import java.util.Collection;
 import java.util.List;
 
+import org.sakaiproject.authz.api.SecurityAdvisor;
 import org.sakaiproject.calendar.api.Calendar;
 import org.sakaiproject.component.api.ServerConfigurationService;
 import org.sakaiproject.content.api.ContentHostingService;
@@ -361,6 +362,16 @@ public interface SakaiFacade {
 	 * @return
 	 */
 	public boolean isCsvExportEnabled();
+
+    /**
+     * Allow calendar.revise.any for the current user
+     */ 
+    public SecurityAdvisor pushAllowCalendarEdit();
+
+    /**
+     * Pop the specified security advisor
+     */ 
+    public void popSecurityAdvisor(SecurityAdvisor advisor);
 		
 	/**
 	 * Create a group in the specified site with the given title and description and optionally, a list of user uuids to populate it.

@@ -76,6 +76,7 @@ public class AddAttendee extends SignupAction {
 	 */
 	public SignupMeeting signup(SignupMeeting meeting, SignupTimeslot currentTimeslot, SignupAttendee newAttendee)
 			throws Exception {
+		boolean hasException = false;
 		try {
 			handleVersion(meeting, currentTimeslot, newAttendee);
 			/* check if it comes from RESTful case */
@@ -89,9 +90,18 @@ public class AddAttendee extends SignupAction {
 			logger.debug("Meeting Name:" + meeting.getTitle() + " - UserId:" + userId
 					+ this.signupEventTrackingInfo.getAllAttendeeTransferLogInfo());
 		} catch (PermissionException pe) {
+			hasException = false;
 			throw new SignupUserActionException(Utilities.rb.getString("no.permissoin.do_it"));
 		} finally {
 			meeting = reloadMeeting(meeting.getId());
+			if(!hasException){
+				//modify calendar for the attendee numbers update
+				try {
+					signupMeetingService.modifyCalendar(meeting);
+				} catch (Exception e) {
+					//do nothing
+				}
+			}
 		}
 
 		return meeting;

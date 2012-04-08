@@ -850,6 +850,32 @@ public class SakaiFacadeImpl implements SakaiFacade {
 	public boolean isCsvExportEnabled() {
 		return serverConfigurationService.getBoolean("signup.csv.export.enabled", false);
 	}
+
+	/**
+	 * {@inheritDoc}
+	 */
+    public SecurityAdvisor pushAllowCalendarEdit() {
+        SecurityAdvisor advisor = new SecurityAdvisor() {
+            public SecurityAdvice isAllowed(String userId, String function, String reference) {
+                if(CalendarService.AUTH_MODIFY_CALENDAR_ANY.equals(function)) {
+                    return SecurityAdvice.ALLOWED;
+                } else {
+                    return SecurityAdvice.NOT_ALLOWED;
+                }
+            }
+        };
+
+        enableSecurityAdvisor(advisor);
+
+        return advisor;
+    }
+
+	/**
+	 * {@inheritDoc}
+	 */
+    public void popSecurityAdvisor(SecurityAdvisor advisor) {
+        disableSecurityAdvisor(advisor);
+    }
 	
 	/**
 	 * {@inheritDoc}

@@ -76,6 +76,7 @@ public class CancelAttendee extends SignupAction {
 	 */
 	public SignupMeeting cancelSignup(SignupMeeting meeting, SignupTimeslot timeSlot, SignupAttendee attendee)
 			throws Exception {
+		boolean hasException = false;
 		try {
 			handleVersion(meeting, timeSlot, attendee);
 			if (ToolManager.getCurrentPlacement() != null) {
@@ -87,10 +88,20 @@ public class CancelAttendee extends SignupAction {
 			}
 			logger.debug("Meeting Name:" + meeting.getTitle() + " - UserId:" + userId
 					+ this.signupEventTrackingInfo.getAllAttendeeTransferLogInfo());
+			
 		} catch (PermissionException pe) {
+			hasException = true;
 			throw new SignupUserActionException(Utilities.rb.getString("no.permissoin.do_it"));
 		} finally {
 			meeting = signupMeetingService.loadSignupMeeting(meeting.getId(), userId, siteId);
+			if(!hasException){
+				//modify calendar for the attendee numbers update
+				try {
+					signupMeetingService.modifyCalendar(meeting);
+				} catch (Exception e) {
+					//do nothing
+				}
+			}
 		}
 		// TODO calendar event id;
 		return meeting;
