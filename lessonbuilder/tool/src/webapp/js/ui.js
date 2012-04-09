@@ -140,9 +140,7 @@ function loadpicker(address) {
 function picker() {
         // allow site to choose whether to use this
 	if ($('#newui').text() != 'true') return false;
-	alert('newui');
-	if (window == window.top && $(window).height() < 600) return false;	
-	alert(window);
+	if (window == window.top) return false;
 	return true;
 }
 
