@@ -397,14 +397,52 @@ public class MnemeEntity implements LessonEntity, QuizEntity {
     public void setGroups(Collection<String> groups) {
     }
 
+    // currently Mneme does not participate in the fixup. However I'm going to include
+    // the ID anyway, just in case it happens in the future. Doesn't currently support
+    // direct, so it's just a guess what prefix it might use
     public String getObjectId(){
-	return null;
+	String title = getTitle();
+	if (title == null)
+	    return null;
+	return "mneme/" + id + "/" + title;
     }
 
     public String findObject(String objectid, Map<String,String>objectMap, String siteid) {
-	if (nextEntity != null)
-	    return nextEntity.findObject(objectid, objectMap, siteid);
+	if (!objectid.startsWith("mneme/")) {
+	    if (nextEntity != null)
+		return nextEntity.findObject(objectid, objectMap, siteid);
+	    return null;
+	}
+
+	if (assessmentService == null)
+	    return null;
+
+	// isolate mneme/NNN from title
+	int i = objectid.indexOf("/", "mneme/".length());
+	if (i <= 0)
+	    return null;
+	String realobjectid = objectid.substring(0, i);
+
+	// now see if it's in the map. not currently possible, but who knows
+	String newAssessment = objectMap.get(realobjectid);
+	if (newAssessment != null)
+	    return "/" + newAssessment;  // sakaiid is /mneme/ID
+
+	// Can't find the assessment in the map
+	// i is start of title
+	String title = objectid.substring(i+1);
+
+	// this would be more efficient if I did my own query, but prefer to use API where possible
+	List<Assessment> plist = assessmentService.getContextAssessments(ToolManager.getCurrentPlacement().getContext(), AssessmentService.AssessmentsSort.title_a, true);
+
+	// security. assume this is only used in places where it's OK, so skip security checks
+	for (Assessment assessment: plist) {
+	    if (assessment.getTitle().equals(title))
+		return "/mneme/" + assessment.getId();
+	}
+
 	return null;
+
     }
 
 }

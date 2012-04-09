@@ -625,14 +625,57 @@ public class Assignment2Entity implements LessonEntity {
 
     }
 
+    // currently assignment 2 does not participate in the fixup. However I'm going to include
+    // the ID anyway, just in case it happens in the future
     public String getObjectId(){
-	return null;
+	String title = getTitle();
+	if (title == null)
+	    return null;
+	return "assignment2/" + id + "/" + title;
     }
 
     public String findObject(String objectid, Map<String,String>objectMap, String siteid) {
-	if (nextEntity != null)
-	    return nextEntity.findObject(objectid, objectMap, siteid);
-	return null;
+	if (!objectid.startsWith("assignment2/")) {
+	    if (nextEntity != null)
+		return nextEntity.findObject(objectid, objectMap, siteid);
+	    return null;
+	}
+
+	// isolate forum_topic/NNN from title
+	int i = objectid.indexOf("/", "assignment2/".length());
+	if (i <= 0)
+	    return null;
+	String realobjectid = objectid.substring(0, i);
+
+	// now see if it's in the map. not currently possible, but who knows
+	String newAssignment = objectMap.get(realobjectid);
+	if (newAssignment != null)
+	    return "/" + newAssignment;  // sakaiid is /assignment2/ID
+
+	// Can't find the topic in the map
+	// i is start of title
+	String title = objectid.substring(i+1);
+
+	String sql="select assignment_id from A2_ASSIGNMENT_T where context = ? and title = ?";
+	Object fields[] = new Object[2];
+	fields[0] = siteid;
+	fields[1] = title;
+
+	List<Long>assignments = SqlService.dbRead(sql, fields, new SqlReader()
+	    {
+		public Object readSqlResultRecord(ResultSet result)
+		{
+		    try {
+			return (Long)result.getLong(1);
+		    } catch (Exception ignore) {};
+		    return null;
+		}
+	    });
+
+	if (assignments == null || assignments.size() < 1)
+	    return null;
+	return "/assignment2/" + assignments.get(0);
+
     }
 
 }
