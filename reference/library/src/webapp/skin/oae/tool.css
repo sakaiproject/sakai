@@ -1798,24 +1798,22 @@ form[action$="selectQuestionType"] .number {
     width:10px;
 }
 /*
-do these get hidden instead when embedded in OAE? make sure to include posting to schedule for assignments
+These get hidden when embedded in OAE - they are settings establishing communication between CLE tools, affect assignments and samigo
 */
-form[name="newAssignmentForm"] #site + h4 {
-    /*
-    color:red
-    */
+form#publishAssessmentForm .act > select[id$="number"],
+ form[name="newAssignmentForm"] #site + h4,
+ form[name="newAssignmentForm"] label[for="new_assignment_check_auto_announce"],
+ form[name="newAssignmentForm"] input#new_assignment_check_auto_announce,
+ form[name="newAssignmentForm"] label[for="new_assignment_check_add_due_date"],
+ form[name="newAssignmentForm"] input#new_assignment_check_add_due_date,
+ form[name="newAssignmentForm"] label[for="notsendnotif"],
+ form[name="newAssignmentForm"] input#notsendnotif,
+ form[name="newAssignmentForm"] label[for="sendnotif"],
+ form[name="newAssignmentForm"] input#sendnotif,
+ form[name="newAssignmentForm"] label[for="sendnotifsummary"],
+ form[name="newAssignmentForm"] input#sendnotifsummary {
+    display:none;
 }
-form[name="newAssignmentForm"] label[for="new_assignment_check_auto_announce"], form[name="newAssignmentForm"] label[for="notsendreleasegradenotif"],form[name="newAssignmentForm"] label[for="sendreleasegradenotif"] {
-    /*
-    color:red
-    */
-}
-form#publishAssessmentForm .act > select[id$="number"], form#publishAssessmentForm .act > select[id$="number"] option {
-    /*
-    color:red;
-    */
-}
-
 /*
 overrides for selects and cancel buttons
 */
