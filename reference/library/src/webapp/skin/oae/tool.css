@@ -1797,6 +1797,24 @@ form[action$="selectQuestionType"] .number {
     height:13px;
     width:10px;
 }
+/*
+do these get hidden instead when embedded in OAE? make sure to include posting to schedule for assignments
+*/
+form[name="newAssignmentForm"] #site + h4 {
+    /*
+    color:red
+    */
+}
+form[name="newAssignmentForm"] label[for="new_assignment_check_auto_announce"], form[name="newAssignmentForm"] label[for="notsendreleasegradenotif"],form[name="newAssignmentForm"] label[for="sendreleasegradenotif"] {
+    /*
+    color:red
+    */
+}
+form#publishAssessmentForm .act > select[id$="number"], form#publishAssessmentForm .act > select[id$="number"] option {
+    /*
+    color:red;
+    */
+}
 
 /*
 overrides for selects and cancel buttons
@@ -1807,6 +1825,40 @@ select {
 }
 select option {
     padding:3px 5px !important;
+}
+input[type="submit"], input[type="button"] {
+    background: #f6f6f5 !important;
+    background: -moz-linear-gradient(top, #f6f6f5 0%, #e0e0e0 93%, #e0e0e0 97%, #e9e9e9 100%) !important;
+    background: -webkit-gradient(linear, left top, left bottom, color-stop(0%,#f6f6f5), color-stop(93%,#e0e0e0), color-stop(97%,#e0e0e0), color-stop(100%,#e9e9e9)) !important;
+    background: -webkit-linear-gradient(top, #f6f6f5 0%,#e0e0e0 93%,#e0e0e0 97%,#e9e9e9 100%) !important;
+    background: -o-linear-gradient(top, #f6f6f5 0%,#e0e0e0 93%,#e0e0e0 97%,#e9e9e9 100%) !important;
+    background: -ms-linear-gradient(top, #f6f6f5 0%,#e0e0e0 93%,#e0e0e0 97%,#e9e9e9 100%) !important;
+    background: linear-gradient(top, #f6f6f5 0%,#e0e0e0 93%,#e0e0e0 97%,#e9e9e9 100%) !important;
+    border: 1px solid #E0E3E5  !important;
+    box-shadow: 0 1px 1px 0 #999999  !important;
+    color: #666666;  !important;
+    font-size: 11px  !important;
+    font-weight: bold  !important;
+    height: 24px  !important;
+    margin-left: 0 !important;
+    text-shadow: 0 2px 3px #FFFFFF  !important;
+    padding:5px !important;
+    border-radius: 5px;
+    margin-right:3px 
+}
+input[type="submit"]:hover, input[type="button"]:hover {
+    background: #fefefe !important;
+    background: -moz-linear-gradient(top, #fefefe 0%, #e9edf0 96%, #e2e5e7 100%)  !important;
+    background: -webkit-gradient(linear, left top, left bottom, color-stop(0%,#fefefe), color-stop(96%,#e9edf0), color-stop(100%,#e2e5e7))  !important;
+    background: -webkit-linear-gradient(top, #fefefe 0%,#e9edf0 96%,#e2e5e7 100%)  !important;
+    background: -o-linear-gradient(top, #fefefe 0%,#e9edf0 96%,#e2e5e7 100%)  !important;
+    background: -ms-linear-gradient(top, #fefefe 0%,#e9edf0 96%,#e2e5e7 100%)  !important;
+    background: linear-gradient(top, #fefefe 0%,#e9edf0 96%,#e2e5e7 100%)  !important;
+}
+input[disabled="disabled"], input[disabled="true"], input[disabled="disabled"]:hover, input[disabled="true"]:hover {
+    background:transparent !important;
+    color:#bbb !important;
+    padding:5px !important
 }
 input[accesskey="x"], form#takeAssessmentForm .act input[id$="cancel1"],
  form#assessmentSettingsAction .act input:last-child,
@@ -1826,18 +1878,251 @@ input[accesskey="x"], form#takeAssessmentForm .act input[id$="cancel1"],
  form#gbForm[action$="gradeOptions"] .act input:last-child,
  form#gbForm[action$="removeAssignment"] .act input:last-child,
  form#editStudentResults .act input:last-child {
-    background: none !important;
-    border: none;
+    background: transparent !important;
+    border: none !important;
     color: #2683BC;
     display: inline-block;
     font-family: Arial,Helvetica,sans-serif;
     font-size: 11px;
+    box-shadow: none !important;
     margin: 0;
-    padding: 0;
     text-align: left;
-    font-weight:bold;
-    cursor:pointer;
+    font-weight: bold;
+    cursor: pointer;
+}
+
+input[accesskey="x"]:hover, form#takeAssessmentForm .act input[id$="cancel1"]:hover,
+ form#assessmentSettingsAction .act input:last-child:hover,
+ form#modifyPartForm .act input[style="act"]:hover,
+ form#itemForm .act input:last-child:hover,
+ .portletBody + .act input:last-child:hover,
+ form#editTotalResults .act input:last-child:hover,
+ form#templateEditorForm .act input:last-child:hover,
+ form#removeTemplateForm .act input:last-child:hover,
+ form#questionpool .act input:last-child[style="act"]:hover,
+ form#importPoolForm .tier1  > input:last-child:hover,
+ form#copyPool .act input[name$="cancel"]:hover,
+ form#movePool .act input[name$="cancel"]:hover,
+ form#questionpoolshare .act input[name$="cancel"]:hover,
+ form#gbForm .calendarPadding input:last-child:hover,
+ form#gbForm[action$="calculateCourseGrades"] .act input:last-child:hover,
+ form#gbForm[action$="gradeOptions"] .act input:last-child:hover,
+ form#gbForm[action$="removeAssignment"] .act input:last-child:hover,
+ form#editStudentResults .act input:last-child:hover {
+     background: transparent !important;
 }
  form#takeAssessmentForm .act input[disabled="disabled"] {
      color:#777 !important;
+}
+
+/*
+ambrosia (mneme) overrides
+*/
+
+.ambrosiaEntityListTable {
+   border: none;
+   border-collapse: separate;
+}
+.ambrosiaEntityListTable thead {
+    -webkit-border-radius: 3px;
+    -moz-border-radius: 3px;
+    border-radius: 3px;
+    box-shadow: 0px 1px 2px rgba(0, 0, 0, 0.29);
+    -moz-box-shadow: 0px 1px 2px rgba(0, 0, 0, 0.29)
+    -webkit-box-shadow: 0px 1px 2px rgba(0, 0, 0, 0.29)
+}
+.ambrosiaEntityListTable th {
+    background-color: #eee;
+    border: none;
+    padding: 7px 5px !important;
+}
+.ambrosiaEntityListTable th a {
+    border: medium none;
+    color: #888 !important;
+    font-weight:  normal;
+    text-decoration: none;
+}
+.ambrosiaEntityListTable > tbody > tr > td {
+    vertical-align: middle;
+    padding: .8em .5em !important;
+    font-size: 12px;
+    border-bottom: 1px dotted #ccc;
+}
+.ambrosiaEntityListTable tbody tr:hover {
+    background-color: #f2f9fc;
+}
+.ambrosiaEntityListForm tr:hover {
+    background: transparent !important
+}
+.ambrosiaModeBar {
+    border: none !important;
+    text-align: left !important;
+    background:none !important;
+    color: #fff
+}
+
+.ambrosiaModeBar .ambrosiaNavNormal, .ambrosiaEntityActionBar .ambrosiaNavNormal {
+    color: #aaa;
+}
+.ambrosiaModeBar .ambrosiaNavNormal a, .ambrosiaEntityActionBar .ambrosiaNavNormal a {
+    color: #aaa;
+    border: 1px solid #E0E3E5;
+    box-shadow: 0 0 4px -2px #A8A8A8 inset;
+    font-size: 12px;
+    height: 23px;
+    line-height: 19px;
+    padding: 5px;
+    border-radius: 5px;
+    margin-right: 2px;
+    text-align: center;
+    font-size: 10px;
+    height: 23px;
+    line-height: 19px;
+}
+.ambrosiaModeBar .ambrosiaNavNormal a, .ambrosiaModeBar .ambrosiaNavNormal a:hover,  .ambrosiaEntityActionBar .ambrosiaNavNormal a, .ambrosiaEntityActionBar .ambrosiaNavNormal a:hover {
+    color: #666;
+    font-weight: bold;
+    text-decoration: none !important;
+}
+.ambrosiaModeBar .ambrosiaNavNormal a:hover, .ambrosiaEntityActionBar .ambrosiaNavNormal a:hover {
+    background: url("images/button_header_hover.png") repeat-x scroll left -1px transparent;
+    border: 1px solid #E0E3E5;
+    box-shadow: none;
+}
+.ambrosiaEntityActionBar {
+    border: none !important;
+    margin-bottom: 10px;
+    padding: 0 !important
+}
+.ambrosiaModeBar .ambrosiaNavNormal a:first-child,.ambrosiaEntityActionBar .ambrosiaNavNormal a:first-child {
+    display: none;
+}
+.ambrosiaModeBar .ambrosiaNavNormal > img {
+    display: none;
+}
+.ambrosiaEntityActionBar .ambrosiaDivider {
+    display: none;
+}
+.ambrosiaEntityActionBar .ambrosiaNavNormal {
+    margin-right: 10px
+}
+.ambrosiaInterfaceHeader img {
+    display: none
+}
+.ambrosiaNavigationBar {
+    background: #eee;
+    padding: 3px !important;
+    border: none !important;
+    -webkit-border-radius: 3px;
+    -moz-border-radius: 3px;
+    border-radius: 3px;
+}
+.ambrosiaNavigationBar .ambrosiaDivider {
+    display:none;
+}
+.ambrosiaNavigationBar .ambrosiaNavNormal input, .ambrosiaConfirmPanel input {
+    background: #f6f6f5 !important;
+    background: -moz-linear-gradient(top, #f6f6f5 0%, #e0e0e0 93%, #e0e0e0 97%, #e9e9e9 100%) !important;
+    background: -webkit-gradient(linear, left top, left bottom, color-stop(0%,#f6f6f5), color-stop(93%,#e0e0e0), color-stop(97%,#e0e0e0), color-stop(100%,#e9e9e9)) !important;
+    background: -webkit-linear-gradient(top, #f6f6f5 0%,#e0e0e0 93%,#e0e0e0 97%,#e9e9e9 100%) !important;
+    background: -o-linear-gradient(top, #f6f6f5 0%,#e0e0e0 93%,#e0e0e0 97%,#e9e9e9 100%) !important;
+    background: -ms-linear-gradient(top, #f6f6f5 0%,#e0e0e0 93%,#e0e0e0 97%,#e9e9e9 100%) !important;
+    background: linear-gradient(top, #f6f6f5 0%,#e0e0e0 93%,#e0e0e0 97%,#e9e9e9 100%) !important;
+    border: 1px solid #E0E3E5  !important;
+    box-shadow: 0 1px 1px 0 #999999  !important;
+    color: #666666;  !important;
+    font-size: 11px  !important;
+    font-weight: bold  !important;
+    height: 24px  !important;
+    margin-left: 0 !important;
+    text-shadow: 0 2px 3px #FFFFFF  !important;
+    padding: 5px !important;
+    border-radius: 5px;
+    margin-right: 3px
+}
+.ambrosiaNavigationBar .ambrosiaNavNormal input:hover,.ambrosiaConfirmPanel input:hover {
+    background: #fefefe !important;
+    background: -moz-linear-gradient(top, #fefefe 0%, #e9edf0 96%, #e2e5e7 100%)  !important;
+    background: -webkit-gradient(linear, left top, left bottom, color-stop(0%,#fefefe), color-stop(96%,#e9edf0), color-stop(100%,#e2e5e7))  !important;
+    background: -webkit-linear-gradient(top, #fefefe 0%,#e9edf0 96%,#e2e5e7 100%)  !important;
+    background: -o-linear-gradient(top, #fefefe 0%,#e9edf0 96%,#e2e5e7 100%)  !important;
+    background: -ms-linear-gradient(top, #fefefe 0%,#e9edf0 96%,#e2e5e7 100%)  !important;
+    background: linear-gradient(top, #fefefe 0%,#e9edf0 96%,#e2e5e7 100%)  !important;
+}
+.ambrosiaNavigationBar .ambrosiaNavNormal input[disabled="disabled"], .ambrosiaConfirmPanel input[disabled="disabled"] {
+    background: transparent !important;
+    color: #bbb;
+}
+.ambrosiaEntityList >.ambrosiaInstructions {
+    margin: 20px;
+}
+.ambrosiaConfirmPanel {
+    background: #fff !important;
+    box-shadow: -1px 2px 8px rgba(0, 0, 0, 0.80);
+    -moz-box-shadow: -1px 2px 8px rgba(0, 0, 0, 0.80);
+    -webkit-box-shadow: -1px 2px 8px rgba(0, 0, 0, 0.80);
+    border: 3px solid #c00 !important;
+    -webkit-border-bottom-right-radius: 5px;
+    -webkit-border-bottom-left-radius: 5px;
+    -moz-border-radius-bottomright: 5px;
+    -moz-border-radius-bottomleft: 5px;
+    border-bottom-right-radius: 5px;
+    border-bottom-left-radius: 5px;
+    height: auto !important;
+    outline: none;
+}
+.ambrosiaOverlay {
+    background: #ffe !important;
+    box-shadow: -1px 2px 8px rgba(0, 0, 0, 0.80);
+    -moz-box-shadow: -1px 2px 8px rgba(0, 0, 0, 0.80);
+    -webkit-box-shadow: -1px 2px 8px rgba(0, 0, 0, 0.80);
+    border: 3px solid #ffb !important;
+    -webkit-border-radius: 5px;
+    -moz-border-radius: 5px;
+    border-radius: 5px;
+    outline: none;
+    height: 200px !important;
+    overflow: auto;
+}
+.ambrosiaConfirmPanel tr:hover {
+    background: transparent !important
+}
+.ambrosiaConfirmPanel td {
+    border-bottom: none !important
+}
+.ambrosiaContainerComponent img {
+   display: none;
+}
+.ambrosiaContainerComponent img[src*="pager"], .ambrosiaIconKey td img {
+  display: inline !important;
+}
+.ambrosiaEntityListTable  td img {
+  display: inline;
+}
+.ambrosiaContainerComponent a {
+   font-weight: bold;
+}
+.ambrosiaSectionHeaderHighlight {
+    border: none;
+    background: #eee;
+    -webkit-border-radius: 3px;
+    -moz-border-radius: 3px;
+    border-radius: 3px;
+}
+form >.ambrosiaContainerComponent > .ambrosiaSection {
+    padding: 1px 10px;
+}
+.ambrosiaSectionHeaderHighlight + .ambrosiaContainerComponent {
+    background: #eee;
+    padding: 1em;
+    -webkit-border-radius: 5px;
+    -moz-border-radius: 5px;
+    border-radius: 5px;
+}
+/*wspace management */
+.ambrosiaComponentTitle {
+   margin: 10px 0;
+}
+.ambrosiaInterfaceSubHeader {
+    margin: 10px 0 !important;
 }
