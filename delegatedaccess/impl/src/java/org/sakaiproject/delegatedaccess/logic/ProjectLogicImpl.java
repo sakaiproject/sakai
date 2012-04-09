@@ -127,14 +127,39 @@ public class ProjectLogicImpl implements ProjectLogic {
 				saveShoppingPeriodAuth(nodeModel.getShoppingPeriodAuth(), nodeModel.getNodeId());
 				saveShoppingPeriodStartDate(nodeModel.getShoppingPeriodStartDate(), nodeModel.getNodeId());
 				saveShoppingPeriodEndDate(nodeModel.getShoppingPeriodEndDate(), nodeModel.getNodeId());
-				saveUpdatedDate(new Date(), nodeModel.getNodeId());
 			}
 		}
-
-		if(nodeModel.isDirectAccess()){
-			sakaiProxy.postEvent(DelegatedAccessConstants.EVENT_ADD_USER_PERMS, "/user/" + userId + "/node/" + nodeModel.getNodeId() + "/realm/" + nodeModel.getRealm() + "/role/" + nodeModel.getRole(), true);
-		}else{
-			sakaiProxy.postEvent(DelegatedAccessConstants.EVENT_DELETE_USER_PERMS, "/user/" + userId + "/node/" + nodeModel.getNodeId(), true);
+		
+		//Modification Date Tracking and Event posting:
+		
+		//if the user still has access of some kind, post a modification event (since only modified nodes get saved) as well as update the modification timestamp
+		if(nodeModel.isDirectAccess() || nodeModel.isShoppingPeriodAdmin()){
+			saveModifiedData(userId, nodeModel.getNodeId());
+			sakaiProxy.postEvent(DelegatedAccessConstants.EVENT_MODIFIED_USER_PERMS, "/user/" + userId + "/node/" + nodeModel.getNodeId() + "/realm/" + nodeModel.getRealm() + "/role/" + nodeModel.getRole(), true);
+		}
+		
+		//if the user added or removed direct access permissions, post an event
+		if(nodeModel.isDirectAccess() != nodeModel.isDirectAccessOrig()){
+			if(nodeModel.isDirectAccess()){
+				sakaiProxy.postEvent(DelegatedAccessConstants.EVENT_ADD_USER_PERMS, "/user/" + userId + "/node/" + nodeModel.getNodeId() + "/realm/" + nodeModel.getRealm() + "/role/" + nodeModel.getRole(), true);
+			}else{
+				sakaiProxy.postEvent(DelegatedAccessConstants.EVENT_DELETE_USER_PERMS, "/user/" + userId + "/node/" + nodeModel.getNodeId(), true);
+			}
+		}
+		//If ths user has been granted or removed shopping admin access, post an event and save the shopping modification timestamp
+		//Theoretically the shopping period user would never be set to be a shopping period admin, but just in case someone tries, check for it
+		if(!DelegatedAccessConstants.SHOPPING_PERIOD_USER.equals(userId) && nodeModel.isShoppingPeriodAdmin() != nodeModel.isShoppingPeriodAdminOrig()){
+			saveShoppingPeriodAdminModifiedData(userId, nodeModel.getNodeId());
+			if(nodeModel.isShoppingPeriodAdmin()){
+				sakaiProxy.postEvent(DelegatedAccessConstants.EVENT_ADD_USER_SHOPPING_ADMIN, "/user/" + userId + "/node/" + nodeModel.getNodeId(), true);
+			}else{
+				sakaiProxy.postEvent(DelegatedAccessConstants.EVENT_DELETE_USER_SHOPPING_ADMIN, "/user/" + userId + "/node/" + nodeModel.getNodeId(), true);
+			}
+		}else if(!DelegatedAccessConstants.SHOPPING_PERIOD_USER.equals(userId) && nodeModel.getShoppingAdminModified() != null){
+			//If there was no modification to shopping admin permission but there is a timestamp of previous modifications,
+			//we need to resave it so we don't lose this information:
+			hierarchyService.assignUserNodePerm(userId, nodeModel.getNodeId(), DelegatedAccessConstants.NODE_PERM_SHOPPING_ADMIN_MODIFIED + nodeModel.getShoppingAdminModified().getTime(), false);
+			hierarchyService.assignUserNodePerm(userId, nodeModel.getNodeId(), DelegatedAccessConstants.NODE_PERM_SHOPPING_ADMIN_MODIFIED_BY + nodeModel.getShoppingAdminModifiedBy(), false);
 		}
 	}
 
@@ -143,6 +168,17 @@ public class ProjectLogicImpl implements ProjectLogic {
 		if(admin && !DelegatedAccessConstants.SHOPPING_PERIOD_USER.equals(userId)){
 			hierarchyService.assignUserNodePerm(userId, nodeId, DelegatedAccessConstants.NODE_PERM_SHOPPING_ADMIN, false);
 		}
+	}
+	
+	private void saveShoppingPeriodAdminModifiedData(String userId, String nodeId){
+		hierarchyService.assignUserNodePerm(userId, nodeId, DelegatedAccessConstants.NODE_PERM_SHOPPING_ADMIN_MODIFIED + new Date().getTime(), false);
+		hierarchyService.assignUserNodePerm(userId, nodeId, DelegatedAccessConstants.NODE_PERM_SHOPPING_ADMIN_MODIFIED_BY + sakaiProxy.getCurrentUserId(), false);
+	}
+	
+	
+	private void saveModifiedData(String userId, String nodeId){
+		hierarchyService.assignUserNodePerm(userId, nodeId, DelegatedAccessConstants.NODE_PERM_MODIFIED + new Date().getTime(), false);
+		hierarchyService.assignUserNodePerm(userId, nodeId, DelegatedAccessConstants.NODE_PERM_MODIFIED_BY + sakaiProxy.getCurrentUserId(), false);
 	}
 
 	private void saveShoppingPeriodAuth(String auth, String nodeId){
@@ -158,11 +194,6 @@ public class ProjectLogicImpl implements ProjectLogic {
 	private void saveShoppingPeriodEndDate(Date endDate, String nodeId){
 		if(endDate != null){
 			hierarchyService.assignUserNodePerm(DelegatedAccessConstants.SHOPPING_PERIOD_USER, nodeId, DelegatedAccessConstants.NODE_PERM_SHOPPING_END_DATE + endDate.getTime(), false);
-		}
-	}
-	private void saveUpdatedDate(Date updatedDate, String nodeId){
-		if(updatedDate != null){
-			hierarchyService.assignUserNodePerm(DelegatedAccessConstants.SHOPPING_PERIOD_USER, nodeId, DelegatedAccessConstants.NODE_PERM_SHOPPING_UPDATED_DATE + updatedDate.getTime(), false);
 		}
 	}
 		
@@ -447,7 +478,8 @@ public class ProjectLogicImpl implements ProjectLogic {
 			search = "";
 		}
 		Collection<SiteSearchResult> siteSubset = null;
-		if(!"".equals(search)){
+		Map<String, String> userSortNameCache = new HashMap<String, String>();
+		if(!"".equals(search) || (advancedOptions != null && advancedOptions.size() > 0)){
 			siteSubset = searchSites(search, advancedOptions);
 			for(SiteSearchResult siteResult : siteSubset){
 				AccessNode access = grantAccessToSite(siteResult.getSiteReference(), shoppingPeriod);
@@ -457,6 +489,18 @@ public class ProjectLogicImpl implements ProjectLogic {
 					siteResult.setShoppingPeriodStartDate(access.getStartDate());
 					siteResult.setShoppingPeriodEndDate(access.getEndDate());
 					siteResult.setRestrictedTools(access.getDeniedTools());
+					siteResult.setModified(access.getModified());
+					siteResult.setModifiedBy(access.getModifiedBy());
+					if(!userSortNameCache.containsKey(access.getModifiedBy())){
+						User user = sakaiProxy.getUser(access.getModifiedBy());
+						String sortName = "";
+						if(user != null){
+							sortName = user.getSortName();
+						}
+						userSortNameCache.put(access.getModifiedBy(), sortName);
+					}
+					siteResult.setModifiedBySortName(userSortNameCache.get(access.getModifiedBy()));
+					
 					returnList.add(siteResult);
 				}
 			}
@@ -800,6 +844,25 @@ public class ProjectLogicImpl implements ProjectLogic {
 		return "";
 	}
 
+	private String getShoppingAdminModifiedBy(Set<String> perms){
+		for(String perm : perms){
+			if(perm.startsWith(DelegatedAccessConstants.NODE_PERM_SHOPPING_ADMIN_MODIFIED_BY)){
+				return perm.substring(DelegatedAccessConstants.NODE_PERM_SHOPPING_ADMIN_MODIFIED_BY.length());
+			}
+		}
+		return null;
+	}
+	
+	private String getModifiedBy(Set<String> perms){
+		for(String perm : perms){
+			if(perm.startsWith(DelegatedAccessConstants.NODE_PERM_MODIFIED_BY)){
+				return perm.substring(DelegatedAccessConstants.NODE_PERM_MODIFIED_BY.length());
+			}
+		}
+		return null;
+	}
+	
+	
 	private boolean isShoppingPeriodAdmin(Set<String> perms){
 		for(String perm : perms){
 			if(perm.startsWith(DelegatedAccessConstants.NODE_PERM_SHOPPING_ADMIN)){
@@ -846,8 +909,12 @@ public class ProjectLogicImpl implements ProjectLogic {
 			Date startDate = null;
 			Date endDate = null;
 			String shoppingPeriodAuth = "";
-			Date updated = null;
-			Date processed = null;
+	//		Date updated = null;
+	//		Date processed = null;
+			Date shoppingAdminModified = null;
+			String shoppingAdminModifiedBy = null;
+			Date modified = null;
+			String modifiedBy = null;
 
 			//you must copy in order not to pass changes to other nodes
 			List<ListOptionSerialized> restrictedTools = copyListOptions(blankRestrictedTools);
@@ -864,8 +931,12 @@ public class ProjectLogicImpl implements ProjectLogic {
 				restrictedTools = getRestrictedToolSerializedList(perms, restrictedTools);
 				terms = getTermSerializedList(perms, terms);
 				directAccess = getIsDirectAccess(perms);
-				updated = getPermDate(perms, DelegatedAccessConstants.NODE_PERM_SHOPPING_UPDATED_DATE);
-				processed = getPermDate(perms, DelegatedAccessConstants.NODE_PERM_SHOPPING_PROCESSED_DATE);
+		//		updated = getPermDate(perms, DelegatedAccessConstants.NODE_PERM_SHOPPING_UPDATED_DATE);
+		//		processed = getPermDate(perms, DelegatedAccessConstants.NODE_PERM_SHOPPING_PROCESSED_DATE);
+				shoppingAdminModified = getPermDate(perms, DelegatedAccessConstants.NODE_PERM_SHOPPING_ADMIN_MODIFIED);
+				shoppingAdminModifiedBy = getShoppingAdminModifiedBy(perms);
+				modified = getPermDate(perms, DelegatedAccessConstants.NODE_PERM_MODIFIED);
+				modifiedBy = getModifiedBy(perms);
 			}
 			NodeModel parentNodeModel = null;
 			if(parent != null){
@@ -873,7 +944,8 @@ public class ProjectLogicImpl implements ProjectLogic {
 			}
 			DefaultMutableTreeNode child = new DelegatedAccessMutableTreeNode();
 			child.setUserObject(new NodeModel(node.id, node, directAccess, realm, role, parentNodeModel, 
-					restrictedTools, startDate, endDate, shoppingPeriodAuth, addDirectChildren && !children.isEmpty(), shoppingPeriodAdmin, updated, processed, terms));
+					restrictedTools, startDate, endDate, shoppingPeriodAuth, addDirectChildren && !children.isEmpty(), shoppingPeriodAdmin, terms, 
+					modifiedBy, modified, shoppingAdminModified, shoppingAdminModifiedBy));
 			if(parent == null){
 				//we have the root, set it
 				root = child;
@@ -1128,10 +1200,15 @@ public class ProjectLogicImpl implements ProjectLogic {
 			//you must copy to not pass changes to other nodes
 			List<ListOptionSerialized> restrictedTools = copyListOptions(blankRestrictedTools);
 			List<ListOptionSerialized> terms = copyListOptions(blankTerms);
-			Date updated= null;
-			Date processed = null;
+		//	Date updated= null;
+		//	Date processed = null;
 			boolean shoppingPeriodAdmin = false;
 			boolean directAccess = false;
+			Date shoppingAdminModified = null;
+			String shoppingAdminModifiedBy = null;
+			Date modified = null;
+			String modifiedBy = null;
+			
 			DefaultMutableTreeNode child = new DelegatedAccessMutableTreeNode();
 			if(DelegatedAccessConstants.SHOPPING_PERIOD_USER.equals(userId)){
 				Set<String> perms = getPermsForUserNodes(userId, childNode.id);
@@ -1144,12 +1221,17 @@ public class ProjectLogicImpl implements ProjectLogic {
 				restrictedTools = getRestrictedToolSerializedList(perms, restrictedTools);
 				terms = getTermSerializedList(perms, terms);
 				directAccess = getIsDirectAccess(perms);
-				updated = getPermDate(perms, DelegatedAccessConstants.NODE_PERM_SHOPPING_UPDATED_DATE);
-				processed = getPermDate(perms, DelegatedAccessConstants.NODE_PERM_SHOPPING_PROCESSED_DATE);
+				//updated = getPermDate(perms, DelegatedAccessConstants.NODE_PERM_SHOPPING_UPDATED_DATE);
+				//processed = getPermDate(perms, DelegatedAccessConstants.NODE_PERM_SHOPPING_PROCESSED_DATE);
+				shoppingAdminModified = getPermDate(perms, DelegatedAccessConstants.NODE_PERM_SHOPPING_ADMIN_MODIFIED);
+				shoppingAdminModifiedBy = getShoppingAdminModifiedBy(perms);
+				modified = getPermDate(perms, DelegatedAccessConstants.NODE_PERM_MODIFIED);
+				modifiedBy = getModifiedBy(perms);
 			}
 			NodeModel node = new NodeModel(childNode.id, childNode, directAccess, realm, role,
 					((NodeModel) parentNode.getUserObject()), restrictedTools, startDate, endDate, 
-					shoppingPeriodAuth, false, shoppingPeriodAdmin, updated, processed, terms);
+					shoppingPeriodAuth, false, shoppingPeriodAdmin, terms,
+					modifiedBy, modified, shoppingAdminModified, shoppingAdminModifiedBy);
 			child.setUserObject(node);
 
 			if(!onlyAccessNodes || node.getNodeAccess()){
@@ -1201,11 +1283,16 @@ public class ProjectLogicImpl implements ProjectLogic {
 		List<ListOptionSerialized> terms = getTermSerializedList(perms, getEntireToolsList());
 		boolean direct = getIsDirectAccess(perms);
 		boolean shoppingPeriodAdmin = isShoppingPeriodAdmin(perms);
-		Date updated = getPermDate(perms, DelegatedAccessConstants.NODE_PERM_SHOPPING_UPDATED_DATE);
-		Date processed = getPermDate(perms, DelegatedAccessConstants.NODE_PERM_SHOPPING_PROCESSED_DATE);
-
+	//	Date updated = getPermDate(perms, DelegatedAccessConstants.NODE_PERM_SHOPPING_UPDATED_DATE);
+	//	Date processed = getPermDate(perms, DelegatedAccessConstants.NODE_PERM_SHOPPING_PROCESSED_DATE);
+		Date shoppingAdminModified = getPermDate(perms, DelegatedAccessConstants.NODE_PERM_SHOPPING_ADMIN_MODIFIED);
+		String shoppingAdminModifiedBy = getShoppingAdminModifiedBy(perms);
+		Date modified = getPermDate(perms, DelegatedAccessConstants.NODE_PERM_MODIFIED);
+		String modifiedBy = getModifiedBy(perms);
+		
 		NodeModel nodeModel = new NodeModel(node.id, node, getIsDirectAccess(nodePerms),
-				realm, role, parentNodeModel, restrictedTools, startDate, endDate, shoppingPeriodAuth, false, shoppingPeriodAdmin, updated, processed, terms);
+				realm, role, parentNodeModel, restrictedTools, startDate, endDate, shoppingPeriodAuth, false, shoppingPeriodAdmin, terms,
+				modifiedBy, modified, shoppingAdminModified, shoppingAdminModifiedBy);
 		return nodeModel;
 	}
 
@@ -1216,21 +1303,21 @@ public class ProjectLogicImpl implements ProjectLogic {
 		hierarchyService.assignUserNodePerm(userId, nodeId, perm, false);
 	}
 
-	public Date getShoppingPeriodProccessedDate(String userId, String nodeId){
-		Date returnDate = null;
-		Set<String> perms = getPermsForUserNodes(userId, nodeId);
-		for(String perm : perms){
-			if(perm.startsWith(DelegatedAccessConstants.NODE_PERM_SHOPPING_PROCESSED_DATE)){
-				try{
-					returnDate = new Date(Long.parseLong(perm.substring(DelegatedAccessConstants.NODE_PERM_SHOPPING_PROCESSED_DATE.length())));
-				}catch (Exception e) {
-					log.warn(e);
-				}
-				break;
-			}
-		}
-		return returnDate;
-	}
+//	public Date getShoppingPeriodProccessedDate(String userId, String nodeId){
+//		Date returnDate = null;
+//		Set<String> perms = getPermsForUserNodes(userId, nodeId);
+//		for(String perm : perms){
+//			if(perm.startsWith(DelegatedAccessConstants.NODE_PERM_SHOPPING_PROCESSED_DATE)){
+//				try{
+//					returnDate = new Date(Long.parseLong(perm.substring(DelegatedAccessConstants.NODE_PERM_SHOPPING_PROCESSED_DATE.length())));
+//				}catch (Exception e) {
+//					log.warn(e);
+//				}
+//				break;
+//			}
+//		}
+//		return returnDate;
+//	}
 	
 	public void removeNode(String nodeId){
 		removeNode(hierarchyService.getNodeById(nodeId));
@@ -1433,9 +1520,11 @@ public class ProjectLogicImpl implements ProjectLogic {
 						
 						Date startDate = getShoppingStartDate(perms);
 						Date endDate = getShoppingEndDate(perms);
+						Date modified = getPermDate(perms, DelegatedAccessConstants.NODE_PERM_MODIFIED);
+						String modifiedBy = getModifiedBy(perms);
 						
 						//set returnNode
-						returnNode = new AccessNode(siteRef, access, deniedToolsArr, shoppingAuth, startDate, endDate);
+						returnNode = new AccessNode(siteRef, access, deniedToolsArr, shoppingAuth, startDate, endDate, modified, modifiedBy);
 
 						//break out of loop
 						nodeId = null;
@@ -1470,14 +1559,19 @@ public class ProjectLogicImpl implements ProjectLogic {
 		private String auth;
 		private Date startDate;
 		private Date endDate;
+		private Date modified;
+		private String modifiedBy;
 		
-		public AccessNode(String siteRef, String[] access, String[] deniedTools, String auth, Date startDate, Date endDate){
+		public AccessNode(String siteRef, String[] access, String[] deniedTools, String auth, Date startDate,
+				Date endDate, Date modified, String modifiedBy){
 			this.siteRef = siteRef;
 			this.access = access;
 			this.deniedTools = deniedTools;
 			this.setAuth(auth);
 			this.setStartDate(startDate);
 			this.setEndDate(endDate);
+			this.setModified(modified);
+			this.setModifiedBy(modifiedBy);
 		}
 
 		public void setSiteRef(String siteRef) {
@@ -1526,6 +1620,22 @@ public class ProjectLogicImpl implements ProjectLogic {
 
 		public Date getEndDate() {
 			return endDate;
+		}
+
+		public Date getModified() {
+			return modified;
+		}
+
+		public void setModified(Date modified) {
+			this.modified = modified;
+		}
+
+		public String getModifiedBy() {
+			return modifiedBy;
+		}
+
+		public void setModifiedBy(String modifiedBy) {
+			this.modifiedBy = modifiedBy;
 		}
 	}
 }

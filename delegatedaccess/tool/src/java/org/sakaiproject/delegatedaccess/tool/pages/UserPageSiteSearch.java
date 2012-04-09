@@ -269,6 +269,22 @@ public class UserPageSiteSearch extends BasePage {
 			}
 		};
 		add(endDateSort);
+		
+		Link<Void> accessModifiedBySor = new Link<Void>("accessModifiedBySortLink"){
+			private static final long serialVersionUID = 1L;
+			public void onClick() {
+				changeOrder(DelegatedAccessConstants.SEARCH_COMPARE_ACCESS_MODIFIED_BY);
+			}
+		};
+		add(accessModifiedBySor);
+		
+		Link<Void> accessModifiedOnSort = new Link<Void>("accessModifiedOnSortLink"){
+			private static final long serialVersionUID = 1L;
+			public void onClick() {
+				changeOrder(DelegatedAccessConstants.SEARCH_COMPARE_ACCESS_MODIFIED);
+			}
+		};
+		add(accessModifiedOnSort);
 
 		//Data:
 		provider = new SiteSearchResultDataProvider();
@@ -307,6 +323,8 @@ public class UserPageSiteSearch extends BasePage {
 				item.add(new Label("startDate", siteSearchResult.getShoppingPeriodStartDateStr()));
 				item.add(new Label("endDate", siteSearchResult.getShoppingPeriodEndDateStr()));
 				item.add(new Label("showTools", siteSearchResult.getToolsString(toolsMap)));
+				item.add(new Label("accessModifiedBy", siteSearchResult.getModifiedBySortName()));
+				item.add(new Label("accessModified", siteSearchResult.getModifiedStr()));
 			}
 			@Override
 			public boolean isVisible() {

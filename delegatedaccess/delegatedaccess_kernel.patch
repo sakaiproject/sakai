@@ -16,7 +16,7 @@ Index: kernel-impl/src/main/java/org/sakaiproject/authz/impl/DbAuthzGroupService
  			String roleswap = SecurityService.getUserEffectiveRole(siteRef);
 -			
 +			//Delegated access essentially behaves like roleswap except instead of just specifying which role, you can also specify
-+			//the realm as well.  The access map is populated by an Event Listener that listens for delegatedaccess.checkaccess and is stored in the session
++			//the realm as well.  The access map is populated by an Event Listener that listens for dac.checkaccess and is stored in the session
 +			//attribute: delegatedaccess.accessmap.  This is a map of: SiteRef -> String[]{realmId, roleId}.  Delegated access
 +			//will defer to roleswap if it's set.
 +			if(siteRef != null && sessionManager().getCurrentSession().getAttribute("delegatedaccess.accessmapflag") != null
@@ -26,7 +26,7 @@ Index: kernel-impl/src/main/java/org/sakaiproject/authz/impl/DbAuthzGroupService
 +				//if the user has access somewhere but either the map is null or there isn't any record for this site, then that means
 +				//this site hasn't been checked yet.  By posting an event, a DelegatedAccess observer will check this site's access for this user 
 +				//and store it in the user's session
-+				eventTrackingService().post(eventTrackingService().newEvent("delegatedaccess.checkaccess", siteRef, false, NotificationService.NOTI_REQUIRED));
++				eventTrackingService().post(eventTrackingService().newEvent("dac.checkaccess", siteRef, false, NotificationService.NOTI_REQUIRED));
 +			}
 +			//grab the session after the checkaccess event since the checkaccess event could have modified it
 +			Object delegatedAccessMap = sessionManager().getCurrentSession().getAttribute("delegatedaccess.accessmap");

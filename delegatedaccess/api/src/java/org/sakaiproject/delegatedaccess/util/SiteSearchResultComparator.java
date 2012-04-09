@@ -30,7 +30,7 @@ public class SiteSearchResultComparator implements Comparator<SiteSearchResult> 
 		case DelegatedAccessConstants.SEARCH_COMPARE_AUTHORIZATION:
 			return arg0.getShoppingPeriodAuth().compareToIgnoreCase(arg1.getShoppingPeriodAuth());
 		case DelegatedAccessConstants.SEARCH_COMPARE_ACCESS:
-			arg0.getAccessString().compareToIgnoreCase(arg1.getAccessString());
+			return arg0.getAccessString().compareToIgnoreCase(arg1.getAccessString());
 		case DelegatedAccessConstants.SEARCH_COMPARE_START_DATE:
 			if(arg0.getShoppingPeriodStartDate() == null && arg1.getShoppingPeriodStartDate() == null){
 				return 0;
@@ -51,6 +51,18 @@ public class SiteSearchResultComparator implements Comparator<SiteSearchResult> 
 			}else{
 				return arg0.getShoppingPeriodEndDate().compareTo(arg1.getShoppingPeriodEndDate());
 			}
+		case DelegatedAccessConstants.SEARCH_COMPARE_ACCESS_MODIFIED:
+			if(arg0.getModified() == null && arg1.getModified() == null){
+				return 0;
+			}else if(arg0.getModified() == null){
+				return 1;
+			}else if(arg1.getModified() == null){
+				return -1;
+			}else{
+				return arg0.getModified().compareTo(arg1.getModified());
+			}
+		case DelegatedAccessConstants.SEARCH_COMPARE_ACCESS_MODIFIED_BY:
+			return arg0.getModifiedBySortName().compareToIgnoreCase(arg1.getModifiedBySortName());
 		case DelegatedAccessConstants.SEARCH_COMPARE_SITE_TITLE:
 		default:
 			return arg0.getSiteTitle().compareToIgnoreCase(arg1.getSiteTitle());

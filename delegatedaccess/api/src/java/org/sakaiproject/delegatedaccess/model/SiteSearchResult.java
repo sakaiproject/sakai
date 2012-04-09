@@ -12,6 +12,7 @@ import org.sakaiproject.user.api.User;
 
 public class SiteSearchResult implements Serializable {
 	private SimpleDateFormat format = new SimpleDateFormat("MM/dd/yyyy");
+	private SimpleDateFormat formatWithTime = new SimpleDateFormat("MM/dd/yyyy h:mm a");
 	private SiteSerialized site;
 	private List<UserSerialized> instructors = new ArrayList();
 	private String[] access;
@@ -19,6 +20,9 @@ public class SiteSearchResult implements Serializable {
 	private Date shoppingPeriodStartDate;
 	private Date shoppingPeriodEndDate;
 	private String[] restrictedTools;
+	private Date modified;
+	private String modifiedBy;
+	private String modifiedBySortName;
 	
 	public SiteSearchResult(Site site, List<User> instructors, String termProp){
 		this.site = new SiteSerialized(site, termProp);
@@ -234,6 +238,33 @@ public class SiteSearchResult implements Serializable {
 
 		public void setReference(String reference) {
 			this.reference = reference;
+		}
+	}
+
+	public Date getModified() {
+		return modified;
+	}
+	public void setModified(Date modified) {
+		this.modified = modified;
+	}
+	public String getModifiedBy() {
+		return modifiedBy;
+	}
+	public void setModifiedBy(String modifiedBy) {
+		this.modifiedBy = modifiedBy;
+	}
+	public String getModifiedBySortName() {
+		return modifiedBySortName;
+	}
+	public void setModifiedBySortName(String modifiedBySortName) {
+		this.modifiedBySortName = modifiedBySortName;
+	}
+	
+	public String getModifiedStr(){
+		if(getModified() == null){
+			return "";
+		}else{
+			return formatWithTime.format(getModified());
 		}
 	}
 }

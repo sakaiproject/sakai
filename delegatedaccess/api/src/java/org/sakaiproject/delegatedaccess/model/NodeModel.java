@@ -40,19 +40,22 @@ public class NodeModel implements Serializable {
 	private boolean addedDirectChildrenFlag = false;	
 	private boolean shoppingPeriodAdmin = false;
 	private boolean shoppingPeriodAdminOrig = false;
-	private Date updatedDate = new Date();
-	private Date processedDate = new Date();
 	private String siteTerm;
 	private String siteInstructors;
 	private SelectOption shoppingPeriodAuthOption;
 	private SelectOption roleOption;
-
+	private Date shoppingAdminModified = null;
+	private String shoppingAdminModifiedBy = null;
+	private Date modified = null;
+	private String modifiedBy = null;
+	
 	public NodeModel(String nodeId, HierarchyNodeSerialized node,
 			boolean directAccess, String realm, String role, NodeModel parentNode,
 			List<ListOptionSerialized> restrictedTools, Date shoppingPeriodStartDate,
 			Date shoppingPeriodEndDate,
 			String shoppingPeriodAuth, boolean addedDirectChildrenFlag, boolean shoppingPeriodAdmin,
-			Date updatedDate, Date processedDate, List<ListOptionSerialized> terms){
+			List<ListOptionSerialized> terms, String modifiedBy, Date modified,
+			Date shoppingAdminModified, String shoppingAdminModifiedBy){
 
 		this.nodeId = nodeId;
 		this.node = node;
@@ -74,10 +77,12 @@ public class NodeModel implements Serializable {
 		this.addedDirectChildrenFlag = addedDirectChildrenFlag;
 		this.shoppingPeriodAdmin = shoppingPeriodAdmin;
 		this.shoppingPeriodAdminOrig = shoppingPeriodAdmin;
-		this.updatedDate = updatedDate;
-		this.processedDate = processedDate;
 		this.terms = terms;
 		this.termsOrig = copyListOptions(terms);
+		this.modifiedBy = modifiedBy;
+		this.modified = modified;
+		this.shoppingAdminModified = shoppingAdminModified;
+		this.shoppingAdminModifiedBy = shoppingAdminModifiedBy;
 	}
 
 	private List<ListOptionSerialized> copyListOptions(List<ListOptionSerialized> tools){
@@ -500,35 +505,6 @@ public class NodeModel implements Serializable {
 			shoppingPeriodAuthOption.setLabel("");
 		}
 	}
-	public Date getUpdatedDate() {
-		return updatedDate;
-	}
-
-	public Date getNodeUpdatedDate(){
-		if(isDirectAccess()){
-			return updatedDate;
-		}else{
-			return getInheritedUpdatedDate();
-		}
-	}
-
-	public Date getInheritedUpdatedDate(){
-		return 	getInheritedUpdatedDateHelper(parentNode);
-	}
-
-	private Date getInheritedUpdatedDateHelper(NodeModel parent){
-		if(parent == null){
-			return null;
-		}else if(parent.isDirectAccess()){
-			return parent.getUpdatedDate();
-		}else{
-			return getInheritedUpdatedDateHelper(parent.getParentNode());
-		}
-	}
-
-	public Date getProcessedDate() {
-		return processedDate;
-	}
 
 	public boolean isAddedDirectChildrenFlag() {
 		return addedDirectChildrenFlag;
@@ -540,6 +516,10 @@ public class NodeModel implements Serializable {
 
 	public boolean isShoppingPeriodAdmin() {
 		return shoppingPeriodAdmin;
+	}
+	
+	public boolean isShoppingPeriodAdminOrig(){
+		return shoppingPeriodAdminOrig;
 	}
 
 	public void setShoppingPeriodAdmin(boolean shoppingPeriodAdmin) {
@@ -682,5 +662,37 @@ public class NodeModel implements Serializable {
 
 	public void setRoleOption(SelectOption roleOption) {
 		this.roleOption = roleOption;
+	}
+
+	public Date getShoppingAdminModified() {
+		return shoppingAdminModified;
+	}
+
+	public void setShoppingAdminModified(Date shoppingAdminModified) {
+		this.shoppingAdminModified = shoppingAdminModified;
+	}
+
+	public String getShoppingAdminModifiedBy() {
+		return shoppingAdminModifiedBy;
+	}
+
+	public void setShoppingAdminModifiedBy(String shoppingAdminModifiedBy) {
+		this.shoppingAdminModifiedBy = shoppingAdminModifiedBy;
+	}
+
+	public Date getModified() {
+		return modified;
+	}
+
+	public void setModified(Date modified) {
+		this.modified = modified;
+	}
+
+	public String getModifiedBy() {
+		return modifiedBy;
+	}
+
+	public void setModifiedBy(String modifiedBy) {
+		this.modifiedBy = modifiedBy;
 	}
 }

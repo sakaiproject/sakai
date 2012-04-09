@@ -315,4 +315,11 @@ public interface SakaiProxy {
 	 * @return
 	 */
 	public boolean getDisableShoppingTreeView();
+	
+	/**
+	 * returns a user for passed in userId
+	 * @param id
+	 * @return
+	 */
+	public User getUser(String id);
 }

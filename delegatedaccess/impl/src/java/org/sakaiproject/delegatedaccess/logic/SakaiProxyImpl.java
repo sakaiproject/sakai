@@ -44,6 +44,7 @@ import org.sakaiproject.tool.api.Tool;
 import org.sakaiproject.tool.api.ToolManager;
 import org.sakaiproject.user.api.User;
 import org.sakaiproject.user.api.UserDirectoryService;
+import org.sakaiproject.user.api.UserNotDefinedException;
 
 import javax.mail.MessagingException;
 import javax.mail.internet.InternetAddress;
@@ -209,6 +210,16 @@ public class SakaiProxyImpl implements SakaiProxy {
 		return returnList;
 	}
 
+	/**
+	 * {@inheritDoc}
+	 */
+	public User getUser(String id){
+		try {
+			return userDirectoryService.getUser(id);
+		} catch (UserNotDefinedException e) {
+			return null;
+		}
+	}
 	/**
 	 * {@inheritDoc}
 	 */
