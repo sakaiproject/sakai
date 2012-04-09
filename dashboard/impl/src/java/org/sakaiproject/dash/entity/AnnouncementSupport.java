@@ -446,11 +446,11 @@ public class AnnouncementSupport{
 				list.addAll(sakaiProxy.getAuthorizedUsers(SakaiProxy.PERMIT_ANNOUNCEMENT_ACCESS , entityReference));
 			} else {
 				list.addAll(sakaiProxy.getAuthorizedUsers(SakaiProxy.PERMIT_ANNOUNCEMENT_ACCESS_DRAFT, entityReference));
-				Entity entity = sakaiProxy.getEntity(entityReference);
-				if (entity != null)
-				{
-					list.add(((AnnouncementMessage) entity).getHeader().getFrom().getId());
-				}
+			}
+			Entity entity = sakaiProxy.getEntity(entityReference);
+			if (entity != null)
+			{
+				list.add(((AnnouncementMessage) entity).getHeader().getFrom().getId());
 			}
 			return new ArrayList<String>(list);
 		}
