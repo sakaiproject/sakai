@@ -112,7 +112,7 @@ $('.add-text-link, .itemLink').click(function(){
 	openDialog(title, true, pageToRequest);
 });
 
-$('#edit-item-object, #edit-item-settings').click(function(){
+$('#edit-item-object, #edit-item-settings').click(function(){ // add #change-blti?
 	if (!picker) return true;
 
 	event.preventDefault();

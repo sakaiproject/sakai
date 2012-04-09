@@ -1016,7 +1016,20 @@ $(function() {
 		});
 		
 		$('body').bind('dialogclose', function(event) {
-			unhideMultimedia();
+			if (!($('#subpage-dialog').dialog('isOpen') ||
+				$('#edit-item-dialog').dialog('isOpen') ||
+				$('#edit-multimedia-dialog').dialog('isOpen') ||
+				$('#add-multimedia-dialog').dialog('isOpen') ||
+				$('#edit-title-dialog').dialog('isOpen') ||
+				$('#new-page-dialog').dialog('isOpen') ||
+				$('#remove-page-dialog').dialog('isOpen') ||
+				$('#youtube-dialog').dialog('isOpen') ||
+				$('#movie-dialog').dialog('isOpen') ||
+				$('#import-cc-dialog').dialog('isOpen') ||
+				$('#comments-dialog').dialog('isOpen') ||
+				$('#student-dialog').dialog('isOpen'))) {
+					unhideMultimedia();
+				}
 		});
 		 
 		$("#cssDropdown-selection").children(":contains(---" + msg("simplepage.site") + "---)").attr("disabled", "disabled");
