@@ -240,7 +240,7 @@ public class AnnouncementSupport{
 				List<Map<String,String>> infoList = new ArrayList<Map<String,String>>();
 				Map<String,String> infoItem = new HashMap<String,String>();
 				// to view announcement url in context of the announcement tool, the url pattern should be of the following format
-				//http://<serverurl>/portal/tool/<toolid>?itemReference=<announcementRef>&panel=Main&sakai_action=doShowmetadata
+				//http://<serverurl>/portal/directtool/<toolid>?itemReference=<announcementRef>&panel=Main&sakai_action=doShowmetadata
 				String announcementUrl = "";
 				Reference entityRef = entityManager.newReference(entityReference);
 				if (entityRef != null && entityRef.getContext() != null && ! DashboardLogic.MOTD_CONTEXT.equals(entityRef.getContext()))
@@ -252,7 +252,7 @@ public class AnnouncementSupport{
 						if (tc != null)
 						{
 							String toolId = tc.getId();
-							announcementUrl = sakaiProxy.getServerUrl() + "/portal/tool/" + toolId + "?itemReference=" + announcement.getReference() + "&panel=Main&sakai_action=doShowmetadata";
+							announcementUrl = sakaiProxy.getServerUrl() + "/portal/directtool/" + toolId + "?itemReference=" + announcement.getReference() + "&panel=Main&sakai_action=doShowmetadata";
 						}
 					}
 				}
