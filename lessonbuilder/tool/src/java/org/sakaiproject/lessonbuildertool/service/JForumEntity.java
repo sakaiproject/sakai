@@ -572,14 +572,14 @@ public class JForumEntity implements LessonEntity, ForumInterface {
 
 	JForumTitle title = titles.get(0);
 
-	System.out.println("object " + "jforum_topic/" + title.category + "\n" + title.forum + "\n" + title.topic);
+	//	System.out.println("object " + "jforum_topic/" + title.category + "\n" + title.forum + "\n" + title.topic);
 	return "jforum_topic/" + title.category + "\n" + title.forum + "\n" + title.topic;
 
     }
 
     // objectid is titles of category, forum, topic. find the topic and return a string with its ID
     public String findObject(String objectid, Map<String,String>objectMap, String siteid) {
-	System.out.println("findobject " + objectid);
+	//	System.out.println("findobject " + objectid);
 	if (!haveJforum || !objectid.startsWith("jforum_topic/")) {
 	    if (nextEntity != null) 
 		return nextEntity.findObject(objectid, objectMap, siteid);
@@ -614,7 +614,7 @@ public class JForumEntity implements LessonEntity, ForumInterface {
 	    
 	// unfortunately we have to search the topic tree to find it.
 
-	System.out.println("parsed " + category + ">" + forum +">" + topic);
+	//	System.out.println("parsed " + category + ">" + forum +">" + topic);
 
 	List<LessonEntity>ret = new ArrayList<LessonEntity>();
 	
@@ -634,7 +634,7 @@ public class JForumEntity implements LessonEntity, ForumInterface {
 		}
 	    });
 
-	System.out.println("found categories" + categories);
+	//	System.out.println("found categories" + categories);
 	if (categories == null || categories.size() < 1)
 	    return null;
 
@@ -660,7 +660,7 @@ public class JForumEntity implements LessonEntity, ForumInterface {
 	    }
 	}
 
-	System.out.println("found forums " + forums);
+	//	System.out.println("found forums " + forums);
 	if (forums == null || forums.size() < 1) 
 	    return null;
 
@@ -687,14 +687,14 @@ public class JForumEntity implements LessonEntity, ForumInterface {
 	    }
 	}
 	
-	System.out.println("topics " + topics);
+	//	System.out.println("topics " + topics);
 	if (topics == null || topics.size() < 1)
 	    return null;
 
 	// there will be only one non-null topic
 	for (Integer t: topics) {
 	    if (t != null) {
-		System.out.println("return " + "/jforum_topic/" + t);
+		//System.out.println("return " + "/jforum_topic/" + t);
 		return "/jforum_topic/" + t;
 	    }
 	}
