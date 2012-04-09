@@ -955,14 +955,6 @@ public abstract class BaseAssignmentService implements AssignmentService, Entity
 
 	private Assignment checkAssignmentAccessibleForUser(Assignment assignment, String currentUserId) throws PermissionException {
 		
-		if (assignment.getAccess() == Assignment.AssignmentAccess.GROUPED)
-        {
-        	Collection asgGroups = assignment.getGroups();
-        	Collection allowedGroups = getGroupsAllowGetAssignment(assignment.getContext(), currentUserId);
-        	// reject and throw PermissionException if there is no intersection
-			if (!isIntersectionGroupRefsToGroups(asgGroups, allowedGroups)) throw new PermissionException(currentUserId, SECURE_ACCESS_ASSIGNMENT, assignment.getReference());
-        }
-		
 		if (allowAddAssignment(assignment.getContext()))
 		{
 			// always return for users can add assignent in the context
