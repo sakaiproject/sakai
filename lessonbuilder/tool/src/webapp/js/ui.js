@@ -98,7 +98,7 @@ $('#subpage-choose, #change-page').click(function(){
 	var title = $(this).text();
 	var pageToRequest = $(this).attr("href");
 	$('#ipickerdialog').dialog('option', 'width', 700);
-	openDialog(title, true, pageToRequest)
+	openDialog(title, true, pageToRequest);
 });
 
 $('.add-text-link, .itemLink').click(function(){
@@ -140,9 +140,9 @@ function loadpicker(address) {
 function picker() {
         // allow site to choose whether to use this
 	if ($('#newui').text() != 'true') return false;
-
+	alert('newui');
 	if (window == window.top && $(window).height() < 600) return false;	
-	
+	alert(window);
 	return true;
 }
 
@@ -223,6 +223,8 @@ function refresh() {
 }
 
 function openDialog(title, iframe, src, event) {
+	if (!picker) return true;
+
 	if (event && !$.browser.msie) {
 		event.preventDefault();
 	}
