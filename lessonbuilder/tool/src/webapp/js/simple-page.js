@@ -14,3 +14,4 @@ function portalClick(link) {
     $(link).removeAttr('target');
   }
 }
+
