@@ -670,7 +670,15 @@ public class SiteAction extends PagedResourceActionII {
 	// the maximum tool title length enforced in UI
 	private final static int MAX_TOOL_TITLE_LENGTH = 20;
 	
-	
+	private final static String SORT_KEY_SESSION = "worksitesetup.sort.key.session";
+	private final static String SORT_ORDER_SESSION = "worksitesetup.sort.order.session";
+	private final static String SORT_KEY_COURSE_SET = "worksitesetup.sort.key.courseSet";
+	private final static String SORT_ORDER_COURSE_SET = "worksitesetup.sort.order.courseSet";
+	private final static String SORT_KEY_COURSE_OFFERING = "worksitesetup.sort.key.courseOffering";
+	private final static String SORT_ORDER_COURSE_OFFERING = "worksitesetup.sort.order.courseOffering";
+	private final static String SORT_KEY_SECTION = "worksitesetup.sort.key.section";
+	private final static String SORT_ORDER_SECTION = "worksitesetup.sort.order.section";
+
 	private List prefLocales = new ArrayList();
 	private String SAKAI_LOCALES = "locales";
 	private String SAKAI_LOCALES_MORE = "locales.more";
@@ -3015,12 +3023,12 @@ public class SiteAction extends PagedResourceActionII {
 					}
 					else if (numSelections < cmLevelSize)
 					{
-						levelOpts[numSelections] = sortCmObject(cms.findCourseSets(getSelectionString(selections, numSelections)));
+						levelOpts[numSelections] = sortCourseSets(cms.findCourseSets(getSelectionString(selections, numSelections)));
 					}
 				}
 				// always set the top level
 				Set<CourseSet> courseSets = filterCourseSetList(getCourseSet(state));
-				levelOpts[0] = sortCmObject(courseSets);
+				levelOpts[0] = sortCourseSets(courseSets);
 				
 				// clean further element inside the array
 				for (int i = numSelections + 1; i<cmLevelSize; i++)
@@ -11101,7 +11109,8 @@ public class SiteAction extends PagedResourceActionII {
 			terms = cms != null?cms.getAcademicSessions():null;
 		}
 		if (terms != null && terms.size() > 0) {
-			context.put("termList", terms);
+			
+			context.put("termList", sortAcademicSessions(terms));
 		}
 		return terms;
 	} // setTermListForContext
@@ -11267,7 +11276,7 @@ public class SiteAction extends PagedResourceActionII {
 			offeringList.add(o);
 		}
 
-		Collection offeringListSorted = sortOffering(offeringList);
+		Collection offeringListSorted = sortCourseOfferings(offeringList);
 		ArrayList resultedList = new ArrayList();
 
 		// use this to keep track of courseOffering that we have dealt with
@@ -11310,39 +11319,121 @@ public class SiteAction extends PagedResourceActionII {
 	} // prepareCourseAndSectionListing
 
 	/**
-	 * Sort CourseOffering by order of eid, title uisng velocity SortTool
+	 * Helper method for sortCmObject 
+	 * by order from sakai properties if specified or 
+	 * by default of eid, title
+	 * using velocity SortTool
 	 * 
-	 * @param offeringList
+	 * @param offerings
 	 * @return
 	 */
-	private Collection sortOffering(ArrayList offeringList) {
-		return sortCmObject(offeringList);
-		/*
-		 * List propsList = new ArrayList(); propsList.add("eid");
-		 * propsList.add("title"); SortTool sort = new SortTool(); return
-		 * sort.sort(offeringList, propsList);
-		 */
-	} // sortOffering
+	private Collection sortCourseOfferings(Collection<CourseOffering> offerings) {
+		// Get the keys from sakai.properties
+		String[] keys = ServerConfigurationService.getStrings(SORT_KEY_COURSE_OFFERING);
+		String[] orders = ServerConfigurationService.getStrings(SORT_ORDER_COURSE_OFFERING);
+
+		return sortCmObject(offerings, keys, orders);
+	} // sortCourseOffering
 
 	/**
-	 * sort any Cm object such as CourseOffering, CourseOfferingObject,
-	 * SectionObject provided object has getter & setter for eid & title
+	 * Helper method for sortCmObject 
+	 * by order from sakai properties if specified or 
+	 * by default of eid, title
+	 * using velocity SortTool
 	 * 
-	 * @param list
+	 * @param courses
 	 * @return
 	 */
-	private Collection sortCmObject(Collection collection) {
-		if (collection != null) {
+	private Collection sortCourseSets(Collection<CourseSet> courses) {
+		// Get the keys from sakai.properties
+		String[] keys = ServerConfigurationService.getStrings(SORT_KEY_COURSE_SET);
+		String[] orders = ServerConfigurationService.getStrings(SORT_ORDER_COURSE_SET);
+
+		return sortCmObject(courses, keys, orders);
+	} // sortCourseOffering
+
+	/**
+	 * Helper method for sortCmObject 
+	 * by order from sakai properties if specified or 
+	 * by default of eid, title
+	 * using velocity SortTool
+	 * 
+	 * @param sections
+	 * @return
+	 */
+	private Collection sortSections(Collection<Section> sections) {
+		// Get the keys from sakai.properties
+		String[] keys = ServerConfigurationService.getStrings(SORT_KEY_SECTION);
+		String[] orders = ServerConfigurationService.getStrings(SORT_ORDER_SECTION);
+
+		return sortCmObject(sections, keys, orders);
+	} // sortCourseOffering
+
+	/**
+	 * Helper method for sortCmObject 
+	 * by order from sakai properties if specified or 
+	 * by default of eid, title
+	 * using velocity SortTool
+	 * 
+	 * @param sessions
+	 * @return
+	 */
+	private Collection sortAcademicSessions(Collection<AcademicSession> sessions) {
+		// Get the keys from sakai.properties
+		String[] keys = ServerConfigurationService.getStrings(SORT_KEY_SESSION);
+		String[] orders = ServerConfigurationService.getStrings(SORT_ORDER_SESSION);
+
+		return sortCmObject(sessions, keys, orders);
+	} // sortCourseOffering
+	
+	/**
+	 * Custom sort CM collections using properties provided object has getter & setter for 
+	 * properties in keys and orders
+	 * defaults to eid & title if none specified
+	 * 
+	 * @param collection a collection to be sorted
+	 * @param keys properties to sort on
+	 * @param orders properties on how to sort (asc, dsc)
+	 * @return Collection the sorted collection
+	 */
+	private Collection sortCmObject(Collection collection, String[] keys, String[] orders) {
+		if (collection != null && !collection.isEmpty()) {
+			// Add them to a list for the SortTool (they must have the form
+			// "<key:order>" in this implementation)
 			List propsList = new ArrayList();
-			propsList.add("eid");
-			propsList.add("title");
+			
+			if (keys == null || orders == null || keys.length == 0 || orders.length == 0) {
+				// No keys are specified, so use the default sort order
+				propsList.add("eid");
+				propsList.add("title");
+			} else {
+				// Populate propsList
+				for (int i = 0; i < Math.min(keys.length, orders.length); i++) {
+					String key = keys[i];
+					String order = orders[i];
+					propsList.add(key + ":" + order);
+				}
+			}
+			// Sort the collection and return
 			SortTool sort = new SortTool();
 			return sort.sort(collection, propsList);
-		} else {
-			return collection;
 		}
+			
+		return Collections.emptyList();
+
 	} // sortCmObject
 
+	/**
+	 * Custom sort CM collections provided object has getter & setter for 
+	 *  eid & title
+	 * 
+	 * @param collection a collection to be sorted
+	 * @return Collection the sorted collection
+	 */
+	private Collection sortCmObject(Collection collection) {
+		return sortCmObject(collection, null, null);
+	}
+	
 	/**
 	 * this object is used for displaying purposes in chef_site-newSiteCourse.vm
 	 */
@@ -11735,7 +11826,7 @@ public class SiteAction extends PagedResourceActionII {
 				Set sections = cms.getSections(offeringEid);
 				if (sections != null)
 				{
-					Collection c = sortCmObject(new ArrayList(sections));
+					Collection c = sortSections(new ArrayList(sections));
 					return (List) c;
 				}
 			}
@@ -11768,7 +11859,7 @@ public class SiteAction extends PagedResourceActionII {
 						returnList.add(co);
 				}
 			}
-			Collection c = sortCmObject(returnList);
+			Collection c = sortCourseOfferings(returnList);
 
 			return (List) c;
 		}
