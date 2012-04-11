@@ -164,33 +164,31 @@ function removeOptionalAttributeBlock(elem) {
 #end
 
 		## optional attributes block
-		#if($superUser)
-			<p class="shorttext"></p>
-			<div id="optionalAttributes">
-				<p><strong>$tlang.getString("optional.attributes")</strong></p>
+		#if (!$optionalAttributes.isEmpty())
+			#if ($superUser)
+				<p class="shorttext"></p>
+				<div id="optionalAttributes">
+					<p><strong>$tlang.getString("optional.attributes")</strong></p>
 				
-				#set($attrNum = 1)
+					#set($attrNum = 1)
 				
-				## for those attributes that are in the master list
-				## print a select list for each  that is already set
-				#foreach ($c_entry in $currentAttributes.entrySet())
-					#if ($optionalAttributes.containsKey($c_entry.key))
-						<p class="shorttext">
-							#optionalAttributesSelectList($optionalAttributes, $c_entry.key, $c_entry.value)
-						</p>						
-						#set($attrNum = $attrNum+1)
+					## for those attributes that are in the master list
+					## print a select list for each  that is already set
+					#foreach ($c_entry in $currentAttributes.entrySet())
+						#if ($optionalAttributes.containsKey($c_entry.key))
+							<p class="shorttext">
+								#optionalAttributesSelectList($optionalAttributes, $c_entry.key, $c_entry.value)
+							</p>						
+							#set($attrNum = $attrNum+1)
+						#end
 					#end
-				#end
-				
-			</div>
-			
-			##link to add a new attribute
-			<p>
-				<a href="#" onclick="javascript:addOptionalAttributeBlock();return false">$tlang.getString("optional.attributes.add")</a>
-			</p>
-		#end
-		
-
+				</div>
+				##link to add a new attribute
+				<p>
+					<a href="#" onclick="javascript:addOptionalAttributeBlock();return false">$tlang.getString("optional.attributes.add")</a>
+				</p>
+			#end
+		#end		
 
 #set ($paramNames = $user.Properties.PropertyNames)
 			

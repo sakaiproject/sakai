@@ -1292,8 +1292,10 @@ public class UsersAction extends PagedResourceActionII
 		if (configs != null) {
 			for (int i = 0; i < configs.length; i++) {
 				String key = configs[i];
-				String value = ServerConfigurationService.getString("user.additional.attribute.display." + key, key);
-				atts.put(key, value);
+				if (!key.isEmpty()) {
+					String value = ServerConfigurationService.getString("user.additional.attribute.display." + key, key);
+					atts.put(key, value);
+				}
 			}
 		}
 		
