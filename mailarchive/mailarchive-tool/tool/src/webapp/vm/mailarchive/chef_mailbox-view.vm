@@ -8,7 +8,7 @@
 						<input type="button" value="&lt; $tlang.getString('view.prev')" title="$tlang.getString('view.prev')" accesskey="p" />
 					</a>	
 				#else
-						<input type="button" value="&lt; Previous Email" disabled="disabled" />		
+						<input type="button" value="&lt; $tlang.getString('view.prev')" disabled="disabled" />		
 				#end
 				<a href="#" title="$tlang.getString('view.return')" onclick="location = '#toolLink("$action" "doList")';return false;" accesskey="l">
 					<input type="button" value="$tlang.getString('view.return')" title="$tlang.getString('view.return')"  accesskey="l" />	
