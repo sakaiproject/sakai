@@ -49,18 +49,8 @@ public class DateTimeConverter extends javax.faces.convert.DateTimeConverter {
 		Preferences prefs =  PreferencesService.getPreferences(userId);
 		ResourceProperties props = prefs.getProperties(TimeService.APPLICATION_ID);
 		String timeZone = props.getProperty(TimeService.TIMEZONE_KEY);
-		TimeZone m_timeZone = null;
-		if (hasValue(timeZone))
-			m_timeZone = TimeZone.getTimeZone(timeZone);
-		else
-			m_timeZone = TimeZone.getDefault();
-    	
-		String prefLocale = props.getProperty(ResourceLoader.LOCALE_KEY);
-		Locale m_locale = null;
-		if (hasValue(prefLocale))
-			m_locale = getLocaleFromString(prefLocale);
-		else
-			m_locale = Locale.getDefault();
+		TimeZone m_timeZone = TimeService.getLocalTimeZone();
+		Locale m_locale = new ResourceLoader().getLocale();
 
 		setTimeZone(m_timeZone);
     	setLocale(m_locale);
