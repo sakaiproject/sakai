@@ -233,16 +233,10 @@ public class DeliveryBean
   // current agent string (if assigned). SAK-1927: esmiley
   private AgentFacade deliveryAgent;
 
+  private String display_dayDateFormat= ContextUtil.getLocalizedString("org.sakaiproject.tool.assessment.bundle.GeneralMessages","output_day_date_no_sec");
+  private SimpleDateFormat dayDisplayFormat = new SimpleDateFormat(display_dayDateFormat);
   private String display_dateFormat= ContextUtil.getLocalizedString("org.sakaiproject.tool.assessment.bundle.GeneralMessages","output_date_no_sec");
   private SimpleDateFormat displayFormat = new SimpleDateFormat(display_dateFormat);
-  private static String[] strDays = new String[] { 
-	  ContextUtil.getLocalizedString("org.sakaiproject.tool.assessment.bundle.GeneralMessages","sunday"),
-	  ContextUtil.getLocalizedString("org.sakaiproject.tool.assessment.bundle.GeneralMessages","monday"),
-	  ContextUtil.getLocalizedString("org.sakaiproject.tool.assessment.bundle.GeneralMessages","tuesday"),
-	  ContextUtil.getLocalizedString("org.sakaiproject.tool.assessment.bundle.GeneralMessages","wednesday"),
-	  ContextUtil.getLocalizedString("org.sakaiproject.tool.assessment.bundle.GeneralMessages","thusday"),
-	  ContextUtil.getLocalizedString("org.sakaiproject.tool.assessment.bundle.GeneralMessages","friday"),
-	  ContextUtil.getLocalizedString("org.sakaiproject.tool.assessment.bundle.GeneralMessages","saturday")};
   private boolean noQuestions = false;
 
   // this assessmentGradingId is used to generate seed in getSeed(...) of DeliveryActaionListener.java
@@ -1045,20 +1039,25 @@ public class DeliveryBean
     return dateString;
   }
   
-  public String getDueDateDayOfWeek()
+  public String getDayDueDateString()
   {
-    String dayOfWeek = "";
+    String dateString = "";
     if (dueDate == null) {
-      return dayOfWeek;
+      return dateString;
     }
-    
-    Calendar cal = Calendar.getInstance();
-    cal.setTime(dueDate);
-    dayOfWeek = strDays[cal.get(Calendar.DAY_OF_WEEK) - 1];
-    
-    return dayOfWeek;
-  }
 
+    try {
+      TimeUtil tu = new TimeUtil();
+      dateString = tu.getDisplayDateTime(dayDisplayFormat, dueDate);
+    }
+    catch (Exception ex) {
+      // we will leave it as an empty string
+      log.warn("Unable to format date.");
+      ex.printStackTrace();
+    }
+    return dateString;
+  }
+  
   public void setDueDate(java.util.Date dueDate)
   {
     this.dueDate = dueDate;

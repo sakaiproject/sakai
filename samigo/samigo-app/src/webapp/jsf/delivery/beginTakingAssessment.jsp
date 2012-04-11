@@ -74,7 +74,7 @@
   <%@ include file="/jsf/delivery/assessment_attachment.jsp" %>
 
 <h:panelGrid columns="1" border="0">
-	<h:outputText value="#{deliveryMessages.begin_assessment_msg_due} <b>#{delivery.dueDateDayOfWeek}, #{delivery.dueDateString}</b>." rendered="#{delivery.dueDate!=null && delivery.dueDate ne ''}" escape="false"/>
+	<h:outputText value="#{deliveryMessages.begin_assessment_msg_due} <b>#{delivery.dayDueDateString}</b>." rendered="#{delivery.dueDate!=null && delivery.dueDate ne ''}" escape="false"/>
     <h:outputText value="#{deliveryMessages.begin_assessment_msg_no_due}" rendered="#{delivery.dueDate==null || delivery.dueDate eq ''}" escape="false"/>
     
     <h:outputText value=" "/>
