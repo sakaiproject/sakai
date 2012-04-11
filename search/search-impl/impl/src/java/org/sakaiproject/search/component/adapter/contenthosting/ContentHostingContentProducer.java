@@ -114,6 +114,29 @@ public class ContentHostingContentProducer implements EntityContentProducer, Sto
 		customProperties.add("Tdc_abstract.http://purl.org/dc/terms/abstract");
 		customProperties.add("Tdc_contributor.http://purl.org/dc/elements/1.1/contributor");
 		customProperties.add("tag.tag");
+		
+		//LOM fields
+		customProperties.add("Tlom_role.http://ltsc.ieee.org/xsd/lomv1.0/role");
+		customProperties.add("Tlom_coverage.http://ltsc.ieee.org/xsd/lomv1.0/coverage");
+		customProperties.add("Tlom_status.http://ltsc.ieee.org/xsd/lomv1.0/status");
+		//customProperties.add("lom_duration.http://ltsc.ieee.org/xsd/lomv1.0/duration");
+		customProperties.add("Tlom_engagement.http://ltsc.ieee.org/xsd/lomv1.0/engagement");
+		customProperties.add("Tlom_learning_resource_type.http://ltsc.ieee.org/xsd/lomv1.0/learning_resource_type");
+		customProperties.add("Tlom_interactivity_level.http://ltsc.ieee.org/xsd/lomv1.0/interactivity_level");
+		customProperties.add("Tlom_context_level.http://ltsc.ieee.org/xsd/lomv1.0/context_level");
+		customProperties.add("Tlom_difficulty.http://ltsc.ieee.org/xsd/lomv1.0/difficulty");
+		//customProperties.add("lom_learning_time.http://ltsc.ieee.org/xsd/lomv1.0/learning_time");
+		customProperties.add("Tlom_assumed_knowledge.http://ltsc.ieee.org/xsd/lomv1.0/assumed_knowledge");
+		customProperties.add("Tlom_technical_requirements.http://ltsc.ieee.org/xsd/lomv1.0/technical_requirements");
+		customProperties.add("Tlom_install_remarks.http://ltsc.ieee.org/xsd/lomv1.0/install_remarks");
+		customProperties.add("Tlom_other_requirements.http://ltsc.ieee.org/xsd/lomv1.0/other_requirements");
+		customProperties.add("Tlom_level.http://ltsc.ieee.org/xsd/lomv1.0/granularity_level");
+		customProperties.add("Tlom_structure.http://ltsc.ieee.org/xsd/lomv1.0/structure");
+		customProperties.add("Tlom_relation.http://ltsc.ieee.org/xsd/lomv1.0/relation");
+		customProperties.add("Tlom_annotation_id.http://ltsc.ieee.org/xsd/lomv1.0/annotation_id");
+		//customProperties.add("lom_annotation_date.http://ltsc.ieee.org/xsd/lomv1.0/annotation_date");
+		customProperties.add("Tlom_annotation_description.http://ltsc.ieee.org/xsd/lomv1.0/annotation_description");
+
 	}
 
 	public void init()
@@ -643,6 +666,11 @@ public class ContentHostingContentProducer implements EntityContentProducer, Sto
 			for (String propname : customProperties)
 			{
 				String[] propKey = propname.split("\\.", 2);
+				
+				if(log.isDebugEnabled()) {
+					log.debug("prop: " + propKey[0] + "=" + propKey[1]);
+				}
+				
 				if (propKey.length == 2)
 				{
 					List<?> prop = contentResource.getProperties().getPropertyList(propKey[1]);
