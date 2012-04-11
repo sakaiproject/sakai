@@ -24,7 +24,7 @@
 	#set($latestYear = $yearSelected + 4)
 	#set($monthSelected = $current_value.month)
 	#set($daySelected = $current_value.day)
-	   
+   
    #chef_dateselectionwidget("${prefix}_year${DOT}${suffix}" "${prefix}_month${DOT}${suffix}" "${prefix}_day${DOT}${suffix}" $earliestYear $latestYear $yearSelected $monthSelected $daySelected $dateFormat "")
 #end
 
@@ -76,65 +76,6 @@
 		#if($timeType =="pm") <option selected="selected">pm</option> #else <option>pm</option> #end
 	</select>
 #end
-#macro(resources_durationSelectionWidget $prefix $suffix $durationValues)
-	
-	#set($durationHour = $durationValues.get(0))
-	#set($durationMinute = $durationValues.get(1))
-	
-	<select name="${prefix}_hour${DOT}${suffix}" id="${prefix}_hour${DOT}${suffix}">
-		
-		<option value="">$tlang.getString("duration.selector.default")</option>
-		
-		#foreach ($h in [0..24])
-			#if($durationHour == $h) <option selected="selected" value="$h">$h</option> #else <option value="$h">$h</option> #end
-		#end
-		
-	</select>
-	<select name="${prefix}_minute${DOT}${suffix}" id="${prefix}_minute${DOT}${suffix}">
-		
-		<option value="">$tlang.getString("duration.selector.default")</option>
-		
-		#foreach ($m in [0..59])
-			#if($durationMinute == $m) <option selected="selected" value="$m">$m</option> #else <option value="$m">$m</option> #end
-		#end
-		
-	</select>
-#end
-
-## generic dropdown widget builder. Uses the type of the item as the type to look up the properties to use
-#macro(resources_dropdownSelectionWidget $propname $type $current_value)
-	
-	## use the type to look up the props, get the count, then get each one incl label
-	
-	##data goes into types.ptoperties, and is of the form:
-	##dropdown.status.count=2
-	##dropdown.status.1=abc
-	##dropdown.status.1.label=A B C
-	##dropdown.status.2=def
-	##dropdown.status.2.label=DEE EE EFF
-		
-	## allow us to iterate using this string converted to an int
-	#set($count = $tlang.getString("dropdown.${type}.count"))
-	#set($Integer = 0)
-	
-	<select name="${propname}" id="${propname}">
-	
-    	#foreach( $n in [1..$Integer.parseInt($count)] )
-    		
-			#set($value = $tlang.getString("dropdown.${type}.${n}"))
-    		#set($label = $tlang.getString("dropdown.${type}.${n}.label"))
-			
-    		#if($current_value == $value) <option selected="selected" value="$value">$label</option> #else <option value="$value">$label</option> #end
-    
-		#end
-		
-	</select>
-	
-#end
-
-
-
-
 ##
 	<p class="shorttext">
 		<label for="description${DOT}$i">

@@ -32,37 +32,37 @@ import java.util.Iterator;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
+import java.util.ResourceBundle;
 import java.util.Set;
 import java.util.SortedSet;
 import java.util.Stack;
 import java.util.TreeSet;
 
-import org.apache.commons.lang.StringUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.sakaiproject.antivirus.api.VirusFoundException;
 import org.sakaiproject.authz.cover.SecurityService;
 import org.sakaiproject.cheftool.Context;
 import org.sakaiproject.component.cover.ComponentManager;
-import org.sakaiproject.component.cover.ServerConfigurationService;
 import org.sakaiproject.conditions.api.ConditionService;
+import org.sakaiproject.component.cover.ServerConfigurationService;
 import org.sakaiproject.content.api.ContentCollection;
 import org.sakaiproject.content.api.ContentCollectionEdit;
 import org.sakaiproject.content.api.ContentEntity;
-import org.sakaiproject.content.api.ContentHostingHandlerResolver;
 import org.sakaiproject.content.api.ContentResource;
 import org.sakaiproject.content.api.ContentResourceEdit;
 import org.sakaiproject.content.api.ContentResourceFilter;
 import org.sakaiproject.content.api.ExpandableResourceType;
 import org.sakaiproject.content.api.GroupAwareEdit;
 import org.sakaiproject.content.api.GroupAwareEntity;
-import org.sakaiproject.content.api.GroupAwareEntity.AccessMode;
 import org.sakaiproject.content.api.ResourceToolAction;
 import org.sakaiproject.content.api.ResourceToolActionPipe;
 import org.sakaiproject.content.api.ResourceType;
 import org.sakaiproject.content.api.ResourceTypeRegistry;
-import org.sakaiproject.content.api.ServiceLevelAction;
+import org.sakaiproject.content.api.ContentHostingHandlerResolver;
 import org.sakaiproject.content.cover.ContentHostingService;
+import org.sakaiproject.content.api.ServiceLevelAction;
+import org.sakaiproject.content.api.GroupAwareEntity.AccessMode;
 import org.sakaiproject.content.cover.ContentTypeImageService;
 import org.sakaiproject.content.tool.ResourcesAction.ContentPermissions;
 import org.sakaiproject.entity.api.EntityPropertyNotDefinedException;
@@ -71,6 +71,7 @@ import org.sakaiproject.entity.api.Reference;
 import org.sakaiproject.entity.api.ResourceProperties;
 import org.sakaiproject.entity.api.ResourcePropertiesEdit;
 import org.sakaiproject.entity.cover.EntityManager;
+import org.sakaiproject.event.api.SessionState;
 import org.sakaiproject.event.cover.NotificationService;
 import org.sakaiproject.exception.IdUnusedException;
 import org.sakaiproject.exception.InUseException;
@@ -3584,29 +3585,6 @@ public class ListItem
 				dc.add(new ResourcesMetadata(ResourcesMetadata.PROPERTY_DC_AUDIENCE));
 				dc.add(new ResourcesMetadata(ResourcesMetadata.PROPERTY_DC_EDULEVEL));
 				
-				//LOM metadata fields
-				//TODO add test here
-				dc.add(ResourcesMetadata.PROPERTY_LOM_ROLE);
-				dc.add(ResourcesMetadata.PROPERTY_LOM_COVERAGE);
-				dc.add(ResourcesMetadata.PROPERTY_LOM_STATUS);
-				dc.add(ResourcesMetadata.PROPERTY_LOM_DURATION);
-				dc.add(ResourcesMetadata.PROPERTY_LOM_ENGAGEMENT_TYPE);
-				dc.add(ResourcesMetadata.PROPERTY_LOM_LEARNING_RESOURCE_TYPE);
-				dc.add(ResourcesMetadata.PROPERTY_LOM_INTERACTIVITY_LEVEL);
-				dc.add(ResourcesMetadata.PROPERTY_LOM_CONTEXT_LEVEL);
-				dc.add(ResourcesMetadata.PROPERTY_LOM_DIFFICULTY);
-				dc.add(ResourcesMetadata.PROPERTY_LOM_LEARNING_TIME);
-				dc.add(ResourcesMetadata.PROPERTY_LOM_ASSUMED_KNOWLEDGE);
-				dc.add(ResourcesMetadata.PROPERTY_LOM_TECHNICAL_REQUIREMENTS);
-				dc.add(ResourcesMetadata.PROPERTY_LOM_INSTALL_REMARKS);
-				dc.add(ResourcesMetadata.PROPERTY_LOM_OTHER_REQUIREMENTS);
-				dc.add(ResourcesMetadata.PROPERTY_LOM_GRANULARITY_LEVEL);
-				dc.add(ResourcesMetadata.PROPERTY_LOM_STRUCTURE);
-				dc.add(ResourcesMetadata.PROPERTY_LOM_RELATION);
-				dc.add(ResourcesMetadata.PROPERTY_LOM_ANNOTATION_ID);
-				dc.add(ResourcesMetadata.PROPERTY_LOM_ANNOTATION_DATE);
-				dc.add(ResourcesMetadata.PROPERTY_LOM_ANNOTATION_DESCRIPTION);
-
 				/* Filesystem and file-like mount points */
 				//dc.add(new ResourcesMetadata(ResourcesMetadata.PROPERTY_FSMOUNT_ACTIVE));
 					
@@ -3651,16 +3629,6 @@ public class ListItem
 								}
 							}
 							prop.setValue(name, time);
-						}
-						
-						else if (widget.equals(ResourcesMetadata.WIDGET_DURATION)) {
-							if(properties != null) {
-								String rawValue = properties.getPropertyFormatted(name);
-								if(StringUtils.isNotBlank(rawValue)) {
-									String[] values = StringUtils.split(rawValue, '-');
-									prop.setValue(name, Arrays.asList(values));
-								}
-							}
 						}
 						else
 						{
@@ -3719,10 +3687,6 @@ public class ListItem
 		context.put("DATETIME", ResourcesMetadata.WIDGET_DATETIME);
 		context.put("ANYURI", ResourcesMetadata.WIDGET_ANYURI);
 		context.put("WYSIWYG", ResourcesMetadata.WIDGET_WYSIWYG);
-		
-		context.put("DURATION", ResourcesMetadata.WIDGET_DURATION);
-		
-		context.put("DROPDOWN", ResourcesMetadata.WIDGET_DROPDOWN); 
 
 		context.put("today", TimeService.newTime());
 		
@@ -3823,25 +3787,8 @@ public class ListItem
 						hour = hour % 24;
 						day++;
 					}
-					
+	
 					Time value = TimeService.newTimeLocal(year, month, day, hour, minute, second, millisecond);
-					
-					prop.setValue(0, value);
-				}
-				else if (ResourcesMetadata.WIDGET_DURATION.equals(prop.getWidget())) {
-					int hour = params.getInt(prop.getFullname() + "_hour" + index, 0);
-					int minute = params.getInt(prop.getFullname() + "_minute" + index, 0);
-				
-					//set this as a string, specially formatted
-					String formattedValue = hour + "-" + minute;
-										
-					prop.setValue(0, formattedValue);
-				}
-				else if (ResourcesMetadata.WIDGET_DROPDOWN.equals(prop.getWidget())) {
-					
-					//no index required so just get the prop and store it
-					String value = params.getString(prop.getFullname());
-					
 					prop.setValue(0, value);
 				}
 				else if(ResourcesMetadata.WIDGET_ANYURI.equals(prop.getWidget()))

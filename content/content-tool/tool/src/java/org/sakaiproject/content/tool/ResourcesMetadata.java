@@ -59,11 +59,6 @@ public class ResourcesMetadata
 	public static final String WIDGET_NESTED = "nested";
 	public static final String WIDGET_WYSIWYG = "wysiwig-editor";
 	
-	public static final String WIDGET_DURATION = "duration";
-
-	public static final String WIDGET_DROPDOWN = "dropdown";
-
-	
 	public static final String XSD_STRING = "string";
 	public static final String XSD_BOOLEAN = "boolean";	
 	public static final String XSD_INTEGER = "integer";	
@@ -87,9 +82,6 @@ public class ResourcesMetadata
 	public static final String NAMESPACE_DCTERMS_ABBREV = "dcterms:";
 	public static final String NAMESPACE_XSD = "http://www.w3.org/2001/XMLSchema#";
 	public static final String NAMESPACE_XSD_ABBREV = "xs:";
-	public static final String NAMESPACE_LOM = "http://ltsc.ieee.org/xsd/lomv1.0/";
-	public static final String NAMESPACE_LOM_ABBREV = "lom:";
-	
 
 	protected static AtomicInteger namespaceNumber = new AtomicInteger(0);
 	
@@ -522,227 +514,6 @@ public class ResourcesMetadata
 								WIDGET_ANYURI
 							);
 
-	/* LOM role */
-	public static final ResourcesMetadata PROPERTY_LOM_ROLE
-		= new ResourcesMetadata(
-								NAMESPACE_LOM,
-								"role", 
-								"label.lom_role",
-								"descr.lom_role",
-								NAMESPACE_XSD + XSD_STRING,
-								WIDGET_STRING
-							);
-	
-	/* LOM coverage */
-	public static final ResourcesMetadata PROPERTY_LOM_COVERAGE
-		= new ResourcesMetadata(
-								NAMESPACE_LOM,
-								"coverage", 
-								"label.lom_coverage",
-								"descr.lom_coverage",
-								NAMESPACE_XSD + XSD_STRING,
-								WIDGET_STRING
-							);
-	
-	/* LOM status */
-	public static final ResourcesMetadata PROPERTY_LOM_STATUS
-		= new ResourcesMetadata(
-								NAMESPACE_LOM,
-								"status", 
-								"label.lom_status",
-								"descr.lom_status",
-								NAMESPACE_XSD + XSD_STRING,
-								WIDGET_DROPDOWN
-							);
-	
-	/* LOM duration */
-	public static final ResourcesMetadata PROPERTY_LOM_DURATION
-		= new ResourcesMetadata(
-								NAMESPACE_LOM,
-								"duration", 
-								"label.lom_duration",
-								"descr.lom_duration",
-								NAMESPACE_XSD + XSD_TIME,
-								WIDGET_DURATION
-							);
-	
-	/* LOM engagement type */
-	public static final ResourcesMetadata PROPERTY_LOM_ENGAGEMENT_TYPE
-		= new ResourcesMetadata(
-								NAMESPACE_LOM,
-								"engagement", 
-								"label.lom_engagement",
-								"descr.lom_engagement",
-								NAMESPACE_XSD + XSD_STRING,
-								WIDGET_DROPDOWN
-							);
-	
-	/* LOM learning resource type */
-	public static final ResourcesMetadata PROPERTY_LOM_LEARNING_RESOURCE_TYPE
-		= new ResourcesMetadata(
-								NAMESPACE_LOM,
-								"learning_resource_type", 
-								"label.lom_learning_resource_type",
-								"descr.lom_learning_resource_type",
-								NAMESPACE_XSD + XSD_STRING,
-								WIDGET_DROPDOWN
-							);
-	
-	/* LOM interactivity level */
-	public static final ResourcesMetadata PROPERTY_LOM_INTERACTIVITY_LEVEL
-		= new ResourcesMetadata(
-								NAMESPACE_LOM,
-								"interactivity_level", 
-								"label.lom_interactivity_level",
-								"descr.lom_interactivity_level",
-								NAMESPACE_XSD + XSD_STRING,
-								WIDGET_DROPDOWN
-							);
-	
-	/* LOM context level */
-	public static final ResourcesMetadata PROPERTY_LOM_CONTEXT_LEVEL
-		= new ResourcesMetadata(
-								NAMESPACE_LOM,
-								"context_level", 
-								"label.lom_context_level",
-								"descr.lom_context_level",
-								NAMESPACE_XSD + XSD_STRING,
-								WIDGET_DROPDOWN
-							);
-
-	/* LOM difficulty */
-	public static final ResourcesMetadata PROPERTY_LOM_DIFFICULTY
-		= new ResourcesMetadata(
-								NAMESPACE_LOM,
-								"difficulty", 
-								"label.lom_difficulty",
-								"descr.lom_difficulty",
-								NAMESPACE_XSD + XSD_STRING,
-								WIDGET_DROPDOWN
-							);
-	
-	/* LOM learning time */
-	public static final ResourcesMetadata PROPERTY_LOM_LEARNING_TIME
-		= new ResourcesMetadata(
-								NAMESPACE_LOM,
-								"learning_time", 
-								"label.lom_learning_time",
-								"descr.lom_learning_time",
-								NAMESPACE_XSD + XSD_STRING,
-								WIDGET_DURATION
-							);
-	
-	/* LOM assumed knowledge */
-	public static final ResourcesMetadata PROPERTY_LOM_ASSUMED_KNOWLEDGE
-		= new ResourcesMetadata(
-								NAMESPACE_LOM,
-								"assumed_knowledge", 
-								"label.lom_assumed_knowledge",
-								"descr.lom_assumed_knowledge",
-								NAMESPACE_XSD + XSD_STRING,
-								WIDGET_TEXTAREA
-							);
-	
-	/* LOM tech req */
-	public static final ResourcesMetadata PROPERTY_LOM_TECHNICAL_REQUIREMENTS
-		= new ResourcesMetadata(
-								NAMESPACE_LOM,
-								"technical_requirements", 
-								"label.lom_technical_requirements",
-								"descr.lom_technical_requirements",
-								NAMESPACE_XSD + XSD_STRING,
-								WIDGET_TEXTAREA
-							);
-	
-	/* LOM install remarks */
-	public static final ResourcesMetadata PROPERTY_LOM_INSTALL_REMARKS
-		= new ResourcesMetadata(
-								NAMESPACE_LOM,
-								"install_remarks", 
-								"label.lom_install_remarks",
-								"descr.lom_install_remarks",
-								NAMESPACE_XSD + XSD_STRING,
-								WIDGET_TEXTAREA
-							);
-	
-	/* LOM other requirements */
-	public static final ResourcesMetadata PROPERTY_LOM_OTHER_REQUIREMENTS
-		= new ResourcesMetadata(
-								NAMESPACE_LOM,
-								"other_requirements", 
-								"label.lom_other_requirements",
-								"descr.lom_other_requirements",
-								NAMESPACE_XSD + XSD_STRING,
-								WIDGET_TEXTAREA
-							);
-	
-	/* LOM granularity level */
-	public static final ResourcesMetadata PROPERTY_LOM_GRANULARITY_LEVEL
-		= new ResourcesMetadata(
-								NAMESPACE_LOM,
-								"granularity_level", 
-								"label.lom_granularity_level",
-								"descr.lom_granularity_level",
-								NAMESPACE_XSD + XSD_STRING,
-								WIDGET_DROPDOWN
-							);
-	
-	
-	/* LOM structure */
-	public static final ResourcesMetadata PROPERTY_LOM_STRUCTURE
-		= new ResourcesMetadata(
-								NAMESPACE_LOM,
-								"structure", 
-								"label.lom_structure",
-								"descr.lom_structure",
-								NAMESPACE_XSD + XSD_STRING,
-								WIDGET_DROPDOWN
-							);
-	
-	/* LOM relation */
-	public static final ResourcesMetadata PROPERTY_LOM_RELATION
-		= new ResourcesMetadata(
-								NAMESPACE_LOM,
-								"relation", 
-								"label.lom_relation",
-								"descr.lom_relation",
-								NAMESPACE_XSD + XSD_STRING,
-								WIDGET_TEXTAREA
-							);
-	
-	/* LOM annotation id */
-	public static final ResourcesMetadata PROPERTY_LOM_ANNOTATION_ID
-		= new ResourcesMetadata(
-								NAMESPACE_LOM,
-								"annotation_id", 
-								"label.lom_annotation_id",
-								"descr.lom_annotation_id",
-								NAMESPACE_XSD + XSD_STRING,
-								WIDGET_STRING
-							);
-	
-	/* LOM annotation date */
-	public static final ResourcesMetadata PROPERTY_LOM_ANNOTATION_DATE
-		= new ResourcesMetadata(
-								NAMESPACE_LOM,
-								"annotation_date", 
-								"label.lom_annotation_date",
-								"descr.lom_annotation_date",
-								NAMESPACE_XSD + XSD_STRING,
-								WIDGET_STRING
-							);
-	
-	/* LOM annotation description */
-	public static final ResourcesMetadata PROPERTY_LOM_ANNOTATION_DESCRIPTION
-		= new ResourcesMetadata(
-								NAMESPACE_LOM,
-								"annotation_description", 
-								"label.lom_annotation_description",
-								"descr.lom_annotation_description",
-								NAMESPACE_XSD + XSD_STRING,
-								WIDGET_TEXTAREA
-							);	
-	
 
 	/*
 	public static final String PROPERTY_NAME_DC_ = "";
@@ -818,27 +589,8 @@ public class ResourcesMetadata
 			PROPERTY_DC_TIME,
 			PROPERTY_DC_DATE,
 			PROPERTY_DC_BOOLEAN,
-			PROPERTY_DC_INTEGER,
-			PROPERTY_LOM_ROLE,
-			PROPERTY_LOM_COVERAGE,
-			PROPERTY_LOM_STATUS,
-			PROPERTY_LOM_DURATION,
-			PROPERTY_LOM_ENGAGEMENT_TYPE,
-			PROPERTY_LOM_LEARNING_RESOURCE_TYPE,
-			PROPERTY_LOM_INTERACTIVITY_LEVEL,
-			PROPERTY_LOM_CONTEXT_LEVEL,
-			PROPERTY_LOM_DIFFICULTY,
-			PROPERTY_LOM_LEARNING_TIME,
-			PROPERTY_LOM_ASSUMED_KNOWLEDGE,
-			PROPERTY_LOM_TECHNICAL_REQUIREMENTS,
-			PROPERTY_LOM_INSTALL_REMARKS,
-			PROPERTY_LOM_OTHER_REQUIREMENTS,
-			PROPERTY_LOM_GRANULARITY_LEVEL,
-			PROPERTY_LOM_STRUCTURE,
-			PROPERTY_LOM_RELATION,
-			PROPERTY_LOM_ANNOTATION_ID,
-			PROPERTY_LOM_ANNOTATION_DATE,
-			PROPERTY_LOM_ANNOTATION_DESCRIPTION
+			PROPERTY_DC_INTEGER
+			
 		};
 
 	/**
@@ -1248,7 +1000,6 @@ public class ResourcesMetadata
 		setNamespaceAbbrev(NAMESPACE_DC, NAMESPACE_DC_ABBREV);
 		setNamespaceAbbrev(NAMESPACE_DCTERMS, NAMESPACE_DCTERMS_ABBREV);
 		setNamespaceAbbrev(NAMESPACE_XSD, NAMESPACE_XSD_ABBREV);
-		setNamespaceAbbrev(NAMESPACE_LOM, NAMESPACE_LOM_ABBREV);
 	}
 	
 	protected static String assignAbbrev(String namespace)
