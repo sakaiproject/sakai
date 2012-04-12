@@ -9,18 +9,18 @@
 }
 
 #navCompose {
-	padding: 2px;
+	/*padding: 2px;*/
 	/* background: url(/sakai-mailsender-tool/content/images/page_white_edit.png) center left no-repeat; */
 }
 
 #navConfig {
-	padding: 2px;
+	/*padding: 2px;*/
 	/* background: url(/sakai-mailsender-tool/content/images/cog.png) center left no-repeat; */
 }
 
 .navIntraTool a, .navStatic {
-	margin-right: 1em;
-	margin-left: 1em;
+	margin-right: 0.5em !important;
+	margin-left: 0.5em;
 }
 
 .fullwidth {
@@ -124,4 +124,8 @@ h3.insBorder {
 .invalid-user {
 	color: gray;
 	font-style: italic;
+}
+
+.navSeparator {
+	color: #ccc;
 }
