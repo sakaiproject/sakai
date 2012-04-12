@@ -331,11 +331,6 @@ public class ResourceSupport {
 				list.addAll(sakaiProxy.getAuthorizedUsers(SakaiProxy.PERMIT_RESOURCE_MAINTAIN_1 , entityReference));
 				list.addAll(sakaiProxy.getAuthorizedUsers(SakaiProxy.PERMIT_RESOURCE_MAINTAIN_2 , entityReference));
 			}
-			Entity entity = sakaiProxy.getEntity(entityReference);
-			if (entity != null)
-			{
-				list.add(entity.getProperties().getProperty(ResourceProperties.PROP_CREATOR));
-			}
 			return new ArrayList<String>(list);
 		}
 	}
