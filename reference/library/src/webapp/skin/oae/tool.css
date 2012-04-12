@@ -1167,22 +1167,22 @@ hr.itemSeparator {
 /*
  overrides of toolbar for this skin
  */
-.navIntraTool {
+.navIntraTool, .ambrosiaModeBar {
     background-color: #fff !important;
-    border: none !important;
-    padding: .3em 0 !important;
-    line-height: 2.5em !important;
+    border:none !important;
+    border-bottom: 5px solid #eee !important;
+    padding: 0 !important;
+    line-height: 30px !important;
+    height:27px;
+    margin-top:5px !important;
+    color:#fff;
 }
-
-.navIntraTool a, .navIntraTool a:link, .navIntraTool a:visited, .navIntraTool span.current, .navIntraTool span.inactive .navIntraTool span {
-    font-size: 9px !important;
-    -webkit-border-radius: 5px;
-    -moz-border-radius: 5px;
-    border-radius: 5px;
-    color: #666666;
-    cursor: pointer;
-    font-size: 11px;
-    font-weight: bold;
+.navIntraTool span, .navIntraTool li.firstToolBarItem span, .navIntraTool > a, .ambrosiaModeBar .ambrosiaNavNormal {
+    display:block;
+    color: #000;
+    cursor:auto;
+    font-size: 9px;
+    font-weight: normal;
     text-align: center;
     margin-right: 1em;
     vertical-align: middle;
@@ -1190,57 +1190,66 @@ hr.itemSeparator {
     white-space: nowrap;
     display: inline-block;
     border: 1px solid #E0E3E5;
-    -webkit-box-shadow: 0 0 4px -2px #A8A8A8 inset;
-    -moz-box-shadow: 0 0 4px -2px #A8A8A8 inset;
-    box-shadow: 0 0 4px -2px #A8A8A8 inset;
-    height: 23px;
-    line-height: 21px;
-    padding: 0 5px !important;
+    height: 19px;
+    line-height: 19px;
+    padding: 0px 5px 2px 5px !important;
+    background: #fafafa;
+    background: -moz-linear-gradient(top, #fafafa 0%, #f2f2f3 3%, #f2f2f3 70%, #e4e4e4 100%);
+    background: -webkit-gradient(linear, left top, left bottom, color-stop(0%,#fafafa), color-stop(3%,#f2f2f3), color-stop(70%,#f2f2f3), color-stop(100%,#e4e4e4));
+    background: -webkit-linear-gradient(top, #fafafa 0%,#f2f2f3 3%,#f2f2f3 70%,#e4e4e4 100%);
+    background: -o-linear-gradient(top, #fafafa 0%,#f2f2f3 3%,#f2f2f3 70%,#e4e4e4 100%);
+    background: -ms-linear-gradient(top, #fafafa 0%,#f2f2f3 3%,#f2f2f3 70%,#e4e4e4 100%);
+    background: linear-gradient(top, #fafafa 0%,#f2f2f3 3%,#f2f2f3 70%,#e4e4e4 100%);
+}
+.navIntraTool li.firstToolBarItem {
+    padding-right: 0 !important;
 }
 
+.navIntraTool a, .ambrosiaModeBar a {
+    font-weight:bold;
+}
+.navIntraTool > a {
+    line-height: 23px;
+    font-weight:bold;
+    cursor:pointer !important;
+    color:#2683BC;
+    height:26px !important;
+    padding-bottom:0 !important;
+
+}
+.navIntraTool li.firstToolBarItem span{
+    padding-right: 5px !important;
+    margin-right: 0 !important;
+}
 #homeLink, #viewLink, #editLink, #infoLink, #historyLink, #watchLink {
     background-image: none;
     line-height: 21px;
-    padding-left: 5px !important;
+    padding-left: 2px !important;
 }
-
 #rssLink, #printerFriendlyLink {
-    width: 20px !important;
-    background-position: 50%
+    padding: 7px !important;
+    background-position: center bottom;
 }
-
-.navIntraTool span, .navIntraTool span.current, .navIntraTool span.inactive {
-    padding: 0 !important;
-    margin: 0 !important;
-    border: none !important
-}
-
-.navIntraTool a:hover {
+.navIntraTool span:hover, .navIntraTool > a:hover, .navIntraTool li.firstToolBarItem span:hover {
     background: url("images/button_header_hover.png") repeat-x scroll left -1px transparent;
     border: 1px solid #E0E3E5;
     -webkit-box-shadow: none;
     -moz-box-shadow: none;
     box-shadow: none;
 }
-
-.navIntraTool a:focus {
-    -moz-box-shadow: 0 0 2px 1px #2683BC;
-    -webkit-box-shadow: 0 0 2px 1px #2683BC;
-    box-shadow: 0 0 2px 1px #2683BC;
+.navIntraTool a:focus, .navIntraTool a:hover {
+    text-decoration:none
 }
-
 .navIntraTool span.current {
-    background: #fff;
     cursor: auto;
-    color: #ccc !important;
-    padding: 1px 5px !important;
-    margin: 0 !important
+    color: #000 !important;
+    font-weight:normal;
+    margin: 0 !important;
 }
-
-.navIntraTool li {
+.portletBody .navIntraTool li {
     padding: 0 !important;
     border: none !important;
-    margin: 0 3px 0 0 !important
+    margin: 0 0 0 0 !important;
 }
 
 /*
@@ -1834,8 +1843,8 @@ input[type="submit"], input[type="button"] {
     background: linear-gradient(top, #f6f6f5 0%,#e0e0e0 93%,#e0e0e0 97%,#e9e9e9 100%) !important;
     border: 1px solid #E0E3E5  !important;
     box-shadow: 0 1px 1px 0 #999999  !important;
-    color: #666666;  !important;
-    font-size: 11px  !important;
+    color: #2683BC !important;
+    font-size: 11px !important;
     font-weight: bold  !important;
     height: 24px  !important;
     margin-left: 0 !important;
@@ -1878,7 +1887,7 @@ input[accesskey="x"], form#takeAssessmentForm .act input[id$="cancel1"],
  form#editStudentResults .act input:last-child {
     background: transparent !important;
     border: none !important;
-    color: #2683BC;
+    color: #2683BC !important;
     display: inline-block;
     font-family: Arial,Helvetica,sans-serif;
     font-size: 11px;
@@ -1914,7 +1923,7 @@ input[accesskey="x"]:hover, form#takeAssessmentForm .act input[id$="cancel1"]:ho
 }
 
 /*
-ambrosia (mneme) overrides
+ambrosia (mnene) overrides
 */
 
 .ambrosiaEntityListTable {
@@ -1926,8 +1935,8 @@ ambrosia (mneme) overrides
     -moz-border-radius: 3px;
     border-radius: 3px;
     box-shadow: 0px 1px 2px rgba(0, 0, 0, 0.29);
-    -moz-box-shadow: 0px 1px 2px rgba(0, 0, 0, 0.29)
-    -webkit-box-shadow: 0px 1px 2px rgba(0, 0, 0, 0.29)
+    -moz-box-shadow: 0px 1px 2px rgba(0, 0, 0, 0.29);
+    -webkit-box-shadow: 0px 1px 2px rgba(0, 0, 0, 0.29);
 }
 .ambrosiaEntityListTable th {
     background-color: #eee;
@@ -1937,7 +1946,7 @@ ambrosia (mneme) overrides
 .ambrosiaEntityListTable th a {
     border: medium none;
     color: #888 !important;
-    font-weight:  normal;
+    font-weight: normal;
     text-decoration: none;
 }
 .ambrosiaEntityListTable > tbody > tr > td {
@@ -1953,36 +1962,55 @@ ambrosia (mneme) overrides
     background: transparent !important
 }
 .ambrosiaModeBar {
-    border: none !important;
     text-align: left !important;
-    background:none !important;
-    color: #fff
+    background: none !important;
+    color: #fff;
+    margin:0;
 }
 
-.ambrosiaModeBar .ambrosiaNavNormal, .ambrosiaEntityActionBar .ambrosiaNavNormal {
+.ambrosiaEntityActionBar .ambrosiaNavNormal {
     color: #aaa;
 }
-.ambrosiaModeBar .ambrosiaNavNormal a, .ambrosiaEntityActionBar .ambrosiaNavNormal a {
-    color: #aaa;
+form[action$="overview"] > .instruction + .navIntraTool {
+    border:none !important;
+    background:none !important
+}
+form[action$="overview"] > .instruction + .navIntraTool span{
+    background:none !important;
+    border: none !important;
+    font-size: 9px !important;
+}
+.ambrosiaEntityActionBar .ambrosiaNavNormal a, form[action$="overview"] > .instruction + .navIntraTool a {
+    color: #777;
     border: 1px solid #E0E3E5;
     box-shadow: 0 0 4px -2px #A8A8A8 inset;
-    font-size: 12px;
     height: 23px;
     line-height: 19px;
-    padding: 5px;
+    padding: 5px !important;
     border-radius: 5px;
-    margin-right: 2px;
+    margin-right: -10px;
     text-align: center;
-    font-size: 10px;
+    font-size: 10px !important;
     height: 23px;
     line-height: 19px;
+    background:#fbfbfb;
 }
-.ambrosiaModeBar .ambrosiaNavNormal a, .ambrosiaModeBar .ambrosiaNavNormal a:hover,  .ambrosiaEntityActionBar .ambrosiaNavNormal a, .ambrosiaEntityActionBar .ambrosiaNavNormal a:hover {
+.ambrosiaModeBar .ambrosiaNavNormal {
+    margin-right:-7px;
+    font-size:10px
+}
+.ambrosiaModeBar .ambrosiaNavNormal > * {
+
+}
+.ambrosiaEntityActionBar .ambrosiaNavNormal a, .ambrosiaEntityActionBar .ambrosiaNavNormal a:hover {
     color: #666;
     font-weight: bold;
     text-decoration: none !important;
 }
-.ambrosiaModeBar .ambrosiaNavNormal a:hover, .ambrosiaEntityActionBar .ambrosiaNavNormal a:hover {
+.ambrosiaModeBar .ambrosiaNavNormal a:hover {
+    text-decoration: none;
+}
+.ambrosiaEntityActionBar .ambrosiaNavNormal a:hover, form[action$="overview"] > .instruction + .navIntraTool a:hover {
     background: url("images/button_header_hover.png") repeat-x scroll left -1px transparent;
     border: 1px solid #E0E3E5;
     box-shadow: none;
@@ -2016,7 +2044,7 @@ ambrosia (mneme) overrides
     border-radius: 3px;
 }
 .ambrosiaNavigationBar .ambrosiaDivider {
-    display:none;
+    display: none;
 }
 .ambrosiaNavigationBar .ambrosiaNavNormal input, .ambrosiaConfirmPanel input {
     background: #f6f6f5 !important;
@@ -2026,26 +2054,26 @@ ambrosia (mneme) overrides
     background: -o-linear-gradient(top, #f6f6f5 0%,#e0e0e0 93%,#e0e0e0 97%,#e9e9e9 100%) !important;
     background: -ms-linear-gradient(top, #f6f6f5 0%,#e0e0e0 93%,#e0e0e0 97%,#e9e9e9 100%) !important;
     background: linear-gradient(top, #f6f6f5 0%,#e0e0e0 93%,#e0e0e0 97%,#e9e9e9 100%) !important;
-    border: 1px solid #E0E3E5  !important;
-    box-shadow: 0 1px 1px 0 #999999  !important;
-    color: #666666;  !important;
-    font-size: 11px  !important;
-    font-weight: bold  !important;
-    height: 24px  !important;
+    border: 1px solid #E0E3E5 !important;
+    box-shadow: 0 1px 1px 0 #999999 !important;
+    color: #666666 !important;
+    font-size: 11px !important;
+    font-weight: bold !important;
+    height: 24px !important;
     margin-left: 0 !important;
-    text-shadow: 0 2px 3px #FFFFFF  !important;
+    text-shadow: 0 2px 3px #FFFFFF !important;
     padding: 5px !important;
     border-radius: 5px;
     margin-right: 3px
 }
 .ambrosiaNavigationBar .ambrosiaNavNormal input:hover,.ambrosiaConfirmPanel input:hover {
     background: #fefefe !important;
-    background: -moz-linear-gradient(top, #fefefe 0%, #e9edf0 96%, #e2e5e7 100%)  !important;
-    background: -webkit-gradient(linear, left top, left bottom, color-stop(0%,#fefefe), color-stop(96%,#e9edf0), color-stop(100%,#e2e5e7))  !important;
-    background: -webkit-linear-gradient(top, #fefefe 0%,#e9edf0 96%,#e2e5e7 100%)  !important;
-    background: -o-linear-gradient(top, #fefefe 0%,#e9edf0 96%,#e2e5e7 100%)  !important;
-    background: -ms-linear-gradient(top, #fefefe 0%,#e9edf0 96%,#e2e5e7 100%)  !important;
-    background: linear-gradient(top, #fefefe 0%,#e9edf0 96%,#e2e5e7 100%)  !important;
+    background: -moz-linear-gradient(top, #fefefe 0%, #e9edf0 96%, #e2e5e7 100%) !important;
+    background: -webkit-gradient(linear, left top, left bottom, color-stop(0%,#fefefe), color-stop(96%,#e9edf0), color-stop(100%,#e2e5e7)) !important;
+    background: -webkit-linear-gradient(top, #fefefe 0%,#e9edf0 96%,#e2e5e7 100%) !important;
+    background: -o-linear-gradient(top, #fefefe 0%,#e9edf0 96%,#e2e5e7 100%) !important;
+    background: -ms-linear-gradient(top, #fefefe 0%,#e9edf0 96%,#e2e5e7 100%) !important;
+    background: linear-gradient(top, #fefefe 0%,#e9edf0 96%,#e2e5e7 100%) !important;
 }
 .ambrosiaNavigationBar .ambrosiaNavNormal input[disabled="disabled"], .ambrosiaConfirmPanel input[disabled="disabled"] {
     background: transparent !important;
