@@ -324,9 +324,23 @@ public class ResourceSupport {
 		}
 
 		public List<String> getUsersWithAccess(String entityReference) {
+			
+			boolean isDropboxResource = false;
+			Entity entity = sakaiProxy.getEntity(entityReference);
+			if(entity != null && entity instanceof ContentResource) {
+				isDropboxResource = sakaiProxy.isDropboxResource(entity.getId());
+			}
 			SortedSet<String> list = new TreeSet<String>();
 			if(this.isAvailable(entityReference)) {
-				list.addAll(sakaiProxy.getAuthorizedUsers(SakaiProxy.PERMIT_RESOURCE_ACCESS , entityReference));
+				if(!isDropboxResource ) {
+					// resource item
+					list.addAll(sakaiProxy.getAuthorizedUsers(SakaiProxy.PERMIT_RESOURCE_ACCESS , entityReference));
+				}
+				else
+				{
+					// dropbox item
+					list.addAll(sakaiProxy.getAuthorizedUsers(SakaiProxy.PERMIT_DROPBOX_MAINTAIN , entityReference));
+				}
 			} else {
 				list.addAll(sakaiProxy.getAuthorizedUsers(SakaiProxy.PERMIT_RESOURCE_MAINTAIN_1 , entityReference));
 				list.addAll(sakaiProxy.getAuthorizedUsers(SakaiProxy.PERMIT_RESOURCE_MAINTAIN_2 , entityReference));
