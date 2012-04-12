@@ -217,7 +217,10 @@ public class ETSUserNotificationProviderImpl implements UserNotificationProvider
 			replacementValues.put("templateSiteId", templateSite.getId());
 			replacementValues.put("currentUserDisplayName", currentUser.getDisplayName());
 			replacementValues.put("currentUserDisplayId", currentUser.getDisplayId());
-
+			SimpleDateFormat dform = ((SimpleDateFormat) DateFormat.getDateInstance());
+			dform.applyPattern("yyyy-MM-dd HH:mm:ss");
+			String dateDisplay = dform.format(new Date());
+			replacementValues.put("currentDate", dateDisplay);
 			replacementValues.put("newSiteId", site.getId());
 			replacementValues.put("newSiteTitle", site.getTitle());
 			
