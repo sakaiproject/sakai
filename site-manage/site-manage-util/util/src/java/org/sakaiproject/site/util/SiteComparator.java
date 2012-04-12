@@ -2,8 +2,6 @@
 package org.sakaiproject.site.util;
 
 import java.text.Collator;
-import java.text.ParseException;
-import java.text.RuleBasedCollator;
 import java.util.Comparator;
 
 import org.sakaiproject.authz.api.Member;
@@ -20,10 +18,10 @@ import org.sakaiproject.entity.api.EntityPropertyTypeException;
 /**
  * The comparator to be used in Worksite Setup/Site Info tool
  */
-public class SiteComparator implements Comparator
-{
-	RuleBasedCollator collator_ini = (RuleBasedCollator)Collator.getInstance();
-	RuleBasedCollator collator;
+public class SiteComparator implements Comparator {
+	
+	Collator collator = Collator.getInstance();
+	
 	/**
 	 * the criteria
 	 */
@@ -41,12 +39,6 @@ public class SiteComparator implements Comparator
 	 *            otherwise.
 	 */
 	public SiteComparator(String criterion, String asc) {
-		try {
-			this.collator= new RuleBasedCollator(collator_ini.getRules().replaceAll("<'\u005f'", "<' '<'\u005f'"));
-		} catch (ParseException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		}
 		m_criterion = criterion;
 		m_asc = asc;
 
