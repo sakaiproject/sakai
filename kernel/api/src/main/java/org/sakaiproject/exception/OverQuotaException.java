@@ -29,17 +29,15 @@ package org.sakaiproject.exception;
  * The id of the Resource is available as part of the exception.
  * </p>
  */
-public class OverQuotaException extends Exception
+public class OverQuotaException extends SakaiException
 {
-	private String m_ref = null;
-
 	public OverQuotaException(String ref)
 	{
-		m_ref = ref;
+		super(ref);
 	}
 
 	public String toString()
 	{
-		return super.toString() + " ref: " + m_ref;
+		return super.toString() + " ref: " + m_id;
 	}
 }

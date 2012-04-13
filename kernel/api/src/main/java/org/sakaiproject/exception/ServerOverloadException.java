@@ -26,22 +26,11 @@ package org.sakaiproject.exception;
  * ServerOverloadException is thrown whenever a request cannot be completed at this time due to some critical resource of the server being in too short supply.
  * </p>
  */
-public class ServerOverloadException extends Exception
+public class ServerOverloadException extends SakaiException
 {
-	private String m_id = null;
 
 	public ServerOverloadException(String id)
 	{
-		m_id = id;
-	}
-
-	public String getId()
-	{
-		return m_id;
-	}
-
-	public String toString()
-	{
-		return super.toString() + " id=" + m_id;
+		super(id);
 	}
 }

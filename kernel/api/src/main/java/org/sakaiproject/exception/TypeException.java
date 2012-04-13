@@ -26,17 +26,10 @@ package org.sakaiproject.exception;
  * TypeException is thrown whenever type mismatch occurs.
  * </p>
  */
-public class TypeException extends Exception
+public class TypeException extends SakaiException
 {
-	private String m_id = null;
-
 	public TypeException(String id)
 	{
-		m_id = id;
-	}
-
-	public String toString()
-	{
-		return super.toString() + " id=" + m_id;
+		super(id);
 	}
 }

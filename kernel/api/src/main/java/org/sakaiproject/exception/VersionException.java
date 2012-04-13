@@ -27,22 +27,10 @@ package org.sakaiproject.exception;
  * </p>
  */
 
-public class VersionException extends Exception
+public class VersionException extends SakaiException
 {
-	private String m_id = null;
-
 	public VersionException(String id)
 	{
-		m_id = id;
-	}
-
-	public String getId()
-	{
-		return m_id;
-	}
-
-	public String toString()
-	{
-		return super.toString() + " id=" + m_id;
+		super(id);
 	}
 }

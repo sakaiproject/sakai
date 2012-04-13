@@ -29,22 +29,10 @@ package org.sakaiproject.exception;
  * The invalid id is available as part of the exception.
  * </p>
  */
-public class IdInvalidException extends Exception
+public class IdInvalidException extends SakaiException
 {
-	private String m_id = null;
-
 	public IdInvalidException(String id)
 	{
-		m_id = id;
-	}
-
-	public String toString()
-	{
-		return super.toString() + " id=" + m_id;
-	}
-
-	public String getMessage()
-	{
-		return m_id;
+		super(id);
 	}
 }

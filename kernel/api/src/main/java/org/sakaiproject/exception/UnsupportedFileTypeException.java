@@ -24,7 +24,7 @@ package org.sakaiproject.exception;
 /**
  * This is thrown when a file is needed but the selected file doesn't have the correct type
  */
-public class UnsupportedFileTypeException extends Exception
+public class UnsupportedFileTypeException extends SakaiException
 {
 	/**
 	 *

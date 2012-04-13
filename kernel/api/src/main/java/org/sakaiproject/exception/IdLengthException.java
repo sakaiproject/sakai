@@ -26,22 +26,11 @@ package org.sakaiproject.exception;
  * IdLengthException is thrown whenever a resource id is too long to be used as a resource id.
  * </p>
  */
-public class IdLengthException extends Exception
+public class IdLengthException extends SakaiException
 {
-	private String m_id = null;
 
 	public IdLengthException(String id)
 	{
-		m_id = id;
-	}
-
-	public String toString()
-	{
-		return super.toString() + " id=" + m_id;
-	}
-
-	public String getMessage()
-	{
-		return m_id;
+		super(id);
 	}
 }

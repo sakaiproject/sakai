@@ -26,17 +26,10 @@ package org.sakaiproject.exception;
  * InconsistentException is thrown whenever an operation fails due to inconsistency or potential inconsistency.
  * </p>
  */
-public class InconsistentException extends Exception
+public class InconsistentException extends SakaiException
 {
-	private String m_id = null;
-
 	public InconsistentException(String id)
 	{
-		m_id = id;
-	}
-
-	public String toString()
-	{
-		return super.toString() + " id=" + m_id;
+		super(id);
 	}
 }

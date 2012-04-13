@@ -29,22 +29,10 @@ package org.sakaiproject.exception;
  * The id is available as part of the exception.
  * </p>
  */
-public class InUseException extends Exception
+public class InUseException extends SakaiException
 {
-	private String m_id = null;
-
 	public InUseException(String id)
 	{
-		m_id = id;
-	}
-
-	public String getId()
-	{
-		return m_id;
-	}
-
-	public String toString()
-	{
-		return super.toString() + " id=" + m_id;
+		super(id);
 	}
 }

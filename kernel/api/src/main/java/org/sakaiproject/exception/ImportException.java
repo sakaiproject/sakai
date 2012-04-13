@@ -26,7 +26,7 @@ package org.sakaiproject.exception;
  * ImportException is thrown whenever there is in error while importing schedule items.
  * </p>
  */
-public class ImportException extends Exception
+public class ImportException extends SakaiException
 {
 	/**
 	 * Default constructor

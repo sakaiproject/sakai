@@ -26,17 +26,10 @@ package org.sakaiproject.exception;
  * IdUsedException is thrown whenever a resource id is already in use.
  * </p>
  */
-public class IdUsedException extends Exception
+public class IdUsedException extends SakaiException
 {
-	private String m_id = null;
-
 	public IdUsedException(String id)
 	{
-		m_id = id;
-	}
-
-	public String toString()
-	{
-		return super.toString() + " id=" + m_id;
+		super(id);
 	}
 }

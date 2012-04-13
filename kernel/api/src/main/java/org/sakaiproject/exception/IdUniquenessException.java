@@ -29,23 +29,10 @@ package org.sakaiproject.exception;
  * A string indicating the final attempt to find a unique id is available as part of the exception.
  * </p>
  */
-public class IdUniquenessException extends Exception
+public class IdUniquenessException extends SakaiException
 {
-	private String m_id = null;
-
 	public IdUniquenessException(String id)
 	{
-		m_id = id;
+		super(id);
 	}
-
-	public String toString()
-	{
-		return super.toString() + " id=" + m_id;
-	}
-
-	public String getMessage()
-	{
-		return m_id;
-	}
-
 }

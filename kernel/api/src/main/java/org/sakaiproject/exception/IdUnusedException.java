@@ -26,23 +26,10 @@ package org.sakaiproject.exception;
  * IdUnusedException is thrown whenever no resource is associated with an id.
  * </p>
  */
-public class IdUnusedException extends Exception
+public class IdUnusedException extends SakaiException
 {
-	private String m_id = null;
-
 	public IdUnusedException(String id)
 	{
-		m_id = id;
-
-	}
-
-	public String getId()
-	{
-		return m_id;
-	}
-
-	public String toString()
-	{
-		return super.toString() + " id=" + m_id;
+		super(id);
 	}
 }

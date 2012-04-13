@@ -1,9 +1,9 @@
 /**********************************************************************************
- * $URL$
- * $Id$
+ * $URL: https://source.sakaiproject.org/svn/kernel/trunk/api/src/main/java/org/sakaiproject/exception/SakaiException.java $
+ * $Id: OverQuotaException.java 105077 2012-02-24 22:54:29Z ottenhoff@longsight.com $
  ***********************************************************************************
  *
- * Copyright (c) 2005, 2006, 2008 Sakai Foundation
+ * Copyright (c) 2012 Sakai Foundation
  *
  * Licensed under the Educational Community License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -23,25 +23,52 @@ package org.sakaiproject.exception;
 
 /**
  * <p>
- * CopyrightException is thrown when a resource is accessed that requires a copyright agreement from the end user.
+ * SakaiException is a baseclass for Sakai Exceptions * </p>
+ * <p>
+ * The id of the Resource is available as part of the exception.
  * </p>
  */
-public class CopyrightException extends SakaiException
+public class SakaiException extends Exception
 {
-	private String m_ref = null;
+	protected String m_id = null;
 
-	public CopyrightException()
+	public SakaiException () {}
+	public SakaiException(String id)
 	{
-		super();
+		m_id = id;
 	}
 
-	public CopyrightException(String ref)
+	/**
+	 * @param cause
+	 */
+	public SakaiException(Throwable cause)
 	{
-		super(ref);
+			super(cause);
+	}
+
+	/**
+	 * @param message
+	 * @param cause
+	 */
+	public SakaiException(String message, Throwable cause)
+	{
+			super(message, cause);
+	}
+
+
+	public String getId() 
+	{
+			return m_id;
+	}
+
+	public String getReference()
+	{
+		return m_id;
 	}
 
 	public String toString()
 	{
-		return super.toString() + ((m_ref != null) ? (" : " + m_ref) : "");
+		return super.toString() + " id: " + m_id;
 	}
+
 }

@@ -26,6 +26,6 @@ package org.sakaiproject.exception;
  * EmptyException indicates that an access operation was attempted on an empty resource.
  * </p>
  */
-public class EmptyException extends Exception
+public class EmptyException extends SakaiException
 {
 }
