@@ -65,6 +65,9 @@ public class PCServiceEntityProvider extends ReceiverAdapter implements EntityPr
     private Object profileServiceObject = null;
     private Method getConnectionsForUserMethod = null;
     private Method getUuidMethod = null;
+    private Method setProfileMethod = null;
+    private Method setPrivacyMethod = null;
+    private Method setPreferencesMethod = null;
 	
 	private UserDirectoryService userDirectoryService;
 	public void setUserDirectoryService(UserDirectoryService userDirectoryService) {
@@ -135,6 +138,9 @@ public class PCServiceEntityProvider extends ReceiverAdapter implements EntityPr
             getConnectionsForUserMethod = profileServiceObject.getClass().getMethod("getConnectionsForUser",new Class[] {String.class});
             Class personClass = Class.forName("org.sakaiproject.profile2.model.Person");
             getUuidMethod = personClass.getMethod("getUuid",null);
+            setProfileMethod = personClass.getMethod("setProfile",null);
+            setPrivacyMethod = personClass.getMethod("setPrivacy",null);
+            setPreferencesMethod = personClass.getMethod("setPreferences",null);
         } catch(Exception e) {
             connectionsAvailable = false;
             logger.info("Profile2 not installed so portal chat will not use connections.");
@@ -240,6 +246,17 @@ public class PCServiceEntityProvider extends ReceiverAdapter implements EntityPr
 			this.timestamp = (new Date()).getTime();
 		}
 	}
+	
+	public class PortalChatUser {
+		
+		public String id;
+		public String displayName;
+		
+		public PortalChatUser(String id,String displayName) {
+			this.id = id;
+			this.displayName = displayName;
+		}
+	}
 
     /**
      * The JS client calls this to grab the latest data in one call. Connections, latest messages, online users
@@ -280,14 +297,17 @@ public class PCServiceEntityProvider extends ReceiverAdapter implements EntityPr
 			return new HashMap<String,Object>(0);
 		}
 
-        List<User> presentUsers = new ArrayList<User>();
+		List<PortalChatUser> presentUsers = new ArrayList<PortalChatUser>();
 
 		String siteId = (String) params.get("siteId");
 
         if(siteId != null && siteId.length() > 0) {
             // A site id has been specified, so we add the present users from the presence service
-            presentUsers = presenceService.getPresentUsers(siteId + "-presence");
-            presentUsers.remove(currentUser);
+			List<User> presentSakaiUsers = presenceService.getPresentUsers(siteId + "-presence");
+			presentSakaiUsers.remove(currentUser);
+			for(User user : presentSakaiUsers) {
+				presentUsers.add(new PortalChatUser(user.getId(), user.getDisplayName()));
+			}
         }
 		
 		List<Object> connections = getConnectionsForUser(currentUser.getId());
@@ -302,6 +322,12 @@ public class PCServiceEntityProvider extends ReceiverAdapter implements EntityPr
 
             try {
                 uuid = (String) getUuidMethod.invoke(personObject,null);
+                
+                // Null all the person stuff to reduce the download size
+                setProfileMethod.invoke(personObject,null);
+                setPrivacyMethod.invoke(personObject,null);
+                setPreferencesMethod.invoke(personObject,null);
+                
             } catch(Exception e) {
                 logger.error("Failed to invoke getUuid on a Person instance. Skipping this person ...",e);
                 continue;
