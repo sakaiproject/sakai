@@ -544,7 +544,12 @@ public class DavServlet extends HttpServlet
 	 * Output cookies for DAV requests
 	 */
 	private boolean useCookies = false;
-	
+
+	/**
+	 * Non Dav Browsers
+	 */
+	private String[] nonDavUserAgent = null;
+
 	private ContentHostingService contentHostingService;
 
 	// --------------------------------------------------------- Public Methods
@@ -615,6 +620,11 @@ public class DavServlet extends HttpServlet
 		
 		// Check cookie configuration
 		useCookies = ServerConfigurationService.getBoolean("webdav.cookies", false);
+
+		nonDavUserAgent = ServerConfigurationService.getStrings("webdav.nonDavUserAgent");
+		if (nonDavUserAgent == null) {
+		    nonDavUserAgent = new String[] {  "Mozilla", "Opera", "BlackBerry" };
+		}
 	}
 
 	/** create the info */
@@ -1622,8 +1632,16 @@ public class DavServlet extends HttpServlet
 	 */
 	protected void doGet(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException
 	{
+		String header = req.getHeader("User-Agent") != null ? req.getHeader("User-Agent") : "";
 
 		String path = getRelativePathSAKAI(req);
+
+		for (String agent: nonDavUserAgent) {
+		    if (header.toUpperCase().contains(agent.toUpperCase())) {
+		        if (M_log.isInfoEnabled()) M_log.info("Redirecting DAV access because this is a browser." + header);
+		        resp.sendRedirect("/access/content" + adjustId(path));
+		    }
+		}
 
 		doContent(path, req, resp);
 	}
