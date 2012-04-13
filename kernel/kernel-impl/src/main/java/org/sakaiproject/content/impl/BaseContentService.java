@@ -13081,19 +13081,43 @@ SiteContentAdvisorProvider, SiteContentAdvisorTypeRegistry, EntityTransferrerRef
     }
     
     /**
-     * Expand the supplied resource under its parent collection.If the zip
-     * is bigger than the max zip size specified in properties extraction will
-     * NOT occur.See KNL-273.
+     * Expand the supplied resource under its parent collection.
+     * If the zip is bigger than the max zip size specified in properties extraction will
+     * NOT occur. See KNL-273 and KNL-900.
      *
      * @param resourceId The zip file resource that we want to expand
      * @exception Exception Anything thrown by ZipContentUtil gets passed upwards.
      */
     public void expandZippedResource(String resourceId) throws Exception {
-    	int maxZipExtractSize = ZipContentUtil.getMaxZipExtractFiles();
-    	ZipContentUtil extractZipArchive = new ZipContentUtil();
-    	if(extractZipArchive.getZipManifest(resourceId) != null && extractZipArchive.getZipManifest(resourceId).size() < maxZipExtractSize){
-    		extractZipArchive.extractArchive(resourceId);
-    	}
+        int maxZipExtractSize = ZipContentUtil.getMaxZipExtractFiles();
+        ZipContentUtil extractZipArchive = new ZipContentUtil();
+
+        // KNL-900 Total size of files should be checked before unzipping (KNL-273)
+        Map <String, Long> zipManifest = extractZipArchive.getZipManifest(resourceId);
+        if (zipManifest == null) {
+            M_log.error("Zip file for resource ("+resourceId+") has no zip manifest, cannot extract");
+        } else if (zipManifest.size() >= maxZipExtractSize) {
+            M_log.warn("Zip file for resource ("+resourceId+") is too large to be expanded, size("+zipManifest.size()+") exceeds the max=("+maxZipExtractSize+") as specified in setting content.zip.expand.maxfiles");
+        } else {
+            // zip is not too large to extract so check if files are too large
+            long totalSize = 0;
+            for (Long entrySize : zipManifest.values()) {
+                totalSize += entrySize;
+            }
+
+            // Get a context
+            ContentResourceEdit resource = editResource(resourceId);
+            // Set the updated length for quota checking
+            resource.setContentLength(totalSize);
+            if (M_log.isDebugEnabled()) M_log.debug(String.format("Resource is: [%s] Size is [%d]",resourceId, totalSize));
+            // check for over quota.
+            if (overQuota(resource)) {
+                M_log.error("Zip file for resource ("+resourceId+") would be too large after unzip so it cannot be expanded, totalSize("+totalSize+") exceeds the resource quota");
+                throw new OverQuotaException(resource.getReference());
+            }
+            // zip files are not too large to extract so do the extract
+            extractZipArchive.extractArchive(resourceId);
+        }
     }
 
 } // BaseContentService
