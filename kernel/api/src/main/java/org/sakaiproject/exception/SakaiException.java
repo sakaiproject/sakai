@@ -27,6 +27,7 @@ package org.sakaiproject.exception;
  * <p>
  * The id of the Resource is available as part of the exception.
  * </p>
+ * @since 1.4.0
  */
 public class SakaiException extends Exception
 {
