@@ -430,7 +430,7 @@ public class PCServiceEntityProvider extends ReceiverAdapter implements EntityPr
 		
 		try {
 			String email = userDirectoryService.getUser(userId).getEmail();
-            new EmailSender(email, rb.getString("email.subject"), rb.getFormattedMessage("email.body", new String[]{currentUser.getDisplayName(), service, portalUrl}));
+            new EmailSender(email, rb.getFormattedMessage("email.subject", new String[]{service}), rb.getFormattedMessage("email.body", new String[]{currentUser.getDisplayName(), service, portalUrl}));
 		}
 		catch(Exception e) {
 			throw new EntityException("Failed to send email",userId);
