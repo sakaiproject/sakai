@@ -140,9 +140,6 @@ public class ConfigurationLoadingTest extends SakaiKernelTestBase {
         assertEquals(splitError, "should", stringList[1]);
         assertEquals(splitError, "split", stringList[2]);
 
-        // These are commented for now, since Commons Configuration would
-        // require some customization to parse values according to the CSV RFC.
-        /*
         String[] stringCsv = serverConfigurationService.getStrings("stringCsv");
         assertEquals(splitError, 3, stringCsv.length);
         assertEquals(splitError, "this", stringCsv[0]);
@@ -154,7 +151,16 @@ public class ConfigurationLoadingTest extends SakaiKernelTestBase {
         assertEquals(splitError, "this", stringMixedCsv[0]);
         assertEquals(splitError, "should", stringMixedCsv[1]);
         assertEquals(splitError, "also,split", stringMixedCsv[2]);
-        */
+
+        String[] strings = serverConfigurationService.getStrings("stringLonelyCsv");
+        assertEquals(splitError, 1, strings.length);
+        assertEquals(splitError, "alone", strings[0]);
+
+        String invalidStr = serverConfigurationService.getString("stringInvalidCsv");
+        assertNotNull(invalidStr);
+        assertEquals("\"this\",\"is\",\"invalid", invalidStr);
+        String[] invalid = serverConfigurationService.getStrings("stringInvalidCsv");
+        assertNull(invalid);
     }
 	
 	/**

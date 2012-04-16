@@ -37,8 +37,6 @@ import java.util.Properties;
 import java.util.Vector;
 import java.util.concurrent.ConcurrentHashMap;
 
-import org.apache.commons.configuration.BaseConfiguration;
-import org.apache.commons.configuration.ConversionException;
 import org.apache.commons.lang.StringUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
@@ -55,6 +53,8 @@ import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
+
+import au.com.bytecode.opencsv.CSVParser;
 
 /**
  * <p>
@@ -498,40 +498,31 @@ public class BasicConfigurationService implements ServerConfigurationService, Ap
     /**
      * {@inheritDoc}
      */
-    public String[] getStrings(String name)
-    {
+    public String[] getStrings(String name) {
+        String[] rv = null;
         // get the count
         int count = getInt(name + ".count", 0);
-        if (count > 0)
-        {
-            String[] rv = new String[count];
+        if (count > 0) {
+            rv = new String[count];
             for (int i = 1; i <= count; i++)
             {
                 rv[i - 1] = getString(name + "." + i, "");
             }
             // store the array in the properties
             this.addConfigItem(new ConfigItemImpl(name, rv, TYPE_ARRAY, SOURCE_GET_STRINGS), SOURCE_GET_STRINGS);
-            return rv;
         } else {
             String value = getString(name);
-            if (value != null && !"".equals(value)) {
-                BaseConfiguration conf = new BaseConfiguration();
-                conf.addProperty(name, value);
+            if (!StringUtils.isBlank(value)) {
+                CSVParser csvParser = new CSVParser(',','"','\\',false,true); // should configure this for default CSV parsing
                 try {
-                    String[] rv = conf.getStringArray(name);
+                    rv = csvParser.parseLine(value);
                     this.addConfigItem(new ConfigItemImpl(name, rv, TYPE_ARRAY, SOURCE_GET_STRINGS), SOURCE_GET_STRINGS);
-                    return rv;
-                } catch (ConversionException e) {
-                    if (M_log.isDebugEnabled()) {
-                        M_log.debug("Config property '" + name + "' read as multi-valued "
-                                  + "string, but does not have a count and is not a "
-                                  + "string or string list.", e);
-                    }
+                } catch (IOException e) {
+                    M_log.warn("Config property ("+name+") read as multi-valued string, but failure occurred while parsing: "+e, e);
                 }
             }
         }
-
-        return null;
+        return rv;
     }
 
     /**
