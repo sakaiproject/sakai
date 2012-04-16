@@ -255,7 +255,7 @@
 		<span id="avatarPermitted" class="skip"></span>
 	#end
             <div id="pc" tabindex="-1">
-		<div id="pc_title">${rloader.pc_title}<div><a href="#" id="pc_chat_close" title="${rloader.pc_chat_close}"><span class="skip">${rloader.pc_chat_close}</span><img src="/library/image/silk/cross.png" alt="${rloader.pc_chat_close_alt}"/></a></div></div>
+		<div id="pc_title">${rloader.pc_title}<div><a href="#" id="pc_chat_close" title="${rloader.pc_chat_close}"><span class="skip">${rloader.pc_chat_close}</span><img src="/library/image/silk/cross.png" alt=""/></a></div></div>
                 <div id="pc_content">
                     <div id="pc_options">
                         <div id="pc_show_off_ctrl"><input type="checkbox" id="pc_showoffline_connections_checkbox"/><label for="pc_showoffline_connections_checkbox">${rloader.pc_showoffline_connections_checkbox}</label></div>
@@ -327,7 +327,7 @@
 				
                     <a href="javascript:;" onclick="return portalChat.closeChatWindow('${uuid}');" title="${rloader.pc_chat_close}">
 						<span class="skip">${rloader.pc_chat_close}</span>
-						<img src="/library/image/silk/cross.png" width="16px" height="16px" border="0" style="float: right;" alt="${rloader.pc_chat_close_alt}"/>
+						<img src="/library/image/silk/cross.png" width="16px" height="16px" border="0" style="float: right;" alt=""/>
 					</a>
                 </div>
                 <div id="pc_connection_chat_${uuid}_content" class="pc_connection_chat_content">
