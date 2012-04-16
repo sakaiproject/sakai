@@ -132,18 +132,48 @@ public class PCServiceEntityProvider extends ReceiverAdapter implements EntityPr
         }
 
         // SAK-20565. Get handles on the profile2 connections methods if available. If not, unset the connectionsAvailable flag.
-        try {
-            ComponentManager componentManager = org.sakaiproject.component.cover.ComponentManager.getInstance();
-            profileServiceObject = componentManager.get("org.sakaiproject.profile2.service.ProfileService");
-            getConnectionsForUserMethod = profileServiceObject.getClass().getMethod("getConnectionsForUser",new Class[] {String.class});
-            Class personClass = Class.forName("org.sakaiproject.profile2.model.Person");
-            getUuidMethod = personClass.getMethod("getUuid",null);
-            setProfileMethod = personClass.getMethod("setProfile",null);
-            setPrivacyMethod = personClass.getMethod("setPrivacy",null);
-            setPreferencesMethod = personClass.getMethod("setPreferences",null);
-        } catch(Exception e) {
+        ComponentManager componentManager = org.sakaiproject.component.cover.ComponentManager.getInstance();
+        profileServiceObject = componentManager.get("org.sakaiproject.profile2.service.ProfileService");
+            
+        if(profileServiceObject != null) {
+            try {
+                getConnectionsForUserMethod = profileServiceObject.getClass().getMethod("getConnectionsForUser",new Class[] {String.class});
+                try {
+                    Class personClass = Class.forName("org.sakaiproject.profile2.model.Person");
+                    try {
+                        getUuidMethod = personClass.getMethod("getUuid",null);
+                    } catch(Exception e) {
+                        logger.warn("Failed to set getUuidMethod");
+                    }
+                    try {
+                        Class clazz = Class.forName("org.sakaiproject.profile2.model.UserProfile");
+                        setProfileMethod = personClass.getMethod("setProfile",new Class[] {clazz});
+                    } catch(Exception e) {
+                        logger.warn("Failed to set setProfileMethod");
+                    }
+                    try {
+                        Class clazz = Class.forName("org.sakaiproject.profile2.model.ProfilePrivacy");
+                        setPrivacyMethod = personClass.getMethod("setPrivacy",new Class[] {clazz});
+                    } catch(Exception e) {
+                        logger.warn("Failed to set setPrivacyMethod");
+                    }
+                    try {
+                        Class clazz = Class.forName("org.sakaiproject.profile2.model.ProfilePreferences");
+                        setPreferencesMethod = personClass.getMethod("setPreferences",new Class[] {clazz});
+                    } catch(Exception e) {
+                        logger.warn("Failed to set setPreferencesMethod");
+                    }
+                } catch(Exception e) {
+                    logger.error("Failed to find Person class. Connections will NOT be available in portal chat.",e);
+                    connectionsAvailable = false;
+                }
+            } catch(Exception e) {
+                logger.warn("Failed to set getConnectionsForUserMethod. Connections will NOT be available in portal chat.");
+                connectionsAvailable = false;
+            }
+        } else {
+            logger.warn("Failed to find ProfileService interface. Connections will NOT be available in portal chat.");
             connectionsAvailable = false;
-            logger.info("Profile2 not installed so portal chat will not use connections.");
         }
     }
 
@@ -324,9 +354,15 @@ public class PCServiceEntityProvider extends ReceiverAdapter implements EntityPr
                 uuid = (String) getUuidMethod.invoke(personObject,null);
                 
                 // Null all the person stuff to reduce the download size
-                setProfileMethod.invoke(personObject,null);
-                setPrivacyMethod.invoke(personObject,null);
-                setPreferencesMethod.invoke(personObject,null);
+                if(setProfileMethod != null) {
+                    setProfileMethod.invoke(personObject,new Object[] {null});
+                }
+                if(setPrivacyMethod != null) {
+                    setPrivacyMethod.invoke(personObject,new Object[] {null});
+                }
+                if(setPreferencesMethod != null) {
+                    setPreferencesMethod.invoke(personObject,new Object[] {null});
+                }
                 
             } catch(Exception e) {
                 logger.error("Failed to invoke getUuid on a Person instance. Skipping this person ...",e);
