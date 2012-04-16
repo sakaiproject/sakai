@@ -107,12 +107,12 @@ public class BasicConfigurationService implements ServerConfigurationService, Ap
      *********************************************************************************************************************************************************************************************************************************************************/
 
     /**
-     * @return the ThreadLocalManager collaborator.
+     * the ThreadLocalManager collaborator.
      */
     private ThreadLocalManager threadLocalManager;
 
     /**
-     * @return the SessionManager collaborator.
+     * the SessionManager collaborator.
      */
     private SessionManager sessionManager;
 
