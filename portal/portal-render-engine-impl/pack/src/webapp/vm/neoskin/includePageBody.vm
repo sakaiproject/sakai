@@ -332,7 +332,7 @@
                 </div>
                 <div id="pc_connection_chat_${uuid}_content" class="pc_connection_chat_content">
                     <ul id="pc_connection_chat_${uuid}_messages" class="pc_message_panel"></ul>
-                    <div class="pc_editor_wrapper"><input type="text" id="pc_editor_for_${uuid}" class="pc_editor" alt=""/></div>
+                    <div class="pc_editor_wrapper"><input type="text" id="pc_editor_for_${uuid}" class="pc_editor" alt="" title="${rloader.pc_editor_tooltip}"/></div>
                 </div>
             -->
             </div>
