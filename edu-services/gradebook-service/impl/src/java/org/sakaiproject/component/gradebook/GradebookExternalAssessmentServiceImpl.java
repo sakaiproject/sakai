@@ -262,7 +262,7 @@ public class GradebookExternalAssessmentServiceImpl extends BaseHibernateManager
     }
 
 	
-	public void updateExternalAssessmentScores(final String gradebookUid, final String externalId, final Map studentUidsToScores)
+	public void updateExternalAssessmentScores(final String gradebookUid, final String externalId, final Map<String, Double> studentUidsToScores)
 	throws GradebookNotFoundException, AssessmentNotFoundException {
 
       final Assignment assignment = getExternalAssignment(gradebookUid, externalId);
@@ -337,7 +337,7 @@ public class GradebookExternalAssessmentServiceImpl extends BaseHibernateManager
       });
 	}
 
-	public void updateExternalAssessmentScoresString(final String gradebookUid, final String externalId, final Map studentUidsToScores)
+	public void updateExternalAssessmentScoresString(final String gradebookUid, final String externalId, final Map<String, String> studentUidsToScores)
 		throws GradebookNotFoundException, AssessmentNotFoundException {
 
 		final Assignment assignment = getExternalAssignment(gradebookUid, externalId);

@@ -153,11 +153,18 @@ public interface GradebookExternalAssessmentService {
             throws GradebookNotFoundException, AssessmentNotFoundException;
 
 	/**
+	 * 
+	 * @param gradebookUid
+	 * @param externalId
+	 * @param studentUidsToScores
+	 * @throws GradebookNotFoundException
+	 * @throws AssessmentNotFoundException
+	 * 
 	 * @deprecated Replaced by
-	 *		{@link updateExternalAssessmentScoresString(String, String, Map)}
+	 *		{@link updateExternalAssessmentScoresString(String, String, Map<String, String)}
 	 */
 	public void updateExternalAssessmentScores(String gradebookUid,
-		String externalId, Map studentUidsToScores)
+		String externalId, Map<String, Double> studentUidsToScores)
 		throws GradebookNotFoundException, AssessmentNotFoundException;
 
 	/**
@@ -173,7 +180,7 @@ public interface GradebookExternalAssessmentService {
 	 *  should be removed.
 	 */
 	public void updateExternalAssessmentScoresString(String gradebookUid,
-			String externalId, Map studentUidsToScores)
+			String externalId, Map<String, String> studentUidsToScores)
 	throws GradebookNotFoundException, AssessmentNotFoundException;
 
 	/**
