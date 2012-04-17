@@ -73,8 +73,10 @@
 	    	<th><a wicket:id="endDateSortLink"><wicket:message key="endDate"/></a></th>
 	    	<th><wicket:message key="showToolsHeader"/></th>
     	</wicket:enclosure>
-    	<th><a wicket:id="accessModifiedBySortLink"><wicket:message key="accessModifiedBy"/></a></th>
-    	<th><a wicket:id="accessModifiedOnSortLink"><wicket:message key="accessModifiedOn"/></a></th>
+    	<wicket:enclosure child="accessModifiedBySortLink">
+	    	<th><a wicket:id="accessModifiedBySortLink"><wicket:message key="accessModifiedBy"/></a></th>
+    		<th><a wicket:id="accessModifiedOnSortLink"><wicket:message key="accessModifiedOn"/></a></th>
+    	</wicket:enclosure>
     	</tr>
        <tr wicket:id="searchResult">
        	 <td><a wicket:id="siteTitleLink"><span wicket:id="siteTitle">test</span></a></td>
@@ -90,8 +92,10 @@
 	       	 <td><span wicket:id="endDate">12/21/2012</span></td>
 	       	 <td><span wicket:id="showTools">Syllabus, Home</span></td>
        	 </wicket:enclosure>
-       	 <td><span wicket:id="accessModifiedBy">Bryan Holladay</span></td>
-       	 <td><span wicket:id="accessModified">4/13/2011</span></td>
+       	 <wicket:enclosure child="accessModifiedBy">
+       	 	<td><span wicket:id="accessModifiedBy">Bryan Holladay</span></td>
+       	 	<td><span wicket:id="accessModified">4/13/2011</span></td>
+       	 </wicket:enclosure>
        </tr>
     </tbody>
 	</table>
