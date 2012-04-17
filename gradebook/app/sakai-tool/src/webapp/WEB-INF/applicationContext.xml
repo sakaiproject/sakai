@@ -18,4 +18,38 @@
          </list>
       </property>
    </bean>
+
+    <!-- EB Entity Providers - classes in sakai-gradebook-app-ui -->
+    <bean id="GradebookEntityProvider" class="org.sakaiproject.tool.gradebook.ui.helpers.entity.GradebookEntityProvider"
+        init-method="init" destroy-method="destroy">
+        <property name="entityProviderManager" ref="org.sakaiproject.entitybroker.entityprovider.EntityProviderManager" />
+        <property name="gradebookService" ref="org.sakaiproject.service.gradebook.GradebookService" />
+    </bean>
+
+    <bean id="LocalPermissionLogic" class="org.sakaiproject.tool.gradebook.ui.helpers.beans.locallogic.LocalPermissionLogic">
+        <property name="gradebookService" ref="org.sakaiproject.service.gradebook.GradebookService" />
+    </bean>
+
+    <bean parent="viewParamsInterceptorParent">
+        <!-- intercept incoming views to filter on permissions -->
+        <property name="value">
+            <bean id="GradebookViewParamsInterceptor" class="org.sakaiproject.tool.gradebook.ui.helpers.params.GradebookViewParamsInterceptor">
+                <property name="localPermissionLogic" ref="LocalPermissionLogic" />
+            </bean>
+        </property>
+    </bean>
+
+    <bean id="Assignment" parent="entityBeanLocatorParent">
+        <property name="newMethod" value="AssignmentCreator.create" />
+        <property name="fetchMethod" value="GradebookItemBean.getAssignmentById" />
+    </bean>
+
+    <bean id="AssignmentCreator" class="org.sakaiproject.tool.gradebook.ui.helpers.beans.AssignmentCreator" />
+
+    <bean parent="requestAddressibleParent">
+        <!-- Define the bean roots from the request scope file that are accessible via incoming request URL -->
+        <property name="value" value="Assignment,AssignmentGradeRecord,Comment,GradebookItemBean,AssignmentGradeRecordBean" />
+    </bean>
+    <!-- EB end -->
+
 </beans>

@@ -296,4 +296,17 @@
       <artifactId>jsf-spreadsheet</artifactId>
     </dependency>
   </dependencies>
+
+    <build>
+        <resources>
+            <!-- add in provider help file -->
+            <resource>
+                <directory>${project.build.sourceDirectory}</directory>
+                <includes>
+                    <include>*.properties</include>
+                </includes>
+            </resource>
+        </resources>
+    </build>
+
 </project>
