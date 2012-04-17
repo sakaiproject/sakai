@@ -29,6 +29,7 @@ import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.apache.commons.math.util.MathUtils;
 import org.sakaiproject.exception.IdUnusedException;
+import org.sakaiproject.service.gradebook.shared.GradebookExternalAssessmentService;
 import org.sakaiproject.service.gradebook.shared.GradebookService;
 import org.sakaiproject.site.api.Site;
 import org.sakaiproject.site.api.SitePage;
@@ -71,7 +72,7 @@ public class GradebookServiceHelperImpl implements GradebookServiceHelper
    * @param g  the Gradebook Service
    * @return true if the given gradebook exists
    */
-  public boolean gradebookExists(String gradebookUId, GradebookService g)
+  public boolean gradebookExists(String gradebookUId, GradebookExternalAssessmentService g)
   {
     log.debug("GradebookService = " + g);
     if (gradebookUId == null)
@@ -137,7 +138,7 @@ public class GradebookServiceHelperImpl implements GradebookServiceHelper
    * @throws java.lang.Exception
    */
 public void removeExternalAssessment(String gradebookUId,
-   String publishedAssessmentId, GradebookService g) throws Exception
+   String publishedAssessmentId, GradebookExternalAssessmentService g) throws Exception
   {
     if (g.isGradebookDefined(gradebookUId))
     {
@@ -146,7 +147,7 @@ public void removeExternalAssessment(String gradebookUId,
   }
 
   public boolean isAssignmentDefined(String assessmentTitle,
-                                GradebookService g) throws Exception
+		  GradebookExternalAssessmentService g) throws Exception
   {
     String gradebookUId = GradebookFacade.getGradebookUId();
     return g.isAssignmentDefined(gradebookUId, assessmentTitle);
@@ -160,7 +161,7 @@ public void removeExternalAssessment(String gradebookUId,
    * @throws java.lang.Exception
    */
   public boolean addToGradebook(PublishedAssessmentData publishedAssessment,
-                                GradebookService g) throws
+		  GradebookExternalAssessmentService g) throws
     Exception
   {
     //log.info("total point(s) is/are =" +
@@ -220,7 +221,7 @@ public void removeExternalAssessment(String gradebookUId,
    * @throws java.lang.Exception
    */
   public boolean updateGradebook(PublishedAssessmentIfc publishedAssessment,
-		  GradebookService g) throws Exception
+		  GradebookExternalAssessmentService g) throws Exception
   {
     log.debug("updateGradebook start");
     String gradebookUId = GradebookFacade.getGradebookUId();
@@ -247,7 +248,7 @@ public void removeExternalAssessment(String gradebookUId,
    * @throws java.lang.Exception
    */
   public void updateExternalAssessmentScore(AssessmentGradingData ag,
-   GradebookService g) throws
+		  GradebookExternalAssessmentService g) throws
     Exception
   {
     boolean testErrorHandling=false;
@@ -269,14 +270,14 @@ public void removeExternalAssessment(String gradebookUId,
     log.info("rounded:  " + ag.getFinalScore() + " to: " + score.toString() );
     g.updateExternalAssessmentScore(gradebookUId,
       ag.getPublishedAssessmentId().toString(),
-      ag.getAgentId(),  score);
+      ag.getAgentId(),  score.toString());
     if (testErrorHandling){
       throw new Exception("Encountered an error in update ExternalAssessmentScore.");
     }
   }
   
-  public void updateExternalAssessmentScores(Long publishedAssessmentId, final Map studentUidsToScores,
-		  GradebookService g) throws Exception {
+  public void updateExternalAssessmentScores(Long publishedAssessmentId, final Map<String, Double> studentUidsToScores,
+		  GradebookExternalAssessmentService g) throws Exception {
 	  boolean testErrorHandling=false;
 	  PublishedAssessmentService pubService = new PublishedAssessmentService();
 	  String gradebookUId = pubService.getPublishedAssessmentOwner(publishedAssessmentId);

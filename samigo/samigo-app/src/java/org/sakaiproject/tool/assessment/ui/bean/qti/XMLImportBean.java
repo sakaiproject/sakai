@@ -24,27 +24,20 @@ package org.sakaiproject.tool.assessment.ui.bean.qti;
 
 import java.io.File;
 import java.io.FileNotFoundException;
-import java.io.IOException;
 import java.io.Serializable;
+import java.text.MessageFormat;
 import java.util.ArrayList;
 import java.util.Iterator;
-import java.text.MessageFormat;
-
-import org.sakaiproject.util.FormattedText;
-import org.sakaiproject.util.ResourceLoader;
 
 import javax.faces.application.FacesMessage;
 import javax.faces.context.FacesContext;
-import javax.faces.event.ActionEvent;
 import javax.faces.event.ValueChangeEvent;
-import javax.xml.parsers.ParserConfigurationException;
-import javax.servlet.ServletContext;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
-import org.sakaiproject.service.gradebook.shared.GradebookService;
-import org.sakaiproject.spring.SpringBeanLocator;
 import org.sakaiproject.component.cover.ServerConfigurationService;
+import org.sakaiproject.service.gradebook.shared.GradebookExternalAssessmentService;
+import org.sakaiproject.spring.SpringBeanLocator;
 import org.sakaiproject.tool.assessment.contentpackaging.ImportService;
 import org.sakaiproject.tool.assessment.data.ifc.assessment.EvaluationModelIfc;
 import org.sakaiproject.tool.assessment.facade.AssessmentFacade;
@@ -62,8 +55,9 @@ import org.sakaiproject.tool.assessment.ui.bean.author.AuthorBean;
 import org.sakaiproject.tool.assessment.ui.bean.author.ItemAuthorBean;
 import org.sakaiproject.tool.assessment.ui.bean.questionpool.QuestionPoolBean;
 import org.sakaiproject.tool.assessment.ui.listener.util.ContextUtil;
+import org.sakaiproject.util.FormattedText;
+import org.sakaiproject.util.ResourceLoader;
 import org.w3c.dom.Document;
-import org.xml.sax.SAXException;
 
  
 /**
@@ -312,10 +306,10 @@ public class XMLImportBean implements Serializable
     
     // change grading book settings if there is no gradebook in the site
     boolean hasGradebook = false;
-   GradebookService g = null;
+    GradebookExternalAssessmentService g = null;
    if (integrated){
-     g = (GradebookService) SpringBeanLocator.getInstance().
-          getBean("org.sakaiproject.service.gradebook.GradebookService");
+     g = (GradebookExternalAssessmentService) SpringBeanLocator.getInstance().
+          getBean("org.sakaiproject.service.gradebook.GradebookExternalAssessmentService");
    }
    try{
      if (gbsHelper.isAssignmentDefined(assessment.getTitle(), g)){

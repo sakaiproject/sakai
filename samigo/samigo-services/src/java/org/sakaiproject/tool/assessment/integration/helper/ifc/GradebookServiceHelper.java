@@ -23,6 +23,7 @@ package org.sakaiproject.tool.assessment.integration.helper.ifc;
 import java.io.Serializable;
 import java.util.Map;
 
+import org.sakaiproject.service.gradebook.shared.GradebookExternalAssessmentService;
 import org.sakaiproject.service.gradebook.shared.GradebookService;
 import org.sakaiproject.tool.assessment.data.dao.assessment.PublishedAssessmentData;
 import org.sakaiproject.tool.assessment.data.dao.grading.AssessmentGradingData;
@@ -40,25 +41,25 @@ import org.sakaiproject.tool.assessment.data.ifc.assessment.PublishedAssessmentI
  */
 public interface GradebookServiceHelper extends Serializable
 {
-  public boolean gradebookExists(String gradebookUId, GradebookService g);
+  public boolean gradebookExists(String gradebookUId, GradebookExternalAssessmentService g);
   
   public boolean isGradebookExist(String SiteId);
 
   public void removeExternalAssessment(String gradebookUId,
-     String publishedAssessmentId, GradebookService g) throws Exception;
+     String publishedAssessmentId, GradebookExternalAssessmentService g) throws Exception;
 
   public boolean addToGradebook(PublishedAssessmentData publishedAssessment,
-    GradebookService g) throws Exception;
+		  GradebookExternalAssessmentService g) throws Exception;
 
   public boolean updateGradebook(PublishedAssessmentIfc publishedAssessment,
-    GradebookService g) throws Exception;
+		  GradebookExternalAssessmentService g) throws Exception;
 
   public boolean isAssignmentDefined(String assessmentTitle,
-    GradebookService g) throws Exception;
+		  GradebookExternalAssessmentService g) throws Exception;
 
   public void updateExternalAssessmentScore(AssessmentGradingData ag,
-    GradebookService g) throws Exception;
+		  GradebookExternalAssessmentService g) throws Exception;
   
-  public void updateExternalAssessmentScores(Long publishedAssessmentId, final Map studentUidsToScores,
-		    GradebookService g) throws Exception;
+  public void updateExternalAssessmentScores(Long publishedAssessmentId, final Map<String, Double> studentUidsToScores,
+		  GradebookExternalAssessmentService g) throws Exception;
 }

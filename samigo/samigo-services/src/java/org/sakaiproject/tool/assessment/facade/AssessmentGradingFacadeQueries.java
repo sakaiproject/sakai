@@ -60,6 +60,7 @@ import org.sakaiproject.entity.api.ResourceProperties;
 import org.sakaiproject.exception.IdUnusedException;
 import org.sakaiproject.exception.PermissionException;
 import org.sakaiproject.exception.TypeException;
+import org.sakaiproject.service.gradebook.shared.GradebookExternalAssessmentService;
 import org.sakaiproject.service.gradebook.shared.GradebookService;
 import org.sakaiproject.spring.SpringBeanLocator;
 import org.sakaiproject.tool.assessment.data.dao.assessment.PublishedItemData;
@@ -2905,11 +2906,11 @@ public class AssessmentGradingFacadeQueries extends HibernateDaoSupport implemen
 		Entry entry = null;
 		AssessmentGradingData assessmentGradingData = null;
 		Long publishedAssessmentId = null;
-		GradebookService g = null;
+		GradebookExternalAssessmentService g = null;
 		if (IntegrationContextFactory.getInstance() != null) {
 			boolean integrated = IntegrationContextFactory.getInstance().isIntegrated();
 			if (integrated) {
-				g = (GradebookService) SpringBeanLocator.getInstance().getBean("org.sakaiproject.service.gradebook.GradebookService");
+				g = (GradebookExternalAssessmentService) SpringBeanLocator.getInstance().getBean("org.sakaiproject.service.gradebook.GradebookExternalAssessmentService");
 			}
 
 			GradebookServiceHelper gbsHelper = IntegrationContextFactory.getInstance().getGradebookServiceHelper();

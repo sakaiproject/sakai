@@ -33,6 +33,7 @@ import javax.faces.event.ActionListener;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.sakaiproject.event.cover.EventTrackingService;
+import org.sakaiproject.service.gradebook.shared.GradebookExternalAssessmentService;
 import org.sakaiproject.service.gradebook.shared.GradebookService;
 import org.sakaiproject.spring.SpringBeanLocator;
 import org.sakaiproject.tool.assessment.data.ifc.assessment.AssessmentMetaDataIfc;
@@ -130,11 +131,11 @@ public class RemovePublishedAssessmentListener
   }
   
   private void removeFromGradebook(String assessmentId) {
-	  GradebookService g = null;
+	  GradebookExternalAssessmentService g = null;
 	  if (integrated)
 	  {
-		  g = (GradebookService) SpringBeanLocator.getInstance().
-		  getBean("org.sakaiproject.service.gradebook.GradebookService");
+		  g = (GradebookExternalAssessmentService) SpringBeanLocator.getInstance().
+		  getBean("org.sakaiproject.service.gradebook.GradebookExternalAssessmentService");
 	  }
 	  try {
 		  log.debug("before gbsHelper.removeGradebook()");

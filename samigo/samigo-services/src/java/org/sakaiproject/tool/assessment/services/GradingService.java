@@ -48,7 +48,7 @@ import org.apache.commons.logging.LogFactory;
 import org.apache.commons.math.complex.Complex;
 import org.apache.commons.math.complex.ComplexFormat;
 import org.sakaiproject.event.cover.EventTrackingService;
-import org.sakaiproject.service.gradebook.shared.GradebookService;
+import org.sakaiproject.service.gradebook.shared.GradebookExternalAssessmentService;
 import org.sakaiproject.spring.SpringBeanLocator;
 import org.sakaiproject.tool.assessment.data.dao.grading.AssessmentGradingData;
 import org.sakaiproject.tool.assessment.data.dao.grading.ItemGradingAttachment;
@@ -1197,12 +1197,12 @@ public class GradingService
     // If the assessment is published to the gradebook, make sure to update the scores in the gradebook
     String toGradebook = pub.getEvaluationModel().getToGradeBook();
 
-    GradebookService g = null;
+    GradebookExternalAssessmentService g = null;
     boolean integrated = IntegrationContextFactory.getInstance().isIntegrated();
     if (integrated)
     {
-      g = (GradebookService) SpringBeanLocator.getInstance().
-        getBean("org.sakaiproject.service.gradebook.GradebookService");
+      g = (GradebookExternalAssessmentService) SpringBeanLocator.getInstance().
+        getBean("org.sakaiproject.service.gradebook.GradebookExternalAssessmentService");
     }
 
     GradebookServiceHelper gbsHelper =

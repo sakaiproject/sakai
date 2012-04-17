@@ -41,6 +41,7 @@ import org.sakaiproject.entity.api.ResourceProperties;
 import org.sakaiproject.exception.IdUnusedException;
 import org.sakaiproject.exception.PermissionException;
 import org.sakaiproject.exception.TypeException;
+import org.sakaiproject.service.gradebook.shared.GradebookExternalAssessmentService;
 import org.sakaiproject.service.gradebook.shared.GradebookService;
 import org.sakaiproject.site.api.Site;
 import org.sakaiproject.site.cover.SiteService;
@@ -601,13 +602,13 @@ public class AssessmentFacadeQueries extends HibernateDaoSupport implements
 		if (evaluation == null) {
 			evaluation = new EvaluationModel();
 		}
-		GradebookService g = null;
+		GradebookExternalAssessmentService g = null;
 		boolean integrated = IntegrationContextFactory.getInstance()
 			.isIntegrated();
 		try {
 			if (integrated) {
-				g = (GradebookService) SpringBeanLocator.getInstance().getBean(
-						"org.sakaiproject.service.gradebook.GradebookService");
+				g = (GradebookExternalAssessmentService) SpringBeanLocator.getInstance().getBean(
+						"org.sakaiproject.service.gradebook.GradebookExternalAssessmentService");
 			}
 
 			GradebookServiceHelper gbsHelper = IntegrationContextFactory

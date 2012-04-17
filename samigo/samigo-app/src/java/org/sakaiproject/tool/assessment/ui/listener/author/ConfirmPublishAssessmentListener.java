@@ -36,6 +36,7 @@ import javax.faces.event.ActionListener;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.sakaiproject.component.cover.ServerConfigurationService;
+import org.sakaiproject.service.gradebook.shared.GradebookExternalAssessmentService;
 import org.sakaiproject.service.gradebook.shared.GradebookService;
 import org.sakaiproject.spring.SpringBeanLocator;
 import org.sakaiproject.tool.assessment.data.dao.assessment.AssessmentAccessControl;
@@ -301,10 +302,10 @@ public class ConfirmPublishAssessmentListener
 	}
 
     //#2b - check if gradebook exist, if so, if assessment title already exists in GB
-    GradebookService g = null;
+    GradebookExternalAssessmentService g = null;
     if (integrated){
-      g = (GradebookService) SpringBeanLocator.getInstance().
-            getBean("org.sakaiproject.service.gradebook.GradebookService");
+      g = (GradebookExternalAssessmentService) SpringBeanLocator.getInstance().
+            getBean("org.sakaiproject.service.gradebook.GradebookExternalAssessmentService");
     }
     String toGradebook = assessmentSettings.getToDefaultGradebook();
     try{
