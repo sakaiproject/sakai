@@ -13,6 +13,9 @@
          min-height: 20em;
          overflow: auto;
         }  
+        table.wicket-tree-content.selected{
+			background-color: #FFF !important;
+		}
     </style>
 </wicket:head>
 
@@ -20,10 +23,13 @@
 <body>
 <wicket:extend>
 	<br/>
-	<div style="font-size: 150%" wicket:id="title">Title</div>
+	<div style="font-size: 150%">
+		<span wicket:id="title">Title</span>
+		<span class="instruction"><a href="#" onclick="$('.instruction').toggle();"><img src="/library/image/silk/information.png"/></a></span>
+	</div>
 	<br/>
-	<span class="instruction" style="white-space: normal" wicket:id="description">Instructions here</span>
-	<br/>
+	<div class="instruction" style="display: none"><a href="#" onclick="$('.instruction').toggle();"><wicket:message key="hideInstructions"/></a></div>	
+	<span class="instruction" style="white-space: normal; display:none" wicket:id="description">Instructions here</span>
 	<br/>
 	<span wicket:id="noAccess"></span>
 	<form wicket:id="form">

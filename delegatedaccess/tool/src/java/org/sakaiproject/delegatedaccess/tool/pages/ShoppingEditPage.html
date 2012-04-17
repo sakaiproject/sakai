@@ -45,6 +45,14 @@
 		div.wicket-tree-table div.row-selected a.node-link span{
 			font-weight: normal !important;
 		}
+			
+		div.wicket-tree-table div.wicket-tree-table-body .row:hover{
+ 			background: #FFFFCC !important;
+		}
+
+		div.wicket-tree-table div.wicket-tree-table-body .row-selected:hover{
+ 			background: #FFFFCC !important;
+		}
     </style>
 </wicket:head>
 
@@ -53,10 +61,14 @@
 <wicket:extend>
 	<div wicket:id="formFeedback" id="formFeedback">[formFeedback]</div>
 	<br/>
-	<div style="font-size: 150%"><wicket:message key="shoppingAdminTitle"/></div>
+	<div style="font-size: 150%">
+		<span><wicket:message key="shoppingAdminTitle"/></span>
+		<span class="instruction"><a href="#" onclick="$('.instruction').toggle();"><img src="/library/image/silk/information.png"/></a></span>
+	</div>
 	<br/>
-	<span class="instruction" style="white-space: normal"><wicket:message key="shoppingAdminInstructions"/></span>
-	<br/>
+	<div class="instruction" style="display: none"><a href="#" onclick="$('.instruction').toggle();"><wicket:message key="hideInstructions"/></a></div>
+	
+	<span class="instruction" style="white-space: normal; display:none"><wicket:message key="shoppingAdminInstructions"/></span>
 	<br/>
 	<span wicket:id="noAccess"></span>
 	<br/>
