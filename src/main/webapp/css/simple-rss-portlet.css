@@ -46,3 +46,18 @@
 	border: 1px solid #D6E0E3;
 	margin-top: 1em;
 }
+
+/* downtime notice css. aligns the elements.
+this is constrained so it fits on a 1280w 2 column layout but degrades ok
+on a 1024 screen  */
+.downtime-label {
+	display:inline-block;
+	float:left;
+	width:70px;
+}
+
+.downtime-content {
+	display:inline-block;
+	width:350px;
+}
+
