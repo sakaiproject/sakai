@@ -5,6 +5,10 @@
 	font-weight: bold;
 }
 
+.simple-rss-portlet form a {
+	font-weight: normal;
+}
+
 .simple-rss-portlet form {
 	float:left;
 }
@@ -12,11 +16,6 @@
 .simple-rss-portlet form input {
 	width: inherit !important;
 	font-weight: normal;
-}
-
-/* fake a link as a button */
-.simple-rss-portlet form .fake-button {
-	text-decoration: none !important
 }
 
 

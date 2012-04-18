@@ -21,8 +21,6 @@
 <%@ taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core" %>
 <%@ taglib prefix="portlet" uri="http://java.sun.com/portlet" %>
 <%@ taglib prefix="fmt" uri="http://java.sun.com/jstl/fmt" %>
-<%@ taglib prefix="rs" uri="http://www.jasig.org/resource-server" %>
-
 
 <%@ page import="java.util.List" %>
 <%@ page import="java.util.ArrayList" %>
@@ -34,13 +32,6 @@
 <fmt:setBundle basename="au.edu.anu.portal.portlets.rss.utils.messages" />
 
 <link type="text/css" rel="stylesheet"  href="<%=request.getContextPath()%>/css/simple-rss-portlet.css" />
-
-<script type="text/javascript">
-function cancel() {
-	window.location='${cancelUrl}';
-}
-</script>
-
 
 <div class="simple-rss-portlet">
 				
@@ -70,7 +61,7 @@ function cancel() {
 		
 		<p>
  			<input type="submit" value="<fmt:message key='config.button.submit' />">
- 			<button type="button" onclick="cancel();"><fmt:message key='config.button.cancel' /></button>
+ 			<a href="${cancelUrl}"><fmt:message key='config.button.cancel' /></a>
 		</p>
 	</form>
 	
