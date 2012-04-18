@@ -106,7 +106,11 @@ public class DelegatedAccessEntityProviderImpl implements DelegatedAccessEntityP
 
 	public void updateEntity(EntityReference ref, Object entity,
 			Map<String, Object> params) {
-		//TODO: verify user's credentials:
+		if(!(sakaiProxy.isSuperUser() || (sakaiProxy.isUserInstructor(sakaiProxy.getCurrentUserId(), ref.getId())) && sakaiProxy.isShoppingPeriodInstructorEditable())){
+			//we only want to allow user's who are either an admin or is an actual member of the site and has "instructor" permsission (site.upd)
+			//otherwise, they can just use the Delegated Access interface to make modifications
+			throw new IllegalArgumentException("User: " + sakaiProxy.getCurrentUserId() + " is not a member of the site with site.upd permission or an admin");
+		}
 		List<String> nodeIds = projectLogic.getNodesBySiteRef("/site/" + ref.getId(), DelegatedAccessConstants.HIERARCHY_ID);
 		if(nodeIds == null || nodeIds.size() != 1){
 			throw new IllegalArgumentException("Node doesn't exist or has multiple instances: " + ref.getId());

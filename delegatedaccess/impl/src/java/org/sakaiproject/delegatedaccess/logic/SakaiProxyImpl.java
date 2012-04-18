@@ -532,4 +532,19 @@ public class SakaiProxyImpl implements SakaiProxy {
 		return serverConfigurationService.getBoolean(DelegatedAccessConstants.PROP_DISABLE_SHOPPING_TREE_VIEW, false);
 	}
 	
+	public boolean isUserInstructor(String userId, String siteId){
+		Site site = getSiteById(siteId);
+		if(site != null){
+			if(site.getMember(userId) != null){
+				if(securityService.unlock(userId, "site.upd", siteService.siteReference(siteId))){
+					return true;
+				}
+			}
+		}
+		return false;
+	}
+	
+	public boolean isShoppingPeriodInstructorEditable(){
+		return serverConfigurationService.getBoolean("delegatedaccess.shopping.instructorEditable", false);
+	}
 }

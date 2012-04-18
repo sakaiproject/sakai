@@ -322,4 +322,19 @@ public interface SakaiProxy {
 	 * @return
 	 */
 	public User getUser(String id);
+	
+	/**
+	 * returns true only if the user is a member of the site and has site.upd permission
+	 * 
+	 * @param userId
+	 * @param siteId
+	 * @return
+	 */
+	public boolean isUserInstructor(String userId, String siteId);
+	
+	/**
+	 * returns true if delegatedaccess.shopping.instructorEditable is set to true, otherwise, false
+	 * @return
+	 */
+	public boolean isShoppingPeriodInstructorEditable();
 }
