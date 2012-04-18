@@ -215,28 +215,6 @@
 	      	</exclusions>
 	    </dependency>
 	    
-	    <!--  resource server -->
-	    <dependency>
-			<groupId>org.jasig.resourceserver</groupId>
-    		<artifactId>resource-server-utils</artifactId>
-    		<version>1.0.5</version>
-    		<exclusions>
-		        <exclusion>
-		            <groupId>commons-logging</groupId>
-		            <artifactId>commons-logging</artifactId>
-		        </exclusion>
-		        <exclusion>
-		            <groupId>net.sf.ehcache</groupId>
-		            <artifactId>ehcache</artifactId>
-		        </exclusion>
-		        <exclusion>
-		            <groupId>net.sf.ehcache</groupId>
-		            <artifactId>ehcache-web</artifactId>
-		        </exclusion>
-    		</exclusions>
-		</dependency>
-		
-    	
 	</dependencies>
 	
 	<properties>
