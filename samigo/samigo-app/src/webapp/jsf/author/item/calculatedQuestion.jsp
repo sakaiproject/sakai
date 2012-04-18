@@ -71,22 +71,22 @@ confirmation dialog
 <%@ include file="/jsf/author/item/itemHeadings.jsp" %>
 <h:form id="itemForm">
 	<p class="act">
-		<h:commandButton accesskey="#{authorMessages.a_save}" 
+		<h:commandButton 
 				rendered="#{itemauthor.target=='assessment'}" 
-				value="#{authorMessages.button_save}" 
+				value="#{commonMessages.action_save}" 
 				action="#{itemauthor.currentItem.getOutcome}" 
 				styleClass="active saveButton">
 	        <f:actionListener type="org.sakaiproject.tool.assessment.ui.listener.author.ItemAddListener" />
 	  	</h:commandButton>
-	  	<h:commandButton accesskey="#{authorMessages.a_save}" 
+	  	<h:commandButton 
 	  			rendered="#{itemauthor.target=='questionpool'}" 
-	  			value="#{authorMessages.button_save}" 
+	  			value="#{commonMessages.action_save}" 
 	  			action="#{itemauthor.currentItem.getPoolOutcome}" 
 	  			styleClass="active saveButton">
 	    	<f:actionListener type="org.sakaiproject.tool.assessment.ui.listener.author.ItemAddListener" />
 	  	</h:commandButton>
 	
-	  	<h:commandButton accesskey="#{authorMessages.a_cancel}" 
+	  	<h:commandButton 
 	  			rendered="#{itemauthor.target=='assessment'}" 
 	  			value="#{commonMessages.cancel_action}" 
 	  			action="editAssessment" 
@@ -94,7 +94,8 @@ confirmation dialog
 	        <f:actionListener type="org.sakaiproject.tool.assessment.ui.listener.author.ResetItemAttachmentListener" />
 	        <f:actionListener type="org.sakaiproject.tool.assessment.ui.listener.author.EditAssessmentListener" />
 	  	</h:commandButton>
-	 	<h:commandButton rendered="#{itemauthor.target=='questionpool'}" 
+	 	<h:commandButton 
+                rendered="#{itemauthor.target=='questionpool'}" 
 	 			value="#{commonMessages.cancel_action}" 
 	 			action="editPool" 
 	 			immediate="true">
@@ -372,21 +373,21 @@ confirmation dialog
 	</h:panelGroup>
 
 	<p class="act">
-		<h:commandButton accesskey="#{authorMessages.a_save}" 
+		<h:commandButton 
 				rendered="#{itemauthor.target=='assessment'}" 
-				value="#{authorMessages.button_save}" 
+				value="#{commonMessages.action_save}" 
 				action="#{itemauthor.currentItem.getOutcome}" 
 				styleClass="active saveButton">
 	        <f:actionListener type="org.sakaiproject.tool.assessment.ui.listener.author.ItemAddListener" />
 	  	</h:commandButton>
-	  	<h:commandButton accesskey="#{authorMessages.a_save}" 
+	  	<h:commandButton 
 	  			rendered="#{itemauthor.target=='questionpool'}" 
-	  			value="#{authorMessages.button_save}" 
+	  			value="#{commonMessages.action_save}" 
 	  			action="#{itemauthor.currentItem.getPoolOutcome}" 
 	  			styleClass="active saveButton">
 	        <f:actionListener type="org.sakaiproject.tool.assessment.ui.listener.author.ItemAddListener" />
 	  	</h:commandButton>
-	  	<h:commandButton accesskey="#{authorMessages.a_cancel}" 
+	  	<h:commandButton  
 	  			rendered="#{itemauthor.target=='assessment'}" 
 	  			value="#{commonMessages.cancel_action}" 
 	  			action="editAssessment" 
@@ -394,7 +395,8 @@ confirmation dialog
 	        <f:actionListener type="org.sakaiproject.tool.assessment.ui.listener.author.ResetItemAttachmentListener" />
 	        <f:actionListener type="org.sakaiproject.tool.assessment.ui.listener.author.EditAssessmentListener" />
 	  	</h:commandButton>
-	 	<h:commandButton rendered="#{itemauthor.target=='questionpool'}" 
+	 	<h:commandButton 
+                rendered="#{itemauthor.target=='questionpool'}" 
 	 			value="#{commonMessages.cancel_action}" 
 	 			action="editPool" 
 	 			immediate="true">
