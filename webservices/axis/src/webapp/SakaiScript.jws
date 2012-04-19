@@ -3287,10 +3287,4 @@ private void transferCopyEntities(String toolId, String fromContext, String toCo
 }
 
 
-public String testUrl() {
-return serverConfigurationService.getServerUrl();
-}
-
-
-
 }
