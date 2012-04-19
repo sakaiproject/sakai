@@ -191,4 +191,22 @@
     <module>util</module>
     <module>pack</module>
   </modules>
+  
+	<profiles>
+		<profile>
+            <id>default</id>
+            <activation>
+                <activeByDefault>true</activeByDefault>
+            </activation>
+            <properties>
+                <sakai.version>2.10-SNAPSHOT</sakai.version>
+            </properties>
+        </profile>
+        <profile>
+            <id>sakai-2.9</id>
+            <properties>
+                <sakai.version>2.9-SNAPSHOT</sakai.version>
+            </properties>
+        </profile>
+	</profiles>
 </project>
