@@ -444,16 +444,16 @@ function mySetMainFrameHeightViewCell(id)
 
     </h:form> 
     
+	<script type="text/javascript">
+		//Put this code in the jsp page since IE8 was having trouble with $(document).ready() function.
+		SynMainLite.setupTableParsers();
+		SynMainLite.setupTableHeaders();
+		SynMainLite.setupTableSortImageOffset();
+		//hide all checkboxes that are used to reset original values
+		$(".unchangedValue").hide();
+		SynMainLite.toggleHiddenRows();
+	</script>
   </sakai:view>
  </f:view> 
  
  
- <script type="text/javascript">
- 	//Put this code in the jsp page since IE8 was having trouble with $(document).ready() function.
- 	SynMainLite.setupTableParsers();
-	SynMainLite.setupTableHeaders();
-	SynMainLite.setupTableSortImageOffset();
-	//hide all checkboxes that are used to reset original values
-	$(".unchangedValue").hide();
-	SynMainLite.toggleHiddenRows();
- </script>
