@@ -310,7 +310,9 @@ public class LessonBuilderEntityProducer extends AbstractEntityProvider
 	Double gradebookPoints = page.getGradebookPoints();
 	if (gradebookPoints != null)
 	    addAttr(doc, pageElement, "gradebookpoints", gradebookPoints.toString());
-
+	String cssSheet = page.getCssSheet();
+	if (cssSheet != null && !cssSheet.equals(""))
+	    addAttr(doc, pageElement, "csssheet", cssSheet);
 
 	List<SimplePageItem> items = simplePageToolDao.findItemsOnPage(pageId);
 
@@ -824,6 +826,9 @@ public class LessonBuilderEntityProducer extends AbstractEntityProvider
 		     String gradebookPoints = pageElement.getAttribute("gradebookpoints");
 		     if (gradebookPoints != null && !gradebookPoints.equals(""))
 			 page.setGradebookPoints(Double.valueOf(gradebookPoints));
+		     String cssSheet = pageElement.getAttribute("csssheet");
+		     if (cssSheet != null && !cssSheet.equals(""))
+			 page.setCssSheet(cssSheet.replaceFirst("^/group/" + fromSiteId, "/group/" + siteId));
 		     simplePageToolDao.quickSaveItem(page);
 		     pageMap.put(oldPageId, page.getPageId());
 		 }
