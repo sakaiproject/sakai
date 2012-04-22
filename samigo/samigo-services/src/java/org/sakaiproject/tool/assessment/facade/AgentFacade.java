@@ -374,15 +374,29 @@ log.debug("agentfacade.getEid(agentS) agentString = " + agentString);
   }
 
   @Override
-  public boolean equals(Object obj) {
-	  if (obj instanceof AgentFacade) {
-		  if (((AgentFacade)obj).agentString.equals(this.agentString))
-			  return true;
-		  else
-			  return false;
-	  }
+  public int hashCode() {
+	  final int prime = 31;
+	  int result = 1;
+	  result = prime * result
+			  + ((agentString == null) ? 0 : agentString.hashCode());
+	  return result;
+  }
 
-	  return false;
+  @Override
+  public boolean equals(Object obj) {
+	  if (this == obj)
+		  return true;
+	  if (obj == null)
+		  return false;
+	  if (getClass() != obj.getClass())
+		  return false;
+	  AgentFacade other = (AgentFacade) obj;
+	  if (agentString == null) {
+		  if (other.agentString != null)
+			  return false;
+	  } else if (!agentString.equals(other.agentString))
+		  return false;
+	  return true;
   }
 
 }
