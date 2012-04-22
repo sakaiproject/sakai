@@ -21,11 +21,14 @@
 
 package org.sakaiproject.tool.assessment.data.dao.assessment;
 import java.io.Serializable;
-import java.io.IOException;
 
 public class FavoriteColChoicesItem
         implements Serializable {
-                private Long favoriteItemId;
+                /**
+	 * 
+	 */
+	private static final long serialVersionUID = 1L;
+				private Long favoriteItemId;
                 private FavoriteColChoices favoriteChoice;
                 private String choiceText;
                 private Integer sequence;
