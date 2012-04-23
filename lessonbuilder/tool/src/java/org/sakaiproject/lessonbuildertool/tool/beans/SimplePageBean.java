@@ -439,6 +439,10 @@ public class SimplePageBean {
 
 	public void setErrMessage(String s) {
 		ToolSession toolSession = sessionManager.getCurrentToolSession();
+		if (toolSession == null) {
+		    System.out.println("Lesson Builder error not in tool: " + s);
+		    return;
+		}
 		List<String> errors = (List<String>)toolSession.getAttribute("lessonbuilder.errors");
 		if (errors == null)
 		    errors = new ArrayList<String>();
@@ -454,6 +458,8 @@ public class SimplePageBean {
 
        public void setTopRefresh() {
 	   ToolSession toolSession = sessionManager.getCurrentToolSession();
+	   if (toolSession == null)
+	       return;
 	   toolSession.setAttribute("lessonbuilder.topRefresh", true);
        }
 

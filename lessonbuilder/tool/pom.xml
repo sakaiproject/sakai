@@ -162,6 +162,10 @@
             <version>${rsfutil.version}</version>
             <type>war</type>
         </dependency>
+        <dependency>
+	  <groupId>commons-fileupload</groupId>
+	  <artifactId>commons-fileupload</artifactId>
+        </dependency>
 
 <!-- 
   To enable YAFT, MNEME, and Assignments 2, uncomment the two dependencies and the plugin below.
