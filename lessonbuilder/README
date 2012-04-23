@@ -762,6 +762,23 @@ lessonbuilder.update - updating a page or item
 
 lessonbuilder.delete - deleting a page or item
 
+/DIRECT
+
+The only useful function available via /direct is the ability to load
+Common Cartridge files into a site.
+
+To use it, POST a form with a single field, called "cartridge", containing the file.
+Include parameters in the URL for the site and a session ID
+
+Here's an example, with CURL:
+   curl -F"cartridge=@/users/sakai/IMS_tests_v1.1/cc1p1vtd01v1p0.imscc;type=application/zip" "http://heidelberg.rutgers.edu/direct/lessonbuilder?site=2da97547-7031-4bca-8f18-c6f9517016b9&sakai.sessio\
+n=bcacb865-8df0-40bf-b555-c5e660a23a46"
+
+The file name after cartridge=@ is the ZIP file containing the cartridge
+The site ID is the site into which to load it
+The sakai.session is a session ID which you can get from looking at the JSESSIONID cookie. But remove any hostname from the end.
+
+
 ---
 
 Lesson Builder was built at Rutgers by
