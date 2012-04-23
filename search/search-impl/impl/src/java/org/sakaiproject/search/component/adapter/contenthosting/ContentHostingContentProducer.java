@@ -133,9 +133,9 @@ public class ContentHostingContentProducer implements EntityContentProducer, Sto
 		customProperties.add("Tlom_level.http://ltsc.ieee.org/xsd/lomv1.0/granularity_level");
 		customProperties.add("Tlom_structure.http://ltsc.ieee.org/xsd/lomv1.0/structure");
 		customProperties.add("Tlom_relation.http://ltsc.ieee.org/xsd/lomv1.0/relation");
-		customProperties.add("Tlom_annotation_id.http://ltsc.ieee.org/xsd/lomv1.0/annotation_id");
-		//customProperties.add("lom_annotation_date.http://ltsc.ieee.org/xsd/lomv1.0/annotation_date");
-		customProperties.add("Tlom_annotation_description.http://ltsc.ieee.org/xsd/lomv1.0/annotation_description");
+		customProperties.add("Tlom_reviewer.http://ltsc.ieee.org/xsd/lomv1.0/reviewer");
+		//customProperties.add("lom_review_date.http://ltsc.ieee.org/xsd/lomv1.0/review_date");
+		customProperties.add("Tlom_review_comments.http://ltsc.ieee.org/xsd/lomv1.0/review_comments");
 
 	}
 
