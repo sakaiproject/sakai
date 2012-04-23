@@ -102,10 +102,14 @@ function returnClick() {
 
 			  <script>
 				  if ($('#newui').text() != 'true') {
-					  //	  $('.neoPortletTitleWrap').hide();
-					  $('.neoPortletTitleWrap a:first, .returnheader').click(function() {
-						  window.parent.location.reload();
-					  });
+					  $('.neoPortletTitleWrap a:first, .neoPortletTitleWrap a:last').hide(); //hide the reload and help icons
+	                  var url = document.URL;
+                      if (document.URL.indexOf('sakai.basiclti.admin') == -1) {
+
+						  $('.neoPortletTitleWrap a:first, .returnheader').click(function() {
+							  returnClick();
+						  });
+					  }
 				  }
 			  </script>
 

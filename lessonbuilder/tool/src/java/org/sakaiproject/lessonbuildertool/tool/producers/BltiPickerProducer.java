@@ -7,7 +7,7 @@
  *
  * Copyright (c) 2010 Rutgers, the State University of New Jersey
  *
- * Licensed under the Educational Community License, Version 2.0 (the "License");                                                                
+ * Licensed under the Educational Community License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
@@ -35,6 +35,7 @@ import org.sakaiproject.lessonbuildertool.SimplePageItem;
 import org.sakaiproject.lessonbuildertool.tool.beans.SimplePageBean;
 import org.sakaiproject.lessonbuildertool.tool.beans.SimplePageBean.UrlItem;
 import org.sakaiproject.lessonbuildertool.tool.view.GeneralViewParameters;
+import org.sakaiproject.lessonbuildertool.tool.view.CloseViewParameters;
 import org.sakaiproject.tool.api.Session;
 import org.sakaiproject.tool.cover.SessionManager;
 import org.sakaiproject.tool.cover.ToolManager;
@@ -65,10 +66,10 @@ import uk.org.ponder.rsf.viewstate.ViewParamsReporter;
 /**
  * Creates a list of LTI Content Items for the user to choose from. Their choice will be added
  * to the end of the list of items on this page.
- * 
+ *
  * @author Charles Severance <csev@umich.edu>
  * @author Eric Jeney <jeney@rutgers.edu>
- * 
+ *
  */
 public class BltiPickerProducer implements ViewComponentProducer, NavigationCaseReporter, ViewParamsReporter {
 	public static final String VIEW_ID = "BltiPicker";
@@ -155,8 +156,8 @@ public class BltiPickerProducer implements ViewComponentProducer, NavigationCase
 			    view.setTitle(messageLocator.getMessage("simplepage.return_blti"));
 			    UIInternalLink.make(link, "blti-create-link", createLink.label , view);
 			}
-			
-			if (toolcount > 0) 
+
+			if (toolcount > 0)
 			    UIOutput.make(tofill, "blti-tools-text", messageLocator.getMessage("simplepage.blti.tools.text"));
 
 			if (mainLink != null) {
@@ -230,9 +231,9 @@ public class BltiPickerProducer implements ViewComponentProducer, NavigationCase
 
 	public List reportNavigationCases() {
 		List<NavigationCase> togo = new ArrayList<NavigationCase>();
-		togo.add(new NavigationCase("success", new SimpleViewParameters(ShowPageProducer.VIEW_ID)));
+		togo.add(new NavigationCase("success", new CloseViewParameters(ClosePageProducer.VIEW_ID, true)));
 		togo.add(new NavigationCase("failure", new SimpleViewParameters(BltiPickerProducer.VIEW_ID)));
-		togo.add(new NavigationCase("cancel", new SimpleViewParameters(ShowPageProducer.VIEW_ID)));
+		togo.add(new NavigationCase("cancel", new CloseViewParameters(ClosePageProducer.VIEW_ID, false)));
 		return togo;
 	}
 }

@@ -49,6 +49,20 @@ $('.add-forum-link, #change-forum').click(function(event){
 	return false;
 });
 
+$('.add-blti, #change-blti').click(function(event){
+	if (!picker) return true;
+
+	event.preventDefault();	
+	var title = $(this).text();
+	var pageToRequest = $(this).attr("href");
+
+	openDialog(title, true, pageToRequest);
+
+	toclick = '.add-blti';
+	closeDropdown();	
+	return false;
+});
+
 $('.add-assignment-link, #change-assignment').click(function(event){
 	if (!picker) return true;
 
@@ -231,7 +245,7 @@ function openDialog(title, iframe, src, event) {
 
 	$('div.ui-dialog:visible').dialog('close');
 	hideMultimedia();
-	w = $(window).width() - 10;
+	w = $(window).width() - 20;
 	if (!iframe){
 		$('#pickerdialog').dialog('option','title', title);
 		$('#pickerdialog').dialog('open');
