@@ -44,13 +44,11 @@
             <properties>
                 <sakai.velocity.groupId>org.sakaiproject.velocity</sakai.velocity.groupId>
                 <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding> 
+                <sakai.velocity.version>2.10-SNAPSHOT</sakai.velocity.version>
             </properties>
         </profile>
         <profile>
             <id>sakai-2.9</id>
-            <activation>
-                <activeByDefault>true</activeByDefault>
-            </activation>
             <properties>
                 <sakai.entitybroker.version>1.5-SNAPSHOT</sakai.entitybroker.version>
                 <sakai.velocity.groupId>org.sakaiproject.velocity</sakai.velocity.groupId>
