@@ -57,6 +57,7 @@ import org.sakaiproject.user.api.PreferencesService;
 import org.sakaiproject.user.api.User;
 import org.sakaiproject.user.api.UserDirectoryService;
 import org.simpleframework.xml.core.Persister;
+import org.springframework.dao.DataIntegrityViolationException;
 
 public class EmailTemplateServiceImpl implements EmailTemplateService {
 
@@ -222,8 +223,12 @@ public class EmailTemplateServiceImpl implements EmailTemplateService {
 	   
       //update the modified date
       template.setLastModified(new Date());
-
-      dao.save(template);
+      try {
+    	  dao.save(template);
+      }
+      catch (DataIntegrityViolationException die) {
+    	  throw new IllegalArgumentException("Key and locale in use already", die);
+      }
       log.info("saved template: " + template.getId());
    }
    
