@@ -399,13 +399,16 @@ public class SiteEmailNotificationAnnc extends SiteEmailNotification
 		//SAK-18433 - "if students can see the announcement, they should also be receiving the emails"
 		Site site = null;
 		AnnouncementChannel anncChannel = null;
+		AnnouncementMessage anncMsg = null;
 		String initMergeList = null;
+		User creator = null;
 		
 		try {
+			
 			site = SiteService.getSite(ref.getContext());
 			String channelRef = org.sakaiproject.announcement.cover.AnnouncementService.channelReference(ref.getContext(), ref.getContainer());
 			anncChannel = org.sakaiproject.announcement.cover.AnnouncementService.getAnnouncementChannel(channelRef);
-
+			
 			ToolConfiguration tc=site.getToolForCommonId("sakai.announcements");
 			if (tc!=null){
 				initMergeList = tc.getPlacementConfig().getProperty(PORTLET_CONFIG_PARM_MERGED_CHANNELS);	
@@ -425,30 +428,38 @@ public class SiteEmailNotificationAnnc extends SiteEmailNotification
 				{
 					Site mergedSite = SiteService.getSite(mergedSiteId);
 					
-					//similar logic found in SiteEmailNotification.getRecipients()
-					String ability = SiteService.SITE_VISIT;	
-					if (!mergedSite.isPublished())
-					{
-						ability = SiteService.SITE_VISIT_UNPUBLISHED;
-					}
 
-					// get the list of users who can do the right kind of visit
-					List<User> mergedUsers = SecurityService.unlockUsers(ability, mergedSite.getReference());
-
-					// get the list of users who have the appropriate access to the resource
-					if (getResourceAbility() != null)
-					{
-						List<User> mergedUsers2 = SecurityService.unlockUsers(getResourceAbility(),mergedSite.getReference());
-
-						//find intersection
-						mergedUsers.retainAll(mergedUsers2);
-					}
+					//SAK-21798 - skip merged sites if user doesn't have 'add' security access
+					anncMsg = (AnnouncementMessage) org.sakaiproject.announcement.cover.AnnouncementService.getMessage(ref);
+					creator = anncMsg.getAnnouncementHeader().getFrom();
+					boolean access = org.sakaiproject.authz.cover.SecurityService.unlock(creator, org.sakaiproject.announcement.cover.AnnouncementService.SECURE_ANNC_ADD, mergedSite.getReference());
+					if(access){
 					
-					//remove duplicates before combining
-					List<User> temp = new ArrayList(mergedUsers);
-					temp.retainAll(users);
-					mergedUsers.removeAll(temp);
-					users.addAll(mergedUsers);		
+						//similar logic found in SiteEmailNotification.getRecipients()
+						String ability = SiteService.SITE_VISIT;	
+						if (!mergedSite.isPublished())
+						{
+							ability = SiteService.SITE_VISIT_UNPUBLISHED;
+						}
+
+						// get the list of users who can do the right kind of visit
+						List<User> mergedUsers = SecurityService.unlockUsers(ability, mergedSite.getReference());
+
+						// get the list of users who have the appropriate access to the resource
+						if (getResourceAbility() != null)
+						{
+							List<User> mergedUsers2 = SecurityService.unlockUsers(getResourceAbility(),mergedSite.getReference());
+
+							//find intersection
+							mergedUsers.retainAll(mergedUsers2);
+						}
+						
+						//remove duplicates before combining
+						List<User> temp = new ArrayList(mergedUsers);
+						temp.retainAll(users);
+						mergedUsers.removeAll(temp);
+						users.addAll(mergedUsers);
+					} //end access check		
 				}
 			}
 			
