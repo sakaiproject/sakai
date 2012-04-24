@@ -134,4 +134,10 @@ public class FakeToolManager implements ToolManager {
 		return false;
 	}
 
+	@Override
+	public String getLocalizedToolProperty(String toolId, String key) {
+		// TODO Auto-generated method stub
+		return null;
+	}
+
 }
