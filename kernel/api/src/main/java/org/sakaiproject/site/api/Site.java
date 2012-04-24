@@ -238,6 +238,7 @@ public interface Site extends Edit, Comparable, Serializable, AuthzGroup
      * @param groupIds IDs of authZ groups (AuthzGroup selection criteria),
      *      a null groupIds includes all groups in the site, an empty set includes none of them
      * @return collection of user IDs who are in (members of) a set of site groups
+     * @since 1.3.0
      */
     Collection<String> getMembersInGroups(Set<String> groupIds);
 
