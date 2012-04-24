@@ -98,4 +98,9 @@ public class ToolManager implements org.sakaiproject.tool.api.ToolManager {
 		// TODO Auto-generated method stub
 		return false;
 	}
+
+	@Override
+	public String getLocalizedToolProperty(String toolId, String key) {
+		return null;
+	}
 }
