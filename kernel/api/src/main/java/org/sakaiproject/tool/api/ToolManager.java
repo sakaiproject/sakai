@@ -129,6 +129,14 @@ public interface ToolManager
 	boolean isVisible(Site site, ToolConfiguration config);
 	
 	// TODO: unregister...
+	
+	/**
+	 * Get the localized property of a tool
+	 * @param toolId The fully qualified id of a sakai tool.
+	 * @param key The name of the property, for example title or description.
+	 * @return The tool property, null if tool id is invalid.
+	 */
+	String getLocalizedToolProperty(String toolId, String key);
 }
 
 

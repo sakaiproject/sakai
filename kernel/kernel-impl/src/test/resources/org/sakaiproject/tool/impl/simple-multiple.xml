@@ -1,0 +1,22 @@
+<?xml version="1.0"?>
+<registration>
+	<!--  Tool registration of multiple tools. -->
+	<tool
+			id="simple1"
+			title="Simple1"
+			description="Simple Example of a Tool Registration File">
+	</tool>
+	
+	<tool
+			id="simple2"
+			title="Simple2"
+			description="Simple Example of a Tool Registration File">
+	</tool>
+	
+	<tool
+			id="simple3"
+			title="Simple3"
+			description="Simple Example of a Tool Registration File">
+	</tool>
+
+</registration>

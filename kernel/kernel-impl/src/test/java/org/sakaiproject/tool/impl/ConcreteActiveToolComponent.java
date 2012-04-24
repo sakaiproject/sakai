@@ -23,6 +23,7 @@ package org.sakaiproject.tool.impl;
 
 import org.sakaiproject.authz.api.FunctionManager;
 import org.sakaiproject.authz.api.SecurityService;
+import org.sakaiproject.component.api.ServerConfigurationService;
 import org.sakaiproject.thread_local.api.ThreadLocalManager;
 import org.sakaiproject.tool.api.SessionManager;
 
@@ -31,7 +32,7 @@ import org.sakaiproject.tool.api.SessionManager;
  * ActiveToolComponentTest extends the active tool component providing the dependency injectors for testing.
  * </p>
  */
-public class ActiveToolComponentTest extends ActiveToolComponent
+public class ConcreteActiveToolComponent extends ActiveToolComponent
 {
 	/**
 	 * @return the ThreadLocalManager collaborator.
@@ -65,4 +66,8 @@ public class ActiveToolComponentTest extends ActiveToolComponent
 		return null;
 	}
 	
+	protected ServerConfigurationService serverConfigurationService()
+	{
+		return null;
+	}
 }

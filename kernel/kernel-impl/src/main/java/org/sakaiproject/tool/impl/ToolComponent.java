@@ -46,6 +46,7 @@ import org.sakaiproject.thread_local.api.ThreadLocalManager;
 import org.sakaiproject.tool.api.Placement;
 import org.sakaiproject.tool.api.Tool;
 import org.sakaiproject.tool.api.ToolManager;
+import org.sakaiproject.util.ResourceLoader;
 import org.sakaiproject.util.StringUtil;
 import org.sakaiproject.util.Xml;
 import org.w3c.dom.Document;
@@ -172,6 +173,21 @@ public abstract class ToolComponent implements ToolManager
 				m_hiddenToolIds.add(items[i]);
 			}
 		}
+	}
+	
+	
+	/**
+	 * The ResourceLoader for getting tool internationalised tool properties.
+	 * May be null.
+	 */
+	private ResourceLoader m_loader;
+	
+	/**
+	 * Setter for ResourceLoader.
+	 */
+	public void setResourceLoader(ResourceLoader loader)
+	{
+		m_loader = loader;
 	}
 
 	/**********************************************************************************************************************************************************************************************************************************************************
@@ -331,7 +347,7 @@ public abstract class ToolComponent implements ToolManager
 			// for tool
 			if (rootElement.getTagName().equals("tool"))
 			{
-				org.sakaiproject.tool.impl.ToolImpl tool = new org.sakaiproject.tool.impl.ToolImpl();
+				org.sakaiproject.tool.impl.ToolImpl tool = new org.sakaiproject.tool.impl.ToolImpl(this);
 
 				tool.setId(rootElement.getAttribute("id").trim());
 				tool.setTitle(rootElement.getAttribute("title").trim());
@@ -587,5 +603,24 @@ public abstract class ToolComponent implements ToolManager
 		
 		//no sets were completely matched
 		return false;
+	}
+	
+	
+	/**
+	 * Get optional Localized Tool Properties (i.e. tool title, description)
+	 **/
+	public String getLocalizedToolProperty(String toolId, String key) {
+		if (m_loader == null) {
+			return null;
+		}
+			
+		final String toolProp = m_loader.getString(toolId + "." + key, "");
+		
+		if (toolProp.length() < 1 || toolProp.equals("")) {
+			return null;
+		}
+		else {
+			return toolProp;
+		}
 	}
 }

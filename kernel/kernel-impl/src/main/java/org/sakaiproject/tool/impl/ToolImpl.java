@@ -31,6 +31,7 @@ import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.sakaiproject.tool.api.ActiveToolManager;
 import org.sakaiproject.tool.api.Tool;
+import org.sakaiproject.tool.api.ToolManager;
 import org.sakaiproject.util.ResourceLoader;
 
 /**
@@ -47,7 +48,7 @@ public class ToolImpl implements Tool, Comparable
 	protected Tool.AccessSecurity m_accessSecurity = Tool.AccessSecurity.PORTAL;
 
 	/** The tool Manager that possesses the RessourceBundle. */
-	private ActiveToolManager m_activeToolManager = org.sakaiproject.tool.cover.ActiveToolManager.getInstance();
+	private ToolManager m_toolManager;
 
 	/** The set of categories. */
 	protected Set m_categories = new HashSet();
@@ -80,8 +81,9 @@ public class ToolImpl implements Tool, Comparable
 	/**
 	 * Construct
 	 */
-	public ToolImpl()
+	public ToolImpl(ToolManager activeToolManager)
 	{
+		m_toolManager = activeToolManager;
 	}
 
 	/**
@@ -130,7 +132,7 @@ public class ToolImpl implements Tool, Comparable
 	 */
 	public String getDescription()
 	{
-		final String localizedToolDescription = m_activeToolManager.getLocalizedToolProperty(this.getId(), "description");
+		final String localizedToolDescription = m_toolManager.getLocalizedToolProperty(this.getId(), "description");
 
 		if(localizedToolDescription == null)
 		{
@@ -213,11 +215,12 @@ public class ToolImpl implements Tool, Comparable
 	 */
 	public String getTitle()
 	{
-		final String centralToolTitle = m_activeToolManager.getLocalizedToolProperty(this.getId(), "title");
+		final String centralToolTitle = m_toolManager.getLocalizedToolProperty(this.getId(), "title");
 		if (centralToolTitle != null)
 			return centralToolTitle;
 
 		String localizedToolTitle = null;
+		// Titles have extra logic that isn't present for descriptions (WHY WHY WHY)
 		if (m_title_bundle != null)
 		{
 			//	Get the user's current locale preference.

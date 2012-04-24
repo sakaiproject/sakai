@@ -1,0 +1,40 @@
+<?xml version="1.0"?>
+<!-- This is a copy of siteinfo tool registration for testing, with some slight changes.  -->
+<registration>
+
+	<tool
+			id="sakai.siteinfo"
+			title="Site Info"
+			description="For showing worksite information and site participants.">
+
+		<!-- types are seperated by , don't forget to put corresponding type_categories.xml into the reg folder-->
+		<configuration name="siteTypes" value="course,project,portfolio" />
+		<!-- default site type -->
+		<configuration name="defaultSiteType" value="project" />
+		<!-- types of sites that can either be public or private -->
+		<configuration name="publicChangeableSiteTypes" value="project" />
+		<!-- types of sites that are always public -->
+		<configuration name="publicSiteTypes" value="course" />
+		<!-- types of sites that are always private -->
+		<configuration name="privateSiteTypes" value="" />
+
+		<configuration name="site_mode" value="siteinfo" type="final" />
+
+		<category name="course" />
+		<category name="project" />
+		<category name="portfolio" />
+		
+		<keyword name="site" />
+		<keyword name="setup" />
+
+		<!-- It would be good to separate "site.visit" and "site.read" so site.visit controls
+		     visiting the site and site.read controls the right to read site information.
+		     Until that is done, to use this tool in gateway, it is better set this to something 
+                     like annc.read, content.read or some other permission
+		     that the particular role is likely to have so the button appears and disappears properly -->
+
+		<configuration name="functions.require" value="site.visit" /> 
+
+	</tool>
+
+</registration>

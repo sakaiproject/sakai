@@ -47,7 +47,7 @@ import org.apache.commons.lang.StringUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.sakaiproject.authz.api.FunctionManager;
-import org.sakaiproject.component.cover.ServerConfigurationService;
+import org.sakaiproject.component.api.ServerConfigurationService;
 import org.sakaiproject.tool.api.ActiveTool;
 import org.sakaiproject.tool.api.ActiveToolManager;
 import org.sakaiproject.tool.api.Placement;
@@ -55,8 +55,6 @@ import org.sakaiproject.tool.api.SessionManager;
 import org.sakaiproject.tool.api.Tool;
 import org.sakaiproject.tool.api.ToolException;
 import org.sakaiproject.tool.api.ToolSession;
-import org.sakaiproject.util.Resource;
-import org.sakaiproject.util.ResourceLoader;
 import org.sakaiproject.util.Xml;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
@@ -72,16 +70,8 @@ public abstract class ActiveToolComponent extends ToolComponent implements Activ
 {
 	/** Our log (commons). */
 	private static Log M_log = LogFactory.getLog(ActiveToolComponent.class);
-	
-	/** localized tool properties **/
-	private static final String DEFAULT_RESOURCECLASS = "org.sakaiproject.localization.util.ToolProperties";
-	private static final String DEFAULT_RESOURCEBUNDLE = "org.sakaiproject.localization.bundle.tool.tools";
-	private static final String RESOURCECLASS = "resource.class.tool";
-	private static final String RESOURCEBUNDLE = "resource.bundle.tool";
-	private String resourceClass = ServerConfigurationService.getString(RESOURCECLASS, DEFAULT_RESOURCECLASS);
-	private String resourceBundle = ServerConfigurationService.getString(RESOURCEBUNDLE, DEFAULT_RESOURCEBUNDLE);
-	private ResourceLoader loader = new Resource().getLoader(resourceClass, resourceBundle);
-        public static final String TOOL_PORTLET_CONTEXT_PATH = "portlet-context";
+
+	public static final String TOOL_PORTLET_CONTEXT_PATH = "portlet-context";
 
 	// private ResourceLoader toolProps = null;
 
@@ -98,6 +88,11 @@ public abstract class ActiveToolComponent extends ToolComponent implements Activ
 	 * @return the FunctionManager collaborator.
 	 */
 	protected abstract FunctionManager functionManager();
+	
+	/**
+	 * @ the serverConfigurationService() collaborator.
+	 */
+	protected abstract ServerConfigurationService serverConfigurationService();
 
 	/**********************************************************************************************************************************************************************************************************************************************************
 	 * Init and Destroy
@@ -148,7 +143,7 @@ public abstract class ActiveToolComponent extends ToolComponent implements Activ
 		// However Websphere's normal Servlet initialization happens later at com.ibm.ws.wswebcontainer.webapp.WebApp.initialize(WebApp.java:293).
 		// As a result, Websphere ends up trying to initialize the Servlet twice, causing the observed mapping clash exceptions.
 
-		if (!"websphere".equals(ServerConfigurationService.getString("servlet.container")) &&
+		if (!"websphere".equals(serverConfigurationService().getString("servlet.container")) &&
 		    portletContext == null )
 		{
 			// try getting the RequestDispatcher, just to test - but DON'T SAVE IT!
@@ -204,24 +199,7 @@ public abstract class ActiveToolComponent extends ToolComponent implements Activ
 			}
 		}
 	}
-	
-	/**
-	 * Get optional Localized Tool Properties (i.e. tool title, description)
-	 **/
-	public String getLocalizedToolProperty(String toolId, String key) {
-		if (loader == null) {
-			return null;
-		}
-			
-		final String toolProp = loader.getString(toolId + "." + key, "");
-		
-		if (toolProp.length() < 1 || toolProp.equals("")) {
-			return null;
-		}
-		else {
-			return toolProp;
-		}
-	}
+
 	
 	/**
 	 * @inheritDoc
@@ -299,7 +277,7 @@ public abstract class ActiveToolComponent extends ToolComponent implements Activ
 
 	private org.sakaiproject.tool.impl.ToolImpl parseToolRegistration(Element rootElement)
 	{
-		org.sakaiproject.tool.impl.ToolImpl tool = new org.sakaiproject.tool.impl.ToolImpl();
+		org.sakaiproject.tool.impl.ToolImpl tool = new org.sakaiproject.tool.impl.ToolImpl(this);
 		
 		final String toolId = rootElement.getAttribute("id").trim();
 		tool.setId(toolId);
@@ -457,7 +435,7 @@ public abstract class ActiveToolComponent extends ToolComponent implements Activ
 		 */
 		public MyActiveTool()
 		{
-			super();
+			super(ActiveToolComponent.this);
 		}
 
 		public void setServletContext(ServletContext context)
@@ -470,7 +448,7 @@ public abstract class ActiveToolComponent extends ToolComponent implements Activ
 		 */
 		public MyActiveTool(org.sakaiproject.tool.api.Tool t)
 		{
-			super();
+			super(ActiveToolComponent.this);
 			this.m_categories.addAll(t.getCategories());
 			this.m_mutableConfig.putAll(t.getMutableConfig());
 			this.m_finalConfig.putAll(t.getFinalConfig());
@@ -881,7 +859,7 @@ public abstract class ActiveToolComponent extends ToolComponent implements Activ
 				// SAK-13408 - Relative redirections are based on the request URI. This fix addresses the problem 
 				// of Websphere having a different request URI than Tomcat. Instead, the relative URL will be
 				// converted to an absolute URL.
-				if ("websphere".equals(ServerConfigurationService.getString("servlet.container")))
+				if ("websphere".equals(serverConfigurationService().getString("servlet.container")))
 				{
 			    	url = createAbsoluteURL(url);
 				}

@@ -12,7 +12,7 @@
 
 		<lookup-method name="idManager" bean="org.sakaiproject.id.api.IdManager" />
 		<lookup-method name="threadLocalManager" bean="org.sakaiproject.thread_local.api.ThreadLocalManager" />
-		<lookup-method name="toolManager" bean="org.sakaiproject.tool.api.ToolManager"/>
+		<lookup-method name="toolManager" bean="org.sakaiproject.tool.api.ActiveToolManager"/>
 
 		<property name="clusterableTools">
 			<!-- The tool id's should be used for any clusterable tool.  A clusterable tool, is any tool that can 
@@ -61,7 +61,13 @@
 		<lookup-method name="functionManager" bean="org.sakaiproject.authz.api.FunctionManager" />
 		<lookup-method name="threadLocalManager" bean="org.sakaiproject.thread_local.api.ThreadLocalManager" />
 		<lookup-method name="securityService" bean="org.sakaiproject.authz.api.SecurityService" />
-
+		<property name="resourceLoader">
+			<bean factory-bean="org.sakaiproject.tool.impl.ToolResourceFactory" factory-method="createInstance"/>
+		</property>
+	</bean>
+	
+	<bean id="org.sakaiproject.tool.impl.ToolResourceFactory" class="org.sakaiproject.tool.impl.ToolResourceFactory">
+		<lookup-method name="serverConfigurationService" bean="org.sakaiproject.component.api.ServerConfigurationService"/>
 	</bean>
 	
 	<!-- Export active session data over JMX -->
