@@ -96,7 +96,7 @@ public class EmailTemplateLocator implements WriteableBeanLocator {
          
          emailTemplateService.saveTemplate(emailTemplate);
          messages.addMessage( new TargettedMessage("template.saved.message",
-               new Object[] { emailTemplate.getSubject(), emailTemplate.getLocale() }, 
+               new Object[] { emailTemplate.getKey(), emailTemplate.getLocale() }, 
                TargettedMessage.SEVERITY_INFO));
       }
 	   return "success";
