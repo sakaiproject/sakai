@@ -823,8 +823,6 @@ SiteContentAdvisorProvider, SiteContentAdvisorTypeRegistry, EntityTransferrerRef
 			M_log.warn("init(): ", t);
 		}
 
-
-
 		this.m_useSmartSort = m_serverConfigurationService.getBoolean("content.smartSort", true);
 
 	} // init
@@ -4346,8 +4344,19 @@ SiteContentAdvisorProvider, SiteContentAdvisorTypeRegistry, EntityTransferrerRef
 	 */
 	public boolean allowRename(String id, String new_id)
 	{
-		M_log.warn("allowRename(" + id + ") - Rename not implemented");
-		return false;
+	    // check security for remove resource (own or any)
+	    boolean allowed = false;
+        if ( allowRemove(id) ) {
+            // check security for read resource
+            if ( unlockCheck(AUTH_RESOURCE_READ, id) ) {
+                // check security for add resource
+                if ( unlockCheck(AUTH_RESOURCE_ADD, new_id) ) {
+                    allowed = true;
+                }
+            }
+        }
+		if (M_log.isDebugEnabled()) M_log.debug("content allowRename("+id+", "+new_id+") = "+allowed);
+		return allowed;
 
 		// return unlockCheck(AUTH_RESOURCE_ADD, new_id) &&
 		// unlockCheck(AUTH_RESOURCE_REMOVE, id);
@@ -4397,7 +4406,7 @@ SiteContentAdvisorProvider, SiteContentAdvisorTypeRegistry, EntityTransferrerRef
 		ContentResourceEdit thisResource = null;
 		ContentCollectionEdit thisCollection = null;
 
-		if (M_log.isDebugEnabled()) M_log.debug("copy(" + id + "," + new_id + ")");
+		if (M_log.isDebugEnabled()) M_log.debug("rename(" + id + "," + new_id + ")");
 
 		if (m_storage.checkCollection(id))
 		{
@@ -4420,21 +4429,21 @@ SiteContentAdvisorProvider, SiteContentAdvisorTypeRegistry, EntityTransferrerRef
 			throw new IdUnusedException(id);
 		}
 
-		if (isCollection)
-		{
-			new_id = copyCollection(thisCollection, new_id);
-			removeCollection(thisCollection);
-		}
-		else
-		{
-			new_id = copyResource(thisResource, new_id);
-			removeResource(thisResource);
-		}
+	    // makes a copy each time content is renamed
+        if (isCollection) {
+            // NOTE: this does NOT do a deep copy (i.e. the collection is copied but the content is not)
+            new_id = copyCollection(thisCollection, new_id);
+            removeCollection(thisCollection);
+        } else {
+            // rename needs to set referenceCopy
+            new_id = copyResource(thisResource, new_id, true);
+            removeResource(thisResource);
+        }
 		return new_id;
 
 	} // rename
 
-	/**
+    /**
 	 * check permissions for copy().
 	 * 
 	 * @param id
@@ -4833,7 +4842,14 @@ SiteContentAdvisorProvider, SiteContentAdvisorTypeRegistry, EntityTransferrerRef
 			{
 				ContentResourceEdit edit = addResource(new_id);
 				edit.setContentType(thisResource.getContentType());
-				edit.setContent(thisResource.streamContent());
+				// NOTE: we always do a reference copy on a move if we can
+				boolean referenceCopy = false;
+				if (edit instanceof BaseResourceEdit) {
+			        ((BaseResourceEdit)edit).setReferenceCopy(thisResource.getId());
+			        referenceCopy = true;
+				} else {
+	                edit.setContent(thisResource.streamContent());
+				}
 				edit.setResourceType(thisResource.getResourceType());
 				edit.setAvailability(thisResource.isHidden(), thisResource.getReleaseDate(), thisResource.getRetractDate());
 
@@ -4884,7 +4900,8 @@ SiteContentAdvisorProvider, SiteContentAdvisorTypeRegistry, EntityTransferrerRef
 				// TODO - we don't know whether to post a future notification or not 
 				postAvailableEvent(edit, ref, NotificationService.NOTI_NONE);
 
-				m_storage.removeResource(thisResource);
+				// we need to not remove the content if we just did a reference copy above (or remove the content when there was no reference copy)
+				m_storage.removeResource(thisResource, !referenceCopy);
 
 				// track it (no notification)
 				String thisRef = thisResource.getReference(null);
@@ -5020,10 +5037,8 @@ SiteContentAdvisorProvider, SiteContentAdvisorTypeRegistry, EntityTransferrerRef
 	/**
 	 * Copy a resource.
 	 * 
-	 * @param thisResource
-	 *        The resource to be copied
-	 * @param new_id
-	 *        The desired id of the new resource.
+	 * @param resource The resource to be copied
+	 * @param new_id The desired id of the new resource.
 	 * @return The full id of the new copy of the resource.
 	 * @exception PermissionException
 	 *            if the user does not have permissions to read a containing collection, or to remove this resource.
@@ -5043,9 +5058,38 @@ SiteContentAdvisorProvider, SiteContentAdvisorTypeRegistry, EntityTransferrerRef
 	public String copyResource(ContentResource resource, String new_id) throws PermissionException, IdUnusedException,
 	TypeException, InUseException, OverQuotaException, IdUsedException, ServerOverloadException
 	{
+	    return copyResource(resource, new_id, false);
+	}
+
+	/**
+	 * Copy a resource with an option to do a reference copy
+	 * 
+	 * @param resource
+	 * @param new_id
+	 * @param referenceCopy if true, then do not copy the actual content (only make a reference copy which points to it),
+	 *                      if false, then copy like normal (duplicate the content)
+     * @return The full id of the new copy of the resource.
+     * @exception PermissionException
+     *            if the user does not have permissions to read a containing collection, or to remove this resource.
+     * @exception IdUnusedException
+     *            if the resource id is not found.
+     * @exception TypeException
+     *            if the resource is a collection.
+     * @exception InUseException
+     *            if the resource is locked by someone else.
+     * @exception OverQuotaException
+     *            if copying the resource would exceed the quota.
+     * @exception IdUsedException
+     *            if a unique id cannot be found in some arbitrary number of attempts (@see MAXIMUM_ATTEMPTS_FOR_UNIQUENESS).
+     * @exception ServerOverloadException
+     *            if the server is configured to write the resource body to the filesystem and the save fails.
+	 */
+	protected String copyResource(ContentResource resource, String new_id, boolean referenceCopy) throws PermissionException, IdUnusedException,
+    TypeException, InUseException, OverQuotaException, IdUsedException, ServerOverloadException
+    {
 		if (M_log.isDebugEnabled())
 		{
-			M_log.debug("copyResource: " + resource.getId() + " to " + new_id);
+			M_log.debug("copyResource: " + resource.getId() + " to " + new_id + ", reference="+referenceCopy);
 		}
 		
         if (StringUtils.isBlank(new_id)) {
@@ -5084,11 +5128,19 @@ SiteContentAdvisorProvider, SiteContentAdvisorTypeRegistry, EntityTransferrerRef
 			try
 			{
 				edit = addResource(new_id);
+				// this duplicates a lot of the code from BaseResourceEdit.set()
 				edit.setContentType(resource.getContentType());
 
-				// use stream instead of byte array
-				// edit.setContent(resource.getContent());
-				edit.setContent(resource.streamContent());
+				if (referenceCopy && edit instanceof BaseResourceEdit) {
+				    // do a reference copy so the actual content is not duplicated
+				    ((BaseResourceEdit)edit).setReferenceCopy(resource.getId());
+                    if (M_log.isDebugEnabled()) M_log.debug("copyResource doing a reference copy of "+resource.getId());
+				} else {
+	                // use stream instead of byte array
+	                // edit.setContent(resource.getContent());
+	                edit.setContent(resource.streamContent());
+                    if (M_log.isDebugEnabled()) M_log.debug("copyResource doing a normal copy");
+				}
 
 				edit.setResourceType(resource.getResourceType());
 				ResourcePropertiesEdit newProps = edit.getPropertiesEdit();
@@ -5154,7 +5206,7 @@ SiteContentAdvisorProvider, SiteContentAdvisorTypeRegistry, EntityTransferrerRef
 	 *        The desired id of the new collection.
 	 * @return The full id of the new copy of the resource.
 	 * @exception PermissionException
-	 *            if the user does not have permissions to perform the operations
+	 *            if the user does not have permissions to perform the operations OR the collection has members in it
 	 * @exception IdUnusedException
 	 *            if the collection id is not found.
 	 * @exception TypeException
@@ -5211,7 +5263,9 @@ SiteContentAdvisorProvider, SiteContentAdvisorTypeRegistry, EntityTransferrerRef
 	} // copyCollection
 
 	/**
-	 * Make a deep copy of a collection. Creates a new collection with an id similar to new_folder_id and recursively copies all nested collections and resources within thisCollection to the new collection.
+	 * Make a deep copy of a collection. 
+	 * Creates a new collection with an id similar to new_folder_id and recursively copies all nested collections and resources within thisCollection to the new collection.
+	 * Only used in "copyIntoFolder" for now
 	 * 
 	 * @param thisCollection
 	 *        The collection to be copied
@@ -11254,6 +11308,24 @@ SiteContentAdvisorProvider, SiteContentAdvisorTypeRegistry, EntityTransferrerRef
 		protected String m_oldDisplayName = null;
 
 		/**
+		 * Indicates this resource is a reference copy of an existing resource,
+		 * this id will be the resource it is a copy of
+		 */
+		protected String referenceCopy = null;
+        /**
+         * Indicates this resource is a reference copy of an existing resource,
+         * this id will be the resource it is a copy of
+         * WARNING: this will null out the content values (stream and body)
+		 * 
+		 * @param referenceCopy the id of the resource this is a copy of
+		 */
+        public void setReferenceCopy(String referenceCopy) {
+            this.referenceCopy = referenceCopy;
+            this.m_contentStream = null;
+            this.m_body = null;
+        }
+
+		/**
 		 * Construct.
 		 * 
 		 * @param id
@@ -11287,6 +11359,10 @@ SiteContentAdvisorProvider, SiteContentAdvisorTypeRegistry, EntityTransferrerRef
 			set(other);
 		} // BaseResourceEdit
 
+		public BaseResourceEdit(ContentResource other, boolean reference) {
+		    set(other, reference);
+		} // BaseResourceEdit
+
 		/**
 		 * Set the file path for this resource
 		 * 
@@ -11309,13 +11385,22 @@ SiteContentAdvisorProvider, SiteContentAdvisorTypeRegistry, EntityTransferrerRef
 		}
 
 		/**
-		 * Take all values from this object.
+		 * Take all values from this object
 		 * 
-		 * @param user
+		 * @param other
 		 *        The other object to take values from.
 		 */
-		protected void set(ContentResource other)
-		{
+		protected void set(ContentResource other) {
+		    set(other, false);
+		}
+
+		/**
+		 * Set the values in this edit to equal the values in the passing object
+		 * 
+		 * @param other the object to take values from.
+		 * @param reference if true then make a reference copy (i.e. do not duplicate the actual 
+		 */
+        protected void set(ContentResource other, boolean reference) {
 			m_id = other.getId();
 			m_contentType = other.getContentType();
 			m_contentLength = other.getContentLength();
@@ -11323,19 +11408,28 @@ SiteContentAdvisorProvider, SiteContentAdvisorTypeRegistry, EntityTransferrerRef
 			chh = other.getContentHandler();
 			chh_vce = other.getVirtualContentEntity();
 
-			this.m_contentStream = ((BaseResourceEdit) other).m_contentStream;
+			if (reference && other.getId() != null) {
+			    // populate the reference copy key, skip populating the actual content
+			    this.referenceCopy = other.getId();
+			    this.m_contentStream = null;
+			    this.m_body = null;
+			} else {
+                // copy the actual content
+			    this.referenceCopy = null;
+                this.m_contentStream = ((BaseResourceEdit) other).m_contentStream;
+
+                // if there's a body in the other, reference it, else leave this one null
+                // Note: this treats the body byte array as immutable, so to update it one
+                // *must* call setContent() not just getContent and mess with the bytes. -ggolden
+                byte[] content = ((BaseResourceEdit) other).m_body;
+                if (content != null)
+                {
+                    m_contentLength = content.length;
+                    m_body = content;
+                }
+			}
 
 			m_filePath = ((BaseResourceEdit) other).m_filePath;
-
-			// if there's a body in the other, reference it, else leave this one null
-			// Note: this treats the body byte array as immutable, so to update it one
-			// *must* call setContent() not just getContent and mess with the bytes. -ggolden
-			byte[] content = ((BaseResourceEdit) other).m_body;
-			if (content != null)
-			{
-				m_contentLength = content.length;
-				m_body = content;
-			}
 
 			// copy other's access mode and list of groups
 			m_access = other.getAccess();
@@ -12545,9 +12639,19 @@ SiteContentAdvisorProvider, SiteContentAdvisorTypeRegistry, EntityTransferrerRef
 		public void cancelResource(ContentResourceEdit edit);
 
 		/**
-		 * Forget about a resource.
+		 * Forget about a resource (and associated content).
+		 * 
+		 * @param resource the resource to remove
 		 */
 		public void removeResource(ContentResourceEdit resource);
+
+		/**
+         * Forget about a resource with the option to leave the content in place
+		 * 
+         * @param resource the resource to remove
+		 * @param removeContent if true, then also remove the content
+		 */
+		public void removeResource(ContentResourceEdit resource, boolean removeContent);
 
 		/**
 		 * Read the resource's body.
