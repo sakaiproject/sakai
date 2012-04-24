@@ -27,6 +27,7 @@ package org.sakaiproject.service.gradebook.shared;
  * so that learners are not shown activities in which they cannot participate.
  * 
  * https://jira.sakaiproject.org/browse/SAK-19668
+ * @since 2.9.0
  */
 public interface ExternalAssignmentProvider {
 
