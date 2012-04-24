@@ -344,8 +344,13 @@ public class BaseSitePage implements SitePage, Identifiable
 	 */
 	public String getTitle()
 	{
+		
+		// Custom page/tool titles are not localized (e.g. News, Web Content)
+		if ( getTitleCustom() )
+			return m_title;
+		
 		// check for special home page tool id
-		if (	getProperties().get(IS_HOME_PAGE) != null )
+		if (getProperties().get(IS_HOME_PAGE) != null )
 		{
 			 String title = ActiveToolManager.getLocalizedToolProperty(HOME_TOOL_ID, "title");
 			 if ( title != null )
@@ -354,26 +359,20 @@ public class BaseSitePage implements SitePage, Identifiable
 				 return m_title;
 		}
 			
-		// if	 more than one tool on this page, just return the default page title
-		else if ( getTools().size() != 1 )
+		// if more than one tool on this page, just return the default page title
+		if ( getTools().size() != 1 )
 		{
 			return m_title;
 		}
 			
 		// Get the toolId of the first tool associated with this page
 		String toolId = ((BaseToolConfiguration) (getTools().get(0))).getToolId();
-		
-		// Custom page/tool titles are not localized (e.g. News, Web Content)
-		if ( getTitleCustom() )
-			return m_title;
-			
+
 		// otherwise, return attempt to return a localized title
-		else {
-            Tool localTool = ActiveToolManager.getTool(toolId);
-            if (localTool != null) {
-            	return ActiveToolManager.getTool(toolId).getTitle();
-            }
-        }
+		Tool localTool = ActiveToolManager.getTool(toolId);
+		if (localTool != null) {
+			return localTool.getTitle();
+		}
 
         //If all this fails, return something
         if (M_log.isDebugEnabled()) M_log.debug("Returning default m_title:" + m_title + " for toolId:" + toolId);
@@ -550,14 +549,14 @@ public class BaseSitePage implements SitePage, Identifiable
 	{
 		if ( ! ServerConfigurationService.getBoolean("legacyPageTitleCustom", true) )
 			return false;
-      
-		// Get the toolId of the first tool associated with this page
-		String toolId = ((BaseToolConfiguration) (getTools().get(0))).getToolId();
-      
-		if ( "sakai.iframe".equals(toolId) || "sakai.news".equals(toolId) || "sakai.rutgers.linktool".equals(toolId) )
-			return true;
-		else
-			return false;
+
+		// Get the toolId of the first tool associated with this page, making sure it's not the home page.
+		if (getTools().size() > 0 && getProperties().getProperty(IS_HOME_PAGE) == null)
+		{
+			String toolId = ( (BaseToolConfiguration) (getTools().get(0))).getToolId();
+			return  "sakai.iframe".equals(toolId) || "sakai.news".equals(toolId) || "sakai.rutgers.linktool".equals(toolId);
+		}
+		return false;
 	}
    
 	/**
