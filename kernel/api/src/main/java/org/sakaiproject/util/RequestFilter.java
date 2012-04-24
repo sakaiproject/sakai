@@ -188,7 +188,7 @@ public class RequestFilter implements Filter
 	/** Key in the ThreadLocalManager for binding our http session preference. */
 	protected final static String CURRENT_HTTP_SESSION = "org.sakaiproject.util.RequestFilter.http_session";
 
-	/** Key in the ThreadLocalManager for binding our context id. */
+	/** Key in the ThreadLocalManager for binding our context id. The servlet context is stored against this. */
 	protected final static String CURRENT_CONTEXT = "org.sakaiproject.util.RequestFilter.context";
 
 	/** Key in the ThreadLocalManager for access to the current http request object. */
@@ -814,6 +814,7 @@ public class RequestFilter implements Filter
 		}
 		else
 		{
+			// This is a little confusing as we're taking a display name and using it as an ID.
 			m_contextId = m_servletContext.getServletContextName();
 			if (m_contextId == null)
 			{
