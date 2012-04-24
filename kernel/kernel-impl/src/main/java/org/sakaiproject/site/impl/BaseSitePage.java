@@ -31,16 +31,12 @@ import java.util.Vector;
 import org.apache.commons.lang.StringUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
-import org.sakaiproject.component.cover.ServerConfigurationService;
 import org.sakaiproject.entity.api.ResourceProperties;
 import org.sakaiproject.entity.api.ResourcePropertiesEdit;
-import org.sakaiproject.id.cover.IdManager;
 import org.sakaiproject.site.api.Site;
 import org.sakaiproject.site.api.SitePage;
 import org.sakaiproject.site.api.ToolConfiguration;
-import org.sakaiproject.site.cover.SiteService;
 import org.sakaiproject.tool.api.Tool;
-import org.sakaiproject.tool.cover.ActiveToolManager;
 import org.sakaiproject.util.BaseResourceProperties;
 import org.sakaiproject.util.BaseResourcePropertiesEdit;
 import org.w3c.dom.Document;
@@ -106,7 +102,7 @@ public class BaseSitePage implements SitePage, Identifiable
 	{
 		this.siteService = siteService;
 		m_site = site;
-		m_id = IdManager.createUuid();
+		m_id = siteService.idManager().createUuid();
 		m_properties = new BaseResourcePropertiesEdit();
 		m_tools = new ResourceVector();
 	}
@@ -226,7 +222,7 @@ public class BaseSitePage implements SitePage, Identifiable
 		}
 		else
 		{
-			m_id = IdManager.createUuid();
+			m_id = siteService.idManager().createUuid();
 		}
 		m_title = bOther.m_title;
 		m_layout = bOther.m_layout;
@@ -352,7 +348,7 @@ public class BaseSitePage implements SitePage, Identifiable
 		// check for special home page tool id
 		if (getProperties().get(IS_HOME_PAGE) != null )
 		{
-			 String title = ActiveToolManager.getLocalizedToolProperty(HOME_TOOL_ID, "title");
+			 String title = siteService.activeToolManager().getLocalizedToolProperty(HOME_TOOL_ID, "title");
 			 if ( title != null )
 				 return title;
 			 else
@@ -369,7 +365,7 @@ public class BaseSitePage implements SitePage, Identifiable
 		String toolId = ((BaseToolConfiguration) (getTools().get(0))).getToolId();
 
 		// otherwise, return attempt to return a localized title
-		Tool localTool = ActiveToolManager.getTool(toolId);
+		Tool localTool = siteService.activeToolManager().getTool(toolId);
 		if (localTool != null) {
 			return localTool.getTitle();
 		}
@@ -428,7 +424,7 @@ public class BaseSitePage implements SitePage, Identifiable
 	 */
 	public String getLayoutTitle()
 	{
-		return ((BaseSiteService) (SiteService.getInstance())).getLayoutNames()[m_layout];
+		return siteService.getLayoutNames()[m_layout];
 	}
 
 	/**
@@ -438,7 +434,7 @@ public class BaseSitePage implements SitePage, Identifiable
 	{
 		if (m_toolsLazy)
 		{
-			((BaseSiteService) (SiteService.getInstance())).m_storage.readPageTools(this,
+			siteService.storage().readPageTools(this,
 					m_tools);
 			m_toolsLazy = false;
 		}
@@ -547,7 +543,7 @@ public class BaseSitePage implements SitePage, Identifiable
 	 **/	 
 	private boolean getTitleCustomLegacy()
 	{
-		if ( ! ServerConfigurationService.getBoolean("legacyPageTitleCustom", true) )
+		if ( ! siteService.serverConfigurationService().getBoolean("legacyPageTitleCustom", true) )
 			return false;
 
 		// Get the toolId of the first tool associated with this page, making sure it's not the home page.
@@ -677,7 +673,7 @@ public class BaseSitePage implements SitePage, Identifiable
 	{
 		String defaultCategory = null;
 		if (m_site != null) {
-			Map<String, String> toolCategories = ServerConfigurationService
+			Map<String, String> toolCategories = siteService.serverConfigurationService()
 					.getToolToCategoryMap(m_site.getType());
 			defaultCategory = toolCategories.get(toolId);
 		}
@@ -703,8 +699,7 @@ public class BaseSitePage implements SitePage, Identifiable
 	{
 		if (((BaseResourceProperties) m_properties).isLazy())
 		{
-			((BaseSiteService) (SiteService.getInstance())).m_storage.readPageProperties(
-					this, m_properties);
+			siteService.storage().readPageProperties(this, m_properties);
 			((BaseResourcePropertiesEdit) m_properties).setLazy(false);
 		}
 
@@ -743,16 +738,12 @@ public class BaseSitePage implements SitePage, Identifiable
 		String rv = null;
 		if (m_site == null)
 		{
-			rv = ((BaseSiteService) (SiteService.getInstance()))
-					.serverConfigurationService().getPortalUrl()
-					+ ((BaseSiteService) (SiteService.getInstance())).sitePageReference(
-							m_siteId, m_id);
+			rv = siteService.serverConfigurationService().getPortalUrl()
+					+ siteService.sitePageReference(m_siteId, m_id);
 		} else {
 
-			rv = ((BaseSiteService) (SiteService.getInstance())).serverConfigurationService()
-				.getPortalUrl()
-				+ ((BaseSiteService) (SiteService.getInstance())).sitePageReference(
-						m_site.getId(), m_id);
+			rv = siteService.serverConfigurationService().getPortalUrl()
+				+ siteService.sitePageReference(m_site.getId(), m_id);
 		}
 		return rv;
 	}
@@ -764,12 +755,10 @@ public class BaseSitePage implements SitePage, Identifiable
 	{
 		if (m_site == null)
 		{
-			return ((BaseSiteService) (SiteService.getInstance())).sitePageReference(
-					m_siteId, m_id);
+			return siteService.sitePageReference(m_siteId, m_id);
 		}
 
-		return ((BaseSiteService) (SiteService.getInstance())).sitePageReference(m_site
-				.getId(), m_id);
+		return siteService.sitePageReference(m_site.getId(), m_id);
 	}
 
 	/**
@@ -811,8 +800,7 @@ public class BaseSitePage implements SitePage, Identifiable
 	{
 		if (((BaseResourceProperties) m_properties).isLazy())
 		{
-			((BaseSiteService) (SiteService.getInstance())).m_storage.readPageProperties(
-					this, m_properties);
+			siteService.storage().readPageProperties(this, m_properties);
 			((BaseResourcePropertiesEdit) m_properties).setLazy(false);
 		}
 

@@ -33,14 +33,11 @@ import org.sakaiproject.authz.api.GroupNotDefinedException;
 import org.sakaiproject.authz.api.Member;
 import org.sakaiproject.authz.api.Role;
 import org.sakaiproject.authz.api.RoleAlreadyDefinedException;
-import org.sakaiproject.authz.cover.AuthzGroupService;
 import org.sakaiproject.entity.api.ResourceProperties;
 import org.sakaiproject.entity.api.ResourcePropertiesEdit;
 import org.sakaiproject.exception.IdUsedException;
-import org.sakaiproject.id.cover.IdManager;
 import org.sakaiproject.site.api.Group;
 import org.sakaiproject.site.api.Site;
-import org.sakaiproject.site.cover.SiteService;
 import org.sakaiproject.time.api.Time;
 import org.sakaiproject.user.api.User;
 import org.sakaiproject.util.BaseResourceProperties;
@@ -97,7 +94,7 @@ public class BaseGroup implements Group, Identifiable
 		if (site == null) M_log.warn("BaseGroup(site) created with null site");
 
 		m_site = site;
-		m_id = IdManager.createUuid();
+		m_id = siteService.idManager().createUuid();
 		m_properties = new BaseResourcePropertiesEdit();
 	}
 
@@ -138,7 +135,7 @@ public class BaseGroup implements Group, Identifiable
 		}
 		else
 		{
-			m_id = IdManager.createUuid();
+			m_id = siteService.idManager().createUuid();
 		}
 
 		m_title = bOther.m_title;
@@ -328,7 +325,7 @@ public class BaseGroup implements Group, Identifiable
 		{
 			try
 			{
-				m_azg = AuthzGroupService.getAuthzGroup(getReference());
+				m_azg = siteService.authzGroupService().getAuthzGroup(getReference());
 			}
 			catch (GroupNotDefinedException e)
 			{
@@ -342,21 +339,21 @@ public class BaseGroup implements Group, Identifiable
 					AuthzGroup template = null;
 					try
 					{
-						template = AuthzGroupService.getAuthzGroup(groupAzgTemplate);
+						template = siteService.authzGroupService().getAuthzGroup(groupAzgTemplate);
 					}
 					catch (Exception e1)
 					{
 						try
 						{
 							// if the template is not defined, try the fall back template
-							template = AuthzGroupService.getAuthzGroup("!group.template");
+							template = siteService.authzGroupService().getAuthzGroup("!group.template");
 						}
 						catch (Exception e2)
 						{
 						}
 					}
 
-					m_azg = AuthzGroupService.newAuthzGroup(getReference(), template, null);
+					m_azg = siteService.authzGroupService().newAuthzGroup(getReference(), template, null);
 					m_azgChanged = true;
 					
 					if (m_site != null)

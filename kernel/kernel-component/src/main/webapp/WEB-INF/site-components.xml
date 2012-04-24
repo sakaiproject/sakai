@@ -27,6 +27,8 @@
 		<lookup-method name="memoryService" bean="org.sakaiproject.memory.api.MemoryService" />
 		<lookup-method name="userDirectoryService" bean="org.sakaiproject.user.api.UserDirectoryService" />
 		<lookup-method name="authzGroupService" bean="org.sakaiproject.authz.api.AuthzGroupService" />
+		<lookup-method name="activeToolManager" bean="org.sakaiproject.tool.api.ActiveToolManager" />
+		<lookup-method name="idManager" bean="org.sakaiproject.id.api.IdManager" />
 
  		<property name="autoDdl"><value>${auto.ddl}</value></property>
         <property name="databaseBeans">

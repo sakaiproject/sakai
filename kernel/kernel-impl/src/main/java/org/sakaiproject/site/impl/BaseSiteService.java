@@ -65,6 +65,7 @@ import org.sakaiproject.exception.IdInvalidException;
 import org.sakaiproject.exception.IdUnusedException;
 import org.sakaiproject.exception.IdUsedException;
 import org.sakaiproject.exception.PermissionException;
+import org.sakaiproject.id.api.IdManager;
 import org.sakaiproject.javax.PagingPosition;
 import org.sakaiproject.memory.api.MemoryService;
 import org.sakaiproject.site.api.Group;
@@ -76,6 +77,7 @@ import org.sakaiproject.site.api.ToolConfiguration;
 import org.sakaiproject.thread_local.api.ThreadLocalManager;
 import org.sakaiproject.time.api.Time;
 import org.sakaiproject.time.api.TimeService;
+import org.sakaiproject.tool.api.ActiveToolManager;
 import org.sakaiproject.tool.api.SessionManager;
 import org.sakaiproject.user.api.User;
 import org.sakaiproject.user.api.UserDirectoryService;
@@ -123,7 +125,7 @@ public abstract class BaseSiteService implements SiteService
 	// protected ResourceLoader rb = new ResourceLoader("site-impl");
 
 	/** Storage manager for this service. */
-	protected Storage m_storage = null;
+	private Storage m_storage = null;
 
 	/** The initial portion of a relative access point URL. */
 	protected String m_relativeAccessPoint = null;
@@ -298,15 +300,15 @@ public abstract class BaseSiteService implements SiteService
 	 */
 	protected void regenerateAllSiteIds()
 	{
-		List<Site> sites = m_storage.getAll();
+		List<Site> sites = storage().getAll();
 		for (Iterator<Site> iSites = sites.iterator(); iSites.hasNext();)
 		{
 			Site site = (Site) iSites.next();
 			if (site != null)
 			{
-				Site edit = m_storage.get(site.getId());
+				Site edit = storage().get(site.getId());
 				edit.regenerateIds();
-				m_storage.save(edit);
+				storage().save(edit);
 
 				M_log.info("regenerateAllSiteIds: site: " + site.getId());
 			}
@@ -421,6 +423,16 @@ public abstract class BaseSiteService implements SiteService
 	 * @return the AuthzGroupService collaborator.
 	 */
 	protected abstract AuthzGroupService authzGroupService();
+	
+	/**
+	 * @return the ActiveToolManager collaborator.
+	 */
+	protected abstract ActiveToolManager activeToolManager();
+	
+	/**
+	 * @return the IdManager collaborator.
+	 */
+	protected abstract IdManager idManager();
 
 	/**********************************************************************************************************************************************************************************************************************************************************
 	 * Init and Destroy
@@ -444,7 +456,7 @@ public abstract class BaseSiteService implements SiteService
 
 			// construct storage and read
 			m_storage = newStorage();
-			m_storage.open();
+			storage().open();
 
 			if (m_regenerateIds)
 			{
@@ -490,7 +502,7 @@ public abstract class BaseSiteService implements SiteService
 	 */
 	public void destroy()
 	{
-		m_storage.close();
+		storage().close();
 		m_storage = null;
 
 		M_log.info("destroy()");
@@ -612,7 +624,7 @@ public abstract class BaseSiteService implements SiteService
 		Site rv = getCachedSite(id);
 		if ( rv != null ) return rv;
 
-		rv = m_storage.get(id);
+		rv = storage().get(id);
 
 		// if not found
 		if (rv == null) throw new IdUnusedException(id);
@@ -662,7 +674,7 @@ public abstract class BaseSiteService implements SiteService
 			}
 
 			// check the exists cache
-			if (m_storage.check(id))
+			if (storage().check(id))
 			{
 				// cache it
 				if (m_siteCache != null)
@@ -730,7 +742,7 @@ public abstract class BaseSiteService implements SiteService
 					unlock(SECURE_ADD_USER_SITE, siteReference(id));
 
 					// reserve a site with this id from the info store - if it's in use, this will return null
-					BaseSite site = (BaseSite) m_storage.put(id);
+					BaseSite site = (BaseSite) storage().put(id);
 					if (site == null)
 					{
 						throw new IdUsedException(id);
@@ -832,7 +844,7 @@ public abstract class BaseSiteService implements SiteService
 		}
 
 		// check for existance
-		if (!m_storage.check(site.getId()))
+		if (!storage().check(site.getId()))
 		{
 			throw new IdUnusedException(site.getId());
 		}
@@ -852,7 +864,7 @@ public abstract class BaseSiteService implements SiteService
 		unlock2(SECURE_UPDATE_SITE_MEMBERSHIP, SECURE_UPDATE_SITE, site.getReference());
 
 		// check for existance
-		if (!m_storage.check(site.getId()))
+		if (!storage().check(site.getId()))
 		{
 			throw new IdUnusedException(site.getId());
 		}
@@ -882,7 +894,7 @@ public abstract class BaseSiteService implements SiteService
 		unlock2(SECURE_UPDATE_GROUP_MEMBERSHIP, SECURE_UPDATE_SITE, site.getReference());
 
 		// check for existance
-		if (!m_storage.check(site.getId()))
+		if (!storage().check(site.getId()))
 		{
 			throw new IdUnusedException(site.getId());
 		}
@@ -923,7 +935,7 @@ public abstract class BaseSiteService implements SiteService
 		}
 
 		// complete the edit
-		m_storage.save(site);
+		storage().save(site);
 
 		// save any modified azgs
 		try
@@ -1038,12 +1050,12 @@ public abstract class BaseSiteService implements SiteService
 		unlock(SECURE_UPDATE_SITE, ref);
 
 		// check for existance
-		if (!m_storage.check(id))
+		if (!storage().check(id))
 		{
 			throw new IdUnusedException(id);
 		}
 
-		m_storage.saveInfo(id, description, infoUrl);
+		storage().saveInfo(id, description, infoUrl);
 	}
 
 	/**
@@ -1136,7 +1148,7 @@ public abstract class BaseSiteService implements SiteService
 		}
 
 		// reserve a site with this id from the info store - if it's in use, this will return null
-		Site site = m_storage.put(id);
+		Site site = storage().put(id);
 		if (site == null)
 		{
 			throw new IdUsedException(id);
@@ -1188,7 +1200,7 @@ public abstract class BaseSiteService implements SiteService
 		}
 
 		// reserve a site with this id from the info store - if it's in use, this will return null
-		Site site = m_storage.put(id);
+		Site site = storage().put(id);
 		if (site == null)
 		{
 			throw new IdUsedException(id);
@@ -1255,7 +1267,7 @@ public abstract class BaseSiteService implements SiteService
 		}
 		
 		// complete the edit
-		m_storage.remove(site);
+		storage().remove(site);
 
 		// track it
 		eventTrackingService().post(eventTrackingService().newEvent(SECURE_REMOVE_SITE, site.getReference(), true));
@@ -1450,7 +1462,7 @@ public abstract class BaseSiteService implements SiteService
 			}
 
 			// if not, get the tool's site id, cache the site, and try again
-			String siteId = m_storage.findToolSiteId(id);
+			String siteId = storage().findToolSiteId(id);
 			if (siteId != null)
 			{
 				// read and cache the site, pages, tools, etc.
@@ -1471,7 +1483,7 @@ public abstract class BaseSiteService implements SiteService
 			return null;
 		}
 
-		rv = m_storage.findTool(id);
+		rv = storage().findTool(id);
 
 		return rv;
 	}
@@ -1497,7 +1509,7 @@ public abstract class BaseSiteService implements SiteService
 			}
 
 			// if not, get the page's site id, cache the site, and try again
-			String siteId = m_storage.findPageSiteId(id);
+			String siteId = storage().findPageSiteId(id);
 			if (siteId != null)
 			{
 				// read and cache the site, pages, tools
@@ -1517,7 +1529,7 @@ public abstract class BaseSiteService implements SiteService
 			return null;
 		}
 
-		rv = m_storage.findPage(id);
+		rv = storage().findPage(id);
 
 		return rv;
 	}
@@ -1663,7 +1675,7 @@ public abstract class BaseSiteService implements SiteService
 			return adjustSkin(null, true);
 		}
 
-		rv = m_storage.getSiteSkin(id);
+		rv = storage().getSiteSkin(id);
 
 		return rv;
 	}
@@ -1673,7 +1685,7 @@ public abstract class BaseSiteService implements SiteService
 	 */
 	public List<String> getSiteTypes()
 	{
-		return m_storage.getSiteTypes();
+		return storage().getSiteTypes();
 	}
 
 	/**
@@ -1682,14 +1694,14 @@ public abstract class BaseSiteService implements SiteService
 	public List<Site> getSites(SelectionType type, Object ofType, String criteria, Map propertyCriteria, SortType sort,
 			PagingPosition page)
 	{
-		return m_storage.getSites(type, ofType, criteria, propertyCriteria, sort, page);
+		return storage().getSites(type, ofType, criteria, propertyCriteria, sort, page);
 	}
 	
 	/**
 	 * @inheritDoc
 	 */
 	public List<Site> getSoftlyDeletedSites() {
-		return m_storage.getSoftlyDeletedSites();
+		return storage().getSoftlyDeletedSites();
 	}
 
 	/**
@@ -1697,7 +1709,7 @@ public abstract class BaseSiteService implements SiteService
 	 */
 	public int countSites(SelectionType type, Object ofType, String criteria, Map propertyCriteria)
 	{
-		return m_storage.countSites(type, ofType, criteria, propertyCriteria);
+		return storage().countSites(type, ofType, criteria, propertyCriteria);
 	}
 
 	/**
@@ -1705,7 +1717,7 @@ public abstract class BaseSiteService implements SiteService
 	 */
 	public void setSiteSecurity(String siteId, Set updateUsers, Set visitUnpUsers, Set visitUsers)
 	{
-		m_storage.setSiteSecurity(siteId, updateUsers, visitUnpUsers, visitUsers);
+		storage().setSiteSecurity(siteId, updateUsers, visitUnpUsers, visitUsers);
 
 		// the site's azg may have just been updated, so enforce site group subset membership
 		enforceGroupSubMembership(siteId);
@@ -1771,7 +1783,7 @@ public abstract class BaseSiteService implements SiteService
 			visitUnpSites.remove(id);
 			visitSites.remove(id);		}
 		
-		m_storage.setUserSecurity(userId, updateSites, visitUnpSites, visitSites);
+		storage().setUserSecurity(userId, updateSites, visitUnpSites, visitSites);
 	}
 
 	/**********************************************************************************************************************************************************************************************************************************************************
@@ -2668,7 +2680,7 @@ public abstract class BaseSiteService implements SiteService
 				unlock(SECURE_ADD_USER_SITE, siteReference(siteId));
 
 				// reserve a site with this id from the info store - if it's in use, this will return null
-				BaseSite site = (BaseSite) m_storage.put(siteId);
+				BaseSite site = (BaseSite) storage().put(siteId);
 				if (site == null)
 				{
 					msg.append(this + "cannot find site: " + siteId);
@@ -2757,7 +2769,7 @@ public abstract class BaseSiteService implements SiteService
 			// if we don't have it yet, get the group's site, and the group from there
 			if (rv == null)
 			{
-				String siteId = m_storage.findGroupSiteId(refOrId);
+				String siteId = storage().findGroupSiteId(refOrId);
 				if (siteId != null)
 				{
 					try
@@ -2847,4 +2859,9 @@ public abstract class BaseSiteService implements SiteService
 	{
 		return siteAdvisors.remove(siteAdvisor);
 	}
+
+	protected Storage storage() {
+		return m_storage;
+	}
+
 }

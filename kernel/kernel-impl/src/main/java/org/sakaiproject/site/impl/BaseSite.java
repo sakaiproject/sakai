@@ -668,7 +668,7 @@ public class BaseSite implements Site
 		// if lazy, resolve
 		if (((BaseResourceProperties) m_properties).isLazy())
 		{
-			siteService.m_storage.readSiteProperties(
+			siteService.storage().readSiteProperties(
 					this, m_properties);
 			((BaseResourcePropertiesEdit) m_properties).setLazy(false);
 		}
@@ -832,7 +832,7 @@ public class BaseSite implements Site
 	{
 		if (m_pagesLazy)
 		{
-			siteService.m_storage.readSitePages(this,
+			siteService.storage().readSitePages(this,
 					m_pages);
 			m_pagesLazy = false;
 		}
@@ -847,7 +847,7 @@ public class BaseSite implements Site
 	{
 		if (m_groupsLazy)
 		{
-			siteService.m_storage.readSiteGroups(
+			siteService.storage().readSiteGroups(
 					this, m_groups);
 			m_groupsLazy = false;
 		}
@@ -941,7 +941,7 @@ public class BaseSite implements Site
 		getPages();
 
 		// KNL-259 - Avoiding single-page fetch of properties by way of BaseToolConfiguration constructor
-		siteService.m_storage.readSitePageProperties(this);
+		siteService.storage().readSitePageProperties(this);
 		for (Iterator i = getPages().iterator(); i.hasNext();)
 		{
 			BaseSitePage page = (BaseSitePage) i.next();
@@ -949,13 +949,13 @@ public class BaseSite implements Site
 		}
 
 		// next, tools from all pages, all at once
-		siteService.m_storage.readSiteTools(this);
+		siteService.storage().readSiteTools(this);
 
 		// get groups, all at once
 		getGroups();
 
 		// now all properties
-		siteService.m_storage
+		siteService.storage()
 				.readAllSiteProperties(this);
 	}
 
@@ -1393,7 +1393,7 @@ public class BaseSite implements Site
 		// if lazy, resolve
 		if (((BaseResourceProperties) m_properties).isLazy())
 		{
-			siteService.m_storage.readSiteProperties(
+			siteService.storage().readSiteProperties(
 					this, m_properties);
 			((BaseResourcePropertiesEdit) m_properties).setLazy(false);
 		}
