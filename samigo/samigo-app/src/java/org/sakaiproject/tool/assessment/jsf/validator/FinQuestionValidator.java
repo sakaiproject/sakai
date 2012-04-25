@@ -101,7 +101,7 @@ public class FinQuestionValidator implements Validator {
 		boolean isReal = true;
 		try {
 			// Number has decimal format? If no, Exception is throw
-			BigDecimal decimal = new BigDecimal(value);
+			new BigDecimal(value);
 			
 		} catch (Exception e) {
 			isReal = false;

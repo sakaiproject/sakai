@@ -250,7 +250,6 @@ public class AudioRecorder extends JPanel implements ActionListener,
 	}
 
 	private JPanel makeSaveTFPanel() {
-		FlowLayout flow = new FlowLayout();
 		SpringLayout spring = new SpringLayout();
 		JPanel saveTFpanel = new JPanel(spring);
 		JLabel flabel = new JLabel(res.getString("current_recordig_length"),

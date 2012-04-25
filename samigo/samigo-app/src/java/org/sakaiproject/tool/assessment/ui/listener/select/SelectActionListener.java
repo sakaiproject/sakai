@@ -348,7 +348,6 @@ public class SelectActionListener
 	}
     
     /// --mustansar
-    GradingService service = new GradingService();
     ArrayList reviewableList=new ArrayList();
     ArrayList recordedList=new ArrayList();
     Iterator it=submittedAssessmentGradingList.iterator();

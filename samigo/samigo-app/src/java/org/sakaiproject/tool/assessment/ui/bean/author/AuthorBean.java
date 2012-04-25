@@ -666,7 +666,6 @@ public class AuthorBean implements Serializable
   {
 
 	  pendingActionList1 = new ArrayList<SelectItem>();
-	  ResourceLoader res = new ResourceLoader("org.sakaiproject.tool.assessment.bundle.AuthorMessages");
 	  ResourceLoader com = new ResourceLoader("org.sakaiproject.tool.assessment.bundle.CommonMessages");
 	  AuthorizationBean authorizationBean = (AuthorizationBean) ContextUtil.lookupBean("authorization");
 
@@ -697,7 +696,6 @@ public class AuthorBean implements Serializable
   {
 
 	  pendingActionList2 = new ArrayList<SelectItem>();
-	  ResourceLoader res = new ResourceLoader("org.sakaiproject.tool.assessment.bundle.AuthorMessages");
 	  ResourceLoader com = new ResourceLoader("org.sakaiproject.tool.assessment.bundle.CommonMessages");
 	  AuthorizationBean authorizationBean = (AuthorizationBean) ContextUtil.lookupBean("authorization");
 
@@ -725,7 +723,7 @@ public class AuthorBean implements Serializable
 
   public ArrayList<SelectItem> getPublishedSelectActionList()
   {
-	  ResourceLoader res = new ResourceLoader("org.sakaiproject.tool.assessment.bundle.AuthorMessages");
+	  
 	  ResourceLoader com = new ResourceLoader("org.sakaiproject.tool.assessment.bundle.CommonMessages");
 	  AuthorizationBean authorizationBean = (AuthorizationBean) ContextUtil.lookupBean("authorization");
 

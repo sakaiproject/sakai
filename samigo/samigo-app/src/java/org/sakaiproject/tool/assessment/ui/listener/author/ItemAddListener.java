@@ -1635,7 +1635,7 @@ public class ItemAddListener
 		// looping through matchItemBean
 		ArrayList matchItemBeanList = bean.getMatchItemBeanList();
 		Iterator choiceIter = matchItemBeanList.iterator();
-		HashMap newMatchItemMap = new HashMap();
+		
 		Set answerSet = null;
 		ItemTextIfc itemText = null;
 		AnswerIfc answer = null;

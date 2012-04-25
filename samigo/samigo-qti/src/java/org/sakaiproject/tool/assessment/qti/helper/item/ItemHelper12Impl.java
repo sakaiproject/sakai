@@ -453,7 +453,7 @@ public class ItemHelper12Impl extends ItemHelperBase
   private void setItemTextMatrix(List itemTextList, Item itemXml)
   {
 	  String xpath = MATCH_XPATH;
-	  Map allTargets = new HashMap();
+
 	  itemXml.add(xpath, "response_label");
 	  String randomNumber = ("" + Math.random()).substring(2);
 	  Iterator iter = itemTextList.iterator();
@@ -951,7 +951,7 @@ public class ItemHelper12Impl extends ItemHelperBase
       if ( (finList != null) && (finList.size() > 0))
       {
 
-        List idsAndResponses = new ArrayList();
+
         //1. add Mattext And Responses
         for (int i = 0; i < finList.size(); i++)
         {

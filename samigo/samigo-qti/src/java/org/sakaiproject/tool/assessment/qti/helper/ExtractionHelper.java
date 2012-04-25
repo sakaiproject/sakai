@@ -1084,14 +1084,11 @@ public class ExtractionHelper
 	  	return;
 	}
 	
-    Set assessmentAttachmentSet = (Set) assessment.getAssessmentAttachmentSet();
-    if (assessmentAttachmentSet == null) {
-    	assessmentAttachmentSet = new HashSet();
-    }
+	
         
     AssessmentAttachmentIfc assessmentAttachment;
     String[] attachmentArray = attachment.split("\\n");
-    HashSet set = new HashSet();
+    Set<AssessmentAttachmentIfc> set = new HashSet<AssessmentAttachmentIfc>();
 	AttachmentHelper attachmentHelper = new AttachmentHelper();
 	AssessmentService assessmentService = new AssessmentService();
     for (int i = 0; i < attachmentArray.length; i++) {
@@ -1123,14 +1120,10 @@ public class ExtractionHelper
 	  	return;
 	}
 	
-    Set sectionAttachmentSet = (Set) section.getSectionAttachmentSet();
-    if (sectionAttachmentSet == null) {
-    	sectionAttachmentSet = new HashSet();
-    }
-        
+   
     SectionAttachmentIfc sectionAttachment;
     String[] attachmentArray = attachment.split("\\n");
-    HashSet set = new HashSet();
+    Set<SectionAttachmentIfc> set = new HashSet<SectionAttachmentIfc>();
 	AttachmentHelper attachmentHelper = new AttachmentHelper();
 	AssessmentService assessmentService = new AssessmentService();
     for (int i = 0; i < attachmentArray.length; i++) {
@@ -1162,14 +1155,9 @@ public class ExtractionHelper
 		  return;
 	  }
 
-	  Set itemAttachmentSet = (Set) item.getItemAttachmentSet();
-	  if (itemAttachmentSet == null) {
-		  itemAttachmentSet = new HashSet();
-	  }
-
 	  ItemAttachmentIfc itemAttachment;
 	  String[] attachmentArray = attachment.split("\\n");
-	  HashSet set = new HashSet();
+	  Set<ItemAttachmentIfc> set = new HashSet<ItemAttachmentIfc>();
 	  AttachmentHelper attachmentHelper = new AttachmentHelper();
 	  AssessmentService assessmentService = new AssessmentService();
 	  for (int i = 0; i < attachmentArray.length; i++) {

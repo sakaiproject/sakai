@@ -597,7 +597,7 @@ log.debug("totallistener: firstItem = " + bean.getFirstItem());
 
   /* Dump the grading and agent information into AgentResults */
   public void prepareAgentResult(PublishedAssessmentData p, Iterator iter, ArrayList agents, Map userRoles){
-	GradingService gradingService = new GradingService();
+	
 	TotalScoresBean bean = (TotalScoresBean) ContextUtil.lookupBean("totalScores");
     while (iter.hasNext())
     {
