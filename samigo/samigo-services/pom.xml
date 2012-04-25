@@ -71,9 +71,8 @@
             <artifactId>commons-logging</artifactId>
         </dependency>
         <dependency>
-            <groupId>commons-math</groupId>
+            <groupId>org.apache.commons</groupId>
             <artifactId>commons-math</artifactId>
-            <version>1.2</version>
         </dependency>
         <dependency>
             <groupId>javax.servlet</groupId>

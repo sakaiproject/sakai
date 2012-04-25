@@ -18,7 +18,7 @@
 		<module>samigo-api</module>
 		<module>samigo-app</module>
 		<module>samigo-audio</module>
-        <module>samigo-deploy</module>
+		<module>samigo-deploy</module>
 		<module>samigo-help</module>
 		<module>samigo-hibernate</module>
 		<module>samigo-pack</module>
@@ -94,6 +94,12 @@
                 <groupId>org.sakaiproject.jsf</groupId>
                 <artifactId>jsf-spreadsheet</artifactId>
                 <version>${sakai.jsf.version}</version>
+            </dependency>
+	    <dependency>
+                <groupId>org.apache.commons</groupId>
+                <artifactId>commons-math</artifactId>
+                <version>2.2</version>
+                <scope>provided</scope>
             </dependency>
         </dependencies>
     </dependencyManagement>

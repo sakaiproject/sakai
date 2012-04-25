@@ -60,6 +60,7 @@
         <dependency>
             <groupId>org.apache.commons</groupId>
             <artifactId>commons-math</artifactId>
+            <scope>runtime</scope>
         </dependency>
         <dependency>
             <groupId>OKI</groupId>

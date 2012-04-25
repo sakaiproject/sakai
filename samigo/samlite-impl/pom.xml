@@ -42,10 +42,9 @@
 			<version>2.2.0</version>
 		</dependency>
 		<dependency>
-            <groupId>commons-math</groupId>
-            <artifactId>commons-math</artifactId>
-            <version>1.2</version>
-        </dependency>
+		  <groupId>org.apache.commons</groupId>
+		  <artifactId>commons-math</artifactId>
+		</dependency>
         <!--
 		<dependency>
 			<groupId>xmlbeans</groupId>
