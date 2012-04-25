@@ -39,6 +39,7 @@ import javax.faces.event.ActionListener;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
+import org.apache.commons.math.util.MathUtils;
 import org.sakaiproject.event.cover.EventTrackingService;
 import org.sakaiproject.tool.assessment.data.dao.grading.AssessmentGradingData;
 import org.sakaiproject.tool.assessment.data.dao.grading.ItemGradingAttachment;
@@ -168,7 +169,7 @@ public class StudentScoreUpdateListener
             else {
               oldComments = "";
             }
-            boolean updateScore = newAutoScore != oldAutoScore;
+            boolean updateScore = MathUtils.equalsIncludingNaN(newAutoScore, oldAutoScore, 0.0001);
             boolean updateComments = !newComments.equals(oldComments);
             StringBuffer logString = new StringBuffer();
             logString.append("gradedBy=");
