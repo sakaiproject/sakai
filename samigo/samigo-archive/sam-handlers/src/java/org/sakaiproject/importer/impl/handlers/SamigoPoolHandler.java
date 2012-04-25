@@ -27,7 +27,6 @@ import java.util.Comparator;
 import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
-import java.util.Map;
 import java.util.Set;
 import java.util.Vector;
 import java.util.regex.Matcher;
@@ -43,17 +42,15 @@ import org.sakaiproject.tool.assessment.data.dao.assessment.AnswerFeedback;
 import org.sakaiproject.tool.assessment.data.dao.assessment.ItemText;
 import org.sakaiproject.tool.assessment.facade.ItemFacade;
 import org.sakaiproject.tool.assessment.facade.QuestionPoolFacade;
-import org.sakaiproject.tool.assessment.facade.SectionFacade;
 import org.sakaiproject.tool.assessment.services.ItemService;
 import org.sakaiproject.tool.assessment.services.QuestionPoolService;
 import org.sakaiproject.tool.cover.SessionManager;
-import org.sakaiproject.tool.cover.ToolManager;
 
 public class SamigoPoolHandler implements HandlesImportable {
 	// Samigo identifies each question type with an int
-	public static int TRUE_FALSE = 4;
-	public static int FILL_BLANK = 8;
-	public static int MATCHING = 9;
+	public static final int TRUE_FALSE = 4;
+	public static final int FILL_BLANK = 8;
+	public static final int MATCHING = 9;
 	
 	private QuestionPoolService qps = new QuestionPoolService();
 	private ItemService itemService = new ItemService();
