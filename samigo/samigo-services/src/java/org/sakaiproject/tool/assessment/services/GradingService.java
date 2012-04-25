@@ -47,6 +47,7 @@ import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.apache.commons.math.complex.Complex;
 import org.apache.commons.math.complex.ComplexFormat;
+import org.apache.commons.math.util.MathUtils;
 import org.sakaiproject.event.cover.EventTrackingService;
 import org.sakaiproject.service.gradebook.shared.GradebookExternalAssessmentService;
 import org.sakaiproject.spring.SpringBeanLocator;
@@ -920,7 +921,8 @@ public class GradingService
       }
       //if it's MCMS and Not Partial Credit and the score isn't 100%, that means the user didn't
       //answer all of the correct answers only.  We need to set their score to 0 for all ItemGrading items
-      if(TypeIfc.MULTIPLE_CORRECT.equals(itemType2) && "false".equals(mcmsPartialCredit) && totalAutoScoreCheck != itemScore){
+      if (TypeIfc.MULTIPLE_CORRECT.equals(itemType2) && "false".equals(mcmsPartialCredit) && MathUtils.equalsIncludingNaN(totalAutoScoreCheck, itemScore, 0.0001)){
+      //if(TypeIfc.MULTIPLE_CORRECT.equals(itemType2) && "false".equals(mcmsPartialCredit) && totalAutoScoreCheck != itemScore){
     	  //reset all scores to 0 since the user didn't get all correct answers
     	  iter = itemGradingSet.iterator();
     	  while(iter.hasNext()){
@@ -1251,9 +1253,9 @@ public class GradingService
     }
 
     //change the final score back to the original score since it may set to average score.
-    if(data.getFinalScore() != originalFinalScore ) {
-	data.setFinalScore(originalFinalScore);
-     }
+    if(MathUtils.equalsIncludingNaN(data.getFinalScore(), originalFinalScore, 0.0001)) {
+    	data.setFinalScore(originalFinalScore);
+    }
     } else {
        if(log.isDebugEnabled()) log.debug("Not updating the gradebook.  toGradebook = " + toGradebook);
     }
