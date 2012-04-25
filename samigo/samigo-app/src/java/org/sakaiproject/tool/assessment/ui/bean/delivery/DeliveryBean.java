@@ -1521,9 +1521,18 @@ public class DeliveryBean
   
 
   public String confirmSubmit()
-  {
-	  EventTrackingService.post(EventTrackingService.newEvent("sam.submit.from_last_page", "siteId=" + AgentFacade.getCurrentSiteId() + ", submissionId=" + adata.getAssessmentGradingId(), siteId, true, NotificationService.NOTI_REQUIRED)); 
-
+  {	  
+	  if (this.actionMode == TAKE_ASSESSMENT
+			  || this.actionMode == TAKE_ASSESSMENT_VIA_URL)
+	  {
+		  if (adata != null) {
+			  EventTrackingService.post(EventTrackingService.newEvent("sam.submit.from_last_page", "siteId=" + AgentFacade.getCurrentSiteId() + ", submissionId=" + adata.getAssessmentGradingId(), siteId, true, NotificationService.NOTI_REQUIRED)); 
+		  }
+		  else {
+			  EventTrackingService.post(EventTrackingService.newEvent("sam.submit.from_last_page", "siteId=" + AgentFacade.getCurrentSiteId() + ", adata is null", siteId, true, NotificationService.NOTI_REQUIRED)); 
+		  }
+	  }
+	  
 	  String nextAction = checkBeforeProceed();
 	  log.debug("***** next Action="+nextAction);
 	  if (!("safeToProceed").equals(nextAction)){
@@ -1559,8 +1568,17 @@ public class DeliveryBean
   
   public String confirmSubmitTOC()
   {
-	  EventTrackingService.post(EventTrackingService.newEvent("sam.submit.from_toc", "siteId=" + AgentFacade.getCurrentSiteId() + ", submissionId=" + adata.getAssessmentGradingId(), siteId, true, NotificationService.NOTI_REQUIRED)); 
-
+	  if (this.actionMode == TAKE_ASSESSMENT
+			  || this.actionMode == TAKE_ASSESSMENT_VIA_URL)
+	  {
+		  if (adata != null) {
+			  EventTrackingService.post(EventTrackingService.newEvent("sam.submit.from_toc", "siteId=" + AgentFacade.getCurrentSiteId() + ", submissionId=" + adata.getAssessmentGradingId(), siteId, true, NotificationService.NOTI_REQUIRED)); 
+		  }
+		  else {
+			  EventTrackingService.post(EventTrackingService.newEvent("sam.submit.from_toc", "siteId=" + AgentFacade.getCurrentSiteId() + ", adata is null", siteId, true, NotificationService.NOTI_REQUIRED)); 
+		  }
+	  }
+	  
 	  String nextAction = checkBeforeProceed();
 	  log.debug("***** next Action="+nextAction);
 	  if (!("safeToProceed").equals(nextAction)){
