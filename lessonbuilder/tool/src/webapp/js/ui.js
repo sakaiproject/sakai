@@ -196,6 +196,11 @@ function framesize() {
 // this hides the picker frame or div (and resets the iframe's source)
 // refresh is true if we need to refresh the LB page, otherwise we just hide the picker
 function hidepicker(refresh) {
+	if ($.browser.msie) {
+		window.location.reload();
+		return false;
+	}
+
 	if (refresh == null || !refresh) {
 		$('#pickerdialog, #ipickerdialog').dialog('close');
 		checksize();
