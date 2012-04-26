@@ -366,7 +366,7 @@ public class SiteEmailNotificationAnnc extends SiteEmailNotification
 
 		//checks if "from" email id has to be included? and whether the notification is a delayed notification?. SAK-13512
 		// SAK-20988 - emailFromReplyable@org.sakaiproject.event.api.NotificationService is deprecated
-		boolean notificationEmailFromReplyable = ServerConfigurationService.getBoolean("notification.email.from.replyable", false);
+		boolean notificationEmailFromReplyable = ServerConfigurationService.getBoolean("notify.email.from.replyable", false);
 		if (notificationEmailFromReplyable 
 		        && from.contains("no-reply@") 
 		        && userId != null) 
