@@ -348,23 +348,29 @@ public class SiteEmailNotificationAnnc extends SiteEmailNotification
 		
 		String userEmail = "no-reply@" + ServerConfigurationService.getServerName();
 		String userDisplay = ServerConfigurationService.getString("ui.service", "Sakai");
-		String no_reply = "From: \"" + userDisplay + "\" <" + userEmail + ">";
-		String no_reply_withTitle = "From: \"" + title + "\" <" + userEmail + ">";	
-		String from = "";
+		//String no_reply = "From: \"" + userDisplay + "\" <" + userEmail + ">";
+		//String no_reply_withTitle = "From: \"" + title + "\" <" + userEmail + ">";	
+		String from = "From: Sakai"; // fallback value
 		 if (title!=null && !title.equals("")){ 
-		     from= "From: \"" + title + "\" <" + userEmail + ">"; 
-		 } 
-		 else{ 
-		     from= getFrom(event); 
-		 } 
+		     from = "From: \"" + title + "\" <" + userEmail + ">"; 
+		 } else {
+		     String fromVal = getFrom(event); // should not return null but better safe than sorry
+	         if (fromVal != null) {
+	             from = fromVal;
+	         }
+		 }
 		
 		// get the message
 		AnnouncementMessage msg = (AnnouncementMessage) ref.getEntity();
-		String userId=msg.getAnnouncementHeader().getFrom().getDisplayId();
+		String userId = msg.getAnnouncementHeader().getFrom().getDisplayId();
 
 		//checks if "from" email id has to be included? and whether the notification is a delayed notification?. SAK-13512
-		if ((ServerConfigurationService.getString("emailFromReplyable@org.sakaiproject.event.api.NotificationService").equals("true")) && getFrom(event).contains("no-reply@") && userId !=null){
-						
+		// SAK-20988 - emailFromReplyable@org.sakaiproject.event.api.NotificationService is deprecated
+		boolean notificationEmailFromReplyable = ServerConfigurationService.getBoolean("notification.email.from.replyable", false);
+		if (notificationEmailFromReplyable 
+		        && from.contains("no-reply@") 
+		        && userId != null) 
+		{
 				try
 				{
 					User u = UserDirectoryService.getUser(userId);
@@ -372,10 +378,7 @@ public class SiteEmailNotificationAnnc extends SiteEmailNotification
 					userEmail = u.getEmail();
 					if ((userEmail != null) && (userEmail.trim().length()) == 0) userEmail = null;
 					
-				}
-				catch (UserNotDefinedException e)
-				{
-				}
+				} catch (UserNotDefinedException e) {}
 				
 				// some fallback positions
 				if (userEmail == null) userEmail = "no-reply@" + ServerConfigurationService.getServerName();
