@@ -214,28 +214,22 @@ public class CalendarServiceHelperImpl implements CalendarServiceHelper {
 
 	public Boolean getCalendarExistsForSite(){
 		String siteContext = ToolManager.getCurrentPlacement().getContext();
-		if(calendarExistCache.containsKey(siteContext)){
-			return calendarExistCache.get(siteContext);
-		}else{		  
-
-			Site site = null;
-			try
+		Site site = null;
+		try
+		{
+			site = SiteService.getSite(siteContext);
+			if (site.getToolForCommonId("sakai.schedule") != null)
 			{
-				site = SiteService.getSite(siteContext);
-				if (site.getToolForCommonId("sakai.schedule") != null)
-				{
-					calendarExistCache.put(siteContext, Boolean.TRUE);
-					return true;
-				}else{
-					calendarExistCache.put(siteContext, Boolean.FALSE);
-					return false;
-				}
+				return true;
+			}else{
+				return false;
 			}
-			catch (Exception e) {
-				log.warn("Exception thrown while getting site", e);
-			}
-			return false;
+
 		}
+		catch (Exception e) {
+			log.warn("Exception thrown while getting site", e);
+		}
+		return false;
 	}
 
 	public void setCalendarExistsForSite(Boolean calendarExistsForSite) {
