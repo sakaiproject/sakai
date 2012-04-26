@@ -149,6 +149,19 @@
 			<br />
 		#end
 	</p>
+	#if (!$!ltiTools.isEmpty())
+		<p class="instruction">
+			$tlang.getString("ltiTools.external")
+		</p>
+		#foreach($ltiTool in $ltiTools.entrySet())
+			<p class="indnt3">
+					#set($ltiToolId=$ltiTool.getKey())
+					#set($ltiToolValues=$ltiTool.getValue())
+					$ltiToolValues.get("button_text")($ltiToolValues.get("title"))
+			</p>
+		#end
+	#end
+	
 	<form name="addRemoveFeaturnConfirmForm" action="#toolForm("$action")" method="post">
 		<input type="hidden" name="cancelIndex" value="$continueIndex" />
 		<input type="hidden" name="back" value="$!backIndex" />

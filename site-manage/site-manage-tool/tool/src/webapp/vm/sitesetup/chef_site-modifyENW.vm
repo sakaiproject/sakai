@@ -9,12 +9,49 @@
 		<div class="alertMessage">$tlang.getString("gen.alert") $validator.escapeHtml($alertMessage)</div>
 		<div class="clear"></div>
 	#end
-	<p class="instruction">
-		$tlang.getString("multipleTools.custom1")
-	</p>
+	
 	<form name = "toolForm" method = "post" action="#toolForm("SiteAction")">
 		<input type="hidden" name="option" value="add" />
 		<input type="hidden" name="eventSubmit_doAdd_features" value="x" />
+	
+	## customize lti tools
+	#if (!$!ltiTools.isEmpty())
+		<p class="instruction">
+			$tlang.getString("ltiTools.custom.instruction")
+		</p>
+		#foreach($ltiTool in $ltiTools.entrySet())
+			#set($ltiToolId=$ltiTool.getKey())
+			#set($ltiToolValues=$ltiTool.getValue())
+			<h4>
+				$ltiToolValues.get("title")
+			</h4>
+			<p class="shorttext">
+				<label for="ltiTools_title_$ltiToolId">
+					$!tlang.getString("ltiTools.custom.title")
+				</label>
+				<input type="text" name="ltiTools_title_$ltiToolId" id="ltiTools_title_$ltiToolId" value="$ltiToolValues.get("title")" size="20" maxlength="$!maxToolTitleLength"/><span class="instruction"> $tlang.getString("multipleTools.title.suggest")</span>
+			</p>
+			<p class="shorttext">
+				<label for="ltiTools_frameHeight_$ltiToolId">
+					$!tlang.getString("ltiTools.custom.frameHeight")
+				</label>
+				<input type="text" name="ltiTools_frameHeight_$ltiToolId" id="ltiTools_frameHeight_$ltiToolId" value="" size="20" maxlength="20"/>
+			</p>
+			<p class="shorttext">
+				<label for="ltiTools_button_$ltiToolId">
+					$!tlang.getString("ltiTools.custom.button")
+				</label>
+				#set($buttonText=$ltiToolValues.get("button_text") != null?$ltiToolValues.get("button_text"):$ltiToolValues.get("title"))
+				<input type="text" name="ltiTools_button_$ltiToolId" id="ltiTools_button_$ltiToolId" value="$buttonText" size="20" maxlength="20"/>
+			</p>
+		#end
+	#end
+	
+	## customize multiple tool instances
+	#if ($!state_multiple_tool_instance_selected)
+		<p class="instruction">
+			$tlang.getString("multipleTools.custom1")
+		</p>
 			#foreach($toolId in $!toolRegistrationSelectedList) 
 				## set up a hidden input field for every selected tool except for Email Archive, and other multiple instance of tools
 				#if ($toolId != "sakai.mailbox" && !$!multipleToolIdSet.contains($toolId))
@@ -139,6 +176,8 @@
 					</select>	
 				</div>
 		#end
+		#end
+		
 		<input type="hidden" name="back" value="$!backIndex" />
 		<input type="hidden" name="templateIndex" value="$!templateIndex" />
 		<input type="hidden" name="continue" value="$continue" />

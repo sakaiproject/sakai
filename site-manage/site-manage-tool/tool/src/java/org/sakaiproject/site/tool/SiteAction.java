@@ -106,6 +106,7 @@ import org.sakaiproject.importer.api.ImportService;
 import org.sakaiproject.importer.api.SakaiArchive;
 import org.sakaiproject.importer.util.ResetOnCloseInputStream;
 import org.sakaiproject.javax.PagingPosition;
+import org.sakaiproject.lti.api.LTIService;
 import org.sakaiproject.site.api.Group;
 import org.sakaiproject.site.api.Site;
 import org.sakaiproject.site.api.SitePage;
@@ -145,6 +146,7 @@ import org.sakaiproject.util.ParameterParser;
 import org.sakaiproject.util.RequestFilter;
 import org.sakaiproject.util.ResourceLoader;
 import org.sakaiproject.util.SortedIterator;
+import org.sakaiproject.util.StringUtil;
 import org.sakaiproject.util.Validator;
 import org.sakaiproject.util.Web;
 
@@ -157,6 +159,7 @@ public class SiteAction extends PagedResourceActionII {
 	/** Our log (commons). */
 	private static Log M_log = LogFactory.getLog(SiteAction.class);
 	
+	private LTIService m_ltiService = (LTIService) ComponentManager.get("org.sakaiproject.lti.api.LTIService");
 	private ContentHostingService m_contentHostingService = (ContentHostingService) ComponentManager.get("org.sakaiproject.content.api.ContentHostingService");
 
 	private ImportService importService = org.sakaiproject.importer.cover.ImportService
@@ -683,6 +686,13 @@ public class SiteAction extends PagedResourceActionII {
 	private String SAKAI_LOCALES = "locales";
 	private String SAKAI_LOCALES_MORE = "locales.more";
 	private LocaleComparator localeComparator = new LocaleComparator();	
+	
+	// state variable for whether any multiple instance tool has been selected
+	private String STATE_MULTIPLE_TOOL_INSTANCE_SELECTED = "state_multiple_tool_instance_selected";
+	// state variable for lti tools
+	private String STATE_LTITOOL_LIST = "state_ltitool_list";
+	// state variable for selected lti tools
+	private String STATE_LTITOOL_SELECTED_LIST = "state_ltitool_selected_list";
 	
 	/**
 	 * what are the tool ids within Home page?
@@ -1539,6 +1549,43 @@ public class SiteAction extends PagedResourceActionII {
 
 			context.put("homeToolId", TOOL_ID_HOME);
 			
+			// get the list of available external lti tools
+			List<Map<String,Object>> tools = m_ltiService.getTools(null,null,0,0);
+			if (tools != null && !tools.isEmpty())
+			{
+				HashMap<String, Map<String, Object>> ltiTools = new HashMap<String, Map<String, Object>>();
+				// get invoke count for all lti tools
+				HashMap<String, Set<String>> ltiToolsCount = new HashMap<String, Set<String>> ();
+				List<Map<String,Object>> contents = m_ltiService.getContents(null,null,0,500);
+				for ( Map<String,Object> content : contents ) {
+					String ltiToolId = ((Integer) content.get(m_ltiService.LTI_TOOL_ID)).toString();
+					String siteId = StringUtils.trimToNull((String) content.get("SITE_ID"));
+					if (siteId != null)
+					{
+						if (ltiToolsCount.containsKey(ltiToolId))
+						{
+							Set<String> siteIds = ltiToolsCount.get(ltiToolId);
+							siteIds.add(siteId);
+							ltiToolsCount.put(ltiToolId, siteIds);
+						}
+						else
+						{
+							// new entry
+							Set<String> siteIds = new HashSet<String>();
+							siteIds.add(siteId);
+							ltiToolsCount.put(ltiToolId, siteIds);
+						}
+					}
+				}
+				for (Map<String, Object> toolMap : tools ) {
+					String ltiToolId = ((Integer) toolMap.get("id")).toString();
+					toolMap.put("toolCount", ltiToolsCount.containsKey(ltiToolId)?ltiToolsCount.get(ltiToolId).size():0);
+					ltiTools.put(ltiToolId, toolMap);
+				}
+				state.setAttribute(STATE_LTITOOL_LIST, ltiTools);
+				context.put("ltiTools", ltiTools);
+			}
+			
 			return (String) getContext(data).get("template") + TEMPLATE[3];
 		case 8:
 			/*
@@ -2052,7 +2099,7 @@ public class SiteAction extends PagedResourceActionII {
 			} else {
 				context.put("activeInactiveUser", Boolean.FALSE);
 			}
-
+			
 			return (String) getContext(data).get("template") + TEMPLATE[12];
 
 		case 13:
@@ -2319,6 +2366,13 @@ public class SiteAction extends PagedResourceActionII {
 			multipleToolIntoContext(context, state);
 		
 			context.put("homeToolId", TOOL_ID_HOME);
+			
+			// put the lti tools information into context
+			if (state.getAttribute(STATE_LTITOOL_SELECTED_LIST) != null)
+			{
+				Object ltiTools = state.getAttribute(STATE_LTITOOL_SELECTED_LIST);
+				context.put("ltiTools", state.getAttribute(STATE_LTITOOL_SELECTED_LIST));
+			}
 
 			return (String) getContext(data).get("template") + TEMPLATE[15];
 		case 18:
@@ -2455,6 +2509,9 @@ public class SiteAction extends PagedResourceActionII {
 			
 			// all info related to multiple tools
 			multipleToolIntoContext(context, state);
+			
+			// put the lti tool selection into context
+			context.put("ltiTools", state.getAttribute(STATE_LTITOOL_SELECTED_LIST));
 			
 			context.put("toolManager", ToolManager.getInstance());
 
@@ -3291,6 +3348,7 @@ public class SiteAction extends PagedResourceActionII {
 		context.put(STATE_MULTIPLE_TOOL_ID_SET, state.getAttribute(STATE_MULTIPLE_TOOL_ID_SET ));
 		context.put(STATE_MULTIPLE_TOOL_ID_TITLE_MAP, state.getAttribute(STATE_MULTIPLE_TOOL_ID_TITLE_MAP ));
 		context.put(STATE_MULTIPLE_TOOL_CONFIGURATION, state.getAttribute(STATE_MULTIPLE_TOOL_CONFIGURATION));
+		context.put(STATE_MULTIPLE_TOOL_INSTANCE_SELECTED, state.getAttribute(STATE_MULTIPLE_TOOL_INSTANCE_SELECTED));
 	}
 
 
@@ -9121,6 +9179,36 @@ public class SiteAction extends PagedResourceActionII {
 			}
 			}
 		} // for
+		
+        if (state.getAttribute(STATE_LTITOOL_SELECTED_LIST) != null)
+        {
+            HashMap<String, Map<String, Object>> ltiTools = (HashMap<String, Map<String, Object>>) state.getAttribute(STATE_LTITOOL_SELECTED_LIST);
+            // then looking for any lti tool to add
+            for (Map.Entry<String, Map<String, Object>> ltiTool : ltiTools.entrySet()) {
+                String ltiToolId = ltiTool.getKey();
+                Map<String, Object> toolValues = ltiTool.getValue();
+                
+                SitePage sitePage = site.addPage();
+
+                ToolConfiguration nTool = sitePage.addTool("sakai.web.168");
+                sitePage.setTitle(ltiToolId);
+                sitePage.setTitleCustom(true);
+                nTool.getPlacementConfig().setProperty("source", (String) toolValues.get("launch"));
+                nTool.setTitle((String) toolValues.get("button_text")); // should it be the button text
+                nTool.save();
+
+                // Record the new placement in the content item
+                Properties newProps = new Properties();
+                newProps.setProperty(LTIService.LTI_PLACEMENT, nTool.getId());
+                Long key = new Long(ltiToolId);
+                Object retval = m_ltiService.updateContent(key, newProps);
+                if ( retval instanceof String ) {
+                    addAlert(state,rb.getString("error.link.placement.update")+" "+(String) retval);
+                    switchPanel(state, "Content");
+                    return;
+                }
+            }
+		} // if
 
 		// reorder Home and Site Info only if the site has not been customized order before
 		if (!site.isCustomPageOrdered())
@@ -9259,14 +9347,15 @@ public class SiteAction extends PagedResourceActionII {
 
 		boolean goToToolConfigPage = false;
 		boolean homeSelected = false;
+		// lti tool selection
+		boolean ltiToolSelected = false;
 
 		// Add new pages and tools, if any
-		if (params.getStrings("selectedTools") == null) {
+		if (params.getStrings("selectedTools") == null && params.getStrings("selectedLtiTools") == null) {
 			addAlert(state, rb.getString("atleastonetool"));
 		} else {
 			List l = new ArrayList(Arrays.asList(params
-					.getStrings("selectedTools"))); // toolId's & titles of
-			// chosen tools
+					.getStrings("selectedTools"))); // toolId's of chosen tools
 
 			for (int i = 0; i < l.size(); i++) {
 				String toolId = (String) l.get(i);
@@ -9317,6 +9406,26 @@ public class SiteAction extends PagedResourceActionII {
 
 			state.setAttribute(STATE_TOOL_HOME_SELECTED, Boolean.valueOf(
 					homeSelected));
+			
+			// whether there is any lti tool been selected
+			if (params.getStrings("selectedLtiTools") != null)
+			{
+				List<String> ltiIds = new ArrayList(Arrays.asList(params.getStrings("selectedLtiTools"))); // toolId's & titles of chosen lti tools
+				if (!ltiIds.isEmpty())
+				{
+					ltiToolSelected = true;
+				}
+				
+				HashMap<String, Map<String, Object>> ltiTools = (HashMap<String, Map<String, Object>>) state.getAttribute(STATE_LTITOOL_LIST);
+				HashMap<String, Map<String, Object>> ltiSelectedTools = new HashMap<String, Map<String, Object>> ();
+				for(String id : ltiIds)
+				{
+					// add tool entry to list
+					ltiSelectedTools.put(id, ltiTools.get(id));
+				}
+				
+				state.setAttribute(STATE_LTITOOL_SELECTED_LIST, ltiSelectedTools);
+			}
 		}
 
 		state.setAttribute(STATE_TOOL_REGISTRATION_SELECTED_LIST, idsSelected); // List of ToolRegistration toolId's
@@ -9359,7 +9468,8 @@ public class SiteAction extends PagedResourceActionII {
 			if (state.getAttribute(STATE_IMPORT) != null) {
 				// go to import tool page
 				state.setAttribute(STATE_TEMPLATE_INDEX, "27");
-			} else if (goToToolConfigPage) {
+			} else if (goToToolConfigPage || ltiToolSelected) {
+				state.setAttribute(STATE_MULTIPLE_TOOL_INSTANCE_SELECTED, Boolean.valueOf(goToToolConfigPage));
 				// go to the configuration page for multiple instances of tools
 				state.setAttribute(STATE_TEMPLATE_INDEX, "26");
 			} else {
@@ -10269,106 +10379,141 @@ public class SiteAction extends PagedResourceActionII {
 	 * 			  Need to update configuration variables
 	 */
 	private void updateSelectedToolList(SessionState state, ParameterParser params, boolean updateConfigVariables) {
-		List selectedTools = new ArrayList(Arrays.asList(params
-				.getStrings("selectedTools")));
-
-		HashMap<String, String> toolTitles = state.getAttribute(STATE_TOOL_REGISTRATION_TITLE_LIST) != null ? (HashMap<String, String>) state.getAttribute(STATE_TOOL_REGISTRATION_TITLE_LIST) : new HashMap<String, String>();
-		Set multipleToolIdSet = (Set) state.getAttribute(STATE_MULTIPLE_TOOL_ID_SET);
-		Map multipleToolIdTitleMap = state.getAttribute(STATE_MULTIPLE_TOOL_ID_TITLE_MAP) != null? (Map) state.getAttribute(STATE_MULTIPLE_TOOL_ID_TITLE_MAP):new HashMap();
-		HashMap<String, HashMap<String, String>> multipleToolConfiguration = state.getAttribute(STATE_MULTIPLE_TOOL_CONFIGURATION) != null?(HashMap<String, HashMap<String, String>>) state.getAttribute(STATE_MULTIPLE_TOOL_CONFIGURATION):new HashMap<String, HashMap<String, String>>();
-		Vector<String> idSelected = (Vector<String>) state.getAttribute(STATE_TOOL_REGISTRATION_OLD_SELECTED_LIST);
-		boolean has_home = false;
-		String emailId = state.getAttribute(STATE_TOOL_EMAIL_ADDRESS) != null?(String) state.getAttribute(STATE_TOOL_EMAIL_ADDRESS):null;
-
-		for (int i = 0; i < selectedTools.size(); i++) 
+		if (params.getStrings("selectedTools") != null)
 		{
-			String id = (String) selectedTools.get(i);
-			if (id.equalsIgnoreCase(TOOL_ID_HOME)) {
-				has_home = true;
-			} else if (id.equalsIgnoreCase("sakai.mailbox")) {
-				// read email id
-				emailId = StringUtils.trimToNull(params.getString("emailId"));
-				state.setAttribute(STATE_TOOL_EMAIL_ADDRESS, emailId);
-				if ( updateConfigVariables ) {
-					// if Email archive tool is selected, check the email alias
-					String siteId = (String) state.getAttribute(STATE_SITE_INSTANCE_ID);
-					String channelReference = mailArchiveChannelReference(siteId);
-					if (emailId == null) {
-						addAlert(state, rb.getString("java.emailarchive") + " ");
-					} else {
-						if (!Validator.checkEmailLocal(emailId)) {
-							addAlert(state, rb.getString("java.theemail"));
-						} else if (!AliasService.allowSetAlias(emailId, channelReference )) {
-							addAlert(state, rb.getString("java.addalias"));
+			// read entries for multiple tool customization
+			List selectedTools = new ArrayList(Arrays.asList(params.getStrings("selectedTools")));
+	
+			HashMap<String, String> toolTitles = state.getAttribute(STATE_TOOL_REGISTRATION_TITLE_LIST) != null ? (HashMap<String, String>) state.getAttribute(STATE_TOOL_REGISTRATION_TITLE_LIST) : new HashMap<String, String>();
+			Set multipleToolIdSet = (Set) state.getAttribute(STATE_MULTIPLE_TOOL_ID_SET);
+			Map multipleToolIdTitleMap = state.getAttribute(STATE_MULTIPLE_TOOL_ID_TITLE_MAP) != null? (Map) state.getAttribute(STATE_MULTIPLE_TOOL_ID_TITLE_MAP):new HashMap();
+			HashMap<String, HashMap<String, String>> multipleToolConfiguration = state.getAttribute(STATE_MULTIPLE_TOOL_CONFIGURATION) != null?(HashMap<String, HashMap<String, String>>) state.getAttribute(STATE_MULTIPLE_TOOL_CONFIGURATION):new HashMap<String, HashMap<String, String>>();
+			Vector<String> idSelected = (Vector<String>) state.getAttribute(STATE_TOOL_REGISTRATION_OLD_SELECTED_LIST);
+			boolean has_home = false;
+			String emailId = state.getAttribute(STATE_TOOL_EMAIL_ADDRESS) != null?(String) state.getAttribute(STATE_TOOL_EMAIL_ADDRESS):null;
+	
+			for (int i = 0; i < selectedTools.size(); i++) 
+			{
+				String id = (String) selectedTools.get(i);
+				if (id.equalsIgnoreCase(TOOL_ID_HOME)) {
+					has_home = true;
+				} else if (id.equalsIgnoreCase("sakai.mailbox")) {
+					// read email id
+					emailId = StringUtils.trimToNull(params.getString("emailId"));
+					state.setAttribute(STATE_TOOL_EMAIL_ADDRESS, emailId);
+					if ( updateConfigVariables ) {
+						// if Email archive tool is selected, check the email alias
+						String siteId = (String) state.getAttribute(STATE_SITE_INSTANCE_ID);
+						String channelReference = mailArchiveChannelReference(siteId);
+						if (emailId == null) {
+							addAlert(state, rb.getString("java.emailarchive") + " ");
 						} else {
-							// check to see whether the alias has been used by
-							// other sites
-							try {
-								String target = AliasService.getTarget(emailId);
-								if (target != null) {
-									if (siteId != null) {
-										if (!target.equals(channelReference)) {
-											// the email alias is not used by
-											// current site
+							if (!Validator.checkEmailLocal(emailId)) {
+								addAlert(state, rb.getString("java.theemail"));
+							} else if (!AliasService.allowSetAlias(emailId, channelReference )) {
+								addAlert(state, rb.getString("java.addalias"));
+							} else {
+								// check to see whether the alias has been used by
+								// other sites
+								try {
+									String target = AliasService.getTarget(emailId);
+									if (target != null) {
+										if (siteId != null) {
+											if (!target.equals(channelReference)) {
+												// the email alias is not used by
+												// current site
+												addAlert(state, rb.getString("java.emailinuse") + " ");
+											}
+										} else {
 											addAlert(state, rb.getString("java.emailinuse") + " ");
 										}
-									} else {
-										addAlert(state, rb.getString("java.emailinuse") + " ");
 									}
+								} catch (IdUnusedException ee) {
 								}
-							} catch (IdUnusedException ee) {
 							}
 						}
 					}
 				}
-			}
-			else if (isMultipleInstancesAllowed(findOriginalToolId(state, id)) && (idSelected != null && !idSelected.contains(id) || idSelected == null))
-			{
-				// newly added mutliple instances
-				String title = StringUtils.trimToNull(params.getString("title_" + id));
-				if (title != null) 
+				else if (isMultipleInstancesAllowed(findOriginalToolId(state, id)) && (idSelected != null && !idSelected.contains(id) || idSelected == null))
 				{
-					// truncate the title to maxlength as defined
-					if (title.length() > MAX_TOOL_TITLE_LENGTH)
+					// newly added mutliple instances
+					String title = StringUtils.trimToNull(params.getString("title_" + id));
+					if (title != null) 
 					{
-						title = title.substring(0, MAX_TOOL_TITLE_LENGTH);
+						// truncate the title to maxlength as defined
+						if (title.length() > MAX_TOOL_TITLE_LENGTH)
+						{
+							title = title.substring(0, MAX_TOOL_TITLE_LENGTH);
+						}
+						
+						// save the titles entered
+						multipleToolIdTitleMap.put(id, title);
+					}
+					toolTitles.put(id, title);
+					
+					// get the attribute input
+					HashMap<String, String> attributes = multipleToolConfiguration.get(id);
+					if (attributes == null)
+					{
+						// if missing, get the default setting for original id
+						attributes = multipleToolConfiguration.get(findOriginalToolId(state, id));
 					}
 					
-					// save the titles entered
-					multipleToolIdTitleMap.put(id, title);
-				}
-				toolTitles.put(id, title);
-				
-				// get the attribute input
-				HashMap<String, String> attributes = multipleToolConfiguration.get(id);
-				if (attributes == null)
-				{
-					// if missing, get the default setting for original id
-					attributes = multipleToolConfiguration.get(findOriginalToolId(state, id));
-				}
-				
-				if (attributes != null)
-				{
-					for(Iterator<String> e = attributes.keySet().iterator(); e.hasNext();)
+					if (attributes != null)
 					{
-						String attribute = e.next();
-						String attributeInput = StringUtils.trimToNull(params.getString(attribute + "_" + id));
-						if (attributeInput != null)
+						for(Iterator<String> e = attributes.keySet().iterator(); e.hasNext();)
 						{
-							// save the attribute input
-							attributes.put(attribute, attributeInput);
+							String attribute = e.next();
+							String attributeInput = StringUtils.trimToNull(params.getString(attribute + "_" + id));
+							if (attributeInput != null)
+							{
+								// save the attribute input
+								attributes.put(attribute, attributeInput);
+							}
 						}
+						multipleToolConfiguration.put(id, attributes);
 					}
-					multipleToolConfiguration.put(id, attributes);
 				}
 			}
+			
+			// update the state objects
+			state.setAttribute(STATE_MULTIPLE_TOOL_ID_TITLE_MAP, multipleToolIdTitleMap);
+			state.setAttribute(STATE_MULTIPLE_TOOL_CONFIGURATION, multipleToolConfiguration);
+			state.setAttribute(STATE_TOOL_HOME_SELECTED, Boolean.valueOf(has_home));
+			state.setAttribute(STATE_TOOL_REGISTRATION_TITLE_LIST, toolTitles);
 		}
 
-		// update the state objects
-		state.setAttribute(STATE_MULTIPLE_TOOL_ID_TITLE_MAP, multipleToolIdTitleMap);
-		state.setAttribute(STATE_MULTIPLE_TOOL_CONFIGURATION, multipleToolConfiguration);
-		state.setAttribute(STATE_TOOL_HOME_SELECTED, Boolean.valueOf(has_home));
-		state.setAttribute(STATE_TOOL_REGISTRATION_TITLE_LIST, toolTitles);
+		// update the lti tool list
+		if (state.getAttribute(STATE_LTITOOL_SELECTED_LIST) != null)
+		{
+			HashMap<String, Map<String, Object>> ltiTools = (HashMap<String, Map<String, Object>>) state.getAttribute(STATE_LTITOOL_SELECTED_LIST);
+			for ( Map.Entry<String,Map<String, Object>> ltiToolEntry : ltiTools.entrySet())
+			{
+				String ltiToolId = ltiToolEntry.getKey();
+				Map<String, Object> ltiToolAttributes = ltiToolEntry.getValue();
+				// get the title input
+				String title = params.getString("ltiTools_title_" + ltiToolId) != null?StringUtils.trimToNull(params.getString("ltiTools_title_" + ltiToolId)):null;
+				if (title != null)
+				{
+					ltiToolAttributes.put("title", title);
+				}
+				// get the frame height input
+				String frameHeight = params.getString("ltiTools_frameHeight_" + ltiToolId) != null?StringUtils.trimToNull(params.getString("ltiTools_frameHeight_" + ltiToolId)):null;
+				if (frameHeight != null)
+				{
+					ltiToolAttributes.put("frameHeight", frameHeight);
+				}
+				// get the button text input
+				String button = params.getString("ltiTools_button_" + ltiToolId) != null?StringUtils.trimToNull(params.getString("ltiTools_button_" + ltiToolId)):null;
+				if (button != null)
+				{
+					ltiToolAttributes.put("button_text", button);
+				}
+				// update the lti tool list
+				ltiTools.put(ltiToolId, ltiToolAttributes);
+			}
+			state.setAttribute(STATE_LTITOOL_SELECTED_LIST, ltiTools);
+		}
 	} // updateSelectedToolList
 
 	/**

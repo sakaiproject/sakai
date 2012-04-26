@@ -87,6 +87,12 @@
     <dependencyManagement>
         <dependencies>
             <dependency>
+                <groupId>org.sakaiproject.basiclti</groupId>
+                <artifactId>basiclti-api</artifactId>
+                <version>${sakai.basiclti.version}</version>
+                <scope>provided</scope>
+            </dependency>
+            <dependency>
                 <groupId>${project.groupId}</groupId>
                 <artifactId>sakai-site-manage-api</artifactId>
                 <version>${project.version}</version>

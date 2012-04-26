@@ -136,6 +136,33 @@
 					</tr>	
 				#end
 			</table>
+			#if (!$!ltiTools.isEmpty())
+				<p class="step">
+					$tlang.getString("feat.choose")
+				</p>
+				<table class="listHier lines nolines" cellspacing="0" summary="extra tools"  style="width:auto">
+					#foreach($ltiTool in $ltiTools.entrySet())
+						#set($toolId=$ltiTool.getKey())
+						#set($toolValues=$ltiTool.getValue())
+						<tr	id="row-$rowCount">
+							<td>
+								<input type="checkbox" name="selectedLtiTools" value="$toolId" id="lti_$toolId"/>
+							</td>
+							<td>
+								<label for="$toolId">
+									$toolValues.get("title")
+								</label>
+							</td>
+							<td>
+								#set($toolDescription=$toolValues.get("description"))
+								#set($toolUsage=$toolValues.get("toolCount"))
+								$!toolDescription
+								$tlang.getFormattedMessage("ltiTools.usage", $!toolUsage)
+							</td>
+						</tr>
+					#end
+				</table>
+			#end
 		#if (!$existSite && $sites.size() > 0)	
 			<h4>
 				$tlang.getString("feat.reuse")
