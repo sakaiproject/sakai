@@ -33,6 +33,7 @@
         <module>basiclti-util</module>
         <module>basiclti-tool</module>
         <module>portlet-util</module>
+	<module>web-ifp</module>
     </modules>
     
     <profiles>
