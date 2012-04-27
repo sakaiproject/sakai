@@ -85,9 +85,11 @@ import org.sakaiproject.tool.assessment.services.GradebookServiceException;
 import org.sakaiproject.tool.assessment.services.ItemService;
 import org.sakaiproject.tool.assessment.services.PersistenceHelper;
 import org.sakaiproject.tool.assessment.services.assessment.PublishedAssessmentService;
+import org.sakaiproject.tool.assessment.services.AutoSubmitAssessmentsJob;
 import org.sakaiproject.user.api.UserDirectoryService;
 import org.springframework.orm.hibernate3.HibernateCallback;
 import org.springframework.orm.hibernate3.support.HibernateDaoSupport;
+import org.sakaiproject.event.cover.EventTrackingService;
 
 public class AssessmentGradingFacadeQueries extends HibernateDaoSupport implements AssessmentGradingFacadeQueriesAPI{
   private static Log log = LogFactory.getLog(AssessmentGradingFacadeQueries.class);
@@ -2838,6 +2840,9 @@ public class AssessmentGradingFacadeQueries extends HibernateDaoSupport implemen
 	    				toBeAutoSubmittedList.add(adata);
 	    				completeItemGradingData(adata, sectionSetMap);
 	    				updateGradebookMap(adata, studentUidsToScores, gradebookMap);
+	    				EventTrackingService.post(EventTrackingService.newEvent("sam.auto-submit.job", 
+	    						AutoSubmitAssessmentsJob.safeEventLength("publishedAssessmentId=" + adata.getPublishedAssessmentId() + 
+	    								", assessmentGradingId=" + adata.getAssessmentGradingId()), true));		
 	    			}
 	    		}
 	    	}
@@ -2865,6 +2870,9 @@ public class AssessmentGradingFacadeQueries extends HibernateDaoSupport implemen
 	    			toBeAutoSubmittedList.add(adata);
 	    			completeItemGradingData(adata, sectionSetMap);
 	    			updateGradebookMap(adata, studentUidsToScores, gradebookMap);
+	    			EventTrackingService.post(EventTrackingService.newEvent("sam.auto-submit.job", 
+    						AutoSubmitAssessmentsJob.safeEventLength("publishedAssessmentId=" + adata.getPublishedAssessmentId() + 
+    								", assessmentGradingId=" + adata.getAssessmentGradingId()), true));	
 	    		}
 	    	}
 	    }
