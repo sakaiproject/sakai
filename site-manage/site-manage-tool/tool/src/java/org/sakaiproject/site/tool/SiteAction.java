@@ -1492,7 +1492,25 @@ public class SiteAction extends PagedResourceActionII {
 			if (toolRegistrationSelectedList != null && toolRegistrationList != null)
 			{
 				// see if any tool is added outside of Site Info tool, which means the tool is outside of the allowed tool set for this site type
-				List extraSelectedToolList = new ArrayList(toolRegistrationSelectedList);
+				List extraSelectedToolList = new ArrayList();
+				for (Object selectedTool : toolRegistrationSelectedList)
+				{
+					boolean selected = false;
+					for (Object toolRegisteration:toolRegistrationList)
+					{
+						if (((MyTool) toolRegisteration).getId().equals((String) selectedTool))
+						{
+							selected = true;
+							break;
+						}
+					}
+					if (!selected)
+					{
+						// add the tool id if not in the registration list
+						extraSelectedToolList.add(selectedTool);
+					}
+				}
+				
 				extraSelectedToolList.removeAll(toolRegistrationList);
 				context.put("extraSelectedToolList", extraSelectedToolList);
 			}
