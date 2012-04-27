@@ -97,7 +97,7 @@
         <!-- Sakai modules that are versioned separately -->
         <sakai.announcement.version>2.10-SNAPSHOT</sakai.announcement.version>
         <sakai.assignment.version>2.10-SNAPSHOT</sakai.assignment.version>
-        <sakai.basiclti.version>2.0-SNAPSHOT</sakai.basiclti.version>
+        <sakai.basiclti.version>2.1-SNAPSHOT</sakai.basiclti.version>
         <sakai.calendar.version>2.10-SNAPSHOT</sakai.calendar.version>
         <sakai.common.version>1.3-SNAPSHOT</sakai.common.version>
         <sakai.contentreview.version>2.10-SNAPSHOT</sakai.contentreview.version>
