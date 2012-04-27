@@ -14,21 +14,16 @@
     <version>2.10-SNAPSHOT</version>
     <packaging>pom</packaging>
 
+		<modules>
+				<module>scheduler-api</module>
+				<module>scheduler-deploy</module>
+				<module>scheduler-component</module>
+				<module>scheduler-component-shared</module>
+				<module>scheduler-events-model</module>
+				<module>scheduler-tool</module>
+		</modules>
+
     <profiles>
-        <profile>
-            <id>default</id>
-            <activation>
-                <activeByDefault>true</activeByDefault>
-            </activation>
-            <modules>
-                <module>scheduler-api</module>
-                <module>scheduler-deploy</module>
-                <module>scheduler-component</module>
-                <module>scheduler-component-shared</module>
-                <module>scheduler-events-model</module>
-                <module>scheduler-tool</module>
-            </modules>
-         </profile>
          <profile>
             <id>testing</id>
             <activation>
@@ -37,14 +32,8 @@
                 </property>
             </activation>
             <modules>
-                <module>scheduler-api</module>
-                <module>scheduler-deploy</module>
-                <module>scheduler-component</module>
-                <module>scheduler-component-shared</module>
                 <module>scheduler-test-component</module>
                 <module>scheduler-test-component-shared</module>
-                <module>scheduler-events-model</module>
-                <module>scheduler-tool</module>
             </modules>
          </profile>
     </profiles>
