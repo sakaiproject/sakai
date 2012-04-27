@@ -41,7 +41,11 @@
 				<label for="ltiTools_button_$ltiToolId">
 					$!tlang.getString("ltiTools.custom.button")
 				</label>
-				#set($buttonText=$ltiToolValues.get("button_text") != null?$ltiToolValues.get("button_text"):$ltiToolValues.get("title"))
+				#set($buttonText=false)
+				#set($buttonText=$ltiToolValues.get("button_text"))
+				#if(!$!buttonText)
+					#set($buttonText=$ltiToolValues.get("title"))
+				#end
 				<input type="text" name="ltiTools_button_$ltiToolId" id="ltiTools_button_$ltiToolId" value="$buttonText" size="20" maxlength="20"/>
 			</p>
 		#end
