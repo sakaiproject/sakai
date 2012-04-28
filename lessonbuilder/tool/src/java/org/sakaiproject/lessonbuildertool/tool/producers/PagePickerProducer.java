@@ -219,6 +219,8 @@ public class PagePickerProducer implements ViewComponentProducer, NavigationCase
 		boolean canEditPage = (simplePageBean.getEditPrivs() == 0);
 
 		String source = ((GeneralViewParameters) viewparams).getSource();
+		// summaryPage is the "index of pages". It has status icons and links, but isn't a chooser
+		// otherwise we have the chooser page for the "add subpage" command
 		boolean summaryPage = "summary".equals(source);
 
 		if (summaryPage) {
@@ -383,7 +385,7 @@ public class PagePickerProducer implements ViewComponentProducer, NavigationCase
 		    	int level = entry.level;
 		    	if (level > 5)
 		    		level = 5;
-		    	if (!summaryPage && !entry.toplevel) { // i.e. pagepicker; for the moment to edit something you need to attach it to something
+		    	if (!summaryPage /*&& !entry.toplevel*/) { // i.e. pagepicker; for the moment to edit something you need to attach it to something
 		    		UISelectChoice.make(row, "select", select.getFullID(), index).
 		    				decorate(new UIFreeAttributeDecorator("title", entry.title + " " + messageLocator.getMessage("simplepage.select")));
 		    	} else if(summaryPage) { // i.e. summary if canEdit and page doesn't have an item
