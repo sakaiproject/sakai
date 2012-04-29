@@ -386,6 +386,12 @@ public class MnemeEntity implements LessonEntity, QuizEntity {
 
     }
 
+    public boolean objectExists() {
+	if (assessment == null)
+	    assessment = getAssessment(id);
+	return assessment != null;
+    }
+
     // return the list of groups if the item is only accessible to specific groups
     // null if it's accessible to the whole site.
     public Collection<String> getGroups(boolean nocache) {

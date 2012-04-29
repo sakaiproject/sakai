@@ -213,7 +213,7 @@ public class YaftTopicEntity implements LessonEntity, ForumInterface {
 	public String getTitle() {
 
 		if (type == TYPE_YAFT_TOPIC) {
-			if (discussion == null || forumService == null)
+			if (discussion == null && forumService != null)
 				discussion = forumService.getDiscussion(id, false);
 			if (discussion == null)
 				return null;
@@ -259,7 +259,7 @@ public class YaftTopicEntity implements LessonEntity, ForumInterface {
 	// access control
 	public boolean addEntityControl(String siteId, String groupId) throws IOException {
 
-		if (discussion == null || forumService == null)
+		if (discussion == null && forumService != null)
 			discussion = forumService.getDiscussion(id, false);
 
 		return true;
@@ -325,6 +325,12 @@ public class YaftTopicEntity implements LessonEntity, ForumInterface {
 	 */
 	public String importObject(String title, String topicTitle, String text, boolean texthtml, String base, String siteId, List<String> attachmentHrefs, boolean hide) {
 		return null;
+	}
+
+        public boolean objectExists() {
+	    if (discussion == null && forumService != null)
+		discussion = forumService.getDiscussion(id, false);
+	    return discussion != null;
 	}
 
 	/**

@@ -557,6 +557,12 @@ public class Assignment2Entity implements LessonEntity {
 	return null;
     }
 
+   public boolean objectExists() {
+       if (assignment == null && haveA2)
+	    assignment = getAssignment(id);
+       return assignment != null;
+   }
+
     // return the list of groups if the item is only accessible to specific groups
     // null if it's accessible to the whole site.
     public Collection<String> getGroups(boolean nocache) {
