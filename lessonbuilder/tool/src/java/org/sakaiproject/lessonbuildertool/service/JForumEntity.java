@@ -521,6 +521,10 @@ public class JForumEntity implements LessonEntity, ForumInterface {
 	return SimplePageItem.DUMMY;
     }
 
+    public boolean objectExists() {
+	return getTitle() != null;
+    }
+
     // return the list of groups if the item is only accessible to specific groups
     // null if it's accessible to the whole site.
     public Collection<String> getGroups(boolean nocache) {

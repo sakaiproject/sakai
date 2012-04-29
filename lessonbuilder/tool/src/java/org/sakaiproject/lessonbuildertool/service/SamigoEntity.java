@@ -243,6 +243,11 @@ public class SamigoEntity implements LessonEntity, QuizEntity {
 
 	try {
 	    ret = publishedAssessmentFacadeQueries.loadPublishedAssessment(publishedId);
+	    // this will ignore retracted. I think that's right. Students
+	    // we show dead and inactive, just not deleted
+	    if (ret.getStatus().equals(PublishedAssessmentFacade.DEAD_STATUS)) {
+		return null;
+	    }
 	} catch (Exception e) {
 	    return null;
 	}
@@ -390,7 +395,11 @@ public class SamigoEntity implements LessonEntity, QuizEntity {
 
     public String getAssessmentAlias(Long publishedId) {
 	try {
-	    return getPublishedAssessment(publishedId).getAssessmentMetaDataByLabel("ALIAS");
+	    PublishedAssessmentData a = getPublishedAssessment(publishedId);
+	    if (a == null)
+		return null;
+	    else 
+		return a.getAssessmentMetaDataByLabel("ALIAS");
 	} catch (Exception ex) {
 	    System.out.println("exception " + ex);
 	    return null;
@@ -694,6 +703,13 @@ public class SamigoEntity implements LessonEntity, QuizEntity {
 		return null;
 	}	
     }
+
+    public boolean objectExists() {
+	if (assessment == null)
+	    assessment = getPublishedAssessment(id);
+	return assessment != null;
+    }
+
 
     // return the list of groups if the item is only accessible to specific groups
     // null if it's accessible to the whole site.  Update the data in the cache

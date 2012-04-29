@@ -2423,7 +2423,14 @@ public class SimplePageBean {
 
         public String getItemGroupString (SimplePageItem i, LessonEntity entity, boolean nocache) {
 	    StringBuilder ret = new StringBuilder("");
-	    Collection<String> groups = getItemGroups (i, entity, nocache);
+	    Collection<String> groups = null;
+	    try {
+		groups = getItemGroups (i, entity, nocache);
+	    } catch (IdUnusedException exp) {
+		// unfortunately some uses aren't user-visible, so it's this or
+		// add error handling to all callers
+		return "";
+	    }
 	    if (groups == null)
 		return "";
 	    for (String g: groups) {
@@ -2451,11 +2458,11 @@ public class SimplePageBean {
     // need group entries so we can display labels to user
     // entity is optional. pass it if you have it, to avoid requiring
     // us to get it a second time
-	public Collection<String>getItemGroups (SimplePageItem i, LessonEntity entity, boolean nocache) {
+    // idunusedexception if underlying object doesn't exist
+	public Collection<String>getItemGroups (SimplePageItem i, LessonEntity entity, boolean nocache)
+	    throws IdUnusedException {
 
 	    Collection<String> ret = new ArrayList<String>();
-
-
 
 	    if (!nocache && i.getType() != SimplePageItem.PAGE 
 		         && i.getType() != SimplePageItem.TEXT
@@ -2481,9 +2488,16 @@ public class SimplePageBean {
 	       case SimplePageItem.RESOURCE:
 	       case SimplePageItem.MULTIMEDIA:
 		   return getResourceGroups(i, nocache);  // responsible for caching the result
+		   // throws IdUnusedException if necessary
+
+	       case SimplePageItem.BLTI:
+		   entity = bltiEntity.getEntity(i.getSakaiId());
+		   if (entity == null || !entity.objectExists())
+		       throw new IdUnusedException(i.toString());
+		   // fall through: groups controlled by LB
+	       // for the following items we don't have non-LB items so don't need itemunused
 	       case SimplePageItem.TEXT:
 	       case SimplePageItem.PAGE:
-	       case SimplePageItem.BLTI:
 	       case SimplePageItem.COMMENTS:
 	       case SimplePageItem.STUDENT_CONTENT:
 		   return getLBItemGroups(i); // for all native LB objects
@@ -2491,8 +2505,10 @@ public class SimplePageBean {
 	    	   return null;
 	       }
 	   }
-	   if (entity == null)
-	       return null;
+
+	   // only here for object types with underlying entities
+	   if (entity == null || !entity.objectExists())
+	       throw new IdUnusedException(i.toString());
 
 	   // in principle the groups are stored in a SimplePageGroup if we
 	   // are doing access control, and in the tool if not. We can
@@ -2529,8 +2545,9 @@ public class SimplePageBean {
        }
 
     // getItemGroups version for resources, since we don't have
-    // an interface object
-       public Collection<String>getResourceGroups (SimplePageItem i, boolean nocache) {
+    // an interface object. IdUnusedException if the underlying resource doesn't exist
+       public Collection<String>getResourceGroups (SimplePageItem i, boolean nocache) 
+	   throws IdUnusedException{
     	   SecurityAdvisor advisor = null;
     	   try {
 	       
@@ -2554,7 +2571,7 @@ public class SimplePageBean {
     		   try {
     			   resource = contentHostingService.getResource(i.getSakaiId());
     		   } catch (Exception ignore) {
-    			   return null;
+		       throw new IdUnusedException(i.toString());
     		   }
     		   
     		   Collection<String>groups = null;
@@ -2640,7 +2657,12 @@ public class SimplePageBean {
 	   }
 	   if (lessonEntity != null) {
 	       // need a list to sort it.
-	       Collection oldGroupCollection = getItemGroups(i, lessonEntity, true);
+	       Collection oldGroupCollection = null;
+	       try {
+		   oldGroupCollection = getItemGroups(i, lessonEntity, true);
+	       } catch (IdUnusedException exc) {
+		   return null; // no such entity
+	       }
 	       List<String>oldGroups = null;
 	       if (oldGroupCollection == null)
 		   oldGroups = new ArrayList<String>();
@@ -3569,7 +3591,7 @@ public class SimplePageBean {
 		if (canEditPage()) {
 		    return true;
 		}
-        	Boolean ret = visibleCache.get(item.getId());
+		Boolean ret = visibleCache.get(item.getId());
 		if (ret != null)
 		    return (boolean)ret;
 
@@ -3582,7 +3604,13 @@ public class SimplePageBean {
 			return false;
 		}
 
-		Collection<String>itemGroups = getItemGroups(item, null, false);
+		Collection<String>itemGroups = null;
+		try {
+		    itemGroups = getItemGroups(item, null, false);
+		} catch (IdUnusedException exc) {
+		    visibleCache.put(item.getId(), false);
+		    return false; // underlying entity missing, don't show it
+		}
 		if (itemGroups == null || itemGroups.size() == 0) {
 		    // this includes items for which for which visibility doesn't apply
 		    visibleCache.put(item.getId(), true);

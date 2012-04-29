@@ -408,6 +408,11 @@ public class BltiEntity implements LessonEntity, BltiInterface {
 	return null;
     }
 
+    public boolean objectExists() {
+	loadContent();
+	return content != null;
+    }
+
     // return the list of groups if the item is only accessible to specific groups
     // null if it's accessible to the whole site.
     public Collection<String> getGroups(boolean nocache) {

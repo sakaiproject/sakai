@@ -150,6 +150,8 @@ public interface LessonEntity {
     public String editItemSettingsUrl(SimplePageBean bean);
 
  
+    // checks to see if the underlying assignment, etc, actually exists
+    public boolean objectExists();
 
     // return the list of groups if the item is only accessible to specific groups
     // null if it's accessible to the whole site.

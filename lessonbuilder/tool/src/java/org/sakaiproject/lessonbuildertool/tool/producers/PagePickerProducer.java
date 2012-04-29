@@ -42,6 +42,7 @@ import org.sakaiproject.lessonbuildertool.tool.view.GeneralViewParameters;
 import org.sakaiproject.lessonbuildertool.tool.view.CloseViewParameters;
 import org.sakaiproject.lessonbuildertool.model.SimplePageToolDao;
 import org.sakaiproject.tool.api.ToolManager;
+import org.sakaiproject.exception.IdUnusedException;
 
 import uk.org.ponder.messageutil.MessageLocator;
 import uk.org.ponder.rsf.components.UIBoundBoolean;
@@ -118,8 +119,13 @@ public class PagePickerProducer implements ViewComponentProducer, NavigationCase
 	    if (pageMap.get(pageId) == null)
 	    	return;
 
-	    if (pageItem.isPrerequisite() || simplePageBean.getItemGroups(pageItem, null, false) != null)
-	    	somePagesHavePrerequisites = true;
+	    try {
+		if (pageItem.isPrerequisite() || simplePageBean.getItemGroups(pageItem, null, false) != null)
+		    somePagesHavePrerequisites = true;
+	    } catch (IdUnusedException exe) {
+		// underlying item missing. should be impossible for a page
+	    }
+
 
 	    // no need to check this if flag already set
 	    if (! somePagesHavePrerequisites) {

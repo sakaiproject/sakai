@@ -65,6 +65,7 @@ import uk.org.ponder.rsf.viewstate.ViewParamsReporter;
 
 import org.sakaiproject.component.cover.ServerConfigurationService;
 import org.sakaiproject.content.cover.ContentHostingService;
+import org.sakaiproject.exception.IdUnusedException;
 
 
 /**
@@ -114,7 +115,11 @@ public class EditPageProducer implements ViewComponentProducer, NavigationCaseRe
 				System.out.println("EditPage asked to edit item not in current page");
 				return;
 			}
-			groups = simplePageBean.getItemGroups(i, null, true);
+			try {
+			    groups = simplePageBean.getItemGroups(i, null, true);
+			} catch (IdUnusedException exc) {
+			    // should be impossible for text item; underlying object missing
+			}
 		}
 
 		if (simplePageBean.canEditPage()) {

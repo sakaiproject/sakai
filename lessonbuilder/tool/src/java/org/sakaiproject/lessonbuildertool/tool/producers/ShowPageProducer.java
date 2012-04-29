@@ -264,7 +264,7 @@ public class ShowPageProducer implements ViewComponentProducer, DefaultView, Nav
 				URL u = new URL(url);
 				url = messageLocator.getMessage("simplepage.fromhost").replace("{}", u.getHost());
 			} catch (Exception ignore) {
-				log.error("exception " + ignore);
+				log.error("exception in abbrevurl " + ignore);
 			}
 			;
 		}
@@ -853,7 +853,6 @@ public class ShowPageProducer implements ViewComponentProducer, DefaultView, Nav
 			UIOutput.make(tableContainer, "header-items");
 
 			for (SimplePageItem i : itemList) {
-
 				// listitem is mostly historical. it uses some shared HTML, but
 				// if I were
 				// doing it from scratch I wouldn't make this distinction. At
@@ -1042,6 +1041,7 @@ public class ShowPageProducer implements ViewComponentProducer, DefaultView, Nav
 						UIOutput.make(tableRow, "prerequisite-info", String.valueOf(i.isPrerequisite()));
 
 						String itemGroupString = null;
+						boolean entityDeleted = false;
 
 						if (i.getType() == SimplePageItem.ASSIGNMENT) {
 							// the type indicates whether scoring is letter
@@ -1066,6 +1066,8 @@ public class ShowPageProducer implements ViewComponentProducer, DefaultView, Nav
 									}
 									itemGroupString = simplePageBean.getItemGroupString(i, assignment, true);
 									UIOutput.make(tableRow, "item-groups", itemGroupString);
+									if (!assignment.objectExists())
+									    entityDeleted = true;
 								}
 							}
 
@@ -1093,6 +1095,9 @@ public class ShowPageProducer implements ViewComponentProducer, DefaultView, Nav
 								}
 								itemGroupString = simplePageBean.getItemGroupString(i, quiz, true);
 								UIOutput.make(tableRow, "item-groups", itemGroupString);
+								if (!quiz.objectExists())
+								    entityDeleted = true;
+
 							}
 						} else if (i.getType() == SimplePageItem.BLTI) {
 						    UIOutput.make(tableRow, "type", "b");
@@ -1107,6 +1112,8 @@ public class ShowPageProducer implements ViewComponentProducer, DefaultView, Nav
 							    UIOutput.make(tableRow, "item-height", i.getHeight());
 							itemGroupString = simplePageBean.getItemGroupString(i, null, true);
 							UIOutput.make(tableRow, "item-groups", itemGroupString );
+							if (!blti.objectExists())
+							    entityDeleted = true;
 						    }
 						} else if (i.getType() == SimplePageItem.FORUM) {
 							UIOutput.make(tableRow, "extra-info");
@@ -1119,6 +1126,8 @@ public class ShowPageProducer implements ViewComponentProducer, DefaultView, Nav
 								}
 								itemGroupString = simplePageBean.getItemGroupString(i, forum, true);
 								UIOutput.make(tableRow, "item-groups", itemGroupString);
+								if (!forum.objectExists())
+								    entityDeleted = true;
 							}
 						} else if (i.getType() == SimplePageItem.PAGE) {
 							UIOutput.make(tableRow, "type", "page");
@@ -1136,7 +1145,7 @@ public class ShowPageProducer implements ViewComponentProducer, DefaultView, Nav
 						}
 
 						String releaseString = simplePageBean.getReleaseString(i);
-						if (itemGroupString != null || releaseString != null) {
+						if (itemGroupString != null || releaseString != null || entityDeleted) {
 							if (itemGroupString != null)
 							    itemGroupString = simplePageBean.getItemGroupTitles(itemGroupString);
 							if (itemGroupString != null) {
@@ -1145,6 +1154,13 @@ public class ShowPageProducer implements ViewComponentProducer, DefaultView, Nav
 								itemGroupString = " " + releaseString + itemGroupString;
 							} else if (releaseString != null)
 							    itemGroupString = " " + releaseString;
+							if (entityDeleted) {
+							    if (itemGroupString != null)
+								itemGroupString = itemGroupString + " " + 
+								    messageLocator.getMessage("simplepage.deleted-entity");
+							    else
+								itemGroupString = messageLocator.getMessage("simplepage.deleted-entity");
+							}
 
 							if (itemGroupString != null)
 							    UIOutput.make(tableRow, (isInline ? "item-group-titles-div" : "item-group-titles"), itemGroupString);
@@ -2034,7 +2050,6 @@ public class ShowPageProducer implements ViewComponentProducer, DefaultView, Nav
 				if (i.isPrerequisite()) {
 					simplePageBean.checkItemPermissions(i, true);
 				}
-
 				// we've hacked Samigo to look at a special lesson builder
 				// session
 				// attribute. otherwise at the end of the test, Samigo replaces
