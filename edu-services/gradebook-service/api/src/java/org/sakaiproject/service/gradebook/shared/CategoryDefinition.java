@@ -22,6 +22,8 @@
 
 package org.sakaiproject.service.gradebook.shared;
 
+import java.util.List;
+
 
 /**
  *  Provides information describing a gradebook category that may be useful
@@ -31,6 +33,7 @@ public class CategoryDefinition {
     private Long id;
     private String name;
     private Double weight;
+    private List<Assignment> assignmentList;
     
     /**
      * 
@@ -87,4 +90,20 @@ public class CategoryDefinition {
     {
         this.weight = weight;
     }
+
+    /**
+     * Get the list of Assignments associated with this category
+     * @return 
+     */
+	public List<Assignment> getAssignmentList() {
+		return assignmentList;
+	}
+
+	 /**
+     * Set the list of Assignments for this category
+     * @return 
+     */
+	public void setAssignmentList(List<Assignment> assignmentList) {
+		this.assignmentList = assignmentList;
+	}
 }

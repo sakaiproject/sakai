@@ -2688,6 +2688,7 @@ public class GradebookServiceHibernateImpl extends BaseHibernateManager implemen
 	        categoryDef.setId(category.getId());
 	        categoryDef.setName(category.getName());
 	        categoryDef.setWeight(category.getWeight());
+	        categoryDef.setAssignmentList(getAssignments(category.getGradebook().getUid(), category.getName()));
 	    }
 
 	    return categoryDef;
@@ -2944,4 +2945,28 @@ public class GradebookServiceHibernateImpl extends BaseHibernateManager implemen
 
 	    return scoreAsDouble;
 	}
+	
+	/**
+	 * Get a list of assignments in the gradebook attached to the given category.
+	 * Note that each assignment only knows the category by name.
+	 * 
+	 * <p>Note also that this is different to {@link BaseHibernateManager#getAssignmentsForCategory(Long)} because this method returns the shared Assignment object.
+	 * 
+	 * @param gradebookUid
+	 * @param categoryName
+	 * @return
+	 */
+	private List<org.sakaiproject.service.gradebook.shared.Assignment> getAssignments(String gradebookUid, String categoryName) {
+		
+		List<org.sakaiproject.service.gradebook.shared.Assignment> allAssignments = getAssignments(gradebookUid);
+		List<org.sakaiproject.service.gradebook.shared.Assignment> matchingAssignments = new ArrayList<org.sakaiproject.service.gradebook.shared.Assignment>();
+		
+		for(org.sakaiproject.service.gradebook.shared.Assignment assignment: allAssignments) {
+			if(StringUtils.equals(assignment.getCategoryName(), categoryName)) {
+				matchingAssignments.add(assignment);
+			}
+		}
+		return matchingAssignments;
+	}
+	
 }
