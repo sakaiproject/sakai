@@ -177,5 +177,23 @@ Mais tarde voc\u00ea pode ir a ferramenta Conta em seu &quot;Meu site&quot; para
 </message>
  <locale>pt_BR</locale>
 </emailTemplate>
+<emailTemplate>
+ <subject>${localSakaiName} Шинэ хэрэглэгчийн мэдээлэл </subject>
+ <message>Эрхэм ${userName},
+
+	${localSakaiName} (${localSakaiURL})-ын бүртгэлийг ${currentUserDisplayName}-аас үүсгэлээ. Өөрийн бүртгэлдээ нэвтрэх бол:
+
+	1) Доорхруу ор:
+		${localSakaiURL}
+	
+	2) Доорхийг ашиглан нэвтэрнэ:
+		Хэрэглэгчийн Id: 	${userEid}
+		Нууц үг: 	${newPassword} 
+ Та нэвтэрснийхээ дараа My Workspace дахь бүртгэлийн хэрэгслийг ашиглан нууц үгээ өөрчилж болно.
+ 
+ (Энэ нь ${localSakaiName}-аас ирсэн автомат мессеж байна.)
+</message>
+ <locale>mn_MN</locale>
+</emailTemplate>
  -->
 </emailTemplates>

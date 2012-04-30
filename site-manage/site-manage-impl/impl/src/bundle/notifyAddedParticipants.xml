@@ -271,5 +271,39 @@ Uma vez que voc\u00ea possua sua conta de convidado, voc\u00ea pode acessar o si
 &lt;/#if&gt;4. V\u00e1 para o site e clique na aba site. (Voc\u00ea ver\u00e1 duas ou mais abas em seq\u00fc\u00eancia na parte superior da tela.)</message>
  <locale>pt_BR</locale>
 </emailTemplate>
+<emailTemplate>
+	<subject>${localSakaiName} Сайтын мэдээлэл</subject>
+	<message>
+		Эрхэм ${userName},
+
+			Та дараах ${localSakaiName} сайтруу нэмэгдлээ: 
+				${siteName}
+			by ${currentUserName}.
+		
+		&lt;#if newNonOfficialAccount == "Үнэн" &gt;
+		&lt;#if hasNonOfficialAccountUrl == "Үнэн" &gt;	
+			Зочны бүртгэлтэй болохын тулд дараах сайтыг нээгээд:
+				${nonOfficialAccountUrl}
+			жагсаасан үе шатуудыг дагана уу.
+		
+		&lt;/#if&gt;
+			Зочны бүртгэлтэй болмогц та ${localSakaiName} руу нэвтэрч болно:
+			
+				1. ${localSakaiName}: ${localSakaiURL}-ыг нээ
+				2. Нэвтрэх товчин дээр дар.
+				3. Зочны бүртгэлийнхээ нэр болон нууц үгийг бичээд нэвтрэх гэдгийг дар.
+				4. Сайтруу орохын тулд сайтын хуудас дээр дар. (Та дэлгэцийн дээд хэсгийн хөндлөн мөрөнд хоёр юмуу түүнээс дээш хуудас харна.)
+		
+		&lt;#else&gt;		
+			Нэвтрэхийн тулд:
+
+				1. ${localSakaiName}: ${localSakaiURL}-ыг нээ
+				2. Нэвтрэх товчин дээр дар.
+				3. Зочны бүртгэлийнхээ нэр болон нууц үгийг бичээд нэвтрэх гэдгийг дар.
+				4. Сайтруу орохын тулд сайтын хуудас дээр дар. (Та дэлгэцийн дээд хэсгийн хөндлөн мөрөнд хоёр юмуу түүнээс дээш хуудас харна.)
+		&lt;/#if&gt;
+	</message>
+	<locale>mn_MN</locale>
+</emailTemplate>
  -->
 </emailTemplates>
