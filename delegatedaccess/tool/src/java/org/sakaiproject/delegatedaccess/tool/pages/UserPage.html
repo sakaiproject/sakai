@@ -28,8 +28,11 @@
 		<span class="instruction"><a href="#" onclick="$('.instruction').toggle();"><img src="/library/image/silk/information.png"/></a></span>
 	</div>
 	<br/>
-	<div class="instruction" style="display: none"><a href="#" onclick="$('.instruction').toggle();"><wicket:message key="hideInstructions"/></a></div>	
-	<span class="instruction" style="white-space: normal; display:none" wicket:id="description">Instructions here</span>
+	<span class="instruction information" style="white-space: normal; display:none">
+		
+		<span wicket:id="description">Instructions here</span>
+		<a href="#" onclick="$('.instruction').toggle();" style="float: right;"><img src="/library/image/silk/cross.png"/></a>	
+	</span>
 	<br/>
 	<span wicket:id="noAccess"></span>
 	<form wicket:id="form">

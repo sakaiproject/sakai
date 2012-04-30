@@ -80,7 +80,10 @@
 	</div>
 	<br/>
 	<div class="instruction" style="display: none"><a href="#" onclick="$('.instruction').toggle();"><wicket:message key="hideInstructions"/></a></div>	
-	<span class="instruction" style="white-space: normal; display:none"><wicket:message key="editUsersInstructions"/></span>
+	<span class="instruction information" style="white-space: normal; display:none">
+		<wicket:message key="editUsersInstructions"/>
+		<a href="#" onclick="$('.instruction').toggle();" style="float: right;"><img src="/library/image/silk/cross.png"/></a>
+	</span>
 	<br/>
 	<form wicket:id="form">
 		<a wicket:id="expandAll"><span wicket:id="expandCollapse">Expand All Nodes</span></a>&nbsp;&nbsp;
