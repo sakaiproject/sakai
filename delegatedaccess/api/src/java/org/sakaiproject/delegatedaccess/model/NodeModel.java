@@ -22,6 +22,8 @@ public class NodeModel implements Serializable {
 	private HierarchyNodeSerialized node;
 	private boolean directAccessOrig = false;
 	private boolean directAccess = false;
+	private boolean accessAdmin = false;
+	private boolean accessAdminOrig = false;
 	private String realm = "";
 	private String role = "";
 	private String realmOrig = "";
@@ -48,6 +50,8 @@ public class NodeModel implements Serializable {
 	private String shoppingAdminModifiedBy = null;
 	private Date modified = null;
 	private String modifiedBy = null;
+	//this flag is used to track accessAdmin access
+	private boolean editable = true;
 	
 	public NodeModel(String nodeId, HierarchyNodeSerialized node,
 			boolean directAccess, String realm, String role, NodeModel parentNode,
@@ -55,7 +59,7 @@ public class NodeModel implements Serializable {
 			Date shoppingPeriodEndDate,
 			String shoppingPeriodAuth, boolean addedDirectChildrenFlag, boolean shoppingPeriodAdmin,
 			List<ListOptionSerialized> terms, String modifiedBy, Date modified,
-			Date shoppingAdminModified, String shoppingAdminModifiedBy){
+			Date shoppingAdminModified, String shoppingAdminModifiedBy, boolean accessAdmin){
 
 		this.nodeId = nodeId;
 		this.node = node;
@@ -83,6 +87,8 @@ public class NodeModel implements Serializable {
 		this.modified = modified;
 		this.shoppingAdminModified = shoppingAdminModified;
 		this.shoppingAdminModifiedBy = shoppingAdminModifiedBy;
+		this.accessAdmin = accessAdmin;
+		this.accessAdminOrig = accessAdmin;
 	}
 
 	private List<ListOptionSerialized> copyListOptions(List<ListOptionSerialized> tools){
@@ -132,6 +138,10 @@ public class NodeModel implements Serializable {
 		}
 
 		if(shoppingPeriodAdmin != shoppingPeriodAdminOrig){
+			return true;
+		}
+		
+		if(accessAdmin != accessAdminOrig){
 			return true;
 		}
 		//only worry about modifications to a direct access node
@@ -694,5 +704,73 @@ public class NodeModel implements Serializable {
 
 	public void setModifiedBy(String modifiedBy) {
 		this.modifiedBy = modifiedBy;
+	}
+
+	public boolean isAccessAdmin() {
+		return accessAdmin;
+	}
+
+	public void setAccessAdmin(boolean accessAdmin) {
+		this.accessAdmin = accessAdmin;
+	}
+
+	public boolean isAccessAdminOrig() {
+		return accessAdminOrig;
+	}
+
+	public void setAccessAdminOrig(boolean accessAdminOrig) {
+		this.accessAdminOrig = accessAdminOrig;
+	}
+	
+	public boolean getNodeAccessAdmin(){
+		if(isAccessAdmin()){
+			return true;
+		}else{
+			return getInheritedAccessAdmin();
+		}
+	}
+
+	public boolean getInheritedAccessAdmin(){
+		return getInheritedAccessAdminHelper(parentNode);
+	}
+	
+	public boolean getInheritedAccessAdminHelper(NodeModel parent){
+		if(parent == null){
+			return false;
+		} else if (parent.isAccessAdmin()) {
+			return true;
+		}else{
+			return getInheritedAccessAdminHelper(parent.getParentNode());
+		}
+	}
+	
+	public boolean isEditable(){
+		return editable;
+	}
+	
+	public void setEditable(boolean editable){
+		this.editable = editable;
+	}
+	
+	public boolean isNodeEditable(){
+		if(isEditable()){
+			return true;
+		}else{
+			return getInheritedEditable();
+		}
+	}
+	
+	private boolean getInheritedEditable(){
+		return getInheritedEditableHelper(parentNode);
+	}
+	
+	private boolean getInheritedEditableHelper(NodeModel parent){
+		if(parent == null){
+			return false;
+		} else if (parent.isEditable()) {
+			return true;
+		}else{
+			return getInheritedEditableHelper(parent.getParentNode());
+		}
 	}
 }

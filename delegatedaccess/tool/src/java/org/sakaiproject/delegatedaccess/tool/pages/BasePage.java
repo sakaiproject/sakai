@@ -46,6 +46,7 @@ public class BasePage extends WebPage implements IHeaderContributor {
 	Link<Void> searchUsersLink;
 	boolean hasShoppingAdmin;
 	boolean hasDelegatedAccess;
+	boolean hasAccessAdmin;
 
 	FeedbackPanel feedbackPanel;
 	
@@ -59,6 +60,7 @@ public class BasePage extends WebPage implements IHeaderContributor {
 
 		hasShoppingAdmin = projectLogic.hasShoppingPeriodAdminNodes(sakaiProxy.getCurrentUserId());
 		hasDelegatedAccess = projectLogic.hasDelegatedAccessNodes(sakaiProxy.getCurrentUserId());
+		hasAccessAdmin = projectLogic.hasAccessAdminNodes(sakaiProxy.getCurrentUserId());
 		//access page link
 		accessPageLink = new Link<Void>("accessPageLink") {
 			private static final long serialVersionUID = 1L;
@@ -119,7 +121,7 @@ public class BasePage extends WebPage implements IHeaderContributor {
 			}
 			@Override
 			public boolean isVisible() {
-				return sakaiProxy.isSuperUser() && !shoppingPeriodTool;
+				return (sakaiProxy.isSuperUser() || hasAccessAdmin) && !shoppingPeriodTool;
 			}
 		};
 		searchUsersLink.add(new Label("thirdLinkLabel",new ResourceModel("link.third")).setRenderBodyOnly(true));

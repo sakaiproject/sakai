@@ -63,8 +63,8 @@ public class UserPage  extends BaseTreePage{
 			if(!hasDelegatedAccess){
 				if(hasShoppingAdmin){
 					setResponsePage(new ShoppingEditPage());
-				}else{
-					
+				}else if(hasAccessAdmin){
+					setResponsePage(new SearchUsersPage());
 				}
 			}
 			
@@ -96,7 +96,7 @@ public class UserPage  extends BaseTreePage{
 		if(treeModel != null && !isShoppingPeriodTool()){
 			DefaultMutableTreeNode node = (DefaultMutableTreeNode) treeModel.getRoot();
 			if(((NodeModel) node.getUserObject()).isDirectAccess()){
-				projectLogic.addChildrenNodes(node, userId, blankRestrictedTools, blankTerms, true);
+				projectLogic.addChildrenNodes(node, userId, blankRestrictedTools, blankTerms, true, null);
 			}
 		}
 		//a null model means the user doesn't have any associations
@@ -123,7 +123,7 @@ public class UserPage  extends BaseTreePage{
 					boolean anyAdded = false;
 					if(!isShoppingPeriodTool()){
 						if(!tree.getTreeState().isNodeExpanded(node) && !((NodeModel) ((DefaultMutableTreeNode) node).getUserObject()).isAddedDirectChildrenFlag()){
-							anyAdded = projectLogic.addChildrenNodes(node, userId, blankRestrictedTools, blankTerms, true);
+							anyAdded = projectLogic.addChildrenNodes(node, userId, blankRestrictedTools, blankTerms, true, null);
 							((NodeModel) ((DefaultMutableTreeNode) node).getUserObject()).setAddedDirectChildrenFlag(true);
 						}
 						if(anyAdded){
@@ -143,7 +143,7 @@ public class UserPage  extends BaseTreePage{
 				//are missing in the tree.  Expanding and collapsing will refresh the tree node
 				if(!isShoppingPeriodTool()){
 					if(tree.getTreeState().isNodeExpanded(node) && !((NodeModel) ((DefaultMutableTreeNode) node).getUserObject()).isAddedDirectChildrenFlag()){
-						boolean anyAdded = projectLogic.addChildrenNodes(node, userId, blankRestrictedTools, blankTerms, true);
+						boolean anyAdded = projectLogic.addChildrenNodes(node, userId, blankRestrictedTools, blankTerms, true, null);
 						((NodeModel) ((DefaultMutableTreeNode) node).getUserObject()).setAddedDirectChildrenFlag(true);
 						if(anyAdded){
 							collapseEmptyFoldersHelper((DefaultMutableTreeNode) node);

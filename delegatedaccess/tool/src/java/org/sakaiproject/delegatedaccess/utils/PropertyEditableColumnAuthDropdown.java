@@ -17,6 +17,7 @@ import org.sakaiproject.delegatedaccess.model.ListOptionSerialized;
 import org.sakaiproject.delegatedaccess.model.NodeModel;
 import org.sakaiproject.delegatedaccess.tool.pages.EditablePanelAuthDropdown;
 import org.sakaiproject.delegatedaccess.tool.pages.EditablePanelAuthDropdownText;
+import org.sakaiproject.delegatedaccess.tool.pages.EditablePanelEmpty;
 
 public class PropertyEditableColumnAuthDropdown extends PropertyRenderableColumn
 {
@@ -33,6 +34,10 @@ public class PropertyEditableColumnAuthDropdown extends PropertyRenderableColumn
 	 */
 	public Component newCell(MarkupContainer parent, String id, TreeNode node, int level)
 	{
+		if(!((NodeModel) ((DefaultMutableTreeNode) node).getUserObject()).isNodeEditable()){
+			return new EditablePanelEmpty(id);
+		}
+		
 		if(((NodeModel) ((DefaultMutableTreeNode) node).getUserObject()).isDirectAccess()){
 			return new EditablePanelAuthDropdown(id, new PropertyModel(node, getPropertyExpression()), (NodeModel) ((DefaultMutableTreeNode) node).getUserObject(), node, authorizationOptions);
 		}else{

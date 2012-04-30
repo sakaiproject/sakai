@@ -5,6 +5,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
+import java.util.Set;
 
 import javax.swing.tree.DefaultMutableTreeNode;
 import javax.swing.tree.TreeModel;
@@ -30,6 +31,7 @@ import org.apache.wicket.model.ResourceModel;
 import org.apache.wicket.model.StringResourceModel;
 import org.sakaiproject.authz.api.AuthzGroup;
 import org.sakaiproject.authz.api.Role;
+import org.sakaiproject.delegatedaccess.model.HierarchyNodeSerialized;
 import org.sakaiproject.delegatedaccess.model.NodeModel;
 import org.sakaiproject.delegatedaccess.model.SearchResult;
 import org.sakaiproject.delegatedaccess.model.ListOptionSerialized;
@@ -50,6 +52,7 @@ public class UserEditPage  extends BaseTreePage{
 	private TreeTable tree;
 	private static final Logger log = Logger.getLogger(UserEditPage.class);
 	private String[] defaultRole = null;
+	List<String> accessAdminNodeIds = null;
 	
 	@Override
 	protected AbstractTree getTree() {
@@ -109,6 +112,9 @@ public class UserEditPage  extends BaseTreePage{
 		}
 		List<IColumn> columnsList = new ArrayList<IColumn>();
 		columnsList.add(new PropertyTreeColumn(new ColumnLocation(Alignment.MIDDLE, 100, Unit.PROPORTIONAL),	"", "userObject.node.description"));
+		if(sakaiProxy.isSuperUser()){
+			columnsList.add(new PropertyEditableColumnCheckbox(new ColumnLocation(Alignment.RIGHT, 70, Unit.PX), new StringResourceModel("accessAdmin", null).getString(), "userObject.accessAdmin", DelegatedAccessConstants.TYPE_ACCESS_ADMIN));
+		}
 		columnsList.add(new PropertyEditableColumnCheckbox(new ColumnLocation(Alignment.RIGHT, 70, Unit.PX), new StringResourceModel("shoppingPeriodAdmin", null).getString(), "userObject.shoppingPeriodAdmin", DelegatedAccessConstants.TYPE_SHOPPING_PERIOD_ADMIN));
 		columnsList.add(new PropertyEditableColumnCheckbox(new ColumnLocation(Alignment.RIGHT, 55, Unit.PX), new StringResourceModel("siteAccess", null).getString(), "userObject.directAccess", DelegatedAccessConstants.TYPE_ACCESS));
 		if(!singleRoleOptions){
@@ -123,6 +129,18 @@ public class UserEditPage  extends BaseTreePage{
 		}
 		IColumn columns[] = columnsList.toArray(new IColumn[columnsList.size()]);
 
+		//if the user isn't a super user, they should only be able to edit the nodes they 
+		//have been granted accessAdmin privileges
+		if(!sakaiProxy.isSuperUser()){
+			Set<HierarchyNodeSerialized> accessAdminNodes = projectLogic.getAccessAdminNodesForUser(sakaiProxy.getCurrentUserId());
+			accessAdminNodeIds = new ArrayList<String>();
+			if(accessAdminNodes != null){
+				for(HierarchyNodeSerialized node : accessAdminNodes){
+					accessAdminNodeIds.add(node.id);
+				}
+			}
+		}
+		
 		final TreeModel treeModel = projectLogic.createEntireTreeModelForUser(searchResult.getId(), true, false);
 		final List<ListOptionSerialized> blankRestrictedTools = projectLogic.getEntireToolsList();
 		final List<ListOptionSerialized> blankTerms = projectLogic.getEntireTermsList();
@@ -140,7 +158,7 @@ public class UserEditPage  extends BaseTreePage{
 				
 				boolean anyAdded = false;
 				if(!tree.getTreeState().isNodeExpanded(node) && !((NodeModel) ((DefaultMutableTreeNode) node).getUserObject()).isAddedDirectChildrenFlag()){
-					anyAdded = projectLogic.addChildrenNodes(node, searchResult.getId(), blankRestrictedTools, blankTerms, false);
+					anyAdded = projectLogic.addChildrenNodes(node, searchResult.getId(), blankRestrictedTools, blankTerms, false, accessAdminNodeIds);
 					((NodeModel) ((DefaultMutableTreeNode) node).getUserObject()).setAddedDirectChildrenFlag(true);
 				}
 				if(anyAdded){
@@ -156,7 +174,7 @@ public class UserEditPage  extends BaseTreePage{
 				//the nodes are generated on the fly with ajax.  This will add any child nodes that 
 				//are missing in the tree.  Expanding and collapsing will refresh the tree node
 				if(tree.getTreeState().isNodeExpanded(node) && !((NodeModel) ((DefaultMutableTreeNode) node).getUserObject()).isAddedDirectChildrenFlag()){
-					boolean anyAdded = projectLogic.addChildrenNodes(node, searchResult.getId(), blankRestrictedTools, blankTerms, false);
+					boolean anyAdded = projectLogic.addChildrenNodes(node, searchResult.getId(), blankRestrictedTools, blankTerms, false, accessAdminNodeIds);
 					((NodeModel) ((DefaultMutableTreeNode) node).getUserObject()).setAddedDirectChildrenFlag(true);
 					if(anyAdded){
 						collapseEmptyFoldersHelper((DefaultMutableTreeNode) node);

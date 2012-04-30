@@ -88,6 +88,9 @@ public class ProjectLogicImpl implements ProjectLogic {
 		//first step, remove all permissions so you can have a clear palet
 		removeAllUserPermissions(nodeModel.getNodeId(), userId);
 
+		//save access admin setting
+		saveAccessAdmin(nodeModel.isAccessAdmin(), nodeModel.getNodeId(), userId);
+		
 		//save shopping period admin information
 		saveShoppingPeriodAdmin(nodeModel.isShoppingPeriodAdmin(), nodeModel.getNodeId(), userId);
 
@@ -133,7 +136,7 @@ public class ProjectLogicImpl implements ProjectLogic {
 		//Modification Date Tracking and Event posting:
 		
 		//if the user still has access of some kind, post a modification event (since only modified nodes get saved) as well as update the modification timestamp
-		if(nodeModel.isDirectAccess() || nodeModel.isShoppingPeriodAdmin()){
+		if(nodeModel.isDirectAccess() || nodeModel.isShoppingPeriodAdmin() || nodeModel.isAccessAdmin()){
 			saveModifiedData(userId, nodeModel.getNodeId());
 			sakaiProxy.postEvent(DelegatedAccessConstants.EVENT_MODIFIED_USER_PERMS, "/user/" + userId + "/node/" + nodeModel.getNodeId() + "/realm/" + nodeModel.getRealm() + "/role/" + nodeModel.getRole(), true);
 		}
@@ -161,12 +164,26 @@ public class ProjectLogicImpl implements ProjectLogic {
 			hierarchyService.assignUserNodePerm(userId, nodeModel.getNodeId(), DelegatedAccessConstants.NODE_PERM_SHOPPING_ADMIN_MODIFIED + nodeModel.getShoppingAdminModified().getTime(), false);
 			hierarchyService.assignUserNodePerm(userId, nodeModel.getNodeId(), DelegatedAccessConstants.NODE_PERM_SHOPPING_ADMIN_MODIFIED_BY + nodeModel.getShoppingAdminModifiedBy(), false);
 		}
+		if(nodeModel.isAccessAdmin() != nodeModel.isAccessAdminOrig()){
+			if(nodeModel.isAccessAdmin()){
+				sakaiProxy.postEvent(DelegatedAccessConstants.EVENT_ADD_USER_ACCESS_ADMIN, "/user/" + userId + "/node/" + nodeModel.getNodeId(), true);
+			}else{
+				sakaiProxy.postEvent(DelegatedAccessConstants.EVENT_DELETE_USER_ACCESS_ADMIN, "/user/" + userId + "/node/" + nodeModel.getNodeId(), true);
+			}
+		}
 	}
 
 	private void saveShoppingPeriodAdmin(boolean admin, String nodeId, String userId){
 		//only save shopping period admin flag for real users
 		if(admin && !DelegatedAccessConstants.SHOPPING_PERIOD_USER.equals(userId)){
 			hierarchyService.assignUserNodePerm(userId, nodeId, DelegatedAccessConstants.NODE_PERM_SHOPPING_ADMIN, false);
+		}
+	}
+	
+	private void saveAccessAdmin(boolean accessAdmin, String nodeId, String userId){
+		//only save shopping period admin flag for real users
+		if(accessAdmin && !DelegatedAccessConstants.SHOPPING_PERIOD_USER.equals(userId)){
+			hierarchyService.assignUserNodePerm(userId, nodeId, DelegatedAccessConstants.NODE_PERM_ACCESS_ADMIN, false);
 		}
 	}
 	
@@ -239,8 +256,10 @@ public class ProjectLogicImpl implements ProjectLogic {
 
 		Set<HierarchyNodeSerialized> accessNodes = getAccessNodesForUser(userId);
 		Set<HierarchyNodeSerialized> adminNodes = getShoppingPeriodAdminNodesForUser(userId);
+		Set<HierarchyNodeSerialized> accessAdminNodes = getAccessAdminNodesForUser(userId);
 
 		accessNodes.addAll(adminNodes);
+		accessNodes.addAll(accessAdminNodes);
 		return accessNodes;
 	}
 
@@ -261,6 +280,16 @@ public class ProjectLogicImpl implements ProjectLogic {
 		Set<HierarchyNodeSerialized> adminNodes = convertToSerializedNodeSet(hierarchyService.getNodesForUserPerm(userId, DelegatedAccessConstants.NODE_PERM_SHOPPING_ADMIN));
 		for(HierarchyNodeSerialized node : adminNodes){
 			shoppingPeriodAdminNodes.add(node.id);
+		}
+		return adminNodes;
+	}
+	
+	public Set<HierarchyNodeSerialized> getAccessAdminNodesForUser(String userId) {
+		accessAdminNodes = new ArrayList<String>();
+
+		Set<HierarchyNodeSerialized> adminNodes = convertToSerializedNodeSet(hierarchyService.getNodesForUserPerm(userId, DelegatedAccessConstants.NODE_PERM_ACCESS_ADMIN));
+		for(HierarchyNodeSerialized node : adminNodes){
+			accessAdminNodes.add(node.id);
 		}
 		return adminNodes;
 	}
@@ -627,6 +656,7 @@ public class ProjectLogicImpl implements ProjectLogic {
 
 	private List<String> accessNodes = new ArrayList<String>();
 	private List<String> shoppingPeriodAdminNodes = new ArrayList<String>();
+	private List<String> accessAdminNodes = new ArrayList<String>();
 	/**
 	 * Creates the model that feeds the tree.
 	 * 
@@ -634,9 +664,29 @@ public class ProjectLogicImpl implements ProjectLogic {
 	 */
 	public TreeModel createEntireTreeModelForUser(String userId, boolean addDirectChildren, boolean cascade)
 	{
+		//these are the nodes that the user is allowed to assign
+		Set<HierarchyNodeSerialized> accessAdminNodes = null;
+		List<String> accessAdminNodeIds = null;
+		//check if the user is a super admin, if not, then get the accessAdmin nodes connected to the current user
+		if(!sakaiProxy.isSuperUser()){
+			//only allow the current user to modify permissions for this user on the nodes that
+			//has been assigned accessAdmin for currentUser
+			accessAdminNodes = getAccessAdminNodesForUser(sakaiProxy.getCurrentUserId());
+			accessAdminNodeIds = new ArrayList<String>();
+			if(accessAdminNodes != null){
+				for(HierarchyNodeSerialized node : accessAdminNodes){
+					accessAdminNodeIds.add(node.id);
+				}
+			}
+			//now call this function to set the nodeArrays:
+			getAllNodesForUser(userId);
+		}else{
+			accessAdminNodes = getAllNodesForUser(userId);
+		}
+		
 		//Returns a List that represents the tree/node architecture:
 		//  List{ List{node, List<children>}, List{node, List<children>}, ...}.
-		List<List> l1 = getTreeListForUser(userId, addDirectChildren, cascade, getAllNodesForUser(userId));
+		List<List> l1 = getTreeListForUser(userId, addDirectChildren, cascade, accessAdminNodes);
 		//Remove the shopping period nodes:
 		if(l1 != null){
 			HierarchyNode shoppingRoot = hierarchyService.getRootNode(DelegatedAccessConstants.SHOPPING_PERIOD_HIERARCHY_ID);
@@ -656,7 +706,7 @@ public class ProjectLogicImpl implements ProjectLogic {
 		//order tree model:
 		orderTreeModel(l1);
 
-		return convertToTreeModel(l1, userId, getEntireToolsList(), getEntireTermsList(), addDirectChildren);
+		return convertToTreeModel(l1, userId, getEntireToolsList(), getEntireTermsList(), addDirectChildren, accessAdminNodeIds);
 	}
 
 	public TreeModel createAccessTreeModelForUser(String userId, boolean addDirectChildren, boolean cascade)
@@ -665,12 +715,13 @@ public class ProjectLogicImpl implements ProjectLogic {
 		//  List{ List{node, List<children>}, List{node, List<children>}, ...}.
 		accessNodes = new ArrayList<String>();
 		shoppingPeriodAdminNodes = new ArrayList<String>();
+		accessAdminNodes = new ArrayList<String>();
 
 		List<List> l1 = getTreeListForUser(userId, addDirectChildren, cascade, getAccessNodesForUser(userId));
 		//order tree model:
 		orderTreeModel(l1);
 
-		return trimTreeForTerms(convertToTreeModel(l1, userId, getEntireToolsList(), getEntireTermsList(), addDirectChildren));
+		return trimTreeForTerms(convertToTreeModel(l1, userId, getEntireToolsList(), getEntireTermsList(), addDirectChildren, null));
 	}
 
 	public TreeModel getTreeModelForShoppingPeriod(boolean includePerms){
@@ -686,7 +737,7 @@ public class ProjectLogicImpl implements ProjectLogic {
 		//order tree model:
 		orderTreeModel(l1);
 
-		return convertToTreeModel(l1, userId, getEntireToolsList(), getEntireTermsList(), false);
+		return convertToTreeModel(l1, userId, getEntireToolsList(), getEntireTermsList(), false, null);
 	}
 	
 	//This will search through the tree model and trim out any sites that are restricted b/c of the term value
@@ -757,7 +808,7 @@ public class ProjectLogicImpl implements ProjectLogic {
 		//order tree model:
 		orderTreeModel(l1);
 
-		return convertToTreeModel(l1, userId, getEntireToolsList(), getEntireTermsList(), false);
+		return convertToTreeModel(l1, userId, getEntireToolsList(), getEntireTermsList(), false, null);
 	}
 
 	public TreeModel createTreeModelForShoppingPeriod(String userId)
@@ -770,7 +821,7 @@ public class ProjectLogicImpl implements ProjectLogic {
 		//order tree model:
 		orderTreeModel(l1);
 
-		return convertToTreeModel(l1, DelegatedAccessConstants.SHOPPING_PERIOD_USER, getEntireToolsList(), getEntireTermsList(), false);
+		return convertToTreeModel(l1, DelegatedAccessConstants.SHOPPING_PERIOD_USER, getEntireToolsList(), getEntireTermsList(), false, null);
 	}
 
 	/**
@@ -780,12 +831,13 @@ public class ProjectLogicImpl implements ProjectLogic {
 	 * @param userId
 	 * @return
 	 */
-	private TreeModel convertToTreeModel(List<List> map, String userId, List<ListOptionSerialized> blankRestrictedTools, List<ListOptionSerialized> blankTerms, boolean addDirectChildren)
+	private TreeModel convertToTreeModel(List<List> map, String userId, List<ListOptionSerialized> blankRestrictedTools, 
+			List<ListOptionSerialized> blankTerms, boolean addDirectChildren, List<String> accessAdminNodeIds)
 	{
 		TreeModel model = null;
 		if(!map.isEmpty() && map.size() == 1){
 
-			DefaultMutableTreeNode rootNode = add(null, map, userId, blankRestrictedTools, blankTerms, addDirectChildren);
+			DefaultMutableTreeNode rootNode = add(null, map, userId, blankRestrictedTools, blankTerms, addDirectChildren, accessAdminNodeIds);
 			model = new DefaultTreeModel(rootNode);
 		}
 		return model;
@@ -880,6 +932,15 @@ public class ProjectLogicImpl implements ProjectLogic {
 		}
 		return false;
 	}
+	
+	private boolean getIsAccessAdmin(Set<String> perms){
+		for(String perm : perms){
+			if(perm.equals(DelegatedAccessConstants.NODE_PERM_ACCESS_ADMIN)){
+				return true;
+			}
+		}
+		return false;
+	}
 
 	private List<ListOptionSerialized> copyListOptions(List<ListOptionSerialized> options){
 		List<ListOptionSerialized> returnList = new ArrayList<ListOptionSerialized>();
@@ -896,7 +957,8 @@ public class ProjectLogicImpl implements ProjectLogic {
 	 * @param userId
 	 * @return
 	 */
-	private DefaultMutableTreeNode add(DefaultMutableTreeNode parent, List<List> sub, String userId, List<ListOptionSerialized> blankRestrictedTools, List<ListOptionSerialized> blankTerms, boolean addDirectChildren)
+	private DefaultMutableTreeNode add(DefaultMutableTreeNode parent, List<List> sub, String userId, List<ListOptionSerialized> blankRestrictedTools, 
+			List<ListOptionSerialized> blankTerms, boolean addDirectChildren, List<String> accessAdminNodeIds)
 	{
 		DefaultMutableTreeNode root = null;
 		for (List nodeList : sub)
@@ -909,16 +971,15 @@ public class ProjectLogicImpl implements ProjectLogic {
 			Date startDate = null;
 			Date endDate = null;
 			String shoppingPeriodAuth = "";
-	//		Date updated = null;
-	//		Date processed = null;
 			Date shoppingAdminModified = null;
 			String shoppingAdminModifiedBy = null;
 			Date modified = null;
 			String modifiedBy = null;
-
+			
 			//you must copy in order not to pass changes to other nodes
 			List<ListOptionSerialized> restrictedTools = copyListOptions(blankRestrictedTools);
 			List<ListOptionSerialized> terms = copyListOptions(blankTerms);
+			boolean accessAdmin = accessAdminNodes.contains(node.id);
 			boolean shoppingPeriodAdmin = shoppingPeriodAdminNodes.contains(node.id);
 			if(DelegatedAccessConstants.SHOPPING_PERIOD_USER.equals(userId) || accessNodes.contains(node.id) || shoppingPeriodAdminNodes.contains(node.id)){
 				Set<String> perms = getPermsForUserNodes(userId, node.id);
@@ -931,8 +992,6 @@ public class ProjectLogicImpl implements ProjectLogic {
 				restrictedTools = getRestrictedToolSerializedList(perms, restrictedTools);
 				terms = getTermSerializedList(perms, terms);
 				directAccess = getIsDirectAccess(perms);
-		//		updated = getPermDate(perms, DelegatedAccessConstants.NODE_PERM_SHOPPING_UPDATED_DATE);
-		//		processed = getPermDate(perms, DelegatedAccessConstants.NODE_PERM_SHOPPING_PROCESSED_DATE);
 				shoppingAdminModified = getPermDate(perms, DelegatedAccessConstants.NODE_PERM_SHOPPING_ADMIN_MODIFIED);
 				shoppingAdminModifiedBy = getShoppingAdminModifiedBy(perms);
 				modified = getPermDate(perms, DelegatedAccessConstants.NODE_PERM_MODIFIED);
@@ -943,9 +1002,28 @@ public class ProjectLogicImpl implements ProjectLogic {
 				parentNodeModel = ((NodeModel) parent.getUserObject());
 			}
 			DefaultMutableTreeNode child = new DelegatedAccessMutableTreeNode();
-			child.setUserObject(new NodeModel(node.id, node, directAccess, realm, role, parentNodeModel, 
+			NodeModel childNodeModel = new NodeModel(node.id, node, directAccess, realm, role, parentNodeModel, 
 					restrictedTools, startDate, endDate, shoppingPeriodAuth, addDirectChildren && !children.isEmpty(), shoppingPeriodAdmin, terms, 
-					modifiedBy, modified, shoppingAdminModified, shoppingAdminModifiedBy));
+					modifiedBy, modified, shoppingAdminModified, shoppingAdminModifiedBy, accessAdmin);
+			//this could be an accessAdmin modifying another user, let's check:
+			if(accessAdminNodeIds != null){
+				//if accessAdminNodeIds isn't null, this means we need to restrict this tree to these nodes by
+				//setting the editable flag
+				childNodeModel.setEditable(false);
+
+				boolean found = false;
+				for(String nodeId : accessAdminNodeIds){
+					if(nodeId.equals(node.id)){
+						found = true;
+						break;
+					}
+				}
+				if(found){
+					childNodeModel.setEditable(true);
+				}
+			}
+			child.setUserObject(childNodeModel);
+			
 			if(parent == null){
 				//we have the root, set it
 				root = child;
@@ -953,29 +1031,12 @@ public class ProjectLogicImpl implements ProjectLogic {
 				parent.add(child);
 			}
 			if(!children.isEmpty()){
-				add(child, children, userId, blankRestrictedTools, blankTerms, addDirectChildren);
+				add(child, children, userId, blankRestrictedTools, blankTerms, addDirectChildren, accessAdminNodeIds);
 			}
 		}
 		return root;
 	}
 
-//	/**
-//	 * returns a map of all realms and their roles from sakaiProxy.getSiteTemplates()
-//	 * 
-//	 * @return
-//	 */
-//	private Map<String, List<String>> getRealmMap(){
-//		List<AuthzGroup> siteTemplates = sakaiProxy.getSiteTemplates();
-//		final Map<String, List<String>> realmMap = new HashMap<String, List<String>>();
-//		for(AuthzGroup group : siteTemplates){
-//			List<String> roles = new ArrayList<String>();
-//			for(Role role : group.getRoles()){
-//				roles.add(role.getId());
-//			}
-//			realmMap.put(group.getId(), roles);
-//		}
-//		return realmMap;
-//	}
 
 	/**
 	 * takes a list representation of the tree and orders it Alphabetically
@@ -1158,12 +1219,14 @@ public class ProjectLogicImpl implements ProjectLogic {
 	 * of the tree so you can create the structure on the fly with ajax
 	 * 
 	 * @param node
-	 * @param tree
-	 * @param target
 	 * @param userId
+	 * @param blankRestrictedTools
+	 * @param blankTerms
+	 * @param onlyAccessNodes
+	 * @param accessAdminNodes
 	 * @return
 	 */
-	public boolean addChildrenNodes(Object node, String userId, List<ListOptionSerialized> blankRestrictedTools, List<ListOptionSerialized> blankTerms, boolean onlyAccessNodes){
+	public boolean addChildrenNodes(Object node, String userId, List<ListOptionSerialized> blankRestrictedTools, List<ListOptionSerialized> blankTerms, boolean onlyAccessNodes, List<String> accessAdminNodes){
 		boolean anyAdded = false;
 		DefaultMutableTreeNode parentNode = (DefaultMutableTreeNode) node;
 		NodeModel nodeModel = (NodeModel) ((DefaultMutableTreeNode) node).getUserObject();
@@ -1171,6 +1234,15 @@ public class ProjectLogicImpl implements ProjectLogic {
 			List<List> childrenNodes = getDirectChildren(nodeModel.getNode());
 			Collections.sort(childrenNodes, new NodeListComparator());
 			for(List childList : childrenNodes){
+				//check if the user can edit this node:
+				if(accessAdminNodes != null && !((NodeModel) parentNode.getUserObject()).isNodeEditable()){
+					//if accessAdmin nodes isn't null this means that the user is restricted to edit just those nodes and their children
+					if(!accessAdminNodes.contains(((HierarchyNodeSerialized) childList.get(0)).id)){
+						//since the parent node isn't editable and this node doesn't show up in the editable nodes list
+						//we will not add this node
+						continue;
+					}
+				}
 				boolean newlyAdded = addChildNodeToTree((HierarchyNodeSerialized) childList.get(0), parentNode, userId, blankRestrictedTools, blankTerms, onlyAccessNodes);
 				anyAdded = anyAdded || newlyAdded;
 			}
@@ -1200,14 +1272,13 @@ public class ProjectLogicImpl implements ProjectLogic {
 			//you must copy to not pass changes to other nodes
 			List<ListOptionSerialized> restrictedTools = copyListOptions(blankRestrictedTools);
 			List<ListOptionSerialized> terms = copyListOptions(blankTerms);
-		//	Date updated= null;
-		//	Date processed = null;
 			boolean shoppingPeriodAdmin = false;
 			boolean directAccess = false;
 			Date shoppingAdminModified = null;
 			String shoppingAdminModifiedBy = null;
 			Date modified = null;
 			String modifiedBy = null;
+			boolean accessAdmin = false;
 			
 			DefaultMutableTreeNode child = new DelegatedAccessMutableTreeNode();
 			if(DelegatedAccessConstants.SHOPPING_PERIOD_USER.equals(userId)){
@@ -1221,17 +1292,16 @@ public class ProjectLogicImpl implements ProjectLogic {
 				restrictedTools = getRestrictedToolSerializedList(perms, restrictedTools);
 				terms = getTermSerializedList(perms, terms);
 				directAccess = getIsDirectAccess(perms);
-				//updated = getPermDate(perms, DelegatedAccessConstants.NODE_PERM_SHOPPING_UPDATED_DATE);
-				//processed = getPermDate(perms, DelegatedAccessConstants.NODE_PERM_SHOPPING_PROCESSED_DATE);
 				shoppingAdminModified = getPermDate(perms, DelegatedAccessConstants.NODE_PERM_SHOPPING_ADMIN_MODIFIED);
 				shoppingAdminModifiedBy = getShoppingAdminModifiedBy(perms);
 				modified = getPermDate(perms, DelegatedAccessConstants.NODE_PERM_MODIFIED);
 				modifiedBy = getModifiedBy(perms);
+				accessAdmin = getIsAccessAdmin(perms);
 			}
 			NodeModel node = new NodeModel(childNode.id, childNode, directAccess, realm, role,
 					((NodeModel) parentNode.getUserObject()), restrictedTools, startDate, endDate, 
 					shoppingPeriodAuth, false, shoppingPeriodAdmin, terms,
-					modifiedBy, modified, shoppingAdminModified, shoppingAdminModifiedBy);
+					modifiedBy, modified, shoppingAdminModified, shoppingAdminModifiedBy, accessAdmin);
 			child.setUserObject(node);
 
 			if(!onlyAccessNodes || node.getNodeAccess()){
@@ -1283,8 +1353,7 @@ public class ProjectLogicImpl implements ProjectLogic {
 		List<ListOptionSerialized> terms = getTermSerializedList(perms, getEntireToolsList());
 		boolean direct = getIsDirectAccess(perms);
 		boolean shoppingPeriodAdmin = isShoppingPeriodAdmin(perms);
-	//	Date updated = getPermDate(perms, DelegatedAccessConstants.NODE_PERM_SHOPPING_UPDATED_DATE);
-	//	Date processed = getPermDate(perms, DelegatedAccessConstants.NODE_PERM_SHOPPING_PROCESSED_DATE);
+		boolean accessAdmin = getIsAccessAdmin(perms);
 		Date shoppingAdminModified = getPermDate(perms, DelegatedAccessConstants.NODE_PERM_SHOPPING_ADMIN_MODIFIED);
 		String shoppingAdminModifiedBy = getShoppingAdminModifiedBy(perms);
 		Date modified = getPermDate(perms, DelegatedAccessConstants.NODE_PERM_MODIFIED);
@@ -1292,7 +1361,7 @@ public class ProjectLogicImpl implements ProjectLogic {
 		
 		NodeModel nodeModel = new NodeModel(node.id, node, getIsDirectAccess(nodePerms),
 				realm, role, parentNodeModel, restrictedTools, startDate, endDate, shoppingPeriodAuth, false, shoppingPeriodAdmin, terms,
-				modifiedBy, modified, shoppingAdminModified, shoppingAdminModifiedBy);
+				modifiedBy, modified, shoppingAdminModified, shoppingAdminModifiedBy, accessAdmin);
 		return nodeModel;
 	}
 
@@ -1302,22 +1371,6 @@ public class ProjectLogicImpl implements ProjectLogic {
 	public void assignUserNodePerm(String userId, String nodeId, String perm, boolean cascade) {		
 		hierarchyService.assignUserNodePerm(userId, nodeId, perm, false);
 	}
-
-//	public Date getShoppingPeriodProccessedDate(String userId, String nodeId){
-//		Date returnDate = null;
-//		Set<String> perms = getPermsForUserNodes(userId, nodeId);
-//		for(String perm : perms){
-//			if(perm.startsWith(DelegatedAccessConstants.NODE_PERM_SHOPPING_PROCESSED_DATE)){
-//				try{
-//					returnDate = new Date(Long.parseLong(perm.substring(DelegatedAccessConstants.NODE_PERM_SHOPPING_PROCESSED_DATE.length())));
-//				}catch (Exception e) {
-//					log.warn(e);
-//				}
-//				break;
-//			}
-//		}
-//		return returnDate;
-//	}
 	
 	public void removeNode(String nodeId){
 		removeNode(hierarchyService.getNodeById(nodeId));
@@ -1419,6 +1472,14 @@ public class ProjectLogicImpl implements ProjectLogic {
 		}
 		Set<HierarchyNode> delegatedAccessNodes = hierarchyService.getNodesForUserPerm(userId, DelegatedAccessConstants.NODE_PERM_SITE_VISIT); 
 		return delegatedAccessNodes != null && delegatedAccessNodes.size() > 0;
+	}
+	
+	public boolean hasAccessAdminNodes(String userId){
+		if(userId == null || "".equals(userId)){
+			return false;
+		}
+		Set<HierarchyNode> accessAdminNodes = hierarchyService.getNodesForUserPerm(userId, DelegatedAccessConstants.NODE_PERM_ACCESS_ADMIN); 
+		return accessAdminNodes != null && accessAdminNodes.size() > 0;
 	}
 	
 	public List<String> getNodesBySiteRef(String siteRef, String hierarchyId){

@@ -11,6 +11,7 @@ import org.apache.wicket.extensions.markup.html.tree.table.IRenderable;
 import org.apache.wicket.extensions.markup.html.tree.table.PropertyRenderableColumn;
 import org.apache.wicket.model.PropertyModel;
 import org.sakaiproject.delegatedaccess.model.NodeModel;
+import org.sakaiproject.delegatedaccess.tool.pages.EditablePanelEmpty;
 import org.sakaiproject.delegatedaccess.tool.pages.EditablePanelList;
 import org.sakaiproject.delegatedaccess.tool.pages.EditablePanelListInherited;
 
@@ -32,6 +33,10 @@ public class PropertyEditableColumnList extends PropertyRenderableColumn
 	 */
 	public Component newCell(MarkupContainer parent, String id, TreeNode node, int level)
 	{
+		if(!((NodeModel) ((DefaultMutableTreeNode) node).getUserObject()).isNodeEditable()){
+			return new EditablePanelEmpty(id);
+		}
+		
 		if(((NodeModel) ((DefaultMutableTreeNode) node).getUserObject()).isDirectAccess()){
 			return new EditablePanelList(id, new PropertyModel(node, getPropertyExpression()), (NodeModel) ((DefaultMutableTreeNode) node).getUserObject(), node, userType, fieldType);
 		}else{

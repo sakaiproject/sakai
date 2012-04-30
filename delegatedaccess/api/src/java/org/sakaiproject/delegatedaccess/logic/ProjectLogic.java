@@ -3,6 +3,7 @@ package org.sakaiproject.delegatedaccess.logic;
 import java.util.Date;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 
 import javax.swing.tree.TreeModel;
 
@@ -114,9 +115,10 @@ public interface ProjectLogic {
 	 * @param blankRestrictedTools
 	 * @param blankTerms
 	 * @param onlyAccessNodes
+	 * @param accessAdminNodes
 	 * @return
 	 */
-	public boolean addChildrenNodes(Object node, String userId, List<ListOptionSerialized> blankRestrictedTools, List<ListOptionSerialized> blankTerms, boolean onlyAccessNodes);
+	public boolean addChildrenNodes(Object node, String userId, List<ListOptionSerialized> blankRestrictedTools, List<ListOptionSerialized> blankTerms, boolean onlyAccessNodes, List<String> accessAdminNodes);
 
 	/**
 	 * returns a blank (unselected) list of all the tool options for restricting tools
@@ -171,6 +173,13 @@ public interface ProjectLogic {
 	 * @return
 	 */
 	public boolean hasDelegatedAccessNodes(String userId);
+	
+	/**
+	 * returns whether the user has any "access admin" permission
+	 * @param userId
+	 * @return
+	 */
+	public boolean hasAccessAdminNodes(String userId);
 	
 	/**
 	 * Returns the node Id for the site Ref and hierarchy Id
@@ -236,4 +245,11 @@ public interface ProjectLogic {
 	 * @return
 	 */
 	public List<ListOptionSerialized> getAuthorizationOptions();
+	
+	/**
+	 * Returns a set of hierarchy nodes that the user has been assigned accessAdmin privileges for.
+	 * @param userId
+	 * @return
+	 */
+	public Set<HierarchyNodeSerialized> getAccessAdminNodesForUser(String userId);
 }

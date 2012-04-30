@@ -13,6 +13,7 @@ import org.apache.wicket.model.PropertyModel;
 import org.sakaiproject.delegatedaccess.model.NodeModel;
 import org.sakaiproject.delegatedaccess.tool.pages.EditablePanelDate;
 import org.sakaiproject.delegatedaccess.tool.pages.EditablePanelDateText;
+import org.sakaiproject.delegatedaccess.tool.pages.EditablePanelEmpty;
 
 public class PropertyEditableColumnDate extends PropertyRenderableColumn
 {
@@ -30,6 +31,10 @@ public class PropertyEditableColumnDate extends PropertyRenderableColumn
 	 */
 	public Component newCell(MarkupContainer parent, String id, TreeNode node, int level)
 	{
+		if(!((NodeModel) ((DefaultMutableTreeNode) node).getUserObject()).isNodeEditable()){
+			return new EditablePanelEmpty(id);
+		}
+		
 		if(((NodeModel) ((DefaultMutableTreeNode) node).getUserObject()).isDirectAccess()){
 			return new EditablePanelDate(id, new PropertyModel(node, getPropertyExpression()), (NodeModel) ((DefaultMutableTreeNode) node).getUserObject(), node, startDate);
 		}else{

@@ -12,6 +12,7 @@ import org.apache.wicket.extensions.markup.html.tree.table.PropertyRenderableCol
 import org.apache.wicket.model.PropertyModel;
 import org.sakaiproject.delegatedaccess.model.NodeModel;
 import org.sakaiproject.delegatedaccess.tool.pages.EditablePanelCheckbox;
+import org.sakaiproject.delegatedaccess.tool.pages.EditablePanelEmpty;
 
 /**
  * Column Renderer for the checkbox colummn
@@ -34,6 +35,10 @@ public class PropertyEditableColumnCheckbox extends PropertyRenderableColumn
 	 */
 	public Component newCell(MarkupContainer parent, String id, TreeNode node, int level)
 	{
+		if(!((NodeModel) ((DefaultMutableTreeNode) node).getUserObject()).isNodeEditable()){
+			return new EditablePanelEmpty(id);
+		}
+		
 		return new EditablePanelCheckbox(id, new PropertyModel(node, getPropertyExpression()), (NodeModel) ((DefaultMutableTreeNode) node).getUserObject(), node, type);
 	}
 
