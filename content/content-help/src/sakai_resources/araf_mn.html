@@ -1,0 +1,258 @@
+﻿<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html><head>
+<title>Uploading files to Resources or Drop Box using WebDAV with Windows</title>
+<style type="text/css">
+		/* доторлох дүрсийн нарийвчилсан загвар */
+		
+		/* захиалсан жагсаалтын нарийвчилсан загвар*/
+		
+		/* хүснэгтийн нүдний нарийвчилсан загвар */
+		</style>
+<link type="text/css" href="/library/skin/tool_base.css" media="all" rel="stylesheet" />
+<link type="text/css" href="/library/skin/default/tool.css" media="all" rel="stylesheet" />
+</head>
+<body>
+<div class="helpBody">
+<h2>Resources юмуу Drop Box-д WebDAV-ыг Windows-тай ашиглан файлууд оруулах</h2>
+ 
+<a name="top"> </a>
+
+
+
+<p>энэ хуудсанд:</p>
+
+
+
+<ul><li><a href="#intro">Introduction</a></li><li><a href="#7">Windows 7</a></li><li><a href="#vista">Windows Vista</a></li><li><a href="#xp">Windows XP</a></li></ul>
+
+
+
+<p><strong>анхаар:</strong> ажиллаж байгаа системээсээ WebDAV-д тохируулга
+хийхийн тулд доорх зааварчилгааг дагаж болно. Эсвэл Cyberduck, AnyClient
+зэрэг гуравдагч талын үйлчилгээг хэрэглэж болно. зарим хэрэглэгчид нэг арга нь 
+нөгөөгөөсөө илүү байгааг хэлдэг; хэрэв танд асуудал гарвал
+өөр үйлчилгээг туршаад үзээрэй.</p>
+
+<hr />
+
+<a name="intro"> </a>
+
+<h3>танилцуулга</h3>
+
+
+<p>WebDAV (Web-based Distributed Authoring and Versioning)
+курс болон төслийн site-руугаа том хэмжээний файл, олон файлууд 
+юмуу файлуудын фолдерыг илүү хялбараар байршуулах юмуу татах 
+боломжийг олгоно.</p>
+
+
+
+
+
+
+<p>WebDAV-ыг тохируулахын өмнө, дор хаяж нэг зүйл (файл, 
+фолдер г.м)  Resources or Drop Box tool-ын чиглэлд байх ёстой. 
+тусламж хэрэгтэй бол <a href="content.hlp?docId=arfs">Resources</a> эсвэл <a href="content.hlp?docId=arcg">ADrop Box-д байгаа ямар нэг зүйлийг нэмэх, засах, устгах </a>-ыг хар.</p>
+
+
+<p>хэрэглээний програмуудаас (Word,  Excel,Internet Explorer г.м)шууд 
+файлыг хадгалах нь найдвартай биш. дорвитой үр дүн гаргахын тулд, 
+файлаа компютертаа эхэлж хадгалаад, дараа нь site-руугаа байршуулах хэрэгтэй.</p>
+
+
+<p><strong>анхнаар:</strong> торорхой нэг тэмдэгтүүдийг агуулсан файлын нэр өгөх
+боломжгүй. ашиглаж болохгүй тэмдэгтүүдийн жагсаалтыг <a href="content.hlp?docId=auze">ашиглаж болохгүй тэмдэгтүүд</a>-аас харна уу.</p>
+
+
+
+
+
+
+
+
+<p><a href="#top">эхний хэсэгрүү буцах</a></p>
+
+<a name="7"> </a>
+
+<h3>Windows 7</h3>
+
+
+<p>WebDAV in Windows 7-руу холбогдохын тулд, WebClient-ын үйлчилгээг 
+нээгээд дараа нь WebDAV-ын холбоог үүсгэнэ.</p>
+
+<h4>WebClient үйлчилгээг оруулах</h4>
+
+<ol><li> <strong><code>Start</code></strong> menu-аас, <strong><code>Control Panel</code></strong>-ыг сонгоод, дараа нь 
+<strong><code>System and Security</code></strong>, тэгээд <strong><code>Administrative Tools</code></strong>, дараа нь 
+ <strong><code>Services</code></strong>-ыг сонгоорой.
+
+<br /><br />
+</li><li> <strong><code>WebClient</code></strong>-руу очоод, үйлчилгээг <strong><code>Automatic</code></strong> дээр тохируулаад,
+дараа нь <strong><code>Apply</code></strong> дээр дар.
+
+<br /><br />
+</li><li>хэрэв ажиллаж эхлэхгүй бол,  <strong><code>Start</code></strong> дээр дар.
+
+<br /><br />
+</li><li> Control Panel-ыг хаахын тулд <strong><code>OK</code></strong> дээр дар.
+</li></ol>
+
+<h4>WebDAV холболтыг үүсгэх</h4>
+
+<ol><li><strong><code>Start</code></strong> menu-аас,  <strong><code>Computer</code></strong>дээр баруун товчоо дарна, 
+<strong><code>Map network drive... </code></strong>-ыг сонгоно.
+
+<br /><br />
+</li><li>Resources, Drop Box tool-ын чиглэлийг зааж өгөх URL-ыг оруулна.
+
+<p>URL-ын форматын талаар site-ын удирдлагатай холбогдоно уу; 
+ site-д чинь siteID-ыг багтаасан байх магадлалтай. </p>
+
+<p><strong>анхаар:</strong> siteID-аа олох зааварчилгаа авахын тулд <a href="content.hlp?docId=atla">Determining your site's siteID</a>-ыг хар.</p>
+</li><li>шинэ сүлжээний байршил гарч ирнэ. тухайн зүйлээ нээхийн тулд түүн дээрээ хоёр дарна уу.
+
+<br /><br />
+</li><li>хэрэв шаардлагатай бол нэвтрэх нэр, нууц үгээ оруулна.
+</li></ol>
+
+<p>дөнгөж холбосон компютер, sites хоёрынхоо хооронд одоо файл,
+фолдеруудаа чирээд тавьж болно. ямар нэг зүйл устгэх бол
+<strong><code>Delete</code></strong>-ыг сонгоод баруун товчоо дарна.</p>
+
+<p>хэрэв файл, фолдеруудаа чирч тавихад нь асуудал гарвал хуулахыг хүссэн
+файл, фолдерууд дээрээ баруун товчоо дараад<strong><code>Copy</code></strong>-ыг
+сонгоно. дараа нь үүнийгээ тавих лавлах дээр баруун товчоо дараад
+ <strong><code>Paste</code></strong>-ыг сонгоно.</p>
+
+<p>Resources, Drop Box дахь лавлахад гарч ирэх файлынхаа 
+ачаалагчыг сэргээх хэрэгтэй болж магадгүй. </p>
+
+<p><a href="#top">эхний хэсэгрүү буцах</a></p>
+
+
+<a name="vista"> </a>
+
+<h3>Windows Vista</h3>
+
+<p><strong>анхнаар:</strong> Windows Vista-ыг ажиллуулж байгаа компютерт
+WebDAV-ыг ашиглан site-руугаа холболт хийх нь тийм ч найдвартай ажиллахгүй.
+Гэвч, Microsoft нь зарим хэрэглэгчдэд холболтын асуудлаа шийдвэрлэхэд туслах 
+зорилгоор програм хангамжийн update-тай байдаг. update-ын тухай мэдээлэл болон
+яаж татаж авах тухай Microsoft Help and Support web site-ын 907306 дугаар 
+зүйлээс харна уу.</p>
+
+<p> <a href="http://support.microsoft.com/default.aspx" target="new">Search
+Microsoft Help and Support</a>.</p>
+
+
+
+
+<p> WebDAV-ыг ашиглан файлуудруугаа нэвтрэх болон файл оруулах боломжийг 
+олгодог Windows Vista руу орох shortcut-ыг нэмэхийн тулд:</p>
+
+<ol><li><strong><code>Start</code></strong> цэсээс,  <strong><code>Computer</code></strong>дээр баруун товчоо дараад 
+ <strong><code>Map Network Drive... </code></strong>-ыг сонгоно.
+
+<br /><br />
+</li><li> <code>Map Network Drive</code>гэсэн цонхонд, <strong><code>бичиг баримт болон зургуудаа
+хадгалахад ашиглаж болох Web site холбогдох</code></strong> дээр дар,
+тэгээд <strong><code>Next</code></strong>-ыг дарна.
+
+<br /><br />
+</li><li> <strong><code>Choose a custom network location</code></strong>дээр дараад, дараа нь
+<strong><code>Next</code></strong>-ыг дарна.
+
+<br /><br />
+</li><li> "интернэт юмуу сүлжээний хаяг" гэсэн хэсэгт, Resources, Drop Box tool-ын
+чиглэлийг зааж өгөх URL-ыг оруулаад <strong><code>Next</code></strong>-ыг дарна.
+
+
+<p>URL-ын форматын талаар site-ын удирдлагатай холбогдоно уу; 
+ site-д чинь siteID-ыг багтаасан байх магадлалтай. </p>
+
+
+
+<p><strong>анхаар:</strong> siteID-аа олох зааварчилгаа авахын тулд
+<a href="content.hlp?docId=atla">Determining your site's siteID</a>-ыг хар.</p>
+</li><li>хэрэв шаардлагатай бол нэвтрэх нэр, нууц үгээ оруулна.
+
+<br /><br />
+</li><li> холбогдох site-ын нэр зэрэг сүүлд нь мартахааргүй
+нэрийг фолдертоо өгнө.</li></ol>
+
+<p>дөнгөж холбосон компютер, sites хоёрынхоо хооронд одоо файл,
+фолдеруудаа чирээд тавих боломжтой болно.  фолдер нээхийн тулд,
+фолдер дээрээ баруун товчоо дараад <strong><code>Explore</code></strong> юмуу <strong><code>Open</code></strong>-ыг сонгоно. 
+ямар нэг зүйл устгах бол түүн дээрээ баруун товчоо дараад  <strong><code>Delete</code></strong>-ыг сонго.</p>
+
+<p>хэрэв файл, фолдеруудаа чирч тавихад нь асуудал гарвал хуулахыг хүссэн
+файл, фолдерууд дээрээ баруун товчоо дараад<strong><code>Copy</code></strong>-ыг
+сонгоно. дараа нь үүнийгээ тавих лавлах дээр баруун товчоо дараад
+ <strong><code>Paste</code></strong>-ыг сонгоно.</p>
+
+<p>Resources, Drop Box дахь лавлахад гарч ирэх файлынхаа 
+ачаалагчыг сэргээх хэрэгтэй болж магадгүй.  </p>
+
+<p><a href="#top">эхний хэсэгрүү буцах</a></p>
+
+<a name="xp"> </a>
+
+<h3>Windows XP</h3>
+
+
+<p>WebDAV-ыг ашиглан файлуудруугаа нэвтрэх болон файл оруулах боломжийг 
+олгодог компютерлуугаа орох shortcut-ыг нэмэхийн тулд Add Network Place
+ Wizard-ыг ашиглах:</p>
+
+<ol><li>дэлгэц дээрх <strong><code>My Network Places</code></strong>дээр хоёр дар.
+
+<br /><br />
+</li><li> "Network Tasks" цонхны дискт <strong><code>Add a network
+place</code></strong> дээр дарна.
+
+<br /><br />
+</li><li> welcome дэлгэц дээр <strong><code>Next</code></strong> дээр дар.
+
+<br /><br />
+</li><li> <strong><code>Choose another network location</code></strong>-ыг сонгоод,
+<strong><code>Next</code></strong>дээр дар.
+
+<br /><br />
+</li><li>"интернэт юмуу сүлжээний хаяг" гэсэн хэсэгт, Resources, Drop Box tool-ын
+чиглэлийг зааж өгөх URL-ыг оруулна.
+
+<p>URL-ын форматын талаар site-ын удирдлагатай холбогдоно уу; 
+ site-д чинь siteID-ыг багтаасан байх магадлалтай. </p>
+
+
+
+<p><strong>анхаар:</strong> siteID-аа олох зааварчилгаа авахын тулд
+<a href="content.hlp?docId=atla">Determining your site's siteID</a>-ыг хар.</p>
+</li><li>хэрэв шаардлагатай бол нэвтрэх нэр, нууц үгээ оруулна.
+
+
+<br /><br />
+
+</li><li>холбогдох site-ын нэр зэрэг сүүлд нь мартахааргүй
+нэрийг фолдертоо өгнө.
+
+<br /><br />
+</li><li> <strong><code>Finish</code></strong>дээр дарна.
+</li></ol>
+
+<p>дөнгөж холбосон компютер, sites хоёрынхоо хооронд одоо файл,
+фолдеруудаа чирээд тавих боломжтой болно. Гэвч, site-аас desktop дахь
+ Recycle Bin-рүү устгахыг хүссэн юмаа чирэх байдлаар устгаж болохгүй.
+ямар нэг зүйл устгэхдаа түүн дээрээ баруун товчоо дарж
+ <strong><code>Delete</code></strong>-ыг сонгоно.</p>
+
+<p><a href="#top">эхний хэсэгрүү буцах</a></p>
+
+<a name="demos"> </a>
+
+
+
+
+
+</div>
+</body></html>
