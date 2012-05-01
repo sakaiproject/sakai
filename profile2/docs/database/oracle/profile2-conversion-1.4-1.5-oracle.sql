@@ -20,6 +20,8 @@ create table PROFILE_WALL_ITEMS_T (
 	WALL_ITEM_DATE date not null,
 	primary key (WALL_ITEM_ID)
 );
+create sequence WALL_ITEMS_S;
+create index PROFILE_WI_USER_UUID_I on PROFILE_WALL_ITEMS_T (USER_UUID);
 
 create table PROFILE_WALL_ITEM_COMMENTS_T (
 	WALL_ITEM_COMMENT_ID number(19,0) not null,
@@ -29,6 +31,7 @@ create table PROFILE_WALL_ITEM_COMMENTS_T (
 	WALL_ITEM_COMMENT_DATE date not null,
 	primary key (WALL_ITEM_COMMENT_ID)
 );
+create sequence WALL_ITEM_COMMENTS_S;
 
 alter table PROFILE_WALL_ITEM_COMMENTS_T 
 	add constraint FK32185F67BEE209 
