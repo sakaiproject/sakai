@@ -330,7 +330,9 @@ public class YaftTopicEntity implements LessonEntity, ForumInterface {
         public boolean objectExists() {
 	    if (discussion == null && forumService != null)
 		discussion = forumService.getDiscussion(id, false);
-	    return discussion != null;
+	    if (discussion == null || "DELETED".equals(discussion.getStatus()))
+		return false;
+	    return true;
 	}
 
 	/**
