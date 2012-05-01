@@ -127,6 +127,9 @@ alter table PROFILE_WALL_ITEM_COMMENTS_T
 alter table PROFILE_PREFERENCES_T add SHOW_ONLINE_STATUS bit not null DEFAULT true;
 alter table PROFILE_PRIVACY_T add ONLINE_STATUS int not null DEFAULT 0;
 
+-- PRFL-720 add missing sequences
+create index PROFILE_WI_USER_UUID_I on PROFILE_WALL_ITEMS_T (USER_UUID);
+
 -- Profile2 v 1.5 conversion END
 
 -- -------------------------------

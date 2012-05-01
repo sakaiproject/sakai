@@ -197,11 +197,16 @@ create table PROFILE_WALL_ITEM_COMMENTS_T (
 alter table PROFILE_WALL_ITEM_COMMENTS_T 
 	add constraint FK32185F67BEE209 
 	foreign key (WALL_ITEM_ID) 
-	references PROFILE_WALL_ITEMS_T;
+	references PROFILE_WALL_ITEMS_T;	
 	
 -- PRFL-350 add the show online status column, default to 1
 alter table PROFILE_PREFERENCES_T add SHOW_ONLINE_STATUS number(1,0) default 1;
 alter table PROFILE_PRIVACY_T add ONLINE_STATUS number(10,0) default 0;
+
+-- PRFL-720 add missing sequences
+create index PROFILE_WI_USER_UUID_I on PROFILE_WALL_ITEMS_T (USER_UUID);
+create sequence WALL_ITEMS_S;
+create sequence WALL_ITEM_COMMENTS_S;
 
 -- Profile2 v 1.5 conversion END
 
