@@ -64,6 +64,7 @@ import org.sakaiproject.tool.assessment.ui.bean.authz.AuthorizationBean;
 import org.sakaiproject.tool.assessment.ui.listener.util.ContextUtil;
 import org.sakaiproject.tool.assessment.ui.listener.util.TimeUtil;
 import org.sakaiproject.util.FormattedText;
+import org.sakaiproject.util.ResourceLoader;
 
 /**
  * <p>Title: Samigo</p>2
@@ -78,7 +79,7 @@ public class AuthorActionListener
   private static Log log = LogFactory.getLog(AuthorActionListener.class);
   private HashMap hm = new HashMap();
   private String display_dateFormat= ContextUtil.getLocalizedString("org.sakaiproject.tool.assessment.bundle.GeneralMessages","output_data_picker_w_sec");
-  private SimpleDateFormat displayFormat = new SimpleDateFormat(display_dateFormat);
+  private SimpleDateFormat displayFormat = new SimpleDateFormat(display_dateFormat, new ResourceLoader().getLocale());
   private TimeUtil tu = new TimeUtil();
 
   public AuthorActionListener()

@@ -1595,7 +1595,7 @@ public class AssessmentSettingsBean
   public void setDisplayFormat(String displayDateFormat)
   {
 	  this.displayDateFormat = displayDateFormat;
-      this.displayFormat = new SimpleDateFormat(displayDateFormat);
+      this.displayFormat = new SimpleDateFormat(displayDateFormat, new ResourceLoader().getLocale());
   }
   
   public boolean getIsValidStartDate()

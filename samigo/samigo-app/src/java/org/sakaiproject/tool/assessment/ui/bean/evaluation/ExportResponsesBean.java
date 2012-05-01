@@ -62,6 +62,7 @@ import org.sakaiproject.tool.assessment.ui.bean.util.Validator;
 import org.sakaiproject.tool.assessment.ui.listener.evaluation.HistogramListener;
 import org.sakaiproject.tool.assessment.ui.listener.util.ContextUtil;
 import org.sakaiproject.util.FormattedText;
+import org.sakaiproject.util.ResourceLoader;
 
 
 /**
@@ -270,7 +271,7 @@ public class ExportResponsesBean implements Serializable, PhaseAware {
     public String getDownloadFileName() {
 		Date now = new Date();
 		String dateFormat = ContextUtil.getLocalizedString("org.sakaiproject.tool.assessment.bundle.EvaluationMessages","export_filename_date_format");
-		DateFormat df = new SimpleDateFormat(dateFormat);
+		DateFormat df = new SimpleDateFormat(dateFormat, new ResourceLoader().getLocale());
 		StringBuilder fileName = new StringBuilder(ContextUtil.getLocalizedString("org.sakaiproject.tool.assessment.bundle.EvaluationMessages","assessment"));
         if(StringUtils.trimToNull(assessmentName) != null) {
         	assessmentName = assessmentName.replaceAll("\\s", "_"); // replace whitespace with '_'
