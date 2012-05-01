@@ -16,10 +16,34 @@
   	<dependencies>
         
     	<!-- project dependencies -->
-    	<dependency>
-			<groupId>org.sakaiproject.dash</groupId>
+	<dependency>
+		<groupId>org.sakaiproject.assignment</groupId>
+		<artifactId>sakai-assignment-api</artifactId>
+	        <version>${sakai.version}</version>
+		<scope>provided</scope>
+	</dependency>
+	<dependency>
+		<groupId>org.sakaiproject.announcement</groupId>
+		<artifactId>sakai-announcement-api</artifactId>
+		<version>${sakai.version}</version>
+		<scope>provided</scope>
+	</dependency>
+	<dependency>
+		<groupId>org.sakaiproject.calendar</groupId>
+		<artifactId>sakai-calendar-api</artifactId>
+		<version>${sakai.version}</version>
+		<scope>provided</scope>
+	</dependency>
+	<dependency>
+		<groupId>org.sakaiproject.message</groupId>
+		<artifactId>sakai-message-api</artifactId>
+		<version>${sakai.version}</version>
+		<scope>provided</scope>
+	</dependency>
+	<dependency>
+		<groupId>org.sakaiproject.dash</groupId>
 		<artifactId>dashboard-api</artifactId>
-		</dependency>
+	</dependency>
     	
     	<!-- third party dependencies -->
 		<dependency>
