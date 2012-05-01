@@ -53,7 +53,7 @@
                 <sakairsf.sakai.version>2.2.x</sakairsf.sakai.version>
                 <rsfutil.version>0.7.4</rsfutil.version>
                 <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding> 
-                <url.localsite>scp://source.sakaiproject.org/var/www/html/release/mailsender/${project.version}</url.localsite>
+                <url.localsite>scpexe://source.sakaiproject.org/var/www/html/release/mailsender/${project.version}</url.localsite>
             </properties>
         </profile>
         <profile>
@@ -66,7 +66,7 @@
                 <sakairsf.sakai.version>2.2.x</sakairsf.sakai.version>
                 <rsfutil.version>0.7.4</rsfutil.version>
                 <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding> 
-                <url.localsite>scp://source.sakaiproject.org/var/www/html/release/mailsender/${project.version}</url.localsite>
+                <url.localsite>scpexe://source.sakaiproject.org/var/www/html/release/mailsender/${project.version}</url.localsite>
             </properties>
         </profile>
         <profile>
@@ -79,7 +79,7 @@
                 <sakairsf.sakai.version>2.2.x</sakairsf.sakai.version>
                 <rsfutil.version>0.7.4</rsfutil.version>
                 <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding> 
-                <url.localsite>scp://source.sakaiproject.org/var/www/html/release/mailsender/${project.version}</url.localsite>
+                <url.localsite>scpexe://source.sakaiproject.org/var/www/html/release/mailsender/${project.version}</url.localsite>
             </properties>
         </profile>
     </profiles>
@@ -143,9 +143,9 @@
     </developers>
 
     <scm>
-        <connection>scm:svn:https://source.sakaiproject.org/svn/mailsender/trunk</connection>
-        <developerConnection>scm:svn:https://source.sakaiproject.org/svn/mailsender/trunk</developerConnection>
-        <url>https://source.sakaiproject.org/svn/mailsender/trunk</url>
+        <connection>scm:svn:https://source.sakaiproject.org/svn/mailsender/branches/1.7</connection>
+        <developerConnection>scm:svn:https://source.sakaiproject.org/svn/mailsender/branches/1.7</developerConnection>
+        <url>https://source.sakaiproject.org/svn/mailsender/branches/1.7</url>
     </scm>
 
     <distributionManagement>

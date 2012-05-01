@@ -19,19 +19,19 @@
   <bean id="mailsenderContent1" class="org.sakaiproject.component.app.help.model.ResourceBean">
       <property name="docId"><value>mailsender_overview</value></property>
       <property name="name"><value>Overview</value></property>
-      <property name="location"><value>/sakai_mailsender/overview.htm</value></property>
+      <property name="location"><value>/sakai_mailtool/overview.htm</value></property>
       <property name="defaultForTool"><value>sakai.mailsender</value></property>
   </bean>
   <bean id="mailsenderContent2" class="org.sakaiproject.component.app.help.model.ResourceBean">
     <property name="docId"><value>mailsender_content2</value></property>
     <property name="name"><value>Mail Composition</value></property>
-    <property name="location"><value>/sakai_mailsender/compose.htm</value></property>
+    <property name="location"><value>/sakai_mailtool/compose.htm</value></property>
       <property name="defaultForTool"><value>sakai.mailsender</value></property>
   </bean>
   <bean id="mailsenderContent3" class="org.sakaiproject.component.app.help.model.ResourceBean">
     <property name="docId"><value>mailsender_content3</value></property>
     <property name="name"><value>Options, Saving defaults</value></property>
-    <property name="location"><value>/sakai_mailsender/options.htm</value></property>
+    <property name="location"><value>/sakai_mailtool/options.htm</value></property>
     <property name="defaultForTool"><value>sakai.mailsender</value></property>
   </bean>
   <bean id="org.sakaiproject.api.app.help.TableOfContents" 

@@ -328,7 +328,7 @@ public class ExternalLogicImpl implements ExternalLogic
 
 	public List<String> sendEmail(ConfigEntry config, String fromEmail, String fromName,
 			Map<String, String> to, String subject, String content,
-			Map<String, MultipartFile> attachments) throws MailsenderException, AttachmentException
+			List<Attachment> attachments) throws MailsenderException, AttachmentException
 	{
         if (fromEmail == null)
         {
@@ -389,22 +389,9 @@ public class ExternalLogicImpl implements ExternalLogic
 
         if (attachments != null)
         {
-            for (Entry<String, MultipartFile> entry : attachments.entrySet())
-            {
-                MultipartFile mf = entry.getValue();
-                String filename = mf.getOriginalFilename();
-                try
-                {
-                    File f = File.createTempFile(filename, null);
-                    mf.transferTo(f);
-                    Attachment attachment = new Attachment(f, filename);
-                    msg.addAttachment(attachment);
-                }
-                catch (IOException ioe)
-                {
-                    throw new AttachmentException(ioe.getMessage());
-                }
-            }
+        	for (Attachment attachment : attachments) {
+        		msg.addAttachment(attachment);
+        	}
         }
 
 		// send a copy

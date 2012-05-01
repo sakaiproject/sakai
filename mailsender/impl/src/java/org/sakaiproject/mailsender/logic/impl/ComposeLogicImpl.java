@@ -77,7 +77,7 @@ public class ComposeLogicImpl implements ComposeLogic
 		{
 			Role r = (Role) i.next();
 			String rolename = r.getId();
-			if (!ignoreRoles.contains(rolename)) {
+			if (includeRole(rolename)) {
 				String singular = null;
 				String plural = null;
 	
@@ -110,6 +110,16 @@ public class ComposeLogicImpl implements ComposeLogic
 		}
 		Collections.sort(theRoles, new EmailRoleComparator(EmailRoleComparator.SORT_BY.PLURAL));
 		return theRoles;
+	}
+
+	/**
+	 * Should this role be included in the list which users can send messages to?
+	 * @param rolename The role name.
+	 * @return <code>true</code> when the role can be shown/selected.
+	 */
+	protected boolean includeRole(String rolename) {
+		// Ignore roles that don't get assigned to users and specifically ignored roles.
+		return ! (rolename.startsWith(".") || ignoreRoles.contains(rolename));
 	}
 
 	/**

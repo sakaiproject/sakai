@@ -21,10 +21,6 @@
     <packaging>jar</packaging>
 
     <dependencies>
-    	<dependency>
-    		<groupId>org.springframework</groupId>
-    		<artifactId>spring-webmvc</artifactId>
-    	</dependency>
         <dependency>
             <groupId>org.sakaiproject.kernel</groupId>
             <artifactId>sakai-kernel-api</artifactId>

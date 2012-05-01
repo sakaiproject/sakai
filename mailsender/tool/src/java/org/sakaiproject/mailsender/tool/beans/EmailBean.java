@@ -16,6 +16,8 @@
  **********************************************************************************/
 package org.sakaiproject.mailsender.tool.beans;
 
+import java.io.File;
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -26,6 +28,7 @@ import java.util.Map.Entry;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.sakaiproject.component.api.ServerConfigurationService;
+import org.sakaiproject.email.api.Attachment;
 import org.sakaiproject.exception.IdUnusedException;
 import org.sakaiproject.mailsender.AttachmentException;
 import org.sakaiproject.mailsender.MailsenderException;
@@ -196,9 +199,27 @@ public class EmailBean
 		{
 			if (invalids.size() == 0)
 			{
+				List<Attachment> attachments = new ArrayList<Attachment>();
+				if (multipartMap != null && !multipartMap.isEmpty()) {
+					for (Entry<String, MultipartFile> entry : multipartMap.entrySet()) {
+						MultipartFile mf = entry.getValue();
+		                String filename = mf.getOriginalFilename();
+		                try
+		                {
+		                    File f = File.createTempFile(filename, null);
+		                    mf.transferTo(f);
+		                    Attachment attachment = new Attachment(f, filename);
+		                    attachments.add(attachment);
+		                }
+		                catch (IOException ioe)
+		                {
+		                    throw new AttachmentException(ioe.getMessage());
+		                }
+					}
+				}
 				// send the message
 				invalids = externalLogic.sendEmail(config, fromEmail, fromDisplay,
-						emailusers, subject, content, multipartMap);
+						emailusers, subject, content, attachments);
 			}
 
 			// append to the email archive
