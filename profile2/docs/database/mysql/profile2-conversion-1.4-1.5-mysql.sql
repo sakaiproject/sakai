@@ -20,6 +20,7 @@ create table PROFILE_WALL_ITEMS_T (
 	WALL_ITEM_DATE datetime not null,
 	primary key (WALL_ITEM_ID)
 );
+create index PROFILE_WI_USER_UUID_I on PROFILE_WALL_ITEMS_T (USER_UUID);
 
 create table PROFILE_WALL_ITEM_COMMENTS_T (
 	WALL_ITEM_COMMENT_ID bigint not null auto_increment,
