@@ -25,6 +25,7 @@ import java.sql.Connection;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -50,6 +51,7 @@ import org.sakaiproject.entity.api.Entity;
 import org.sakaiproject.entity.api.Reference;
 import org.sakaiproject.entity.cover.EntityManager;
 import org.sakaiproject.event.api.Event;
+import org.sakaiproject.event.api.NotificationService;
 import org.sakaiproject.javax.PagingPosition;
 import org.sakaiproject.memory.api.Cache;
 import org.sakaiproject.memory.api.MemoryService;
@@ -1636,12 +1638,20 @@ public abstract class DbAuthzGroupService extends BaseAuthzGroupService implemen
 			// Would be better to get this initially to make the code more efficient, but the realms collection
 			// does not have a common order for the site's id which is needed to determine if the session variable exists
 			String roleswap = SecurityService.getUserEffectiveRole(siteRef);
+			/* Delegated access essentially behaves like roleswap except instead of just specifying which role, you can also specify
+			 * the realm as well.  The access map is populated by an Event Listener that listens for dac.checkaccess and is stored in the session
+			 * attribute: delegatedaccess.accessmap.  This is a map of: SiteRef -> String[]{realmId, roleId}.  Delegated access
+			 * will defer to roleswap if it's set.
+			 */
+			String[] delegatedAccessGroupAndRole = getDelegatedAccessRealmRole(siteRef);
+			boolean delegatedAccess = delegatedAccessGroupAndRole != null && delegatedAccessGroupAndRole.length == 2;
 			
 			List results = null;
-			
+
 			// Only check roleswap if the method is being called for the current user
-			if (roleswap != null && userId != null && userId.equals(sessionManager().getCurrentSessionUserId()))
-            {
+			if ( (roleswap != null || delegatedAccess)
+					&& userId != null && userId.equals(sessionManager().getCurrentSessionUserId())
+			) {
 				
 				// First check in the user's own my workspace site realm if it's in the list
 				// We don't want to change the user's role in their own site, so call the regular function.
@@ -1651,11 +1661,26 @@ public abstract class DbAuthzGroupService extends BaseAuthzGroupService implemen
 					return true;
 				
 				// Then check the site where there's a roleswap effective
-				
+				if (M_log.isDebugEnabled()) M_log.debug("userId="+userId+", siteRef="+siteRef+", roleswap="+roleswap+", delegatedAccess="+delegatedAccess);
 				Object[] fields2 = new Object[3];
-				fields2[0] = roleswap;
+				if (roleswap != null) {
+				    fields2[0] = roleswap;
+				} else if (delegatedAccess
+				        && delegatedAccessGroupAndRole != null ) {
+				    // set the role for delegated access
+				    fields2[0] = delegatedAccessGroupAndRole[1];
+				}
 				fields2[1] = lock;
-				fields2[2] = siteRef;
+				if (roleswap == null 
+				        && delegatedAccess
+				        && delegatedAccessGroupAndRole != null
+				        ) {
+				    // set the realm for delegated access
+				    fields2[2] = delegatedAccessGroupAndRole[0];
+				} else {
+				    fields2[2] = siteRef;
+				}
+				if (M_log.isDebugEnabled()) M_log.debug("roleswap/dac fields: "+Arrays.toString(fields2));
 
 				statement = dbAuthzGroupSql.getCountRoleFunctionSql();
 				
@@ -1686,7 +1711,7 @@ public abstract class DbAuthzGroupService extends BaseAuthzGroupService implemen
 					return true;
 				
 				// Then check the rest of the realms. For example these could be subfolders under /content/group/...
-				
+				if(roleswap != null){
 				for (String realmId : realms)
 				{
 					if (realmId == siteRef || realmId == userSiteRef) // we've already checked these so no need to do it again
@@ -1719,7 +1744,7 @@ public abstract class DbAuthzGroupService extends BaseAuthzGroupService implemen
 					if (rv) // if true, go ahead and return
 						return true;
 				}
-				
+				}
 				// No successful results for roleswap
 				return false;
             }
@@ -1751,6 +1776,66 @@ public abstract class DbAuthzGroupService extends BaseAuthzGroupService implemen
 			}
 
 			return rv;
+		}
+
+		/** 
+		 * Delegated access essentially behaves like roleswap except instead of just specifying which role, you can also specify
+		 * the realm as well.  The access map is populated by an Event Listener that listens for dac.checkaccess and is stored in the session
+		 * attribute: delegatedaccess.accessmap.  This is a map of: SiteRef -> String[]{realmId, roleId}.
+		 * Delegated access will defer to roleswap if it is set.
+		 * 
+		 * @param siteRef the site realm id
+		 * @return String[]{realmId, roleId} or null if delegated access is disabled
+		 */
+		private String[] getDelegatedAccessRealmRole(String siteRef){
+            if (M_log.isDebugEnabled()) M_log.debug("getDelegatedAccessRealmRole(siteRef="+siteRef+")");
+		    String[] delegatedAccessGroupAndRole = null;
+		    // first we get the map out of the session (if it exists and is safe)
+		    Map<?,?> delegatedAccessMap = null;
+		    if (sessionManager().getCurrentSession().getAttribute("delegatedaccess.accessmapflag") != null) {
+		        // only check for the map if the accessmapflag is set
+		        Object delegatedAccessMapObj = sessionManager().getCurrentSession().getAttribute("delegatedaccess.accessmap");
+		        if (delegatedAccessMapObj != null && delegatedAccessMapObj instanceof Map) {
+		            // only read the map value out if it is set and is an actual map
+		            delegatedAccessMap = (Map<?,?>) delegatedAccessMapObj;
+		        }
+		        //if the siteRef doesn't exist in the map, then that means that we haven't checked delegatedaccess for this user and site.
+		        //if the user doesn't have access, the map will have a null value for that siteRef.
+		        if (siteRef != null 
+		                && (delegatedAccessMap == null || !delegatedAccessMap.containsKey(siteRef))){
+		            /* the delegatedaccess.accessmapflag is set during login and is only set for user's who have some kind of delegated access
+		             * if the user has access somewhere but either the map is null or there isn't any record for this site, then that means
+		             * this site hasn't been checked yet.  By posting an event, a DelegatedAccess observer will check this site's access for this user 
+		             * and store it in the user's session
+		             */
+		            eventTrackingService().post(eventTrackingService().newEvent("dac.checkaccess", siteRef, false, NotificationService.NOTI_REQUIRED));
+		            //grab the session after the checkaccess event since the checkaccess event could have modified it
+		            delegatedAccessMapObj = sessionManager().getCurrentSession().getAttribute("delegatedaccess.accessmap");
+		            if (delegatedAccessMapObj != null && delegatedAccessMapObj instanceof Map) {
+		                // only read the map value out if it is set and is an actual map
+		                delegatedAccessMap = (Map<?,?>) delegatedAccessMapObj;
+		            }
+		        }
+
+		        if (siteRef != null 
+		                && delegatedAccessMap != null 
+		                && delegatedAccessMap.containsKey(siteRef)
+		                && delegatedAccessMap.get(siteRef) instanceof String[]) {
+		            if (M_log.isDebugEnabled()) M_log.debug("siteRef="+siteRef+", delegatedAccessMap="+delegatedAccessMap);
+
+		            delegatedAccessGroupAndRole = (String[]) delegatedAccessMap.get(siteRef);
+
+		            if (M_log.isInfoEnabled()) {
+		                String dacgarStr = "";
+		                if (delegatedAccessGroupAndRole != null && delegatedAccessGroupAndRole.length > 1) {
+		                    dacgarStr = ", GroupAndRole["+delegatedAccessGroupAndRole[0]+", "+delegatedAccessGroupAndRole[1]+"]";
+		                }
+		                M_log.info("delegatedAccessCheck: userId="+sessionManager().getCurrentSessionUserId()+", siteRef="+siteRef+", delegatedAccess="+dacgarStr);
+		            }
+		        }
+		    }
+            if (M_log.isDebugEnabled()) M_log.debug("getDelegatedAccessRealmRole(siteRef="+siteRef+"): "+Arrays.toString(delegatedAccessGroupAndRole));
+		    return delegatedAccessGroupAndRole;
 		}
 
 		/**
