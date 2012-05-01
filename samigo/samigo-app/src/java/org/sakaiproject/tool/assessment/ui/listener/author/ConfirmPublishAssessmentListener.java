@@ -322,16 +322,16 @@ public class ConfirmPublishAssessmentListener
    
     if (!isFromActionSelect) {
     	// To convertFormattedTextToPlaintext for the fields that have been through convertPlaintextToFormattedTextNoHighUnicode
-    	assessmentSettings.setTitle(FormattedText.convertFormattedTextToPlaintext(assessment.getTitle()));
-    	assessmentSettings.setAuthors(FormattedText.convertFormattedTextToPlaintext(assessment.getAssessmentMetaDataByLabel(AssessmentMetaDataIfc.AUTHORS)));
-    	assessmentSettings.setFinalPageUrl(FormattedText.convertFormattedTextToPlaintext(assessment.getAssessmentAccessControl().getFinalPageUrl()));
-    	assessmentSettings.setBgColor(FormattedText.convertFormattedTextToPlaintext(assessment.getAssessmentMetaDataByLabel(AssessmentMetaDataIfc.BGCOLOR)));
-    	assessmentSettings.setBgImage(FormattedText.convertFormattedTextToPlaintext(assessment.getAssessmentMetaDataByLabel(AssessmentMetaDataIfc.BGIMAGE)));
-    	assessmentSettings.setKeywords(FormattedText.convertFormattedTextToPlaintext(assessment.getAssessmentMetaDataByLabel(AssessmentMetaDataIfc.KEYWORDS)));
-    	assessmentSettings.setObjectives(FormattedText.convertFormattedTextToPlaintext(assessment.getAssessmentMetaDataByLabel(AssessmentMetaDataIfc.OBJECTIVES)));
-    	assessmentSettings.setRubrics(FormattedText.convertFormattedTextToPlaintext(assessment.getAssessmentMetaDataByLabel(AssessmentMetaDataIfc.RUBRICS)));
-    	assessmentSettings.setUsername(FormattedText.convertFormattedTextToPlaintext(assessment.getAssessmentAccessControl().getUsername()));
-    	assessmentSettings.setPassword(FormattedText.convertFormattedTextToPlaintext(assessment.getAssessmentAccessControl().getPassword()));
+    	assessmentSettings.setTitle(FormattedText.convertFormattedTextToPlaintext(assessmentSettings.getTitle()));
+    	assessmentSettings.setAuthors(FormattedText.convertFormattedTextToPlaintext(assessmentSettings.getAuthors()));
+    	assessmentSettings.setFinalPageUrl(FormattedText.convertFormattedTextToPlaintext(assessmentSettings.getFinalPageUrl()));
+    	assessmentSettings.setBgColor(FormattedText.convertFormattedTextToPlaintext(assessmentSettings.getBgColor()));
+    	assessmentSettings.setBgImage(FormattedText.convertFormattedTextToPlaintext(assessmentSettings.getBgImage()));
+    	assessmentSettings.setKeywords(FormattedText.convertFormattedTextToPlaintext(assessmentSettings.getKeywords()));
+    	assessmentSettings.setObjectives(FormattedText.convertFormattedTextToPlaintext(assessmentSettings.getObjectives()));
+    	assessmentSettings.setRubrics(FormattedText.convertFormattedTextToPlaintext(assessmentSettings.getRubrics()));
+    	assessmentSettings.setUsername(FormattedText.convertFormattedTextToPlaintext(assessmentSettings.getUsername()));
+    	assessmentSettings.setPassword(FormattedText.convertFormattedTextToPlaintext(assessmentSettings.getPassword()));
     }
     
     if (error){
