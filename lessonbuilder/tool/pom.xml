@@ -175,7 +175,6 @@
   NOTE: for recent versions of mneme, the groupid is org.etudes, not org.etudes.mneme
  -->
 
-<!--
         <dependency>
             <groupId>org.sakaiproject.yaft</groupId>
             <artifactId>yaft-api</artifactId>
@@ -197,12 +196,10 @@
             <scope>provided</scope>
         </dependency>
 
--->
     </dependencies>
 
     <build>
 
-<!--
       <plugins>
 	<plugin>
           <groupId>org.codehaus.mojo</groupId>
@@ -239,7 +236,6 @@
           </executions>
 	</plugin>
       </plugins>
--->
 
         <resources>
             <resource>
