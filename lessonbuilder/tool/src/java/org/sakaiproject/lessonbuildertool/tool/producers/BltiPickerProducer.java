@@ -40,6 +40,7 @@ import org.sakaiproject.tool.api.Session;
 import org.sakaiproject.tool.cover.SessionManager;
 import org.sakaiproject.tool.cover.ToolManager;
 import org.sakaiproject.lessonbuildertool.model.SimplePageToolDao;
+import org.sakaiproject.component.cover.ServerConfigurationService;             
 
 import org.sakaiproject.lessonbuildertool.service.BltiEntity;
 
@@ -116,7 +117,7 @@ public class BltiPickerProducer implements ViewComponentProducer, NavigationCase
 		simplePageBean.setItemId(itemId);
 
 		// here is a URL to return to this page
-		String comeBack = "/portal/tool/" + ToolManager.getCurrentPlacement().getId() + "/BltiPicker?" +
+		String comeBack = ServerConfigurationService.getToolUrl()+ "/" + ToolManager.getCurrentPlacement().getId() + "/BltiPicker?" +
 				   ((GeneralViewParameters) viewparams).getSendingPage() + "&itemId=" + itemId;
 		if ( bltiEntity instanceof BltiEntity ) ( (BltiEntity) bltiEntity).setReturnUrl(comeBack);
 

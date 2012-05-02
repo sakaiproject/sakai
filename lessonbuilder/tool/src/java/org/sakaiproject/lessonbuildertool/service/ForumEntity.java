@@ -68,6 +68,7 @@ import org.sakaiproject.authz.api.Role;
 import org.sakaiproject.site.cover.SiteService;
 import org.sakaiproject.authz.cover.AuthzGroupService;
 import org.sakaiproject.id.cover.IdManager;
+import org.sakaiproject.component.cover.ServerConfigurationService;             
 
 import org.sakaiproject.memory.api.Cache;
 import org.sakaiproject.memory.api.CacheRefresher;
@@ -688,7 +689,7 @@ public class ForumEntity extends HibernateDaoSupport implements LessonEntity, Fo
 	ArrayList<UrlItem> list = new ArrayList<UrlItem>();
 	String tool = bean.getCurrentTool("sakai.forums");
 	if (tool != null) {
-	    tool = "/portal/tool/" + tool + "/discussionForum/forumsOnly/dfForums";
+	    tool = ServerConfigurationService.getToolUrl() + "/" + tool + "/discussionForum/forumsOnly/dfForums";
 	    list.add(new UrlItem(tool, messageLocator.getMessage("simplepage.create_forums")));
 	}
 	if (nextEntity != null)

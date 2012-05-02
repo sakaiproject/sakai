@@ -44,6 +44,7 @@ import org.sakaiproject.site.api.ToolConfiguration;
 import org.sakaiproject.tool.api.ActiveTool;
 import org.sakaiproject.tool.cover.ActiveToolManager;
 import org.sakaiproject.site.cover.SiteService;
+import org.sakaiproject.component.cover.ServerConfigurationService;             
 import org.sakaiproject.lessonbuildertool.service.LessonSubmission;
 import org.sakaiproject.db.cover.SqlService;
 import org.sakaiproject.db.api.SqlReader;
@@ -204,7 +205,7 @@ public class JForumEntity implements LessonEntity, ForumInterface {
 
 	try {
 	    // String toolid = "8f83cd4b-74ca-4428-0055-85ddd19a8d00";
-	    url = "/portal/tool/" + siteTool.getId() + "/posts/list/";
+	    url = ServerConfigurationService.getToolUrl() + "/" + siteTool.getId() + "/posts/list/";
 
 	    // String toolid = "8f83cd4b-74ca-4428-0055-85ddd19a8d00";
 	} catch (Exception e) {
@@ -399,7 +400,7 @@ public class JForumEntity implements LessonEntity, ForumInterface {
 	String prefix = null;
 	try {
 	    // String toolid = "8f83cd4b-74ca-4428-0055-85ddd19a8d00";
-	    prefix = "/portal/tool/" + siteTool.getId();
+	    prefix = ServerConfigurationService.getToolUrl() + "/" + siteTool.getId();
 	    // String toolid = "8f83cd4b-74ca-4428-0055-85ddd19a8d00";
 	} catch (Exception e) {
 	    System.out.println("tool problem " + e);
@@ -495,7 +496,7 @@ public class JForumEntity implements LessonEntity, ForumInterface {
 	if (haveJforum) {
 	    String tool = bean.getCurrentTool("sakai.jforum.tool");
 	    if (tool != null) {
-		tool = "/portal/tool/" + tool + "/forums/list.page";
+		tool = ServerConfigurationService.getToolUrl() + "/" + tool + "/forums/list.page";
 		list.add(new UrlItem(tool, messageLocator.getMessage("simplepage.create_jforum")));
 	    }
 	}

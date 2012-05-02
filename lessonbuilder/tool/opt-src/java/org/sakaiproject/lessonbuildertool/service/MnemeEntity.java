@@ -55,6 +55,8 @@ import org.sakaiproject.tool.cover.ToolManager;
 import org.sakaiproject.tool.cover.SessionManager;
 import org.sakaiproject.site.api.ToolConfiguration;
 import org.sakaiproject.component.cover.ComponentManager;
+import org.sakaiproject.component.cover.ServerConfigurationService;             
+
 import org.w3c.dom.Document;
 
 import org.sakaiproject.memory.api.Cache;
@@ -280,7 +282,7 @@ public class MnemeEntity implements LessonEntity, QuizEntity {
 	if (siteTool == null)
 	    return null;
 	
-	return "/portal/tool/" + siteTool.getId() + "/enter/" + id;
+	return ServerConfigurationService.getToolUrl()+ "/" + siteTool.getId() + "/enter/" + id;
 
     }
 
@@ -352,7 +354,7 @@ public class MnemeEntity implements LessonEntity, QuizEntity {
 	ArrayList<UrlItem> list = new ArrayList<UrlItem>();
 	String tool = bean.getCurrentTool("sakai.mneme");
 	if (tool != null) {
-	    tool = "/portal/tool/" + tool + "/assessments";
+	    tool = ServerConfigurationService.getToolUrl()+ "/" + tool + "/assessments";
 	    list.add(new UrlItem(tool, messageLocator.getMessage("simplepage.create_mneme")));
 	}
 	if (nextEntity != null)
@@ -367,7 +369,7 @@ public class MnemeEntity implements LessonEntity, QuizEntity {
 	if (tool == null)
 	    return null;
     
-	return "/portal/tool/" + tool + "/assessment_edit/" + id + "/1";
+	return ServerConfigurationService.getToolUrl()+ "/" + tool + "/assessment_edit/" + id + "/1";
     }
 
 
@@ -378,7 +380,7 @@ public class MnemeEntity implements LessonEntity, QuizEntity {
 	if (tool == null)
 	    return null;
     
-	return "/portal/tool/" + tool + "/assessment_settings/" + id + "/1";
+	return ServerConfigurationService.getToolUrl()+ "/" + tool + "/assessment_settings/" + id + "/1";
     }
 
     public String importObject(Document document, boolean isBank, String siteId, boolean hide) {

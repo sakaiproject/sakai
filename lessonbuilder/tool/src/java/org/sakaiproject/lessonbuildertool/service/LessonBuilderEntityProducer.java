@@ -196,7 +196,7 @@ public class LessonBuilderEntityProducer extends AbstractEntityProvider
       attributePattern = Pattern.compile(regexp.toString(),
 					 Pattern.CASE_INSENSITIVE | Pattern.UNICODE_CASE);
       pathPattern = Pattern
-	  .compile("/(?:access/content/group|web|dav|portal/site)/([^/]+)/.*");
+	  .compile("/(?:access/content/group|web|dav|xsl-portal/site|portal/site)/([^/]+)/.*");
       
       // Add the server name to the list of servers
       String serverName = ServerConfigurationService.getString("serverName", null);

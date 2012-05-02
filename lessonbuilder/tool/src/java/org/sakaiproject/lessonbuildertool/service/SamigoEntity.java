@@ -590,7 +590,7 @@ public class SamigoEntity implements LessonEntity, QuizEntity {
 	ArrayList<UrlItem> list = new ArrayList<UrlItem>();
 	String tool = bean.getCurrentTool("sakai.samigo");
 	if (tool != null) {
-	    tool = "/portal/tool/" + tool + "/jsf/index/mainIndex";
+	    tool = ServerConfigurationService.getToolUrl() + "/" + tool + "/jsf/index/mainIndex";
 	    list.add(new UrlItem(tool, messageLocator.getMessage("simplepage.create_samigo")));
 	}
 	if (nextEntity != null)
@@ -606,9 +606,9 @@ public class SamigoEntity implements LessonEntity, QuizEntity {
 	    return null;
     
 	if (samigo_linked)
-	    return "/portal/tool/" + tool + "/jsf/author/editLink?publishedAssessmentId=" + id;
+	    return ServerConfigurationService.getToolUrl() + "/" + tool + "/jsf/author/editLink?publishedAssessmentId=" + id;
 	else
-	    return "/portal/tool/" + tool + "/jsf/index/mainIndex";
+	    return ServerConfigurationService.getToolUrl() + "/" + tool + "/jsf/index/mainIndex";
     }
 
 
@@ -620,9 +620,9 @@ public class SamigoEntity implements LessonEntity, QuizEntity {
 	    return null;
     
 	if (samigo_linked)
-	    return "/portal/tool/" + tool + "/jsf/author/editLink?publishedAssessmentId=" + id + "&settings=true";
+	    return ServerConfigurationService.getToolUrl() + "/" + tool + "/jsf/author/editLink?publishedAssessmentId=" + id + "&settings=true";
 	else
-	    return "/portal/tool/" + tool + "/jsf/index/mainIndex";
+	    return ServerConfigurationService.getToolUrl() + "/" + tool + "/jsf/index/mainIndex";
 
     }
 

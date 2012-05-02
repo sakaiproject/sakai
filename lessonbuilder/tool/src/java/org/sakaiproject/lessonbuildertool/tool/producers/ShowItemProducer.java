@@ -119,7 +119,7 @@ public class ShowItemProducer implements ViewComponentProducer, NavigationCaseRe
 	    if (clearAttr != null && !clearAttr.equals("")) {
 		// don't let users clear random attributes
 		if (clearAttr.startsWith("LESSONBUILDER_RETURNURL")) {
-		    String toolUrl = "/portal/site/" + sitePage.getSiteId() + "/page/" + sitePage.getId() + "?clearAttr=" + clearAttr;
+		    String toolUrl = ServerConfigurationService.getPortalUrl() + "/site/" + sitePage.getSiteId() + "/page/" + sitePage.getId() + "?clearAttr=" + clearAttr;
 		    session.setAttribute(clearAttr, toolUrl);
 		}
 	    }

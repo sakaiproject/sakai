@@ -58,6 +58,7 @@ import org.sakaiproject.site.api.ToolConfiguration;
 import org.sakaiproject.tool.api.SessionManager;
 import org.sakaiproject.user.api.User;
 import org.sakaiproject.user.cover.UserDirectoryService;
+import org.sakaiproject.component.cover.ServerConfigurationService;             
 
 import org.sakaiproject.memory.api.Cache;
 import org.sakaiproject.memory.api.CacheRefresher;
@@ -374,7 +375,7 @@ public class Assignment2Entity implements LessonEntity {
 	
 
 	if (simplePageBean != null) {
-	    return "/portal/tool/" + simplePageBean.getCurrentTool("sakai.assignment2") + 
+	    return ServerConfigurationService.getToolUrl() + "/" + simplePageBean.getCurrentTool("sakai.assignment2") + 
 		"/student-submit/" + id;
 	}
 
@@ -392,7 +393,7 @@ public class Assignment2Entity implements LessonEntity {
 	}
 	
 	String placement = tool.getId();
-	return "/portal/tool/" + placement + "/student-submit/" + id;
+	return ServerConfigurationService.getToolUrl()+ "/" + placement + "/student-submit/" + id;
 
 	// following is broken in 2.8.1
         // return "/direct/assignment2/" + id;
@@ -530,7 +531,7 @@ public class Assignment2Entity implements LessonEntity {
 	if (haveA2) {
 	    String tool = bean.getCurrentTool("sakai.assignment2");
 	    if (tool != null) {
-		tool = "/portal/tool/" + tool + "/assignment";
+		tool = ServerConfigurationService.getToolUrl()+ "/" + tool + "/assignment";
 		list.add(new UrlItem(tool, messageLocator.getMessage("simplepage.create_assignment2")));
 	    }
 	}
@@ -547,7 +548,7 @@ public class Assignment2Entity implements LessonEntity {
 	if (tool == null)
 	    return null;
     
-	return "/portal/tool/" + tool + "/assignment/" + id;
+	return ServerConfigurationService.getToolUrl()+ "/" + tool + "/assignment/" + id;
     }
 
 

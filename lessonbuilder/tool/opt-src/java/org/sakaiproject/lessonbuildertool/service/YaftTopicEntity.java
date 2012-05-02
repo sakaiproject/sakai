@@ -42,7 +42,7 @@ import org.sakaiproject.site.api.ToolConfiguration;
 import org.sakaiproject.site.api.Site;
 import org.sakaiproject.site.cover.SiteService;
 import org.sakaiproject.tool.cover.ToolManager;
-
+import org.sakaiproject.component.cover.ServerConfigurationService;             
 
 import org.sakaiproject.yaft.api.Discussion;
 import org.sakaiproject.yaft.api.Forum;
@@ -298,7 +298,7 @@ public class YaftTopicEntity implements LessonEntity, ForumInterface {
 		ArrayList<UrlItem> list = new ArrayList<UrlItem>();
 		String tool = bean.getCurrentTool(TOOL_ID);
 		if (tool != null) {
-			tool = "/portal/tool/" + tool;
+			tool = ServerConfigurationService.getToolUrl()+ "/" + tool;
 			list.add(new UrlItem(tool, messageLocator.getMessage("simplepage.create_yaft_topic")));
 		}
 		if (nextEntity != null)
