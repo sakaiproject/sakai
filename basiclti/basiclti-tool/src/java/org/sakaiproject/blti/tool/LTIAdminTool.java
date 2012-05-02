@@ -170,7 +170,7 @@ public class LTIAdminTool extends VelocityPortletPaneledAction
 		// In case the above fails...
 		String peid = ((JetspeedRunData) data).getJs_peid();
 		SessionState state = ((JetspeedRunData) data).getPortletSessionState(peid);
-		switchPanel(state, "Forward");
+		switchPanel(state, "Main");
 	}
 
 	public String buildToolViewPanelContext(VelocityPortlet portlet, Context context, 
