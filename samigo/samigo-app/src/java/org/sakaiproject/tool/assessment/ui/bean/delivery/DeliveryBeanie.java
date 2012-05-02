@@ -36,6 +36,7 @@ import org.sakaiproject.tool.assessment.ui.listener.util.ContextUtil;
 
 import java.text.SimpleDateFormat;
 import org.sakaiproject.tool.assessment.ui.listener.util.TimeUtil;
+import org.sakaiproject.util.ResourceLoader;
 
 /**
  *
@@ -88,7 +89,7 @@ private static Log log = LogFactory.getLog(DeliveryBeanie.class);
    
   private String display_dateFormat= ContextUtil.getLocalizedString("org.sakaiproject.tool.assessment.bundle.GeneralMessages","output_date_no_sec");
   //private String display_dateFormat= "yyyy-MMM-dd hh:mm aaa";
-  private SimpleDateFormat displayFormat = new SimpleDateFormat(display_dateFormat);
+  private SimpleDateFormat displayFormat = new SimpleDateFormat(display_dateFormat, new ResourceLoader().getLocale());
   private boolean hasRandomDrawPart;
   private boolean isAssessmentRetractForEdit;
   private boolean hasAssessmentBeenModified;
