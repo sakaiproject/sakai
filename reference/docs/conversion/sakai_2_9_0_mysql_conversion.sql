@@ -625,3 +625,55 @@ INSERT INTO SAKAI_SITE_PROPERTY VALUES ('!error', 'display-users-present', 'fals
 -- PRFL-612 add avatar image url column to uploaded and external image records
 ALTER TABLE PROFILE_IMAGES_T ADD RESOURCE_AVATAR text;
 ALTER TABLE PROFILE_IMAGES_EXTERNAL_T ADD URL_AVATAR text;
+
+-- BLTI-156
+CREATE TABLE lti_mapping (
+    id INTEGER NOT NULL AUTO_INCREMENT,
+    matchpattern VARCHAR(255) NOT NULL,
+    launch VARCHAR(255) NOT NULL,
+    note VARCHAR(255),
+    created_at DATETIME NOT NULL,
+    updated_at DATETIME NOT NULL,
+ PRIMARY KEY( id )
+)
+CREATE TABLE lti_content (
+    id INTEGER NOT NULL AUTO_INCREMENT,
+    tool_id INT,
+    SITE_ID VARCHAR(99),
+    title VARCHAR(255) NOT NULL,
+    frameheight INT,
+    newpage TINYINT DEFAULT '0',
+    debug TINYINT DEFAULT '0',
+    custom TEXT(1024),
+    launch VARCHAR(255),
+    xmlimport TEXT(16384),
+    placement VARCHAR(256),
+    created_at DATETIME NOT NULL,
+    updated_at DATETIME NOT NULL,
+ PRIMARY KEY( id )
+)
+CREATE TABLE lti_tools (
+    id INTEGER NOT NULL AUTO_INCREMENT,
+    SITE_ID VARCHAR(99),
+    title VARCHAR(255) NOT NULL,
+    description TEXT(4096),
+    status TINYINT DEFAULT '0',
+    visible TINYINT DEFAULT '0',
+    launch VARCHAR(255) NOT NULL,
+    consumerkey VARCHAR(255) NOT NULL,
+    secret VARCHAR(255) NOT NULL,
+    frameheight INT,
+    allowframeheight TINYINT DEFAULT '0',
+    sendname TINYINT DEFAULT '0',
+    sendemailaddr TINYINT DEFAULT '0',
+    newpage TINYINT DEFAULT '0',
+    debug TINYINT DEFAULT '0',
+    custom TEXT(1024),
+    allowcustom TINYINT DEFAULT '0',
+    xmlimport TEXT(16384),
+    splash TEXT(4096),
+    created_at DATETIME NOT NULL,
+    updated_at DATETIME NOT NULL,
+ PRIMARY KEY( id )
+)
+-- end of BLTI-156

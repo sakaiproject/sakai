@@ -702,3 +702,61 @@ INSERT INTO SAKAI_SITE_PROPERTY VALUES ('!error', 'display-users-present', 'fals
 -- PRFL-612 add avatar image url column to uploaded and external image records
 alter table PROFILE_IMAGES_T add RESOURCE_AVATAR varchar2(4000);
 alter table PROFILE_IMAGES_EXTERNAL_T add URL_AVATAR varchar2(4000);
+
+-- BLTI-156
+CREATE TABLE lti_mapping (
+    id INTEGER,
+    matchpattern VARCHAR2(255) NOT NULL,
+    launch VARCHAR2(255) NOT NULL,
+    note VARCHAR2(255),
+    created_at TIMESTAMP NOT NULL,
+    updated_at TIMESTAMP NOT NULL
+)
+
+create SEQUENCE lti_mapping_id_sequence INCREMENT BY 1 START WITH 1
+
+CREATE TABLE lti_content (
+    id INTEGER,
+    tool_id INTEGER,
+    SITE_ID VARCHAR2(99),
+    title VARCHAR2(255) NOT NULL,
+    frameheight INTEGER,
+    newpage NUMBER(1) DEFAULT '0',
+    debug NUMBER(1) DEFAULT '0',
+    custom VARCHAR2(1024),
+    launch VARCHAR2(255),
+    xmlimport CLOB,
+    placement VARCHAR2(256),
+    created_at TIMESTAMP NOT NULL,
+    updated_at TIMESTAMP NOT NULL
+)
+
+create SEQUENCE lti_content_id_sequence INCREMENT BY 1 START WITH 1
+
+CREATE TABLE lti_tools (
+    id INTEGER,
+    SITE_ID VARCHAR2(99),
+    title VARCHAR2(255) NOT NULL,
+    description CLOB,
+    status NUMBER(1) DEFAULT '0',
+    visible NUMBER(1) DEFAULT '0',
+    launch VARCHAR2(255) NOT NULL,
+    consumerkey VARCHAR2(255) NOT NULL,
+    secret VARCHAR2(255) NOT NULL,
+    frameheight INTEGER,
+    allowframeheight NUMBER(1) DEFAULT '0',
+    sendname NUMBER(1) DEFAULT '0',
+    sendemailaddr NUMBER(1) DEFAULT '0',
+    newpage NUMBER(1) DEFAULT '0',
+    debug NUMBER(1) DEFAULT '0',
+    custom VARCHAR2(1024),
+    allowcustom NUMBER(1) DEFAULT '0',
+    xmlimport CLOB,
+    splash CLOB,
+    created_at TIMESTAMP NOT NULL,
+    updated_at TIMESTAMP NOT NULL
+)
+
+create SEQUENCE lti_tools_id_sequence INCREMENT BY 1 START WITH 1
+
+-- end BLTI-156
