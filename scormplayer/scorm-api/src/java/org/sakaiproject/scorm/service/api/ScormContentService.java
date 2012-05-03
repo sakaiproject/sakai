@@ -84,12 +84,22 @@ public interface ScormContentService extends ScormConstants {
 	/**
 	 * Validates AND STORES the content package.
 	 * @param resourceId
-	 * @param isManifestOnly
-	 * @param isValidateToSchema
 	 * @param encoding
+	 * @param createContentPackage TODO
 	 * @return
 	 * @throws ResourceStorageException
 	 */
-	public int validate(String resourceId, boolean isManifestOnly, boolean isValidateToSchema, String encoding) throws ResourceStorageException;
+	public int validate(String resourceId, String encoding) throws ResourceStorageException;
 
+	/**
+	 * Validates AND STORES the content package.
+	 * @param resourceId
+	 * @param isValidateToSchema
+	 * @param encoding
+	 * @param createContentPackage TODO
+	 * @return
+	 * @throws ResourceStorageException
+	 */
+	public int storeAndValidate(String resourceId, boolean isValidateToSchema, String encoding) throws ResourceStorageException;
+	
 }

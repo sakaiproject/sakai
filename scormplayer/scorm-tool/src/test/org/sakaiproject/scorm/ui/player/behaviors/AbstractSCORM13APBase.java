@@ -61,7 +61,7 @@ public abstract class AbstractSCORM13APBase extends
 				.getResourceAsStream("SCORM2004.3.PITE.1.1.zip"),
 				"SCORM2004.3.PITE.1.1.zip", "application/zip", true, 0);
 
-		scormContentService.validate(resourceId, false, false, "UTF-8");
+		scormContentService.storeAndValidate(resourceId, false, "UTF-8");
 		contentPackage = scormContentService.getContentPackages().get(0);
 		sessionBean = new SessionBean();
 		sessionBean.setContentPackage(contentPackage);
