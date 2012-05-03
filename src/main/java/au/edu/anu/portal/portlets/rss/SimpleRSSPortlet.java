@@ -35,6 +35,8 @@ import javax.portlet.RenderRequest;
 import javax.portlet.RenderResponse;
 import javax.portlet.ValidatorException;
 
+import lombok.extern.apachecommons.CommonsLog;
+
 import net.sf.ehcache.Cache;
 import net.sf.ehcache.CacheManager;
 import net.sf.ehcache.Element;
@@ -59,10 +61,9 @@ import com.sun.syndication.feed.synd.SyndFeed;
  * @author Steve Swinsburg (steve.swinsburg@anu.edu.au)
  *
  */
+@CommonsLog
 public class SimpleRSSPortlet extends GenericPortlet{
 
-	private final Log log = LogFactory.getLog(getClass().getName());
-	
 	// pages
 	private String viewUrl;
 	private String editUrl;
@@ -155,11 +156,21 @@ public class SimpleRSSPortlet extends GenericPortlet{
 	protected void doEdit(RenderRequest request, RenderResponse response) throws PortletException, IOException {
 		log.debug("Simple RSS doEdit()");
 
-		//get preferences
-		request.setAttribute("configuredPortletTitle", getConfiguredPortletTitle(request));
-		request.setAttribute("configuredFeedUrl", getConfiguredFeedUrl(request));
-		request.setAttribute("configuredMaxItems", getConfiguredMaxItems(request));
+		//if we have an error message, replay the form
+		String errorMessage = request.getParameter("errorMessage");
 		
+		if(StringUtils.isNotBlank(errorMessage)) {
+			//PORT-672 replay data from the request so it is preserved
+			request.setAttribute("portletTitle", request.getParameter("portletTitle"));
+			request.setAttribute("feedUrl", request.getParameter("feedUrl"));
+			request.setAttribute("maxItems", request.getParameter("maxItems"));
+		} else {
+			//get it from the preferences
+			request.setAttribute("portletTitle", getConfiguredPortletTitle(request));
+			request.setAttribute("feedUrl", getConfiguredFeedUrl(request));
+			request.setAttribute("maxItems", getConfiguredMaxItems(request));
+		}
+	
 		//check permissions
 		request.setAttribute("feedUrlIsLocked", isPrefLocked(request, PREF_FEED_URL));
 		request.setAttribute("portletTitleIsLocked", isPrefLocked(request, PREF_PORTLET_TITLE));
@@ -190,7 +201,7 @@ public class SimpleRSSPortlet extends GenericPortlet{
 		
 		//this handles both EDIT and CONFIG modes in exactly the same way.
 		//if we need to split, check PortletMode.
-
+		
 		boolean success = true;
 		//get prefs and submitted values
 		PortletPreferences prefs = request.getPreferences();
@@ -231,7 +242,11 @@ public class SimpleRSSPortlet extends GenericPortlet{
 				response.setPortletMode(PortletMode.VIEW);
 				
 			} catch (ValidatorException e) {
+				//PORT-672 present entered data on the form again
 				response.setRenderParameter("errorMessage", e.getMessage());
+				response.setRenderParameter("portletTitle", portletTitle);
+				response.setRenderParameter("maxItems", maxItems);
+				response.setRenderParameter("feedUrl", feedUrl);
 				log.error(e);
 			} catch (IOException e) {
 				response.setRenderParameter("errorMessage", Messages.getString("error.form.save.error"));

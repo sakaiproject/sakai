@@ -89,6 +89,10 @@ public class SimpleRSSPreferencesValidator implements PreferencesValidator  {
 		    }
 		}
 		
+		/**
+		 * portlet_title not validated here as it is reasonable to allow blank entry. We deal with this later
+		 */
+		
 	}
 	
 

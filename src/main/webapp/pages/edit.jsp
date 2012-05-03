@@ -48,15 +48,15 @@
 		
 		<c:if test="${!portletTitleIsLocked}">
 			<p><fmt:message key="config.portlet.title" /></p>
-			<input type="text" name="portletTitle" value="${configuredPortletTitle}" size="30"/>
+			<input type="text" name="portletTitle" value="${portletTitle}" size="30"/>
 		</c:if>
 		
 		<p><fmt:message key="config.portlet.maxitems" /></p>
-		<input type="text" name="maxItems" value="${configuredMaxItems}" size="5"/>
+		<input type="text" name="maxItems" value="${maxItems}" size="5"/>
 		
 		<c:if test="${!feedUrlIsLocked}">
 			<p><fmt:message key="config.portlet.url" /></p>
-			<input type="text" name="feedUrl" value="${configuredFeedUrl}" size="50" />
+			<input type="text" name="feedUrl" value="${feedUrl}" size="50" />
 		</c:if>
 		
 		<p>
