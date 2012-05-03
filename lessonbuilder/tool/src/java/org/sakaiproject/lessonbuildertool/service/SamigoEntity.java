@@ -880,6 +880,7 @@ public class SamigoEntity implements LessonEntity, QuizEntity {
             if (nextEntity != null) {
                 return nextEntity.findObject(objectid, objectMap, siteid);
             }
+	    return null;
 	}
 
 	String title = objectid.substring("sam_core/".length());

@@ -699,6 +699,7 @@ public class AssignmentEntity implements LessonEntity {
 	    if (nextEntity != null) {
 		return nextEntity.findObject(objectid, objectMap, siteid);
 	    }
+	    return null;
 	}
 	String newassignment = objectMap.get(objectid);
 	if (newassignment != null)

@@ -1157,6 +1157,7 @@ public class ForumEntity extends HibernateDaoSupport implements LessonEntity, Fo
             if (nextEntity != null) {
                 return nextEntity.findObject(objectid, objectMap, siteid);
             }
+	    return null;
 	}
 
 	// isolate forum_topic/NNN from title
