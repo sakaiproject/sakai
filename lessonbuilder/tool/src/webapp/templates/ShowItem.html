@@ -71,7 +71,10 @@ $(function() {
 
 });
 function returnClick() {
-	window.parent.hideidialog();
+    if (window == window.top)
+        return true; // no popup, do the URL
+    window.parent.hideidialog();
+    return false;  // in popup, just close dialog
 }
 </script>
 

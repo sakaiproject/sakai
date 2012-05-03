@@ -226,7 +226,9 @@ public class ShowItemProducer implements ViewComponentProducer, NavigationCaseRe
 			view.setSendingPage(sendingPage);;
 			view.setItemId(((GeneralViewParameters) params).getItemId());
 			if (returnView.equalsIgnoreCase("ForumPicker") || returnView.equalsIgnoreCase("AssignmentPicker") || returnView.equalsIgnoreCase("QuizPicker")) {
-				UIOutput.make(tofill, "return", ((GeneralViewParameters) params).getTitle()).decorate(new UIFreeAttributeDecorator("onClick", "returnClick()"));
+			    UIInternalLink.make(tofill, "return", ((GeneralViewParameters) params).getTitle() , view).
+decorate(new UIFreeAttributeDecorator("onClick", "returnClick()"));
+			    //	UIOutput.make(tofill, "return", ((GeneralViewParameters) params).getTitle()).
 			} else {
 			UIInternalLink.make(tofill, "return", ((GeneralViewParameters) params).getTitle() , view);
 			}
