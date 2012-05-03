@@ -384,11 +384,18 @@ public class SamLiteServiceImpl implements SamLiteService {
 		AssessmentService service = new AssessmentService();
 		List metadataList = service.getDefaultMetaDataSet();
 		Iterator iter = metadataList.iterator();
+		String automaticSubmissionEditable = "true";
 		while (iter.hasNext()) {
 			AssessmentMetaData mData = (AssessmentMetaData) iter.next();
-			String label = (String) mData.getLabel();
-			String entry = (String) mData.getEntry();
-			buildMetaDataField(metadata, label, entry);
+			if ("automaticSubmission_isInstructorEditable".equals((String) mData.getLabel())) {
+				automaticSubmissionEditable = (String) mData.getEntry();
+			}
+			else {
+				String label = (String) mData.getLabel();
+				String entry = (String) mData.getEntry();
+				buildMetaDataField(metadata, label, entry);
+			}
+			
 		}
 		
 		String autoSubmitEnabled = ServerConfigurationService.getString("samigo.autoSubmit.enabled");
@@ -396,7 +403,7 @@ public class SamLiteServiceImpl implements SamLiteService {
 	    	buildMetaDataField(metadata, "automaticSubmission_isInstructorEditable", "false");
 	    }
 	    else {
-	    	buildMetaDataField(metadata, "automaticSubmission_isInstructorEditable", "true");
+	    	buildMetaDataField(metadata, "automaticSubmission_isInstructorEditable", automaticSubmissionEditable);
 	    }
 	}
 	
