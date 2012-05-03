@@ -109,7 +109,7 @@ AutoRegisterEntityProvider, PropertyProvideable, RESTful, RequestStorable, Reque
 				for (int i = 0; i < topics.size(); i++) {
 					// TODO: authz is way too basic, someone more hip to message center please improve...
 					//This should also allow people with read access to an item to link to it
-					if (forumManager.isInstructor(userId, siteId)
+					if (forumManager.isInstructor(userId, "/site/" + siteId)
 							|| userId.equals(topics.get(i).getCreatedBy()))
 						rv.add("/" + ENTITY_PREFIX + "/" + topics.get(i).getId().toString());
 				}
@@ -121,7 +121,7 @@ AutoRegisterEntityProvider, PropertyProvideable, RESTful, RequestStorable, Reque
 					for (int j = 0; j < topics.size(); j++) {
 						// TODO: authz is way too basic, someone more hip to message center please improve...
 						//This should also allow people with read access to an item to link to it
-						if (forumManager.isInstructor(userId, siteId)
+						if (forumManager.isInstructor(userId, "/site/" + siteId)
 								|| userId.equals(topics.get(j).getCreatedBy()))
 							rv.add("/" + ENTITY_PREFIX + "/" + topics.get(j).getId().toString());
 					}

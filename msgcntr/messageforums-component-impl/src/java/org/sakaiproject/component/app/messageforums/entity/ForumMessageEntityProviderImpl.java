@@ -111,7 +111,7 @@ private RequestStorage requestStorage;
         for (int i = 0; i < messages.size(); i++) {
           // TODO: authz is way too basic, someone more hip to message center please improve...
           //This should also allow people with read access to an item to link to it
-          if (forumManager.isInstructor(userId, siteId)
+          if (forumManager.isInstructor(userId, "/site/" + siteId)
               || userId.equals(messages.get(i).getCreatedBy())) {
             rv.add("/" + ENTITY_PREFIX + "/" + messages.get(i).getId().toString());
           }

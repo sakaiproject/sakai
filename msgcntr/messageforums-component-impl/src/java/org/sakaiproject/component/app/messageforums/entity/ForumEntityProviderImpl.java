@@ -55,7 +55,7 @@ public class ForumEntityProviderImpl implements ForumEntityProvider, AutoRegiste
         for (int i = 0; i < forums.size(); i++) {
           // TODO: authz is way too basic, someone more hip to message center please improve...
           //This should also allow people with read access to an item to link to it
-          if (forumManager.isInstructor(userId, siteId)
+          if (forumManager.isInstructor(userId, "/site/" + siteId)
               || userId.equals(forums.get(i).getCreatedBy())) {
             rv.add("/" + ENTITY_PREFIX + "/" + forums.get(i).getId().toString());
           }
