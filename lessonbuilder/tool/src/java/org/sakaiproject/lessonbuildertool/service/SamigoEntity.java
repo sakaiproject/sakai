@@ -723,6 +723,11 @@ public class SamigoEntity implements LessonEntity, QuizEntity {
 	if (assessment == null)
 	    return null;
 
+	// our model doens't include anonymous. Treat as no groups
+	String releaseTo = assessment.getAssessmentAccessControl().getReleaseTo();
+	if (releaseTo != null && releaseTo.indexOf("Anonymous Users")> -1)
+	    return null;
+
 	// cached value?
 	String groupString = assessment.getComments();
 	if (groupString != null) {
@@ -787,6 +792,11 @@ public class SamigoEntity implements LessonEntity, QuizEntity {
 	    log.warn("can't find published " + id, e);
 	    return;
 	}
+
+	// no groups for anonymous assessments
+	String releaseTo = control.getReleaseTo();
+	if (releaseTo != null && releaseTo.indexOf("Anonymous Users")> -1)
+	    return;
 
 	AuthzQueriesFacadeAPI authz = PersistenceService.getInstance().getAuthzQueriesFacade();
 
