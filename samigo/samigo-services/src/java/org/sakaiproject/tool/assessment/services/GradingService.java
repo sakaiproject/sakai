@@ -2005,6 +2005,23 @@ Here are the definition and 12 cases I came up with (lydia, 01/2006):
 	    return numberRetake;
   }
   
+  /**
+   * 
+   * @param publishedAssessmentId
+   * @param anonymous
+   * @param audioMessage
+   * @param fileUploadMessage
+   * @param noSubmissionMessage
+   * @param showPartAndTotalScoreSpreadsheetColumns
+   * @param poolString
+   * @param partString
+   * @param questionString
+   * @param textString
+   * @param rationaleString
+   * @param itemGradingCommentsString
+   * @param useridMap
+   * @return a list of responses or null if there are none
+   */
   public List getExportResponsesData(String publishedAssessmentId, boolean anonymous, String audioMessage, String fileUploadMessage, String noSubmissionMessage, boolean showPartAndTotalScoreSpreadsheetColumns, String poolString, String partString, String questionString, String textString, String rationaleString, String itemGradingCommentsString, Map useridMap) {
 	  List list = null;
 	    try {

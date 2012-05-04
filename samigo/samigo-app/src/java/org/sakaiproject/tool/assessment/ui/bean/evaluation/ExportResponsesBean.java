@@ -28,24 +28,18 @@ import java.text.DateFormat;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Date;
-import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 
 import javax.faces.context.FacesContext;
 import javax.faces.event.ActionEvent;
-import javax.servlet.http.HttpServletResponse;
 import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
 
 import org.apache.commons.lang.StringUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
-import org.apache.poi.hssf.usermodel.HSSFCell;
-import org.apache.poi.hssf.usermodel.HSSFCellStyle;
-import org.apache.poi.hssf.usermodel.HSSFFont;
-import org.apache.poi.hssf.usermodel.HSSFRow;
-import org.apache.poi.hssf.usermodel.HSSFSheet;
 import org.apache.poi.hssf.usermodel.HSSFWorkbook;
 import org.apache.poi.ss.usermodel.Cell;
 import org.apache.poi.ss.usermodel.CellStyle;
@@ -55,7 +49,6 @@ import org.apache.poi.ss.usermodel.Sheet;
 import org.apache.poi.ss.usermodel.Workbook;
 import org.apache.poi.xssf.usermodel.XSSFWorkbook;
 import org.sakaiproject.jsf.model.PhaseAware;
-import org.sakaiproject.tool.assessment.data.ifc.assessment.ItemDataIfc;
 import org.sakaiproject.tool.assessment.services.GradingService;
 import org.sakaiproject.tool.assessment.services.assessment.PublishedAssessmentService;
 import org.sakaiproject.tool.assessment.ui.bean.util.Validator;
@@ -71,6 +64,10 @@ import org.sakaiproject.util.ResourceLoader;
  */
 public class ExportResponsesBean implements Serializable, PhaseAware {
 	
+	/**
+	 * 
+	 */
+	private static final long serialVersionUID = 2854656853283125977L;
 	/**
 	 * gopalrc - Jan 2008
 	 * Marks the beginning of each new sheet.
@@ -207,7 +204,12 @@ public class ExportResponsesBean implements Serializable, PhaseAware {
         String itemGradingCommentsString = ContextUtil.getLocalizedString("org.sakaiproject.tool.assessment.bundle.EvaluationMessages","grader_comments");
         List exportResponsesDataList = gradingService.getExportResponsesData(assessmentId, anonymous, audioMessage, fileUploadMessage, noSubmissionMessage, 
         		showPartAndTotalScoreSpreadsheetColumns, poolString, partString, questionString, responseString, rationaleString, itemGradingCommentsString, useridMap);
-        List<List<Object>> list = (List<List<Object>>) exportResponsesDataList.get(0);
+        //SAM-1693 the returned list could be null -DH
+        List<List<Object>> list = new ArrayList<List<Object>>();
+        if (exportResponsesDataList != null) {
+        	list = (List<List<Object>>) exportResponsesDataList.get(0);
+        }
+         
 
         // Now insert the header line
         ArrayList<Object> headerList = new ArrayList<Object>();
