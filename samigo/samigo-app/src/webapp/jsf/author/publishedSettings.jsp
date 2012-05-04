@@ -268,11 +268,11 @@ function uncheckOther(field){
 <f:verbatim><div class="tier1"></f:verbatim>
 <!-- *** GENERAL TEMPLATE INFORMATION *** -->
 <h:outputText value="#{templateMessages.allMenus0}"/>
-<h:outputLink value="#" title="#{templateMessages.t_showDivs}" onclick="showDivs();" onkeypress="showDivs();">
+<h:outputLink value="#" title="#{templateMessages.t_showDivs}" onclick="showDivs();">
 <h:outputText value="#{templateMessages.open}"/>
 </h:outputLink>
 <h:outputText value=" | " />
-<h:outputLink value="#" title="#{templateMessages.t_hideDivs}" onclick="hideDivs();" onkeypress="hideDivs();">
+<h:outputLink value="#" title="#{templateMessages.t_hideDivs}" onclick="hideDivs();">
 <h:outputText value="#{templateMessages.close}"/>
 </h:outputLink>
 <h:outputText value="#{templateMessages.allMenus}"/>
