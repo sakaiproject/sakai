@@ -153,7 +153,6 @@ public class ShowPageProducer implements ViewComponentProducer, DefaultView, Nav
 		this.imageToMimeMap = map;
 	}
         public boolean useSakaiIcons = ServerConfigurationService.getBoolean("lessonbuilder.use-sakai-icons", false);
-        public boolean useNewUi = ServerConfigurationService.getBoolean("lessonbuilder.use-new-popups", true);
 
 	// I don't much like the static, because it opens us to a possible race
 	// condition, but I don't see much option
@@ -356,8 +355,6 @@ public class ShowPageProducer implements ViewComponentProducer, DefaultView, Nav
 			UIOutput.make(tofill, "error", messageLocator.getMessage("simplepage.nopermissions"));
 			return;
 		}
-
-		UIOutput.make(tofill, "newui", Boolean.toString( useNewUi));
 
 		if (params.addTool == GeneralViewParameters.COMMENTS) {
 			simplePageBean.addCommentsSection();

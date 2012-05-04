@@ -187,6 +187,8 @@ public class ShowItemProducer implements ViewComponentProducer, NavigationCaseRe
 	    if (item != null)
 		simplePageBean.adjustBackPath(params.getBackPath(), params.getSendingPage(), item.getId(), item.getName());
 
+	    String returnView = params.getReturnView();
+
 	    // return to lesson doesn't make sense for resources, since they aren't separate applications in
 	    // the same sense. But we do want breadcrumbs.
 	    if (sendingPage != -1 && breadcrumbs != null && breadcrumbs.size() > 0) {
@@ -213,7 +215,6 @@ public class ShowItemProducer implements ViewComponentProducer, NavigationCaseRe
 		    }
 		} else {
 
-	    	String returnView = params.getReturnView();
 		    if (returnView == null || returnView.equals("")) {
 			GeneralViewParameters view = new GeneralViewParameters(ShowPageProducer.VIEW_ID);
 			view.setSendingPage(entry.pageId);
@@ -225,21 +226,14 @@ public class ShowItemProducer implements ViewComponentProducer, NavigationCaseRe
 			GeneralViewParameters view = new GeneralViewParameters(returnView);
 			view.setSendingPage(sendingPage);;
 			view.setItemId(((GeneralViewParameters) params).getItemId());
-			if (returnView.equalsIgnoreCase("ForumPicker") || returnView.equalsIgnoreCase("AssignmentPicker") || returnView.equalsIgnoreCase("QuizPicker")) {
-			    UIInternalLink.make(tofill, "return", ((GeneralViewParameters) params).getTitle() , view).
-decorate(new UIFreeAttributeDecorator("onClick", "returnClick()"));
-			    //	UIOutput.make(tofill, "return", ((GeneralViewParameters) params).getTitle()).
-			} else {
 			UIInternalLink.make(tofill, "return", ((GeneralViewParameters) params).getTitle() , view);
-			}
 			UIOutput.make(tofill, "returnwarning", messageLocator.getMessage("simplepage.return.warning"));
 		    }
 		}
 	    }
 
 	    // see if we can add a next button
-		// removed null check for returnView because scope has been changed to accomodate the UI changes in ui.js
-	    if (item != null ) {
+	    if (item != null && (returnView == null || returnView.equals(""))) {
 		simplePageBean.addPrevLink(tofill, item);
 		simplePageBean.addNextLink(tofill, item);
 	    }

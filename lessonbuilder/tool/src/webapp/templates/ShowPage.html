@@ -39,6 +39,7 @@ function resizeiframe(id) {
 </head>
 
 <body rsf:id="scr=sakai-body">
+<!-- <script type="text/javascript" src="$context/js/jquery-1.4.2.min.js"></script> -->
 <script type="text/javascript" src="$context/js/jquery-1.6.2.min.js"></script>
 <script type="text/javascript" src="$context/js/jquery-ui-1.8.17.custom.min.js"></script>
 <script type="text/javascript" src="../js/simple-page.js" rsf:id="scr=rewrite-url"></script>
@@ -63,7 +64,6 @@ function resizeiframe(id) {
     }
 </script>
 
-<div id="newui" rsf:id="newui" style="display:none">false</div>
 
 	<div class="portletBody" id="outer" role="application" style="z-index:1">
 		
@@ -95,7 +95,7 @@ function resizeiframe(id) {
 		
 		<br rsf:id="breakAfterWarnings" />
 		
-		<div class="lessonsHeader">
+                <div class="neoPortletTitleWrap">
                   <a href="#" rsf:id="resetbutton"><img src="/library/skin/default/images/reload.gif" style="float:left; margin-right:4px; margin-top:3px"/></a>
                   <div style="float:right">
                   <a class="usebutton" href="#" rsf:id="show-pages" id="show-pages" role="note"></a>
@@ -115,12 +115,12 @@ function resizeiframe(id) {
 			<h3 id="toolbar-label" rsf:id="msg=simplepage.toolbar" class="offscreen"></h3>
 			<ul id="toolbar" style="padding:2px; margin:0px">
 				<li><a href="#" rsf:id="reorder"><span rsf:id="msg.simplepage.reorder"></span></a></li>
-				<li><a href="#" class="add-text-link" rsf:id="add-text" onclick="return openDialog('' , true, this.href, event);"><span rsf:id="msg.simplepage.text"></span></a></li>
+				<li><a href="#" rsf:id="add-text"><span rsf:id="msg.simplepage.text"></span></a></li>
 				<li><a href="#" rsf:id="add-multimedia" class="add-multimedia"><span rsf:id="msg.simplepage.multimedia"></span></a></li>
 				<li><a href="#" rsf:id="add-resource" class="add-resource"><span rsf:id="msg.simplepage.resource"></span></a></li>
 				<li><a href="#" rsf:id="subpage-link" class="subpage-link"><span rsf:id="msg=simplepage.subpage"></span></a></li>
-				<li><a href="#" class="add-assignment-link" rsf:id="add-assignment"><span rsf:id="msg.simplepage.assignment"></span></a></li>
-				<li><a href="#" class="add-quiz-link" rsf:id="add-quiz"><span rsf:id="msg.simplepage.quiz"></span></a></li>
+				<li><a href="#" rsf:id="add-assignment"><span rsf:id="msg.simplepage.assignment"></span></a></li>
+				<li><a href="#" rsf:id="add-quiz"><span rsf:id="msg.simplepage.quiz"></span></a></li>
 				<a href="#" rsf:id="help" target="_blank"></a>
 				
 				<li class="dropdown" style="z-index:900">
@@ -182,7 +182,7 @@ function resizeiframe(id) {
 		  </span>
 		  
 		  <span rsf:id="blti-descrip">
-		    <a href="#" class="add-blti" role="menuitem" rsf:id="add-blti"><span rsf:id="msg.simplepage.blti"></span></a>
+		    <a href="#" role="menuitem" rsf:id="add-blti"><span rsf:id="msg.simplepage.blti"></span></a>
 		    <span rsf:id="msg=simplepage.blti-descrip"></span>
 		    <br />
 		  </span>
@@ -259,7 +259,7 @@ function resizeiframe(id) {
 					    <span rsf:id="item-format" class="item-format"></span>
 					  </div>
 					</td>
-					<td rsf:id="edittext-td" class="edit-col"><div><a href="#" class="usebutton itemLink" rsf:id="edit-link" onclick="return openDialog('' , true, this.href, event);"></a></div></td>
+					<td rsf:id="edittext-td" class="edit-col"><div><a href="#" class="usebutton itemLink" rsf:id="edit-link"></a></div></td>
 					<td rsf:id="itemSpan">
 					  <div rsf:id="item-groups-titles-text" class="item-group-titles"></div>
 					  <div rsf:id="content" class="textbox"></div>
@@ -511,7 +511,7 @@ function resizeiframe(id) {
 					</p>
 				
 					<p class="shorttext required" style="margin-top: 1em; margin-bottom:1em">
-					  <a href="#" id="subpage-choose" rsf:id="subpage-choose" onclick="return openDialog('' , true, this.href, event);"><span rsf:id="msg=simplepage.choose_existing_page"></span></a>
+					  <a href="#" id="subpage-choose" rsf:id="subpage-choose" ><span rsf:id="msg=simplepage.choose_existing_page"></span></a>
 					</p>
 
 					<input type="checkbox" name="subpage-next" id="subpage-next" rsf:id="subpage-next" />
@@ -534,7 +534,7 @@ function resizeiframe(id) {
 				</div>
 			
 				<form action="#" rsf:id="edit-form">
-					<div class="">
+					<div class="border">
 
 						<p class="shorttext required">
 							<label rsf:id="name-label" for="name"></label>
@@ -557,7 +557,7 @@ function resizeiframe(id) {
 							</p>
 
 							<p class="shorttext required" id="change-blti-p">
-							  <a href="#" rsf:id="change-blti" id="change-blti" ><span rsf:id="msg=simplepage.change_blti"></span></a>
+							  <a href="#" rsf:id="change-blti" id="change-blti"><span rsf:id="msg=simplepage.change_blti"></span></a>
 							</p>
 
 							<p class="shorttext required" id="change-quiz-p">
@@ -565,20 +565,20 @@ function resizeiframe(id) {
 							</p>
 
 							<p class="shorttext required" id="change-resource-p">
-								<a href="#" rsf:id="change-resource" id="change-resource" onclick="return false;"><span rsf:id="msg.simplepage.change_resource"></span></a>
+								<a href="#" rsf:id="change-resource" id="change-resource"><span rsf:id="msg.simplepage.change_resource"></span></a>
 							</p>
 
 							<p class="shorttext required" id="change-page-p">
-								<a href="#" rsf:id="change-page" id="change-page" onclick="return openDialog($(this).text() , true, this.href, event);"><span rsf:id="msg.simplepage.change_page"></span></a>
+								<a href="#" rsf:id="change-page" id="change-page"><span rsf:id="msg.simplepage.change_page"></span></a>
 							</p>
 					    </div>
 
 						<p class="shorttext required" id="edit-item-object-p">
-						  <a href="#" rsf:id="edit-item-object" id="edit-item-object" onclick="return openDialog('' , true, this.href, event);"><span rsf:id="edit-item-text" id="edit-item-text"></span></a>
+						  <a href="#" rsf:id="edit-item-object" id="edit-item-object"><span rsf:id="edit-item-text" id="edit-item-text"></span></a>
 					        </p>
 
 						<p class="shorttext required" id="edit-item-settings-p">
-						  <a href="#" rsf:id="edit-item-settings" id="edit-item-settings" onclick="return openDialog('' , true, this.href, event);"><span rsf:id="edit-item-settings-text" id="edit-item-settings-text"></span></a>
+						  <a href="#" rsf:id="edit-item-settings" id="edit-item-settings"><span rsf:id="edit-item-settings-text" id="edit-item-settings-text"></span></a>
 					        </p>
 
 						<div id="pagestuff">
@@ -659,7 +659,7 @@ function resizeiframe(id) {
 
 			<div id="add-multimedia-dialog" rsf:id="add-multimedia-dialog">
 				<form action="#" rsf:id="add-multimedia-form" method="post" enctype="multipart/form-data">
-					<div class="">
+					<div class="border">
 			  
 						<p class="shorttext required" rsf:id="msg=simplepage.add_file_instructions"></p>
 
@@ -685,7 +685,7 @@ function resizeiframe(id) {
 						</p>
 
 						<p class="shorttext required" style="margin-top: 1em; margin-bottom:1em">
-							<a href="#" id="mm-choose" rsf:id="mm-choose" onclick="return openDialog('' , true, this.href, event);"><span rsf:id="msg=simplepage.choose_existing"></span></a>
+							<a href="#" id="mm-choose" rsf:id="mm-choose" ><span rsf:id="msg=simplepage.choose_existing"></span></a>
 						</p>
 
 					<input class="bold" type="submit" id="mm-add-item" rsf:id="mm-add-item" />
@@ -701,7 +701,7 @@ function resizeiframe(id) {
 
 			<div id="edit-multimedia-dialog" rsf:id="edit-multimedia-dialog">
 				<form action="#" rsf:id="edit-multimedia-form">
-					<div class="">
+					<div class="border">
 						<p class="shorttext required">
 							<label rsf:id="width-label" for="width">Page Title</label>
 					 		<input type="text" name="width" rsf:id="width" id="width" length="30" class="edit-multimedia-input" /><br />
@@ -763,7 +763,7 @@ function resizeiframe(id) {
 			
 			<div id="import-cc-dialog" rsf:id="import-cc-dialog">
 				<form action="#" rsf:id="import-cc-form" method="post" enctype="multipart/form-data">
-					<div class="">					
+					<div class="border">					
 					  <p class="required shorttext">
 					    <label rsf:id="msg=simplepage.import_cc_file" for="cc_file" id="cc-dialog-label">File</label> <br />
 					    <input type="file" name="mm-file" id="cc-file" style="width:95%" class="edit-multimedia-input" /><br />
@@ -924,7 +924,7 @@ function resizeiframe(id) {
 				</div>
 				
 				<form action="#" rsf:id="youtube-form">
-					<div class="">
+					<div class="border">
 						<input type="hidden" rsf:id="youtubeEditId" id="youtubeEditId" />
 						<div align="left">
 						         <p class="shorttext required">
@@ -968,7 +968,7 @@ function resizeiframe(id) {
 				</div>
 
 				<form action="#" rsf:id="movie-form">
-					<div class="">
+					<div class="border">
 						<input type="hidden" rsf:id="movieEditId" id="movieEditId" />
 						<p class="shorttext required">
 							<label for="movie-width">Width: </label>
@@ -1023,7 +1023,7 @@ function resizeiframe(id) {
 			
 			<div id="comments-dialog" rsf:id="comments-dialog">
 				<form action="#" rsf:id="comments-form">
-					<div class="">
+					<div class="border">
 						<input type="hidden" rsf:id="commentsEditId" id="commentsEditId" />
 						<div align="left">
 							<input type="checkbox" name="comments-anonymous" id="comments-anonymous" rsf:id="comments-anonymous" />
@@ -1066,7 +1066,7 @@ function resizeiframe(id) {
 			
 			<div id="student-dialog" rsf:id="student-dialog">
 				<form action="#" rsf:id="student-form">
-					<div class="">
+					<div class="border">
 						<input type="hidden" rsf:id="studentEditId" id="studentEditId" />
 						<div align="left">
 							<input type="checkbox" name="student-anonymous" id="student-anonymous" rsf:id="student-anonymous" />
@@ -1119,8 +1119,6 @@ function resizeiframe(id) {
 					<input class="bold" type="submit" onclick="return true;" id="update-student" rsf:id="update-student" />
 					<input type="submit" rsf:id="cancel-student" onclick="closeStudentDialog(); return false" />
 
-					<script src="$context/js/ui.js" type="text/javascript"></script>
-
 				</form>
 			</div>
 		</div>
@@ -1137,22 +1135,6 @@ function resizeiframe(id) {
 		<script type="text/javascript" src="$context/js/periodicalupdater.js"></script>
 		<script type="text/javascript" src="$context/js/comments.js"></script>
 	</div>
-
-	<style>
-		#pickerdialog, #ipickerdialog {
-			top: 0;
-			left: 0;
-		}
-	</style>
-
-	
-	<div id="pickerdialog">
-		<div id="pickerdiv" style="border: none; position: absolute; width: auto; padding: 0; overflow: auto;"></div>
-	</div>
-
-	<div id="ipickerdialog">
-	</div>
-
 	<script type="text/javascript" language="JavaScript">
 		spiffyUp();	
 	</script>

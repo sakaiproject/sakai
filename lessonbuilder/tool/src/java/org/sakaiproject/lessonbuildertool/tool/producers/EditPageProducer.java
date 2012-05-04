@@ -7,14 +7,14 @@
  * Licensed under the Educational Community License version 1.0
  *
  * This file was originally part of SimplePageTool, by Joshua Ryan josh@asu.edu
- *
+ * 
  * Changes for Lesson Builder are
  *
  * Copyright (c) 2010 Rutgers, the State University of New Jersey
  *
  * Author: Eric Jeney, jeney@rutgers.edu
  *
- * Licensed under the Educational Community License, Version 2.0 (the "License");
+ * Licensed under the Educational Community License, Version 2.0 (the "License");                                                                
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
@@ -37,7 +37,6 @@ import java.util.Collection;
 
 import org.sakaiproject.lessonbuildertool.tool.beans.SimplePageBean;
 import org.sakaiproject.lessonbuildertool.tool.view.GeneralViewParameters;
-import org.sakaiproject.lessonbuildertool.tool.view.CloseViewParameters;
 import org.sakaiproject.lessonbuildertool.tool.producers.ShowPageProducer;
 
 import org.sakaiproject.lessonbuildertool.SimplePage;
@@ -70,7 +69,7 @@ import org.sakaiproject.exception.IdUnusedException;
 
 /**
  * Uses an FCK editor to edit blocks of text.
- *
+ * 
  * @author Joshua Ryan josh@asu.edu alt^I
  * @author Eric Jeney <jeney@rutgers.edu>
  */
@@ -127,7 +126,7 @@ public class EditPageProducer implements ViewComponentProducer, NavigationCaseRe
 
 			UIOutput.make(tofill, "title-label", messageLocator.getMessage("simplepage.adding-text"));
 			UIOutput.make(tofill, "page-title", simplePageBean.getCurrentPage().getTitle());
-
+			
 			UIForm form = UIForm.make(tofill, "page_form");
 
 			// Rich Text Input
@@ -176,9 +175,9 @@ public class EditPageProducer implements ViewComponentProducer, NavigationCaseRe
 
 	public List reportNavigationCases() {
 		List<NavigationCase> togo = new ArrayList<NavigationCase>();
-		togo.add(new NavigationCase(null, new CloseViewParameters(ClosePageProducer.VIEW_ID, true)));
-		togo.add(new NavigationCase("cancel", new CloseViewParameters(ClosePageProducer.VIEW_ID, false)));
-		togo.add(new NavigationCase("success", new CloseViewParameters(ClosePageProducer.VIEW_ID, true)));
+		togo.add(new NavigationCase(null, new SimpleViewParameters(ShowPageProducer.VIEW_ID)));
+		togo.add(new NavigationCase("success", new SimpleViewParameters(ShowPageProducer.VIEW_ID)));
+		togo.add(new NavigationCase("cancel", new SimpleViewParameters(ShowPageProducer.VIEW_ID)));
 
 		return togo;
 	}

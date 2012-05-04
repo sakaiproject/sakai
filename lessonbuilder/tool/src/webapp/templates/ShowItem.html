@@ -70,12 +70,7 @@ $(function() {
 	}
 
 });
-function returnClick() {
-    if (window == window.top)
-        return true; // no popup, do the URL
-    window.parent.hideidialog();
-    return false;  // in popup, just close dialog
-}
+
 </script>
 
 	<div class="portletBody" id="outer">
@@ -101,20 +96,7 @@ function returnClick() {
                   <a href="#" rsf:id="resetbutton2"><img src="/library/skin/default/images/reload.gif" style="float:left;margin-right:4px;margin-top:2px"/></a>
                   <span rsf:id="crumb:"><a href="#" rsf:id="crumb-link"></a><span rsf:id="crumb-follow"></span></span><span class="returnheader nextprev"><a href="#" class="usebutton nextprev" rsf:id="return"></a> </span> <span rsf:id="returnwarning" class="returnwarning"></span><span class="returnheader nextprev"> <a href="#" rsf:id="prev" class="usebutton nextprev">prev</a> <a href="#" rsf:id="next" class="usebutton nextprev">next</a></span>
                   <a href="#" rsf:id="helpbutton2" target="_blank"><img src="/library/skin/default/images/help.gif" style="float:right;margin-left:4px;margin-top:2px"/></a>
-			  </div>
-
-			  <script>
-				  if ($('#newui').text() != 'true') {
-					  $('.neoPortletTitleWrap a:first, .neoPortletTitleWrap a:last').hide(); //hide the reload and help icons
-	                  var url = document.URL;
-                      if (document.URL.indexOf('sakai.basiclti.admin') == -1) {
-
-						  $('.neoPortletTitleWrap a:first, .returnheader').click(function() {
-							  returnClick();
-						  });
-					  }
-				  }
-			  </script>
+		</div>
 
 		<iframe rsf:id="iframe1" role="main"
 			name="iframe1"
