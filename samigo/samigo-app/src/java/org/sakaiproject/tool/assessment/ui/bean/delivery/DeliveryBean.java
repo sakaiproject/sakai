@@ -235,7 +235,7 @@ public class DeliveryBean
   private AgentFacade deliveryAgent;
 
   private String display_dayDateFormat= ContextUtil.getLocalizedString("org.sakaiproject.tool.assessment.bundle.GeneralMessages","output_day_date_no_sec");
-  private SimpleDateFormat dayDisplayFormat = new SimpleDateFormat(display_dayDateFormat);
+  private SimpleDateFormat dayDisplayFormat = new SimpleDateFormat(display_dayDateFormat, new ResourceLoader().getLocale());
   private String display_dateFormat= ContextUtil.getLocalizedString("org.sakaiproject.tool.assessment.bundle.GeneralMessages","output_date_no_sec");
   private SimpleDateFormat displayFormat = new SimpleDateFormat(display_dateFormat, new ResourceLoader().getLocale());
   private boolean noQuestions = false;
