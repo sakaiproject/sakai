@@ -571,7 +571,7 @@ public class SubmitToGradingActionListener implements ActionListener {
 	 * JSF and the answers submitted are being collected differently too. e.g.
 	 * for each MC/Survey/MCMR, an itemgrading is associated with each choice.
 	 * whereas there is only one itemgrading per each question for SAQ/TF/Audio,
-	 * and one for ecah blank in FIB. To understand the logic in this method, it
+	 * and one for each blank in FIB. To understand the logic in this method, it
 	 * is best to study jsf/delivery/item/deliver*.jsp
 	 */
 	private void prepareItemGradingPerItem(ActionEvent ae, DeliveryBean delivery,
