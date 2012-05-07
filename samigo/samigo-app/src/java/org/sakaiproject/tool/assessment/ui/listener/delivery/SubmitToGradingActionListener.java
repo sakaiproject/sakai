@@ -769,7 +769,7 @@ public class SubmitToGradingActionListener implements ActionListener {
 			log.debug("ae is null");
 		}
 		
-		if (delivery.getNavigation().equals("1") && adds.size() ==0 && !"showFeedback".equals(actionCommand)) {
+		if ("1".equals(delivery.getNavigation()) && adds.size() ==0 && !"showFeedback".equals(actionCommand)) {
 			log.debug("enter here");
 			Long assessmentGradingId = delivery.getAssessmentGrading().getAssessmentGradingId();
 			Long publishedItemId = item.getItemData().getItemId();
