@@ -932,20 +932,16 @@ public class GradingService
       }
       
       log.debug("****x4. "+(new Date()).getTime());
-
-      // save#1: this itemGrading Set is a partial set of answers submitted. it contains new answers and
-      // updated old answers and FIB answers ('cos we need the old answer to calculate the score for new
-      // ones). we need to be cheap, we don't want to update record that hasn't been
-      // changed. Yes, assessmentGrading's total score will be out of sync at this point, I am afraid. It
-      // would be in sync again once the whole method is completed successfully. 
-      if (persistToDB) {
-    	  saveOrUpdateAll(itemGradingSet);
-      }
       log.debug("****x5. "+(new Date()).getTime());
 
-      // save#2: now, we need to get the full set so we can calculate the total score accumulate for the
+      // save#1: now, we need to get the full set so we can calculate the total score accumulate for the
       // whole assessment.
       Set fullItemGradingSet = getItemGradingSet(data.getAssessmentGradingId().toString());
+      
+      //add the new answers to the set
+      fullItemGradingSet.addAll(itemGradingSet);
+      data.setItemGradingSet(fullItemGradingSet);
+      
       float totalAutoScore = getTotalAutoScore(fullItemGradingSet);
       data.setTotalAutoScore( Float.valueOf(totalAutoScore));
       //log.debug("**#1 total AutoScore"+totalAutoScore);
