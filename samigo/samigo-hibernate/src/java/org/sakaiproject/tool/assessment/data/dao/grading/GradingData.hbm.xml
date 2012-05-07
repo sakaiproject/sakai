@@ -29,6 +29,7 @@
 
 	<set name="itemGradingAttachmentSet" table="SAM_GRADINGATTACHMENT_T" cascade="all" order-by="createdDate asc"
         inverse="true" lazy="false">
+        <cache usage="read-write"/>
         <key column="ITEMGRADINGID"/>
         <one-to-many class="org.sakaiproject.tool.assessment.data.dao.grading.ItemGradingAttachment"/>
     </set>
@@ -59,6 +60,7 @@
     <property name="lastVisitedQuestion" type="integer" column="LASTVISITEDQUESTION" not-null="false"/>
     <set name="itemGradingSet" table="SAM_ITEMGRADING_T" cascade="all" order-by="itemGradingId asc"
       inverse="true" lazy="true">
+      <cache usage="read-write"/>
       <key column="ASSESSMENTGRADINGID"/>
       <one-to-many class="org.sakaiproject.tool.assessment.data.dao.grading.ItemGradingData"/>
     </set>
