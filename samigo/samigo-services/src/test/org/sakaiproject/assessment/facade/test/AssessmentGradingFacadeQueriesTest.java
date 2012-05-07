@@ -22,6 +22,7 @@
 
 package org.sakaiproject.assessment.facade.test;
 
+import java.util.HashSet;
 import java.util.List;
 
 import org.hibernate.SessionFactory;
@@ -130,6 +131,38 @@ public class AssessmentGradingFacadeQueriesTest extends AbstractTransactionalSpr
 		
 	}
 
+	public void testSubs() {
+		AssessmentGradingData data2 = new AssessmentGradingData();
+		data2.setPublishedAssessmentId(Long.valueOf(1));
+		data2.setAgentId("agent2");
+		data2.setIsLate(false);
+		data2.setForGrade(true);
+		data2.setStatus(0);
+		HashSet<ItemGradingData> answersSet = new HashSet<ItemGradingData>();
+		ItemGradingData Answer1 = new ItemGradingData();
+		Answer1.setAnswerText("asdfasdf");
+		ItemGradingData Answer2 = new ItemGradingData();
+		Answer2.setAnswerText("ASfasbxcvb");
+		
+		answersSet.add(Answer1);
+		answersSet.add(Answer2);
+		data2.setItemGradingSet(answersSet);
+		queries.saveOrUpdateAssessmentGrading(data2);
+		
+		
+		int count =answersSet.size();
+		
+		//we expect 2 objects
+		assertEquals(2, data2.getItemGradingSet().size());
+		
+		//We expect this to set the count to 0
+		data2.setItemGradingSet(new HashSet());
+		queries.saveOrUpdateAssessmentGrading(data2);
+		assertEquals(0, data2.getItemGradingSet().size());
+		assertNotSame(count, data2.getItemGradingSet().size());
+	}
+	
+	
 	/**
 	 * Load some test data
 	 */
@@ -186,4 +219,6 @@ public class AssessmentGradingFacadeQueriesTest extends AbstractTransactionalSpr
 		
 	}
 	
+	
+
 }
