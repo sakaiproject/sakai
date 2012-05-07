@@ -39,6 +39,7 @@ import org.apache.commons.logging.LogFactory;
 import org.sakaiproject.tool.assessment.data.dao.grading.AssessmentGradingData;
 import org.sakaiproject.tool.assessment.data.dao.grading.ItemGradingData;
 import org.sakaiproject.tool.assessment.data.ifc.assessment.AssessmentAccessControlIfc;
+import org.sakaiproject.tool.assessment.data.ifc.assessment.ItemDataIfc;
 import org.sakaiproject.tool.assessment.data.ifc.assessment.PublishedAssessmentIfc;
 import org.sakaiproject.tool.assessment.facade.AgentFacade;
 import org.sakaiproject.tool.assessment.facade.PublishedAssessmentFacade;
@@ -71,6 +72,11 @@ import org.sakaiproject.tool.assessment.util.TextFormat;
 public class SubmitToGradingActionListener implements ActionListener {
 	private static Log log = LogFactory
 			.getLog(SubmitToGradingActionListener.class);
+	
+	/**
+	 * The publishedAssesmentService
+	 */
+	private PublishedAssessmentService publishedAssesmentService = new PublishedAssessmentService();
 
 	/**
 	 * ACTION.
@@ -92,15 +98,13 @@ public class SubmitToGradingActionListener implements ActionListener {
 					.getActionMode() == DeliveryBean.PREVIEW_ASSESSMENT))
 				delivery.setForGrade(false);
 
-			// get service
-			PublishedAssessmentService publishedAssessmentService = new PublishedAssessmentService();
-
+			
 			// get assessment
 			PublishedAssessmentFacade publishedAssessment = null;
 			if (delivery.getPublishedAssessment() != null)
 				publishedAssessment = delivery.getPublishedAssessment();
 			else {
-				publishedAssessment = publishedAssessmentService
+				publishedAssessment = publishedAssesmentService
 						.getPublishedAssessment(delivery.getAssessmentId());
 				delivery.setPublishedAssessment(publishedAssessment);
 			}
@@ -355,11 +359,11 @@ public class SubmitToGradingActionListener implements ActionListener {
 			// 2. add any modified SAQ/TF/FIB/Matching/MCMR/FIN
 			// 3. save any modified Mark for Review in FileUplaod/Audio
 
-			HashMap fibMap = getFIBMap(publishedAssessment);
-			HashMap finMap = getFINMap(publishedAssessment);
-			HashMap calcQuestionMap = getCalcQuestionMap(publishedAssessment); // CALCULATED_QUESTION
-			HashMap mcmrMap = getMCMRMap(publishedAssessment);
-			Set itemGradingSet = adata.getItemGradingSet();
+			HashMap<Long, ItemDataIfc> fibMap = getFIBMap(publishedAssessment);
+			HashMap<Long, ItemDataIfc> finMap = getFINMap(publishedAssessment);
+			HashMap<Long, ItemDataIfc> calcQuestionMap = getCalcQuestionMap(publishedAssessment); // CALCULATED_QUESTION
+			HashMap<Long, ItemDataIfc> mcmrMap = getMCMRMap(publishedAssessment);
+			Set<ItemGradingData> itemGradingSet = adata.getItemGradingSet();
 			log.debug("*** 2a. before removal & addition " + (new Date()));
 			if (itemGradingSet != null) {
 				log.debug("*** 2aa. removing old itemGrading " + (new Date()));
@@ -437,15 +441,13 @@ public class SubmitToGradingActionListener implements ActionListener {
 		return adata;
 	}
 
-	private HashMap getFIBMap(PublishedAssessmentIfc publishedAssessment) {
-		PublishedAssessmentService s = new PublishedAssessmentService();
-		return s.prepareFIBItemHash(publishedAssessment);
+	private HashMap<Long, ItemDataIfc> getFIBMap(PublishedAssessmentIfc publishedAssessment) {
+		return publishedAssesmentService.prepareFIBItemHash(publishedAssessment);
 	}
 
   
-  	private HashMap getFINMap(PublishedAssessmentIfc publishedAssessment){
-	    PublishedAssessmentService s = new PublishedAssessmentService();
-	    return s.prepareFINItemHash(publishedAssessment);
+  	private HashMap<Long, ItemDataIfc> getFINMap(PublishedAssessmentIfc publishedAssessment){
+	    return publishedAssesmentService.prepareFINItemHash(publishedAssessment);
 	}
   	
   	/**
@@ -453,19 +455,17 @@ public class SubmitToGradingActionListener implements ActionListener {
   	 * @param publishedAssessment
   	 * @return map of calc items
   	 */
-  	private HashMap getCalcQuestionMap(PublishedAssessmentIfc publishedAssessment){
-	    PublishedAssessmentService s = new PublishedAssessmentService();
-	    return (HashMap) s.prepareCalcQuestionItemHash(publishedAssessment);
+  	private HashMap<Long, ItemDataIfc> getCalcQuestionMap(PublishedAssessmentIfc publishedAssessment){
+	    return (HashMap<Long, ItemDataIfc>) publishedAssesmentService.prepareCalcQuestionItemHash(publishedAssessment);
 	}
   
 
-	private HashMap getMCMRMap(PublishedAssessmentIfc publishedAssessment) {
-		PublishedAssessmentService s = new PublishedAssessmentService();
-		return s.prepareMCMRItemHash(publishedAssessment);
+	private HashMap<Long, ItemDataIfc> getMCMRMap(PublishedAssessmentIfc publishedAssessment) {
+		return publishedAssesmentService.prepareMCMRItemHash(publishedAssessment);
 	}
 
 	private HashSet<ItemGradingData> getUpdateItemGradingSet(Set oldItemGradingSet,
-			Set<ItemGradingData> newItemGradingSet, HashMap fibMap, HashMap finMap, HashMap calcQuestionMap, HashMap mcmrMap,
+			Set<ItemGradingData> newItemGradingSet, HashMap<Long, ItemDataIfc> fibMap, HashMap<Long, ItemDataIfc> finMap, HashMap<Long, ItemDataIfc> calcQuestionMap, HashMap<Long, ItemDataIfc> mcmrMap,
 			AssessmentGradingData adata) {
 		log.debug("Submitforgrading: oldItemGradingSet.size = "
 				+ oldItemGradingSet.size());
@@ -576,12 +576,12 @@ public class SubmitToGradingActionListener implements ActionListener {
 	 */
 	private void prepareItemGradingPerItem(ActionEvent ae, DeliveryBean delivery,
 			ItemContentsBean item, HashSet<ItemGradingData> adds, HashSet<ItemGradingData> removes) {
-		ArrayList grading = item.getItemGradingDataArray();
+		ArrayList<ItemGradingData> grading = item.getItemGradingDataArray();
 		int typeId = item.getItemData().getTypeId().intValue();
 		
 		//no matter what kinds of type questions, if it marks as review, add it in.
 		for (int m = 0; m < grading.size(); m++) {
-			ItemGradingData itemgrading = (ItemGradingData) grading.get(m);
+			ItemGradingData itemgrading = grading.get(m);
 			if (itemgrading.getItemGradingId() == null && (itemgrading.getReview() != null && itemgrading.getReview().booleanValue())  == true) {
 				adds.addAll(grading);
 				break;
@@ -597,7 +597,7 @@ public class SubmitToGradingActionListener implements ActionListener {
 		case 3: // Survey
 			boolean answerModified = false;
 			for (int m = 0; m < grading.size(); m++) {
-				ItemGradingData itemgrading = (ItemGradingData) grading.get(m);
+				ItemGradingData itemgrading = grading.get(m);
 
 				if (itemgrading.getItemGradingId() == null
 						|| itemgrading.getItemGradingId().intValue() <= 0) { // =>
@@ -616,7 +616,7 @@ public class SubmitToGradingActionListener implements ActionListener {
 			
 			if (answerModified) {
 				for (int m = 0; m < grading.size(); m++) {
-					ItemGradingData itemgrading = (ItemGradingData) grading
+					ItemGradingData itemgrading = grading
 					.get(m);
 					if (itemgrading.getItemGradingId() != null
 							&& itemgrading.getItemGradingId().intValue() > 0) {
@@ -648,12 +648,12 @@ public class SubmitToGradingActionListener implements ActionListener {
 		case 4: // T/F
 		case 9: // Matching
 			for (int m = 0; m < grading.size(); m++) {
-				ItemGradingData itemgrading = (ItemGradingData) grading.get(m);
+				ItemGradingData itemgrading = grading.get(m);
 				itemgrading.setAgentId(AgentFacade.getAgentString());
 				itemgrading.setSubmittedDate(new Date());
 			}
 			for (int m = 0; m < grading.size(); m++) {
-				ItemGradingData itemgrading = (ItemGradingData) grading.get(m);
+				ItemGradingData itemgrading = grading.get(m);
 				if ((itemgrading.getItemGradingId() != null	&& itemgrading.getItemGradingId().intValue() > 0) ||
 					(itemgrading.getPublishedAnswerId() != null || itemgrading.getAnswerText() != null) ||
 					(itemgrading.getRationale() != null && !itemgrading.getRationale().trim().equals(""))) {
@@ -664,12 +664,12 @@ public class SubmitToGradingActionListener implements ActionListener {
 			break;
 		case 5: // SAQ
 			for (int m = 0; m < grading.size(); m++) {
-				ItemGradingData itemgrading = (ItemGradingData) grading.get(m);
+				ItemGradingData itemgrading = grading.get(m);
 				itemgrading.setAgentId(AgentFacade.getAgentString());
 				itemgrading.setSubmittedDate(new Date());
 			}
 			for (int m = 0; m < grading.size(); m++) {
-				ItemGradingData itemgrading = (ItemGradingData) grading.get(m);
+				ItemGradingData itemgrading = grading.get(m);
 				if (itemgrading.getItemGradingId() != null
 						&& itemgrading.getItemGradingId().intValue() > 0) {
 					adds.addAll(grading);
@@ -687,12 +687,12 @@ public class SubmitToGradingActionListener implements ActionListener {
 		case 11: // FIN
 			boolean addedToAdds = false;
 			for (int m = 0; m < grading.size(); m++) {
-				ItemGradingData itemgrading = (ItemGradingData) grading.get(m);
+				ItemGradingData itemgrading = grading.get(m);
 				itemgrading.setAgentId(AgentFacade.getAgentString());
 				itemgrading.setSubmittedDate(new Date());
 			}
 			for (int m = 0; m < grading.size(); m++) {
-				ItemGradingData itemgrading = (ItemGradingData) grading.get(m);
+				ItemGradingData itemgrading = grading.get(m);
 				if (itemgrading.getItemGradingId() != null
 						&& itemgrading.getItemGradingId().intValue() > 0) {
 					adds.addAll(grading);
@@ -712,7 +712,7 @@ public class SubmitToGradingActionListener implements ActionListener {
 			break;
 		case 2: // MCMR
 			for (int m = 0; m < grading.size(); m++) {
-				ItemGradingData itemgrading = (ItemGradingData) grading.get(m);
+				ItemGradingData itemgrading = grading.get(m);
 				if (itemgrading.getItemGradingId() != null
 						&& itemgrading.getItemGradingId().intValue() > 0) {
 					// old answer, check which one to keep, not keeping null  answer
@@ -743,7 +743,7 @@ public class SubmitToGradingActionListener implements ActionListener {
 		case 13: //Matrix Choices question
 			answerModified = false;
 			for (int m = 0; m < grading.size(); m++) {
-				ItemGradingData itemgrading = (ItemGradingData) grading.get(m);
+				ItemGradingData itemgrading = grading.get(m);
 				if (itemgrading != null) {
 					log.debug("\n:ItemId>>itemTextId>>answerId "+ itemgrading.getPublishedItemId()+itemgrading.getPublishedItemTextId()+itemgrading.getPublishedAnswerId()+"\n");	    
 
@@ -801,13 +801,13 @@ public class SubmitToGradingActionListener implements ActionListener {
 		}
 	}
 
-    private void handleMarkForReview(ArrayList grading, HashSet<ItemGradingData> adds){
+    private void handleMarkForReview(ArrayList<ItemGradingData> grading, HashSet<ItemGradingData> adds){
       for (int m = 0; m < grading.size(); m++) {
-        ItemGradingData itemgrading = (ItemGradingData) grading.get(m);
+        ItemGradingData itemgrading = grading.get(m);
         if (itemgrading.getItemGradingId() != null 
             && itemgrading.getItemGradingId().intValue() > 0
             && itemgrading.getReview() != null)  {
-            // we will save itemgarding even though answer was not modified 
+            // we will save itemgrading even though answer was not modified 
             // 'cos mark for review may have been modified
           adds.add(itemgrading);
         }

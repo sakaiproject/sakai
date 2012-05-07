@@ -419,14 +419,14 @@ public class PublishedAssessmentService extends AssessmentService{
       getItemType(new Long(publishedItemId));
   }
 
-  public HashMap preparePublishedItemTextHash(PublishedAssessmentIfc publishedAssessment){
-    HashMap map = new HashMap();
-    ArrayList sectionArray = publishedAssessment.getSectionArray();
+  public HashMap<Long, ItemTextIfc> preparePublishedItemTextHash(PublishedAssessmentIfc publishedAssessment){
+    HashMap<Long, ItemTextIfc> map = new HashMap<Long, ItemTextIfc>();
+    ArrayList<SectionDataIfc> sectionArray = publishedAssessment.getSectionArray();
     for (int i=0;i<sectionArray.size(); i++){
-      SectionDataIfc section = (SectionDataIfc)sectionArray.get(i);
-      ArrayList itemArray = section.getItemArray();
+      SectionDataIfc section = sectionArray.get(i);
+      ArrayList<ItemDataIfc> itemArray = section.getItemArray();
       for (int j=0;j<itemArray.size(); j++){
-        ItemDataIfc item = (ItemDataIfc)itemArray.get(j);
+        ItemDataIfc item = itemArray.get(j);
         ArrayList itemTextArray = item.getItemTextArray();
         for (int k=0;k<itemTextArray.size(); k++){
           ItemTextIfc itemText = (ItemTextIfc)itemTextArray.get(k);
@@ -438,28 +438,28 @@ public class PublishedAssessmentService extends AssessmentService{
   }
 
 
-  public HashMap preparePublishedItemHash(PublishedAssessmentIfc publishedAssessment){
-    HashMap map = new HashMap();
-    ArrayList sectionArray = publishedAssessment.getSectionArray();
+  public HashMap<Long, ItemDataIfc> preparePublishedItemHash(PublishedAssessmentIfc publishedAssessment){
+    HashMap<Long, ItemDataIfc> map = new HashMap<Long, ItemDataIfc>();
+    ArrayList<SectionDataIfc> sectionArray = publishedAssessment.getSectionArray();
     for (int i=0;i<sectionArray.size(); i++){
-      SectionDataIfc section = (SectionDataIfc)sectionArray.get(i);
-      ArrayList itemArray = section.getItemArray();
+      SectionDataIfc section = sectionArray.get(i);
+      ArrayList<ItemDataIfc> itemArray = section.getItemArray();
       for (int j=0;j<itemArray.size(); j++){
-        ItemDataIfc item = (ItemDataIfc)itemArray.get(j);
+        ItemDataIfc item = itemArray.get(j);
         map.put(item.getItemId(), item);
       }
     }
     return map;
   }
 
-  public HashMap preparePublishedAnswerHash(PublishedAssessmentIfc publishedAssessment){
-    HashMap map = new HashMap();
-    ArrayList sectionArray = publishedAssessment.getSectionArray();
+  public HashMap<Long, AnswerIfc> preparePublishedAnswerHash(PublishedAssessmentIfc publishedAssessment){
+    HashMap<Long, AnswerIfc> map = new HashMap<Long, AnswerIfc>();
+    ArrayList<SectionDataIfc> sectionArray = publishedAssessment.getSectionArray();
     for (int i=0;i<sectionArray.size(); i++){
-      SectionDataIfc section = (SectionDataIfc)sectionArray.get(i);
-      ArrayList itemArray = section.getItemArray();
+      SectionDataIfc section = sectionArray.get(i);
+      ArrayList<ItemDataIfc> itemArray = section.getItemArray();
       for (int j=0;j<itemArray.size(); j++){
-        ItemDataIfc item = (ItemDataIfc)itemArray.get(j);
+        ItemDataIfc item = itemArray.get(j);
         ArrayList itemTextArray = item.getItemTextArray();
         for (int k=0;k<itemTextArray.size(); k++){
           ItemTextIfc itemText = (ItemTextIfc)itemTextArray.get(k);
@@ -480,14 +480,14 @@ public class PublishedAssessmentService extends AssessmentService{
     return map;
   }
 
-  public HashMap prepareFIBItemHash(PublishedAssessmentIfc publishedAssessment){
-    HashMap map = new HashMap();
-    ArrayList sectionArray = publishedAssessment.getSectionArray();
+  public HashMap<Long, ItemDataIfc> prepareFIBItemHash(PublishedAssessmentIfc publishedAssessment){
+    HashMap<Long, ItemDataIfc> map = new HashMap<Long, ItemDataIfc>();
+    ArrayList<SectionDataIfc> sectionArray = publishedAssessment.getSectionArray();
     for (int i=0;i<sectionArray.size(); i++){
-      SectionDataIfc section = (SectionDataIfc)sectionArray.get(i);
-      ArrayList itemArray = section.getItemArray();
+      SectionDataIfc section = sectionArray.get(i);
+      ArrayList<ItemDataIfc> itemArray = section.getItemArray();
       for (int j=0;j<itemArray.size(); j++){
-        ItemDataIfc item = (ItemDataIfc)itemArray.get(j);
+        ItemDataIfc item = itemArray.get(j);
         if (item.getTypeId().equals( Long.valueOf(8))) // FIB question
           map.put(item.getItemId(), item);
       }
@@ -495,14 +495,14 @@ public class PublishedAssessmentService extends AssessmentService{
     return map;
   }
 
-  public HashMap prepareFINItemHash(PublishedAssessmentIfc publishedAssessment){
-	    HashMap map = new HashMap();
-	    ArrayList sectionArray = publishedAssessment.getSectionArray();
+  public HashMap<Long, ItemDataIfc> prepareFINItemHash(PublishedAssessmentIfc publishedAssessment){
+	    HashMap<Long, ItemDataIfc> map = new HashMap<Long, ItemDataIfc>();
+	    ArrayList<SectionDataIfc> sectionArray = publishedAssessment.getSectionArray();
 	    for (int i=0;i<sectionArray.size(); i++){
-	      SectionDataIfc section = (SectionDataIfc)sectionArray.get(i);
-	      ArrayList itemArray = section.getItemArray();
+	      SectionDataIfc section = sectionArray.get(i);
+	      ArrayList<ItemDataIfc> itemArray = section.getItemArray();
 	      for (int j=0;j<itemArray.size(); j++){
-	        ItemDataIfc item = (ItemDataIfc)itemArray.get(j);
+	        ItemDataIfc item = itemArray.get(j);
 	        if (item.getTypeId().equals( Long.valueOf(11))) // FIN question
 	          map.put(item.getItemId(), item);
 	      }
@@ -532,14 +532,14 @@ public class PublishedAssessmentService extends AssessmentService{
       return map;
   }
   
-  public HashMap prepareMCMRItemHash(PublishedAssessmentIfc publishedAssessment){
-    HashMap map = new HashMap();
-    ArrayList sectionArray = publishedAssessment.getSectionArray();
+  public HashMap<Long, ItemDataIfc> prepareMCMRItemHash(PublishedAssessmentIfc publishedAssessment){
+    HashMap<Long, ItemDataIfc> map = new HashMap<Long, ItemDataIfc>();
+    ArrayList<SectionDataIfc> sectionArray = publishedAssessment.getSectionArray();
     for (int i=0;i<sectionArray.size(); i++){
-      SectionDataIfc section = (SectionDataIfc)sectionArray.get(i);
-      ArrayList itemArray = section.getItemArray();
+      SectionDataIfc section = sectionArray.get(i);
+      ArrayList<ItemDataIfc> itemArray = section.getItemArray();
       for (int j=0;j<itemArray.size(); j++){
-        ItemDataIfc item = (ItemDataIfc)itemArray.get(j);
+        ItemDataIfc item = itemArray.get(j);
         if (item.getTypeId().equals( Long.valueOf(2))) // MCMR question
           map.put(item.getItemId(), item);
       }
