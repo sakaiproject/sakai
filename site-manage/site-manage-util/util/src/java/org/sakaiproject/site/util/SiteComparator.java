@@ -1,9 +1,11 @@
-
+ 
 package org.sakaiproject.site.util;
 
 import java.text.Collator;
 import java.util.Comparator;
 
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
 import org.sakaiproject.authz.api.Member;
 import org.sakaiproject.site.api.Site;
 import org.sakaiproject.site.api.Group;
@@ -14,19 +16,22 @@ import org.sakaiproject.user.cover.UserDirectoryService;
 import org.sakaiproject.entity.api.ResourceProperties;
 import org.sakaiproject.entity.api.EntityPropertyNotDefinedException;
 import org.sakaiproject.entity.api.EntityPropertyTypeException;
-
+import java.util.Locale;
+import java.text.RuleBasedCollator;
 /**
  * The comparator to be used in Worksite Setup/Site Info tool
  */
 public class SiteComparator implements Comparator {
-	
+	private static Log log = LogFactory.getLog(SiteComparator.class);
+
 	Collator collator = Collator.getInstance();
+	Collator localeCollator = null;
 	
 	/**
 	 * the criteria
 	 */
 	String m_criterion = null;
-
+	Locale m_loc = null;
 	String m_asc = null;
 
 	/**
@@ -44,6 +49,36 @@ public class SiteComparator implements Comparator {
 
 	} // constructor
 
+	
+
+        // create a locale-sensitive comparator; on error keep localeCollator set to null so it's not used 
+	
+        public SiteComparator(String criterion, String asc, Locale locale) {
+	
+                this(criterion, asc);
+	
+                m_loc = locale;
+	
+                try {
+	
+        	RuleBasedCollator defaultCollator = (RuleBasedCollator) Collator.getInstance(locale); 
+	
+               String rules = defaultCollator.getRules();
+	
+               localeCollator = new RuleBasedCollator(rules.replaceAll("<'\u005f'", "<' '<'\u005f'"));
+	
+               localeCollator.setStrength(Collator.TERTIARY);
+	
+                } catch (Exception e) {
+	
+                	log.warn("SiteComparator failed to create RuleBasedCollator for locale " + locale.toString(), e);
+                	localeCollator = null;
+	
+                }
+	
+        }	
+	
+	
 	/**
 	 * implementing the Comparator compare function
 	 * 
@@ -56,8 +91,9 @@ public class SiteComparator implements Comparator {
 	public int compare(Object o1, Object o2) {
 		int result = -1;
 
-		if (m_criterion == null)
+		if (m_criterion == null) {
 			m_criterion = SiteConstants.SORTED_BY_TITLE;
+		}
 
 		/** *********** for sorting site list ****************** */
 		if (m_criterion.equals(SiteConstants.SORTED_BY_TITLE)) {
@@ -92,6 +128,7 @@ public class SiteComparator implements Comparator {
 			} else {
 				result = -1;
 			}
+			
 		} else if (m_criterion.equals(SiteConstants.SORTED_BY_JOINABLE)) {
 			// sort by whether the site is joinable or not
 			boolean b1 = ((Site) o1).isJoinable();
@@ -317,7 +354,12 @@ public class SiteComparator implements Comparator {
 		} else if (s1 == null) {
 			result = -1;
 		} else {
-			result = collator.compare(s1, s2);
+			
+            if (localeCollator != null) {
+                    result = localeCollator.compare(s1, s2);
+            } else {
+        			result = collator.compare(s1, s2);
+            }						
 		}
 		return result;
 	}

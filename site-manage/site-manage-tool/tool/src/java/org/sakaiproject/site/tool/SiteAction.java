@@ -170,6 +170,8 @@ public class SiteAction extends PagedResourceActionII {
 	private static ResourceLoader rb = new ResourceLoader("sitesetupgeneric");
 	private static ResourceLoader cfgRb = new ResourceLoader("multipletools");
 
+	private Locale comparator_locale = rb.getLocale();	
+	
 	private org.sakaiproject.coursemanagement.api.CourseManagementService cms = (org.sakaiproject.coursemanagement.api.CourseManagementService) ComponentManager
 			.get(org.sakaiproject.coursemanagement.api.CourseManagementService.class);
 
@@ -4165,8 +4167,7 @@ public class SiteAction extends PagedResourceActionII {
 			Iterator sortedParticipants = null;
 			if (sortedBy != null) {
 				sortedParticipants = new SortedIterator(participants
-						.iterator(), new SiteComparator(sortedBy,
-						sortedAsc));
+						.iterator(), new SiteComparator(sortedBy,sortedAsc,comparator_locale));
 				participants.clear();
 				while (sortedParticipants.hasNext()) {
 					participants.add(sortedParticipants.next());
