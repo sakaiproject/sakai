@@ -242,9 +242,9 @@ public class SubmitToGradingActionListener implements ActionListener {
 		// publsihedItem and
 		// work out which answer is an new addition and in cases like
 		// MC/MCMR/Survey, we will
-		// discard any existing one and just save teh new one. For other
+		// discard any existing one and just save the new one. For other
 		// question type, we
-		// simply modify the publishedText or publishedAnswer of teh existing
+		// simply modify the publishedText or publishedAnswer of the existing
 		// ones.
 		while (iter.hasNext()) {
 			SectionContentsBean part = iter.next();
