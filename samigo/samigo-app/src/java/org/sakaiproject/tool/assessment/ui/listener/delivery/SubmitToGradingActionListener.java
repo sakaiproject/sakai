@@ -229,14 +229,14 @@ public class SubmitToGradingActionListener implements ActionListener {
 			ActionEvent ae, PublishedAssessmentFacade publishedAssessment, DeliveryBean delivery, HashMap invalidFINMap, ArrayList invalidSALengthList) throws FinFormatException {
 		log.debug("****1a. inside submitToGradingService ");
 		String submissionId = "";
-		HashSet itemGradingHash = new HashSet();
+		HashSet<ItemGradingData> itemGradingHash = new HashSet<ItemGradingData>();
 		// daisyf decoding: get page contents contains SectionContentsBean, a
 		// wrapper for SectionDataIfc
-		Iterator iter = delivery.getPageContents().getPartsContents()
+		Iterator<SectionContentsBean> iter = delivery.getPageContents().getPartsContents()
 				.iterator();
 		log.debug("****1b. inside submitToGradingService, iter= " + iter);
-		HashSet adds = new HashSet();
-		HashSet removes = new HashSet();
+		HashSet<ItemGradingData> adds = new HashSet<ItemGradingData>();
+		HashSet<ItemGradingData> removes = new HashSet<ItemGradingData>();
 		
 		// we go through all the answer collected from JSF form per each
 		// publsihedItem and
@@ -247,11 +247,11 @@ public class SubmitToGradingActionListener implements ActionListener {
 		// simply modify the publishedText or publishedAnswer of teh existing
 		// ones.
 		while (iter.hasNext()) {
-			SectionContentsBean part = (SectionContentsBean) iter.next();
+			SectionContentsBean part = iter.next();
 			log.debug("****1c. inside submitToGradingService, part " + part);
-			Iterator iter2 = part.getItemContents().iterator();
+			Iterator<ItemContentsBean> iter2 = part.getItemContents().iterator();
 			while (iter2.hasNext()) { // go through each item from form
-				ItemContentsBean item = (ItemContentsBean) iter2.next();
+				ItemContentsBean item = iter2.next();
 				log.debug("****** before prepareItemGradingPerItem");
 				prepareItemGradingPerItem(ae, delivery, item, adds, removes);
 				log.debug("****** after prepareItemGradingPerItem");
@@ -265,13 +265,13 @@ public class SubmitToGradingActionListener implements ActionListener {
 		StringBuffer redrawAnchorName = new StringBuffer("p");
 		String tmpAnchorName = "";
 
-		Iterator iterPart = delivery.getPageContents().getPartsContents().iterator();
+		Iterator<SectionContentsBean> iterPart = delivery.getPageContents().getPartsContents().iterator();
 		while (iterPart.hasNext()) {
-			SectionContentsBean part = (SectionContentsBean) iterPart.next();
+			SectionContentsBean part = iterPart.next();
 			String partSeq = part.getNumber();
-			Iterator iterItem = part.getItemContents().iterator();
+			Iterator<ItemContentsBean> iterItem = part.getItemContents().iterator();
 			while (iterItem.hasNext()) { // go through each item from form
-				ItemContentsBean item = (ItemContentsBean) iterItem.next();
+				ItemContentsBean item = iterItem.next();
 				String itemSeq = item.getSequence();
 				Long itemId = item.getItemData().getItemId();
 				if (item.getItemData().getTypeId() == 5) {
@@ -298,10 +298,10 @@ public class SubmitToGradingActionListener implements ActionListener {
 							tmpAnchorName = redrawAnchorName.toString();
 						}
 						ArrayList list = (ArrayList) invalidFINMap.get(itemId);
-						ArrayList finArray = item.getFinArray();
-						Iterator iterFin = finArray.iterator();
+						ArrayList<FinBean> finArray = item.getFinArray();
+						Iterator<FinBean> iterFin = finArray.iterator();
 						while (iterFin.hasNext()) {
-							FinBean finBean = (FinBean) iterFin.next();
+							FinBean finBean = iterFin.next();
 							if (finBean.getItemGradingData() != null) {
 								Long itemGradingId = finBean.getItemGradingData().getItemGradingId();
 								if (list.contains(itemGradingId)) {
@@ -334,9 +334,9 @@ public class SubmitToGradingActionListener implements ActionListener {
 	}
 
 	private AssessmentGradingData persistAssessmentGrading(ActionEvent ae, 
-			DeliveryBean delivery, HashSet itemGradingHash,
-			PublishedAssessmentFacade publishedAssessment, HashSet adds,
-			HashSet removes, HashMap invalidFINMap, ArrayList invalidSALengthList) throws FinFormatException {
+			DeliveryBean delivery, HashSet<ItemGradingData> itemGradingHash,
+			PublishedAssessmentFacade publishedAssessment, HashSet<ItemGradingData> adds,
+			HashSet<ItemGradingData> removes, HashMap invalidFINMap, ArrayList invalidSALengthList) throws FinFormatException {
 		AssessmentGradingData adata = null;
 		if (delivery.getAssessmentGrading() != null) {
 			adata = delivery.getAssessmentGrading();
@@ -372,9 +372,9 @@ public class SubmitToGradingActionListener implements ActionListener {
 				log.debug("*** 2ac. load assessmentGarding " + (new Date()));
 				adata = service.load(adata.getAssessmentGradingId().toString());
 
-				Iterator iter = adds.iterator();
+				Iterator<ItemGradingData> iter = adds.iterator();
 				while (iter.hasNext()) {
-					((ItemGradingData) iter.next()).setAssessmentGradingId(adata
+					iter.next().setAssessmentGradingId(adata
 							.getAssessmentGradingId());
 				}
 				// make update to old item and insert new item
@@ -388,7 +388,7 @@ public class SubmitToGradingActionListener implements ActionListener {
 				log.debug("Submitforgrading: newItemGradingSet.size = "
 						+ adds.size());
 
-				HashSet updateItemGradingSet = getUpdateItemGradingSet(
+				HashSet<ItemGradingData> updateItemGradingSet = getUpdateItemGradingSet(
 						itemGradingSet, adds, fibMap, finMap, calcQuestionMap,mcmrMap, adata);
 				adata.setItemGradingSet(updateItemGradingSet);
 			}
@@ -464,26 +464,26 @@ public class SubmitToGradingActionListener implements ActionListener {
 		return s.prepareMCMRItemHash(publishedAssessment);
 	}
 
-	private HashSet getUpdateItemGradingSet(Set oldItemGradingSet,
-			Set newItemGradingSet, HashMap fibMap, HashMap finMap, HashMap calcQuestionMap, HashMap mcmrMap,
+	private HashSet<ItemGradingData> getUpdateItemGradingSet(Set oldItemGradingSet,
+			Set<ItemGradingData> newItemGradingSet, HashMap fibMap, HashMap finMap, HashMap calcQuestionMap, HashMap mcmrMap,
 			AssessmentGradingData adata) {
 		log.debug("Submitforgrading: oldItemGradingSet.size = "
 				+ oldItemGradingSet.size());
 		log.debug("Submitforgrading: newItemGradingSet.size = "
 				+ newItemGradingSet.size());
-		HashSet updateItemGradingSet = new HashSet();
+		HashSet<ItemGradingData> updateItemGradingSet = new HashSet<ItemGradingData>();
 		Iterator iter = oldItemGradingSet.iterator();
-		HashMap map = new HashMap();
+		HashMap<Long, ItemGradingData> map = new HashMap<Long, ItemGradingData>();
 		while (iter.hasNext()) { // create a map with old itemGrading
 			ItemGradingData item = (ItemGradingData) iter.next();
 			map.put(item.getItemGradingId(), item);
 		}
 
 		// go through new itemGrading
-		Iterator iter1 = newItemGradingSet.iterator();
+		Iterator<ItemGradingData> iter1 = newItemGradingSet.iterator();
 		while (iter1.hasNext()) {
-			ItemGradingData newItem = (ItemGradingData) iter1.next();
-			ItemGradingData oldItem = (ItemGradingData) map.get(newItem
+			ItemGradingData newItem = iter1.next();
+			ItemGradingData oldItem = map.get(newItem
 					.getItemGradingId());
 			if (oldItem != null) {
 				// itemGrading exists and value has been change, then need
@@ -550,7 +550,7 @@ public class SubmitToGradingActionListener implements ActionListener {
 	 */
 	private AssessmentGradingData makeNewAssessmentGrading(
 			PublishedAssessmentFacade publishedAssessment,
-			DeliveryBean delivery, HashSet itemGradingHash) {
+			DeliveryBean delivery, HashSet<ItemGradingData> itemGradingHash) {
 		PersonBean person = (PersonBean) ContextUtil.lookupBean("person");
 		AssessmentGradingData adata = new AssessmentGradingData();
 		adata.setAgentId(person.getId());
@@ -575,7 +575,7 @@ public class SubmitToGradingActionListener implements ActionListener {
 	 * is best to study jsf/delivery/item/deliver*.jsp
 	 */
 	private void prepareItemGradingPerItem(ActionEvent ae, DeliveryBean delivery,
-			ItemContentsBean item, HashSet adds, HashSet removes) {
+			ItemContentsBean item, HashSet<ItemGradingData> adds, HashSet<ItemGradingData> removes) {
 		ArrayList grading = item.getItemGradingDataArray();
 		int typeId = item.getItemData().getTypeId().intValue();
 		
@@ -801,7 +801,7 @@ public class SubmitToGradingActionListener implements ActionListener {
 		}
 	}
 
-    private void handleMarkForReview(ArrayList grading, HashSet adds){
+    private void handleMarkForReview(ArrayList grading, HashSet<ItemGradingData> adds){
       for (int m = 0; m < grading.size(); m++) {
         ItemGradingData itemgrading = (ItemGradingData) grading.get(m);
         if (itemgrading.getItemGradingId() != null 
