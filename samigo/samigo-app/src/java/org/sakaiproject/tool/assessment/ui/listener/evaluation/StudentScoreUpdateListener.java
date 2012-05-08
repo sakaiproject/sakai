@@ -195,7 +195,9 @@ public class StudentScoreUpdateListener
               updateFlag = true;	
               data.setGradedBy(AgentFacade.getAgentString());
               data.setGradedDate(new Date());
-              EventTrackingService.post(EventTrackingService.newEvent("sam.student.score.update", "siteId=" + AgentFacade.getCurrentSiteId() + ", " + logString.toString().substring(0, 254), true));
+              String targetString = "siteId=" + AgentFacade.getCurrentSiteId() + ", " + logString.toString();
+              String safeString = targetString.length() > 255 ? targetString.substring(0, 255) : targetString;
+              EventTrackingService.post(EventTrackingService.newEvent("sam.student.score.update", safeString, true));
               log.debug("****4 itemGradingId="+data.getItemGradingId());
               log.debug("****5 set points = " + data.getAutoScore() + ", comments to " + data.getComments());
             }

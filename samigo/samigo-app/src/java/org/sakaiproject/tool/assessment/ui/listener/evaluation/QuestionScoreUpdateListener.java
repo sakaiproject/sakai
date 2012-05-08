@@ -160,7 +160,7 @@ public class QuestionScoreUpdateListener
           logString.append(", itemGradingId=");
           logString.append(data.getItemGradingId());
           
-          if (MathUtils.equalsIncludingNaN(newAutoScore , oldAutoScore, 0.0001)) {
+          if (MathUtils.equalsIncludingNaN(newAutoScore, oldAutoScore, 0.0001)) {
         	data.setAutoScore(Float.valueOf(newAutoScore));
         	logString.append(", newAutoScore=");
             logString.append(newAutoScore);
@@ -178,7 +178,9 @@ public class QuestionScoreUpdateListener
           if (MathUtils.equalsIncludingNaN(newAutoScore, oldAutoScore, 0.0001) || !newComments.equals(oldComments)){
             data.setGradedBy(AgentFacade.getAgentString());
             data.setGradedDate(new Date());
-            EventTrackingService.post(EventTrackingService.newEvent("sam.question.score.update", "siteId=" + AgentFacade.getCurrentSiteId() + ", " + logString.toString().substring(0, 254), true));
+            String targetString = "siteId=" + AgentFacade.getCurrentSiteId() + ", " + logString.toString();
+            String safeString = targetString.length() > 255 ? targetString.substring(0, 255) : targetString;
+            EventTrackingService.post(EventTrackingService.newEvent("sam.question.score.update", safeString, true));
             delegate.updateItemScore(data, newAutoScore-oldAutoScore, tbean.getPublishedAssessment());
           }
           
