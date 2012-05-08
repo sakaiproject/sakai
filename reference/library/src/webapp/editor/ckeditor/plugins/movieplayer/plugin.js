@@ -145,7 +145,7 @@ CKEDITOR.plugins.add( 'movieplayer',
                                     action : 'Browse', 
                                     onSelect : function (fileUrl, data) {
                                       tab1doc.getElementById('txtUrl').value = decodeURI(fileUrl);
-                                    },
+                                    }
                                 }
                             }
                         ]
