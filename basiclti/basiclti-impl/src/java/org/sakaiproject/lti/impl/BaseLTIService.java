@@ -27,8 +27,13 @@ import org.sakaiproject.authz.api.SecurityService;
 import org.sakaiproject.component.cover.ComponentManager;
 import org.sakaiproject.event.api.EventTrackingService;
 import org.sakaiproject.event.api.UsageSessionService;
+import org.sakaiproject.exception.IdUnusedException;
+import org.sakaiproject.exception.PermissionException;
 import org.sakaiproject.lti.api.LTIService;
 import org.sakaiproject.site.api.SiteService;
+import org.sakaiproject.site.api.Site;
+import org.sakaiproject.site.api.SitePage;
+import org.sakaiproject.site.api.ToolConfiguration;
 import org.sakaiproject.tool.api.SessionManager;
 import org.sakaiproject.tool.api.ToolManager;
 import org.sakaiproject.user.api.UserDirectoryService;
@@ -484,6 +489,113 @@ public abstract class BaseLTIService implements LTIService {
 		if (allowCode == 1 && toolProp != 1)
 			return new Integer(1);
 		return null;
+	}
+	
+	public Object insertToolContent(String id, String toolId, Properties reqProps)
+	{
+		Object retval = null;
+		if ( ! isMaintain() ) {
+			retval = rb.getString("error.maintain.edit");
+		}
+		if ( toolId == null ) {
+			retval = rb.getString("error.id.not.found");
+		}
+
+		// Check to see if we have to fix the tool...
+		String returnUrl = reqProps.getProperty("returnUrl");
+
+		Long contentKey = null;
+		if ( id == null ) 
+		{
+			retval = insertContent(reqProps);
+		} else {
+			contentKey = new Long(id);
+			Long toolKey = new Long(toolId);
+			Map<String,Object> tool = getTool(toolKey);
+			if ( tool == null ) {
+				retval = rb.getString("error.tool.not.found");
+			}
+			if ( returnUrl != null ) {
+				if ( LTI_SECRET_INCOMPLETE.equals((String) tool.get(LTI_SECRET)) &&
+						LTI_SECRET_INCOMPLETE.equals((String) tool.get(LTI_CONSUMERKEY)) ) {
+					String reqSecret = reqProps.getProperty(LTIService.LTI_SECRET);
+					String reqKey = reqProps.getProperty(LTIService.LTI_CONSUMERKEY);
+					if ( reqSecret == null || reqKey == null || reqKey.trim().length() < 1 || reqSecret.trim().length() < 1 ) {
+						retval = "0" + rb.getString("error.need.key.secret");
+					}
+					Properties toolProps = new Properties();
+					toolProps.setProperty(LTI_SECRET, reqSecret);
+					toolProps.setProperty(LTI_CONSUMERKEY, reqKey);
+					updateTool(toolKey, toolProps);
+				}
+			}
+			retval = updateContent(contentKey, reqProps);
+		}
+		return retval;
+	}
+	
+	public Object insertToolSiteLink(String id, String button_text)
+	{
+		Object retval = null;
+		
+		if ( ! isMaintain() ) {
+			retval = rb.getString("error.maintain.link");
+			return retval;
+		}
+		
+		if ( id == null ) {
+			retval = new String("1" + rb.getString("error.id.not.found"));
+			return retval;
+		}
+		
+		Long key = new Long(id);
+		Map<String,Object> content = getContent(key);
+		if (  content == null ) {
+			retval = new String("1" + rb.getString("error.content.not.found"));
+			return retval;
+		}
+	
+		String siteId = (String) content.get(LTI_SITE_ID);
+		try
+		{
+			Site site = siteService.getSite(siteId);
+			
+			try
+			{
+				SitePage sitePage = site.addPage();
+		
+				ToolConfiguration tool = sitePage.addTool(WEB_PORTLET);
+				String toolId = tool.getPageId();
+				sitePage.setTitle(button_text);
+				sitePage.setTitleCustom(true);
+				
+				
+				siteService.save(site);
+				
+				tool.getPlacementConfig().setProperty("source",(String)content.get("launch_url"));
+				tool.setTitle(button_text);
+		
+				tool.save();
+		
+				// Record the new placement in the content item
+				Properties newProps = new Properties();
+				newProps.setProperty(LTI_PLACEMENT, tool.getId());
+				retval = updateContent(key, newProps);
+			}
+			catch (PermissionException ee)
+			{
+				retval = new String("0" + rb.getFormattedMessage("error.link.placement.update", new Object[]{id}));
+				M_log.warn(this + " cannot add page and basic lti tool to site " + siteId);
+			}
+		}
+		catch (IdUnusedException e)
+		{
+			// cannot find site
+			retval = new String("0" + rb.getFormattedMessage("error.link.placement.update", new Object[]{id}));
+			M_log.warn(this + " cannot find site " + siteId);
+		}
+				
+		return retval;
 	}
 
 }

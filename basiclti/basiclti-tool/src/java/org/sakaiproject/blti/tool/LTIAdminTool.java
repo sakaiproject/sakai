@@ -85,8 +85,6 @@ public class LTIAdminTool extends VelocityPortletPaneledAction
 
 	private static String SECRET_HIDDEN = "***************";
 
-	private static String WEB_PORTLET = "sakai.web.168";
-
 	/** Service Implementations */
 	protected static ToolManager toolManager = null; 
 	protected static LTIService ltiService = null; 
@@ -619,71 +617,26 @@ public class LTIAdminTool extends VelocityPortletPaneledAction
 		String peid = ((JetspeedRunData) data).getJs_peid();
 		SessionState state = ((JetspeedRunData) data).getPortletSessionState(peid);
 		state.removeAttribute(STATE_POST);
-
-		if ( ! ltiService.isMaintain() ) {
-			addAlert(state,rb.getString("error.maintain.edit"));
-			switchPanel(state,"Error");
-			return;
-		}
+		
 		Properties reqProps = data.getParameters().getProperties();
 		String id = data.getParameters().getString(LTIService.LTI_ID);
 		String toolId = data.getParameters().getString(LTIService.LTI_TOOL_ID);
-		if ( toolId == null ) {
-			addAlert(state, rb.getString("error.id.not.found"));
-			switchPanel(state,"Error");
-			return;
-		}
-
-		// Check to see if we have to fix the tool...
-		String returnUrl = reqProps.getProperty("returnUrl");
-
-		Object retval = null;
-		String success = null;
-		Long contentKey = null;
-		if ( id == null ) 
-		{
-			retval = ltiService.insertContent(reqProps);
-			success = rb.getString("success.created");
-		} else {
-			contentKey = new Long(id);
-			Long toolKey = new Long(toolId);
-			Map<String,Object> tool = ltiService.getTool(toolKey);
-			if ( tool == null ) {
-				addAlert(state, rb.getString("error.tool.not.found"));
-				switchPanel(state,"Error");
-				return;
-			}
-			if ( returnUrl != null ) {
-				if ( LTIService.LTI_SECRET_INCOMPLETE.equals((String) tool.get(LTIService.LTI_SECRET)) &&
-						LTIService.LTI_SECRET_INCOMPLETE.equals((String) tool.get(LTIService.LTI_CONSUMERKEY)) ) {
-					String reqSecret = reqProps.getProperty(LTIService.LTI_SECRET);
-					String reqKey = reqProps.getProperty(LTIService.LTI_CONSUMERKEY);
-					if ( reqSecret == null || reqKey == null || reqKey.trim().length() < 1 || reqSecret.trim().length() < 1 ) {
-						addAlert(state, rb.getString("error.need.key.secret"));
-						state.setAttribute(STATE_POST,reqProps);
-						return;
-					}
-					Properties toolProps = new Properties();
-					toolProps.setProperty(LTIService.LTI_SECRET, reqSecret);
-					toolProps.setProperty(LTIService.LTI_CONSUMERKEY, reqKey);
-					ltiService.updateTool(toolKey, toolProps);
-				}
-			}
-			retval = ltiService.updateContent(contentKey, reqProps);
-			success = rb.getString("success.updated");
-		}
-
+		Object retval = ltiService.insertToolContent(id, toolId, reqProps);
+		
 		if ( retval instanceof String ) 
 		{
-			state.setAttribute(STATE_POST,reqProps);
 			addAlert(state, (String) retval);
+			switchPanel(state, "Error");
+			state.setAttribute(STATE_POST,reqProps);
 			state.setAttribute(STATE_CONTENT_ID,id);
 			return;
 		}
 
+		String returnUrl = reqProps.getProperty("returnUrl");
 		if ( returnUrl != null )
 		{
-			if ( contentKey != null ) {
+			if ( id != null ) {
+				Long contentKey = new Long(id);
 				if ( returnUrl.startsWith("about:blank") ) { // Redirect to the item
 					Map<String,Object> content = ltiService.getContent(contentKey);
 					if ( content != null ) {
@@ -702,6 +655,14 @@ public class LTIAdminTool extends VelocityPortletPaneledAction
 			}
 			state.setAttribute(STATE_REDIRECT_URL,returnUrl);
 			return;
+		}
+		
+		String success = null;
+		if ( id == null ) 
+		{
+			success = rb.getString("success.created");
+		} else {
+			success = rb.getString("success.updated");
 		}
 		state.setAttribute(STATE_SUCCESS,success);
 		switchPanel(state, "Content");
@@ -905,59 +866,24 @@ public class LTIAdminTool extends VelocityPortletPaneledAction
 	{
 		String peid = ((JetspeedRunData) data).getJs_peid();
 		SessionState state = ((JetspeedRunData) data).getPortletSessionState(peid);
-
-		if ( ! ltiService.isMaintain() ) {
-			addAlert(state,rb.getString("error.maintain.link"));
-			switchPanel(state, "Error");
-			return;
-		}
-		Properties reqProps = data.getParameters().getProperties();
 		String id = data.getParameters().getString(LTIService.LTI_ID);
-		if ( id == null ) {
-			addAlert(state,rb.getString("error.id.not.found"));
-			switchPanel(state, "Error");
-			return;
-		}
-		Long key = new Long(id);
-		Map<String,Object> content = ltiService.getContent(key);
-		if (  content == null ) {
-			addAlert(state,rb.getString("error.content.not.found"));
-			switchPanel(state, "Error");
-			return;
-		}
-
 		String button_text = data.getParameters().getString("button_text");
-
-		Site site = getCurrentSite();
-		SitePage sitePage = site.addPage();
-
-		ToolConfiguration tool = sitePage.addTool(WEB_PORTLET);
-		String toolId = tool.getPageId();
-		sitePage.setTitle(button_text);
-		sitePage.setTitleCustom(true);
-		try {
-			SiteService.save(site);
-		} catch (Exception e) {
-			M_log.error("addPage unable to save site " + e);
-			addAlert(state,rb.getString("error.link.add.fail"));
-			switchPanel(state, "Content");
-			return;
-		}
-		tool.getPlacementConfig().setProperty("source",(String)content.get("launch_url"));
-		tool.setTitle(button_text);
-
-		tool.save();
-
-		// Record the new placement in the content item
-		Properties newProps = new Properties();
-		newProps.setProperty(LTIService.LTI_PLACEMENT, tool.getId());
-		Object retval = ltiService.updateContent(key, newProps);
+		
+		Object retval = ltiService.insertToolSiteLink(id, button_text);
 		if ( retval instanceof String ) {
-			addAlert(state,rb.getString("error.link.placement.update")+" "+(String) retval);
-			switchPanel(state, "Content");
+			String prefix = ((String) retval).substring(0,2);
+			addAlert(state, ((String) retval).substring(2));
+			if ("0-".equals(prefix))
+			{
+				switchPanel(state, "Content");
+			}
+			else if ("1-".equals(prefix))
+			{
+				switchPanel(state, "Error");
+			}
 			return;
 		}
-
+		
 		state.setAttribute(STATE_SUCCESS,rb.getString("success.link.add"));
 		switchPanel(state, "Refresh");
 	}

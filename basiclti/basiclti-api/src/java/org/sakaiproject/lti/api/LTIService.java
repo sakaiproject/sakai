@@ -25,6 +25,10 @@ import java.util.List;
 import java.util.Map;
 import java.util.Properties;
 
+import org.sakaiproject.exception.IdUnusedException;
+import org.sakaiproject.exception.PermissionException;
+import org.sakaiproject.site.api.Site;
+
 /**
  * <p>
  * A LTIService does things for LTI
@@ -37,6 +41,8 @@ public interface LTIService {
 	/** This string starts the references to resources in this service. */
 	static final String REFERENCE_ROOT = "/lti";
 
+	static String WEB_PORTLET = "sakai.web.168";
+	
 	/**
 	 * 
 	 * @return
@@ -115,7 +121,24 @@ public interface LTIService {
 	 * @return
 	 */
 	public Object insertTool(Properties newProps);
+		
+	/**
+	 * insert lti tool content
+	 * @param id
+	 * @param toolId
+	 * @param reqProps
+	 * @return
+	 */
+	public Object insertToolContent(String id, String toolId, Properties reqProps);
 
+	/**
+	 * create an instance of lti tool within site
+	 * @param id
+	 * @param title
+	 * @return
+	 */
+	public Object insertToolSiteLink(String id, String title);
+	
 	/**
 	 * 
 	 * @param key
