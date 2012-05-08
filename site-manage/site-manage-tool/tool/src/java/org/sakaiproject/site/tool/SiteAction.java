@@ -9207,25 +9207,31 @@ public class SiteAction extends PagedResourceActionII {
                 String ltiToolId = ltiTool.getKey();
                 Map<String, Object> toolValues = ltiTool.getValue();
                 
-                SitePage sitePage = site.addPage();
-
-                ToolConfiguration nTool = sitePage.addTool("sakai.web.168");
-                sitePage.setTitle(ltiToolId);
-                sitePage.setTitleCustom(true);
-                nTool.getPlacementConfig().setProperty("source", (String) toolValues.get("launch"));
-                nTool.setTitle((String) toolValues.get("button_text")); // should it be the button text
-                nTool.save();
-
-                // Record the new placement in the content item
-                Properties newProps = new Properties();
-                newProps.setProperty(LTIService.LTI_PLACEMENT, nTool.getId());
-                Long key = new Long(ltiToolId);
-                Object retval = m_ltiService.updateContent(key, newProps);
-                if ( retval instanceof String ) {
-                    addAlert(state,rb.getString("error.link.placement.update")+" "+(String) retval);
-                    switchPanel(state, "Content");
-                    return;
+                Properties reqProps = params.getProperties();
+                Object retval = m_ltiService.insertToolContent(ltiToolId, ltiToolId, reqProps);
+                if (retval instanceof String)
+                {
+                	// error inserting tool content
+                	addAlert(state, (String) retval);
                 }
+                else
+                {
+                	// success inserting tool content
+                	retval = m_ltiService.insertToolSiteLink(ltiToolId, (String) toolValues.get("button_text"));
+                	if (retval instanceof String)
+                	{
+	        			addAlert(state, ((String) retval).substring(2));
+                	}
+                }
+            }
+            // refresh the site object
+            try
+            {
+            	site = SiteService.getSite(site.getId());
+            }
+            catch (Exception e)
+            {
+            	
             }
 		} // if
 
