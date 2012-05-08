@@ -5,7 +5,6 @@
 <jsp:useBean id="msgs" class="org.sakaiproject.util.ResourceLoader" scope="session">
    <jsp:setProperty name="msgs" property="baseName" value="org.sakaiproject.api.app.messagecenter.bundle.Messages"/>
 </jsp:useBean>
-<!-- <h4>compose.jsp</h4> -->
 <%
 	String thisId = request.getParameter("panel");
 	if (thisId == null) {
