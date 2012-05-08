@@ -2419,6 +2419,7 @@ public class SiteAction extends PagedResourceActionII {
 				context.put("published", state.getAttribute(STATE_SITE_ACCESS_PUBLISH));
 				context.put("include", state.getAttribute(STATE_SITE_ACCESS_INCLUDE));
 
+				context.put("shoppingPeriodInstructorEditable", ServerConfigurationService.getBoolean("delegatedaccess.shopping.instructorEditable", false));
 				if (siteType != null && !unJoinableSiteTypes.contains(siteType)) {
 					// site can be set as joinable
 					context.put("disableJoinable", Boolean.FALSE);

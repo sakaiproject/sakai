@@ -1,5 +1,8 @@
 ##<!-- $Header: /cvs/sakai2/legacy/tools/src/webapp/vm/sitesetup/chef_site-siteInfo-editAccess.vm,v 1.3 2005/05/15 17:05:00 gsilver.umich.edu Exp $ -->
 ## Site list Sites list on worksite setup home page
+#if ($shoppingPeriodInstructorEditable)
+	<script type="text/javascript" src="/sakai-site-manage-tool/js/site-manage-shopping.js"></script>
+#end
 <script type="text/javascript">
 <!-- hide from non-JS browsers
 	function checkPublish(checked)
@@ -38,6 +41,8 @@
 			utils.resizeFrame('shrink');
 		}
 	}
+	
+	
 // -->	
 </script>
 <div class ="portletBody">
@@ -207,12 +212,85 @@
 			</p>
 			<p/>
 		</div>
+
+		<span id="siteId" style="display:none">$site.id</span>
+		#if ($shoppingPeriodInstructorEditable)
+		<div id="shoppingVisibilityDiv" style="display:none">
+			<!-- easy access for JS -->
+			
+			<h4>$tlang.getString("shopping.header")</h4>
+			<div class="instruction">
+				$tlang.getString("shopping.instructions")
+			</div>
+			<div class="indnt1">
+				<a href="#" onclick="optOutOfShoppingPeriod(); return false;">
+					$tlang.getString("shopping.optout.label")
+				</a>
+				<br/>
+				<br/>
+				<input type="checkbox" name="shoppingPeriodOverride" id="shoppingPeriodOverride" onclick="setShoppingSettingsDisabled(!this.checked);"/>
+				<label for"shoppingPeriodOverride">$tlang.getString("shopping.override.label"): </label>
+				
+				<table>
+				<tr>
+				<td align="right">
+			 	<label for="shoppingVisibility">$tlang.getString("shopping.visibility.label"): </label>
+				</td>
+				<td>
+				<select name="shoppingVisibility" id="shoppingVisibility" class="shoppingSetting">
+					<option value="">$tlang.getString("shopping.noauth")</option>
+				</select>
+				</td>
+				</tr>
+				<tr>
+                                <td align="right">
+				<label for="shoppingVisibilityStart">$tlang.getString("shopping.start.label"): </label>
+				</td>
+				<td>
+				<input type="text" id="shoppingVisibilityStart" name="shoppingVisibilityStart" class="shoppingSetting" value=""/>
+				</td>
+				</tr>
+                                <tr>
+                                <td align="right">
+				<label for="shoppingVisibilityEnd">$tlang.getString("shopping.end.label"): </label>
+				</td>
+                                <td>
+				<input type="text" id="shoppingVisibilityEnd" name="shoppingVisibilityEnd" class="shoppingSetting" value=""/>
+				</td>
+				</tr>
+				<tr>
+				<td align="right">
+				<label for="shoppingRole">$tlang.getString("shopping.role.label"): </label>
+				</td>
+				<td>
+				<select name="shoppingRole" id="shoppingRole" class="shoppingSetting">
+					<option value="">$tlang.getString("shopping.noauth")</option>
+				</select>
+				</td>
+				</tr>
+				<tr>
+					<td>
+						<label for="showTools">$tlang.getString("shopping.showTools.label"): </label>
+					</td>
+					<td>
+						<select name="showTools" id="showTools" multiple="multiple" class="shoppingSetting" style="height: 100px">
+							<option value=""></option>
+						</select>
+					</td>
+				</tr>
+				</table>
+			</div>
+			</div>
+
+		</div>
+		#end
 		<input type="hidden" name="continue" value="$!continue" />
 		<input type="hidden" name="back" value="$!backIndex" />
 		<input type="hidden" name="templateIndex" value="$!templateIndex" />
 		<div class ="act">
 			#if($!site)
-				<input type="submit" accesskey="s" class="active" name="eventSubmit_doUpdate_site_access" value="$tlang.getString("ediacc.upd")" />
+				<input type="submit" accesskey="s" id="updateButton" 
+					class="active" name="eventSubmit_doUpdate_site_access" value="$tlang.getString("ediacc.upd")" />
 				<input type="submit" accesskey="x"  name="eventSubmit_doCancel" value="$tlang.getString("ediacc.bac")" />
 #else
 				<input type="submit" accesskey="s" class="active" name="eventSubmit_doUpdate_site_access" value="$tlang.getString("ediacc.con")" />
