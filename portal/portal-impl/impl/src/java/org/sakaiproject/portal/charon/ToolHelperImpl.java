@@ -22,6 +22,8 @@
 package org.sakaiproject.portal.charon;
 
 import java.util.Arrays;
+import java.util.List;
+import java.util.Map;
 
 import org.apache.commons.lang.StringUtils;
 import org.apache.commons.logging.Log;
@@ -29,6 +31,8 @@ import org.apache.commons.logging.LogFactory;
 import org.sakaiproject.authz.cover.SecurityService;
 import org.sakaiproject.site.api.Site;
 import org.sakaiproject.tool.api.Placement;
+import org.sakaiproject.tool.api.Session;
+import org.sakaiproject.tool.cover.SessionManager;
 
 /**
  * @author ieb
@@ -57,6 +61,48 @@ public class ToolHelperImpl
 	 * If the configuration tag is not set or is null, then all users see the tool.
 	 */
 	public boolean allowTool(Site site, Placement placement)
+	{
+		if(allowToolHelper(site, placement)){
+			if(!SecurityService.isSuperUser()){
+				try{
+					//delegated access sets a session attribute that determines if the user can't view a tool in a site
+					//delegatedaccess.deniedToolsMap = SiteId => List{toolid, toolid ...}
+					//if this tool shows up, return false, otherwise return true
+
+					Session session = SessionManager.getCurrentSession();
+					if(session.getAttribute("delegatedaccess.deniedToolsMap") != null && ((Map) session.getAttribute("delegatedaccess.deniedToolsMap")).containsKey(site.getReference())
+							&& arrayContains(((Map) session.getAttribute("delegatedaccess.deniedToolsMap")).get(site.getReference()), placement.getToolId())){
+						return false;
+					}
+					if(session.getAttribute("delegatedaccess.deniedToolsMap") == null ||
+							!((Map<String, String[]>) session.getAttribute("delegatedaccess.deniedToolsMap")).containsKey(site.getReference())){
+						//a delegated access admin would have this map and site (even if it was set to null)
+						if(site.getMember(session.getUserId()) == null && site.getProperties().get("shopping-period-restricted-tools") != null){
+							//this is .anon or .auth role in a site that needs to restrict the tools:
+							return arrayContains(((String) site.getProperties().get("shopping-period-restricted-tools")).split(";"), placement.getToolId());
+						}
+					}
+				}catch (Exception e) {
+				}
+			}
+			return true;
+		}else{
+			return false;
+		}
+	}
+	
+	private boolean arrayContains(Object obj, String item){
+		if(obj != null && obj instanceof String[]){
+			String[] array = (String[]) obj;
+			for(int i = 0; i < array.length; i++){
+				if(array[i].equals(item))
+					return true;
+			}
+		}
+		return false;
+	}
+	
+	public boolean allowToolHelper(Site site, Placement placement)
 	{
 		// No way to render an opinion
 		if (placement == null || site == null) return true;
