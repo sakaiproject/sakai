@@ -641,6 +641,19 @@
                 <version>2.5.1</version>
                 <scope>provided</scope>
             </dependency>
+            <!--  needed by Ehcache (and jackrabbit) -->
+	    <dependency>
+	      <groupId>org.slf4j</groupId>
+	      <artifactId>slf4j-log4j12</artifactId>
+	      <version>1.4.2</version>
+	      <scope>provided</scope>
+	    </dependency>
+	    <dependency>
+	      <groupId>org.slf4j</groupId>
+	      <artifactId>slf4j-api</artifactId>
+	      <version>1.4.2</version>
+	      <scope>provided</scope>
+	    </dependency>
             <dependency>
                 <groupId>org.hibernate</groupId>
                 <artifactId>hibernate</artifactId>
@@ -726,21 +739,8 @@
             <dependency>
                 <groupId>dumbster</groupId>
                 <artifactId>dumbster</artifactId>
-	<version>1.6</version>
+                <version>1.6</version>
             </dependency>
-               <!--  needed by Ehcache -->
-	<dependency>
-		<groupId>org.slf4j</groupId>
-		<artifactId>slf4j-log4j12</artifactId>
-		<version>1.4.2</version>
-		<scope>provided</scope>
-	</dependency>
-	<dependency>
-		<groupId>org.slf4j</groupId>
-		<artifactId>slf4j-api</artifactId>
-		<version>1.4.2</version>
-		<scope>provided</scope>
-	</dependency>
             <!-- kernel apis -->
             <dependency>
                 <groupId>org.sakaiproject.kernel</groupId>

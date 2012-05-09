@@ -38,5 +38,16 @@
       <artifactId>commons-logging</artifactId>
       <scope>compile</scope>
     </dependency>
+    <!-- needed by Ehcache -->
+    <dependency>
+        <groupId>org.slf4j</groupId>
+        <artifactId>slf4j-log4j12</artifactId>
+        <scope>compile</scope>
+    </dependency>
+    <dependency>
+        <groupId>org.slf4j</groupId>
+        <artifactId>slf4j-api</artifactId>
+        <scope>compile</scope>
+    </dependency>
   </dependencies>
 </project>
