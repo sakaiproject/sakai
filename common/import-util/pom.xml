@@ -5,7 +5,7 @@
     <artifactId>common</artifactId>
     <groupId>org.sakaiproject.common</groupId>
     <version>1.3-SNAPSHOT</version>
-    <relativePath>../../pom.xml</relativePath>
+    <relativePath>../pom.xml</relativePath>
   </parent>
   <name>Sakai Content Util</name>
   <groupId>org.sakaiproject.common</groupId>
