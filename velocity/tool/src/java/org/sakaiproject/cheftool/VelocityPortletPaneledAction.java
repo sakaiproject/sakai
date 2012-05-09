@@ -597,6 +597,7 @@ public abstract class VelocityPortletPaneledAction extends ToolServlet
 					if ( sessionAttr == null )
 					{
 						M_log.warn("Missing CSRF Token session attribute: " + action + "; toolId=" + toolId);
+						return;
 					}
 					
 					String csrfToken = params.getString(SAKAI_CSRF_TOKEN);
