@@ -4266,13 +4266,22 @@ public class AssignmentAction extends PagedResourceActionII
 					{
 						ResourcePropertiesEdit sPropertiesEdit = sEdit.getPropertiesEdit();
 						
+						/**
+						 * SAK-22150 We will need to know later if there was a previous submission time. DH
+						 */
+						boolean isPreviousSubmissionTime = true;
+						if (sEdit.getTimeSubmitted() == null || "".equals(sEdit.getTimeSubmitted()))
+						{
+							isPreviousSubmissionTime = false;
+						}
+						
 						sEdit.setSubmittedText(text);
 						sEdit.setHonorPledgeFlag(Boolean.valueOf(honorPledgeYes).booleanValue());
 						sEdit.setTimeSubmitted(TimeService.newTime());
 						sEdit.setSubmitted(post);
 						
 						// decrease the allow_resubmit_number, if this submission has been submitted.
-						if (sEdit.getSubmitted() && sEdit.getTimeSubmitted() != null && sPropertiesEdit.getProperty(AssignmentSubmission.ALLOW_RESUBMIT_NUMBER) != null)
+						if (sEdit.getSubmitted() && isPreviousSubmissionTime && sPropertiesEdit.getProperty(AssignmentSubmission.ALLOW_RESUBMIT_NUMBER) != null)
 						{
 							int number = Integer.parseInt(sPropertiesEdit.getProperty(AssignmentSubmission.ALLOW_RESUBMIT_NUMBER));
 							// minus 1 from the submit number, if the number is not -1 (not unlimited)
