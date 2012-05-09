@@ -4,7 +4,7 @@
     $(document).ready(function(){
 		sakai.getSiteInfo('getSiteDesc','dialog','$tlang.getString("sitegen.siteinfolist.nosd")','$tlang.getString("sitegen.siteinfolist.nold")');
 		sakai.setupSelectList('siteList','toggleAllSelected','selectedSelected');
-		$('.siteSelectCheckbox').click(function(){
+		$('.siteSelectCheckbox, #toggleAllSelected').click(function(){
 			if($('.siteSelectCheckbox:checked').length >= 1){
 				$('#actionToolBar .realToolBarLink').show();
 				$('#actionToolBar .dummyToolBarLink').hide();
