@@ -30,12 +30,11 @@ import java.io.OutputStream;
 import java.nio.ByteBuffer;
 import java.nio.channels.FileChannel;
 import java.text.Collator;
-import java.text.ParseException;
-import java.text.RuleBasedCollator;
 import java.text.DateFormat;
 import java.text.DecimalFormat;
 import java.text.NumberFormat;
 import java.text.ParseException;
+import java.text.RuleBasedCollator;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -52,6 +51,8 @@ import java.util.List;
 import java.util.Locale;
 import java.util.Map;
 import java.util.Set;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 import org.apache.commons.lang.StringUtils;
 import org.apache.commons.logging.Log;
@@ -120,7 +121,6 @@ import org.sakaiproject.exception.IdUnusedException;
 import org.sakaiproject.exception.InUseException;
 import org.sakaiproject.exception.PermissionException;
 import org.sakaiproject.exception.ServerOverloadException;
-import org.sakaiproject.id.cover.IdManager;
 import org.sakaiproject.javax.PagingPosition;
 import org.sakaiproject.service.gradebook.shared.AssignmentHasIllegalPointsException;
 import org.sakaiproject.service.gradebook.shared.CategoryDefinition;
@@ -152,9 +152,7 @@ import org.sakaiproject.util.FormattedText;
 import org.sakaiproject.util.ParameterParser;
 import org.sakaiproject.util.ResourceLoader;
 import org.sakaiproject.util.SortedIterator;
-import org.sakaiproject.util.StringUtil;
 import org.sakaiproject.util.Validator;
-import java.util.regex.*;
 /**
  * <p>
  * AssignmentAction is the action class for the assignment tool.
@@ -4339,7 +4337,7 @@ public class AssignmentAction extends PagedResourceActionII
 								}
 							}
 							
-							if (StringUtil.trimToNull(sEdit.getGradeDisplay()) != null)
+							if (StringUtils.trimToNull(sEdit.getGradeDisplay()) != null)
 							{
 								previousGrades =  "<h4>" + prevGradedDate + "</h4>" + "<div style=\"margin:0;padding:0\">" + sEdit.getGradeDisplay() + "</div>" +previousGrades;
 								sPropertiesEdit.addProperty(ResourceProperties.PROP_SUBMISSION_SCALED_PREVIOUS_GRADES, previousGrades);
@@ -13219,6 +13217,6 @@ public class AssignmentAction extends PagedResourceActionII
 	
 	protected void letterGradeOptionsIntoContext(Context context) {
 		String lOptions = ServerConfigurationService.getString("assignment.letterGradeOptions", "A+,A,A-,B+,B,B-,C+,C,C-,D+,D,D-,E,F");
-		context.put("letterGradeOptions", StringUtil.split(lOptions, ","));
+		context.put("letterGradeOptions", StringUtils.split(lOptions, ","));
 	}
 }	
