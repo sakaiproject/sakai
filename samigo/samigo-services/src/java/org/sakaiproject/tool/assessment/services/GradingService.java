@@ -767,9 +767,9 @@ public class GradingService
       // note that this itemGradingSet is a partial set of answer submitted. it contains only 
       // newly submitted answers, updated answers and MCMR/FIB/FIN answers ('cos we need the old ones to
       // calculate scores for new ones)
-      Set<ItemGradingData> itemGradingSet = data.getItemGradingSet();
+      Set itemGradingSet = data.getItemGradingSet();
       if (itemGradingSet == null)
-        itemGradingSet = new HashSet<ItemGradingData>();
+        itemGradingSet = new HashSet();
       log.debug("****itemGrading size="+itemGradingSet.size());
       
       List<Object> tempItemGradinglist = new ArrayList<Object>(itemGradingSet);
@@ -937,7 +937,7 @@ public class GradingService
       // updated old answers and FIB answers ('cos we need the old answer to calculate the score for new
       // ones). we need to be cheap, we don't want to update record that hasn't been
       // changed. Yes, assessmentGrading's total score will be out of sync at this point, I am afraid. It
-      // would be in sync again once the whole method is completed successfully. 
+      // would be in sync again once the whole method is completed sucessfully. 
       if (persistToDB) {
     	  saveOrUpdateAll(itemGradingSet);
       }
@@ -965,10 +965,12 @@ public class GradingService
     }
 
     // save#3: itemGradingSet has been saved above so just need to update assessmentGrading
-    // however, if we do not persist to DB, we want to keep itemGradingSet with data for later use
+    // therefore setItemGradingSet as empty first - daisyf
+    // however, if we do not persit to DB, we want to keep itemGradingSet with data for later use
     // Because if itemGradingSet is not saved to DB, we cannot go to DB to get it. We have to 
     // get it through data.
     if (persistToDB) {
+        data.setItemGradingSet(new HashSet());
     	saveOrUpdateAssessmentGrading(data);
     	log.debug("****x7. "+(new Date()).getTime());	
     	if (!regrade) {
@@ -978,23 +980,23 @@ public class GradingService
     log.debug("****x8. "+(new Date()).getTime());
 
     // I am not quite sure what the following code is doing... I modified this based on my assumption:
-    // If this happens during regrade, we don't want to clean these data up
+    // If this happens dring regrade, we don't want to clean these data up
     // We only want to clean them out in delivery
     if (!regrade && Boolean.TRUE.equals(data.getForGrade())) {
-    	// remove the assessmentGradingData created during grading (by updating total score page)
+    	// remove the assessmentGradingData created during gradiing (by updatding total score page)
     	removeUnsubmittedAssessmentGradingData(data);
     }
   }
 
-  private float getTotalAutoScore(Set<ItemGradingData> itemGradingSet){
+  private float getTotalAutoScore(Set itemGradingSet){
       //log.debug("*** no. of itemGrading="+itemGradingSet.size());
     float totalAutoScore =0;
-    Iterator<ItemGradingData> iter = itemGradingSet.iterator();
+    Iterator iter = itemGradingSet.iterator();
     while (iter.hasNext()){
       ItemGradingData i = (ItemGradingData)iter.next();
       //log.debug(i.getItemGradingId()+"->"+i.getAutoScore());
       if (i.getAutoScore()!=null)
-    	  totalAutoScore += i.getAutoScore().floatValue();
+	totalAutoScore += i.getAutoScore().floatValue();
     }
     return totalAutoScore;
   }
