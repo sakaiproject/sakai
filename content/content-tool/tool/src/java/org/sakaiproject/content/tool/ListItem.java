@@ -158,6 +158,8 @@ public class ListItem
 	 */
 	public static ListItem getListItem(ContentEntity entity, ListItem parent, ResourceTypeRegistry registry, boolean expandAll, Set<String> expandedFolders, List<String> items_to_be_moved, List<String> items_to_be_copied, int depth, Comparator userSelectedSort, boolean preventPublicDisplay, ContentResourceFilter addFilter)
 	{
+		Set<String> expandedFoldersSync = Collections.synchronizedSet(expandedFolders);
+		
 		ListItem item = null;
 			
 		org.sakaiproject.content.api.ContentHostingService contentService = (org.sakaiproject.content.api.ContentHostingService) ComponentManager.get(org.sakaiproject.content.api.ContentHostingService.class);
@@ -206,115 +208,118 @@ public class ListItem
         	item.setPermissions(ResourcesAction.getPermissions(entity.getId(), null));
         }
 
-        if(isCollection)
+        synchronized(expandedFoldersSync)
         {
-        	ContentCollection collection = (ContentCollection) entity;
-        	
-        	if(item.isTooBig)
-        	{
-        		// do nothing
-        	}
-			else if(expandAll)
-        	{
-				String typeId = entity.getResourceType();
-				if(typeId != null && registry != null)
-				{
-					ResourceType typeDef = registry.getType(typeId);
-					if(typeDef != null && typeDef.isExpandable())
+	        if(isCollection)
+	        {
+	        	ContentCollection collection = (ContentCollection) entity;
+	        	
+	        	if(item.isTooBig)
+	        	{
+	        		// do nothing
+	        	}
+				else if(expandAll)
+	        	{
+					String typeId = entity.getResourceType();
+					if(typeId != null && registry != null)
 					{
-						ServiceLevelAction expandAction = ((ExpandableResourceType) typeDef).getExpandAction();
-						if(expandAction != null && expandAction.available(entity))
+						ResourceType typeDef = registry.getType(typeId);
+						if(typeDef != null && typeDef.isExpandable())
 						{
-							expandAction.initializeAction(item.m_reference);
-							
-				       		expandedFolders.add(entity.getId());
-				       		
-				       		expandAction.finalizeAction(item.m_reference);
+							ServiceLevelAction expandAction = ((ExpandableResourceType) typeDef).getExpandAction();
+							if(expandAction != null && expandAction.available(entity))
+							{
+								expandAction.initializeAction(item.m_reference);
+								
+					       		expandedFoldersSync.add(entity.getId());
+					       		
+					       		expandAction.finalizeAction(item.m_reference);
+							}
 						}
 					}
-				}
-         	}
- 			if(expandedFolders.contains(entity.getId()))
-			{
-				item.setExpanded(true);
-
-		       	List<ContentEntity> children = collection.getMemberResources();
-
-				Comparator comparator = null;
-				if(userSelectedSort != null)
+	         	}
+	 			if(expandedFoldersSync.contains(entity.getId()))
 				{
-					comparator = userSelectedSort;
-				}
-				else
-				{
-					boolean hasCustomSort = false;
-					try
+					item.setExpanded(true);
+	
+			       	List<ContentEntity> children = collection.getMemberResources();
+	
+					Comparator comparator = null;
+					if(userSelectedSort != null)
 					{
-						hasCustomSort = collection.getProperties().getBooleanProperty(ResourceProperties.PROP_HAS_CUSTOM_SORT);
-					}
-					catch(Exception e)
-					{
-						// ignore -- let value be false
-					}
-					if(hasCustomSort)
-					{
-						comparator = PRIORITY_SORT_COMPARATOR;
+						comparator = userSelectedSort;
 					}
 					else
 					{
-						comparator = DEFAULT_COMPARATOR;
+						boolean hasCustomSort = false;
+						try
+						{
+							hasCustomSort = collection.getProperties().getBooleanProperty(ResourceProperties.PROP_HAS_CUSTOM_SORT);
+						}
+						catch(Exception e)
+						{
+							// ignore -- let value be false
+						}
+						if(hasCustomSort)
+						{
+							comparator = PRIORITY_SORT_COMPARATOR;
+						}
+						else
+						{
+							comparator = DEFAULT_COMPARATOR;
+						}
 					}
+		    		Collections.sort(children, comparator);
+		    		
+		        	Iterator<ContentEntity> childIt = children.iterator();
+		        	while(childIt.hasNext())
+		        	{
+		        		ContentEntity childEntity = childIt.next();
+		        		if(childEntity.getAccess() == AccessMode.GROUPED)
+		        		{
+		        			if(childEntity.isCollection())
+		        			{
+		        				if(! contentService.allowGetCollection(childEntity.getId()))
+		        				{
+			        				continue;
+		        				}
+		        			}
+		        			else
+		        			{
+		        				if(!contentService.allowGetResource(childEntity.getId()))
+		        				{
+		        					continue;
+		        				}
+		        			}
+		        		}
+		        		
+						if(isAvailabilityEnabled && ! contentService.isAvailable(childEntity.getId()))
+						{
+							continue;
+						}
+	
+		        		ListItem child = getListItem(childEntity, item, registry, expandAll, expandedFoldersSync, items_to_be_moved, items_to_be_copied, depth + 1, userSelectedSort, preventPublicDisplay, addFilter);
+		        		if(items_to_be_copied != null && items_to_be_copied.contains(child.id))
+		        		{
+		        			child.setSelectedForCopy(true);
+		        		}
+		        		if(items_to_be_moved != null && items_to_be_moved.contains(child.id))
+		        		{
+		        			child.setSelectedForMove(true);
+		        		}
+		        		item.addMember(child);
+		        	}
 				}
-	    		Collections.sort(children, comparator);
-	    		
-	        	Iterator<ContentEntity> childIt = children.iterator();
-	        	while(childIt.hasNext())
-	        	{
-	        		ContentEntity childEntity = childIt.next();
-	        		if(childEntity.getAccess() == AccessMode.GROUPED)
-	        		{
-	        			if(childEntity.isCollection())
-	        			{
-	        				if(! contentService.allowGetCollection(childEntity.getId()))
-	        				{
-		        				continue;
-	        				}
-	        			}
-	        			else
-	        			{
-	        				if(!contentService.allowGetResource(childEntity.getId()))
-	        				{
-	        					continue;
-	        				}
-	        			}
-	        		}
-	        		
-					if(isAvailabilityEnabled && ! contentService.isAvailable(childEntity.getId()))
-					{
-						continue;
-					}
-
-	        		ListItem child = getListItem(childEntity, item, registry, expandAll, expandedFolders, items_to_be_moved, items_to_be_copied, depth + 1, userSelectedSort, preventPublicDisplay, addFilter);
-	        		if(items_to_be_copied != null && items_to_be_copied.contains(child.id))
-	        		{
-	        			child.setSelectedForCopy(true);
-	        		}
-	        		if(items_to_be_moved != null && items_to_be_moved.contains(child.id))
-	        		{
-	        			child.setSelectedForMove(true);
-	        		}
-	        		item.addMember(child);
-	        	}
-			}
- 			
-			List<ResourceToolAction> myAddActions = ResourcesAction.getAddActions(entity, item.getPermissions(), registry);
-			if(addFilter != null)
-			{
-				myAddActions = addFilter.filterAllowedActions(myAddActions);
-			}
-			item.setAddActions(myAddActions );
-			//this.members = coll.getMembers();
-			item.setIconLocation( ContentTypeImageService.getContentTypeImage("folder"));
+	 			
+				List<ResourceToolAction> myAddActions = ResourcesAction.getAddActions(entity, item.getPermissions(), registry);
+				if(addFilter != null)
+				{
+					myAddActions = addFilter.filterAllowedActions(myAddActions);
+				}
+				item.setAddActions(myAddActions );
+				//this.members = coll.getMembers();
+				item.setIconLocation( ContentTypeImageService.getContentTypeImage("folder"));
+	        }
         }
         List<ResourceToolAction> otherActions = ResourcesAction.getActions(entity, item.getPermissions(), registry);
         List<ResourceToolAction> pasteActions = ResourcesAction.getPasteActions(entity, item.getPermissions(), registry, items_to_be_moved, items_to_be_copied);
