@@ -405,7 +405,7 @@ public class SakaiProxyImpl implements SakaiProxy {
 		} catch (GroupNotDefinedException e) {
 			log.error(e);
 		} finally {
-			securityService.pushAdvisor(yesMan);
+			securityService.popAdvisor(yesMan);
 		}
 	}
 

@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE beans PUBLIC "-//SPRING//DTD BEAN//EN" "http://www.springframework.org/dtd/spring-beans.dtd">
+
+<beans>
+
+	<bean id="org.sakaiproject.delegatedaccess.dao.impl.DelegatedAccessSampleDataLoader"
+		class="org.sakaiproject.delegatedaccess.dao.impl.DelegatedAccessSampleDataLoader"
+		init-method="init">
+		<property name="siteService" ref="org.sakaiproject.site.api.SiteService" />
+		<property name="delegatedAccessSiteHierarchyJob" ref="org.sakaiproject.delegatedaccess.jobs.DelegatedAccessSiteHierarchyJob" />
+		<property name="securityService" ref="org.sakaiproject.authz.api.SecurityService" />
+	</bean>
+</beans>
