@@ -1073,6 +1073,9 @@ public class RosterBean extends EnrollmentTableBean implements Serializable, Pag
         				if (gradeRecord.isCourseGradeRecord()) { 
         				    if (includeCourseGrade) {
         				        score = gradeRecord.getGradeAsPercentage();
+        				        if(((CourseGradeRecord)gradeRecord).getEnteredGrade() != null){
+        				        	score = "*" + score;
+        				        }
         				        if(ServerConfigurationService.getBoolean("gradebook.roster.showCourseGradePoints", false)
         		    					&& ((CourseGrade) gradableObject).getGradebook().getGrade_type() == GradebookService.GRADE_TYPE_POINTS){
         		         			//add total points

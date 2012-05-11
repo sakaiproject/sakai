@@ -120,6 +120,11 @@ public class AssignmentPointsConverter extends PointsConverter {
                 formattedScore = "<strike>" + formattedScore + "</strike>";
             }
         }
+        if(value != null && value instanceof CourseGradeRecord && !ServerConfigurationService.getBoolean("gradebook.roster.showCourseGradePoints", false)){
+        	if(((CourseGradeRecord) value).getEnteredGrade() != null){
+        		formattedScore = "<span style='color: red'>" + formattedScore + "</span>";
+			}
+        }
 		return formattedScore;
 	}
 }
