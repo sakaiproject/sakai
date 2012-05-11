@@ -3,11 +3,7 @@ This text (sakai_basic_test) probes sakai's simplest web services.
 You need to have an Apache running port 80 and put the php file into its
 web space.
 
-You must get PEAR and Pear's SOAP into your PHP (see PEAR readme) before the script 
-will work (http://pear.php.net/)..
-
-
-The URLS in the php are hard-coded to localhost Sakai - maybe a later version 
+The URLS in the php are hard-coded to localhost:8081 Sakai - maybe a later version 
 will use forms to make things more dynamic.
 
 Notice that the URLs are 8081 because it expects a Sakai running on port 8080 and 
@@ -32,4 +28,4 @@ Your output should look like sakai_basic_test.html and your
 TCPMonitor should have lots of fun stuff to explore.
 
 /Chuck
-Fri Apr 15 14:30:20 EDT 2005
+Fri May 11 17:37:16 EDT 2012

@@ -358,7 +358,14 @@ public String createAssignment(String sessionId, String context, String title, l
 		
 		integrateGradebook(aReference, null, "add", title, maxGradePoints, dt, null, null, context);
 		
-		Calendar c = calendarService.getCalendar("/calendar/calendar/" + context + "/main");
+		Calendar c = null;
+		try {
+			c = calendarService.getCalendar("/calendar/calendar/" + context + "/main");
+		} 
+		catch(Exception e) {
+			c = null;
+		}
+		
 		if (c != null) 
 		{
 			CalendarEventEdit cee = c.addEvent();
