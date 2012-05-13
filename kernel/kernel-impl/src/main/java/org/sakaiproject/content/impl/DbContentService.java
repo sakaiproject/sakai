@@ -3240,10 +3240,10 @@ public class DbContentService extends BaseContentService
     {
         long size = 0L;
 
-        String sql = contentServiceSql.getQuotaQuerySql();
+        String sql = context.startsWith(COLLECTION_DROPBOX)?contentServiceSql.getDropBoxQuotaQuerySql():contentServiceSql.getQuotaQuerySql();
 
         Object [] fields = new Object[1];
-        fields[0] = context;
+        fields[0] = context.startsWith(COLLECTION_DROPBOX)?context+"%":context;
 
         List list = m_sqlService.dbRead(sql, fields, null);
         if(list != null && ! list.isEmpty())

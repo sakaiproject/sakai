@@ -234,6 +234,13 @@ public class ContentServiceSqlDefault implements ContentServiceSql
 	{
 		return "select SUM(FILE_SIZE) from CONTENT_RESOURCE where CONTEXT = ?";
 	}
+	/**
+	 * returns the sql statement which retrieves the total number of bytes within a site-level collection (context) in the CONTENT_RESOURCE table.
+	 */
+	public String getDropBoxQuotaQuerySql()
+	{
+		return "select SUM(FILE_SIZE) from CONTENT_RESOURCE where IN_COLLECTION LIKE ?";
+	}
 	
 	/**
 	 * returns the sql statement which retrieves the RESOURCE_ID and XML values for all entries in the CONTENT_RESOURCE table where file-size is null.

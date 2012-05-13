@@ -155,7 +155,7 @@ public interface ContentServiceSql
 	 * returns the sql statement which retrieves the total number of bytes within a site-level collection (context) in the CONTENT_RESOURCE table.
 	 */
 	String getQuotaQuerySql();
-
+	String getDropBoxQuotaQuerySql();
 	/**
 	 * returns the sql statement which retrieves the RESOURCE_ID and XML values for all entries in the specified table where file-size is null.
 	 */

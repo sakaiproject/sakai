@@ -197,6 +197,9 @@ SiteContentAdvisorProvider, SiteContentAdvisorTypeRegistry, EntityTransferrerRef
 	/** MIME multipart separation string */
     protected static final String MIME_SEPARATOR = "SAKAI_MIME_BOUNDARY";
 
+    protected static final String DEFAULT_RESOURCE_QUOTA = "content.quota.";
+    protected static final String DEFAULT_DROPBOX_QUOTA = "content.dropbox.quota.";
+
 	/** The initial portion of a relative access point URL. */
 	protected String m_relativeAccessPoint = null;
 
@@ -209,7 +212,11 @@ SiteContentAdvisorProvider, SiteContentAdvisorTypeRegistry, EntityTransferrerRef
 	/**
 	 * The quota for content resource body bytes (in Kbytes) for any hierarchy in the /user/ or /group/ areas, or 0 if quotas are not enforced.
 	 */
-	protected long m_siteQuota = 0;
+	protected long m_siteQuota = 1048576;
+    /**
+     * The quota for content dropbox body bytes (in Kbytes), or 0 if quotas are not enforced.
+     */
+	protected long m_dropBoxQuota = 1048576;
 
 	private boolean m_useSmartSort = true;
 
@@ -401,6 +408,19 @@ SiteContentAdvisorProvider, SiteContentAdvisorTypeRegistry, EntityTransferrerRef
 		}
 	}
 	
+	/**
+	 * Set the dropbox quota.
+	 * 
+	 * @param quota
+	 *        The dropbox quota (as a string).
+	 */
+	public void setDropBoxQuota(Long quota)
+	{
+		if (quota != null)
+		{
+			m_dropBoxQuota = quota;
+		}
+	}
 	
 	private EventTrackingService eventTrackingService;
 	public void setEventTrackingService(EventTrackingService eventTrackingService) {
@@ -814,9 +834,11 @@ SiteContentAdvisorProvider, SiteContentAdvisorTypeRegistry, EntityTransferrerRef
 			functionManager.registerFunction(AUTH_DROPBOX_OWN, false);
 			functionManager.registerFunction(AUTH_DROPBOX_MAINTAIN, false);
 
+			// quotas
+			m_siteQuota = Long.parseLong(m_serverConfigurationService.getString("content.quota", Long.toString(m_siteQuota)));
+            m_dropBoxQuota = Long.parseLong(m_serverConfigurationService.getString("content.dropbox.quota", Long.toString(m_dropBoxQuota)));
 
-			M_log.info("init(): site quota: " + m_siteQuota + " body path: " + m_bodyPath + " volumes: "
-					+ buf.toString());
+			M_log.info("init(): site quota: " + m_siteQuota + ", dropbox quota: " + m_dropBoxQuota + ", body path: " + m_bodyPath + " volumes: "+ buf.toString());
 		}
 		catch (Exception t)
 		{
@@ -8422,7 +8444,7 @@ SiteContentAdvisorProvider, SiteContentAdvisorTypeRegistry, EntityTransferrerRef
 
 		// some quick exits, if we are not doing user quota, or if this is not a user or group resource
 		// %%% These constants should be from somewhere else -ggolden
-		if (!((edit.getId().startsWith("/user/")) || (edit.getId().startsWith("/group/")))) return false;
+		if (!((edit.getId().startsWith(COLLECTION_USER)) || (edit.getId().startsWith(COLLECTION_SITE)) || edit.getId().startsWith(COLLECTION_DROPBOX))) return false;
 
 		// expect null, "user" | "group", user/groupid, rest...
 		String[] parts = StringUtil.split(edit.getId(), Entity.SEPARATOR);
@@ -8434,6 +8456,10 @@ SiteContentAdvisorProvider, SiteContentAdvisorTypeRegistry, EntityTransferrerRef
 		try
 		{
 			collection = findCollection(id);
+			// Limit size per user inside dropbox
+			if (edit.getId().startsWith(COLLECTION_DROPBOX)) {
+				collection = findCollection(id + parts[3] + Entity.SEPARATOR);
+			}
 		}
 		catch (TypeException ignore)
 		{
@@ -8667,7 +8693,8 @@ SiteContentAdvisorProvider, SiteContentAdvisorTypeRegistry, EntityTransferrerRef
 	 */
 	public long getQuota(ContentCollection collection) {
 		long quota = m_siteQuota;
-
+		String default_quota = DEFAULT_RESOURCE_QUOTA;
+		ContentCollection parentCollection = null;
 		// parse a string like /user/344454534543534535353543535
 		String[] parts = StringUtil.split(collection.getId(), Entity.SEPARATOR);
 		if (parts.length >= 3) {
@@ -8679,7 +8706,14 @@ SiteContentAdvisorProvider, SiteContentAdvisorTypeRegistry, EntityTransferrerRef
 			} else {
 				siteId = parts[2];
 			}
-
+			if (collection.getId().startsWith(COLLECTION_DROPBOX)) {
+				default_quota = DEFAULT_DROPBOX_QUOTA;
+				quota = m_dropBoxQuota;
+				try {
+					parentCollection = findCollection(Entity.SEPARATOR + parts[1] + Entity.SEPARATOR + parts[2] + Entity.SEPARATOR);
+				} catch (TypeException tex) {
+				}
+			}
 			String siteType = null;
 			// get the site type
 			try {
@@ -8690,7 +8724,7 @@ SiteContentAdvisorProvider, SiteContentAdvisorTypeRegistry, EntityTransferrerRef
 
 			// use this quota unless we have one more specific
 			if (siteType != null) {
-				quota = Long.parseLong(m_serverConfigurationService.getString("content.quota." + siteType, Long.toString(m_siteQuota)));
+				quota = Long.parseLong(m_serverConfigurationService.getString(default_quota + siteType, Long.toString(collection.getId().startsWith(COLLECTION_DROPBOX)?m_dropBoxQuota:m_siteQuota)));
 			}
 		}
 
@@ -8705,6 +8739,19 @@ SiteContentAdvisorProvider, SiteContentAdvisorTypeRegistry, EntityTransferrerRef
 		catch (EntityPropertyNotDefinedException ignore)
 		{
 			// don't log or anything, this just means that this site doesn't have this quota property.
+			// Look for dropBox quota in parent collection
+			try {
+				if (parentCollection!=null) {
+					long siteSpecific = parentCollection.getProperties().getLongProperty(
+							ResourceProperties.PROP_COLLECTION_BODY_QUOTA);
+	
+					quota = siteSpecific;
+				}
+			} catch (EntityPropertyTypeException ignoretex) {
+				// don't log or anything, this just means that this site doesn't have this quota property.
+			} catch (EntityPropertyNotDefinedException ignoreex) {
+				// don't log or anything, this just means that this site doesn't have this quota property.
+			}
 		}
 		catch (Exception ignore)
 		{
@@ -10696,9 +10743,9 @@ SiteContentAdvisorProvider, SiteContentAdvisorTypeRegistry, EntityTransferrerRef
 			if(readyToUseFilesizeColumn())
 			{
 				String context = getContext();
-				if(context != null)
+				if(context != null || m_id.startsWith(COLLECTION_DROPBOX))
 				{
-					size = getSizeForContext(context)/1000L;
+					size = getSizeForContext(context!=null?context:m_id)/1000L;
 				}
 			}
 			else
