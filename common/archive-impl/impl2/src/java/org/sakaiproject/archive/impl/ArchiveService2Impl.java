@@ -90,12 +90,24 @@ public class ArchiveService2Impl implements ArchiveService
 	* Init and Destroy
 	*******************************************************************************/
 	public void init() {
-		
+
+	    m_storagePath = m_serverConfigurationService.getString("archive.storage.path", m_storagePath);
 		if ((m_storagePath != null) && (!m_storagePath.endsWith("/"))) {
 			m_storagePath = m_storagePath + "/";
 		}
 
-		M_log.info("init(): storage path: " + m_storagePath);
+		m_filterSakaiServices = m_serverConfigurationService.getBoolean("archive.merge.filter.services", m_filterSakaiServices);
+		m_filterSakaiRoles = m_serverConfigurationService.getBoolean("archive.merge.filter.roles", m_filterSakaiRoles);
+		String[] filteredServices = m_serverConfigurationService.getStrings("archive.merge.filtered.services");
+		if (filteredServices != null) {
+		    m_filteredSakaiServices = filteredServices;
+		}
+        String[] filteredRoles = m_serverConfigurationService.getStrings("archive.merge.filtered.roles");
+        if (filteredRoles != null) {
+            m_filteredSakaiRoles = filteredRoles;
+        }
+		
+		M_log.info("init(): storage path: " + m_storagePath + ", merge filter{services="+m_filterSakaiServices+", roles="+m_filterSakaiRoles+"}");
 	}
 
 	public void destroy() {
