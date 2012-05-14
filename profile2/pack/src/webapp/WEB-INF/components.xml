@@ -249,6 +249,11 @@
 				<value>org/sakaiproject/profile2/emailtemplates/template-messageReply_zh_CN.xml</value>
 				<value>org/sakaiproject/profile2/emailtemplates/template-connectionRequest_zh_CN.xml</value>
 				<value>org/sakaiproject/profile2/emailtemplates/template-connectionConfirm_zh_CN.xml</value>
+				
+				<value>org/sakaiproject/profile2/emailtemplates/template-messageNew_sv_SE.xml</value>
+				<value>org/sakaiproject/profile2/emailtemplates/template-messageReply_sv_SE.xml</value>
+				<value>org/sakaiproject/profile2/emailtemplates/template-connectionRequest_sv_SE.xml</value>
+				<value>org/sakaiproject/profile2/emailtemplates/template-connectionConfirm_sv_SE.xml</value>
       		</list>      
     	</constructor-arg>
   	</bean>
