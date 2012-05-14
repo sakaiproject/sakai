@@ -65,6 +65,7 @@ import org.sakaiproject.content.api.ServiceLevelAction;
 import org.sakaiproject.content.api.GroupAwareEntity.AccessMode;
 import org.sakaiproject.content.cover.ContentTypeImageService;
 import org.sakaiproject.content.tool.ResourcesAction.ContentPermissions;
+import org.sakaiproject.entity.api.Entity;
 import org.sakaiproject.entity.api.EntityPropertyNotDefinedException;
 import org.sakaiproject.entity.api.EntityPropertyTypeException;
 import org.sakaiproject.entity.api.Reference;
@@ -671,7 +672,8 @@ public class ListItem
 			{
 				setIsAdmin(true);
 				String siteCollectionId = contentService.getSiteCollection(m_reference.getContext());
-				if(siteCollectionId.equals(entity.getId()))
+				String dropBoxCollectionId = org.sakaiproject.content.api.ContentHostingService.COLLECTION_DROPBOX + m_reference.getContext() + Entity.SEPARATOR;
+				if(siteCollectionId.equals(entity.getId()) || (entity.getId().startsWith(dropBoxCollectionId) && entity.getId().split(Entity.SEPARATOR).length<=4))
 				{
 					setCanSetQuota(true);
 					try

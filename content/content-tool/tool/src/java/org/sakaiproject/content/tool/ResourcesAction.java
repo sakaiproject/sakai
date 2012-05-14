@@ -2445,7 +2445,8 @@ protected static final String PARAM_PAGESIZE = "collections_per_page";
 					item.setIsAdmin(true);
 					
 					String siteCollectionId = ContentHostingService.getSiteCollection(contextId);
-					if(siteCollectionId.equals(entity.getId()))
+					String dropBoxCollectionId = org.sakaiproject.content.api.ContentHostingService.COLLECTION_DROPBOX + contextId + Entity.SEPARATOR;
+					if(siteCollectionId.equals(entity.getId()) || (entity.getId().startsWith(dropBoxCollectionId) && entity.getId().split(Entity.SEPARATOR).length<=4))
 					{
 						item.setCanSetQuota(true);
 						try
