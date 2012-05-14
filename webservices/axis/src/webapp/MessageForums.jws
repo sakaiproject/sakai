@@ -1,0 +1,274 @@
+import java.text.DateFormat;
+import java.text.SimpleDateFormat;
+import java.util.Date;
+import java.util.HashMap;
+import java.util.Iterator;
+import java.util.List;
+import java.util.Map;
+import java.util.SortedSet;
+import java.util.TreeSet;
+
+import org.apache.axis.AxisFault;
+import org.apache.axis.encoding.Base64;
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
+import org.sakaiproject.component.cover.ComponentManager;
+import org.sakaiproject.site.api.SiteService;
+import org.sakaiproject.site.api.Site;
+import org.sakaiproject.site.api.ToolConfiguration;
+import org.sakaiproject.time.api.Time;
+import org.sakaiproject.time.api.TimeService;
+import org.sakaiproject.tool.api.Session;
+import org.sakaiproject.tool.api.SessionManager;
+import org.sakaiproject.tool.api.ToolManager;
+import org.sakaiproject.user.api.User;
+import org.sakaiproject.user.api.UserDirectoryService;
+import org.sakaiproject.thread_local.api.ThreadLocalManager;
+import org.sakaiproject.util.StringUtil;
+import org.sakaiproject.util.Xml;
+import org.w3c.dom.Document;
+import org.w3c.dom.Element;
+import org.w3c.dom.Node;
+
+import org.sakaiproject.api.app.messageforums.BaseForum;
+import org.sakaiproject.api.app.messageforums.DiscussionForum;
+import org.sakaiproject.api.app.messageforums.DiscussionTopic;
+import org.sakaiproject.api.app.messageforums.Topic;
+import org.sakaiproject.api.app.messageforums.Message;
+import org.sakaiproject.api.app.messageforums.MessageForumsForumManager;
+import org.sakaiproject.api.app.messageforums.MessageForumsTypeManager;
+import org.sakaiproject.api.app.messageforums.ui.DiscussionForumManager;
+import org.sakaiproject.api.app.messageforums.MessageForumsMessageManager;
+import org.sakaiproject.api.app.messageforums.PermissionLevelManager;
+import org.sakaiproject.api.app.messageforums.MessageForumsTypeManager;
+import org.sakaiproject.api.app.messageforums.Area;
+import org.sakaiproject.api.app.messageforums.AreaManager;
+import org.sakaiproject.api.app.messageforums.Attachment;
+import org.sakaiproject.api.app.messageforums.DBMembershipItem;
+import org.sakaiproject.api.app.messageforums.PermissionLevel;
+import org.sakaiproject.api.app.messageforums.PermissionsMask;
+import org.sakaiproject.api.app.messageforums.ui.UIPermissionsManager;
+import org.sakaiproject.api.app.messageforums.ui.DiscussionForumManager;
+import org.sakaiproject.component.app.messageforums.MembershipItem;
+
+public class MessageForums {
+
+    /** Key in the ThreadLocalManager for binding our current placement. */
+    protected final static String CURRENT_PLACEMENT = "sakai:ToolComponent:current.placement";
+
+    /** Key in the ThreadLocalManager for binding our current tool. */
+    protected final static String CURRENT_TOOL = "sakai:ToolComponent:current.tool";
+	
+private static Log LOG = LogFactory.getLog(MessageForums.class);
+
+private SessionManager sessionManager;
+private ToolManager toolManager;
+private ThreadLocalManager threadLocalManager;
+private TimeService timeService;
+private SiteService siteService;
+private UserDirectoryService userDirectoryService;
+private DiscussionForumManager discussionManager;
+private MessageForumsForumManager forumManager;
+private MessageForumsMessageManager messageManager;
+private MessageForumsTypeManager typeManager;
+private AreaManager areaManager;
+
+public MessageForums() {
+	sessionManager = (SessionManager) ComponentManager.get(SessionManager.class.getName());
+	toolManager = (ToolManager) ComponentManager.get(ToolManager.class.getName());
+	threadLocalManager = (ThreadLocalManager) ComponentManager.get(ThreadLocalManager.class.getName());
+	userDirectoryService = (UserDirectoryService) ComponentManager.get(UserDirectoryService.class.getName());
+	timeService = (TimeService) ComponentManager.get(TimeService.class.getName());
+	siteService = (SiteService) ComponentManager.get(SiteService.class.getName());
+    discussionManager = (DiscussionForumManager) ComponentManager.get("org.sakaiproject.api.app.messageforums.ui.DiscussionForumManager");
+    forumManager = (MessageForumsForumManager) ComponentManager.get("org.sakaiproject.api.app.messageforums.MessageForumsForumManager");
+    messageManager = (MessageForumsMessageManager) ComponentManager.get("org.sakaiproject.api.app.messageforums.MessageForumsMessageManager");
+	typeManager = (MessageForumsTypeManager) ComponentManager.get("org.sakaiproject.api.app.messageforums.MessageForumsTypeManager");
+	areaManager = (AreaManager) ComponentManager.get("org.sakaiproject.api.app.messageforums.AreaManager");
+}
+
+/**
+ * Get the Session related to the given sessionid
+ * @param sessionid		the id of the session to retrieve
+ * @return				the session, if it is active
+ * @throws AxisFault	if session is inactive
+ */
+private Session establishSession(String sessionid) throws AxisFault 
+{
+	Session s = sessionManager.getSession(sessionid);
+
+	if (s == null)
+	{
+		throw new AxisFault("Session \""+sessionid+"\" is not active");
+	}
+	s.setActive();
+	sessionManager.setCurrentSession(s);
+	return s;
+}
+
+/**
+ * Check if a site exists
+ *
+ * @param   sessionid       the id of a valid session
+ * @param   siteid          the id of the site to check for
+ * @return                  true/false
+ *
+ */
+private Site getSite(String sessionid, String siteid) throws AxisFault
+{
+    Session s = establishSession(sessionid);
+
+    try {
+        Site site = null;
+        site = siteService.getSite(siteid);
+        if (site != null) {
+            return site;
+        } else {
+			throw new AxisFault("Site \""+siteid+"\" is not active");
+        }
+    }
+    catch (Exception e) {
+		throw new AxisFault("WS getSite(): " + e.getClass().getName() + " : " + e.getMessage());
+    }
+}
+
+/**
+ * Check if a session is active - a ping test
+ *
+ * @param sessionid         the id of the session to check
+ * @return                  the sessionid if active, or "null" if not.
+ */
+public String checkSession(String sessionid) {
+
+    Session s = sessionManager.getSession(sessionid);
+
+    if (s == null){
+        return "null";
+    }
+    else{
+        return sessionid;
+    }
+}
+
+/**
+ * Adds a message to an existing forum or if there are no forums to add, adds a forum
+ * and then adds a message.
+ *
+ * @param sessionid         the session to use
+ * @param context           the context to use
+ * @param forum             the forum title
+ * @param user              the user id that wil be creating the forums / messages
+ * @param title             the message title
+ * @param body              the message body
+ * @return                  the sessionid if active, or "null" if not.
+ */
+public String addMessage(String sessionid, String context, 
+	String forum, String topic, String user, String title, String body ) throws AxisFault 
+{
+    Session s = establishSession(sessionid);
+	Site site = getSite(sessionid, context);
+
+    ToolConfiguration tool = site.getToolForCommonId("sakai.forums");
+
+    if(tool == null) {
+		return "Tool sakai.forums not found in site="+context;
+	}
+
+	// Lets go down and hack our essense into the thread
+    threadLocalManager.set(CURRENT_PLACEMENT, tool);
+    threadLocalManager.set(CURRENT_TOOL, tool.getTool() ) ;
+
+	// Wrap this in a big try / catch block so we get better feedback 
+	// in the logs in the case of an error
+	try {
+        List<DiscussionForum> forums = forumManager.getForumsForMainPage();
+
+	    Topic selectedTopic = null;
+	    Topic anyTopic = null;
+	    DiscussionForum selectedForum = null;
+	    DiscussionForum anyForum = null;
+	    DiscussionTopic dTopic = null;
+
+        for (DiscussionForum dForum: forums) {
+		    anyForum = dForum;
+		    if ( forum.equals(dForum.getTitle()) ) selectedForum = dForum;
+	        LOG.debug("forum = "+dForum+" ID="+dForum.getId());
+	    }
+
+	    if ( selectedForum == null ) selectedForum = anyForum;
+	    if ( selectedForum == null ) {
+
+            Area area = areaManager.getAreaByContextIdAndTypeId(context, typeManager.getDiscussionForumType());
+
+            if (area == null) {
+                area = areaManager.createArea(typeManager.getDiscussionForumType(), context);
+                area.setName("AREA 51");
+                area.setEnabled(Boolean.TRUE);
+                area.setHidden(Boolean.TRUE);
+                area.setLocked(Boolean.FALSE);
+                area.setModerated(Boolean.FALSE);
+                area.setPostFirst(Boolean.FALSE);
+                area.setAutoMarkThreadsRead(false);
+                area.setSendEmailOut(Boolean.TRUE);
+                area.setAvailabilityRestricted(Boolean.FALSE);
+                areaManager.saveArea(area);
+			    LOG.debug("Created area...");
+		    }
+
+            selectedForum = forumManager.createDiscussionForum();
+            selectedForum.setArea(area);
+            selectedForum.setCreatedBy(user);
+            selectedForum.setTitle(forum);
+            selectedForum.setDraft(false);
+            selectedForum.setModerated(false);
+            selectedForum.setPostFirst(false);
+            forumManager.saveDiscussionForum(selectedForum);
+		    LOG.debug("Created forum="+forum);
+            dTopic = forumManager.createDiscussionForumTopic(selectedForum);
+            dTopic.setTitle(topic);
+            dTopic.setCreatedBy(user);
+            forumManager.saveDiscussionForumTopic(dTopic, false);
+		    LOG.debug("Created topic="+topic);
+            forums = forumManager.getForumsForMainPage();
+		    selectedForum = null;
+            for (DiscussionForum dForum: forums) {
+		        anyForum = dForum;
+		        if ( forum.equals(dForum.getTitle()) ) selectedForum = dForum;
+	            LOG.debug("forum = "+dForum+" ID="+dForum.getId());
+	        }
+	    }
+
+	    if ( selectedForum == null ) selectedForum = anyForum;
+	    if ( selectedForum == null ) return "No forums found in site="+context;
+
+        for (Object o: selectedForum.getTopicsSet()) {
+            dTopic = (DiscussionTopic)o;
+            anyTopic = dTopic;
+            if ( topic.equals(dTopic.getTitle()) ) selectedTopic = dTopic;
+            if (dTopic.getDraft().equals(Boolean.FALSE)) {
+                LOG.debug("Topic ID="+dTopic.getId()+" title="+dTopic.getTitle());
+            }
+        }
+
+	    if ( selectedTopic == null ) selectedTopic = anyTopic;
+	    if ( selectedTopic == null ) return "No topic";
+
+       Message aMsg;
+       aMsg = messageManager.createDiscussionMessage();
+       aMsg.setTitle(title);
+       aMsg.setBody(body);
+       aMsg.setAuthor(user);
+       aMsg.setDraft(Boolean.FALSE);
+       aMsg.setDeleted(Boolean.FALSE);
+       aMsg.setApproved(Boolean.TRUE);
+       aMsg.setTopic(selectedTopic);
+       discussionManager.saveMessage(aMsg);
+       return "Success";
+	} catch (Exception e ) {
+		e.printStackTrace();
+	}
+
+	return "Failure";
+}
+
+}
