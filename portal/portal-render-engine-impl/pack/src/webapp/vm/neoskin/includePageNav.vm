@@ -18,7 +18,7 @@
                                 </div>
                         #end
 				<h1 class="skip" id="totoolmenu">${rloader.sit_toolshead}</h1>
-				<div id="toolMenu"  role="navigation">
+				<div id="toolMenu" role="navigation" aria-label="${rloader.sit_toolshead}">
 					<ul>
 			#foreach( $page in $sitePages.pageNavTools )
 		  		#if (${page.current})

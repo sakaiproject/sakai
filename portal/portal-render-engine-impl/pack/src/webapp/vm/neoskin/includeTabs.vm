@@ -100,7 +100,7 @@
 
 
 
-							<h1 class="skip" id="sitetabs" role="navigation">${rloader.sit_worksiteshead}</h1>
+							<h1 class="skip" id="sitetabs" role="navigation" aria-label="${rloader.sit_worksiteshead}">${rloader.sit_worksiteshead}</h1>
 <ul class="topnav" id="topnav">
 						#foreach ( $site in $tabsSites.tabsSites ) 
 							#if (${site.isCurrentSite})
