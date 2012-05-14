@@ -62,7 +62,7 @@
 		<property name="authzGroupService" ref="org.sakaiproject.authz.api.AuthzGroupService" />
 		<property name="userDirectoryService" ref="org.sakaiproject.user.api.UserDirectoryService" />
 		<property name="securityService" ref="org.sakaiproject.authz.api.SecurityService" />
-		
+        <property name="entityManager" ref="org.sakaiproject.entity.api.EntityManager" />
 	</bean>
 
 	<!-- 
