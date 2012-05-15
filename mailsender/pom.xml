@@ -22,7 +22,11 @@
     <groupId>org.sakaiproject.mailsender</groupId>
     <artifactId>mailsender-base</artifactId>
     <name>Sakai Mail Sender Project</name>
+<<<<<<< HEAD
     <version>1.8-SNAPSHOT</version>
+=======
+    <version>1.7.0</version>
+>>>>>>> local-1.7
     <description>Mail Sender base pom.</description>
     <organization>
         <name>Sakai Project</name>
@@ -49,6 +53,7 @@
             <properties>
                 <!-- Versions for these are inherited from master -->
                 <sakai.mailarchive.groupId>org.sakaiproject.mailarchive</sakai.mailarchive.groupId>
+                <sakai.mailarchive.version>2.9.0-b05</sakai.mailarchive.version>
                 <sakai.message.groupId>org.sakaiproject.message</sakai.message.groupId>
                 <sakairsf.sakai.version>2.2.x</sakairsf.sakai.version>
                 <rsfutil.version>0.7.4</rsfutil.version>
@@ -143,9 +148,9 @@
     </developers>
 
     <scm>
-        <connection>scm:svn:https://source.sakaiproject.org/svn/mailsender/branches/1.7</connection>
-        <developerConnection>scm:svn:https://source.sakaiproject.org/svn/mailsender/branches/1.7</developerConnection>
-        <url>https://source.sakaiproject.org/svn/mailsender/branches/1.7</url>
+        <connection>scm:svn:https://source.sakaiproject.org/svn/mailsender/trunk</connection>
+        <developerConnection>scm:svn:https://source.sakaiproject.org/svn/mailsender/trunk</developerConnection>
+        <url>https://source.sakaiproject.org/svn/mailsender/trunk</url>
     </scm>
 
     <distributionManagement>
