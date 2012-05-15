@@ -4,7 +4,7 @@
     <parent>
         <groupId>org.sakaiproject</groupId>
         <artifactId>master</artifactId>
-        <version>2.10-SNAPSHOT</version>
+        <version>2.9.0-b05</version>
         <!-- for 2.8 -->
         <!--
         <version>2.8.3</version>
@@ -22,11 +22,7 @@
     <groupId>org.sakaiproject.mailsender</groupId>
     <artifactId>mailsender-base</artifactId>
     <name>Sakai Mail Sender Project</name>
-<<<<<<< HEAD
     <version>1.8-SNAPSHOT</version>
-=======
-    <version>1.7.0</version>
->>>>>>> local-1.7
     <description>Mail Sender base pom.</description>
     <organization>
         <name>Sakai Project</name>
