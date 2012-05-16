@@ -384,8 +384,9 @@ public class ConfirmPublishAssessmentListener
 	// get the managed bean, author and set the list
 	author.setAssessments(assessmentList);
 	
+	PublishRepublishNotificationListener publishRepublishNotificationListener = new PublishRepublishNotificationListener();
+	publishRepublishNotificationListener.processValueChange(null);
 	PublishRepublishNotificationBean publishRepublishNotification = (PublishRepublishNotificationBean) ContextUtil.lookupBean("publishRepublishNotification");
-	publishRepublishNotification.setSendNotification(false);
 	publishRepublishNotification.setPrePopulateText(ContextUtil.getLocalizedString("org.sakaiproject.tool.assessment.bundle.AssessmentSettingsMessages","pre_populate_text_publish"));
 	assessmentSettings.setOutcomePublish("saveSettingsAndConfirmPublish"); // finally goto confirm
 	SetFromPageAsAuthorSettingsListener setFromPageAsAuthorSettingsListener = new SetFromPageAsAuthorSettingsListener();
