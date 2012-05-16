@@ -181,7 +181,11 @@ public class AssignmentSupport {
 	            	Object returnData = ret.getEntityData().getData();
 	            	assignData = (Map<String, Object>)returnData;
 	            }
-	            String assignmentUrl = (String) assignData.get("assignmentUrl");
+	            String assignmentUrl = "";
+	            Date openTime = new Date(assn.getOpenTime().getTime());
+	            if (openTime == null || openTime.before(new Date())){
+	            	assignmentUrl = (String) assignData.get("assignmentUrl");
+	            }
 				
 				// "more-info"
 				List<Map<String,String>> infoList = new ArrayList<Map<String,String>>();
@@ -278,6 +282,16 @@ public class AssignmentSupport {
 		
 		public boolean isAvailable(String entityReference) {
 			Assignment assn = (Assignment) sakaiProxy.getEntity(entityReference);
+			if (assn != null){
+				return isAvailable(assn);
+			}else{
+				logger.info("isAvailable: cannot find assignment for " + entityReference);
+				return false;
+			}
+
+		}
+
+		public boolean isAvailable(Assignment assn) {
 			if (assn != null)
 			{
 				if (assn.getDraft())
@@ -301,11 +315,7 @@ public class AssignmentSupport {
 					}
 				}
 			}
-			else
-			{
-				logger.info("isAvailable: cannot find assignment for " + entityReference);
-				return false;
-			}
+			return false;
 		}
 
 		/**
@@ -349,10 +359,14 @@ public class AssignmentSupport {
 
 		public List<String> getUsersWithAccess(String entityReference) {
 			SortedSet<String> list = new TreeSet<String>();
-			if(this.isAvailable(entityReference)) {
+			Assignment assn = (Assignment) sakaiProxy.getEntity(entityReference);
+			if(this.isAvailable(assn)) {
 				list.addAll(sakaiProxy.getAuthorizedUsers(SakaiProxy.PERMIT_ASSIGNMENT_ACCESS , entityReference));
 			} else {
-				list.addAll(sakaiProxy.getAuthorizedUsers(SakaiProxy.PERMIT_ASSIGNMENT_SHARE_DRAFTS, entityReference));
+				Date openTime = new Date(assn.getOpenTime().getTime());
+				if (openTime == null || openTime.before(new Date())){
+					list.addAll(sakaiProxy.getAuthorizedUsers(SakaiProxy.PERMIT_ASSIGNMENT_SHARE_DRAFTS, entityReference));
+				}
 			}
 			return new ArrayList<String>(list);
 		}
