@@ -1040,14 +1040,21 @@ public class GradebookServiceHibernateImpl extends BaseHibernateManager implemen
   			}
   			else if(gradebook.getCategory_type() == GradebookService.CATEGORY_TYPE_ONLY_CATEGORY && go != null)
   			{
-  				assignmentsTaken.add(go.getId());
+  				for(int i=0; i<categories.size(); i++)
+  				{
+  					Category cate = (Category) categories.get(i);
+  					if(cate != null && !cate.isRemoved() && go.getCategory() != null && cate.getId().equals(go.getCategory().getId()) && ((cate.isExtraCredit()!=null && !cate.isExtraCredit()) || cate.isExtraCredit()==null))
+  					{
+  						assignmentsTaken.add(go.getId());
+  					}
+  				}
   			}
   			else if(gradebook.getCategory_type() == GradebookService.CATEGORY_TYPE_WEIGHTED_CATEGORY && go != null && categories != null)
   			{
   				for(int i=0; i<categories.size(); i++)
   				{
   					Category cate = (Category) categories.get(i);
-  					if(cate != null && !cate.isRemoved() && go.getCategory() != null && cate.getId().equals(go.getCategory().getId()))
+  					if(cate != null && !cate.isRemoved() && go.getCategory() != null && cate.getId().equals(go.getCategory().getId()) && ((cate.isExtraCredit()!=null && !cate.isExtraCredit()) || cate.isExtraCredit()==null))
   					{
   						assignmentsTaken.add(go.getId());
   						categoryTaken.add(cate.getId());
