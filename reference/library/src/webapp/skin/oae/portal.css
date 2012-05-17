@@ -964,7 +964,7 @@ below they are contextually defined depending on the column as an example,as you
     overflow: hidden !important;
     top:0px !important;
     left:0px;
-		padding:0px 0px 0px 0px !important;
+    padding:0px !important;
 } 
 
 /*jump-to links, tabbing into  */
@@ -983,7 +983,7 @@ below they are contextually defined depending on the column as an example,as you
     border-bottom-right-radius: 10px;
     border-bottom-left-radius: 10px;
     vertical-align:middle;
-    padding:6px 10px;
+    padding:6px 10px !important;
     outline:none;
     z-index:200000;
     box-shadow:0px 0px 10px #000;
