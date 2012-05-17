@@ -1254,7 +1254,7 @@ below they are contextually defined depending on the column as an example,as you
     -moz-border-radius-bottomright: 5px;
     border-bottom-right-radius: 5px;
     vertical-align:middle;
-    padding:6px 10px;
+    padding:6px 10px !important;
     outline:none;
     z-index:200000;
     box-shadow:0px 0px 10px #000;
