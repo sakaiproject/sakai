@@ -101,7 +101,10 @@ AutoRegisterEntityProvider, PropertyProvideable, RESTful, RequestStorable, Reque
 					forumId = parts[parts.length - 1];
 				}
 			}
-
+			String siteRef = siteId;
+			if(siteRef != null && !siteRef.startsWith("/site/")){
+				siteRef = "/site/" + siteRef;
+			}
 			// TODO: need a way to generate the url with out having siteId in search
 			if (forumId != null && userId != null) {
 				DiscussionForum forum = forumManager.getForumByIdWithTopics(new Long(forumId));
@@ -109,7 +112,7 @@ AutoRegisterEntityProvider, PropertyProvideable, RESTful, RequestStorable, Reque
 				for (int i = 0; i < topics.size(); i++) {
 					// TODO: authz is way too basic, someone more hip to message center please improve...
 					//This should also allow people with read access to an item to link to it
-					if (forumManager.isInstructor(userId, "/site/" + siteId)
+					if (forumManager.isInstructor(userId, siteRef)
 							|| userId.equals(topics.get(i).getCreatedBy()))
 						rv.add("/" + ENTITY_PREFIX + "/" + topics.get(i).getId().toString());
 				}
@@ -121,7 +124,7 @@ AutoRegisterEntityProvider, PropertyProvideable, RESTful, RequestStorable, Reque
 					for (int j = 0; j < topics.size(); j++) {
 						// TODO: authz is way too basic, someone more hip to message center please improve...
 						//This should also allow people with read access to an item to link to it
-						if (forumManager.isInstructor(userId, "/site/" + siteId)
+						if (forumManager.isInstructor(userId, siteRef)
 								|| userId.equals(topics.get(j).getCreatedBy()))
 							rv.add("/" + ENTITY_PREFIX + "/" + topics.get(j).getId().toString());
 					}

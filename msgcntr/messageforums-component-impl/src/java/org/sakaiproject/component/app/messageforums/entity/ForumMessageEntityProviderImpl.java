@@ -103,7 +103,11 @@ private RequestStorage requestStorage;
           topicId = parts[parts.length - 1];
         }
       }
-
+      
+      String siteRef = siteId;
+      if(siteRef != null && !siteRef.startsWith("/site/")){
+    	  siteRef = "/site/" + siteRef;
+      }
       // TODO: support search by something other then topic id...
       if (topicId != null) {
         List<Message> messages =
@@ -111,7 +115,7 @@ private RequestStorage requestStorage;
         for (int i = 0; i < messages.size(); i++) {
           // TODO: authz is way too basic, someone more hip to message center please improve...
           //This should also allow people with read access to an item to link to it
-          if (forumManager.isInstructor(userId, "/site/" + siteId)
+          if (forumManager.isInstructor(userId, siteRef)
               || userId.equals(messages.get(i).getCreatedBy())) {
             rv.add("/" + ENTITY_PREFIX + "/" + messages.get(i).getId().toString());
           }
