@@ -10,7 +10,11 @@
 		<style type="text/css">
 				@import url("/sakai-signup-tool/css/signupStyle.css");
 		</style>
+		<script type="text/javascript" src="/library/js/jquery/1.4.2/jquery-1.4.2.min.js"></script>
 		<script TYPE="text/javascript" LANGUAGE="JavaScript" src="/sakai-signup-tool/js/signupScript.js"></script>
+		<script type="text/javascript">
+			jQuery.noConflict();			
+    	</script>
 		
 		<sakai:view_content>
 			<h:outputText value="#{msgs.event_error_alerts} #{messageUIBean.errorMessage}" styleClass="alertMessage" escape="false" rendered="#{messageUIBean.error}"/> 
@@ -361,7 +365,7 @@
 			function checkAllRecurring(recurRowId, total) {
 				var i=0;
 				while (i<total){					
-					$('.'+recurRowId+'_' +i).attr('checked', true);
+					jQuery('.'+recurRowId+'_' +i).attr('checked', true);
 					i++;
 				}
 			}
