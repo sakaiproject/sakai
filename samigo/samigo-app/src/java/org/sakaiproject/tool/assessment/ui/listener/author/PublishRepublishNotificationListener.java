@@ -77,11 +77,7 @@ public class PublishRepublishNotificationListener implements ValueChangeListener
 			title = publishedAssessmentSettings.getTitle();
 			startDateString = publishedAssessmentSettings.getStartDateString();
 		}
-		
-		String newPos = "2";
-		if (ae != null && ae.getNewValue() != null) {
-			newPos = ae.getNewValue().toString();
-		}
+		String newPos = ae.getNewValue().toString();
 		log.debug("**** ae.getNewValue : " + newPos);
 
 		if ("2".equals(newPos)) {

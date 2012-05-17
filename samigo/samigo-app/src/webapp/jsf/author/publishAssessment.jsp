@@ -113,7 +113,7 @@
 	</h:commandButton>
 
 <h:panelGrid columns="1" border="0">
-	<h:selectOneMenu id="number" value="2" onchange="document.forms[0].submit();">
+	<h:selectOneMenu id="number" value="1" onchange="document.forms[0].submit();">
           <f:selectItems value="#{publishRepublishNotification.notificationLevelChoices}" />
           <f:valueChangeListener type="org.sakaiproject.tool.assessment.ui.listener.author.PublishRepublishNotificationListener" />
     </h:selectOneMenu>
