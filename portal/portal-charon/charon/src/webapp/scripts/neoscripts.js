@@ -330,6 +330,15 @@ jQuery(document).ready(function(){
     if ($('#eid').length === 1) {
         $('#eid').focus()
     }
+
+    // SAK-22026. Attach down and up arrow handlers to the more sites tab.
+    $('.more-tab a').keydown(function (e) {
+        if (e.keyCode == 40) {
+            return dhtml_view_sites();
+        } else if (e.keyCode == 38) {
+            return dhtml_view_sites();
+        }
+    });
     
     // open tool menus in "other sites" panel
     $('.toolMenus').click(function(e){
