@@ -486,8 +486,6 @@ function PortalChat() {
 
 		if(messages.length > 0) {
 
-            $('#pc_audio_embed_wrapper').html("<embed id=\"pc_audio_embed\" src=\"/portal/scripts/audio/new_chat_message.mp3\" autostart=\"true\" autoplay=\"true\" width=\"0\" height=\"0\" loop=\"false\"/>");
-
 			var lastMessage = messages[messages.length - 1];
 			var fromDisplayName = portalChat.currentConnectionsMap[lastMessage.from].displayName;
 			if(document.hasFocus() == false) {
