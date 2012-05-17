@@ -435,6 +435,12 @@ jQuery(document).ready(function(){
 
 var setupSiteNav = function(){
     $("ul.subnav").each(function(){
+        // Add a up arrow handler to slide the page menu up
+        $(this).keydown(function (e) {
+            if (e.keyCode == 38) {
+                $(this).slideUp('fast').hide();
+            }
+        });
         $(this).children('li:last').addClass('lastMenuItem')
     });
     $('.lastMenuItem a').blur(function(e){
@@ -446,10 +452,6 @@ var setupSiteNav = function(){
             jQuery(this).parent().find("ul.subnav").slideDown('fast').show();
             jQuery(this).parent().find("ul.subnav a:first").focus();
         }
-        if (e.keyCode == 38) {
-            jQuery(this).parent().find("ul.subnav").slideUp('fast').hide();
-        }
-        
     });
     
     jQuery("ul.topnav li span.drop").click(function(){
