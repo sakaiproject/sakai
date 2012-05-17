@@ -607,15 +607,15 @@ public class PortalSiteHelperImpl implements PortalSiteHelper
 					String menuClass = firstTool.getToolId();
 					menuClass = "icon-" + menuClass.replace('.', '-');
 					m.put("menuClass", menuClass);
+					Properties tmp = firstTool.getConfig();
+					if ( tmp != null ) {
+						String mc = tmp.getProperty(PROP_MENU_CLASS);
+						if ( mc != null && mc.length() > 0 ) m.put("menuClassOverride", mc);
+					}
 				}
 				else
 				{
 					m.put("menuClass", "icon-default-tool");
-				}
-				Properties tmp = firstTool.getConfig();
-				if ( tmp != null ) {
-					String mc = tmp.getProperty(PROP_MENU_CLASS);
-					if ( mc != null && mc.length() > 0 ) m.put("menuClassOverride", mc);
 				}
 				m.put("pageProps", createPageProps(p));
 				// this is here to allow the tool reorder to work
@@ -647,7 +647,7 @@ public class PortalSiteHelperImpl implements PortalSiteHelper
 					String menuClass = placement.getToolId();
 					menuClass = "icon-" + menuClass.replace('.', '-');
 					m.put("menuClass", menuClass);
-					Properties tmp = firstTool.getConfig();
+					Properties tmp = placement.getConfig();
 					if ( tmp != null ) {
 						String mc = tmp.getProperty(PROP_MENU_CLASS);
 						if ( mc != null && mc.length() > 0 ) m.put("menuClassOverride", mc);
