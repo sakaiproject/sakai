@@ -36,6 +36,8 @@ import java.util.Map.Entry;
 import java.util.Properties;
 import java.util.Vector;
 import java.util.concurrent.ConcurrentHashMap;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 import org.apache.commons.lang.StringUtils;
 import org.apache.commons.logging.Log;
@@ -149,6 +151,8 @@ public class BasicConfigurationService implements ServerConfigurationService, Ap
     {
         // can enable the output of the complete set of configuration items using: config.dump.to.log
         this.rawProperties = sakaiProperties.getRawProperties();
+        M_log.error(this.rawProperties);
+        M_log.error(this.sakaiProperties.getProperties());
 
         // populate the security keys set
         this.secureConfigurationKeys.add("password@javax.sql.BaseDataSource");
@@ -171,6 +175,11 @@ public class BasicConfigurationService implements ServerConfigurationService, Ap
         }
         M_log.info("Loaded "+configurationItems.size()+" config items from all initial sources");
 
+        if (this.getBoolean("config.dereference.on.load.initial", true)) {
+            int changed = dereferenceConfig();
+            M_log.info("Dereference Initial: Changed (dereferenced) "+changed+" item values out of "+configurationItems.size()+" initial config items");
+        }
+
         // load all the providers which are known (the rest have to manually register their configs), must be singleton without lazy init
         Map<String, ConfigurationProvider> providerBeans = this.applicationContext.getBeansOfType(ConfigurationProvider.class, false, false);
         if (providerBeans != null) {
@@ -186,6 +195,11 @@ public class BasicConfigurationService implements ServerConfigurationService, Ap
                 }
             }
             M_log.info("Found and loaded "+configCounter+" config values from "+providerBeans.size()+" configuration providers");
+        }
+
+        if (this.getBoolean("config.dereference.on.load.all", false)) {
+            int changed = dereferenceConfig();
+            M_log.info("Dereference All: Changed (dereferenced) "+changed+" item values out of all "+configurationItems.size()+" config items");
         }
 
         // OTHER STUFF
@@ -447,7 +461,17 @@ public class BasicConfigurationService implements ServerConfigurationService, Ap
      * {@inheritDoc}
      */
     public String getRawProperty(String name) {
-        String rv = StringUtils.trimToNull((String) this.rawProperties.get(name));
+        String rv = null;
+        if (this.rawProperties.containsKey(name)) {
+            // NOTE: raw properties ONLY contains the data read in from the properties files
+            rv = StringUtils.trimToNull((String) this.rawProperties.get(name));
+        } else {
+            // check the config storage since it is not in the raw props
+            ConfigItem ci = getConfigItem(name);
+            if (ci != null && ci.getValue() != null) {
+                rv = ci.getValue().toString();
+            }
+        }
         if (rv == null) rv = "";
         return rv;
     }
@@ -463,6 +487,11 @@ public class BasicConfigurationService implements ServerConfigurationService, Ap
      * {@inheritDoc}
      */
     public String getString(String name, String dflt) {
+        /**
+         * NOTE: everything calls this in order to resolve a configuration setting,
+         * we take advantage of that by doing the heavy lifting in this method
+         * (which includes variable replacement)
+         */
         //return getString(name, dflt, properties);
         String value = dflt;
         // retrieve a registered config item for this name
@@ -470,6 +499,8 @@ public class BasicConfigurationService implements ServerConfigurationService, Ap
         if (ci != null) {
             if (ci.getValue() != null) {
                 value = StringUtils.trimToNull(ci.getValue().toString());
+                // check if we need to do any variable replacement
+                value = dereferenceValue(value);
             } else {
                 // if the default value is set then we will return that instead
                 if (ci.getDefaultValue() != null) {
@@ -481,6 +512,94 @@ public class BasicConfigurationService implements ServerConfigurationService, Ap
         }
         return value;
     }
+
+    /**
+     * Pattern to find "${var}" in strings (should match "key" from ${key})
+     */
+    static Pattern referencePattern = Pattern.compile("\\$\\{(.+?)\\}");
+    /**
+     * This will search for any values in the string which need to be replaced
+     * with actual values from the current known set of properties which are
+     * available to the config service
+     * 
+     * @param value any string (might have a reference like: "thing-${suffix}")
+     * @return the value with all matched ${vars} replaced (unmatched ones are left as is), only returns null if the input is null
+     */
+    protected String dereferenceValue(String value) {
+        if (M_log.isDebugEnabled()) M_log.debug("dereferenceValue("+value+")");
+        /*
+         * NOTE: if the performance of this becomes an issue then the right way to handle it is
+         * to place a flag on the ConfigItem to indicate if there is replaceable refs in it
+         * (probably when this runs the first time) and if there are none then skip this
+         * until the value is changed and then reset the flag so it will be checked again,
+         * if there are still issues then adding a "lastChecked" timestamp and 
+         * a cache of the processed value to the ConfigItem which is used as long as the timestamp
+         * has not expired (maybe 15 mins or something), with automatic expiration when the value changes
+         */
+        String drValue = value;
+        if (value != null && value.length() >= 4) { // min length of a replaceable value - "${a}"
+            Matcher matcher = referencePattern.matcher(value);
+            if (matcher.find()) {
+                if (M_log.isDebugEnabled()) M_log.debug("dereferenceValue("+value+"), found refs to replace");
+                matcher.reset();
+                StringBuilder sb = new StringBuilder();
+                // loop through and find the vars to replace and write out the new string
+                int pointer = 0;
+                while (matcher.find()) {
+                    String name = matcher.group(1);
+                    if (name != null && StringUtils.isNotBlank(name)) {
+                        // look up the value
+                        String replacementValue = null;
+                        ConfigItemImpl ci = findConfigItem(name, null);
+                        if (ci != null) {
+                            // found the config name so we will at least replace with empty string
+                            replacementValue = "";
+                            if (ci.getValue() != null) {
+                                replacementValue = StringUtils.trimToEmpty(ci.getValue().toString());
+                            }
+                        }
+                        sb.append(value.substring(pointer, matcher.start()));
+                        if (replacementValue == null) {
+                            replacementValue = matcher.group(); // just put the ${name} back in
+                        } else {
+                            // need to recurse in the case of nested refs
+                            replacementValue = dereferenceValue(replacementValue);
+                        }
+                        sb.append(replacementValue);
+                        pointer = matcher.end();
+                    }
+                }
+                sb.append(value.substring(pointer, value.length())); // get the remainder of the value
+                drValue = sb.toString();
+            }
+        }
+        if (M_log.isDebugEnabled()) M_log.debug("dereferenceValue("+value+"): return="+drValue);
+        return drValue;
+    }
+
+    /**
+     * Goes through the entire config and resolves all references and updates the actual 
+     * stored values in the config.
+     * NOTE: this is destructive and probably not a good idea to run generally
+     * 
+     * @return the number of config items which were changed
+     */
+    protected int dereferenceConfig() {
+        int counter = 0;
+        for (Entry<String, ConfigItemImpl> entry : configurationItems.entrySet()) {
+            ConfigItemImpl configItem = entry.getValue();
+            if (configItem.getValue() != null) {
+                String currentValue = configItem.getValue().toString();
+                String newValue = dereferenceValue(currentValue);
+                if (!currentValue.equals(newValue)) {
+                    configItem.setValue( newValue );
+                    counter++;
+                }
+            }
+        }
+        return counter;
+    }
+
 
     /*
 	private String getString(String name, Properties fromProperties) {
