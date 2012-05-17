@@ -510,16 +510,15 @@ page estate
 /*PART 6 - SITE AFFILIATION,SITE TYPE/STATUS AND PRESENCE - children of #toolMenuWrap	*/
 /*site logo wrapper*/
 #worksiteLogo{
-	width: 9.7em;
-	height: auto;
-	overflow: hidden;
-	display: block;
+    width: 100%;
+    height: auto;
+    overflow: hidden;
+    display: block;
 }
-
 /*site logo image - Sakai may output,depending on installation,an image here based in site affiliation. Site owner may also point to a url - overriding the Sakai provided image*/
-#worksiteLogo img{
-	display: block;
-	margin: .5em auto;
+#worksiteLogo img{ 
+    width:95%;
+    margin:.5em auto;
 }
 
 /*wrapper for the string that Sakai will output based on site type (ie. project,course) this is open ended and institution specific*/
