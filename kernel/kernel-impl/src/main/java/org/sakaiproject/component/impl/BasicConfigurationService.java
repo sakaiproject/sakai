@@ -151,8 +151,6 @@ public class BasicConfigurationService implements ServerConfigurationService, Ap
     {
         // can enable the output of the complete set of configuration items using: config.dump.to.log
         this.rawProperties = sakaiProperties.getRawProperties();
-        M_log.error(this.rawProperties);
-        M_log.error(this.sakaiProperties.getProperties());
 
         // populate the security keys set
         this.secureConfigurationKeys.add("password@javax.sql.BaseDataSource");
