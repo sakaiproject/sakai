@@ -360,6 +360,7 @@ function showToolMenu(e) {
         // On up arrow or escape, hide the popup
         $('#otherSiteTools').keydown(function(e) {
             if (e.keyCode == 38 || e.keyCode == 27) {
+                e.preventDefault();
                 jqObj.focus();
                 $(this).hide();
             }
@@ -385,9 +386,14 @@ jQuery(document).ready(function(){
         showToolMenu(e);
     });
 
+    // Show the tool popup on the down arrow, or slide up the drawer on escape.
     $('.moreSitesLink').keydown(function (e){
         if (e.keyCode == 40) {
             showToolMenu(e);
+        } else if (e.keyCode == 27) {
+            e.preventDefault();
+            $('.dhtml_more_tabs').slideUp('fast');
+            $('.more-tab a').focus();
         }
     });
     
