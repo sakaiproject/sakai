@@ -326,6 +326,46 @@ function f_filterResults(n_win, n_docel, n_body){
     return n_body && (!n_result || (n_result > n_body)) ? n_body : n_result;
 }
 
+function showToolMenu(e) {
+    e.preventDefault();
+    var jqObj = $(e.target);
+    $('#otherSiteTools').remove();
+    var subsubmenu = "<ul id=\"otherSiteTools\">";
+    var siteURL = '/direct/site/' + jqObj.attr('id') + '/pages.json';
+    scroll(0, 0)
+    var pos = jqObj.offset();
+    var maxToolsInt = parseInt($('#maxToolsInt').text());
+    var goToSite = '<li class=\"otherSiteTool\"><span><a class=\"icon-sakai-see-all-tools\" href=\"' + portal.portalPath + '/site/' +  jqObj.attr('id') + '\">' +$('#maxToolsAnchor
+    jQuery.getJSON(siteURL, function(data){
+        $.each(data, function(i, item){
+            if (i <= maxToolsInt) {
+                if (item.tools.length === 1) {
+                    subsubmenu = subsubmenu + '<li class=\"otherSiteTool\"><span><a class=\"icon-' + item.tools[0].toolId.replace(/\./gi, '-') + '\" href=' + item.tools[0].url + "
+                }
+            }
+
+        });
+        if ((data.length - 1) >   maxToolsInt){
+            subsubmenu = subsubmenu + goToSite
+        }
+        subsubmenu = subsubmenu + "</ul>"
+        $('#portalOuterContainer').append(subsubmenu);
+        $('#otherSiteTools').css({
+            'top': pos.top,
+            'left': pos.left + 30
+        });
+        $('#otherSiteTools li:first').attr('tabindex', '-1')
+        $('#otherSiteTools li:first').focus();
+
+        $('#otherSiteTools').keydown(function(e) {
+            if (e.keyCode == 38) {
+                jqObj.focus();
+                $(this).hide();
+            }
+        });
+    }); // end json call
+}
+
 jQuery(document).ready(function(){
     if ($('#eid').length === 1) {
         $('#eid').focus()
@@ -342,36 +382,13 @@ jQuery(document).ready(function(){
     
     // open tool menus in "other sites" panel
     $('.toolMenus').click(function(e){
-        e.preventDefault();
-        $('#otherSiteTools').remove();
-        var subsubmenu = "<ul id=\"otherSiteTools\">";
-        var siteURL = '/direct/site/' + $(this).attr('id') + '/pages.json';
-        scroll(0, 0)
-        var pos = $(this).offset();
-        var maxToolsInt = parseInt($('#maxToolsInt').text());
-        var goToSite = '<li class=\"otherSiteTool\"><span><a class=\"icon-sakai-see-all-tools\" href=\"' + portal.portalPath + '/site/' +  $(this).attr('id') + '\">' +$('#maxToolsAnchor').text() + '</a></span></li>'
-        jQuery.getJSON(siteURL, function(data){
-            $.each(data, function(i, item){
-                if (i <= maxToolsInt) {
-                    if (item.tools.length === 1) {
-                        subsubmenu = subsubmenu + '<li class=\"otherSiteTool\"><span><a class=\"icon-' + item.tools[0].toolId.replace(/\./gi, '-') + '\" href=' + item.tools[0].url + ">" + item.tools[0].title + "</a></span></li>"
-                    }
-                }
+        showToolMenu(e);
+    });
 
-            });
-            if ((data.length - 1) >   maxToolsInt){
-                 subsubmenu = subsubmenu + goToSite
-            }          
-            subsubmenu = subsubmenu + "</ul>"
-            $('#portalOuterContainer').append(subsubmenu);
-            $('#otherSiteTools').css({
-                'top': pos.top,
-                'left': pos.left + 30
-            });
-            $('#otherSiteTools li:first').attr('tabindex', '-1')
-            $('#otherSiteTools li:first').focus();
-        });
-        
+    $('.moreSitesLink').keydown(function (e){
+        if (e.keyCode == 40) {
+            showToolMenu(e);
+        }
     });
     
     // prepend site title to tool title
