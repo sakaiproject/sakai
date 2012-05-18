@@ -393,6 +393,7 @@ jQuery(document).ready(function(){
         } else if (e.keyCode == 27) {
             e.preventDefault();
             $('.dhtml_more_tabs').slideUp('fast');
+            removeDHTMLMask();
             $('.more-tab a').focus();
         }
     });
