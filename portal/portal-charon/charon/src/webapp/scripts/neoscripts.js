@@ -357,8 +357,9 @@ function showToolMenu(e) {
         $('#otherSiteTools li:first').attr('tabindex', '-1')
         $('#otherSiteTools li:first').focus();
 
+        // On up arrow or escape, hide the popup
         $('#otherSiteTools').keydown(function(e) {
-            if (e.keyCode == 38) {
+            if (e.keyCode == 38 || e.keyCode == 27) {
                 jqObj.focus();
                 $(this).hide();
             }
@@ -373,9 +374,8 @@ jQuery(document).ready(function(){
 
     // SAK-22026. Attach down and up arrow handlers to the more sites tab.
     $('.more-tab a').keydown(function (e) {
-        if (e.keyCode == 40) {
-            return dhtml_view_sites();
-        } else if (e.keyCode == 38) {
+        if (e.keyCode == 40 || e.keyCode == 38 || e.keyCode == 27) {
+            e.preventDefault();
             return dhtml_view_sites();
         }
     });
@@ -461,9 +461,10 @@ jQuery(document).ready(function(){
 
 var setupSiteNav = function(){
     $("ul.subnav").each(function(){
-        // Add a up arrow handler to slide the page menu up
+        // Add a up arrow and escape key handler to slide the page menu up
         $(this).keydown(function (e) {
-            if (e.keyCode == 38) {
+            if (e.keyCode == 38 || e.keyCode == 27) {
+                $(this).parent().children('a').focus();
                 $(this).slideUp('fast').hide();
             }
         });
