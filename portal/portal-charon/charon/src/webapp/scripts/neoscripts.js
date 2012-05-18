@@ -335,12 +335,12 @@ function showToolMenu(e) {
     scroll(0, 0)
     var pos = jqObj.offset();
     var maxToolsInt = parseInt($('#maxToolsInt').text());
-    var goToSite = '<li class=\"otherSiteTool\"><span><a class=\"icon-sakai-see-all-tools\" href=\"' + portal.portalPath + '/site/' +  jqObj.attr('id') + '\">' +$('#maxToolsAnchor
+    var goToSite = '<li class=\"otherSiteTool\"><span><a class=\"icon-sakai-see-all-tools\" href=\"' + portal.portalPath + '/site/' +  jqObj.attr('id') + '\">' +$('#maxToolsAnchor').text() + '</a></span></li>';
     jQuery.getJSON(siteURL, function(data){
         $.each(data, function(i, item){
             if (i <= maxToolsInt) {
                 if (item.tools.length === 1) {
-                    subsubmenu = subsubmenu + '<li class=\"otherSiteTool\"><span><a class=\"icon-' + item.tools[0].toolId.replace(/\./gi, '-') + '\" href=' + item.tools[0].url + "
+                    subsubmenu = subsubmenu + '<li class=\"otherSiteTool\"><span><a class=\"icon-' + item.tools[0].toolId.replace(/\./gi, '-') + '\" href=' + item.tools[0].url + ">" + item.tools[0].title + "</a></span></li>";
                 }
             }
 
