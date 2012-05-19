@@ -115,7 +115,7 @@ public class UploadPage extends ConsoleBasePage implements ScormConstants {
 		            try {
 		            	String resourceId = resourceService.putArchive(upload.getInputStream(), upload.getClientFileName(), upload.getContentType(), isFileHidden(), getPriority());
 		            	
-		            	int status = contentService.validate(resourceId, false, isFileValidated(), ServerConfigurationService.getString("scorm.zip.encoding", "UTF-8"));
+		            	int status = contentService.storeAndValidate(resourceId, isFileValidated(), ServerConfigurationService.getString("scorm.zip.encoding", "UTF-8"));
 		            	
 		            	if (status == VALIDATION_SUCCESS)
 		            		setResponsePage(PackageListPage.class);

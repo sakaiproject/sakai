@@ -76,7 +76,7 @@ public class ValidationPage extends ConsoleBasePage {
 			final Archive archive = (Archive)bean;
 			
 			try {
-				contentService.validate(archive.getResourceId(), false, true, ServerConfigurationService.getString("scorm.zip.encoding", "UTF-8"));
+				contentService.validate(archive.getResourceId(), ServerConfigurationService.getString("scorm.zip.encoding", "UTF-8"));
 				target.addComponent(table);
 				
 			} catch (Exception e) {

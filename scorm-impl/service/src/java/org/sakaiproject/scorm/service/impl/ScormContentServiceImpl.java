@@ -285,10 +285,19 @@ public abstract class ScormContentServiceImpl implements ScormContentService, Sc
 		return validator;
 	}
 
+	public int validate(String resourceId, String encoding) throws ResourceStorageException {
+	    return validate(resourceId, false, true, encoding, false);
+	}
+	
+	public int storeAndValidate(String resourceId, boolean isValidateToSchema, String encoding) throws ResourceStorageException {
+		return validate(resourceId, false, isValidateToSchema, encoding, true);
+	}
+
+	
 	/* (non-Javadoc)
 	 * @see org.sakaiproject.scorm.service.api.ScormContentService#validate(java.lang.String, boolean, boolean, java.lang.String)
 	 */
-	public int validate(String resourceId, boolean isManifestOnly, boolean isValidateToSchema, String encoding) throws ResourceStorageException {
+	public int validate(String resourceId, boolean isManifestOnly, boolean isValidateToSchema, String encoding, boolean createContentPackage) throws ResourceStorageException {
 		File file = createFile(resourceService().getArchiveStream(resourceId));
 
 		int result = VALIDATION_SUCCESS;
@@ -324,13 +333,15 @@ public abstract class ScormContentServiceImpl implements ScormContentService, Sc
 			}
 		}
 
-		try {
-			convertToContentPackage(resourceId, validator, validatorOutcome);
-		} catch (InvalidArchiveException iae) {
-			return VALIDATION_WRONGMIMETYPE;
-		} catch (Exception e) {
-			log.error("Failed to convert content package for resourceId: " + resourceId, e);
-			return VALIDATION_CONVERTFAILED;
+		if (createContentPackage) {
+			try {
+				convertToContentPackage(resourceId, validator, validatorOutcome);
+			} catch (InvalidArchiveException iae) {
+				return VALIDATION_WRONGMIMETYPE;
+			} catch (Exception e) {
+				log.error("Failed to convert content package for resourceId: " + resourceId, e);
+				return VALIDATION_CONVERTFAILED;
+			}
 		}
 
 		return result;
