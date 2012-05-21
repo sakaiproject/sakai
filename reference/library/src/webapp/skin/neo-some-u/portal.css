@@ -18,6 +18,23 @@ body{
 #portalContainer{
 }
 
+#portal_js_warn {
+    font-size: 1.2em;
+    background: #c00;
+    color: #fff;
+    padding: 10px;
+    position: fixed;
+    top:0;
+    left: 25%;
+    z-index:2002;
+    -webkit-border-bottom-right-radius: 5px;
+    -webkit-border-bottom-left-radius: 5px;
+    -moz-border-radius-bottomright: 5px;
+    -moz-border-radius-bottomleft: 5px;
+    border-bottom-right-radius: 5px;
+    border-bottom-left-radius: 5px;
+}
+
 /*wrapper masthead  and site navigation 
  two possible states - logged in headerMax, not logged in - headerMin*/
 #headerMax,#headerMin{

@@ -20,6 +20,13 @@ body{
 
 }
 
+#portal_js_warn {
+    font-size: 1.2em;
+    background:#c00;
+    color:#fff;
+    padding:10px;
+}
+
 #headerMax,#headerMin{
 	margin: 0;
 	height:100%;

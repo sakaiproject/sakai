@@ -18,6 +18,13 @@ body{
     margin:0 50px;
 }
 
+#portal_js_warn {
+    font-size: 1.2em;
+    background:#c00;
+    color:#fff;
+    padding:10px;
+}
+
 /*wrapper for masthead  and site navigation 
  as well as accessibility links wrapper #skipNav */
 /* two possible states - logged in headerMax, not logged in - headerMin*/
