@@ -166,7 +166,7 @@ public class TestEventGeneratorJob extends AbstractConfigurableJob
 
             cal.add(Calendar.MINUTE, interval);
 
-            tem.createTriggerEvent(evtTypes[i % evtTypes.length], jobName, triggerName, evtTime, "Bogus data created by " + this.getClass().getName());
+            tem.createTriggerEvent(evtTypes[i % evtTypes.length], jobName, triggerName, evtTime, "Bogus data created by " + this.getClass().getName(), "bogusServer");
         }
     }
 }

@@ -18,6 +18,7 @@
         <property name="triggerName" column="triggerName" type="string"/>
         <property name="time" column="eventTime" not-null="true"/>
         <property name="message" column="message" type="text"/>
+        <property name="serverId" column="serverId" type="string" />
     </class>
 
     <query name="purgeEventsBefore">

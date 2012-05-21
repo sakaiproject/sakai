@@ -101,7 +101,7 @@ public class TestTriggerEventManagerHibernateImpl
             Date newDate = new Date(cal.getTimeInMillis());
 
             mgr.createTriggerEvent(type, "job name " + i, "trigger name " + i,
-                                   newDate, "message " + i);
+                                   newDate, "message " + i, "server1");
 
             cal.add(Calendar.HOUR, -1);
         }
@@ -195,7 +195,8 @@ public class TestTriggerEventManagerHibernateImpl
                                                                        evt.getJobName(),
                                                                        evt.getTriggerName(),
                                                                        evt.getTime(),
-                                                                       evt.getMessage());
+                                                                       evt.getMessage(),
+                                                                       "server1");
 
         Assert.assertNotNull(result);
         Assert.assertNotNull(result.getId());
@@ -217,7 +218,7 @@ public class TestTriggerEventManagerHibernateImpl
 
         try
         {
-            mgr.createTriggerEvent(null, evt.getJobName(), evt.getTriggerName(), evt.getTime(), evt.getMessage());
+            mgr.createTriggerEvent(null, evt.getJobName(), evt.getTriggerName(), evt.getTime(), evt.getMessage(), "server1");
         }
         catch (Exception e)
         {
@@ -235,7 +236,7 @@ public class TestTriggerEventManagerHibernateImpl
 
         try
         {
-            mgr.createTriggerEvent(evt.getEventType(), null, evt.getTriggerName(), evt.getTime(), evt.getMessage());
+            mgr.createTriggerEvent(evt.getEventType(), null, evt.getTriggerName(), evt.getTime(), evt.getMessage(), "server1");
         }
         catch (Exception e)
         {
@@ -253,7 +254,7 @@ public class TestTriggerEventManagerHibernateImpl
         
         try
         {
-            mgr.createTriggerEvent(evt.getEventType(), evt.getJobName(), evt.getTriggerName(), null, evt.getMessage());
+            mgr.createTriggerEvent(evt.getEventType(), evt.getJobName(), evt.getTriggerName(), null, evt.getMessage(), "server1");
         }
         catch (Exception e)
         {

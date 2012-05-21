@@ -30,6 +30,7 @@ import org.quartz.Trigger;
 import org.quartz.TriggerListener;
 import org.sakaiproject.api.app.scheduler.events.TriggerEvent;
 import org.sakaiproject.api.app.scheduler.events.TriggerEventManager;
+import org.sakaiproject.component.cover.ServerConfigurationService;
 
 public class GlobalTriggerListener implements TriggerListener
 {
@@ -52,10 +53,19 @@ public class GlobalTriggerListener implements TriggerListener
     return "GlobalTriggerListener";
   }
 
+  /**
+   * Get the id of this instance
+   * @return
+   */
+  private String getServerId() {
+	  return ServerConfigurationService.getServerId();
+  }
+  
   public void triggerFired(Trigger trigger,
       JobExecutionContext jobExecutionContext)
   {
-      eventManager.createTriggerEvent (TriggerEvent.TRIGGER_EVENT_TYPE.FIRED, jobExecutionContext.getJobDetail().getName(), trigger.getName(), new Date(), "Trigger fired");
+	  
+      eventManager.createTriggerEvent (TriggerEvent.TRIGGER_EVENT_TYPE.FIRED, jobExecutionContext.getJobDetail().getName(), trigger.getName(), new Date(), "Trigger fired", getServerId());
   }
 
   public boolean vetoJobExecution(Trigger trigger,
@@ -71,7 +81,7 @@ public class GlobalTriggerListener implements TriggerListener
   public void triggerComplete(Trigger trigger,
       JobExecutionContext jobExecutionContext, int triggerInstructionCode)
   {
-      eventManager.createTriggerEvent (TriggerEvent.TRIGGER_EVENT_TYPE.COMPLETE, jobExecutionContext.getJobDetail().getName(), trigger.getName(), new Date(), "Trigger complete");
+      eventManager.createTriggerEvent (TriggerEvent.TRIGGER_EVENT_TYPE.COMPLETE, jobExecutionContext.getJobDetail().getName(), trigger.getName(), new Date(), "Trigger complete", getServerId());
   }
 
   /**

@@ -32,6 +32,22 @@ public class TriggerEventImpl implements TriggerEvent
   private Date time;
   private TRIGGER_EVENT_TYPE eventType;
   private String message;
+  private String serverId;
+
+  /**
+   * 
+   */
+  public String getServerId() {
+	  return serverId;
+  }
+
+  /**
+   * Set the serverId
+   * @param serverId
+   */
+  public void setServerId(String serverId) {
+	  this.serverId = serverId;
+  }
 
   /**
    * @return Returns the eventType.

@@ -20,7 +20,7 @@ public class TriggerEventManagerImpl implements TriggerEventManager
     private LinkedList<TriggerEvent>
         events = new LinkedList<TriggerEvent> ();
 
-    public TriggerEvent createTriggerEvent(TriggerEvent.TRIGGER_EVENT_TYPE type, String jobName, String triggerName, Date time, String message)
+    public TriggerEvent createTriggerEvent(TriggerEvent.TRIGGER_EVENT_TYPE type, String jobName, String triggerName, Date time, String message, String serverId)
     {
         TriggerEventImpl
             event = new TriggerEventImpl();
@@ -30,7 +30,7 @@ public class TriggerEventManagerImpl implements TriggerEventManager
         event.setTriggerName(triggerName);
         event.setTime(time);
         event.setMessage(message);
-
+        event.setServerId(serverId);
         events.add(0, event);
 
         return event;

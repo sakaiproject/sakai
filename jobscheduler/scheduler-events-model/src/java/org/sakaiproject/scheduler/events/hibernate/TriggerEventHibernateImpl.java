@@ -24,8 +24,18 @@ public class TriggerEventHibernateImpl
         time;
     private String
         message;
+    
+    private String serverId;
 
-    public TriggerEventHibernateImpl()
+    public String getServerId() {
+		return serverId;
+	}
+
+	public void setServerId(String serverId) {
+		this.serverId = serverId;
+	}
+
+	public TriggerEventHibernateImpl()
     {}
 
     public void setId(String i)

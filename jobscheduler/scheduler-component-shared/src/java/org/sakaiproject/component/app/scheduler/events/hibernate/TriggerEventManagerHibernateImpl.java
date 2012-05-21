@@ -25,7 +25,7 @@ public class TriggerEventManagerHibernateImpl
     implements TriggerEventManager
 {
     public TriggerEvent createTriggerEvent(TriggerEvent.TRIGGER_EVENT_TYPE type, String jobName, String triggerName,
-                                           Date time, String message)
+                                           Date time, String message, String serverId)
     {
         TriggerEventHibernateImpl
             event = new TriggerEventHibernateImpl();
@@ -35,6 +35,7 @@ public class TriggerEventManagerHibernateImpl
         event.setTriggerName(triggerName);
         event.setTime(time);
         event.setMessage(message);
+        event.setServerId(serverId);
 
         getHibernateTemplate().save(event);
 

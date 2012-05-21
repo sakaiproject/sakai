@@ -61,6 +61,12 @@
               </f:facet>
               <h:outputText value="#{event.message}"/>
             </h:column>
+          	<h:column>
+              <f:facet name="header">
+                <h:outputText value="#{msgs.server}"/>
+              </f:facet>
+              <h:outputText value="#{event.serverId}"/>
+            </h:column>
           </h:dataTable>
    	    </sakai:panel_titled>
    	  </h:form>
