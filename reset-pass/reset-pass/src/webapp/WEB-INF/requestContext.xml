@@ -37,6 +37,8 @@
 		<property name="userBean" ref="userBean" />
 		<property name="serverConfigurationService"
 			ref="org.sakaiproject.component.api.ServerConfigurationService" />
+		<property name="toolManager"
+			ref="org.sakaiproject.tool.api.ToolManager"/>
 	</bean>
 
 	<bean id="userBean"
