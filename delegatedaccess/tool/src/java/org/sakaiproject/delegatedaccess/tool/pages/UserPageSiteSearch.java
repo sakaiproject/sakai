@@ -473,7 +473,7 @@ public class UserPageSiteSearch extends BasePage {
 					search = "";
 				}
 				if(!"".equals(search) || (advancedOptions != null && !advancedOptions.isEmpty())){
-					list = projectLogic.searchUserSites(getSearch(), advancedOptions.isEmpty() ? null : advancedOptions, (isShoppingPeriodTool() || statistics));
+					list = projectLogic.searchUserSites(getSearch(), advancedOptions.isEmpty() ? null : advancedOptions, (isShoppingPeriodTool() || statistics), isShoppingPeriodTool() || (statistics && currentStatisticsFlag));
 					if(currentStatisticsFlag){
 						//need to filter out the results and find only current shopping period results:
 						for (Iterator iterator = list.iterator(); iterator

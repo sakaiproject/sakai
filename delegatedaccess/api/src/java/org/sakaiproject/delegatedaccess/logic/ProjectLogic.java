@@ -65,9 +65,10 @@ public interface ProjectLogic {
 	 * @param search
 	 * @param advancedOptions
 	 * @param shoppingPeriod
+	 * @param activeShoppingData
 	 * @return
 	 */
-	public List<SiteSearchResult> searchUserSites(String search, Map<String, String> advancedOptions, boolean shoppingPeriod);
+	public List<SiteSearchResult> searchUserSites(String search, Map<String, String> advancedOptions, boolean shoppingPeriod, boolean activeShoppingData);
 
 	/**
 	 * returns the tree model of a user's delegated access.  Each node in the tree has the NodeModel object
@@ -252,4 +253,17 @@ public interface ProjectLogic {
 	 * @return
 	 */
 	public Set<HierarchyNodeSerialized> getAccessAdminNodesForUser(String userId);
+	
+	/**
+	 * Call this function to determine if the shopping period is available for a set of settings
+	 * 
+	 * @param startDate
+	 * @param endDate
+	 * @param nodeAccessRealmRole
+	 * @param auth
+	 * @param terms
+	 * @param siteTerm
+	 * @return
+	 */
+	public boolean isShoppingPeriodOpenForSite(Date startDate, Date endDate, String[] nodeAccessRealmRole, String auth, String[] terms, String siteTerm);
 }

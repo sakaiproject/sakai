@@ -501,7 +501,7 @@ public class ProjectLogicImpl implements ProjectLogic {
 		}
 	}
 
-	public List<SiteSearchResult> searchUserSites(String search, Map<String, String> advancedOptions, boolean shoppingPeriod){
+	public List<SiteSearchResult> searchUserSites(String search, Map<String, String> advancedOptions, boolean shoppingPeriod, boolean activeShoppingData){
 		List<SiteSearchResult> returnList = new ArrayList<SiteSearchResult>();
 		if(search == null){
 			search = "";
@@ -511,7 +511,7 @@ public class ProjectLogicImpl implements ProjectLogic {
 		if(!"".equals(search) || (advancedOptions != null && advancedOptions.size() > 0)){
 			siteSubset = searchSites(search, advancedOptions);
 			for(SiteSearchResult siteResult : siteSubset){
-				AccessNode access = grantAccessToSite(siteResult.getSiteReference(), shoppingPeriod);
+				AccessNode access = grantAccessToSite(siteResult.getSiteReference(), shoppingPeriod, activeShoppingData);
 				if(access != null){
 					siteResult.setAccess(access.getAccess());
 					siteResult.setShoppingPeriodAuth(access.getAuth());
@@ -538,6 +538,9 @@ public class ProjectLogicImpl implements ProjectLogic {
 	}
 
 	public Collection<SiteSearchResult> searchSites(String search, Map<String, String> advancedOptions){
+		if("".equals(search)){
+			search = null;
+		}
 		Map<String, SiteSearchResult> sites = new HashMap<String, SiteSearchResult>();
 		String termField = sakaiProxy.getTermField();
 		//first, check if the search is a site id:
@@ -1496,7 +1499,7 @@ public class ProjectLogicImpl implements ProjectLogic {
 				&& ((Map) sakaiProxy.getCurrentSession().getAttribute(DelegatedAccessConstants.SESSION_ATTRIBUTE_ACCESS_MAP)).containsKey(siteRef)){
 			return (String[]) ((Map) sakaiProxy.getCurrentSession().getAttribute(DelegatedAccessConstants.SESSION_ATTRIBUTE_ACCESS_MAP)).get(siteRef);
 		}else{
-			AccessNode access = grantAccessToSite(siteRef, false);
+			AccessNode access = grantAccessToSite(siteRef, false, false);
 			if(access != null){
 				return access.getAccess();
 			}else{
@@ -1505,7 +1508,7 @@ public class ProjectLogicImpl implements ProjectLogic {
 		}
 	}
 	
-	private AccessNode grantAccessToSite(String siteRef, boolean shoppingPeriod){
+	private AccessNode grantAccessToSite(String siteRef, boolean shoppingPeriod, boolean activeShoppingData){
 		AccessNode returnNode = null;
 		Session session = sakaiProxy.getCurrentSession();
 		Map<String, String[]> deniedToolsMap = new HashMap<String, String[]>();
@@ -1553,6 +1556,14 @@ public class ProjectLogicImpl implements ProjectLogic {
 					Set<String> perms = hierarchyService.getPermsForUserNodes(userId, new String[]{nodeId});
 					//is this node direct access (checked), if so, grab the settings, otherwise, look at the parent
 					if(getIsDirectAccess(perms)){
+						if(shoppingPeriod && activeShoppingData){
+							//do substring(6) b/c we need site ID and what is stored is a ref: /site/1231231
+							String siteId = siteRef.substring(6);
+							if(!isShoppingAvailable(perms, siteId)){
+								//check that shopping period is still available unless activeShoppingData is false
+								break;
+							}
+						}
 						//Access Map:
 						String[] access = getAccessRealmRole(perms);
 						if (access == null || access.length != 2
@@ -1612,6 +1623,50 @@ public class ProjectLogicImpl implements ProjectLogic {
 		
 		return returnNode;
 	}
+	
+	private boolean isShoppingAvailable(Set<String> perms, String siteId){
+		Date startDate = getShoppingStartDate(perms);
+		Date endDate = getShoppingEndDate(perms);
+		String[] nodeAccessRealmRole = getAccessRealmRole(perms);
+		String auth = getShoppingPeriodAuth(perms);
+		List<String> termsArr = getTermsForUser(perms);
+		String siteTerm = null;
+		String [] terms = null;
+		if(terms != null){
+			terms = termsArr.toArray(new String[termsArr.size()]);
+			siteTerm = dao.getSiteProperty(sakaiProxy.getTermField(), siteId);
+		}
+		return isShoppingPeriodOpenForSite(startDate, endDate, nodeAccessRealmRole, auth, terms, siteId);
+	}
+	
+	public boolean isShoppingPeriodOpenForSite(Date startDate, Date endDate, String[] nodeAccessRealmRole, String auth, String[] terms, String siteTerm){
+		Date now = new Date();
+		boolean isOpen = false;
+		if(startDate != null && endDate != null){
+			isOpen = startDate.before(now) && endDate.after(now);
+		}else if(startDate != null){
+			isOpen = startDate.before(now);
+		}else if(endDate != null){
+			isOpen = endDate.after(now);
+		}
+		if(nodeAccessRealmRole != null && nodeAccessRealmRole.length == 2 && !"".equals(nodeAccessRealmRole[0]) && !"".equals(nodeAccessRealmRole[1])
+				&& !"null".equals(nodeAccessRealmRole[0]) && !"null".equals(nodeAccessRealmRole[1])){
+			isOpen = isOpen && true;
+		}else{
+			isOpen = false;
+		}
+		if(auth == null || "".equals(auth)){
+			isOpen = false;
+		}else if(".anon".equals(auth) || ".auth".equals(auth)){
+			isOpen = isOpen && true;
+		}
+		 if(!checkTerm(terms, siteTerm)){
+			 isOpen = false;
+		 }
+		
+		return isOpen;
+	}
+	
 	
 	private class AccessNode{
 		private String siteRef;

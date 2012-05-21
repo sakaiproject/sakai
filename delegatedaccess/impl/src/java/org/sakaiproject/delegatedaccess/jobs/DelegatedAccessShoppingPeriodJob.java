@@ -137,35 +137,14 @@ public class DelegatedAccessShoppingPeriodJob implements StatefulJob{
 		String auth = node.getNodeShoppingPeriodAuth();
 		startDate = node.getNodeShoppingPeriodStartDate();
 		endDate = node.getNodeShoppingPeriodEndDate();
-
-		boolean addAuth = false;
-
-		if(startDate != null && endDate != null){
-			addAuth = startDate.before(now) && endDate.after(now);
-		}else if(startDate != null){
-			addAuth = startDate.before(now);
-		}else if(endDate != null){
-			addAuth = endDate.after(now);
-		}
 		String[] nodeAccessRealmRole = node.getNodeAccessRealmRole();
-		if(nodeAccessRealmRole != null && nodeAccessRealmRole.length == 2 && !"".equals(nodeAccessRealmRole[0]) && !"".equals(nodeAccessRealmRole[1])
-				&& !"null".equals(nodeAccessRealmRole[0]) && !"null".equals(nodeAccessRealmRole[1])){
-			addAuth = addAuth && true;
-		}else{
-			addAuth = false;
-		}
-		if(auth == null || "".equals(auth)){
-			addAuth = false;
-		}else{
-			addAuth = addAuth && true;
-		}
-
-		String restrictedToolsList = "";
-
 		//do substring(6) b/c we need site ID and what is stored is a ref: /site/1231231
 		String siteId = node.getNode().title.substring(6);
-		
-		if(addAuth && (".anon".equals(auth) || ".auth".equals(auth)) && checkTerm(node.getNodeTerms(), siteId)){
+		String[] terms = node.getNodeTerms();
+		String siteTerm = terms == null || terms.length == 0 ? null : dao.getSiteProperty(sakaiProxy.getTermField(), siteId);
+		boolean addAuth = projectLogic.isShoppingPeriodOpenForSite(startDate, endDate, nodeAccessRealmRole, auth, terms, siteTerm);
+		String restrictedToolsList = "";
+		if(addAuth){
 			//update the restricted tools list, otherwise it will be cleared:			
 			//set the restricted tools list to a non empty string, otherwise, the site property won't be saved
 			//when the string is empty (no tools allowed to view).
@@ -213,25 +192,7 @@ public class DelegatedAccessShoppingPeriodJob implements StatefulJob{
 		}
 	}
 	
-	private boolean checkTerm(String[] terms, String site){
-		boolean returnVal = true;
-		if(terms != null && terms.length > 0){
-			String siteTerm = dao.getSiteProperty(sakaiProxy.getTermField(), site);
-			if(siteTerm != null){
-				returnVal = false;
-				if(siteTerm != null && !"".equals(siteTerm)){
-					for(String term : terms){
-						if(term.equals(siteTerm)){
-							returnVal = true;
-							break;
-						}
-					}
-				}
-			}
-		}
-		return returnVal;
-	}
-
+	
 	private void removeAnonAndAuthRoles(String siteRef){
 		AuthzGroup ag = sakaiProxy.getAuthzGroup(siteRef);
 		log.debug("Removing .auth and.anon roles for " + siteRef);
