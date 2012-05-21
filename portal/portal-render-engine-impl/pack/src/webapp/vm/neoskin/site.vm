@@ -3,6 +3,7 @@
 <html xmlns="http://www.w3.org/1999/xhtml" lang="en" xml:lang="en">
 #parse("/vm/neoskin/includeStandardHead.vm")
 <body class="portalBody">
+  <noscript><div id="portal_js_warn">${rloader.sit_noscript_message}</div></noscript>
 #if ( $pageTop )
 <script type="text/javascript" language="JavaScript">
 	var sakaiPortalWindow = "";
