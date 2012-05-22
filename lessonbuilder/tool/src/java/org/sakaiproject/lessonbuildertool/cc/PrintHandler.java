@@ -315,7 +315,6 @@ public class PrintHandler extends DefaultHandler implements AssessmentHandler, D
 	      if ("Mentor".equals(role.getChildText("value",  ns.lom_ns())))
 		  usesMentor = true;
 	  }
-	  hide = false;  // A bit of a hack
       }	  
 
       // for question banks we don't need a current page, as we don't put banks on a page
