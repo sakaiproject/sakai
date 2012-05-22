@@ -7,7 +7,7 @@ CKEDITOR.plugins.setLang('movieplayer','pt',
         // Dialog
         'MoviePlayerDlgTitle':'Propriedades do Vídeo',
         'MoviePlayerURL':'URL:',
-        'MoviePlayerURLDesc':'Seleccione um ficheiro .flv, .wma, .avi ou .mov',
+        'MoviePlayerURLDesc':'Seleccione um ficheiro .mp3, .mp4, .flv, .wma, .avi ou .mov',
         'MoviePlayerWidth':'Largura:',
         'MoviePlayerHeight':'Altura:',
         'MoviePlayerAutoplay':'Reproduzir Automaticamente:',
