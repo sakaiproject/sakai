@@ -78,7 +78,14 @@ public class PDAHandler extends PageHandler
 	
 	private static final String TOOLCONFIG_SHOW_RESET_BUTTON = "reset.button";
 
-	private static final String DEFAULT_BYPASS_PATTERN = "\\.jpg$|\\.gif$|\\.js$|\\.png$|\\.jpeg$|\\.css$|\\.zip$|\\.pdf\\.mov$|\\.json$|\\.jsonp$\\.xml$|\\.ajax$|\\.xls$|\\.xlsx$|\\.doc$|\\.docx$|uvbview$|linktracker$";
+    private static final String BYPASS_PATTERN_PROP = "portal.pda.bypass";
+	private static final String DEFAULT_BYPASS_PATTERN = "\\.jpg$|\\.gif$|\\.js$|\\.png$|\\.jpeg$|\\.css$|\\.zip$|\\.pdf\\.mov$|\\.json$|\\.jsonp$\\.xml$|\\.ajax$|\\.xls$|\\.xlsx$|\\.doc$|\\.docx$|uvbview$|linktracker$|wicket:interface";
+
+    private static final String BYPASS_QUERY_PROP = "portal.pda.bypass.query";
+	private static final String DEFAULT_BYPASS_QUERY = "wicket:interface=";
+
+    private static final String BYPASS_TYPE_PROP = "portal.pda.bypass.type";
+	private static final String DEFAULT_BYPASS_TYPE = "^application/|^image/|^audio/|^video/|^text/xml|^text/plain";
 	
 	public PDAHandler()
 	{
@@ -219,12 +226,29 @@ public class PDAHandler extends PageHandler
 				if ( siteTool != null ) {
 					String uri = req.getRequestURI();
 					String commonToolId = siteTool.getToolId();
-					String pattern = ServerConfigurationService .getString("portal.pda.bypass", DEFAULT_BYPASS_PATTERN);
-					pattern = ServerConfigurationService .getString("portal.pda.bypass."+commonToolId, pattern);
-					// System.out.println("Pat="+pattern);
+					// Check the URL for a pattern match
+					String pattern = ServerConfigurationService .getString(BYPASS_QUERY_PROP, DEFAULT_BYPASS_PATTERN);
+					pattern = ServerConfigurationService .getString(BYPASS_QUERY_PROP+"."+commonToolId, pattern);
 					Pattern p = Pattern.compile(pattern);
 					Matcher m = p.matcher(uri.toLowerCase());
-					if ( m.find() && parts.length >= 5 ) {
+
+					// Check the query string for a pattern match
+					pattern = ServerConfigurationService .getString(BYPASS_QUERY_PROP, DEFAULT_BYPASS_QUERY);
+					pattern = ServerConfigurationService .getString(BYPASS_QUERY_PROP+"."+commonToolId, pattern);
+					String queryString = req.getQueryString();
+					if ( queryString == null ) queryString = "";
+					p = Pattern.compile(pattern);
+					Matcher mq = p.matcher(queryString.toLowerCase());
+
+					// Check the contentType for a pattern match
+					pattern = ServerConfigurationService .getString(BYPASS_TYPE_PROP, DEFAULT_BYPASS_TYPE);
+					pattern = ServerConfigurationService .getString(BYPASS_TYPE_PROP+"."+commonToolId, pattern);
+					String contentType = req.getContentType();
+					if ( contentType == null ) contentType = "";
+					p = Pattern.compile(pattern);
+					Matcher mc = p.matcher(contentType.toLowerCase());
+
+					if ( (m.find() || mq.find() || mc.find()) && parts.length >= 5 ) {
 						String toolContextPath = req.getContextPath() + req.getServletPath() + Web.makePath(parts, 1, 5); 
 						String toolPathInfo = Web.makePath(parts, 5, parts.length);
         					ActiveTool tool = ActiveToolManager.getActiveTool(commonToolId);
@@ -317,6 +341,17 @@ public class PDAHandler extends PageHandler
 					toolContextPath, 
 					Web.makePath(parts, 5, parts.length));
 			if ( ! retval ) return;
+
+			// Check the contentType for a pattern match
+			String commonToolId = siteTool.getToolId();
+			String pattern = ServerConfigurationService .getString(BYPASS_TYPE_PROP, DEFAULT_BYPASS_TYPE);
+			pattern = ServerConfigurationService .getString(BYPASS_TYPE_PROP+"."+commonToolId, pattern);
+			String contentType = req.getContentType();
+			if ( contentType == null ) contentType = "";
+			Pattern p = Pattern.compile(pattern);
+			Matcher mc = p.matcher(contentType.toLowerCase());
+
+			if ( mc.find() ) return;
 		} catch (ToolException e) {
 			return;
 		} catch (IOException e) {
