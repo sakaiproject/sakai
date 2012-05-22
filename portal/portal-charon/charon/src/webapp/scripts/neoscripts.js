@@ -73,6 +73,20 @@ var dhtml_view_sites = function(){
                 dhtml_view_sites();
                 return false;
             });
+
+            // If we hit escape or the up arrow on any of the links in the drawer, slide it
+            // up and focus on the more tab.
+            jQuery('#selectSite a').keydown(function (e) {
+                if(e.keyCode == 38 || e.keyCode == 27) {
+                    e.preventDefault();
+                    jQuery('div#selectSite div').hide();
+                    jQuery('div#selectSite').slideUp('fast').hide(); // hide the box
+                    removeDHTMLMask()
+                    jQuery('#otherSiteTools').remove();
+                    jQuery('.selectedTab').unbind('click');
+                    jQuery('.more-tab a').focus();
+                }
+            });
         }
         else {
             // hide the dropdown
@@ -386,15 +400,11 @@ jQuery(document).ready(function(){
         showToolMenu(e);
     });
 
+
     // Show the tool popup on the down arrow, or slide up the drawer on escape.
     $('.moreSitesLink').keydown(function (e){
         if (e.keyCode == 40) {
             showToolMenu(e);
-        } else if (e.keyCode == 27) {
-            e.preventDefault();
-            $('.dhtml_more_tabs').slideUp('fast');
-            removeDHTMLMask();
-            $('.more-tab a').focus();
         }
     });
     
@@ -472,7 +482,7 @@ var setupSiteNav = function(){
         $(this).keydown(function (e) {
             if (e.keyCode == 38 || e.keyCode == 27) {
                 $(this).parent().children('a').focus();
-                $(this).slideUp('fast').hide();
+                $(this).slideUp('fast');
             }
         });
         $(this).children('li:last').addClass('lastMenuItem')
