@@ -29,7 +29,7 @@
 	</filter>
 	<filter-mapping>
 	    <filter-name>sakai.request</filter-name>
-	    <servlet-name>sakai.useralias</servlet-name>
+	    <servlet-name>sakai.accountvalidator</servlet-name>
 	    <dispatcher>REQUEST</dispatcher>
 	    <dispatcher>FORWARD</dispatcher>
 	    <dispatcher>INCLUDE</dispatcher>
