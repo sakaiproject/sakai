@@ -36,6 +36,7 @@ body{
     border-top-right-radius: 5px;
 }
 
+
 /*wrapper masthead  and site navigation 
  two possible states - logged in headerMax, not logged in - headerMin*/
 #headerMax,#headerMin{
@@ -516,17 +517,14 @@ li.more-tab {
 
 }
 li.more-tab a {
-	background-image:  url(images/subnav_btn_more.png);
     display:block;
     height:16px;
-	background-repeat: no-repeat;
-	background-position:  right top;
 	padding:0;
 	margin: 0;
-
 }
 li.more-tab a span{
     padding-right:15px;
+    background:  url(images/subnav_btn_more.png) right center no-repeat;
 }
 #siteLinkList li.more-active a,
 	#siteLinkList li.more-active a:link,
@@ -1633,9 +1631,12 @@ ul.topnav li a span{
 ul.topnav li.nav-selected > a{
     color:#9cf
 }
-li.nav-menu > a:hover, li.nav-menu > a:focus,  li.nav-menu > a:active{
+li.nav-menu > a:hover, li.nav-menu > a:focus,  li.nav-menu > a:active, li.more-tab > a:hover, li.more-tab > a:focus,  li.more-tab > a:active{
     outline:none;
 	background:  url(images/topnav_hover.gif) no-repeat center top;
+}
+li.nav-menu > a:focus,  li.nav-menu > a:active, li.more-tab > a:focus,  li.more-tab > a:active{
+    outline:1px dotted #fff;
 }
 span.nav-menu > a:hover, span.nav-menu > a:focus,  span.nav-menu > a:active{
     outline:none;
@@ -1754,6 +1755,7 @@ ul.nav-submenu li.submenuitem a, #mastLogin  li.submenuitem a {
 	width: 170px;
 	padding-left: 25px;
 }
+
 #mastLogin  li.submenuitem{
     margin:0;
     text-align:left;
@@ -1763,7 +1765,7 @@ ul.nav-submenu li.submenuitem a, #mastLogin  li.submenuitem a {
     background-repeat:no-repeat;
     border-bottom:1px solid #777;
     padding:10px 25px;
-    width:auto;
+    width:100%;
     display:block;
 }
 li.submenuitem span.hidden{
@@ -1785,10 +1787,12 @@ li.submenuitem span.hidden{
         background-image: url(/library/image/silk/application_lightning.png );
 }
 
-#mastLogin  li.submenuitem a:hover,#mastLogin  li.submenuitem a:focus { /*--Hover effect for subnav links--*/
+#mastLogin  li.submenuitem a:hover,#mastLogin li.submenuitem a:focus, #topnav  li.submenuitem a:hover,#topnav  li.submenuitem a:focus { /*--Hover effect for subnav links--*/
     color:#9cf;
 }
-
+#mastLogin  li.submenuitem a:focus, #topnav  li.submenuitem a:focus { /*--Hover effect for subnav links--*/
+    outline:1px dotted #fff;
+}
 ul#otherSiteList, ul.otherSitesCategorList{
     margin:5px;
     padding:0;
@@ -1866,9 +1870,16 @@ for categorized view
    top:2px;
    height:11px;
 }
-.toolMenus:hover{background-position: 10px -38px; cursor: pointer;}
+.toolMenus:hover {
+    background-position: 10px -38px;
+    cursor: pointer;
+}
 ul#otherSiteList li a:hover,ul#otherSiteList li a:focus,ul#otherSiteList li a:active, #otherSitesMenu li a:hover,#otherSitesMenu li a:focus,#otherSitesMenu li a:active,ul.otherSitesCategorList li a:hover,ul.otherSitesCategorList li a:focus     {
-   color:#9cf !important
+   color:#9cf !important;
+   
+}
+ul#otherSiteList li a:focus span,ul#otherSiteList li a:active span, #otherSitesMenu li a:focus span, #otherSitesMenu li a:active span, ul.otherSitesCategorList li a:focus span{
+   outline:1px dotted #fff; 
 }
 #otherSiteMenuWrap{
     margin:5px;

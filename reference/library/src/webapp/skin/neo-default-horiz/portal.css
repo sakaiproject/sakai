@@ -368,11 +368,13 @@ a#loginLink1{
     text-decoration:underline;
         
 }
-a#loginLink1:hover, a#loginUser:hover{
+a#loginLink1:hover, a#loginUser:hover, a#loginLink1:focus, a#loginUser:focus{
     color:#F9BB31;
-    
 }
 
+a#loginLink1:focus, a#loginUser:focus{
+    outline: 1px dotted #000;
+}
 #loginLinks .drop{
     background:transparent url(/library/image/silk/user.png) 15px 0  no-repeat;
     position:absolute;
@@ -549,17 +551,14 @@ li.more-tab {
 
 }
 li.more-tab a {
-	background-image:  url(images/subnav_btn_more.png);
     display:block;
     height:16px;
-	background-repeat: no-repeat;
-	background-position:  right top;
 	padding:0;
 	margin: 0;
-
 }
 li.more-tab a span{
     padding-right:15px;
+    background:  url(images/subnav_btn_more.png) right center no-repeat;
 }
 #siteLinkList li.more-active a,
 	#siteLinkList li.more-active a:link,
@@ -1655,8 +1654,7 @@ ul.topnav li a span{
 ul.topnav li.nav-selected > a{
     color:#F9BB31
 }
-li.nav-menu > a:hover, li.nav-menu > a:focus,  li.nav-menu > a:active{
-    outline:none;
+li.nav-menu > a:hover, li.nav-menu > a:focus,  li.nav-menu > a:active, li.more-tab > a:hover, li.more-tab > a:focus,  li.more-tab > a:active{
     color:#F4BC2D;
 	background:  url(images/topnav_hover.png) no-repeat center top;
 }
@@ -1814,6 +1812,7 @@ li.submenuitem span.hidden{
 
 ul.nav-submenu li.submenuitem a:hover,ul.nav-submenu li.submenuitem a:focus,#mastLogin  li.submenuitem a:hover,#mastLogin  li.submenuitem a:focus { /*--Hover effect for subnav links--*/
     color:#F9BB31;
+    outline:1px dotted #fff;
 }
 
 ul#otherSiteList, ul.otherSitesCategorList{

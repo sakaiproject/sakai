@@ -1609,7 +1609,6 @@ ul.topnav li.nav-selected > a{
     color:#F4CB5F
 }
 li.nav-menu > a:hover, li.nav-menu > a:focus,  li.nav-menu > a:active, #mastLogin  li.submenuitem a:hover,#mastLogin  li.submenuitem a:focus{
-    outline:none;
     color:#F4CB5F;
 	background:  url(images/topnav_hover.gif) no-repeat center top;
 }

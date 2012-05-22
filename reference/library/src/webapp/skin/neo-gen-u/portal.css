@@ -1641,11 +1641,9 @@ ul.topnav li.nav-selected > a{
     color:#9cf
 }
 li.nav-menu > a:hover, li.nav-menu > a:focus,  li.nav-menu > a:active{
-    outline:none;
 	background:  url(images/topnav_hover.gif) no-repeat center top;
 }
 span.nav-menu > a:hover, span.nav-menu > a:focus,  span.nav-menu > a:active{
-    outline:none;
 	background:  url(images/topnav_hover.gif) no-repeat center top;
 }
 ul.topnav li span.drop { /*--Drop down trigger styles--*/
@@ -1792,7 +1790,7 @@ li.submenuitem span.hidden{
         background-image: url(/library/image/silk/application_lightning.png );
 }
 
-#mastLogin  li.submenuitem a:hover,#mastLogin  li.submenuitem a:focus { /*--Hover effect for subnav links--*/
+#mastLogin  li.submenuitem a:hover, #mastLogin  li.submenuitem a:focus { /*--Hover effect for subnav links--*/
     color:#9cf;
 }
 

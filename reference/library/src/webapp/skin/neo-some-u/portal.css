@@ -376,7 +376,10 @@ a#loginLink1{
 }
 a#loginLink1:hover, a#loginUser:hover{
     color:#F9BB31;
-    
+
+}
+a#loginLink1:focus, a#loginUser:focus {
+    outline: 1px dotted black;
 }
 
 #loginLinks .drop{
@@ -1657,11 +1660,9 @@ ul.topnav li.nav-selected > a{
     color:#F9BB31
 }
 li.nav-menu > a:hover, li.nav-menu > a:focus,  li.nav-menu > a:active{
-    outline:none;
 	background:  url(images/topnav_hover.gif) no-repeat center top;
 }
 span.nav-menu > a:hover, span.nav-menu > a:focus,  span.nav-menu > a:active{
-    outline:none;
 	background:  url(images/topnav_hover.gif) no-repeat center top;
 }
 ul.topnav li span.drop { /*--Drop down trigger styles--*/
