@@ -2,7 +2,9 @@ var CKEDITOR   = window.parent.CKEDITOR;
 var oEditor = null;
 var oMovie     = null;
 var isNew	   = true;
-var flashPlayer = "/library/editor/CKeditor/plugins/movieplayer/player_flv_maxi.swf";
+//var flashPlayer = "/library/editor/CKeditor/plugins/movieplayer/player_flv_maxi.swf";
+var flashPlayer = "/library/editor/CKeditor/plugins/movieplayer/StrobeMediaPlayback.swf";
+
 
 function GetAttribute(element,value,defaultvalue) {
     if (element.attributes[value])
@@ -126,82 +128,6 @@ function BrowseServer() {
     CKEDITOR.tools.callFunction( browseServer );
 }
 
-
-
-/** Create Movie html */
-Movie.prototype.getInnerHTML = function (objectId){
-	var rnd = Math.floor(Math.random()*1000001);
-	var s = "";
-
-	// html
-	if(this.contentType == "application/x-shockwave-flash") {
-		if(getExtension(this.url) == 'flv') {
-			// Flash video (FLV)
-			s += '<OBJECT id="movie' + rnd + '" ';
-			s += '        type="application/x-shockwave-flash" ';
-			s += '        data="'+ flashPlayer +'" ';
-			s += '        width="'+this.width+'" height="'+this.height+'" >';
-		    s += '  <PARAM name="movie" value="'+ flashPlayer +'" />';
-		    s += '  <PARAM name="FlashVars" value="flv='+encodeURI(this.url)+'&amp;showplayer=always&amp;width='+this.width+'&amp;height='+this.height+'&amp;showiconplay=true&amp;autoplay='+this.autoplay+'" />';
-		    s += '</OBJECT>';
-		    
-		}else{
-			// Fix youtube url
-			if(this.url.contains('youtube.com/')) {
-				this.url = this.url.replace(/youtube\.com\/watch\?v=/i, "youtube.com/v/");
-			}
-			
-			// Flash object (SWF)
-			s += '<OBJECT id="movie' + rnd + '" ';
-			s += '        type="application/x-shockwave-flash" ';
-			s += '        data="'+ encodeURI(this.url) +'" ';
-			s += '        width="'+this.width+'" height="'+this.height+'" >';
-		    s += '  <PARAM name="movie" value="'+ encodeURI(this.url) +'" />';
-		    s += '  <PARAM name="FlashVars" value="autoplay='+this.autoplay+'" />';
-		    s += '</OBJECT>';			
-		}
-
-	}else{
-		// Other video types
-		var pluginspace, codebase, classid;
-		if(this.contentType == "video/quicktime") {
-			// QUICKTIME
-			this.autoplay = (this.autoplay == 'true' || this.autoplay == '1') ? 'true' : 'false';
-			s += '<OBJECT id="movie' + rnd + '" ';
-			s += '        classid="clsid:02BF25D5-8C17-4B23-BC80-D3488ABDDC6B" ';
-			s += '        codebase="http://www.apple.com/qtactivex/qtplugin.cab" '
-			s += '        width="'+this.width+'" height="'+this.height+'" >';
-		    s += '  <PARAM name="src" value="'+ encodeURI(this.url) +'" />';
-			s += '  <PARAM name="autoplay" value="'+this.autoplay+'" />';
-			s += '  <PARAM name="controller" value="true" />';
-			s += '  <OBJECT type="'+this.contentType+'" ';
-			s += '          data="'+ encodeURI(this.url) +'" ';
-			s += '          width="'+this.width+'" height="'+this.height+'" ';
-			s += '          style="*display:none">'; // for IE6 only
-			s += '    <PARAM name="autoplay" value="'+this.autoplay+'" />';
-			s += '    <PARAM name="controller" value="true" />';
-		    s += '  </OBJECT>';
-		    s += '</OBJECT>';	
-		    
-		}else{
-			// WINDOWS MEDIA & OTHERS
-			s += '<OBJECT id="movie' + rnd + '" ';
-			s += '        type="'+this.contentType+'" ';
-			s += '        data="'+ encodeURI(this.url) +'" ';
-			s += '        width="'+this.width+'" height="'+this.height+'" >';
-		    s += '  <PARAM name="src" value="'+ encodeURI(this.url) +'" />';
-			s += '  <PARAM name="autostart" value="'+this.autoplay+'" />';
-			s += '  <PARAM name="controller" value="true" />';
-		    s += '</OBJECT>';
-		    
-		}
-	    
-	}
-	
-	return s;
-}
-
-
 /** Set movie attribute */
 Movie.prototype.setAttribute = function(attr, val) {
 	if (val=="true") {
@@ -212,6 +138,7 @@ Movie.prototype.setAttribute = function(attr, val) {
 		this[attr]=val;
 	}
 };
+
 
 /** Get the file extension  */
 function getExtension(url) {

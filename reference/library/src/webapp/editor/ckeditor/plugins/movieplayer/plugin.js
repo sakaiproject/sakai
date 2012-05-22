@@ -3,7 +3,10 @@
 var tab1doc=null;
 var oMovie=null;
 var isNew=true;
-var flashPlayer = "/library/editor/ckeditor/plugins/movieplayer/player_flv_maxi.swf";
+//var flashPlayer = "/library/editor/ckeditor/plugins/movieplayer/player_flv_maxi.swf";
+var flashPlayer = "/library/editor/ckeditor/plugins/movieplayer/StrobeMediaPlayback.swf";
+var youtubePlugin = "/library/editor/ckeditor/plugins/movieplayer/YouTubePlugin.swf";
+var mimeSupported = ['video/mp4','audio/mpeg','application/x-shockwave-flash'];
 
 /** Create Movie html */
 
@@ -18,41 +21,31 @@ var Movie = function (o){
 	if(o) this.setObjectElement(o);
 };
 
-
+/** Create Movie html */
 Movie.prototype.getInnerHTML = function (objectId){
 	var rnd = Math.floor(Math.random()*1000001);
 	var s = "";
 
+	debugger;
 	// html
-	if(this.contentType == "application/x-shockwave-flash") {
-		if(getExtension(this.url) == 'flv') {
+	if(mimeSupported.contains(this.contentType)) {
+			var addYoutube = "";
+			if(this.url.contains('youtube.com/')) {
+					this.url = this.url.replace(/youtube\.com\/watch\?v=/i, "youtube.com/v/");
+					addYoutube = "&amp;plugin_YouTubePlugin="+youtubePlugin;
+			}
+	
 			// Flash video (FLV)
 			s += '<OBJECT id="movie' + rnd + '" ';
 			s += '        type="application/x-shockwave-flash" ';
 			s += '        data="'+ flashPlayer +'" ';
 			s += '        width="'+this.width+'" height="'+this.height+'" >';
 		    s += '  <PARAM name="movie" value="'+ flashPlayer +'" />';
-		    s += '  <PARAM name="FlashVars" value="flv='+encodeURI(this.url)+'&amp;showplayer=always&amp;width='+this.width+'&amp;height='+this.height+'&amp;showiconplay=true&amp;autoplay='+this.autoplay+'" />';
+		    s += '  <PARAM name="FlashVars" value="src='+encodeURI(this.url)+'&amp;showplayer=always&amp;width='+this.width+'&amp;height='+this.height+'&amp;showiconplay=true&amp;autoplay='+this.autoplay+addYoutube+'" />';
+				s += '<param name="allowFullScreen" value="true">';
 		    s += '</OBJECT>';
-		    
-		}else{
-			// Fix youtube url
-			if(this.url.contains('youtube.com/')) {
-				this.url = this.url.replace(/youtube\.com\/watch\?v=/i, "youtube.com/v/");
-			}
-			
-			// Flash object (SWF)
-			s += '<OBJECT id="movie' + rnd + '" ';
-			s += '        type="application/x-shockwave-flash" ';
-			s += '        data="'+ encodeURI(this.url) +'" ';
-			s += '        width="'+this.width+'" height="'+this.height+'" >';
-		    s += '  <PARAM name="movie" value="'+ encodeURI(this.url) +'" />';
-		    s += '  <PARAM name="FlashVars" value="autoplay='+this.autoplay+'" />';
-		    s += '</OBJECT>';			
-		}
-
 	}else{
-		// Other video types
+		// Other video types that need a native plugin
 		var pluginspace, codebase, classid;
 		if(this.contentType == "video/quicktime") {
 			// QUICKTIME
@@ -233,3 +226,12 @@ String.prototype.endsWith = function(str)
 String.prototype.contains = function(str)
 {return (this.match(str)==str)}
 
+Array.prototype.contains = function(obj) {
+    var i = this.length;
+    while (i--) {
+        if (this[i] === obj) {
+            return true;
+        }
+    }
+    return false;
+}
