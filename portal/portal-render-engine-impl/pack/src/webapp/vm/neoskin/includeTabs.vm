@@ -137,7 +137,7 @@
 						#end
 
 #if ($tabsSites.tabsMoreSitesShow)
-<li class="more-tab"><a href="javascript:;" onclick="return dhtml_view_sites();" title="${rloader.sit_more}"><span>${rloader.sit_more} <em class="skip">${rloader.sit_worksites}</em></span></a></li>
+<li class="more-tab"><a href="javascript:;" onclick="return dhtml_view_sites();" title="${rloader.sit_more}"><span>${rloader.sit_more}</span></a></li>
 #end
 						</ul>
 					</div> <!-- /linkNav -->
