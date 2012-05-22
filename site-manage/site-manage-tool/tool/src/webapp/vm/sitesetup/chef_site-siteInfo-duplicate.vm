@@ -48,6 +48,20 @@
 									</select> 
 								</p>
 						#end	
+					#if ($hasSiteSpecificQuota)
+					<h4>$tlang.getString("sitdup.duptit")</h4>
+					<p class="instruction">$tlang.getString("sitdup.curquot") $quotaSize</p>
+					<p class="checkbox indnt2">
+						## release uploaded info
+						<input type="radio" name="dupequota" id="yes_dupequota" value="true" checked="checked"/>
+						<label for="yes_dupequota">$tlang.getString("sitdup.yesdupequota")</label>
+						<br/>
+						## NOT release uploaded info
+						<input type="radio" name="dupequota" id="no_dupequota" value="false" />
+						<label for="no_dupequota">$tlang.getString("sitdup.nodupequota")</label>					
+					</p>					
+					#end					
+				</p>
 				<input type="hidden" name="back" value="12" />
 				<input type="hidden" name="continue" value="12" />
 			#else

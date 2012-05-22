@@ -20,13 +20,12 @@
  **********************************************************************************/
 package org.sakaiproject.site.tool;
 
-import java.io.IOException;
-import java.io.FileNotFoundException;
-import java.io.InputStream;
-import java.io.FileOutputStream;
 import java.io.File;
-
-import java.lang.reflect.Method;
+import java.io.FileNotFoundException;
+import java.io.FileOutputStream;
+import java.io.IOException;
+import java.io.InputStream;
+import java.text.NumberFormat;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Calendar;
@@ -40,10 +39,10 @@ import java.util.List;
 import java.util.ListIterator;
 import java.util.Locale;
 import java.util.Map;
+import java.util.Map.Entry;
 import java.util.Properties;
 import java.util.Set;
 import java.util.Vector;
-import java.util.Map.Entry;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
@@ -76,6 +75,8 @@ import org.sakaiproject.cheftool.menu.MenuEntry;
 import org.sakaiproject.cheftool.menu.MenuImpl;
 import org.sakaiproject.component.cover.ComponentManager;
 import org.sakaiproject.component.cover.ServerConfigurationService;
+import org.sakaiproject.content.api.ContentCollection;
+import org.sakaiproject.content.api.ContentCollectionEdit;
 import org.sakaiproject.content.api.ContentHostingService;
 import org.sakaiproject.content.api.ContentResource;
 import org.sakaiproject.coursemanagement.api.AcademicSession;
@@ -83,7 +84,6 @@ import org.sakaiproject.coursemanagement.api.CourseOffering;
 import org.sakaiproject.coursemanagement.api.CourseSet;
 import org.sakaiproject.coursemanagement.api.Section;
 import org.sakaiproject.coursemanagement.api.exception.IdNotFoundException;
-import org.sakaiproject.email.cover.EmailService;
 import org.sakaiproject.entity.api.Entity;
 import org.sakaiproject.entity.api.EntityProducer;
 import org.sakaiproject.entity.api.EntityTransferrer;
@@ -110,8 +110,8 @@ import org.sakaiproject.lti.api.LTIService;
 import org.sakaiproject.site.api.Group;
 import org.sakaiproject.site.api.Site;
 import org.sakaiproject.site.api.SitePage;
-import org.sakaiproject.site.api.ToolConfiguration;
 import org.sakaiproject.site.api.SiteService.SortType;
+import org.sakaiproject.site.api.ToolConfiguration;
 import org.sakaiproject.site.cover.SiteService;
 import org.sakaiproject.site.util.Participant;
 import org.sakaiproject.site.util.SiteComparator;
@@ -126,7 +126,6 @@ import org.sakaiproject.sitemanage.api.model.SiteSetupQuestion;
 import org.sakaiproject.sitemanage.api.model.SiteSetupQuestionAnswer;
 import org.sakaiproject.sitemanage.api.model.SiteSetupUserAnswer;
 import org.sakaiproject.sitemanage.api.model.SiteTypeQuestions;
-import org.sakaiproject.sitemanage.api.UserNotificationProvider;
 import org.sakaiproject.thread_local.cover.ThreadLocalManager;
 import org.sakaiproject.time.api.Time;
 import org.sakaiproject.time.api.TimeBreakdown;
@@ -146,7 +145,6 @@ import org.sakaiproject.util.ParameterParser;
 import org.sakaiproject.util.RequestFilter;
 import org.sakaiproject.util.ResourceLoader;
 import org.sakaiproject.util.SortedIterator;
-import org.sakaiproject.util.StringUtil;
 import org.sakaiproject.util.Validator;
 import org.sakaiproject.util.Web;
 
@@ -2724,6 +2722,17 @@ public class SiteAction extends PagedResourceActionII {
 				context.put("duplicatedName", state
 						.getAttribute(SITE_DUPLICATED_NAME));
 			}
+			
+			// SAK-20797 - display checkboxes only if sitespecific value exists
+			long quota = getSiteSpecificQuota(site);
+			if (quota > 0) {
+				context.put("hasSiteSpecificQuota", true);
+				context.put("quotaSize", formatSize(quota*1024));		
+				}
+			else {
+				context.put("hasSiteSpecificQuota", false);
+			}
+			
 			context.put("titleMaxLength", state.getAttribute(STATE_SITE_TITLE_MAX));
 			return (String) getContext(data).get("template") + TEMPLATE[29];
 		case 36:
@@ -7600,28 +7609,57 @@ public class SiteAction extends PagedResourceActionII {
 						String title = params.getString("title");
 						state.setAttribute(SITE_DUPLICATED_NAME, title);
 
-						String nSiteId = IdManager.createUuid();
+						String newSiteId = IdManager.createUuid();
 						try {
-							String oSiteId = (String) state
+							String oldSiteId = (String) state
 									.getAttribute(STATE_SITE_INSTANCE_ID);
+							// SAK-20797
+							long oldSiteQuota = this.getSiteSpecificQuota(oldSiteId);
 							
-							Site site = SiteService.addSite(nSiteId,
+							Site site = SiteService.addSite(newSiteId,
 									getStateSite(state));
 							
 							// get the new site icon url
 							if (site.getIconUrl() != null)
 							{
-								site.setIconUrl(transferSiteResource(oSiteId, nSiteId, site.getIconUrl()));
+								site.setIconUrl(transferSiteResource(oldSiteId, newSiteId, site.getIconUrl()));
 							}
 
 							// set title
 							site.setTitle(title);
 							
+							// SAK-20797 alter quota if required
+							boolean	duplicateQuota = params.getString("dupequota") != null ? params.getBoolean("dupequota") : false;
+							if (duplicateQuota==true) {
+								
+								if (oldSiteQuota > 0) {
+									M_log.info("Saving quota");
+									try {
+										String collId = m_contentHostingService
+												.getSiteCollection(site.getId());
+
+										ContentCollectionEdit col = m_contentHostingService.editCollection(collId);
+
+										ResourcePropertiesEdit resourceProperties = col.getPropertiesEdit();
+										resourceProperties.addProperty(
+												ResourceProperties.PROP_COLLECTION_BODY_QUOTA,
+												new Long(oldSiteQuota)
+														.toString());
+										m_contentHostingService.commitCollection(col);										
+										
+										
+									} catch (Exception ignore) {
+										M_log.warn("saveQuota: unable to duplicate site-specific quota for site : "
+												+ site.getId() + " : " + ignore);
+									}
+								}
+							} 
+							
 							try {
 								SiteService.save(site);
 							
 								// import tool content
-								importToolContent(oSiteId, site, false);
+								importToolContent(oldSiteId, site, false);
 	
 								String siteType = site.getType();
 								if (siteType != null && siteType.equals((String) state.getAttribute(STATE_COURSE_SITE_TYPE))) {
@@ -7668,9 +7706,9 @@ public class SiteAction extends PagedResourceActionII {
 								}
 							
 							} catch (IdUnusedException e) {
-								M_log.warn(this + " actionForTemplate chef_siteinfo-duplicate:: IdUnusedException when saving " + nSiteId);
+								M_log.warn(this + " actionForTemplate chef_siteinfo-duplicate:: IdUnusedException when saving " + newSiteId);
 							} catch (PermissionException e) {
-								M_log.warn(this + " actionForTemplate chef_siteinfo-duplicate:: PermissionException when saving " + nSiteId);
+								M_log.warn(this + " actionForTemplate chef_siteinfo-duplicate:: PermissionException when saving " + newSiteId);
 							}
 
 							// TODO: hard coding this frame id
@@ -7685,13 +7723,13 @@ public class SiteAction extends PagedResourceActionII {
 							state.setAttribute(SITE_DUPLICATED, Boolean.TRUE);
 						} catch (IdInvalidException e) {
 							addAlert(state, rb.getString("java.siteinval"));
-							M_log.warn(this + ".actionForTemplate chef_siteinfo-duplicate: " + rb.getString("java.siteinval") + " site id = " + nSiteId, e);
+							M_log.warn(this + ".actionForTemplate chef_siteinfo-duplicate: " + rb.getString("java.siteinval") + " site id = " + newSiteId, e);
 						} catch (IdUsedException e) {
 							addAlert(state, rb.getString("java.sitebeenused"));
-							M_log.warn(this + ".actionForTemplate chef_siteinfo-duplicate: " + rb.getString("java.sitebeenused") + " site id = " + nSiteId, e);
+							M_log.warn(this + ".actionForTemplate chef_siteinfo-duplicate: " + rb.getString("java.sitebeenused") + " site id = " + newSiteId, e);
 						} catch (PermissionException e) {
 							addAlert(state, rb.getString("java.allowcreate"));
-							M_log.warn(this + ".actionForTemplate chef_siteinfo-duplicate: " + rb.getString("java.allowcreate") + " site id = " + nSiteId, e);
+							M_log.warn(this + ".actionForTemplate chef_siteinfo-duplicate: " + rb.getString("java.allowcreate") + " site id = " + newSiteId, e);
 						}
 					}
 				}
@@ -12852,6 +12890,79 @@ public class SiteAction extends PagedResourceActionII {
 
 		return prefLocales;
 	}
+
+	// SAK-20797
+	/**
+	 * return quota on site specified by siteId
+	 * @param siteId
+	 * @return value of site-specific quota or 0 if not found
+	 */
+	private long getSiteSpecificQuota(String siteId) {
+		long quota = 0;
+		try {
+			Site site = SiteService.getSite(siteId);
+			if (site != null) {
+				quota = getSiteSpecificQuota(site);
+			}
+		} catch (IdUnusedException e) {
+			M_log.warn("Quota calculation could not find the site " + siteId
+					+ "for site specific quota calculation",
+					M_log.isDebugEnabled() ? e : null);
+		}
+		return quota;
+	}
+
 	
+	// SAK-20797
+	/**
+	 * return quota set on this specific site
+	 * @param collection
+	 * @return value of site-specific quota or 0 if not found
+	 */
+	private long getSiteSpecificQuota(Site site) {
+		long quota = 0;
+		try
+		{
+			String collId = m_contentHostingService
+					.getSiteCollection(site.getId());
+			ContentCollection site_collection = m_contentHostingService.getCollection(collId);
+			long siteSpecific = site_collection.getProperties().getLongProperty(
+					ResourceProperties.PROP_COLLECTION_BODY_QUOTA);
+			quota = siteSpecific;
+		}
+		catch (Exception ignore)
+		{
+			M_log.warn("getQuota: reading quota property for site : " + site.getId() + " : " + ignore);
+			quota = 0;
+		}
+		return quota;
+	}
+
+	// SAK-20797
+	/**
+	 * return file size in bytes as formatted string
+	 * @param quota
+	 * @return formatted string (i.e. 2048 as 2 KB)
+	 */
+	private String formatSize(long quota) {
+		String size = "";
+		NumberFormat formatter = NumberFormat.getInstance(rb.getLocale());
+		formatter.setMaximumFractionDigits(1);
+		if (quota > 700000000L) {
+			String[] args = { formatter.format(1.0 * quota
+					/ (1024L * 1024L * 1024L)) };
+			size = rb.getFormattedMessage("size.gb", args);
+		} else if (quota > 700000L) {
+			String[] args = { formatter.format(1.0 * quota / (1024L * 1024L)) };
+			size = rb.getFormattedMessage("size.mb", args);
+		} else if (quota > 700L) {
+			String[] args = { formatter.format(1.0 * quota / 1024L) };
+			size = rb.getFormattedMessage("size.kb", args);
+		} else {
+			String[] args = { formatter.format(quota) };
+			size = rb.getFormattedMessage("size.bytes", args);
+		}
+		return size;
+	}	
 }
 
