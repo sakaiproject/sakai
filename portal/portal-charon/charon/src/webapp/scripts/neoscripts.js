@@ -35,12 +35,13 @@ var dhtml_view_sites = function(){
             jQuery('#selectSite a').keydown(function (e) {
                 if(e.keyCode == 38 || e.keyCode == 27) {
                     e.preventDefault();
-                    jQuery('div#selectSite div').hide();
-                    jQuery('div#selectSite').slideUp('fast'); // hide the box
-                    removeDHTMLMask()
-                    jQuery('#otherSiteTools').remove();
-                    jQuery('.selectedTab').unbind('click');
-                    jQuery('.more-tab a').focus();
+                    closeDrawer();
+                }
+            });
+
+            jQuery('#otherSitesMenu a').last().keydown(function (e) {
+                if(e.keyCode == 9 || !e.shiftKey) {
+                    closeDrawer();
                 }
             });
         }
@@ -55,6 +56,15 @@ var dhtml_view_sites = function(){
     }
     // finally run the inner function, first time through
     dhtml_view_sites();
+}
+
+function closeDrawer() {
+    jQuery('div#selectSite div').hide();
+    jQuery('div#selectSite').slideUp('fast'); // hide the box
+    removeDHTMLMask()
+    jQuery('#otherSiteTools').remove();
+    jQuery('.selectedTab').unbind('click');
+    jQuery('.more-tab a').focus();
 }
 
 function createDHTMLMask(callback){
