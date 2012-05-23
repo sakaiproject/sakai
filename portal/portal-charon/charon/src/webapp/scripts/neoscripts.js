@@ -15,7 +15,7 @@ var dhtml_more_tabs = function(){
     jQuery('.more-tab').css('z-index', 9800); //  " for the More Tabs div element
     // then recast the function to the post initialized state which will run from then on
     dhtml_more_tabs = function(){
-            jQuery('div#selectNav').show();
+        jQuery('div#selectNav').show();
         if (jQuery('#selectNav').css('display') == 'none') {
             // highlight the more tab
             jQuery('.more-tab').addClass('more-active');
@@ -74,13 +74,15 @@ var dhtml_view_sites = function(){
                 return false;
             });
 
+            jQuery('#selectSite a:first').focus();
+
             // If we hit escape or the up arrow on any of the links in the drawer, slide it
             // up and focus on the more tab.
             jQuery('#selectSite a').keydown(function (e) {
                 if(e.keyCode == 38 || e.keyCode == 27) {
                     e.preventDefault();
                     jQuery('div#selectSite div').hide();
-                    jQuery('div#selectSite').slideUp('fast').hide(); // hide the box
+                    jQuery('div#selectSite').slideUp('fast'); // hide the box
                     removeDHTMLMask()
                     jQuery('#otherSiteTools').remove();
                     jQuery('.selectedTab').unbind('click');
@@ -91,7 +93,7 @@ var dhtml_view_sites = function(){
         else {
             // hide the dropdown
             jQuery('div#selectSite div').hide();
-            jQuery('div#selectSite').slideUp('fast').hide(); // hide the box
+            jQuery('div#selectSite').slideUp('fast'); // hide the box
             removeDHTMLMask()
             jQuery('#otherSiteTools').remove();
             jQuery('.selectedTab').unbind('click');
@@ -340,6 +342,7 @@ function f_filterResults(n_win, n_docel, n_body){
     return n_body && (!n_result || (n_result > n_body)) ? n_body : n_result;
 }
 
+/** Shows a drawer site tool dropdown **/
 function showToolMenu(e) {
     e.preventDefault();
     var jqObj = $(e.target);
@@ -368,17 +371,17 @@ function showToolMenu(e) {
             'top': pos.top,
             'left': pos.left + 30
         });
-        $('#otherSiteTools li:first').attr('tabindex', '-1')
-        $('#otherSiteTools li:first').focus();
+        $('#otherSiteTools li a:first').focus();
 
         // On up arrow or escape, hide the popup
         $('#otherSiteTools').keydown(function(e) {
-            if (e.keyCode == 38 || e.keyCode == 27) {
+            if (e.keyCode == 27) {
                 e.preventDefault();
                 jqObj.focus();
                 $(this).hide();
             }
         });
+        addArrowNavAndDisableTabNav($('#otherSiteTools'),jqObj);
     }); // end json call
 }
 
@@ -480,20 +483,23 @@ var setupSiteNav = function(){
     $("ul.subnav").each(function(){
         // Add a up arrow and escape key handler to slide the page menu up
         $(this).keydown(function (e) {
-            if (e.keyCode == 38 || e.keyCode == 27) {
+            if (/*e.keyCode == 38 ||*/ e.keyCode == 27) {
                 $(this).parent().children('a').focus();
                 $(this).slideUp('fast');
             }
         });
         $(this).children('li:last').addClass('lastMenuItem')
     });
+
+    addArrowNavAndDisableTabNav($("ul.subnav"));
+
     $('.lastMenuItem a').blur(function(e){
-        jQuery(this).parents('ul.subnav').slideUp('fast').hide();
+        jQuery(this).parents('ul.subnav').slideUp('fast');
     });
     $('.topnav a').keydown(function(e){
         if (e.keyCode == 40) {
             jQuery('#selectSite').hide();
-            jQuery(this).parent().find("ul.subnav").slideDown('fast').show();
+            jQuery(this).parent().find("ul.subnav").slideDown('fast');
             jQuery(this).parent().find("ul.subnav a:first").focus();
         }
     });
@@ -503,13 +509,15 @@ var setupSiteNav = function(){
         jQuery('#selectSite').hide();
         jQuery('#otherSiteTools').remove();
         
-        jQuery(this).parent().find("ul.subnav").slideDown('fast').show();
-        
-        jQuery(this).parent().hover(function(){
-        }, function(){
-            jQuery(this).parent().find("ul.subnav").slideUp('slow');
-        });
-        
+        if(jQuery(this).parent().find("ul.subnav").css('display') == 'none') {
+            jQuery(this).parent().find("ul.subnav").slideDown('fast');
+            jQuery(this).parent().hover(function(){
+            }, function(){
+                jQuery(this).parent().find("ul.subnav").slideUp('fast');
+            });
+        } else {
+            jQuery(this).parent().find("ul.subnav").slideUp('fast');
+        }
     }).hover(function(){
         jQuery(this).addClass("subhover"); //On hover over, add class "subhover"
     }, function(){ //On Hover Out
@@ -522,7 +530,7 @@ var setupSiteNav = function(){
         jQuery('#selectSite').hide();
         jQuery('#otherSiteTools').remove();
         
-        jQuery(this).parent().find("ul.subnav").slideDown('fast').show();
+        jQuery(this).parent().find("ul.subnav").slideDown('fast');
         
         jQuery(this).parent().hover(function(){
         }, function(){
@@ -596,4 +604,39 @@ function toggleShortUrlOutput(defaultUrl, checkbox, textbox) {
 	} else {
 		$('.'+textbox).val(defaultUrl);
 	}
+}
+
+function addArrowNavAndDisableTabNav(ul,focusReturn) {
+    ul.find('li a').attr('tabindex','-1').keydown(function (e) {
+        var obj = $(e.target);
+        if(e.keyCode == 40) {
+            e.preventDefault();
+            var next = obj.parent().parent().next();
+            if(next[0] === undefined) {
+                if(focusReturn !== undefined) {
+                    focusReturn.focus();
+                } else {
+                    obj.parent().parent().parent().parent().children('a').focus();
+                }
+                ul.slideUp('fast');
+            } else {
+                next.find('a').focus();
+            }
+        } else if(e.keyCode == 9) { // Suck up the menu if tab is pressed 
+            ul.slideUp('fast');
+        } else if(e.keyCode == 38) {
+            e.preventDefault();
+            var prev = obj.parent().parent().prev();
+            if(prev[0] === undefined) {
+                if(focusReturn !== undefined) {
+                    focusReturn.focus();
+                } else {
+                    obj.parent().parent().parent().parent().children('a').focus();
+                }
+                ul.slideUp('fast');
+            } else {
+                prev.find('a').focus();
+            }
+        }
+    });
 }
