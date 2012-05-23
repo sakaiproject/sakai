@@ -829,7 +829,7 @@ public class LTIAdminTool extends VelocityPortletPaneledAction
 		if ( ltiService.deleteContent(key) )
 		{
 			state.setAttribute(STATE_SUCCESS,rb.getString("success.deleted"));
-			switchPanel(state, "Content");
+			switchPanel(state, "Refresh");
 		} else {
 			addAlert(state,rb.getString("error.delete.fail"));
 			switchPanel(state, "Content");
@@ -917,70 +917,24 @@ public class LTIAdminTool extends VelocityPortletPaneledAction
 	{
 		String peid = ((JetspeedRunData) data).getJs_peid();
 		SessionState state = ((JetspeedRunData) data).getPortletSessionState(peid);
-
-		if ( ! ltiService.isMaintain() ) {
-			addAlert(state,rb.getString("error.maintain.link"));
-			switchPanel(state, "Error");
-			return;
-		}
-		Properties reqProps = data.getParameters().getProperties();
+		
 		String id = data.getParameters().getString(LTIService.LTI_ID);
-		if ( id == null ) {
-			addAlert(state,rb.getString("error.id.not.found"));
+		Long key = id == null ? null:new Long(id);
+		
+		String rv = ltiService.deleteContentLink(key);
+		if (rv != null)
+		{
+			// there is error removing the external tool site link
+			addAlert(state, rv);
 			switchPanel(state, "Error");
 			return;
 		}
-		Long key = new Long(id);
-		Map<String,Object> content = ltiService.getContent(key);
-		if (  content == null ) {
-			addAlert(state,rb.getString("error.content.not.found"));
-			switchPanel(state, "Error");
-			return;
+		else
+		{
+			// external tool site link removed successfully
+			state.setAttribute(STATE_SUCCESS,rb.getString("success.link.remove"));
+			switchPanel(state, "Refresh");
 		}
-
-		String pstr = (String) content.get(LTIService.LTI_PLACEMENT);
-		if ( pstr == null || pstr.length() < 1 ) {
-			addAlert(state,rb.getString("error.placement.not.found"));
-			switchPanel(state, "Error");
-			return;
-		}
-
-		ToolConfiguration tool = SiteService.findTool(pstr);
-		if ( tool == null ) {
-			addAlert(state,rb.getString("error.placement.not.found"));
-			switchPanel(state, "Error");
-			return;
-		}
-
-		Site site = getCurrentSite();
-		SitePage sitePage = site.getPage(tool.getPageId());
-		if (sitePage == null) {
-			addAlert(state,rb.getString("error.placement.not.found"));
-			switchPanel(state, "Error");
-			return;
-		}
-
-		site.removePage(sitePage);
-
-		try {
-			SiteService.save(site);
-		} catch (Exception e) {
-			addAlert(state,rb.getString("error.placement.not.removed"));
-			switchPanel(state, "Error");
-			return;
-		}
-
-		// Record the new placement in the content item
-		Properties newProps = new Properties();
-		newProps.setProperty(LTIService.LTI_PLACEMENT, "");
-		Object retval = ltiService.updateContent(key, newProps);
-		if ( retval instanceof String ) {
-			// Lets make this non-fatal
-			addAlert(state,rb.getString("error.link.placement.update")+" "+(String) retval);
-		}
-
-		state.setAttribute(STATE_SUCCESS,rb.getString("success.link.remove"));
-		switchPanel(state, "Refresh");
 	}
 
 	public String buildRefreshPanelContext(VelocityPortlet portlet, Context context, 

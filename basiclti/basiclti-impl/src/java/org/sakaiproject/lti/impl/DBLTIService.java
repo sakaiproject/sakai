@@ -339,6 +339,8 @@ public class DBLTIService extends BaseLTIService implements LTIService {
 	 * @see org.sakaiproject.lti.api.LTIService#deleteContent(java.lang.Long)
 	 */
 	public boolean deleteContent(Long key) {
+		// remove the content link first
+		deleteContentLink(key);
 		return deleteThing("lti_content", LTIService.CONTENT_MODEL, key);
 	}
 

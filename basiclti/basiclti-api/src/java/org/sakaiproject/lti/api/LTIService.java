@@ -242,6 +242,13 @@ public interface LTIService {
 	 * @return
 	 */
 	public boolean deleteContent(Long key);
+	
+	/**
+	 * remove the tool content site link
+	 * @param key
+	 * @return
+	 */
+	public String deleteContentLink(Long key);
 
 	/**
 	 * 

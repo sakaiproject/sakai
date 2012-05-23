@@ -597,5 +597,65 @@ public abstract class BaseLTIService implements LTIService {
 				
 		return retval;
 	}
+	
+	public String deleteContentLink(Long key)
+	{
+		if ( ! isMaintain() ) {
+			return rb.getString("error.maintain.link");
+		}
+		if ( key == null ) {
+			return rb.getString("error.id.not.found");
+		}
+		
+		Map<String,Object> content = getContent(key);
+		if (  content == null ) {
+			return rb.getString("error.content.not.found");
+		}
+
+		String pstr = (String) content.get(LTIService.LTI_PLACEMENT);
+		if ( pstr == null || pstr.length() < 1 ) {
+			return rb.getString("error.placement.not.found");
+		}
+
+		ToolConfiguration tool = siteService.findTool(pstr);
+		if ( tool == null ) {
+			return rb.getString("error.placement.not.found");
+		}
+
+		String siteId = (String) content.get(LTI_SITE_ID);
+		try
+		{
+			Site site = siteService.getSite(siteId);
+			SitePage sitePage = site.getPage(tool.getPageId());
+			if (sitePage == null) {
+				return rb.getString("error.placement.not.found");
+			}
+	
+			site.removePage(sitePage);
+	
+			try {
+				siteService.save(site);
+			} catch (Exception e) {
+				return rb.getString("error.placement.not.removed");
+			}
+	
+			// Record the new placement in the content item
+			Properties newProps = new Properties();
+			newProps.setProperty(LTIService.LTI_PLACEMENT, "");
+			Object retval = updateContent(key, newProps);
+			if ( retval instanceof String ) {
+				// Lets make this non-fatal
+				return rb.getFormattedMessage("error.link.placement.update", new Object[]{retval});
+			}
+			
+			// success
+			return null;
+		}
+		catch (IdUnusedException ee)
+		{
+			M_log.warn(this + " cannot add page and basic lti tool to site " + siteId);
+			return new String(rb.getFormattedMessage("error.link.placement.update", new Object[]{key.toString()}));
+		}
+	}
 
 }
