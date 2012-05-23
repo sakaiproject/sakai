@@ -34,6 +34,9 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import java.text.ParseException;
+import java.text.RuleBasedCollator;
+import java.text.Collator;
 
 import javax.faces.context.FacesContext;
 import javax.faces.context.ExternalContext;
@@ -840,7 +843,12 @@ public class ItemAuthorBean
 		public int compare(Object o1, Object o2) {
 			SelectItem i1 = (SelectItem) o1;
 			SelectItem i2 = (SelectItem) o2;
-			return i1.getLabel().compareToIgnoreCase(i2.getLabel());
+			RuleBasedCollator collator_ini = (RuleBasedCollator)Collator.getInstance();
+			try {
+				RuleBasedCollator collator= new RuleBasedCollator(collator_ini.getRules().replaceAll("<'\u005f'", "<' '<'\u005f'"));
+				return collator.compare(i1.getLabel(), i2.getLabel());
+			} catch (ParseException e) {}
+			return Collator.getInstance().compare(i1.getLabel(), i2.getLabel());
 		}
 	}
   

@@ -28,6 +28,9 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.Comparator;
+import java.text.Collator;
+import java.text.ParseException;
+import java.text.RuleBasedCollator;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.Iterator;
@@ -229,7 +232,12 @@ public class QuestionPoolBean implements Serializable
 		  if (i2 == null && i1 == null) {
 			  return 0;
 		  }		  
-		  return i1.getTitle().compareToIgnoreCase(i2.getTitle());
+		  RuleBasedCollator collator_ini = (RuleBasedCollator)Collator.getInstance();
+		  try {
+			RuleBasedCollator collator= new RuleBasedCollator(collator_ini.getRules().replaceAll("<'\u005f'", "<' '<'\u005f'"));
+			return collator.compare(i1.getTitle(), i2.getTitle());
+		  } catch (ParseException e) {}
+		  return Collator.getInstance().compare(i1.getTitle(), i2.getTitle());
 	  }
   }
 

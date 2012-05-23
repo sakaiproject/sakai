@@ -27,6 +27,9 @@ import java.io.Serializable;
 import java.util.Comparator;
 import java.util.Map;
 import java.util.HashMap;
+import java.text.Collator;
+import java.text.ParseException;
+import java.text.RuleBasedCollator;
 
 import org.apache.commons.beanutils.BeanUtils;
 
@@ -117,8 +120,12 @@ public class BeanSortComparator
 
 	  String finalS1 = s1.replaceAll("<.*?>", "");
 	  String finalS2 = s2.replaceAll("<.*?>", "");
-	  int result = finalS1.toLowerCase().compareTo(finalS2.toLowerCase());
-	  return result;
+	  RuleBasedCollator collator_ini = (RuleBasedCollator)Collator.getInstance();
+	  try {
+		RuleBasedCollator collator= new RuleBasedCollator(collator_ini.getRules().replaceAll("<'\u005f'", "<' '<'\u005f'"));
+		return collator.compare(finalS1.toLowerCase(), finalS2.toLowerCase());
+	  } catch (ParseException e) {}
+	  return Collator.getInstance().compare(finalS1.toLowerCase(), finalS2.toLowerCase());	  
   }
   
   /**
