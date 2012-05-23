@@ -25,11 +25,13 @@ import java.io.Writer;
 import java.io.PrintWriter;
 import java.io.StringWriter;
 
+import java.util.HashSet;
 import java.util.Properties;
 import java.util.List;
 import java.util.Map;
 import java.util.HashMap;
 import java.util.Arrays;
+import java.util.Set;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
@@ -156,6 +158,40 @@ public class LTIAdminTool extends VelocityPortletPaneledAction
 		context.put("doEndHelper", BUTTON + "doEndHelper");
 		state.removeAttribute(STATE_POST);
 		state.removeAttribute(STATE_SUCCESS);
+		
+		if (tools != null && !tools.isEmpty())
+		{
+			HashMap<String, Map<String, Object>> ltiTools = new HashMap<String, Map<String, Object>>();
+			// get invoke count for all lti tools
+			HashMap<String, Set<String>> ltiToolsCount = new HashMap<String, Set<String>> ();
+			List<Map<String,Object>> contents = ltiService.getContents(null,null,0,500);
+			for ( Map<String,Object> content : contents ) {
+				String ltiToolId = ((Integer) content.get(ltiService.LTI_TOOL_ID)).toString();
+				String siteId = StringUtils.trimToNull((String) content.get("SITE_ID"));
+				if (siteId != null)
+				{
+					if (ltiToolsCount.containsKey(ltiToolId))
+					{
+						Set<String> siteIds = ltiToolsCount.get(ltiToolId);
+						siteIds.add(siteId);
+						ltiToolsCount.put(ltiToolId, siteIds);
+					}
+					else
+					{
+						// new entry
+						Set<String> siteIds = new HashSet<String>();
+						siteIds.add(siteId);
+						ltiToolsCount.put(ltiToolId, siteIds);
+					}
+				}
+			}
+			for (Map<String, Object> toolMap : tools ) {
+				String ltiToolId = ((Integer) toolMap.get("id")).toString();
+				toolMap.put("toolCount", ltiToolsCount.containsKey(ltiToolId)?ltiToolsCount.get(ltiToolId).size():0);
+				ltiTools.put(ltiToolId, toolMap);
+			}
+			context.put("ltiTools", ltiTools);
+		}
 		return "lti_main";
 	}
 
