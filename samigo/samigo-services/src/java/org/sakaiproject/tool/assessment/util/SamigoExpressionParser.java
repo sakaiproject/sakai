@@ -715,7 +715,8 @@ public class SamigoExpressionParser
     if (fnUpper.equals("EXP"))   {return Math.exp(value);}
     if (fnUpper.equals("SIGN"))  {return SamigoExpressionFunctions.sign(value);}
     if (fnUpper.equals("SQRT"))  {return Math.sqrt(value);}
-    if (fnUpper.equals("LOG"))   {return Math.log(value);}
+    if (fnUpper.equals("LOG") 
+        || fnUpper.equals("LN")) {return Math.log(value);}
     if (fnUpper.equals("LOG10")) {return Math.log10(value);}
 
     // trigonometric
