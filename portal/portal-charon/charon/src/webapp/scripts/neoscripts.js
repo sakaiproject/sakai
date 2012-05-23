@@ -39,8 +39,15 @@ var dhtml_view_sites = function(){
                 }
             });
 
+            // Show the tool popup on the down arrow, or slide up the drawer on escape.
+            $('.moreSitesLink').keydown(function (e){
+                if (e.keyCode == 40) {
+                    showToolMenu(e);
+                }
+            });
+
             jQuery('#otherSitesMenu a').last().keydown(function (e) {
-                if(e.keyCode == 9 || !e.shiftKey) {
+                if(e.keyCode == 9 && !e.shiftKey) {
                     closeDrawer();
                 }
             });
@@ -365,14 +372,6 @@ jQuery(document).ready(function(){
     // open tool menus in "other sites" panel
     $('.toolMenus').click(function(e){
         showToolMenu(e);
-    });
-
-
-    // Show the tool popup on the down arrow, or slide up the drawer on escape.
-    $('.moreSitesLink').keydown(function (e){
-        if (e.keyCode == 40) {
-            showToolMenu(e);
-        }
     });
     
     // prepend site title to tool title
