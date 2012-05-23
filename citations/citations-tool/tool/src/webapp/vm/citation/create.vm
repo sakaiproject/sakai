@@ -272,6 +272,17 @@
 			}
 			html += "</textarea>\n";
 		}
+		else if("date" == templates[type][t].valueType)
+		{
+			html += '<input name="' + templates[type][t].identifier + index + '" id="' 
+					+ templates[type][t].identifier + index + '" type="text" size="20" ';
+			if(currentValues[templates[type][t].identifier])
+			{
+				var str = jsEscapeHtml( currentValues[templates[type][t].identifier + index] );
+				html += 'value="' + str + '" ';
+			}
+			html += '/>\n</p>\n';
+		}		
 
 		return html;
 	}
