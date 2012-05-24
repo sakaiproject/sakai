@@ -2302,8 +2302,8 @@ public class ShowPageProducer implements ViewComponentProducer, DefaultView, Nav
 			try {
 				Method expandMethod = contentHostingInterface.getMethod("expandZippedResource", new Class[] { String.class });
 				
-				UIOutput.make(toolBar, "addwebsite-descrip");
-				createFilePickerToolBarLink(ResourcePickerProducer.VIEW_ID, toolBar, "add-website", "simplepage.website", false, true, currentPage, "simplepage.website.tooltip");
+				UIOutput.make(tofill, "addwebsite-descrip");
+				createFilePickerToolBarLink(ResourcePickerProducer.VIEW_ID, tofill, "add-website", "simplepage.website", false, true, currentPage, "simplepage.website.tooltip");
 			} catch (NoSuchMethodException nsme) {
 				// A: No
 			} catch (Exception e) {

@@ -916,7 +916,7 @@ $(function() {
 			$(".mm-additional").hide();
 			$(".mm-additional-website").show();
 			$(".mm-url-section").hide();
-			oldloc = ($this);
+			oldloc = $(".dropdown a");
 			$("#add-multimedia-dialog").dialog('open');
 			checksize($("#add-multimedia-dialog"));
 			//$('.edit-multimedia-input').blur();
