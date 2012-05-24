@@ -17,6 +17,7 @@
 package org.sakaiproject.profile2.logic;
 
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
@@ -102,7 +103,11 @@ public class ProfileLogicImpl implements ProfileLogic {
 		
 		//REMOVE the birth year if not allowed
 		if(!privacyLogic.isBirthYearVisible(userUuid)){
-			p.setDateOfBirth(ProfileUtils.stripYear(p.getDateOfBirth()));
+			if(p.getDateOfBirth() != null) {
+				p.setDateOfBirth(ProfileUtils.stripYear(p.getDateOfBirth()));
+			} else {
+				p.setDateOfBirth(null);
+			}
 		}
 		
 		//REMOVE basic info if not allowed
