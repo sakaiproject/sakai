@@ -136,7 +136,7 @@
 					</tr>	
 				#end
 			</table>
-			#if (!$!ltiTools.isEmpty())
+			#if ($!ltiTools && !$!ltiTools.isEmpty())
 				<p class="step">
 					$tlang.getString("feat.choose")
 				</p>
