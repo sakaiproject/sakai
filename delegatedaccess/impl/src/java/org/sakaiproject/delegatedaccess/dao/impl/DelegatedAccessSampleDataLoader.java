@@ -3,6 +3,7 @@ package org.sakaiproject.delegatedaccess.dao.impl;
 import java.util.Arrays;
 import java.util.List;
 
+import org.apache.log4j.Logger;
 import org.quartz.JobExecutionException;
 import org.sakaiproject.authz.api.SecurityAdvisor;
 import org.sakaiproject.authz.api.SecurityService;
@@ -20,6 +21,7 @@ public class DelegatedAccessSampleDataLoader {
 	private SiteService siteService;
 	private DelegatedAccessSiteHierarchyJob delegatedAccessSiteHierarchyJob;
 	private SecurityService securityService;
+	private static final Logger log = Logger.getLogger(DelegatedAccessSampleDataLoader.class);
 
 	private List<String> schools = Arrays.asList("MUSIC", "MEDICINE", "EDUCATION");
 	private List<String> depts = Arrays.asList("DEPT1", "DEPT2", "DEPT3");
@@ -72,15 +74,17 @@ public class DelegatedAccessSampleDataLoader {
 								siteService.save(siteEdit);
 
 							} catch (IdInvalidException e) {
-								e.printStackTrace();
+								log.warn(e);
 							} catch (IdUsedException e) {
-								e.printStackTrace();
+								log.warn(e);
 								//this means that we have already ran this, lets quit
 								return;
 							} catch (PermissionException e) {
-								e.printStackTrace();
-							} catch (IdUnusedException e) {
-								e.printStackTrace();
+								log.warn(e);
+							} catch (Exception e){
+								//who knows what happened... let's quit!
+								log.warn(e);
+								return;
 							}
 						}
 					}
@@ -91,11 +95,11 @@ public class DelegatedAccessSampleDataLoader {
 			try {
 				delegatedAccessSiteHierarchyJob.execute(null);
 			} catch (JobExecutionException e) {
-				e.printStackTrace();
+				log.warn(e);
 			}
 		
 		}catch(Exception e){
-			e.printStackTrace();
+			log.warn(e);
 		}finally{
 			securityService.popAdvisor(yesMan);
 		}
