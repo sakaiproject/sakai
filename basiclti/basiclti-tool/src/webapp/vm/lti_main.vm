@@ -16,10 +16,11 @@
 		<div id="tabs-site">
 			#if ($messageSuccess)<div class="messageSuccess">$tlang.getString("gen.success") $validator.escapeHtml($messageSuccess)</div><div class="clear"></div>#end
 			#if ($alertMessage)<div class="alertMessage">$tlang.getString("gen.alert") $validator.escapeHtml($alertMessage)</div><div class="clear"></div>#end
-	
+			<div align="right"><a href="" title="$tlang.getString("add.to.site")" onclick="location = '$sakai_ActionURL.setPanel("ContentPut")';return false;"> $tlang.getString("add.to.site")</a></div>
+			<br/>
 			$tlang.getString("tool.description.sites")
 			<br/>
-			#if ($tools && $tools.size() > 0)
+			#if ($!siteLtiTools.size() > 0)
 				<table class="listHier lines" cellspacing="0" summary ="$tlang.getString("tool.table")">
 			        <tr>
 		                <th id="attention">&nbsp;</th>
@@ -28,7 +29,7 @@
 		                #if ($isAdmin) <th id="site">$tlang.getString("bl_site")</th> #end
 		                <th id="action">$tlang.getString("bl_action")</th>
 			        </tr>
-		            #foreach ($tool in $tools)
+		            #foreach ($tool in $siteLtiTools)
 		                <tr>
 							<td headers="attention">
 			                #if ( $tool.get("secret") == "-----" )
@@ -56,10 +57,11 @@
 		<div id="tabs-system">
 			#if ($messageSuccess)<div class="messageSuccess">$tlang.getString("gen.success") $validator.escapeHtml($messageSuccess)</div><div class="clear"></div>#end
 			#if ($alertMessage)<div class="alertMessage">$tlang.getString("gen.alert") $validator.escapeHtml($alertMessage)</div><div class="clear"></div>#end
-	
+			<div align="right"><a href="" title="$tlang.getString("add.to.system")" onclick="location = '$sakai_ActionURL.setPanel("ToolInsert")';return false;">> $tlang.getString("add.to.system")</a></div>
+			<br/>
 			$tlang.getString("tool.description.system")
 			<br/>
-			#if (!$!ltiTools.isEmpty())
+			#if (!$!systemLtiTools.isEmpty())
 				<table class="listHier lines" cellspacing="0" summary ="$tlang.getString("tool.table")">
 			        <tr>
 		                <th id="attention">&nbsp;</th>
@@ -68,7 +70,7 @@
 		                #if ($isAdmin) <th id="use">$tlang.getString("bl_use")</th> #end
 		                <th id="action">$tlang.getString("bl_action")</th>
 			        </tr>
-		            #foreach($tool in $ltiTools.entrySet())
+		            #foreach($tool in $systemLtiToolsMap.entrySet())
 		            	
 						#set($toolId=$tool.getKey())
 						#set($toolValues=$tool.getValue())

@@ -30,6 +30,7 @@ import java.util.Properties;
 import java.util.List;
 import java.util.Map;
 import java.util.HashMap;
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Set;
 
@@ -151,24 +152,36 @@ public class LTIAdminTool extends VelocityPortletPaneledAction
 		String returnUrl = data.getParameters().getString("returnUrl");
 		// if ( returnUrl != null ) state.setAttribute(STATE_REDIRECT_URL, returnUrl);
 		context.put("isAdmin",new Boolean(ltiService.isAdmin()) );
-		List<Map<String,Object>> tools = ltiService.getTools(null,null,0,0);
 		context.put("inHelper",new Boolean(inHelper));
-		context.put("tools", tools);
 		context.put("getContext",toolManager.getCurrentPlacement().getContext());
 		context.put("doEndHelper", BUTTON + "doEndHelper");
 		state.removeAttribute(STATE_POST);
 		state.removeAttribute(STATE_SUCCESS);
-		
+
+		List<Map<String,Object>> tools = ltiService.getTools(null,null,0,0);
 		if (tools != null && !tools.isEmpty())
 		{
-			HashMap<String, Map<String, Object>> ltiTools = new HashMap<String, Map<String, Object>>();
+			List<Map<String,Object>> siteLtiTools = new ArrayList<Map<String, Object>>();
+			List<Map<String,Object>> systemLtiTools = new ArrayList<Map<String, Object>>();
+			HashMap<String, Map<String, Object>> systemLtiToolsMap = new HashMap<String, Map<String, Object>>();
+			for(Map<String, Object> tool:tools)
+			{
+				if (!tool.containsKey(ltiService.LTI_SITE_ID))
+				{
+					systemLtiTools.add(tool);
+				}
+				else
+				{
+					siteLtiTools.add(tool);
+				}
+			}
 			// get invoke count for all lti tools
 			HashMap<String, Set<String>> ltiToolsCount = new HashMap<String, Set<String>> ();
 			List<Map<String,Object>> contents = ltiService.getContents(null,null,0,500);
 			for ( Map<String,Object> content : contents ) {
 				String ltiToolId = ((Integer) content.get(ltiService.LTI_TOOL_ID)).toString();
-				String siteId = StringUtils.trimToNull((String) content.get("SITE_ID"));
-				if (siteId != null)
+				String siteId = StringUtils.trimToNull((String) content.get(ltiService.LTI_SITE_ID));
+				if (siteId == null)
 				{
 					if (ltiToolsCount.containsKey(ltiToolId))
 					{
@@ -185,12 +198,13 @@ public class LTIAdminTool extends VelocityPortletPaneledAction
 					}
 				}
 			}
-			for (Map<String, Object> toolMap : tools ) {
+			for (Map<String, Object> toolMap : systemLtiTools ) {
 				String ltiToolId = ((Integer) toolMap.get("id")).toString();
 				toolMap.put("toolCount", ltiToolsCount.containsKey(ltiToolId)?ltiToolsCount.get(ltiToolId).size():0);
-				ltiTools.put(ltiToolId, toolMap);
+				systemLtiToolsMap.put(ltiToolId, toolMap);
 			}
-			context.put("ltiTools", ltiTools);
+			context.put("systemLtiToolsMap", systemLtiToolsMap);
+			context.put("siteLtiTools", siteLtiTools);
 		}
 		return "lti_main";
 	}
