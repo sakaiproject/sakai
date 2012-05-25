@@ -169,6 +169,8 @@ public class ShowPageProducer implements ViewComponentProducer, DefaultView, Nav
 	public static final String VIEW_ID = "ShowPage";
 	private static final String DEFAULT_TYPES = "mp4,mov,m2v,3gp,wmv,mp3,swf,wav";
 	private static String[] multimediaTypes = null;
+        private static final String DEFAULT_MP4_TYPES = "video/mp4,video/x-m4v";
+        private static String[] mp4Types = null;
 
     // WARNING: this must occur after memoryService, for obvious reasons. 
     // I'm doing it this way because it doesn't appear that Spring can do this kind of initialization
@@ -408,6 +410,15 @@ public class ShowPageProducer implements ViewComponentProducer, DefaultView, Nav
 				multimediaTypes[i] = multimediaTypes[i].trim().toLowerCase();
 			}
 			Arrays.sort(multimediaTypes);
+		}
+
+		if (mp4Types == null) {
+			String m4Types = ServerConfigurationService.getString("lessonbuilder.mp4.types", DEFAULT_MP4_TYPES);
+			mp4Types = m4Types.split(",");
+			for (int i = 0; i < mp4Types.length; i++) {
+				mp4Types[i] = mp4Types[i].trim().toLowerCase();
+			}
+			Arrays.sort(mp4Types);
 		}
 
 		// remember that page tool was reset, so we need to give user the option
@@ -1367,7 +1378,7 @@ public class ShowPageProducer implements ViewComponentProducer, DefaultView, Nav
 						// in theory m4v can be DMRed. But Apple's DRM is
 						// useless on a web page, so it's got to be an
 						// unprotected file.
-						boolean isMp4 = mimeType.equals("video/mp4") || mimeType.equals("video/x-m4v");
+						boolean isMp4 = Arrays.binarySearch(mp4Types, mimeType) >= 0;
 						// FLV is special. There's no player for flash video in
 						// the browser
 						// it shows with a special flash program, which I

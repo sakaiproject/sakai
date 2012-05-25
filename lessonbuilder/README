@@ -372,6 +372,14 @@ I have also tried the OSFlv player. It's distributed under the GPL.
 Aside from controversies involving the GPL, it doesn't do progressive
 download, and the progress bar doesn't work for all users.
 
+By default, Lesson Builder will use this player for MIME types
+video/mp4 and video/x-m4v. However the players can handle additional
+types. If you want to customize the list, you can set
+lessonbuilder.mp4.types in sakai.properties to a comma-separated list
+of MIME types, e.g.
+
+lessonbuilder.mp4.types=video/mp4,video/x-m4v
+
 
 OPTIONS FOR MULTIMEDIA SUPPORT
 
