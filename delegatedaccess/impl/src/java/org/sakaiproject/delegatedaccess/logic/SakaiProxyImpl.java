@@ -544,6 +544,10 @@ public class SakaiProxyImpl implements SakaiProxy {
 		return false;
 	}
 	
+	public boolean isUserMember(String userId, String siteRef){
+		return authzGroupService.getUserRole(userId, siteRef) != null;
+	}
+	
 	public boolean isShoppingPeriodInstructorEditable(){
 		return serverConfigurationService.getBoolean("delegatedaccess.shopping.instructorEditable", false);
 	}

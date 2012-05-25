@@ -337,4 +337,13 @@ public interface SakaiProxy {
 	 * @return
 	 */
 	public boolean isShoppingPeriodInstructorEditable();
+	
+	/**
+	 * returns true if the user is a member of the site
+	 * 
+	 * @param userId
+	 * @param siteRef
+	 * @return
+	 */
+	public boolean isUserMember(String userId, String siteRef);
 }

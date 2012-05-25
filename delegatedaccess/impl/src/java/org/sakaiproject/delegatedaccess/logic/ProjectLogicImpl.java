@@ -1545,7 +1545,8 @@ public class ProjectLogicImpl implements ProjectLogic {
 		if(!shoppingPeriod){
 			dAMapFlag = session.getAttribute(DelegatedAccessConstants.SESSION_ATTRIBUTE_DELEGATED_ACCESS_FLAG);
 		}
-		if(dAMapFlag != null || shoppingPeriod){
+		boolean isUserMember = sakaiProxy.isUserMember(userId, siteRef);
+		if((dAMapFlag != null && !isUserMember) || shoppingPeriod){
 			//find the node for the site
 			List<String> siteNodes = getNodesBySiteRef(siteRef, DelegatedAccessConstants.HIERARCHY_ID);
 			if(siteNodes != null && siteNodes.size() == 1){
