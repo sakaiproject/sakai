@@ -1900,50 +1900,8 @@ public class SimplePageBean {
 		    return "no-such-page";
 
 		if(page.getOwner() == null) {
-			Site site = getCurrentSite();
-			SitePage sitePage = site.getPage(page.getToolId());
-			if (sitePage == null) {
-				log.error("removePage can't find site page for " + page.getPageId());
-				return "no-such-page";
-			}
-		
-			site.removePage(sitePage);
-		
-			try {
-			    siteService.save(site);
-			} catch (Exception e) {
-				log.error("removePage unable to save site " + e);
-			}
-		
-			EventTrackingService.post(EventTrackingService.newEvent("lessonbuilder.remove", "/lessonbuilder/page/" + page.getPageId(), true));
-
-			try {
-			    // this will always generate an enormous amount of junk in catalina.out. I see no way to
-			    // get rid of it. The problem is that we kill the RSF context, so there's no place legal to go now
-			    //httpServletResponse.sendRedirect(ServerConfigurationService.getServerUrl() + "/access/site/" + getCurrentSiteId());
-			    httpServletResponse.reset();
-			    httpServletResponse.getWriter().println(
-				"<head>" +
-				"<link rel=\"stylesheet\" href=\"/sakai-lessonbuildertool-tool/css/Simplepagetool.css\" type=\"text/css\" />" +
-				"<link type=\"text/css\" href=\"/sakai-lessonbuildertool-tool/css/simplepage-theme/jquery-ui-1.8.17.custom.css\" rel=\"stylesheet\" />" +
-				"</head>" + 
-				"<body>" +
-				"<div class=\"ui-widget\" role=\"alert\">" +
-				"<div class=\"ui-state-highlight ui-corner-all\" style=\"margin-bottom: 10px; margin-top:10px; padding: 0 .7em;\">" +
-                                "<p><span class=\"ui-icon ui-icon-info\" style=\"float: left; margin-right: .3em;\"></span>" +
-				"<div rsf:id=\"alert-text\" >" +
-			        "<p>" + messageLocator.getMessage("simplepage.remove_page_done") + "</p>" +
-				"</div></p></div></div>" +
-				"<p style='margin-top:2em'><a href='javascript:parent.location.replace(parent.location)'>" +
-				messageLocator.getMessage("simplepage.continue") + "</a></p>" +
-				"<p style='display:none'>");
-			    // the unclosed p at the end is because RSF will display an error message, which we don't want to show
-			    httpServletResponse.flushBuffer();
-			} catch (Exception ignore) {
-			    System.out.println("redirect failed " + ignore);
-			    // we never actuallly see this, and the redirect is done from a different context
-			};
-			return "removed";
+		    // this code should never be called
+		    return "failure";
 		}else {
 			SimpleStudentPage studentPage = simplePageToolDao.findStudentPageByPageId(page.getPageId());
 			

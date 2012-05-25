@@ -2870,7 +2870,11 @@ public class ShowPageProducer implements ViewComponentProducer, DefaultView, Nav
 		//		    UICommand.make(form, "remove-page-submit", messageLocator.getMessage("simplepage.remove"), "#{simplePageBean.removePage}");
 
 		
-		UICommand.make(form, "remove-page-submit", messageLocator.getMessage("simplepage.remove"), "#{simplePageBean.removePage}");
+		UIComponent button = UICommand.make(form, "remove-page-submit", messageLocator.getMessage("simplepage.remove"), "#{simplePageBean.removePage}");
+		if (page.getOwner() == null) // not student page
+		    button.decorate(new UIFreeAttributeDecorator("onclick",
+			         "window.location='/sakai-lessonbuildertool-tool/removePage?site=" + simplePageBean.getCurrentSiteId() + 
+				 "&page=" + page.getPageId() + "';return false;"));
 
 		UICommand.make(form, "remove-page-cancel", messageLocator.getMessage("simplepage.cancel"), "#{simplePageBean.cancel}");
 	}

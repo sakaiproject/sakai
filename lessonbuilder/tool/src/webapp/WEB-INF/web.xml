@@ -74,4 +74,22 @@
 		<url-pattern>/faces/*</url-pattern>
 	</servlet-mapping>  
 
+	<servlet>
+	  <servlet-name>sakai.lessonbuildertool.removePage</servlet-name>
+	  <jsp-file>/removePage.jsp</jsp-file>
+	</servlet>
+ 
+	<servlet-mapping>
+	  <servlet-name>sakai.lessonbuildertool.removePage</servlet-name>
+	  <url-pattern>/removePage</url-pattern>
+	</servlet-mapping>
+
+	<filter-mapping>
+	    <filter-name>sakai.request</filter-name>
+	    <servlet-name>sakai.lessonbuildertool.removePage</servlet-name>
+	    <dispatcher>REQUEST</dispatcher>
+	    <dispatcher>FORWARD</dispatcher>
+	    <dispatcher>INCLUDE</dispatcher>
+	</filter-mapping>
+
 </web-app>
