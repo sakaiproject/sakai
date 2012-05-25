@@ -78,8 +78,8 @@ public class PDAHandler extends PageHandler
 	
 	private static final String TOOLCONFIG_SHOW_RESET_BUTTON = "reset.button";
 
-    private static final String BYPASS_PATTERN_PROP = "portal.pda.bypass";
-	private static final String DEFAULT_BYPASS_PATTERN = "\\.jpg$|\\.gif$|\\.js$|\\.png$|\\.jpeg$|\\.css$|\\.zip$|\\.pdf\\.mov$|\\.json$|\\.jsonp$\\.xml$|\\.ajax$|\\.xls$|\\.xlsx$|\\.doc$|\\.docx$|uvbview$|linktracker$|wicket:interface";
+    private static final String BYPASS_URL_PROP = "portal.pda.bypass";
+	private static final String DEFAULT_BYPASS_URL = "\\.jpg$|\\.gif$|\\.js$|\\.png$|\\.jpeg$|\\.css$|\\.zip$|\\.pdf\\.mov$|\\.json$|\\.jsonp$\\.xml$|\\.ajax$|\\.xls$|\\.xlsx$|\\.doc$|\\.docx$|uvbview$|linktracker$|wicket:interface";
 
     private static final String BYPASS_QUERY_PROP = "portal.pda.bypass.query";
 	private static final String DEFAULT_BYPASS_QUERY = "wicket:interface=";
@@ -227,8 +227,8 @@ public class PDAHandler extends PageHandler
 					String uri = req.getRequestURI();
 					String commonToolId = siteTool.getToolId();
 					// Check the URL for a pattern match
-					String pattern = ServerConfigurationService .getString(BYPASS_QUERY_PROP, DEFAULT_BYPASS_PATTERN);
-					pattern = ServerConfigurationService .getString(BYPASS_QUERY_PROP+"."+commonToolId, pattern);
+					String pattern = ServerConfigurationService .getString(BYPASS_URL_PROP, DEFAULT_BYPASS_URL);
+					pattern = ServerConfigurationService .getString(BYPASS_URL_PROP+"."+commonToolId, pattern);
 					Pattern p = Pattern.compile(pattern);
 					Matcher m = p.matcher(uri.toLowerCase());
 
