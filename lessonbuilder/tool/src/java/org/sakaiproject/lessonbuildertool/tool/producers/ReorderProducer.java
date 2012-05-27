@@ -34,9 +34,13 @@ import org.sakaiproject.lessonbuildertool.tool.beans.SimplePageBean;
 import org.sakaiproject.lessonbuildertool.tool.beans.SimplePageBean.Status;
 import org.sakaiproject.lessonbuildertool.tool.view.GeneralViewParameters;
 
+import org.sakaiproject.tool.cover.SessionManager;
+import org.sakaiproject.tool.api.ToolSession;
+
 import uk.org.ponder.messageutil.MessageLocator;
 import uk.org.ponder.rsf.components.UIBranchContainer;
 import uk.org.ponder.rsf.components.UICommand;
+import uk.org.ponder.rsf.components.UIInternalLink;
 import uk.org.ponder.rsf.components.UIContainer;
 import uk.org.ponder.rsf.components.UIForm;
 import uk.org.ponder.rsf.components.UIInput;
@@ -68,7 +72,6 @@ public class ReorderProducer implements ViewComponentProducer, NavigationCaseRep
 	}
 
 	public void fillComponents(UIContainer tofill, ViewParameters params, ComponentChecker checker) {
-		SimplePage currentPage = simplePageBean.getCurrentPage();
 
 		if (((GeneralViewParameters) params).getSendingPage() != -1) {
 		    // will fail if page not in this site
@@ -81,6 +84,17 @@ public class ReorderProducer implements ViewComponentProducer, NavigationCaseRep
 			}
 		}
 
+		ToolSession toolSession = SessionManager.getCurrentToolSession();
+		String secondPageString = (String)toolSession.getAttribute("lessonbuilder.selectedpage");
+		Long secondPageId = null;
+		if (secondPageString != null) 
+		    secondPageId = Long.parseLong(secondPageString);
+
+		toolSession.setAttribute("lessonbuilder.selectedpage", null);
+
+		// may have been updated by sendingpage
+		SimplePage currentPage = simplePageBean.getCurrentPage();
+
 		// doesn't use any item parameters, so this should be safe
 
 		if (simplePageBean.canEditPage()) {
@@ -91,24 +105,67 @@ public class ReorderProducer implements ViewComponentProducer, NavigationCaseRep
 			SimplePage page = simplePageBean.getCurrentPage();
 			List<SimplePageItem> items = simplePageToolDao.findItemsOnPage(page.getPageId());
 			
+		        SimplePage secondPage = null;
+			if (secondPageId != null)
+			    secondPage = simplePageBean.getPage(secondPageId);
+
+			// are they hacking us? other page should be in the same site, in which case
+			// we don't need to check rights further. also same owner (typicall null; owner is for student pages)
+
+			if (secondPage != null && !secondPage.getSiteId().equals(page.getSiteId()))
+			    secondPage = null;
+			if (secondPage != null &&
+			    ((secondPage.getOwner() == null && page.getOwner() != null) ||
+			     (secondPage.getOwner() != null && page.getOwner() == null) ||
+			     (secondPage.getOwner() != null && !secondPage.getOwner().equals(page.getOwner()))))
+			    secondPage = null;
+			
 			// Some items are tacked onto the end automatically by setting the sequence to
 			// something less than or equal to 0.  This takes them out of the Reorder tool.
 			while(items.size() > 0 && items.get(0).getSequence() <= 0) {
 				items.remove(0);
 			}
 
+			if (secondPage != null) {
+			    List<SimplePageItem> moreItems = simplePageToolDao.findItemsOnPage(secondPageId);
+
+			    if (moreItems != null && moreItems.size() > 0) {
+				items.add(null); //marker
+				while(moreItems.size() > 0 && moreItems.get(0).getSequence() <= 0) {
+				    moreItems.remove(0);
+				}
+				items.addAll(moreItems);
+			    }
+			} else
+			    items.add(null); // if no 2nd page, put marker at the end
+
 			UIOutput.make(tofill, "intro", messageLocator.getMessage("simplepage.reorder_header"));
 			UIOutput.make(tofill, "instructions", messageLocator.getMessage("simplepage.reorder_instructions"));
 
 			UIOutput.make(tofill, "itemTable");
+
+			boolean second = false;
 			for (SimplePageItem i : items) {
+
+				if (i == null) {
+				    // marker between used and not used
+				    UIContainer row = UIBranchContainer.make(tofill, "item:");
+				    UIOutput.make(row, "seq", "---");
+				    UIOutput.make(row, "description", messageLocator.getMessage(secondPageId == null ? "simplepage.reorder-belowdelete" : "simplepage.reorder-aboveuse"));
+				    second = true;
+				    continue;
+				}
+
 				if (i.getType() == 7) {
 					i.setType(1); // Temporarily change multimedia to standard resource
 								  // so that links work properly.
 				}
 
+
 				UIContainer row = UIBranchContainer.make(tofill, "item:");
-				UIOutput.make(row, "seq", String.valueOf(i.getSequence()));
+				// * prefix indicates items are from the other page, and have to be copied.
+				UIOutput.make(row, "seq", (second ? "*" : "") +
+					                   String.valueOf(i.getSequence()));
 				UIOutput.make(row, "description", i.getDescription());
 				if (i.getType() == 5) {
 					String text = FormattedText.convertFormattedTextToPlaintext(i.getHtml());
@@ -122,7 +179,20 @@ public class ReorderProducer implements ViewComponentProducer, NavigationCaseRep
 				}
 			}
 
+
+			// don't offer to add from other page if we already have second page items
+			// our bookkeeping can't keep track of more than one extra page
+			if(currentPage.getOwner() == null && secondPageId == null) {
+			    GeneralViewParameters view = new GeneralViewParameters(PagePickerProducer.VIEW_ID);
+			    view.setReturnView("reorder"); // flag to pagepicker that it needs to come back
+			    UIOutput.make(tofill, "subpage-div");
+			    UIInternalLink.make(tofill, "subpage-choose", messageLocator.getMessage("simplepage.reorder-addpage"), view);
+			    view.setSendingPage(currentPage.getPageId());
+			}
+
 			UIForm form = UIForm.make(tofill, "form");
+			if (secondPageId != null)
+			    UIInput.make(form, "otherpage", "#{simplePageBean.selectedEntity}", secondPageId.toString());
 			UIInput.make(form, "order", "#{simplePageBean.order}");
 			UICommand.make(form, "save", "Save", "#{simplePageBean.reorder}");
 			UICommand.make(form, "cancel", "Cancel", "#{simplePageBean.cancel}");

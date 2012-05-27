@@ -109,7 +109,8 @@ simplePageBean.updateStudent,
 simplePageBean.updateYoutube,
 simplePageBean.width,
 simplePageBean.youtubeId,
-simplePageBean.youtubeURL
+simplePageBean.youtubeURL,
+simplePageBean.selectPage
 </value>
 </property>
    </bean>

@@ -34,9 +34,12 @@
 			</tbody>
 		</table>
 	
-		<br /><br /><br />
-		
-		<form action="#" rsf:id="form">
+		<div rsf:id="subpage-div" style="margin-top:2em">
+		  <a href="#" id="subpage-choose" rsf:id="subpage-choose" ><span rsf:id="msg=simplepage.choose_existing_page"></span></a>
+		</div>
+
+		<form action="#" rsf:id="form" style="margin-top:2em">
+			<input type="hidden" rsf:id="otherpage" id="otherpage" />
 			<input type="hidden" rsf:id="order" id="order" />
 			<input type="submit" rsf:id="save" onclick="computeorder();" />
 			<input type="submit" rsf:id="cancel" />

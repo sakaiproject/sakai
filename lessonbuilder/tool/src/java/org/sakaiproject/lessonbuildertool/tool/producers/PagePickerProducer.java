@@ -64,6 +64,7 @@ import uk.org.ponder.rsf.view.ViewComponentProducer;
 import uk.org.ponder.rsf.viewstate.SimpleViewParameters;
 import uk.org.ponder.rsf.viewstate.ViewParameters;
 import uk.org.ponder.rsf.viewstate.ViewParamsReporter;
+import uk.org.ponder.rsf.util.RSFUtil;
 
 /**
  * Creates a window for the user to choose which page to add
@@ -79,6 +80,7 @@ public class PagePickerProducer implements ViewComponentProducer, NavigationCase
 	private ToolManager toolManager;
 	public MessageLocator messageLocator;
         private boolean somePagesHavePrerequisites = false;
+        private long currentPageId = -1;
 
 	public class PageEntry {
 		Long pageId;
@@ -251,6 +253,7 @@ public class PagePickerProducer implements ViewComponentProducer, NavigationCase
 		simplePageBean.setItemId(itemId);
 
 		SimplePage page = simplePageBean.getCurrentPage();
+		currentPageId = page.getPageId();
 
 		if (itemId != null && itemId != -1) {
 		    SimplePageItem currentItem = simplePageToolDao.findItem(itemId);
@@ -428,7 +431,10 @@ public class PagePickerProducer implements ViewComponentProducer, NavigationCase
 		    	UIBoundBoolean.make(form, "subpage-button", "#{simplePageBean.subpageButton}", false);
 		    }
 
-		    if(((GeneralViewParameters) viewparams).newTopLevel) {
+		    if(((GeneralViewParameters) viewparams).getReturnView() != null) {
+			// return to Reorder, to add items from this page
+		    	UICommand.make(form, "submit", messageLocator.getMessage("simplepage.chooser.select"), "#{simplePageBean.selectPage}");
+		    } else if(((GeneralViewParameters) viewparams).newTopLevel) {
 		    	UICommand.make(form, "submit", messageLocator.getMessage("simplepage.chooser.select"), "#{simplePageBean.addOldPage}");
 		    }else {
 		    	UICommand.make(form, "submit", messageLocator.getMessage("simplepage.chooser.select"), "#{simplePageBean.createSubpage}");
@@ -448,6 +454,7 @@ public class PagePickerProducer implements ViewComponentProducer, NavigationCase
 		togo.add(new NavigationCase("success", new SimpleViewParameters(ShowPageProducer.VIEW_ID)));
 		togo.add(new NavigationCase("failure", new SimpleViewParameters(ForumPickerProducer.VIEW_ID)));
 		togo.add(new NavigationCase("cancel", new SimpleViewParameters(ShowPageProducer.VIEW_ID)));
+		togo.add(new NavigationCase("selectpage", new GeneralViewParameters(ReorderProducer.VIEW_ID)));
 		return togo;
 	}
 }

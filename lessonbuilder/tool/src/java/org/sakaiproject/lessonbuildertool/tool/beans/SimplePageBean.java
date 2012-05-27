@@ -1748,6 +1748,21 @@ public class SimplePageBean {
 	    subpageButton = s;
 	}
 
+    // called from "select page" dialog in Reorder to insert items from anoher page
+	public String selectPage()   {
+
+		if (!canEditPage())
+		    return "permission-failed";
+
+		ToolSession toolSession = sessionManager.getCurrentToolSession();
+		toolSession.setAttribute("lessonbuilder.selectedpage", selectedEntity);
+
+		// doesn't do anything but call back reorder
+		// the submit sets selectedEntity, which is passed to Reorder by addResultingViewBinding
+
+		return "selectpage";
+	}
+
     // called from "add subpage" dialog
     // create if itemId == null or -1, else update existing
 	public String createSubpage()   {
@@ -1841,6 +1856,7 @@ public class SimplePageBean {
 
 		return "success";
 	}
+
 
 	public String deletePages() {
 	    if (getEditPrivs() != 0)
@@ -3361,6 +3377,8 @@ public class SimplePageBean {
 			return "cancel";
 		}
 		
+		fixorder(); // order has to be contiguous or things will break
+
 		order = order.trim();
 
 		List<SimplePageItem> items = getItemsOnPage(getCurrentPageId());
@@ -3374,30 +3392,77 @@ public class SimplePageBean {
 			}
 		}
 
+		List <SimplePageItem> secondItems = null;
+		if (selectedEntity != null && !selectedEntity.equals("")) {
+		    // second page is involved
+		    Long secondPageId = Long.parseLong(selectedEntity);
+		    SimplePage secondPage = getPage(secondPageId);
+		    if (secondPage != null && secondPage.getSiteId().equals(getCurrentPage().getSiteId())) {
+			secondItems = getItemsOnPage(secondPageId);
+			if (secondItems.size() == 0)
+			    secondItems = null;
+			else {
+			    for(int i = 0; i < secondItems.size(); i++) {
+				if(secondItems.get(i).getSequence() <= 0) {
+				    secondItems.remove(secondItems.get(i));
+				    i--;
+				}
+			    }
+			}
+		    }
+		}
+
 		String[] split = split(order, " ");
 
 		// make sure nothing is duplicated. I know it shouldn't be, but
 		// I saw the Fluid reorderer get confused once.
-		Set<Integer> used = new HashSet<Integer>();
+		Set<String> used = new HashSet<String>();
 		for (int i = 0; i < split.length; i++) {
-			if (!used.add(Integer.valueOf(split[i]))) {
+			if (!used.add(split[i].trim())) {
 				log.warn("reorder: duplicate value");
 				setErrMessage(messageLocator.getMessage("simplepage.reorder-duplicates"));
 				return "failed"; // it was already there. Oops.
 			}
 		}
 
+		// keep track of which old items are used so we can remove the ones that aren't.
+		// items in set are indices into "items"
+		Set<Integer>keep = new HashSet<Integer>();
+
 		// now do the reordering
 		for (int i = 0; i < split.length; i++) {
-			int old = items.get(Integer.valueOf(split[i]) - 1).getSequence();
-			items.get(Integer.valueOf(split[i]) - 1).setSequence(i + 1);
-
-			if (old != i + 1) {
+			if (split[i].equals("---"))
+			    break;
+			if (split[i].startsWith("*")) {
+			    // item from second page. add copy
+			    SimplePageItem oldItem = secondItems.get(Integer.valueOf(split[i].substring(1)) - 1);
+			    SimplePageItem newItem = simplePageToolDao.copyItem(oldItem);
+			    newItem.setPageId(getCurrentPageId());
+			    newItem.setSequence(i + 1);
+			    saveItem(newItem);
+			} else {
+			    // existing item. update its sequence and note that it's still used
+			    int old = items.get(Integer.valueOf(split[i]) - 1).getSequence();
+			    keep.add(Integer.valueOf(split[i]) - 1);
+			    items.get(Integer.valueOf(split[i]) - 1).setSequence(i + 1);
+			    if (old != i + 1) {
 				update(items.get(Integer.valueOf(split[i]) - 1));
+			    }
+
 			}
 		}
 
+		// now kill all items on the page we didn't see in the new order
+		for (int i = 0; i < items.size(); i++) {
+		    if (!keep.contains((Integer)i))
+			simplePageToolDao.deleteItem(items.get(i));
+		}
+
 		itemsCache.remove(getCurrentPage().getPageId());
+		// removals left gaps in order. fix it.
+		fixorder();
+		itemsCache.remove(getCurrentPage().getPageId());
+
 		return "success";
 	}
 
