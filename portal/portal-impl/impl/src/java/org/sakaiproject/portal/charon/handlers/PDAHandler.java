@@ -79,10 +79,11 @@ public class PDAHandler extends PageHandler
 	private static final String TOOLCONFIG_SHOW_RESET_BUTTON = "reset.button";
 
     private static final String BYPASS_URL_PROP = "portal.pda.bypass";
-	private static final String DEFAULT_BYPASS_URL = "\\.jpg$|\\.gif$|\\.js$|\\.png$|\\.jpeg$|\\.css$|\\.zip$|\\.pdf\\.mov$|\\.json$|\\.jsonp$\\.xml$|\\.ajax$|\\.xls$|\\.xlsx$|\\.doc$|\\.docx$|uvbview$|linktracker$|wicket:interface";
+	private static final String DEFAULT_BYPASS_URL = "\\.jpg$|\\.gif$|\\.js$|\\.png$|\\.jpeg$|\\.prf$|\\.css$|\\.zip$|\\.pdf\\.mov$|\\.json$|\\.jsonp$\\.xml$|\\.ajax$|\\.xls$|\\.xlsx$|\\.doc$|\\.docx$|uvbview$|linktracker$";
 
+	// Make sure to lower-case the matching regex (i.e. don't use IResourceListener below)
     private static final String BYPASS_QUERY_PROP = "portal.pda.bypass.query";
-	private static final String DEFAULT_BYPASS_QUERY = "wicket:interface=";
+	private static final String DEFAULT_BYPASS_QUERY = "wicket:interface=.*iresourcelistener:";
 
     private static final String BYPASS_TYPE_PROP = "portal.pda.bypass.type";
 	private static final String DEFAULT_BYPASS_TYPE = "^application/|^image/|^audio/|^video/|^text/xml|^text/plain";
@@ -226,32 +227,48 @@ public class PDAHandler extends PageHandler
 				if ( siteTool != null ) {
 					String uri = req.getRequestURI();
 					String commonToolId = siteTool.getToolId();
+					boolean matched = false;
 					// Check the URL for a pattern match
-					String pattern = ServerConfigurationService .getString(BYPASS_URL_PROP, DEFAULT_BYPASS_URL);
+					String pattern = null;
+					Pattern p = null;
+					Matcher m = null;
+					pattern = ServerConfigurationService .getString(BYPASS_URL_PROP, DEFAULT_BYPASS_URL);
 					pattern = ServerConfigurationService .getString(BYPASS_URL_PROP+"."+commonToolId, pattern);
-					Pattern p = Pattern.compile(pattern);
-					Matcher m = p.matcher(uri.toLowerCase());
+					if ( pattern.length() > 1 ) {
+						p = Pattern.compile(pattern);
+						m = p.matcher(uri.toLowerCase());
+						if ( m.find() ) matched = true;
+					}
 
 					// Check the query string for a pattern match
 					pattern = ServerConfigurationService .getString(BYPASS_QUERY_PROP, DEFAULT_BYPASS_QUERY);
 					pattern = ServerConfigurationService .getString(BYPASS_QUERY_PROP+"."+commonToolId, pattern);
 					String queryString = req.getQueryString();
 					if ( queryString == null ) queryString = "";
-					p = Pattern.compile(pattern);
-					Matcher mq = p.matcher(queryString.toLowerCase());
+					if ( pattern.length() > 1 ) {
+						p = Pattern.compile(pattern);
+						m = p.matcher(queryString.toLowerCase());
+						if ( m.find() ) matched = true;
+					}
 
 					// Check the contentType for a pattern match
 					pattern = ServerConfigurationService .getString(BYPASS_TYPE_PROP, DEFAULT_BYPASS_TYPE);
 					pattern = ServerConfigurationService .getString(BYPASS_TYPE_PROP+"."+commonToolId, pattern);
-					String contentType = req.getContentType();
-					if ( contentType == null ) contentType = "";
-					p = Pattern.compile(pattern);
-					Matcher mc = p.matcher(contentType.toLowerCase());
+					if ( pattern.length() > 1 ) {
+						String contentType = req.getContentType();
+						if ( contentType == null ) contentType = "";
+						p = Pattern.compile(pattern);
+						m = p.matcher(contentType.toLowerCase());
+						if ( m.find() ) matched = true;
+					}
 
-					if ( (m.find() || mq.find() || mc.find()) && parts.length >= 5 ) {
+					boolean allowBuffer = allowBufferContent(req, toolId);
+
+					// System.out.println("AB="+allowBuffer+" match="+matched+" tid="+commonToolId+" uri="+uri+" QS="+queryString);
+					if ( ( (!allowBuffer) || matched ) && parts.length >= 5 ) {
 						String toolContextPath = req.getContextPath() + req.getServletPath() + Web.makePath(parts, 1, 5); 
 						String toolPathInfo = Web.makePath(parts, 5, parts.length);
-        					ActiveTool tool = ActiveToolManager.getActiveTool(commonToolId);
+       					ActiveTool tool = ActiveToolManager.getActiveTool(commonToolId);
 						portal.forwardTool(tool, req, res, siteTool, 
 							siteTool.getSkin(), toolContextPath, toolPathInfo);
 						return END;
@@ -282,7 +299,9 @@ public class PDAHandler extends PageHandler
 					boolean presenceEvents = ServerConfigurationService.getBoolean("presence.events.log", true);
 					if (presenceEvents)
 						org.sakaiproject.presence.cover.PresenceService.setPresence(siteId + "-presence");
-				}catch(Exception e){}
+				}catch(Exception e){
+					return END;
+				}
 				return END;
 			}
 			catch (Exception ex)
@@ -297,42 +316,58 @@ public class PDAHandler extends PageHandler
 	}
 
 	/*
-	 * Optionally actually grab the tool's output and include it in the same
-	 * frame
+	 * Check to see if we can buffer content.
 	 */
-	public void bufferContent(HttpServletRequest req, HttpServletResponse res,
-			Session session, String[] parts, String toolId, PortalRenderContext rcontext)
+	public boolean allowBufferContent(HttpServletRequest req, String toolId)
 	{
-		if (toolId == null) return;
+		if (toolId == null) return false;
 
-		String tidAllow = ServerConfigurationService
-		.getString("portal.pda.iframesuppress");
+		// wicket-ajax request can not be buffered (PRFL-405)
+		if (Boolean.valueOf(req.getHeader("wicket-ajax"))) {
+			return false;
+		}
 
-		if (tidAllow.indexOf(":none:") >= 0) return;
+		String tidAllow = ServerConfigurationService.getString("portal.pda.iframesuppress");
+
+		if (tidAllow.indexOf(":none:") >= 0) return false;
 
 		ToolConfiguration siteTool = SiteService.findTool(toolId);
-		if (siteTool == null) return;
+		if (siteTool == null) return false;
 
 		// JSR-168 portlets do not operate in iframes
-		if ( portal.isPortletPlacement(siteTool) ) return;
+		if ( portal.isPortletPlacement(siteTool) ) return false;
 
 		// If the property is set and :all: is not specified, then the 
 		// tools in the list are the ones that we accept
 		if (tidAllow.trim().length() > 0 && tidAllow.indexOf(":all:") < 0)
 		{
-			if (tidAllow.indexOf(siteTool.getToolId()) < 0) return;
+			if (tidAllow.indexOf(siteTool.getToolId()) < 0) return false;
 		}
 
 		// If the property is set and :all: is specified, then the 
 		// tools in the list are the ones that we render the old way
 		if (tidAllow.indexOf(":all:") >= 0)
 		{
-			if (tidAllow.indexOf(siteTool.getToolId()) >= 0) return;
+			if (tidAllow.indexOf(siteTool.getToolId()) >= 0) return false;
 		}
+
+		return true;
+	}
+
+	/*
+	 * Optionally actually grab the tool's output and include it in the same
+	 * frame
+	 */
+	public boolean bufferContent(HttpServletRequest req, HttpServletResponse res,
+			Session session, String[] parts, String toolId, PortalRenderContext rcontext)
+	{
+		if ( ! allowBufferContent(req, toolId) ) return false;
+
+		ToolConfiguration siteTool = SiteService.findTool(toolId);
+		if (siteTool == null) return false;
 
 		// Produce the buffered response
 		ByteArrayServletResponse bufferedResponse = new ByteArrayServletResponse(res);
-
 
 		boolean retval;
 		String toolContextPath = req.getContextPath() + req.getServletPath() + Web.makePath(parts, 1, 5);
@@ -340,26 +375,28 @@ public class PDAHandler extends PageHandler
 			retval = doToolBuffer(req, bufferedResponse, session, parts[4], 
 					toolContextPath, 
 					Web.makePath(parts, 5, parts.length));
-			if ( ! retval ) return;
+
+			if ( ! retval ) return false;
 
 			// Check the contentType for a pattern match
 			String commonToolId = siteTool.getToolId();
 			String pattern = ServerConfigurationService .getString(BYPASS_TYPE_PROP, DEFAULT_BYPASS_TYPE);
 			pattern = ServerConfigurationService .getString(BYPASS_TYPE_PROP+"."+commonToolId, pattern);
-			String contentType = req.getContentType();
-			if ( contentType == null ) contentType = "";
-			Pattern p = Pattern.compile(pattern);
-			Matcher mc = p.matcher(contentType.toLowerCase());
-
-			if ( mc.find() ) return;
+			if ( pattern.length() > 0 ) {
+				String contentType = req.getContentType();
+				if ( contentType == null ) contentType = "";
+				Pattern p = Pattern.compile(pattern);
+				Matcher mc = p.matcher(contentType.toLowerCase());
+				if ( mc.find() ) return false;
+			}
 		} catch (ToolException e) {
-			return;
+			return false;
 		} catch (IOException e) {
-			return;
+			return false;
 		}
 
 		String responseStr = bufferedResponse.getInternalBuffer();
-		if (responseStr == null || responseStr.length() < 1) return;
+		if (responseStr == null || responseStr.length() < 1) return false;
 
 		String responseStrLower = responseStr.toLowerCase();
 		int headStart = responseStrLower.indexOf("<head");
@@ -378,6 +415,7 @@ public class PDAHandler extends PageHandler
 		// start tag we simply - take the rest of the response
 		if ( bodyEnd < bodyStart ) bodyEnd = responseStrLower.length() - 1;
 
+		String tidAllow = ServerConfigurationService.getString("portal.pda.iframesuppress");
 		if( tidAllow.indexOf(":debug:") >= 0 )
 			log.info("Frameless HS="+headStart+" HE="+headEnd+" BS="+bodyStart+" BE="+bodyEnd);
 
@@ -404,6 +442,7 @@ public class PDAHandler extends PageHandler
 			rcontext.put("responseHead", headString);
 			rcontext.put("responseBody", bodyString);
 		}
+		return true;
 	}
 
 	private int findEndOfTag(String string, int startPos)
