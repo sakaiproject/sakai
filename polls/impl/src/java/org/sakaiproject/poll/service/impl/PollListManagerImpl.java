@@ -24,6 +24,7 @@ package org.sakaiproject.poll.service.impl;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Date;
+import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
@@ -47,6 +48,7 @@ import org.sakaiproject.id.api.IdManager;
 import org.sakaiproject.poll.dao.PollDao;
 import org.sakaiproject.poll.logic.ExternalLogic;
 import org.sakaiproject.poll.logic.PollListManager;
+import org.sakaiproject.poll.logic.PollVoteManager;
 import org.sakaiproject.poll.model.Option;
 import org.sakaiproject.poll.model.Poll;
 import org.sakaiproject.poll.model.Vote;
@@ -81,7 +83,14 @@ public class PollListManagerImpl implements PollListManager,EntityTransferrer {
 		this.dao = dao;
 	}
     
-    private ExternalLogic externalLogic;    
+    
+    private PollVoteManager pollVoteManager;    
+    public void setPollVoteManager(PollVoteManager pollVoteManager) {
+		this.pollVoteManager = pollVoteManager;
+	}
+
+
+	private ExternalLogic externalLogic;    
     public void setExternalLogic(ExternalLogic externalLogic) {
 		this.externalLogic = externalLogic;
 	}
@@ -202,21 +211,46 @@ public class PollListManagerImpl implements PollListManager,EntityTransferrer {
     	if (t == null) {
     		throw new IllegalArgumentException("Poll can't be null");
     	}
-    	
+
     	if (t.getPollId() == null) {
     		throw new IllegalArgumentException("Poll id can't be null");
     	}
+
+    	if (!pollCanDelete(t)) {
+    		throw new SecurityException("user:" + externalLogic.getCurrentuserReference() + " can't delete poll: " + t.getId());
+    	}
+
+    	//Delete the Votes
+    	List<Vote> vote = t.getVotes();
     	
-        if (!pollCanDelete(t)) {
-            throw new SecurityException("user:" + externalLogic.getCurrentuserReference() + " can't delete poll: " + t.getId());
-        }
-       
-            dao.delete(t);
-        
-        log.info("Poll id " + t.getId() + " deleted");
-        externalLogic.postEvent("poll.delete", "poll/site/"
-                + t.getSiteId() + "/poll/" + t.getId(), true);
-        return true;
+    	//We could have a partially populate item
+    	if (vote == null || vote.isEmpty()) {
+    		log.debug("getting votes as they where null");
+    		vote = pollVoteManager.getAllVotesForPoll(t);
+    		log.debug("got " + vote.size() + " vote");
+    	}
+    	
+    	
+    	Set<Vote> voteSet = new HashSet<Vote>(vote);
+    	dao.deleteSet(voteSet);
+
+    	//Delete the Options
+    	List<Option> options = t.getPollOptions();
+    	//as above we could have a partialy populate item
+    	if (options ==  null || options.isEmpty()) {
+    		options = getOptionsForPoll(t);
+    	}
+    	
+    	Set<Option> optionSet = new HashSet<Option>(options);
+    	dao.deleteSet(optionSet);
+
+
+    	dao.delete(t);
+
+    	log.info("Poll id " + t.getId() + " deleted");
+    	externalLogic.postEvent("poll.delete", "poll/site/"
+    			+ t.getSiteId() + "/poll/" + t.getId(), true);
+    	return true;
     }
 
     public List<Poll> findAllPolls(String siteId) {
