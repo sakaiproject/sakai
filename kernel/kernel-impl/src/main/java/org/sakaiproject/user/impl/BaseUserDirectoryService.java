@@ -45,7 +45,6 @@ import org.sakaiproject.authz.api.GroupNotDefinedException;
 import org.sakaiproject.authz.api.SecurityService;
 import org.sakaiproject.component.api.ServerConfigurationService;
 import org.sakaiproject.component.cover.ComponentManager;
-import org.sakaiproject.entity.api.Edit;
 import org.sakaiproject.entity.api.Entity;
 import org.sakaiproject.entity.api.EntityManager;
 import org.sakaiproject.entity.api.HttpAccess;
@@ -81,10 +80,9 @@ import org.sakaiproject.user.api.UserPermissionException;
 import org.sakaiproject.user.api.UsersShareEmailUDP;
 import org.sakaiproject.util.BaseResourceProperties;
 import org.sakaiproject.util.BaseResourcePropertiesEdit;
-import org.sakaiproject.util.api.FormattedText;
-import org.sakaiproject.util.SingleStorageUser;
 import org.sakaiproject.util.StringUtil;
 import org.sakaiproject.util.Validator;
+import org.sakaiproject.util.api.FormattedText;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 import org.w3c.dom.Node;
@@ -2352,7 +2350,7 @@ public abstract class BaseUserDirectoryService implements UserDirectoryService, 
 				}
 			}
 
-			return rv;
+			return rv.trim();
 		}
 
 		/**
