@@ -42,8 +42,8 @@
 		</p>
 		<p class="shorttext">
 			$tlang.getString("realm.role.group")
-			<input type="radio" name="providerOnly" id="providerOnly" value="true" #if($role.providerOnly) checked="checked"#end  /> Yes
-			<input type="radio" name="providerOnly" id="providerOnly" value="false" #if( ! $role.providerOnly) checked="checked"#end  /> No
+			<input type="radio" name="providerOnly" id="providerOnly" value="true" #if($role.providerOnly) checked="checked"#end  /> $tlang.getString("gen.yes")
+			<input type="radio" name="providerOnly" id="providerOnly" value="false" #if( ! $role.providerOnly) checked="checked"#end  /> $tlang.getString("gen.no")
 		</p>
 
 		<h4>
