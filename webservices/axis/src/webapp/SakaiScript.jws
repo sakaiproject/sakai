@@ -2100,6 +2100,34 @@ public boolean checkForRoleInAuthzGroup(String sessionid, String authzgroupid, S
 
 
 /**
+ * Check if a given authzgroup lacks roles
+ *
+ * @param	sessionid		the id of a valid session
+ * @param	authzgroupid	the id of the authzgroup you want to check
+ * @return		        	true/false
+ * @throws	AxisFault	
+ *
+ */
+public boolean checkForEmptyRolesInAuthzGroup(String sessionid, String authzgroupid) throws AxisFault
+{
+	Session session = establishSession(sessionid);
+	
+	try {
+		//open authzgroup
+		AuthzGroup authzgroup = authzGroupService.getAuthzGroup(authzgroupid);
+		
+		boolean roleEmpty = authzgroup.isEmpty();
+		return roleEmpty;
+	
+	}
+	catch (Exception e) {
+		LOG.error("WS checkForEmptyRolesInAuthzGroup(): " + e.getClass().getName() + " : " + e.getMessage());
+		return false;
+	}
+}
+
+
+/**
  * Search all the users that match this criteria in id or email, first or last name, returning
  * a subset of records within the record range given (sorted by sort name).
  * As of September 2008, the Sakai API that does the searching is not searching provided users
