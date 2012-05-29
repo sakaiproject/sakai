@@ -41,7 +41,7 @@
             <groupId>org.springframework</groupId>
             <artifactId>spring</artifactId>
         </dependency>
-        <dependency>
+	<dependency>
             <groupId>org.hibernate</groupId>
             <artifactId>hibernate</artifactId>
         </dependency>
@@ -64,29 +64,10 @@
             <scope>test</scope>
         </dependency>
         <dependency>
-            <groupId>dom4j</groupId>
-            <artifactId>dom4j</artifactId>
-            <version>1.6.1</version>
-            <scope>provided</scope>
-        </dependency>
-        <!--<dependency>
-            <groupId>jta</groupId>
-            <artifactId>jta</artifactId>
-        </dependency>-->
-        <dependency>
-            <groupId>cglib</groupId>
-            <artifactId>cglib-nodep</artifactId>
-            <version>2.1_3</version>
-        </dependency>
-        <dependency>
-            <groupId>commons-codec</groupId>
-            <artifactId>commons-codec</artifactId>
-        </dependency>
-        <dependency>
             <groupId>commons-collections</groupId>
             <artifactId>commons-collections</artifactId>
         </dependency>
-        <dependency>
+	<dependency>
             <groupId>net.sf.ehcache</groupId>
             <artifactId>ehcache-core</artifactId>
         </dependency>
@@ -95,32 +76,22 @@
 	  <artifactId>slf4j-log4j12</artifactId>
 	  <version>1.4.3</version>
 	  <scope>test</scope>
-	 </dependency>
+	 </dependency> 
         <dependency>
             <groupId>easymock</groupId>
             <artifactId>easymock</artifactId>
             <version>1.2_Java1.3</version>
         </dependency>
-        <!--
-            <dependency> <groupId>velocity</groupId>
-            <artifactId>velocity</artifactId>
-            <version>${sakai.velocity.version}</version> </dependency>
-        -->
-        <dependency>
+         <dependency>
             <groupId>org.freemarker</groupId>
             <artifactId>freemarker</artifactId>
             <version>2.3.18</version>
         </dependency>
-
-        <dependency>
-            <groupId>commons-lang</groupId>
-            <artifactId>commons-lang</artifactId>
-        </dependency>
-		<dependency>
-		    <groupId>org.simpleframework</groupId>
-		    <artifactId>simple-xml</artifactId>
-		    <version>2.3.5</version>
-		</dependency>
+	<dependency>
+	    <groupId>org.simpleframework</groupId>
+	    <artifactId>simple-xml</artifactId>
+	    <version>2.3.5</version>
+	</dependency>
 
     </dependencies>
 
