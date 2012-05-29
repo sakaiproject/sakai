@@ -12,6 +12,7 @@
         <h:form id="prefs_form">
                 
 		<script type="text/javascript" language="JavaScript" src="/library/js/jquery.js">//</script>
+		<script type="text/javascript" language="JavaScript" src="/library/js/fluid-latest/InfusionAll.js">//</script> 
 		<script type="text/javascript" language="JavaScript" src="/sakai-user-tool-prefs/js/prefs.js">// </script>
 		<script type="text/javascript">
 			$(document).ready(function(){
