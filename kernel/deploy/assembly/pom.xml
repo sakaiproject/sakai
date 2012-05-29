@@ -142,8 +142,8 @@
       </exclusions>
     </dependency>
     <dependency>
-      <groupId>jdbc</groupId>
-      <artifactId>jdbc2_0-stdext</artifactId>
+      <groupId>javax.sql</groupId>
+      <artifactId>jdbc-stdext</artifactId>
       <scope>compile</scope>
     </dependency>
     <!-- this is a transative dep of Hibernate! -->

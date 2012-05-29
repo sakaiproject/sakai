@@ -687,9 +687,9 @@
                 <scope>provided</scope>
             </dependency>
             <dependency>
-                <groupId>jdbc</groupId>
-                <artifactId>jdbc2_0-stdext</artifactId>
-                <version>h2.1.8</version>
+                <groupId>javax.sql</groupId>
+                <artifactId>jdbc-stdext</artifactId>
+                <version>2.0</version>
                 <scope>provided</scope>
             </dependency>
             <dependency>
