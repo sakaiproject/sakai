@@ -89,8 +89,9 @@
             <artifactId>jdbc2_0-stdext</artifactId>
             <scope>compile</scope>
         </dependency>
+	<!-- dependency of hibernate -->
         <dependency>
-            <groupId>jta</groupId>
+            <groupId>javax.transaction</groupId>
             <artifactId>jta</artifactId>
             <scope>compile</scope>
         </dependency>

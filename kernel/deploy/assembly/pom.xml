@@ -146,8 +146,9 @@
       <artifactId>jdbc2_0-stdext</artifactId>
       <scope>compile</scope>
     </dependency>
+    <!-- this is a transative dep of Hibernate! -->
     <dependency>
-      <groupId>jta</groupId>
+      <groupId>javax.transaction</groupId>
       <artifactId>jta</artifactId>
       <scope>compile</scope>
     </dependency>
