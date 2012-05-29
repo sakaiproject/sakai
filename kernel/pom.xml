@@ -713,7 +713,7 @@
             <dependency>
                 <groupId>javax.mail</groupId>
                 <artifactId>mail</artifactId>
-                <version>1.4.4</version>
+                <version>1.4.5</version>
                 <scope>provided</scope>
             </dependency>
             <dependency>
