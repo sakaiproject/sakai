@@ -253,6 +253,14 @@ public String addMessage(String sessionid, String context,
 	    if ( selectedTopic == null ) selectedTopic = anyTopic;
 	    if ( selectedTopic == null ) return "No topic";
 
+        DiscussionTopic topicWithMsgs = (DiscussionTopic) discussionManager.getTopicByIdWithMessages(selectedTopic.getId());
+        List tempList = topicWithMsgs.getMessages();
+		Message replyMessage = null;
+        if(tempList != null && tempList.size() > 0)
+        {
+            replyMessage = (Message)tempList.get(tempList.size()-1);
+		}
+
        Message aMsg;
        aMsg = messageManager.createDiscussionMessage();
        aMsg.setTitle(title);
@@ -262,6 +270,9 @@ public String addMessage(String sessionid, String context,
        aMsg.setDeleted(Boolean.FALSE);
        aMsg.setApproved(Boolean.TRUE);
        aMsg.setTopic(selectedTopic);
+       if ( replyMessage != null ) {
+          aMsg.setInReplyTo(replyMessage);
+       }
        discussionManager.saveMessage(aMsg);
        return "Success";
 	} catch (Exception e ) {
