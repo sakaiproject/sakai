@@ -906,6 +906,11 @@ public class GradingService
         ItemGradingData itemGrading = (ItemGradingData) iter.next();
         itemId = itemGrading.getPublishedItemId();
         ItemDataIfc item = (ItemDataIfc) publishedItemHash.get(itemId);
+      //SAM-1724 it's possible the item is not in the hash -DH
+        if (item == null) {
+        	log.error("unable to retrive itemDataIfc for: " + publishedItemHash.get(itemId));
+        	continue;
+        }
         itemType2 = item.getTypeId();
         //get item information to check if it's MCMS and Not Partial Credit
         mcmsPartialCredit = item.getItemMetaDataByLabel(ItemMetaDataIfc.MCMS_PARTIAL_CREDIT);
