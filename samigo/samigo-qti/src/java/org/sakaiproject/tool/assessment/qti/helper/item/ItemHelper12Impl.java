@@ -468,7 +468,7 @@ public class ItemHelper12Impl extends ItemHelperBase
 
 		  String responseIdent = "MT-" + randomNumber + "-" + sequence;
 
-		  String responseNo = "" + (sequence + 1);
+		  String responseNo = "" + sequence;
 		  addMatchingResponseLabelTarget(itemXml, responseNo, responseIdent, text);
 	  }
 
@@ -489,7 +489,7 @@ public class ItemHelper12Impl extends ItemHelperBase
 		  for (int i = 0; i < answerList.size(); i++) {
 			  AnswerIfc answer = (AnswerIfc)answerList.get(i);
 			  String answerText = answer.getText();
-			  String responseNo = "" + (answer.getSequence() + numTexts + 1);
+			  String responseNo = "" + (answer.getSequence() + numTexts);
 			  String responseIdent = "MS-" + randomNumber + "-" + responseNo;
 
 			  addMatchingResponseLabelSource(itemXml, responseNo, responseIdent, answerText, matchmax);

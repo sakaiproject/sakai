@@ -1002,12 +1002,12 @@ public class ItemAddListener
 	  {
 		  ItemText itemText = new ItemText();
 		  itemText.setItem(item.getData());
-		  itemText.setSequence(Long.valueOf(i));
+		  itemText.setSequence(Long.valueOf(i+1));
 		  itemText.setText(rowChoices[i]);
 		  HashSet answerSet = new HashSet();
 		  Answer answer = null;
 		  for(int j=0; j< columnChoices.length;j++){
-			  answer = new Answer(itemText,columnChoices[j],Long.valueOf(j),null, null, null, Float.valueOf(bean.getItemScore()), Float.valueOf(0f), Float.valueOf(bean.getItemDiscount()));
+			  answer = new Answer(itemText,columnChoices[j],Long.valueOf(j+1),null, null, null, Float.valueOf(bean.getItemScore()), Float.valueOf(0f), Float.valueOf(bean.getItemDiscount()));
 			  answerSet.add(answer);
 		  }
 		  itemText.setAnswerSet(answerSet);

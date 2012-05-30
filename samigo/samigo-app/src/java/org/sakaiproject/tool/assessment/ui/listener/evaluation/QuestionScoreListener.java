@@ -593,11 +593,10 @@ public class QuestionScoreListener implements ActionListener,
 					}
 					if (bean.getTypeId().equals("13")) {
 						if (gdataPubItemText == null) {
-							// the matching pair is deleted
 							answerText = "";
 						}
 						else {
-							int answerNo = gdataPubItemText.getSequence().intValue() + 1;
+							int answerNo = gdataPubItemText.getSequence().intValue();
 							answerText = answerNo + ":" + answerText;
 						}
 					}
