@@ -419,8 +419,19 @@ h4 + div.itemAction{
 	margin:0;
 	padding:0 5px 0 8px
 }
-/*special style for the first item, namely no border-left*/
-.navIntraTool li.firstToolBarItem span{
+/*special style for the first item, namely no border-left. Note: tools will define the first
+ * toolbar item thus: ".navIntraTool li.firstToolBarItem span" for legacy browsers like IE 6. Since IE6 is no
+ * longer supported switching to the more flexible first-child pseudo class. Next 2 are to 
+ * deal with some things in site-setup
+*/
+
+.navIntraTool .realToolBarLink span {
+    border:none;
+}
+.navIntraTool .realToolBarLink ~ .realToolBarLink span{
+    border-left:1px solid #ccc;
+}
+.navIntraTool li:first-child span {
 	border:none;
 	margin:0;
 	padding: 0 5px 0 8px;
