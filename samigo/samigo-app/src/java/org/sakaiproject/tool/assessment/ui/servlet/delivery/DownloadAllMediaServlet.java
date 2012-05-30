@@ -69,13 +69,13 @@ import org.sakaiproject.tool.assessment.ui.listener.util.ContextUtil;
 
 public class DownloadAllMediaServlet extends HttpServlet
 {
-  /**
+	/**
 	 * 
 	 */
 	private static final long serialVersionUID = 1465451058167004991L;
-private static Log log = LogFactory.getLog(DownloadAllMediaServlet.class);
-  private GradingService gradingService = new GradingService();
-  
+	private static Log log = LogFactory.getLog(DownloadAllMediaServlet.class);
+	private GradingService gradingService = new GradingService();
+
   public DownloadAllMediaServlet()
   {
   }
@@ -147,7 +147,7 @@ private static Log log = LogFactory.getLog(DownloadAllMediaServlet.class);
 	  log.debug("scoringType = " + scoringType);
 	  
 	  GradingService gradingService = new GradingService();
-	  List mediaList = gradingService.getMediaArray(publishedId,publishedItemId, scoringType);
+	  List<MediaData> mediaList = gradingService.getMediaArray(publishedId,publishedItemId, scoringType);
 
 	  MediaData mediaData;
 	  log.debug("mediaList.size() = " + mediaList.size());
@@ -185,13 +185,13 @@ private static Log log = LogFactory.getLog(DownloadAllMediaServlet.class);
 	  log.debug("publishedItemId = " + publishedItemId);
 	  log.debug("scoringType = " + scoringType);
 	  
-      HashMap hashByAgentId = new HashMap();
-      HashMap subHashByAssessmentGradingId;
+      Map<String, Map<Long, List<MediaData>>> hashByAgentId = new HashMap<String, Map<Long, List<MediaData>>>();
+      Map<Long, List<MediaData>> subHashByAssessmentGradingId;
       MediaData mediaData;
-      ArrayList list;
+      List<MediaData> list;
       ItemGradingData itemGradingData;
 
-	  List mediaList;
+	  List<MediaData> mediaList;
 	  mediaList = gradingService.getMediaArray(publishedId, publishedItemId, scoringType);
 	  log.debug("mediaList.size() = " + mediaList.size());
 		  
@@ -214,24 +214,24 @@ private static Log log = LogFactory.getLog(DownloadAllMediaServlet.class);
 		  }
 		  if (hashByAgentId.containsKey(agentId)) {
 			  log.debug("same agentId");
-			  subHashByAssessmentGradingId = (HashMap) hashByAgentId.get(agentId);
+			  subHashByAssessmentGradingId = hashByAgentId.get(agentId);
 			  if (subHashByAssessmentGradingId.containsKey(assessmentGradingId)) {
 				  log.debug("same assessmentGradingId");
-				  list = (ArrayList) subHashByAssessmentGradingId.get(assessmentGradingId);
+				  list = subHashByAssessmentGradingId.get(assessmentGradingId);
 				  list.add(mediaData);
 			  }
 			  else {
 				  log.debug("different assessmentGradingId");
-				  list = new ArrayList();
+				  list = new ArrayList<MediaData>();
 				  list.add(mediaData);
 				  subHashByAssessmentGradingId.put(assessmentGradingId, list);
 			  }
 		  }
 		  else {
 			  log.debug("different agentId");
-			  list = new ArrayList();
+			  list = new ArrayList<MediaData>();
 			  list.add(mediaData);
-			  subHashByAssessmentGradingId = new HashMap();
+			  subHashByAssessmentGradingId = new HashMap<Long, List<MediaData>>();
 			  subHashByAssessmentGradingId.put(assessmentGradingId, list);
 			  hashByAgentId.put(agentId, subHashByAssessmentGradingId);
 		  }
@@ -242,7 +242,7 @@ private static Log log = LogFactory.getLog(DownloadAllMediaServlet.class);
 		  ServletOutputStream outputStream = res.getOutputStream();
 		  zos = new ZipOutputStream(outputStream);			  
           
-		  HashMap hashMap;
+		  Map hashMap;
 		  Iterator iter = hashByAgentId.values().iterator();
 		  int numberSubmission;
 		  while (iter.hasNext()) {
@@ -262,7 +262,7 @@ private static Log log = LogFactory.getLog(DownloadAllMediaServlet.class);
    				  // Doe_John_sub1_A.txt and Doe_John_sub2_B.txt
    				  // If we don't sort it, the outcome might be:
    				  // Doe_John_sub2_A.txt and Doe_John_sub1_B.txt which are not what we want
-   				  ArrayList keyList = new ArrayList();
+   				  List<Long> keyList = new ArrayList<Long>();
    				  Long key;
    				  while(subIter.hasNext()) {
    					  key = (Long) subIter.next();
