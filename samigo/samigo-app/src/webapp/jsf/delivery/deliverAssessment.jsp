@@ -101,9 +101,11 @@
                     alert("You are only allowed one selection per column, please try again.");
                     return;
                   }
+                  else{
+                      return;
+                  }
                 }
               }
-              return;
             }
           }
 		}
