@@ -326,6 +326,8 @@ private static Log log = LogFactory.getLog(DownloadAllMediaServlet.class);
 	  String mediaLocation = mediaData.getLocation();
 	  log.debug("mediaLocation = " + mediaLocation);
 	  String filename = getFilename(mediaData, anonymous, numberSubmission);
+	  //SAM-1468 we need to ensure the fileName is unique
+	  filename = getUniqueFilename(filename);
 	  if (mediaLocation == null || (mediaLocation.trim()).equals("")){          		  
 		  byte[] media = mediaData.getMedia();
 		  log.debug("media.length = " + media.length);
@@ -365,7 +367,36 @@ private static Log log = LogFactory.getLog(DownloadAllMediaServlet.class);
 	  }	  
   }
   
-  private FileInputStream getFileStream(String mediaLocation){
+  //A list of the files in the Zip
+  private List<String> filesInZip = new ArrayList<String>();
+  
+  public String getUniqueFilename(String fileName) {
+	  
+	if (!filesInZip.contains(fileName)) {
+		filesInZip.add(fileName);
+		return fileName;
+	} else {
+		//there already is a file of this name
+		int i = 1;
+		String origFileName = fileName;
+		while (filesInZip.contains(fileName)) {
+			
+			String extension = "";
+			if (origFileName.contains(".")) {
+				extension = origFileName.substring(origFileName.lastIndexOf("."));
+			}
+
+			fileName = origFileName.substring(0, origFileName.length() - extension.length());
+			fileName = fileName + "-" + i + extension;
+			i++;
+		}
+		filesInZip.add(fileName);
+	}
+		
+	return fileName;
+}
+
+private FileInputStream getFileStream(String mediaLocation){
     FileInputStream inputStream=null;
     try{
       File media=new File(mediaLocation);
