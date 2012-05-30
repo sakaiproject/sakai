@@ -22,10 +22,10 @@
 
     <modules>
         <module>basiclti-common</module>
+        <module>basiclti-api</module>
         <module>basiclti-assembly</module>
         <module>basiclti-docs</module>
         <module>basiclti-help</module>
-        <module>basiclti-api</module>
         <module>basiclti-impl</module>
         <module>basiclti-pack</module>
         <module>basiclti-portlet</module>
