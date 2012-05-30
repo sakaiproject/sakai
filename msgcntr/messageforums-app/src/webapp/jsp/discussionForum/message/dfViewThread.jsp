@@ -65,20 +65,6 @@
 					$('.itemNav').clone().addClass('specialLink').appendTo('form')
 				}
 			});
-			
-			//Profile tooltips
-			$(document).ready(function() {
-				$('.authorProfile').each(function() {
-					$(this).qtip({ 
-						content: {text: '<h:outputText value="#{msgs.loading_wait}" />',	url: $(this).attr('href'), title: {	text: '<h:outputText value="#{msgs.cdfm_profile_information}" />',button: '[ X ]' } },
-						position: {	corner: {target: 'center', tooltip: 'leftMiddle'} },
-						show: { when: 'mouseover', solo: true, effect: {length:0} },
-						hide: { when:'mouseout', fixed:true, delay: 300,  effect: {length:0} },
-						style: { tip: true, border: {color:'#687E9C'}, name: 'light', width: 570 }
-					});
-					$(this).attr('href', 'javascript:;');
-				});
-			});	
 </script>		
 		<sakai:tool_bar separator="#{msgs.cdfm_toolbar_separator}">
 				<sakai:tool_bar_item action="#{ForumTool.processDfMsgReplyThread}" value="#{msgs.cdfm_reply_thread}" 

@@ -13,6 +13,8 @@
 			<sakai:script contextBase="/messageforums-tool" path="/js/jquery.qtip.js"/>
 			<sakai:script contextBase="/messageforums-tool" path="/js/forum.js"/>
 			<sakai:script contextBase="/messageforums-tool" path="/js/sak-10625.js"/>
+			<sakai:script contextBase="/messageforums-tool" path="/js/forum.js"/>
+			
 			<!--jsp/discussionForum/message/dfViewMessage.jsp-->
 			<script type="text/javascript">
 				$(document).ready(function() {
@@ -42,19 +44,6 @@
 			</script>
 
 <script type="text/javascript">
-	//Profile tooltips
-	$(document).ready(function() {
-		$('.authorProfile').each(function() {
-			$(this).qtip({ 
-				content: {text: '<h:outputText value="#{msgs.loading_wait}" />',	url: $(this).attr('href'), title: {	text: '<h:outputText value="#{msgs.cdfm_profile_information}" />',button: '[ X ]' } },
-				position: {	corner: {target: 'center', tooltip: 'leftMiddle'} },
-				show: { when: 'mouseover', solo: true, effect: {length:0} },
-				hide: { when:'mouseout', fixed:true, delay: 300,  effect: {length:0} },
-				style: { tip: true, border: {color:'#687E9C'}, name: 'light', width: 570 }
-			});
-			$(this).attr('href', 'javascript:;');
-		});
-	});
 </script>
 			<%--breadcrumb and thread nav grid--%>
 			<h:panelGrid columns="2" width="100%" styleClass="navPanel">
