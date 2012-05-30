@@ -457,7 +457,7 @@ public class GradingService
 	    getMediaItemGradingHash(assessmentGradingId);
   }
   
-  public List getMediaArray(String publishedId, String publishItemId, String which){
+  public List<MediaData> getMediaArray(String publishedId, String publishItemId, String which){
 	    return PersistenceService.getInstance().getAssessmentGradingFacadeQueries().
 	    getMediaArray(Long.valueOf(publishedId), Long.valueOf(publishItemId), which);
   }
