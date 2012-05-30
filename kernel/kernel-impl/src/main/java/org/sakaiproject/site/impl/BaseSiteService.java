@@ -1845,7 +1845,7 @@ public abstract class BaseSiteService implements SiteService
 					out.println("<title>");
 					out.println(site.getTitle());
 					out.println("</title>");
-					out.println("</head><body><div class=\"portletBody\">");					
+					out.println("</head><body class=\"siteDescriptionFrame\"><div class=\"portletBody siteDescription\">");					
 
 					// get the description - if missing, use the site title
 					String description = site.getDescription();
