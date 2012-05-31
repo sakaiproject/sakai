@@ -256,7 +256,6 @@ public class SitePageEditHandler {
      *
      */
     public String savePages () {
-System.out.println("state:" + state);
         if (state != null) {
             String[] pages = state.split(" ");
             for (int i = 0; i < pages.length; i++) {
