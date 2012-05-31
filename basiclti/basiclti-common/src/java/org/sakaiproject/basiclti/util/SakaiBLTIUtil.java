@@ -59,6 +59,7 @@ public class SakaiBLTIUtil {
 	public static final String BASICLTI_SETTINGS_ENABLED = "basiclti.settings.enabled";
 	public static final String BASICLTI_ROSTER_ENABLED = "basiclti.roster.enabled";
 	public static final String BASICLTI_CONTENTLINK_ENABLED = "basiclti.contentlink.enabled";
+	public static final String BASICLTI_CONSUMER_USERIMAGE_ENABLED = "basiclti.consumer.userimage.enabled";
 
 	public static void dPrint(String str)
 	{
@@ -247,6 +248,12 @@ public class SakaiBLTIUtil {
 		if ( user != null )
 		{
 			setProperty(props,BasicLTIConstants.USER_ID,user.getId());
+
+			if(ServerConfigurationService.getBoolean(SakaiBLTIUtil.BASICLTI_CONSUMER_USERIMAGE_ENABLED, true)) {
+                String imageUrl = getOurServerUrl() + "/direct/profile/" + user.getId() + "/image";                     
+                setProperty(props,BasicLTIConstants.USER_IMAGE,imageUrl);
+            }
+
 			if ( "on".equals(releasename) ) {
 				setProperty(props,BasicLTIConstants.LIS_PERSON_NAME_GIVEN,user.getFirstName());
 				setProperty(props,BasicLTIConstants.LIS_PERSON_NAME_FAMILY,user.getLastName());
