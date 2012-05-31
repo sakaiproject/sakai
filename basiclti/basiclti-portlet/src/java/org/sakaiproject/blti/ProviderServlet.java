@@ -45,6 +45,7 @@ import org.sakaiproject.lti.api.BLTIProcessor;
 import org.sakaiproject.lti.api.LTIException;
 import org.sakaiproject.basiclti.util.ShaUtil;
 import org.sakaiproject.component.cover.ServerConfigurationService;
+import org.sakaiproject.entity.api.ResourcePropertiesEdit;
 import org.sakaiproject.event.cover.UsageSessionService;
 import org.sakaiproject.exception.IdUnusedException;
 import org.sakaiproject.id.cover.IdManager;
@@ -56,8 +57,11 @@ import org.sakaiproject.tool.api.Session;
 import org.sakaiproject.tool.api.Tool;
 import org.sakaiproject.tool.cover.SessionManager;
 import org.sakaiproject.tool.cover.ToolManager;
+import org.sakaiproject.user.api.Preferences;
+import org.sakaiproject.user.api.PreferencesEdit;
 import org.sakaiproject.user.api.User;
 import org.sakaiproject.user.api.UserNotDefinedException;
+import org.sakaiproject.user.cover.PreferencesService;
 import org.sakaiproject.user.cover.UserDirectoryService;
 import org.sakaiproject.util.ResourceLoader;
 import org.springframework.context.ApplicationContext;
@@ -96,6 +100,8 @@ public class ProviderServlet extends HttpServlet {
 	private static ResourceLoader rb = new ResourceLoader("basiclti");
 	private static final String BASICLTI_RESOURCE_LINK = "blti:resource_link_id";
     private static final String LTI_CONTEXT_ID = "lti_context_id";
+
+    private Map<String,String> defaultCountries = new HashMap<String,String>();
 
     private List<BLTIProcessor> bltiProcessors = new ArrayList();
 
@@ -164,6 +170,9 @@ public class ProviderServlet extends HttpServlet {
             }
         });
 
+        // BLTI-153. Needed in case two character code is passed. 
+        defaultCountries.put("en","GB");
+        defaultCountries.put("es","ES");
 	}
 
 	protected void doGet(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
@@ -223,11 +232,38 @@ public class ProviderServlet extends HttpServlet {
 
             invokeProcessors(payload, isTrustedConsumer, ProcessingState.afterValidation);
 
-            User user = findOrCreateUser(payload, isTrustedConsumer);
+            boolean justCreated = false;
+            User user = findOrCreateUser(payload, isTrustedConsumer,justCreated);
 
             invokeProcessors(payload, isTrustedConsumer, ProcessingState.afterUserCreation, user);
 
             loginUser(ipAddress, user);
+
+            // BLTI-153. Set up user's language.
+            String locale = request.getParameter(BasicLTIConstants.LAUNCH_PRESENTATION_LOCALE);
+            if(locale != null && locale.length() > 0) {
+                if(locale.length() == 2) {
+                    locale += "_" + defaultCountries.get(locale);
+                }
+                try {
+                    PreferencesEdit pe = null;
+                    if(justCreated) {
+                        // User added for the first time therefore no current preferences.
+                        pe = PreferencesService.add(user.getId());
+                        pe.getPropertiesEdit("sakai:resourceloader").addProperty(Preferences.FIELD_LOCALE,locale);
+                    } else {
+                        // User already existed therefore edit their current preferences.
+                        // Currently, this doesn't work and I don't know why, the code seems valid - Adrian.
+                        pe = PreferencesService.edit(user.getId());
+                        ResourcePropertiesEdit propsEdit = pe.getPropertiesEdit("sakai:resourceloader");
+                        propsEdit.removeProperty(Preferences.FIELD_LOCALE);
+                        propsEdit.addProperty(Preferences.FIELD_LOCALE,locale);
+                    }
+                    PreferencesService.commit(pe);
+                } catch(Exception e) {
+                    M_log.error("Failed to setup launcher's locale",e);
+                }
+            }
 
             invokeProcessors(payload, isTrustedConsumer, ProcessingState.afterLogin, user);
 
@@ -840,7 +876,7 @@ public class ProviderServlet extends HttpServlet {
         return userrole;
     }
 
-    protected User findOrCreateUser(Map payload, boolean trustedConsumer) throws LTIException {
+    protected User findOrCreateUser(Map payload, boolean trustedConsumer,boolean justCreated) throws LTIException {
         User user;
         String user_id = (String) payload.get(BasicLTIConstants.USER_ID);
 
@@ -890,6 +926,9 @@ public class ProviderServlet extends HttpServlet {
                     UserDirectoryService.addUser(null, eid, fname, lname, email, hiddenPW, "registered", null);
                     M_log.info("Created user=" + eid);
                     user = UserDirectoryService.getUserByEid(eid);
+
+                    // BLTI-153. We need to differentiate between exising and new users for locale setup purposes
+                    justCreated = true;
                 } catch (Exception e) {
                     throw new LTIException("launch.create.user", "user_id=" + user_id, e);
                 }
