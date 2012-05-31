@@ -337,7 +337,7 @@ $(document).ready(function() {
 			<label for="subType">
 				$tlang.getString("gen.stusub")
 			</label>
-			<select name="$name_SubmissionType" id="subType" onchange="if(document.getElementById('subType').value != 4){document.getElementById('tempAllowRes').style.display = 'block';resizeFrame();}else{document.getElementById('tempAllowRes').style.display = 'none';document.getElementById('allowResToggle').checked=false}document.getElementById('allowResubmitNumber').style.display = 'none';document.getElementById('allowResubmitTime').style.display = 'none';" /> >
+			<select name="$name_SubmissionType" id="subType" onchange="if(document.getElementById('subType').value != 4){document.getElementById('tempAllowRes').style.display = 'block';resizeFrame();}else{document.getElementById('tempAllowRes').style.display = 'none';document.getElementById('allowResToggle').checked=false;document.getElementById('allowResubmitNumber').style.display = 'none';document.getElementById('allowResubmitTime').style.display = 'none';}" /> >
 				#foreach ($i in [1..$!value_totalSubmissionTypes])
 					#if ($i == $value_SubmissionType)
 						<option value="$i" selected="selected">$submissionTypeTable.get($i)</option>
