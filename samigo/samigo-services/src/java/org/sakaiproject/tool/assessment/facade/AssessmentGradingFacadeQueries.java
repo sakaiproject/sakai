@@ -2187,7 +2187,7 @@ public class AssessmentGradingFacadeQueries extends HibernateDaoSupport implemen
 
 						  count++;
 					  }
-					  else if (typeId.equals(TypeIfc.MATCHING)) {
+					  else if (typeId.equals(TypeIfc.MATCHING) || typeId.equals(TypeIfc.MATRIX_CHOICES_SURVEY)) {
 						  log.debug("MATCHING");
 						  String thistext = "";
 
