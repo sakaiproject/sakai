@@ -3888,12 +3888,53 @@ public class SimplePageBean {
 		}
 	}
 
+    // note on completion: there's an issue with subpages. isItemComplete just looks to see if
+    // the logEntry shows that the page is complete. But that's filled out when someone actually
+    // visits the page. If an instructor has graded something or a student has submitted directly
+    // through a tool, requirements in a subpage might have been completed without the student
+    // actually visiting the page. 
+    //   So for the first subpage that is both required and not completed, we want to recheck
+    // the subpage to see if it's now complete. This will have to happen recursively. Of course
+    // if it's OK then we need to check the next one, etc.
+    //
+    // This code will return false immediately when it gets the first thing that is required
+    // and not completed. We just do
+    // a recusrive check if the subpage is required, visited, and not already completed. The reason
+    // for only checking if visited is to avoid false positives for page with no requirements. A
+    // page with no required items is completed when it's visited. If there are no reqirements, the
+    // recursive call will return true, but if the page hasn't been visited it's still not completed.
+    // So we only want to do the recursive call if it's been visited.
+    //    I think it's reasonable not to start checking status of quizes etc until the page has been
+    // visited.
+    //
+    // no changes are needed for isItemCompleted. isPageCompleted is called at the starrt of ShowPage
+    // by track. That call will update the status of subpages. So when we're doing other operations on
+    // the page we can use a simple isItemComplete, because status would have been updated at the start
+    // of ShowPage.
+    //
+    // Note that we only check the first subpage that hasn't been completed. If there's more than one,
+    // information about later ones could be out of date. I'm claim that's less important, because it can't
+    // affect whether anything is allowed.
+    //
+    // the recursive call to isItemComplete for subpages has some issues. isItemComplete will
+    // use the completeCache, which may be set by isitemcomplete without doing a full recursive
+    // scan. We are again depending upon the fact that the first check is done here, which does
+    // the necessary recursion. The cache is request-scope. If it were longer-lived we'd have
+    // a problem.
+
+    // alreadySeen is needed in case there's a loop in the page structure. This is uncommon but
+    // possible
+
+	public boolean isPageComplete(long itemId) {
+	    return isPageComplete(itemId, null);
+	}
+
 	/**
 	 * @param itemId
 	 *            The ID of the page from the <b>items</b> table (not the page table).
 	 * @return
 	 */
-	public boolean isPageComplete(long itemId) {
+	public boolean isPageComplete(long itemId,Set<Long>alreadySeen) {
 	    
 		// Make sure student content objects aren't treated like pages.
 		// TODO: Put in requirements
@@ -3906,11 +3947,32 @@ public class SimplePageBean {
 
 		for (SimplePageItem item : items) {
 			if (!isItemComplete(item)) {
+			    if (item.getType() == SimplePageItem.PAGE) {
+				// If we get here, must be not completed or isItemComplete would be true
+				SimplePageLogEntry entry = getLogEntry(item.getId());
+				// two possibilities in next check:
+				// 1) hasn't seen page, can't be complete
+				// 2) we've checked before; there's a loop; be safe and disallow it
+				if (entry == null || entry.getDummy() ||
+				    (alreadySeen != null && alreadySeen.contains(item.getId()))) {
+				    return false;
+				}
+				if (alreadySeen == null)
+				    alreadySeen = new HashSet<Long>();
+				alreadySeen.add(itemId);
+				// recursive check to see whether page is complete
+				boolean subOK = isPageComplete(item.getId(), alreadySeen);
+				if (!subOK) {
+				    return false; // nope, that was our last hope
+				}
+				// was complete; fall through and return true
+			    } else
 				return false;
 			}
 		}
 
 		// All of them were complete.
+		completeCache.put(itemId, true);
 		return true;
 	}
 
