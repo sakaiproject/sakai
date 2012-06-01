@@ -1210,6 +1210,10 @@ below they are contextually defined depending on the column as an example,as you
 	color: white;
 	text-decoration: none;
 }
+#chatToggle:focus, #presenceToggle:focus{
+    outline:1px dotted #000;
+}
+
 #chatToggle{
 	color: #888;
 	text-decoration: none;
