@@ -232,40 +232,36 @@ public class ProviderServlet extends HttpServlet {
 
             invokeProcessors(payload, isTrustedConsumer, ProcessingState.afterValidation);
 
-            boolean justCreated = false;
-            User user = findOrCreateUser(payload, isTrustedConsumer,justCreated);
-
+            User user = findOrCreateUser(payload, isTrustedConsumer);
+            
             invokeProcessors(payload, isTrustedConsumer, ProcessingState.afterUserCreation, user);
 
             loginUser(ipAddress, user);
+            
+            invokeProcessors(payload, isTrustedConsumer, ProcessingState.afterLogin, user);
 
             // BLTI-153. Set up user's language.
-            String locale = request.getParameter(BasicLTIConstants.LAUNCH_PRESENTATION_LOCALE);
+            String locale = (String) payload.get(BasicLTIConstants.LAUNCH_PRESENTATION_LOCALE);
             if(locale != null && locale.length() > 0) {
                 if(locale.length() == 2) {
                     locale += "_" + defaultCountries.get(locale);
                 }
                 try {
                     PreferencesEdit pe = null;
-                    if(justCreated) {
-                        // User added for the first time therefore no current preferences.
+                    try {
+                    	pe = PreferencesService.edit(user.getId());
+                    } catch(IdUnusedException idue) {
                         pe = PreferencesService.add(user.getId());
-                        pe.getPropertiesEdit("sakai:resourceloader").addProperty(Preferences.FIELD_LOCALE,locale);
-                    } else {
-                        // User already existed therefore edit their current preferences.
-                        // Currently, this doesn't work and I don't know why, the code seems valid - Adrian.
-                        pe = PreferencesService.edit(user.getId());
-                        ResourcePropertiesEdit propsEdit = pe.getPropertiesEdit("sakai:resourceloader");
-                        propsEdit.removeProperty(Preferences.FIELD_LOCALE);
-                        propsEdit.addProperty(Preferences.FIELD_LOCALE,locale);
                     }
+                    
+                    ResourcePropertiesEdit propsEdit = pe.getPropertiesEdit("sakai:resourceloader");
+                    propsEdit.removeProperty(Preferences.FIELD_LOCALE);
+                    propsEdit.addProperty(Preferences.FIELD_LOCALE,locale);
                     PreferencesService.commit(pe);
                 } catch(Exception e) {
                     M_log.error("Failed to setup launcher's locale",e);
                 }
             }
-
-            invokeProcessors(payload, isTrustedConsumer, ProcessingState.afterLogin, user);
 
             Site site = findOrCreateSite(payload, isTrustedConsumer);
 
@@ -606,7 +602,7 @@ public class ProviderServlet extends HttpServlet {
         // Check user has access to this tool in this site
         if(!ToolManager.isVisible(site, toolConfig)) {
             M_log.warn("Not allowed to access tool user_id=" + user.getId() + " site="+ site.getId() + " tool=" + tool_id);
-            new LTIException( "launch.site.tool.denied", "user_id=" + user.getId() + " site="+ site.getId() + " tool=" + tool_id, null);
+            throw new LTIException( "launch.site.tool.denied", "user_id=" + user.getId() + " site="+ site.getId() + " tool=" + tool_id, null);
 
         }
         return toolPlacementId;
@@ -780,23 +776,33 @@ public class ProviderServlet extends HttpServlet {
         if (trustedConsumer) {
             throw new LTIException("launch.site.invalid", "siteId=" + siteId, null);
         } else {
-           //BLTI-151 allow site type to be configurable
 
-            //If the new site type has been specified in sakai.properties, use it.
-            String sakai_type = ServerConfigurationService.getString("basiclti.provider.newsitetype", null);
-            if(BasicLTIUtil.isBlank(sakai_type)) {
-                final String context_type = (String) payload.get(BasicLTIConstants.CONTEXT_TYPE);
-                if (BasicLTIUtil.equalsIgnoreCase(context_type, "course")) {
-                    sakai_type = "course";
-                } else {
-                    sakai_type = BasicLTIConstants.NEW_SITE_TYPE;
-                }
-            }
             final String context_title = (String) payload.get(BasicLTIConstants.CONTEXT_TITLE);
             final String context_label = (String) payload.get(BasicLTIConstants.CONTEXT_LABEL);
             pushAdvisor();
             try {
-                site = SiteService.addSite(siteId, sakai_type);
+                String sakai_type = "project";
+
+                // BLTI-154. If an autocreation site template has been specced in sakai.properties, use it.
+                String autoSiteTemplateId = ServerConfigurationService.getString("basiclti.provider.autositetemplate", null);
+                if(autoSiteTemplateId == null) {
+                    //BLTI-151 If the new site type has been specified in sakai.properties, use it.
+                    sakai_type = ServerConfigurationService.getString("basiclti.provider.newsitetype", null);
+                    if(BasicLTIUtil.isBlank(sakai_type)) {
+                        // It wasn't specced in the props. Test for the ims course context type.
+                        final String context_type = (String) payload.get(BasicLTIConstants.CONTEXT_TYPE);
+                        if (BasicLTIUtil.equalsIgnoreCase(context_type, "course")) {
+                            sakai_type = "course";
+                        } else {
+                            sakai_type = BasicLTIConstants.NEW_SITE_TYPE;
+                        }
+                    }
+                    site = SiteService.addSite(siteId, sakai_type);
+                    site.setType(sakai_type);
+                } else {
+                    Site autoSiteTemplate = SiteService.getSite(autoSiteTemplateId);
+                    site = SiteService.addSite(siteId, autoSiteTemplate);
+                }
 
                 if (BasicLTIUtil.isNotBlank(context_title)) {
                     site.setTitle(context_title);
@@ -807,7 +813,6 @@ public class ProviderServlet extends HttpServlet {
                 site.setJoinable(false);
                 site.setPublished(true);
                 site.setPubView(false);
-                site.setType(sakai_type);
                 // record the original context_id to a site property
                 site.getPropertiesEdit().addProperty(LTI_CONTEXT_ID, context_id);
 
@@ -876,7 +881,7 @@ public class ProviderServlet extends HttpServlet {
         return userrole;
     }
 
-    protected User findOrCreateUser(Map payload, boolean trustedConsumer,boolean justCreated) throws LTIException {
+    protected User findOrCreateUser(Map payload, boolean trustedConsumer) throws LTIException {
         User user;
         String user_id = (String) payload.get(BasicLTIConstants.USER_ID);
 
@@ -899,6 +904,7 @@ public class ProviderServlet extends HttpServlet {
                 lname = fullname.substring(ipos + 1);
             }
         }
+        
         // If trusted consumer, login, otherwise check for existing user and create one if required
         // Note that if trusted, then the user must have already logged into Sakai in order to have an account stub created for them
         // otherwise this will fail since they don't exist. Perhaps this should be addressed?
@@ -926,13 +932,9 @@ public class ProviderServlet extends HttpServlet {
                     UserDirectoryService.addUser(null, eid, fname, lname, email, hiddenPW, "registered", null);
                     M_log.info("Created user=" + eid);
                     user = UserDirectoryService.getUserByEid(eid);
-
-                    // BLTI-153. We need to differentiate between exising and new users for locale setup purposes
-                    justCreated = true;
                 } catch (Exception e) {
                     throw new LTIException("launch.create.user", "user_id=" + user_id, e);
                 }
-
             }
 
             // post the login event
