@@ -2,12 +2,10 @@
 body{
 	width: 100%;
 	padding: 0;
-	font-family: 'Trebuchet MS',Verdana,sans-serif;
-	font-size:.8em;
+	font-family: 'Helvetica Neue', Arial, sans-serif;
+	font-size: .8em;
 	margin: 0;
-	background-color: #093b52;
-        background-image:  url(images/page_bg_water.jpg);
-        background-repeat:repeat-x;
+	background-repeat: repeat-x;
 }
 
 /*PART 1 - MAIN LAYOUT BLOCKS*/
@@ -42,42 +40,97 @@ body{
 #headerMax,#headerMin{
 	width: 100%;
 }
-#headerMin{
-	overflow:hidden;
+#headerMin>#siteNavWrapper>#mastHead>#mastLogin>#loginLinks {
+	padding: 2px 5px 0 0 !important;
+	margin: 0;
 }
-#headerMax{
-    height:35px;
+#headerMin>#siteNavWrapper>#mastHead>#mastLogin>#loginLinks>#loginLink1 {
+	margin-bottom: 5px;
+	margin-right: 0 !important;
+	font-weight: bold;
+	font-size: 1.1em;
+}
+#headerMin>#siteNavWrapper>#mastHead>#mastLogin>#loginLinks>#loginLink2 {
+	font-size: .9em
+}
+#headerMin>#siteNavWrapper>#mastHead>#mastLogin>#loginLinks a, #loginLink1 {
+	border-radius: 5px;
+	border: 1px solid #ccc;
+	padding: 4px 6px !important;
+	text-align: center;
+	text-decoration: none !important;
+	background: #454A4F;
+	background: -moz-linear-gradient(top, #454A4F 0%, #000 100%);
+	background: -webkit-gradient(linear, left top, left bottom, color-stop(0%,#454A4F), color-stop(100%,#000));
+	background: -webkit-linear-gradient(top, #454A4F 0%,#000 100%);
+	background: -o-linear-gradient(top, #454A4F 0%,#000 100%);
+	background: -ms-linear-gradient(top, #454A4F 0%,#000 100%);
+	background: linear-gradient(top, #454A4F 0%,#000 100%);
+	filter: progid:DXImageTransform.Microsoft.gradient( startColorstr='#454A4F', endColorstr='#000',GradientType=0 );
+	border: 1px solid #454A4F;
+}
+#headerMin>#siteNavWrapper>#mastHead>#mastLogin>#loginLinks a {
+
+}
+#headerMin>#siteNavWrapper>#mastHead>#mastLogin>#loginLinks a:hover, #loginLink1:hover {
+	background: #454A4F;
+	text-decoration: none !important;
+}
+#headerMax #loginLink1 {
+	//margin-top: -15px !important
+}
+#headerMin #tabBottom {
+	display: none
+}
+#headerMin #mastHead {
+	clear: both;
+	display: block;
+}
+#headerMin {
+	overflow: hidden
+}
+#headerMax {
+
+}
+
+/* accessibility links wrapper   */
+#skipNav {
+
 }
 
 /*site hierarchy breadcrumb*/
 #siteHierarchy{
-	margin:0;
-    z-index:10000;
-    position:fixed;
-    top:38px;
-    left:0;
-    right:0;
-    height:12px;
+	margin: 0;
+	z-index: -1;
+	height: 12px;
 	list-style: none;
-    line-height:.95em;
-    vertical-align:middle;
-    padding:5px 7px;
-	background-color: #aaa;
-	border-bottom: 1px solid #aaa;
-    font:.85em bold Helvetica, 'Helvetica Neue', Arial;
-    color:#ddd;
+	line-height: .95em;
+	vertical-align: middle;
+	padding: 5px 7px;
+	background-color: #f3f3f3;
+	border-bottom: 1px solid #ccc;
+	font-size: .85em;
+	color: #aaa;
 }
 #siteHierarchy + #container{
     margin-top:35px;
 }
 #headerMax + #container{
-    margin-top:15px;
 }
 
+#siteHierarchy li {
+	display: inline;
+	padding: 0 1px 0 0;
+}
+#siteHierarchy li a, #siteHierarchy li a:visited {
+	color: #333;
+	font-size: 1em;
+	text-decoration: none;
+}
 /*style the standard breadcrumbseparator
 can set display:none if needed because the list-style is taking care of it*/
 .breadSeparator{
-    font:1em bold Arial;
+	font: 1em bold 'Helvetica Neue', Arial
 }
 a.lastBreadCrumb{
 	color: black;
@@ -93,46 +146,64 @@ a.lastBreadCrumb{
         text-decoration:none;
 }
 #tabBottom{
-    display:none;
+    position: absolute;
+	left: 0;
+	right: 0;
+	top: 38px;
+	background: transparent;
+	height: 0px;
+	margin: 0;
 }
-#headerMin #tabBottom{
-    display:none;
-    }
+
 /*wrapper for site content (includes as children #toolMenuWrap,#content and #footer)*/
 #container{
-   right:0;
-   left:0;
-   margin-right:30px;
-   margin-top:0px;
-   padding-top:10px;
-   margin-bottom:0px;
-   margin-left:30px;
-   background: #fff;
-   -moz-border-radius: 10px;
-   -webkit-border-radius: 10px;
-   -khtml-border-radius: 10px;
-   border-radius: 10px;
-   box-shadow:0px 0px 10px #000;
-   -webkit-box-shadow:0px 0px 10px #000;
-   -moz-box-shadow:0px 0px 10px #000000;
+   right: 0;
+	left: 0;
+	margin-right: 0px;
+	margin-top: 0px;
+	padding-top: 0px;
+	margin-bottom: 0px;
+	margin-left: 0px;
+	background: #fff;
 }
 
 /*wrapper for #toolMenu - children are #worsiteLogo,#toolMenu*/
 #toolMenuWrap{
 	float: left;
-	width: 11em;
+	width: 12em;
 	color: #000;
-	text-align: right;
-	padding:0 .5em 0 0;
-	border-right:2px solid #09c;
-    margin-bottom:1em;
+	padding: 0;
+	border: 1px solid #ccc;
+	border-width: 0 1px 1px 0;
+	-moz-border-radius: 0 0 5px 0;
+	-webkit-border-radius: 0 0 5px 0;
+	border-radius: 0 0 5px 0;
+	margin-bottom: 30px;
 }
-
+#toolMenuWrap #toggler {
+	display: block;
+	float: right;
+}
 #toolMenuWrap:hover{
 	
 	}
 /*depending on site type - different hover effects for the tool menu parent block
 site types are a local setting - adjust */
+#toolMenuWrap>div:last-of-type li:last-of-type {
+	border-width: 0
+}
+#toolMenuWrap>div:last-of-type, #toolMenuWrap>div:last-of-type ul:last-of-type, #toolMenuWrap>div:last-of-type li:last-of-type, #toolMenuWrap>div:last-of-type li:last-of-type a {
+	-moz-border-radius: 0 0 4px 0;
+	-webkit-border-radius: 0 0 4px 0;
+	border-radius: 0 0 4px 0;
+}
+
+.toolMenuIcon {
+	padding: 1px 0;
+	*background: none !important;
+	*padding-right: 0 !important;
+}
+
 .workspace #toolMenuWrap:hover{
 	
 }
@@ -150,27 +221,53 @@ site types are a local setting - adjust */
 }
 
 #content{
-	padding: 0;
-	margin-top: .5em;
-	padding-left: 13.3em;
+    padding: 0;
+	padding-top: 2em;
+	padding-left: 14.4em;
 
 }
+#col1, #col1of2, #col2of2 {
+
+}
+#col1of2 .portletTitleWrap, #col2of2 .portletTitleWrap {
+	width: 98.5%;
+	border-bottom: 2px solid #7AA3CC !important;
+	border-radius: 3px;
+}
+#col1of2 .portletMainWrap, #col2of2 .portletMainWrap {
+	width: 98.5%;
+	margin-bottom: .5em;
+}
+#col1 .portletTitleWrap {
+	width: 99%;
+	border-bottom: 2px solid #7AA3CC !important;
+	border-radius: 3px !important;
+}
+#col1 .portletMainWrap {
+	width: 99%
+}
 /*margin tweak for IE to avoid float drop*/
-* html #content{margin-left:12.3em}
+* html #content{margin-left:13.5em}
 /*wrapper for footer blocks*/
 #footer{
-    clear:both;
-    margin:0;
-    background:#444;
-    padding:5px;
-    text-align: center;
+    clear: both;
+	background: #444;
+	padding: 10px;
+	text-align: center;
+	background: #f3f3f3;
+	border: 1px solid #ddd;
+	width: 90%;
+	margin: 0 auto 50px auto;
+	-moz-border-radius: 8px;
+	-webkit-border-radius: 8px;
+	border-radius: 8px;
 
 }
 #footerLinks{
     text-align: center;
-    font:.80em bold Helvetica, 'Helvetica Neue', Arial;
-    margin:0;
-    padding:0;
+	font-size: .9em;
+	margin: 0;
+	padding: 0;
 
 }
 #footerLinks li{
@@ -197,6 +294,19 @@ site types are a local setting - adjust */
 .project .siteNavWrap{
 	
 }
+
+.siteNavWrap, #headerMin {
+	background: #7AA3CC;
+	background: -moz-linear-gradient(top, #454A4F 0%, #000 100%);
+	background: -webkit-gradient(linear, left top, left bottom, color-stop(0%,#454A4F), color-stop(100%,#000));
+	background: -webkit-linear-gradient(top, #454A4F 0%,#000 100%);
+	background: -o-linear-gradient(top, #454A4F 0%,#000 100%);
+	background: -ms-linear-gradient(top, #454A4F 0%,#000 100%);
+	background: linear-gradient(top, #454A4F 0%,#000 100%);
+	filter: progid: DXImageTransform.Microsoft.gradient( startColorstr='#454A4F', endColorstr='#000',GradientType=0 );
+	border-bottom: 1px solid #454A4F;
+}
+
 #siteNavWrapper{
 	margin: 0;
 }
@@ -217,11 +327,11 @@ site types are a local setting - adjust */
 that can be used or hidden,can also use a background:url(images/<image name>.<ext>) in this block,or both superimposing them*/
 #mastLogo{
 	float: left;
-	margin-left: 0.2em;
+	margin: 0;
 	width: auto;
-    height:80px;
-    width: 120px;
-    background:transparent url(images/logo_inst.png) 30px 3px no-repeat;
+	height: 80px;
+	width: 280px;
+	background: transparent url(images/logo_inst.png) 10px 13px no-repeat;
 }
 
 /*the portal outputs an image that can be treated here or hidden with display:none*/
@@ -245,11 +355,13 @@ that can be used or hidden,can also use a background:url(images/<image name>.<ex
 /*container wrapping,depending on Sakai settings:1) a login form,2) a login link for CAS,3) a logout link*/
 #mastLogin{
     position:absolute;
-    top:5px;
     right:0;
     	text-align: right;
-	padding-right: 15px;
 	vertical-align: middle;
+    border-radius: 0px 0px 15px 15px;
+    background: #000;
+    margin-right: 2em;
+    padding: 10px;
 }
 
 /*the anchor for the login link for CAS above can be an image - treated here*/
@@ -268,70 +380,168 @@ that can be used or hidden,can also use a background:url(images/<image name>.<ex
 	text-decoration: none;
 }
 
+ul.subnav li a, #mastLogin .submenuitem a {
+	color: #444;
+	text-shadow: 0 1px 1px #fff;
+	padding: 7px 6px 6px 25px !important;
+	font-size: 1em !important;
+}
+#mastLogin li.submenuitem {
+	margin: 0;
+	text-align: left;
+}
+#mastLogin li.submenuitem a.submenuitem-new-site {
+	background-image: url(/library/image/silk/application_lightning.png )
+}
+#mastLogin li.submenuitem a.submenuitem-profile {
+	background-image: url(/library/image/silk/vcard_edit.png)
+}
+#mastLogin li.submenuitem a.submenuitem-prefs {
+	background-image: url(/library/image/silk/cog.png)
+}
+#mastLogin li.submenuitem:last-child a {
+	border-bottom: none
+}
+ul.nav-submenu li.submenuitem a, #mastLogin li.submenuitem a {
+	background-position: 3px center !important;
+	background-repeat: no-repeat !important;
+	outline: none;
+	text-decoration: none;
+	width: 170px;
+	padding-left: 25px;
+	font-weight: normal;
+	color: #111;
+	text-shadow: 0 1px 0 white;
+}
+#mastLogin li.submenuitem a {
+	background-position: left center;
+	background-repeat: no-repeat;
+	padding: 10px 25px;
+	width: auto;
+	display: block;
+}
+#mastLogin span.drop {
+	/*--Drop down trigger styles--*/
+	width: 17px;
+	margin-top: 3px;
+	height: 35px;
+}
+#mastLogin ul.subnav {
+	font-size: 1em
+}
+#mastLogin ul.subnav {
+	list-style: none;
+	position: absolute; /*--Important - Keeps subnav from affecting main navigation flow--*/
+	left: auto !important;
+	right: 2px;
+	margin: 0;
+	padding: 0;
+	display: none;
+	float: left;
+	width: 210px;
+	white-space: nowrap;
+	z-index: 100;
+}
+#mastLogin img {
+	margin-top: 0;
+	border: 0;
+}
+/* the anchor for the login link for CAS above can be an image - treated here  */
+/* login links for CAS,logout link  */
+#mastLogin a:hover {
+	text-decoration: none
+}
+#mastLogin a, #mastLogin a:visited {
+	margin-top: 0
+}
+/* ===[ Front page, logout icon ]===
+   ================================================== */
+#loginLink1:hover, #loginUser:hover {
+
+}
+
 /*login form elements - in order,form,userid field,password field,login button - first 2 have labels associated with them,gettable as #loginForm label{
 }
 
 #loginForm is the form for login - contains children #eid #pw #submit*/
 #loginForm{
-	margin: 1em 0;
+    border-radius: 10px 10px 10px 10px;
+    box-shadow: 0 0 10px #000000;
+    float: right;
+    width: 33em;
+    color: #fff;
+}
+
+#loginForm label {
+	padding: 0 6px;
+	color: #FFF;
+}
+#eid, #pw {
+	border: 1px solid #ccc;
+	padding: 3px;
+	margin-right: 15px;
+	width: 7em;
 }
 
 #eid{
-	border: 1px solid #aaa;
-	padding: 3px;
-	margin-left: .5em;
-	width: 7em;
+	
 }
 
 #pw{
-	border: 1px solid #aaa;
-	padding: 3px;
-	margin-left: .5em;
-	width: 7em;
-}
-
-#loginForm label{
-	color: #000;
-	padding: 0 .5em
+	
 }
 
 #submit{
 }
 
 #submit:hover{
-	color: #09c;
+	color: #7AA3CC
 }
 
 /*block for login/logout links */
 #loginLinks{
-    color:#aaa;
+    color: #aaa;
 	margin: 0;
-    float:right;
-	padding:6px 20px 0 6px;
+	padding: 0 5px 3px 10px;
     
 }
 
+#loginLinks .drop {
+	background: transparent url(/library/image/silk/user.png) 0 0 no-repeat;
+	position: absolute;
+	top: 3px;
+	width: 20px !important;
+	height: 20px !important;
+	right: 10px;
+	cursor: pointer;
+}
+
 /*main CAS link*/
+#loginLinks a {
+	color: #fff
+}
 #loginLink1{
     padding:0 5px;
     margin-right:5px;
     text-decoration:none
 }
-
+#loginLink1[title='Logout'] {
+	margin-top: -4px !important;
+	
+}
 /*secondary CAS link*/
 #loginLink2{
 
 }
 #loginUserWrap{
     font-size:70%;
-    border-right:1px solid #ccc;
-    padding-right:5px;
-    margin-right:3px;
+    padding-right:34px;
     text-decoration:none
 }
 #loginUser{
-    text-decoration:none;
-    font-size:140%;
+	text-decoration: none;
+	font-size: 140%;
+	color: #ccc;
 }
 #loginLink1:hover, #loginUser:hover{
     text-decoration:underline !important;
@@ -349,25 +559,22 @@ that can be used or hidden,can also use a background:url(images/<image name>.<ex
 so for example <div class="tabHolder workspace"> so that different site types can be treated differently via inheritance - children are #siteNavWrap and #navBottom*/
 
 .siteNavWrap {
-	position: fixed;
-    background-color:#454A4F;
-    color:#000000;
 	width: 100%;
 	font-size: 100%;
 	line-height: normal;
-	z-index: 100001;/*needs to be be higher than #siteHierarchy*/ 
-    padding:0;
+	z-index: 100001; /*needs to be be higher than #siteHierarchy*/
+	padding: 0;
 }
 
 /*wrapper for the site links and site <select> blocks - children are #siteNav and #tabNav */
 #siteNav{
-    height:35px;
     padding: 0px;
 }
 
 /*wrapper for the site link list   - the #siteLinkList child)*/
 #linkNav{
 	display: block;
+    padding-right: 165px;
 	/* position: relative;
 	float:left; */
 }
@@ -395,10 +602,13 @@ so for example <div class="tabHolder workspace"> so that different site types ca
 
 /*wrapper for the site <select> that is displayed when more than x sites are in the link list*/
 #selectSite {
-	padding: 3px 0;
-    position:absolute;
-    top:35px;
-    right:100px;
+	padding: 15px 0;
+	position: absolute;
+	border: 1px solid #888;
+	border-width: 0 1px 1px 1px;
+	top: 0;
+	width: 80%;
+	left: 10%;
 	vertical-align: middle;
 }
 
@@ -413,20 +623,43 @@ so for example <div class="tabHolder workspace"> so that different site types ca
 }
 
 #roleSwitch{
-    position:absolute;
-    top:30px;
-    white-space:nowrap;
-    right:0;
-    background:#191919;
-    -webkit-border-bottom-left-radius: 5px;
-    -moz-border-radius-bottomleft: 5px;
-    border-bottom-left-radius: 5px;    z-index:20000;
-    vertical-align:middle;
-    padding:6px 10px;
-    box-shadow:0px 0px 10px #000;
-   -webkit-box-shadow:0px 0px 10px #000;
-   -moz-box-shadow:0px 0px 10px #000000;
+    position: absolute;
+	right: 0px;
+	top: 85px;
+	background: #ddd !important;
+	background: -moz-linear-gradient(top, #F7F7F7 0%, #E7E7E7 100%) !important;
+	background: -webkit-gradient(linear, left top, left bottom, color-stop(0%,#F7F7F7), color-stop(100%,#E7E7E7)) !important;
+	background: -webkit-linear-gradient(top, #F7F7F7 0%,#E7E7E7 100%) !important;
+	background: -o-linear-gradient(top, #F7F7F7 0%,#E7E7E7 100%) !important;
+	background: -ms-linear-gradient(top, #F7F7F7 0%,#E7E7E7 100%) !important;
+	background: linear-gradient(top, #F7F7F7 0%,#E7E7E7 100%) !important;
+	text-align: center;
+	width: auto;
+	border-radius: 4px;
+	border: 1px solid #ccc !important;
+	border-width: 1px 1px 1px 1px !important;
+	font-size: .85em;
+	text-transform: capitalize;
+	text-align: center;
 }
+
+#roleSwitch a#roleSwitchAnchor {
+	color: #000 !important;
+	display: block;
+	width: 125px;
+	padding: 2px 10px 3px 0;
+}
+#roleSwitch select {
+	border: 2px solid #0077B5;
+	display: inline;
+	font-size: 0.9em;
+	margin: 10px 2px 0 0;
+	padding: 0;
+}
+#roleSwitch a#roleSwitchAnchor:hover {
+	color: #7AA3CC !important;
+}
+
 #roleSwitch label, #roleSwitch  a#roleSwitchAnchor{
 	color:#fff;
 }
@@ -435,7 +668,6 @@ so for example <div class="tabHolder workspace"> so that different site types ca
     text-decoration:none;
 	display:block;
     padding:1px 3px;
-    background:#fff;
     -webkit-border-radius: 2px;
     -moz-border-radius: 2px;
     border-radius: 2px;
@@ -461,7 +693,11 @@ so for example <div class="tabHolder workspace"> so that different site types ca
 	display:block;
 	float:left;
 }
-
+#siteLinkList li span {
+	display: block;
+	padding: 8px 13px 3px 2px;
+	margin: 0pt;
+}
 /*links to other sites*/
 #siteLinkList li a, #siteLinkList li a:link, #siteLinkList li a:visited {
 	color: #FFF;
@@ -475,6 +711,20 @@ so for example <div class="tabHolder workspace"> so that different site types ca
 
 #siteLinkList li a:hover {
 	text-decoration: underline;
+}
+
+#siteLinkList li.selectedTab a, #siteLinkList li.selectedTab a:link, #siteLinkList li.selectedTab a:visited, #siteLinkList li.selectedTab a:hover {
+	color: #FFF;
+	background-color: #878A8C;
+	font-weight: bolder;
+	text-decoration: none;
+	border-width: 0;
+}
+#siteLinkList li.tab-dim a, #siteLinkList li.tab-dim a:link, #siteLinkList li.tab-dim a:visited, #siteLinkList li.tab-dim a:hover {
+	color: #666
+}
+#siteLinkList li.selectedTab a span {
+	padding: 8px 11px 5px 0
 }
 
 #siteLinkList li span {
@@ -512,19 +762,25 @@ so for example <div class="tabHolder workspace"> so that different site types ca
 }
 
 /* more tab */
+#siteLinkList li.tab-dim a span {
+	padding-bottom: 3px
+}
+
 li.more-tab {
     
 
 }
 li.more-tab a {
-    display:block;
-    height:16px;
-	padding:0;
-	margin: 0;
+    background-image: url(images/subnav_btn_more.png);
+	display: block;
+	height: 16px;
+	background-repeat: no-repeat;
+	background-position: right -2px;
+	padding: 0;
+	margin-right: 10px;
 }
 li.more-tab a span{
     padding-right:15px;
-    background:  url(images/subnav_btn_more.png) right center no-repeat;
 }
 #siteLinkList li.more-active a,
 	#siteLinkList li.more-active a:link,
@@ -543,7 +799,20 @@ li.more-tab a span{
 	padding-bottom: 5px;
 }
 
+#siteLinkList li.more-active a, #siteLinkList li.more-active a:link, #siteLinkList li.more-active a:visited {
+	color: #000000;
+	font-weight: bolder;
+	text-decoration: none;
+	border-width: 0;
+}
+
 #siteLinkList li.more-active a span.inner {
+}
+#siteLinkList li.more-active a span {
+	padding-bottom: 5px
+}
+#siteLinkList li.more-active a:hover {
+	text-decoration: underline
 }
 
 .fixTabsIE{
@@ -555,20 +824,18 @@ li.more-tab a span{
 /*wrapper for the site <select> that is displayed when more than x sites are in the link list*/
 .dhtml_more_tabs {
 	position: absolute;
-	top: 2.5em;
 	right: 4px;
 	line-height: 1.5em;
-	background-color: #454A4F; 
-	border-top-width: 0;
-	width: 75%;
+	background-color: #454A4F;
+	border-width: 0;
 	z-index: 9999;
-    -moz-box-shadow: 3px 3px 4px #000;
-	-webkit-box-shadow: 3px 3px 4px #000;
-	box-shadow: 3px 3px 4px #000;
-    border-radius: 0px 0px 5px 5px;
-    -moz-border-radius: 0px 0px 5px 5px;
-    -webkit-border-bottom-right-radius: 5px;
-    -webkit-border-bottom-left-radius: 5px;
+	-moz-box-shadow: 0 0 10px #555;
+	-webkit-box-shadow: 0 0 10px #555;
+	box-shadow: 0 0 10px #555;
+	-moz-border-radius: 0px 0px 5px 5px;
+	-webkit-border-radius: 0px 0px 5px 5px;
+	border-radius: 0px 0px 5px 5px;
+	color: #000;
 }
 
 html>body .dhtml_more_tabs {
@@ -612,7 +879,27 @@ html>body .dhtml_more_tabs {
 
 .dhtml_more_tabs a:hover {
 }
-
+.dhtml_more_tabs h4 {
+	font-size: 1.06em;
+	margin: 0;
+	padding: 0;
+	font-weight: normal;
+}
+.dhtml_more_tabs ul {
+	list-style: none;
+	margin: 10px;
+	padding: 10px;
+}
+.dhtml_more_tabs li {
+	margin: 6px 6px 0 0;
+	line-height: 1.1em;
+	width: 18em;
+	float: left;
+	display: block;
+}
+html>body .dhtml_more_tabs {
+	right: 2px
+}
 #more_tabs_instr  {
 	color: #333;
 	font-size: 1em;
@@ -625,12 +912,13 @@ html>body .dhtml_more_tabs {
 }
 
 #portalMask {
-	background-color: #EEEEEE; 
+	background-color: #ffffff;
 	position: absolute;
+	height: 100%;
 	z-index: 9000;
-	top:0;
-	left:0;
-	filter:alpha(opacity=50);
+	top: 0;
+	left: 0;
+	filter: alpha(opacity=50);
 	opacity: 0.50;
 }
 
@@ -642,47 +930,105 @@ html>body .dhtml_more_tabs {
 /*PART 5 - SITE TOOL LINKS  - children of #toolMenuWrap	*/
 /*wrapper for ul that lists the links to tools*/
 #toolMenu, #subSites{
-	width: 11em;
+	width: 12em;
 	padding: 0;
-	margin: 1em 0 0 0;
+	margin: 0 0 0 0;
 	color: #000;
-	background: inherit;
+	background: #f3f3f3;
 }
 
-#toolMenu ul, #subSites ul{
-	width:auto;
+
+#toolMenu li.selectedTool a {
+	color: #7AA3CC !important;
+	cursor: default;
+}
+#toolMenu li.selectedTool a:hover {
+
+}
+#toolMenu li.moreTools {
+	padding: 8px 0
+}
+#toolMenu li.moreTools a {
+	display: inline;
+	padding: 2px 5px;
+	-moz-border-radius: 4px !important;
+	-webkit-border-radius: 4px !important;
+	-khtml-border-radius: 4px !important;
+	border-radius: 4px !important;
+	color: #444;
+	margin-right: 6px;
+}
+#toolMenu li.moreTools a:hover {
+	color: #fff
+}
+#toolMenu li.moreTools a span {
+	display: inline-block;
+	padding-right: 0;
+}
+#toolMenu li, #subSites li {
+	margin: 0;
+	width: auto;
+	padding: 0;
+	border-bottom: 1px solid #ccc;
+	background: #f3f3f3;
+	/*background: -moz-linear-gradient(top, #f3f3f3 0%, #e7e7e7 100%);;;
+	background: -webkit-gradient(linear, left top, left bottom, color-stop(0%,#f3f3f3), color-stop(100%,#e7e7e7));
+	background: -webkit-linear-gradient(top, #f3f3f3 0%,#e7e7e7 100%);
+	background: -o-linear-gradient(top, #f3f3f3 0%,#e7e7e7 100%);
+	background: -ms-linear-gradient(top, #f3f3f3 0%,#e7e7e7 100%);
+	background: linear-gradient(top, #f3f3f3 0%,#e7e7e7 100%);*/
+}
+#toolMenu li a.selected, #subSites li a.selected {
+	text-decoration: none;
+	color: #000;
+	cursor: default;
+}
+#toolMenu li a.selected:hover, #subSites li a.selected:hover {
+	text-decoration: none;
+	color: #000;
+	cursor: text;
+}
+#toolMenu li a.hidden {
+	font-style: italic;
+	filter: alpha(opacity=70); /* opacity for IE */
+	opacity: 0.7; /* CSS3 standard */
+}
+
+#toolMenu ul, #subSites ul {
+	width: auto;
 	list-style: none;
 	margin: 0;
 	padding-right: 0;
-
 	padding-left: 0;
-}
-
-#toolMenu li, #subSites li{
-	margin: 3px 0;
-	width: auto;
-	padding: 0;
-	border: 1px solid #fff;
-	text-align: right;
 }
 
 /*span shim for fine grained manipulation of link display (decorative)
 also hide if are going to be using icon links (as background of <a> nad <li>
 */
 
+.toolMenuIcon{
+    background: url("/library/image/silk/application_go.png") no-repeat scroll left center transparent;
+}
 
 #toolMenu li span, #subSites li span{
     background-repeat:no-repeat;
-    background-position:right;
-    padding:3px 22px 3px 0px;
+    background-position:left;
+    padding:3px 0 3px 22px;
     
 }
 
-#toolMenu li.selectedTool span, #toolMenu li.selectedTool a{
+#toolMenu li.selectedTool span
 	filter:alpha(opacity=70);
-	color:#000;
-	opacity: 0.70;
+	color:#7AA3CC;
 	text-decoration:none
+	background: #454A4F;
+	background: -moz-linear-gradient(top, #454A4F 0%, #000 100%);
+	background: -webkit-gradient(linear, left top, left bottom, color-stop(0%,#454A4F), color-stop(100%,#000));
+	background: -webkit-linear-gradient(top, #454A4F 0%,#000 100%);
+	background: -o-linear-gradient(top, #454A4F 0%,#000 100%);
+	background: -ms-linear-gradient(top, #454A4F 0%,#000 100%);
+	background: linear-gradient(top, #454A4F 0%,#000 100%);
+	filter: progid: DXImageTransform.Microsoft.gradient( startColorstr='#454A4F', endColorstr='#000',GradientType=0 );
 }
 
 #toolMenu li a:link,#toolMenu li a,
@@ -744,6 +1090,44 @@ also hide if are going to be using icon links (as background of <a> nad <li>
     color:#000
     
     }
+
+#toolMenu li a:link, #toolMenu li a, #subSites li a:link, #subSites li a {
+	display: block;
+	text-decoration: none;
+	color: #444;
+	padding: 7px 6px 6px;
+	margin-bottom: 0px;
+	margin-left: 0px;
+	margin-right: 0px;
+	margin-top: 0px;
+	overflow: hidden;
+}
+li.selectedTool a {
+	text-decoration: none !important;
+	background: #454A4F !important;
+	background: -moz-linear-gradient(top, #454A4F 0%, #000 100%) !important;
+	background: -webkit-gradient(linear, left top, left bottom, color-stop(0%,#454A4F), color-stop(100%,#000)) !important;
+	background: -webkit-linear-gradient(top, #454A4F 0%,#000 100%) !important;
+	background: -o-linear-gradient(top, #454A4F 0%,#000 100%) !important;
+	background: -ms-linear-gradient(top, #454A4F 0%,#000 100%) !important;
+	background: linear-gradient(top, #454A4F 0%,#000 100%) !important;
+	filter: progid: DXImageTransform.Microsoft.gradient( startColorstr='#454A4F', endColorstr='#000',GradientType=0 ) !important;
+	color: #fff !important;
+}
+
+#toolMenu li a:hover, #subSites li a:hover{
+	text-decoration: none;
+	background: #ddd;
+	background: -moz-linear-gradient(top, #ddd 0%, #999 100%);
+	background: -webkit-gradient(linear, left top, left bottom, color-stop(0%,#ddd), color-stop(100%,#999));
+	background: -webkit-linear-gradient(top, #ddd 0%,#999 100%);
+	background: -o-linear-gradient(top, #ddd 0%,#999 100%);
+	background: -ms-linear-gradient(top, #ddd 0%,#999 100%);
+	background: linear-gradient(top, #ddd 0%,#999 100%);
+	filter: progid: DXImageTransform.Microsoft.gradient( startColorstr='#ddd', endColorstr='#999',GradientType=0 );
+	color: #fff;
+}
+
 /*
 set of special selectors when a user has chosen to minimize navigation and maximize real
 page estate
@@ -880,15 +1264,16 @@ a#toggleToolMenu{
 /*PART 6 - SITE AFFILIATION,SITE TYPE/STATUS AND PRESENCE - children of #toolMenuWrap	*/
 /*site logo wrapper*/
 #worksiteLogo{
-	width: 100%;
 	height: auto;
 	overflow: hidden;
 	display: block;
 }
 /*site logo image - Sakai may output,depending on installation,an image here based in site affiliation. Site owner may also point to a url - overriding the Sakai provided image*/
 #worksiteLogo img{ 
-    width:95%;
-    margin:.5em auto;
+    display: block;
+	margin: 0 auto;
+	border-bottom: 1px solid #ccc;
+	width: 100%;
 }
 
 /*wrapper for the string that Sakai will output based on site type (ie. project,course) this is open ended and institution specific*/
@@ -900,62 +1285,78 @@ a#toggleToolMenu{
 #siteStatus{
 	text-transform: capitalize;
 	text-align: left;
-	background: url(images/warn.gif) .2em center no-repeat #fff;
-	border: 1px solid  #aaa;
 	clear: both;
-	color: #aaa;	
-	font-size: 	small;
-	margin: 5px 2px 15px 2px;
-	padding: 3px 3px 3px 2em;
+	color: #7AA3CC;
+	font-size: small;
+	font-weight: bold;
+	line-height: 130%;
+	padding: 10px 3px;
+	border: 1px solid #ccc;
+	border-width: 0 0 1px 0;
+	text-align: center;
+	margin: 0;
 }
 
 
 #presenceArea {
 	background-color: #fff;
-    border: 1px solid  #aaa;
-    position:fixed;
-    height: 250px;
-    width: 175px;
-    bottom: 40px;
-    right: 5px;
-    -moz-box-shadow: 3px 3px 4px #ccc;
-	-webkit-box-shadow: 3px 3px 4px #ccc;
-	box-shadow: 3px 3px 4px #ccc;
+	border: 1px solid #ccc;
+	position: fixed;
+	height: 265px;
+	width: 175px;
+	bottom: 26px;
+	right: 18px;
 }
 
 /*wrapper for all elements of presence display */
 #presenceWrapper{
 	width: 100%;
+	height: 100%;
 }
 
 /*wrapper for title of iframe ("Users present") AAAA*/
 #presenceTitle, #pc_title{
-	font-size: 1.1em;
-    color:#555;
-    line-height:1em;
-    border-bottom:1px solid #ccc;
-	padding:5px;
-    background:#eee;
-    vertical-align:bottom;
-    border-bottom:1px solid #ddd
+	color: #000;
+	border-bottom: 1px solid #ccc;
+	padding: 3px 3px 4px 3px;
+	background: #eee;
+	vertical-align: bottom;
+	border-bottom: 1px solid #ddd;
+	height: 15px;
+	font-weight: bold;
 }
 #presenceTitle div, #pc_title div{
-    position:absolute;
-    top:2px;
-    text-align:center;
-    right:0px;
-    bottom:0;
-    width:15px;    
-    height:13px;
-    font-size:120%;
-    border-left:1px solid #ccc;
-    padding:4px;
+    position: absolute;
+	top: 0px;
+	text-align: center;
+	right: 0px;
+	bottom: 0;
+	width: 22px;
+	height: 22px;
+	font-size: 120%;
+	border-left: 1px solid #ccc;
 }    
 #presenceTitle div a,#pc_title div a{
-    color:#888;
-    padding:3px;
-    text-decoration:none;
+    width: 100%;
+	height: 100%;
+	display: block;
+	color: transparent;
+	background-image: url(../../image/silk/cross.png);
+	background-position: center center;
+	background-repeat: no-repeat;
 }    
+#pc_title div {
+	position: absolute;
+	top: 0px;
+	text-align: center;
+	right: 0px;
+	bottom: 0;
+	width: 17px;
+	height: 17px;
+	font-size: 120%;
+	border-left: 1px solid #ccc;
+	padding: 4px 5px 4px 4px;
+}
 #pc_title #pc_chat_close {
     padding:0;
     width:16px;
@@ -963,9 +1364,9 @@ a#toggleToolMenu{
 }
 /*of presence iframe*/
 #presenceIframe{
-	height: 100px;
+	height: 242px;
 	width: 100%;
-	overflow:auto;
+	overflow: auto;
 }
 /*below for "presence in chat" functionality*/
 .presenceBody{
@@ -976,10 +1377,9 @@ TODO: remove important when the neoportal picks up right skin and edit tool.css 
 */
 
 .presenceList{
-	font-size: .8em;
 	list-style: none;
 	margin: 3px !important;
-    padding:0;
+	padding: 0;
 }
 /*
 TODO: remove important when the neoportal picks up right skin and edit tool.css removing all presence stuff from there
@@ -989,7 +1389,7 @@ TODO: remove important when the neoportal picks up right skin and edit tool.css 
 }
 .presenceList li a{
     font-weight:bold;
-    color:#09c;
+    color:#7AA3CC;
     text-decoration:none;
 }    
 /*
@@ -1013,7 +1413,7 @@ TODO: remove important when the neoportal picks up right skin and edit tool.css 
 }
 
 #col2of2{
-	width: 50%;
+	width: 49%;
 	float: right;
 }
 
@@ -1024,10 +1424,6 @@ TODO: remove important when the neoportal picks up right skin and edit tool.css 
 
 /*.portletTitleWrap are wrappers for the tool title documents,
 below they are contextually defined depending on the column as an example,as you may want to adjust the widths accordingly*/ 
-#col1 .portletTitleWrap{
-	width: 99%;
-	border-bottom: 2px solid #09c;
-}
 
 #col1 .portletMainWrap{
 	width: 99%;
@@ -1035,7 +1431,7 @@ below they are contextually defined depending on the column as an example,as you
 
 #col1of2 .portletTitleWrap,#col2of2 .portletTitleWrap{
 	width: 98.5%;
-	border-bottom: 2px solid #09c;
+	border-bottom: 2px solid #7AA3CC !important;
 }
 
 #col1of2 .portletMainWrap,#col2of2 .portletMainWrap{
@@ -1047,6 +1443,17 @@ below they are contextually defined depending on the column as an example,as you
 	width: 100%;
 	height:100%;
 	overflow:hidden;
+	background: #ddd;
+	background: -moz-linear-gradient(top, #ddd 0%, #999 100%);
+	background: -webkit-gradient(linear, left top, left bottom, color-stop(0%,#ddd), color-stop(100%,#999));
+	background: -webkit-linear-gradient(top, #ddd 0%,#999 100%);
+	background: -o-linear-gradient(top, #ddd 0%,#999 100%);
+	background: -ms-linear-gradient(top, #ddd 0%,#999 100%);
+	background: linear-gradient(top, #ddd 0%,#999 100%);
+	filter: progid:DXImageTransform.Microsoft.gradient( startColorstr='#ddd', endColorstr='#999',GradientType=0 );
+	-moz-border-radius: 6px;
+	-webkit-border-radius: 6px;
+	border-radius: 6px;
 }
 
 .portletTitle .title img{
@@ -1058,16 +1465,18 @@ below they are contextually defined depending on the column as an example,as you
 }
 
 .portletTitle .title a{
-	background: url(images/reload.gif) center left no-repeat;
+	background: url(/library/image/silk/arrow_refresh-blue.png) center left no-repeat;
 	text-decoration: none !important;
-	border:1px solid #fff;
+	
 	height:1.5em;
 	outline:none	
 }
-
+.portletTitle .title a:hover, .portletTitle .title a:focus {
+	background: url(/library/image/silk/arrow_refresh-h-blue.png) center left no-repeat
+}
 
 .portletTitle .title{
-	padding: 2px 4px 6px 0;
+	padding: 8px 12px 12px 12px;
 	height: 1em;
 	float: left;
 	color: #000;
@@ -1077,20 +1486,21 @@ below they are contextually defined depending on the column as an example,as you
 	display: inline;
 	margin: 0;
 	padding: 0;
-    color:#555;	
+    color:#444;	
 	font-weight: bold;
-	font-family:'Trebuchet MS',Verdana,sans-serif;
+	font-family: 'Helvetica Neue', Arial, sans-serif;
 	font-size: 1.2em !important;
+    margin: 0 0 0 0.2em;
 }
 .portletTitle .title h2 .siteTitle{
     color: #333;
 }    
 .portletTitle .title a:hover, .portletTitle .title a:focus{
-	background: url(images/reload_h.gif) center left no-repeat;
+	background: url(/library/image/silk/arrow_refresh-h-blue.png) center left no-repeat;
 }
 
 .portletTitle .title a:focus,.portletTitle .action a:focus{ 
-	outline:black dotted thin; 
+	 
 } 
 
 .portletTitle .action{
@@ -1108,7 +1518,7 @@ below they are contextually defined depending on the column as an example,as you
 }
 
 .portletTitle .action a{
-	background: url(images/help.gif) center right no-repeat;
+	background: url(/library/image/silk/help.png) center right no-repeat;
 	text-align: left;
 	padding:0;
 	text-decoration: none !important;
@@ -1116,9 +1526,11 @@ below they are contextually defined depending on the column as an example,as you
 	height:1.5em;
 	outline:none
 }
-
+.portletTitle .title a:focus, .portletTitle .action a:focus {
+	
+}
 .portletTitle .action a:hover, .portletTitle .action a:focus{
-	background: url(images/help_h.gif) center right no-repeat;
+	background: url(/library/image/silk/help-h.png) center right no-repeat;
 }
 
 .portletTitle .action a#jsr-edit{
@@ -1147,14 +1559,14 @@ below they are contextually defined depending on the column as an example,as you
 
 /*the links displayed inside the wrapper above*/
 .footerExtNav a,.footerExtNav A:link,.footerExtNav A:visited{
-	color: #fff;
-    font:1em bold Helvetica, 'Helvetica Neue', Arial;
+	color: #333;
+    font-size: 1em;
     text-decoration: none;
 	margin: 1em;
 }
 
 .footerExtNav a:hover{
-	color: #aaa;
+	color: #444;
 	text-decoration: underline;
 }
 
@@ -1170,49 +1582,60 @@ below they are contextually defined depending on the column as an example,as you
 
 /*a third wrapper - reserved for copyright blurbs*/
 .sakaiCopyrightInfo{
-
-    font:.75em bold Helvetica, 'Helvetica Neue', Arial;
-	color: #fff;
+    padding: 5px 0;
+	font-size: .9em;
+	color: #333;
 }
 #footerAppTray{
-     font:.85em bold Helvetica, 'Helvetica Neue', Arial;
-     position:fixed;
-     right:5px;
-     bottom:0;
-     height:23px;
-     line-height:1.2em;
-     width:auto;
-     padding:0;
-     background:#eee url(images/appTrayBack.png) top left repeat-x;
+     font-size: .9em;
+	position: fixed;
+	right: 18px;
+	bottom: 0;
+	line-height: 1.2em;
+	text-align: center;
+	padding: 0;
+	border: 1px solid #ccc;
+	border-width: 1px 1px 0 1px;
+	background: #eeeeee;
+	background: -moz-linear-gradient(top, #eeeeee 0%, #e4e4e4 100%);
+	background: -webkit-gradient(linear, left top, left bottom, color-stop(0%,#eeeeee), color-stop(100%,#e4e4e4));
+	background: -webkit-linear-gradient(top, #eeeeee 0%,#e4e4e4 100%);
+	background: -o-linear-gradient(top, #eeeeee 0%,#e4e4e4 100%);
+	background: -ms-linear-gradient(top, #eeeeee 0%,#e4e4e4 100%);
+	background: linear-gradient(top, #eeeeee 0%,#e4e4e4 100%);
+	*width: 30px;
 }
 #footerAppPresence{
-    height:100%;
-    color:#fff;
-    vertical-align:middle;
-    float:right;
-    padding: 5px 3px;
-    border:1px solid #ccc;
+    height: 100%;
+	width: 25px;
+	color: #888;
+	vertical-align: middle;
+	float: right;
+	padding: 5px 3px;
+	text-align: center;
 }
 #footerAppChat{
-    height:35px;
-    vertical-align:bottom;
-    color:#000;
-    float:left;
-    text-align:left;
-    width:200px;
-    padding: 5px;
-    border:1px solid #ccc;
+    vertical-align: bottom;
+	color: #000;
+	float: left;
+	text-align: left;
+	width: 200px;
 }
 #presenceToggle{
 	color: white;
 	text-decoration: none;
+    text-align: center;
 }
 #chatToggle:focus, #presenceToggle:focus{
     outline:1px dotted #000;
 }
 #chatToggle{
-	color: #888;
+	display: block;
+	padding: 6px 6px 5px 6px;
+	color: #222;
 	text-decoration: none;
+	height: 16px;
+	font-weight: bold;
 }
 #footerAppTray span.present {
     background-color: #b11;
@@ -1241,6 +1664,15 @@ below they are contextually defined depending on the column as an example,as you
 #footerAppTray span.empty {
     visibility:hidden;
 }    
+
+#chattableCount {
+	display: inline-block;
+	vertical-align: middle !;
+	padding: 2px 5px !important;
+	line-height: normal;
+	width: auto !important;
+	height: auto !important;
+}
 /*PART 8 - CONVENIENCE*/
 /*used to hide various blocks from sighted users that are in the source to help with accessibility*/
 .portalBody .skip{
@@ -1253,6 +1685,13 @@ below they are contextually defined depending on the column as an example,as you
     left:0px; 
 		padding:0px 0px 0px 0px !important;
 } 
+.skip {
+	display: inline;
+	position: absolute;
+	top: -9999px;
+	left: -9999px;
+	height: 0;
+}
 
 /*jump-to links, tabbing into  */
 #skipNav a.internalSkip:focus, #skipNav a.internalSkip:active {
@@ -1604,39 +2043,69 @@ div#privacy_overlay {
 
 ul.topnav {
 	list-style: none;
-	padding-left:5px;
-	margin: 0 ;
-    width:100%;
-	float: left;
-    background: #222 url(images/topnav_bg.gif) repeat-x;
-	font-size: 1.1em;
+	padding: 40px 0 0 12.5em;
+	margin: 0;
+	width: 100%;
+	background-image: url(images/logo.png);
+	background-repeat: no-repeat;
+	background-position: 18px 1px;
+}
+ul.topnav li.nav-menu:hover, ul.topnav li.nav-selected, ul.topnav li.more-tab:hover {
+	background: #454A4F;
+	background: -moz-linear-gradient(top, #454A4F 0%, #000 100%);
+	background: -webkit-gradient(linear, left top, left bottom, color-stop(0%,#454A4F), color-stop(100%,#000));
+	background: -webkit-linear-gradient(top, #454A4F 0%,#000 100%);
+	background: -o-linear-gradient(top, #454A4F 0%,#000 100%);
+	background: -ms-linear-gradient(top, #454A4F 0%,#000 100%);
+	background: linear-gradient(top, #454A4F 0%,#000 100%);
+	filter: progid:DXImageTransform.Microsoft.gradient( startColorstr='#454A4F', endColorstr='#000',GradientType=0 );
+	border: 1px solid #454A4F;
+	-moz-border-radius: 3px;
+	-webkit-border-radius: 3px;
+	border-radius: 3px;
 }
 ul.topnav li {
-	background: #222 url(images/topnav_bg.gif) repeat-x;
-	float: left;
-	margin: 0;
-	padding: 0 15px 0 0;
+	display: inline-block;
+	*display: inline;
+	*float: left;
+	margin: 0 5px 0 0;
+	padding: 0;
 	position: relative; /*--Declare X and Y axis base for sub navigation--*/
+	font-weight: bold;
+	border: 1px solid transparent;
 }
 ul.topnav li a{
-	padding: 10px 5px;
+	padding: 8px 7px 8px 8px;
+	font-size: 13px;
 	color: #fff;
 	text-decoration: none;
 	float: left;
-     display:block;
+	display: block;
+	-moz-text-shadow: 0 -1px 1px rgba(0, 0, 0, .3);
+	-webkit-text-shadow: 0 -1px 1px rgba(0, 0, 0, .3);
+	text-shadow: 0 -1px 1px rgba(0, 0, 0, .3);
+}
+#loginLinks .nav-menu>span {
+
+}
+li.nav-menu > a:hover, li.nav-menu > a:focus, li.nav-menu > a: active {
+
+}
+
+some_nowhitespace {
+	nowhitespace: afterproperty
 }
 ul.topnav li a:hover,ul.topnav li a:focus{
-     color:#9cf   
+     color:#7AA3CC   
 }
 ul.topnav li a span{
 	vertical-align: bottom;
 }
 ul.topnav li.nav-selected > a{
-    color:#9cf
+    color:#7AA3CC
 }
 li.nav-menu > a:hover, li.nav-menu > a:focus,  li.nav-menu > a:active, li.more-tab > a:hover, li.more-tab > a:focus,  li.more-tab > a:active{
     outline:none;
-	background:  url(images/topnav_hover.gif) no-repeat center top;
 }
 li.nav-menu > a:focus,  li.nav-menu > a:active, li.more-tab > a:focus,  li.more-tab > a:active{
     outline:1px dotted #fff;
@@ -1647,10 +2116,11 @@ span.nav-menu > a:hover, span.nav-menu > a:focus,  span.nav-menu > a:active{
 }
 ul.topnav li span.drop { /*--Drop down trigger styles--*/
 	width: 17px;
-    margin-top:3px;
-	height: 35px;
+	margin-top: 3px;
+	margin-right: 7px;
+	height: 29px;
 	float: left;
-	background: url(images/subnav_btn.png) no-repeat center top;
+	background: url(images/subnav_btn.png) no-repeat center -3px;
 }
 /*
 remove these hacks after we redo the more sites functionality
@@ -1661,35 +2131,47 @@ ul.topnav li span.drop:nth-child(even){
 .portletTitle .title h2 span.siteTitle:nth-child(even){
     display:none;
 }
-ul.topnav li span.subhover {background-position: center bottom; cursor: pointer;} /*--Hover effect for trigger--*/
-ul.topnav li ul.subnav{
+ul.topnav li span.subhover {
+	background-position: center -38px;
+	cursor: pointer;
+}
+ul.topnav li ul.subnav, #mastLogin ul.subnav {
 	list-style: none;
 	position: absolute; /*--Important - Keeps subnav from affecting main navigation flow--*/
-	left: 0; top: 35px;
-	background: #333;
-    font-size:.9em;
-	margin: 0; padding: 0;
+	left: -1px;
+	top: 30px;
+	background: #f3f3f3;
+	font-size: .9em;
+	margin: 0;
+	padding: 0 !important;
 	display: none;
 	float: left;
 	width: 210px;
-	border: 1px solid #111;
-    white-space:nowrap;
-    z-index:100;
-	-moz-box-shadow: 6px 6px 8px #000;
-	-webkit-box-shadow: 6px 6px 8px #000;
-	box-shadow: 6px 6px 8px #000;
+	border: 1px solid #ccc;
+	border-width: 1px 1px 0 1px;
+	z-index: 100;
+	-moz-box-shadow: 0 0 8px #444;
+	-webkit-box-shadow: 0 0 8px #444;
+	box-shadow: 0 0 8px #444;
 }
+ul.topnav li ul.subnav li a:hover, #mastLogin ul.subnav li a:hover {
+	text-decoration: none;
+	color: #7AA3CC;
+}
+
 #mastLogin span.drop { /*--Drop down trigger styles--*/
 	width: 17px;
-	margin-top:3px;
-	height: 35px;
+	margin-top: 9px;
+	margin-right: 65px;
+	float: left;
+	background: url(/library/image/silk/user.png) no-repeat center -3px;
 }
 
 #mastLogin ul.subnav {
 	list-style: none;
 	position: absolute; /*--Important - Keeps subnav from affecting main navigation flow--*/
 	right: 2px; top: 30px;
-	background: #333;
+	
     font-size:.9em;
 	margin: 0; padding: 0;
 	display: none;
@@ -1709,41 +2191,42 @@ ul.subnav span.addTool{
 
 #otherSiteTools{
     list-style: none;
-	position: fixed;
-    top:-2000px;
-    left:-2000px;
-    z-index:1000000;
-	background: #aaa;
-    font-size:.9em;
-	margin: 0; padding: 0;
+	position: absolute;
+	top: -2000px;
+	left: -2000px;
+	z-index: 1000000;
+	background: #ccc;
+	font-size: .9em;
+	margin: 0;
+	padding: 0 !important;
 	width: 200px;
-    padding:1px;
-	border: 1px solid #111;
-    white-space:nowrap;
-	-moz-box-shadow: 6px 6px 8px #000;
-	-webkit-box-shadow: 6px 6px 8px #000;
-	box-shadow: 6px 6px 8px #000;
+	padding: 1px;
+	border: 1px solid #ccc;
+	border-width: 1px 1px 0 1px;
+	-moz-box-shadow: 0 0 8px #444;
+	-webkit-box-shadow: 0 0 8px #444;
+	box-shadow: 0 0 8px #444;
 }
 #otherSiteTools li{
-    background: url("images/topnav_bg.gif") repeat-x scroll 0 0 #222222;
-    float: left; 
-    padding:0;margin:0
+    float: left;
+	padding: 0;
+	margin: 0;
  }
 #otherSiteTools li a {
    width: 210px;
-    background-position: 3px center !important;
-    background-repeat: no-repeat !important;
-    outline:none;
+	background-position: 3px center !important;
+	background-repeat: no-repeat !important;
+	outline: none;
 	width: 170px;
-    padding: 10px 5px;
+	padding: 7px 5px 6px;
 	padding-left: 25px;
-    color: #FFFFFF;
-    display: block;
-    text-decoration: none;
+	display: block;
+	text-decoration: none;
+	color: #111;
 }
 
-#otherSiteTools li a:hover, #otherSiteTools li a:focus {
-    color:#9cf;
+#otherSiteTools li a:hover {
+	font-weight: bold;
     }
 span.topnav li ul.subnav li{
 	margin: 0; padding: 0;
@@ -1791,7 +2274,8 @@ li.submenuitem span.hidden{
 }
 
 #mastLogin  li.submenuitem a:hover,#mastLogin li.submenuitem a:focus, #topnav  li.submenuitem a:hover,#topnav  li.submenuitem a:focus { /*--Hover effect for subnav links--*/
-    color:#9cf;
+    color: #000 !important;
+    font-weight: bold !important;
 }
 #mastLogin  li.submenuitem a:focus, #topnav  li.submenuitem a:focus { /*--Hover effect for subnav links--*/
     outline:1px dotted #fff;
@@ -1800,7 +2284,25 @@ ul#otherSiteList, ul.otherSitesCategorList{
     margin:5px;
     padding:0;
     clear:both;
-    float:none;
+    float: left;
+	font-size: .9em;
+}
+ul#otherSiteList li, ul#otherSitesMenu li, ul.otherSitesCategorList li {
+	background: #454A4F;
+	background: -moz-linear-gradient(top, #454A4F 0%, #000 100%);
+	background: -webkit-gradient(linear, left top, left bottom, color-stop(0%,#454A4F), color-stop(100%,#000));
+	background: -webkit-linear-gradient(top, #454A4F 0%,#000 100%);
+	background: -o-linear-gradient(top, #454A4F 0%,#000 100%);
+	background: -ms-linear-gradient(top, #454A4F 0%,#000 100%);
+	background: linear-gradient(top, #454A4F 0%,#000 100%);
+	filter: progid: DXImageTransform.Microsoft.gradient( startColorstr='#454A4F', endColorstr='#000',GradientType=0 );
+	border: 1px solid #000;
+	font-weight: bold;
+	position: relative;
+	border-radius: 5px;
+	-moz-border-radius: 5px;
+	-webkit-border-radius: 5px;
+	overflow: hidden;
 }
 ul.otherSitesCategorList{
     margin-left:10px;
@@ -1808,8 +2310,8 @@ ul.otherSitesCategorList{
 ul#otherSitesMenu{
     position:absolute;
     top:15px;
-    right:5px;
-    font-size:.7em;
+    right:15px;
+    font-size:.9em;
     margin:0;
     padding:0
 }
@@ -1822,15 +2324,25 @@ ul#otherSiteList li,ul#otherSitesMenu li, ul.otherSitesCategorList li{
     overflow:hidden;
 }
 ul#otherSitesMenu li{
-    width:auto
+    width:auto !important;
+    font-size: 1.1em;
+	padding: 2px 3px 3px 3px;
     }
 ul#otherSiteList li a, #otherSitesMenu li a, ul.otherSitesCategorList li a{
     display:block;
-    padding:7px;
+    padding:4px;
     color:#fff !important;
     text-decoration:none !important;
     white-space:nowrap;
 }
+ul#otherSiteList li a:hover, ul#otherSiteList li a:focus, ul#otherSiteList li a: active, #otherSitesMenu li a:hover, #otherSitesMenu li a:focus, #otherSitesMenu li a: active, ul.otherSitesCategorList li a:hover, ul.otherSitesCategorList li a:focus {
+	color: #7AA3CC !important
+}
+
+#otherSitesCategorWrap .toolMenus {
+	background-position: 7px -7px;
+}
+
 ul.otherSitesCategorList a{
     color:#c2e0ff !important   
 }
@@ -1849,36 +2361,37 @@ for categorized view
 */    
 #otherSitesCategorWrap{
     margin:5px;
+    height: auto !important;
 }
 #otherSitesCategorWrap h4{
-    float:none;
-    clear:both;
-    color:#fff;
-    font-size:120%;
-    text-transform:capitalize;
-    font-variant:small-caps;
-    padding:5px 10px 0 10px;
-    margin:0;
-    text-shadow: 1px 1px 0 black, 2px 2px 0 black;
+    float: none;
+	clear: both;
+	color: #fff;
+	font-size: 90%;
+	text-transform: uppercase;
+	padding: 4px 10px 0 11px;
+	margin: 0;
+	margin-bottom: -8px;
+	color: #000;
+	font-weight: bold;
 }    
     
 .toolMenus{
     width: 17px;
-    height:17px;
-    padding:0px;
-    border-left:1px solid #888;
-	background: #292929 url(images/subnav_btn.png) no-repeat 10px -4px;
-    position:absolute;
-   right:1px;
-   top:2px;
-   height:11px;
+	height: 17px;
+	padding: 0px;
+	background: url(images/subnav_btn.png) no-repeat 10px -3px;
+	position: absolute;
+	right: 1px;
+	top: 2px;
+	height: 11px;
 }
 .toolMenus:hover {
     background-position: 10px -38px;
     cursor: pointer;
 }
 ul#otherSiteList li a:hover,ul#otherSiteList li a:focus,ul#otherSiteList li a:active, #otherSitesMenu li a:hover,#otherSitesMenu li a:focus,#otherSitesMenu li a:active,ul.otherSitesCategorList li a:hover,ul.otherSitesCategorList li a:focus     {
-   color:#9cf !important;
+   color:#7AA3CC !important;
    
 }
 ul#otherSiteList li a:focus span,ul#otherSiteList li a:active span, #otherSitesMenu li a:focus span, #otherSitesMenu li a:active span, ul.otherSitesCategorList li a:focus span{
@@ -1901,12 +2414,24 @@ ul#otherSiteList li a:focus span,ul#otherSiteList li a:active span, #otherSitesM
     width:70%;
     float:left;
 }
-#otherSiteSearch label{
-    color:#fff;
-    padding-right:2em;
+
+#otherSiteSearch #imgSearch {
+	margin: 0 !important;
+	padding: 0 !important;
+	line-height: normal;
+	vertical-align: top;
+}
+#otherSiteSearch label {
+	padding-right: 15px;
+	font-weight: bold;
+    color: #FFF !important;
 }
 #otherSiteSearch span#noSearchResults{
-    color:#fff
+	padding-left: 10px
+}
+#otherSiteSearch h4, #otherSItesCategorWrap h4 {
+	color: #222 !important;
+	font-weight: bold !important;
 }
 .workspace #presenceToggle{
     display:none;
@@ -1915,29 +2440,36 @@ ul#otherSiteList li a:focus span,ul#otherSiteList li a:active span, #otherSitesM
 /* pc = Portal Chat */
 
 #pc {
-    width: 210px;
-    font-family:Helvetica, 'Helvetica Neue', Arial;
-    background-color: white;
-    border: 1px solid #aaa;
-    position: fixed;
-    bottom: 24px;
-    /* Needs to be to the right of the expanded presence block. See presenceArea. */
-    right: 5px;
-    z-index: 2001;
-    margin: 0px;
-    padding: 0px;
-    display: none;
+    width: 200px;
+	font-family: 'Helvetica Neue', Arial;
+	background-color: white;
+	border: 1px solid #ccc;
+	border-width: 1px 1px 0 1px;
+	position: fixed;
+	bottom: 28px;
+	/* Needs to be to the right of the expanded presence block. See presenceArea. */
+	right: 18px;
+	z-index: 2001;
+	margin: 0px;
+	padding: 0px;
+	display: none;
 }
-
+#pc h5 {
+	margin-bottom: 5px !important;
+}
 #pc_chat_window_container {
     position: fixed;
-    /* The chats container is placed just to the left of the connections menu */
-    right: 216px;
-    bottom: 0px;
-    height: 300px;
-    /* This ridiculous width prevents pc_chat_windows from stacking */
-    width: 10000px;
-    pointer-events: none;
+	/* The chats container is placed just to the left of the connections menu */
+	right: 225px;
+	bottom: 0px;
+	height: 300px;
+	/* This ridiculous width prevents pc_chat_windows from stacking */
+	width: 10000px;
+	pointer-events: none;
+}
+
+#pc_chat_close {
+	padding: 0 !important
 }
 
 .pc_chat_window {
@@ -1948,6 +2480,7 @@ ul#otherSiteList li a:focus span,ul#otherSiteList li a:active span, #otherSitesM
     border-bottom: 0;
     bottom:0;
     pointer-events: auto;
+    margin-right: 5px;
 }
 
 #pc_title {
@@ -1992,7 +2525,7 @@ ul#otherSiteList li a:focus span,ul#otherSiteList li a:active span, #otherSitesM
 .pc_users_wrapper {
     padding: 5px;
     clear: both;
-    border-top: solid 1px #aaa;
+    border-top: solid 1px #ccc;
 }
 
 #pc_connections_wrapper {
@@ -2006,7 +2539,8 @@ ul#otherSiteList li a:focus span,ul#otherSiteList li a:active span, #otherSitesM
 #pc_connections_label, #pc_site_users_label{
     padding:2px 0;
     font-weight:bold;
-    color:#555
+    color:#444
+    text-transform: capitalize;
 }
 #pc_site_users {
     font-size:90%;
@@ -2021,11 +2555,15 @@ ul#otherSiteList li a:focus span,ul#otherSiteList li a:active span, #otherSitesM
     overflow: auto;
     list-style:none;
     clear: both;
-    border-top: solid 1px #aaa;
+    border-top: solid 1px #ccc;
 }
 #pc_users h2{
     margin:2px 0;
     padding:0;
+}
+#pc_users h5 {
+	margin: 0;
+	padding: 0;
 }
 #pc_connections {
     list-style:none;
@@ -2036,7 +2574,7 @@ ul#otherSiteList li a:focus span,ul#otherSiteList li a:active span, #otherSitesM
     clear: both;
     height:100%;
     overflow:hidden;
-    margin:3px 0;
+    margin: 4px 0 0 0;
     position:relative;
 }
 .pc_connection_image, .pc_user_image{
@@ -2048,19 +2586,31 @@ ul#otherSiteList li a:focus span,ul#otherSiteList li a:active span, #otherSitesM
 */    width:15%;
 }
 .pc_connection_display_name, .pc_site_display_name{
-    padding:3px;
-    font-size:90%;
-    display:block;
-    float:left;
-    width:120px
+    padding: 0;
+	display: block;
+	float: left;
+	width: 89% !important;
 }
 .pc_site_display_name{
     width:140px;
+    font-size: 10pt !important;
+	float: right;
 }
 .pc_connection_image, .pc_user_image, .pc_display_status_bullet{
     vertical-align:middle;
     display:block;
     float:left;
+}
+.pc_display_status_bullet {
+	float: left;
+	display: inline-block;
+	right: -3px;
+	position: absolute;
+}
+.pc_connection_image, .pc_user_image {
+	vertical-align: middle;
+	display: block;
+	float: left;
 }
 #pc_options {
     overflow: none;
@@ -2075,25 +2625,28 @@ pc_go_off_ctrl{
 }
 
 .pc_minimised {
-    margin-top: 262px;
+    margin-top: 260px;
 }
 
 .pc_maximised {
     margin-top: 0px;
-    font-family:Helvetica, 'Helvetica Neue', Arial;
+    font-family: 'Helvetica Neue', Arial;
 }
 
+.pc_connection_chat_title {
+	padding: 3px;
+}
 
 .pc_connection_chat_title_avt, .pc_connection_chat_title_no_avt {
-    font:14px bold Helvetica, 'Helvetica Neue', Arial;
-    cursor:pointer;
-    color: black;
-    background:#eee;
-    overflow: hidden;
-    padding: 2px;
-    position:relative;
-    height:33px;
-    border-bottom:1px solid #ccc;
+    font-size: 14px;
+	font-weight: bold;
+	cursor: pointer;
+	color: black;
+	background: #eee;
+	overflow: hidden;
+	position: relative;
+	height: 33px;
+	border-bottom: 1px solid #ccc;
 }
 .pc_connection_chat_title_no_avt{
     height:auto
@@ -2111,22 +2664,27 @@ pc_go_off_ctrl{
     
 }
 .pc_connection_chat_title_avt img.pc_connection_chat_title_avt{
-    vertical-align:text-top;
-    position:relative;   
-    right:0px;
-    top:0px;
-    height:30px;
-    float:left;
+    vertical-align: text-top;
+	position: relative;
+	right: 0px;
+	top: 0px;
+	height: 31px;
+	float: left;
+	margin: 0 4px 0 0;
+	border: 1px solid #ccc;
 }
 .pc_connection_chat_title_avt div{
    float:left;
    margin:3px;
 }
+.pc_connection_chat_title_no_avt {
+	height: auto
+}
 .pc_connection_chat_title_no_avt div.pc_connection_chat_title{
     padding:3px 20px 3px 3px;
 }
 .pc_message_panel {
-    padding: 2px;
+    padding: 0px;
     background: white;
     height: 225px;
     overflow: auto;
@@ -2150,28 +2708,35 @@ pc_go_off_ctrl{
     * height and width to chat.js to 
     * avoid jiggle
     * */
-   width:10%;
-   margin-right:5px;
-   position:absolute;
-   top:2px;
-   left:2px; 
+   max-width: 10%;
+	max-height: 80%;
+	border: 1px solid #ccc;
+	margin-right: 5px;
+	margin-left: 2px;
+	position: absolute;
+	top: 2px;
+	left: 2px;
+	float: left; 
 }
 .pc_editor_wrapper {
-    padding: 4px;
-    background:#eee;
-    height:200px;
+    padding: 5px 5px 0px 7px;
+	background: #f3f3f3;
+	border-top: 1px solid #ccc;
+	height: 200px;
 }
 
 .pc_editor {
-    width: 240px;
-    outline:1px solid transparent;
+    width: 236px;
+	margin-top: 2px;
+	padding: 1px;
 }
 
 .pc_displayname {
-    display:block;
-    font-weight: bold;
-    font-size: 0.8em;
-    margin-left: -30px;
+    display: block;
+	font-weight: bold;
+	font-size: 0.9em;
+	padding: 0 5% 5% 5%;
+	text-align: center;
 }
 
 .pc_message{
@@ -2192,11 +2757,11 @@ pc_go_off_ctrl{
 } 
 
 .pc_messagedate {
-    font-size:70%;
-    color:#777;
-    position:absolute;
-    right:3px;
-    top:5px;
+    font-size: 90%;
+	color: #555;
+	position: absolute;
+	right: 3px;
+	top: 3px;
 }
 
 .pc_user_link {
@@ -2205,8 +2770,19 @@ pc_go_off_ctrl{
 }
 
 .pc_new_message {
-    outline:1px solid red;
-    background-color: red;
+    background-color: #fcc6c6;
+	background-image: -webkit-gradient(linear, left top, left bottom, from(rgb(238, 238, 238)), to(rgb(252, 198, 198)));
+	background-image: -webkit-linear-gradient(top, rgb(238, 238, 238), rgb(252, 198, 198));
+	background-image: -moz-linear-gradient(top, rgb(238, 238, 238), rgb(252, 198, 198));
+	background-image: -o-linear-gradient(top, rgb(238, 238, 238), rgb(252, 198, 198));
+	background-image: -ms-linear-gradient(top, rgb(238, 238, 238), rgb(252, 198, 198));
+	background-image: linear-gradient(top, rgb(238, 238, 238), rgb(252, 198, 198));
+	filter: progid:DXImageTransform.Microsoft.gradient(GradientType=0,StartColorStr='#eeeeee', EndColorStr='#fcc6c6');
+}
+
+#pc_showoffline_connections_checkbox, #pc_go_offline_checkbox {
+	margin-right: 3px;
+	margin-left: -1px;
 }
 
 .pc_pinged_popup {
