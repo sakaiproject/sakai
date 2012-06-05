@@ -42,6 +42,8 @@ import org.sakaiproject.api.app.help.Resource;
 
 import org.sakaiproject.component.cover.ComponentManager;
 
+import org.apache.commons.lang.StringUtils;
+
 /**
  * Content Servlet serves help documents to document frame.
  * @version $Id$
@@ -126,6 +128,14 @@ public class ContentServlet extends HttpServlet
                 	  }
                       String defaultRepo = "/library/skin/";
                       String skinRepo = getServerConfigurationService().getString("skin.repo",defaultRepo);
+                      String helpHeader = getServerConfigurationService().getString("help.header",null);
+                      String helpFooter = getServerConfigurationService().getString("help.footer",null);
+                      String resourceName = resource.getName();
+                      if (resourceName == null) {
+                    	  resourceName = "";
+                      }
+                    	  
+
                       if (url == null) {
                     	  M_log.warn("Help document " + docId + " not found at: " + resource.getLocation());
                       } else {
@@ -135,10 +145,36 @@ public class ContentServlet extends HttpServlet
 	                          String sbuf;
 	                          while ((sbuf = br.readLine()) != null)
 	                          {
-	                        	  if (!skinRepo.equals(defaultRepo))
-	                        		  sbuf = sbuf.replaceAll(defaultRepo, skinRepo + "/");
-	                              writer.write( sbuf );
-	                              writer.write( System.getProperty("line.separator") );
+								  //Replacements because help wasn't written as a template
+	                        	  if (!skinRepo.equals(defaultRepo)) {
+	                        		  if (StringUtils.contains(sbuf,defaultRepo)) {
+	                        			  sbuf = StringUtils.replace(sbuf, defaultRepo, skinRepo + "/");
+	                        			  //Reset to only do one replacement
+	                        			  skinRepo=defaultRepo;
+	                        		  }
+	                        	  }
+
+	                        	  if (helpHeader != null) {
+	                        		  //Hopefully nobody writes <BODY>
+	                        		  if (StringUtils.contains(sbuf,"<body>")) {
+	                        			  sbuf = StringUtils.replace(sbuf, "<body>", "<body>"+helpHeader);
+	                        			  //Reset to only do one replacement
+	                        			  //Replace special variables 
+	                        			  sbuf = StringUtils.replace(sbuf, "#ResourceBean.name", resourceName);
+	                        			  helpHeader = null;
+	                        		  }
+	                        	  }
+	                        	  if (helpFooter != null) {
+	                        		  if (StringUtils.contains(sbuf,"</body>")) {
+	                        			  sbuf = StringUtils.replace(sbuf, "</body>", helpFooter+"</body>");
+	                        			  sbuf = StringUtils.replace(sbuf, "#ResourceBean.name", resourceName);
+	                        			  //Reset to only do one replacement
+	                        			  helpFooter = null;
+	                        		  }
+	                        	  }
+															
+	                            writer.write( sbuf );
+	                            writer.write( System.getProperty("line.separator") );
 	                          }
 	                      } finally {
 	                          br.close();
