@@ -1868,7 +1868,7 @@ public class ShowPageProducer implements ViewComponentProducer, DefaultView, Nav
 			if (canEditPage) {
 				UIOutput.make(tofill, "startupHelp")
 				    .decorate(new UIFreeAttributeDecorator("src", 
-					getLocalizedURL( (pageItem.getType() == SimplePageItem.STUDENT_CONTENT) ? "student.html" : "general.html")))
+					getLocalizedURL((currentPage.getOwner() != null) ? "student.html" : "general.html")))
 				    .decorate(new UIFreeAttributeDecorator("id", "iframe"));
 				if (!iframeJavascriptDone) {
 				    UIOutput.make(tofill, "iframeJavascript");
