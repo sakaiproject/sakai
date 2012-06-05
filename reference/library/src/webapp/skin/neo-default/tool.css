@@ -892,10 +892,10 @@ span.navSeparator {
 visibility gets toggled*/
 #submitnotif{
 	background: #fff url(images/warn-a.gif) .3em .3em no-repeat;
-	border: 1px solid #7AA3CC;
+	border: 1px solid #BB1111;
 	font-family:'Helvetica Neue', Arial,sans-serif;
 	clear: none;
-	color: #7AA3CC;
+	color: #BB1111;
 	font-size: small;
 	vertical-align: text-top;
 	margin: 0;
@@ -1367,14 +1367,6 @@ neoportal stuff
 /* ===[ New alerts ]=== */
 .validationEmbedded, .validation, .alertMessage {
 	background: white url(../../image/silk/exclamation.png) 4px 4px no-repeat !important;
-	border: 1px solid #7AA3CC !important;
-	display: block;
-	width: 80%;
-	font-size: 1em;
-	clear: both;
-	color: #7AA3CC !important;
-	margin: 5px 0;
-	padding: 5px 5px 5px 25px !important;
 }
 .information {
 	background-image: url(../../image/silk/information.png);

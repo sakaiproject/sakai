@@ -331,7 +331,7 @@ that can be used or hidden,can also use a background:url(images/<image name>.<ex
 	width: auto;
 	height: 80px;
 	width: 280px;
-	background: transparent url(images/logo_inst.png) 10px 13px no-repeat;
+	background: transparent url(images/logo.png) 18px 1px no-repeat;    
 }
 
 /*the portal outputs an image that can be treated here or hidden with display:none*/
@@ -535,7 +535,6 @@ ul.nav-submenu li.submenuitem a, #mastLogin li.submenuitem a {
 }
 #loginUserWrap{
     font-size:70%;
-    padding-right:34px;
     text-decoration:none
 }
 #loginUser{
@@ -2086,7 +2085,7 @@ ul.topnav li a{
 	text-shadow: 0 -1px 1px rgba(0, 0, 0, .3);
 }
 #loginLinks .nav-menu>span {
-
+	padding-right: 34px;
 }
 li.nav-menu > a:hover, li.nav-menu > a:focus, li.nav-menu > a: active {
 
@@ -2162,7 +2161,7 @@ ul.topnav li ul.subnav li a:hover, #mastLogin ul.subnav li a:hover {
 #mastLogin span.drop { /*--Drop down trigger styles--*/
 	width: 17px;
 	margin-top: 9px;
-	margin-right: 65px;
+	margin-right: 55px;
 	float: left;
 	background: url(/library/image/silk/user.png) no-repeat center -3px;
 }
@@ -2430,7 +2429,7 @@ ul#otherSiteList li a:focus span,ul#otherSiteList li a:active span, #otherSitesM
 	padding-left: 10px
 }
 #otherSiteSearch h4, #otherSItesCategorWrap h4 {
-	color: #222 !important;
+	color: #FFF !important;
 	font-weight: bold !important;
 }
 .workspace #presenceToggle{
@@ -2818,4 +2817,38 @@ pc_go_off_ctrl{
 	overflow: auto;
 	width: 250px;
 	display:block;
+}
+
+a.qtipLinkButton{
+ 	right: 0px;
+	top: 85px;
+	background: #ddd !important;
+	background: -moz-linear-gradient(top, #F7F7F7 0%, #E7E7E7 100%) !important;
+	background: -webkit-gradient(linear, left top, left bottom, color-stop(0%,#F7F7F7), color-stop(100%,#E7E7E7)) !important;
+	background: -webkit-linear-gradient(top, #F7F7F7 0%,#E7E7E7 100%) !important;
+	background: -o-linear-gradient(top, #F7F7F7 0%,#E7E7E7 100%) !important;
+	background: -ms-linear-gradient(top, #F7F7F7 0%,#E7E7E7 100%) !important;
+	background: linear-gradient(top, #F7F7F7 0%,#E7E7E7 100%) !important;
+	text-align: center;
+	width: auto;
+	border-radius: 4px;
+	border: 1px solid #ccc !important;
+	border-width: 1px 1px 1px 1px !important;
+	font-size: .85em;
+	text-transform: capitalize;
+	text-align: center;
+	color: #000 !important;
+	display: block;
+	padding: 6px 12px;
+	text-decoration: none !important;
+	font-size: 12px !important;
+	letter-spacing: normal !important;
+}
+a.qtipLinkButton img{
+    vertical-align: bottom;
+}
+a.qtipLinkButton:hover{
+ 	color: #7AA3CC !important;
+}
+
 }
