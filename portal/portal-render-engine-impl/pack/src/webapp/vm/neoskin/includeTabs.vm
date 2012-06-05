@@ -67,7 +67,12 @@
 			#if (${tabsSites.worksiteToolUrl})
 <li class="submenuitem "><span><a id="addNewSiteLink" href="${tabsSites.worksiteToolUrl}?sakai_nav_minimized=true&panel=Shortcut&sakai_action=doNew_site&sakai.state.reset=true" class="submenuitem-new-site">${rloader.sit_newsite}</a></span></li>
 			#end
+			#if (${tabsSites.tutorial})
+<li class="submenuitem "><span><a id="tutorialLink" href="#" onclick="startTutorial({});" class="submenuitem-tutorial">${rloader.sit_tutorial}</a></span></li>
+			#end
+
 </ul>
+
 <span class="drop" tabindex="-1"></span>
 </span>
 </span>

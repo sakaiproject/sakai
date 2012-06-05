@@ -218,7 +218,11 @@ public class DefaultSiteViewImpl extends AbstractSiteViewImpl
 		if ( worksiteToolUrl != null ) {
 			renderContextMap.put("worksiteToolUrl", worksiteToolUrl);
 		}
-
+		if (serverConfigurationService.getBoolean("portal.use.tutorial", true)){
+			renderContextMap.put("tutorial", true);
+		}else{
+			renderContextMap.put("tutorial", false);
+		}
 		List<Map> l = siteHelper.convertSitesToMaps(request, mySites, prefix,
 				currentSiteId, myWorkspaceSiteId,
 				/* includeSummary */false, /* expandSite */true,

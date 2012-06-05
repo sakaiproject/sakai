@@ -76,6 +76,11 @@ ${sakai_html_head_css}
 #end
 
 <script type="text/javascript" language="JavaScript" src="/portal/scripts/neoscripts.js"></script>
+<script type="text/javascript" language="JavaScript" src="/library/js/jquery/qtip/jquery.qtip-latest.min.js"></script>
+<script type="text/javascript" language="JavaScript" src="/library/js/jquery/qtip/tutorial.js"></script>
+#if ( $tutorial && $loggedIn )
+	<script type="text/javascript" language="JavaScript">$(document).ready(function(){startTutorial({'showTutorialLocationOnHide': 'true'});});</script>
+#end
 #if ( $neoChat && $loggedIn )
 <script type="text/javascript" language="JavaScript" src="/portal/scripts/chat.js"></script>
 #end

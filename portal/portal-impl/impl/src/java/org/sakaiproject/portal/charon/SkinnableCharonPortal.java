@@ -110,7 +110,11 @@ import org.sakaiproject.tool.api.ToolURL;
 import org.sakaiproject.tool.cover.ActiveToolManager;
 import org.sakaiproject.tool.cover.SessionManager;
 import org.sakaiproject.user.api.User;
+import org.sakaiproject.user.api.UserAlreadyDefinedException;
+import org.sakaiproject.user.api.UserEdit;
+import org.sakaiproject.user.api.UserLockedException;
 import org.sakaiproject.user.api.UserNotDefinedException;
+import org.sakaiproject.user.api.UserPermissionException;
 import org.sakaiproject.user.cover.UserDirectoryService;
 import org.sakaiproject.util.BasicAuth;
 import org.sakaiproject.util.EditorConfiguration;
@@ -201,6 +205,8 @@ public class SkinnableCharonPortal extends HttpServlet implements Portal
 	 */
 	private boolean forceContainer = false;
 
+	private boolean sakaiTutorialEnabled = true;
+	
 	private String handlerPrefix;
 
 	private PageFilter pageFilter = new PageFilter() {
@@ -1579,6 +1585,26 @@ public class SkinnableCharonPortal extends HttpServlet implements Portal
                         rcontext.put("neoAvatar", 
 				ServerConfigurationService.getBoolean("portal.neoavatar", true));
 
+                        if(sakaiTutorialEnabled && 
+                        		UserDirectoryService.getCurrentUser() != null && 
+                        		UserDirectoryService.getCurrentUser().getProperties().get("sakaiTutorialFlag") == null){
+                        	rcontext.put("tutorial", true);
+                	        //now save this in the user's properties so we don't show it again
+                        	UserEdit ue = null;
+                        	try {
+                        	        ue = UserDirectoryService.editUser(UserDirectoryService.getCurrentUser().getId());
+                        	        ue.getProperties().addProperty("sakaiTutorialFlag", "1");
+                        	        UserDirectoryService.commitEdit(ue);
+                        	} catch (UserNotDefinedException e) {
+                        		M_log.error(e);
+                        	} catch (UserPermissionException e) {
+                        		M_log.error(e);
+                        	} catch (UserLockedException e) {
+                        		M_log.error(e);
+                        	} catch (UserAlreadyDefinedException e){
+                        		M_log.error(e);
+                        	}
+                        }
 			// rcontext.put("bottomNavSitNewWindow",
 			// Web.escapeHtml(rb.getString("site_newwindow")));
 
@@ -1814,6 +1840,8 @@ public class SkinnableCharonPortal extends HttpServlet implements Portal
 		handlerPrefix = ServerConfigurationService.getString("portal.handler.default", "site");
 		
 		gatewaySiteUrl = ServerConfigurationService.getString("gatewaySiteUrl", null);
+		
+		sakaiTutorialEnabled = ServerConfigurationService.getBoolean("portal.use.tutorial", true);
 
 		basicAuth = new BasicAuth();
 		basicAuth.init();
