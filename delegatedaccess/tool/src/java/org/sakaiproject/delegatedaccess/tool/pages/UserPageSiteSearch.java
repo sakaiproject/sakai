@@ -154,7 +154,15 @@ public class UserPageSiteSearch extends BasePage {
 				return searchString;
 			}
 		};
-		Form<?> form = new Form("form");
+		Form<?> form = new Form("form"){
+			@Override
+			protected void onSubmit() {
+				super.onSubmit();
+				if(provider != null){
+					provider.detachManually();
+				}
+			}
+		};
 		form.add(new TextField<String>("search", searchModel));
 		form.add(new TextField<String>("instructorField", instructorFieldModel));
 		ChoiceRenderer choiceRenderer = new ChoiceRenderer("label", "value");
@@ -301,6 +309,14 @@ public class UserPageSiteSearch extends BasePage {
 					private static final long serialVersionUID = 1L;
 					public void onClick(AjaxRequestTarget target) {
 						if(siteSearchResult.getSiteUrl() != null){
+							//first check that the user's has been initialized:
+							if(sakaiProxy.getCurrentSession().getAttribute(DelegatedAccessConstants.SESSION_ATTRIBUTE_DELEGATED_ACCESS_FLAG) == null){
+								//how did we get here?  (here = access to DA's site list, but the DA flag isn't set)
+								//two ideas:  1: Admin "Become User", which bypassess the Observer event login
+								//2: something screwed up on login (or logged in another way) and bypasses the Observer event login
+								//oh well, we want this to work, so let's retry:
+								projectLogic.initializeDelegatedAccessSession();
+							}
 							//redirect the user to the site
 							target.appendJavascript("window.open('" + siteSearchResult.getSiteUrl() + "')");
 						}
@@ -435,12 +451,13 @@ public class UserPageSiteSearch extends BasePage {
 
 		private boolean lastOrderAsc = true;
 		private int lastOrderBy = DelegatedAccessConstants.SEARCH_COMPARE_DEFAULT;
-
 		private List<SiteSearchResult> list;
 		public void detach() {
-			list = null;
-		}
 
+		}
+		public void detachManually(){
+			this.list = null;
+		}
 		public Iterator<? extends SiteSearchResult> iterator(int first, int count) {
 			return getData().subList(first, first + count).iterator();
 		}

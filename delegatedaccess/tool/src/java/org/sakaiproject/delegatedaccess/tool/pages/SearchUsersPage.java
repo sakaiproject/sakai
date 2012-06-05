@@ -42,7 +42,15 @@ public class SearchUsersPage extends BasePage {
 
 		//Create Search Form:
 		final PropertyModel<String> messageModel = new PropertyModel<String>(this, "search");
-		Form<?> form = new Form("form");
+		Form<?> form = new Form("form"){
+			@Override
+			protected void onSubmit() {
+				super.onSubmit();
+				if(provider != null){
+					provider.detachManually();
+				}
+			}
+		};
 		form.add(new TextField<String>("search", messageModel));
 		add(form);
 
@@ -203,9 +211,11 @@ public class SearchUsersPage extends BasePage {
 
 		private List<SearchResult> list;
 		public void detach() {
-			list = null;
+			
 		}
-
+		public void detachManually(){
+			this.list = null;
+		}
 		public Iterator<? extends SearchResult> iterator(int first, int count) {
 			return getData().subList(first, first + count).iterator();
 		}
