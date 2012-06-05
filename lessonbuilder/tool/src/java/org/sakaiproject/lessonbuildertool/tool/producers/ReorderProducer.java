@@ -194,8 +194,8 @@ public class ReorderProducer implements ViewComponentProducer, NavigationCaseRep
 			if (secondPageId != null)
 			    UIInput.make(form, "otherpage", "#{simplePageBean.selectedEntity}", secondPageId.toString());
 			UIInput.make(form, "order", "#{simplePageBean.order}");
-			UICommand.make(form, "save", "Save", "#{simplePageBean.reorder}");
-			UICommand.make(form, "cancel", "Cancel", "#{simplePageBean.cancel}");
+			UICommand.make(form, "save", messageLocator.getMessage("simplepage.save_message"), "#{simplePageBean.reorder}");
+			UICommand.make(form, "cancel", messageLocator.getMessage("simplepage.cancel_message"), "#{simplePageBean.cancel}");
 		}
 	}
 
