@@ -231,7 +231,7 @@ site types are a local setting - adjust */
 }
 #col1of2 .portletTitleWrap, #col2of2 .portletTitleWrap {
 	width: 98.5%;
-	border-bottom: 2px solid #7AA3CC !important;
+	border-bottom: 2px solid #ddd !important;
 	border-radius: 3px;
 }
 #col1of2 .portletMainWrap, #col2of2 .portletMainWrap {
@@ -240,7 +240,7 @@ site types are a local setting - adjust */
 }
 #col1 .portletTitleWrap {
 	width: 99%;
-	border-bottom: 2px solid #7AA3CC !important;
+	border-bottom: 2px solid #ddd !important;
 	border-radius: 3px !important;
 }
 #col1 .portletMainWrap {
@@ -398,6 +398,9 @@ ul.subnav li a, #mastLogin .submenuitem a {
 }
 #mastLogin li.submenuitem a.submenuitem-prefs {
 	background-image: url(/library/image/silk/cog.png)
+}
+#mastLogin li.submenuitem a.submenuitem-tutorial {
+	background-image: url(/library/image/silk/help.png)
 }
 #mastLogin li.submenuitem:last-child a {
 	border-bottom: none
@@ -1430,7 +1433,7 @@ below they are contextually defined depending on the column as an example,as you
 
 #col1of2 .portletTitleWrap,#col2of2 .portletTitleWrap{
 	width: 98.5%;
-	border-bottom: 2px solid #7AA3CC !important;
+	border-bottom: 2px solid #ddd !important;
 }
 
 #col1of2 .portletMainWrap,#col2of2 .portletMainWrap{
