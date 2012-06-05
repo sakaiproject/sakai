@@ -142,5 +142,7 @@
 		    <value>7200000</value>
 		</property>
 	</bean>
-	
+	<bean id="org.sakaiproject.api.app.help.TutorialEntityProvider"
+            class="org.sakaiproject.component.app.help.TutorialEntityProviderImpl">
+    </bean>
 </beans>

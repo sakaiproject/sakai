@@ -69,6 +69,11 @@ public class TableOfContentsBean implements TableOfContents
   public void setCategories(Set<Category> categories)
   {
     this.categories = categories;
+    if("Mailsender".equals(((CategoryBean) categories.toArray()[0]).getName())){
+    	System.out.println("hi hi hi hi");
+    }else if("Announcements".equals(((CategoryBean) categories.toArray()[0]).getName())){
+    	System.out.println("hi2 hi2 hi2 hi2");
+    }
   }
 
 }

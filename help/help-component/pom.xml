@@ -70,6 +70,11 @@
       <artifactId>commons-codec</artifactId>
       <version>1.5</version>
     </dependency>
+            <dependency>
+                <groupId>org.sakaiproject.entitybroker</groupId>
+                <artifactId>entitybroker-api</artifactId>
+                <scope>provided</scope>
+        </dependency>
   </dependencies>
   
   <build>
@@ -79,6 +84,12 @@
         <includes>
           <include>**/*.xml</include>
         </includes>
+      </resource>
+      <resource>
+	<directory>src/bundle</directory>
+	<includes>
+		<include>**/*.properties</include>
+	</includes>
       </resource>
     </resources>
   </build>
