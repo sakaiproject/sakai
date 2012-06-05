@@ -66,7 +66,7 @@ body{
 	background: -o-linear-gradient(top, #454A4F 0%,#000 100%);
 	background: -ms-linear-gradient(top, #454A4F 0%,#000 100%);
 	background: linear-gradient(top, #454A4F 0%,#000 100%);
-	filter: progid:DXImageTransform.Microsoft.gradient( startColorstr='#454A4F', endColorstr='#000',GradientType=0 );
+	filter:progid:DXImageTransform.Microsoft.gradient(startColorstr='#454A4F',endColorstr='#000000',GradientType=0 );
 	border: 1px solid #454A4F;
 }
 #headerMin>#siteNavWrapper>#mastHead>#mastLogin>#loginLinks a {
@@ -303,7 +303,7 @@ site types are a local setting - adjust */
 	background: -o-linear-gradient(top, #454A4F 0%,#000 100%);
 	background: -ms-linear-gradient(top, #454A4F 0%,#000 100%);
 	background: linear-gradient(top, #454A4F 0%,#000 100%);
-	filter: progid: DXImageTransform.Microsoft.gradient( startColorstr='#454A4F', endColorstr='#000',GradientType=0 );
+	filter:progid:DXImageTransform.Microsoft.gradient(startColorstr='#454A4F',endColorstr='#000000',GradientType=0 );
 	border-bottom: 1px solid #454A4F;
 }
 
@@ -471,7 +471,7 @@ ul.nav-submenu li.submenuitem a, #mastLogin li.submenuitem a {
     border-radius: 10px 10px 10px 10px;
     box-shadow: 0 0 10px #000000;
     float: right;
-    width: 33em;
+    width: 35em;
     color: #fff;
 }
 
@@ -1030,7 +1030,7 @@ also hide if are going to be using icon links (as background of <a> nad <li>
 	background: -o-linear-gradient(top, #454A4F 0%,#000 100%);
 	background: -ms-linear-gradient(top, #454A4F 0%,#000 100%);
 	background: linear-gradient(top, #454A4F 0%,#000 100%);
-	filter: progid: DXImageTransform.Microsoft.gradient( startColorstr='#454A4F', endColorstr='#000',GradientType=0 );
+	filter:progid:DXImageTransform.Microsoft.gradient( startColorstr='#454A4F',endColorstr='#000000',GradientType=0);
 }
 
 #toolMenu li a:link,#toolMenu li a,
@@ -1113,7 +1113,7 @@ li.selectedTool a {
 	background: -o-linear-gradient(top, #454A4F 0%,#000 100%) !important;
 	background: -ms-linear-gradient(top, #454A4F 0%,#000 100%) !important;
 	background: linear-gradient(top, #454A4F 0%,#000 100%) !important;
-	filter: progid: DXImageTransform.Microsoft.gradient( startColorstr='#454A4F', endColorstr='#000',GradientType=0 ) !important;
+	filter:progid:DXImageTransform.Microsoft.gradient( startColorstr='#454A4F',endColorstr='#000000',GradientType=0) !important;
 	color: #fff !important;
 }
 
@@ -1126,7 +1126,7 @@ li.selectedTool a {
 	background: -o-linear-gradient(top, #ddd 0%,#999 100%);
 	background: -ms-linear-gradient(top, #ddd 0%,#999 100%);
 	background: linear-gradient(top, #ddd 0%,#999 100%);
-	filter: progid: DXImageTransform.Microsoft.gradient( startColorstr='#ddd', endColorstr='#999',GradientType=0 );
+	filter:progid:DXImageTransform.Microsoft.gradient(startColorstr='#dddddd',endColorstr='#999999',GradientType=0);
 	color: #fff;
 }
 
@@ -1445,14 +1445,13 @@ below they are contextually defined depending on the column as an example,as you
 	width: 100%;
 	height:100%;
 	overflow:hidden;
-	background: #ddd;
+	background: #999;
 	background: -moz-linear-gradient(top, #ddd 0%, #999 100%);
 	background: -webkit-gradient(linear, left top, left bottom, color-stop(0%,#ddd), color-stop(100%,#999));
 	background: -webkit-linear-gradient(top, #ddd 0%,#999 100%);
 	background: -o-linear-gradient(top, #ddd 0%,#999 100%);
 	background: -ms-linear-gradient(top, #ddd 0%,#999 100%);
 	background: linear-gradient(top, #ddd 0%,#999 100%);
-	filter: progid:DXImageTransform.Microsoft.gradient( startColorstr='#ddd', endColorstr='#999',GradientType=0 );
 	-moz-border-radius: 6px;
 	-webkit-border-radius: 6px;
 	border-radius: 6px;
@@ -2060,7 +2059,7 @@ ul.topnav li.nav-menu:hover, ul.topnav li.nav-selected, ul.topnav li.more-tab:ho
 	background: -o-linear-gradient(top, #454A4F 0%,#000 100%);
 	background: -ms-linear-gradient(top, #454A4F 0%,#000 100%);
 	background: linear-gradient(top, #454A4F 0%,#000 100%);
-	filter: progid:DXImageTransform.Microsoft.gradient( startColorstr='#454A4F', endColorstr='#000',GradientType=0 );
+	filter:progid:DXImageTransform.Microsoft.gradient( startColorstr='#454A4F', endColorstr='#0000000',GradientType=0 );
 	border: 1px solid #454A4F;
 	-moz-border-radius: 3px;
 	-webkit-border-radius: 3px;
@@ -2297,7 +2296,7 @@ ul#otherSiteList li, ul#otherSitesMenu li, ul.otherSitesCategorList li {
 	background: -o-linear-gradient(top, #454A4F 0%,#000 100%);
 	background: -ms-linear-gradient(top, #454A4F 0%,#000 100%);
 	background: linear-gradient(top, #454A4F 0%,#000 100%);
-	filter: progid: DXImageTransform.Microsoft.gradient( startColorstr='#454A4F', endColorstr='#000',GradientType=0 );
+	filter:progid:DXImageTransform.Microsoft.gradient(startColorstr='#454A4F',endColorstr='#000000',GradientType=0 );
 	border: 1px solid #000;
 	font-weight: bold;
 	position: relative;
@@ -2779,7 +2778,7 @@ pc_go_off_ctrl{
 	background-image: -o-linear-gradient(top, rgb(238, 238, 238), rgb(252, 198, 198));
 	background-image: -ms-linear-gradient(top, rgb(238, 238, 238), rgb(252, 198, 198));
 	background-image: linear-gradient(top, rgb(238, 238, 238), rgb(252, 198, 198));
-	filter: progid:DXImageTransform.Microsoft.gradient(GradientType=0,StartColorStr='#eeeeee', EndColorStr='#fcc6c6');
+	filter:progid:DXImageTransform.Microsoft.gradient(GradientType=0,StartColorStr='#eeeeee',EndColorStr='#fcc6c6');
 }
 
 #pc_showoffline_connections_checkbox, #pc_go_offline_checkbox {
