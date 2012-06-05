@@ -301,7 +301,7 @@ public class BasePage extends WebPage implements IHeaderContributor {
 	 * Disable a page nav link (PRFL-468)
 	 */
 	protected void disableLink(Link<Void> l) {
-		l.add(new AttributeAppender("class", new Model<String>("current-tab"), " "));
+		l.add(new AttributeAppender("class", new Model<String>("current"), " "));
 		l.setEnabled(false);
 	}
 	

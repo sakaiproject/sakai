@@ -1493,12 +1493,7 @@ main-profile-tabpanel .tab-row a:visited.active,
 	float:right;
 }
 
-/* disabled nav link */
-.current-tab {
-	color: #5D5D5D;
-	margin-right: 1em;
-	display: inline-block;
-}
+
 
 .pager {
 	margin-top: 10px;
