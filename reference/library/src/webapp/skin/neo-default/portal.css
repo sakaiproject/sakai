@@ -59,7 +59,7 @@ body{
 	padding: 4px 6px !important;
 	text-align: center;
 	text-decoration: none !important;
-	background: #454A4F;
+	background: #999;
 	background: -moz-linear-gradient(top, #454A4F 0%, #000 100%);
 	background: -webkit-gradient(linear, left top, left bottom, color-stop(0%,#454A4F), color-stop(100%,#000));
 	background: -webkit-linear-gradient(top, #454A4F 0%,#000 100%);
