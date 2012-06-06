@@ -5,22 +5,38 @@ import java.util.List;
 
 import org.apache.log4j.Logger;
 import org.quartz.JobExecutionException;
+import org.sakaiproject.authz.api.AuthzGroupService;
 import org.sakaiproject.authz.api.SecurityAdvisor;
 import org.sakaiproject.authz.api.SecurityService;
 import org.sakaiproject.delegatedaccess.jobs.DelegatedAccessSiteHierarchyJob;
 import org.sakaiproject.entity.api.ResourcePropertiesEdit;
+import org.sakaiproject.event.api.EventTrackingService;
+import org.sakaiproject.event.api.UsageSessionService;
 import org.sakaiproject.exception.IdInvalidException;
-import org.sakaiproject.exception.IdUnusedException;
 import org.sakaiproject.exception.IdUsedException;
 import org.sakaiproject.exception.PermissionException;
 import org.sakaiproject.site.api.Site;
 import org.sakaiproject.site.api.SitePage;
 import org.sakaiproject.site.api.SiteService;
+import org.sakaiproject.tool.api.Session;
+import org.sakaiproject.tool.api.SessionManager;
+import org.sakaiproject.user.api.User;
+import org.sakaiproject.user.api.UserAlreadyDefinedException;
+import org.sakaiproject.user.api.UserDirectoryService;
+import org.sakaiproject.user.api.UserIdInvalidException;
+import org.sakaiproject.user.api.UserNotDefinedException;
+import org.sakaiproject.user.api.UserPermissionException;
+
 
 public class DelegatedAccessSampleDataLoader {
 	private SiteService siteService;
 	private DelegatedAccessSiteHierarchyJob delegatedAccessSiteHierarchyJob;
 	private SecurityService securityService;
+	private AuthzGroupService authzGroupService;
+	private EventTrackingService eventTrackingService;
+	private UsageSessionService usageSessionService;
+	private SessionManager sessionManager;
+	private UserDirectoryService userDirectoryService;
 	private static final Logger log = Logger.getLogger(DelegatedAccessSampleDataLoader.class);
 
 	private List<String> schools = Arrays.asList("MUSIC", "MEDICINE", "EDUCATION");
@@ -38,6 +54,7 @@ public class DelegatedAccessSampleDataLoader {
 			}
 		};
 		try{
+			loginToSakai();
 			securityService.pushAdvisor(yesMan);
 			for(String school : schools){
 				for(String dept : depts){
@@ -50,7 +67,7 @@ public class DelegatedAccessSampleDataLoader {
 
 							Site siteEdit = null;
 							try {
-								siteEdit = siteService.addSite(siteid, "course");
+								siteEdit = siteService.addSite(siteid, "project");
 								siteEdit.setTitle(title);
 								siteEdit.setDescription(description);
 								siteEdit.setShortDescription(shortdesc);
@@ -62,9 +79,6 @@ public class DelegatedAccessSampleDataLoader {
 									SitePage page = siteEdit.addPage();
 									page.setTitle("Site Info");
 									page.addTool("sakai.siteinfo");
-								}
-								if(siteEdit.getRole("Instructor") == null){
-									siteEdit.addRole("Instructor");
 								}
 								
 								ResourcePropertiesEdit propEdit = siteEdit.getPropertiesEdit();
@@ -102,7 +116,52 @@ public class DelegatedAccessSampleDataLoader {
 			log.warn(e);
 		}finally{
 			securityService.popAdvisor(yesMan);
+			logoutFromSakai();
 		}
+	}
+	
+	private void loginToSakai() {
+		User user = null;
+		try {
+			user = userDirectoryService.getUserByEid("datest");
+		} catch (UserNotDefinedException e) {
+			//user doesn't exist, lets make it:
+			try {
+				//String id, String eid, String firstName, String lastName, String email, String pw, String type, ResourceProperties properties
+				user = userDirectoryService.addUser("datest", "datest", "DA", "Test", "", "datest", "", null);
+			} catch (UserIdInvalidException e1) {
+				// TODO Auto-generated catch block
+				e1.printStackTrace();
+			} catch (UserAlreadyDefinedException e1) {
+				// TODO Auto-generated catch block
+				e1.printStackTrace();
+			} catch (UserPermissionException e1) {
+				// TODO Auto-generated catch block
+				e1.printStackTrace();
+			}
+		}
+		if(user != null){
+			Session sakaiSession = sessionManager.getCurrentSession();
+			sakaiSession.setUserId(user.getId());
+			sakaiSession.setUserEid(user.getEid());
+
+			// establish the user's session
+			usageSessionService.startSession(user.getId(), "127.0.0.1", "DAtest");
+
+			// update the user's externally provided realm definitions
+			authzGroupService.refreshUser(user.getId());
+
+			// post the login event
+			eventTrackingService.post(eventTrackingService.newEvent(UsageSessionService.EVENT_LOGIN, null, true));
+		}
+	}
+
+	private void logoutFromSakai() {
+	    Session sakaiSession = sessionManager.getCurrentSession();
+		sakaiSession.invalidate();
+
+		// post the logout event
+		eventTrackingService.post(eventTrackingService.newEvent(UsageSessionService.EVENT_LOGOUT, null, true));
 	}
 	
 	public void setSiteService(SiteService siteService) {
@@ -128,5 +187,45 @@ public class DelegatedAccessSampleDataLoader {
 
 	public void setSecurityService(SecurityService securityService) {
 		this.securityService = securityService;
+	}
+
+	public AuthzGroupService getAuthzGroupService() {
+		return authzGroupService;
+	}
+
+	public void setAuthzGroupService(AuthzGroupService authzGroupService) {
+		this.authzGroupService = authzGroupService;
+	}
+
+	public EventTrackingService getEventTrackingService() {
+		return eventTrackingService;
+	}
+
+	public void setEventTrackingService(EventTrackingService eventTrackingService) {
+		this.eventTrackingService = eventTrackingService;
+	}
+
+	public UsageSessionService getUsageSessionService() {
+		return usageSessionService;
+	}
+
+	public void setUsageSessionService(UsageSessionService usageSessionService) {
+		this.usageSessionService = usageSessionService;
+	}
+
+	public SessionManager getSessionManager() {
+		return sessionManager;
+	}
+
+	public void setSessionManager(SessionManager sessionManager) {
+		this.sessionManager = sessionManager;
+	}
+
+	public UserDirectoryService getUserDirectoryService() {
+		return userDirectoryService;
+	}
+
+	public void setUserDirectoryService(UserDirectoryService userDirectoryService) {
+		this.userDirectoryService = userDirectoryService;
 	}
 }
