@@ -101,8 +101,6 @@ public class ProviderServlet extends HttpServlet {
 	private static final String BASICLTI_RESOURCE_LINK = "blti:resource_link_id";
     private static final String LTI_CONTEXT_ID = "lti_context_id";
 
-    private Map<String,String> defaultCountries = new HashMap<String,String>();
-
     private List<BLTIProcessor> bltiProcessors = new ArrayList();
 
     private enum ProcessingState {
@@ -169,10 +167,6 @@ public class ProviderServlet extends HttpServlet {
                         .compareTo(((BLTIProcessor) (o2)).getOrder());
             }
         });
-
-        // BLTI-153. Needed in case two character code is passed. 
-        defaultCountries.put("en","GB");
-        defaultCountries.put("es","ES");
 	}
 
 	protected void doGet(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
@@ -243,9 +237,6 @@ public class ProviderServlet extends HttpServlet {
             // BLTI-153. Set up user's language.
             String locale = (String) payload.get(BasicLTIConstants.LAUNCH_PRESENTATION_LOCALE);
             if(locale != null && locale.length() > 0) {
-                if(locale.length() == 2) {
-                    locale += "_" + defaultCountries.get(locale);
-                }
                 try {
                     PreferencesEdit pe = null;
                     try {
