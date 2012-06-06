@@ -246,7 +246,11 @@ public class SimpleRSSPortlet extends GenericPortlet{
 				response.setRenderParameter("errorMessage", e.getMessage());
 				response.setRenderParameter("portletTitle", portletTitle);
 				response.setRenderParameter("maxItems", maxItems);
-				response.setRenderParameter("feedUrl", feedUrl);
+				
+				//this will be null if locked so don't set it, we dont need it
+				if(!feedUrlIsLocked) {
+					response.setRenderParameter("feedUrl", feedUrl);
+				}
 				log.error(e);
 			} catch (IOException e) {
 				response.setRenderParameter("errorMessage", Messages.getString("error.form.save.error"));
