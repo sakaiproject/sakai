@@ -346,7 +346,7 @@
             <plugin>
                 <groupId>com.mycila.maven-license-plugin</groupId>
                 <artifactId>maven-license-plugin</artifactId>
-                <version>1.5.0</version>
+                <version>1.9.0</version>
                 <configuration>
                     <basedir>${basedir}</basedir>
                     <header>https://source.sakaiproject.org/svn/sakai/trunk/ECLv2-header-template.txt</header>
@@ -355,12 +355,11 @@
                     <aggregate>false</aggregate>
                     <includes>
                         <include>**/org/sakaiproject/**/*.java</include>
-                        <include>**/org/sakaiproject/**/*.html</include>
-                        <include>**/test/**/*.java</include>
                         <include>src/webapp/css/profile2-help.css</include>
                         <include>src/webapp/css/profile2-profile-entity.css</include>
                         <include>src/webapp/css/profile2.css</include>
                         <include>src/webapp/javascript/profile2.js</include>
+                        <include>src/webapp/javascript/profile2-eb.js</include>
                     </includes>
                     <excludes>
                         <exclude>target/**</exclude>
@@ -370,27 +369,17 @@
                         <exclude>**/*.txt</exclude>
                         <exclude>**/*.xml</exclude>
                         <exclude>**/*.sql</exclude>
+                        <exclude>**/*.html</exclude>
                     </excludes>
                     <useDefaultExcludes>true</useDefaultExcludes>
                     <useDefaultMapping>true</useDefaultMapping>
                     <properties>
-                        <year>${project.inceptionYear}-2010</year>
+                        <year>${project.inceptionYear}-2012</year>
                         <holder>The Sakai Foundation</holder>
                     </properties>
                     <encoding>UTF-8</encoding>
+                    <strictCheck>true</strictCheck>
                 </configuration>
-                <!-- Disable: plugin ${year} variable causes build failure if a single year is encountered.  -->
-                <!--
-                <executions>
-                    <execution>
-                        <id>check-headers</id>
-                        <phase>verify</phase>
-                        <goals>
-                            <goal>check</goal>
-                        </goals>
-                    </execution>
-                </executions>
-                -->
             </plugin>
             
             <!-- enforce Java 6 compiler -->
