@@ -1126,7 +1126,11 @@ public class ProjectLogicImpl implements ProjectLogic {
 		HierarchyNodeSerialized node = null;
 		if(el == null){
 			node = getNode(id);
-			nodeCache.put(new Element(id, node));
+			try{
+				nodeCache.put(new Element(id, node));
+			}catch (Exception e) {
+				log.error("getCachedNode: " + id, e);
+			}
 		}else if(el.getObjectValue() instanceof HierarchyNodeSerialized){
 			node = (HierarchyNodeSerialized) el.getObjectValue();
 		}
@@ -1528,6 +1532,12 @@ public class ProjectLogicImpl implements ProjectLogic {
 				accessMap = (Map<String, String[]>) sessionaccessMap;
 			}
 		}
+		
+		if(!shoppingPeriod && accessMap.containsKey(siteRef) && accessMap.get(siteRef) == null){
+			//we already know this result is null, so return null
+			return null;
+		}
+		
 		//set default to no access and override it if the user does have access
 		//this is so we don't have to keep looking up their access for the same site:
 		deniedToolsMap.put(siteRef, null);
@@ -1619,7 +1629,11 @@ public class ProjectLogicImpl implements ProjectLogic {
 			session.setAttribute(DelegatedAccessConstants.SESSION_ATTRIBUTE_DENIED_TOOLS, deniedToolsMap);
 			session.setAttribute(DelegatedAccessConstants.SESSION_ATTRIBUTE_ACCESS_MAP, accessMap);
 			//update restrictedToolsCache
-			restrictedToolsCache.put(new Element(userId, deniedToolsMap));
+			try{
+				restrictedToolsCache.put(new Element(userId, deniedToolsMap));
+			}catch (Exception e) {
+				log.error("grantAccessToSite: " + siteRef + ", " + userId, e);
+			}
 		}
 		
 		return returnNode;
