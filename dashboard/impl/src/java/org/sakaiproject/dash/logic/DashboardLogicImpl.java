@@ -1904,9 +1904,8 @@ public class DashboardLogicImpl implements DashboardLogic, Observer
 				expireAndPurgeCalendarItems();
 				expireAndPurgeNewsItems();
 				
-				nextTimeToQueryAvailabilityChecks = System.currentTimeMillis() + TIME_BETWEEN_EXPIRING_AND_PURGING;
+				nextTimeToExpireAndPurge = System.currentTimeMillis() + TIME_BETWEEN_EXPIRING_AND_PURGING;
 			}
-			// TODO Auto-generated method stub
 			
 		}
 
