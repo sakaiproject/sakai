@@ -239,7 +239,7 @@ public class CommentsProducer implements ViewComponentProducer, ViewParamsReport
 					// We don't want them editing on the grading screen, which is why we also check filter.
 					boolean canEdit = simplePageBean.canModifyComment(comments.get(i), canEditPage) && !params.filter;
 					
-					printComment(comments.get(i), tofill, (params.postedComment == comments.get(i).getId()), anonymous, canEdit, params, commentsItem);
+					printComment(comments.get(i), tofill, (params.postedComment == comments.get(i).getId()), anonymous, canEdit, params, commentsItem, currentPage);
 					if(!highlighted) {
 						highlighted = (params.postedComment == comments.get(i).getId());
 					}
@@ -282,7 +282,7 @@ public class CommentsProducer implements ViewComponentProducer, ViewParamsReport
 				for(int i = start; i < comments.size(); i++) {
 				    if (!params.showNewComments || lastViewed == null || comments.get(i).getTimePosted().after(lastViewed)) {
 					boolean canEdit = simplePageBean.canModifyComment(comments.get(i), canEditPage);
-					printComment(comments.get(i), tofill, (params.postedComment == comments.get(i).getId()), anonymous, canEdit, params, commentsItem);
+					printComment(comments.get(i), tofill, (params.postedComment == comments.get(i).getId()), anonymous, canEdit, params, commentsItem, currentPage);
 					if(!highlighted) {
 						highlighted = (params.postedComment == comments.get(i).getId());
 					}
@@ -321,11 +321,19 @@ public class CommentsProducer implements ViewComponentProducer, ViewParamsReport
 	private Long lastTitle = -1L;
 
 	public void printComment(SimplePageComment comment, UIContainer tofill, boolean highlight, boolean anonymous,
-				boolean showModifiers, CommentsViewParameters params, SimplePageItem commentsItem) {
+				 boolean showModifiers, CommentsViewParameters params, SimplePageItem commentsItem, SimplePage currentPage) {
 		if (canEditPage && itemToPageowner != null && comment.getItemId() != lastTitle) {
 		    UIBranchContainer commentContainer = UIBranchContainer.make(tofill, "commentList:");
 		    UIOutput.make(commentContainer, "commentTitle", messageLocator.getMessage("simplepage.comments-grading").replace("{}", itemToPageowner.get(comment.getItemId())));
 		    lastTitle = comment.getItemId();
+		}
+
+		// print title if this is a comment on a different page. Normally this
+		// shold only happen for subpages of student pages
+		String pageTitle = null;
+		if (currentPage.getPageId() != comment.getPageId()) {
+		    SimplePage commentPage = simplePageBean.getPage(comment.getPageId());
+		    pageTitle = commentPage.getTitle();
 		}
 
 		UIBranchContainer commentContainer = UIBranchContainer.make(tofill, "commentList:");
@@ -365,6 +373,7 @@ public class CommentsProducer implements ViewComponentProducer, ViewParamsReport
 			}else if(comment.getAuthor().equals(currentUserId)) {
 				author += " (" + messageLocator.getMessage("simplepage.comment-you") + ")";
 			}
+
 		}
 		
 		UIOutput authorOutput = UIOutput.make(commentContainer, "userId", author);
@@ -377,6 +386,9 @@ public class CommentsProducer implements ViewComponentProducer, ViewParamsReport
 			authorOutput.decorate(new UIStyleDecorator("ownerComment"));
 		}
 		
+		if (pageTitle != null)
+		    UIOutput.make(commentContainer, "pageTitle", pageTitle);
+
 		String timeDifference = getTimeDifference(comment.getTimePosted().getTime());
 		
 		UIOutput.make(commentContainer, "timePosted", timeDifference);

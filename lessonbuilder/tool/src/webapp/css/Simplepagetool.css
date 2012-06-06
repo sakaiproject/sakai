@@ -196,6 +196,11 @@ a.edit-movie:link,a.edit-movie:visited{
 	color:#039;
 }
 
+.commentPageTitle {
+	margin-right:10px;
+	color:#906;
+}
+
 .commentDiv {
 	margin-top: 5px;
 	margin-bottom: 5px;
