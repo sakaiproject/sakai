@@ -18,16 +18,6 @@ $.fn.qtip.styles.sakaiTutorial = { // Last part is the name of the style
 		name: 'light' // Inherit the rest of the attributes from the preset dark style
 }
 
-//Makes all link "titles" a qtip instead
-$(document).ready(function() {
-	$('a[title]').qtip(
-		{ 
-			style: { name: sakaiTutorialSkin, tip: true }, 
-			show: { delay: 1000 }
-		}
-	);
-});
-
 function startTutorial(opts){
 	showTutorialPage(sakaiTutorialStartUrl, opts);
 }
