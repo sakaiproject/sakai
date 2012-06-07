@@ -49,21 +49,22 @@
 						<div id="loginLinks">
 <span class="topnav">
 <span class="nav-menu">
+<ul class="nav-submenu subnav">
+
 					#if (${displayUserloginInfo})
 						#if (${tabsSites.profileToolUrl})
-<span id="loginUserWrap"><a id="loginUser" href="${tabsSites.profileToolUrl}?sakai_nav_minimized=true&sakai.state.reset=true">${loginUserDispName} (${loginUserDispId})</a></span>
-					#else
-<span>${loginUserDispName} (${loginUserDispId})</span>
+<li class="submenuitem"><span><a id="loginUser" href="${tabsSites.profileToolUrl}?sakai_nav_minimized=true&sakai.state.reset=true">${loginUserDispName} (${loginUserDispId})</a></span></li>
+						#else
+<li class="submenuitem"><span>${loginUserDispName} (${loginUserDispId})</span></li>
 						#end
-					#end
-
-<ul class="nav-submenu subnav">
+					#else
 						#if (${tabsSites.profileToolUrl})
 <li class="submenuitem"><span><a href="${tabsSites.profileToolUrl}?sakai_nav_minimized=true" class="submenuitem-profile"><span>${rloader.sit_profile}</span></a></span></li>
 						#end
-						#if (${tabsSites.prefsToolUrl})
+					#end
+					#if (${tabsSites.prefsToolUrl})
 <li class="submenuitem"><span><a href="${tabsSites.prefsToolUrl}?sakai_nav_minimized=true"  class="submenuitem-prefs">${rloader.sit_preferences}</a></span></li>
-						#end
+					#end
 			#if (${tabsSites.worksiteToolUrl})
 <li class="submenuitem "><span><a id="addNewSiteLink" href="${tabsSites.worksiteToolUrl}?sakai_nav_minimized=true&panel=Shortcut&sakai_action=doNew_site&sakai.state.reset=true" class="submenuitem-new-site">${rloader.sit_newsite}</a></span></li>
 			#end
