@@ -446,7 +446,7 @@ var setupSiteNav = function(){
     $("ul.subnav").each(function(){
         // Add a up arrow and escape key handler to slide the page menu up
         $(this).keydown(function (e) {
-            if (/*e.keyCode == 38 ||*/ e.keyCode == 27) {
+            if (e.keyCode == 27) {
                 $(this).parent().children('a').focus();
                 $(this).slideUp('fast');
             }
@@ -461,6 +461,7 @@ var setupSiteNav = function(){
     });
     $('.topnav a').keydown(function(e){
         if (e.keyCode == 40) {
+            e.preventDefault();
             jQuery('#selectSite').hide();
             jQuery(this).parent().find("ul.subnav").slideDown('fast');
             jQuery(this).parent().find("ul.subnav a:first").focus();
