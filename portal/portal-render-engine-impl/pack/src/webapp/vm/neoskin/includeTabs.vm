@@ -50,10 +50,9 @@
 <span class="topnav">
 <span class="nav-menu">
 <ul class="nav-submenu subnav">
-
 					#if (${displayUserloginInfo})
 						#if (${tabsSites.profileToolUrl})
-<li class="submenuitem"><span><a id="loginUser" href="${tabsSites.profileToolUrl}?sakai_nav_minimized=true&sakai.state.reset=true">${loginUserDispName} (${loginUserDispId})</a></span></li>
+<li class="submenuitem"><span><a id="loginUser" href="${tabsSites.profileToolUrl}?sakai_nav_minimized=true&sakai.state.reset=true" class="submenuitem-profile">${loginUserDispName} (${loginUserDispId})</a></span></li>
 						#else
 <li class="submenuitem"><span>${loginUserDispName} (${loginUserDispId})</span></li>
 						#end
