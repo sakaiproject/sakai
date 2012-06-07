@@ -332,7 +332,10 @@ public class PCServiceEntityProvider extends ReceiverAdapter implements EntityPr
 		String siteId = (String) params.get("siteId");
 
         if(siteId != null && siteId.length() > 0) {
-            // A site id has been specified, so we add the present users from the presence service
+			// A site id has been specified, so we refresh our presence at the 
+			// location and retrieve the present users
+			String location = siteId + "-presence";
+			presenceService.setPresence(location);
 			List<User> presentSakaiUsers = presenceService.getPresentUsers(siteId + "-presence");
 			presentSakaiUsers.remove(currentUser);
 			for(User user : presentSakaiUsers) {
