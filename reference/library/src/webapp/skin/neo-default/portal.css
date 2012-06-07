@@ -266,9 +266,9 @@ that can be used or hidden,can also use a background: url(images/<image name>.<e
 	float: left;
 	margin: 0;
 	width: auto;
-	height: 80px;
-	width: 280px;
-	background: transparent url(images/logo_inst.png) 10px 13px no-repeat;
+	height: 50px;
+	width: 110px;
+	background: transparent url(images/logo.png) 8px 1px no-repeat;
 }
 #mastLogo img {
 	display: none
@@ -292,6 +292,7 @@ that can be used or hidden,can also use a background: url(images/<image name>.<e
 	text-align: right;
 	padding-right: 15px;
 	vertical-align: middle;
+	margin-top: 15px;
 }
 ul.subnav li a, #mastLogin .submenuitem a {
 	color: #444;
@@ -339,7 +340,6 @@ ul.nav-submenu li.submenuitem a, #mastLogin li.submenuitem a {
 #mastLogin span.drop {
 	/*--Drop down trigger styles--*/
 	width: 17px;
-	margin-top: 13px;
 	height: 35px;
 }
 #mastLogin ul.subnav {
@@ -2202,4 +2202,11 @@ a.qtipLinkButton img{
 }
 a.qtipLinkButton:hover{
  	color: #7AA3CC !important;
+}
+
+#loginLinks .nav-menu > span{
+    display: none;
+}
+#loginLinks .nav-menu > span.drop{
+    display: block !important;
 }
