@@ -36,7 +36,7 @@ body {
 #headerMin>#siteNavWrapper>#mastHead>#mastLogin>#loginLinks>#loginLink2 {
 	font-size: .9em
 }
-#headerMin>#siteNavWrapper>#mastHead>#mastLogin>#loginLinks a, #loginLink1 {
+#headerMin>#siteNavWrapper>#mastHead>#mastLogin>#loginLinks a, #loginLink1,div#mastLogin form#loginForm input#submit {
 	display: block;
 	border-radius: 5px;
 	border: 1px solid #ccc;
@@ -56,10 +56,15 @@ body {
 #headerMin>#siteNavWrapper>#mastHead>#mastLogin>#loginLinks a {
 
 }
-#headerMin>#siteNavWrapper>#mastHead>#mastLogin>#loginLinks a:hover, #loginLink1:hover {
+#headerMin>#siteNavWrapper>#mastHead>#mastLogin>#loginLinks a:hover, #loginLink1:hover,div#mastLogin form#loginForm input#submit {
 	background: #007194;
 	text-decoration: none !important;
 }
+
+div#mastLogin form#loginForm input#submit{
+    color: #fff
+}
+
 #headerMax #loginLink1 {
 	//margin-top: -15px !important
 }
@@ -380,7 +385,6 @@ ul.nav-submenu li.submenuitem a, #mastLogin li.submenuitem a {
 
 #loginForm is the form for login - contains children #eid #pw #submit  */
 #loginForm {
-	margin: 17px 0;
 	color: #fff;
 }
 #loginForm label {
