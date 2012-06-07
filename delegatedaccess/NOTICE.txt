@@ -1,0 +1,4 @@
+The Delegated Access Tool was developed by The Longsight Group under 
+contract with Columbia University.
+
+It is licensed under the Educational Community License, Version 2.0.
