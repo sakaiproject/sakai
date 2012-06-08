@@ -1564,6 +1564,12 @@ below they are contextually defined depending on the column as an example,as you
 .icon-sakai-njvidbrowser {
 	background-image: url(../../image/silk/film.png)
 }
+.icon-role-enter {
+	background-image: url(/library/image/silk/arrow_redo.png)
+}
+.icon-role-exit {
+	background-image: url(/library/image/silk/arrow_undo.png)
+}
 /* Generic icons for other tools that most likely won't require them */
 .icon-com-rsmart-oauth-management-tools, .icon-com-rsmart-oauth-tools, .icon-osp-guidance-sample, .icon-osp-sample-jsf-widgets, .icon-osp-synoptic, .icon-osp-synoptic-design-publish, .icon-sakai-accountvalidator, .icon-sakai-admin-prefs, .icon-sakai-basiclti-admin-helper, .icon-sakai-gradebook-testservice, .icon-sakai-iframe-annotatedurl, .icon-sakai-presence, .icon-sakai-scormcloud-configure-helper, .icon-sakai-scormcloud-preview-helper, .icon-sakai-scormcloud-remove-helper, .icon-sakai-scormcloud-upload-helper, .icon-sakai-summary-calendar, .icon-sakai-synoptic-announcement, .icon-sakai-synoptic-chat {
 	background-image: url(../../image/silk/application.png)
