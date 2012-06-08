@@ -1251,9 +1251,16 @@ below they are contextually defined depending on the column as an example,as you
 	display: none;
 }
 #footerAppTray span.present {
-	margin: -2px 0 0 5px !important;
-	border: 2px solid #fff;
-	display: none;
+    margin: -2px 0 0 5px !important;
+    border: 2px solid #fff;
+    background-color: #444;
+    padding: 0 5px;
+    color: #fff;
+    border-radius: 5px;
+    -moz-border-radius: 5px;
+    -webkit-border-radius: 5px;
+    height: 14px;
+    width: 14px;
 }
 #footerAppTray span.empty {
 	visibility: hidden
@@ -1664,7 +1671,8 @@ ul.topnav li ul.subnav li, #mastLogin ul.subnav li, .otherSiteTool {
 	border-width: 0 0 1px 0;
 	width: 100%;
 }
-ul.topnav li ul.subnav li a:hover, #mastLogin ul.subnav li a:hover {
+ul.topnav li ul.subnav li a:hover, ul.topnav li ul.subnav li a:focus, 
+    #mastLogin ul.subnav li a:hover, #mastLogin ul.subnav li a:focus {
 	text-decoration: none;
 	color: #009DCE;
 }
