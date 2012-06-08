@@ -43,6 +43,30 @@
 		   			#end
 		  		#end
 			#end
+
+                    #if ($viewAsStudentLink)
+                    <div id="roleSwitch29">
+						 <li>
+                        #if ($roleSwitchState)
+							<a href="$switchRoleUrl"  id="roleSwitchAnchor"><span class="icon-role-exit">${rloader.rs_exitRoleSwap} $roleUrlValue ${rloader.rs_view}</span></a>
+                        #else
+                            #if ($roleswapdropdown)
+                                <label for ="roleSwitchSelect">${rloader.rs_viewSiteAs}</label><a href="$switchRoleUrl"></a>
+                                <select id="roleSwitchSelect" onchange="if (this.options[this.selectedIndex].value != '') { parent.location = this.options[this.selectedIndex].value; } else { this.selectedIndex = 0; }">
+                                    <option value="" selected="selected">${rloader.rs_selectRole}</option>
+                                #foreach( $role in $siteRoles)   
+                                    <option value="$switchRoleUrl$role$panelString">$role</option> 
+                                #end     
+                                </select>
+                            #else
+                                <a href="$switchRoleUrl" id="roleSwitchAnchor"><span class="icon-role-enter">${rloader.rs_enterRoleSwap} $roleUrlValue ${rloader.rs_view}</span></a>
+                            #end
+                        #end
+						</li>
+                    </div>
+                    #end
+
+
 			#if (${sitePages.pageNavShowHelp})
 						 <li>
 								<a class="toolMenuLink" accesskey="6" href="${sitePages.pageNavHelpUrl}" target="_blank" 
@@ -77,6 +101,8 @@
 					</ul>
 				</div>
 			#end
+
+
 			</div>
 			<div id="togglebar">
 #if ( $loggedIn ) 
