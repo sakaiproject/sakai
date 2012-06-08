@@ -58,7 +58,7 @@ public class TutorialEntityProviderImpl implements TutorialEntityProvider, AutoR
 		//build footer html:
 		String footerHtml = "<br/><br/><div style='min-width: 120px; background: #ddd;'>";
 		if(previousUrl != null && !"".equals(previousUrl)){
-			footerHtml += "<div style='float:left'><a href='#' class='qtipLinkButton' onclick='showTutorialPage(\"" + previousUrl + "\");'><img src='/library/image/silk/arrow_left-grey.png'>&nbsp;" + msgs.getString("previous") + "</a></div>";
+			footerHtml += "<div style='float:left'><a href='#' class='qtipLinkButton' onclick='previousClicked=true;showTutorialPage(\"" + previousUrl + "\");'><img src='/library/image/silk/arrow_left-grey.png'>&nbsp;" + msgs.getString("previous") + "</a></div>";
 		}
 		if(nextUrl != null && !"".equals(nextUrl)){
 			footerHtml += "<div style='float:right'><a href='#' class='qtipLinkButton' onclick='showTutorialPage(\"" + nextUrl + "\");'>" + msgs.getString("next") + "&nbsp;<img src='/library/image/silk/arrow_right-grey.png'></a></div>";
