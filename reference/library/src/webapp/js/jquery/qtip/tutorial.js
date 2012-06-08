@@ -3,6 +3,7 @@ var sakaiTutorialStartUrl = "/direct/tutorial/introToSakai_p1.json";
 var sakaiTutorialLocationUrl = '/direct/tutorial/introToSakai_pTutorialLocation.json';
 var optsCache;
 var maxWidth = 500;
+var previousClicked = false;
 //create sakai tutorial style skin
 $.fn.qtip.styles.sakaiTutorial = { // Last part is the name of the style
 		width: { max: 800 },
@@ -39,10 +40,17 @@ function showTutorialPage(url, opts){
 				if(response.data.dialog == 'true'){
 					response.data.selection = 'div#tutorial';
 				}
-				if(!$(response.data.selection).length && response.data.nextUrl){
+				if(!$(response.data.selection).length 
+						&& ((!previousClicked && response.data.nextUrl) 
+								|| (previousClicked && response.data.previousUrl))){
 					//this item doesn't exist, go to the next page if it exists
-					showTutorialPage(response.data.nextUrl);
+					if(previousClicked){
+						showTutorialPage(response.data.previousUrl);
+					}else{
+						showTutorialPage(response.data.nextUrl);
+					}
 				}else{
+					previousClicked = false;
 					var mxWidth = maxWidth;
 					var totalWidth = $(document).width();
 					var totalHeight = $(document).height();
