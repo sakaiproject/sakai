@@ -43,7 +43,6 @@ function showTutorialPage(url, opts){
 					//this item doesn't exist, go to the next page if it exists
 					showTutorialPage(response.data.nextUrl);
 				}else{
-					var selector = '';
 					var mxWidth = maxWidth;
 					var totalWidth = $(document).width();
 					var totalHeight = $(document).height();
@@ -87,31 +86,8 @@ function showTutorialPage(url, opts){
 									}
 								});
 					}else{
-						//make sure the item exist, is visible, and the max width is correct:
-						$(response.data.selection).each(function(index){
-							//let's make sure the item is in the visible field
-							var position = $(this).position();
-							
-							if(position.left >= 0 && position.left < totalWidth
-									&& position.top >= 0 && position.top < totalHeight){
-								selector = $(this);
-								var additionalSpace = totalWidth - (position.left + $(this).width());
-								if(mxWidth > additionalSpace){
-									mxWidth = additionalSpace;
-								}
-								//break out
-								return false;
-							}
-						});
-						//selector isn't visible, or doesn't exist, go to the next page
-						if(selector == '')
-							if(response.data.nextUrl)
-								showTutorialPage(response.data.nextUrl);
-							else
-								return false;
-						
 						//not dialog:
-						$(selector).qtip(
+						$(response.data.selection).qtip(
 								{ 
 									content: {
 										title: {
