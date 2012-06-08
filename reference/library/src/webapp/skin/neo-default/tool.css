@@ -786,10 +786,10 @@ span.navSeparator {
 visibility gets toggled */
 #submitnotif {
 	background: #fff url(images/warn-a.gif) .3em .3em no-repeat;
-	border: 1px solid #009DCE;
+	border: 1px solid #b11;
 	font-family: 'Helvetica Neue', Arial,sans-serif;
 	clear: none;
-	color: #009DCE;
+	color: #b11;
 	font-size: small;
 	vertical-align: text-top;
 	margin: 0;

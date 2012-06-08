@@ -56,7 +56,7 @@ body {
 #headerMin>#siteNavWrapper>#mastHead>#mastLogin>#loginLinks a {
 
 }
-#headerMin>#siteNavWrapper>#mastHead>#mastLogin>#loginLinks a:hover, #loginLink1:hover,div#mastLogin form#loginForm input#submit {
+#headerMin>#siteNavWrapper>#mastHead>#mastLogin>#loginLinks a:hover, #loginLink1:hover,div#mastLogin form#loginForm input#submit:hover {
 	background: #007194;
 	text-decoration: none !important;
 }
