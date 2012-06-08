@@ -130,7 +130,7 @@
 		#end
     #end
 	#if ($pageCount > $maxToolsInt)
-		<li class="submenuitem"><a href="${site.siteUrl}" title="${site.siteTitle}" class="icon-sakai-see-all-tools"><span>${rloader.sit_alltools}</span></a></li>
+		<li class="submenuitem"><span><a href="${site.siteUrl}" title="${site.siteTitle}" class="icon-sakai-see-all-tools"><span>${rloader.sit_alltools}</span></a></span></li>
 	#end	
 
 #if (${site.sitePages.pageNavCanAddMoreTools}) 
