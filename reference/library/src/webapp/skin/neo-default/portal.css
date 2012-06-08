@@ -88,13 +88,12 @@ div#mastLogin form#loginForm input#submit{
 }
 /* site hierarchy breadcrumb  */
 #siteHierarchy {
-	margin: 0;
 	z-index: -1;
 	height: 12px;
 	list-style: none;
 	line-height: .95em;
 	vertical-align: middle;
-	padding: 5px 7px;
+	padding: 0 2px 8px 8px;
 	background-color: #f3f3f3;
 	border-bottom: 1px solid #ccc;
 	font-size: .85em;
@@ -103,6 +102,9 @@ div#mastLogin form#loginForm input#submit{
 #siteHierarchy li {
 	display: inline;
 	padding: 0 1px 0 0;
+}
+#siteHierarchy li a{
+    color: #009DCE !important;
 }
 /* style the standard breadcrumbseparator
 can set display: none if needed because the list-style is taking care of it  */
@@ -186,8 +188,8 @@ site types are a local setting - adjust   */
 /* wrapper for site content (portlets) - children can be #col1 or #col1of2 and #col2of2 depending in the number of columns  */
 #content {
 	padding: 0;
-	padding-top: 2em;
-	padding-left: 14.7em;
+	padding-top: .8em;
+	padding-left: 14.2em;
 }
 #col1, #col1of2, #col2of2 {
 
@@ -274,7 +276,7 @@ that can be used or hidden,can also use a background: url(images/<image name>.<e
 	width: auto;
 	height: 50px;
 	width: 110px;
-	background: transparent url(images/logo.png) 8px 1px no-repeat;
+	background: transparent url(images/logo.png) 8px 4px no-repeat;
 }
 #mastLogo img {
 	display: none
@@ -1607,7 +1609,7 @@ ul.topnav {
 	width: 100%;
 	background-image: url(images/logo.png);
 	background-repeat: no-repeat;
-	background-position: 8px 1px;
+	background-position: 8px 4px;
 }
 ul.topnav li.nav-menu:hover, ul.topnav li.nav-selected, ul.topnav li.more-tab:hover {
 	background: #008DB9;
@@ -1766,7 +1768,36 @@ ul#otherSiteList, ul.otherSitesCategorList {
 	float: left;
 	font-size: .9em;
 }
-ul#otherSiteList li, ul#otherSitesMenu li, ul.otherSitesCategorList li {
+ul#otherSitesMenu li{
+    display: inline-block !important;
+	margin-right: 4px !important;
+	margin-bottom: 4px !important;
+	padding: 3px 8px !important;
+	border: 1px solid #ccc !important;
+	border-radius: 4px;
+	-moz-border-radius: 4px;
+	-webkit-border-radius: 4px;
+	background: #e7e7e7 !important;
+	background: -moz-linear-gradient(top, #f7f7f7 0%, #e7e7e7 100%) !important;
+	background: -webkit-gradient(linear, left top, left bottom, color-stop(0%,#f7f7f7), color-stop(100%,#e7e7e7)) !important;
+	background: -webkit-linear-gradient(top, #f7f7f7 0%,#e7e7e7 100%) !important;
+	background: -o-linear-gradient(top, #f7f7f7 0%,#e7e7e7 100%) !important;
+	background: -ms-linear-gradient(top, #f7f7f7 0%,#e7e7e7 100%) !important;
+	background: linear-gradient(top, #f7f7f7 0%,#e7e7e7 100%) !important;
+	box-shadow: 0 0 5px rgba(200, 200, 200, .2);
+    -moz-box-shadow:    0 0 5px rgba(200, 200, 200, .2);
+    -webkit-box-shadow: 0 0 5px rgba(200, 200, 200, .2);
+}
+#otherSitesMenu li a, #otherSitesMenu li a:visited{
+    display: block;
+	padding: 8px;
+	text-decoration: none !important;
+	color: #000 !important;
+	white-space: nowrap;    
+	font-weight: bold;
+}
+
+ul#otherSiteList li, ul.otherSitesCategorList li {
 	background: #009DCE;
 	background: -moz-linear-gradient(top, #009DCE 0%, #007EA5 100%);
 	background: -webkit-gradient(linear, left top, left bottom, color-stop(0%,#009DCE), color-stop(100%,#007EA5));
@@ -1783,9 +1814,9 @@ ul#otherSiteList li, ul#otherSitesMenu li, ul.otherSitesCategorList li {
 	-webkit-border-radius: 5px;
 	overflow: hidden;
 }
-ul#otherSiteList li a, #otherSitesMenu li a, ul.otherSitesCategorList li a {
+ul#otherSiteList li a, ul.otherSitesCategorList li a {
 	display: block;
-	padding: 4px;
+	padding: 8px;
 	text-decoration: none !important;
 	color: #fff !important;
 	white-space: nowrap;
@@ -1854,6 +1885,7 @@ ul#otherSitesMenu li {
 	top: 2px;
 	height: 11px;
 	*display: none !important;
+	border-left: thin solid #FFFFFF;
 }
 .toolMenus:hover {
 	background-position: 10px -38px;
