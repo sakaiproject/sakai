@@ -1194,14 +1194,6 @@ ul.makeMenu li.menuClose a:hover {
 /* ===[ New alerts ]=== */
 .validationEmbedded, .validation, .alertMessage {
 	background: white url(../../image/silk/exclamation.png) 4px 4px no-repeat !important;
-	border: 1px solid #009DCE !important;
-	display: block;
-	width: 80%;
-	font-size: 1em;
-	clear: both;
-	color: #009DCE !important;
-	margin: 5px 0;
-	padding: 5px 5px 5px 25px !important;
 }
 .information {
 	background-image: url(../../image/silk/information.png);

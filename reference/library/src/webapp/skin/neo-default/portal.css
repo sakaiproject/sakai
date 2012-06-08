@@ -62,7 +62,8 @@ body {
 }
 
 div#mastLogin form#loginForm input#submit{
-    color: #fff
+    color: #fff;
+    display: inline;
 }
 
 #headerMax #loginLink1 {
@@ -123,7 +124,7 @@ a.lastBreadCrumb {
 }
 #siteHierarchy li a, #siteHierarchy li a:visited {
 	color: #333;
-	font-size: 1em;
+	font-size: 1.2em;
 	text-decoration: none;
 }
 /* wrapper for site content (includes as children #toolMenuWrap,#content and #footer)  */
@@ -523,12 +524,13 @@ so for example <div class="tabHolder workspace"> so that different site types ca
 	background: linear-gradient(top, #f7f7f7 0%,#e7e7e7 100%) !important;
 	text-align: center;
 	width: auto;
-	border-radius: 4px 0 0 4px;
+	border-radius: 4px;
 	border: 1px solid #ccc !important;
 	border-width: 1px 0 1px 1px !important;
 	font-size: .85em;
 	text-transform: capitalize;
 	text-align: center;
+	margin-right: 1em;
 }
 
 #roleSwitch a#roleSwitchAnchor {
@@ -1795,12 +1797,7 @@ ul#otherSiteList li a, ul.otherSitesCategorList li a {
 
 }
 /* Hide the Add new site button until it works properly */
-#otherSitesMenu li:nth-of-type(2) {
-	display: none;
-}
-#newSite {
-	display: none !important;
-}
+
 #otherSitesCategorWrap .toolMenus {
 	background-position: 7px -7px;
 }
