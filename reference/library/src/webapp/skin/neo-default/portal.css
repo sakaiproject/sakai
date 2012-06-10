@@ -93,7 +93,8 @@ div#mastLogin form#loginForm input#submit{
 	list-style: none;
 	line-height: .95em;
 	vertical-align: middle;
-	padding: 0 2px 8px 8px;
+	padding: 8px 8px 6px 8px;
+	margin: 0px 0px 0px 0px;
 	background-color: #f3f3f3;
 	border-bottom: 1px solid #ccc;
 	font-size: .85em;
@@ -516,7 +517,7 @@ so for example <div class="tabHolder workspace"> so that different site types ca
 #roleSwitch {
 	position: absolute;
 	right: 0px;
-	top: 45px;
+	top: 26px;
 	background: #e7e7e7 !important;
 	background: -moz-linear-gradient(top, #f7f7f7 0%, #e7e7e7 100%) !important;
 	background: -webkit-gradient(linear, left top, left bottom, color-stop(0%,#f7f7f7), color-stop(100%,#e7e7e7)) !important;
@@ -526,6 +527,7 @@ so for example <div class="tabHolder workspace"> so that different site types ca
 	background: linear-gradient(top, #f7f7f7 0%,#e7e7e7 100%) !important;
 	text-align: center;
 	width: auto;
+	white-space: nowrap;
 	border-radius: 4px;
 	border: 1px solid #ccc !important;
 	border-width: 1px 0 1px 1px !important;
@@ -552,7 +554,7 @@ so for example <div class="tabHolder workspace"> so that different site types ca
 	color: #009DCE !important;
 }
 #roleSwitch label, #roleSwitch a#roleSwitchAnchor {
-	color: #fff;
+	color: #000;
 	font-weight: bold;
 	text-decoration: none;
 }
