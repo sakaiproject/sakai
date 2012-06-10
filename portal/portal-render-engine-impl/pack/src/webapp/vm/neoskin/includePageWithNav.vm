@@ -40,21 +40,22 @@
     		<a href="${pwd.siteUrl}" title="${pwd.siteTitle}"><span>${pwd.siteTitle}</span></a>
 			#end
       	</li>
-			#end
+		#end
 	</ul>
-	#end
-#if (${sakai_nav_minimized} && ${portal_allow_minimize_tools})
-        <div id="container" class="sakaiMinimizePageNavigation" $pageSiteType >
-#else
-	<div id="container" $pageSiteType >
 #end
-	#if ( ( $sitePages.pageNavToolsCount > 1 || ! $sitePages.pageMaxIfSingle ) ) 
 
-#parse("/vm/neoskin/includePageNav.vm")
+#if (${sakai_nav_minimized} && ${portal_allow_minimize_tools})
+<div id="container" class="sakaiMinimizePageNavigation" $pageSiteType >
+#else
+<div id="container" $pageSiteType >
+#end
 
-	#else 
-		<!-- no page nav requested -->
-	#end
+
+#if ( ( $sitePages.pageNavToolsCount > 1 || ! $sitePages.pageMaxIfSingle ) ) 
+	#parse("/vm/neoskin/includePageNav.vm")
+#else 
+	<!-- no page nav requested -->
+#end
 
 #parse("/vm/neoskin/includePageBody.vm")
 	</div>

@@ -43,25 +43,6 @@
 		   			#end
 		  		#end
 			#end
-
-                    #if ($viewAsStudentLink)
-                    <div id="roleSwitch29">
-                        #if ($roleSwitchState)
-						 <li><a href="$switchRoleUrl"  id="roleSwitchAnchor"><span class="icon-role-exit">${rloader.rs_exitRoleSwap} $roleUrlValue ${rloader.rs_view}</span></a></li>
-                        #else
-                            #if ($roleswapdropdown)
-                                #foreach( $role in $siteRoles)   
-                                    <option value="$switchRoleUrl$role$panelString">$role</option> 
-                                <li><a href="$switchRoleUrl$role$panelString"><span class="icon-role-enter">${rloader.rs_enterRoleSwap} $role ${rloader.rs_view}</span></a></li>
-                                #end     
-                            #else
-                                <li><a href="$switchRoleUrl" id="roleSwitchAnchor"><span class="icon-role-enter">${rloader.rs_enterRoleSwap} $roleUrlValue ${rloader.rs_view}</span></a></li>
-                            #end
-                        #end
-                    </div>
-                    #end
-
-
 			#if (${sitePages.pageNavShowHelp})
 						 <li>
 								<a class="toolMenuLink" accesskey="6" href="${sitePages.pageNavHelpUrl}" target="_blank" 
