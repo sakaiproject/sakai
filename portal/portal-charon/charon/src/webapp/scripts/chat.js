@@ -525,7 +525,23 @@ function PortalChat() {
 
                 portalChat.updateSiteUsers(data.data.presentUsers);
 
-                var totalChattable = data.data.online.length + data.data.presentUsers.length;
+                var totalChattable = data.data.online.length;
+
+                // SAK-22260. Don't count the same person twice ...
+                for(var i=0,j=data.data.presentUsers.length;i<j;i++) {
+                    var presentUser = data.data.presentUsers[i];
+                    var alreadyIn = false;
+                    for(var k=0,m=data.data.online.length;k<m;k++) {
+                        if(presentUser.id === data.data.online[k]) {
+                            alreadyIn = true;
+                            break;
+                        }
+                    }
+                    if(alreadyIn == false) {
+                        totalChattable++;
+                    }
+                }
+
                 if(totalChattable > 0) {
                     $('#chattableCount').html(totalChattable + '');
                     $('#chattableCount').removeClass('empty').addClass('present');
@@ -741,8 +757,8 @@ function PortalChat() {
 				document.title = portalChat.originalTitle;
 			});
 
-            //explicitly close presence panel
-            $('#pc_chat_close').click(function(e){
+            // Explicitly close presence panel. This also handles clicks bubbled up from the close icon.
+            $('#pc_title').click(function(e){
                 e.preventDefault();
                 portalChat.toggleChat();
             })
@@ -822,6 +838,8 @@ function PortalChat() {
 	this.init();
 }
 
+// Portal chat depends on session storage and JSON. If either aren't
+// supported in the browser, don't show it.
 if (typeof sessionStorage !== 'undefined' && typeof JSON !== 'undefined') {
   var portalChat = new PortalChat();
   $(document).ready(function() {
