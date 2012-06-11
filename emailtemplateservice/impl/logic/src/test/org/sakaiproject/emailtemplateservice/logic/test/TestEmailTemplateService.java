@@ -80,31 +80,7 @@ public class TestEmailTemplateService extends AbstractTransactionalSpringContext
 		assertNotSame(template2.getId(), template1.getId());
 		
 		
-		//we should not be able to save a new template in the same locale/key
-		EmailTemplate template3 = new EmailTemplate();
-		template3.setKey(KEY_1);
-		template3.setLocale(US_LOCALE);
-		template3.setLastModified(new Date());
-		template3.setOwner(ADMIN_USER);
-		template3.setSubject("Subject 1");
-		template3.setMessage("message 1");
 		
-		EmailTemplate template4 = new EmailTemplate();
-		template4.setKey(KEY_1);
-		template4.setLocale(US_LOCALE);
-		template4.setLastModified(new Date());
-		template4.setOwner(ADMIN_USER);
-		template4.setSubject("Subject 1");
-		template4.setMessage("message 1");
-		
-		try {
-			emailTemplateService.saveTemplate(template3);
-			emailTemplateService.saveTemplate(template4);
-			fail();
-		}
-		catch (Exception e) {
-			e.printStackTrace();
-		}
 		
 	}
 

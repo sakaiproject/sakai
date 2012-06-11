@@ -58,10 +58,8 @@
             <artifactId>spring-test</artifactId>
         </dependency>
         <dependency>
-            <groupId>org.hsqldb</groupId>
+            <groupId>hsqldb</groupId>
             <artifactId>hsqldb</artifactId>
-            <version>2.2.8</version>
-            <scope>test</scope>
         </dependency>
         <dependency>
             <groupId>commons-collections</groupId>
