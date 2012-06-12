@@ -832,6 +832,14 @@ function PortalChat() {
 			}
 		});
 
+        // 15 minutes
+        $.idleTimer(900000);
+
+        $(document).bind("idle.idleTimer", function(){
+            portalChat.clearGetLatestDataInterval();
+        }).bind("active.idleTimer", function(){
+            portalChat.setGetLatestDataInterval();
+        });
 
 	} //init
 

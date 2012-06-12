@@ -295,7 +295,7 @@ public class PCServiceEntityProvider extends ReceiverAdapter implements EntityPr
      */
 	@EntityCustomAction(action = "latestData", viewKey = EntityView.VIEW_SHOW)
 	public Map<String,Object> handleLatestData(EntityReference ref, Map<String,Object> params) {
-		
+
 		User currentUser = userDirectoryService.getCurrentUser();
 		User anon = userDirectoryService.getAnonymousUser();
 		
