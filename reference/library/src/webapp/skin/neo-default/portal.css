@@ -896,7 +896,7 @@ a#toggleToolMenu {
 }
 .sakaiMinimizePageNavigation #toolMenu li span, .sakaiMinimizePageNavigation #subSites li span {
 	position: absolute;
-	left: -10000px;
+	left: -180px;
 	top: auto;
 	width: 1px;
 	height: 1px;
@@ -915,7 +915,7 @@ a#toggleToolMenu {
 }
 .sakaiMinimizePageNavigation #toolMenuWrap, .sakaiMinimizePageNavigation #toolMenuWrap:hover {
 	position: absolute;
-	left: -10000px;
+	left: -180px;
 	top: auto;
 	width: 1px;
 	height: 1px;
