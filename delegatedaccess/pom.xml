@@ -116,7 +116,11 @@
 
 		</dependencies>
 	</dependencyManagement>
-	
+<scm>
+  <connection>scm:svn:https://source.sakaiproject.org/contrib/delegatedaccess/trunk</connection>
+  <developerConnection>scm:svn:https://source.sakaiproject.org/contrib/delegatedaccess/trunk</developerConnection>
+  <url>https://source.sakaiproject.org/contrib/delegatedaccess/trunk</url>
+</scm>	
 	
 	<repositories>
 		<repository>
