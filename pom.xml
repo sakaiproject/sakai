@@ -35,9 +35,9 @@
     </issueManagement>
 
     <scm>
-        <connection>scm:svn:https://source.sakaiproject.org/svn/sakai/branches/sakai-trunk-all</connection>
-        <developerConnection>scm:svn:https://source.sakaiproject.org/svn/sakai/branches/sakai-trunk-all</developerConnection>
-        <url>https://source.sakaiproject.org/svn/sakai/branches/sakai-trunk-all</url>
+        <connection>scm:svn:https://source.sakaiproject.org/svn/sakai/trunk</connection>
+        <developerConnection>scm:svn:https://source.sakaiproject.org/svn/sakai/trunk</developerConnection>
+        <url>https://source.sakaiproject.org/svn/sakai/trunk</url>
     </scm>
 
     <profiles>
