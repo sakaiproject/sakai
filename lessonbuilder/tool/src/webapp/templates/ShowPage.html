@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8" ?>
 <!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
-<html xmlns="http://www.w3.org/1999/xhtml">
+<html rsf:id="html" xmlns="http://www.w3.org/1999/xhtml">
 <head>
 <meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
 <META HTTP-EQUIV="CACHE-CONTROL" CONTENT="NO-CACHE"/>
@@ -72,9 +72,9 @@ function resizeiframe(id) {
 		</div>
 
 		<div rsf:id="crumbdiv" class="fullwidth breadcrumbs" role="navigation">
-                  <a href="#" rsf:id="resetbutton2"><img src="/library/skin/default/images/reload.gif" style="float:left; margin-right:4px;margin-top:2px"/></a>
+                  <a href="#" rsf:id="resetbutton2"><img rsf:id="resetimage2" src="/library/skin/default/images/reload.gif" style="float:left; margin-right:4px;margin-top:2px"/></a>
 		  <span rsf:id="crumb:"><a href="#" rsf:id="crumb-link"></a><span rsf:id="crumb-follow"></span></span>
-                  <a href="#" rsf:id="helpbutton2" target="_blank"><img src="/library/skin/default/images/help.gif" style="float:right;margin-left:4px;margin-top:2px"/></a>
+                  <a href="#" rsf:id="helpbutton2" target="_blank"><img rsf:id="helpimage2" src="/library/skin/default/images/help.gif" style="float:right;margin-left:4px;margin-top:2px"/><span rsf:id="helpnewwindow2" class="offscreen"></span> </a>
 		</div>
 
 		
@@ -95,10 +95,11 @@ function resizeiframe(id) {
 		<br rsf:id="breakAfterWarnings" />
 		
                 <div class="neoPortletTitleWrap">
-                  <a href="#" rsf:id="resetbutton"><img src="/library/skin/default/images/reload.gif" style="float:left; margin-right:4px; margin-top:3px"/></a>
+		  <h2 style="margin:0px;color:inherit;font-size:inherit">
+                  <a href="#" rsf:id="resetbutton"><img rsf:id="resetimage" src="/library/skin/default/images/reload.gif" style="float:left; margin-right:4px; margin-top:3px"/></a>
                   <div style="float:right">
                   <a class="usebutton" href="#" rsf:id="show-pages" id="show-pages" role="note"></a>
-                  <a href="#" rsf:id="helpbutton" target="_blank"><img src="/library/skin/default/images/help.gif" style="margin-left:4px; margin-top:3px"/></a>
+                  <a href="#" rsf:id="helpbutton" target="_blank"><img rsf:id="helpimage" src="/library/skin/default/images/help.gif" style="margin-left:4px; margin-top:3px"/><span rsf:id="helpnewwindow" class="offscreen"></span></a>
                   </div>
 		  <span class="title" rsf:id="pagetitle"></span>
 		  <span class="nextprev buttonset"> <a href="#" rsf:id="prev" class="nextprev">next</a> <a href="#" rsf:id="next" class="nextprev">next</a> </span>
@@ -107,6 +108,7 @@ function resizeiframe(id) {
 		  <span rsf:id="gradingSpan" class="gradingarea">
 		  		<a href="#" rsf:id="gradingBack" style="margin-right:2px;" class="usebutton">&#60;</a><img class="statusImg" src="$context/images/no-status.png" id="statusImg" height="16px" width="16px" alt=""></img><span style="*vertical-align:13%"  rsf:id="msg=simplepage.comments-points"></span><span style="display:none" class="uuidBox" rsf:id="commentsUUID"></span><span style="display:none" class="pointsSpan" rsf:id="commentPoints"></span> <input rsf:id="studentPointsBox"  id="studentPointsBox" type="text" style="font-size:100%"  size="3"></input> <a class="usebutton" href="#" rsf:id="msg=simplepage.submit" style="*vertical-align:13%;margin-right:.5em" id="submit-grading"></a> <a href="#" rsf:id="gradingForward" class="usebutton">&#62;</a>
 		  </span>
+		  </h2>
 		</div>
 		
 	
@@ -210,10 +212,6 @@ function resizeiframe(id) {
 				<colgroup rsf:id="colgroup"/>
 				<col width="20" rsf:id="col1"/>
 				<col width="100%" rsf:id="col2"/>
-			        <tr class="offscreen">
-				  <th rsf:id="header-edits"><div rsf:id="msg=simplepage.edititems"></div></th>
-				  <th rsf:id="header-items"><div rsf:id="msg=simplepage.items"></div></th>
-				</tr>
 				<tr rsf:id="item:" id="item" role="listitem">
 					<td rsf:id="edit-td" class="edit-col"><div><a href="#" class="usebutton edit-link" onclick="return false" rsf:id="edit-link"></a></div></td>
 					<td rsf:id="item-td"><div style="float:left"><img class="status-image" rsf:id="status" height="18" width="18" style="margin-right:3px" /></div>
@@ -604,7 +602,7 @@ function resizeiframe(id) {
 						</div>
 
 					        <p class="shorttext required" id="edit-height">
-							<label rsf:id="msg=simplepage.height_label" for="edit-height"></label>
+							<label rsf:id="msg=simplepage.height_label" for="edit-height-value"></label>
 					 		<input type="text" name="edit-height-value" rsf:id="edit-height-value" id="edit-height-value" length="30" class="edit-form-input" /><br />
 						</p>
 
@@ -674,12 +672,12 @@ function resizeiframe(id) {
 
 					<div class="border2">					
 						<p class="shorttext required mm-url-section">
-							<label rsf:id="mm-url-label" for="height">URL</label>
+							<label rsf:id="mm-url-label" for="mm-url">URL</label>
 					 		<input type="text" name="mm-url" rsf:id="mm-url" id="mm-url" style="width:95%" class="edit-multimedia-input" /><br />
 						</p>
 
 						<p class="shorttext required">
-							<label rsf:id="mm-file-label" for="file">File</label>
+							<label rsf:id="mm-file-label" for="mm-file">File</label>
 					 		<input type="file" name="mm-file" id="mm-file" style="width:95%" class="edit-multimedia-input" /><br />
 						</p>
 
@@ -718,7 +716,7 @@ function resizeiframe(id) {
 					 		<input type="text" name="alt" rsf:id="alt" id="alt" class="edit-multimedia-input wideinput" /><br />
 						</p>
 						<p class="shorttext required">
-							<label rsf:id="description2-label" for="alt">Page Title</label><br />
+							<label rsf:id="description2-label" for="description2">Page Title</label><br />
 					 		<textarea name="description2" rsf:id="description2" id="description2" rows="5" class="edit-multimedia-input" ></textarea>
 						</p>
 						<p class="shorttext required" id="change-resource-mm-p">
@@ -827,9 +825,9 @@ function resizeiframe(id) {
 						<label for="hide"><span rsf:id="msg=simplepage.hide_page_from_users"></span></label><br />
 
 						<input type="checkbox" id="page-releasedate" rsf:id="page-releasedate" />
-						<label for="releaseDate"><span rsf:id="msg=simplepage.page.releasedate"></span></label><br />
+						<label for="releaseDate:1:date-field"><span rsf:id="msg=simplepage.page.releasedate"></span></label><br />
 						<div id="releaseDiv" style="margin-left:3em">
-						  <span rsf:id="releaseDate:" id="releaseDate"> 
+						  <span rsf:id="releaseDate:" id="releaseDate">
 						    <input type="text"
 							   id="release_date_dummy" name="release_date_dummy" value="MM/DD/YYYY"
 							   size="12" maxlength="10" /> 
@@ -938,7 +936,7 @@ function resizeiframe(id) {
 							 </p>
 						</div>
 						<p class="shorttext required">
-						  <label rsf:id="description4-label" for="alt">Page Title</label><br />
+						  <label rsf:id="description4-label" for="description4">Page Title</label><br />
 						  <textarea name="description4" rsf:id="description4" id="description4" rows="5" class="edit-multimedia-input" ></textarea>
 						</p>
 						<p rsf:id="editgroups-youtube" id="editgroups-youtube">
@@ -980,7 +978,7 @@ function resizeiframe(id) {
 						</p>
 				
 						<p class="shorttext required">
-						  <label rsf:id="description3-label" for="alt">Page Title</label><br />
+						  <label rsf:id="description3-label" for="description3">Page Title</label><br />
 						  <textarea name="description3" rsf:id="description3" id="description3" rows="5" class="edit-multimedia-input" ></textarea>
 						</p>
 						<p class="shorttext required" id="change-resource-movie-p">

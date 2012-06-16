@@ -30,10 +30,12 @@ import org.sakaiproject.lessonbuildertool.SimplePage;
 import org.sakaiproject.lessonbuildertool.model.SimplePageToolDao;
 
 import uk.org.ponder.messageutil.MessageLocator;
+import uk.org.ponder.localeutil.LocaleGetter;                                                                                          
 import uk.org.ponder.rsf.components.UIContainer;
 import uk.org.ponder.rsf.components.UIInternalLink;
 import uk.org.ponder.rsf.components.UIVerbatim;
 import uk.org.ponder.rsf.components.UIOutput;
+import uk.org.ponder.rsf.components.decorators.UIFreeAttributeDecorator;                                                               
 import uk.org.ponder.rsf.view.ComponentChecker;
 import uk.org.ponder.rsf.view.ViewComponentProducer;
 import uk.org.ponder.rsf.viewstate.ViewParameters;
@@ -64,11 +66,15 @@ public class LinkTrackerProducer implements ViewComponentProducer, ViewParamsRep
 		messageLocator = s;
 	}
 
+	public LocaleGetter localeGetter;                                                                                             
+
 	public void fillComponents(UIContainer tofill, ViewParameters viewparams, ComponentChecker checker) {
 		TrackerViewParameters params = (TrackerViewParameters) viewparams;
 
                 if (!simplePageBean.canReadPage())
 		    return;
+
+                UIOutput.make(tofill, "html").decorate(new UIFreeAttributeDecorator("lang", localeGetter.get().getLanguage()));        
 
 		Long itemId = params.getItemId();
 

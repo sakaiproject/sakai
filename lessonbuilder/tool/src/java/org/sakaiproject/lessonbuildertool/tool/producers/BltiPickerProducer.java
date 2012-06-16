@@ -44,6 +44,7 @@ import org.sakaiproject.component.cover.ServerConfigurationService;
 import org.sakaiproject.lessonbuildertool.service.BltiEntity;
 
 import uk.org.ponder.messageutil.MessageLocator;
+import uk.org.ponder.localeutil.LocaleGetter;                                                                                          
 import uk.org.ponder.rsf.components.UIBranchContainer;
 import uk.org.ponder.rsf.components.UICommand;
 import uk.org.ponder.rsf.components.UIContainer;
@@ -78,6 +79,7 @@ public class BltiPickerProducer implements ViewComponentProducer, NavigationCase
 	private SimplePageToolDao simplePageToolDao;
         private LessonEntity bltiEntity;
 	public MessageLocator messageLocator;
+        public LocaleGetter localeGetter;                                                                                             
 
 	public void setSimplePageBean(SimplePageBean simplePageBean) {
 		this.simplePageBean = simplePageBean;
@@ -108,6 +110,7 @@ public class BltiPickerProducer implements ViewComponentProducer, NavigationCase
 		    }
 		}
 
+                UIOutput.make(tofill, "html").decorate(new UIFreeAttributeDecorator("lang", localeGetter.get().getLanguage()));        
 
 		//errorMessage=&id=&title=&source=&backPath=&sendingPage=92&path=&clearAttr=&recheck=&itemId=-1&returnView=
 

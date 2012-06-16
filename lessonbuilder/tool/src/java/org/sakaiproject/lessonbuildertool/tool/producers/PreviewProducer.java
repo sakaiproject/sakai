@@ -35,6 +35,7 @@ import org.sakaiproject.lessonbuildertool.tool.view.GeneralViewParameters;
 import org.sakaiproject.tool.api.ToolManager;
 
 import uk.org.ponder.messageutil.MessageLocator;
+import uk.org.ponder.localeutil.LocaleGetter;                                                                                          
 import uk.org.ponder.rsf.components.UIBranchContainer;
 import uk.org.ponder.rsf.components.UICommand;
 import uk.org.ponder.rsf.components.UIContainer;
@@ -42,6 +43,7 @@ import uk.org.ponder.rsf.components.UIForm;
 import uk.org.ponder.rsf.components.UIInput;
 import uk.org.ponder.rsf.components.UIOutput;
 import uk.org.ponder.rsf.components.UIVerbatim;
+import uk.org.ponder.rsf.components.decorators.UIFreeAttributeDecorator;                                                               
 import uk.org.ponder.rsf.flow.jsfnav.NavigationCase;
 import uk.org.ponder.rsf.flow.jsfnav.NavigationCaseReporter;
 import uk.org.ponder.rsf.view.ComponentChecker;
@@ -63,6 +65,8 @@ public class PreviewProducer implements ViewComponentProducer, NavigationCaseRep
 	private ToolManager toolManager;
 
 	public MessageLocator messageLocator;
+	public LocaleGetter localeGetter;                                                                                             
+
 	public static final String VIEW_ID = "Preview";
 
 	public String getViewID() {
@@ -70,7 +74,8 @@ public class PreviewProducer implements ViewComponentProducer, NavigationCaseRep
 	}
 
 	public void fillComponents(UIContainer tofill, ViewParameters params, ComponentChecker checker) {
-		System.out.println("preivew");
+
+		UIOutput.make(tofill, "html").decorate(new UIFreeAttributeDecorator("lang", localeGetter.get().getLanguage()));        
 
 		SimplePage currentPage = simplePageBean.getCurrentPage();
 

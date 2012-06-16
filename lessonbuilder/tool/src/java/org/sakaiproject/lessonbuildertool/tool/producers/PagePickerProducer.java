@@ -44,6 +44,7 @@ import org.sakaiproject.tool.api.ToolManager;
 import org.sakaiproject.exception.IdUnusedException;
 
 import uk.org.ponder.messageutil.MessageLocator;
+import uk.org.ponder.localeutil.LocaleGetter;                                                                                          
 import uk.org.ponder.rsf.components.UIBoundBoolean;
 import uk.org.ponder.rsf.components.UIBranchContainer;
 import uk.org.ponder.rsf.components.UICommand;
@@ -79,6 +80,8 @@ public class PagePickerProducer implements ViewComponentProducer, NavigationCase
 	private SimplePageToolDao simplePageToolDao;
 	private ToolManager toolManager;
 	public MessageLocator messageLocator;
+	public LocaleGetter localeGetter;                                                                                             
+
         private boolean somePagesHavePrerequisites = false;
         private long currentPageId = -1;
 
@@ -222,6 +225,8 @@ public class PagePickerProducer implements ViewComponentProducer, NavigationCase
 				return;
 			}
 		}
+
+		UIOutput.make(tofill, "html").decorate(new UIFreeAttributeDecorator("lang", localeGetter.get().getLanguage()));        
 
 		boolean canEditPage = (simplePageBean.getEditPrivs() == 0);
 

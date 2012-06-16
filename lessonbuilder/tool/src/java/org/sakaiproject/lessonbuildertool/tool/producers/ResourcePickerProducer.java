@@ -37,11 +37,13 @@ import org.sakaiproject.tool.api.ToolManager;
 import org.sakaiproject.tool.api.ToolSession;
 
 import uk.org.ponder.messageutil.MessageLocator;
+import uk.org.ponder.localeutil.LocaleGetter;                                                                                          
 import uk.ac.cam.caret.sakai.rsf.helper.HelperViewParameters;
 import uk.org.ponder.rsf.components.UICommand;
 import uk.org.ponder.rsf.components.UIContainer;
 import uk.org.ponder.rsf.components.UIOutput;
 import uk.org.ponder.rsf.components.UIInput;
+import uk.org.ponder.rsf.components.decorators.UIFreeAttributeDecorator;                                                               
 import uk.org.ponder.rsf.flow.jsfnav.NavigationCase;
 import uk.org.ponder.rsf.flow.jsfnav.NavigationCaseReporter;
 import uk.org.ponder.rsf.view.ComponentChecker;
@@ -94,6 +96,8 @@ public class ResourcePickerProducer implements ViewComponentProducer, ViewParams
 		this.messageLocator = messageLocator;
 	}
 
+	public LocaleGetter localeGetter;                                                                                             
+
 	public void fillComponents(UIContainer tofill, ViewParameters viewparams, ComponentChecker checker) {
 
 	    // this doesn't show anything in LB. I don't see any real permissions issues
@@ -111,6 +115,8 @@ public class ResourcePickerProducer implements ViewComponentProducer, ViewParams
 
 		if (!simplePageBean.canReadPage())
 		    return;
+
+                UIOutput.make(tofill, "html").decorate(new UIFreeAttributeDecorator("lang", localeGetter.get().getLanguage()));        
 
 		// parameters for helper
 		ToolSession toolSession = sessionManager.getCurrentToolSession();

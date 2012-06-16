@@ -16,6 +16,7 @@ import org.sakaiproject.lessonbuildertool.tool.view.GradingPaneViewParameters;
 import org.sakaiproject.user.cover.UserDirectoryService;
 
 import uk.org.ponder.messageutil.MessageLocator;
+import uk.org.ponder.localeutil.LocaleGetter;                                                                                          
 import uk.org.ponder.rsf.builtin.UVBProducer;
 import uk.org.ponder.rsf.components.UIBranchContainer;
 import uk.org.ponder.rsf.components.UIContainer;
@@ -38,6 +39,7 @@ public class GradingPaneProducer implements ViewComponentProducer, ViewParamsRep
 	private SimplePageBean simplePageBean;
 	private SimplePageToolDao simplePageToolDao;
 	private MessageLocator messageLocator;
+	public LocaleGetter localeGetter;                                                                                             
 	
 	public String getViewID() {
 		return VIEW_ID;
@@ -75,6 +77,8 @@ public class GradingPaneProducer implements ViewComponentProducer, ViewParamsRep
 		backParams.setItemId(params.pageItemId);
 		backParams.setPath("log");
 		
+                UIOutput.make(tofill, "html").decorate(new UIFreeAttributeDecorator("lang", localeGetter.get().getLanguage()));        
+
 		UIInternalLink.make(tofill, "back-link", "Go Back", backParams);
 		
 		if(simplePageBean.getEditPrivs() != 0) {

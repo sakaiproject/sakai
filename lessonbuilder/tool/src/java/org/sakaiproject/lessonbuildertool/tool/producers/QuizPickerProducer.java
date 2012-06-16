@@ -39,6 +39,7 @@ import org.sakaiproject.tool.cover.ToolManager;
 import org.sakaiproject.lessonbuildertool.model.SimplePageToolDao;
 
 import uk.org.ponder.messageutil.MessageLocator;
+import uk.org.ponder.localeutil.LocaleGetter;                                                                                          
 import uk.org.ponder.rsf.components.UIBranchContainer;
 import uk.org.ponder.rsf.components.UICommand;
 import uk.org.ponder.rsf.components.UIContainer;
@@ -72,6 +73,7 @@ public class QuizPickerProducer implements ViewComponentProducer, NavigationCase
 	private SimplePageToolDao simplePageToolDao;
         private LessonEntity quizEntity;
 	public MessageLocator messageLocator;
+	public LocaleGetter localeGetter;                                                                                             
 
 	public void setSimplePageBean(SimplePageBean simplePageBean) {
 		this.simplePageBean = simplePageBean;
@@ -100,6 +102,8 @@ public class QuizPickerProducer implements ViewComponentProducer, NavigationCase
 			return;
 		    }
 		}
+
+		UIOutput.make(tofill, "html").decorate(new UIFreeAttributeDecorator("lang", localeGetter.get().getLanguage()));        
 
 		Long itemId = ((GeneralViewParameters) viewparams).getItemId();
 

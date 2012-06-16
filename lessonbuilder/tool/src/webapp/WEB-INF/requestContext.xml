@@ -63,6 +63,7 @@
 		<property name="simplePageToolDao">
 			<ref bean="org.sakaiproject.lessonbuildertool.model.SimplePageToolDao" />
 		</property>
+		<property name="localeGetter" ref="requestLocaleProxy" />
 	</bean>
 
 	<bean class="org.sakaiproject.lessonbuildertool.tool.producers.PreviewProducer" >
@@ -72,6 +73,7 @@
 			<ref bean="org.sakaiproject.lessonbuildertool.model.SimplePageToolDao" />
 		</property>
 		<property name="toolManager" ref="org.sakaiproject.tool.api.ActiveToolManager" />
+		<property name="localeGetter" ref="requestLocaleProxy" />
 	</bean>
 
 	<bean class="org.sakaiproject.lessonbuildertool.tool.producers.AssignmentPickerProducer" >
@@ -81,13 +83,17 @@
 			<ref bean="org.sakaiproject.lessonbuildertool.model.SimplePageToolDao" />
 		</property>
 		<property name="assignmentEntity" ref="org.sakaiproject.lessonbuildertool.service.AssignmentEntity"/>
+		<property name="localeGetter" ref="requestLocaleProxy" />
 	</bean>
 	
 	<bean class="org.sakaiproject.lessonbuildertool.tool.producers.ForumPickerProducer" >
 		<property name="messageLocator" ref="messageLocator"/>
-		<property name="simplePageBean" ref="simplePageBean" />
-		<property name="simplePageToolDao" ref="org.sakaiproject.lessonbuildertool.model.SimplePageToolDao" />
-		<property name="forumEntity" ref="org.sakaiproject.lessonbuildertool.service.ForumEntity"/>
+		<property name="simplePageBean" ref="simplePageBean"
+		/> <property name="simplePageToolDao"
+		ref="org.sakaiproject.lessonbuildertool.model.SimplePageToolDao"
+		/> <property name="forumEntity"
+		ref="org.sakaiproject.lessonbuildertool.service.ForumEntity"/>
+		<property name="localeGetter" ref="requestLocaleProxy" />
 	</bean>
 
  	<bean class="org.sakaiproject.lessonbuildertool.tool.producers.BltiPickerProducer" >
@@ -97,6 +103,7 @@
  			<ref bean="org.sakaiproject.lessonbuildertool.model.SimplePageToolDao" />
  		</property>
  		<property name="bltiEntity" ref="org.sakaiproject.lessonbuildertool.service.BltiEntity"/>
+		<property name="localeGetter" ref="requestLocaleProxy" />
  	</bean>
 
 	<bean class="org.sakaiproject.lessonbuildertool.tool.producers.PagePickerProducer" >
@@ -104,6 +111,7 @@
 		<property name="simplePageBean" ref="simplePageBean" />
 		<property name="simplePageToolDao" ref="org.sakaiproject.lessonbuildertool.model.SimplePageToolDao" />
 		<property name="toolManager" ref="org.sakaiproject.tool.api.ActiveToolManager" />
+		<property name="localeGetter" ref="requestLocaleProxy" />
 	</bean>
 
 	<bean class="org.sakaiproject.lessonbuildertool.tool.producers.LinkTrackerProducer" >
@@ -112,11 +120,13 @@
 			<ref bean="org.sakaiproject.lessonbuildertool.model.SimplePageToolDao" />
 		</property>
 		<property name="messageLocator" ref="messageLocator"/>
+		<property name="localeGetter" ref="requestLocaleProxy" />
 	</bean>
 
 	<bean class="org.sakaiproject.lessonbuildertool.tool.producers.RemovePageProducer" >
 		<property name="simplePageBean" ref="simplePageBean" />
 		<property name="messageLocator" ref="messageLocator"/>
+		<property name="localeGetter" ref="requestLocaleProxy" />
 	</bean>
 
 	<bean class="org.sakaiproject.lessonbuildertool.tool.producers.QuizPickerProducer" >
@@ -126,6 +136,7 @@
 			<ref bean="org.sakaiproject.lessonbuildertool.model.SimplePageToolDao" />
 		</property>
 		<property name="quizEntity" ref="org.sakaiproject.lessonbuildertool.service.SamigoEntity"/>
+		<property name="localeGetter" ref="requestLocaleProxy" />
 	</bean>
 
 	<bean class="org.sakaiproject.lessonbuildertool.tool.producers.ResourcePickerProducer" >
@@ -134,6 +145,7 @@
 		<property name="sessionManager" ref="org.sakaiproject.tool.api.SessionManager" />
 		<property name="contentHostingService" ref="org.sakaiproject.content.api.ContentHostingService" />
 		<property name="toolManager" ref="org.sakaiproject.tool.api.ActiveToolManager" />
+		<property name="localeGetter" ref="requestLocaleProxy" />
 	</bean>
 
 	<bean class="org.sakaiproject.lessonbuildertool.tool.producers.EditPageProducer" >
@@ -141,6 +153,7 @@
 		<property name="simplePageBean" ref="simplePageBean" />
 		<property name="richTextEvolver" ref="richTextEvolver" />
 		<property name="showPageProducer" ref="showPageProducer" />
+		<property name="localeGetter" ref="requestLocaleProxy" />
 	</bean>
 	
  	 <bean class="org.sakaiproject.lessonbuildertool.tool.producers.PermissionsHelperProducer" >
@@ -149,6 +162,7 @@
 		<property name="simplePageBean" ref="simplePageBean" />
 		<property name="siteService" ref="org.sakaiproject.site.api.SiteService" />
 		<property name="toolManager" ref="org.sakaiproject.tool.api.ActiveToolManager" />
+		<property name="localeGetter" ref="requestLocaleProxy" />
 	</bean>
 
     <bean class="org.sakaiproject.lessonbuildertool.tool.producers.ReloadPageProducer" >
@@ -160,6 +174,7 @@
 			<ref bean="org.sakaiproject.lessonbuildertool.model.SimplePageToolDao" />
     	</property>
     	<property name="messageLocator" ref="messageLocator"/>
+	<property name="localeGetter" ref="requestLocaleProxy" />
     </bean>
 
     <bean class="org.sakaiproject.lessonbuildertool.tool.producers.ShowItemProducer" >
@@ -168,10 +183,12 @@
       <property name="simplePageToolDao">
 				<ref bean="org.sakaiproject.lessonbuildertool.model.SimplePageToolDao" />
       </property>
+      <property name="localeGetter" ref="requestLocaleProxy" />
     </bean>
 
     <bean class="org.sakaiproject.lessonbuildertool.tool.producers.IFrameWindowProducer" >
 		<property name="simplePageBean" ref="simplePageBean" />
+		<property name="localeGetter" ref="requestLocaleProxy" />
     </bean>
     
     <bean class="org.sakaiproject.lessonbuildertool.tool.producers.CommentsProducer" >

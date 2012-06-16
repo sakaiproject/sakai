@@ -38,6 +38,7 @@ import org.sakaiproject.site.api.ToolConfiguration;
 import org.sakaiproject.site.cover.SiteService;
 
 import uk.org.ponder.messageutil.MessageLocator;
+import uk.org.ponder.localeutil.LocaleGetter;                                                                                          
 import uk.org.ponder.rsf.components.UIBoundBoolean;
 import uk.org.ponder.rsf.components.UIBranchContainer;
 import uk.org.ponder.rsf.components.UIBoundString;
@@ -76,6 +77,7 @@ public class ShowItemProducer implements ViewComponentProducer, NavigationCaseRe
 	private SimplePageBean simplePageBean;
 	private SimplePageToolDao simplePageToolDao;
 	public MessageLocator messageLocator;
+	public LocaleGetter localeGetter;                                                                                             
 	public static final String VIEW_ID = "ShowItem";
 
 	public String getViewID() {
@@ -101,6 +103,8 @@ public class ShowItemProducer implements ViewComponentProducer, NavigationCaseRe
 	    // sticks things in an iframe. The stuff it sticks had better check though
 
 	    GeneralViewParameters params = (GeneralViewParameters)viewParams;
+
+	    UIOutput.make(tofill, "html").decorate(new UIFreeAttributeDecorator("lang", localeGetter.get().getLanguage()));        
 
 	    if (!simplePageBean.canReadPage()) {
 		UIOutput.make(tofill, "error", messageLocator.getMessage("simplepage.not_available"));
@@ -174,15 +178,29 @@ public class ShowItemProducer implements ViewComponentProducer, NavigationCaseRe
 	    String helpurl = (String)toolSession.getAttribute("sakai-portal:help-action");
 	    String reseturl = (String)toolSession.getAttribute("sakai-portal:reset-action");
 
-	    if (helpurl != null)
+	    if (helpurl != null) {
 		UILink.make(tofill, "helpbutton2").
 		    decorate(new UIFreeAttributeDecorator("onclick",
-					  "openWindow('" + helpurl + "', 'Help', 'resizeable=yes,toolbar=no,scrollbars=yes,menubar=yes,width=800,height=600'); return false"));
+					  "openWindow('" + helpurl + "', 'Help', 'resizeable=yes,toolbar=no,scrollbars=yes,menubar=yes,width=800,height=600'); return false")).
+		    decorate(new UIFreeAttributeDecorator("title",
+				 messageLocator.getMessage("simplepage.help-button")));
+		UIOutput.make(tofill, "helpimage2").
+		    decorate(new UIFreeAttributeDecorator("alt",
+				 messageLocator.getMessage("simplepage.help-button")));
+		UIOutput.make(tofill, "helpnewwindow2",
+		    messageLocator.getMessage("simplepage.opens-in-new"));
+	    }
 	    
-	    if (reseturl != null)
+	    if (reseturl != null) {
 		UILink.make(tofill, "resetbutton2").
 		    decorate(new UIFreeAttributeDecorator("onclick",
-					  "location.href='" + reseturl + "'; return false"));
+					  "location.href='" + reseturl + "'; return false")).
+		    decorate(new UIFreeAttributeDecorator("title",
+			        messageLocator.getMessage("simplepage.reset-button")));
+		UIOutput.make(tofill, "resetimage2").
+		    decorate(new UIFreeAttributeDecorator("alt",
+			        messageLocator.getMessage("simplepage.reset-button")));
+	    }
 
 	    if (item != null)
 		simplePageBean.adjustBackPath(params.getBackPath(), params.getSendingPage(), item.getId(), item.getName());

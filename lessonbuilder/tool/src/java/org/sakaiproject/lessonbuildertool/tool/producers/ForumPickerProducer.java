@@ -37,6 +37,7 @@ import org.sakaiproject.lessonbuildertool.tool.view.GeneralViewParameters;
 import org.sakaiproject.lessonbuildertool.model.SimplePageToolDao;
 
 import uk.org.ponder.messageutil.MessageLocator;
+import uk.org.ponder.localeutil.LocaleGetter;                                                                                          
 import uk.org.ponder.rsf.components.UIBranchContainer;
 import uk.org.ponder.rsf.components.UICommand;
 import uk.org.ponder.rsf.components.UIContainer;
@@ -69,6 +70,7 @@ public class ForumPickerProducer implements ViewComponentProducer, NavigationCas
 	private SimplePageToolDao simplePageToolDao;
         private LessonEntity forumEntity = null;
 	public MessageLocator messageLocator;
+	public LocaleGetter localeGetter;                                                                                             
 
         public void setForumEntity(Object e) {
 	    forumEntity = (LessonEntity)e;
@@ -97,6 +99,8 @@ public class ForumPickerProducer implements ViewComponentProducer, NavigationCas
 			return;
 		    }
 		}
+
+                UIOutput.make(tofill, "html").decorate(new UIFreeAttributeDecorator("lang", localeGetter.get().getLanguage()));        
 
 		Long itemId = ((GeneralViewParameters) viewparams).getItemId();
 

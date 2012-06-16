@@ -38,6 +38,7 @@ import org.sakaiproject.lessonbuildertool.tool.view.GeneralViewParameters;
 import org.sakaiproject.lessonbuildertool.model.SimplePageToolDao;
 
 import uk.org.ponder.messageutil.MessageLocator;
+import uk.org.ponder.localeutil.LocaleGetter;                                                                                          
 import uk.org.ponder.rsf.components.UIBranchContainer;
 import uk.org.ponder.rsf.components.UICommand;
 import uk.org.ponder.rsf.components.UIContainer;
@@ -72,6 +73,7 @@ public class AssignmentPickerProducer implements ViewComponentProducer, Navigati
 	private SimplePageToolDao simplePageToolDao;
 	private LessonEntity assignmentEntity;
 	public MessageLocator messageLocator;
+        public LocaleGetter localeGetter;                                                                                             
 
 	public void setSimplePageBean(SimplePageBean simplePageBean) {
 		this.simplePageBean = simplePageBean;
@@ -100,6 +102,8 @@ public class AssignmentPickerProducer implements ViewComponentProducer, Navigati
 			return;
 		    }
 		}
+
+                UIOutput.make(tofill, "html").decorate(new UIFreeAttributeDecorator("lang", localeGetter.get().getLanguage()));        
 
 		Long itemId = ((GeneralViewParameters) viewparams).getItemId();
 

@@ -34,6 +34,7 @@ import uk.org.ponder.rsf.view.ComponentChecker;
 import uk.org.ponder.rsf.view.ViewComponentProducer;
 import uk.org.ponder.rsf.viewstate.ViewParameters;
 import uk.org.ponder.rsf.viewstate.ViewParamsReporter;
+import uk.org.ponder.localeutil.LocaleGetter;                                                                                          
 
 /**
  * Places an iframe in a new window. Used to display assignments.
@@ -44,6 +45,8 @@ import uk.org.ponder.rsf.viewstate.ViewParamsReporter;
 public class IFrameWindowProducer implements ViewComponentProducer, ViewParamsReporter {
 
 	private SimplePageBean simplePageBean;
+	public LocaleGetter localeGetter;                                                                                             
+
 	public static final String VIEW_ID = "IFramePage";
 
 	public String getViewID() {
@@ -53,6 +56,8 @@ public class IFrameWindowProducer implements ViewComponentProducer, ViewParamsRe
 	public void fillComponents(UIContainer tofill, ViewParameters params, ComponentChecker checker) {
 	        if (!simplePageBean.canReadPage())
 		    return;
+
+                UIOutput.make(tofill, "html").decorate(new UIFreeAttributeDecorator("lang", localeGetter.get().getLanguage()));        
 
 		if (((GeneralViewParameters) params).getSendingPage() != -1) {
 		    try {

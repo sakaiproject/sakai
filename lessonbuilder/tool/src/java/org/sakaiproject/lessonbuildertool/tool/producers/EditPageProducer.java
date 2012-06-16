@@ -43,6 +43,7 @@ import org.sakaiproject.lessonbuildertool.SimplePage;
 import org.sakaiproject.lessonbuildertool.SimplePageItem;
 
 import uk.org.ponder.messageutil.MessageLocator;
+import uk.org.ponder.localeutil.LocaleGetter;                                                                                          
 import uk.org.ponder.rsf.components.UIBranchContainer;
 import uk.org.ponder.rsf.components.UICommand;
 import uk.org.ponder.rsf.components.UIContainer;
@@ -80,6 +81,7 @@ public class EditPageProducer implements ViewComponentProducer, NavigationCaseRe
 	private ShowPageProducer showPageProducer;
 
 	public MessageLocator messageLocator;
+        public LocaleGetter localeGetter;                                                                                             
 
 	public static final String VIEW_ID = "EditPage";
 
@@ -90,6 +92,8 @@ public class EditPageProducer implements ViewComponentProducer, NavigationCaseRe
 	public void fillComponents(UIContainer tofill, ViewParameters viewparams, ComponentChecker checker) {
 
 		GeneralViewParameters gparams = (GeneralViewParameters) viewparams;
+
+                UIOutput.make(tofill, "html").decorate(new UIFreeAttributeDecorator("lang", localeGetter.get().getLanguage()));        
 
 		if (gparams.getSendingPage() != -1) {
 			// will fail if page not in this site

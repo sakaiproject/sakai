@@ -38,6 +38,7 @@ import org.sakaiproject.tool.cover.SessionManager;
 import org.sakaiproject.tool.api.ToolSession;
 
 import uk.org.ponder.messageutil.MessageLocator;
+import uk.org.ponder.localeutil.LocaleGetter;                                                                                          
 import uk.org.ponder.rsf.components.UIBranchContainer;
 import uk.org.ponder.rsf.components.UICommand;
 import uk.org.ponder.rsf.components.UIInternalLink;
@@ -45,6 +46,7 @@ import uk.org.ponder.rsf.components.UIContainer;
 import uk.org.ponder.rsf.components.UIForm;
 import uk.org.ponder.rsf.components.UIInput;
 import uk.org.ponder.rsf.components.UIOutput;
+import uk.org.ponder.rsf.components.decorators.UIFreeAttributeDecorator;                                                               
 import uk.org.ponder.rsf.flow.jsfnav.NavigationCase;
 import uk.org.ponder.rsf.flow.jsfnav.NavigationCaseReporter;
 import uk.org.ponder.rsf.view.ComponentChecker;
@@ -65,6 +67,7 @@ public class ReorderProducer implements ViewComponentProducer, NavigationCaseRep
 	private ShowPageProducer showPageProducer;
 
 	public MessageLocator messageLocator;
+	public LocaleGetter localeGetter;                                                                                             
 	public static final String VIEW_ID = "Reorder";
 
 	public String getViewID() {
@@ -83,6 +86,8 @@ public class ReorderProducer implements ViewComponentProducer, NavigationCaseRep
 				return;
 			}
 		}
+
+                UIOutput.make(tofill, "html").decorate(new UIFreeAttributeDecorator("lang", localeGetter.get().getLanguage()));        
 
 		ToolSession toolSession = SessionManager.getCurrentToolSession();
 		String secondPageString = (String)toolSession.getAttribute("lessonbuilder.selectedpage");

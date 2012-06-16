@@ -165,12 +165,15 @@ $(function() {
 			} else { 
 				$("#page-gradebook").attr("checked", true);
 			}
-
 			oldloc = $(".dropdown a");
 			$('#edit-title-dialog').dialog('open');
 			checksize($('#edit-title-dialog'));
 			return false;
 		});
+
+		$("#releaseDiv input").change(function(){
+			$("#page-releasedate").attr('checked', 'checked');
+		    });
 
 		$('#import-cc').click(function(){
 			closeDropdown();

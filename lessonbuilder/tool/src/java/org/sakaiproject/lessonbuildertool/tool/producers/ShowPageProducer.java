@@ -297,6 +297,8 @@ public class ShowPageProducer implements ViewComponentProducer, DefaultView, Nav
 	public void fillComponents(UIContainer tofill, ViewParameters viewParams, ComponentChecker checker) {
 		GeneralViewParameters params = (GeneralViewParameters) viewParams;
 
+                UIOutput.make(tofill, "html").decorate(new UIFreeAttributeDecorator("lang", localegetter.get().getLanguage()));        
+
 		boolean iframeJavascriptDone = false;
 		
 		// security model:
@@ -672,15 +674,29 @@ public class ShowPageProducer implements ViewComponentProducer, DefaultView, Nav
 		String helpurl = (String)toolSession.getAttribute("sakai-portal:help-action");
 		String reseturl = (String)toolSession.getAttribute("sakai-portal:reset-action");
 
-		if (helpurl != null)
+		if (helpurl != null) {
 		    UILink.make(tofill, (pageItem.getPageId() == 0 ? "helpbutton" : "helpbutton2")).
 			decorate(new UIFreeAttributeDecorator("onclick",
-			         "openWindow('" + helpurl + "', 'Help', 'resizeable=yes,toolbar=no,scrollbars=yes,menubar=yes,width=800,height=600'); return false"));
+			         "openWindow('" + helpurl + "', 'Help', 'resizeable=yes,toolbar=no,scrollbars=yes,menubar=yes,width=800,height=600'); return false")).
+			decorate(new UIFreeAttributeDecorator("title",
+				 messageLocator.getMessage("simplepage.help-button")));
+		    UIOutput.make(tofill, (pageItem.getPageId() == 0 ? "helpimage" : "helpimage2")).
+			decorate(new UIFreeAttributeDecorator("alt",
+			         messageLocator.getMessage("simplepage.help-button")));
+		    UIOutput.make(tofill, (pageItem.getPageId() == 0 ? "helpnewwindow" : "helpnewwindow2"), 
+				  messageLocator.getMessage("simplepage.opens-in-new"));
+		}
 
-		if (reseturl != null)
+		if (reseturl != null) {
 		    UILink.make(tofill, (pageItem.getPageId() == 0 ? "resetbutton" : "resetbutton2")).
 			decorate(new UIFreeAttributeDecorator("onclick",
-			         "location.href='" + reseturl + "'; return false"));
+				"location.href='" + reseturl + "'; return false")).
+			decorate(new UIFreeAttributeDecorator("title",
+			        messageLocator.getMessage("simplepage.reset-button")));
+		    UIOutput.make(tofill, (pageItem.getPageId() == 0 ? "resetimage" : "resetimage2")).
+			decorate(new UIFreeAttributeDecorator("alt",
+			        messageLocator.getMessage("simplepage.reset-button")));
+		}
 
 		// note page accessed. the code checks to see whether all the required
 		// items on it have been finished, and if so marks it complete, else just updates
@@ -852,13 +868,14 @@ public class ShowPageProducer implements ViewComponentProducer, DefaultView, Nav
 			}
 			UIOutput.make(tableContainer, "col2");
 
+			// our accessiblity people say not to use TH for except for a data table
 			// the table header is for accessibility tools only, so it's
 			// positioned off screen
-			if (canEditPage) {
-				UIOutput.make(tableContainer, "header-edits");
-			}
-
-			UIOutput.make(tableContainer, "header-items");
+			//if (canEditPage) {
+			//    	UIOutput.make(tableContainer, "header-edits");
+			// }
+			
+			// UIOutput.make(tableContainer, "header-items");
 
 			for (SimplePageItem i : itemList) {
 				// listitem is mostly historical. it uses some shared HTML, but
