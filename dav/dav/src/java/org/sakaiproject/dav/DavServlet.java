@@ -2931,7 +2931,7 @@ public class DavServlet extends HttpServlet
 			return;
 		}
 
-		copyResource(req, resp);
+		copyResource(req, resp, false);
 
 	}
 
@@ -2955,10 +2955,7 @@ public class DavServlet extends HttpServlet
 
 		String path = getRelativePath(req);
 
-		if (copyResource(req, resp))
-		{
-			deleteResource(path, req, resp);
-		}
+		copyResource(req, resp, true);
 
 	}
 
@@ -3898,9 +3895,11 @@ public class DavServlet extends HttpServlet
 	 *        Servlet request
 	 * @param resp
 	 *        Servlet response
+	 * @param move
+	 *	  This is actually a move operation
 	 * @return boolean true if the copy is successful
 	 */
-	private boolean copyResource(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException
+	 private boolean copyResource(HttpServletRequest req, HttpServletResponse resp, boolean move) throws ServletException, IOException
 	{
 
 		String destinationPath = getDestinationPath(req);
@@ -4028,7 +4027,7 @@ public class DavServlet extends HttpServlet
 
 		Hashtable<String,Integer> errorList = new Hashtable<String,Integer>();
 
-		boolean result = copyResource(resources, errorList, path, destinationPath);
+		boolean result = copyResource(resources, errorList, path, destinationPath, move);
 
 		if ((!result) || (!errorList.isEmpty()))
 		{
@@ -4071,7 +4070,7 @@ public class DavServlet extends HttpServlet
 	}
 
 	/**
-	 * Copy a collection.
+	 * Copy or name a resource or collection.
 	 * 
 	 * @param resources
 	 *        Resources implementation to be used
@@ -4082,7 +4081,7 @@ public class DavServlet extends HttpServlet
 	 * @param dest
 	 *        Destination path
 	 */
-	private boolean copyResource(DirContextSAKAI resources, Hashtable<String,Integer> errorList, String source, String dest)
+	private boolean copyResource(DirContextSAKAI resources, Hashtable<String,Integer> errorList, String source, String dest, boolean move)
 	{
 
 		if (M_log.isDebugEnabled()) M_log.debug("Copy: " + source + " To: " + dest);
@@ -4104,7 +4103,10 @@ public class DavServlet extends HttpServlet
 		{
 		    boolean isCollection = contentHostingService.getProperties(source).getBooleanProperty(ResourceProperties.PROP_IS_COLLECTION);
 
-		    if (isCollection) {
+		    if (move) {
+		    	contentHostingService.rename(source, dest);
+		    }
+		    else if (isCollection) {
 		    	copyCollection(source, dest);
 		    }
 		    else {
