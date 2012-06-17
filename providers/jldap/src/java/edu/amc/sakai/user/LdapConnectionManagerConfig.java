@@ -202,4 +202,14 @@ public interface LdapConnectionManagerConfig {
 	 */
 	public void setPoolMaxConns(int maxConns);
 	
+	/**
+	 * @return The maximum number of results that can be returned in our query
+	 */
+	public int getMaxObjectsToQueryFor();
+	
+	/**
+	 * @param maxResultsFromOneQuery The maximum number of results that can be returned in our query 
+	 */
+	public void setMaxObjectsToQueryFor(int maxObjectsToQueryFor);
+	
 }

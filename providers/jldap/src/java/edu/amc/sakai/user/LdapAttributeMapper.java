@@ -22,6 +22,7 @@
 package edu.amc.sakai.user;
 
 import java.util.Map;
+import java.util.Set;
 
 import org.sakaiproject.user.api.UserEdit;
 
@@ -152,5 +153,15 @@ public interface LdapAttributeMapper {
 	 * @return	the formatted search filter
 	 */
 	public String getFindUserByCrossAttributeSearchFilter(String criteria);
+	
+	/**
+	 * Builds a filter to a uid search against many users at once 
+	 * For reference, the LDAP search filter is of the form:
+	 * "(|(uid=sample.user)(uid=john.doe)(uid=jane.smith))"
+	 * 
+	 * @param	the search string
+	 * @return	the formatted search filter
+	 */
+	public String getManyUsersInOneSearch(Set<String> criteria);
 
 }

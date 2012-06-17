@@ -24,6 +24,7 @@ package edu.amc.sakai.user;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
+import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
@@ -84,6 +85,9 @@ public class JLDAPDirectoryProvider implements UserDirectoryProvider, LdapConnec
 
 	/** Default LDAP maximum number of connections in the pool */
 	public static final int DEFAULT_POOL_MAX_CONNS = 10;
+	
+	/** Default LDAP maximum number of objects to query for */
+	public static final int DEFAULT_MAX_OBJECTS_TO_QUERY = 200;
 
 	public static final boolean DEFAULT_CASE_SENSITIVE_CACHE_KEYS = false;
 	
@@ -126,6 +130,9 @@ public class JLDAPDirectoryProvider implements UserDirectoryProvider, LdapConnec
 
 	/** Maximum number of physical connections in the pool */
 	private int poolMaxConns = DEFAULT_POOL_MAX_CONNS;
+	
+	/** Maximum number of results from one LDAP query */
+	private int maxObjectsToQueryFor = DEFAULT_MAX_OBJECTS_TO_QUERY;
 
 	/** Socket factory for secure connections. Only relevant if
 	 * {@link #secureConnection} is true. Defaults to a new instance
@@ -153,7 +160,7 @@ public class JLDAPDirectoryProvider implements UserDirectoryProvider, LdapConnec
 	 * User entry attribute mappings. Keys are logical attr names,
 	 * values are physical attr names.
 	 * 
-	 * {@see LdapAttributeMapper}
+	 * @see LdapAttributeMapper
 	 */
 	private Map<String,String> attributeMappings;
 
@@ -605,51 +612,73 @@ public class JLDAPDirectoryProvider implements UserDirectoryProvider, LdapConnec
 	 * returns if a retry exits exceptionally
 	 * <p>
 	 */
-	public void getUsers(Collection users)
+	public void getUsers(Collection<UserEdit> users)
 	{
-
-		//TODO: avoid the ripple loading here. should just need one query
 		if ( M_log.isDebugEnabled() ) {
 			M_log.debug("getUsers(): [Collection size = " + users.size() + "]");
 		}
 
 		LDAPConnection conn = null;
 		boolean abortiveSearch = false;
+		int maxQuerySize = getMaxObjectsToQueryFor();
 		UserEdit userEdit = null;
+		
+		HashMap<String, UserEdit> usersToSearchInLDAP = new HashMap<String, UserEdit>();
+		List<UserEdit> usersToRemove = new ArrayList<UserEdit>();
 		try {
-
-			conn = ldapConnectionManager.getConnection();
-
-			for ( Iterator userEdits = users.iterator(); userEdits.hasNext(); ) {
-
-				try {
-
-					userEdit = (UserEdit) userEdits.next();
-					boolean foundUser = getUserByEid(userEdit, userEdit.getEid(), conn);
-					if ( !(foundUser) ) {
-						userEdits.remove();
-					}
-
-				} catch ( LDAPException e ) {
-
-					M_log.warn("getUsers(): search failed for user, retrying [eid = " + userEdit.getEid() + "]",
-							e);
-
-					// lets retry with a new connection, giving up
-					// for good if the retry fails
-					ldapConnectionManager.returnConnection(conn);
-
-					conn = ldapConnectionManager.getConnection();
-
-					// exactly the same calls as above
-					boolean foundUser = getUserByEid(userEdit, userEdit.getEid(), conn);
-					if ( !(foundUser) ) {
-						userEdits.remove();
-					}
-
+			int cnt = 0;
+			for ( Iterator<UserEdit> userEdits = users.iterator(); userEdits.hasNext(); ) {
+				userEdit = (UserEdit) userEdits.next();
+				String eid = userEdit.getEid();
+				
+				// Do nothing with this eid if it is in the blacklist
+				if ( !(isSearchableEid(eid)) ) {
+					userEdits.remove();
+					continue;
 				}
-
+				
+				// Check the cache before sending the request to LDAP
+				LdapUserData cachedUserData = getCachedUserEntry(eid);
+				if ( cachedUserData == null ) {
+					usersToSearchInLDAP.put(eid, userEdit);
+					cnt++;
+				}
+				
+				// We need to make sure this query isn't larger than maxQuerySize
+				if ((!userEdits.hasNext() || cnt == maxQuerySize) && !usersToSearchInLDAP.isEmpty()) {
+					if (conn == null) {
+						conn = ldapConnectionManager.getConnection();
+					}
+					
+					String filter = ldapAttributeMapper.getManyUsersInOneSearch(usersToSearchInLDAP.keySet());
+					List<LdapUserData> ldapUsers = searchDirectory(filter, null, null, null, null, 0);
+				
+					for (LdapUserData ldapUserData : ldapUsers) {
+						String ldapEid = ldapUserData.getEid();
+						UserEdit ue = usersToSearchInLDAP.get(ldapEid);
+						mapUserDataOntoUserEdit(ldapUserData, ue);
+						usersToSearchInLDAP.remove(ldapEid);
+					}
+					
+					// see if there are any users that we could not find in the LDAP query
+					for (Map.Entry<String, UserEdit> entry : usersToSearchInLDAP.entrySet()) {
+						usersToRemove.add(entry.getValue());
+					}
+					
+					// clear the HashMap and reset the counter
+					usersToSearchInLDAP.clear();
+					cnt = 0;
+				}
 			}
+			
+			// Finally clean up the original collection and remove and users we could not find
+			for (UserEdit userRemove : usersToRemove) {
+				if (M_log.isDebugEnabled()) {
+					M_log.debug("JLDAP getUsers could not find user: " + userRemove.getEid());
+				}
+				users.remove(userRemove);
+			}
+			
 		} catch (LDAPException e)	{
 			abortiveSearch = true;
 			throw new RuntimeException("getUsers(): LDAPException during search [eid = " + 
@@ -852,7 +881,7 @@ public class JLDAPDirectoryProvider implements UserDirectoryProvider, LdapConnec
 					"][reusing conn = " + (conn != null) + "]");
 		}
 
-		List results = searchDirectory(filter, conn,
+		List<LdapUserData> results = searchDirectory(filter, conn,
 				mapper,
 				searchResultPhysicalAttributeNames,
 				searchBaseDn, 
@@ -887,7 +916,7 @@ public class JLDAPDirectoryProvider implements UserDirectoryProvider, LdapConnec
 	 * @throws LDAPException if thrown by the search
 	 * @throws RuntimeExction wrapping any non-{@link LDAPException} {@link Exception}
 	 */
-	protected List searchDirectory(String filter, 
+	protected List<LdapUserData> searchDirectory(String filter, 
 			LDAPConnection conn,
 			LdapEntryMapper mapper,
 			String[] searchResultPhysicalAttributeNames,
@@ -905,6 +934,9 @@ public class JLDAPDirectoryProvider implements UserDirectoryProvider, LdapConnec
 		try {
 			if ( !(receivedConn) ) {
 				conn = ldapConnectionManager.getConnection();
+			}
+			if (conn == null) {
+			    throw new IllegalStateException("Unable to obtain a valid LDAP connection");
 			}
 
 			searchResultPhysicalAttributeNames = 
@@ -950,7 +982,7 @@ public class JLDAPDirectoryProvider implements UserDirectoryProvider, LdapConnec
 						false, 
 						constraints);
 
-			List mappedResults = new ArrayList();
+			List<LdapUserData> mappedResults = new ArrayList<LdapUserData>();
 			int resultCnt = 0;
 			while ( searchResults.hasMore() ) {
 				LDAPEntry entry = searchResults.next();
@@ -958,7 +990,7 @@ public class JLDAPDirectoryProvider implements UserDirectoryProvider, LdapConnec
 				if ( mappedResult == null ) {
 					continue;
 				}
-				mappedResults.add(mappedResult);
+				mappedResults.add((LdapUserData) mappedResult);
 			}
 
 			return mappedResults;
@@ -1276,17 +1308,11 @@ public class JLDAPDirectoryProvider implements UserDirectoryProvider, LdapConnec
 		this.secureSocketFactory = secureSocketFactory;
 	}
 
-	/**
-	 * {@inheritDoc}
-	 */
 	public String getBasePath()
 	{
 		return basePath;
 	}
 
-	/**
-	 * {@inheritDoc}
-	 */
 	public void setBasePath(String basePath)
 	{
 		this.basePath = basePath;
@@ -1381,6 +1407,20 @@ public class JLDAPDirectoryProvider implements UserDirectoryProvider, LdapConnec
 	public void setPoolMaxConns(int poolMaxConns) {
 		this.poolMaxConns = poolMaxConns;
 	}
+	
+	/**
+	 * {@inheritDoc}
+	 */
+	public int getMaxObjectsToQueryFor() {
+		return maxObjectsToQueryFor;
+	}
+	
+	/**
+	 * {@inheritDoc}
+	 */
+	public void setMaxObjectsToQueryFor (int maxObjectsToQueryFor) {
+		this.maxObjectsToQueryFor = maxObjectsToQueryFor;
+	}
 
 	/**
 	 * Access the currently assigned {@link LdapConnectionManager} delegate. 
@@ -1451,7 +1491,7 @@ public class JLDAPDirectoryProvider implements UserDirectoryProvider, LdapConnec
 	 * @see #cacheUserData(LdapUserData)
 	 * @see #getCachedUserEntry(String)
 	 * @see #defaultLdapEntryMapper
-	 * @return
+	 * @return boolean
 	 */
 	public boolean isCaseSensitiveCacheKeys() {
 		return caseSensitiveCacheKeys;
@@ -1487,7 +1527,7 @@ public class JLDAPDirectoryProvider implements UserDirectoryProvider, LdapConnec
 	 * 
 	 * @see #setAllowAuthentication(boolean)
 	 * 
-	 * @return
+	 * @return boolean
 	 */
 	public boolean isAllowAuthentication() {
 		return allowAuthentication;
@@ -1529,7 +1569,7 @@ public class JLDAPDirectoryProvider implements UserDirectoryProvider, LdapConnec
 	 * {@link #setAuthenticateWithProviderFirst(boolean)} for
 	 * additional semantics.
 	 * 
-	 * @return
+	 * @return boolean
 	 */
 	public boolean isAuthenticateWithProviderFirst() {
 		return authenticateWithProviderFirst;
@@ -1666,7 +1706,8 @@ public class JLDAPDirectoryProvider implements UserDirectoryProvider, LdapConnec
 	 *        To create all the UserEdit objects you populate and return in the return collection.
 	 * @return Collection (UserEdit) of user objects that have this email address, or an empty Collection if there are none.
 	 */
-	public Collection findUsersByEmail(String email, UserFactory factory) {
+	@SuppressWarnings("rawtypes")
+    public Collection findUsersByEmail(String email, UserFactory factory) {
 
 		String filter = ldapAttributeMapper.getFindUserByEmailFilter(email);
 		List<User> users = new ArrayList<User>();
@@ -1689,17 +1730,11 @@ public class JLDAPDirectoryProvider implements UserDirectoryProvider, LdapConnec
 	}
 
 
-	/**
-	 * {@inheritDoc}
-	 */
 	public boolean isSearchAliases()
 	{
 		return searchAliases;
 	}
 
-	/**
-	 * {@inheritDoc}
-	 */
 	public void setSearchAliases(boolean searchAliases)
 	{
 		this.searchAliases = searchAliases;

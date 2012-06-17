@@ -25,6 +25,7 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.HashMap;
+import java.util.Iterator;
 import java.util.Map;
 import java.util.Properties;
 import java.util.Set;
@@ -564,6 +565,28 @@ public class SimpleLdapAttributeMapper implements LdapAttributeMapper {
 			sb.append("*)");
 			
 			sb.append(")");
+		
+		return sb.toString();
+	}
+
+	/**
+	 * @inheritDoc
+	 */
+	public String getManyUsersInOneSearch(Set<String> criteria) {
+		StringBuilder sb = new StringBuilder();
+		sb.append("(|");
+
+		for ( Iterator<String> eidIterator = criteria.iterator(); eidIterator.hasNext(); ) {
+			sb.append("(");
+			sb.append(getFindUserByEidFilter(eidIterator.next()));
+			sb.append(")");
+		}
+		
+		sb.append(")");
+		
+		if (M_log.isDebugEnabled()) {
+			M_log.debug("getManyUsersInOneSearch() completed filter: " + sb.toString());
+		}
 		
 		return sb.toString();
 	}

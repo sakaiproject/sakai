@@ -145,6 +145,12 @@
 		<!--  property name="poolMaxConns">
 			<value>10</value>
 		</property -->
+
+		<!-- Optional. Maximum number of users to search for
+		     Defaults to DEFAULT_MAX_OBJECTS_TO_QUERY = 200
+		<property name="maxObjectsToQueryFor">
+		  <value>200</value>
+		</property>-->
 		
 		<!-- Optional. Defaults to an instance of 
 		edu.amc.sakai.user.SimpleLdapAttributeMapper -->
