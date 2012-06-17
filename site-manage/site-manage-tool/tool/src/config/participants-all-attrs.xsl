@@ -9,8 +9,15 @@
   <xsl:variable name="lang.role" select="'ROLE'"/>
   <xsl:variable name="lang.status" select="'STATUS'"/>
 
+	<xsl:param name="titleName"/>
+	<xsl:param name="titleSection"/>
+	<xsl:param name="titleId"/>
+	<xsl:param name="titleCredit"/>
+	<xsl:param name="titleRole"/>
+	<xsl:param name="titleStatus"/>
+	
 	<xsl:template match="/">
-		<fo:root xmlns:fo="http://www.w3.org/1999/XSL/Format">
+		<fo:root xmlns:fo="http://www.w3.org/1999/XSL/Format" font-family="DEFAULT_FONT">
 			<fo:layout-master-set>
 				<!-- page layout -->
 				<!-- layout for the first page -->
@@ -24,7 +31,7 @@
 			<!-- actual layout -->
 			<fo:page-sequence master-reference="roster">
 				<fo:static-content flow-name="xsl-region-before">
-					<fo:block font-size="12pt" font-family="sans-serif" line-height="1cm" space-after.optimum="1pt" color="black" text-align="right" padding-top="0pt">
+					<fo:block font-size="12pt" line-height="1cm" space-after.optimum="1pt" color="black" text-align="right" padding-top="0pt">
 						<xsl:value-of select="PARTICIPANTS/SITE_TITLE" /> - <fo:page-number />
 					</fo:block>
 				</fo:static-content>
@@ -108,7 +115,7 @@
 						<!-- id col -->						
 						<fo:table-column column-width="1.15in" />
 						<!-- credits col -->
-						<fo:table-column column-width=".25in" />
+						<fo:table-column column-width=".5in" />
 						<!-- role col -->
 						<fo:table-column column-width=".5in" />
 						<!-- status col -->						
@@ -117,32 +124,32 @@
 							<fo:table-row line-height="9pt" background-color="#cccccc" font-weight="bold" display-align="center">
 								<fo:table-cell  padding="2pt">
 									<fo:block>
-										<xsl:value-of select="$lang.name" />
+										<xsl:value-of select="$titleName"/>
 									</fo:block>
 								</fo:table-cell>
 								<fo:table-cell  padding="2pt">
 									<fo:block>
-										<xsl:value-of select="$lang.section" />
+										<xsl:value-of select="$titleSection"/>
 									</fo:block>
 								</fo:table-cell>
 								<fo:table-cell  padding="2pt">
 									<fo:block>
-										<xsl:value-of select="$lang.id" />
+										<xsl:value-of select="$titleId"/>
 									</fo:block>
 								</fo:table-cell>
 								<fo:table-cell  padding="2pt">
 									<fo:block>
-										<xsl:value-of select="$lang.cr" />
+										<xsl:value-of select="$titleCredit"/>
 									</fo:block>
 								</fo:table-cell>
 								<fo:table-cell  padding="2pt">
 									<fo:block>
-										<xsl:value-of select="$lang.role" />
+										<xsl:value-of select="$titleRole"/>
 									</fo:block>
 								</fo:table-cell>
 								<fo:table-cell  padding="2pt">
 									<fo:block>
-										<xsl:value-of select="$lang.status" />
+										<xsl:value-of select="$titleStatus"/>
 									</fo:block>
 								</fo:table-cell>
 							</fo:table-row>

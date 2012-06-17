@@ -22,8 +22,7 @@
         <dependency>
             <groupId>org.sakaiproject.basiclti</groupId>
             <artifactId>basiclti-api</artifactId>
-            <version>${sakai.basiclti.version}</version>
-        </dependency>
+            </dependency>
         <dependency>
             <groupId>org.sakaiproject.kernel</groupId>
             <artifactId>sakai-kernel-api</artifactId>
@@ -47,22 +46,17 @@
         <dependency>
             <groupId>org.sakaiproject.announcement</groupId>
             <artifactId>sakai-announcement-api</artifactId>
-            <version>${sakai.announcement.version}</version>
             <scope>provided</scope>
         </dependency>
         <dependency>
             <groupId>org.sakaiproject.common</groupId>
             <artifactId>archive-api</artifactId>
-            <version>${sakai.common.version}</version>
             <scope>provided</scope>
         </dependency>
         <dependency>
             <groupId>org.sakaiproject.common</groupId>
             <artifactId>sakai-import-util</artifactId>
             <version>${sakai.common.version}</version>
-<!--
-            <scope>provided</scope>
--->
         </dependency>
         <dependency>
             <groupId>org.sakaiproject.edu-services.course-management</groupId>
@@ -71,7 +65,6 @@
         <dependency>
             <groupId>org.sakaiproject.mock</groupId>
             <artifactId>sakai-mock</artifactId>
-            <version>${sakai.sakai-mock.version}</version>
             <scope>test</scope>
         </dependency>
         <dependency>
@@ -83,16 +76,6 @@
             <artifactId>sakai-velocity-tool</artifactId>
         </dependency>
         <dependency>
-            <groupId>avalon-framework</groupId>
-            <artifactId>avalon-framework</artifactId>
-            <version>20020627</version>
-        </dependency>
-        <dependency>
-            <groupId>batik</groupId>
-            <artifactId>batik</artifactId>
-            <version>1.5-fop-0.20-5</version>
-        </dependency>
-        <dependency>
             <groupId>commons-beanutils</groupId>
             <artifactId>commons-beanutils</artifactId>
             <version>1.7.0</version>
@@ -102,9 +85,9 @@
             <artifactId>commons-logging</artifactId>
         </dependency>
         <dependency>
-            <groupId>fop</groupId>
+            <groupId>org.apache.xmlgraphics</groupId>
             <artifactId>fop</artifactId>
-            <version>0.20.5</version>
+            <version>1.0</version>
         </dependency>
         <dependency>
             <groupId>javax.servlet</groupId>
@@ -130,7 +113,6 @@
         <dependency>
             <groupId>org.springframework</groupId>
             <artifactId>spring-test</artifactId>
-            <version>2.5.6.SEC01</version>
             <scope>test</scope>
         </dependency>
     </dependencies>
