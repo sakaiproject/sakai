@@ -1,15 +1,17 @@
 <html>
 <head>
-  <title>LTI 1.0 Extensions</title>
+  <title>Sakai Membership API</title>
 </head>
 <body style="font-family:sans-serif; background-color: pink">
-<p><b>PHP Roster Retrieval (Memberships) Extensions</b></p>
-<p><a href="../index.php" target="_new">About these extensions</a>.
-</p>
+<p><b>Sakai Membership API</b></p>
 <p>
-This is one of the more popular extensions as it allows the tol to retrieve an entire roster
+This allows the External Tool to retrieve an entire roster
 for the course.   If the <b>resource_link_id</b> supports outcomes, then 
 the memberships output may include <b>lis_result_sourcedid</b> values for each course member.
+</p>
+<p>
+Also remember that Sakai only accepts outcomes for Learner roles.  So if you
+test when logged in as Instructor, it will appear to fail.
 </p>
 <?php
 // Load up the LTI 1.0 Support code
@@ -38,12 +40,13 @@ if(!in_array($_SERVER['HTTP_HOST'],array('localhost','127.0.0.1')) && strpos($ur
 calling a service running on <b>localhost</b> from a tool that
 is not running on localhost.
 Because these services are server-to-server calls if you are
-running your LMS on "localhost", you must also run this script
-on localhost as well.  If your LMS has a real Internet
-address you should be OK.  You can download a copy of the test
+running Sakai on "localhost", you must also run this script
+on localhost as well.  If your Sakai instance has a real Internet
+address you should be OK.  
+You can checkout a copy of the test
 tools to run locally at
-to test your LMS instance running on localhost.
-(<a href="../dist.zip" target="_new">Download</a>)
+to test your Sakai instance running on localhost.
+(<a href="https://source.sakaiproject.org/svn//basiclti/trunk/basiclti-docs/resources/docs/sakai-api-test/" target="_new">Source Code</a>)
 </p>
 <?php
 }

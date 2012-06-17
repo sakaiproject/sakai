@@ -13,14 +13,12 @@ $context = new BLTI("secret", false, false);
 ?>
 <html>
 <head>
-  <title>IMS Learning Tools Interoperability 1.0 + Extensions</title>
+  <title>Sakai External Tool API Test Harness</title>
   <meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
 </head>
 <body style="font-family:sans-serif; background-color:#add8e6">
 <?php
-echo("<p><b>IMS LTI 1.0+Extensions PHP Provider</b></p>\n");
-echo("<p>This is a very simple reference implementaton of the Tool side (i.e. provider) 
-for IMS LTI 1.0.</p>\n");
+echo("<p><b>Sakai External Tool API Test Harness</b></p>\n");
 
 $sourcedid = $_REQUEST['lis_result_sourcedid'];
 if (get_magic_quotes_gpc()) $sourcedid = stripslashes($sourcedid);
@@ -37,27 +35,37 @@ if ( $context->valid ) {
      print ")</p>\n";
    }
 
+   $found = false;
     if ( $_POST['ext_ims_lis_memberships_id'] && $_POST['ext_ims_lis_memberships_url'] ) {
-        print "<p>This launch can retrieve a full roster from the LMS.  Press\n";
+        print "<p>\n";
         print '<a href="ext/memberships.php?id='.htmlentities($_POST['ext_ims_lis_memberships_id']);
         print '&key='.urlencode($_POST['oauth_consumer_key']);
         print '&url='.urlencode($_POST['ext_ims_lis_memberships_url']).'">';
-        print 'here to retrieve a roster from this LMS</a>.</p>'."\n";
+        print 'Test Sakai Roster API</a>.</p>'."\n";
+		$found = true;
     }
     if ( $_POST['lis_result_sourcedid'] && $_POST['ext_ims_lis_basic_outcome_url'] ) {
-        print "<p>This launch can submit a grade back to the LMS.  Press\n";
+        print "<p>\n";
         print '<a href="ext/setoutcome.php?sourcedid='.$sourcedid;
         print '&key='.urlencode($_POST['oauth_consumer_key']);
         print '&url='.urlencode($_POST['ext_ims_lis_basic_outcome_url']).'">';
-        print 'here to send a grade back</a>.</p>'."\n";
+        print 'Test Sakai Outcome API</a>.</p>'."\n";
+		$found = true;
     } 
     if ( $_POST['ext_ims_lti_tool_setting_id'] && $_POST['ext_ims_lti_tool_setting_url'] ) {
-        print "<p>This launch can store an instance setting in the LMS.  Press\n";
+        print "<p>\n";
         print '<a href="ext/setting.php?id='.htmlentities($_POST['ext_ims_lti_tool_setting_id']);
         print '&key='.urlencode($_POST['oauth_consumer_key']);
         print '&url='.urlencode($_POST['ext_ims_lti_tool_setting_url']).'">';
-        print 'here to exercise the tool setting service</a>.</p>'."\n";
+        print 'Test Sakai Settings API</a>.</p>'."\n";
+		$found = true;
     }
+    if ( ! $found ) {
+		echo("<p>This launch did not include the necessary settings for ay of the ");
+		echo("Sakai External Tool API such as:\n<pre>\n");
+		echo("ext_ims_lis_memberships_url\next_ims_lis_basic_outcome_url\next_ims_lti_tool_setting_url\n");
+		echo("</pre>\n</p>\n");
+	}
     print "<pre>\n";
     print "Context Information:\n\n";
     print $context->dump();

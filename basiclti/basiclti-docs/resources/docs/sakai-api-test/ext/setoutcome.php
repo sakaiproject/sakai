@@ -1,16 +1,16 @@
 <!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
 <html xmlns="http://www.w3.org/1999/xhtml" lang="en" xml:lang="en">
 <head>
-  <title>LTI 1.1 Extensions</title>
+  <title>Sakai Basic Outcome Service</title>
 </head>
 <body style="font-family:sans-serif; background-color: pink">
-<p><b>PHP Outcomes Extension (Deprectated) </b></p>
-<p><a href="../index.php" target="_new">About these extensions</a>.
-</p>
+<p><b>Sakai Basic Outcome API</b></p>
 <p>
-This particular extension should be deprecated as 
-<a href="http://www.imsglobal.org/developers/LTI/test/v1p1/index.php" target="_new">IMS LTI 1.1</a>
-now formally includes an equivalent outcome service and is a formal standard.
+This should not be used if your version of Sakai supports
+<a href="http://www.imsglobal.org/developers/LTI/test/v1p1/index.php" target="_new">IMS LTI 1.1</a>.
+LTI 1.1. includes an equivalent outcome service and is a formal standard
+and as such will be far more broadly implemented.
+This older service is included in Sakai to allow older External Tools to continue to work.
 </p>
 <?php
 // Load up the LTI 1.0 Support code
@@ -28,6 +28,7 @@ Service URL: <input type="text" name="url" size="130" disabled="disabled" value=
 lis_result_sourcedid: <input type="text" name="sourcedid" disabled="disabled" size="100" value="<?php echo($_REQUEST['sourcedid']);?>"/><br/>
 OAuth Consumer Key: <input type="text" name="key" disabled="disabled" size="80" value="<?php echo($_REQUEST['key']);?>"/><br/>
 OAuth Consumer Secret: <input type="text" name="secret" size="80" value="<?php echo($oauth_consumer_secret);?>"/><br/>
+<!--
 Type: <select name="type">
   <option value=""<?php if ($_REQUEST['type'] == "") echo ' selected="selected"'; ?>>default</option>
   <option value="decimal"<?php if ($_REQUEST['type'] == "decimal") echo 'selected="selected"'; ?>>decimal</option>
@@ -45,6 +46,7 @@ Status: <select name="status">
   <option value="unmoderated"<?php if ($_REQUEST['status'] == "unmoderated") echo 'selected="selected"'; ?>>unmoderated</option>
   <option value="moderated"<?php if ($_REQUEST['status'] == "moderated") echo 'selected="selected"'; ?>>moderated</option>
 </select><br/>
+-->
 Grade to Send to LMS: <input type="text" name="grade" value="<?php echo($_REQUEST['grade']);?>"/>
 (e.g. 0.95)<br/>
 <input type='submit' name='submit' value="Send Grade"/>
@@ -62,10 +64,11 @@ is not running on localhost.
 Because these services are server-to-server calls if you are
 running your LMS on "localhost", you must also run this script
 on localhost as well.  If your LMS has a real Internet
-address you should be OK.  You can download a copy of the test
+address you should be OK.  
+You can checkout a copy of the test
 tools to run locally at
-to test your LMS instance running on localhost.
-(<a href="../dist.zip" target="_new">Download</a>)
+to test your Sakai instance running on localhost.
+(<a href="https://source.sakaiproject.org/svn//basiclti/trunk/basiclti-docs/resources/docs/sakai-api-test/" target="_new">Source Code</a>)
 </p>
 <?php
 }

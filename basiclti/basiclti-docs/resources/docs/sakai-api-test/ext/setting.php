@@ -1,14 +1,12 @@
 <html>
 <head>
-  <title>LTI 1.0 Extensions</title>
+  <title>Sakai Setting API</title>
 </head>
 <body style="font-family:sans-serif; background-color: pink">
-<p><b>PHP Setting Extension</b></p>
-<p><a href="../index.php" target="_new">About these extensions</a>.
-</p>
+<p><b>Sakai Setting API</b></p>
 <p>
-This setting extension is not widely used.   It allows a Tool Provider to 
-store up to 4K of data to be included on every launch.
+This setting allows an External Tool to 
+store up to 4K of data  within the tool placement in Sakai to be included on every launch.
 Ther is one setting per <b>resource_link_id</b> across all values for <b>user_id</b>.
 </p>
 <?php
@@ -27,7 +25,7 @@ lis_result_sourcedid: <input type="text" name="id" disabled="true" size="100" va
 OAuth Consumer Key: <input type="text" name="key" disabled="true" size="80" value="<?php echo($_REQUEST['key']);?>"/></br>
 OAuth Consumer Secret: <input type="text" name="secret" size="80" value="<?php echo($oauth_consumer_secret);?>"/></br>
 </p><p>
-Settings to Send to LMS: <br/>
+Settings to Send to Sakai: <br/>
 <textarea name="setting" cols="60" rows="10">
 </textarea><br/>
 <input type='submit' name='submit' value="Send Setting">
@@ -42,12 +40,13 @@ if(!in_array($_SERVER['HTTP_HOST'],array('localhost','127.0.0.1')) && strpos($ur
 calling a service running on <b>localhost</b> from a tool that
 is not running on localhost.
 Because these services are server-to-server calls if you are
-running your LMS on "localhost", you must also run this script
-on localhost as well.  If your LMS has a real Internet
-address you should be OK.  You can download a copy of the test
+running Sakai on "localhost", you must also run this script
+on localhost as well.  If your Sakai instance has a real Internet
+address you should be OK.  
+You can checkout a copy of the test
 tools to run locally at
-to test your LMS instance running on localhost.
-(<a href="../dist.zip" target="_new">Download</a>)
+to test your Sakai instance running on localhost.
+(<a href="https://source.sakaiproject.org/svn//basiclti/trunk/basiclti-docs/resources/docs/sakai-api-test/" target="_new">Source Code</a>)
 </p>
 <?php
 }
