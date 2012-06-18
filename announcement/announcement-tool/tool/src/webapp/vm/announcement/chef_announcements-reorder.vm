@@ -22,7 +22,6 @@
 				$tlang.getString('reorder.instruction.general')
 				<span id="inputFieldMessage" style="display:none">$tlang.getString('reorder.instruction.input')</span>
 				<span id="inputKbdMessage" class="skip">$tlang.getString('reorder.instruction.general.hidden')</span>
-				$tlang.getString('reorder.instruction.special')
 			</span>
 			<br /><br />
 	</div> ##end navPanel
