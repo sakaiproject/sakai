@@ -7,11 +7,16 @@
 <%-- Sakai JSF tag library --%>
 <%@ taglib uri="http://myfaces.apache.org/tomahawk" prefix="t" %>
 <f:view>
-<head>
+<sakai:view_container title="#{msgs.prefs_title}">
+<sakai:stylesheet path="/css/prefs.css"/>
+<sakai:view_content>
+
+<f:verbatim>
   <script type="text/javascript" language="JavaScript" src="/library/js/jquery.js">//</script>
   <script type="text/javascript" language="JavaScript" src="/library/js/fluid-latest/InfusionAll.js">//</script>
   <script type="text/javascript" language="JavaScript" src="/sakai-user-tool-prefs/js/prefs.js">//</script>
 <script type="text/javascript">
+<!--
 function checkReloadTop() {
     check = jQuery('input[id$=reloadTop]').val();
     if (check == 'true' ) parent.location.reload();
@@ -20,13 +25,10 @@ function checkReloadTop() {
 jQuery(document).ready(function () {
     setTimeout('checkReloadTop();', 1500);
 });
-
+//-->
 </script>
-</head>
-	<sakai:view_container title="#{msgs.prefs_title}">
-	<sakai:view_content>
+</f:verbatim>
 		<h:form id="prefs_form">
-				<sakai:stylesheet path="/css/prefs.css"/>
 				<sakai:tool_bar>
 			  <%--sakai:tool_bar_item action="#{UserPrefsTool.processActionRefreshFrmEdit}" value="Refresh" /--%>
  		    <sakai:tool_bar_item action="#{UserPrefsTool.processActionNotiFrmEdit}" value="#{msgs.prefs_noti_title}" rendered="#{UserPrefsTool.noti_selection == 1}"/>
