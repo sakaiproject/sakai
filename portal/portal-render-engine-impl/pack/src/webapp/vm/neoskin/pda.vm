@@ -23,6 +23,7 @@
 <html>
 <head>
 	<meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
+${sakai_html_head_css}
 	 <link href="${pageSkinRepo}/${pageSkin}/pda.css" type="text/css" rel="stylesheet" media="all" /> 
     <meta http-equiv="Content-Style-Type" content="text/css" />
     <meta name="viewport" content="width=device-width, user-scalable=yes,  initial-scale=1.0, maximum-scale=1.0"/>
@@ -75,6 +76,7 @@ ${responseHead}
 #end 
 
 #if ($currentSite && !$currentPlacement)
+<!-- if (currentSite && !currentPlacement) -->
 	## user is logged in - and in site (with tool list): show back to sites link, site name, logout button
 	#if ( $loggedIn ) 
 		<li class="sitesLink backLink"><span><a href="${portalTopUrl}" title="$rloader.getString("pda_back_to_sites")">$rloader.getString("pda_sites")</a></span></li>
@@ -97,37 +99,27 @@ ${responseHead}
 
 #if ($currentSite && $currentPlacement)
   ##user is in a tool
-  #if ( ${bufferedResponse} && ${responseBody} ) 
-	<li class="sitesLink backLink notSmallDev"><span><a href="${portalTopUrl}" title="$rloader.getString("pda_back_to_sites")">$rloader.getString("pda_sites")</a></span></li> 
-    <li class="currentSiteLink backLink"><span><a href="${currentSite.siteUrl}" title="${currentSite.siteTitle}">#if(!$currentSite.isMyWorkspace)${currentSite.siteTitle}#else $rloader.getString('sit_mywor') #end</a></span></li>
-
-    <li class="currentToolTitle"><span>${currentPlacement.toolTitle}</span></li>
-	#if ($showResetButton)
-    	<li class="resetToolLink">
-			<span>
-    			<a href="$resetActionUrl" title="$rloader.getString('sit_reset')" class="toolReset">
-	    			<img src="${pageSkinRepo}/${pageSkin}/images/pda-tool-reload.png" alt="$rloader.getString('sit_reset')" />
-	    		</a>
-    		</span>
-		</li>
-	#end
+  <li class="sitesLink backLink notSmallDev"><span><a href="${portalTopUrl}" title="$rloader.getString("pda_back_to_sites")">$rloader.getString("pda_sites")</a></span></li> 
+  <li class="currentSiteLink backLink"><span><a href="${currentSite.siteUrl}" title="${currentSite.siteTitle}">#if(!$currentSite.isMyWorkspace)${currentSite.siteTitle}#else $rloader.getString('sit_mywor') #end</a></span></li>
+  <li class="currentToolTitle"><span>${currentPlacement.toolTitle}</span></li>
+  #if ($showResetButton)
+    <li class="resetToolLink"><span>
+    <a href="$resetActionUrl" title="$rloader.getString('sit_reset')" class="toolReset">
+    <img src="${pageSkinRepo}/${pageSkin}/images/pda-tool-reload.png" alt="$rloader.getString('sit_reset')" /></a></span>
+    </li>
   #end
-#end
-
-#if (${currentPlacement.toolShowHelpButton})
-  #if (${currentPlacement.toolJSR168Help} )
-		## need to get string from bundle
-    <li class="helpLink"><span><a accesskey="h" href="${currentPlacement.toolJSR168Help}" title="${rloader.sit_help}">?</a></span></li>		
-  #else
-		## need to get string from bundle
-    <li class="helpLink"><span><a accesskey="h" href="${currentPlacement.toolHelpActionUrl}" title="${rloader.sit_help}" target="_blank" onclick="openWindow('${currentPlacement.toolHelpActionUrl}', 'Help','resizable=yes,toolbar=no,scrollbars=yes,menubar=yes,width=800,height=600'); return false">?</a></span></li>
-  #end
-#end
-#if (${currentPlacement.toolJSR168Edit} )
-	<li class="sitesLink backLink notSmallDev"><span><a href="${portalTopUrl}" title="$rloader.getString("pda_back_to_sites")">$rloader.getString("pda_sites")</a></span></li> 
-	<li class="currentSiteLink backLink"><span><a href="${currentSite.siteUrl}" title="${currentSite.siteTitle}">${currentSite.siteTitle}</a></span></li>
-	<li class="currentToolTitle"><span>${currentPlacement.toolTitle}</span></li>
+  #if (${currentPlacement.toolJSR168Edit} )
 	<li class="jsreditLink"><span><a accesskey="e" href="${currentPlacement.toolJSR168Edit}" title="${rloader.sit_edit}"><img src="${pageSkinRepo}/${pageSkin}/images/pda-edit-sett.png" alt="${rloader.sit_edit}" /></a></span></li>
+  #end
+  #if (${currentPlacement.toolShowHelpButton})
+    #if (${currentPlacement.toolJSR168Help} )
+	  ## need to get string from bundle
+	  <li class="helpLink"><span><a accesskey="h" href="${currentPlacement.toolJSR168Help}" title="${rloader.sit_help}">?</a></span></li>		
+    #else
+	  ## need to get string from bundle
+	  <li class="helpLink"><span><a accesskey="h" href="${currentPlacement.toolHelpActionUrl}" title="${rloader.sit_help}" target="_blank" onclick="openWindow('${currentPlacement.toolHelpActionUrl}', 'Help','resizable=yes,toolbar=no,scrollbars=yes,menubar=yes,width=800,height=600'); return false">?</a></span></li>
+    #end
+  #end
 #end
 
 #if ( ${wurflSmallDisplay} ) 

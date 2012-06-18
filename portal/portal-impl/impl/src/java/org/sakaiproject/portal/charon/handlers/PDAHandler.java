@@ -87,6 +87,9 @@ public class PDAHandler extends PageHandler
 
     private static final String BYPASS_TYPE_PROP = "portal.pda.bypass.type";
 	private static final String DEFAULT_BYPASS_TYPE = "^application/|^image/|^audio/|^video/|^text/xml|^text/plain";
+
+	private static final String IFRAME_SUPPRESS_PROP = "portal.pda.iframesuppress";
+	private static final String IFRAME_SUPPRESS_DEFAULT = ":all:sakai.profile2:";
 	
 	public PDAHandler()
 	{
@@ -237,7 +240,9 @@ public class PDAHandler extends PageHandler
 					if ( pattern.length() > 1 ) {
 						p = Pattern.compile(pattern);
 						m = p.matcher(uri.toLowerCase());
-						if ( m.find() ) matched = true;
+						if ( m.find() ) {
+							matched = true;
+						}
 					}
 
 					// Check the query string for a pattern match
@@ -248,24 +253,23 @@ public class PDAHandler extends PageHandler
 					if ( pattern.length() > 1 ) {
 						p = Pattern.compile(pattern);
 						m = p.matcher(queryString.toLowerCase());
-						if ( m.find() ) matched = true;
+						if ( m.find() ) {
+							matched = true;
+						}
 					}
 
-					// Check the contentType for a pattern match
-					pattern = ServerConfigurationService .getString(BYPASS_TYPE_PROP, DEFAULT_BYPASS_TYPE);
-					pattern = ServerConfigurationService .getString(BYPASS_TYPE_PROP+"."+commonToolId, pattern);
-					if ( pattern.length() > 1 ) {
-						String contentType = req.getContentType();
-						if ( contentType == null ) contentType = "";
-						p = Pattern.compile(pattern);
-						m = p.matcher(contentType.toLowerCase());
-						if ( m.find() ) matched = true;
+					// wicket-ajax request can not be buffered (PRFL-405)
+					if (Boolean.valueOf(req.getHeader("wicket-ajax"))) {
+						matched = true;
 					}
 
 					boolean allowBuffer = allowBufferContent(req, toolId);
 
+					// Pass this request through directly if this tool is bufferable
+					// and the request is some kind of straigh-through request like 
+					// an image ajax, etc.
 					// System.out.println("AB="+allowBuffer+" match="+matched+" tid="+commonToolId+" uri="+uri+" QS="+queryString);
-					if ( ( (!allowBuffer) || matched ) && parts.length >= 5 ) {
+					if ( allowBuffer && matched && parts.length >= 5 ) {
 						String toolContextPath = req.getContextPath() + req.getServletPath() + Web.makePath(parts, 1, 5); 
 						String toolPathInfo = Web.makePath(parts, 5, parts.length);
        					ActiveTool tool = ActiveToolManager.getActiveTool(commonToolId);
@@ -291,7 +295,7 @@ public class PDAHandler extends PageHandler
 				portal.setupMobileDevice(req, rcontext);
 
 				// Optionally buffer tool content to eliminate iFrames
-				bufferContent(req, res, session, parts, toolId, rcontext);
+				boolean bc = bufferContent(req, res, session, parts, toolId, rcontext);
 
 				portal.sendResponse(rcontext, res, "pda", null);
 				
@@ -316,18 +320,13 @@ public class PDAHandler extends PageHandler
 	}
 
 	/*
-	 * Check to see if we can buffer content.
+	 * Check to see if this tool allows the buffering of content
 	 */
 	public boolean allowBufferContent(HttpServletRequest req, String toolId)
 	{
 		if (toolId == null) return false;
 
-		// wicket-ajax request can not be buffered (PRFL-405)
-		if (Boolean.valueOf(req.getHeader("wicket-ajax"))) {
-			return false;
-		}
-
-		String tidAllow = ServerConfigurationService.getString("portal.pda.iframesuppress");
+		String tidAllow = ServerConfigurationService.getString(IFRAME_SUPPRESS_PROP, IFRAME_SUPPRESS_DEFAULT);
 
 		if (tidAllow.indexOf(":none:") >= 0) return false;
 
@@ -378,12 +377,12 @@ public class PDAHandler extends PageHandler
 
 			if ( ! retval ) return false;
 
-			// Check the contentType for a pattern match
+			// Check the response contentType for a pattern match
 			String commonToolId = siteTool.getToolId();
 			String pattern = ServerConfigurationService .getString(BYPASS_TYPE_PROP, DEFAULT_BYPASS_TYPE);
 			pattern = ServerConfigurationService .getString(BYPASS_TYPE_PROP+"."+commonToolId, pattern);
 			if ( pattern.length() > 0 ) {
-				String contentType = req.getContentType();
+				String contentType = res.getContentType();
 				if ( contentType == null ) contentType = "";
 				Pattern p = Pattern.compile(pattern);
 				Matcher mc = p.matcher(contentType.toLowerCase());
@@ -415,7 +414,7 @@ public class PDAHandler extends PageHandler
 		// start tag we simply - take the rest of the response
 		if ( bodyEnd < bodyStart ) bodyEnd = responseStrLower.length() - 1;
 
-		String tidAllow = ServerConfigurationService.getString("portal.pda.iframesuppress");
+		String tidAllow = ServerConfigurationService.getString(IFRAME_SUPPRESS_PROP, IFRAME_SUPPRESS_DEFAULT);
 		if( tidAllow.indexOf(":debug:") >= 0 )
 			log.info("Frameless HS="+headStart+" HE="+headEnd+" BS="+bodyStart+" BE="+bodyEnd);
 
