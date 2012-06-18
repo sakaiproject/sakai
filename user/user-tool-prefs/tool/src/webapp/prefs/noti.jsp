@@ -16,6 +16,7 @@
 
 <f:verbatim>
 	<script type="text/javascript" src="/library/js/jquery.js"></script>
+    <script type="text/javascript" language="JavaScript" src="/library/js/fluid-latest/InfusionAll.js">//</script>
 	<script type="text/javascript">
 	<!--
 		function removeOverride(cur) {

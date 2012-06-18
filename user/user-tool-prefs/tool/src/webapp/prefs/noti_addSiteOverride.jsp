@@ -12,6 +12,7 @@
 <f:verbatim>
 <script type="text/javascript" src="/library/js/jquery.js"></script>
 <script type="text/javascript" language="JavaScript" src="/sakai-user-tool-prefs/js/prefs.js">// </script>
+<script type="text/javascript" language="JavaScript" src="/library/js/fluid-latest/InfusionAll.js">//</script>
 </f:verbatim>
 	
 		<h:form id="site_list_form">
