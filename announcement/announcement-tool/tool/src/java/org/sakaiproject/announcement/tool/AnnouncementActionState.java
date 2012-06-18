@@ -354,12 +354,12 @@ public class AnnouncementActionState extends ControllerState implements SessionB
 					String varNameNumberChars = parameters.getString("changeChars");
 					if (varNameNumberChars.equals(rb.getString("custom.shofir")))
 					{
-						setNumberOfCharsPerAnnouncement(50);
+						setNumberOfCharsPerAnnouncement(53);
 						setEnforceNumberOfCharsPerAnnouncement(true);
 					}
 					else if (varNameNumberChars.equals(rb.getString("custom.shofirtwo")))
 					{
-						setNumberOfCharsPerAnnouncement(100);
+						setNumberOfCharsPerAnnouncement(103);
 						setEnforceNumberOfCharsPerAnnouncement(true);
 					}
 					else if (varNameNumberChars.equals(rb.getString("custom.shoall")))
@@ -377,12 +377,12 @@ public class AnnouncementActionState extends ControllerState implements SessionB
 				String varNameNumberChars = parameters.getString("changeChars");
 				if (varNameNumberChars.equals(rb.getString("custom.shofir")))
 				{
-					setNumberOfCharsPerAnnouncement(50);
+					setNumberOfCharsPerAnnouncement(53);
 					setEnforceNumberOfCharsPerAnnouncement(true);
 				}
 				else if (varNameNumberChars.equals(rb.getString("custom.shofirtwo")))
 				{
-					setNumberOfCharsPerAnnouncement(100);
+					setNumberOfCharsPerAnnouncement(103);
 					setEnforceNumberOfCharsPerAnnouncement(true);
 				}
 				else if (varNameNumberChars.equals(rb.getString("custom.shoall")))
