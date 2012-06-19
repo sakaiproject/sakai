@@ -52,6 +52,7 @@ public class SortQuestionListListener
     
     String orderBy = ContextUtil.lookupParam("orderBy");
     String ascending =ContextUtil.lookupParam("ascending");
+    String getItems =ContextUtil.lookupParam("getItems");
     if (orderBy != null &&!orderBy.trim().equals("")){
     	questionpoolbean.setSortQuestionProperty(orderBy);
     	log.debug("orderBy = " + ContextUtil.lookupParam("orderBy"));
@@ -67,15 +68,18 @@ public class SortQuestionListListener
     String qpid=ContextUtil.lookupParam("qpid");
     QuestionPoolService delegate = new QuestionPoolService();
     ArrayList list= null;
-    if (qpid==null ||("").equals(qpid)){
-     list = delegate.getAllItemsSorted(questionpoolbean.getCurrentPool().getId(), orderBy, ascending);
+    if (getItems != null && getItems.trim().equals("false")){
+    	log.debug("Do not getItems: getItems = " + getItems);
     }
-    else{
-	list = delegate.getAllItemsSorted(Long.valueOf(qpid),orderBy, ascending);
+    else {
+    	if (qpid==null ||("").equals(qpid)){
+    		list = delegate.getAllItemsSorted(questionpoolbean.getCurrentPool().getId(), orderBy, ascending);
+    	}
+    	else{
+    		list = delegate.getAllItemsSorted(Long.valueOf(qpid),orderBy, ascending);
+    	}
+    	log.debug("AFTER CALLING DELEGATE");
+        questionpoolbean.setAllItems(list);
     }
-    
-    log.debug("AFTER CALLING DELEGATE");
-    questionpoolbean.setAllItems(list);
-
   }
 }

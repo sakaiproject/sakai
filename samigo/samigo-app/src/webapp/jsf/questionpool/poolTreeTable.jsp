@@ -61,6 +61,7 @@
   <f:param name="qpid" value="#{pool.questionPoolId}"/>
   <f:param name="orderBy" value="text"/>
   <f:param name="ascending" value="true"/>
+  <f:param name="getItems" value="false"/>
   <f:actionListener type="org.sakaiproject.tool.assessment.ui.listener.questionpool.SortQuestionListListener" />
 </h:commandLink>
 
