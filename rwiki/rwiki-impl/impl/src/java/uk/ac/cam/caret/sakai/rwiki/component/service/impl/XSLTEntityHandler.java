@@ -828,8 +828,7 @@ public class XSLTEntityHandler extends BaseEntityHandlerImpl
 	public void init()
 	{
 		if (!isAvailable()) return;
-		ComponentManager cm = org.sakaiproject.component.cover.ComponentManager
-				.getInstance();
+		ComponentManager cm = org.sakaiproject.component.cover.ComponentManager.getInstance();
 		entityManager = (EntityManager) load(cm, EntityManager.class.getName());
 		renderService = (RenderService) load(cm, RenderService.class.getName());
 
@@ -838,8 +837,7 @@ public class XSLTEntityHandler extends BaseEntityHandlerImpl
 		try
 		{
 			XSLTTransform xsltTransform = new XSLTTransform();
-			xsltTransform.setXslt(new InputSource(this.getClass().getResourceAsStream(
-					xslt)));
+			xsltTransform.setXslt(new InputSource(this.getClass().getResourceAsStream(xslt)));
 			xsltTransform.getContentHandler();
 		}
 		catch (Exception ex)

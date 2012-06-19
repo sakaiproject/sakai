@@ -31,6 +31,7 @@ import javax.xml.parsers.SAXParserFactory;
 import javax.xml.transform.Result;
 import javax.xml.transform.Templates;
 import javax.xml.transform.Transformer;
+import javax.xml.transform.TransformerFactory;
 import javax.xml.transform.sax.SAXResult;
 import javax.xml.transform.sax.SAXTransformerFactory;
 import javax.xml.transform.sax.TemplatesHandler;
@@ -56,7 +57,9 @@ public class XSLTTransform
 	private Templates templates = null;
 
 	private SAXTransformerFactory factory = (SAXTransformerFactory) SAXTransformerFactory
-			.newInstance();
+			.newInstance("org.apache.xalan.processor.TransformerFactoryImpl", this.getClass().getClassLoader());
+	
+	//TransformerFactory tFactory = TransformerFactory.newInstance("org.apache.xalan.processor.TransformerFactoryImpl",null);
 
 	private SAXParserFactory saxParserFactory = null;
 	/**
