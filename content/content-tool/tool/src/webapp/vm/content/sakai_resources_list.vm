@@ -1,5 +1,4 @@
 ## version: $Id:  $
-
 <!-- sakai_resources_list.vm, use with org.sakaiproject.content.tool.ResourcesAction.java -->
 <!-- this is the new list template, which uses the resources type registry -->
 <!--[if gt IE 5.0]><![if lt IE 7]>
@@ -384,15 +383,23 @@ $(document).ready(function() {
 									</a>
 									&#169;
 								#elseif($item.isCollection())
-									<a href="#"
-										onclick="javascript:document.getElementById('sakai_action').value='doNavigate';document.getElementById('collectionId').value='$qid';document.getElementById('navRoot').value='$validator.escapeUrl($item.root)';document.getElementById('showForm').submit();"
-										title= "$item.hoverText">
-										$validator.escapeHtml(${item.name})
-									</a>
-								#else
-									<a href="$item.accessUrl" target="$item.target" title="$item.hoverText">
+    								#if($item.isTooBigNav())
 										$validator.escapeHtml($item.name)
-									</a>
+									#else
+										<a href="#"
+    										onclick="javascript:document.getElementById('sakai_action').value='doNavigate';document.getElementById('collectionId').value='$qid';document.getElementById('navRoot').value='$validator.escapeUrl($item.root)';document.getElementById('showForm').submit();"
+    										title= "$item.hoverText">
+    										$validator.escapeHtml(${item.name})
+    									</a>
+									#end	
+								#else
+									#if($item.isTooBigNav())
+										$validator.escapeHtml($item.name)
+									#else
+										<a href="$item.accessUrl" target="$item.target" title="$item.hoverText">
+    										$validator.escapeHtml($item.name)
+    									</a>
+									#end
 								#end
 							#else
 								 <img src="#imageLink($item.iconLocation)" border="0" alt ="$item.hoverText" hspace="0" />
@@ -647,15 +654,23 @@ $(document).ready(function() {
 											</a>
 											&#169;
 										#elseif($item.isCollection())
-											<a href="#"
-												onclick="javascript:document.getElementById('sakai_action').value='doNavigate';document.getElementById('collectionId').value='$qid';document.getElementById('navRoot').value='$validator.escapeUrl($item.root)';document.getElementById('showForm').submit();"
-												title= "$item.hoverText">
-												$validator.escapeHtml(${item.name})
-											</a>
+											#if($item.isTooBigNav())
+												$validator.escapeHtml($item.name)    											
+											#else
+													<a href="#"
+														onclick="javascript:document.getElementById('sakai_action').value='doNavigate';document.getElementById('collectionId').value='$qid';document.getElementById('navRoot').value='$validator.escapeUrl($item.root)';document.getElementById('showForm').submit();"
+														title= "$item.hoverText">
+														$validator.escapeHtml(${item.name})
+													</a>
+											#end
 										#else
-											<a href="$item.accessUrl" target="$item.target" title="$item.hoverText">
-												$validator.escapeHtml($item.name)
-											</a>
+											#if($item.isTooBigNav())
+												$validator.escapeHtml($item.name)    											
+											#else
+												<a href="$item.accessUrl" target="$item.target" title="$item.hoverText">
+    												$validator.escapeHtml($item.name)
+    											</a>
+											#end
 										#end
 									#else
 										 <img src="#imageLink($item.iconLocation)" border="0" alt ="$item.hoverText" hspace="0" />

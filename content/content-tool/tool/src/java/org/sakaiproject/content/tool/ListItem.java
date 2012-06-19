@@ -130,6 +130,8 @@ public class ListItem
 	
 	/** A long representing the number of milliseconds in one week.  Used for date calculations */
 	public static final long ONE_WEEK = 7L * ONE_DAY;
+	
+	public static final int EXPANDABLE_FOLDER_NAV_SIZE_LIMIT = ServerConfigurationService.getInt("sakai.content.resourceLimit", 0);  //SAK-21955
 
 	/** 
 	 ** Comparator for sorting Group objects
@@ -371,6 +373,7 @@ public class ListItem
 	protected boolean isHot = false;
 	protected boolean isSortable = false;
 	protected boolean isTooBig = false;
+	protected boolean isTooBigNav = false;
 	protected boolean isCourseSite = false;
 	protected String size = "";
 	protected String sizzle = "";
@@ -661,6 +664,17 @@ public class ListItem
 			if(collection_size > ResourceType.EXPANDABLE_FOLDER_SIZE_LIMIT)
 			{
 				setIsTooBig(true);
+			}
+			
+			//SAK-21955
+			//Prevent concurrent mode failures from clicking on resources that are too large.  Similar to 'isTooBig' but defined in properties
+			//To enable add the property sakai.content.resourceLimit=<int> to sakai.properties where int is the limit of an accessible resource folder
+			if( this.EXPANDABLE_FOLDER_NAV_SIZE_LIMIT != 0 && (collection_size > this.EXPANDABLE_FOLDER_NAV_SIZE_LIMIT))
+			{
+				setIsTooBigNav(true);
+			}
+			else{
+				setIsTooBigNav(false);
 			}
 			
 			//does this collection allow inlineHTML?
@@ -1011,6 +1025,7 @@ public class ListItem
  			setIsEmpty(true);
 			setSortable(false);
 			setIsTooBig(false);
+			setIsTooBigNav(false);
 		}
 		else 
 		{
@@ -2534,6 +2549,17 @@ public class ListItem
 		return this.isTooBig;
 	}
 	
+    
+         /**
+	 * Hides href on resource folders based on a configurable limit sakai.content.resourceLimit
+	 * 
+	 * @param isTooBigNav flag
+	 */
+	public boolean isTooBigNav()
+	{
+		return this.isTooBigNav;
+	}
+	
 	public boolean isUrl()
 	{
 		return this.resourceType != null && this.resourceType.equals(ResourceType.TYPE_URL);
@@ -2740,6 +2766,16 @@ public class ListItem
     {
         this.isTooBig = isTooBig;
     }
+    
+	/**
+	* Hides href on resource folders based on a configurable limit sakai.content.resourceLimit
+	* 
+	* @param isTooBigNav
+	*/
+	public void setIsTooBigNav(boolean isTooBigNav)
+    	{
+       		this.isTooBigNav = isTooBigNav;
+    	}
 
 	public void setMembers(List<ListItem> members) 
 	{
