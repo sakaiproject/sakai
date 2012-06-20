@@ -34,7 +34,13 @@ import java.util.List;
  * <p>
  * A Delivery object captures the Address, the HTML Element Id involved, and any other details of a particular type of delivery.
  * </p>
+ * 
+ * @deprecated The CourierService is no longer a preferred way to communicate with clients.
+ * 		It will be removed in a future release of Sakai (after 2.10)
+ * 		There are better technologies to use, please do not use.
+ *      <a href="https://jira.sakaiproject.org/browse/SAK-22053">SAK-22053</a>
  */
+@Deprecated
 public interface CourierService
 {
 	/** This string can be used to find the service in the service manager. */
