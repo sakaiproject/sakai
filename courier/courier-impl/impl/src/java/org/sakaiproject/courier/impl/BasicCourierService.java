@@ -40,7 +40,13 @@ import org.sakaiproject.util.StringUtil;
  * <p>
  * BasicCourierService is the implementation for the CourierService.
  * </p>
+ * 
+ * @deprecated The BasicCourierService has stability issues and will be removed
+ * 		in a future release (after 2.10)
+ * 		<a href="https://jira.sakaiproject.org/browse/SAK-22053">SAK-22053</a>
+ *		@see CourierService  
  */
+@Deprecated
 public class BasicCourierService implements CourierService
 {
 	/** Our logger. */
