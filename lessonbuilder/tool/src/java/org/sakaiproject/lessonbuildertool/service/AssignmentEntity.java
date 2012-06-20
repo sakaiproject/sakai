@@ -691,7 +691,10 @@ public class AssignmentEntity implements LessonEntity {
     }
 
     public String getObjectId() {
-	return "assignment/" + id;
+	String title = getTitle();
+	if (title == null)
+	    return null;
+	return "assignment/" + id + "/" + title;
     }
 
     public String findObject(String objectid, Map<String,String>objectMap, String siteid) {
@@ -701,11 +704,34 @@ public class AssignmentEntity implements LessonEntity {
 	    }
 	    return null;
 	}
-	String newassignment = objectMap.get(objectid);
+
+	String realobjectid = objectid;
+	// isolate forum_topic/NNN from title
+	int i = objectid.indexOf("/", "assignment/".length());
+	if (i > 0)
+	    realobjectid = objectid.substring(0, i);
+
+	String newassignment = objectMap.get(realobjectid);
 	if (newassignment != null)
 	    return "/" + newassignment;  // sakaiid is /assignment/ID
-	else
-	    return null;
+
+	// not in map. try title, but only if title given
+	if (i <= 0)
+	    return null; // no title
+
+	// i is start of title
+	String title = objectid.substring(i+1);
+
+	Iterator aIter = AssignmentService.getAssignmentsForContext(ToolManager.getCurrentPlacement().getContext());
+
+	// security. assume this is only used in places where it's OK, so skip security checks
+	while (aIter.hasNext()) {
+	    Assignment a = (Assignment) aIter.next();
+	    if (title.equals(a.getTitle()))
+		return "/assignment/" + a.getId();
+	}
+
+	return null;
 
     }
 

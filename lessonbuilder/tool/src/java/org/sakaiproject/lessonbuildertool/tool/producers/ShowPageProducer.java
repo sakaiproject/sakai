@@ -427,6 +427,9 @@ public class ShowPageProducer implements ViewComponentProducer, DefaultView, Nav
 		// of going to the last page from the previous session
 		SimplePageToolDao.PageData lastPage = simplePageBean.toolWasReset();
 
+		// if this page was copied from another site we may have to update links
+		simplePageBean.maybeUpdateLinks();
+
 		// if starting the tool, sendingpage isn't set. the following call
 		// will give us the top page.
 		SimplePage currentPage = simplePageBean.getCurrentPage();

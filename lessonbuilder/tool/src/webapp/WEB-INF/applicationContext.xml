@@ -190,6 +190,7 @@ simplePageBean.selectPage
   </bean>
 
   <bean parent="org.sakaiproject.entitybroker.entityprovider.AbstractEntityProvider"
+	id="org.sakaiproject.lessonbuildertool.service.LessonBuilderEntityProducer"
         class="org.sakaiproject.lessonbuildertool.service.LessonBuilderEntityProducer"
         init-method="init"
         destroy-method="destroy"

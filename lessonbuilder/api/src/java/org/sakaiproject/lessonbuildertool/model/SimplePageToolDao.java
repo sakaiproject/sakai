@@ -65,6 +65,8 @@ public interface SimplePageToolDao {
     // same order in which they are shown in the left margin
 	public List<SimplePageItem> findItemsInSite(String siteId);
 
+	public List<SimplePageItem> findDummyItemsInSite(String siteId);
+
 	public SimplePageItem findItem(long id);
 	
 	public List<SimplePageComment> findComments(long commentWidgetId);

@@ -219,6 +219,7 @@
  		<property name="bltiEntity" ref="org.sakaiproject.lessonbuildertool.service.BltiEntity"/>
 		<property name="gradebookIfc" ref="org.sakaiproject.lessonbuildertool.service.GradebookIfc"/>
 		<property name="memoryService"><ref bean="org.sakaiproject.memory.api.MemoryService"/></property>
+		<property name="lessonBuilderEntityProducer" ref="org.sakaiproject.lessonbuildertool.service.LessonBuilderEntityProducer"/>
 	</bean>
 	
 	<bean name="gradingBean" class="org.sakaiproject.lessonbuildertool.tool.beans.GradingBean">

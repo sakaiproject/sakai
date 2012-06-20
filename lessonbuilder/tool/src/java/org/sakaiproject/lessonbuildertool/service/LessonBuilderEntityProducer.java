@@ -94,6 +94,8 @@ import org.sakaiproject.tool.api.ToolSession;
 import org.sakaiproject.tool.api.Session;
 import org.sakaiproject.tool.api.SessionManager;
 import org.sakaiproject.tool.api.ToolManager;
+import org.sakaiproject.entity.api.ResourceProperties;
+import org.sakaiproject.entity.api.ResourcePropertiesEdit;
 import org.sakaiproject.util.ResourceLoader;
 import org.sakaiproject.util.Xml;
 import uk.org.ponder.messageutil.MessageLocator;
@@ -569,7 +571,7 @@ public class LessonBuilderEntityProducer extends AbstractEntityProvider
    }
 
     // the pages are already made. this adds the elements
-    private Long makePage(Element element, String oldServer, String siteId, String fromSiteId, Map<Long,Long> pageMap, Map<Long,Long> itemMap, Map<String,String> entityMap) {
+    private boolean makePage(Element element, String oldServer, String siteId, String fromSiteId, Map<Long,Long> pageMap, Map<Long,Long> itemMap, Map<String,String> entityMap) {
   
        String oldSiteId = element.getAttribute("siteid");
        String oldPageIdString = element.getAttribute("pageid");
@@ -577,6 +579,8 @@ public class LessonBuilderEntityProducer extends AbstractEntityProvider
        Long pageId = pageMap.get(oldPageId);
        Site site = null;
        Collection<Group> siteGroups = null;
+       boolean needFix = false;
+
        // not currently doing this
        if (RESTORE_GROUPS) {
 	   try {
@@ -619,6 +623,7 @@ public class LessonBuilderEntityProducer extends AbstractEntityProvider
 
 		   if (type == SimplePageItem.ASSIGNMENT || type == SimplePageItem.ASSESSMENT || type == SimplePageItem.FORUM) {
 		       sakaiId = SimplePageItem.DUMMY;
+		       needFix = true;
 		   }
 
 		   SimplePageItem item = simplePageToolDao.makeItem(pageId, sequence, type, sakaiId, name);
@@ -707,6 +712,11 @@ public class LessonBuilderEntityProducer extends AbstractEntityProvider
 			   item.setAltGradebook(s);
 		   }
 		   
+		   // save objectid for dummy items so we can do mapping; alt isn't otherwise used for these items
+		   if (type == SimplePageItem.ASSIGNMENT || type == SimplePageItem.ASSESSMENT || type == SimplePageItem.FORUM) {
+		       item.setAlt(itemElement.getAttribute("objectid"));
+		   }
+
 		   // not currently doing this, although the code has been tested.
 		   // The problem is that other tools don't do it. Since much of our group
 		   // awareness comes from the other tools, enabling this produces
@@ -763,7 +773,7 @@ public class LessonBuilderEntityProducer extends AbstractEntityProvider
 	       }
 	   }
        }
-       return pageId;
+       return needFix;
     }
 
     // fix up items on page. does any updates that need the whole page and item map
@@ -824,6 +834,7 @@ public class LessonBuilderEntityProducer extends AbstractEntityProvider
       Map <Long,Long> itemMap = new HashMap<Long,Long>();
 
       int count = 0;
+      boolean needFix = false;
 
       String oldServer = root.getAttribute("server");
 
@@ -864,8 +875,16 @@ public class LessonBuilderEntityProducer extends AbstractEntityProvider
 		 Node pageNode = pageNodes.item(p);
 		 if (pageNode.getNodeType() == Node.ELEMENT_NODE) {
 		     Element pageElement = (Element) pageNode;
-		     makePage(pageElement, oldServer, siteId, fromSiteId, pageMap, itemMap, entityMap);
+		     if (makePage(pageElement, oldServer, siteId, fromSiteId, pageMap, itemMap, entityMap))
+			 needFix = true;
 		 }
+	     }
+
+	     if (needFix) {
+		 Site site = siteService.getSite(siteId);
+		 ResourcePropertiesEdit rp = site.getPropertiesEdit();
+		 rp.addProperty("lessonbuilder-needsfixup", "true");
+		 siteService.save(site);
 	     }
 
 	     for (int p = 0; p < numPages; p++) {
@@ -1158,6 +1177,12 @@ public class LessonBuilderEntityProducer extends AbstractEntityProvider
 		    session.setAttribute(ATTR_TOP_REFRESH, Boolean.TRUE);
 		}
 
+		// clear the flag in the site. we've done our best
+		Site site = siteService.getSite(toContext);
+		ResourcePropertiesEdit rp = site.getPropertiesEdit();
+		rp.removeProperty("lessonbuilder-needsfixup");
+		siteService.save(site);
+
 	    } catch (Exception e) {
 		logger.error(e.getMessage(), e);
 	    }
@@ -1205,6 +1230,31 @@ public class LessonBuilderEntityProducer extends AbstractEntityProvider
 		}
 	    }
 	}
+    }
+
+    // called from tool, to fix up all dummy references in site toContext if possible
+    public void updateEntityReferences(String toContext) {
+	List<SimplePageItem> dummyItems = simplePageToolDao.findDummyItemsInSite(toContext);
+	Map<String, String> entityMap = new HashMap<String, String>();
+
+	// find list of dummy items and and objects, for fixup
+
+	for (SimplePageItem item: dummyItems) {
+	    String entityid = null;
+	    int type = item.getType();
+
+	    if (type == SimplePageItem.ASSIGNMENT)
+		entityid = REF_LB_ASSIGNMENT + item.getId();
+	    else if (type == SimplePageItem.ASSESSMENT)
+		entityid = REF_LB_ASSESSMENT + item.getId();
+	    else
+		entityid = REF_LB_FORUM + item.getId();
+	    entityMap.put(entityid, item.getAlt());
+	}
+
+	// now do the fixups
+	updateEntityReferences(toContext, entityMap);
+
     }
 
     public void setToolManager(ToolManager s) {

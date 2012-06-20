@@ -94,6 +94,7 @@ import org.sakaiproject.lessonbuildertool.service.LessonSubmission;
 import org.sakaiproject.lessonbuildertool.tool.producers.ShowItemProducer;
 import org.sakaiproject.lessonbuildertool.tool.producers.ShowPageProducer;
 import org.sakaiproject.lessonbuildertool.tool.view.GeneralViewParameters;
+import org.sakaiproject.lessonbuildertool.service.LessonBuilderEntityProducer;
 import org.sakaiproject.memory.api.Cache;
 import org.sakaiproject.memory.api.MemoryService;
 import org.sakaiproject.site.api.Group;
@@ -392,6 +393,10 @@ public class SimplePageBean {
 		this.httpServletResponse = httpServletResponse;
 	}
 
+        private LessonBuilderEntityProducer lessonBuilderEntityProducer;
+        public void setLessonBuilderEntityProducer(LessonBuilderEntityProducer p) {
+	    lessonBuilderEntityProducer = p;
+	}
 
     // End Injection
 
@@ -4022,6 +4027,15 @@ public class SimplePageBean {
 
 		return needed;
 
+	}
+
+    // maybeUpdateLinks checks to see if this page was copied from another
+    // site and needs an update
+	public void maybeUpdateLinks() {
+	    String needsFixup = getCurrentSite().getProperties().getProperty("lessonbuilder-needsfixup");
+	    if (needsFixup == null || !needsFixup.equals("true"))
+		return;
+	    lessonBuilderEntityProducer.updateEntityReferences(getCurrentSiteId());
 	}
 
 	public boolean isItemAvailable(SimplePageItem item) {
