@@ -21,25 +21,13 @@
 
 package uk.ac.cam.caret.sakai.rwiki.component.service.impl;
 
-import java.io.OutputStream;
-import java.io.Writer;
-import java.util.Iterator;
-import java.util.Map;
-
 import javax.xml.parsers.SAXParser;
 import javax.xml.parsers.SAXParserFactory;
-import javax.xml.transform.Result;
 import javax.xml.transform.Templates;
-import javax.xml.transform.Transformer;
-import javax.xml.transform.TransformerFactory;
-import javax.xml.transform.sax.SAXResult;
 import javax.xml.transform.sax.SAXTransformerFactory;
 import javax.xml.transform.sax.TemplatesHandler;
 import javax.xml.transform.sax.TransformerHandler;
-import javax.xml.transform.stream.StreamResult;
 
-import org.apache.xml.serializer.Serializer;
-import org.xml.sax.ContentHandler;
 import org.xml.sax.InputSource;
 import org.xml.sax.XMLReader;
 
@@ -59,8 +47,6 @@ public class XSLTTransform
 	private SAXTransformerFactory factory = (SAXTransformerFactory) SAXTransformerFactory
 			.newInstance("org.apache.xalan.processor.TransformerFactoryImpl", this.getClass().getClassLoader());
 	
-	//TransformerFactory tFactory = TransformerFactory.newInstance("org.apache.xalan.processor.TransformerFactoryImpl",null);
-
 	private SAXParserFactory saxParserFactory = null;
 	/**
 	 * Set the xslt resource.
