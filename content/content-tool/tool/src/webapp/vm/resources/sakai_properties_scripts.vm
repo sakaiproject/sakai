@@ -1083,11 +1083,11 @@
 		if(selectElement && selectElement.value)
 		{
 			var selection = selectElement.selectedIndex;
-			var selectionText = selectElement.options[selection].text;
+			var selectionValue = selectElement.options[selection].value;
 			var copyrightDiv = document.getElementById("copyright_status${DOT}" + index );
 			if(copyrightDiv)
 			{
-				if(selectionText == "${USE_THIS_COPYRIGHT}")
+				if(selectionValue == "${USE_THIS_COPYRIGHT}")
 				{
 					copyrightDiv.style.display="block";
 					resizeFrame('grow');
