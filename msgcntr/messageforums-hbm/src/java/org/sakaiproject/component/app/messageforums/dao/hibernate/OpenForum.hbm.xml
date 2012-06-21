@@ -186,7 +186,7 @@
   </query>  
   
   <query name="findForumsForMainPage"><![CDATA[
-  	select forum
+  	select distinct forum
     from org.sakaiproject.component.app.messageforums.dao.hibernate.OpenForumImpl forum
       left outer join fetch forum.topicsSet topic
       left outer join fetch topic.attachmentsSet
