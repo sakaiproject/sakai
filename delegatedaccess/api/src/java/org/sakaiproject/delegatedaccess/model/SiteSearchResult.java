@@ -23,6 +23,7 @@ public class SiteSearchResult implements Serializable {
 	private Date modified;
 	private String modifiedBy;
 	private String modifiedBySortName;
+	private boolean hasInstructor = true;
 	
 	public SiteSearchResult(Site site, List<User> instructors, String termProp){
 		this.site = new SiteSerialized(site, termProp);
@@ -266,5 +267,11 @@ public class SiteSearchResult implements Serializable {
 		}else{
 			return formatWithTime.format(getModified());
 		}
+	}
+	public void setHasInstructor(boolean hasInstructor) {
+		this.hasInstructor = hasInstructor;
+	}
+	public boolean isHasInstructor() {
+		return hasInstructor;
 	}
 }

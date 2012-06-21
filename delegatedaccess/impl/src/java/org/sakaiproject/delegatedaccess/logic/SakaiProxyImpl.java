@@ -18,6 +18,7 @@ import org.sakaiproject.authz.api.AuthzGroup;
 import org.sakaiproject.authz.api.AuthzGroupService;
 import org.sakaiproject.authz.api.AuthzPermissionException;
 import org.sakaiproject.authz.api.GroupNotDefinedException;
+import org.sakaiproject.authz.api.Member;
 import org.sakaiproject.authz.api.Role;
 import org.sakaiproject.authz.api.RoleAlreadyDefinedException;
 import org.sakaiproject.authz.api.SecurityAdvisor;
@@ -534,14 +535,35 @@ public class SakaiProxyImpl implements SakaiProxy {
 	
 	public boolean isUserInstructor(String userId, String siteId){
 		Site site = getSiteById(siteId);
+		return isUserInstructor(userId, site);
+	}
+	
+	private boolean isUserInstructor(String userId, Site site){
 		if(site != null){
 			if(site.getMember(userId) != null){
-				if(securityService.unlock(userId, "site.upd", siteService.siteReference(siteId))){
+				if(securityService.unlock(userId, "site.upd", siteService.siteReference(site.getId()))){
 					return true;
 				}
 			}
 		}
 		return false;
+	}
+	
+	public List<User> getInstructorsForSite(String siteId){
+		List<User> instructors = new ArrayList<User>();
+		Site site = getSiteById(siteId);
+		if(site != null){
+			for(Member member : site.getMembers()){
+				if(isUserInstructor(member.getUserId(), site)){
+					try {
+						instructors.add(userDirectoryService.getUser(member.getUserId()));
+					} catch (UserNotDefinedException e) {
+						log.error(e);
+					}
+				}
+			}
+		}
+		return instructors;
 	}
 	
 	public boolean isUserMember(String userId, String siteRef){

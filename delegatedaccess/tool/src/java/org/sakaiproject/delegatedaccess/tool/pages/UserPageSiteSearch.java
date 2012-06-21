@@ -28,6 +28,7 @@ import org.apache.wicket.model.PropertyModel;
 import org.apache.wicket.model.ResourceModel;
 import org.apache.wicket.model.StringResourceModel;
 import org.sakaiproject.site.api.Site;
+import org.sakaiproject.user.api.User;
 import org.sakaiproject.delegatedaccess.model.ListOptionSerialized;
 import org.sakaiproject.delegatedaccess.model.NodeModel;
 import org.sakaiproject.delegatedaccess.model.SelectOption;
@@ -236,7 +237,7 @@ public class UserPageSiteSearch extends BasePage {
 
 			@Override
 			public boolean isVisible() {
-				return provider.size() > 0 && instructorField != null && !"".equals(instructorField);
+				return provider.size() > 0;
 			}
 		};
 		add(instructorSort);
@@ -324,13 +325,33 @@ public class UserPageSiteSearch extends BasePage {
 				};
 				siteTitleLink.add(new Label("siteTitle", siteSearchResult.getSiteTitle()));
 				item.add(siteTitleLink);
-				String siteId = siteSearchResult.getSiteId();
+				final String siteId = siteSearchResult.getSiteId();
 				item.add(new Label("siteId", siteId));
 				item.add(new Label("term", siteSearchResult.getSiteTerm()));
-				item.add(new Label("instructor", siteSearchResult.getInstructorsString()){
+				item.add(new Label("instructor", new AbstractReadOnlyModel<String>(){
+		            @Override
+		            public String getObject(){
+		            	return siteSearchResult.getInstructorsString();
+		            }
+		            
+				}));
+				item.add(new Link<Void>("instructorLookupLink"){
+					private static final long serialVersionUID = 1L;
+					public void onClick() {
+						boolean foundInstructors = false;
+						for(User user : sakaiProxy.getInstructorsForSite(siteId)){
+							siteSearchResult.addInstructor(user);
+							foundInstructors = true;
+						}
+						if(!foundInstructors){
+							siteSearchResult.setHasInstructor(false);
+						}
+					}
+
 					@Override
 					public boolean isVisible() {
-						return instructorField != null && !"".equals(instructorField);
+						return (instructorField == null || "".equals(instructorField)) 
+							&& siteSearchResult.isHasInstructor() && siteSearchResult.getInstructors().size() == 0;
 					}
 				});
 				item.add(new Label("authorization", getAuthString(siteSearchResult)){

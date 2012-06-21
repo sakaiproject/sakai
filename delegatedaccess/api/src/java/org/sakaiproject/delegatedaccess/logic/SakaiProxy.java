@@ -346,4 +346,11 @@ public interface SakaiProxy {
 	 * @return
 	 */
 	public boolean isUserMember(String userId, String siteRef);
+	
+	/**
+	 * returns a list of users who have site.upd permission for this site
+	 * @param siteId
+	 * @return
+	 */
+	public List<User> getInstructorsForSite(String siteId);
 }

@@ -64,9 +64,7 @@
     	<th><a wicket:id="siteIdSortLink"><wicket:message key="siteIdHeader"/></a></th>
     	<th><a wicket:id="termSortLink"><wicket:message key="termHeader"/></a></th>
     	<th><a wicket:id="accessSortLink"><wicket:message key="access"/></a></th>
-    	<wicket:enclosure child="instructorSortLink">
-    		<th><a wicket:id="instructorSortLink"><wicket:message key="instructorHeader"/></a></th>
-    	</wicket:enclosure>
+   		<th><a wicket:id="instructorSortLink"><wicket:message key="instructorHeader"/></a></th>
     	<wicket:enclosure child="authorizationSortLink">
 	    	<th><a wicket:id="authorizationSortLink"><wicket:message key="shoppingPeriodAuth"/></a></th>
 	    	<th><a wicket:id="startDateSortLink"><wicket:message key="startDate"/></a></th>
@@ -84,7 +82,10 @@
        	 <td><span wicket:id="term">term</span></td>
        	 <td><span wicket:id="access">!site.course:instructor</span></td>
        	 <wicket:enclosure child="instructor">
-	       	 <td><span wicket:id="instructor">Last, First</span></td>
+	       	 <td>
+	       	 	<span wicket:id="instructor">Last, First</span>
+	       	 	<a wicket:id="instructorLookupLink"><wicket:message key="lookupInstructor"/></a>
+	       	 </td>
        	 </wicket:enclosure>
        	 <wicket:enclosure child="authorization">
 	       	 <td><span wicket:id="authorization">Logged In</span></td>
