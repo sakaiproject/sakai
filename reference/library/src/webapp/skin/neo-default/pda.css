@@ -196,7 +196,7 @@ margin below on the toolbar if there is one to make it flush horiz.
 	
 }
 #pda-portlet-page-menu li.subSiteItem, #pda-portlet-site-menu li.subSiteItem{
-	padding-left:1em;
+	padding-left:0;
 }	
 .subSiteItem .textPanelFooter{
 	font-size:.8em;
@@ -208,7 +208,10 @@ margin below on the toolbar if there is one to make it flush horiz.
 	}
 #pda-portlet-page-menu li{
    background:url(images/pda-list-arrow.png) center right no-repeat;
-   }     
+}
+#pda-portlet-page-menu > li.subSites{
+   background:none;
+}
 #pda-portlet-site-menu li{
     background:url(images/pda-site-item.png) center right no-repeat;
 }	
@@ -251,8 +254,8 @@ margin below on the toolbar if there is one to make it flush horiz.
 .skip{
 	display: inline;
 	position: absolute;
-	top: -9999px;
-	left: -9999px;
+	top: -999px;
+	left: -999px;
 	height: 0;
 }
 /*
@@ -781,7 +784,19 @@ background-image: url(../../image/silk/comment.png);
 
 .icon-sakai-profile2 { 
 	background-image: url(../../image/silk/vcard.png); 
-} 
+}
+
+.icon-sakai-summary-calendar {
+    background-image: url(../../image/silk/calendar.png);
+}
+
+.icon-sakai-synoptic-announcement {
+    background-image: url(../../image/silk/flag_blue.png);
+}
+
+.icon-sakai-synoptic-chat {
+    background-image: url(../../image/silk/user_comment.png);
+}
 
 /*admin tools*/
 .icon-sakai-users{
@@ -846,14 +861,17 @@ background-image: url(../../image/silk/comment.png);
 	background-image: url(../../image/sakai/tool-icons/sakai.mneme.admin.png); 
 } 
 .icon-sakai-jforum-tool { 
-    background-image: url(../../image/sakai/sakai.jforum.tool.png); 
+    background-image: url(../../image/sakai/tool-icons/sakai.jforum.tool.png); 
 } 
 .icon-sakai-melete { 
-    background-image: url(../../image/sakai/sakai.melete.png); 
+     background-image: url(../../image/sakai/tool-icons/sakai.melete.png); 
 }
 .icon-sakai-lessonbuildertool {
     background-image: url(../../image/silk/book_open.png);
 }
 .icon-sakai-signup {
 	background-image: url(../../image/silk/date.png);
+}
+.icon-sakai-site-roster2 { 
+	background-image: url(../../image/silk/vcard.png); 
 }
