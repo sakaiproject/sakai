@@ -4220,14 +4220,29 @@ SiteContentAdvisorProvider, SiteContentAdvisorTypeRegistry, EntityTransferrerRef
 	} // removeResource
 
 	/**
-	 * Remove a resource that is locked for update.
+     * Remove a resource that is locked for update.
+     * 
+     * @param edit
+     *        The ContentResourceEdit object to remove.
+     * @exception PermissionException
+     *            if the user does not have permissions to read a containing collection, or to remove this resource.
+     */
+    public void removeResource(ContentResourceEdit edit) throws PermissionException {
+	    removeResource(edit, true);
+	}
+
+	/**
+     * Allows removing a resource while leaving the content alone,
+     * this mostly matters for resources copied by reference
 	 * 
 	 * @param edit
 	 *        The ContentResourceEdit object to remove.
+	 * @param removeContent if true, removes the content as well (default),
+	 *        else only removes the resource record from the DB
 	 * @exception PermissionException
 	 *            if the user does not have permissions to read a containing collection, or to remove this resource.
 	 */
-	public void removeResource(ContentResourceEdit edit) throws PermissionException
+	protected void removeResource(ContentResourceEdit edit, boolean removeContent) throws PermissionException
 	{
 		// check for closed edit
 		if (!edit.isActiveEdit())
@@ -4253,7 +4268,7 @@ SiteContentAdvisorProvider, SiteContentAdvisorTypeRegistry, EntityTransferrerRef
 		addResourceToDeleteTable(edit, uuid, userId);
 
 		// complete the edit
-		m_storage.removeResource(edit);
+		m_storage.removeResource(edit, removeContent);
 
 		// close the edit object
 		((BaseResourceEdit) edit).closeEdit();
@@ -4457,9 +4472,9 @@ SiteContentAdvisorProvider, SiteContentAdvisorTypeRegistry, EntityTransferrerRef
             new_id = copyCollection(thisCollection, new_id);
             removeCollection(thisCollection);
         } else {
-            // rename needs to set referenceCopy
-            new_id = copyResource(thisResource, new_id, true);
-            removeResource(thisResource);
+            // rename should do a reference copy only and not remove the content after
+            new_id = copyResource(thisResource, new_id, true); // set referenceCopy
+            removeResource(thisResource, false); // force content to not be removed
         }
 		return new_id;
 
