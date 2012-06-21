@@ -121,7 +121,6 @@ sakai.editor.editors.ckeditor.launch = function(targetId, config, w, h) {
 
 		//get path of directory ckeditor 
 		//
-		debugger;
 		var basePath = CKEDITOR.basePath; 
 		basePath = basePath.substr(0, basePath.indexOf("ckeditor/"))+"ckextraplugins/"; 
 		//To add extra plugins outside the plugins directory, add them here! (And in the variable)

@@ -26,7 +26,7 @@ Movie.prototype.getInnerHTML = function (objectId){
 	var rnd = Math.floor(Math.random()*1000001);
 	var s = "";
 
-	debugger;
+	//debugger;
 	// html
 	if(mimeSupported.contains(this.contentType)) {
 			var addYoutube = "";
