@@ -30,7 +30,7 @@ ul.makeMenu li {
 <![endif]><![endif]-->
 
 #**#
-<script type ="text/javascript" src ="/library/js/jquery.js">
+<script type ="text/javascript" src ="/library/js/jquery/1.4.2/jquery-1.4.2.min.js">
 <!-- // -->
 </script>
 <script  type ="text/javascript">
@@ -43,15 +43,13 @@ $(document).ready(function() {
 			else
 			{
 				if( e.target.className =='dropdn' ){
-			targetId=$(e.target).parent('li').attr('id');
 			$('.makeMenuChild').hide();
-			$('#menu-' + targetId).show();
+			$(e.target).parent('li').find('ul').show().find('li:first a').focus();
 
 }
 				else{
-			targetId=e.target.id;
 			$('.makeMenuChild').hide();
-			$('#menu-' + targetId).show();
+			$(e.target).find('ul').show().find('li:first a').focus();
 			}}
 	});
 	$('.toggleDescription').click(function(e){
@@ -98,7 +96,7 @@ $(document).ready(function() {
 </script>
 #**#
 #set($num = 0)
-<div class="portletBody specialLink" role="application">
+<div class="portletBody specialLink">
 	#set($itemsOnLine = 0)
 	#if ($atHome && $atHome == $TRUE)
 			<ul class="navIntraTool actionToolBar">
@@ -296,8 +294,7 @@ $(document).ready(function() {
 				</th>
 			</tr>
 			#set ($addCount=20000)
-		  #set ($actionCount=10000)
-			
+			#set ($actionCount=10000)
 			#set($itemcount = 0)
 			#set ($unit ="em")
 			#foreach($item in $site)
@@ -305,10 +302,9 @@ $(document).ready(function() {
 				#set($dqid=$item.id.replaceAll("\"", "&quot;"))
 				#if(!$dropboxGroupFiltered || ($item.isDropbox() && $dropboxGroupFilter_groupUsers.contains($item.DropboxOwner)) )
 				#set($itemcount = $itemcount + 1)
+				#set ($addCount=($addCount - 1))
+				#set ($actionCount=($actionCount - 1))
 				
-					#set ($addCount=($addCount - 1))
-					#set ($actionCount=($actionCount - 1))
-				  
 				#set ($width = "$!{item.depth}$unit")
 				#if ($item.depth==0)	
 					#set ($margin="margin-left:0")
@@ -424,62 +420,46 @@ $(document).ready(function() {
 							#end
 						#end
 					</td>
-					#set ($addCount=($addCount - 1))
-					#set ($actionCount=($actionCount - 1))
-				
 					
-					<td headers="actions2"   class="attach">
-
+					
+					<td headers="actions2" class="attach" role="application">
 					#if($item.addActions && !$item.addActions.isEmpty())
-							<a href="#" onfocus="document.getElementById('menu-$addCount').style.display='none';"></a>
-							<a href="#" onfocus="document.getElementById('menu-$addCount').style.display='block';" class="skip">$tlang.getString("button.startadd")</a>
 
-							<ul style="z-index:$addCount;margin:0;display:block" class="makeMenu">
-							<li  class="menuOpen" id="$addCount">
+							<ul style="margin:0;display:block;z-index:$addCount" class="makeMenu" role="menubar">
+							<li class="menuOpen" tabindex="0" role="menuitem" aria-haspopup="true" aria-label="$tlang.getString("button.add"): $validator.escapeHtml(${item.name}) $item.hoverText">
 									&nbsp;$tlang.getString("button.add") 
 								<img src = "#imageLink("sakai/icon-dropdn.gif")" border="0"  alt="$tlang.getString("button.add")"  class="dropdn"/> 
-									<ul  id="menu-$addCount" class="makeMenuChild">
+									<ul class="makeMenuChild" role="menu">
 										#foreach($action in $item.addActions)
-											<li><a  href="javascript:document.getElementById('selectedItemId').value='$qid';document.getElementById('rt_action').value='${action.typeId}${ACTION_DELIMITER}$action.id';document.getElementById('sakai_action').value='doDispatchAction';submitform('showForm');">$labeler.getLabel($action)</a></li>
+											<li><a role="menuitem" tabindex="-1" style="width:auto" href="javascript:document.getElementById('selectedItemId').value='$qid';document.getElementById('rt_action').value='${action.typeId}${ACTION_DELIMITER}$action.id';document.getElementById('sakai_action').value='doDispatchAction';submitform('showForm');">$labeler.getLabel($action)</a></li>
 										#end
-										<li style="height:1px;width:1px;display:inline;">
-											<a href="#"  class="skip" onfocus="document.getElementById('menu-$addCount').style.display='none';document.getElementById('last-$addCount').focus()" >$tlang.getString("button.endadd")</a>
-										</li>
 									</ul>
 
 									</li>
 
 								</ul>
 
-							<a href="#" id="last-$addCount" class="skip"></a>							
-
 							#end
 
 						</td>
-					<td headers="actions3"   class="attach">
+					<td headers="actions3" class="attach" role="application">
 
 					#if($item.otherActions && !$item.otherActions.isEmpty())
-						<a href="#" onfocus="document.getElementById('menu-$actionCount').style.display='none';" class="skip"></a>
-						<a href="#" onfocus="document.getElementById('menu-$actionCount').style.display='block';" class="skip">$tlang.getString("button.startact")</a>
-							<ul style="z-index:$actionCount ;margin:0;display:block" class="makeMenu">
-								<li class="menuOpen" id="$actionCount">
+							<ul style="margin:0;display:block;z-index:$actionCount" class="makeMenu" role="menubar">
+								<li class="menuOpen" role="menuitem" tabindex="0" aria-label="$tlang.getString("button.actions"): $validator.escapeHtml(${item.name}) $item.hoverText">
 									&nbsp;$tlang.getString("button.actions")
 									<img src = "#imageLink("sakai/icon-dropdn.gif")" border="0"   alt="$tlang.getString("button.actions")" class="dropdn"/>									
-									<ul  id="menu-$actionCount"  class="makeMenuChild">
+									<ul class="makeMenuChild" role="menu">
 										#foreach($action in $item.otherActions)
 											<li>
-												<a  href="javascript:document.getElementById('selectedItemId').value='$qid';document.getElementById('rt_action').value='${action.typeId}${ACTION_DELIMITER}$action.id';document.getElementById('sakai_action').value='doDispatchAction';submitform('showForm');">
+												<a role="menuitem" tabindex="-1" style="width:auto" href="javascript:document.getElementById('selectedItemId').value='$qid';document.getElementById('rt_action').value='${action.typeId}${ACTION_DELIMITER}$action.id';document.getElementById('sakai_action').value='doDispatchAction';submitform('showForm');">
 													$labeler.getLabel($action)
 												</a>
 											</li>
 										#end
-										<li style="height:1px;width:1px;display:inline;">
-											<a href="#" onfocus="document.getElementById('menu-$actionCount').style.display='none';document.getElementById('last-$actionCount').focus()" style="height:1px;margin:0;padding:0"  class="skip">$tlang.getString("button.endact")</a>
-										</li>
 									</ul>
 								</li>
 							</ul>
-							<a href="#" id="last-$actionCount" class="skip"></a>		
 						#end
 
 						</td>
@@ -577,8 +557,6 @@ $(document).ready(function() {
 						#set($qid=$item.id.replaceAll("'","\\'").replaceAll("\"", "&quot;"))
 						#set($dqid=$item.id.replaceAll("\"", "&quot;"))
 						############################### Show top level folder #################
-					#set ($addCount=($addCount - 1))
-					#set ($actionCount=($actionCount - 1))
 					#set ($width = "$!{item.depth}$unit")
 						#if ($item.depth==0)	
 							#set ($margin="margin-left:0")
@@ -695,53 +673,41 @@ $(document).ready(function() {
 									#end
 								#end
 							</td>
-							<td headers="actions2"   class="attach">
+							<td headers="actions2" class="attach" role="application">
 								#if($item.addActions && !$item.addActions.isEmpty())
-									<a href="#" onfocus="document.getElementById('menu-$addCount').style.display='none';"></a>
-									<a href="#" onfocus="document.getElementById('menu-$addCount').style.display='block';" class="skip">$tlang.getString("button.startadd")</a>
-									<ul style="z-index:$addCount;margin:0;display:block" class="makeMenu">
-										<li class="menuOpen" id="$addCount">
+									<ul style="margin:0;display:block" class="makeMenu" role="menubar">
+										<li class="menuOpen" tabindex="0" role="menuitem" aria-haspopup="true" aria-label="$tlang.getString("button.add"): $validator.escapeHtml(${item.name}) $item.hoverText">
 											&nbsp;$tlang.getString("button.add")
 											<img src = "#imageLink("sakai/icon-dropdn.gif")" border="0"  alt="$tlang.getString("button.add")" class="dropdn"/>
-											<ul  id="menu-$addCount" class="makeMenuChild">
+											<ul class="makeMenuChild" role="menu">
 							    #foreach($action in $item.addActions)
 												<li>
-													<a  href="javascript:document.getElementById('selectedItemId').value='$qid';document.getElementById('rt_action').value='${action.typeId}${ACTION_DELIMITER}$action.id';document.getElementById('sakai_action').value='doDispatchAction';submitform('showForm');">$labeler.getLabel($action)</a>
+													<a tabindex="-1" role="menuitem" style="width:auto" href="javascript:document.getElementById('selectedItemId').value='$qid';document.getElementById('rt_action').value='${action.typeId}${ACTION_DELIMITER}$action.id';document.getElementById('sakai_action').value='doDispatchAction';submitform('showForm');">$labeler.getLabel($action)</a>
 												</li>
 							    #end
-										<li style="height:1px;width:1px;display:inline;">
-													<a href="#" onfocus="document.getElementById('menu-$addCount').style.display='none';document.getElementById('last-$addCount').focus()" style="height:1px;margin:0;padding:0" class="skip">$tlang.getString("button.endadd")</a>
-												</li>
 											</ul>
 										</li>
 									</ul>
-									<a href="#" id="last-$addCount" style="height:1px;margin:0;padding:0" class="skip"></a>
 								#end
 
 								</td>
-							<td headers="actions3" class="attach">
+							<td headers="actions3" class="attach" role="application">
 							#if($item.otherActions && !$item.otherActions.isEmpty())
-									<a href="#" onfocus="document.getElementById('menu-$actionCount').style.display='none';"></a>
-									<a href="#" onfocus="document.getElementById('menu-$actionCount').style.display='block';"  class="skip">$tlang.getString("button.startact")</a>
-									<ul style="z-index:$actionCount;margin:0;display:block" class="makeMenu" >
-										<li class="menuOpen" id="$actionCount">
+									<ul style="margin:0;display:block" class="makeMenu" role="menubar">
+										<li class="menuOpen" tabindex="0" role="menuitem" aria-haspopup="true" aria-label="$tlang.getString("button.actions"): $validator.escapeHtml(${item.name}) $item.hoverText">
 											&nbsp;$tlang.getString("button.actions")
 											<img src = "#imageLink("sakai/icon-dropdn.gif")" border="0"   alt="$tlang.getString("button.actions")"  class="dropdn"/>
-											<ul  id="menu-$actionCount" class="makeMenuChild">
+											<ul class="makeMenuChild" role="menu">
 												#foreach($action in $item.otherActions)
 													<li>
-														<a  href="javascript:document.getElementById('selectedItemId').value='$qid';document.getElementById('rt_action').value='${action.typeId}${ACTION_DELIMITER}$action.id';document.getElementById('sakai_action').value='doDispatchAction';submitform('showForm');">
+														<a tabindex="-1" role="menuitem" style="width:auto" href="javascript:document.getElementById('selectedItemId').value='$qid';document.getElementById('rt_action').value='${action.typeId}${ACTION_DELIMITER}$action.id';document.getElementById('sakai_action').value='doDispatchAction';submitform('showForm');">
 															$labeler.getLabel($action)
 														</a>
 													</li>
 												#end
-										<li style="height:1px;width:1px;display:inline;">
- 													<a href="#" onfocus="document.getElementById('menu-$actionCount').style.display='none';document.getElementById('last-$actionCount').focus()" style="height:1px;margin:0;padding:0" title="$tlang.getString("button.endact")" class="skip">$tlang.getString("button.endact")</a>
-												</li>
 											</ul>
 								  	</li>
 									</ul>
-									<a href="#" id="last-$actionCount" ></a>
 								#end
 
 							</td>
@@ -913,6 +879,61 @@ $(document).ready(function() {
 				theForm.submit();
 			}
 		}
+    
+    $('ul.makeMenu').keydown(function(e) { // "Add" and "Action" menus keyboard interaction handler
+	if(e.target.nodeName.toLowerCase() == 'li') {
+	    // Must be an 'add' or 'action' li
+	    switch(e.which) {
+		case 38: // up arrow
+		    e.preventDefault();
+		    e.stopImmediatePropagation();
+		    $('.makeMenuChild').hide();
+		    $(e.target).find('.makeMenuChild').show().find('li:last a').first().focus();
+		    break;
+		case 13: // enter
+		case 32: // space
+		case 40: // down arrow
+		    e.preventDefault();
+		    e.stopImmediatePropagation();
+		    $('.makeMenuChild').hide();
+		    $(e.target).find('.makeMenuChild').show().find('li:first a').first().focus();
+		    break;
+		case 9:
+		    $('.makeMenuChild').hide();
+		    break;
+	    }
+	} else {
+	    // If not a li element, must be a submenu link (nothing else can have keyboard focus)
+	    switch(e.which) {
+		case 32: // space
+		    e.preventDefault();
+		    e.stopImmediatePropagation();
+		    window.location.href = e.target.href; // .trigger('click') didn't work on the anchors, this does though
+		    break;
+		case 38: // up arrow -- does not wrap around
+		    e.preventDefault();
+		    e.stopImmediatePropagation();
+		    $(e.target).parent('li').prev('li').find('a').first().focus();
+		    break;
+		case 40: // down arrow -- does not wrap around
+		    e.preventDefault();
+		    e.stopImmediatePropagation();
+		    $(e.target).parent('li').next('li').find('a').first().focus();
+		    break;
+		case 9: // tab key
+		    // don't stop propagation or default, let browser move the focus!
+		    $('.makeMenuChild').hide();
+		    break;
+		case 27: // esc key
+		    e.preventDefault();
+		    e.stopImmediatePropagation();
+		    $('.makeMenuChild').hide();
+		    $(e.target).parents('ul.makeMenu > li').first().focus();
+		    break;
+	    }
+	}
+    });
+
 	//-->
 </script>
 
