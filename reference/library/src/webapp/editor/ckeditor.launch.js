@@ -120,13 +120,19 @@ sakai.editor.editors.ckeditor.launch = function(targetId, config, w, h) {
     }
 
 		//get path of directory ckeditor 
+		//
+		debugger;
 		var basePath = CKEDITOR.basePath; 
 		basePath = basePath.substr(0, basePath.indexOf("ckeditor/"))+"ckextraplugins/"; 
+		//To add extra plugins outside the plugins directory, add them here! (And in the variable)
 		(function() { 
 		   CKEDITOR.plugins.addExternal('movieplayer',basePath+'movieplayer/', 'plugin.js'); 
-		   CKEDITOR.plugins.addExternal('workcount',basePath+'wordcount/', 'plugin.js'); 
+		   CKEDITOR.plugins.addExternal('wordcount',basePath+'wordcount/', 'plugin.js'); 
+			 ckconfig.extraPlugins+="movieplayer,wordcount";
     })();
-    CKEDITOR.replace(targetId, ckconfig);
+
+	  CKEDITOR.replace(targetId, ckconfig);
+
 }
 
 sakai.editor.launch = sakai.editor.editors.ckeditor.launch;
