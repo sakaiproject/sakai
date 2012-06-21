@@ -70,7 +70,6 @@ public class ConfigItemImpl extends BasicConfigItem implements ConfigItem, Compa
      */
     public boolean secured = false;
 
-
     /**
      * Use this constructor for making requested (unregistered) config items,
      * set the defaultValue manually if it is known
@@ -223,6 +222,14 @@ public class ConfigItemImpl extends BasicConfigItem implements ConfigItem, Compa
             this.defaulted = true;
         }
         return setObjectValue(value, true);
+    }
+
+    protected void setDescription(String desc) {
+        this.description = desc;
+    }
+
+    protected void setDynamic(boolean dynamic) {
+        this.dynamic = dynamic;
     }
 
     private String setObjectValue(Object value, boolean isDefault) {
