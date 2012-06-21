@@ -26,7 +26,7 @@ import org.sakaiproject.component.api.ServerConfigurationService.ConfigHistory;
 import org.sakaiproject.component.api.ServerConfigurationService.ConfigItem;
 
 /**
- * Provides an easy for someone to create a {@link ConfigItem} which is valid without having to build their own implementation
+ * Provides an easy way for someone to create a {@link ConfigItem} which is valid without having to build their own implementation
  * 
  * Use the static methods to easily generate the {@link ConfigItem} for use with the methods in the {@link ServerConfigurationService}
  * 
@@ -46,9 +46,18 @@ public class BasicConfigItem implements ConfigItem {
      */
     protected Object defaultValue = null;
     /**
+     * the human readable description for this configuration value (null if not set)
+     */
+    protected String description = null;
+    /**
      * the name of the most recent source for this config value (e.g. sakai/sakai.properties)
      */
     protected String source = ServerConfigurationService.UNKNOWN;
+    /**
+     * Indicates if this config item is dynamic (true) or static (false).
+     * Default false, static config items cannot be changed at runtime, dynamic items can be changed at runtime
+     */
+    protected boolean dynamic = false;
 
     /**
      * Do NOT use this - INTERNAL ONLY
@@ -61,12 +70,16 @@ public class BasicConfigItem implements ConfigItem {
      * OR if this is a registration for a defaultValue then fill in the defaultValue and leave the value null
      * (either value OR defaultValue MUST be set)
      * 
+     * Recommend use of the static make methods unless you know what you are doing
+     * 
      * @param name the config name key (the ID of this configuration setting)
      * @param value [OPTIONAL] the config value (this IS the configurations setting)
      * @param defaultValue [OPTIONAL] the default value for this config
+     * @param description [OPTIONAL] the human readable description of this config setting
      * @param source [OPTIONAL] the name of the origin for this config setting (defaults to UNKNOWN)
+     * @param dynamic default false, static config items cannot be changed at runtime, dynamic items can be changed at runtime
      */
-    public BasicConfigItem(String name, Object value, Object defaultValue, String source) {
+    public BasicConfigItem(String name, Object value, Object defaultValue, String description, String source, boolean dynamic) {
         if (name == null || "".equals(name)) {
             throw new IllegalArgumentException("name must be set");
         }
@@ -76,9 +89,11 @@ public class BasicConfigItem implements ConfigItem {
         }
         this.value = value;
         this.defaultValue = defaultValue;
+        this.description = description;
         if (source != null && !"".equals(source)) {
             this.source = source;
         }
+        this.dynamic = dynamic;
     }
 
     public int requested() {
@@ -90,7 +105,7 @@ public class BasicConfigItem implements ConfigItem {
     }
 
     public ConfigItem copy() {
-        return new BasicConfigItem(this.name, this.value, this.defaultValue, this.source);
+        return new BasicConfigItem(this.name, this.value, this.defaultValue, this.description, this.source, this.dynamic);
     }
 
     public String getName() {
@@ -103,6 +118,10 @@ public class BasicConfigItem implements ConfigItem {
 
     public String getType() {
         return ServerConfigurationService.UNKNOWN;
+    }
+
+    public String getDescription() {
+        return description;
     }
 
     public String getSource() {
@@ -141,6 +160,10 @@ public class BasicConfigItem implements ConfigItem {
         return false;
     }
 
+    public boolean isDynamic() {
+        return dynamic;
+    }
+
 
     /**
      * Create a config item which stores a default value but does not have an actual value
@@ -150,18 +173,57 @@ public class BasicConfigItem implements ConfigItem {
      * @return the {@link ConfigItem} which can be registered with the {@link ServerConfigurationService}
      */
     public static ConfigItem makeDefaultedConfigItem(String name, Object defaultValue, String source) {
-        return new BasicConfigItem(name, null, defaultValue, source);
+        return new BasicConfigItem(name, null, defaultValue, null, source, false);
     }
 
     /**
-     * Create a config item which stores a default value but does not have an actual value
+     * Create a basic config item which stores a value
      * @param name the config name key
-     * @param defaultValue the default value for this config
+     * @param value the default value for this config
      * @param source the origin of this config setting
      * @return the {@link ConfigItem} which can be registered with the {@link ServerConfigurationService}
      */
     public static ConfigItem makeConfigItem(String name, Object value, String source) {
-        return new BasicConfigItem(name, value, null, source);
+        return new BasicConfigItem(name, value, null, null, source, false);
+    }
+
+    /**
+     * Create a basic config item which can be dynamic
+     * @param name the config name key
+     * @param value the default value for this config
+     * @param source the origin of this config setting
+     * @param dynamic default false, static config items cannot be changed at runtime, dynamic items can be changed at runtime
+     * @return the {@link ConfigItem} which can be registered with the {@link ServerConfigurationService}
+     */
+    public static ConfigItem makeConfigItem(String name, Object value, String source, boolean dynamic) {
+        return new BasicConfigItem(name, value, null, null, source, dynamic);
+    }
+
+    /**
+     * Create a basic config item with description which can be dynamic
+     * @param name the config name key
+     * @param value the default value for this config
+     * @param description the human readable description of this configuration value
+     * @param source the origin of this config setting
+     * @param dynamic default false, static config items cannot be changed at runtime, dynamic items can be changed at runtime
+     * @return the {@link ConfigItem} which can be registered with the {@link ServerConfigurationService}
+     */
+    public static ConfigItem makeConfigItem(String name, Object value, String description, String source, boolean dynamic) {
+        return new BasicConfigItem(name, value, null, description, source, dynamic);
+    }
+
+    /**
+     * Create a complete config item with default value and a description which can be dynamic
+     * @param name the config name key
+     * @param value the default value for this config
+     * @param defaultValue the default value for this config
+     * @param description the human readable description of this configuration value
+     * @param source the origin of this config setting
+     * @param dynamic default false, static config items cannot be changed at runtime, dynamic items can be changed at runtime
+     * @return the {@link ConfigItem} which can be registered with the {@link ServerConfigurationService}
+     */
+    public static ConfigItem makeConfigItem(String name, Object value, Object defaultValue, String description, String source, boolean dynamic) {
+        return new BasicConfigItem(name, value, defaultValue, description, source, dynamic);
     }
 
 }

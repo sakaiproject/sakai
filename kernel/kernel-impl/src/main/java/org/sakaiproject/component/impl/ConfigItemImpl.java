@@ -22,8 +22,10 @@
 package org.sakaiproject.component.impl;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 
+import org.apache.commons.lang.StringUtils;
 import org.sakaiproject.component.api.ServerConfigurationService;
 import org.sakaiproject.component.api.ServerConfigurationService.ConfigHistory;
 import org.sakaiproject.component.api.ServerConfigurationService.ConfigItem;
@@ -116,13 +118,28 @@ public class ConfigItemImpl extends BasicConfigItem implements ConfigItem, Compa
     }
 
     /**
+     * Make an impl from something that implements ConfigItem by copying the field values
+     * @param ci a ci object
+     */
+    public ConfigItemImpl(ConfigItem ci) {
+        this(ci.getName(), ci.getValue(), ci.getType(), ci.getDescription(), ci.getSource(), ci.getDefaultValue(),
+                ci.getRequested(), ci.getChanged(), null, ci.isRegistered(), ci.isDefaulted(), ci.isSecured(), ci.isDynamic());
+        if (ci.getHistory() != null) {
+            this.history = Arrays.asList(ci.getHistory());
+        } else {
+            this.history = new ArrayList<ConfigHistory>();
+        }
+    }
+
+    /**
      * FULL (really just for copy and testing)
      */
-    public ConfigItemImpl(String name, Object value, String type, String source, Object defaultValue, 
-            int requested, int changed, List<ConfigHistory> history, boolean registered, boolean defaulted, boolean secured) {
+    public ConfigItemImpl(String name, Object value, String type, String description, String source, Object defaultValue, 
+            int requested, int changed, List<ConfigHistory> history, boolean registered, boolean defaulted, boolean secured, boolean dynamic) {
         this.name = name;
         this.value = value;
         this.type = type;
+        this.description = description;
         this.source = source;
         this.defaultValue = defaultValue;
         this.requested = requested;
@@ -131,6 +148,25 @@ public class ConfigItemImpl extends BasicConfigItem implements ConfigItem, Compa
         this.registered = registered;
         this.defaulted = defaulted;
         this.secured = secured;
+        this.dynamic = dynamic;
+    }
+
+    /**
+     * merges the contents of one config item (the safely changed fields) into this one
+     * @param ci any config item
+     */
+    public void merge(ConfigItem ci) {
+        if (ci != null) {
+            //this.name = name;
+            this.value = ci.getValue();
+            this.type = setValue(ci.getValue());
+            this.description = ci.getDescription();
+            if (!StringUtils.isBlank(ci.getSource())) {
+                this.source = ci.getSource();
+            }
+            this.defaultValue = ci.getDefaultValue();
+            this.dynamic = ci.isDynamic();
+        }
     }
 
     @Override
@@ -167,8 +203,8 @@ public class ConfigItemImpl extends BasicConfigItem implements ConfigItem, Compa
      */
     @Override
     public ConfigItem copy() {
-        ConfigItem ci = new ConfigItemImpl(this.name, this.value, this.type, this.source, this.defaultValue, 
-                this.requested, this.changed, this.history, this.registered, this.defaulted, this.secured);
+        ConfigItem ci = new ConfigItemImpl(this.name, this.value, this.type, this.description, this.source, this.defaultValue, 
+                this.requested, this.changed, this.history, this.registered, this.defaulted, this.secured, this.dynamic);
         return ci;
     }
 

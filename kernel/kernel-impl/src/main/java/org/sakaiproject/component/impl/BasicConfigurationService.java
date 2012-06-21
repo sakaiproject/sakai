@@ -43,6 +43,7 @@ import org.apache.commons.lang.StringUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.sakaiproject.component.api.ServerConfigurationService;
+import org.sakaiproject.component.api.ServerConfigurationService.ConfigurationListener.BlockingConfigItem;
 import org.sakaiproject.thread_local.api.ThreadLocalManager;
 import org.sakaiproject.tool.api.SessionManager;
 import org.sakaiproject.util.SakaiProperties;
@@ -974,41 +975,79 @@ public class BasicConfigurationService implements ServerConfigurationService, Ap
     protected ConfigItemImpl addConfigItem(ConfigItemImpl configItem, String source) {
         ConfigItemImpl ci = null;
         if (configItem != null) {
+            ConfigItemImpl currentCI = null;
             if (configurationItems.containsKey(configItem.getName())) {
-                // update it
-                ConfigItemImpl currentCI = configurationItems.get(configItem.getName());
-                if (!SOURCE_GET_STRINGS.equals(source)) {
-                    // only update if the source is not the getStrings() method
-                    currentCI.changed(configItem.getValue(), source);
-                }
-                ci = currentCI;
-            } else {
-                // add it
-                configItem.setSource(source);
-                if (secureConfigurationKeys.contains(configItem.getName())) {
-                    configItem.secured = true;
-                }
-                configurationItems.put(configItem.getName(), configItem);
-                ci = configItem;
+                // item exists
+                currentCI = configurationItems.get(configItem.getName());
             }
 
-            // notify the listeners
+            // notify the before listeners
+            boolean haltProcessing = false;
             if (this.listeners != null && !this.listeners.isEmpty()) {
                 for (Entry<String, WeakReference<ConfigurationListener>> entry : this.listeners.entrySet()) {
                     // check if any listener refs are no longer valid
                     ConfigurationListener listener = entry.getValue().get();
                     if (listener != null) {
                         try {
-                            listener.changed(ci);
+                            ConfigItem rvci = listener.changing(currentCI, configItem);
+                            if (rvci == null) {
+                                // continue
+                            } else if (rvci instanceof BlockingConfigItem) {
+                                haltProcessing = true;
+                                M_log.info("add configItem ("+configItem+") processing halted by "+listener);
+                                break; // HALT processing
+                            } else {
+                                // merge in the safe changes to the config item
+                                configItem.merge(rvci);
+                            }
                         } catch (Exception e) {
                             M_log.warn("Exception when calling listener ("+listener+"): "+e);
                         }
                     } else {
+                        // cleanup bad listener ref
                         this.listeners.remove(entry.getKey());
                     }
                 }
             }
-            // DONE with notifying listeners
+
+            if (!haltProcessing) {
+                // update the config item
+                if (currentCI != null) {
+                    // update it
+                    if (!SOURCE_GET_STRINGS.equals(source)) {
+                        // only update if the source is not the getStrings() method
+                        currentCI.changed(configItem.getValue(), source);
+                    }
+                    ci = currentCI;
+                } else {
+                    // add the new one
+                    configItem.setSource(source);
+                    if (secureConfigurationKeys.contains(configItem.getName())) {
+                        configItem.secured = true;
+                    }
+                    configurationItems.put(configItem.getName(), configItem);
+                    ci = configItem;
+                }
+
+                // notify the after listeners
+                if (this.listeners != null && !this.listeners.isEmpty()) {
+                    for (Entry<String, WeakReference<ConfigurationListener>> entry : this.listeners.entrySet()) {
+                        // check if any listener refs are no longer valid
+                        ConfigurationListener listener = entry.getValue().get();
+                        if (listener != null) {
+                            try {
+                                listener.changed(ci, currentCI);
+                            } catch (Exception e) {
+                                M_log.warn("Exception when calling listener ("+listener+"): "+e);
+                            }
+                        } else {
+                            // cleanup bad listener ref
+                            this.listeners.remove(entry.getKey());
+                        }
+                    }
+                }
+                // DONE with notifying listeners
+            }
         }
         return ci;
     }
