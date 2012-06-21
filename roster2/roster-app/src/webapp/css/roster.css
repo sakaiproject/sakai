@@ -138,3 +138,7 @@ table.rosterPermissions {
 }
 
 @media print  { .noprint  { display: none; } }
+
+#roster_type_selector {
+    margin-bottom: 15px;
+}

@@ -47,6 +47,7 @@
 			<groupId>org.sakaiproject.entitybroker</groupId>
 			<artifactId>entitybroker-api</artifactId>
 			<scope>provided</scope>
+			<version>${entitybroker.version}</version>
 		</dependency>
 		<dependency>
 			<groupId>org.sakaiproject.entitybroker</groupId>

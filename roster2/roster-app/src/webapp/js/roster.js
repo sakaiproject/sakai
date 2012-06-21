@@ -291,7 +291,7 @@ function switchState(state, arg, searchQuery) {
 		
 		configureOverviewTableSort();
 		
-		var members = getMembers(searchQuery, false, state);
+		var members = getMembers(searchQuery, false, state, false);
 		var roles = getRolesUsingRosterMembers(members, site.userRoles);
 		
 		SakaiUtils.renderTrimpathTemplate('roster_overview_header_template',
@@ -350,7 +350,13 @@ function switchState(state, arg, searchQuery) {
 			viewSingleColumn = true;
 		}
 		
-		var members = getMembers(searchQuery, true, state);
+		var members = {};
+        
+        if(arg && arg.forceOfficialPicture) {
+            members = getMembers(searchQuery, true, state, true);
+        } else {
+            members = getMembers(searchQuery, true, state, false);
+        }
 		var roles = getRolesUsingRosterMembers(members, site.userRoles);
 		
 		SakaiUtils.renderTrimpathTemplate('roster_pics_header_template',
@@ -370,23 +376,59 @@ function switchState(state, arg, searchQuery) {
 				{'roleFragments':getRoleFragments(roles),
 				'participants':getCurrentlyDisplayingParticipants(roles)},
 				'roster_search');
-		
 
-		SakaiUtils.renderTrimpathTemplate('roster_pics_template',
-				{'language':language, 'membership':members, 'siteId':rosterSiteId,
+		SakaiUtils.renderTrimpathTemplate('roster_pics_wrapper_template',{},'roster_content');
+
+		$(document).ready(function() {
+			
+	        $('#roster_official_picture_button').click(function(e) {
+                var members = getMembers(searchQuery, true, state, true);
+		        SakaiUtils.renderTrimpathTemplate('roster_pics_template',
+				    {'language':language,
+                    'membership':members,
+                    'siteId':rosterSiteId,
+				    'currentUserId':rosterCurrentUser.id,
+				    'groupToView':groupToView,
+                    'viewSingleColumn':viewSingleColumn,
+				    'hideNames':hideNames,
+				    'viewUserDisplayId':viewUserDisplayId,
+				    'viewProfile':rosterCurrentUserPermissions.viewProfile,
+				    'viewConnections':(undefined != window.friendStatus)}, // do we have Profile2 1.4 for adding, removing etc. connections?
+				    'roster_pics');
+	        });
+	
+	        $('#roster_profile_picture_button').click(function(e) {
+                var members = getMembers(searchQuery, true, state, false);
+		        SakaiUtils.renderTrimpathTemplate('roster_pics_template',
+				    {'language':language,
+                    'membership':members,
+                    'siteId':rosterSiteId,
+				    'currentUserId':rosterCurrentUser.id,
+				    'groupToView':groupToView,
+                    'viewSingleColumn':viewSingleColumn,
+				    'hideNames':hideNames,
+				    'viewUserDisplayId':viewUserDisplayId,
+				    'viewProfile':rosterCurrentUserPermissions.viewProfile,
+				    'viewConnections':(undefined != window.friendStatus)}, // do we have Profile2 1.4 for adding, removing etc. connections?
+				    'roster_pics');
+	        });
+
+			readySearchButton(state);
+			readyClearButton(state);
+			readySectionFilter(site, state);
+
+		    SakaiUtils.renderTrimpathTemplate('roster_pics_template',
+				{'language':language,
+                'membership':members,
+                'siteId':rosterSiteId,
 				'currentUserId':rosterCurrentUser.id,
-				'groupToView':groupToView, 'viewSingleColumn':viewSingleColumn,
+				'groupToView':groupToView,
+                'viewSingleColumn':viewSingleColumn,
 				'hideNames':hideNames,
 				'viewUserDisplayId':viewUserDisplayId,
 				'viewProfile':rosterCurrentUserPermissions.viewProfile,
 				'viewConnections':(undefined != window.friendStatus)}, // do we have Profile2 1.4 for adding, removing etc. connections?
-				'roster_content');
-		
-		$(document).ready(function() {
-			
-			readySearchButton(state);
-			readyClearButton(state);
-			readySectionFilter(site, state);
+				'roster_pics');
 			
 			readyHideNamesButton(state, searchQuery);
 			
@@ -576,7 +618,7 @@ function getRosterSite() {
 		
 }
 
-function getRosterMembership(groupId, sorted, sortField, sortDirection, state) {
+function getRosterMembership(groupId, sorted, sortField, sortDirection, state, forceOfficialPicture) {
 	
 	var membership;
 	
@@ -613,7 +655,10 @@ function getRosterMembership(groupId, sorted, sortField, sortDirection, state) {
 	
 	if (STATE_PICTURES === state) {
 		for (var i = 0, j = membership.length; i < j; i++) {
-			membership[i].profileImageUrl = "/direct/profile/" + membership[i].userId + "/image";
+		 membership[i].profileImageUrl = "/direct/profile/" + membership[i].userId + "/image";
+            if(forceOfficialPicture == true) {
+			    membership[i].profileImageUrl += "/official";
+            }
 		}
 	}
 		
@@ -811,18 +856,19 @@ function getRolesByGroupRoleFragments(site, members) {
 	return rolesByGroupRoleFragments;
 }
 
-function getMembers(searchQuery, sorted, state) {
+function getMembers(searchQuery, sorted, state, forceOfficialPicture) {
 		
 	var members;
 	
 	// view all users
 	if (groupToViewText === roster_sections_all ||
 			groupToViewText === roster_section_sep_line) {
+
+        members = getRosterMembership(null, sorted, null, null, state,forceOfficialPicture);
 		
-		members = getRosterMembership(null, sorted, null, null, state);			
 	// view a specific group (note: search is done within group if selected)
 	} else {
-		members = getRosterMembership(groupToView, sorted, null, null, state);
+		members = getRosterMembership(groupToView, sorted, null, null, state, forceOfficialPicture);
 	}
 
 	if (searchQuery) {

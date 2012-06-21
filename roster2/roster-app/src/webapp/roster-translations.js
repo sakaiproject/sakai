@@ -63,6 +63,9 @@ export_roster="Export";
 // Show/hide names button
 roster_show_names="Show Names";
 roster_hide_names="Hide Names";
+// Official/Profile radio
+roster_show_official_pictures="Official Photos";
+roster_show_profile_pictures="Pictures from Profile";
 // Profile
 show_profile="View Profile for this participant";
 profile_connection_accept="Accept connection";
