@@ -35,9 +35,9 @@ public class SiteMembershipRemoveEventProcessor implements EventProcessor {
 
 	private static Logger logger = Logger.getLogger(SiteMembershipRemoveEventProcessor.class);
 	
-	protected DashboardLogic dashboardLogic;
-	public void setDashboardLogic(DashboardLogic dashboardLogic) {
-		this.dashboardLogic = dashboardLogic;
+	protected DashboardCommonLogic dashboardCommonLogic;
+	public void setDashboardLogic(DashboardCommonLogic dashboardCommonLogic) {
+		this.dashboardCommonLogic = dashboardCommonLogic;
 	}
 	
 	protected SakaiProxy sakaiProxy;
@@ -84,14 +84,14 @@ public class SiteMembershipRemoveEventProcessor implements EventProcessor {
 		if (uid != null && context != null)
 		{
 			// now that we know the user is removed from the context, we will remove all caldendar item links and news item links
-			this.dashboardLogic.removeNewsLinks(uid, context);
-			this.dashboardLogic.removeCalendarLinks(uid, context);
+			this.dashboardCommonLogic.removeNewsLinks(uid, context);
+			this.dashboardCommonLogic.removeCalendarLinks(uid, context);
 		}
 
 	}
 
 	public void init() {
 		
-		this.dashboardLogic.registerEventProcessor(this);
+		this.dashboardCommonLogic.registerEventProcessor(this);
 	}
 }

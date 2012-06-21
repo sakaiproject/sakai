@@ -109,7 +109,7 @@ public class MOTDPanel extends Panel {
 		
 		motdDiv.add(new Label("motdPanelTitle", rl.getString("dash.motd.title")));
 		
-		List<NewsItem> motdList = dashboardLogic.getMOTD();
+		List<NewsItem> motdList = dashboardCommonLogic.getMOTD();
 		if(motdList == null || motdList.isEmpty()) {
 			motdDiv.add(new Label("motdId", "0@0"));
 			motdDiv.add(new Label("motdText", "No new messages"));
@@ -122,20 +122,20 @@ public class MOTDPanel extends Panel {
 		} else {
 			NewsItem motd = motdList.get(0);
 			motdDiv.add(new Label("motdId", motd.getId() + "@" + motd.getNewsTime().getTime()));
-			Map<String, Object> info = dashboardLogic.getEntityMapping(motd.getSourceType().getIdentifier(), motd.getEntityReference(), getLocale());
-			motdDiv.add(new Label("motdTitle", (String) info.get(EntityType.VALUE_TITLE)));
-			Label motdText = new Label("motdText", (String) info.get(EntityType.VALUE_DESCRIPTION));
+			Map<String, Object> info = dashboardCommonLogic.getEntityMapping(motd.getSourceType().getIdentifier(), motd.getEntityReference(), getLocale());
+			motdDiv.add(new Label("motdTitle", (String) info.get(DashboardEntityInfo.VALUE_TITLE)));
+			Label motdText = new Label("motdText", (String) info.get(DashboardEntityInfo.VALUE_DESCRIPTION));
 			motdText.setEscapeModelStrings(false);
 			motdDiv.add(motdText);
 			RepeatingView attachments = new RepeatingView("attachments");
 			motdDiv.add(attachments);
-			if(info.containsKey(EntityType.VALUE_ATTACHMENTS)) {
-				List<Map<String,String>> list = (List) info.get(EntityType.VALUE_ATTACHMENTS);
+			if(info.containsKey(DashboardEntityInfo.VALUE_ATTACHMENTS)) {
+				List<Map<String,String>> list = (List) info.get(DashboardEntityInfo.VALUE_ATTACHMENTS);
 				for(Map<String,String> attInfo : list) {
 					WebMarkupContainer attItem = new WebMarkupContainer(attachments.newChildId());
 					attachments.add(attItem);
-					ExternalLink attLink = new ExternalLink("attachment-link", attInfo.get(EntityType.VALUE_ATTACHMENT_URL), attInfo.get(EntityType.VALUE_ATTACHMENT_TITLE));
-					attLink.add(new AttributeModifier("target", true, new Model<String>( attInfo.get(EntityType.VALUE_ATTACHMENT_TARGET) )));
+					ExternalLink attLink = new ExternalLink("attachment-link", attInfo.get(DashboardEntityInfo.VALUE_ATTACHMENT_URL), attInfo.get(DashboardEntityInfo.VALUE_ATTACHMENT_TITLE));
+					attLink.add(new AttributeModifier("target", true, new Model<String>( attInfo.get(DashboardEntityInfo.VALUE_ATTACHMENT_TARGET) )));
 					attItem.add(attLink);
 				}
 			} else {
@@ -203,12 +203,12 @@ public class MOTDPanel extends Panel {
 					@Override
 					public Object getObject() {
 						// TODO Auto-generated method stub
-						return dashboardLogic.getEntityIconUrl(nItem.getSourceType().getIdentifier(), nItem.getSubtype());
+						return dashboardCommonLogic.getEntityIconUrl(nItem.getSourceType().getIdentifier(), nItem.getSubtype());
 					}
                 	
                 }));
                 item.add(icon);
-                String newsItemLabel = dashboardLogic.getString(nItem.getNewsTimeLabelKey(), "", itemType);
+                String newsItemLabel = dashboardCommonLogic.getString(nItem.getNewsTimeLabelKey(), "", itemType);
                 if(newsItemLabel == null) {
                 	newsItemLabel = "";
                 }
@@ -238,7 +238,7 @@ public class MOTDPanel extends Panel {
 							//logger.debug(this.getModelObject());
 							
 							String sakaiUserId = sakaiProxy.getCurrentUserId();
-							boolean success = dashboardLogic.keepNewsItem(sakaiUserId, newsItemId);
+							boolean success = dashboardCommonLogic.keepNewsItem(sakaiUserId, newsItemId);
 							
 							// if success adjust UI, else report failure?
 							if(success) {
@@ -414,7 +414,7 @@ public class MOTDPanel extends Panel {
 
 		private List<NewsItem> getData() {
 			if(motd == null) {
-				motd = dashboardLogic.getMOTD();
+				motd = dashboardCommonLogic.getMOTD();
 			}
 			
 			if(logger.isDebugEnabled()) {

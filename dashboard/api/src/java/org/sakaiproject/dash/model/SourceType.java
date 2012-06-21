@@ -22,9 +22,6 @@
 package org.sakaiproject.dash.model;
 
 import java.io.Serializable;
-import java.util.Arrays;
-
-import org.sakaiproject.dash.entity.EntityLinkStrategy;
 
 
 /**

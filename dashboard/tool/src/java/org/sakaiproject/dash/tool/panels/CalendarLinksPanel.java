@@ -148,7 +148,7 @@ public class CalendarLinksPanel extends Panel {
 				target.addComponent(CalendarLinksPanel.this);
 				target.appendJavascript("resizeFrame('grow');");
 				target.appendJavascript("$('#schedPanel').focus();");
-				dashboardLogic.recordDashboardActivity(DashboardLogic.EVENT_DASH_TABBING, "/dashboard/calendar/upcoming");
+				dashboardCommonLogic.recordDashboardActivity(DashboardCommonLogic.EVENT_DASH_TABBING, "/dashboard/calendar/upcoming");
 			}
         	
         };
@@ -181,7 +181,7 @@ public class CalendarLinksPanel extends Panel {
 				target.addComponent(CalendarLinksPanel.this);
 				target.appendJavascript("resizeFrame('grow');");
 				target.appendJavascript("$('#schedPanel').focus();");
-				dashboardLogic.recordDashboardActivity(DashboardLogic.EVENT_DASH_TABBING, "/dashboard/calendar/past");
+				dashboardCommonLogic.recordDashboardActivity(DashboardCommonLogic.EVENT_DASH_TABBING, "/dashboard/calendar/past");
 			}
         	
         };
@@ -213,7 +213,7 @@ public class CalendarLinksPanel extends Panel {
 				target.addComponent(CalendarLinksPanel.this);
 				target.appendJavascript("resizeFrame('grow');");
 				target.appendJavascript("$('#schedPanel').focus();");
-				dashboardLogic.recordDashboardActivity(DashboardLogic.EVENT_DASH_TABBING, "/dashboard/calendar/starred");
+				dashboardCommonLogic.recordDashboardActivity(DashboardCommonLogic.EVENT_DASH_TABBING, "/dashboard/calendar/starred");
 			}
         	
         };
@@ -245,7 +245,7 @@ public class CalendarLinksPanel extends Panel {
 				target.addComponent(CalendarLinksPanel.this);
 				target.appendJavascript("resizeFrame('grow');");
 				target.appendJavascript("$('#schedPanel').focus();");
-				dashboardLogic.recordDashboardActivity(DashboardLogic.EVENT_DASH_TABBING, "/dashboard/calendar/hidden");
+				dashboardCommonLogic.recordDashboardActivity(DashboardCommonLogic.EVENT_DASH_TABBING, "/dashboard/calendar/hidden");
 			}
         	
         };
@@ -305,7 +305,7 @@ public class CalendarLinksPanel extends Panel {
 						@Override
 						public Object getObject() {
 							// TODO Auto-generated method stub
-							return dashboardLogic.getEntityIconUrl(cItem.getSourceType().getIdentifier(), cItem.getSubtype());
+							return dashboardCommonLogic.getEntityIconUrl(cItem.getSourceType().getIdentifier(), cItem.getSubtype());
 						}
 	                	
 	                }));
@@ -320,7 +320,7 @@ public class CalendarLinksPanel extends Panel {
 					itemLink.add(new Label("itemClick",rl.getString("dash.details")));
 					item.add(itemLink);
 					
-	                String calendarItemLabel = dashboardLogic.getString(cItem.getCalendarTimeLabelKey(), "", itemType);
+	                String calendarItemLabel = dashboardCommonLogic.getString(cItem.getCalendarTimeLabelKey(), "", itemType);
 	                if(calendarItemLabel == null) {
 	                	calendarItemLabel = "";
 	                }
@@ -340,8 +340,8 @@ public class CalendarLinksPanel extends Panel {
 								//logger.debug(this.getModelObject());
 								
 								String sakaiUserId = sakaiProxy.getCurrentUserId();
-								boolean success = dashboardLogic.unkeepCalendarItem(sakaiUserId, calendarItemId);
-								dashboardLogic.recordDashboardActivity(DashboardLogic.EVENT_DASH_UNSTAR, "/dashboard/calendar/" + selectedCalendarTab + "/" + calendarItemId);
+								boolean success = dashboardCommonLogic.unkeepCalendarItem(sakaiUserId, calendarItemId);
+								dashboardCommonLogic.recordDashboardActivity(DashboardCommonLogic.EVENT_DASH_UNSTAR, "/dashboard/calendar/" + selectedCalendarTab + "/" + calendarItemId);
 								
 								// if success adjust UI, else report failure?
 								if(success) {
@@ -349,8 +349,8 @@ public class CalendarLinksPanel extends Panel {
 									if(TAB_ID_STARRED.equals(selectedCalendarTab)) {
 										ResourceLoader rl = new ResourceLoader("dash_entity");
 
-										CalendarItem changedItem = dashboardLogic.getCalendarItem(calendarItemId);
-										JsonHelper jsonHelper = new JsonHelper(dashboardLogic, dashboardConfig);
+										CalendarItem changedItem = dashboardCommonLogic.getCalendarItem(calendarItemId);
+										JsonHelper jsonHelper = new JsonHelper(dashboardCommonLogic, dashboardConfig);
 										String jsonStr = jsonHelper.getJsonObjectFromCalendarItem(changedItem).toString();
 										String javascript = "reportSuccess('" + rl.getString("dash.ajax.unstar.success") + "'," + jsonStr + ",'" + "not-sure-about-url-yet" + "');";
 										target.appendJavascript(javascript);
@@ -406,8 +406,8 @@ public class CalendarLinksPanel extends Panel {
 								ResourceLoader rl = new ResourceLoader("dash_entity");
 
 								String sakaiUserId = sakaiProxy.getCurrentUserId();
-								boolean success = dashboardLogic.keepCalendarItem(sakaiUserId, calendarItemId);
-								dashboardLogic.recordDashboardActivity(DashboardLogic.EVENT_DASH_STAR, "/dashboard/calendar/" + selectedCalendarTab + "/" + calendarItemId);
+								boolean success = dashboardCommonLogic.keepCalendarItem(sakaiUserId, calendarItemId);
+								dashboardCommonLogic.recordDashboardActivity(DashboardCommonLogic.EVENT_DASH_STAR, "/dashboard/calendar/" + selectedCalendarTab + "/" + calendarItemId);
 								
 								// if success adjust UI, else report failure?
 								if(success) {
@@ -461,16 +461,16 @@ public class CalendarLinksPanel extends Panel {
 								logger.debug(calendarItemId);
 								//logger.debug(this.getModelObject());
 								String sakaiUserId = sakaiProxy.getCurrentUserId();
-								boolean success = dashboardLogic.unhideCalendarItem(sakaiUserId, calendarItemId);
-								dashboardLogic.recordDashboardActivity(DashboardLogic.EVENT_DASH_SHOW, "/dashboard/calendar/" + selectedCalendarTab + "/" + calendarItemId);
+								boolean success = dashboardCommonLogic.unhideCalendarItem(sakaiUserId, calendarItemId);
+								dashboardCommonLogic.recordDashboardActivity(DashboardCommonLogic.EVENT_DASH_SHOW, "/dashboard/calendar/" + selectedCalendarTab + "/" + calendarItemId);
 								
 								// if success adjust UI, else report failure?
 								if(success) {
 									ResourceLoader rl = new ResourceLoader("dash_entity");
 
 									target.addComponent(CalendarLinksPanel.this);
-									CalendarItem changedItem = dashboardLogic.getCalendarItem(calendarItemId);
-									JsonHelper jsonHelper = new JsonHelper(dashboardLogic, dashboardConfig);
+									CalendarItem changedItem = dashboardCommonLogic.getCalendarItem(calendarItemId);
+									JsonHelper jsonHelper = new JsonHelper(dashboardCommonLogic, dashboardConfig);
 									String jsonStr = jsonHelper.getJsonObjectFromCalendarItem(changedItem).toString();
 									String javascript = "reportSuccess('" + rl.getString("dash.ajax.show.success") + "'," + jsonStr + ",'" + "not-sure-about-url-yet" + "');";
 									target.appendJavascript(javascript );
@@ -522,8 +522,8 @@ public class CalendarLinksPanel extends Panel {
 								logger.debug(calendarItemId);
 								//logger.debug(this.getModelObject());
 								String sakaiUserId = sakaiProxy.getCurrentUserId();
-								boolean success = dashboardLogic.hideCalendarItem(sakaiUserId, calendarItemId);
-								dashboardLogic.recordDashboardActivity(DashboardLogic.EVENT_DASH_HIDE, "/dashboard/calendar/" + selectedCalendarTab + "/" + calendarItemId);
+								boolean success = dashboardCommonLogic.hideCalendarItem(sakaiUserId, calendarItemId);
+								dashboardCommonLogic.recordDashboardActivity(DashboardCommonLogic.EVENT_DASH_HIDE, "/dashboard/calendar/" + selectedCalendarTab + "/" + calendarItemId);
 								
 								// if success adjust UI, else report failure?
 								if(success) {
@@ -531,8 +531,8 @@ public class CalendarLinksPanel extends Panel {
 									//renderItemCounter(calendarLinksDiv, calendarDataView); 
 									target.addComponent(CalendarLinksPanel.this);
 									
-									CalendarItem changedItem = dashboardLogic.getCalendarItem(calendarItemId);
-									JsonHelper jsonHelper = new JsonHelper(dashboardLogic, dashboardConfig);
+									CalendarItem changedItem = dashboardCommonLogic.getCalendarItem(calendarItemId);
+									JsonHelper jsonHelper = new JsonHelper(dashboardCommonLogic, dashboardConfig);
 									String jsonStr = jsonHelper.getJsonObjectFromCalendarItem(changedItem).toString();
 									String javascript = "reportSuccess('" + rl.getString("dash.ajax.hide.success") + "'," + jsonStr + ",'" + "not-sure-about-url-yet" + "');";
 									target.appendJavascript(javascript );
@@ -635,7 +635,7 @@ public class CalendarLinksPanel extends Panel {
         		super.onBeforeRender();
         		
         		if(this.getPageable().getCurrentPage() != currentPage) {
-    				dashboardLogic.recordDashboardActivity(DashboardLogic.EVENT_DASH_PAGING, "/dashboard/calendar/" + selectedCalendarTab);
+    				dashboardCommonLogic.recordDashboardActivity(DashboardCommonLogic.EVENT_DASH_PAGING, "/dashboard/calendar/" + selectedCalendarTab);
     				currentPage = this.getPageable().getCurrentPage();
         		}
 
@@ -800,25 +800,25 @@ public class CalendarLinksPanel extends Panel {
 					return new ArrayList<CalendarLink>();
 				}
 				if(TAB_ID_UPCOMING.equals(this.calendarTabId) && sakaiProxy.isWorksite(siteId)) {
-					calendarLinks = dashboardLogic.getFutureCalendarLinks(sakaiId, null, false);
+					calendarLinks = dashboardCommonLogic.getFutureCalendarLinks(sakaiId, null, false);
 				} else if(TAB_ID_UPCOMING.equals(this.calendarTabId)) {
-					calendarLinks = dashboardLogic.getFutureCalendarLinks(sakaiId, siteId, false);
+					calendarLinks = dashboardCommonLogic.getFutureCalendarLinks(sakaiId, siteId, false);
 				} else if(TAB_ID_STARRED.equals(this.calendarTabId) && sakaiProxy.isWorksite(siteId)) {
-					calendarLinks = dashboardLogic.getStarredCalendarLinks(sakaiId, null);
+					calendarLinks = dashboardCommonLogic.getStarredCalendarLinks(sakaiId, null);
 				} else if(TAB_ID_STARRED.equals(this.calendarTabId)) {
-					calendarLinks = dashboardLogic.getStarredCalendarLinks(sakaiId, siteId);
+					calendarLinks = dashboardCommonLogic.getStarredCalendarLinks(sakaiId, siteId);
 				} else if(TAB_ID_PAST.equals(this.calendarTabId) && sakaiProxy.isWorksite(siteId)) {
-					calendarLinks = dashboardLogic.getPastCalendarLinks(sakaiId, null, false);
+					calendarLinks = dashboardCommonLogic.getPastCalendarLinks(sakaiId, null, false);
 				} else if(TAB_ID_PAST.equals(this.calendarTabId) ) {
-					calendarLinks = dashboardLogic.getPastCalendarLinks(sakaiId, siteId, false);
+					calendarLinks = dashboardCommonLogic.getPastCalendarLinks(sakaiId, siteId, false);
 				} else if(TAB_ID_HIDDEN.equals(this.calendarTabId) && sakaiProxy.isWorksite(siteId)) {
-					calendarLinks = dashboardLogic.getFutureCalendarLinks(sakaiId, null, true);
+					calendarLinks = dashboardCommonLogic.getFutureCalendarLinks(sakaiId, null, true);
 				} else if(TAB_ID_HIDDEN.equals(this.calendarTabId)) {
-					calendarLinks = dashboardLogic.getFutureCalendarLinks(sakaiId, siteId, true);
+					calendarLinks = dashboardCommonLogic.getFutureCalendarLinks(sakaiId, siteId, true);
 				} else if(TAB_ID_PAST_HIDDEN.equals(this.calendarTabId) && sakaiProxy.isWorksite(siteId)) {
-					calendarLinks = dashboardLogic.getPastCalendarLinks(sakaiId, null, false);
+					calendarLinks = dashboardCommonLogic.getPastCalendarLinks(sakaiId, null, false);
 				} else {
-					calendarLinks = dashboardLogic.getPastCalendarLinks(sakaiId, siteId, false);
+					calendarLinks = dashboardCommonLogic.getPastCalendarLinks(sakaiId, siteId, false);
 				} 
 			}
 			if(calendarLinks == null) {
@@ -900,7 +900,7 @@ public class CalendarLinksPanel extends Panel {
 		protected CalendarLink load(){
 			
 			// get the calendar item
-			return dashboardLogic.getCalendarLink(id);
+			return dashboardCommonLogic.getCalendarLink(id);
 		}
 	}
 	

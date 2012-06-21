@@ -41,8 +41,11 @@ import net.sf.ehcache.Cache;
 
 import org.apache.log4j.Logger;
 import org.sakaiproject.authz.api.SecurityAdvisor;
+import org.sakaiproject.dash.app.DashboardCommonLogic;
+import org.sakaiproject.dash.app.DashboardConfig;
+import org.sakaiproject.dash.app.SakaiProxy;
 import org.sakaiproject.dash.dao.DashboardDao;
-import org.sakaiproject.dash.entity.EntityType;
+import org.sakaiproject.dash.entity.DashboardEntityInfo;
 import org.sakaiproject.dash.entity.RepeatingEventGenerator;
 import org.sakaiproject.dash.listener.EventProcessor;
 import org.sakaiproject.dash.model.AvailabilityCheck;
@@ -64,11 +67,7 @@ import org.sakaiproject.util.ResourceLoader;
  * 
  *
  */
-/**
- * @author jimeng
- *
- */
-public class DashboardLogicImpl implements DashboardLogic, Observer 
+public class DashboardLogicImpl implements DashboardCommonLogic, Observer 
 {
 	private static Logger logger = Logger.getLogger(DashboardLogicImpl.class);
 	
@@ -91,7 +90,7 @@ public class DashboardLogicImpl implements DashboardLogic, Observer
 	protected long nextTimeToQueryAvailabilityChecks = System.currentTimeMillis();
 	protected long nextTimeToExpireAndPurge = System.currentTimeMillis();
 	
-	protected Map<String,EntityType> entityTypes = new HashMap<String,EntityType>();
+	protected Map<String,DashboardEntityInfo> dashboardEntityInfos = new HashMap<String,DashboardEntityInfo>();
 	protected Map<String,EventProcessor> eventProcessors = new HashMap<String,EventProcessor>();
 	
 	protected DashboardEventProcessingThread eventProcessingThread = new DashboardEventProcessingThread();
@@ -190,11 +189,11 @@ public class DashboardLogicImpl implements DashboardLogic, Observer
 				// TODO: handle error: null parameters?
 				logger.warn("TODO: handle error: null parameters?");
 			} else {
-				EntityType entityType = entityTypes.get(repeatingEvent.getSourceType().getIdentifier());
-				if(entityType == null) {
+				DashboardEntityInfo dashboardEntityInfo = dashboardEntityInfos.get(repeatingEvent.getSourceType().getIdentifier());
+				if(dashboardEntityInfo == null) {
 					// TODO: handle error: entityType cannot be null
 					logger.warn("TODO: handle error: entityType cannot be null");
-				} else if(entityType instanceof RepeatingEventGenerator) {
+				} else if(dashboardEntityInfo instanceof RepeatingEventGenerator) {
 					
 					List<CalendarItem> oldDates = dao.getCalendarItems(repeatingEvent);
 					Map<Date, CalendarItem> oldDatesMap = new HashMap<Date, CalendarItem>();
@@ -207,7 +206,7 @@ public class DashboardLogicImpl implements DashboardLogic, Observer
 							oldDatesMap.put(cItem.getCalendarTime(), cItem);
 						}
 					}
-					Map<Integer, Date> newDates = ((RepeatingEventGenerator) entityType).generateRepeatingEventDates(repeatingEvent.getEntityReference(), beginDate, endDate);
+					Map<Integer, Date> newDates = ((RepeatingEventGenerator) dashboardEntityInfo).generateRepeatingEventDates(repeatingEvent.getEntityReference(), beginDate, endDate);
 					if(newDates == null) {
 						// ignore: there are no new dates to add at this time
 					} else {
@@ -341,14 +340,14 @@ public class DashboardLogicImpl implements DashboardLogic, Observer
 		if(repeatingEvent == null) {
 			logger.warn("updateTimeOfRepeatingCalendarItem() called with null parameter ");
 		} else {
-			EntityType entityType = entityTypes.get(repeatingEvent.getSourceType().getIdentifier());
-			if(entityType == null) {
+			DashboardEntityInfo dashboardEntityInfo = dashboardEntityInfos.get(repeatingEvent.getSourceType().getIdentifier());
+			if(dashboardEntityInfo == null) {
 				// TODO: handle error: entityType cannot be null
 				logger.warn("updateTimeOfRepeatingCalendarItem() handle error: entityType cannot be null");
-			} else if(entityType instanceof RepeatingEventGenerator) {
+			} else if(dashboardEntityInfo instanceof RepeatingEventGenerator) {
 				Date beginDate = repeatingEvent.getFirstTime();
 				Date endDate = repeatingEvent.getLastTime();
-				Map<Integer, Date> dates = ((RepeatingEventGenerator) entityType).generateRepeatingEventDates(repeatingEvent.getEntityReference(), beginDate, endDate);
+				Map<Integer, Date> dates = ((RepeatingEventGenerator) dashboardEntityInfo).generateRepeatingEventDates(repeatingEvent.getEntityReference(), beginDate, endDate);
 				for(Map.Entry<Integer, Date> entry : dates.entrySet()) {
 					
 				}
@@ -384,8 +383,8 @@ public class DashboardLogicImpl implements DashboardLogic, Observer
 			} else {
 				for(CalendarItem item: items) {
 					SourceType sourceType = item.getSourceType();
-					EntityType entityType = this.entityTypes.get(sourceType.getIdentifier());
-					if(entityType != null && entityType.isUserPermitted(sakaiUserId, item.getEntityReference(), item.getContext().getContextId())) {
+					DashboardEntityInfo dashboardEntityInfo = this.dashboardEntityInfos.get(sourceType.getIdentifier());
+					if(dashboardEntityInfo != null && dashboardEntityInfo.isUserPermitted(sakaiUserId, item.getEntityReference(), item.getContext().getContextId())) {
 						CalendarLink calendarLink = new CalendarLink(person, item, item.getContext(), false, false);
 						dao.addCalendarLink(calendarLink);
 					}
@@ -419,8 +418,8 @@ public class DashboardLogicImpl implements DashboardLogic, Observer
 			} else {
 				for(NewsItem item: items) {
 					SourceType sourceType = item.getSourceType();
-					EntityType entityType = this.entityTypes.get(sourceType.getIdentifier());
-					if(entityType != null && entityType.isUserPermitted(sakaiUserId, item.getEntityReference(), item.getContext().getContextId()) ) {
+					DashboardEntityInfo dashboardEntityInfo = this.dashboardEntityInfos.get(sourceType.getIdentifier());
+					if(dashboardEntityInfo != null && dashboardEntityInfo.isUserPermitted(sakaiUserId, item.getEntityReference(), item.getContext().getContextId()) ) {
 						NewsLink newsLink = new NewsLink(person, item, item.getContext(), false, false);
 						dao.addNewsLink(newsLink);
 					}
@@ -475,11 +474,11 @@ public class DashboardLogicImpl implements DashboardLogic, Observer
 			logger.debug("createCalendarLinks(" + calendarItem + ")");
 		}
 		if(calendarItem != null) {
-			EntityType entityType = this.entityTypes.get(calendarItem.getSourceType().getIdentifier());
-			if(entityType != null) {
+			DashboardEntityInfo dashboardEntityInfo = this.dashboardEntityInfos.get(calendarItem.getSourceType().getIdentifier());
+			if(dashboardEntityInfo != null) {
 				Set<String> usersWithLinks = dao.listUsersWithLinks(calendarItem);
 				
-				List<String> sakaiIds = entityType.getUsersWithAccess(calendarItem.getEntityReference());
+				List<String> sakaiIds = dashboardEntityInfo.getUsersWithAccess(calendarItem.getEntityReference());
 				for(String sakaiId : sakaiIds) {
 					if(usersWithLinks.contains(sakaiId)) {
 						// do nothing -- link already exists
@@ -502,7 +501,7 @@ public class DashboardLogicImpl implements DashboardLogic, Observer
 	 */
 	public Context createContext(String contextId) { 
 		Context context = null;
-		if (contextId.equals(MOTD_CONTEXT))
+		if (contextId.equals(DashboardLogic.MOTD_CONTEXT))
 		{
 			// add an exception for MOTD announcement, where the context id is "!site"
 			context = new Context(contextId, "MOTD", this.sakaiProxy.getConfigParam("serverUr", "")+ "/access/content/public/MOTD%20files/");
@@ -546,8 +545,8 @@ public class DashboardLogicImpl implements DashboardLogic, Observer
 			logger.debug("createNewsLinks(" + newsItem + ")");
 		}
 		if(newsItem != null) {
-			EntityType entityType = this.entityTypes.get(newsItem.getSourceType().getIdentifier());
-			List<String> sakaiIds = entityType.getUsersWithAccess(newsItem.getEntityReference());
+			DashboardEntityInfo dashboardEntityInfo = this.dashboardEntityInfos.get(newsItem.getSourceType().getIdentifier());
+			List<String> sakaiIds = dashboardEntityInfo.getUsersWithAccess(newsItem.getEntityReference());
 			if(sakaiIds != null && sakaiIds.size() > 0) {
 				for(String sakaiId : sakaiIds) {
 					try {
@@ -583,12 +582,12 @@ public class DashboardLogicImpl implements DashboardLogic, Observer
 	}
 	
 	/* (non-Javadoc)
-	 * @see org.sakaiproject.dash.logic.DashboardLogic#getEntityIconUrl(java.lang.String, java.lang.String)
+	 * @see org.sakaiproject.dash.logic.DashboardCommonLogic#getEntityIconUrl(java.lang.String, java.lang.String)
 	 */
 	public String getEntityIconUrl(String type, String subtype) {
 		String url = "#"; 
 		if(type != null) {
-			EntityType typeObj = this.entityTypes.get(type);
+			DashboardEntityInfo typeObj = this.dashboardEntityInfos.get(type);
 			if(typeObj != null) {
 				url = typeObj.getIconUrl(subtype);
 			}
@@ -612,21 +611,21 @@ public class DashboardLogicImpl implements DashboardLogic, Observer
 	}
 	
 	/* (non-Javadoc)
-	 * @see org.sakaiproject.dash.logic.DashboardLogic#getFutureCalendarLinks(java.lang.String, java.lang.String, boolean)
+	 * @see org.sakaiproject.dash.logic.DashboardUserLogic#getFutureCalendarLinks(java.lang.String, java.lang.String, boolean)
 	 */
 	public List<CalendarLink> getFutureCalendarLinks(String sakaiUserId, String contextId, boolean hidden) {
 		return dao.getFutureCalendarLinks(sakaiUserId, contextId, hidden);
 	}
 
 	/* (non-Javadoc)
-	 * @see org.sakaiproject.dash.logic.DashboardLogic#getPastCalendarLinks(java.lang.String, java.lang.String, boolean)
+	 * @see org.sakaiproject.dash.logic.DashboardUserLogic#getPastCalendarLinks(java.lang.String, java.lang.String, boolean)
 	 */
 	public List<CalendarLink> getPastCalendarLinks(String sakaiUserId, String contextId, boolean hidden) {
 		return dao.getPastCalendarLinks(sakaiUserId, contextId, hidden);
 	}
 
 	/* (non-Javadoc)
-	 * @see org.sakaiproject.dash.logic.DashboardLogic#getStarredCalendarLinks(java.lang.String, java.lang.String)
+	 * @see org.sakaiproject.dash.logic.DashboardUserLogic#getStarredCalendarLinks(java.lang.String, java.lang.String)
 	 */
 	public List<CalendarLink> getStarredCalendarLinks(String sakaiUserId, String contextId) {
 		return dao.getStarredCalendarLinks(sakaiUserId, contextId);
@@ -653,10 +652,10 @@ public class DashboardLogicImpl implements DashboardLogic, Observer
 	}
 	
 	/* (non-Javadoc)
-	 * @see org.sakaiproject.dash.logic.DashboardLogic#getMOTD()
+	 * @see org.sakaiproject.dash.logic.DashboardCommonLogic#getMOTD()
 	 */
 	public List<NewsItem> getMOTD() {
-		return dao.getMOTD(MOTD_CONTEXT);
+		return dao.getMOTD(DashboardLogic.MOTD_CONTEXT);
 	}
 
 	/* (non-Javadoc)
@@ -676,7 +675,7 @@ public class DashboardLogicImpl implements DashboardLogic, Observer
 	}
 	
 	/* (non-Javadoc)
-	 * @see org.sakaiproject.dash.logic.DashboardLogic#countNewsLinksByGroupId(java.lang.String, java.lang.String)
+	 * @see org.sakaiproject.dash.logic.DashboardUserLogic#countNewsLinksByGroupId(java.lang.String, java.lang.String)
 	 */
 	public int countNewsLinksByGroupId(String sakaiUserId,
 			String groupId) {
@@ -684,7 +683,7 @@ public class DashboardLogicImpl implements DashboardLogic, Observer
 	}
 	
 	/* (non-Javadoc)
-	 * @see org.sakaiproject.dash.logic.DashboardLogic#getNewsLinksByGroupId(java.lang.String, java.lang.String, int, int)
+	 * @see org.sakaiproject.dash.logic.DashboardUserLogic#getNewsLinksByGroupId(java.lang.String, java.lang.String, int, int)
 	 */
 	public List<NewsLink> getNewsLinksByGroupId(String sakaiUserId,
 			String groupId, int limit, int offset) {
@@ -692,7 +691,7 @@ public class DashboardLogicImpl implements DashboardLogic, Observer
 	}
 	
 	/* (non-Javadoc)
-	 * @see org.sakaiproject.dash.logic.DashboardLogic#getCurrentNewsLinks(java.lang.String, java.lang.String)
+	 * @see org.sakaiproject.dash.logic.DashboardUserLogic#getCurrentNewsLinks(java.lang.String, java.lang.String)
 	 */
 	public List<NewsLink> getCurrentNewsLinks(String sakaiId, String siteId) {
 		List<NewsLink> links = dao.getCurrentNewsLinks(sakaiId, siteId);
@@ -704,7 +703,7 @@ public class DashboardLogicImpl implements DashboardLogic, Observer
 					int itemCount = item.getItemCount();
 					SourceType sourceType = item.getSourceType();
 					if(sourceType != null) {
-						EntityType typeObj = this.entityTypes.get(sourceType.getIdentifier());
+						DashboardEntityInfo typeObj = this.dashboardEntityInfos.get(sourceType.getIdentifier());
 						if(typeObj == null) {
 							ResourceLoader rl = new ResourceLoader("dash_entity");
 							Object[] args = new Object[]{itemCount, sourceType.getIdentifier(), item.getContext().getContextTitle()};
@@ -721,14 +720,14 @@ public class DashboardLogicImpl implements DashboardLogic, Observer
 	}
 
 	/* (non-Javadoc)
-	 * @see org.sakaiproject.dash.logic.DashboardLogic#getStarredNewsLinks(java.lang.String, java.lang.String)
+	 * @see org.sakaiproject.dash.logic.DashboardUserLogic#getStarredNewsLinks(java.lang.String, java.lang.String)
 	 */
 	public List<NewsLink> getStarredNewsLinks(String sakaiId, String siteId) {
 		return dao.getStarredNewsLinks(sakaiId, siteId);
 	}
 
 	/* (non-Javadoc)
-	 * @see org.sakaiproject.dash.logic.DashboardLogic#getHiddenNewsLinks(java.lang.String, java.lang.String)
+	 * @see org.sakaiproject.dash.logic.DashboardUserLogic#getHiddenNewsLinks(java.lang.String, java.lang.String)
 	 */
 	public List<NewsLink> getHiddenNewsLinks(String sakaiId, String siteId) {
 		return dao.getHiddenNewsLinks(sakaiId, siteId);
@@ -762,7 +761,7 @@ public class DashboardLogicImpl implements DashboardLogic, Observer
 	}
 
 	/* (non-Javadoc)
-	 * @see org.sakaiproject.dash.logic.DashboardLogic#getEntityMapping(java.lang.String, java.lang.String, java.util.Locale)
+	 * @see org.sakaiproject.dash.logic.DashboardCommonLogic#getEntityMapping(java.lang.String, java.lang.String, java.util.Locale)
 	 */
 	public Map<String, Object> getEntityMapping(String entityType, String entityReference, Locale locale) {
 		Map<String, Object> map = new HashMap<String, Object>();
@@ -770,7 +769,7 @@ public class DashboardLogicImpl implements DashboardLogic, Observer
 			logger.debug("getEntityMapping(" + entityType + "," + entityReference + "," + locale + ")");
 		}
 
-		EntityType entityTypeDef = this.entityTypes.get(entityType);
+		DashboardEntityInfo entityTypeDef = this.dashboardEntityInfos.get(entityType);
 		if(entityTypeDef != null) {
 			if(logger.isDebugEnabled()) {
 				logger.debug("getEntityMapping(" + entityType + "," + entityReference + "," + locale + ") " + entityTypeDef);
@@ -778,14 +777,14 @@ public class DashboardLogicImpl implements DashboardLogic, Observer
 			Map<String, Object> values = processFormattedText(entityTypeDef.getValues(entityReference, locale.toString()), 6);
 			map.putAll(values);
 			map.putAll(entityTypeDef.getProperties(entityReference, locale.toString()));
-			map.put(EntityType.VALUES_ORDER, entityTypeDef.getOrder(entityReference, locale.toString()));
+			map.put(DashboardEntityInfo.VALUES_ORDER, entityTypeDef.getOrder(entityReference, locale.toString()));
 		}
 		
 		return map;
 	}
 
 	/* (non-Javadoc)
-	 * @see org.sakaiproject.dash.logic.DashboardLogic#getFutureSequnceNumbers(java.lang.String, java.lang.String, java.lang.Integer)
+	 * @see org.sakaiproject.dash.logic.DashboardCommonLogic#getFutureSequnceNumbers(java.lang.String, java.lang.String, java.lang.Integer)
 	 */
 	public SortedSet<Integer> getFutureSequnceNumbers(String entityReference,
 			String calendarTimeLabelKey, Integer firstSequenceNumber) {
@@ -801,7 +800,7 @@ public class DashboardLogicImpl implements DashboardLogic, Observer
 	}
 
 	/* (non-Javadoc)
-	 * @see org.sakaiproject.dash.logic.DashboardLogic#getString(java.lang.String, java.lang.String, java.lang.String)
+	 * @see org.sakaiproject.dash.logic.DashboardCommonLogic#getString(java.lang.String, java.lang.String, java.lang.String)
 	 */
 	public String getString(String key, String dflt, String entityTypeId) {
 		if(dflt == null) {
@@ -811,18 +810,18 @@ public class DashboardLogicImpl implements DashboardLogic, Observer
 		if(key == null || entityTypeId == null) {
 			logger.warn("getString() invoked with null parameter: " + key + " :: " + entityTypeId);
 		} else {
-			EntityType entityType = this.entityTypes.get(entityTypeId);
-			if(entityType == null) {
+			DashboardEntityInfo dashboardEntityInfo = this.dashboardEntityInfos.get(entityTypeId);
+			if(dashboardEntityInfo == null) {
 				logger.warn("getString() invalid entityTypeId: " + entityTypeId);
 			} else {
-				str = entityType.getEventDisplayString(key, dflt);
+				str = dashboardEntityInfo.getEventDisplayString(key, dflt);
 			}
 		}
 		return str;
 	}
 
 	/* (non-Javadoc)
-	 * @see org.sakaiproject.dash.logic.DashboardLogic#hideCalendarItem(java.lang.String, long)
+	 * @see org.sakaiproject.dash.logic.DashboardCommonLogic#hideCalendarItem(java.lang.String, long)
 	 */
 	public boolean hideCalendarItem(String sakaiUserId, long calendarItemId) {
 		Person person = dao.getPersonBySakaiId(sakaiUserId);
@@ -832,7 +831,7 @@ public class DashboardLogicImpl implements DashboardLogic, Observer
 	}
 
 	/* (non-Javadoc)
-	 * @see org.sakaiproject.dash.logic.DashboardLogic#hideNewsItem(java.lang.String, long)
+	 * @see org.sakaiproject.dash.logic.DashboardCommonLogic#hideNewsItem(java.lang.String, long)
 	 */
 	public boolean hideNewsItem(String sakaiUserId, long newsItemId) {
 		Person person = dao.getPersonBySakaiId(sakaiUserId);
@@ -842,7 +841,7 @@ public class DashboardLogicImpl implements DashboardLogic, Observer
 	}
 
 	/* (non-Javadoc)
-	 * @see org.sakaiproject.dash.logic.DashboardLogic#keepCalendarItem(java.lang.String, long)
+	 * @see org.sakaiproject.dash.logic.DashboardCommonLogic#keepCalendarItem(java.lang.String, long)
 	 */
 	public boolean keepCalendarItem(String sakaiUserId, long calendarItemId) {
 		Person person = dao.getPersonBySakaiId(sakaiUserId);
@@ -852,7 +851,7 @@ public class DashboardLogicImpl implements DashboardLogic, Observer
 	}
 
 	/* (non-Javadoc)
-	 * @see org.sakaiproject.dash.logic.DashboardLogic#keepNewsItem(java.lang.String, long)
+	 * @see org.sakaiproject.dash.logic.DashboardCommonLogic#keepNewsItem(java.lang.String, long)
 	 */
 	public boolean keepNewsItem(String sakaiUserId, long newsItemId) {
 		Person person = dao.getPersonBySakaiId(sakaiUserId);
@@ -862,7 +861,7 @@ public class DashboardLogicImpl implements DashboardLogic, Observer
 	}
 
 	/* (non-Javadoc)
-	 * @see org.sakaiproject.dash.logic.DashboardLogic#unhideCalendarItem(java.lang.String, long)
+	 * @see org.sakaiproject.dash.logic.DashboardCommonLogic#unhideCalendarItem(java.lang.String, long)
 	 */
 	public boolean unhideCalendarItem(String sakaiUserId, long calendarItemId) {
 		Person person = dao.getPersonBySakaiId(sakaiUserId);
@@ -872,7 +871,7 @@ public class DashboardLogicImpl implements DashboardLogic, Observer
 	}
 
 	/* (non-Javadoc)
-	 * @see org.sakaiproject.dash.logic.DashboardLogic#unhideNewsItem(java.lang.String, long)
+	 * @see org.sakaiproject.dash.logic.DashboardCommonLogic#unhideNewsItem(java.lang.String, long)
 	 */
 	public boolean unhideNewsItem(String sakaiUserId, long newsItemId) {
 		Person person = dao.getPersonBySakaiId(sakaiUserId);
@@ -882,7 +881,7 @@ public class DashboardLogicImpl implements DashboardLogic, Observer
 	}
 
 	/* (non-Javadoc)
-	 * @see org.sakaiproject.dash.logic.DashboardLogic#unkeepCalendarItem(java.lang.String, long)
+	 * @see org.sakaiproject.dash.logic.DashboardCommonLogic#unkeepCalendarItem(java.lang.String, long)
 	 */
 	public boolean unkeepCalendarItem(String sakaiUserId, long calendarItemId) {
 		Person person = dao.getPersonBySakaiId(sakaiUserId);
@@ -892,7 +891,7 @@ public class DashboardLogicImpl implements DashboardLogic, Observer
 	}
 
 	/* (non-Javadoc)
-	 * @see org.sakaiproject.dash.logic.DashboardLogic#unkeepNewsItem(java.lang.String, long)
+	 * @see org.sakaiproject.dash.logic.DashboardCommonLogic#unkeepNewsItem(java.lang.String, long)
 	 */
 	public boolean unkeepNewsItem(String sakaiUserId, long newsItemId) {
 		Person person = dao.getPersonBySakaiId(sakaiUserId);
@@ -910,18 +909,18 @@ public class DashboardLogicImpl implements DashboardLogic, Observer
 		if(entityReference == null || entityTypeId == null) {
 			logger.warn("isAvailable() invoked with null parameter: " + entityReference + " :: " + entityTypeId);
 		} else {
-			EntityType entityType = this.entityTypes.get(entityTypeId);
-			if(entityType == null) {
+			DashboardEntityInfo dashboardEntityInfo = this.dashboardEntityInfos.get(entityTypeId);
+			if(dashboardEntityInfo == null) {
 				logger.warn("isAvailable() invalid entityTypeId: " + entityTypeId);
 			} else {
-				isAvailable = entityType.isAvailable(entityReference);
+				isAvailable = dashboardEntityInfo.isAvailable(entityReference);
 			}
 		}
 		return isAvailable;
 	}
 
 	/* (non-Javadoc)
-	 * @see org.sakaiproject.dash.logic.DashboardLogic#recordDashboardActivity(java.lang.String, java.lang.String)
+	 * @see org.sakaiproject.dash.logic.DashboardCommonLogic#recordDashboardActivity(java.lang.String, java.lang.String)
 	 */
 	public void recordDashboardActivity(String event, String itemRef) {
 		if(event == null) {
@@ -960,11 +959,11 @@ public class DashboardLogicImpl implements DashboardLogic, Observer
 	}
 	
 	/* (non-Javadoc)
-	 * @see org.sakaiproject.dash.logic.DashboardLogic#registerEntityType(org.sakaiproject.dash.entity.EntityType)
+	 * @see org.sakaiproject.dash.logic.DashboardLogic#registerEntityType(org.sakaiproject.dash.entity.DashboardEntityInfo)
 	 */
-	public void registerEntityType(EntityType entityType) {
-		if(entityType != null && entityType.getIdentifier() != null) {
-			this.entityTypes.put(entityType.getIdentifier(), entityType);
+	public void registerEntityType(DashboardEntityInfo dashboardEntityInfo) {
+		if(dashboardEntityInfo != null && dashboardEntityInfo.getIdentifier() != null) {
+			this.dashboardEntityInfos.put(dashboardEntityInfo.getIdentifier(), dashboardEntityInfo);
 		}
 	}
 
@@ -1251,9 +1250,9 @@ public class DashboardLogicImpl implements DashboardLogic, Observer
 		List<CalendarItem> items = dao.getCalendarItems(entityReference);
 		if(items != null && items.size() > 0) {
 			CalendarItem firstItem = items.get(0);
-			EntityType entityType = this.entityTypes.get(firstItem.getSourceType().getIdentifier());
+			DashboardEntityInfo dashboardEntityInfo = this.dashboardEntityInfos.get(firstItem.getSourceType().getIdentifier());
 			Set<String> oldUserSet = dao.getSakaIdsForUserWithCalendarLinks(entityReference);
-			Set<String> newUserSet = new TreeSet<String>(entityType.getUsersWithAccess(entityReference));
+			Set<String> newUserSet = new TreeSet<String>(dashboardEntityInfo.getUsersWithAccess(entityReference));
 			
 			Set<String> removeSet = new TreeSet(oldUserSet);
 			removeSet.removeAll(newUserSet);
@@ -1296,9 +1295,9 @@ public class DashboardLogicImpl implements DashboardLogic, Observer
 		if(item == null) {
 			
 		} else {
-			EntityType entityType = this.entityTypes.get(item.getSourceType().getIdentifier());
+			DashboardEntityInfo dashboardEntityInfo = this.dashboardEntityInfos.get(item.getSourceType().getIdentifier());
 			Set<String> oldUserSet = dao.getSakaiIdsForUserWithNewsLinks(entityReference);
-			Set<String> newUserSet = new TreeSet<String>(entityType.getUsersWithAccess(entityReference));
+			Set<String> newUserSet = new TreeSet<String>(dashboardEntityInfo.getUsersWithAccess(entityReference));
 			
 			Set<String> removeSet = new TreeSet(oldUserSet);
 			removeSet.removeAll(newUserSet);
@@ -1370,10 +1369,10 @@ public class DashboardLogicImpl implements DashboardLogic, Observer
 			
 			if(checks != null && ! checks.isEmpty()) {
 				for(AvailabilityCheck check : checks) {
-					EntityType entityType = entityTypes.get(check.getEntityTypeId());
-					if(entityType == null) {
+					DashboardEntityInfo dashboardEntityInfo = dashboardEntityInfos.get(check.getEntityTypeId());
+					if(dashboardEntityInfo == null) {
 						logger.warn("Unable to process AvailabilityCheck because entityType is null " + check.toString());
-					} else if(entityType.isAvailable(check.getEntityReference())) {
+					} else if(dashboardEntityInfo.isAvailable(check.getEntityReference())) {
 						// need to add links
 						List<CalendarItem> calendarItems = dao.getCalendarItems(check.getEntityReference());
 						for(CalendarItem calendarItem : calendarItems) {
@@ -1573,8 +1572,8 @@ public class DashboardLogicImpl implements DashboardLogic, Observer
 				}
 				if(this.eventProcessingThread == null || ! this.eventProcessingThread.isAlive()) {
 					if( eventQueue != null) {
-						// the update() method gets called if and only if DashboardLogic is registered as an observer.
-						// DashboardLogic is registered as an observer if and only if event processing is enabled.
+						// the update() method gets called if and only if DashboardCommonLogic is registered as an observer.
+						// DashboardCommonLogic is registered as an observer if and only if event processing is enabled.
 						// So if the eventProcessingThread is null or disabled in some way, we should restart it, 
 						// unless the eventQueue is null, which should happen if and only if we are shutting down.
 						this.eventProcessingThread = null;

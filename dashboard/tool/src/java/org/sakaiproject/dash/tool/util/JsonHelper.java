@@ -45,11 +45,11 @@ public class JsonHelper {
 	
 	private static Log logger = LogFactory.getLog(JsonHelper.class);
 	
-	protected DashboardLogic dashboardLogic;
+	protected DashboardCommonLogic dashboardCommonLogic;
 	protected DashboardConfig dashboardConfig;
 	
-	public JsonHelper(DashboardLogic dashboardLogic, DashboardConfig dashboardConfig) {
-		this.dashboardLogic = dashboardLogic;
+	public JsonHelper(DashboardCommonLogic dashboardCommonLogic, DashboardConfig dashboardConfig) {
+		this.dashboardCommonLogic = dashboardCommonLogic;
 		this.dashboardConfig = dashboardConfig;
 	}
 	
@@ -127,7 +127,7 @@ public class JsonHelper {
 		json.element("newsTime", newsItem.getNewsTime());
 		json.element("newsTimeShortString", DateUtil.getNewsTimeString(newsItem.getNewsTime()));
 		json.element("newsTimeFullString", DateUtil.getFullDateString(newsItem.getNewsTime()));
-		json.element("label", dashboardLogic.getString(newsItem.getNewsTimeLabelKey(), "", newsItem.getSourceType().getIdentifier()));
+		json.element("label", dashboardCommonLogic.getString(newsItem.getNewsTimeLabelKey(), "", newsItem.getSourceType().getIdentifier()));
 		json.element("entityType", newsItem.getSourceType().getIdentifier());
 		json.element("subtype", newsItem.getSubtype());
 		StringBuilder errorMessages = new StringBuilder();
@@ -136,7 +136,7 @@ public class JsonHelper {
 			logger.warn("Error(s) encountered while cleaning calendarItem title:\n" + errorMessages);
 		}
 		json.element("title", title);
-		json.element("iconUrl", dashboardLogic.getEntityIconUrl(newsItem.getSourceType().getIdentifier(), newsItem.getSubtype()));
+		json.element("iconUrl", dashboardCommonLogic.getEntityIconUrl(newsItem.getSourceType().getIdentifier(), newsItem.getSubtype()));
 		return json;
 	}
 
@@ -147,7 +147,7 @@ public class JsonHelper {
 		json.element("calendarTime", calendarItem.getCalendarTime());
 		json.element("calendarTimeShortString", DateUtil.getCalendarTimeString(calendarItem.getCalendarTime()));
 		json.element("calendarTimeFullString", DateUtil.getFullDateString(calendarItem.getCalendarTime()));
-		json.element("label", dashboardLogic.getString(calendarItem.getCalendarTimeLabelKey(), "", calendarItem.getSourceType().getIdentifier()));
+		json.element("label", dashboardCommonLogic.getString(calendarItem.getCalendarTimeLabelKey(), "", calendarItem.getSourceType().getIdentifier()));
 		json.element("entityType", calendarItem.getSourceType().getIdentifier());
 		json.element("subtype", calendarItem.getSubtype());
 		StringBuilder errorMessages = new StringBuilder();
@@ -156,7 +156,7 @@ public class JsonHelper {
 			logger.warn("Error(s) encountered while cleaning calendarItem title:\n" + errorMessages);
 		}
 		json.element("title", title);
-		json.element("iconUrl", dashboardLogic.getEntityIconUrl(calendarItem.getSourceType().getIdentifier(), calendarItem.getSubtype()));
+		json.element("iconUrl", dashboardCommonLogic.getEntityIconUrl(calendarItem.getSourceType().getIdentifier(), calendarItem.getSubtype()));
 		return json;
 	}
 

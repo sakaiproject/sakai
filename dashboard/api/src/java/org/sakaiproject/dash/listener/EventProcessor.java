@@ -24,11 +24,11 @@ package org.sakaiproject.dash.listener;
 import org.sakaiproject.event.api.Event;
 
 /**
- * EventProcessor implementations are registered with DashboardLogic. 
- * DashboardLogic will invoke EventProcessor.getEventIdentifer() to 
+ * EventProcessor implementations are registered with DashboardCommonLogic. 
+ * DashboardCommonLogic will invoke EventProcessor.getEventIdentifer() to 
  * get the unique identifier for a type of sakai event handled by that
  * implementation and then call its EventProcessor.processEvent(Event) 
- * whenever DashboardLogic encounters an event with that identifier.   
+ * whenever DashboardCommonLogic encounters an event with that identifier.   
  * 
  * Implementations of EventProcessor.processEvent(Event) should do 
  * whatever is appropriate in response to the event.  Usually that 

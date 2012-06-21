@@ -67,7 +67,7 @@ public class DashboardPage extends BasePage {
 	
 	public DashboardPage() {
 		
-		dashboardLogic.recordDashboardActivity(DashboardLogic.EVENT_DASH_VISIT, "/dashboard/page/" + sakaiProxy.getCurrentSiteId());
+		dashboardCommonLogic.recordDashboardActivity(DashboardCommonLogic.EVENT_DASH_VISIT, "/dashboard/page/" + sakaiProxy.getCurrentSiteId());
 		
 		final WebMarkupContainer dashboardPage = new WebMarkupContainer("dashboard-page");
 		dashboardPage.setOutputMarkupId(true);
@@ -137,7 +137,7 @@ public class DashboardPage extends BasePage {
  							offset = 0;
  						}
  						String sakaiUserId = sakaiProxy.getCurrentUserId();
-						int totalItems = dashboardLogic.countNewsLinksByGroupId(sakaiUserId, entityReference);
+						int totalItems = dashboardCommonLogic.countNewsLinksByGroupId(sakaiUserId, entityReference);
 						
 						Map<String,Object> results = new HashMap<String,Object>();
 						results.put("totalCount", totalItems);
@@ -145,7 +145,7 @@ public class DashboardPage extends BasePage {
 							results.put("items", new ArrayList<NewsLink>());
 							results.put("count", 0);
 						} else {
-							List<NewsLink> items = dashboardLogic.getNewsLinksByGroupId(sakaiUserId, entityReference, limit, offset);
+							List<NewsLink> items = dashboardCommonLogic.getNewsLinksByGroupId(sakaiUserId, entityReference, limit, offset);
 							results.put("items", items);
 							results.put("count", items.size());
 						}
@@ -157,16 +157,16 @@ public class DashboardPage extends BasePage {
 						results.put("more-status-last", rl.getString("dash.news.linksCount2", "[[ Showing item {0} of {1} items ]]"));
 						results.put("more-status-range", rl.getString("dash.news.linksCount3", "[[ Showing {0} to {1} of {2} items ]]"));
 						
-						JsonHelper jsonHelper = new JsonHelper(dashboardLogic, dashboardConfig);
+						JsonHelper jsonHelper = new JsonHelper(dashboardCommonLogic, dashboardConfig);
 						String jsonString = jsonHelper.getJsonObjectFromMap(results).toString();
 						if(logger.isDebugEnabled()) {
 							logger.debug("Returning JSON:\n" + jsonString);
 						}
 		                IRequestTarget t = new StringRequestTarget("application/json", "UTF-8", jsonString);
 		                getRequestCycle().setRequestTarget(t);
-						dashboardLogic.recordDashboardActivity(DashboardLogic.EVENT_DASH_VIEW_GROUP, "/dashboard/news/current/" + entityReference);
+						dashboardCommonLogic.recordDashboardActivity(DashboardCommonLogic.EVENT_DASH_VIEW_GROUP, "/dashboard/news/current/" + entityReference);
  					} else if(itemCount == 1) {
- 		                Map<String,Object> entityMap = dashboardLogic.getEntityMapping(entityType, entityReference, locale);
+ 		                Map<String,Object> entityMap = dashboardCommonLogic.getEntityMapping(entityType, entityReference, locale);
 		                
 		                String jsonString = getJsonStringFromMap(entityMap);
 		                if(logger.isDebugEnabled()) {
@@ -174,10 +174,10 @@ public class DashboardPage extends BasePage {
 		                }
 		                IRequestTarget t = new StringRequestTarget("application/json", "UTF-8", jsonString);
 		                getRequestCycle().setRequestTarget(t);
-						dashboardLogic.recordDashboardActivity(DashboardLogic.EVENT_DASH_ITEM_DETAILS, "/dashboard/?/?/" + entityReference);
+						dashboardCommonLogic.recordDashboardActivity(DashboardCommonLogic.EVENT_DASH_ITEM_DETAILS, "/dashboard/?/?/" + entityReference);
 					} else if(dashEvent != null && ! dashEvent.trim().equals("")) {
  						// report the event
- 						dashboardLogic.recordDashboardActivity(dashEvent, entityReference);
+ 						dashboardCommonLogic.recordDashboardActivity(dashEvent, entityReference);
 	 				}
 	 			}
 			}
@@ -236,7 +236,7 @@ public class DashboardPage extends BasePage {
 				} else if(success) {
 					if("star".equalsIgnoreCase(action)) {
 						try {
-							success = dashboardLogic.keepNewsItem(sakaiProxy.getCurrentUserId(), itemId);
+							success = dashboardCommonLogic.keepNewsItem(sakaiProxy.getCurrentUserId(), itemId);
 						} catch(Exception e) {
 							logger.warn("Error trying to star news-link for user " + sakaiProxy.getCurrentUserId() + ", newsLinkId == " + itemId);
 							success = false;
@@ -249,7 +249,7 @@ public class DashboardPage extends BasePage {
 						}
 					} else if("unstar".equalsIgnoreCase(action)) {
 						try {
-							success = dashboardLogic.unkeepNewsItem(sakaiProxy.getCurrentUserId(), itemId);
+							success = dashboardCommonLogic.unkeepNewsItem(sakaiProxy.getCurrentUserId(), itemId);
 						} catch(Exception e) {
 							logger.warn("Error trying to unstar news-link for user " + sakaiProxy.getCurrentUserId() + ", newsLinkId == " + itemId);
 							success = false;
@@ -262,7 +262,7 @@ public class DashboardPage extends BasePage {
 						}
 					} else if("hide".equalsIgnoreCase(action)) {
 						try {
-							success = dashboardLogic.hideNewsItem(sakaiProxy.getCurrentUserId(), itemId);
+							success = dashboardCommonLogic.hideNewsItem(sakaiProxy.getCurrentUserId(), itemId);
 						} catch(Exception e) {
 							logger.warn("Error trying to hide news-link for user " + sakaiProxy.getCurrentUserId() + ", newsLinkId == " + itemId);
 							success = false;
@@ -275,7 +275,7 @@ public class DashboardPage extends BasePage {
 						}
 					} else if("show".equalsIgnoreCase(action)) {
 						try {
-							success = dashboardLogic.unhideNewsItem(sakaiProxy.getCurrentUserId(), itemId);
+							success = dashboardCommonLogic.unhideNewsItem(sakaiProxy.getCurrentUserId(), itemId);
 						} catch(Exception e) {
 							logger.warn("Error trying to show news-link for user " + sakaiProxy.getCurrentUserId() + ", newsLinkId == " + itemId);
 							success = false;
@@ -313,7 +313,7 @@ public class DashboardPage extends BasePage {
 		
 	// should this be in JsonHelper ??
 	protected String getJsonStringFromMap(Map<String, Object> map) {
-		JsonHelper jsonHelper = new JsonHelper(dashboardLogic, dashboardConfig);
+		JsonHelper jsonHelper = new JsonHelper(dashboardCommonLogic, dashboardConfig);
 		JSONObject json = jsonHelper.getJsonObjectFromMap(map);
 		//logger.debug("Returning json: " + json.toString(3));
 		return json.toString();

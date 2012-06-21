@@ -19,28 +19,33 @@
  * 
  **********************************************************************************/ 
 
-package org.sakaiproject.dash.entity;
+package org.sakaiproject.dash.dao.mapper;
 
-import java.util.Date;
-import java.util.Map;
+import java.sql.ResultSet;
+import java.sql.SQLException;
+
+import net.sf.json.JSONArray;
+
+import org.sakaiproject.dash.model.SourceType;
+import org.springframework.jdbc.core.RowMapper;
 
 /**
- * A RepeatingEventGenerator is an DashboardEntityInfo that can add repeating calendar items 
- * to the calendar.  It provides a method to identify dates on which those repeating
- * calendar items will occur. 
+ * 
  *
  */
-public interface RepeatingEventGenerator extends DashboardEntityInfo {
-	
-	/**
-	 * Returns a list of times at which the repeating event occurs 
-	 * between the beginDate and the endDate.  The list is filtered
-	 * to eliminate any previously excluded events. 
-	 * @param entityReference
-	 * @param beginDate
-	 * @param endDate
-	 * @return
+public class SourceTypeMapper implements RowMapper {
+
+	/* (non-Javadoc)
+	 * @see org.springframework.jdbc.core.RowMapper#mapRow(java.sql.ResultSet, int)
 	 */
-	public Map<Integer,Date> generateRepeatingEventDates(String entityReference, Date beginDate, Date endDate);
+	public Object mapRow(ResultSet rs, int rowNum) throws SQLException {
+		
+		// source_type
+		SourceType sourceType = new SourceType();
+		sourceType.setId(rs.getLong("type_id"));
+		sourceType.setIdentifier(rs.getString("type_identifier"));
+		
+		return sourceType;
+	}
 
 }

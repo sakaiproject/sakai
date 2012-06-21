@@ -37,7 +37,6 @@ import org.sakaiproject.dash.model.Context;
 import org.sakaiproject.dash.model.NewsItem;
 import org.sakaiproject.dash.model.NewsLink;
 import org.sakaiproject.dash.model.Person;
-import org.sakaiproject.dash.model.Realm;
 import org.sakaiproject.dash.model.RepeatingCalendarItem;
 import org.sakaiproject.dash.model.SourceType;
 
@@ -266,14 +265,6 @@ public class DashboardDaoMock implements DashboardDao {
 	 * @see org.sakaiproject.dash.dao.DashboardDao#getPersonBySakaiId(java.lang.String)
 	 */
 	public Person getPersonBySakaiId(String sakaiId) {
-		// TODO Auto-generated method stub
-		return null;
-	}
-
-	/* (non-Javadoc)
-	 * @see org.sakaiproject.dash.dao.DashboardDao#getRealm(long)
-	 */
-	public Realm getRealm(long id) {
 		// TODO Auto-generated method stub
 		return null;
 	}

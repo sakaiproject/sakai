@@ -35,9 +35,9 @@ public class SiteMembershipNewEventProcessor implements EventProcessor {
 
 	private static Logger logger = Logger.getLogger(SiteMembershipNewEventProcessor.class);
 	
-	protected DashboardLogic dashboardLogic;
-	public void setDashboardLogic(DashboardLogic dashboardLogic) {
-		this.dashboardLogic = dashboardLogic;
+	protected DashboardCommonLogic dashboardCommonLogic;
+	public void setDashboardLogic(DashboardCommonLogic dashboardCommonLogic) {
+		this.dashboardCommonLogic = dashboardCommonLogic;
 	}
 	
 	protected SakaiProxy sakaiProxy;
@@ -97,20 +97,20 @@ public class SiteMembershipNewEventProcessor implements EventProcessor {
 		}
 		
 		// now we have user id and active status for the context. This method will then call a 
-		// method in DashboardLogic to add links for this user to dashboard items related
-		// to this site. The implementation of the new DashboardLogic method will iterate
+		// method in DashboardCommonLogic to add links for this user to dashboard items related
+		// to this site. The implementation of the new DashboardCommonLogic method will iterate
 		// through all CalendarItems and NewsItems related to that site, and add a link if 
 		// the user has that permission. 
 		// Is that right? 
 		if (uid != null && active != null && active.equals("true"))
 		{
-			dashboardLogic.addCalendarLinks(uid, context);
-			dashboardLogic.addNewsLinks(uid, context);
+			dashboardCommonLogic.addCalendarLinks(uid, context);
+			dashboardCommonLogic.addNewsLinks(uid, context);
 		}
 	}
 
 	public void init() {
 		
-		this.dashboardLogic.registerEventProcessor(this);
+		this.dashboardCommonLogic.registerEventProcessor(this);
 	}
 }

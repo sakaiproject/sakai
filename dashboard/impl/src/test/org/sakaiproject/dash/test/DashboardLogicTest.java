@@ -54,7 +54,7 @@ public class DashboardLogicTest extends AbstractTransactionalSpringContextTests
 	private static final long ONE_WEEK = ONE_DAY * 7L;
 
 	protected SakaiProxy sakaiProxy;
-	protected DashboardLogic dashboardLogic;
+	protected DashboardCommonLogic dashboardCommonLogic;
 	protected DashboardDao dashboardDao;
 
 	/**
@@ -65,10 +65,10 @@ public class DashboardLogicTest extends AbstractTransactionalSpringContextTests
 	}
 
 	/**
-	 * @param dashboardLogic the dashboardLogic to set
+	 * @param dashboardCommonLogic the dashboardCommonLogic to set
 	 */
-	public void setDashboardLogic(DashboardLogic dashboardLogic) {
-		this.dashboardLogic = dashboardLogic;
+	public void setDashboardLogic(DashboardCommonLogic dashboardCommonLogic) {
+		this.dashboardCommonLogic = dashboardCommonLogic;
 	}
 
 	public DashboardLogicTest() {
@@ -118,24 +118,24 @@ public class DashboardLogicTest extends AbstractTransactionalSpringContextTests
 		
 		// add a calendar item
 		// supply a small roster for a context by way of the SakaiProxyMock
-		// call DashboardLogic.createCalendarLinks(calendarItem)
+		// call DashboardCommonLogic.createCalendarLinks(calendarItem)
 		// confirm that the calendar links were created for the item
 	}
 
 	public void testCreateContext() {
 		this.sakaiProxy = new SakaiProxyMock();
 		this.dashboardDao = new DashboardDaoMock();
-		this.dashboardLogic = new DashboardLogicImpl();
-		((DashboardLogicImpl) this.dashboardLogic).setSakaiProxy(sakaiProxy);
-		((DashboardLogicImpl) this.dashboardLogic).setDao(this.dashboardDao);
+		this.dashboardCommonLogic = new DashboardLogicImpl();
+		((DashboardLogicImpl) this.dashboardCommonLogic).setSakaiProxy(sakaiProxy);
+		((DashboardLogicImpl) this.dashboardCommonLogic).setDao(this.dashboardDao);
 		
 		String validContextId = SakaiProxyMock.VALID_SITE_ID;
 		
 		// create and save a Context object for a valid siteId
-		Context validContext = this.dashboardLogic.createContext(validContextId);
+		Context validContext = this.dashboardCommonLogic.createContext(validContextId);
 		assertNotNull(validContext);
 		// retrieve the Context object
-		Context c1 = this.dashboardLogic.getContext(validContextId);
+		Context c1 = this.dashboardCommonLogic.getContext(validContextId);
 		// confirm that its properties are correct
 		assertNotNull(c1);
 		assertEquals(validContextId, c1.getContextId());
@@ -143,11 +143,11 @@ public class DashboardLogicTest extends AbstractTransactionalSpringContextTests
 		String bogusContextId = SakaiProxyMock.BOGUS_SITE_ID;
 		
 		// try creating and saving a Context object for an invalid siteId
-		Context bogusContext = this.dashboardLogic.createContext(bogusContextId);
+		Context bogusContext = this.dashboardCommonLogic.createContext(bogusContextId);
 		
 		assertNull(bogusContext);
 		
-		Context c2 = this.dashboardLogic.getContext(bogusContextId);
+		Context c2 = this.dashboardCommonLogic.getContext(bogusContextId);
 		
 		assertNull(c2);
 	}
@@ -170,7 +170,7 @@ public class DashboardLogicTest extends AbstractTransactionalSpringContextTests
 		
 		// add a news item
 		// supply a small roster for a context by way of the SakaiProxyMock
-		// call DashboardLogic.createNewsLinks(newsItem)
+		// call DashboardCommonLogic.createNewsLinks(newsItem)
 		// confirm that the news links were created for the item
 	}
 
