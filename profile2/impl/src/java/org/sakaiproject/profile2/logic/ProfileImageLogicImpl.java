@@ -59,12 +59,19 @@ public class ProfileImageLogicImpl implements ProfileImageLogic {
 	/**
  	 * {@inheritDoc}
  	 */
+	public ProfileImage getOfficialProfileImage(String userUuid) {
+		
+		return getOfficialImage(userUuid, new ProfileImage(), getUnavailableImageURL(), StringUtils.equals(userUuid,sakaiProxy.getCurrentUserId()));
+	}
+	
+	/**
+ 	 * {@inheritDoc}
+ 	 */
 	public ProfileImage getProfileImage(String userUuid, ProfilePreferences prefs, ProfilePrivacy privacy, int size, String siteId) {
 		
 		ProfileImage image = new ProfileImage();
 		boolean allowed = false;
 		boolean isSameUser = false;
-		String officialImageSource;
 		
 		String defaultImageUrl;
 		if (ProfileConstants.PROFILE_IMAGE_THUMBNAIL == size) {
@@ -197,18 +204,7 @@ public class ProfileImageLogicImpl implements ProfileImageLogic {
 			break;
 			
 			case ProfileConstants.PICTURE_SETTING_OFFICIAL: 
-				officialImageSource = sakaiProxy.getOfficialImageSource();
-				
-				//check source and get appropriate value
-				if(StringUtils.equals(officialImageSource, ProfileConstants.OFFICIAL_IMAGE_SETTING_URL)){
-					image.setOfficialImageUrl(getOfficialImageUrl(userUuid));
-				} else if(StringUtils.equals(officialImageSource, ProfileConstants.OFFICIAL_IMAGE_SETTING_PROVIDER)){
-					String data = getOfficialImageEncoded(userUuid);
-					if(StringUtils.isBlank(data)) {
-						image.setExternalImageUrl(defaultImageUrl);
-					}
-				}
-				image.setAltText(getAltText(userUuid, isSameUser, true));
+				image = getOfficialImage(currentUserUuid,image,defaultImageUrl,isSameUser);
 			break;
 			
 			case ProfileConstants.PICTURE_SETTING_GRAVATAR:
@@ -228,6 +224,26 @@ public class ProfileImageLogicImpl implements ProfileImageLogic {
 			break;
 				
 		}
+		
+		return image;
+	}
+	
+	private ProfileImage getOfficialImage(String userUuid, ProfileImage image,String defaultImageUrl, boolean isSameUser) {
+		
+		String officialImageSource = sakaiProxy.getOfficialImageSource();
+				
+		//check source and get appropriate value
+		if(StringUtils.equals(officialImageSource, ProfileConstants.OFFICIAL_IMAGE_SETTING_URL)){
+			image.setOfficialImageUrl(getOfficialImageUrl(userUuid));
+		} else if(StringUtils.equals(officialImageSource, ProfileConstants.OFFICIAL_IMAGE_SETTING_PROVIDER)){
+			String data = getOfficialImageEncoded(userUuid);
+			if(StringUtils.isBlank(data)) {
+				image.setExternalImageUrl(defaultImageUrl);
+			} else {
+				image.setOfficialImageEncoded(data);
+			}
+		}
+		image.setAltText(getAltText(userUuid, isSameUser, true));
 		
 		return image;
 	}

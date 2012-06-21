@@ -123,9 +123,12 @@ public class ProfileEntityProvider extends AbstractEntityProvider implements Cor
 			wantsAvatar = StringUtils.equals("avatar", view.getPathSegment(3)) ? true : false;
 		}
 		
+		boolean wantsOfficial = StringUtils.equals("official", view.getPathSegment(3)) ? true : false;
+		
 		if(log.isDebugEnabled()) {
 			log.debug("wantsThumbnail:" + wantsThumbnail);
 			log.debug("wantsAvatar:" + wantsAvatar);
+			log.debug("wantsOfficial:" + wantsOfficial);
 		}
 		
 		//optional siteid
@@ -143,6 +146,9 @@ public class ProfileEntityProvider extends AbstractEntityProvider implements Cor
 		}
 		if(!wantsThumbnail && !wantsAvatar) {
 			image = imageLogic.getProfileImage(uuid, null, null, ProfileConstants.PROFILE_IMAGE_MAIN, siteId);
+		}
+		if(wantsOfficial) {
+			image = imageLogic.getOfficialProfileImage(uuid);
 		}
 		
 		if(image == null) {

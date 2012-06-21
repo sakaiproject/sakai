@@ -62,6 +62,13 @@ public interface ProfileImageLogic {
 	public ProfileImage getProfileImage(String userUuid, ProfilePreferences prefs, ProfilePrivacy privacy, int size);
 	
 	/**
+	 * Gets the official profile image for a user.
+	 * @param userUuid
+	 * @return The ProfileImage object, populated with either a url or binary data.
+	 */
+	public ProfileImage getOfficialProfileImage(String userUuid);
+	
+	/**
 	 * Get the profile image for a user. Takes into account all global settings, user preferences, privacy and permissions in the given site.
 	 * See getProfileImage(String, ProfilePreferences, ProfilePrivacy, int);
 	 * @param userUuid
