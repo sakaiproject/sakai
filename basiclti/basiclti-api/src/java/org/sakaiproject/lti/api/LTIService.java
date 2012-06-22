@@ -332,7 +332,7 @@ public interface LTIService {
 	static String[] CONTENT_MODEL = { 
 		"id:key", 
 		"tool_id:integer:hidden=true",
-		"SITE_ID:text:required=true:maxlength=99:label=bl_content_site_id:role=admin",
+		"SITE_ID:text:label=bl_content_site_id:required=true:maxlength=99:role=admin",
 		"title:text:label=bl_content_title:required=true:maxlength=255",
 		"frameheight:integer:label=bl_frameheight",
 		"newpage:checkbox:label=bl_newpage",

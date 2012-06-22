@@ -6,6 +6,7 @@
 	#if ($alertMessage)<div class="alertMessage">$tlang.getString("gen.alert") $validator.escapeHtml($alertMessage)</div><div class="clear"></div>#end
 	<form action="#toolForm("")" method="post" name="customizeForm" >
 		$formOutput
+		Uses: $tool_count uses in $tool_unique_site_count sites
                 <input type="hidden" name="sakai_csrf_token" value="$sakai_csrf_token" />
                 <input type="hidden" name="id" value="$tool.get("id")" />
 		<p class="act">

@@ -35,12 +35,13 @@
 #if ( $formInput ) 
 		$formInput
 #end
+<input type="checkbox" name="add_site_link"/> $tlang.getString("bl_addlink")
                 <input type="hidden" name="sakai_csrf_token" value="$sakai_csrf_token" />
 		<p class="act">
 			<input type="submit" accesskey ="s" class="active" name="$doAction" 
 				value="$tlang.getString('gen.save')" />
 			<input type="submit" accesskey ="x" name="$doCancel" value="$tlang.getString('gen.cancel')" 
- 				onclick="location = '$sakai_ActionURL.setPanel("Content")';return false;">
+ 				onclick="location = '$sakai_ActionURL.setPanel("Main")';return false;">
 		</p>
 	</form>
 #if ( $isAdmin ) 

@@ -151,6 +151,7 @@ public class LTIAdminTool extends VelocityPortletPaneledAction
 		}
 		String returnUrl = data.getParameters().getString("returnUrl");
 		// if ( returnUrl != null ) state.setAttribute(STATE_REDIRECT_URL, returnUrl);
+		context.put("ltiService", ltiService);
 		context.put("isAdmin",new Boolean(ltiService.isAdmin()) );
 		context.put("inHelper",new Boolean(inHelper));
 		context.put("getContext",toolManager.getCurrentPlacement().getContext());
@@ -158,6 +159,33 @@ public class LTIAdminTool extends VelocityPortletPaneledAction
 		state.removeAttribute(STATE_POST);
 		state.removeAttribute(STATE_SUCCESS);
 
+		// this is for the "site tools" panel
+		List<Map<String,Object>> contents = ltiService.getContents(null,null,0,500);
+		for ( Map<String,Object> content : contents ) {
+			
+			Long tool_id_long = null;
+			try{
+				tool_id_long = new Long(((Integer) content.get("tool_id")).longValue());
+			}
+			catch (Exception e)
+			{
+				// log the error
+				M_log.error("error parsing tool id " + content.get("tool_id"));
+			}
+			content.put("tool_id_long", tool_id_long);
+			String plstr = (String) content.get(LTIService.LTI_PLACEMENT);
+			ToolConfiguration tool = SiteService.findTool(plstr);
+			if ( tool == null ) {
+				content.put(LTIService.LTI_PLACEMENT, null);
+			}
+		}
+		context.put("contents", contents);
+		context.put("messageSuccess",state.getAttribute(STATE_SUCCESS));
+		context.put("isAdmin",new Boolean(ltiService.isAdmin()) );
+		context.put("getContext",toolManager.getCurrentPlacement().getContext());
+		state.removeAttribute(STATE_SUCCESS);
+		
+		// this is for the system tool panel
 		List<Map<String,Object>> tools = ltiService.getTools(null,null,0,0);
 		if (tools != null && !tools.isEmpty())
 		{
@@ -166,47 +194,57 @@ public class LTIAdminTool extends VelocityPortletPaneledAction
 			HashMap<String, Map<String, Object>> systemLtiToolsMap = new HashMap<String, Map<String, Object>>();
 			for(Map<String, Object> tool:tools)
 			{
-				if (!tool.containsKey(ltiService.LTI_SITE_ID))
+				if (!tool.containsKey(ltiService.LTI_SITE_ID) || StringUtils.trimToNull((String) tool.get(ltiService.LTI_SITE_ID)) == null)
 				{
 					systemLtiTools.add(tool);
 				}
-				else
-				{
-					siteLtiTools.add(tool);
-				}
 			}
 			// get invoke count for all lti tools
-			HashMap<String, Set<String>> ltiToolsCount = new HashMap<String, Set<String>> ();
-			List<Map<String,Object>> contents = ltiService.getContents(null,null,0,500);
-			for ( Map<String,Object> content : contents ) {
-				String ltiToolId = ((Integer) content.get(ltiService.LTI_TOOL_ID)).toString();
-				String siteId = StringUtils.trimToNull((String) content.get(ltiService.LTI_SITE_ID));
-				if (siteId == null)
-				{
-					if (ltiToolsCount.containsKey(ltiToolId))
-					{
-						Set<String> siteIds = ltiToolsCount.get(ltiToolId);
-						siteIds.add(siteId);
-						ltiToolsCount.put(ltiToolId, siteIds);
-					}
-					else
-					{
-						// new entry
-						Set<String> siteIds = new HashSet<String>();
-						siteIds.add(siteId);
-						ltiToolsCount.put(ltiToolId, siteIds);
-					}
-				}
-			}
+			HashMap<String, List<String>> ltiToolsCount = getLtiToolUsageCount(contents);
 			for (Map<String, Object> toolMap : systemLtiTools ) {
 				String ltiToolId = ((Integer) toolMap.get("id")).toString();
-				toolMap.put("toolCount", ltiToolsCount.containsKey(ltiToolId)?ltiToolsCount.get(ltiToolId).size():0);
+				List<String> toolSite = ltiToolsCount.containsKey(ltiToolId)?ltiToolsCount.get(ltiToolId):new ArrayList<String>();
+				Set<String> toolUniqueSite = new HashSet<String>();
+				toolUniqueSite.addAll(toolSite);
+				toolMap.put("tool_count", toolSite.size());
+				toolMap.put("tool_unique_site_count", toolUniqueSite.size());
 				systemLtiToolsMap.put(ltiToolId, toolMap);
 			}
 			context.put("systemLtiToolsMap", systemLtiToolsMap);
 			context.put("siteLtiTools", siteLtiTools);
 		}
 		return "lti_main";
+	}
+
+	/**
+	 * iterator through the whole system and find out the lti tool usages pattern, e.g. site count,etc
+	 * @param contents
+	 * @return
+	 */
+	private HashMap<String, List<String>> getLtiToolUsageCount(
+			List<Map<String, Object>> contents) {
+		HashMap<String, List<String>> ltiToolsCount = new HashMap<String, List<String>> ();
+		for ( Map<String,Object> content : contents ) {
+			String ltiToolId = ((Integer) content.get(ltiService.LTI_TOOL_ID)).toString();
+			String siteId = StringUtils.trimToNull((String) content.get(ltiService.LTI_SITE_ID));
+			if (siteId != null)
+			{
+				if (ltiToolsCount.containsKey(ltiToolId))
+				{
+					List<String> siteIds = ltiToolsCount.get(ltiToolId);
+					siteIds.add(siteId);
+					ltiToolsCount.put(ltiToolId, siteIds);
+				}
+				else
+				{
+					// new entry
+					List<String> siteIds = new ArrayList<String>();
+					siteIds.add(siteId);
+					ltiToolsCount.put(ltiToolId, siteIds);
+				}
+			}
+		}
+		return ltiToolsCount;
 	}
 
 	public void doEndHelper(RunData data, Context context)
@@ -302,6 +340,15 @@ public class LTIAdminTool extends VelocityPortletPaneledAction
 		String formOutput = ltiService.formOutput(tool, mappingForm);
 		context.put("formOutput", formOutput);
 		context.put("tool",tool);
+		
+		// get the tool usage count
+		HashMap<String, List<String>> ltiToolsCount = getLtiToolUsageCount(ltiService.getContents(null,null,0,500));
+		List<String> toolSite = ltiToolsCount.containsKey(id)?ltiToolsCount.get(id):new ArrayList<String>();
+		Set<String> toolUniqueSite = new HashSet<String>();
+		toolUniqueSite.addAll(toolSite);
+		context.put("tool_count", toolSite.size());
+		context.put("tool_unique_site_count", toolUniqueSite.size());
+		
 		state.removeAttribute(STATE_SUCCESS);
 		return "lti_tool_delete";
 	}
@@ -600,7 +647,16 @@ public class LTIAdminTool extends VelocityPortletPaneledAction
 		state.removeAttribute(STATE_SUCCESS);
 
 		List<Map<String,Object>> tools = ltiService.getTools(null,null,0,0);
-		context.put("tools", tools);
+		// only list the tools available in the system
+		List<Map<String,Object>> systemTools = new ArrayList<Map<String,Object>>();
+		for(Map<String, Object> tool:tools)
+		{
+			if (!tool.containsKey(ltiService.LTI_SITE_ID) || StringUtils.trimToNull((String) tool.get(ltiService.LTI_SITE_ID)) == null)
+			{
+				systemTools.add(tool);
+			}
+		}
+		context.put("tools", systemTools);
 
 		Object previousData = null;
 
@@ -681,6 +737,11 @@ public class LTIAdminTool extends VelocityPortletPaneledAction
 			state.setAttribute(STATE_CONTENT_ID,id);
 			return;
 		}
+		else
+		{
+			// the return value is the content key Long value
+			id = ((Long) retval).toString();
+		}
 
 		String returnUrl = reqProps.getProperty("returnUrl");
 		if ( returnUrl != null )
@@ -715,7 +776,29 @@ public class LTIAdminTool extends VelocityPortletPaneledAction
 			success = rb.getString("success.updated");
 		}
 		state.setAttribute(STATE_SUCCESS,success);
-		switchPanel(state, "Content");
+		
+		if (reqProps.getProperty("add_site_link") != null)
+		{
+			// this is to add site link:
+			retval = ltiService.insertToolSiteLink(id, "test");
+			if ( retval instanceof String ) {
+				String prefix = ((String) retval).substring(0,2);
+				addAlert(state, ((String) retval).substring(2));
+				if ("0-".equals(prefix))
+				{
+					switchPanel(state, "Main");
+				}
+				else if ("1-".equals(prefix))
+				{
+					switchPanel(state, "Error");
+				}
+				return;
+			}
+			
+			state.setAttribute(STATE_SUCCESS,rb.getString("success.link.add"));
+		}
+
+		switchPanel(state, "Main");
 	}
 
 	public String buildRedirectPanelContext(VelocityPortlet portlet, Context context, 
@@ -852,6 +935,7 @@ public class LTIAdminTool extends VelocityPortletPaneledAction
 			return "lti_main";
 		}
 		context.put("content",content);
+		
 		state.removeAttribute(STATE_SUCCESS);
 		return "lti_content_delete";
 	}
