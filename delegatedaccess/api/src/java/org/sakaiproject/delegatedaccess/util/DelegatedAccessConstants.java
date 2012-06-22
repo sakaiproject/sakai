@@ -76,6 +76,7 @@ public class DelegatedAccessConstants {
 	public static final String PROPERTIES_SHOW_TERM_SHOPPING = "delegatedaccess.showtermcolumn.shopping";
 	public static final String PROPERTIES_SHOW_TERM_ACCESS = "delegatedaccess.showtermcolumn.access";
 	public static final String PROPERTIES_TERM_USE_CM_API = "delegatedaccess.term.useCourseManagementApi";
+	public static final String PROPERTIES_TERM_SHOW_LATEST_X_TERMS = "delegatedaccess.term.showLatestXTerms";
 	public static final String PROPERTIES_HOME_TOOLS = "delegatedaccess.hometools";
 	public static final String PROPERTIES_REALM_OPTIONS_SHOPPING = "delegatedaccess.realmoptions.shopping";
 	public static final String PROPERTIES_ROLE_OPTIONS_SHOPPING = "delegatedaccess.roleoptions.shopping";

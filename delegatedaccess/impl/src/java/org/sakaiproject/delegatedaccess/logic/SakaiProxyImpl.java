@@ -480,6 +480,11 @@ public class SakaiProxyImpl implements SakaiProxy {
 		return serverConfigurationService.getBoolean(DelegatedAccessConstants.PROPERTIES_TERM_USE_CM_API, true);
 	}
 	
+	public int showLatestXTerms(){
+		return serverConfigurationService.getInt(DelegatedAccessConstants.PROPERTIES_TERM_SHOW_LATEST_X_TERMS, -1);
+	}
+	
+	
 	public List<String[]> getTerms(){
 		if(terms == null){
 			terms = new ArrayList<String[]>();
@@ -498,20 +503,44 @@ public class SakaiProxyImpl implements SakaiProxy {
 						}
 					}
 				}
-				//add the remaining (non ordered) terms
+				//add the remaining (non ordered) termsho
 				for(String term : termsList){
 					if(termOrderList == null || termOrderList.size() == 0 || !termOrderList.contains(term))
 						terms.add(new String[]{term, term});
 				}
 			}else{
 				//use sakai's coursemanagement API to get the term options
-				for(AcademicSession session : cms.getAcademicSessions()){
-					String termId = session.getEid();
-					if(!"term_eid".equals(getTermField())){
-						termId = session.getTitle();
+				List<AcademicSession> academicSessions = cms.getAcademicSessions();
+				if(academicSessions != null){
+					Collections.sort(academicSessions, new Comparator<AcademicSession>() {
+						@Override
+						public int compare(AcademicSession o1, AcademicSession o2) {
+							if(o1.getStartDate() == null){
+								return -1;
+							}else if(o2.getStartDate() == null){
+								return 1;
+							}else{
+								return o2.getStartDate().compareTo(o1.getStartDate());
+							}
+						}
+						
+					});
+					for(AcademicSession session : academicSessions){
+						String termId = session.getEid();
+						if(!"term_eid".equals(getTermField())){
+							termId = session.getTitle();
+						}
+						terms.add(new String[]{termId, session.getTitle()});
 					}
-					terms.add(new String[]{termId, session.getTitle()});
 				}
+			}
+			
+			//if there is a setting to only show the last X terms, 
+			int showLatestXTerms = showLatestXTerms();
+			if(showLatestXTerms != -1){
+				//make sure the showLastXTerms doesn't do an IndexOutOfBounds
+				showLatestXTerms = showLatestXTerms < terms.size() ? showLatestXTerms : terms.size();
+				terms = terms.subList(0, showLatestXTerms);
 			}
 		}
 		return terms;
