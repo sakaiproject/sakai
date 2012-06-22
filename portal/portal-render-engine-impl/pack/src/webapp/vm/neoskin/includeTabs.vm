@@ -99,10 +99,11 @@
 					<!-- end login component -->
 					<div id="linkNav">
 
-
-
-							<h1 class="skip" id="sitetabs" role="navigation" aria-label="${rloader.sit_worksiteshead}">${rloader.sit_worksiteshead}</h1>
-<ul class="topnav" id="topnav">
+<!-- this allows us to reliably detect if the browser is internet explorer, depends on these elements ul#topnav h1#sitetabs -->
+<script type="text/javascript">var sakai_portal_ie_detected=false;</script>
+<!--[if IE]><script type="text/javascript">sakai_portal_ie_detected=true;</script><![endif]-->
+							<h1 class="skip" id="sitetabs">${rloader.sit_worksiteshead}</h1>
+<ul class="topnav" id="topnav" role="navigation" aria-label="${rloader.sit_worksiteshead}">
 						#foreach ( $site in $tabsSites.tabsSites ) 
 							#if (${site.isCurrentSite})
 								#if (${site.isMyWorkspace})
@@ -216,6 +217,15 @@
 <script language="javascript" type="text/javascript">
     jQuery(document).ready(function() {
         setupSiteNav();
+        // sakai_portal_ie_detected should have been set above
+        if (sakai_portal_ie_detected) {
+            // SAK-22308
+            //if (jQuery.browser.msie && jQuery('ul#topnav[role="navigation"]') && jQuery('h1#sitetabs')) {
+            var $ul_topnav = jQuery('ul#topnav');
+            var aria_label_val = $ul_topnav.attr('aria-label');
+            jQuery('h1#sitetabs').attr('role','navigation').attr('aria-label', aria_label_val);
+            $ul_topnav.removeAttr('role').removeAttr('aria-label');
+        }
     });
 </script>
 			</div>
