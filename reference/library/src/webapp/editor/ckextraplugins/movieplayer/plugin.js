@@ -166,7 +166,7 @@ CKEDITOR.plugins.add( 'movieplayer',
 
                     var e = (oMovie || new Movie()) ;
                     updateMovieObject(e,tab1doc) ;
-										debugger;
+										//debugger;
 										var realElement = CKEDITOR.dom.element.createFromHtml(e.getInnerHTML());
 										var fakeElement;
                     if(!isNew) {
