@@ -36,7 +36,7 @@ public class DashboardConfigImpl implements DashboardConfig {
 	
 	private static Log logger = LogFactory.getLog(DashboardConfigImpl.class);
 	
-	public static final String DASHBOARD_CACHE_PREFIX = "org.sakaiproject.dash.logic.DashboardConfig.";
+	public static final String DASHBOARD_CACHE_PREFIX = "org.sakaiproject.dash.app.DashboardConfig.";
 
 	private static final Boolean CACHE_ETERNAL = new Boolean(false);
 	private static final Integer CACHE_TIME_TO_IDLE = new Integer(300);

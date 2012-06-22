@@ -76,7 +76,7 @@ public class SakaiProxyImpl implements SakaiProxy {
 	
 	/*
 	 * (non-Javadoc)
-	 * @see org.sakaiproject.dash.logic.SakaiProxy#addLocalEventListener(java.util.Observer)
+	 * @see org.sakaiproject.dash.app.SakaiProxy#addLocalEventListener(java.util.Observer)
 	 */
 	public void addLocalEventListener(Observer observer) {
 		this.eventTrackingService.addLocalObserver(observer);
@@ -88,7 +88,7 @@ public class SakaiProxyImpl implements SakaiProxy {
 	}
 
 	/* (non-Javadoc)
-	 * @see org.sakaiproject.dash.logic.SakaiProxy#getAuthorizedUsers(java.lang.String, java.lang.String, java.lang.String)
+	 * @see org.sakaiproject.dash.app.SakaiProxy#getAuthorizedUsers(java.lang.String, java.lang.String, java.lang.String)
 	 */
 	public Collection<String> getAuthorizedUsers(String permission, String entityReference) {
 		List<User> users = null;
@@ -106,7 +106,7 @@ public class SakaiProxyImpl implements SakaiProxy {
 
 	/*
 	 * (non-Javadoc)
-	 * @see org.sakaiproject.dash.logic.SakaiProxy#getConfigParam(java.lang.String, boolean)
+	 * @see org.sakaiproject.dash.app.SakaiProxy#getConfigParam(java.lang.String, boolean)
 	 */
 	public boolean getConfigParam(String param, boolean dflt) {
 		return serverConfigurationService.getBoolean(param, dflt);
@@ -114,7 +114,7 @@ public class SakaiProxyImpl implements SakaiProxy {
 	
 	/*
 	 * (non-Javadoc)
-	 * @see org.sakaiproject.dash.logic.SakaiProxy#getConfigParam(java.lang.String, java.lang.String)
+	 * @see org.sakaiproject.dash.app.SakaiProxy#getConfigParam(java.lang.String, java.lang.String)
 	 */
 	public String getConfigParam(String param, String dflt) {
 		return serverConfigurationService.getString(param, dflt);
@@ -135,7 +135,7 @@ public class SakaiProxyImpl implements SakaiProxy {
 
 	/*
 	 * (non-Javadoc)
-	 * @see org.sakaiproject.dash.logic.SakaiProxy#getCurrentSiteId()
+	 * @see org.sakaiproject.dash.app.SakaiProxy#getCurrentSiteId()
 	 */
 	public String getCurrentSiteId(){
 		return toolManager.getCurrentPlacement().getContext();
@@ -143,7 +143,7 @@ public class SakaiProxyImpl implements SakaiProxy {
 	
 	/*
 	 * (non-Javadoc)
-	 * @see org.sakaiproject.dash.logic.SakaiProxy#getCurrentUserDisplayName()
+	 * @see org.sakaiproject.dash.app.SakaiProxy#getCurrentUserDisplayName()
 	 */
 	public String getCurrentUserDisplayName() {
 	   return userDirectoryService.getCurrentUser().getDisplayName();
@@ -152,7 +152,7 @@ public class SakaiProxyImpl implements SakaiProxy {
 	
 	/*
 	 * (non-Javadoc)
-	 * @see org.sakaiproject.dash.logic.SakaiProxy#getCurrentUserId()
+	 * @see org.sakaiproject.dash.app.SakaiProxy#getCurrentUserId()
 	 */
 	public String getCurrentUserId() {
 		return sessionManager.getCurrentSessionUserId();
@@ -160,7 +160,7 @@ public class SakaiProxyImpl implements SakaiProxy {
 	
 	/*
 	 * (non-Javadoc)
-	 * @see org.sakaiproject.dash.logic.SakaiProxy#getEntity(java.lang.String)
+	 * @see org.sakaiproject.dash.app.SakaiProxy#getEntity(java.lang.String)
 	 */
 	public Entity getEntity(String entityReference) {
 		return this.entityManager.newReference(entityReference).getEntity();
@@ -168,7 +168,7 @@ public class SakaiProxyImpl implements SakaiProxy {
 	
 	/*
 	 * (non-Javadoc)
-	 * @see org.sakaiproject.dash.logic.SakaiProxy#getRealmId(java.lang.String, java.lang.String)
+	 * @see org.sakaiproject.dash.app.SakaiProxy#getRealmId(java.lang.String, java.lang.String)
 	 */
 	public Collection<String> getRealmId(String entityReference, String contextId) {
 		String realmId = null;
@@ -189,7 +189,7 @@ public class SakaiProxyImpl implements SakaiProxy {
 	
 	/*
 	 * (non-Javadoc)
-	 * @see org.sakaiproject.dash.logic.SakaiProxy#getSite(java.lang.String)
+	 * @see org.sakaiproject.dash.app.SakaiProxy#getSite(java.lang.String)
 	 */
 	public Site getSite(String siteId) {
 		Site site = null;
@@ -203,7 +203,7 @@ public class SakaiProxyImpl implements SakaiProxy {
 	
 	/*
 	 * (non-Javadoc)
-	 * @see org.sakaiproject.dash.logic.SakaiProxy#getSkinRepoProperty()
+	 * @see org.sakaiproject.dash.app.SakaiProxy#getSkinRepoProperty()
  	*/
 	public String getSkinRepoProperty(){
 		return serverConfigurationService.getString("skin.repo");
@@ -211,7 +211,7 @@ public class SakaiProxyImpl implements SakaiProxy {
 	
 	/*
 	 * (non-Javadoc)
-	 * @see org.sakaiproject.dash.logic.SakaiProxy#getTargetForMimetype(java.lang.String)
+	 * @see org.sakaiproject.dash.app.SakaiProxy#getTargetForMimetype(java.lang.String)
 	 */
 	public String getTargetForMimetype(String mimetype) {
 		return Validator.getResourceTarget(mimetype);
@@ -219,7 +219,7 @@ public class SakaiProxyImpl implements SakaiProxy {
 	
 	/*
 	 * (non-Javadoc)
-	 * @see org.sakaiproject.dash.logic.SakaiProxy#getToolSkinCSS(java.lang.String)
+	 * @see org.sakaiproject.dash.app.SakaiProxy#getToolSkinCSS(java.lang.String)
  	*/
 	public String getToolSkinCSS(String skinRepo){
 		
@@ -234,7 +234,7 @@ public class SakaiProxyImpl implements SakaiProxy {
 	
 	/*
 	 * (non-Javadoc)
-	 * @see org.sakaiproject.dash.logic.SakaiProxy#getUser(java.lang.String)
+	 * @see org.sakaiproject.dash.app.SakaiProxy#getUser(java.lang.String)
 	 */
 	public User getUser(String sakaiId) {
 		
@@ -252,7 +252,7 @@ public class SakaiProxyImpl implements SakaiProxy {
 	
 	/*
 	 * (non-Javadoc)
-	 * @see org.sakaiproject.dash.logic.SakaiProxy#isSuperUser()
+	 * @see org.sakaiproject.dash.app.SakaiProxy#isSuperUser()
 	 */
 	public boolean isSuperUser() {
 		return securityService.isSuperUser();
@@ -269,7 +269,7 @@ public class SakaiProxyImpl implements SakaiProxy {
 
 	/*
 	 * (non-Javadoc)
-	 * @see org.sakaiproject.dash.logic.SakaiProxy#isWorksite(java.lang.String)
+	 * @see org.sakaiproject.dash.app.SakaiProxy#isWorksite(java.lang.String)
 	 */
 	public boolean isWorksite(String siteId) {
 		return this.siteService.isUserSite(siteId);
@@ -277,14 +277,14 @@ public class SakaiProxyImpl implements SakaiProxy {
 	
 	/**
 	 * (non-Javadoc)
-	 * @see org.sakaiproject.dash.logic.SakaiProxy#isAttachmentResource(java.lang.String)
+	 * @see org.sakaiproject.dash.app.SakaiProxy#isAttachmentResource(java.lang.String)
 	 */
 	public boolean isAttachmentResource(String resourceId) {
 		return this.contentHostingService.isAttachmentResource(resourceId);
 	}
 	/*
 	 * (non-Javadoc)
-	 * @see org.sakaiproject.dash.logic.SakaiProxy#postEvent(java.lang.String, java.lang.String, boolean)
+	 * @see org.sakaiproject.dash.app.SakaiProxy#postEvent(java.lang.String, java.lang.String, boolean)
 	 */
 	public void postEvent(String event,String reference,boolean modify) {
 		eventTrackingService.post(eventTrackingService.newEvent(event,reference,modify));
@@ -292,7 +292,7 @@ public class SakaiProxyImpl implements SakaiProxy {
 
 	/*
 	 * (non-Javadoc)
-	 * @see org.sakaiproject.dash.logic.SakaiProxy#pushSecurityAdvisor(org.sakaiproject.authz.api.SecurityAdvisor)
+	 * @see org.sakaiproject.dash.app.SakaiProxy#pushSecurityAdvisor(org.sakaiproject.authz.api.SecurityAdvisor)
 	 */
 	public void pushSecurityAdvisor(SecurityAdvisor securityAdvisor) {
 		this.securityService.pushAdvisor(securityAdvisor);
@@ -301,7 +301,7 @@ public class SakaiProxyImpl implements SakaiProxy {
 
 	/*
 	 * (non-Javadoc)
-	 * @see org.sakaiproject.dash.logic.SakaiProxy#popSecurityAdvisor(org.sakaiproject.authz.api.SecurityAdvisor)
+	 * @see org.sakaiproject.dash.app.SakaiProxy#popSecurityAdvisor(org.sakaiproject.authz.api.SecurityAdvisor)
 	 */
 	public void popSecurityAdvisor(SecurityAdvisor securityAdvisor) {
 		this.securityService.popAdvisor(securityAdvisor);
@@ -310,7 +310,7 @@ public class SakaiProxyImpl implements SakaiProxy {
 	
 	/*
 	 * (non-Javadoc)
-	 * @see org.sakaiproject.dash.logic.SakaiProxy#startAdminSession()
+	 * @see org.sakaiproject.dash.app.SakaiProxy#startAdminSession()
 	 */
 	public void startAdminSession() {
 		logger.debug("Creating session: DashboardEventProcessor");
@@ -322,7 +322,7 @@ public class SakaiProxyImpl implements SakaiProxy {
 	
 	/*
 	 * (non-Javadoc)
-	 * @see org.sakaiproject.dash.logic.SakaiProxy#clearThreadLocalCache()
+	 * @see org.sakaiproject.dash.app.SakaiProxy#clearThreadLocalCache()
 	 */
 	public void clearThreadLocalCache() {
 		this.threadLocalManager.clear();
@@ -373,7 +373,7 @@ public class SakaiProxyImpl implements SakaiProxy {
 	}
 	
 	/* (non-Javadoc)
-	 * @see org.sakaiproject.dash.logic.SakaiProxy#getServerId()
+	 * @see org.sakaiproject.dash.app.SakaiProxy#getServerId()
 	 */
 	public String getServerId() {
 		return this.serverConfigurationService.getServerId();

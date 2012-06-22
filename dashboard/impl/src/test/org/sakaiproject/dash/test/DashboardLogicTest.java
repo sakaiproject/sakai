@@ -22,18 +22,16 @@
 package org.sakaiproject.dash.test;
 
 import java.util.Date;
-import java.util.List;
 import java.util.concurrent.atomic.AtomicInteger;
 
-import org.sakaiproject.dash.dao.DashboardDao;
-import org.sakaiproject.dash.listener.EventProcessor;
-import org.sakaiproject.dash.logic.DashboardConfigImpl;
-import org.sakaiproject.dash.logic.DashboardLogic;
-import org.sakaiproject.dash.logic.DashboardCommonLogicImpl;
-import org.sakaiproject.dash.logic.DashboardLogicImpl;
 import org.sakaiproject.dash.app.DashboardCommonLogic;
 import org.sakaiproject.dash.app.DashboardConfig;
 import org.sakaiproject.dash.app.SakaiProxy;
+import org.sakaiproject.dash.dao.DashboardDao;
+import org.sakaiproject.dash.listener.EventProcessor;
+import org.sakaiproject.dash.logic.DashboardCommonLogicImpl;
+import org.sakaiproject.dash.logic.DashboardConfigImpl;
+import org.sakaiproject.dash.logic.DashboardLogicImpl;
 import org.sakaiproject.dash.mock.DashboardDaoMock;
 import org.sakaiproject.dash.mock.SakaiProxyMock;
 import org.sakaiproject.dash.model.CalendarItem;

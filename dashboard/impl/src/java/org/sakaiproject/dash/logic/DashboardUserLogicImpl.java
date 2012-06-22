@@ -3,6 +3,7 @@
  */
 package org.sakaiproject.dash.logic;
 
+import java.util.Date;
 import java.util.List;
 
 import net.sf.ehcache.Cache;
@@ -56,6 +57,19 @@ public class DashboardUserLogicImpl implements DashboardUserLogic {
 	protected DashboardLogic dashboardLogic;
 	public void setDashboardLogic(DashboardLogic dashboardLogic) {
 		this.dashboardLogic = dashboardLogic;
+	}
+	
+	/************************************************************************
+	 * init() and destroy()
+	 ************************************************************************/
+
+	public void init() {
+		logger.info("init()");
+	
+	}
+	
+	public void destroy() {
+		logger.info("destroy()");
 	}
 		
 	/************************************************************************

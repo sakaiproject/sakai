@@ -78,13 +78,13 @@ public class MOTDPanel extends Panel {
 	protected static final String TIME_FORMAT = "HH:mm";
 	protected static final String DATETIME_FORMAT = "dd-MMM-yyyy HH:mm";
 	
-	@SpringBean(name="org.sakaiproject.dash.logic.SakaiProxy")
+	@SpringBean(name="org.sakaiproject.dash.app.SakaiProxy")
 	protected SakaiProxy sakaiProxy;
 	
-	@SpringBean(name="org.sakaiproject.dash.logic.DashboardCommonLogic")
+	@SpringBean(name="org.sakaiproject.dash.app.DashboardCommonLogic")
 	protected DashboardCommonLogic dashboardCommonLogic;
 
-	@SpringBean(name="org.sakaiproject.dash.logic.DashboardConfig")
+	@SpringBean(name="org.sakaiproject.dash.app.DashboardConfig")
 	protected DashboardConfig dashboardConfig;
 
 	protected NewsLinksDataProvider motdProvider = null;

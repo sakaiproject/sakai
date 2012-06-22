@@ -25,7 +25,7 @@
 	</bean>
 	
     <bean id="org.sakaiproject.dash.app.DashboardConfig" 
-		class="org.sakaiproject.dash.app.DashboardConfigImpl" 
+		class="org.sakaiproject.dash.logic.DashboardConfigImpl" 
 		init-method="init">
 		<property name="dao" ref="org.sakaiproject.dash.dao.DashboardDao"></property>
     	<property name="cache" ref="org.sakaiproject.dash.cache" />	

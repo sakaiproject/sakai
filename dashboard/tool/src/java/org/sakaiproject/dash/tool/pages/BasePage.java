@@ -56,13 +56,13 @@ public class BasePage extends WebPage implements IHeaderContributor {
 
 	private static final Logger logger = Logger.getLogger(BasePage.class); 
 	
-	@SpringBean(name="org.sakaiproject.dash.logic.SakaiProxy")
+	@SpringBean(name="org.sakaiproject.dash.app.SakaiProxy")
 	protected SakaiProxy sakaiProxy;
 	
-	@SpringBean(name="org.sakaiproject.dash.logic.DashboardCommonLogic")
+	@SpringBean(name="org.sakaiproject.dash.app.DashboardCommonLogic")
 	protected DashboardCommonLogic dashboardCommonLogic;
 	
-	@SpringBean(name="org.sakaiproject.dash.logic.DashboardConfig")
+	@SpringBean(name="org.sakaiproject.dash.app.DashboardConfig")
 	protected DashboardConfig dashboardConfig;
 	
 	Link<Void> dashboardLink;

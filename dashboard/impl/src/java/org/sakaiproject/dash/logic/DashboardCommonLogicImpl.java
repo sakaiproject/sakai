@@ -201,7 +201,7 @@ public class DashboardCommonLogicImpl implements DashboardCommonLogic, Observer 
 
 
 	/* (non-Javadoc)
-	 * @see org.sakaiproject.dash.logic.DashboardCommonLogic#getEntityIconUrl(java.lang.String, java.lang.String)
+	 * @see org.sakaiproject.dash.app.DashboardCommonLogic#getEntityIconUrl(java.lang.String, java.lang.String)
 	 */
 	public String getEntityIconUrl(String type, String subtype) {
 		String url = "#"; 
@@ -215,14 +215,14 @@ public class DashboardCommonLogicImpl implements DashboardCommonLogic, Observer 
 	}
 
 	/* (non-Javadoc)
-	 * @see org.sakaiproject.dash.logic.DashboardCommonLogic#getMOTD()
+	 * @see org.sakaiproject.dash.app.DashboardCommonLogic#getMOTD()
 	 */
 	public List<NewsItem> getMOTD() {
 		return dao.getMOTD(DashboardLogic.MOTD_CONTEXT);
 	}
 
 	/* (non-Javadoc)
-	 * @see org.sakaiproject.dash.logic.DashboardCommonLogic#getEntityMapping(java.lang.String, java.lang.String, java.util.Locale)
+	 * @see org.sakaiproject.dash.app.DashboardCommonLogic#getEntityMapping(java.lang.String, java.lang.String, java.util.Locale)
 	 */
 	public Map<String, Object> getEntityMapping(String entityType, String entityReference, Locale locale) {
 		Map<String, Object> map = new HashMap<String, Object>();
@@ -245,7 +245,7 @@ public class DashboardCommonLogicImpl implements DashboardCommonLogic, Observer 
 	}
 
 	/* (non-Javadoc)
-	 * @see org.sakaiproject.dash.logic.DashboardCommonLogic#getString(java.lang.String, java.lang.String, java.lang.String)
+	 * @see org.sakaiproject.dash.app.DashboardCommonLogic#getString(java.lang.String, java.lang.String, java.lang.String)
 	 */
 	public String getString(String key, String dflt, String entityTypeId) {
 		if(dflt == null) {
@@ -266,7 +266,7 @@ public class DashboardCommonLogicImpl implements DashboardCommonLogic, Observer 
 	}
 
 	/* (non-Javadoc)
-	 * @see org.sakaiproject.dash.logic.DashboardCommonLogic#recordDashboardActivity(java.lang.String, java.lang.String)
+	 * @see org.sakaiproject.dash.app.DashboardCommonLogic#recordDashboardActivity(java.lang.String, java.lang.String)
 	 */
 	public void recordDashboardActivity(String event, String itemRef) {
 		if(event == null) {
