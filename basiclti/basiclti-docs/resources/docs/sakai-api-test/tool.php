@@ -36,6 +36,15 @@ if ( $context->valid ) {
    }
 
    $found = false;
+    if ( $_POST['lis_result_sourcedid'] && $_POST['lis_outcome_service_url'] ) {
+        print "<p>\n";
+        print '<a href="common/tool_provider_outcome.php?sourcedid='.$sourcedid;
+        print '&key='.urlencode($_POST['oauth_consumer_key']);
+        print '&seret=secret';
+        print '&url='.urlencode($_POST['lis_outcome_service_url']).'">';
+        print 'Test LTI 1.1 Outcome Service</a>.</p>'."\n";
+    }
+
     if ( $_POST['ext_ims_lis_memberships_id'] && $_POST['ext_ims_lis_memberships_url'] ) {
         print "<p>\n";
         print '<a href="ext/memberships.php?id='.htmlentities($_POST['ext_ims_lis_memberships_id']);
