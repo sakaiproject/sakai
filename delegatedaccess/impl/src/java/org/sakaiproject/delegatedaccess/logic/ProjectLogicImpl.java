@@ -542,13 +542,9 @@ public class ProjectLogicImpl implements ProjectLogic {
 			search = null;
 		}
 		Map<String, SiteSearchResult> sites = new HashMap<String, SiteSearchResult>();
-		String termField = sakaiProxy.getTermField();
-		//first, check if the search is a site id:
 		Site searchByIdSite = sakaiProxy.getSiteById(search);
-		if(searchByIdSite != null){
-			sites.put(searchByIdSite.getId(), new SiteSearchResult(searchByIdSite, new ArrayList<User>(), termField));
-		}
-		
+		String termField = sakaiProxy.getTermField();
+				
 		//get hierarchy structure:
 		String[] hierarchy = sakaiProxy.getServerConfigurationStrings(DelegatedAccessConstants.HIERARCHY_SITE_PROPERTIES);
 		if(hierarchy == null || hierarchy.length == 0){
@@ -561,69 +557,64 @@ public class ProjectLogicImpl implements ProjectLogic {
 			propsMap.put(prop, "");
 		}
 		
-		if (advancedOptions != null
-				&& (advancedOptions
-						.containsKey(DelegatedAccessConstants.ADVANCED_SEARCH_INSTRUCTOR) || advancedOptions
-						.containsKey(DelegatedAccessConstants.ADVANCED_SEARCH_TERM))) {
-			//Advanced Search
-			
-			if (advancedOptions
-					.containsKey(DelegatedAccessConstants.ADVANCED_SEARCH_TERM)) {
-				propsMap.put(sakaiProxy.getTermField(), advancedOptions
-						.get(DelegatedAccessConstants.ADVANCED_SEARCH_TERM));
-			}
-			// find all user's with this name/id/email
-			if (advancedOptions
-					.containsKey(DelegatedAccessConstants.ADVANCED_SEARCH_INSTRUCTOR)) {
-				List<User> searchUsers = sakaiProxy
-						.searchUsers(
-								advancedOptions
-										.get(DelegatedAccessConstants.ADVANCED_SEARCH_INSTRUCTOR),
-								1, DelegatedAccessConstants.SEARCH_RESULTS_MAX);
-				for (User user : searchUsers) {
-					for (Site site : getUserUpdatePermissionMembership(
-							user.getId(), search, propsMap)) {
-						if(sites.containsKey(site.getId())){
-							sites.get(site.getId()).addInstructor(user);
-						}else{
-							List<User> usersList = new ArrayList<User>();
-							usersList.add(user);
-							sites.put(site.getId(), new SiteSearchResult(site, usersList, termField));
-						}
+		//add term field restriction if it exist:
+		if (advancedOptions != null && advancedOptions.containsKey(DelegatedAccessConstants.ADVANCED_SEARCH_TERM)
+				&& advancedOptions.get(DelegatedAccessConstants.ADVANCED_SEARCH_TERM) != null
+				&& !"".equals(advancedOptions.get(DelegatedAccessConstants.ADVANCED_SEARCH_TERM).trim())) {
+			//add term field to propMap for search
+			propsMap.put(termField, advancedOptions.get(DelegatedAccessConstants.ADVANCED_SEARCH_TERM));
+			//check if we need to remove the searchByIdSite b/c of the term
+			if(searchByIdSite != null && searchByIdSite.getProperties() != null
+					&& searchByIdSite.getProperties().getProperty(termField) != null
+					&& searchByIdSite.getProperties().getProperty(termField).toLowerCase().contains(advancedOptions.get(DelegatedAccessConstants.ADVANCED_SEARCH_TERM))){
+				//do nothing, we found it
+			}else{
+				//doesn't exist in this term, remove it
+				searchByIdSite = null;
+			}	
+		}
+		
+		//add instructor restriction
+		if (advancedOptions != null && advancedOptions.containsKey(DelegatedAccessConstants.ADVANCED_SEARCH_INSTRUCTOR)
+				&& advancedOptions.get(DelegatedAccessConstants.ADVANCED_SEARCH_INSTRUCTOR) != null
+				&& !"".equals(advancedOptions.get(DelegatedAccessConstants.ADVANCED_SEARCH_INSTRUCTOR).trim())) {
+			List<User> searchUsers = sakaiProxy.searchUsers(advancedOptions.get(DelegatedAccessConstants.ADVANCED_SEARCH_INSTRUCTOR), 1, DelegatedAccessConstants.SEARCH_RESULTS_MAX);
+			//since we added a site by searching for ID, we need to make sure that at least 1 user is a member,
+			//otherwise, remove it from the results:
+			boolean foundSearchByIdMember = searchByIdSite == null ? true : false;
+			for (User user : searchUsers) {
+				if(!foundSearchByIdMember && searchByIdSite.getMember(user.getId()) != null){
+					foundSearchByIdMember = true;
+				}
+				//the search will use the propsMap (term if enabled) as well as search string, so no need to do additional searching after this
+				for (Site site : getUserUpdatePermissionMembership(
+						user.getId(), search, propsMap)) {
+					if(sites.containsKey(site.getId())){
+						sites.get(site.getId()).addInstructor(user);
+					}else{
+						List<User> usersList = new ArrayList<User>();
+						usersList.add(user);
+						sites.put(site.getId(), new SiteSearchResult(site, usersList, termField));
 					}
 				}
-
 			}
-			if (advancedOptions
-					.containsKey(DelegatedAccessConstants.ADVANCED_SEARCH_TERM)) {
-				if (sites.isEmpty()) {
-					// grab all sites in term since there are no other
-					// restrictions
-					for (Site site : sakaiProxy.getSites(SelectionType.NON_USER,
-							search, propsMap)) {
-						sites.put(site.getId(), new SiteSearchResult(site, new ArrayList<User>(), termField));
-					}
-				} else {
-					for (Iterator iterator = sites.entrySet().iterator(); iterator
-							.hasNext();) {
-						Entry<String, SiteSearchResult> entry = (Entry<String, SiteSearchResult>) iterator
-								.next();
-						if (entry.getValue().getSiteTerm() == null
-								|| !entry.getValue().getSiteTerm().toLowerCase().contains(
-												advancedOptions.get(DelegatedAccessConstants.ADVANCED_SEARCH_TERM).toLowerCase())){
-							sites.remove(entry.getKey());
-						}
-					}
-				}
-
+			if(!foundSearchByIdMember && searchByIdSite != null){
+				//we didn't find any members for this site in the user search, so remove it:
+				searchByIdSite = null;
 			}
-		} else {
+		}else{
 			// search title or id
 			for (Site site : sakaiProxy.getSites(SelectionType.NON_USER, search,
 					propsMap)) {
 				sites.put(site.getId(), new SiteSearchResult(site, new ArrayList<User>(), termField));
 			}
 		}
+		
+		if(searchByIdSite != null && !sites.containsKey(searchByIdSite.getId())){
+			sites.put(searchByIdSite.getId(), new SiteSearchResult(searchByIdSite, new ArrayList<User>(), termField));
+		}
+		
+		
 		return sites.values();
 	}
 	
