@@ -1,0 +1,1728 @@
+/**********************************************************************************
+ * $URL$
+ * $Id$
+ ***********************************************************************************
+ *
+ * Copyright (c) 2011 The Sakai Foundation
+ *
+ * Licensed under the Educational Community License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *       http://www.osedu.org/licenses/ECL-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ *
+ **********************************************************************************/
+
+package org.sakaiproject.dash.logic;
+
+import java.lang.reflect.InvocationTargetException;
+import java.lang.reflect.Method;
+import java.util.Date;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Locale;
+import java.util.Map;
+import java.util.Observable;
+import java.util.Observer;
+import java.util.Queue;
+import java.util.Set;
+import java.util.SortedSet;
+import java.util.TreeSet;
+import java.util.concurrent.ConcurrentLinkedQueue;
+
+import net.sf.ehcache.Cache;
+
+import org.apache.log4j.Logger;
+import org.sakaiproject.authz.api.SecurityAdvisor;
+import org.sakaiproject.dash.app.DashboardCommonLogic;
+import org.sakaiproject.dash.app.DashboardConfig;
+import org.sakaiproject.dash.app.DashboardUserLogic;
+import org.sakaiproject.dash.app.SakaiProxy;
+import org.sakaiproject.dash.dao.DashboardDao;
+import org.sakaiproject.dash.entity.DashboardEntityInfo;
+import org.sakaiproject.dash.entity.RepeatingEventGenerator;
+import org.sakaiproject.dash.listener.EventProcessor;
+import org.sakaiproject.dash.model.AvailabilityCheck;
+import org.sakaiproject.dash.model.CalendarItem;
+import org.sakaiproject.dash.model.CalendarLink;
+import org.sakaiproject.dash.model.Context;
+import org.sakaiproject.dash.model.NewsItem;
+import org.sakaiproject.dash.model.NewsLink;
+import org.sakaiproject.dash.model.Person;
+import org.sakaiproject.dash.model.RepeatingCalendarItem;
+import org.sakaiproject.dash.model.SourceType;
+import org.sakaiproject.event.api.Event;
+import org.sakaiproject.site.api.Site;
+import org.sakaiproject.user.api.User;
+import org.sakaiproject.util.FormattedText;
+import org.sakaiproject.util.ResourceLoader;
+
+/**
+ * 
+ *
+ */
+public class DashboardCommonLogicImpl implements DashboardCommonLogic, Observer {
+	private static Logger logger = Logger.getLogger(DashboardCommonLogicImpl.class);
+	
+	public static final String DASHBOARD_NEGOTIATE_AVAILABILITY_CHECKS = "dash.negotiate.availCheck";
+	public static final String DASHBOARD_NEGOTIATE_REPEAT_EVENTS = "dash.negotiate.repeatEvents";
+	public static final String DASHBOARD_NEGOTIATE_EXPIRATION_AND_PURGING = "dash.negotiate.expireAndPurge";
+	
+	/** time to allow negotaion among servers -- 2 minutes */
+	public static final long NEGOTIATING_TIME = 1000L * 60L * 2L;
+	
+	public static final long TIME_BETWEEN_AVAILABILITY_CHECKS = 1000L * 60L * 1L;  // one minute
+	public static final long TIME_BETWEEN_EXPIRING_AND_PURGING = 1000L * 60L * 60L; // one hour
+
+	protected Date nextHorizonUpdate = new Date();
+		
+	protected long nextTimeToQueryAvailabilityChecks = System.currentTimeMillis();
+	protected long nextTimeToExpireAndPurge = System.currentTimeMillis();
+	
+	protected DashboardEventProcessingThread eventProcessingThread = new DashboardEventProcessingThread();
+	protected Queue<EventCopy> eventQueue = new ConcurrentLinkedQueue<EventCopy>();
+	protected Object eventQueueLock = new Object();
+	
+	protected static long dashboardEventProcessorThreadId = 0L;
+
+	protected String serverId = null;
+	protected String serverHandlingAvailabilityChecks = "";
+	protected String serverHandlingRepeatEvents = "";
+	protected String serverHandlingExpirationAndPurging = "";
+
+	protected boolean handlingAvailabilityChecks = false;
+	protected boolean notHandlingAvailabilityChecks = false;
+	protected boolean handlingRepeatedEvents = false;
+	protected boolean notHandlingRepeatedEvents = false;
+	protected boolean handlingExpirationAndPurging = false;
+	protected boolean notHandlingExpirationAndPurging = false;
+	
+	protected Date claimAvailabilityCheckDutyTime = null;
+	protected Date claimRepeatEventsDutyTime = null;
+	protected Date claimExpirationAndPurgingTime = null;
+	
+	protected static final Integer DEFAULT_NEWS_ITEM_EXPIRATION = new Integer(26);
+	protected static final Integer DEFAULT_CALENDAR_ITEM_EXPIRATION = new Integer(2);
+
+	public static final Set<String> NAVIGATION_EVENTS = new HashSet<String>();
+	public static final Set<String> DASH_NAV_EVENTS = new HashSet<String>();
+	public static final Set<String> ITEM_DETAIL_EVENTS = new HashSet<String>();
+	public static final Set<String> PREFERENCE_EVENTS = new HashSet<String>();
+
+	public static final int LOG_MODE_NONE = 0;
+	public static final int LOG_MODE_SAVE = 1;
+	public static final int LOG_MODE_POST = 2;
+	public static final int LOG_MODE_SAVE_AND_POST = 3;
+
+	static {
+		NAVIGATION_EVENTS.add(EVENT_DASH_VISIT);
+		NAVIGATION_EVENTS.add(EVENT_DASH_FOLLOW_TOOL_LINK);
+		NAVIGATION_EVENTS.add(EVENT_DASH_FOLLOW_SITE_LINK);
+		NAVIGATION_EVENTS.add(EVENT_DASH_ACCESS_URL);
+		NAVIGATION_EVENTS.add(EVENT_VIEW_ATTACHMENT);
+		
+		DASH_NAV_EVENTS.add(EVENT_DASH_TABBING);
+		DASH_NAV_EVENTS.add(EVENT_DASH_PAGING);		
+		
+		ITEM_DETAIL_EVENTS.add(EVENT_DASH_ITEM_DETAILS);
+		ITEM_DETAIL_EVENTS.add(EVENT_DASH_VIEW_GROUP);
+		
+		PREFERENCE_EVENTS.add(EVENT_DASH_STAR);
+		PREFERENCE_EVENTS.add(EVENT_DASH_UNSTAR);
+		PREFERENCE_EVENTS.add(EVENT_DASH_HIDE);
+		PREFERENCE_EVENTS.add(EVENT_DASH_SHOW);
+		PREFERENCE_EVENTS.add(EVENT_DASH_HIDE_MOTD);
+	}	
+	
+	/************************************************************************
+	 * Spring-injected classes
+	 ************************************************************************/
+	
+	protected SakaiProxy sakaiProxy;
+	public void setSakaiProxy(SakaiProxy proxy) {
+		this.sakaiProxy = proxy;
+	}
+	
+	protected DashboardDao dao;
+	public void setDao(DashboardDao dao) {
+		this.dao = dao;
+	}
+	
+	protected DashboardConfig dashboardConfig;
+	public void setDashboardConfig(DashboardConfig dashboardConfig) {
+		this.dashboardConfig = dashboardConfig;
+	}
+	
+	protected DashboardLogic dashboardLogic;
+	public void setDashboardLogic(DashboardLogic dashboardLogic) {
+		this.dashboardLogic = dashboardLogic;
+	}
+
+	protected DashboardUserLogic dashboardUserLogic;
+	public void setDashboardUserLogic(DashboardUserLogic dashboardUserLogic) {
+		this.dashboardUserLogic = dashboardUserLogic;
+	}
+
+	protected Cache cache;
+
+	public void setCache(Cache cache) {
+		this.cache = cache;
+	}
+	
+	public void updateTimeOfRepeatingCalendarItem(RepeatingCalendarItem repeatingEvent, Date oldTime, Date newTime) {
+		if(repeatingEvent == null) {
+			logger.warn("updateTimeOfRepeatingCalendarItem() called with null parameter ");
+		} else {
+			DashboardEntityInfo dashboardEntityInfo = this.dashboardLogic.getDashboardEntityInfo(repeatingEvent.getSourceType().getIdentifier());
+			if(dashboardEntityInfo == null) {
+				// TODO: handle error: entityType cannot be null
+				logger.warn("updateTimeOfRepeatingCalendarItem() handle error: entityType cannot be null");
+			} else if(dashboardEntityInfo instanceof RepeatingEventGenerator) {
+				Date beginDate = repeatingEvent.getFirstTime();
+				Date endDate = repeatingEvent.getLastTime();
+				Map<Integer, Date> dates = ((RepeatingEventGenerator) dashboardEntityInfo).generateRepeatingEventDates(repeatingEvent.getEntityReference(), beginDate, endDate);
+				for(Map.Entry<Integer, Date> entry : dates.entrySet()) {
+					
+				}
+				
+			} else {
+				// TODO: handle error: entityType cannot be null
+				logger.warn("updateTimeOfRepeatingCalendarItem() handle error: entityType must be RepeatingEventGenerator");
+			}
+		}
+	}
+
+
+	/* (non-Javadoc)
+	 * @see org.sakaiproject.dash.logic.DashboardCommonLogic#getEntityIconUrl(java.lang.String, java.lang.String)
+	 */
+	public String getEntityIconUrl(String type, String subtype) {
+		String url = "#"; 
+		if(type != null) {
+		DashboardEntityInfo typeObj = this.dashboardLogic.getDashboardEntityInfo(type);
+			if(typeObj != null) {
+				url = typeObj.getIconUrl(subtype);
+			}
+		}
+		return url;
+	}
+
+	/* (non-Javadoc)
+	 * @see org.sakaiproject.dash.logic.DashboardCommonLogic#getMOTD()
+	 */
+	public List<NewsItem> getMOTD() {
+		return dao.getMOTD(DashboardLogic.MOTD_CONTEXT);
+	}
+
+	/* (non-Javadoc)
+	 * @see org.sakaiproject.dash.logic.DashboardCommonLogic#getEntityMapping(java.lang.String, java.lang.String, java.util.Locale)
+	 */
+	public Map<String, Object> getEntityMapping(String entityType, String entityReference, Locale locale) {
+		Map<String, Object> map = new HashMap<String, Object>();
+		if(logger.isDebugEnabled()) {
+			logger.debug("getEntityMapping(" + entityType + "," + entityReference + "," + locale + ")");
+		}
+
+		DashboardEntityInfo entityTypeDef = this.dashboardLogic.getDashboardEntityInfo(entityType);
+		if(entityTypeDef != null) {
+			if(logger.isDebugEnabled()) {
+				logger.debug("getEntityMapping(" + entityType + "," + entityReference + "," + locale + ") " + entityTypeDef);
+			}
+			Map<String, Object> values = processFormattedText(entityTypeDef.getValues(entityReference, locale.toString()), 6);
+			map.putAll(values);
+			map.putAll(entityTypeDef.getProperties(entityReference, locale.toString()));
+			map.put(DashboardEntityInfo.VALUES_ORDER, entityTypeDef.getOrder(entityReference, locale.toString()));
+		}
+		
+		return map;
+	}
+
+	/* (non-Javadoc)
+	 * @see org.sakaiproject.dash.logic.DashboardCommonLogic#getString(java.lang.String, java.lang.String, java.lang.String)
+	 */
+	public String getString(String key, String dflt, String entityTypeId) {
+		if(dflt == null) {
+			dflt = "";
+		}
+		String str = dflt;
+		if(key == null || entityTypeId == null) {
+			logger.warn("getString() invoked with null parameter: " + key + " :: " + entityTypeId);
+		} else {
+			DashboardEntityInfo dashboardEntityInfo = this.dashboardLogic.getDashboardEntityInfo(entityTypeId);
+			if(dashboardEntityInfo == null) {
+				logger.warn("getString() invalid entityTypeId: " + entityTypeId);
+			} else {
+				str = dashboardEntityInfo.getEventDisplayString(key, dflt);
+			}
+		}
+		return str;
+	}
+
+	/* (non-Javadoc)
+	 * @see org.sakaiproject.dash.logic.DashboardCommonLogic#recordDashboardActivity(java.lang.String, java.lang.String)
+	 */
+	public void recordDashboardActivity(String event, String itemRef) {
+		if(event == null) {
+			// log error and return
+			logger.warn("attempting to record dashboard activity with null event. itemRef == " + itemRef);
+			return;
+		} else if(itemRef == null) {
+			// log error and return
+			logger.warn("attempting to record dashboard activity with null itemRef. event == " + event);
+			return;
+		}
+		
+		int disposition = LOG_MODE_NONE;
+		if(NAVIGATION_EVENTS.contains(event)) {
+			disposition = this.getLogModeNavigationEvents();
+		} else if (DASH_NAV_EVENTS.contains(event)) {
+			disposition = this.getLogModeDashboardNavigationEvents();
+		} else if (ITEM_DETAIL_EVENTS.contains(event)) {
+			disposition = this.getLogModeItemDetailEvents();
+		} else if (PREFERENCE_EVENTS.contains(event)) {
+			disposition = this.getLogModePreferenceEvents();
+		} else {
+			// log error and return
+			logger.warn("attempting to record dashboard activity with invalid event. event == " + event);
+			return;
+		}
+		
+		if(disposition == LOG_MODE_SAVE_AND_POST) {
+			sakaiProxy.postEvent(event, itemRef, false);
+			this.saveEventLocally(event, itemRef, false);
+		} else if (disposition == LOG_MODE_POST) {
+			sakaiProxy.postEvent(event, itemRef, false);
+		} else if (disposition == LOG_MODE_SAVE) {
+			this.saveEventLocally(event, itemRef, false);
+		}
+	}
+	
+	/**
+	 * @return
+	 */
+	protected int getLogModeNavigationEvents() {
+		return dashboardConfig.getConfigValue(DashboardConfig.PROP_LOG_MODE_FOR_NAVIGATION_EVENTS, new Integer(2));
+	}
+	
+	/**
+	 * @return
+	 */
+	protected int getLogModeDashboardNavigationEvents() {
+		return dashboardConfig.getConfigValue(DashboardConfig.PROP_LOG_MODE_FOR_DASH_NAV_EVENTS, new Integer(2));
+	}
+	
+	/**
+	 * @return
+	 */
+	protected int getLogModeItemDetailEvents() {
+		return dashboardConfig.getConfigValue(DashboardConfig.PROP_LOG_MODE_FOR_ITEM_DETAIL_EVENTS, new Integer(2));
+	}
+	
+	/**
+	 * @return
+	 */
+	protected int getLogModePreferenceEvents() {
+		return dashboardConfig.getConfigValue(DashboardConfig.PROP_LOG_MODE_FOR_PREFERENCE_EVENTS, new Integer(2));
+	}
+	
+	/*
+	 * 
+	 */
+	protected void handleAvailabilityChecks() {
+		Date currentTime = new Date();
+		if(currentTime.getTime() > nextTimeToQueryAvailabilityChecks ) {
+			List<AvailabilityCheck> checks = getAvailabilityChecksBeforeTime(currentTime );
+			nextTimeToQueryAvailabilityChecks = currentTime.getTime() + TIME_BETWEEN_AVAILABILITY_CHECKS;
+			
+			if(checks != null && ! checks.isEmpty()) {
+				for(AvailabilityCheck check : checks) {
+					DashboardEntityInfo dashboardEntityInfo = this.dashboardLogic.getDashboardEntityInfo(check.getEntityTypeId());
+					if(dashboardEntityInfo == null) {
+						logger.warn("Unable to process AvailabilityCheck because entityType is null " + check.toString());
+					} else if(dashboardEntityInfo.isAvailable(check.getEntityReference())) {
+						// need to add links
+						List<CalendarItem> calendarItems = dao.getCalendarItems(check.getEntityReference());
+						for(CalendarItem calendarItem : calendarItems) {
+							if(calendarItem != null) {
+								createCalendarLinks(calendarItem);
+							}
+						}
+						
+						NewsItem newsItem = getNewsItem(check.getEntityReference());
+						if(newsItem != null) {
+							createNewsLinks(newsItem);
+						}
+					} else {
+						// verify that users with permissions in alwaysAllowPermission have links and others do not
+						
+						// need to remove all links, if there are any
+						this.removeCalendarLinks(check.getEntityReference());
+						this.removeNewsLinks(check.getEntityReference());
+					}
+				}
+				removeAvailabilityChecksBeforeTime(currentTime);
+			}
+		}
+	}
+	
+	/**
+	 * @param time
+	 * @return
+	 */
+	protected List<AvailabilityCheck> getAvailabilityChecksBeforeTime(Date time) {
+		
+		return dao.getAvailabilityChecksBeforeTime(time);
+	}
+
+	/**
+	 * @param map
+	 * @param maxDepth
+	 * @return
+	 */
+	protected Map processFormattedText(Map<String,Object> map, int maxDepth) {
+		if(maxDepth <= 0) {
+			return null;
+		}
+		for(Map.Entry<String,Object> entry : map.entrySet()) {
+			Object val = entry.getValue();
+			if(val instanceof String) {
+				StringBuilder errorMessages = new StringBuilder();
+				entry.setValue(FormattedText.processFormattedText((String) val, errorMessages , true, false));
+				if(errorMessages != null && errorMessages.length() > 0) {
+					logger.warn("Error encountered while processing values map:\n" + errorMessages);
+				}
+			} else if(val instanceof Map) {
+				entry.setValue(processFormattedText((Map) val, maxDepth - 1));
+			} else if(val instanceof List) {
+				entry.setValue(processFormattedText((List) val, maxDepth - 1));
+			}
+		}
+		return map;
+	}
+
+	/**
+	 * @param list
+	 * @param maxDepth
+	 * @return
+	 */
+	protected List processFormattedText(List list, int maxDepth) {
+		if(maxDepth <= 0) {
+			return null;
+		}
+		for(int i = 0; i < list.size(); i++) {
+			Object item = list.get(i);
+			if(item instanceof String) {
+				StringBuilder errorMessages = new StringBuilder();
+				list.set(i, FormattedText.processFormattedText((String) item, errorMessages , true, false));
+				if(errorMessages != null && errorMessages.length() > 0) {
+					logger.warn("Error encountered while processing values map:\n" + errorMessages);
+				}
+			} else if(item instanceof Map) {
+				processFormattedText((Map) item, maxDepth - 1);
+			} else if(item instanceof List) {
+				processFormattedText((List) item, maxDepth - 1);
+			}
+		}
+		return list;
+	}
+
+	/**
+	 * @param event
+	 * @param itemRef
+	 * @param b
+	 */
+	protected void saveEventLocally(String event, String itemRef, boolean b) {
+		// event_date timestamp, event varchar (32), itemRef varchar (255), 
+		// contextId varchar (255), session_id varchar (163), event_code varchar (1)
+		Date eventDate = new Date();
+		String contextId = sakaiProxy.getCurrentSiteId();
+		String sessionId = sakaiProxy.getCurrentSessionId();
+		String eventCode = "X";
+		
+		boolean success = dao.addEvent(eventDate, event, itemRef, contextId, sessionId, eventCode);
+	}
+
+	/**
+	 * @param time
+	 */
+	protected void removeAvailabilityChecksBeforeTime(Date time) {
+		
+		dao.deleteAvailabilityChecksBeforeTime(time);
+		
+	}
+
+	protected void initServerId() {
+		serverId = sakaiProxy.getServerId();
+		
+	}
+	
+	/************************************************************************
+	 * init() and destroy()
+	 ************************************************************************/
+
+	public void init() {
+		logger.info("init()");
+		
+		if (!sakaiProxy.isEventProcessingThreadDisabled())
+		{
+			if(this.eventProcessingThread == null) {
+				this.eventProcessingThread = new DashboardEventProcessingThread();
+			}
+			this.eventProcessingThread.start();
+			
+			this.sakaiProxy.registerFunction(DASHBOARD_NEGOTIATE_AVAILABILITY_CHECKS);
+			this.sakaiProxy.registerFunction(DASHBOARD_NEGOTIATE_REPEAT_EVENTS);
+			this.sakaiProxy.registerFunction(DASHBOARD_NEGOTIATE_EXPIRATION_AND_PURGING);
+			
+			this.sakaiProxy.addLocalEventListener(this);
+			
+		}
+		
+		
+	}
+	
+	public void destroy() {
+		logger.info("destroy()");
+		
+		synchronized(eventQueueLock) {
+			if(this.eventQueue != null) {
+				// empty the event queue 
+				this.eventQueue.clear();
+				
+				// shut down daemon once it's done processing events
+				if(this.eventProcessingThread != null) {
+					this.eventProcessingThread.close();
+					this.eventProcessingThread = null;
+				}
+				
+				// destroy the event queue 
+				this.eventQueue = null;
+			}
+		}
+	}
+
+	/************************************************************************
+	 * Observer method
+	 ************************************************************************/
+
+	/**
+	 * 
+	 */
+	public void update(Observable arg0, Object obj) {
+		if(obj instanceof Event) {
+			Event event = (Event) obj;
+			if(this.dashboardLogic.getEventProcessor(event.getEvent()) != null) {
+				if(logger.isDebugEnabled()) {
+					logger.debug("adding event to queue: " + event.getEvent());
+				}
+				synchronized(this.eventQueueLock) {
+					if(this.eventQueue != null) {
+						this.eventQueue.add(new EventCopy(event));	
+					}
+				}
+				if(this.eventProcessingThread == null || ! this.eventProcessingThread.isAlive()) {
+					if( eventQueue != null) {
+						// the update() method gets called if and only if DashboardCommonLogic is registered as an observer.
+						// DashboardCommonLogic is registered as an observer if and only if event processing is enabled.
+						// So if the eventProcessingThread is null or disabled in some way, we should restart it, 
+						// unless the eventQueue is null, which should happen if and only if we are shutting down.
+						this.eventProcessingThread = null;
+						this.eventProcessingThread = new DashboardEventProcessingThread();
+						this.eventProcessingThread.start();
+					}
+				}
+			}
+		}
+	}
+
+	/************************************************************************
+	 * Making copies of events
+	 ************************************************************************/
+
+	/**
+	 * 
+	 */
+	public class EventCopy implements Event 
+	{
+
+		protected String context;
+		protected String eventIdentifier;
+		protected Date eventTime;
+		protected boolean modify;
+		protected int priority;
+		protected String entityReference;
+		protected String sessionId;
+		protected String userId;
+		
+		public EventCopy(Event original) {
+			super();
+			this.context = original.getContext();
+			this.eventIdentifier = original.getEvent();
+			
+			try {
+				// this.eventTime = original.getEventTime();
+				// the getEventTime() method did not exist before kernel 1.2
+				// so we use reflection
+				Method getEventTimeMethod = original.getClass().getMethod("getEventTime", null);
+				this.eventTime = (Date) getEventTimeMethod.invoke(original, null);
+			} catch (SecurityException e) {
+				logger.warn("Exception trying to get event time: " + e);
+			} catch (NoSuchMethodException e) {
+				logger.warn("Exception trying to get event time: " + e);
+			} catch (IllegalArgumentException e) {
+				logger.warn("Exception trying to get event time: " + e);
+			} catch (IllegalAccessException e) {
+				logger.warn("Exception trying to get event time: " + e);
+			} catch (InvocationTargetException e) {
+				logger.warn("Exception trying to get event time: " + e);
+			}
+			if(this.eventTime == null) {
+				// If we couldn't get eventTime from event, just use NOW.  That's close enough.
+				this.eventTime = new Date();
+			}
+			
+			
+			this.modify = original.getModify();
+			this.priority = original.getPriority();
+			this.entityReference = original.getResource();
+			this.sessionId = original.getSessionId();
+			this.userId = original.getUserId();
+			if(userId == null && sessionId != null) {
+				userId = sakaiProxy.getCurrentUserId();
+			}
+		}
+		
+		public String getContext() {
+			return context;
+		}
+
+		public String getEvent() {
+			return eventIdentifier;
+		}
+
+		public Date getEventTime() {
+			return eventTime;
+		}
+
+		public boolean getModify() {
+			return modify;
+		}
+
+		public int getPriority() {
+			return priority;
+		}
+
+		public String getResource() {
+			return entityReference;
+		}
+
+		public String getSessionId() {
+			return sessionId;
+		}
+
+		public String getUserId() {
+			return userId;
+		}
+
+		/* (non-Javadoc)
+		 * @see java.lang.Object#toString()
+		 */
+		@Override
+		public String toString() {
+			StringBuilder builder = new StringBuilder();
+			builder.append("EventCopy [context=");
+			builder.append(context);
+			builder.append(", eventIdentifier=");
+			builder.append(eventIdentifier);
+			builder.append(", eventTime=");
+			builder.append(eventTime);
+			builder.append(", modify=");
+			builder.append(modify);
+			builder.append(", priority=");
+			builder.append(priority);
+			builder.append(", entityReference=");
+			builder.append(entityReference);
+			builder.append(", sessionId=");
+			builder.append(sessionId);
+			builder.append(", userId=");
+			builder.append(userId);
+			builder.append("]");
+			return builder.toString();
+		}
+		
+	}
+	
+	/************************************************************************
+	 * Event processing daemon (or thread?)
+	 ************************************************************************/
+	
+	/**
+	 * 
+	 */
+	public class DashboardEventProcessingThread extends Thread
+	{
+		protected static final String EVENT_PROCESSING_THREAD_SHUT_DOWN_MESSAGE = 
+			"\n===================================================\n  Dashboard Event Processing Thread shutting down  \n===================================================";
+
+		private static final long ONE_WEEK_IN_MILLIS = 1000L * 60L * 60L * 24L * 7L;
+
+		protected boolean timeToQuit = false;
+		
+		protected Date handlingAvailabilityChecksTimer = null;
+		protected Date handlingRepeatedEventsTimer = null;
+		protected Date handlingExpirationAndPurgingTime = null;
+		
+		private long sleepTime = 2L;
+
+		public DashboardEventProcessingThread() {
+			super("Dashboard Event Processing Thread");
+			logger.info("Created Dashboard Event Processing Thread");
+			
+			this.setUncaughtExceptionHandler(new Thread.UncaughtExceptionHandler(){
+
+				public void uncaughtException(Thread arg0, Throwable arg1) {
+					logger.error(EVENT_PROCESSING_THREAD_SHUT_DOWN_MESSAGE, arg1);
+					
+				}
+				
+			});
+		}
+
+		public void close() {
+			timeToQuit = true;
+		}
+
+		public void run() {
+			try {
+				dashboardEventProcessorThreadId = Thread.currentThread().getId();
+				logger.info("Started Dashboard Event Processing Thread: " + dashboardEventProcessorThreadId);
+				
+				registerEventProcessor(new DashboardNegotiateAvailabilityChecksEventProcessor());
+				registerEventProcessor(new DashboardNegotiateRepeatEventsEventProcessor());
+				registerEventProcessor(new DashboardNegotiateExpirationAndPurgingProcessor());
+				
+				boolean timeToHandleAvailabilityChecks = true;
+				boolean timeToHandleRepeatedEvents = false;
+				boolean timeToHandleExpirationAndPurging = false;
+				
+				sakaiProxy.startAdminSession();
+				while(! timeToQuit) {
+					if(logger.isDebugEnabled()) {
+						logger.debug("Dashboard Event Processing Thread checking event queue: " + eventQueue.size());
+					}
+					EventCopy event = null;
+					synchronized(eventQueueLock) {
+						if(eventQueue != null && ! eventQueue.isEmpty()) {
+							event = eventQueue.poll();
+						}
+					}
+					if(event == null) {
+						if(serverId == null) {
+							initServerId();
+						}
+												
+						if(timeToHandleAvailabilityChecks) {
+							if(handlingAvailabilityChecks) {
+								SecurityAdvisor advisor = new DashboardLogicSecurityAdvisor();
+								sakaiProxy.pushSecurityAdvisor(advisor);
+								try {
+									handleAvailabilityChecks();
+									//timeToHandleAvailabilityChecks = false;
+								} catch (Exception e) {
+									logger.warn("run: " + event, e);
+								} finally {
+									sakaiProxy.popSecurityAdvisor(advisor);
+									sakaiProxy.clearThreadLocalCache();
+								}
+							} else if(notHandlingAvailabilityChecks) {
+								// do nothing
+							} else if ("".equals(serverHandlingAvailabilityChecks)) {
+								claimAvailabilityCheckDuty();
+							} else {
+								if(handlingAvailabilityChecksTimer == null) {
+									handlingAvailabilityChecksTimer = new Date(System.currentTimeMillis() + NEGOTIATING_TIME);
+								} else if (handlingAvailabilityChecksTimer.before(new Date())) {
+									if(serverHandlingAvailabilityChecks.equals(serverId)) {
+										handlingAvailabilityChecks = true;
+									} else {
+										notHandlingAvailabilityChecks = true;
+									}
+									logger.info("Server handling availability checks is " + serverHandlingAvailabilityChecks);
+								}
+								
+							} 
+							timeToHandleRepeatedEvents = true;
+							timeToHandleAvailabilityChecks = false;
+						} else if(timeToHandleRepeatedEvents) {
+							if(handlingRepeatedEvents) {
+								SecurityAdvisor advisor = new DashboardLogicSecurityAdvisor();
+								sakaiProxy.pushSecurityAdvisor(advisor);
+								try {
+									updateRepeatingEvents();
+									//timeToHandleAvailabilityChecks = true;
+								} catch (Exception e) {
+									logger.warn("run: " + event, e);
+								} finally {
+									sakaiProxy.popSecurityAdvisor(advisor);
+								}	
+							} else if(notHandlingRepeatedEvents) {
+								// do nothing
+							} else if("".equals(serverHandlingRepeatEvents)) {
+								claimRepeatEventsDuty();
+							} else {
+								if(handlingRepeatedEventsTimer == null) {
+									handlingRepeatedEventsTimer = new Date(System.currentTimeMillis() + NEGOTIATING_TIME);
+								} else if (handlingRepeatedEventsTimer.before(new Date())) {
+									if(serverHandlingRepeatEvents.equals(serverId)) {
+										handlingRepeatedEvents = true;
+									} else {
+										notHandlingRepeatedEvents = true;
+									}
+									logger.info("Server handling repeated events is " + serverHandlingRepeatEvents);
+								}
+							}
+							timeToHandleExpirationAndPurging = true;
+							timeToHandleRepeatedEvents = false;
+						} else if(timeToHandleExpirationAndPurging) {
+							
+							if(handlingExpirationAndPurging) {
+								SecurityAdvisor advisor = new DashboardLogicSecurityAdvisor();
+								sakaiProxy.pushSecurityAdvisor(advisor);
+								try {
+									expireAndPurge();
+									//timeToHandleAvailabilityChecks = true;
+								} catch (Exception e) {
+									logger.warn("run: " + event, e);
+								} finally {
+									sakaiProxy.popSecurityAdvisor(advisor);
+								}	
+							} else if(notHandlingExpirationAndPurging) {
+								// do nothing
+							} else if("".equals(serverHandlingExpirationAndPurging)) {
+								claimExpirationAndPurging();
+							} else {
+								if(handlingExpirationAndPurgingTime == null) {
+									handlingExpirationAndPurgingTime = new Date(System.currentTimeMillis() + NEGOTIATING_TIME);
+								} else if (handlingExpirationAndPurgingTime.before(new Date())) {
+									if(serverHandlingExpirationAndPurging.equals(serverId)) {
+										handlingExpirationAndPurging = true;
+									} else {
+										notHandlingExpirationAndPurging = true;
+									}
+									logger.info("Server handling expiration and purging is " + serverHandlingExpirationAndPurging);
+								}
+							}
+							timeToHandleAvailabilityChecks= true;
+							timeToHandleExpirationAndPurging = false;
+						}
+						
+						try {
+							Thread.sleep(sleepTime * 1000L);
+						} catch (InterruptedException e) {
+							logger.warn("InterruptedException in Dashboard Event Processing Thread: " + e);
+						}
+					} else {
+						if(logger.isDebugEnabled()) {
+							logger.debug("Dashboard Event Processing Thread is processing event: " + event.getEvent());
+						}
+						EventProcessor eventProcessor = dashboardLogic.getEventProcessor(event.getEvent());
+						
+						SecurityAdvisor advisor = new DashboardLogicSecurityAdvisor();
+						sakaiProxy.pushSecurityAdvisor(advisor);
+						try {
+							eventProcessor.processEvent(event);
+						} catch (Exception e) {
+							logger.warn("Error processing event: " + event, e);
+						} finally {
+							sakaiProxy.popSecurityAdvisor(advisor);
+							sakaiProxy.clearThreadLocalCache();
+						}
+					}
+				}
+				
+				logger.warn(EVENT_PROCESSING_THREAD_SHUT_DOWN_MESSAGE);
+				
+			} catch(Throwable t) {
+				logger.error("Unhandled throwable is stopping Dashboard Event Processing Thread", t);
+				throw new RuntimeException(t);
+			}
+		}
+
+		protected void expireAndPurge() {
+			if(System.currentTimeMillis() > nextTimeToExpireAndPurge ) {
+				expireAndPurgeCalendarItems();
+				expireAndPurgeNewsItems();
+				
+				nextTimeToExpireAndPurge = System.currentTimeMillis() + TIME_BETWEEN_EXPIRING_AND_PURGING;
+			}
+			
+		}
+
+		protected void expireAndPurgeNewsItems() {
+			Integer weeksToExpireItems = dashboardConfig.getConfigValue(DashboardConfig.PROP_REMOVE_NEWS_ITEMS_AFTER_WEEKS, DEFAULT_NEWS_ITEM_EXPIRATION);
+			Integer weeksToExpireStarredItems = dashboardConfig.getConfigValue(DashboardConfig.PROP_REMOVE_STARRED_NEWS_ITEMS_AFTER_WEEKS, DEFAULT_NEWS_ITEM_EXPIRATION);
+			Integer weeksToExpireHiddenItems = dashboardConfig.getConfigValue(DashboardConfig.PROP_REMOVE_HIDDEN_NEWS_ITEMS_AFTER_WEEKS, DEFAULT_NEWS_ITEM_EXPIRATION);
+			Integer purgeItemsWithoutLinks = dashboardConfig.getConfigValue(DashboardConfig.PROP_REMOVE_NEWS_ITEMS_WITH_NO_LINKS, 0);
+			
+			if(weeksToExpireItems.intValue() > 0) {
+				expireNewsLinks(new Date(System.currentTimeMillis() - weeksToExpireItems.intValue() * ONE_WEEK_IN_MILLIS), false, false);
+			}
+			if(weeksToExpireStarredItems.intValue() > 0) {
+				expireNewsLinks(new Date(System.currentTimeMillis() - weeksToExpireStarredItems.intValue() * ONE_WEEK_IN_MILLIS), false, false);
+			}
+			if(weeksToExpireHiddenItems.intValue() > 0) {
+				expireNewsLinks(new Date(System.currentTimeMillis() - weeksToExpireHiddenItems.intValue() * ONE_WEEK_IN_MILLIS), false, true);
+			}
+			if(purgeItemsWithoutLinks.intValue() > 0) {
+				purgeNewsItems();
+			}
+		}
+
+		private void purgeNewsItems() {
+			dao.deleteNewsItemsWithoutLinks();
+		}
+
+		protected void expireNewsLinks(Date expireBefore, boolean starred, boolean hidden) {
+			dao.deleteNewsLinksBefore(expireBefore,starred,hidden);
+			
+		}
+
+		protected void expireAndPurgeCalendarItems() {
+			Integer weeksToExpireItems = dashboardConfig.getConfigValue(DashboardConfig.PROP_REMOVE_CALENDAR_ITEMS_AFTER_WEEKS, DEFAULT_CALENDAR_ITEM_EXPIRATION);
+			Integer weeksToExpireStarredItems = dashboardConfig.getConfigValue(DashboardConfig.PROP_REMOVE_STARRED_CALENDAR_ITEMS_AFTER_WEEKS, DEFAULT_CALENDAR_ITEM_EXPIRATION);
+			Integer weeksToExpireHiddenItems = dashboardConfig.getConfigValue(DashboardConfig.PROP_REMOVE_HIDDEN_CALENDAR_ITEMS_AFTER_WEEKS, DEFAULT_CALENDAR_ITEM_EXPIRATION);
+			Integer purgeItemsWithoutLinks = dashboardConfig.getConfigValue(DashboardConfig.PROP_REMOVE_CALENDAR_ITEMS_WITH_NO_LINKS, 0);
+
+			if(weeksToExpireItems.intValue() > 0) {
+				expireCalendarLinks(new Date(System.currentTimeMillis() - weeksToExpireItems.intValue() * ONE_WEEK_IN_MILLIS), false, false);
+			}
+			if(weeksToExpireStarredItems.intValue() > 0) {
+				expireCalendarLinks(new Date(System.currentTimeMillis() - weeksToExpireStarredItems.intValue() * ONE_WEEK_IN_MILLIS), false, false);
+			}
+			if(weeksToExpireHiddenItems.intValue() > 0) {
+				expireCalendarLinks(new Date(System.currentTimeMillis() - weeksToExpireHiddenItems.intValue() * ONE_WEEK_IN_MILLIS), false, true);
+			}
+			if(purgeItemsWithoutLinks.intValue() > 0) {
+				purgeCalendarItems();
+			}
+		}
+
+		private void purgeCalendarItems() {
+			dao.deleteCalendarItemsWithoutLinks();
+			
+		}
+
+		protected void expireCalendarLinks(Date expireBefore, boolean starred, boolean hidden) {
+			dao.deleteCalendarLinksBefore(expireBefore, starred, hidden);
+		}
+
+		/**
+		 * 
+		 */
+		protected void updateRepeatingEvents() {
+			
+			if(nextHorizonUpdate != null && System.currentTimeMillis() > nextHorizonUpdate.getTime()) {
+				// time to update
+				Date oldHorizon = dashboardLogic.getRepeatingEventHorizon();
+				Integer weeksToHorizon = dashboardConfig.getConfigValue(DashboardConfig.PROP_WEEKS_TO_HORIZON, new Integer(4));
+				Date newHorizon = new Date(System.currentTimeMillis() + weeksToHorizon * 7L * DashboardLogic.ONE_DAY);
+				dashboardLogic.setRepeatingEventHorizon(newHorizon);
+				
+				if(newHorizon.after(oldHorizon)) {
+					List<RepeatingCalendarItem> repeatingEvents = dao.getRepeatingCalendarItems();
+					if(repeatingEvents != null) {
+						for(RepeatingCalendarItem repeatingEvent: repeatingEvents) {
+							addCalendarItemsForRepeatingCalendarItem(repeatingEvent, oldHorizon, newHorizon);
+
+						}
+					}
+				}
+				Integer daysBetweenHorizonUpdates = dashboardConfig.getConfigValue(DashboardConfig.PROP_DAYS_BETWEEN_HORIZ0N_UPDATES, new Integer(1));
+				nextHorizonUpdate = new Date(nextHorizonUpdate.getTime() + daysBetweenHorizonUpdates.longValue() * DashboardLogic.ONE_DAY);
+			}
+		}
+
+		protected void claimAvailabilityCheckDuty() {
+			if(claimAvailabilityCheckDutyTime == null) {
+				sakaiProxy.postEvent(DASHBOARD_NEGOTIATE_AVAILABILITY_CHECKS, serverId, true);
+				
+				claimAvailabilityCheckDutyTime = new Date(System.currentTimeMillis() + NEGOTIATING_TIME);
+			} 
+		}
+		
+		protected void claimRepeatEventsDuty() {
+			if(claimRepeatEventsDutyTime == null) {
+				sakaiProxy.postEvent(DASHBOARD_NEGOTIATE_REPEAT_EVENTS, serverId, true);
+				
+				claimRepeatEventsDutyTime = new Date(System.currentTimeMillis() + NEGOTIATING_TIME);
+			} 
+		}
+
+		protected void claimExpirationAndPurging() {
+			if(claimExpirationAndPurgingTime == null) {
+				sakaiProxy.postEvent(DASHBOARD_NEGOTIATE_EXPIRATION_AND_PURGING, serverId, true);
+				
+				claimExpirationAndPurgingTime = new Date(System.currentTimeMillis() + NEGOTIATING_TIME);
+			}
+		}
+	}
+	
+	/**
+	 * 
+	 *
+	 */
+	public class DashboardLogicSecurityAdvisor implements SecurityAdvisor 
+	{
+		/**
+		 */
+		public DashboardLogicSecurityAdvisor() {
+			super();
+		}
+
+		/*
+		 * (non-Javadoc)
+		 * @see org.sakaiproject.authz.api.SecurityAdvisor#isAllowed(java.lang.String, java.lang.String, java.lang.String)
+		 */
+		public SecurityAdvice isAllowed(String userId, String function,
+				String reference) {
+			
+			long threadId = Thread.currentThread().getId();
+			
+			if(threadId == DashboardCommonLogicImpl.dashboardEventProcessorThreadId) {
+				return SecurityAdvice.ALLOWED;
+			}
+			return SecurityAdvice.PASS;
+		}
+		
+	}
+
+	public class DashboardNegotiateAvailabilityChecksEventProcessor implements EventProcessor {
+
+		public String getEventIdentifer() {
+			return DASHBOARD_NEGOTIATE_AVAILABILITY_CHECKS;
+		}
+
+		public void processEvent(Event event) {
+			if(logger.isDebugEnabled()) {
+				logger.debug("\n\n\n=============================================================\n" + event  
+						+ "\n=============================================================\n\n\n");
+			}
+			if(event.getModify()) {
+				// this is a message indicating an attempt to claim availability-check processing
+				if(handlingAvailabilityChecks) {
+					// availability-check processing is already claimed by this server -- report that
+					sakaiProxy.postEvent(DASHBOARD_NEGOTIATE_AVAILABILITY_CHECKS, serverHandlingAvailabilityChecks, false);
+				} else if (notHandlingAvailabilityChecks) {
+					// do nothing
+				} else if(event.getEventTime() != null && (claimAvailabilityCheckDutyTime == null || event.getEventTime().before(claimAvailabilityCheckDutyTime))) {
+					// negotiate
+					synchronized(serverHandlingAvailabilityChecks) {
+						claimAvailabilityCheckDutyTime = event.getEventTime();
+						serverHandlingAvailabilityChecks = event.getResource();
+					}
+				}
+			} else {
+				// this message indicates that availability-check processing has been claimed by another server
+				if(! handlingAvailabilityChecks && ! notHandlingAvailabilityChecks) {
+					// we're trying to claim availability-check processing and it's already claimed, so stop trying
+					synchronized(serverHandlingAvailabilityChecks) {
+						claimAvailabilityCheckDutyTime = new Date(System.currentTimeMillis() - NEGOTIATING_TIME);
+						serverHandlingAvailabilityChecks = event.getResource();
+					}
+				}
+				
+			}			
+		}
+		
+	}
+	public class DashboardNegotiateRepeatEventsEventProcessor implements EventProcessor {
+
+		public String getEventIdentifer() {
+			return DASHBOARD_NEGOTIATE_REPEAT_EVENTS;
+		}
+
+		public void processEvent(Event event) {
+			if(logger.isDebugEnabled()) {
+				logger.debug("\n\n\n=============================================================\n" + event  
+						+ "\n=============================================================\n\n\n");
+			}
+			if(event.getModify()) {
+				// this is a message indicating an attempt to claim repeated events processing
+				if(handlingRepeatedEvents) {
+					// repeated events processing is already claimed by this server -- report that
+					sakaiProxy.postEvent(DASHBOARD_NEGOTIATE_REPEAT_EVENTS, serverHandlingRepeatEvents, false);
+				} else if (notHandlingRepeatedEvents) {
+					// do nothing
+				} else if(event.getEventTime() != null && (claimRepeatEventsDutyTime == null || event.getEventTime().before(claimRepeatEventsDutyTime))) {
+					// negotiate
+					synchronized(serverHandlingRepeatEvents) {
+						claimRepeatEventsDutyTime = event.getEventTime();
+						serverHandlingRepeatEvents = event.getResource();
+					}
+				}
+			} else {
+				// this message indicates that repeated events processing has been claimed by another server
+				if(! handlingRepeatedEvents && ! notHandlingRepeatedEvents) {
+					// we're trying to claim repeated events processing and it's already claimed, so stop trying
+					synchronized(serverHandlingRepeatEvents) {
+						claimRepeatEventsDutyTime = new Date(System.currentTimeMillis() - NEGOTIATING_TIME);
+						serverHandlingRepeatEvents = event.getResource();
+					}
+				}
+			}
+		}
+		
+	}
+	public class DashboardNegotiateExpirationAndPurgingProcessor implements EventProcessor {
+
+		public String getEventIdentifer() {
+			return DASHBOARD_NEGOTIATE_EXPIRATION_AND_PURGING;
+		}
+
+		public void processEvent(Event event) {
+			if(logger.isDebugEnabled()) {
+				logger.debug("\n\n\n=============================================================\n" + event  
+						+ "\n=============================================================\n\n\n");
+			}
+			if(event.getModify()) {
+				// this is a message indicating an attempt to claim expiration and purging 
+				if(handlingExpirationAndPurging) {
+					// expiration and purging is already claimed by this server -- report that
+					sakaiProxy.postEvent(DASHBOARD_NEGOTIATE_EXPIRATION_AND_PURGING, serverHandlingExpirationAndPurging, false);
+				} else if (notHandlingExpirationAndPurging) {
+					// do nothing
+				} else if(event.getEventTime() != null && (claimExpirationAndPurgingTime == null || event.getEventTime().before(claimExpirationAndPurgingTime))) {
+					// negotiate
+					synchronized(serverHandlingExpirationAndPurging) {
+						claimExpirationAndPurgingTime = event.getEventTime();
+						serverHandlingExpirationAndPurging = event.getResource();
+					}
+				}
+			} else {
+				// this message indicates that expiration and purging has been claimed by another server
+				if(! handlingExpirationAndPurging && ! notHandlingExpirationAndPurging) {
+					// we're trying to claim expiration and purging and it's already claimed, so stop trying
+					synchronized(serverHandlingExpirationAndPurging) {
+						claimExpirationAndPurgingTime = new Date(System.currentTimeMillis() - NEGOTIATING_TIME);
+						serverHandlingExpirationAndPurging = event.getResource();
+					}
+				}
+			}
+		}
+		
+	}
+	
+	/************************************************************************
+	 * DashboardLogic methods
+	 ************************************************************************/
+
+	/* (non-Javadoc)
+	 * @see org.sakaiproject.dash.logic.DashboardLogic#addCalendarItemsForRepeatingCalendarItem(org.sakaiproject.dash.model.RepeatingCalendarItem, java.util.Date, java.util.Date)
+	 */
+	@Override
+	public void addCalendarItemsForRepeatingCalendarItem(
+			RepeatingCalendarItem repeatingEvent, Date oldHorizon,
+			Date newHorizon) {
+		this.dashboardLogic.addCalendarItemsForRepeatingCalendarItem(repeatingEvent, oldHorizon, newHorizon);
+		
+	}
+
+	/* (non-Javadoc)
+	 * @see org.sakaiproject.dash.logic.DashboardLogic#addCalendarLinks(java.lang.String, java.lang.String)
+	 */
+	@Override
+	public void addCalendarLinks(String sakaiUserId, String contextId) {
+		this.dashboardLogic.addCalendarLinks(sakaiUserId, contextId);
+	}
+
+	/* (non-Javadoc)
+	 * @see org.sakaiproject.dash.logic.DashboardLogic#addNewsLinks(java.lang.String, java.lang.String)
+	 */
+	@Override
+	public void addNewsLinks(String sakaiUserId, String contextId) {
+		
+		this.dashboardLogic.addNewsLinks(sakaiUserId, contextId);
+	}
+
+	/* (non-Javadoc)
+	 * @see org.sakaiproject.dash.logic.DashboardLogic#createCalendarItem(java.lang.String, java.util.Date, java.lang.String, java.lang.String, org.sakaiproject.dash.model.Context, org.sakaiproject.dash.model.SourceType, java.lang.String, org.sakaiproject.dash.model.RepeatingCalendarItem, java.lang.Integer)
+	 */
+	@Override
+	public CalendarItem createCalendarItem(String title, Date calendarTime,
+			String calendarTimeLabelKey, String entityReference,
+			Context context, SourceType sourceType, String subtype,
+			RepeatingCalendarItem repeatingCalendarItem, Integer sequenceNumber) {
+		
+		return this.dashboardLogic.createCalendarItem(title, calendarTime, calendarTimeLabelKey, entityReference, 
+				context, sourceType, subtype, repeatingCalendarItem, sequenceNumber);
+	}
+
+	/* (non-Javadoc)
+	 * @see org.sakaiproject.dash.logic.DashboardLogic#createCalendarLinks(org.sakaiproject.dash.model.CalendarItem)
+	 */
+	@Override
+	public void createCalendarLinks(CalendarItem calendarItem) {
+		
+		this.dashboardLogic.createCalendarLinks(calendarItem);
+	}
+
+	/* (non-Javadoc)
+	 * @see org.sakaiproject.dash.logic.DashboardLogic#createContext(java.lang.String)
+	 */
+	@Override
+	public Context createContext(String contextId) {
+		
+		return this.dashboardLogic.createContext(contextId);
+	}
+
+	/* (non-Javadoc)
+	 * @see org.sakaiproject.dash.logic.DashboardLogic#createNewsItem(java.lang.String, java.util.Date, java.lang.String, java.lang.String, org.sakaiproject.dash.model.Context, org.sakaiproject.dash.model.SourceType, java.lang.String)
+	 */
+	@Override
+	public NewsItem createNewsItem(String title, Date newsTime,
+			String labelKey, String entityReference, Context context,
+			SourceType sourceType, String subtype) {
+		
+		return this.dashboardLogic.createNewsItem(title, newsTime, labelKey, entityReference, context, sourceType, subtype);
+	}
+
+	/* (non-Javadoc)
+	 * @see org.sakaiproject.dash.logic.DashboardLogic#createNewsLinks(org.sakaiproject.dash.model.NewsItem)
+	 */
+	@Override
+	public void createNewsLinks(NewsItem newsItem) {
+		
+		this.dashboardLogic.createNewsLinks(newsItem);
+	}
+
+	/* (non-Javadoc)
+	 * @see org.sakaiproject.dash.logic.DashboardLogic#createRepeatingCalendarItem(java.lang.String, java.util.Date, java.util.Date, java.lang.String, java.lang.String, org.sakaiproject.dash.model.Context, org.sakaiproject.dash.model.SourceType, java.lang.String, int)
+	 */
+	@Override
+	public RepeatingCalendarItem createRepeatingCalendarItem(String title,
+			Date firstTime, Date lastTime, String calendarTimeLabelKey,
+			String entityReference, Context context, SourceType sourceType,
+			String frequency, int count) {
+		
+		return this.dashboardLogic.createRepeatingCalendarItem(title, firstTime, lastTime, calendarTimeLabelKey, 
+				entityReference, context, sourceType, frequency, count);
+	}
+
+	/* (non-Javadoc)
+	 * @see org.sakaiproject.dash.logic.DashboardLogic#createSourceType(java.lang.String)
+	 */
+	@Override
+	public SourceType createSourceType(String resourceTypeIdentifier) {
+		
+		return this.dashboardLogic.createSourceType(resourceTypeIdentifier);
+	}
+
+	/* (non-Javadoc)
+	 * @see org.sakaiproject.dash.logic.DashboardLogic#getCalendarItem(long)
+	 */
+	@Override
+	public CalendarItem getCalendarItem(long id) {
+		
+		return this.dashboardLogic.getCalendarItem(id);
+	}
+
+	/* (non-Javadoc)
+	 * @see org.sakaiproject.dash.logic.DashboardLogic#getCalendarItem(java.lang.String, java.lang.String, java.lang.Integer)
+	 */
+	@Override
+	public CalendarItem getCalendarItem(String entityReference,
+			String calendarTimeLabelKey, Integer sequenceNumber) {
+		
+		return this.dashboardLogic.getCalendarItem(entityReference, calendarTimeLabelKey, sequenceNumber);
+	}
+
+	/* (non-Javadoc)
+	 * @see org.sakaiproject.dash.logic.DashboardLogic#getCalendarLink(java.lang.Long)
+	 */
+	@Override
+	public CalendarLink getCalendarLink(Long id) {
+		
+		return this.dashboardLogic.getCalendarLink(id);
+	}
+
+	/* (non-Javadoc)
+	 * @see org.sakaiproject.dash.logic.DashboardLogic#getContext(java.lang.String)
+	 */
+	@Override
+	public Context getContext(String contextId) {
+		
+		return this.dashboardLogic.getContext(contextId);
+	}
+
+	/* (non-Javadoc)
+	 * @see org.sakaiproject.dash.logic.DashboardLogic#getDashboardEntityInfo(java.lang.String)
+	 */
+	public DashboardEntityInfo getDashboardEntityInfo(String Identifier) {
+		
+		return this.dashboardLogic.getDashboardEntityInfo(Identifier);
+	}
+
+	/* (non-Javadoc)
+	 * @see org.sakaiproject.dash.logic.DashboardLogic#getEventProcessor(java.lang.String)
+	 */
+	public EventProcessor getEventProcessor(String eventIdentifier) {
+		
+		return this.dashboardLogic.getEventProcessor(eventIdentifier);
+	}
+
+	/* (non-Javadoc)
+	 * @see org.sakaiproject.dash.logic.DashboardLogic#getFutureSequnceNumbers(java.lang.String, java.lang.String, java.lang.Integer)
+	 */
+	@Override
+	public SortedSet<Integer> getFutureSequnceNumbers(String entityReference,
+			String calendarTimeLabelKey, Integer firstSequenceNumber) {
+		
+		return this.dashboardLogic.getFutureSequnceNumbers(entityReference, calendarTimeLabelKey, firstSequenceNumber);
+	}
+
+	/* (non-Javadoc)
+	 * @see org.sakaiproject.dash.logic.DashboardLogic#getNewsItem(long)
+	 */
+	@Override
+	public NewsItem getNewsItem(long id) {
+		
+		return this.dashboardLogic.getNewsItem(id);
+	}
+
+	/* (non-Javadoc)
+	 * @see org.sakaiproject.dash.logic.DashboardLogic#getNewsItem(java.lang.String)
+	 */
+	@Override
+	public NewsItem getNewsItem(String entityReference) {
+		
+		return this.dashboardLogic.getNewsItem(entityReference);
+	}
+
+	/* (non-Javadoc)
+	 * @see org.sakaiproject.dash.logic.DashboardLogic#getRepeatingCalendarItem(java.lang.String, java.lang.String)
+	 */
+	@Override
+	public RepeatingCalendarItem getRepeatingCalendarItem(
+			String entityReference, String calendarTimeLabelKey) {
+		
+		return this.dashboardLogic.getRepeatingCalendarItem(entityReference, calendarTimeLabelKey);
+	}
+
+	/* (non-Javadoc)
+	 * @see org.sakaiproject.dash.logic.DashboardLogic#getRepeatingEventHorizon()
+	 */
+	@Override
+	public Date getRepeatingEventHorizon() {
+		
+		return this.dashboardLogic.getRepeatingEventHorizon();
+	}
+
+	/* (non-Javadoc)
+	 * @see org.sakaiproject.dash.logic.DashboardLogic#getSourceType(java.lang.String)
+	 */
+	@Override
+	public SourceType getSourceType(String identifier) {
+		
+		return this.dashboardLogic.getSourceType(identifier);
+	}
+
+	/* (non-Javadoc)
+	 * @see org.sakaiproject.dash.logic.DashboardLogic#isAvailable(java.lang.String, java.lang.String)
+	 */
+	@Override
+	public boolean isAvailable(String entityReference, String entityTypeId) {
+		
+		return this.dashboardLogic.isAvailable(entityReference, entityTypeId);
+	}
+
+	/* (non-Javadoc)
+	 * @see org.sakaiproject.dash.logic.DashboardLogic#registerEntityType(org.sakaiproject.dash.entity.DashboardEntityInfo)
+	 */
+	@Override
+	public void registerEntityType(DashboardEntityInfo dashboardEntityInfo) {
+		
+		this.dashboardLogic.registerEntityType(dashboardEntityInfo);
+	}
+
+	/* (non-Javadoc)
+	 * @see org.sakaiproject.dash.logic.DashboardLogic#registerEventProcessor(org.sakaiproject.dash.listener.EventProcessor)
+	 */
+	@Override
+	public void registerEventProcessor(EventProcessor eventProcessor) {
+		
+		this.dashboardLogic.registerEventProcessor(eventProcessor);
+	}
+
+	/* (non-Javadoc)
+	 * @see org.sakaiproject.dash.logic.DashboardLogic#removeAllScheduledAvailabilityChecks(java.lang.String)
+	 */
+	@Override
+	public void removeAllScheduledAvailabilityChecks(String entityReference) {
+		
+		this.dashboardLogic.removeAllScheduledAvailabilityChecks(entityReference);
+	}
+
+	/* (non-Javadoc)
+	 * @see org.sakaiproject.dash.logic.DashboardLogic#removeCalendarItem(java.lang.String, java.lang.String, java.lang.Integer)
+	 */
+	@Override
+	public void removeCalendarItem(String entityReference,
+			String calendarTimeLabelKey, Integer sequenceNumber) {
+		
+		this.dashboardLogic.removeCalendarItem(entityReference, calendarTimeLabelKey, sequenceNumber);
+	}
+
+	/* (non-Javadoc)
+	 * @see org.sakaiproject.dash.logic.DashboardLogic#removeCalendarItems(java.lang.String)
+	 */
+	@Override
+	public void removeCalendarItems(String entityReference) {
+		
+		this.dashboardLogic.removeCalendarItems(entityReference);
+	}
+
+	/* (non-Javadoc)
+	 * @see org.sakaiproject.dash.logic.DashboardLogic#removeCalendarLinks(java.lang.String)
+	 */
+	@Override
+	public void removeCalendarLinks(String entityReference) {
+		
+		this.dashboardLogic.removeCalendarLinks(entityReference);
+	}
+
+	/* (non-Javadoc)
+	 * @see org.sakaiproject.dash.logic.DashboardLogic#removeCalendarLinks(java.lang.String, java.lang.String)
+	 */
+	@Override
+	public void removeCalendarLinks(String sakaiUserId, String contextId) {
+		
+		this.dashboardLogic.removeCalendarLinks(sakaiUserId, contextId);
+	}
+
+	/* (non-Javadoc)
+	 * @see org.sakaiproject.dash.logic.DashboardLogic#removeCalendarLinks(java.lang.String, java.lang.String, int)
+	 */
+	@Override
+	public void removeCalendarLinks(String entityReference,
+			String calendarTimeLabelKey, int sequenceNumber) {
+		
+		this.dashboardLogic.removeCalendarLinks(entityReference, calendarTimeLabelKey, sequenceNumber);
+	}
+
+	/* (non-Javadoc)
+	 * @see org.sakaiproject.dash.logic.DashboardLogic#removeNewsItem(java.lang.String)
+	 */
+	@Override
+	public void removeNewsItem(String entityReference) {
+		
+		this.dashboardLogic.removeNewsItem(entityReference);
+	}
+
+	/* (non-Javadoc)
+	 * @see org.sakaiproject.dash.logic.DashboardLogic#removeNewsLinks(java.lang.String)
+	 */
+	@Override
+	public void removeNewsLinks(String entityReference) {
+		
+		this.dashboardLogic.removeNewsLinks(entityReference);
+	}
+
+	/* (non-Javadoc)
+	 * @see org.sakaiproject.dash.logic.DashboardLogic#removeNewsLinks(java.lang.String, java.lang.String)
+	 */
+	@Override
+	public void removeNewsLinks(String sakaiUserId, String contextId) {
+		
+		this.dashboardLogic.removeNewsLinks(sakaiUserId, contextId);
+	}
+
+	/* (non-Javadoc)
+	 * @see org.sakaiproject.dash.logic.DashboardLogic#reviseCalendarItemsLabelKey(java.lang.String, java.lang.String, java.lang.String)
+	 */
+	@Override
+	public void reviseCalendarItemsLabelKey(String entityReference,
+			String oldLabelKey, String newLabelKey) {
+		
+		this.dashboardLogic.reviseCalendarItemsLabelKey(entityReference, oldLabelKey, newLabelKey);
+	}
+
+	/* (non-Javadoc)
+	 * @see org.sakaiproject.dash.logic.DashboardLogic#reviseCalendarItemsTime(java.lang.String, java.util.Date)
+	 */
+	@Override
+	public void reviseCalendarItemsTime(String entityReference, Date newTime) {
+		
+		this.dashboardLogic.reviseCalendarItemsTime(entityReference, newTime);
+	}
+
+	/* (non-Javadoc)
+	 * @see org.sakaiproject.dash.logic.DashboardLogic#reviseCalendarItemsTitle(java.lang.String, java.lang.String)
+	 */
+	@Override
+	public void reviseCalendarItemsTitle(String entityReference, String newTitle) {
+		
+		this.dashboardLogic.reviseCalendarItemsTitle(entityReference, newTitle);
+	}
+
+	/* (non-Javadoc)
+	 * @see org.sakaiproject.dash.logic.DashboardLogic#reviseCalendarItemTime(java.lang.String, java.lang.String, java.lang.Integer, java.util.Date)
+	 */
+	@Override
+	public void reviseCalendarItemTime(String entityReference, String labelKey,
+			Integer sequenceNumber, Date newDate) {
+		
+		this.dashboardLogic.reviseCalendarItemTime(entityReference, labelKey, sequenceNumber, newDate);
+	}
+
+	/* (non-Javadoc)
+	 * @see org.sakaiproject.dash.logic.DashboardLogic#reviseNewsItemTime(java.lang.String, java.util.Date, java.lang.String)
+	 */
+	@Override
+	public void reviseNewsItemTime(String entityReference, Date newTime,
+			String newGroupingIdentifier) {
+		
+		this.dashboardLogic.reviseNewsItemTime(entityReference, newTime, newGroupingIdentifier);
+	}
+
+	/* (non-Javadoc)
+	 * @see org.sakaiproject.dash.logic.DashboardLogic#reviseNewsItemTitle(java.lang.String, java.lang.String, java.util.Date, java.lang.String, java.lang.String)
+	 */
+	@Override
+	public void reviseNewsItemTitle(String entityReference, String newTitle,
+			Date newNewsTime, String newLabelKey, String newGroupingIdentifier) {
+		
+		this.dashboardLogic.reviseNewsItemTitle(entityReference, newTitle, newNewsTime, newLabelKey, newGroupingIdentifier);
+	}
+
+	/* (non-Javadoc)
+	 * @see org.sakaiproject.dash.logic.DashboardLogic#reviseRepeatingCalendarItemFrequency(java.lang.String, java.lang.String)
+	 */
+	@Override
+	public boolean reviseRepeatingCalendarItemFrequency(String entityReference,
+			String frequency) {
+		
+		return this.dashboardLogic.reviseRepeatingCalendarItemFrequency(entityReference, frequency);
+	}
+
+	/* (non-Javadoc)
+	 * @see org.sakaiproject.dash.logic.DashboardLogic#reviseRepeatingCalendarItemsLabelKey(java.lang.String, java.lang.String, java.lang.String)
+	 */
+	@Override
+	public void reviseRepeatingCalendarItemsLabelKey(String entityReference,
+			String oldType, String newType) {
+		
+		this.dashboardLogic.reviseRepeatingCalendarItemsLabelKey(entityReference, oldType, newType);
+	}
+
+	/* (non-Javadoc)
+	 * @see org.sakaiproject.dash.logic.DashboardLogic#reviseRepeatingCalendarItemTime(java.lang.String, java.util.Date, java.util.Date)
+	 */
+	@Override
+	public void reviseRepeatingCalendarItemTime(String entityReference,
+			Date newFirstTime, Date newLastTime) {
+		
+		this.dashboardLogic.reviseRepeatingCalendarItemTime(entityReference, newFirstTime, newLastTime);
+	}
+
+	/* (non-Javadoc)
+	 * @see org.sakaiproject.dash.logic.DashboardLogic#reviseRepeatingCalendarItemTitle(java.lang.String, java.lang.String)
+	 */
+	@Override
+	public void reviseRepeatingCalendarItemTitle(String entityReference,
+			String newTitle) {
+		
+		this.dashboardLogic.reviseRepeatingCalendarItemTitle(entityReference, newTitle);
+	}
+
+	/* (non-Javadoc)
+	 * @see org.sakaiproject.dash.logic.DashboardLogic#scheduleAvailabilityCheck(java.lang.String, java.lang.String, java.util.Date)
+	 */
+	@Override
+	public void scheduleAvailabilityCheck(String entityReference,
+			String entityTypeId, Date scheduledTime) {
+		
+		this.dashboardLogic.scheduleAvailabilityCheck(entityReference, entityTypeId, scheduledTime);
+	}
+
+	/* (non-Javadoc)
+	 * @see org.sakaiproject.dash.logic.DashboardLogic#updateCalendarLinks(java.lang.String)
+	 */
+	@Override
+	public void updateCalendarLinks(String entityReference) {
+		
+		this.dashboardLogic.updateCalendarLinks(entityReference);
+	}
+
+	/* (non-Javadoc)
+	 * @see org.sakaiproject.dash.logic.DashboardLogic#updateNewsLinks(java.lang.String)
+	 */
+	@Override
+	public void updateNewsLinks(String entityReference) {
+		
+		this.dashboardLogic.updateNewsLinks(entityReference);
+	}
+	
+	/************************************************************************
+	 * DashboardUserLogic methods
+	 ************************************************************************/
+
+	/* (non-Javadoc)
+	 * @see org.sakaiproject.dash.app.DashboardUserLogic#countNewsLinksByGroupId(java.lang.String, java.lang.String)
+	 */
+	@Override
+	public int countNewsLinksByGroupId(String sakaiUserId, String groupId) {
+		
+		return this.dashboardUserLogic.countNewsLinksByGroupId(sakaiUserId, groupId);
+	}
+
+	/* (non-Javadoc)
+	 * @see org.sakaiproject.dash.app.DashboardUserLogic#getCurrentNewsLinks(java.lang.String, java.lang.String)
+	 */
+	@Override
+	public List<NewsLink> getCurrentNewsLinks(String sakaiUserId,
+			String contextId) {
+		
+		return this.dashboardUserLogic.getCurrentNewsLinks(sakaiUserId, contextId);
+	}
+	
+	/* (non-Javadoc)
+	 * @see org.sakaiproject.dash.app.DashboardUserLogic#getFutureCalendarLinks(java.lang.String, java.lang.String, boolean)
+	 */
+	@Override
+	public List<CalendarLink> getFutureCalendarLinks(String sakaiUserId,
+			String contextId, boolean hidden) {
+		
+		return this.dashboardUserLogic.getFutureCalendarLinks(sakaiUserId, contextId, hidden);
+	}
+
+	/* (non-Javadoc)
+	 * @see org.sakaiproject.dash.app.DashboardUserLogic#getHiddenNewsLinks(java.lang.String, java.lang.String)
+	 */
+	@Override
+	public List<NewsLink> getHiddenNewsLinks(String sakaiUserId, String siteId) {
+		
+		return this.dashboardUserLogic.getHiddenNewsLinks(sakaiUserId, siteId);
+	}
+
+	/* (non-Javadoc)
+	 * @see org.sakaiproject.dash.app.DashboardUserLogic#getNewsLinksByGroupId(java.lang.String, java.lang.String, int, int)
+	 */
+	@Override
+	public List<NewsLink> getNewsLinksByGroupId(String sakaiUserId,
+			String groupId, int limit, int offset) {
+		
+		return this.dashboardUserLogic.getNewsLinksByGroupId(sakaiUserId, groupId, limit, offset);
+	}
+
+	/* (non-Javadoc)
+	 * @see org.sakaiproject.dash.app.DashboardUserLogic#getPastCalendarLinks(java.lang.String, java.lang.String, boolean)
+	 */
+	@Override
+	public List<CalendarLink> getPastCalendarLinks(String sakaiUserId,
+			String contextId, boolean hidden) {
+		
+		return this.dashboardUserLogic.getPastCalendarLinks(sakaiUserId, contextId, hidden);
+	}
+
+	/* (non-Javadoc)
+	 * @see org.sakaiproject.dash.app.DashboardUserLogic#getStarredCalendarLinks(java.lang.String, java.lang.String)
+	 */
+	@Override
+	public List<CalendarLink> getStarredCalendarLinks(String sakaiUserId,
+			String contextId) {
+		
+		return this.dashboardUserLogic.getStarredCalendarLinks(sakaiUserId, contextId);
+	}
+
+	/* (non-Javadoc)
+	 * @see org.sakaiproject.dash.app.DashboardUserLogic#getStarredNewsLinks(java.lang.String, java.lang.String)
+	 */
+	@Override
+	public List<NewsLink> getStarredNewsLinks(String sakaiUserId, String siteId) {
+		
+		return this.dashboardUserLogic.getStarredNewsLinks(sakaiUserId, siteId);
+	}
+
+	/* (non-Javadoc)
+	 * @see org.sakaiproject.dash.app.DashboardUserLogic#hideCalendarItem(java.lang.String, long)
+	 */
+	@Override
+	public boolean hideCalendarItem(String sakaiUserId, long calendarItemId) {
+		
+		return this.dashboardUserLogic.hideCalendarItem(sakaiUserId, calendarItemId);
+	}
+
+	/* (non-Javadoc)
+	 * @see org.sakaiproject.dash.app.DashboardUserLogic#hideNewsItem(java.lang.String, long)
+	 */
+	@Override
+	public boolean hideNewsItem(String sakaiUserId, long newsItemId) {
+		
+		return this.dashboardUserLogic.hideNewsItem(sakaiUserId, newsItemId);
+	}
+
+	/* (non-Javadoc)
+	 * @see org.sakaiproject.dash.app.DashboardUserLogic#keepCalendarItem(java.lang.String, long)
+	 */
+	@Override
+	public boolean keepCalendarItem(String sakaiUserId, long calendarItemId) {
+		
+		return this.dashboardUserLogic.keepCalendarItem(sakaiUserId, calendarItemId);
+	}
+
+	/* (non-Javadoc)
+	 * @see org.sakaiproject.dash.app.DashboardUserLogic#keepNewsItem(java.lang.String, long)
+	 */
+	@Override
+	public boolean keepNewsItem(String sakaiUserId, long newsItemId) {
+		
+		return this.dashboardUserLogic.keepNewsItem(sakaiUserId, newsItemId);
+	}
+
+	/* (non-Javadoc)
+	 * @see org.sakaiproject.dash.app.DashboardUserLogic#unhideCalendarItem(java.lang.String, long)
+	 */
+	@Override
+	public boolean unhideCalendarItem(String sakaiUserId, long calendarItemId) {
+		
+		return this.dashboardUserLogic.unhideCalendarItem(sakaiUserId, calendarItemId);
+	}
+
+	/* (non-Javadoc)
+	 * @see org.sakaiproject.dash.app.DashboardUserLogic#unhideNewsItem(java.lang.String, long)
+	 */
+	@Override
+	public boolean unhideNewsItem(String sakaiUserId, long newsItemId) {
+		
+		return this.dashboardUserLogic.unhideNewsItem(sakaiUserId, newsItemId);
+	}
+
+	/* (non-Javadoc)
+	 * @see org.sakaiproject.dash.app.DashboardUserLogic#unkeepCalendarItem(java.lang.String, long)
+	 */
+	@Override
+	public boolean unkeepCalendarItem(String sakaiUserId, long calendarItemId) {
+		
+		return this.dashboardUserLogic.unkeepCalendarItem(sakaiUserId, calendarItemId);
+	}
+
+	/* (non-Javadoc)
+	 * @see org.sakaiproject.dash.app.DashboardUserLogic#unkeepNewsItem(java.lang.String, long)
+	 */
+	@Override
+	public boolean unkeepNewsItem(String sakaiUserId, long newsItemId) {
+		
+		return this.dashboardUserLogic.unkeepNewsItem(sakaiUserId, newsItemId);
+	}
+
+	public void setRepeatingEventHorizon(Date newHorizon) {
+	}
+
+}
