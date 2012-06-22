@@ -73,6 +73,7 @@ sakai.editor.editors.ckeditor.launch = function(targetId, config, w, h) {
             ['NumberedList','BulletedList','-','Outdent','Indent','Blockquote','CreateDiv'],
             '/',
             ['Bold','Italic','Underline','Strike','-','Subscript','Superscript'],
+						['atd-ckeditor'],
             ['JustifyLeft','JustifyCenter','JustifyRight','JustifyBlock'],
             ['BidiLtr', 'BidiRtl' ],
             ['Link','Unlink','Anchor'],
@@ -127,6 +128,18 @@ sakai.editor.editors.ckeditor.launch = function(targetId, config, w, h) {
 		(function() { 
 		   CKEDITOR.plugins.addExternal('movieplayer',basePath+'movieplayer/', 'plugin.js'); 
 		   CKEDITOR.plugins.addExternal('wordcount',basePath+'wordcount/', 'plugin.js'); 
+			 /*
+			  To enable after the deadline uncomment these two lines and add atd-ckeditor to toolbar
+			  and to extraPlugins. This also needs extra stylesheets.
+			  See readme for more info http://www.polishmywriting.com/atd-ckeditor/readme.html
+			  You have to actually setup a server or get an API key
+			  Hopefully this will get easier to configure soon.
+			 */
+			 //CKEDITOR.plugins.addExternal('atd-ckeditor',basePath+'atd-ckeditor/', 'plugin.js'); 
+			 //ckconfig.atd_rpc='/proxy/atd';
+			 //ckconfig.extraPlugins+="movieplayer,wordcount,atd-ckeditor,stylesheetparser";
+			 //ckconfig.contentsCss = basePath+'/atd-ckeditor/atd.css';
+
 			 ckconfig.extraPlugins+="movieplayer,wordcount";
     })();
 

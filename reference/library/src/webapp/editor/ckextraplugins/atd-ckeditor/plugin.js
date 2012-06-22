@@ -210,8 +210,10 @@ function post_to_AtD(url, data, callback) {
 	};
 
 	xhr.setRequestHeader("Content-type", "application/x-www-form-urlencoded");
-	xhr.setRequestHeader("Content-length", data.length);
-	xhr.setRequestHeader("Connection", "close");
+	//These cause an error 
+	//http://stackoverflow.com/questions/7210507/ajax-post-error-refused-to-set-unsafe-header-connection
+	//xhr.setRequestHeader("Content-length", data.length);
+	//xhr.setRequestHeader("Connection", "close");
 	xhr.send(data);
 };
 
