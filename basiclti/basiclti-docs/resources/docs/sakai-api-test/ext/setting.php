@@ -7,7 +7,7 @@
 <p>
 This setting allows an External Tool to 
 store up to 4K of data  within the tool placement in Sakai to be included on every launch.
-Ther is one setting per <b>resource_link_id</b> across all values for <b>user_id</b>.
+There is one setting per <b>resource_link_id</b> across all values for <b>user_id</b>.
 </p>
 <?php
 // Load up the LTI 1.0 Support code
