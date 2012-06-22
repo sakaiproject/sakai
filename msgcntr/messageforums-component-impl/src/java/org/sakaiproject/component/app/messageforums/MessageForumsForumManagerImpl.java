@@ -317,8 +317,9 @@ public class MessageForumsForumManagerImpl extends HibernateDaoSupport implement
           return q.list();
       }
     };
-    
-    return (List)getHibernateTemplate().execute(hcb);
+    List returnList = new ArrayList();
+    returnList.addAll(new HashSet((List)getHibernateTemplate().execute(hcb)));
+    return returnList;
   }
       
   public List getReceivedUuidByContextId(final List siteList) {
