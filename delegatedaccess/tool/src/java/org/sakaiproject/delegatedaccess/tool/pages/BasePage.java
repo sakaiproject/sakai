@@ -17,6 +17,7 @@ import org.apache.wicket.model.ResourceModel;
 import org.apache.wicket.spring.injection.annot.SpringBean;
 import org.sakaiproject.delegatedaccess.logic.ProjectLogic;
 import org.sakaiproject.delegatedaccess.logic.SakaiProxy;
+import org.sakaiproject.delegatedaccess.util.DelegatedAccessConstants;
 
 
 
@@ -149,7 +150,18 @@ public class BasePage extends WebPage implements IHeaderContributor {
 		};
 		add(feedbackPanel); 
 		
-		
+		//first check that the user's has been initialized:
+		if(!shoppingPeriodTool && 
+				sakaiProxy.getCurrentSession().getAttribute(DelegatedAccessConstants.SESSION_ATTRIBUTE_DELEGATED_ACCESS_FLAG) == null){
+			//how did we get here?  (here = access to DA but the DA flag isn't set)
+			//3 Ideas:
+			//1: Admin "Become User", which bypassess the Observer event login
+			//2: something screwed up on login (or logged in another way) and bypasses the Observer event login
+			//3: Someone added this tool to their Workspace but doesn't have any DA (oh well, just look it up anyways since the tool is useless to them)
+			//oh well, we want this to work, so let's retry:
+			
+			projectLogic.initializeDelegatedAccessSession();
+		}
 		
 	}
 

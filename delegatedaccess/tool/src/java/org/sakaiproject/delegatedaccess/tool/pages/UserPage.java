@@ -115,14 +115,6 @@ public class UserPage  extends BaseTreePage{
 					if(nodeModel.getNode().title != null && nodeModel.getNode().title.startsWith("/site/")){
 						Site site = sakaiProxy.getSiteByRef(nodeModel.getNode().title);
 						if(site != null){
-							//first check that the user's has been initialized:
-							if(sakaiProxy.getCurrentSession().getAttribute(DelegatedAccessConstants.SESSION_ATTRIBUTE_DELEGATED_ACCESS_FLAG) == null){
-								//how did we get here?  (here = access to DA's site list, but the DA flag isn't set)
-								//two ideas:  1: Admin "Become User", which bypassess the Observer event login
-								//2: something screwed up on login (or logged in another way) and bypasses the Observer event login
-								//oh well, we want this to work, so let's retry:
-								projectLogic.initializeDelegatedAccessSession();
-							}
 							//redirect the user to the site
 							target.appendJavascript("window.open('" + site.getUrl() + "')");
 						}
