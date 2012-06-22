@@ -185,6 +185,15 @@ public interface LTIService {
 
 	/**
 	 * 
+	 * @param key
+	 * @param newProps
+	 * @return
+	 */
+//  Finiah this when you have a use case to carefully test it.
+// 	public Object updateToolNoAuthz(Long key, Map<String, Object> newProps);
+
+	/**
+	 * 
 	 * @param search
 	 * @param order
 	 * @param first
@@ -268,6 +277,14 @@ public interface LTIService {
 
 	/**
 	 * 
+	 * @param key
+	 * @param newProps
+	 * @return
+	 */
+	public Object updateContentNoAuthz(Long key, Map<String, Object> newProps);
+
+	/**
+	 * 
 	 * @param search
 	 * @param order
 	 * @param first
@@ -340,7 +357,10 @@ public interface LTIService {
 		"custom:textarea:label=bl_custom:rows=5:cols=25:maxlength=1024",
 		"launch:url:hidden=true:maxlength=255",
 		"xmlimport:text:hidden=true:maxlength=16384",
+		"settings:text:hidden=true:maxlength=8096",
 		"placement:text:hidden=true:maxlength=256", 
+		"placementsecret:text:hidden=true:maxlength=512",
+		"oldplacementsecret:text:hidden=true:maxlength=512",
 		"created_at:autodate",
 		"updated_at:autodate" };
 
@@ -362,6 +382,9 @@ public interface LTIService {
 		"privacy:header:fields=sendname,sendemailaddr",
 		"sendname:checkbox:label=bl_sendname",
 		"sendemailaddr:checkbox:label=bl_sendemailaddr",
+		"allowoutcomes:checkbox:label=bl_allowoutcomes",
+		"allowroster:checkbox:label=bl_allowroster",
+		"allowsettings:checkbox:label=bl_allowsettings",
 		"newpage:radio:label=bl_newpage:choices=off,on,content",
 		"debug:radio:label=bl_debug:choices=off,on,content",
 		"custom:textarea:label=bl_custom:rows=5:cols=25:maxlength=1024",
@@ -399,6 +422,10 @@ public interface LTIService {
 	static final String LTI_ALLOWFRAMEHEIGHT = "allowframeheight";
 	static final String LTI_SENDNAME =	"sendname";
 	static final String LTI_SENDEMAILADDR = "sendemailaddr";
+	static final String LTI_ALLOWOUTCOMES = "allowoutcomes";
+	static final String LTI_ALLOWROSTER = "allowroster";
+	static final String LTI_ALLOWSETTINGS = "allowsettings";
+	static final String LTI_SETTINGS = "settings";
 	static final String LTI_NEWPAGE =	"newpage";
 	static final String LTI_DEBUG =	"debug";
 	static final String LTI_CUSTOM = 	"custom";
@@ -409,6 +436,7 @@ public interface LTIService {
 	static final String LTI_UPATED_AT = 	"updated_at";
 	static final String LTI_MATCHPATTERN = "matchpattern";
 	static final String LTI_NOTE = 	"note";
-
+	static final String LTI_PLACEMENTSECRET = 	"placementsecret";
+	static final String LTI_OLDPLACEMENTSECRET = 	"oldplacementsecret";
 
 }

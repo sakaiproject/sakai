@@ -27,6 +27,7 @@ import java.util.ArrayList;
 import java.util.Map;
 import java.util.TreeMap;
 import java.util.Properties;
+import java.util.Enumeration;
 import java.util.Set;
 import java.util.Iterator;
 
@@ -84,6 +85,10 @@ import org.sakaiproject.service.gradebook.shared.Assignment;
 
 import org.imsglobal.pox.IMSPOXRequest;
 
+import org.sakaiproject.lti.api.LTIService;
+import org.sakaiproject.util.foorm.SakaiFoorm;
+import org.sakaiproject.util.foorm.FoormUtil;
+
 /**
  * Notes:
  * 
@@ -115,6 +120,10 @@ public class ServiceServlet extends HttpServlet {
 	private static final long serialVersionUID = 1L;
 	private static Log M_log = LogFactory.getLog(ServiceServlet.class);
 	private static ResourceLoader rb = new ResourceLoader("blis");
+
+    protected static SakaiFoorm foorm = new SakaiFoorm();
+
+    protected static LTIService ltiService = null;
 
 	/**
 	 * Setup a security advisor.
@@ -156,6 +165,7 @@ public class ServiceServlet extends HttpServlet {
 	@Override
 		public void init(ServletConfig config) throws ServletException {
 			super.init(config);
+			if ( ltiService == null ) ltiService = (LTIService) ComponentManager.get("org.sakaiproject.lti.api.LTIService");
 		}
 
 	protected void doGet(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
@@ -299,28 +309,29 @@ public class ServiceServlet extends HttpServlet {
 			M_log.debug("user_id="+user_id);
 			M_log.debug("placement_id="+placement_id);
 
-			ToolConfiguration placement = SiteService.findTool(placement_id);
-			Properties config = placement.getConfig();
-			String siteId = null;
+			Properties pitch = getPropertiesFromPlacement(placement_id);
+			if ( pitch == null ) {
+				M_log.debug("Error retrieving result_sourcedid information");
+				doError(request, response, theMap, "outcomes.sourcedid", "sourcedid", null);
+				return;
+			}
+	
+			String siteId = pitch.getProperty(LTIService.LTI_SITE_ID);
 			Site site = null;
 			try { 
-				placement = SiteService.findTool(placement_id);
-				config = placement.getConfig();
-				siteId = placement.getSiteId();
 				site = SiteService.getSite(siteId);
 			} catch (Exception e) {
-				M_log.debug("Error retrieving result_sourcedid information: "+e.getLocalizedMessage(), e);
-				placement = null;
+				M_log.debug("Error retrieving result_sourcedid site: "+e.getLocalizedMessage(), e);
 			}
 
 			// Send a more generic message back to the caller
-			if ( placement == null || config == null || siteId == null || site == null ) {
+			if (  site == null ) {
 				doError(request, response, theMap, "outcomes.sourcedid", "sourcedid", null);
 				return;
 			}
 
 			// Check the message signature using OAuth
-			String oauth_secret = SakaiBLTIUtil.toNull(SakaiBLTIUtil.getCorrectProperty(config,"secret", placement));
+			String oauth_secret = pitch.getProperty(LTIService.LTI_SECRET);
 
 			OAuthMessage oam = OAuthServlet.getMessage(request, null);
 			OAuthValidator oav = new SimpleOAuthValidator();
@@ -349,10 +360,10 @@ public class ServiceServlet extends HttpServlet {
 			}
 
 			// Check the signature of the sourcedid to make sure it was not altered
-			String placement_secret  = SakaiBLTIUtil.toNull(SakaiBLTIUtil.getCorrectProperty(config,"placementsecret", placement));
+			String placement_secret  = pitch.getProperty(LTIService.LTI_PLACEMENTSECRET);
 
 			// Send a generic message back to the caller
-			if ( placement_secret ==null ) {
+			if ( placement_secret == null ) {
 				doError(request, response, theMap, "outcomes.sourcedid", "sourcedid", null);
 				return;
 			}
@@ -362,7 +373,7 @@ public class ServiceServlet extends HttpServlet {
 			M_log.debug("Received signature="+signature+" received="+received_signature);
 			boolean matched = signature.equals(received_signature);
 
-			String old_placement_secret  = SakaiBLTIUtil.toNull(SakaiBLTIUtil.getCorrectProperty(config,"oldplacementsecret", placement));
+			String old_placement_secret  = pitch.getProperty(LTIService.LTI_OLDPLACEMENTSECRET);
 			if ( old_placement_secret != null && ! matched ) {
 				pre_hash = placement_secret + ":::" + user_id + ":::" + placement_id;
 				received_signature = ShaUtil.sha256Hash(pre_hash);
@@ -377,23 +388,23 @@ public class ServiceServlet extends HttpServlet {
 			}
 
 			// Perform the message-specific handling
-			if ( "basicoutcome".equals(message_type) ) processOutcome(request, response, lti_message_type, site, siteId, placement, config, user_id, theMap);
+			if ( "basicoutcome".equals(message_type) ) processOutcome(request, response, lti_message_type, site, siteId, placement_id, pitch, user_id, theMap);
 
-			if ( "toolsetting".equals(message_type) ) processSetting(request, response, lti_message_type, site, siteId, placement, config, user_id, theMap);
+			if ( "toolsetting".equals(message_type) ) processSetting(request, response, lti_message_type, site, siteId, placement_id, pitch, user_id, theMap);
 
-			if ( "roster".equals(message_type) ) processRoster(request, response, lti_message_type, site, siteId, placement, config, user_id, theMap);
+			if ( "roster".equals(message_type) ) processRoster(request, response, lti_message_type, site, siteId, placement_id, pitch, user_id, theMap);
 		}
 
 	protected void processSetting(HttpServletRequest request, HttpServletResponse response, 
 			String lti_message_type, 
-			Site site, String siteId, ToolConfiguration placement, Properties config,
+			Site site, String siteId, String placement_id, Properties pitch,
 			String user_id,  Map<String, Object> theMap)
 		throws java.io.IOException
 		{
 			String setting = null;
 
 			// Check for permission in placement
-			String allowSetting = SakaiBLTIUtil.toNull(SakaiBLTIUtil.getCorrectProperty(config,"allowsettings", placement));
+			String allowSetting = pitch.getProperty(LTIService.LTI_ALLOWSETTINGS);
 			if ( ! "on".equals(allowSetting) ) {
 				doError(request, response, theMap, "outcomes.invalid", "lti_message_type="+lti_message_type, null);
 				return;
@@ -403,30 +414,61 @@ public class ServiceServlet extends HttpServlet {
 			boolean success = false;
 			try { 
 				if ( "basic-lti-loadsetting".equals(lti_message_type) ) {
-					setting = placement.getPlacementConfig().getProperty("toolsetting", null);
+					setting = pitch.getProperty(LTIService.LTI_SETTINGS);
 					if ( setting != null ) {
 						theMap.put("/message_response/setting/value", setting);
 					}
 					success = true;
 				} else {
-					if ( "basic-lti-savesetting".equals(lti_message_type) ) {
-						setting = request.getParameter("setting");
-						// Truncate this to the maximum length to insure no cruft at the end
-						if ( setting.length() > 8096) setting = setting.substring(0,8096);
-						if ( setting == null ) {
-							M_log.warn("No setting parameter");
-							doError(request, response, theMap, "setting.empty", "", null);
-							return;
+					if ( isPlacement(placement_id) ) {
+						ToolConfiguration placement = SiteService.findTool(placement_id);
+						if ( "basic-lti-savesetting".equals(lti_message_type) ) {
+							setting = request.getParameter("setting");
+							if ( setting == null ) {
+								M_log.warn("No setting parameter");
+								doError(request, response, theMap, "setting.empty", "", null);
+							} else {
+								if ( setting.length() > 8096) setting = setting.substring(0,8096);
+								placement.getPlacementConfig().setProperty("toolsetting", setting);
+							}
+						} else if ( "basic-lti-deletesetting".equals(lti_message_type) ) {
+							placement.getPlacementConfig().remove("toolsetting");
 						}
-						placement.getPlacementConfig().setProperty("toolsetting", setting);
-					} else if ( "basic-lti-deletesetting".equals(lti_message_type) ) {
-						placement.getPlacementConfig().remove("toolsetting");
-					}
-					try {
-						placement.save();
-						success = true;
-					} catch(Exception e) {
-						doError(request, response, theMap, "setting.save.fail", "", e);
+						try {
+							placement.save();
+							success = true;
+						} catch(Exception e) {
+							doError(request, response, theMap, "setting.save.fail", "", e);
+						}
+					} else {
+						Map<String,Object> content = null;
+						String contentStr = pitch.getProperty("contentKey");
+						Long contentKey = foorm.getLongKey(contentStr);
+						if ( contentKey > 0 ) content = ltiService.getContentNoAuthz(contentKey);
+						if ( content != null ) {
+							if ( "basic-lti-savesetting".equals(lti_message_type) ) {
+								setting = request.getParameter("setting");
+								if ( setting == null ) {
+									M_log.warn("No setting parameter");
+									doError(request, response, theMap, "setting.empty", "", null);
+								} else {
+									if ( setting.length() > 8096) setting = setting.substring(0,8096);
+									content.put(LTIService.LTI_SETTINGS,setting);
+									success = true;
+								}
+							} else if ( "basic-lti-deletesetting".equals(lti_message_type) ) {
+								content.put(LTIService.LTI_SETTINGS,null);
+								success = true;
+							}
+							if ( success ) {
+								Object result = ltiService.updateContentNoAuthz(contentKey,content);
+								if ( result instanceof String ) {
+									M_log.warn("Setting update failed");
+									doError(request, response, theMap, "setting.fail", "", null);
+									success = false;
+								}
+							}
+						}
 					}
 				}
 			} catch (Exception e) {
@@ -447,7 +489,7 @@ public class ServiceServlet extends HttpServlet {
 
 	protected void processOutcome(HttpServletRequest request, HttpServletResponse response, 
 			String lti_message_type, 
-			Site site, String siteId, ToolConfiguration placement, Properties config,
+			Site site, String siteId, String placement_id, Properties pitch,
 			String user_id,  Map<String, Object> theMap)
 		throws java.io.IOException
 		{
@@ -463,7 +505,7 @@ public class ServiceServlet extends HttpServlet {
 			}
 
 			// Make sure the placement is configured to receive grades
-			String assignment = SakaiBLTIUtil.toNull(SakaiBLTIUtil.getCorrectProperty(config,"assignment", placement));
+			String assignment = pitch.getProperty("assignment");
 			M_log.debug("ASSN="+assignment);
 			if ( assignment == null ) {
 				doError(request, response, theMap, "outcome.no.assignment", "", null);
@@ -474,23 +516,9 @@ public class ServiceServlet extends HttpServlet {
 			GradebookService g = (GradebookService)  ComponentManager
 				.get("org.sakaiproject.service.gradebook.GradebookService");
 
-			Assignment assignmentObject = null;
 			pushAdvisor();
-			try {
-				List gradebookAssignments = g.getAssignments(siteId);
-				for (Iterator i=gradebookAssignments.iterator(); i.hasNext();) {
-					Assignment gAssignment = (Assignment) i.next();
-					if ( gAssignment.isExternallyMaintained() ) continue;
-					if ( assignment.equals(gAssignment.getName()) ) { 
-						assignmentObject = gAssignment;
-						break;
-					}
-				}
-			} catch (Exception e) {
-				assignmentObject = null; // Just to make double sure
-			} finally {
-				popAdvisor();
-			}
+			Assignment assignmentObject = getOrMakeAssignment(assignment, siteId, g);
+			popAdvisor();
 
 			if ( assignmentObject == null ) {
 				doError(request, response, theMap, "outcome.no.assignment", "", null);
@@ -535,8 +563,8 @@ public class ServiceServlet extends HttpServlet {
 					dGrade = new Double(result_resultscore_textstring);
 					dGrade = dGrade * assignmentObject.getPoints();
 					g.setAssignmentScore(siteId, assignment, user_id, dGrade, "External Outcome");
-
-					M_log.info("Stored Score=" + siteId + " assignment="+ assignment + " user_id=" + user_id + " score="+ result_resultscore_textstring);
+					M_log.info("Stored Score=" + siteId + " assignment="+ assignment + " user_id=" + user_id + 
+						" score="+ result_resultscore_textstring);
 				}
 				success = true;
 				theMap.put("/message_response/statusinfo/codemajor", "Success");
@@ -558,20 +586,20 @@ public class ServiceServlet extends HttpServlet {
 
 	protected void processRoster(HttpServletRequest request, HttpServletResponse response, 
 			String lti_message_type, 
-			Site site, String siteId, ToolConfiguration placement, Properties config,
+			Site site, String siteId, String placement_id, Properties pitch,
 			String user_id,  Map<String, Object> theMap)
 		throws java.io.IOException
 		{
 			// Check for permission in placement
-			String allowRoster = SakaiBLTIUtil.toNull(SakaiBLTIUtil.getCorrectProperty(config,"allowroster", placement));
+			String allowRoster = pitch.getProperty(LTIService.LTI_ALLOWROSTER);
 			if ( ! "on".equals(allowRoster) ) {
 				doError(request, response, theMap, "outcomes.invalid", "lti_message_type="+lti_message_type, null);
 				return;
 			}
 
-			String releaseName = SakaiBLTIUtil.toNull(SakaiBLTIUtil.getCorrectProperty(config,"releasename", placement));
-			String releaseEmail = SakaiBLTIUtil.toNull(SakaiBLTIUtil.getCorrectProperty(config,"releaseemail", placement));
-			String assignment = SakaiBLTIUtil.toNull(SakaiBLTIUtil.getCorrectProperty(config,"assignment", placement));
+			String releaseName = pitch.getProperty(LTIService.LTI_SENDNAME);
+			String releaseEmail = pitch.getProperty(LTIService.LTI_SENDEMAILADDR);
+			String assignment = pitch.getProperty("assignment");
 			String allowOutcomes = ServerConfigurationService.getString(
 					SakaiBLTIUtil.BASICLTI_OUTCOMES_ENABLED, null);
 			if ( ! "true".equals(allowOutcomes) ) allowOutcomes = null;
@@ -594,7 +622,8 @@ public class ServiceServlet extends HttpServlet {
 					User user = null;
 					if ( "true".equals(allowOutcomes) && assignment != null ) {
 						user = UserDirectoryService.getUser(ims_user_id);
-						String result_sourcedid = SakaiBLTIUtil.getSourceDID(user, placement, config);
+						String placement_secret  = pitch.getProperty(LTIService.LTI_PLACEMENTSECRET);
+						String result_sourcedid = SakaiBLTIUtil.getSourceDID(user, placement_id, placement_secret);
 						if ( result_sourcedid != null ) mm.put("/lis_result_sourcedid",result_sourcedid);
 					}
 
@@ -733,29 +762,30 @@ public class ServiceServlet extends HttpServlet {
 			M_log.debug("user_id="+user_id);
 			M_log.debug("placement_id="+placement_id);
 
-			ToolConfiguration placement = SiteService.findTool(placement_id);
-			Properties config = placement.getConfig();
-			String siteId = null;
+			Properties pitch = getPropertiesFromPlacement(placement_id);
+			if ( pitch == null ) {
+				M_log.debug("Error retrieving result_sourcedid information");
+				doError(request, response, null, "outcomes.sourcedid", "sourcedid", null);
+				return;
+			}
+	
+			String siteId = pitch.getProperty(LTIService.LTI_SITE_ID);
 			Site site = null;
 			try { 
-				placement = SiteService.findTool(placement_id);
-				config = placement.getConfig();
-				siteId = placement.getSiteId();
 				site = SiteService.getSite(siteId);
 			} catch (Exception e) {
-				M_log.debug("Error retrieving result_sourcedid information: "+e.getLocalizedMessage(), e);
-				placement = null;
+				M_log.debug("Error retrieving result_sourcedid site: "+e.getLocalizedMessage(), e);
 			}
 
 			// Send a more generic message back to the caller
-			if ( placement == null || config == null || siteId == null || site == null ) {
-				doErrorXml(request, response, pox, "outcomes.sourcedid", "sourcedid", null);
+			if (  site == null ) {
+				doError(request, response, null, "outcomes.sourcedid", "sourcedid", null);
 				return;
 			}
 
 			// Check the message signature using OAuth
 			String oauth_consumer_key = pox.getOAuthConsumerKey();
-			String oauth_secret = SakaiBLTIUtil.toNull(SakaiBLTIUtil.getCorrectProperty(config,"secret", placement));
+			String oauth_secret = pitch.getProperty(LTIService.LTI_SECRET);
 
 			pox.validateRequest(oauth_consumer_key, oauth_secret, request);
 			if ( ! pox.valid ) {
@@ -767,7 +797,7 @@ public class ServiceServlet extends HttpServlet {
 			}
 
 			// Check the signature of the sourcedid to make sure it was not altered
-			String placement_secret  = SakaiBLTIUtil.toNull(SakaiBLTIUtil.getCorrectProperty(config,"placementsecret", placement));
+			String placement_secret  = pitch.getProperty(LTIService.LTI_PLACEMENTSECRET);
 
 			// Send a generic message back to the caller
 			if ( placement_secret ==null ) {
@@ -780,7 +810,7 @@ public class ServiceServlet extends HttpServlet {
 			M_log.debug("Received signature="+signature+" received="+received_signature);
 			boolean matched = signature.equals(received_signature);
 
-			String old_placement_secret  = SakaiBLTIUtil.toNull(SakaiBLTIUtil.getCorrectProperty(config,"oldplacementsecret", placement));
+			String old_placement_secret  = pitch.getProperty(LTIService.LTI_OLDPLACEMENTSECRET);
 			if ( old_placement_secret != null && ! matched ) {
 				pre_hash = placement_secret + ":::" + user_id + ":::" + placement_id;
 				received_signature = ShaUtil.sha256Hash(pre_hash);
@@ -795,7 +825,7 @@ public class ServiceServlet extends HttpServlet {
 			}
 
 			if ( "basicoutcome".equals(message_type) ) {
-				processOutcomeXml(request, response, lti_message_type, site, siteId, placement, config, user_id, pox);
+				processOutcomeXml(request, response, lti_message_type, site, siteId, pitch, user_id, pox);
 			} else {
 				response.setContentType("application/xml");
 				PrintWriter writer = response.getWriter();
@@ -808,7 +838,7 @@ public class ServiceServlet extends HttpServlet {
 
 	protected void processOutcomeXml(HttpServletRequest request, HttpServletResponse response, 
 			String lti_message_type, 
-			Site site, String siteId, ToolConfiguration placement, Properties config,
+			Site site, String siteId, Properties pitch,
 			String user_id, IMSPOXRequest pox)
 		throws java.io.IOException
 		{
@@ -824,7 +854,7 @@ public class ServiceServlet extends HttpServlet {
 			}
 
 			// Make sure the placement is configured to receive grades
-			String assignment = SakaiBLTIUtil.toNull(SakaiBLTIUtil.getCorrectProperty(config,"assignment", placement));
+			String assignment = pitch.getProperty("assignment");
 			M_log.debug("ASSN="+assignment);
 			if ( assignment == null ) {
 				doErrorXml(request, response, pox, "outcome.no.assignment", "", null);
@@ -835,23 +865,9 @@ public class ServiceServlet extends HttpServlet {
 			GradebookService g = (GradebookService)  ComponentManager
 				.get("org.sakaiproject.service.gradebook.GradebookService");
 
-			Assignment assignmentObject = null;
 			pushAdvisor();
-			try {
-				List gradebookAssignments = g.getAssignments(siteId);
-				for (Iterator i=gradebookAssignments.iterator(); i.hasNext();) {
-					Assignment gAssignment = (Assignment) i.next();
-					if ( gAssignment.isExternallyMaintained() ) continue;
-					if ( assignment.equals(gAssignment.getName()) ) { 
-						assignmentObject = gAssignment;
-						break;
-					}
-				}
-			} catch (Exception e) {
-				assignmentObject = null; // Just to make double sure
-			} finally {
-				popAdvisor();
-			}
+			Assignment assignmentObject = getOrMakeAssignment(assignment, siteId, g);
+			popAdvisor();
 
 			if ( assignmentObject == null ) {
 				doErrorXml(request, response, pox, "outcome.no.assignment", "", null);
@@ -942,6 +958,165 @@ public class ServiceServlet extends HttpServlet {
 			PrintWriter out = response.getWriter();
 			out.println(output);
 		}
+
+		public Assignment getOrMakeAssignment(String assignment, String siteId, GradebookService g )
+		{
+			Assignment assignmentObject = null;
+
+			try {
+				List gradebookAssignments = g.getAssignments(siteId);
+				for (Iterator i=gradebookAssignments.iterator(); i.hasNext();) {
+					Assignment gAssignment = (Assignment) i.next();
+					if ( gAssignment.isExternallyMaintained() ) continue;
+					if ( assignment.equals(gAssignment.getName()) ) { 
+						assignmentObject = gAssignment;
+						break;
+					}
+				}
+			} catch (Exception e) {
+				assignmentObject = null; // Just to make double sure
+			}
+
+			// Attempt to add assignment to grade book
+			if ( assignmentObject == null && g.isGradebookDefined(siteId) ) {
+				try {
+					assignmentObject = new Assignment();
+					assignmentObject.setPoints(Double.valueOf(100));
+					assignmentObject.setExternallyMaintained(false);
+					assignmentObject.setName(assignment);
+					assignmentObject.setReleased(true);
+					assignmentObject.setUngraded(false);
+					g.addAssignment(siteId, assignmentObject);
+					M_log.info("Added assignment: "+assignment);
+				}
+				catch (ConflictingAssignmentNameException e) {
+					M_log.warn("ConflictingAssignmentNameException while adding assignment" + e.getMessage());
+					assignmentObject = null; // Just to make double sure
+				}
+				catch (Exception e) {
+					M_log.warn("GradebookNotFoundException (may be because GradeBook has not yet been added to the Site) " + e.getMessage());
+					M_log.warn(this + ":addGradeItem " + e.getMessage());
+				}
+			}
+			return assignmentObject;
+		}
+
+	// Extract the necessary properties from a placement
+	protected Properties getPropertiesFromPlacement(String placement_id)
+	{
+		// These are the fields from a placement - they are not an exact match
+		// for the fields in tool/content
+		String [] fieldList = { "key", LTIService.LTI_SECRET, LTIService.LTI_PLACEMENTSECRET, 
+				LTIService.LTI_OLDPLACEMENTSECRET, LTIService.LTI_ALLOWSETTINGS, 
+				"assignment", LTIService.LTI_ALLOWROSTER, "releasename", "releaseemail", 
+				"toolsetting"};
+
+		Properties retval = new Properties();
+
+		String siteId = null;
+		if ( isPlacement(placement_id) ) {
+			ToolConfiguration placement = null;
+			Properties config = null;
+			try {
+				placement = SiteService.findTool(placement_id);
+				config = placement.getConfig();
+				siteId = placement.getSiteId();
+			} catch (Exception e) {
+				M_log.debug("Error getPropertiesFromPlacement: "+e.getLocalizedMessage(), e);
+				return null;
+			}
+			retval.setProperty("placementId",placement_id);
+			retval.setProperty(LTIService.LTI_SITE_ID,siteId);
+			for ( String field : fieldList ) {
+				String value = SakaiBLTIUtil.toNull(SakaiBLTIUtil.getCorrectProperty(config,field, placement));
+				if ( field.equals("toolsetting") ) {
+                    value = config.getProperty("toolsetting", null);
+					field = LTIService.LTI_SETTINGS;
+				}
+				if ( value == null ) continue;
+				if ( field.equals("releasename") ) field = LTIService.LTI_SENDNAME;
+				if ( field.equals("releaseemail") ) field = LTIService.LTI_SENDEMAILADDR;
+				if ( field.equals("key") ) field = LTIService.LTI_CONSUMERKEY;
+				retval.setProperty(field, value);
+			}
+		} else { // Get information from content item
+			Map<String,Object> content = null;
+			Map<String,Object> tool = null;
+
+			String contentStr = placement_id.substring(8);
+			Long contentKey = foorm.getLongKey(contentStr);
+			if ( contentKey < 0 ) return null;
+			content = ltiService.getContentNoAuthz(contentKey);
+			if ( content == null ) return null;
+			siteId = (String) content.get(LTIService.LTI_SITE_ID);
+			if ( siteId == null ) return null;
+
+			retval.setProperty("contentKey",contentStr);
+			retval.setProperty(LTIService.LTI_SITE_ID,siteId);
+
+			Long toolKey = foorm.getLongKey(content.get(LTIService.LTI_TOOL_ID));
+			if ( toolKey < 0 ) return null;
+			tool = ltiService.getToolNoAuthz(toolKey);
+			if ( tool == null ) return null;
+
+			// Adjust the content items based on the tool items
+			if ( tool != null || content != null )
+			{
+				ltiService.filterContent(content, tool);
+			}
+
+			for (String formInput : LTIService.TOOL_MODEL) {
+				Properties info = foorm.parseFormString(formInput);
+				String field = info.getProperty("field", null);
+				String type = info.getProperty("type", null);
+				Object o = tool.get(field);
+				if ( o instanceof String ) {
+					retval.setProperty(field,(String) o);
+					continue;
+				}
+				if ( "checkbox".equals(type) ) {
+					int check = getInt(o);
+					if ( check == 1 ) {	
+						retval.setProperty(field,"on");
+					} else {
+						retval.setProperty(field,"off");
+					}
+				}
+			}
+
+			for (String formInput : LTIService.CONTENT_MODEL) {
+				Properties info = foorm.parseFormString(formInput);
+				String field = info.getProperty("field", null);
+				String type = info.getProperty("type", null);
+				Object o = content.get(field);
+				if ( o instanceof String ) {
+					retval.setProperty(field,(String) o);
+					continue;
+				}
+				if ( "checkbox".equals(type) ) {
+					int check = getInt(o);
+					if ( check == 1 ) {	
+						retval.setProperty(field,"on");
+					} else {
+						retval.setProperty(field,"off");
+					}
+				}
+			}
+			retval.setProperty("assignment",(String)content.get("title"));
+		}
+		return retval;
+	}
+
+	boolean isPlacement(String placement_id) {
+		if ( placement_id == null ) return false;
+		return ! (placement_id.startsWith("content:") && placement_id.length() > 8) ;
+	}
+
+	// Convienence
+    public static int getInt(Object o)
+    {
+		return FoormUtil.getInt(o);
+    }
 
 	public void destroy() {
 

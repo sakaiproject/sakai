@@ -21,6 +21,8 @@
 
 package org.sakaiproject.lti.impl;
 
+import java.util.UUID;
+
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.sakaiproject.authz.api.SecurityService;
@@ -414,6 +416,14 @@ public abstract class BaseLTIService implements LTIService {
 
 	/**
 	 * 
+	 * @param key
+	 * @param newProps
+	 * @return
+	 */
+    public abstract Object updateContentNoAuthz(Long key, Map<String, Object> newProps);
+
+	/**
+	 * 
 	 * @param o
 	 * @return
 	 */
@@ -507,6 +517,7 @@ public abstract class BaseLTIService implements LTIService {
 		Long contentKey = null;
 		if ( id == null ) 
 		{
+			reqProps.setProperty(LTIService.LTI_PLACEMENTSECRET, UUID.randomUUID().toString());
 			retval = insertContent(reqProps);
 		} else {
 			contentKey = new Long(id);
@@ -528,6 +539,9 @@ public abstract class BaseLTIService implements LTIService {
 					toolProps.setProperty(LTI_CONSUMERKEY, reqKey);
 					updateTool(toolKey, toolProps);
 				}
+			}
+			if ( tool.get(LTIService.LTI_PLACEMENTSECRET) == null ) {
+				reqProps.setProperty(LTIService.LTI_PLACEMENTSECRET, UUID.randomUUID().toString());
 			}
 			retval = updateContent(contentKey, reqProps);
 		}

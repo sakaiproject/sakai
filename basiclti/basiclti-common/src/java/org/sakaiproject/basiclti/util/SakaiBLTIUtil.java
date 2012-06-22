@@ -430,7 +430,8 @@ public class SakaiBLTIUtil {
 		addSiteInfo(ltiProps, site);
 		addRoleInfo(ltiProps, context);
 
-		setProperty(ltiProps,BasicLTIConstants.RESOURCE_LINK_ID,"content:"+content.get("id"));
+		String resource_link_id = "content:"+content.get("id");
+		setProperty(ltiProps,BasicLTIConstants.RESOURCE_LINK_ID,resource_link_id);
 
 		setProperty(toolProps, "launch_url", launch_url);
 
@@ -474,6 +475,47 @@ public class SakaiBLTIUtil {
 			if ( releaseemail == 1 ) {
 				setProperty(ltiProps,BasicLTIConstants.LIS_PERSON_CONTACT_EMAIL_PRIMARY,user.getEmail());
 				setProperty(ltiProps,BasicLTIConstants.LIS_PERSON_SOURCEDID,user.getEid());
+			}
+		}
+
+		int allowoutcomes = getInt(tool.get("allowoutcomes"));
+		int allowroster = getInt(tool.get("allowroster"));
+		int allowsettings = getInt(tool.get("allowsettings"));
+		String placement_secret = (String) content.get("placementsecret");
+
+		String result_sourcedid = getSourceDID(user, resource_link_id, placement_secret);
+		if ( result_sourcedid != null ) {
+
+			if ( allowoutcomes == 1 ) {
+				setProperty(ltiProps,"lis_result_sourcedid", result_sourcedid);  
+
+				// New Basic Outcomes URL
+				String outcome_url = ServerConfigurationService.getString("basiclti.consumer.ext_ims_lis_basic_outcome_url",null);
+				if ( outcome_url == null ) outcome_url = getOurServerUrl() + "/imsblis/service/";  
+				setProperty(ltiProps,"ext_ims_lis_basic_outcome_url", outcome_url);  
+				outcome_url = ServerConfigurationService.getString("basiclti.consumer."+BasicLTIConstants.LIS_OUTCOME_SERVICE_URL,null);
+				if ( outcome_url == null ) outcome_url = getOurServerUrl() + "/imsblis/service/";  
+				setProperty(ltiProps,BasicLTIConstants.LIS_OUTCOME_SERVICE_URL, outcome_url);  
+			}
+
+			if ( allowsettings == 1 ) {
+				setProperty(ltiProps,"ext_ims_lti_tool_setting_id", result_sourcedid);  
+
+				String setting = (String) content.get("settings");
+				if ( setting != null ) {
+					setProperty(ltiProps,"ext_ims_lti_tool_setting", setting);  
+				}
+				String service_url = ServerConfigurationService.getString("basiclti.consumer.ext_ims_lti_tool_setting_url",null);
+				if ( service_url == null ) service_url = getOurServerUrl() + "/imsblis/service/";  
+				setProperty(ltiProps,"ext_ims_lti_tool_setting_url", service_url);  
+			}
+
+			if ( allowroster == 1 ) {
+				setProperty(ltiProps,"ext_ims_lis_memberships_id", result_sourcedid);  
+
+				String roster_url = ServerConfigurationService.getString("basiclti.consumer.ext_ims_lis_memberships_url",null);
+				if ( roster_url == null ) roster_url = getOurServerUrl() + "/imsblis/service/";  
+				setProperty(ltiProps,"ext_ims_lis_memberships_url", roster_url);  
 			}
 		}
 
@@ -573,12 +615,17 @@ public class SakaiBLTIUtil {
 		return retval;
 	}
 
-
 	public static String getSourceDID(User user, Placement placement, Properties config)
 	{
 		String placementSecret = toNull(getCorrectProperty(config,"placementsecret", placement));
 		if ( placementSecret == null ) return null;
-		String suffix = ":::" +  user.getId() + ":::" + placement.getId();
+		return getSourceDID(user, placement.getId(), placementSecret);
+	}
+
+	public static String getSourceDID(User user, String placeStr, String placementSecret)
+	{
+		if ( placementSecret == null ) return null;
+		String suffix = ":::" +  user.getId() + ":::" + placeStr;
 		String base_string = placementSecret + suffix;
 		String signature = ShaUtil.sha256Hash(base_string);
 		return signature + suffix;

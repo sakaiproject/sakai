@@ -265,6 +265,17 @@ public class DBLTIService extends BaseLTIService implements LTIService {
 	 * 
 	 * {@inheritDoc}
 	 * 
+	 * @see org.sakaiproject.lti.impl.BaseLTIService#updateTool(java.lang.Long,
+	 *      java.lang.Object)
+	 */
+	public Object updateToolNoAuthz(Long key, Map<String,Object> newProps) {
+		return updateThingNoAuthz("lti_tools", LTIService.TOOL_MODEL, null, key, (Object) newProps);
+	}
+
+	/**
+	 * 
+	 * {@inheritDoc}
+	 * 
 	 * @see org.sakaiproject.lti.api.LTIService#getTools(java.lang.String, java.lang.String,
 	 *      int, int)
 	 */
@@ -392,6 +403,27 @@ public class DBLTIService extends BaseLTIService implements LTIService {
 			return rb.getString("error.invalid.toolid");
 
 		return updateThing("lti_content", contentModel, LTIService.CONTENT_MODEL, key, newProps);
+	}
+
+	/**
+	 * 
+	 * {@inheritDoc}
+	 * 
+	 * @see org.sakaiproject.lti.impl.BaseLTIService#updateContentNoAuthz(java.lang.Long, java.lang.Object)
+	 */
+	public Object updateContentNoAuthz(Long key, Map<String, Object> newProps) {
+
+		// Load the content item
+		Map<String,Object> content = getContentNoAuthz(key);
+		if (  content == null ) {
+			return rb.getString("error.content.not.found");
+		}
+
+		// Certain thngs cannot be changed - this must be a real edit
+		newProps.put(LTIService.LTI_TOOL_ID, content.get(LTIService.LTI_TOOL_ID));
+		newProps.put(LTIService.LTI_SITE_ID, content.get(LTIService.LTI_SITE_ID));
+
+		return updateThingNoAuthz("lti_content", LTIService.CONTENT_MODEL, LTIService.CONTENT_MODEL, key, newProps);
 	}
 
 	/**
@@ -667,13 +699,41 @@ public class DBLTIService extends BaseLTIService implements LTIService {
 	 */
 	public Object updateThing(String table, String[] formModel, String[] fullModel,
 			Long key, Object newProps) {
+		return updateThing(table, formModel, fullModel, key, newProps, true);
+	}
+
+	/**
+	 * 
+	 * @param table
+	 * @param formModel
+	 * @param fullModel
+	 * @param key
+	 * @param newProps
+	 * @return
+	 */
+	public Object updateThingNoAuthz(String table, String[] formModel, String[] fullModel,
+			Long key, Object newProps) {
+		return updateThing(table, formModel, fullModel, key, newProps, false);
+	}
+
+	/**
+	 * 
+	 * @param table
+	 * @param formModel
+	 * @param fullModel
+	 * @param key
+	 * @param newProps
+	 * @param doAuthz
+	 * @return
+	 */
+	public Object updateThing(String table, String[] formModel, String[] fullModel,
+			Long key, Object newProps, boolean doAuthz) {
 		if (table == null || formModel == null || key == null || newProps == null) {
 			throw new IllegalArgumentException(
 					"table, model, key, and newProps must all be non-null");
 		}
 
-		if (!isMaintain())
-			return null;
+		if (doAuthz && !isMaintain()) return null;
 
 		HashMap<String, Object> newMapping = new HashMap<String, Object>();
 
@@ -688,8 +748,8 @@ public class DBLTIService extends BaseLTIService implements LTIService {
 			columns = foorm.getFields(fullModel);
 		}
 
-		if ((Arrays.asList(columns).indexOf(LTIService.LTI_SITE_ID) >= 0)) {
-			if (!isAdmin() && newMapping.get(LTIService.LTI_SITE_ID) == null) {
+		if (doAuthz && (Arrays.asList(columns).indexOf(LTIService.LTI_SITE_ID) >= 0)) {
+			if (doAuthz && !isAdmin() && newMapping.get(LTIService.LTI_SITE_ID) == null) {
 				newMapping.put(LTIService.LTI_SITE_ID, getContext());
 			}
 		}
@@ -697,7 +757,7 @@ public class DBLTIService extends BaseLTIService implements LTIService {
 		String sql = "UPDATE " + table + " SET " + foorm.updateForm(newMapping)
 			+ " WHERE id=" + key.toString();
 
-		if (isMaintain() && !isAdmin() && (Arrays.asList(columns).indexOf(LTIService.LTI_SITE_ID) >= 0)) {
+		if (doAuthz && isMaintain() && !isAdmin() && (Arrays.asList(columns).indexOf(LTIService.LTI_SITE_ID) >= 0)) {
 			sql += " AND SITE_ID = '" + getContext() + "'";
 			foorm.setField(newMapping, LTIService.LTI_SITE_ID, getContext());
 		}
