@@ -1,38 +1,44 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
-	
+<project xmlns="http://maven.apache.org/POM/4.0.0"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
+
 	<modelVersion>4.0.0</modelVersion>
-	
+
 	<parent>
-    <artifactId>dashboard</artifactId>
-    <groupId>org.sakaiproject.dash</groupId>
-    <version>1.0-SNAPSHOT</version>
-  </parent>
-	
+		<artifactId>dashboard</artifactId>
+		<groupId>org.sakaiproject.dash</groupId>
+		<version>1.0-SNAPSHOT</version>
+	</parent>
+
 	<name>dashboard - Tool</name>
 	<groupId>org.sakaiproject.dash</groupId>
 	<artifactId>dashboard-tool</artifactId>
-	
+
 	<packaging>war</packaging>
-	
+
 	<dependencies>
-		
+
 		<!-- project dependencies -->
 		<dependency>
-      		<groupId>org.sakaiproject.dash</groupId>
-      		<artifactId>dashboard-api</artifactId>
-    	</dependency>
-        <dependency>
-            <groupId>org.sakaiproject.dash</groupId>
+			<groupId>org.sakaiproject.dash</groupId>
+			<artifactId>dashboard-api</artifactId>
+		</dependency>
+		<dependency>
+			<groupId>org.sakaiproject.dash</groupId>
+			<artifactId>dashboard-app</artifactId>
+		</dependency>
+		<dependency>
+			<groupId>org.sakaiproject.dash</groupId>
 			<artifactId>dashboard-bundles</artifactId>
-        </dependency>
-        <dependency>
-            <groupId>org.sakaiproject.dash</groupId>
+		</dependency>
+		<dependency>
+			<groupId>org.sakaiproject.dash</groupId>
 			<artifactId>dashboard-util</artifactId>
-        </dependency>
+		</dependency>
 
-    	
-    	<!-- third party dependencies -->
+
+		<!-- third party dependencies -->
 		<dependency>
 			<groupId>org.apache.wicket</groupId>
 			<artifactId>wicket</artifactId>
@@ -40,7 +46,7 @@
 		<dependency>
 			<groupId>org.apache.wicket</groupId>
 			<artifactId>wicket-spring</artifactId>
-    	</dependency>
+		</dependency>
 		<dependency>
 			<groupId>org.slf4j</groupId>
 			<artifactId>slf4j-log4j12</artifactId>
@@ -59,21 +65,21 @@
 			<version>2.4</version>
 			<classifier>jdk15</classifier>
 		</dependency>
-        <dependency>
-            <groupId>javax.servlet</groupId>
-            <artifactId>servlet-api</artifactId>
-        </dependency>
-		
-<!--
+		<dependency>
+			<groupId>javax.servlet</groupId>
+			<artifactId>servlet-api</artifactId>
+		</dependency>
+
+		<!--
 		<dependency>
 			<groupId>org.projectlombok</groupId>
 			<artifactId>lombok</artifactId>
 		</dependency>
 -->
-		
+
 		<!-- Sakai dependencies -->
-       	<dependency>
-           	<groupId>org.sakaiproject.kernel</groupId>
+		<dependency>
+			<groupId>org.sakaiproject.kernel</groupId>
 			<artifactId>sakai-kernel-api</artifactId>
 		</dependency>
 		<dependency>
@@ -86,7 +92,7 @@
 		</dependency>
 
 	</dependencies>
-	
+
 
 	<build>
 		<resources>
@@ -101,13 +107,13 @@
 				</excludes>
 			</resource>
 			<!-- include our log4j.properties -->
-            <resource>
-                <directory>src/resources</directory>
-                <includes>
-                    <include>*.properties</include>
-                </includes>
-            </resource>
+			<resource>
+				<directory>src/resources</directory>
+				<includes>
+					<include>*.properties</include>
+				</includes>
+			</resource>
 		</resources>
 	</build>
-	
+
 </project>

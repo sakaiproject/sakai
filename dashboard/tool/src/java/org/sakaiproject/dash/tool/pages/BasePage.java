@@ -35,12 +35,11 @@ import org.apache.wicket.markup.html.link.Link;
 import org.apache.wicket.markup.html.panel.FeedbackPanel;
 import org.apache.wicket.model.Model;
 import org.apache.wicket.model.ResourceModel;
-import org.apache.wicket.model.StringResourceModel;
 import org.apache.wicket.spring.injection.annot.SpringBean;
 
-import org.sakaiproject.dash.logic.DashboardConfig;
-import org.sakaiproject.dash.logic.DashboardLogic;
-import org.sakaiproject.dash.logic.SakaiProxy;
+import org.sakaiproject.dash.app.DashboardCommonLogic;
+import org.sakaiproject.dash.app.DashboardConfig;
+import org.sakaiproject.dash.app.SakaiProxy;
 
 
 /**
@@ -60,8 +59,8 @@ public class BasePage extends WebPage implements IHeaderContributor {
 	@SpringBean(name="org.sakaiproject.dash.logic.SakaiProxy")
 	protected SakaiProxy sakaiProxy;
 	
-	@SpringBean(name="org.sakaiproject.dash.logic.DashboardLogic")
-	protected DashboardLogic dashboardLogic;
+	@SpringBean(name="org.sakaiproject.dash.logic.DashboardCommonLogic")
+	protected DashboardCommonLogic dashboardCommonLogic;
 	
 	@SpringBean(name="org.sakaiproject.dash.logic.DashboardConfig")
 	protected DashboardConfig dashboardConfig;

@@ -29,7 +29,7 @@ import java.util.Observer;
 
 import org.sakaiproject.authz.api.SecurityAdvisor;
 import org.sakaiproject.content.api.ContentResource;
-import org.sakaiproject.dash.logic.SakaiProxy;
+import org.sakaiproject.dash.app.SakaiProxy;
 import org.sakaiproject.entity.api.Entity;
 import org.sakaiproject.site.api.Site;
 import org.sakaiproject.user.api.User;

@@ -39,7 +39,7 @@ import org.sakaiproject.content.api.ContentResource;
 import org.sakaiproject.content.api.ResourceType;
 import org.sakaiproject.dash.listener.EventProcessor;
 import org.sakaiproject.dash.logic.DashboardLogic;
-import org.sakaiproject.dash.logic.SakaiProxy;
+import org.sakaiproject.dash.app.SakaiProxy;
 import org.sakaiproject.dash.model.Context;
 import org.sakaiproject.dash.model.NewsItem;
 import org.sakaiproject.dash.model.SourceType;
@@ -71,9 +71,9 @@ public class ResourceSupport {
 		this.sakaiProxy = sakaiProxy;
 	}
 	
-	protected DashboardCommonLogic dashboardCommonLogic;
-	public void setDashboardLogic(DashboardCommonLogic dashboardCommonLogic) {
-		this.dashboardCommonLogic = dashboardCommonLogic;
+	protected DashboardLogic dashboardLogic;
+	public void setDashboardLogic(DashboardLogic dashboardLogic) {
+		this.dashboardLogic = dashboardLogic;
 	}
 
 	public static final String RESOURCE_TYPE_IDENTIFIER = "resource";
@@ -82,16 +82,16 @@ public class ResourceSupport {
 	public void init() {
 		logger.info("init()");
 		
-		this.dashboardCommonLogic.registerEntityType(new ResourceEntityType());
-		this.dashboardCommonLogic.registerEntityType(new DropboxEntityType());
-		this.dashboardCommonLogic.registerEventProcessor(new ContentNewEventProcessor());
-		this.dashboardCommonLogic.registerEventProcessor(new ContentAccessUpdateEventProcessor());
-		this.dashboardCommonLogic.registerEventProcessor(new ContentTitleUpdateEventProcessor());
-		this.dashboardCommonLogic.registerEventProcessor(new ContentVisibilityUpdateEventProcessor());
-		this.dashboardCommonLogic.registerEventProcessor(new ContentAvailableEventProcessor());
-		this.dashboardCommonLogic.registerEventProcessor(new ContentReviseEventProcessor());
-		this.dashboardCommonLogic.registerEventProcessor(new ContentRemoveEventProcessor());
-		this.dashboardCommonLogic.registerEventProcessor(new ContentUpdateEventProcessor());
+		this.dashboardLogic.registerEntityType(new ResourceEntityType());
+		this.dashboardLogic.registerEntityType(new DropboxEntityType());
+		this.dashboardLogic.registerEventProcessor(new ContentNewEventProcessor());
+		this.dashboardLogic.registerEventProcessor(new ContentAccessUpdateEventProcessor());
+		this.dashboardLogic.registerEventProcessor(new ContentTitleUpdateEventProcessor());
+		this.dashboardLogic.registerEventProcessor(new ContentVisibilityUpdateEventProcessor());
+		this.dashboardLogic.registerEventProcessor(new ContentAvailableEventProcessor());
+		this.dashboardLogic.registerEventProcessor(new ContentReviseEventProcessor());
+		this.dashboardLogic.registerEventProcessor(new ContentRemoveEventProcessor());
+		this.dashboardLogic.registerEventProcessor(new ContentUpdateEventProcessor());
 	}
 	
 	public Date getReleaseDate(String entityReference) {
@@ -426,7 +426,7 @@ public class ResourceSupport {
 				//				{
 				//					
 				//					// hide the resource, the need to remove all links in dashboard
-				//					//dashboardCommonLogic.removeNewsItem(event.getResource());
+				//					//dashboardLogic.removeNewsItem(event.getResource());
 				//				}
 				//				else
 				//				{
@@ -493,7 +493,7 @@ public class ResourceSupport {
 			if(logger.isDebugEnabled()) {
 				logger.debug("removing news links and news item for " + event.getResource());
 			}
-			dashboardCommonLogic.removeNewsItem(event.getResource());
+			dashboardLogic.removeNewsItem(event.getResource());
 		}
 	}
 
@@ -522,7 +522,7 @@ public class ResourceSupport {
 				if(logger.isDebugEnabled()) {
 					logger.debug("updating links to resource " + entity.getId());
 				}
-				NewsItem newsItem = dashboardCommonLogic.getNewsItem(event.getResource());
+				NewsItem newsItem = dashboardLogic.getNewsItem(event.getResource());
 				if(newsItem == null) {
 					// create it
 					newsItem = addContentNewsItem(event, (ContentResource) entity);
@@ -532,7 +532,7 @@ public class ResourceSupport {
 				} else if(newsItem.getSourceType() == null) {
 					logger.warn("error processing visibility change -- newsItem has null sourcetype " + newsItem.toString());
 				} else {
-					dashboardCommonLogic.updateNewsLinks(event.getResource());
+					dashboardLogic.updateNewsLinks(event.getResource());
 				}
 			} else if(entity != null && entity instanceof ContentCollection) {
 				ContentCollection collection = (ContentCollection) entity;
@@ -542,7 +542,7 @@ public class ResourceSupport {
 						if(logger.isDebugEnabled()) {
 							logger.debug("updating links to resources in collection " + collection.getId() + ": " + resource.getId());
 						}
-						dashboardCommonLogic.updateNewsLinks(resource.getReference());
+						dashboardLogic.updateNewsLinks(resource.getReference());
 					}
 				}
 			}
@@ -575,7 +575,7 @@ public class ResourceSupport {
 				if(logger.isDebugEnabled()) {
 					logger.debug("updating links to resource " + entity.getId());
 				}
-				dashboardCommonLogic.updateNewsLinks(event.getResource());
+				dashboardLogic.updateNewsLinks(event.getResource());
 			} else if(entity!= null && entity instanceof ContentCollection) {
 				ContentCollection collection = (ContentCollection) entity;
 				List<ContentResource> resources = sakaiProxy.getAllContentResources(collection.getId());
@@ -584,7 +584,7 @@ public class ResourceSupport {
 						if(logger.isDebugEnabled()) {
 							logger.debug("updating links to resources in collection " + collection.getId() + ": " + resource.getId());
 						}
-						dashboardCommonLogic.updateNewsLinks(resource.getReference());
+						dashboardLogic.updateNewsLinks(resource.getReference());
 					}
 				}
 			}
@@ -612,7 +612,7 @@ public class ResourceSupport {
 				String title = resource.getProperties().getProperty(ResourceProperties.PROP_DISPLAY_NAME);
 				
 				if(title != null) {
-					NewsItem item = dashboardCommonLogic.getNewsItem(event.getResource());
+					NewsItem item = dashboardLogic.getNewsItem(event.getResource());
 					Date newTime = new Date();
 					String labelKey = "dash.updated";
 					if(item == null) {
@@ -621,7 +621,7 @@ public class ResourceSupport {
 						// set values on the item to trigger calculation of new grouping identifier
 						item.setNewsTime(newTime);
 						item.setNewsTimeLabelKey(labelKey);
-						dashboardCommonLogic.reviseNewsItemTitle(event.getResource(), title, newTime, labelKey, item.getGroupingIdentifier());
+						dashboardLogic.reviseNewsItemTitle(event.getResource(), title, newTime, labelKey, item.getGroupingIdentifier());
 					}
 				}
 			}
@@ -667,16 +667,16 @@ public class ResourceSupport {
 		if (!sakaiProxy.isAttachmentResource(resource.getId()))
 		{
 			// only when the resource is not attachment
-			Context context = dashboardCommonLogic.getContext(event.getContext());
+			Context context = dashboardLogic.getContext(event.getContext());
 			
 			String labelKey = "resource.added";
 			SourceType sourceType = null;
 			boolean isDropboxResource = sakaiProxy.isDropboxResource(resource.getId());
 			if(isDropboxResource ) {
-				sourceType = dashboardCommonLogic.getSourceType(DROPBOX_TYPE_IDENTIFIER);
+				sourceType = dashboardLogic.getSourceType(DROPBOX_TYPE_IDENTIFIER);
 				labelKey = "dropbox.added";
 			} else {
-				sourceType = dashboardCommonLogic.getSourceType(RESOURCE_TYPE_IDENTIFIER);
+				sourceType = dashboardLogic.getSourceType(RESOURCE_TYPE_IDENTIFIER);
 			}
 			
 			ResourceProperties props = resource.getProperties();
@@ -720,22 +720,22 @@ public class ResourceSupport {
 			if(resourceReference != null && resourceReference.startsWith("/citation/content/")) {
 				resourceReference = resourceReference.substring("/citation".length());
 			}
-			if (dashboardCommonLogic.getNewsItem(resourceReference) == null)
+			if (dashboardLogic.getNewsItem(resourceReference) == null)
 			{
-				newsItem = dashboardCommonLogic.createNewsItem(title, eventTime, labelKey , resourceReference, context, sourceType, resource.getContentType());
-				dashboardCommonLogic.createNewsLinks(newsItem);
+				newsItem = dashboardLogic.createNewsItem(title, eventTime, labelKey , resourceReference, context, sourceType, resource.getContentType());
+				dashboardLogic.createNewsLinks(newsItem);
 				
-				if(dashboardCommonLogic.isAvailable(newsItem.getEntityReference(), RESOURCE_TYPE_IDENTIFIER)) {
+				if(dashboardLogic.isAvailable(newsItem.getEntityReference(), RESOURCE_TYPE_IDENTIFIER)) {
 					// entity is available now -- check for retract date
 					Date retractDate = getRetractDate(newsItem.getEntityReference());
 					if(retractDate != null && retractDate.after(new Date())) {
-						dashboardCommonLogic.scheduleAvailabilityCheck(newsItem.getEntityReference(), RESOURCE_TYPE_IDENTIFIER, retractDate);
+						dashboardLogic.scheduleAvailabilityCheck(newsItem.getEntityReference(), RESOURCE_TYPE_IDENTIFIER, retractDate);
 					}
 				} else {
 					// entity is not available now -- check for release date
 					Date releaseDate = getReleaseDate(newsItem.getEntityReference());
 					if(releaseDate != null && releaseDate.after(new Date())) {
-						dashboardCommonLogic.scheduleAvailabilityCheck(newsItem.getEntityReference(), RESOURCE_TYPE_IDENTIFIER, releaseDate);
+						dashboardLogic.scheduleAvailabilityCheck(newsItem.getEntityReference(), RESOURCE_TYPE_IDENTIFIER, releaseDate);
 					}
 				}
 			}

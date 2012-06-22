@@ -36,7 +36,7 @@ import org.sakaiproject.assignment.api.AssignmentService;
 import org.sakaiproject.content.api.ContentResource;
 import org.sakaiproject.dash.listener.EventProcessor;
 import org.sakaiproject.dash.logic.DashboardLogic;
-import org.sakaiproject.dash.logic.SakaiProxy;
+import org.sakaiproject.dash.app.SakaiProxy;
 import org.sakaiproject.dash.model.CalendarItem;
 import org.sakaiproject.dash.model.Context;
 import org.sakaiproject.dash.model.NewsItem;
@@ -64,9 +64,9 @@ public class AssignmentSupport {
 
 	ResourceLoader rl = new ResourceLoader("dash_entity");
 	
-	protected DashboardCommonLogic dashboardCommonLogic;
-	public void setDashboardLogic(DashboardCommonLogic dashboardCommonLogic) {
-		this.dashboardCommonLogic = dashboardCommonLogic;
+	protected DashboardLogic dashboardLogic;
+	public void setDashboardLogic(DashboardLogic dashboardLogic) {
+		this.dashboardLogic = dashboardLogic;
 	}
 	
 	protected SakaiProxy sakaiProxy;
@@ -90,15 +90,15 @@ public class AssignmentSupport {
 	public void init() {
 		logger.info("init()");
 		
-		this.dashboardCommonLogic.registerEntityType(new AssignmentEntityType());
-		this.dashboardCommonLogic.registerEventProcessor(new AssignmentNewEventProcessor());
-		this.dashboardCommonLogic.registerEventProcessor(new AssignmentRemoveEventProcessor());
-		this.dashboardCommonLogic.registerEventProcessor(new AssignmentUpdateTitleEventProcessor());
-		this.dashboardCommonLogic.registerEventProcessor(new AssignmentUpdateAccessEventProcessor());
-		this.dashboardCommonLogic.registerEventProcessor(new AssignmentUpdateOpenDateEventProcessor());
-		this.dashboardCommonLogic.registerEventProcessor(new AssignmentUpdateDueDateEventProcessor());
-		this.dashboardCommonLogic.registerEventProcessor(new AssignmentUpdateCloseDateEventProcessor());
-		this.dashboardCommonLogic.registerEventProcessor(new AssignmentUpdateEventProcessor());
+		this.dashboardLogic.registerEntityType(new AssignmentEntityType());
+		this.dashboardLogic.registerEventProcessor(new AssignmentNewEventProcessor());
+		this.dashboardLogic.registerEventProcessor(new AssignmentRemoveEventProcessor());
+		this.dashboardLogic.registerEventProcessor(new AssignmentUpdateTitleEventProcessor());
+		this.dashboardLogic.registerEventProcessor(new AssignmentUpdateAccessEventProcessor());
+		this.dashboardLogic.registerEventProcessor(new AssignmentUpdateOpenDateEventProcessor());
+		this.dashboardLogic.registerEventProcessor(new AssignmentUpdateDueDateEventProcessor());
+		this.dashboardLogic.registerEventProcessor(new AssignmentUpdateCloseDateEventProcessor());
+		this.dashboardLogic.registerEventProcessor(new AssignmentUpdateEventProcessor());
 	}
 	
 	/**
@@ -277,7 +277,7 @@ public class AssignmentSupport {
 
 		public void init() {
 			logger.info("init()");
-			dashboardCommonLogic.registerEntityType(this);
+			dashboardLogic.registerEntityType(this);
 		}
 		
 		public boolean isAvailable(String entityReference) {
@@ -399,37 +399,37 @@ public class AssignmentSupport {
 			if(entity != null && entity instanceof Assignment) {
 			
 				Assignment assn = (Assignment) entity;
-				Context context = dashboardCommonLogic.getContext(event.getContext());
+				Context context = dashboardLogic.getContext(event.getContext());
 	            
-				SourceType sourceType = dashboardCommonLogic.getSourceType(IDENTIFIER);;
+				SourceType sourceType = dashboardLogic.getSourceType(IDENTIFIER);;
 				
 				String assnReference = assn.getReference();
 				
-				NewsItem newsItem = dashboardCommonLogic.createNewsItem(assn.getTitle(), event.getEventTime(), "assignment.added", assnReference, context, sourceType, null);
+				NewsItem newsItem = dashboardLogic.createNewsItem(assn.getTitle(), event.getEventTime(), "assignment.added", assnReference, context, sourceType, null);
 				CalendarItem calendarDueDateItem = null;
-				calendarDueDateItem = dashboardCommonLogic.createCalendarItem(assn.getTitle(), new Date(assn.getDueTime().getTime()), "assignment.due.date", assnReference, context, sourceType, (String) null, (RepeatingCalendarItem) null, (Integer) null);
-				CalendarItem calendarCloseDateItem = assn.getCloseTime().equals(assn.getDueTime())? null : dashboardCommonLogic.createCalendarItem(assn.getTitle(), new Date(assn.getCloseTime().getTime()), "assignment.close.date", assnReference, context, sourceType, (String) null, (RepeatingCalendarItem) null, (Integer) null);
+				calendarDueDateItem = dashboardLogic.createCalendarItem(assn.getTitle(), new Date(assn.getDueTime().getTime()), "assignment.due.date", assnReference, context, sourceType, (String) null, (RepeatingCalendarItem) null, (Integer) null);
+				CalendarItem calendarCloseDateItem = assn.getCloseTime().equals(assn.getDueTime())? null : dashboardLogic.createCalendarItem(assn.getTitle(), new Date(assn.getCloseTime().getTime()), "assignment.close.date", assnReference, context, sourceType, (String) null, (RepeatingCalendarItem) null, (Integer) null);
 
 				// add the news links as appropriate
-				dashboardCommonLogic.createNewsLinks(newsItem);
+				dashboardLogic.createNewsLinks(newsItem);
 
-				if(dashboardCommonLogic.isAvailable(assnReference, IDENTIFIER)) {
+				if(dashboardLogic.isAvailable(assnReference, IDENTIFIER)) {
 					if (calendarDueDateItem != null)
 					{
 						// create links for due date Calendar item
-						dashboardCommonLogic.createCalendarLinks(calendarDueDateItem);
+						dashboardLogic.createCalendarLinks(calendarDueDateItem);
 					}
 					if (calendarCloseDateItem != null)
 					{
 						// if the close time is different from due time, create a separate close time item
-						dashboardCommonLogic.createCalendarLinks(calendarCloseDateItem);
+						dashboardLogic.createCalendarLinks(calendarCloseDateItem);
 					}
 					// currently, we don't retract assignment item once it is available
 				}
 				else
 				{
 					// assignment is not open yet, schedule for check later
-					dashboardCommonLogic.scheduleAvailabilityCheck(assnReference, IDENTIFIER, new Date(assn.getOpenTime().getTime()));
+					dashboardLogic.scheduleAvailabilityCheck(assnReference, IDENTIFIER, new Date(assn.getOpenTime().getTime()));
 				}
 				
 			} else {
@@ -466,15 +466,15 @@ public class AssignmentSupport {
 			}
 			
 			String ref = event.getResource();
-			dashboardCommonLogic.removeCalendarItems(ref);
+			dashboardLogic.removeCalendarItems(ref);
 			
 			if(logger.isDebugEnabled()) {
 				logger.debug("removing news links and news item for " + event.getResource());
 			}
-			dashboardCommonLogic.removeNewsItem(ref);
+			dashboardLogic.removeNewsItem(ref);
 			
 			// also remove all availability checks
-			dashboardCommonLogic.removeAllScheduledAvailabilityChecks(ref);
+			dashboardLogic.removeAllScheduledAvailabilityChecks(ref);
 		}
 
 	}
@@ -509,7 +509,7 @@ public class AssignmentSupport {
 			if(entity != null && entity instanceof Assignment) {
 				// get the assignment entity and its current title
 				Assignment assn = (Assignment) entity;
-				NewsItem item = dashboardCommonLogic.getNewsItem(assn.getReference()); 
+				NewsItem item = dashboardLogic.getNewsItem(assn.getReference()); 
 				if(item == null) {
 					// TODO: need to create item with "update" label key and add news-links for the new item
 				} else {
@@ -517,11 +517,11 @@ public class AssignmentSupport {
 					item.setNewsTime(event.getEventTime());
 					item.setNewsTimeLabelKey("dash.updated");
 					// update news item title
-					dashboardCommonLogic.reviseNewsItemTitle(assn.getReference(), assn.getTitle(), item.getNewsTime(), item.getNewsTimeLabelKey(), item.getGroupingIdentifier());
+					dashboardLogic.reviseNewsItemTitle(assn.getReference(), assn.getTitle(), item.getNewsTime(), item.getNewsTimeLabelKey(), item.getGroupingIdentifier());
 				}
 				
 				// update news item title
-				dashboardCommonLogic.reviseCalendarItemsTitle(assn.getReference(), assn.getTitle());
+				dashboardLogic.reviseCalendarItemsTitle(assn.getReference(), assn.getTitle());
 			}
 			
 			if(logger.isDebugEnabled()) {
@@ -564,15 +564,15 @@ public class AssignmentSupport {
 				Assignment assn = (Assignment) entity;
 				String assnReference = assn.getReference();
 				
-				if(dashboardCommonLogic.isAvailable(assnReference, IDENTIFIER)) {
+				if(dashboardLogic.isAvailable(assnReference, IDENTIFIER)) {
 					// update the calendar and news links
-					dashboardCommonLogic.updateCalendarLinks(assn.getReference());
-					dashboardCommonLogic.updateNewsLinks(assnReference);
+					dashboardLogic.updateCalendarLinks(assn.getReference());
+					dashboardLogic.updateNewsLinks(assnReference);
 				}
 				else
 				{
 					// assignment is not open yet, schedule for check later
-					dashboardCommonLogic.scheduleAvailabilityCheck(assnReference, IDENTIFIER, new Date(assn.getOpenTime().getTime()));
+					dashboardLogic.scheduleAvailabilityCheck(assnReference, IDENTIFIER, new Date(assn.getOpenTime().getTime()));
 				}
 			}
 			
@@ -611,45 +611,45 @@ public class AssignmentSupport {
 			}
 			Entity entity = sakaiProxy.getEntity(event.getResource());
 			
-			Context context = dashboardCommonLogic.getContext(event.getContext());
+			Context context = dashboardLogic.getContext(event.getContext());
             
-			SourceType sourceType =  dashboardCommonLogic.getSourceType(IDENTIFIER);
+			SourceType sourceType =  dashboardLogic.getSourceType(IDENTIFIER);
 			
 			if(entity != null && entity instanceof Assignment) {
 				// get the assignment entity and its current title
 				Assignment assn = (Assignment) entity;
 				String assnReference = assn.getReference();
-				NewsItem nItem = dashboardCommonLogic.getNewsItem(assnReference);
+				NewsItem nItem = dashboardLogic.getNewsItem(assnReference);
 				
 				if (nItem != null)
 				{
 					Date newTime = new Date(assn.getOpenTime().getTime());
 					nItem.setNewsTime(newTime);
 					// update the open time
-					dashboardCommonLogic.reviseNewsItemTime(assnReference, newTime, nItem.getGroupingIdentifier());
+					dashboardLogic.reviseNewsItemTime(assnReference, newTime, nItem.getGroupingIdentifier());
 					
-					if(!dashboardCommonLogic.isAvailable(assnReference, IDENTIFIER)) {
+					if(!dashboardLogic.isAvailable(assnReference, IDENTIFIER)) {
 						// update NewsItem links 
-						dashboardCommonLogic.updateNewsLinks(assnReference);
+						dashboardLogic.updateNewsLinks(assnReference);
 						// schedule the availability check into future date
-						dashboardCommonLogic.scheduleAvailabilityCheck(assnReference, IDENTIFIER, new Date(assn.getOpenTime().getTime()));
+						dashboardLogic.scheduleAvailabilityCheck(assnReference, IDENTIFIER, new Date(assn.getOpenTime().getTime()));
 					}
 					else
 					{
 						// create all NewsItem links
-						dashboardCommonLogic.createNewsLinks(nItem);
+						dashboardLogic.createNewsLinks(nItem);
 					}
 				}
 				else
 				{
 					// add NewsItem and links
-					nItem = dashboardCommonLogic.createNewsItem(assn.getTitle(), event.getEventTime(), "assignment.added", assnReference, context, sourceType, null);
-					dashboardCommonLogic.createNewsLinks(nItem);
+					nItem = dashboardLogic.createNewsItem(assn.getTitle(), event.getEventTime(), "assignment.added", assnReference, context, sourceType, null);
+					dashboardLogic.createNewsLinks(nItem);
 					
-					if(! dashboardCommonLogic.isAvailable(assnReference, IDENTIFIER))
+					if(! dashboardLogic.isAvailable(assnReference, IDENTIFIER))
 					{
 						// assignment is not open yet, schedule for check later
-						dashboardCommonLogic.scheduleAvailabilityCheck(assnReference, IDENTIFIER, new Date(assn.getOpenTime().getTime()));
+						dashboardLogic.scheduleAvailabilityCheck(assnReference, IDENTIFIER, new Date(assn.getOpenTime().getTime()));
 					}
 				}
 			}
@@ -679,20 +679,20 @@ public class AssignmentSupport {
 			}
 			Entity entity = sakaiProxy.getEntity(event.getResource());
 			
-			Context context = dashboardCommonLogic.getContext(event.getContext());
+			Context context = dashboardLogic.getContext(event.getContext());
             
-			SourceType sourceType =  dashboardCommonLogic.getSourceType(IDENTIFIER);
+			SourceType sourceType =  dashboardLogic.getSourceType(IDENTIFIER);
 			
 			if(entity != null && entity instanceof Assignment) {
 				// get the assignment entity and its current title
 				Assignment assn = (Assignment) entity;
 				String assnReference = assn.getReference();
-				CalendarItem cItem = dashboardCommonLogic.getCalendarItem(assnReference, "assignment.due.date", null);
+				CalendarItem cItem = dashboardLogic.getCalendarItem(assnReference, "assignment.due.date", null);
 				
 				if (cItem != null)
 				{
 					Date newTime = new Date(assn.getDueTime().getTime());
-					dashboardCommonLogic.reviseCalendarItemTime(assnReference, "assignment.due.date", null, newTime);
+					dashboardLogic.reviseCalendarItemTime(assnReference, "assignment.due.date", null, newTime);
 				}
 			}
 		}
@@ -721,20 +721,20 @@ public class AssignmentSupport {
 			}
 			Entity entity = sakaiProxy.getEntity(event.getResource());
 			
-			Context context = dashboardCommonLogic.getContext(event.getContext());
+			Context context = dashboardLogic.getContext(event.getContext());
             
-			SourceType sourceType =  dashboardCommonLogic.getSourceType(IDENTIFIER);
+			SourceType sourceType =  dashboardLogic.getSourceType(IDENTIFIER);
 			
 			if(entity != null && entity instanceof Assignment) {
 				// get the assignment entity and its current title
 				Assignment assn = (Assignment) entity;
 				String assnReference = assn.getReference();
-				CalendarItem cItem = dashboardCommonLogic.getCalendarItem(assnReference, "assignment.close.date", null);
+				CalendarItem cItem = dashboardLogic.getCalendarItem(assnReference, "assignment.close.date", null);
 				
 				if (cItem != null)
 				{
 					Date newTime = new Date(assn.getCloseTime().getTime());
-					dashboardCommonLogic.reviseCalendarItemTime(assnReference, "assignment.close.date", null, newTime);
+					dashboardLogic.reviseCalendarItemTime(assnReference, "assignment.close.date", null, newTime);
 				}
 			}
 		}

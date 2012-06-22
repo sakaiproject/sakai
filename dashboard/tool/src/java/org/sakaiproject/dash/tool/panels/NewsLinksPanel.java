@@ -47,9 +47,10 @@ import org.apache.wicket.model.IModel;
 import org.apache.wicket.model.LoadableDetachableModel;
 import org.apache.wicket.spring.injection.annot.SpringBean;
 
-import org.sakaiproject.dash.logic.DashboardConfig;
+import org.sakaiproject.dash.app.DashboardCommonLogic;
+import org.sakaiproject.dash.app.DashboardConfig;
 import org.sakaiproject.dash.logic.DashboardLogic;
-import org.sakaiproject.dash.logic.SakaiProxy;
+import org.sakaiproject.dash.app.SakaiProxy;
 import org.sakaiproject.dash.model.NewsItem;
 import org.sakaiproject.dash.model.NewsLink;
 import org.sakaiproject.dash.tool.util.JsonHelper;
@@ -76,8 +77,8 @@ public class NewsLinksPanel extends Panel {
 	@SpringBean(name="org.sakaiproject.dash.logic.SakaiProxy")
 	protected SakaiProxy sakaiProxy;
 	
-	@SpringBean(name="org.sakaiproject.dash.logic.DashboardLogic")
-	protected DashboardLogic dashboardLogic;
+	@SpringBean(name="org.sakaiproject.dash.app.DashboardCommonLogic")
+	protected DashboardCommonLogic dashboardCommonLogic;
 
 	@SpringBean(name="org.sakaiproject.dash.logic.DashboardConfig")
 	protected DashboardConfig dashboardConfig;

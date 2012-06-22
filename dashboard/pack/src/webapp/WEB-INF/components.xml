@@ -4,7 +4,7 @@
 <beans>
 
 	<!--  SakaiProxy -->
- 	<bean id="org.sakaiproject.dash.logic.SakaiProxy"
+ 	<bean id="org.sakaiproject.dash.app.SakaiProxy"
     	class="org.sakaiproject.dash.logic.SakaiProxyImpl"
         init-method="init">
         
@@ -24,8 +24,8 @@
     	<property name="functionManager" ref="org.sakaiproject.authz.api.FunctionManager"/>
 	</bean>
 	
-    <bean id="org.sakaiproject.dash.logic.DashboardConfig" 
-		class="org.sakaiproject.dash.logic.DashboardConfigImpl" 
+    <bean id="org.sakaiproject.dash.app.DashboardConfig" 
+		class="org.sakaiproject.dash.app.DashboardConfigImpl" 
 		init-method="init">
 		<property name="dao" ref="org.sakaiproject.dash.dao.DashboardDao"></property>
     	<property name="cache" ref="org.sakaiproject.dash.cache" />	
@@ -34,10 +34,29 @@
 	<bean id="org.sakaiproject.dash.logic.DashboardLogic" 
     	class="org.sakaiproject.dash.logic.DashboardLogicImpl"
     	init-method="init" destroy-method="destroy">
-    	<property name="sakaiProxy" ref="org.sakaiproject.dash.logic.SakaiProxy"></property>
+    	<property name="sakaiProxy" ref="org.sakaiproject.dash.app.SakaiProxy"></property>
     	<property name="dao" ref="org.sakaiproject.dash.dao.DashboardDao" />	
     	<property name="cache" ref="org.sakaiproject.dash.cache" />	
-    	<property name="dashboardConfig" ref="org.sakaiproject.dash.logic.DashboardConfig" />
+    	<property name="dashboardConfig" ref="org.sakaiproject.dash.app.DashboardConfig" />
+    </bean>
+    
+	<bean id="org.sakaiproject.dash.app.DashboardUserLogic" 
+    	class="org.sakaiproject.dash.logic.DashboardUserLogicImpl"
+    	init-method="init" destroy-method="destroy">
+    	<property name="sakaiProxy" ref="org.sakaiproject.dash.app.SakaiProxy"></property>
+    	<property name="dao" ref="org.sakaiproject.dash.dao.DashboardDao" />	
+    	<property name="cache" ref="org.sakaiproject.dash.cache" />	
+    	<property name="dashboardConfig" ref="org.sakaiproject.dash.app.DashboardConfig" />
+		<property name="dashboardLogic" ref="org.sakaiproject.dash.logic.DashboardLogic"></property>
+    </bean>
+    
+    <bean id="org.sakaiproject.dash.app.DashboardCommonLogic" 
+    	class="org.sakaiproject.dash.logic.DashboardCommonLogicImpl"
+    	init-method="init" destroy-method="destroy">
+    	<property name="dashboardConfig" ref="org.sakaiproject.dash.app.DashboardConfig" />
+		<property name="dashboardLogic" ref="org.sakaiproject.dash.logic.DashboardLogic"></property>
+    	<property name="dashboardUserLogic" ref="org.sakaiproject.dash.app.DashboardUserLogic" />
+    	<property name="cache" ref="org.sakaiproject.dash.cache" />	
     </bean>
     
     <!-- DAO. This uses the DataSource that has already been setup by Sakai  -->

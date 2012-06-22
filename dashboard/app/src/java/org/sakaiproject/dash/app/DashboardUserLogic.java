@@ -35,7 +35,7 @@ public interface DashboardUserLogic {
 	 * @return
 	 */
 	public List<NewsLink> getCurrentNewsLinks(String sakaiUserId, String contextId);
-
+	
 	/**
 	 * Returns a list of CalendarLink objects linking a particular person to calendar items 
 	 * whose time attribute is in the current date or later (i.e. it will return items representing

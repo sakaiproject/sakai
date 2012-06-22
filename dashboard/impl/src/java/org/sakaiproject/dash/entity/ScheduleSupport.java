@@ -42,7 +42,7 @@ import org.sakaiproject.calendar.api.RecurrenceRule;
 import org.sakaiproject.content.api.ContentResource;
 import org.sakaiproject.dash.listener.EventProcessor;
 import org.sakaiproject.dash.logic.DashboardLogic;
-import org.sakaiproject.dash.logic.SakaiProxy;
+import org.sakaiproject.dash.app.SakaiProxy;
 import org.sakaiproject.dash.model.CalendarItem;
 import org.sakaiproject.dash.model.Context;
 import org.sakaiproject.dash.model.RepeatingCalendarItem;
@@ -84,9 +84,9 @@ public class ScheduleSupport{
 		this.timeService = timeService;
 	}
 	
-	protected DashboardCommonLogic dashboardCommonLogic;
-	public void setDashboardLogic(DashboardCommonLogic dashboardCommonLogic) {
-		this.dashboardCommonLogic = dashboardCommonLogic;
+	protected DashboardLogic dashboardLogic;
+	public void setDashboardLogic(DashboardLogic dashboardLogic) {
+		this.dashboardLogic = dashboardLogic;
 	}
 	
 	protected Map<String,String> scheduleEventTypeMap;
@@ -99,17 +99,17 @@ public class ScheduleSupport{
 	public void init() {
 		logger.info("init()");
 		this.scheduleEntityType = new ScheduleEntityType();
-		this.dashboardCommonLogic.registerEntityType(scheduleEntityType);
-		this.dashboardCommonLogic.registerEventProcessor(new ScheduleNewEventProcessor());
-		this.dashboardCommonLogic.registerEventProcessor(new ScheduleRemoveEventProcessor());
-		this.dashboardCommonLogic.registerEventProcessor(new ScheduleUpdateTimeEventProcessor());
-		this.dashboardCommonLogic.registerEventProcessor(new ScheduleUpdateTitleEventProcessor());
-		this.dashboardCommonLogic.registerEventProcessor(new ScheduleUpdateTypeEventProcessor());
-		this.dashboardCommonLogic.registerEventProcessor(new ScheduleReviseEventProcessor());
-		this.dashboardCommonLogic.registerEventProcessor(new ScheduleUpdateAccessEventProcessor());
-		this.dashboardCommonLogic.registerEventProcessor(new ScheduleUpdateFrequencyEventProcessor());
-		this.dashboardCommonLogic.registerEventProcessor(new ScheduleUpdateExcludedEventProcessor());
-		this.dashboardCommonLogic.registerEventProcessor(new ScheduleUpdateExclusionsEventProcessor());
+		this.dashboardLogic.registerEntityType(scheduleEntityType);
+		this.dashboardLogic.registerEventProcessor(new ScheduleNewEventProcessor());
+		this.dashboardLogic.registerEventProcessor(new ScheduleRemoveEventProcessor());
+		this.dashboardLogic.registerEventProcessor(new ScheduleUpdateTimeEventProcessor());
+		this.dashboardLogic.registerEventProcessor(new ScheduleUpdateTitleEventProcessor());
+		this.dashboardLogic.registerEventProcessor(new ScheduleUpdateTypeEventProcessor());
+		this.dashboardLogic.registerEventProcessor(new ScheduleReviseEventProcessor());
+		this.dashboardLogic.registerEventProcessor(new ScheduleUpdateAccessEventProcessor());
+		this.dashboardLogic.registerEventProcessor(new ScheduleUpdateFrequencyEventProcessor());
+		this.dashboardLogic.registerEventProcessor(new ScheduleUpdateExcludedEventProcessor());
+		this.dashboardLogic.registerEventProcessor(new ScheduleUpdateExclusionsEventProcessor());
 		
 		scheduleEventTypeMap = new HashMap<String,String>();
 		
@@ -428,11 +428,11 @@ public class ScheduleSupport{
 
 				String cEventReference = cEvent.getReference();
 				
-				Context context = dashboardCommonLogic.getContext(eventContextString);
+				Context context = dashboardLogic.getContext(eventContextString);
 				
-				SourceType sourceType = dashboardCommonLogic.getSourceType(IDENTIFIER);
+				SourceType sourceType = dashboardLogic.getSourceType(IDENTIFIER);
 				
-				// Third parameter in dashboardCommonLogic.createCalendarItem() below should be a key for a label such as "Due Date: " or "Accept Until: " 
+				// Third parameter in dashboardLogic.createCalendarItem() below should be a key for a label such as "Due Date: " or "Accept Until: " 
 				// from dash_entity properties bundle for use in the dashboard list
 				String type = cEvent.getType();
 				// Based on the event-type, we may be able to select a key for a label? 
@@ -449,8 +449,8 @@ public class ScheduleSupport{
 				RecurrenceRule recurrenceRule = cEvent.getRecurrenceRule();
 				if(recurrenceRule == null) {
 					// not a repeating event so create one calendar event
-					CalendarItem calendarItem = dashboardCommonLogic.createCalendarItem(cEvent.getDisplayName(), new Date(cEvent.getRange().firstTime().getTime()), key, cEventReference, context, sourceType, type, null, null);
-					dashboardCommonLogic.createCalendarLinks(calendarItem);
+					CalendarItem calendarItem = dashboardLogic.createCalendarItem(cEvent.getDisplayName(), new Date(cEvent.getRange().firstTime().getTime()), key, cEventReference, context, sourceType, type, null, null);
+					dashboardLogic.createCalendarLinks(calendarItem);
 				} else {
 					// this is a repeating event -- create a repeating calendar item
 					String frequency = recurrenceRule.getFrequency();
@@ -462,7 +462,7 @@ public class ScheduleSupport{
 						lastDate = new Date(recurrenceRule.getUntil().getTime());
 					}
 					
-					RepeatingCalendarItem repeatingCalendarItem = dashboardCommonLogic.createRepeatingCalendarItem(cEvent.getDisplayName(), new Date(cEvent.getRange().firstTime().getTime()), 
+					RepeatingCalendarItem repeatingCalendarItem = dashboardLogic.createRepeatingCalendarItem(cEvent.getDisplayName(), new Date(cEvent.getRange().firstTime().getTime()), 
 							lastDate, key, cEventReference, context, sourceType, frequency, maxCount);
 						
 					logger.debug(repeatingCalendarItem);
@@ -508,7 +508,7 @@ public class ScheduleSupport{
 				logger.debug("removing calendar links and news item for " + event.getResource());
 			}
 			// remove all links and CalendarItem itself
-			dashboardCommonLogic.removeCalendarItems(event.getResource());
+			dashboardLogic.removeCalendarItems(event.getResource());
 		}
 
 	}
@@ -550,7 +550,7 @@ public class ScheduleSupport{
 				
 				
 				// update news item title
-				//dashboardCommonLogic.reviseNewsItemTitle(cEvent.getReference(), title, null, null);
+				//dashboardLogic.reviseNewsItemTitle(cEvent.getReference(), title, null, null);
 				
 				String type = cEvent.getType();
 				// Based on the event-type, we may be able to select a key for a label? 
@@ -567,12 +567,12 @@ public class ScheduleSupport{
 				RecurrenceRule rule = cEvent.getRecurrenceRule();
 				if(rule == null) {
 					// update calendar item title
-					dashboardCommonLogic.reviseCalendarItemsTitle(cEvent.getReference(), title);
+					dashboardLogic.reviseCalendarItemsTitle(cEvent.getReference(), title);
 				} else {
 					// update repeating calendar item
-					dashboardCommonLogic.reviseRepeatingCalendarItemTitle(cEvent.getReference(), title);
+					dashboardLogic.reviseRepeatingCalendarItemTitle(cEvent.getReference(), title);
 					// update all instances of repeating calendar item
-					dashboardCommonLogic.reviseCalendarItemsTitle(cEvent.getReference(), title);
+					dashboardLogic.reviseCalendarItemsTitle(cEvent.getReference(), title);
 				}
 			}
 			
@@ -628,31 +628,31 @@ public class ScheduleSupport{
 					// change times for the repeating calendar item and all instances 
 					// remove all instances and add new instances
 					ResourceProperties props = cEvent.getProperties();
-					RepeatingCalendarItem item = dashboardCommonLogic.getRepeatingCalendarItem(entityReference, calendarTimeLabelKey);
+					RepeatingCalendarItem item = dashboardLogic.getRepeatingCalendarItem(entityReference, calendarTimeLabelKey);
 					 
 					
 					// update the time of the repating item and each instance
 					if(rule.getUntil() != null) {
 						Date lastTime = new Date(rule.getUntil().getTime());
 					}
-					dashboardCommonLogic.reviseRepeatingCalendarItemTime(entityReference, newStartTime, null);
+					dashboardLogic.reviseRepeatingCalendarItemTime(entityReference, newStartTime, null);
 					
 					// need to get each item in sequence and update its time
-					Map<Integer, Date> dates = scheduleEntityType.generateRepeatingEventDates(entityReference, newStartTime, dashboardCommonLogic.getRepeatingEventHorizon());
+					Map<Integer, Date> dates = scheduleEntityType.generateRepeatingEventDates(entityReference, newStartTime, dashboardLogic.getRepeatingEventHorizon());
 					for(Map.Entry<Integer, Date> entry : dates.entrySet()) {
 						if(logger.isDebugEnabled()) {
 							String msg = entry.getKey().toString() + " ==> " + entry.getValue().toString();
-							CalendarItem oneItem = dashboardCommonLogic.getCalendarItem(entityReference, calendarTimeLabelKey, entry.getKey());
+							CalendarItem oneItem = dashboardLogic.getCalendarItem(entityReference, calendarTimeLabelKey, entry.getKey());
 							if(oneItem != null) {
 								msg += " -----> " + oneItem.getCalendarTime().toString();
 							}
 							logger.debug(msg);
 						}
-						dashboardCommonLogic.reviseCalendarItemTime(entityReference, calendarTimeLabelKey, entry.getKey(), entry.getValue());
+						dashboardLogic.reviseCalendarItemTime(entityReference, calendarTimeLabelKey, entry.getKey(), entry.getValue());
 					}
 				} else {
 					// update calendar item title
-					dashboardCommonLogic.reviseCalendarItemsTime(entityReference, newStartTime);	
+					dashboardLogic.reviseCalendarItemsTime(entityReference, newStartTime);	
 				}	
 			}
 			
@@ -711,13 +711,13 @@ public class ScheduleSupport{
 					}
 					if(cEvent.getRecurrenceRule() != null) {
 						// update the label key for the repeating calendar item 
-						dashboardCommonLogic.reviseRepeatingCalendarItemsLabelKey(entityReference, oldLabelKey, newLabelKey);
+						dashboardLogic.reviseRepeatingCalendarItemsLabelKey(entityReference, oldLabelKey, newLabelKey);
 						// update the label key for all instances
-						dashboardCommonLogic.reviseCalendarItemsLabelKey(entityReference, oldLabelKey, newLabelKey);
+						dashboardLogic.reviseCalendarItemsLabelKey(entityReference, oldLabelKey, newLabelKey);
 						
 					} else {
 						// update calendar item title
-						dashboardCommonLogic.reviseCalendarItemsLabelKey(entityReference, oldLabelKey, newLabelKey);
+						dashboardLogic.reviseCalendarItemsLabelKey(entityReference, oldLabelKey, newLabelKey);
 						
 					}
 					
@@ -775,8 +775,8 @@ public class ScheduleSupport{
 				String cReference = cEvent.getReference();
 				
 				// update the calendar/news item links according to current announcement
-				dashboardCommonLogic.updateNewsLinks(cReference);
-				dashboardCommonLogic.updateCalendarLinks(cReference);
+				dashboardLogic.updateNewsLinks(cReference);
+				dashboardLogic.updateCalendarLinks(cReference);
 			}
 			
 			if(logger.isDebugEnabled()) {
@@ -823,7 +823,7 @@ public class ScheduleSupport{
 					// add single calendar item?
 				} else {
 					// update the repeating-event object
-					RepeatingCalendarItem repeater = dashboardCommonLogic.getRepeatingCalendarItem(entityReference, calendarTimeLabelKey);
+					RepeatingCalendarItem repeater = dashboardLogic.getRepeatingCalendarItem(entityReference, calendarTimeLabelKey);
 					if(repeater == null) {
 						// create repeating calendar item?
 						
@@ -833,30 +833,30 @@ public class ScheduleSupport{
 							// what to do?
 							logger.warn("Error trying to revise frequency of repeating event: event.getRecurrenceRule().getFrequency() is null");
 						} else if(! frequency.equalsIgnoreCase(repeater.getFrequency())) {
-							dashboardCommonLogic.reviseRepeatingCalendarItemFrequency(entityReference, frequency);
+							dashboardLogic.reviseRepeatingCalendarItemFrequency(entityReference, frequency);
 						}
 					}	
 					
 					// need to get each item in sequence and update its time
-					Map<Integer, Date> dates = scheduleEntityType.generateRepeatingEventDates(entityReference, newStartTime, dashboardCommonLogic.getRepeatingEventHorizon());
+					Map<Integer, Date> dates = scheduleEntityType.generateRepeatingEventDates(entityReference, newStartTime, dashboardLogic.getRepeatingEventHorizon());
 					Integer firstSequenceNumber = findSmallest(dates.keySet());
 					
-					SortedSet<Integer> futureSequenceNumbers = dashboardCommonLogic.getFutureSequnceNumbers(entityReference, calendarTimeLabelKey, firstSequenceNumber);
+					SortedSet<Integer> futureSequenceNumbers = dashboardLogic.getFutureSequnceNumbers(entityReference, calendarTimeLabelKey, firstSequenceNumber);
 					
 					for(Map.Entry<Integer, Date> entry : dates.entrySet()) {
 						if(futureSequenceNumbers.contains(entry.getKey())) {
 							// update each existing calendar-item
-							dashboardCommonLogic.reviseCalendarItemTime(entityReference, calendarTimeLabelKey, entry.getKey(), entry.getValue());
+							dashboardLogic.reviseCalendarItemTime(entityReference, calendarTimeLabelKey, entry.getKey(), entry.getValue());
 							futureSequenceNumbers.remove(entry.getKey());
 						} else {
 							// add new calendar-items as needed
-							CalendarItem calendarItem = dashboardCommonLogic.createCalendarItem(repeater.getTitle(), entry.getValue(), calendarTimeLabelKey, entityReference, repeater.getContext(), repeater.getSourceType(), repeater.getSubtype(), repeater, entry.getKey());
-							dashboardCommonLogic.createCalendarLinks(calendarItem);
+							CalendarItem calendarItem = dashboardLogic.createCalendarItem(repeater.getTitle(), entry.getValue(), calendarTimeLabelKey, entityReference, repeater.getContext(), repeater.getSourceType(), repeater.getSubtype(), repeater, entry.getKey());
+							dashboardLogic.createCalendarLinks(calendarItem);
 						}
 						
 						if(logger.isDebugEnabled()) {
 							String msg = entry.getKey().toString() + " ==> " + entry.getValue().toString();
-							CalendarItem oneItem = dashboardCommonLogic.getCalendarItem(entityReference, calendarTimeLabelKey, entry.getKey());
+							CalendarItem oneItem = dashboardLogic.getCalendarItem(entityReference, calendarTimeLabelKey, entry.getKey());
 							if(oneItem != null) {
 								msg += " -----> " + oneItem.getCalendarTime().toString();
 							}
@@ -866,9 +866,9 @@ public class ScheduleSupport{
 					
 					// futureSequenceNumbers now contains only the id's of existing calendar-items that need to be removed
 					for(Integer seqNum : futureSequenceNumbers) {
-						CalendarItem item = dashboardCommonLogic.getCalendarItem(entityReference, calendarTimeLabelKey, seqNum);
-						dashboardCommonLogic.removeCalendarLinks(entityReference, calendarTimeLabelKey, seqNum.intValue());
-						dashboardCommonLogic.removeCalendarItem(entityReference, calendarTimeLabelKey, seqNum);
+						CalendarItem item = dashboardLogic.getCalendarItem(entityReference, calendarTimeLabelKey, seqNum);
+						dashboardLogic.removeCalendarLinks(entityReference, calendarTimeLabelKey, seqNum.intValue());
+						dashboardLogic.removeCalendarItem(entityReference, calendarTimeLabelKey, seqNum);
 					}
 				}
 				
@@ -908,11 +908,11 @@ public class ScheduleSupport{
 
 				String cEventReference = cEvent.getReference();
 				
-				Context context = dashboardCommonLogic.getContext(eventContextString);
+				Context context = dashboardLogic.getContext(eventContextString);
 				
-				SourceType sourceType = dashboardCommonLogic.getSourceType(IDENTIFIER);
+				SourceType sourceType = dashboardLogic.getSourceType(IDENTIFIER);
 				
-				// Third parameter in dashboardCommonLogic.createCalendarItem() below should be a key for a label such as "Due Date: " or "Accept Until: " 
+				// Third parameter in dashboardLogic.createCalendarItem() below should be a key for a label such as "Due Date: " or "Accept Until: " 
 				// from dash_entity properties bundle for use in the dashboard list
 				String type = cEvent.getType();
 				// Based on the event-type, we may be able to select a key for a label? 
@@ -929,8 +929,8 @@ public class ScheduleSupport{
 				// The schedule tool and/or service does not save a recurrence rule for the newly  
 				// separated calendar event, though the UI elements are presented to the user,
 				// so we will assume this to be a non-repeating event.
-				CalendarItem calendarItem = dashboardCommonLogic.createCalendarItem(cEvent.getDisplayName(), new Date(cEvent.getRange().firstTime().getTime()), key, cEventReference, context, sourceType, type, null, null);
-				dashboardCommonLogic.createCalendarLinks(calendarItem);
+				CalendarItem calendarItem = dashboardLogic.createCalendarItem(cEvent.getDisplayName(), new Date(cEvent.getRange().firstTime().getTime()), key, cEventReference, context, sourceType, type, null, null);
+				dashboardLogic.createCalendarLinks(calendarItem);
 			} else {
 				// for now, let's log the error
 				logger.info(eventId + " is not processed for entityReference " + event.getResource());
@@ -994,8 +994,8 @@ public class ScheduleSupport{
 				
 				if(entityReference != null && sequenceNumber >= -1) {
 					String calendarTimeLabelKey = null;
-					CalendarItem calendarItem = dashboardCommonLogic.getCalendarItem(entityReference, calendarTimeLabelKey, sequenceNumber);
-					dashboardCommonLogic.removeCalendarItem(entityReference, calendarTimeLabelKey, sequenceNumber);
+					CalendarItem calendarItem = dashboardLogic.getCalendarItem(entityReference, calendarTimeLabelKey, sequenceNumber);
+					dashboardLogic.removeCalendarItem(entityReference, calendarTimeLabelKey, sequenceNumber);
 				}
 				
 			}

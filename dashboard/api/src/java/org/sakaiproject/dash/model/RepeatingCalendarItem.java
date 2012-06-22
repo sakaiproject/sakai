@@ -23,19 +23,14 @@ package org.sakaiproject.dash.model;
 
 import java.io.Serializable;
 import java.util.ArrayList;
-import java.util.Calendar;
 import java.util.Date;
 import java.util.List;
-
-import org.sakaiproject.dash.logic.SakaiProxy;
 
 /**
  * 
  *
  */
 public class RepeatingCalendarItem implements Serializable {
-	
-	SakaiProxy sakaiProxy;
 	
 	public static final String REPEATS_WEEKLY = "weekly";
 	public static final String REPEATS_MONTHLY = "monthly";

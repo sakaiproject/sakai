@@ -39,7 +39,7 @@ import org.sakaiproject.announcement.api.AnnouncementService;
 import org.sakaiproject.content.api.ContentResource;
 import org.sakaiproject.dash.listener.EventProcessor;
 import org.sakaiproject.dash.logic.DashboardLogic;
-import org.sakaiproject.dash.logic.SakaiProxy;
+import org.sakaiproject.dash.app.SakaiProxy;
 import org.sakaiproject.dash.model.Context;
 import org.sakaiproject.dash.model.NewsItem;
 import org.sakaiproject.dash.model.SourceType;
@@ -78,9 +78,9 @@ public class AnnouncementSupport{
 		this.sakaiProxy = sakaiProxy;
 	}
 	
-	protected DashboardCommonLogic dashboardCommonLogic;
-	public void setDashboardLogic(DashboardCommonLogic dashboardCommonLogic) {
-		this.dashboardCommonLogic = dashboardCommonLogic;
+	protected DashboardLogic dashboardLogic;
+	public void setDashboardLogic(DashboardLogic dashboardLogic) {
+		this.dashboardLogic = dashboardLogic;
 	}
 
 	protected AnnouncementService announcementService;
@@ -104,15 +104,15 @@ public class AnnouncementSupport{
 	public void init() {
 		logger.info("init()");
 		
-		this.dashboardCommonLogic.registerEntityType(new AnnouncementEntityType());
-		this.dashboardCommonLogic.registerEventProcessor(new AnnouncementNewEventProcessor());
-		this.dashboardCommonLogic.registerEventProcessor(new AnnouncementRemoveAnyEventProcessor());
-		this.dashboardCommonLogic.registerEventProcessor(new AnnouncementRemoveOwnEventProcessor());
-		this.dashboardCommonLogic.registerEventProcessor(new AnnouncementUpdateTitleEventProcessor());
-		this.dashboardCommonLogic.registerEventProcessor(new AnnouncementUpdateAccessEventProcessor());
-		this.dashboardCommonLogic.registerEventProcessor(new AnnouncementUpdateAvailabilityEventProcessor());
-		this.dashboardCommonLogic.registerEventProcessor(new AnnouncementUpdateAnyEventProcessor());
-		this.dashboardCommonLogic.registerEventProcessor(new AnnouncementUpdateOwnEventProcessor());
+		this.dashboardLogic.registerEntityType(new AnnouncementEntityType());
+		this.dashboardLogic.registerEventProcessor(new AnnouncementNewEventProcessor());
+		this.dashboardLogic.registerEventProcessor(new AnnouncementRemoveAnyEventProcessor());
+		this.dashboardLogic.registerEventProcessor(new AnnouncementRemoveOwnEventProcessor());
+		this.dashboardLogic.registerEventProcessor(new AnnouncementUpdateTitleEventProcessor());
+		this.dashboardLogic.registerEventProcessor(new AnnouncementUpdateAccessEventProcessor());
+		this.dashboardLogic.registerEventProcessor(new AnnouncementUpdateAvailabilityEventProcessor());
+		this.dashboardLogic.registerEventProcessor(new AnnouncementUpdateAnyEventProcessor());
+		this.dashboardLogic.registerEventProcessor(new AnnouncementUpdateOwnEventProcessor());
 	}
 	
 	public Date getReleaseDate(Entity announcement) {
@@ -166,37 +166,37 @@ public class AnnouncementSupport{
 		String anncTitle = annc.getAnnouncementHeader().getSubject();
 		
 		boolean updatingExistingLinks = true;
-		NewsItem newsItem = dashboardCommonLogic.getNewsItem(anncReference);
+		NewsItem newsItem = dashboardLogic.getNewsItem(anncReference);
 		if (newsItem == null)
 		{
-			Context context = dashboardCommonLogic.getContext(event.getContext());
+			Context context = dashboardLogic.getContext(event.getContext());
 			
-			SourceType sourceType = dashboardCommonLogic.getSourceType(IDENTIFIER);
+			SourceType sourceType = dashboardLogic.getSourceType(IDENTIFIER);
 			
 			// create NewsItem if not exist yet
-			newsItem = dashboardCommonLogic.createNewsItem(anncTitle, event.getEventTime(), "announcement.added", anncReference, context, sourceType, null);
+			newsItem = dashboardLogic.createNewsItem(anncTitle, event.getEventTime(), "announcement.added", anncReference, context, sourceType, null);
 			updatingExistingLinks = false;
 		}
 		
-		if(dashboardCommonLogic.isAvailable(newsItem.getEntityReference(), IDENTIFIER)) {
+		if(dashboardLogic.isAvailable(newsItem.getEntityReference(), IDENTIFIER)) {
 			// available now -- check whether it has a retract date
 			Date retractDate = getRetractDate(annc);
 			if(retractDate != null && retractDate.after(new Date())) {
-				dashboardCommonLogic.scheduleAvailabilityCheck(newsItem.getEntityReference(), IDENTIFIER, retractDate);
+				dashboardLogic.scheduleAvailabilityCheck(newsItem.getEntityReference(), IDENTIFIER, retractDate);
 			}
 		} else {
 			// not available now -- check whether it has a release date
 			Date releaseDate = getReleaseDate(annc);
 			if(releaseDate != null && releaseDate.after(new Date())) {
-				dashboardCommonLogic.scheduleAvailabilityCheck(newsItem.getEntityReference(), IDENTIFIER, releaseDate);
+				dashboardLogic.scheduleAvailabilityCheck(newsItem.getEntityReference(), IDENTIFIER, releaseDate);
 			}
 		}
 		
 		// add links
 		if(updatingExistingLinks) {
-			dashboardCommonLogic.updateNewsLinks(newsItem.getEntityReference());
+			dashboardLogic.updateNewsLinks(newsItem.getEntityReference());
 		} else {
-			dashboardCommonLogic.createNewsLinks(newsItem);
+			dashboardLogic.createNewsLinks(newsItem);
 		}
 	}
 
@@ -334,7 +334,7 @@ public class AnnouncementSupport{
 
 		public void init() {
 			logger.info("init()");
-			dashboardCommonLogic.registerEntityType(this);
+			dashboardLogic.registerEntityType(this);
 		}
 
 		public boolean isAvailable(String entityReference) {
@@ -523,12 +523,12 @@ public class AnnouncementSupport{
 			if(logger.isDebugEnabled()) {
 				logger.debug("Announcement remove any: removing news links and news item for " + event.getResource());
 			}
-			dashboardCommonLogic.removeNewsItem(event.getResource());
+			dashboardLogic.removeNewsItem(event.getResource());
 			
 			if(logger.isDebugEnabled()) {
 				logger.debug("Announcement remove any: removing calendar links and news item for " + event.getResource());
 			}
-			dashboardCommonLogic.removeCalendarItems(event.getResource());
+			dashboardLogic.removeCalendarItems(event.getResource());
 		}
 	}
 	
@@ -557,12 +557,12 @@ public class AnnouncementSupport{
 			if(logger.isDebugEnabled()) {
 				logger.debug("Announcement remove own: removing news links and news item for " + event.getResource());
 			}
-			dashboardCommonLogic.removeNewsItem(event.getResource());
+			dashboardLogic.removeNewsItem(event.getResource());
 			
 			if(logger.isDebugEnabled()) {
 				logger.debug("Announcement remove own: removing calendar links and news item for " + event.getResource());
 			}
-			dashboardCommonLogic.removeCalendarItems(event.getResource());
+			dashboardLogic.removeCalendarItems(event.getResource());
 		}
 	}
 	
@@ -599,7 +599,7 @@ public class AnnouncementSupport{
 				AnnouncementMessage annc = (AnnouncementMessage) entity;
 				
 				String title = annc.getAnnouncementHeader().getSubject();
-				NewsItem item = dashboardCommonLogic.getNewsItem(event.getResource());
+				NewsItem item = dashboardLogic.getNewsItem(event.getResource());
 				if(item == null) {
 					// TODO: need to save a newly created item (with label key set to "dash.updated") and save all necessary links to it 
 				} else {
@@ -607,11 +607,11 @@ public class AnnouncementSupport{
 					item.setNewsTime(event.getEventTime());
 					item.setNewsTimeLabelKey("dash.updated");
 					// update news item title
-					dashboardCommonLogic.reviseNewsItemTitle(annc.getReference(), title, item.getNewsTime(), item.getNewsTimeLabelKey(), item.getGroupingIdentifier());
+					dashboardLogic.reviseNewsItemTitle(annc.getReference(), title, item.getNewsTime(), item.getNewsTimeLabelKey(), item.getGroupingIdentifier());
 				}
 				
 				// update calendar item title
-				dashboardCommonLogic.reviseCalendarItemsTitle(annc.getReference(), title);
+				dashboardLogic.reviseCalendarItemsTitle(annc.getReference(), title);
 			}
 			
 			if(logger.isDebugEnabled()) {
@@ -657,8 +657,8 @@ public class AnnouncementSupport{
 				String anncReference = annc.getReference();
 				
 				// update the calendar/news item links according to current announcement
-				dashboardCommonLogic.updateNewsLinks(anncReference);
-				dashboardCommonLogic.updateCalendarLinks(anncReference);
+				dashboardLogic.updateNewsLinks(anncReference);
+				dashboardLogic.updateCalendarLinks(anncReference);
 			}
 			
 			if(logger.isDebugEnabled()) {
@@ -701,7 +701,7 @@ public class AnnouncementSupport{
 			Entity entity = sakaiProxy.getEntity(entityReference);
 			if(entity != null && entity instanceof AnnouncementMessage) {
 				AnnouncementMessage annc = (AnnouncementMessage) entity;
-				NewsItem newsItem = dashboardCommonLogic.getNewsItem(event.getResource());
+				NewsItem newsItem = dashboardLogic.getNewsItem(event.getResource());
 				if(newsItem == null) {
 					// create it
 					createUpdateDashboardItemLinks(event, annc);

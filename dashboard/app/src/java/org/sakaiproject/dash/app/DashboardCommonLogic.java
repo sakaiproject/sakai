@@ -32,7 +32,7 @@ import org.sakaiproject.dash.model.NewsItem;
  * DashboardCommonLogic
  *
  */
-public interface DashboardCommonLogic extends DashboardLogic, DashboardUserLogic{
+public interface DashboardCommonLogic extends DashboardLogic, DashboardUserLogic {
 	
 	public static final String EVENT_DASH_VISIT = "dash.visit";
 	public static final String EVENT_DASH_FOLLOW_TOOL_LINK = "dash.follow.tool.link";

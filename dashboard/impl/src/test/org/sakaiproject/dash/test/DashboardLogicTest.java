@@ -27,9 +27,13 @@ import java.util.concurrent.atomic.AtomicInteger;
 
 import org.sakaiproject.dash.dao.DashboardDao;
 import org.sakaiproject.dash.listener.EventProcessor;
+import org.sakaiproject.dash.logic.DashboardConfigImpl;
 import org.sakaiproject.dash.logic.DashboardLogic;
+import org.sakaiproject.dash.logic.DashboardCommonLogicImpl;
 import org.sakaiproject.dash.logic.DashboardLogicImpl;
-import org.sakaiproject.dash.logic.SakaiProxy;
+import org.sakaiproject.dash.app.DashboardCommonLogic;
+import org.sakaiproject.dash.app.DashboardConfig;
+import org.sakaiproject.dash.app.SakaiProxy;
 import org.sakaiproject.dash.mock.DashboardDaoMock;
 import org.sakaiproject.dash.mock.SakaiProxyMock;
 import org.sakaiproject.dash.model.CalendarItem;
@@ -125,9 +129,15 @@ public class DashboardLogicTest extends AbstractTransactionalSpringContextTests
 	public void testCreateContext() {
 		this.sakaiProxy = new SakaiProxyMock();
 		this.dashboardDao = new DashboardDaoMock();
-		this.dashboardCommonLogic = new DashboardLogicImpl();
-		((DashboardLogicImpl) this.dashboardCommonLogic).setSakaiProxy(sakaiProxy);
-		((DashboardLogicImpl) this.dashboardCommonLogic).setDao(this.dashboardDao);
+		this.dashboardCommonLogic = new DashboardCommonLogicImpl();
+		DashboardLogicImpl dashboardLogic = new DashboardLogicImpl();
+		dashboardLogic.setDao(this.dashboardDao);
+		DashboardConfig dashboardConfig = new DashboardConfigImpl();
+		dashboardLogic.setDashboardConfig(dashboardConfig);
+		dashboardLogic.setSakaiProxy(sakaiProxy);
+		((DashboardCommonLogicImpl) this.dashboardCommonLogic).setDashboardLogic(dashboardLogic );
+		((DashboardCommonLogicImpl) this.dashboardCommonLogic).setSakaiProxy(sakaiProxy);
+		((DashboardCommonLogicImpl) this.dashboardCommonLogic).setDao(this.dashboardDao);
 		
 		String validContextId = SakaiProxyMock.VALID_SITE_ID;
 		

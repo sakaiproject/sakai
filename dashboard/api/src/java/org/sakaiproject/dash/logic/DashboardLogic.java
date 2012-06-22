@@ -27,7 +27,7 @@ import java.util.Locale;
 import java.util.Map;
 import java.util.SortedSet;
 
-import org.sakaiproject.dash.entity.EntityType;
+import org.sakaiproject.dash.entity.DashboardEntityInfo;
 import org.sakaiproject.dash.listener.EventProcessor;
 import org.sakaiproject.dash.model.CalendarItem;
 import org.sakaiproject.dash.model.CalendarLink;
@@ -43,6 +43,20 @@ import org.sakaiproject.dash.model.SourceType;
 public interface DashboardLogic {
 
 	public static final String MOTD_CONTEXT = "!site";
+	
+	public static final long ONE_DAY = 1000L * 60L * 60L * 24L;
+	public static final long ONE_YEAR = ONE_DAY * 365L;
+	
+	public static final Integer DEFAULT_WEEKS_TO_HORIZON = new Integer(4);
+	
+	/**
+	 * @param repeatingEvent
+	 * @param oldHorizon
+	 * @param newHorizon
+	 */
+	public void addCalendarItemsForRepeatingCalendarItem(
+			RepeatingCalendarItem repeatingEvent, Date oldHorizon,
+			Date newHorizon);
 
 	/**
 	 * Add links to calendar items in a context for a particular user. Links
@@ -172,6 +186,18 @@ public interface DashboardLogic {
 	 * @return the Context object, or null if it is not defined.
 	 */
 	public Context getContext(String contextId);
+	
+	/**
+	 * @param eventIdentifier
+	 * @return
+	 */
+	public DashboardEntityInfo getDashboardEntityInfo(String Identifier);
+
+	/**
+	 * @param eventIdentifier
+	 * @return
+	 */
+	public EventProcessor getEventProcessor(String eventIdentifier);
 
 	/**
 	 * @param entityReference
@@ -386,6 +412,11 @@ public interface DashboardLogic {
 	 * @param scheduledTime
 	 */
 	public void scheduleAvailabilityCheck(String entityReference, String entityTypeId, Date scheduledTime);
+
+	/**
+	 * @param newHorizon
+	 */
+	public void setRepeatingEventHorizon(Date newHorizon);
 
 	/**
 	 * @param entityReference

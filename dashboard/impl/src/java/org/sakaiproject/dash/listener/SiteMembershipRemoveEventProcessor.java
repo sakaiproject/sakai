@@ -23,7 +23,7 @@ package org.sakaiproject.dash.listener;
 
 import org.apache.log4j.Logger;
 import org.sakaiproject.dash.logic.DashboardLogic;
-import org.sakaiproject.dash.logic.SakaiProxy;
+import org.sakaiproject.dash.app.SakaiProxy;
 import org.sakaiproject.event.api.Event;
 import org.sakaiproject.site.api.SiteService;
 
@@ -35,9 +35,9 @@ public class SiteMembershipRemoveEventProcessor implements EventProcessor {
 
 	private static Logger logger = Logger.getLogger(SiteMembershipRemoveEventProcessor.class);
 	
-	protected DashboardCommonLogic dashboardCommonLogic;
-	public void setDashboardLogic(DashboardCommonLogic dashboardCommonLogic) {
-		this.dashboardCommonLogic = dashboardCommonLogic;
+	protected DashboardLogic dashboardLogic;
+	public void setDashboardLogic(DashboardLogic dashboardLogic) {
+		this.dashboardLogic = dashboardLogic;
 	}
 	
 	protected SakaiProxy sakaiProxy;
@@ -84,14 +84,14 @@ public class SiteMembershipRemoveEventProcessor implements EventProcessor {
 		if (uid != null && context != null)
 		{
 			// now that we know the user is removed from the context, we will remove all caldendar item links and news item links
-			this.dashboardCommonLogic.removeNewsLinks(uid, context);
-			this.dashboardCommonLogic.removeCalendarLinks(uid, context);
+			this.dashboardLogic.removeNewsLinks(uid, context);
+			this.dashboardLogic.removeCalendarLinks(uid, context);
 		}
 
 	}
 
 	public void init() {
 		
-		this.dashboardCommonLogic.registerEventProcessor(this);
+		this.dashboardLogic.registerEventProcessor(this);
 	}
 }

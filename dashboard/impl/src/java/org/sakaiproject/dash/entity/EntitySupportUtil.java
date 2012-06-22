@@ -40,9 +40,9 @@ public class EntitySupportUtil{
 	
 	static ResourceLoader rl = new ResourceLoader("dash_entity");
 	
-	protected static DashboardCommonLogic dashboardCommonLogic;
-	public void setDashboardLogic(DashboardCommonLogic dashboardCommonLogic) {
-		this.dashboardCommonLogic = dashboardCommonLogic;
+	protected static DashboardLogic dashboardLogic;
+	public void setDashboardLogic(DashboardLogic dashboardLogic) {
+		this.dashboardLogic = dashboardLogic;
 	}
 	
 	public void init() {
@@ -54,7 +54,7 @@ public class EntitySupportUtil{
 	 * @param event
 	 */
 	public static void updateNewsItemTimeTitle(Event event) {
-		NewsItem nItem = dashboardCommonLogic.getNewsItem(event.getResource());
+		NewsItem nItem = dashboardLogic.getNewsItem(event.getResource());
 		if (nItem != null)
 		{
 			Date newTime = event.getEventTime();
@@ -65,7 +65,7 @@ public class EntitySupportUtil{
 				nItem.setNewsTime(newTime);
 				nItem.setNewsTimeLabelKey(newLabelKey);
 				// if this is not an update within object creation
-				dashboardCommonLogic.reviseNewsItemTitle(event.getResource(), nItem.getTitle(), newTime, newLabelKey, nItem.getGroupingIdentifier());
+				dashboardLogic.reviseNewsItemTitle(event.getResource(), nItem.getTitle(), newTime, newLabelKey, nItem.getGroupingIdentifier());
 			}
 		}
 	}

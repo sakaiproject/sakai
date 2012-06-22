@@ -29,6 +29,7 @@ import net.sf.ehcache.Element;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
+import org.sakaiproject.dash.app.DashboardConfig;
 import org.sakaiproject.dash.dao.DashboardDao;
 
 public class DashboardConfigImpl implements DashboardConfig {
