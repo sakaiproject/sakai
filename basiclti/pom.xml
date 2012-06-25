@@ -6,6 +6,7 @@
         <groupId>org.sakaiproject</groupId>
         <artifactId>master</artifactId>
         <version>2.10-SNAPSHOT</version>
+        <relativePath>../master/pom.xml</relativePath>
         <!-- <version>2.8.3</version> -->
     </parent>
     
@@ -118,7 +119,7 @@
             <timezone>-5</timezone>
         </developer>
         <developer>
-            <id>sswinsburg</id>
+            <id>steve.swinsburg</id>
             <name>Steve Swinsburg</name>
             <organization>Australian National University</organization>
             <roles>
@@ -255,4 +256,19 @@
             </extension>
         </extensions>
     </build>
+    
+	<repositories> 
+		<repository> 
+			<id>sonatype-nexus-snapshots</id> 
+			<name>Sonatype Nexus Snapshots</name> 
+			<url> https://oss.sonatype.org/content/repositories/snapshots </url> 
+			<releases> 
+				<enabled>false</enabled> 
+			</releases> 
+			<snapshots> 
+				<enabled>true</enabled> 
+			</snapshots> 
+		</repository> 
+	</repositories>
+
 </project>
