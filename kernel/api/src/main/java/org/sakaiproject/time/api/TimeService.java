@@ -219,9 +219,9 @@ public interface TimeService
 	TimeRange newTimeRange(Time start, Time end);
 
 	/**
-	 * Access the local TimeZone.
+	 * Access the users prefered local TimeZone.
 	 * 
-	 * @return The local TimeZone.
+	 * @return The user's local TimeZone.
 	 */
 	TimeZone getLocalTimeZone();
 
