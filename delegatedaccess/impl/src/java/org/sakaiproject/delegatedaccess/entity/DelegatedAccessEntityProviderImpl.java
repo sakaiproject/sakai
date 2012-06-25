@@ -155,6 +155,10 @@ public class DelegatedAccessEntityProviderImpl implements DelegatedAccessEntityP
 		//get the node to store the information:
 		NodeModel node = projectLogic.getNodeModel(nodeId, DelegatedAccessConstants.SHOPPING_PERIOD_USER);
 		
+		if(node.getNodeShoppingPeriodRevokeInstructorEditable()){
+			throw new IllegalArgumentException("This node has the ability for an instructor to make edits to the shopping period settings revoked.  Node: " + node.getNodeId() + ", ref: " + ref.getId());
+		}
+		
 		if(!directAccess){
 			//no need to continue, just set direct access to false and save (will clear out the rest and cause
 			//the node to inherrit it's settings
@@ -164,6 +168,7 @@ public class DelegatedAccessEntityProviderImpl implements DelegatedAccessEntityP
 		}
 		
 		//Get Original Settings before we modify it
+		boolean directAccessOrig = node.isDirectAccess();
 		String authOrig = node.getNodeShoppingPeriodAuth();
 		Date startDateOrig = node.getNodeShoppingPeriodStartDate();
 		Date endDateOrig = node.getNodeShoppingPeriodEndDate();
@@ -192,7 +197,7 @@ public class DelegatedAccessEntityProviderImpl implements DelegatedAccessEntityP
 		String roleNew = node.getNodeAccessRealmRole()[1];
 		String[] toolsNew = node.getNodeRestrictedTools();
 		//only update if there were true modifications
-		if(node.isModified(authOrig, authNew, startDateOrig, startDateNew, endDateOrig, endDateNew,
+		if(directAccessOrig != directAccess || node.isModified(authOrig, authNew, startDateOrig, startDateNew, endDateOrig, endDateNew,
 				realmOrig, realmNew, roleOrig, roleNew, toolsOrig, toolsNew)){
 			projectLogic.updateNodePermissionsForUser(node, DelegatedAccessConstants.SHOPPING_PERIOD_USER);
 		}
@@ -216,10 +221,7 @@ public class DelegatedAccessEntityProviderImpl implements DelegatedAccessEntityP
 		valuesMap.put("shoppingRealm", node.getNodeAccessRealmRole()[0]);
 		valuesMap.put("shoppingRole", node.getNodeAccessRealmRole()[1]);
 		valuesMap.put("directAccess", node.isDirectAccess());
-//		List<String> selectedRestrictedTools = new ArrayList<String>();
-//		for(ListOptionSerialized tool : node.getNodeRestrictedTools()){
-//			selectedRestrictedTools.add(tool.getId());
-//		}
+		valuesMap.put("revokeInstructorEditable", node.getNodeShoppingPeriodRevokeInstructorEditable());
 		valuesMap.put("shoppingShowTools", node.getNodeRestrictedTools());
 
 		return valuesMap;

@@ -49,6 +49,8 @@ public class NodeModel implements Serializable {
 	private String modifiedBy = null;
 	//this flag is used to track accessAdmin access
 	private boolean editable = true;
+	private boolean shoppingPeriodRevokeInstructorEditable = false;
+	private boolean shoppingPeriodRevokeInstructorEditableOrig = false;
 	
 	public NodeModel(String nodeId, HierarchyNodeSerialized node,
 			boolean directAccess, String realm, String role, NodeModel parentNode,
@@ -56,7 +58,7 @@ public class NodeModel implements Serializable {
 			Date shoppingPeriodEndDate,
 			String shoppingPeriodAuth, boolean addedDirectChildrenFlag, boolean shoppingPeriodAdmin,
 			String modifiedBy, Date modified,
-			Date shoppingAdminModified, String shoppingAdminModifiedBy, boolean accessAdmin){
+			Date shoppingAdminModified, String shoppingAdminModifiedBy, boolean accessAdmin, boolean shoppingPeriodRevokeInstructorEditable){
 
 		this.nodeId = nodeId;
 		this.node = node;
@@ -84,6 +86,8 @@ public class NodeModel implements Serializable {
 		this.shoppingAdminModifiedBy = shoppingAdminModifiedBy;
 		this.accessAdmin = accessAdmin;
 		this.accessAdminOrig = accessAdmin;
+		this.shoppingPeriodRevokeInstructorEditable = shoppingPeriodRevokeInstructorEditable;
+		this.shoppingPeriodRevokeInstructorEditableOrig = shoppingPeriodRevokeInstructorEditable;
 	}
 
 	private List<ListOptionSerialized> copyListOptions(List<ListOptionSerialized> tools){
@@ -137,6 +141,10 @@ public class NodeModel implements Serializable {
 		}
 		
 		if(accessAdmin != accessAdminOrig){
+			return true;
+		}
+		
+		if(shoppingPeriodRevokeInstructorEditable != shoppingPeriodRevokeInstructorEditableOrig){
 			return true;
 		}
 		//only worry about modifications to a direct access node
@@ -642,4 +650,45 @@ public class NodeModel implements Serializable {
 			return getInheritedEditableHelper(parent.getParentNode());
 		}
 	}
+
+	public boolean isShoppingPeriodRevokeInstructorEditable() {
+		return shoppingPeriodRevokeInstructorEditable;
+	}
+
+	public void setShoppingPeriodRevokeInstructorEditable(
+			boolean shoppingPeriodRevokeInstructorEditable) {
+		this.shoppingPeriodRevokeInstructorEditable = shoppingPeriodRevokeInstructorEditable;
+	}
+
+	public boolean isShoppingPeriodRevokeInstructorEditableOrig() {
+		return shoppingPeriodRevokeInstructorEditableOrig;
+	}
+
+	public void setShoppingPeriodRevokeInstructorEditableOrig(
+			boolean shoppingPeriodRevokeInstructorEditableOrig) {
+		this.shoppingPeriodRevokeInstructorEditableOrig = shoppingPeriodRevokeInstructorEditableOrig;
+	}
+	
+	public boolean getNodeShoppingPeriodRevokeInstructorEditable(){
+		if(isShoppingPeriodRevokeInstructorEditable()){
+			return true;
+		}else{
+			return getInheritedShoppingPeriodRevokeInstructorEditable();
+		}
+	}
+
+	public boolean getInheritedShoppingPeriodRevokeInstructorEditable(){
+		return getInheritedShoppingPeriodRevokeInstructorEditableHelper(parentNode);
+	}
+	
+	public boolean getInheritedShoppingPeriodRevokeInstructorEditableHelper(NodeModel parent){
+		if(parent == null){
+			return false;
+		} else if (parent.isShoppingPeriodRevokeInstructorEditable()) {
+			return true;
+		}else{
+			return getInheritedShoppingPeriodRevokeInstructorEditableHelper(parent.getParentNode());
+		}
+	}
+	
 }

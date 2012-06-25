@@ -53,6 +53,8 @@ public class EditablePanelCheckbox extends Panel
 					return !nodeModel.getInheritedShoppingPeriodAdmin();
 				}else if(DelegatedAccessConstants.TYPE_ACCESS_SHOPPING_PERIOD_USER == type){
 					return nodeModel.getNodeShoppingPeriodAdmin();
+				}else if(DelegatedAccessConstants.TYPE_SHOPPING_REVOKE_INSTRUCTOR_EDIT == type){
+					return nodeModel.isDirectAccess();
 				}else{
 					return true;
 				}

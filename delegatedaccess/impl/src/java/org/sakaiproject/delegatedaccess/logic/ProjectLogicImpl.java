@@ -119,6 +119,7 @@ public class ProjectLogicImpl implements ProjectLogic {
 				saveShoppingPeriodAuth(nodeModel.getShoppingPeriodAuth(), nodeModel.getNodeId());
 				saveShoppingPeriodStartDate(nodeModel.getShoppingPeriodStartDate(), nodeModel.getNodeId());
 				saveShoppingPeriodEndDate(nodeModel.getShoppingPeriodEndDate(), nodeModel.getNodeId());
+				saveShoppingPeriodRevokeInstructorEditable(nodeModel.isShoppingPeriodRevokeInstructorEditable(), nodeModel.getNodeId());
 			}
 		}
 		
@@ -200,6 +201,12 @@ public class ProjectLogicImpl implements ProjectLogic {
 	private void saveShoppingPeriodEndDate(Date endDate, String nodeId){
 		if(endDate != null){
 			hierarchyService.assignUserNodePerm(DelegatedAccessConstants.SHOPPING_PERIOD_USER, nodeId, DelegatedAccessConstants.NODE_PERM_SHOPPING_END_DATE + endDate.getTime(), false);
+		}
+	}
+	
+	private void saveShoppingPeriodRevokeInstructorEditable(boolean shoppingPeriodRevokeInstructorEditable, String nodeId){
+		if(shoppingPeriodRevokeInstructorEditable){
+			hierarchyService.assignUserNodePerm(DelegatedAccessConstants.SHOPPING_PERIOD_USER, nodeId, DelegatedAccessConstants.NODE_PERM_SHOPPING_REVOKE_INSTRUCTOR_EDITABLE, false);
 		}
 	}
 		
@@ -809,6 +816,15 @@ public class ProjectLogicImpl implements ProjectLogic {
 		}
 		return false;
 	}
+	
+	private boolean isShoppingPeriodRevokeInstructorEditable(Set<String> perms){
+		for(String perm : perms){
+			if(perm.startsWith(DelegatedAccessConstants.NODE_PERM_SHOPPING_REVOKE_INSTRUCTOR_EDITABLE)){
+				return true;
+			}
+		}
+		return false;
+	}
 
 	private boolean getIsDirectAccess(Set<String> perms){
 		for(String perm : perms){
@@ -861,6 +877,7 @@ public class ProjectLogicImpl implements ProjectLogic {
 			String shoppingAdminModifiedBy = null;
 			Date modified = null;
 			String modifiedBy = null;
+			boolean shoppingPeriodRevokeInstructorEditable = false;
 			
 			//you must copy in order not to pass changes to other nodes
 			List<ListOptionSerialized> restrictedTools = copyListOptions(blankRestrictedTools);
@@ -880,6 +897,7 @@ public class ProjectLogicImpl implements ProjectLogic {
 				shoppingAdminModifiedBy = getShoppingAdminModifiedBy(perms);
 				modified = getPermDate(perms, DelegatedAccessConstants.NODE_PERM_MODIFIED);
 				modifiedBy = getModifiedBy(perms);
+				shoppingPeriodRevokeInstructorEditable = isShoppingPeriodRevokeInstructorEditable(perms);
 			}
 			NodeModel parentNodeModel = null;
 			if(parent != null){
@@ -888,7 +906,7 @@ public class ProjectLogicImpl implements ProjectLogic {
 			DefaultMutableTreeNode child = new DelegatedAccessMutableTreeNode();
 			NodeModel childNodeModel = new NodeModel(node.id, node, directAccess, realm, role, parentNodeModel, 
 					restrictedTools, startDate, endDate, shoppingPeriodAuth, addDirectChildren && !children.isEmpty(), shoppingPeriodAdmin,
-					modifiedBy, modified, shoppingAdminModified, shoppingAdminModifiedBy, accessAdmin);
+					modifiedBy, modified, shoppingAdminModified, shoppingAdminModifiedBy, accessAdmin, shoppingPeriodRevokeInstructorEditable);
 			//this could be an accessAdmin modifying another user, let's check:
 			if(accessAdminNodeIds != null){
 				//if accessAdminNodeIds isn't null, this means we need to restrict this tree to these nodes by
@@ -1165,6 +1183,7 @@ public class ProjectLogicImpl implements ProjectLogic {
 			Date modified = null;
 			String modifiedBy = null;
 			boolean accessAdmin = false;
+			boolean shoppingPeriodRevokeInstructorEditable = false;
 			
 			DefaultMutableTreeNode child = new DelegatedAccessMutableTreeNode();
 			if(DelegatedAccessConstants.SHOPPING_PERIOD_USER.equals(userId)){
@@ -1182,11 +1201,12 @@ public class ProjectLogicImpl implements ProjectLogic {
 				modified = getPermDate(perms, DelegatedAccessConstants.NODE_PERM_MODIFIED);
 				modifiedBy = getModifiedBy(perms);
 				accessAdmin = getIsAccessAdmin(perms);
+				shoppingPeriodRevokeInstructorEditable = isShoppingPeriodRevokeInstructorEditable(perms);
 			}
 			NodeModel node = new NodeModel(childNode.id, childNode, directAccess, realm, role,
 					((NodeModel) parentNode.getUserObject()), restrictedTools, startDate, endDate, 
 					shoppingPeriodAuth, false, shoppingPeriodAdmin,
-					modifiedBy, modified, shoppingAdminModified, shoppingAdminModifiedBy, accessAdmin);
+					modifiedBy, modified, shoppingAdminModified, shoppingAdminModifiedBy, accessAdmin, shoppingPeriodRevokeInstructorEditable);
 			child.setUserObject(node);
 
 			if(!onlyAccessNodes || node.getNodeAccess()){
@@ -1242,10 +1262,11 @@ public class ProjectLogicImpl implements ProjectLogic {
 		String shoppingAdminModifiedBy = getShoppingAdminModifiedBy(perms);
 		Date modified = getPermDate(perms, DelegatedAccessConstants.NODE_PERM_MODIFIED);
 		String modifiedBy = getModifiedBy(perms);
+		boolean shoppingPeriodRevokeInstructorEditable = isShoppingPeriodRevokeInstructorEditable(perms);
 		
 		NodeModel nodeModel = new NodeModel(node.id, node, getIsDirectAccess(nodePerms),
 				realm, role, parentNodeModel, restrictedTools, startDate, endDate, shoppingPeriodAuth, false, shoppingPeriodAdmin,
-				modifiedBy, modified, shoppingAdminModified, shoppingAdminModifiedBy, accessAdmin);
+				modifiedBy, modified, shoppingAdminModified, shoppingAdminModifiedBy, accessAdmin, shoppingPeriodRevokeInstructorEditable);
 		return nodeModel;
 	}
 
