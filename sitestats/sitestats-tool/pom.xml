@@ -138,8 +138,9 @@
     <plugins>
       <!-- Compress CSS Stylesheets and Javascript -->
       <plugin>
-        <groupId>net.sf.alchim</groupId>
+        <groupId>net.alchim31.maven</groupId>
         <artifactId>yuicompressor-maven-plugin</artifactId>
+        <version>1.2</version>
         <executions>
           <execution>
             <goals>
