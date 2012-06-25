@@ -39,6 +39,7 @@ import javax.servlet.http.HttpServletResponse;
 import javax.servlet.http.HttpSession;
 import javax.xml.parsers.SAXParser;
 import javax.xml.parsers.SAXParserFactory;
+import javax.xml.transform.Transformer;
 import javax.xml.transform.sax.SAXResult;
 import javax.xml.transform.sax.TransformerHandler;
 
@@ -155,6 +156,11 @@ public class XSLTEntityHandler extends BaseEntityHandlerImpl
 	 * A map containing SAX Serializer properties
 	 */
 	private Map outputProperties;
+	
+	/**
+	 * A map containing transform parameters.
+	 */
+	private Map<String, String> transformParameters;
 
 	private EntityManager entityManager;
 
@@ -168,7 +174,6 @@ public class XSLTEntityHandler extends BaseEntityHandlerImpl
 
 	/** Configuration: allow use of alias for site id in references. */
 	protected boolean m_siteAlias = true;
-	
 	
 	private Object load(ComponentManager cm, String name)
 	{
@@ -918,7 +923,15 @@ public class XSLTEntityHandler extends BaseEntityHandlerImpl
 				transformerHolder.set(xsltTransform);
 			}
 			SAXResult sr = new SAXResult();
+			
 			TransformerHandler th = xsltTransform.getContentHandler();
+			
+			Transformer transformer = th.getTransformer();
+			if (transformParameters != null) {
+				for (Map.Entry<String, String> entry: transformParameters.entrySet()) {
+					transformer.setParameter(entry.getKey(), entry.getValue());
+				}
+			}
 
 			Properties p = OutputPropertiesFactory.getDefaultMethodProperties("xml");
 		
@@ -1098,6 +1111,15 @@ public class XSLTEntityHandler extends BaseEntityHandlerImpl
 	public void setOutputProperties(Map outputProperties)
 	{
 		this.outputProperties = outputProperties;
+	}
+
+	/**
+	 * @param transformParameters
+	 *        The transform paramaters that should be passed when transforming it.
+	 */
+	public void setTransformParameters(Map<String,String> transformParameters)
+	{
+		this.transformParameters = transformParameters;
 	}
 
 	/**

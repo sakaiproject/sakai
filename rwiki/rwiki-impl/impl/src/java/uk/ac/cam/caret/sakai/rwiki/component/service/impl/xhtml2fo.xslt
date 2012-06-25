@@ -51,6 +51,11 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 
   <!-- hyphenate: true | false -->
   <xsl:param name="hyphenate">false</xsl:param>
+  
+  <!-- The default font to use when rendering -->
+  <!-- This should be supplied but keep a default to make the xslt easier to test. -->
+  <xsl:param name="default-font">Helvetica</xsl:param>
+  
 
 
   <!--======================================================================
@@ -65,6 +70,7 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
     <xsl:attribute name="writing-mode"><xsl:value-of select="$writing-mode"/></xsl:attribute>
     <xsl:attribute name="hyphenate"><xsl:value-of select="$hyphenate"/></xsl:attribute>
     <xsl:attribute name="text-align"><xsl:value-of select="$text-align"/></xsl:attribute>
+    <xsl:attribute name="font-family"><xsl:value-of select="$default-font"/></xsl:attribute>
     <!-- specified on fo:root to change the properties' initial values -->
   </xsl:attribute-set>
 

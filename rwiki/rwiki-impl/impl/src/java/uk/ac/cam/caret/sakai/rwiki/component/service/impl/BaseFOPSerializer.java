@@ -138,9 +138,9 @@ public class BaseFOPSerializer extends ToXMLSAXHandler implements ContentHandler
 				stream = getClass()
 				.getResourceAsStream(configfile);
 				Configuration cfg = cfgBuild.build(stream);
-				FopFactory ff = FopFactory.newInstance();
+				final FopFactory ff = FopFactory.newInstance();
 				ff.setUserConfig(cfg);
-				FOUserAgent userAgent = new FOUserAgent(ff);
+				FOUserAgent userAgent = ff.newFOUserAgent();
 
 				userAgent.setURIResolver(new URIResolver()
 				{
@@ -181,6 +181,11 @@ public class BaseFOPSerializer extends ToXMLSAXHandler implements ContentHandler
 							}
 							else
 							{
+								// use default resolver to resolve font
+								if (base == null)
+								{
+									return ff.resolveURI(href, base);
+								}
 								URI uri = new URI(base);
 								String content = uri.resolve(href).toString();
 								source = new StreamSource(content);

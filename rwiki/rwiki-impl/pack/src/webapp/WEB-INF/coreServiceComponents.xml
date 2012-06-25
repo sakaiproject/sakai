@@ -82,6 +82,12 @@
     </property>
     
   </bean>
+  
+  <!-- Used to pull in the default font to use when rendering PDFs -->
+  <bean id="rwikiDefaultFont" factory-bean="org.sakaiproject.component.api.ServerConfigurationService" factory-method="getString">
+    <constructor-arg value="pdf.default.font"/>
+    <constructor-arg value="Helvetica"/>
+  </bean>
 
   <!-- The base level radeox render engine -->
 
@@ -218,6 +224,12 @@
         <entry key="{http://xml.apache.org/xalan}content-handler"><value>uk.ac.cam.caret.sakai.rwiki.component.service.impl.FOP2PDFSerializer</value></entry>
       </map>     
     </property>
+    <property name="transformParameters">
+        <map>
+            <!-- This pulls in the default font from sakai.properties. -->
+            <entry key="default-font" value-ref="rwikiDefaultFont"/>
+        </map>
+    </property>
     <property name="aliasService"><ref bean="org.sakaiproject.alias.api.AliasService"/></property>
 	<property name="siteService"><ref bean="org.sakaiproject.site.api.SiteService"/></property>      
   </bean>
@@ -252,6 +264,13 @@
      <entry key="{http://xml.apache.org/xalan}content-handler"><value>uk.ac.cam.caret.sakai.rwiki.component.service.impl.FOP2RTFSerializer</value></entry>
       </map>     
     </property>
+    <!-- RTF doesn't embed fonts, but keep the transforms similar -->
+    <property name="transformParameters">
+      <map>
+        <!-- This pulls in the default font from sakai.properties. -->
+        <entry key="default-font" value-ref="rwikiDefaultFont"/>
+      </map>
+    </property>
     <property name="aliasService"><ref bean="org.sakaiproject.alias.api.AliasService"/></property>
     <property name="siteService"><ref bean="org.sakaiproject.site.api.SiteService"/></property>      
   </bean>
@@ -275,6 +294,7 @@
     <property name="breadCrumbParameter" ><value>breadcrumb</value></property>
     <property name="hrefTagFormat" ><value>&lt;a href="{0}" &gt;{1}&lt;/a&gt;</value></property>
     <property name="accessURLStart" ><value>/wiki/</value></property>
+
 <!--
 NOT VISABLE ON FEEDS
 
@@ -288,6 +308,13 @@ NOT VISABLE ON FEEDS
     <property name="outputProperties">
       <map>
       </map>     
+    </property>
+    <!-- FOP doesn't embed fonts but keep all the transforms similar -->
+    <property name="transformParameters">
+      <map>
+        <!-- This pulls in the default font from sakai.properties. -->
+        <entry key="default-font" value-ref="rwikiDefaultFont"/>
+      </map>
     </property>
   </bean>
  <!-- 

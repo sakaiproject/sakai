@@ -42,6 +42,7 @@ import junit.framework.TestCase;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.apache.fop.apps.Fop;
+import org.apache.fop.apps.FopFactory;
 import org.apache.fop.apps.MimeConstants;
 import org.springframework.mock.web.MockHttpServletRequest;
 import org.springframework.mock.web.MockHttpServletResponse;
@@ -912,14 +913,14 @@ public class XSLTEntityHandlerTest extends TestCase
 
 		try
 		{
-			// Construct fop with desired output format
-			Fop fop = new Fop(MimeConstants.MIME_RTF);
-
 			// Setup output stream. Note: Using BufferedOutputStream
 			// for performance reasons (helpful with FileOutputStreams).
 			out = new FileOutputStream("testfooutput.rtf");
 			out = new BufferedOutputStream(out);
-			fop.setOutputStream(out);
+			
+			// Construct fop with desired output format
+			FopFactory newInstance = FopFactory.newInstance();
+			Fop fop = newInstance.newFop(MimeConstants.MIME_RTF, out);
 
 			// Setup JAXP using identity transformer
 			TransformerFactory factory = TransformerFactory.newInstance();
