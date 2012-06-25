@@ -153,6 +153,11 @@ public class IMSPOXRequest {
 		return bodyMap;
 	}
 
+	public String getPostBody()
+	{
+		return postBody;
+	}
+
 	// Normal Constructor
 	public IMSPOXRequest(String oauth_consumer_key, String oauth_secret, HttpServletRequest request) 
 	{

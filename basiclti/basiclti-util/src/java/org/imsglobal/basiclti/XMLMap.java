@@ -734,6 +734,14 @@ public class XMLMap {
 	// than all string together
 	public static String documentToString(Document document, boolean pretty)
 	{
+		return nodeToString(document, pretty);
+	}
+
+	// Optionally setup indenting to "pretty print"
+	// Note - this is not very pretty at least in my testing - but it is better
+	// than all string together
+	public static String nodeToString(Node node, boolean pretty)
+	{
 		try {
 			javax.xml.transform.Transformer tf =
 				javax.xml.transform.TransformerFactory.newInstance().newTransformer();
@@ -742,7 +750,7 @@ public class XMLMap {
 				tf.setOutputProperty("{http://xml.apache.org/xslt}indent-amount", "2");
 			}
 			ByteArrayOutputStream baStream = new ByteArrayOutputStream();
-			tf.transform (new javax.xml.transform.dom.DOMSource (document),
+			tf.transform (new javax.xml.transform.dom.DOMSource (node),
 					new javax.xml.transform.stream.StreamResult (baStream));
 			return baStream.toString();
 		} catch (Exception e)  {
