@@ -64,6 +64,10 @@
                 <from-outcome>filter</from-outcome>
                 <to-view-id>/scheduler/filter_events.jsp</to-view-id>
             </navigation-case>
+		    <navigation-case>
+			    <from-outcome>runningJobs</from-outcome>
+			    <to-view-id>/scheduler/runningJobs.jsp</to-view-id>
+		    </navigation-case>	
 	</navigation-rule>
   
     <navigation-rule>
@@ -91,7 +95,11 @@
 		    <navigation-case>
 		    	<from-outcome>edit_triggers</from-outcome>
       			<to-view-id>/scheduler/edit_triggers.jsp</to-view-id>
-		    </navigation-case>		    		    
+		    </navigation-case>	
+		    <navigation-case>
+			    <from-outcome>runningJobs</from-outcome>
+			    <to-view-id>/scheduler/runningJobs.jsp</to-view-id>
+		    </navigation-case>	
 	</navigation-rule>
 	
 	<navigation-rule>
@@ -208,6 +216,22 @@
 		    	<from-outcome>success</from-outcome>
       			<to-view-id>/scheduler/jobs.jsp</to-view-id>
 		    </navigation-case>
+	</navigation-rule>
+	
+	<navigation-rule>
+    	<from-view-id>/scheduler/error.jsp</from-view-id>
+	</navigation-rule>
+  	
+	<navigation-rule>
+		<from-view-id>/scheduler/runningJobs.jsp</from-view-id>
+		<navigation-case>
+			<from-outcome>jobs</from-outcome>
+			<to-view-id>/scheduler/jobs.jsp</to-view-id>
+		</navigation-case>		
+		<navigation-case>
+			<from-outcome>main</from-outcome>
+			<to-view-id>/scheduler/main.jsp</to-view-id>
+		</navigation-case>
 	</navigation-rule>
   
 </faces-config>
