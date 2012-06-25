@@ -1,12 +1,18 @@
 <script type="text/javascript" src="/library/js/jquery/jquery-ui/js/jquery.js"></script>
 <script type="text/javascript" src="/library/js/jquery/jquery-ui/js/jquery-ui.js"></script>
 <link type="text/css" href="/library/js/jquery/jquery-ui/css/smoothness/jquery-ui.css" rel="stylesheet" media="screen" />
+<script type="text/javascript" src="/library/js/jquery/tablesorter/2.0.3/jquery.tablesorter-2.0.3.min.js"></script> 
+<link type="text/css" href="/library/js/jquery/tablesorter/2.0.3/blue/style.css"  rel="stylesheet" media="screen" />
 
-<script>
-	$(function() {
-		$( "#tabs" ).tabs();
-	});
-</script>
+<script type="text/javascript">
+	$(document).ready(function() { 
+    $("table").tablesorter({
+    	sortList: [[0,0]] 
+    	});
+	    
+	    $( "#tabs" ).tabs();
+	});	
+	</script>
 <div class="portletBody">
 	<div id="tabs">
 		<ul>
@@ -21,7 +27,8 @@
 			$tlang.getString("tool.description.sites")
 			<br/>
 			#if ($contents && $contents.size() > 0)
-				<table class="listHier lines" cellspacing="0" summary ="$tlang.getString("content.table")">
+				<table id="myTable" class="tablesorter" cellspacing="0" summary ="$tlang.getString("content.table")">
+					<thead>
 					<tr>
 						<th id="title">$tlang.getString("bl_title")</th>
 						<th id="url">$tlang.getString("bl_url")</th>
@@ -29,6 +36,8 @@
 						<th id="action" width="25%">$tlang.getString("bl_action")</th>
 				        <th id="page">$tlang.getString("bl_page")</th>
 					</tr>
+					</thead>
+					<tbody>
 					#foreach ($content in $contents)
 					<tr>
 					<td headers="matchpattern">$content.get("title")</td>
@@ -52,8 +61,9 @@
 							<a href="$sakai_ActionURL.setPanel("LinkAdd")&id=$content.get("id")">$tlang.getString("bl_addlink")</a>
 						#end
 					</td>
-					<tr>
+					</tr>
 					#end
+					</tbody>
 				</table>
 			#else
 				<p>$tlang.getString("content.none")</p>
@@ -71,7 +81,8 @@
 			$tlang.getString("tool.description.system")
 			<br/>
 			#if (!$!systemLtiTools.isEmpty())
-				<table class="listHier lines" cellspacing="0" summary ="$tlang.getString("tool.table")">
+				<table class="tablesorter" cellspacing="0" summary ="$tlang.getString("tool.table")">
+					<thead>
 			        <tr>
 		                <th id="attention">&nbsp;</th>
 		                <th id="title">$tlang.getString("bl_title")</th>
@@ -79,6 +90,8 @@
 		                #if ($isAdmin) <th id="use">$tlang.getString("bl_use")</th> #end
 		                <th id="action">$tlang.getString("bl_action")</th>
 			        </tr>
+			        </thead>
+			        <tbody>
 		            #foreach($tool in $systemLtiToolsMap.entrySet())
 		            	
 						#set($toolId=$tool.getKey())
@@ -101,6 +114,7 @@
 			                </td>
 		                <tr>
 					#end
+					</tbody>
 				</table>
 			#else
 				<p>$tlang.getString("tool.none")</p>
