@@ -256,4 +256,14 @@ public interface ProjectLogic {
 	 * @return
 	 */
 	public boolean isShoppingPeriodOpenForSite(Date startDate, Date endDate, String[] nodeAccessRealmRole, String auth);
+	
+	/**
+	 * This will ensure the Delegated Access tool is synced with the user's MyWorkspace.  Another words, if the user has no
+	 * permissions in DA, then the tool will be removed from the user's My Workspace.  If they are granted access somewhere,
+	 * then this will add the tool to thier My Workspace
+	 * 
+	 * this is turned on/off by a sakai.property delegatedaccess.sync.myworkspacetool
+	 * @param userId
+	 */
+	public void syncMyworkspaceToolForUser(String userId);
 }

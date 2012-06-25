@@ -336,4 +336,12 @@ public interface SakaiProxy {
 	 * @return
 	 */
 	public List<User> getInstructorsForSite(String siteId);
+	
+	/**
+	 * returns a sakai.property value for the setting:  delegatedaccess.sync.myworkspacetool
+	 * true by default
+	 * @return
+	 */
+	public boolean getSyncMyworkspaceTool();
+
 }

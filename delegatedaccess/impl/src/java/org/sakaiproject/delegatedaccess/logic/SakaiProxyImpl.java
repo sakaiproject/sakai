@@ -593,6 +593,10 @@ public class SakaiProxyImpl implements SakaiProxy {
 	}
 	
 	public boolean isShoppingPeriodInstructorEditable(){
-		return serverConfigurationService.getBoolean("delegatedaccess.shopping.instructorEditable", false);
+		return serverConfigurationService.getBoolean(DelegatedAccessConstants.PROPERTIES_SHOPPING_INSTRUCTOR_EDITABLE, false);
+	}
+	
+	public boolean getSyncMyworkspaceTool(){
+		return serverConfigurationService.getBoolean(DelegatedAccessConstants.PROPERTIES_SYNC_MYWORKSPACE_TOOL, true);
 	}
 }

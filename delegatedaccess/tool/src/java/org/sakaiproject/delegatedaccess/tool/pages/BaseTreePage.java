@@ -47,6 +47,7 @@ public abstract class BaseTreePage extends BasePage
 			if(rootNode != null){
 				updateNodeAccessHelper(rootNode, userId, defaultRole);
 			}
+			projectLogic.syncMyworkspaceToolForUser(userId);
 		}
 	}
 	/**

@@ -37,6 +37,8 @@ import org.sakaiproject.delegatedaccess.util.DelegatedAccessMutableTreeNode;
 import org.sakaiproject.hierarchy.HierarchyService;
 import org.sakaiproject.hierarchy.model.HierarchyNode;
 import org.sakaiproject.site.api.Site;
+import org.sakaiproject.site.api.SitePage;
+import org.sakaiproject.site.api.ToolConfiguration;
 import org.sakaiproject.site.api.SiteService.SelectionType;
 import org.sakaiproject.tool.api.Session;
 import org.sakaiproject.tool.api.Tool;
@@ -1655,6 +1657,34 @@ public class ProjectLogicImpl implements ProjectLogic {
 
 		public void setModifiedBy(String modifiedBy) {
 			this.modifiedBy = modifiedBy;
+		}
+	}
+
+	@Override
+	public void syncMyworkspaceToolForUser(String userId) {
+		if(sakaiProxy.getSyncMyworkspaceTool()){
+			Site workspace = sakaiProxy.getSiteById("~" + userId);
+			if(workspace != null){
+				boolean hasAnyAccess = false;
+				//check if user has any access at all to determine if we need to add or remove the tool
+				hasAnyAccess = hasDelegatedAccessNodes(userId);
+				if(!hasAnyAccess)
+					hasAnyAccess = hasShoppingPeriodAdminNodes(userId);
+				if(!hasAnyAccess)
+					hasAnyAccess = hasAccessAdminNodes(userId);
+				
+				ToolConfiguration tool = workspace.getToolForCommonId("sakai.delegatedaccess");
+				if(hasAnyAccess && tool == null){
+					//user has access but doesn't have the DA tool, we need to add it
+					SitePage page = workspace.addPage();
+					page.addTool("sakai.delegatedaccess");
+					sakaiProxy.saveSite(workspace);
+				}else if(!hasAnyAccess && tool != null){
+					//user doesn't have any access in DA but their MyWorkspace still has the DA tool, remove it:
+					workspace.removePage(tool.getContainingPage());
+					sakaiProxy.saveSite(workspace);
+				}
+			}
 		}
 	}
 }
