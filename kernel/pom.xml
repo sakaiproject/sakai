@@ -5,6 +5,7 @@
       <groupId>org.sonatype.oss</groupId>
       <artifactId>oss-parent</artifactId>
       <version>7</version>
+      <relativePath></relativePath>
   </parent>
 	<modelVersion>4.0.0</modelVersion>
 	<groupId>org.sakaiproject</groupId>
@@ -869,6 +870,7 @@
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-javadoc-plugin</artifactId>
+				<version>2.8.1</version>
                 <configuration>
                     <debug>false</debug>
                     <links>
