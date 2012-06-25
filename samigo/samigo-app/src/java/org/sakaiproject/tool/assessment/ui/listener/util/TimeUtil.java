@@ -22,22 +22,15 @@
 
 package org.sakaiproject.tool.assessment.ui.listener.util;
 
-import java.io.Serializable;
-import java.util.Map;
-import java.util.Locale;
-import java.util.Date;
-import java.util.Calendar;
-import java.util.GregorianCalendar;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
+import java.util.Calendar;
+import java.util.Date;
+import java.util.GregorianCalendar;
+import java.util.TimeZone;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
-//import org.springframework.web.context.WebApplicationContext;
-
-import java.util.TimeZone;
-// need to move this out to support standalone,  using spring injection 
-
 import org.sakaiproject.time.cover.TimeService;
 
 /**
@@ -99,7 +92,7 @@ public class TimeUtil
   }
 
   /**
-  * Convert a String reprepsentation of date and time to Date on the server timezone 
+  * Convert a String representation of date and time to Date on the server timezone 
   */
 
   public Date getServerDateTime(SimpleDateFormat ndf, String clientString){
@@ -116,7 +109,10 @@ public class TimeUtil
       }
     }
     catch (ParseException e) {
-    	log.warn("can not parse the string into a Date");
+    	log.warn("can not parse the string, " + clientString + ", into a Date using format: " + ndf.toPattern());
+    	if (log.isDebugEnabled()) {
+    		e.printStackTrace();
+    	}
 	}
     return serverDate;
   }
