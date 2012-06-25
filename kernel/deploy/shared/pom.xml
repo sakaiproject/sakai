@@ -39,8 +39,8 @@
             <scope>compile</scope>
         </dependency>
         <dependency>
-            <groupId>cglib</groupId>
-            <artifactId>cglib-nodep</artifactId>
+            <groupId>org.javassist</groupId>
+            <artifactId>javassist</artifactId>
             <scope>compile</scope>
         </dependency>
         <dependency>
@@ -75,7 +75,7 @@
         </dependency>
         <dependency>
             <groupId>org.hibernate</groupId>
-            <artifactId>hibernate</artifactId>
+            <artifactId>hibernate-core</artifactId>
             <scope>compile</scope>
             <exclusions>
                 <exclusion>
@@ -83,6 +83,16 @@
                   <artifactId>ehcache</artifactId>
                 </exclusion>
             </exclusions>
+        </dependency>
+        <dependency>
+            <groupId>org.hibernate</groupId>
+            <artifactId>hibernate-ehcache</artifactId>
+            <scope>compile</scope>
+        </dependency>
+	<dependency>
+            <groupId>org.hibernate</groupId>
+            <artifactId>hibernate-jmx</artifactId>
+            <scope>compile</scope>
         </dependency>
         <dependency>
             <groupId>javax.sql</groupId>
