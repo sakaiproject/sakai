@@ -37,11 +37,7 @@ import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
-import net.sourceforge.wurfl.core.Device;
-import net.sourceforge.wurfl.core.DeviceNotDefinedException;
-import net.sourceforge.wurfl.core.WURFLHolder;
-import net.sourceforge.wurfl.core.WURFLManager;
-
+import org.apache.commons.lang.BooleanUtils;
 import org.apache.commons.lang.StringUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
@@ -122,6 +118,8 @@ import org.sakaiproject.util.ResourceLoader;
 import org.sakaiproject.util.Validator;
 import org.sakaiproject.util.Web;
 
+import au.com.flyingkite.mobiledetect.UAgentInfo;
+
 /**
  * <p/> Charon is the Sakai Site based portal.
  * </p>
@@ -193,16 +191,9 @@ public class SkinnableCharonPortal extends HttpServlet implements Portal
 	
 	// 2.3 back port
 	// public String PROP_SHOW_SUBSITES = "sakai:show-subsites";
-
-	// http://wurfl.sourceforge.net/
-	private boolean wurflLoaded = false;
-
-	private WURFLHolder wurflHolder = null;
-	private WURFLManager wurfl = null;
-	/*
-	public CapabilityMatrix cm = null;
-	public UAManager uam = null;
-	 */
+	
+	private boolean isMobileDevice = false;
+	
 	private boolean forceContainer = false;
 
 	private boolean sakaiTutorialEnabled = true;
@@ -768,51 +759,31 @@ public class SkinnableCharonPortal extends HttpServlet implements Portal
 	}
 
 
-	private String getRequestHandler(HttpServletRequest req)
+	private boolean usePdaHandler(HttpServletRequest req)
 	{
-		setupWURFL();
-		if ( req == null || wurflHolder == null || wurfl == null ) return null;
+		if ( req == null) return false;
+
+		checkMobile(req);
 		
 		//check sakai.properties to see if auto redirect is enabled
 		//defaults to true - if set to false, skip the PDA check
 		if(!ServerConfigurationService.getBoolean("portal.pda.autoredirect", true)){
-			return null;
+			if(M_log.isDebugEnabled()) {
+				M_log.debug("Auto redirect for mobile devices is disabled, classic view will be used preferentially.");
+			}
+			return false;
 		}
 		
 		//check if we have a cookie to force classic view, skip the PDA check
 		Cookie c = findCookie(req, Portal.PORTAL_MODE_COOKIE_NAME);
 		if ((c != null) && (c.getValue().equals(Portal.FORCE_CLASSIC_COOKIE_VALUE))) {
-			return null;
+			if(M_log.isDebugEnabled()) {
+				M_log.debug("Cookie found, classic view will be used preferentially.");
+			}
+			return false;
 		}
 		
-		Device device = null;
-		try {
-			device = wurfl.getDeviceForRequest(req);
-		} catch (DeviceNotDefinedException e) {
-			//this will be hit a lot, so its at debug level to reduce log traffic
-			if (M_log.isDebugEnabled())
-			{
-				M_log.debug("Device '" + e.getDeviceId() + "' is not in WURFL");
-			}
-			return null;
-		}
-		
-		String deviceName = device.getId();
-
-		// Not a device recognized by WURFL
-		if (StringUtils.isBlank(deviceName) || deviceName.startsWith("generic") ) { 
-			return null;
-		} else {
-			//if this is a mobile device 
-			String isMobile = device.getCapability("is_wireless_device");
-			Boolean isMobileBool = Boolean.valueOf(isMobile);
-			if (isMobileBool.booleanValue()) {
-				Session session = SessionManager.getCurrentSession();
-				session.setAttribute("is_wireless_device", Boolean.TRUE);
-				return deviceName;
-			}
-			return null;
-		}
+		return isMobileDevice;
 		
 	}
 
@@ -873,12 +844,16 @@ public class SkinnableCharonPortal extends HttpServlet implements Portal
 			Map<String, PortalHandler> handlerMap = portalService.getHandlerMap(this);
 
 			PortalHandler ph;
-			String requestHandler = getRequestHandler(req);
+			boolean pdaHandler = usePdaHandler(req);
+			
+			if(M_log.isDebugEnabled()){
+				M_log.debug("Using pdaHandler: " + pdaHandler);
+			}
 
 			// begin SAK-19089
 			// if not logged in and accessing "/" and not from PDA, redirect to gatewaySiteUrl
 			if ((gatewaySiteUrl != null) && (option == null || "/".equals(option)) 
-					&& (requestHandler == null) && (session.getUserId() == null)) 
+					&& (!pdaHandler) && (session.getUserId() == null)) 
 			{
 				// redirect to gatewaySiteURL 
 				res.sendRedirect(gatewaySiteUrl);
@@ -886,7 +861,7 @@ public class SkinnableCharonPortal extends HttpServlet implements Portal
 			}
 			// end SAK-19089
 
-			if (requestHandler != null){
+			if (pdaHandler){
 				//Mobile access
 				ph = handlerMap.get("pda");
 				parts[1] = "pda";
@@ -1029,58 +1004,75 @@ public class SkinnableCharonPortal extends HttpServlet implements Portal
 		tool.help(req, res, context, "/logout");
 	}
 
-	/** Set up the WURFL objects - to use most classes will
-	 *  extend the register method and call this setup.
+	/**
+	 * Check if we are on a mobile device. Only does this once per session.
+	 * @param req HttpServletRequest
 	 */
-	public void setupWURFL()
-	{
-		// Only do this once
-		if ( wurflLoaded ) return;
-		wurflLoaded = true;
-		try {
-
-			wurflHolder = (WURFLHolder) getServletContext().getAttribute("net.sourceforge.wurfl.core.WURFLHolder");
-			if ( wurflHolder == null )
-			{
-				M_log.warn("WURFL Initialization failed - PDA support may be limited");
-			}
-			else
-			{
-				wurfl = wurflHolder.getWURFLManager();
-				M_log.info("WURFL Initialization holder=" + wurflHolder + " manager=" + wurfl);
-
-			}
-		}
-		catch (Exception e)
-		{
-			M_log.info("WURFL Initialization failed - PDA support may be limited "+e);
-		}
-	}
-
-	// Read the Wireless Universal Resource File and determine the display size
-	// http://wurfl.sourceforge.net/
-	public void setupMobileDevice(HttpServletRequest req, PortalRenderContext rcontext)
-	{
-		setupWURFL();
-		if ( req == null || wurflHolder == null || wurfl == null ) return;
+	public void checkMobile(HttpServletRequest req) {
 		
+		//check session param and return if already set. We don't care what the value actually is, just that we have already processed it
+		Session session = SessionManager.getCurrentSession();
+		Boolean mobileDeviceParam = (Boolean)session.getAttribute("is_mobile_device");
+
+		if(M_log.isDebugEnabled()){
+			M_log.debug("is_mobile_device session param: " + mobileDeviceParam);
+		}
 		
-		Device device = null;
-		try {
-			device = wurfl.getDeviceForRequest(req);
-		} catch (DeviceNotDefinedException e) {
-			//this will be hit a lot, so its at debug level to reduce log traffic
-			M_log.debug("Device '" + e.getDeviceId() + "' is not in WURFL");
+		if(mobileDeviceParam != null) {
 			return;
 		}
 		
+		//get user agent, return if null as we cannot check
+		String userAgent = req.getHeader("User-Agent");
+		if (StringUtils.isBlank(userAgent)) {
+			return;
+		}
+		
+		UAgentInfo agentInfo = new UAgentInfo(userAgent, null);
+		
+		//check mobile
+		isMobileDevice = agentInfo.detectMobileQuick();
+		
+		//check tablet if needed
+		boolean tabletsUseMobileView = ServerConfigurationService.getBoolean("portal.tablets.use.mobile", false);
+		if(tabletsUseMobileView && !isMobileDevice) {
+			isMobileDevice = agentInfo.detectTierTablet();
+		}
+		
+		//set session param so we don't need to do this again
+		session.setAttribute("is_mobile_device", Boolean.valueOf(isMobileDevice));		
+		
+		if(M_log.isDebugEnabled()){
+			M_log.debug("User-Agent: " + userAgent);
+			M_log.debug("Mobile device: " + isMobileDevice);
+			M_log.debug("portal.tablets.use.mobile: " + tabletsUseMobileView);
+		}
+		
+	}
+
+	/**
+	 * Check for mobile via checkMobile(req) and setup some context params
+	 */
+	public void setupMobileDevice(HttpServletRequest req, PortalRenderContext rcontext)
+	{
+		if ( req == null) return;
+		
+		checkMobile(req);
+
 		// Not a mobile device
-		if ( device == null || device.getId().length() < 1 || device.getId().startsWith("generic") ) return;
+		if (!isMobileDevice) { 
+			return;
+		}
 
-		M_log.debug("device=" + device.getId() + " agent=" + req.getHeader("user-agent"));
-		rcontext.put("wurflDevice",device.getId());
+		rcontext.put("mobileDevice", Boolean.TRUE);
+		
+		//for now just always assume we have a small display.
+		rcontext.put("mobileSmallDisplay",Boolean.TRUE);
+		
 
+		// Old WURFL code left here for reference in case people want to flesh out the detection
 		// Check to see if we have too few columns of text
+		/*
 		String columns =  device.getCapability("columns");
 		{
 			int icol = -1;
@@ -1103,6 +1095,7 @@ public class SkinnableCharonPortal extends HttpServlet implements Portal
 				return;
 			}
 		}
+		*/
 	}
 
 
@@ -1169,32 +1162,12 @@ public class SkinnableCharonPortal extends HttpServlet implements Portal
 
 		
 		// show the mobile link or not
-		if (s.getAttribute("is_wireless_device") == null && request != null)
-		{
-			// when user logs out, all session variables are cleaned, this is to reset the is_wireless_device attribute in portal
-			Device device = null;
-			try {
-				device = wurfl.getDeviceForRequest(request);
-				String deviceName = device.getId();
-
-				// this is a mobile device 
-				if (StringUtils.isNotBlank(deviceName) && !deviceName.startsWith("generic") ) { 
-					String isMobile = device.getCapability("is_wireless_device");
-					Boolean isMobileBool = Boolean.valueOf(isMobile);
-					if (isMobileBool.booleanValue()) {
-						s.setAttribute("is_wireless_device", Boolean.TRUE);
-					}
-				}
-			} catch (DeviceNotDefinedException e) {
-				//this will be hit a lot, so its at debug level to reduce log traffic
-				if (M_log.isDebugEnabled())
-				{
-					M_log.debug("Device '" + e.getDeviceId() + "' is not in WURFL");
-				}
-			}
+		if (s.getAttribute("is_mobile_device") == null && request != null){
+			//determine if we are on a mobile device - sets up the params we need
+			checkMobile(request);
 		}
-		boolean isWirelessDevice = s.getAttribute("is_wireless_device") != null ? ((Boolean) s.getAttribute("is_wireless_device")).booleanValue():false;
-		rcontext.put("portal_add_mobile_link",Boolean.valueOf( "true".equals(addMLnk) && isWirelessDevice ) ) ;
+		boolean isMobileDevice = s.getAttribute("is_mobile_device") != null ? ((Boolean) s.getAttribute("is_mobile_device")).booleanValue():false;
+		rcontext.put("portal_add_mobile_link",Boolean.valueOf( "true".equals(addMLnk) && isMobileDevice ) ) ;
 		
 		rcontext.put("toolDirectUrlEnabled", ServerConfigurationService.getBoolean("portal.tool.direct.url.enabled", false));
 		rcontext.put("toolShortUrlEnabled", ServerConfigurationService.getBoolean("shortenedurl.portal.tool.enabled", true));
@@ -1255,9 +1228,14 @@ public class SkinnableCharonPortal extends HttpServlet implements Portal
 			Map<String, PortalHandler> handlerMap = portalService.getHandlerMap(this);
 
 			PortalHandler ph;
-			String requestHandler = getRequestHandler(req);
+			boolean pdaHandler = usePdaHandler(req);
+			
+			if(M_log.isDebugEnabled()){
+				M_log.debug("Using pdaHandler: " + pdaHandler);
+			}
+			
 			// SAK-18955: do not use PDAHandler for relogin
-			if ((! parts[1].equals("relogin")) && (requestHandler!=null)){
+			if ((! parts[1].equals("relogin")) && (pdaHandler)){
 				//Mobile access
 				ph = handlerMap.get("pda");
 				parts[1] = "pda";

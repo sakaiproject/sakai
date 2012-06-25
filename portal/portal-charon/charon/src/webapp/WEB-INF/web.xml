@@ -77,19 +77,5 @@
 		<servlet-name>sakai.portal.charon</servlet-name>
 		<url-pattern>/*</url-pattern>
 	</servlet-mapping>
-	<!-- wURFL CONFIG -->
-	<listener>
-		<listener-class>
-			net.sourceforge.wurfl.core.web.WURFLServletContextListener</listener-class>
-	</listener>
-	<context-param>
-		<param-name>wurfl</param-name>
-	<param-value>/WEB-INF/wurfl.zip</param-value>
-	</context-param>
-	<context-param>
-  		<param-name>wurflPatch</param-name>
-  		<param-value>/WEB-INF/wurfl_patch.xml</param-value>
-	</context-param>
-
 
 </web-app>

@@ -74,11 +74,11 @@ ${responseHead}
 <!-- END Header -->
 
 <!-- pda.vm -->
-#if ( ${wurflSmallDisplay} ) 
-<!-- Mobile Device ${wurflDevice} -->
+#if ( ${mobileSmallDisplay} ) 
+<!-- Mobile Device ${mobileDevice} -->
 #end
 ## Always assume small display
-#set ( $wurflSmallDisplay = 1 )
+#set ( $mobileSmallDisplay = 1 )
 <div class="portletpda">
 	<!-- include site html if exist-->
 	#if ($sitePdaHtmlInclude)
@@ -139,14 +139,14 @@ ${responseHead}
 #if (${currentPlacement.toolJSR168Edit} )
 	<li class="jsreditLink"><span><a accesskey="e" href="${currentPlacement.toolJSR168Edit}" title="${rloader.sit_edit}"><img src="${pageSkinRepo}/${pageSkin}/images/pda-edit-sett.png" alt="${rloader.sit_edit}" /></a></span></li>
 #end
-#if ( ${wurflSmallDisplay} ) 
-  <!-- WURFL Small Display -->
+#if ( ${mobileSmallDisplay} ) 
+  <!-- Mobile Small Display -->
   #if ( $loggedIn ) 
     <li class="logoutLink"><span><a href="${portalTopUrl}?force.logout=yes">$rloader.getString("pda_logout")</a></span></li>
   #else
     <li class="loginLink"><span><a href="${portalTopUrl}?force.login=yes">$rloader.getString("pda_login")</a></span></li>
   #end
-  <!-- End WURFL Small Display -->
+  <!-- End Mobile Small Display -->
 #else
 
 	  #if (${currentSite.sitePages.pageNavShowPresenceLoggedIn})
@@ -265,7 +265,7 @@ ${responseBody}
   #end
 #end
 #if ($currentSite )
-#if ( ! ${wurflSmallDisplay} ) 
+#if ( ! ${mobileSmallDisplay} ) 
     #if (${currentSite.sitePages.pageNavShowPresenceLoggedIn})
 	<script type="text/javascript" language="JavaScript">
 		$(document).ready(function(){

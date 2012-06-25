@@ -86,10 +86,9 @@
             <artifactId>log4j</artifactId>
         </dependency>
         <dependency>
-            <groupId>net.sourceforge.wurfl</groupId>
-            <artifactId>wurfl</artifactId>
-            <version>1.2.2</version>
-        </dependency>
+			<groupId>au.com.flyingkite</groupId>
+			<artifactId>mobiledetect</artifactId>
+		</dependency>
         <dependency>
             <groupId>org.apache.velocity</groupId>
             <artifactId>velocity</artifactId>
