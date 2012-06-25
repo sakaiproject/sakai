@@ -37,10 +37,7 @@ public class EditablePanelListInherited extends Panel{
 				if(loadedFlag){
 					List<ListOptionSerialized> selectedOptions = null;
 					List<ListOptionSerialized> inheritedOptions = null;
-					if(DelegatedAccessConstants.TYPE_LISTFIELD_TERMS == fieldType){
-						selectedOptions = nodeModel.getSelectedTerms();
-						inheritedOptions = nodeModel.getInheritedTerms();
-					}else{
+					if(DelegatedAccessConstants.TYPE_LISTFIELD_TOOLS == fieldType){
 						selectedOptions = nodeModel.getSelectedRestrictedTools();
 						inheritedOptions = nodeModel.getInheritedRestrictedTools();
 					}
@@ -75,10 +72,7 @@ public class EditablePanelListInherited extends Panel{
 				if(loadedFlag){
 					List<ListOptionSerialized> inheritedOptions = null;
 					String[] nodeOptions = null;
-					if(DelegatedAccessConstants.TYPE_LISTFIELD_TERMS == fieldType){
-						inheritedOptions = nodeModel.getInheritedTerms();
-						nodeOptions = nodeModel.getNodeTerms();
-					}else{
+					if(DelegatedAccessConstants.TYPE_LISTFIELD_TOOLS == fieldType){
 						inheritedOptions = nodeModel.getInheritedRestrictedTools();
 						nodeOptions = nodeModel.getNodeRestrictedTools();
 					}
@@ -141,10 +135,7 @@ public class EditablePanelListInherited extends Panel{
 				if(loadedFlag){
 					List<ListOptionSerialized> inheritedOptions = null;
 					String[] nodeOptions = null;
-					if(DelegatedAccessConstants.TYPE_LISTFIELD_TERMS == fieldType){
-						inheritedOptions = nodeModel.getInheritedTerms();
-						nodeOptions = nodeModel.getNodeTerms();
-					}else{
+					if(DelegatedAccessConstants.TYPE_LISTFIELD_TOOLS == fieldType){
 						inheritedOptions = nodeModel.getInheritedRestrictedTools();
 						nodeOptions = nodeModel.getNodeRestrictedTools();
 					}

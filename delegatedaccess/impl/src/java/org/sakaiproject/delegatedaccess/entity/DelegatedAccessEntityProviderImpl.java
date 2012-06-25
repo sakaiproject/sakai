@@ -170,7 +170,6 @@ public class DelegatedAccessEntityProviderImpl implements DelegatedAccessEntityP
 		String realmOrig = node.getNodeAccessRealmRole()[0];
 		String roleOrig = node.getNodeAccessRealmRole()[1];
 		String[] toolsOrig = node.getNodeRestrictedTools();
-		String[] termsOrig = node.getNodeTerms();
 		//modify the setting to the new settings
 		node.setShoppingPeriodAuth(shoppingAuth);
 		node.setShoppingPeriodStartDate(shoppingStartDate);
@@ -192,10 +191,9 @@ public class DelegatedAccessEntityProviderImpl implements DelegatedAccessEntityP
 		String realmNew = node.getNodeAccessRealmRole()[0];
 		String roleNew = node.getNodeAccessRealmRole()[1];
 		String[] toolsNew = node.getNodeRestrictedTools();
-		String[] termsNew = node.getNodeTerms();
 		//only update if there were true modifications
 		if(node.isModified(authOrig, authNew, startDateOrig, startDateNew, endDateOrig, endDateNew,
-				realmOrig, realmNew, roleOrig, roleNew, toolsOrig, toolsNew, termsOrig, termsNew)){
+				realmOrig, realmNew, roleOrig, roleNew, toolsOrig, toolsNew)){
 			projectLogic.updateNodePermissionsForUser(node, DelegatedAccessConstants.SHOPPING_PERIOD_USER);
 		}
 	}

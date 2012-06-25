@@ -140,9 +140,7 @@ public class DelegatedAccessShoppingPeriodJob implements StatefulJob{
 		String[] nodeAccessRealmRole = node.getNodeAccessRealmRole();
 		//do substring(6) b/c we need site ID and what is stored is a ref: /site/1231231
 		String siteId = node.getNode().title.substring(6);
-		String[] terms = node.getNodeTerms();
-		String siteTerm = terms == null || terms.length == 0 ? null : dao.getSiteProperty(sakaiProxy.getTermField(), siteId);
-		boolean addAuth = projectLogic.isShoppingPeriodOpenForSite(startDate, endDate, nodeAccessRealmRole, auth, terms, siteTerm);
+		boolean addAuth = projectLogic.isShoppingPeriodOpenForSite(startDate, endDate, nodeAccessRealmRole, auth);
 		String restrictedToolsList = "";
 		if(addAuth){
 			//update the restricted tools list, otherwise it will be cleared:			

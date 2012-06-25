@@ -254,23 +254,6 @@ public interface SakaiProxy {
 	 * @return
 	 */
 	public String[] getHomeTools();
-	
-	/**
-	 * default is true, otherwise looks up sakai.property
-	 * 
-	 * delegatedaccess.showtermcolumn.shopping
-	 * 
-	 * @return
-	 */
-	public boolean isShowTermColumnShopping();
-	
-	/**
-	 * default is true, otherwise looks up sakai.property
-	 * 
-	 * delegatedaccess.showtermcolumn.access
-	 * @return
-	 */
-	public boolean isShowTermColumnAccess();
 
 	/**
 	 * default is true

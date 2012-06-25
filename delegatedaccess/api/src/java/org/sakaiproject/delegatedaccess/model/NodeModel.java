@@ -31,8 +31,6 @@ public class NodeModel implements Serializable {
 	private NodeModel parentNode;
 	private List<ListOptionSerialized> restrictedTools;
 	private List<ListOptionSerialized> restrictedToolsOrig;
-	private List<ListOptionSerialized> terms;
-	private List<ListOptionSerialized> termsOrig;
 	private Date shoppingPeriodStartDate = new Date();
 	private Date shoppingPeriodStartDateOrig = new Date();
 	private Date shoppingPeriodEndDate = new Date();
@@ -42,7 +40,6 @@ public class NodeModel implements Serializable {
 	private boolean addedDirectChildrenFlag = false;	
 	private boolean shoppingPeriodAdmin = false;
 	private boolean shoppingPeriodAdminOrig = false;
-	private String siteTerm;
 	private String siteInstructors;
 	private SelectOption shoppingPeriodAuthOption;
 	private SelectOption roleOption;
@@ -58,7 +55,7 @@ public class NodeModel implements Serializable {
 			List<ListOptionSerialized> restrictedTools, Date shoppingPeriodStartDate,
 			Date shoppingPeriodEndDate,
 			String shoppingPeriodAuth, boolean addedDirectChildrenFlag, boolean shoppingPeriodAdmin,
-			List<ListOptionSerialized> terms, String modifiedBy, Date modified,
+			String modifiedBy, Date modified,
 			Date shoppingAdminModified, String shoppingAdminModifiedBy, boolean accessAdmin){
 
 		this.nodeId = nodeId;
@@ -81,8 +78,6 @@ public class NodeModel implements Serializable {
 		this.addedDirectChildrenFlag = addedDirectChildrenFlag;
 		this.shoppingPeriodAdmin = shoppingPeriodAdmin;
 		this.shoppingPeriodAdminOrig = shoppingPeriodAdmin;
-		this.terms = terms;
-		this.termsOrig = copyListOptions(terms);
 		this.modifiedBy = modifiedBy;
 		this.modified = modified;
 		this.shoppingAdminModified = shoppingAdminModified;
@@ -147,8 +142,7 @@ public class NodeModel implements Serializable {
 		//only worry about modifications to a direct access node
 		if(directAccess){
 			return isModified(getShoppingPeriodAuth(), shoppingPeriodAuthOrig, shoppingPeriodStartDate, shoppingPeriodStartDateOrig, shoppingPeriodEndDate, shoppingPeriodEndDateOrig,
-					realm, realmOrig, role, roleOrig, convertListToArray(getSelectedRestrictedTools()), convertListToArray(getSelectedRestrictedToolsOrig()), 
-					convertListToArray(getSelectedTerms()), convertListToArray(getSelectedTermsOrig()));
+					realm, realmOrig, role, roleOrig, convertListToArray(getSelectedRestrictedTools()), convertListToArray(getSelectedRestrictedToolsOrig()));
 		}
 
 		return false;
@@ -156,7 +150,7 @@ public class NodeModel implements Serializable {
 
 	public boolean isModified(String shoppingAuthOld, String shoppingAuthNew, Date shoppingStartDateOld, Date shoppingStartDateNew,
 			Date shoppingEndDateOld, Date shoppingEndDateNew, String realmOld, String realmNew, String roleOld, String roleNew,
-			String[] toolsOld, String[] toolsNew, String[] termsOld, String[] termsNew){
+			String[] toolsOld, String[] toolsNew){
 		if(realmOld != null && realmNew != null){
 			if(!realmOld.equals(realmNew))
 				return true;
@@ -211,27 +205,6 @@ public class NodeModel implements Serializable {
 			return true;
 		}
 		
-		if(termsOld != null && termsNew != null){
-			if(termsOld.length != termsNew.length){
-				return true;
-			}else{
-				for(int i = 0; i < termsOld.length; i++){
-					boolean found = false;
-					for(int j = 0; j < termsNew.length; j++){
-						if(termsOld[i].equals(termsNew[j])){
-							found = true;
-							break;
-						}
-					}
-					if(!found){
-						return true;
-					}
-				}
-			}
-		}else if((termsOld == null || termsNew == null) && !(termsOld == null && termsNew == null)){
-			return true;
-		}
-		
 		return false;
 	}
 
@@ -248,19 +221,6 @@ public class NodeModel implements Serializable {
 		return false;
 	}
 	
-	private boolean isTermsModified(){
-		for(ListOptionSerialized origTerm : termsOrig){
-			for(ListOptionSerialized term : terms){
-				if(term.getId().equals(origTerm.getId())){
-					if(term.isSelected() != origTerm.isSelected()){
-						return true;
-					}
-				}
-			}
-		}
-		return false;
-	}
-
 	public String getRealm() {
 		return realm;
 	}
@@ -558,14 +518,6 @@ public class NodeModel implements Serializable {
 		}
 	}
 
-	public String getSiteTerm() {
-		return siteTerm;
-	}
-
-	public void setSiteTerm(String siteTerm) {
-		this.siteTerm = siteTerm;
-	}
-
 	public String getSiteInstructors() {
 		return siteInstructors;
 	}
@@ -581,91 +533,8 @@ public class NodeModel implements Serializable {
 	public SelectOption getShoppingPeriodAuthOption() {
 		return shoppingPeriodAuthOption;
 	}
-
-	public List<ListOptionSerialized> getTerms() {
-		return terms;
-	}
-
-	public void setTerms(List<ListOptionSerialized> terms) {
-		this.terms = terms;
-	}
-
-	public List<ListOptionSerialized> getTermsOrig() {
-		return termsOrig;
-	}
-
-	public void setTermsOrig(List<ListOptionSerialized> termsOrig) {
-		this.termsOrig = termsOrig;
-	}
 	
-	public String[] getNodeTerms(){
-		List<ListOptionSerialized> myTerms = getSelectedTerms();
-		if(!isDirectAccess()){
-			myTerms = getInheritedTerms();
-		}
-
-		if(myTerms == null || myTerms.size() == 0){
-			return new String[0];
-		}else{
-			String[] termsArray = new String[myTerms.size()];
-			int i = 0;
-			for(ListOptionSerialized tool : myTerms){
-				termsArray[i] = tool.getId();
-				i++;
-			}
-			return termsArray;
-		}
-	}
-
-	public List<ListOptionSerialized> getInheritedTerms(){
-		return getInheritedTermsHelper(parentNode);
-	}
-
-	private List<ListOptionSerialized> getInheritedTermsHelper(NodeModel parent){
-		if(parent == null){
-			return Collections.emptyList();
-		}else if(parent.isDirectAccess()){
-			return parent.getSelectedTerms();
-		}else{
-			return getInheritedTermsHelper(parent.getParentNode());
-		}
-	}
-
-	public List<ListOptionSerialized> getSelectedTerms(){
-		List<ListOptionSerialized> returnList = new ArrayList<ListOptionSerialized>();
-		for(ListOptionSerialized tool : terms){
-			if(tool.isSelected())
-				returnList.add(tool);
-		}
-		return returnList;
-	}
 	
-	public List<ListOptionSerialized> getSelectedTermsOrig(){
-		List<ListOptionSerialized> returnList = new ArrayList<ListOptionSerialized>();
-		for(ListOptionSerialized tool : termsOrig){
-			if(tool.isSelected())
-				returnList.add(tool);
-		}
-		return returnList;
-	}
-
-	public boolean hasAnyTermsSelected(){
-		for(ListOptionSerialized tool : terms){
-			if(tool.isSelected())
-				return true;
-		}
-		return false;
-	}
-
-	public void setTerm(String id, boolean restricted){
-		for(ListOptionSerialized tool : terms){
-			if(tool.getId().equals(id)){
-				tool.setSelected(restricted);
-				break;
-			}
-		}
-	}
-
 	public SelectOption getRoleOption() {
 		return roleOption;
 	}

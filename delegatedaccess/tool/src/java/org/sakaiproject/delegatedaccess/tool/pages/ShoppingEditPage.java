@@ -111,14 +111,9 @@ public class ShoppingEditPage extends BaseTreePage{
 		columnsList.add(new PropertyEditableColumnDate(new ColumnLocation(Alignment.RIGHT, 100, Unit.PX), new StringResourceModel("endDate", null).getString(), "userObject.shoppingPeriodEndDate", false));
 		columnsList.add(new PropertyEditableColumnList(new ColumnLocation(Alignment.RIGHT, 96, Unit.PX), new StringResourceModel("showToolsHeader", null).getString(),
 				"userObject.restrictedTools", DelegatedAccessConstants.TYPE_ACCESS_SHOPPING_PERIOD_USER, DelegatedAccessConstants.TYPE_LISTFIELD_TOOLS));
-		if(sakaiProxy.isShowTermColumnShopping() && projectLogic.getEntireTermsList().size() > 0){
-			columnsList.add(new PropertyEditableColumnList(new ColumnLocation(Alignment.RIGHT, 65, Unit.PX), new StringResourceModel("termHeader", null).getString(),
-					"userObject.terms", DelegatedAccessConstants.TYPE_ACCESS_SHOPPING_PERIOD_USER, DelegatedAccessConstants.TYPE_LISTFIELD_TERMS));
-		}
 		IColumn columns[] = columnsList.toArray(new IColumn[columnsList.size()]);
 
 		final List<ListOptionSerialized> blankRestrictedTools = projectLogic.getEntireToolsList();
-		final List<ListOptionSerialized> blankTerms = projectLogic.getEntireTermsList();
 		
 		//a null model means the tree is empty
 		tree = new TreeTable("treeTable", treeModel, columns){
@@ -131,7 +126,7 @@ public class ShoppingEditPage extends BaseTreePage{
 				
 				boolean anyAdded = false;
 				if(!tree.getTreeState().isNodeExpanded(node) && !((NodeModel) ((DefaultMutableTreeNode) node).getUserObject()).isAddedDirectChildrenFlag()){
-					anyAdded = projectLogic.addChildrenNodes(node, DelegatedAccessConstants.SHOPPING_PERIOD_USER, blankRestrictedTools, blankTerms, false, null);
+					anyAdded = projectLogic.addChildrenNodes(node, DelegatedAccessConstants.SHOPPING_PERIOD_USER, blankRestrictedTools, false, null);
 					((NodeModel) ((DefaultMutableTreeNode) node).getUserObject()).setAddedDirectChildrenFlag(true);
 				}
 				if(anyAdded){
@@ -147,7 +142,7 @@ public class ShoppingEditPage extends BaseTreePage{
 				//the nodes are generated on the fly with ajax.  This will add any child nodes that 
 				//are missing in the tree.  Expanding and collapsing will refresh the tree node
 				if(tree.getTreeState().isNodeExpanded(node) && !((NodeModel) ((DefaultMutableTreeNode) node).getUserObject()).isAddedDirectChildrenFlag()){
-					boolean anyAdded = projectLogic.addChildrenNodes(node, DelegatedAccessConstants.SHOPPING_PERIOD_USER, blankRestrictedTools, blankTerms, false, null);
+					boolean anyAdded = projectLogic.addChildrenNodes(node, DelegatedAccessConstants.SHOPPING_PERIOD_USER, blankRestrictedTools, false, null);
 					((NodeModel) ((DefaultMutableTreeNode) node).getUserObject()).setAddedDirectChildrenFlag(true);
 					if(anyAdded){
 						collapseEmptyFoldersHelper((DefaultMutableTreeNode) node);

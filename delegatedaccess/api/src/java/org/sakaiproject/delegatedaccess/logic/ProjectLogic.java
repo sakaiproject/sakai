@@ -114,12 +114,11 @@ public interface ProjectLogic {
 	 * @param node
 	 * @param userId
 	 * @param blankRestrictedTools
-	 * @param blankTerms
 	 * @param onlyAccessNodes
 	 * @param accessAdminNodes
 	 * @return
 	 */
-	public boolean addChildrenNodes(Object node, String userId, List<ListOptionSerialized> blankRestrictedTools, List<ListOptionSerialized> blankTerms, boolean onlyAccessNodes, List<String> accessAdminNodes);
+	public boolean addChildrenNodes(Object node, String userId, List<ListOptionSerialized> blankRestrictedTools, boolean onlyAccessNodes, List<String> accessAdminNodes);
 
 	/**
 	 * returns a blank (unselected) list of all the tool options for restricting tools
@@ -127,13 +126,6 @@ public interface ProjectLogic {
 	 */
 	public List<ListOptionSerialized> getEntireToolsList();
 	
-	/**
-	 * returns a blank (unselected) list of all the term options for restricting terms
-	 * @return
-	 */
-	public List<ListOptionSerialized> getEntireTermsList();
-
-
 	/**
 	 * This will return a fully instantiated NodeModel for that user and id.  It will look up it's parents nodes and instantiate
 	 * them as well.
@@ -261,9 +253,7 @@ public interface ProjectLogic {
 	 * @param endDate
 	 * @param nodeAccessRealmRole
 	 * @param auth
-	 * @param terms
-	 * @param siteTerm
 	 * @return
 	 */
-	public boolean isShoppingPeriodOpenForSite(Date startDate, Date endDate, String[] nodeAccessRealmRole, String auth, String[] terms, String siteTerm);
+	public boolean isShoppingPeriodOpenForSite(Date startDate, Date endDate, String[] nodeAccessRealmRole, String auth);
 }

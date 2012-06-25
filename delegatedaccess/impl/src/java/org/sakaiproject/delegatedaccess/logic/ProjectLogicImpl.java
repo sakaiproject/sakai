@@ -114,17 +114,6 @@ public class ProjectLogicImpl implements ProjectLogic {
 				saveRestrictedToolsForUser(userId, nodeModel.getNodeId(), restrictedTools);
 			}
 
-			//term
-			List<String> terms = new ArrayList<String>();
-			for(ListOptionSerialized term : nodeModel.getTerms()){
-				if(term.isSelected()){
-					terms.add(term.getId());
-				}
-			}
-			if(!terms.isEmpty()){
-				saveTermsForUser(userId, nodeModel.getNodeId(), terms);
-			}
-			
 			//save shopping period information
 			if(DelegatedAccessConstants.SHOPPING_PERIOD_USER.equals(userId)){
 				saveShoppingPeriodAuth(nodeModel.getShoppingPeriodAuth(), nodeModel.getNodeId());
@@ -461,46 +450,6 @@ public class ProjectLogicImpl implements ProjectLogic {
 		}
 	}
 	
-	//terms
-	public List<ListOptionSerialized> getTermSerializedList(Set<String> perms){
-		return getTermSerializedList(perms, getEntireTermsList());
-	}
-
-
-	public List<ListOptionSerialized> getTermSerializedList(Set<String> perms, List<ListOptionSerialized> blankList){
-		List<String> terms = getTermsForUser(perms);
-		for(ListOptionSerialized term : blankList){
-			if(terms.contains(term.getId()))
-				term.setSelected(true);
-		}
-		return blankList;
-	}
-
-	public List<ListOptionSerialized> getEntireTermsList(){
-		List<ListOptionSerialized> returnList = new ArrayList<ListOptionSerialized>();
-		for(String[] term : sakaiProxy.getTerms()){
-			returnList.add(new ListOptionSerialized(term[0], term[1], false));
-		}
-		return returnList;
-	}
-
-	private List<String> getTermsForUser(Set<String> userPerms){
-		List<String> returnList = new ArrayList<String>();
-		for(String userPerm : userPerms){
-			if(userPerm.startsWith(DelegatedAccessConstants.NODE_PERM_TERM_PREFIX)){
-				returnList.add(userPerm.substring(DelegatedAccessConstants.NODE_PERM_TERM_PREFIX.length()));
-			}
-		}
-		return returnList;
-	}
-
-	private void saveTermsForUser(String userId, String nodeId, List<String> termIds){
-		//add new tools:
-		for(String newTerm : termIds){
-			hierarchyService.assignUserNodePerm(userId, nodeId, DelegatedAccessConstants.NODE_PERM_TERM_PREFIX + newTerm, false);
-		}
-	}
-
 	public List<SiteSearchResult> searchUserSites(String search, Map<String, String> advancedOptions, boolean shoppingPeriod, boolean activeShoppingData){
 		List<SiteSearchResult> returnList = new ArrayList<SiteSearchResult>();
 		if(search == null){
@@ -700,7 +649,7 @@ public class ProjectLogicImpl implements ProjectLogic {
 		//order tree model:
 		orderTreeModel(l1);
 
-		return convertToTreeModel(l1, userId, getEntireToolsList(), getEntireTermsList(), addDirectChildren, accessAdminNodeIds);
+		return convertToTreeModel(l1, userId, getEntireToolsList(), addDirectChildren, accessAdminNodeIds);
 	}
 
 	public TreeModel createAccessTreeModelForUser(String userId, boolean addDirectChildren, boolean cascade)
@@ -715,7 +664,7 @@ public class ProjectLogicImpl implements ProjectLogic {
 		//order tree model:
 		orderTreeModel(l1);
 
-		return trimTreeForTerms(convertToTreeModel(l1, userId, getEntireToolsList(), getEntireTermsList(), addDirectChildren, null));
+		return convertToTreeModel(l1, userId, getEntireToolsList(), addDirectChildren, null);
 	}
 
 	public TreeModel getTreeModelForShoppingPeriod(boolean includePerms){
@@ -731,66 +680,9 @@ public class ProjectLogicImpl implements ProjectLogic {
 		//order tree model:
 		orderTreeModel(l1);
 
-		return convertToTreeModel(l1, userId, getEntireToolsList(), getEntireTermsList(), false, null);
+		return convertToTreeModel(l1, userId, getEntireToolsList(), false, null);
 	}
 	
-	//This will search through the tree model and trim out any sites that are restricted b/c of the term value
-	private TreeModel trimTreeForTerms(TreeModel treeModel){
-		//need a remove map b/c you can't remove nodes while you are searching, must do it afterwards
-		Map<DefaultMutableTreeNode, List<DefaultMutableTreeNode>> removeMap = new HashMap<DefaultMutableTreeNode, List<DefaultMutableTreeNode>>();
-		
-		if(treeModel != null && treeModel.getRoot() != null){
-			trimTreeForTermsHelper((DefaultMutableTreeNode) treeModel.getRoot(), null, removeMap);
-		}
-		//now remove everything that was found
-		for(Entry<DefaultMutableTreeNode, List<DefaultMutableTreeNode>> entry : removeMap.entrySet()){
-			DefaultMutableTreeNode removeParent = entry.getKey();
-			for(DefaultMutableTreeNode removeNode : entry.getValue()){
-				removeParent.remove(removeNode);
-			}
-		}
-		return treeModel;
-	}
-	
-	private void trimTreeForTermsHelper(DefaultMutableTreeNode node, DefaultMutableTreeNode parent, Map<DefaultMutableTreeNode, List<DefaultMutableTreeNode>> removeMap){
-		if(node != null){
-			for(int i = 0; i < node.getChildCount(); i++){
-				trimTreeForTermsHelper((DefaultMutableTreeNode) node.getChildAt(i), node, removeMap);
-			}
-			NodeModel nodeModel = (NodeModel) node.getUserObject();
-			if(nodeModel.getNode().title.startsWith("/site/")){
-				String term = nodeModel.getNode().permKey;
-				if(!checkTerm(nodeModel.getNodeTerms(), term)){
-					if(parent != null){
-						if(removeMap.containsKey(parent)){
-							((List<DefaultMutableTreeNode>) removeMap.get(parent)).add(node);
-						}else{
-							List<DefaultMutableTreeNode> list = new ArrayList<DefaultMutableTreeNode>();
-							list.add(node);
-							removeMap.put(parent, list);
-						}
-					}
-				}
-			}
-
-		}
-	}
-
-	private boolean checkTerm(String[] terms, String siteTerm){
-		boolean returnVal = true;
-		if(terms != null && terms.length > 0){
-			returnVal = false;
-			if(siteTerm != null && !"".equals(siteTerm)){
-				for(String term : terms){
-					if(term.equals(siteTerm)){
-						returnVal = true;
-						break;
-					}
-				}
-			}
-		}
-		return returnVal;
-	}
 	//get the entire tree for a user and populates the information that may exist
 	public TreeModel getEntireTreePlusUserPerms(String userId){
 		//call this to instantiated the accessNodes and shoppingPeriodAdminNodes lists
@@ -802,7 +694,7 @@ public class ProjectLogicImpl implements ProjectLogic {
 		//order tree model:
 		orderTreeModel(l1);
 
-		return convertToTreeModel(l1, userId, getEntireToolsList(), getEntireTermsList(), false, null);
+		return convertToTreeModel(l1, userId, getEntireToolsList(), false, null);
 	}
 
 	public TreeModel createTreeModelForShoppingPeriod(String userId)
@@ -815,7 +707,7 @@ public class ProjectLogicImpl implements ProjectLogic {
 		//order tree model:
 		orderTreeModel(l1);
 
-		return convertToTreeModel(l1, DelegatedAccessConstants.SHOPPING_PERIOD_USER, getEntireToolsList(), getEntireTermsList(), false, null);
+		return convertToTreeModel(l1, DelegatedAccessConstants.SHOPPING_PERIOD_USER, getEntireToolsList(), false, null);
 	}
 
 	/**
@@ -826,12 +718,12 @@ public class ProjectLogicImpl implements ProjectLogic {
 	 * @return
 	 */
 	private TreeModel convertToTreeModel(List<List> map, String userId, List<ListOptionSerialized> blankRestrictedTools, 
-			List<ListOptionSerialized> blankTerms, boolean addDirectChildren, List<String> accessAdminNodeIds)
+			boolean addDirectChildren, List<String> accessAdminNodeIds)
 	{
 		TreeModel model = null;
 		if(!map.isEmpty() && map.size() == 1){
 
-			DefaultMutableTreeNode rootNode = add(null, map, userId, blankRestrictedTools, blankTerms, addDirectChildren, accessAdminNodeIds);
+			DefaultMutableTreeNode rootNode = add(null, map, userId, blankRestrictedTools, addDirectChildren, accessAdminNodeIds);
 			model = new DefaultTreeModel(rootNode);
 		}
 		return model;
@@ -952,7 +844,7 @@ public class ProjectLogicImpl implements ProjectLogic {
 	 * @return
 	 */
 	private DefaultMutableTreeNode add(DefaultMutableTreeNode parent, List<List> sub, String userId, List<ListOptionSerialized> blankRestrictedTools, 
-			List<ListOptionSerialized> blankTerms, boolean addDirectChildren, List<String> accessAdminNodeIds)
+			boolean addDirectChildren, List<String> accessAdminNodeIds)
 	{
 		DefaultMutableTreeNode root = null;
 		for (List nodeList : sub)
@@ -972,7 +864,6 @@ public class ProjectLogicImpl implements ProjectLogic {
 			
 			//you must copy in order not to pass changes to other nodes
 			List<ListOptionSerialized> restrictedTools = copyListOptions(blankRestrictedTools);
-			List<ListOptionSerialized> terms = copyListOptions(blankTerms);
 			boolean accessAdmin = accessAdminNodes.contains(node.id);
 			boolean shoppingPeriodAdmin = shoppingPeriodAdminNodes.contains(node.id);
 			if(DelegatedAccessConstants.SHOPPING_PERIOD_USER.equals(userId) || accessNodes.contains(node.id) || shoppingPeriodAdminNodes.contains(node.id)){
@@ -984,7 +875,6 @@ public class ProjectLogicImpl implements ProjectLogic {
 				endDate = getShoppingEndDate(perms);
 				shoppingPeriodAuth = getShoppingPeriodAuth(perms);
 				restrictedTools = getRestrictedToolSerializedList(perms, restrictedTools);
-				terms = getTermSerializedList(perms, terms);
 				directAccess = getIsDirectAccess(perms);
 				shoppingAdminModified = getPermDate(perms, DelegatedAccessConstants.NODE_PERM_SHOPPING_ADMIN_MODIFIED);
 				shoppingAdminModifiedBy = getShoppingAdminModifiedBy(perms);
@@ -997,7 +887,7 @@ public class ProjectLogicImpl implements ProjectLogic {
 			}
 			DefaultMutableTreeNode child = new DelegatedAccessMutableTreeNode();
 			NodeModel childNodeModel = new NodeModel(node.id, node, directAccess, realm, role, parentNodeModel, 
-					restrictedTools, startDate, endDate, shoppingPeriodAuth, addDirectChildren && !children.isEmpty(), shoppingPeriodAdmin, terms, 
+					restrictedTools, startDate, endDate, shoppingPeriodAuth, addDirectChildren && !children.isEmpty(), shoppingPeriodAdmin,
 					modifiedBy, modified, shoppingAdminModified, shoppingAdminModifiedBy, accessAdmin);
 			//this could be an accessAdmin modifying another user, let's check:
 			if(accessAdminNodeIds != null){
@@ -1025,7 +915,7 @@ public class ProjectLogicImpl implements ProjectLogic {
 				parent.add(child);
 			}
 			if(!children.isEmpty()){
-				add(child, children, userId, blankRestrictedTools, blankTerms, addDirectChildren, accessAdminNodeIds);
+				add(child, children, userId, blankRestrictedTools, addDirectChildren, accessAdminNodeIds);
 			}
 		}
 		return root;
@@ -1219,12 +1109,11 @@ public class ProjectLogicImpl implements ProjectLogic {
 	 * @param node
 	 * @param userId
 	 * @param blankRestrictedTools
-	 * @param blankTerms
 	 * @param onlyAccessNodes
 	 * @param accessAdminNodes
 	 * @return
 	 */
-	public boolean addChildrenNodes(Object node, String userId, List<ListOptionSerialized> blankRestrictedTools, List<ListOptionSerialized> blankTerms, boolean onlyAccessNodes, List<String> accessAdminNodes){
+	public boolean addChildrenNodes(Object node, String userId, List<ListOptionSerialized> blankRestrictedTools, boolean onlyAccessNodes, List<String> accessAdminNodes){
 		boolean anyAdded = false;
 		DefaultMutableTreeNode parentNode = (DefaultMutableTreeNode) node;
 		NodeModel nodeModel = (NodeModel) ((DefaultMutableTreeNode) node).getUserObject();
@@ -1241,7 +1130,7 @@ public class ProjectLogicImpl implements ProjectLogic {
 						continue;
 					}
 				}
-				boolean newlyAdded = addChildNodeToTree((HierarchyNodeSerialized) childList.get(0), parentNode, userId, blankRestrictedTools, blankTerms, onlyAccessNodes);
+				boolean newlyAdded = addChildNodeToTree((HierarchyNodeSerialized) childList.get(0), parentNode, userId, blankRestrictedTools, onlyAccessNodes);
 				anyAdded = anyAdded || newlyAdded;
 			}
 		}
@@ -1257,7 +1146,7 @@ public class ProjectLogicImpl implements ProjectLogic {
 	 * @param userId
 	 * @return
 	 */
-	private boolean addChildNodeToTree(HierarchyNodeSerialized childNode, DefaultMutableTreeNode parentNode, String userId, List<ListOptionSerialized> blankRestrictedTools, List<ListOptionSerialized> blankTerms, boolean onlyAccessNodes){
+	private boolean addChildNodeToTree(HierarchyNodeSerialized childNode, DefaultMutableTreeNode parentNode, String userId, List<ListOptionSerialized> blankRestrictedTools, boolean onlyAccessNodes){
 		boolean added = false;
 		if(!doesChildExist(childNode.id, parentNode)){
 			//just create a blank child since the user should already have all the nodes with information in the db
@@ -1269,7 +1158,6 @@ public class ProjectLogicImpl implements ProjectLogic {
 			String shoppingPeriodAuth = "";
 			//you must copy to not pass changes to other nodes
 			List<ListOptionSerialized> restrictedTools = copyListOptions(blankRestrictedTools);
-			List<ListOptionSerialized> terms = copyListOptions(blankTerms);
 			boolean shoppingPeriodAdmin = false;
 			boolean directAccess = false;
 			Date shoppingAdminModified = null;
@@ -1288,7 +1176,6 @@ public class ProjectLogicImpl implements ProjectLogic {
 				endDate = getShoppingEndDate(perms);
 				shoppingPeriodAuth = getShoppingPeriodAuth(perms);
 				restrictedTools = getRestrictedToolSerializedList(perms, restrictedTools);
-				terms = getTermSerializedList(perms, terms);
 				directAccess = getIsDirectAccess(perms);
 				shoppingAdminModified = getPermDate(perms, DelegatedAccessConstants.NODE_PERM_SHOPPING_ADMIN_MODIFIED);
 				shoppingAdminModifiedBy = getShoppingAdminModifiedBy(perms);
@@ -1298,7 +1185,7 @@ public class ProjectLogicImpl implements ProjectLogic {
 			}
 			NodeModel node = new NodeModel(childNode.id, childNode, directAccess, realm, role,
 					((NodeModel) parentNode.getUserObject()), restrictedTools, startDate, endDate, 
-					shoppingPeriodAuth, false, shoppingPeriodAdmin, terms,
+					shoppingPeriodAuth, false, shoppingPeriodAdmin,
 					modifiedBy, modified, shoppingAdminModified, shoppingAdminModifiedBy, accessAdmin);
 			child.setUserObject(node);
 
@@ -1348,7 +1235,6 @@ public class ProjectLogicImpl implements ProjectLogic {
 		Date endDate = getShoppingEndDate(perms);
 		String shoppingPeriodAuth = getShoppingPeriodAuth(perms);
 		List<ListOptionSerialized> restrictedTools = getRestrictedToolSerializedList(perms, getEntireToolsList());
-		List<ListOptionSerialized> terms = getTermSerializedList(perms, getEntireToolsList());
 		boolean direct = getIsDirectAccess(perms);
 		boolean shoppingPeriodAdmin = isShoppingPeriodAdmin(perms);
 		boolean accessAdmin = getIsAccessAdmin(perms);
@@ -1358,7 +1244,7 @@ public class ProjectLogicImpl implements ProjectLogic {
 		String modifiedBy = getModifiedBy(perms);
 		
 		NodeModel nodeModel = new NodeModel(node.id, node, getIsDirectAccess(nodePerms),
-				realm, role, parentNodeModel, restrictedTools, startDate, endDate, shoppingPeriodAuth, false, shoppingPeriodAdmin, terms,
+				realm, role, parentNodeModel, restrictedTools, startDate, endDate, shoppingPeriodAuth, false, shoppingPeriodAdmin,
 				modifiedBy, modified, shoppingAdminModified, shoppingAdminModifiedBy, accessAdmin);
 		return nodeModel;
 	}
@@ -1635,17 +1521,10 @@ public class ProjectLogicImpl implements ProjectLogic {
 		Date endDate = getShoppingEndDate(perms);
 		String[] nodeAccessRealmRole = getAccessRealmRole(perms);
 		String auth = getShoppingPeriodAuth(perms);
-		List<String> termsArr = getTermsForUser(perms);
-		String siteTerm = null;
-		String [] terms = null;
-		if(terms != null){
-			terms = termsArr.toArray(new String[termsArr.size()]);
-			siteTerm = dao.getSiteProperty(sakaiProxy.getTermField(), siteId);
-		}
-		return isShoppingPeriodOpenForSite(startDate, endDate, nodeAccessRealmRole, auth, terms, siteId);
+		return isShoppingPeriodOpenForSite(startDate, endDate, nodeAccessRealmRole, auth);
 	}
 	
-	public boolean isShoppingPeriodOpenForSite(Date startDate, Date endDate, String[] nodeAccessRealmRole, String auth, String[] terms, String siteTerm){
+	public boolean isShoppingPeriodOpenForSite(Date startDate, Date endDate, String[] nodeAccessRealmRole, String auth){
 		Date now = new Date();
 		boolean isOpen = false;
 		if(startDate != null && endDate != null){
@@ -1666,9 +1545,6 @@ public class ProjectLogicImpl implements ProjectLogic {
 		}else if(".anon".equals(auth) || ".auth".equals(auth)){
 			isOpen = isOpen && true;
 		}
-		 if(!checkTerm(terms, siteTerm)){
-			 isOpen = false;
-		 }
 		
 		return isOpen;
 	}

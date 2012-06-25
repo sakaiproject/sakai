@@ -88,9 +88,7 @@ public class EditablePanelList  extends Panel
 				checkBox.add(new AjaxFormComponentUpdatingBehavior("onClick")
 				{
 					protected void onUpdate(AjaxRequestTarget target){
-						if(DelegatedAccessConstants.TYPE_LISTFIELD_TERMS == fieldType){
-							nodeModel.setTerm(toolId, isChecked());
-						}else{
+						if(DelegatedAccessConstants.TYPE_LISTFIELD_TOOLS == fieldType){
 							nodeModel.setToolRestricted(toolId, isChecked());
 						}
 					}
@@ -124,9 +122,7 @@ public class EditablePanelList  extends Panel
 				if(!loadedFlag){
 					loadedFlag = true;
 					List<ListOptionSerialized> listOptions = null;
-					if(DelegatedAccessConstants.TYPE_LISTFIELD_TERMS == fieldType){
-						listOptions = nodeModel.getTerms();
-					}else{
+					if(DelegatedAccessConstants.TYPE_LISTFIELD_TOOLS == fieldType){
 						listOptions = nodeModel.getRestrictedTools();
 					}
 					listView.setDefaultModelObject(listOptions);
@@ -138,9 +134,7 @@ public class EditablePanelList  extends Panel
 		add(restrictToolsLink);
 		
 		Label restrictToolsLinkLabel = new Label("restrictToolsSpan");
-		if(DelegatedAccessConstants.TYPE_LISTFIELD_TERMS == fieldType){
-			restrictToolsLinkLabel.setDefaultModel(new StringResourceModel("termHeader", null));
-		}else{
+		if(DelegatedAccessConstants.TYPE_LISTFIELD_TOOLS == fieldType){
 			if(DelegatedAccessConstants.TYPE_ACCESS_SHOPPING_PERIOD_USER == userType){
 				restrictToolsLinkLabel.setDefaultModel(new StringResourceModel("showToolsHeader", null));
 			}else{
@@ -150,9 +144,7 @@ public class EditablePanelList  extends Panel
 		restrictToolsLink.add(restrictToolsLinkLabel);
 		
 		Label editToolsTitle = new Label("editToolsTitle");
-		if(DelegatedAccessConstants.TYPE_LISTFIELD_TERMS == fieldType){
-			editToolsTitle.setDefaultModel(new StringResourceModel("editableTermsTitle", null));
-		}else{
+		if(DelegatedAccessConstants.TYPE_LISTFIELD_TOOLS == fieldType){
 			if(DelegatedAccessConstants.TYPE_ACCESS_SHOPPING_PERIOD_USER == userType){
 				editToolsTitle.setDefaultModel(new StringResourceModel("editableShowToolsTitle", null));
 			}else{
@@ -162,9 +154,7 @@ public class EditablePanelList  extends Panel
 		editableSpan.add(editToolsTitle);
 		
 		Label editToolsInstructions = new Label("editToolsInstructions");
-		if(DelegatedAccessConstants.TYPE_LISTFIELD_TERMS == fieldType){
-			editToolsInstructions.setDefaultModel(new StringResourceModel("editableTermsDescription", null));
-		}else{
+		if(DelegatedAccessConstants.TYPE_LISTFIELD_TOOLS == fieldType){
 			if(DelegatedAccessConstants.TYPE_ACCESS_SHOPPING_PERIOD_USER == userType){
 				editToolsInstructions.setDefaultModel(new StringResourceModel("editableShowToolsDescription", null));
 			}else{

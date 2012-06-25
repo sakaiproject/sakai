@@ -123,10 +123,6 @@ public class UserEditPage  extends BaseTreePage{
 		}
 		columnsList.add(new PropertyEditableColumnList(new ColumnLocation(Alignment.RIGHT, 96, Unit.PX), new StringResourceModel("restrictedToolsHeader", null).getString(),
 				"userObject.restrictedTools", DelegatedAccessConstants.TYPE_ACCESS, DelegatedAccessConstants.TYPE_LISTFIELD_TOOLS));
-		if(sakaiProxy.isShowTermColumnAccess() && projectLogic.getEntireTermsList().size() > 0){
-			columnsList.add(new PropertyEditableColumnList(new ColumnLocation(Alignment.RIGHT, 65, Unit.PX), new StringResourceModel("termHeader", null).getString(),
-					"userObject.terms", DelegatedAccessConstants.TYPE_ACCESS, DelegatedAccessConstants.TYPE_LISTFIELD_TERMS));
-		}
 		IColumn columns[] = columnsList.toArray(new IColumn[columnsList.size()]);
 
 		//if the user isn't a super user, they should only be able to edit the nodes they 
@@ -143,7 +139,6 @@ public class UserEditPage  extends BaseTreePage{
 		
 		final TreeModel treeModel = projectLogic.createEntireTreeModelForUser(searchResult.getId(), true, false);
 		final List<ListOptionSerialized> blankRestrictedTools = projectLogic.getEntireToolsList();
-		final List<ListOptionSerialized> blankTerms = projectLogic.getEntireTermsList();
 		//a null model means the tree is empty
 		tree = new TreeTable("treeTable", treeModel, columns){
 			@Override
@@ -158,7 +153,7 @@ public class UserEditPage  extends BaseTreePage{
 				
 				boolean anyAdded = false;
 				if(!tree.getTreeState().isNodeExpanded(node) && !((NodeModel) ((DefaultMutableTreeNode) node).getUserObject()).isAddedDirectChildrenFlag()){
-					anyAdded = projectLogic.addChildrenNodes(node, searchResult.getId(), blankRestrictedTools, blankTerms, false, accessAdminNodeIds);
+					anyAdded = projectLogic.addChildrenNodes(node, searchResult.getId(), blankRestrictedTools, false, accessAdminNodeIds);
 					((NodeModel) ((DefaultMutableTreeNode) node).getUserObject()).setAddedDirectChildrenFlag(true);
 				}
 				if(anyAdded){
@@ -174,7 +169,7 @@ public class UserEditPage  extends BaseTreePage{
 				//the nodes are generated on the fly with ajax.  This will add any child nodes that 
 				//are missing in the tree.  Expanding and collapsing will refresh the tree node
 				if(tree.getTreeState().isNodeExpanded(node) && !((NodeModel) ((DefaultMutableTreeNode) node).getUserObject()).isAddedDirectChildrenFlag()){
-					boolean anyAdded = projectLogic.addChildrenNodes(node, searchResult.getId(), blankRestrictedTools, blankTerms, false, accessAdminNodeIds);
+					boolean anyAdded = projectLogic.addChildrenNodes(node, searchResult.getId(), blankRestrictedTools, false, accessAdminNodeIds);
 					((NodeModel) ((DefaultMutableTreeNode) node).getUserObject()).setAddedDirectChildrenFlag(true);
 					if(anyAdded){
 						collapseEmptyFoldersHelper((DefaultMutableTreeNode) node);
