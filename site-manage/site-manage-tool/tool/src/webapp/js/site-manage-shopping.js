@@ -85,6 +85,17 @@ $(document).ready(function(){
             }else{
             	$('#shoppingPeriodOverride').attr("checked", true);
             }
+            
+            //disable everything if the instructor isn't allowed to edit (controlled by DA)
+            if(data.revokeInstructorEditable){
+            	setShoppingSettingsDisabled(true);
+				$("#shoppingPeriodOverride").hide();
+				$("#optOutOfShoppingPeriod").hide();
+				$("#editShoppingInstructions").hide();
+				$("#shoppingPeriodOverrideLabel").hide();
+				$("#viewShoppingInstructions").show();
+				$('#shoppingPeriodOverride').attr('checked', false);
+			}
 	    }
 	);
 	

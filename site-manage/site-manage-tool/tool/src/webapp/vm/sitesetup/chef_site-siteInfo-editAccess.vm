@@ -219,17 +219,20 @@
 			<!-- easy access for JS -->
 			
 			<h4>$tlang.getString("shopping.header")</h4>
-			<div class="instruction">
+			<div class="instruction" id="editShoppingInstructions" name="editShoppingInstructions">
 				$tlang.getString("shopping.instructions")
 			</div>
+			<div class="instruction" id="viewShoppingInstructions" name="viewShoppingInstructions" style="display: none">
+				$tlang.getString("shopping.instructions.view")
+			</div>
 			<div class="indnt1">
-				<a href="#" onclick="optOutOfShoppingPeriod(); return false;">
+				<a href="#" name="optOutOfShoppingPeriod" id="optOutOfShoppingPeriod" onclick="optOutOfShoppingPeriod(); return false;">
 					$tlang.getString("shopping.optout.label")
 				</a>
 				<br/>
 				<br/>
 				<input type="checkbox" name="shoppingPeriodOverride" id="shoppingPeriodOverride" onclick="setShoppingSettingsDisabled(!this.checked);"/>
-				<label for"shoppingPeriodOverride">$tlang.getString("shopping.override.label"): </label>
+				<label for"shoppingPeriodOverride" name="shoppingPeriodOverrideLabel" id="shoppingPeriodOverrideLabel">$tlang.getString("shopping.override.label"): </label>
 				
 				<table>
 				<tr>
