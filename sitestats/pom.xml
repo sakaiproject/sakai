@@ -343,13 +343,6 @@
     <!-- Build -->
     <build>
         <plugins>
-            <plugin>
-                <groupId>org.apache.maven.plugins</groupId>
-                <artifactId>maven-resources-plugin</artifactId>
-                <configuration>
-                    <encoding>UTF-8</encoding>
-                </configuration>
-            </plugin>
             <!-- maven-surefire-report-plugin 2.8+ requires maven-site-plugin 2.1+ -->
             <plugin>
                 <inherited>true</inherited>
@@ -372,54 +365,6 @@
                     </systemPropertyVariables>
                 </configuration>
             </plugin>
-            <!-- Comment out; causes build failures when Jenkins fails to find external template -->
-            <!--
-            <plugin>
-                <groupId>com.mycila.maven-license-plugin</groupId>
-                <artifactId>maven-license-plugin</artifactId>
-                <version>1.5.0</version>
-                <configuration>
-                    <basedir>${basedir}</basedir>
-                    <header>https://source.sakaiproject.org/svn/sakai/trunk/ECLv2-header-template.txt</header>
-                    <quiet>false</quiet>
-                    <failIfMissing>true</failIfMissing>
-                    <aggregate>false</aggregate>
-                    <includes>
-                        <include>src/**/*.java</include>
-                        <include>**/test/**/*.java</include>
-                        <include>src/webapp/**/*.css</include>
-                        <include>src/webapp/**/*.html</include>
-                        <include>src/webapp/**/*.js</include>
-                        <include>src/webapp/**/*.jsp</include>
-                    </includes>
-                    <excludes>
-                        <exclude>target/**</exclude>
-                        <exclude>m2-target/**</exclude>
-                        <exclude>**/*.properties</exclude>
-                        <exclude>**/*.sql</exclude>
-                        <exclude>**/*.TXT</exclude>
-                        <exclude>**/*.xml</exclude>
-                        <exclude>src/webapp/**/jquery*.js</exclude>
-                    </excludes>
-                    <useDefaultExcludes>true</useDefaultExcludes>
-                    <useDefaultMapping>true</useDefaultMapping>
-                    <properties>
-                        <year>${project.inceptionYear}-2009</year>
-                        <holder>The Sakai Foundation</holder>
-                    </properties>
-                    <encoding>UTF-8</encoding>
-                </configuration>
-                <executions>
-                    <execution>
-                        <id>check-headers</id>
-                        <phase>verify</phase>
-                        <goals>
-                            <goal>check</goal>
-                        </goals>
-                    </execution>
-                </executions>
-            </plugin>
-            -->
         </plugins>
         
     </build>
