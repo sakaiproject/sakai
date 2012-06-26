@@ -172,6 +172,24 @@ public class SakaiBLTIUtil {
 				setProperty(props,BasicLTIConstants.LIS_COURSE_OFFERING_SOURCEDID,courseRoster);
 			}
 		}
+
+		// Fix up the return Url
+		String returnUrl =	ServerConfigurationService.getString("basiclti.consumer_return_url",null);
+		if ( returnUrl == null ) {
+			returnUrl = getOurServerUrl() + "/imsblis/service/return-url";  
+			Session s = SessionManager.getCurrentSession();
+			if (s != null) {
+				String controllingPortal = (String) s.getAttribute("sakai-controlling-portal");
+				if ( controllingPortal == null ) {
+					returnUrl = returnUrl + "/site";
+				} else {	
+					returnUrl = returnUrl + "/" + controllingPortal;
+				}
+			}
+			returnUrl = returnUrl + "/" + site.getId();
+		}
+
+		setProperty(props, BasicLTIConstants.LAUNCH_PRESENTATION_RETURN_URL, returnUrl);
 	}
 
 	public static void addRoleInfo(Properties props, String context)
@@ -343,8 +361,6 @@ public class SakaiBLTIUtil {
 				ServerConfigurationService.getString("basiclti.consumer_instance_contact_email",null));
 		setProperty(props,BasicLTIConstants.TOOL_CONSUMER_INSTANCE_URL, 
 				ServerConfigurationService.getString("basiclti.consumer_instance_url",null));
-		setProperty(props,BasicLTIConstants.LAUNCH_PRESENTATION_RETURN_URL, 
-				ServerConfigurationService.getString("basiclti.consumer_return_url",null));
 
 		// Send along the CSS URL
 		String tool_css = ServerConfigurationService.getString("basiclti.consumer.launch_presentation_css_url",null);

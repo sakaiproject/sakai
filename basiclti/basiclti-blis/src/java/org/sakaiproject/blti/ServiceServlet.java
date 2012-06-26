@@ -30,9 +30,11 @@ import java.util.Properties;
 import java.util.Enumeration;
 import java.util.Set;
 import java.util.Iterator;
+import java.lang.StringBuffer;
 
 import javax.servlet.ServletConfig;
 import javax.servlet.ServletException;
+import javax.servlet.ServletContext;
 import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
@@ -125,6 +127,29 @@ public class ServiceServlet extends HttpServlet {
 
     protected static LTIService ltiService = null;
 
+	private final String returnHTML = 
+		"<!DOCTYPE html PUBLIC \"-//W3C//DTD XHTML 1.0 Transitional//EN\"\n" + 
+		"	\"http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd\">\n" + 
+		"<html xmlns=\"http://www.w3.org/1999/xhtml\" lang=\"en\" xml:lang=\"en\">\n" + 
+		"<body>\n" + 
+		"<script language=\"javascript\">\n" + 
+		"$message = '<div align=\"center\" style=\"text-align:left;width:80%;margin-top:5px;margin-left:auto;margin-right:auto;border-width:1px 1px 1px 1px;border-style:solid;border-color: gray;padding:.5em;font-family:Verdana,Arial,Helvetica,sans-serif;font-size:.8em\"><p>MESSAGE</p>';\n" +
+		"$closeText = '<p><a href=\"javascript: self.close()\">CLOSETEXT</a></p>';\n" +
+		"$gotMessage = GOTMESSAGE;\n" +
+		"if(self.location==top.location) {\n" + 
+		"  if ( $gotMessage ) {\n" +
+		"    document.write($message);\n" +
+		"    document.write($closeText);\n" +
+		"  } else {\n" + 
+		"    self.close();\n" +
+		"  }\n" + 
+		"} else {\n" +
+		"  document.write($message);\n" +
+		"}\n" +
+		"</script>\n" + 
+		"</div></body>\n" + 
+		"</html>\n";
+
 	/**
 	 * Setup a security advisor.
 	 */
@@ -168,7 +193,61 @@ public class ServiceServlet extends HttpServlet {
 			if ( ltiService == null ) ltiService = (LTIService) ComponentManager.get("org.sakaiproject.lti.api.LTIService");
 		}
 
+	/* launch_presentation_return_url=http://lmsng.school.edu/portal/123/page/988/
+
+		The TP may add a parameter called lti_errormsg that includes some detail as to 
+		the nature of the error.  The lti_errormsg value should make sense if displayed 
+		to the user.  If the tool has displayed a message to the end user and only wants 
+		to give the TC a message to log, use the parameter lti_errorlog instead of 
+		lti_errormsg. If the tool is terminating normally, and wants a message displayed 
+		to the user it can include a text message as the lti_msg parameter to the 
+		return URL. If the tool is terminating normally and wants to give the TC a 
+		message to log, use the parameter lti_log. 
+
+		http://localhost:8080/imsblis/service/return-url/site/12345
+		http://localhost:8080/imsblis/service/return-url/pda/12345
+	*/
+	protected void handleReturnUrl(HttpServletRequest request, HttpServletResponse response)
+		throws IOException
+	{
+		String lti_errorlog = request.getParameter("lti_errorlog");
+		if ( lti_errorlog != null ) M_log.error(lti_errorlog);
+		String lti_errormsg = request.getParameter("lti_errormsg");
+		if ( lti_errormsg != null ) M_log.error(lti_errormsg);
+		String lti_log = request.getParameter("lti_log");
+		if ( lti_log != null ) M_log.info(lti_log);
+		String lti_msg = request.getParameter("lti_msg");
+		if ( lti_msg != null ) M_log.info(lti_msg);
+		
+		String message = rb.getString("outcome.tool.finished");
+		String gotMessage = "false";
+		if ( lti_msg != null ) {
+			message = rb.getString("outcome.tool.lti_msg") + " " + lti_msg;
+			gotMessage = "true";
+		} else if ( lti_errormsg != null ) {
+			message = rb.getString("outcome.tool.lti_errormsg") + " " + lti_errormsg;
+			gotMessage = "true";
+		}
+
+		String rpi = request.getPathInfo();
+		if ( rpi.length() > 11 ) rpi = rpi.substring(11);
+		String portalUrl = ServerConfigurationService.getPortalUrl();
+		portalUrl = portalUrl + rpi;
+		String output = returnHTML.replace("URL",portalUrl);
+		output = output.replace("GOTMESSAGE",gotMessage);
+		output = output.replace("MESSAGE",message);
+		output = output.replace("CLOSETEXT",rb.getString("outcome.tool.close.window"));
+		response.setContentType("text/html");
+		PrintWriter out = response.getWriter();
+		out.println(output);
+	}
+
 	protected void doGet(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
+		String rpi = request.getPathInfo();
+		if ( rpi.startsWith("/return-url") ) {
+			handleReturnUrl(request, response);
+			return;
+		} 
 		doPost(request, response);
 	}
 
