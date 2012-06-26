@@ -1570,9 +1570,9 @@ public class SkinnableCharonPortal extends HttpServlet implements Portal
 				ServerConfigurationService.getBoolean("portal.neoavatar", true));
 
 
-                        PreferencesService preferencesService = (PreferencesService) ComponentManager.get(PreferencesService.class);
                         User thisUser = UserDirectoryService.getCurrentUser();
                         if(sakaiTutorialEnabled && thisUser != null && thisUser.getEid() != null) {
+                        	PreferencesService preferencesService = (PreferencesService) ComponentManager.get(PreferencesService.class);
                         	Preferences prefs = preferencesService.getPreferences(thisUser.getId());
                         	if (!("1".equals(prefs.getProperties().getProperty("sakaiTutorialFlag")))) {
                         		rcontext.put("tutorial", true);
@@ -1589,9 +1589,11 @@ public class SkinnableCharonPortal extends HttpServlet implements Portal
                         				M_log.error(e2);
                         			}
                         		}
-                        		ResourcePropertiesEdit props = preferences.getPropertiesEdit();
-                        		props.addProperty("sakaiTutorialFlag", "1");
-                        		preferencesService.commit(preferences);   
+                        		if (preferences != null) {
+                        			ResourcePropertiesEdit props = preferences.getPropertiesEdit();
+                        			props.addProperty("sakaiTutorialFlag", "1");
+                        			preferencesService.commit(preferences);   
+                        		}
                         	}
                         }
 			// rcontext.put("bottomNavSitNewWindow",
