@@ -17,8 +17,8 @@ public class HierarchyNodeSerialized implements Serializable {
 
 	public String title = "";
 	public String description = "";
-	public Set<String> parentNodeIds = new HashSet<String>();
 	public Set<String> directChildNodeIds = new HashSet<String>();
+	public Set<String> directParentNodeIds = new HashSet<String>();
 	public Set<String> childNodeIds = new HashSet<String>();
 	public String id = "";
 	public String permKey = "";
@@ -27,11 +27,11 @@ public class HierarchyNodeSerialized implements Serializable {
 		if(hierarchyNode != null){
 			this.title = hierarchyNode.title;
 			this.description = hierarchyNode.description;
-			this.parentNodeIds = hierarchyNode.parentNodeIds;
 			this.id = hierarchyNode.id;
 			this.directChildNodeIds = hierarchyNode.directChildNodeIds;
 			this.childNodeIds = hierarchyNode.childNodeIds;
 			this.permKey = hierarchyNode.permToken;
+			this.directParentNodeIds = hierarchyNode.directParentNodeIds;
 		}
 	}
 }

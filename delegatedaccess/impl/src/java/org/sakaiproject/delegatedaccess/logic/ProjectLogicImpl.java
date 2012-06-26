@@ -965,12 +965,36 @@ public class ProjectLogicImpl implements ProjectLogic {
 		}
 	}
 
+	/**
+	 * returns the order of the parent id's from highest to lowest in the hierarchy
+	 * @return
+	 */
+	private List<String> getOrderedParentsList(HierarchyNodeSerialized node){
+		String directParentId = null;
+		if(node.directParentNodeIds != null && node.directParentNodeIds.size() > 0){
+			directParentId = node.directParentNodeIds.toArray(new String[node.directParentNodeIds.size()])[0];
+			return getOrderedParentsListHelper(getCachedNode(directParentId));
+		}else{
+			return new ArrayList<String>();
+		}
+	}
+	private List<String> getOrderedParentsListHelper(HierarchyNodeSerialized node){
+		if(node.directParentNodeIds == null || node.directParentNodeIds.size() == 0){
+			List<String> returnList = new ArrayList<String>();
+			returnList.add(node.id);
+			return returnList;
+		}else{
+			List<String> parents = getOrderedParentsListHelper(getCachedNode(node.directParentNodeIds.toArray(new String[node.directParentNodeIds.size()])[0]));
+			parents.add(node.id);
+			return parents;
+		}
+	}
 	private List<List> getTreeListForUser(String userId, boolean addDirectChildren, boolean cascade, Set<HierarchyNodeSerialized> nodes){
 		List<List> l1 = new ArrayList<List>();
 		List<List> currentLevel = l1;
 
 		for(HierarchyNodeSerialized node : nodes){
-			for(String parentId : node.parentNodeIds){
+			for(String parentId : getOrderedParentsList(node)){
 				HierarchyNodeSerialized parentNode = getCachedNode(parentId);
 
 				if(!hasNode(parentNode, currentLevel)){
@@ -988,6 +1012,7 @@ public class ProjectLogicImpl implements ProjectLogic {
 					}
 				}
 			}
+
 			if(!hasNode(node, currentLevel)){
 				List child = new ArrayList();
 				child.add(node);
@@ -1244,9 +1269,9 @@ public class ProjectLogicImpl implements ProjectLogic {
 	public NodeModel getNodeModel(String nodeId, String userId){
 		HierarchyNodeSerialized node = getNode(nodeId);
 		NodeModel parentNodeModel = null;
-		if(node.parentNodeIds != null && node.parentNodeIds.size() > 0){
+		if(node.directParentNodeIds != null && node.directParentNodeIds.size() > 0){
 			//grad the last parent in the Set (this is the closest parent)
-			parentNodeModel = getNodeModel((String) node.parentNodeIds.toArray()[node.parentNodeIds.size() -1], userId);
+			parentNodeModel = getNodeModel((String) node.directParentNodeIds.toArray()[node.directParentNodeIds.size() -1], userId);
 		}
 		Set<String> nodePerms = hierarchyService.getPermsForUserNodes(userId, new String[]{nodeId});
 		Set<String> perms = getPermsForUserNodes(userId, node.id);
