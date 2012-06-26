@@ -6597,7 +6597,7 @@ extends VelocityPortletStateAction
 		}
 		
 		// navigate to the previous activity
-		if (direction.equals(STATE_PREV_ACT) && index > 0) 
+		if (STATE_PREV_ACT.equals(direction) && index > 0) 
 		{
 			CalendarEvent ce = (CalendarEvent) events.get(--index);
 			Reference ref = EntityManager.newReference(ce.getReference());
@@ -6612,7 +6612,7 @@ extends VelocityPortletStateAction
 			state.setAttachments(null);
 		}
 		// navigate to the next activity
-		else if (direction.equals(STATE_NEXT_ACT) && index < size-1) 
+		else if (STATE_NEXT_ACT.equals(direction) && index < size-1) 
 		{
 			CalendarEvent ce = (CalendarEvent) events.get(++index);
 			Reference ref = EntityManager.newReference(ce.getReference());
