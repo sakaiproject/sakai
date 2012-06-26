@@ -523,7 +523,7 @@ public class ServiceServlet extends HttpServlet {
 						Map<String,Object> content = null;
 						String contentStr = pitch.getProperty("contentKey");
 						Long contentKey = foorm.getLongKey(contentStr);
-						if ( contentKey > 0 ) content = ltiService.getContentNoAuthz(contentKey);
+						if ( contentKey > 0 ) content = ltiService.getContentDao(contentKey, siteId);
 						if ( content != null ) {
 							if ( "basic-lti-savesetting".equals(lti_message_type) ) {
 								setting = request.getParameter("setting");
@@ -540,7 +540,7 @@ public class ServiceServlet extends HttpServlet {
 								success = true;
 							}
 							if ( success ) {
-								Object result = ltiService.updateContentNoAuthz(contentKey,content);
+								Object result = ltiService.updateContentDao(contentKey,content, siteId);
 								if ( result instanceof String ) {
 									M_log.warn("Setting update failed");
 									doError(request, response, theMap, "setting.fail", "", null);
@@ -1125,7 +1125,7 @@ public class ServiceServlet extends HttpServlet {
 			String contentStr = placement_id.substring(8);
 			Long contentKey = foorm.getLongKey(contentStr);
 			if ( contentKey < 0 ) return null;
-			content = ltiService.getContentNoAuthz(contentKey);
+			content = ltiService.getContentDao(contentKey);
 			if ( content == null ) return null;
 			siteId = (String) content.get(LTIService.LTI_SITE_ID);
 			if ( siteId == null ) return null;
@@ -1135,7 +1135,7 @@ public class ServiceServlet extends HttpServlet {
 
 			Long toolKey = foorm.getLongKey(content.get(LTIService.LTI_TOOL_ID));
 			if ( toolKey < 0 ) return null;
-			tool = ltiService.getToolNoAuthz(toolKey);
+			tool = ltiService.getToolDao(toolKey, siteId);
 			if ( tool == null ) return null;
 
 			// Adjust the content items based on the tool items

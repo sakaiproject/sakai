@@ -272,7 +272,7 @@ public class BasicLTISecurityServiceImpl implements EntityProducer {
 							   Long contentKey = foorm.getLongKey(contentStr);
 							   if ( contentKey >= 0 )
 							   {
-								   content = ltiService.getContentNoAuthz(contentKey);
+								   content = ltiService.getContentDao(contentKey,ref.getContext());
 								   if ( content != null ) 
 								   {
 									   String siteId = (String) content.get(LTIService.LTI_SITE_ID);
@@ -284,7 +284,7 @@ public class BasicLTISecurityServiceImpl implements EntityProducer {
 								   if ( content != null ) 
 								   {
 									   Long toolKey = foorm.getLongKey(content.get(LTIService.LTI_TOOL_ID));
-									   if ( toolKey >= 0 ) tool = ltiService.getToolNoAuthz(toolKey);
+									   if ( toolKey >= 0 ) tool = ltiService.getToolDao(toolKey, ref.getContext());
 									   if ( tool != null ) 
 									   {
 										   // SITE_ID can be null for the tool
