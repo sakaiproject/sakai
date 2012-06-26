@@ -411,7 +411,9 @@ public class SakaiBLTIUtil {
 		int status = getInt(tool.get("status"));
 		if ( status == 1 ) return postError("<p>" + getRB(rb, "tool.disabled" ,"Tool is currently disabled")+"</p>" ); 
 
-		String launch_url = (String) tool.get("launch");
+		// Go with the content url first
+		String launch_url = (String) content.get("launch");
+		if ( launch_url == null ) launch_url = (String) tool.get("launch");
 		if ( launch_url == null ) return postError("<p>" + getRB(rb, "error.nolaunch" ,"This tool is not yet configured.")+"</p>" );
 
 		String context = (String) content.get("SITE_ID");
@@ -435,8 +437,10 @@ public class SakaiBLTIUtil {
 
 		setProperty(toolProps, "launch_url", launch_url);
 
-		String secret = (String) tool.get("secret");
-		String key = (String) tool.get("consumerkey");
+		String secret = (String) content.get("secret");
+		if ( secret == null ) secret = (String) tool.get("secret");
+		String key = (String) content.get("consumerkey");
+		if ( key == null ) key = (String) tool.get("consumerkey");
 
 		if ( "-----".equals(key) && "-----".equals(secret) ) {
 			return postError("<p>" + getRB(rb, "error.tool.partial" ,"Tool item is incomplete, missing a key and secret.")+"</p>" ); 
@@ -445,9 +449,17 @@ public class SakaiBLTIUtil {
 		setProperty(toolProps, "secret", secret );
 		setProperty(toolProps, "key", key );
 
-		setProperty(toolProps, "debug", getInt(content.get("debug"))+"" );
-		setProperty(toolProps, "frameheight", getInt(content.get("frameheight"))+"" );
-		setProperty(toolProps, "newpage", getInt(content.get("newpage"))+"" );
+		int debug = getInt(tool.get("debug"));
+		if ( debug == 2 ) debug = getInt(content.get("debug"));
+		setProperty(toolProps, "debug", debug+"");
+
+		int frameheight = getInt(tool.get("frameheight"));
+		if ( frameheight == 2 ) frameheight = getInt(content.get("frameheight"));
+		setProperty(toolProps, "frameheight", frameheight+"" );
+
+		int newpage = getInt(tool.get("newpage"));
+		if ( newpage == 2 ) newpage = getInt(content.get("newpage"));
+		setProperty(toolProps, "newpage", newpage+"" );
 
 		String title = (String) content.get("title");
 		if ( title == null ) title = (String) tool.get("title");
