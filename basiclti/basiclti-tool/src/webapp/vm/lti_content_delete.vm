@@ -4,6 +4,7 @@
 	</h3>
 	#if ($messageSuccess)<div class="messageSuccess">$tlang.getString("gen.success") $validator.escapeHtml($messageSuccess)</div><div class="clear"></div>#end
 	#if ($alertMessage)<div class="alertMessage">$tlang.getString("gen.alert") $validator.escapeHtml($alertMessage)</div><div class="clear"></div>#end
+	<div class="alertMessage">$tlang.getString("content.delete.sure")</div><div style="display:block;clear:both" ></div>
 	<form action="#toolForm("")" method="post" name="customizeForm" >
                 <p>$content.get("title")</p>
                 <input type="hidden" name="sakai_csrf_token" value="$sakai_csrf_token" />
@@ -15,5 +16,5 @@
  				onclick="location = '$sakai_ActionURL.setPanel("Content")';return false;">
 		</p>
 	</form>
-<p>$tlang.getString("content.delete.detail")</p>
+	<p>$tlang.getString("content.delete.detail")</p>
 </div>
