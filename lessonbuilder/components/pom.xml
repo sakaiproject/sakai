@@ -40,7 +40,7 @@
         </dependency>
         <dependency>
             <groupId>org.hibernate</groupId>
-            <artifactId>hibernate</artifactId>
+            <artifactId>hibernate-core</artifactId>
         </dependency>
         <!-- Required for hibernate 3 HQL queries -->
         <dependency>
