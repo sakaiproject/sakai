@@ -728,12 +728,6 @@
                 <scope>provided</scope>
             </dependency>
             <dependency>
-                <groupId>javax.jcr</groupId>
-                <artifactId>jcr</artifactId>
-                <version>1.0</version>
-                <scope>provided</scope>
-            </dependency>
-            <dependency>
                 <groupId>javax.sql</groupId>
                 <artifactId>jdbc-stdext</artifactId>
                 <version>2.0</version>
@@ -771,16 +765,6 @@
             <dependency>
                 <groupId>org.apache.jackrabbit</groupId>
                 <artifactId>jackrabbit-api</artifactId>
-                <version>1.4</version>
-            </dependency>
-            <dependency>
-                <groupId>org.apache.jackrabbit</groupId>
-                <artifactId>jackrabbit-jcr-commons</artifactId>
-                <version>1.4</version>
-            </dependency>
-            <dependency>
-                <groupId>org.apache.jackrabbit</groupId>
-                <artifactId>jackrabbit-jcr-tests</artifactId>
                 <version>1.4</version>
             </dependency>
             <dependency>
@@ -1170,11 +1154,9 @@
         <module>kernel-component</module>
         <module>kernel-common</module>
         <module>kernel-impl</module>
-        <!-- <module>kernel-impl-experimental</module> -->
         <module>kernel-tim</module>
         <module>kernel-util</module>
         <module>kernel-storage-util</module>
-        <module>loader</module>
         <module>deploy</module>
         <module>kernel-site</module>
         <module>test-harness</module>
