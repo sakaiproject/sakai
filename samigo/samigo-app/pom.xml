@@ -134,7 +134,6 @@
         <dependency>
             <groupId>javax.mail</groupId>
             <artifactId>mail</artifactId>
-            <version>1.4.3</version>
         </dependency>
 	<dependency>
             <groupId>javax.servlet.jsp</groupId>
@@ -187,7 +186,7 @@
         </dependency>
 		<dependency>
             <groupId>org.hibernate</groupId>
-            <artifactId>hibernate</artifactId>
+            <artifactId>hibernate-core</artifactId>
         </dependency>
         <dependency>
             <groupId>org.springframework</groupId>
