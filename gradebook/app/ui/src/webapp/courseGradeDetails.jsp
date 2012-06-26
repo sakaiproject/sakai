@@ -168,6 +168,12 @@
 				rendered="#{!courseGradeDetailsBean.emptyEnrollments}"
 				style="margin-left: 5em;"
 				/>
+			<h:commandButton
+				value="#{msgs.course_grade_details_export_course_grades_institution}"
+				actionListener="#{courseGradeDetailsBean.exportCustomCsv}"
+				rendered="#{!courseGradeDetailsBean.emptyEnrollments && courseGradeDetailsBean.enableCustomExport}"
+				style="margin-left: 5em;"
+				/>
 				
 			<br/><br/><br/>
 
