@@ -758,16 +758,6 @@
                 <scope>provided</scope>
             </dependency>
             <dependency>
-                <groupId>org.apache.jackrabbit</groupId>
-                <artifactId>jackrabbit-core</artifactId>
-                <version>1.4</version>
-            </dependency>
-            <dependency>
-                <groupId>org.apache.jackrabbit</groupId>
-                <artifactId>jackrabbit-api</artifactId>
-                <version>1.4</version>
-            </dependency>
-            <dependency>
                 <groupId>dumbster</groupId>
                 <artifactId>dumbster</artifactId>
                 <version>1.6</version>
