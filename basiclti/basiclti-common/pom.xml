@@ -1,13 +1,10 @@
-<?xml version="1.0"?>
-<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
+<?xml version="1.0" encoding="UTF-8"?><project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
     <modelVersion>4.0.0</modelVersion>
-
     <parent>
         <artifactId>basiclti</artifactId>
         <groupId>org.sakaiproject.basiclti</groupId>
         <version>2.1-SNAPSHOT</version>
     </parent>
-
     <name>BasicLTI Common (basiclti-common)</name>
     <groupId>org.sakaiproject.basiclti</groupId>
     <artifactId>basiclti-common</artifactId>
@@ -17,7 +14,6 @@
     </organization>
     <inceptionYear>2009</inceptionYear>
     <packaging>jar</packaging>
-
     <dependencies>
         <dependency>
             <groupId>${project.groupId}</groupId>
@@ -36,17 +32,17 @@
             <artifactId>sakai-kernel-util</artifactId>
         </dependency>
         <dependency>
-                <groupId>org.sakaiproject.entitybroker</groupId>
-                <artifactId>entitybroker-api</artifactId>
-                <scope>provided</scope>
+            <groupId>org.sakaiproject.entitybroker</groupId>
+            <artifactId>entitybroker-api</artifactId>
+            <scope>provided</scope>
         </dependency>
         <dependency>
-                <groupId>org.sakaiproject.entitybroker</groupId>
-                <artifactId>entitybroker-utils</artifactId>
+            <groupId>org.sakaiproject.entitybroker</groupId>
+            <artifactId>entitybroker-utils</artifactId>
         </dependency>
         <dependency>
-                <groupId>org.springframework</groupId>
-                <artifactId>spring</artifactId>
+            <groupId>org.springframework</groupId>
+            <artifactId>spring</artifactId>
         </dependency>
         <dependency>
             <groupId>commons-logging</groupId>
@@ -57,7 +53,6 @@
             <artifactId>servlet-api</artifactId>
         </dependency>
     </dependencies>
-
     <build>
         <resources>
             <resource>

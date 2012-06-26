@@ -11,10 +11,13 @@
 	<link rel="stylesheet" href="/basiclti-admin-tool/css/blue/style.css">
 	<script src="/basiclti-admin-tool/js/jquery.tablesorter.js"></script>
 
-	<!-- Tablesorter: optional -->
+	<!-- Tablesorter: pager optional -->
 	<link rel="stylesheet" href="/basiclti-admin-tool/addons/pager/jquery.tablesorter.pager.css">
 	<script src="/basiclti-admin-tool/addons/pager/jquery.tablesorter.pager.js"></script>
 
+	<!-- Tablesorter: search -->
+	<script src="/basiclti-admin-tool/js/jquery.tablesorter.widgets.js"></script>
+	
 	<script id="js">$(function(){
 
 	// **********************************
@@ -75,13 +78,37 @@
 	$("table")
 		.tablesorter({
 			widthFixed: true,
-			widgets: ['zebra'],
+			widgets: ['zebra', "filter"],
+			widgetOptions : { 
+		      // css class applied to the table row containing the filters & the inputs within that row 
+		      filter_cssFilter : 'tablesorter-filter', 
+		 
+		      // If there are child rows in the table (rows with class name from "cssChildRow" option) 
+		      // and this option is true and a match is found anywhere in the child row, then it will make that row 
+		      // visible; default is false 
+		      filter_childRows : false, 
+		 
+		      // Set this option to true to use the filter to find text from the start of the column 
+		      // So typing in "a" will find "albert" but not "frank", both have a's; default is false 
+		      filter_startsWith : false, 
+		 
+		      // Set this option to false to make the searches case sensitive 
+		      filter_ignoreCase : true, 
+		 
+		      // Delay in milliseconds before the filter widget starts searching; This option prevents searching for 
+		      // every character while typing and should make searching large tables faster. 
+		      filter_searchDelay : 300, 
+		 
+		      // See the filter widget advanced demo on how to use these special functions 
+		      filter_functions : {} 
+		 
+		    },
 			headers: { 
-            // assign the third column (we start counting zero) 
-            3: { 
-                // disable it by setting the property sorter to false 
-                sorter: false 
-            }
+	            // assign the third column (we start counting zero) 
+	            3: { 
+	                // disable it by setting the property sorter to false 
+	                sorter: false 
+	            }
         	}
 		})
 

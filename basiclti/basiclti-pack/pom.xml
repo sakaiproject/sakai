@@ -1,13 +1,10 @@
-<?xml version="1.0"?>
-<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
+<?xml version="1.0" encoding="UTF-8"?><project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
     <modelVersion>4.0.0</modelVersion>
-    
     <parent>
         <artifactId>basiclti</artifactId>
         <groupId>org.sakaiproject.basiclti</groupId>
         <version>2.1-SNAPSHOT</version>
     </parent>
-    
     <name>BasicLTI Component Package (basiclti-pack)</name>
     <groupId>org.sakaiproject.basiclti</groupId>
     <artifactId>basiclti-pack</artifactId>
@@ -17,11 +14,9 @@
     </organization>
     <inceptionYear>2009</inceptionYear>
     <packaging>sakai-component</packaging>
-    
     <properties>
         <deploy.target>components</deploy.target>
     </properties>
-    
     <dependencies>
         <dependency>
             <groupId>${project.groupId}</groupId>
@@ -37,8 +32,7 @@
             <scope>import</scope>
         </dependency>
     </dependencies>
-    
     <build>
-        <resources />
+        <resources/>
     </build>
 </project>
