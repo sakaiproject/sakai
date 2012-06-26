@@ -238,7 +238,7 @@ public class SearchUsersPage extends BasePage {
 		private List<SearchResult> getData(){
 			if(list == null){
 				if(getSearch() != null && !"".equals(getSearch())){
-					list = projectLogic.searchUsers(getSearch(), 1, DelegatedAccessConstants.SEARCH_RESULTS_MAX);
+					list = projectLogic.searchUsers(getSearch());
 					sortList();
 				}else{
 					list = new ArrayList<SearchResult>();

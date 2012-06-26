@@ -98,7 +98,7 @@ public interface SakaiProxy {
 	 * @param last
 	 * @return
 	 */
-	public List<User> searchUsers(String search, int first, int last);
+	public List<User> searchUsers(String search);
 
 	/**
 	 * Returns the site for the site ref

@@ -42,7 +42,7 @@ public interface ProjectLogic {
 	 * @param last
 	 * @return
 	 */
-	public List<SearchResult> searchUsers(String search, int first, int last);
+	public List<SearchResult> searchUsers(String search);
 
 	/**
 	 * Removes old user permissions and replaces it with the passed in information.

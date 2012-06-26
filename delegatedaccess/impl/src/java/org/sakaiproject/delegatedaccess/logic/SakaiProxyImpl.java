@@ -204,10 +204,10 @@ public class SakaiProxyImpl implements SakaiProxy {
 	/**
 	 * {@inheritDoc}
 	 */
-	public List<User> searchUsers(String search, int first, int last) {
+	public List<User> searchUsers(String search) {
 		List<User> returnList = new ArrayList<User>();
 		returnList.addAll(userDirectoryService.searchExternalUsers(search, -1, -1));
-		returnList.addAll(userDirectoryService.searchUsers(search, first, last));
+		returnList.addAll(userDirectoryService.searchUsers(search, 1, Integer.MAX_VALUE));
 		return returnList;
 	}
 

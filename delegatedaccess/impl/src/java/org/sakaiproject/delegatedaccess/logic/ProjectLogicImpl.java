@@ -349,8 +349,8 @@ public class ProjectLogicImpl implements ProjectLogic {
 	/**
 	 * {@inheritDoc}
 	 */
-	public List<SearchResult> searchUsers(String search, int first, int last) {
-		List<User> searchResult = sakaiProxy.searchUsers(search, first, last);
+	public List<SearchResult> searchUsers(String search) {
+		List<User> searchResult = sakaiProxy.searchUsers(search);
 		List<SearchResult> returnList = new ArrayList<SearchResult>();
 		for(User user : searchResult){
 			returnList.add(getSearchResult(user));
@@ -536,7 +536,7 @@ public class ProjectLogicImpl implements ProjectLogic {
 		if (advancedOptions != null && advancedOptions.containsKey(DelegatedAccessConstants.ADVANCED_SEARCH_INSTRUCTOR)
 				&& advancedOptions.get(DelegatedAccessConstants.ADVANCED_SEARCH_INSTRUCTOR) != null
 				&& !"".equals(advancedOptions.get(DelegatedAccessConstants.ADVANCED_SEARCH_INSTRUCTOR).trim())) {
-			List<User> searchUsers = sakaiProxy.searchUsers(advancedOptions.get(DelegatedAccessConstants.ADVANCED_SEARCH_INSTRUCTOR), 1, DelegatedAccessConstants.SEARCH_RESULTS_MAX);
+			List<User> searchUsers = sakaiProxy.searchUsers(advancedOptions.get(DelegatedAccessConstants.ADVANCED_SEARCH_INSTRUCTOR));
 			//since we added a site by searching for ID, we need to make sure that at least 1 user is a member,
 			//otherwise, remove it from the results:
 			boolean foundSearchByIdMember = searchByIdSite == null ? true : false;
