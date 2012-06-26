@@ -42,9 +42,12 @@ import org.apache.commons.lang.StringUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.sakaiproject.authz.cover.SecurityService;
+import org.sakaiproject.component.cover.ComponentManager;
 import org.sakaiproject.component.cover.ServerConfigurationService;
 import org.sakaiproject.entity.api.ResourceProperties;
+import org.sakaiproject.entity.api.ResourcePropertiesEdit;
 import org.sakaiproject.exception.IdUnusedException;
+import org.sakaiproject.exception.IdUsedException;
 import org.sakaiproject.exception.PermissionException;
 import org.sakaiproject.portal.api.Editor;
 import org.sakaiproject.portal.api.PageFilter;
@@ -105,12 +108,15 @@ import org.sakaiproject.tool.api.ToolSession;
 import org.sakaiproject.tool.api.ToolURL;
 import org.sakaiproject.tool.cover.ActiveToolManager;
 import org.sakaiproject.tool.cover.SessionManager;
+import org.sakaiproject.user.api.PreferencesEdit;
+import org.sakaiproject.user.api.Preferences;
 import org.sakaiproject.user.api.User;
 import org.sakaiproject.user.api.UserAlreadyDefinedException;
 import org.sakaiproject.user.api.UserEdit;
 import org.sakaiproject.user.api.UserLockedException;
 import org.sakaiproject.user.api.UserNotDefinedException;
 import org.sakaiproject.user.api.UserPermissionException;
+import org.sakaiproject.user.api.PreferencesService;
 import org.sakaiproject.user.cover.UserDirectoryService;
 import org.sakaiproject.util.BasicAuth;
 import org.sakaiproject.util.EditorConfiguration;
@@ -1563,24 +1569,29 @@ public class SkinnableCharonPortal extends HttpServlet implements Portal
                         rcontext.put("neoAvatar", 
 				ServerConfigurationService.getBoolean("portal.neoavatar", true));
 
-                        if(sakaiTutorialEnabled && 
-                        		UserDirectoryService.getCurrentUser() != null && 
-                        		UserDirectoryService.getCurrentUser().getProperties().get("sakaiTutorialFlag") == null){
-                        	rcontext.put("tutorial", true);
-                	        //now save this in the user's properties so we don't show it again
-                        	UserEdit ue = null;
-                        	try {
-                        	        ue = UserDirectoryService.editUser(UserDirectoryService.getCurrentUser().getId());
-                        	        ue.getProperties().addProperty("sakaiTutorialFlag", "1");
-                        	        UserDirectoryService.commitEdit(ue);
-                        	} catch (UserNotDefinedException e) {
-                        		M_log.error(e);
-                        	} catch (UserPermissionException e) {
-                        		M_log.error(e);
-                        	} catch (UserLockedException e) {
-                        		M_log.error(e);
-                        	} catch (UserAlreadyDefinedException e){
-                        		M_log.error(e);
+
+                        PreferencesService preferencesService = (PreferencesService) ComponentManager.get(PreferencesService.class);
+                        User thisUser = UserDirectoryService.getCurrentUser();
+                        if(sakaiTutorialEnabled && thisUser != null && thisUser.getEid() != null) {
+                        	Preferences prefs = preferencesService.getPreferences(thisUser.getId());
+                        	if (!("1".equals(prefs.getProperties().getProperty("sakaiTutorialFlag")))) {
+                        		rcontext.put("tutorial", true);
+                        		//now save this in the user's prefefences so we don't show it again
+                        		PreferencesEdit preferences = null;
+                        		try {
+                        			preferences = preferencesService.edit(thisUser.getId());
+                        		} catch (Exception e1) {
+                        			try {
+                        				preferences = preferencesService.add(thisUser.getId());
+                        			} catch (IdUsedException e2) {
+                        				M_log.error(e2);
+                        			} catch (PermissionException e2) {
+                        				M_log.error(e2);
+                        			}
+                        		}
+                        		ResourcePropertiesEdit props = preferences.getPropertiesEdit();
+                        		props.addProperty("sakaiTutorialFlag", "1");
+                        		preferencesService.commit(preferences);   
                         	}
                         }
 			// rcontext.put("bottomNavSitNewWindow",
