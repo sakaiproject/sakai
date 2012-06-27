@@ -24,8 +24,7 @@ public class DelegatedAccessDaoImpl extends JdbcDaoSupport implements DelegatedA
 
 	private static final Logger log = Logger.getLogger(DelegatedAccessDaoImpl.class);
 	private PropertiesConfiguration statements;
-	private boolean oracle = false;
-	private static int ORACLE_IN_CLAUSE_SIZE_LIMIT = 100;
+	private static int ORACLE_IN_CLAUSE_SIZE_LIMIT = 1000;
 		
 	/**
 	 * init
@@ -35,9 +34,7 @@ public class DelegatedAccessDaoImpl extends JdbcDaoSupport implements DelegatedA
 		
 		//setup the vendor
 		String vendor = ServerConfigurationService.getInstance().getString("vendor@org.sakaiproject.db.api.SqlService", null);
-		if(vendor != null && "oracle".equals(vendor)){
-			oracle = true;
-		}
+
 		//initialise the statements
 		initStatements(vendor);
 	}
