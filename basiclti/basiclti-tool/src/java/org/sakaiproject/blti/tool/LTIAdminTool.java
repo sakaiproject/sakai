@@ -727,6 +727,13 @@ public class LTIAdminTool extends VelocityPortletPaneledAction
 				if ( key != null ) tool = ltiService.getTool(key);
 			}
 			previousData = content;
+			
+			// whether the content has a site link created already?
+			String plstr = (String) content.get(LTIService.LTI_PLACEMENT);
+			ToolConfiguration siteLinkTool = SiteService.findTool(plstr);
+			if ( siteLinkTool != null ) {
+				context.put(LTIService.LTI_PLACEMENT, plstr);
+			}
 		}
 
 		// We will handle the tool_id field ourselves in the Velocity code
@@ -744,6 +751,7 @@ public class LTIAdminTool extends VelocityPortletPaneledAction
 			Long visible = foorm.getLong(tool.get(LTIService.LTI_VISIBLE));
 			context.put("tool_visible", visible);
 		}
+		
 		return "lti_content_insert";
 	}
 
@@ -766,6 +774,10 @@ public class LTIAdminTool extends VelocityPortletPaneledAction
 			state.setAttribute(STATE_POST,reqProps);
 			state.setAttribute(STATE_CONTENT_ID,id);
 			return;
+		}
+		else if ( retval instanceof Boolean )
+		{
+			// TODO: returns boolean
 		}
 		else
 		{
@@ -936,8 +948,7 @@ public class LTIAdminTool extends VelocityPortletPaneledAction
 			String secretField = foorm.formInput(null,"secret:text:required=true:label=need.tool.secret:maxlength=255", rb);
 			context.put("secretField", secretField);
 		}
-
-
+		
 		String formInput = ltiService.formInput(previousData, contentForm);
 		context.put("formInput",formInput);
 
@@ -964,7 +975,18 @@ public class LTIAdminTool extends VelocityPortletPaneledAction
 			addAlert(state,rb.getString("error.content.not.found"));
 			return "lti_main";
 		}
+		Long tool_id_long = null;
+		try{
+			tool_id_long = new Long(((Integer) content.get("tool_id")).longValue());
+		}
+		catch (Exception e)
+		{
+			// log the error
+			M_log.error("error parsing tool id " + content.get("tool_id"));
+		}
+		content.put("tool_id_long", tool_id_long);
 		context.put("content",content);
+		context.put("ltiService", ltiService);
 		
 		state.removeAttribute(STATE_SUCCESS);
 		return "lti_content_delete";

@@ -35,7 +35,7 @@
 #if ( $formInput ) 
 		$formInput
 #end
-<input type="checkbox" name="add_site_link"/> $tlang.getString("bl_addlink")
+<input #if($placement) disabled="disabled" checked="checked" #end type="checkbox" name="add_site_link"/> $tlang.getString("bl_addlink")
                 <input type="hidden" name="sakai_csrf_token" value="$sakai_csrf_token" />
 		<p class="act">
 			<input type="submit" accesskey ="s" class="active" name="$doAction" 
