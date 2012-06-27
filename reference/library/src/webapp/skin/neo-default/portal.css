@@ -1,1256 +1,1464 @@
 /* general body - used by main portal document   */
 body {
-	width: 100%;
-	padding: 0;
-	font-family: 'Helvetica Neue', Arial, sans-serif;
-	font-size: .8em;
-	margin: 0;
-	background-repeat: repeat-x;
+    width: 100%;
+    padding: 0;
+    font-family: 'Helvetica Neue', Arial, sans-serif;
+    font-size: .8em;
+    margin: 0;
+    background-repeat: repeat-x;
 }
-/* PART 1 - MAIN LAYOUT BLOCKS
-   ==================================================
-   ================================================== */
-/* outer wrapper for portal content (decorative - child is #portalContainer )  */
-#portalOuterContainer {
 
+/* PART 1 - MAIN LAYOUT BLOCKS
+ /* outer wrapper for portal content (decorative - child is #portalContainer )  */
+#portalOuterContainer {
 }
+
 /* inner wrapper for portal content (decorative - children are #header #container and #footer )  */
 #portalContainer {
-
 }
-/* wrapper masthead and site navigation 
- two possible states - logged in headerMax, not logged in - headerMin  */
+
+/* wrapper masthead and site navigation
+ two possible states - not logged in: #headerMin, logged in: #headerMax  */
 #headerMax, #headerMin {
-	width: 100%
-}
-#headerMin>#siteNavWrapper>#mastHead>#mastLogin>#loginLinks {
-	padding: 2px 5px 0 0 !important;
-	margin: 0;
-}
-#headerMin>#siteNavWrapper>#mastHead>#mastLogin>#loginLinks>#loginLink1 {
-	margin-bottom: 5px;
-	margin-right: 0 !important;
-	font-weight: bold;
-	font-size: 1.1em;
-}
-#headerMin>#siteNavWrapper>#mastHead>#mastLogin>#loginLinks>#loginLink2 {
-	font-size: .9em
-}
-#headerMin>#siteNavWrapper>#mastHead>#mastLogin>#loginLinks a, #loginLink1,div#mastLogin form#loginForm input#submit {
-	display: block;
-	border-radius: 5px;
-	border: 1px solid #ccc;
-	padding: 4px 6px !important;
-	text-align: center;
-	text-decoration: none !important;
-	background: #008DB9;
-	background: -moz-linear-gradient(top, #008DB9 0%, #007194 100%);
-	background: -webkit-gradient(linear, left top, left bottom, color-stop(0%,#008DB9), color-stop(100%,#007194));
-	background: -webkit-linear-gradient(top, #008DB9 0%,#007194 100%);
-	background: -o-linear-gradient(top, #008DB9 0%,#007194 100%);
-	background: -ms-linear-gradient(top, #008DB9 0%,#007194 100%);
-	background: linear-gradient(top, #008DB9 0%,#007194 100%);
-	filter: progid:DXImageTransform.Microsoft.gradient( startColorstr='#008DB9', endColorstr='#007194',GradientType=0 );
-	border: 1px solid #005A76;
-}
-#headerMin>#siteNavWrapper>#mastHead>#mastLogin>#loginLinks a {
-
-}
-#headerMin>#siteNavWrapper>#mastHead>#mastLogin>#loginLinks a:hover, #loginLink1:hover,div#mastLogin form#loginForm input#submit:hover {
-	background: #007194;
-	text-decoration: none !important;
+    width: 100%
 }
 
-div#mastLogin form#loginForm input#submit{
-    color: #fff;
-    display: inline;
-}
-
-#headerMax #loginLink1 {
-	//margin-top: -15px !important
-}
 #headerMin #tabBottom {
-	display: none
+    display: none
 }
-#headerMin #mastHead {
-	clear: both;
-	display: block;
-}
-#headerMin {
-	overflow: hidden
-}
-#headerMax {
 
+#headerMin #mastHead {
+    clear: both;
+    display: block;
 }
+
+#headerMin {
+    overflow: hidden
+}
+
 /* accessibility links wrapper   */
 #skipNav {
+}
 
-}
-/* site hierarchy breadcrumb  */
-#siteHierarchy {
-	z-index: -1;
-	height: 12px;
-	list-style: none;
-	line-height: .95em;
-	vertical-align: middle;
-	padding: 8px 8px 6px 8px;
-	margin: 0px 0px 0px 0px;
-	background-color: #f3f3f3;
-	border-bottom: 1px solid #ccc;
-	font-size: .85em;
-	color: #aaa;
-}
-#siteHierarchy li {
-	display: inline;
-	padding: 0 1px 0 0;
-}
-#siteHierarchy li a{
-    color: #009DCE !important;
-}
-/* style the standard breadcrumbseparator
-can set display: none if needed because the list-style is taking care of it  */
-.breadSeparator {
-	font: 1em bold 'Helvetica Neue', Arial
-}
-a.lastBreadCrumb {
-	color: black;
-	text-decoration: none;
-}
-#tabBottom {
-	position: absolute;
-	left: 0;
-	right: 0;
-	top: 38px;
-	background: transparent;
-	height: 0px;
-	margin: 0;
-}
-#siteHierarchy li a, #siteHierarchy li a:visited {
-	color: #333;
-	font-size: 1.2em;
-	text-decoration: none;
-}
 /* wrapper for site content (includes as children #toolMenuWrap,#content and #footer)  */
 #container {
-	right: 0;
-	left: 0;
-	margin-right: 0px;
-	margin-top: 0px;
-	padding-top: 0px;
-	margin-bottom: 0px;
-	margin-left: 0px;
-	background: #fff;
+    background: #fff;
 }
+
 /* wrapper for #toolMenu - children are #worsiteLogo,#toolMenu  */
 #toolMenuWrap {
-	float: left;
-	width: 12em;
-	color: #000;
-	text-align: right;
-	padding: 0;
-	border: 1px solid #ccc;
-	border-width: 0 1px 1px 0;
-	-moz-border-radius: 0 0 5px 0;
-	-webkit-border-radius: 0 0 5px 0;
-	border-radius: 0 0 5px 0;
-	margin-bottom: 30px;
+    float: left;
+    width: 12em;
+    color: #000;
+    text-align: right;
+    padding: 0;
+    border: 1px solid #ccc;
+    border-width: 0 1px 1px 0;
+    -moz-border-radius: 0 0 5px 0;
+    -webkit-border-radius: 0 0 5px 0;
+    border-radius: 0 0 5px 0;
+    margin-bottom: 30px;
 }
+
 #toolMenuWrap #toggler {
-	display: block;
-	float: right;
+    display: block;
+    float: right;
 }
-#toolMenuWrap:hover {
 
-}
-/* depending on site type - different hover effects for the tool menu parent block
-site types are a local setting - adjust   */
-#toolMenuWrap>div:last-of-type li:last-of-type {
-	border-width: 0
-}
-.workspace #toolMenuWrap:hover {
-
-}
-#toolMenuWrap>div:last-of-type, #toolMenuWrap>div:last-of-type ul:last-of-type, #toolMenuWrap>div:last-of-type li:last-of-type, #toolMenuWrap>div:last-of-type li:last-of-type a {
-	-moz-border-radius: 0 0 4px 0;
-	-webkit-border-radius: 0 0 4px 0;
-	border-radius: 0 0 4px 0;
-}
-.course #toolMenuWrap:hover {
-
-}
-.project #toolMenuWrap:hover {
-
-}
 .toolMenuIcon {
-	padding: 1px 0;
-	*background: none !important;
-	*padding-right: 0 !important;
+    padding: 1px 0;
 }
+
 /* wrapper for site content (portlets) - children can be #col1 or #col1of2 and #col2of2 depending in the number of columns  */
 #content {
-	padding: 0;
-	padding-top: .8em;
-	padding-left: 14.2em;
+    padding: .8em 0 0 13.2em;
 }
-#col1, #col1of2, #col2of2 {
 
-}
 #col1of2 .portletTitleWrap, #col2of2 .portletTitleWrap {
-	width: 98.5%;
-	border-bottom: 2px solid #009DCE;
-	border-radius: 3px;
+    width: 98.5%;
+    border-bottom: 2px solid #009DCE;
 }
+
 #col1of2 .portletMainWrap, #col2of2 .portletMainWrap {
-	width: 98.5%;
-	margin-bottom: .5em;
+    width: 98.5%;
+    margin-bottom: .5em;
 }
+
 #col1 .portletTitleWrap {
-	width: 99%;
-	border-bottom: 2px solid #009DCE !important;
-	border-radius: 3px !important;
+    width: 99%;
+    border-bottom: 2px solid #009DCE !important;
 }
+
 #col1 .portletMainWrap {
-	width: 99%
+    width: 99%
 }
-/* margin tweak for IE to avoid float drop  */
-* html #content {
-	margin-left: 13.5em
-}
+
 /* wrapper for footer blocks  */
 #footer {
-	clear: both;
-	background: #444;
-	padding: 10px;
-	text-align: center;
-	background: #f3f3f3;
-	border: 1px solid #ddd;
-	width: 90%;
-	margin: 0 auto 50px auto;
-	-moz-border-radius: 8px;
-	-webkit-border-radius: 8px;
-	border-radius: 8px;
+    clear: both;
+    background: #444;
+    padding: 10px;
+    text-align: center;
+    background: #f3f3f3;
+    border: 1px solid #ddd;
+    width: 90%;
+    margin: 0 auto 50px auto;
+    -moz-border-radius: 8px;
+    -webkit-border-radius: 8px;
+    border-radius: 8px;
 }
+
 #footerLinks {
-	text-align: center;
-	font-size: .9em;
-	margin: 0;
-	padding: 0;
+    text-align: center;
+    font-size: .9em;
+    margin: 0;
+    padding: 0;
 }
+
 #footerLinks li {
-	margin: 0;
-	border-left: 1px solid #ccc;
-	display: inline;
-	list-style-type: none;
-	padding: 0;
+    margin: 0;
+    border-left: 1px solid #ccc;
+    display: inline;
+    list-style-type: none;
+    padding: 0;
 }
+
 #footerLinks li:first-child {
-	border: none
+    border: none
 }
-/* PART 3 - HEADER BLOCKS (BRANDING,LOGIN)
-   ==================================================
-   ================================================== */
-/* depending on site type - different border-bottoms for the site menu parent block
-site types are a local setting - adjust   */
+
+/* PART 2 - HEADER BLOCKS (BRANDING,LOGIN) */
 .siteNavWrap, #headerMin {
-	background: #009DCE;
-	background: -moz-linear-gradient(top, #009DCE 0%, #007EA5 100%);
-	background: -webkit-gradient(linear, left top, left bottom, color-stop(0%,#009DCE), color-stop(100%,#007EA5));
-	background: -webkit-linear-gradient(top, #009DCE 0%,#007EA5 100%);
-	background: -o-linear-gradient(top, #009DCE 0%,#007EA5 100%);
-	background: -ms-linear-gradient(top, #009DCE 0%,#007EA5 100%);
-	background: linear-gradient(top, #009DCE 0%,#007EA5 100%);
-	filter: progid: DXImageTransform.Microsoft.gradient( startColorstr='#009DCE', endColorstr='#007EA5',GradientType=0 );
-	border-bottom: 1px solid #007194;
+    background: #009DCE;
+    background: -moz-linear-gradient(top, #009DCE 0%, #007EA5 100%);
+    background: -webkit-gradient(linear, left top, left bottom, color-stop(0%,#009DCE), color-stop(100%,#007EA5));
+    background: -webkit-linear-gradient(top, #009DCE 0%,#007EA5 100%);
+    background: -o-linear-gradient(top, #009DCE 0%,#007EA5 100%);
+    background: -ms-linear-gradient(top, #009DCE 0%,#007EA5 100%);
+    background: linear-gradient(top, #009DCE 0%,#007EA5 100%);
+    border-bottom: 1px solid #007194;
 }
-#siteNavWrapper {
-	margin: 0
-}
-/* wrapper for mast head elements - children are 3 blocks - #mastLogo,#mastBanner,#mastLogin  */
+#siteNavWrapper {}
+/* wrapper for mast head elements - children are 2 blocks - #mastLogo,#mastBanner
+ * in this skin it and the children are hidden, The gradient is specified above, the logo is specified
+ * as a background image in "ul.topnav"
+*/
 #mastHead {
-	display: none
+    display: none
 }
 /* container wrapping branding images - portal outputs one /library/skin/<skin name>/images/logo_inst.gif
 that can be used or hidden,can also use a background: url(images/<image name>.<ext>) in this block,or both superimposing them  */
 #mastLogo {
-	float: left;
-	margin: 0;
-	width: auto;
-	height: 50px;
-	width: 110px;
-	background: transparent url(images/logo.png) 8px 4px no-repeat;
+    display: none
 }
+
+/* show #mastHead and #mastLogo if the user is not logged in so that we can display the logo in the usual place (the logo
+in this skin is rendered via ul.topnav, which a anon user does not see)*/
+#headerMin #mastHead {
+    display: block
+}
+#headerMin #mastLogo {
+    display: block; 
+    background-image: url(images/logo.png);
+    background-repeat: no-repeat;
+    background-position: 8px 4px;
+    float: left;
+    width: 100px;
+    height: 50px;
+}
+/* container wrapping branding images - portal outputs one /library/skin/<skin name>/images/logo_inst.gif
+that can be used or hidden,can also use a background: url(images/<image name>.<ext>) in this block,or both superimposing them  */
+
+#mastLogo {
+    display: none
+}
+
 #mastLogo img {
-	display: none
+    display: none
 }
-/* the portal outputs an image that can be treated here or hidden with display: none  */
 /* another container wrapping branding images - portal outputs one /library/skin/<skin name>/images/banner_inst.gif
 that can be used or hidden,can also use a background: url(images/<image name>.<ext>) in this block,or both superimposing them  */
 #mastBanner {
-	width: auto;
-	vertical-align: top;
-	float: left;
+    
 }
 #mastBanner img {
-	margin: 1em .5em
+    display: none;
 }
-/* the portal outputs an image that can be treated here or hidden with display: none  */
-/* container wrapping,depending on Sakai settings: 1) a login form,2) a login link for CAS,3) a logout link  */
+/* container wrapping, depending on Sakai settings: 1) #loginForm:  a login form,2) a login link for CAS,3) a logout link, 4) a link to open a menu with user
+ *  centered info and controls, as well as 5) a role switching control set
+*/
 #mastLogin {
-	position: absolute;
-	right: 0;
-	text-align: right;
-	padding-right: 15px;
-	vertical-align: middle;
-	margin-top: 15px;
+    float: right;
+    padding: 17px 10px 10px;
 }
-ul.subnav li a, #mastLogin .submenuitem a {
-	color: #444;
-	text-shadow: 0 1px 1px #fff;
-	padding: 7px 6px 6px 25px !important;
-	font-size: 1em !important;
-}
-#mastLogin li.submenuitem {
-	margin: 0;
-	text-align: left;
-}
-#mastLogin li.submenuitem a.submenuitem-new-site {
-	background-image: url(/library/image/silk/application_lightning.png )
-}
-#mastLogin li.submenuitem a.submenuitem-profile {
-	background-image: url(/library/image/silk/vcard_edit.png)
-}
-#mastLogin li.submenuitem a.submenuitem-prefs {
-	background-image: url(/library/image/silk/cog.png)
-}
-#mastLogin li.submenuitem a.submenuitem-tutorial {
-	background-image: url(/library/image/silk/help.png)
-}
-#mastLogin li.submenuitem:last-child a {
-	border-bottom: none
-}
-ul.nav-submenu li.submenuitem a, #mastLogin li.submenuitem a {
-	background-position: 3px center !important;
-	background-repeat: no-repeat !important;
-	outline: none;
-	text-decoration: none;
-	width: 170px;
-	padding-left: 25px;
-	font-weight: normal;
-	color: #111;
-	text-shadow: 0 1px 0 white;
-}
-#mastLogin li.submenuitem a {
-	background-position: left center;
-	background-repeat: no-repeat;
-	padding: 10px 25px;
-	width: auto;
-	display: block;
-}
-#mastLogin span.drop {
-	/*--Drop down trigger styles--*/
-	width: 17px;
-	height: 35px;
-}
-#mastLogin ul.subnav {
-	font-size: 1em
-}
-#mastLogin ul.subnav {
-	list-style: none;
-	position: absolute; /*--Important - Keeps subnav from affecting main navigation flow--*/
-	left: auto !important;
-	right: 2px;
-	margin: 0;
-	padding: 0;
-	display: none;
-	float: left;
-	width: 210px;
-	white-space: nowrap;
-	z-index: 100;
-}
-#mastLogin img {
-	margin-top: 0;
-	border: 0;
-}
-/* the anchor for the login link for CAS above can be an image - treated here  */
-/* login links for CAS,logout link  */
-#mastLogin a:hover {
-	text-decoration: none
-}
-#mastLogin a, #mastLogin a:visited {
-	margin-top: 0
-}
-/* ===[ Front page, logout icon ]===
-   ================================================== */
-#loginLink1:hover, #loginUser:hover {
-
-}
-/* login form elements - in order,form,userid field,password field,login button - first 2 have labels associated with them,gettable as #loginForm label {
-}
-
-#loginForm is the form for login - contains children #eid #pw #submit  */
+/* #mastLogin #loginForm is the form for login - contains children #eid #pw #submit as well as labels for these inputs*/
 #loginForm {
-	color: #fff;
+    color: #fff;
 }
 #loginForm label {
-	padding: 0 6px;
-	color: #fff;
+    padding: 0 6px;
+    color: #fff;
 }
 #eid, #pw {
-	border: 1px solid #ccc;
-	padding: 3px;
-	margin-right: 15px;
-	width: 7em;
+    border: 1px solid #ccc;
+    padding: 3px;
+    margin-right: 15px;
+    width: 7em;
 }
-#eid {
+/* #submit is rendered like the logout link, so defined there, instead of here,
+ * display: block there overriden here */
+#submit {display: inline !important;}
 
-}
-#pw {
-
-}
-#submit {
-
-}
-#submit:hover {
-	color: #009DCE
-}
-/* block for login/logout links   */
+#submit:hover {}
+/* #mastLogin #loginLinks: block for login/logout links and  link to the user centered menu */
 #loginLinks {
-	color: #aaa;
-	margin: 0;
+    float: right;
+    color: #aaa;
+    margin: 0;
 }
-#loginLinks .drop {
-	background: transparent url(/library/image/silk/user.png) 0 0 no-repeat;
-	position: absolute;
-	top: 3px;
-	width: 20px !important;
-	height: 20px !important;
-	right: 80px;
-	cursor: pointer;
+/* login links for CAS,logout link  */
+#loginLinks a, #loginLinks a:visited {
+    color: #fff;
+    float: right;
 }
-/* main CAS link  */
-#loginLinks a {
-	color: #fff
+/* #loginLink1 is the "login/logout" link in a CAS setup, #loginLink2 is the secondary CAS link: login for
+guests, for example */ 
+#loginLink1, #loginLink2 {
+    text-decoration: none;
+    margin-top: -4px !important;
 }
-#loginLink1 {
-	text-decoration: none;
-}
-#loginLink1[title='Logout'] {
-	margin-top: -4px !important;
-	
-}
-/* secondary CAS link  */
 #loginLink2 {
+    margin: 0 5px;
+}
+/* main rendering for all links and the submit button */
+#loginLink1, #loginLink2, form#loginForm input#submit {
+    display: block;
+    border-radius: 5px;
+    padding: 4px 6px;
+    text-align: center;
+    text-decoration: none;
+    background: #008DB9;
+    background: -moz-linear-gradient(top, #008DB9 0%, #007194 100%);
+    background: -webkit-gradient(linear, left top, left bottom, color-stop(0%,#008DB9), color-stop(100%,#007194));
+    background: -webkit-linear-gradient(top, #008DB9 0%,#007194 100%);
+    background: -o-linear-gradient(top, #008DB9 0%,#007194 100%);
+    background: -ms-linear-gradient(top, #008DB9 0%,#007194 100%);
+    background: linear-gradient(top, #008DB9 0%,#007194 100%);
+    border: 1px solid #005A76;
+}
+#headerMin #loginLink1, #headerMin #loginLink2 {
+    margin-top: -2px;
+}
+#loginLink1:hover, #loginLink2:hover, form#loginForm input#submit:hover {
+    background: #007194;
+    text-decoration: none;
+}
+/* container for the link to open the user centerer menu, and the menu itself */
+#loginLinks .topnav {
+    float: left;
+    display: block;
+}
+#loginLinks .nav-menu > span {
+    display: none;
+}
+#loginLinks .nav-menu > span.drop {
+    display: block !important;
+}
 
+/* link to toggle the user centered info and controls */
+#mastLogin span.drop {
+    cursor: pointer;
+    background: transparent url(/library/image/silk/user.png) 0 0 no-repeat;
+    margin: 0 10px 0 10px; 
+    width: 20px;
+    height: 20px;
 }
-#loginUserWrap {
-	font-size: 70%;
-	padding-right: 5px;
-	margin-right: 3px;
-	text-decoration: none;
+/* menu for user actions (could be one of several:link to profile, preferences, add a new site, view tutorial, other)*/
+#mastLogin ul.subnav {
+    list-style: none;
+    position: absolute;
+    left: auto !important;
+    right: 2px;
+    margin: 0;
+    padding: 0;
+    display: none;
+    float: left;
+    width: 100%;
+    white-space: nowrap;
+    z-index: 100;
 }
-#loginUser {
-	display: none;
-	text-decoration: none;
-	font-size: 140%;
-	color: #ccc;
+#mastLogin ul.subnav li.submenuitem {
+    margin: 0;
+    text-align: left;
 }
-/* PART 4 - SITE NAVIGATION - children of #siteNavBlock
-   ==================================================
-   ================================================== */
-/* outer wrapper for the site navigation blocks - it is a class,not an id because it can be overloaded with other values having to do with site type
-so for example <div class="tabHolder workspace"> so that different site types can be treated differently via inheritance - children are #siteNavWrap and #navBottom  */
-.siteNavWrap {
-	width: 100%;
-	font-size: 100%;
-	line-height: normal;
-	z-index: 100001; /*needs to be be higher than #siteHierarchy*/
-	padding: 0;
+/* link items in above menu (some attr/vals are same as for site tool sub-menu, so doubled up here)*/
+ul.nav-submenu li.submenuitem a, #mastLogin li.submenuitem a {
+    background-position: 3px center !important;
+    background-repeat: no-repeat !important;
+    outline: none;
+    text-decoration: none;
+    width: 170px;
+    padding-left: 25px;
+    font-weight: normal;
+    color: #111;
+    text-shadow: 0 1px 0 white;
+    color: #444;
+    padding: 7px 6px 6px 25px !important;
+    font-size: 1em !important;
 }
-/* wrapper for the site links and site <select> blocks - children are #siteNav and #tabNav   */
-#siteNav {
-	padding: 0px
+/* icons for specific menu items */
+#mastLogin ul.subnav li.submenuitem a.submenuitem-new-site {
+    background-image: url(/library/image/silk/application_lightning.png )
 }
-/* wrapper for the site link list	- the #siteLinkList child)  */
-#linkNav {
-	display: block;
-	padding-right: 300px;
-	/* position: relative;;;
-	float: left;*/
+#mastLogin ul.subnav li.submenuitem a.submenuitem-profile {
+    background-image: url(/library/image/silk/vcard_edit.png)
 }
-/* wrapper for the site <select> that is displayed when more than x sites are in the link list  */
-#selectNav {
-	padding: 0;
-	vertical-align: middle;
-	margin: 0.2em 0 0 0.6em;
-	float: left;
+#mastLogin ul.subnav li.submenuitem a.submenuitem-prefs {
+    background-image: url(/library/image/silk/cog.png)
 }
-#selectNav select {
-	display: inline;
-	font-size: .9em;
-	margin: 7px 0 0;
-	padding: 0;
-	border: 2px solid #0077B5;
+#mastLogin ul.subnav li.submenuitem a.submenuitem-tutorial {
+    background-image: url(/library/image/silk/help.png)
 }
-#selectNav select option {
-	background: #fff
+#mastLogin ul.subnav li.submenuitem:last-child a {
+    border-bottom: none
 }
-/* the <select> contextually defined  */
-/* wrapper for the site <select> that is displayed when more than x sites are in the link list  */
-#selectSite {
-	padding: 15px 0;
-	position: absolute;
-	border: 1px solid #888;
-	border-width: 0 1px 1px 1px;
-	top: 0;
-	width: 80%;
-	left: 10%;
-	vertical-align: middle;
-}
-#selectSite select {
-	display: inline;
-	border: 2px solid #0077B5;
-}
-#selectSite select option {
-	background: #fff
-}
-/* the <select> contextually defined  */
+/* #mastLogin can also contain controls to toggle in/out of different roles  */
 #roleSwitch {
-	position: absolute;
-	right: 0px;
-	top: 26px;
-	background: #e7e7e7 !important;
-	background: -moz-linear-gradient(top, #f7f7f7 0%, #e7e7e7 100%) !important;
-	background: -webkit-gradient(linear, left top, left bottom, color-stop(0%,#f7f7f7), color-stop(100%,#e7e7e7)) !important;
-	background: -webkit-linear-gradient(top, #f7f7f7 0%,#e7e7e7 100%) !important;
-	background: -o-linear-gradient(top, #f7f7f7 0%,#e7e7e7 100%) !important;
-	background: -ms-linear-gradient(top, #f7f7f7 0%,#e7e7e7 100%) !important;
-	background: linear-gradient(top, #f7f7f7 0%,#e7e7e7 100%) !important;
-	text-align: center;
-	width: auto;
-	white-space: nowrap;
-	border-radius: 4px;
-	border: 1px solid #ccc !important;
-	border-width: 1px 0 1px 1px !important;
-	font-size: .85em;
-	text-transform: capitalize;
-	text-align: center;
-	margin-right: 1em;
+    float: left;
+    padding: 0 5px;
 }
 
 #roleSwitch a#roleSwitchAnchor {
-	color: #000 !important;
-	display: block;
-	width: 125px;
-	padding: 2px 10px 3px 0;
+    color: #fff !important;
+    text-decoration: none;
+    padding: 2px 10px 3px 0;
 }
 #roleSwitch select {
-	border: 2px solid #0077B5;
-	display: inline;
-	font-size: 0.9em;
-	margin: 10px 2px 0 0;
-	padding: 0;
+    font-size: 0.9em;
 }
 #roleSwitch a#roleSwitchAnchor:hover {
-	color: #009DCE !important;
+    text-decoration: underline;
 }
 #roleSwitch label, #roleSwitch a#roleSwitchAnchor {
-	color: #000;
-	font-weight: bold;
-	text-decoration: none;
+    color: #fff;
+    padding: 0 5px;
 }
-/* a ul - the li below are outer wrappers for the links to sites   */
-#siteLinkList {
-	white-space: nowrap;
-	list-style-image: none;
-	list-style-position: outside;
-	list-style-type: none;
-	margin: 0;
+/* PART 3 - SITE NAVIGATION - children of #siteNavBlock
+/* outer wrapper for the site navigation blocks - it will also have a class with a value equiv to the site type, so any of 
+ * the childen can be styled depending on the site type (course, project, etc). */
+#siteNavWrapper {}
+.siteNavWrap {
+    width: 100%;
+    font-size: 100%;
+    line-height: normal;
+    z-index: 100001; /*needs to be be higher than #siteHierarchy*/
+    padding: 0;
 }
-#siteLinkList li {
-	position: relative;
-	display: block;
-	float: left;
+/* wrapper for the site links and site <select> blocks - children are #siteNav and #tabNav   */
+#siteNav {}
+/* wrapper for the site link list    - the #siteLinkList child  */
+#linkNav {
+    display: block;
+    padding-right: 300px;
 }
-#siteLinkList li span {
-	display: block;
-	padding: 8px 13px 3px 2px;
-	margin: 0pt;
+/* site tab navigation: a list */
+#linkNav ul.topnav {
+    list-style: none;
+    padding: 8px 0 5px 12.5em; /* matches the width of the toolMenu*/
+    margin: 0;
+    width: 100%;
+    background-image: url(images/logo.png);
+    background-repeat: no-repeat;
+    background-position: 8px 4px;
 }
-/* list elements - children are <span> and <a>  */
-/* links to other sites  */
-#siteLinkList li a, #siteLinkList li a:link, #siteLinkList li a:visited {
-	color: #FFF;
-	text-decoration: none;
-	display: block;
-	float: left;
-	margin: 0 2px 0 0;
-	padding: 0 0 0 11px;
-	border-left: 2px solid #878A8C;
+/* the individuanl containers for the site links*/
+ul.topnav li {
+    display: inline-block;
+    /* Note: IE 7 hack and IE compat mode*/
+    *display: inline;
+    *float: left;
+    margin: 0 5px 0 0;
+    padding: 0;
+    position: relative; /*--Declare X and Y axis base for sub navigation--*/
+    font-weight: bold;
+    border: 1px solid transparent;
 }
-/* the current sites' link - consists of the li and a  */
-#siteLinkList li a:hover {
-	text-decoration: underline
+/* hover treatment for site links, as well as current site*/
+ul.topnav li.nav-menu:hover, ul.topnav li.more-tab:hover {
+    border: 1px solid #005A76;
+    -moz-border-radius: 3px;
+    -webkit-border-radius: 3px;
+    border-radius: 3px;
 }
-#siteLinkList li.selectedTab a, #siteLinkList li.selectedTab a:link, #siteLinkList li.selectedTab a:visited, #siteLinkList li.selectedTab a:hover {
-	color: #FFF;
-	background-color: #878A8C;
-	font-weight: bolder;
-	text-decoration: none;
-	border-width: 0;
+ ul.topnav li.nav-selected {
+     background: #008DB9;
+    background: -moz-linear-gradient(top, #008DB9 0%, #007194 100%);
+    background: -webkit-gradient(linear, left top, left bottom, color-stop(0%,#008DB9), color-stop(100%,#007194));
+    background: -webkit-linear-gradient(top, #008DB9 0%,#007194 100%);
+    background: -o-linear-gradient(top, #008DB9 0%,#007194 100%);
+    background: -ms-linear-gradient(top, #008DB9 0%,#007194 100%);
+    background: linear-gradient(top, #008DB9 0%,#007194 100%);
+    border: 1px solid #005A76;
+    -moz-border-radius: 3px;
+    -webkit-border-radius: 3px;
+    border-radius: 3px;
+ }
+
+ul.topnav li span.subhover {
+    background-position: center -38px;
+    cursor: pointer;
 }
-#siteLinkList li.tab-dim a, #siteLinkList li.tab-dim a:link, #siteLinkList li.tab-dim a:visited, #siteLinkList li.tab-dim a:hover {
-	color: #666
+/* The menu displayed for each site link, contains the tools of the site. Also used
+in constructing menu for user links in #mastLogin*/ 
+ul.topnav li ul.subnav, #mastLogin ul.subnav {
+    list-style: none;
+    position: absolute; /*--Important - Keeps subnav from affecting main navigation flow--*/
+    left: -1px;
+    top: 31px;
+    background: #f3f3f3;
+    font-size: .9em;
+    margin: 0;
+    padding: 0 !important;
+    display: none;
+    float: left;
+    width: 210px;
+    border: 1px solid #ccc;
+    border-width: 1px 1px 0 1px;
+    z-index: 100;
+    -moz-box-shadow: 0 0 8px #444;
+    -webkit-box-shadow: 0 0 8px #444;
+    box-shadow: 0 0 8px #444;
 }
-#siteLinkList li.selectedTab a span {
-	padding: 8px 11px 5px 0
+/* each tool in the above menu as well as the one on #mastLogin*/
+ul.topnav li ul.subnav li, #mastLogin ul.subnav li, .otherSiteTool {
+    background: #f3f3f3;
+    border: 1px solid #ccc;
+    border-width: 0 0 1px 0;
+    width: 100%;
 }
-/* more tab   */
-#siteLinkList li.tab-dim a span {
-	padding-bottom: 3px
+/* some overrides for the menu in #mastLogin */
+#mastLogin ul.subnav li {
+    border: none;
+    outline: 1px solid #ccc;
 }
+/* treatment for focus and hover in the site and user sub-menus*/
+ul.topnav li ul.subnav li a:hover, ul.topnav li ul.subnav li a:focus, 
+    #mastLogin ul.subnav li a:hover, #mastLogin ul.subnav li a:focus {
+    text-decoration: none;
+    color: #009DCE;
+}
+/* site submenu trigger */
+ul.topnav li span.drop {
+    width: 17px;
+    margin-top: 3px;
+    margin-right: 7px;
+    height: 29px;
+    float: left;
+    background: url(images/subnav_btn.png) no-repeat center -3px;
+}
+/* link to site */
+ul.topnav li a {
+    padding: 8px 7px 8px 8px;
+    font-size: 13px;
+    color: #fff;
+    text-decoration: none;
+    float: left;
+    display: block;
+    -moz-text-shadow: 0 -1px 1px rgba(0, 0, 0, .3);
+    -webkit-text-shadow: 0 -1px 1px rgba(0, 0, 0, .3);
+    text-shadow: 0 -1px 1px rgba(0, 0, 0, .3);
+}
+/* tool submenu for sites in site list*/
+span.topnav li ul.subnav li {
+    margin: 0;
+    padding: 0;
+    clear: both;
+    width: 210px;
+}
+/* treatment of a tool that has been hidden via Page Order tool */
+li.submenuitem span.hidden {
+    font-style: italic;
+    filter: alpha(opacity=50);
+    opacity: 0.70;
+}
+/* "More sites" link */
 li.more-tab {
-	padding-right: 7px !important
+    padding-right: 7px !important
 }
 li.more-tab a {
-	background-image: url(images/subnav_btn_more.png);
-	display: block;
-	height: 16px;
-	background-repeat: no-repeat;
-	background-position: right -2px;
-	padding: 0;
-	margin: 0;
+    background-image: url(images/subnav_btn_more.png);
+    display: block;
+    height: 16px;
+    background-repeat: no-repeat;
+    background-position: right -2px;
+    padding: 0;
+    margin: 0;
 }
 li.more-tab a span {
-	padding-right: 15px
+    padding-right: 15px
 }
-/* li.more-tab a:hover {
-	background-position: right bottom;
+/* container for tray that opens when "More sites" is activated, both the default and the categorized one when portal.use.dhtml.more=true in s.p. */
+#selectSite {
+    background: #f3f3f3;
+    border-width: 0;
+    border: 1px solid #888;
+    color: #000;
+    left: 10%;
+    line-height: 1.5em;
+    padding: 15px 0;
+    position: absolute;
+    right: 4px;
+    top: 0;
+    vertical-align: middle;
+    width: 80%;
+    z-index: 9999;
+    border-radius: 0px 0px 5px 5px;
+    -moz-border-radius: 0px 0px 5px 5px;
+    -webkit-border-radius: 0px 0px 5px 5px;
+    box-shadow: 0 0 10px #555;
+    -moz-box-shadow: 0 0 10px #555;
+    -webkit-box-shadow: 0 0 10px #555;
 }
-  */
-#siteLinkList li.more-active a, #siteLinkList li.more-active a:link, #siteLinkList li.more-active a:visited {
-	color: #000000;
-	font-weight: bolder;
-	text-decoration: none;
-	border-width: 0;
-}
-#siteLinkList li.more-active a span.inner {
-
-}
-#siteLinkList li.more-active a span {
-	padding-bottom: 5px
-}
-#siteLinkList li.more-active a:hover {
-	text-decoration: underline
-}
-.fixTabsIE {
-	visibility: hidden;
-	display: none;
-	border-width: 0;
-}
-/* wrapper for the site <select> that is displayed when more than x sites are in the link list  */
-.dhtml_more_tabs {
-	position: absolute;
-	right: 4px;
-	line-height: 1.5em;
-	background-color: #f3f3f3;
-	border-width: 0;
-	z-index: 9999;
-	-moz-box-shadow: 0 0 10px #555;
-	-webkit-box-shadow: 0 0 10px #555;
-	box-shadow: 0 0 10px #555;
-	-moz-border-radius: 0px 0px 5px 5px;
-	-webkit-border-radius: 0px 0px 5px 5px;
-	border-radius: 0px 0px 5px 5px;
-	color: #000;
-}
-.dhtml_more_tabs div.termContainer {
-	float: left;
-	padding: 0.8em;
-	text-align: left;
-	width: 28%;
-}
-.dhtml_more_tabs div:first-child {
-	border-left: none
-}
-.dhtml_more_tabs a:hover {
-
-}
-.dhtml_more_tabs a:link, .dhtml_more_tabs a:visited, .dhtml_more_tabs active {
-
-}
-.dhtml_more_tabs h4 {
-	font-size: 1.06em;
-	margin: 0;
-	padding: 0;
-	font-weight: normal;
-}
-.dhtml_more_tabs ul {
-	list-style: none;
-	margin: 10px;
-	padding: 10px;
-}
-.dhtml_more_tabs li {
-	margin: 6px 6px 0 0;
-	line-height: 1.1em;
-	width: 18em;
-	float: left;
-	display: block;
-}
-html>body .dhtml_more_tabs {
-	right: 2px
-}
-#more_tabs_instr {
-	color: #333;
-	font-size: 1em;
-	margin: 0.4em 0.8em 0.8em;
-	padding-top: 0.4em;
-	clear: both;
-	border-top: 1px solid #CCC;
-	text-align: left;
-	line-height: 1.1em;
-}
+/* mask that gets applied to the portal when "More sites" is triggered, making the tray modal sort of*/
 #portalMask {
-	background-color: #ffffff;
-	position: absolute;
-	height: 100%;
-	z-index: 9000;
-	top: 0;
-	left: 0;
-	filter: alpha(opacity=50);
-	opacity: 0.50;
+    background-color: #ffffff;
+    position: absolute;
+    height: 100%;
+    z-index: 9000;
+    top: 0;
+    left: 0;
+    filter: alpha(opacity=50);
+    opacity: 0.50;
 }
-/* block in case need to display any decorative element above or below the .tabHolder block  */
-#navBottom {
-	display: none
+/* the lists in the tray (sites and controls) */
+ul#otherSiteList, ul.otherSitesCategorList {
+    list-style: none;
+    margin: 5px;
+    padding: 0;
+    clear: both;
+    float: left;
+    font-size: .9em;
 }
-/* PART 5 - SITE TOOL LINKS - children of #toolMenuWrap
-   ==================================================
-   ================================================== */
-/* wrapper for ul that lists the links to tools  */
+#selectSite li {
+    margin: 6px 6px 0 0;
+    line-height: 1.1em;
+    width: 18em;
+    float: left;
+    display: block;
+}
+/* menu in the "Other Sites" tray (View all Sites, Add site, Preferences [tab management])*/ 
+ul#otherSitesMenu li {
+    display: inline-block !important;
+    margin-right: 4px !important;
+    margin-bottom: 4px !important;
+    padding: 3px !important;
+    border: 1px solid #ccc !important;
+    border-radius: 4px;
+    -moz-border-radius: 4px;
+    -webkit-border-radius: 4px;
+    background: #e7e7e7 !important;
+    background: -moz-linear-gradient(top, #f7f7f7 0%, #e7e7e7 100%) !important;
+    background: -webkit-gradient(linear, left top, left bottom, color-stop(0%,#f7f7f7), color-stop(100%,#e7e7e7)) !important;
+    background: -webkit-linear-gradient(top, #f7f7f7 0%,#e7e7e7 100%) !important;
+    background: -o-linear-gradient(top, #f7f7f7 0%,#e7e7e7 100%) !important;
+    background: -ms-linear-gradient(top, #f7f7f7 0%,#e7e7e7 100%) !important;
+    background: linear-gradient(top, #f7f7f7 0%,#e7e7e7 100%) !important;
+    box-shadow: 0 0 5px rgba(200, 200, 200, .2);
+    -moz-box-shadow:    0 0 5px rgba(200, 200, 200, .2);
+    -webkit-box-shadow: 0 0 5px rgba(200, 200, 200, .2);
+}
+#otherSitesMenu li a, #otherSitesMenu li a:visited {
+    display: block;
+    padding: 4px;
+    text-decoration: none !important;
+    color: #444;
+    white-space: nowrap;    
+    font-weight: bold;
+}
+
+#otherSitesMenu li a:hover {
+    color: #009dce !important;
+}
+/* list of sites in the "More sites" tray (both flat and categorized via s.p. "portal.use.dhtml.more=true" *), since there
+ * is a lot of commonalities they are both mixed up here. The flat view container is ul#otherSiteList and the categorized one is
+ *  ul.otherSitesCategorList
+ */
+ul#otherSiteList li, ul.otherSitesCategorList li {
+    background: #009DCE;
+    background: -moz-linear-gradient(top, #009DCE 0%, #007EA5 100%);
+    background: -webkit-gradient(linear, left top, left bottom, color-stop(0%,#009DCE), color-stop(100%,#007EA5));
+    background: -webkit-linear-gradient(top, #009DCE 0%,#007EA5 100%);
+    background: -o-linear-gradient(top, #009DCE 0%,#007EA5 100%);
+    background: -ms-linear-gradient(top, #009DCE 0%,#007EA5 100%);
+    background: linear-gradient(top, #009DCE 0%,#007EA5 100%);
+    border: 1px solid #005A76;
+    font-weight: bold;
+    position: relative;
+    border-radius: 5px;
+    -moz-border-radius: 5px;
+    -webkit-border-radius: 5px;
+    overflow: hidden;
+}
+ul#otherSiteList li a, ul.otherSitesCategorList li a {
+    display: block;
+    padding: 8px;
+    text-decoration: none !important;
+    color: #fff !important;
+    white-space: nowrap;
+}
+ul#otherSiteList li a:hover span,
+  ul#otherSiteList li a:focus span,
+  ul.otherSitesCategorList li a:hover span,
+  ul.otherSitesCategorList li a:focus span {
+    outline: 1px dotted #fff;
+    
+}
+ul#otherSiteList li a span, ul.otherSitesCategorList li a span {
+    width: 14em;
+    display: block;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+/* menu in flat view of other sites, may contain link to add a site, view all sites, tab management */ 
+ul#otherSitesMenu {
+    position: absolute;
+    top: 15px;
+    right: 15px;
+    font-size: .9em;
+    margin: 0;
+    padding: 0;
+}
+ul#otherSitesMenu li {
+    width: auto;
+    font-size: 1.1em;
+    padding: 2px 3px 3px 3px;
+}
+#otherSiteMenuWrap {
+    margin: 5px;
+    padding: 5px;
+    width: auto;
+    height: 30px;
+}
+#otherSiteMenuWrap * {
+    vertical-align: middle
+}
+
+/* search elements for flat other sites tray search */
+#otherSiteSearch {
+    padding: 5px;
+    width: 70%;
+    float: left;
+}
+#otherSiteSearch span#noSearchResults {
+    padding-left: 10px
+}
+#otherSiteSearch #imgSearch {
+    margin-left: 5px;
+}
+#otherSiteSearch label {
+    padding-right: 15px;
+    font-weight: bold;
+}
+#otherSiteSearch h4, #otherSItesCategorWrap h4 {
+    color: #222 !important;
+    font-weight: bold !important;
+}
+/* specific to  categorized view */
+#otherSitesCategorWrap {
+    margin: 5px;
+    height: auto !important;
+}
+#otherSitesCategorWrap h4 {
+    float: none;
+    clear: both;
+    color: #fff;
+    font-size: 90%;
+    text-transform: uppercase;
+    padding: 4px 10px 0 11px;
+    margin: 0;
+    margin-bottom: -8px;
+    color: #000;
+    font-weight: bold;
+}
+/* tool submenu for sites in the "More sites" tray (both flat and categorized)*/
+#otherSiteTools {
+    list-style: none;
+    position: absolute;
+    top: -2000px;
+    left: -2000px;
+    z-index: 1000000;
+    background: #ccc;
+    font-size: .9em;
+    margin: 0;
+    padding: 0 !important;
+    width: 200px;
+    padding: 1px;
+    border: 1px solid #ccc;
+    border-width: 1px 1px 0 1px;
+    -moz-box-shadow: 0 0 8px #444;
+    -webkit-box-shadow: 0 0 8px #444;
+    box-shadow: 0 0 8px #444;
+}
+#otherSiteTools li {
+    float: left;
+    padding: 0;
+    margin: 0;
+}
+#otherSiteTools li a {
+    width: 210px;
+    background-position: 3px center !important;
+    background-repeat: no-repeat !important;
+    outline: none;
+    width: 170px;
+    padding: 7px 5px 6px;
+    padding-left: 25px;
+    display: block;
+    text-decoration: none;
+    color: #111;
+}
+#otherSiteTools li a:hover, #otherSiteTools li a:focus {
+    color: #009DCE;
+}
+/* trigger that retrieves from eb the tool menu for a site in the "More sites" tray*/
+.toolMenus {
+    width: 17px;
+    height: 17px;
+    padding: 0px;
+    background: url(images/subnav_btn.png) no-repeat 10px -3px;
+    position: absolute;
+    right: 1px;
+    top: 2px;
+    height: 11px;
+    border-left: thin solid #FFFFFF;
+}
+.toolMenus:hover {
+    background-position: 10px -38px;
+    cursor: pointer;
+}
+/* site hierarchy breadcrumb  */
+#siteHierarchy {
+    list-style: none;
+    line-height: .95em;
+    vertical-align: middle;
+    padding: 10px;
+    margin: 0;
+    background-color: #f3f3f3;
+    border-bottom: 1px solid #ccc;
+    font-size: .85em;
+    color: #aaa;
+}
+#siteHierarchy li {
+    display: inline;
+    padding: 0 1px 0 0;
+}
+#siteHierarchy li a, #siteHierarchy li a:visited {
+    color: #009DCE;
+    font-size: 1.2em;
+    text-decoration: none;
+}
+#siteHierarchy li a.lastBreadCrumb {
+    color: #000;
+    cursor: text;
+}
+/* breadcrumb separator
+can set display: none if needed because the list-style is taking care of it  */
+.breadSeparator {
+    font: 1em bold 'Helvetica Neue', Arial
+}
+
+/* PART 4 - SITE TOOL LINKS - children of #toolMenuWrap
+/* wrapper for ul that lists the links to tools, and the wrapper that lists links to subsites */
 #toolMenu, #subSites {
-	width: 12em;
-	padding: 0;
-	margin: 0 0 0 0;
-	color: #000;
-	background: #f3f3f3;
-}
-#toolMenu li.selectedTool a {
-	color: #009DCE !important;
-	cursor: default;
-}
-#toolMenu li.selectedTool a:hover {
-	background: inherit !important;
-	*background: #f3f3f3 !important;
-}
-#toolMenu li.moreTools {
-	padding: 8px 0
-}
-#toolMenu li.moreTools a {
-	display: inline;
-	padding: 2px 5px;
-	-moz-border-radius: 4px !important;
-	-webkit-border-radius: 4px !important;
-	-khtml-border-radius: 4px !important;
-	border-radius: 4px !important;
-	color: #444;
-	margin-right: 6px;
-}
-#toolMenu li.moreTools a:hover {
-	color: #fff
-}
-#toolMenu li.moreTools a span {
-	display: inline-block;
-	padding-right: 0;
-}
-#toolMenu li, #subSites li {
-	margin: 0;
-	width: auto;
-	padding: 0;
-	border-bottom: 1px solid #ccc;
-	text-align: right;
-	background: #f3f3f3;
-	/*background: -moz-linear-gradient(top, #f3f3f3 0%, #e7e7e7 100%);;;
-	background: -webkit-gradient(linear, left top, left bottom, color-stop(0%,#f3f3f3), color-stop(100%,#e7e7e7));
-	background: -webkit-linear-gradient(top, #f3f3f3 0%,#e7e7e7 100%);
-	background: -o-linear-gradient(top, #f3f3f3 0%,#e7e7e7 100%);
-	background: -ms-linear-gradient(top, #f3f3f3 0%,#e7e7e7 100%);
-	background: linear-gradient(top, #f3f3f3 0%,#e7e7e7 100%);*/
-}
-#toolMenu li a.selected, #subSites li a.selected {
-	text-decoration: none;
-	color: #000;
-	cursor: default;
-}
-#toolMenu li a.selected:hover, #subSites li a.selected:hover {
-	text-decoration: none;
-	color: #000;
-	cursor: text;
-}
-#toolMenu li a.hidden {
-	font-style: italic;
-	filter: alpha(opacity=70); /* opacity for IE */
-	opacity: 0.7; /* CSS3 standard */
-}
-#toolMenu li span, #subSites li span {
-	background-repeat: no-repeat;
-	background-position: right;
-	padding-right: 22px;
-	line-height: 1.4;
+    width: 12em;
+    padding: 0;
+    margin: 0 0 0 0;
+    color: #000;
+    background: #f3f3f3;
 }
 #toolMenu ul, #subSites ul {
-	width: auto;
-	list-style: none;
-	margin: 0;
-	padding-right: 0;
-	padding-left: 0;
+    width: auto;
+    list-style: none;
+    margin: 0;
+    padding-right: 0;
+    padding-left: 0;
 }
+/* list element wrapper for all links in the tool menu list */
+#toolMenu li, #subSites li {
+    margin: 0;
+    width: auto;
+    padding: 0;
+    border-bottom: 1px solid #ccc;
+    text-align: right;
+    background: #f3f3f3;
+    background: -moz-linear-gradient(top, #f3f3f3 0%, #e7e7e7 100%);
+    background: -webkit-gradient(linear, left top, left bottom, color-stop(0%,#f3f3f3), color-stop(100%,#e7e7e7));
+    background: -webkit-linear-gradient(top, #f3f3f3 0%,#e7e7e7 100%);
+    background: -o-linear-gradient(top, #f3f3f3 0%,#e7e7e7 100%);
+    background: -ms-linear-gradient(top, #f3f3f3 0%,#e7e7e7 100%);
+    background: linear-gradient(top, #f3f3f3 0%,#e7e7e7 100%);
+}
+/* the current tool */
+#toolMenu li.selectedTool a {
+    color: #009DCE !important;
+    cursor: default;
+}
+/* eliminate the normal hover effect when it is current tool */
+#toolMenu li.selectedTool a:hover {
+    background: inherit !important;
+    *background: #f3f3f3 !important;
+}
+#toolMenu li a.hidden {
+    font-style: italic;
+    filter: alpha(opacity=70); /* opacity for IE */
+    opacity: 0.7; /* CSS3 standard */
+}
+#toolMenu li span, #subSites li span {
+    background-repeat: no-repeat;
+    background-position: right;
+    background-image: url(../../image/silk/application.png);
+    padding-right: 22px;
+    line-height: 1.4;
+}
+
 /* span shim for fine grained manipulation of link display (decorative)
-also hide if are going to be using icon links (as background of <a> nad <li>
-  */
+also hide if are going to be using icon links (as background of <a> and <li>) */
 #toolMenu li a:link, #toolMenu li a, #subSites li a:link, #subSites li a {
-	display: block;
-	text-decoration: none;
-	color: #444;
-	padding: 7px 6px 6px;
-	margin-bottom: 0px;
-	margin-left: 0px;
-	margin-right: 0px;
-	margin-top: 0px;
-	overflow: hidden;
+    display: block;
+    text-decoration: none;
+    color: #444;
+    padding: 7px 6px 6px;
+    margin-bottom: 0px;
+    margin-left: 0px;
+    margin-right: 0px;
+    margin-top: 0px;
+    overflow: hidden;
 }
-#toolMenu li a:hover, #subSites li a:hover {
-	text-decoration: none;
-	background: #009DCE;
-	background: -moz-linear-gradient(top, #009DCE 0%, #007EA5 100%);
-	background: -webkit-gradient(linear, left top, left bottom, color-stop(0%,#009DCE), color-stop(100%,#007EA5));
-	background: -webkit-linear-gradient(top, #009DCE 0%,#007EA5 100%);
-	background: -o-linear-gradient(top, #009DCE 0%,#007EA5 100%);
-	background: -ms-linear-gradient(top, #009DCE 0%,#007EA5 100%);
-	background: linear-gradient(top, #009DCE 0%,#007EA5 100%);
-	filter: progid: DXImageTransform.Microsoft.gradient( startColorstr='#009DCE', endColorstr='#007EA5',GradientType=0 );
-	color: #fff;
+#toolMenu li a:hover, #subSites li a:hover, #toolMenu li a:focus, #subSites li a:focus {
+    text-decoration: none;
+    background: #009DCE;
+    background: -moz-linear-gradient(top, #009DCE 0%, #007EA5 100%);
+    background: -webkit-gradient(linear, left top, left bottom, color-stop(0%,#009DCE), color-stop(100%,#007EA5));
+    background: -webkit-linear-gradient(top, #009DCE 0%,#007EA5 100%);
+    background: -o-linear-gradient(top, #009DCE 0%,#007EA5 100%);
+    background: -ms-linear-gradient(top, #009DCE 0%,#007EA5 100%);
+    background: linear-gradient(top, #009DCE 0%,#007EA5 100%);
+    color: #fff;
 }
-/* set of special selectors when a user has chosen to minimize navigation and maximize real
-page estate
-  */
-#togglebar {
-	float: left;
-	width: 13px;
-	height: 30px;
-	padding-top: 2em;
+.sakaiMinimizePageNavigation #toolMenu li.selectedTool a, .sakaiMinimizePageNavigation #toolMenu li a:hover, .sakaiMinimizePageNavigation #subSites li a:hover,.sakaiMinimizePageNavigation #toolMenu li a:focus, .sakaiMinimizePageNavigation #subSites li a:focus {
+    background: #9cd1e8;
+    background: -moz-linear-gradient(top, #9cd1e8 0%, #7bc1e1 100%);
+    background: -webkit-gradient(linear, left top, left bottom, color-stop(0%,#9cd1e8), color-stop(100%,#7bc1e1));
+    background: -webkit-linear-gradient(top, #9cd1e8 0%,#7bc1e1 100%);
+    background: -o-linear-gradient(top, #9cd1e8 0%,#7bc1e1 100%);
+    background: -ms-linear-gradient(top, #9cd1e8 0%,#7bc1e1 100%);
+    background: linear-gradient(top, #9cd1e8 0%,#7bc1e1 100%);
 }
-#togglebar .toggleToolMenuHover {
-	background-position: 0 0 !important
+/* adjusting rendering of last item in the tool menu */
+#toolMenuWrap > div:last-of-type li:last-of-type {
+    border-width: 0;
 }
-#togglebar #toggleToolMax {
-	background: url(images/toggleClose.png) -2px 0 no-repeat;
-	padding: 4px;
-	display: block;
-	height: 50px;
+
+#toolMenuWrap > div:last-of-type, #toolMenuWrap > div:last-of-type ul:last-of-type, #toolMenuWrap > div:last-of-type li:last-of-type, #toolMenuWrap > div:last-of-type li:last-of-type a {
+    -moz-border-radius: 0 0 4px 0;
+    -webkit-border-radius: 0 0 4px 0;
+    border-radius: 0 0 4px 0;
 }
-#togglebar #toggleNormal {
-	background: url(images/toggleOpen.png) -2px 0 no-repeat;
-	padding: 4px;
-	display: block;
-	height: 50px;
+/* link in tool menu that allows adding one more tool, may be disabled */
+#toolMenu li.moreTools {
+    padding: 8px 0
 }
-a#toggleToolMenu {
-	text-decoration: none
+#toolMenu li.moreTools a {
+    display: inline;
+    padding: 2px 5px;
+    -moz-border-radius: 4px !important;
+    -webkit-border-radius: 4px !important;
+    -khtml-border-radius: 4px !important;
+    border-radius: 4px !important;
+    color: #444;
+    margin-right: 6px;
 }
-/* #toggleToolMax, #toggleNormal {
-	height: 18px;
-	padding: 0 2px;
-	border: 1px solid #fff;
+#toolMenu li.moreTools a:hover {
+    color: #fff
 }
-#toggleToolMenu {
-	margin-left: -23px;
+#toolMenu li.moreTools a span {
+    display: inline-block;
+    padding-right: 0;
 }
- #toggleToolMax {
-	outline: 1px solid #ccc
- }
-.toggleToolstoggleNav #toggleToolMax {
-	background: #fff url(images/toggler-back.png) 0 0 no-repeat
- }
-#toggleNormal {
-	outline: 1px solid lime;
-}
-.toggleToolstoggleNav #toggleNormal {
-	background: #fff url(images/toggler-back.png) -16px 0 no-repeat
- }
-.toggleNav #toggleToolMax {
-	background: #fff url(images/toggler-back.png) -32px 0 no-repeat
- }
-.toggleNav #toggleNormal {
-	background: #fff url(images/toggler-back.png) -48px 0 no-repeat
- } 
- .toggleTools #toggleToolMax {
-	background: #fff url(images/toggler-back.png) -64px 0 no-repeat
- }
-.toggleTools #toggleNormal {
-	background: #fff url(images/toggler-back.png) -80px 0 no-repeat
- }
-   ==================================================
-   ================================================== */
-.sakaiMinimizePageNavigation #toolMenu {
-	width: 1px
-}
-.sakaiMinimizePageNavigation #toolMenu li span, .sakaiMinimizePageNavigation #subSites li span {
-	position: absolute;
-	left: -180px;
-	top: auto;
-	width: 1px;
-	height: 1px;
-	overflow: hidden;
-}
-.sakaiMinimizePageNavigation #toolMenu li a, .sakaiMinimizePageNavigation #subSites li a {
-	display: block;
-	height: 16px;
-	padding-right: 0 !important;
-	width: 1px;
-}
-.sakaiMinimizePageNavigation #togglebar {
-	padding-left: 0em;
-	margin-top: 0em;
-	margin-left: 0;
-}
-.sakaiMinimizePageNavigation #toolMenuWrap, .sakaiMinimizePageNavigation #toolMenuWrap:hover {
-	position: absolute;
-	left: -180px;
-	top: auto;
-	width: 1px;
-	height: 1px;
-	overflow: hidden;
-}
-.sakaiMinimizePageNavigation #content {
-	padding-left: 1.6em;
-	margin-left: 5px;
-}
-.sakaiMinimizeSiteNavigation #siteNavWrapper {
-	display: none
-}
-.sakaiMinimizeSiteNavigation #headerMax {
-	padding: 0;
-	margin: 0;
-}
-.sakaiMinimizePageNavigation #toggler {
-	display: block;
-	float: none !important;
-}
-/* * Portal Timeout *
-   ==================================================
-   ================================================== */
-#timeout_alert_body {
-	position: absolute;
-	background: #fff;
-	color: #000;
-	border: 4px solid #0198CD;
-	width: 450px;
-	top: 20%;
-	left: 50%;
-	margin-left: -225px;
-	z-index: 10000;
-	padding: 5px 5px 5px 10px;
-}
-/* PART 6 - SITE AFFILIATION,SITE TYPE/STATUS AND PRESENCE - children of #toolMenuWrap
-   ==================================================
-   ================================================== */
+
+/* PART 6 - SITE AFFILIATION,SITE TYPE/STATUS - children of #toolMenuWrap */
 /* site logo wrapper  */
 #worksiteLogo {
-	height: auto;
-	overflow: hidden;
-	display: block;
-	*display: none;
+    height: auto;
+    overflow: hidden;
+    display: block;
 }
 #worksiteLogo img {
-	display: block;
-	margin: 0 auto;
-	border-bottom: 1px solid #ccc;
-	width: 100%;
+    display: block;
+    margin: 5px auto;
+    max-width: 90%
 }
 /* site logo image - Sakai may output,depending on installation,an image here based in site affiliation. Site owner may also point to a url - overriding the Sakai provided image  */
 /* wrapper for the string that Sakai will output based on site type (ie. project,course) this is open ended and institution specific  */
 #siteType {
-	display: none
+    display: none
 }
 /* wrapper for the string that Sakai will output based on site status when status is "Unpublished"  */
 #siteStatus {
-	text-transform: capitalize;
-	text-align: left;
-	clear: both;
-	color: #009DCE;
-	font-size: small;
-	font-weight: bold;
-	line-height: 130%;
-	padding: 10px 3px;
-	border: 1px solid #ccc;
-	border-width: 0 0 1px 0;
-	text-align: center;
-	margin: 0;
+    text-transform: capitalize;
+    clear: both;
+    color: #009dce;
+    font-size: small;
+    font-weight: bold;
+    line-height: 130%;
+    padding: 10px 3px;
+    border: 1px solid #ccc;
+    border-width: 0 0 1px 0;
+    text-align: center;
+    margin: 0;
 }
-#presenceArea {
-	background-color: #fff;
-	border: 1px solid #ccc;
-	position: fixed;
-	height: 265px;
-	width: 175px;
-	bottom: 26px;
-	right: 18px;
+#siteStatus a {
+    text-decoration: none;
+    display: block;
+    padding: 3px;
+    font-size: 80%;
+    width: auto;
+    color: #444;
+    border: 1px solid #ccc;
+    margin: 10px 20px;
+    border-radius: 4px;
+    -moz-border-radius: 4px;
+    -webkit-border-radius: 4px;
+    background: #e7e7e7 !important;
+    background: -moz-linear-gradient(top, #f7f7f7 0%, #e7e7e7 100%) !important;
+    background: -webkit-gradient(linear, left top, left bottom, color-stop(0%,#f7f7f7), color-stop(100%,#e7e7e7)) !important;
+    background: -webkit-linear-gradient(top, #f7f7f7 0%,#e7e7e7 100%) !important;
+    background: -o-linear-gradient(top, #f7f7f7 0%,#e7e7e7 100%) !important;
+    background: -ms-linear-gradient(top, #f7f7f7 0%,#e7e7e7 100%) !important;
+    background: linear-gradient(top, #f7f7f7 0%,#e7e7e7 100%) !important;
+    box-shadow: 0 0 5px rgba(200, 200, 200, .2);
+    -moz-box-shadow: 0 0 5px rgba(200, 200, 200, .2);
+    -webkit-box-shadow: 0 0 5px rgba(200, 200, 200, .2);
 }
-/* wrapper for all elements of presence display   */
-#presenceWrapper {
-	width: 100%;
-	height: 100%;
+#siteStatus a:hover, #siteStatus a:focus {
+    color: #009dce;
 }
-/* wrapper for title of iframe ("Users present") AAAA  */
-#presenceTitle, #pc_title {
-	color: #000;
-	border-bottom: 1px solid #ccc;
-	padding: 3px 3px 4px 3px;
-	background: #eee;
-	vertical-align: bottom;
-	border-bottom: 1px solid #ddd;
-	height: 15px;
-	font-weight: bold;
-}
-#presenceTitle div, #pc_title div {
-	position: absolute;
-	top: 0px;
-	text-align: center;
-	right: 0px;
-	bottom: 0;
-	width: 22px;
-	height: 22px;
-	font-size: 120%;
-	border-left: 1px solid #ccc;
-}
-#presenceTitle div a, #pc_title div a {
-	width: 100%;
-	height: 100%;
-	display: block;
-	color: transparent;
-	background-image: url(../../image/silk/cross.png);
-	background-position: center center;
-	background-repeat: no-repeat;
-}
-#pc_title div {
-	position: absolute;
-	top: 0px;
-	text-align: center;
-	right: 0px;
-	bottom: 0;
-	width: 17px;
-	height: 17px;
-	font-size: 120%;
-	border-left: 1px solid #ccc;
-	padding: 4px 5px 4px 4px;
-}
-/* of presence iframe  */
-#presenceIframe {
-	height: 242px;
-	width: 100%;
-	overflow: auto;
-}
-/* below for "presence in chat" functionality  */
-.presenceBody {
-	background: #fff
-}
-/* TODO: remove important when the neoportal picks up right skin and edit tool.css removing all presence stuff from there
-   ==================================================
-   ================================================== */
-.presenceList {
-	list-style: none;
-	margin: 3px !important;
-	padding: 0;
-}
-.presenceList li.inChat {
-	background: url(images/chatpresicon.png) right center no-repeat !important
-}
-.presenceList li {
-	padding: 3px 16px 3px 2px !important
-}
-.presenceList li a {
-	font-weight: bold;
-	color: #009DCE;
-	text-decoration: none;
-}
-/* TODO: remove important when the neoportal picks up right skin and edit tool.css removing all presence stuff from there
-   ==================================================
-   ================================================== */
-/* TODO: remove important when the neoportal picks up right skin and edit tool.css removing all presence stuff from there
-   ==================================================
-   ================================================== */
-/* see presense list when one member is in chat room  */
+
 /* PART 7 - PORTLETS - children of #content
-   ==================================================
-   ================================================== */
 /* a page may display portlets in one column or two columns - the next three id selectors address the three possiblities - sole child of column is the .portlet   */
 #col1 {
-	padding-right: 1em
+    padding-right: 1em
 }
 #col1of2 {
-	width: 49%;
-	float: left;
-	margin: 0;
+    width: 49%;
+    float: left;
+    margin: 0;
 }
 #col2of2 {
-	width: 49%;
-	float: right;
+    width: 49%;
+    float: right;
 }
-/* wrapper class for portlets - decorative - contains two wrapper block children: .portletTitleWrap and .portletMainWrap  */
-.portlet {
-
-}
-/* .portletTitleWrap are wrappers for the tool title documents,
-below they are contextually defined depending on the column as an example,as you may want to adjust the widths accordingly
-   ==================================================
-   ================================================== */
 .portletTitle {
-	width: 100%;
-	height: 100%;
-	overflow: hidden;
+    width: 100%;
+    height: 100%;
+    overflow: hidden;
 }
 .portletTitle .action {
-	padding: 2px 4px 6px 2px;
-	text-align: right;
-	vertical-align: middle;
+    padding: 2px 4px 6px 2px;
+    text-align: right;
+    vertical-align: middle;
 }
 .portletTitle .action a#jsr-edit {
-	padding: 2px;
-	background: url(images/page_edit.gif) center right no-repeat;
+    padding: 2px;
+    background: url(images/page_edit.gif) center right no-repeat;
 }
 .portletTitle .action a#jsr-edit:hover {
-	background: url(images/page_edit.gif) center right no-repeat
+    background: url(images/page_edit.gif) center right no-repeat
 }
 .portletTitle .action img {
-	margin: 0;
-	vertical-align: text-bottom;
-	width: 18px;
-	border: none;
-	height: 18px;
+    margin: 0;
+    vertical-align: text-bottom;
+    width: 18px;
+    border: none;
+    height: 18px;
 }
 .portletTitle .action a {
-	background: url(images/help.gif) center right no-repeat;
-	text-align: left;
-	padding: 0;
-	text-decoration: none !important;
-	width: 1em;
-	height: 1.5em;
-	outline: none;
+    background: url(images/help.gif) center right no-repeat;
+    text-align: left;
+    padding: 0;
+    text-decoration: none !important;
+    width: 1em;
+    height: 1.5em;
+    outline: none;
 }
 .portletTitle .title a:focus, .portletTitle .action a:focus {
-	outline: black dotted thin
+    outline: black dotted thin
 }
 .portletTitle .action a:hover, .portletTitle .action a:focus {
-	background: url(images/help_h.gif) center right no-repeat
+    background: url(images/help_h.gif) center right no-repeat
 }
 .portletTitle .title {
-	padding: 2px 4px 6px 0;
-	height: 1em;
-	float: left;
-	color: #000;
+    padding: 2px 4px 6px 0;
+    height: 1em;
+    float: left;
+    color: #000;
 }
 .portletTitle .title img {
-	margin: 0;
-	vertical-align: text-bottom;
-	width: 18px;
-	border: none;
-	height: 18px;
+    margin: 0;
+    vertical-align: text-bottom;
+    width: 18px;
+    border: none;
+    height: 18px;
 }
 .portletTitle .title h2 {
-	display: inline;
-	margin: 0;
-	padding: 0;
-	color: #444;
-	font-weight: bold;
-	font-family: 'Helvetica Neue', Arial, sans-serif;
-	font-size: 1.2em !important;
-}
-.portletTitle .title h2 span.siteTitle:nth-child(even) {
-	display: none
+    display: inline;
+    margin: 0;
+    padding: 0;
+    color: #444;
+    font-weight: bold;
+    font-family: 'Helvetica Neue', Arial, sans-serif;
+    font-size: 1.2em !important;
 }
 .portletTitle .title h2 .siteTitle {
-	color: #333
+    color: #333
 }
 .portletTitle .title a {
-	background: url(images/reload.gif) center left no-repeat;
-	text-decoration: none !important;
-	border: 1px solid #fff;
-	height: 1.5em;
-	outline: none;
+    background: url(images/reload.gif) center left no-repeat;
+    text-decoration: none !important;
+    border: 1px solid #fff;
+    height: 1.5em;
+    outline: none;
 }
 .portletTitle .title a:hover, .portletTitle .title a:focus {
-	background: url(images/reload_h.gif) center left no-repeat
+    background: url(images/reload_h.gif) center left no-repeat
 }
 .portletMainIframe {
-	text-align: left;
-	margin-bottom: .5em;
-	height: auto;
-	border: none;
-	margin-top: 0;
+    text-align: left;
+    margin-bottom: .5em;
+    height: auto;
+    border: none;
+    margin-top: 0;
 }
-/* PART 8 - FOOTER BLOCKS - descendants of #footer TODO - unpack the 3 descendants and make them all children
-   ==================================================
-   ================================================== */
-/* wrapper for links going to external sites - links are output as a series separated via pipes (TODO: make a list already)  */
+/* PART 8 - FOOTER BLOCKS - descendants of #footer */
+/* wrapper for links going to external sites */
 .footerExtNav {
-	padding-top: 5px;
-	padding-bottom: 5px;
+    padding-top: 5px;
+    padding-bottom: 5px;
 }
-.footerExtNav a, .footerExtNav A:link, .footerExtNav A:visited {
-	color: #333;
-	font-size: 1em;
-	text-decoration: none;
-	margin: 1em;
+.footerExtNav a, .footerExtNav a:link, .footerExtNav A:visited {
+    color: #333;
+    font-size: 1em;
+    text-decoration: none;
+    margin: 1em;
 }
 .footerExtNav a:hover {
-	color: #444;
-	text-decoration: underline;
+    color: #444;
+    text-decoration: underline;
 }
 /* the links displayed inside the wrapper above  */
 /* a second wrapper - server info,build,etc  */
 #footerInfo {
-	display: none
+    display: none
 }
 #footerInfo img {
-	margin-top: .5em;
-	margin-bottom: .5em;
+    margin-top: .5em;
+    margin-bottom: .5em;
 }
 /* a third wrapper - reserved for copyright blurbs  */
 .sakaiCopyrightInfo {
-	padding: 5px 0;
-	font-size: .9em;
-	color: #333;
+    padding: 5px 0;
+    font-size: .9em;
+    color: #333;
 }
+
+
+/* PART 9 - Tool Icons - applies to both left hand menu and submenus */
+
+.icon-osp-evaluation {
+    background-image: url(/library/image/silk/thumb_up.png) !important
+}
+.icon-osp-glossary {
+    background-image: url(/library/image/silk/text_list_bullets.png) !important
+}
+.icon-osp-matrix, .icon-osp-exposedmatrix {
+    background-image: url(/library/image/silk/table.png) !important
+}
+.icon-osp-presentation {
+    background-image: url(/library/image/silk/briefcase.png) !important
+}
+.icon-osp-presLayout {
+    background-image: url(/library/image/silk/layout_content.png) !important
+}
+.icon-osp-presTemplate {
+    background-image: url(/library/image/silk/application_view_tile.png) !important
+}
+.icon-osp-style {
+    background-image: url(/library/image/silk/style.png) !important
+}
+.icon-osp-wizard, .icon-osp-exposedwizard {
+    background-image: url(/library/image/silk/wand.png) !important
+}
+.icon-sakai-announcements {
+    background-image: url(/library/image/silk/flag_blue.png) !important
+}
+.icon-sakai-chat {
+    background-image: url(/library/image/silk/user_comment.png) !important
+}
+.icon-sakai-datapoint {
+    background-image: url(/library/image/silk/chart_line.png) !important
+}
+.icon-sakai-discussion {
+    background-image: url(/library/image/silk/comments.png) !important
+}
+.icon-sakai-dropbox {
+    background-image: url(/library/image/silk/folder_page.png) !important
+}
+.icon-sakai-emailtemplateservice {
+    background-image: url(/library/image/silk/email_edit.png) !important
+}
+.icon-sakai-gmt {
+    background-image: url(/library/image/silk/award_star_gold_3.png) !important
+}
+.icon-sakai-help {
+    background-image: url(/library/image/silk/help.png) !important
+}
+.icon-sakai-iframe {
+    background-image: url(/library/image/silk/page_world.png) !important
+}
+.icon-sakai-iframe-site {
+    background-image: url(/library/image/silk/house.png) !important
+}
+.icon-sakai-web-168 {
+    background-image: url(/library/image/silk/application_go.png) !important
+}
+.icon-sakai-mailbox {
+    background-image: url(/library/image/silk/email.png) !important
+}
+.icon-sakai-messages {
+    background-image: url(/library/image/silk/comment.png ) !important
+}
+.icon-sakai-metaobj {
+    background-image: url(/library/image/silk/application_form.png) !important
+}
+.icon-sakai-membership {
+    background-image: url(/library/image/silk/group.png) !important
+}
+.icon-sakai-news {
+    background-image: url(/library/image/silk/rss.png) !important
+}
+.icon-sakai-podcasts {
+    background-image: url(/library/image/silk/ipod_cast.png) !important
+}
+.icon-sakai-postem {
+    background-image: url(/library/image/silk/database_table.png )  !important
+}
+.icon-sakai-preferences {
+    background-image: url(/library/image/silk/cog.png ) !important
+}
+.icon-sakai-rutgers-linktool {
+    background-image: url(/library/image/silk/application.png) !important
+}
+.icon-sakai-sections {
+    background-image: url(/library/image/silk/group_gear.png ) !important
+}
+.icon-sakai-singleuser {
+    background-image: url(/library/image/silk/user.png) !important
+}
+.icon-sakai-syllabus {
+    background-image: url(/library/image/silk/script.png) !important
+}
+.icon-blogger {
+    background-image: url(/library/image/silk/book_edit.png) !important
+}
+.icon-sakai-assignment-grades, .icon-sakai-assignment2 {
+    background-image: url(/library/image/silk/page_edit.png) !important
+}
+.icon-sakai-forums, .icon-sakai-jforum-tool {
+    background-image: url(/library/image/silk/comments.png) !important
+}
+.icon-sakai-gradebook-tool, .icon-sakai-gradebook-gwt-rpc {
+    background-image: url(/library/image/silk/report.png) !important
+}
+.icon-sakai-mailtool {
+    background-image: url(/library/image/silk/email_go.png) !important
+}
+.icon-sakai-poll {
+    background-image: url(/library/image/silk/chart_bar.png) !important
+}
+.icon-sakai-sitestats {
+    background-image: url(/library/image/silk/chart_bar.png) !important
+}
+.icon-sakai-sitestats-admin {
+    background-image: url(/library/image/silk/chart_line.png) !important
+}
+.icon-sakai-presentation {
+    background-image: url(/library/image/silk/monitor.png) !important
+}
+.icon-sakai-profile {
+    background-image: url(/library/image/silk/vcard_edit.png) !important
+}
+.icon-sakai-reports {
+    background-image: url(/library/image/silk/report_magnify.png) !important
+}
+.icon-sakai-resetpass {
+    background-image: url(/library/image/silk/key.png) !important
+}
+.icon-sakai-resources {
+    background-image: url(/library/image/silk/folder.png) !important
+}
+.icon-sakai-rwiki {
+    background-image: url(/library/image/silk/page_white_edit.png) !important
+}
+.icon-sakai-samigo, .icon-sakai-mneme-admin, .icon-sakai-mneme {
+    background-image: url(/library/image/silk/pencil.png) !important
+}
+.icon-sakai-schedule {
+    background-image: url(/library/image/silk/calendar.png) !important
+}
+.icon-sakai-search {
+    background-image: url(/library/image/silk/find.png) !important
+}
+.icon-sakai-siteinfo {
+    background-image: url(/library/image/silk/application_lightning.png) !important
+}
+.icon-sakai-sitesetup {
+    background-image: url(/library/image/silk/application_lightning.png) !important
+}
+.icon-sakai-site-roster {
+    background-image: url(/library/image/silk/vcard.png) !important
+}
+.icon-sakai-synoptic-messagecenter {
+    background-image: url(/library/image/silk/comment.png) !important
+}
+.icon-sakai-conferencing {
+    background-image: url(/library/image/silk/webcam.png) !important
+}
+.icon-sakai-profile2 {
+    background-image: url(/library/image/silk/vcard.png) !important
+}
+
+.icon-sakai-summary-calendar {
+    background-image: url(../../image/silk/calendar.png);
+}
+.icon-sakai-synoptic-announcement {
+    background-image: url(../../image/silk/flag_blue.png);
+}
+.icon-sakai-synoptic-chat {
+    background-image: url(../../image/silk/user_comment.png);
+}
+.icon-sakai-subsite {
+    background-image: url(/library/image/silk/chart_organisation.png) !important
+}
+.icon-sakai-iframe-service {
+    background-image: url(/library/image/silk/house.png) !important
+}
+.icon-sakai-iframe-myworkspace {
+    background-image: url(/library/image/silk/house.png) !important
+}
+.icon-sakai-basiclti {
+    background-image: url(/library/image/silk/application_go.png) !important
+}
+.icon-sakai-basiclti-admin {
+    background-image: url(../../image/silk/application_go.png) !important
+}
+.icon-sakai-lessonbuildertool {
+    background-image: url(../../image/silk/book_open.png) !important
+}
+.icon-my-libintro, .icon-my-libguides {
+    background-image: url(../../image/silk/book.png) !important
+}
+.icon-sakai-see-all-tools {
+    background-image: url(../../image/silk/bullet_go.png) !important
+}
+.icon-sakai-signup {
+    background-image: url(../../image/silk/date.png) !important
+}
+.icon-sakai-privacy {
+    background-image: url(../../image/silk/eye.png) !important
+}
+.icon-sakai-rsf-evaluation {
+    background-image: url(../../image/silk/page_edit.png) !important
+}
+.icon-sakai-iclicker, .icon-sakai-turningtool {
+    background-image: url(../../image/silk/calculator.png) !important
+}
+.icon-sakai-bbb, .icon-sakai-rutgers-connect, .icon-portlet-\/sakai-elluminate-tool-sakai-elluminate {
+    background-image: url(../../image/silk/group.png) !important
+}
+.icon-sakai-melete {
+    background-image: url(../../image/sakai/tool-icons/sakai.melete.png);
+}
+.icon-sakai-blogwow {
+    background-image: url(../../image/silk/application_view_gallery.png) !important
+}
+.icon-sakai-scormcloud {
+    background-image: url(../../image/silk/script.png) !important
+}
+.icon-sakai-njvidbrowser {
+    background-image: url(../../image/silk/film.png) !important
+}
+.icon-role-enter {
+    background-image: url(/library/image/silk/arrow_undo.png) !important
+}
+.icon-role-exit {
+    background-image: url(/library/image/silk/arrow_redo.png) !important
+}
+/* admin tools  */
+.icon-sakai-users {
+    background-image: url(/library/image/silk/folder_user.png) !important
+}
+.icon-sakai-aliases {
+    background-image: url(/library/image/silk/tag_blue.png) !important
+}
+.icon-sakai-sites {
+    background-image: url(/library/image/silk/application_cascade.png) !important
+}
+.icon-sakai-realms {
+    background-image: url(/library/image/silk/sitemap_color.png) !important
+}
+.icon-sakai-online {
+    background-image: url(/library/image/silk/report_user.png) !important
+}
+.icon-sakai-memory {
+    background-image: url(/library/image/silk/server_chart.png) !important
+}
+.icon-sakai-archive {
+    background-image: url(/library/image/silk/page_white_compressed.png) !important
+}
+.icon-sakai-scheduler {
+    background-image: url(/library/image/silk/clock.png) !important
+}
+.icon-sakai-su {
+    background-image: url(/library/image/silk/user_go.png) !important
+}
+.icon-sakai-usermembership {
+    background-image: url(/library/image/silk/drive_user.png) !important
+}
+.icon-sakai-motd {
+    background-image: url(/library/image/silk/house.png) !important
+}
+.icon-sakai-sitebrowser {
+    background-image: url(/library/image/silk/world.png) !important
+}
+.icon-sakai-createuser {
+    background-image: url(/library/image/silk/user_add.png) !important
+}
+
+
+/* PART 10: specific functionality */
+
+/* presence and chat rendering */
+#presenceArea {
+    background-color: #fff;
+    border: 1px solid #ccc;
+    position: fixed;
+    height: 265px;
+    width: 175px;
+    bottom: 26px;
+    right: 18px;
+}
+
+/* wrapper for all elements of presence display   */
+#presenceWrapper {
+    width: 100%;
+    height: 100%;
+}
+/* wrapper for title of iframe ("Users present")*/
+#presenceTitle, #pc_title {
+    color: #000;
+    border-bottom: 1px solid #ccc;
+    padding: 3px 3px 4px 3px;
+    background: #eee;
+    vertical-align: bottom;
+    border-bottom: 1px solid #ddd;
+    height: 15px;
+    font-weight: bold;
+}
+#presenceTitle div, #pc_title div {
+    position: absolute;
+    top: 0px;
+    text-align: center;
+    right: 0px;
+    bottom: 0;
+    width: 22px;
+    height: 22px;
+    font-size: 120%;
+    border-left: 1px solid #ccc;
+}
+#presenceTitle div a, #pc_title div a {
+    width: 100%;
+    height: 100%;
+    display: block;
+    background-image: url(../../image/silk/cross.png);
+    background-position: center center;
+    background-repeat: no-repeat;
+    color: transparent;
+}
+#pc_title div {
+    position: absolute;
+    top: 0px;
+    text-align: center;
+    right: 0px;
+    bottom: 0;
+    width: 17px;
+    height: 17px;
+    font-size: 120%;
+    border-left: 1px solid #ccc;
+    padding: 4px 5px 4px 4px;
+}
+/* this used to be an iframe, hence the name  */
+#presenceIframe {
+    height: 242px;
+    width: 100%;
+    overflow: auto;
+}
+.presenceList {
+    list-style: none;
+    margin: 3px !important;
+    padding: 0;
+}
+.presenceList li.inChat {
+    background: url(images/chatpresicon.png) right center no-repeat !important
+}
+.presenceList li {;
+    padding: 3px 16px 3px 2px !important
+}
+/* list item when the user is an a chat room is a link to that chat room */
+.presenceList li a {
+    color: #009DCE;
+    text-decoration: none;
+}
+
+/* main container for presence and portal chat.*/
 #footerAppTray {
-	font-size: .9em;
-	position: fixed;
-	right: 18px;
-	bottom: 0;
-	line-height: 1.2em;
-	text-align: center;
-	padding: 0;
-	border: 1px solid #ccc;
-	border-width: 1px 1px 0 1px;
-	background: #eeeeee;
-	background: -moz-linear-gradient(top, #eeeeee 0%, #e4e4e4 100%);
-	background: -webkit-gradient(linear, left top, left bottom, color-stop(0%,#eeeeee), color-stop(100%,#e4e4e4));
-	background: -webkit-linear-gradient(top, #eeeeee 0%,#e4e4e4 100%);
-	background: -o-linear-gradient(top, #eeeeee 0%,#e4e4e4 100%);
-	background: -ms-linear-gradient(top, #eeeeee 0%,#e4e4e4 100%);
-	background: linear-gradient(top, #eeeeee 0%,#e4e4e4 100%);
-	*width: 30px;
+    font-size: .9em;
+    position: fixed;
+    right: 18px;
+    bottom: 0;
+    line-height: 1.2em;
+    text-align: center;
+    padding: 0;
+    border: 1px solid #ccc;
+    border-width: 1px 1px 0 1px;
+    background: #eeeeee;
+    background: -moz-linear-gradient(top, #eeeeee 0%, #e4e4e4 100%);
+    background: -webkit-gradient(linear, left top, left bottom, color-stop(0%,#eeeeee), color-stop(100%,#e4e4e4));
+    background: -webkit-linear-gradient(top, #eeeeee 0%,#e4e4e4 100%);
+    background: -o-linear-gradient(top, #eeeeee 0%,#e4e4e4 100%);
+    background: -ms-linear-gradient(top, #eeeeee 0%,#e4e4e4 100%);
+    background: linear-gradient(top, #eeeeee 0%,#e4e4e4 100%);
+    *width: 30px;
 }
 #footerAppTray #chattableCount {
-	font-size: 80%;
-	margin-left: 10px;
-	outline: none;
+    font-size: 80%;
+    margin-left: 10px;
+    outline: none;
 }
 #footerAppTray #presenceCount {
-	font-size: 80%;
-	outline: none;
+    font-size: 80%;
+    outline: none;
 }
 #presenceCount {
-	display: none;
+    display: none;
 }
 #footerAppTray span.present {
     margin: -2px 0 0 5px !important;
@@ -1265,1049 +1473,568 @@ below they are contextually defined depending on the column as an example,as you
     width: 14px;
 }
 #footerAppTray span.empty {
-	visibility: hidden
+    visibility: hidden
 }
 #footerAppPresence {
-	height: 100%;
-	width: 25px;
-	color: #888;
-	vertical-align: middle;
-	float: right;
-	padding: 5px 3px;
-	text-align: center;
+    height: 100%;
+    width: 25px;
+    color: #888;
+    vertical-align: middle;
+    float: right;
+    padding: 5px 3px;
+    text-align: center;
 }
 #footerAppChat {
-	vertical-align: bottom;
-	color: #000;
-	float: left;
-	text-align: left;
-	width: 200px;
+    vertical-align: bottom;
+    color: #000;
+    float: left;
+    text-align: left;
+    width: 200px;
 }
 #presenceToggle {
-	color: white;
-	text-decoration: none;
-	text-align: center;
+    color: white;
+    text-decoration: none;
+    text-align: center;
 }
+
 #chatToggle {
-	display: block;
-	padding: 6px 6px 5px 6px;
-	color: #222;
-	text-decoration: none;
-	height: 16px;
-	font-weight: bold;
+    display: block;
+    padding: 6px 6px 5px 6px;
+    color: #222;
+    text-decoration: none;
+    height: 16px;
+    font-weight: bold;
 }
 #presenceToggle:focus, #chatToggle:focus {
-    outline:1px dotted #000;
+    outline: 1px dotted #000;
 }
 .workspace #footerAppPresence {
-	display: none;
-	border: none;
+    display: none;
+    border: none;
 }
 #chattableCount {
-	display: inline-block;
-	vertical-align: middle !;
-	padding: 2px 5px !important;
-	line-height: normal;
-	width: auto !important;
-	height: auto !important;
-}
-/* PART 8 - CONVENIENCE
-   ==================================================
-   ================================================== */
-/* used to hide various blocks from sighted users that are in the source to help with accessibility  */
-.portalBody .skip{
-    display: inline !important; 
-    position: fixed !important; 
-    height: 1px !important; 
-    width: 1px !important; 
-    overflow: hidden !important;
-    top:0px !important;
-    left:0px; 
-        padding:0px 0px 0px 0px !important;
-} 
-
-/*jump-to links, tabbing into  */
-#skipNav a.internalSkip:focus, #skipNav a.internalSkip:active {
-    text-decoration:none;
-    font-size:190%;
-    position:fixed !important;
-    background:#eee;
-    -webkit-border-radius: 10px;
-    -moz-border-radius: 10px;
-    border-radius: 10px;
-    vertical-align:middle;
-    padding:6px 10px !important;
-    outline:none;
-    z-index:200000;
-    box-shadow:0px 0px 3px #000;
-    -webkit-box-shadow:0px 0px 3px #000;
-    -moz-box-shadow:0px 0px 3px #000000;
-    top:50% !important;
-    left:40%  !important;
-    height:auto  !important;
-    color:#000;
-    width: auto  !important;
-}
-/*append the value of the accesskey attr to the text*/
-.internalSkip:after {content:' [' attr(accesskey) ']'}
-
-/* PART 9 - Tool Icons
-   ==================================================
-   ================================================== */
-.icon-osp-evaluation {
-	background-image: url(/library/image/silk/thumb_up.png)
-}
-.icon-osp-glossary {
-	background-image: url(/library/image/silk/text_list_bullets.png)
-}
-.icon-osp-matrix, .icon-osp-exposedmatrix {
-	background-image: url(/library/image/silk/table.png)
-}
-.icon-osp-presentation {
-	background-image: url(/library/image/silk/briefcase.png)
-}
-.icon-osp-presLayout {
-	background-image: url(/library/image/silk/layout_content.png)
-}
-.icon-osp-presTemplate {
-	background-image: url(/library/image/silk/application_view_tile.png)
-}
-.icon-osp-style {
-	background-image: url(/library/image/silk/style.png)
-}
-.icon-osp-wizard, .icon-osp-exposedwizard {
-	background-image: url(/library/image/silk/wand.png)
-}
-.icon-sakai-announcements {
-	background-image: url(/library/image/silk/flag_blue.png)
-}
-.icon-sakai-chat {
-	background-image: url(/library/image/silk/user_comment.png)
-}
-.icon-sakai-datapoint {
-	background-image: url(/library/image/silk/chart_line.png)
-}
-.icon-sakai-discussion {
-	background-image: url(/library/image/silk/comments.png)
-}
-.icon-sakai-dropbox {
-	background-image: url(/library/image/silk/folder_page.png)
-}
-.icon-sakai-emailtemplateservice {
-	background-image: url(/library/image/silk/email_edit.png)
-}
-.icon-sakai-gmt {
-	background-image: url(/library/image/silk/award_star_gold_3.png)
-}
-.icon-sakai-help {
-	background-image: url(/library/image/silk/help.png)
-}
-.icon-sakai-iframe {
-	background-image: url(/library/image/silk/page_world.png)
-}
-.icon-sakai-iframe-site {
-	background-image: url(/library/image/silk/house.png)
-}
-.icon-sakai-web-168 {
-	background-image: url(/library/image/silk/application_go.png)
-}
-.icon-sakai-mailbox {
-	background-image: url(/library/image/silk/email.png)
-}
-.icon-sakai-messages {
-	background-image: url(/library/image/silk/comment.png )
-}
-.icon-sakai-metaobj {
-	background-image: url(/library/image/silk/application_form.png)
-}
-.icon-sakai-membership {
-	background-image: url(/library/image/silk/group.png)
-}
-.icon-sakai-news {
-	background-image: url(/library/image/silk/rss.png)
-}
-.icon-sakai-podcasts {
-	background-image: url(/library/image/silk/ipod_cast.png )
-}
-.icon-sakai-postem {
-	background-image: url(/library/image/silk/database_table.png )
-}
-.icon-sakai-preferences {
-	background-image: url(/library/image/silk/cog.png )
-}
-.icon-sakai-rutgers-linktool {
-	background-image: url(/library/image/silk/application.png)
-}
-.icon-sakai-sections {
-	background-image: url(/library/image/silk/group_gear.png )
-}
-.icon-sakai-singleuser {
-	background-image: url(/library/image/silk/user.png )
-}
-.icon-sakai-syllabus {
-	background-image: url(/library/image/silk/script.png )
-}
-.icon-blogger {
-	background-image: url(/library/image/silk/book_edit.png )
-}
-.icon-sakai-assignment-grades, .icon-sakai-assignment2 {
-	background-image: url(/library/image/silk/page_edit.png )
-}
-.icon-sakai-forums, .icon-sakai-jforum-tool {
-	background-image: url(/library/image/silk/comments.png )
-}
-.icon-sakai-gradebook-tool, .icon-sakai-gradebook-gwt-rpc {
-	background-image: url(/library/image/silk/report.png)
-}
-.icon-sakai-mailtool {
-	background-image: url(/library/image/silk/email_go.png )
-}
-.icon-sakai-poll {
-	background-image: url(/library/image/silk/chart_bar.png)
-}
-.icon-sakai-sitestats {
-	background-image: url(/library/image/silk/chart_bar.png)
-}
-.icon-sakai-sitestats-admin {
-	background-image: url(/library/image/silk/chart_line.png)
-}
-.icon-sakai-presentation {
-	background-image: url(/library/image/silk/monitor.png)
-}
-.icon-sakai-profile {
-	background-image: url(/library/image/silk/vcard_edit.png)
-}
-.icon-sakai-reports {
-	background-image: url(/library/image/silk/report_magnify.png)
-}
-.icon-sakai-resetpass {
-	background-image: url(/library/image/silk/key.png)
-}
-.icon-sakai-resources {
-	background-image: url(/library/image/silk/folder.png)
-}
-.icon-sakai-rwiki {
-	background-image: url(/library/image/silk/page_white_edit.png)
-}
-.icon-sakai-samigo, .icon-sakai-mneme-admin, .icon-sakai-mneme {
-	background-image: url(/library/image/silk/pencil.png)
-}
-.icon-sakai-schedule {
-	background-image: url(/library/image/silk/calendar.png)
-}
-.icon-sakai-search {
-	background-image: url(/library/image/silk/find.png)
-}
-.icon-sakai-siteinfo {
-	background-image: url(/library/image/silk/application_lightning.png )
-}
-.icon-sakai-sitesetup {
-	background-image: url(/library/image/silk/application_lightning.png )
-}
-.icon-sakai-site-roster {
-	background-image: url(/library/image/silk/vcard.png)
-}
-.icon-sakai-synoptic-messagecenter {
-	background-image: url(/library/image/silk/comment.png)
-}
-.icon-sakai-conferencing {
-	background-image: url(/library/image/silk/webcam.png)
-}
-.icon-sakai-profile2 {
-	background-image: url(/library/image/silk/vcard.png)
-}
-/* admin tools  */
-.icon-sakai-users {
-	background-image: url(/library/image/silk/folder_user.png)
-}
-.icon-sakai-aliases {
-	background-image: url(/library/image/silk/tag_blue.png)
-}
-.icon-sakai-sites {
-	background-image: url(/library/image/silk/application_cascade.png)
-}
-.icon-sakai-realms {
-	background-image: url(/library/image/silk/sitemap_color.png)
-}
-.icon-sakai-online {
-	background-image: url(/library/image/silk/report_user.png)
-}
-.icon-sakai-memory {
-	background-image: url(/library/image/silk/server_chart.png)
-}
-.icon-sakai-archive {
-	background-image: url(/library/image/silk/page_white_compressed.png)
-}
-.icon-sakai-scheduler {
-	background-image: url(/library/image/silk/clock.png)
-}
-.icon-sakai-su {
-	background-image: url(/library/image/silk/user_go.png)
-}
-.icon-sakai-usermembership {
-	background-image: url(/library/image/silk/drive_user.png)
-}
-.icon-sakai-motd {
-	background-image: url(/library/image/silk/house.png)
-}
-.icon-sakai-sitebrowser {
-	background-image: url(/library/image/silk/world.png)
-}
-.icon-sakai-createuser {
-	background-image: url(/library/image/silk/user_add.png)
-}
-.icon-sakai-subsite {
-	background-image: url(/library/image/silk/chart_organisation.png)
-}
-.icon-sakai-iframe-service {
-	background-image: url(/library/image/silk/house.png)
-}
-.icon-sakai-iframe-myworkspace {
-	background-image: url(/library/image/silk/house.png)
-}
-.icon-sakai-basiclti {
-	background-image: url(/library/image/silk/application_go.png)
-}
-.icon-sakai-basiclti-admin {
-	background-image: url(../../image/silk/application_go.png)
-}
-.icon-sakai-lessonbuildertool {
-	background-image: url(../../image/silk/book_open.png)
-}
-.icon-my-libintro, .icon-my-libguides {
-	background-image: url(../../image/silk/book.png)
-}
-.icon-sakai-see-all-tools {
-	background-image: url(../../image/silk/bullet_go.png)
-}
-.icon-sakai-signup {
-	background-image: url(../../image/silk/date.png)
-}
-.icon-sakai-privacy {
-	background-image: url(../../image/silk/eye.png)
-}
-.icon-sakai-rsf-evaluation {
-	background-image: url(../../image/silk/page_edit.png)
-}
-.icon-sakai-iclicker, .icon-sakai-turningtool {
-	background-image: url(../../image/silk/calculator.png)
-}
-.icon-sakai-bbb, .icon-sakai-rutgers-connect, .icon-portlet-\/sakai-elluminate-tool-sakai-elluminate {
-	background-image: url(../../image/silk/group.png)
-}
-.icon-sakai-melete {
-	background-image: url(../../image/silk/sitemap_color.png)
-}
-.icon-sakai-blogwow {
-	background-image: url(../../image/silk/application_view_gallery.png)
-}
-.icon-sakai-scormcloud {
-	background-image: url(../../image/silk/script.png)
-}
-.icon-sakai-njvidbrowser {
-	background-image: url(../../image/silk/film.png)
-}
-.icon-role-enter {
-	background-image: url(/library/image/silk/arrow_undo.png)
-}
-.icon-role-exit {
-	background-image: url(/library/image/silk/arrow_redo.png)
-}
-/* Generic icons for other tools that most likely won't require them */
-.icon-com-rsmart-oauth-management-tools, .icon-com-rsmart-oauth-tools, .icon-osp-guidance-sample, .icon-osp-sample-jsf-widgets, .icon-osp-synoptic, .icon-osp-synoptic-design-publish, .icon-sakai-accountvalidator, .icon-sakai-admin-prefs, .icon-sakai-basiclti-admin-helper, .icon-sakai-gradebook-testservice, .icon-sakai-iframe-annotatedurl, .icon-sakai-presence, .icon-sakai-scormcloud-configure-helper, .icon-sakai-scormcloud-preview-helper, .icon-sakai-scormcloud-remove-helper, .icon-sakai-scormcloud-upload-helper, .icon-sakai-summary-calendar, .icon-sakai-synoptic-announcement, .icon-sakai-synoptic-chat {
-	background-image: url(../../image/silk/application.png)
-}
-/* * Privacy Popup Styles *
-   ==================================================
-   ================================================== */
-div#privacy_tool_popup {
-	position: absolute;
-	background: #fff;
-	color: #000;
-	border: 4px solid #0198CD;
-	width: 450px;
-	top: 20%;
-	left: 50%;
-	margin-left: -225px;
-	z-index: 1000;
-	padding: 5px 5px 5px 10px;
-}
-div#privacy_overlay {
-	position: absolute;
-	top: 0;
-	left: 0;
-	width: 100%;
-	height: 100%;
-	background-color: #000;
-	filter: alpha(opacity=70);
-	opacity: 0.7;
-	z-index: 0;
-}
-ul.topnav {
-	list-style: none;
-	padding: 8px 0 5px 12.5em;
-	margin: 0;
-	width: 100%;
-	background-image: url(images/logo.png);
-	background-repeat: no-repeat;
-	background-position: 8px 4px;
-}
-ul.topnav li.nav-menu:hover, ul.topnav li.nav-selected, ul.topnav li.more-tab:hover {
-	background: #008DB9;
-	background: -moz-linear-gradient(top, #008DB9 0%, #007194 100%);
-	background: -webkit-gradient(linear, left top, left bottom, color-stop(0%,#008DB9), color-stop(100%,#007194));
-	background: -webkit-linear-gradient(top, #008DB9 0%,#007194 100%);
-	background: -o-linear-gradient(top, #008DB9 0%,#007194 100%);
-	background: -ms-linear-gradient(top, #008DB9 0%,#007194 100%);
-	background: linear-gradient(top, #008DB9 0%,#007194 100%);
-	filter: progid:DXImageTransform.Microsoft.gradient( startColorstr='#008DB9', endColorstr='#007194',GradientType=0 );
-	border: 1px solid #005A76;
-	-moz-border-radius: 3px;
-	-webkit-border-radius: 3px;
-	border-radius: 3px;
-}
-ul.topnav li {
-	display: inline-block;
-	*display: inline;
-	*float: left;
-	margin: 0 5px 0 0;
-	padding: 0;
-	position: relative; /*--Declare X and Y axis base for sub navigation--*/
-	font-weight: bold;
-	border: 1px solid transparent;
-}
-ul.topnav li span.subhover {
-	background-position: center -38px;
-	cursor: pointer;
-}
-ul.topnav li ul.subnav, #mastLogin ul.subnav {
-	list-style: none;
-	position: absolute; /*--Important - Keeps subnav from affecting main navigation flow--*/
-	left: -1px;
-	top: 21px;
-	background: #f3f3f3;
-	font-size: .9em;
-	margin: 0;
-	padding: 0 !important;
-	display: none;
-	float: left;
-	width: 210px;
-	border: 1px solid #ccc;
-	border-width: 1px 1px 0 1px;
-	z-index: 100;
-	-moz-box-shadow: 0 0 8px #444;
-	-webkit-box-shadow: 0 0 8px #444;
-	box-shadow: 0 0 8px #444;
-}
-ul.topnav li ul.subnav li, #mastLogin ul.subnav li, .otherSiteTool {
-	background: #f3f3f3;
-	border: 1px solid #ccc;
-	border-width: 0 0 1px 0;
-	width: 100%;
-}
-ul.topnav li ul.subnav li a:hover, ul.topnav li ul.subnav li a:focus, 
-    #mastLogin ul.subnav li a:hover, #mastLogin ul.subnav li a:focus {
-	text-decoration: none;
-	color: #009DCE;
-}
-ul.topnav li span.drop {
-	/*--Drop down trigger styles--*/
-	width: 17px;
-	margin-top: 3px;
-	margin-right: 7px;
-	height: 29px;
-	float: left;
-	background: url(images/subnav_btn.png) no-repeat center -3px;
-	*display: none !important;
-}
-ul.topnav li span.drop:nth-child(even) {
-	display: none
-}
-ul.topnav li a {
-	padding: 8px 7px 8px 8px;
-	font-size: 13px;
-	color: #fff;
-	text-decoration: none;
-	float: left;
-	display: block;
-	-moz-text-shadow: 0 -1px 1px rgba(0, 0, 0, .3);
-	-webkit-text-shadow: 0 -1px 1px rgba(0, 0, 0, .3);
-	text-shadow: 0 -1px 1px rgba(0, 0, 0, .3);
-}
-#loginLinks .nav-menu>span {
-	
-}
-li.nav-menu > a:hover, li.nav-menu > a:focus, li.nav-menu > a: active {
-	outline: none
-}
-span.nav-menu > a:hover, span.nav-menu > a:focus, span.nav-menu > a: active {
-	outline: none
-}
-/* remove these hacks after we redo the more sites functionality
-  */
-some_nowhitespace {
-	nowhitespace: afterproperty
-}
-/* --Hover effect for trigger--
-   ==================================================
-   ================================================== */
-ul.subnav span.addTool {
-	text-align: right
-}
-#otherSiteTools {
-	list-style: none;
-	position: absolute;
-	top: -2000px;
-	left: -2000px;
-	z-index: 1000000;
-	background: #ccc;
-	font-size: .9em;
-	margin: 0;
-	padding: 0 !important;
-	width: 200px;
-	padding: 1px;
-	border: 1px solid #ccc;
-	border-width: 1px 1px 0 1px;
-	-moz-box-shadow: 0 0 8px #444;
-	-webkit-box-shadow: 0 0 8px #444;
-	box-shadow: 0 0 8px #444;
-}
-#otherSiteTools li {
-	float: left;
-	padding: 0;
-	margin: 0;
-}
-#otherSiteTools li a {
-	width: 210px;
-	background-position: 3px center !important;
-	background-repeat: no-repeat !important;
-	outline: none;
-	width: 170px;
-	padding: 7px 5px 6px;
-	padding-left: 25px;
-	display: block;
-	text-decoration: none;
-	color: #111;
-}
-#otherSiteTools li a:hover, #otherSiteTools li a:focus {
-	color: #009DCE
-}
-span.topnav li ul.subnav li {
-	margin: 0;
-	padding: 0;
-	clear: both;
-	width: 210px;
-}
-li.submenuitem span.hidden {
-	font-style: italic;
-	filter: alpha(opacity=50);
-	opacity: 0.70;
-}
-ul#otherSiteList, ul.otherSitesCategorList {
-	margin: 5px;
-	padding: 0;
-	clear: both;
-	float: left;
-	font-size: .9em;
-}
-ul#otherSitesMenu li{
-    display: inline-block !important;
-	margin-right: 4px !important;
-	margin-bottom: 4px !important;
-	padding: 3px 8px !important;
-	border: 1px solid #ccc !important;
-	border-radius: 4px;
-	-moz-border-radius: 4px;
-	-webkit-border-radius: 4px;
-	background: #e7e7e7 !important;
-	background: -moz-linear-gradient(top, #f7f7f7 0%, #e7e7e7 100%) !important;
-	background: -webkit-gradient(linear, left top, left bottom, color-stop(0%,#f7f7f7), color-stop(100%,#e7e7e7)) !important;
-	background: -webkit-linear-gradient(top, #f7f7f7 0%,#e7e7e7 100%) !important;
-	background: -o-linear-gradient(top, #f7f7f7 0%,#e7e7e7 100%) !important;
-	background: -ms-linear-gradient(top, #f7f7f7 0%,#e7e7e7 100%) !important;
-	background: linear-gradient(top, #f7f7f7 0%,#e7e7e7 100%) !important;
-	box-shadow: 0 0 5px rgba(200, 200, 200, .2);
-    -moz-box-shadow:    0 0 5px rgba(200, 200, 200, .2);
-    -webkit-box-shadow: 0 0 5px rgba(200, 200, 200, .2);
-}
-#otherSitesMenu li a, #otherSitesMenu li a:visited{
-    display: block;
-	padding: 8px;
-	text-decoration: none !important;
-	color: #000 !important;
-	white-space: nowrap;    
-	font-weight: bold;
+    display: inline-block;
+    vertical-align: middle !important;
+    padding: 2px 5px !important;
+    line-height: normal;
+    width: auto !important;
+    height: auto !important;
 }
 
-ul#otherSiteList li, ul.otherSitesCategorList li {
-	background: #009DCE;
-	background: -moz-linear-gradient(top, #009DCE 0%, #007EA5 100%);
-	background: -webkit-gradient(linear, left top, left bottom, color-stop(0%,#009DCE), color-stop(100%,#007EA5));
-	background: -webkit-linear-gradient(top, #009DCE 0%,#007EA5 100%);
-	background: -o-linear-gradient(top, #009DCE 0%,#007EA5 100%);
-	background: -ms-linear-gradient(top, #009DCE 0%,#007EA5 100%);
-	background: linear-gradient(top, #009DCE 0%,#007EA5 100%);
-	filter: progid: DXImageTransform.Microsoft.gradient( startColorstr='#009DCE', endColorstr='#007EA5',GradientType=0 );
-	border: 1px solid #005A76;
-	font-weight: bold;
-	position: relative;
-	border-radius: 5px;
-	-moz-border-radius: 5px;
-	-webkit-border-radius: 5px;
-	overflow: hidden;
-}
-ul#otherSiteList li a, ul.otherSitesCategorList li a {
-	display: block;
-	padding: 8px;
-	text-decoration: none !important;
-	color: #fff !important;
-	white-space: nowrap;
-}
-ul#otherSiteList li a:hover, ul#otherSiteList li a:focus, ul#otherSiteList li a: active, #otherSitesMenu li a:hover, #otherSitesMenu li a:focus, #otherSitesMenu li a: active, ul.otherSitesCategorList li a:hover, ul.otherSitesCategorList li a:focus {
-	color: #9cf !important
-}
-ul#otherSiteList li a span, ul.otherSitesCategorList li a span {
-	width: 14em;
-	display: block;
-	overflow: hidden;
-	text-overflow: ellipsis;
-}
-ul#otherSiteList li a, ul.otherSitesCategorList li a {
 
-}
-/* Hide the Add new site button until it works properly */
 
-#otherSitesCategorWrap .toolMenus {
-	background-position: 7px -7px;
-}
-ul.otherSitesCategorList a {
-	color: #c2e0ff !important
-}
-ul.otherSitesCategorList {
-	margin-left: 10px
-}
-ul#otherSitesMenu {
-	position: absolute;
-	top: 15px;
-	right: 15px;
-	font-size: .9em;
-	margin: 0;
-	padding: 0;
-}
-ul#otherSitesMenu li {
-	width: auto;
-	font-size: 1.1em;
-	padding: 2px 3px 3px 3px;
-}
-/* for categorized view
-  */
-#otherSitesCategorWrap {
-	margin: 5px;
-	height: auto !important;
-}
-#otherSitesCategorWrap h4 {
-	float: none;
-	clear: both;
-	color: #fff;
-	font-size: 90%;
-	text-transform: uppercase;
-	padding: 4px 10px 0 11px;
-	margin: 0;
-	margin-bottom: -8px;
-	color: #000;
-	font-weight: bold;
-}
-.toolMenus {
-	width: 17px;
-	height: 17px;
-	padding: 0px;
-	background: url(images/subnav_btn.png) no-repeat 10px -3px;
-	position: absolute;
-	right: 1px;
-	top: 2px;
-	height: 11px;
-	*display: none !important;
-	border-left: thin solid #FFFFFF;
-}
-.toolMenus:hover {
-	background-position: 10px -38px;
-	cursor: pointer;
-}
-#otherSiteMenuWrap {
-	margin: 5px;
-	padding: 5px;
-	width: auto;
-	height: 30px;
-}
-#otherSiteMenuWrap * {
-	vertical-align: middle
-}
-#otherSiteSearch {
-	padding: 5px;
-	width: 70%;
-	float: left;
-}
-#otherSiteSearch span#noSearchResults {
-	padding-left: 10px
-}
-#otherSiteSearch #imgSearch {
-	margin: 0 !important;
-	padding: 0 !important;
-	line-height: normal;
-	vertical-align: top;
-}
-#otherSiteSearch label {
-	padding-right: 15px;
-	font-weight: bold;
-}
-#otherSiteSearch h4, #otherSItesCategorWrap h4 {
-	color: #222 !important;
-	font-weight: bold !important;
-}
-.workspace #presenceToggle {
-	display: none
-}
 /* pc = Portal Chat   */
 #pc {
-	width: 200px;
-	font-family: 'Helvetica Neue', Arial;
-	background-color: white;
-	border: 1px solid #ccc;
-	border-width: 1px 1px 0 1px;
-	position: fixed;
-	bottom: 28px;
-	/* Needs to be to the right of the expanded presence block. See presenceArea. */
-	right: 18px;
-	z-index: 2001;
-	margin: 0px;
-	padding: 0px;
-	display: none;
+    width: 200px;
+    font-family: 'Helvetica Neue', Arial;
+    background-color: white;
+    border: 1px solid #ccc;
+    border-width: 1px 1px 0 1px;
+    position: fixed;
+    bottom: 28px;
+    /* Needs to be to the right of the expanded presence block. See presenceArea. */
+    right: 18px;
+    z-index: 2001;
+    margin: 0px;
+    padding: 0px;
+    display: none;
 }
 #pc h5 {
-	margin-bottom: 5px !important;
+    margin-bottom: 5px !important;
 }
 #pc_chat_window_container {
-	position: fixed;
-	/* The chats container is placed just to the left of the connections menu */
-	right: 225px;
-	bottom: 0px;
-	height: 300px;
-	/* This ridiculous width prevents pc_chat_windows from stacking */
-	width: 10000px;
-	pointer-events: none;
+    position: fixed;
+    /* The chats container is placed just to the left of the connections menu */
+    right: 225px;
+    bottom: 0px;
+    height: 300px;
+    /* This ridiculous width prevents pc_chat_windows from stacking */
+    width: 10000px;
+    pointer-events: none;
 }
 #pc_chat_close {
-	padding: 0 !important
+    padding: 0 !important
 }
 .pc_chat_window {
-	height: 300px;
-	width: 256px;
-	float: right;
-	border: #ccc solid 1px;
-	border-bottom: 0;
-	bottom: 0;
-	pointer-events: auto;
-	margin-right: 5px;
+    height: 300px;
+    width: 256px;
+    float: right;
+    border: #ccc solid 1px;
+    border-bottom: 0;
+    bottom: 0;
+    pointer-events: auto;
+    margin-right: 5px;
 }
 #pc_title {
-	font-weight: bold;
-	border-bottom: 1px solid #ccc;
-	padding: 5px;
-	background: #eee;
-	height: 15px;
-	vertical-align: middle;
+    font-weight: bold;
+    border-bottom: 1px solid #ccc;
+    padding: 5px;
+    background: #eee;
+    height: 15px;
+    vertical-align: middle;
 }
 #pc_people {
-	display: none
+    display: none
 }
 .pc_users_wrapper {
-	padding: 5px;
-	clear: both;
-	border-top: solid 1px #ccc;
+    padding: 5px;
+    clear: both;
+    border-top: solid 1px #ccc;
 }
 #pc_connections_wrapper {
-	padding: 5px;
-	clear: both;
-	font-size: 95%;
-	height: 100%;
-	overflow: hidden;
+    padding: 5px;
+    clear: both;
+    font-size: 95%;
+    height: 100%;
+    overflow: hidden;
 }
 #pc_connections_label, #pc_site_users_label {
-	padding: 2px 0;
-	font-weight: bold;
-	text-transform: capitalize;
-	color: #444;
+    padding: 2px 0;
+    margin: 0;
+    font-weight: bold;
+    font-size: 1em;
+    text-transform: capitalize;
+    color: #444;
 }
 #pc_site_users {
-	font-size: 90%;
-	height: 100%;
-	list-style: none;
-	overflow: hidden;
-	padding: 0;
-	margin: 0;
+    font-size: 90%;
+    height: 100%;
+    list-style: none;
+    overflow: hidden;
+    padding: 0;
+    margin: 0;
 }
 #pc_users {
-	overflow: auto;
-	list-style: none;
-	clear: both;
-	border-top: solid 1px #ccc;
+    overflow: auto;
+    list-style: none;
+    clear: both;
+    border-top: solid 1px #ccc;
 }
 #pc_users h5 {
-	margin: 0;
-	padding: 0;
+    margin: 0;
+    padding: 0;
 }
 #pc_connections {
-	list-style: none;
-	padding: 0;
-	margin: 0;
+    list-style: none;
+    padding: 0;
+    margin: 0;
 }
 .pc_connection, .pc_site_user {
-	clear: both;
-	height: 100%;
-	overflow: hidden;
-	margin: 4px 0 0 0;
-	position: relative;
+    clear: both;
+    height: 100%;
+    overflow: hidden;
+    margin: 4px 0 0 0;
+    position: relative;
 }
 .pc_connection_image, .pc_user_image {
-	display: none !important;
+    display: none !important;
 }
 .pc_connection_display_name, .pc_site_display_name {
-	padding: 0;
-	display: block;
-	float: left;
-	width: 89% !important;
+    padding: 0;
+    display: block;
+    float: left;
+    width: 89% !important;
 }
 .pc_site_display_name {
-	width: 140px;
-	font-size: 10pt !important;
-	float: right;
+    width: 140px;
+    font-size: 10pt !important;
+    float: right;
 }
 .pc_display_status_bullet {
-	float: left;
-	display: inline-block;
-	right: -3px;
-	position: absolute;
+    float: left;
+    display: inline-block;
+    right: -3px;
+    position: absolute;
 }
 .pc_connection_image, .pc_user_image {
-	vertical-align: middle;
-	display: block;
-	float: left;
+    vertical-align: middle;
+    display: block;
+    float: left;
 }
 #pc_options {
-	overflow: none;
-	font-size: 90%;
-	padding: 5px;
+    overflow: hidden;
+    font-size: 90%;
+    padding: 5px;
 }
 .pc_minimised {
-	margin-top: 260px
+    margin-top: 260px
 }
 .pc_maximised {
-	margin-top: 0px;
-	font-family: 'Helvetica Neue', Arial;
+    margin-top: 0px;
+    font-family: 'Helvetica Neue', Arial;
 }
 .pc_connection_chat_title {
-	padding: 3px;
+    padding: 3px;
 }
 .pc_connection_chat_title_avt, .pc_connection_chat_title_no_avt {
-	font-size: 14px;
-	font-weight: bold;
-	cursor: pointer;
-	color: black;
-	background: #eee;
-	overflow: hidden;
-	position: relative;
-	height: 33px;
-	border-bottom: 1px solid #ccc;
+    font-size: 14px;
+    font-weight: bold;
+    cursor: pointer;
+    color: black;
+    background: #eee;
+    overflow: hidden;
+    position: relative;
+    height: 33px;
+    border-bottom: 1px solid #ccc;
 }
 .pc_connection_chat_title_avt img.pc_connection_chat_title_avt {
-	vertical-align: text-top;
-	position: relative;
-	right: 0px;
-	top: 0px;
-	height: 31px;
-	float: left;
-	margin: 0 4px 0 0;
-	border: 1px solid #ccc;
+    vertical-align: text-top;
+    position: relative;
+    right: 0px;
+    top: 0px;
+    height: 31px;
+    float: left;
+    margin: 0 4px 0 0;
+    border: 1px solid #ccc;
 }
 .pc_connection_chat_title_no_avt div.pc_connection_chat_title {
-	
+    
 }
 .pc_connection_chat_title_avt a:link, .pc_connection_chat_title_no_avt a:link, .pc_connection_chat_title_avt a:visited, .pc_connection_chat_title_no_avt a:visited {
-	color: #000;
-	text-decoration: none;
+    color: #000;
+    text-decoration: none;
 }
 .pc_connection_chat_title_avt img, .pc_connection_chat_title_no_avt img {
-	position: absolute;
-	border: none;
-	right: 5px;
-	top: 5px;
+    position: absolute;
+    border: none;
+    right: 5px;
+    top: 5px;
 }
 .pc_connection_chat_title_avt div {
-	float: left;
-	margin: 3px;
+    float: left;
+    margin: 3px;
 }
 .pc_connection_chat_title_no_avt {
-	height: auto
+    height: auto
 }
 .pc_message_panel {
-	padding: 0px;
-	background: white;
-	height: 225px;
-	overflow: auto;
-	margin: 0;
+    padding: 0px;
+    background: white;
+    height: 225px;
+    overflow: auto;
+    margin: 0;
 }
 .pc_message_panel li {
-	margin: 2px 0;
-	vertical-align: text-top;
-	position: relative;
-	border-bottom: 1px solid #eee;
-	padding: 2px 35px 5px 35px;
-	/*TODO: min-height also will depend on server-scaled avatar;;
-	* height: ;*/
-	min-height: 30px;
+    margin: 2px 0;
+    vertical-align: text-top;
+    position: relative;
+    border-bottom: 1px solid #eee;
+    padding: 2px 35px 5px 35px;
+    /*TODO: min-height also will depend on server-scaled avatar;;
+    * height: ;*/
+    min-height: 30px;
 }
 .pc_message_panel li img {
-	vertical-align: text-top;
-	/*TODO: remove width here when using server-scaled avatar, add;;
-	* height and width to chat.js to: ;
-	* avoid jiggle: ;
-	* */
-	max-width: 10%;
-	max-height: 80%;
-	border: 1px solid #ccc;
-	margin-right: 5px;
-	margin-left: 2px;
-	position: absolute;
-	top: 2px;
-	left: 2px;
-	float: left;
+    vertical-align: text-top;
+    /*TODO: remove width here when using server-scaled avatar, add;;
+    * height and width to chat.js to: ;
+    * avoid jiggle: ;
+    * */
+    max-width: 10%;
+    max-height: 80%;
+    border: 1px solid #ccc;
+    margin-right: 5px;
+    margin-left: 2px;
+    position: absolute;
+    top: 2px;
+    left: 2px;
+    float: left;
 }
 .pc_editor_wrapper {
-	padding: 5px 5px 0px 7px;
-	background: #f3f3f3;
-	border-top: 1px solid #ccc;
-	height: 200px;
+    padding: 5px 5px 0px 7px;
+    background: #f3f3f3;
+    border-top: 1px solid #ccc;
+    height: 200px;
 }
 .pc_editor {
-	width: 236px;
-	margin-top: 2px;
-	padding: 1px;
+    width: 236px;
+    margin-top: 2px;
+    padding: 1px;
 }
 .pc_displayname {
-	display: block;
-	font-weight: bold;
-	font-size: 0.9em;
-	padding: 0 5% 5% 5%;
-	text-align: center;
+    display: block;
+    font-weight: bold;
+    font-size: 0.9em;
+    padding: 0 5% 5% 5%;
+    text-align: center;
 }
 .pc_displayname + .pc_message {
-	margin-left: -20px;
-	margin-top: 3px;
+    margin-left: -20px;
+    margin-top: 3px;
 }
 .pc_message {
-	/*TODO: width of message will also depend on server-scaled avatar;;
-	* width: ;*/
-	width: 170px;
-	overflow: hidden;
+    /*TODO: width of message will also depend on server-scaled avatar;;
+    * width: ;*/
+    width: 170px;
+    overflow: hidden;
 }
 /* if avatars are not being displayed, adjust message
  * positioning
    */
 .pc_messagedate {
-	font-size: 90%;
-	color: #555;
-	position: absolute;
-	right: 3px;
-	top: 3px;
+    font-size: 90%;
+    color: #555;
+    position: absolute;
+    right: 3px;
+    top: 3px;
 }
 .pc_user_link {
-	margin-left: 5px;
-	text-decoration: none !important;
+    margin-left: 5px;
+    text-decoration: none !important;
 }
 .pc_new_message {
-	background-color: #fcc6c6;
-	background-image: -webkit-gradient(linear, left top, left bottom, from(rgb(238, 238, 238)), to(rgb(252, 198, 198)));
-	background-image: -webkit-linear-gradient(top, rgb(238, 238, 238), rgb(252, 198, 198));
-	background-image: -moz-linear-gradient(top, rgb(238, 238, 238), rgb(252, 198, 198));
-	background-image: -o-linear-gradient(top, rgb(238, 238, 238), rgb(252, 198, 198));
-	background-image: -ms-linear-gradient(top, rgb(238, 238, 238), rgb(252, 198, 198));
-	background-image: linear-gradient(top, rgb(238, 238, 238), rgb(252, 198, 198));
-	filter: progid:DXImageTransform.Microsoft.gradient(GradientType=0,StartColorStr='#eeeeee', EndColorStr='#fcc6c6');
+    background-color: #fcc6c6;
+    background: -webkit-gradient(linear, left top, left bottom, from(rgb(238, 238, 238)), to(rgb(252, 198, 198)));
+    background: -webkit-linear-gradient(top, rgb(238, 238, 238), rgb(252, 198, 198));
+    background: -moz-linear-gradient(top, rgb(238, 238, 238), rgb(252, 198, 198));
+    background: -o-linear-gradient(top, rgb(238, 238, 238), rgb(252, 198, 198));
+    background: -ms-linear-gradient(top, rgb(238, 238, 238), rgb(252, 198, 198));
+    background: linear-gradient(top, rgb(238, 238, 238), rgb(252, 198, 198));
 }
 #pc_showoffline_connections_checkbox, #pc_go_offline_checkbox {
-	margin-right: 3px;
-	margin-left: -1px;
+    margin-right: 3px;
+    margin-left: -1px;
 }
 .pc_pinged_popup {
-	display: none;
-	color: #fff;
-	padding: 2px;
-	position: absolute;
-	right: 30px;
-	top: 1px;
-	background: green;
-	-moz-border-radius: 3px;
-	-webkit-border-radius: 3px;
-	-khtml-border-radius: 3px;
-	border-radius: 3px;
+    display: none;
+    color: #fff;
+    padding: 2px;
+    position: absolute;
+    right: 30px;
+    top: 1px;
+    background: green;
+    -moz-border-radius: 3px;
+    -webkit-border-radius: 3px;
+    -khtml-border-radius: 3px;
+    border-radius: 3px;
 }
 
-
-a.qtipLinkButton{
- 	right: 0px;
-	top: 85px;
-	background: #ddd !important;
-	background: -moz-linear-gradient(top, #F7F7F7 0%, #E7E7E7 100%) !important;
-	background: -webkit-gradient(linear, left top, left bottom, color-stop(0%,#F7F7F7), color-stop(100%,#E7E7E7)) !important;
-	background: -webkit-linear-gradient(top, #F7F7F7 0%,#E7E7E7 100%) !important;
-	background: -o-linear-gradient(top, #F7F7F7 0%,#E7E7E7 100%) !important;
-	background: -ms-linear-gradient(top, #F7F7F7 0%,#E7E7E7 100%) !important;
-	background: linear-gradient(top, #F7F7F7 0%,#E7E7E7 100%) !important;
-	text-align: center;
-	width: auto;
-	border-radius: 4px;
-	border: 1px solid #ccc !important;
-	border-width: 1px 1px 1px 1px !important;
-	font-size: .85em;
-	text-transform: capitalize;
-	text-align: center;
-	color: #000 !important;
-	display: block;
-	padding: 6px 12px;
-	text-decoration: none !important;
-	font-size: 12px !important;
-	letter-spacing: normal !important;
+/* Privacy Popup Styles */
+div#privacy_tool_popup {
+    position: absolute;
+    background: #fff;
+    color: #000;
+    border: 4px solid #0198CD;
+    width: 450px;
+    top: 20%;
+    left: 50%;
+    margin-left: -225px;
+    z-index: 1000;
+    padding: 5px 5px 5px 10px;
 }
-a.qtipLinkButton img{
-    vertical-align: bottom;
-}
-a.qtipLinkButton:hover{
- 	color: #7AA3CC !important;
+div#privacy_overlay {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background-color: #000;
+    filter: alpha(opacity=70);
+    opacity: 0.7;
+    z-index: 0;
 }
 
-#loginLinks .nav-menu > span{
+/* used to hide various blocks from sighted users that are in the source to help with accessibility  */
+.portalBody .skip {
+    display: inline !important; 
+    position: fixed !important; 
+    height: 1px !important; 
+    width: 1px !important; 
+    overflow: hidden !important;
+    top: 0px !important;
+    left: 0px; 
+    padding: 0px 0px 0px 0px !important;
+} 
+
+/* jump-to links, tabbing into focus treatment  */
+#skipNav a.internalSkip:focus, #skipNav a.internalSkip:active {
+    text-decoration: none;
+    font-size: 120%;
+    position: fixed !important;
+    background: #fff;
+    -webkit-border-radius: 3px;
+    -moz-border-radius: 3px;
+    border-radius: 3px;
+    vertical-align: middle;
+    padding: 8px !important;
+    outline: none;
+    z-index: 200000;
+    box-shadow: 0px 0px 3px #000;
+    -webkit-box-shadow: 0px 0px 3px #000;
+    -moz-box-shadow: 0px 0px 3px #000000;
+    top: 8px !important;
+    left: 5px  !important;
+    height: auto  !important;
+    color: #000;
+    width: auto  !important;
+}
+/* append the value of the accesskey attr to the text*/
+.internalSkip:after {content: ' [' attr(accesskey) ']'}
+
+
+/* minimize tool menu */
+
+/* when the tool menu is minimized the class "sakaiMinimizePageNavigation" gets added to the
+ * #container block, inheritance is then used to hide, move and shring elements or hide expand them
+ * in this skin we hide the text of the tool links by sliding it out of the viewport
+ * but leave the tool icons displayed - so for the sacrificed of 30 px you still have 
+ * page navigation. If you are not using icons the same effect will be achieved by setting ".sakaiMinimizePageNavigation #toolMenuWrap"
+ * to display off screen and tweaking the padding of ".sakaiMinimizePageNavigation #content"
+ * */
+/* container for tool menu display toggle control */
+#togglebar {
+    float: left;
+    width: 13px;
+    height: 30px;
+    padding-top: 2em;
+}
+/* hover effect for control */
+#togglebar .toggleToolMenuHover {
+    background-position: 0 0 !important;
+}
+#togglebar #toggleToolMax {
+    background: url(images/toggleClose.png) -2px 0 no-repeat;
+    padding: 4px;
+    display: block;
+    height: 50px;
+}
+#togglebar #toggleNormal {
+    background: url(images/toggleOpen.png) -2px 0 no-repeat;
+    padding: 4px;
+    display: block;
+    height: 50px;
+}
+a#toggleToolMenu {
+    text-decoration: none
+}
+
+.sakaiMinimizePageNavigation #toolMenuWrap {
+   /* display: none; uncomment if not using icons for the tool menu */
+    width: 30px;
+    overflow: hidden;
+}
+.sakaiMinimizePageNavigation #toolMenuWrap li {
+    text-align: left;
+    overflow: hidden;
+}
+.sakaiMinimizePageNavigation  #toolMenu li.selectedTool {
+    background: #fff;
+}
+.sakaiMinimizePageNavigation  #toolMenu li.selectedTool span {
+    -moz-opacity: 0.5;
+    opacity: 0.5;
+}
+.sakaiMinimizePageNavigation #toolMenu li span, .sakaiMinimizePageNavigation #subSites li span {
+    background-position: center left;
+    padding-left: 25px;
+}
+.sakaiMinimizePageNavigation #toolMenu li a, .sakaiMinimizePageNavigation #subSites li a {
+    display: block;
+    height: 16px;
+    padding-right: 0 !important;
+}
+.sakaiMinimizePageNavigation #togglebar {
+    padding-left: 0em;
+    margin-top: 0em;
+    margin-left: 0;
+}
+.sakaiMinimizePageNavigation #siteStatus {
     display: none;
 }
-#loginLinks .nav-menu > span.drop{
-    display: block !important;
+.sakaiMinimizePageNavigation #content {
+    /* adjust if not using icons in tool menu */
+    padding-left: 45px;
+}
+/* portal timeout display*/
+#timeout_alert_body {
+    font-size: 130%;
+    position: fixed;
+    background: #c00;
+    -webkit-border-radius: 5px;
+    -moz-border-radius: 5px;
+    border-radius: 5px;
+    vertical-align: middle;
+    padding: 5px;
+    outline: none;
+    z-index: 200000;
+    box-shadow: 0px 0px 3px #000;
+    -webkit-box-shadow: 0px 0px 3px #000;
+    -moz-box-shadow: 0px 0px 3px #000000;
+    top: 25%;
+    left: 40%;
+    height: auto;
+    color: #fff;
+    font-weight: bold;
+    width: auto;
+}
+#timeout_alert_body p {
+    margin: 0;
+    padding: 0 5px 10px;
+}
+#timeout_alert_body input {
+    padding: 3px !important;
+    border: 1px solid #ccc !important;
+    border-radius: 4px;
+    -moz-border-radius: 4px;
+    -webkit-border-radius: 4px;
+    background: #e7e7e7 !important;
+    background: -moz-linear-gradient(top, #f7f7f7 0%, #e7e7e7 100%) !important;
+    background: -webkit-gradient(linear, left top, left bottom, color-stop(0%,#f7f7f7), color-stop(100%,#e7e7e7)) !important;
+    background: -webkit-linear-gradient(top, #f7f7f7 0%,#e7e7e7 100%) !important;
+    background: -o-linear-gradient(top, #f7f7f7 0%,#e7e7e7 100%) !important;
+    background: -ms-linear-gradient(top, #f7f7f7 0%,#e7e7e7 100%) !important;
+    background: linear-gradient(top, #f7f7f7 0%,#e7e7e7 100%) !important;
+    box-shadow: 0 0 5px rgba(200, 200, 200, .2);
+    -moz-box-shadow: 0 0 5px rgba(200, 200, 200, .2);
+    -webkit-box-shadow: 0 0 5px rgba(200, 200, 200, .2);
 }
 
-/* styles for direct URLs */
-.portletTitle .action a.tool-directurl{
-	padding: 2px;
-	background: url(/library/image/silk/link.png) center right no-repeat;
+/* Qtip overrides used by tutorial*/
+a.qtipLinkButton {
+     right: 0px;
+    top: 85px;
+    background: #ddd !important;
+    background: -moz-linear-gradient(top, #F7F7F7 0%, #E7E7E7 100%) !important;
+    background: -webkit-gradient(linear, left top, left bottom, color-stop(0%,#F7F7F7), color-stop(100%,#E7E7E7)) !important;
+    background: -webkit-linear-gradient(top, #F7F7F7 0%,#E7E7E7 100%) !important;
+    background: -o-linear-gradient(top, #F7F7F7 0%,#E7E7E7 100%) !important;
+    background: -ms-linear-gradient(top, #F7F7F7 0%,#E7E7E7 100%) !important;
+    background: linear-gradient(top, #F7F7F7 0%,#E7E7E7 100%) !important;
+    text-align: center;
+    width: auto;
+    border-radius: 4px;
+    border: 1px solid #ccc !important;
+    border-width: 1px 1px 1px 1px !important;
+    font-size: .85em;
+    text-transform: capitalize;
+    text-align: center;
+    color: #000 !important;
+    display: block;
+    padding: 6px 12px;
+    text-decoration: none !important;
+    font-size: 12px !important;
+    letter-spacing: normal !important;
 }
-.portletTitle .action a.tool-directurl:hover{
-	background: url(/library/image/silk/link.png) center right no-repeat;
+a.qtipLinkButton img {
+    vertical-align: bottom;
 }
-
-.direct-url-wrap {
-	font-size: 85%;
-	color: #555;
+a.qtipLinkButton:hover {
+     color: #7AA3CC !important;
 }
-.direct-url-wrap textarea {
-	color: #000;
-	overflow: auto;
-	width: 250px;
-	display:block;
+/* warning displayed when js is disabled */
+#portal_js_warn {
+    font-size: 1.2em;
+    background: #c00;
+    color: #fff;
+    padding: 10px;
+    position: fixed;
+    bottom: 0;
+    left: 25%;
+    z-index: 2002;
+    -webkit-border-top-left-radius: 5px;
+    -webkit-border-top-right-radius: 5px;
+    -moz-border-radius-topleft: 5px;
+    -moz-border-radius-topright: 5px;
+    border-top-left-radius: 5px;
+    border-top-right-radius: 5px;
 }
