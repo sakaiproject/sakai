@@ -69,6 +69,23 @@
 								#end 
 								<input type="hidden" name="$!{tag.fullname}${DOT}${i}" id="$validator.escapeJavascript("$!{tag.fullname}")${DOT}${i}" value="$!theValue" />
 								#resources_timeSelectionWidget("$!{tag.fullname}" "${i}" $theValue)
+								
+							#elseif("$!tag.widget" == "$!DURATION")
+								<label for ="$validator.escapeJavascript("$!{tag.fullname}")${DOT}${i}">
+									$tag.label
+								</label>
+								
+								<input type="hidden" name="$!{tag.fullname}${DOT}${i}" id="$validator.escapeJavascript("$!{tag.fullname}")${DOT}${i}" value="$!theValue" />
+								#resources_durationSelectionWidget("$!{tag.fullname}" "${i}" $!tag.value)
+								
+								
+							#elseif("$!tag.widget" == "$!DROPDOWN")
+								<label for ="$validator.escapeJavascript("$!{tag.fullname}")${DOT}${i}">
+									$tag.label
+								</label>
+								
+								<input type="hidden" name="$!{tag.fullname}${DOT}${i}" id="$validator.escapeJavascript("$!{tag.fullname}")${DOT}${i}" value="$!theValue" />
+								#resources_dropdownSelectionWidget("$!{tag.fullname}" "$!{tag.localname}" $validator.escapeHtml($!tag.value))
 	
 							#else
 								$tag.fullname<br />

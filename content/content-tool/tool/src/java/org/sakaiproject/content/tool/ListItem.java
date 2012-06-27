@@ -38,6 +38,7 @@ import java.util.SortedSet;
 import java.util.Stack;
 import java.util.TreeSet;
 
+import org.apache.commons.lang.StringUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.sakaiproject.antivirus.api.VirusFoundException;
@@ -72,7 +73,6 @@ import org.sakaiproject.entity.api.Reference;
 import org.sakaiproject.entity.api.ResourceProperties;
 import org.sakaiproject.entity.api.ResourcePropertiesEdit;
 import org.sakaiproject.entity.cover.EntityManager;
-import org.sakaiproject.event.api.SessionState;
 import org.sakaiproject.event.cover.NotificationService;
 import org.sakaiproject.exception.IdUnusedException;
 import org.sakaiproject.exception.InUseException;
@@ -3629,6 +3629,29 @@ public class ListItem
 				dc.add(new ResourcesMetadata(ResourcesMetadata.PROPERTY_DC_AUDIENCE));
 				dc.add(new ResourcesMetadata(ResourcesMetadata.PROPERTY_DC_EDULEVEL));
 				
+				//LOM metadata fields
+				dc.add(new ResourcesMetadata(ResourcesMetadata.PROPERTY_LOM_ROLE));
+				dc.add(new ResourcesMetadata(ResourcesMetadata.PROPERTY_LOM_COVERAGE));
+				dc.add(new ResourcesMetadata(ResourcesMetadata.PROPERTY_LOM_STATUS));
+				dc.add(new ResourcesMetadata(ResourcesMetadata.PROPERTY_LOM_DURATION));
+				dc.add(new ResourcesMetadata(ResourcesMetadata.PROPERTY_LOM_ENGAGEMENT_TYPE));
+				dc.add(new ResourcesMetadata(ResourcesMetadata.PROPERTY_LOM_LEARNING_RESOURCE_TYPE));
+				dc.add(new ResourcesMetadata(ResourcesMetadata.PROPERTY_LOM_INTERACTIVITY_LEVEL));
+				dc.add(new ResourcesMetadata(ResourcesMetadata.PROPERTY_LOM_CONTEXT_LEVEL));
+				dc.add(new ResourcesMetadata(ResourcesMetadata.PROPERTY_LOM_DIFFICULTY));
+				dc.add(new ResourcesMetadata(ResourcesMetadata.PROPERTY_LOM_LEARNING_TIME));
+				dc.add(new ResourcesMetadata(ResourcesMetadata.PROPERTY_LOM_ASSUMED_KNOWLEDGE));
+				dc.add(new ResourcesMetadata(ResourcesMetadata.PROPERTY_LOM_TECHNICAL_REQUIREMENTS));
+				dc.add(new ResourcesMetadata(ResourcesMetadata.PROPERTY_LOM_INSTALL_REMARKS));
+				dc.add(new ResourcesMetadata(ResourcesMetadata.PROPERTY_LOM_OTHER_REQUIREMENTS));
+				dc.add(new ResourcesMetadata(ResourcesMetadata.PROPERTY_LOM_GRANULARITY_LEVEL));
+				dc.add(new ResourcesMetadata(ResourcesMetadata.PROPERTY_LOM_STRUCTURE));
+				dc.add(new ResourcesMetadata(ResourcesMetadata.PROPERTY_LOM_RELATION));
+				dc.add(new ResourcesMetadata(ResourcesMetadata.PROPERTY_LOM_REVIEWER));
+				dc.add(new ResourcesMetadata(ResourcesMetadata.PROPERTY_LOM_REVIEW_DATE));
+				dc.add(new ResourcesMetadata(ResourcesMetadata.PROPERTY_LOM_REVIEW_COMMENTS));
+			
+
 				/* Filesystem and file-like mount points */
 				//dc.add(new ResourcesMetadata(ResourcesMetadata.PROPERTY_FSMOUNT_ACTIVE));
 					
@@ -3673,6 +3696,21 @@ public class ListItem
 								}
 							}
 							prop.setValue(name, time);
+						}
+						
+						else if (widget.equals(ResourcesMetadata.WIDGET_DURATION)) {
+							if(properties != null) {
+								String rawValue = properties.getPropertyFormatted(name);
+								if(StringUtils.isNotBlank(rawValue)) {
+																		
+									//split and preserve all tokens, even missing ones
+									//this ensures we have the values in the correct spot of the array
+									//eg 0--0- is [0,"",0,""]
+									String [] values = StringUtils.splitPreserveAllTokens(rawValue, "-");
+									
+									prop.setValue(name, Arrays.asList(values));
+								}
+							}
 						}
 						else
 						{
@@ -3731,6 +3769,10 @@ public class ListItem
 		context.put("DATETIME", ResourcesMetadata.WIDGET_DATETIME);
 		context.put("ANYURI", ResourcesMetadata.WIDGET_ANYURI);
 		context.put("WYSIWYG", ResourcesMetadata.WIDGET_WYSIWYG);
+		
+		context.put("DURATION", ResourcesMetadata.WIDGET_DURATION);
+		
+		context.put("DROPDOWN", ResourcesMetadata.WIDGET_DROPDOWN); 
 
 		context.put("today", TimeService.newTime());
 		
@@ -3831,8 +3873,27 @@ public class ListItem
 						hour = hour % 24;
 						day++;
 					}
-	
+					
 					Time value = TimeService.newTimeLocal(year, month, day, hour, minute, second, millisecond);
+					
+					prop.setValue(0, value);
+				}
+				else if (ResourcesMetadata.WIDGET_DURATION.equals(prop.getWidget())) {
+					int first = params.getInt(prop.getFullname() + "_first" + index, 0);
+					String firstQual = params.getString(prop.getFullname() + "_first_qual" + index);
+					int second = params.getInt(prop.getFullname() + "_second" + index, 0);
+					String secondQual = params.getString(prop.getFullname() + "_second_qual" + index);
+				
+					//set this as a string, specially formatted
+					String formattedValue = first + "-" + firstQual + "-" + second + "-" + secondQual;
+											
+					prop.setValue(0, formattedValue);
+				}
+				else if (ResourcesMetadata.WIDGET_DROPDOWN.equals(prop.getWidget())) {
+					
+					//no index required so just get the prop and store it
+					String value = params.getString(prop.getFullname());
+					
 					prop.setValue(0, value);
 				}
 				else if(ResourcesMetadata.WIDGET_ANYURI.equals(prop.getWidget()))
