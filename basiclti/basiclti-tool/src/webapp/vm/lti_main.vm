@@ -186,7 +186,7 @@
 			#if ($alertMessage)<div class="alertMessage">$tlang.getString("gen.alert") $validator.escapeHtml($alertMessage)</div><div class="clear"></div>#end
 			<div align="right"><a href="" title="$tlang.getString("add.to.system")" onclick="location = '$sakai_ActionURL.setPanel("ToolInsert")';return false;"> $tlang.getString("add.to.system")</a></div>
 			<br/>
-			#if ($!systemLtiTools && !$!systemLtiTools.isEmpty())
+			#if ($!systemLtiToolsMap && !$systemLtiToolsMap.isEmpty())
 				$tlang.getString("tool.description.system")
 				<br/>
 				<div id="pager-system" class="pager">
