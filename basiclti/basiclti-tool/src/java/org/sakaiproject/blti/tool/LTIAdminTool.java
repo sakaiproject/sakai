@@ -376,6 +376,36 @@ public class LTIAdminTool extends VelocityPortletPaneledAction
 		if ( ltiService.deleteTool(key) )
 		{
 			state.setAttribute(STATE_SUCCESS,rb.getString("success.deleted"));
+			
+			// remove all content object and site links if any
+			// this is for the "site tools" panel
+			List<Map<String,Object>> contents = ltiService.getContents(null,null,0,500);
+			for ( Map<String,Object> content : contents ) {
+				
+				Long tool_id_long = null;
+				try{
+					tool_id_long = new Long(((Integer) content.get("tool_id")).longValue());
+					if (tool_id_long.equals(key))
+					{
+						// the content with same tool id
+						// remove the content link first
+						String content_id = data.getParameters().getString(LTIService.LTI_ID);
+						Long content_key = content_id == null ? null:new Long(content_id);
+						
+						//TODO: how to handle the errors in content link and content deletion?
+						// remove the external tool content site link
+						ltiService.deleteContentLink(content_key);
+						// remove the external tool content
+						ltiService.deleteContent(content_key);
+					}
+				}
+				catch (Exception e)
+				{
+					// log the error
+					M_log.error("error parsing tool id " + content.get("tool_id"));
+				}
+			}
+			
 			switchPanel(state, "Main");
 		} else {
 			addAlert(state,rb.getString("error.delete.fail"));

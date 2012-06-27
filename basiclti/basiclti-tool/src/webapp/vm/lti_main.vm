@@ -250,6 +250,7 @@
 					<tr>
 					<td headers="matchpattern">$content.get("title")</td>
 					<td headers="url">
+						#set($tool=false)
 						#set($tool=$ltiService.getTool($content.get("tool_id_long")))
 						#if ($!tool)
 							$tool.get("launch")
