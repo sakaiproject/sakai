@@ -1498,7 +1498,7 @@ public class ProjectLogicImpl implements ProjectLogic {
 		if(dAMapFlag != null || shoppingPeriod){
 			//get list of all site ref nodes:
 			Map<String, String> siteRefToNodeMap = getNodesBySiteRef(siteRefs.toArray(new String[siteRefs.size()]), hierarchyId);
-
+			Map<String, HierarchyNode> siteNodes = hierarchyService.getNodesByIds(siteRefToNodeMap.values().toArray(new String[siteRefToNodeMap.values().size()]));
 			//find the node for the site
 			Map<String, Map<String, Set<String>>> usersNodesAndPerms = hierarchyService.getNodesAndPermsForUser(userId);
 			Map<String, Set<String>> userNodesAndPerms = usersNodesAndPerms.get(userId);
@@ -1562,7 +1562,13 @@ public class ProjectLogicImpl implements ProjectLogic {
 								nodeId = null;
 								break;
 							}else{
-								Set<String> parentIds = getCachedNode(nodeId).directParentNodeIds;
+								Set<String> parentIds = null;
+								if(siteNodes.containsKey(nodeId)){
+									//we've already spent the time looking this up in bulk
+									parentIds = siteNodes.get(nodeId).directParentNodeIds;
+								}else{
+									parentIds = getCachedNode(nodeId).directParentNodeIds;
+								}
 								nodeId = null;
 								if(parentIds != null && parentIds.size() == 1){
 									for(String id : parentIds){
