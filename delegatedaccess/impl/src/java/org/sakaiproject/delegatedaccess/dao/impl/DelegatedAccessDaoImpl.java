@@ -3,7 +3,10 @@ package org.sakaiproject.delegatedaccess.dao.impl;
 import java.net.URL;
 import java.sql.ResultSet;
 import java.sql.SQLException;
+import java.util.Arrays;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.NoSuchElementException;
 
 import org.apache.commons.configuration.ConfigurationException;
@@ -21,7 +24,9 @@ public class DelegatedAccessDaoImpl extends JdbcDaoSupport implements DelegatedA
 
 	private static final Logger log = Logger.getLogger(DelegatedAccessDaoImpl.class);
 	private PropertiesConfiguration statements;
-	
+	private boolean oracle = false;
+	private static int ORACLE_IN_CLAUSE_SIZE_LIMIT = 100;
+		
 	/**
 	 * init
 	 */
@@ -30,7 +35,9 @@ public class DelegatedAccessDaoImpl extends JdbcDaoSupport implements DelegatedA
 		
 		//setup the vendor
 		String vendor = ServerConfigurationService.getInstance().getString("vendor@org.sakaiproject.db.api.SqlService", null);
-		
+		if(vendor != null && "oracle".equals(vendor)){
+			oracle = true;
+		}
 		//initialise the statements
 		initStatements(vendor);
 	}
@@ -98,14 +105,45 @@ public class DelegatedAccessDaoImpl extends JdbcDaoSupport implements DelegatedA
 		}
 	}
 	
-	public List<String> getNodesBySiteRef(String siteRef, String hierarchyId){
+	public Map<String, String> getNodesBySiteRef(String[] siteRefs, String hierarchyId){
 		try{
-			return (List<String>) getJdbcTemplate().query(getStatement("select.hierarchyNode"), new Object[]{siteRef, hierarchyId}, new RowMapper() {
-				
-				 public Object mapRow(ResultSet resultSet, int i) throws SQLException {
-					return resultSet.getString("ID");
+			Map<String, String> returnMap = new HashMap<String, String>();
+			
+			int subArrayIndex = 0;
+			do{
+				int subArraySize = ORACLE_IN_CLAUSE_SIZE_LIMIT;
+				if(subArrayIndex + subArraySize > siteRefs.length){
+					subArraySize = (siteRefs.length - subArrayIndex);
 				}
-			});
+				String[] subSiteRefs = Arrays.copyOfRange(siteRefs, subArrayIndex, subArrayIndex + subArraySize);
+
+				String query = getStatement("select.hierarchyNode");
+				String inParams = "(";
+				for(int i = 0; i < subSiteRefs.length; i++){
+					inParams += "'" + subSiteRefs[i] + "'";
+					if(i < subSiteRefs.length - 1){
+						inParams += ",";
+					}
+				}
+				inParams += ")";
+				query = query.replace("(?)", inParams);
+				List<String[]> results =  (List<String[]>) getJdbcTemplate().query(query, new Object[]{hierarchyId}, new RowMapper() {
+
+					public Object mapRow(ResultSet resultSet, int i) throws SQLException {
+						return new String[]{resultSet.getString("title"), resultSet.getString("ID")};
+					}
+				});
+				if(results != null){
+					for(String[] result : results){
+						if(result != null && result.length == 2){
+							returnMap.put(result[0], result[1]);
+						}
+					}
+				}
+				subArrayIndex = subArrayIndex + subArraySize;
+			}while(subArrayIndex < siteRefs.length);
+			
+			return returnMap;
 		}catch (DataAccessException ex) {
 			return null;
 		}

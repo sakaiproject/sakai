@@ -1,6 +1,7 @@
 package org.sakaiproject.delegatedaccess.dao;
 
 import java.util.List;
+import java.util.Map;
 
 public interface DelegatedAccessDao {
 
@@ -14,7 +15,14 @@ public interface DelegatedAccessDao {
 	
 	public void removeSiteProperty(String siteId, String propertyName);
 	
-	public List<String> getNodesBySiteRef(String siteRef, String hierarchyId);
+	/**
+	 * returns a Map of -> {siteRef, nodeId}
+	 * 
+	 * @param siteRef
+	 * @param hierarchyId
+	 * @return
+	 */
+	public Map<String, String> getNodesBySiteRef(String[] siteRef, String hierarchyId);
 	
 	public List<String> getEmptyNonSiteNodes(String hierarchyId);
 }

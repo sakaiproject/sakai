@@ -175,12 +175,12 @@ public interface ProjectLogic {
 	public boolean hasAccessAdminNodes(String userId);
 	
 	/**
-	 * Returns the node Id for the site Ref and hierarchy Id
+	 * Returns a map of {siteRef, nodeId}
 	 * @param siteRef
 	 * @param hierarchyId
 	 * @return
 	 */
-	public List<String> getNodesBySiteRef(String siteRef, String hierarchyId);
+	public Map<String, String> getNodesBySiteRef(String siteRef[], String hierarchyId);
 	
 	/**
 	 * Saves the date for the last time the hierarchy job ran successfully

@@ -504,19 +504,19 @@ public class UserPageSiteSearch extends BasePage {
 				}
 				if(!"".equals(search) || (advancedOptions != null && !advancedOptions.isEmpty())){
 					 list = projectLogic.searchUserSites(getSearch(), advancedOptions.isEmpty() ? null : advancedOptions, (isShoppingPeriodTool() || statistics), isShoppingPeriodTool() || (statistics && currentStatisticsFlag));
-					if(currentStatisticsFlag){
-						//need to filter out the results and find only current shopping period results:
-						for (Iterator iterator = list.iterator(); iterator
-								.hasNext();) {
-							SiteSearchResult result = (SiteSearchResult) iterator.next();
-							List<String> nodes = projectLogic.getNodesBySiteRef(result.getSiteReference(), DelegatedAccessConstants.SHOPPING_PERIOD_HIERARCHY_ID);
-							if(nodes == null || nodes.size() == 0){
-								//this site doesn't exist in the current shopping period hierarchy, so remove it
-								iterator.remove();
-							}
-						}
-						
-					}
+//					if(currentStatisticsFlag){
+//						//need to filter out the results and find only current shopping period results:
+//						for (Iterator iterator = list.iterator(); iterator
+//								.hasNext();) {
+//							SiteSearchResult result = (SiteSearchResult) iterator.next();
+//							Map<String, String> nodes = projectLogic.getNodesBySiteRef(new String[]{result.getSiteReference()}, DelegatedAccessConstants.SHOPPING_PERIOD_HIERARCHY_ID);
+//							if(nodes == null || !nodes.containsKey(result.getSiteReference())){
+//								//this site doesn't exist in the current shopping period hierarchy, so remove it
+//								iterator.remove();
+//							}
+//						}
+//						
+//					}
 				}else {
 					list = new ArrayList<SiteSearchResult>();
 				}

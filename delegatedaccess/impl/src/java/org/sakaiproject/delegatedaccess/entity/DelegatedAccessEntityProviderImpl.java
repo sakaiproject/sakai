@@ -52,7 +52,7 @@ public class DelegatedAccessEntityProviderImpl implements DelegatedAccessEntityP
 	}
 
 	public boolean entityExists(String id) {
-		List<String> nodeIds = projectLogic.getNodesBySiteRef("/site/" + id, DelegatedAccessConstants.HIERARCHY_ID); 
+		Map<String, String> nodeIds = projectLogic.getNodesBySiteRef(new String[]{"/site/" + id}, DelegatedAccessConstants.HIERARCHY_ID); 
 		return nodeIds != null && nodeIds.size() == 1;
 	}
 
@@ -62,7 +62,7 @@ public class DelegatedAccessEntityProviderImpl implements DelegatedAccessEntityP
 	}
 
 	public Map<String, String> getProperties(String reference) {
-		List<String> nodeIds = projectLogic.getNodesBySiteRef("/site/" + reference.substring(reference.lastIndexOf("/") + 1), DelegatedAccessConstants.HIERARCHY_ID);		
+		Map<String, String> nodeIds = projectLogic.getNodesBySiteRef(new String[]{"/site/" + reference.substring(reference.lastIndexOf("/") + 1)}, DelegatedAccessConstants.HIERARCHY_ID);		
 		if(nodeIds == null || nodeIds.size() != 1){
 			throw new IllegalArgumentException("NodeId: " + reference + " doesn't exist");
 		}
@@ -111,7 +111,7 @@ public class DelegatedAccessEntityProviderImpl implements DelegatedAccessEntityP
 			//otherwise, they can just use the Delegated Access interface to make modifications
 			throw new IllegalArgumentException("User: " + sakaiProxy.getCurrentUserId() + " is not a member of the site with site.upd permission or an admin");
 		}
-		List<String> nodeIds = projectLogic.getNodesBySiteRef("/site/" + ref.getId(), DelegatedAccessConstants.HIERARCHY_ID);
+		Map<String, String> nodeIds = projectLogic.getNodesBySiteRef(new String[]{"/site/" + ref.getId()}, DelegatedAccessConstants.HIERARCHY_ID);
 		if(nodeIds == null || nodeIds.size() != 1){
 			throw new IllegalArgumentException("Node doesn't exist or has multiple instances: " + ref.getId());
 		}
@@ -204,7 +204,7 @@ public class DelegatedAccessEntityProviderImpl implements DelegatedAccessEntityP
 	}
 	
 	public Object getEntity(EntityReference ref) {
-		List<String> nodeIds = projectLogic.getNodesBySiteRef("/site/" + ref.getId(), DelegatedAccessConstants.HIERARCHY_ID);
+		Map<String, String> nodeIds = projectLogic.getNodesBySiteRef(new String[]{"/site/" + ref.getId()}, DelegatedAccessConstants.HIERARCHY_ID);
 		if(nodeIds == null || nodeIds.size() != 1){
 			throw new IllegalArgumentException("NodeId for Site: " + ref + " doesn't exist");
 		}
