@@ -333,7 +333,11 @@ public class PortletToolRenderService implements ToolRenderService
 			{
 				renderResponse();
 				storedContent = bufferedResponse.getInternalBuffer().getBuffer().toString();
-				if ( ! "true".equals(ServerConfigurationService.getString("portal.portlet.tidy", "true")) ) return storedContent;
+
+				// SAK-22335 - Tidy in BodyOnly mode eats script tags so it is advisory-only and off by default
+				// if ( ! "true".equals(ServerConfigurationService.getString("portal.portlet.tidy", "false")) ) return storedContent;
+
+				if ( ! "true".equals(ServerConfigurationService.getString("portal.portlet.tidy.warnings", "false")) ) return storedContent;
 
 				Tidy tidy = new Tidy();
 				tidy.setIndentContent(true);
@@ -341,16 +345,16 @@ public class PortletToolRenderService implements ToolRenderService
 				tidy.setPrintBodyOnly(true);
 				tidy.setTidyMark(false);
 				tidy.setDocType("loose");
-				if ( ! "true".equals(ServerConfigurationService.getString("portal.portlet.tidy.warnings", "false")) )
-				{
-					tidy.setQuiet(true);
-					tidy.setShowWarnings(false);
-				}
+				// if ( ! "true".equals(ServerConfigurationService.getString("portal.portlet.tidy.warnings", "false")) )
+				// {
+					// tidy.setQuiet(true);
+					// tidy.setShowWarnings(false);
+				// }
 				StringReader is = new StringReader(storedContent);
 				StringWriter os = new StringWriter();
 				tidy.parse(is,os); // parse() throws no errors
-				String tidyOutput = os.toString();
-				if ( tidyOutput != null && tidyOutput.length() > 0 ) storedContent = tidyOutput;
+				// String tidyOutput = os.toString();
+				// if ( tidyOutput != null && tidyOutput.length() > 0 ) storedContent = tidyOutput;
 				return storedContent;
 			}
 			catch(ToolRenderException e)
