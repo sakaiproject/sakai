@@ -1498,81 +1498,83 @@ public class ProjectLogicImpl implements ProjectLogic {
 		if(dAMapFlag != null || shoppingPeriod){
 			//get list of all site ref nodes:
 			Map<String, String> siteRefToNodeMap = getNodesBySiteRef(siteRefs.toArray(new String[siteRefs.size()]), hierarchyId);
-			Map<String, HierarchyNode> siteNodes = hierarchyService.getNodesByIds(siteRefToNodeMap.values().toArray(new String[siteRefToNodeMap.values().size()]));
-			//find the node for the site
-			Map<String, Map<String, Set<String>>> usersNodesAndPerms = hierarchyService.getNodesAndPermsForUser(userId);
-			Map<String, Set<String>> userNodesAndPerms = usersNodesAndPerms.get(userId);
-			if(userNodesAndPerms != null){
-				for(String siteRef : siteRefs){
-					if(siteRefToNodeMap != null && siteRefToNodeMap.containsKey(siteRef)){
-						//find the first access node for this user, if none found, then that means they don't have access
-						String nodeId = siteRefToNodeMap.get(siteRef);
-						while(nodeId != null && !"".equals(nodeId)){
-							Set<String> perms = userNodesAndPerms.get(nodeId);
-							if(perms != null && getIsDirectAccess(perms)){
-								//check first that the user's isn't a member of the site, if so, return null:
-								//don't waste time checking until we get to this level (for bulk searching speed)
-								if(!shoppingPeriod && sakaiProxy.isUserMember(userId, siteRef)){
-									returnNodes.put(siteRef, null);
-								}else{
-									if(shoppingPeriod && activeShoppingData){
-										//do substring(6) b/c we need site ID and what is stored is a ref: /site/1231231
-										String siteId = siteRef.substring(6);
-										if(!isShoppingAvailable(perms, siteId)){
-											//check that shopping period is still available unless activeShoppingData is false
-											break;
-										}
-									}
-									//Access Map:
-									String[] access = getAccessRealmRole(perms);
-									if (access == null || access.length != 2
-											|| access[0] == null
-											|| access[1] == null
-											|| "".equals(access[0])
-											|| "".equals(access[1])
-											|| "null".equals(access[0])
-											|| "null".equals(access[1])) {
-										access = new String[]{"", ""};
-									}
-
-									accessMap.put(siteRef, access);
-
-									//Denied Tools List
-									List<String> deniedTools = getRestrictedToolsForUser(perms);
-									String[] deniedToolsArr = (String[]) deniedTools.toArray(new String[deniedTools.size()]);
-									if(deniedToolsArr != null){
-										deniedToolsMap.put(siteRef, deniedToolsArr);
+			if(siteRefToNodeMap != null){
+				Map<String, HierarchyNode> siteNodes = hierarchyService.getNodesByIds(siteRefToNodeMap.values().toArray(new String[siteRefToNodeMap.values().size()]));
+				//find the node for the site
+				Map<String, Map<String, Set<String>>> usersNodesAndPerms = hierarchyService.getNodesAndPermsForUser(userId);
+				Map<String, Set<String>> userNodesAndPerms = usersNodesAndPerms.get(userId);
+				if(userNodesAndPerms != null){
+					for(String siteRef : siteRefs){
+						if(siteRefToNodeMap != null && siteRefToNodeMap.containsKey(siteRef)){
+							//find the first access node for this user, if none found, then that means they don't have access
+							String nodeId = siteRefToNodeMap.get(siteRef);
+							while(nodeId != null && !"".equals(nodeId)){
+								Set<String> perms = userNodesAndPerms.get(nodeId);
+								if(perms != null && getIsDirectAccess(perms)){
+									//check first that the user's isn't a member of the site, if so, return null:
+									//don't waste time checking until we get to this level (for bulk searching speed)
+									if(!shoppingPeriod && sakaiProxy.isUserMember(userId, siteRef)){
+										returnNodes.put(siteRef, null);
 									}else{
-										deniedToolsMap.put(siteRef, new String[0]);
+										if(shoppingPeriod && activeShoppingData){
+											//do substring(6) b/c we need site ID and what is stored is a ref: /site/1231231
+											String siteId = siteRef.substring(6);
+											if(!isShoppingAvailable(perms, siteId)){
+												//check that shopping period is still available unless activeShoppingData is false
+												break;
+											}
+										}
+										//Access Map:
+										String[] access = getAccessRealmRole(perms);
+										if (access == null || access.length != 2
+												|| access[0] == null
+												|| access[1] == null
+												|| "".equals(access[0])
+												|| "".equals(access[1])
+												|| "null".equals(access[0])
+												|| "null".equals(access[1])) {
+											access = new String[]{"", ""};
+										}
+
+										accessMap.put(siteRef, access);
+
+										//Denied Tools List
+										List<String> deniedTools = getRestrictedToolsForUser(perms);
+										String[] deniedToolsArr = (String[]) deniedTools.toArray(new String[deniedTools.size()]);
+										if(deniedToolsArr != null){
+											deniedToolsMap.put(siteRef, deniedToolsArr);
+										}else{
+											deniedToolsMap.put(siteRef, new String[0]);
+										}
+
+
+										String shoppingAuth = getShoppingPeriodAuth(perms);
+
+										Date startDate = getShoppingStartDate(perms);
+										Date endDate = getShoppingEndDate(perms);
+										Date modified = getPermDate(perms, DelegatedAccessConstants.NODE_PERM_MODIFIED);
+										String modifiedBy = getModifiedBy(perms);
+
+										//set returnNode
+										AccessNode returnNode = new AccessNode(siteRef, access, deniedToolsArr, shoppingAuth, startDate, endDate, modified, modifiedBy);
+										returnNodes.put(siteRef, returnNode);
 									}
-
-
-									String shoppingAuth = getShoppingPeriodAuth(perms);
-
-									Date startDate = getShoppingStartDate(perms);
-									Date endDate = getShoppingEndDate(perms);
-									Date modified = getPermDate(perms, DelegatedAccessConstants.NODE_PERM_MODIFIED);
-									String modifiedBy = getModifiedBy(perms);
-
-									//set returnNode
-									AccessNode returnNode = new AccessNode(siteRef, access, deniedToolsArr, shoppingAuth, startDate, endDate, modified, modifiedBy);
-									returnNodes.put(siteRef, returnNode);
-								}
-								//break out of loop
-								nodeId = null;
-								break;
-							}else{
-								Set<String> parentIds = null;
-								if(siteNodes.containsKey(nodeId)){
-									//we've already spent the time looking this up in bulk
-									parentIds = siteNodes.get(nodeId).directParentNodeIds;
+									//break out of loop
+									nodeId = null;
+									break;
 								}else{
-									parentIds = getCachedNode(nodeId).directParentNodeIds;
-								}
-								nodeId = null;
-								if(parentIds != null && parentIds.size() == 1){
-									for(String id : parentIds){
-										nodeId = id;
+									Set<String> parentIds = null;
+									if(siteNodes != null && siteNodes.containsKey(nodeId)){
+										//we've already spent the time looking this up in bulk
+										parentIds = siteNodes.get(nodeId).directParentNodeIds;
+									}else{
+										parentIds = getCachedNode(nodeId).directParentNodeIds;
+									}
+									nodeId = null;
+									if(parentIds != null && parentIds.size() == 1){
+										for(String id : parentIds){
+											nodeId = id;
+										}
 									}
 								}
 							}
