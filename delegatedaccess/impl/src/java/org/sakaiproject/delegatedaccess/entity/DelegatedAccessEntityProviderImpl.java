@@ -62,11 +62,12 @@ public class DelegatedAccessEntityProviderImpl implements DelegatedAccessEntityP
 	}
 
 	public Map<String, String> getProperties(String reference) {
-		Map<String, String> nodeIds = projectLogic.getNodesBySiteRef(new String[]{"/site/" + reference.substring(reference.lastIndexOf("/") + 1)}, DelegatedAccessConstants.HIERARCHY_ID);		
-		if(nodeIds == null || nodeIds.size() != 1){
+		String siteRef = "/site/" + reference.substring(reference.lastIndexOf("/") + 1);
+		Map<String, String> nodeIds = projectLogic.getNodesBySiteRef(new String[]{siteRef}, DelegatedAccessConstants.HIERARCHY_ID);		
+		if(nodeIds == null || nodeIds.size() != 1 || nodeIds.get(siteRef) == null){
 			throw new IllegalArgumentException("NodeId: " + reference + " doesn't exist");
 		}
-		String nodeId = nodeIds.get(0);
+		String nodeId = nodeIds.get(siteRef);
 		NodeModel node = projectLogic.getNodeModel(nodeId, DelegatedAccessConstants.SHOPPING_PERIOD_USER);
 		if(node == null){
 			throw new IllegalArgumentException("NodeId: " + nodeId + " doesn't exist");
@@ -111,11 +112,12 @@ public class DelegatedAccessEntityProviderImpl implements DelegatedAccessEntityP
 			//otherwise, they can just use the Delegated Access interface to make modifications
 			throw new IllegalArgumentException("User: " + sakaiProxy.getCurrentUserId() + " is not a member of the site with site.upd permission or an admin");
 		}
-		Map<String, String> nodeIds = projectLogic.getNodesBySiteRef(new String[]{"/site/" + ref.getId()}, DelegatedAccessConstants.HIERARCHY_ID);
-		if(nodeIds == null || nodeIds.size() != 1){
+		String siteRef = "/site/" + ref.getId();
+		Map<String, String> nodeIds = projectLogic.getNodesBySiteRef(new String[]{siteRef}, DelegatedAccessConstants.HIERARCHY_ID);
+		if(nodeIds == null || nodeIds.size() != 1 || nodeIds.get(siteRef) == null){
 			throw new IllegalArgumentException("Node doesn't exist or has multiple instances: " + ref.getId());
 		}
-		String nodeId = nodeIds.get(0);
+		String nodeId = nodeIds.get(siteRef);
 		String shoppingAuth = (String) params.get("shoppingAuth");
 		String shoppingStartDateStr = (String) params.get("shoppingStartDate");
 		String shoppingEndDateStr = (String) params.get("shoppingEndDate");
@@ -204,11 +206,12 @@ public class DelegatedAccessEntityProviderImpl implements DelegatedAccessEntityP
 	}
 	
 	public Object getEntity(EntityReference ref) {
-		Map<String, String> nodeIds = projectLogic.getNodesBySiteRef(new String[]{"/site/" + ref.getId()}, DelegatedAccessConstants.HIERARCHY_ID);
-		if(nodeIds == null || nodeIds.size() != 1){
+		String siteRef = "/site/" + ref.getId();
+		Map<String, String> nodeIds = projectLogic.getNodesBySiteRef(new String[]{siteRef}, DelegatedAccessConstants.HIERARCHY_ID);
+		if(nodeIds == null || nodeIds.size() != 1 || nodeIds.get(siteRef) == null){
 			throw new IllegalArgumentException("NodeId for Site: " + ref + " doesn't exist");
 		}
-		String nodeId = nodeIds.get(0);
+		String nodeId = nodeIds.get(siteRef);
 		NodeModel node = projectLogic.getNodeModel(nodeId, DelegatedAccessConstants.SHOPPING_PERIOD_USER);
 		if(node == null){
 			throw new IllegalArgumentException("NodeId: " + nodeId + " doesn't exist");
