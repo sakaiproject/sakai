@@ -52,9 +52,10 @@ public class Day implements Serializable {
 	public Day() {
 	}
 
-	public Day(Date date, boolean hasEvents) {
+	public Day(Calendar c, boolean hasEvents) {
 		this.hasEvents = hasEvents;
-		this.date = date;
+		this.date = c.getTime();
+		this.dayOfMonth = c.get(Calendar.DAY_OF_MONTH);
 	}
 
 	public void setDate(Date date) {
@@ -68,11 +69,6 @@ public class Day implements Serializable {
 	}
 
 	public int getDayOfMonth() {
-		if(dayOfMonth == -1 && date != null){
-			Calendar c = Calendar.getInstance();
-			c.setTime(date);
-			dayOfMonth = c.get(Calendar.DAY_OF_MONTH);
-		}
 		return dayOfMonth;
 	}
 
