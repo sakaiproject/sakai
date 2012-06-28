@@ -16,6 +16,7 @@ import lombok.Setter;
 
 import org.sakaiproject.delegatedaccess.logic.ProjectLogic;
 import org.sakaiproject.delegatedaccess.logic.SakaiProxy;
+import org.sakaiproject.delegatedaccess.model.AccessNode;
 import org.sakaiproject.delegatedaccess.model.ListOptionSerialized;
 import org.sakaiproject.delegatedaccess.model.NodeModel;
 import org.sakaiproject.delegatedaccess.util.DelegatedAccessConstants;
@@ -32,6 +33,8 @@ import org.sakaiproject.entitybroker.entityprovider.extension.Formats;
 import org.sakaiproject.entitybroker.entityprovider.extension.RequestGetter;
 import org.sakaiproject.entitybroker.entityprovider.extension.RequestStorage;
 import org.sakaiproject.entitybroker.entityprovider.search.Search;
+import org.sakaiproject.tool.api.Tool;
+import org.sakaiproject.user.api.User;
 
 /**
  * This is the RESTful service for the Shopping Period Admin.  This allows an instructor to
@@ -298,6 +301,63 @@ public class DelegatedAccessEntityProviderImpl implements DelegatedAccessEntityP
         	}
         }else{
         	throw new IllegalArgumentException("Expected url path is /initialize/site/{id}");
+        }
+	}
+	
+	@EntityCustomAction(action="access",viewKey=EntityView.VIEW_LIST)
+	public List getUsersWithAccessToSite(EntityView view, Map<String, Object> params) {
+		String option = view.getPathSegment(2);
+        if(option == null || "".equals(option)){
+        	throw new IllegalArgumentException("Expected url path is /access/site/{id}");
+        }
+        if("site".equals(option)){
+        	String siteId = view.getPathSegment(3);
+        	if(siteId != null && !"".equals(siteId)){
+        		//check the user is actually an instructor or super admin:
+        		if(!sakaiProxy.isSuperUser() && !sakaiProxy.isUserInstructor(sakaiProxy.getCurrentUserId(), siteId)){
+        			throw new IllegalArgumentException("You must be an instructor or admin user to view this information.");
+        		}
+        		
+        		List<Map<String, Object>> returnList = new ArrayList<Map<String,Object>>();
+        		for(AccessNode node : projectLogic.getUserAccessForSite("/site/" + siteId).values()){
+        			Map<String,Object> accessMap = new HashMap<String, Object>();
+        			accessMap.put("realm", "");
+        			accessMap.put("role", "");
+        			if(node.getAccess() != null && node.getAccess().length == 2){
+        				accessMap.put("realm", node.getAccess()[0]);
+        				accessMap.put("role", node.getAccess()[1]);
+        			}
+        			accessMap.put("deniedTools", node.getDeniedTools());
+        			accessMap.put("userId", node.getUserId());
+        			User user = sakaiProxy.getUser(node.getUserId());
+        			accessMap.put("userEid", "");
+        			accessMap.put("userDisplayName", "");
+        			if(user != null){
+        				accessMap.put("userEid", user.getEid());
+        				accessMap.put("userDisplayName", user.getDisplayName());	
+        			}
+        			String deniedToolsNames = "";
+        			if(node.getDeniedTools() != null){
+        				for(String toolId : node.getDeniedTools()){
+        					Tool tool = sakaiProxy.getTool(toolId);
+        					if(tool != null){
+        						if(!deniedToolsNames.equals("")){
+        							deniedToolsNames += ", ";
+        						}
+        						deniedToolsNames += tool.getTitle();
+        					}
+        				}
+        			}
+        			accessMap.put("deniedToolsNames", deniedToolsNames);
+        			
+        			returnList.add(accessMap);
+        		}
+        		return returnList;
+        	}else{
+        		throw new IllegalArgumentException("Expected url path is /access/site/{id}");
+        	}
+        }else{
+        	throw new IllegalArgumentException("Expected url path is /access/site/{id}");
         }
 	}
 	

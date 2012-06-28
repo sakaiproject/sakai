@@ -344,4 +344,10 @@ public interface SakaiProxy {
 	 */
 	public boolean getSyncMyworkspaceTool();
 
+	/**
+	 * returns the tool for the given tool id
+	 * @param toolId
+	 * @return
+	 */
+	public Tool getTool(String toolId);
 }

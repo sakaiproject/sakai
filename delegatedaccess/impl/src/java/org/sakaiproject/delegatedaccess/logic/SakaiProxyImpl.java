@@ -176,6 +176,10 @@ public class SakaiProxyImpl implements SakaiProxy {
 		}
 	}
 	
+	public Tool getTool(String toolId){
+		return toolManager.getTool(toolId);
+	}
+	
 	public String[] getHomeTools(){
 		return serverConfigurationService.getStrings(DelegatedAccessConstants.PROPERTIES_HOME_TOOLS);
 	}

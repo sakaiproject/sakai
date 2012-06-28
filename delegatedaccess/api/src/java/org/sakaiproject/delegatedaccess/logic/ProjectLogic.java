@@ -7,6 +7,7 @@ import java.util.Set;
 
 import javax.swing.tree.TreeModel;
 
+import org.sakaiproject.delegatedaccess.model.AccessNode;
 import org.sakaiproject.delegatedaccess.model.HierarchyNodeSerialized;
 import org.sakaiproject.delegatedaccess.model.NodeModel;
 import org.sakaiproject.delegatedaccess.model.SearchResult;
@@ -266,4 +267,11 @@ public interface ProjectLogic {
 	 * @param userId
 	 */
 	public void syncMyworkspaceToolForUser(String userId);
+	
+	/**
+	 * Returns a map of UserId -> AccessNode
+	 * @param siteRef
+	 * @return
+	 */
+	public Map<String, AccessNode> getUserAccessForSite(String siteRef);
 }
