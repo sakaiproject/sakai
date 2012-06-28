@@ -20,9 +20,9 @@
      
     <property name="tagCriteriaRef" column="TAG_CRITERIA_REF" length="255" not-null="true" />
 
-    <property name="rubric" column="RUBRIC" type="string" length="75000"/>
+    <property name="rubric" column="RUBRIC" type="text" />
 
-    <property name="rationale" column="RATIONALE" type="string" length="75000" />
+    <property name="rationale" column="RATIONALE" type="text" />
 
 	<property name="exportString" column="EXPORT_STRING" not-null="true" />
 
