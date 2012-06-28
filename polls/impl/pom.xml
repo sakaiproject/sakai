@@ -49,6 +49,11 @@
             <version>2.7.6</version>
         </dependency>
         <dependency>
+            <groupId>cglib</groupId>
+            <artifactId>cglib-nodep</artifactId>
+            <version>2.1_3</version>
+        </dependency>
+        <dependency>
             <groupId>commons-codec</groupId>
             <artifactId>commons-codec</artifactId>
             <version>1.3</version>
@@ -85,6 +90,7 @@
         <dependency>
             <groupId>hsqldb</groupId>
             <artifactId>hsqldb</artifactId>
+            <version>1.8.0.5</version>
             <scope>provided</scope>
         </dependency>
         <dependency>
@@ -100,20 +106,8 @@
         </dependency>
         <dependency>
             <groupId>org.hibernate</groupId>
-            <artifactId>hibernate-core</artifactId>
+            <artifactId>hibernate</artifactId>
         </dependency>
-	<!-- needed by hibernate unit tests -->
-        <dependency>
-            <groupId>org.hibernate</groupId>
-            <artifactId>hibernate-ehcache</artifactId>
-        </dependency>
-	<dependency>
-	      <groupId>org.javassist</groupId>
-	      <artifactId>javassist</artifactId>
-        </dependency>
-
-
-
         <dependency>
             <groupId>org.springframework</groupId>
             <artifactId>spring</artifactId>
@@ -121,7 +115,7 @@
         <dependency>
             <groupId>org.springframework</groupId>
             <artifactId>spring-test</artifactId>
-            <version>2.5.6.SEC03</version>
+            <version>2.5.6.SEC01</version>
             <scope>test</scope>
         </dependency>
         <dependency>
