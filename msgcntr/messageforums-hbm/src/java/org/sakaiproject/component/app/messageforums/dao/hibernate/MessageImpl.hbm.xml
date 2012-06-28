@@ -217,8 +217,8 @@
     select message
     from org.sakaiproject.component.app.messageforums.dao.hibernate.MessageImpl message,
       org.sakaiproject.component.app.messageforums.dao.hibernate.UnreadStatusImpl us
-      join fetch message.topic topic join fetch topic.openForum openForum
-    where message.id = us.messageId and openForum.area.contextId = :contextId and 
+      join fetch message.topic join fetch message.topic.openForum
+    where message.id = us.messageId and message.topic.openForum.area.contextId = :contextId and 
       us.userId = :userId and us.read = true and message.draft = false and message.deleted = false
     order by message.created desc
   ]]></query>
@@ -227,8 +227,8 @@
     select message
     from org.sakaiproject.component.app.messageforums.dao.hibernate.MessageImpl message,
       org.sakaiproject.component.app.messageforums.dao.hibernate.UnreadStatusImpl us
-      join fetch message.topic topic join fetch topic.openForum openForum
-    where message.id = us.messageId and openForum.area.contextId = :contextId and 
+      join fetch message.topic join fetch message.topic.openForum
+    where message.id = us.messageId and message.topic.openForum.area.contextId = :contextId and 
       us.userId = :userId and us.read = true and message.draft = false and message.deleted = false
       and message.topic.id = :topicId
     order by message.created desc
@@ -238,10 +238,10 @@
     select message
     from org.sakaiproject.component.app.messageforums.dao.hibernate.MessageImpl message,
       org.sakaiproject.component.app.messageforums.dao.hibernate.UnreadStatusImpl us
-      join fetch message.topic topic join fetch topic.openForum openForum
-    where message.id = us.messageId and openForum.area.contextId = :contextId and 
+      join fetch message.topic join fetch message.topic.openForum
+    where message.id = us.messageId and message.topic.openForum.area.contextId = :contextId and 
       us.userId = :userId and us.read = true and message.draft = false and message.deleted = false
-      and openForum.id = :forumId
+      and message.topic.openForum.id = :forumId
     order by message.created desc
   ]]></query>
   
@@ -314,8 +314,8 @@
   <query name="findAuthoredMessagesForStudent"><![CDATA[
     select message
     from org.sakaiproject.component.app.messageforums.dao.hibernate.MessageImpl message
-      join fetch message.topic topic join fetch topic.openForum openForum
-    where openForum.area.contextId = :contextId and message.createdBy = :userId 
+      join fetch message.topic join fetch message.topic.openForum
+    where message.topic.openForum.area.contextId = :contextId and message.createdBy = :userId 
       and message.draft = false and message.deleted = false
     order by message.created desc
   ]]></query>
@@ -323,20 +323,20 @@
   <query name="findAuthoredMessagesForStudentByTopicId"><![CDATA[
     select message
     from org.sakaiproject.component.app.messageforums.dao.hibernate.MessageImpl message
-      join fetch message.topic topic join fetch topic.openForum openForum
-    where openForum.area.contextId = :contextId and message.createdBy = :userId 
+      join fetch message.topic join fetch message.topic.openForum
+    where message.topic.openForum.area.contextId = :contextId and message.createdBy = :userId 
       and message.draft = false and message.deleted = false
-      and topic.id = :topicId
+      and message.topic.id = :topicId
     order by message.created desc
   ]]></query>
   
   <query name="findAuthoredMessagesForStudentByForumId"><![CDATA[
     select message
     from org.sakaiproject.component.app.messageforums.dao.hibernate.MessageImpl message
-      join fetch message.topic topic join fetch topic.openForum openForum
-    where openForum.area.contextId = :contextId and message.createdBy = :userId 
+      join fetch message.topic join fetch message.topic.openForum
+    where message.topic.openForum.area.contextId = :contextId and message.createdBy = :userId 
       and message.draft = false and message.deleted = false
-      and openForum.id = :forumId
+      and message.topic.openForum.id = :forumId
     order by message.created desc
   ]]></query>
 
