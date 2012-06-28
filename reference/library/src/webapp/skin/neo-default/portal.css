@@ -253,6 +253,14 @@ guests, for example */
     background: #007194;
     text-decoration: none;
 }
+/*make secondary CAS login link (ie. Guest Login) different*/ 
+#loginLink2, #loginLink2:hover {
+    background: none;
+    border: none;
+}
+#loginLink2:hover  {
+    text-decoration: underline;
+}
 /* container for the link to open the user centerer menu, and the menu itself */
 #loginLinks .topnav {
     float: left;
@@ -538,6 +546,8 @@ ul#otherSiteList, ul.otherSitesCategorList {
     clear: both;
     float: left;
     font-size: .9em;
+    max-height: 315px;
+    overflow: auto;
 }
 #selectSite li {
     margin: 6px 6px 0 0;
