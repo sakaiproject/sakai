@@ -81,7 +81,7 @@ public class CalendarBean {
 	public static final String 						PRIORITY_HIGH			= "priority_high";
 	public static final String 						PRIORITY_MEDIUM			= "priority_medium";
 	public static final String 						PRIORITY_LOW			= "priority_low";
-	private static final String 					imgLocation				= "../../../library/image/sakai/";
+	private static final String 					imgLocation				= "/../library/image/sakai/";
 	private static final String 					SCHEDULE_TOOL_ID		= "sakai.schedule";
 	
 	private static final String 					MERGED_CALENDARS_PROP 	= "mergedCalendarReferences";
