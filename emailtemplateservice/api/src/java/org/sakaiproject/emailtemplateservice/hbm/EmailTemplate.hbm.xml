@@ -19,14 +19,14 @@
             <column name="OWNER" not-null="true" length="255" />
         </property>
         <!-- the subject -->
-        <property name="subject" type="string">
+        <property name="subject" type="text">
 	        <column name="SUBJECT" not-null="true" length="100000000"/>
         </property>
         <property name="from" type="java.lang.String">
 	        <column name="emailfrom" not-null="false" length="255"/>
         </property>
         <!-- the email template message -->
-        <property name="message" type="string">
+        <property name="message" type="text">
              <column name="MESSAGE" not-null="true" length="100000000"/>
         </property>
         <!-- the email template message in html-->
