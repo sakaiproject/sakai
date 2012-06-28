@@ -15,7 +15,6 @@
 
     <description>This project creates a WAR containing the Lesson Builder Tool for Sakai.</description>
 
-<!--
     <repositories>
         <repository>
             <id>local-hack</id>
@@ -28,7 +27,7 @@
         </repository>
 
     </repositories>
--->
+
     <dependencies>
 
         <dependency>
@@ -123,7 +122,7 @@
         </dependency>
         <dependency>
             <groupId>org.hibernate</groupId>
-            <artifactId>hibernate-core</artifactId>
+            <artifactId>hibernate</artifactId>
         </dependency>
         <!-- Required for hibernate 3 HQL queries -->
         <dependency>
