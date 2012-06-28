@@ -335,6 +335,11 @@ public class CourseGradeDetailsBean extends EnrollmentTableBean {
         		new SpreadsheetDataFileWriterCsv());
     }
     
+    //Export custom grade label
+    public String getExportCustomLabel(){
+		return ServerConfigurationService.getString("gradebook.institutional.export.label",getLocalizedString("course_grade_details_export_course_grades_institution"));
+    }
+    
     private List<List<Object>> getSpreadsheetData(String type) {
     	// Get the full list of filtered enrollments and scores (not just the current page's worth).
     	List<EnrollmentRecord> filteredEnrollments = new ArrayList(getWorkingEnrollmentsForCourseGrade().keySet());
