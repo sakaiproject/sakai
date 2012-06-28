@@ -159,7 +159,6 @@ public class TypeManagerImpl extends HibernateDaoSupport implements TypeManager
 				Query q = session.getNamedQuery(FINDTYPEBYUUID);
 				q.setString(UUID, uuid);
 				q.setCacheable(cacheFindTypeByUuid);
-				q.setCacheRegion(Type.class.getCanonicalName());
 				return q.uniqueResult();
 			}
 		};
@@ -190,7 +189,6 @@ public class TypeManagerImpl extends HibernateDaoSupport implements TypeManager
 				q.setString(DOMAIN, domain);
 				q.setString(KEYWORD, keyword);
 				q.setCacheable(cacheFindTypeByTuple);
-				q.setCacheRegion(Type.class.getCanonicalName());
 				return q.uniqueResult();
 			}
 		};
