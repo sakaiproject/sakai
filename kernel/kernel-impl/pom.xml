@@ -1,6 +1,5 @@
 <?xml version="1.0"?>
-<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-  xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
   <modelVersion>4.0.0</modelVersion>
   <parent>
     <artifactId>kernel</artifactId>
@@ -27,13 +26,13 @@
     <deploy.target />
     <maven.test.jvmargs />
   </properties>
-  <build>
+  <build>  
     <plugins>
       <plugin>
         <artifactId>maven-surefire-plugin</artifactId>
         <configuration>
           <!-- <redirectTestOutputToFile>true</redirectTestOutputToFile> -->
-          <testFailureIgnore>false</testFailureIgnore>
+          <testFailureIgnore>false</testFailureIgnore> 
           <forkMode>pertest</forkMode>
           <systemPropertyVariables>
             <derby.stream.error.file>${project.build.directory}/derby.log</derby.stream.error.file>
@@ -65,8 +64,8 @@
       <artifactId>sakai-kernel-storage-util</artifactId>
       <version>${project.version}</version>
     </dependency>
-
-    <!-- needed to make the tests work as we need to bring up the Component Manager -->
+    
+    <!--  needed to make the tests work as we need to bring up the Component Manager -->
     <dependency>
       <groupId>org.sakaiproject.kernel</groupId>
       <artifactId>sakai-kernel-private</artifactId>
@@ -89,24 +88,24 @@
       <groupId>commons-dbcp</groupId>
       <artifactId>commons-dbcp</artifactId>
     </dependency>
+	<dependency>
+		<groupId>commons-lang</groupId>
+		<artifactId>commons-lang</artifactId>
+	</dependency>
     <dependency>
-      <groupId>commons-lang</groupId>
-      <artifactId>commons-lang</artifactId>
+        <!-- for parsing CSV data from config service files -->
+        <groupId>net.sf.opencsv</groupId>
+        <artifactId>opencsv</artifactId>
+        <version>2.3</version>
     </dependency>
-    <dependency>
-      <!-- for parsing CSV data from config service files -->
-      <groupId>net.sf.opencsv</groupId>
-      <artifactId>opencsv</artifactId>
-      <version>2.3</version>
-    </dependency>
-    <dependency>
-      <groupId>org.slf4j</groupId>
-      <artifactId>slf4j-api</artifactId>
-    </dependency>
-    <dependency>
-      <groupId>org.slf4j</groupId>
-      <artifactId>slf4j-log4j12</artifactId>
-    </dependency>
+	<dependency>
+		<groupId>org.slf4j</groupId>
+		<artifactId>slf4j-log4j12</artifactId>
+	</dependency>
+	<dependency>
+		<groupId>org.slf4j</groupId>
+		<artifactId>slf4j-api</artifactId>
+	</dependency>
     <dependency>
       <groupId>hsqldb</groupId>
       <artifactId>hsqldb</artifactId>
@@ -132,40 +131,15 @@
       <groupId>javax.activation</groupId>
       <artifactId>activation</artifactId>
     </dependency>
-
     <dependency>
       <groupId>org.springframework</groupId>
       <artifactId>spring</artifactId>
     </dependency>
     <dependency>
-      <groupId>org.springframework</groupId>
-      <artifactId>spring-test</artifactId>
-      <version>2.5.6.SEC03</version>
-      <scope>test</scope>
-    </dependency>
-
-    <dependency>
       <groupId>org.hibernate</groupId>
-      <artifactId>hibernate-core</artifactId>
+      <artifactId>hibernate</artifactId>
     </dependency>
-    <dependency>
-      <groupId>org.hibernate</groupId>
-      <artifactId>hibernate-ehcache</artifactId>
-    </dependency>
-    <dependency>
-      <groupId>org.hibernate</groupId>
-      <artifactId>hibernate-jmx</artifactId>
-    </dependency>
-    <dependency>
-      <groupId>org.javassist</groupId>
-      <artifactId>javassist</artifactId>
-    </dependency>
-    <dependency>
-      <groupId>cglib</groupId>
-      <artifactId>cglib-nodep</artifactId>
-      <scope>test</scope>
-    </dependency>
-    <dependency>
+   <dependency>
       <groupId>org.subethamail</groupId>
       <artifactId>subethasmtp</artifactId>
       <version>3.1.6</version>
@@ -178,16 +152,16 @@
       <scope>test</scope>
     </dependency>
     <dependency>
-      <groupId>org.jmock</groupId>
-      <artifactId>jmock-junit4</artifactId>
-      <version>2.5.1</version>
-      <scope>test</scope>
+        <groupId>org.jmock</groupId>
+        <artifactId>jmock-junit4</artifactId>
+        <version>2.5.1</version>
+        <scope>test</scope>
     </dependency>
     <dependency>
-      <groupId>org.jmock</groupId>
-      <artifactId>jmock-legacy</artifactId>
-      <version>2.5.1</version>
-      <scope>test</scope>
+        <groupId>org.jmock</groupId>
+        <artifactId>jmock-legacy</artifactId>
+        <version>2.5.1</version>
+        <scope>test</scope>
     </dependency>
     <dependency>
       <groupId>org.jmock</groupId>
@@ -196,11 +170,11 @@
       <scope>test</scope>
     </dependency>
     <dependency>
-      <groupId>com.ibm.icu</groupId>
-      <artifactId>icu4j</artifactId>
-      <version>4.8</version>
-      <type>jar</type>
-      <scope>compile</scope>
+    	<groupId>com.ibm.icu</groupId>
+    	<artifactId>icu4j</artifactId>
+    	<version>4.8</version>
+    	<type>jar</type>
+    	<scope>compile</scope>
     </dependency>
   </dependencies>
 </project>

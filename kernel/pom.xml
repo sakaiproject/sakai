@@ -42,8 +42,7 @@
     <inceptionYear>2003</inceptionYear>
     <properties>
          <sakai.jdk.version>1.6</sakai.jdk.version>
-	 <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
-	 <kernel.hibernate.version>3.5.6-Final</kernel.hibernate.version>
+	 <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding> 
     </properties>
     <mailingLists>
         <mailingList>
@@ -417,15 +416,6 @@
                 <enabled>false</enabled>
             </snapshots>
         </repository>
-        <repository>
-            <id>jboss</id>
-            <name>JBoss Maven Repository</name>
-            <layout>default</layout>
-            <url>http://repository.jboss.org/maven2</url>
-            <snapshots>
-                <enabled>false</enabled>
-            </snapshots>
-        </repository>
         <!--
             <repository> <id>apache-repo</id> <name>apache-repo</name>
             <layout>default</layout> <url>
@@ -652,70 +642,34 @@
                 <version>2.5.1</version>
                 <scope>provided</scope>
             </dependency>
-            <!--  needed by Ehcache (and jackrabbit and hibernate) -->
+            <!--  needed by Ehcache (and jackrabbit) -->
 	    <dependency>
 	      <groupId>org.slf4j</groupId>
 	      <artifactId>slf4j-log4j12</artifactId>
-	      <version>1.5.8</version>
+	      <version>1.4.2</version>
 	      <scope>provided</scope>
 	    </dependency>
 	    <dependency>
 	      <groupId>org.slf4j</groupId>
 	      <artifactId>slf4j-api</artifactId>
-	      <version>1.5.8</version>
+	      <version>1.4.2</version>
 	      <scope>provided</scope>
 	    </dependency>
-        <!-- LEGACY HIBERNATE APIS (START) 
-            These can be removed eventually but we are leaving them
-            for backwards compatibility with contrib tools builds
-            (only in DM though, they must be removed from everywhere else)
-            https://jira.sakaiproject.org/browse/KNL-515
-        -->
-        <dependency>
-          <groupId>org.hibernate</groupId>
-          <artifactId>hibernate</artifactId>
-          <version>3.2.7.ga</version>
-          <scope>provided</scope>
-          <exclusions>
-            <exclusion>
-              <!-- Due to artifact now being ehcache-core eclipse:eclipse was including both copies of the JAR in the project. -->
-              <groupId>net.sf.ehcache</groupId>
-              <artifactId>ehcache</artifactId>
-            </exclusion>
-          </exclusions>
-        </dependency>
-        <!-- LEGACY HIBERNATE APIS (END) -->
             <dependency>
                 <groupId>org.hibernate</groupId>
-                <artifactId>hibernate-core</artifactId>
-                <version>${kernel.hibernate.version}</version>
+                <artifactId>hibernate</artifactId>
+                <version>3.2.7.ga</version>
                 <scope>provided</scope>
-           </dependency>
-             <dependency>
-                <groupId>org.hibernate</groupId>
-                <artifactId>hibernate-cglib-repack</artifactId>
-                <version>2.1_3</version>
-                <scope>provided</scope>
+                <exclusions>
+                    <exclusion>
+                        <!-- Due to artifact now being ehcache-core eclipse:eclipse was including
+                             both copies of the JAR in the project. -->
+                        <groupId>net.sf.ehcache</groupId>
+                        <artifactId>ehcache</artifactId>
+                    </exclusion>
+                </exclusions>
             </dependency>
             <dependency>
-                <groupId>org.hibernate</groupId>
-                <artifactId>hibernate-ehcache</artifactId>
-                <version>${kernel.hibernate.version}</version>
-                <scope>provided</scope>
-            </dependency>
-            <dependency>
-                <groupId>org.hibernate</groupId>
-                <artifactId>hibernate-jmx</artifactId>
-                <version>${kernel.hibernate.version}</version>
-                <scope>provided</scope>
-            </dependency>
-	    <dependency>
-	      <groupId>org.javassist</groupId>
-	      <artifactId>javassist</artifactId>
-	      <version>3.16.1-GA</version>
-	      <scope>provided</scope>
-	    </dependency>
-           <dependency>
                 <groupId>hsqldb</groupId>
                 <artifactId>hsqldb</artifactId>
                 <version>1.8.0.10</version>
