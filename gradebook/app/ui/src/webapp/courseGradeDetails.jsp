@@ -149,7 +149,7 @@
 
 		</div> <!-- END OF INDNT1 -->
 
-		<p class="act">
+		<div class="act">
 			<h:commandButton
 				value="#{msgs.course_grade_details_export_course_grades_pdf}"
 				actionListener="#{courseGradeDetailsBean.exportPdf}"
@@ -168,10 +168,15 @@
 				rendered="#{!courseGradeDetailsBean.emptyEnrollments}"
 				style="margin-left: 5em;"
 				/>
-				
-			<br/><br/><br/>
-
-
+			<h:outputText rendered="#{!courseGradeDetailsBean.emptyEnrollments && courseGradeDetailsBean.enableCustomExport}" escape="false" value="<span class=\"highlightPanel\" style=\"padding:10px 5px 10px 10px\">"/>
+			    <h:outputText styleClass="instruction" style="padding-right:10px;" value="#{courseGradeDetailsBean.exportCustomLabel}" rendered="#{!courseGradeDetailsBean.emptyEnrollments && courseGradeDetailsBean.enableCustomExport}"/>
+                <h:commandButton
+    				value="#{msgs.course_grade_details_export_course_grades_institution_control}"
+    				actionListener="#{courseGradeDetailsBean.exportCustomCsv}"
+    				rendered="#{!courseGradeDetailsBean.emptyEnrollments && courseGradeDetailsBean.enableCustomExport}"
+    				/>
+			<h:outputText rendered="#{!courseGradeDetailsBean.emptyEnrollments && courseGradeDetailsBean.enableCustomExport}" escape="false" value="</span>" />
+			<br /><br /><hr class="itemSeparator"/><br />
 			<h:commandButton
 				id="saveButton"
 				styleClass="active"
@@ -194,7 +199,7 @@
 				rendered="#{courseGradeDetailsBean.userAbleToGradeAll}"
 				style="margin-left: 5em;"
 			/>
-		</p>
+		</div>
 
 	  </h:form>
 	</div>
