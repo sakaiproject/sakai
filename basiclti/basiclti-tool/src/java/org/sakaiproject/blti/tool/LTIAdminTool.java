@@ -820,6 +820,7 @@ public class LTIAdminTool extends VelocityPortletPaneledAction
 		Properties reqProps = data.getParameters().getProperties();
 		String id = data.getParameters().getString(LTIService.LTI_ID);
 		String toolId = data.getParameters().getString(LTIService.LTI_TOOL_ID);
+		String title = data.getParameters().getString(LTIService.LTI_TITLE);
 		Object retval = ltiService.insertToolContent(id, toolId, reqProps);
 		
 		if ( retval instanceof String ) 
@@ -877,7 +878,7 @@ public class LTIAdminTool extends VelocityPortletPaneledAction
 		if (reqProps.getProperty("add_site_link") != null)
 		{
 			// this is to add site link:
-			retval = ltiService.insertToolSiteLink(id, "test");
+			retval = ltiService.insertToolSiteLink(id, title);
 			if ( retval instanceof String ) {
 				String prefix = ((String) retval).substring(0,2);
 				addAlert(state, ((String) retval).substring(2));
