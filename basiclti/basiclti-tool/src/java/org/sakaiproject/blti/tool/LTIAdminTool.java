@@ -57,8 +57,7 @@ import org.sakaiproject.site.api.Site;
 import org.sakaiproject.site.api.SitePage;
 import org.sakaiproject.site.cover.SiteService;
 import org.sakaiproject.site.api.ToolConfiguration;
-
-// import org.sakaiproject.component.cover.ServerConfigurationService;
+import org.sakaiproject.component.api.ServerConfigurationService;
 
 // TODO: FIX THIS
 import org.sakaiproject.tool.cover.SessionManager;
@@ -90,10 +89,13 @@ public class LTIAdminTool extends VelocityPortletPaneledAction
 	private static String STATE_REDIRECT_URL = "lti:state_redirect_url";
 
 	private static String SECRET_HIDDEN = "***************";
+	
+	private static String ALLOW_MAINTAINER_ADD_SYSTEM_TOOL = "lti:allow_maintainer_add_system_tool";
 
 	/** Service Implementations */
 	protected static ToolManager toolManager = null; 
-	protected static LTIService ltiService = null; 
+	protected static LTIService ltiService = null;
+	protected static ServerConfigurationService serverConfigurationService = null;
 
 	protected static SakaiFoorm foorm = new SakaiFoorm();
 
@@ -113,6 +115,7 @@ public class LTIAdminTool extends VelocityPortletPaneledAction
 		   End of HACK */
 
 		if ( ltiService == null ) ltiService = (LTIService) ComponentManager.get("org.sakaiproject.lti.api.LTIService");
+		if ( serverConfigurationService == null ) serverConfigurationService = (ServerConfigurationService) ComponentManager.get("org.sakaiproject.component.api.ServerConfigurationService");
 	}
 
 	/**
@@ -127,6 +130,8 @@ public class LTIAdminTool extends VelocityPortletPaneledAction
 		Placement placement = toolManager.getCurrentPlacement();
 		String toolReg = placement.getToolId();
 		inHelper = ! ( "sakai.basiclti.admin".equals(toolReg));
+		
+		
 	}
 
 	/**
@@ -223,6 +228,8 @@ public class LTIAdminTool extends VelocityPortletPaneledAction
 
 		context.put("messageSuccess",state.getAttribute(STATE_SUCCESS));
 		context.put("isAdmin",new Boolean(ltiService.isAdmin()) );
+		// by default, site maintainer can add system-wide LTI tool
+		context.put("allowMaintainerAddSystemTool", new Boolean(serverConfigurationService.getBoolean(ALLOW_MAINTAINER_ADD_SYSTEM_TOOL, true)));
 		context.put("getContext",toolManager.getCurrentPlacement().getContext());
 		
 		// this is for the system tool panel

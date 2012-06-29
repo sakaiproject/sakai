@@ -115,7 +115,7 @@
 	</ul>
 	#if ($messageSuccess)<div class="messageSuccess">$tlang.getString("gen.success") $validator.escapeHtml($messageSuccess)</div><div class="clear"></div>#end
 	#if ($alertMessage)<div class="alertMessage">$tlang.getString("gen.alert") $validator.escapeHtml($alertMessage)</div><div class="clear"></div>#end
-	#if ($isAdmin)<div align="right"><a href="" title="$tlang.getString("add.to.system")" onclick="location = '$sakai_ActionURL.setPanel("ToolInsert")';return false;"> $tlang.getString("add.to.system")</a></div>#end
+	#if ($isAdmin || $allowMaintainerAddSystemTool)<div align="right"><a href="" title="$tlang.getString("add.to.system")" onclick="location = '$sakai_ActionURL.setPanel("ToolInsert")';return false;"> $tlang.getString("add.to.system")</a></div>#end
 	<br/>
 	#if ($!systemLtiToolsMap && !$systemLtiToolsMap.isEmpty())
 		$tlang.getString("tool.description.system")
@@ -139,7 +139,7 @@
                 <th id="title">$tlang.getString("bl_title")</th>
                 <th id="launch">$tlang.getString("bl_launch")</th>
                 #if ($isAdmin) <th id="use">$tlang.getString("bl_use")</th> #end
-                #if ($isAdmin)<th id="action">$tlang.getString("bl_action")</th>#end
+                #if ($isAdmin || $allowMaintainerAddSystemTool)<th id="action">$tlang.getString("bl_action")</th>#end
 	        </tr>
 	        </thead>
 	        <tbody>
@@ -151,7 +151,7 @@
 	                <td headers="title"><a href="$sakai_ActionURL.setPanel("ToolView")&id=$toolValues.get("id")">$toolValues.get("title")</td>
 	                <td headers="launch">$toolValues.get("launch")</a></td>
 	                #if ($isAdmin) <td headers="use">$toolValues.get("tool_count")</a></td> #end
-	                #if ( $isAdmin || $getContext == $toolValues.get("SITE_ID") ) 
+	                #if ( $isAdmin || ($allowMaintainerAddSystemTool && $getContext == $toolValues.get("SITE_ID"))) 
 		                <td headers="action">
 	                        <a href="$sakai_ActionURL.setPanel("ToolEdit")&id=$toolValues.get("id")">$tlang.getString("gen.edit")</a> / 
 	                        <a href="$sakai_ActionURL.setPanel("ToolDelete")&id=$toolValues.get("id")">$tlang.getString("gen.delete")</a>
