@@ -94,8 +94,8 @@
 		 
 		    },
 			headers: { 
-	            // assign the third column (we start counting zero) 
-	            3: { 
+	            // assign the fourth column (we start counting zero) 
+	            4: { 
 	                // disable it by setting the property sorter to false 
 	                sorter: false 
 	            }
@@ -138,8 +138,9 @@
 	        <tr>
                 <th id="title">$tlang.getString("bl_title")</th>
                 <th id="launch">$tlang.getString("bl_launch")</th>
+                <th id="site_id">$tlang.getString("bl_site")</th>
                 #if ($isAdmin) <th id="use">$tlang.getString("bl_use")</th> #end
-                #if ($isAdmin || $allowMaintainerAddSystemTool)<th id="action">$tlang.getString("bl_action")</th>#end
+                #if ($isAdmin || $allowMaintainerAddSystemTool) <th id="action">$tlang.getString("bl_action")</th>#end
 	        </tr>
 	        </thead>
 	        <tbody>
@@ -149,12 +150,19 @@
 				#set($toolValues=$tool.getValue())
 				<tr>
 	                <td headers="title"><a href="$sakai_ActionURL.setPanel("ToolView")&id=$toolValues.get("id")">$toolValues.get("title")</td>
-	                <td headers="launch">$toolValues.get("launch")</a></td>
-	                #if ($isAdmin) <td headers="use">$toolValues.get("tool_count")</a></td> #end
-	                #if ( $isAdmin || ($allowMaintainerAddSystemTool && $getContext == $toolValues.get("SITE_ID"))) 
+	                <td headers="launch">$toolValues.get("launch")</td>
+	                <td headers="site_id">
+	                	#set($siteId="<span style='display:none;'>zzzz</span>")
+	                	#set($siteId=$toolValues.get("site_id"))
+	                	$!siteId
+	                </td>
+	                #if ($isAdmin) <td headers="use">$toolValues.get("tool_count")</td> #end
+	                #if ( $isAdmin || $allowMaintainerAddSystemTool) 
 		                <td headers="action">
-	                        <a href="$sakai_ActionURL.setPanel("ToolEdit")&id=$toolValues.get("id")">$tlang.getString("gen.edit")</a> / 
-	                        <a href="$sakai_ActionURL.setPanel("ToolDelete")&id=$toolValues.get("id")">$tlang.getString("gen.delete")</a>
+		                	#if ( $isAdmin || ($allowMaintainerAddSystemTool && $getContext == $toolValues.get("SITE_ID")))
+	                        	<a href="$sakai_ActionURL.setPanel("ToolEdit")&id=$toolValues.get("id")">$tlang.getString("gen.edit")</a> / 
+	                        	<a href="$sakai_ActionURL.setPanel("ToolDelete")&id=$toolValues.get("id")">$tlang.getString("gen.delete")</a>
+	                        #end
 		                </td>
 	                 #end
                 <tr>

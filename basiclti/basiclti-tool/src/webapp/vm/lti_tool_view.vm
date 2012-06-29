@@ -9,7 +9,7 @@
                 <input type="hidden" name="sakai_csrf_token" value="$sakai_csrf_token" />
 		<p class="act">
 			<input type="submit" accesskey ="x" name="doDone" value="$tlang.getString('gen.done')" 
- 				onclick="location = '$sakai_ActionURL.setPanel("Main")';return false;">
+ 				onclick="location = '$sakai_ActionURL.setPanel("ToolSystem")';return false;">
 		</p>
 	</form>
 </div>

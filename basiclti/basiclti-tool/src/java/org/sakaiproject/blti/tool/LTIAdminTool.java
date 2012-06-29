@@ -216,12 +216,12 @@ public class LTIAdminTool extends VelocityPortletPaneledAction
 			addAlert(state,rb.getString("error.maintain.edit"));
 			return "lti_error";
 		}
+		String contextString = toolManager.getCurrentPlacement().getContext();
 		String returnUrl = data.getParameters().getString("returnUrl");
 		// if ( returnUrl != null ) state.setAttribute(STATE_REDIRECT_URL, returnUrl);
 		context.put("ltiService", ltiService);
 		context.put("isAdmin",new Boolean(ltiService.isAdmin()) );
 		context.put("inHelper",new Boolean(inHelper));
-		context.put("getContext",toolManager.getCurrentPlacement().getContext());
 		context.put("doEndHelper", BUTTON + "doEndHelper");
 		state.removeAttribute(STATE_POST);
 		state.removeAttribute(STATE_SUCCESS);
@@ -230,7 +230,7 @@ public class LTIAdminTool extends VelocityPortletPaneledAction
 		context.put("isAdmin",new Boolean(ltiService.isAdmin()) );
 		// by default, site maintainer can add system-wide LTI tool
 		context.put("allowMaintainerAddSystemTool", new Boolean(serverConfigurationService.getBoolean(ALLOW_MAINTAINER_ADD_SYSTEM_TOOL, true)));
-		context.put("getContext",toolManager.getCurrentPlacement().getContext());
+		context.put("getContext", contextString);
 		
 		// this is for the system tool panel
 		List<Map<String,Object>> contents = ltiService.getContents(null,null,0,500);
@@ -244,6 +244,17 @@ public class LTIAdminTool extends VelocityPortletPaneledAction
 			{
 				if (!tool.containsKey(ltiService.LTI_SITE_ID) || StringUtils.trimToNull((String) tool.get(ltiService.LTI_SITE_ID)) == null)
 				{
+					systemLtiTools.add(tool);
+				}
+				else if (((String) tool.get(ltiService.LTI_SITE_ID)).equals(contextString))
+				{
+					// if the current user is admin, add the site-range tool;
+					// otherwise, add the site-range tool only if the tool's site_id is the same as current site
+					systemLtiTools.add(tool);
+				}
+				else if (ltiService.isAdmin())
+				{
+					// show all the tools inside Admin MyWorkspace site
 					systemLtiTools.add(tool);
 				}
 			}
@@ -721,6 +732,7 @@ public class LTIAdminTool extends VelocityPortletPaneledAction
 	public String buildContentPutPanelContext(VelocityPortlet portlet, Context context, 
 			RunData data, SessionState state)
 	{
+		String contextString = toolManager.getCurrentPlacement().getContext();
 		context.put("tlang", rb);
 		String stateToolId = (String) state.getAttribute(STATE_TOOL_ID);
 		if ( ! ltiService.isMaintain() ) {
@@ -736,8 +748,20 @@ public class LTIAdminTool extends VelocityPortletPaneledAction
 		List<Map<String,Object>> systemTools = new ArrayList<Map<String,Object>>();
 		for(Map<String, Object> tool:tools)
 		{
-			if (!tool.containsKey(ltiService.LTI_SITE_ID) || StringUtils.trimToNull((String) tool.get(ltiService.LTI_SITE_ID)) == null)
+			String siteId = !tool.containsKey(ltiService.LTI_SITE_ID)?null:StringUtils.trimToNull((String) tool.get(ltiService.LTI_SITE_ID));
+			if (siteId == null)
 			{
+				// add tool for whole system
+				systemTools.add(tool);
+			}
+			else if (siteId.equals(contextString))
+			{
+				// add the tool for current site only
+				systemTools.add(tool);
+			}
+			else if (ltiService.isAdmin())
+			{
+				// if in Admin's my workspace, show all tools
 				systemTools.add(tool);
 			}
 		}
@@ -884,9 +908,20 @@ public class LTIAdminTool extends VelocityPortletPaneledAction
 				addAlert(state, ((String) retval).substring(2));
 				if ("0-".equals(prefix))
 				{
-					switchPanel(state, "Main");
+					switchPanel(state, "Refresh");
 				}
 				else if ("1-".equals(prefix))
+				{
+					switchPanel(state, "Error");
+				}
+				return;
+			}
+			else if ( retval instanceof Boolean ) {
+				if (((Boolean) retval).booleanValue())
+				{
+					switchPanel(state, "Refresh");
+				}
+				else
 				{
 					switchPanel(state, "Error");
 				}
@@ -895,6 +930,7 @@ public class LTIAdminTool extends VelocityPortletPaneledAction
 			
 			state.setAttribute(STATE_SUCCESS,rb.getString("success.link.add"));
 		}
+
 
 		switchPanel(state, "ToolSite");
 	}
