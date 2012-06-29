@@ -121,6 +121,14 @@ public interface LTIService {
 	 * @return
 	 */
 	public Object insertTool(Properties newProps);
+
+	/**
+	 * 
+	 * @param newProps
+	 * @param siteId
+	 * @return
+	 */
+	public Object insertToolDao(Properties newProps, String siteId);
 		
 	/**
 	 * insert lti tool content
@@ -149,9 +157,10 @@ public interface LTIService {
 	/**
 	 * 
 	 * @param key
+	 * @param siteId
 	 * @return
 	 */
-	public Map<String, Object> getToolNoAuthz(Long key);
+	public Map<String, Object> getToolDao(Long key, String siteId);
 
 	/**
 	 * 
@@ -173,7 +182,7 @@ public interface LTIService {
 	 * @param newProps
 	 * @return
 	 */
-	public Object updateTool(Long key, Map<String, Object> newProps);
+	public Object updateTool(Long key, Properties newProps);
 
 	/**
 	 * 
@@ -181,7 +190,7 @@ public interface LTIService {
 	 * @param newProps
 	 * @return
 	 */
-	public Object updateTool(Long key, Properties newProps);
+	public Object updateTool(Long key, Map<String, Object> newProps);
 
 	/**
 	 * 
@@ -191,8 +200,18 @@ public interface LTIService {
 	 * @param last
 	 * @return
 	 */
-	public List<Map<String, Object>> getTools(String search, String order, int first,
-			int last);
+	public List<Map<String, Object>> getTools(String search, String order, int first, int last);
+
+	/**
+	 * 
+	 * @param search
+	 * @param order
+	 * @param first
+	 * @param last
+	 * @param siteId
+	 * @return
+	 */
+	public List<Map<String, Object>> getToolsDao(String search, String order, int first, int last, String siteId);
 
 	/**
 	 * 
@@ -224,17 +243,34 @@ public interface LTIService {
 
 	/**
 	 * 
-	 * @param key
+	 * @param newProps
+	 * @param siteId
 	 * @return
 	 */
-	public Map<String, Object> getContent(Long key);
+	public Object insertContentDao(Properties newProps, String siteId);
 
 	/**
 	 * 
 	 * @param key
 	 * @return
 	 */
-	public Map<String, Object> getContentNoAuthz(Long key);
+	public Map<String, Object> getContent(Long key);
+
+	/**
+	 * Absolutely no checking at all.
+	 * 
+	 * @param key
+	 * @return
+	 */
+	public Map<String, Object> getContentDao(Long key);
+
+	/**
+	 * 
+	 * @param key
+	 * @param siteId
+	 * @return
+	 */
+	public Map<String, Object> getContentDao(Long key, String siteId);
 
 	/**
 	 * 
@@ -268,14 +304,22 @@ public interface LTIService {
 
 	/**
 	 * 
+	 * @param key
+	 * @param newProps
+	 * @param siteId
+	 * @return
+	 */
+	public Object updateContentDao(Long key, Map<String, Object> newProps, String siteId);
+
+	/**
+	 * 
 	 * @param search
 	 * @param order
 	 * @param first
 	 * @param last
 	 * @return
 	 */
-	public List<Map<String, Object>> getContents(String search, String order, int first,
-			int last);
+	public List<Map<String, Object>> getContents(String search, String order, int first, int last);
 
 	/**
 	 * 
@@ -338,9 +382,14 @@ public interface LTIService {
 		"newpage:checkbox:label=bl_newpage",
 		"debug:checkbox:label=bl_debug",
 		"custom:textarea:label=bl_custom:rows=5:cols=25:maxlength=1024",
-		"launch:url:hidden=true:maxlength=255",
+		"launch:url:hidden=true:maxlength=1024",
+		"consumerkey:text:hidden=true:maxlength=255",
+		"secret:text:hidden=true:maxlength=255",
 		"xmlimport:text:hidden=true:maxlength=16384",
+		"settings:text:hidden=true:maxlength=8096",
 		"placement:text:hidden=true:maxlength=256", 
+		"placementsecret:text:hidden=true:maxlength=512",
+		"oldplacementsecret:text:hidden=true:maxlength=512",
 		"created_at:autodate",
 		"updated_at:autodate" };
 
@@ -354,7 +403,8 @@ public interface LTIService {
 		"description:textarea:label=bl_description:maxlength=4096:",
 		"status:radio:label=bl_status:choices=enable,disable",
 		"visible:radio:label=bl_visible:choices=visible,stealth:role=admin",
-		"launch:url:label=bl_launch:required=true:maxlength=255",
+		"launch:url:label=bl_launch:required=true:maxlength=1024",
+		"domain:text:label=bl_domain:hidden=true:maxlength=255",
 		"consumerkey:text:label=bl_consumerkey:required=true:maxlength=255",
 		"secret:text:required=true:label=bl_secret:maxlength=255",
 		"frameheight:integer:label=bl_frameheight",
@@ -362,6 +412,9 @@ public interface LTIService {
 		"privacy:header:fields=sendname,sendemailaddr",
 		"sendname:checkbox:label=bl_sendname",
 		"sendemailaddr:checkbox:label=bl_sendemailaddr",
+		"allowoutcomes:checkbox:label=bl_allowoutcomes",
+		"allowroster:checkbox:label=bl_allowroster",
+		"allowsettings:checkbox:label=bl_allowsettings",
 		"newpage:radio:label=bl_newpage:choices=off,on,content",
 		"debug:radio:label=bl_debug:choices=off,on,content",
 		"custom:textarea:label=bl_custom:rows=5:cols=25:maxlength=1024",
@@ -399,6 +452,10 @@ public interface LTIService {
 	static final String LTI_ALLOWFRAMEHEIGHT = "allowframeheight";
 	static final String LTI_SENDNAME =	"sendname";
 	static final String LTI_SENDEMAILADDR = "sendemailaddr";
+	static final String LTI_ALLOWOUTCOMES = "allowoutcomes";
+	static final String LTI_ALLOWROSTER = "allowroster";
+	static final String LTI_ALLOWSETTINGS = "allowsettings";
+	static final String LTI_SETTINGS = "settings";
 	static final String LTI_NEWPAGE =	"newpage";
 	static final String LTI_DEBUG =	"debug";
 	static final String LTI_CUSTOM = 	"custom";
@@ -409,6 +466,7 @@ public interface LTIService {
 	static final String LTI_UPATED_AT = 	"updated_at";
 	static final String LTI_MATCHPATTERN = "matchpattern";
 	static final String LTI_NOTE = 	"note";
-
+	static final String LTI_PLACEMENTSECRET = 	"placementsecret";
+	static final String LTI_OLDPLACEMENTSECRET = 	"oldplacementsecret";
 
 }

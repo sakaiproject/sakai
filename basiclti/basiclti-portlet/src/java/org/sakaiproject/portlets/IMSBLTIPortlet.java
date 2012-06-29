@@ -183,10 +183,10 @@ public class IMSBLTIPortlet extends GenericPortlet {
 
 				if ( "on".equals(newPage) ) {
 					String windowOpen = "window.open('"+iframeUrl+"','BasicLTI');"; 			
-					text.append("<script type=\"text/javascript\" language=\"JavaScript\">\n");
+					text.append("<p>\n");
+					text.append("<script type=\"text/javascript\">\n");
 					text.append(windowOpen+"\n");
 					text.append("</script>\n");
-					text.append("<p>\n");
 					text.append(rb.getString("new.page.launch"));
 					text.append("<br><a href=\""+iframeUrl+"\" onclick=\""+windowOpen+"\" target=\"BasicLTI\">"+rb.getString("noiframe.press.here")+"</a>");
 					text.append("</p>\n");
