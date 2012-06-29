@@ -27,7 +27,7 @@
  			<input type="submit" accesskey ="d" class="active" name="$doAction" 
 				value="$tlang.getString('gen.delete')" />
 			<input type="submit" accesskey ="x" name="$doCancel" value="$tlang.getString('gen.cancel')" 
- 				onclick="location = '$sakai_ActionURL.setPanel("Main")';return false;">
+ 				onclick="location = '$sakai_ActionURL.setPanel("ToolSite")';return false;">
 		</p>
 	</form>
 	<p>$tlang.getString("content.delete.detail")</p>

@@ -11,7 +11,7 @@
 			<input type="submit" accesskey ="s" class="active" name="$doToolAction" 
 				value="$tlang.getString('gen.save')" />
 			<input type="submit" accesskey ="x" name="$doCancel" value="$tlang.getString('gen.cancel')" 
- 				onclick="location = '$sakai_ActionURL.setPanel("Main")';return false;">
+ 				onclick="location = '$sakai_ActionURL.setPanel("ToolSystem")';return false;">
 		</p>
 	</form>
 </div>

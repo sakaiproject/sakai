@@ -43,6 +43,9 @@ import org.sakaiproject.cheftool.JetspeedRunData;
 import org.sakaiproject.cheftool.RunData;
 import org.sakaiproject.cheftool.VelocityPortlet;
 import org.sakaiproject.cheftool.VelocityPortletPaneledAction;
+import org.sakaiproject.cheftool.api.Menu;
+import org.sakaiproject.cheftool.menu.MenuEntry;
+import org.sakaiproject.cheftool.menu.MenuImpl;
 import org.sakaiproject.event.api.SessionState;
 import org.sakaiproject.util.ResourceLoader;
 import org.sakaiproject.tool.api.Placement;
@@ -144,6 +147,13 @@ public class LTIAdminTool extends VelocityPortletPaneledAction
 	public String buildMainPanelContext(VelocityPortlet portlet, Context context, 
 			RunData data, SessionState state)
 	{
+		// default to site view
+		return buildToolSitePanelContext(portlet, context, data, state);
+	}
+	
+	public String buildToolSitePanelContext(VelocityPortlet portlet, Context context, 
+			RunData data, SessionState state)
+	{
 		context.put("tlang", rb);
 		if ( ! ltiService.isMaintain() ) {
 			addAlert(state,rb.getString("error.maintain.edit"));
@@ -183,9 +193,40 @@ public class LTIAdminTool extends VelocityPortletPaneledAction
 		context.put("messageSuccess",state.getAttribute(STATE_SUCCESS));
 		context.put("isAdmin",new Boolean(ltiService.isAdmin()) );
 		context.put("getContext",toolManager.getCurrentPlacement().getContext());
+		
+		// top navigation menu
+		Menu menu = new MenuImpl(portlet, data, "LTIAdminTool");
+		menu.add(new MenuEntry(rb.getString("tool.in.site"), false, "doNav_tool_site"));
+		menu.add(new MenuEntry(rb.getString("tool.in.system"), true, "doNav_tool_system"));
+		context.put("menu", menu);
+		
+		return "lti_tool_site";
+	}
+	
+	public String buildToolSystemPanelContext(VelocityPortlet portlet, Context context, 
+			RunData data, SessionState state)
+	{
+		context.put("tlang", rb);
+		if ( ! ltiService.isMaintain() ) {
+			addAlert(state,rb.getString("error.maintain.edit"));
+			return "lti_error";
+		}
+		String returnUrl = data.getParameters().getString("returnUrl");
+		// if ( returnUrl != null ) state.setAttribute(STATE_REDIRECT_URL, returnUrl);
+		context.put("ltiService", ltiService);
+		context.put("isAdmin",new Boolean(ltiService.isAdmin()) );
+		context.put("inHelper",new Boolean(inHelper));
+		context.put("getContext",toolManager.getCurrentPlacement().getContext());
+		context.put("doEndHelper", BUTTON + "doEndHelper");
+		state.removeAttribute(STATE_POST);
 		state.removeAttribute(STATE_SUCCESS);
+
+		context.put("messageSuccess",state.getAttribute(STATE_SUCCESS));
+		context.put("isAdmin",new Boolean(ltiService.isAdmin()) );
+		context.put("getContext",toolManager.getCurrentPlacement().getContext());
 		
 		// this is for the system tool panel
+		List<Map<String,Object>> contents = ltiService.getContents(null,null,0,500);
 		List<Map<String,Object>> tools = ltiService.getTools(null,null,0,0);
 		if (tools != null && !tools.isEmpty())
 		{
@@ -213,9 +254,16 @@ public class LTIAdminTool extends VelocityPortletPaneledAction
 			context.put("systemLtiToolsMap", systemLtiToolsMap);
 			context.put("siteLtiTools", siteLtiTools);
 		}
-		return "lti_main";
+		
+		// top navigation menu
+		Menu menu = new MenuImpl(portlet, data, "LTIAdminTool");
+		menu.add(new MenuEntry(rb.getString("tool.in.site"), true, "doNav_tool_site"));
+		menu.add(new MenuEntry(rb.getString("tool.in.system"), false, "doNav_tool_system"));
+		context.put("menu", menu);
+		
+		return "lti_tool_system";
 	}
-
+	
 	/**
 	 * iterator through the whole system and find out the lti tool usages pattern, e.g. site count,etc
 	 * @param contents
@@ -470,7 +518,7 @@ public class LTIAdminTool extends VelocityPortletPaneledAction
 		}
 
 		state.setAttribute(STATE_SUCCESS,success);
-		switchPanel(state, "Main");
+		switchPanel(state, "ToolSystem");
 	}
 
 	/**
@@ -840,7 +888,7 @@ public class LTIAdminTool extends VelocityPortletPaneledAction
 			state.setAttribute(STATE_SUCCESS,rb.getString("success.link.add"));
 		}
 
-		switchPanel(state, "Main");
+		switchPanel(state, "ToolSite");
 	}
 
 	public String buildRedirectPanelContext(VelocityPortlet portlet, Context context, 
