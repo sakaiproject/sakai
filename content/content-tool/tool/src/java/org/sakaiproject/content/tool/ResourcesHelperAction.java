@@ -1066,6 +1066,9 @@ public class ResourcesHelperAction extends VelocityPortletPaneledAction
 			pipe.setActionCanceled(false);
 			pipe.setErrorEncountered(true);
 			pipe.setActionCompleted(false);
+			logger.debug(this + ".doReplace() setting error on pipe");
+			String uploadMax = ServerConfigurationService.getString("content.upload.max");
+			addAlert(state, rb.getFormattedMessage("alert.over-per-upload-quota", new Object[]{uploadMax}));
 			return;
 		}
 		
