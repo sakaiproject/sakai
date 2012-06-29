@@ -2637,7 +2637,7 @@ public abstract class BaseAssignmentService implements AssignmentService, Entity
 			for (int j = 0; j<attachments.size(); j++)
 			{
 				Reference r = (Reference) attachments.get(j);
-				buffer.append(r.getProperties().getProperty(ResourceProperties.PROP_DISPLAY_NAME) + "(" + r.getProperties().getPropertyFormatted(ResourceProperties.PROP_CONTENT_LENGTH)+ ")\n");
+				buffer.append(r.getProperties().getProperty(ResourceProperties.PROP_DISPLAY_NAME) + " (" + r.getProperties().getPropertyFormatted(ResourceProperties.PROP_CONTENT_LENGTH)+ ")\n");
 				//if this is a archive (zip etc) append the list of files in it
 				if (isArchiveFile(r)) {
 					buffer.append(getArchiveManifest(r));
