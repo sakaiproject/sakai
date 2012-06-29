@@ -79,6 +79,14 @@ public interface ResourceToolAction
 		CREATE,
 		
 		/**
+		 * Create other -- Handled entirely by helper.  Can create one or more items.  
+		 * 		Content and basic properties handled by helper. Resources metadata form 
+		 * 		is bypassed appears after helper finishes.  Requires content.new permission in 
+		 * 		parent folder.
+		 */
+		CREATE_BY_HELPER,
+		
+		/**
 		 * Delete -- Handled by Resources tool.  Requires content.delete permission
 		 */
 		DELETE,
