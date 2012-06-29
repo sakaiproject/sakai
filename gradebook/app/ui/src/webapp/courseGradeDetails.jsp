@@ -148,8 +148,34 @@
 		</p>
 
 		</div> <!-- END OF INDNT1 -->
-
-		<div class="act">
+        <!--// as is, markup -->
+        <div class="act">
+            <span class="highlightPanel actionitem" style="padding:10px 5px 10px 10px;margin-right:10xp;position:relative">
+            <!--// this will be an h:outputLabel "for" attr val should match the id of the next elem. -->
+            <label for="exp-select">Export grades as</label>
+            <!--// this will be a h:selectOneMenu -->
+            <select id="exp-select">
+                <option>PDF</option>
+                <option>CSV</option>
+                <option>Excel</option>
+            </select>
+            <!--// a  h:commandButton -->
+            <input type="button" value="Download"/>
+            <!--// a plain bit of markup, "Data Options" should be rendered via h:outputText so we
+            can get the value from the bundle --> --
+            <a href="#" id="exportPrefsLink">Data Options</a>
+            <!--// also plain markup -->
+            <div class="highlightPanel exportPrefsVals" style="display: none">
+            <!--// an h:selectBooleanCheckbox, with the defaults checked, layout attribute should be 'pageDirection' -->
+            <label for="1"><input type="checkbox" />Field 1</label>
+            <label for="2"><input type="checkbox" />Field 2</label>
+            <label for="3"><input type="checkbox" />Field 3</label>
+            <label for="4"><input type="checkbox" />Field 4</label>
+            <label for="5"><input type="checkbox" />Field 5</label>
+            <label for="6"><input type="checkbox" />Field 6</label>
+            </div>
+                            
+             <%--         
 			<h:commandButton
 				value="#{msgs.course_grade_details_export_course_grades_pdf}"
 				actionListener="#{courseGradeDetailsBean.exportPdf}"
@@ -168,7 +194,9 @@
 				rendered="#{!courseGradeDetailsBean.emptyEnrollments}"
 				style="margin-left: 5em;"
 				/>
-			<h:outputText rendered="#{!courseGradeDetailsBean.emptyEnrollments && courseGradeDetailsBean.enableCustomExport}" escape="false" value="<span class=\"highlightPanel\" style=\"padding:10px 5px 10px 10px\">"/>
+               --%> 
+         </span>&nbsp;
+			<h:outputText rendered="#{!courseGradeDetailsBean.emptyEnrollments && courseGradeDetailsBean.enableCustomExport}" escape="false" value="<span class=\"highlightPanel actionitem\" style=\"padding:10px 5px 10px 10px\">"/>
 			    <h:outputText styleClass="instruction" style="padding-right:10px;" value="#{courseGradeDetailsBean.exportCustomLabel}" rendered="#{!courseGradeDetailsBean.emptyEnrollments && courseGradeDetailsBean.enableCustomExport}"/>
                 <h:commandButton
     				value="#{msgs.course_grade_details_export_course_grades_institution_control}"
@@ -200,6 +228,18 @@
 				style="margin-left: 5em;"
 			/>
 		</div>
+    <script type="text/javascript" src="/library/js/jquery.js"></script>
+    <script type="text/javascript">
+        $(document).ready(function(){
+            $('#exportPrefsLink').click(function(e){
+                e.preventDefault();
+                $(this).next('div.highlightPanel').css({
+                 'top': -50,
+                 'right':-100
+                }).toggle();
+            })
+        });
+    </script>
 
 	  </h:form>
 	</div>
