@@ -261,7 +261,7 @@ public class LTIAdminTool extends VelocityPortletPaneledAction
 			// get invoke count for all lti tools
 			HashMap<String, List<String>> ltiToolsCount = getLtiToolUsageCount(contents);
 			for (Map<String, Object> toolMap : systemLtiTools ) {
-				String ltiToolId = ((Long) toolMap.get(ltiService.LTI_ID)).toString();
+				String ltiToolId = toolMap.get(ltiService.LTI_ID).toString();
 				List<String> toolSite = ltiToolsCount.containsKey(ltiToolId)?ltiToolsCount.get(ltiToolId):new ArrayList<String>();
 				Set<String> toolUniqueSite = new HashSet<String>();
 				toolUniqueSite.addAll(toolSite);
