@@ -2345,6 +2345,8 @@ public class FilePickerAction extends PagedResourceHelperAction
 					break;
 				case CREATE:
 					break;
+				case CREATE_BY_HELPER:
+					break;
 				case REVISE_CONTENT:
 					break;
 				case REPLACE_CONTENT:

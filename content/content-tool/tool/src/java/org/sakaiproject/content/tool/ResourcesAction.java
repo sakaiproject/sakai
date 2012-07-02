@@ -788,6 +788,7 @@ protected static final String PARAM_PAGESIZE = "collections_per_page";
 		CONTENT_NEW_ACTIONS.add(ActionType.NEW_FOLDER);
 		CONTENT_NEW_ACTIONS.add(ActionType.NEW_URLS);
 		CONTENT_NEW_ACTIONS.add(ActionType.CREATE);
+		CONTENT_NEW_ACTIONS.add(ActionType.CREATE_BY_HELPER);
 		
 		PASTE_COPIED_ACTIONS.add(ActionType.PASTE_COPIED);
 		PASTE_MOVED_ACTIONS.add(ActionType.PASTE_MOVED);
@@ -840,6 +841,7 @@ protected static final String PARAM_PAGESIZE = "collections_per_page";
 		CREATION_ACTIONS.add(ActionType.NEW_FOLDER);
 		CREATION_ACTIONS.add(ActionType.NEW_URLS);
 		CREATION_ACTIONS.add(ActionType.CREATE);
+		CREATION_ACTIONS.add(ActionType.CREATE_BY_HELPER);
 		CREATION_ACTIONS.add(ActionType.PASTE_MOVED);
 		CREATION_ACTIONS.add(ActionType.PASTE_COPIED);
 	}
@@ -6125,6 +6127,8 @@ protected static final String PARAM_PAGESIZE = "collections_per_page";
 					break;
 				case CREATE:
 					break;
+				case CREATE_BY_HELPER:
+					break;
 				case REVISE_CONTENT:
 					break;
 				case REPLACE_CONTENT:
@@ -7499,6 +7503,14 @@ protected static final String PARAM_PAGESIZE = "collections_per_page";
 				expandedCollections.add(pipe.getContentEntity().getId());
 				toolSession.removeAttribute(ResourceToolAction.ACTION_PIPE);
 			}
+			state.setAttribute(STATE_MODE, MODE_LIST);
+			break;
+		case CREATE_BY_HELPER:
+			if(!pipe.isErrorEncountered() && !pipe.isActionCanceled()) {
+				SortedSet<String> expandedCollections = (SortedSet<String>) state.getAttribute(STATE_EXPANDED_COLLECTIONS);
+				expandedCollections.add(pipe.getContentEntity().getId());
+			}
+			toolSession.removeAttribute(ResourceToolAction.ACTION_PIPE);
 			state.setAttribute(STATE_MODE, MODE_LIST);
 			break;
 		case REVISE_CONTENT:
