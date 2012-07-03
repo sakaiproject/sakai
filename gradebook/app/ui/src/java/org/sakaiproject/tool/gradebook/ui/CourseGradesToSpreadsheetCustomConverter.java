@@ -57,16 +57,11 @@ public class CourseGradesToSpreadsheetCustomConverter implements CourseGradesToS
 	@SuppressWarnings("deprecation")
 	public List<List<Object>> getSpreadsheetData(
 			List<EnrollmentRecord> enrollments, CourseGrade courseGrade,
-			Map<String, CourseGradeRecord> gradesMap) {
+			Map<String, CourseGradeRecord> gradesMap, List<String> fields) {
 		List<List<Object>> spreadsheetData = new ArrayList<List<Object>>();
-
-		String defaultFields = "userEid,sortName,courseGrade";
-		Boolean hasHeader = ServerConfigurationService.getBoolean("gradebook.institutional.export.headers",false);
-		String stringFields = ServerConfigurationService.getString("gradebook.institutional.export.fields",defaultFields);
-		String[] fields = stringFields.replaceAll("\\s","").toLowerCase().split(",");
-		if (fields.length == 0) fields = defaultFields.split(",");
-
+		
 		// Build column headers.
+		Boolean hasHeader = ServerConfigurationService.getBoolean("gradebook.institutional.export.headers",false);
 		if (hasHeader){
 			List<Object> headerRow = new ArrayList<Object>();
 			for (String headerField : fields){
@@ -106,7 +101,7 @@ public class CourseGradesToSpreadsheetCustomConverter implements CourseGradesToS
 					row.add(student.getSortName());
 					break;
 
-				case coursegrades:
+				case coursegrade:
 					row.add(grade);
 					break;
 
@@ -139,7 +134,7 @@ public class CourseGradesToSpreadsheetCustomConverter implements CourseGradesToS
 
 	public enum GradeFields
 	{
-		userid, usereid, useremail, username, sortname, coursegrades, siteid, sitetitle, novalue;
+		userid, usereid, useremail, username, sortname, coursegrade, siteid, sitetitle, novalue;
 
 		public static boolean contains(String field) {
 			try {

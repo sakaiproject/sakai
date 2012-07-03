@@ -154,25 +154,44 @@
             <!--// this will be an h:outputLabel "for" attr val should match the id of the next elem. -->
             <label for="exp-select">Export grades as</label>
             <!--// this will be a h:selectOneMenu -->
+            <!-- 
+            <h:selectOneMenu id="export_format" value="#{courseGradeDetailsBean.exportType}" disabled="#{not ForumTool.editMode}">
+			   	    <f:selectItems value="#{courseGradeDetailsBean.exportFormats}" />
+			      </h:selectOneMenu>
+			      -->
             <select id="exp-select">
                 <option>PDF</option>
                 <option>CSV</option>
                 <option>Excel</option>
             </select>
-            <!--// a  h:commandButton -->
+            <!--// a  h:commandButton 
             <input type="button" value="Download"/>
+            -->
+            <h:commandButton
+				value="Download"
+				actionListener="#{courseGradeDetailsBean.export}"
+				rendered="#{!courseGradeDetailsBean.emptyEnrollments}"
+				/>
             <!--// a plain bit of markup, "Data Options" should be rendered via h:outputText so we
             can get the value from the bundle --> --
             <a href="#" id="exportPrefsLink">Data Options</a>
             <!--// also plain markup -->
             <div class="highlightPanel exportPrefsVals" style="display: none">
             <!--// an h:selectBooleanCheckbox, with the defaults checked, layout attribute should be 'pageDirection' -->
-            <label for="1"><input type="checkbox" />Field 1</label>
-            <label for="2"><input type="checkbox" />Field 2</label>
-            <label for="3"><input type="checkbox" />Field 3</label>
-            <label for="4"><input type="checkbox" />Field 4</label>
-            <label for="5"><input type="checkbox" />Field 5</label>
-            <label for="6"><input type="checkbox" />Field 6</label>
+            <h:selectBooleanCheckbox id="userid" value="#{courseGradeDetailsBean.includeUserid}"	/>
+			<h:outputLabel for="userid" value="User ID" />
+			<h:selectBooleanCheckbox id="sortname" value="#{courseGradeDetailsBean.includeSortname}"	/>
+			<h:outputLabel for="sortname" value="User Name" />
+			<h:selectBooleanCheckbox id="finalscore" value="#{courseGradeDetailsBean.includeFinalscore}"	/>
+			<h:outputLabel for="finalscore" value="Final Score" />
+			<h:selectBooleanCheckbox id="calculatedgrade" value="#{courseGradeDetailsBean.includeCalculatedgrade}"	/>
+			<h:outputLabel for="calculatedgrade" value="Calculated Grade" />
+			<h:selectBooleanCheckbox id="gradeoverride" value="#{courseGradeDetailsBean.includeGradeoverride}"	/>
+			<h:outputLabel for="gradeoverride" value="Grade Override" />
+			<h:selectBooleanCheckbox id="coursegrade" value="#{courseGradeDetailsBean.includeCoursegrade}"	/>
+			<h:outputLabel for="coursegrade" value="Course Grade" />
+			<h:selectBooleanCheckbox id="lastmodifieddate" value="#{courseGradeDetailsBean.includeLastmodifieddate}"	/>
+			<h:outputLabel for="lastmodifieddate" value="Last Modified Date" />
             </div>
                             
              <%--         
