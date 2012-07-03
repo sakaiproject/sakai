@@ -577,7 +577,9 @@ ie - site creation*/
 	margin: 5px 0;
 	padding: 5px 5px 5px 25px !important;
 }
-
+ul.alertMessage{
+   list-style-type: none;
+}
 /*yet another way to indicate a field that failed validation - treats just the label color via inheritance*/
 /*create a resource but forget a required field*/
 .validFail label{
