@@ -2,7 +2,7 @@
 <emailTemplates>
 <emailTemplate>
 <subject>
-&lt;#if courseSite = "true"&gt;Official Course Site created by ${currentUserDisplayName} for ${termTitle}&lt;#else&gt;Site Created by ${currentUserDisplayName}&lt;/#if&gt;
+Site Created by ${currentUserDisplayName}
 </subject>
 <message>
  
