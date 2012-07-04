@@ -4817,7 +4817,7 @@ public abstract class BaseCitationService implements CitationService
 	    unknown.addField("abstract", Schema.LONGTEXT, true, false, 0, 1);
 	    unknown.addAlternativeIdentifier("abstract", RIS_FORMAT, "N2");
 
-	    unknown.addField("note", Schema.SHORTTEXT, true, false, 0, Schema.UNLIMITED);
+	    unknown.addField("note", Schema.LONGTEXT, true, false, 0, Schema.UNLIMITED);
 	    unknown.addAlternativeIdentifier("note", RIS_FORMAT, "N1");
 
 	    unknown.addField(Schema.ISN, Schema.SHORTTEXT, true, false, 0, 1);
@@ -4874,7 +4874,7 @@ public abstract class BaseCitationService implements CitationService
 	    article.addField("abstract", Schema.LONGTEXT, true, false, 0, 1);
 	    article.addAlternativeIdentifier("abstract", RIS_FORMAT, "N2");
 
-	    article.addField("note", Schema.SHORTTEXT, true, false, 0, Schema.UNLIMITED);
+	    article.addField("note", Schema.LONGTEXT, true, false, 0, Schema.UNLIMITED);
 	    article.addAlternativeIdentifier("note", RIS_FORMAT, "N1");
 
 	    article.addField(Schema.ISN, Schema.SHORTTEXT, true, false, 0, 1);
@@ -4931,7 +4931,7 @@ public abstract class BaseCitationService implements CitationService
 	    book.addField("abstract", Schema.LONGTEXT, true, false, 0, 1);
 	    book.addAlternativeIdentifier("abstract", RIS_FORMAT, "N2");
 
-	    book.addField("note", Schema.SHORTTEXT, true, false, 0, Schema.UNLIMITED);
+	    book.addField("note", Schema.LONGTEXT, true, false, 0, Schema.UNLIMITED);
 	    book.addAlternativeIdentifier("note", RIS_FORMAT, "N1");
 
 	    book.addField(Schema.ISN, Schema.SHORTTEXT, true, false, 0, 1);
@@ -4998,7 +4998,7 @@ public abstract class BaseCitationService implements CitationService
 	    chapter.addField("abstract", Schema.LONGTEXT, true, false, 0, 1);
 	    chapter.addAlternativeIdentifier("abstract", RIS_FORMAT, "N2");
 
-	    chapter.addField("note", Schema.SHORTTEXT, true, false, 0, Schema.UNLIMITED);
+	    chapter.addField("note", Schema.LONGTEXT, true, false, 0, Schema.UNLIMITED);
 	    chapter.addAlternativeIdentifier("note", RIS_FORMAT, "N1");
 
 	    chapter.addField(Schema.ISN, Schema.SHORTTEXT, true, false, 0, 1);
@@ -5061,7 +5061,7 @@ public abstract class BaseCitationService implements CitationService
 	    report.addField(Schema.ISN, Schema.SHORTTEXT, true, false, 0, 1);
 	    report.addAlternativeIdentifier(Schema.ISN, RIS_FORMAT, "SN");
 
-	    report.addField("note", Schema.SHORTTEXT, true, false, 0, Schema.UNLIMITED);
+	    report.addField("note", Schema.LONGTEXT, true, false, 0, Schema.UNLIMITED);
 	    report.addAlternativeIdentifier("note", RIS_FORMAT, "N1");
 
 	    report.addField("subject", Schema.SHORTTEXT, true, false, 0, Schema.UNLIMITED);
