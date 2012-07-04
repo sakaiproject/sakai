@@ -23,6 +23,16 @@ CREATE TABLE CITATION_CITATION
 );
 
 -- ---------------------------------------------------------------------------
+-- CITATION_COLLECTION_ORDER
+-- ---------------------------------------------------------------------------
+CREATE TABLE CITATION_COLLECTION_ORDER
+(
+	COLLECTION_ID VARCHAR2 (36) NOT NULL,
+	CITATION_ID VARCHAR2 (36) NOT NULL,
+	POSITION NUMBER(10,0) NOT NULL
+);
+
+-- ---------------------------------------------------------------------------
 -- CITATION_SCHEMA
 -- ---------------------------------------------------------------------------
 CREATE TABLE CITATION_SCHEMA
@@ -47,6 +57,7 @@ CREATE TABLE CITATION_SCHEMA_FIELD
 
 create index CITATION_COLLECTION_INDEX on CITATION_COLLECTION (COLLECTION_ID);
 create index CITATION_CITATION_INDEX on CITATION_CITATION (CITATION_ID);
+create index CITATION_COLLECTION_ORDER_INDEX on CITATION_COLLECTION_ORDER (COLLECTION_ID,CITATION_ID);
 create index CITATION_SCHEMA_INDEX on CITATION_SCHEMA (SCHEMA_ID);
 create index CITATION_SCHEMA_FIELD_INDEX on CITATION_SCHEMA_FIELD (SCHEMA_ID, FIELD_ID);
 
