@@ -639,6 +639,8 @@ public interface SakaiProxy {
 	 */
 	public String getOfficialImageSource();
 	
+	public String getOfficialImagesDirectory();
+	
 	/**
 	 * Gets the value of the profile2.official.image.attribute from sakai.properties
 	 * If not set, defaults to ProfileConstants.USER_PROPERTY_JPEG_PHOTO

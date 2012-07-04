@@ -113,9 +113,10 @@ public class ProfileConstants {
 	public static final int PICTURE_SETTING_DEFAULT = PICTURE_SETTING_UPLOAD;
 	
 	// if using official photo, where does that image come from?
-	// can be either a url or from a provider. 
+	// can be url, provider or filesystem. 
 	public static final String OFFICIAL_IMAGE_SETTING_URL = "url";
 	public static final String OFFICIAL_IMAGE_SETTING_PROVIDER = "provider";
+	public static final String OFFICIAL_IMAGE_SETTING_FILESYSTEM = "filesystem";
 	
 	public static final String OFFICIAL_IMAGE_SETTING_DEFAULT = OFFICIAL_IMAGE_SETTING_URL;
 

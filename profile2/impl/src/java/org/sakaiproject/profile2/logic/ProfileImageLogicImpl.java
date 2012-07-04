@@ -15,6 +15,10 @@
  */
 package org.sakaiproject.profile2.logic;
 
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.IOException;
+import java.io.InputStream;
 import java.util.Collections;
 import java.util.List;
 
@@ -37,6 +41,7 @@ import org.sakaiproject.profile2.util.Messages;
 import org.sakaiproject.profile2.util.ProfileConstants;
 import org.sakaiproject.profile2.util.ProfileUtils;
 import org.sakaiproject.user.api.User;
+import org.sakaiproject.user.api.UserNotDefinedException;
 
 /**
  * Implementation of ProfileImageLogic API
@@ -228,6 +233,14 @@ public class ProfileImageLogicImpl implements ProfileImageLogic {
 		return image;
 	}
 	
+	/**
+	 * Gets the official image from url, ldap or filesystem, depending on what is specified in props. Filesystem photos
+	 * are looked up by appending the first letter of a user's eid, then a slash, then the second letter of the eid
+	 * followed by a slash and finally the eid suffixed by '.jpg'.
+	 * 
+	 * Like this:
+	 * /official-photos/a/d/adrian.jpg
+	 */
 	private ProfileImage getOfficialImage(String userUuid, ProfileImage image,String defaultImageUrl, boolean isSameUser) {
 		
 		String officialImageSource = sakaiProxy.getOfficialImageSource();
@@ -241,6 +254,27 @@ public class ProfileImageLogicImpl implements ProfileImageLogic {
 				image.setExternalImageUrl(defaultImageUrl);
 			} else {
 				image.setOfficialImageEncoded(data);
+			}
+		} else if(StringUtils.equals(officialImageSource, ProfileConstants.OFFICIAL_IMAGE_SETTING_FILESYSTEM)){
+			String basepath = sakaiProxy.getOfficialImagesDirectory();
+			String filename = basepath + "/" + userUuid + ".jpg";
+
+			User user = sakaiProxy.getUserById(userUuid);
+			String userEid = user.getEid();
+			
+			String firstLetter = userEid.substring(0,1);
+	        String secondLetter = userEid.substring(1,2);
+			filename = basepath + "/" + firstLetter + "/" + secondLetter + "/" + userEid + ".jpg";
+
+			File file = new File(filename);
+
+			try {
+				byte[] data = getBytesFromFile(file);
+				image.setUploadedImage(data);
+			}
+			catch (IOException e) {
+				log.error("Could not find file: " + filename);
+				return null;
 			}
 		}
 		image.setAltText(getAltText(userUuid, isSameUser, true));
@@ -768,7 +802,36 @@ public class ProfileImageLogicImpl implements ProfileImageLogic {
 		return imageUrl;
 	}
 	
-	
+	public static byte[] getBytesFromFile(File file) throws IOException {
+        InputStream is = new FileInputStream(file);
+    
+        // Get the size of the file
+        long length = file.length();
+    
+        if (length > Integer.MAX_VALUE) {
+            // File is too large
+        }
+    
+        // Create the byte array to hold the data
+        byte[] bytes = new byte[(int)length];
+    
+        // Read in the bytes
+        int offset = 0;
+        int numRead = 0;
+        while (offset < bytes.length
+               && (numRead=is.read(bytes, offset, bytes.length-offset)) >= 0) {
+            offset += numRead;
+        }
+    
+        // Ensure all the bytes have been read in
+        if (offset < bytes.length) {
+            throw new IOException("Could not completely read file "+file.getName());
+        }
+    
+        // Close the input stream and return bytes
+        is.close();
+        return bytes;
+    }
 	
 	@Setter
 	private SakaiProxy sakaiProxy;
