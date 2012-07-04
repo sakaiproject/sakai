@@ -207,6 +207,11 @@ public interface Citation 	// extends Entity
 	 * @return
 	 */
 	public String getSource();
+	
+    /**
+     * This only makes sense, and will only be set, in the context of a collection.
+	 */
+	public int getPosition();
 
 	/**
      * @return
@@ -271,6 +276,13 @@ public interface Citation 	// extends Entity
 	 * @param name
 	 */
 	public void setDisplayName(String name);
+	
+    /**
+     * This only makes sense, and will only be set, in the context of a collection.
+     * 
+     * @param position
+     */
+    public void setPosition(int position);
 
     /**
      * @param schema

@@ -198,6 +198,8 @@ function doCitationAction( action ) {
     }
   } else if( action == "removeList" ) {
     removeAllCitations( "$FORM_NAME" );
+  } else if( action == "reorderList" ) {
+    window.location.assign('#contentLink("Main")&sakai_action=doShowReorderCitations');
   }
   
   // reset select boxes

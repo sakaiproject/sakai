@@ -57,6 +57,7 @@
             <option value="exportList">$tlang.getString( "export.all.list" )</option>
             <option class="selectAction" disabled="disabled" value="removeSelected">$tlang.getString( "remove.select.list" )</option>
             <option value="removeList">$tlang.getString( "remove.all.list" )</option>
+            <option value="reorderList">$tlang.getString( "reorder.list" )</option>
           </select>
         </div>
       </td>
@@ -69,8 +70,9 @@ Added for column sort
           <select name="citationSortAction"
             onchange="doCitationSortAction(this.value)">
             <option class="selectAction" value="author" #if ($sort == "author") SELECTED #end>$tlang.getString("sort.author")</option>
-            <option class="selectAction" value="title"  #if ($sort == "default" || $sort == "title") SELECTED #end>$tlang.getString("sort.title")</option>
+            <option class="selectAction" value="title"  #if ($sort == "title" || $sort == "title") SELECTED #end>$tlang.getString("sort.title")</option>
             <option class="selectAction" value="year"   #if ($sort == "year") SELECTED #end>$tlang.getString("sort.date")</option>
+            <option class="selectAction" value="position" #if ($sort == "position") SELECTED #end>$tlang.getString("sort.position")</option>
           </select>
 		  <input type="button" name="savesort" value="$tlang.getString("submit.sort")"
 		   onclick="document.getElementById('sakai_action').value='doSaveCollection';submitform('$FORM_NAME');"/>
@@ -109,6 +111,7 @@ Added for column sort
             <option value="exportList">$tlang.getString( "export.all.list" )</option>
             <option class="selectAction" disabled="disabled" value="removeSelected">$tlang.getString( "remove.select.list" )</option>
             <option value="removeList">$tlang.getString( "remove.all.list" )</option>
+            <option value="reorderList">$tlang.getString( "reorder.list" )</option>
           </select>
         </div>
       </td>
@@ -121,8 +124,9 @@ Added for column sort
           <select name="citationSortAction"
             onchange="doCitationSortAction(this.value)">
             <option class="selectAction" value="author" #if ($sort == "author") SELECTED #end>$tlang.getString("sort.author")</option>
-            <option class="selectAction" value="title"  #if ($sort == "default" || $sort == "title") SELECTED #end>$tlang.getString("sort.title")</option>
+            <option class="selectAction" value="title"  #if ($sort == "title" || $sort == "title") SELECTED #end>$tlang.getString("sort.title")</option>
             <option class="selectAction" value="year"   #if ($sort == "year") SELECTED #end>$tlang.getString("sort.date")</option>
+            <option class="selectAction" value="position" #if ($sort == "position") SELECTED #end>$tlang.getString("sort.position")</option>
           </select>
 		  <input type="button" name="savesort" value="$tlang.getString("submit.sort")"
 		   onclick="document.getElementById('sakai_action').value='doSaveCollection';submitform('$FORM_NAME');"/>

@@ -584,6 +584,13 @@ function removeSelectedCitations( baseUrl ) {
   window.location.assign( baseUrl );
 }
 
+function reorderCitations( baseUrl, ids ) {
+	baseUrl += "&orderedCitationIds=" + ids;
+  
+  // do the action
+  window.location.assign( baseUrl );
+}
+
 function removeAllCitations( formname ) {
   document.getElementById('sakai_action').value='doRemoveAllCitations';
   submitform( formname );

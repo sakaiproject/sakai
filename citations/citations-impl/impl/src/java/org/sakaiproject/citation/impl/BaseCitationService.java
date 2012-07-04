@@ -181,6 +181,8 @@ public abstract class BaseCitationService implements CitationService
 		protected String m_fullTextUrl = null;
 		protected String m_id = null;
 		protected String m_imageUrl = null;
+		/* This only makes sense, and will only be set, in the context of a collection.*/
+		protected int m_position;
 		protected Schema m_schema;
 		protected String m_searchSourceUrl = null;
 		protected Integer m_serialNumber = null;
@@ -1251,6 +1253,14 @@ public abstract class BaseCitationService implements CitationService
 
 			return openUrl.toString();
 		}
+		
+		/**
+		 * This only makes sense, and will only be set, in the context of a collection.
+		 */
+		public int getPosition()
+		{
+			return m_position;
+		}
 
 		public Schema getSchema()
 		{
@@ -2084,6 +2094,14 @@ public abstract class BaseCitationService implements CitationService
 				addPropertyValue(Schema.TITLE, name);
 			}
 		}
+		
+		/**
+		 * This only makes sense, and will only be set, in the context of a collection.
+		 */
+		public void setPosition(int position)
+		{
+			this.m_position = position;
+		}
 
 		/*
 		 * (non-Javadoc)
@@ -2177,7 +2195,7 @@ public abstract class BaseCitationService implements CitationService
 	 */
 	public class BasicCitationCollection implements CitationCollection
 	{
-		protected final Comparator DEFAULT_COMPARATOR = new BasicCitationCollection.TitleComparator(true);
+		protected final Comparator  DEFAULT_COMPARATOR= new BasicCitationCollection.PositionComparator();
 
 		public class MultipleKeyComparator implements Comparator
 		{
@@ -2314,6 +2332,33 @@ public abstract class BaseCitationService implements CitationService
 			}
 
 		} // end class DateComparator
+		
+		public class PositionComparator implements Comparator
+		{
+            public int compare(Object arg0, Object arg1)
+            {
+	            int rv = 0;
+				if (!(arg0 instanceof String) || !(arg1 instanceof String))
+				{
+					throw new ClassCastException();
+				}
+
+				Object obj0 = m_citations.get(arg0);
+				Object obj1 = m_citations.get(arg1);
+
+
+				if (!(obj0 instanceof Citation) || !(obj1 instanceof Citation))
+				{
+					throw new ClassCastException();
+				}
+				Citation cit0 = (Citation) obj0;
+				Citation cit1 = (Citation) obj1;
+				
+				if(cit0.getPosition() > cit1.getPosition()) return 1;
+				else if(cit0.getPosition() == cit1.getPosition()) return 0;
+				else return -1;
+            }
+		} // end class PositionComparator
 
 		public class BasicIterator implements CitationIterator
 		{
@@ -2639,9 +2684,7 @@ public abstract class BaseCitationService implements CitationService
 				Iterator citationIt = citations.iterator();
 				while (citationIt.hasNext())
 				{
-					Citation citation = (Citation) citationIt.next();
-					m_citations.put(citation.getId(), citation);
-					m_order.add(citation.getId());
+					this.add((Citation) citationIt.next());
 				}
 			}
 		}
@@ -2661,6 +2704,9 @@ public abstract class BaseCitationService implements CitationService
 			//checkForUpdates();
 			if (!this.m_citations.keySet().contains(citation.getId()))
 			{
+				// Set this citation's position to the end. Used by the position
+				// comparator and the reordering screen.
+				citation.setPosition(m_citations.size() + 1);
 				this.m_citations.put(citation.getId(), citation);
 			}
 			if(!this.m_order.contains(citation.getId()))
@@ -3065,6 +3111,11 @@ public abstract class BaseCitationService implements CitationService
 			{
 					this.m_comparator = new YearComparator(ascending);
 					status = "YEAR SET";
+			}
+			else if (sortBy.equalsIgnoreCase(SORT_BY_POSITION))
+			{
+					this.m_comparator = new PositionComparator();
+					status = "POSITION SET";
 			}
 
 			if (this.m_comparator != null)

@@ -37,7 +37,7 @@
       <groupId>org.sakaiproject</groupId>
       <artifactId>sakai-citations-api</artifactId>
     </dependency>
-    <dependency>
+    <!--dependency>
       <groupId>org.sakaiproject</groupId>
       <artifactId>sakai-citations-impl</artifactId>
       <exclusions>
@@ -46,7 +46,7 @@
           <artifactId>sakai-user-util</artifactId>
         </exclusion>
       </exclusions>
-    </dependency>
+    </dependency-->
     <dependency>
       <groupId>org.sakaiproject</groupId>
       <artifactId>sakai-citations-util</artifactId>
