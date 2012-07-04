@@ -436,7 +436,8 @@ public class PagePickerProducer implements ViewComponentProducer, NavigationCase
 		    	UIBoundBoolean.make(form, "subpage-button", "#{simplePageBean.subpageButton}", false);
 		    }
 
-		    if(((GeneralViewParameters) viewparams).getReturnView() != null) {
+		    String returnView = ((GeneralViewParameters) viewparams).getReturnView();
+		    if(returnView != null && returnView.equals("reorder")) {
 			// return to Reorder, to add items from this page
 		    	UICommand.make(form, "submit", messageLocator.getMessage("simplepage.chooser.select"), "#{simplePageBean.selectPage}");
 		    } else if(((GeneralViewParameters) viewparams).newTopLevel) {
