@@ -42,6 +42,7 @@ import java.util.Vector;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
+import javax.servlet.ServletException;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
@@ -69,6 +70,7 @@ import org.sakaiproject.citation.cover.SearchManager;
 import org.sakaiproject.citation.util.api.SearchCancelException;
 import org.sakaiproject.citation.util.api.SearchException;
 import org.sakaiproject.citation.util.api.SearchQuery;
+import org.sakaiproject.component.api.ServerConfigurationService;
 import org.sakaiproject.component.cover.ComponentManager;
 import org.sakaiproject.content.api.ContentHostingService;
 import org.sakaiproject.content.api.ContentResource;
@@ -461,7 +463,7 @@ public class CitationHelperAction extends VelocityPortletPaneledAction
 	public static ResourceLoader rb = new ResourceLoader("citations");
 
 	public static final Integer DEFAULT_RESULTS_PAGE_SIZE = new Integer(10);
-	public static final Integer DEFAULT_LIST_PAGE_SIZE = new Integer(10);
+	public static Integer DEFAULT_LIST_PAGE_SIZE = new Integer(50);
 
 	protected static final String ELEMENT_ID_CREATE_FORM = "createForm";
 	protected static final String ELEMENT_ID_EDIT_FORM = "editForm";
@@ -552,6 +554,16 @@ public class CitationHelperAction extends VelocityPortletPaneledAction
 	protected static final String TEMPLATE_RESULTS = "citation/results";
 	protected static final String TEMPLATE_VIEW = "citation/view";
 	protected static final String TEMPLATE_DATABASE = "citation/_databases";
+	
+	public void init() throws ServletException {
+		ServerConfigurationService scs
+			= (ServerConfigurationService) ComponentManager.get(ServerConfigurationService.class);
+		if(scs != null) {
+			DEFAULT_LIST_PAGE_SIZE = scs.getInt("citations.default.list.page.size", 50);
+		} else {
+			logger.warn("Failed to get default list page size as ServerConfigurationService is null. Defaulting to " + DEFAULT_LIST_PAGE_SIZE);
+		}
+	}
 
 
 	/**
