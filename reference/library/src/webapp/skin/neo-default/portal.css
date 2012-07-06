@@ -589,6 +589,12 @@ ul#otherSitesMenu li {
 #otherSitesMenu li a:hover {
     color: #009dce !important;
 }
+#otherSitesMenu #otherSiteCloseW {
+    margin-left: 10px
+}
+#otherSitesMenu #otherSiteCloseW a {
+    color: #c00;
+}
 /* list of sites in the "More sites" tray (both flat and categorized via s.p. "portal.use.dhtml.more=true" *), since there
  * is a lot of commonalities they are both mixed up here. The flat view container is ul#otherSiteList and the categorized one is
  *  ul.otherSitesCategorList
