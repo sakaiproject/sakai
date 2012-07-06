@@ -209,6 +209,9 @@
 				#if (${tabsSites.prefsToolUrl})
 					<li><a href="${tabsSites.prefsToolUrl}?sakai_nav_minimized=true"><span>${rloader.sit_preferences}</span></a></li>
 				#end
+	             <li id="otherSiteCloseW">
+                    <a href="#" onclick="closeDrawer()" title="${rloader.sit_othersitesclose}"><span>X</span><span class="skip">${rloader.sit_othersitesclose}</span></a>
+                </li>
 			</ul>
 		#end
 	</div>
