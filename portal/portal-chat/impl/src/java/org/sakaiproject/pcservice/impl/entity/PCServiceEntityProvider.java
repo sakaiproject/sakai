@@ -1,5 +1,6 @@
 package org.sakaiproject.pcservice.impl.entity;
 
+import java.io.File;
 import java.lang.reflect.Method;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -116,11 +117,28 @@ public class PCServiceEntityProvider extends ReceiverAdapter implements EntityPr
         try {
             String channelId = serverConfigurationService.getString("portalchat.cluster.channel");
             if(channelId != null && !channelId.equals("")) {
-                clusterChannel = new JChannel();
+            	// Pick up the config file from sakai home if it exists
+            	File jgroupsConfig = new File(serverConfigurationService.getSakaiHomePath() + File.separator + "jgroups-config.xml");
+            	if(jgroupsConfig.exists()) {
+            		if(logger.isDebugEnabled()) {
+            			logger.debug("Using jgroups config file: " + jgroupsConfig.getAbsolutePath());
+            		}
+            		clusterChannel = new JChannel(jgroupsConfig);
+            	} else {
+            		if(logger.isDebugEnabled()) {
+            			logger.debug("No jgroups config file. Using jgroup defaults.");
+            		}
+            		clusterChannel = new JChannel();
+            	}
+            	
+            	if(logger.isDebugEnabled()) {
+            		logger.debug("JGROUPS PROTOCOL: " + clusterChannel.getProtocolStack().printProtocolSpecAsXML());
+            	}
+            	
                 clusterChannel.setReceiver(this);
                 clusterChannel.connect(channelId);
                 // We don't want a copy of our JGroups messages sent back to us
-                clusterChannel.setOpt(Channel.LOCAL,false);
+                clusterChannel.setDiscardOwnMessages(true);
                 clustered = true;
 
                 logger.info("Portal chat is connected on JGroups channel '" + channelId + "'"); 
@@ -175,6 +193,14 @@ public class PCServiceEntityProvider extends ReceiverAdapter implements EntityPr
             logger.warn("Failed to find ProfileService interface. Connections will NOT be available in portal chat.");
             connectionsAvailable = false;
         }
+    }
+    
+    public void destroy() {
+    	System.out.println("DESTROY!!!!!");
+    	if(clusterChannel != null && clusterChannel.isConnected()) {
+    		// This calls disconnect() first
+    		clusterChannel.close();
+    	}
     }
 
     /**
