@@ -78,10 +78,8 @@ public class AddAttendeeEmail extends SignupEmailBase {
 		List<String> rv = new ArrayList<String>();
 		// Set the content type of the message body to HTML
 		rv.add("Content-Type: text/html; charset=UTF-8");
-		rv.add("Subject: "
-				+ MessageFormat.format(rb.getString("subject.new.appointment.field"), new Object[] {
-						organizer.getDisplayName(), getTime(meeting.getStartTime()).toStringLocalDate() }));
-		rv.add("From: " + organizer.getEmail());
+		rv.add("Subject: " + getSubject());
+		rv.add("From: " + getFromAddress());
 		rv.add("To: " + attendee.getEmail());
 
 		return rv;
@@ -127,6 +125,17 @@ public class AddAttendeeEmail extends SignupEmailBase {
 		/* footer */
 		message.append(newline + getFooter(newline, this.emailReturnSiteId));
 		return message.toString();
+	}
+	
+	@Override
+	public String getFromAddress() {
+		return organizer.getEmail();
+	}
+	
+	@Override
+	public String getSubject() {
+		return MessageFormat.format(rb.getString("subject.new.appointment.field"), new Object[] {
+			organizer.getDisplayName(), getTime(meeting.getStartTime()).toStringLocalDate() });
 	}
 
 }

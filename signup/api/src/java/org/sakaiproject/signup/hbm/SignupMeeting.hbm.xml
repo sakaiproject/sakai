@@ -53,6 +53,8 @@
 			<column name="create_groups" default="0"/>
 		</property>
 		
+		<property name="uuid" column="vevent_uuid" type="string" not-null="false" />
+		
 		<list name="signupTimeSlots" cascade="save-update,delete" fetch="join">
 			<key column="meeting_id" not-null="true"/>
 			<list-index column="list_index" />

@@ -369,6 +369,11 @@ public interface SakaiFacade {
     public SecurityAdvisor pushAllowCalendarEdit();
 
     /**
+     * Standard privileged push for the current user
+     */ 
+    public SecurityAdvisor pushSecurityAdvisor();
+    
+    /**
      * Pop the specified security advisor
      */ 
     public void popSecurityAdvisor(SecurityAdvisor advisor);

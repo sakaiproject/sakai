@@ -22,16 +22,38 @@
  **********************************************************************************/
 package org.sakaiproject.signup.logic;
 
+import java.io.File;
 import java.util.ArrayList;
+import java.util.Collections;
+import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
+import java.util.Map;
 
+import lombok.Getter;
+import lombok.Setter;
+
+import net.fortuna.ical4j.model.component.VEvent;
+
+import org.apache.commons.lang.StringUtils;
+import org.apache.commons.lang.builder.ToStringBuilder;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.impl.LogFactoryImpl;
+import org.apache.commons.validator.EmailValidator;
+import org.sakaiproject.authz.api.SecurityAdvisor;
+import org.sakaiproject.calendar.api.CalendarEventEdit;
+import org.sakaiproject.calendaring.api.ExternalCalendaringService;
+import org.sakaiproject.email.api.AddressValidationException;
+import org.sakaiproject.email.api.Attachment;
+import org.sakaiproject.email.api.EmailAddress;
+import org.sakaiproject.email.api.EmailMessage;
 import org.sakaiproject.email.api.EmailService;
+import org.sakaiproject.email.api.NoRecipientsException;
 import org.sakaiproject.signup.logic.messages.AddAttendeeEmail;
 import org.sakaiproject.signup.logic.messages.AttendeeCancellationEmail;
+import org.sakaiproject.signup.logic.messages.AttendeeCancellationOwnEmail;
 import org.sakaiproject.signup.logic.messages.AttendeeSignupEmail;
+import org.sakaiproject.signup.logic.messages.AttendeeSignupOwnEmail;
 import org.sakaiproject.signup.logic.messages.CancellationEmail;
 import org.sakaiproject.signup.logic.messages.EmailDeliverer;
 import org.sakaiproject.signup.logic.messages.ModifyMeetingEmail;
@@ -57,14 +79,24 @@ import org.sakaiproject.user.api.UserNotDefinedException;
  */
 public class SignupEmailFacadeImpl implements SignupEmailFacade {
 
+	@Getter @Setter
 	private EmailService emailService;
 
+	@Getter @Setter
 	private UserDirectoryService userDirectoryService;
 
+	@Getter @Setter
 	private SakaiFacade sakaiFacade;
+	
+	@Setter
+	private SignupCalendarHelper calendarHelper;
+	
+	@Setter
+	private ExternalCalendaringService externalCalendaringService;
 
 	private Log logger = LogFactoryImpl.getLog(getClass());
-
+	
+	
 	/**
 	 * {@inheritDoc}
 	 */
@@ -80,6 +112,10 @@ public class SignupEmailFacadeImpl implements SignupEmailFacade {
 	 * {@inheritDoc}
 	 */
 	public void sendEmailToOrganizer(SignupEventTrackingInfo signupEventTrackingInfo) throws Exception {
+		
+		//generate VEvents
+		generateVEvents(signupEventTrackingInfo.getMeeting());
+		
 		List<SignupTrackingItem> sigupTList = signupEventTrackingInfo.getAttendeeTransferInfos();
 		for (SignupTrackingItem item : sigupTList) {
 			if (item.getMessageType().equals(SIGNUP_ATTENDEE_SIGNUP)) {
@@ -108,6 +144,10 @@ public class SignupEmailFacadeImpl implements SignupEmailFacade {
 	 * {@inheritDoc}
 	 */
 	public void sendCancellationEmail(SignupEventTrackingInfo signupEventTrackingInfo) throws Exception {
+		
+		//generate VEvents
+		generateVEvents(signupEventTrackingInfo.getMeeting());
+		
 		/* send email to everyone who get promoted during the process */
 		// TODO Do we need to send info about promoted guys to organizer?
 		List<SignupTrackingItem> sigupTList = signupEventTrackingInfo.getAttendeeTransferInfos();
@@ -136,24 +176,30 @@ public class SignupEmailFacadeImpl implements SignupEmailFacade {
 		User initiator = null;
 		try {
 			organizer = userDirectoryService.getUser(signupEventTrackingInfo.getMeeting().getCreatorUserId());
-			initiator = userDirectoryService.getUser(signupEventTrackingInfo.getInitiatorAllocationInfo().getAttendee()
-					.getAttendeeUserId());
+			initiator = userDirectoryService.getUser(signupEventTrackingInfo.getInitiatorAllocationInfo().getAttendee() .getAttendeeUserId());
 
-			AttendeeCancellationEmail email = new AttendeeCancellationEmail(organizer, initiator, sigupTList,
-					signupEventTrackingInfo.getMeeting(), this.sakaiFacade);
+			AttendeeCancellationEmail email = new AttendeeCancellationEmail(organizer, initiator, sigupTList, signupEventTrackingInfo.getMeeting(), this.sakaiFacade);
 			sendEmail(organizer, email);
+			
+			//also send an email to the attendee
+			AttendeeCancellationOwnEmail attendeeEmail = new AttendeeCancellationOwnEmail(initiator, sigupTList, signupEventTrackingInfo.getMeeting(), this.sakaiFacade);
+			sendEmail(initiator, attendeeEmail);
+			
 		} catch (UserNotDefinedException e) {
 			throw new Exception("User is not found for userId: "
 					+ signupEventTrackingInfo.getMeeting().getCreatorUserId());
 		}
-
+		
 	}
 
 	/**
 	 * {@inheritDoc}
 	 */
-	public void sendEmailToParticipantsByOrganizerAction(SignupEventTrackingInfo signupEventTrackingInfo)
-			throws Exception {
+	public void sendEmailToParticipantsByOrganizerAction(SignupEventTrackingInfo signupEventTrackingInfo) throws Exception {
+		
+		//generate VEvents
+		generateVEvents(signupEventTrackingInfo.getMeeting());
+		
 		List<SignupTrackingItem> sigupTList = signupEventTrackingInfo.getAttendeeTransferInfos();
 		for (SignupTrackingItem item : sigupTList) {
 
@@ -197,16 +243,62 @@ public class SignupEmailFacadeImpl implements SignupEmailFacade {
 				throw new Exception("User is not found and Email is not sent away for oraginzer userId:"
 						+ signupEventTrackingInfo.getMeeting().getCreatorUserId());
 			}
-
 		}
-
+	}
+	
+	
+	/**
+	 * {@inheritDoc}
+	 */
+	public void sendEmailToAttendee(SignupEventTrackingInfo signupEventTrackingInfo) throws Exception {
+		
+		//generate VEvents
+		generateVEvents(signupEventTrackingInfo.getMeeting());
+		
+		List<SignupTrackingItem> sigupTList = signupEventTrackingInfo.getAttendeeTransferInfos();
+		for (SignupTrackingItem item : sigupTList) {
+			if (item.getMessageType().equals(SIGNUP_ATTENDEE_SIGNUP)) {
+				User participant = null;
+				try {
+					participant = userDirectoryService.getUser(item.getAttendee().getAttendeeUserId());
+					SignupEmailNotification email = new AttendeeSignupOwnEmail(participant, signupEventTrackingInfo.getMeeting(), item.getAddToTimeslot(), this.sakaiFacade);
+					sendEmail(participant, email);
+				} catch (UserNotDefinedException e) {
+					throw new Exception("User is not found and email has not been sent for participant: " + signupEventTrackingInfo.getMeeting().getCreatorUserId());
+				}
+			}
+			//TODO handle case here for when attendee cancels own
+		}
+		return;
 	}
 
 	/* send email via Sakai email Service */
 	private void sendEmail(User user, SignupEmailNotification email) {
-		List<User> list = new ArrayList<User>();
-		list.add(user);
-		emailService.sendToUsers(list, email.getHeader(), email.getMessage());
+		
+		logger.debug("sendMail called for user:" + user.getEid());
+		
+		try {
+			EmailMessage message = convertSignupEmail(email, user);
+			
+			if(message != null) {
+				emailService.send(message);
+			}
+			
+		} catch (NoRecipientsException e) {
+			logger.error("Cannot send mail. No recipient." + e.getMessage());
+		} catch (AddressValidationException e) {
+			//this should be caught when adding the email address, since it is validated then.
+			logger.warn("Cannot send mail. Invalid email address." + EmailAddress.toString(e.getInvalidEmailAddresses()));
+		}
+		
+	}
+	
+	/* all email is sent in this manner, so that we can send attachments. So individual users are processed separately
+	 * There may be issues with this if there are many users. */
+	private void sendEmail(List<User> users, SignupEmailNotification email) {
+		for(User u: users) {
+			sendEmail(u, email);
+		}
 	}
 
 	@SuppressWarnings("unchecked")
@@ -231,9 +323,14 @@ public class SignupEmailFacadeImpl implements SignupEmailFacade {
 		return userSiteGroupList;
 	}
 
+	
 	/* send email to all according to the message type */
 	@SuppressWarnings("unchecked")
 	private void sendEmailToAllUsers(SignupMeeting meeting, String messageType) throws Exception {
+		
+		//generate VEvents
+		generateVEvents(meeting);
+		
 		List<SignupUser> signupUsers = sakaiFacade.getAllUsers(meeting);
 
 		List<EmailUserSiteGroup> userSiteGroupList = getUserSiteEmailGroups(signupUsers);
@@ -263,8 +360,9 @@ public class SignupEmailFacadeImpl implements SignupEmailFacade {
 						userIds = emailUserSiteGroup.getUserInternalIds();
 						sakaiUsers = userDirectoryService.getUsers(userIds);
 					}
-					else 
+					else {
 						continue;//no need to go down
+					}
 
 				} else if (messageType.equals(SIGNUP_MEETING_MODIFIED)) {
 					organizer = userDirectoryService.getUser(getSakaiFacade().getCurrentUserId());
@@ -312,12 +410,16 @@ public class SignupEmailFacadeImpl implements SignupEmailFacade {
 						 * There is no error message for user if an unexpected exception happens.
 						 * Will add the email-send-error notification at near future time.
 						 * */
+						
+						//NO ICS FILE IS SENT VIA THIS METHOD YET
 						EmailDeliverer deliverer = new EmailDeliverer(sakaiUsers, email.getHeader(),email.getMessage(),emailService);
 						Thread t = new Thread(deliverer);
 						t.start();
 					}
-					else
-						emailService.sendToUsers(sakaiUsers, email.getHeader(), email.getMessage());
+					else {
+						//emailService.sendToUsers(sakaiUsers, email.getHeader(), email.getMessage());
+						sendEmail(sakaiUsers, email);
+					}
 				}
 
 			} catch (UserNotDefinedException ue) {
@@ -325,7 +427,7 @@ public class SignupEmailFacadeImpl implements SignupEmailFacade {
 				logger.warn("User is not found for userId: " + meeting.getCreatorUserId());
 			} catch (Exception e) {
 				isException = true;
-				logger.warn(e.getMessage());
+				logger.error("Exception: " + e.getClass() + ": " + e.getMessage());
 			}
 		}
 		
@@ -415,63 +517,6 @@ public class SignupEmailFacadeImpl implements SignupEmailFacade {
 		}
 	}
 
-	/**
-	 * get EmailService object,which is a Sakai emailService
-	 * 
-	 * @return EmailService object
-	 */
-	public EmailService getEmailService() {
-		return emailService;
-	}
-
-	/**
-	 * set an EmailService object
-	 * 
-	 * @param emailService
-	 *            an EmailService object, which is provided by Sakai
-	 */
-	public void setEmailService(EmailService emailService) {
-		this.emailService = emailService;
-	}
-
-	/**
-	 * get an UserDirectoryService object
-	 * 
-	 * @return an UserDirectoryService object, which is provided by Sakai
-	 */
-	public UserDirectoryService getUserDirectoryService() {
-		return userDirectoryService;
-	}
-
-	/**
-	 * set an UserDirectoryService object
-	 * 
-	 * @param userDirectoryService
-	 *            an UserDirectoryService object
-	 */
-	public void setUserDirectoryService(UserDirectoryService userDirectoryService) {
-		this.userDirectoryService = userDirectoryService;
-	}
-
-	/**
-	 * get a SakaiFacade object
-	 * 
-	 * @return a SakaiFacade object
-	 */
-	public SakaiFacade getSakaiFacade() {
-		return sakaiFacade;
-	}
-
-	/**
-	 * set a a SakaiFacade object
-	 * 
-	 * @param sakaiFacade
-	 *            a a SakaiFacade object
-	 */
-	public void setSakaiFacade(SakaiFacade sakaiFacade) {
-		this.sakaiFacade = sakaiFacade;
-	}
-
 	private class EmailUserSiteGroup {
 		private String siteId;
 
@@ -522,5 +567,371 @@ public class SignupEmailFacadeImpl implements SignupEmailFacade {
 		}
 
 	}
+	
+	/**
+	 * Helper to convert a signup email notification into a Sakai EmailMessage, which can encapsulate attachments.
+	 * 
+	 * <p>Due to the way the email objects are created, ie one per email that needs to be sent, not one per user, we cannot store any
+	 * user specific attachments within the email objects themselves. So this method assembles an EmailMessage per user
+	 * 
+	 * @param email	- the signup email obj we will extract info from
+	 * @param recipients - list of users to receive email
+	 * @return
+	 */
+	private EmailMessage convertSignupEmail(SignupEmailNotification email, User recipient) {
+		
+		EmailMessage message = new EmailMessage();
+			
+		//setup message
+		message.setHeaders(email.getHeader());
+		message.setBody(email.getMessage());
+		
+		//note that the headers are largely ignored so we need to repeat some things here that are actually in the headers
+		//if these are eventaully converted to proper email templates, this should be alleviated
+		message.setSubject(email.getSubject());
+		message.setFrom(email.getFromAddress());
+		message.setContentType("text/html; charset=UTF-8");
+		
+		for(Attachment a: collectAttachments(email, recipient)){
+			message.addAttachment(a);
+		}
+		
+		//add recipient, only if valid email
+		String emailAddress = recipient.getEmail();
+		if(StringUtils.isNotBlank(emailAddress) && EmailValidator.getInstance().isValid(emailAddress)) {
+			message.addRecipient(EmailAddress.RecipientType.TO, recipient.getDisplayName(), emailAddress);
+		} else {
+			logger.error("Invalid email: " + emailAddress + " for user:" + recipient.getDisplayId());
+			return null;
+		}
+		
+				
+		return message;
+	}
 
+	/**
+	 * Helper method to collect all attachments that need to go out for this email and to this user
+	 * @param email	signupemailnotification
+	 * @param user the user that will receive this email
+	 * @return list of Attachments
+	 */
+	private List<Attachment> collectAttachments(SignupEmailNotification email, User user) {
+		
+		List<Attachment> attachments = new ArrayList<Attachment>();
+		attachments.addAll(generateICS(email, user));
+		//add more here as required
+		
+		return attachments;
+		
+	}
+	
+	/**
+	 * Generate an ICS file for the user and the email message type and return as an attachment.
+	 * 
+	 * @param email	email obj
+	 * @param user	User
+	 * @return
+	 */
+	private List<Attachment> generateICS(SignupEmailNotification email, User user) {
+		
+		List<Attachment> attachments = new ArrayList<Attachment>();
+		
+		SignupMeeting meeting = email.getMeeting();
+		
+		//for each message type, determine what we need to do to get the correct ICS file.
+		if (email instanceof NewMeetingEmail || email instanceof ModifyMeetingEmail) {
+			//NOTE: sent to everyone when an event is created or modified
+			if(logger.isDebugEnabled()){
+				logger.debug("NewMeetingEmail/ModifyMeetingEmail");
+			}
+			
+			//only send the overall meeting ICS file to the organiser of the meeting. 
+			//Students do not need this, they get them for the timeslots when they sign up
+			String organiserUuid = meeting.getCreatorUserId();
+			if(StringUtils.equals(user.getId(), organiserUuid)) {
+				
+				//check vevent for meeting exists, otherwise skip
+				VEvent v = meeting.getVevent();
+				if (v == null) {
+					return attachments;
+				}
+				
+				if(logger.isDebugEnabled()){
+					logger.debug("Organiser: " + organiserUuid + " matches user, ICS for overall meeting will be attached.");
+				}	
+				
+				//create calendar for overall meeting and final attachment
+				attachments.add(formatICSAttachment(Collections.singletonList(v)));
+				
+			} else {
+				//students only get an ICS if they have signed up to a timeslot. They get an updated ICS that contains the new times for the timeslots
+				if(logger.isDebugEnabled()){
+					logger.debug("User: " + user.getId() + " is not organiser, no ICS for overall meeting will be attached, but updated signed-up timeslots will be attached");
+				}
+				
+				//create vevent(s) for timeslot(s) the user is in
+				List<VEvent> vevents = new ArrayList<VEvent>();
+				for(SignupTimeslot ts: meeting.getSignupTimeSlots()) {
+					if(ts.getAttendee(user.getId()) != null) {
+						VEvent v = ts.getVevent();
+						if(v != null) {
+							vevents.add(v);
+						}
+					}
+				}
+				
+				//create calendar and final attachment, if we have vevents to work with
+				if(vevents.size()>0){
+					attachments.add(formatICSAttachment(vevents));
+				}
+				
+			}
+			
+		} else if (email instanceof AddAttendeeEmail || email instanceof PromoteAttendeeEmail || email instanceof OrganizerPreAssignEmail || email instanceof AttendeeSignupOwnEmail) {
+			//NOTE: sent to attendee when they are added to an event by an organiser, or promoted, or preassigned, or they signup themselves	
+			if(logger.isDebugEnabled()){
+				logger.debug("AddAttendeeEmail/PromoteAttendeeEmail/OrganizerPreAssignEmail/AttendeeSignupOwnEmail");
+			}
+			
+			//create vevent(s) for timeslot(s) the user is in
+			List<VEvent> vevents = new ArrayList<VEvent>();
+			for(SignupTimeslot ts: meeting.getSignupTimeSlots()) {
+				if(ts.getAttendee(user.getId()) != null) {
+					VEvent v = ts.getVevent();
+					if(v != null) {
+						vevents.add(v);
+					}
+				}
+			}
+			
+			//create calendar and final attachment, if we have vevents to work with
+			if(vevents.size()>0){
+				attachments.add(formatICSAttachment(vevents));
+			}
+		} else if (email instanceof AttendeeCancellationOwnEmail) {
+			//NOTE: sent to attendee when they cancel themselves	
+			if(logger.isDebugEnabled()){
+				logger.debug("AttendeeCancellationOwnEmail");
+			}
+			
+			//use the timeslot info in this particular email object to adjust the applicable vevents
+			List<SignupTimeslot> cancelled = ((AttendeeCancellationOwnEmail) email).getRemoved();
+			List<VEvent> vevents = new ArrayList<VEvent>();
+			for(SignupTimeslot ts: cancelled) {
+				VEvent v = ts.getVevent();
+				if(v != null){
+					//set it to be cancelled, add to list
+					vevents.add(externalCalendaringService.cancelEvent(v));
+				}
+			}
+			
+			//create calendar and final attachment, if we have vevents to work with
+			if(vevents.size()>0){
+				attachments.add(formatICSAttachment(vevents));
+			}
+						
+			
+		} else if (email instanceof AttendeeSignupEmail || email instanceof AttendeeCancellationEmail) {
+			//NOTE: sent to organiser when someone signs up or cancels. The output is the same, a full calendar for the meeting, with all attendees, updated.			
+			if(logger.isDebugEnabled()){
+				logger.debug("AttendeeSignupEmail/AttendeeCancellationEmail");
+			}
+			
+			//check vevent for meeting exists, otherwise skip
+			VEvent v = meeting.getVevent();
+			if (v == null) {
+				return attachments;
+			}
+			
+			//get full list of attendees for the entire meeting, update attendee list, and create ICS. This is for overall meeting, not timeslot.
+			List<SignupAttendee> attendees = new ArrayList<SignupAttendee>();
+			for(SignupTimeslot ts: meeting.getSignupTimeSlots()) {
+				attendees.addAll(ts.getAttendees());
+			}
+			
+			//turn attendeelist into list of User objects, so we can create proper Attendees for the calendar
+			List<User> users = new ArrayList<User>();
+			for(SignupAttendee a: attendees) {
+				User u = sakaiFacade.getUser(a.getAttendeeUserId());
+				if(u != null){
+					users.add(u);
+				}
+			}
+			
+			//add attendees to VEvent for overall meeting
+			VEvent vevent = externalCalendaringService.addAttendeesToEvent(v, users);
+			
+			//create calendar and final attachment
+			attachments.add(formatICSAttachment(Collections.singletonList(vevent)));
+			
+		
+		} else if (email instanceof CancellationEmail) {
+			//NOTE: sent to the attendee when their signup is cancelled by an organiser
+			if(logger.isDebugEnabled()){
+				logger.debug("CancellationEmail");
+			}
+			
+			//use the timeslot info in this particular email object to adjust the applicable vevents
+			List<SignupTimeslot> cancelled = ((CancellationEmail) email).getRemoved();
+			List<VEvent> vevents = new ArrayList<VEvent>();
+			for(SignupTimeslot ts: cancelled) {
+				VEvent v = ts.getVevent();
+				if(v != null){
+					//set it to be cancelled, add to list
+					vevents.add(externalCalendaringService.cancelEvent(v));
+				}
+			}
+			
+			//create calendar and final attachment, if we have vevents to work with
+			if(vevents.size()>0){
+				attachments.add(formatICSAttachment(vevents));
+			}
+		
+		} else if (email instanceof MoveAttendeeEmail || email instanceof SwapAttendeeEmail) {
+			//NOTE: sent to attendee when organiser moves them to a different timeslot/ swaps them with another user
+			if(logger.isDebugEnabled()){
+				logger.debug("MoveAttendeeEmail/SwapAttendeeEmail");
+			}
+			
+			//get new list of events. For all removed cancel them, add the added ones
+			//need to handle this separately for the two diff email object types though
+			List<SignupTimeslot> removed = new ArrayList<SignupTimeslot>();
+			List<SignupTimeslot> added = new ArrayList<SignupTimeslot>();
+			if(email instanceof MoveAttendeeEmail) {
+				removed = ((MoveAttendeeEmail) email).getRemoved();
+				added = ((MoveAttendeeEmail) email).getAdded();
+			} else if (email instanceof SwapAttendeeEmail) {
+				removed = ((SwapAttendeeEmail) email).getRemoved();
+				added = ((SwapAttendeeEmail) email).getAdded();
+			}
+			
+			//The tracking classes don't  maintain the transient VEVents we have created previously
+			//so we need to check and recreate.
+			
+			//cancel all of the removed events
+			List<VEvent> vevents = new ArrayList<VEvent>();
+			for(SignupTimeslot ts: removed) {
+				
+				//check and recreate if necessary
+				VEvent v = ensureVEventForTimeslot(meeting, ts);
+				
+				if(v != null){
+					//set it to be cancelled, add to list
+					vevents.add(externalCalendaringService.cancelEvent(v));
+				}
+			}
+			
+			//add all of the new events
+			for(SignupTimeslot ts: added) {
+
+				//check and recreate if necessary
+				VEvent v = ensureVEventForTimeslot(meeting, ts);
+				
+				if(v != null){
+					vevents.add(v);
+				}
+			}
+			
+			//create calendar and final attachment, if we have vevents to work with
+			if(vevents.size()>0){
+				attachments.add(formatICSAttachment(vevents));
+			}
+		
+		} 
+		
+		
+		/*
+		 * AutoReminderEmail - handled by cron job, not yet implemented.
+		 * Note that there is no notification if a meeting is removed altogether.
+		 */
+		
+		
+		return attachments;
+	}
+	
+	
+	/**
+	 * Helper to generate the calendareventedit objects, turn them into VEvents, then write back into the meeting/timeslot objects
+	 * One is generated for the signupmeeting itself, then one for each timeslot.
+	 * @param meeting SignupMeeting
+	 * @return modifiedSignupmeeting with the VEvents injected
+	 */
+	private SignupMeeting generateVEvents(SignupMeeting meeting) {
+		
+		//this needs to be privileged since a normal user can trigger this and wont have permissions
+		SecurityAdvisor advisor = sakaiFacade.pushSecurityAdvisor();
+		try {
+			//generate calendar event for the meeting
+			CalendarEventEdit mEvent = calendarHelper.generateEvent(meeting);
+			if(mEvent == null) {
+				//calendar may not be in site - this will be skipped
+				return meeting;
+			}
+			mEvent.setField("vevent_uuid", meeting.getUuid());
+			
+			//generate VEvent for meeting, add to object
+			meeting.setVevent(externalCalendaringService.createEvent(mEvent));
+			
+			//now one for each timeslot
+			for(SignupTimeslot ts: meeting.getSignupTimeSlots()){
+				CalendarEventEdit tsEvent = calendarHelper.generateEvent(meeting, ts);
+				tsEvent.setField("vevent_uuid", ts.getUuid());
+				
+				//generate VEvent for timeslot, add to object
+				ts.setVevent(externalCalendaringService.createEvent(tsEvent));
+			}
+		} finally {
+			sakaiFacade.popSecurityAdvisor(advisor);
+		}
+		
+		return meeting;
+	}
+	
+	/**
+	 * Under certain conditions (particular when attendee moved or swapped), the transient VEvents for timeslots are lost. 
+	 * So we check and create them again if necessary
+	 * @param meeting	overall SignupMeeting
+	 * @param ts		SignupTimeslot we need VEvent for
+	 * @return
+	 */
+	private VEvent ensureVEventForTimeslot(SignupMeeting meeting, SignupTimeslot ts) {
+		
+		VEvent v = ts.getVevent();
+		
+		if(v == null) {
+			SecurityAdvisor advisor = sakaiFacade.pushSecurityAdvisor();
+			try {
+				
+				CalendarEventEdit tsEvent = calendarHelper.generateEvent(meeting, ts);
+				tsEvent.setField("vevent_uuid", ts.getUuid());
+					
+				//generate VEvent for timeslot
+				v = externalCalendaringService.createEvent(tsEvent);
+				
+			} finally {
+				sakaiFacade.popSecurityAdvisor(advisor);
+			}
+		}
+		
+		return v;
+	}
+	
+	
+	/**
+	 * Helper to create an ICS calendar from a list of vevents, then turn it into an attachment
+	 * @param vevents list of vevents
+	 * @return
+	 */
+	private Attachment formatICSAttachment(List<VEvent> vevents) {
+		
+		//create calendar
+		net.fortuna.ical4j.model.Calendar cal = externalCalendaringService.createCalendar(vevents);
+		
+		//attachment
+		String path = externalCalendaringService.toFile(cal);
+		return new Attachment(new File(path), StringUtils.substringAfterLast(path, File.separator));
+		
+	}
+	
+	
 }

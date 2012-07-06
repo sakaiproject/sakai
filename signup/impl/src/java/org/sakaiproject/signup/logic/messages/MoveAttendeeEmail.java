@@ -24,11 +24,13 @@ package org.sakaiproject.signup.logic.messages;
 
 import java.text.MessageFormat;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 
 import org.sakaiproject.signup.logic.SakaiFacade;
 import org.sakaiproject.signup.logic.SignupTrackingItem;
 import org.sakaiproject.signup.model.SignupMeeting;
+import org.sakaiproject.signup.model.SignupTimeslot;
 import org.sakaiproject.user.api.User;
 
 /**
@@ -37,7 +39,7 @@ import org.sakaiproject.user.api.User;
  * his appointment has been changed
  * </p>
  */
-public class MoveAttendeeEmail extends SignupEmailBase {
+public class MoveAttendeeEmail extends SignupEmailBase implements SignupTimeslotChanges {
 
 	private final User organizer;
 
@@ -46,6 +48,10 @@ public class MoveAttendeeEmail extends SignupEmailBase {
 	private final SignupTrackingItem item;
 
 	private String emailReturnSiteId;
+	
+	private List<SignupTimeslot> removed;
+	private List<SignupTimeslot> added;
+
 
 	/**
 	 * constructor
@@ -69,6 +75,10 @@ public class MoveAttendeeEmail extends SignupEmailBase {
 		this.meeting = meeting;
 		this.setSakaiFacade(sakaiFacade);
 		this.emailReturnSiteId = item.getAttendee().getSignupSiteId();
+		
+		removed = item.getRemovedFromTimeslot();
+		added = Collections.singletonList(item.getAddToTimeslot());
+		
 	}
 
 	/**
@@ -78,11 +88,8 @@ public class MoveAttendeeEmail extends SignupEmailBase {
 		List<String> rv = new ArrayList<String>();
 		// Set the content type of the message body to HTML
 		rv.add("Content-Type: text/html; charset=UTF-8");
-		rv.add("Subject: "
-				+ MessageFormat.format(rb.getString("subject.organizer.change.appointment.field"), new Object[] {
-						getTime(item.getRemovedFromTimeslot().get(0).getStartTime()).toStringLocalDate(),
-						getTime(item.getRemovedFromTimeslot().get(0).getStartTime()).toStringLocalTime() }));
-		rv.add("From: " + organizer.getEmail());
+		rv.add("Subject: " + getSubject());
+		rv.add("From: " + getFromAddress());
 		rv.add("To: " + attendee.getEmail());
 
 		return rv;
@@ -140,6 +147,28 @@ public class MoveAttendeeEmail extends SignupEmailBase {
 		message.append(newline + getFooter(newline, this.emailReturnSiteId));
 
 		return message.toString();
+	}
+	
+	@Override
+	public String getFromAddress() {
+		return organizer.getEmail();
+	}
+	
+	@Override
+	public String getSubject() {
+		return MessageFormat.format(rb.getString("subject.organizer.change.appointment.field"), new Object[] {
+					getTime(item.getRemovedFromTimeslot().get(0).getStartTime()).toStringLocalDate(),
+					getTime(item.getRemovedFromTimeslot().get(0).getStartTime()).toStringLocalTime() });
+	}
+
+	@Override
+	public List<SignupTimeslot> getRemoved() {
+		return removed;
+	}
+
+	@Override
+	public List<SignupTimeslot> getAdded() {
+		return added;
 	}
 
 }

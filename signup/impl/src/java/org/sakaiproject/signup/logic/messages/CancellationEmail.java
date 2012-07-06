@@ -24,6 +24,7 @@ package org.sakaiproject.signup.logic.messages;
 
 import java.text.MessageFormat;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 
 import org.sakaiproject.signup.logic.SakaiFacade;
@@ -38,7 +39,7 @@ import org.sakaiproject.user.api.User;
  * cancellation event
  * </p>
  */
-public class CancellationEmail extends SignupEmailBase {
+public class CancellationEmail extends SignupEmailBase implements SignupTimeslotChanges {
 
 	private final SignupTrackingItem item;
 
@@ -47,6 +48,8 @@ public class CancellationEmail extends SignupEmailBase {
 	private String organizer;
 
 	private String emailReturnSiteId;
+	
+	private List<SignupTimeslot> removed;
 
 	/**
 	 * constructor
@@ -67,7 +70,8 @@ public class CancellationEmail extends SignupEmailBase {
 		this.meeting = meeting;
 		this.setSakaiFacade(sakaiFacade);
 		this.emailReturnSiteId = item.getAttendee().getSignupSiteId();
-
+		
+		removed = item.getRemovedFromTimeslot();
 	}
 
 	/**
@@ -86,14 +90,15 @@ public class CancellationEmail extends SignupEmailBase {
 	 * @param sakaiFacade
 	 *            a SakaiFacade object
 	 */
-	public CancellationEmail(User organizer, User attendee, SignupTrackingItem item, SignupMeeting meeting,
-			SakaiFacade sakaiFacade) {
+	public CancellationEmail(User organizer, User attendee, SignupTrackingItem item, SignupMeeting meeting, SakaiFacade sakaiFacade) {
 		this.attendee = attendee;
 		this.organizer = organizer.getDisplayName();
 		this.item = item;
 		this.meeting = meeting;
 		this.setSakaiFacade(sakaiFacade);
 		this.emailReturnSiteId = item.getAttendee().getSignupSiteId();
+		
+		removed = item.getRemovedFromTimeslot();
 
 	}
 
@@ -104,11 +109,8 @@ public class CancellationEmail extends SignupEmailBase {
 		List<String> rv = new ArrayList<String>();
 		// Set the content type of the message body to HTML
 		rv.add("Content-Type: text/html; charset=UTF-8");
-		rv.add("Subject: "
-				+ MessageFormat.format(rb.getString("subject.Cancel.appointment.field"), new Object[] {
-						getTime(meeting.getStartTime()).toStringLocalDate(),
-						getSakaiFacade().getUserDisplayName(meeting.getCreatorUserId()) }));
-		rv.add("From: " + rb.getString("noReply@") + getSakaiFacade().getServerConfigurationService().getServerName());
+		rv.add("Subject: " + getSubject());
+		rv.add("From: " + getServerFromAddress());
 		rv.add("To: " + attendee.getEmail());
 
 		return rv;
@@ -119,17 +121,13 @@ public class CancellationEmail extends SignupEmailBase {
 	 */
 	public String getMessage() {
 		StringBuilder message = new StringBuilder();
-		message.append(MessageFormat.format(rb.getString("body.top.greeting.part"),
-				new Object[] { makeFirstCapLetter(attendee.getDisplayName()) }));
+		message.append(MessageFormat.format(rb.getString("body.top.greeting.part"), new Object[] { makeFirstCapLetter(attendee.getDisplayName()) }));
 
-		Object[] params = new Object[] { makeFirstCapLetter(getOrganizer()),
-				getSiteTitleWithQuote(this.emailReturnSiteId), getServiceName() };
-		message.append(newline + newline
-				+ MessageFormat.format(rb.getString("body.organizerCancel.appointment.part"), params));
-
-		message.append(newline + newline
-				+ MessageFormat.format(rb.getString("body.meetingTopic.part"), new Object[] { meeting.getTitle() }));
+		Object[] params = new Object[] { makeFirstCapLetter(getOrganizer()), getSiteTitleWithQuote(this.emailReturnSiteId), getServiceName() };
+		message.append(newline + newline + MessageFormat.format(rb.getString("body.organizerCancel.appointment.part"), params));
+		message.append(newline + newline + MessageFormat.format(rb.getString("body.meetingTopic.part"), new Object[] { meeting.getTitle() }));
 		message.append(newline + rb.getString("body.timeslot") + space);
+		
 		List<SignupTimeslot> removedFromTimeslots = item.getRemovedFromTimeslot();
 		if (!removedFromTimeslots.isEmpty()) {
 			for (SignupTimeslot timeslot : removedFromTimeslots) {
@@ -137,26 +135,19 @@ public class CancellationEmail extends SignupEmailBase {
 					Object[] paramsTimeframe = new Object[] { getTime(timeslot.getStartTime()).toStringLocalTime(),
 							getTime(timeslot.getEndTime()).toStringLocalTime(),
 							getTime(timeslot.getStartTime()).toStringLocalDate() };
-					message.append(MessageFormat.format(rb.getString("body.meeting.timeslot.timeframe"),
-							paramsTimeframe)
-							+ newline);
+					message.append(MessageFormat.format(rb.getString("body.meeting.timeslot.timeframe"), paramsTimeframe) + newline);
 				} else {
 					Object[] paramsTimeframe = new Object[] { getTime(timeslot.getStartTime()).toStringLocalTime(),
 							getTime(timeslot.getStartTime()).toStringLocalShortDate(),
 							getTime(timeslot.getEndTime()).toStringLocalTime(),
 							getTime(timeslot.getEndTime()).toStringLocalShortDate() };
-					message.append(MessageFormat.format(rb.getString("body.meeting.crossdays.timeslot.timeframe"),
-							paramsTimeframe)
-							+ newline);
+					message.append(MessageFormat.format(rb.getString("body.meeting.crossdays.timeslot.timeframe"), paramsTimeframe) + newline);
 
 				}
 			}
 		}
 
-		message.append(newline
-				+ newline
-				+ MessageFormat.format(rb.getString("body.attendeeCheck.meetingStatus.B"),
-						new Object[] { getServiceName() }));
+		message.append(newline + newline + MessageFormat.format(rb.getString("body.attendeeCheck.meetingStatus.B"), new Object[] { getServiceName() }));
 
 		/* footer */
 		message.append(newline + getFooter(newline, this.emailReturnSiteId));
@@ -174,5 +165,28 @@ public class CancellationEmail extends SignupEmailBase {
 	private void setOrganizer(String organizer) {
 		this.organizer = organizer;
 	}
+	
+	@Override
+	public String getFromAddress() {
+		return getServerFromAddress();
+	}
+	
+	@Override
+	public String getSubject() {
+		return MessageFormat.format(rb.getString("subject.Cancel.appointment.field"), new Object[] {
+			getTime(meeting.getStartTime()).toStringLocalDate(),
+			getSakaiFacade().getUserDisplayName(meeting.getCreatorUserId()) });
+	}
+
+	@Override
+	public List<SignupTimeslot> getRemoved() {
+		return removed;
+	}
+
+	@Override
+	public List<SignupTimeslot> getAdded() {
+		return Collections.EMPTY_LIST; //not applicable here
+	}
+	
 
 }

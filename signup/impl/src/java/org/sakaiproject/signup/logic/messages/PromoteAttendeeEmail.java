@@ -73,10 +73,8 @@ public class PromoteAttendeeEmail extends SignupEmailBase {
 		List<String> rv = new ArrayList<String>();
 		// Set the content type of the message body to HTML
 		rv.add("Content-Type: text/html; charset=UTF-8");
-		rv.add("Subject: "
-				+ MessageFormat.format(rb.getString("subject.promote.appointment.field"), new Object[] { getTime(
-						meeting.getStartTime()).toStringLocalDate() }));
-		rv.add("From: " + rb.getString("noReply@") + getSakaiFacade().getServerConfigurationService().getServerName());
+		rv.add("Subject: " + getSubject());
+		rv.add("From: " + getFromAddress());
 		rv.add("To: " + attendee.getEmail());
 
 		return rv;
@@ -145,6 +143,17 @@ public class PromoteAttendeeEmail extends SignupEmailBase {
 		}
 
 		return tmp.length() < 1 ? null : tmp.toString();
+	}
+	
+	@Override
+	public String getFromAddress() {
+		return getServerFromAddress();
+	}
+	
+	@Override
+	public String getSubject() {
+		return MessageFormat.format(rb.getString("subject.promote.appointment.field"), new Object[] { getTime(
+				meeting.getStartTime()).toStringLocalDate() });
 	}
 
 }

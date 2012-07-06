@@ -79,10 +79,8 @@ public class AutoReminderEmail extends SignupEmailBase {
 		List<String> rv = new ArrayList<String>();
 		// Set the content type of the message body to HTML
 		rv.add("Content-Type: text/html; charset=UTF-8");
-		rv.add("Subject: "
-				+ MessageFormat.format(rb.getString("subject.auto.reminder.appointment.field"), new Object[] {getShortWeekDayName(meeting.getStartTime()), getTime(meeting.getStartTime()).toStringLocalDate(),
-					getTime(item.getStartTime()).toStringLocalTime() }));
-		rv.add("From: " + getServiceName() +" <" + rb.getString("noReply@") + getSakaiFacade().getServerConfigurationService().getServerName() + ">");
+		rv.add("Subject: " + getSubject());
+		rv.add("From: " + getFromAddress());
 		rv.add("To: " + attendee.getEmail());
 
 		return rv;
@@ -133,6 +131,17 @@ public class AutoReminderEmail extends SignupEmailBase {
 	private String getShortWeekDayName(Date date){
 		dateFormat.applyLocalizedPattern("EEE");
 		return dateFormat.format(date);
+	}
+	
+	@Override
+	public String getFromAddress() {
+		return getServerFromAddress();
+	}
+	
+	@Override
+	public String getSubject() {
+		return MessageFormat.format(rb.getString("subject.auto.reminder.appointment.field"), new Object[] {getShortWeekDayName(meeting.getStartTime()), getTime(meeting.getStartTime()).toStringLocalDate(),
+					getTime(item.getStartTime()).toStringLocalTime() });
 	}
 
 }

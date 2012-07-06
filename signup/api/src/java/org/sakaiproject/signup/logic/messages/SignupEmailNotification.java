@@ -24,6 +24,9 @@ package org.sakaiproject.signup.logic.messages;
 
 import java.util.List;
 
+import org.sakaiproject.signup.logic.SignupTrackingItem;
+import org.sakaiproject.signup.model.SignupMeeting;
+
 /**
  * <P>
  * This is an interface for email
@@ -44,5 +47,25 @@ public interface SignupEmailNotification {
 	 * @return a message body string
 	 */
 	String getMessage();
+	
+	/**
+	 * Provide the from address. Cannot always rely on the 'From:' header.
+	 * 
+	 * @return the email address
+	 */
+	String getFromAddress();
+	
+	/**
+	 * Provide the subject. Cannot always rely on the 'Subject:' header.
+	 * 
+	 * @return the subject
+	 */
+	String getSubject();
+	
+	/**
+	 * Add ability to get SignupMeeting that is the parent of this email
+	 * @return
+	 */
+	SignupMeeting getMeeting();	
 
 }

@@ -408,5 +408,16 @@ public interface SignupMeetingService {
 	 * @return true if the event is existed.
 	 */
 	boolean isEventExisted(Long eventId);
+	
+	/**
+	 * Send email to attendee when they sign up/cancel their attendance
+	 * 
+	 * @param eventTrackingInfo
+	 *            an EventTrackingInfo object, which contains all the
+	 *            information about user action such as signup and cancel
+	 * @throws Exception
+	 *             thrown if something goes bad
+	 */
+	void sendEmailToAttendee(SignupEventTrackingInfo eventTrackingInfo) throws Exception;
 
 }

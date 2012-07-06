@@ -68,11 +68,8 @@ public class ModifyMeetingEmail extends SignupEmailBase {
 		List<String> rv = new ArrayList<String>();
 		// Set the content type of the message body to HTML
 		rv.add("Content-Type: text/html; charset=UTF-8");
-		rv.add("Subject: "
-				+ MessageFormat.format(rb.getString("subject.meeting.modification.field"), new Object[] {
-						organizer.getDisplayName(), getShortSiteTitleWithQuote(emailReturnSiteId), getTime(meeting.getStartTime()).toStringLocalDate(),
-						getTime(meeting.getStartTime()).toStringLocalTime() }));
-		rv.add("From: " + organizer.getEmail());
+		rv.add("Subject: " + getSubject());
+		rv.add("From: " + getFromAddress());
 		rv.add("To: " + rb.getString("noReply@") + getSakaiFacade().getServerConfigurationService().getServerName());
 
 		return rv;
@@ -130,5 +127,17 @@ public class ModifyMeetingEmail extends SignupEmailBase {
 		/* footer */
 		message.append(newline + getFooter(newline, emailReturnSiteId));
 		return message.toString();
+	}
+	
+	@Override
+	public String getFromAddress() {
+		return organizer.getEmail();
+	}
+	
+	@Override
+	public String getSubject() {
+		return MessageFormat.format(rb.getString("subject.meeting.modification.field"), new Object[] {
+			organizer.getDisplayName(), getShortSiteTitleWithQuote(emailReturnSiteId), getTime(meeting.getStartTime()).toStringLocalDate(),
+			getTime(meeting.getStartTime()).toStringLocalTime() });
 	}
 }

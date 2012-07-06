@@ -26,9 +26,13 @@ import java.text.MessageFormat;
 import java.util.Date;
 import java.util.List;
 
+import lombok.Getter;
+import lombok.Setter;
+
 import org.apache.commons.lang.StringUtils;
 import org.sakaiproject.exception.IdUnusedException;
 import org.sakaiproject.signup.logic.SakaiFacade;
+import org.sakaiproject.signup.logic.SignupTrackingItem;
 import org.sakaiproject.signup.model.MeetingTypes;
 import org.sakaiproject.signup.model.SignupMeeting;
 import org.sakaiproject.site.api.Site;
@@ -44,8 +48,10 @@ import org.sakaiproject.util.ResourceLoader;
  */
 abstract public class SignupEmailBase implements SignupEmailNotification, MeetingTypes {
 
+	@Getter @Setter
 	private SakaiFacade sakaiFacade;
 	
+	@Getter
 	protected SignupMeeting meeting;
 
 	protected static ResourceLoader rb = new ResourceLoader("emailMessage");
@@ -109,26 +115,17 @@ abstract public class SignupEmailBase implements SignupEmailNotification, Meetin
 	 * get the main message for this email
 	 */
 	abstract public String getMessage();
-
+	
 	/**
-	 * get SakaiFacade object
-	 * 
-	 * @return SakaiFacade object
+	 * get the from address for this email
 	 */
-	public SakaiFacade getSakaiFacade() {
-		return sakaiFacade;
-	}
-
+	abstract public String getFromAddress();
+	
 	/**
-	 * this is a setter
-	 * 
-	 * @param sakaiFacade
-	 *            SakaiFacade object
+	 * get the subject for this email
 	 */
-	public void setSakaiFacade(SakaiFacade sakaiFacade) {
-		this.sakaiFacade = sakaiFacade;
-	}
-
+	abstract public String getSubject();
+	
 	/**
 	 * get current site Id
 	 * 
@@ -250,6 +247,10 @@ abstract public class SignupEmailBase implements SignupEmailNotification, Meetin
 			recurFrqs = rb.getString("body.meeting.unknown.repeatType");
 		
 		return recurFrqs;
+	}
+	
+	protected String getServerFromAddress() {
+		return getServiceName() +" <" + rb.getString("noReply@") + getSakaiFacade().getServerConfigurationService().getServerName() + ">";
 	}
 	
 }

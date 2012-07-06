@@ -869,6 +869,21 @@ public class SakaiFacadeImpl implements SakaiFacade {
 
         return advisor;
     }
+    
+    /**
+	 * {@inheritDoc}
+	 */
+    public SecurityAdvisor pushSecurityAdvisor() {
+        SecurityAdvisor advisor = new SecurityAdvisor() {
+            public SecurityAdvice isAllowed(String userId, String function, String reference) {
+                return SecurityAdvice.ALLOWED;
+            }
+        };
+
+        enableSecurityAdvisor(advisor);
+
+        return advisor;
+    }
 
 	/**
 	 * {@inheritDoc}

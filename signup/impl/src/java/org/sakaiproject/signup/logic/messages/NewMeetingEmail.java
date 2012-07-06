@@ -69,10 +69,8 @@ public class NewMeetingEmail extends SignupEmailBase {
 		List<String> rv = new ArrayList<String>();
 		// Set the content type of the message body to HTML
 		rv.add("Content-Type: text/html; charset=UTF-8");
-		rv.add("Subject: "
-				+ MessageFormat.format(rb.getString("subject.newMeeting.field"), new Object[] {
-						creator.getDisplayName(), getTime(meeting.getStartTime()).toStringLocalDate() }));
-		rv.add("From: " + creator.getEmail());
+		rv.add("Subject: " + getSubject());
+		rv.add("From: " + getFromAddress());
 		rv.add("To: " + rb.getString("noReply@") + getSakaiFacade().getServerConfigurationService().getServerName());
 
 		return rv;
@@ -190,5 +188,16 @@ public class NewMeetingEmail extends SignupEmailBase {
 			return false;
 		SignupTimeslot ts = (SignupTimeslot) signupTimeSlots.get(0);
 		return ts.isUnlimitedAttendee();
+	}
+
+	@Override
+	public String getFromAddress() {
+		return creator.getEmail();
+	}
+	
+	@Override
+	public String getSubject() {
+		return MessageFormat.format(rb.getString("subject.newMeeting.field"), new Object[] {
+			creator.getDisplayName(), getTime(meeting.getStartTime()).toStringLocalDate() });
 	}
 }

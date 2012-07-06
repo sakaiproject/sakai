@@ -39,4 +39,5 @@
 	<bean
 		class="org.sakaiproject.signup.tool.entityproviders.SignupRESTfulSessionManager">
 	</bean>
+		
 </beans>

@@ -75,10 +75,8 @@ public class AttendeeCancellationEmail extends SignupEmailBase {
 		List<String> rv = new ArrayList<String>();
 		// Set the content type of the message body to HTML
 		rv.add("Content-Type: text/html; charset=UTF-8");
-		rv.add("Subject: "
-				+ MessageFormat.format(rb.getString("subject.Cancel.appointment.field"), new Object[] {
-						getTime(meeting.getStartTime()).toStringLocalDate(), initiator.getDisplayName() }));
-		rv.add("From: " + initiator.getEmail());
+		rv.add("Subject: " + getSubject());
+		rv.add("From: " + getFromAddress());
 		rv.add("To: " + organizer.getEmail());
 
 		return rv;
@@ -129,6 +127,17 @@ public class AttendeeCancellationEmail extends SignupEmailBase {
 		message.append(newline + getFooter(newline));
 
 		return message.toString();
+	}
+	
+	@Override
+	public String getFromAddress() {
+		return initiator.getEmail();
+	}
+	
+	@Override
+	public String getSubject() {
+		return MessageFormat.format(rb.getString("subject.Cancel.appointment.field"), new Object[] {
+			getTime(meeting.getStartTime()).toStringLocalDate(), initiator.getDisplayName() });
 	}
 
 }

@@ -84,5 +84,16 @@ public interface SignupEmailFacade extends SignupMessageTypes {
 	 *             thrown if something goes bad
 	 */
 	void sendEmailToParticipantsByOrganizerAction(SignupEventTrackingInfo signupEventTrackingInfo) throws Exception;
+	
+	/**
+	 * Send email to attendee when they sign up/cancel their attendance
+	 * 
+	 * @param eventTrackingInfo
+	 *            an EventTrackingInfo object, which contains all the
+	 *            information about user action such as signup and cancel
+	 * @throws Exception
+	 *             thrown if something goes bad
+	 */
+	void sendEmailToAttendee(SignupEventTrackingInfo signupEventTrackingInfo) throws Exception;
 
 }

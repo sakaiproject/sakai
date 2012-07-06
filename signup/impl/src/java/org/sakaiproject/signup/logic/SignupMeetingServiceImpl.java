@@ -29,11 +29,15 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.StringTokenizer;
 
+import lombok.Getter;
+import lombok.Setter;
+
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.sakaiproject.authz.api.SecurityAdvisor;
 import org.sakaiproject.calendar.api.Calendar;
 import org.sakaiproject.calendar.api.CalendarEventEdit;
+import org.sakaiproject.calendaring.api.ExternalCalendaringService;
 import org.sakaiproject.exception.IdUnusedException;
 import org.sakaiproject.exception.PermissionException;
 import org.sakaiproject.signup.dao.SignupMeetingDao;
@@ -67,12 +71,16 @@ public class SignupMeetingServiceImpl implements SignupMeetingService, Retry, Me
 
 	private static Log log = LogFactory.getLog(SignupMeetingServiceImpl.class);
 
+	@Getter @Setter
 	private SignupMeetingDao signupMeetingDao;
 
+	@Getter @Setter
 	private SakaiFacade sakaiFacade;
 	
+	@Getter @Setter
 	private SignupCacheService signupCacheService;
 
+	@Getter @Setter
 	private SignupEmailFacade signupEmailFacade;
 
 	public void init() {
@@ -429,43 +437,6 @@ public class SignupMeetingServiceImpl implements SignupMeetingService, Retry, Me
 
 		return true;
 
-	}
-
-	/**
-	 * get SignupMeetingDao object
-	 */
-	public SignupMeetingDao getSignupMeetingDao() {
-		return signupMeetingDao;
-	}
-
-	/**
-	 * set SignupMeetingDao object
-	 * 
-	 * @param signupMeetingDao
-	 *            a SignupMeetingDao object, which has implemented the
-	 *            SignupMeetingDao interface
-	 */
-	public void setSignupMeetingDao(SignupMeetingDao signupMeetingDao) {
-		this.signupMeetingDao = signupMeetingDao;
-	}
-
-	/**
-	 * get a SakaiFacade object, which has implemented the SakaiFacade interface
-	 * 
-	 * @return a SakaiFacade object
-	 */
-	public SakaiFacade getSakaiFacade() {
-		return sakaiFacade;
-	}
-
-	/**
-	 * set the SakaiFacade object
-	 * 
-	 * @param sakaiFacade
-	 *            a SakaFacade object
-	 */
-	public void setSakaiFacade(SakaiFacade sakaiFacade) {
-		this.sakaiFacade = sakaiFacade;
 	}
 
 	/**
@@ -1084,24 +1055,6 @@ public class SignupMeetingServiceImpl implements SignupMeetingService, Retry, Me
 		return groups;
 	}
 
-	/**
-	 * get SignupEmailFacade object
-	 * 
-	 * @return a SignupEmailFacade object
-	 */
-	public SignupEmailFacade getSignupEmailFacade() {
-		return signupEmailFacade;
-	}
-
-	/**
-	 * set a SignupEmailFacade object
-	 * 
-	 * @param signupEmailFacade
-	 *            a SignupEmailFacade object
-	 */
-	public void setSignupEmailFacade(SignupEmailFacade signupEmailFacade) {
-		this.signupEmailFacade = signupEmailFacade;
-	}
 
 	/**
 	 * {@inheritDoc}
@@ -1116,7 +1069,6 @@ public class SignupMeetingServiceImpl implements SignupMeetingService, Retry, Me
 	 */
 	public void sendEmailToOrganizer(SignupEventTrackingInfo signupEventTrackingInfo) throws Exception {
 		signupEmailFacade.sendEmailToOrganizer(signupEventTrackingInfo);
-
 	}
 
 	/**
@@ -1148,13 +1100,13 @@ public class SignupMeetingServiceImpl implements SignupMeetingService, Retry, Me
 	public boolean isEventExisted(Long eventId) {
 		return signupMeetingDao.isEventExisted(eventId);
 	}
-
-	public SignupCacheService getSignupCacheService() {
-		return signupCacheService;
+	
+	/**
+	 * {@inheritDoc}
+	 */
+	public void sendEmailToAttendee(SignupEventTrackingInfo signupEventTrackingInfo) throws Exception {
+		signupEmailFacade.sendEmailToAttendee(signupEventTrackingInfo);
 	}
 
-	public void setSignupCacheService(SignupCacheService signupCacheService) {
-		this.signupCacheService = signupCacheService;
-	}
 
 }

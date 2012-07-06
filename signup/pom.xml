@@ -26,7 +26,7 @@
 	<developers>
 		<developer>
 			<name>Peter Liu</name>
-			<email>peter.liu@yale.edu&gt;</email>
+			<email>peter.liu@yale.edu</email>
 			<organization>Yale University</organization>
 		</developer>
 	</developers>
@@ -35,8 +35,7 @@
 	<contributors>
 		<contributor>
 			<name>Steve Swinsburg</name>
-			<email>steve.swinsburg@anu.edu.au</email>
-			<organization>The Australian National University</organization>
+			<email>steve.swinsburg@gmail.com</email>
 		</contributor>
 	</contributors>
 	
@@ -48,6 +47,7 @@
 	
 	<properties>
 		<project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
+		<external-calendaring-service-version>1.0.2</external-calendaring-service-version>
 	</properties>
 	
 	 <distributionManagement>
@@ -335,6 +335,26 @@
 				<scope>compile</scope>
 			</dependency>
 			
+			<dependency>
+				<groupId>org.projectlombok</groupId>
+				<artifactId>lombok</artifactId>
+				<version>0.10.8</version>
+				<scope>provided</scope>
+			</dependency>
+			
+			<dependency>
+				<groupId>org.sakaiproject.calendaring</groupId>
+				<artifactId>external-calendaring-service-api</artifactId>
+				<version>${external-calendaring-service-version}</version>
+				<scope>provided</scope>
+			</dependency>
+			
+			<dependency>
+      			<groupId>org.mnode.ical4j</groupId>
+      			<artifactId>ical4j</artifactId>
+      			<version>1.0.3</version>
+    		</dependency>
+			
 		</dependencies>
 	</dependencyManagement>
 	
@@ -345,6 +365,7 @@
 		<module>pack</module>
 		<module>tool</module>
 		<module>assembly</module>
+		<module>deploy</module>
 	</modules>
 	
 	<build />

@@ -110,6 +110,18 @@ public class AttendeeSignupMBean extends SignupUIBaseBean {
 					Utilities.addErrorMessage(Utilities.rb.getString("email.exception"));
 				}
 			}
+			
+			//also send confirmation email to attendee
+			if(sendEmail) {
+				try {
+					signupMeetingService.sendEmailToAttendee(signup.getSignupEventTrackingInfo());
+				} catch (Exception e) {
+					logger.error(Utilities.rb.getString("email.exception") + " - " + e.getMessage(), e);
+					Utilities.addErrorMessage(Utilities.rb.getString("email.exception"));
+				}
+			}
+			
+			
 		} catch (SignupUserActionException ue) {
 			Utilities.addErrorMessage(ue.getMessage());
 		} catch (Exception e) {
@@ -135,14 +147,15 @@ public class AttendeeSignupMBean extends SignupUIBaseBean {
 			CancelAttendee signup = new CancelAttendee(signupMeetingService, currentUserId(), currentSiteId(), false);
 			SignupAttendee removedAttendee = new SignupAttendee(currentUserId(), currentSiteId());
 			meeting = signup.cancelSignup(meetingWrapper.getMeeting(), timeslotWrapper.getTimeSlot(), removedAttendee);
-			/* send notification to organizer and possible promoted participants */
+			/* send notification to organizer and possible promoted participants.
+			 * This also handles sending email to the attendee as well */
 			try {
 				signupMeetingService.sendCancellationEmail(signup.getSignupEventTrackingInfo());
 			} catch (Exception e) {
 				logger.error(Utilities.rb.getString("email.exception") + " - " + e.getMessage(), e);
 				Utilities.addErrorMessage(Utilities.rb.getString("email.exception"));
 			}
-
+			
 		} catch (SignupUserActionException ue) {
 			Utilities.addErrorMessage(ue.getMessage());
 		} catch (Exception e) {

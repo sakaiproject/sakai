@@ -49,8 +49,8 @@
 			<version>${project.version}</version>
 			<scope>compile</scope>
 		</dependency>
-		
 	</dependencies>
+	
 	<build>
 		<pluginManagement>
 			<plugins>
@@ -86,4 +86,5 @@
 			</plugin>
 		</plugins>
 	</build>
+	
 </project>
