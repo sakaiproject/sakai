@@ -181,7 +181,7 @@ public interface ProjectLogic {
 	 * @param hierarchyId
 	 * @return
 	 */
-	public Map<String, String> getNodesBySiteRef(String siteRef[], String hierarchyId);
+	public Map<String, List<String>> getNodesBySiteRef(String siteRef[], String hierarchyId);
 	
 	/**
 	 * Saves the date for the last time the hierarchy job ran successfully

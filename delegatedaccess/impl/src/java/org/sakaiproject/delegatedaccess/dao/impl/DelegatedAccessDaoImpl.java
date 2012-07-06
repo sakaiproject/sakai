@@ -3,6 +3,7 @@ package org.sakaiproject.delegatedaccess.dao.impl;
 import java.net.URL;
 import java.sql.ResultSet;
 import java.sql.SQLException;
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
@@ -102,9 +103,9 @@ public class DelegatedAccessDaoImpl extends JdbcDaoSupport implements DelegatedA
 		}
 	}
 	
-	public Map<String, String> getNodesBySiteRef(String[] siteRefs, String hierarchyId){
+	public Map<String, List<String>> getNodesBySiteRef(String[] siteRefs, String hierarchyId){
 		try{
-			Map<String, String> returnMap = new HashMap<String, String>();
+			Map<String, List<String>> returnMap = new HashMap<String, List<String>>();
 			
 			int subArrayIndex = 0;
 			do{
@@ -133,7 +134,10 @@ public class DelegatedAccessDaoImpl extends JdbcDaoSupport implements DelegatedA
 				if(results != null){
 					for(String[] result : results){
 						if(result != null && result.length == 2){
-							returnMap.put(result[0], result[1]);
+							if(!returnMap.containsKey(result[0])){
+								returnMap.put(result[0], new ArrayList<String>());
+							}
+							returnMap.get(result[0]).add(result[1]);
 						}
 					}
 				}

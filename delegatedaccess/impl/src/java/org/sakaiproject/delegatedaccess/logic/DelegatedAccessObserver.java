@@ -1,5 +1,7 @@
 package org.sakaiproject.delegatedaccess.logic;
 
+import java.util.List;
+import java.util.Map;
 import java.util.Observable;
 import java.util.Observer;
 
@@ -47,14 +49,16 @@ public class DelegatedAccessObserver implements Observer {
 		}else if(SiteService.SECURE_REMOVE_SITE.equals(event.getEvent())){
 			//Site has been deleted, check if it exists and remove all nodes:
 			boolean deleted = false;
-			for(String nodeId : projectLogic.getNodesBySiteRef(new String[]{event.getResource()}, DelegatedAccessConstants.HIERARCHY_ID).values()){
-				projectLogic.removeNode(nodeId);
-				deleted = true;
+			Map<String, List<String>> nodeIds = projectLogic.getNodesBySiteRef(new String[]{event.getResource()}, DelegatedAccessConstants.HIERARCHY_ID);
+			if(nodeIds != null && nodeIds.containsKey(event.getResource())){
+				for(String nodeId : nodeIds.get(event.getResource())){
+					projectLogic.removeNode(nodeId);
+					deleted = true;
+				}
+				if(deleted){
+					projectLogic.clearNodeCache();
+				}
 			}
-			if(deleted){
-				projectLogic.clearNodeCache();
-			}
-			
 		}else if(DelegatedAccessConstants.EVENT_CHECK_ACCESS.equals(event.getEvent())){
 			//this will set the Session attribute for this site and user
 			projectLogic.getCurrentUsersAccessToSite(event.getResource());

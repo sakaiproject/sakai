@@ -16,13 +16,13 @@ public interface DelegatedAccessDao {
 	public void removeSiteProperty(String siteId, String propertyName);
 	
 	/**
-	 * returns a Map of -> {siteRef, nodeId}
+	 * returns a Map of -> {siteRef, {nodeId, nodeId ...}}
 	 * 
 	 * @param siteRef
 	 * @param hierarchyId
 	 * @return
 	 */
-	public Map<String, String> getNodesBySiteRef(String[] siteRef, String hierarchyId);
+	public Map<String, List<String>> getNodesBySiteRef(String[] siteRef, String hierarchyId);
 	
 	public List<String> getEmptyNonSiteNodes(String hierarchyId);
 }

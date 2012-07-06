@@ -152,9 +152,9 @@ public class DelegatedAccessSiteHierarchyJob implements Job{
 							if(orderByModifiedDate){
 								//the job grabs all sites when orderBy is set, so this site was recently updated
 								//we need to make sure it wasn't removed from the hierarchy:
-								Map<String, String> nodeIds = dao.getNodesBySiteRef(new String[]{site.getReference()}, DelegatedAccessConstants.HIERARCHY_ID);
-								if(nodeIds != null){
-									for(String nodeId : nodeIds.values()){
+								Map<String, List<String>> nodeIds = dao.getNodesBySiteRef(new String[]{site.getReference()}, DelegatedAccessConstants.HIERARCHY_ID);
+								if(nodeIds != null && nodeIds.containsKey(site.getReference())){
+									for(String nodeId : nodeIds.get(site.getReference())){
 										projectLogic.removeNode(hierarchyService.getNodeById(nodeId));
 									}
 								}
@@ -206,11 +206,11 @@ public class DelegatedAccessSiteHierarchyJob implements Job{
 		HierarchyNode node = null;
 		if(title != null && !"".equals(title)){
 
-			Map<String, String> nodeIds = dao.getNodesBySiteRef(new String[]{title}, DelegatedAccessConstants.HIERARCHY_ID);
+			Map<String, List<String>> nodeIds = dao.getNodesBySiteRef(new String[]{title}, DelegatedAccessConstants.HIERARCHY_ID);
 			boolean hasChild = false;
 			String childNodeId = "";
-			if(nodeIds != null && nodeIds.size() > 0){
-				for(String id : nodeIds.values()){
+			if(nodeIds != null && nodeIds.containsKey(title) && nodeIds.get(title).size() > 0){
+				for(String id : nodeIds.get(title)){
 					if(parentNode.directChildNodeIds.contains(id)){
 						hasChild = true;
 						childNodeId = id;
