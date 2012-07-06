@@ -54,6 +54,7 @@ import org.sakaiproject.signup.logic.messages.AttendeeCancellationEmail;
 import org.sakaiproject.signup.logic.messages.AttendeeCancellationOwnEmail;
 import org.sakaiproject.signup.logic.messages.AttendeeSignupEmail;
 import org.sakaiproject.signup.logic.messages.AttendeeSignupOwnEmail;
+import org.sakaiproject.signup.logic.messages.CancelMeetingEmail;
 import org.sakaiproject.signup.logic.messages.CancellationEmail;
 import org.sakaiproject.signup.logic.messages.EmailDeliverer;
 import org.sakaiproject.signup.logic.messages.ModifyMeetingEmail;
@@ -102,7 +103,7 @@ public class SignupEmailFacadeImpl implements SignupEmailFacade {
 	 */
 	@SuppressWarnings("unchecked")
 	public void sendEmailAllUsers(SignupMeeting meeting, String messageType) throws Exception {
-		if (messageType.equals(SIGNUP_NEW_MEETING) || messageType.equals(SIGNUP_MEETING_MODIFIED)) {
+		if (messageType.equals(SIGNUP_NEW_MEETING) || messageType.equals(SIGNUP_MEETING_MODIFIED) || messageType.equals(SIGNUP_CANCEL_MEETING)) {
 			sendEmailToAllUsers(meeting, messageType);
 			return;
 		}
@@ -267,7 +268,6 @@ public class SignupEmailFacadeImpl implements SignupEmailFacade {
 					throw new Exception("User is not found and email has not been sent for participant: " + signupEventTrackingInfo.getMeeting().getCreatorUserId());
 				}
 			}
-			//TODO handle case here for when attendee cancels own
 		}
 		return;
 	}
@@ -364,9 +364,17 @@ public class SignupEmailFacadeImpl implements SignupEmailFacade {
 						continue;//no need to go down
 					}
 
-				} else if (messageType.equals(SIGNUP_MEETING_MODIFIED)) {
+				} else if (messageType.equals(SIGNUP_MEETING_MODIFIED) || messageType.equals(SIGNUP_CANCEL_MEETING)) {
 					organizer = userDirectoryService.getUser(getSakaiFacade().getCurrentUserId());
-					email = new ModifyMeetingEmail(organizer, meeting, this.sakaiFacade, emailUserSiteGroup.getSiteId());
+					
+					//same logic for both, just different emails
+					if(messageType.equals(SIGNUP_MEETING_MODIFIED)) {
+						email = new ModifyMeetingEmail(organizer, meeting, this.sakaiFacade, emailUserSiteGroup.getSiteId());
+					}
+					if(messageType.equals(SIGNUP_CANCEL_MEETING)) {
+						email = new CancelMeetingEmail(organizer, meeting, this.sakaiFacade, emailUserSiteGroup.getSiteId());
+					}
+					
 					if (! meeting.isEmailAttendeesOnly()){
 						userIds = emailUserSiteGroup.getUserInternalIds();
 						sakaiUsers = userDirectoryService.getUsers(userIds);
@@ -401,7 +409,7 @@ public class SignupEmailFacadeImpl implements SignupEmailFacade {
 							}
 						}
 					}
-				}
+				} 
 
 				if (email != null){
 					if(sakaiUsers.size()> 200){
@@ -639,10 +647,15 @@ public class SignupEmailFacadeImpl implements SignupEmailFacade {
 		SignupMeeting meeting = email.getMeeting();
 		
 		//for each message type, determine what we need to do to get the correct ICS file.
-		if (email instanceof NewMeetingEmail || email instanceof ModifyMeetingEmail) {
-			//NOTE: sent to everyone when an event is created or modified
+		if (email instanceof NewMeetingEmail || email instanceof ModifyMeetingEmail || email instanceof CancelMeetingEmail) {
+			//NOTE: sent to everyone when an event is created or modified or cancelled
 			if(logger.isDebugEnabled()){
-				logger.debug("NewMeetingEmail/ModifyMeetingEmail");
+				logger.debug("NewMeetingEmail/ModifyMeetingEmail/CancelMeetingEmail");
+			}
+			
+			boolean cancel = false;
+			if(email instanceof CancelMeetingEmail) {
+				cancel = true;
 			}
 			
 			//only send the overall meeting ICS file to the organiser of the meeting. 
@@ -654,6 +667,11 @@ public class SignupEmailFacadeImpl implements SignupEmailFacade {
 				VEvent v = meeting.getVevent();
 				if (v == null) {
 					return attachments;
+				} 
+				
+				//cancel, if required
+				if(cancel) {
+					v = externalCalendaringService.cancelEvent(v);
 				}
 				
 				if(logger.isDebugEnabled()){
@@ -675,6 +693,11 @@ public class SignupEmailFacadeImpl implements SignupEmailFacade {
 					if(ts.getAttendee(user.getId()) != null) {
 						VEvent v = ts.getVevent();
 						if(v != null) {
+							//cancel, if required
+							if(cancel) {
+								v = externalCalendaringService.cancelEvent(v);
+							}
+						
 							vevents.add(v);
 						}
 					}
@@ -686,7 +709,7 @@ public class SignupEmailFacadeImpl implements SignupEmailFacade {
 				}
 				
 			}
-			
+		
 		} else if (email instanceof AddAttendeeEmail || email instanceof PromoteAttendeeEmail || email instanceof OrganizerPreAssignEmail || email instanceof AttendeeSignupOwnEmail) {
 			//NOTE: sent to attendee when they are added to an event by an organiser, or promoted, or preassigned, or they signup themselves	
 			if(logger.isDebugEnabled()){

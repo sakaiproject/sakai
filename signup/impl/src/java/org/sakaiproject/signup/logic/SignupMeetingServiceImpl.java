@@ -1081,8 +1081,15 @@ public class SignupMeetingServiceImpl implements SignupMeetingService, Retry, Me
 	/**
 	 * {@inheritDoc}
 	 */
-	public void removeMeetings(List<SignupMeeting> meetings) {
+	public void removeMeetings(List<SignupMeeting> meetings) throws Exception {
 		signupMeetingDao.removeMeetings(meetings);
+				
+		for(SignupMeeting m: meetings) {
+			if(!m.isMeetingExpired()) {
+				log.info("Meeting is still available, email notifications will be sent");
+				signupEmailFacade.sendEmailAllUsers(m, SignupMessageTypes.SIGNUP_CANCEL_MEETING);
+			}
+		}
 	}
 
 	/**
