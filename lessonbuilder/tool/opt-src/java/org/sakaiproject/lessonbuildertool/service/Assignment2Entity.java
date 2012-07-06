@@ -59,6 +59,7 @@ import org.sakaiproject.tool.api.SessionManager;
 import org.sakaiproject.user.api.User;
 import org.sakaiproject.user.cover.UserDirectoryService;
 import org.sakaiproject.component.cover.ServerConfigurationService;             
+import org.sakaiproject.component.cover.ComponentManager;
 
 import org.sakaiproject.memory.api.Cache;
 import org.sakaiproject.memory.api.CacheRefresher;
@@ -151,7 +152,8 @@ public class Assignment2Entity implements LessonEntity {
 
 
     public void init () {
-	if (ToolManager.getTool("sakai.assignment2") != null)
+    //	if (ToolManager.getTool("sakai.assignment2") != null)
+	if (ComponentManager.get("org.sakaiproject.assignment2.service.api.Assignment2Service") != null)
 	    haveA2 = true;
 	System.out.println("Assignment2Entity init: haveA2 = " + haveA2);
 
