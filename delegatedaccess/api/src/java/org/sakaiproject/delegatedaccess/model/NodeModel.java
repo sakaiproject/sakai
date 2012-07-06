@@ -52,6 +52,23 @@ public class NodeModel implements Serializable {
 	private boolean shoppingPeriodRevokeInstructorEditable = false;
 	private boolean shoppingPeriodRevokeInstructorEditableOrig = false;
 	
+	/**
+	 * this function should be called after a save in order to reset the original values to their current value.
+	 * By doing this, you allow the next save the check against the new values
+	 */
+	public void setOriginals(){
+		directAccessOrig = directAccess;
+		accessAdminOrig = accessAdmin;
+		shoppingPeriodAdminOrig = shoppingPeriodAdmin;
+		realmOrig = realm;
+		roleOrig = role;
+		restrictedToolsOrig = copyListOptions(restrictedTools);
+		shoppingPeriodStartDateOrig = shoppingPeriodStartDate;
+		shoppingPeriodEndDateOrig = shoppingPeriodEndDate;
+		shoppingPeriodAuthOrig = getShoppingPeriodAuth();
+		shoppingPeriodRevokeInstructorEditableOrig = shoppingPeriodRevokeInstructorEditable;
+	}
+	
 	public NodeModel(String nodeId, HierarchyNodeSerialized node,
 			boolean directAccess, String realm, String role, NodeModel parentNode,
 			List<ListOptionSerialized> restrictedTools, Date shoppingPeriodStartDate,

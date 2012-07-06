@@ -66,6 +66,9 @@ public abstract class BaseTreePage extends BasePage
 			}
 			if(nodeModel.isModified()){
 				projectLogic.updateNodePermissionsForUser(nodeModel, userId);
+				//now reset the node's "original" values to ensure the next save will check against
+				//the newly saved settings
+				nodeModel.setOriginals();
 			}
 
 			//check the rest of the children:
