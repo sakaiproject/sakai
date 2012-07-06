@@ -138,7 +138,7 @@
 			</table>
 			#if ($!ltiTools && !$!ltiTools.isEmpty())
 				<p class="step">
-					$tlang.getString("feat.choose")
+					$tlang.getString("feat.choose.external")
 				</p>
 				<table class="listHier lines nolines" cellspacing="0" summary="extra tools"  style="width:auto">
 					#foreach($ltiTool in $ltiTools.entrySet())

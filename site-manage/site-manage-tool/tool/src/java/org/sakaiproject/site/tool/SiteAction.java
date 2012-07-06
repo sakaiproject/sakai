@@ -148,6 +148,10 @@ import org.sakaiproject.util.SortedIterator;
 import org.sakaiproject.util.Validator;
 import org.sakaiproject.util.Web;
 
+// for basiclti integration
+import org.sakaiproject.lti.api.LTIService;
+
+
 /**
  * <p>
  * SiteAction controls the interface for worksite setup.
@@ -1596,7 +1600,7 @@ public class SiteAction extends PagedResourceActionII {
 					}
 				}
 				for (Map<String, Object> toolMap : tools ) {
-					String ltiToolId = ((Integer) toolMap.get("id")).toString();
+					String ltiToolId = toolMap.get("id").toString();
 					toolMap.put("toolCount", ltiToolsCount.containsKey(ltiToolId)?ltiToolsCount.get(ltiToolId).size():0);
 					ltiTools.put(ltiToolId, toolMap);
 				}
@@ -2530,7 +2534,27 @@ public class SiteAction extends PagedResourceActionII {
 			multipleToolIntoContext(context, state);
 			
 			// put the lti tool selection into context
-			context.put("ltiTools", state.getAttribute(STATE_LTITOOL_SELECTED_LIST));
+			if (state.getAttribute(STATE_LTITOOL_SELECTED_LIST) != null)
+			{
+				HashMap<String, Map<String, Object>> currentLtiTools = (HashMap<String, Map<String, Object>>) state.getAttribute(STATE_LTITOOL_SELECTED_LIST);
+				for (Map.Entry<String, Map<String, Object>> entry : currentLtiTools.entrySet() ) {
+					 Map<String, Object> toolMap = entry.getValue();
+					 String toolId = entry.getKey();
+					// get the proper html for tool input
+					String ltiToolId = toolMap.get("id").toString();
+					String[] contentToolModel=m_ltiService.getContentModel(Long.valueOf(ltiToolId));
+					// attach the ltiToolId to each model attribute, so that we could have the tool configuration page for multiple tools
+					for(int k=0; k<contentToolModel.length;k++)
+					{
+						contentToolModel[k] = ltiToolId + "_" + contentToolModel[k];
+					}
+					String formInput=m_ltiService.formInput(null, contentToolModel);
+					toolMap.put("formInput", formInput);
+					currentLtiTools.put(ltiToolId, toolMap);
+				}
+				context.put("ltiTools", currentLtiTools);
+				context.put("ltiService", m_ltiService);
+			}
 			
 			context.put("toolManager", ToolManager.getInstance());
 
@@ -9245,21 +9269,23 @@ public class SiteAction extends PagedResourceActionII {
             for (Map.Entry<String, Map<String, Object>> ltiTool : ltiTools.entrySet()) {
                 String ltiToolId = ltiTool.getKey();
                 Map<String, Object> toolValues = ltiTool.getValue();
-                
-                Properties reqProps = params.getProperties();
-                Object retval = m_ltiService.insertToolContent(ltiToolId, ltiToolId, reqProps);
+                Properties reqProperties = (Properties) toolValues.get("reqProperties");
+                Object retval = m_ltiService.insertToolContent(null, ltiToolId, reqProperties);
                 if (retval instanceof String)
                 {
                 	// error inserting tool content
                 	addAlert(state, (String) retval);
+                	break;
                 }
                 else
                 {
                 	// success inserting tool content
-                	retval = m_ltiService.insertToolSiteLink(ltiToolId, (String) toolValues.get("button_text"));
+                	String title = reqProperties.getProperty("title");
+                	retval = m_ltiService.insertToolSiteLink(((Long) retval).toString(), title);
                 	if (retval instanceof String)
                 	{
 	        			addAlert(state, ((String) retval).substring(2));
+	        			break;
                 	}
                 }
             }
@@ -9270,7 +9296,8 @@ public class SiteAction extends PagedResourceActionII {
             }
             catch (Exception e)
             {
-            	
+            	// error getting site after tool modification
+            	M_log.warn(this + " - cannot get site " + site.getId() + " after inserting lti tools");
             }
 		} // if
 
@@ -10546,39 +10573,52 @@ public class SiteAction extends PagedResourceActionII {
 			state.setAttribute(STATE_TOOL_HOME_SELECTED, Boolean.valueOf(has_home));
 			state.setAttribute(STATE_TOOL_REGISTRATION_TITLE_LIST, toolTitles);
 		}
+		
+		// read in the input for external tool list
+		updateSelectedExternalToolList(state, params);
+		
+	} // updateSelectedToolList
 
+	/**
+	 * read in the input for external tool list
+	 * @param state
+	 * @param params
+	 */
+	private void updateSelectedExternalToolList(SessionState state,
+			ParameterParser params) {
 		// update the lti tool list
 		if (state.getAttribute(STATE_LTITOOL_SELECTED_LIST) != null)
 		{
+			Properties reqProps = params.getProperties();
+			// remember the reqProps may contain multiple lti inputs, so we need to differentiate those inputs and store one tool specific input into the map
 			HashMap<String, Map<String, Object>> ltiTools = (HashMap<String, Map<String, Object>>) state.getAttribute(STATE_LTITOOL_SELECTED_LIST);
 			for ( Map.Entry<String,Map<String, Object>> ltiToolEntry : ltiTools.entrySet())
 			{
 				String ltiToolId = ltiToolEntry.getKey();
 				Map<String, Object> ltiToolAttributes = ltiToolEntry.getValue();
-				// get the title input
-				String title = params.getString("ltiTools_title_" + ltiToolId) != null?StringUtils.trimToNull(params.getString("ltiTools_title_" + ltiToolId)):null;
-				if (title != null)
+				String[] contentToolModel=m_ltiService.getContentModel(Long.valueOf(ltiToolId));
+				Properties reqForCurrentTool = new Properties();
+				// the input page contains attributes prefixed with lti tool id, need to look for those attribute inut values
+				for (int k=0; k< contentToolModel.length;k++)
 				{
-					ltiToolAttributes.put("title", title);
+					// sample format of contentToolModel[k]: 
+					// title:text:label=bl_content_title:required=true:maxlength=255
+					String contentToolModelAttribute = contentToolModel[k].substring(0, contentToolModel[k].indexOf(":"));
+					String k_contentToolModelAttribute = ltiToolId + "_" + contentToolModelAttribute;
+					if (reqProps.containsKey(k_contentToolModelAttribute))
+					{
+						reqForCurrentTool.put(contentToolModelAttribute, reqProps.get(k_contentToolModelAttribute));
+					}
 				}
-				// get the frame height input
-				String frameHeight = params.getString("ltiTools_frameHeight_" + ltiToolId) != null?StringUtils.trimToNull(params.getString("ltiTools_frameHeight_" + ltiToolId)):null;
-				if (frameHeight != null)
-				{
-					ltiToolAttributes.put("frameHeight", frameHeight);
-				}
-				// get the button text input
-				String button = params.getString("ltiTools_button_" + ltiToolId) != null?StringUtils.trimToNull(params.getString("ltiTools_button_" + ltiToolId)):null;
-				if (button != null)
-				{
-					ltiToolAttributes.put("button_text", button);
-				}
+				// add the tool id field
+				reqForCurrentTool.put(LTIService.LTI_TOOL_ID, ltiToolId);
+				ltiToolAttributes.put("reqProperties", reqForCurrentTool);
 				// update the lti tool list
 				ltiTools.put(ltiToolId, ltiToolAttributes);
 			}
 			state.setAttribute(STATE_LTITOOL_SELECTED_LIST, ltiTools);
 		}
-	} // updateSelectedToolList
+	}
 
 	/**
 	 * find the tool in the tool list and insert another tool instance to the list

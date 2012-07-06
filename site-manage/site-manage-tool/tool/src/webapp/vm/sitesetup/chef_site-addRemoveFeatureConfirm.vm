@@ -157,7 +157,7 @@
 			<p class="indnt3">
 					#set($ltiToolId=$ltiTool.getKey())
 					#set($ltiToolValues=$ltiTool.getValue())
-					$ltiToolValues.get("button_text")($ltiToolValues.get("title"))
+					$ltiToolValues.get("title")
 			</p>
 		#end
 	#end
