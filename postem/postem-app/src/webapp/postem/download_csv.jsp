@@ -1,5 +1,6 @@
 <%@ page contentType="application/vnd.ms-excel; charset=UTF-8"
 %><%@ page import="org.sakaiproject.tool.postem.PostemTool"
+%><%@ page import="org.sakaiproject.util.Web"
 %><%@ page import="javax.faces.context.FacesContext"
 %><%@ page import="javax.faces.component.UIViewRoot" %><%
 	PostemTool tool = (PostemTool) session.getAttribute("PostemTool");
@@ -11,8 +12,8 @@
 	  titleName = titleName.replaceAll(invalidChars[i], "");
   }
    
-	response.setHeader("Content-disposition", "attachment; filename=postem_" +
-		titleName + ".csv");
+	response.setHeader("Content-disposition", "attachment; filename=" +
+		Web.encodeFileName(request, "postem_" + titleName + ".csv"));
 	
 	response.setHeader ("Pragma", "public");
 	response.setHeader("Cache-control", "must-revalidate");
