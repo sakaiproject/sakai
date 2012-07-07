@@ -26,6 +26,8 @@ import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.regex.Pattern;
+import java.util.regex.Matcher;
 import javax.faces.application.FacesMessage;
 import javax.faces.context.FacesContext;
 import javax.faces.event.AbortProcessingException;
@@ -467,7 +469,8 @@ public class CalculatedQuestionExtractListener implements ActionListener{
      * som other parse error
      */
     private boolean isNegativeSqrt(String expression, GradingService service) throws SamigoExpressionError {
-        final String SQRT = "sqrt(";
+        Pattern sqrt = Pattern.compile("sqrt\\s*\\(");
+
         boolean isNegative = false;
         if (expression == null) {
             expression = "";
@@ -476,15 +479,27 @@ public class CalculatedQuestionExtractListener implements ActionListener{
             service = new GradingService();
         }
         expression = expression.toLowerCase();
-        int startIndex = expression.indexOf(SQRT);
-        if (startIndex > -1) {
-            int endIndex = expression.indexOf(')', startIndex);
-            String sqrtExpression = expression.substring(startIndex, endIndex + 1);
-            SamigoExpressionParser parser = new SamigoExpressionParser();
-            String numericAnswerString = parser.parse(sqrtExpression);
-            if (!service.isAnswerValid(numericAnswerString)) {
-                isNegative = true;
-            }            
+        Matcher matcher = sqrt.matcher(expression);
+        while (matcher.find()) {
+            int x = matcher.end();
+            int p = 1;  //Parentheses left to match
+            int len = expression.length();
+            while (p > 0 && x < len) {
+                if (expression.charAt(x) == ')') {
+                    --p;
+                } else if (expression.charAt(x) == '(') {
+                    ++p;
+                }
+                ++x;
+            }
+            if (p == 0) {
+                String sqrtExpression = expression.substring(matcher.start(), x);
+                SamigoExpressionParser parser = new SamigoExpressionParser();
+                String numericAnswerString = parser.parse(sqrtExpression);
+                if (!service.isAnswerValid(numericAnswerString)) {
+                    isNegative = true;
+                }            
+            }
         }
         return isNegative;
     }
