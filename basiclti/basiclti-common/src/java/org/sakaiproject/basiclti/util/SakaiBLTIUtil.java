@@ -280,6 +280,7 @@ public class SakaiBLTIUtil {
 			if ( "on".equals(releaseemail) ) {
 				setProperty(props,BasicLTIConstants.LIS_PERSON_CONTACT_EMAIL_PRIMARY,user.getEmail());
 				setProperty(props,BasicLTIConstants.LIS_PERSON_SOURCEDID,user.getEid());
+				setProperty(props,"ext_sakai_eid",user.getEid());
 			}
 
 			String assignment = null;
