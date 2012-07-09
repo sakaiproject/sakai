@@ -295,6 +295,7 @@ table.messageActions td{
 }
 /*PART $ MESSAGE TYPES */
 .messageAlert{
+    list-style: none;
 	background: #FFEEEE url(../images/exclamation.gif) 5px 5px no-repeat;
 	border: 1px solid #FF5555;
 	color: #FF5555;
