@@ -270,7 +270,7 @@ public class EventWorksheet implements MeetingTypes, SignupBeanConstants {
 							cell.setCellValue(attendee ==null? "--" :attendee.getDisplayName());
 
 							cell = row.getCell(cellNum++);
-							cell.setCellValue(attendee ==null? "--" : attendee.getEid());
+							cell.setCellValue(attendee ==null? "--" : attendee.getDisplayId());
 
 							cell = row.getCell(cellNum++);
 							cell.setCellValue(attendee ==null? "--" : attendee.getEmail());
@@ -700,17 +700,17 @@ public class EventWorksheet implements MeetingTypes, SignupBeanConstants {
 				// attendee userids
 				// without completely reformatting the way the table is constructed, this gives the userids in a separate column
 				cell = row.getCell(6);
-				String aEids = rb.getString("event_show_no_attendee_info");
+				String aIds = rb.getString("event_show_no_attendee_info");
 				if (isDisplayNames(wrapper.getMeeting())) {
 					if (attendees != null && attendees.size() > rowHighNum) {
 						rowHighNum = attendees.size();
 					}
-					aEids = getEids(attendees);
+					aIds = getIds(attendees);
 				}
 				if (tsItem.isCanceled() && isOrganizer(wrapper.getMeeting())) {
-					aEids = rb.getString("event_is_canceled");
+					aIds = rb.getString("event_is_canceled");
 				}
-				cell.setCellValue(aEids);
+				cell.setCellValue(aIds);
 				cell.setCellStyle(styles.get("attendee_layout"));
 
 				// waiters
@@ -881,13 +881,13 @@ public class EventWorksheet implements MeetingTypes, SignupBeanConstants {
 		return sb.length() > 1 ? sb.substring(0, sb.length() - 1) : "";
 	}
 	
-	private String getEids(List<SignupAttendee> attendees) {
+	private String getIds(List<SignupAttendee> attendees) {
 		if (attendees == null)
 			return "";
 
 		StringBuffer sb = new StringBuffer();
 		for (SignupAttendee att : attendees) {
-			sb.append(sakaiFacade.getUser(att.getAttendeeUserId()).getEid());
+			sb.append(sakaiFacade.getUser(att.getAttendeeUserId()).getDisplayId());
 			sb.append("\n");
 		}
 		/* remove the last'\n' one */
