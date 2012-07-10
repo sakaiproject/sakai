@@ -240,9 +240,12 @@ public class ETSUserNotificationProviderImpl implements UserNotificationProvider
 			String replyTo = requestEmail;
 			User currentUser = userDirectoryService.getCurrentUser();
 			String currentUserDisplayName = currentUser!=null?currentUser.getDisplayName():"";
+			String currentUserDisplayId = currentUser!=null?currentUser.getDisplayId():"";
+			
 			
 			Map<String, String> replacementValues = new HashMap<String, String>();
 			replacementValues.put("currentUserDisplayName", currentUserDisplayName);
+			replacementValues.put("currentUserDisplayId", currentUserDisplayId);
 			replacementValues.put("termTitle", termTitle);
 			replacementValues.put("requestSectionInfo", requestSectionInfo);
 			replacementValues.put("siteTitle", siteTitle);
@@ -280,6 +283,7 @@ public class ETSUserNotificationProviderImpl implements UserNotificationProvider
 		
 		Map<String, String> replacementValues = new HashMap<String, String>();
 		replacementValues.put("currentUserDisplayName", currentUserDisplayName);
+		replacementValues.put("currentUserDisplayId", currentUserDisplayId);
 		replacementValues.put("termTitle", termTitle);
 		replacementValues.put("requestSectionInfo", requestSectionInfo);
 		replacementValues.put("requestListSize", String.valueOf(requestListSize));
