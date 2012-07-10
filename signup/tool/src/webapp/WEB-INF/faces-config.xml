@@ -344,6 +344,28 @@
 		</managed-property>
     </managed-bean>
     
+    <managed-bean>
+        <managed-bean-name>DownloadICSBean</managed-bean-name>
+        <managed-bean-class>org.sakaiproject.signup.tool.downloadEvents.DownloadICSBean</managed-bean-class>
+        <managed-bean-scope>session</managed-bean-scope>
+		<managed-property>
+			<property-name>signupMeetingService</property-name>
+			<value>#{org_sakaiproject_signup_logic_SignupMeetingService}</value>
+		</managed-property>
+		<managed-property>
+			<property-name>sakaiFacade</property-name>
+			<value>#{org_sakaiproject_signup_logic_SakaiFacade}</value>
+		</managed-property>
+		<managed-property>
+			<property-name>attendeeSignupMBean</property-name>
+			<value>#{AttendeeSignupMBean}</value>
+		</managed-property>
+		<managed-property>
+			<property-name>organizerSignupMBean</property-name>
+			<value>#{OrganizerSignupMBean}</value>
+		</managed-property>
+    </managed-bean>
+    
 	<validator>
     	<validator-id>Signup.EmptyStringValidator</validator-id>
     	<validator-class>org.sakaiproject.signup.tool.jsf.validator.EmptyStringValidator</validator-class>

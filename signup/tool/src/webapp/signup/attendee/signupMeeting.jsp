@@ -302,10 +302,16 @@
 						<f:facet name="header">
 							<h:outputText value="#{msgs.tab_event_your_status}" escape="false"/>
 						</f:facet>
-						<h:outputText value="#{msgs.event_sign_up}"
-							title="#{msgs.event_tool_tip_you_signed_up}"
-							rendered="#{timeSlotWrapper.currentUserSignedUp}"
-							styleClass="attendee_status" />
+						<h:panelGroup rendered="#{timeSlotWrapper.currentUserSignedUp}">
+							<h:outputText value="#{msgs.event_sign_up}"
+								title="#{msgs.event_tool_tip_you_signed_up}"
+								styleClass="attendee_status" />
+							<h:commandLink id="tsICS" action="#{DownloadICSBean.downloadICSForTimeslot}">
+								<h:graphicImage value="/images/calendar_link.png" alt="#{msgs.label_ics}" title="#{msgs.label_download_ics_timeslot}" style="margin-left: 5px;" />
+							</h:commandLink>
+							
+							
+						</h:panelGroup>
 						<h:outputText value="#{msgs.event_on_waiting_list}"
 							title="#{msgs.event_tool_tip_you_ranking_num} #{timeSlotWrapper.rankingOnWaiting}"
 							rendered="#{timeSlotWrapper.currentUserOnWaitingList}"
