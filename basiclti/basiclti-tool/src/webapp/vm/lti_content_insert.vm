@@ -18,10 +18,10 @@
       <option value="--none--">$tlang.getString("content.select.one")</option>
 	#foreach ($tool in $tools)
 		#set( $selected = "" )
-		#if ( $tool_id && $tool_id == $tool.get("id") ) 
-			#set( $selected = ' selected="yes"' )
+		#if ( $tool_id && $tool_id.toString().equals($tool.get("id").toString())) 
+			#set( $selected = "selected" )
 		#end
-               <option value="$tool.get("id")" $selected >$tool.get("title")</option>
+               <option value="$tool.get("id")" $selected > $tool.get("title")</option>
 	#end
    </select>
 </p>

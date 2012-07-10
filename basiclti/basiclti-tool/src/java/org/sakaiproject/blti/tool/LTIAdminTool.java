@@ -771,6 +771,9 @@ public class LTIAdminTool extends VelocityPortletPaneledAction
 
 		String toolId = data.getParameters().getString(LTIService.LTI_TOOL_ID);
 		if ( toolId == null ) toolId = stateToolId;
+		// output the tool id value to context
+		context.put("tool_id", toolId);
+		
 		Long key = null;
 		if ( toolId != null ) key = new Long(toolId);
 		Map<String,Object> tool = null;
@@ -815,15 +818,6 @@ public class LTIAdminTool extends VelocityPortletPaneledAction
 			}
 		}
 
-		// We will handle the tool_id field ourselves in the Velocity code
-		String [] contentForm = foorm.filterForm(null,ltiService.getContentModel(key), null, "^tool_id:.*");
-		if ( contentForm == null || key == null ) {
-			addAlert(state,rb.getString("error.tool.not.found"));
-			return "lti_error";
-		}
-		String formInput = ltiService.formInput(previousData, contentForm);
-
-		context.put("formInput",formInput);
 		context.put(LTIService.LTI_TOOL_ID,key);
 		if ( tool != null ) {
 			context.put("tool_description", tool.get(LTIService.LTI_DESCRIPTION));
