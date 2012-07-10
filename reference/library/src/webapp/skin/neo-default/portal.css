@@ -575,7 +575,7 @@ ul#otherSiteList li, ul.otherSitesCategorList li {
     -moz-border-radius: 5px;
     -webkit-border-radius: 5px;
     overflow: hidden;
-    margin: 0 6px 0 0; /*Note: check uncategorized */
+    margin: 6px 6px 0 0;
     line-height: 1.1em;
     width: 18em;
     float: left;
