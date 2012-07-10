@@ -25,11 +25,13 @@
 package org.sakaiproject.lessonbuildertool.tool.producers;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
 
 import org.sakaiproject.component.cover.ServerConfigurationService;
 import org.sakaiproject.content.api.ContentHostingService;
 import org.sakaiproject.content.api.FilePickerHelper;
+import org.sakaiproject.lessonbuildertool.SimplePage;
 import org.sakaiproject.lessonbuildertool.tool.beans.SimplePageBean;
 import org.sakaiproject.lessonbuildertool.tool.view.FilePickerViewParameters;
 import org.sakaiproject.tool.api.SessionManager;
@@ -78,6 +80,10 @@ public class PermissionsHelperProducer implements ViewComponentProducer, ViewPar
 
 	// helper tool
 	public static final String HELPER = "sakai.permissions.helper";
+
+	private static final String[] PERMISSIONS = new String[] {
+			SimplePage.PERMISSION_LESSONBUILDER_UPDATE,
+			SimplePage.PERMISSION_LESSONBUILDER_READ };
 
 	private SessionManager sessionManager;
 
@@ -128,6 +134,13 @@ public class PermissionsHelperProducer implements ViewComponentProducer, ViewPar
 		session.setAttribute(PermissionsHelper.TARGET_REF, site.getReference());
 		session.setAttribute(PermissionsHelper.DESCRIPTION, messageLocator.getMessage("simplepage.editpermissions") + " " +  site.getTitle());
 		session.setAttribute(PermissionsHelper.PREFIX, "lessonbuilder.");
+
+		HashMap<String, String> pRbValues = new HashMap<String, String>();
+		for (String perm : PERMISSIONS) {
+			String descr = messageLocator.getMessage("desc-" + perm);
+			pRbValues.put("desc-" + perm, descr);
+		}
+		session.setAttribute("permissionDescriptions", pRbValues);
 
 		UIOutput.make(tofill, HelperViewParameters.HELPER_ID, HELPER);
 		UICommand.make(tofill, HelperViewParameters.POST_HELPER_BINDING, "", null);
