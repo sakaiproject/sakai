@@ -755,5 +755,13 @@ abstract public class SignupUIBaseBean implements SignupBeanConstants, SignupMes
 		fc.responseComplete();
 		
 	}
+	
+	/**
+	 * Is ICS calendar generation enabled in the external calendaring service?
+	 * @return	true/false
+	 */
+	public boolean isIcsEnabled() {
+		return calendarHelper.isIcsEnabled();
+	}
 
 }

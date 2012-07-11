@@ -69,6 +69,11 @@ public interface SignupCalendarHelper {
 	 */
 	public VEvent addAttendeesToVEvent(VEvent vevent, List<User> users);
 	
+	/**
+	 * Is ICS calendar generation enabled in the external calendaring service?
+	 * @return	true/false
+	 */
+	public boolean isIcsEnabled();
 
 	
 }

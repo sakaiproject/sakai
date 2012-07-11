@@ -104,9 +104,9 @@
 							</h:panelGroup>	
 							
 							<!-- iCalendar link, only rendered for attendees if it is a 'no signup required/announcement' meeting -->
-							<h:outputText value="#{msgs.event_icalendar_link}" styleClass="titleText" escape="false" rendered="#{AttendeeSignupMBean.meetingWrapper.meeting.meetingType =='announcement'}"/>
-							<h:commandLink id="mICS" action="#{AttendeeSignupMBean.downloadICSForMeeting}" rendered="#{AttendeeSignupMBean.meetingWrapper.meeting.meetingType =='announcement'}">
-								<h:graphicImage value="/images/ical.png" alt="#{msgs.label_ics}" title="#{msgs.label_download_ics_meeting}" style="margin-right: 5px;" />
+							<h:outputText value="#{msgs.event_icalendar_link}" styleClass="titleText" escape="false" rendered="#{AttendeeSignupMBean.icsEnabled && AttendeeSignupMBean.meetingWrapper.meeting.meetingType =='announcement'}"/>
+							<h:commandLink id="mICS" action="#{AttendeeSignupMBean.downloadICSForMeeting}" rendered="#{AttendeeSignupMBean.icsEnabled && AttendeeSignupMBean.meetingWrapper.meeting.meetingType =='announcement'}">
+								<h:graphicImage value="/images/calendar_add.png" alt="#{msgs.label_ics}" title="#{msgs.label_download_ics_meeting}" style="margin-right: 5px;" />
 								<h:outputText value="#{msgs.event_icalendar_label}"/>
 							</h:commandLink>
 		
@@ -313,8 +313,8 @@
 							<h:outputText value="#{msgs.event_sign_up}"
 								title="#{msgs.event_tool_tip_you_signed_up}"
 								styleClass="attendee_status" />
-							<h:commandLink id="tsICS" action="#{AttendeeSignupMBean.downloadICSForTimeslot}">
-								<h:graphicImage value="/images/ical.png" alt="#{msgs.label_ics}" title="#{msgs.label_download_ics_timeslot}" style="margin-left: 5px;" />
+							<h:commandLink id="tsICS" action="#{AttendeeSignupMBean.downloadICSForTimeslot}" rendered="#{AttendeeSignupMBean.icsEnabled}">
+								<h:graphicImage value="/images/calendar_add.png" alt="#{msgs.label_ics}" title="#{msgs.label_download_ics_timeslot}" style="margin-left: 5px;" />
 							</h:commandLink>
 						</h:panelGroup>
 						<h:outputText value="#{msgs.event_on_waiting_list}"

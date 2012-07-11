@@ -150,6 +150,11 @@ public class SignupCalendarHelperImpl implements SignupCalendarHelper {
 		return externalCalendaringService.addAttendeesToEvent(vevent, users);
 	}
 	
+	@Override
+	public boolean isIcsEnabled() {
+		return externalCalendaringService.isIcsEnabled();
+	}
+	
 	/**
 	 * Helper to generate a calendar event from some pieces of data
 	 * @param siteId
