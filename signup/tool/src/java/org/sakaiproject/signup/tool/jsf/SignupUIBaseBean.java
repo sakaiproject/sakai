@@ -22,18 +22,31 @@
  **********************************************************************************/
 package org.sakaiproject.signup.tool.jsf;
 
+import java.io.File;
+import java.io.IOException;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.Date;
 import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Set;
 
+import javax.faces.context.FacesContext;
+import javax.servlet.ServletOutputStream;
+import javax.servlet.http.HttpServletResponse;
+
+import lombok.Getter;
+import lombok.Setter;
+
+import org.apache.commons.io.FileUtils;
+import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang.StringUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.impl.LogFactoryImpl;
 import org.sakaiproject.signup.logic.SakaiFacade;
+import org.sakaiproject.signup.logic.SignupCalendarHelper;
 import org.sakaiproject.signup.logic.SignupMeetingService;
 import org.sakaiproject.signup.logic.SignupMessageTypes;
 import org.sakaiproject.signup.logic.SignupUserActionException;
@@ -59,6 +72,9 @@ abstract public class SignupUIBaseBean implements SignupBeanConstants, SignupMes
 	protected SakaiFacade sakaiFacade;
 
 	protected SignupMeetingService signupMeetingService;
+	
+	@Getter @Setter
+	protected SignupCalendarHelper calendarHelper;
 	
 	private AttachmentHandler attachmentHandler;
 
@@ -88,6 +104,8 @@ abstract public class SignupUIBaseBean implements SignupBeanConstants, SignupMes
 	private int maxSlots; 
 
 	private int maxAttendeesPerSlot;
+	
+	protected static final String ICS_MIME_TYPE="text/calendar";
 
 
 	/**
@@ -682,6 +700,60 @@ abstract public class SignupUIBaseBean implements SignupBeanConstants, SignupMes
 		
 		//trim off last , and return
 		return StringUtils.removeEnd(sb.toString(), ",");
+	}
+	
+	/**
+	 * Generate and send for download an ICS file for the meeting. Contains no timeslots, just the meeting itself.
+	 * This method is in this particular bean because 1. We have access to the meeting here, and 2. it is used in more than one sub-bean.
+	 */
+	public void downloadICSForMeeting() {
+			
+		String filePath = calendarHelper.createCalendarFile(Collections.singletonList(calendarHelper.generateVEventForMeeting(meetingWrapper.getMeeting())));;
+		
+		if(StringUtils.isNotBlank(filePath)) {
+			logger.debug("filepath: " + filePath);
+			sendDownload(filePath, ICS_MIME_TYPE);
+		} else {
+			logger.error("Could not generate file for download");
+			//TODO this could set an error and return perhaps.
+		}
+		
+	}
+	
+	/**
+	 * Send a file for download. 
+	 * 
+	 * @param filePath
+	 * 
+	 */
+	protected void sendDownload(String filePath, String mimeType) {
+
+		FacesContext fc = FacesContext.getCurrentInstance();
+		ServletOutputStream out = null;
+		
+		String filename = StringUtils.substringAfterLast(filePath, File.separator);
+		
+		try {
+			HttpServletResponse response = (HttpServletResponse) fc.getExternalContext().getResponse();
+			
+			response.reset();
+			response.setHeader("Pragma", "public");
+			response.setHeader("Cache-Control","public, must-revalidate, post-check=0, pre-check=0, max-age=0"); 
+			response.setContentType(mimeType);
+			response.setHeader("Content-disposition", "attachment; filename=" + filename);
+			
+			out = response.getOutputStream();
+
+			IOUtils.copy(FileUtils.openInputStream(new File(filePath)), out);
+
+			out.flush();
+		} catch (IOException ex) {
+			logger.warn("Error generating file for download:" + ex.getMessage());
+		} finally {
+			IOUtils.closeQuietly(out);
+		}
+		fc.responseComplete();
+		
 	}
 
 }

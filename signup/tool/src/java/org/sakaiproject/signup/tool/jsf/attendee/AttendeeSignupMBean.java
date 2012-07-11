@@ -22,10 +22,17 @@
  **********************************************************************************/
 package org.sakaiproject.signup.tool.jsf.attendee;
 
+import java.util.Collections;
+
 import javax.faces.component.UIData;
 import javax.faces.context.FacesContext;
 import javax.servlet.http.HttpServletRequest;
 
+import lombok.Getter;
+import lombok.Setter;
+
+import org.apache.commons.lang.StringUtils;
+import org.sakaiproject.signup.logic.SignupCalendarHelper;
 import org.sakaiproject.signup.logic.SignupUserActionException;
 import org.sakaiproject.signup.model.SignupAttendee;
 import org.sakaiproject.signup.model.SignupMeeting;
@@ -299,6 +306,24 @@ public class AttendeeSignupMBean extends SignupUIBaseBean {
 	
 	public String getCurUserDisplayName(){
 		return getSakaiFacade().getUserDisplayName(currentUserId());
+	}
+	
+	/**
+	 * Generate and send for download an ICS file for the timeslot
+	 */
+	public void downloadICSForTimeslot() {
+		TimeslotWrapper timeslotWrapper = (TimeslotWrapper) timeslotWrapperTable.getRowData();
+		
+		String filePath = calendarHelper.createCalendarFile(Collections.singletonList(calendarHelper.generateVEventForTimeslot(meetingWrapper.getMeeting(), timeslotWrapper.getTimeSlot())));;
+
+		if(StringUtils.isNotBlank(filePath)) {
+			logger.debug("filepath: " + filePath);
+			sendDownload(filePath, ICS_MIME_TYPE);
+		} else {
+			logger.error("Could not generate file for download");
+			//TODO this could set an error and return perhaps.
+		}
+		
 	}
 
 }

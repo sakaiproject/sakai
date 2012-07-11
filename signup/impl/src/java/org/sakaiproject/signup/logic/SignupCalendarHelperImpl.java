@@ -1,12 +1,17 @@
 package org.sakaiproject.signup.logic;
 
 import java.util.Date;
+import java.util.List;
 
 import lombok.Setter;
 import lombok.extern.apachecommons.CommonsLog;
 
+import net.fortuna.ical4j.model.component.VEvent;
+
+import org.sakaiproject.authz.api.SecurityAdvisor;
 import org.sakaiproject.calendar.api.Calendar;
 import org.sakaiproject.calendar.api.CalendarEventEdit;
+import org.sakaiproject.calendaring.api.ExternalCalendaringService;
 import org.sakaiproject.exception.IdUnusedException;
 import org.sakaiproject.exception.PermissionException;
 import org.sakaiproject.signup.model.SignupMeeting;
@@ -15,6 +20,7 @@ import org.sakaiproject.signup.util.PlainTextFormat;
 import org.sakaiproject.time.api.Time;
 import org.sakaiproject.time.api.TimeRange;
 import org.sakaiproject.time.api.TimeService;
+import org.sakaiproject.user.api.User;
 
 /**
  * Impl of SignupCalendarHelper
@@ -56,6 +62,93 @@ public class SignupCalendarHelperImpl implements SignupCalendarHelper {
 		return generateEvent(siteId,start,end,title,description,location);
 	}
 	
+	@Override
+	public VEvent generateVEventForTimeslot(SignupMeeting meeting, SignupTimeslot ts) {
+		
+		if(meeting == null) {
+			log.error("Meeting was null. Cannot generate VEvent.");
+			return null;
+		}
+		if(ts == null) {
+			log.error("Timeslot was null. Cannot generate VEvent.");
+			return null;
+		}
+		
+		VEvent v = ts.getVevent();
+		
+		if(v == null) {
+			SecurityAdvisor advisor = sakaiFacade.pushSecurityAdvisor();
+			try {
+				
+				CalendarEventEdit tsEvent = generateEvent(meeting, ts);
+				if(tsEvent == null) {
+					//calendar may not be in site - this will be skipped
+					return null;
+				}
+				tsEvent.setField("vevent_uuid", ts.getUuid());
+					
+				//generate VEvent for timeslot
+				v = externalCalendaringService.createEvent(tsEvent);
+				
+			} finally {
+				sakaiFacade.popSecurityAdvisor(advisor);
+			}
+		}
+		
+		return v;
+	}
+	
+	@Override
+	public VEvent generateVEventForMeeting(SignupMeeting meeting) {
+		
+		if(meeting == null) {
+			log.error("Meeting was null. Cannot generate VEvent.");
+			return null;
+		}
+		
+		VEvent v = meeting.getVevent();
+		
+		if(v == null) {
+			SecurityAdvisor advisor = sakaiFacade.pushSecurityAdvisor();
+			try {
+				
+				CalendarEventEdit mEvent = generateEvent(meeting);
+				if(mEvent == null) {
+					//calendar may not be in site - this will be skipped
+					return null;
+				}
+				mEvent.setField("vevent_uuid", meeting.getUuid());
+					
+				//generate VEvent for timeslot
+				v = externalCalendaringService.createEvent(mEvent);
+				
+			} finally {
+				sakaiFacade.popSecurityAdvisor(advisor);
+			}
+		}
+		
+		return v;
+		
+	}
+	
+	@Override
+	public String createCalendarFile(List<VEvent> vevents) {
+		//create calendar
+		net.fortuna.ical4j.model.Calendar cal = externalCalendaringService.createCalendar(vevents);
+				
+		//get path to file
+		return externalCalendaringService.toFile(cal);
+	}
+
+	@Override
+	public VEvent cancelVEvent(VEvent vevent) {
+		return externalCalendaringService.cancelEvent(vevent);
+	}
+	
+	@Override
+	public VEvent addAttendeesToVEvent(VEvent vevent, List<User> users) {
+		return externalCalendaringService.addAttendeesToEvent(vevent, users);
+	}
 	
 	/**
 	 * Helper to generate a calendar event from some pieces of data
@@ -105,5 +198,8 @@ public class SignupCalendarHelperImpl implements SignupCalendarHelper {
 	
 	@Setter
 	private SakaiFacade sakaiFacade;
+	
+	@Setter
+	private ExternalCalendaringService externalCalendaringService;
 
 }

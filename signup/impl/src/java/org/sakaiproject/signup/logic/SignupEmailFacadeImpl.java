@@ -42,7 +42,6 @@ import org.apache.commons.logging.impl.LogFactoryImpl;
 import org.apache.commons.validator.EmailValidator;
 import org.sakaiproject.authz.api.SecurityAdvisor;
 import org.sakaiproject.calendar.api.CalendarEventEdit;
-import org.sakaiproject.calendaring.api.ExternalCalendaringService;
 import org.sakaiproject.email.api.AddressValidationException;
 import org.sakaiproject.email.api.Attachment;
 import org.sakaiproject.email.api.EmailAddress;
@@ -92,9 +91,6 @@ public class SignupEmailFacadeImpl implements SignupEmailFacade {
 	@Setter
 	private SignupCalendarHelper calendarHelper;
 	
-	@Setter
-	private ExternalCalendaringService externalCalendaringService;
-
 	private Log logger = LogFactoryImpl.getLog(getClass());
 	
 	
@@ -671,7 +667,7 @@ public class SignupEmailFacadeImpl implements SignupEmailFacade {
 				
 				//cancel, if required
 				if(cancel) {
-					v = externalCalendaringService.cancelEvent(v);
+					v = calendarHelper.cancelVEvent(v);
 				}
 				
 				if(logger.isDebugEnabled()){
@@ -695,7 +691,7 @@ public class SignupEmailFacadeImpl implements SignupEmailFacade {
 						if(v != null) {
 							//cancel, if required
 							if(cancel) {
-								v = externalCalendaringService.cancelEvent(v);
+								v = calendarHelper.cancelVEvent(v);
 							}
 						
 							vevents.add(v);
@@ -744,7 +740,7 @@ public class SignupEmailFacadeImpl implements SignupEmailFacade {
 				VEvent v = ts.getVevent();
 				if(v != null){
 					//set it to be cancelled, add to list
-					vevents.add(externalCalendaringService.cancelEvent(v));
+					vevents.add(calendarHelper.cancelVEvent(v));
 				}
 			}
 			
@@ -782,7 +778,7 @@ public class SignupEmailFacadeImpl implements SignupEmailFacade {
 			}
 			
 			//add attendees to VEvent for overall meeting
-			VEvent vevent = externalCalendaringService.addAttendeesToEvent(v, users);
+			VEvent vevent = calendarHelper.addAttendeesToVEvent(v, users);
 			
 			//create calendar and final attachment
 			attachments.add(formatICSAttachment(Collections.singletonList(vevent)));
@@ -801,7 +797,7 @@ public class SignupEmailFacadeImpl implements SignupEmailFacade {
 				VEvent v = ts.getVevent();
 				if(v != null){
 					//set it to be cancelled, add to list
-					vevents.add(externalCalendaringService.cancelEvent(v));
+					vevents.add(calendarHelper.cancelVEvent(v));
 				}
 			}
 			
@@ -840,7 +836,7 @@ public class SignupEmailFacadeImpl implements SignupEmailFacade {
 				
 				if(v != null){
 					//set it to be cancelled, add to list
-					vevents.add(externalCalendaringService.cancelEvent(v));
+					vevents.add(calendarHelper.cancelVEvent(v));
 				}
 			}
 			
@@ -881,62 +877,28 @@ public class SignupEmailFacadeImpl implements SignupEmailFacade {
 	 */
 	private SignupMeeting generateVEvents(SignupMeeting meeting) {
 		
-		//this needs to be privileged since a normal user can trigger this and wont have permissions
-		SecurityAdvisor advisor = sakaiFacade.pushSecurityAdvisor();
-		try {
-			//generate calendar event for the meeting
-			CalendarEventEdit mEvent = calendarHelper.generateEvent(meeting);
-			if(mEvent == null) {
-				//calendar may not be in site - this will be skipped
-				return meeting;
-			}
-			mEvent.setField("vevent_uuid", meeting.getUuid());
+		//generate VEvent for meeting, add to object
+		meeting.setVevent(calendarHelper.generateVEventForMeeting(meeting));
 			
-			//generate VEvent for meeting, add to object
-			meeting.setVevent(externalCalendaringService.createEvent(mEvent));
-			
-			//now one for each timeslot
-			for(SignupTimeslot ts: meeting.getSignupTimeSlots()){
-				CalendarEventEdit tsEvent = calendarHelper.generateEvent(meeting, ts);
-				tsEvent.setField("vevent_uuid", ts.getUuid());
+		//now one for each timeslot
+		for(SignupTimeslot ts: meeting.getSignupTimeSlots()){
 				
-				//generate VEvent for timeslot, add to object
-				ts.setVevent(externalCalendaringService.createEvent(tsEvent));
-			}
-		} finally {
-			sakaiFacade.popSecurityAdvisor(advisor);
+			//generate VEvent for timeslot, add to object
+			ts.setVevent(calendarHelper.generateVEventForTimeslot(meeting, ts));
 		}
 		
 		return meeting;
 	}
 	
 	/**
-	 * Under certain conditions (particular when attendee moved or swapped), the transient VEvents for timeslots are lost. 
-	 * So we check and create them again if necessary
+	 * Under certain conditions (particular when attendee moved or swapped), the transient VEvents for timeslots are lost, so create them again.
+	 * The calendarhelper checks first though.
 	 * @param meeting	overall SignupMeeting
 	 * @param ts		SignupTimeslot we need VEvent for
 	 * @return
 	 */
 	private VEvent ensureVEventForTimeslot(SignupMeeting meeting, SignupTimeslot ts) {
-		
-		VEvent v = ts.getVevent();
-		
-		if(v == null) {
-			SecurityAdvisor advisor = sakaiFacade.pushSecurityAdvisor();
-			try {
-				
-				CalendarEventEdit tsEvent = calendarHelper.generateEvent(meeting, ts);
-				tsEvent.setField("vevent_uuid", ts.getUuid());
-					
-				//generate VEvent for timeslot
-				v = externalCalendaringService.createEvent(tsEvent);
-				
-			} finally {
-				sakaiFacade.popSecurityAdvisor(advisor);
-			}
-		}
-		
-		return v;
+		return calendarHelper.generateVEventForTimeslot(meeting, ts);
 	}
 	
 	
@@ -946,12 +908,7 @@ public class SignupEmailFacadeImpl implements SignupEmailFacade {
 	 * @return
 	 */
 	private Attachment formatICSAttachment(List<VEvent> vevents) {
-		
-		//create calendar
-		net.fortuna.ical4j.model.Calendar cal = externalCalendaringService.createCalendar(vevents);
-		
-		//attachment
-		String path = externalCalendaringService.toFile(cal);
+		String path = calendarHelper.createCalendarFile(vevents);
 		return new Attachment(new File(path), StringUtils.substringAfterLast(path, File.separator));
 		
 	}

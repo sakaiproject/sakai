@@ -111,6 +111,13 @@
 									</h:panelGroup>
 								</h:panelGroup>		
 								
+								<!-- iCalendar link -->
+								<h:outputText value="#{msgs.event_icalendar_link}" styleClass="titleText" escape="false" />
+								<h:commandLink id="mICS" action="#{OrganizerSignupMBean.downloadICSForMeeting}">
+									<h:graphicImage value="/images/ical.png" alt="#{msgs.label_ics}" title="#{msgs.label_download_ics_meeting}" style="margin-right: 5px;" />
+									<h:outputText value="#{msgs.event_icalendar_label}"/>
+								</h:commandLink>
+								
 								<h:outputText value="#{msgs.event_signup_start}" styleClass="titleText" rendered="#{!OrganizerSignupMBean.announcementType}" escape="false"/>			
 								<h:panelGroup rendered="#{!OrganizerSignupMBean.announcementType}">
 									<h:outputText value="#{OrganizerSignupMBean.meetingWrapper.meeting.signupBegins}" styleClass="longtext">

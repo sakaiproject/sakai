@@ -149,6 +149,10 @@
 			<value>#{org_sakaiproject_signup_logic_SakaiFacade}</value>
 		</managed-property>
 		<managed-property>
+			<property-name>calendarHelper</property-name>
+			<value>#{org_sakaiproject_signup_logic_SignupCalendarHelper}</value>
+		</managed-property>
+		<managed-property>
 			<property-name>copyMeetingMBean</property-name>
 			<value>#{CopyMeetingSignupMBean}</value>
 		</managed-property>
@@ -230,6 +234,10 @@
 		<managed-property>
 			<property-name>sakaiFacade</property-name>
 			<value>#{org_sakaiproject_signup_logic_SakaiFacade}</value>
+		</managed-property>
+		<managed-property>
+			<property-name>calendarHelper</property-name>
+			<value>#{org_sakaiproject_signup_logic_SignupCalendarHelper}</value>
 		</managed-property>
 		<managed-property>
 			<property-name>attachmentHandler</property-name>
@@ -341,28 +349,6 @@
 		<managed-property>
 			<property-name>sakaiFacade</property-name>
 			<value>#{org_sakaiproject_signup_logic_SakaiFacade}</value>
-		</managed-property>
-    </managed-bean>
-    
-    <managed-bean>
-        <managed-bean-name>DownloadICSBean</managed-bean-name>
-        <managed-bean-class>org.sakaiproject.signup.tool.downloadEvents.DownloadICSBean</managed-bean-class>
-        <managed-bean-scope>session</managed-bean-scope>
-		<managed-property>
-			<property-name>signupMeetingService</property-name>
-			<value>#{org_sakaiproject_signup_logic_SignupMeetingService}</value>
-		</managed-property>
-		<managed-property>
-			<property-name>sakaiFacade</property-name>
-			<value>#{org_sakaiproject_signup_logic_SakaiFacade}</value>
-		</managed-property>
-		<managed-property>
-			<property-name>attendeeSignupMBean</property-name>
-			<value>#{AttendeeSignupMBean}</value>
-		</managed-property>
-		<managed-property>
-			<property-name>organizerSignupMBean</property-name>
-			<value>#{OrganizerSignupMBean}</value>
 		</managed-property>
     </managed-bean>
     
