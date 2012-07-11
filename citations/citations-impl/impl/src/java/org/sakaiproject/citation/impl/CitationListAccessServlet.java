@@ -52,6 +52,8 @@ import org.sakaiproject.entity.api.EntityPermissionException;
 import org.sakaiproject.entity.api.HttpAccess;
 import org.sakaiproject.entity.api.Reference;
 import org.sakaiproject.entity.api.ResourceProperties;
+import org.sakaiproject.event.api.Event;
+import org.sakaiproject.event.cover.EventTrackingService;
 import org.sakaiproject.exception.IdUnusedException;
 import org.sakaiproject.exception.PermissionException;
 import org.sakaiproject.exception.ServerOverloadException;
@@ -116,6 +118,10 @@ public class CitationListAccessServlet implements HttpAccess
 		{
 			throw new EntityNotDefinedException(ref.getReference());
 		}
+		
+		// SAK-22299. Build a pseudo content hosting event so that sitestats picks it up in its special resource area.
+		Event e = EventTrackingService.newEvent(ContentHostingService.EVENT_RESOURCE_READ, "/content" + ref.getId(), false);
+		EventTrackingService.post(e);
 
 	}	// handleAccess
 	
