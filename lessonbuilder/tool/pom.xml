@@ -16,6 +16,11 @@
     <description>This project creates a WAR containing the Lesson Builder Tool for Sakai.</description>
 
     <repositories>
+<!-- 
+  To enable YAFT, MNEME, and Assignments 2, uncomment the repository, dependencies and plugin below.
+  Look for all comment blocks that start with OPTIONAL. Remove that whole line, and the matching close
+ -->
+<!-- OPTIONAL
         <repository>
             <id>local-hack</id>
             <name>Backup API copies</name>
@@ -25,7 +30,7 @@
                 <enabled>true</enabled>
             </snapshots>
         </repository>
-
+-->
     </repositories>
 
     <dependencies>
@@ -167,15 +172,7 @@
 	  <artifactId>commons-fileupload</artifactId>
         </dependency>
 
-<!-- 
-  To enable YAFT, MNEME, and Assignments 2, uncomment the two dependencies and the plugin below.
-  It would be possible to enable just one of them. To do that remove or comment
-  out the one you don't want from opt-applicationContext.xml as well as well as
-  uncommenting just the one you want below.
-  NOTE: for recent versions of mneme, the groupid is org.etudes, not org.etudes.mneme
- -->
-
-<!--
+<!-- OPTIONAL
         <dependency>
             <groupId>org.sakaiproject.yaft</groupId>
             <artifactId>yaft-api</artifactId>
@@ -202,7 +199,7 @@
 
     <build>
 
-<!--
+<!-- OPTIONAL
       <plugins>
 	<plugin>
           <groupId>org.codehaus.mojo</groupId>
