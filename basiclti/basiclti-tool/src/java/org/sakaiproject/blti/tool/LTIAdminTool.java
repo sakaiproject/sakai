@@ -180,7 +180,7 @@ public class LTIAdminTool extends VelocityPortletPaneledAction
 			
 			Long tool_id_long = null;
 			try{
-				tool_id_long = new Long(((Integer) content.get("tool_id")).longValue());
+				tool_id_long = new Long(content.get("tool_id").toString());
 			}
 			catch (Exception e)
 			{
@@ -291,7 +291,7 @@ public class LTIAdminTool extends VelocityPortletPaneledAction
 			List<Map<String, Object>> contents) {
 		HashMap<String, List<String>> ltiToolsCount = new HashMap<String, List<String>> ();
 		for ( Map<String,Object> content : contents ) {
-			String ltiToolId = ((Integer) content.get(ltiService.LTI_TOOL_ID)).toString();
+			String ltiToolId = content.get(ltiService.LTI_TOOL_ID).toString();
 			String siteId = StringUtils.trimToNull((String) content.get(ltiService.LTI_SITE_ID));
 			if (siteId != null)
 			{
@@ -450,12 +450,12 @@ public class LTIAdminTool extends VelocityPortletPaneledAction
 				
 				Long tool_id_long = null;
 				try{
-					tool_id_long = new Long(((Integer) content.get("tool_id")).longValue());
+					tool_id_long = new Long(content.get("tool_id").toString());
 					if (tool_id_long.equals(key))
 					{
 						// the content with same tool id
 						// remove the content link first
-						String content_id = data.getParameters().getString(LTIService.LTI_ID);
+						String content_id = content.get(LTIService.LTI_ID).toString();
 						Long content_key = content_id == null ? null:new Long(content_id);
 						
 						//TODO: how to handle the errors in content link and content deletion?
@@ -818,6 +818,15 @@ public class LTIAdminTool extends VelocityPortletPaneledAction
 			}
 		}
 
+		// We will handle the tool_id field ourselves in the Velocity code	 
+        String [] contentForm = foorm.filterForm(null,ltiService.getContentModel(key), null, "^tool_id:.*");	 
+        if ( contentForm == null || key == null ) {	 
+                addAlert(state,rb.getString("error.tool.not.found"));	 
+                return "lti_error";	 
+        }	 
+        String formInput = ltiService.formInput(previousData, contentForm);	 
+
+        context.put("formInput",formInput);
 		context.put(LTIService.LTI_TOOL_ID,key);
 		if ( tool != null ) {
 			context.put("tool_description", tool.get(LTIService.LTI_DESCRIPTION));
@@ -1063,7 +1072,7 @@ public class LTIAdminTool extends VelocityPortletPaneledAction
 		}
 		Long tool_id_long = null;
 		try{
-			tool_id_long = new Long(((Integer) content.get("tool_id")).longValue());
+			tool_id_long = new Long(content.get("tool_id").toString());
 		}
 		catch (Exception e)
 		{
@@ -1098,14 +1107,14 @@ public class LTIAdminTool extends VelocityPortletPaneledAction
 			return;
 		}
 		Long key = new Long(id);
+		// also remove the link
 		if ( ltiService.deleteContent(key) )
 		{
 			state.setAttribute(STATE_SUCCESS,rb.getString("success.deleted"));
-			switchPanel(state, "Refresh");
 		} else {
 			addAlert(state,rb.getString("error.delete.fail"));
-			switchPanel(state, "Content");
 		}
+		switchPanel(state, "Refresh");
 	}
 
 	public String buildLinkAddPanelContext(VelocityPortlet portlet, Context context, 

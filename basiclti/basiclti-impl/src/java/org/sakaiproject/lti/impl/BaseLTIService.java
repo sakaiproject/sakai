@@ -842,14 +842,15 @@ public abstract class BaseLTIService implements LTIService {
 		}
 
 		String siteStr = (String) content.get(LTI_SITE_ID);
-		if ( ! siteId.equals(siteStr) ) {
+		// only admin can remve content from other site
+		if ( ! siteId.equals(siteStr) && !isAdmin() ) {
 			return rb.getString("error.placement.not.found");
 		}
 
 		try
 		{
 			Site site = siteService.getSite(siteId);
-			SitePage sitePage = site.getPage(tool.getPageId());
+			SitePage sitePage = tool.getContainingPage();
 			if (sitePage == null) {
 				return rb.getString("error.placement.not.found");
 			}
