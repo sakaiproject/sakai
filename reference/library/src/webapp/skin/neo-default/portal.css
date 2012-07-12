@@ -258,6 +258,9 @@ guests, for example */
 }
 #mastLogin ul.subnav li.submenuitem {
     margin: 0;
+    display: block;
+    height:100%;
+    overflow: hidden;
     text-align: left;
 }
 /* link items in above menu (some attr/vals are same as for site tool sub-menu, and submenus in othe rsites tray so both are doubled up here)*/
@@ -266,11 +269,10 @@ ul.nav-submenu li.submenuitem a, #mastLogin li.submenuitem a, #otherSiteTools li
     background-repeat: no-repeat !important;
     outline: none;
     text-decoration: none;
-    width: 170px;
+    width: 180px;
     padding-left: 25px;
     font-weight: normal;
     color: #111;
-    text-shadow: 0 1px 0 white;
     color: #444;
     padding: 7px 6px 6px 25px !important;
     font-size: 1em !important;
@@ -413,10 +415,10 @@ ul.topnav li ul.subnav li, #mastLogin ul.subnav li, .otherSiteTool {
 }
 /* treatment for focus and hover in the site and user sub-menus, as well as submenus in other sites */
 ul.topnav li ul.subnav li:hover, ul.topnav li ul.subnav li a:focus,
-    #mastLogin ul.subnav li:hover, #mastLogin ul.subnav li a:focus, #otherSiteTools li:hover {
+    #mastLogin li.submenuitem:hover, #mastLogin ul.subnav li.submenuitem a:focus, #otherSiteTools li:hover {
     text-decoration: none;
-    color: #009DCE;
-    background: #ccc;
+    color: #000;
+    background: #e1e1e1;
 }
 /* link to site */
 ul.topnav li a {
@@ -575,7 +577,7 @@ ul#otherSiteList li, ul.otherSitesCategorList li {
     -moz-border-radius: 5px;
     -webkit-border-radius: 5px;
     overflow: hidden;
-    margin: 6px 6px 0 0;
+    margin: 6px 6px 0 0;; /*Note: check uncategorized */
     line-height: 1.1em;
     width: 18em;
     float: left;

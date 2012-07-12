@@ -646,6 +646,9 @@ textarea:focus {
 
 /*some toolbars will have input buttons*/
 /*see: resources as instructor*/
+.navIntraToolLink {
+    color: #fff;
+}
 .navIntraToolLink input {
     padding: 0;
     border: none;
