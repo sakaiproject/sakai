@@ -460,7 +460,7 @@ AtDCore.prototype.removeWords = function(node, w) {
 	this.map(this.findSpans(node).reverse(), function(n) {
 		if (n && (parent.isMarkedNode(n) || parent.hasClass(n, 'mceItemHidden') || parent.isEmptySpan(n)) ) {
 			if (n.innerHTML == '&nbsp;') {
-				var nnode = document.createTextNode(' '); /* hax0r */
+        var nnode = parent.create(' '); /* hax0r */
 				parent.replaceWith(n, nnode);
 			}
 			else if (!w || n.innerHTML == w) {
