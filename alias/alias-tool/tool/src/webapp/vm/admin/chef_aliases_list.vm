@@ -32,7 +32,7 @@
 							#end
 							#if ($goPPButton == "true")
 								<form name="prevpageForm" class="inlineForm" method="post" action="#toolForm("$action")">
-									<input type="submit" name="eventSubmit_doList_prev" value="&lt;" title="$tlang.getString('alias.list.previous') $pagesize"  accesskey="p" />
+									<input type="submit" name="eventSubmit_doList_prev" value="&lt;" title="$tlang.getFormattedMessage('alias.list.previous.withsize', $pagesize)"  accesskey="p" />
 									<input type="hidden" name="sakai_csrf_token" value="$sakai_csrf_token" />
 								</form>
 							#else
@@ -60,7 +60,7 @@
 						#if ($pagesize != 0)
 							#if ($goNPButton == "true")
 								<form name="nextpageForm" class="inlineForm" method="post" action="#toolForm("$action")">
-									<input type="submit" name="eventSubmit_doList_next" value="&gt;" title="$tlang.getString('alias.list.next') $pagesize"  accesskey="n" />
+									<input type="submit" name="eventSubmit_doList_next" value="&gt;" title="$tlang.getFormattedMessage('alias.list.next.withsize', $pagesize)"  accesskey="n" />
 									<input type="hidden" name="sakai_csrf_token" value="$sakai_csrf_token" />
 								</form>
 							#else

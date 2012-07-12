@@ -10,20 +10,20 @@
 			<h3>
 				$tlang.getString("alias.alias")
 			</h3>	
-		#if ($alertMessage)<div class="alertMessage">$tlang.getString("alias.alert") $validator.escapeHtml($alertMessage)</div>#end
+		#if ($alertMessage)<div class="alertMessage">$tlang.getFormattedMessage("alias.alert.message", $validator.escapeHtml($alertMessage))</div>#end
 			<div class="instruction">
 				$tlang.getString("alias.edit.review")
 			</div>
 			<p class="shorttext required">
 				#if(!$alias)<span class="reqStar">*</span>#end 
 				<label #if(!$alias) for="id" #end>
-					$tlang.getString("alias.alias") ($tlang.getFormattedMessage("alias.chars", $max_alias_id_length)):
+					$tlang.getFormattedMessage("alias.alias.label", $max_alias_id_length)
 				</label>
 				#if(!$alias)<input type="text" name="id" id="id" maxlength="$max_alias_id_length" />#else$validator.escapeHtml($alias.Id)#end
 			</p>	
 			<p class="shorttext">
 				<label for="target">
-					$tlang.getString("alias.edit.target") ($tlang.getFormattedMessage("alias.target.chars", $max_alias_target_length)):
+					$tlang.getFormattedMessage("alias.edit.target.label", $max_alias_target_length)
 				</label>
 				<input type="text" name="target" id="target" #if($alias)value="$validator.escapeHtml($alias.Target)"#end maxlength="$max_alias_target_length" />
 			</p>	
