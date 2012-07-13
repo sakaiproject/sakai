@@ -351,10 +351,10 @@ public class ETSUserNotificationProviderImpl implements UserNotificationProvider
 		
 		ResourceLoader rb = new ResourceLoader("UserNotificationProvider");
 		
-		String from = requestEmail;
-		String to = currentUserEmail;
-		String headerTo = to;
-		String replyTo = to;
+		String from = currentUserEmail;
+		String to = requestEmail;
+		String headerTo = requestEmail;
+		String replyTo = currentUserEmail;
 		Map<String, String> replacementValues = new HashMap<String, String>();
 		replacementValues.put("currentUserDisplayName", currentUserDisplayName);
 		replacementValues.put("currentUserDisplayId", currentUserDisplayId);
