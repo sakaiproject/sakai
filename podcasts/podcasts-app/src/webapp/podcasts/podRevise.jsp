@@ -11,10 +11,9 @@
 <f:view>
     <link href="/library/skin/tool_base.css" type="text/css" rel="stylesheet" media="all" />
     <link href="/library/skin/default/tool.css" type="text/css" rel="stylesheet" media="all" />
-    <link href="./css/podcaster.css" type="text/css" rel="stylesheet" media="all" />
 
-    <script type="text/javascript" src="jsf/widget/datepicker/datepicker.js" language="JavaScript" ></script> 
-  <sakai:view>
+  <sakai:view toolCssHref="./css/podcaster.css">
+  <script type="text/javascript" src="jsf/widget/datepicker/datepicker.js" language="JavaScript" ></script> 
 
   <h:form id="podRev" enctype="multipart/form-data">
 
