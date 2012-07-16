@@ -412,7 +412,7 @@ public class DbContentService extends BaseContentService
                         + "  that data back it found some form of corruption, reported above.\n"
                         + "\n"
                         + " More information on database setup for sakai can be found at \n"
-                        + " http://bugs.sakaiproject.org/confluence/display/DOC/Install+Guide+-+DB+(2.4) \n"
+                        + " https://confluence.sakaiproject.org/display/I18N/Common+UTF-8+Problems \n"
                         + "\n"
                         + " Sakai Startup will continue but you might want to address this issue ASAP.\n");
             }
