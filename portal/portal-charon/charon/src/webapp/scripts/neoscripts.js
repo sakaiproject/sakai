@@ -314,46 +314,53 @@ function f_filterResults(n_win, n_docel, n_body){
 }
 
 /** Shows a drawer site tool dropdown **/
-function showToolMenu(e) {
+function showToolMenu(e){
     e.preventDefault();
     var jqObj = $(e.target);
-    $('#otherSiteTools').remove();
-    var subsubmenu = "<ul id=\"otherSiteTools\">";
-    var siteURL = '/direct/site/' + jqObj.attr('id') + '/pages.json';
-    scroll(0, 0)
-    var pos = jqObj.offset();
-    var maxToolsInt = parseInt($('#maxToolsInt').text());
-    var goToSite = '<li class=\"otherSiteTool\"><span><a class=\"icon-sakai-see-all-tools\" href=\"' + portal.portalPath + '/site/' +  jqObj.attr('id') + '\">' +$('#maxToolsAnchor').text() + '</a></span></li>';
-    jQuery.getJSON(siteURL, function(data){
-        $.each(data, function(i, item){
-            if (i <= maxToolsInt) {
-                if (item.tools.length === 1) {
-                    subsubmenu = subsubmenu + '<li class=\"otherSiteTool\"><span><a class=\"icon-' + item.tools[0].toolId.replace(/\./gi, '-') + '\" href=' + item.tools[0].url + ">" + item.tools[0].title + "</a></span></li>";
+    $('.toolMenus').removeClass('toolMenusActive')
+    if ($('.' + jqObj.attr('id')).length) {
+        $('#otherSiteTools').remove();
+    }
+    else {
+        $('#otherSiteTools').remove();
+        var subsubmenu = "<ul id=\"otherSiteTools\" class=\"" + jqObj.attr('id') + "\">";
+        var siteURL = '/direct/site/' + jqObj.attr('id') + '/pages.json';
+        scroll(0, 0)
+        var pos = jqObj.offset();
+        var maxToolsInt = parseInt($('#maxToolsInt').text());
+        var goToSite = '<li class=\"otherSiteTool\"><span><a class=\"icon-sakai-see-all-tools\" href=\"' + portal.portalPath + '/site/' + jqObj.attr('id') + '\">' + $('#maxToolsAnchor').text() + '</a></span></li>';
+        jQuery.getJSON(siteURL, function(data){
+            $.each(data, function(i, item){
+                if (i <= maxToolsInt) {
+                    if (item.tools.length === 1) {
+                        subsubmenu = subsubmenu + '<li class=\"otherSiteTool\"><span><a class=\"icon-' + item.tools[0].toolId.replace(/\./gi, '-') + '\" href=' + item.tools[0].url + ">" + item.tools[0].title + "</a></span></li>";
+                    }
                 }
+                
+            });
+            if ((data.length - 1) > maxToolsInt) {
+                subsubmenu = subsubmenu + goToSite
             }
-
-        });
-        if ((data.length - 1) >   maxToolsInt){
-            subsubmenu = subsubmenu + goToSite
-        }
-        subsubmenu = subsubmenu + "</ul>"
-        $('#portalOuterContainer').append(subsubmenu);
-        $('#otherSiteTools').css({
-            'top': pos.top,
-            'left': pos.left + 30
-        });
-        $('#otherSiteTools li a:first').focus();
-
-        // On up arrow or escape, hide the popup
-        $('#otherSiteTools').keydown(function(e) {
-            if (e.keyCode == 27) {
-                e.preventDefault();
-                jqObj.focus();
-                $(this).hide();
-            }
-        });
-        addArrowNavAndDisableTabNav($('#otherSiteTools'),jqObj);
-    }); // end json call
+            subsubmenu = subsubmenu + "</ul>"
+            $('#portalOuterContainer').append(subsubmenu);
+            $('#otherSiteTools').css({
+                'top': pos.top + 28,
+                'left': pos.left - 173
+            });
+            $('#otherSiteTools li a:first').focus();
+            jqObj.addClass("toolMenusActive");
+            // On up arrow or escape, hide the popup
+            $('#otherSiteTools').keydown(function(e){
+                if (e.keyCode == 27) {
+                    e.preventDefault();
+                    jqObj.focus();
+                    $(this).hide();
+                }
+            });
+            
+            addArrowNavAndDisableTabNav($('#otherSiteTools'), jqObj);
+        }); // end json call
+    }
 }
 
 jQuery(document).ready(function(){
