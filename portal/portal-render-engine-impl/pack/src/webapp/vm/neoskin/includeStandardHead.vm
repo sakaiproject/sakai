@@ -37,6 +37,9 @@
     <link href="/portal/styles/portalstyles-ie5.css" type="text/css" rel="stylesheet" media="all" />
 <![endif]><![endif]-->
 <link href="${pageSkinRepo}/${pageSkin}/portal.css" type="text/css" rel="stylesheet" media="all" />
+#if ( $neoChat && $loggedIn )
+<link href="${pageSkinRepo}/${pageSkin}/portalchat.css" type="text/css" rel="stylesheet" media="all" />
+#end
 
 
 #if (! $currentPlacement && $isPDA )
