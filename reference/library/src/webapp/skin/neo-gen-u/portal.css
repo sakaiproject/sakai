@@ -729,8 +729,14 @@ ul#otherSiteList li a span, ul.otherSitesCategorList li a span {
     border-left: thin solid #ccc;
 }
 .toolMenus:hover {
-    background-position: 10px -38px;
+    background: url(images/subnav_btn.png) no-repeat  10px -38px;
     cursor: pointer;
+}
+.toolMenusActive {
+    background: url(images/toolMenusActive.png)  no-repeat  10px -40px;
+}
+.toolMenusActive:hover {
+    background: url(images/toolMenusActive.png) no-repeat 10px -5px;
 }
 /* site hierarchy breadcrumb  */
 #siteHierarchy {
