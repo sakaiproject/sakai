@@ -154,16 +154,18 @@
             <!--// this will be an h:outputLabel "for" attr val should match the id of the next elem. -->
             <label for="exp-select">Export grades as</label>
             <!--// this will be a h:selectOneMenu -->
-            <!-- 
-            <h:selectOneMenu id="export_format" value="#{courseGradeDetailsBean.exportType}" disabled="#{not ForumTool.editMode}">
+            
+            <h:selectOneMenu id="export_format" value="#{courseGradeDetailsBean.exportType}">
 			   	    <f:selectItems value="#{courseGradeDetailsBean.exportFormats}" />
-			      </h:selectOneMenu>
-			      -->
+			</h:selectOneMenu>
+			<!--
+			value="#{courseGradeDetailsBean.exportType}"
             <select id="exp-select">
                 <option>PDF</option>
                 <option>CSV</option>
                 <option>Excel</option>
             </select>
+            -->
             <!--// a  h:commandButton 
             <input type="button" value="Download"/>
             -->
@@ -178,7 +180,7 @@
             <!--// also plain markup -->
             <div class="highlightPanel exportPrefsVals" style="display: none">
             <!--// an h:selectBooleanCheckbox, with the defaults checked, layout attribute should be 'pageDirection' -->
-            <h:selectBooleanCheckbox id="userid" value="#{courseGradeDetailsBean.includeUserid}"	/>
+            <h:selectBooleanCheckbox id="userid" value="#{courseGradeDetailsBean.includeUsereid}"	/>
 			<h:outputLabel for="userid" value="User ID" />
 			<h:selectBooleanCheckbox id="sortname" value="#{courseGradeDetailsBean.includeSortname}"	/>
 			<h:outputLabel for="sortname" value="User Name" />
