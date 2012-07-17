@@ -468,7 +468,7 @@ function setBlockDivs()
   </samigo:hideDivision>
 
   <!-- *** HIGH SECURITY *** -->
-<h:panelGroup rendered="#{assessmentSettings.valueMap.ipAccessType_isInstructorEditable==true or assessmentSettings.valueMap.passwordRequired_isInstructorEditable==true} or publishedSettings.valueMap.lockedBrowser_isInstructorEditable==true" >
+<h:panelGroup rendered="#{assessmentSettings.valueMap.ipAccessType_isInstructorEditable==true or assessmentSettings.valueMap.passwordRequired_isInstructorEditable==true or publishedSettings.valueMap.lockedBrowser_isInstructorEditable==true}" >
   <samigo:hideDivision title="#{assessmentSettingsMessages.heading_high_security}">
     <f:verbatim><div class="tier2"></f:verbatim>
     <h:panelGrid border="0" columns="2"
