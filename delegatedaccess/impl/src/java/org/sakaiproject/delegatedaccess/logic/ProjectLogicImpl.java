@@ -622,29 +622,26 @@ public class ProjectLogicImpl implements ProjectLogic {
 	 */
 	public TreeModel createEntireTreeModelForUser(String userId, boolean addDirectChildren, boolean cascade)
 	{
-		//these are the nodes that the user is allowed to assign
-		Set<HierarchyNodeSerialized> accessAdminNodes = null;
+		//this is a list of sub-admin access nodes.  if the user is a super-admin, then this will be null (as a flag that this is a super admin)
 		List<String> accessAdminNodeIds = null;
 		//check if the user is a super admin, if not, then get the accessAdmin nodes connected to the current user
 		if(!sakaiProxy.isSuperUser()){
 			//only allow the current user to modify permissions for this user on the nodes that
 			//has been assigned accessAdmin for currentUser
-			accessAdminNodes = getAccessAdminNodesForUser(sakaiProxy.getCurrentUserId());
+			Set<HierarchyNodeSerialized>  currentUserAdminNodes = getAccessAdminNodesForUser(sakaiProxy.getCurrentUserId());
 			accessAdminNodeIds = new ArrayList<String>();
-			if(accessAdminNodes != null){
-				for(HierarchyNodeSerialized node : accessAdminNodes){
+			if(currentUserAdminNodes != null){
+				for(HierarchyNodeSerialized node : currentUserAdminNodes){
 					accessAdminNodeIds.add(node.id);
 				}
 			}
-			//now call this function to set the nodeArrays:
-			getAllNodesForUser(userId);
-		}else{
-			accessAdminNodes = getAllNodesForUser(userId);
 		}
+		//these are the nodes that the edit user has permissions in
+		Set<HierarchyNodeSerialized> userNodes = userNodes = getAllNodesForUser(userId);
 		
 		//Returns a List that represents the tree/node architecture:
 		//  List{ List{node, List<children>}, List{node, List<children>}, ...}.
-		List<List> l1 = getTreeListForUser(userId, addDirectChildren, cascade, accessAdminNodes);
+		List<List> l1 = getTreeListForUser(userId, addDirectChildren, cascade, userNodes);
 		//Remove the shopping period nodes:
 		if(l1 != null){
 			HierarchyNode shoppingRoot = hierarchyService.getRootNode(DelegatedAccessConstants.SHOPPING_PERIOD_HIERARCHY_ID);
