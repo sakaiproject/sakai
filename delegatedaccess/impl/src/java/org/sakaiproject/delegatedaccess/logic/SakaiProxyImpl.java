@@ -257,12 +257,20 @@ public class SakaiProxyImpl implements SakaiProxy {
 	 * {@inheritDoc}
 	 */
 	public void saveSite(Site site){
+		SecurityAdvisor yesMan = new SecurityAdvisor() {
+			public SecurityAdvice isAllowed(String userId, String function, String reference) {
+				return SecurityAdvice.ALLOWED;
+			}
+		};
 		try {
+			securityService.pushAdvisor(yesMan);
 			siteService.save(site);
 		} catch (IdUnusedException e) {
 			log.error(e);
 		} catch (PermissionException e) {
 			log.error(e);
+		}finally{
+			securityService.popAdvisor(yesMan);
 		}
 	}
 
