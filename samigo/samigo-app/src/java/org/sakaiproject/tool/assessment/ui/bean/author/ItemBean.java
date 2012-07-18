@@ -691,7 +691,7 @@ public class ItemBean
 	  while (iter.hasNext()) {
 		  MatchItemBean bean = iter.next();
 		  if (MatchItemBean.CONTROLLING_SEQUENCE_DEFAULT.equals(bean.getControllingSequence()) &&
-				  bean.getSequence().equals(this.currentMatchPair.getSequence())) {
+				  !bean.getSequence().equals(this.currentMatchPair.getSequence())) {
 			  SelectItem option = new SelectItem(bean.getSequenceStr(), bean.getSequenceStr(), bean.getSequenceStr());
 			  subOptions.add(option);
 		  }
