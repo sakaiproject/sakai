@@ -236,6 +236,7 @@ function sakaiMinimizeNavigation(){
         $('#container').addClass('sakaiMinimizePageNavigation');
     }
     $('#toggleToolMax').hide();
+    $('#toggleToolMenu').attr('title',$('#toggleNormal em').text());
     $('#toggleNormal').css({
         'display': 'block'
     });
@@ -251,6 +252,7 @@ function sakaiRestoreNavigation(){
         $('#container').removeClass('sakaiMinimizePageNavigation');
     }
     $('#toggleToolMax').show();
+    $('#toggleToolMenu').attr('title',$('#toggleToolMax em').text());
     $('#toggleNormal').css({
         'display': 'none'
     });

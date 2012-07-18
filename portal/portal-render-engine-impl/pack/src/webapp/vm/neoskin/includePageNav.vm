@@ -82,9 +82,9 @@
 			</div>
 			<div id="togglebar">
 #if ( $loggedIn ) 
-	<a id="toggleToolMenu" onmouseup="blur()" href="#" title="${rloader.sit_toggle_nav}">
-		<span id="toggleToolMax"#if (${sakai_nav_minimized}) style="display:none"#end>&nbsp;</span>
-		<span id="toggleNormal""#if (! ${sakai_nav_minimized}) style="display:none"#end>&nbsp;</span>
+	<a id="toggleToolMenu" onmouseup="blur()" href="#" title="#if (${sakai_nav_minimized})${rloader.sit_toggle_nav_exp}#else${rloader.sit_toggle_nav_min} #end">
+		<span id="toggleToolMax"#if (${sakai_nav_minimized}) style="display:none"#end><em class="skip">${rloader.sit_toggle_nav_min}</em>&nbsp;</span>
+		<span id="toggleNormal""#if (! ${sakai_nav_minimized}) style="display:none"#end><em class="skip">${rloader.sit_toggle_nav_exp}</em>&nbsp;</span>
 	</a>
 #end	
 			</div>
