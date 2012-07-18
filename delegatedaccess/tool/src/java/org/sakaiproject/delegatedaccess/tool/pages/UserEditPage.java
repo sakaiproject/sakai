@@ -202,7 +202,7 @@ public class UserEditPage  extends BaseTreePage{
 					formFeedback2.add(new AttributeModifier("class", true, new Model("success")));
 					target.addComponent(formFeedback2);
 				}catch (Exception e) {
-					log.error(e);
+					log.error(e.getMessage(), e);
 					formFeedback.setDefaultModel(new ResourceModel("failed.save"));
 					formFeedback.add(new AttributeModifier("class", true, new Model("alertMessage")));
 					target.addComponent(formFeedback);

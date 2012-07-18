@@ -105,7 +105,7 @@ public class DelegatedAccessShoppingPeriodJob implements StatefulJob{
 				sakaiProxy.sendEmail("DelegatedAccessShoppingPeriodJob error", warning);
 			}
 		}catch (Exception e) {
-			log.error(e);
+			log.error(e.getMessage(), e);
 			sakaiProxy.sendEmail("DelegatedAccessShoppingPeriodJob error", e.getMessage());
 		}finally{
 			semaphore = false;
@@ -119,7 +119,7 @@ public class DelegatedAccessShoppingPeriodJob implements StatefulJob{
 				try{
 					shoppingPeriodRoleHelper(nodeModel);
 				}catch(Exception e){
-					log.error(e);
+					log.error(e.getMessage(), e);
 					errors.put(nodeModel.getNode().title, e.getMessage());
 				}
 			}

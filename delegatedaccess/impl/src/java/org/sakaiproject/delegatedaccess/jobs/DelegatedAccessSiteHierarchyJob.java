@@ -162,7 +162,7 @@ public class DelegatedAccessSiteHierarchyJob implements Job{
 						}
 						processedSites++;
 					}catch (Exception e) {
-						log.error(e);
+						log.error(e.getMessage(), e);
 						if("".equals(errors)){
 							errors += "The following sites had errors: \n\n";
 						}
@@ -195,7 +195,7 @@ public class DelegatedAccessSiteHierarchyJob implements Job{
 
 			log.info("DelegatedAccessSiteHierarchyJob finished in " + (System.currentTimeMillis() - startTime) + " ms and processed " + processedSites + " sites.");		
 		}catch (Exception e) {
-			log.error(e);
+			log.error(e.getMessage(), e);
 			sakaiProxy.sendEmail("Error occurred in DelegatedAccessSiteHierarchyJob", e.getMessage());
 		}finally{
 			semaphore = false;

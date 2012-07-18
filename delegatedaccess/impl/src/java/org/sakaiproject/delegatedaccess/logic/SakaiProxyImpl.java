@@ -235,7 +235,7 @@ public class SakaiProxyImpl implements SakaiProxy {
 			try {
 				site = siteService.getSite(r.getId());
 			} catch (IdUnusedException e) {
-				log.error(e);
+				log.error(e.getMessage(), e);
 			}
 		}
 		return site;
@@ -266,9 +266,9 @@ public class SakaiProxyImpl implements SakaiProxy {
 			securityService.pushAdvisor(yesMan);
 			siteService.save(site);
 		} catch (IdUnusedException e) {
-			log.error(e);
+			log.error(e.getMessage(), e);
 		} catch (PermissionException e) {
-			log.error(e);
+			log.error(e.getMessage(), e);
 		}finally{
 			securityService.popAdvisor(yesMan);
 		}
@@ -331,7 +331,7 @@ public class SakaiProxyImpl implements SakaiProxy {
 					returnList.put(group.getId(), getFilteredRoles(group, filterRoles));
 				}
 			} catch (GroupNotDefinedException e) {
-				log.error(e);
+				log.error(e.getMessage(), e);
 			}
 		}
 		return returnList;
@@ -394,7 +394,7 @@ public class SakaiProxyImpl implements SakaiProxy {
 		try {
 			group = authzGroupService.getAuthzGroup(siteId);
 		} catch (GroupNotDefinedException e) {
-			log.error(e);
+			log.error(e.getMessage(), e);
 		}
 		return group;
 	}
@@ -414,9 +414,9 @@ public class SakaiProxyImpl implements SakaiProxy {
 			securityService.pushAdvisor(yesMan);
 			authzGroupService.save(group);
 		} catch (AuthzPermissionException e) {
-			log.error(e);
+			log.error(e.getMessage(), e);
 		} catch (GroupNotDefinedException e) {
-			log.error(e);
+			log.error(e.getMessage(), e);
 		} finally {
 			securityService.popAdvisor(yesMan);
 		}
@@ -449,11 +449,11 @@ public class SakaiProxyImpl implements SakaiProxy {
 			authzGroupService.save(destGroup);
 
 		} catch (RoleAlreadyDefinedException e) {
-			log.error(e); // wtf?
+			log.error(e.getMessage(), e); // wtf?
 		} catch (GroupNotDefinedException e) {
-			log.error(e);
+			log.error(e.getMessage(), e);
 		} catch (AuthzPermissionException e) {
-			log.error(e);
+			log.error(e.getMessage(), e);
 		} finally {
 			securityService.popAdvisor(yesMan);
 		}
@@ -592,7 +592,7 @@ public class SakaiProxyImpl implements SakaiProxy {
 					try {
 						instructors.add(userDirectoryService.getUser(member.getUserId()));
 					} catch (UserNotDefinedException e) {
-						log.error(e);
+						log.error(e.getMessage(), e);
 					}
 				}
 			}
