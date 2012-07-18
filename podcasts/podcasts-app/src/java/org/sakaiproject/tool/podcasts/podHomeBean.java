@@ -32,6 +32,7 @@ import java.util.Date;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
+import java.util.Locale;
 import java.util.Map;
 import java.util.Map.Entry;
 
@@ -75,6 +76,7 @@ import org.sakaiproject.time.cover.TimeService;
 import org.sakaiproject.tool.api.ToolSession;
 import org.sakaiproject.tool.cover.SessionManager;
 import org.sakaiproject.tool.cover.ToolManager;
+import org.sakaiproject.tool.podcasts.util.DateUtil;
 import org.sakaiproject.util.ResourceLoader;
 import org.sakaiproject.util.Validator;
 
@@ -94,6 +96,9 @@ public class podHomeBean {
 	private static final String DATE_PICKER_FORMAT = "date_picker_format";
 	private static final String DATE_BY_HAND_FORMAT = "date_by_hand_format";
 	private static final String INTERNAL_DATE_FORMAT = "internal_date_format";
+
+	/** TODO: This is required until date-picker is internationalized. */
+	private static final String FIXED_DATE_PICKER_FORMAT = "MM/dd/yyyy hh:mm:ss a";
 
 	private static final String LAST_MODIFIED_TIME_FORMAT = "hh:mm a z";
 	private static final String LAST_MODIFIED_DATE_FORMAT = "MM/dd/yyyy";
@@ -1225,7 +1230,14 @@ public class podHomeBean {
 		SimpleDateFormat dateFormat = new SimpleDateFormat(FORMAT_STRING, rb.getLocale());
 		dateFormat.setTimeZone(TimeService.getLocalTimeZone());
 
-		convertedDate = dateFormat.parse(inputDate);
+		try {
+			convertedDate = dateFormat.parse(inputDate);
+		} catch (ParseException e) {
+			// TODO: This is required until date-picker is internationalized.
+			dateFormat = new SimpleDateFormat(FORMAT_STRING, Locale.ENGLISH);
+			dateFormat.setTimeZone(TimeService.getLocalTimeZone());
+			convertedDate = dateFormat.parse(inputDate);
+		}
 
 		return convertedDate;
 	}
@@ -1272,7 +1284,7 @@ public class podHomeBean {
 
 				try {
 					displayDate = convertDateString(date,
-							getErrorMessageString(DATE_PICKER_FORMAT));
+							FIXED_DATE_PICKER_FORMAT);
 
 				} 
 				catch (ParseException e) {
@@ -1485,7 +1497,7 @@ public class podHomeBean {
 			try {
 				// SAK-13493: SimpleDateFormat.parse() did not enforce format specified, so
 				// had to call custom method to check if String was valid
-				if (isValidDate(selectedPodcast.displayDateRevise)) {
+				if (DateUtil.isValidDate(selectedPodcast.displayDateRevise, getErrorMessageString(DATE_BY_HAND_FORMAT), rb.getLocale())) {
 					displayDateRevise = convertDateString(selectedPodcast.displayDateRevise, 
 											getErrorMessageString(DATE_BY_HAND_FORMAT));
 				}
@@ -1497,7 +1509,7 @@ public class podHomeBean {
 				// must have used date picker, so try again
 				if (isValidDate(selectedPodcast.displayDateRevise)) {
 					displayDateRevise = convertDateString(selectedPodcast.displayDateRevise, 
-											getErrorMessageString(DATE_PICKER_FORMAT));
+											FIXED_DATE_PICKER_FORMAT);
 				}
 				else {
 					throw new ParseException("Invalid displayDate entered while revising podcast " + selectedPodcast.filename, 0);
@@ -1777,7 +1789,8 @@ public class podHomeBean {
 		else {
 			displayNoDateErrMsg = false;
 
-			if (isValidDate(date)) {
+			if (DateUtil.isValidDate(date, getErrorMessageString(DATE_BY_HAND_FORMAT), rb.getLocale())
+					|| isValidDate(date)) {
 				displayInvalidDateErrMsg = false;
 			
 			} 
