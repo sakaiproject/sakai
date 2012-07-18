@@ -1080,7 +1080,11 @@ function toPoint(id)
 </div>
 
 <h:outputText value="#{author.updateFormTime}" />
-<h:inputHidden value="#{author.currentFormTime}" />
+<h:inputHidden id="currentFormTime" value="#{author.currentFormTime}" />
+<%
+  org.sakaiproject.tool.assessment.ui.bean.author.AuthorBean author = (org.sakaiproject.tool.assessment.ui.bean.author.AuthorBean) session.getAttribute("author");
+  out.println("<script>document.getElementById('editTotalResults:currentFormTime').value = " + author.getCurrentFormTime() + ";</script>");
+%>
 
 <p class="act">
    <%-- <h:commandButton value="#{evaluationMessages.save_exit}" action="author"/> --%>

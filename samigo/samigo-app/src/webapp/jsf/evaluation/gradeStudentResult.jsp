@@ -264,7 +264,11 @@ function toPoint(id)
 </div>
 
 <h:outputText value="#{author.updateFormTime}" />
-<h:inputHidden value="#{author.currentFormTime}" />
+<h:inputHidden id="currentFormTime" value="#{author.currentFormTime}" />
+<%
+  org.sakaiproject.tool.assessment.ui.bean.author.AuthorBean author = (org.sakaiproject.tool.assessment.ui.bean.author.AuthorBean) session.getAttribute("author");
+  out.println("<script>document.getElementById('editStudentResults:currentFormTime').value = " + author.getCurrentFormTime() + ";</script>");
+%>
 
 <h:panelGroup rendered="#{totalScores.anonymous eq 'false' && studentScores.email != null && studentScores.email != '' && email.fromEmailAddress != null && email.fromEmailAddress != ''}">
   <h:outputText value="<a href=\"mailto:" escape="false" />
