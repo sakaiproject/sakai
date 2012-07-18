@@ -87,7 +87,7 @@ public class SamigoExpressionParser
       // add the answer to memory as variable "Ans"
       user_var.put("ANS", Double.valueOf(ans));
 
-      ans_str = String.format("%g", ans);
+      ans_str = Double.toString(ans); //String.format("%g", ans);
     }
     catch (SamigoExpressionError err)
     {

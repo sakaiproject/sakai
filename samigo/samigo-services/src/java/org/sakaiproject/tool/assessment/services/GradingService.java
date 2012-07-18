@@ -1668,23 +1668,23 @@ Here are the definition and 12 cases I came up with (lydia, 01/2006):
 	  // this variable should look something like this "42.1|2,2"
 	  String allAnswerText = calculatedAnswersMap.get(calcQuestionAnswerSequence).toString();
 	  
-	  double correctAnswer = Double.valueOf(getAnswerExpression(allAnswerText));
+	  BigDecimal correctAnswer = new BigDecimal(getAnswerExpression(allAnswerText));
 	  
 	  // Determine if the acceptable variance is a constant or a % of the answer
 	  String varianceString = allAnswerText.substring(allAnswerText.indexOf("|")+1, allAnswerText.indexOf(","));
-	  double acceptableVariance = (double)0;
+	  BigDecimal acceptableVariance = BigDecimal.ZERO;
 	  if (varianceString.contains("%")){
 		  double percentage = Double.valueOf(varianceString.substring(0, varianceString.indexOf("%")));
-		  acceptableVariance = (percentage/100) * correctAnswer;
+		  acceptableVariance = correctAnswer.multiply( new BigDecimal(percentage / 100) );
 	  }
 	  else {
-		  acceptableVariance = Double.valueOf(varianceString);
+		  acceptableVariance = new BigDecimal(varianceString);
 	  }
 	  
 	  String userAnswerString = data.getAnswerText().replaceAll(",", "").trim();
-	  double userAnswer;
+	  BigDecimal userAnswer;
 	  try {
-		  userAnswer = Double.parseDouble(userAnswerString);
+		  userAnswer = new BigDecimal(userAnswerString);
 	  } catch(NumberFormatException nfe) {
 		  return totalScore; // zero because it's not even a number!
 	  }
@@ -1692,7 +1692,8 @@ Here are the definition and 12 cases I came up with (lydia, 01/2006):
 	  
 	  
 	  // this compares the correctAnswer against the userAnsewr
-	  boolean closeEnough = (Math.abs(correctAnswer - userAnswer) <= Math.abs(acceptableVariance));
+	  BigDecimal answerDiff = (correctAnswer.subtract(userAnswer));
+	  boolean closeEnough = (answerDiff.abs().compareTo(acceptableVariance.abs()) <= 0);
 	  if (closeEnough){
 		  totalScore += itemdata.getScore(); 
 	  }	
