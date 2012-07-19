@@ -122,8 +122,11 @@ public class DelegatedAccessSiteHierarchyJob implements Job{
 				for(Site site : sites){
 					if(orderByModifiedDate){
 						//check the date to see if we can break out:
-						if(hierarchyJobLastRunDate.after(site.getModifiedDate())){
+						if(site.getModifiedDate() != null && hierarchyJobLastRunDate.after(site.getModifiedDate())){
 							hasMoreSites = false;
+							break;
+						}
+						if(site.getModifiedDate() == null && site.getCreatedDate() != null && hierarchyJobLastRunDate.after(site.getCreatedDate())){
 							break;
 						}
 					}
