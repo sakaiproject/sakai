@@ -49,6 +49,7 @@ import org.sakaiproject.portal.api.PortalHandlerException;
 import org.sakaiproject.portal.api.PortalRenderContext;
 import org.sakaiproject.portal.api.SiteView;
 import org.sakaiproject.portal.api.StoredState;
+import org.sakaiproject.portal.charon.site.AllSitesViewImpl;
 import org.sakaiproject.site.api.Site;
 import org.sakaiproject.site.api.SitePage;
 import org.sakaiproject.site.api.ToolConfiguration;
@@ -167,7 +168,13 @@ public class SiteHandler extends WorksiteHandler
 			else
 			{
 				// TODO Should maybe switch to portal.getSiteHelper().getMyWorkspace()
-				siteId = SiteService.getUserSiteId(session.getUserId());
+                                AllSitesViewImpl allSites = (AllSitesViewImpl)portal.getSiteHelper().getSitesView(SiteView.View.ALL_SITES_VIEW, req, session, siteId);
+                                List<Map> sites = (List<Map>)allSites.getRenderContextObject();
+                                if (sites.size() > 0) {
+                                	siteId = (String)sites.get(0).get("siteId");
+                                }
+                                else
+                                	siteId = SiteService.getUserSiteId(session.getUserId());
 			}
 		}
 

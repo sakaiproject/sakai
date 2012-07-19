@@ -92,7 +92,8 @@ public abstract class AbstractSiteViewImpl implements SiteView
 		
 		
 		
-		mySites = siteNeighbourhoodService.getSitesAtNode(request, session, true);
+                boolean showMyWorkspace = serverConfigurationService.getBoolean("myworkspace.show",true);
+                mySites = siteNeighbourhoodService.getSitesAtNode(request, session, showMyWorkspace);
 		
 		
 		loggedIn = session.getUserId() != null;
