@@ -690,6 +690,15 @@ public class ItemBean
 	  Iterator<MatchItemBean> iter = matchItemBeanList.iterator();
 	  while (iter.hasNext()) {
 		  MatchItemBean bean = iter.next();
+		  /* 
+		   * NOTE: the logic here was actually intended to check object equality and not only string equality
+		   * on the second test "bean.getSequence() != this.currentMatchPair.getSequence()", this was switched
+		   * over to string equality since the strings not being the same here is unlikely and because it
+		   * upsets the static code checker but if weird behavior is observed related to this item and
+		   * the multi-match use case (primarily the case where 2+ choices or 2+ matches have the exact same string
+		   * value and also one of those choices is reused as part of a multiple match)
+		   * -AZ
+		   */
 		  if (MatchItemBean.CONTROLLING_SEQUENCE_DEFAULT.equals(bean.getControllingSequence()) &&
 				  !bean.getSequence().equals(this.currentMatchPair.getSequence())) {
 			  SelectItem option = new SelectItem(bean.getSequenceStr(), bean.getSequenceStr(), bean.getSequenceStr());
