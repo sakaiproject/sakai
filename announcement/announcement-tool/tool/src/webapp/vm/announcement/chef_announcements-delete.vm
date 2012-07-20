@@ -3,7 +3,7 @@
 	<h3>
 		$tlang.getString("del.deleting")
 	</h3>
-	#if ($alertMessage)<div class="alertMessage">$tlang.getString("gen.alert") $validator.escapeHtml($alertMessage)</div>#end
+	#if ($alertMessage)<div class="alertMessage">$tlang.getFormattedMessage("gen.alert.message", $validator.escapeHtml($alertMessage))</div>#end
 	<div class="alertMessage">$tlang.getString("del.areyou")</div>
 	<form name="forNotLetDeleteSelectedOnLoad"></form>
 		<table class="listHier lines nolines" cellspacing="0">
@@ -18,9 +18,10 @@
 					<td>
 						<h4>
 						#if ($delete_item.Header.draft)
-							<span class="highlight">$tlang.getString("gen.draft") - </span>
-						#end
+							$tlang.getFormattedMessage("gen.draft.subject", $validator.escapeHtml($delete_item.Header.subject))
+						#else
 						$validator.escapeHtml($delete_item.Header.subject)
+						#end
 						</h4>
 					</td>
 					<td>$validator.escapeHtml($delete_item.Header.From.DisplayName)</td>

@@ -7,7 +7,7 @@
 	<h3>
 		$tlang.getString("custom.options")
 	</h3>
-	#if ($alertMessage)<div class="alertMessage">$tlang.getString("gen.alert") $validator.escapeHtml($alertMessage)</div><div class="clear"></div>#end
+	#if ($alertMessage)<div class="alertMessage">$tlang.getFormattedMessage("gen.alert.message", $validator.escapeHtml($alertMessage))</div><div class="clear"></div>#end
 	<p class="instruction indnt2">
 		#if ($toolId == "sakai.announcements")
 			$tlang.getString("custom.setoptions")
@@ -96,8 +96,7 @@
 		</p>
 		
 		<h4>
-			$tlang.getString("custom.rss_option") 
-			<i>$tlang.getString("custom.rss_public")</i>
+			$tlang.getString("custom.rss_option.full") 
 		</h4>
 		<p class="shorttext indnt2">
 			<label for ="rssAlias">

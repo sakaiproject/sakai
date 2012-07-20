@@ -1260,17 +1260,14 @@ public class AnnouncementAction extends PagedResourceActionII
 		}
 		else if (statusName.equals("noSelectedForDeletion") || (statusName.equals(NOT_SELECTED_FOR_REVISE_STATUS)))
 		{
-			// addAlert(sstate, "You have to select the announcement first!");
 			addAlert(sstate, rb.getString("java.alert.youhave"));
 		}
 		else if (statusName.equals("moreThanOneSelectedForRevise"))
 		{
-			// addAlert(sstate, "Please choose only one announcement at a time to revise!");
 			addAlert(sstate, rb.getString("java.alert.pleasechoose"));
 		}
 		else if (statusName.equals("noPermissionToRevise"))
 		{
-			// addAlert(sstate, "You don't have permission to revise this announcement!");
 			addAlert(sstate, rb.getString("java.alert.youdont"));
 		}
 		else if (statusName.equals(MERGE_STATUS))
@@ -2370,7 +2367,7 @@ public class AnnouncementAction extends PagedResourceActionII
 		catch (PermissionException e)
 		{
 			if (M_log.isDebugEnabled()) M_log.debug(this + ".buildShowMetadataContext()" + e);
-			addAlert(sstate, rb.getString("java.youmess")+ e.toString());
+			addAlert(sstate, rb.getFormattedMessage("java.youmess.pes", e.toString()));
 		}
 
 		String template = (String) getContext(rundata).get("template");
@@ -2434,7 +2431,7 @@ public class AnnouncementAction extends PagedResourceActionII
 		}
 		catch (PermissionException e)
 		{
-			addAlert(sstate, rb.getString("java.alert.youacc"));
+			addAlert(sstate, rb.getFormattedMessage("java.alert.youacc.pes", e.toString()));
 		}
 	}
 
@@ -2659,14 +2656,13 @@ public class AnnouncementAction extends PagedResourceActionII
 		{
 			if (subject.length() == 0)
 			{
-				// addAlert(sstate, "You need to fill in the subject!");
 				addAlert(sstate, rb.getString("java.alert.youneed"));
 			}
 			else if (body == null ||body.replaceAll("<br>", "").replaceAll("<br/>","").replaceAll("&nbsp;", "").replaceAll("&lt;br type=&quot;_moz&quot; /&gt;", "").trim().equals("")  || body.length() == 0 ||  
 					FormattedText.escapeHtml(body,false).equals("&lt;br type=&quot;_moz&quot; /&gt;"))
 			{
 				body="";
-				addAlert(sstate, rb.getString("java.alert.youfill"));// "You need to fill in the body of the announcement!");
+				addAlert(sstate, rb.getString("java.alert.youfill"));
 			}
 		}
 		
@@ -3084,8 +3080,7 @@ public class AnnouncementAction extends PagedResourceActionII
 				}
 				catch (PermissionException e)
 				{
-					addAlert(sstate, rb.getString("java.alert.youpermi")// "You don't have permissions to create this announcement -"
-							+ subject);
+					addAlert(sstate, rb.getFormattedMessage("java.alert.youpermi.subject", subject));
 
 					state.setIsListVM(false);
 					state.setStatus("stayAtRevise");
@@ -3147,7 +3142,7 @@ public class AnnouncementAction extends PagedResourceActionII
 			catch (PermissionException e)
 			{
 				if (M_log.isDebugEnabled()) M_log.debug(this + "doPost()", e);
-				addAlert(sstate, rb.getString("java.alert.youpermi")+ subject);
+				addAlert(sstate, rb.getFormattedMessage("java.alert.youpermi.subject", subject));
 			}
 
 			state.setIsListVM(true);
@@ -3254,7 +3249,6 @@ public class AnnouncementAction extends PagedResourceActionII
 				else
 				{
 					addAlert(sstate, rb.getString("java.alert.youdel"));
-					// "you don't have permission to delete the messages.");
 				}
 			}
 			catch (IdUnusedException e)
@@ -3320,7 +3314,7 @@ public class AnnouncementAction extends PagedResourceActionII
 					catch (PermissionException e)
 					{
 						if (M_log.isDebugEnabled()) M_log.debug(this + ".doDeleteannouncement()", e);
-						addAlert(sstate, rb.getString("java.alert.youdelann")	+ messageReferences[i]);
+						addAlert(sstate, rb.getFormattedMessage("java.alert.youdelann.ref", messageReferences[i]));
 					}
 				}
 
@@ -3559,15 +3553,14 @@ public class AnnouncementAction extends PagedResourceActionII
 					catch (PermissionException e)
 					{
 						if (M_log.isDebugEnabled()) M_log.debug(this + "announcementReviseFromMenu", e);
-						addAlert(sstate, rb.getString("java.alert.youacc")// "You don't have permissions to access the message(s) - "
-								+ e.toString());
+						addAlert(sstate, rb.getFormattedMessage("java.alert.youacc.pes", e.toString()));
 					}
 					// %%% -ggolden catch(InUseException err)
 					catch (InUseException err)
 					{
 						if (M_log.isDebugEnabled())
 							M_log.debug(this + ".doReviseannouncementfrommenu", err);
-						addAlert(sstate, rb.getString("java.alert.thisis"));// "This item is being edited by another user. Please try again later.");
+						addAlert(sstate, rb.getString("java.alert.thisis"));
 						state.setIsListVM(false);
 						state.setStatus("showMetadata");
 
@@ -3622,13 +3615,12 @@ public class AnnouncementAction extends PagedResourceActionII
 			catch (PermissionException e)
 			{
 				if (M_log.isDebugEnabled()) M_log.debug(this + "announcementReviseFromMenu", e);
-				addAlert(sstate, rb.getString("java.alert.youacc")// "You don't have permissions to access the message(s) - "
-						+ e.toString());
+				addAlert(sstate, rb.getFormattedMessage("java.alert.youacc.pes", e.toString()));
 			}
 			catch (InUseException err)
 			{
 				if (M_log.isDebugEnabled()) M_log.debug(this + ".doReviseannouncementfrommenu", err);
-				addAlert(sstate, rb.getString("java.alert.thisis"));// "This item is being edited by another user. Please try again later.");
+				addAlert(sstate, rb.getString("java.alert.thisis"));
 				state.setIsListVM(false);
 				state.setStatus("showMetadata");
 
@@ -4798,7 +4790,7 @@ public class AnnouncementAction extends PagedResourceActionII
 					catch (PermissionException e)
 					{
 						if (M_log.isDebugEnabled()) M_log.debug(this + ".doDeleteannouncement()", e);
-						addAlert(sstate, rb.getString("java.alert.youdelann")	+ messageReferences2[i]);
+						addAlert(sstate, rb.getFormattedMessage("java.alert.youdelann.ref", messageReferences2[i]));
 					}
 				}
 				if(allMessages.size() > messageReferences2.length){
@@ -4860,7 +4852,7 @@ public class AnnouncementAction extends PagedResourceActionII
 			//server check to ensure the length of alias SAK-18178
 			//due to the trim above this may be null
 			if (alias != null && alias.length()>99){
-				addAlert(sstate,"The length of alias cannot be greater than 99 characters");
+				addAlert(sstate, rb.getString("java.alert.length"));
 				state.setStatus(OPTIONS_STATUS);
 				return;
 			}

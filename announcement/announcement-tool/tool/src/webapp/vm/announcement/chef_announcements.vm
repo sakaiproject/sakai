@@ -67,7 +67,7 @@
 	#if ($isOnWorkspaceTab.equals("true")) ##in workspace
 		## <h3>$tlang.getString("gen.announcements")</h3>
 		<h3>$tlang.getString("gen.announcements") <span class="textPanelFooter">($tlang.getFormattedMessage("gen.viewing.days.phrase", $daysList.toArray()))</span></h3>
-		#if ($alertMessage)<div class="alertMessage">$tlang.getString("gen.alert") $validator.escapeHtml($alertMessage)</div><div class="clear"></div>#end
+		#if ($alertMessage)<div class="alertMessage">$tlang.getFormattedMessage("gen.alert.message", $validator.escapeHtml($alertMessage))</div><div class="clear"></div>#end
 ##		#if ($messageListVector.iterator().hasNext())
 		<div class="navPanel">
 			<div class="viewNav">
@@ -108,12 +108,12 @@
 							#end
 							#if ($goPPButton == "true")
 								<form name="prevpageForm" class="inlineForm" method="post" action="#toolForm("$action")">
-									<fieldset><legend>$tlang.getString('gen.previous') $pagesize</legend><input type="submit" name="eventSubmit_doList_prev" value="&lt;" title="$tlang.getString('gen.previous') $pagesize"  accesskey="p" /></fieldset>
+									<fieldset><legend>$tlang.getFormattedMessage('gen.previous.pagesize', $pagesize)</legend><input type="submit" name="eventSubmit_doList_prev" value="&lt;" title="$tlang.getFormattedMessage('gen.previous.pagesize', $pagesize)"  accesskey="p" /></fieldset>
 									<input type="hidden" name="sakai_csrf_token" value="$sakai_csrf_token" />
 								</form>
 							#else
 								<form name="prevpageForm" class="inlineForm" method="post" action="#toolForm("$action")">
-									<fieldset><legend>$tlang.getString('gen.previous') $pagesize</legend><input type="submit" name="eventSubmit_doList_prev" value="&lt;" disabled="disabled" /></fieldset>
+									<fieldset><legend>$tlang.getFormattedMessage('gen.previous.pagesize', $pagesize)</legend><input type="submit" name="eventSubmit_doList_prev" value="&lt;" disabled="disabled" /></fieldset>
 									<input type="hidden" name="sakai_csrf_token" value="$sakai_csrf_token" />
 								</form>
 							#end
@@ -122,24 +122,24 @@
 							<input type="hidden" name="eventSubmit_doChange_pagesize" value="changepagesize" />
 							<span class="skip">$tlang.getString("gen.listnavselect")</span>
 							<select name="selectPageSize" onchange="document.pagesizeForm.submit();">
-								<option value="5" #if($pagesize == 5) selected="selected" #end>$tlang.getString("gen.show5")</option>
-								<option value="10" #if($pagesize == 10) selected="selected" #end>$tlang.getString("gen.show10")</option>
-								<option value="20" #if($pagesize == 20) selected="selected" #end>$tlang.getString("gen.show20")</option>
-								<option value="50" #if($pagesize == 50) selected="selected" #end>$tlang.getString("gen.show50")</option>
-								<option value="100" #if($pagesize == 100) selected="selected" #end>$tlang.getString("gen.show100")</option>
-								<option value="200" #if($pagesize == 200) selected="selected" #end>$tlang.getString("gen.show200")</option>
+								<option value="5" #if($pagesize == 5) selected="selected" #end>$tlang.getFormattedMessage("gen.show", "5")</option>
+								<option value="10" #if($pagesize == 10) selected="selected" #end>$tlang.getFormattedMessage("gen.show", "10")</option>
+								<option value="20" #if($pagesize == 20) selected="selected" #end>$tlang.getFormattedMessage("gen.show", "20")</option>
+								<option value="50" #if($pagesize == 50) selected="selected" #end>$tlang.getFormattedMessage("gen.show", "50")</option>
+								<option value="100" #if($pagesize == 100) selected="selected" #end>$tlang.getFormattedMessage("gen.show", "100")</option>
+								<option value="200" #if($pagesize == 200) selected="selected" #end>$tlang.getFormattedMessage("gen.show", "200")</option>
 							</select>
 							<input type="hidden" name="sakai_csrf_token" value="$sakai_csrf_token" />
 						</form>
 						#if ($pagesize != 0)
 							#if ($goNPButton == "true")
 								<form name="nextpageForm" class="inlineForm" method="post" action="#toolForm("$action")">
-									<fieldset><legend>$tlang.getString('gen.next') $pagesize</legend><input type="submit" name="eventSubmit_doList_next" value="&gt;" title="$tlang.getString('gen.next') $pagesize"  accesskey="n" /></fieldset>
+									<fieldset><legend>$tlang.getFormattedMessage('gen.next.pagesize', $pagesize)</legend><input type="submit" name="eventSubmit_doList_next" value="&gt;" title="$tlang.getFormattedMessage('gen.next.pagesize', $pagesize)"  accesskey="n" /></fieldset>
 									<input type="hidden" name="sakai_csrf_token" value="$sakai_csrf_token" />
 								</form>
 							#else
 								<form name="nextpageForm" class="inlineForm" method="post" action="#toolForm("$action")">
-									<fieldset><legend>$tlang.getString('gen.next') $pagesize</legend><input type="submit" name="eventSubmit_doList_next" value="&gt;" disabled="disabled" /></fieldset>
+									<fieldset><legend>$tlang.getFormattedMessage('gen.next.pagesize', $pagesize)</legend><input type="submit" name="eventSubmit_doList_next" value="&gt;" disabled="disabled" /></fieldset>
 									<input type="hidden" name="sakai_csrf_token" value="$sakai_csrf_token" />
 								</form>
 							#end
@@ -212,7 +212,7 @@
 						#if ($toolId.equals("sakai.announcements"))
 							<th id="releaseDate">
 								#if (!$currentSortedBy.equals("releasedate"))
-									<a href="#" onclick="location='#toolLink("AnnouncementAction" "doSortbyreleasedate")';return false;"  title="$tlang.getString('gen.sortbyreleasedateasc')">$tlang.getString("gen.releasedate")</a>
+									<a href="#" onclick="location='#toolLink("AnnouncementAction" "doSortbyreleasedate")';return false;"  title="$tlang.getString('gen.sortbyreleasedate')">$tlang.getString("gen.releasedate")</a>
 								#else
 									#if ($currentSortAsc.equals("true"))
 										 <a href="#" onclick="location='#toolLink("AnnouncementAction" "doSortbyreleasedate")';return false;"  title="$tlang.getString('gen.sortbyreleasedateasc')">$tlang.getString("gen.releasedate") <img src = "#imageLink('sakai/sortascending.gif')" border="0" alt="$tlang.getString('gen.sortbyreleasedateasc')" /></a>
@@ -223,7 +223,7 @@
 							</th>
 							<th id="retractDate">
 								#if (!$currentSortedBy.equals("retractdate"))
-									<a href="#" onclick="location='#toolLink("AnnouncementAction" "doSortbyretractdate")';return false;"  title="$tlang.getString('gen.sortbyretractdateasc')">$tlang.getString("gen.retractdate")</a>
+									<a href="#" onclick="location='#toolLink("AnnouncementAction" "doSortbyretractdate")';return false;"  title="$tlang.getString('gen.sortbyretractdate')">$tlang.getString("gen.retractdate")</a>
 								#else
 									#if ($currentSortAsc.equals("true"))
 										 <a href="#" onclick="location='#toolLink("AnnouncementAction" "doSortbyretractdate")';return false;"  title="$tlang.getString('gen.sortbyretractdateasc')">$tlang.getString("gen.retractdate") <img src = "#imageLink('sakai/sortascending.gif')" border="0" alt="$tlang.getString('gen.sortbydateasc')" /></a>
@@ -265,10 +265,9 @@
 								<h4>
 ## removed/commented out with adding release/retract dates 3-07
 									#if ($ann_item.Header.draft)
-									<a href="#toolLinkParam("AnnouncementAction" "doReviseannouncement" "itemReference=$validator.escapeUrl($ann_item.reference)")" title="$tlang.getString('gen.editdraft')"><span class="highlight">$tlang.getString("gen.draft") - </span>
-										$validator.escapeHtml($ann_item.Header.subject)</a>
+									<a href="#toolLinkParam("AnnouncementAction" "doReviseannouncement" "itemReference=$validator.escapeUrl($ann_item.reference)")" title="$tlang.getString('gen.editdraft')">$tlang.getFormattedMessage("gen.draft.subject", $validator.escapeHtml($ann_item.Header.subject))</a>
 									#else
-										<a href="#toolLinkParam("AnnouncementAction" "doShowmetadata" "itemReference=$validator.escapeUrl($ann_item.reference)")" title="$tlang.getString('gen.viewann') $validator.escapeHtml($ann_item.Header.subject)">
+										<a href="#toolLinkParam("AnnouncementAction" "doShowmetadata" "itemReference=$validator.escapeUrl($ann_item.reference)")" title="$tlang.getFormattedMessage('gen.viewann.subject', $validator.escapeHtml($ann_item.Header.subject))">
 										$validator.escapeHtml($ann_item.Header.subject)</a>
 									#end
 								</h4>	
@@ -344,7 +343,7 @@
 		#if ($toolId == "sakai.synoptic.announcement") 
 		##in home portlet  - so reduce display to title, attach marker, body (if selected), author and date
 
-			#if ($alertMessage)<div class="alertMessage">$tlang.getString("gen.alert") $validator.escapeHtml($alertMessage)</div><div class="clear"></div>#end
+			#if ($alertMessage)<div class="alertMessage">$tlang.getFormattedMessage("gen.alert.message", $validator.escapeHtml($alertMessage))</div><div class="clear"></div>#end
 			
 			<h3>$tlang.getString("gen.announcements") <span class="textPanelFooter">($tlang.getFormattedMessage("gen.viewing.days.phrase", $daysList.toArray()))</span></h3>
 			
@@ -362,7 +361,7 @@
 							#if ($ann_item.Header.draft)
 							#else
 							<h3 class="textPanelHeader">
-								<a href="#toolLinkParam("AnnouncementAction" "doShowmetadata" "itemReference=$validator.escapeUrl($ann_item.reference)")" title="$tlang.getString('gen.viewann') $validator.escapeHtml($ann_item.Header.subject)">
+								<a href="#toolLinkParam("AnnouncementAction" "doShowmetadata" "itemReference=$validator.escapeUrl($ann_item.reference)")" title="$tlang.getFormattedMessage('gen.viewann.subject', $validator.escapeHtml($ann_item.Header.subject))">
 								$validator.escapeHtml($ann_item.Header.subject)</a>
 								#set ($size = 0)
 								#if (!$ann_item.Header.Attachments.isEmpty())
@@ -410,7 +409,7 @@
 				#if ($displayOptions.isShowAllColumns())
 					## <h3>$tlang.getString("gen.announcements")</h3>
 					<h3>$tlang.getString("gen.announcements") <span class=" textPanelFooter">($tlang.getFormattedMessage("gen.viewing.days.phrase", $daysList.toArray()))</span></h3>
-					#if ($alertMessage)<div class="alertMessage">$tlang.getString("gen.alert") $validator.escapeHtml($alertMessage)</div><div class="clear"></div>#end
+					#if ($alertMessage)<div class="alertMessage">$tlang.getFormattedMessage("gen.alert.message", $validator.escapeHtml($alertMessage))</div><div class="clear"></div>#end
 					<div class="navPanel">
 						<div class="viewNav">
 							<form name="viewForm" class="inlineForm" method="post" action="#toolForm("$action")">
@@ -432,7 +431,7 @@
 						#if ($messageListVector.iterator().hasNext())
 							<div class="listNav">
 								<div class="instruction">
-									$tlang.getString("gen.viewing") $topMsgPos - $btmMsgPos $tlang.getString("gen.separator") $allMsgNumber $tlang.getString("gen.items")
+									$tlang.getFormattedMessage("gen.viewing.phrase", $topMsgPos, $btmMsgPos, $allMsgNumber)
 								</div>
 								#if ($pagesize != 0)
 									#if ($goFPButton == "true")
@@ -448,12 +447,12 @@
 									#end
 									#if ($goPPButton == "true")
 										<form name="prevpageForm" class="inlineForm" method="post" action="#toolForm("$action")">
-											<fieldset><legend>$tlang.getString('gen.previous') $pagesize</legend><input type="submit" name="eventSubmit_doList_prev" value="&lt;" title="$tlang.getString('gen.previous') $pagesize"  accesskey="p" /></fieldset>
+											<fieldset><legend>$tlang.getFormattedMessage('gen.previous.pagesize', $pagesize)</legend><input type="submit" name="eventSubmit_doList_prev" value="&lt;" title="$tlang.getFormattedMessage('gen.previous.pagesize', $pagesize)"  accesskey="p" /></fieldset>
 											<input type="hidden" name="sakai_csrf_token" value="$sakai_csrf_token" />
 										</form>
 									#else
 										<form name="prevpageForm" class="inlineForm" method="post" action="#toolForm("$action")">
-											<fieldset><legend>$tlang.getString('gen.previous') $pagesize</legend><input type="submit" name="eventSubmit_doList_prev" value="&lt;" disabled="disabled" /></fieldset>
+											<fieldset><legend>$tlang.getFormattedMessage('gen.previous.pagesize', $pagesize)</legend><input type="submit" name="eventSubmit_doList_prev" value="&lt;" disabled="disabled" /></fieldset>
 											<input type="hidden" name="sakai_csrf_token" value="$sakai_csrf_token" />
 										</form>
 									#end
@@ -463,24 +462,24 @@
 									<input type="hidden" name="eventSubmit_doChange_pagesize" value="changepagesize" />
 									<span class="skip">$tlang.getString("gen.listnavselect")</span>
 									<select name="selectPageSize" onchange="document.pagesizeForm.submit();">
-										<option value="5" #if($pagesize == 5) selected="selected" #end>$tlang.getString("gen.show5")</option>
-										<option value="10" #if($pagesize == 10) selected="selected" #end>$tlang.getString("gen.show10")</option>
-										<option value="20" #if($pagesize == 20) selected="selected" #end>$tlang.getString("gen.show20")</option>
-										<option value="50" #if($pagesize == 50) selected="selected" #end>$tlang.getString("gen.show50")</option>
-										<option value="100" #if($pagesize == 100) selected="selected" #end>$tlang.getString("gen.show100")</option>
-										<option value="200" #if($pagesize == 200) selected="selected" #end>$tlang.getString("gen.show200")</option>
+										<option value="5" #if($pagesize == 5) selected="selected" #end>$tlang.getFormattedMessage("gen.show", "5")</option>
+										<option value="10" #if($pagesize == 10) selected="selected" #end>$tlang.getFormattedMessage("gen.show", "10")</option>
+										<option value="20" #if($pagesize == 20) selected="selected" #end>$tlang.getFormattedMessage("gen.show", "20")</option>
+										<option value="50" #if($pagesize == 50) selected="selected" #end>$tlang.getFormattedMessage("gen.show", "50")</option>
+										<option value="100" #if($pagesize == 100) selected="selected" #end>$tlang.getFormattedMessage("gen.show", "100")</option>
+										<option value="200" #if($pagesize == 200) selected="selected" #end>$tlang.getFormattedMessage("gen.show", "200")</option>
 									</select>
 									<input type="hidden" name="sakai_csrf_token" value="$sakai_csrf_token" />
 								</form>
 								#if ($pagesize != 0)
 									#if ($goNPButton == "true")
 										<form name="nextpageForm" class="inlineForm" method="post" action="#toolForm("$action")">
-											<fieldset><legend>$tlang.getString('gen.next') $pagesize</legend><input type="submit" name="eventSubmit_doList_next" value="&gt;" title="$tlang.getString('gen.next') $pagesize"  accesskey="n" /></fieldset>
+											<fieldset><legend>$tlang.getFormattedMessage('gen.next.pagesize', $pagesize)</legend><input type="submit" name="eventSubmit_doList_next" value="&gt;" title="$tlang.getFormattedMessage('gen.next.pagesize', $pagesize)"  accesskey="n" /></fieldset>
 											<input type="hidden" name="sakai_csrf_token" value="$sakai_csrf_token" />
 										</form>
 									#else
 										<form name="nextpageForm" class="inlineForm" method="post" action="#toolForm("$action")">
-											<fieldset><legend>$tlang.getString('gen.next') $pagesize</legend><input type="submit" name="eventSubmit_doList_next" value="&gt;" disabled="disabled" /></fieldset>
+											<fieldset><legend>$tlang.getFormattedMessage('gen.next.pagesize', $pagesize)</legend><input type="submit" name="eventSubmit_doList_next" value="&gt;" disabled="disabled" /></fieldset>
 											<input type="hidden" name="sakai_csrf_token" value="$sakai_csrf_token" />
 										</form>
 									#end
@@ -551,7 +550,7 @@
 										#end
 									#end
 									<th id="channel">
-										#if (!$currentSortedBy.equalsIgnoreCase("$tlang.getString('gen.visible')"))
+										#if (!$currentSortedBy.equals("for"))
 											<a href="#" onclick="location='#toolLink("AnnouncementAction" "doSortbyfor")';return false;"  title="$tlang.getString('gen.sortbyfor')">$tlang.getString("gen.visible")</a>
 										#else
 											#if ($currentSortAsc.equals("true"))
@@ -563,7 +562,7 @@
 									</th>
 									<th id="releaseDate">
 										#if (!$currentSortedBy.equals("releasedate"))
-											<a href="#" onclick="location='#toolLink("AnnouncementAction" "doSortbyreleasedate")';return false;"  title="$tlang.getString('gen.sortbyreleasedateasc')">$tlang.getString("gen.releasedate")</a>
+											<a href="#" onclick="location='#toolLink("AnnouncementAction" "doSortbyreleasedate")';return false;"  title="$tlang.getString('gen.sortbyreleasedate')">$tlang.getString("gen.releasedate")</a>
 										#else
 											#if ($currentSortAsc.equals("true"))
 												 <a href="#" onclick="location='#toolLink("AnnouncementAction" "doSortbyreleasedate")';return false;"  title="$tlang.getString('gen.sortbyreleasedateasc')">$tlang.getString("gen.releasedate") <img src = "#imageLink('sakai/sortascending.gif')" border="0" alt="$tlang.getString('gen.sortbyreleasedateasc')" /></a>
@@ -574,7 +573,7 @@
 									</th>
 									<th id="retractDate">
 										#if (!$currentSortedBy.equals("retractdate"))
-											<a href="#" onclick="location='#toolLink("AnnouncementAction" "doSortbyretractdate")';return false;"  title="$tlang.getString('gen.sortbyretractdateasc')">$tlang.getString("gen.retractdate")</a>
+											<a href="#" onclick="location='#toolLink("AnnouncementAction" "doSortbyretractdate")';return false;"  title="$tlang.getString('gen.sortbyretractdate')">$tlang.getString("gen.retractdate")</a>
 										#else
 											#if ($currentSortAsc.equals("true"))
 												 <a href="#" onclick="location='#toolLink("AnnouncementAction" "doSortbyretractdate")';return false;"  title="$tlang.getString('gen.sortbyretractdateasc')">$tlang.getString("gen.retractdate") <img src = "#imageLink('sakai/sortascending.gif')" border="0" alt="$tlang.getString('gen.sortbydateasc')" /></a>
@@ -621,15 +620,14 @@
 									<td headers="subject">
 										<h4>
 										#if ($ann_item.Header.draft)
-											<a href="#toolLinkParam("AnnouncementAction" "doReviseannouncement" "itemReference=$validator.escapeUrl($ann_item.reference)")" title="$tlang.getString('gen.editdraft')"><span class="highlight">$tlang.getString("gen.draft") - </span>
-											$validator.escapeHtml($ann_item.Header.subject)</a>
+											<a href="#toolLinkParam("AnnouncementAction" "doReviseannouncement" "itemReference=$validator.escapeUrl($ann_item.reference)")" title="$tlang.getString('gen.editdraft')">$tlang.getFormattedMessage("gen.draft.subject", $validator.escapeHtml($ann_item.Header.subject))</a>
 										#else
-											<a href="#toolLinkParam("AnnouncementAction" "doShowmetadata" "itemReference=$validator.escapeUrl($ann_item.reference)")" title="$tlang.getString('gen.viewann') $validator.escapeHtml($ann_item.Header.subject)">
+											<a href="#toolLinkParam("AnnouncementAction" "doShowmetadata" "itemReference=$validator.escapeUrl($ann_item.reference)")" title="$tlang.getFormattedMessage('gen.viewann.subject', $validator.escapeHtml($ann_item.Header.subject))">
 											$validator.escapeHtml($ann_item.Header.subject)</a>
 										#end
 										</h4>	
 										#if ($channel.allowEditMessage($ann_item.Id))
-											<div class="itemAction"><a href="#toolLinkParam("AnnouncementAction" "doReviseannouncement" "itemReference=$validator.escapeUrl($ann_item.reference)")" title="$tlang.getString('gen.editann') $validator.escapeHtml($ann_item.Header.subject)">$tlang.getString("gen.revise")</a></div>
+											<div class="itemAction"><a href="#toolLinkParam("AnnouncementAction" "doReviseannouncement" "itemReference=$validator.escapeUrl($ann_item.reference)")" title="$tlang.getFormattedMessage('gen.editann.subject', $validator.escapeHtml($ann_item.Header.subject))">$tlang.getString("gen.revise")</a></div>
 										#end
                                                                                                                                                                                                      
 									</td>
@@ -735,7 +733,7 @@
 				#else
 					## <h3>$tlang.getString("gen.announcements")</h3>
 					<h3>$tlang.getString("gen.announcements") <span class="textPanelFooter">($tlang.getFormattedMessage("gen.viewing.days.phrase", $daysList.toArray()))</span></h3>
-					#if ($alertMessage)<div class="alertMessage">$tlang.getString("gen.alert") $validator.escapeHtml($alertMessage)</div><div class="clear"></div>#end
+					#if ($alertMessage)<div class="alertMessage">$tlang.getFormattedMessage("gen.alert.message", $validator.escapeHtml($alertMessage))</div><div class="clear"></div>#end
 
 						#if (!$messageListVector.iterator().hasNext())
 							<p class="instruction">
@@ -745,8 +743,7 @@
 							<div class="navPanel">
 								<div class="listNav">
 									<div class="instruction">
-										##$tlang.getString("gen.viewing") $topMsgPos - $btmMsgPos / $allMsgNumber $tlang.getString("gen.items")
-										 $tlang.getString("gen.viewing") $topMsgPos - $btmMsgPos $tlang.getString("gen.separator") $allMsgNumber $tlang.getString("gen.items")
+										 $tlang.getFormattedMessage("gen.viewing.phrase", $topMsgPos, $btmMsgPos , $allMsgNumber)
 									</div>
 									#if ($pagesize != 0)
 										#if ($goFPButton == "true")
@@ -762,12 +759,12 @@
 										#end
 										#if ($goPPButton == "true")
 											<form name="prevpageForm" class="inlineForm" method="post" action="#toolForm("$action")">
-												<fieldset><legend>$tlang.getString('gen.previous') $pagesize</legend><input type="submit" name="eventSubmit_doList_prev" value="&lt;" title="$tlang.getString('gen.previous') $pagesize"  accesskey="p" /></fieldset>
+												<fieldset><legend>$tlang.getFormattedMessage('gen.previous.pagesize', $pagesize)</legend><input type="submit" name="eventSubmit_doList_prev" value="&lt;" title="$tlang.getFormattedMessage('gen.previous.pagesize', $pagesize)"  accesskey="p" /></fieldset>
 												<input type="hidden" name="sakai_csrf_token" value="$sakai_csrf_token" />
 											</form>
 										#else
 											<form name="prevpageForm" class="inlineForm" method="post" action="#toolForm("$action")">
-												<fieldset><legend>$tlang.getString('gen.previous') $pagesize</legend><input type="submit" name="eventSubmit_doList_prev" value="&lt;" disabled="disabled" /></fieldset>
+												<fieldset><legend>$tlang.getFormattedMessage('gen.previous.pagesize', $pagesize)</legend><input type="submit" name="eventSubmit_doList_prev" value="&lt;" disabled="disabled" /></fieldset>
 												<input type="hidden" name="sakai_csrf_token" value="$sakai_csrf_token" />
 											</form>									
 										#end
@@ -776,24 +773,24 @@
 										<input type="hidden" name="eventSubmit_doChange_pagesize" value="changepagesize" />
 										<span class="skip">$tlang.getString("gen.listnavselect")</span>
 										<select name="selectPageSize" onchange="document.pagesizeForm.submit();">
-											<option value="5" #if($pagesize == 5) selected="selected" #end>$tlang.getString("gen.show5")</option>
-											<option value="10" #if($pagesize == 10) selected="selected" #end>$tlang.getString("gen.show10")</option>
-											<option value="20" #if($pagesize == 20) selected="selected" #end>$tlang.getString("gen.show20")</option>
-											<option value="50" #if($pagesize == 50) selected="selected" #end>$tlang.getString("gen.show50")</option>
-											<option value="100" #if($pagesize == 100) selected="selected" #end>$tlang.getString("gen.show100")</option>
-											<option value="200" #if($pagesize == 200) selected="selected" #end>$tlang.getString("gen.show200")</option>
+											<option value="5" #if($pagesize == 5) selected="selected" #end>$tlang.getFormattedMessage("gen.show", "5")</option>
+											<option value="10" #if($pagesize == 10) selected="selected" #end>$tlang.getFormattedMessage("gen.show", "10")</option>
+											<option value="20" #if($pagesize == 20) selected="selected" #end>$tlang.getFormattedMessage("gen.show", "20")</option>
+											<option value="50" #if($pagesize == 50) selected="selected" #end>$tlang.getFormattedMessage("gen.show", "50")</option>
+											<option value="100" #if($pagesize == 100) selected="selected" #end>$tlang.getFormattedMessage("gen.show", "100")</option>
+											<option value="200" #if($pagesize == 200) selected="selected" #end>$tlang.getFormattedMessage("gen.show", "200")</option>
 										</select>
 										<input type="hidden" name="sakai_csrf_token" value="$sakai_csrf_token" />
 									</form>
 									#if ($pagesize != 0)
 										#if ($goNPButton == "true")
 											<form name="nextpageForm" class="inlineForm" method="post" action="#toolForm("$action")">
-												<fieldset><legend>$tlang.getString('gen.next') $pagesize</legend><input type="submit" name="eventSubmit_doList_next" value="&gt;" title="$tlang.getString('gen.next') $pagesize"  accesskey="n" /></fieldset>
+												<fieldset><legend>$tlang.getFormattedMessage('gen.next.pagesize', $pagesize)</legend><input type="submit" name="eventSubmit_doList_next" value="&gt;" title="$tlang.getFormattedMessage('gen.next.pagesize', $pagesize)"  accesskey="n" /></fieldset>
 												<input type="hidden" name="sakai_csrf_token" value="$sakai_csrf_token" />
 											</form>
 										#else
 											<form name="nextpageForm" class="inlineForm" method="post" action="#toolForm("$action")">
-												<fieldset><legend>$tlang.getString('gen.next') $pagesize</legend><input type="submit" name="eventSubmit_doList_next" value="&gt;" disabled="disabled" /></fieldset>
+												<fieldset><legend>$tlang.getFormattedMessage('gen.next.pagesize', $pagesize)</legend><input type="submit" name="eventSubmit_doList_next" value="&gt;" disabled="disabled" /></fieldset>
 												<input type="hidden" name="sakai_csrf_token" value="$sakai_csrf_token" />
 											</form>
 										#end				
@@ -821,10 +818,9 @@
 									 <td>
 									 	<h4>
 											#if ($ann_item.Header.draft)
-											<a href="#toolLinkParam("AnnouncementAction" "doReviseannouncement" "itemReference=$validator.escapeUrl($ann_item.reference)")" title="$tlang.getString("gen.editdraft") $validator.escapeHtml($ann_item.Header.subject)"><span class="highlight">$tlang.getString("gen.draft") - </span>
-												$validator.escapeHtml($ann_item.Header.subject)</a>
+											<a href="#toolLinkParam("AnnouncementAction" "doReviseannouncement" "itemReference=$validator.escapeUrl($ann_item.reference)")" title="$tlang.getFormattedMessage("gen.editdraft.subject", $validator.escapeHtml($ann_item.Header.subject))">$tlang.getFormattedMessage("gen.draft.subject", $validator.escapeHtml($ann_item.Header.subject))</a>
 											#else
-												<a href="#toolLinkParam("AnnouncementAction" "doShowmetadata" "itemReference=$validator.escapeUrl($ann_item.reference)")" title="$tlang.getString("gen.viewann") $validator.escapeHtml($ann_item.Header.subject)">
+												<a href="#toolLinkParam("AnnouncementAction" "doShowmetadata" "itemReference=$validator.escapeUrl($ann_item.reference)")" title="$tlang.getFormattedMessage("gen.viewann.subject", $validator.escapeHtml($ann_item.Header.subject))">
 												$validator.escapeHtml($ann_item.Header.subject)</a>
 											#end
 											#set ($size = 0)
@@ -859,7 +855,7 @@
 											#set($separator="")
 										#end
 											#if ($channel.allowEditMessage($ann_item.Id))
-												<span class="itemAction"><a href="#toolLinkParam("AnnouncementAction" "doReviseannouncement" "itemReference=$validator.escapeUrl($ann_item.reference)")" title="$tlang.getString("gen.editann") $validator.escapeHtml($ann_item.Header.subject)">$tlang.getString("gen.revise")</a>
+												<span class="itemAction"><a href="#toolLinkParam("AnnouncementAction" "doReviseannouncement" "itemReference=$validator.escapeUrl($ann_item.reference)")" title="$tlang.getFormattedMessage("gen.editann.subject", $validator.escapeHtml($ann_item.Header.subject))">$tlang.getString("gen.revise")</a>
 											#end
 											$separator 
 											#set ($ref = $entityManager.newReference($ann_item.Reference))
@@ -867,7 +863,7 @@
 											#set ($origChannelRef = $service.channelReference($ref.Context,$ref.Container)) 
 											#if ($channel.allowRemoveMessage($ann_item.Message))
 													#if ($origChannelRef.equals($channel.Reference))
-														<a href="#toolLinkParam("AnnouncementAction" "doDelete_announcement_link" "itemReference=$validator.escapeUrl($ann_item.reference)")" 	title="$tlang.getString("gen.removeann") $validator.escapeHtml($ann_item.Header.subject)">$tlang.getString("gen.delete")</a>
+														<a href="#toolLinkParam("AnnouncementAction" "doDelete_announcement_link" "itemReference=$validator.escapeUrl($ann_item.reference)")" 	title="$tlang.getFormattedMessage("gen.removeann.subject", $validator.escapeHtml($ann_item.Header.subject))">$tlang.getString("gen.delete")</a>
 													#end
 												#end
 											</span>
