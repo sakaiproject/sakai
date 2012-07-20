@@ -34,12 +34,23 @@
     <html xmlns="http://www.w3.org/1999/xhtml">
       <head><%= request.getAttribute("html.head") %>
       <title><h:outputText value="#{assessmentSettingsMessages.sakai_assessment_manager} #{assessmentSettingsMessages.dash} #{assessmentSettingsMessages.settings}" /></title>
+      <script type="text/javascript" src="/library/js/jquery-latest.min.js"></script>
+      <script type="text/javascript" src="/samigo-app/js/jquery-ui-1.7.2.custom.min.js"></script>
       <samigo:script path="/jsf/widget/hideDivision/hideDivision.js"/>
       <samigo:script path="/jsf/widget/datepicker/datepicker.js"/>
       <samigo:script path="/jsf/widget/colorpicker/colorpicker.js"/>
       <!-- AUTHORING -->
       <samigo:script path="/js/authoring.js"/>
+      <link type="text/css" href="/samigo-app/css/ui-lightness/jquery-ui-1.7.2.custom.css" rel="stylesheet" media="all"/>
 
+      <script type="text/javascript">
+        $(document).ready(function() {
+          // set up the accordion for settings
+          $("#jqueryui-accordion").accordion({ autoHeight: false,collapsible: true });
+          // adjust the height of the iframe to accomodate the expansion from the accordion
+          $("body").height($("body").outerHeight() + 800);
+        });
+      </script>
 
 <script style="text/JavaScript">
 <!--
@@ -329,25 +340,12 @@ function setBlockDivs()
   <h:messages styleClass="messageSamigo" rendered="#{! empty facesContext.maximumSeverity}" layout="table"/>
 </p>
 
-<div class="tier1">
+<div class="tier1" id="jqueryui-accordion">
   <!-- *** GENERAL TEMPLATE INFORMATION *** -->
-
-<p>
-<h:outputText value="#{templateMessages.allMenus0}"/>
-<h:outputLink value="#" title="#{templateMessages.t_showDivs}" onclick="showDivs();">
-<h:outputText value="#{templateMessages.open}"/>
-</h:outputLink>
-<h:outputText value=" | " />
-<h:outputLink value="#" title="#{templateMessages.t_hideDivs}" onclick="hideDivs();">
-<h:outputText value="#{templateMessages.close}"/>
-</h:outputLink>
-<h:outputText value="#{templateMessages.allMenus}"/>
-
-</p>
 <h:panelGroup rendered="#{assessmentSettings.valueMap.templateInfo_isInstructorEditable==true and !assessmentSettings.noTemplate and template.showAssessmentTypes}" >
   <samigo:hideDivision title="#{assessmentSettingsMessages.heading_template_information}" >
 <f:verbatim> <div class="tier2"></f:verbatim>
- <h:panelGrid columns="2" columnClasses="shorttext">
+ <h:panelGrid columns="2" columnClasses="samigoCell">
         <h:outputLabel value="#{assessmentSettingsMessages.template_title}"/>
         <h:outputText escape="false" value="#{assessmentSettings.templateTitle}" />
         <h:outputLabel value="#{assessmentSettingsMessages.template_authors}" rendered="#{assessmentSettings.templateAuthors!=null}"/>
@@ -363,7 +361,7 @@ function setBlockDivs()
 <f:subview id="intro">
 
   <samigo:hideDivision title="#{assessmentSettingsMessages.heading_assessment_introduction}" > <div class="tier2">
-    <h:panelGrid columns="2" columnClasses="shorttext" id="first"
+    <h:panelGrid columns="2" columnClasses="samigoCell" id="first"
       summary="#{templateMessages.enter_template_info_section}">
 
         <h:outputLabel for="assessment_title" value="#{assessmentSettingsMessages.assessment_title}"/>
@@ -404,7 +402,7 @@ function setBlockDivs()
 
   <!-- *** DELIVERY DATES *** -->
   <samigo:hideDivision title="#{assessmentSettingsMessages.heading_assessment_delivery_dates}"> <div class="tier2">
-    <h:panelGrid columns="2" columnClasses="shorttext" summary="#{templateMessages.delivery_dates_sec}" border="0">
+    <h:panelGrid columns="2" columnClasses="samigoCell" summary="#{templateMessages.delivery_dates_sec}" border="0">
       <h:outputLabel for="startDate" value="#{assessmentSettingsMessages.assessment_available_date}"/>
       <samigo:datePicker value="#{assessmentSettings.startDateString}" size="25" id="startDate" />
 	  <h:outputText value="" />
@@ -958,7 +956,7 @@ function setBlockDivs()
   <samigo:hideDivision title="#{assessmentSettingsMessages.heading_metadata}">
     <f:verbatim><div class="tier2"></f:verbatim>
    <f:verbatim><div class="longtext"></f:verbatim> <h:outputLabel value="#{assessmentSettingsMessages.assessment_metadata}" /> <f:verbatim></div><div class="tier3"></f:verbatim>
-    <h:panelGrid columns="2" columnClasses="shorttext">
+    <h:panelGrid columns="2" columnClasses="samigoCell">
       <h:outputLabel for="keywords" value="#{assessmentSettingsMessages.metadata_keywords}"/>
       <h:inputText id="keywords" size="80" value="#{assessmentSettings.keywords}"/>
 
@@ -1019,7 +1017,7 @@ function setBlockDivs()
 </h:form>
 <!-- end content -->
 </div>
-         <script style="text/JavaScript">retainHideUnhideStatus('none');showHideReleaseGroups();</script>
+         <script style="text/JavaScript">showHideReleaseGroups();</script>
 
       </body>
     </html>

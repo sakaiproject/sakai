@@ -50,8 +50,7 @@ public class HideDivisionRenderer extends Renderer
 {
 //  private static final String BARSTYLE = "navModeAction";
   private static final String BARSTYLE = "";
-  private static final String BARTAG = "h4";
-  private static final String BARIMG = "/images/right_arrow.gif";
+  private static final String BARTAG = "h3";
 
   public boolean supportsComponentType(UIComponent component)
   {
@@ -111,13 +110,10 @@ public class HideDivisionRenderer extends Renderer
           .getRequestContextPath();
 
         writer.write("<" + BARTAG + " class=\"" + BARSTYLE + "\">");
-        writer.write("<a href=\"#\""+ " class=\"hideDivision\" onclick=\"javascript:showHideDiv('" + id +
-           "', '" +  contextPath + "');\" onmouseup=\"blur()\"><img id=\"__img_hide_division_" + id + "\" alt=\"Click to reveal:\"");
-        writer.write("    src=\""   + contextPath +
-           BARIMG + "\" style=\"cursor:pointer;\" />");
+        writer.write("<a href=\"#\""+ " class=\"jqueryui-hideDivision\">");
         writer.write("  " + title + "");
         writer.write("</a></"+ BARTAG + ">");
-        writer.write("<div \" id=\"__hide_division_" + id + "\">");
+        writer.write("<div id=\"__hide_division_" + id + "\">");
     }
 
 

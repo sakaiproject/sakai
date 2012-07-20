@@ -408,6 +408,6 @@ a.hideDivision {
     width: 650px; 
 }
 
-
-
-
+#jqueryui-accordion .ui-accordion-content {
+    background-color: #efefef;
+}

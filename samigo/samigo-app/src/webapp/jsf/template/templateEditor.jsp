@@ -33,7 +33,19 @@
     <html xmlns="http://www.w3.org/1999/xhtml">
       <head><%= request.getAttribute("html.head") %>
       <title><h:outputText value="#{templateMessages.template_editor}" /></title>
+      <script type="text/javascript" src="/library/js/jquery-latest.min.js"></script>
+      <script type="text/javascript" src="/samigo-app/js/jquery-ui-1.7.2.custom.min.js"></script>
       <samigo:script path="/jsf/widget/hideDivision/hideDivision.js"/>
+      <link type="text/css" href="/samigo-app/css/ui-lightness/jquery-ui-1.7.2.custom.css" rel="stylesheet" media="all"/>
+
+      <script type="text/javascript">
+        $(document).ready(function() {
+          // set up the accordion for settings
+          $("#jqueryui-accordion").accordion({ autoHeight: false,collapsible: true });
+          // adjust the height of the iframe to accomodate the expansion from the accordion
+          $("body").height($("body").outerHeight() + 800);
+        });
+      </script>
       </head>
       <body onload="<%= request.getAttribute("html.body.onload") %>">
 <!-- content... -->
@@ -76,25 +88,14 @@
  <h:outputText escape="false" value="#{templateMessages.template_instructions}"/>
  <h:messages styleClass="messageSamigo" rendered="#{! empty facesContext.maximumSeverity}" layout="table"/>
   <!-- *** GENERAL TEMPLATE INFORMATION *** -->
-  <div class="tier1">
-<p>
-<h:outputLink title="#{templateMessages.t_showDivs}" value="#" onclick="showDivs();">
-<h:outputText value="#{templateMessages.allMenus0}"/>
-<h:outputText value="#{templateMessages.open}"/>
-</h:outputLink>
-<h:outputText value=" | " />
-<h:outputLink title="#{templateMessages.t_hideDivs}" value="#" onclick="hideDivs();">
-<h:outputText value="#{templateMessages.close}"/>
-</h:outputLink>
-<h:outputText value="#{templateMessages.allMenus}"/>
-</p>
+  <div class="tier1" id="jqueryui-accordion">
   <samigo:hideDivision id="div1" title="#{templateMessages.template_inform}" >
     <div class="tier2">
        <h:selectBooleanCheckbox id="infocanbeviewed"
           value="#{template.valueMap.templateInfo_isInstructorEditable}"/>
      <h:outputText value="#{templateMessages.template_canbeviewed}"/>
   <div class="tier3">
- <h:panelGrid columns="2" columnClasses="shorttext"
+ <h:panelGrid columns="2" columnClasses="samigoCell"
       summary="#{templateMessages.enter_template_info_section}">
 
 
