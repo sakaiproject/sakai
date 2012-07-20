@@ -1668,6 +1668,7 @@ Here are the definition and 12 cases I came up with (lydia, 01/2006):
 	  // this variable should look something like this "42.1|2,2"
 	  String allAnswerText = calculatedAnswersMap.get(calcQuestionAnswerSequence).toString();
 	  
+	  // NOTE: this correctAnswer will already have been trimmed to the appropriate number of decimals
 	  BigDecimal correctAnswer = new BigDecimal(getAnswerExpression(allAnswerText));
 	  
 	  // Determine if the acceptable variance is a constant or a % of the answer
@@ -2194,14 +2195,11 @@ Here are the definition and 12 cases I came up with (lydia, 01/2006):
    * @return
    */
   private String applyPrecisionToNumberString(String numberStr, int decimalPlaces) {
-      Double calculatedAnswer = Double.valueOf(numberStr);
-      
       // Trim off excess decimal points based on decimalPlaces value
-      BigDecimal bd = new BigDecimal(calculatedAnswer);
-      bd = bd.setScale(decimalPlaces,BigDecimal.ROUND_HALF_UP);
-      calculatedAnswer = bd.doubleValue();
+      BigDecimal bd = new BigDecimal(numberStr);
+      bd = bd.setScale(decimalPlaces,BigDecimal.ROUND_HALF_EVEN);
 
-      String displayAnswer = calculatedAnswer.toString();
+      String displayAnswer = bd.toString();
       if (decimalPlaces == 0) { // Remove ".0" if decimalPlaces ==0
           displayAnswer = displayAnswer.replace(".0", "");
       }
