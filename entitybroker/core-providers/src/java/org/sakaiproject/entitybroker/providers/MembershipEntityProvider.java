@@ -493,6 +493,11 @@ public class MembershipEntityProvider extends AbstractEntityProvider implements 
             }
             // find memberships by userId
             userId = userEntityProvider.findAndCheckUserId(userId, null);
+            //SAK-22396 if the user is unknown this will be null
+            if (userId == null) {
+            	throw new IllegalArgumentException("unable to find user");
+            }
+            
             boolean userCurrent = userId.equals(currentUserId);
             if (!userCurrent && !developerHelperService.isUserAdmin(currentUserId)) {
                 throw new SecurityException(
