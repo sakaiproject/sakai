@@ -97,6 +97,8 @@ $.tablesorter.addParser({
 var lowResModeWidth = 768;
 var lowResMode = null;
 
+var rosterOfficialPictureMode = false;
+
 /* New Roster2 functions */
 (function() {
 	
@@ -352,7 +354,7 @@ function switchState(state, arg, searchQuery) {
 		
 		var members = {};
         
-        if(arg && arg.forceOfficialPicture) {
+        if((arg && arg.forceOfficialPicture) || rosterOfficialPictureMode == true) {
             members = getMembers(searchQuery, true, state, true);
         } else {
             members = getMembers(searchQuery, true, state, false);
@@ -395,6 +397,9 @@ function switchState(state, arg, searchQuery) {
 				    'viewProfile':rosterCurrentUserPermissions.viewProfile,
 				    'viewConnections':(undefined != window.friendStatus)}, // do we have Profile2 1.4 for adding, removing etc. connections?
 				    'roster_pics');
+			    setupHideNamesAndSingleColumnButtons(state,searchQuery);
+
+                rosterOfficialPictureMode = true;
 	        });
 	
 	        $('#roster_profile_picture_button').click(function(e) {
@@ -411,6 +416,9 @@ function switchState(state, arg, searchQuery) {
 				    'viewProfile':rosterCurrentUserPermissions.viewProfile,
 				    'viewConnections':(undefined != window.friendStatus)}, // do we have Profile2 1.4 for adding, removing etc. connections?
 				    'roster_pics');
+			    setupHideNamesAndSingleColumnButtons(state,searchQuery);
+
+                rosterOfficialPictureMode = false;
 	        });
 
 			readySearchButton(state);
@@ -430,13 +438,7 @@ function switchState(state, arg, searchQuery) {
 				'viewConnections':(undefined != window.friendStatus)}, // do we have Profile2 1.4 for adding, removing etc. connections?
 				'roster_pics');
 			
-			readyHideNamesButton(state, searchQuery);
-			
-			if (lowResMode) {			
-				$('#roster_form_pics_view').hide();
-			} else {
-				readyViewSingleColumnButton(state, searchQuery);
-			}
+			setupHideNamesAndSingleColumnButtons(state,searchQuery);
 			
 			if(window.frameElement) {
 				setMainFrameHeight(window.frameElement.id);
@@ -591,6 +593,15 @@ function switchState(state, arg, searchQuery) {
             		function() { switchState(rosterLastStateNotPermissions) } );
         });
 	}
+}
+
+function setupHideNamesAndSingleColumnButtons(state,searchQuery) {
+    readyHideNamesButton(state, searchQuery);
+    if (lowResMode) {			
+	    $('#roster_form_pics_view').hide();
+	} else {
+	    readyViewSingleColumnButton(state, searchQuery);
+    }
 }
 
 function getRosterSite() {
