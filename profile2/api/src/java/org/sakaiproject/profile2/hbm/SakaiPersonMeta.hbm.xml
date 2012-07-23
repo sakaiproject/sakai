@@ -27,15 +27,15 @@
 	
 	<!--  these are on the SakaiPerson object. -->
 	<query name="findSakaiPersonsByNameOrEmail">
-    	<![CDATA[select sp.agentUuid from org.sakaiproject.component.common.edu.person.SakaiPersonImpl as sp where sp.nickname like lower(:search) or sp.mail like :search]]>
+    	<![CDATA[select sp.agentUuid from org.sakaiproject.component.common.edu.person.SakaiPersonImpl as sp where lower(sp.nickname) like lower(:search) or lower(sp.mail) like lower(:search)]]>
   	</query>
   
  	<query name="findSakaiPersonsByInterest">
-    	<![CDATA[select sp.agentUuid from org.sakaiproject.component.common.edu.person.SakaiPersonImpl as sp where sp.favouriteBooks like lower(:search) or sp.favouriteTvShows like lower(:search) or sp.favouriteMovies like lower(:search) or sp.favouriteQuotes like lower(:search) or sp.notes like lower(:search)]]>
+    	<![CDATA[select sp.agentUuid from org.sakaiproject.component.common.edu.person.SakaiPersonImpl as sp where lower(sp.favouriteBooks) like lower(:search) or lower(sp.favouriteTvShows) like lower(:search) or lower(sp.favouriteMovies) like lower(:search) or lower(sp.favouriteQuotes) like lower(:search) or lower(sp.notes) like lower(:search)]]>
   	</query>
   	
   	<query name="findSakaiPersonsByInterestAndBusinessBio">
-    	<![CDATA[select sp.agentUuid from org.sakaiproject.component.common.edu.person.SakaiPersonImpl as sp where sp.favouriteBooks like lower(:search) or sp.favouriteTvShows like lower(:search) or sp.favouriteMovies like lower(:search) or sp.favouriteQuotes like lower(:search) or sp.notes like lower(:search) or sp.businessBiography like lower(:search)]]>
+    	<![CDATA[select sp.agentUuid from org.sakaiproject.component.common.edu.person.SakaiPersonImpl as sp where lower(sp.favouriteBooks) like lower(:search) or lower(sp.favouriteTvShows) like lower(:search) or lower(sp.favouriteMovies) like lower(:search) or lower(sp.favouriteQuotes) like lower(:search) or lower(sp.notes) like lower(:search) or lower(sp.businessBiography) like lower(:search)]]>
   	</query>
   	
   	<query name="getAllSakaiPersonIds">
