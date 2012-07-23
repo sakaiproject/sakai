@@ -31,7 +31,8 @@
 <!-- wrap tool in portletBody div for PDA portal compatibility -->
 <div class="portletBody">
 
-<div id="roster_navbar"></div>
+<!--div id="roster_navbar"></div-->
+<ul id="roster_navbar" class="navIntraTool actionToolBar" role="menu"></ul>
 
 <div id="rosterMainContainer">
 	<form id="roster_form">
@@ -45,20 +46,11 @@
 <!--  Templates Begin -->
 
 <div id="roster_navbar_template" style="display:none"><!--
-<div class="navIntraTool rosterNavBar">
-	<span id="page-links">
-		<a id="navbar_overview_link" title="${navbar_overview_tooltip}"
-			href="javascript:;">${navbar_overview}</a>
-		<a id="navbar_pics_link" title="${navbar_pics_tooltip}"
-			href="javascript:;">${navbar_pics}</a>
-		<a id="navbar_group_membership_link" title="${navbar_group_membership_tooltip}"
-			href="javascript:;">${navbar_group_membership}</a>
-		<a id="navbar_enrollment_status_link" title="${navbar_status_tooltip}"
-			href="javascript:;">${navbar_status}</a>
-		<a id="navbar_permissions_link" title="${navbar_permissions_tooltip}"
-			href="javascript:;">${navbar_permissions}</a>
-	</span>
-</div>
+    <li id="navbar_overview_link" role="menuitem"><span class="firstToolBarItem current"><a title="${navbar_overview_tooltip}" href="javascript:;">${navbar_overview}</a></span></li>
+    <li id="navbar_pics_link" role="menuitem"><span><a title="${navbar_pics_tooltip}" href="javascript:;">${navbar_pics}</a></span></li>
+    <li id="navbar_group_membership_link" role="menuitem"><span><a title="${navbar_group_membership_tooltip}" href="javascript:;">${navbar_group_membership}</a></span></li>
+    <li id="navbar_enrollment_status_link" role="menuitem"><span><a title="${navbar_status_tooltip}" href="javascript:;">${navbar_status}</a></span></li>
+    <li id="navbar_permissions_link" role="menuitem"><span><a title="${navbar_permissions_tooltip}" href="javascript:;">${navbar_permissions}</a></span></li>
 -->
 </div>
 
@@ -413,8 +405,8 @@
 
 <div id="roster_pics_wrapper_template" style="display:none"><!--
 <div id="roster_type_selector">
-    <input type="radio" name="roster_picture_type" value="official" id="roster_official_picture_button"/><span>${roster_show_official_pictures}</span>
-    <input type="radio" name="roster_picture_type" value="profile" id="roster_profile_picture_button" checked/><span>${roster_show_profile_pictures}</span>
+    <input type="radio" name="roster_picture_type" value="official" id="roster_official_picture_button" {if rosterOfficialPictureMode == true}checked{/if}/><span>${roster_show_official_pictures}</span>
+    <input type="radio" name="roster_picture_type" value="profile" id="roster_profile_picture_button" {if rosterOfficialPictureMode == false}checked{/if}/><span>${roster_show_profile_pictures}</span>
 </div>
 <div id="roster_pics"></div>
 -->

@@ -152,23 +152,23 @@ var rosterOfficialPictureMode = false;
 			'roster_navbar');
 	}
 	
-	$('#navbar_overview_link').bind('click', function(e) {
+	$('#navbar_overview_link > span > a').click(function(e) {
 		return switchState(STATE_OVERVIEW);
 	});
 
-	$('#navbar_pics_link').bind('click', function(e) {
+	$('#navbar_pics_link > span > a').click(function(e) {
 		return switchState(STATE_PICTURES);
 	});
 
-	$('#navbar_group_membership_link').bind('click', function(e) {
+	$('#navbar_group_membership_link > span > a').click(function(e) {
 		return switchState(STATE_GROUP_MEMBERSHIP);
 	});
 	
-	$('#navbar_enrollment_status_link').bind('click', function(e) {
+	$('#navbar_enrollment_status_link > span > a').click(function(e) {
 		return switchState(STATE_ENROLLMENT_STATUS);
 	});
 	
-    $('#navbar_permissions_link').bind('click', function(e) {
+    $('#navbar_permissions_link > span > a').click(function(e) {
         return switchState(STATE_PERMISSIONS);
     });
         	
@@ -247,6 +247,8 @@ var rosterOfficialPictureMode = false;
 })();
 
 function switchState(state, arg, searchQuery) {
+
+    $('#roster_navbar > li > span').removeClass('current');
 	
 	// so we can return to the previous state after viewing permissions
 	if (state != STATE_PERMISSIONS) {
@@ -286,6 +288,8 @@ function switchState(state, arg, searchQuery) {
 	}
 		
 	if (STATE_OVERVIEW === state) {
+
+	    $('#navbar_overview_link > span').addClass('current');
 	
 		if (lowResMode) {
 			$('#roster_navbar_dropdown').val(STATE_OVERVIEW);
@@ -345,6 +349,8 @@ function switchState(state, arg, searchQuery) {
 		});
 		
 	} else if (STATE_PICTURES === state) {
+
+	    $('#navbar_pics_link > span').addClass('current');
 	
 		if (lowResMode) {
 			$('#roster_navbar_dropdown').val(STATE_PICTURES);
@@ -446,6 +452,8 @@ function switchState(state, arg, searchQuery) {
 		});
 		
 	} else if (STATE_GROUP_MEMBERSHIP === state) {
+
+	    $('#navbar_group_membership_link > span').addClass('current');
 		
 		if (lowResMode) {
 			$('#roster_navbar_dropdown').val(STATE_GROUP_MEMBERSHIP);
@@ -520,6 +528,8 @@ function switchState(state, arg, searchQuery) {
 		}
 		
 	} else if (STATE_ENROLLMENT_STATUS === state) {
+
+	    $('#navbar_enrollment_status_link > span').addClass('current');
 		
 		if (lowResMode) {
 			$('#roster_navbar_dropdown').val(STATE_ENROLLMENT_STATUS);
@@ -572,6 +582,8 @@ function switchState(state, arg, searchQuery) {
 			}
 		});
 	} else if (STATE_PERMISSIONS === state) {
+
+	    $('#navbar_permissions_link > span').addClass('current');
 		
 		SakaiUtils.renderTrimpathTemplate('roster_permissions_header_template',
 				{'siteTitle':site.title}, 'roster_header');
