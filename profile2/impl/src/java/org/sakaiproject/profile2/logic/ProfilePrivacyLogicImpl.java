@@ -210,6 +210,11 @@ public class ProfilePrivacyLogicImpl implements ProfilePrivacyLogic {
 	        
 	    	case PRIVACY_OPTION_STAFFINFO:
 	    		
+	    		//if restricted to only self, not allowed
+	        	if(profilePrivacy.getStaffInfo() == ProfileConstants.PRIVACY_OPTION_ONLYME) {
+	        		result = false; break;
+	        	}
+	    		
 	    		//if user is friend and friends are allowed
 	        	if(isConnected && profilePrivacy.getStaffInfo() == ProfileConstants.PRIVACY_OPTION_ONLYFRIENDS) {
 	        		result = true; break;
@@ -226,6 +231,11 @@ public class ProfilePrivacyLogicImpl implements ProfilePrivacyLogic {
 	        	}
 	        
 	    	case PRIVACY_OPTION_STUDENTINFO:
+	    		
+	    		//if restricted to only self, not allowed
+	        	if(profilePrivacy.getStudentInfo() == ProfileConstants.PRIVACY_OPTION_ONLYME) {
+	        		result = false; break;
+	        	}
 	    		
 	    		//if user is friend and friends are allowed
 	        	if(isConnected && profilePrivacy.getStudentInfo() == ProfileConstants.PRIVACY_OPTION_ONLYFRIENDS) {
