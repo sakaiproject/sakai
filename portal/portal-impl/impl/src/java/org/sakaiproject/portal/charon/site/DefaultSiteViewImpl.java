@@ -28,6 +28,9 @@ import java.util.Iterator;
 
 import javax.servlet.http.HttpServletRequest;
 
+import org.sakaiproject.authz.api.AuthzGroup;
+import org.sakaiproject.authz.cover.AuthzGroupService;
+import org.sakaiproject.authz.cover.SecurityService;
 import org.sakaiproject.component.api.ServerConfigurationService;
 import org.sakaiproject.entity.api.ResourceProperties;
 import org.sakaiproject.exception.IdUnusedException;
@@ -40,6 +43,7 @@ import org.sakaiproject.site.api.SitePage;
 import org.sakaiproject.tool.api.Session;
 import org.sakaiproject.user.api.Preferences;
 import org.sakaiproject.user.api.PreferencesService;
+import org.sakaiproject.user.cover.UserDirectoryService;
 
 import org.sakaiproject.util.Web;
 
@@ -180,6 +184,21 @@ public class DefaultSiteViewImpl extends AbstractSiteViewImpl
 		String preferencesToolId = serverConfigurationService.getString("portal.preferencestool","sakai.preferences");
 		String worksiteToolId = serverConfigurationService.getString("portal.worksitetool","sakai.sitesetup");
 
+        // SAK-22390. Need to make sure that the current user has permission to create a site.
+        boolean canAddSite = false;
+        try {
+            // See if current user is super duper and say yes if so
+            canAddSite = SecurityService.isSuperUser(session.getUserId());
+            if(!canAddSite) {
+                // Not super duper. Test the user template realm.
+                String type = UserDirectoryService.getUser(session.getUserId()).getType();
+                AuthzGroup ag = AuthzGroupService.getAuthzGroup("!user.template." + type);
+                canAddSite = ag.getRole(".auth").isAllowed("site.add");
+            }
+        } catch(Exception e) {
+            System.err.println("WARN: Failed to set canAddSite for current user. Defaulting to false ...");
+        }
+
  		String profileToolUrl = null;
  		String worksiteToolUrl = null;
  		String prefsToolUrl = null;
@@ -215,7 +234,7 @@ public class DefaultSiteViewImpl extends AbstractSiteViewImpl
 		if ( prefsToolUrl != null ) {
 			renderContextMap.put("prefsToolUrl", prefsToolUrl);
 		}
-		if ( worksiteToolUrl != null ) {
+		if ( canAddSite && worksiteToolUrl != null ) {
 			renderContextMap.put("worksiteToolUrl", worksiteToolUrl);
 		}
 		if (serverConfigurationService.getBoolean("portal.use.tutorial", true)){
