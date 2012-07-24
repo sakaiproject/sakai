@@ -22,6 +22,8 @@
 package org.sakaiproject.tool.assessment.contentpackaging;
 
 import java.io.IOException;
+import java.io.UnsupportedEncodingException;
+import java.net.URLDecoder;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.Iterator;
@@ -334,6 +336,13 @@ public class ManifestGenerator {
 						src = splittedString[i].substring(srcStartIndex + 5,
 								srcEndIndex);
 						
+						try {
+							src = URLDecoder.decode(src, "UTF-8");
+						} catch (UnsupportedEncodingException e) {
+							log.error(e.getMessage());
+							e.printStackTrace();
+						}
+							
 						if (src.indexOf(siteCollection) > -1) {
 							resourceId = src.replace(prependString, "");
 							content = contentHostingService.getResource(resourceId).getContent();
