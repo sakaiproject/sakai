@@ -79,7 +79,7 @@ public class PDAHandler extends PageHandler
 	private static final String TOOLCONFIG_SHOW_RESET_BUTTON = "reset.button";
 
     private static final String BYPASS_URL_PROP = "portal.pda.bypass";
-	private static final String DEFAULT_BYPASS_URL = "\\.jpg$|\\.gif$|\\.js$|\\.png$|\\.jpeg$|\\.prf$|\\.css$|\\.zip$|\\.pdf\\.mov$|\\.json$|\\.jsonp$\\.xml$|\\.ajax$|\\.xls$|\\.xlsx$|\\.doc$|\\.docx$|uvbview$|linktracker$";
+	private static final String DEFAULT_BYPASS_URL = "\\.jpg$|\\.gif$|\\.js$|\\.png$|\\.jpeg$|\\.prf$|\\.css$|\\.zip$|\\.pdf\\.mov$|\\.json$|\\.jsonp$\\.xml$|\\.ajax$|\\.xls$|\\.xlsx$|\\.doc$|\\.docx$|uvbview$|linktracker$|hideshowcolumns$";
 
 	// Make sure to lower-case the matching regex (i.e. don't use IResourceListener below)
     private static final String BYPASS_QUERY_PROP = "portal.pda.bypass.query";
