@@ -53,7 +53,7 @@ function textCounter(field, maxlimit) {
 <h:messages styleClass="messageSamigo" rendered="#{! empty facesContext.maximumSeverity}" layout="table"/>
 <h:outputText value="#{questionPoolMessages.add_p_required}"/>
  <div class="tier1">
- <h:panelGrid columns="2" columnClasses="shorttext">
+ <h:panelGrid columns="2" columnClasses="shorttext" rowClasses="poolName, creator, dept, description, objectives, keywords" id="samPool">
 
   <h:outputLabel for="namefield" value="#{questionPoolMessages.p_name}#{questionPoolMessages.star}"/>
   <h:inputText id="namefield" maxlength="255" size="30" value="#{questionpool.currentPool.displayName}"/>

@@ -80,7 +80,7 @@ function textCounter(field, maxlimit) {
 <h:messages styleClass="messageSamigo" rendered="#{! empty facesContext.maximumSeverity}" layout="table"/>
 <h:outputText rendered="#{questionpool.importToAuthoring == 'true'}" value="#{questionPoolMessages.msg_imp_editpool}"/>
  <div class="tier2">
-<h:panelGrid columns="2" columnClasses="shorttext">
+<h:panelGrid columns="2" columnClasses="shorttext" rowClasses="poolName, creator, dept, description, objectives, keywords, hidden" id="samPool">
   <h:outputLabel for="namefield" value="#{questionPoolMessages.p_name}"/>
   <h:inputText readonly="#{questionpool.importToAuthoring == 'true' || questionpool.owner!=questionpool.currentPool.owner}" onchange="inIt()" id="namefield" size="30" maxlength="255" value="#{questionpool.currentPool.displayName}" />
   <h:outputLabel for="ownerfield" value="#{questionPoolMessages.creator}"/>
