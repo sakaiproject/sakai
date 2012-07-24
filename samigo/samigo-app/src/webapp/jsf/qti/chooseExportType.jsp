@@ -32,7 +32,7 @@
       <title><h:outputText value="#{authorImportExport.export_a} #{authorImportExport.dash} #{assessmentBean.title}" /></title>
       </head>
       <body onload="<%= request.getAttribute("html.body.onload") %>">
-<script style="text/JavaScript">
+<script type="text/JavaScript">
 function getSelectedType(qtiUrl, cpUrl){
  var tables= document.getElementsByTagName("TABLE");
   for (var i = 0; i < tables.length; i++) {

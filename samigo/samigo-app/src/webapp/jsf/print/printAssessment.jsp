@@ -18,7 +18,7 @@
   
   <samigo:stylesheet path="/css/print/print.css"/>
   
-  <script style="text/JavaScript">
+  <script type="text/JavaScript">
 <!--
 function resetSelectMenus(){
   var selectlist = document.getElementsByTagName("SELECT");

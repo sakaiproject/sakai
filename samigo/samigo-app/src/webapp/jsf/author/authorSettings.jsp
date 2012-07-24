@@ -52,7 +52,7 @@
         });
       </script>
 
-<script style="text/JavaScript">
+<script type="text/JavaScript">
 <!--
 function validateUrl(){
   var list =document.getElementsByTagName("input");
@@ -1017,7 +1017,7 @@ function setBlockDivs()
 </h:form>
 <!-- end content -->
 </div>
-         <script style="text/JavaScript">showHideReleaseGroups();</script>
+         <script type="text/JavaScript">showHideReleaseGroups();</script>
 
       </body>
     </html>

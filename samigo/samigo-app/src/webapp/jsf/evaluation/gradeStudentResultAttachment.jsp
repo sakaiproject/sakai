@@ -20,7 +20,7 @@
 --%>
 -->
 
-<script style="text/JavaScript">
+<script type="text/JavaScript">
 function addAttachments(field){
 var insertlinkid= field.id.replace("addAttachments", "hiddenlink");
 var newindex = 0;
