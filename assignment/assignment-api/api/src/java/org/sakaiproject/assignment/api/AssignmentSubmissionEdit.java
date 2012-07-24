@@ -60,6 +60,22 @@ public interface AssignmentSubmissionEdit extends AssignmentSubmission, Edit
 	public void addSubmitter(User submitter);
 
 	/**
+	 * String id of User or Group
+	 * 
+	 * @param id -
+	 *        User or group id of submitter.
+	 */
+	public void setSubmitterId(String id);
+        /**
+         * String entry for submission log.
+         * 
+         * @param entry - 
+         *         String log entry for group submission
+         */
+        public void addSubmissionLogEntry(String entry);
+        
+        
+	/**
 	 * Remove an User from the submitter list
 	 * 
 	 * @param submitter -

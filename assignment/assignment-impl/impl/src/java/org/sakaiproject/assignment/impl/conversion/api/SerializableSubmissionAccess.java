@@ -270,6 +270,17 @@ public interface SerializableSubmissionAccess
 	public List<String> getSubmitters();
 
 	/**
+	 * @return the submitter id
+	 */
+	public String getSubmitterId();
+        /**
+	 * @param id the submitter id to set
+	 */
+	public void setSubmitterId(String id);
+        public void setSubmissionLog(List<String> log);
+        public List<String> getSubmissionLog();
+        
+	/**
 	 * @param submitters the submitters to set
 	 */
 	public void setSubmitters(List<String> submitters);

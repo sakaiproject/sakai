@@ -95,15 +95,8 @@ public class SubmitterIdAssignmentsConversionHandler implements SchemaConversion
 
 		try
 		{
-			List<String> submitters = sax.getSubmitters();
-			if(submitters == null || submitters.isEmpty())
-			{
-				updateRecord.setString(1, null);
-			}
-			else
-			{
-				updateRecord.setString(1, submitters.get(0));
-			}
+			updateRecord.setString(1, sax.getSubmitterId());
+			
 			String dateSubmitted = sax.getDatesubmitted();
 			if(dateSubmitted == null || dateSubmitted.trim().equals(""))
 			{

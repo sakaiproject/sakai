@@ -37,6 +37,15 @@ import org.sakaiproject.user.api.User;
 public interface AssignmentEdit extends Assignment, Edit
 {
 	/**
+	 * Set if this a group submission type of Assignment.
+	 * 
+	 * @param boolean -
+	 *        is a group submission assignment.
+	 */
+        public void setGroup(boolean group);
+	
+        
+        /**
 	 * Set the reference of the AssignmentContent of this Assignment.
 	 * 
 	 * @param String -
@@ -67,6 +76,14 @@ public interface AssignmentEdit extends Assignment, Edit
 	 *        The Time at which the Assignment is due.
 	 */
 	public void setDueTime(Time dueTime);
+
+	/**
+         * Set the time at which the assignment is visible; may be null.
+         *
+         * @param visibleTime -
+         *        The Time at which the Assignment is visible.
+         */
+        public void setVisibleTime(Time visibleTime);
 
 	/**
 	 * Set the drop dead time after which responses to this assignment are considered late; may be null.

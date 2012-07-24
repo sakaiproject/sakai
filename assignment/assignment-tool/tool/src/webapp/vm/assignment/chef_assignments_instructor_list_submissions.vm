@@ -96,7 +96,12 @@
 		#end
 	</ul>
 	<h3>
-		$validator.escapeHtml($assignment.getTitle())<span class="highlight"> - $!tlang.getString('gen.subm2') </span>
+		$validator.escapeHtml($assignment.getTitle()) 
+        #if ($!assignment.isGroup() )
+             <span class="group_icon" title="$tlang.getString('gen.groupassignment')" alt="$tlang.getString('gen.groupassignment')"></span>
+        #else
+             <span class="user_icon" title="$tlang.getString('gen.userassignment')" alt="$tlang.getString('gen.userassignment')"></span>
+        #end <span class="highlight">  - $!tlang.getString('gen.subm2') </span>
 	</h3>
 	#if ($alertMessage)<div class="alertMessage">$tlang.getString("gen.alert") $validator.escapeHtml($alertMessage)</div><div class="clear"></div>#end
 	## reminder of submission download url
@@ -113,12 +118,10 @@
 			<input type="hidden" name="option" id="option" value="x" />
 			<input type="hidden" name="eventSubmit_doView_submission_list_option" value="x" />
 			## show the view by group choice when there is at least one group defined
+			#if (!$assignment.isGroup())
+			#if ($!groups.hasNext())
 			<div class="navPanel">
 				<div class="viewNav">
-					#if ($!groups.hasNext())
-						<div class="instruction">
-							$tlang.getString("view_instruction") 
-						</div>
 						<label for="view">
 							$tlang.getString("gen.view2")
 						</label>
@@ -133,24 +136,26 @@
 								<option value="$!aGroup.Reference" #if($!view.equals($!aGroup.Reference))selected="selected"#end >$validator.escapeHtml($aGroup.Title)</option>
 							#end
 						</select>
-					#end
-					<p />
-					<label for="$form_search" class="skip">$tlang.getString("search")</label>
-					<input value="$validator.escapeHtml($searchString)" name="search" id="search" type="text" class="searchField"  size="20" />
-					<input type="button" value="$tlang.getString('search')" 
-						onclick="document.getElementById('option').value='search';document.viewForm.submit();return false;" />
-					#if (($!searchString) && (!$searchString.equals("")))
-						<input type="button" class="button" value="$tlang.getString("search_clear")" 
-							onclick="document.getElementById('option').value='clearSearch';document.viewForm.submit();return false;" />
-					#end
+					</div>
 				</div>
+			#end
+			<p />
+			<label for="$form_search" class="skip">$tlang.getString("search")</label>
+			<input value="$validator.escapeHtml($searchString)" name="search" id="search" type="text" class="searchField"  size="20" />
+			<input type="button" value="$tlang.getString('search')" 
+				onclick="document.getElementById('option').value='search';document.viewForm.submit();return false;" />
+			#if (($!searchString) && (!$searchString.equals("")))
+				<input type="button" class="button" value="$tlang.getString("search_clear")" 
+					onclick="document.getElementById('option').value='clearSearch';document.viewForm.submit();return false;" />
+				#end
 			</div>
+			</div>
+                        #end
 		#set ($submissionType = $assignment.getContent().getTypeOfSubmission())
 			#set ($showMsg = false)
 			#set ($showMsg = $!allMsgNumber)
 			#if (!$!showMsg || $showMsg ==0)
 				<div class="allPurpose">
-					<br/>
 					$tlang.getString("nostudent_searchview")
 				</div>
 			#else
@@ -369,18 +374,30 @@
 				<p class="discTria">
 					<a href="#" onclick="javascript:showAllowResubmission();">
 					<img src="#imageLink("sakai/expand.gif")" alt="$tlang.getString("allowResubmission.show")" border="0" width="13" height="13" align="top" /></a>
+						#if ($assignment.isGroup())
+							$tlang.getString("allowResubmission.groups.label")
+						#else
 						$tlang.getString("allowResubmission.label")
+						#end
 				</p>
 			</div>
 			<div id="allowResubmission_shown" #if ($!showAllowResubmission && $!value_SubmissionType != 4)style="display:block"#else style="display:none"#end>
 				<p class="discTria">
 					<a href="#" onclick="javascript:hideAllowResubmission();">
 					<img src="#imageLink("sakai/collapse.gif")" alt="$tlang.getString("allowResubmission.hide")" border="0" width="13" height="13" align="top" /></a>
+					        #if ($assignment.isGroup())
+                                                        $tlang.getString("allowResubmission.groups.label")
+                                                #else
 						$tlang.getString("allowResubmission.label")
+                                                #end
 				</p>
 				<div id="allowResubmission_shownInner" style="display:none">
 				 <p class="instruction">
+                #if ($assignment.isGroup())
+                    $tlang.getString("allowResubmission.groups.instruction")
+                #else
 				  $tlang.getString("allowResubmission.instruction")
+                #end
 				 </p>
 				 ##show it only for those assignments not of type non-electronic submission
 							<p class="shorttext" id="allowResubmitNumber">
@@ -444,7 +461,11 @@
 					</th>
 					<th id="studentname">
 						<a href="#" onclick="location='#toolLinkParam("AssignmentAction" "doSort_grade_submission" "criteria=$!sort_lastName")'; return false;"   title="$tlang.getString("gen.sorbylas")">
+                                                        #if ($assignment.isGroup())
+                                                                $tlang.getString("gen.group")
+                                                        #else
 							$tlang.getString("gen.student")
+                                                        #end
 							#if ($sortedBy.equals($!sort_lastName)) 
 								#if ($sortedAsc.equals("true")) 
 									<img id="sortascendinglastname" src = "#imageLink("sakai/sortascending.gif")" border="0" alt="$tlang.getString("gen.sorasc")" /> 
@@ -524,11 +545,17 @@
 					#set($submission = $userSubmission.Submission)
 					#set($siteUser=false)
 					#set($submittedBy=false)
-					#set($siteUser = $userSubmission.User)
 					#set($submitterId = $!siteUser.getId())
-					#set($submitterName=$!siteUser.sortName)
 					#set($submittedBy=$userSubmission.SubmittedBy)
-					#set($submitterDisplayId=$!siteUser.getDisplayId())
+					#if ($assignment.isGroup())
+					   #set($siteUser = $userSubmission.Group)
+					   #set($submitterName=$!siteUser.title)
+					   #set($gusers = $submission.getSubmitters())
+					#else
+					   #set($siteUser = $userSubmission.User)
+					   #set($submitterName=$!siteUser.sortName)
+					   #set($submitterDisplayId=$!siteUser.getDisplayId())
+					#end
 					#if ($!submitterDisplayId)
 						##attach the displayId
 						#set($submitterName=$submitterName.concat(" (").concat($submitterDisplayId).concat(")"))
@@ -566,6 +593,15 @@
 										#end
 									#end
 									$validator.escapeHtml($submitterName)
+									#if ($gusers)
+                                                                                <div style="font-size: smaller; color: blue;">
+                                                                                        #foreach ($user in $gusers)
+												#if($velocityCount > 1), #end
+												$user.getDisplayName()
+                                                                                        #end
+                                                                                </div>
+                                                                        #end
+
 									<div class="itemAction">
 										<a href="#toolLinkParam("AssignmentAction" "doGrade_submission" "assignmentId=$validator.escapeUrl($assignment.Reference)&submissionId=$validator.escapeUrl($submission.Reference)")" title="$tlang.getString("listsub.grasub")">$!tlang.getString("gen.assign.gra")<span class="skip">:$validator.escapeHtml($submitterName)</span></a>
 										#foreach ($provider in $providers)
@@ -675,7 +711,8 @@
 				$tlang.getString("gen.asstit")
 			</th>
 			<td>
-				$validator.escapeHtml($assignment.title)
+                                        #assignmentTitleIcon($assignment)
+					$validator.escapeHtml($!assignment_title)
 			</td>
 		</tr>
 		<tr>

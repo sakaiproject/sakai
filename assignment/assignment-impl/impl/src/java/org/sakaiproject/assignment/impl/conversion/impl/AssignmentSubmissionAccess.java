@@ -24,9 +24,12 @@ package org.sakaiproject.assignment.impl.conversion.impl;
 import java.io.Reader;
 import java.io.StringReader;
 import java.util.ArrayList;
+import java.util.Enumeration;
 import java.util.HashMap;
+import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
+import java.util.Stack;
 
 import javax.xml.parsers.ParserConfigurationException;
 import javax.xml.parsers.SAXParser;
@@ -36,8 +39,10 @@ import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.sakaiproject.assignment.impl.conversion.api.SerializableSubmissionAccess;
 import org.sakaiproject.assignment.impl.conversion.impl.SAXSerializablePropertiesAccess;
+import org.sakaiproject.entity.api.Reference;
 import org.sakaiproject.entity.api.serialize.EntityParseException;
 import org.sakaiproject.entity.api.serialize.SerializableEntity;
+import org.sakaiproject.util.FormattedText;
 import org.sakaiproject.util.StringUtil;
 import org.sakaiproject.util.Xml;
 import org.w3c.dom.Document;
@@ -103,12 +108,16 @@ public class AssignmentSubmissionAccess implements SerializableSubmissionAccess,
 	
 	protected List<String> feedbackattachments = new ArrayList<String>();
 
+        protected List<String> submissionLog = new ArrayList<String>();
+
 	protected String datesubmitted = null;
 
 	protected String submittedtext;
 
 	protected String submittedtext_html;
 	
+        protected String submitterid = null;
+        
 	protected List<String> submitters = new ArrayList<String>();
 
 
@@ -140,6 +149,7 @@ public class AssignmentSubmissionAccess implements SerializableSubmissionAccess,
 		submission.setAttribute("datereturned", this.datereturned);
 		submission.setAttribute("lastmod", this.lastmod);
 		submission.setAttribute("submitted", this.submitted);
+                submission.setAttribute("submitterid", this.submitterid);
 		submission.setAttribute("returned",this.returned);
 		submission.setAttribute("graded", this.graded);
 		submission.setAttribute("gradereleased", this.gradereleased);
@@ -158,6 +168,19 @@ public class AssignmentSubmissionAccess implements SerializableSubmissionAccess,
 			}
 		}
 
+                // SAVE THE SUBMISSION LOGS
+		numItemsString = "" + this.submissionLog.size();
+		submission.setAttribute("numberoflogs", numItemsString);
+		for (int x = 0; x < this.submissionLog.size(); x++)
+		{
+			attributeString = "log" + x;
+			itemString = (String) this.submissionLog.get(x);
+			if (itemString != null)
+			{
+				submission.setAttribute(attributeString, itemString);
+			}
+		}
+                
 		// SAVE THE FEEDBACK ATTACHMENTS
 		numItemsString = "" + this.feedbackattachments.size();
 		submission.setAttribute("numberoffeedbackattachments", numItemsString);
@@ -437,7 +460,7 @@ public class AssignmentSubmissionAccess implements SerializableSubmissionAccess,
 					// submittedtext and submittedtext_html are base-64
 					setSubmittedtext(StringUtil.trimToNull(attributes.getValue("submittedtext")));
 					setSubmittedtext_html(StringUtil.trimToNull(attributes.getValue("submittedtext-html")));
-					
+					setSubmitterId(StringUtil.trimToNull(attributes.getValue("submitterid")));
 					String numberofsubmitters = StringUtil.trimToNull(attributes.getValue("numberofsubmitters"));
 					int submitterCount = 0;
 					try
@@ -455,6 +478,24 @@ public class AssignmentSubmissionAccess implements SerializableSubmissionAccess,
 						if(submitter != null)
 						{
 							submitters.add(submitter);
+						}
+					}
+                                        String numberoflogs = StringUtil.trimToNull(attributes.getValue("numberoflogs"));
+                                        int logCount = 0;
+					try
+					{
+						logCount = Integer.parseInt(numberoflogs);
+				}
+					catch (Exception e)
+					{
+						log.warn(this + ":Parse " + e.getMessage());
+			}
+					for(int i = 0; i < logCount; i++)
+					{
+						String log = StringUtil.trimToNull(attributes.getValue("log" + i));
+						if(log != null)
+						{
+							submissionLog.add(log);
 						}
 					}
 				}
@@ -775,6 +816,9 @@ public class AssignmentSubmissionAccess implements SerializableSubmissionAccess,
 		return submitted;
 	}
 
+        public String getSubmitterId() {
+            return submitterid;
+        }
 
 	/* (non-Javadoc)
 	 * @see org.sakaiproject.assignment.impl.conversion.impl.SerializableSubmissionAccess#setSubmitted(java.lang.String)
@@ -785,6 +829,10 @@ public class AssignmentSubmissionAccess implements SerializableSubmissionAccess,
 	}
 
 
+        public void setSubmitterId(String id) {
+            this.submitterid = id;
+        }
+        
 	/* (non-Javadoc)
 	 * @see org.sakaiproject.assignment.impl.conversion.impl.SerializableSubmissionAccess#getSubmittedattachments()
 	 */
@@ -883,7 +931,12 @@ public class AssignmentSubmissionAccess implements SerializableSubmissionAccess,
 		return submitters;
 	}
 
-
+        public List<String>getSubmissionLog() {
+            return submissionLog;
+        }
+        public void setSubmissionLog(List<String> log) {
+            this.submissionLog = log;
+        }
 	/* (non-Javadoc)
 	 * @see org.sakaiproject.assignment.impl.conversion.impl.SerializableSubmissionAccess#setSubmitters(java.util.List)
 	 */

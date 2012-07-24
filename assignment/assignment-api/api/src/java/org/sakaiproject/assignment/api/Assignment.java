@@ -121,6 +121,13 @@ public interface Assignment extends Entity, Comparable
 	public static final String ASSIGNMENT_RELEASERESUBMISSION_NOTIFICATION_NONE = "assignment_releasereturn_notification_none";
 	public static final String ASSIGNMENT_RELEASERESUBMISSION_NOTIFICATION_EACH = "assignment_releasereturn_notification_each";	
 	/**
+	 * Access if this is a group submission type of this Assignment.
+	 * 
+	 * @return The Assignment's AssignmentContent.
+	 */
+	public boolean isGroup();
+                
+	/**
 	 * Access the AssignmentContent of this Assignment.
 	 * 
 	 * @return The Assignment's AssignmentContent.
@@ -154,6 +161,20 @@ public interface Assignment extends Entity, Comparable
 	 * @return The Time at which the Assignment is due, or null if unspecified.
 	 */
 	public Time getDueTime();
+
+	/**
+         * Access the time at which the assignment is visible; may be null.
+         *
+         * @return The Time at which the Assignment is visible, or null if unspecified.
+         */
+        public Time getVisibleTime();
+
+	/**
+ 	 * Access the time at which the assignment is visible; (String)
+	 *
+	 * @return The Time at which the Assignment is visible
+	 */
+	public String getVisibleTimeString();
 
 	/**
 	 * Access the time at which the assignment is due; (String)

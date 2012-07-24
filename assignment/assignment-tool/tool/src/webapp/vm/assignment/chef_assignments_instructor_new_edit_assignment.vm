@@ -179,6 +179,42 @@ $(document).ready(function() {
 					</span>
 				</p>	
 			*#
+                #if ($visible_date_enabled) 
+                    <p class="shorttext">
+			<span class="reqStar">*</span>
+			<label for="new_assignment_visiblemonth">
+				$tlang.getString("gen.visible.date")
+			</label>
+			#chef_dateselectionwidget($name_VisibleYear $name_VisibleMonth $name_VisibleDay $!value_year_from $!value_year_to $value_VisibleYear $value_VisibleMonth $value_VisibleDay $dateFormat "")
+				$tlang.getString("gen.at") 
+			<select name="$name_VisibleHour" id="$name_VisibleHour">
+				#foreach ($i in [1..12])
+					#if ($i == $value_VisibleHour)
+						<option value="$i" selected="selected">$i</option>
+					#else
+						<option value="$i">$i</option>
+					#end
+				#end
+			</select>
+			<select name="$name_VisibleMin" id="$name_VisibleMin">
+				#foreach ($i in [00, 05, 10, 15, 20, 25, 30, 35, 40, 45, 50, 55])
+					<option value="$i" #if($i == $value_VisibleMin)selected="selected"#end>#if($i ==0)00#elseif($i == 5)05#else$i#end</option>
+				#end
+			</select>
+			<select name="$name_VisibleAMPM" id="$name_VisibleAMPM">
+				#foreach ($i in ["AM", "PM"])
+					#if ($i == $value_VisibleAMPM)
+						<option value="$i" selected="selected">$i</option>
+					#else
+						<option value="$i">$i</option>
+					#end
+				#end
+			</select>
+                    </p>
+                #end
+		<p class="instruction labelindnt">
+			$tlang.getString("gen.stuwonsee")
+		</p>
 		<p class="shorttext">
 			<span class="reqStar">*</span>
 			<label for="new_assignment_openmonth">
@@ -211,7 +247,7 @@ $(document).ready(function() {
 			</select>
 		</p>	
 		<p class="instruction labelindnt">
-			$tlang.getString("gen.stuwonsee")
+                        $tlang.getString("gen.stucantdo")
 		</p>
 		<p class="shorttext">
 			<span class="reqStar">*</span>
@@ -741,6 +777,30 @@ $(document).ready(function() {
 				<h4>
 					$!tlang.getString('access')
 				</h4>
+                                 #if ($group_submissions_enabled)
+                                    <p class="checkbox  indnt2">
+                                        #if (!$!value_CheckIsGroupSubmission.equals("1"))
+                                            <input id="$name_CheckIsGroupSubmission" name="$name_CheckIsGroupSubmission" type="checkbox" value="1" />
+                                        #else
+                                            <input id="$name_CheckIsGroupSubmission" name="$name_CheckIsGroupSubmission" type="checkbox" value="1" checked="checked" />
+                                        #end
+                                        <label for="$name_CheckIsGroupSubmission">
+                                            $tlang.getString("group.issubmit")
+                                        </label>
+                                    </p>
+                                #end
+                                #if ($multipleGroupUsers)
+                                                <p class="checkbox indnt2">
+                                                <div style="color: red;" class="indnt2">$tlang.getString("group.user.multiple.warning")</div>
+                                                <div style="color: red;" class="indnt3">
+                                                #foreach($duser in $!multipleGroupUsers)
+                                                        #if ($velocityCount > 1), #end
+                                                        $duser
+                                                #end
+                                                </div>
+                                                </p>
+                                #end
+
 				<p class="checkbox  indnt2">
 				#if (!$!allowGroupAssignmentsInGradebook)
 						<input type="radio" name="range" id="site" value="site" #if($!range == "site")checked="checked"#end 
@@ -768,7 +828,7 @@ $(document).ready(function() {
 			## added group awareness
 			<p class="checkbox indnt2">
 				#if (!$!allowGroupAssignmentsInGradebook)
-						<input type="radio" name="range" id="groups" value="groups" #if($!range == "groups")checked="checked"#end onclick="if (document.getElementById('addToGradebook') != null){document.getElementById('addToGradebook').style.display = 'none';document.getElementById('$!name_Addtogradebook').checked=false};$('#groupTable').fadeIn('slow');resizeFrame()"  />
+					<input type="radio" name="range" id="groups" value="groups" #if($!range == "groups")checked="checked"#end onclick="if (document.getElementById('addToGradebook') != null){document.getElementById('addToGradebook').style.display = 'none';document.getElementById('$!name_Addtogradebook').checked=false};$('#groupTable').fadeIn('slow');resizeFrame()"  />
 				#else
 					<input type="radio" name="range" id="groups" value="groups" #if($!range == "groups")checked="checked"#end onclick="$('#groupTable').fadeIn('slow');resizeFrame()"  />  
 				#end
@@ -805,13 +865,16 @@ $(document).ready(function() {
 								<input type="checkbox" name="selectedGroups" id="id-$group.Id" title="$group.Id" value="$group.Id" #if($selected) checked="checked"#end />
 							</td>
 							<td headers="name" class="checkbox" style="white-space:nowrap">
-								<label for="id-$group.Id">
+								#if ($group_submissions_enabled)
+                                                                    #sectionIcon($group)
+                                                                #end
+                                                                <label for="id-$group.Id">
 									$validator.escapeHtml($group.Title)
 								</label>	
 							</td>
-							<td headers="description" width="100%"> ##mozilla does not resize table children dynamically , so set here
-								#set($description = "")
-								#set($description = $group.Description)
+							<td headers="description" width="100%"> ##mozilla does not resize table children dynamically , so set here                                                                
+                                                                #set($description = "")
+								#set($description=$group.Description)
 								$validator.escapeHtml($!description)
 							</td>
 						</tr>

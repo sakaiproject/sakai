@@ -65,6 +65,17 @@ public interface AssignmentSubmission extends Entity
 	public String getAssignmentId();
 
 	/**
+         * Submitter ID is the Sakai Group ID or User ID that created the submission.
+         * @return The GROUP or USER id who submitted this assignement
+         */
+        public String getSubmitterId();
+        /**
+         * Used to record submission history for group submissions.
+         * @return The LIST of submission log entries.
+         */
+        public List getSubmissionLog();
+        
+	/**
 	 * Access the list of Users who submitted this response to the Assignment.
 	 * 
 	 * @return Array of user objects.

@@ -211,7 +211,7 @@ public class DbAssignmentService extends BaseAssignmentService
 	 * 
 	 * @return The new storage object for Assignments.
 	 */
-	protected AssignmentStorage newAssignmentStorage()
+	public AssignmentStorage newAssignmentStorage()
 	{
 		return new DbCachedAssignmentStorage(new AssignmentStorageUser());
 
@@ -222,7 +222,7 @@ public class DbAssignmentService extends BaseAssignmentService
 	 * 
 	 * @return The new storage object for AssignmentContents.
 	 */
-	protected AssignmentContentStorage newContentStorage()
+	public AssignmentContentStorage newContentStorage()
 	{
 		return new DbCachedAssignmentContentStorage(new AssignmentContentStorageUser());
 
@@ -485,6 +485,13 @@ public class DbAssignmentService extends BaseAssignmentService
 				site = SiteService.getSite(a.getContext());
 				List l = super.getSelectedResourcesWhere(sqlWhere);
 				
+				if (a.isGroup()) {
+                                    for (Object o : l) {
+                                        AssignmentSubmission assignmentSubmission = (AssignmentSubmission)o;
+                                        Group _gg = site.getGroup(assignmentSubmission.getSubmitterId());
+                                        if (_gg != null) count++;
+                                    }
+				} else {
 				// check whether the submitter is an active member of the site
 				for (Object o : l) {
 					AssignmentSubmission assignmentSubmission = (AssignmentSubmission)o;
@@ -521,6 +528,7 @@ public class DbAssignmentService extends BaseAssignmentService
 							count++;
 						}
 					}
+				}
 				}
 			} catch (Throwable t) {
 				M_log.warn(this + ".getSubmissionsCountWhere(): ", t);

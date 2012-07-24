@@ -13,6 +13,7 @@
 				$tlang.getString("gen.title")
 			</th>
 			<td>
+                                #assignmentTitleIcon($assignment)
 				$validator.escapeHtml($assignment.getTitle())
 			</td>
 		</tr>

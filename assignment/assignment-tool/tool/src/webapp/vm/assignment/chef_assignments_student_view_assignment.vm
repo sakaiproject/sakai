@@ -92,6 +92,18 @@
 			#end
 			<tr> 
 				<th>
+                                        $tlang.getString("gen.groupassignment")
+                                </th>
+                                <td>
+                                        #if ($assignment.isGroup())
+                                        $tlang.getString("gen.yes")
+                                        #else
+                                        $tlang.getString("gen.no")
+                                        #end
+                                </td>
+                        </tr>
+			<tr> 
+				<th>
 					$tlang.getString("gen.gra")
 				</th>
 				<td>

@@ -195,41 +195,36 @@
 						</th>
 					</tr>
 					#foreach ($submission in $submissions)
-						#set ($assignment = $submission.getAssignment())
+						#set ($assignment = $submission.getSubmission().getAssignment())
 						#set ($submissionType = $assignment.Content.TypeOfSubmission)
 						<tr>
 							<td headers="studentname">
-								#set ($submitterNames = "")
-								## replace it with submitter sort names
-								#set ($count = 1)
-								#foreach ($submitter in $submission.submitters)
-									#set($submitterName = $submitter.getSortName())
-									#set($submitterId=$!submitter.getDisplayId())
-									#if ($!submitterId)
-										##attach the displayId
-									#set($submitterName=$submitterName.concat("(").concat($submitterId).concat(")"))
-									#end
-									#if ($!submitterName)
-										#if ($count == 1)
-											#set ($submitterNames = $!submitterName)
-										#else
-											#set ($submitterNames = $submitterNames.concat(", ").concat($!submitterName))
-										#end
-									#end
-									#set ($count = $count + 1)
-								#end
-								$validator.escapeHtml($!submitterNames)
+                                                                #set ($submitterNames = "")
+                                                                #if ($submission.user)
+                                                                    #set($submitterName = $submission.getUser().getSortName())
+                                                                    #set($submitterId=$submission.getUser().getDisplayId())
+                                                                    #if ($!submitterId)
+                                                                        #set($submitterName=$submitterName.concat(" (").concat($submitterId).concat(")"))
+                                                                    #end    
+                                                                    #if ($assignment.isGroup())
+                                                                        #if ($submission.group)
+                                                                                #set($submitterName=$submitterName.concat(" [").concat($submission.getGroup().getTitle()).concat("]"))
+                                                                        #end
+                                                                    #end
+                                                                    $validator.escapeHtml($!submitterName)
+                                                                #end							
 							</td>
 							<td headers="assignment">
+                                                                #assignmentTitleIcon($assignment)
 								$validator.escapeHtml($validator.limit($assignment.Title, 40))
 							</td>
 							<td headers="grade">
-								#if ($!submission)
-									#if ($submission.Graded)
+								#if ($submission.getSubmission())
+									#if ($submission.getSubmission().Graded)
 										#if ($assignment.getContent().TypeOfGrade == 1)
 											$tlang.getString("gen.nograd")
 										#else
-											$submission.gradeDisplay
+											$submission.getSubmission().gradeDisplay
 										#end
 									#end
 								#end
@@ -261,10 +256,10 @@
 								#if ($!submissionType == 4)
 									$tlang.getString("nonelec")
 								#else
-									#if ($!submission)
-										#if ($submission.submitted)
+									#if ($submission.getSubmission())
+										#if ($submission.getSubmission().submitted)
 											#set($timeSubmitted=false)
-											#set($timeSubmitted=$submission.TimeSubmitted)
+											#set($timeSubmitted=$submission.getSubmission().TimeSubmitted)
 											#if($!timeSubmitted)
 												$!timeSubmitted.toStringLocalFull()
 											#end

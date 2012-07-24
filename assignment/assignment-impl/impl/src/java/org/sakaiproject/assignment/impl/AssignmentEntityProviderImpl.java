@@ -102,9 +102,19 @@ public class AssignmentEntityProviderImpl implements AssignmentEntityProvider, C
 		private Time dueTime;
 
 		/**
+		 * the time at which the assignment is visible; may be null
+		 */
+		private Time visibleTime;
+
+		/**
 		 * the time at which the assignment is due; (String)
 		 */
 		private String dueTimeString;
+
+		/**
+		 * the time at whichthe assignment is visible; (String)
+		 */
+		private String visibleTimeString;
 
 		/**
 		 * the drop dead time after which responses to this assignment are considered late; may be null.
@@ -193,6 +203,11 @@ public class AssignmentEntityProviderImpl implements AssignmentEntityProvider, C
 		private AssignmentAccess access;
 		
 		/**
+		 * is this a group assignment.
+		 */
+		private boolean group;
+		
+		/**
 		 * the attachment list
 		 */
 		private List<DecoratedAttachment> attachments;
@@ -207,6 +222,8 @@ public class AssignmentEntityProviderImpl implements AssignmentEntityProvider, C
 			this.openTime = a.getOpenTime();
 			this.openTimeString = a.getOpenTimeString();
 			this.dueTime = a.getDueTime();
+			this.visibleTime = a.getVisibleTime();
+			this.visibleTimeString = a.getVisibleTimeString();
 			this.dueTimeString = a.getDueTimeString();
 			this.dropDeadTime = a.getDropDeadTime();
 			this.dropDeadTimeString = a.getDropDeadTimeString();
@@ -225,6 +242,7 @@ public class AssignmentEntityProviderImpl implements AssignmentEntityProvider, C
 			this.position_order = a.getPosition_order();
 			this.groups = a.getGroups();
 			this.access = a.getAccess();
+			this.group = a.isGroup();
 			
 			this.attachments = new ArrayList<DecoratedAttachment>();
 			List<Reference> attachment_list = (List<Reference>)a.getContent().getAttachments();
@@ -282,16 +300,32 @@ public class AssignmentEntityProviderImpl implements AssignmentEntityProvider, C
 			return dueTime;
 		}
 
+		public Time getVisibleTime() {
+			return visibleTime;
+		}
+
 		public void setDueTime(Time dueTime) {
 			this.dueTime = dueTime;
+		}
+
+		public void setVisibleTime(Time visibleTime) {
+			this.visibleTime = visibleTime;
 		}
 
 		public String getDueTimeString() {
 			return dueTimeString;
 		}
 
+		public String getVisibleTimeString() {
+			return visibleTimeString; 
+		}
+
 		public void setDueTimeString(String dueTimeString) {
 			this.dueTimeString = dueTimeString;
+		}
+
+		public void setVisibleTimeString(String visibleTimeString) {
+			this.visibleTimeString = visibleTimeString;
 		}
 
 		public Time getDropDeadTime() {
@@ -350,6 +384,14 @@ public class AssignmentEntityProviderImpl implements AssignmentEntityProvider, C
 			this.draft = draft;
 		}
 
+		public boolean isGroup() {
+			return group;
+		}
+
+		public void setGroup(boolean group) {
+			this.group = group;
+		}
+                
 		public String getCreator() {
 			return creator;
 		}
@@ -842,6 +884,7 @@ public class AssignmentEntityProviderImpl implements AssignmentEntityProvider, C
             props.put("author", assignment.getCreator());
             props.put("description", assignment.getContentReference());
             props.put("draft", "" + assignment.getDraft());
+            props.put("group", "" + assignment.isGroup());
             props.put("siteId", assignment.getContext());
             props.put("section", assignment.getSection());
             props.put("status", assignment.getStatus());
@@ -857,6 +900,9 @@ public class AssignmentEntityProviderImpl implements AssignmentEntityProvider, C
             }
             props.put("due_time", assignment.getDueTimeString());
             props.put("open_time", assignment.getOpenTimeString());
+	    if (assignment.getVisibleTime() != null ) {
+		props.put("visible_time", assignment.getVisibleTimeString());
+	    }
             if (assignment.getDropDeadTime() != null) {
                 props.put("retract_time", assignment.getDropDeadTime().getDisplay());
             }

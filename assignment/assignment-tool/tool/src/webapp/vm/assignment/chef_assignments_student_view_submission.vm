@@ -117,6 +117,8 @@ function submitform(id)
 					#end
 			#elseif ($submission.getGraded() && ($submission.getGradeReleased() || $returned))
 					$tlang.getString("stuviewsubm.asshasbee2")
+                        #elseif (!$submission.getSubmitted())
+                                        $submission.getStatus()
 			#else
 					<p class="instruction">$tlang.getString("gen.hasbee") $submission.TimeSubmitted.toStringLocalFull()</p>
 					#if ($!timeSubmitted && $!timeSubmitted.after($assignment.DueTime))
@@ -157,7 +159,8 @@ function submitform(id)
 						$tlang.getString("gen.title")
 					</th>
 					<td>
-						$validator.escapeHtml($assignment.getTitle())
+						#assignmentTitleIcon($assignment)
+                                                $validator.escapeHtml($assignment.getTitle())
 						#set ($deleted = false)
 						#set ($deleted = $assignment.getProperties().getProperty($assignment.getProperties().getNamePropAssignmentDeleted()))
 						#if ($!deleted.equalsIgnoreCase("true"))
@@ -294,6 +297,16 @@ function submitform(id)
 							#end
 							</td>
 				
+					</tr>
+				#end
+				#if ($!submission && $!submission.getSubmissionLog().size() > 0)
+					<tr>
+						<th>$tlang.getString("gen.history")</th>
+						<td>
+							#foreach ($entry in $submission.getSubmissionLog())
+								$entry<br>
+							#end
+						</td>
 					</tr>
 				#end
 			</table>
@@ -502,6 +515,64 @@ function submitform(id)
 			## if a draft submission or the submission has been returned and has not yet submitted
 			## 1- text only; 2-attachment only; 3-text and attachment
 			#set ( $submissionType = $assignment.getContent().getTypeOfSubmission())
+			
+#if ($!assignment.isGroup())
+<h4>$tlang.getString("group.select.represent")</h4>
+		#if ($!groups)
+                    #set ($size = 0)
+                    #set ($listDisplay="block")
+                        #set($aoGroup = $!site.getGroup($!originalGroup))
+                         #if ($aoGroup)
+                         <input type="hidden" name="originalGroup" id="orig-$aoGroup.Id" value="$aoGroup.Id" />
+                         #end
+			<table id="groupTable" style="width:80%;display:$listDisplay" class="listHier lines indnt3" border="0" cellpadding="0" cellspacing="0" summary="$tlang.getString('group.list.summary')">
+					#foreach ($group in $!groups)
+                                                #set ($size = $size + 1)
+						<tr>
+							<td headers="selected" style="width:2em">
+								#if ($!group_size.equals("1"))
+									#set($selected=true)
+								#else
+                                                                	#set($selected=false)
+								        #set($aGroup = $!site.getGroup($!selectedGroup))
+                                                                	#if ($!group.Id == $!aGroup.Id)
+                                                                    		#set($selected = true)
+                                                                	#end
+								#end
+								
+								<input type="radio" name="selectedGroups" id="id-$group.Id" title="$group.Id" value="$group.Id" #if($selected) checked="checked"#end />
+							</td>
+							<td headers="name" class="checkbox" style="white-space:nowrap">
+								<label for="id-$group.Id">
+									$validator.escapeHtml($group.Title)
+								</label>	
+							</td>
+                                                        <td headers="description" width="100%"> ##mozilla does not resize table children dynamically , so set here
+							<span style="font-size: smaller; color: blue;">	
+								#set($gusers = $assignmentService.getSortedGroupUsers($group))
+								#foreach ($user in $gusers)
+									$user.getDisplayName()
+									##$!userDirectoryService.getUser($user).getDisplayName()
+									#if ($velocityCount < $gusers.size()),#end
+								#end
+							</span>	
+
+								#set($description = $group.Description)
+								<div style="font-size: smaller;">$validator.escapeHtml($!description)</div>
+							</td>
+						</tr>
+					#end
+                                        #if ($size == 0)
+                                                <tr><td colspan="2"><span class="highlight">$tlang.getString("group.must.member")</span></td></tr>
+                                        #end
+			</table>
+                #else
+                    <span class="highlight">$tlang.getString("group.must.member")</span>
+		#end
+#end
+
+
+
 			#if (($submissionType==1) || ($submissionType==3))
 				#if ($!deleted.equalsIgnoreCase("true"))
 					<h4>$tlang.getString("gen.yousub") </h4>
