@@ -453,8 +453,10 @@ public class RichTextEditArea extends Renderer
     }
     writer.write("\n\t\tstatus.value = \"expaneded\";");
     writer.write("\n\t\tchef_setupformattedtextarea(client_id, true);");
-    writer.write("\n\t\tsetBlockDivs();");
-    writer.write("\n\t\tretainHideUnhideStatus('none');\n\t}");
+    writer.write("\n\t\tif (typeof setBlockDivs == \"function\" && typeof retainHideUnhideStatus == \"function\") {");
+    writer.write("\n\t\t\tsetBlockDivs();");
+    writer.write("\n\t\t\tretainHideUnhideStatus('none');\n\t\t}");
+    writer.write("\n\t}");
     writer.write("\n\telse {");
     writer.write("\n\t\tif (status.value == \"collapsed\") {");
     writer.write("\n\t\t\tstatus.value = \"expaneded\";");
