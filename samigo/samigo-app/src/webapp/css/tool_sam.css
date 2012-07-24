@@ -411,3 +411,8 @@ a.hideDivision {
 #jqueryui-accordion .ui-accordion-content {
     background-color: #efefef;
 }
+#jqueryui-accordion .ui-accordion-header {
+    border-top-left-radius: 4px;
+    border-top-right-radius: 4px;
+    border: 1px solid #ddd;
+}
