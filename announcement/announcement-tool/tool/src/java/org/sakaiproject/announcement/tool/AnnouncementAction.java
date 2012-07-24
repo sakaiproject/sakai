@@ -244,7 +244,7 @@ public class AnnouncementAction extends PagedResourceActionII
 	 */
 	public static String getCurrentOrder() {
 		
-		String enableReorder=ServerConfigurationService.getString("sakai.announcement.reorder", "false");
+		String enableReorder=ServerConfigurationService.getString("sakai.announcement.reorder", "true");
 		
 		if (enableReorder.equals("true")){
 			SORT_CURRENTORDER="message_order";
@@ -4213,7 +4213,7 @@ public class AnnouncementAction extends PagedResourceActionII
 		Menu bar = new MenuImpl(portlet, rundata, "AnnouncementAction");
 		boolean buttonRequiringCheckboxesPresent = false;
 		Properties placementProperties = ToolManager.getCurrentPlacement().getPlacementConfig();
-		String sakaiReorderProperty= ServerConfigurationService.getString("sakai.announcement.reorder", "false");
+		String sakaiReorderProperty= ServerConfigurationService.getString("sakai.announcement.reorder", "true");
 
 		//if (!displayOptions.isShowOnlyOptionsButton()) ##SAK-13434
 		if (displayOptions != null && !displayOptions.isShowOnlyOptionsButton())
