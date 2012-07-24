@@ -40,9 +40,9 @@
 			</f:subview>
 			<%--</h:panelGroup>--%>
 	        <h:panelGroup style="text-align: right; white-space: nowrap; display: block ">
-	        	<h:commandButton value=" < " actionListener="#{CalBean.prev}" immediate="true"/>
-	        	<h:commandButton value="#{msgs.today}" actionListener="#{CalBean.currDay}" immediate="true"/>
-	        	<h:commandButton value=" > " actionListener="#{CalBean.next}" immediate="true"/>
+                <f:verbatim><fieldset><legend></f:verbatim><h:outputText value="#{msgs.previous}"/><f:verbatim></legend></f:verbatim><h:commandButton value=" < " actionListener="#{CalBean.prev}" immediate="true"/><f:verbatim></fieldset></f:verbatim>
+                <h:commandButton value="#{msgs.today}" actionListener="#{CalBean.currDay}" immediate="true"/>
+                <f:verbatim><fieldset><legend></f:verbatim><h:outputText value="#{msgs.next}"/><f:verbatim></legend></f:verbatim><h:commandButton value=" > " actionListener="#{CalBean.next}" immediate="true"/><f:verbatim></fieldset></f:verbatim>
 	        </h:panelGroup>
 		</h:panelGrid>
 		
