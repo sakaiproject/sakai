@@ -33,12 +33,23 @@
     <html xmlns="http://www.w3.org/1999/xhtml">
       <head><%= request.getAttribute("html.head") %>
       <title><h:outputText value="#{assessmentSettingsMessages.sakai_assessment_manager} #{assessmentSettingsMessages.dash} #{assessmentSettingsMessages.settings}" /></title>
-      <samigo:script path="/jsf/widget/colorpicker/colorpicker.js"/>
-      <samigo:script path="/jsf/widget/datepicker/datepicker.js"/>
+      <script type="text/javascript" src="/library/js/jquery-latest.min.js"></script>
+      <script type="text/javascript" src="/samigo-app/js/jquery-ui-1.7.2.custom.min.js"></script>
       <samigo:script path="/jsf/widget/hideDivision/hideDivision.js"/>
+      <samigo:script path="/jsf/widget/datepicker/datepicker.js"/>
+      <samigo:script path="/jsf/widget/colorpicker/colorpicker.js"/>
 	  <!-- AUTHORING -->
       <samigo:script path="/js/authoring.js"/>
+      <link type="text/css" href="/samigo-app/css/ui-lightness/jquery-ui-1.7.2.custom.css" rel="stylesheet" media="all"/>
 
+      <script type="text/javascript">
+        $(document).ready(function() {
+          // set up the accordion for settings
+          $("#jqueryui-accordion").accordion({ autoHeight: false,collapsible: true });
+          // adjust the height of the iframe to accomodate the expansion from the accordion
+          $("body").height($("body").outerHeight() + 800);
+        });
+      </script>
       </head>
     <body onload="<%= request.getAttribute("html.body.onload") %>">
 
@@ -265,21 +276,12 @@ function uncheckOther(field){
      <h:outputText id="x1" value="#{assessmentSettingsMessages.settings} #{assessmentSettingsMessages.dash} #{publishedSettings.title}"/>
     </h3>
 
-<f:verbatim><div class="tier1"></f:verbatim>
+<f:verbatim><div class="tier1" id="jqueryui-accordion"></f:verbatim>
 <!-- *** GENERAL TEMPLATE INFORMATION *** -->
-<h:outputText value="#{templateMessages.allMenus0}"/>
-<h:outputLink value="#" title="#{templateMessages.t_showDivs}" onclick="showDivs();">
-<h:outputText value="#{templateMessages.open}"/>
-</h:outputLink>
-<h:outputText value=" | " />
-<h:outputLink value="#" title="#{templateMessages.t_hideDivs}" onclick="hideDivs();">
-<h:outputText value="#{templateMessages.close}"/>
-</h:outputLink>
-<h:outputText value="#{templateMessages.allMenus}"/>
 
   <samigo:hideDivision id="div1" title="#{assessmentSettingsMessages.t_assessmentIntroduction}" >
 <f:verbatim><div class="tier2"></f:verbatim>
-    <h:panelGrid columns="2" columnClasses="shorttext"
+    <h:panelGrid columns="2" columnClasses="samigoCell"
       summary="#{templateMessages.enter_template_info_section}">
         <h:outputLabel value="#{assessmentSettingsMessages.assessment_title}"/>
         <h:inputText id="assessment_title" size="80" maxlength="255" value="#{publishedSettings.title}" />
@@ -316,7 +318,7 @@ function uncheckOther(field){
   <!-- *** DELIVERY DATES *** -->
   <samigo:hideDivision id="div2" title="#{assessmentSettingsMessages.t_deliveryDates}" >
     <f:verbatim><div class="tier2"></f:verbatim>
-    <h:panelGrid columns="2" columnClasses="shorttext" summary="#{templateMessages.delivery_dates_sec}" border="0">
+    <h:panelGrid columns="2" columnClasses="samigoCell" summary="#{templateMessages.delivery_dates_sec}" border="0">
 
       <h:outputLabel value="#{assessmentSettingsMessages.assessment_available_date}" />
       <samigo:datePicker value="#{publishedSettings.startDateString}" size="25" id="startDate" />
@@ -933,7 +935,7 @@ function uncheckOther(field){
 	<f:verbatim><div class="tier2"><div class="longtext"></f:verbatim>
 	<h:outputLabel value="#{assessmentSettingsMessages.assessment_metadata}" />
 	<f:verbatim></div><div class="tier3"></f:verbatim>
-    <h:panelGrid columns="2" columnClasses="shorttext">
+    <h:panelGrid columns="2" columnClasses="samigoCell">
       <h:outputLabel value="#{assessmentSettingsMessages.metadata_keywords}"/>
       <h:inputText size="80" value="#{publishedSettings.keywords}"/>
 
@@ -980,7 +982,7 @@ function uncheckOther(field){
 <!-- end content -->
 <f:verbatim></div></f:verbatim>
 
-        <script style="text/JavaScript">retainHideUnhideStatus('none');showHideReleaseGroups();</script>
+        <script style="text/JavaScript">showHideReleaseGroups();</script>
         
       </body>
     </html>
