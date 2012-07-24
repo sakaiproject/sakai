@@ -734,7 +734,7 @@ public class AssessmentGradingFacadeQueries extends HibernateDaoSupport implemen
 
 	  final HibernateCallback hcb = new HibernateCallback(){
 		  public Object doInHibernate(Session session) throws HibernateException, SQLException {
-			  Query q = session.createQuery("select distinct i from MediaData m, ItemGradingData i " +
+			  Query q = session.createQuery("select i from MediaData m, ItemGradingData i " +
 			  		"where m.itemGradingData.itemGradingId = i.itemGradingId " +
 			  		"and i.assessmentGradingId = ? ");
 			  q.setLong(0, assessmentGradingId.longValue());
