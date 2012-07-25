@@ -442,6 +442,8 @@ public class WebServiceImpl implements WebService, EntityTransferrer
 								tool.setTool(TOOL_ID, tr);
 								tool.setTitle(toolTitle);
 								if (contentUrl != null) {
+									// Replace references to the site we're copying from.
+									contentUrl = contentUrl.replace(fromContext, toContext);
 									tool.getPlacementConfig().setProperty(WEB_CONTENT_URL_PROP, contentUrl);
 								}
 
