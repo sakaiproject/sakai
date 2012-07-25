@@ -40,6 +40,7 @@
 			#parse( "vm/citation/_alert.vm" )
 		#end
 		
+		
 		#if( $resourcesAddAction )
 		<p class="instruction">$tlang.getFormattedMessage( "instr.sub.review", $instrSubArgs )</p>
 		#end
@@ -102,6 +103,14 @@
 				/>
 				#end				
 			</div>
+			
+			#if( !$resourcesAddAction )
+        		<label for="description">
+            		<strong>$tlang.getString("label.descr")</strong>
+        		</label>
+        		<br />
+				<textarea name="description" cols="80" rows="5" wrap="virtual">$!{description}</textarea>
+			#end				
 
 			#parse( "vm/citation/_listCitations.vm" )
 			
