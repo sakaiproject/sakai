@@ -30,6 +30,11 @@
         <property name="gradebookService" ref="org.sakaiproject.service.gradebook.GradebookService" />
     </bean>
 
+    <!-- handles configuration of internationalization messages -->
+    <bean id="messageSource" parent="messageSourceParent">
+      <property name="basename" value="WEB-INF/bundle/messages" />
+    </bean>
+
     <bean parent="viewParamsInterceptorParent">
         <!-- intercept incoming views to filter on permissions -->
         <property name="value">
