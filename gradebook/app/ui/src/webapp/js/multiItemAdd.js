@@ -81,8 +81,9 @@ function setMainFrameHeightNow(id,direction)
 //*********************************************************************
 function addDelX() { 
 	var firstDelEl = document.getElementsByClassName('hideRemove');
-	firstDelEl[0].className = 'firstDel' + firstDelEl[0].className.substring(10);
+
 	firstDelEl[0].style.display='inline';
+  firstDelEl[0].className = 'firstDel' + firstDelEl[0].className.substring(10);
 }
 
 //*********************************************************************
@@ -95,8 +96,8 @@ function addItemScreen()
 	var numBulkItems = getNumTotalItem();
 
 	var trEls = document.getElementsByClassName("hide");
-	trEls[0].className = "show" + trEls[0].className.substring(4);
 	trEls[0].style.display = "";
+	trEls[0].className = "show" + trEls[0].className.substring(4);
 
 	// set hiddenAdd property to TRUE so if submitted and an
 	// error, this will be displayed
@@ -354,8 +355,8 @@ function removeItem(event, idPrefix, rowIndex) {
 		// make sure delete link on first item is removed since
 		// there will only be one item
 		var firstDelEl = document.getElementsByClassName('firstDel');
-		firstDelEl[0].className = "hideRemove" + firstDelEl[0].className.substring(8);
 		firstDelEl[0].style.display='none';	
+		firstDelEl[0].className = "hideRemove" + firstDelEl[0].className.substring(8);
 
 	}
 
