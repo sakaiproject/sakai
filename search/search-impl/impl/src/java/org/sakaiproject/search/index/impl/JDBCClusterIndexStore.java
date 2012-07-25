@@ -990,8 +990,9 @@ public class JDBCClusterIndexStore implements ClusterFilesystem
 			if (packetFile.exists())
 			{
 				packetStream = new FileInputStream(packetFile).getChannel();
-				if (!sharedTempFile.getParentFile().mkdirs()) {
-					log.warn("couldn't delete" + sharedTempFile.getPath());
+				File sharedTempFileParent = sharedTempFile.getParentFile();
+				if (!sharedTempFileParent.exists() && !sharedTempFileParent.mkdirs()) {
+					log.warn("couldn't create " + sharedTempFileParent.getPath());
 				}
 				sharedStream = new FileOutputStream(sharedTempFile).getChannel();
 
@@ -1548,8 +1549,8 @@ public class JDBCClusterIndexStore implements ClusterFilesystem
 		{
 			SegmentInfoImpl.deleteAll(f);
 		}
-		if (!f.mkdirs()) {
-			log.warn("couldn't create directories " + f.getPath());
+		if (!f.exists() && !f.mkdirs()) {
+			log.warn("couldn't create directory " + f.getPath());
 		}
 		return f;
 	}
@@ -1951,7 +1952,8 @@ public class JDBCClusterIndexStore implements ClusterFilesystem
 			if (packetFile.exists())
 			{
 				packetStream = new FileInputStream(packetFile).getChannel();
-				if (!sharedTempFile.getParentFile().mkdirs())
+				File parentFile = sharedTempFile.getParentFile();
+				if (!parentFile.exists() && !parentFile.mkdirs())
 				{
 					log.warn("Unable to create directory " + sharedTempFile.getParentFile().getPath());
 				}
@@ -1991,9 +1993,10 @@ public class JDBCClusterIndexStore implements ClusterFilesystem
 					}
 				}
 				addsi.setVersion(newVersion);
-				if (!sharedFinalFile.getParentFile().mkdirs())
+				File sharedParentFile = sharedFinalFile.getParentFile();
+				if (!sharedParentFile.exists() && !sharedParentFile.mkdirs())
 				{
-					log.warn("Couln't create directory " + sharedFinalFile.getParentFile().getPath());
+					log.warn("Couln't create directory " + sharedParentFile.getPath());
 				}
 				long st = System.currentTimeMillis();
 				if (!sharedTempFile.renameTo(sharedFinalFile))
