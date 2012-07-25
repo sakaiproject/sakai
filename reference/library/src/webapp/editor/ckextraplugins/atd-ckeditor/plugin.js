@@ -22,6 +22,10 @@ function setupCKEditorInstance(editor, path) {
 		};
 
 		atd_core.hasClass = function(node, className) { 
+			//For elements just check the class
+			if (node != null && node.type == CKEDITOR.NODE_ELEMENT) {
+				return node != null && node["type"] != 3 && node["attributes"]["class"] == className;
+			}
 			return node != null && node.nodeType != 3 && CKEDITOR.dom.element.get(node).hasClass(className);
 		};
 
@@ -86,7 +90,7 @@ function setupCKEditorInstance(editor, path) {
 		htmlFilter.addRules({
 			elements : {
 				span : function( element ) {
-					if ( atd_core.isMarkedNode(element.$) ) {
+					if ( atd_core.isMarkedNode(element) ) {
 						delete element.name;
 						return element;
 					}
