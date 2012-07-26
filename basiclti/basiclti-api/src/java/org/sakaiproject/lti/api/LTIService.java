@@ -328,6 +328,15 @@ public interface LTIService {
 	 * @return
 	 */
 	public Object updateContent(Long key, Properties newProps);
+	
+	/**
+	 * 
+	 * @param key
+	 * @param newProps
+	 * @param siteId
+	 * @return
+	 */
+	public Object updateContent(Long key, Properties newProps, String siteId);
 
 	/**
 	 * 

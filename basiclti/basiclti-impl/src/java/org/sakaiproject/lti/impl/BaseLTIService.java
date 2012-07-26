@@ -468,6 +468,18 @@ public abstract class BaseLTIService implements LTIService {
 	public Object updateContent(Long key, Properties newProps) {
 		return updateContent(key, (Object) newProps);
 	}
+	
+	/**
+	 * 
+	 * @param key
+	 * @param newProps
+	 * @param siteId
+	 * @return
+	 */
+	public Object updateContent(Long key, Properties newProps, String siteId)
+	{
+		return updateContentDao(key, newProps, siteId, isMaintain(siteId));
+	}
 
 	/**
 	 * 
@@ -688,7 +700,7 @@ public abstract class BaseLTIService implements LTIService {
 	
 	public Object insertToolContent(String id, String toolId, Properties reqProps, String siteId)
 	{
-		return insertToolContentDao(id, toolId, reqProps, siteId, isMaintain(getContext()));
+		return insertToolContentDao(id, toolId, reqProps, siteId, isMaintain(siteId));
 	}
 	
 	public Object insertToolContentDao(String id, String toolId, Properties reqProps, String siteId)
@@ -750,7 +762,7 @@ public abstract class BaseLTIService implements LTIService {
 	
 	public Object insertToolSiteLink(String id, String button_text, String siteId)
 	{
-		return insertToolSiteLinkDao(id, button_text, siteId, isMaintain(getContext()));
+		return insertToolSiteLinkDao(id, button_text, siteId, isMaintain(siteId));
 	}
 /*
 	public Object insertToolSiteLinkDao(String id, String button_text, String siteId)
@@ -804,7 +816,7 @@ public abstract class BaseLTIService implements LTIService {
 				// Record the new placement in the content item
 				Properties newProps = new Properties();
 				newProps.setProperty(LTI_PLACEMENT, tool.getId());
-				retval = updateContent(key, newProps);
+				retval = updateContent(key, newProps, siteId);
 			}
 			catch (PermissionException ee)
 			{
