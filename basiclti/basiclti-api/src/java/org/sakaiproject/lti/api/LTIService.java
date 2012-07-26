@@ -138,6 +138,16 @@ public interface LTIService {
 	 * @return
 	 */
 	public Object insertToolContent(String id, String toolId, Properties reqProps);
+	
+	/**
+	 * insert lti tool content
+	 * @param id
+	 * @param toolId
+	 * @param reqProps
+	 * @param siteId
+	 * @return
+	 */
+	public Object insertToolContent(String id, String toolId, Properties reqProps, String siteId);
 
 	/**
 	 * create an instance of lti tool within site
@@ -146,6 +156,15 @@ public interface LTIService {
 	 * @return
 	 */
 	public Object insertToolSiteLink(String id, String title);
+	
+	/**
+	 * create an instance of lti tool within site
+	 * @param id
+	 * @param title
+	 * @param siteId
+	 * @return
+	 */
+	public Object insertToolSiteLink(String id, String title, String siteId);
 	
 	/**
 	 * 
@@ -255,6 +274,14 @@ public interface LTIService {
 	 * @return
 	 */
 	public Map<String, Object> getContent(Long key);
+	
+	/**
+	 * 
+	 * @param key
+	 * @param siteId
+	 * @return
+	 */
+	public Map<String, Object> getContent(Long key, String siteId);
 
 	/**
 	 * Absolutely no checking at all.

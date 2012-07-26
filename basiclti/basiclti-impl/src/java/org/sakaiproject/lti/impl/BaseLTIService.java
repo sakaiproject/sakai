@@ -655,6 +655,10 @@ public abstract class BaseLTIService implements LTIService {
 		return getContentDao(key, getContext(), isMaintain(getContext()));
 	}
 
+	public Map<String, Object> getContent(Long key, String siteId) {
+		return getContentDao(key, siteId, isMaintain(getContext()));
+	}
+	
 	// This is with absolutely no site checking...
 	public Map<String, Object> getContentDao(Long key) {
 		return getContentDao(key, null, true);
@@ -679,8 +683,14 @@ public abstract class BaseLTIService implements LTIService {
 
 	public Object insertToolContent(String id, String toolId, Properties reqProps)
 	{
-		return insertToolContentDao(id, toolId, reqProps, getContext(), isMaintain(getContext()));
+		return insertToolContentDao(id, toolId, reqProps, getContext());
 	}
+	
+	public Object insertToolContent(String id, String toolId, Properties reqProps, String siteId)
+	{
+		return insertToolContentDao(id, toolId, reqProps, siteId, isMaintain(getContext()));
+	}
+	
 	public Object insertToolContentDao(String id, String toolId, Properties reqProps, String siteId)
 	{
 		return insertToolContentDao(id, toolId, reqProps, siteId, true);
@@ -735,7 +745,12 @@ public abstract class BaseLTIService implements LTIService {
 	
 	public Object insertToolSiteLink(String id, String button_text)
 	{
-		return insertToolSiteLinkDao(id, button_text, getContext(), isMaintain(getContext()));
+		return insertToolSiteLink(id, button_text, getContext());
+	}
+	
+	public Object insertToolSiteLink(String id, String button_text, String siteId)
+	{
+		return insertToolSiteLinkDao(id, button_text, siteId, isMaintain(getContext()));
 	}
 /*
 	public Object insertToolSiteLinkDao(String id, String button_text, String siteId)
@@ -758,7 +773,7 @@ public abstract class BaseLTIService implements LTIService {
 		}
 		
 		Long key = new Long(id);
-		Map<String,Object> content = getContent(key);
+		Map<String,Object> content = getContent(key, siteId);
 		if (  content == null ) {
 			retval = new String("1" + rb.getString("error.content.not.found"));
 			return retval;
