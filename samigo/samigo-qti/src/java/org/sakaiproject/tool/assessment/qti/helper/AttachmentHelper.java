@@ -27,6 +27,7 @@ import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.IOException;
+import java.net.URLDecoder;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
@@ -56,8 +57,11 @@ public class AttachmentHelper {
 		ByteArrayOutputStream byteArrayOutputStream = null;
 		byte content[];
 		int count = 0;
-
+			
 		try {
+			fullFilePath = URLDecoder.decode(fullFilePath, "UTF-8");
+			filename = URLDecoder.decode(filename, "UTF-8");
+			
 			if (mimeType.equalsIgnoreCase("text/url")) {
 				content = filename.getBytes();
 				filename = filename.replaceAll("http://","http:__");
