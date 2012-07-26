@@ -806,8 +806,7 @@ public class MembershipEntityProvider extends AbstractEntityProvider implements 
             holder.site = site;
         } else if (locationReference.contains("/site/")) {
             // site membership
-            EntityReference ref = new EntityReference(locationReference);
-            String siteId = ref.getId();
+            String siteId = EntityReference.getIdFromRefByKey(locationReference, "site");
             Site site = getSiteById(siteId);
             holder.site = site;
         } else {
