@@ -2,6 +2,36 @@ var DOT = "_";
 var addSecond = true;
 var comingBack = false;
 
+//http://www.asilearn.net/asilearn/web-development/javascript-getelementsbyclassname/
+//Because it's returning a live node instead of an Array now
+document.getElementsByClassNameArray = function(theClass)
+{
+		var node=this;
+    var classElms = [];
+    if (node.getElementsByClassName)
+    { // check if it's natively available
+    	// if it is, loop through the items in the NodeList...
+        var tempEls = node.getElementsByClassName(theClass);
+        for (var i = 0; i < tempEls.length ; i++)
+        {
+    		// ... and push them into an Array
+                classElms.push(tempEls[i]);
+    	}
+    }
+    else
+    {
+        // if a native implementation is not available, use a custom one
+        var getclass = new RegExp('\\b'+theClass+'\\b');
+        var elems = node.getElementsByTagName('*');
+        for (var i = 0; i < elems.length; i++)
+        {
+                 var classes = elems[i].className;
+                 if (getclass.test(classes)) classElms.push(elem[i]);
+        }
+    }
+    return classElms;
+}
+
 //*********************************************************************
 // setMainFrameHeight
 //
@@ -80,7 +110,7 @@ function setMainFrameHeightNow(id,direction)
 // If more than 1 pane is displayed, add the X remove to the first pane
 //*********************************************************************
 function addDelX() { 
-	var firstDelEl = document.getElementsByClassName('hideRemove');
+	var firstDelEl = document.getElementsByClassNameArray('hideRemove');
 
 	firstDelEl[0].style.display='inline';
   firstDelEl[0].className = 'firstDel' + firstDelEl[0].className.substring(10);
@@ -95,7 +125,7 @@ function addItemScreen()
 {
 	var numBulkItems = getNumTotalItem();
 
-	var trEls = document.getElementsByClassName("hide");
+	var trEls = document.getElementsByClassNameArray("hide");
 	trEls[0].style.display = "";
 	trEls[0].className = "show" + trEls[0].className.substring(4);
 
@@ -354,7 +384,7 @@ function removeItem(event, idPrefix, rowIndex) {
 	if (numBulkItems == 2) {
 		// make sure delete link on first item is removed since
 		// there will only be one item
-		var firstDelEl = document.getElementsByClassName('firstDel');
+		var firstDelEl = document.getElementsByClassNameArray('firstDel');
 		firstDelEl[0].style.display='none';	
 		firstDelEl[0].className = "hideRemove" + firstDelEl[0].className.substring(8);
 
