@@ -251,7 +251,13 @@ public class DefaultSiteViewImpl extends AbstractSiteViewImpl
 
 		renderContextMap.put("tabsSites", l);
 
-		renderContextMap.put("tabsMoreSitesShow", Boolean.valueOf(moreSites.size() > 0));
+		boolean displayActive = serverConfigurationService.getBoolean("portal.always.display.active_sites",false);
+		//If we don't always want to display it anyway, check to see if we need to display it
+		if (!displayActive) {
+				displayActive=Boolean.valueOf(moreSites.size() > 0);
+		}
+
+		renderContextMap.put("tabsMoreSitesShow", displayActive);
 
 		// more dropdown
 		if (moreSites.size() > 0)

@@ -68,10 +68,20 @@ var dhtml_more_tabs = function() {
 	// first time through set up the DOM
 	jQuery('#selectNav').appendTo('#linkNav').addClass('dhtml_more_tabs'); // move the selectNav in the DOM
 	jQuery('#selectNav').css('top',jQuery('#linkNav').height() - 3);       // set its top position
-	jQuery('#selectNav').width(jQuery('#linkNav').width()*0.75);           // set its width to fix an IE6 bug
-	jQuery('#selectNav').css('z-index',9900);                                 // explicitely set the z-index
-	jQuery('.more-tab').css('z-index',9800);                                  //  " for the More Tabs div element
+
+	var width = jQuery('#linkNav').width()*0.75;
+	if (width < 400) width = 400;
+	jQuery('div#selectNav').width(width);          // set its width to fix an IE6 bug
+	jQuery('#selectNav').css('z-index',9899);      // explicitely set the z-index
+	jQuery('.more-tab').css('z-index',9900);       //  " for the More Tabs div element
+
+	//reset the left offset to avoid "more tabs" dropdown going off the left of the screen
+	jQuery('div#selectNav').show();
+	var left = $("#selectNav").get(0).offsetLeft;
+	if (left <= 0) { jQuery('#selectNav').css('left', 1); }
 	
+	jQuery('#selectNav').hide();
+		
 	// then recast the function to the post initialized state which will run from then on
 	dhtml_more_tabs = function() {
 		if (jQuery('#selectNav').css('display') == 'none' ) {
