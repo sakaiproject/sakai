@@ -22,9 +22,11 @@
 package org.sakaiproject.citation.tool;
 
 import java.io.IOException;
+import java.io.Reader;
 import java.io.UnsupportedEncodingException;
 import java.net.MalformedURLException;
 import java.net.URL;
+import java.nio.charset.UnsupportedCharsetException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
 
@@ -46,6 +48,7 @@ import javax.servlet.ServletException;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
+import org.apache.commons.io.input.BOMInputStream;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.sakaiproject.authz.api.SecurityAdvisor;
@@ -2037,36 +2040,36 @@ public class CitationHelperAction extends VelocityPortletPaneledAction
 
 	      InputStream risImportStream = risImport.getInputStream();
 
-/*
-	      // Let's try to use UTF-8 encoding
+			// Attempt to detect the encoding of the file.
+			BOMInputStream irs = new BOMInputStream(risImportStream);
+		
+			// below is needed if UTF-8 above is commented out
+			Reader isr = null;
+			String bomCharsetName = null;
+			try
+			{
+				 bomCharsetName = irs.getBOMCharsetName();
+				if (bomCharsetName != null)
+				{
+					isr = new InputStreamReader(risImportStream, bomCharsetName);
+				}
+			} catch (UnsupportedEncodingException uee)
+			{
+				// Something strange as the JRE should support all the formats.
+				logger.info("Problem using character set when importing RIS: "+ bomCharsetName);
+			}
+			catch (IOException ioe)
+			{
+				// Probably won't get any further, but may as well try.
+				logger.debug("Problem reading the character set from RIS import: "+ ioe.getMessage());
+			}
+			// Fallback to platform default
+			if (isr == null) {
+				isr = new InputStreamReader(irs);
+			}
 
-	      InputStreamReader isr = null;
 
-	      try
-	      {
-		    isr = new InputStreamReader(risImportStream, "UTF-8");
-	      }
-	      catch(UnsupportedEncodingException e)
-	      {
-	    	  logger.warn("doImport() - could not set codeset to UTF-8");
-
-	      }
-
-	      // For some reason we couldn't create a UTF-8 enabled InputStreamReader. Fall back
-	      // to just a default InputStreamReader
-
-	      if (isr == null)
-	      {
-	    	  isr = new InputStreamReader(risImportStream);
-	      }
-
-	      bread = new java.io.BufferedReader(isr);
-		} // end set the read of the import from the uploaded file.
-*/
-
-	      // below is needed if UTF-8 above is commented out
-    	  InputStreamReader isr = new InputStreamReader(risImportStream);
-	      bread = new java.io.BufferedReader(isr);
+			bread = new java.io.BufferedReader(isr);
 		} // end set the read of the import from the uploaded file.
 
 		// The below code is a major work in progress.
