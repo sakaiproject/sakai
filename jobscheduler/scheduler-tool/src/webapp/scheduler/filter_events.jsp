@@ -13,8 +13,6 @@
         <sakai:script contextBase="/jsf-resource" path="/inputDate/calendar2.js"/>
 
 	  <h:form id="filterForm">
-          <script type="text/javascript" src="calendar/popcalendar.js"></script>
-          <link href="calendar/theme.css" rel="stylesheet" type="text/css" />
   	    <h:graphicImage value="/images/quartz.jpg" alt="#{msgs.powered_by} Quartz"/>
 
         <sakai:panel_titled>
