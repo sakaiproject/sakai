@@ -259,9 +259,11 @@ public class CourseGradeDetailsBean extends EnrollmentTableBean {
 		//Default standard export fields
 		standardExportDefaultFields = ServerConfigurationService.getString("gradebook.standard.export.default.fields","usereid,sortname,coursegrade");		
 		updateExportFieldStatus(standardExportDefaultFields);
-		exportFormats.add(new SelectItem("CSV"));
-		exportFormats.add(new SelectItem("Excel"));
-		exportFormats.add(new SelectItem("PDF"));
+		if (exportFormats.isEmpty()){
+			exportFormats.add(new SelectItem("CSV"));
+			exportFormats.add(new SelectItem("Excel"));
+			exportFormats.add(new SelectItem("PDF"));
+		}
 		exportType = "CSV";
 		
 		// Set up score rows.
