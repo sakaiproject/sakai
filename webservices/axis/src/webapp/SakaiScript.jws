@@ -3321,6 +3321,101 @@ public String changeSiteShortDescription( String sessionid, String siteid, Strin
 	return "success";
 }
 
+
+/** 
+ * Adds a tool to a site, includes adding a page.
+ *
+ * @param	sessionid		the id of a valid session for the admin user
+ * @param	siteid			the id of the site to add the page to
+ * @param	toolid			the id of the tool you want to add (ie sakai.profile2)
+ * @param	pagetitle		the desired title for the page shown in the site navigation
+ * @param	tooltitle		the desired title for the tool shown in the main portlet
+ * @param 	pagelayout 		if you want the page to be single or double column (0 or 1). Any other value will revert to 0.
+ * @param	position		integer specifying the position of this page within other pages on the site (0 means top, for right at the bottom a large enough number, ie 99)
+ * @param	popup			boolean for if it should be a popup window or not
+ *
+ * @return		        	success or exception
+ * @throws	AxisFault		
+ *
+ */
+public String addToolAndPageToSite(String sessionid, String siteid, String toolid, String pagetitle, String tooltitle, int pagelayout, int position, boolean popup) throws AxisFault
+{
+	Session session = establishSession(sessionid);
+	
+	try {
+		
+		//get site
+		Site siteEdit = siteService.getSite(siteid);
+		
+		//add the page
+		SitePage sitePageEdit = siteEdit.addPage();
+		sitePageEdit.setTitle(pagetitle);
+		sitePageEdit.setLayout(pagelayout);
+			
+		//KNL-250, SAK-16819 - if position too large, will throw ArrayIndexOutOfBoundsException
+		//deal with this here and just set to the number of pages - 1 so its at the bottom.
+		int numPages = siteEdit.getPages().size();
+		if(position > numPages) {
+			position = numPages-1;
+		}
+			
+		sitePageEdit.setPosition(position);
+		sitePageEdit.setPopup(popup);
+		
+		// Check that the tool is visible (not stealthed) and available for this site type (category)
+		if (!securityService.isSuperUser(session.getUserId())) {
+
+			Set categories = new HashSet<String>();
+			Set<Tool> visibleTools = toolManager.findTools(categories, null);
+			
+			boolean toolVisible = false;
+			for (Tool tool : visibleTools) {
+				if (tool.getId().equals(toolid)) {
+					toolVisible = true;
+				}
+			}
+			
+			if (!toolVisible) {
+				LOG.warn("WS addToolAndPageToSite(): Permission denied. Must be super user to add a stealthed tool to a site.");
+				throw new AxisFault("WS addToolAndPageToSite(): Permission denied. Must be super user to add a stealthed tool to a site.");
+			}
+
+			categories.add(siteEdit.getType());		
+			Set<Tool> availableTools = toolManager.findTools(categories, null);
+
+			boolean toolAvailable = false;
+			for (Tool tool : availableTools) {
+				if (tool.getId().equals(toolid)) {
+					toolAvailable = true;
+				}
+			}
+			
+			if (!toolAvailable) {
+				LOG.warn("WS addToolAndPageToSite(): Permission denied. Must be super user to add a tool which is not available for this site type.");
+				throw new AxisFault("WS addToolAndPageToSite(): Permission denied. Must be super user to add a tool which is not available for this site type.");
+			}
+		}
+		
+		//add the tool
+		ToolConfiguration tool = sitePageEdit.addTool();
+		Tool t = tool.getTool();
+			
+		tool.setTool(toolid, toolManager.getTool(toolid));
+		tool.setTitle(tooltitle);
+			
+		siteService.save(siteEdit);
+		LOG.info("Page and tool added for site:" + siteid);
+		
+		return "success";
+	}
+	catch (Exception e) {  
+		LOG.error("WS addToolAndPageToSite(): " + e.getClass().getName() + " : " + e.getMessage());
+		e.printStackTrace();
+	 	return e.getClass().getName() + " : " + e.getMessage();
+	}
+}
+
+
 /**
  * Transfer a copy of all entites from another context for any entity
  * producer that claims this tool id.
