@@ -3284,6 +3284,44 @@ public String copyResources( String sessionid, String sourcesiteid, String desti
 }
 
 /**
+ * Change the short description of a site
+ *
+ * @param	sessionid			the id of a valid session
+ * @param	siteid	   			the id of the site you want to change the title of
+ * @param	shortDescription	the new short description
+ * @return		       			success or string containing error
+ * @throws	AxisFault	
+ *
+ */
+public String changeSiteShortDescription( String sessionid, String siteid, String shortDescription) throws AxisFault {
+	
+	Session session = establishSession(sessionid);
+	
+	try {
+		
+	    // check short description
+	    if (shortDescription != null) {
+	        StringBuilder alertMsg = new StringBuilder();
+	        shortDescription = FormattedText.processFormattedText(shortDescription, alertMsg);
+	        if (shortDescription == null) {
+	        	throw new AxisFault("Site short description markup rejected: " + alertMsg.toString());
+	        }
+	    }            
+	    
+		Site siteEdit = null;
+		siteEdit = siteService.getSite(siteid);
+		siteEdit.setShortDescription(shortDescription);
+		siteService.save(siteEdit);
+	
+	}
+	catch (Exception e) {  
+		LOG.error("WS changeSiteShortDescription(): " + e.getClass().getName() + " : " + e.getMessage());
+	 	return e.getClass().getName() + " : " + e.getMessage();
+	}
+	return "success";
+}
+
+/**
  * Transfer a copy of all entites from another context for any entity
  * producer that claims this tool id.
  * 
