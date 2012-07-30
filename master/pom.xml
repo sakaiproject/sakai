@@ -1023,8 +1023,13 @@
                 <inherited>true</inherited>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-compiler-plugin</artifactId>
-                <version>2.3.2</version>
+                <version>2.5.1</version>
                 <configuration>
+                    <!--
+                    <compilerArguments>
+                      <verbose />
+                    </compilerArguments>
+                    -->
                     <source>${sakai.jdk.version}</source>
                     <target>${sakai.jdk.version}</target>
                 </configuration>
