@@ -149,49 +149,51 @@
 
 		</div> <!-- END OF INDNT1 -->
         <div class="act">
-            <span class="highlightPanel actionitem" style="padding:10px 5px 10px 10px;margin-right:10xp;position:relative">
-            <h:outputLabel for="export_format" value="#{msgs.course_grade_details_export_label}" />
-            <h:selectOneMenu id="export_format" value="#{courseGradeDetailsBean.exportType}">
-			    <f:selectItems value="#{courseGradeDetailsBean.exportFormats}" />
-			</h:selectOneMenu>
-            <h:commandButton
-				value="#{msgs.course_grade_details_export_course_grades_institution_control}"
-				actionListener="#{courseGradeDetailsBean.export}"
-				rendered="#{!courseGradeDetailsBean.emptyEnrollments}"
-				/>
-            <a href="#" id="exportPrefsLink"><h:outputText value="#{msgs.course_grade_details_export_course_grades_options}" /></a>
-            <div class="highlightPanel exportPrefsVals" style="display: none">
-                <p>
-                    <h:selectBooleanCheckbox id="userid" value="#{courseGradeDetailsBean.includeUsereid}"/>
-                    <h:outputLabel for="userid" value="#{msgs.course_grade_details_export_course_grades_options_userid}" />
-                </p>
-                <p>
-                    <h:selectBooleanCheckbox id="finalscore" value="#{courseGradeDetailsBean.includeFinalscore}" />
-                    <h:outputLabel for="finalscore" value="#{msgs.course_grade_details_export_course_grades_options_finalscore}" />
-                </p>
-                <p>
-                    <h:selectBooleanCheckbox id="sortname" value="#{courseGradeDetailsBean.includeSortname}" />
-                    <h:outputLabel for="sortname" value="#{msgs.course_grade_details_export_course_grades_options_username}" />
-                </p>
-                <p>
-                    <h:selectBooleanCheckbox id="calculatedgrade" value="#{courseGradeDetailsBean.includeCalculatedgrade}" />
-                    <h:outputLabel for="calculatedgrade" value="#{msgs.course_grade_details_export_course_grades_options_calcgrade}" />
-                </p>
-                <p>
-                    <h:selectBooleanCheckbox id="gradeoverride" value="#{courseGradeDetailsBean.includeGradeoverride}" />
-                    <h:outputLabel for="gradeoverride" value="#{msgs.course_grade_details_export_course_grades_options_gradeoverr}" />
-                </p>
-                <p>
-                    <h:selectBooleanCheckbox id="coursegrade" value="#{courseGradeDetailsBean.includeCoursegrade}" />
-                    <h:outputLabel for="coursegrade" value="#{msgs.course_grade_details_export_course_grades_options_coursegrade}" />
-                </p>
-                <p>
-                    <h:selectBooleanCheckbox id="lastmodifieddate" value="#{courseGradeDetailsBean.includeLastmodifieddate}" />
-                    <h:outputLabel for="lastmodifieddate" value="#{msgs.course_grade_details_export_course_grades_options_lastmod}" />
-                </p>
-                <a href="#" id="exportPrefsValsClose">X</a>
-            </div>
-         </span>&nbsp;
+                <h:outputText rendered="#{courseGradeDetailsBean.emptyEnrollments}" escape="false" value="<div style=\"display: none\">"/>
+                <span class="highlightPanel actionitem" style="padding:10px 5px 10px 10px;margin-right:10xp;position:relative">
+                    <h:outputLabel for="export_format" value="#{msgs.course_grade_details_export_label}" />
+                    <h:selectOneMenu id="export_format" value="#{courseGradeDetailsBean.exportType}">
+        			    <f:selectItems value="#{courseGradeDetailsBean.exportFormats}" />
+        			</h:selectOneMenu>
+                    <h:commandButton
+        				value="#{msgs.course_grade_details_export_course_grades_institution_control}"
+        				actionListener="#{courseGradeDetailsBean.export}"
+        				rendered="#{!courseGradeDetailsBean.emptyEnrollments}"
+        				/>
+                    <a href="#" id="exportPrefsLink"><h:outputText value="#{msgs.course_grade_details_export_course_grades_options}" /></a>
+                <div class="highlightPanel exportPrefsVals" style="display: none">
+                    <p>
+                        <h:selectBooleanCheckbox id="userid" value="#{courseGradeDetailsBean.includeUsereid}"/>
+                        <h:outputLabel for="userid" value="#{msgs.course_grade_details_export_course_grades_options_userid}" />
+                    </p>
+                    <p>
+                        <h:selectBooleanCheckbox id="finalscore" value="#{courseGradeDetailsBean.includeFinalscore}" />
+                        <h:outputLabel for="finalscore" value="#{msgs.course_grade_details_export_course_grades_options_finalscore}" />
+                    </p>
+                    <p>
+                        <h:selectBooleanCheckbox id="sortname" value="#{courseGradeDetailsBean.includeSortname}" />
+                        <h:outputLabel for="sortname" value="#{msgs.course_grade_details_export_course_grades_options_username}" />
+                    </p>
+                    <p>
+                        <h:selectBooleanCheckbox id="calculatedgrade" value="#{courseGradeDetailsBean.includeCalculatedgrade}" />
+                        <h:outputLabel for="calculatedgrade" value="#{msgs.course_grade_details_export_course_grades_options_calcgrade}" />
+                    </p>
+                    <p>
+                        <h:selectBooleanCheckbox id="gradeoverride" value="#{courseGradeDetailsBean.includeGradeoverride}" />
+                        <h:outputLabel for="gradeoverride" value="#{msgs.course_grade_details_export_course_grades_options_gradeoverr}" />
+                    </p>
+                    <p>
+                        <h:selectBooleanCheckbox id="coursegrade" value="#{courseGradeDetailsBean.includeCoursegrade}" />
+                        <h:outputLabel for="coursegrade" value="#{msgs.course_grade_details_export_course_grades_options_coursegrade}" />
+                    </p>
+                    <p>
+                        <h:selectBooleanCheckbox id="lastmodifieddate" value="#{courseGradeDetailsBean.includeLastmodifieddate}" />
+                        <h:outputLabel for="lastmodifieddate" value="#{msgs.course_grade_details_export_course_grades_options_lastmod}" />
+                    </p>
+                    <a href="#" id="exportPrefsValsClose">X</a>
+                </div>
+             </span>&nbsp;
+             <h:outputText rendered="#{courseGradeDetailsBean.emptyEnrollments}" escape="false" value="</div>"/>
 			<h:outputText rendered="#{!courseGradeDetailsBean.emptyEnrollments && courseGradeDetailsBean.enableCustomExport}" escape="false" value="<span class=\"highlightPanel actionitem\" style=\"padding:10px 5px 10px 10px\">"/>
 			    <h:outputText styleClass="instruction" style="padding-right:10px;" value="#{courseGradeDetailsBean.exportCustomLabel}" rendered="#{!courseGradeDetailsBean.emptyEnrollments && courseGradeDetailsBean.enableCustomExport}"/>
                 <h:commandButton
