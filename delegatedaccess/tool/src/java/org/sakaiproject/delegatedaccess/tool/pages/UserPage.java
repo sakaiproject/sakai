@@ -164,7 +164,7 @@ public class UserPage  extends BaseTreePage{
 		Label noAccessLabel = new Label("noAccess"){
 			@Override
 			public boolean isVisible() {
-				return treeModel == null;
+				return treeModel == null && (!isShoppingPeriodTool() && !sakaiProxy.getDisableUserTreeView());
 			}
 		};
 		if(isShoppingPeriodTool()){
@@ -195,7 +195,7 @@ public class UserPage  extends BaseTreePage{
 			}
 			@Override
 			public boolean isVisible() {
-				return treeModel != null;
+				return treeModel != null || isShoppingPeriodTool() || (!isShoppingPeriodTool() && sakaiProxy.getDisableUserTreeView());
 			}
 		};
 		form.add(new TextField<String>("search", messageModel));
@@ -219,12 +219,20 @@ public class UserPage  extends BaseTreePage{
 	
 	private void setTreeModel(String userId, boolean cascade){
 		if(isShoppingPeriodTool()){
-			treeModel = projectLogic.getTreeModelForShoppingPeriod(false);
-			if(treeModel != null && ((DefaultMutableTreeNode) treeModel.getRoot()).getChildCount() == 0){
+			if(sakaiProxy.getDisableShoppingTreeView()){
 				treeModel = null;
+			}else{
+				treeModel = projectLogic.getTreeModelForShoppingPeriod(false);
+				if(treeModel != null && ((DefaultMutableTreeNode) treeModel.getRoot()).getChildCount() == 0){
+					treeModel = null;
+				}
 			}
 		}else{
-			treeModel = projectLogic.createAccessTreeModelForUser(userId, false, cascade);
+			if(sakaiProxy.getDisableUserTreeView()){
+				treeModel = null;
+			}else{
+				treeModel = projectLogic.createAccessTreeModelForUser(userId, false, cascade);
+			}
 		}
 	}
 }
