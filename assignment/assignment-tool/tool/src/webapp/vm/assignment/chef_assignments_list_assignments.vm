@@ -470,7 +470,7 @@ function allowClick(object)
 										#end
 									#end
 							</td>
-							#if ($!groups)
+							#if ($!groups && $!allowGradeSubmission)
 							<td  style="padding-bottom:0">
 								## only show it when there is at least one group
 								## assignment range
