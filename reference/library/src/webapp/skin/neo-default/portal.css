@@ -1678,3 +1678,17 @@ a.qtipLinkButton:hover {
 	width:250px;
 	display:block;
 }
+
+/* Time in the portal footer */
+.server-time-container {
+ /*position: absolute;*/
+ right: 0px;
+ font-size: 1.1em;
+ text-align: right;
+}
+
+.server-time {
+ font-weight: bold;
+}
+
+

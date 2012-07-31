@@ -131,6 +131,17 @@ site types are a local setting - adjust */
 	border:none;
 }
 
+/* Time in the portal footer */
+.server-time-container {
+	position: absolute;
+	right: 0px;
+	font-size: 1.1em;
+	text-align: right;
+}
+
+.server-time {
+	font-weight: bold;
+}
 
 /*PART 2 - HEADER IFRAME SETTINGS*/	
 /*iframe sizes for different states*/
