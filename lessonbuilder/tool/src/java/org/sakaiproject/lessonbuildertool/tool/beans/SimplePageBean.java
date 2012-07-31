@@ -1266,6 +1266,7 @@ public class SimplePageBean {
 				view.setItemId(e.pageItemId);
 				view.setPath(Integer.toString(top));
 				UIInternalLink.make(tofill, "next", messageLocator.getMessage("simplepage.next"), view);
+				UIInternalLink.make(tofill, "next1", messageLocator.getMessage("simplepage.next"), view);
 			}
 	    } else  if (nextItem != null) {
 	    	GeneralViewParameters view = new GeneralViewParameters();
@@ -1316,6 +1317,7 @@ public class SimplePageBean {
 	    	view.setItemId(nextItem.getId());
 	    	view.setBackPath("push");
 	    	UIInternalLink.make(tofill, "next", messageLocator.getMessage("simplepage.next"), view);
+	    	UIInternalLink.make(tofill, "next1", messageLocator.getMessage("simplepage.next"), view);
 	    }
 	}
 
@@ -1392,6 +1394,7 @@ public class SimplePageBean {
 		view.setItemId(prevItem.getId());
 		view.setBackPath("pop");
 		UIInternalLink.make(tofill, "prev", messageLocator.getMessage("simplepage.back"), view);
+		UIInternalLink.make(tofill, "prev1", messageLocator.getMessage("simplepage.back"), view);
 	}
 
 	public String getCurrentSiteId() {
