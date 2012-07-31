@@ -152,13 +152,13 @@
         <dependency>
             <groupId>uk.org.ponder.sakairsf</groupId>
             <artifactId>SakaiRSFComponents-evolvers</artifactId>
-            <version>${sakairsf.version}</version>
+            <version>${sakairsf.components.version}</version>
             <type>jar</type>
         </dependency>
         <dependency>
             <groupId>uk.org.ponder.sakairsf</groupId>
             <artifactId>SakaiRSFComponents-templates</artifactId>
-            <version>${sakairsf.version}</version>
+            <version>${sakairsf.components.version}</version>
             <type>war</type>
         </dependency>
         <dependency>
