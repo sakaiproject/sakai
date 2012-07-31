@@ -207,6 +207,53 @@
 			<!-- include bottom -->
 			#if ( !$pagepopup)
 			<div id="footer">
+        #if ($showServerTime == "true")
+				        
+				<div class="server-time-container">
+					#if ($showPreferredTzTime == "true")
+						${rloader.site_preferredtime_label}
+						<span id="preferredTime" class="server-time"></span><br />
+					#end
+					${rloader.site_servertime_label}
+					<span id="serverTime" class="server-time"></span>
+				</div>
+				<script type="text/javascript" language="JavaScript">
+					// <!--
+					updateFooterTime = (function() {
+							#if ($showPreferredTzTime == "true")
+								var preferredTzDisplay='${preferredTzDisplay}';
+								var preferredServerDateAndGMTOffset = new Date(${preferredTzGMTOffset});
+								var preferredLocalOffset = preferredServerDateAndGMTOffset.getTime() - (new Date()).getTime();
+							#end
+							var serverTzDisplay='${serverTzDisplay}';
+							var serverServerDateAndGMTOffset = new Date(${serverTzGMTOffset})
+							var serverLocalOffset = serverServerDateAndGMTOffset.getTime() - (new Date()).getTime();
+
+							return function() {
+									var offsetDate = new Date((new Date()).getTime() + serverLocalOffset);
+									var dateString = offsetDate.toUTCString()
+											.replace(/GMT/, serverTzDisplay)
+											.replace(/UTC/, serverTzDisplay);
+
+									document.getElementById('serverTime').innerHTML = dateString;
+	
+									#if ($showPreferredTzTime == "true")
+										var offsetDate = new Date((new Date()).getTime() + preferredLocalOffset);
+										var dateString = offsetDate.toUTCString()
+												.replace(/GMT/, preferredTzDisplay)
+												.replace(/UTC/, preferredTzDisplay);
+	
+										document.getElementById('preferredTime').innerHTML = dateString;
+									#end
+									
+									setTimeout('updateFooterTime()', 1000);
+								};
+						})();
+							
+					updateFooterTime();
+					// --> 
+				</script>
+				#end
 				<div class="footerExtNav">
 					<ul id="footerLinks">#foreach ( $bn in $bottomNav )<li><span>${bn}</span></li>#end</ul>
 				</div>

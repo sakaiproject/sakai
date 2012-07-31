@@ -23,12 +23,15 @@ package org.sakaiproject.portal.charon;
 import java.io.IOException;
 import java.io.PrintWriter;
 import java.util.ArrayList;
+import java.util.Calendar;
+import java.util.Date;
 import java.util.Enumeration;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.Properties;
+import java.util.TimeZone;
 
 import javax.servlet.ServletConfig;
 import javax.servlet.ServletException;
@@ -99,6 +102,7 @@ import org.sakaiproject.site.api.SitePage;
 import org.sakaiproject.site.api.ToolConfiguration;
 import org.sakaiproject.site.cover.SiteService;
 import org.sakaiproject.thread_local.cover.ThreadLocalManager;
+import org.sakaiproject.time.api.TimeService;
 import org.sakaiproject.tool.api.ActiveTool;
 import org.sakaiproject.tool.api.Placement;
 import org.sakaiproject.tool.api.Session;
@@ -1533,6 +1537,70 @@ public class SkinnableCharonPortal extends HttpServlet implements Portal
 	{
 		if (rcontext.uses(INCLUDE_BOTTOM))
 		{
+			String thisUser = SessionManager.getCurrentSessionUserId();
+			
+			//Get user preferences
+      PreferencesService preferencesService = (PreferencesService) ComponentManager.get(PreferencesService.class);
+
+      Preferences prefs = preferencesService.getPreferences(thisUser);
+
+			boolean showServerTime = ServerConfigurationService.getBoolean("portal.show.time", true);
+			if (showServerTime) {
+					rcontext.put("showServerTime","true");
+					Calendar now = Calendar.getInstance();
+					Date nowDate = new Date(now.getTimeInMillis());
+
+					//first set server date and time
+					TimeZone serverTz = TimeZone.getDefault();
+					now.setTimeZone(serverTz);
+
+					rcontext.put("serverTzDisplay",
+									serverTz.getDisplayName(
+											serverTz.inDaylightTime(nowDate),
+											TimeZone.SHORT
+											)
+									);
+
+					rcontext.put("serverTzGMTOffset",
+									String.valueOf(
+											now.getTimeInMillis() + now.get(Calendar.ZONE_OFFSET) + now.get(Calendar.DST_OFFSET)
+											)
+									);
+
+					//provide the user's preferred timezone information if it is different
+
+					//Get the Properties object that holds user's TimeZone preferences 
+					ResourceProperties tzprops = prefs.getProperties(TimeService.APPLICATION_ID);
+
+					//Get the ID of the timezone using the timezone key.
+					//Default to 'localTimeZone' (server timezone?)
+					String preferredTzId = (String) tzprops.get(TimeService.TIMEZONE_KEY);
+
+					if (preferredTzId != null && !preferredTzId.equals(serverTz.getID())) {
+							TimeZone preferredTz = TimeZone.getTimeZone(preferredTzId);
+
+							now.setTimeZone(preferredTz);
+
+							rcontext.put("showPreferredTzTime", "true");
+
+							//now set up the portal information
+							rcontext.put("preferredTzDisplay",
+											preferredTz.getDisplayName(
+													preferredTz.inDaylightTime(nowDate),
+													TimeZone.SHORT
+													)
+											);
+
+							rcontext.put("preferredTzGMTOffset",
+											String.valueOf(
+													now.getTimeInMillis() + now.get(Calendar.ZONE_OFFSET) + now.get(Calendar.DST_OFFSET)
+													)
+											);
+					} else {
+							rcontext.put("showPreferredTzTime", "false");
+					}
+			}
+			
 			rcontext.put("pagepopup", false);
 
 			String copyright = ServerConfigurationService
@@ -1570,19 +1638,16 @@ public class SkinnableCharonPortal extends HttpServlet implements Portal
 				ServerConfigurationService.getBoolean("portal.neoavatar", true));
 
 
-                        User thisUser = UserDirectoryService.getCurrentUser();
-                        if(sakaiTutorialEnabled && thisUser != null && thisUser.getEid() != null) {
-                        	PreferencesService preferencesService = (PreferencesService) ComponentManager.get(PreferencesService.class);
-                        	Preferences prefs = preferencesService.getPreferences(thisUser.getId());
+                        if(sakaiTutorialEnabled && thisUser != null) {
                         	if (!("1".equals(prefs.getProperties().getProperty("sakaiTutorialFlag")))) {
                         		rcontext.put("tutorial", true);
                         		//now save this in the user's prefefences so we don't show it again
                         		PreferencesEdit preferences = null;
                         		try {
-                        			preferences = preferencesService.edit(thisUser.getId());
+                        			preferences = preferencesService.edit(thisUser);
                         		} catch (Exception e1) {
                         			try {
-                        				preferences = preferencesService.add(thisUser.getId());
+                        				preferences = preferencesService.add(thisUser);
                         			} catch (IdUsedException e2) {
                         				M_log.error(e2);
                         			} catch (PermissionException e2) {
