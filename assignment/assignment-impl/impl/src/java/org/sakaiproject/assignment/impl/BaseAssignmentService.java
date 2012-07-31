@@ -4396,9 +4396,9 @@ public abstract class BaseAssignmentService implements AssignmentService, Entity
                                         for (Iterator gIterator = groupRefs.iterator(); gIterator.hasNext();)
                                         {
                                                 Group _gg = (Group)gIterator.next();
-                                                if (_gg.getProperties().get(GROUP_SECTION_PROPERTY) == null) {		// NO SECTIONS (this might not be valid test for manually created sections)
+                                                //if (_gg.getProperties().get(GROUP_SECTION_PROPERTY) == null) {		// NO SECTIONS (this might not be valid test for manually created sections)
                                                         rv.add(_gg);
-                                                }
+                                                //}
                                         }
 				} 
 				else
@@ -4407,7 +4407,7 @@ public abstract class BaseAssignmentService implements AssignmentService, Entity
 					for (Iterator gIterator = groupRefs.iterator(); gIterator.hasNext();)
 					{
 						Group _gg = st.getGroup((String)gIterator.next());		// NO SECTIONS (this might not be valid test for manually created sections)
-						if (_gg != null && _gg.getProperties().get(GROUP_SECTION_PROPERTY) == null) {
+						if (_gg != null) {// && _gg.getProperties().get(GROUP_SECTION_PROPERTY) == null) {
 							rv.add(_gg);
 						}
 					}

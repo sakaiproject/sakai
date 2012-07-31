@@ -1413,7 +1413,7 @@ public class AssignmentAction extends PagedResourceActionII
                 Iterator<Group> _groups = site.getGroupsWithMember(member).iterator();
                 while (_groups.hasNext()) {
                         Group _g = _groups.next();
-                        if (_g.getMember(member) != null && _g.getProperties().get(GROUP_SECTION_PROPERTY) == null)
+                        if (_g.getMember(member) != null)// && _g.getProperties().get(GROUP_SECTION_PROPERTY) == null)
                                  groups.add(_g);
                 }
             } else {
@@ -1421,7 +1421,7 @@ public class AssignmentAction extends PagedResourceActionII
                 while (_it.hasNext()) {
                         String _gRef = _it.next();
                         Group _g = site.getGroup(_gRef);
-                        if (_g != null && _g.getMember(member) != null && _g.getProperties().get(GROUP_SECTION_PROPERTY) == null)
+                        if (_g != null && _g.getMember(member) != null)// && _g.getProperties().get(GROUP_SECTION_PROPERTY) == null)
                                  groups.add(_g);
                 }
             }
@@ -2107,9 +2107,9 @@ public class AssignmentAction extends PagedResourceActionII
                             Iterator<Group> _it = groupsAllowAddAssignment.iterator();
                             while (_it.hasNext()) {
                                 Group _group = _it.next();
-                                if (_group.getProperties().get(GROUP_SECTION_PROPERTY) == null) {
+                                //if (_group.getProperties().get(GROUP_SECTION_PROPERTY) == null) {
                                     _valid_groups.add(_group);
-                                }
+                                //}
                             }
                             groupsAllowAddAssignment = _valid_groups;
                         }
@@ -11036,21 +11036,22 @@ public class AssignmentAction extends PagedResourceActionII
 			            for (Iterator<Group> iSubmitterGroupsIterator = submitterGroups.iterator(); iSubmitterGroupsIterator.hasNext();)
 			            {
 			                Group gId = iSubmitterGroupsIterator.next();
-			                if (gId.getProperties().get(GROUP_SECTION_PROPERTY) == null) {
-			                    try
-			                    {
-			                        AssignmentSubmission sub = AssignmentService.getSubmission(aRef, gId.getId());
-			                        returnResources.add(new SubmitterSubmission(gId, sub));  // UserSubmission accepts either User or Group
-			                    }
-			                    catch (IdUnusedException subIdException)
-			                    {
-			                        M_log.warn(this + ".sizeResources: looking for submission for unused assignment id " + aRef + subIdException.getMessage());
-			                    }
-			                    catch (PermissionException subPerException)
-			                    {
-			                        M_log.warn(this + ".sizeResources: cannot have permission to access submission of assignment " + aRef + " of group " + gId.getId());
-			                    }
-			                }
+			                // Allow sections to be used for group assigments - https://jira.sakaiproject.org/browse/SAK-22425
+			                //if (gId.getProperties().get(GROUP_SECTION_PROPERTY) == null) {
+		                    try
+		                    {
+		                        AssignmentSubmission sub = AssignmentService.getSubmission(aRef, gId.getId());
+		                        returnResources.add(new SubmitterSubmission(gId, sub));  // UserSubmission accepts either User or Group
+		                    }
+		                    catch (IdUnusedException subIdException)
+		                    {
+		                        M_log.warn(this + ".sizeResources: looking for submission for unused assignment id " + aRef + subIdException.getMessage());
+		                    }
+		                    catch (PermissionException subPerException)
+		                    {
+		                        M_log.warn(this + ".sizeResources: cannot have permission to access submission of assignment " + aRef + " of group " + gId.getId());
+		                    }
+			                //}
 			            }
 			        }
 
@@ -12091,7 +12092,7 @@ public class AssignmentAction extends PagedResourceActionII
                         while (_checkGroups.hasNext()) {
                             Group _checkGroup = _checkGroups.next();
                             // exclude Sections from eligible groups
-                            if (_checkGroup.getProperties().get(GROUP_SECTION_PROPERTY) == null) {
+                            //if (_checkGroup.getProperties().get(GROUP_SECTION_PROPERTY) == null) {
                                 if (!specify_groups) {
                                     _count++;
 				    if (_count > 1) _sb.append(", ");
@@ -12111,7 +12112,7 @@ public class AssignmentAction extends PagedResourceActionII
 				    }
                                   }
                                 }
-                            }
+                            //}
                         }
                         if (_count > 1) {
                             try {
