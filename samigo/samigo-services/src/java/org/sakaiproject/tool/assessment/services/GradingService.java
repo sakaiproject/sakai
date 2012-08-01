@@ -2241,9 +2241,9 @@ Here are the definition and 12 cases I came up with (lydia, 01/2006):
           SamigoExpressionParser parser = new SamigoExpressionParser(); // this will turn the expression into a number in string form
           String numericAnswerString;
           try {
-              numericAnswerString = parser.parse(substitutedFormula);
+              numericAnswerString = parser.parse(substitutedFormula, decimalPlaces+1);
               if (this.isAnswerValid(numericAnswerString)) {
-                  String displayAnswer = applyPrecisionToNumberString(numericAnswerString, decimalPlaces);                
+                  String displayAnswer = applyPrecisionToNumberString(numericAnswerString, decimalPlaces);
                   values.put(i + 1, displayAnswer + answerData); // later answerData will be used for scoring
               } else {
                   throw new Exception("invalid answer, try again");

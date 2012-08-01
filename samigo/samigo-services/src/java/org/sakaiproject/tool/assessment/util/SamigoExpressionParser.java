@@ -22,6 +22,7 @@
 
 package org.sakaiproject.tool.assessment.util;
 
+import java.math.BigDecimal;
 import java.util.*;
 
 
@@ -44,12 +45,19 @@ public class SamigoExpressionParser
     token_type = TOKENTYPE.NOTHING;
   }
 
+  /**
+   * parses and evaluates the given expression
+   * On error, an error of type Error is thrown
+   */
+  public String parse(final String new_expr) throws SamigoExpressionError {
+      return parse(new_expr, 5);
+  }
 
   /**
    * parses and evaluates the given expression
    * On error, an error of type Error is thrown
    */
-  public String parse(final String new_expr) throws SamigoExpressionError
+  public String parse(final String new_expr, final int decimals) throws SamigoExpressionError
   {
     try
     {
@@ -83,6 +91,10 @@ public class SamigoExpressionParser
           throw new SamigoExpressionError(row(), col(), 5, token);
         }
       }
+
+      // round the answer for accuracy (hopefully)
+      ans = BigDecimal.valueOf(ans).setScale(decimals, BigDecimal.ROUND_HALF_UP).doubleValue();
+      //ans = (double)Math.round(ans * (decimals * 10l)) / (decimals * 10.0d);
 
       // add the answer to memory as variable "Ans"
       user_var.put("ANS", Double.valueOf(ans));
