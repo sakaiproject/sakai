@@ -340,7 +340,7 @@ public class UsersAction extends PagedResourceActionII
 		pagingInfoToContext(state, context);
 
 		// add the search commands
-		addSearchMenus(bar, state);
+		addSearchMenus(bar, state, rb.getString("useact.search"));
 
 		// add the refresh commands
 		addRefreshMenus(bar, state);
