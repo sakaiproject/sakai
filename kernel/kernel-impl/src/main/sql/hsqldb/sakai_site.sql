@@ -216,6 +216,8 @@ INSERT INTO SAKAI_SITE_PAGE VALUES('~admin-1000', '~admin', 'Job Scheduler', '0'
 INSERT INTO SAKAI_SITE_TOOL VALUES('~admin-1010', '~admin-1000', '~admin', 'sakai.scheduler', 1, 'Job Scheduler', NULL );
 INSERT INTO SAKAI_SITE_PAGE VALUES('~admin-1100', '~admin', 'Become User', '0', 13, '0' );
 INSERT INTO SAKAI_SITE_TOOL VALUES('~admin-1110', '~admin-1100', '~admin', 'sakai.su', 1, 'Become User', NULL );
+INSERT INTO SAKAI_SITE_PAGE VALUES('~admin-1120', '~admin', 'Preferences', '0', 13, '0' );
+INSERT INTO SAKAI_SITE_TOOL VALUES('~admin-1125', '~admin-1120', '~admin', 'sakai.preferences', 1, 'Preferences', NULL );
 INSERT INTO SAKAI_SITE_PAGE VALUES('~admin-1200', '~admin', 'User Membership', '0', 14, '0' );
 INSERT INTO SAKAI_SITE_TOOL VALUES('~admin-1210', '~admin-1200', '~admin', 'sakai.usermembership', 1, 'User Membership', NULL );
 
