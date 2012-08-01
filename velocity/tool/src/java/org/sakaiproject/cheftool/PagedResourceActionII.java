@@ -220,6 +220,21 @@ public abstract class PagedResourceActionII extends VelocityPortletPaneledAction
 		}
 
 	} // addSearchMenus
+	
+	/**
+	 * Add the menus for search, including accessibility title
+	 */
+	protected void addSearchMenus(Menu bar, SessionState state, String accessibilityLabel)
+	{
+		bar.add(new MenuDivider());
+		bar.add(new MenuField(FORM_SEARCH, "toolbar", "doSearch", (String) state.getAttribute(STATE_SEARCH), accessibilityLabel));
+		bar.add(new MenuEntry(rb_praII.getString("sea.sea"), null, true, MenuItem.CHECKED_NA, "doSearch", "toolbar"));
+		if (state.getAttribute(STATE_SEARCH) != null)
+		{
+			bar.add(new MenuEntry(rb_praII.getString("sea.cleasea"), "doSearch_clear"));
+		}
+
+	} // addSearchMenus
 
 	/**
 	 * Add the menus for manual / auto - refresh.

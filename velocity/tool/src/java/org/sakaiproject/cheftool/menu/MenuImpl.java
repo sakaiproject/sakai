@@ -59,7 +59,7 @@ public class MenuImpl implements Menu
 
 	/** The menu's flag for whether to display disabled entries */
 	protected boolean m_showDisabled = false;
-
+	
 	// CHEF 1.x support
 	public final static String CONTEXT_ACTION = "action";
 
@@ -335,6 +335,12 @@ public class MenuImpl implements Menu
 		return m_showDisabled;
 
 	} // getShowdisabled
+	
+	@Override
+	public String getAccessibilityLabel() {
+		//not currently used in this class
+		return null;
+	}
 
 } // class Menu
 

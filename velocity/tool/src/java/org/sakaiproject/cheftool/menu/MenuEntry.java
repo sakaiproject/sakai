@@ -53,7 +53,7 @@ public class MenuEntry implements MenuItem
 
 	/** The checked status (@see MenuItem for values). */
 	protected int m_checked = CHECKED_NA;
-
+	
 	/**
 	 * Construct a menu.
 	 */
@@ -283,6 +283,12 @@ public class MenuEntry implements MenuItem
 		return false;
 
 	} // getIsField
+
+	@Override
+	public String getAccessibilityLabel() {
+		//not currently used in this class
+		return null;
+	}
 
 } // MenuEntry
 

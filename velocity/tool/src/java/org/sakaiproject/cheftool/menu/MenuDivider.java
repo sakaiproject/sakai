@@ -196,6 +196,12 @@ public class MenuDivider implements MenuItem
 		return false;
 
 	} // getIsField
+	
+	@Override
+	public String getAccessibilityLabel() {
+		//not currently used in this class
+		return null;
+	}
 
 } // MenuDivider
 

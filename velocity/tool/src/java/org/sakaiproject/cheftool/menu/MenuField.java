@@ -45,6 +45,22 @@ public class MenuField implements MenuItem
 	/** The action to perform. */
 	protected String m_action = null;
 
+	/** Optional accessibility info that can be set **/
+	protected String m_accessibilityLabel = null;
+	
+	/**
+	 * Construct.
+	 */
+	public MenuField(String name, String form, String action, String value, String accessibilityLabel)
+	{
+		m_name = name;
+		m_form = form;
+		m_action = action;
+		m_value = value;
+		m_accessibilityLabel = accessibilityLabel;
+
+	} // MenuField
+	
 	/**
 	 * Construct.
 	 */
@@ -233,6 +249,11 @@ public class MenuField implements MenuItem
 		return true;
 
 	} // getIsField
+	
+	@Override
+	public String getAccessibilityLabel() {
+		return m_accessibilityLabel;
+	}
 
 } // MenuField
 

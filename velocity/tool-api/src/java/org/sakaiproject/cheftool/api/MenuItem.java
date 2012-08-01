@@ -138,4 +138,10 @@ public interface MenuItem
 	 * @return True if the item is a field, false if not.
 	 */
 	boolean getIsField();
+	
+	/**
+	 * Get the optional label that may be set by components to provide accessiblity information, eg alt tags, title attributes etc
+	 * @return the value
+	 */
+	String getAccessibilityLabel();
 }
