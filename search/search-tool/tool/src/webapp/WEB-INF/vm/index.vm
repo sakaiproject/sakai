@@ -1,6 +1,6 @@
 #header(true ${searchModel.searchTitle} )
 <div class="portletBody">    		
-#if ( ${searchModel.hasAdmin()} )  	
+#if ( ${searchModel.hasAdmin()} && ${searchModel.searchServer} )  	
    <div class="navIntraTool">
 	  <span class="rwiki_pageLinks">
 	    <a href="${searchModel.toolUrl}/admin/index">${rlb.jsp_admin}</a>

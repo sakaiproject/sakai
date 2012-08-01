@@ -291,4 +291,10 @@ public interface SearchService extends Diagnosable
 	 */
 	public String getSearchSuggestion(String searchString);
 	
+	/**
+	 * SRCH-96
+	 * whether the current server is of search server or not
+	 * @return
+	 */
+	boolean isSearchServer();
 }

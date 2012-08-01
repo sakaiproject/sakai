@@ -1152,4 +1152,12 @@ public class SearchBeanImpl implements SearchBean
 		
 		
 	}
+	
+	/**
+	 * {@inheritDoc}
+	 */
+	public boolean isSearchServer()
+	{
+		return searchService.isSearchServer();
+	}
 }

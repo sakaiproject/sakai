@@ -397,4 +397,8 @@ public class MockSearchService implements SearchService
 		return null;
 	}
 	
+	public boolean isSearchServer()
+	{
+		return false;
+	}
 }

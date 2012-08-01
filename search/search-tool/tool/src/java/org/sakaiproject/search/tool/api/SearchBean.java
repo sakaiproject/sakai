@@ -197,4 +197,10 @@ public interface SearchBean
 	
 	String getSuggestionUrl();
 	
+	/**
+	 * SRCH-96
+	 * whether the node is search server or not
+	 * @return
+	 */
+	boolean isSearchServer();
 }
