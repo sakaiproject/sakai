@@ -297,6 +297,8 @@
 				<tr>
 					<td>
 						<label for="showTools">$tlang.getString("shopping.showTools.label"): </label>
+						<br/>
+						<img id="shoppingToolsWarning" src="/library/image/silk/exclamation.png" style="display:none"/>
 					</td>
 					<td>
 						<select name="showTools" id="showTools" multiple="multiple" class="shoppingSetting" style="height: 100px">
@@ -305,6 +307,7 @@
 					</td>
 				</tr>
 				</table>
+				<span class="alertMessage" id="showToolsWarning" style="display:none">$tlang.getString("shopping.showTools.warning")</span>
 			</div>
 			</div>
 

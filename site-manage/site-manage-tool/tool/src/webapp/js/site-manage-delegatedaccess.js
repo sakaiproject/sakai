@@ -1,6 +1,8 @@
+var shoppingOptOut = false;
 // Shopping Period JS
 $(document).ready(function(){
-
+	shoppingOptOut = false;
+	
 	//if view DA access is enabled, set up the fields:
 	if($('#viewDelegatedAccessUsers')){
 		$.getJSON("/direct/delegated_access/access/site/" + $('#siteId').html() + ".json",
@@ -157,6 +159,15 @@ $(document).ready(function(){
 	            };
 	            var form = $('form[name=editParticipantForm]');
 	
+	            //check show tools is either selected or that the user has already been warned, if not, return false
+	            if(!shoppingOptOut
+	            		&& data.directAccess
+	            		&& (data.shoppingShowTools === null || data.shoppingShowTools[0] === "")
+	            		&& document.getElementById("showToolsWarning").style.display === "none"){
+	            	document.getElementById("showToolsWarning").style.display = '';
+	            	return false;
+	            }
+	            
 	            $.ajax({
 	                type: 'POST',
 	                url: "/direct/delegated_access/" + $('#siteId').html() + ".json",
@@ -183,5 +194,6 @@ function optOutOfShoppingPeriod(){
 	$('#shoppingPeriodOverride').attr('checked', true);
 	$('.shoppingSetting').attr('value', '');
 	setShoppingSettingsDisabled(false)
+	shoppingOptOut = true;
 }
 
