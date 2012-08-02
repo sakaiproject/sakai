@@ -877,12 +877,9 @@ public abstract class BaseLTIService implements LTIService {
 		try
 		{
 			Site site = siteService.getSite(siteId);
-			SitePage sitePage = tool.getContainingPage();
-			if (sitePage == null) {
-				return rb.getString("error.placement.not.found");
-			}
+			String sitePageId = tool.getPageId();
 	
-			site.removePage(sitePage);
+			site.removePage(site.getPage(sitePageId));
 	
 			try {
 				siteService.save(site);
