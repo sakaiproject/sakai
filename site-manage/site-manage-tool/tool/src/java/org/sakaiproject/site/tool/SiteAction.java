@@ -1589,7 +1589,7 @@ public class SiteAction extends PagedResourceActionII {
 				List<Map<String,Object>> contents = m_ltiService.getContents(null,null,0,0);
 				HashMap<String, Map<String, Object>> linkedLtiContents = new HashMap<String, Map<String, Object>>();
 				for ( Map<String,Object> content : contents ) {
-					String ltiToolId = ((Integer) content.get(m_ltiService.LTI_TOOL_ID)).toString();
+					String ltiToolId = content.get(m_ltiService.LTI_TOOL_ID).toString();
 					String siteId = StringUtils.trimToNull((String) content.get(m_ltiService.LTI_SITE_ID));
 					if (siteId != null)
 					{
