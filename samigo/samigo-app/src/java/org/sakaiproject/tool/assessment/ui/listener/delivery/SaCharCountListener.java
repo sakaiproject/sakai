@@ -83,5 +83,6 @@ public class SaCharCountListener implements ActionListener
 				}
 			}
 		}
+		delivery.syncTimeElapsedWithServer();
 	}
 }
