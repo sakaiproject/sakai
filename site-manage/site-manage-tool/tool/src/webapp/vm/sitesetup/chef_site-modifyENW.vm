@@ -21,12 +21,15 @@
 		</p>
 		#foreach($ltiTool in $ltiTools.entrySet())
 			#set($ltiToolId=$ltiTool.getKey())
-			#set($ltiToolValues=$ltiTool.getValue())
-			#set($ltiToolFormInput=$ltiToolValues.get("formInput"))
-			<h4>
-				$ltiToolValues.get("title")
-			</h4>
-			$ltiToolFormInput<br/>
+			#if (!$!oldLtiTools.containsKey($ltiToolId))
+				## show the input only if the tool is not enabled in the site yet
+				#set($ltiToolValues=$ltiTool.getValue())
+				#set($ltiToolFormInput=$ltiToolValues.get("formInput"))
+				<h4>
+					$ltiToolValues.get("title")
+				</h4>
+				$ltiToolFormInput<br/>
+			#end
 		#end
 	#end
 	

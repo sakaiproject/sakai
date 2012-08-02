@@ -77,92 +77,110 @@
 				#end
 				#set ($rowCount=0)
 				#foreach($tool in $toolRegistrationList)
-				#set ($rowCount=$rowCount + 1)
 					#set($toolId = $tool.getId())
-					#if ($!defaultTools.indexOf($toolId) != -1)
-					<tr style="display:none">
-						<td>
-						<input type="hidden" name="selectedTools" value="$toolId" />
-							
-						</td>
-					</tr>
-					#end
-					<tr	id="row-$rowCount">
-						<td>
-							<input type="checkbox" name="selectedTools" value="$toolId" id="$toolId"
-								#if ($!defaultTools.indexOf($toolId) != -1)
-									checked="checked" disabled="disabled"
-								#else
-##									onchange="this.checked ? document.getElementById('row-$rowCount').className='selectedSelected' :document.getElementById('row-$rowCount').className=''"
-									#if($toolRegistrationSelectedList)
-									#foreach($tId in $toolRegistrationSelectedList)
-											#if ($tId == $toolId)
-												checked="checked"
+					#if (!$toolId.equals("sakai.basiclti"))
+						## SAK-22108: exclude the Basic LTI tools, since they would be listed separately down the list
+						#set ($rowCount=$rowCount + 1)
+						#if ($!defaultTools.indexOf($toolId) != -1)
+						<tr style="display:none">
+							<td>
+							<input type="hidden" name="selectedTools" value="$toolId" />
+								
+							</td>
+						</tr>
+						#end
+						<tr	id="row-$rowCount">
+							<td>
+								<input type="checkbox" name="selectedTools" value="$toolId" id="$toolId"
+									#if ($!defaultTools.indexOf($toolId) != -1)
+										checked="checked" disabled="disabled"
+									#else
+	##									onchange="this.checked ? document.getElementById('row-$rowCount').className='selectedSelected' :document.getElementById('row-$rowCount').className=''"
+										#if($toolRegistrationSelectedList)
+										#foreach($tId in $toolRegistrationSelectedList)
+												#if ($tId == $toolId)
+													checked="checked"
+												#end
 											#end
 										#end
 									#end
-								#end
-							/>
-						</td>
-						<td>
-								<label for="$toolId">
+								/>
+							</td>
+							<td>
+									<label for="$toolId">
+										#if ($!multipleToolIdTitleMap.containsKey($toolId))
+											#set($title = $validator.escapeHtml($!multipleToolIdTitleMap.get($toolId)))
+										#else
+											#set($title=$validator.escapeHtml($tool.getTitle()))
+										#end
+										$title
+										## only shown then title is customized
+										#if ($!allowPageOrderHelper)
+											#set($currentTitle = $validator.escapeHtml($!toolRegistrationTitleList.get($toolId)))
+											#if (!$currentTitle.equals($title))
+												($currentTitle)
+											#end
+										#end
+									</label>
+							</td>
+							<td>
+									$tool.getDescription()
 									#if ($!multipleToolIdTitleMap.containsKey($toolId))
-										#set($title = $validator.escapeHtml($!multipleToolIdTitleMap.get($toolId)))
-									#else
-										#set($title=$validator.escapeHtml($tool.getTitle()))
-									#end
-									$title
-									## only shown then title is customized
-									#if ($!allowPageOrderHelper)
-										#set($currentTitle = $validator.escapeHtml($!toolRegistrationTitleList.get($toolId)))
-										#if (!$currentTitle.equals($title))
-											($currentTitle)
+										#set($properties = $!multipleToolConfiguration.get($toolId))
+										#if (!$properties.isEmpty())
+											## show configurations
+											(#foreach ($property in $!properties.keySet())
+												$property = $validator.escapeHtml($properties.get($property)) 
+											#end)
 										#end
 									#end
-								</label>
-						</td>
-						<td>
-								$tool.getDescription()
-								#if ($!multipleToolIdTitleMap.containsKey($toolId))
-									#set($properties = $!multipleToolConfiguration.get($toolId))
-									#if (!$properties.isEmpty())
-										## show configurations
-										(#foreach ($property in $!properties.keySet())
-											$property = $validator.escapeHtml($properties.get($property)) 
-										#end)
-									#end
-								#end
-						</td>
-					</tr>	
+							</td>
+						</tr>	
+					#end
 				#end
-			</table>
 			#if ($!ltiTools && !$!ltiTools.isEmpty())
-				<p class="step">
-					$tlang.getString("feat.choose.external")
-				</p>
-				<table class="listHier lines nolines" cellspacing="0" summary="extra tools"  style="width:auto">
+				<tr>
+					<td colspan="3">
+						<p class="step">
+							$tlang.getString("feat.choose.external")
+						</p>
+					</td>
+				</tr>
 					#foreach($ltiTool in $ltiTools.entrySet())
 						#set($toolId=$ltiTool.getKey())
 						#set($toolValues=$ltiTool.getValue())
 						<tr	id="row-$rowCount">
 							<td>
-								<input type="checkbox" name="selectedLtiTools" value="$toolId" id="lti_$toolId"/>
+								<input type="checkbox" name="selectedLtiTools" value="$toolId" id="lti_$toolId"
+								## show checked if the user has selected the tool and navigated back
+								#if($!selectedLtiTools && $selectedLtiTools.containsKey($toolId))
+									checked="checked"
+								#elseif ($toolValues.get("selected"))
+									checked="checked"
+								#end
+								/>
 							</td>
 							<td>
 								<label for="$toolId">
 									$toolValues.get("title")
+									#if ($selectedLtiTools.containsKey($toolId))
+									 ($selectedLtiTools.get($toolId).get("title"))
+									#end
 								</label>
 							</td>
 							<td>
 								#set($toolDescription=$toolValues.get("description"))
 								#set($toolUsage=$toolValues.get("toolCount"))
 								$!toolDescription
-								$tlang.getFormattedMessage("ltiTools.usage", $!toolUsage)
+								## only show the lti tool counts for super user
+								#if ($superUser)
+									$tlang.getFormattedMessage("ltiTools.usage", $!toolUsage)
+								#end
 							</td>
 						</tr>
 					#end
-				</table>
 			#end
+		</table>
 		#if (!$existSite && $sites.size() > 0)	
 			<h4>
 				$tlang.getString("feat.reuse")

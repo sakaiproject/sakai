@@ -67,6 +67,17 @@
 				<br />
 			#end
 		#end
+		## check for the external/lti tools
+		#foreach($oldLtiToolKey in $oldLtiTools.keySet())
+			#if(!$ltiTools.containsKey($oldLtiToolKey))
+				## the old selected external/lti tool has been removed
+				<script type="text/javascript">
+					document.getElementById('removedInstruction').style.display='block'
+				</script>
+				#set($oldLtiToolValues=$oldLtiTools.get($oldLtiToolKey))
+				$oldLtiToolValues.get("toolTitle") ($oldLtiToolValues.get("title"))
+			#end
+		#end
 	</p>
 	<p class="instruction">
 		$tlang.getString("addrc.selected")
@@ -148,19 +159,27 @@
 			#end
 			<br />
 		#end
-	</p>
-	#if (!$!ltiTools.isEmpty())
-		<p class="instruction">
-			$tlang.getString("ltiTools.external")
-		</p>
-		#foreach($ltiTool in $ltiTools.entrySet())
-			<p class="indnt3">
-					#set($ltiToolId=$ltiTool.getKey())
-					#set($ltiToolValues=$ltiTool.getValue())
-					$ltiToolValues.get("title")
-			</p>
+		## for LTI tools
+		#if (!$!ltiTools.isEmpty())
+			#foreach($ltiTool in $ltiTools.entrySet())
+				#set($ltiToolId=$ltiTool.getKey())
+				#set($ltiToolValues=$ltiTool.getValue())
+				#set($ltiToolTitle=$ltiToolValues.get("title"))
+				#set($ltiToolProperties=$ltiToolValues.get("reqProperties"))
+				#if (!$!oldLtiTools.containsKey($ltiToolId))
+					## highlight for newly selected lti tools
+					<span class="highlight">
+						$ltiToolTitle ($ltiToolProperties.get("title"))
+					</span>
+				#else
+					## existing lti tools
+					#set($oldLtiToolValues=$oldLtiTools.get($ltiToolId))
+					$ltiToolTitle ($oldLtiToolValues.get("title"))
+				#end
+				<br/>
+			#end
 		#end
-	#end
+	</p>
 	
 	<form name="addRemoveFeaturnConfirmForm" action="#toolForm("$action")" method="post">
 		<input type="hidden" name="cancelIndex" value="$continueIndex" />

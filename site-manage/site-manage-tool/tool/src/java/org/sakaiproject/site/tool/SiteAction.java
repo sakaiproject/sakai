@@ -697,7 +697,9 @@ public class SiteAction extends PagedResourceActionII {
 	private String STATE_MULTIPLE_TOOL_INSTANCE_SELECTED = "state_multiple_tool_instance_selected";
 	// state variable for lti tools
 	private String STATE_LTITOOL_LIST = "state_ltitool_list";
-	// state variable for selected lti tools
+	// state variable for selected lti tools in site
+	private String STATE_LTITOOL_EXISTING_SELECTED_LIST = "state_ltitool_existing_selected_list";
+	// state variable for selected lti tools during tool modification
 	private String STATE_LTITOOL_SELECTED_LIST = "state_ltitool_selected_list";
 	
 	/**
@@ -1067,6 +1069,9 @@ public class SiteAction extends PagedResourceActionII {
 		state.removeAttribute(STATE_TYPE_SELECTED);
 		state.removeAttribute(STATE_SITE_SETUP_QUESTION_ANSWER);					
 		state.removeAttribute(STATE_SITE_SETUP_QUESTION_NEXT_TEMPLATE);
+		// lti tools
+		state.removeAttribute(STATE_LTITOOL_EXISTING_SELECTED_LIST);
+		state.removeAttribute(STATE_LTITOOL_SELECTED_LIST);
 
 	} // cleanState
 
@@ -1581,10 +1586,11 @@ public class SiteAction extends PagedResourceActionII {
 				HashMap<String, Map<String, Object>> ltiTools = new HashMap<String, Map<String, Object>>();
 				// get invoke count for all lti tools
 				HashMap<String, Set<String>> ltiToolsCount = new HashMap<String, Set<String>> ();
-				List<Map<String,Object>> contents = m_ltiService.getContents(null,null,0,500);
+				List<Map<String,Object>> contents = m_ltiService.getContents(null,null,0,0);
+				HashMap<String, Map<String, Object>> linkedLtiContents = new HashMap<String, Map<String, Object>>();
 				for ( Map<String,Object> content : contents ) {
 					String ltiToolId = ((Integer) content.get(m_ltiService.LTI_TOOL_ID)).toString();
-					String siteId = StringUtils.trimToNull((String) content.get("SITE_ID"));
+					String siteId = StringUtils.trimToNull((String) content.get(m_ltiService.LTI_SITE_ID));
 					if (siteId != null)
 					{
 						if (ltiToolsCount.containsKey(ltiToolId))
@@ -1600,15 +1606,55 @@ public class SiteAction extends PagedResourceActionII {
 							siteIds.add(siteId);
 							ltiToolsCount.put(ltiToolId, siteIds);
 						}
+
+						// whether the tool is already enabled in site
+						String pstr = (String) content.get(LTIService.LTI_PLACEMENT);
+						if (StringUtils.trimToNull(pstr) != null && site != null)
+						{
+							// the lti tool is enabled in the site
+							ToolConfiguration toolConfig = SiteService.findTool(pstr);
+							if (toolConfig != null && toolConfig.getSiteId().equals(siteId))
+							{
+								Map<String, Object> m = new HashMap<String, Object>();
+								Map<String, Object> ltiToolValues = m_ltiService.getTool(Long.valueOf(ltiToolId));
+								m.put("toolTitle", ltiToolValues.get(LTIService.LTI_TITLE));
+								m.put(LTIService.LTI_TITLE, (String) content.get(LTIService.LTI_TITLE));
+								m.put("contentKey", content.get(LTIService.LTI_ID));
+								linkedLtiContents.put(ltiToolId, m);
+							}
+						}
 					}
 				}
 				for (Map<String, Object> toolMap : tools ) {
 					String ltiToolId = toolMap.get("id").toString();
+					String siteId = StringUtils.trimToNull((String) toolMap.get(m_ltiService.LTI_SITE_ID));
 					toolMap.put("toolCount", ltiToolsCount.containsKey(ltiToolId)?ltiToolsCount.get(ltiToolId).size():0);
-					ltiTools.put(ltiToolId, toolMap);
+					toolMap.put("selected", linkedLtiContents.containsKey(ltiToolId));
+					if (siteId == null)
+					{
+						// only show the system-range lti tools
+						ltiTools.put(ltiToolId, toolMap);
+					}
+					else
+					{
+						// show the site-range lti tools only if 
+						// 1. this is in Site Info editing existing site, 
+						// and 2. the lti tool site_id equals to current site
+						if (site != null && siteId.equals(site.getId()))
+						{
+							ltiTools.put(ltiToolId, toolMap);
+						}
+					}
 				}
 				state.setAttribute(STATE_LTITOOL_LIST, ltiTools);
+				state.setAttribute(STATE_LTITOOL_EXISTING_SELECTED_LIST, linkedLtiContents);
 				context.put("ltiTools", ltiTools);
+				context.put("selectedLtiTools",linkedLtiContents);
+				if (SecurityService.isSuperUser()) {
+					context.put("superUser", Boolean.TRUE);
+				} else {
+					context.put("superUser", Boolean.FALSE);
+				}
 			}
 			
 			return (String) getContext(data).get("template") + TEMPLATE[3];
@@ -2390,11 +2436,8 @@ public class SiteAction extends PagedResourceActionII {
 			context.put("homeToolId", TOOL_ID_HOME);
 			
 			// put the lti tools information into context
-			if (state.getAttribute(STATE_LTITOOL_SELECTED_LIST) != null)
-			{
-				Object ltiTools = state.getAttribute(STATE_LTITOOL_SELECTED_LIST);
-				context.put("ltiTools", state.getAttribute(STATE_LTITOOL_SELECTED_LIST));
-			}
+			context.put("ltiTools", state.getAttribute(STATE_LTITOOL_SELECTED_LIST));
+			context.put("oldLtiTools", state.getAttribute(STATE_LTITOOL_EXISTING_SELECTED_LIST));
 
 			return (String) getContext(data).get("template") + TEMPLATE[15];
 		case 18:
@@ -2555,6 +2598,7 @@ public class SiteAction extends PagedResourceActionII {
 				}
 				context.put("ltiTools", currentLtiTools);
 				context.put("ltiService", m_ltiService);
+				context.put("oldLtiTools", state.getAttribute(STATE_LTITOOL_EXISTING_SELECTED_LIST));
 			}
 			
 			context.put("toolManager", ToolManager.getInstance());
@@ -9263,44 +9307,66 @@ public class SiteAction extends PagedResourceActionII {
 			}
 		} // for
 		
-        if (state.getAttribute(STATE_LTITOOL_SELECTED_LIST) != null)
+		// commit
+		commitSite(site);
+		
+        site = refreshSiteObject(site);
+        
+        // check the status of external lti tools
+        // 1. any lti tool to remove?
+        HashMap<String, Map<String, Object>> ltiTools = state.getAttribute(STATE_LTITOOL_SELECTED_LIST) != null?(HashMap<String, Map<String, Object>>) state.getAttribute(STATE_LTITOOL_SELECTED_LIST):null;
+		Map<String, Map<String, Object>> oldLtiTools = state.getAttribute(STATE_LTITOOL_EXISTING_SELECTED_LIST) != null? (Map<String, Map<String, Object>>) state.getAttribute(STATE_LTITOOL_EXISTING_SELECTED_LIST) : null;;
+		if (oldLtiTools != null)
+		{
+			// get all the old enalbed lti tools
+			for(String oldLtiToolsId : oldLtiTools.keySet())
+			{
+				if (ltiTools == null || !ltiTools.containsKey(oldLtiToolsId))
+				{
+					// the tool is not selectd now. Remove it from site
+					Map<String, Object> oldLtiToolValues = oldLtiTools.get(oldLtiToolsId);
+					Long contentKey = Long.valueOf(oldLtiToolValues.get("contentKey").toString());
+					m_ltiService.deleteContent(contentKey);
+					// refresh the site object
+					site = refreshSiteObject(site);
+				}
+			}
+		}
+        
+        // 2. any lti tool to add?
+        if (ltiTools != null)
         {
-            HashMap<String, Map<String, Object>> ltiTools = (HashMap<String, Map<String, Object>>) state.getAttribute(STATE_LTITOOL_SELECTED_LIST);
             // then looking for any lti tool to add
             for (Map.Entry<String, Map<String, Object>> ltiTool : ltiTools.entrySet()) {
                 String ltiToolId = ltiTool.getKey();
-                Map<String, Object> toolValues = ltiTool.getValue();
-                Properties reqProperties = (Properties) toolValues.get("reqProperties");
-                Object retval = m_ltiService.insertToolContent(null, ltiToolId, reqProperties);
-                if (retval instanceof String)
+                if (!oldLtiTools.containsKey(ltiToolId))
                 {
-                	// error inserting tool content
-                	addAlert(state, (String) retval);
-                	break;
+	                Map<String, Object> toolValues = ltiTool.getValue();
+	                Properties reqProperties = (Properties) toolValues.get("reqProperties");
+	                Object retval = m_ltiService.insertToolContent(null, ltiToolId, reqProperties, site.getId());
+	                if (retval instanceof String)
+	                {
+	                	// error inserting tool content
+	                	addAlert(state, (String) retval);
+	                	break;
+	                }
+	                else
+	                {
+	                	// success inserting tool content
+	                	String title = reqProperties.getProperty("title");
+	                	retval = m_ltiService.insertToolSiteLink(((Long) retval).toString(), title, site.getId());
+	                	if (retval instanceof String)
+	                	{
+		        			addAlert(state, ((String) retval).substring(2));
+		        			break;
+	                	}
+	                }
                 }
-                else
-                {
-                	// success inserting tool content
-                	String title = reqProperties.getProperty("title");
-                	retval = m_ltiService.insertToolSiteLink(((Long) retval).toString(), title);
-                	if (retval instanceof String)
-                	{
-	        			addAlert(state, ((String) retval).substring(2));
-	        			break;
-                	}
-                }
-            }
-            // refresh the site object
-            try
-            {
-            	site = SiteService.getSite(site.getId());
-            }
-            catch (Exception e)
-            {
-            	// error getting site after tool modification
-            	M_log.warn(this + " - cannot get site " + site.getId() + " after inserting lti tools");
+                // refresh the site object
+                site = refreshSiteObject(site);
             }
 		} // if
+        
 
 		// reorder Home and Site Info only if the site has not been customized order before
 		if (!site.isCustomPageOrdered())
@@ -9364,11 +9430,32 @@ public class SiteAction extends PagedResourceActionII {
 
 		// commit
 		commitSite(site);
+		
+        site = refreshSiteObject(site);
 
 		// import
 		importToolIntoSite(chosenList, importTools, site);
 		
 	} // saveFeatures
+
+	/**
+	 * refresh site object
+	 * @param site
+	 * @return
+	 */
+	private Site refreshSiteObject(Site site) {
+		// refresh the site object
+        try
+        {
+        	site = SiteService.getSite(site.getId());
+        }
+        catch (Exception e)
+        {
+        	// error getting site after tool modification
+        	M_log.warn(this + " - cannot get site " + site.getId() + " after inserting lti tools");
+        }
+		return site;
+	}
 
 	/**
 	 * Save configuration values for multiple tool instances
@@ -9503,9 +9590,25 @@ public class SiteAction extends PagedResourceActionII {
 			if (params.getStrings("selectedLtiTools") != null)
 			{
 				List<String> ltiIds = new ArrayList(Arrays.asList(params.getStrings("selectedLtiTools"))); // toolId's & titles of chosen lti tools
+				Map<String, Map<String, Object>> existingLtiIds = state.getAttribute(STATE_LTITOOL_EXISTING_SELECTED_LIST) != null? (Map<String, Map<String, Object>>) state.getAttribute(STATE_LTITOOL_EXISTING_SELECTED_LIST):null;
 				if (!ltiIds.isEmpty())
 				{
-					ltiToolSelected = true;
+					if (existingLtiIds == null)
+					{
+						ltiToolSelected = true;
+					}
+					else
+					{
+						// clone ltiIds list
+						List<String> ltiIds2 = new ArrayList<String>();
+						ltiIds2.addAll(ltiIds);
+						ltiIds2.removeAll(existingLtiIds.keySet());
+						if (ltiIds2.size() > 0)
+						{
+							// there are some new lti tool(s) selected
+							ltiToolSelected = true;
+						}
+					}
 				}
 				
 				HashMap<String, Map<String, Object>> ltiTools = (HashMap<String, Map<String, Object>>) state.getAttribute(STATE_LTITOOL_LIST);
@@ -9517,6 +9620,10 @@ public class SiteAction extends PagedResourceActionII {
 				}
 				
 				state.setAttribute(STATE_LTITOOL_SELECTED_LIST, ltiSelectedTools);
+			}
+			else
+			{
+				state.removeAttribute(STATE_LTITOOL_SELECTED_LIST);
 			}
 		}
 
