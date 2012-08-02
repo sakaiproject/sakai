@@ -281,13 +281,18 @@ public class SkinnableLogin extends HttpServlet implements Login {
 				if (message.equals(EXCEPTION_INVALID_CREDENTIALS)) {
 					rcontext.put(ATTR_MSG, rb.getString("log.invalid.credentials"));
 					showAdvice = true;
+					logFailedAttempt(credentials);
 				} else if (message.equals(EXCEPTION_INVALID_WITH_PENALTY)) {
 					rcontext.put(ATTR_MSG, rb.getString("log.invalid.with.penalty"));
 					showAdvice = true;
-				} else if (message.equals(EXCEPTION_MISSING_CREDENTIALS)) 
+					logFailedAttempt(credentials);
+				} else if (message.equals(EXCEPTION_MISSING_CREDENTIALS)) {
 					rcontext.put(ATTR_MSG, rb.getString("log.tryagain"));
-				else 
+					//Do we need to log this one? You can't really brute force with empty credentials...
+				} else {
 					rcontext.put(ATTR_MSG, rb.getString("log.invalid"));
+					logFailedAttempt(credentials);
+				}
 
 				if (showAdvice) {
 					String loginAdvice = loginService.getLoginAdvice(credentials);
@@ -454,5 +459,17 @@ public class SkinnableLogin extends HttpServlet implements Login {
 	protected String getScriptPath()
 	{
 		return "/library/js/";
+	}
+	
+	/**
+	 * Helper to log failed login attempts (SAK-22430)
+	 * @param credentials the credentials supplied
+	 * 
+	 * Note that this could easily be extedned to track login attempts per session and report on it here
+	 */
+	private void logFailedAttempt(LoginCredentials credentials) {
+		if(ServerConfigurationService.getBoolean("login.log-failed", true)) {
+			log.warn("Login attempt failed. ID=" + credentials.getIdentifier() + ", IP Address=" + credentials.getRemoteAddr());
+		}
 	}
 }
