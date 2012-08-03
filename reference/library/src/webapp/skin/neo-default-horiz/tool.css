@@ -1182,7 +1182,22 @@ input[type="submit"]:hover, input[type="button"]:hover {
     background: -ms-linear-gradient(top, #fefefe 0%,#e9edf0 96%,#e2e5e7 100%) !important;
     background: linear-gradient(top, #fefefe 0%,#e9edf0 96%,#e2e5e7 100%) !important;
 }
-input[type="submit"][disabled="disabled"], input[type="button"][disabled="disabled"], input[type="submit"][disabled="true"], input[type="submit"][class="disabled"], input[type="submit"][disabled="disabled"]:hover, input[type="submit"][disabled="true"]:hover {
+input[type="submit"][disabled="disabled"],
+  input[type="button"][disabled="disabled"],
+  input[type="submit"][disabled="true"],
+  input[type="button"][disabled="true"],
+  input[type="submit"][disabled],
+  input[type="button"][disabled],
+  input[type="submit"][class="disabled"],
+  input[type="button"][class="disabled"],
+  input[type="submit"][disabled="disabled"]:hover,
+  input[type="button"][disabled="disabled"]:hover,
+  input[type="submit"][disabled="true"]:hover,
+  input[type="button"][disabled="true"]:hover,
+  input[type="submit"][disabled]:hover,
+  input[type="button"][disabled]:hover,
+  input[type="submit"][class="disabled"]:hover,
+  input[type="button"][class="disabled"]:hover {
     background: #eeeeee !important;
     background: -moz-linear-gradient(top, #eeeeee 0%, #eeeeee 100%) !important;
     background: -webkit-gradient(linear, left top, left bottom, color-stop(0%,#eeeeee), color-stop(100%,#eeeeee)) !important;
