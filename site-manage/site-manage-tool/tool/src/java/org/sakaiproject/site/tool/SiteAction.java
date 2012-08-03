@@ -1274,6 +1274,7 @@ public class SiteAction extends PagedResourceActionII {
 		String sortedAsc = "";
 		ParameterParser params = data.getParameters();
 		context.put("tlang", rb);
+		String alert=(String)state.getAttribute(STATE_MESSAGE);
 		context.put("alertMessage", state.getAttribute(STATE_MESSAGE));
 		context.put("siteTextEdit", new SiteTextEditUtil());
 		
@@ -1585,7 +1586,6 @@ public class SiteAction extends PagedResourceActionII {
 			{
 				HashMap<String, Map<String, Object>> ltiTools = new HashMap<String, Map<String, Object>>();
 				// get invoke count for all lti tools
-				HashMap<String, Set<String>> ltiToolsCount = new HashMap<String, Set<String>> ();
 				List<Map<String,Object>> contents = m_ltiService.getContents(null,null,0,0);
 				HashMap<String, Map<String, Object>> linkedLtiContents = new HashMap<String, Map<String, Object>>();
 				for ( Map<String,Object> content : contents ) {
@@ -1593,20 +1593,6 @@ public class SiteAction extends PagedResourceActionII {
 					String siteId = StringUtils.trimToNull((String) content.get(m_ltiService.LTI_SITE_ID));
 					if (siteId != null)
 					{
-						if (ltiToolsCount.containsKey(ltiToolId))
-						{
-							Set<String> siteIds = ltiToolsCount.get(ltiToolId);
-							siteIds.add(siteId);
-							ltiToolsCount.put(ltiToolId, siteIds);
-						}
-						else
-						{
-							// new entry
-							Set<String> siteIds = new HashSet<String>();
-							siteIds.add(siteId);
-							ltiToolsCount.put(ltiToolId, siteIds);
-						}
-
 						// whether the tool is already enabled in site
 						String pstr = (String) content.get(LTIService.LTI_PLACEMENT);
 						if (StringUtils.trimToNull(pstr) != null && site != null)
@@ -1628,7 +1614,6 @@ public class SiteAction extends PagedResourceActionII {
 				for (Map<String, Object> toolMap : tools ) {
 					String ltiToolId = toolMap.get("id").toString();
 					String siteId = StringUtils.trimToNull((String) toolMap.get(m_ltiService.LTI_SITE_ID));
-					toolMap.put("toolCount", ltiToolsCount.containsKey(ltiToolId)?ltiToolsCount.get(ltiToolId).size():0);
 					toolMap.put("selected", linkedLtiContents.containsKey(ltiToolId));
 					if (siteId == null)
 					{
@@ -6401,10 +6386,10 @@ public class SiteAction extends PagedResourceActionII {
 
 			state.setAttribute(STATE_TEMPLATE_INDEX, params
 					.getString("continue"));
-		}
 
-		// refresh the whole page
-		scheduleTopRefresh();
+			// refresh the whole page
+			scheduleTopRefresh();
+		}
 
 	} // doSave_revised_features
 

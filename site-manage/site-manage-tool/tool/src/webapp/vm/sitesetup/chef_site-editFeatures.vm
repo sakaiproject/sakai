@@ -172,10 +172,6 @@
 								#set($toolDescription=$toolValues.get("description"))
 								#set($toolUsage=$toolValues.get("toolCount"))
 								$!toolDescription
-								## only show the lti tool counts for super user
-								#if ($superUser)
-									$tlang.getFormattedMessage("ltiTools.usage", $!toolUsage)
-								#end
 							</td>
 						</tr>
 					#end
