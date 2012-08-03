@@ -96,7 +96,7 @@
 	            // assign the third column (we start counting zero) 
 	            3: { 
 	                // disable it by setting the property sorter to false 
-	                sorter: false 
+	                sorter: false
 	            }
         	}
 		})
@@ -136,10 +136,10 @@
 		<table id="tools_site" class="tablesorter" cellspacing="0" summary ="$tlang.getString("content.table")">
 			<thead>
 			<tr>
-				<th id="title">$tlang.getString("bl_title")</th>
-				<th id="url">$tlang.getString("bl_url")</th>
-				#if ($isAdmin) <th id="site">$tlang.getString("bl_site")</th> #end
-				<th id="action" width="25%">$tlang.getString("bl_action")</th>
+				<th id="title" data-placeholder="$tlang.getString('search.title')">$tlang.getString("bl_title")</th>
+				<th id="url" data-placeholder="$tlang.getString('search.url')" >$tlang.getString("bl_url")</th>
+				#if ($isAdmin) <th id="site" data-placeholder="$tlang.getString('search.siteid')">$tlang.getString("bl_site")</th> #end
+				<th id="action" width="25%" class="filter-false">$tlang.getString("bl_action")</th>
 			</tr>
 			</thead>
 			<tbody>
