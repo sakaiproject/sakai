@@ -54,6 +54,13 @@
       <artifactId>spring-test</artifactId>
       <scope>test</scope>
     </dependency>
+    <!-- SCO-85 -->
+    <dependency>
+      <groupId>net.sf.ehcache</groupId>
+      <artifactId>ehcache</artifactId>
+      <type>jar</type>
+      <scope>test</scope>
+    </dependency>    
     <dependency>
       <groupId>org.hsqldb</groupId>
       <artifactId>hsqldb</artifactId>
