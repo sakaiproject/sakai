@@ -48,6 +48,7 @@ public abstract class SakaiResourceService extends AbstractResourceService {
 	private static final String FILE_UPLOAD_MAX_SIZE_CONFIG_KEY = "content.upload.max";
 
 	private static final String ROOT_DIRECTORY = "/private/scorm/";
+	private static final String ROOT_DIRECTORY_RESOURCE = "/content/private/scorm/";
 
 	protected abstract ServerConfigurationService configurationService();
 
@@ -348,7 +349,15 @@ public abstract class SakaiResourceService extends AbstractResourceService {
 	public void init() throws ResourceStorageException {
 		boolean created = ensureCollection(ROOT_DIRECTORY, "scorm");
 		if (created) {
+			SecurityAdvisor advisor = new SecurityAdvisor() {
+				public SecurityAdvice isAllowed(String userId, String function, String reference) {
+					if (ROOT_DIRECTORY_RESOURCE.equals(reference) && ContentHostingService.AUTH_RESOURCE_WRITE_ANY.equals(function))
+						return SecurityAdvice.ALLOWED;
+					return SecurityAdvice.PASS;
+				}
+			};
 			try {
+				securityService().pushAdvisor(advisor);
 				ContentCollectionEdit rootCollection = contentService().editCollection(ROOT_DIRECTORY);
 				ResourcePropertiesEdit props = rootCollection.getPropertiesEdit();
 				props.addProperty(ResourceProperties.PROP_CREATOR, "admin");
@@ -356,6 +365,8 @@ public abstract class SakaiResourceService extends AbstractResourceService {
 				contentService().commitCollection(rootCollection);
 			} catch (Exception e) {
 				log.warn("Couldn't configure scorm root colection.", e);
+			} finally {
+				securityService().popAdvisor(advisor);
 			}
 		}
 	}
