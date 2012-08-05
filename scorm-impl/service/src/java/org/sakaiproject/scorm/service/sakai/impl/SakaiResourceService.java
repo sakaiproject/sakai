@@ -351,7 +351,11 @@ public abstract class SakaiResourceService extends AbstractResourceService {
 		if (created) {
 			SecurityAdvisor advisor = new SecurityAdvisor() {
 				public SecurityAdvice isAllowed(String userId, String function, String reference) {
-					if (ROOT_DIRECTORY_RESOURCE.equals(reference) && ContentHostingService.AUTH_RESOURCE_WRITE_ANY.equals(function))
+					if (ROOT_DIRECTORY_RESOURCE.equals(reference) && (
+							ContentHostingService.AUTH_RESOURCE_WRITE_ANY.equals(function) 
+							|| ContentHostingService.AUTH_RESOURCE_READ.equals(function)
+							|| ContentHostingService.AUTH_RESOURCE_HIDDEN.equals(function)
+							))
 						return SecurityAdvice.ALLOWED;
 					return SecurityAdvice.PASS;
 				}
