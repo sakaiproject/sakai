@@ -156,7 +156,6 @@
 					<input type="checkbox" name="publishSite" id="publishSite" value="true" checked="checked"/>
 					<label for="publishSite">$tlang.getString("sitetype.publishSite")</label>
 				</div>
-			</div> ## end of div#templateSettings
 
 
 <STYLE type="text/css">
@@ -190,6 +189,7 @@ table.templates p{margin:0 !important;  padding:0}
 				<span id="templateCourseInstruction" style="display:none">$tlang.getString("sitetype.templatecourserosterinstruction")</span>
 				<span id="templateNonCourseInstruction" style="display:none">$tlang.getString("sitetype.templatefinalstepinstruction")</span>
 		</div>	
+		</div> ## end of div#templateSettings
 		<div class ="act" style="padding-top:1em;">
 			#* this submit should create the site from the template and redirect user to site
 			 it should be set style="display:none" if user is coming back
