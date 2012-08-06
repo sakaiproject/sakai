@@ -132,7 +132,7 @@ CKEDITOR.plugins.add( 'movieplayer',
                         elements : [ {
                                 type : 'iframe',
                                 //TODO: Pass the name as a extra parameter to iframe if possible instead
-                                src : thispath + 'movieplayer.phtml?parentname='+api.name,
+                                src : thispath + 'movieplayer.html?parentname='+api.name,
                                 width : 450, height : 260 - (CKEDITOR.env.ie ? 10 : 0),
                                 onContentLoad : function() {
                                     //Save the frameId
