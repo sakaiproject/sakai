@@ -75,8 +75,9 @@ public class ToolHelperImpl
 						return false;
 					}
 					if(session.getAttribute("delegatedaccess.deniedToolsMap") == null ||
-							!((Map<String, String[]>) session.getAttribute("delegatedaccess.deniedToolsMap")).containsKey(site.getReference())){
-						//a delegated access admin would have this map and site (even if it was set to null)
+							!((Map<String, String[]>) session.getAttribute("delegatedaccess.deniedToolsMap")).containsKey(site.getReference())
+							|| ((Map<String, String[]>) session.getAttribute("delegatedaccess.deniedToolsMap")).get(site.getReference()) == null){
+						//a delegated access admin would have this map and site (even if it was set to null), if its null, that means the user is just has access to a different site and not this one
 						if(site.getMember(session.getUserId()) == null && site.getProperties().get("shopping-period-restricted-tools") != null){
 							//this is .anon or .auth role in a site that needs to restrict the tools:
 							return arrayContains(((String) site.getProperties().get("shopping-period-restricted-tools")).split(";"), placement.getToolId());
