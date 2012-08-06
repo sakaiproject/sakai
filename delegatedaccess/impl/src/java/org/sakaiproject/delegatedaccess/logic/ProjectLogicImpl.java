@@ -1434,7 +1434,7 @@ public class ProjectLogicImpl implements ProjectLogic {
 			List<String> siteRefs = new ArrayList<String>();
 			siteRefs.add(siteRef);
 			Map<String, AccessNode> accessNodes = grantAccessToSites(siteRefs, false, false);
-			if(accessNodes != null && accessNodes.containsKey(siteRef)){
+			if(accessNodes != null && accessNodes.containsKey(siteRef) && accessNodes.get(siteRef) != null){
 				return accessNodes.get(siteRef).getAccess();
 			}else{
 				return null;
