@@ -78,6 +78,13 @@ public class AreaManagerImpl extends HibernateDaoSupport implements AreaManager 
 
     private SiteService siteService;
     
+    /**
+     * sakai.property for setting the default Messages tool option for sending a copy of a message
+     * to recipient email addresses. Options are {@link Area#EMAIL_COPY_NEVER}, {@link Area#EMAIL_COPY_OPTIONAL},
+     * and {@link Area#EMAIL_COPY_ALWAYS}
+     */
+    private static final String DEFAULT_SEND_TO_EMAIL_PROP = "msgcntr.defaultSendToEmailSetting";
+    
     public void setServerConfigurationService(
 			ServerConfigurationService serverConfigurationService) {
 		this.serverConfigurationService = serverConfigurationService;
@@ -138,7 +145,7 @@ public class AreaManagerImpl extends HibernateDaoSupport implements AreaManager 
             area.setModerated(Boolean.FALSE);
             area.setPostFirst(Boolean.FALSE);
 	    area.setAutoMarkThreadsRead(DEFAULT_AUTO_MARK_READ);
-            area.setSendEmailOut(Boolean.TRUE);
+            area.setSendToEmail(serverConfigurationService.getInt(DEFAULT_SEND_TO_EMAIL_PROP, Area.EMAIL_COPY_OPTIONAL));
             saveArea(area);
         }
 
@@ -170,8 +177,9 @@ public class AreaManagerImpl extends HibernateDaoSupport implements AreaManager 
             area.setModerated(Boolean.FALSE);
             area.setPostFirst(Boolean.FALSE);
             area.setAutoMarkThreadsRead(DEFAULT_AUTO_MARK_READ);
-	    area.setSendEmailOut(Boolean.TRUE);
-	    	area.setAvailabilityRestricted(Boolean.FALSE);
+            // this is a Messages tool option
+	    area.setSendToEmail(serverConfigurationService.getInt(DEFAULT_SEND_TO_EMAIL_PROP, Area.EMAIL_COPY_OPTIONAL));
+	    area.setAvailabilityRestricted(Boolean.FALSE);
             saveArea(area);
             //if set populate the default Forum and topic
             if  (createDefaultForum && serverConfigurationService.getBoolean("forums.setDefault.forum", true)) {

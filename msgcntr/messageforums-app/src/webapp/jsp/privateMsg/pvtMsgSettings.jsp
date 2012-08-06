@@ -34,48 +34,56 @@
 						</h:selectOneRadio>
 				  </h:panelGroup>
 			  </h:panelGrid>
-			   <h:panelGrid styleClass="jsfFormTable" columns="2"  
-			  				rendered="#{PrivateMessagesTool.emailPermit}">
-			    <h:panelGroup styleClass="shorttext">
-					  <h:outputLabel for="" ><h:outputText value="#{msgs.pvt_sendemailout}"/></h:outputLabel>
-					</h:panelGroup>
-					<h:panelGroup >
-					  <h:selectOneRadio id="email_sendout"	value="#{PrivateMessagesTool.sendEmailOut}"
-							                              layout="pageDirection"  styleClass="checkbox inlineForm">
-							  <f:selectItem itemValue="yes" itemLabel="#{msgs.pvt_yes}" />
-							  <f:selectItem itemValue="no" itemLabel="#{msgs.pvt_no}" />
-						</h:selectOneRadio>
-				  </h:panelGroup>
-			  </h:panelGrid>
+			  
+			  
+			  <h4><h:outputText value="#{msgs.pvt_personal_settings}" /></h4>
 
-	      <h:panelGrid styleClass="jsfFormTable" columns="2" >
+			  <h:panelGrid styleClass="jsfFormTable" columns="2" >
 			    <h:panelGroup styleClass="shorttext">
-					  <h:outputLabel for=""><h:outputText	value="#{msgs.pvt_autofor1}" /></h:outputLabel>
-					</h:panelGroup>
-					<h:panelGroup>
-					  <h:selectOneRadio immediate="true" id="fwd_msg"
-				    	                  value="#{PrivateMessagesTool.forwardPvtMsg}"
-						                  onchange="this.form.submit();"
-						                  valueChangeListener="#{PrivateMessagesTool.processPvtMsgSettingsRevise}"
-						                  layout="pageDirection"
-										   styleClass="checkbox inlineForm"
-										   >
-						  <f:selectItem itemValue="yes" itemLabel="#{msgs.pvt_yes}" />
-						  <f:selectItem itemValue="no" itemLabel="#{msgs.pvt_no}" />
-					  </h:selectOneRadio> 
-				  </h:panelGroup>
-				  <h:panelGroup styleClass="shorttext">
-					  <h:outputLabel for="fwd_email"><h:outputText value="#{msgs.pvt_emailfor}" /></h:outputLabel>
-					</h:panelGroup>
-					<h:panelGroup styleClass="shorttext">
-					  <h:inputText value="#{PrivateMessagesTool.forwardPvtMsgEmail}" id="fwd_email"
-							             disabled="#{PrivateMessagesTool.forwardPvtMsg == 'no'}" />
-				  </h:panelGroup>
+			      <h:outputLabel for=""><h:outputText	value="#{msgs.pvt_autofor1}" /></h:outputLabel>
+			    </h:panelGroup>
+			    <h:panelGroup>
+			      <h:selectOneRadio immediate="true" id="fwd_msg"
+				value="#{PrivateMessagesTool.forwardPvtMsg}"
+				onchange="this.form.submit();"
+				valueChangeListener="#{PrivateMessagesTool.processPvtMsgSettingsRevise}"
+				layout="pageDirection"
+				styleClass="checkbox inlineForm">
+			          <f:selectItem itemValue="yes" itemLabel="#{msgs.pvt_yes}" />
+				  <f:selectItem itemValue="no" itemLabel="#{msgs.pvt_no}" />
+			      </h:selectOneRadio> 
+			    </h:panelGroup>
+		           <h:panelGroup styleClass="shorttext">
+		             <h:outputLabel for="fwd_email"><h:outputText value="#{msgs.pvt_emailfor}" /></h:outputLabel>
+		           </h:panelGroup>
+		           <h:panelGroup styleClass="shorttext">
+		             <h:inputText value="#{PrivateMessagesTool.forwardPvtMsgEmail}" id="fwd_email"
+		               disabled="#{PrivateMessagesTool.forwardPvtMsg == 'no'}" />
+		           </h:panelGroup>
+		         </h:panelGrid>
+		         
+		         
+		       <h:panelGroup rendered="#{PrivateMessagesTool.instructor}">	  
+		         <f:verbatim><h4></f:verbatim><h:outputText value="#{msgs.pvt_site_settings}" /><f:verbatim></h4></f:verbatim>
+		         
+                         <h:panelGrid styleClass="jsfFormTable" columns="2" >			  
 				  
-			    <h:panelGroup styleClass="shorttext" rendered="#{PrivateMessagesTool.currentSiteHasGroups && PrivateMessagesTool.instructor}">
+                         <h:panelGroup styleClass="shorttext">
+                           <h:outputLabel for="" ><h:outputText value="#{msgs.pvt_sendemailout}"/></h:outputLabel>
+                         </h:panelGroup>
+                         <h:panelGroup>
+                           <h:selectOneRadio id="email_sendout" value="#{PrivateMessagesTool.sendToEmail}"
+                               layout="pageDirection"  styleClass="checkbox inlineForm">
+                             <f:selectItem itemValue="0" itemLabel="#{msgs.pvt_sendemail_0}" />
+                             <f:selectItem itemValue="1" itemLabel="#{msgs.pvt_sendemail_1}" />
+                             <f:selectItem itemValue="2" itemLabel="#{msgs.pvt_sendemail_2}" />
+                           </h:selectOneRadio>
+                         </h:panelGroup>
+  
+			    <h:panelGroup styleClass="shorttext" rendered="#{PrivateMessagesTool.currentSiteHasGroups}">
 			    	<h:outputText value="#{msgs.hiddenGroups_hiddenGroups}"/>
 			    </h:panelGroup>
-			    <h:panelGroup styleClass="shorttext" rendered="#{PrivateMessagesTool.currentSiteHasGroups && PrivateMessagesTool.instructor}">
+			    <h:panelGroup styleClass="shorttext" rendered="#{PrivateMessagesTool.currentSiteHasGroups}">
 			    	<h:outputText value="#{msgs.hiddenGroups_addGroup}: "/>
 			    	<h:selectOneListbox size="1" id="nonHiddenGroup" value ="#{PrivateMessagesTool.selectedNonHiddenGroup}" onchange="this.form.submit();"
 						                  valueChangeListener="#{PrivateMessagesTool.processActionAddHiddenGroup}">
@@ -94,6 +102,8 @@
 	  				</h:dataTable>
 			    </h:panelGroup>
 			</h:panelGrid>
+			
+		      </h:panelGroup>
 						
 
 			<sakai:button_bar>

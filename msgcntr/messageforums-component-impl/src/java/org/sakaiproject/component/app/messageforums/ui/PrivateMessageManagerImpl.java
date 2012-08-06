@@ -1154,9 +1154,17 @@ public class PrivateMessageManagerImpl extends HibernateDaoSupport implements
     
     	currentArea = getAreaByContextIdAndTypeId(typeManager.getPrivateMessageAreaType());
 
-    	//this is fairly inneficient and should realy be a convenience method to lookup
-    	// the users who want to forward their messages
-    	privateForums = currentArea.getPrivateForums();
+    	// make sure the site-wide email copy preference is respected in case an invalid
+    	// value slipped in
+    	if (currentArea.getSendToEmail() == Area.EMAIL_COPY_ALWAYS) {
+    	    asEmail = true;
+    	} else if (currentArea.getSendToEmail() == Area.EMAIL_COPY_NEVER) {
+    	    asEmail = false;
+    	}
+    	
+        //this is fairly inneficient and should realy be a convenience method to lookup
+        // the users who want to forward their messages
+        privateForums = currentArea.getPrivateForums();
 
     	//create a map for efficient lookup for large sites
     	pfMap = new HashMap<String, PrivateForum>();

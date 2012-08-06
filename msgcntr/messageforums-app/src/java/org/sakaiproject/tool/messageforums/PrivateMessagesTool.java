@@ -280,11 +280,11 @@ public class PrivateMessagesTool
   private String replyToAllSubject;
   
   //Setting Screen
-  private String sendEmailOut=SET_AS_NO;
   private String activatePvtMsg=SET_AS_NO; 
   private String forwardPvtMsg=SET_AS_NO;
   private String forwardPvtMsgEmail;
   private boolean superUser; 
+  private String sendToEmail;
   
   //message header screen
   private String searchText="";
@@ -400,7 +400,7 @@ public class PrivateMessagesTool
       Collections.sort(pvtTopics, PrivateTopicImpl.TITLE_COMPARATOR);   //changed to date comparator
       forum=pf;
       activatePvtMsg = (Boolean.TRUE.equals(area.getEnabled())) ? SET_AS_YES : SET_AS_NO;
-      sendEmailOut = (Boolean.TRUE.equals(area.getSendEmailOut())) ? SET_AS_YES : SET_AS_NO;
+      sendToEmail = area.getSendToEmail() + "";
       forwardPvtMsg = (Boolean.TRUE.equals(pf.getAutoForward())) ? SET_AS_YES : SET_AS_NO;
       forwardPvtMsgEmail = pf.getAutoForwardEmail();
       hiddenGroups = new ArrayList<HiddenGroup>();
@@ -437,23 +437,31 @@ public class PrivateMessagesTool
 	  return area.getEnabled().booleanValue();
   } 
   
-  public boolean isDispSendEmailOut()
-  {
-    if (getPvtSendEmailOut() != null && getPvtSendEmailOut())
-    {
-      return true;
-    }
-    else
-    {
-      return false;
-    }
+  
+  /**
+   * 
+   * @return true if a copy of the message is always sent to the recipient email address(es)
+   * per the site-wide setting
+   */
+  public boolean isEmailCopyAlways() {
+      if (area == null) {
+          initializePrivateMessageArea();
+      }
+      
+      return area.getSendToEmail() == Area.EMAIL_COPY_ALWAYS;
   }
   
-  public Boolean getPvtSendEmailOut() {
-	  if(area == null) {
-		  initializePrivateMessageArea();
-	  }
-	  return area.getSendEmailOut();
+  /**
+   * 
+   * @return true if the sender may choose whether a copy of the message is sent to recipient
+   * email address(es)
+   */
+  public boolean isEmailCopyOptional() {
+      if (area == null) {
+          initializePrivateMessageArea();
+      }
+      
+      return area.getSendToEmail() == Area.EMAIL_COPY_OPTIONAL;
   }
   
   //Return decorated Forum
@@ -841,6 +849,24 @@ public class PrivateMessagesTool
   
   public void setBooleanEmailOut(boolean booleanEmailOut) {
 	  this.booleanEmailOut= booleanEmailOut;
+  }
+  
+  /**
+   * 
+   * @return true if the Messages tool setting in combination with the author-defined
+   * {@link #getBooleanEmailOut()} setting requires a copy of the message to be sent to 
+   * recipient(s) email
+   */
+  public boolean isSendEmail() {
+      boolean sendEmail;
+      if (isEmailCopyAlways() ||
+              (isEmailCopyOptional() && getBooleanEmailOut())) {
+          sendEmail = true;
+      } else {
+          sendEmail = false;
+      }
+
+      return sendEmail;
   }
 
   public String getComposeSendAsPvtMsg()
@@ -1942,13 +1968,7 @@ private   int   getNum(char letter,   String   a)
     
     Map<User, Boolean> recipients = getRecipients();
     
-    if(!getBooleanEmailOut())
-    {
-      prtMsgManager.sendPrivateMessage(pMsg, recipients, false); 
-    }
-    else{
-      prtMsgManager.sendPrivateMessage(pMsg, recipients, true);
-    }
+    prtMsgManager.sendPrivateMessage(pMsg, recipients, isSendEmail()); 
     
     //update synopticLite tool information:
     
@@ -2053,13 +2073,8 @@ private   int   getNum(char letter,   String   a)
     }
     dMsg.setDraft(Boolean.TRUE);
     dMsg.setDeleted(Boolean.FALSE);
-    
-    if(!getBooleanEmailOut())
-    {
-      prtMsgManager.sendPrivateMessage(dMsg, getRecipients(), false); 
-    }else{
-      prtMsgManager.sendPrivateMessage(dMsg, getRecipients(), true);
-    }
+
+    prtMsgManager.sendPrivateMessage(dMsg, getRecipients(), isSendEmail()); 
 
     //reset contents
     resetComposeContents();
@@ -2561,13 +2576,7 @@ private   int   getNum(char letter,   String   a)
 
     	Map<User, Boolean> recipients = getRecipients();
 
-    	if(!getBooleanEmailOut())
-    	{
-    		prtMsgManager.sendPrivateMessage(rrepMsg, recipients, false);
-    	}
-    	else{
-    		prtMsgManager.sendPrivateMessage(rrepMsg, recipients, true);
-    	}
+    	prtMsgManager.sendPrivateMessage(rrepMsg, recipients, isSendEmail());
     	
     	if(!rrepMsg.getDraft()){
     		incrementSynopticToolInfo(recipients.keySet(), false);
@@ -2913,13 +2922,7 @@ private   int   getNum(char letter,   String   a)
     private void processPvtMsgForwardSendHelper(PrivateMessage rrepMsg){
     	Map<User, Boolean> recipients = getRecipients();
     	
-    	if(!getBooleanEmailOut())
-    	{
-    		prtMsgManager.sendPrivateMessage(rrepMsg, recipients, false);
-    	}
-    	else{
-    		prtMsgManager.sendPrivateMessage(rrepMsg, recipients, true);
-    	}
+    	prtMsgManager.sendPrivateMessage(rrepMsg, recipients, isSendEmail());
 
     	if(!rrepMsg.getDraft()){
     		//update Synoptic tool info
@@ -3175,14 +3178,7 @@ private   int   getNum(char letter,   String   a)
 		  }
 	  }
 	  if(!preview){
-		  if(!getBooleanEmailOut())
-		  {
-
-			  prtMsgManager.sendPrivateMessage(rrepMsg, returnSet, false);//getRecipients()  replyalllist
-		  }
-		  else{
-			  prtMsgManager.sendPrivateMessage(rrepMsg, returnSet, true);//getRecipients()  replyalllist
-		  }
+	          prtMsgManager.sendPrivateMessage(rrepMsg, returnSet, isSendEmail());
 
 		  if(!rrepMsg.getDraft()){
 			  //update Synoptic tool info
@@ -3632,14 +3628,14 @@ private   int   getNum(char letter,   String   a)
   {
     this.forwardPvtMsgEmail = forwardPvtMsgEmail;
   }
-  public String getSendEmailOut()
-  {
-    return sendEmailOut;
+  
+  public String getSendToEmail() {
+      return this.sendToEmail;
   }
-  public void setSendEmailOut(String sendEmailOut)
-  {
-    this.sendEmailOut = sendEmailOut;
+  public void setSendToEmail(String sendToEmail) {
+      this.sendToEmail = sendToEmail;
   }
+  
   public boolean getSuperUser()
   {
     superUser=SecurityService.isSuperUser();
@@ -3700,7 +3696,6 @@ private   int   getNum(char letter,   String   a)
     
  
     String email= getForwardPvtMsgEmail();
-    String sendEmailOut=getSendEmailOut();
     String activate=getActivatePvtMsg() ;
     String forward=getForwardPvtMsg() ;
     if (email != null && (!SET_AS_NO.equals(forward)) 
@@ -3708,7 +3703,6 @@ private   int   getNum(char letter,   String   a)
       setValidEmail(false);
       setErrorMessage(getResourceBundleString(PROVIDE_VALID_EMAIL));
       setActivatePvtMsg(activate);
-      setSendEmailOut(sendEmailOut);
       return MESSAGE_SETTING_PG;
     }
     else
@@ -3718,8 +3712,15 @@ private   int   getNum(char letter,   String   a)
       Boolean formAreaEnabledValue = (SET_AS_YES.equals(activate)) ? Boolean.TRUE : Boolean.FALSE;
       area.setEnabled(formAreaEnabledValue);
       
-      Boolean formSendEmailOut = (SET_AS_YES.equals(sendEmailOut)) ? Boolean.TRUE : Boolean.FALSE;
-      area.setSendEmailOut(formSendEmailOut);
+      try {
+          int formSendToEmail = Integer.parseInt(sendToEmail);
+          area.setSendToEmail(formSendToEmail);
+      } catch (NumberFormatException nfe) {
+          // if this happens, there is likely something wrong in the UI that needs to be fixed
+          LOG.warn("Non-numeric option for sending email to recipient email address on Message screen. This may indicate a UI problem.");
+          setErrorMessage(getResourceBundleString("pvt_send_to_email_invalid"));
+          return MESSAGE_SETTING_PG;
+      }
       
       
       Boolean formAutoForward = (SET_AS_YES.equals(forward)) ? Boolean.TRUE : Boolean.FALSE;            
