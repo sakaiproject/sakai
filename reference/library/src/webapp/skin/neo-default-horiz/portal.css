@@ -93,7 +93,15 @@ body.portalBody {
 #footerLinks li:first-child {
     border: none
 }
-
+/* Time in the portal footer */
+#footer .server-time-container {
+    right: 0px;
+    font-size: 0.9em;
+    text-align: right;
+}
+#footer .server-time {
+    font-weight: bold;
+}
 /* PART 2 - HEADER BLOCKS (BRANDING,LOGIN) */
 #headerMax, #headerMin {
     background: #009DCE;
@@ -967,6 +975,23 @@ ul#otherSiteList li a span, ul.otherSitesCategorList li a span {
 }
 .portletTitle .action a:hover, .portletTitle .action a:focus {
     background: url(images/help_h.gif) center right no-repeat
+}
+.portletTitle .action a.tool-directurl{
+    padding:2px;
+    background: url(/library/image/silk/link.png) center right no-repeat;
+}
+.portletTitle .action a.tool-directurl:hover{
+    background: url(/library/image/silk/link_go.png) center right no-repeat;
+}
+.direct-url-wrap {
+    font-size: 85%;
+    color: #555;
+}
+.direct-url-wrap textarea {
+    color: #000;
+    overflow:auto;
+    width:250px;
+    display:block;
 }
 .portletTitle .title {
     padding: 2px 4px 6px 0;
