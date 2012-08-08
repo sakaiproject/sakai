@@ -1158,7 +1158,7 @@ ul.makeMenu li.menuClose a:hover {
     background-image: url(../../image/silk/information.png)
 }
 /* override native button things rendering */
-input[type="submit"], input[type="button"] {
+input[type="submit"], input[type="button"], input[type="reset"] {
     background: #f6f6f5 !important;
     background: -moz-linear-gradient(top, #f6f6f5 0%, #e0e0e0 93%, #e0e0e0 97%, #e9e9e9 100%) !important;
     background: -webkit-gradient(linear, left top, left bottom, color-stop(0%,#f6f6f5), color-stop(93%,#e0e0e0), color-stop(97%,#e0e0e0), color-stop(100%,#e9e9e9)) !important;
@@ -1177,7 +1177,7 @@ input[type="submit"], input[type="button"] {
     border-radius: 3px;
     margin-right: 3px;
 }
-input[type="submit"]:hover, input[type="button"]:hover {
+input[type="submit"]:hover, input[type="button"]:hover, input[type="reset"]:hover {
     background: #fefefe !important;
     background: -moz-linear-gradient(top, #fefefe 0%, #e9edf0 96%, #e2e5e7 100%) !important;
     background: -webkit-gradient(linear, left top, left bottom, color-stop(0%,#fefefe), color-stop(96%,#e9edf0), color-stop(100%,#e2e5e7)) !important;
