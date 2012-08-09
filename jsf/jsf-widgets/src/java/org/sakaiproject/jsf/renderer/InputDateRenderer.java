@@ -26,6 +26,7 @@ import java.io.IOException;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.Date;
+import java.util.Locale;
 import java.util.Map;
 import javax.faces.component.EditableValueHolder;
 import javax.faces.component.UIComponent;
@@ -36,6 +37,7 @@ import javax.faces.context.ResponseWriter;
 import javax.faces.render.Renderer;
 
 import org.sakaiproject.jsf.util.ConfigurationResource;
+import org.sakaiproject.jsf.util.LocaleUtil;
 import org.sakaiproject.jsf.util.RendererUtil;
 
 /**
@@ -54,74 +56,130 @@ public class InputDateRenderer
   // calendar popup configuration
   private static final String HEIGHT = "16";
   private static final String WIDTH = "16";
-  private static final String CURSORSTYLE;
-  private static final String CLICKALT;
-  private static final String CALENDAR_PATH;
-  private static final String CALENDAR_ICON;
-  // input date and time configuration, from global resources
-  private static final boolean inputMonthFirst;
-  private static final boolean inputTimeColon;
-  private static final boolean inputTime24;
   private static final boolean inputTimeSeconds = true; //todo
-  private static final String DATE_FORMAT_STRING;
-  private static final String TIME_FORMAT_STRING;
-  private static final SimpleDateFormat dateFormat;
-  private static final SimpleDateFormat timeFormat;
-  private static final  SimpleDateFormat dateTimeFormat;
-  private static final String DATE_HINT;
-  private static final String TIME_HINT;
 
-  // an admittedly long static intializer block
-  // the spec calls for a global setting for each installation
-  // much of this is taken up in calculating that in these gory details
-  static
+  /** Bean to get resources for specific locale. */
+  private class ConfigurationResourceBean
   {
-    ConfigurationResource cr = new ConfigurationResource();
-    String resources = cr.get("resources");
-    CURSORSTYLE = cr.get("picker_style");
-    CALENDAR_PATH = "/" + resources + "/" + cr.get("inputDatePopup");
-    CALENDAR_ICON = "/" + resources + "/" + cr.get("inputDateImage");
-    CLICKALT = cr.get("date_pick_alt");
-    inputMonthFirst = "true".equals((String) cr.get("inputMonthFirst"));
-    inputTimeColon = "true".equals((String) cr.get("inputTimeColon"));
-    inputTime24 = "true".equals((String) cr.get("inputTime24"));
-    DATE_HINT = cr.get("inputDateHint");
-    TIME_HINT = cr.get("inputTimeHint");
+    // calendar popup configuration
+    private final String cursorStyle;
+    private final String clickAlt;
+    private final String calendarPath;
+    private final String calendarIcon;
+    // input date and time configuration, from global resources
+    private final boolean inputMonthFirst;
+    private final String dateFormatString;
+    private final SimpleDateFormat dateFormat;
+    private final SimpleDateFormat timeFormat;
+    private final SimpleDateFormat dateTimeFormat;
+    private final String dateHint;
+    private final String timeHint;
 
-    if (inputMonthFirst)
+    public ConfigurationResourceBean(final Locale locale)
     {
-      DATE_FORMAT_STRING = cr.get("inputMonthFirstFormat");
-    }
-    else
-    {
-      DATE_FORMAT_STRING = cr.get("inputDayFirstFormat");
-    }
-    if (inputTimeColon)
-    {
-      if (inputTime24)
+      ConfigurationResource cr = new ConfigurationResource(locale);
+      String resources = cr.get("resources");
+      cursorStyle = cr.get("picker_style");
+      calendarPath = "/" + resources + "/" + cr.get("inputDatePopup");
+      calendarIcon = "/" + resources + "/" + cr.get("inputDateImage");
+      clickAlt = cr.get("date_pick_alt");
+      inputMonthFirst = Boolean.valueOf(cr.get("inputMonthFirst"));
+      boolean inputTimeColon = Boolean.valueOf(cr.get("inputTimeColon"));
+      boolean inputTime24 = Boolean.valueOf(cr.get("inputTime24"));
+      dateHint = cr.get("inputDateHint");
+      timeHint = cr.get("inputTimeHint");
+
+      String timeFormatString;
+      if (inputMonthFirst)
       {
-        TIME_FORMAT_STRING = cr.get("inputTimeColonFormat24");
+        dateFormatString = cr.get("inputMonthFirstFormat");
       }
       else
       {
-        TIME_FORMAT_STRING = cr.get("inputTimeColonFormatAMPM");
+        dateFormatString = cr.get("inputDayFirstFormat");
       }
-    }
-    else
-    {
-      if (inputTime24)
+      if (inputTimeColon)
       {
-        TIME_FORMAT_STRING = cr.get("inputTimeDotFormat24");
+        if (inputTime24)
+        {
+          timeFormatString = cr.get("inputTimeColonFormat24");
+        }
+        else
+        {
+          timeFormatString = cr.get("inputTimeColonFormatAMPM");
+        }
       }
       else
       {
-        TIME_FORMAT_STRING = cr.get("inputTimeDotFormatAMPM");
+        if (inputTime24)
+        {
+          timeFormatString = cr.get("inputTimeDotFormat24");
+        }
+        else
+        {
+          timeFormatString = cr.get("inputTimeDotFormatAMPM");
+        }
       }
+      dateFormat = new SimpleDateFormat(dateFormatString, locale);
+      timeFormat = new SimpleDateFormat(timeFormatString, locale);
+      dateTimeFormat =
+        new SimpleDateFormat(dateFormatString + " " + timeFormatString, locale);
     }
-    dateFormat = new SimpleDateFormat(DATE_FORMAT_STRING);
-    timeFormat = new SimpleDateFormat(TIME_FORMAT_STRING);
-    dateTimeFormat =
-      new SimpleDateFormat(DATE_FORMAT_STRING + " " + TIME_FORMAT_STRING);
+
+    public String getCursorStyle()
+    {
+      return cursorStyle;
+    }
+
+    public String getClickAlt()
+    {
+      return clickAlt;
+    }
+
+    public String getCalendarPath()
+    {
+      return calendarPath;
+    }
+
+    public String getCalendarIcon()
+    {
+      return calendarIcon;
+    }
+
+    public boolean isInputMonthFirst()
+    {
+      return inputMonthFirst;
+    }
+
+    public String getDateFormatString()
+    {
+      return dateFormatString;
+    }
+
+    public SimpleDateFormat getDateFormat()
+    {
+      return dateFormat;
+    }
+
+    public SimpleDateFormat getTimeFormat()
+    {
+      return timeFormat;
+    }
+
+    public SimpleDateFormat getDateTimeFormat()
+    {
+      return dateTimeFormat;
+    }
+
+    public String getDateHint()
+    {
+      return dateHint;
+    }
+
+    public String getTimeHint()
+    {
+      return timeHint;
+    }
   }
 
   public boolean supportsComponentType(UIComponent component)
@@ -161,12 +219,13 @@ public class InputDateRenderer
 //    dateParts.put("time", time);
 //    // set the submitted value to the subcomponent value map
 //    ev.setSubmittedValue(dateParts);
+    ConfigurationResourceBean crb = new ConfigurationResourceBean(LocaleUtil.getLocale(context));
     Date date = null;
     if(dateStr==null && timeStr!=null)
     {
       try
       {
-        date = timeFormat.parse(timeStr);
+        date = crb.getTimeFormat().parse(timeStr);
       }
       catch (ParseException ex)
       {
@@ -177,7 +236,7 @@ public class InputDateRenderer
     {
       try
       {
-        date = dateFormat.parse(dateStr);
+        date = crb.getDateFormat().parse(dateStr);
       }
       catch (ParseException ex)
       {
@@ -188,7 +247,7 @@ public class InputDateRenderer
     {
       try
       {
-        date = dateTimeFormat.parse(dateStr + " " + timeStr);
+        date = crb.getDateTimeFormat().parse(dateStr + " " + timeStr);
       }
       catch (ParseException ex)
       {
@@ -223,6 +282,7 @@ public class InputDateRenderer
     /////////////////////////////////////////////////////////
     //  VALUE HOLDER AND ATTRIBUTES
     /////////////////////////////////////////////////////////
+    ConfigurationResourceBean crb = new ConfigurationResourceBean(LocaleUtil.getLocale(context));
     String dateString = "";
     String timeString = "";
     Date date = null;
@@ -244,7 +304,7 @@ public class InputDateRenderer
       {
         try
         {
-          date = dateTimeFormat.parse( (String) value);
+          date = crb.getDateTimeFormat().parse((String) value);
         }
         catch (ParseException ex)
         {
@@ -255,8 +315,8 @@ public class InputDateRenderer
 
     if (date !=null)
     {
-      dateString = dateFormat.format(date);
-      timeString = timeFormat.format(date);
+      dateString = crb.getDateFormat().format(date);
+      timeString = crb.getTimeFormat().format(date);
     }
 
 
@@ -277,12 +337,12 @@ public class InputDateRenderer
     /////////////////////////////////////////////////////////
     if (showDate)
     {
-      writer.write("<i>&#160;" + DATE_HINT + "&#160;</i>" );
+      writer.write("<i>&#160;" + crb.getDateHint() + "&#160;</i>" );
       String dateId = clientId + "_date" ;
 
       String type ="text";
       writer.write("<input type=\"" + type + "\"" +
-                   " size=\"" + DATE_FORMAT_STRING.length() + "\"" +
+                   " size=\"" + crb.getDateFormatString().length() + "\"" +
                    " name=\"" + dateId + "\"" +
                    " id=\"" + dateId + "\"" +
                    " value=\"" + dateString + "\">&#160;");
@@ -290,7 +350,7 @@ public class InputDateRenderer
       // script creates unique javascript popup calendar object
       String calRand = "cal" + ("" + Math.random()).substring(2);
       String calendar;
-      if (inputMonthFirst)
+      if (crb.isInputMonthFirst())
       {
         calendar = "calendar2";
       }
@@ -308,13 +368,13 @@ public class InputDateRenderer
       writer.write("  id=\"" + clientId + "_datePickerPopup" + "\"");
       writer.write("  width=\"" + WIDTH + "\"\n");
       writer.write("  height=\"" + HEIGHT + "\"\n");
-      writer.write("  style=\"" + CURSORSTYLE + "\" ");
-      writer.write("  src=\"" + CALENDAR_ICON + "\"\n");
+      writer.write("  style=\"" + crb.getCursorStyle() + "\" ");
+      writer.write("  src=\"" + crb.getCalendarIcon() + "\"\n");
       writer.write("  border=\"0\"\n");
       writer.write("  onclick=");
       writer.write("\"javascript:" + calScript +
-                   calRand + ".popup('','" + CALENDAR_PATH + "');\"\n");
-      writer.write("  alt=\"" + CLICKALT + "\"\n");
+                   calRand + ".popup('','" + crb.getCalendarPath() + "');\"\n");
+      writer.write("  alt=\"" + crb.getClickAlt() + "\"\n");
       writer.write(" />&#160;&#160;\n");
     }
 
@@ -323,10 +383,10 @@ public class InputDateRenderer
     /////////////////////////////////////////////////////////
     if (showTime)
     {
-      writer.write("<i>&#160;" + TIME_HINT + "&#160;</i>" );
+      writer.write("<i>&#160;" + crb.getTimeHint() + "&#160;</i>" );
       String timeId = clientId + "_time" ;
       writer.write("<input type=\"text\"" +
-                   " size=\"" + (DATE_FORMAT_STRING.length() + 1) + "\"" +
+                   " size=\"" + (crb.getDateFormatString().length() + 1) + "\"" +
                   " name=\"" + timeId + "\"" +
                   " id=\"" + timeId + "\"" +
                   " value=\"" + timeString + "\">&#160;");
