@@ -327,9 +327,17 @@
 	    <module>pack</module>
 	    <module>tool</module>
 	    <module>assembly</module>
-	    <module>deploy</module>
 	    <module>bundle</module>
 	</modules>
+	
+	<profiles>
+		<profile>
+			<id>cafe</id>
+			<modules>
+				<module>deploy</module>
+			</modules>
+    	</profile>
+  	</profiles>
     
     <issueManagement>
         <system>JIRA</system>

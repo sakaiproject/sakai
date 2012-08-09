@@ -2,9 +2,8 @@
 <project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
 	<modelVersion>4.0.0</modelVersion>
 	
-	<!-- this is a deploy POM to automatically deploy Common and TinyUrlService to Tomcat so Profile2 works in a small cafe build
-	and we don't need to worry about building other projects and deploying them
-	-->
+	<!-- this is a deploy POM to automatically deploy various dependencies to Tomcat so Profile2 works in a small cafe build
+	and we don't need to worry about building other projects and deploying them -->
 	
 	<name>Profile2 Dependency Deployer</name>
 	<groupId>org.sakaiproject.profile2</groupId>
