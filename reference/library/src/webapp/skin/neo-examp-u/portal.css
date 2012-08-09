@@ -243,6 +243,7 @@ guests, for example */
 #loginLinks .topnav {
     float: left;
     display: block;
+    background: transparent url(/library/image/silk/cog.png) 0 0 no-repeat;
 }
 #loginLinks .nav-menu > span {
     display: none;
@@ -253,9 +254,9 @@ guests, for example */
 /* link to toggle the user info and controls */
 #mastLogin span.drop {
     cursor: pointer;
-    background: transparent url(/library/image/silk/user.png) 0 0 no-repeat;
-    margin: 0 10px 0 10px; 
-    width: 20px;
+    background: transparent url(/library/image/silk/user.png) top right no-repeat;
+    margin: 0 10px 0 0px; 
+    width: 25px;
     height: 20px;
 }
 /* menu for user actions (could be one of several:link to profile, preferences, add a new site, view tutorial, other)*/
@@ -1298,8 +1299,8 @@ ul#otherSiteList li a span, ul.otherSitesCategorList li a span {
     position: fixed;
     height: 265px;
     width: 175px;
-    bottom: 26px;
-    right: 18px;
+    top: 90px;
+    left: 5px;
 }
 
 /* wrapper for all elements of presence display   */
@@ -1376,7 +1377,9 @@ ul#otherSiteList li a span, ul.otherSitesCategorList li a span {
 /* main container for presence and portal chat.*/
 #footerAppTray {
     font-size: .9em;
+/*
     position: fixed;
+*/
     right: 18px;
     bottom: 0;
     line-height: 1.2em;
@@ -1419,7 +1422,17 @@ ul#otherSiteList li a span, ul.otherSitesCategorList li a span {
     display: none;
 }
 #footerAppPresence {
-    height: 100%;
+    border:1px solid transparent;
+    position: absolute;
+    background: #103064;
+    background: -moz-linear-gradient(top, #103064 0%, #0d3e77 100%);
+    background: -webkit-gradient(linear, left top, left bottom, color-stop(0%,#103064), color-stop(100%,#0d3e77));
+    background: -webkit-linear-gradient(top, #103064 0%,#0d3e77 100%);
+    background: -o-linear-gradient(top, #103064 0%,#0d3e77 100%);
+    background: -ms-linear-gradient(top, #103064 0%,#0d3e77 100%);
+    background: linear-gradient(to bottom, #103064 0%,#0d3e77 100%);
+    top: 60px;
+    left:15px;
     width: auto;
     color: #888;
     vertical-align: middle;
@@ -1427,6 +1440,9 @@ ul#otherSiteList li a span, ul.otherSitesCategorList li a span {
     padding: 5px;
     text-align: center;
     white-space: nowrap;
+    -webkit-border-radius: 5px;
+    -moz-border-radius: 5px;
+    border-radius: 5px;
 }
 #footerAppChat {
     vertical-align: bottom;
@@ -1450,7 +1466,7 @@ ul#otherSiteList li a span, ul.otherSitesCategorList li a span {
     font-weight: bold;
 }
 #presenceToggle:focus, #chatToggle:focus {
-    outline: 1px dotted #000;
+    outline: 1px dotted #fff;
 }
 .workspace #footerAppPresence {
     display: none;
