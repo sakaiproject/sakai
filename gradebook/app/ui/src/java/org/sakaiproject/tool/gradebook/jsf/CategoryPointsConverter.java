@@ -44,7 +44,7 @@ import org.sakaiproject.tool.gradebook.Category;
  * displayed in a special way with a tooltip "title" attribute.
  */
 public class CategoryPointsConverter extends PointsConverter {
-	private static final Log log = LogFactory.getLog(AssignmentPointsConverter.class);
+	private static final Log log = LogFactory.getLog(CategoryPointsConverter.class);
 
 	public String getAsString(FacesContext context, UIComponent component, Object value) {
 		if (log.isDebugEnabled()) log.debug("getAsString(" + context + ", " + component + ", " + value + ")");
