@@ -278,7 +278,7 @@
 #if ( ${loggedIn})
 				<div id="footerAppTray">
 #if ( $neoChat )
-					<div id="footerAppChat" aria-live="polite" aria-atomic="false" aria-relevant="all" style="display:none">
+					<div id="footerAppChat" style="display:none">
 						<a href="#" id="chatToggle"><img src="/library/image/silk/comment.png" style="vertical-align: middle;" alt="" /> ${rloader.pc_title} 
 						<span id="chattableCount"></span>
 						</a>
@@ -312,11 +312,11 @@
                     <div id="pc_users">
                         <div id="pc_connections_wrapper">
                             <h2 id="pc_connections_label">${rloader.pc_connections_label}</h2>
-                            <ul id="pc_connections" aria-live="assertive" aria-atomic="false" aria-relevant="all"></ul>
+                            <ul id="pc_connections"></ul>
                         </div>
                         <div class="pc_users_wrapper">
                             <h2 id="pc_site_users_label">${rloader.pc_site_users_label}</h2>
-                            <ul id="pc_site_users" aria-live="assertive" aria-atomic="false" aria-relevant="all"></ul>
+                            <ul id="pc_site_users"></ul>
                         </div>
                     </div>
                 </div>
@@ -390,7 +390,7 @@
 
 #end
 #if ( ( !$neoChat ) && ${loggedIn} && ${sitePages.pageNavShowPresenceLoggedIn})
-                             <div id="presenceArea" style="display: none" class="trayPopup" aria-live="assertive"  aria-atomic="false" aria-relevant="all">
+                             <div id="presenceArea" style="display: none" class="trayPopup">
 				<div id="presenceWrapper">
 					<div id="presenceTitle">${rloader.sit_presencetitle}<div><a href="#" id="presenceClose" class="trayPopupClose">x</a></div></div>
 #if (${sitePages.pageNavPresenceIframe})
