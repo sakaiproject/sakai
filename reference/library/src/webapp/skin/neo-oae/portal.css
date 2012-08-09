@@ -1389,9 +1389,6 @@ ul#otherSiteList li a span, ul.otherSitesCategorList li a span {
     font-size: 80%;
     outline: none;
 }
-#presenceCount {
-    display: none;
-}
 #footerAppTray span.present {
     margin: -2px 0 0 5px !important;
     border: 2px solid #fff;
@@ -1402,19 +1399,21 @@ ul#otherSiteList li a span, ul.otherSitesCategorList li a span {
     -moz-border-radius: 5px;
     -webkit-border-radius: 5px;
     height: 14px;
-    width: 14px;
+    width: auto;
+    display: inline;
 }
 #footerAppTray span.empty {
-    visibility: hidden
+    display: none;
 }
 #footerAppPresence {
     height: 100%;
-    width: 25px;
+    width: auto;
     color: #888;
     vertical-align: middle;
     float: right;
-    padding: 5px 3px;
+    padding: 5px;
     text-align: center;
+    white-space: nowrap;
 }
 #footerAppChat {
     vertical-align: bottom;
