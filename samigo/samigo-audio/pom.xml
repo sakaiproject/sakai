@@ -40,19 +40,26 @@
                 <plugins>
                     <plugin>
                         <groupId>org.apache.maven.plugins</groupId>
-                        <artifactId>maven-jar-plugin</artifactId>
+                        <artifactId>maven-jarsigner-plugin</artifactId>
+                        <version>1.2</version>
                         <executions>
                             <execution>
+                                 <id>sign</id>
                                 <goals>
                                     <goal>sign</goal>
                                 </goals>
                             </execution>
+                            <execution>
+                                <id>verify</id>
+                                <goals>
+                                    <goal>verify</goal>
+                                </goals>
+                            </execution>
                         </executions>
-                        <configuration>
+           <configuration>
                             <keystore>${sakai.samigo-audio.jarsign.keystore.location}</keystore>
                             <alias>${sakai.samigo-audio.jarsign.alias}</alias>
                             <storepass>${sakai.samigo-audio.jarsign.password}</storepass>
-                            <verify>true</verify>
                         </configuration>
                     </plugin>
                 </plugins>
