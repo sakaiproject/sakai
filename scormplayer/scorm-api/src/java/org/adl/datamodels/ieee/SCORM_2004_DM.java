@@ -1191,9 +1191,18 @@ public class SCORM_2004_DM extends DataModel implements Serializable {
 		err = getValue(req, dmInfo);
 
 		// Check if the current Learner Attempt has been suspended
-		if (dmInfo.mValue.equals("suspend") || dmInfo.mValue.equals("logout")) {
+		// If the cmi.exit is set to “suspend” then the SCOs current learner attempt does not end. 
+		// The SCOs Run-Time Environment data model element values for the current learner session will 
+		// be available to the SCO if the SCO is relaunched in a subsequent learner session.
+		if (dmInfo.mValue.equals("suspend")) {
 			// The next time this SCO is experienced, the current
 			// Learner Session will be "resumed"
+			// If the SCO set the cmi.exit to “suspend”, then the LMS should set the cmi.entry to 
+			// “resume”. By setting the cmi.exit to “suspend”, the SCO is indicating that the learner 
+			// has exited the SCO with the intent of returning to the SCO at a later time. 
+			// Since the learner attempt was suspended, once the learner attempt is resumed, 
+			// the SCO shall have the same set of data that was acquired during the previously 
+			// suspended learner attempt.
 			req = new DMRequest("cmi.entry", "resume", true);
 			req.getNextToken();
 
@@ -1206,6 +1215,9 @@ public class SCORM_2004_DM extends DataModel implements Serializable {
 			SCORM_2004_DMElement element = new SCORM_2004_DMElement(desc, null, this);
 			mElements.put(desc.mBinding, element);
 		} else {
+			// If the cmi.exit is set to “normal”, “logout”,“time-out” or “” (empty characterstring) 
+			// then the SCOs learner attempt ends. The SCOs Run-Time Environment data model element 
+			// values of the current learner session will NOT be available if the SCO is relaunched.
 			req = new DMRequest("cmi.entry", "", true);
 			req.getNextToken();
 
