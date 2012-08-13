@@ -25,6 +25,7 @@ package org.sakaiproject.tool.gradebook.ui;
 import java.math.BigDecimal;
 import java.io.Serializable;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.HashMap;
@@ -34,7 +35,10 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
+import javax.faces.context.FacesContext;
 import javax.faces.event.ActionEvent;
+import javax.faces.model.SelectItem;
+import javax.servlet.http.HttpServletRequest;
 
 import org.apache.commons.lang.StringUtils;
 import org.apache.commons.logging.Log;
@@ -66,8 +70,95 @@ public class CourseGradeDetailsBean extends EnrollmentTableBean {
     private GradeMapping gradeMapping;
     private double totalPoints;
     private String courseGradesConverterPlugin;
+    private String standardExportDefaultFields;
     private boolean allStudentsViewOnly = true;
     private boolean enableCustomExport;
+    
+    //Export Field data options
+    private boolean includeUsereid;
+    private boolean includeSortname;
+    private boolean includeCoursegrade;
+    private boolean includeFinalscore;
+    private boolean includeCalculatedgrade;
+    private boolean includeGradeoverride;
+    private boolean includeLastmodifieddate;
+    
+    private String exportType;
+    private List<SelectItem> exportFormats = new ArrayList<SelectItem>();
+
+    public String getExportType() {
+		return exportType;
+	}
+
+	public void setExportType(String exportType) {
+		this.exportType = exportType;
+	}
+
+	public List<SelectItem> getExportFormats() {
+		return exportFormats;
+	}
+
+	public void setExportFormats(List<SelectItem> exportFormats) {
+		this.exportFormats = exportFormats;
+	}
+    
+    public boolean isIncludeUsereid() {
+		return includeUsereid;
+	}
+
+	public void setIncludeUsereid(boolean includeUsereid) {
+		this.includeUsereid = includeUsereid;
+	}
+
+	public boolean isIncludeSortname() {
+		return includeSortname;
+	}
+
+	public void setIncludeSortname(boolean includeSortname) {
+		this.includeSortname = includeSortname;
+	}
+
+	public boolean isIncludeCoursegrade() {
+		return includeCoursegrade;
+	}
+
+	public void setIncludeCoursegrade(boolean includeCoursegrade) {
+		this.includeCoursegrade = includeCoursegrade;
+	}
+
+	public boolean isIncludeFinalscore() {
+		return includeFinalscore;
+	}
+
+	public void setIncludeFinalscore(boolean includeFinalscore) {
+		this.includeFinalscore = includeFinalscore;
+	}
+
+	public boolean isIncludeCalculatedgrade() {
+		return includeCalculatedgrade;
+	}
+
+	public void setIncludeCalculatedgrade(boolean includeCalculatedgrade) {
+		this.includeCalculatedgrade = includeCalculatedgrade;
+	}
+
+	public boolean isIncludeGradeoverride() {
+		return includeGradeoverride;
+	}
+
+	public void setIncludeGradeoverride(boolean includeGradeoverride) {
+		this.includeGradeoverride = includeGradeoverride;
+	}
+
+	public boolean isIncludeLastmodifieddate() {
+		return includeLastmodifieddate;
+	}
+
+	public void setIncludeLastmodifieddate(boolean includeLastmodifieddate) {
+		this.includeLastmodifieddate = includeLastmodifieddate;
+	}
+	
+	
 
 	public class ScoreRow implements Serializable {
         private EnrollmentRecord enrollment;
@@ -164,7 +255,17 @@ public class CourseGradeDetailsBean extends EnrollmentTableBean {
         totalPoints = getGradebookManager().getTotalPoints(getGradebookId());
         
 		enableCustomExport = ServerConfigurationService.getBoolean("gradebook.institutional.export.enabled",false);
-
+		
+		//Default standard export fields
+		standardExportDefaultFields = ServerConfigurationService.getString("gradebook.standard.export.default.fields","usereid,sortname,coursegrade");		
+		updateExportFieldStatus(standardExportDefaultFields);
+		if (exportFormats.isEmpty()){
+			exportFormats.add(new SelectItem("CSV"));
+			exportFormats.add(new SelectItem("Excel"));
+			exportFormats.add(new SelectItem("PDF"));
+		}
+		exportType = "CSV";
+		
 		// Set up score rows.
         Map enrollmentMap = getOrderedEnrollmentMapForCourseGrades();  
 		List studentUids = new ArrayList(enrollmentMap.keySet());
@@ -300,47 +401,88 @@ public class CourseGradeDetailsBean extends EnrollmentTableBean {
 		FacesUtil.addMessage(getLocalizedString("calculate_course_grade_done"));
 	}
 	
-	// Download spreadsheet of course grades. It's very likely that insitutions will
-	// want to customize this somewhere along the way.
+	public void updateExportFieldStatus(String standardExportFields){
+		
+		if(standardExportFields != null && standardExportFields.length()>1){
+			standardExportFields = standardExportFields.toLowerCase();
+			if(standardExportFields.contains("usereid")){
+				setIncludeUsereid(true);
+			} 
+			if(standardExportFields.contains("sortname")){
+				setIncludeSortname(true);
+			}
+			if(standardExportFields.contains("coursegrade")){
+				setIncludeCoursegrade(true);
+			}
+			if(standardExportFields.contains("calculatedgrade")){
+				setIncludeCalculatedgrade(true);
+			}
+			if(standardExportFields.contains("gradeoverride")){
+				setIncludeGradeoverride(true);
+			}
+			if(standardExportFields.contains("finalscore")){
+				setIncludeFinalscore(true);
+			}
+			if(standardExportFields.contains("lastmodifieddate")){
+				setIncludeLastmodifieddate(true);
+			}
+		}		
+	}
 	
-    public void exportCsv(ActionEvent event){
-        if(logger.isInfoEnabled()) logger.info("exporting course grade as CSV for gradebook " + getGradebookUid());
+	//Action to export
+	public void export(ActionEvent event){
+		//FacesContext facesContext = FacesContext.getCurrentInstance();
+        //HttpServletRequest request = (HttpServletRequest) facesContext.getExternalContext().getRequest();
+        List<String> fields = new ArrayList<String>();
+        if(includeSortname) fields.add("sortname");
+        if(includeUsereid) fields.add("usereid");
+        if(includeFinalscore) fields.add("finalscore");
+        if(includeCalculatedgrade) fields.add("calculatedgrade");
+        if(includeLastmodifieddate) fields.add("lastmodifieddate");
+        if(includeGradeoverride) fields.add("gradeoverride");
+        if(includeCoursegrade) fields.add("coursegrade");
+        
         getGradebookBean().getEventTrackingService().postEvent("gradebook.downloadCourseGrade","/gradebook/"+getGradebookId()+"/"+getAuthzLevel());
-        SpreadsheetUtil.downloadSpreadsheetData(getSpreadsheetData("csv"), 
-        		getDownloadFileName(getLocalizedString("export_course_grade_prefix")), 
-        		new SpreadsheetDataFileWriterCsv());
-    }
-
-    public void exportExcel(ActionEvent event){
-        if(logger.isInfoEnabled()) logger.info("exporting course grade as Excel for gradebook " + getGradebookUid());
-        getGradebookBean().getEventTrackingService().postEvent("gradebook.downloadCourseGrade","/gradebook/"+getGradebookId()+"/"+getAuthzLevel());
-        SpreadsheetUtil.downloadSpreadsheetData(getSpreadsheetData("excel"), 
-        		getDownloadFileName(getLocalizedString("export_course_grade_prefix")), 
-        		new SpreadsheetDataFileWriterXls());
-    }
-    
-    public void exportPdf(ActionEvent event){
-        if(logger.isInfoEnabled()) logger.info("exporting course grade as PDF for gradebook " + getGradebookUid());
-        getGradebookBean().getEventTrackingService().postEvent("gradebook.downloadCourseGrade","/gradebook/"+getGradebookId()+"/"+getAuthzLevel());
-        SpreadsheetUtil.downloadSpreadsheetData(getSpreadsheetData("pdf"), 
-        		getDownloadFileName(getLocalizedString("export_course_grade_prefix")), 
-        		new SpreadsheetDataFileWriterPdf());
-    }
-    
+        if(exportType.equalsIgnoreCase("CSV")){
+        	 if(logger.isInfoEnabled()) logger.info("exporting course grade as CSV for gradebook " + getGradebookUid());
+             SpreadsheetUtil.downloadSpreadsheetData(getSpreadsheetData("csv", fields), 
+             		getDownloadFileName(getLocalizedString("export_course_grade_prefix")), 
+             		new SpreadsheetDataFileWriterCsv());
+        }
+        else if(exportType.equalsIgnoreCase("Excel")){
+        	if(logger.isInfoEnabled()) logger.info("exporting course grade as Excel for gradebook " + getGradebookUid());
+            SpreadsheetUtil.downloadSpreadsheetData(getSpreadsheetData("excel", fields), 
+            		getDownloadFileName(getLocalizedString("export_course_grade_prefix")), 
+            		new SpreadsheetDataFileWriterXls());
+        }
+        else if(exportType.equalsIgnoreCase("PDF")){
+        	if(logger.isInfoEnabled()) logger.info("exporting course grade as PDF for gradebook " + getGradebookUid());
+            SpreadsheetUtil.downloadSpreadsheetData(getSpreadsheetData("pdf", fields), 
+            		getDownloadFileName(getLocalizedString("export_course_grade_prefix")), 
+            		new SpreadsheetDataFileWriterPdf());
+        }
+	}
+	
+	//Action to export institutional customized format of gradebook SAK-22204 
     public void exportCustomCsv(ActionEvent event){
         if(logger.isInfoEnabled()) logger.info("exporting course grade as Institutional CSV for gradebook " + getGradebookUid());
         getGradebookBean().getEventTrackingService().postEvent("gradebook.downloadCourseGrade","/gradebook/"+getGradebookId()+"/"+getAuthzLevel());
-        SpreadsheetUtil.downloadSpreadsheetData(getSpreadsheetData("customCsv"), 
+        
+        String defaultFields = "userEid,sortName,courseGrade";
+		String stringFields = ServerConfigurationService.getString("gradebook.institutional.export.fields",defaultFields);
+		String[] fields = stringFields.replaceAll("\\s","").toLowerCase().split(",");
+		if (fields.length == 0) fields = defaultFields.split(",");        
+        SpreadsheetUtil.downloadSpreadsheetData(getSpreadsheetData("customCsv", Arrays.asList(fields)), 
         		getDownloadFileName(getLocalizedString("export_course_grade_prefix")), 
         		new SpreadsheetDataFileWriterCsv());
     }
-    
+	
     //Export custom grade label
     public String getExportCustomLabel(){
 		return ServerConfigurationService.getString("gradebook.institutional.export.label",getLocalizedString("course_grade_details_export_course_grades_institution"));
     }
     
-    private List<List<Object>> getSpreadsheetData(String type) {
+    private List<List<Object>> getSpreadsheetData(String type, List<String> fields) {
     	// Get the full list of filtered enrollments and scores (not just the current page's worth).
     	List<EnrollmentRecord> filteredEnrollments = new ArrayList(getWorkingEnrollmentsForCourseGrade().keySet());
     	Collections.sort(filteredEnrollments, ENROLLMENT_NAME_COMPARATOR);
@@ -354,12 +496,13 @@ public class CourseGradeDetailsBean extends EnrollmentTableBean {
 		Map<String, CourseGradeRecord> filteredGradesMap = new HashMap<String, CourseGradeRecord>();
 		getGradebookManager().addToGradeRecordMap(filteredGradesMap, courseGradeRecords);
 		CourseGradesToSpreadsheetConverter converter = null;
+		//For institutional customized export format SAK-22204
 		if (type.startsWith("custom")){
 			converter = new CourseGradesToSpreadsheetCustomConverter();
 		} else {
 			converter = (CourseGradesToSpreadsheetConverter)getGradebookBean().getConfigurationBean().getPlugin(courseGradesConverterPlugin);
 		}
-		return converter.getSpreadsheetData(filteredEnrollments, courseGrade, filteredGradesMap);
+		return converter.getSpreadsheetData(filteredEnrollments, courseGrade, filteredGradesMap, fields);
     }
 
 	public List getScoreRows() {

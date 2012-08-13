@@ -74,7 +74,7 @@ public class CourseGradesToSpreadsheetConverterSample implements CourseGradesToS
 	 * @see org.sakaiproject.tool.gradebook.CourseGradesToSpreadsheetConverter#getSpreadsheetData(java.util.List,
 	 *      org.sakaiproject.tool.gradebook.CourseGrade, java.util.Map)
 	 */
-	public List<List<Object>> getSpreadsheetData(List<EnrollmentRecord> enrollments, CourseGrade courseGrade, Map<String, CourseGradeRecord> gradesMap) {
+	public List<List<Object>> getSpreadsheetData(List<EnrollmentRecord> enrollments, CourseGrade courseGrade, Map<String, CourseGradeRecord> gradesMap, List<String> fields) {
 		List<List<Object>> spreadsheetData = new ArrayList<List<Object>>();
 
     	// Build column headers.

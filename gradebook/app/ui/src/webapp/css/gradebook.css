@@ -201,3 +201,32 @@ td.gbMessageAboveNumber {vertical-align:top; text-align:right; padding-right:2em
     background-position: center center;
     text-decoration: none !important;
 }
+
+#exportPrefsLink {
+    text-decoration: none;
+    font-weight: bold
+}
+.exportPrefsVals {
+    position: absolute;
+    border:1px solid #ccc !important;
+    background: #fff;
+    display: none;
+    -webkit-box-shadow: 1px 1px 3px rgba(50, 50, 50, 0.26);
+    -moz-box-shadow: 1px 1px 3px rgba(50, 50, 50, 0.26);
+    box-shadow: 1px 1px 3px rgba(50, 50, 50, 0.26);
+}
+.exportPrefsVals p{
+    display: block;
+    float: left;
+    margin: 0;
+    padding: 2px;
+    width:45%;
+}
+.exportPrefsVals #exportPrefsValsClose {
+    position: absolute;
+    top: 3px;
+    right: 7px;
+    text-decoration:none;
+    font-size:90%;
+    font-weight: bold;
+}
