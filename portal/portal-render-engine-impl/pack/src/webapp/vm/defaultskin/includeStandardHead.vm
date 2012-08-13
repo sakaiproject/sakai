@@ -5,7 +5,10 @@
 <head>
 <!-- START from includeStandardHead.vm -->
 	<meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
-        <meta http-equiv="Content-Style-Type" content="text/css" />
+    <meta http-equiv="Content-Style-Type" content="text/css" />
+#if (${locale})
+    <meta http-equiv="Content-Language" content="$!{locale}" />
+#end
 
 <!-- this causes problems for layout needs investigating -->
     <link href="/portal/styles/portalstyles.css" type="text/css" rel="stylesheet" media="all" />

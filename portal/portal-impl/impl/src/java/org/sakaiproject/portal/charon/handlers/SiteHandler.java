@@ -284,7 +284,8 @@ public class SiteHandler extends WorksiteHandler
 		boolean doFrameSet = includeFrameset(rcontext, res, req, session, page);
 				
 				
-		setSiteLanguage(site);				
+		Locale locale = setSiteLanguage(site);	
+        rcontext.put("locale", locale.toString());			
 				
 		
 		includeSiteNav(rcontext, req, session, siteId);
@@ -841,7 +842,7 @@ public class SiteHandler extends WorksiteHandler
 	}
 	
 		
-	void setSiteLanguage(Site site)
+	private Locale setSiteLanguage(Site site)
 	{
 		ResourceLoader rl = new ResourceLoader();
 				
@@ -863,6 +864,8 @@ public class SiteHandler extends WorksiteHandler
 			Locale locale = getLocaleFromString(locale_string);			
 			loc = rl.setContextLocale(locale);			
 		}
+
+        return loc;
 	}
 
 }

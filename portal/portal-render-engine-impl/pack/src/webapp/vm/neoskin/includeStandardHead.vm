@@ -5,7 +5,10 @@
 <head>
 <!-- START from includeStandardHead.vm -->
 	<meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
-        <meta http-equiv="Content-Style-Type" content="text/css" />
+    <meta http-equiv="Content-Style-Type" content="text/css" />
+#if (${locale})
+    <meta http-equiv="Content-Language" content="$!{locale}" />
+#end
 
 <script type="text/javascript" language="JavaScript">
 	## SAK-16484 Allow Javascript to easily get at user details.
@@ -15,6 +18,7 @@
 		"portalPath": "$!{portalPath}",
 		"loggedOutUrl": "$!{loggedOutUrl}",
         "siteId": "$!{siteId}",
+        "locale": "$!{locale}",
 		"user": {
 			"id": "$!{userId}",
 			"eid": "$!{userEid}"
