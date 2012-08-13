@@ -44,5 +44,5 @@ public interface CourseGradesToSpreadsheetConverter {
 	 * @return a spreadsheet-like list of rows, each of which is a list of column values;
 	 * the first row should contain header strings
 	 */
-	public List<List<Object>> getSpreadsheetData(List<EnrollmentRecord> enrollments, CourseGrade courseGrade, Map<String, CourseGradeRecord> gradesMap);
+	public List<List<Object>> getSpreadsheetData(List<EnrollmentRecord> enrollments, CourseGrade courseGrade, Map<String, CourseGradeRecord> gradesMap, List<String> fields);
 }
