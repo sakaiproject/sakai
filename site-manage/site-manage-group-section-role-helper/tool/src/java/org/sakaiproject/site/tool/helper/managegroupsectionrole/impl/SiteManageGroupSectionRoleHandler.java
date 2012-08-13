@@ -1019,7 +1019,8 @@ public class SiteManageGroupSectionRoleHandler {
     		}
 
     		int groupCount = 0;
-    		while(usersList.size() > 0){
+    		List<Group> gList = new ArrayList<Group>();
+    		while(groupCount < numOfGroups){
     			Group group = site.addGroup();
     			group.getProperties().addProperty(group.GROUP_PROP_WSETUP_CREATED, Boolean.TRUE.toString());
 
@@ -1047,6 +1048,25 @@ public class SiteManageGroupSectionRoleHandler {
     			}       		
 
     			groupCount++;
+    			
+    			// add the group object to list
+    			gList.add(group);
+    		}
+    		
+			// all the groups has been created, but there are some users still left to be assigned
+			while (usersList.size() > 0)
+			{
+				// pick a random user
+				int index = (int)(Math.random() * (usersList.size() - 1));
+				String userId = usersList.get(index);
+				// pick a random group
+				int gIndex = (int)(Math.random() * (gList.size() - 1));
+				Group group = gList.get(gIndex);
+				// add user to group
+				Member member = site.getMember(userId);
+				group.addMember(userId, member.getRole().getId(), member.isActive(), false);
+				//remove this user now:
+				usersList.remove(index);
     		}
     	}
 
