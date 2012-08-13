@@ -105,8 +105,6 @@
 </h:panelGrid>
 <h:outputText escape="false" value="<script type='text/javascript'>cat = #{bean.categoriesEnabled};</script>" />
 
-</div>
-
 <script type="text/javascript">
 	assignmentReleased('gbForm', false);
 	categorySelected('gbForm');
