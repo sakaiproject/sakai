@@ -72,4 +72,16 @@ public interface TaggableActivity {
 	 * @return
 	 */
 	public String getTypeName();
+	
+	/**
+	 * Determine if decorating the activityDetailUrl is necessary
+	 * @return
+	 */
+	public boolean getUseDecoration();
+	
+	/**
+	 * Get the params that will be added to the activity's url
+	 * @return
+	 */
+	public String getActivityDetailUrlParams();
 }
