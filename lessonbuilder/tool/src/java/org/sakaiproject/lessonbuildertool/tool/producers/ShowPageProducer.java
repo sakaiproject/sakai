@@ -1171,6 +1171,8 @@ public class ShowPageProducer implements ViewComponentProducer, DefaultView, Nav
 							else
 							    UIOutput.make(tableRow, "item-groups", itemGroupString );
 							UIOutput.make(tableRow, "item-samewindow", Boolean.toString(i.isSameWindow()));
+
+							UIVerbatim.make(tableRow, "item-path", getItemPath(i));
 						}
 
 						String releaseString = simplePageBean.getReleaseString(i);
@@ -1218,6 +1220,8 @@ public class ShowPageProducer implements ViewComponentProducer, DefaultView, Nav
 					    }
 					    UIOutput.make(tableRow, "item-groups", itemGroupString);
 					}
+					
+					UIVerbatim.make(tableRow, "item-path", getItemPath(i));
 
 					// the reason this code is complex is that we try to choose
 					// the best
@@ -3171,5 +3175,26 @@ public class ShowPageProducer implements ViewComponentProducer, DefaultView, Nav
 			UIInitBlock.make(tofill, "gradingForm-init", "initGradingForm", new Object[] {idInput, pointsInput, jsIdInput, typeInput, "gradingBean.results"});
 			printedGradingForm = true;
 		}
+	}
+	
+	private static String getItemPath(SimplePageItem i)
+	{
+		String itemPath = "";
+		boolean isURL = false;
+		String pathId = i.getType() == SimplePageItem.MULTIMEDIA ? "path-url":"path-url";
+		String[] itemPathTokens = i.getSakaiId().split("/");
+		for(int tokenIndex=3 ; tokenIndex < itemPathTokens.length ; tokenIndex++)
+		{
+			if(isURL)
+			{
+				itemPath+= "/<a target=\"_blank\" href=\"\" class=\"" + pathId + "\">" + itemPathTokens[tokenIndex] + "</a>";
+				isURL = false;
+			}
+			else
+				itemPath+="/" + itemPathTokens[tokenIndex];
+			
+			isURL = itemPathTokens[tokenIndex].equals("urls") ? true: false;
+		}
+		return itemPath;
 	}
 }

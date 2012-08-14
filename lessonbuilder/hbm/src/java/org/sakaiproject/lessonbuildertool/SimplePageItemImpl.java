@@ -341,9 +341,9 @@ public class SimplePageItemImpl implements SimplePageItem  {
 
 	public String getURL() {
 		// Will Update to take type into account when adding more than just resources
-		if (type == 1 || type == 7) {
+		if (type == RESOURCE || type == MULTIMEDIA) {
 			return "/access/content" + getSakaiId();
-		} else if (type == 6) {
+		} else if (type == URL) {
 			return getSakaiId();
 		} else {
 			return "";
@@ -362,9 +362,9 @@ public class SimplePageItemImpl implements SimplePageItem  {
 	        // what it really is. The Access handler does the final translation
 	        // no one else should do anything with sakai id's other than
 	        // hand them to Content
-		if (type == 1 || type == 7) {
+		if (type == RESOURCE || type == MULTIMEDIA) {
 		    return "/access/lessonbuilder/item/" + getId() + getSakaiId();
-		} else if (type == 6) {
+		} else if (type == URL) {
 			return getSakaiId();
 		} else {
 			return "";

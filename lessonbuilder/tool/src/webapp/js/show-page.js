@@ -305,6 +305,10 @@ $(function() {
 			$("#editgroups-movie").hide();
 
 			var row = $(this).parent().parent().parent();
+			
+			var findObject = row.find('object').find('object');
+			row.find(".path-url").attr("href", findObject.attr("data"));
+			$("#movie-path").html(row.find(".item-path").html());
 
 			var groups = row.find(".item-groups").text();
 			var grouplist = $("#grouplist");
@@ -807,6 +811,8 @@ $(function() {
 				    checkgroups(grouplist, groups);
 				}
 			    }
+			    row.find(".path-url").attr("href", row.find(".itemlink").attr('href'));
+			    $("#path").html(row.find(".item-path").html());
 
 			}
 
@@ -937,6 +943,9 @@ $(function() {
 
 			var row = $(this).parent().parent().parent();
 
+			row.find(".path-url").attr("href", row.find(".multimedia").attr("src"));
+			$("#mm-path").html(row.find(".item-path").html());
+			
 			var groups = row.find(".item-groups").text();
 			var grouplist = $("#grouplist");
 			if ($('#grouplist input').size() > 0) {
