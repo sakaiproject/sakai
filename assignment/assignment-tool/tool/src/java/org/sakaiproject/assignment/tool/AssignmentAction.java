@@ -89,7 +89,7 @@ import org.sakaiproject.authz.api.PermissionsHelper;
 import org.sakaiproject.authz.api.Role;
 import org.sakaiproject.authz.api.SecurityAdvisor;
 import org.sakaiproject.authz.cover.AuthzGroupService;
-import org.sakaiproject.authz.cover.SecurityService;
+import org.sakaiproject.authz.api.SecurityService;
 import org.sakaiproject.calendar.api.Calendar;
 import org.sakaiproject.calendar.api.CalendarEvent;
 import org.sakaiproject.calendar.api.CalendarEventEdit;
@@ -756,6 +756,8 @@ public class AssignmentAction extends PagedResourceActionII
 	
 	private NotificationService m_notificationService = null;
 	
+	private SecurityService m_securityService = null;
+	
 	/********************** Supplement item ************************/
 	private AssignmentSupplementItemService m_assignmentSupplementItemService = null;
 	/******** Model Answer ************/
@@ -1078,7 +1080,14 @@ public class AssignmentAction extends PagedResourceActionII
 		Assignment rv = null;
 		try
 		{
+			Session session = SessionManager.getCurrentSession();
+			SecurityAdvisor secAdv = pushSecurityAdvisor(session, "assignment.security.advisor", false);
+			SecurityAdvisor contentAdvisor = pushSecurityAdvisor(session, "assignment.content.security.advisor", false);
+			
 			rv = AssignmentService.getAssignment(assignmentId);
+			
+			m_securityService.popAdvisor(contentAdvisor);
+			m_securityService.popAdvisor(secAdv);
 		}
 		catch (IdUnusedException e)
 		{
@@ -1106,7 +1115,10 @@ public class AssignmentAction extends PagedResourceActionII
 		AssignmentSubmission rv = null;
 		try
 		{
+			Session session = SessionManager.getCurrentSession();
+			SecurityAdvisor secAdv = pushSecurityAdvisor(session, "assignment.grade.security.advisor", false);
 			rv = AssignmentService.getSubmission(submissionId);
+			m_securityService.popAdvisor(secAdv);
 		}
 		catch (IdUnusedException e)
 		{
@@ -1618,6 +1630,54 @@ public class AssignmentAction extends PagedResourceActionII
 			context.put("modelAnswer", m_assignmentSupplementItemService.getModelAnswer(assignment.getId()));
 		}
 	}
+	
+	/**
+	 * Look up a security advisor from the session with the given key, and then push it on the security service stack.
+	 * @param session
+	 * @param sessionKey String key used to look up a SecurityAdvisor stored in the session object
+	 * @param removeFromSession boolean flag indicating if the value should be removed from the session once retrieved
+	 * @return
+	 */
+	private SecurityAdvisor pushSecurityAdvisor(Session session, String sessionKey, boolean removeFromSession) {
+		SecurityAdvisor asgnAdvisor = (SecurityAdvisor)session.getAttribute(sessionKey);
+		if (asgnAdvisor != null) {
+			m_securityService.pushAdvisor(asgnAdvisor);
+			if (removeFromSession)
+				session.removeAttribute(sessionKey);
+		}
+		return asgnAdvisor;
+	}
+	
+	/**
+	 * If necessary, put a "decoratedUrlMap" into the context
+	 * @param session
+	 * @param context Context object that will have a "decoratedUrlMap" object put into it
+	 * @param removeFromSession boolean flag indicating if the value should be removed from the session once retrieved
+	 */
+	private void addDecoUrlMapToContext(Session session, Context context, boolean removeFromSession) {
+		SecurityAdvisor contentAdvisor = (SecurityAdvisor)session.getAttribute("assignment.content.security.advisor");
+		
+		String decoratedContentWrapper = (String)session.getAttribute("assignment.content.decoration.wrapper");
+		String[] contentRefs = (String[])session.getAttribute("assignment.content.decoration.wrapper.refs");
+		
+		if (removeFromSession) {
+			session.removeAttribute("assignment.content.decoration.wrapper");
+			session.removeAttribute("assignment.content.decoration.wrapper.refs");
+		}		
+
+		if (contentAdvisor != null && contentRefs != null) {
+			m_securityService.pushAdvisor(contentAdvisor);
+			
+			Map<String, String> urlMap = new HashMap<String, String>();
+			for (String refStr:contentRefs) {
+				Reference ref = EntityManager.newReference(refStr);
+				String url = ref.getUrl();
+				urlMap.put(url, url.replaceFirst("access/content", "access/" + decoratedContentWrapper + "/content"));					
+			}
+			context.put("decoratedUrlMap", urlMap);
+			m_securityService.popAdvisor(contentAdvisor); 
+		}
+	}
 
 	/**
 	 * build the student view of showing a graded submission
@@ -1627,32 +1687,8 @@ public class AssignmentAction extends PagedResourceActionII
 		context.put("contentTypeImageService", state.getAttribute(STATE_CONTENT_TYPE_IMAGE_SERVICE));
 
 		Session session = SessionManager.getCurrentSession();
-		SecurityAdvisor contentAdvisor = (SecurityAdvisor)session.getAttribute("assignment.content.security.advisor");
-		
-		String decoratedContentWrapper = (String)session.getAttribute("assignment.content.decoration.wrapper");
-		session.removeAttribute("assignment.content.decoration.wrapper");
-		
-		String[] contentRefs = (String[])session.getAttribute("assignment.content.decoration.wrapper.refs");
-		session.removeAttribute("assignment.content.decoration.wrapper.refs");
-		
-
-		if (contentAdvisor != null && contentRefs != null) {
-			SecurityService.pushAdvisor(contentAdvisor);
-			
-			Map urlMap = new HashMap();
-			for (String refStr:contentRefs) {
-				Reference ref = EntityManager.newReference(refStr);
-				String url = ref.getUrl();
-				urlMap.put(url, url.replaceFirst("access/content", "access/" + decoratedContentWrapper + "/content"));					
-			}
-			context.put("decoratedUrlMap", urlMap);
-			SecurityService.popAdvisor(); 
-		}
-		SecurityAdvisor asgnAdvisor = (SecurityAdvisor)session.getAttribute("assignment.security.advisor");
-		if (asgnAdvisor != null) {
-			SecurityService.pushAdvisor(asgnAdvisor);
-			session.removeAttribute("assignment.security.advisor");
-		}
+		addDecoUrlMapToContext(session, context, false);
+		SecurityAdvisor asgnAdvisor = pushSecurityAdvisor(session, "assignment.security.advisor", false);
 		
 		AssignmentSubmission submission = null;
 		Assignment assignment = null;
@@ -1703,7 +1739,7 @@ public class AssignmentAction extends PagedResourceActionII
 		supplementItemIntoContext(state, context, assignment, submission);
 		
 		if (asgnAdvisor != null) {
-			SecurityService.popAdvisor();
+			m_securityService.popAdvisor(asgnAdvisor);
 		}
 		
 		String template = (String) getContext(data).get("template");
@@ -3142,6 +3178,7 @@ public class AssignmentAction extends PagedResourceActionII
 				.get("org.sakaiproject.taggable.api.TaggingManager");
 		if (taggingManager.isTaggable() && assignment != null)
 		{
+			Session session = SessionManager.getCurrentSession();
 			List<DecoratedTaggingProvider> providers = addProviders(context, state);
 			List<TaggingHelperInfo> activityHelpers = new ArrayList<TaggingHelperInfo>();
 			AssignmentActivityProducer assignmentActivityProducer = (AssignmentActivityProducer) ComponentManager
@@ -3160,6 +3197,8 @@ public class AssignmentAction extends PagedResourceActionII
 			addActivity(context, assignment);
 			context.put("activityHelpers", activityHelpers);
 			context.put("taggable", Boolean.valueOf(true));
+			
+			addDecoUrlMapToContext(session, context, false);
 		}
 
 		context.put("currentTime", TimeService.newTime());
@@ -6993,17 +7032,17 @@ public class AssignmentAction extends PagedResourceActionII
             Assignment a = (Assignment) it.next();
             String assignmentid = a.getId();
             String assignmentposition = params.getString("position_" + assignmentid);
-            
+            SecurityAdvisor sa = new SecurityAdvisor() {
+    			public SecurityAdvice isAllowed(String userId, String function, String reference)
+    			{
+    				return function.equals(AssignmentService.SECURE_UPDATE_ASSIGNMENT)?SecurityAdvice.ALLOWED:SecurityAdvice.PASS;
+    			}
+    		};
             try
             {
         		// put in a security advisor so we can create citationAdmin site without need
         		// of further permissions
-        		SecurityService.pushAdvisor(new SecurityAdvisor() {
-        			public SecurityAdvice isAllowed(String userId, String function, String reference)
-        			{
-        				return function.equals(AssignmentService.SECURE_UPDATE_ASSIGNMENT)?SecurityAdvice.ALLOWED:SecurityAdvice.PASS;
-        			}
-        		});
+            	m_securityService.pushAdvisor(sa);
 	            AssignmentEdit ae = editAssignment(assignmentid, "reorderAssignments", state, true);
 	            if (ae != null)
 	            {
@@ -7018,7 +7057,7 @@ public class AssignmentAction extends PagedResourceActionII
             finally
             {
             	// remove advisor
-            	SecurityService.popAdvisor();
+            	m_securityService.popAdvisor(sa);
             }
         }
 		
@@ -8962,6 +9001,13 @@ public class AssignmentAction extends PagedResourceActionII
 		{
 			m_notificationService = (NotificationService) ComponentManager.get("org.sakaiproject.event.api.NotificationService");
 		}
+		
+		if (m_securityService == null)
+		{
+			m_securityService = (SecurityService) ComponentManager.get("org.sakaiproject.authz.api.SecurityService");
+		}
+		
+		
 
 		String siteId = ToolManager.getCurrentPlacement().getContext();
 
@@ -13446,6 +13492,12 @@ public class AssignmentAction extends PagedResourceActionII
 					props.addProperty(ResourceProperties.PROP_DESCRIPTION, filename);
 	
 					// make an attachment resource for this URL
+					SecurityAdvisor sa = new SecurityAdvisor() {
+						public SecurityAdvice isAllowed(String userId, String function, String reference)
+						{
+							return function.equals(m_contentHostingService.AUTH_RESOURCE_ADD)?SecurityAdvice.ALLOWED:SecurityAdvice.PASS;
+						}
+					};
 					try
 					{
 						String siteId = ToolManager.getCurrentPlacement().getContext();
@@ -13453,12 +13505,7 @@ public class AssignmentAction extends PagedResourceActionII
 						// add attachment
 						// put in a security advisor so we can create citationAdmin site without need
 						// of further permissions
-						SecurityService.pushAdvisor(new SecurityAdvisor() {
-							public SecurityAdvice isAllowed(String userId, String function, String reference)
-							{
-								return function.equals(m_contentHostingService.AUTH_RESOURCE_ADD)?SecurityAdvice.ALLOWED:SecurityAdvice.PASS;
-							}
-						});
+						m_securityService.pushAdvisor(sa);
 						ContentResource attachment = m_contentHostingService.addAttachmentResource(resourceId, siteId, "Assignments", contentType, fileContentStream, props);
 						
 						try
@@ -13504,7 +13551,7 @@ public class AssignmentAction extends PagedResourceActionII
 					}
 					finally
 					{
-						SecurityService.popAdvisor();
+						m_securityService.popAdvisor(sa);
 					}
 				}
 				else

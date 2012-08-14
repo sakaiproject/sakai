@@ -74,7 +74,7 @@ public class AssignmentActivityImpl implements TaggableActivity {
 	{
 		//String url = assignment.getUrl();
 		String url = ServerConfigurationService.getServerUrl() + 
-			"/direct/assignment/" + assignment.getId() + "/doView_assignment?TB_iframe=true";
+			"/direct/assignment/" + assignment.getId() + "/doView_assignment";
 		return url;
 	}
 
@@ -82,4 +82,14 @@ public class AssignmentActivityImpl implements TaggableActivity {
 	{
 		return producer.getName();
 	}
+	
+	public boolean getUseDecoration()
+	{
+		return true;
+	}
+	
+	public String getActivityDetailUrlParams() {
+		return "?TB_iframe=true";
+	}
+
 }

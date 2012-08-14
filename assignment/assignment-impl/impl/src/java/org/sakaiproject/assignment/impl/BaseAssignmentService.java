@@ -275,6 +275,20 @@ public abstract class BaseAssignmentService implements AssignmentService, Entity
 		return retVal;
 
 	} // assignmentReference
+	
+	/**
+	 * I feel silly having to look up the entire assignment object just to get the reference, 
+	 * but if there's no context, that seems to be the only way to do it.
+	 * @param id
+	 * @return
+	 */
+	public String assignmentReference(String id) {
+		String ref = null;
+		Assignment assignment = findAssignment(id);
+		if (assignment != null)
+			ref = assignment.getReference();
+		return ref;
+	} // assignmentReference
 
         public List getSortedGroupUsers(Group _g) {
             List retVal = new ArrayList();
@@ -994,7 +1008,7 @@ public abstract class BaseAssignmentService implements AssignmentService, Entity
 			// always return for users can add assignent in the context
 			return assignment;
 		}
-		else if (allowAddSubmission(assignment.getContext()))
+		else
 		{
 			String deleted = assignment.getProperties().getProperty(ResourceProperties.PROP_ASSIGNMENT_DELETED);
 			if (deleted == null || "".equals(deleted))
@@ -1013,7 +1027,7 @@ public abstract class BaseAssignmentService implements AssignmentService, Entity
 				return assignment;
 			}
 		}
-		return null;
+		throw new PermissionException(currentUserId, SECURE_ACCESS_ASSIGNMENT, assignment.getReference());
 	}
 	
 	protected Assignment findAssignment(String assignmentReference)

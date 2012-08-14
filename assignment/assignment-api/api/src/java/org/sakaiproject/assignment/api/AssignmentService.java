@@ -784,6 +784,16 @@ public interface AssignmentService extends EntityProducer
 	public String assignmentReference(String context, String id);
 
 	/**
+	 * Access the internal reference which can be used to assess security clearance.
+	 * This will make a database call, so might not be the best choice in every situation.
+	 * But, if you don't have the context (site id) and need the reference, it's the only way to get it.
+	 * @param id
+	 *        The assignment id string.
+	 * @return The the internal reference which can be used to access the resource from within the system.
+	 */
+	public String assignmentReference(String id);
+	
+	/**
 	 * Access the internal reference which can be used to access the resource from within the system.
 	 * 
 	 * @param id

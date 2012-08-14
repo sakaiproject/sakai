@@ -114,8 +114,9 @@ public class AssignmentActivityProducerImpl implements
 		TaggableActivity activity = null;
 		if (checkReference(activityRef)) {
 			try {
-				activity = new AssignmentActivityImpl(assignmentService
-						.getAssignment(activityRef), this);
+				Assignment assignment = assignmentService.getAssignment(activityRef);
+				if (assignment != null)
+					activity = new AssignmentActivityImpl(assignment, this);
 			} catch (IdUnusedException iue) {
 				logger.error(iue.getMessage(), iue);
 			} catch (PermissionException pe) {
