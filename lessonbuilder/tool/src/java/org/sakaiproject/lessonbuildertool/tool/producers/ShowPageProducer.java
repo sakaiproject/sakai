@@ -153,6 +153,7 @@ public class ShowPageProducer implements ViewComponentProducer, DefaultView, Nav
 		this.imageToMimeMap = map;
 	}
         public boolean useSakaiIcons = ServerConfigurationService.getBoolean("lessonbuilder.use-sakai-icons", false);
+        public boolean allowSessionId = ServerConfigurationService.getBoolean("session.parameter.allow", false);
 
 	// I don't much like the static, because it opens us to a possible race
 	// condition, but I don't see much option
@@ -1391,6 +1392,13 @@ public class ShowPageProducer implements ViewComponentProducer, DefaultView, Nav
 						UIOutput.make(tableRow, "movieSpan");
 
 						String movieUrl = i.getItemURL(simplePageBean.getCurrentSiteId(),currentPage.getOwner());
+						// movieUrl = "https://heidelberg.rutgers.edu" + movieUrl;
+						// Safari doens't always pass cookies to plugins, so we have to pass the arg
+						// this requires session.parameter.allow=true in sakai.properties
+						// don't pass the arg unless that is set, since the whole point of defaulting
+						// off is to not expose the session id
+						if (allowSessionId)
+						    movieUrl = movieUrl + "?sakai.session=" + SessionManager.getCurrentSession().getId();
 						String oMimeType = mimeType; // in case we change it for
 						// FLV or others
 						boolean useFlvPlayer = false;
