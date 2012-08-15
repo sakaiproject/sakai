@@ -717,3 +717,20 @@ INSERT INTO SAKAI_REALM_RL_FN VALUES((select REALM_KEY from SAKAI_REALM where RE
 -- KNL-953 Add preferences tool to admin workspace
 INSERT INTO SAKAI_SITE_PAGE VALUES('~admin-1120', '~admin', 'Preferences', '0', 13, '0' );
 INSERT INTO SAKAI_SITE_TOOL VALUES('~admin-1125', '~admin-1120', '~admin', 'sakai.preferences', 1, 'Preferences', NULL );
+
+-- -----------------------------------------------------------------------
+-- SAK-22296
+-- -----------------------------------------------------------------------
+
+CREATE TABLE CITATION_COLLECTION_ORDER
+(
+    COLLECTION_ID VARCHAR (36) NOT NULL,
+    CITATION_ID VARCHAR (36) NOT NULL,
+    POSITION INT NOT NULL
+);
+
+CREATE INDEX CITATION_COLLECTION_ORDER_INDEX ON CITATION_COLLECTION_ORDER (COLLECTION_ID,CITATION_ID);
+
+-- -----------------------------------------------------------------------
+-- end SAK-22296
+-- -----------------------------------------------------------------------
