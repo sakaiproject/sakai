@@ -39,7 +39,7 @@ var citations_new_resource = citations_new_resource || {};
  * need to be notified to the user 
  */
 var reportSuccess = function(msg){
-    $('#messagePanel').html(msg).fadeTo("slow", 1).animate({
+    $('#messageSuccess').html(msg).fadeTo("slow", 1).animate({
         opacity: 1.0
     }, 5000).fadeTo(3000, 0);
 };
@@ -49,6 +49,15 @@ var reportSuccess = function(msg){
  */
 var reportError = function(msg){
     $('#messageError').html(msg).fadeTo("slow", 1).animate({
+        opacity: 1.0
+    }, 5000).fadeTo(3000, 0);
+};
+
+/*
+ * There has been an error
+ */
+var reportInvalidity = function(msg){
+    $('#messageValidation').html(msg).fadeTo("slow", 1).animate({
         opacity: 1.0
     }, 5000).fadeTo(3000, 0);
 };
@@ -163,7 +172,7 @@ citations_new_resource.processClick = function(successAction) {
 	
 	var requestDisplayName = function() {
 		// TODO: use sakai message in DOM
-		reportError('Please supply a name for the citation list.');
+		reportInvalidity('Please supply a name for the citation list.');
 		return;
 	};
 	/*

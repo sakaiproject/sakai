@@ -1056,7 +1056,6 @@ public class CitationHelperAction extends VelocityPortletPaneledAction
 			results.put("resourceId", resourceUuid );
 			String clientId = params.getString("saveciteClientId");
 			
-
 			if(clientId != null && ! clientId.trim().equals("")) {
 				Locale locale = rb.getLocale();
 				List<Map<String,String>> saveciteClients = getConfigurationService().getSaveciteClientsForLocale(locale);

@@ -32,9 +32,9 @@ span.searchTargetLink { margin-right:50px; }
 </style>
 
 <div id="citationsPortletBody" class="portletBody">
-    <div id="messagePanel" style="display:none">
+    <div id="messageSuccess" class="messageSuccess" style="display:none">
     </div>
-    <div id="messageError" style="display:none">
+    <div id="messageValidation" class="messageValidation" style="display:none">
     </div>
 	<h3>
 		#if($resourceAdd)
@@ -356,7 +356,7 @@ span.searchTargetLink { margin-right:50px; }
 			#foreach($client in $saveciteClients)
 				<li>
 					<span class="saveciteClient searchTargetLink">
-						<a name="$client.id" id="$client.id" title="$client.searchurl_label">
+						<a name="$client.id" id="$client.id" title="$client.searchurl_label" href="#">
 							$client.searchurl_label
 						</a>
 						<span class="saveciteClientUrl" style="display:none;">${client.searchurl_base}?linkurl_base=${client.saveciteUrl}#if(${client.linkurl_id})&linkurl_id=${client.linkurl_id}#end&</span>
@@ -371,7 +371,7 @@ span.searchTargetLink { margin-right:50px; }
 		#if( $searchLibrary )
 		  <li>
 			  <span class="searchTargetLink">
-			    <a name="Search" id="Search"  title="$tlang.getString("resource.library.search")">
+			    <a name="Search" id="Search"  title="$tlang.getString("resource.library.search")" href="#">
 			    	$tlang.getString("resource.library")
 			    </a>
 				<span class="searchUrl" style="display:none;">#toolLink("CitationHelperAction" "doSearch")</span>
@@ -383,7 +383,7 @@ span.searchTargetLink { margin-right:50px; }
 		#if( $googleUrl )
 		  <li>
 			  <span class="searchTargetLink">
-			    <a name="SearchGoogle" id="SearchGoogle" title="$tlang.getString("resource.google.search")">
+			    <a name="SearchGoogle" id="SearchGoogle" title="$tlang.getString("resource.google.search")"  href="#">
 			    	$tlang.getString("resource.google")
 			    </a>
 			    <span class="googleUrl" style="display:none;">$googleUrl</span>
@@ -395,7 +395,7 @@ span.searchTargetLink { margin-right:50px; }
 	    #if(! $fromListPage)
 		  <li>
 			  <span class="searchTargetLink">
-			    <a name="CreateCitation" id="CreateCitation" title="$tlang.getString("addAction.create")">
+			    <a name="CreateCitation" id="CreateCitation" title="$tlang.getString("addAction.create")"  href="#">
 				  $tlang.getString("resource.editor")
 				</a>
 			  </span>
@@ -404,7 +404,7 @@ span.searchTargetLink { margin-right:50px; }
 	  <!-- Markup for Import/RIS -->
 	  <li>
 		  <span class="searchTargetLink">
-		    <a name="ImportCitation" id="ImportCitation" title="$tlang.getString("resource.import.file")">
+		    <a name="ImportCitation" id="ImportCitation" title="$tlang.getString("resource.import.file")"  href="#">
 			   $tlang.getString("resource.import")
 		    </a>
 			<span class="importUrl" style="display:none;">#toolLink("CitationHelperAction" "doGet")</span>
