@@ -40,7 +40,6 @@
 			#parse( "vm/citation/_alert.vm" )
 		#end
 		
-		
 		#if( $resourcesAddAction )
 		<p class="instruction">$tlang.getFormattedMessage( "instr.sub.review", $instrSubArgs )</p>
 		#end

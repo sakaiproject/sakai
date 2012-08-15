@@ -140,6 +140,8 @@ public class BatchCitationServlet extends CitationServlet
 				if (citations.size() > 0) {
 					setVmReference( "citations", citations, req );
 					setVmReference("topRefresh", Boolean.TRUE, req ); // TODO
+					String collectionId = new String(resource.getContent());
+					setVmReference( "collectionId", collectionId, req );
 				} else {
 					// return failure
 					setVmReference("error", rb.getString("error.notfound"), req);
@@ -156,6 +158,13 @@ public class BatchCitationServlet extends CitationServlet
 			// return the servlet template
 			includeVm( SERVLET_TEMPLATE, req, res );
 		}
+	}
+	
+	/* (non-Javadoc)
+	 * @see javax.servlet.http.HttpServlet#doDelete(javax.servlet.http.HttpServletRequest, javax.servlet.http.HttpServletResponse)
+	 */
+	public void doDelete(HttpServletRequest req, HttpServletResponse res) throws ServletException, IOException {
+		
 	}
 
 	// This is a little adapter to return parsed values rather than the raw

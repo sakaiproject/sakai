@@ -24,6 +24,7 @@ package org.sakaiproject.citation.api;
 import java.io.IOException;
 import java.io.OutputStream;
 import java.util.Comparator;
+import java.util.Date;
 import java.util.List;
 
 import org.sakaiproject.citation.util.api.SearchException;
@@ -237,6 +238,11 @@ public interface CitationCollection extends Entity
 //	public Citation remove(Map properties);
 
 	/**
+	 * Access the timestamp of the most recent saved revision to this citation collection.
+	 */
+	public Date getLastModifiedDate();
+    
+	/**
      * @return
      */
     public String getSort();
@@ -296,6 +302,6 @@ public interface CitationCollection extends Entity
 	 * @throws IOException 
 	 */
 	public void exportRis(StringBuilder buffer, List<String> citationIds) throws IOException;
-    
+
 }	// interface Citation
 

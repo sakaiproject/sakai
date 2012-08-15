@@ -29,6 +29,7 @@ import java.io.UnsupportedEncodingException;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.Comparator;
+import java.util.Date;
 import java.util.HashSet;
 import java.util.Hashtable;
 import java.util.Iterator;
@@ -917,21 +918,26 @@ public abstract class BaseCitationService implements CitationService
 		 */
 		public Object getCitationProperty(String name)
 		{
-			if (m_citationProperties == null)
-			{
-				m_citationProperties = new Hashtable();
-			}
-			Object value = m_citationProperties.get(name);
-			if (value == null)
-			{
-				if (isMultivalued(name))
+			Object value = null;
+			if(name == null) {
+				value = "";
+			} else {
+				if (m_citationProperties == null)
 				{
-					value = new Vector();
-					((List) value).add("");
+					m_citationProperties = new Hashtable();
 				}
-				else
+				value = m_citationProperties.get(name);
+				if (value == null)
 				{
-					value = "";
+					if (isMultivalued(name))
+					{
+						value = new Vector();
+						((List) value).add("");
+					}
+					else
+					{
+						value = "";
+					}
 				}
 			}
 
@@ -1658,7 +1664,7 @@ public abstract class BaseCitationService implements CitationService
 					    	logger.debug("importFromRisList: Schema Name = " + schemaName);
 
 					    	// Lookup the Schema based on the Schema string gotten from the reverse map
-							schema = org.sakaiproject.citation.cover.CitationService.getSchema(schemaName);
+							schema = BaseCitationService.this.getSchema(schemaName);
 					    	logger.debug("importFromRisList: Retrieved Schema Name = " + schema.getIdentifier());
 							setSchema(schema);
 					} // end else (else processes RIScode == "TY")
@@ -2926,6 +2932,12 @@ public abstract class BaseCitationService implements CitationService
 		public String getId()
 		{
 			return this.m_id;
+		}
+		
+		@Override
+		public Date getLastModifiedDate() {
+			checkForUpdates();
+			return new Date(this.m_mostRecentUpdate);
 		}
 
 		public ResourceProperties getProperties()
@@ -4688,7 +4700,7 @@ public abstract class BaseCitationService implements CitationService
 	    requiredPropertyKeys.add(ResourceProperties.PROP_CONTENT_TYPE);
 
 	    BaseInteractionAction createAction = new CitationListCreateAction(ResourceToolAction.CREATE,
-	    		ResourceToolAction.ActionType.CREATE,
+	    		ResourceToolAction.ActionType.CREATE_BY_HELPER,
 	    		CitationService.CITATION_LIST_ID,
 	    		CitationService.HELPER_ID,
 	    		new Vector());

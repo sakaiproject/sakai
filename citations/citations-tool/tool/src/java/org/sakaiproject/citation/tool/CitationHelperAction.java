@@ -22,24 +22,29 @@
 package org.sakaiproject.citation.tool;
 
 import java.io.IOException;
+import java.io.InputStream;
+import java.io.InputStreamReader;
+import java.io.PrintWriter;
 import java.io.Reader;
 import java.io.UnsupportedEncodingException;
 import java.net.MalformedURLException;
 import java.net.URL;
-import java.nio.charset.UnsupportedCharsetException;
-import java.io.InputStream;
-import java.io.InputStreamReader;
-
+import java.text.DateFormat;
+import java.text.ParseException;
+import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collection;
+import java.util.Date;
 import java.util.Enumeration;
-import java.util.Hashtable;
 import java.util.HashMap;
+import java.util.Hashtable;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
 import java.util.Set;
-import java.util.Stack;
+import java.util.SortedSet;
+import java.util.TreeSet;
 import java.util.Vector;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
@@ -48,11 +53,13 @@ import javax.servlet.ServletException;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
+import net.sf.json.JSONObject;
+
 import org.apache.commons.io.input.BOMInputStream;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
+import org.sakaiproject.antivirus.api.VirusFoundException;
 import org.sakaiproject.authz.api.SecurityAdvisor;
-import org.sakaiproject.authz.cover.SecurityService;
 import org.sakaiproject.cheftool.Context;
 import org.sakaiproject.cheftool.JetspeedRunData;
 import org.sakaiproject.cheftool.RunData;
@@ -63,28 +70,31 @@ import org.sakaiproject.citation.api.Citation;
 import org.sakaiproject.citation.api.CitationCollection;
 import org.sakaiproject.citation.api.CitationHelper;
 import org.sakaiproject.citation.api.CitationIterator;
+import org.sakaiproject.citation.api.CitationService;
+import org.sakaiproject.citation.api.ConfigurationService;
 import org.sakaiproject.citation.api.Schema;
+import org.sakaiproject.citation.api.Schema.Field;
 import org.sakaiproject.citation.api.SearchCategory;
 import org.sakaiproject.citation.api.SearchDatabaseHierarchy;
-import org.sakaiproject.citation.api.Schema.Field;
-import org.sakaiproject.citation.cover.CitationService;
-import org.sakaiproject.citation.cover.ConfigurationService;
-import org.sakaiproject.citation.cover.SearchManager;
+import org.sakaiproject.citation.api.SearchManager;
 import org.sakaiproject.citation.util.api.SearchCancelException;
 import org.sakaiproject.citation.util.api.SearchException;
 import org.sakaiproject.citation.util.api.SearchQuery;
 import org.sakaiproject.component.api.ServerConfigurationService;
 import org.sakaiproject.component.cover.ComponentManager;
+import org.sakaiproject.content.api.ContentCollection;
+import org.sakaiproject.content.api.ContentEntity;
 import org.sakaiproject.content.api.ContentHostingService;
 import org.sakaiproject.content.api.ContentResource;
 import org.sakaiproject.content.api.ContentResourceEdit;
+import org.sakaiproject.content.api.GroupAwareEntity.AccessMode;
 import org.sakaiproject.content.api.ResourceToolAction;
 import org.sakaiproject.content.api.ResourceToolActionPipe;
 import org.sakaiproject.content.api.ResourceType;
+import org.sakaiproject.entity.api.EntityManager;
 import org.sakaiproject.entity.api.Reference;
 import org.sakaiproject.entity.api.ResourceProperties;
 import org.sakaiproject.entity.api.ResourcePropertiesEdit;
-import org.sakaiproject.entity.cover.EntityManager;
 import org.sakaiproject.event.api.NotificationService;
 import org.sakaiproject.event.api.SessionState;
 import org.sakaiproject.exception.IdInvalidException;
@@ -92,26 +102,32 @@ import org.sakaiproject.exception.IdLengthException;
 import org.sakaiproject.exception.IdUniquenessException;
 import org.sakaiproject.exception.IdUnusedException;
 import org.sakaiproject.exception.InUseException;
+import org.sakaiproject.exception.InconsistentException;
 import org.sakaiproject.exception.OverQuotaException;
 import org.sakaiproject.exception.PermissionException;
 import org.sakaiproject.exception.ServerOverloadException;
 import org.sakaiproject.exception.TypeException;
+import org.sakaiproject.site.api.Group;
+import org.sakaiproject.site.api.Site;
+import org.sakaiproject.site.api.SiteService;
+import org.sakaiproject.time.api.Time;
+import org.sakaiproject.time.cover.TimeService;
+import org.sakaiproject.tool.api.SessionManager;
 import org.sakaiproject.tool.api.Tool;
 import org.sakaiproject.tool.api.ToolException;
+import org.sakaiproject.tool.api.ToolManager;
 import org.sakaiproject.tool.api.ToolSession;
-import org.sakaiproject.tool.cover.SessionManager;
-import org.sakaiproject.tool.cover.ToolManager;
 import org.sakaiproject.util.FileItem;
 import org.sakaiproject.util.ParameterParser;
 import org.sakaiproject.util.ResourceLoader;
 import org.sakaiproject.util.Validator;
+import org.sakaiproject.util.api.FormattedText;
 
 /**
  *
  */
 public class CitationHelperAction extends VelocityPortletPaneledAction
 {
-
 	/**
 	 * This class contains constants and utility methods to maintain state of
 	 * the advanced search form UI and process submitted data
@@ -464,6 +480,17 @@ public class CitationHelperAction extends VelocityPortletPaneledAction
 	protected final static Log logger = LogFactory.getLog(CitationHelperAction.class);
 
 	public static ResourceLoader rb = new ResourceLoader("citations");
+	
+	protected CitationService citationService;
+	protected ConfigurationService configurationService;
+	protected SearchManager searchManager;
+
+	protected ContentHostingService contentService;
+	protected EntityManager entityManager;
+	protected SessionManager sessionManager;
+
+	protected static FormattedText formattedText;
+	protected static ToolManager toolManager;
 
 	public static final Integer DEFAULT_RESULTS_PAGE_SIZE = new Integer(10);
 	public static Integer DEFAULT_LIST_PAGE_SIZE = new Integer(50);
@@ -491,6 +518,7 @@ public class CitationHelperAction extends VelocityPortletPaneledAction
 	 */
 	public enum Mode
 	{
+		NEW_RESOURCE,
 		DATABASE,
 		CREATE,
 		EDIT,
@@ -521,8 +549,8 @@ public class CitationHelperAction extends VelocityPortletPaneledAction
 	protected static final String STATE_RESOURCES_ADD = CitationHelper.CITATION_PREFIX + "resources_add";
 	protected static final String STATE_CURRENT_DATABASES = CitationHelper.CITATION_PREFIX + "current_databases";
 	protected static final String STATE_CANCEL_PAGE = CitationHelper.CITATION_PREFIX + "cancel_page";
-	protected static final String STATE_COLLECTION_ID = CitationHelper.CITATION_PREFIX + "collection_id";
-	protected static final String STATE_COLLECTION = CitationHelper.CITATION_PREFIX + "collection";
+	protected static final String STATE_CITATION_COLLECTION_ID = CitationHelper.CITATION_PREFIX + "citation_collection_id";
+	protected static final String STATE_CITATION_COLLECTION = CitationHelper.CITATION_PREFIX + "citation_collection";
 	protected static final String STATE_CITATION_ID = CitationHelper.CITATION_PREFIX + "citation_id";
 	protected static final String STATE_COLLECTION_TITLE = CitationHelper.CITATION_PREFIX + "collection_name";
 	protected static final String STATE_CURRENT_REPOSITORY = CitationHelper.CITATION_PREFIX + "current_repository";
@@ -544,6 +572,9 @@ public class CitationHelperAction extends VelocityPortletPaneledAction
 	protected static final String STATE_SEARCH_INFO = CitationHelper.CITATION_PREFIX + "search_info";
 	protected static final String STATE_BASIC_SEARCH = CitationHelper.CITATION_PREFIX + "basic_search";
 	protected static final String STATE_SEARCH_RESULTS = CitationHelper.CITATION_PREFIX + "search_results";
+	protected static final String STATE_RESOURCE_ENTITY_PROPERTIES = CitationHelper.CITATION_PREFIX + "citationList_properties";
+
+	protected static final String TEMPLATE_NEW_RESOURCE = "citation/new_resource";
 	protected static final String TEMPLATE_CREATE = "citation/create";
 	protected static final String TEMPLATE_EDIT = "citation/edit";
 	protected static final String TEMPLATE_ERROR = "citation/error";
@@ -558,6 +589,47 @@ public class CitationHelperAction extends VelocityPortletPaneledAction
 	protected static final String TEMPLATE_VIEW = "citation/view";
 	protected static final String TEMPLATE_DATABASE = "citation/_databases";
 	
+	protected static final String PROP_ACCESS_MODE = "accessMode";
+	protected static final String PROP_IS_COLLECTION = "isCollection";
+	protected static final String PROP_IS_DROPBOX = "isDropbox";
+	protected static final String PROP_IS_GROUP_INHERITED = "isGroupInherited";
+	protected static final String PROP_IS_GROUP_POSSIBLE = "isGroupPossible";
+	protected static final String PROP_IS_HIDDEN = "isHidden";
+	protected static final String PROP_IS_PUBVIEW = "isPubview";
+	protected static final String PROP_IS_PUBVIEW_INHERITED = "isPubviewInherited";
+	protected static final String PROP_IS_PUBVIEW_POSSIBLE = "isPubviewPossible";
+	protected static final String PROP_IS_SINGLE_GROUP_INHERITED = "isSingleGroupInherited";
+	protected static final String PROP_IS_SITE_COLLECTION = "isSiteCollection";
+	protected static final String PROP_IS_SITE_ONLY = "isSiteOnly";
+	protected static final String PROP_IS_USER_SITE = "isUserSite";
+	protected static final String PROP_POSSIBLE_GROUPS = "possibleGroups";
+	protected static final String PROP_RELEASE_DATE = "releaseDate";
+	protected static final String PROP_RELEASE_DATE_STR = "releaseDateStr";
+	protected static final String PROP_RETRACT_DATE = "retractDate";
+	protected static final String PROP_RETRACT_DATE_STR = "retractDateStr";
+	protected static final String PROP_USE_RELEASE_DATE = "useReleaseDate";
+	protected static final String PROP_USE_RETRACT_DATE = "useRetractDate";
+
+	public static final String CITATION_ACTION = "citation_action";
+	public static final String UPDATE_RESOURCE = "update_resource";
+	public static final String CREATE_RESOURCE = "create_resource";
+	public static final String IMPORT_CITATIONS = "import_citations";
+	public static final String UPDATE_SAVED_SORT = "update_saved_sort";
+	public static final String CHECK_FOR_UPDATES = "check_for_updates";
+
+	public static final String MIMETYPE_JSON = "application/json";
+	public static final String MIMETYPE_HTML = "text/html";
+	public static final String REQUESTED_MIMETYPE = "requested_mimetype";
+
+	public static final String CHARSET_UTF8 = "UTF-8";
+
+	/** A long representing the number of milliseconds in one week.  Used for date calculations */
+	public static final long ONE_DAY = 24L * 60L * 60L * 1000L;
+	
+	/** A long representing the number of milliseconds in one week.  Used for date calculations */
+	public static final long ONE_WEEK = 7L * ONE_DAY;
+
+
 	public void init() throws ServletException {
 		ServerConfigurationService scs
 			= (ServerConfigurationService) ComponentManager.get(ServerConfigurationService.class);
@@ -567,8 +639,7 @@ public class CitationHelperAction extends VelocityPortletPaneledAction
 			logger.warn("Failed to get default list page size as ServerConfigurationService is null. Defaulting to " + DEFAULT_LIST_PAGE_SIZE);
 		}
 	}
-
-
+	
 	/**
 	 * Check for the helper-done case locally and handle it before letting the VPPA.toolModeDispatch() handle the actual dispatch.
 	 * @see org.sakaiproject.cheftool.VelocityPortletPaneledAction#toolModeDispatch(java.lang.String, java.lang.String, javax.servlet.http.HttpServletRequest, javax.servlet.http.HttpServletResponse)
@@ -576,8 +647,9 @@ public class CitationHelperAction extends VelocityPortletPaneledAction
 	protected void toolModeDispatch(String methodBase, String methodExt, HttpServletRequest req, HttpServletResponse res)
 			throws ToolException
 	{
+		logger.debug("toolModeDispatch()");
 		//SessionState sstate = getState(req);
-		ToolSession toolSession = SessionManager.getCurrentToolSession();
+		ToolSession toolSession = getSessionManager().getCurrentToolSession();
 
 		//String mode = (String) sstate.getAttribute(ResourceToolAction.STATE_MODE);
 		//Object started = toolSession.getAttribute(ResourceToolAction.STARTED);
@@ -587,7 +659,7 @@ public class CitationHelperAction extends VelocityPortletPaneledAction
 		if ( done != null || !initHelper( getState(req) ) )
 		{
 			toolSession.removeAttribute(ResourceToolAction.STARTED);
-			Tool tool = ToolManager.getCurrentTool();
+			Tool tool = getToolManager().getCurrentTool();
 
 			String url = (String) toolSession.getAttribute(tool.getId() + Tool.HELPER_DONE_URL);
 
@@ -607,14 +679,669 @@ public class CitationHelperAction extends VelocityPortletPaneledAction
 
 		super.toolModeDispatch(methodBase, methodExt, req, res);
 	}
+	
+	public void doGet(HttpServletRequest req, HttpServletResponse res) throws ServletException {
+		logger.info("doGet()");
+		String isAjaxRequest = req.getParameter("ajaxRequest"); 
+		if(isAjaxRequest != null && isAjaxRequest.trim().equalsIgnoreCase(Boolean.toString(true))) {
+			ParameterParser params = (ParameterParser) req.getAttribute(ATTR_PARAMS);
+			if(params == null) {
+				params = new ParameterParser(req);
+			}
+			
+			SessionState state = getState(req);
+			
+			// Check whether this is an AJAX request expecting a JSON response and if it is
+			// dispatch the request to the buildJsonResponse() method, avoiding VPPA's 
+			// html rendering. Other options might be HTML-fragment, XML, etc.
+			//String requestedMimetype = (String) toolSession.getAttribute(REQUESTED_MIMETYPE);
+			String requestedMimetype = params.getString(REQUESTED_MIMETYPE);
+			logger.info("doGet() requestedMimetype == " + requestedMimetype);
+			if(requestedMimetype != null && requestedMimetype.equals(MIMETYPE_JSON)) {
+				doGetJsonResponse(params, state, req, res);
+			} else if(requestedMimetype != null && requestedMimetype.equals(MIMETYPE_HTML)) {
+				doGetHtmlFragmentResponse(params, state, req, res);
+			} else {
+				// throw something
+			}
+	
+			return;
+		}
+		super.doGet(req, res);
+			
+	}
+
+	protected void doGetHtmlFragmentResponse(ParameterParser params,
+			SessionState state, HttpServletRequest req, HttpServletResponse res) {
+		
+	}
+
+	protected void doGetJsonResponse(ParameterParser params, SessionState state,
+			HttpServletRequest req, HttpServletResponse res) {
+		res.setCharacterEncoding(CHARSET_UTF8);
+		res.setContentType(MIMETYPE_JSON);
+		
+		Map<String,Object> jsonMap = new HashMap<String,Object>();
+		String sakai_csrf_token = params.getString("sakai_csrf_token");
+		if(sakai_csrf_token != null && ! sakai_csrf_token.trim().equals("")) {
+			jsonMap.put("sakai_csrf_token", sakai_csrf_token);
+		}
+		jsonMap.put("timestamp", Long.toString(System.currentTimeMillis()));
+		
+		String citation_action = params.getString("citation_action");
+		if(citation_action != null && citation_action.trim().equals(CHECK_FOR_UPDATES)) {
+			Map<String,Object> result = this.checkForUpdates(params, state, req, res);
+			jsonMap.putAll(result);
+		} 
+		
+		// convert to json string
+		String jsonString = JSONObject.fromObject(jsonMap).toString();
+		try {
+			PrintWriter writer = res.getWriter();
+			writer.print(jsonString);
+			writer.flush();
+		} catch (IOException e) {
+			logger.warn("IOException in doGetJsonResponse() " + e);
+		}
+		
+	}
+
+	protected Map<String, Object> checkForUpdates(ParameterParser params,
+			SessionState state, HttpServletRequest req, HttpServletResponse res) {
+
+		Map<String, Object> result = new HashMap<String, Object>();
+		boolean changed = false;
+		long lastcheckLong = 0L;
+		String lastcheck = params.getString("lastcheck");
+		if(lastcheck == null || lastcheck.trim().equals("")) {
+			// do nothing
+		} else {
+			try {
+				lastcheckLong = Long.parseLong(lastcheck);
+			} catch(Exception e) {
+				logger.warn("Error parsing long from string: " + lastcheck, e);
+			}
+		}
+		if(lastcheckLong > 0L) {
+			String citationCollectionId = params.getString("citationCollectionId");
+			if(citationCollectionId != null && !citationCollectionId.trim().equals("")) {
+				try {
+					CitationCollection citationCollection = this.citationService.getCollection(citationCollectionId);
+					if(citationCollection.getLastModifiedDate().getTime() > lastcheckLong) {
+						changed = true;
+						result.put("html", "<div>something goes here</div>");
+					}
+					
+				} catch (IdUnusedException e) {
+					logger.warn("IdUnusedException in checkForUpdates() " + e);
+				}
+				
+			}
+		}
+
+		result.put("changed", Boolean.toString(changed));
+		
+		return result;
+	}
+
+	public void doPost(HttpServletRequest req, HttpServletResponse res) throws ServletException {
+		logger.info("doPost()");
+		
+//		Enumeration<String> names = req.getHeaderNames();
+//		while(names.hasMoreElements()) {
+//			String name = names.nextElement();
+//			String value = req.getHeader(name);
+//			logger.info("doPost() header " + name + " == " + value);
+//		}
+//		
+//		Cookie[] cookies = req.getCookies();
+//		for(Cookie cookie : cookies) {
+//			logger.info("doPost() ==cookie== " + cookie.getName() + " == " + cookie.getValue());
+//		}
+		
+		// handle AJAX requests here and send other requests on to the VPPA dispatcher
+		String isAjaxRequest = req.getParameter("ajaxRequest"); 
+		if(isAjaxRequest != null && isAjaxRequest.trim().equalsIgnoreCase(Boolean.toString(true))) {
+			ParameterParser params = (ParameterParser) req.getAttribute(ATTR_PARAMS);
+			if(params == null) {
+				params = new ParameterParser(req);
+			}
+			
+			SessionState state = getState(req);
+
+			// Check whether this is an AJAX request expecting a JSON response and if it is
+			// dispatch the request to the buildJsonResponse() method, avoiding VPPA's 
+			// html rendering. Other options might be HTML-fragment, XML, etc.
+			//String requestedMimetype = (String) toolSession.getAttribute(REQUESTED_MIMETYPE);
+			String requestedMimetype = params.getString(REQUESTED_MIMETYPE);
+			logger.info("doPost() requestedMimetype == " + requestedMimetype);
+			if(requestedMimetype != null && requestedMimetype.equals(MIMETYPE_JSON)) {
+				doPostJsonResponse(params, state, req, res);
+			} else if(requestedMimetype != null && requestedMimetype.equals(MIMETYPE_HTML)) {
+				doPostHtmlFragmentResponse(params, state, req, res);
+			}
+
+			return;
+		}
+		super.doPost(req, res);
+	}
+
+	protected void doPostHtmlFragmentResponse(ParameterParser params,
+			SessionState state, HttpServletRequest req, HttpServletResponse res) {
+		Map<String, Object> result = this.ensureCitationListExists(params, state, req, res);
+		
+		res.setCharacterEncoding(CHARSET_UTF8);
+		res.setContentType(MIMETYPE_HTML);
+
+		String sakai_csrf_token = params.getString("sakai_csrf_token");
+		if(sakai_csrf_token != null && ! sakai_csrf_token.trim().equals("")) {
+			setVmReference("sakai_csrf_token", sakai_csrf_token, req);
+		}
+		
+		for(Map.Entry<String,Object> entry : result.entrySet()) {
+			setVmReference(entry.getKey(), entry.getValue(), req);
+		}
+	}
+
+	protected void doPostJsonResponse(ParameterParser params,
+			SessionState state, HttpServletRequest req, HttpServletResponse res) {
+		
+		res.setCharacterEncoding(CHARSET_UTF8);
+		res.setContentType(MIMETYPE_JSON);
+		
+		Map<String,Object> jsonMap = new HashMap<String,Object>();
+		String sakai_csrf_token = params.getString("sakai_csrf_token");
+		if(sakai_csrf_token != null && ! sakai_csrf_token.trim().equals("")) {
+			jsonMap.put("sakai_csrf_token", sakai_csrf_token);
+		}
+		jsonMap.put("timestamp", Long.toString(System.currentTimeMillis()));
+		
+		String citation_action = params.getString("citation_action");
+		if(citation_action != null && citation_action.trim().equals(UPDATE_RESOURCE)) {
+			Map<String,Object> result = this.updateCitationList(params, state, req, res);
+			jsonMap.putAll(result);
+		} else if(citation_action != null && citation_action.trim().equals(UPDATE_SAVED_SORT)) {
+			Map<String,Object> result = this.updateSavedSort(params, state, req, res);
+			jsonMap.putAll(result);
+		} else {
+			Map<String,Object> result = this.createCitationList(params, state, req, res);
+			jsonMap.putAll(result);			
+		}
+		
+		// convert to json string
+		String jsonString = JSONObject.fromObject(jsonMap).toString();
+		try {
+			PrintWriter writer = res.getWriter();
+			writer.print(jsonString);
+			writer.flush();
+		} catch (IOException e) {
+			logger.warn("IOException in doPostJsonResponse() ", e);
+			// what goes back?
+		}
+
+	}
+
+	protected Map<String, Object> updateSavedSort(ParameterParser params,
+			SessionState state, HttpServletRequest req, HttpServletResponse res) {
+		Map<String, Object> results = new HashMap<String, Object>();
+		String message = null;
+		String citationCollectionId = params.getString("citationCollectionId");
+		String new_sort = params.getString("new_sort");
+		if(citationCollectionId == null || citationCollectionId.trim().equals("")) {
+			// need to report error
+			results.put("message", rb.getString("sort.save.error"));
+		} else {
+			if(new_sort == null || new_sort.trim().equals("")) {
+				new_sort = "default";
+			} 
+			try {
+				CitationCollection citationCollection = this.citationService.getCollection(citationCollectionId);
+				citationCollection.setSort(new_sort, true);
+				this.citationService.save(citationCollection);
+				results.put("message", rb.getString("sort.save.success"));
+			} catch (IdUnusedException e) {
+				// need to report error
+				results.put("message", rb.getString("sort.save.error"));
+			}
+			
+		}
+		return results;
+	}
+
+	protected Map<String, Object> createCitationList(ParameterParser params,
+			SessionState state, HttpServletRequest req, HttpServletResponse res) {
+		Map<String, Object> results = new HashMap<String, Object>();
+		results.putAll(this.ensureCitationListExists(params, state, req, res));
+		return results;
+	}
+
+	protected Map<String, Object> updateCitationList(ParameterParser params,
+			SessionState state, HttpServletRequest req, HttpServletResponse res) {
+		Map<String, Object> results = new HashMap<String, Object>();
+		
+		String resourceUuid = params.getString("resourceId");
+		String message = null;
+		if(resourceUuid == null) {
+			results.putAll(this.ensureCitationListExists(params, state, req, res));
+		} else {
+			try {
+				String resourceId = this.getContentService().resolveUuid(resourceUuid);
+				ContentResourceEdit edit = getContentService().editResource(resourceId);
+				this.captureDisplayName(params, state, edit, results);
+				this.captureAccess(params, state, edit, results);
+				this.captureAvailability(params, edit, results);
+				getContentService().commitResource(edit);
+				message = "Resource updated";
+			} catch (IdUnusedException e) {
+				message = e.getMessage();
+				logger.warn("IdUnusedException in updateCitationList() " + e);
+			} catch (TypeException e) {
+				message = e.getMessage();
+				logger.warn("TypeException in updateCitationList() " + e);
+			} catch (InUseException e) {
+				message = e.getMessage();
+				logger.warn("InUseException in updateCitationList() " + e);
+			} catch (PermissionException e) {
+				message = e.getMessage();
+				logger.warn("PermissionException in updateCitationList() " + e);
+			} catch (OverQuotaException e) {
+				message = e.getMessage();
+				logger.warn("OverQuotaException in updateCitationList() " + e);
+			} catch (ServerOverloadException e) {
+				message = e.getMessage();
+				logger.warn("ServerOverloadException in updateCitationList() " + e);
+			} catch (VirusFoundException e) {
+				message = e.getMessage();
+				logger.warn("VirusFoundException in updateCitationList() " + e);
+			}
+			if(message != null && ! message.trim().equals("")) {
+				results.put("message", message);
+			}
+		}
+		return results;
+	}
+
+	/**
+	 * Check whether we are editing an existing resource or working on a new citation list. 
+	 * If it exists, we'll update any attributes that have changed.  If it's new, we will 
+	 * create it and return the resourceUuid, along with other attributes, in a map.
+	 * @param params
+	 * @param state
+	 * @param req
+	 * @param res
+	 * @return
+	 */
+	protected Map<String,Object> ensureCitationListExists(ParameterParser params,
+			SessionState state, HttpServletRequest req, HttpServletResponse res) {
+		Map<String, Object> results = new HashMap<String,Object>();
+		String message = null;
+
+		String displayName = params.getString("displayName");
+		if(displayName == null) {
+			// error ??
+		}
+				
+		CitationCollection cCollection = this.getCitationCollection(state, true);
+		
+		if(cCollection == null) {
+			// error
+		} else {
+			String citationCollectionId = cCollection.getId();
+			
+			String collectionId = params.getString("collectionId");
+			if(collectionId == null || collectionId.trim().equals("")) {
+				ToolSession toolSession = getSessionManager().getCurrentToolSession();
+				ResourceToolActionPipe pipe = (ResourceToolActionPipe) toolSession.getAttribute(ResourceToolAction.ACTION_PIPE);
+				collectionId = pipe.getContentEntity().getId();
+			}
+			
+			ContentResource resource = null;
+			String resourceId = params.getString("resourceId");
+			if(resourceId == null || resourceId.trim().equals("")) {
+				// create resource
+				if(collectionId == null) {
+					// error?
+					message = rb.getString("resource.null_collectionId.error");
+				} else {
+					int priority = 0;
+					
+					// create resource
+					try {
+						ContentResourceEdit edit = getContentService().addResource(collectionId, displayName, null, ContentHostingService.MAXIMUM_ATTEMPTS_FOR_UNIQUENESS);
+						edit.setResourceType(CitationService.CITATION_LIST_ID);
+						byte[] bytes = citationCollectionId.getBytes();
+						edit.setContent(bytes );
+						captureAccess(params, state, edit, results);
+						captureAvailability(params, edit, results);
+						ResourceProperties properties = edit.getPropertiesEdit();
+						properties.addProperty(ResourceProperties.PROP_DISPLAY_NAME, displayName);
+	
+						getContentService().commitResource(edit, priority);
+						resourceId = edit.getId();
+						message =  rb.getFormattedMessage("resource.new.success", new String[]{ displayName });
+					} catch (IdUniquenessException e) {
+						message = e.getMessage();
+						logger.warn("IdUniquenessException in ensureCitationListExists() " + e);
+					} catch (IdLengthException e) {
+						message = e.getMessage();
+						logger.warn("IdLengthException in ensureCitationListExists() " + e);
+					} catch (IdInvalidException e) {
+						message = e.getMessage();
+						logger.warn("IdInvalidException in ensureCitationListExists() " + e);
+					} catch (OverQuotaException e) {
+						message = e.getMessage();
+						logger.warn("OverQuotaException in ensureCitationListExists() " + e);
+					} catch (ServerOverloadException e) {
+						message = e.getMessage();
+						logger.warn("ServerOverloadException in ensureCitationListExists() " + e);
+					} catch (PermissionException e) {
+						message = e.getMessage();
+						logger.warn("PermissionException in ensureCitationListExists() " + e);
+					} catch (IdUnusedException e) {
+						message = e.getMessage();
+						logger.warn("IdUnusedException in ensureCitationListExists() " + e);
+					}
+				}
+				
+				
+			} else {
+				// get resource
+				// possibly revise displayName, other properties 
+				// commit changes
+				// report success/failure
+			}
+			results.put("citationCollectionId", citationCollectionId);
+			//results.put("resourceId", resourceId);
+			String resourceUuid = this.getContentService().getUuid(resourceId);
+			results.put("resourceId", resourceUuid );
+			String clientId = params.getString("saveciteClientId");
+			
+
+			if(clientId != null && ! clientId.trim().equals("")) {
+				Locale locale = rb.getLocale();
+				List<Map<String,String>> saveciteClients = getConfigurationService().getSaveciteClientsForLocale(locale);
+				if(saveciteClients != null) {
+					for(Map<String,String> client : saveciteClients) {
+						if(client != null && client.get("id") != null && client.get("id").equalsIgnoreCase(clientId)) {
+							String saveciteUrl = getSearchManager().getSaveciteUrl(resourceUuid,clientId);
+							try {
+								saveciteUrl = java.net.URLEncoder.encode(saveciteUrl,"UTF-8");
+							} catch (UnsupportedEncodingException e) {
+								logger.warn("Error encoding savecite URL",e);
+							}
+							// ${client.searchurl_base}?linkurl_base=${client.saveciteUrl}#if(${client.linkurl_id})&linkurl_id=${client.linkurl_id}
+							StringBuilder buf = new StringBuilder();
+							buf.append(client.get("searchurl_base"));
+							buf.append("?linkurl_base=");
+							buf.append(saveciteUrl);
+							if(client.get("linkurl_id") != null && ! client.get("linkurl_id").trim().equals("")) {
+								buf.append("&linkurl_id=");
+								buf.append(client.get("linkurl_id"));
+							}
+							buf.append('&');
+							
+							results.put("saveciteUrl", buf.toString());
+							break;
+						}
+					}
+				}
+			}
+			results.put("collectionId", collectionId);
+		}
+		results.put("message", message);
+		
+		return results;
+	}
+
+	protected void captureDisplayName(ParameterParser params, SessionState state, 
+			ContentResourceEdit edit, Map<String, Object> results) {
+		String displayName = params.getString("displayName");
+		if(displayName == null || displayName.trim().equals("")) {
+			throw new RuntimeException("invalid name for resource: " + displayName);
+		}
+		String oldDisplayName = edit.getProperties().getProperty(ResourceProperties.PROP_DISPLAY_NAME);
+		if(oldDisplayName == null || ! oldDisplayName.equals(displayName)) {
+			ResourcePropertiesEdit props = edit.getPropertiesEdit();
+			props.removeProperty(ResourceProperties.PROP_DISPLAY_NAME);
+			props.addProperty(ResourceProperties.PROP_DISPLAY_NAME, displayName);
+			results.put("displayName", displayName);
+		}
+		
+	}
+
+	/**
+	 * @param params
+	 * @param edit
+	 * @param results TODO
+	 */
+	protected void captureAvailability(ParameterParser params,
+			ContentResourceEdit edit, Map<String, Object> results) {
+		boolean hidden = params.getBoolean("hidden");
+		boolean useReleaseDate = params.getBoolean("use_start_date");
+		DateFormat df = DateFormat.getDateTimeInstance();
+		Time releaseDate = null;
+		if(useReleaseDate) {
+			String releaseDateStr = params.getString(PROP_RELEASE_DATE);
+			if(releaseDateStr != null) {
+				try {
+					releaseDate = TimeService.newTime(df.parse(releaseDateStr).getTime());
+				} catch (ParseException e) {
+					logger.warn("ParseException in captureAvailability() " + e);
+				}
+			}
+		}
+		Time retractDate = null;
+		boolean useRetractDate = params.getBoolean("use_end_date");
+		if(useRetractDate) {
+			String retractDateStr = params.getString(PROP_RETRACT_DATE);
+			if(retractDateStr != null) {
+				try {
+					retractDate = TimeService.newTime(df.parse(retractDateStr).getTime());
+				} catch (ParseException e) {
+					logger.warn("ParseException in captureAvailability() " + e);
+				}
+			}
+		}
+		boolean oldHidden = edit.isHidden();
+		Time oldReleaseDate = edit.getReleaseDate();
+		Time oldRetractDate = edit.getRetractDate();
+		boolean changesFound = false;
+		if(oldHidden != hidden) {
+			results.put(PROP_IS_HIDDEN, Boolean.toString(hidden));
+			changesFound = true;
+		}
+		if(oldReleaseDate == null && releaseDate == null) {
+			// no change here
+		} else if((oldReleaseDate == null) || ! oldReleaseDate.equals(releaseDate)) {
+			if(releaseDate == null) {
+				results.put(PROP_RELEASE_DATE_STR, df.format(new Date()));
+			} else {
+				results.put(PROP_RELEASE_DATE_STR, df.format(new Date(releaseDate.getTime())));
+			}
+			results.put(PROP_RELEASE_DATE, releaseDate);
+			results.put(PROP_USE_RELEASE_DATE, useReleaseDate);
+			changesFound = true;
+		}
+		if(oldRetractDate == null && retractDate == null) {
+			// no change here
+		} else if (oldRetractDate == null  || ! oldRetractDate.equals(retractDate)) {
+			if(retractDate == null) {
+				results.put(PROP_RETRACT_DATE_STR, df.format(new Date(System.currentTimeMillis() + ONE_WEEK)));
+			} else {
+				results.put(PROP_RETRACT_DATE_STR, df.format(new Date(retractDate.getTime() )));
+			}
+			results.put(PROP_RETRACT_DATE, retractDate);
+			changesFound = true;
+		}
+		if(changesFound) {
+			edit.setAvailability(hidden, releaseDate, retractDate);
+		}
+	}
+	
+	protected void captureAccess(ParameterParser params, SessionState state,
+			ContentResourceEdit edit, Map<String, Object> results) {
+		
+		Map<String,Object> entityProperties = (Map<String, Object>) state.getAttribute(STATE_RESOURCE_ENTITY_PROPERTIES);
+		boolean changesFound = false;
+		String access_mode = params.getString("access_mode");
+		if(access_mode == null) {
+			access_mode = AccessMode.INHERITED.toString();
+		}
+		String oldAccessMode = entityProperties.get(PROP_ACCESS_MODE).toString();
+		if(oldAccessMode == null) {
+			oldAccessMode = AccessMode.INHERITED.toString();
+		}
+		if(! access_mode.equals(oldAccessMode)) {
+			results.put(PROP_ACCESS_MODE, AccessMode.fromString(access_mode));
+			changesFound = true;
+		}
+		if(AccessMode.GROUPED.toString().equals(access_mode)) {
+			// we inherit more than one group and must check whether group access changes at this item
+			String[] access_groups = params.getStrings("access_groups");
+			
+			SortedSet<String> new_groups = new TreeSet<String>();
+			if(access_groups != null) {
+				new_groups.addAll(Arrays.asList(access_groups));
+			}
+			
+			List<Map<String,String>> possibleGroups = (List<Map<String, String>>) entityProperties.get(PROP_POSSIBLE_GROUPS);
+			if(possibleGroups == null) {
+				possibleGroups = new ArrayList<Map<String,String>>();
+			}
+			Map<String, String> possibleGroupMap = mapGroupRefs(possibleGroups);
+			SortedSet<String> new_group_refs = convertToRefs(new_groups, possibleGroupMap );
+			
+			boolean groups_are_inherited = (new_groups.size() == possibleGroupMap.size()) && possibleGroupMap.keySet().containsAll(new_groups);
+			
+			try {
+				if(groups_are_inherited) {
+					edit.clearGroupAccess();
+					edit.setGroupAccess(new_group_refs);
+				} else {
+					edit.setGroupAccess(new_group_refs);
+				}
+				edit.clearPublicAccess();
+			} catch (InconsistentException e) {
+				logger.warn("InconsistentException in captureAccess() " + e);
+			} catch (PermissionException e) {
+				logger.warn("PermissionException in captureAccess() " + e);
+			}
+		} else if("public".equals(access_mode)) {
+			Boolean isPubviewInherited = (Boolean) entityProperties.get(PROP_IS_PUBVIEW_INHERITED);
+			if(isPubviewInherited == null || ! isPubviewInherited) {
+				try {
+					edit.setPublicAccess();
+				} catch (InconsistentException e) {
+					logger.warn("InconsistentException in captureAccess() " + e);
+				} catch (PermissionException e) {
+					logger.warn("PermissionException in captureAccess() " + e);
+				}
+			}
+		} else if(AccessMode.INHERITED.toString().equals(access_mode)) {
+			try {
+				if(edit.getAccess() == AccessMode.GROUPED) {
+					edit.clearGroupAccess();
+				}
+				edit.clearPublicAccess();
+			} catch (InconsistentException e) {
+				logger.warn("InconsistentException in captureAccess() " + e);
+			} catch (PermissionException e) {
+				logger.warn("PermissionException in captureAccess() " + e);
+			} 
+		}
+		
+		// isPubview
+		results.put(PROP_IS_PUBVIEW, getContentService().isPubView(edit.getId()));
+		// isPubviewInherited
+		results.put(PROP_IS_PUBVIEW_INHERITED, new Boolean(getContentService().isInheritingPubView(edit.getId())));
+		// isPubviewPossible
+		Boolean preventPublicDisplay = (Boolean) state.getAttribute("resources.request.prevent_public_display");
+		if(preventPublicDisplay == null) {
+			preventPublicDisplay = Boolean.FALSE;
+		}
+		results.put(PROP_IS_PUBVIEW_POSSIBLE, new Boolean(! preventPublicDisplay.booleanValue()));
+		
+		// accessMode
+		results.put(PROP_ACCESS_MODE, edit.getAccess());
+		// isGroupInherited
+		results.put(PROP_IS_GROUP_INHERITED, AccessMode.GROUPED == edit.getInheritedAccess());
+		// possibleGroups
+		Collection<Group> inheritedGroupObjs = edit.getInheritedGroupObjects();
+		Map<String,Map<String,String>> groups = new HashMap<String,Map<String,String>>();
+		if(inheritedGroupObjs != null) {
+			for(Group group : inheritedGroupObjs) {
+				Map<String, String> grp = new HashMap<String, String>();
+				grp.put("groupId", group.getId());
+				grp.put("title", group.getTitle());
+				grp.put("description", group.getDescription());
+				grp.put("entityRef", group.getReference());
+				groups.put(grp.get("groupId"), grp);
+			}
+		}
+		results.put(PROP_POSSIBLE_GROUPS, groups);
+		// isGroupPossible
+		results.put(PROP_IS_GROUP_POSSIBLE, new Boolean(groups != null && groups.size() > 0));
+		// isSingleGroupInherited
+		results.put(PROP_IS_SINGLE_GROUP_INHERITED, new Boolean(groups != null && groups.size() == 1));
+		// isSiteOnly = ! isPubviewPossible && ! isGroupPossible
+		results.put(PROP_IS_SITE_ONLY, new Boolean(preventPublicDisplay.booleanValue() && (groups == null || groups.size() < 1)));
+		// isUserSite
+		SiteService siteService = (SiteService) ComponentManager.get(SiteService.class);
+		Reference ref = getEntityManager().newReference(edit.getReference());
+		results.put(PROP_IS_USER_SITE, siteService.isUserSite(ref.getContext()));
+	}
+
+	private Map<String, String> mapGroupRefs(
+			List<Map<String, String>> possibleGroups) {
+		
+		Map<String, String> groupRefMap = new HashMap<String, String>();
+		for(Map<String, String> groupInfo : possibleGroups) {
+			if(groupInfo.get("groupId") != null && groupInfo.get("entityRef") != null) {
+				groupRefMap.put(groupInfo.get("groupId"), groupInfo.get("entityRef"));
+			}
+		}
+		return groupRefMap ;
+	}
+
+	public SortedSet<String> convertToRefs(Collection<String> groupIds, Map<String, String> possibleGroupMap) 
+	{
+		SortedSet<String> groupRefs = new TreeSet<String>();
+		for(String groupId : groupIds)
+		{
+			String groupRef = possibleGroupMap.get(groupId);
+			if(groupRef != null)
+			{
+				groupRefs.add(groupRef);
+			}
+		}
+		return groupRefs;
+
+	}
+
+	protected void preserveEntityIds(ParameterParser params, SessionState state) {
+		String resourceId = params.getString("resourceId");
+		String citationCollectionId = params.getString("citationCollectionId");
+		
+		if(resourceId == null || resourceId.trim().equals("")) {
+			// do nothing
+		} else {
+			state.setAttribute(CitationHelper.RESOURCE_ID, resourceId);
+		}
+		
+		if(citationCollectionId == null || citationCollectionId.trim().equals("")) {
+			// do nothing
+		} else {
+			state.setAttribute(CitationHelper.CITATION_COLLECTION_ID, citationCollectionId);
+		}
+		
+	}
 
 	protected void putCitationCollectionDetails( Context context, SessionState state )
     {
 		// get the citation list title
 		String resourceId = (String) state.getAttribute(CitationHelper.RESOURCE_ID);
-		ContentHostingService contentService = (ContentHostingService) ComponentManager.get("org.sakaiproject.content.api.ContentHostingService");
-		String refStr = contentService.getReference(resourceId);
-		Reference ref = EntityManager.newReference(refStr);
+		String refStr = getContentService().getReference(resourceId);
+		Reference ref = getEntityManager().newReference(refStr);
 		String collectionTitle = null;
 		if( ref != null )
 		{
@@ -625,11 +1352,11 @@ public class CitationHelperAction extends VelocityPortletPaneledAction
 		}
 		if( collectionTitle != null && !collectionTitle.trim().equals("") )
 		{
-			context.put( "collectionTitle", Validator.escapeHtml(collectionTitle));
+			context.put( "collectionTitle", getFormattedText().escapeHtml(collectionTitle));
 		}
 
 		// get the collection we're now working on
-		String collectionId = (String)state.getAttribute(STATE_COLLECTION_ID);
+		String collectionId = (String)state.getAttribute(STATE_CITATION_COLLECTION_ID);
 		context.put( "collectionId", collectionId );
 
 		CitationCollection collection = getCitationCollection(state, false);
@@ -658,6 +1385,7 @@ public class CitationHelperAction extends VelocityPortletPaneledAction
 		// validator
 		context.put("xilator", new Validator());
 
+		context.put("FORM_NAME", "importForm");
 		int requestStateId = preserveRequestState(state, new String[]{CitationHelper.RESOURCES_REQUEST_PREFIX, CitationHelper.CITATION_PREFIX});
 		context.put("requestStateId", requestStateId);
 
@@ -685,9 +1413,8 @@ public class CitationHelperAction extends VelocityPortletPaneledAction
 
 		// get the citation list title
 		String resourceId = (String) state.getAttribute(CitationHelper.RESOURCE_ID);
-		ContentHostingService contentService = (ContentHostingService) ComponentManager.get("org.sakaiproject.content.api.ContentHostingService");
-		String refStr = contentService.getReference(resourceId);
-		Reference ref = EntityManager.newReference(refStr);
+		String refStr = getContentService().getReference(resourceId);
+		Reference ref = getEntityManager().newReference(refStr);
 		String collectionTitle = null;
 		if( ref != null )
 		{
@@ -698,16 +1425,16 @@ public class CitationHelperAction extends VelocityPortletPaneledAction
 		}
 		if( collectionTitle != null && !collectionTitle.trim().equals("") )
 		{
-			context.put( "collectionTitle", Validator.escapeHtml(collectionTitle));
+			context.put( "collectionTitle", getFormattedText().escapeHtml(collectionTitle));
 		}
 
 		// get the collection we're now working on
-		String collectionId = (String)state.getAttribute(STATE_COLLECTION_ID);
+		String collectionId = (String)state.getAttribute(STATE_CITATION_COLLECTION_ID);
 		context.put( "collectionId", collectionId );
 
-		CitationCollection collection = getCitationCollection(state, false);
+		CitationCollection citationCollection = getCitationCollection(state, false);
 		int collectionSize = 0;
-		if(collection == null)
+		if(citationCollection == null)
 		{
 			logger.warn( "buildAddCitationsPanelContext unable to access citationCollection " + collectionId );
 
@@ -719,17 +1446,17 @@ public class CitationHelperAction extends VelocityPortletPaneledAction
 		else
 		{
 			// get the size of the list
-			collectionSize = collection.size();
+			collectionSize = citationCollection.size();
 		}
 
 		context.put( "collectionSize", new Integer( collectionSize ) );
 		
 		Locale locale = rb.getLocale();
-		List<Map<String,String>> saveciteClients = ConfigurationService.getSaveciteClientsForLocale(locale);
+		List<Map<String,String>> saveciteClients = getConfigurationService().getSaveciteClientsForLocale(locale);
 		
 		if(saveciteClients != null) {
 			for(Map<String,String> client : saveciteClients) {
-				String saveciteUrl = SearchManager.getSaveciteUrl(contentService.getUuid(resourceId),client.get("id"));
+				String saveciteUrl = getSearchManager().getSaveciteUrl(getContentService().getUuid(resourceId),client.get("id"));
 				try {
 					client.put("saveciteUrl", java.net.URLEncoder.encode(saveciteUrl,"UTF-8"));
 				} catch (UnsupportedEncodingException e) {
@@ -743,9 +1470,9 @@ public class CitationHelperAction extends VelocityPortletPaneledAction
 		
 
 		// determine which features to display
-		if( ConfigurationService.isGoogleScholarEnabled() )
+		if( getConfigurationService().isGoogleScholarEnabled() )
 		{
-			String googleUrl = SearchManager.getGoogleScholarUrl(contentService.getUuid(resourceId));
+			String googleUrl = getSearchManager().getGoogleScholarUrl(getContentService().getUuid(resourceId));
 			context.put( "googleUrl", googleUrl );
 
 			// object array for formatted messages
@@ -753,7 +1480,7 @@ public class CitationHelperAction extends VelocityPortletPaneledAction
 			context.put( "googleArgs", googleArgs );
 		}
 
-		if( ConfigurationService.librarySearchEnabled() )
+		if( getConfigurationService().librarySearchEnabled() )
 		{
 			context.put( "searchLibrary", Boolean.TRUE );
 		}
@@ -792,10 +1519,10 @@ public class CitationHelperAction extends VelocityPortletPaneledAction
 
 		context.put(PARAM_FORM_NAME, ELEMENT_ID_CREATE_FORM);
 
-		List schemas = CitationService.getSchemas();
+		List schemas = getCitationService().getSchemas();
 		context.put("TEMPLATES", schemas);
 
-		Schema defaultSchema = CitationService.getDefaultSchema();
+		Schema defaultSchema = getCitationService().getDefaultSchema();
 		context.put("DEFAULT_TEMPLATE", defaultSchema);
 
 		// Object array for instruction message
@@ -892,11 +1619,11 @@ public class CitationHelperAction extends VelocityPortletPaneledAction
 		context.put("citation", citation);
 
 		String citationId = (String) state.getAttribute(CitationHelper.CITATION_EDIT_ID);
-		String collectionId = (String) state.getAttribute(STATE_COLLECTION_ID);
+		String collectionId = (String) state.getAttribute(STATE_CITATION_COLLECTION_ID);
 		context.put("citationId", citationId);
 		context.put("collectionId", collectionId);
 
-		List schemas = CitationService.getSchemas();
+		List schemas = getCitationService().getSchemas();
 		context.put("TEMPLATES", schemas);
 
 		context.put("DEFAULT_TEMPLATE", citation.getSchema());
@@ -966,16 +1693,16 @@ public class CitationHelperAction extends VelocityPortletPaneledAction
 
 		// get the citation list title
 		String resourceId = (String) state.getAttribute(CitationHelper.RESOURCE_ID);
-		ContentHostingService contentService = (ContentHostingService) ComponentManager.get("org.sakaiproject.content.api.ContentHostingService");
 		try {
-			ContentResource resource = contentService.getResource(resourceId);
+			ContentResource resource = this.getContentService().getResource(resourceId);
 			String description = resource.getProperties().getProperty(ResourceProperties.PROP_DESCRIPTION);
 			context.put("description", description);
 		} catch (Exception e) {
-			e.printStackTrace();
+			// TODO: Fix this. What exception is this dealing with?
+			logger.warn(e.getMessage(), e);
 		}
-		String refStr = contentService.getReference(resourceId);
-		Reference ref = EntityManager.newReference(refStr);
+		String refStr = getContentService().getReference(resourceId);
+		Reference ref = getEntityManager().newReference(refStr);
 		String collectionTitle = null;
 		if( ref != null )
 		{
@@ -986,10 +1713,10 @@ public class CitationHelperAction extends VelocityPortletPaneledAction
 		}
 		if( collectionTitle != null && !collectionTitle.trim().equals("") )
 		{
-			context.put( "collectionTitle", Validator.escapeHtml(collectionTitle));
+			context.put( "collectionTitle", getFormattedText().escapeHtml(collectionTitle));
 		}
 
-		context.put("openUrlLabel", ConfigurationService.getSiteConfigOpenUrlLabel());
+		context.put("openUrlLabel", getConfigurationService().getSiteConfigOpenUrlLabel());
 
 		context.put(PARAM_FORM_NAME, ELEMENT_ID_LIST_FORM);
 
@@ -1050,7 +1777,7 @@ public class CitationHelperAction extends VelocityPortletPaneledAction
 		/*
 		 * Object arrays for formatted messages
 		 */
-		Object[] instrMainArgs = { ConfigurationService.getSiteConfigOpenUrlLabel() };
+		Object[] instrMainArgs = { getConfigurationService().getSiteConfigOpenUrlLabel() };
 		context.put( "instrMainArgs", instrMainArgs );
 
 		Object[] instrSubArgs = { rb.getString( "label.finish" ) };
@@ -1089,9 +1816,8 @@ public class CitationHelperAction extends VelocityPortletPaneledAction
 
 		// get the citation list title
 		String resourceId = (String) state.getAttribute(CitationHelper.RESOURCE_ID);
-		ContentHostingService contentService = (ContentHostingService) ComponentManager.get("org.sakaiproject.content.api.ContentHostingService");
-		String refStr = contentService.getReference(resourceId);
-		Reference ref = EntityManager.newReference(refStr);
+		String refStr = getContentService().getReference(resourceId);
+		Reference ref = getEntityManager().newReference(refStr);
 		String collectionTitle = null;
 		if( ref != null ) {
 			collectionTitle = ref.getProperties().getProperty(ResourceProperties.PROP_DISPLAY_NAME);
@@ -1135,37 +1861,37 @@ public class CitationHelperAction extends VelocityPortletPaneledAction
 	 */
 	protected CitationCollection getCitationCollection(SessionState state, boolean create)
 	{
-		CitationCollection collection = (CitationCollection) state.getAttribute(STATE_COLLECTION);
-		if(collection == null)
+		CitationCollection citationCollection = (CitationCollection) state.getAttribute(STATE_CITATION_COLLECTION);
+		if(citationCollection == null)
 		{
-			String collectionId = (String) state.getAttribute(STATE_COLLECTION_ID);
-			if(collectionId == null && create)
+			String citationCollectionId = (String) state.getAttribute(STATE_CITATION_COLLECTION_ID);
+			if(citationCollectionId == null && create)
 			{
-				collection = CitationService.addCollection();
-				state.setAttribute(STATE_COLLECTION_ID, collection.getId());
+				citationCollection = getCitationService().addCollection();
+				getCitationService().save(citationCollection);
 			}
 			else
 			{
 				try
 	            {
-		            collection = CitationService.getCollection(collectionId);
+		            citationCollection = getCitationService().getCollection(citationCollectionId);
 	            }
 	            catch (IdUnusedException e)
 	            {
-		            logger.warn("IdUnusedException: CitationHelperAction.getCitationCollection() unable to access citationCollection " + collectionId);
+		            logger.warn("IdUnusedException: CitationHelperAction.getCitationCollection() unable to access citationCollection " + citationCollectionId);
 	            }
-				if(collection == null && create)
+				if(citationCollection == null && create)
 				{
-					collection = CitationService.addCollection();
-					state.setAttribute(STATE_COLLECTION_ID, collection.getId());
+					citationCollection = getCitationService().addCollection();
+					getCitationService().save(citationCollection);
 				}
 			}
-			if(collection != null)
-			{
-				state.setAttribute(STATE_COLLECTION, collection);
+			if(citationCollection != null) {
+				state.setAttribute(STATE_CITATION_COLLECTION, citationCollection);
+				state.setAttribute(STATE_CITATION_COLLECTION_ID, citationCollection.getId());
 			}
 		}
-		return collection;
+		return citationCollection;
 	}
 
 	/**
@@ -1175,6 +1901,7 @@ public class CitationHelperAction extends VelocityPortletPaneledAction
 	 */
 	public String buildMainPanelContext(VelocityPortlet portlet, Context context, RunData rundata, SessionState state)
 	{
+		logger.debug("buildMainPanelContext()");
 		// always put appropriate bundle in velocity context
 		context.put("tlang", rb);
 
@@ -1197,7 +1924,8 @@ public class CitationHelperAction extends VelocityPortletPaneledAction
 		{
 			// mode really shouldn't be null here
 			logger.warn( "buildMainPanelContext() getting null Mode from state" );
-			mode = Mode.ADD_CITATIONS;
+			mode = Mode.NEW_RESOURCE;
+			//mode = Mode.ADD_CITATIONS;
 			setMode(state, mode);
 		}
 
@@ -1206,6 +1934,9 @@ public class CitationHelperAction extends VelocityPortletPaneledAction
 
 		switch(mode)
 		{
+			case NEW_RESOURCE:
+				template = buildNewResourcePanelContext(portlet, context, rundata, state);
+				break;
 			case IMPORT_CITATIONS:
 				template = buildImportCitationsPanelContext(portlet, context, rundata, state);
 				break;
@@ -1251,6 +1982,231 @@ public class CitationHelperAction extends VelocityPortletPaneledAction
 
 	}	// buildMainPanelContext
 
+	public String buildNewResourcePanelContext(VelocityPortlet portlet, Context context, RunData rundata, SessionState state) {
+
+		logger.debug("buildNewResourcePanelContext()");
+
+		context.put("MIMETYPE_JSON", MIMETYPE_JSON);
+		context.put("REQUESTED_MIMETYPE", REQUESTED_MIMETYPE);
+		
+		context.put("xilator", new Validator());
+		
+		context.put("availability_is_enabled", Boolean.TRUE);
+		context.put("GROUP_ACCESS", AccessMode.GROUPED);
+		context.put("INHERITED_ACCESS", AccessMode.INHERITED);
+		
+		Boolean resourceAdd = (Boolean) state.getAttribute(STATE_RESOURCES_ADD);
+		if(resourceAdd != null && resourceAdd.equals(true)) {
+			context.put("resourceAdd", Boolean.TRUE);
+			context.put(CITATION_ACTION, CREATE_RESOURCE);
+		} else {
+			context.put(CITATION_ACTION, UPDATE_RESOURCE);
+		}
+		
+    	// resource-related
+    	String resourceId = (String) state.getAttribute(CitationHelper.RESOURCE_ID);
+    	String citationCollectionId = null;
+    	ContentResource resource = null;
+    	Map<String,Object> contentProperties = null;
+    	if(resourceId == null) {
+    		
+    	} else {
+	    	try {
+				resource = getContentService().getResource(resourceId);
+			} catch (IdUnusedException e) {
+				logger.warn("IdUnusedException in buildNewResourcePanelContext() " + e);
+			} catch (TypeException e) {
+				logger.warn("TypeException in buildNewResourcePanelContext() " + e);
+			} catch (PermissionException e) {
+				logger.warn("PermissionException in buildNewResourcePanelContext() " + e);
+			}
+	    	
+//	    	String guid = getContentService().getUuid(resourceId);
+//	    	context.put("RESOURCE_ID", guid);
+    	}
+
+		if(resource == null) {
+			context.put(CITATION_ACTION, CREATE_RESOURCE);
+			
+			ToolSession toolSession = getSessionManager().getCurrentToolSession();
+			ResourceToolActionPipe pipe = (ResourceToolActionPipe) toolSession.getAttribute(ResourceToolAction.ACTION_PIPE);
+			String collectionId = pipe.getContentEntity().getId();
+			context.put("collectionId", collectionId);
+			ContentCollection collection;
+			try {
+				collection = getContentService().getCollection(collectionId);
+				contentProperties = this.getProperties(collection, state);
+			} catch (IdUnusedException e) {
+				logger.warn("IdUnusedException in buildNewResourcePanelContext() " + e);
+			} catch (TypeException e) {
+				logger.warn("TypeException in buildNewResourcePanelContext() " + e);
+			} catch (PermissionException e) {
+				logger.warn("PermissionException in buildNewResourcePanelContext() " + e);
+			}
+		} else {
+			ResourceProperties props = resource.getProperties();
+			contentProperties = this.getProperties(resource, state);
+			context.put("resourceTitle", props.getProperty(ResourceProperties.PROP_DISPLAY_NAME));
+			Object resourceUuid = this.getContentService().getUuid(resourceId);
+			context.put("resourceId", resourceUuid );
+			context.put("collectionId", resource.getContainingCollection().getId());
+			try {
+				citationCollectionId = new String(resource.getContent());
+			} catch (ServerOverloadException e) {
+				logger.warn("ServerOverloadException in buildNewResourcePanelContext() " + e);
+			}
+			
+			context.put(CITATION_ACTION, UPDATE_RESOURCE);
+		}
+		if(contentProperties == null) {
+			contentProperties = new HashMap<String,Object>();
+		}
+		context.put("contentProperties", contentProperties);
+		int collectionSize = 0;
+		CitationCollection citationCollection = null;
+    	if(citationCollectionId == null) {
+        	citationCollectionId = (String) state.getAttribute(STATE_CITATION_COLLECTION_ID);
+        	//String citationCollectionId = (String) state.getAttribute(CitationHelper.CITATION_COLLECTION_ID);
+    	}
+    	if(citationCollectionId == null) {
+    		
+    	} else {
+			citationCollection = getCitationCollection(state, true);
+			if(citationCollection == null) {
+				logger.warn( "buildAddCitationsPanelContext unable to access citationCollection " + citationCollectionId );
+	
+				int requestStateId = preserveRequestState(state, new String[]{CitationHelper.RESOURCES_REQUEST_PREFIX, CitationHelper.CITATION_PREFIX});
+				context.put("requestStateId", requestStateId);
+	
+				return TEMPLATE_ERROR;
+			} else {
+				// get the size of the list
+				collectionSize = citationCollection.size();
+			}
+	    	context.put("collectionId", citationCollectionId);
+    	}
+		context.put( "collectionSize", new Integer( collectionSize ) );
+    	
+
+		Locale locale = rb.getLocale();
+		List<Map<String,String>> saveciteClients = getConfigurationService().getSaveciteClientsForLocale(locale);
+		
+		if(saveciteClients != null) {
+			if(resource != null && resourceId != null) {
+				for(Map<String,String> client : saveciteClients) {
+					String saveciteUrl = getSearchManager().getSaveciteUrl(getContentService().getUuid(resourceId),client.get("id"));
+					try {
+						client.put("saveciteUrl", java.net.URLEncoder.encode(saveciteUrl,"UTF-8"));
+					} catch (UnsupportedEncodingException e) {
+						logger.warn("Error encoding savecite URL",e);
+					}
+	
+				}
+			}
+			
+			context.put("saveciteClients",saveciteClients); 
+		}
+
+		// determine which features to display
+		if( getConfigurationService().isGoogleScholarEnabled() ) {
+			String googleUrl = getSearchManager().getGoogleScholarUrl(getContentService().getUuid(resourceId));
+			context.put( "googleUrl", googleUrl );
+
+			// object array for formatted messages
+			Object[] googleArgs = { rb.getString( "linkLabel.google" ) };
+			context.put( "googleArgs", googleArgs );
+		}
+
+		if( getConfigurationService().librarySearchEnabled() ) {
+			context.put( "searchLibrary", Boolean.TRUE );
+		}
+		
+		if(citationCollection == null || citationCollection.size() <= 0) {
+			
+		} else {
+			context.put("openUrlLabel", getConfigurationService().getSiteConfigOpenUrlLabel());
+			
+			String currentSort = (String) state.getAttribute("sort");
+
+			if (currentSort == null  || currentSort.trim().length() == 0)
+				currentSort = citationCollection.getSort();
+
+			if(currentSort == null || currentSort.trim().length() == 0) {
+				currentSort = CitationCollection.SORT_BY_TITLE;
+			}
+			
+			context.put("currentSort", currentSort);
+			
+			String savedSort = citationCollection.getSort();
+			if(savedSort == null || savedSort.trim().equals("")) {
+				savedSort = CitationCollection.SORT_BY_TITLE;
+			}
+			
+			if(savedSort != currentSort) {
+				
+				citationCollection.setSort(currentSort, true);
+			}
+			
+			//context.put(PARAM_FORM_NAME, ELEMENT_ID_LIST_FORM);
+
+			// collection size
+			context.put( "collectionSize", new Integer( citationCollection.size() ) );
+
+			// export URLs
+			String exportUrlSel = citationCollection.getUrl(CitationService.REF_TYPE_EXPORT_RIS_SEL);
+			String exportUrlAll = citationCollection.getUrl(CitationService.REF_TYPE_EXPORT_RIS_ALL);
+			context.put("exportUrlSel", exportUrlSel);
+			context.put("exportUrlAll", exportUrlAll);
+
+			Integer listPageSize = (Integer) state.getAttribute(STATE_LIST_PAGE_SIZE);
+			if(listPageSize == null)
+			{
+				listPageSize = DEFAULT_LIST_PAGE_SIZE;
+				state.setAttribute(STATE_LIST_PAGE_SIZE, listPageSize);
+			}
+			context.put("listPageSize", listPageSize);
+
+			CitationIterator newIterator = citationCollection.iterator();
+			CitationIterator oldIterator = (CitationIterator) state.getAttribute(STATE_LIST_ITERATOR);
+			if(oldIterator != null)
+			{
+				newIterator.setPageSize(listPageSize.intValue());
+				newIterator.setStart(oldIterator.getStart());
+//				newIterator.setPage(oldIterator.getPage());
+			}
+			context.put("citations", newIterator);
+			context.put("citationCollectionId", citationCollection.getId());
+			if(! citationCollection.isEmpty())
+			{
+				context.put("show_citations", Boolean.TRUE);
+
+//				int page = newIterator.getPage();
+//				int pageSize = newIterator.getPageSize();
+				int totalSize = citationCollection.size();
+
+				int start = newIterator.getStart();
+				int end = newIterator.getEnd();
+//				int start = page * pageSize + 1;
+//				int end = Math.min((page + 1) * pageSize, totalSize);
+
+				Integer[] position = { new Integer(start+1) , new Integer(end), new Integer(totalSize)};
+				String showing = (String) rb.getFormattedMessage("showing.results", position);
+				context.put("showing", showing);
+			}
+			state.setAttribute(STATE_LIST_ITERATOR, newIterator);
+			
+			// constant schema identifier
+			context.put( "titleProperty", Schema.TITLE );
+
+			int requestStateId = preserveRequestState(state, new String[]{CitationHelper.RESOURCES_REQUEST_PREFIX, CitationHelper.CITATION_PREFIX});
+			context.put("requestStateId", requestStateId);
+
+			
+		}
+		
+		return TEMPLATE_NEW_RESOURCE;
+	}
+
 	/**
      * @param portlet
      * @param context
@@ -1266,7 +2222,7 @@ public class CitationHelperAction extends VelocityPortletPaneledAction
 	    context.put( "citationId", state.getAttribute( STATE_CITATION_ID ) );
 
 		// get the collection we're now working on
-		String collectionId = (String)state.getAttribute(STATE_COLLECTION_ID);
+		String collectionId = (String)state.getAttribute(STATE_CITATION_COLLECTION_ID);
 		context.put( "collectionId", collectionId );
 
 		int size = 0;
@@ -1381,7 +2337,7 @@ public class CitationHelperAction extends VelocityPortletPaneledAction
 		context.put(PARAM_FORM_NAME, ELEMENT_ID_RESULTS_FORM);
 
 		// OpenURL Label
-		context.put( "openUrlLabel", ConfigurationService.getSiteConfigOpenUrlLabel() );
+		context.put( "openUrlLabel", getConfigurationService().getSiteConfigOpenUrlLabel() );
 
 		// object arrays for formatted messages
 		Object[] instrMainArgs = { rb.getString( "add.results" ) };
@@ -1468,8 +2424,7 @@ public class CitationHelperAction extends VelocityPortletPaneledAction
 
     	// resource-related
     	String resourceId = (String) state.getAttribute(CitationHelper.RESOURCE_ID);
-    	ContentHostingService contentService = (ContentHostingService) ComponentManager.get("org.sakaiproject.content.api.ContentHostingService");
-    	String guid = contentService.getUuid(resourceId);
+    	String guid = getContentService().getUuid(resourceId);
     	context.put("RESOURCE_ID", guid);
 
     	// category information from hierarchy
@@ -1498,7 +2453,7 @@ public class CitationHelperAction extends VelocityPortletPaneledAction
     	context.put(PARAM_FORM_NAME, ELEMENT_ID_SEARCH_FORM);
 
     	// OpenURL Label
-    	context.put( "openUrlLabel", ConfigurationService.getSiteConfigOpenUrlLabel() );
+    	context.put( "openUrlLabel", getConfigurationService().getSiteConfigOpenUrlLabel() );
 
     	// object arrays for formatted messages
     	Object[] instrArgs = { rb.getString( "submit.search" ) };
@@ -1556,11 +2511,11 @@ public class CitationHelperAction extends VelocityPortletPaneledAction
 		context.put("citation", citation);
 
 		String citationId = (String) state.getAttribute(CitationHelper.CITATION_VIEW_ID);
-		String collectionId = (String) state.getAttribute(STATE_COLLECTION_ID);
+		String collectionId = (String) state.getAttribute(STATE_CITATION_COLLECTION_ID);
 		context.put("citationId", citationId);
 		context.put("collectionId", collectionId);
 
-		List schemas = CitationService.getSchemas();
+		List schemas = getCitationService().getSchemas();
 		context.put("TEMPLATES", schemas);
 
 		context.put("DEFAULT_TEMPLATE", citation.getSchema());
@@ -1615,9 +2570,8 @@ public class CitationHelperAction extends VelocityPortletPaneledAction
 	public void doFinish ( RunData data)
 	{
     	SessionState state = ((JetspeedRunData)data).getPortletSessionState (((JetspeedRunData)data).getJs_peid ());
-		ToolSession toolSession = SessionManager.getCurrentToolSession();
+		ToolSession toolSession = getSessionManager().getCurrentToolSession();
 		ParameterParser params = data.getParameters();
-		
 
 		int requestStateId = params.getInt("requestStateId", 0);
 		restoreRequestState(state, new String[]{CitationHelper.RESOURCES_REQUEST_PREFIX, CitationHelper.CITATION_PREFIX}, requestStateId);
@@ -1635,125 +2589,119 @@ public class CitationHelperAction extends VelocityPortletPaneledAction
 
 		int citationCount = 0;
 
-		if(pipe.getAction().getActionType() == ResourceToolAction.ActionType.CREATE)
-		{
-			/* PIPE remove */
-//			SessionState state = ((JetspeedRunData)data).getPortletSessionState (((JetspeedRunData)data).getJs_peid ());
+//		if(pipe.getAction().getActionType() == ResourceToolAction.ActionType.CREATE_BY_HELPER)
+//		{
+//			/* PIPE remove */
+////			SessionState state = ((JetspeedRunData)data).getPortletSessionState (((JetspeedRunData)data).getJs_peid ());
+//
+//			SecurityService securityService = (SecurityService) ComponentManager.get(SecurityService.class);
+//	    	// delete the temporary resource
+//			String temporaryResourceId = (String) state.getAttribute(CitationHelper.RESOURCE_ID);
+//			ContentResource tempResource = null;
+//			try
+//            {
+//				// get the temp resource
+//	            tempResource = getContentService().getResource(temporaryResourceId);
+//
+//	            // use the temp resource to 'create' the real resource
+//	            pipe.setRevisedContent(tempResource.getContent());
+//
+//	            // remove the temp resource
+//	            if( getCitationService().allowRemoveCitationList( temporaryResourceId ) )
+//	            {
+//	            	// setup a SecurityAdvisor
+//	            	CitationListSecurityAdviser advisor = new CitationListSecurityAdviser(
+//		            		getSessionManager().getCurrentSessionUserId(),
+//		            		ContentHostingService.AUTH_RESOURCE_REMOVE_ANY,
+//		            		tempResource.getReference() );
+//
+//	            	try {
+//	            		securityService.pushAdvisor(advisor);
+//	            		
+//			            // remove temp resource
+//			            getContentService().removeResource(temporaryResourceId);
+//	            	} catch(Exception e) {
+//	            		logger.warn("Exception removing temporary resource for a citation list: " + temporaryResourceId + " --> " + e);
+//	            	} finally {
+//			            // pop advisor
+//			            securityService.popAdvisor(advisor);
+//	            	}
+//	            	
+//		            tempResource = null;
+//	            }
+//            }
+//            catch (PermissionException e)
+//            {
+//
+//	            logger.warn("PermissionException ", e);
+//            }
+//            catch (IdUnusedException e)
+//            {
+//
+//	            logger.warn("IdUnusedException ", e);
+//            }
+//            catch (TypeException e)
+//            {
+//
+//	            logger.warn("TypeException ", e);
+//            }
+////          catch (InUseException e)
+////          {
+////
+////	            logger.warn("InUseException ", e);
+////          }
+//            catch (ServerOverloadException e)
+//            {
+//
+//	            logger.warn("ServerOverloadException ", e);
+//            }
+//	        catch (Exception e)
+//	        {
+//
+//		        logger.warn("Exception ", e);
+//	        }
+//		}
 
-	    	// delete the temporary resource
-			String temporaryResourceId = (String) state.getAttribute(CitationHelper.RESOURCE_ID);
-			ContentHostingService contentService = (ContentHostingService) ComponentManager.get("org.sakaiproject.content.api.ContentHostingService");
-			ContentResource tempResource = null;
-			try
-            {
-				// get the temp resource
-	            tempResource = contentService.getResource(temporaryResourceId);
-
-	            // use the temp resource to 'create' the real resource
-	            pipe.setRevisedContent(tempResource.getContent());
-
-	            // remove the temp resource
-	            if( CitationService.allowRemoveCitationList( temporaryResourceId ) )
-	            {
-	            	// setup a SecurityAdvisor
-	            	CitationListSecurityAdviser advisor = new CitationListSecurityAdviser(
-		            		SessionManager.getCurrentSessionUserId(),
-		            		ContentHostingService.AUTH_RESOURCE_REMOVE_ANY,
-		            		tempResource.getReference() );
-
-	            	try {
-	            		SecurityService.pushAdvisor(advisor);
-	            		
-			            // remove temp resource
-			            contentService.removeResource(temporaryResourceId);
-	            	} catch(Exception e) {
-	            		logger.warn("Exception removing temporary resource for a citation list: " + temporaryResourceId + " --> " + e);
-	            	} finally {
-			            // pop advisor
-			            SecurityService.popAdvisor();
-	            	}
-	            	
-		            tempResource = null;
-	            }
-            }
-            catch (PermissionException e)
-            {
-	            // TODO Auto-generated catch block
-	            logger.warn("PermissionException ", e);
-            }
-            catch (IdUnusedException e)
-            {
-	            // TODO Auto-generated catch block
-	            logger.warn("IdUnusedException ", e);
-            }
-            catch (TypeException e)
-            {
-	            // TODO Auto-generated catch block
-	            logger.warn("TypeException ", e);
-            }
-//          catch (InUseException e)
-//          {
-//	            // TODO Auto-generated catch block
-//	            logger.warn("InUseException ", e);
-//          }
-            catch (ServerOverloadException e)
-            {
-	            // TODO Auto-generated catch block
-	            logger.warn("ServerOverloadException ", e);
-            }
-	        catch (Exception e)
-	        {
-		        // TODO Auto-generated catch block
-		        logger.warn("Exception ", e);
-	        }
-		}
-		
-
-		// set content (mime) type
-		pipe.setRevisedMimeType(ResourceType.MIME_TYPE_HTML);
-        pipe.setRevisedResourceProperty(ResourceProperties.PROP_CONTENT_TYPE, ResourceType.MIME_TYPE_HTML);
-
-		// set the alternative_reference to point to reference_root for CitationService
-		pipe.setRevisedResourceProperty(ContentHostingService.PROP_ALTERNATE_REFERENCE, org.sakaiproject.citation.api.CitationService.REFERENCE_ROOT);
+//		// set content (mime) type
+//		pipe.setRevisedMimeType(ResourceType.MIME_TYPE_HTML);
+//        pipe.setRevisedResourceProperty(ResourceProperties.PROP_CONTENT_TYPE, ResourceType.MIME_TYPE_HTML);
+//
+//		// set the alternative_reference to point to reference_root for CitationService
+//		pipe.setRevisedResourceProperty(ContentHostingService.PROP_ALTERNATE_REFERENCE, CitationService.REFERENCE_ROOT);
 
 		/* PIPE remove */
 //		SessionState state = ((JetspeedRunData)data).getPortletSessionState (((JetspeedRunData)data).getJs_peid ());
 		// get the collection we're now working on
 		CitationCollection collection = getCitationCollection(state, true);
-
-		String collectionId = (String) state.getAttribute(STATE_COLLECTION_ID);
-
-		String[] args = new String[]{ Integer.toString(collection.size()) };
-		String size_str =rb.getFormattedMessage("citation.count",  args);
-    	pipe.setRevisedResourceProperty(ResourceProperties.PROP_CONTENT_LENGTH, size_str);
-    	
-	   	String temporaryResourceId = (String) state.getAttribute(CitationHelper.RESOURCE_ID);
-	   	ContentHostingService contentService = (ContentHostingService) ComponentManager.get("org.sakaiproject.content.api.ContentHostingService");
-	    String description = params.getString("description");
-	    try {
-			contentService.addProperty(temporaryResourceId,ResourceProperties.PROP_DESCRIPTION,description);
-		} catch (Exception e) {
-			 logger.warn("Failed to set resource description on citation list update. Reason: " + e.getMessage());
+		if(collection == null) {
+			// error
+		} else {
+		
+			String collectionId = (String) state.getAttribute(STATE_CITATION_COLLECTION_ID);
+	
+			String[] args = new String[]{ Integer.toString(collection.size()) };
+			String size_str = rb.getFormattedMessage("citation.count",  args);
+	    	pipe.setRevisedResourceProperty(ResourceProperties.PROP_CONTENT_LENGTH, size_str);
+	
+	    	// leave helper mode
+			pipe.setActionCanceled(false);
+			pipe.setErrorEncountered(false);
+			pipe.setActionCompleted(true);
+	
+			toolSession.setAttribute(ResourceToolAction.DONE, Boolean.TRUE);
+			toolSession.removeAttribute(CitationHelper.CITATION_HELPER_INITIALIZED);
+	
+			cleanup(toolSession, CitationHelper.CITATION_PREFIX, state);
+	
+			// Remove session sort
+			state.removeAttribute("sort");
+	
+			// Remove session collection
+			state.removeAttribute(STATE_CITATION_COLLECTION_ID);
+			state.removeAttribute(STATE_CITATION_COLLECTION);
+	
+			state.removeAttribute("fromListPage");
 		}
-
-    	// leave helper mode
-		pipe.setActionCanceled(false);
-		pipe.setErrorEncountered(false);
-		pipe.setActionCompleted(true);
-
-		toolSession.setAttribute(ResourceToolAction.DONE, Boolean.TRUE);
-		toolSession.removeAttribute(CitationHelper.CITATION_HELPER_INITIALIZED);
-
-		cleanup(toolSession, CitationHelper.CITATION_PREFIX, state);
-
-		// Remove session sort
-		state.removeAttribute("sort");
-
-		// Remove session collection
-		state.removeAttribute(STATE_COLLECTION_ID);
-		state.removeAttribute(STATE_COLLECTION);
-
-		state.removeAttribute("fromListPage");
 
 	}	// doFinish
 
@@ -1763,7 +2711,7 @@ public class CitationHelperAction extends VelocityPortletPaneledAction
     public void doCancel(RunData data)
     {
     	SessionState state = ((JetspeedRunData)data).getPortletSessionState (((JetspeedRunData)data).getJs_peid ());
-		ToolSession toolSession = SessionManager.getCurrentToolSession();
+		ToolSession toolSession = getSessionManager().getCurrentToolSession();
 		ParameterParser params = data.getParameters();
 
 		int requestStateId = params.getInt("requestStateId", 0);
@@ -1780,45 +2728,44 @@ public class CitationHelperAction extends VelocityPortletPaneledAction
 			return;
 		}
 
-		if(pipe.getAction().getActionType() == ResourceToolAction.ActionType.CREATE)
+		if(pipe.getAction().getActionType() == ResourceToolAction.ActionType.CREATE_BY_HELPER)
 		{
 			// TODO: delete the citation collection and all citations
 
 	    	// TODO: delete the temporary resource
-			String temporaryResourceId = (String) state.getAttribute(CitationHelper.RESOURCE_ID);
-			ContentHostingService contentService = (ContentHostingService) ComponentManager.get("org.sakaiproject.content.api.ContentHostingService");
-			ContentResourceEdit edit = null;
-			try
-            {
-	            edit = contentService.editResource(temporaryResourceId);
-	            contentService.removeResource(edit);
-	            edit = null;
-            }
-            catch (PermissionException e)
-            {
-	            // TODO Auto-generated catch block
-	            logger.warn("PermissionException ", e);
-            }
-            catch (IdUnusedException e)
-            {
-	            // TODO Auto-generated catch block
-	            logger.warn("IdUnusedException ", e);
-            }
-            catch (TypeException e)
-            {
-	            // TODO Auto-generated catch block
-	            logger.warn("TypeException ", e);
-            }
-            catch (InUseException e)
-            {
-	            // TODO Auto-generated catch block
-	            logger.warn("InUseException ", e);
-            }
-
-            if(edit != null)
-            {
-            	contentService.cancelResource(edit);
-            }
+//			String temporaryResourceId = (String) state.getAttribute(CitationHelper.RESOURCE_ID);
+//			ContentResourceEdit edit = null;
+//			try
+//            {
+//	            edit = getContentService().editResource(temporaryResourceId);
+//	            getContentService().removeResource(edit);
+//	            edit = null;
+//            }
+//            catch (PermissionException e)
+//            {
+//
+//	            logger.warn("PermissionException ", e);
+//            }
+//            catch (IdUnusedException e)
+//            {
+//
+//	            logger.warn("IdUnusedException ", e);
+//            }
+//            catch (TypeException e)
+//            {
+//
+//	            logger.warn("TypeException ", e);
+//            }
+//            catch (InUseException e)
+//            {
+//
+//	            logger.warn("InUseException ", e);
+//            }
+//
+//            if(edit != null)
+//            {
+//            	getContentService().cancelResource(edit);
+//            }
 		}
 
     	// leave helper mode
@@ -1862,20 +2809,25 @@ public class CitationHelperAction extends VelocityPortletPaneledAction
 		}
 
 		CitationCollection permCollection = getCitationCollection(state, true);
-		for(int i = 0; i < citationIds.length; i++)
-		{
-			try
+		if(permCollection == null) {
+			// error
+		} else {
+			
+			for(int i = 0; i < citationIds.length; i++)
 			{
-				Citation citation = tempCollection.getCitation(citationIds[i]);
-				citation.setAdded(true);
-				permCollection.add(citation);
+				try
+				{
+					Citation citation = tempCollection.getCitation(citationIds[i]);
+					citation.setAdded(true);
+					permCollection.add(citation);
+				}
+				catch(IdUnusedException ex)
+				{
+			        logger.info("doAdd: unable to add citation " + citationIds[i] + " to collection " + collectionId);
+				}
 			}
-			catch(IdUnusedException ex)
-			{
-		        logger.info("doAdd: unable to add citation " + citationIds[i] + " to collection " + collectionId);
-			}
+	        getCitationService().save(permCollection);
 		}
-        CitationService.save(permCollection);
         // setMode(state, Mode.LIST);
  	}
 
@@ -1906,21 +2858,26 @@ public class CitationHelperAction extends VelocityPortletPaneledAction
 		}
 
 		CitationCollection permCollection = getCitationCollection(state, true);
-		for(int i = 0; i < citationIds.length; i++)
-		{
-			try
+		if(permCollection == null) {
+			// error
+		} else {
+			for(int i = 0; i < citationIds.length; i++)
 			{
-				Citation citation = tempCollection.getCitation(citationIds[i]);
-				citation.setAdded(false);
-				permCollection.remove(citation);
+				try
+				{
+					Citation citation = tempCollection.getCitation(citationIds[i]);
+					citation.setAdded(false);
+					permCollection.remove(citation);
+				}
+				catch(IdUnusedException ex)
+				{
+			        logger.info("doAdd: unable to add citation " + citationIds[i] + " to collection " + collectionId);
+				}
 			}
-			catch(IdUnusedException ex)
-			{
-		        logger.info("doAdd: unable to add citation " + citationIds[i] + " to collection " + collectionId);
-			}
+	        getCitationService().save(permCollection);
 		}
-        CitationService.save(permCollection);
-  		setMode(state, Mode.LIST);
+  		//setMode(state, Mode.LIST);
+  		setMode(state, Mode.NEW_RESOURCE);
 	}
 
 	public void doDatabasePopulate( RunData data )
@@ -1967,6 +2924,8 @@ public class CitationHelperAction extends VelocityPortletPaneledAction
 
 		int requestStateId = params.getInt("requestStateId", 0);
 		restoreRequestState(state, new String[]{CitationHelper.RESOURCES_REQUEST_PREFIX, CitationHelper.CITATION_PREFIX}, requestStateId);
+		
+		this.preserveEntityIds(params, state);
 
 		setMode(state, Mode.IMPORT_CITATIONS);
 
@@ -2002,7 +2961,7 @@ public class CitationHelperAction extends VelocityPortletPaneledAction
 
 		if(collectionId == null)
 		{
-			collectionId = (String) state.getAttribute(STATE_COLLECTION_ID);
+			collectionId = (String) state.getAttribute(STATE_CITATION_COLLECTION_ID);
 		}
 
 		CitationCollection collection = null;
@@ -2121,8 +3080,8 @@ public class CitationHelperAction extends VelocityPortletPaneledAction
 		// including the ER entry from importList
 		List tempList = new java.util.ArrayList();
 
-		Citation importCitation = CitationService.getTemporaryCitation();
-		CitationCollection importCollection = CitationService.getTemporaryCollection();
+		Citation importCitation = getCitationService().getTemporaryCitation();
+		CitationCollection importCollection = getCitationService().getTemporaryCollection();
 
 		int sucessfullyReadCitations = 0;
 		int totalNumberCitations = 0;
@@ -2150,21 +3109,36 @@ public class CitationHelperAction extends VelocityPortletPaneledAction
 					sucessfullyReadCitations++;
 				}
 				tempList.clear();
-				importCitation = CitationService.getTemporaryCitation();
+				importCitation = getCitationService().getTemporaryCitation();
 			}
 		} // end for
 
 		logger.debug("Done reading in " + sucessfullyReadCitations + " / " + totalNumberCitations + " citations.");
 
 		collection.addAll(importCollection);
-        CitationService.save(collection);
+        getCitationService().save(collection);
 
         // remove collection from state
-        state.removeAttribute(STATE_COLLECTION);
+        state.removeAttribute(STATE_CITATION_COLLECTION);
 
 
-		setMode(state, Mode.LIST);
+		//setMode(state, Mode.LIST);
+		setMode(state, Mode.NEW_RESOURCE);
 	} // end doImport()
+	
+	public void doCreateResource(RunData data) 
+	{
+		// get the state object
+		SessionState state = ((JetspeedRunData)data).getPortletSessionState (((JetspeedRunData)data).getJs_peid ());
+		ParameterParser params = data.getParameters();
+
+		int requestStateId = params.getInt("requestStateId", 0);
+		restoreRequestState(state, new String[]{CitationHelper.RESOURCES_REQUEST_PREFIX, CitationHelper.CITATION_PREFIX}, requestStateId);
+
+		setMode(state, Mode.NEW_RESOURCE);
+		//state.setAttribute(CitationHelper.SPECIAL_HELPER_ID, CitationHelper.CITATION_ID);
+
+	}
 
 	/**
 	*
@@ -2227,23 +3201,26 @@ public class CitationHelperAction extends VelocityPortletPaneledAction
 		int requestStateId = params.getInt("requestStateId", 0);
 		restoreRequestState(state, new String[]{CitationHelper.RESOURCES_REQUEST_PREFIX, CitationHelper.CITATION_PREFIX}, requestStateId);
 
-		Set validPropertyNames = CitationService.getValidPropertyNames();
+		Set validPropertyNames = getCitationService().getValidPropertyNames();
 		String mediatype = params.getString("type");
 
 		CitationCollection collection = getCitationCollection(state, true);
-
-		// create a citation
-		Citation citation = CitationService.addCitation(mediatype);
-
-		updateCitationFromParams(citation, params);
-
-		// add citation to current collection
-		collection.add(citation);
-		CitationService.save(collection);
-		state.removeAttribute(STATE_COLLECTION);
+		if(collection == null) {
+			// error
+		} else {
+			// create a citation
+			Citation citation = getCitationService().addCitation(mediatype);
+	
+			updateCitationFromParams(citation, params);
+	
+			// add citation to current collection
+			collection.add(citation);
+			getCitationService().save(collection);
+		}
 		// call buildListPanelContext to show updated list
 		//state.setAttribute(CitationHelper.SPECIAL_HELPER_ID, CitationHelper.CITATION_ID);
-		setMode(state, Mode.LIST);
+		//setMode(state, Mode.LIST);
+		setMode(state, Mode.NEW_RESOURCE);
 
 	}	// doCreateCitation
 
@@ -2387,27 +3364,31 @@ public class CitationHelperAction extends VelocityPortletPaneledAction
 
 
 		CitationCollection collection = getCitationCollection(state, true);
-
-		Citation citation = null;
-		try
-        {
-	        citation = collection.getCitation(citationId);
-        }
-        catch (IdUnusedException e)
-        {
-	        // add an alert (below)
-        }
-
-        if(citation == null)
-        {
-        	addAlert(state, rb.getString("alert.access"));
-        }
-        else
-        {
-	        state.setAttribute(CitationHelper.CITATION_EDIT_ID, citationId);
-	        state.setAttribute(CitationHelper.CITATION_EDIT_ITEM, citation);
-	        setMode(state, Mode.EDIT);
-        }
+		if(collection == null) {
+			// error
+		} else {
+		
+			Citation citation = null;
+			try
+	        {
+		        citation = collection.getCitation(citationId);
+	        }
+	        catch (IdUnusedException e)
+	        {
+		        // add an alert (below)
+	        }
+	
+	        if(citation == null)
+	        {
+	        	addAlert(state, rb.getString("alert.access"));
+	        }
+	        else
+	        {
+		        state.setAttribute(CitationHelper.CITATION_EDIT_ID, citationId);
+		        state.setAttribute(CitationHelper.CITATION_EDIT_ITEM, citation);
+		        setMode(state, Mode.EDIT);
+	        }
+		}
 
 	}	// doEdit
 
@@ -2423,7 +3404,8 @@ public class CitationHelperAction extends VelocityPortletPaneledAction
 		int requestStateId = params.getInt("requestStateId", 0);
 		restoreRequestState(state, new String[]{CitationHelper.RESOURCES_REQUEST_PREFIX, CitationHelper.CITATION_PREFIX}, requestStateId);
 
-		setMode(state, Mode.LIST);
+		//setMode(state, Mode.LIST);
+		setMode(state, Mode.NEW_RESOURCE);
 
 	}	// doList
 
@@ -2444,14 +3426,19 @@ public class CitationHelperAction extends VelocityPortletPaneledAction
 	*/
 	public void doAddCitations ( RunData data)
 	{
+		logger.debug("doAddCitations()");
 		// get the state object
 		SessionState state = ((JetspeedRunData)data).getPortletSessionState (((JetspeedRunData)data).getJs_peid ());
 		ParameterParser params = data.getParameters();
 
 		int requestStateId = params.getInt("requestStateId", 0);
 		restoreRequestState(state, new String[]{CitationHelper.RESOURCES_REQUEST_PREFIX, CitationHelper.CITATION_PREFIX}, requestStateId);
-
-		setMode(state, Mode.ADD_CITATIONS);
+		preserveEntityIds(params, state);
+		
+		//setMode(state, Mode.ADD_CITATIONS);
+		setMode(state, Mode.NEW_RESOURCE);
+		
+		logger.debug("doAddCitations()");
 
 	}	// doAddCitations
 
@@ -2514,35 +3501,34 @@ public class CitationHelperAction extends VelocityPortletPaneledAction
 
 		// get CitationCollection using collectionId
 		CitationCollection collection = getCitationCollection(state, false);
-		if(collection == null)
-		{
+		if(collection == null) {
 			logger.warn( "doMessageFrame() unable to access citationCollection " + collectionId );
-		}
+		} else {
 
-		// do operation
-		if(operation.equalsIgnoreCase("add"))
-		{
-			logger.debug("adding citation " + citationId + " to " + collectionId);
-			citation.setAdded( true );
-			collection.add( citation );
-			CitationService.save(collection);
+			// do operation
+			if(operation.equalsIgnoreCase("add"))
+			{
+				logger.debug("adding citation " + citationId + " to " + collectionId);
+				citation.setAdded( true );
+				collection.add( citation );
+				getCitationService().save(collection);
+			}
+			else if(operation.equalsIgnoreCase("remove"))
+			{
+				logger.debug("removing citation " + citationId + " from " + collectionId);
+				collection.remove( citation );
+				citation.setAdded( false );
+				getCitationService().save(collection);
+			}
+			else
+			{
+				// do nothing
+				logger.debug("null operation: " + operation);
+			}
+	
+			// store the citation's new id to send back to UI
+			state.setAttribute( STATE_CITATION_ID, citation.getId() );
 		}
-		else if(operation.equalsIgnoreCase("remove"))
-		{
-			logger.debug("removing citation " + citationId + " from " + collectionId);
-			collection.remove( citation );
-			citation.setAdded( false );
-			CitationService.save(collection);
-		}
-		else
-		{
-			// do nothing
-			logger.debug("null operation: " + operation);
-		}
-
-		// store the citation's new id to send back to UI
-		state.setAttribute( STATE_CITATION_ID, citation.getId() );
-
 		setMode(state, Mode.MESSAGE);
 	}
 
@@ -2575,11 +3561,12 @@ public class CitationHelperAction extends VelocityPortletPaneledAction
 				{
 					collection.remove( citation );
 				}
-				CitationService.save(collection);
+				getCitationService().save(collection);
 			}
 		}
 
-		setMode(state, Mode.LIST);
+		//setMode(state, Mode.LIST);
+		setMode(state, Mode.NEW_RESOURCE);
 
 	}  // doRemoveAllCitations
 	
@@ -2608,7 +3595,7 @@ public class CitationHelperAction extends VelocityPortletPaneledAction
 			{
 				collection.getCitation(splitIds[i - 1]).setPosition(i);
 			}
-			CitationService.save(collection);
+			getCitationService().save(collection);
 		}
 		catch(IdUnusedException iue)
 		{
@@ -2616,7 +3603,7 @@ public class CitationHelperAction extends VelocityPortletPaneledAction
 		}
 		
 		// Had to do this to force a reload from storage in buildListPanelContext
-		state.removeAttribute(STATE_COLLECTION);
+		state.removeAttribute(STATE_CITATION_COLLECTION);
 		
 	    state.setAttribute("sort", CitationCollection.SORT_BY_POSITION);
 		
@@ -2658,7 +3645,7 @@ public class CitationHelperAction extends VelocityPortletPaneledAction
 						Citation citation = collection.getCitation(citationId);
 						collection.remove(citation);
 					}
-					CitationService.save(collection);
+					getCitationService().save(collection);
 				}
 				catch( IdUnusedException e )
 				{
@@ -2668,7 +3655,8 @@ public class CitationHelperAction extends VelocityPortletPaneledAction
 		}
 
 		state.setAttribute( STATE_LIST_NO_SCROLL, Boolean.TRUE );
-		setMode(state, Mode.LIST);
+		//setMode(state, Mode.LIST);
+		setMode(state, Mode.NEW_RESOURCE);
 
 	}  // doRemoveSelectedCitations
 
@@ -2684,7 +3672,7 @@ public class CitationHelperAction extends VelocityPortletPaneledAction
 		int requestStateId = params.getInt("requestStateId", 0);
 		restoreRequestState(state, new String[]{CitationHelper.RESOURCES_REQUEST_PREFIX, CitationHelper.CITATION_PREFIX}, requestStateId);
 
-		// Set validPropertyNames = CitationService.getValidPropertyNames();
+		// Set validPropertyNames = getCitationService().getValidPropertyNames();
 		// String mediatype = params.getString("type");
 
 		CitationCollection collection = getCitationCollection(state, false);
@@ -2703,7 +3691,7 @@ public class CitationHelperAction extends VelocityPortletPaneledAction
 					Citation citation = collection.getCitation(citationId);
 
 		            String schemaId = params.getString("type");
-		            Schema schema = CitationService.getSchema(schemaId);
+		            Schema schema = getCitationService().getSchema(schemaId);
 		            citation.setSchema(schema);
 
 		    		updateCitationFromParams(citation, params);
@@ -2716,11 +3704,12 @@ public class CitationHelperAction extends VelocityPortletPaneledAction
 		            // TODO add alert and log error
 	            }
 
-	       		CitationService.save(collection);
+	       		getCitationService().save(collection);
 			}
  		}
 
-		setMode(state, Mode.LIST);
+		//setMode(state, Mode.LIST);
+		setMode(state, Mode.NEW_RESOURCE);
 
 	}	// doReviseCitation
 
@@ -2778,7 +3767,8 @@ public class CitationHelperAction extends VelocityPortletPaneledAction
 		int requestStateId = params.getInt("requestStateId", 0);
 		restoreRequestState(state, new String[]{CitationHelper.RESOURCES_REQUEST_PREFIX, CitationHelper.CITATION_PREFIX}, requestStateId);
 
-		doSearchCommon(state, Mode.ADD_CITATIONS);
+		//doSearchCommon(state, Mode.ADD_CITATIONS);
+		doSearchCommon(state, Mode.NEW_RESOURCE);
 	}
 
 	/**
@@ -2798,7 +3788,7 @@ public class CitationHelperAction extends VelocityPortletPaneledAction
 
 		try
 		{
-			SearchDatabaseHierarchy hierarchy = SearchManager.getSearchHierarchy();
+			SearchDatabaseHierarchy hierarchy = getSearchManager().getSearchHierarchy();
 			if (hierarchy == null)
 			{
 				addAlert(state, rb.getString("search.problem"));
@@ -2839,7 +3829,7 @@ public class CitationHelperAction extends VelocityPortletPaneledAction
 		if(search == null)
 		{
 			logger.debug( "doBeginSearch() got null ActiveSearch from state." );
-			search = SearchManager.newSearch();
+			search = getSearchManager().newSearch();
 		}
 
 		// get databases selected
@@ -2968,7 +3958,7 @@ public class CitationHelperAction extends VelocityPortletPaneledAction
 	    	setMode( state, (Mode)state.getAttribute(STATE_CANCEL_PAGE) );
 	    }
 
-	    ActiveSearch newSearch = SearchManager.newSearch();
+	    ActiveSearch newSearch = getSearchManager().newSearch();
 		state.setAttribute( STATE_SEARCH_INFO, newSearch );
 
 	}	// doBeginSearch
@@ -3047,10 +4037,14 @@ public class CitationHelperAction extends VelocityPortletPaneledAction
 		if(listIterator == null)
 		{
 			CitationCollection collection = getCitationCollection(state, true);
-			listIterator = collection.iterator();
-			state.setAttribute(STATE_LIST_ITERATOR, listIterator);
+			if(collection == null) {
+				// error
+			} else {
+				listIterator = collection.iterator();
+				state.setAttribute(STATE_LIST_ITERATOR, listIterator);
+			}
 		}
-		if(listIterator.hasNextPage())
+		if(listIterator != null && listIterator.hasNextPage())
 		{
 			listIterator.nextPage();
 		}
@@ -3073,10 +4067,14 @@ public class CitationHelperAction extends VelocityPortletPaneledAction
 		if(listIterator == null)
 		{
 			CitationCollection collection = getCitationCollection(state, true);
-			listIterator = collection.iterator();
-			state.setAttribute(STATE_LIST_ITERATOR, listIterator);
+			if(collection == null) {
+				// error
+			} else {
+				listIterator = collection.iterator();
+				state.setAttribute(STATE_LIST_ITERATOR, listIterator);
+			}
 		}
-		if(listIterator.hasPreviousPage())
+		if(listIterator != null && listIterator.hasPreviousPage())
 		{
 			listIterator.previousPage();
 		}
@@ -3096,19 +4094,23 @@ public class CitationHelperAction extends VelocityPortletPaneledAction
 		restoreRequestState(state, new String[]{CitationHelper.RESOURCES_REQUEST_PREFIX, CitationHelper.CITATION_PREFIX}, requestStateId);
 
 		CitationCollection collection = getCitationCollection(state, true);
-
-		CitationIterator listIterator = (CitationIterator) state.getAttribute(STATE_LIST_ITERATOR);
-		if(listIterator == null)
-		{
-			listIterator = collection.iterator();
-			state.setAttribute(STATE_LIST_ITERATOR, listIterator);
+		if(collection == null) {
+			// error
+		} else {
+			CitationIterator listIterator = (CitationIterator) state.getAttribute(STATE_LIST_ITERATOR);
+			if(listIterator == null)
+			{
+				listIterator = collection.iterator();
+				state.setAttribute(STATE_LIST_ITERATOR, listIterator);
+			} else {
+	
+				int pageSize = listIterator.getPageSize();
+				int totalSize = collection.size();
+				int lastPage = 0;
+		
+				listIterator.setStart(totalSize - pageSize);
+			}
 		}
-
-		int pageSize = listIterator.getPageSize();
-		int totalSize = collection.size();
-		int lastPage = 0;
-
-		listIterator.setStart(totalSize - pageSize);
 
  	}	// doSearch
 
@@ -3128,12 +4130,16 @@ public class CitationHelperAction extends VelocityPortletPaneledAction
 		if(listIterator == null)
 		{
 			CitationCollection collection = getCitationCollection(state, true);
-
-			listIterator = collection.iterator();
-			state.setAttribute(STATE_LIST_ITERATOR, listIterator);
+			if(collection == null) {
+				// error
+			} else {
+				listIterator = collection.iterator();
+				state.setAttribute(STATE_LIST_ITERATOR, listIterator);
+			}
 		}
-
-		listIterator.setStart(0);
+		if(listIterator != null) {
+			listIterator.setStart(0);
+		}
 
  	}	// doSearch
 
@@ -3152,7 +4158,7 @@ public class CitationHelperAction extends VelocityPortletPaneledAction
 		ActiveSearch search = (ActiveSearch) state.getAttribute(STATE_SEARCH_RESULTS);
 		if(search == null)
 		{
-			search = SearchManager.newSearch();
+			search = getSearchManager().newSearch();
 		}
 		// search.prepareForNextPage();
 
@@ -3196,7 +4202,7 @@ public class CitationHelperAction extends VelocityPortletPaneledAction
 		ActiveSearch search = (ActiveSearch) state.getAttribute(STATE_SEARCH_RESULTS);
 		if(search == null)
 		{
-			search = SearchManager.newSearch();
+			search = getSearchManager().newSearch();
 		}
 		// search.prepareForNextPage();
 		try
@@ -3239,7 +4245,7 @@ public class CitationHelperAction extends VelocityPortletPaneledAction
 		ActiveSearch search = (ActiveSearch) state.getAttribute(STATE_SEARCH_RESULTS);
 		if(search == null)
 		{
-			search = SearchManager.newSearch();
+			search = getSearchManager().newSearch();
 		}
 		// search.prepareForNextPage();
 
@@ -3283,7 +4289,7 @@ public class CitationHelperAction extends VelocityPortletPaneledAction
 		ActiveSearch search = (ActiveSearch) state.getAttribute(STATE_SEARCH_RESULTS);
 		if(search == null)
 		{
-			search = SearchManager.newSearch();
+			search = getSearchManager().newSearch();
 			state.setAttribute(STATE_SEARCH_RESULTS, search);
 		}
 		// search.prepareForNextPage();
@@ -3353,16 +4359,18 @@ public class CitationHelperAction extends VelocityPortletPaneledAction
 		int requestStateId = params.getInt("requestStateId", 0);
 		restoreRequestState(state, new String[]{CitationHelper.RESOURCES_REQUEST_PREFIX, CitationHelper.CITATION_PREFIX}, requestStateId);
 
-		// check for top or bottom page selector
-		String pageSelector = params.get( "pageSelector" );
-		int pageSize;
-		if( pageSelector.equals( "top" ) )
-		{
-			pageSize = params.getInt( "pageSizeTop" );
-		}
-		else
-		{
-			pageSize = params.getInt("pageSizeBottom");
+		int pageSize = params.getInt( "newPageSize" );
+		if(pageSize < 1) {
+			// check for top or bottom page selector
+			String pageSelector = params.get( "pageSelector" );
+			if( pageSelector.equals( "top" ) )
+			{
+				pageSize = params.getInt( "pageSizeTop" );
+			}
+			else
+			{
+				pageSize = params.getInt("pageSizeBottom");
+			}
 		}
 
 		if(pageSize > 0)
@@ -3457,8 +4465,8 @@ public class CitationHelperAction extends VelocityPortletPaneledAction
 
 			if (mode == null)
 			{
-				logger.debug("initHelper(): mode is undefined, using " + Mode.SEARCH);
-				setMode(state, Mode.SEARCH);
+				logger.debug("initHelper(): mode is undefined, using " + Mode.NEW_RESOURCE);
+				setMode(state, Mode.NEW_RESOURCE);
 			}
 
 			if (state.getAttribute(STATE_RESULTS_PAGE_SIZE) == null)
@@ -3474,7 +4482,7 @@ public class CitationHelperAction extends VelocityPortletPaneledAction
 		/*
 		 * Resources Tool support
 		 */
-		ToolSession toolSession = SessionManager.getCurrentToolSession();
+		ToolSession toolSession = getSessionManager().getCurrentToolSession();
 		ResourceToolActionPipe pipe = (ResourceToolActionPipe) toolSession.getAttribute(ResourceToolAction.ACTION_PIPE);
 		// TODO: if not entering as a helper, will we need to create pipe???
 
@@ -3504,49 +4512,51 @@ public class CitationHelperAction extends VelocityPortletPaneledAction
 			// set the Mode according to our action
 			switch(pipe.getAction().getActionType())
 			{
-			case CREATE:
-				ContentResource tempResource = createTemporaryResource(pipe);
+			//case CREATE:
+			case CREATE_BY_HELPER:
+//				ContentResource tempResource = createTemporaryResource(pipe);
+//
+//				// tempResource could be null if exception encountered
+//				if( tempResource == null )
+//				{
+//					// leave helper
+//					pipe.setActionCompleted( true );
+//					toolSession.setAttribute(ResourceToolAction.DONE, Boolean.TRUE);
+//					toolSession.removeAttribute(CitationHelper.CITATION_HELPER_INITIALIZED);
+//					cleanup( toolSession, CitationHelper.CITATION_PREFIX, state);
+//
+//					return false;
+//				}
 
-				// tempResource could be null if exception encountered
-				if( tempResource == null )
-				{
-					// leave helper
-					pipe.setActionCompleted( true );
-					toolSession.setAttribute(ResourceToolAction.DONE, Boolean.TRUE);
-					toolSession.removeAttribute(CitationHelper.CITATION_HELPER_INITIALIZED);
-					cleanup( toolSession, CitationHelper.CITATION_PREFIX, state);
-
-					return false;
-				}
-
-				state.setAttribute(CitationHelper.RESOURCE_ID, tempResource.getId());
-
-				String displayName = tempResource.getProperties().getProperty( org.sakaiproject.entity.api.ResourceProperties.PROP_DISPLAY_NAME );
-				state.setAttribute( STATE_COLLECTION_TITLE , displayName );
-
-				try
-				{
-					state.setAttribute(STATE_COLLECTION_ID, new String(tempResource.getContent()));
-				}
-				catch (ServerOverloadException e)
-				{
-					logger.warn("ServerOverloadException ", e);
-				}
+//				state.setAttribute(CitationHelper.RESOURCE_ID, tempResource.getId());
+//
+//				String displayName = tempResource.getProperties().getProperty( org.sakaiproject.entity.api.ResourceProperties.PROP_DISPLAY_NAME );
+//				state.setAttribute( STATE_COLLECTION_TITLE , displayName );
+//
+//				try
+//				{
+//					state.setAttribute(STATE_COLLECTION_ID, new String(tempResource.getContent()));
+//				}
+//				catch (ServerOverloadException e)
+//				{
+//					logger.warn("ServerOverloadException ", e);
+//				}
 				state.setAttribute( STATE_RESOURCES_ADD, Boolean.TRUE );
-				setMode(state, Mode.ADD_CITATIONS);
+				//setMode(state, Mode.ADD_CITATIONS);
+				setMode(state, Mode.NEW_RESOURCE);
 				break;
 			case REVISE_CONTENT:
 				state.setAttribute(CitationHelper.RESOURCE_ID, pipe.getContentEntity().getId());
 				try
 				{
-					state.setAttribute(STATE_COLLECTION_ID, new String(((ContentResource) pipe.getContentEntity()).getContent()));
+					state.setAttribute(STATE_CITATION_COLLECTION_ID, new String(((ContentResource) pipe.getContentEntity()).getContent()));
 				}
 				catch (ServerOverloadException e)
 				{
 					logger.warn("ServerOverloadException ", e);
 				}
 				state.removeAttribute( STATE_RESOURCES_ADD );
-				setMode(state, Mode.LIST);
+				setMode(state, Mode.NEW_RESOURCE);
 				break;
 			default:
 				break;
@@ -3568,7 +4578,8 @@ public class CitationHelperAction extends VelocityPortletPaneledAction
 			if( mode == null )
 			{
 				// default to ADD_CITATIONS
-				setMode( state, Mode.ADD_CITATIONS );
+				//setMode( state, Mode.ADD_CITATIONS );
+				setMode( state, Mode.NEW_RESOURCE );
 			}
 		}
 
@@ -3595,50 +4606,44 @@ public class CitationHelperAction extends VelocityPortletPaneledAction
     {
         try
         {
-			ContentHostingService contentService = (ContentHostingService) ComponentManager.get("org.sakaiproject.content.api.ContentHostingService");
-			ContentResourceEdit newItem = contentService.addResource(pipe.getContentEntity().getId(), rb.getString("new.citations.list"), null, ContentHostingService.MAXIMUM_ATTEMPTS_FOR_UNIQUENESS);
-			newItem.setResourceType(CitationService.CITATION_LIST_ID);
+			ContentResourceEdit newItem = getContentService().addResource(pipe.getContentEntity().getId(), rb.getString("new.citations.list"), null, ContentHostingService.MAXIMUM_ATTEMPTS_FOR_UNIQUENESS);
+			newItem.setResourceType(getCitationService().CITATION_LIST_ID);
 			newItem.setContentType( ResourceType.MIME_TYPE_HTML );
 			//newItem.setHidden();
 
 			ResourcePropertiesEdit props = newItem.getPropertiesEdit();
 
 			// set the alternative_reference to point to reference_root for CitationService
-			props.addProperty(contentService.PROP_ALTERNATE_REFERENCE, org.sakaiproject.citation.api.CitationService.REFERENCE_ROOT);
+			props.addProperty(getContentService().PROP_ALTERNATE_REFERENCE, CitationService.REFERENCE_ROOT);
 			props.addProperty(ResourceProperties.PROP_CONTENT_TYPE, ResourceType.MIME_TYPE_HTML);
-			props.addProperty(CitationService.PROP_TEMPORARY_CITATION_LIST, Boolean.TRUE.toString());
+			props.addProperty(getCitationService().PROP_TEMPORARY_CITATION_LIST, Boolean.TRUE.toString());
 
-			CitationCollection collection = CitationService.addCollection();
+			CitationCollection collection = getCitationService().addCollection();
 			newItem.setContent(collection.getId().getBytes());
 			newItem.setContentType(ResourceType.MIME_TYPE_HTML);
 
-			contentService.commitResource(newItem, NotificationService.NOTI_NONE);
+			getContentService().commitResource(newItem, NotificationService.NOTI_NONE);
 
 			return newItem;
         }
         catch (PermissionException e)
         {
-            // TODO Auto-generated catch block
             logger.warn("PermissionException ", e);
         }
         catch (IdUniquenessException e)
         {
-            // TODO Auto-generated catch block
             logger.warn("IdUniquenessException ", e);
         }
         catch (IdLengthException e)
         {
-            // TODO Auto-generated catch block
             logger.warn("IdLengthException ", e);
         }
         catch (IdInvalidException e)
         {
-            // TODO Auto-generated catch block
             logger.warn("IdInvalidException ", e);
         }
         catch (IdUnusedException e)
         {
-            // TODO Auto-generated catch block
             logger.warn("IdUnusedException ", e);
         }
         catch (OverQuotaException e)
@@ -3651,7 +4656,6 @@ public class CitationHelperAction extends VelocityPortletPaneledAction
         }
         catch (ServerOverloadException e)
         {
-            // TODO Auto-generated catch block
             logger.warn("ServerOverloadException ", e);
         }
 
@@ -3763,7 +4767,7 @@ public class CitationHelperAction extends VelocityPortletPaneledAction
 		 */
 		public static String escapeHtmlAndJsQuoted(String string)
 		{
-		  String escapedText = Validator.escapeJsQuoted(string);
+		  String escapedText = getFormattedText().escapeJsQuoted(string);
 
 		  return escapedText.replaceAll("\"", "&quot;");
 		}
@@ -3804,13 +4808,16 @@ public class CitationHelperAction extends VelocityPortletPaneledAction
 
 		String collectionId = params.getString("collectionId");
 
-		String sort = params.getString("sort");
+		String sort = params.getString("currentSort");
+        if(sort == null || sort.trim().equals("")) {
+        	sort = CitationCollection.SORT_BY_TITLE;
+        }
 
 		CitationCollection collection = null;
 
 		if(collectionId == null)
 		{
-			collectionId = (String) state.getAttribute(STATE_COLLECTION_ID);
+			collectionId = (String) state.getAttribute(STATE_CITATION_COLLECTION_ID);
 		}
 
         logger.debug("doSortCollection sort type  = " + sort);
@@ -3861,7 +4868,8 @@ public class CitationHelperAction extends VelocityPortletPaneledAction
 
 		} // end else
 
-		setMode(state, Mode.LIST);
+		//setMode(state, Mode.LIST);
+		setMode(state, Mode.NEW_RESOURCE);
 
 	}  // doSortCollection
 
@@ -3880,7 +4888,7 @@ public class CitationHelperAction extends VelocityPortletPaneledAction
 
 		if(collectionId == null)
 		{
-			collectionId = (String) state.getAttribute(STATE_COLLECTION_ID);
+			collectionId = (String) state.getAttribute(STATE_CITATION_COLLECTION_ID);
 		}
 
         collection = getCitationCollection(state, false);
@@ -3894,14 +4902,15 @@ public class CitationHelperAction extends VelocityPortletPaneledAction
 		else
 		{
 			// save the collection (this will persist the sort order to the db)
-	        CitationService.save(collection);
+	        getCitationService().save(collection);
 
 	        String sort = collection.getSort();
 
 	        if (sort != null)
 	          state.setAttribute("sort", sort);
 
-			setMode(state, Mode.LIST);
+			//setMode(state, Mode.LIST);
+			setMode(state, Mode.NEW_RESOURCE);
 
 		}
 	} // end doSaveCollection
@@ -3962,7 +4971,7 @@ public class CitationHelperAction extends VelocityPortletPaneledAction
 			requestState.put(ResourceToolAction.ACTION_PIPE, pipe);
 		}
 
-		Tool tool = ToolManager.getCurrentTool();
+		Tool tool = getToolManager().getCurrentTool();
 		Object url = state.getAttribute(tool.getId() + Tool.HELPER_DONE_URL);
 		if( url != null)
 		{
@@ -4001,6 +5010,201 @@ public class CitationHelperAction extends VelocityPortletPaneledAction
 		}
 
 	}
+	
+	protected Map<String,Object> getProperties(ContentEntity entity, SessionState state) {
+		Map<String,Object> props = new HashMap<String,Object>();
+		
+		ResourceProperties properties = entity.getProperties();
+		Reference ref = getEntityManager().newReference(entity.getReference());
+		DateFormat df = DateFormat.getDateTimeInstance();
+		
+		// isHidden
+		props.put(PROP_IS_HIDDEN, new Boolean(entity.isHidden()));
+		// releaseDate, useReleaseDate
+		Date releaseDate = null;
+		if(entity.getReleaseDate() == null) {
+			releaseDate = new Date(System.currentTimeMillis());
+			props.put(PROP_USE_RELEASE_DATE, Boolean.FALSE);
+		} else {
+			releaseDate = new Date(entity.getReleaseDate().getTime());
+			props.put(PROP_USE_RELEASE_DATE, Boolean.TRUE);
+		}
+		props.put(PROP_RELEASE_DATE_STR, df.format(releaseDate));
+		props.put(PROP_RELEASE_DATE, releaseDate);
+		// retractDate, useRetractDate
+		Date retractDate = null;
+		if(entity.getRetractDate() == null) {
+			retractDate = new Date(System.currentTimeMillis() + ONE_WEEK);
+			props.put(PROP_USE_RETRACT_DATE, Boolean.FALSE);
+		} else {
+			retractDate = new Date(entity.getRetractDate().getTime());
+			props.put(PROP_USE_RETRACT_DATE, Boolean.TRUE);
+		}
+		props.put(PROP_RETRACT_DATE_STR, df.format(retractDate));
+		props.put(PROP_RETRACT_DATE, retractDate);
+		
+		// isCollection
+		props.put(PROP_IS_COLLECTION, entity.isCollection());
+		// isDropbox
+		props.put(PROP_IS_DROPBOX, new Boolean(getContentService().isInDropbox(entity.getId())));
+		// isSiteCollection
+		props.put(PROP_IS_SITE_COLLECTION, new Boolean(ref.getContext() != null && ref.getContext().equals(entity.getId())));
+		// isPubview
+		props.put(PROP_IS_PUBVIEW, getContentService().isPubView(entity.getId()));
+		// isPubviewInherited
+		props.put(PROP_IS_PUBVIEW_INHERITED, new Boolean(getContentService().isInheritingPubView(entity.getId())));
+		// isPubviewPossible
+		Boolean preventPublicDisplay = (Boolean) state.getAttribute("resources.request.prevent_public_display");
+		if(preventPublicDisplay == null) {
+			preventPublicDisplay = Boolean.FALSE;
+		}
+		props.put(PROP_IS_PUBVIEW_POSSIBLE, new Boolean(! preventPublicDisplay.booleanValue()));
+		
+		// accessMode
+		AccessMode accessMode = entity.getAccess();
+		props.put(PROP_ACCESS_MODE, accessMode);
+		// isGroupInherited
+		props.put(PROP_IS_GROUP_INHERITED, AccessMode.GROUPED == entity.getInheritedAccess());
+				
+		SiteService siteService = (SiteService) ComponentManager.get(SiteService.class);
+		
+		Set<String> currentGroups = new TreeSet<String>();
+		if(AccessMode.GROUPED == accessMode) {
+			for(Group gr : (Collection<Group>) entity.getGroupObjects()) {
+				currentGroups.add(gr.getId());
+			}
+		} 
+		
+		// possibleGroups
+		Collection<Group> inheritedGroupObjs = null;
+		if(entity.getInheritedAccess() == AccessMode.GROUPED) {
+			inheritedGroupObjs = entity.getInheritedGroupObjects();
+		} else {
+			try {
+				Site site = siteService.getSite(ref.getContext());
+				inheritedGroupObjs = site.getGroups();
+			} catch (IdUnusedException e) {
+				logger.warn("IdUnusedException in getProperties() " + e);
+			}
+		}
+		List<Map<String,String>> groups = new ArrayList<Map<String,String>>();
+		if(inheritedGroupObjs != null) {
+			Collection<Group> groupsWithRemovePermission = null;
+			if(AccessMode.GROUPED == accessMode)
+			{
+				groupsWithRemovePermission = contentService.getGroupsWithRemovePermission(entity.getId());
+				String container = ref.getContainer();
+				if(container != null)
+				{
+					Collection<Group> more = contentService.getGroupsWithRemovePermission(container);
+					if(more != null && ! more.isEmpty())
+					{
+						groupsWithRemovePermission.addAll(more);
+					}
+				}
+			} else if(AccessMode.GROUPED == entity.getInheritedAccess()) {
+				groupsWithRemovePermission = contentService.getGroupsWithRemovePermission(ref.getContainer());
+			}
+			else if(ref.getContext() != null && contentService.getSiteCollection(ref.getContext()) != null)
+			{
+				groupsWithRemovePermission = contentService.getGroupsWithRemovePermission(contentService.getSiteCollection(ref.getContext()));
+			}
+			
+			Set<String> idsOfGroupsWithRemovePermission = new TreeSet<String>();
+			if(groupsWithRemovePermission != null) {
+				for(Group gr : groupsWithRemovePermission) {
+					idsOfGroupsWithRemovePermission.add(gr.getId());
+				}
+ 			}
+			
+			for(Group group : inheritedGroupObjs) {
+				Map<String, String> grp = new HashMap<String, String>();
+				grp.put("groupId", group.getId());
+				grp.put("title", group.getTitle());
+				grp.put("description", group.getDescription());
+				grp.put("entityRef", group.getReference());
+				if(currentGroups.contains(group.getId())) {
+					grp.put("isLocal", Boolean.toString(true));
+				}
+				if(idsOfGroupsWithRemovePermission.contains(group.getId())) {
+					grp.put("allowedRemove", Boolean.toString(true));
+				}
+				groups.add(grp);
+			}
+		}
+		props.put(PROP_POSSIBLE_GROUPS, groups);
+		// isGroupPossible
+		props.put(PROP_IS_GROUP_POSSIBLE, new Boolean(groups != null && groups.size() > 0));
+		// isSingleGroupInherited
+		props.put(PROP_IS_SINGLE_GROUP_INHERITED, new Boolean(groups != null && groups.size() == 1));
+		// isSiteOnly = ! isPubviewPossible && ! isGroupPossible
+		props.put(PROP_IS_SITE_ONLY, new Boolean(preventPublicDisplay.booleanValue() && (groups == null || groups.size() < 1)));
+		// isUserSite
+		props.put(PROP_IS_USER_SITE, siteService.isUserSite(ref.getContext()));
 
+		// getSelectedConditionKey
+		// getSubmittedResourceFilter
+		// isUseConditionalRelease
+
+		state.setAttribute(STATE_RESOURCE_ENTITY_PROPERTIES, props);
+
+		return props;
+	}
+
+	protected CitationService getCitationService() {
+		if(this.citationService == null) {
+			this.citationService = (CitationService) ComponentManager.get(CitationService.class);
+		}
+		return this.citationService;
+	}
+	
+	protected ConfigurationService getConfigurationService() {
+		if(this.configurationService == null) {
+			this.configurationService = (ConfigurationService) ComponentManager.get(ConfigurationService.class);
+		}
+		return this.configurationService;
+	}
+	
+	protected SearchManager getSearchManager() {
+		if(this.searchManager == null) {
+			this.searchManager = (SearchManager) ComponentManager.get(SearchManager.class);
+		}
+		return this.searchManager;
+	}
+
+	protected ContentHostingService getContentService() {
+		if(this.contentService == null) {
+			this.contentService = (ContentHostingService) ComponentManager.get("org.sakaiproject.content.api.ContentHostingService");
+		}
+		return this.contentService;
+	}
+	
+	protected EntityManager getEntityManager() {
+		if(this.entityManager == null) {
+			this.entityManager = (EntityManager) ComponentManager.get(EntityManager.class);
+		}
+		return this.entityManager;
+	}
+	
+	protected SessionManager getSessionManager() {
+		if(this.sessionManager == null) {
+			this.sessionManager = (SessionManager) ComponentManager.get(SessionManager.class);
+		}
+		return this.sessionManager;
+	}
+	
+	protected static ToolManager getToolManager() {
+		if(toolManager == null) {
+			toolManager = (ToolManager) ComponentManager.get(ToolManager.class);
+		}
+		return toolManager;
+	}
+	
+	protected static FormattedText getFormattedText() {
+		if(formattedText == null) {
+			formattedText = (FormattedText) ComponentManager.get(FormattedText.class);
+		}
+		return formattedText;
+	}
 
 }	// class CitationHelperAction

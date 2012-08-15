@@ -1,7 +1,10 @@
 <tr>
 	<td headers="checkboxes" class="attach">
-		<input type="checkbox" name="selected" id="select_$!{citation.id}"
-		  value="$!{citation.id}" onclick="highlightCheckedSelections();" /> 
+<!-- onclick="highlightCheckedSelections();" -->	
+		<span class="itemCheckbox">
+			<input type="checkbox" name="selected" id="select_$!{citation.id}"
+			  value="$!{citation.id}"  /> 
+		</span>
 	</td>
 	<td colspan="2" headers="details">
 

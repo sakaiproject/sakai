@@ -10,35 +10,24 @@
           </span>
         </div>
         <div class="listNav">
-          <input type="button" name="firstPage" id="firstPage"
+          <input type="button" name="firstPage" class="firstPage"
             value="&lt;&lt;" alt="$tlang.getString("first.results")"
-            #if(! $citations.hasPreviousPage())disabled="disabled" #end
-            onclick="javascript: showSpinner( '.pageLoad' ); document.getElementById('sakai_action').value='doFirstListPage'; submitform('$FORM_NAME');"
-          />
-          <input type="button" name="prevPage" id="prevPage"
+            #if(! $citations.hasPreviousPage())disabled="disabled" #end />
+          <input type="button" name="prevPage" class="prevPage"
             value="&lt;" alt="$tlang.getString("prev.results")"
-            #if(! $citations.hasPreviousPage())disabled="disabled" #end
-            onclick="javascript: showSpinner( '.pageLoad' ); document.getElementById('sakai_action').value='doPrevListPage'; submitform('$FORM_NAME');"
-          />
-          <select name="pageSizeTop" id="pageSizeTop"
-            onchange="javascript: changePageSize( 'doChangeListPageSize', 'top', '$FORM_NAME' );">
-            #if(!$show_citations)disabled="disabled"#end>
+            #if(! $citations.hasPreviousPage())disabled="disabled" #end />
+          <select name="pageSizeTop" id="pageSizeTop" #if(!$show_citations)disabled="disabled"#end class="pageSize">
             <option value="10" #if("$!{listPageSize}" == "10") selected="selected"#end>$tlang.getString("show10.results")</option>
             <option value="20" #if("$!{listPageSize}" == "20") selected="selected"#end>$tlang.getString("show20.results")</option>
             <option value="30" #if("$!{listPageSize}" == "30") selected="selected"#end>$tlang.getString("show30.results")</option>
             <option value="40" #if("$!{listPageSize}" == "40") selected="selected"#end>$tlang.getString("show40.results")</option>
             <option value="50" #if("$!{listPageSize}" == "50") selected="selected"#end>$tlang.getString("show50.results")</option>
           </select>
-          <input type="button" name="nextPage" id="nextPage" value="&gt;"
-            alt="$tlang.getString("next.results")"
-            #if(! $citations.hasNextPage()) disabled="disabled"#end
-            onclick="javascript: showSpinner( '.pageLoad' ); document.getElementById('sakai_action').value='doNextListPage'; submitform('$FORM_NAME');"
-          />
-          <input type="button" name="lastPage" id="lastPage"
-            value="&gt;&gt;" alt="$tlang.getString("last.results")"
-            #if(! $citations.hasNextPage()) disabled="disabled"#end
-            onclick="javascript: showSpinner( '.pageLoad' ); document.getElementById('sakai_action').value='doLastListPage'; submitform('$FORM_NAME');"
-          />
+          <span style="display:none;" class="pageSizeLocation">top</span>
+          <input type="button" name="nextPage" class="nextPage" value="&gt;" alt="$tlang.getString("next.results")"
+            #if(! $citations.hasNextPage()) disabled="disabled"#end />
+          <input type="button" name="lastPage" class="lastPage" value="&gt;&gt;" alt="$tlang.getString("last.results")"
+            #if(! $citations.hasNextPage()) disabled="disabled"#end />
         </div>
       </th>
     </tr>
@@ -50,8 +39,7 @@
       <td NOWRAP>
         <div class="viewNav" style="padding: 0pt;">
           $tlang.getString( "actions.list" )
-          <select name="citationAction" id="citationAction" class="citationActionSelect"
-            onfocus="updateSelectableActions()" onchange="doCitationAction(this.value)">
+          <select name="citationAction" id="citationAction" class="citationActionSelect">
             <option value="null"> - $tlang.getString( "select.action.list" ) - </option>
             <option class="selectAction" disabled="disabled" value="exportSelected">$tlang.getString( "export.select.list" )</option>
             <option value="exportList">$tlang.getString( "export.all.list" )</option>
@@ -59,31 +47,32 @@
             <option value="removeList">$tlang.getString( "remove.all.list" )</option>
             <option value="reorderList">$tlang.getString( "reorder.list" )</option>
           </select>
+          <span style="display:none;" id="exportUrlSel">$exportUrlSel</span>
+          <span style="display:none;" id="exportUrlAll">$exportUrlAll</span>
+          <span style="display:none;" id="removeUrlSel">#contentLink("Main")&sakai_action=doRemoveSelectedCitations&collectionId=$collectionId</span>
+          <span style="display:none;" id="removeUrlAll">$removeUrlAll</span>
+          <span style="display:none;" class="collectionId">$collectionId</span>
+          <span style="display:none;" id="selectActionWarnLabel">$tlang.getString( "select.warn.list" )</span>
         </div>
       </td>
-<!-- 
-Added for column sort 
--->
       <td>
         <div class="viewNav" style="padding: 0pt;">
           $tlang.getString("sort.label"):
-          <select name="citationSortAction"
-            onchange="doCitationSortAction(this.value)">
+          <select name="citationSortAction" class="citationSortAction">
             <option class="selectAction" value="author" #if ($sort == "author") SELECTED #end>$tlang.getString("sort.author")</option>
             <option class="selectAction" value="title"  #if ($sort == "title" || $sort == "title") SELECTED #end>$tlang.getString("sort.title")</option>
             <option class="selectAction" value="year"   #if ($sort == "year") SELECTED #end>$tlang.getString("sort.date")</option>
             <option class="selectAction" value="position" #if ($sort == "position") SELECTED #end>$tlang.getString("sort.position")</option>
           </select>
-		  <input type="button" name="savesort" value="$tlang.getString("submit.sort")"
-		   onclick="document.getElementById('sakai_action').value='doSaveCollection';submitform('$FORM_NAME');"/>
+		  <input type="button" name="savesort" class="savesort" value="$tlang.getString("submit.sort")" />
         </div>
       </td>
     </tr>
     <tr class="exclude">
       <td colspan="3">
         <div class="itemAction">
-          <a href="#" onclick="selectAll( '$FORM_NAME' ); return false;">$tlang.getString("select.all.list")</a> |
-          <a href="#" onclick="selectNone( '$FORM_NAME' ); return false;">$tlang.getString("select.none.list")</a>
+          <a href="#" class="selectAll">$tlang.getString("select.all.list")</a> |
+          <a href="#" class="selectNone">$tlang.getString("select.none.list")</a>
         </div>
       </td>
     </tr>
@@ -94,8 +83,8 @@ Added for column sort
     <tr class="exclude">
       <td colspan="3">
         <div class="itemAction">
-          <a href="#" onclick="selectAll( '$FORM_NAME' ); return false;">$tlang.getString("select.all.list")</a> |
-          <a href="#" onclick="selectNone( '$FORM_NAME' ); return false;">$tlang.getString("select.none.list")</a>
+          <a href="#" class="selectAll">$tlang.getString("select.all.list")</a> |
+          <a href="#" class="selectNone">$tlang.getString("select.none.list")</a>
         </div>
       </td>
     </tr>
@@ -104,8 +93,7 @@ Added for column sort
       <td>
         <div class="viewNav" style="padding: 0pt;">
           $tlang.getString( "actions.list" )
-          <select name="citationAction" id="citationAction" class="citationActionSelect"
-            onfocus="updateSelectableActions()" onchange="doCitationAction(this.value)">
+          <select name="citationAction" id="citationAction" class="citationActionSelect">
             <option value="null"> - $tlang.getString( "select.action.list" ) - </option>
             <option class="selectAction" disabled="disabled" value="exportSelected">$tlang.getString( "export.select.list" )</option>
             <option value="exportList">$tlang.getString( "export.all.list" )</option>
@@ -115,31 +103,28 @@ Added for column sort
           </select>
         </div>
       </td>
- <!-- 
-Added for column sort 
--->
       <td>
         <div class="viewNav" style="padding: 0pt;">
           $tlang.getString("sort.label"):
-          <select name="citationSortAction"
-            onchange="doCitationSortAction(this.value)">
+          <select name="citationSortAction" class="citationSortAction">
             <option class="selectAction" value="author" #if ($sort == "author") SELECTED #end>$tlang.getString("sort.author")</option>
             <option class="selectAction" value="title"  #if ($sort == "title" || $sort == "title") SELECTED #end>$tlang.getString("sort.title")</option>
             <option class="selectAction" value="year"   #if ($sort == "year") SELECTED #end>$tlang.getString("sort.date")</option>
             <option class="selectAction" value="position" #if ($sort == "position") SELECTED #end>$tlang.getString("sort.position")</option>
           </select>
-		  <input type="button" name="savesort" value="$tlang.getString("submit.sort")"
-		   onclick="document.getElementById('sakai_action').value='doSaveCollection';submitform('$FORM_NAME');"/>
+		  <input type="button" name="savesort" class="savesort" value="$tlang.getString("submit.sort")" />
         </div>
       </td>
     </tr>
 
 	#else
-		<tr class="exclude">
-			<td colspan="3" style="text-align:center; padding: 3em;">
-				<p class="instruction">$tlang.getFormattedMessage( "empty.list", $emptyListArgs )</p>
-			</td>
-		</tr>
+	
+	<tr class="exclude">
+		<td colspan="3" style="text-align:center; padding: 3em;">
+			<p class="instruction">$tlang.getFormattedMessage( "empty.list", $emptyListArgs )</p>
+		</td>
+	</tr>
+	
 	#end
 
 	<tr>
@@ -152,35 +137,27 @@ Added for column sort
           </span>
         </div>
         <div class="listNav">
-          <input type="button" name="firstPage" id="firstPage"
+          <input type="button" name="firstPage" class="firstPage"
             value="&lt;&lt;" alt="$tlang.getString("first.results")"
-            #if(! $citations.hasPreviousPage())disabled="disabled" #end
-            onclick="javascript: showSpinner( '.pageLoad' ); document.getElementById('sakai_action').value='doFirstListPage'; submitform('$FORM_NAME');"
-          />
-          <input type="button" name="prevPage" id="prevPage"
+              #if(! $citations.hasPreviousPage())disabled="disabled" #end/>
+          <input type="button" name="prevPage" class="prevPage"
             value="&lt;" alt="$tlang.getString("prev.results")"
-            #if(! $citations.hasPreviousPage())disabled="disabled" #end
-            onclick="javascript: showSpinner( '.pageLoad' ); document.getElementById('sakai_action').value='doPrevListPage'; submitform('$FORM_NAME');"
-          />
-          <select name="pageSizeBottom" id="pageSizeBottom"
-            onchange="javascript: changePageSize( 'doChangeListPageSize', 'bottom', '$FORM_NAME' );">
-            #if(!$show_citations)disabled="disabled"#end>
+              #if(! $citations.hasPreviousPage())disabled="disabled" #end/>
+          <select name="pageSizeBottom" id="pageSizeBottom" class="pageSize">
+              #if(!$show_citations)disabled="disabled"#end>
             <option value="10" #if("$!{listPageSize}" == "10") selected="selected"#end>$tlang.getString("show10.results")</option>
             <option value="20" #if("$!{listPageSize}" == "20") selected="selected"#end>$tlang.getString("show20.results")</option>
             <option value="30" #if("$!{listPageSize}" == "30") selected="selected"#end>$tlang.getString("show30.results")</option>
             <option value="40" #if("$!{listPageSize}" == "40") selected="selected"#end>$tlang.getString("show40.results")</option>
             <option value="50" #if("$!{listPageSize}" == "50") selected="selected"#end>$tlang.getString("show50.results")</option>
           </select>
-          <input type="button" name="nextPage" id="nextPage" value="&gt;"
+          <span style="display:none;" class="pageSizeLocation">bottom</span>
+          <input type="button" name="nextPage" class="nextPage" value="&gt;"
             alt="$tlang.getString("next.results")"
-            #if(! $citations.hasNextPage()) disabled="disabled"#end
-            onclick="javascript: showSpinner( '.pageLoad' ); document.getElementById('sakai_action').value='doNextListPage'; submitform('$FORM_NAME');"
-          />
-          <input type="button" name="lastPage" id="lastPage"
+              #if(! $citations.hasNextPage()) disabled="disabled"#end />
+          <input type="button" name="lastPage" class="lastPage"
             value="&gt;&gt;" alt="$tlang.getString("last.results")"
-            #if(! $citations.hasNextPage()) disabled="disabled"#end
-            onclick="javascript: showSpinner( '.pageLoad' ); document.getElementById('sakai_action').value='doLastListPage'; submitform('$FORM_NAME');"
-          />
+              #if(! $citations.hasNextPage()) disabled="disabled"#end />
         </div>
       </th>
     </tr>

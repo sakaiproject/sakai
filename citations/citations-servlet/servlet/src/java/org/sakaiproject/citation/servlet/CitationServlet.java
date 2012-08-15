@@ -226,7 +226,7 @@ public class CitationServlet extends VmServlet
 
 		}
 	}
-
+	
 	/**
 	 * Looks for an OpenURL citation in the request.
 	 * @param req
@@ -282,30 +282,33 @@ public class CitationServlet extends VmServlet
 //			sendError( res, HttpServletResponse.SC_SERVICE_UNAVAILABLE );
 //		}
 
-		String collectionTitle = null;
-		
 		// parse the request path
 		String[] parts = option.split("/");
 		String resourceUuid = parts[1];
 		
 		String resourceId = contentService.resolveUuid(resourceUuid);
 
-		ContentResource resource = null;
-		if (resourceId != null) {
-			// revise permission granted
-			if (!citationService.allowReviseCitationList(resourceId)) {
-				// revise permission denied
-				throw new PermissionException(null, null, null);
-			}
-			try {
-				resource = contentService.getResource(resourceId);
-				return resource;
-			} catch (TypeException e) {
-				// Ignore.
-			}
+		if (resourceId == null) {
+			throw new IdUnusedException(resourceUuid);
+		} 
+		
+		// revise permission granted
+		if (!citationService.allowReviseCitationList(resourceId)) {
+			// revise permission denied
+			throw new PermissionException(null, null, null);
 		}
-		throw new IdUnusedException(resourceUuid);
+		
+		ContentResource resource = null;
+		try {
+			resource = contentService.getResource(resourceId);
+			
+		} catch (TypeException e) {
+			// Ignore.
+			M_log.debug("TypeException in findResource() " + e.getMessage());
+		}
+		return resource;
 	}
+		
 
 	public void addCitation(ContentResource resource, Citation citation) throws IdUnusedException, ServerOverloadException {
 		String collectionId = new String(resource.getContent());

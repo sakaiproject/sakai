@@ -203,7 +203,7 @@ public class BasicCitationService extends BaseCitationService
         public CitationCollection addCollection(Map attributes, List citations)
         {
          	// need to create a collection (referred to below as "edit")
-        	BasicCitationCollection edit = new BasicCitationCollection(attributes, citations);
+        	CitationCollection edit = new BasicCitationCollection(attributes, citations);
         	
         	this.m_collections.put(edit.getId(), edit);
         	
@@ -284,7 +284,7 @@ public class BasicCitationService extends BaseCitationService
 
 		public CitationCollection copyAll(String collectionId) 
 		{
-			BasicCitationCollection original = (BasicCitationCollection) this.m_collections.get(collectionId);
+			CitationCollection original = (CitationCollection) this.m_collections.get(collectionId);
 			CitationCollection copy = null;
 			
 			if(original != null)
