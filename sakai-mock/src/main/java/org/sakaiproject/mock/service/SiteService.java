@@ -366,5 +366,13 @@ public class SiteService implements org.sakaiproject.site.api.SiteService {
 		// TODO Auto-generated method stub
 		return null;
 	}
+	
+	/* (non-Javadoc)
+	 * @see org.sakaiproject.site.api.SiteService#allowAddProjectSite()
+	 */
+	public boolean allowAddProjectSite()
+	{
+		return true;
+	}
 
 }
