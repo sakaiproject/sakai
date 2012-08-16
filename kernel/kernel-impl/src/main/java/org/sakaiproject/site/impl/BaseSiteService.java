@@ -489,6 +489,7 @@ public abstract class BaseSiteService implements SiteService
 			functionManager().registerFunction(SECURE_ADD_COURSE_SITE);
 			functionManager().registerFunction(SITE_VISIT_SOFTLY_DELETED);
 			functionManager().registerFunction(SECURE_REMOVE_SOFTLY_DELETED_SITE);
+			functionManager().registerFunction(SECURE_ADD_PROJECT_SITE);
 
 		}
 		catch (Exception t)
@@ -1074,6 +1075,9 @@ public abstract class BaseSiteService implements SiteService
 		else if (id != null && isPortfolioSite(id)) {
 			return unlockCheck(SECURE_ADD_PORTFOLIO_SITE, siteReference(id));
 		}
+		else if (id != null && isProjectSite(id)) {
+			return unlockCheck(SECURE_ADD_PROJECT_SITE, siteReference(id));
+		}
 		else
 		{
 			return unlockCheck(SECURE_ADD_SITE, siteReference(id));
@@ -1108,12 +1112,30 @@ public abstract class BaseSiteService implements SiteService
 		return rv;
 	}
 	
+	private boolean isProjectSite(String siteId) {
+		boolean rv = false;
+		try {
+			Site s = getSite(siteId);
+			if (serverConfigurationService().getString("projectSiteType", "project").equals(s.getType())) 
+				return true;
+				
+		} catch (IdUnusedException e) {
+			M_log.warn("isProjectSite(): no site with id: " + siteId);
+		}
+		
+		return rv;
+	}
+	
 	public boolean allowAddCourseSite() {
 		return unlockCheck(SECURE_ADD_COURSE_SITE, siteReference(null));
 	}
 
 	public boolean allowAddPortfolioSite() {
 		return unlockCheck(SECURE_ADD_PORTFOLIO_SITE, siteReference(null));
+	}
+	
+	public boolean allowAddProjectSite() {
+		return unlockCheck(SECURE_ADD_PROJECT_SITE, siteReference(null));
 	}
 	
 	/**
@@ -1145,6 +1167,11 @@ public abstract class BaseSiteService implements SiteService
 		// KNL-703
 		if (serverConfigurationService().getString("portfolioSiteType", "portfolio").equals(type)) {
 			unlock(SECURE_ADD_PORTFOLIO_SITE, siteReference(id));
+		}
+		
+		// KNL-952
+		if (serverConfigurationService().getString("projectSiteType", "project").equals(type)) {
+			unlock(SECURE_ADD_PROJECT_SITE, siteReference(id));
 		}
 
 		// reserve a site with this id from the info store - if it's in use, this will return null
@@ -1197,6 +1224,11 @@ public abstract class BaseSiteService implements SiteService
 		// KNL-703
 		if ( isPortfolioSite(other.getId()) ) {
 			unlock(SECURE_ADD_PORTFOLIO_SITE, siteReference(id));			
+		}
+		
+		// KNL-952
+		if ( isProjectSite(other.getId()) ) {
+			unlock(SECURE_ADD_PROJECT_SITE, siteReference(id));			
 		}
 
 		// reserve a site with this id from the info store - if it's in use, this will return null
