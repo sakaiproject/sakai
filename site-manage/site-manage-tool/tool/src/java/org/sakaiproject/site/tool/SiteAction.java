@@ -346,7 +346,11 @@ public class SiteAction extends PagedResourceActionII {
 	private static final String STATE_SITE_ADD_PORTFOLIO = "canAddPortfolio";
 	
 	private static final String STATE_PORTFOLIO_SITE_TYPE = "portfolio";
-	
+		
+	private static final String STATE_SITE_ADD_PROJECT = "canAddProject";
+		
+	private static final String STATE_PROJECT_SITE_TYPE = "project";
+			
 
 	// %%% get rid of the IdAndText tool lists and just use ToolConfiguration or
 	// ToolRegistration lists
@@ -1319,6 +1323,10 @@ public class SiteAction extends PagedResourceActionII {
 		context.put("portfolioSiteType", STATE_PORTFOLIO_SITE_TYPE);
 		context.put(STATE_SITE_ADD_PORTFOLIO, SiteService.allowAddPortfolioSite());
 		
+		// can the user create project sites?
+		context.put("projectSiteType", STATE_PROJECT_SITE_TYPE);
+		context.put(STATE_SITE_ADD_PROJECT, SiteService.allowAddProjectSite());
+		
 
 		
 		Site site = getStateSite(state);
@@ -1428,7 +1436,19 @@ public class SiteAction extends PagedResourceActionII {
 
 			pagingInfoToContext(state, context);
 			
-			context.put("allowAddSite",Boolean.valueOf(SiteService.allowAddSite(null)));
+			//SAK-22438 if user can add one of these site types then they can see the link to add a new site
+			boolean allowAddSite = false;
+			if(SiteService.allowAddCourseSite()) {
+				allowAddSite = true;
+			} else if (SiteService.allowAddPortfolioSite()) {
+				allowAddSite = true;
+			} else if (SiteService.allowAddProjectSite()) {
+				allowAddSite = true;
+			}
+			
+			context.put("allowAddSite",allowAddSite);
+
+			
 			return (String) getContext(data).get("template") + TEMPLATE[0];
 		case 1:
 			/*
