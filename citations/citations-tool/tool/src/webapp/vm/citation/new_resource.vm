@@ -325,18 +325,18 @@ span.searchTargetLink { margin-right:50px; }
 			</fieldset>
 			######### end availability section ##########	
 			<br />
+			<p class="shorttext">
+				<label for="notify">
+					$tlang.getString("resource.gen.email1")
+				</label>	
+				<select name="notify" id="notify">
+					<option value="r">$tlang.getString("resource.gen.email2")</option>
+					<option value="o">$tlang.getString("resource.gen.email3")</option>
+					<option value="n" selected="selected">$tlang.getString("resource.gen.email4")</option>
+				</select>
+			</p>
+			<br />
 		</div>
-		
-		<p class="shorttext">
-			<label for="notify">
-				$tlang.getString("resource.gen.email1")
-			</label>	
-			<select name="notify" id="notify">
-				<option value="r">$tlang.getString("resource.gen.email2")</option>
-				<option value="o">$tlang.getString("resource.gen.email3")</option>
-				<option value="n" selected="selected">$tlang.getString("resource.gen.email4")</option>
-			</select>
-		</p>
 		<input type="hidden" name="sakai_csrf_token" value="$sakai_csrf_token" />
 	</form>	
 	<div id="refreshButtonDiv" style="display:none">

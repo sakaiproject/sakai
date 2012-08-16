@@ -341,13 +341,14 @@ citations_new_resource.watchForUpdates = function(timestamp) {
 		success: function(jsObj) {
 			// in case of status change, update this view
 			if(jsObj && jsObj.changed && jsObj.changed == 'true') {
+				
 				$('#refreshButtonDiv').fadeTo("slow", 1).animate({
 			        opacity: 1.0
 			    }, 5000);
 			}
 			// if the child window is still open, schedule another check
 			if(citations_new_resource.childWindow && size(citations_new_resource.childWindow) > 0) {
-				setTimeout(function() { citations_new_resource.watchForUpdates(jsObj.timestamp); }, 10000);
+				setTimeout(function() { citations_new_resource.watchForUpdates(jsObj.timestamp + 6); }, 10000);
 			}
 		},
 		error		: function(jqXHR, textStatus, errorThrown) {
@@ -410,7 +411,7 @@ citations_new_resource.init = function() {
 				}
 				citations_new_resource.childWindow[this.linkId] = openWindow(this.saveciteClientUrl, this.popupTitle, 'scrollbars=yes,toolbar=yes,resizable=yes,height=' + this.windowHeight + ',width=' + this.windowWidth);
 				citations_new_resource.childWindow[this.linkId].focus();
-				setTimeout(function() { citations_new_resource.watchForUpdates(jsObj.timestamp); }, 10000);
+				setTimeout(function() { citations_new_resource.watchForUpdates(jsObj.timestamp + 6); }, 10000);
 			}
 		};
 		
@@ -439,7 +440,7 @@ citations_new_resource.init = function() {
 				}
 				citations_new_resource.childWindow[this.linkId] = openWindow(this.searchUrl,this.popupTitle,'scrollbars=yes,toolbar=yes,resizable=yes,height=' + DEFAULT_DIALOG_HEIGHT + ',width=' + DEFAULT_DIALOG_WIDTH);
 				citations_new_resource.childWindow[this.linkId].focus();
-				setTimeout(function() { citations_new_resource.watchForUpdates(jsObj.timestamp); }, 10000);
+				setTimeout(function() { citations_new_resource.watchForUpdates(jsObj.timestamp + 6); }, 10000);
 			}
 		};
 		citations_new_resource.processClick(successObj);
@@ -457,7 +458,7 @@ citations_new_resource.init = function() {
 				}
 				citations_new_resource.childWindow[this.linkId] = openWindow(this.googleUrl,this.popupTitle,'scrollbars=yes,toolbar=yes,resizable=yes,height=' + DEFAULT_DIALOG_HEIGHT + ',width=' + DEFAULT_DIALOG_WIDTH);
 				citations_new_resource.childWindow[this.linkId].focus();
-				setTimeout(function() { citations_new_resource.watchForUpdates(jsObj.timestamp); }, 10000);
+				setTimeout(function() { citations_new_resource.watchForUpdates(jsObj.timestamp + 6); }, 10000);
 			}
 		};
 		citations_new_resource.processClick(successObj);

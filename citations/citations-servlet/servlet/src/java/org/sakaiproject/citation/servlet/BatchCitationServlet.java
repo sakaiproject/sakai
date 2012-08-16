@@ -23,10 +23,10 @@ package org.sakaiproject.citation.servlet;
 
 import java.io.IOException;
 import java.io.UnsupportedEncodingException;
-import java.net.URLEncoder;
 import java.net.URLDecoder;
-import java.util.Arrays;
+import java.net.URLEncoder;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collections;
 import java.util.Enumeration;
 import java.util.HashMap;
@@ -38,15 +38,16 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletRequestWrapper;
 import javax.servlet.http.HttpServletResponse;
 
-import org.apache.commons.logging.Log; 
+import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
-
 import org.sakaiproject.citation.api.Citation;
+import org.sakaiproject.citation.api.Schema;
 import org.sakaiproject.content.api.ContentResource;
 import org.sakaiproject.exception.IdUnusedException;
 import org.sakaiproject.exception.PermissionException;
 import org.sakaiproject.exception.ServerOverloadException;
 import org.sakaiproject.util.ParameterParser;
+import org.sakaiproject.util.Validator;
 
 /**
  * 
@@ -56,7 +57,7 @@ public class BatchCitationServlet extends CitationServlet
 {
 
 	private static Log log = LogFactory.getLog(BatchCitationServlet.class);
-
+	
 	/**
 	 * respond to an HTTP GET request
 	 * 
@@ -154,9 +155,15 @@ public class BatchCitationServlet extends CitationServlet
 				setVmReference("error", rb.getString("error.permission"), req);
 			}
 			// Set near end so we always have something
-			setVmReference( "titleArgs",  new String[]{ getCollectionTitle(resource) }, req );
+			setVmReference("titleArgs",  new String[]{ getCollectionTitle(resource) }, req);
+			
+			setVmReference("openUrlLabel", configurationService.getSiteConfigOpenUrlLabel(), req);
+			setVmReference("titleProperty", Schema.TITLE, req);
+			// validator
+			setVmReference("xilator", new Validator(), req);
+
 			// return the servlet template
-			includeVm( SERVLET_TEMPLATE, req, res );
+			includeVm( COMPACT_TEMPLATE, req, res );
 		}
 	}
 	

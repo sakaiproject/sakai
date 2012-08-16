@@ -42,7 +42,7 @@ import org.sakaiproject.citation.api.Citation;
 import org.sakaiproject.citation.api.CitationCollection;
 import org.sakaiproject.citation.api.CitationService;
 import org.sakaiproject.citation.api.Schema;
-import org.sakaiproject.citation.cover.ConfigurationService;
+import org.sakaiproject.citation.api.ConfigurationService;
 import org.sakaiproject.component.cover.ComponentManager;
 import org.sakaiproject.content.api.ContentHostingService;
 import org.sakaiproject.content.api.ContentResource;
@@ -77,6 +77,7 @@ public class CitationServlet extends VmServlet
 	 * 
 	 */
 	public static final String SERVLET_TEMPLATE = "/vm/servlet.vm";
+	public static final String COMPACT_TEMPLATE = "/vm/compact.vm";
 //	private String collectionTitle = null;
 	
 	/** Our log (commons). */
@@ -93,6 +94,8 @@ public class CitationServlet extends VmServlet
 	protected ContentHostingService contentService;
 
 	protected CitationService citationService;
+	
+	protected ConfigurationService configurationService;
 
 	protected enum Status
 	{
@@ -148,6 +151,7 @@ public class CitationServlet extends VmServlet
 		// get services from ComponentManager
 		contentService = (ContentHostingService) ComponentManager.get("org.sakaiproject.content.api.ContentHostingService");
 		citationService = (CitationService) ComponentManager.get("org.sakaiproject.citation.api.CitationService");
+		configurationService = (ConfigurationService) ComponentManager.get("org.sakaiproject.citation.api.ConfigurationService");
 	}
 
 //	/**
@@ -219,10 +223,16 @@ public class CitationServlet extends VmServlet
 			} catch (PermissionException e) {
 				setVmReference("error", rb.getString("error.permission"), req);
 			}
+			
+			setVmReference("openUrlLabel", configurationService.getSiteConfigOpenUrlLabel(), req);
+			setVmReference("titleProperty", Schema.TITLE, req);
+			// validator
+			setVmReference("xilator", new Validator(), req);
+
 			// Set near end so we always have something
 			setVmReference( "titleArgs",  new String[]{ getCollectionTitle(resource) }, req );
 			// return the servlet template
-			includeVm( SERVLET_TEMPLATE, req, res );
+			includeVm( COMPACT_TEMPLATE, req, res );
 
 		}
 	}
@@ -478,7 +488,7 @@ public class CitationServlet extends VmServlet
 		
 		if(client != null && ! client.trim().equals("")) {
 			Locale locale = rb.getLocale();
-			List<Map<String,String>> clientMaps = ConfigurationService.getSaveciteClientsForLocale(locale);
+			List<Map<String,String>> clientMaps = configurationService.getSaveciteClientsForLocale(locale);
 			for(Map<String,String> clientMap : clientMaps) {
 				String clientId = clientMap.get("id");
 				if(clientId == null || clientId.trim().equals("")) {
