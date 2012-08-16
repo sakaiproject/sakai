@@ -611,4 +611,8 @@ public class SakaiProxyImpl implements SakaiProxy {
 	public boolean getSyncMyworkspaceTool(){
 		return serverConfigurationService.getBoolean(DelegatedAccessConstants.PROPERTIES_SYNC_MYWORKSPACE_TOOL, true);
 	}
+	
+	public String[] getHideRolesForInstructorViewAccess(){
+		return serverConfigurationService.getStrings(DelegatedAccessConstants.PROPERTIES_HIDE_ROLES_FOR_VIEW_ACCESS);
+	}
 }

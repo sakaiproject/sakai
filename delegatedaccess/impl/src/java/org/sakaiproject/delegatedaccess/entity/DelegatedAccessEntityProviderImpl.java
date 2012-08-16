@@ -7,6 +7,7 @@ import java.util.Collections;
 import java.util.Comparator;
 import java.util.Date;
 import java.util.HashMap;
+import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
@@ -358,6 +359,20 @@ public class DelegatedAccessEntityProviderImpl implements DelegatedAccessEntityP
         			
         			returnList.add(accessMap);
         		}
+        		//filter hidden roles:
+        		String[] hiddenRoles = sakaiProxy.getHideRolesForInstructorViewAccess();
+        		if(hiddenRoles != null){
+        			for (Iterator iterator = returnList.iterator(); iterator.hasNext();) {
+        				Map<String, Object> map = (Map<String, Object>) iterator.next();
+        				for(String role : hiddenRoles){
+        					if(map.containsKey("role") && role.equals(map.get("role"))){
+        						iterator.remove();
+        						break;
+        					}
+        				}
+        			}
+        		}
+        		
         		return returnList;
         	}else{
         		throw new IllegalArgumentException("Expected url path is /access/site/{id}");

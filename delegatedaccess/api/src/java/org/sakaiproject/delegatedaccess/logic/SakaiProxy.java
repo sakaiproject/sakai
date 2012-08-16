@@ -350,4 +350,13 @@ public interface SakaiProxy {
 	 * @return
 	 */
 	public Tool getTool(String toolId);
+	
+	/**
+	 * returns a list of hidden roles that an instructor shouldn't know have access to their site
+	 * 
+	 * delegatedaccess.siteaccess.instructorViewable.hiddenRoles
+	 * 
+	 * @return
+	 */
+	public String[] getHideRolesForInstructorViewAccess();
 }
