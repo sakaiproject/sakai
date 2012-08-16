@@ -88,6 +88,8 @@ public class BatchCitationServlet extends CitationServlet
 	 */
 	public void doPost(HttpServletRequest req, HttpServletResponse res) throws ServletException, IOException
 	{
+		log.info("doPost() " + req.getMethod());
+		
 		// process any login that might be present
 		basicAuth.doLogin(req);
 		
@@ -171,7 +173,7 @@ public class BatchCitationServlet extends CitationServlet
 	 * @see javax.servlet.http.HttpServlet#doDelete(javax.servlet.http.HttpServletRequest, javax.servlet.http.HttpServletResponse)
 	 */
 	public void doDelete(HttpServletRequest req, HttpServletResponse res) throws ServletException, IOException {
-		
+		super.doDelete(req, res);
 	}
 
 	// This is a little adapter to return parsed values rather than the raw

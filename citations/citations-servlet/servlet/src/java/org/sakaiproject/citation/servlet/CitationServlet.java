@@ -177,6 +177,7 @@ public class CitationServlet extends VmServlet
 	 */
 	public void doGet(HttpServletRequest req, HttpServletResponse res) throws ServletException, IOException
 	{
+		M_log.info("doGet() "  + req.getMethod());
 		// process any login that might be present
 		basicAuth.doLogin(req);
 		
@@ -280,7 +281,39 @@ public class CitationServlet extends VmServlet
 		}
 	}
 
-
+	public void doDelete(HttpServletRequest req, HttpServletResponse res) throws ServletException, IOException {
+		M_log.info("doDelete() "  + req.getMethod());
+		// process any login that might be present
+		basicAuth.doLogin(req);
+		
+		// catch the login helper posts
+		String option = req.getPathInfo();
+		String[] parts = option.split("/");
+		
+		if ((parts.length == 2) && ((parts[1].equals("login")))) {
+			doLogin(req, res, null);
+		} else if(parts.length >= 3){
+			
+			String citationId = parts[2];
+			String collectionId = parts[1];
+			M_log.info("doDelete() citationId == " + citationId + "  collectionId == " + collectionId);
+			
+			if(citationId == null || citationId.trim().equals("") || collectionId == null || collectionId.trim().equals("")) {
+				sendError(res, HttpServletResponse.SC_BAD_REQUEST);
+			} else {
+				try {
+					CitationCollection collection = this.citationService.getCollection(collectionId);
+					Citation item = collection.getCitation(citationId);
+					collection.remove(item);
+					this.citationService.save(collection);
+					M_log.info("doDelete() SUCCESS");
+				} catch (IdUnusedException e) {
+					sendError(res, HttpServletResponse.SC_NOT_FOUND);
+				}
+				
+			}
+		}
+	}
 
       public ContentResource findResource(ParameterParser params, String option) throws PermissionException, IdUnusedException {
 		// get the path info

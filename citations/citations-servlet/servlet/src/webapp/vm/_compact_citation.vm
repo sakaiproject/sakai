@@ -19,33 +19,11 @@
 		<br />
 		$!{xilator.escapeHtml( $!{citation.creator} )}
 		$!{xilator.escapeHtml( $!{citation.source} )}
-		<div class="itemAction">
-
-			#if($citation.hasCustomUrls())
-				#foreach($urlid in $citation.customUrlIds)
-
-  				#if(!$citation.hasPreferredUrl() || ($citation.hasPreferredUrl() && ($citation.getPreferredUrlId() != $urlid)))
-
-  					  <a href="$!{xilator.escapeHtml($citation.getCustomUrl("$urlid").toString())}" target="_blank">
-  					  #if( ! $citation.getCustomUrlLabel("$urlid") || $citation.getCustomUrlLabel("$urlid") == "" )
-  					    $tlang.getString( "nullUrlLabel.view" )#else$xilator.escapeHtml( $citation.getCustomUrlLabel("$urlid") )#end</a> |
-  			  #end
-  			  
-  		 #end
-		  #end
-		  	<a href="$citation.openurl" target="_blank">${openUrlLabel}</a>
- 				|
-			<a href="#toolLink("CitationHelperAction" "doView")&citationId=${citation.id}&collectionId=$collectionId">$tlang.getString( "action.view" )</a>
- 				|
-			<a href="#toolLink("CitationHelperAction" "doEdit")&citationId=$citation.id&collectionId=$collectionId">$tlang.getString("action.edit")</a>
-				|
-			<a href="#toolLink("CitationHelperAction" "doRemoveSelectedCitations")&citationId=$citation.id&collectionId=$collectionId">$tlang.getString("action.remove")</a>
-		</div>
 	</td>
 	<td>
-		<a href="#" class="removeCitation">
+		<span class="removeCitation">
 			<img src="/library/image/sakai/cross.png" />
-		</a> 
+		</span> 
 		<span style="display:none;" class="citationId">$!{citation.id}</span>
 		<span style="display:none;" class="collectionId">$!{collectionId}</span>
 	</td>
