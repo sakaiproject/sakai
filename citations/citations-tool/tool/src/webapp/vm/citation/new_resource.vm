@@ -43,7 +43,7 @@ span.searchTargetLink { margin-right:50px; }
 			$tlang.getString("resource.revise")
 		#end
 	</h3>
-	#if ($alertMessage)<div class="alertMessage">$tlang.getString("label.alert") $validator.escapeHtml($alertMessage)</div>#end
+	#if ($alertMessage)<div class="alertMessage">$tlang.getString("label.alert") $xilator.escapeHtml($alertMessage)</div>#end
 	<p class="instruction">
 		$!instruction
 		$!required
@@ -69,7 +69,7 @@ span.searchTargetLink { margin-right:50px; }
 				<label for="displayName">
 					$tlang.getString("resource.title") 
 				</label>
-				<input type="text" size="40" id="displayName" name="displayName" value="$validator.escapeHtml("$!resourceTitle")" />
+				<input type="text" size="40" id="displayName" name="displayName" value="$xilator.escapeHtml("$!resourceTitle")" />
 			</p>
 			<br />
 		</div>

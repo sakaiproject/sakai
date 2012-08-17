@@ -1011,6 +1011,7 @@ public class CitationHelperAction extends VelocityPortletPaneledAction
 					// create resource
 					try {
 						ContentResourceEdit edit = getContentService().addResource(collectionId, displayName, null, ContentHostingService.MAXIMUM_ATTEMPTS_FOR_UNIQUENESS);
+						
 						edit.setResourceType(CitationService.CITATION_LIST_ID);
 						byte[] bytes = citationCollectionId.getBytes();
 						edit.setContent(bytes );
@@ -1058,6 +1059,7 @@ public class CitationHelperAction extends VelocityPortletPaneledAction
 			results.put("citationCollectionId", citationCollectionId);
 			//results.put("resourceId", resourceId);
 			String resourceUuid = this.getContentService().getUuid(resourceId);
+			logger.info("ensureCitationListExists() created new resource with resourceUuid == " + resourceUuid + " and resourceId == " + resourceId);
 			results.put("resourceId", resourceUuid );
 			String clientId = params.getString("saveciteClientId");
 			
@@ -2008,14 +2010,17 @@ public class CitationHelperAction extends VelocityPortletPaneledAction
 		}
 		
     	// resource-related
-    	String resourceId = (String) state.getAttribute(CitationHelper.RESOURCE_ID);
+    	String resourceId = null;
+    	String resourceUuid = (String) state.getAttribute(CitationHelper.RESOURCE_ID);
+    	
     	String citationCollectionId = null;
     	ContentResource resource = null;
     	Map<String,Object> contentProperties = null;
-    	if(resourceId == null) {
+    	if(resourceUuid == null) {
     		
     	} else {
 	    	try {
+	    		resourceId = this.getContentService().resolveUuid(resourceUuid);
 				resource = getContentService().getResource(resourceId);
 			} catch (IdUnusedException e) {
 				logger.warn("IdUnusedException in buildNewResourcePanelContext() " + e);
@@ -2051,7 +2056,7 @@ public class CitationHelperAction extends VelocityPortletPaneledAction
 			ResourceProperties props = resource.getProperties();
 			contentProperties = this.getProperties(resource, state);
 			context.put("resourceTitle", props.getProperty(ResourceProperties.PROP_DISPLAY_NAME));
-			Object resourceUuid = this.getContentService().getUuid(resourceId);
+			resourceUuid = this.getContentService().getUuid(resourceId);
 			context.put("resourceId", resourceUuid );
 			context.put("collectionId", resource.getContainingCollection().getId());
 			try {
@@ -4126,9 +4131,16 @@ public class CitationHelperAction extends VelocityPortletPaneledAction
 		// get the state object
 		SessionState state = ((JetspeedRunData)data).getPortletSessionState (((JetspeedRunData)data).getJs_peid ());
 		ParameterParser params = data.getParameters();
-
+		
 		int requestStateId = params.getInt("requestStateId", 0);
 		restoreRequestState(state, new String[]{CitationHelper.RESOURCES_REQUEST_PREFIX, CitationHelper.CITATION_PREFIX}, requestStateId);
+
+		if(state.getAttribute(CitationHelper.RESOURCE_ID) == null) {
+			String resourceId = params.get("resourceId");
+			if(resourceId != null && ! resourceId.trim().equals("")) {
+				state.setAttribute(CitationHelper.RESOURCE_ID, resourceId);
+			}
+		}
 
 		CitationIterator listIterator = (CitationIterator) state.getAttribute(STATE_LIST_ITERATOR);
 		if(listIterator == null)

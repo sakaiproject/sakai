@@ -1248,7 +1248,7 @@ public abstract class BaseCitationService implements CitationService
 
 			ContextObject co = m_openURLService.convert(this);
 			StringBuilder openUrl = new StringBuilder();
-			openUrl.append("?");
+			//openUrl.append("?");
 			if (co != null)
 			{
 				String openUrlParams = m_openURLService.toURL(co);
