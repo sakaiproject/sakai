@@ -1018,7 +1018,9 @@ public class CitationHelperAction extends VelocityPortletPaneledAction
 						captureAvailability(params, edit, results);
 						ResourceProperties properties = edit.getPropertiesEdit();
 						properties.addProperty(ResourceProperties.PROP_DISPLAY_NAME, displayName);
-	
+						properties.addProperty(ContentHostingService.PROP_ALTERNATE_REFERENCE, CitationService.REFERENCE_ROOT);
+						properties.addProperty(ResourceProperties.PROP_CONTENT_TYPE, ResourceType.MIME_TYPE_HTML);
+
 						getContentService().commitResource(edit, priority);
 						resourceId = edit.getId();
 						message =  rb.getFormattedMessage("resource.new.success", new String[]{ displayName });
