@@ -1,12 +1,5 @@
 <tr>
-	<td headers="checkboxes" class="attach">
-<!-- onclick="highlightCheckedSelections();" -->	
-		<span class="itemCheckbox">
-			<input type="checkbox" name="selected" id="select_$!{citation.id}"
-			  value="$!{citation.id}"  /> 
-		</span>
-	</td>
-	<td colspan="2" headers="details">
+	<td headers="details">
 
 		#if( $citation.hasPreferredUrl() )
 			#set( $urlHref = $citation.getCustomUrl( "$citation.getPreferredUrlId()" ).toString() )
@@ -20,7 +13,7 @@
 		$!{xilator.escapeHtml( $!{citation.creator} )}
 		$!{xilator.escapeHtml( $!{citation.source} )}
 	</td>
-	<td>
+	<td headers="removeLinks>
 		<span class="removeCitation">
 			<img src="/library/image/sakai/cross.png" />
 		</span> 

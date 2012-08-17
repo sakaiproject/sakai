@@ -32,6 +32,10 @@
 					  }
 					</script>
 					<table class="listHier lines nolines">
+					  <tr>
+					    <th id="details"></th>
+					    <th id="removeLinks"></th>
+					  </tr>
 					#if( $citations )
 						#foreach($citation in $citations)
 							#parse( "vm/_compact_citation.vm" )
