@@ -229,7 +229,10 @@ public class ClusterFSIndexStorage extends BaseIndexStorage
 		{
 			try
 			{
-				indexSearcher.close();
+				if (indexSearcher != null)
+				{
+					indexSearcher.close();
+				}
 			}
 			catch (Exception ex)
 			{
@@ -243,7 +246,9 @@ public class ClusterFSIndexStorage extends BaseIndexStorage
 		{
 			try
 			{
-				indexSearcher.close();
+				if (indexSearcher != null) {
+					indexSearcher.close();
+				}
 			}
 			catch (Exception ex)
 			{
@@ -309,7 +314,7 @@ public class ClusterFSIndexStorage extends BaseIndexStorage
 						if (diagnostics)
 						{
 							log
-									.info("Current Segment not suitable, generating new segment "
+									.info("Curre	nt Segment not suitable, generating new segment "
 											+ (currentSegment.isDeleted() ? "deleted,"
 													: "")
 											+ (!currentSegment.isClusterSegment() ? "non-cluster,"
