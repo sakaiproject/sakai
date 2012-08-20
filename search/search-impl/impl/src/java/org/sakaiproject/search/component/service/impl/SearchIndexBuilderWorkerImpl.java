@@ -48,6 +48,7 @@ import org.sakaiproject.search.indexer.api.IndexQueueListener;
 import org.sakaiproject.search.model.SearchBuilderItem;
 import org.sakaiproject.search.model.SearchWriterLock;
 import org.sakaiproject.search.model.impl.SearchWriterLockImpl;
+import org.sakaiproject.thread_local.cover.ThreadLocalManager;
 import org.sakaiproject.tool.api.SessionManager;
 import org.sakaiproject.user.api.User;
 import org.sakaiproject.user.api.UserDirectoryService;
@@ -331,6 +332,19 @@ public class SearchIndexBuilderWorkerImpl implements Runnable, SearchIndexBuilde
 				while (runThreads)
 				{
 					sessionManager.setCurrentSession(s);
+					
+					//SAK-17117 before we do this clear threadLocal
+					//get the security advisor stack otherwise later calls will fail
+					Object obj = ThreadLocalManager.get("SakaiSecurity.advisor.stack");
+					Object sess = ThreadLocalManager.get("org.sakaiproject.api.kernel.session.current");
+					Object toolsess = ThreadLocalManager.get("org.sakaiproject.api.kernel.session.current.tool");
+					
+					ThreadLocalManager.clear();
+					ThreadLocalManager.set("SakaiSecurity.advisor.stack", obj);
+					ThreadLocalManager.set("org.sakaiproject.api.kernel.session.current", sess);
+					ThreadLocalManager.set("org.sakaiproject.api.kernel.session.current.tool", toolsess);
+					
+					
 					try
 					{
 						int totalDocs = searchIndexBuilder.getPendingDocuments();
