@@ -1889,6 +1889,7 @@ public class CitationHelperAction extends VelocityPortletPaneledAction
 		collection.setSort(CitationCollection.SORT_BY_POSITION,true);
 
 		CitationIterator newIterator = collection.iterator();
+		newIterator.setPageSize(collection.size());
 		context.put("citations", newIterator);
 		context.put("collectionId", collection.getId());
 		state.setAttribute(STATE_LIST_ITERATOR, newIterator);
