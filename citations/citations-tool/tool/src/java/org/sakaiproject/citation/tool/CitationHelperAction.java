@@ -932,6 +932,7 @@ public class CitationHelperAction extends VelocityPortletPaneledAction
 				String resourceId = this.getContentService().resolveUuid(resourceUuid);
 				ContentResourceEdit edit = getContentService().editResource(resourceId);
 				this.captureDisplayName(params, state, edit, results);
+				this.captureDescription(params, state, edit, results);
 				this.captureAccess(params, state, edit, results);
 				this.captureAvailability(params, edit, results);
 				getContentService().commitResource(edit);
@@ -1017,6 +1018,7 @@ public class CitationHelperAction extends VelocityPortletPaneledAction
 						edit.setResourceType(CitationService.CITATION_LIST_ID);
 						byte[] bytes = citationCollectionId.getBytes();
 						edit.setContent(bytes );
+						captureDescription(params, state, edit, results);
 						captureAccess(params, state, edit, results);
 						captureAvailability(params, edit, results);
 						ResourceProperties properties = edit.getPropertiesEdit();
@@ -1118,6 +1120,25 @@ public class CitationHelperAction extends VelocityPortletPaneledAction
 		results.put("message", message);
 		
 		return results;
+	}
+
+	private void captureDescription(ParameterParser params, SessionState state,
+			ContentResourceEdit edit, Map<String, Object> results) {
+		String description = params.get("description");
+		String oldDescription = edit.getProperties().getProperty(ResourceProperties.PROP_DESCRIPTION);
+		if(description == null || description.trim().equals("")) {
+			if(oldDescription != null) {
+				edit.getPropertiesEdit().removeProperty(ResourceProperties.PROP_DESCRIPTION);
+				results.put("description", "");
+			}
+		} else {
+			if(oldDescription == null || ! oldDescription.equals(description)) {
+				edit.getPropertiesEdit().removeProperty(ResourceProperties.PROP_DESCRIPTION);
+				edit.getPropertiesEdit().addProperty(ResourceProperties.PROP_DESCRIPTION, description);
+				results.put("description", description);
+			}
+		}
+		
 	}
 
 	protected void captureDisplayName(ParameterParser params, SessionState state, 
@@ -2112,7 +2133,8 @@ public class CitationHelperAction extends VelocityPortletPaneledAction
 			ResourceProperties props = resource.getProperties();
 			contentProperties = this.getProperties(resource, state);
 			context.put("resourceTitle", props.getProperty(ResourceProperties.PROP_DISPLAY_NAME));
-			resourceUuid = this.getContentService().getUuid(resourceId);
+			context.put("resourceDescription", props.getProperty(ResourceProperties.PROP_DESCRIPTION));
+			//resourceUuid = this.getContentService().getUuid(resourceId);
 			context.put("resourceUuid", resourceUuid );
 			context.put("collectionId", resource.getContainingCollection().getId());
 			try {
