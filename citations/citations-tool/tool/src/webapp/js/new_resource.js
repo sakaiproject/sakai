@@ -139,6 +139,11 @@ var doCitationAction = function( eventTarget ) {
 		$('#newCitationListForm').attr('method', 'GET');
 		$('#sakai_action').val('doRemoveAllCitations');
 		$('#newCitationListForm').submit();
+	} else if( action == "reorderList" ) {
+		$('#ajaxRequest').val('false');
+		$('#newCitationListForm').attr('method', 'GET');
+		$('#sakai_action').val('doShowReorderCitations');
+		$('#newCitationListForm').submit();		
 	}
 	  
 	// reset select boxes

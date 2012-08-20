@@ -51,6 +51,7 @@
           <span style="display:none;" id="exportUrlAll">$exportUrlAll</span>
           <span style="display:none;" id="removeUrlSel">#contentLink("Main")&sakai_action=doRemoveSelectedCitations&collectionId=$collectionId</span>
           <span style="display:none;" id="removeUrlAll">$removeUrlAll</span>
+          <span style="display:none;" id="reorderList">$contentLink("Main")&sakai_action=doShowReorderCitations</span>
           <span style="display:none;" class="collectionId">$collectionId</span>
           <span style="display:none;" id="selectActionWarnLabel">$tlang.getString( "select.warn.list" )</span>
         </div>

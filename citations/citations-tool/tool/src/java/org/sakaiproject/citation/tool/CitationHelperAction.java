@@ -3672,7 +3672,7 @@ public class CitationHelperAction extends VelocityPortletPaneledAction
 		
 	    state.setAttribute(STATE_SORT, CitationCollection.SORT_BY_POSITION);
 		
-		setMode(state, Mode.LIST);
+		setMode(state, Mode.NEW_RESOURCE);
 
 	}  // doReorderCitations
 
