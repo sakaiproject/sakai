@@ -2634,7 +2634,7 @@ public class BaseSearchManager implements SearchManager, Observer
     	buf.append(SAKAI_SESSION);
     	buf.append("=nada&client=");
     	buf.append(saveciteClientId);
-    	buf.append("&");
+    	//buf.append("&");
     	
     	return buf.toString();
     }

@@ -13,7 +13,7 @@
  * 
  * where jsObj is a Javascript object returned by the successful AJAX 
  * call.  The jsObj object has name-value pairs, including jsObj.message,
- * jsObj.collectionId, jsObj.resourceId, and jsObj.citationCollectionId. 
+ * jsObj.collectionId, jsObj.resourceUuid, and jsObj.citationCollectionId. 
  * If the AJAX request fails, this function makes this function call:
  * 
  * 		failureFunction.invoke(jqXHR, textStatus, errorThrown)
@@ -26,7 +26,7 @@
  * 		modifySuccess.invoke(jsObj)
  * 
  * where jsObj is a Javascript object with name-value pairs, including 
- * jsObj.collectionId, jsObj.resourceId, and jsObj.citationCollectionId. 
+ * jsObj.collectionId, jsObj.resourceUuid, and jsObj.citationCollectionId. 
  *******************************************************************/
 
 // assume jquery
@@ -284,8 +284,8 @@ citations_new_resource.processClick = function(successAction) {
 	// TODO: consider chacking for #displayName_fossil and using it?
 	// var oldDisplayName = $('#displayName_fossil').val();
 	if(displayName && '' !== $.trim(displayName)) {
-		var resourceId = $('#resourceId').val();
-		if(resourceId) {
+		var resourceUuid = $('#resourceUuid').val();
+		if(resourceUuid) {
 			// are there changes?
 			handleExistingResource(successAction);
 		} else {
@@ -375,8 +375,8 @@ citations_new_resource.init = function() {
 	};
 	
 	var needToSaveAnyChanges = function() {
-		var resourceId = $('#resourceId').val();
-		if(resourceId && resourceId.length && resourceId.length > 0) {
+		var resourceUuid = $('#resourceUuid').val();
+		if(resourceUuid && resourceUuid.length && resourceUuid.length > 0) {
 			// in this case, resource already exists, so return true to check for changes
 			return true;
 		} else {
@@ -424,8 +424,8 @@ citations_new_resource.init = function() {
 			popupTitle			: $(eventObject.target).siblings('.popupTitle').text(),
 			invoke				: function(jsObj) {
 				try {
-					if(jsObj && jsObj.resourceId) {
-						searchUrl += "&resourceId=" + jsObj.resourceId;
+					if(jsObj && jsObj.resourceUuid) {
+						searchUrl += "&resourceId=" + jsObj.resourceUuid;
 					}
 					if(jsObj && jsObj.citationCollectionId) {
 						searchUrl += "&citationCollectionId=" + jsObj.citationCollectionId;

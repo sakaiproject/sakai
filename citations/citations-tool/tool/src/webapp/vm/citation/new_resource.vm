@@ -54,7 +54,7 @@ span.searchTargetLink { margin-right:50px; }
 		<input name="$REQUESTED_MIMETYPE" id="requested_mimetype" class="requested_mimetype" value="$MIMETYPE_JSON" type="hidden" />
 		<input name="citation_action" id="citation_action" class="citation_action" value="$citation_action" type="hidden" />
 		<input name="collectionId" id="collectionId" value="$!collectionId" type="hidden" />
-		<input name="resourceId" id="resourceId" value="$!resourceId" type="hidden" />
+		<input name="resourceUuid" id="resourceUuid" value="$!resourceUuid" type="hidden" />
 		<input name="citationCollectionId" id="citationCollectionId" value="$!citationCollectionId" type="hidden" />
 		<input name="sakai_action" id="sakai_action" value="" type="hidden" />
 		<input name="currentSort" id="currentSort" value="$currentSort" type="hidden" />
@@ -444,7 +444,7 @@ span.searchTargetLink { margin-right:50px; }
 		<input type="hidden" name="retractDate" id="retractDate_fossil" value="$!{contentProperties.retractDate}" />
 		<input type="hidden" name="retractDateStr" id="retractDateStr_fossil" value="$!{contentProperties.retractDateStr}" />
 		<input name="collectionId" id="collectionId_fossil" value="$!collectionId" type="hidden" />
-		<input name="resourceId" id="resourceId_fossil" value="$!resourceId" type="hidden" />
+		<input name="resourceUuid" id="resourceUuid_fossil" value="$!resourceUuid" type="hidden" />
 		<input name="citationCollectionId" id="citationCollectionId_fossil" value="$!citationCollectionId" type="hidden" />
 	</form>
 </div>

@@ -48,6 +48,7 @@ public interface CitationHelper
 
 	/** The name that identifies a state attribute which carries an identifier fo the current ContentResource object */
 	public static final String RESOURCE_ID = CitationHelper.CITATION_PREFIX + "resource_id";
+	public static final String RESOURCE_UUID = CitationHelper.CITATION_PREFIX + "resource_uuid";
 
 	/** The name that identifies a state attribute which carries an identifier fo the current CitationCollection object */
 	public static final String CITATION_COLLECTION_ID = CITATION_PREFIX + "current_collection_id";

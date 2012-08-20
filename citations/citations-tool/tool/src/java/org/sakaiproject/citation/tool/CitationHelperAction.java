@@ -575,6 +575,7 @@ public class CitationHelperAction extends VelocityPortletPaneledAction
 	protected static final String STATE_BASIC_SEARCH = CitationHelper.CITATION_PREFIX + "basic_search";
 	protected static final String STATE_SEARCH_RESULTS = CitationHelper.CITATION_PREFIX + "search_results";
 	protected static final String STATE_RESOURCE_ENTITY_PROPERTIES = CitationHelper.CITATION_PREFIX + "citationList_properties";
+	protected static final String STATE_SORT = CitationHelper.CITATION_PREFIX + "sort";
 
 	protected static final String TEMPLATE_NEW_RESOURCE = "citation/new_resource";
 	protected static final String TEMPLATE_CREATE = "citation/create";
@@ -922,7 +923,7 @@ public class CitationHelperAction extends VelocityPortletPaneledAction
 			SessionState state, HttpServletRequest req, HttpServletResponse res) {
 		Map<String, Object> results = new HashMap<String, Object>();
 		
-		String resourceUuid = params.getString("resourceId");
+		String resourceUuid = params.getString("resourceUuid");
 		String message = null;
 		if(resourceUuid == null) {
 			results.putAll(this.ensureCitationListExists(params, state, req, res));
@@ -999,8 +1000,9 @@ public class CitationHelperAction extends VelocityPortletPaneledAction
 			}
 			
 			ContentResource resource = null;
-			String resourceId = params.getString("resourceId");
-			if(resourceId == null || resourceId.trim().equals("")) {
+			String resourceUuid = params.getString("resourceUuid");
+			String resourceId = null;
+			if(resourceUuid == null || resourceUuid.trim().equals("")) {
 				// create resource
 				if(collectionId == null) {
 					// error?
@@ -1052,15 +1054,34 @@ public class CitationHelperAction extends VelocityPortletPaneledAction
 				
 			} else {
 				// get resource
+				resourceId = this.getContentService().resolveUuid(resourceUuid);
+				if(citationCollectionId == null) {
+					try {
+						resource = this.contentService.getResource(resourceId);
+						citationCollectionId = new String(resource.getContent());
+					} catch (IdUnusedException e) {
+						message = e.getMessage();
+						logger.warn("IdUnusedException in getting resource in ensureCitationListExists() " + e);
+					} catch (TypeException e) {
+						message = e.getMessage();
+						logger.warn("TypeException in getting resource in ensureCitationListExists() " + e);
+					} catch (PermissionException e) {
+						message = e.getMessage();
+						logger.warn("PermissionException in getting resource in ensureCitationListExists() " + e);
+					} catch (ServerOverloadException e) {
+						message = e.getMessage();
+						logger.warn("ServerOverloadException in getting citationCollectionId in ensureCitationListExists() " + e);
+					}
+				}
 				// possibly revise displayName, other properties 
 				// commit changes
 				// report success/failure
 			}
 			results.put("citationCollectionId", citationCollectionId);
 			//results.put("resourceId", resourceId);
-			String resourceUuid = this.getContentService().getUuid(resourceId);
+			resourceUuid = this.getContentService().getUuid(resourceId);
 			logger.info("ensureCitationListExists() created new resource with resourceUuid == " + resourceUuid + " and resourceId == " + resourceId);
-			results.put("resourceId", resourceUuid );
+			results.put("resourceUuid", resourceUuid );
 			String clientId = params.getString("saveciteClientId");
 			
 			if(clientId != null && ! clientId.trim().equals("")) {
@@ -1326,12 +1347,19 @@ public class CitationHelperAction extends VelocityPortletPaneledAction
 
 	protected void preserveEntityIds(ParameterParser params, SessionState state) {
 		String resourceId = params.getString("resourceId");
+		String resourceUuid = params.getString("resourceUuid");
 		String citationCollectionId = params.getString("citationCollectionId");
 		
 		if(resourceId == null || resourceId.trim().equals("")) {
 			// do nothing
 		} else {
 			state.setAttribute(CitationHelper.RESOURCE_ID, resourceId);
+		}
+		
+		if(resourceUuid == null || resourceUuid.trim().equals("")) {
+			// do nothing
+		} else {
+			state.setAttribute(CitationHelper.RESOURCE_UUID, resourceUuid);
 		}
 		
 		if(citationCollectionId == null || citationCollectionId.trim().equals("")) {
@@ -1792,7 +1820,7 @@ public class CitationHelperAction extends VelocityPortletPaneledAction
 		Object[] emptyListArgs = { rb.getString( "label.menu" ) };
 		context.put( "emptyListArgs", emptyListArgs );
 
-		String sort = (String) state.getAttribute("sort");
+		String sort = (String) state.getAttribute(STATE_SORT);
 
 		if (sort == null  || sort.trim().length() == 0)
 			sort = collection.getSort();
@@ -2010,24 +2038,52 @@ public class CitationHelperAction extends VelocityPortletPaneledAction
 		}
 		
     	// resource-related
-    	String resourceId = null;
-    	String resourceUuid = (String) state.getAttribute(CitationHelper.RESOURCE_ID);
+    	String resourceId = (String) state.getAttribute(CitationHelper.RESOURCE_ID);
+    	String resourceUuid = (String) state.getAttribute(CitationHelper.RESOURCE_UUID);
     	
+    	if(resourceId == null || resourceId.trim().equals("")) {
+	    	if(resourceUuid == null || resourceUuid.trim().equals("")) {
+	    		// Will be dealt with later by creating new resource when needed
+	    	} else if(resourceUuid.startsWith("/")) {
+	    		// UUID and ID may be switched
+	    		resourceId = resourceUuid;
+	    		resourceUuid = this.getContentService().getUuid(resourceId);
+	    		if(resourceUuid != null) {
+	    			state.setAttribute(CitationHelper.RESOURCE_ID, resourceId);
+	    			state.setAttribute(CitationHelper.RESOURCE_UUID, resourceUuid);
+	    		}
+	    	} else {
+	    		// see if we can get the resourceId from the UUID
+	    		resourceId = this.getContentService().resolveUuid(resourceUuid);
+	    		if(resourceId != null) {
+	    			state.setAttribute(CitationHelper.RESOURCE_ID, resourceId);
+	    		}
+	    	}
+    	} else if(resourceUuid == null || resourceUuid.trim().equals("")) {
+    		resourceUuid = this.getContentService().getUuid(resourceId);
+    		if(resourceUuid != null) {
+    			state.setAttribute(CitationHelper.RESOURCE_UUID, resourceUuid);
+    		}
+    	}
+ 
+		if(logger.isInfoEnabled()) {
+			logger.info("buildNewResourcePanelContext()  resourceUuid == " + resourceUuid + "  resourceId == " + resourceId);
+		}
+		
     	String citationCollectionId = null;
     	ContentResource resource = null;
     	Map<String,Object> contentProperties = null;
-    	if(resourceUuid == null) {
+    	if(resourceId == null) {
     		
     	} else {
 	    	try {
-	    		resourceId = this.getContentService().resolveUuid(resourceUuid);
 				resource = getContentService().getResource(resourceId);
 			} catch (IdUnusedException e) {
-				logger.warn("IdUnusedException in buildNewResourcePanelContext() " + e);
+				logger.warn("IdUnusedException geting resource in buildNewResourcePanelContext() " + e);
 			} catch (TypeException e) {
-				logger.warn("TypeException in buildNewResourcePanelContext() " + e);
+				logger.warn("TypeException geting resource in buildNewResourcePanelContext() " + e);
 			} catch (PermissionException e) {
-				logger.warn("PermissionException in buildNewResourcePanelContext() " + e);
+				logger.warn("PermissionException geting resource in buildNewResourcePanelContext() " + e);
 			}
 	    	
 //	    	String guid = getContentService().getUuid(resourceId);
@@ -2046,23 +2102,23 @@ public class CitationHelperAction extends VelocityPortletPaneledAction
 				collection = getContentService().getCollection(collectionId);
 				contentProperties = this.getProperties(collection, state);
 			} catch (IdUnusedException e) {
-				logger.warn("IdUnusedException in buildNewResourcePanelContext() " + e);
+				logger.warn("IdUnusedException geting collection in buildNewResourcePanelContext() " + e);
 			} catch (TypeException e) {
-				logger.warn("TypeException in buildNewResourcePanelContext() " + e);
+				logger.warn("TypeException geting collection in buildNewResourcePanelContext() " + e);
 			} catch (PermissionException e) {
-				logger.warn("PermissionException in buildNewResourcePanelContext() " + e);
+				logger.warn("PermissionException geting collection in buildNewResourcePanelContext() " + e);
 			}
 		} else {
 			ResourceProperties props = resource.getProperties();
 			contentProperties = this.getProperties(resource, state);
 			context.put("resourceTitle", props.getProperty(ResourceProperties.PROP_DISPLAY_NAME));
 			resourceUuid = this.getContentService().getUuid(resourceId);
-			context.put("resourceId", resourceUuid );
+			context.put("resourceUuid", resourceUuid );
 			context.put("collectionId", resource.getContainingCollection().getId());
 			try {
 				citationCollectionId = new String(resource.getContent());
 			} catch (ServerOverloadException e) {
-				logger.warn("ServerOverloadException in buildNewResourcePanelContext() " + e);
+				logger.warn("ServerOverloadException geting props in buildNewResourcePanelContext() " + e);
 			}
 			
 			context.put(CITATION_ACTION, UPDATE_RESOURCE);
@@ -2103,7 +2159,7 @@ public class CitationHelperAction extends VelocityPortletPaneledAction
 		if(saveciteClients != null) {
 			if(resource != null && resourceId != null) {
 				for(Map<String,String> client : saveciteClients) {
-					String saveciteUrl = getSearchManager().getSaveciteUrl(getContentService().getUuid(resourceId),client.get("id"));
+					String saveciteUrl = getSearchManager().getSaveciteUrl(resourceUuid,client.get("id"));
 					try {
 						client.put("saveciteUrl", java.net.URLEncoder.encode(saveciteUrl,"UTF-8"));
 					} catch (UnsupportedEncodingException e) {
@@ -2135,7 +2191,7 @@ public class CitationHelperAction extends VelocityPortletPaneledAction
 		} else {
 			context.put("openUrlLabel", getConfigurationService().getSiteConfigOpenUrlLabel());
 			
-			String currentSort = (String) state.getAttribute("sort");
+			String currentSort = (String) state.getAttribute(STATE_SORT);
 
 			if (currentSort == null  || currentSort.trim().length() == 0)
 				currentSort = citationCollection.getSort();
@@ -2703,7 +2759,7 @@ public class CitationHelperAction extends VelocityPortletPaneledAction
 			cleanup(toolSession, CitationHelper.CITATION_PREFIX, state);
 	
 			// Remove session sort
-			state.removeAttribute("sort");
+			state.removeAttribute(STATE_SORT);
 	
 			// Remove session collection
 			state.removeAttribute(STATE_CITATION_COLLECTION_ID);
@@ -3614,7 +3670,7 @@ public class CitationHelperAction extends VelocityPortletPaneledAction
 		// Had to do this to force a reload from storage in buildListPanelContext
 		state.removeAttribute(STATE_CITATION_COLLECTION);
 		
-	    state.setAttribute("sort", CitationCollection.SORT_BY_POSITION);
+	    state.setAttribute(STATE_SORT, CitationCollection.SORT_BY_POSITION);
 		
 		setMode(state, Mode.LIST);
 
@@ -4137,7 +4193,19 @@ public class CitationHelperAction extends VelocityPortletPaneledAction
 
 		if(state.getAttribute(CitationHelper.RESOURCE_ID) == null) {
 			String resourceId = params.get("resourceId");
-			if(resourceId != null && ! resourceId.trim().equals("")) {
+			if(resourceId == null || resourceId.trim().equals("")) {
+				String resourceUuid = (String) state.getAttribute(CitationHelper.RESOURCE_UUID);
+				if(resourceUuid == null || resourceUuid.trim().equals("")) {
+					resourceUuid = params.get("resourceUuid");
+				}
+				if(resourceUuid == null || resourceUuid.trim().equals("")) {
+					// Error? We can't identify resource
+				} else {
+					resourceId = this.getContentService().resolveUuid(resourceUuid);
+					state.setAttribute(CitationHelper.RESOURCE_ID, resourceId);
+					state.setAttribute(CitationHelper.RESOURCE_UUID, resourceUuid);
+				}
+			} else {
 				state.setAttribute(CitationHelper.RESOURCE_ID, resourceId);
 			}
 		}
@@ -4470,6 +4538,7 @@ public class CitationHelperAction extends VelocityPortletPaneledAction
 	 */
 	protected boolean initHelper(SessionState state)
 	{
+		logger.info("initHelper()");
 		Mode mode;
 
 		/*
@@ -4860,7 +4929,7 @@ public class CitationHelperAction extends VelocityPortletPaneledAction
 	        else if (sort.equalsIgnoreCase(CitationCollection.SORT_BY_POSITION))
 				   collection.setSort(CitationCollection.SORT_BY_POSITION , true);
 
-	        state.setAttribute("sort", sort);
+	        state.setAttribute(STATE_SORT, sort);
 
 			Iterator iter = collection.iterator();
 
@@ -4923,7 +4992,7 @@ public class CitationHelperAction extends VelocityPortletPaneledAction
 	        String sort = collection.getSort();
 
 	        if (sort != null)
-	          state.setAttribute("sort", sort);
+	          state.setAttribute(STATE_SORT, sort);
 
 			//setMode(state, Mode.LIST);
 			setMode(state, Mode.NEW_RESOURCE);
