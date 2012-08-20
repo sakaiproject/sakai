@@ -1025,16 +1025,21 @@ public class SkinnableCharonPortal extends HttpServlet implements Portal
 		Boolean mobileDeviceParam = (Boolean)session.getAttribute("is_mobile_device");
 
 		if(M_log.isDebugEnabled()){
+			M_log.debug("session id: " + session.getId());
 			M_log.debug("is_mobile_device session param: " + mobileDeviceParam);
 		}
 		
 		if(mobileDeviceParam != null) {
+			//SAK-22484 before returning, ensure the value is set to the value to the session param
+			isMobileDevice = mobileDeviceParam;
 			return;
 		}
 		
 		//get user agent, return if null as we cannot check
 		String userAgent = req.getHeader("User-Agent");
 		if (StringUtils.isBlank(userAgent)) {
+			//SAK-22484 cannot determine, set false
+			isMobileDevice = false;
 			return;
 		}
 		
