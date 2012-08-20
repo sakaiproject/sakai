@@ -25,13 +25,14 @@ import org.sakaiproject.entitybroker.EntityBroker;
 import org.sakaiproject.entitybroker.EntityReference;
 import org.sakaiproject.event.api.Event;
 import org.sakaiproject.search.api.EntityContentProducer;
+import org.sakaiproject.search.api.PortalUrlEnabledProducer;
 import org.sakaiproject.search.api.SearchIndexBuilder;
 import org.sakaiproject.search.api.SearchService;
 import org.sakaiproject.search.model.SearchBuilderItem;
 import org.sakaiproject.util.FormattedText;
 
 public class MessageForumsEntityContentProducer implements
-		EntityContentProducer {
+		EntityContentProducer, PortalUrlEnabledProducer {
 
 	
 	private static Log log = LogFactory.getLog(MessageForumsEntityContentProducer.class);
@@ -323,9 +324,9 @@ public class MessageForumsEntityContentProducer implements
 		
 		//seems not to work "/discussionForum/message/dfViewMessage"
 		String path = "/discussionForum/message/dfViewThreadDirect";
-		
+		String url = null;
 		try {
-		String url = developerHelperService.getToolViewURL("sakai.forums", path, params, context);
+		url = developerHelperService.getToolViewURL("sakai.forums", path, params, context);
 		log.debug("got url" + url);
 		return url;
 		}
@@ -333,7 +334,7 @@ public class MessageForumsEntityContentProducer implements
 			//MSGCNTR this could happen if there is no tool placement
 			log.warn("swallowing exception", e);
 		}
-		return null;
+		return url;
 	}
 
 	public boolean isContentFromReader(String reference) {
