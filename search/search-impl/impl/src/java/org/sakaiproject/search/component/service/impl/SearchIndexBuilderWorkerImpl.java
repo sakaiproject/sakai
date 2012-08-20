@@ -69,7 +69,7 @@ public class SearchIndexBuilderWorkerImpl implements Runnable, SearchIndexBuilde
 	private static final String NODE_LOCK = "nodelockkey";
 
 
-	private final int numThreads = 2;
+	private int numThreads = 2;
 
 	/**
 	 * The maximum sleep time for the wait/notify semaphore
@@ -86,7 +86,7 @@ public class SearchIndexBuilderWorkerImpl implements Runnable, SearchIndexBuilde
 	/**
 	 * The currently running index Builder thread
 	 */
-	private Thread indexBuilderThread[] = new Thread[numThreads];
+	private Thread indexBuilderThread[] = null;
 
 	/**
 	 * sync object
@@ -243,6 +243,7 @@ public class SearchIndexBuilderWorkerImpl implements Runnable, SearchIndexBuilde
 				log.error("Search Index Worker needs SessionManager ");
 			}
 			log.debug("init start");
+			indexBuilderThread = new Thread[numThreads];
 			for (int i = 0; i < indexBuilderThread.length; i++)
 			{
 				indexBuilderThread[i] = new Thread(this);
@@ -1877,4 +1878,9 @@ public class SearchIndexBuilderWorkerImpl implements Runnable, SearchIndexBuilde
 	}
 
 
+	public void setNumThreads(int numThreads) {
+		this.numThreads = numThreads;
+	}
+
+	
 }
