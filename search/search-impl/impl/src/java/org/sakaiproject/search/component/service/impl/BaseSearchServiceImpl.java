@@ -428,8 +428,14 @@ public abstract class BaseSearchServiceImpl implements SearchService
 					{
 						log.debug("Got " + topDocs.totalHits + " hits"); //$NON-NLS-1$ //$NON-NLS-2$
 					}
+					String context = null;
+					if (contexts != null && contexts.size() > 0)
+					{
+						//seeing events doesn't support multi context use the first
+						context = contexts.get(0);
+					}
 					eventTrackingService.post(eventTrackingService.newEvent(EVENT_SEARCH,
-							EVENT_SEARCH_REF + textQuery.toString(), true,
+							EVENT_SEARCH_REF + textQuery.toString(), context, true,
 							NotificationService.PREF_IMMEDIATE));
 					return new SearchListImpl(topDocs, indexSearcher, textQuery, start, end, 
 							getAnalyzer(), filter, searchIndexBuilder, this);
