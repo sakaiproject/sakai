@@ -433,7 +433,7 @@ public class GradebookSetupBean extends GradebookDependentBean implements Serial
 			FacesUtil.addErrorMessage(getLocalizedString("cat_setting_invalid"));
 			return "failure";
 		}
-
+		int origCategorySetting = localGradebook.getCategory_type();
 		if (categorySetting.equals(CATEGORY_OPT_NONE))
 		{
 			localGradebook.setCategory_type(GradebookService.CATEGORY_TYPE_NO_CATEGORY);
@@ -502,8 +502,6 @@ public class GradebookSetupBean extends GradebookDependentBean implements Serial
 		}
 		else if (categorySetting.equals(CATEGORY_OPT_CAT_AND_WEIGHT))
 		{
-			localGradebook.setCategory_type(GradebookService.CATEGORY_TYPE_WEIGHTED_CATEGORY);
-
 			// we need to make sure all of the weights add up to 100
 			calculateRunningTotal();
 			if (neededTotal != 0)
@@ -511,6 +509,7 @@ public class GradebookSetupBean extends GradebookDependentBean implements Serial
 				FacesUtil.addErrorMessage(getLocalizedString("cat_weight_total_not_100"));
 				return "failure";
 			}
+			localGradebook.setCategory_type(GradebookService.CATEGORY_TYPE_WEIGHTED_CATEGORY);
 		}
         
 //        if(getShowDropHighestDisplayed() == false
@@ -702,12 +701,29 @@ public class GradebookSetupBean extends GradebookDependentBean implements Serial
 				}
 			}
 		}
+		
+		//SAK-22417 When changing to a category gradebook, items that move to unassigned still have included in course grade as YES
+		//This also includes the case where a GB category is deleted and the item is set to uncategorized.
+		if((GradebookService.CATEGORY_TYPE_ONLY_CATEGORY == localGradebook.getCategory_type() || GradebookService.CATEGORY_TYPE_WEIGHTED_CATEGORY == localGradebook.getCategory_type()) 
+				&& (GradebookService.CATEGORY_TYPE_NO_CATEGORY == origCategorySetting || (categoriesToRemove != null && categoriesToRemove.size() > 0))){
+			setUncategoriedAssignmentsToNotCounted(localGradebook.getId());
+		}
 
 		getGradebookManager().updateGradebook(localGradebook);
 
 		FacesUtil.addRedirectSafeMessage(getLocalizedString("gb_save_msg"));
 		reset();
 		return null;
+	}
+	
+	private void setUncategoriedAssignmentsToNotCounted(Long gradebookId){
+		List assigns = getGradebookManager().getAssignmentsWithNoCategory(gradebookId, null, true);
+		for(Iterator iter = assigns.iterator(); iter.hasNext();)
+		{
+			Assignment assignment = (Assignment) iter.next();
+			assignment.setCounted(false);
+			getGradebookManager().updateAssignment(assignment);
+		}
 	}
 
 	/**
