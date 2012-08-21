@@ -10470,6 +10470,10 @@ public class SiteAction extends PagedResourceActionII {
 	private void setAppearance(SessionState state, Site edit, String iconUrl) {
 		// set the icon
 		iconUrl = StringUtils.trimToNull(iconUrl);
+		
+		//SAK-18721 convert spaces in URL to %20
+		iconUrl = StringUtils.replace(iconUrl, " ", "%20");
+		
 		edit.setIconUrl(iconUrl);
 
 		// if this icon is in the config appearance list, find a skin to set
