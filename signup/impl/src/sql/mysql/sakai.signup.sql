@@ -3,14 +3,16 @@ create table signup_meetings (
 	version integer not null, 
 	title varchar(255) not null, 
 	description text, 
-	location varchar(255) not null, 
+	location varchar(255) not null,
+	category varchar(255) not null,
 	meeting_type varchar(50) not null, 
 	creator_user_id varchar(255) not null, 
 	start_time datetime not null, 
 	end_time datetime not null, 
 	signup_begins datetime, 
 	signup_deadline datetime, 
-	canceled bit, locked bit, 
+	canceled bit, locked bit,
+	locked bit, locked bit,
 	receive_email_owner bit default false, 
 	recurrence_id bigint,
 	repeat_type varchar(20) default null,
@@ -19,6 +21,8 @@ create table signup_meetings (
   	eid_input_mode bit(1) default '\0',
   	auto_reminder bit(1) default '\0', 
   	allow_attendance bit(1) default '\0',
+  	create_groups bit(1) default '\0',
+  	maxnumof_slot integer default 1,
 	primary key (id)
 ) type=InnoDB;
 

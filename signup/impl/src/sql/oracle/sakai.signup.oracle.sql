@@ -15,6 +15,7 @@ create table signup_meetings (
 	title varchar2(255 char) not null,
 	description clob,
 	location varchar2(255 char) not null,
+	category varchar2(255 char) not null,
 	meeting_type varchar2(50 char) not null,
 	creator_user_id varchar2(255 char) not null,
 	start_time timestamp not null,
@@ -31,6 +32,8 @@ create table signup_meetings (
 	eid_input_mode  number(1,0)  default '0' NULL,
 	auto_reminder   number(1,0)  default '0' NULL,	
 	allow_attendance  number(1,0)  default '0' NULL,
+	create_groups   number(1,0)  default '0' NULL,
+	maxnumof_slot number(10,0) default 1,
 	primary key (id));
 	
 create table signup_site_groups (

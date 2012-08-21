@@ -32,7 +32,8 @@ create table signup_meetings (
 	eid_input_mode  number(1,0)  default '0' NULL,
 	auto_reminder   number(1,0)  default '0' NULL,
 	allow_attendance   number(1,0)  default '0' NULL,	
-	create_groups   number(1,0)  default '0' NULL,	
+	create_groups   number(1,0)  default '0' NULL,
+	maxnumof_slot number(10,0) default 1,
 	primary key (id));
 	
 create table signup_site_groups (
