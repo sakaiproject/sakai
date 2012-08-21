@@ -25,7 +25,7 @@ import java.io.IOException;
 import java.io.OutputStream;
 import java.io.PrintWriter;
 import java.text.SimpleDateFormat;
-import java.util.ArrayList;
+import java.util.Vector;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.Date;
@@ -1087,7 +1087,7 @@ public abstract class BaseAnnouncementService extends BaseMessageService impleme
 	 */
 	public List getMessages(String channelReference,Filter filter, boolean order, boolean merged) throws IdUnusedException, PermissionException, NullPointerException
 	{
-		List<Message> messageList = new ArrayList();	
+		List<Message> messageList = new Vector();	
 		filter = new PrivacyFilter(filter);  		// filter out drafts this user cannot see
 		Site site = null;
 		String initMergeList = null;
