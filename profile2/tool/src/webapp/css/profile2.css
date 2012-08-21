@@ -458,8 +458,15 @@ h2 {
 	/*padding-right: 40px;*/
 	vertical-align: top;
 	
-	word-break:break-all; 
-	word-wrap:break-word;
+	word-wrap: break-word;
+    /* WebKit rule. See http://blog.kenneth.io/blog/2012/03/04/word-wrapping-hypernation-using-css/ */
+    word-break: break-word;
+    /* Split long words with hyphens */
+    hyphens: auto;
+    -moz-hyphens: auto;
+    -webkit-hyphens: auto;
+    /* Only split after 8 characters. Webkit only. */
+    -webkit-hyphenate-limit-before:8;
 }
 
 .preferencesContent .item  {
@@ -747,8 +754,15 @@ h2 {
 .connection-info-name, .search-result-info-name, wall-item-name {
 	display: inline;
 	font-weight: bold;
-	word-break:break-all;
 	word-wrap:break-word;
+    /* WebKit rule. See http://blog.kenneth.io/blog/2012/03/04/word-wrapping-hypernation-using-css/ */
+    word-break: break-word;
+    /* Split long words with hyphens */
+    hyphens: auto;
+    -moz-hyphens: auto;
+    -webkit-hyphens: auto;
+    /* Only split after 8 characters. Webkit only. */
+    -webkit-hyphenate-limit-before:8;
 }
 
 .connection-status-msg, .search-result-status-msg {
