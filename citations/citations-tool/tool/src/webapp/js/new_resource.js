@@ -13,7 +13,7 @@
  * 
  * where jsObj is a Javascript object returned by the successful AJAX 
  * call.  The jsObj object has name-value pairs, including jsObj.message,
- * jsObj.collectionId, jsObj.resourceUuid, and jsObj.citationCollectionId. 
+ * jsObj.contentCollectionId, jsObj.resourceUuid, and jsObj.citationCollectionId. 
  * If the AJAX request fails, this function makes this function call:
  * 
  * 		failureFunction.invoke(jqXHR, textStatus, errorThrown)
@@ -26,7 +26,7 @@
  * 		modifySuccess.invoke(jsObj)
  * 
  * where jsObj is a Javascript object with name-value pairs, including 
- * jsObj.collectionId, jsObj.resourceUuid, and jsObj.citationCollectionId. 
+ * jsObj.contentCollectionId, jsObj.resourceUuid, and jsObj.citationCollectionId. 
  *******************************************************************/
 
 // assume jquery
@@ -87,17 +87,25 @@ var resetSelectableActions = function() {
 		$( ".selectAction" ).attr( "disabled", "disabled" );
 	}
 }
-var exportCheckedCitations = function( baseUrl, collectionId ) {
-  var exportUrl = baseUrl + "?collectionId=" + collectionId;
+var exportCheckedCitations = function( baseUrl, citationCollectionId, resourceDisplayName ) {
+  var exportUrl = baseUrl + "?citationCollectionId=" + citationCollectionId + "&resourceDisplayName=" + resourceDisplayName;
   
   // get each selected checkbox and append it to be exported
   $( ".itemCheckbox input:checked" ).each( function() {
       exportUrl += "&citationId=" + this.value;
     }
   );
-  
-  window.location.assign( exportUrl );
+  $('#download-frame').attr('src', exportUrl);
+  //window.location.assign( exportUrl );
 };
+
+var exportAllCitations = function( baseUrl, citationCollectionId, resourceDisplayName ) {
+  var exportUrl = baseUrl + "?citationCollectionId=" + citationCollectionId + "&resourceDisplayName=" + resourceDisplayName;
+  
+  $('#download-frame').attr('src', exportUrl);
+  //window.location.assign( exportUrl );
+};
+
 
 var deleteSelectedCitations = function( baseUrl ) {
   // get each selected checkbox and append it to be removed
@@ -112,20 +120,20 @@ var deleteSelectedCitations = function( baseUrl ) {
 
 var doCitationAction = function( eventTarget ) {
 	// do action
+	var citationCollectionId = $('#citationCollectionId').val();
+	var resourceDisplayName = $('#displayName').val();
 	var action = $(eventTarget).val();
 	if( action == "exportSelected" ) {
 		if( countCitationsSelected() > 0 ) {
 			var url = $(eventTarget).siblings('#exportUrlSel').text();
-			var collectionId = $(eventTarget).siblings('.collectionId').text();
-			exportCheckedCitations( url, collectionId );
+			exportCheckedCitations( url, citationCollectionId, resourceDisplayName );
 		} else {
 			var msg = $(eventTarget).siblings('#selectActionWarnLabel').text();
 			alert( msg );
 		}
 	} else if( action == "exportList" ) {
 		var url = $(eventTarget).siblings('#exportUrlAll').text();
-		var collectionId = $(eventTarget).siblings('.collectionId').text();
-		exportAllCitations( url, collectionId );
+		exportAllCitations( url, citationCollectionId, resourceDisplayName );
 	} else if( action == "removeSelected" ) {
 		if( countCitationsSelected() > 0 ) {
 			var url = $(eventTarget).siblings('#removeUrlSel').text();

@@ -295,14 +295,14 @@ public class CitationServlet extends VmServlet
 		} else if(parts.length >= 3){
 			
 			String citationId = parts[2];
-			String collectionId = parts[1];
-			M_log.info("doDelete() citationId == " + citationId + "  collectionId == " + collectionId);
+			String citationCollectionId = parts[1];
+			M_log.info("doDelete() citationId == " + citationId + "  citationCollectionId == " + citationCollectionId);
 			
-			if(citationId == null || citationId.trim().equals("") || collectionId == null || collectionId.trim().equals("")) {
+			if(citationId == null || citationId.trim().equals("") || citationCollectionId == null || citationCollectionId.trim().equals("")) {
 				sendError(res, HttpServletResponse.SC_BAD_REQUEST);
 			} else {
 				try {
-					CitationCollection collection = this.citationService.getCollection(collectionId);
+					CitationCollection collection = this.citationService.getCollection(citationCollectionId);
 					Citation item = collection.getCitation(citationId);
 					collection.remove(item);
 					this.citationService.save(collection);
@@ -354,8 +354,8 @@ public class CitationServlet extends VmServlet
 		
 
 	public void addCitation(ContentResource resource, Citation citation) throws IdUnusedException, ServerOverloadException {
-		String collectionId = new String(resource.getContent());
-		CitationCollection collection = citationService.getCollection(collectionId);
+		String citationCollectionId = new String(resource.getContent());
+		CitationCollection collection = citationService.getCollection(citationCollectionId);
 
 		collection.add(citation);
 		citationService.save(collection);

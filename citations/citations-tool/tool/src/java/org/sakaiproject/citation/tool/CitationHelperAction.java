@@ -993,11 +993,11 @@ public class CitationHelperAction extends VelocityPortletPaneledAction
 		} else {
 			String citationCollectionId = cCollection.getId();
 			
-			String collectionId = params.getString("collectionId");
-			if(collectionId == null || collectionId.trim().equals("")) {
+			String contentCollectionId = params.getString("contentCollectionId");
+			if(contentCollectionId == null || contentCollectionId.trim().equals("")) {
 				ToolSession toolSession = getSessionManager().getCurrentToolSession();
 				ResourceToolActionPipe pipe = (ResourceToolActionPipe) toolSession.getAttribute(ResourceToolAction.ACTION_PIPE);
-				collectionId = pipe.getContentEntity().getId();
+				contentCollectionId = pipe.getContentEntity().getId();
 			}
 			
 			ContentResource resource = null;
@@ -1005,7 +1005,7 @@ public class CitationHelperAction extends VelocityPortletPaneledAction
 			String resourceId = null;
 			if(resourceUuid == null || resourceUuid.trim().equals("")) {
 				// create resource
-				if(collectionId == null) {
+				if(contentCollectionId == null) {
 					// error?
 					message = rb.getString("resource.null_collectionId.error");
 				} else {
@@ -1013,7 +1013,7 @@ public class CitationHelperAction extends VelocityPortletPaneledAction
 					
 					// create resource
 					try {
-						ContentResourceEdit edit = getContentService().addResource(collectionId, displayName, null, ContentHostingService.MAXIMUM_ATTEMPTS_FOR_UNIQUENESS);
+						ContentResourceEdit edit = getContentService().addResource(contentCollectionId, displayName, null, ContentHostingService.MAXIMUM_ATTEMPTS_FOR_UNIQUENESS);
 						
 						edit.setResourceType(CitationService.CITATION_LIST_ID);
 						byte[] bytes = citationCollectionId.getBytes();
@@ -1115,7 +1115,7 @@ public class CitationHelperAction extends VelocityPortletPaneledAction
 					}
 				}
 			}
-			results.put("collectionId", collectionId);
+			results.put("contentCollectionId", contentCollectionId);
 		}
 		results.put("message", message);
 		
@@ -1411,15 +1411,15 @@ public class CitationHelperAction extends VelocityPortletPaneledAction
 		}
 
 		// get the collection we're now working on
-		String collectionId = (String)state.getAttribute(STATE_CITATION_COLLECTION_ID);
-		context.put( "collectionId", collectionId );
+		String citationCollectionId = (String)state.getAttribute(STATE_CITATION_COLLECTION_ID);
+		context.put( "citationCollectionId", citationCollectionId );
 
 		CitationCollection collection = getCitationCollection(state, false);
 		int collectionSize = 0;
 
 		if (collection == null)
 		{
-			logger.warn( "buildAddCitationsPanelContext unable to access citationCollection " + collectionId );
+			logger.warn( "buildAddCitationsPanelContext unable to access citationCollection " + citationCollectionId );
 			return;
 		}
 		else
@@ -1484,14 +1484,14 @@ public class CitationHelperAction extends VelocityPortletPaneledAction
 		}
 
 		// get the collection we're now working on
-		String collectionId = (String)state.getAttribute(STATE_CITATION_COLLECTION_ID);
-		context.put( "collectionId", collectionId );
+		String citationCollectionId = (String)state.getAttribute(STATE_CITATION_COLLECTION_ID);
+		context.put( "citationCollectionId", citationCollectionId );
 
 		CitationCollection citationCollection = getCitationCollection(state, false);
 		int collectionSize = 0;
 		if(citationCollection == null)
 		{
-			logger.warn( "buildAddCitationsPanelContext unable to access citationCollection " + collectionId );
+			logger.warn( "buildAddCitationsPanelContext unable to access citationCollection " + citationCollectionId );
 
 			int requestStateId = preserveRequestState(state, new String[]{CitationHelper.RESOURCES_REQUEST_PREFIX, CitationHelper.CITATION_PREFIX});
 			context.put("requestStateId", requestStateId);
@@ -1674,9 +1674,9 @@ public class CitationHelperAction extends VelocityPortletPaneledAction
 		context.put("citation", citation);
 
 		String citationId = (String) state.getAttribute(CitationHelper.CITATION_EDIT_ID);
-		String collectionId = (String) state.getAttribute(STATE_CITATION_COLLECTION_ID);
+		String citationCollectionId = (String) state.getAttribute(STATE_CITATION_COLLECTION_ID);
 		context.put("citationId", citationId);
-		context.put("collectionId", collectionId);
+		context.put("citationCollectionId", citationCollectionId);
 
 		List schemas = getCitationService().getSchemas();
 		context.put("TEMPLATES", schemas);
@@ -1803,7 +1803,7 @@ public class CitationHelperAction extends VelocityPortletPaneledAction
 //			newIterator.setPage(oldIterator.getPage());
 		}
 		context.put("citations", newIterator);
-		context.put("collectionId", collection.getId());
+		context.put("citationCollectionId", collection.getId());
 		if(! collection.isEmpty())
 		{
 			context.put("show_citations", Boolean.TRUE);
@@ -1891,7 +1891,7 @@ public class CitationHelperAction extends VelocityPortletPaneledAction
 		CitationIterator newIterator = collection.iterator();
 		newIterator.setPageSize(collection.size());
 		context.put("citations", newIterator);
-		context.put("collectionId", collection.getId());
+		context.put("citationCollectionId", collection.getId());
 		state.setAttribute(STATE_LIST_ITERATOR, newIterator);
 
 		return TEMPLATE_REORDER;
@@ -1907,7 +1907,7 @@ public class CitationHelperAction extends VelocityPortletPaneledAction
 	 * CitationCollection has not yet been created in storage and the second
 	 * parameter is true, this method will create the collection and return it.
 	 * In that case, values will be added to session-state for attributes named
-	 * STATE_COLLECTION_ID and STATE_COLLECTION. If the CitationCollection has
+	 * STATE_CITATION_COLLECTION and STATE_CITATION_COLLECTION_ID. If the CitationCollection has
 	 * not yet been created in storage and the second parameter is false, the
 	 * method will return null.
 	 * @param state The SessionState object for the current session.
@@ -2117,11 +2117,11 @@ public class CitationHelperAction extends VelocityPortletPaneledAction
 			
 			ToolSession toolSession = getSessionManager().getCurrentToolSession();
 			ResourceToolActionPipe pipe = (ResourceToolActionPipe) toolSession.getAttribute(ResourceToolAction.ACTION_PIPE);
-			String collectionId = pipe.getContentEntity().getId();
-			context.put("collectionId", collectionId);
+			String contentCollectionId = pipe.getContentEntity().getId();
+			context.put("contentCollectionId", contentCollectionId);
 			ContentCollection collection;
 			try {
-				collection = getContentService().getCollection(collectionId);
+				collection = getContentService().getCollection(contentCollectionId);
 				contentProperties = this.getProperties(collection, state);
 			} catch (IdUnusedException e) {
 				logger.warn("IdUnusedException geting collection in buildNewResourcePanelContext() " + e);
@@ -2137,9 +2137,12 @@ public class CitationHelperAction extends VelocityPortletPaneledAction
 			context.put("resourceDescription", props.getProperty(ResourceProperties.PROP_DESCRIPTION));
 			//resourceUuid = this.getContentService().getUuid(resourceId);
 			context.put("resourceUuid", resourceUuid );
-			context.put("collectionId", resource.getContainingCollection().getId());
+			context.put("contentCollectionId", resource.getContainingCollection().getId());
 			try {
 				citationCollectionId = new String(resource.getContent());
+				if(citationCollectionId != null) {
+					state.setAttribute(STATE_CITATION_COLLECTION_ID, citationCollectionId);
+				}
 			} catch (ServerOverloadException e) {
 				logger.warn("ServerOverloadException geting props in buildNewResourcePanelContext() " + e);
 			}
@@ -2151,28 +2154,20 @@ public class CitationHelperAction extends VelocityPortletPaneledAction
 		}
 		context.put("contentProperties", contentProperties);
 		int collectionSize = 0;
-		CitationCollection citationCollection = null;
-    	if(citationCollectionId == null) {
-        	citationCollectionId = (String) state.getAttribute(STATE_CITATION_COLLECTION_ID);
-        	//String citationCollectionId = (String) state.getAttribute(CitationHelper.CITATION_COLLECTION_ID);
-    	}
-    	if(citationCollectionId == null) {
-    		
-    	} else {
-			citationCollection = getCitationCollection(state, true);
-			if(citationCollection == null) {
-				logger.warn( "buildAddCitationsPanelContext unable to access citationCollection " + citationCollectionId );
-	
-				int requestStateId = preserveRequestState(state, new String[]{CitationHelper.RESOURCES_REQUEST_PREFIX, CitationHelper.CITATION_PREFIX});
-				context.put("requestStateId", requestStateId);
-	
-				return TEMPLATE_ERROR;
-			} else {
-				// get the size of the list
-				collectionSize = citationCollection.size();
-			}
-	    	context.put("collectionId", citationCollectionId);
-    	}
+		CitationCollection citationCollection = getCitationCollection(state, true);
+		if(citationCollection == null) {
+			logger.warn( "buildAddCitationsPanelContext unable to access citationCollection " + citationCollectionId );
+
+			int requestStateId = preserveRequestState(state, new String[]{CitationHelper.RESOURCES_REQUEST_PREFIX, CitationHelper.CITATION_PREFIX});
+			context.put("requestStateId", requestStateId);
+
+			return TEMPLATE_ERROR;
+		} else {
+			// get the size of the list
+			collectionSize = citationCollection.size();
+			citationCollectionId = citationCollection.getId();
+		}
+    	context.put("citationCollectionId", citationCollectionId);
 		context.put( "collectionSize", new Integer( collectionSize ) );
     	
 
@@ -2312,14 +2307,14 @@ public class CitationHelperAction extends VelocityPortletPaneledAction
 	    context.put( "citationId", state.getAttribute( STATE_CITATION_ID ) );
 
 		// get the collection we're now working on
-		String collectionId = (String)state.getAttribute(STATE_CITATION_COLLECTION_ID);
-		context.put( "collectionId", collectionId );
+		String citationCollectionId = (String)state.getAttribute(STATE_CITATION_COLLECTION_ID);
+		context.put( "citationCollectionId", citationCollectionId );
 
 		int size = 0;
 		CitationCollection collection = getCitationCollection(state, false);
 		if(collection == null)
 		{
-			logger.warn( "buildMessagePanelContext unable to access citationCollection " + collectionId );
+			logger.warn( "buildMessagePanelContext unable to access citationCollection " + citationCollectionId );
 		}
 		else
 		{
@@ -2601,9 +2596,9 @@ public class CitationHelperAction extends VelocityPortletPaneledAction
 		context.put("citation", citation);
 
 		String citationId = (String) state.getAttribute(CitationHelper.CITATION_VIEW_ID);
-		String collectionId = (String) state.getAttribute(STATE_CITATION_COLLECTION_ID);
+		String citationCollectionId = (String) state.getAttribute(STATE_CITATION_COLLECTION_ID);
 		context.put("citationId", citationId);
-		context.put("collectionId", collectionId);
+		context.put("citationCollectionId", citationCollectionId);
 
 		List schemas = getCitationService().getSchemas();
 		context.put("TEMPLATES", schemas);
@@ -2767,7 +2762,7 @@ public class CitationHelperAction extends VelocityPortletPaneledAction
 			// error
 		} else {
 		
-			String collectionId = (String) state.getAttribute(STATE_CITATION_COLLECTION_ID);
+			String citationCollectionId = (String) state.getAttribute(STATE_CITATION_COLLECTION_ID);
 	
 			String[] args = new String[]{ Integer.toString(collection.size()) };
 			String size_str = rb.getFormattedMessage("citation.count",  args);
@@ -2886,7 +2881,7 @@ public class CitationHelperAction extends VelocityPortletPaneledAction
 
 		// get the citation from search results, add it to the citation collection, and rebuild the context
 		String[] citationIds = params.getStrings("citationId");
-		String collectionId = params.getString("collectionId");
+		String citationCollectionId = params.getString("citationCollectionId");
 
 		Integer page = (Integer) state.getAttribute(STATE_LIST_PAGE);
 		ActiveSearch search = (ActiveSearch) state.getAttribute(STATE_SEARCH_RESULTS);
@@ -2913,7 +2908,7 @@ public class CitationHelperAction extends VelocityPortletPaneledAction
 				}
 				catch(IdUnusedException ex)
 				{
-			        logger.info("doAdd: unable to add citation " + citationIds[i] + " to collection " + collectionId);
+			        logger.info("doAdd: unable to add citation " + citationIds[i] + " to collection " + citationCollectionId);
 				}
 			}
 	        getCitationService().save(permCollection);
@@ -2936,7 +2931,7 @@ public class CitationHelperAction extends VelocityPortletPaneledAction
 		// get the citation number from search results, remove it from the citation collection, and rebuild the context
 		// get the citation from search results, add it to the citation collection, and rebuild the context
 		String[] citationIds = params.getStrings("citationId");
-		String collectionId = params.getString("collectionId");
+		String citationCollectionId = params.getString("citationCollectionId");
 
 		ActiveSearch search = (ActiveSearch) state.getAttribute(STATE_SEARCH_RESULTS);
 		CitationCollection tempCollection = search.getSearchResults();
@@ -2961,7 +2956,7 @@ public class CitationHelperAction extends VelocityPortletPaneledAction
 				}
 				catch(IdUnusedException ex)
 				{
-			        logger.info("doAdd: unable to add citation " + citationIds[i] + " to collection " + collectionId);
+			        logger.info("doAdd: unable to add citation " + citationIds[i] + " to collection " + citationCollectionId);
 				}
 			}
 	        getCitationService().save(permCollection);
@@ -3047,11 +3042,11 @@ public class CitationHelperAction extends VelocityPortletPaneledAction
 			logger.debug( param + " value = " + params.get(param));
 		}
 
-		String collectionId = params.getString("collectionId");
+		String citationCollectionId = params.getString("citationCollectionId");
 
-		if(collectionId == null)
+		if(citationCollectionId == null)
 		{
-			collectionId = (String) state.getAttribute(STATE_CITATION_COLLECTION_ID);
+			citationCollectionId = (String) state.getAttribute(STATE_CITATION_COLLECTION_ID);
 		}
 
 		CitationCollection collection = null;
@@ -3450,7 +3445,7 @@ public class CitationHelperAction extends VelocityPortletPaneledAction
 		restoreRequestState(state, new String[]{CitationHelper.RESOURCES_REQUEST_PREFIX, CitationHelper.CITATION_PREFIX}, requestStateId);
 
 		String citationId = params.getString("citationId");
-		String collectionId = params.getString("collectionId");
+		String citationCollectionId = params.getString("citationCollectionId");
 
 
 		CitationCollection collection = getCitationCollection(state, true);
@@ -3543,7 +3538,7 @@ public class CitationHelperAction extends VelocityPortletPaneledAction
 
 		// get params
 		String citationId = params.getString("citationId");
-		String collectionId = params.getString("collectionId");
+		String citationCollectionId = params.getString("citationCollectionId");
 		String operation = params.getString("operation");
 
 		// check params
@@ -3562,11 +3557,11 @@ public class CitationHelperAction extends VelocityPortletPaneledAction
 			return;
 		}
 
-		if( operation == null || citationId == null || collectionId == null )
+		if( operation == null || citationId == null || citationCollectionId == null )
 		{
 			logger.warn( "doMessageFrame() null argument - operation: " +
 					operation + ", citationId: " + citationId + ", " +
-							"collectionId: " + collectionId );
+							"citationCollectionId: " + citationCollectionId );
 			setMode(state, Mode.ERROR);
 			return;
 		}
@@ -3589,23 +3584,23 @@ public class CitationHelperAction extends VelocityPortletPaneledAction
 			return;
 		}
 
-		// get CitationCollection using collectionId
+		// get CitationCollection using citationCollectionId
 		CitationCollection collection = getCitationCollection(state, false);
 		if(collection == null) {
-			logger.warn( "doMessageFrame() unable to access citationCollection " + collectionId );
+			logger.warn( "doMessageFrame() unable to access citationCollection " + citationCollectionId );
 		} else {
 
 			// do operation
 			if(operation.equalsIgnoreCase("add"))
 			{
-				logger.debug("adding citation " + citationId + " to " + collectionId);
+				logger.debug("adding citation " + citationId + " to " + citationCollectionId);
 				citation.setAdded( true );
 				collection.add( citation );
 				getCitationService().save(collection);
 			}
 			else if(operation.equalsIgnoreCase("remove"))
 			{
-				logger.debug("removing citation " + citationId + " from " + collectionId);
+				logger.debug("removing citation " + citationId + " from " + citationCollectionId);
 				collection.remove( citation );
 				citation.setAdded( false );
 				getCitationService().save(collection);
@@ -3631,14 +3626,14 @@ public class CitationHelperAction extends VelocityPortletPaneledAction
 		int requestStateId = params.getInt("requestStateId", 0);
 		restoreRequestState(state, new String[]{CitationHelper.RESOURCES_REQUEST_PREFIX, CitationHelper.CITATION_PREFIX}, requestStateId);
 
-		String collectionId = params.getString("collectionId");
+		String citationCollectionId = params.getString("citationCollectionId");
 
 		CitationCollection collection = getCitationCollection(state, false);
 
 		if(collection == null)
 		{
 			// TODO add alert and log error
-	        logger.warn("CitationHelperAction.doRemoveCitation collection null: " + collectionId);
+	        logger.warn("CitationHelperAction.doRemoveCitation collection null: " + citationCollectionId);
 		}
 		else
 		{
@@ -3710,14 +3705,14 @@ public class CitationHelperAction extends VelocityPortletPaneledAction
 		int requestStateId = params.getInt("requestStateId", 0);
 		restoreRequestState(state, new String[]{CitationHelper.RESOURCES_REQUEST_PREFIX, CitationHelper.CITATION_PREFIX}, requestStateId);
 
-		String collectionId = params.getString("collectionId");
+		String citationCollectionId = params.getString("citationCollectionId");
 
 		CitationCollection collection = getCitationCollection(state, false);
 
 		if(collection == null)
 		{
 			// TODO add alert and log error
-	        logger.warn("doRemoveSelectedCitation() collection null: " + collectionId);
+	        logger.warn("doRemoveSelectedCitation() collection null: " + citationCollectionId);
 		}
 		else
 		{
@@ -4506,7 +4501,7 @@ public class CitationHelperAction extends VelocityPortletPaneledAction
 		restoreRequestState(state, new String[]{CitationHelper.RESOURCES_REQUEST_PREFIX, CitationHelper.CITATION_PREFIX}, requestStateId);
 
 		String citationId = params.getString("citationId");
-		String collectionId = params.getString("collectionId");
+		String citationCollectionId = params.getString("citationCollectionId");
 
 		CitationCollection collection = getCitationCollection(state, false);
 
@@ -4916,7 +4911,7 @@ public class CitationHelperAction extends VelocityPortletPaneledAction
 		int requestStateId = params.getInt("requestStateId", 0);
 		restoreRequestState(state, new String[]{CitationHelper.RESOURCES_REQUEST_PREFIX, CitationHelper.CITATION_PREFIX}, requestStateId);
 
-		String collectionId = params.getString("collectionId");
+		String citationCollectionId = params.getString("citationCollectionId");
 
 		String sort = params.getString("currentSort");
         if(sort == null || sort.trim().equals("")) {
@@ -4925,9 +4920,9 @@ public class CitationHelperAction extends VelocityPortletPaneledAction
 
 		CitationCollection collection = null;
 
-		if(collectionId == null)
+		if(citationCollectionId == null)
 		{
-			collectionId = (String) state.getAttribute(STATE_CITATION_COLLECTION_ID);
+			citationCollectionId = (String) state.getAttribute(STATE_CITATION_COLLECTION_ID);
 		}
 
         logger.debug("doSortCollection sort type  = " + sort);
@@ -4937,7 +4932,7 @@ public class CitationHelperAction extends VelocityPortletPaneledAction
 		if(collection == null)
 		{
 			// TODO add alert and log error
-	        logger.warn("doSortCollection() collection null: " + collectionId);
+	        logger.warn("doSortCollection() collection null: " + citationCollectionId);
 		}
 		else
 		{
@@ -4992,13 +4987,13 @@ public class CitationHelperAction extends VelocityPortletPaneledAction
 		int requestStateId = params.getInt("requestStateId", 0);
 		restoreRequestState(state, new String[]{CitationHelper.RESOURCES_REQUEST_PREFIX, CitationHelper.CITATION_PREFIX}, requestStateId);
 
-		String collectionId = params.getString("collectionId");
+		String citationCollectionId = params.getString("citationCollectionId");
 
 		CitationCollection collection = null;
 
-		if(collectionId == null)
+		if(citationCollectionId == null)
 		{
-			collectionId = (String) state.getAttribute(STATE_CITATION_COLLECTION_ID);
+			citationCollectionId = (String) state.getAttribute(STATE_CITATION_COLLECTION_ID);
 		}
 
         collection = getCitationCollection(state, false);
@@ -5006,7 +5001,7 @@ public class CitationHelperAction extends VelocityPortletPaneledAction
 		if(collection == null)
 		{
 			// TODO add alert and log error
-	        logger.warn("doSaveCollection() collection null: " + collectionId);
+	        logger.warn("doSaveCollection() collection null: " + citationCollectionId);
 	        return;
 		}
 		else

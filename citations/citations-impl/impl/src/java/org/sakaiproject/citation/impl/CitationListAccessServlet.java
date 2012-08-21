@@ -129,14 +129,19 @@ public class CitationListAccessServlet implements HttpAccess
 			Reference ref, String format, String subtype) 
 			throws EntityNotDefinedException, EntityAccessOverloadException 
 	{
+		String fileName = req.getParameter("resourceDisplayName");
+		if(fileName == null || fileName.trim().equals("")) {
+			fileName = rb.getString("export.default.filename");
+		}
+		
 		if(org.sakaiproject.citation.api.CitationService.RIS_FORMAT.equals(format))
 		{
-			String collectionId = req.getParameter("collectionId");
+			String citationCollectionId = req.getParameter("citationCollectionId");
 			List<String> citationIds = new java.util.ArrayList<String>();
 			CitationCollection collection = null;
 			try 
 			{
-				collection = CitationService.getCollection(collectionId);
+				collection = CitationService.getCollection(citationCollectionId);
 			} 
 			catch (IdUnusedException e) 
 			{
@@ -152,9 +157,17 @@ public class CitationListAccessServlet implements HttpAccess
 				if( paramCitationIds == null || paramCitationIds.length < 1 )
 				{
 					// none selected - do not continue
+					try {
+						res.sendError(HttpServletResponse.SC_BAD_REQUEST, rb.getString("export.none_selected"));
+					} catch (IOException e) {
+						m_log.warn("export-selected request received with not citations selected. citationCollectionId: " + citationCollectionId);
+					}
+
 					return;
 				}
 				citationIds.addAll(Arrays.asList(paramCitationIds));
+				
+				fileName = rb.getFormattedMessage("export.filename.selected.ris", fileName);
 			}
 			else
 			{
@@ -165,7 +178,13 @@ public class CitationListAccessServlet implements HttpAccess
 				
 				if( citations == null || citations.size() < 1 )
 				{
-					// no citations to export - do not continue
+					// no citations to export - do not continue 
+					try {
+						res.sendError(HttpServletResponse.SC_NO_CONTENT, rb.getString("export.empty_collection"));
+					} catch (IOException e) {
+						m_log.warn("export-all request received for empty citation collection. citationCollectionId: " + citationCollectionId);
+					}
+					
 					return;
 				}
 				
@@ -173,8 +192,9 @@ public class CitationListAccessServlet implements HttpAccess
 				{
 					citationIds.add( citation.getId() );
 				}
+				fileName = rb.getFormattedMessage("export.filename.all.ris", fileName);
 			}
-			
+						
 			// We need to write to a temporary stream for better speed, plus
 			// so we can get a byte count. Internet Explorer has problems
 			// if we don't make the setContentLength() call.
@@ -191,7 +211,8 @@ public class CitationListAccessServlet implements HttpAccess
 			}
 
 			// Set the mime type for a RIS file
-			res.addHeader("Content-Disposition", "attachment; filename=\"citations.RIS\"");
+			res.addHeader("Content-disposition", "attachment; filename=\"" + fileName + "\"");
+			//res.addHeader("Content-Disposition", "attachment; filename=\"citations.RIS\"");
 			res.setContentType("application/x-Research-Info-Systems");
 			res.setContentLength(buffer.length());
 
