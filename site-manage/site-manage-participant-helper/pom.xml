@@ -20,11 +20,8 @@
     <packaging>war</packaging>
 
     <properties>
-        <rsfutil.version>0.7.4</rsfutil.version>
-        <sakairsf.sakai.version>2.2.x</sakairsf.sakai.version>
-        <deploy.webappname>tbook</deploy.webappname>
-        <appserver.id>${sakai.appserver.id}</appserver.id>
-    </properties>
+        <rsfutil.version>0.7.5</rsfutil.version>
+     </properties>
 
     <dependencies>
         <dependency>
@@ -90,13 +87,13 @@
         <dependency>
             <groupId>uk.org.ponder.sakairsf</groupId>
             <artifactId>SakaiRSFComponents-evolvers</artifactId>
-            <version>${rsfutil.version}-sakai_${sakairsf.sakai.version}</version>
+            <version>${rsfutil.version}</version>
             <type>jar</type>
         </dependency>
         <dependency>
             <groupId>uk.org.ponder.sakairsf</groupId>
             <artifactId>sakairsf</artifactId>
-            <version>${rsfutil.version}-sakai_${sakairsf.sakai.version}</version>
+            <version>${rsfutil.version}</version>
             <type>jar</type>
         </dependency>
     </dependencies>
