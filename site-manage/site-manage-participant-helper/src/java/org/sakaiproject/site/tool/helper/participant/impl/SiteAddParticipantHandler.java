@@ -902,6 +902,11 @@ public class SiteAddParticipantHandler {
 			for (i = 0; i < nonOfficialAccountArray.length; i++) {
 				String currentNonOfficialAccount = nonOfficialAccountArray[i];
 				String nonOfficialAccountAll = StringUtils.trimToNull(currentNonOfficialAccount.replaceAll("[\t\r\n]", ""));
+				//there could be an empty line SAK-22497
+				if (nonOfficialAccountAll == null) {
+					continue;
+				}
+				
 				// the format of per user entry is: email address,first name,last name
 				// comma separated
 				String[] nonOfficialAccountParts  = nonOfficialAccountAll.split(",");
