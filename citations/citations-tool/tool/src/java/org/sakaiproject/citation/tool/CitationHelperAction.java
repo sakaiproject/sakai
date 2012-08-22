@@ -2857,7 +2857,7 @@ public class CitationHelperAction extends VelocityPortletPaneledAction
 		}
 
     	// leave helper mode
-		pipe.setActionCanceled(true);
+		pipe.setActionCanceled(false);
 		pipe.setErrorEncountered(false);
 		pipe.setActionCompleted(true);
 
