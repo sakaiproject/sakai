@@ -31,11 +31,11 @@ public interface DbAuthzGroupSql
 {
 	String getCountRealmFunctionSql();
 
-	String getCountRealmRoleFunctionEndSql(String anonymousRole, String authorizationRole, boolean authorized, String inClause);
+	String getCountRealmRoleFunctionEndSql(String anonymousRoleKey, String authorizationRoleKey, boolean authorized, String inClause);
 
-	String getCountRealmRoleFunctionSql(String anonymousRole, String authorizationRole, boolean authorized);
+	String getCountRealmRoleFunctionSql(String anonymousRoleKey, String authorizationRoleKey, boolean authorized);
 
-	String getCountRealmRoleFunctionSql(String anonymousRole, String authorizationRole, boolean authorized, String inClause);
+	String getCountRealmRoleFunctionSql(String anonymousRoleKey, String authorizationRoleKey, boolean authorized, String inClause);
 
 	String getCountRealmRoleSql();
 	
@@ -140,6 +140,8 @@ public interface DbAuthzGroupSql
 	String getSelectRealmRoleNameSql();
 
 	String getSelectRealmRoleSql();
+	
+	String getSelectRealmRoleKeySql();
 
 	String getSelectRealmRolesSql(String inClause);
 	

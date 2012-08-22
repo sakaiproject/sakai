@@ -94,11 +94,11 @@ public class DbAuthzGroupSqlMySql extends DbAuthzGroupSqlDefault
 	}
 
 	@Override
-	public String getCountRealmRoleFunctionSql(String anonymousRole, String authorizationRole, boolean authorized, String inClause)
+	public String getCountRealmRoleFunctionSql(String anonymousRoleKey, String authorizationRoleKey, boolean authorized, String inClause)
 	{
 		return "select count(1) from SAKAI_REALM_RL_FN,SAKAI_REALM force index "
 				+ "(AK_SAKAI_REALM_ID) where SAKAI_REALM_RL_FN.REALM_KEY = SAKAI_REALM.REALM_KEY " + "and " + inClause
-				+ getCountRealmRoleFunctionEndSql(anonymousRole, authorizationRole, authorized, inClause);
+				+ getCountRealmRoleFunctionEndSql(anonymousRoleKey, authorizationRoleKey, authorized, inClause);
 	}
 
 	@Override

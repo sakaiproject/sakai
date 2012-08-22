@@ -261,7 +261,7 @@ public abstract class DbAuthzGroupService extends BaseAuthzGroupService implemen
 		name = name.intern();
 
 		// check the cache to see if the role name already exists
-		if (m_roleNameCache.contains(name)) return;
+		if (getRealmRoleKey(name) != null) return;
 
 		// see if we have it in the db
 		String statement = dbAuthzGroupSql.getCountRealmRoleSql();
@@ -300,7 +300,21 @@ public abstract class DbAuthzGroupService extends BaseAuthzGroupService implemen
 
 		synchronized (m_roleNameCache)
 		{
-			m_roleNameCache.add(name);
+			//Get realm role Key
+			statement = dbAuthzGroupSql.getSelectRealmRoleKeySql();
+			results = sqlService().dbRead(statement, fields, new SqlReader() {
+				public Object readSqlResultRecord(ResultSet result) {
+					try {
+						String name = result.getString(1);
+						String key = result.getString(2);
+						RealmRole realmRole = new RealmRole(name, key);
+						m_roleNameCache.add(realmRole);
+					}
+					catch (SQLException ignore) {
+					}
+					return null;
+				}
+			});
 		}
 	}
 
@@ -319,7 +333,9 @@ public abstract class DbAuthzGroupService extends BaseAuthzGroupService implemen
 					try
 					{
 						String name = result.getString(1);
-						m_roleNameCache.add(name);
+						String key = result.getString(2);
+						RealmRole realmRole = new RealmRole(name, key);
+						m_roleNameCache.add(realmRole);
 					}
 					catch (SQLException ignore)
 					{
@@ -1539,7 +1555,7 @@ public abstract class DbAuthzGroupService extends BaseAuthzGroupService implemen
 			if (M_log.isDebugEnabled())
 				M_log.debug("isAllowed: auth=" + auth + " userId=" + userId + " lock=" + lock + " realm=" + realmId);
 
-			String statement = dbAuthzGroupSql.getCountRealmRoleFunctionSql(ANON_ROLE, AUTH_ROLE, auth);
+			String statement = dbAuthzGroupSql.getCountRealmRoleFunctionSql(getRealmRoleKey(ANON_ROLE), getRealmRoleKey(AUTH_ROLE), auth);
 			Object[] fields = new Object[3];
 			fields[0] = userId;
 			fields[1] = lock;
@@ -1604,7 +1620,7 @@ public abstract class DbAuthzGroupService extends BaseAuthzGroupService implemen
 			String inClause = orInClause(realms.size(), "SAKAI_REALM.REALM_ID");
 
 			// any of the grant or role realms
-			String statement = dbAuthzGroupSql.getCountRealmRoleFunctionSql(ANON_ROLE, AUTH_ROLE, auth, inClause);
+			String statement = dbAuthzGroupSql.getCountRealmRoleFunctionSql(getRealmRoleKey(ANON_ROLE), getRealmRoleKey(AUTH_ROLE), auth, inClause);
 			Object[] fields = new Object[2 + (2 * realms.size())];
 			int pos = 0;
 
@@ -1612,6 +1628,13 @@ public abstract class DbAuthzGroupService extends BaseAuthzGroupService implemen
 			String userSiteRef = null;
 			String siteRef = null;
 			
+			// oracle query has different order of parameters
+			String dbAuthzGroupSqlClassName=dbAuthzGroupSql.getClass().getName();
+			
+			if(dbAuthzGroupSqlClassName.equals("org.sakaiproject.authz.impl.DbAuthzGroupSqlOracle")) {
+					fields[pos++] = userId;
+			}
+
 			// populate values for fields
 			for (String realmId : realms)
 			{
@@ -1629,7 +1652,9 @@ public abstract class DbAuthzGroupService extends BaseAuthzGroupService implemen
 				fields[pos++] = realmId;
 			}
 			fields[pos++] = lock;
-			fields[pos++] = userId;
+			if(!dbAuthzGroupSqlClassName.equals("org.sakaiproject.authz.impl.DbAuthzGroupSqlOracle")) {
+				fields[pos++] = userId;
+			}
 			for (String realmId : realms)
 			{
 				fields[pos++] = realmId;
@@ -2857,5 +2882,50 @@ public abstract class DbAuthzGroupService extends BaseAuthzGroupService implemen
 		}
 		
 		
+	}
+	
+	private String getRealmRoleKey(String roleName) {
+		Iterator<RealmRole> itr = m_roleNameCache.iterator();
+		while (itr.hasNext()) {
+			RealmRole realmRole = (RealmRole) itr.next();
+			if (realmRole != null && realmRole.getName().equals(roleName)) {
+				return realmRole.getKey();
+			}
+		}
+		return null;
+	}
+	
+	class RealmRole implements Comparable<RealmRole>{
+		private String name;
+		private String key;
+		
+		RealmRole(String name) {
+			this.name = name;
+		}
+		
+		RealmRole(String name, String key) {
+			this.name = name;
+			this.key = key;
+		}
+		
+		public String getName() {
+			return name;
+		}
+		
+		public void setName(String name) {
+			this.name = name;
+		}
+		
+		public String getKey() {
+			return key;
+		}
+		
+		public void setKey(String key) {
+			this.key = key;
+		}
+		
+		public int compareTo(RealmRole realmRole) {
+			return this.name.compareToIgnoreCase(realmRole.name);
+		}
 	}
 }
