@@ -1,0 +1,29 @@
+.citationList {
+    list-style: none;
+    margin:0;
+    padding:0;
+}
+
+.citationList li {
+    margin:15px 0;
+    padding:0;
+}
+
+.citationList li .removeCitation {
+    float:left;
+    margin-top:0;
+}
+
+.citationList li .citationBody {
+    margin-left:30px
+}
+
+.highlightPanel {
+    -webkit-border-radius: 2px;
+    -moz-border-radius: 2px;
+    border-radius: 2px;
+    background:#ffe;
+    float:left;
+    width:30%;
+    margin-right:2em
+}

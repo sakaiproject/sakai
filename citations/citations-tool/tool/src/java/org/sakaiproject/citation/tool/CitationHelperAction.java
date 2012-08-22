@@ -1082,7 +1082,10 @@ public class CitationHelperAction extends VelocityPortletPaneledAction
 			results.put("citationCollectionId", citationCollectionId);
 			//results.put("resourceId", resourceId);
 			resourceUuid = this.getContentService().getUuid(resourceId);
-			logger.info("ensureCitationListExists() created new resource with resourceUuid == " + resourceUuid + " and resourceId == " + resourceId);
+			
+			if(logger.isDebugEnabled()) {
+				logger.debug("ensureCitationListExists() created new resource with resourceUuid == " + resourceUuid + " and resourceId == " + resourceId);
+			}
 			results.put("resourceUuid", resourceUuid );
 			String clientId = params.getString("saveciteClientId");
 			
@@ -2088,8 +2091,8 @@ public class CitationHelperAction extends VelocityPortletPaneledAction
     		}
     	}
  
-		if(logger.isInfoEnabled()) {
-			logger.info("buildNewResourcePanelContext()  resourceUuid == " + resourceUuid + "  resourceId == " + resourceId);
+    	if(logger.isDebugEnabled()) {
+			logger.debug("buildNewResourcePanelContext()  resourceUuid == " + resourceUuid + "  resourceId == " + resourceId);
 		}
 		
     	String citationCollectionId = null;
@@ -2908,7 +2911,7 @@ public class CitationHelperAction extends VelocityPortletPaneledAction
 				}
 				catch(IdUnusedException ex)
 				{
-			        logger.info("doAdd: unable to add citation " + citationIds[i] + " to collection " + citationCollectionId);
+			        logger.warn("doAdd: unable to add citation " + citationIds[i] + " to collection " + citationCollectionId);
 				}
 			}
 	        getCitationService().save(permCollection);
@@ -2956,7 +2959,7 @@ public class CitationHelperAction extends VelocityPortletPaneledAction
 				}
 				catch(IdUnusedException ex)
 				{
-			        logger.info("doAdd: unable to add citation " + citationIds[i] + " to collection " + citationCollectionId);
+			        logger.warn("doAdd: unable to add citation " + citationIds[i] + " to collection " + citationCollectionId);
 				}
 			}
 	        getCitationService().save(permCollection);
@@ -2975,8 +2978,9 @@ public class CitationHelperAction extends VelocityPortletPaneledAction
 
 		// get category id
 		String categoryId = params.get( "categoryId" );
-		logger.debug( "doDatabasePopulate() categoryId from URL: " + categoryId );
-
+		if(logger.isDebugEnabled()) {
+			logger.debug( "doDatabasePopulate() categoryId from URL: " + categoryId );
+		}
 		if( categoryId == null )
 		{
 			// should not be null
@@ -3038,8 +3042,10 @@ public class CitationHelperAction extends VelocityPortletPaneledAction
 		while (iter.hasNext())
 		{
 			param = (String) iter.next();
-			logger.debug( "param = " + param);
-			logger.debug( param + " value = " + params.get(param));
+			if(logger.isDebugEnabled()) {
+				logger.debug( "param = " + param);
+				logger.debug( param + " value = " + params.get(param));
+			}
 		}
 
 		String citationCollectionId = params.getString("citationCollectionId");
@@ -3069,7 +3075,9 @@ public class CitationHelperAction extends VelocityPortletPaneledAction
 		else // textarea empty, set the read of the import from the file
 		{
 		  String upload = params.get("risupload");
-		  logger.debug( "Upload String = " + upload);
+		  if(logger.isDebugEnabled()) {
+			  logger.debug( "Upload String = " + upload);
+		  }
 
 		  FileItem risImport = params.getFileItem("risupload");
 
@@ -3079,7 +3087,9 @@ public class CitationHelperAction extends VelocityPortletPaneledAction
 			return;
 		  }
 
-	      logger.debug("Filename = " + risImport.getFileName());
+		  if(logger.isDebugEnabled()) {
+			  logger.debug("Filename = " + risImport.getFileName());
+		  }
 
 
 	      InputStream risImportStream = risImport.getInputStream();
@@ -3100,12 +3110,16 @@ public class CitationHelperAction extends VelocityPortletPaneledAction
 			} catch (UnsupportedEncodingException uee)
 			{
 				// Something strange as the JRE should support all the formats.
-				logger.info("Problem using character set when importing RIS: "+ bomCharsetName);
+				if(logger.isInfoEnabled()) {
+					logger.info("Problem using character set when importing RIS: "+ bomCharsetName);
+				}
 			}
 			catch (IOException ioe)
 			{
 				// Probably won't get any further, but may as well try.
-				logger.debug("Problem reading the character set from RIS import: "+ ioe.getMessage());
+				if(logger.isDebugEnabled()) {
+					logger.debug("Problem reading the character set from RIS import: "+ ioe.getMessage());
+				}
 			}
 			// Fallback to platform default
 			if (isr == null) {
@@ -3187,7 +3201,9 @@ public class CitationHelperAction extends VelocityPortletPaneledAction
 				// end of citation (signaled by ER).
 
 				totalNumberCitations++;
-				logger.debug("------> Trying to add citation " + totalNumberCitations);
+				if(logger.isDebugEnabled()) {
+					logger.debug("------> Trying to add citation " + totalNumberCitations);
+				}
 				if (importCitation.importFromRisList(tempList)) // import went well
 				{
 					importCollection.add(importCitation);
@@ -3198,7 +3214,9 @@ public class CitationHelperAction extends VelocityPortletPaneledAction
 			}
 		} // end for
 
-		logger.debug("Done reading in " + sucessfullyReadCitations + " / " + totalNumberCitations + " citations.");
+		if(logger.isDebugEnabled()) {
+			logger.debug("Done reading in " + sucessfullyReadCitations + " / " + totalNumberCitations + " citations.");
+		}
 
 		collection.addAll(importCollection);
         getCitationService().save(collection);
@@ -3388,7 +3406,9 @@ public class CitationHelperAction extends VelocityPortletPaneledAction
 
          	if(url == null)
         	{
-        		logger.debug("doCreateCitation: url null? " + url);
+         		if(logger.isDebugEnabled()) {
+         			logger.debug("doCreateCitation: url null? " + url);
+         		}
         	}
         	else
         	{
@@ -3398,14 +3418,18 @@ public class CitationHelperAction extends VelocityPortletPaneledAction
 	            }
 	            catch (MalformedURLException e)
 	            {
-		            logger.debug("doCreateCitation: unable to validate URL: " + url);
+	            	if(logger.isDebugEnabled()) {
+	            		logger.debug("doCreateCitation: unable to validate URL: " + url);
+	            	}
 		            continue;
 	            }
         	}
 
         	if(label == null || url == null)
         	{
-        		logger.debug("doCreateCitation: label null? " + label + " url null? " + url);
+        		if(logger.isDebugEnabled()) {
+        			logger.debug("doCreateCitation: label null? " + label + " url null? " + url);
+        		}
         		continue;
         	}
         	else if(urlid == null || urlid.trim().equals(""))
@@ -3593,14 +3617,18 @@ public class CitationHelperAction extends VelocityPortletPaneledAction
 			// do operation
 			if(operation.equalsIgnoreCase("add"))
 			{
-				logger.debug("adding citation " + citationId + " to " + citationCollectionId);
+				if(logger.isDebugEnabled()) {
+					logger.debug("adding citation " + citationId + " to " + citationCollectionId);
+				}
 				citation.setAdded( true );
 				collection.add( citation );
 				getCitationService().save(collection);
 			}
 			else if(operation.equalsIgnoreCase("remove"))
 			{
-				logger.debug("removing citation " + citationId + " from " + citationCollectionId);
+				if(logger.isDebugEnabled()) {
+					logger.debug("removing citation " + citationId + " from " + citationCollectionId);
+				}
 				collection.remove( citation );
 				citation.setAdded( false );
 				getCitationService().save(collection);
@@ -3608,7 +3636,9 @@ public class CitationHelperAction extends VelocityPortletPaneledAction
 			else
 			{
 				// do nothing
-				logger.debug("null operation: " + operation);
+				if(logger.isDebugEnabled()) {
+					logger.debug("null operation: " + operation);
+				}
 			}
 	
 			// store the citation's new id to send back to UI
@@ -4570,14 +4600,19 @@ public class CitationHelperAction extends VelocityPortletPaneledAction
 
 			if (mode == null)
 			{
-				logger.debug("initHelper(): mode is undefined, using " + Mode.NEW_RESOURCE);
+				if(logger.isDebugEnabled()) {
+					logger.debug("initHelper(): mode is undefined, using " + Mode.NEW_RESOURCE);
+				}
 				setMode(state, Mode.NEW_RESOURCE);
 			}
 
 			if (state.getAttribute(STATE_RESULTS_PAGE_SIZE) == null)
 			{
-				logger.debug("initHelper(): result page size is undefined, using "
-						+    DEFAULT_RESULTS_PAGE_SIZE);
+				if(logger.isDebugEnabled()) {
+					logger.debug("initHelper(): result page size is undefined, using " 
+							+    DEFAULT_RESULTS_PAGE_SIZE);
+				}
+						
 				state.setAttribute(STATE_RESULTS_PAGE_SIZE, DEFAULT_RESULTS_PAGE_SIZE);
 			}
 
@@ -4925,7 +4960,9 @@ public class CitationHelperAction extends VelocityPortletPaneledAction
 			citationCollectionId = (String) state.getAttribute(STATE_CITATION_COLLECTION_ID);
 		}
 
-        logger.debug("doSortCollection sort type  = " + sort);
+		if(logger.isDebugEnabled()) {
+			logger.debug("doSortCollection sort type  = " + sort);
+		}
 
         collection = getCitationCollection(state, false);
 
@@ -4957,11 +4994,12 @@ public class CitationHelperAction extends VelocityPortletPaneledAction
 			{
 				Citation tempCit = (Citation) iter.next();
 
-				logger.debug("doSortCollection() tempcit 1 -------------");
-				logger.debug("doSortCollection() tempcit 1 (author) = " + tempCit.getFirstAuthor());
-		        logger.debug("doSortCollection() tempcit 1 (year)   = " + tempCit.getYear());
-
-		        logger.debug("doSortCollection() tempcit 1 = " + tempCit.getDisplayName());
+				if(logger.isDebugEnabled()) {
+					logger.debug("doSortCollection() tempcit 1 -------------");
+					logger.debug("doSortCollection() tempcit 1 (author) = " + tempCit.getFirstAuthor());
+					logger.debug("doSortCollection() tempcit 1 (year)   = " + tempCit.getYear());
+					logger.debug("doSortCollection() tempcit 1 = " + tempCit.getDisplayName());
+				}
 			} // end while
 
 			// set the list iterator to the start of the list after a change in sort

@@ -177,7 +177,9 @@ public class CitationServlet extends VmServlet
 	 */
 	public void doGet(HttpServletRequest req, HttpServletResponse res) throws ServletException, IOException
 	{
-		M_log.info("doGet() "  + req.getMethod());
+		if(M_log.isDebugEnabled()) {
+			M_log.debug("doGet() "  + req.getMethod());
+		}
 		// process any login that might be present
 		basicAuth.doLogin(req);
 		
@@ -284,7 +286,9 @@ public class CitationServlet extends VmServlet
 	}
 
 	public void doDelete(HttpServletRequest req, HttpServletResponse res) throws ServletException, IOException {
-		M_log.info("doDelete() "  + req.getMethod());
+		if(M_log.isDebugEnabled()) {
+			M_log.debug("doDelete() "  + req.getMethod());
+		}
 		// process any login that might be present
 		basicAuth.doLogin(req);
 		
@@ -302,8 +306,8 @@ public class CitationServlet extends VmServlet
 			String citationId = parts[2];
 			String resourceUuid = parts[1];
 			
-			if(M_log.isInfoEnabled()) {
-				M_log.info("doDelete() citationId == " + citationId + "  resourceUuid == " + resourceUuid);
+			if(M_log.isDebugEnabled()) {
+				M_log.debug("doDelete() citationId == " + citationId + "  resourceUuid == " + resourceUuid);
 			}
 			
 			if(resourceUuid == null || resourceUuid.trim().equals("") || citationId == null || citationId.trim().equals("")) {
@@ -338,7 +342,8 @@ public class CitationServlet extends VmServlet
 				collection.remove(item);
 				this.citationService.save(collection);
 				
-				M_log.info("doDelete() SUCCESS");
+				M_log.debug("doDelete() SUCCESS");
+				
 			} catch (IdUnusedException e) {
 				res.sendError(HttpServletResponse.SC_NOT_FOUND, rb.getString("savecite.delete.invalid_uuid"));
 			} catch (TypeException e) {
@@ -383,7 +388,9 @@ public class CitationServlet extends VmServlet
 			
 		} catch (TypeException e) {
 			// Ignore.
-			M_log.debug("TypeException in findResource() " + e.getMessage());
+			if(M_log.isDebugEnabled()) {
+				M_log.debug("TypeException in findResource() " + e.getMessage());
+			}
 		}
 		return resource;
 	}

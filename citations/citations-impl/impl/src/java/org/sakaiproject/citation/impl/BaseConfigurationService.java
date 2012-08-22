@@ -422,9 +422,10 @@ public class BaseConfigurationService implements ConfigurationService, Observer
     }
     catch (NumberFormatException exception)
     {
-      m_log.debug("Maximum searchable database exception: "
+      if(m_log.isDebugEnabled()) {
+        m_log.debug("Maximum searchable database exception: "
               +   exception.toString());
-
+      }
       searchableDbs = SEARCHABLE_DATABASES;
     }
     finally
