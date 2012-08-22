@@ -346,12 +346,6 @@ span.searchTargetLink { margin-right:50px; }
 		</div>
 		<input type="hidden" name="sakai_csrf_token" value="$sakai_csrf_token" />
 	</form>	
-	<div id="refreshButtonDiv" style="display:none">
-		<p>$tlang.getString("resource.citations.added")</p>
-		<p>
-			<input id="refreshButton" value="$tlang.getString("resource.refresh.now")" type="button" />
-		</p>
-	</div>
 	<br />
 	<ul class="navIntraTool actionToolBar">
 		<li class="firstToolBarItem">
@@ -436,6 +430,11 @@ span.searchTargetLink { margin-right:50px; }
 	</div>
 	<div class="act">
 		<input type="button" name="Cancel" class="Cancel active" value="$tlang.getString("resource.done")" />
+        <span class="firstPageLoad" style="display: none; vertical-align: bottom; padding: 0.5em; border: 1px solid #000; background: #fff;">
+            <img src="/library/image/sakai/spinner.gif" alt="$tlang.getString( "wait.list" )" />
+            $tlang.getString( "wait.list" )
+        </span>
+ 
 	</div>
 	<form id="fossils">
 		<input type="hidden" name="displayName" id="displayName_fossil" value="$validator.escapeHtml("$!resourceTitle")" />

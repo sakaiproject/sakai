@@ -324,16 +324,9 @@ citations_new_resource.checkForClosedWindows = function() {
 	}
 }
 
-citations_new_resource.watchForUpdates = function(timestamp) {
-	var actionUrl = $('#newCitationListForm').attr('action');
+citations_new_resource.refreshDemanded = false;
 
-	var params = {
-			'requested_mimetype' : 'application/json',
-			'ajaxRequest' : 'true',
-			'citationCollectionId' : $('#citationCollectionId').val(),
-			'citation_action' : 'check_for_updates',
-			'lastcheck' : timestamp
-	};
+citations_new_resource.watchForUpdates = function(timestamp) {
 	
 	var size = function(obj) {
         var size = 0, key;
@@ -342,6 +335,25 @@ citations_new_resource.watchForUpdates = function(timestamp) {
         }
         return size;
     };
+	
+    if(citations_new_resource.childWindow && size(citations_new_resource.childWindow) < 1 && citations_new_resource.refreshDemanded) {
+    	// If all child windows are closed and a refresh has been requested, do the refresh
+    	$('#sakai_action').val('doFirstListPage');
+    	$('#requested_mimetype').val('text/html');
+    	$('#ajaxRequest').val('false');
+    	$('#newCitationListForm').attr('method', 'GET');
+    	$('#newCitationListForm').submit();
+    }
+    
+	var actionUrl = $('#newCitationListForm').attr('action');
+
+	var params = {
+		'requested_mimetype' : 'application/json',
+		'ajaxRequest' : 'true',
+		'citationCollectionId' : $('#citationCollectionId').val(),
+		'citation_action' : 'check_for_updates',
+		'lastcheck' : timestamp
+	};
 	
 	// check for status change in citationCollection 
 	$.ajax({
@@ -354,15 +366,13 @@ citations_new_resource.watchForUpdates = function(timestamp) {
 		success: function(jsObj) {
 			// in case of status change, update this view
 			if(jsObj && jsObj.changed && jsObj.changed == 'true') {
-				
-				$('#refreshButtonDiv').fadeTo("slow", 1).animate({
-			        opacity: 1.0
-			    }, 5000);
+				citations_new_resource.refreshDemanded = true;
+				showSpinner( '.firstPageLoad' );
 			}
 			// if the child window is still open, schedule another check
 			if(citations_new_resource.childWindow && size(citations_new_resource.childWindow) > 0) {
-				setTimeout(function() { citations_new_resource.watchForUpdates(jsObj.timestamp); }, 10000);
-			}
+				setTimeout(function() { citations_new_resource.watchForUpdates(jsObj.timestamp); }, 2000);
+			} 
 		},
 		error		: function(jqXHR, textStatus, errorThrown) {
 			// TODO: replace with reasonable error handling
@@ -524,14 +534,6 @@ citations_new_resource.init = function() {
 		$('#accessHidden').toggle();
 		setFrameHeight();
 		return false;
-	});
-	$('#refreshButton').on('click', function(eventObject){
-		showSpinner( '.pageLoad' );
-		$('#sakai_action').val('doFirstListPage');
-		$('#requested_mimetype').val('text/html');
-		$('#ajaxRequest').val('false');
-		$('#newCitationListForm').attr('method', 'GET');
-		$('#newCitationListForm').submit();
 	});
 	$('.firstPage').on('click', function(eventObject){
 		showSpinner( '.pageLoad' );

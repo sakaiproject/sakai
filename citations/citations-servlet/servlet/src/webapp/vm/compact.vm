@@ -27,13 +27,8 @@
 		<div class="portletBody">
 			<div class="indnt1">
 				#if( $success )
-					<script type="text/javascript">
-					  if( opener && opener.citationsHelperFrame && opener.citationsHelperFrame.refreshCitationsHelper ) {
-						opener.citationsHelperFrame.refreshCitationsHelper();
-					  }
-					</script>
 					<span style="display:none;" id="resourceId">$!{resourceId}</span>
-					<h3>Your citations have been added</h3>
+					<h3>$tlang.getFormattedMessage("savecite.title.success", $titleArgs)</h3>
                 	<ol class="citationList">
 					#if( $citations )
 						#foreach($citation in $citations)
@@ -49,11 +44,18 @@
 	                </p>
 					
 					#if($client)
-						<p class="act">
+						<div class="highlightPanel" style="width:30%;float:left;background:#ffe">
+							<p class="instruction">$tlang.getString("savecite.button.add_more")</p>
 							<button type="button" onclick="history.back();">${client.return_label}</button>
+						</div>
+						<div class="highlightPanel" style="width:30%;float:center;background:#ffe">
+							<p class="instruction">$tlang.getString("savecite.button.done")</p>
 							<button type="button" onclick="window.close();">${client.close_label}</button>
-							<button type="button" id="removeAllCitations">Cancel</button>
-						</p>
+						</div>
+						<div class="highlightPanel" style="width:30%;float:right;background:#ffe">
+							<p class="instruction">$tlang.getString("savecite.button.cancel")</p>
+							<button type="button" id="removeAllCitations">$tlang.getString("savecite.cancel")</button>
+						</div>
 					#else
 						<p class="act">
 							<button type="button" onclick="history.back();">$tlang.getString( "back.gscholar" )</button>
