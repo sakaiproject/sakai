@@ -20,6 +20,7 @@
 		<title>$tlang.getString( "window.gscholar" )</title>
 		<link href="/library/skin/tool_base.css" type="text/css" rel="stylesheet" media="all" />
 		<link href="/library/skin/default/tool.css" type="text/css" rel="stylesheet" media="all" />
+		<link href="/savecite/css/savecite.css" type="text/css" rel="stylesheet" media="all" />
 		<script type="text/javascript" src="/library/js/jquery/1.7.1/jquery-1.7.1.min.js"></script>
 	</head>
   	<body>
@@ -31,11 +32,9 @@
 						opener.citationsHelperFrame.refreshCitationsHelper();
 					  }
 					</script>
-					<table class="listHier lines nolines">
-					  <tr>
-					    <th id="details"></th>
-					    <th id="removeLinks"></th>
-					  </tr>
+					<span style="display:none;" id="resourceId">$!{resourceId}</span>
+					<h3>Your citations have been added</h3>
+                	<ol class="citationList">
 					#if( $citations )
 						#foreach($citation in $citations)
 							#parse( "vm/_compact_citation.vm" )
@@ -43,19 +42,23 @@
 					#else
 						#parse( "vm/_compact_citation.vm" )
 					#end
-					</table>
+					</ol>
 					
-					<h2>$tlang.getFormattedMessage( "title.gscholar", $titleArgs )</h2>
+	                <p class="messageSuccess" style="width:50%">
+	                    $tlang.getFormattedMessage( "title.gscholar", $titleArgs )
+	                </p>
 					
 					#if($client)
 						<p class="act">
 							<button type="button" onclick="history.back();">${client.return_label}</button>
 							<button type="button" onclick="window.close();">${client.close_label}</button>
+							<button type="button" id="removeAllCitations">Cancel</button>
 						</p>
 					#else
 						<p class="act">
 							<button type="button" onclick="history.back();">$tlang.getString( "back.gscholar" )</button>
 							<button type="button" onclick="window.close();">$tlang.getString( "close.gscholar" )</button>
+							<button type="button" id="removeAllCitations">Cancel</button>
 						</p>
 					#end
 				#else

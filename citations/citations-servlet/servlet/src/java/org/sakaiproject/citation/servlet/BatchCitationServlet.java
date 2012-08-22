@@ -143,8 +143,8 @@ public class BatchCitationServlet extends CitationServlet
 				if (citations.size() > 0) {
 					setVmReference( "citations", citations, req );
 					setVmReference("topRefresh", Boolean.TRUE, req ); // TODO
-					String collectionId = new String(resource.getContent());
-					setVmReference( "collectionId", collectionId, req );
+					String resourceUuid = this.contentService.getUuid(resource.getId());
+					setVmReference( "resourceId", resourceUuid , req );
 				} else {
 					// return failure
 					setVmReference("error", rb.getString("error.notfound"), req);

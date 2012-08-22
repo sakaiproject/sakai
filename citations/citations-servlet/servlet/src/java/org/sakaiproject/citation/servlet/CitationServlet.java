@@ -199,6 +199,8 @@ public class CitationServlet extends VmServlet
 				ParameterParser paramParser = (ParameterParser) req
 					.getAttribute(ATTR_PARAMS);
 				resource = findResource(paramParser, option);
+				String resourceUuid = this.contentService.getUuid(resource.getId());
+				setVmReference("resourceId", resourceUuid, req);
        
 				boolean fromGoogle = false;
 				Citation citation = findOpenURLVersion01(paramParser);
@@ -292,25 +294,59 @@ public class CitationServlet extends VmServlet
 		
 		if ((parts.length == 2) && ((parts[1].equals("login")))) {
 			doLogin(req, res, null);
-		} else if(parts.length >= 3){
+		} else if(parts.length < 3) {
+			res.sendError(HttpServletResponse.SC_BAD_REQUEST, rb.getString("savesite.delete.missing_params"));
+			return;
+		} else {
 			
 			String citationId = parts[2];
-			String citationCollectionId = parts[1];
-			M_log.info("doDelete() citationId == " + citationId + "  citationCollectionId == " + citationCollectionId);
+			String resourceUuid = parts[1];
 			
-			if(citationId == null || citationId.trim().equals("") || citationCollectionId == null || citationCollectionId.trim().equals("")) {
-				sendError(res, HttpServletResponse.SC_BAD_REQUEST);
-			} else {
-				try {
-					CitationCollection collection = this.citationService.getCollection(citationCollectionId);
-					Citation item = collection.getCitation(citationId);
-					collection.remove(item);
-					this.citationService.save(collection);
-					M_log.info("doDelete() SUCCESS");
-				} catch (IdUnusedException e) {
-					sendError(res, HttpServletResponse.SC_NOT_FOUND);
+			if(M_log.isInfoEnabled()) {
+				M_log.info("doDelete() citationId == " + citationId + "  resourceUuid == " + resourceUuid);
+			}
+			
+			if(resourceUuid == null || resourceUuid.trim().equals("") || citationId == null || citationId.trim().equals("")) {
+				res.sendError(HttpServletResponse.SC_BAD_REQUEST, rb.getString("savesite.delete.missing_params"));
+				return;
+			}
+			
+			String resourceId = contentService.resolveUuid(resourceUuid);
+			if(resourceId == null) {
+				res.sendError(HttpServletResponse.SC_NOT_FOUND, rb.getString("savecite.delete.invalid_uuid"));
+				return;
+			}
+			
+			if(! citationService.allowReviseCitationList(resourceId)) {
+				res.sendError(HttpServletResponse.SC_FORBIDDEN, "savecite.delete.not_permitted");
+				return;
+			}
+			
+			try {
+				ContentResource resource = this.contentService.getResource(resourceId);
+				
+				String citationCollectionId = new String(resource.getContent());
+				if(citationCollectionId == null || citationCollectionId.trim().equals("")) {
+					res.sendError(HttpServletResponse.SC_CONFLICT, rb.getString("savecite.delete.invalid_uuid"));
+					return;
 				}
 				
+				CitationCollection collection = this.citationService.getCollection(citationCollectionId );
+				
+				Citation item = collection.getCitation(citationId);
+				
+				collection.remove(item);
+				this.citationService.save(collection);
+				
+				M_log.info("doDelete() SUCCESS");
+			} catch (IdUnusedException e) {
+				res.sendError(HttpServletResponse.SC_NOT_FOUND, rb.getString("savecite.delete.invalid_uuid"));
+			} catch (TypeException e) {
+				res.sendError(HttpServletResponse.SC_CONFLICT, rb.getString("savecite.delete.invalid_uuid"));
+			} catch (PermissionException e) {
+				res.sendError(HttpServletResponse.SC_FORBIDDEN, "savecite.delete.not_permitted");
+			} catch (ServerOverloadException e) {
+				res.sendError(HttpServletResponse.SC_INTERNAL_SERVER_ERROR, rb.getString("savecite.delete.internal"));
 			}
 		}
 	}
