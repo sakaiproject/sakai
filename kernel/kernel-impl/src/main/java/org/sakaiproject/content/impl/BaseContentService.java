@@ -4883,6 +4883,8 @@ SiteContentAdvisorProvider, SiteContentAdvisorTypeRegistry, EntityTransferrerRef
 				boolean referenceCopy = false;
 				if (edit instanceof BaseResourceEdit) {
 			        ((BaseResourceEdit)edit).setReferenceCopy(thisResource.getId());
+			        // need to manually update the content length or it ends up as 0
+			        ((BaseResourceEdit)edit).setContentLength(thisResource.getContentLength());
 			        referenceCopy = true;
 				} else {
 	                edit.setContent(thisResource.streamContent());
