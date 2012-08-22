@@ -42,6 +42,7 @@ import org.sakaiproject.user.api.UserNotDefinedException;
 
 import uk.org.ponder.messageutil.TargettedMessage;
 import uk.org.ponder.messageutil.TargettedMessageList;
+import uk.org.ponder.rsf.components.UIBoundBoolean;
 import uk.org.ponder.rsf.components.UIBranchContainer;
 import uk.org.ponder.rsf.components.UICommand;
 import uk.org.ponder.rsf.components.UIContainer;
@@ -50,6 +51,7 @@ import uk.org.ponder.rsf.components.UIForm;
 import uk.org.ponder.rsf.components.UIInput;
 import uk.org.ponder.rsf.components.UIMessage;
 import uk.org.ponder.rsf.components.UIOutput;
+import uk.org.ponder.rsf.components.UIVerbatim;
 import uk.org.ponder.rsf.flow.ARIResult;
 import uk.org.ponder.rsf.flow.ActionResultInterceptor;
 import uk.org.ponder.rsf.view.ComponentChecker;
@@ -57,6 +59,7 @@ import uk.org.ponder.rsf.view.ViewComponentProducer;
 import uk.org.ponder.rsf.viewstate.RawViewParameters;
 import uk.org.ponder.rsf.viewstate.ViewParameters;
 import uk.org.ponder.rsf.viewstate.ViewParamsReporter;
+import uk.org.ponder.springutil.SpringMessageLocator;
 
 public class ValidationProducer implements ViewComponentProducer,
 ViewParamsReporter, ActionResultInterceptor {
@@ -105,6 +108,12 @@ ViewParamsReporter, ActionResultInterceptor {
 			DeveloperHelperService developerHelperService) {
 		this.developerHelperService = developerHelperService;
 	}
+	
+	private SpringMessageLocator messageLocator;
+	public void setSpringMessageLocator(SpringMessageLocator messageLocator) {
+		this.messageLocator = messageLocator;
+	}
+	
 
 	String portalurl = "http://localhost:8080/portal";
 	public void init() {
@@ -239,6 +248,21 @@ ViewParamsReporter, ActionResultInterceptor {
 				log.debug("this is a new account render the second password box");
 				UIBranchContainer row2 = UIBranchContainer.make(detailsForm, "passrow2:");
 				UIInput.make(row2, "password2", otp + ".password2");
+			}
+			// If we have some terms get the user to accept them.
+			if (!"".equals(serverConfigurationService.getString("account-validator.terms"))) {
+				String url = serverConfigurationService.getString("account-validator.terms");
+				UIBranchContainer termsRow = UIBranchContainer.make(detailsForm, "termsrow:");
+
+				UIBoundBoolean.make(termsRow, "terms", otp+ ".terms");
+				// If someone wants to re-write this to be RSF like great, but this works.
+				// Although it doesn't escape the bundle strings.
+				String terms = messageLocator.getMessage("terms", new Object[]{
+						"<a href='"+ url+ "' target='_new'>"+
+						messageLocator.getMessage("terms.link")+
+						"</a>"
+				});
+				UIVerbatim.make(termsRow, "termsLabel", terms);
 			}
 			
 			

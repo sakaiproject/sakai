@@ -77,8 +77,9 @@ public class ValidationAccount {
 	private String password;
 	private String password2;
 	
-
-
+	// This needs to support accepting null
+	private boolean terms;
+	
 	public String getPassword() {
 		return password;
 	}
@@ -182,6 +183,15 @@ public class ValidationAccount {
 
 	public void setEid(String eid) {
 		this.eid = eid;
+	}
+	
+	public Boolean getTerms() {
+		return terms;
+	}
+
+	public void setTerms(Boolean terms) {
+		// RSF likes to set things to null
+		this.terms = (terms == null)?false:terms;
 	}
 
  }

@@ -101,8 +101,21 @@ margin-bottom: 10px;
     margin: 0 0 15px 10px;
 }
 
+.stylized .terms {
+	float: left;
+	padding: 5px;
+	border: 1px solid transparent; /* Stop layout jumping when isn't checked. */
+}
+
+.stylized .terms label {
+	width: auto;
+	float: none;
+	display: inline;
+}
+
 .stylized input[type=submit] {
     margin-left: 90px;
+    margin-top: 10px;
 }
 
 .spacerVertical {

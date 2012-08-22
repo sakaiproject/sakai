@@ -16,6 +16,7 @@
 			<property name="siteService" ref="org.sakaiproject.site.api.SiteService"/>
 			<property name="serverConfigurationService" ref="org.sakaiproject.component.api.ServerConfigurationService"/>
 			<property name="developerHelperService" ref="org.sakaiproject.entitybroker.DeveloperHelperService"/>
+			<property name="springMessageLocator" ref="messageLocator"/>
 	</bean>
 	
 	<bean name="accountValidationLocator" class="org.sakaiproject.accountvalidator.tool.otp.AcountValidationLocator">
@@ -28,7 +29,7 @@
 		<property name="usageSessionService" ref="org.sakaiproject.event.api.UsageSessionService"/>
 		<property name="httpServletRequest" ref="httpServletRequestProxy"/>
 		<property name="developerHelperService" ref="org.sakaiproject.entitybroker.DeveloperHelperService"/>
-			
+		<property name="serverConfigurationService" ref="org.sakaiproject.component.api.ServerConfigurationService"/>
 	</bean>
 	
 	<bean name="claimLocator" class="org.sakaiproject.accountvalidator.tool.otp.ClaimLocator" >

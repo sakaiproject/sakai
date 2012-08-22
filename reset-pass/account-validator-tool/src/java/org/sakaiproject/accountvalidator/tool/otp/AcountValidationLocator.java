@@ -35,6 +35,7 @@ import org.sakaiproject.accountvalidator.logic.ValidationLogic;
 import org.sakaiproject.accountvalidator.model.ValidationAccount;
 import org.sakaiproject.authz.api.SecurityAdvisor;
 import org.sakaiproject.authz.api.SecurityService;
+import org.sakaiproject.component.api.ServerConfigurationService;
 import org.sakaiproject.entity.api.ResourcePropertiesEdit;
 import org.sakaiproject.entitybroker.DeveloperHelperService;
 import org.sakaiproject.entitybroker.EntityReference;
@@ -104,8 +105,13 @@ public class AcountValidationLocator implements BeanLocator  {
 			DeveloperHelperService developerHelperService) {
 		this.developerHelperService = developerHelperService;
 	}
-
 	
+	private ServerConfigurationService serverConfigurationService;
+	public void setServerConfigurationService(
+			ServerConfigurationService serverConfigurationService) {
+		this.serverConfigurationService = serverConfigurationService;
+	}
+
 	public Object locateBean(String name) {
 		Object togo = delivered.get(name);
 		log.debug("Locating ValidationAccount: " + name);
@@ -220,6 +226,18 @@ public class AcountValidationLocator implements BeanLocator  {
 						return "error!";
 					}
 					u.setPassword(item.getPassword());
+					
+					// Do they have to accept terms and conditions.
+					if (!"".equals(serverConfigurationService.getString("account-validator.terms"))) {
+						// Check they accepted the terms.
+						if (item.getTerms().booleanValue()) {
+							u.getPropertiesEdit().addProperty("TermsAccepted", "true");
+						} else {
+							userDirectoryService.cancelEdit(u);
+							tml.addMessage(new TargettedMessage("validate.acceptTerms", new Object[]{}, TargettedMessage.SEVERITY_ERROR));
+							return "error!";
+						}
+					}
 				}
 
 				userDirectoryService.commitEdit(u);
