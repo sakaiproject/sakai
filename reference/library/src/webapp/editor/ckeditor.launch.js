@@ -42,8 +42,13 @@ sakai.editor.editors.ckeditor.launch = function(targetId, config, w, h) {
         folder = "&CurrentFolder=" + collectionId
     }
 
+    var language = sakai.locale && sakai.locale.userLanguage || '';
+    var country = sakai.locale && sakai.locale.userCountry || null;
+
     var ckconfig = {
         skin: 'v2',
+        defaultLanguage: 'en',
+        language: language + (country ? '-' + country.toLowerCase() : ''),
         height: 310,
         filebrowserBrowseUrl :'/library/editor/FCKeditor/editor/filemanager/browser/default/browser.html?Connector=/sakai-fck-connector/web/editor/filemanager/browser/default/connectors/jsp/connector' + collectionId + folder,
         filebrowserImageBrowseUrl : '/library/editor/FCKeditor/editor/filemanager/browser/default/browser.html?Type=Image&Connector=/sakai-fck-connector/web/editor/filemanager/browser/default/connectors/jsp/connector' + collectionId + folder,
