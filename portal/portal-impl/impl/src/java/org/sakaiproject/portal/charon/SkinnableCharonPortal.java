@@ -1405,7 +1405,10 @@ public class SkinnableCharonPortal extends HttpServlet implements Portal
 		
 		StringBuilder headJs = new StringBuilder();
 		headJs.append("<script type=\"text/javascript\" language=\"JavaScript\" src=\"/library/js/headscripts.js\"></script>\n");
-		headJs.append("<script type=\"text/javascript\" language=\"JavaScript\">var sakai = sakai || {}; sakai.editor = sakai.editor || {}; \n");
+		headJs.append("<script type=\"text/javascript\" language=\"JavaScript\">var sakai = sakai || {}; sakai.editor = sakai.editor || {};  sakai.locale = sakai.locale || {};\n");
+		headJs.append("sakai.locale.userCountry = '" + rloader.getLocale().getCountry() + "';\n");
+		headJs.append("sakai.locale.userLanguage = '" + rloader.getLocale().getLanguage() + "';\n");
+		headJs.append("sakai.locale.userLocale = '" + rloader.getLocale().toString() + "';\n");
 		headJs.append("sakai.editor.collectionId = '" + portalService.getBrowserCollectionId(placement) + "';\n");
 		headJs.append("sakai.editor.enableResourceSearch = " + EditorConfiguration.enableResourceSearch() + ";</script>\n");
 		headJs.append(preloadScript);
