@@ -86,6 +86,9 @@ public class SignupCalendarHelperImpl implements SignupCalendarHelper {
 					return null;
 				}
 				tsEvent.setField("vevent_uuid", ts.getUuid());
+				
+				//SIGNUP-180 add sequence to vevents
+				tsEvent.setField("vevent_sequence", String.valueOf(ts.getVersion()));
 					
 				//generate VEvent for timeslot
 				v = externalCalendaringService.createEvent(tsEvent);
