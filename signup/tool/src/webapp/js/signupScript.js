@@ -564,16 +564,10 @@ sakai.updateSignupBeginsExact = function() {
 	}
 	if(signupBeginsOffsetType == 'startNow') {
 		signupBeginsExact = startTime;
-	}
-	
-	/*
-	alert("startTime: " + startTime);
-	alert("signupBeginsOffset: " + signupBeginsOffset);
-	alert("signupBeginsExact: " + signupBeginsExact);
-	*/
+	}	
 	
 	//set the new date into the fields
-	jQuery('[id=meeting:signupBeginsExact]').text(signupBeginsExact.toString());
+	jQuery('[id=meeting:signupBeginsExact]').text(displayDateTime(signupBeginsExact));
 }
 
 sakai.updateSignupEndsExact = function() {
@@ -606,7 +600,7 @@ sakai.updateSignupEndsExact = function() {
 	 */
 	
 	//set the new date into the fields
-	jQuery('[id=meeting:signupEndsExact]').text(signupEndsExact.toString());
+	jQuery('[id=meeting:signupEndsExact]').text(displayDateTime(signupEndsExact));
 }
 
 sakai.toggleExactDateVisibility = function() {
@@ -645,5 +639,41 @@ Date.prototype.subtractDays = function(i){
     var nd = new Date(this.getTime());
     nd.setHours(nd.getHours()-(i*24));
     return nd;
+}
+
+function displayDateTime(d){
+	var a_p = "";
+	var curr_hour = d.getHours();
+	if (curr_hour < 12){
+	   a_p = "AM";
+	}else{
+	   a_p = "PM";
+	}
+	if (curr_hour == 0){
+	   curr_hour = 12;
+	}
+	if (curr_hour > 12){
+	   curr_hour = curr_hour - 12;
+	}
+
+	var curr_min = d.getMinutes();
+
+	curr_min = curr_min + "";
+	if (curr_min.length == 1){
+	   curr_min = "0" + curr_min;
+	}	
+	var d_names = new Array("Sunday", "Monday", "Tuesday",
+				"Wednesday", "Thursday", "Friday", "Saturday");
+	var m_names = new Array("January", "February", "March", 
+			"April", "May", "June", "July", "August", "September", 
+			"October", "November", "December");
+
+	var curr_day = d.getDay();
+	var curr_date = d.getDate();	
+	var curr_month = d.getMonth();
+	var curr_year = d.getFullYear();	
+	return (curr_hour + ":" + curr_min + " " + a_p + ", " + d_names[curr_day] + ", "
+		   + m_names[curr_month] + " " +  curr_date + ", " + curr_year);
+
 }
 
