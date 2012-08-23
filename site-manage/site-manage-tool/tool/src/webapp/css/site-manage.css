@@ -38,3 +38,7 @@ dl.defList dt, dl.defList dd{
 dl.defList dd{
 	padding:5px 1em
 }
+.getSiteDesc {
+    margin-right: 20px;
+    float: right;
+}

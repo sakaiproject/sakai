@@ -169,8 +169,6 @@
 							#end 
 						</a>
 					</th>
-					<th class="attach"></th>
-
 					<th id="term">
 						##<a href="#toolLinkParam("SiteAction" "doSort_sites" "criterion=term")" title ="$tlang.getString('list.sortbyterm')"> 
 							$tlang.getString("list.term")
@@ -225,6 +223,9 @@
 									<a href="$site.Url" target="_top">
 									$validator.escapeHtml($site.getTitle())
 									</a>
+                                    <a href="#"  id="$site.Id" class="getSiteDesc" title="$tlang.getString('list.moreinfotooltip')">
+                                        <img src="#imageLink("sakai/information_gray.png")" border="0" title ="$tlang.getString('list.moreinfotooltip')" alt ="$tlang.getString('list.moreinfotooltip')" />
+                                    </a>
 								</h4>
 							</td>
 							<td headers="type">
@@ -237,10 +238,6 @@
 									$validator.escapeHtml($site.CreatedBy.DisplayId)
 								#end
 							</td>
-							<td class="attach specialLink">
-								<a href="#"  id="$site.Id" class="getSiteDesc" title="$tlang.getString('list.moreinfotooltip')">$tlang.getString('list.moreinfo')</a> 
-							</td>
-
 							<td headers="term">
 								#if($site.getType()==$!courseSiteType)
 									#set($term = "")
