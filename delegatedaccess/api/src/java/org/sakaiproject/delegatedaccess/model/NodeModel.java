@@ -701,8 +701,8 @@ public class NodeModel implements Serializable {
 	public boolean getInheritedShoppingPeriodRevokeInstructorEditableHelper(NodeModel parent){
 		if(parent == null){
 			return false;
-		} else if (parent.isShoppingPeriodRevokeInstructorEditable()) {
-			return true;
+		} else if (parent.isDirectAccess()) {
+			return parent.isShoppingPeriodRevokeInstructorEditable();
 		}else{
 			return getInheritedShoppingPeriodRevokeInstructorEditableHelper(parent.getParentNode());
 		}

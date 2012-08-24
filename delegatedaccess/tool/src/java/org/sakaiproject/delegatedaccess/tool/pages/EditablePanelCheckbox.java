@@ -53,8 +53,6 @@ public class EditablePanelCheckbox extends Panel
 					return !nodeModel.getInheritedShoppingPeriodAdmin();
 				}else if(DelegatedAccessConstants.TYPE_ACCESS_SHOPPING_PERIOD_USER == type){
 					return nodeModel.getNodeShoppingPeriodAdmin();
-				}else if(DelegatedAccessConstants.TYPE_SHOPPING_REVOKE_INSTRUCTOR_EDIT == type){
-					return nodeModel.isDirectAccess();
 				}else{
 					return true;
 				}
@@ -67,18 +65,21 @@ public class EditablePanelCheckbox extends Panel
 		{
 			protected void onUpdate(AjaxRequestTarget target)
 			{
-				//toggle selection to trigger a reload on the current node 
-				((BaseTreePage)target.getPage()).getTree().getTreeState().selectNode(node, !((BaseTreePage)target.getPage()).getTree().getTreeState().isNodeSelected(node));
-				
-				//In order for the models to refresh, you have to call "expand" or "collapse" then "updateTree",
-				//since I don't want to expand or collapse, I just call whichever one the node is already
-				//Refreshing the tree will update all the models and information (like role) will be generated onClick
-				if(((BaseTreePage)target.getPage()).getTree().getTreeState().isNodeExpanded(node)){
-					((BaseTreePage)target.getPage()).getTree().getTreeState().expandNode(node);
-				}else{
-					((BaseTreePage)target.getPage()).getTree().getTreeState().collapseNode(node);
+				//only update if its not an advanced option:
+				if(DelegatedAccessConstants.TYPE_SHOPPING_REVOKE_INSTRUCTOR_EDIT != type){
+					//toggle selection to trigger a reload on the current node 
+					((BaseTreePage)target.getPage()).getTree().getTreeState().selectNode(node, !((BaseTreePage)target.getPage()).getTree().getTreeState().isNodeSelected(node));
+
+					//In order for the models to refresh, you have to call "expand" or "collapse" then "updateTree",
+					//since I don't want to expand or collapse, I just call whichever one the node is already
+					//Refreshing the tree will update all the models and information (like role) will be generated onClick
+					if(((BaseTreePage)target.getPage()).getTree().getTreeState().isNodeExpanded(node)){
+						((BaseTreePage)target.getPage()).getTree().getTreeState().expandNode(node);
+					}else{
+						((BaseTreePage)target.getPage()).getTree().getTreeState().collapseNode(node);
+					}
+					((BaseTreePage)target.getPage()).getTree().updateTree(target);
 				}
-				((BaseTreePage)target.getPage()).getTree().updateTree(target);
 			}
 		});
 	}
