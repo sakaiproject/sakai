@@ -96,12 +96,12 @@ public class VelocityPortalRenderContext implements PortalRenderContext
 	{
 		if (o instanceof Map)
 		{
-			sb.append("Property ").append(key).append(":").append(o).append("\n");
+			sb.append("Property ").append(key).append(".v   (Map)").append("\n");
 			dumpMap(sb, key, (Map) o);
 		}
 		else if (o instanceof Collection)
 		{
-			sb.append("Property ").append(key).append(":").append(o).append("\n");
+			sb.append("Property ").append(key).append(".v   (Collection)").append("\n");
 			dumpCollection(sb, key, (Collection) o);
 		}
 		else

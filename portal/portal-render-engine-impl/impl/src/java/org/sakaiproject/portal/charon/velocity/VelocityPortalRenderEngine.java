@@ -84,6 +84,10 @@ public class VelocityPortalRenderEngine implements PortalRenderEngine
 
 	public void init() throws Exception
 	{
+		if (log.isTraceEnabled()) {
+			debug = true;
+		}
+		
 		try
 		{
 			styleAble = serverConfigurationService.getBoolean("portal.styleable", false);
@@ -218,6 +222,10 @@ public class VelocityPortalRenderEngine implements PortalRenderEngine
 	public void render(String template, PortalRenderContext rcontext, Writer out)
 			throws Exception
 	{
+		if (log.isTraceEnabled()) {
+		   log.trace("Portal trace is on, dumping PortalRenderContext to log:\n" + rcontext.dump());
+		}
+		
 		Context vc = ((VelocityPortalRenderContext) rcontext).getVelocityContext();
 		String skin = (String) vc.get("pageCurrentSkin");
 		if (skin == null || skin.length() == 0)
