@@ -487,10 +487,7 @@ public abstract class BaseSearchServiceImpl implements SearchService
 	 */
 	public void reload()
 	{
-		//we don't reload if not the search server
-		if (isSearchServer()) {
-			getIndexSearcher(true);
-		}
+		getIndexSearcher(true);
 	}
 
 	public void forceReload()
