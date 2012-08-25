@@ -261,6 +261,16 @@ public class UserNotificationProviderImpl implements UserNotificationProvider {
 			}
 		}
 		emailService.send(from, to, message_subject, buf.toString(), headerTo, replyTo, null);
+		
+		// send a confirmation email to site creator
+		from = requestEmail;
+		to = currentUserEmail;
+		headerTo = currentUserEmail;
+		replyTo = "no-reply@" + serverConfigurationService.getServerName();
+		String content = rb.getFormattedMessage("java.siteCreation.confirmation", new Object[]{title, serverConfigurationService.getServerName()});
+		content += "\n\n" + buf.toString();
+		emailService.send(from, to, message_subject, content, headerTo, replyTo, null);
+		
 	}
 	
 	/**

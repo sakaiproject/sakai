@@ -54,6 +54,8 @@ public class ETSUserNotificationProviderImpl implements UserNotificationProvider
 	
 	private static String NOTIFY_SITE_CREATION = "sitemanage.notifySiteCreation";
 	
+	private static String NOTIFY_SITE_CREATION_CONFIRMATION = "sitemanage.notifySiteCreation.confirmation";
+	
 	private static final String ADMIN = "admin";
 	
 	private EmailService emailService; 
@@ -112,6 +114,7 @@ public class ETSUserNotificationProviderImpl implements UserNotificationProvider
     	loadTemplate("notifyCourseRequestRequester.xml", NOTIFY_COURSE_REQUEST_REQUESTER);
     	loadTemplate("notifyCourseRequestSupport.xml", NOTIFY_COURSE_REQUEST_SUPPORT);
     	loadTemplate("notifySiteCreation.xml", NOTIFY_SITE_CREATION);
+    	loadTemplate("notifySiteCreationConfirmation.xml", NOTIFY_SITE_CREATION_CONFIRMATION);
 			
 	}
 	
@@ -383,7 +386,14 @@ public class ETSUserNotificationProviderImpl implements UserNotificationProvider
 		replacementValues.put("sections", buf.toString());
 		
 		emailTemplateServiceSend(NOTIFY_SITE_CREATION, (new ResourceLoader()).getLocale(), currentUser, from, to, headerTo, replyTo, replacementValues);
-	
+		
+		// send a confirmation email to site creator
+		from = requestEmail;
+		to = currentUserEmail;
+		headerTo = currentUserEmail;
+		replyTo = "no-reply@" + serverConfigurationService.getServerName();
+		emailTemplateServiceSend(NOTIFY_SITE_CREATION_CONFIRMATION, (new ResourceLoader()).getLocale(), currentUser, from, to, headerTo, replyTo, replacementValues);
+		
 	}
 	
 	/*
