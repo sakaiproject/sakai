@@ -30,7 +30,6 @@ import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
-import java.util.Set;
 
 import javax.faces.event.ActionEvent;
 import javax.faces.model.SelectItem;
@@ -46,10 +45,7 @@ import org.sakaiproject.tool.assessment.data.dao.assessment.AssessmentAccessCont
 import org.sakaiproject.tool.assessment.data.dao.assessment.PublishedAccessControl;
 import org.sakaiproject.tool.assessment.data.dao.assessment.PublishedAssessmentData;
 import org.sakaiproject.tool.assessment.data.dao.assessment.PublishedEvaluationModel;
-import org.sakaiproject.tool.assessment.data.dao.assessment.PublishedItemData;
-import org.sakaiproject.tool.assessment.data.dao.assessment.PublishedSectionData;
 import org.sakaiproject.tool.assessment.data.ifc.assessment.EvaluationModelIfc;
-import org.sakaiproject.tool.assessment.data.ifc.shared.TypeIfc;
 import org.sakaiproject.tool.assessment.facade.AgentFacade;
 import org.sakaiproject.tool.assessment.facade.PublishedAssessmentFacade;
 import org.sakaiproject.tool.assessment.services.GradingService;
@@ -1133,16 +1129,18 @@ public class TotalScoresBean
 	}
 
 	/**
+	 * Is this assessment group scoped?
 	 * added by gopalrc - jan 2008
 	 * @return
 	 */
 	public boolean isReleasedToGroups() {
-		/*
-    	PublishedAssessmentService publishedAssessmentService = new PublishedAssessmentService();
-    	releasedToGroups = publishedAssessmentService.isReleasedToGroups(publishedId);
-		return releasedToGroups;
-		*/
-		return this.getPublishedAssessment().getAssessmentAccessControl().getReleaseTo().equals(AssessmentAccessControl.RELEASE_TO_SELECTED_GROUPS);
+		PublishedAssessmentData publishedAssessment = this.getPublishedAssessment();
+		//SAM-1777 if this is null we have a JSF state issue - DH
+		if (publishedAssessment == null) {
+			throw new IllegalStateException("Bean's published assessment is not set!");
+		}
+		
+		return AssessmentAccessControl.RELEASE_TO_SELECTED_GROUPS.equals(publishedAssessment.getAssessmentAccessControl().getReleaseTo());
 	}
 	
 	public boolean getIsAutoScored() {
