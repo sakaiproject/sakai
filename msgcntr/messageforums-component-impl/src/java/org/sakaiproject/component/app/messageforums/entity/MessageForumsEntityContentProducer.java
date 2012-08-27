@@ -354,14 +354,20 @@ public class MessageForumsEntityContentProducer implements
 	}
 
 	public boolean matches(String reference) {
-		if (reference == null) {
+		if (reference == null || "".equals(reference)) {
 			return false;
 		}
-		String prefix = EntityReference.getPrefix(reference);
-		log.debug("checkin if " + prefix + " matches");
-		if (toolName.equals(prefix))
-			return true;
-		
+		try {
+			String prefix = EntityReference.getPrefix(reference);
+			log.debug("checking if " + prefix + " matches");
+			if (toolName.equals(prefix))
+				return true;
+		} catch (Exception e) {
+			log.warn("unable to parse reference: " + reference +", " + e);
+			if (log.isDebugEnabled()) {
+				log.debug(e);
+			}
+		}
 		return false;
 	}
 
