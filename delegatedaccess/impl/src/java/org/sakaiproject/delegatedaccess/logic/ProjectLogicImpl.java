@@ -1426,6 +1426,11 @@ public class ProjectLogicImpl implements ProjectLogic {
 	}
 	
 	public String[] getCurrentUsersAccessToSite(String siteRef){
+		String currentUserId = sakaiProxy.getCurrentUserId();
+		if(currentUserId == null || "".equals(currentUserId)){
+			return null;
+		}
+
 		//check the session first:
 		if(sakaiProxy.getCurrentSession().getAttribute(DelegatedAccessConstants.SESSION_ATTRIBUTE_ACCESS_MAP) != null 
 				&& ((Map) sakaiProxy.getCurrentSession().getAttribute(DelegatedAccessConstants.SESSION_ATTRIBUTE_ACCESS_MAP)).containsKey(siteRef)){
@@ -1452,6 +1457,12 @@ public class ProjectLogicImpl implements ProjectLogic {
 	
 	private Map<String, AccessNode> grantAccessToSites(List<String> siteRefs, boolean shoppingPeriod, boolean activeShoppingData, String userId){
 		Map<String, AccessNode> returnNodes = new HashMap<String, AccessNode>();
+		
+		if(!shoppingPeriod && (userId == null || "".equals(userId))){
+			//skip since the user id is empty
+			return returnNodes;
+		}
+
 		//we don't want to use the session if it's the shopping period user or we are looking up info for a different user
 		//otherwise, use the session
 		boolean useSession = userId != null && userId.equals(sakaiProxy.getCurrentUserId());
