@@ -36,7 +36,7 @@ import org.sakaiproject.tool.api.Session;
  */
 public class XLoginHandler extends BasePortalHandler
 {
-	private static final String URL_FRAGMENT = "xlogin";
+	public static final String URL_FRAGMENT = "xlogin";
 
 	public XLoginHandler()
 	{

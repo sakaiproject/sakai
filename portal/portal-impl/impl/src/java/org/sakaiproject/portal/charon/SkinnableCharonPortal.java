@@ -970,8 +970,13 @@ public class SkinnableCharonPortal extends HttpServlet implements Portal
 		// internaly, set the "extreme" login path
 
 		String loginPath = (!forceContainer  && skipContainer ? "/xlogin" : "/relogin");
-
+		
 		String context = req.getContextPath() + req.getServletPath() + loginPath;
+		
+		if ("/pda".equals(returnPath)) {
+			context = req.getContextPath() + req.getServletPath() + returnPath + loginPath;
+		}
+		
 		tool.help(req, res, context, loginPath);
 	}
 
@@ -1724,6 +1729,7 @@ public class SkinnableCharonPortal extends HttpServlet implements Portal
 
 			// for a possible second link
 			String logInOutUrl2 = null;
+			String logInOutUrl2Pda = null;
 			String message2 = null;
 			String image2 = null;
 
@@ -1774,6 +1780,9 @@ public class SkinnableCharonPortal extends HttpServlet implements Portal
 								.getString("xlogin.icon"));
 						logInOutUrl2 = ServerConfigurationService.getString("portalPath")
 						+ "/xlogin";
+						
+						logInOutUrl2Pda = ServerConfigurationService.getString("portalPath")
+						+ "/pda/xlogin";
 					}
 				}
 			}
@@ -1814,6 +1823,7 @@ public class SkinnableCharonPortal extends HttpServlet implements Portal
 				rcontext.put("loginImage1", image1);
 				rcontext.put("loginHasImage1", Boolean.valueOf(image1 != null));
 				rcontext.put("loginLogInOutUrl2", logInOutUrl2);
+				rcontext.put("loginLogInOutUrl2Pda", logInOutUrl2Pda);
 				rcontext.put("loginHasLogInOutUrl2", Boolean
 						.valueOf(logInOutUrl2 != null));
 				rcontext.put("loginMessage2", message2);
