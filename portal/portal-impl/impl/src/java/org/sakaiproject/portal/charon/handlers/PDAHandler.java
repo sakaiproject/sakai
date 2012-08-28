@@ -89,7 +89,8 @@ public class PDAHandler extends PageHandler
 	private static final String DEFAULT_BYPASS_TYPE = "^application/|^image/|^audio/|^video/|^text/xml|^text/plain";
 
 	private static final String IFRAME_SUPPRESS_PROP = "portal.pda.iframesuppress";
-	private static final String IFRAME_SUPPRESS_DEFAULT = ":all:sakai.profile2:";
+	// SAK-22285 - says these fail in a frame
+	private static final String IFRAME_SUPPRESS_DEFAULT = ":all:sakai.profile2:sakai.synoptic.messagecenter:sakai.sitestats:sakai.sitestats.admin";
 	
 	public PDAHandler()
 	{
