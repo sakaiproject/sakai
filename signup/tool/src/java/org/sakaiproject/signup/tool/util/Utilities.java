@@ -38,6 +38,7 @@ import org.sakaiproject.event.api.UsageSession;
 import org.sakaiproject.event.cover.EventTrackingService;
 import org.sakaiproject.event.cover.UsageSessionService;
 import org.sakaiproject.signup.logic.SakaiFacade;
+import org.sakaiproject.signup.logic.SignupUser;
 import org.sakaiproject.signup.model.MeetingTypes;
 import org.sakaiproject.signup.model.SignupAttendee;
 import org.sakaiproject.signup.model.SignupMeeting;
@@ -475,5 +476,23 @@ public final class Utilities implements SignupBeanConstants, MeetingTypes {
 			return false;
 		}
 		return true;
+	}
+	
+	public static String getSelectedCoordinators(List<SignupUser> coordinators, String organizerId){
+		StringBuilder sb = new StringBuilder();
+		boolean isFirst = true;
+		for (SignupUser co : coordinators) {
+			if(co.isChecked() && !co.getInternalUserId().equals(organizerId)){
+				if(isFirst){
+					sb.append(co.getInternalUserId());
+					isFirst = false;
+				}else{
+					//safeguard -db column max size, hardly have over 10 coordinators per meeting
+					if(sb.length() < 1000)
+						sb.append("|" + co.getInternalUserId());
+				}
+			}
+		}
+		return sb.length()<1? null : sb.toString();
 	}
 }

@@ -153,6 +153,9 @@ public class OrganizerSignupMBean extends SignupUIBaseBean {
 		if(!isEidInputMode() && (getAllAttendees()==null || getAllAttendees().isEmpty())){
 			loadAllAttendees(meetingWrapper.getMeeting());
 		}
+		
+		//reset email checkBox value setting
+		this.sendEmail = meetingWrapper.getMeeting().isSendEmailByOwner();
 
 	}
 

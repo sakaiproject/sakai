@@ -26,6 +26,7 @@ import java.util.ArrayList;
 import java.util.Date;
 import java.util.Iterator;
 import java.util.List;
+import java.util.StringTokenizer;
 
 import javax.faces.context.FacesContext;
 import javax.faces.event.ActionEvent;
@@ -34,6 +35,7 @@ import javax.faces.model.SelectItem;
 import org.apache.commons.lang.StringUtils;
 import org.sakaiproject.exception.PermissionException;
 import org.sakaiproject.signup.logic.SignupEventTypes;
+import org.sakaiproject.signup.logic.SignupUser;
 import org.sakaiproject.signup.logic.SignupUserActionException;
 import org.sakaiproject.signup.model.SignupAttachment;
 import org.sakaiproject.signup.model.SignupAttendee;
@@ -44,6 +46,7 @@ import org.sakaiproject.signup.model.SignupTimeslot;
 import org.sakaiproject.signup.tool.jsf.SignupMeetingWrapper;
 import org.sakaiproject.signup.tool.jsf.SignupUIBaseBean;
 import org.sakaiproject.signup.tool.jsf.TimeslotWrapper;
+import org.sakaiproject.signup.tool.jsf.organizer.action.CreateSitesGroups;
 import org.sakaiproject.signup.tool.jsf.organizer.action.EditMeeting;
 import org.sakaiproject.signup.tool.util.Utilities;
 import org.sakaiproject.tool.cover.ToolManager;
@@ -124,6 +127,10 @@ public class EditMeetingSignupMBean extends SignupUIBaseBean {
 	private boolean userDefinedTS=false;
 	
 	List<SelectItem> slots;
+	
+	List<SignupUser> allPossibleCoordinators;
+	
+	private boolean sendEmailByOwner;
 		
 	/**
 	 * This method will reset everything to orignal value and also initialize
@@ -136,7 +143,8 @@ public class EditMeetingSignupMBean extends SignupUIBaseBean {
 		maxNumOfAttendees = 0;
 		showAttendeeName = false;
 		sendEmail = DEFAULT_SEND_EMAIL;		
-		sendEmailAttendeeOnly = false;
+		//sendEmailAttendeeOnly = false;
+		sendEmailToSelectedPeopleOnly = SEND_EMAIL_ALL_PARTICIPANTS;
 		
 		unlimited = false;
 
@@ -148,6 +156,12 @@ public class EditMeetingSignupMBean extends SignupUIBaseBean {
 		
 		/*refresh copy of original*/
 		this.signupMeeting = reloadMeeting(meetingWrapper.getMeeting());
+		
+		/*get meeting default notification value*/
+		sendEmail =this.signupMeeting.isSendEmailByOwner();
+		//pass default value
+		this.sendEmailByOwner = this.signupMeeting.isSendEmailByOwner();
+		
 		/* for check pre-condition purpose */
 		this.originalMeetingCopy = reloadMeeting(meetingWrapper.getMeeting());
 		// keep the last version need a deep copy?
@@ -191,7 +205,12 @@ public class EditMeetingSignupMBean extends SignupUIBaseBean {
 		}
 			
 		getUserDefineTimeslotBean().init(this.signupMeeting, MODIFY_MEETING_PAGE_URL, this.customTimeSlotWrpList, UserDefineTimeslotBean.MODIFY_MEETING);
-		populateDropDown();		
+		populateDropDown();	
+		
+		/*pre-load all possible coordinators for step2*/
+		this.allPossibleCoordinators = this.sakaiFacade.getAllPossbileCoordinators(this.signupMeeting);
+		populateExistingCoordinators();
+
 	}
 
 	/* get the relative time out */
@@ -362,6 +381,8 @@ public class EditMeetingSignupMBean extends SignupUIBaseBean {
 			editMeeting.setShowAttendeeName(isShowAttendeeName());
 			editMeeting.setOriginalMeetingCopy(this.originalMeetingCopy);
 			editMeeting.setUnlimited(isUnlimited());
+			editMeeting.setSendEmailByOwner(isSendEmailByOwner());//set default value
+			editMeeting.setCoordinators(Utilities.getSelectedCoordinators(this.allPossibleCoordinators,this.creatorUserId));
 			// editMeeting.setTotalEventDuration(getTotalEventDuration());
 			/* disable the association with other related recurrence events */
 			editMeeting.setConvertToNoRecurrent(convertToNoRecurrent);
@@ -420,7 +441,7 @@ public class EditMeetingSignupMBean extends SignupUIBaseBean {
 			if (sendEmail) {
 				try {
 					SignupMeeting sm = successUpdatedMeetings.get(0);
-					sm.setEmailAttendeesOnly(getSendEmailAttendeeOnly());
+					sm.setSendEmailToSelectedPeopleOnly(getSendEmailToSelectedPeopleOnly());
 					signupMeetingService.sendEmail(sm, SIGNUP_MEETING_MODIFIED);
 					/* send email to promoted waiter if size increased 
 					 * or send email to notify attedees in a deleted TS*/
@@ -1035,5 +1056,50 @@ public class EditMeetingSignupMBean extends SignupUIBaseBean {
 	public void setSlots(List<SelectItem> slots) {
 		this.slots = slots;
 	}
+
+	public List<SignupUser> getAllPossibleCoordinators() {
+		return allPossibleCoordinators;
+	}
+
+	public void setAllPossibleCoordinators(List<SignupUser> allPossibleCoordinators) {
+		this.allPossibleCoordinators = allPossibleCoordinators;
+	}
 	
+	private void populateExistingCoordinators(){
+		List<String> existingCoUserIds = getExistingCoordinatorIds(this.signupMeeting);
+		if(!existingCoUserIds.isEmpty() && this.allPossibleCoordinators !=null){
+			for (SignupUser cou : allPossibleCoordinators) {
+				for (String existId : existingCoUserIds) {
+					if(existId.equals(cou.getInternalUserId())){
+						cou.setChecked(true);
+						break;
+					}
+				}
+				
+			}
+		}
+	}
+	
+	private List<String> getExistingCoordinatorIds(SignupMeeting meeting){
+		List<String> coUsers = new ArrayList<String>();
+		String coUserIdsString = meeting.getCoordinatorIds();
+		if(coUserIdsString !=null && coUserIdsString.trim().length()>0){
+			StringTokenizer userIdTokens = new StringTokenizer(coUserIdsString,"|");
+			while(userIdTokens.hasMoreTokens()){
+				String uId = userIdTokens.nextToken();
+				coUsers.add(uId);				
+			}
+		}
+		
+		return coUsers;		
+	}
+
+	public boolean isSendEmailByOwner() {
+		return sendEmailByOwner;
+	}
+
+	public void setSendEmailByOwner(boolean sendEmailByOwner) {
+		this.sendEmailByOwner = sendEmailByOwner;
+	}
+		
 }

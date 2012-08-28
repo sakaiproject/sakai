@@ -35,6 +35,7 @@ import javax.faces.event.ActionEvent;
 import javax.faces.event.ValueChangeEvent;
 import javax.faces.model.SelectItem;
 import javax.faces.context.FacesContext;
+import javax.servlet.http.HttpServletRequest;
 
 import org.apache.commons.lang.StringUtils;
 import org.apache.commons.logging.Log;
@@ -137,6 +138,8 @@ public class NewSignupMeetingBean implements MeetingTypes, SignupMessageTypes, S
 
 	private boolean receiveEmail;
 	
+	private boolean sendEmailByOwner;
+	
 	private static boolean DEFAULT_ALLOW_WAITLIST = "true".equalsIgnoreCase(Utilities.getSignupConfigParamVal("signup.default.allow.waitlist", "true")) ? true : false;
 		
 	private static boolean DEFAULT_ALLOW_COMMENT = "true".equalsIgnoreCase(Utilities.getSignupConfigParamVal("signup.default.allow.comment", "true")) ? true : false;
@@ -151,6 +154,13 @@ public class NewSignupMeetingBean implements MeetingTypes, SignupMessageTypes, S
 
 	private static boolean DEFAULT_CREATE_GROUPS = "true".equalsIgnoreCase(Utilities.getSignupConfigParamVal("signup.default.create.groups.setting", "true")) ? true : false;
 
+	protected static boolean NEW_MEETING_SEND_EMAIL = "true".equalsIgnoreCase(Utilities.getSignupConfigParamVal(
+			"signup.email.notification.mandatory.for.newMeeting", "true")) ? true : false;
+	
+	private boolean mandatorySendEmail = NEW_MEETING_SEND_EMAIL;
+	
+	private String sendEmailToSelectedPeopleOnly = SEND_EMAIL_ALL_PARTICIPANTS;
+	
 	private boolean publishToCalendar = DEFAULT_EXPORT_TO_CALENDAR_TOOL;
 	
 	private boolean createGroups = DEFAULT_CREATE_GROUPS;
@@ -170,6 +180,8 @@ public class NewSignupMeetingBean implements MeetingTypes, SignupMessageTypes, S
 	private List<SelectItem> meetingTypeRadioBttns;
 
 	List<SignupUser> allSignupUsers;
+	
+	List<SignupUser> allPossibleCoordinators;
 
 	private List<SelectItem> allAttendees;
 
@@ -201,9 +213,7 @@ public class NewSignupMeetingBean implements MeetingTypes, SignupMessageTypes, S
 	
 	private boolean otherSitesAvailability;
 	
-	private boolean userDefinedTS=false;
-	
-	private boolean sendEmailAttendeeOnly = false;
+	private boolean userDefinedTS=false;	
 	
 	private String creatorUserId;
 	
@@ -396,8 +406,12 @@ public class NewSignupMeetingBean implements MeetingTypes, SignupMessageTypes, S
 		deadlineTimeType = Utilities.HOURS;
 		validationError = false;
 		sendEmail = DEFAULT_SEND_EMAIL;
-		sendEmailAttendeeOnly = false;
+		if(NEW_MEETING_SEND_EMAIL){
+			sendEmail = NEW_MEETING_SEND_EMAIL;
+		}
+		sendEmailToSelectedPeopleOnly=SEND_EMAIL_ALL_PARTICIPANTS;
 		receiveEmail = false;
+		sendEmailByOwner= DEFAULT_SEND_EMAIL; /*will be inherited per meeting basis*/
 		allowComment = DEFAULT_ALLOW_COMMENT;
 		allowWaitList = DEFAULT_ALLOW_WAITLIST;
 		autoReminder = DEFAULT_AUTO_RIMINDER;
@@ -704,6 +718,10 @@ public class NewSignupMeetingBean implements MeetingTypes, SignupMessageTypes, S
 			if(!isUserDefinedTS() && CUSTOM_TIMESLOTS.equals(this.signupMeeting.getMeetingType())){
 				this.signupMeeting.setMeetingType(INDIVIDUAL);
 			}
+			
+			/*pre-load all possible coordinators for step2*/
+			signupMeeting.setSignupSites(CreateSitesGroups.getSelectedSignupSites(getCurrentSite(), getOtherSites()));
+			this.allPossibleCoordinators = this.sakaiFacade.getAllPossbileCoordinators(this.signupMeeting);			
 
 		}
 	}
@@ -768,7 +786,10 @@ public class NewSignupMeetingBean implements MeetingTypes, SignupMessageTypes, S
 			//reset warning for ending time auto-adjustment
 			setEndTimeAutoAdjusted(false);
 			//reset who should receive emails
-			setSendEmailAttendeeOnly(false);
+			//setSendEmailAttendeeOnly(false);
+			if(this.sendEmailToSelectedPeopleOnly.equals(SEND_EMAIL_ONLY_SIGNED_UP_ATTENDEES)){
+				sendEmailToSelectedPeopleOnly = SEND_EMAIL_ALL_PARTICIPANTS;//reset
+			}
 			return ADD_MEETING_STEP2_PAGE_URL;
 		}
 
@@ -846,13 +867,13 @@ public class NewSignupMeetingBean implements MeetingTypes, SignupMessageTypes, S
 
 	/* Prepare the data for saving action */
 	private void preSaveAction() {
-		SignupSite sSite = new SignupSite();
-		String currentLocationId = sakaiFacade.getCurrentLocationId();
-		sSite.setSiteId(currentLocationId);
-		sSite.setTitle(sakaiFacade.getLocationTitle(currentLocationId));
-		List<SignupSite> signupSites = new ArrayList<SignupSite>();
-		signupSites.add(sSite);
-		signupMeeting.setSignupSites(signupSites);
+		//SignupSite sSite = new SignupSite();
+		//String currentLocationId = sakaiFacade.getCurrentLocationId();
+		//sSite.setSiteId(currentLocationId);
+		//sSite.setTitle(sakaiFacade.getLocationTitle(currentLocationId));
+		//List<SignupSite> signupSites = new ArrayList<SignupSite>();
+		//signupSites.add(sSite);
+		//signupMeeting.setSignupSites(signupSites);
 		List<SignupTimeslot> slots = timeslots();
 		signupMeeting.setSignupTimeSlots(slots);
 
@@ -870,16 +891,18 @@ public class NewSignupMeetingBean implements MeetingTypes, SignupMessageTypes, S
 		// TODO need validate and handle error for case: deadline is before
 		// sBegin
 		signupMeeting.setSignupDeadline(sDeadline);
-
+        //maybe duplicated, it is already set up after 'step1'
 		signupMeeting.setSignupSites(CreateSitesGroups.getSelectedSignupSites(getCurrentSite(), getOtherSites()));
 
 		signupMeeting.setCreatorUserId(this.creatorUserId);
 		signupMeeting.setReceiveEmailByOwner(receiveEmail);
+		signupMeeting.setSendEmailByOwner(sendEmailByOwner);
 		signupMeeting.setAllowWaitList(this.allowWaitList);
 		signupMeeting.setAllowComment(this.allowComment);
 		signupMeeting.setAutoReminder(this.autoReminder);
 		signupMeeting.setEidInputMode(this.eidInputMode);
 		signupMeeting.setMaxNumOfSlots(new Integer(this.maxNumOfSlots));
+		signupMeeting.setCoordinatorIds(Utilities.getSelectedCoordinators(this.allPossibleCoordinators,this.creatorUserId));
 		/* add attachments */
 		signupMeeting.setSignupAttachments(this.attachments);
 		
@@ -1438,6 +1461,7 @@ public class NewSignupMeetingBean implements MeetingTypes, SignupMessageTypes, S
 
 		return sendEmail;
 	}
+	
 
 	/**
 	 * This is a setter for UI.
@@ -1449,6 +1473,24 @@ public class NewSignupMeetingBean implements MeetingTypes, SignupMessageTypes, S
 		this.sendEmail = sendEmail;
 	}
 
+	/**
+	 * This is a getter method for UI.
+	 * 
+	 * @return true if email notification will be the default value.
+	 */
+	public boolean getSendEmailByOwner() {
+		return sendEmailByOwner;
+	}
+
+	/**
+	 * This is a getter method for UI.
+	 * 
+	 * @return a constant string.
+	 */
+	public void setSendEmailByOwner(boolean sendEmailByOwner) {
+		this.sendEmailByOwner = sendEmailByOwner;
+	}
+	
 	/**
 	 * This is a getter method for UI.
 	 * 
@@ -1755,7 +1797,7 @@ public class NewSignupMeetingBean implements MeetingTypes, SignupMessageTypes, S
 		}
 		
 		/*pass who should receive the emails*/
-		signupMeeting.setEmailAttendeesOnly(getSendEmailAttendeeOnly());
+		signupMeeting.setSendEmailToSelectedPeopleOnly(this.sendEmailToSelectedPeopleOnly);
 				
 		CreateMeetings createMeeting = new CreateMeetings(signupMeeting, sendEmail,
 				!assignParicitpantsToAllRecurEvents, assignParicitpantsToAllRecurEvents, getSignupBegins(),
@@ -1993,14 +2035,6 @@ public class NewSignupMeetingBean implements MeetingTypes, SignupMessageTypes, S
 		this.createGroups = createGroups;
 	}
 
-	public boolean getSendEmailAttendeeOnly() {
-		return sendEmailAttendeeOnly;
-	}
-
-	public void setSendEmailAttendeeOnly(boolean sendEmailAttendeeOnly) {
-		this.sendEmailAttendeeOnly = sendEmailAttendeeOnly;
-	}
-
 	public String getRecurLengthChoice() {
 		return recurLengthChoice;
 	}
@@ -2078,4 +2112,49 @@ public class NewSignupMeetingBean implements MeetingTypes, SignupMessageTypes, S
 		
 		return eids;
 	}
+
+	public List<SignupUser> getAllPossibleCoordinators() {
+		return allPossibleCoordinators;
+	}
+
+	public void setAllPossibleCoordinators(List<SignupUser> allPossibleCoordinators) {
+		this.allPossibleCoordinators = allPossibleCoordinators;
+	}
+	
+	/**
+	 * This is for UI page to determine whether the email checkbox should be checked and disabled to change
+	 * @return
+	 */
+	public boolean isMandatorySendEmail(){
+		return this.mandatorySendEmail;
+	}
+
+	public String getSendEmailToSelectedPeopleOnly() {
+		return sendEmailToSelectedPeopleOnly;
+	}
+
+	public void setSendEmailToSelectedPeopleOnly(
+			String sendEmailToSelectedPeopleOnly) {
+		this.sendEmailToSelectedPeopleOnly = sendEmailToSelectedPeopleOnly;
+	}
+	
+	private String iframeId = "";
+
+	/**
+	 * This is a getter method which provide current Iframe id for refresh
+	 * IFrame purpose.
+	 * 
+	 * @return a String
+	 */
+	public String getIframeId() {
+		HttpServletRequest request = (HttpServletRequest) FacesContext.getCurrentInstance().getExternalContext()
+				.getRequest();
+		String iFrameId = (String) request.getAttribute("sakai.tool.placement.id");
+		return iFrameId;
+	}
+
+	public void setIframeId(String iframeId) {
+		this.iframeId = iframeId;
+	}	
+	
 }

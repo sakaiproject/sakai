@@ -32,6 +32,7 @@ import lombok.Getter;
 import lombok.Setter;
 
 import org.sakaiproject.signup.logic.Permission;
+import org.sakaiproject.signup.logic.SignupMessageTypes;
 
 /**
  * <p>
@@ -44,7 +45,7 @@ import org.sakaiproject.signup.logic.Permission;
  *
  */
 @Getter @Setter
-public class SignupMeeting implements MeetingTypes {
+public class SignupMeeting implements MeetingTypes, SignupMessageTypes {
 
 	private Long id;
 
@@ -63,6 +64,8 @@ public class SignupMeeting implements MeetingTypes {
 
 	/* sakai user id */
 	private String creatorUserId;
+	
+	private String coordinatorIds;
 
 	private Date startTime;
 
@@ -90,6 +93,8 @@ public class SignupMeeting implements MeetingTypes {
 	private boolean eidInputMode;
 
 	private boolean receiveEmailByOwner;
+	
+	private boolean sendEmailByOwner;
 
 	private List<SignupTimeslot> signupTimeSlots;
 
@@ -99,7 +104,9 @@ public class SignupMeeting implements MeetingTypes {
 
 	private Permission permission;
 	
-	private boolean emailAttendeesOnly;
+	//private boolean emailAttendeesOnly = false;
+	
+	private String sendEmailToSelectedPeopleOnly;
 	
 	private boolean allowAttendance;
 	

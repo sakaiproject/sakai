@@ -25,7 +25,6 @@
 		
 		<sakai:view_content>
 			<h:outputText value="#{msgs.event_error_alerts} #{messageUIBean.errorMessage}" styleClass="alertMessage" escape="false" rendered="#{messageUIBean.error}"/>      			
-				
 			<h:form id="meeting">
 			 	<sakai:view_title value="#{msgs.event_modify_meeting_page_title}"/>
 			 	<sakai:doc_section> 
@@ -36,8 +35,9 @@
 						</h:panelGroup>
 						<h:outputText value="&nbsp;" escape="false" />
 					</h:panelGrid>
-				</sakai:doc_section>								
-				
+				</sakai:doc_section>
+												
+				<h:inputHidden id="iframeId" value="#{EditMeetingSignupMBean.iframeId}" />
 				<h:panelGrid columns="1">
 						<h:panelGrid columns="2" columnClasses="titleColumn,valueColumn" onmouseover="delayedRecalculateDateTime();">
 							<h:panelGroup styleClass="titleText" rendered="#{EditMeetingSignupMBean.signupMeeting.recurredMeeting}">
@@ -332,9 +332,10 @@
 								</h:panelGroup>
 								
 								<h:panelGroup id="emailAttendeeOnly" style="display:none" >
-									<h:selectOneRadio  value="#{EditMeetingSignupMBean.sendEmailAttendeeOnly}" layout="lineDirection" styleClass="rs" style="margin-left:20px;">
-					                          <f:selectItem id="all_attendees" itemValue="#{false}" itemLabel="#{msgs.label_email_all_people}"/>                                              
-					                          <f:selectItem id="only_signedUp_ones" itemValue="#{true}" itemLabel="#{msgs.label_email_signed_up_ones_only}"/>					                                  	                      	         	 
+									<h:selectOneRadio  value="#{EditMeetingSignupMBean.sendEmailToSelectedPeopleOnly}" layout="lineDirection" styleClass="rs" style="margin-left:20px;">
+					                          <f:selectItem id="all_attendees" itemValue="all" itemLabel="#{msgs.label_email_all_people}"/>                                              
+					                          <f:selectItem id="only_signedUp_ones" itemValue="signup_only" itemLabel="#{msgs.label_email_signed_up_ones_only}"/>	
+					                          <f:selectItem id="only_organizers" itemValue="organizers_only" itemLabel="#{msgs.label_email_organizers_only}"/>	
 					         		</h:selectOneRadio> 
 								</h:panelGroup>
 							</h:panelGrid>
@@ -342,6 +343,28 @@
 								<h:selectBooleanCheckbox value="#{EditMeetingSignupMBean.sendEmail}" disabled="true"/>
 								<h:outputText value="#{msgs.event_email_not_send_out_label}" escape="false" style="color:#b11"/>
 							</h:panelGroup>
+							
+							<h:outputText value="#{msgs.event_select_coordinators}" escape="false"  styleClass="titleText"/>
+							<h:panelGroup>	
+			   	    				<h:outputLabel  id="imageOpen_editCoordinators" style="display:none" styleClass="activeTag" onclick="showDetails('meeting:imageOpen_editCoordinators','meeting:imageClose_hideCordinators','meeting:coordinators');">
+				   	    				<h:graphicImage value="/images/open.gif"  alt="open" title="Click to hide details." style="border:none;vertical-align:middle;" styleClass="openCloseImageIcon"/>
+				   	    				<h:outputText value="#{msgs.event_hide_coordinators}" escape="false" style="vertical-align: middle;"/>
+			   	    				</h:outputLabel>
+			   	    				<h:outputLabel id="imageClose_hideCordinators" styleClass="activeTag" onclick="showDetails('meeting:imageOpen_editCoordinators','meeting:imageClose_hideCordinators','meeting:coordinators');">
+			   	    					<h:graphicImage value="/images/closed.gif" alt="close" title="Click to show details." style="border:none;vertical-align:middle;" styleClass="openCloseImageIcon"/>
+			   	    					<h:outputText value="#{msgs.event_addedit_Coordinators}" escape="false" style="vertical-align: middle;"/>
+			   	    				</h:outputLabel>
+			   	    				<h:outputText value="&nbsp;#{msgs.event_select_coordinators_instruction}" escape="false"  styleClass="longtext"/>
+						   </h:panelGroup>
+							
+							<h:outputText id="coordinators_1" value="" escape="false" style="display:none"/>
+							<h:dataTable id="coordinators_2" value="#{EditMeetingSignupMBean.allPossibleCoordinators}" var="coUser"  
+							            styleClass="coordinatorTab" style="display:none">
+								<h:column>
+									<h:selectBooleanCheckbox value="#{coUser.checked}"/>
+								    <h:outputText value="&nbsp;#{coUser.displayName}" escape="false" styleClass="longtext"/>				
+								</h:column>
+							</h:dataTable>		
 												
 							<h:outputText value="&nbsp;" escape="false"/>
 							<h:outputText value="&nbsp;" escape="false"/>
@@ -349,12 +372,12 @@
 							<h:outputText value="#{msgs.event_other_default_setting}" escape="false" styleClass="titleText" rendered="#{!EditMeetingSignupMBean.announcementType}"/>
 							<h:panelGroup rendered="#{!EditMeetingSignupMBean.announcementType}">	
 			   	    				<h:outputLabel  id="imageOpen_otherSetting" style="display:none" styleClass="activeTag" onclick="showDetails('meeting:imageOpen_otherSetting','meeting:imageClose_otherSetting','meeting:otherSetting');">
-				   	    				<h:graphicImage value="/images/open.gif"  alt="open" title="#{msgs.event_tool_tips_hide_details}" style="border:none;" styleClass="openCloseImageIcon"/>
-				   	    				<h:outputText value="#{msgs.event_close_other_default_setting}" escape="false" style="vertical-align: top;"/>
+				   	    				<h:graphicImage value="/images/open.gif"  alt="open" title="#{msgs.event_tool_tips_hide_details}" style="border:none;vertical-align:middle;" styleClass="openCloseImageIcon"/>
+				   	    				<h:outputText value="#{msgs.event_close_other_default_setting}" escape="false" style="vertical-align: middle;"/>
 			   	    				</h:outputLabel>
 			   	    				<h:outputLabel id="imageClose_otherSetting" styleClass="activeTag" onclick="showDetails('meeting:imageOpen_otherSetting','meeting:imageClose_otherSetting','meeting:otherSetting');">
-			   	    					<h:graphicImage value="/images/closed.gif" alt="close" title="#{msgs.event_tool_tips_show_details}" style="border:none;vertical-align:top;" styleClass="openCloseImageIcon"/>
-			   	    					<h:outputText value="#{msgs.event_show_other_default_setting}" escape="false" style="vertical-align: top;"/>
+			   	    					<h:graphicImage value="/images/closed.gif" alt="close" title="#{msgs.event_tool_tips_show_details}" style="border:none;vertical-align:middle;" styleClass="openCloseImageIcon"/>
+			   	    					<h:outputText value="#{msgs.event_show_other_default_setting}" escape="false" style="vertical-align: middle;"/>
 			   	    				</h:outputLabel>
 						   </h:panelGroup>
 
@@ -394,8 +417,14 @@
 								<h:outputText value="#{msgs.event_yes_create_groups}" escape="false"/>
 							</h:panelGroup>
 							
-							<h:outputText id="otherSetting_13" style="display:none" value="#{msgs.event_allowed_slots }" styleClass="titleText" escape="false" />
-							<h:panelGroup id="otherSetting_14" style="display:none" styleClass="longtext">
+							<h:outputText id="otherSetting_13" style="display:none" value="#{msgs.event_meeting_default_notify_setting}" styleClass="titleText" escape="false"/>
+							<h:panelGroup id="otherSetting_14" style="display:none" styleClass="longtext" >
+									<h:selectBooleanCheckbox value="#{EditMeetingSignupMBean.sendEmailByOwner}"/>
+									<h:outputText value="#{msgs.event_yes_meeting_default_notify_setting}" escape="false"/>
+							</h:panelGroup>
+							
+							<h:outputText id="otherSetting_15" style="display:none" value="#{msgs.event_allowed_slots }" styleClass="titleText" escape="false" />
+							<h:panelGroup id="otherSetting_16" style="display:none" styleClass="longtext">
 								<h:selectOneMenu value="#{ EditMeetingSignupMBean.signupMeeting.maxNumOfSlots}">  
 									 <f:selectItems  value="#{EditMeetingSignupMBean.slots}"   /> 
 								</h:selectOneMenu>
@@ -421,6 +450,7 @@
 			replaceCalendarImageIcon(); 
 			userDefinedTsChoice();
 			isShowEmailChoice();
+			setIframeHeight_DueTo_Ckeditor();
 			
 			var wait=false; 
 			var originalTsNumVal = 4;//default

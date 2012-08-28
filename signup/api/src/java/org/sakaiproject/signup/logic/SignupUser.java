@@ -45,6 +45,8 @@ public class SignupUser implements Comparable {
 	private String mainSiteId;
 	
 	private boolean publishedSite;
+	
+	private boolean checked;
 
 	/**
 	 * Construtor
@@ -211,4 +213,13 @@ public class SignupUser implements Comparable {
 
 		return name;
 	}
+
+	public boolean isChecked() {
+		return checked;
+	}
+
+	public void setChecked(boolean checked) {
+		this.checked = checked;
+	}
+
 }

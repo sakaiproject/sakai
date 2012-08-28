@@ -39,7 +39,8 @@
                         <h:outputText value="&nbsp;" escape="false" />
                     </h:panelGrid>
                 </sakai:doc_section>
-          	      
+          	    
+          	    <h:inputHidden id="iframeId" value="#{NewSignupMeetingBean.iframeId}" />  
 	        	<h:panelGrid columns="2" columnClasses="titleColumn,valueColumn" onmouseover="delayedRecalculateDateTime();">               
                     
                     <%-- title --%>
@@ -307,7 +308,7 @@
 		            <h:panelGrid columns="2" columnClasses="miCol1,miCol2" >                
 						<h:panelGroup id="radios" styleClass="rs">                  
 							<h:selectOneRadio id="meetingType" value="#{NewSignupMeetingBean.signupMeeting.meetingType}"  valueChangeListener="#{NewSignupMeetingBean.processSelectedType}" onclick="switMeetingType(value);" layout="pageDirection" styleClass="rs" >
-							<	f:selectItems value="#{NewSignupMeetingBean.meetingTypeRadioBttns}"/>                	                      	         	 
+							<f:selectItems value="#{NewSignupMeetingBean.meetingTypeRadioBttns}"/>                	                      	         	 
 							</h:selectOneRadio> 
 						</h:panelGroup>
 						
@@ -396,7 +397,8 @@
 			 initialLayoutsSetup();
 	         otherUserSitesSelection();
 	         replaceCalendarImageIcon(); 
-	         userDefinedTsChoice(); 
+	         userDefinedTsChoice();
+	         setIframeHeight_DueTo_Ckeditor();
 		</script>
     </f:verbatim>
 </f:view>

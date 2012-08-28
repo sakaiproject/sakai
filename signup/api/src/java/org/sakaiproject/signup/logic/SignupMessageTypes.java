@@ -52,5 +52,12 @@ public interface SignupMessageTypes {
 	static final String SIGNUP_ATTENDEE_PROMOTE = "signup.email.attedee.promote";
 
 	static final String SIGNUP_MEETING_MODIFIED = "signup.email.meeting.modified";
+	
+	//The following three are used to determine who should receive email
+	static final String SEND_EMAIL_ALL_PARTICIPANTS = "all";
+	
+	static final String SEND_EMAIL_ONLY_SIGNED_UP_ATTENDEES = "signup_only";
+	
+	static final String SEND_EMAIL_ONLY_ORGANIZER_COORDINATORS = "organizers_only";
 
 }

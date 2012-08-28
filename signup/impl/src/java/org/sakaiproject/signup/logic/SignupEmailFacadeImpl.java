@@ -29,6 +29,7 @@ import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
+import java.util.StringTokenizer;
 
 import lombok.Getter;
 import lombok.Setter;
@@ -110,31 +111,83 @@ public class SignupEmailFacadeImpl implements SignupEmailFacade {
 	 */
 	public void sendEmailToOrganizer(SignupEventTrackingInfo signupEventTrackingInfo) throws Exception {
 		
+		boolean isException=false;
+		
 		//generate VEvents
 		generateVEvents(signupEventTrackingInfo.getMeeting());
 		
 		List<SignupTrackingItem> sigupTList = signupEventTrackingInfo.getAttendeeTransferInfos();
 		for (SignupTrackingItem item : sigupTList) {
 			if (item.getMessageType().equals(SIGNUP_ATTENDEE_SIGNUP)) {
-				User creator = null;
+				//User creator = null;
 				User participant = null;
 				try {
-					creator = userDirectoryService.getUser(signupEventTrackingInfo.getMeeting().getCreatorUserId());
+					//creator = userDirectoryService.getUser(signupEventTrackingInfo.getMeeting().getCreatorUserId())
+					List<User> OwnerAndCoordinators = getMeetingOwnerAndCoordinators(signupEventTrackingInfo.getMeeting());
+					if(OwnerAndCoordinators.isEmpty()){
+						throw new Exception("No Organizer/Coordinator is not found and Email is not sent away for oraginzer");
+					}
+					
 					participant = userDirectoryService.getUser(item.getAttendee().getAttendeeUserId());
+					for (User organizer : OwnerAndCoordinators) {
+						SignupEmailNotification email = new AttendeeSignupEmail(organizer, participant,
+								signupEventTrackingInfo.getMeeting(), item.getAddToTimeslot(), this.sakaiFacade);
 
-					SignupEmailNotification email = new AttendeeSignupEmail(creator, participant,
+						sendEmail(organizer, email);
+					}
+					/*SignupEmailNotification email = new AttendeeSignupEmail(creator, participant,
 							signupEventTrackingInfo.getMeeting(), item.getAddToTimeslot(), this.sakaiFacade);
 
-					sendEmail(creator, email);
+					sendEmail(creator, email);*/
 				} catch (UserNotDefinedException e) {
-					throw new Exception("User is not found and Email is not sent away for oraginzer userId:"
-							+ signupEventTrackingInfo.getMeeting().getCreatorUserId());
+					isException = true;
 				}
 			}
 		}
+		
+		if(isException)
+			throw new Exception("Email may not be sent out due to error.");
 
 		return;
 
+	}
+	
+	private List<User> getMeetingOwnerAndCoordinators(SignupMeeting meeting){
+		List<User> organizerCoordinators = new ArrayList<User>();
+		try{
+			User creator = userDirectoryService.getUser(meeting.getCreatorUserId());
+			organizerCoordinators.add(creator);
+		}catch (UserNotDefinedException e) {
+			logger.warn("User is not found and Email is not sent away for oraginzer userId:"
+					+ meeting.getCreatorUserId());
+		}
+		
+		List<String> coordinatorIds=getExistingCoordinatorIds(meeting);
+		for (String cId : coordinatorIds) {
+			try{
+				User coUser = userDirectoryService.getUser(cId);
+				organizerCoordinators.add(coUser);
+			}catch (UserNotDefinedException e) {
+				logger.warn("User is not found and Email is not sent away for coordinator userId:" + cId);
+			}
+		}
+		
+		
+		return organizerCoordinators;
+	}
+	
+	private List<String> getExistingCoordinatorIds(SignupMeeting meeting){
+		List<String> coUsers = new ArrayList<String>();
+		String coUserIdsString = meeting.getCoordinatorIds();
+		if(coUserIdsString !=null && coUserIdsString.trim().length()>0){
+			StringTokenizer userIdTokens = new StringTokenizer(coUserIdsString,"|");
+			while(userIdTokens.hasMoreTokens()){
+				String uId = userIdTokens.nextToken();
+				coUsers.add(uId);				
+			}
+		}
+		
+		return coUsers;		
 	}
 
 	/**
@@ -169,14 +222,23 @@ public class SignupEmailFacadeImpl implements SignupEmailFacade {
 		if (!signupEventTrackingInfo.getMeeting().isReceiveEmailByOwner())
 			return;
 
-		User organizer = null;
+		//User organizer = null;
 		User initiator = null;
 		try {
-			organizer = userDirectoryService.getUser(signupEventTrackingInfo.getMeeting().getCreatorUserId());
+			//organizer = userDirectoryService.getUser(signupEventTrackingInfo.getMeeting().getCreatorUserId())
+			List<User> OwnerAndCoordinators = getMeetingOwnerAndCoordinators(signupEventTrackingInfo.getMeeting());
+			if(OwnerAndCoordinators.isEmpty()){
+				throw new Exception("No Organizer/Coordinator is not found and Email is not sent away for oraginzer");
+			}
+			
 			initiator = userDirectoryService.getUser(signupEventTrackingInfo.getInitiatorAllocationInfo().getAttendee() .getAttendeeUserId());
 
-			AttendeeCancellationEmail email = new AttendeeCancellationEmail(organizer, initiator, sigupTList, signupEventTrackingInfo.getMeeting(), this.sakaiFacade);
-			sendEmail(organizer, email);
+			//AttendeeCancellationEmail email = new AttendeeCancellationEmail(organizer, initiator, sigupTList, signupEventTrackingInfo.getMeeting(), this.sakaiFacade);
+			//sendEmail(organizer, email);
+			for (User organizer : OwnerAndCoordinators) {
+				AttendeeCancellationEmail email = new AttendeeCancellationEmail(organizer, initiator, sigupTList, signupEventTrackingInfo.getMeeting(), this.sakaiFacade);
+				sendEmail(organizer, email);
+			}
 			
 			//also send an email to the attendee
 			AttendeeCancellationOwnEmail attendeeEmail = new AttendeeCancellationOwnEmail(initiator, sigupTList, signupEventTrackingInfo.getMeeting(), this.sakaiFacade);
@@ -331,6 +393,7 @@ public class SignupEmailFacadeImpl implements SignupEmailFacade {
 
 		List<EmailUserSiteGroup> userSiteGroupList = getUserSiteEmailGroups(signupUsers);
 		boolean isException = false;
+		boolean isAlreadyEmailedToOrganizerCoordinators = false; //avoid duplicated email
 		/*divide email-send out by site to site*/
 		for (EmailUserSiteGroup emailUserSiteGroup : userSiteGroupList) {
 			if (!emailUserSiteGroup.isPublishedSite())
@@ -345,19 +408,33 @@ public class SignupEmailFacadeImpl implements SignupEmailFacade {
 					organizer = userDirectoryService.getUser(meeting.getCreatorUserId());
 					email = new NewMeetingEmail(organizer, meeting, this.sakaiFacade, emailUserSiteGroup.getSiteId());
 					/*
+					 * We have to send it no matter what!!!
 					 * send email to pre-assiged people for this site group and
 					 * also excluding them for next step.
 					 */
-					sendEmailToPreAssignedAttendee(emailUserSiteGroup, meeting);
+					try{
+						//don't stop to send another email out due to exception
+						sendEmailToPreAssignedAttendee(emailUserSiteGroup, meeting);
+					}catch(Exception e){
+						isException=true;
+					}
 					
 					/*Check to see if email is for all participants*/
-					if(!meeting.isEmailAttendeesOnly()){
+					if(SEND_EMAIL_ALL_PARTICIPANTS.equals(meeting.getSendEmailToSelectedPeopleOnly())){
 						/* get the people list excluding pre-assigned ones */
 						userIds = emailUserSiteGroup.getUserInternalIds();
 						sakaiUsers = userDirectoryService.getUsers(userIds);
 					}
 					else {
-						continue;//no need to go down
+						//Case: SEND_EMAIL_ONLY_ORGANIZER_COORDINATORS/SEND_EMAIL_ONLY_SIGNED_UP_ATTENDEES
+						//we have to send to organizers no matter what!!
+						//case: email attendee Only and the email are already sent away
+						/*Now, we need to send email to organizer and coordinators 
+						 * since the iCal file is involved*/
+						if(!isAlreadyEmailedToOrganizerCoordinators){
+							sakaiUsers =getMeetingOwnerAndCoordinators(meeting);
+							isAlreadyEmailedToOrganizerCoordinators=true;
+						}
 					}
 
 				} else if (messageType.equals(SIGNUP_MEETING_MODIFIED) || messageType.equals(SIGNUP_CANCEL_MEETING)) {
@@ -366,20 +443,33 @@ public class SignupEmailFacadeImpl implements SignupEmailFacade {
 					//same logic for both, just different emails
 					if(messageType.equals(SIGNUP_MEETING_MODIFIED)) {
 						email = new ModifyMeetingEmail(organizer, meeting, this.sakaiFacade, emailUserSiteGroup.getSiteId());
-					}
-					if(messageType.equals(SIGNUP_CANCEL_MEETING)) {
+					}else if(messageType.equals(SIGNUP_CANCEL_MEETING)) {
 						email = new CancelMeetingEmail(organizer, meeting, this.sakaiFacade, emailUserSiteGroup.getSiteId());
 					}
 					
-					if (! meeting.isEmailAttendeesOnly()){
+					if (SEND_EMAIL_ALL_PARTICIPANTS.equals(meeting.getSendEmailToSelectedPeopleOnly())){
 						userIds = emailUserSiteGroup.getUserInternalIds();
 						sakaiUsers = userDirectoryService.getUsers(userIds);
-					}
-					else if (meeting.isEmailAttendeesOnly()){
+					}else if (SEND_EMAIL_ONLY_ORGANIZER_COORDINATORS.equals(meeting.getSendEmailToSelectedPeopleOnly())){
+						if(!isAlreadyEmailedToOrganizerCoordinators){
+							//avoid duplicated email
+							sakaiUsers =getMeetingOwnerAndCoordinators(meeting);
+							isAlreadyEmailedToOrganizerCoordinators=true;
+						}
+					}else if (SEND_EMAIL_ONLY_SIGNED_UP_ATTENDEES.equals(meeting.getSendEmailToSelectedPeopleOnly())){
 						List<SignupTimeslot> tsList = meeting.getSignupTimeSlots();
 						User user = null;
 						List<SignupUser> sgpUsers = emailUserSiteGroup.getSignupUsers();
 						sakaiUsers = new ArrayList<User>();
+						
+						/*due to iCal file, we need to handle for canceling meeting case for organizer etc.*/
+						//this one may not be needed since SIGNUP_CANCEL_MEETING always should with value:SEND_EMAIL_ALL_PARTICIPANTS
+						//TODO need to find a way: update related ones iCals if the meeting schedule is modified 
+						if(!isAlreadyEmailedToOrganizerCoordinators && messageType.equals(SIGNUP_CANCEL_MEETING) ){
+							sakaiUsers =getMeetingOwnerAndCoordinators(meeting);
+							isAlreadyEmailedToOrganizerCoordinators=true;
+						}
+						
 						if(tsList !=null){
 							for (SignupTimeslot ts : tsList) {
 								List<SignupAttendee> attList = ts.getAttendees();
@@ -408,7 +498,7 @@ public class SignupEmailFacadeImpl implements SignupEmailFacade {
 				} 
 
 				if (email != null){
-					if(sakaiUsers.size()> 200){
+					if(sakaiUsers.size()> 400){
 						/*Currently, use this only for heavy case.
 						 * One drawback: the organizer don't know weather the email is really sent away or not.
 						 * There is no error message for user if an unexpected exception happens.
@@ -657,7 +747,11 @@ public class SignupEmailFacadeImpl implements SignupEmailFacade {
 			//only send the overall meeting ICS file to the organiser of the meeting. 
 			//Students do not need this, they get them for the timeslots when they sign up
 			String organiserUuid = meeting.getCreatorUserId();
-			if(StringUtils.equals(user.getId(), organiserUuid)) {
+			List<String> organizerCoordinatorsUuid = getExistingCoordinatorIds(meeting);
+			organizerCoordinatorsUuid.add(organiserUuid);
+			
+			//if(StringUtils.equals(user.getId(), organiserUuid)) {
+			if(organizerCoordinatorsUuid.contains(user.getId())) {
 				
 				//check vevent for meeting exists, otherwise skip
 				VEvent v = meeting.getVevent();

@@ -242,7 +242,7 @@ public abstract class SignupAction implements SignupBeanConstants{
 	}
 	
 	// Generate a group title based on the input given
-	public String generateGroupTitle(String meetingTitle, SignupTimeslot timeslot) {
+	public String generateGroupTitle(String meetingTitle, SignupTimeslot timeslot, int rowNum) {
 		
 		//Based on the database limitation
 		final int TITLE_MAX_LENGTH = 99;
@@ -252,10 +252,10 @@ public abstract class SignupAction implements SignupBeanConstants{
 		int titleSize = TITLE_MAX_LENGTH - SakaiFacade.GROUP_PREFIX.length();
 		StringBuilder sb = new StringBuilder(titleSize);
 		
+		sb.append(" ");
 		sb.append(SEPARATOR);
-		sb.append(df.format(timeslot.getStartTime()));
-		sb.append(SEPARATOR);
-		sb.append(df.format(timeslot.getEndTime()));
+		sb.append(Utilities.rb.getString("group_slot_in_group_titlename"));
+		sb.append(" " + rowNum);
 		titleSize -= sb.length();
 		
 		if (titleSize > 0)
@@ -264,9 +264,22 @@ public abstract class SignupAction implements SignupBeanConstants{
 		return sb.toString();
 	}
 	
+	public String getFormatTimeslotDateTime(SignupTimeslot timeslot){
+		
+		final DateFormat df = DateFormat.getDateTimeInstance(DateFormat.SHORT, DateFormat.SHORT);
+		final char SEPARATOR = '-';
+		StringBuilder sb = new StringBuilder();		
+		sb.append(df.format(timeslot.getStartTime()));
+		sb.append(SEPARATOR);
+		sb.append(df.format(timeslot.getEndTime()));
+		
+		return sb.toString();		
+	}
+	
 	//generate a group description
-	public String generateGroupDescription(String meetingTitle, SignupTimeslot timeslot) {
-		return Utilities.rb.getString("group_description_default");
+	public String generateGroupDescription(String meetingTitle, SignupTimeslot timeslot) {		
+		Object[] params = new Object[] { getFormatTimeslotDateTime(timeslot)};
+		return MessageFormat.format(Utilities.rb.getString("group_description_default"),params);
 	}
 	//convert a list of SignupAttendees to a list of userIds
 	public List<String> convertAttendeesToUuids(List<SignupAttendee> attendees) {

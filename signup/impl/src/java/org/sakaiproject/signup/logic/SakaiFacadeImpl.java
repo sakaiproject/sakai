@@ -505,6 +505,23 @@ public class SakaiFacadeImpl implements SakaiFacade {
 		return new ArrayList<SignupUser>(signupUsers);
 	}
 	
+	/**
+	 * {@inheritDoc}
+	 */
+	@SuppressWarnings("unchecked")
+	public List<SignupUser> getAllPossbileCoordinators(SignupMeeting meeting) {
+		List<SignupUser> coordinators = new ArrayList<SignupUser>();
+		List<SignupUser> signUpUsers = getAllUsers(meeting);
+		for (SignupUser u : signUpUsers) {
+			if(hasPermissionToCreate(meeting,u.getInternalUserId())){
+				coordinators.add(u);
+			}
+			
+		}
+		
+		return coordinators;
+	}
+	
 	
 	/**
 	 * {@inheritDoc}
@@ -594,6 +611,31 @@ public class SakaiFacadeImpl implements SakaiFacade {
 			for (SignupGroup group : signupGroups) {
 				if(isAllowedGroup(userId, SIGNUP_ATTEND, site.getSiteId(), group.getGroupId()))
 					return true;
+			}
+		}
+		
+		return false;
+	}
+	
+	public boolean hasPermissionToCreate(SignupMeeting meeting, String userId){
+		
+		List<SignupSite> signupSites = meeting.getSignupSites();
+		if(signupSites !=null){
+			for (SignupSite site : signupSites) {			
+				if(isAllowedSite(userId, SIGNUP_CREATE_SITE, site.getSiteId()))
+					return true;
+			
+				if (site.isSiteScope()) {
+					if (isAllowedSite(userId, SIGNUP_CREATE_SITE, site.getSiteId()))
+						return true;
+				} else {
+					List<SignupGroup> signupGroups = site.getSignupGroups();
+					for (SignupGroup group : signupGroups) {
+						if(isAllowedGroup(userId, SIGNUP_CREATE_GROUP_ALL, site.getSiteId(), group.getGroupId()) || isAllowedGroup(userId, SIGNUP_CREATE_GROUP, site.getSiteId(), group.getGroupId()))
+							return true;
+					}
+				}
+			
 			}
 		}
 		
@@ -994,6 +1036,55 @@ public class SakaiFacadeImpl implements SakaiFacade {
         }
 		
 		return false;
+	}
+	
+	/**
+	 * {@inheritDoc}
+	 */
+	public boolean synchonizeGroupTitle(String siteId, String groupId, String newTitle){
+		Site site = null;
+		boolean changed = false;
+		try {
+			site = siteService.getSite(siteId);
+		} catch (Exception e) {
+			log.error("synchronizeGroup failed to retrieve site: " + siteId, e);
+            return false;
+		}
+							
+		SecurityAdvisor securityAdvisor = new SecurityAdvisor(){
+			public SecurityAdvice isAllowed(String userId, String function, String reference){
+				return SecurityAdvice.ALLOWED;
+			}
+		};
+		enableSecurityAdvisor(securityAdvisor);
+		
+		Group group = site.getGroup(groupId);
+		
+		if(group == null) {
+        	log.error("No group for id: " + groupId);
+			return false;
+		}
+		
+		try {
+			
+			if(group.getTitle().startsWith(GROUP_PREFIX)){
+				//it means that the group title has not been modified via Site-info, we can change it now				
+				group.setTitle(GROUP_PREFIX + newTitle);
+				siteService.save(site);
+				changed = true;
+			}
+			else if(group.getTitle().contains(newTitle)){
+				//it is already changed due to version-multiple-try-saving process
+				//Don't do anything this time.
+				changed = true;
+			}
+			
+		} catch (Exception e) {
+        	log.error("synchGroupTitle failed for group: " + group.getTitle() + " and group: " + groupId, e);
+        } finally {
+        	disableSecurityAdvisor(securityAdvisor);
+        }
+		return changed;
 	}
 	
 	

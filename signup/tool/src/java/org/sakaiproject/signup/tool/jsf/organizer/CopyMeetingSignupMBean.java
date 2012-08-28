@@ -27,6 +27,7 @@ import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Date;
 import java.util.List;
+import java.util.StringTokenizer;
 
 import javax.faces.event.ActionEvent;
 import javax.faces.event.ValueChangeEvent;
@@ -129,6 +130,11 @@ public class CopyMeetingSignupMBean extends SignupUIBaseBean {
 	private List<TimeslotWrapper> customTimeSlotWrpList;
 	
 	private boolean userDefinedTS=false;
+	
+	protected static boolean NEW_MEETING_SEND_EMAIL = "true".equalsIgnoreCase(Utilities.getSignupConfigParamVal(
+			"signup.email.notification.mandatory.for.newMeeting", "true")) ? true : false;
+	
+	private boolean mandatorySendEmail = NEW_MEETING_SEND_EMAIL;
 
 	/**
 	 * this reset information which contains in this UIBean lived in a session
@@ -140,7 +146,13 @@ public class CopyMeetingSignupMBean extends SignupUIBaseBean {
 		keepAttendees = false;
 		assignParicitpantsToAllRecurEvents = false;
 		sendEmail = DEFAULT_SEND_EMAIL;
-		sendEmailAttendeeOnly = false;
+		if(NEW_MEETING_SEND_EMAIL){
+			//mandatory send email out
+			sendEmail= true;
+		}
+		
+		//sendEmailAttendeeOnly = false;
+		sendEmailToSelectedPeopleOnly = SEND_EMAIL_ALL_PARTICIPANTS;
 		publishToCalendar= DEFAULT_EXPORT_TO_CALENDAR_TOOL;
 		Calendar calendar = Calendar.getInstance();
 		calendar.setTime(new Date());
@@ -272,7 +284,7 @@ public class CopyMeetingSignupMBean extends SignupUIBaseBean {
 			}
 			
 			/*pass who are receiving emails*/
-			sMeeting.setEmailAttendeesOnly(getSendEmailAttendeeOnly());
+			sMeeting.setSendEmailToSelectedPeopleOnly(getSendEmailToSelectedPeopleOnly());
 			
 			CreateMeetings createMeeting = new CreateMeetings(sMeeting, sendEmail, keepAttendees
 					&& !assignParicitpantsToAllRecurEvents, keepAttendees && assignParicitpantsToAllRecurEvents,
@@ -587,6 +599,11 @@ public class CopyMeetingSignupMBean extends SignupUIBaseBean {
 				getDeadlineTimeType());
 
 		// copySites(meeting);
+		
+		/*Remove the coordinates who are not in the meeting any more due to the site group changes
+		 * we are simplify and just copy over coordinators over and user can change it via modify meeting page*/
+		//TODO later we may add the coordinators ability in the copy page too and need ajax to the trick.
+		meeting.setCoordinatorIds(getValidatedMeetingCoordinators(meeting));
 
 	}
 	
@@ -934,6 +951,40 @@ public class CopyMeetingSignupMBean extends SignupUIBaseBean {
 			}
 		}
 	}
+	
+	private String getValidatedMeetingCoordinators(SignupMeeting meeting){
+		List<String> allCoordinatorIds = getExistingCoordinatorIds(meeting);
+		StringBuilder sb = new StringBuilder();
+		boolean isFirst = true;
+		for (String couId : allCoordinatorIds) {
+			if(this.sakaiFacade.hasPermissionToCreate(meeting,couId)){
+				if(isFirst){
+					sb.append(couId);
+					isFirst = false;
+				}else{
+					//safeguard -db column max size, hardly have over 10 coordinators per meeting
+					if(sb.length() < 1000)
+						sb.append("|" + couId);
+				}
+			}
+		}
+		
+		return sb.length()<1? null : sb.toString();
+	}
+	
+	private List<String> getExistingCoordinatorIds(SignupMeeting meeting){
+		List<String> coUsers = new ArrayList<String>();
+		String coUserIdsString = meeting.getCoordinatorIds();
+		if(coUserIdsString !=null && coUserIdsString.trim().length()>0){
+			StringTokenizer userIdTokens = new StringTokenizer(coUserIdsString,"|");
+			while(userIdTokens.hasMoreTokens()){
+				String uId = userIdTokens.nextToken();
+				coUsers.add(uId);				
+			}
+		}
+		
+		return coUsers;		
+	}
 
 	/**
 	 * It's a getter method for UI.
@@ -1203,6 +1254,14 @@ public class CopyMeetingSignupMBean extends SignupUIBaseBean {
 	 */
 	public List<SelectItem> getInstructors() {
 		return Utilities.getSignupMeetingsBean().getInstructors(signupMeeting);
+	}
+	
+	/**
+	 * This is for UI page to determine whether the email checkbox should be checked and disabled to change
+	 * @return
+	 */
+	public boolean isMandatorySendEmail(){
+		return this.mandatorySendEmail;
 	}
 	
 }

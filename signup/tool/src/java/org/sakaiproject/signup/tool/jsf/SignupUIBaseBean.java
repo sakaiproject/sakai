@@ -35,6 +35,7 @@ import java.util.Set;
 
 import javax.faces.context.FacesContext;
 import javax.servlet.ServletOutputStream;
+import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
 import lombok.Getter;
@@ -99,7 +100,9 @@ abstract public class SignupUIBaseBean implements SignupBeanConstants, SignupMes
 
 	protected Boolean publishedSite;
 	
-	protected boolean sendEmailAttendeeOnly = false;
+	//protected boolean sendEmailAttendeeOnly = false;
+	
+	protected String sendEmailToSelectedPeopleOnly = SEND_EMAIL_ALL_PARTICIPANTS;
 	
 	private int maxSlots; 
 
@@ -562,12 +565,21 @@ abstract public class SignupUIBaseBean implements SignupBeanConstants, SignupMes
 		this.publishToCalendar = publishToCalendar;
 	}
 	
-	public boolean getSendEmailAttendeeOnly() {
+	/*public boolean getSendEmailAttendeeOnly() {
 		return sendEmailAttendeeOnly;
 	}
 
 	public void setSendEmailAttendeeOnly(boolean sendEmailAttendeeOnly) {
 		this.sendEmailAttendeeOnly = sendEmailAttendeeOnly;
+	}*/
+	
+	public String getSendEmailToSelectedPeopleOnly() {
+		return sendEmailToSelectedPeopleOnly;
+	}
+
+	public void setSendEmailToSelectedPeopleOnly(
+			String sendEmailToSelectedPeopleOnly) {
+		this.sendEmailToSelectedPeopleOnly = sendEmailToSelectedPeopleOnly;
 	}
 	
 	/**
@@ -763,5 +775,24 @@ abstract public class SignupUIBaseBean implements SignupBeanConstants, SignupMes
 	public boolean isIcsEnabled() {
 		return calendarHelper.isIcsEnabled();
 	}
+	
+	private String iframeId = "";
+
+	/**
+	 * This is a getter method which provide current Iframe id for refresh
+	 * IFrame purpose.
+	 * 
+	 * @return a String
+	 */
+	public String getIframeId() {
+		HttpServletRequest request = (HttpServletRequest) FacesContext.getCurrentInstance().getExternalContext()
+				.getRequest();
+		String iFrameId = (String) request.getAttribute("sakai.tool.placement.id");
+		return iFrameId;
+	}
+
+	public void setIframeId(String iframeId) {
+		this.iframeId = iframeId;
+	}	
 
 }

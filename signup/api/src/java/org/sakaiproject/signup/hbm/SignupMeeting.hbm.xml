@@ -20,6 +20,7 @@
 		<property name="category" column="category" type="string" length="255" not-null="false" />
 		<property name="meetingType" column="meeting_type" type="string" length="50" not-null="true" />
 		<property name="creatorUserId" column="creator_user_id" type="string" length="255" not-null="true" />
+		<property name="coordinatorIds" column="coordinators_user_Ids" type="string" length="1000" not-null="false" />
 		<property name="startTime" column="start_time" type="java.util.Date" not-null="true" />
 		<property name="endTime" column="end_time" type="java.util.Date" not-null="true"/>
 		<property name="signupBegins" column="signup_begins" type="java.util.Date" not-null="false"/>
@@ -40,6 +41,9 @@
 		</property>				
 		<property name="receiveEmailByOwner" type="boolean" >
 			<column name="receive_email_owner" default="0"/>
+		</property>
+		<property name="sendEmailByOwner" type="boolean" >
+			<column name="default_send_email_by_owner" default="0"/>
 		</property>
 		<property name="allowAttendance"  type="boolean" >
 			<column name="allow_attendance" default="0"/>

@@ -10,14 +10,19 @@
 	<sakai:view_container title="Signup Tool">
 		<style type="text/css">
 			@import url("/sakai-signup-tool/css/signupStyle.css");
-		</style>	
+		</style>
+		<script type="text/javascript" src="/library/js/jquery/1.4.2/jquery-1.4.2.min.js"></script>	
 		<script TYPE="text/javascript" LANGUAGE="JavaScript" src="/sakai-signup-tool/js/signupScript.js"></script>
-		<script TYPE="text/javascript" LANGUAGE="JavaScript" src="/sakai-signup-tool/js/jquery.js"></script>
-		<script type="text/javascript">jQuery.noConflict();</script>
+		<script type="text/javascript">
+			jQuery.noConflict();
+			jQuery(document).ready(function(){
+        		sakai.initSignupBeginAndEndsExact();
+        	});
+    	</script>
 		
 		<sakai:view_content>
 			<h:outputText value="#{msgs.event_error_alerts} #{messageUIBean.errorMessage}" styleClass="alertMessage" escape="false" rendered="#{messageUIBean.error}"/>      			
-				
+			<h:outputText id="iframeId" value="#{CopyMeetingSignupMBean.iframeId}" style="display:none"/>	
 			<h:form id="meeting">
 			 	<sakai:view_title value="#{msgs.event_copy_meeting_page_title}"/>
 				<sakai:doc_section>
@@ -30,6 +35,7 @@
 					</h:panelGrid>
 				</sakai:doc_section>	
 				
+				<h:inputHidden id="iframeId" value="#{EditMeetingSignupMBean.iframeId}" />
 				<h:panelGrid columns="1">
 					
 						<h:panelGrid columns="2" columnClasses="titleColumn,valueColumn" onmouseover="delayedRecalculateDateTime();">
@@ -123,7 +129,8 @@
 							</h:panelGroup>
 							<h:panelGroup styleClass="editText" rendered="#{!CopyMeetingSignupMBean.customTsType}">
 		        						<t:inputDate id="startTime" type="both"  ampm="true" value="#{CopyMeetingSignupMBean.signupMeeting.startTime}"
-		        							style="color:black;" popupCalendar="true" onkeyup="setEndtimeMonthDateYear();getSignupDuration();return false;"/>
+		        							style="color:black;" popupCalendar="true" onkeyup="setEndtimeMonthDateYear();getSignupDuration();sakai.updateSignupBeginsExact();return false;"
+		        							onchange="sakai.updateSignupBeginsExact();"/>
 										<h:message for="startTime" errorClass="alertMessageInline"/>
 							</h:panelGroup>
 							<h:panelGroup rendered="#{CopyMeetingSignupMBean.customTsType}">
@@ -144,7 +151,7 @@
 							</h:panelGroup>
 		        			<h:panelGroup styleClass="editText" rendered="#{!CopyMeetingSignupMBean.customTsType}">
 		        						<t:inputDate id="endTime" type="both" ampm="true" value="#{CopyMeetingSignupMBean.signupMeeting.endTime}" style="color:black;" popupCalendar="true" 
-		        							onkeyup="getSignupDuration();return false;"/>
+		        							onkeyup="getSignupDuration(); sakai.updateSignupEndsExact(); return false;" onchange="sakai.updateSignupEndsExact();"/>
 										<h:message for="endTime" errorClass="alertMessageInline"/>
 							</h:panelGroup>
 							<h:panelGroup rendered="#{CopyMeetingSignupMBean.customTsType}" >
@@ -204,10 +211,10 @@
 							<h:outputText value="#{msgs.event_signup_start}" rendered="#{!CopyMeetingSignupMBean.announcementType}" escape="false"/>
 							<h:panelGrid columns="2" columnClasses="editText,timeSelectTab" rendered="#{!CopyMeetingSignupMBean.announcementType}" >
 									<h:panelGroup>
-										<h:inputText id="signupBegins" value="#{CopyMeetingSignupMBean.signupBegins}" size="3" required="true">
+										<h:inputText id="signupBegins" value="#{CopyMeetingSignupMBean.signupBegins}" size="3" required="true" onkeyup="sakai.updateSignupBeginsExact();">
 											<f:validateLongRange minimum="0" maximum="99999"/>
 										</h:inputText>
-										<h:selectOneMenu id="signupBeginsType" value="#{CopyMeetingSignupMBean.signupBeginsType}" onchange="isSignUpBeginStartNow(value);">
+										<h:selectOneMenu id="signupBeginsType" value="#{CopyMeetingSignupMBean.signupBeginsType}" onchange="isSignUpBeginStartNow(value);sakai.updateSignupBeginsExact();">
 											<f:selectItem itemValue="minutes" itemLabel="#{msgs.label_minutes}"/>
 											<f:selectItem itemValue="hours" itemLabel="#{msgs.label_hours}"/>
 											<f:selectItem itemValue="days" itemLabel="#{msgs.label_days}"/>
@@ -217,16 +224,19 @@
 									<h:panelGroup>
 										<h:outputText value="#{msgs.before_event_start}" />
 										<h:message for="signupBegins" errorClass="alertMessageInline"/>
+										
+										<!--  show exact date, based on above -->
+										<h:outputText id="signupBeginsExact" value="" escape="false" styleClass="dateExact" />
 									</h:panelGroup>
 							</h:panelGrid>
 								
 							<h:outputText value="#{msgs.event_signup_deadline}" rendered="#{!CopyMeetingSignupMBean.announcementType}" escape="false"/>
 							<h:panelGrid columns="2" columnClasses="editText,timeSelectTab" rendered="#{!CopyMeetingSignupMBean.announcementType}">
 									<h:panelGroup>
-										<h:inputText id="signupDeadline" value="#{CopyMeetingSignupMBean.deadlineTime}" size="3" required="true">
+										<h:inputText id="signupDeadline" value="#{CopyMeetingSignupMBean.deadlineTime}" size="3" required="true" onkeyup="sakai.updateSignupEndsExact();">
 											<f:validateLongRange minimum="0" maximum="99999"/>
 										</h:inputText>
-										<h:selectOneMenu value="#{CopyMeetingSignupMBean.deadlineTimeType}" >
+										<h:selectOneMenu id="signupDeadlineType" value="#{CopyMeetingSignupMBean.deadlineTimeType}" onchange="sakai.updateSignupEndsExact();">
 											<f:selectItem itemValue="minutes" itemLabel="#{msgs.label_minutes}"/>
 											<f:selectItem itemValue="hours" itemLabel="#{msgs.label_hours}"/>
 											<f:selectItem itemValue="days" itemLabel="#{msgs.label_days}"/>
@@ -235,6 +245,8 @@
 									<h:panelGroup>
 										<h:outputText value="#{msgs.before_event_end}" />
 										<h:message for="signupDeadline" errorClass="alertMessageInline"/>
+										<!--  show exact date, based on above -->
+										<h:outputText id="signupEndsExact" value="" escape="false" styleClass="dateExact" />
 									</h:panelGroup>
 							</h:panelGrid>
 							
@@ -442,14 +454,14 @@
 							<h:outputText value="#{msgs.event_create_email_notification}" styleClass="titleText" escape="false"/>
 							<h:panelGrid columns="1" style="width:100%;margin-left:-3px;" rendered="#{CopyMeetingSignupMBean.publishedSite}">
 								<h:panelGroup styleClass="editText" >
-									<h:selectBooleanCheckbox id="emailChoice" value="#{CopyMeetingSignupMBean.sendEmail}" onclick="isShowEmailChoice()"/>
+									<h:selectBooleanCheckbox id="emailChoice" value="#{CopyMeetingSignupMBean.sendEmail}" onclick="isShowEmailChoice()" disabled="#{CopyMeetingSignupMBean.mandatorySendEmail}"/>
 									<h:outputText value="#{msgs.event_yes_email_notification}" escape="false"/>
 								</h:panelGroup>
 								
 								<h:panelGroup id="emailAttendeeOnly" style="display:none" >
-									<h:selectOneRadio  value="#{CopyMeetingSignupMBean.sendEmailAttendeeOnly}" layout="lineDirection" styleClass="rs" style="margin-left:20px;">
-					                          <f:selectItem id="all_attendees" itemValue="#{false}" itemLabel="#{msgs.label_email_all_people}"/>                                              
-					                          <f:selectItem id="only_signedUp_ones" itemValue="#{true}" itemLabel="#{msgs.label_email_signed_up_ones_only}"/>					                                  	                      	         	 
+									<h:selectOneRadio  value="#{CopyMeetingSignupMBean.sendEmailToSelectedPeopleOnly}" layout="lineDirection" styleClass="rs" style="margin-left:20px;">
+					                          <f:selectItem id="all_attendees" itemValue="all" itemLabel="#{msgs.label_email_all_people}"/>                                              
+					                          <f:selectItem id="only_organizers" itemValue="organizers_only" itemLabel="#{msgs.label_email_signed_up_ones_Organizers_only}"/>	
 					         		</h:selectOneRadio> 
 								</h:panelGroup>
 							</h:panelGrid>
@@ -490,7 +502,9 @@
 	         replaceCalendarImageIcon();
 	         initGroupTypeRadioButton();
 	         userDefinedTsChoice();
-	         
+	         isShowEmailChoice();
+	         setIframeHeight_DueTo_Ckeditor();
+	         	         
 	         var timeslotTag = document.getElementById("meeting:numberOfSlot");
 	         var maxAttendeeTag = document.getElementById("meeting:numberOfAttendees");
 	         var originalTsVal = timeslotTag? timeslotTag.value : 0;

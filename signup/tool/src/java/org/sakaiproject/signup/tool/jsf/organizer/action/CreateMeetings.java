@@ -22,6 +22,7 @@
  **********************************************************************************/
 package org.sakaiproject.signup.tool.jsf.organizer.action;
 
+import java.text.MessageFormat;
 import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Date;
@@ -59,7 +60,7 @@ public class CreateMeetings extends SignupAction implements MeetingTypes, Signup
 
 	private boolean sendEmail;
 	
-	private boolean emailAttendeesOnly;
+	private String sendEmailToSelectedPeopleOnly;
 
 	private final SakaiFacade sakaiFacade;
 	
@@ -128,7 +129,7 @@ public class CreateMeetings extends SignupAction implements MeetingTypes, Signup
 		super(currentUserId, currentSiteId, signupMeetingService, isOrganizer);
 		this.signupMeeting = signupMeeting;
 		this.sendEmail = sendEmail;
-		this.emailAttendeesOnly=signupMeeting.isEmailAttendeesOnly();
+		this.sendEmailToSelectedPeopleOnly=signupMeeting.getSendEmailToSelectedPeopleOnly();
 		this.assignParticatpantsToFirstOne = assignParticatpantsToFirstOne;
 		this.assignParticitpantsToAllEvents = assignParicitpantsToAllEvents;
 		this.signupBegin = signupBegin;
@@ -354,9 +355,10 @@ public class CreateMeetings extends SignupAction implements MeetingTypes, Signup
 			for(SignupMeeting s: signupMeetings) {
 				
 				List<SignupTimeslot> timeslots = s.getSignupTimeSlots();
+				int index=1;
 				for(SignupTimeslot t: timeslots) {
 					
-					String title = generateGroupTitle(s.getTitle(), t);
+					String title = generateGroupTitle(s.getTitle(), t, index);
 					String description = generateGroupDescription(s.getTitle(), t);
 					List<String> attendees = convertAttendeesToUuids(t.getAttendees());
 					
@@ -365,6 +367,8 @@ public class CreateMeetings extends SignupAction implements MeetingTypes, Signup
 					logger.debug("Created group for timeslot: " + groupId);
 					
 					t.setGroupId(groupId);
+					
+					index++;
 				}
 			}			
 		}
@@ -385,7 +389,7 @@ public class CreateMeetings extends SignupAction implements MeetingTypes, Signup
 			try {
 				/*pass who should receive the email, 
 				 * here we are not considering the recurring events yet!!!*/
-				firstOne.setEmailAttendeesOnly(this.emailAttendeesOnly);
+				firstOne.setSendEmailToSelectedPeopleOnly(this.sendEmailToSelectedPeopleOnly);
 				/* take the first one, which should not be null */
 				signupMeetingService.sendEmail(firstOne, SIGNUP_NEW_MEETING);
 
@@ -543,6 +547,8 @@ public class CreateMeetings extends SignupAction implements MeetingTypes, Signup
 		copy.setAllowAttendance(s.isAllowAttendance());
 		copy.setCreateGroups(s.isCreateGroups());
 		copy.setMaxNumOfSlots(s.getMaxNumOfSlots());
+		copy.setSendEmailByOwner(s.isSendEmailByOwner());//default value for notification cross meeting
+		copy.setCoordinatorIds(s.getCoordinatorIds());
 
 		return copy;
 

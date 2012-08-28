@@ -258,14 +258,51 @@
 								</h:panelGroup>
 								
 								<h:outputText value="#{msgs.event_create_email_notification}" styleClass="titleText" escape="false"/>
-								<h:panelGroup styleClass="longtext" rendered="#{NewSignupMeetingBean.publishedSite}">
-									<h:selectBooleanCheckbox value="#{NewSignupMeetingBean.sendEmail}"/>
-									<h:outputText value="#{msgs.event_yes_create_email_notification}" escape="false"/>
-								</h:panelGroup>
+								<h:panelGrid columns="1" style="width:100%;margin-left:-3px;" rendered="#{NewSignupMeetingBean.publishedSite}">
+									<h:panelGroup styleClass="editText" >
+										<h:selectBooleanCheckbox id="emailChoice" value="#{NewSignupMeetingBean.sendEmail}" onclick="isShowEmailChoice()" disabled="#{NewSignupMeetingBean.mandatorySendEmail}"/>
+										<h:outputText value="#{msgs.event_yes_email_notification}" escape="false"/>
+									</h:panelGroup>
+									
+									<h:panelGroup id="emailAttendeeOnly" style="display:none" >
+										<h:selectOneRadio  value="#{NewSignupMeetingBean.sendEmailToSelectedPeopleOnly}" layout="lineDirection" styleClass="rs" style="margin-left:20px;">
+						                          <f:selectItem id="all_attendees" itemValue="all" itemLabel="#{msgs.label_email_all_people}"/>                                              
+						                          <f:selectItem id="only_organizers" itemValue="organizers_only" itemLabel="#{msgs.label_email_organizers_only}"/>	
+						         		</h:selectOneRadio> 
+									</h:panelGroup>
+								</h:panelGrid>
 								<h:panelGroup styleClass="longtext" rendered="#{!NewSignupMeetingBean.publishedSite}">
 									<h:selectBooleanCheckbox value="#{NewSignupMeetingBean.sendEmail}" disabled="true"/>
 									<h:outputText value="#{msgs.event_email_not_send_out_label}" escape="false" style="color:#b11"/>
-								</h:panelGroup>																
+								</h:panelGroup>
+									
+								<h:outputText value="#{msgs.event_meeting_default_notify_setting}" styleClass="titleText" escape="false"/>
+								<h:panelGroup styleClass="longtext" >
+									<h:selectBooleanCheckbox value="#{NewSignupMeetingBean.sendEmailByOwner}"/>
+									<h:outputText value="#{msgs.event_yes_meeting_default_notify_setting}" escape="false"/>
+								</h:panelGroup>
+								
+								<h:outputText value="#{msgs.event_select_coordinators}" escape="false"  styleClass="titleText"/>
+								<h:panelGroup>	
+				   	    				<h:outputLabel  id="imageOpen_editCoordinators" style="display:none" styleClass="activeTag" onclick="showDetails('meeting:imageOpen_editCoordinators','meeting:imageClose_hideCordinators','meeting:coordinators');">
+					   	    				<h:graphicImage value="/images/open.gif"  alt="open" title="Click to hide details." style="border:none;vertical-align: middle;" styleClass="openCloseImageIcon"/>
+					   	    				<h:outputText value="#{msgs.event_hide_coordinators}" escape="false" style="vertical-align: middle;"/>
+				   	    				</h:outputLabel>
+				   	    				<h:outputLabel id="imageClose_hideCordinators" styleClass="activeTag" onclick="showDetails('meeting:imageOpen_editCoordinators','meeting:imageClose_hideCordinators','meeting:coordinators');">
+				   	    					<h:graphicImage value="/images/closed.gif" alt="close" title="Click to show details." style="border:none;vertical-align:middle;" styleClass="openCloseImageIcon"/>
+				   	    					<h:outputText value="#{msgs.event_addedit_Coordinators}" escape="false" style="vertical-align: middle;"/>
+				   	    				</h:outputLabel>
+				   	    				<h:outputText value="&nbsp;#{msgs.event_select_coordinators_instruction}" escape="false"  styleClass="longtext"/>
+							   </h:panelGroup>
+								
+								<h:outputText id="coordinators_1" value="" escape="false" style="display:none"/>
+								<h:dataTable id="coordinators_2" value="#{NewSignupMeetingBean.allPossibleCoordinators}" var="coUser"  
+								            styleClass="coordinatorTab" style="display:none">
+									<h:column>
+										<h:selectBooleanCheckbox value="#{coUser.checked}"/>
+									    <h:outputText value="&nbsp;#{coUser.displayName}" escape="false" styleClass="longtext"/>				
+									</h:column>
+								</h:dataTable>																
 								
 								<h:outputText value="&nbsp;" escape="false"/>
 								<h:outputText value="&nbsp;" escape="false"/>
@@ -273,12 +310,12 @@
 								<h:outputText value="#{msgs.event_other_default_setting}" escape="false" styleClass="titleText" rendered="#{!NewSignupMeetingBean.announcementType}"/>
 								<h:panelGroup rendered="#{!NewSignupMeetingBean.announcementType}">	
 				   	    				<h:outputLabel  id="imageOpen_otherSetting" style="display:none" styleClass="activeTag" onclick="showDetails('meeting:imageOpen_otherSetting','meeting:imageClose_otherSetting','meeting:otherSetting');">
-					   	    				<h:graphicImage value="/images/open.gif"  alt="open" title="Click to hide details." style="border:none;" styleClass="openCloseImageIcon"/>
-					   	    				<h:outputText value="#{msgs.event_close_other_default_setting}" escape="false" style="vertical-align: top;"/>
+					   	    				<h:graphicImage value="/images/open.gif"  alt="open" title="Click to hide details." style="border:none;vertical-align: middle;" styleClass="openCloseImageIcon"/>
+					   	    				<h:outputText value="#{msgs.event_close_other_default_setting}" escape="false" style="vertical-align: middle;"/>
 				   	    				</h:outputLabel>
 				   	    				<h:outputLabel id="imageClose_otherSetting" styleClass="activeTag" onclick="showDetails('meeting:imageOpen_otherSetting','meeting:imageClose_otherSetting','meeting:otherSetting');">
-				   	    					<h:graphicImage value="/images/closed.gif" alt="close" title="Click to show details." style="border:none;vertical-align:top;" styleClass="openCloseImageIcon"/>
-				   	    					<h:outputText value="#{msgs.event_show_other_default_setting}" escape="false" style="vertical-align: top;"/>
+				   	    					<h:graphicImage value="/images/closed.gif" alt="close" title="Click to show details." style="border:none;vertical-align:middle;" styleClass="openCloseImageIcon"/>
+				   	    					<h:outputText value="#{msgs.event_show_other_default_setting}" escape="false" style="vertical-align: middle;"/>
 				   	    				</h:outputLabel>
 							   </h:panelGroup>
 
@@ -347,6 +384,8 @@
 	
 	<f:verbatim>
 	<script>
+			//init
+			isShowEmailChoice();
 			//just introduce jquery slideUp/Down visual effect to overwrite top function
 			function switchShowOrHide(tag){
 				if(tag){

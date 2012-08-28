@@ -67,7 +67,7 @@ import org.springframework.dao.OptimisticLockingFailureException;
  * 
  * </p>
  */
-public class SignupMeetingServiceImpl implements SignupMeetingService, Retry, MeetingTypes {
+public class SignupMeetingServiceImpl implements SignupMeetingService, Retry, MeetingTypes, SignupMessageTypes {
 
 	private static Log log = LogFactory.getLog(SignupMeetingServiceImpl.class);
 
@@ -1087,6 +1087,7 @@ public class SignupMeetingServiceImpl implements SignupMeetingService, Retry, Me
 		for(SignupMeeting m: meetings) {
 			if(!m.isMeetingExpired()) {
 				log.info("Meeting is still available, email notifications will be sent");
+				m.setSendEmailToSelectedPeopleOnly(SEND_EMAIL_ALL_PARTICIPANTS);
 				signupEmailFacade.sendEmailAllUsers(m, SignupMessageTypes.SIGNUP_CANCEL_MEETING);
 			}
 		}

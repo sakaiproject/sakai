@@ -224,6 +224,23 @@ public interface SakaiFacade {
 	public boolean checkForUser(String userId);
 
 	/**
+	 * get all coordinators, who have create meeting permission in the event/meeting
+	 * 
+	 * @param meeting
+	 *            a SignupMeeting object
+	 * @return a list of SignupMeeting objects
+	 */
+	public List<SignupUser> getAllPossbileCoordinators(SignupMeeting meeting);
+	
+	/**
+	 * test whether a user has permission to create a meeting in a meeting
+	 * @param meeting
+	 * @param userId
+	 * @return
+	 */
+	public boolean hasPermissionToCreate(SignupMeeting meeting, String userId);
+	
+	/**
 	 * get all users, who have joined in the event/meeting
 	 * 
 	 * @param meeting
@@ -412,7 +429,7 @@ public interface SakaiFacade {
 	 * @param siteId		id of the site
 	 * @param groupId		id of the group
 	 * @return list of uuids for users in the group
-	 */
+	 */	
 	public List<String> getGroupMembers(String siteId, String groupId);
 	
 	/**
@@ -422,5 +439,15 @@ public interface SakaiFacade {
 	 * @return	true if group exists, false if not.
 	 */
 	public boolean checkForGroup(String siteId, String groupId);
+	
+	/**
+	 * Synchronize the group title if group title has not been modified directly via Site-Info tool
+	 * @param siteId		id of the site
+	 * @param groupId		id of the group
+	 * @param newTitle		new group title
+	 * @return
+	 */
+	public boolean synchonizeGroupTitle(String siteId, String groupId, String newTitle);
+	
 	
 }

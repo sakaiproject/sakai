@@ -344,8 +344,16 @@
 		}
 	
 //end
-			
-		
+	function setIframeHeight_DueTo_Ckeditor(){
+		//half second delay to refresh page -CKeditor
+		window.setTimeout('signup_resetCurrentIFrameHeight()',500);
+	}		
+	function signup_resetCurrentIFrameHeight(){
+		var iframeId = document.getElementById("meeting:iframeId");
+		if(iframeId)
+			signup_resetIFrameHeight(iframeId.value);
+	}
+	
 	function signup_resetIFrameHeight(iFrameId){
 		if (!iFrameId)
 			return;
@@ -642,6 +650,9 @@ Date.prototype.subtractDays = function(i){
 }
 
 function displayDateTime(d){
+	if(!d)
+		return "";
+	
 	var a_p = "";
 	var curr_hour = d.getHours();
 	if (curr_hour < 12){

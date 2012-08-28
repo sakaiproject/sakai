@@ -50,9 +50,9 @@
 			   		
 			   		<h:outputText value="#{msgs.event_create_email_notification}" styleClass="titleText" escape="false" rendered="#{NewSignupMeetingBean.publishedSite && NewSignupMeetingBean.sendEmail}"/>
 					<h:panelGroup id="emailAttendeeOnly"  rendered="#{NewSignupMeetingBean.publishedSite && NewSignupMeetingBean.sendEmail}">
-						<h:selectOneRadio  value="#{NewSignupMeetingBean.sendEmailAttendeeOnly}" layout="lineDirection" style="margin:-5px 0px 0px -4px;">
-		                          <f:selectItem id="all_attendees" itemValue="#{false}" itemLabel="#{msgs.label_email_all_people}"/>                                              
-		                          <f:selectItem id="only_signedUp_ones" itemValue="#{true}" itemLabel="#{msgs.label_email_signed_up_ones_only}"/>					                                  	                      	         	 
+						<h:selectOneRadio  value="#{NewSignupMeetingBean.sendEmailToSelectedPeopleOnly}" layout="lineDirection" style="margin:-5px 0px 0px -4px;">
+	                       		<f:selectItem id="all_attendees" itemValue="all" itemLabel="#{msgs.label_email_all_people}"/>                                              
+		                        <f:selectItem id="only_organizers" itemValue="organizers_only" itemLabel="#{msgs.label_email_signed_up_ones_Organizers_only}" />	
 		         		</h:selectOneRadio> 
 					</h:panelGroup>
 				</h:panelGrid>
