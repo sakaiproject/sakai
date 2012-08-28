@@ -13,7 +13,7 @@
 
 <f:verbatim>
   <script type="text/javascript" language="JavaScript" src="/library/js/jquery.js">//</script>
-  <script type="text/javascript" language="JavaScript" src="/library/js/fluid-latest/InfusionAll.js">//</script>
+  <script type="text/javascript" language="JavaScript" src="/library/js/fluid/1.4/MyInfusion.js">//</script>
   <script type="text/javascript" language="JavaScript" src="/sakai-user-tool-prefs/js/prefs.js">//</script>
 <script type="text/javascript">
 <!--
