@@ -22,7 +22,7 @@
 
 <script type="text/javascript" src="/samigo-app/js/jquery-1.3.2.min.js"></script>
 <script type="text/javascript" src="/samigo-app/js/jquery-ui-1.7.2.custom.min.js"></script>
-<script type="text/javascript" src="JavaScript" src="/samigo-app/js/jquery.blockUI-2.31.js"></script>
+<script type="text/javascript" src="/samigo-app/js/jquery.blockUI-2.31.js"></script>
 <link type="text/css" href="/samigo-app/css/ui-lightness/jquery-ui-1.7.2.custom.css" rel="stylesheet" media="all"/>
 
 <script type="text/javascript">
