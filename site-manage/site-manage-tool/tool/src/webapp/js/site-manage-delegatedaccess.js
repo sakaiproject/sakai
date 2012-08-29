@@ -125,12 +125,6 @@ $(document).ready(function(){
 					$("#viewShoppingInstructions").show();
 					$('#shoppingPeriodOverride').attr('checked', false);
 				}
-	            if(data.revokeInstructorAuthOpt){
-	            	
-	            }
-	            if(data.revokeInstructorPublicOpt){
-	            	
-	            }
 	            
 	            resizeFrame('grow');
 		    }
