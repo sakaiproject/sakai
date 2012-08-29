@@ -627,7 +627,7 @@ public class RichTextEditArea extends Renderer
     String finalValue = newValue;
     
     // if use hid the FCK editor, we treat it as text editor
-	if ("firsttime".equals(current_status) || "collapsed".equals(current_status)) {
+	if ("firsttime".equals(current_status)) {
 		finalValue = TextFormat.convertPlaintextToFormattedTextNoHighUnicode(log, newValue);
 	}
 	else {
