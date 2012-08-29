@@ -48,7 +48,9 @@ public class EditablePanelAdvancedOptionsInherited extends Panel{
 		
 		boolean showInstructorGroupTitleTmp = false;
 		boolean revokeInstructorEditable = nodeModel.getNodeShoppingPeriodRevokeInstructorEditable();
-		if(revokeInstructorEditable){
+		boolean revokeInstructorAuthOpt = nodeModel.getNodeShoppingPeriodRevokeInstructorAuthOpt();
+		boolean revokeInstructorPublicOpt = nodeModel.getNodeShoppingPeriodRevokeInstructorPublicOpt();
+		if(revokeInstructorEditable || revokeInstructorAuthOpt || revokeInstructorPublicOpt){
 			showInstructorGroupTitleTmp = true;
 		}
 		final boolean showInstructorGroupTitle = showInstructorGroupTitleTmp;
@@ -67,6 +69,20 @@ public class EditablePanelAdvancedOptionsInherited extends Panel{
 			}
 		};
 		inheritedSpan.add(revokeInstructorEditableLabel);
+		
+		Label revokeInstructorAuthOptLabel = new Label("revokeInstructorLoggedInOpt", new StringResourceModel("shoppingPeriodRevokeLoggedInOptCheckbox", null)){
+			public boolean isVisible() {
+				return nodeModel.getNodeShoppingPeriodRevokeInstructorAuthOpt();
+			}
+		};
+		inheritedSpan.add(revokeInstructorAuthOptLabel);
+		
+		Label revokeInstructorPublicOptLabel = new Label("revokeInstructorPublicOpt", new StringResourceModel("shoppingPeriodRevokePublicOptCheckbox", null)){
+			public boolean isVisible() {
+				return nodeModel.getNodeShoppingPeriodRevokeInstructorPublicOpt();
+			}
+		};
+		inheritedSpan.add(revokeInstructorPublicOptLabel);
 		
 	}
 	

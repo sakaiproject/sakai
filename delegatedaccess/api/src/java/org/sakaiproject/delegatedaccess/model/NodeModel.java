@@ -51,6 +51,10 @@ public class NodeModel implements Serializable {
 	private boolean editable = true;
 	private boolean shoppingPeriodRevokeInstructorEditable = false;
 	private boolean shoppingPeriodRevokeInstructorEditableOrig = false;
+	private boolean shoppingPeriodRevokeInstructorAuthOpt = false;
+	private boolean shoppingPeriodRevokeInstructorAuthOptOrig = false;
+	private boolean shoppingPeriodRevokeInstructorPublicOpt = false;
+	private boolean shoppingPeriodRevokeInstructorPublicOptOrig = false;
 	
 	/**
 	 * this function should be called after a save in order to reset the original values to their current value.
@@ -67,6 +71,8 @@ public class NodeModel implements Serializable {
 		shoppingPeriodEndDateOrig = shoppingPeriodEndDate;
 		shoppingPeriodAuthOrig = getShoppingPeriodAuth();
 		shoppingPeriodRevokeInstructorEditableOrig = shoppingPeriodRevokeInstructorEditable;
+		shoppingPeriodRevokeInstructorAuthOptOrig = shoppingPeriodRevokeInstructorAuthOpt;
+		shoppingPeriodRevokeInstructorPublicOptOrig = shoppingPeriodRevokeInstructorPublicOpt;
 	}
 	
 	public NodeModel(String nodeId, HierarchyNodeSerialized node,
@@ -75,7 +81,8 @@ public class NodeModel implements Serializable {
 			Date shoppingPeriodEndDate,
 			String shoppingPeriodAuth, boolean addedDirectChildrenFlag, boolean shoppingPeriodAdmin,
 			String modifiedBy, Date modified,
-			Date shoppingAdminModified, String shoppingAdminModifiedBy, boolean accessAdmin, boolean shoppingPeriodRevokeInstructorEditable){
+			Date shoppingAdminModified, String shoppingAdminModifiedBy, boolean accessAdmin, boolean shoppingPeriodRevokeInstructorEditable,
+			boolean shoppingPeriodRevokeInstructorAuthOpt, boolean shoppingPeriodRevokeInstructorPublicOpt){
 
 		this.nodeId = nodeId;
 		this.node = node;
@@ -105,6 +112,10 @@ public class NodeModel implements Serializable {
 		this.accessAdminOrig = accessAdmin;
 		this.shoppingPeriodRevokeInstructorEditable = shoppingPeriodRevokeInstructorEditable;
 		this.shoppingPeriodRevokeInstructorEditableOrig = shoppingPeriodRevokeInstructorEditable;
+		this.shoppingPeriodRevokeInstructorAuthOpt = shoppingPeriodRevokeInstructorAuthOpt;
+		this.shoppingPeriodRevokeInstructorAuthOptOrig = shoppingPeriodRevokeInstructorAuthOpt;
+		this.shoppingPeriodRevokeInstructorPublicOpt = shoppingPeriodRevokeInstructorPublicOpt;
+		this.shoppingPeriodRevokeInstructorPublicOptOrig = shoppingPeriodRevokeInstructorPublicOpt;
 	}
 
 	private List<ListOptionSerialized> copyListOptions(List<ListOptionSerialized> tools){
@@ -161,13 +172,12 @@ public class NodeModel implements Serializable {
 			return true;
 		}
 		
-		if(shoppingPeriodRevokeInstructorEditable != shoppingPeriodRevokeInstructorEditableOrig){
-			return true;
-		}
 		//only worry about modifications to a direct access node
 		if(directAccess){
 			return isModified(getShoppingPeriodAuth(), shoppingPeriodAuthOrig, shoppingPeriodStartDate, shoppingPeriodStartDateOrig, shoppingPeriodEndDate, shoppingPeriodEndDateOrig,
-					realm, realmOrig, role, roleOrig, convertListToArray(getSelectedRestrictedTools()), convertListToArray(getSelectedRestrictedToolsOrig()));
+					realm, realmOrig, role, roleOrig, convertListToArray(getSelectedRestrictedTools()), convertListToArray(getSelectedRestrictedToolsOrig()), shoppingPeriodRevokeInstructorEditable, shoppingPeriodRevokeInstructorEditableOrig,
+					shoppingPeriodRevokeInstructorAuthOpt, shoppingPeriodRevokeInstructorAuthOptOrig,
+					shoppingPeriodRevokeInstructorPublicOpt, shoppingPeriodRevokeInstructorPublicOptOrig);
 		}
 
 		return false;
@@ -175,7 +185,9 @@ public class NodeModel implements Serializable {
 
 	public boolean isModified(String shoppingAuthOld, String shoppingAuthNew, Date shoppingStartDateOld, Date shoppingStartDateNew,
 			Date shoppingEndDateOld, Date shoppingEndDateNew, String realmOld, String realmNew, String roleOld, String roleNew,
-			String[] toolsOld, String[] toolsNew){
+			String[] toolsOld, String[] toolsNew, boolean shoppingPeriodRevokeInstructorEditable, boolean shoppingPeriodRevokeInstructorEditableOrig,
+			boolean shoppingPeriodRevokeInstructorAuthOpt, boolean shoppingPeriodRevokeInstructorAuthOptOrig,
+			boolean shoppingPeriodRevokeInstructorPublicOpt, boolean shoppingPeriodRevokeInstructorPublicOptOrig){
 		if(realmOld != null && realmNew != null){
 			if(!realmOld.equals(realmNew))
 				return true;
@@ -229,6 +241,14 @@ public class NodeModel implements Serializable {
 		}else if((toolsOld == null || toolsNew == null) && !(toolsOld == null && toolsNew == null)){
 			return true;
 		}
+		
+		if(shoppingPeriodRevokeInstructorEditable != shoppingPeriodRevokeInstructorEditableOrig ||
+				shoppingPeriodRevokeInstructorAuthOpt != shoppingPeriodRevokeInstructorAuthOptOrig ||
+				shoppingPeriodRevokeInstructorPublicOpt != shoppingPeriodRevokeInstructorPublicOptOrig){
+			return true;
+		}
+		
+		
 		
 		return false;
 	}
@@ -705,6 +725,86 @@ public class NodeModel implements Serializable {
 			return parent.isShoppingPeriodRevokeInstructorEditable();
 		}else{
 			return getInheritedShoppingPeriodRevokeInstructorEditableHelper(parent.getParentNode());
+		}
+	}
+	
+	public boolean isShoppingPeriodRevokeInstructorAuthOpt() {
+		return shoppingPeriodRevokeInstructorAuthOpt;
+	}
+
+	public void setShoppingPeriodRevokeInstructorAuthOpt(
+			boolean shoppingPeriodRevokeInstructorAuthOpt) {
+		this.shoppingPeriodRevokeInstructorAuthOpt = shoppingPeriodRevokeInstructorAuthOpt;
+	}
+
+	public boolean isShoppingPeriodRevokeInstructorAuthOptOrig() {
+		return shoppingPeriodRevokeInstructorAuthOptOrig;
+	}
+
+	public void setShoppingPeriodRevokeInstructorAuthOptOrig(
+			boolean shoppingPeriodRevokeInstructorAuthOptOrig) {
+		this.shoppingPeriodRevokeInstructorAuthOptOrig = shoppingPeriodRevokeInstructorAuthOptOrig;
+	}
+	
+	public boolean getNodeShoppingPeriodRevokeInstructorAuthOpt(){
+		if(isShoppingPeriodRevokeInstructorAuthOpt()){
+			return true;
+		}else{
+			return getInheritedShoppingPeriodRevokeInstructorAuthOpt();
+		}
+	}
+
+	public boolean getInheritedShoppingPeriodRevokeInstructorAuthOpt(){
+		return getInheritedShoppingPeriodRevokeInstructorAuthOptHelper(parentNode);
+	}
+	
+	public boolean getInheritedShoppingPeriodRevokeInstructorAuthOptHelper(NodeModel parent){
+		if(parent == null){
+			return false;
+		} else if (parent.isDirectAccess()) {
+			return parent.isShoppingPeriodRevokeInstructorAuthOpt();
+		}else{
+			return getInheritedShoppingPeriodRevokeInstructorAuthOptHelper(parent.getParentNode());
+		}
+	}
+	
+	public boolean isShoppingPeriodRevokeInstructorPublicOpt() {
+		return shoppingPeriodRevokeInstructorPublicOpt;
+	}
+
+	public void setShoppingPeriodRevokeInstructorPublicOpt(
+			boolean shoppingPeriodRevokeInstructorPublicOpt) {
+		this.shoppingPeriodRevokeInstructorPublicOpt = shoppingPeriodRevokeInstructorPublicOpt;
+	}
+
+	public boolean isShoppingPeriodRevokeInstructorPublicOptOrig() {
+		return shoppingPeriodRevokeInstructorPublicOptOrig;
+	}
+
+	public void setShoppingPeriodRevokeInstructorPublicOptOrig(
+			boolean shoppingPeriodRevokeInstructorPublicOptOrig) {
+		this.shoppingPeriodRevokeInstructorPublicOptOrig = shoppingPeriodRevokeInstructorPublicOptOrig;
+	}
+	
+	public boolean getNodeShoppingPeriodRevokeInstructorPublicOpt(){
+		if(isShoppingPeriodRevokeInstructorPublicOpt()){
+			return true;
+		}else{
+			return getInheritedShoppingPeriodRevokeInstructorPublicOpt();
+		}
+	}
+
+	public boolean getInheritedShoppingPeriodRevokeInstructorPublicOpt(){
+		return getInheritedShoppingPeriodRevokeInstructorPublicOptHelper(parentNode);
+	}
+	
+	public boolean getInheritedShoppingPeriodRevokeInstructorPublicOptHelper(NodeModel parent){
+		if(parent == null){
+			return false;
+		} else if (parent.isDirectAccess()) {
+			return parent.isShoppingPeriodRevokeInstructorPublicOpt();
+		}else{
+			return getInheritedShoppingPeriodRevokeInstructorPublicOptHelper(parent.getParentNode());
 		}
 	}
 	

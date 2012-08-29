@@ -49,6 +49,8 @@ public class DelegatedAccessConstants {
 	public static final String NODE_PERM_SHOPPING_ADMIN_MODIFIED = "shoppingAdminModified:";
 	public static final String NODE_PERM_SHOPPING_ADMIN_MODIFIED_BY = "shoppingAdminModifiedBy:";
 	public static final String NODE_PERM_SHOPPING_REVOKE_INSTRUCTOR_EDITABLE = "shoppingRevokeInstructorEditable";
+	public static final String NODE_PERM_SHOPPING_REVOKE_INSTRUCTOR_AUTH_OPT = "shoppingRevokeInstructorAuthOpt";
+	public static final String NODE_PERM_SHOPPING_REVOKE_INSTRUCTOR_PUBLIC_OPT = "shoppingRevokeInstructorPublicOpt";
 	public static final String NODE_PERM_ACCESS_ADMIN = "accessAdmin";
 	public static final String EVENT_ADD_USER_PERMS = "dac.nodeperms.add";
 	public static final String EVENT_DELETE_USER_PERMS = "dac.nodeperms.delete";
@@ -65,7 +67,7 @@ public class DelegatedAccessConstants {
 	public static final int TYPE_ACCESS = 1;
 	public static final int TYPE_ACCESS_SHOPPING_PERIOD_USER = 2;
 	public static final int TYPE_ACCESS_ADMIN = 4;
-	public static final int TYPE_SHOPPING_REVOKE_INSTRUCTOR_EDIT = 5;
+	public static final int TYPE_SHOPPING_ADVANCED_OPT = 5;
 	public static final int TYPE_LISTFIELD_TOOLS = 1;
 	public static final int TYPE_LISTFIELD_TERMS = 2;
 	public static final int TYPE_SHOPPING_PERIOD_ADMIN = 3;

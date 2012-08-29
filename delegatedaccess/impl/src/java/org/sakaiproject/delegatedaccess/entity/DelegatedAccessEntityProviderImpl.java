@@ -167,9 +167,16 @@ public class DelegatedAccessEntityProviderImpl implements DelegatedAccessEntityP
 
 		//get the node to store the information:
 		NodeModel node = projectLogic.getNodeModel(nodeId, DelegatedAccessConstants.SHOPPING_PERIOD_USER);
-		
+		//lets verify the instructor is able to make these modifications:
+		//is this disabled:
 		if(node.getNodeShoppingPeriodRevokeInstructorEditable()){
 			throw new IllegalArgumentException("This node has the ability for an instructor to make edits to the shopping period settings revoked.  Node: " + node.getNodeId() + ", ref: " + ref.getId());
+		}
+		if(node.getNodeShoppingPeriodRevokeInstructorAuthOpt() && ".auth".equals(shoppingAuth)){
+			throw new IllegalArgumentException("This node has the ability for an instructor to set .auth for the shopping period settings revoked.  Node: " + node.getNodeId() + ", ref: " + ref.getId());
+		}
+		if(node.getNodeShoppingPeriodRevokeInstructorPublicOpt() && ".anon".equals(shoppingAuth)){
+			throw new IllegalArgumentException("This node has the ability for an instructor to set .anon for the shopping period settings revoked.  Node: " + node.getNodeId() + ", ref: " + ref.getId());
 		}
 		
 		if(!directAccess){
@@ -211,7 +218,7 @@ public class DelegatedAccessEntityProviderImpl implements DelegatedAccessEntityP
 		String[] toolsNew = node.getNodeRestrictedTools();
 		//only update if there were true modifications
 		if(directAccessOrig != directAccess || node.isModified(authOrig, authNew, startDateOrig, startDateNew, endDateOrig, endDateNew,
-				realmOrig, realmNew, roleOrig, roleNew, toolsOrig, toolsNew)){
+				realmOrig, realmNew, roleOrig, roleNew, toolsOrig, toolsNew, false, false, false, false, false, false)){
 			projectLogic.updateNodePermissionsForUser(node, DelegatedAccessConstants.SHOPPING_PERIOD_USER);
 		}
 	}
@@ -235,6 +242,8 @@ public class DelegatedAccessEntityProviderImpl implements DelegatedAccessEntityP
 		valuesMap.put("shoppingRole", node.getNodeAccessRealmRole()[1]);
 		valuesMap.put("directAccess", node.isDirectAccess());
 		valuesMap.put("revokeInstructorEditable", node.getNodeShoppingPeriodRevokeInstructorEditable());
+		valuesMap.put("revokeInstructorAuthOpt", node.getNodeShoppingPeriodRevokeInstructorAuthOpt());
+		valuesMap.put("revokeInstructorPublicOpt", node.getNodeShoppingPeriodRevokeInstructorPublicOpt());
 		valuesMap.put("shoppingShowTools", node.getNodeRestrictedTools());
 
 		return valuesMap;

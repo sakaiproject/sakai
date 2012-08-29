@@ -66,7 +66,7 @@ public class EditablePanelCheckbox extends Panel
 			protected void onUpdate(AjaxRequestTarget target)
 			{
 				//only update if its not an advanced option:
-				if(DelegatedAccessConstants.TYPE_SHOPPING_REVOKE_INSTRUCTOR_EDIT != type){
+				if(DelegatedAccessConstants.TYPE_SHOPPING_ADVANCED_OPT != type){
 					//toggle selection to trigger a reload on the current node 
 					((BaseTreePage)target.getPage()).getTree().getTreeState().selectNode(node, !((BaseTreePage)target.getPage()).getTree().getTreeState().isNodeSelected(node));
 
