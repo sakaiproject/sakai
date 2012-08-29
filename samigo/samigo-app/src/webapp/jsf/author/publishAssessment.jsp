@@ -267,7 +267,6 @@
 <f:verbatim><p></p></f:verbatim>
 
 <script type="text/JavaScript">
-<!--
 var clicked = 'false';
 function toggle(){
   if (clicked == 'false'){
@@ -296,7 +295,6 @@ function clearText2(){
     entered = 'true'
   }
 }
-//-->
 </script>
 
 

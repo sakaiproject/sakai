@@ -32,10 +32,7 @@
       <head><%= request.getAttribute("html.head") %>
       <title><h:outputText value="#{questionPoolMessages.q_mgr}"/></title>
 <script type="text/JavaScript">
-<!--
 <%@ include file="/js/samigotree.js" %>
-
-//-->
 </script>
       </head>
 <body onload="collapseAllRows();flagRows();;<%= request.getAttribute("html.body.onload") %>;disabledButton()">

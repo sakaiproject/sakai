@@ -35,7 +35,6 @@
 <%@ include file="/js/delivery.js" %>
 
 <script type="text/JavaScript">
-<!--
 var textcheckall="<h:outputText value="#{questionPoolMessages.t_checkAll}"/>";
 var textuncheckall="<h:outputText value="#{questionPoolMessages.t_uncheckAll}"/>";
 <%@ include file="/js/samigotree.js" %>
@@ -45,9 +44,6 @@ function textCounter(field, maxlimit) {
         if (field.value.length > maxlimit) // if too long...trim it!
                 field.value = field.value.substring(0, maxlimit);
 }
-
-//-->
-
 
 </script>
       </head>

@@ -24,7 +24,6 @@ Headings for item edit pages, needs to have msg=AuthorMessages.properties.
 --%>
 -->
 <script type="text/JavaScript">
-<!--
 function changeTypeLink(field){
 
 var newindex = 0;
@@ -38,7 +37,6 @@ for (i=0; i<document.links.length; i++) {
 document.links[newindex].onclick();
 }
 
-//-->
 </script>
 <h:form id="itemFormHeading">
 <%-- The following hidden fields echo some of the data in the item form

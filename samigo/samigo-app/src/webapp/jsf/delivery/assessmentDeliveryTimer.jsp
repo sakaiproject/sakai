@@ -67,7 +67,6 @@ Headings for delivery pages, needs to have msg=DeliveryMessages.properties, etc.
 <h:commandLink title="#{deliveryMessages.t_submit}" id="submitforgrade" action="#{delivery.submitForGradeFromTimer}" value="" />
 
 <script type="text/JavaScript">
-<!--
 function clickSubmitForGrade(){
   var newindex = 0;
   for (i=0; i<document.links.length; i++) {
@@ -79,7 +78,6 @@ function clickSubmitForGrade(){
   }
   document.links[newindex].onclick();
 }
-//-->
 </script>
 </h:panelGroup>
 

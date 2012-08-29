@@ -33,9 +33,7 @@
       <title><h:outputText value="#{questionPoolMessages.copy_p}"/></title>
                         <!-- stylesheet and script widgets -->
 <script type="text/JavaScript">
-<!--
 <%@ include file="/js/samigotree.js" %>
-//-->
 </script>
       </head>
 <body onload="collapseAllRowsForSelectList();flagRows();;<%= request.getAttribute("html.body.onload") %>">
