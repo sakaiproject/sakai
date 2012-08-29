@@ -369,7 +369,7 @@ public class DeliveryActionListener
             	  setStatus(delivery, pubService, Long.valueOf(id));
             	  
             	  if (action == DeliveryBean.TAKE_ASSESSMENT) {
-            		  StringBuffer eventRef = new StringBuffer("publishedAssessmentId");
+            		  StringBuffer eventRef = new StringBuffer("publishedAssessmentId=");
             		  eventRef.append(delivery.getAssessmentId());
             		  eventRef.append(", agentId=");
             		  eventRef.append(getAgentString());
@@ -383,7 +383,7 @@ public class DeliveryActionListener
             		  EventTrackingService.post(EventTrackingService.newEvent("sam.assessment.take", "siteId=" + AgentFacade.getCurrentSiteId() + ", " + eventRef.toString(), true));
             	  }
             	  else if (action == DeliveryBean.TAKE_ASSESSMENT_VIA_URL) {
-            		  StringBuffer eventRef = new StringBuffer("publishedAssessmentId");
+            		  StringBuffer eventRef = new StringBuffer("publishedAssessmentId=");
             		  eventRef.append(delivery.getAssessmentId());
             		  eventRef.append(", agentId=");
             		  eventRef.append(getAgentString());
