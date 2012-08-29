@@ -40,17 +40,20 @@ $(document).ready(function(){
 				$.getJSON("/direct/delegated_access/shoppingOptions/authorization.json", 
 					function(response){
 						for (var i=0; i<response.delegated_access_collection.length; i++) {
-							if(response.delegated_access_collection[i].key === data.shoppingAuth){
-								$('#shoppingVisibility')
-									.append($("<option selected></option>")
-									.attr("value",response.delegated_access_collection[i].key)
-									.text(response.delegated_access_collection[i].value));
-							}else{
-								$('#shoppingVisibility')
-									.append($("<option></option>")
-									.attr("value",response.delegated_access_collection[i].key)
-									.text(response.delegated_access_collection[i].value));
+							var optionStr = "<option"; 
+							if((data.revokeInstructorAuthOpt && ".auth" === response.delegated_access_collection[i].key)
+									|| (data.revokeInstructorPublicOpt && ".anon" === response.delegated_access_collection[i].key)){
+								optionStr += " disabled='disabled'";
 							}
+							if(response.delegated_access_collection[i].key === data.shoppingAuth){
+								optionStr += " selected";
+							}
+							optionStr += "></option>";
+							
+							$('#shoppingVisibility')
+								.append($(optionStr)
+								.attr("value",response.delegated_access_collection[i].key)
+								.text(response.delegated_access_collection[i].value));
 						}
 					}
 				);
@@ -122,6 +125,13 @@ $(document).ready(function(){
 					$("#viewShoppingInstructions").show();
 					$('#shoppingPeriodOverride').attr('checked', false);
 				}
+	            if(data.revokeInstructorAuthOpt){
+	            	
+	            }
+	            if(data.revokeInstructorPublicOpt){
+	            	
+	            }
+	            
 	            resizeFrame('grow');
 		    }
 		);
