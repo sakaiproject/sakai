@@ -38,7 +38,7 @@ public class ConfirmProducer implements ViewComponentProducer {
 			ComponentChecker arg2) {
 		
 		String[] parms = new String[] {userBean.getEmail()};
-		boolean validatingAccounts = serverConfigurationService.getBoolean("siteManage.validateNewUsers", false);
+		boolean validatingAccounts = serverConfigurationService.getBoolean("siteManage.validateNewUsers", true);
 		
 		if (!validatingAccounts) {
 			UIMessage.make(tofill,"message","confirm",parms);

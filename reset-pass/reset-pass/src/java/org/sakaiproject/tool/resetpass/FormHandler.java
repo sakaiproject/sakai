@@ -70,7 +70,7 @@ public class FormHandler {
 
 	public String processAction() {
 		//siteManage.validateNewUsers = false use the classic method:
-		boolean validatingAccounts = serverConfigurationService.getBoolean("siteManage.validateNewUsers", false);
+		boolean validatingAccounts = serverConfigurationService.getBoolean("siteManage.validateNewUsers", true);
 		if (! validatingAccounts) {
 			return resetPassClassic();
 		}
