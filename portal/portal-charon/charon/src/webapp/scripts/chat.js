@@ -695,7 +695,7 @@ function PortalChat() {
             }
 
 			$('#pc_showoffline_connections_checkbox').click(function () {
-				if($(this).attr('checked') == true) {
+				if($(this).attr('checked') == 'checked') {
 					portalChat.showOfflineConnections = true;
 					portalChat.renderTemplate('pc_connections_template',{'connections':portalChat.currentConnections},'pc_connections');
 					var pc_users = $('#pc_users');
@@ -712,7 +712,7 @@ function PortalChat() {
 			});
 	
 			$('#pc_go_offline_checkbox').click(function () {
-				if($(this).attr('checked') == true) {
+				if($(this).attr('checked') == 'checked') {
 					portalChat.setSetting('offline',true);
 					portalChat.offline = true;
 
