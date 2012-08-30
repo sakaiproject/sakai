@@ -664,7 +664,7 @@ public class SiteAddParticipantHandler {
 
 						boolean notifyNewUserEmail = (getServerConfigurationString("notifyNewUserEmail", Boolean.TRUE.toString()))
 								.equalsIgnoreCase(Boolean.TRUE.toString());
-						boolean validateUsers = serverConfigurationService.getBoolean("siteManage.validateNewUsers", false);
+						boolean validateUsers = serverConfigurationService.getBoolean("siteManage.validateNewUsers", true);
 						if (notifyNewUserEmail && !validateUsers) {    						
 								notiProvider.notifyNewUserEmail(uEdit, pw, site != null ? site.getTitle():"");
 						} else if (notifyNewUserEmail && validateUsers) {
