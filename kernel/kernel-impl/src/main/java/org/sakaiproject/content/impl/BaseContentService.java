@@ -9353,7 +9353,7 @@ SiteContentAdvisorProvider, SiteContentAdvisorTypeRegistry, EntityTransferrerRef
 		}
 		catch(TypeException e)
 		{
-			// do nothing
+			M_log.warn("createDropboxCollection(): File exists where dropbox collection is expected: "+ dropbox);
 		}
 
 		// The AUTH_DROPBOX_OWN is granted within the site, so we can ask for all the users who have this ability
@@ -9366,22 +9366,20 @@ SiteContentAdvisorProvider, SiteContentAdvisorTypeRegistry, EntityTransferrerRef
 			// the folder id for this user's dropbox in this group
 			String userFolder = dropbox + user.getId() + "/";
 
-			if(members.contains(userFolder))
-			{
-				members.remove(userFolder);
-				continue;
-			}
 			// see if it exists - add if it doesn't
 			try
 			{
-				if (findCollection(userFolder) == null)
+				
+				if (!members.remove(userFolder))
 				{
-					ContentCollectionEdit edit = addValidPermittedCollection(userFolder);
-					ResourcePropertiesEdit props = edit.getPropertiesEdit();
-					props.addProperty(ResourceProperties.PROP_DISPLAY_NAME, user.getSortName());
-					props.addProperty(ResourceProperties.PROP_DESCRIPTION, rb.getString("use1"));
-					// props.addProperty(ResourceProperties.PROP_DESCRIPTION, PROP_MEMBER_DROPBOX_DESCRIPTION);
-					commitCollection(edit);
+					if (findCollection(userFolder) == null) // This check it probably redundant
+					{
+						ContentCollectionEdit edit = addValidPermittedCollection(userFolder);
+						ResourcePropertiesEdit props = edit.getPropertiesEdit();
+						props.addProperty(ResourceProperties.PROP_DISPLAY_NAME, user.getSortName());
+						props.addProperty(ResourceProperties.PROP_DESCRIPTION, rb.getString("use1"));
+						commitCollection(edit);
+					}
 				}
 			}
 			catch (TypeException e)
@@ -9396,12 +9394,40 @@ SiteContentAdvisorProvider, SiteContentAdvisorTypeRegistry, EntityTransferrerRef
 			{
 				M_log.warn("createDropboxCollection(): InconsistentException: " + userFolder);
 			}
-			//			catch (PermissionException e) 
-			//			{
-			//				M_log.warn("createDropboxCollection(): PermissionException: " + userFolder);
-			//			}
-
-			// the SortedSet "members" now contains id's for all folders that are not associated with a particular member of the site
+		}
+		// Attempt to remove all empty dropboxes that are no longer members of the site.
+		for(String member : members) {
+			try
+			{
+				ContentCollection folder = getCollection(member);
+				if (folder.getMemberCount() == 0)
+				{
+					removeCollection(member);
+					M_log.info("createDropboxCollection(): Removed the empty dropbox collection for member: " + member);
+				} else {
+				    M_log.warn("createDropboxCollection(): Could not remove the dropbox collection for member (" + member +") because the root contains "+folder.getMemberCount()+" members");
+				}
+			}
+			catch(IdUnusedException e)
+			{
+				M_log.warn("createDropboxCollection(): Could not find collection to delete: " + member);
+			}
+			catch(PermissionException e)
+			{
+				M_log.warn("createDropboxCollection(): Unable to delete collection due to lack of permission: " + member);
+			}
+			catch(InUseException e)
+			{
+				M_log.warn("createDropboxCollection(): Unable to delete collection as collection is in use: " + member);
+			}
+			catch(ServerOverloadException e)
+			{
+				M_log.warn("createDropboxCollection(): Unable to delete collection as server is overloaded: " + member);
+			}
+			catch(TypeException e)
+			{
+				M_log.warn("createDropboxCollection(): Unable to delete as it doesn't appear to be a collection: " + member);
+			}
 		}
 	}
 
