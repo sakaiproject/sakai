@@ -75,6 +75,7 @@ window.close();
 <div class="tier1">
 <h4>
   <h:outputText value="#{delivery.assessmentTitle} " escape="false"/>
+  - 
   <h:outputText value="#{deliveryMessages.submission_info}" />
 </h4>
 
@@ -85,7 +86,7 @@ window.close();
 
 	<h:outputText value="#{deliveryMessages.submission_confirmation_message_1}" rendered="#{!delivery.actionString=='takeAssessmentViaUrl'}"/>
     <h:outputText value="#{deliveryMessages.submission_confirmation_message_4}" rendered="#{delivery.actionString=='takeAssessmentViaUrl'}"/>
-    <h:outputText escape="false" value="<br /> #{delivery.submissionMessage}" />
+    <h:outputText escape="false" value="<br /><br /> #{delivery.submissionMessage}" />
 
   <f:verbatim><p/></f:verbatim>
   <h:panelGrid columns="2" width="900px" columnClasses="submissionInfoCol1, submissionInfoCol2">
