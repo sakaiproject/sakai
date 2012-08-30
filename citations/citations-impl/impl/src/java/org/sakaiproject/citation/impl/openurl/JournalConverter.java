@@ -71,7 +71,7 @@ public class JournalConverter extends AbstractConverter {
 		convertSimple(props, entity);
 		// Do other mapping.
 		if (citation.hasCitationProperty("doi")) {
-			Object value = citation.getCitationProperty("doi");
+			Object value = citation.getCitationProperty("doi", false);
 			addId(entity, value, DOI_PREFIX);
 		}
 		return entity;

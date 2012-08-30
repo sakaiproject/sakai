@@ -842,7 +842,7 @@ public abstract class BaseCitationService implements CitationService
 				// SAK-16740 -- Need to skip fields if risLabel is "" (or null)
 				if (rislabel != null && ! rislabel.trim().equals(""))
 				{
-					exportRisField(rislabel, getCitationProperty(fieldname), buffer);
+					exportRisField(rislabel, getCitationProperty(fieldname, false), buffer);
 				}
 			}
 
@@ -856,7 +856,7 @@ public abstract class BaseCitationService implements CitationService
 
 			// TODO: deal with real dates. Right now, just year
 
-  		exportRisField("Y1", getCitationProperty(Schema.YEAR) + "//", buffer);
+  		exportRisField("Y1", getCitationProperty(Schema.YEAR, false) + "//", buffer);
 
 			// Other stuff goes into the note field -- including the note
 			// itself of course.
@@ -867,7 +867,7 @@ public abstract class BaseCitationService implements CitationService
 				Map.Entry entry = (Map.Entry) specIter.next();
 				String fieldname = (String) entry.getKey();
 				String prefix = (String) entry.getValue();
-				exportRisField("N1", getCitationProperty(fieldname), buffer, prefix);
+				exportRisField("N1", getCitationProperty(fieldname, false), buffer, prefix);
 			}
 
 			/**
@@ -912,11 +912,20 @@ public abstract class BaseCitationService implements CitationService
 			return m_citationProperties;
 
 		}
-
-		/* (non-Javadoc)
+		
+		/*
+		 * (non-Javadoc)
 		 * @see org.sakaiproject.citation.api.Citation#getCitationProperty(java.lang.String)
 		 */
-		public Object getCitationProperty(String name)
+		public Object getCitationProperty(String name) {
+			return this.getCitationProperty(name, false);
+		}
+
+		/* 
+		 * (non-Javadoc)
+		 * @see org.sakaiproject.citation.api.Citation#getCitationProperty(java.lang.String, boolean)
+		 */
+		public Object getCitationProperty(String name, boolean needSingleValue)
 		{
 			Object value = null;
 			if(name == null) {
@@ -937,6 +946,10 @@ public abstract class BaseCitationService implements CitationService
 					else
 					{
 						value = "";
+					}
+				} else if (List.class.isInstance(value)) {
+					if(needSingleValue ) {
+						value = ((List) value).get(0);
 					}
 				}
 			}
@@ -1116,13 +1129,13 @@ public abstract class BaseCitationService implements CitationService
 
 		public String getYear()
 		{
-			String yearDate = (String) getCitationProperty(Schema.YEAR);
+			String yearDate = (String) getCitationProperty(Schema.YEAR, true);
 			return yearDate;
 		}
 
 		public String getDisplayName()
 		{
-			String displayName = (String) getCitationProperty(Schema.TITLE);
+			String displayName = (String) getCitationProperty(Schema.TITLE, true);
 			if (displayName == null || displayName.trim().equals(""))
 			{
 				displayName = "untitled";
@@ -1280,15 +1293,15 @@ public abstract class BaseCitationService implements CitationService
 		 */
 		public String getSource()
 		{
-			String place = (String) getCitationProperty("publicationLocation");
-			String publisher = (String) getCitationProperty(Schema.PUBLISHER);
-			String sourceTitle = (String) getCitationProperty(Schema.SOURCE_TITLE);
-			String year = (String) getCitationProperty(Schema.YEAR);
-			String volume = (String) getCitationProperty(Schema.VOLUME);
-			String issue = (String) getCitationProperty(Schema.ISSUE);
-			String pages = (String) getCitationProperty(Schema.PAGES);
-			String startPage = (String) getCitationProperty("startPage");
-			String endPage = (String) getCitationProperty("endPage");
+			String place = (String) getCitationProperty("publicationLocation", true);
+			String publisher = (String) getCitationProperty(Schema.PUBLISHER, true);
+			String sourceTitle = (String) getCitationProperty(Schema.SOURCE_TITLE, true);
+			String year = (String) getCitationProperty(Schema.YEAR, true);
+			String volume = (String) getCitationProperty(Schema.VOLUME, true);
+			String issue = (String) getCitationProperty(Schema.ISSUE, true);
+			String pages = (String) getCitationProperty(Schema.PAGES, true);
+			String startPage = (String) getCitationProperty("startPage", true);
+			String endPage = (String) getCitationProperty("endPage", true);
 			if (pages == null || pages.trim().equals(""))
 			{
 				pages = null;
@@ -1485,7 +1498,7 @@ public abstract class BaseCitationService implements CitationService
 		}
 
 		public String getSubjectString() {
-			Object subjects = getCitationProperty( "subject" );
+			Object subjects = getCitationProperty( "subject", false );
 
 			if ( subjects instanceof List )
 			{
@@ -2074,13 +2087,13 @@ public abstract class BaseCitationService implements CitationService
 						else if (field.isMultivalued())
 						{
 							List current_values = (List) this.getCitationProperty(field
-							        .getIdentifier());
+							        .getIdentifier(), false);
 							if (current_values.isEmpty())
 							{
 								this.setCitationProperty(field.getIdentifier(), value);
 							}
 						}
-						else if (this.getCitationProperty(field.getIdentifier()) == null)
+						else if (this.getCitationProperty(field.getIdentifier(), false) == null)
 						{
 							setCitationProperty(field.getIdentifier(), value);
 						}
@@ -2253,8 +2266,8 @@ public abstract class BaseCitationService implements CitationService
 	            		String title0 = cit0.getDisplayName().toLowerCase();
 	            		String title1 = cit1.getDisplayName().toLowerCase();
 	            		*/
-	            		String title0 = ((String)cit0.getCitationProperty( Schema.TITLE )).toLowerCase();
-	            		String title1 = ((String)cit1.getCitationProperty( Schema.TITLE )).toLowerCase();
+	            		String title0 = ((String)cit0.getCitationProperty( Schema.TITLE, false )).toLowerCase();
+	            		String title1 = ((String)cit1.getCitationProperty( Schema.TITLE, false )).toLowerCase();
 
 	            		if (title0 == null)
 	            		{

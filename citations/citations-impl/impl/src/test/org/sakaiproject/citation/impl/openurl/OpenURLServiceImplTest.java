@@ -62,7 +62,7 @@ public class OpenURLServiceImplTest extends AbstractSingleSpringContextTests {
 		assertEquals("Linux in a nutshell", book.getValue("btitle"));
 		
 		Citation bookCitation = service.convert(contextObject);
-		assertEquals("Linux in a nutshell", bookCitation.getCitationProperty(Schema.TITLE));
+		assertEquals("Linux in a nutshell", bookCitation.getCitationProperty(Schema.TITLE, false));
 	}
 
 	private MockHttpServletRequest createRequest(String openUrl) {
@@ -78,8 +78,8 @@ public class OpenURLServiceImplTest extends AbstractSingleSpringContextTests {
 		ContextObject contextObject = service.parse(req);
 		Citation citation = service.convert(contextObject);
 		
-		assertNotNull(citation.getCitationProperty("otherIds"));
-		assertEquals("Cheese", citation.getCitationProperty("title"));
+		assertNotNull(citation.getCitationProperty("otherIds", false));
+		assertEquals("Cheese", citation.getCitationProperty("title", false));
 	}
 	
 	public void testParseBook() {
@@ -197,15 +197,15 @@ public class OpenURLServiceImplTest extends AbstractSingleSpringContextTests {
 		ContextObjectEntity entity = co.getEntity(Entity.REFERENT);
 		assertEquals("Patent", entity.getValue("atitle"));
 		Citation citation = service.convert(co);
-		assertEquals("Patent", citation.getCitationProperty("title"));
-		assertEquals("Metal Powder Report", citation.getCitationProperty("sourceTitle"));
-		assertEquals("199206", citation.getCitationProperty("date"));
-		assertEquals("47", citation.getCitationProperty("volume"));
-		assertEquals("6", citation.getCitationProperty("issue"));
-		assertEquals("59", citation.getCitationProperty("startPage"));
-		assertEquals("61", citation.getCitationProperty("endPage"));
-		assertEquals("00260657", citation.getCitationProperty("isnIdentifier"));
-		assertEquals("10.1016/0026-0657(92)91523-M", citation.getCitationProperty("doi"));
+		assertEquals("Patent", citation.getCitationProperty("title", false));
+		assertEquals("Metal Powder Report", citation.getCitationProperty("sourceTitle", false));
+		assertEquals("199206", citation.getCitationProperty("date", false));
+		assertEquals("47", citation.getCitationProperty("volume", false));
+		assertEquals("6", citation.getCitationProperty("issue", false));
+		assertEquals("59", citation.getCitationProperty("startPage", false));
+		assertEquals("61", citation.getCitationProperty("endPage", false));
+		assertEquals("00260657", citation.getCitationProperty("isnIdentifier", false));
+		assertEquals("10.1016/0026-0657(92)91523-M", citation.getCitationProperty("doi", false));
 	}
 	
 	public void testParseSampleNewspaper() {
@@ -214,11 +214,11 @@ public class OpenURLServiceImplTest extends AbstractSingleSpringContextTests {
 		ContextObjectEntity entity = co.getEntity(Entity.REFERENT);
 		assertEquals("THE NATIONAL ERA", entity.getValue("jtitle"));
 		Citation citation = service.convert(co);
-		assertTrue(((String)citation.getCitationProperty("title")).startsWith("AZA")); 
-		assertEquals("THE NATIONAL ERA", citation.getCitationProperty("sourceTitle"));
-		assertEquals("18590310", citation.getCitationProperty("date"));
-		assertEquals("XIII", citation.getCitationProperty("volume"));
-		assertEquals("636", citation.getCitationProperty("issue"));
+		assertTrue(((String)citation.getCitationProperty("title", false)).startsWith("AZA")); 
+		assertEquals("THE NATIONAL ERA", citation.getCitationProperty("sourceTitle", false));
+		assertEquals("18590310", citation.getCitationProperty("date", false));
+		assertEquals("XIII", citation.getCitationProperty("volume", false));
+		assertEquals("636", citation.getCitationProperty("issue", false));
 	}
 	
 	public void testParseSampleOther() {
@@ -228,16 +228,16 @@ public class OpenURLServiceImplTest extends AbstractSingleSpringContextTests {
 		assertEquals("European Journal of Echocardiography", entity.getValue("jtitle"));
 		Citation citation = service.convert(co);
 		// Fails because it's described as a book, but is actually a journal
-		assertEquals("Eustachian valve interfering with transcatheter closure of patent foramen ovale", citation.getCitationProperty("title"));
-		assertEquals("European Journal of Echocardiography", citation.getCitationProperty("sourceTitle"));
-		assertEquals("Roelandt, Philip", citation.getCitationProperty("creator"));
-		assertEquals("200707", citation.getCitationProperty("date"));
-		assertEquals("9", citation.getCitationProperty("volume"));
-		assertEquals("1", citation.getCitationProperty("issue"));
-		assertEquals("158", citation.getCitationProperty("startPage"));
-		assertEquals("159", citation.getCitationProperty("endPage"));
-		assertEquals("1525-2167", citation.getCitationProperty("isnIdentifier"));
-		assertEquals("10.1016/j.euje.2007.05.006", citation.getCitationProperty("doi"));
+		assertEquals("Eustachian valve interfering with transcatheter closure of patent foramen ovale", citation.getCitationProperty("title", false));
+		assertEquals("European Journal of Echocardiography", citation.getCitationProperty("sourceTitle", false));
+		assertEquals("Roelandt, Philip", citation.getCitationProperty("creator", false));
+		assertEquals("200707", citation.getCitationProperty("date", false));
+		assertEquals("9", citation.getCitationProperty("volume", false));
+		assertEquals("1", citation.getCitationProperty("issue", false));
+		assertEquals("158", citation.getCitationProperty("startPage", false));
+		assertEquals("159", citation.getCitationProperty("endPage", false));
+		assertEquals("1525-2167", citation.getCitationProperty("isnIdentifier", false));
+		assertEquals("10.1016/j.euje.2007.05.006", citation.getCitationProperty("doi", false));
 	}
 	
 	public void testParseSampleText() {
@@ -246,16 +246,16 @@ public class OpenURLServiceImplTest extends AbstractSingleSpringContextTests {
 		ContextObjectEntity entity = co.getEntity(Entity.REFERENT);
 		assertEquals("Cardiology in the Young", entity.getValue("jtitle"));
 		Citation citation = service.convert(co);
-		assertEquals("Complete transcatheter closure of a patent arterial duct with subsequent haemolysis", citation.getCitationProperty("title"));
-		assertEquals("Cardiology in the Young", citation.getCitationProperty("sourceTitle"));
-		assertEquals("Cace, Neven", citation.getCitationProperty("creator"));
-		assertEquals("20100325201008", citation.getCitationProperty("date"));
-		assertEquals("20", citation.getCitationProperty("volume"));
-		assertEquals("4", citation.getCitationProperty("issue"));
-		assertEquals("462", citation.getCitationProperty("startPage"));
-		assertEquals("464", citation.getCitationProperty("endPage"));
-		assertEquals("1047-9511", citation.getCitationProperty("isnIdentifier"));
-		assertEquals("10.1017/S1047951110000326", citation.getCitationProperty("doi"));
+		assertEquals("Complete transcatheter closure of a patent arterial duct with subsequent haemolysis", citation.getCitationProperty("title", false));
+		assertEquals("Cardiology in the Young", citation.getCitationProperty("sourceTitle", false));
+		assertEquals("Cace, Neven", citation.getCitationProperty("creator", false));
+		assertEquals("20100325201008", citation.getCitationProperty("date", false));
+		assertEquals("20", citation.getCitationProperty("volume", false));
+		assertEquals("4", citation.getCitationProperty("issue", false));
+		assertEquals("462", citation.getCitationProperty("startPage", false));
+		assertEquals("464", citation.getCitationProperty("endPage", false));
+		assertEquals("1047-9511", citation.getCitationProperty("isnIdentifier", false));
+		assertEquals("10.1017/S1047951110000326", citation.getCitationProperty("doi", false));
 	}
 	
 	public void testParseSampleBook() {
@@ -264,9 +264,9 @@ public class OpenURLServiceImplTest extends AbstractSingleSpringContextTests {
 		ContextObjectEntity entity = co.getEntity(Entity.REFERENT);
 		assertEquals("Patent searching: tools & techniques", entity.getValue("btitle"));
 		Citation citation = service.convert(co);
-		assertEquals("Patent searching: tools & techniques", citation.getCitationProperty("title"));
-		assertEquals("[edited By] David Hunt, Long Nguyen, Matthew Rodgers.", citation.getCitationProperty("creator"));
-		assertEquals("047178379X", citation.getCitationProperty("isnIdentifier"));
+		assertEquals("Patent searching: tools & techniques", citation.getCitationProperty("title", false));
+		assertEquals("[edited By] David Hunt, Long Nguyen, Matthew Rodgers.", citation.getCitationProperty("creator", false));
+		assertEquals("047178379X", citation.getCitationProperty("isnIdentifier", false));
 	}
 	
 	public void testParseSampleReview() {
@@ -276,15 +276,15 @@ public class OpenURLServiceImplTest extends AbstractSingleSpringContextTests {
 		ContextObjectEntity entity = co.getEntity(Entity.REFERENT);
 		assertEquals("Theatre Research International", entity.getValue("jtitle"));
 		Citation citation = service.convert(co);
-		assertEquals("Children of the Queen's Revels: A Jacobean Theatre Repertory (Book Review)", citation.getCitationProperty("title"));
-		assertEquals("Theatre Research International", citation.getCitationProperty("sourceTitle"));
-		assertEquals("PRICE, VICTORIA E", citation.getCitationProperty("creator"));
-		assertEquals("200707", citation.getCitationProperty("date"));
-		assertEquals("32", citation.getCitationProperty("volume"));
-		assertEquals("2", citation.getCitationProperty("issue"));
-		assertEquals("225", citation.getCitationProperty("startPage"));
-		assertEquals("0307-8833", citation.getCitationProperty("isnIdentifier"));
-		assertEquals("10.1017/S0307883306002653", citation.getCitationProperty("doi"));
+		assertEquals("Children of the Queen's Revels: A Jacobean Theatre Repertory (Book Review)", citation.getCitationProperty("title", false));
+		assertEquals("Theatre Research International", citation.getCitationProperty("sourceTitle", false));
+		assertEquals("PRICE, VICTORIA E", citation.getCitationProperty("creator", false));
+		assertEquals("200707", citation.getCitationProperty("date", false));
+		assertEquals("32", citation.getCitationProperty("volume", false));
+		assertEquals("2", citation.getCitationProperty("issue", false));
+		assertEquals("225", citation.getCitationProperty("startPage", false));
+		assertEquals("0307-8833", citation.getCitationProperty("isnIdentifier", false));
+		assertEquals("10.1017/S0307883306002653", citation.getCitationProperty("doi", false));
 	}
 	
 	public void testSampleJournal() {
@@ -293,8 +293,8 @@ public class OpenURLServiceImplTest extends AbstractSingleSpringContextTests {
 		ContextObjectEntity entity = co.getEntity(Entity.REFERENT);
 		assertEquals("Kingston Journal", entity.getValue("jtitle"));
 		Citation citation = service.convert(co);
-		assertEquals("Kingston Journal", citation.getCitationProperty("title"));
-		assertEquals("1789", citation.getCitationProperty("date"));
+		assertEquals("Kingston Journal", citation.getCitationProperty("title", false));
+		assertEquals("1789", citation.getCitationProperty("date", false));
 	}
 	
 	public void testSampleLegal() {
@@ -303,8 +303,8 @@ public class OpenURLServiceImplTest extends AbstractSingleSpringContextTests {
 		ContextObjectEntity entity = co.getEntity(Entity.REFERENT);
 		assertEquals("198604", entity.getValue("date"));
 		Citation citation = service.convert(co);
-		assertTrue(((String)citation.getCitationProperty("title")).startsWith("Patent Policy"));
-		assertEquals("198604", citation.getCitationProperty("date"));
+		assertTrue(((String)citation.getCitationProperty("title", false)).startsWith("Patent Policy"));
+		assertEquals("198604", citation.getCitationProperty("date", false));
 	}
 	
 	public void testSampleDissertation() {
@@ -314,16 +314,16 @@ public class OpenURLServiceImplTest extends AbstractSingleSpringContextTests {
 		ContextObjectEntity entity = co.getEntity(Entity.REFERENT);
 		assertEquals("Thomas Blanchard's Patent Management", entity.getValue("atitle"));
 		Citation citation = service.convert(co);
-		assertEquals("Thomas Blanchard's Patent Management", citation.getCitationProperty("title"));
-		assertEquals("The Journal of Economic History", citation.getCitationProperty("sourceTitle"));
-		assertEquals("Cooper, Carolyn C", citation.getCitationProperty("creator"));
-		assertEquals("198706", citation.getCitationProperty("date"));
-		assertEquals("47", citation.getCitationProperty("volume"));
-		assertEquals("2", citation.getCitationProperty("issue"));
-		assertEquals("487", citation.getCitationProperty("startPage"));
-		assertEquals("488", citation.getCitationProperty("endPage"));
-		assertEquals("0022-0507", citation.getCitationProperty("isnIdentifier"));
-		assertEquals("10.1017/S002205070004821X", citation.getCitationProperty("doi"));
+		assertEquals("Thomas Blanchard's Patent Management", citation.getCitationProperty("title", false));
+		assertEquals("The Journal of Economic History", citation.getCitationProperty("sourceTitle", false));
+		assertEquals("Cooper, Carolyn C", citation.getCitationProperty("creator", false));
+		assertEquals("198706", citation.getCitationProperty("date", false));
+		assertEquals("47", citation.getCitationProperty("volume", false));
+		assertEquals("2", citation.getCitationProperty("issue", false));
+		assertEquals("487", citation.getCitationProperty("startPage", false));
+		assertEquals("488", citation.getCitationProperty("endPage", false));
+		assertEquals("0022-0507", citation.getCitationProperty("isnIdentifier", false));
+		assertEquals("10.1017/S002205070004821X", citation.getCitationProperty("doi", false));
 	}
 	
 	public void testSamplePrimoImage() {
@@ -332,12 +332,12 @@ public class OpenURLServiceImplTest extends AbstractSingleSpringContextTests {
 		ContextObjectEntity entity = co.getEntity(Entity.REFERENT);
 		assertEquals("Cocktail Hour", entity.getValue("atitle"));
 		Citation citation = service.convert(co);
-		assertEquals("Cocktail Hour", citation.getCitationProperty("title"));
-		assertEquals("2008", citation.getCitationProperty("date"));
-		assertEquals("Nov/Dec 2008", citation.getCitationProperty("issue"));
-		assertEquals("58", citation.getCitationProperty("startPage"));
-		assertEquals("63", citation.getCitationProperty("endPage"));
-		assertEquals("1836-7526", citation.getCitationProperty("isnIdentifier"));
+		assertEquals("Cocktail Hour", citation.getCitationProperty("title", false));
+		assertEquals("2008", citation.getCitationProperty("date", false));
+		assertEquals("Nov/Dec 2008", citation.getCitationProperty("issue", false));
+		assertEquals("58", citation.getCitationProperty("startPage", false));
+		assertEquals("63", citation.getCitationProperty("endPage", false));
+		assertEquals("1836-7526", citation.getCitationProperty("isnIdentifier", false));
 	}
 	
 	// We had an issue with this one where both the title and sourceTitle ended up with being the the same.
@@ -347,8 +347,8 @@ public class OpenURLServiceImplTest extends AbstractSingleSpringContextTests {
 		ContextObjectEntity entity = co.getEntity(Entity.REFERENT);
 		assertEquals("Theory and practice of logic programming", entity.getValue("jtitle"));
 		Citation citation = service.convert(co);
-		assertEquals("Theory and practice of logic programming", citation.getCitationProperty("title"));
-		assertEquals("", citation.getCitationProperty("sourceTitle"));
+		assertEquals("Theory and practice of logic programming", citation.getCitationProperty("title", false));
+		assertEquals("", citation.getCitationProperty("sourceTitle", false));
 	}
 	
 	public void testLinuxInANutshellGood() {

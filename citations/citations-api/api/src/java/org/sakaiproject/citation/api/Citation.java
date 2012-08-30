@@ -88,7 +88,7 @@ public interface Citation 	// extends Entity
 	 * @return The mapping of name-value pairs.  The mapping may be empty, but it should never be null.
 	 */
 	public Map getCitationProperties();
-
+	
 	/**
 	 * Access a representation of the value(s) of a named property.  If the property is multivalued,
 	 * the object returned will be a (possibly empty) java.util.List.  Otherwise it will be an Object
@@ -96,6 +96,20 @@ public interface Citation 	// extends Entity
 	 * must be of a type for which toString() is defined and returns a reasonable representation
 	 * for use in a textual display of the citation.
 	 * @param name The name of the property for which a value is to be returned.
+	 * @param needSingleValue If true, forces return of a single string value. Otherwise the 
+	 * value returned could be a string or a list, depending on various factors. This allows 
+	 * client code to ensure that a single string is returned when necessary. If needSingleValue 
+	 * is true and the field actually has multiple values, the first value is returned. 
+	 * @return A representation of the value(s) of the named property.  May be an empty String ("")
+	 * if the property is not defined.
+	 */
+	public Object getCitationProperty(String name, boolean needSingleValue);
+
+	/**
+	 * Access a representation of the value(s) of a named property. Same as two-parameter getCitationProperty()
+	 * method but without the second parameter. This method returns the value as if needSingleValue is false.
+	 * @param name The name of the property for which a value is to be returned.  This method is intended 
+	 * for use in velocity templates.  In other places, please use the two-parameter method.
 	 * @return A representation of the value(s) of the named property.  May be an empty String ("")
 	 * if the property is not defined.
 	 */

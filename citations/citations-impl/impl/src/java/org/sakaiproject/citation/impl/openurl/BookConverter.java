@@ -68,7 +68,7 @@ public class BookConverter extends AbstractConverter implements Converter {
 		
 		// Handle ISBN
 		if(citation.hasCitationProperty("isbn")) {
-			Object value = citation.getCitationProperty("isbn");
+			Object value = citation.getCitationProperty("isbn", false);
 			addId(entity, value, ISBN_URN_PREFIX);
 		}
 		

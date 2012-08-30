@@ -268,7 +268,7 @@ public class BasicCitationService extends BaseCitationService
          */
         public Citation addCitation(String mediatype)
         {
-	        BasicCitation citation = new BasicCitation(mediatype);
+	        Citation citation = new BasicCitation(mediatype);
 	        this.m_citations.put(citation.getId(), citation);
 	        return citation;
         }
@@ -293,7 +293,7 @@ public class BasicCitationService extends BaseCitationService
 				Iterator it = original.iterator();
 				while(it.hasNext())
 				{
-					BasicCitation citation = (BasicCitation) it.next();
+					Citation citation = (Citation) it.next();
 					BasicCitation newCite = new BasicCitation();
 					newCite.copy(citation);
 					copy.add(newCite);

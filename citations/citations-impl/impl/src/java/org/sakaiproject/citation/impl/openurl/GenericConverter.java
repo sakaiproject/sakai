@@ -111,12 +111,12 @@ public class GenericConverter extends AbstractConverter {
 			}
 		}
 		if(citation.hasCitationProperty("isbn")) {
-			Object value = citation.getCitationProperty("isbn");
+			Object value = citation.getCitationProperty("isbn", false);
 			addId(entity, value, ISBN_URN_PREFIX);
 		}
 		// Do other mapping.
 		if (citation.hasCitationProperty("doi")) {
-			Object value = citation.getCitationProperty("doi");
+			Object value = citation.getCitationProperty("doi", false);
 			addId(entity, value, DOI_PREFIX);
 		}
 		

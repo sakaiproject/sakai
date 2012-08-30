@@ -75,21 +75,29 @@ public class BookConverterTest extends BaseCitationServiceSupport {
 			}
 		});
 		
-		
 		book.setSchema(bookSchema);
 		// Check that a property off schema can grow to be multiple values.
 		book.setCitationProperty("otherId", "first");
+		assertTrue(book.getCitationProperty("otherId", false) instanceof String);
+		assertTrue(book.getCitationProperty("otherId", true) instanceof String);
 		book.setCitationProperty("otherId", "second");
-		assertTrue(book.getCitationProperty("otherId") instanceof List);
-		List ids = (List)book.getCitationProperty("otherId");
+		assertTrue(book.getCitationProperty("otherId", false) instanceof List);
+		List ids = (List)book.getCitationProperty("otherId", false);
 		assertTrue(ids.contains("first"));
 		assertTrue(ids.contains("second"));
 		assertFalse(ids.contains("missing"));
 		
+		assertTrue(book.getCitationProperty("otherId", true) instanceof String);
+		String otherId = (String) book.getCitationProperty("otherId", true);
+		assertEquals("first", otherId);
+		assertNotSame("second", otherId);
+		
 		// Check that titles don't become multivalued.
 		book.setCitationProperty("title", "My Book");
-		assertEquals("My Book", book.getCitationProperty("title"));
+		assertEquals("My Book", book.getCitationProperty("title", false));
+		assertEquals("My Book", book.getCitationProperty("title", true));
 		book.setCitationProperty("title", "Other Book");
-		assertEquals("Other Book", book.getCitationProperty("title"));
+		assertEquals("Other Book", book.getCitationProperty("title", false));
+		assertEquals("Other Book", book.getCitationProperty("title", true));
 	}
 }
