@@ -480,7 +480,11 @@ public class LessonBuilderEntityProducer extends AbstractEntityProvider
 
 		 addAttr(doc, element, "functions.require", roleList);
 		 
-		 addAttr(doc, element, "pageId", Long.toString(simplePageToolDao.getTopLevelPageId(config.getPageId())));
+		 // should be impossible for these nulls, but we've seen it
+		 if (simplePageToolDao.getTopLevelPageId(config.getPageId()) != null)
+		     addAttr(doc, element, "pageId", Long.toString(simplePageToolDao.getTopLevelPageId(config.getPageId())));
+		 else
+		     logger.warn("archive site " + siteId + " tool page " + config.getPageId() + " null lesson");
 		 // addPage(doc, element,  simplePageToolDao.getTopLevelPageId(config.getPageId()));
 		 
 		 lessonbuilder.appendChild(element);
@@ -502,6 +506,7 @@ public class LessonBuilderEntityProducer extends AbstractEntityProvider
       }
       catch (Exception any)
       {
+	  any.printStackTrace();
          logger.warn("archive: exception archiving service: " + any + " " +  serviceName());
       }
 
@@ -961,7 +966,7 @@ public class LessonBuilderEntityProducer extends AbstractEntityProvider
 				 // old format. we should have a page node
 				 // normally just one
 				 Node pageNode = element.getFirstChild();
-				 if (pageNode.getNodeType() != Node.ELEMENT_NODE) {
+				 if (pageNode == null || pageNode.getNodeType() != Node.ELEMENT_NODE) {
 				     logger.error("page node not element");
 				     continue;
 				 }
