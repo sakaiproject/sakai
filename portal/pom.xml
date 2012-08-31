@@ -36,6 +36,7 @@
         <module>portal-shared-deploy</module>
         <module>portal-tool/tool</module>
         <module>portal-util/util</module>
+        <module>portal-xsl/tool</module>
     </modules>
 
     <scm>
@@ -78,6 +79,11 @@
                 <groupId>${project.groupId}</groupId>
                 <artifactId>sakai-portal-util</artifactId>
                 <version>${project.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>org.sakaiproject.metaobj</groupId>
+                <artifactId>sakai-metaobj-tool-lib</artifactId>
+                <version>2.10-SNAPSHOT</version>
             </dependency>
             <dependency>
                 <groupId>jtidy</groupId>

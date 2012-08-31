@@ -1,0 +1,25 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE beans PUBLIC "-//SPRING//DTD BEAN//EN" "http://www.springframework.org/dtd/spring-beans.dtd">
+
+
+<beans default-lazy-init="false">
+
+   <bean id="org.sakaiproject.portal.api.PortalRenderEngine.xslt" 
+         class="org.sakaiproject.portal.xsltcharon.impl.XsltRenderEngine" 
+         init-method="springInit" destroy-method="destroy">
+      <property name="portalService" ref="org.sakaiproject.portal.api.PortalService"/>      
+      <property name="defaultTransformerPath" value="/WEB-INF/transform/neo-portal.xsl"/>
+      <property name="transformerPaths">
+         <map>
+            <entry key="xml" value="/WEB-INF/transform/passthrough.xsl"/>
+         </map>
+      </property>
+      <property name="portalWebappResourceManager" 
+                ref="org.sakaiproject.webapp.api.WebappResourceManager.xsltPortal"/>
+   </bean>
+   
+   <bean id="org.sakaiproject.webapp.api.WebappResourceManager.xsltPortal"
+      class="org.sakaiproject.webapp.impl.WebappResourceManagerImpl">
+   </bean>
+   
+</beans>

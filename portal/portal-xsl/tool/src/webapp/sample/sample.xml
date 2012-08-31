@@ -1,0 +1,581 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<portal>
+   <currentUser>
+      <id><![CDATA[admin]]></id>
+      <first><![CDATA[Sakai]]></first>
+      <last><![CDATA[Administrator]]></last>
+      <email></email>
+   </currentUser>
+   <loginInfo>
+      <topLogin><![CDATA[true]]></topLogin>
+      <logInOutUrl><![CDATA[http://localhost:8080]]></logInOutUrl>
+      <loginText/>
+      <logoutText><![CDATA[Logout]]></logoutText>
+      <image1/>
+   </loginInfo>
+   <pageTitle><![CDATA[Sakai Based Service:Administration Workspace:Aliases]]></pageTitle>
+   <skins>
+      <skin order="0"><![CDATA[/osp-portal/library/css/osp-portal.css]]></skin>
+      <skin order="1"><![CDATA[/library/skin/default/portal.css]]></skin>
+   </skins>
+   <config>
+      <presence include="true"><![CDATA[/osp-portal/presence/~admin]]></presence>
+      <logo><![CDATA[/library/skin/default/images/logo_inst.gif]]></logo>
+      <banner><![CDATA[/library/skin/default/images/banner_inst.gif]]></banner>
+      <logout><![CDATA[/osp-portal/logout]]></logout>
+      <copyright>
+         <![CDATA[Copyright 2003-2007 The Sakai Foundation. All rights reserved. Portions of Sakai are copyrighted by other parties as described in the Acknowledgments screen.]]></copyright>
+      <service><![CDATA[Sakai Based Service]]></service>
+      <serviceVersion><![CDATA[dev]]></serviceVersion>
+      <sakaiVersion><![CDATA[dev]]></sakaiVersion>
+      <server><![CDATA[leah.rsmart.com]]></server>
+      <helpUrl><![CDATA[http://localhost:8080/osp-portal/help/main]]></helpUrl>
+      <bottomNavs>
+         <bottomNav><![CDATA[http://www.javasoft.com]]></bottomNav>
+         <bottomNav><![CDATA[http://www.sakaiproject.org]]></bottomNav>
+      </bottomNavs>
+      <poweredBy>
+         <text><![CDATA[Powered by Sakai]]></text>
+         <image><![CDATA[/library/image/sakai_powered.gif]]></image>
+         <url><![CDATA[http://sakaiproject.org]]></url>
+      </poweredBy>
+      <poweredByUrls>
+         <poweredByUrl><![CDATA[http://sakaiproject.org]]></poweredByUrl>
+      </poweredByUrls>
+      <poweredByImages>
+         <poweredByImage><![CDATA[/library/image/sakai_powered.gif]]></poweredByImage>
+      </poweredByImages>
+      <poweredByAltTexts>
+         <poweredByAltText><![CDATA[Powered by Sakai]]></poweredByAltText>
+      </poweredByAltTexts>
+   </config>
+   <siteTypes>
+      <siteType order="0" selected="true" userSite="true">
+         <key>org.theospi.portfolio.portal.myWorkspace</key>
+         <name>workspace</name>
+         <escapedKey>orgxtheospixportfolioxportalxmyWorkspace</escapedKey>
+         <url><![CDATA[/osp-portal/site_type/org.theospi.portfolio.portal.myWorkspace]]></url>
+         <helperUrl><![CDATA[/osp-portal/site_type_helper/org.theospi.portfolio.portal.myWorkspace]]></helperUrl>
+         <sites>
+            <site extra="false" order="0" published="true" selected="true">
+               <url><![CDATA[/osp-portal/site/~admin]]></url>
+               <title><![CDATA[Administration Workspace]]></title>
+               <description><![CDATA[<p>Administration Workspace</p>]]></description>
+            </site>
+         </sites>
+      </siteType>
+      <siteType order="1" selected="false" userSite="false">
+         <key>org.theospi.portfolio.portal.portfolioAdmin</key>
+         <name>portfolioAdmin</name>
+         <escapedKey>orgxtheospixportfolioxportalxportfolioAdmin</escapedKey>
+         <url><![CDATA[/osp-portal/site_type/org.theospi.portfolio.portal.portfolioAdmin]]></url>
+         <helperUrl><![CDATA[/osp-portal/site_type_helper/org.theospi.portfolio.portal.portfolioAdmin]]></helperUrl>
+         <sites>
+            <site extra="false" order="0" published="true" selected="false">
+               <url><![CDATA[/osp-portal/site/!admin]]></url>
+               <title><![CDATA[Administration Workspace]]></title>
+               <description><![CDATA[Administration Workspace]]></description>
+            </site>
+            <site extra="false" order="1" published="true" selected="false">
+               <url><![CDATA[/osp-portal/site/PortfolioAdmin]]></url>
+               <title><![CDATA[Portfolio Admin]]></title>
+               <description><![CDATA[Site for portfolio administration]]></description>
+            </site>
+         </sites>
+      </siteType>
+      <siteType order="3" selected="false" userSite="false">
+         <key>org.theospi.portfolio.portal.project</key>
+         <name>project</name>
+         <escapedKey>orgxtheospixportfolioxportalxproject</escapedKey>
+         <url><![CDATA[/osp-portal/site_type/org.theospi.portfolio.portal.project]]></url>
+         <helperUrl><![CDATA[/osp-portal/site_type_helper/org.theospi.portfolio.portal.project]]></helperUrl>
+         <sites>
+            <site extra="false" order="0" published="true" selected="false">
+               <url><![CDATA[/osp-portal/site/19a8d4d8-b76c-4fe4-00df-e6f4a34326b6]]></url>
+               <title><![CDATA[a]]></title>
+               <description/>
+            </site>
+            <site extra="false" order="1" published="true" selected="false">
+               <url><![CDATA[/osp-portal/site/fd47b53d-0af7-418a-0032-ceb0671b5252]]></url>
+               <title><![CDATA[b]]></title>
+               <description/>
+            </site>
+            <site extra="false" order="2" published="true" selected="false">
+               <url><![CDATA[/osp-portal/site/43916f78-6b04-4534-000f-487e382a30f6]]></url>
+               <title><![CDATA[c]]></title>
+               <description/>
+            </site>
+         </sites>
+      </siteType>
+   </siteTypes>
+   <categories>
+      <category order="12" selected="false">
+         <key>org.theospi.portfolio.portal.model.ToolCategory.uncategorized</key>
+         <escapedKey>orgxtheospixportfolioxportalxmodelxToolCategoryxuncategorized</escapedKey>
+         <url>
+            <![CDATA[/osp-portal/category/~admin/org.theospi.portfolio.portal.model.ToolCategory.uncategorized]]></url>
+         <helperUrl>
+            <![CDATA[/osp-portal/category_helper/~admin/org.theospi.portfolio.portal.model.ToolCategory.uncategorized]]></helperUrl>
+         <layoutFile><![CDATA[org.theospi.portfolio.portal.model.ToolCategory.uncategorized]]></layoutFile>
+         <pages>
+            <page layout="0" order="12" popUp="false" selected="false" toolId="sakai.su">
+               <title><![CDATA[Become User]]></title>
+               <url><![CDATA[/osp-portal/site/~admin/page/~admin-1100]]></url>
+               <popUrl><![CDATA[/osp-portal/page/~admin-1100]]></popUrl>
+               <columns>
+                  <column index="0">
+                     <tools>
+                        <tool>
+                           <title><![CDATA[Become User]]></title>
+                           <escapedId><![CDATA[xadminx1110]]></escapedId>
+                           <url><![CDATA[/osp-portal/tool/~admin-1110?panel=Main]]></url>
+                           <titleUrl><![CDATA[/osp-portal/title/~admin-1110]]></titleUrl>
+                        </tool>
+                     </tools>
+                  </column>
+                  <column index="1">
+                     <tools/>
+                  </column>
+               </columns>
+            </page>
+         </pages>
+      </category>
+      <category order="2" selected="false">
+         <key>org.theospi.portfolio.portal.model.ToolCategory.uncategorized</key>
+         <escapedKey>orgxtheospixportfolioxportalxmodelxToolCategoryxuncategorized</escapedKey>
+         <url>
+            <![CDATA[/osp-portal/category/~admin/org.theospi.portfolio.portal.model.ToolCategory.uncategorized]]></url>
+         <helperUrl>
+            <![CDATA[/osp-portal/category_helper/~admin/org.theospi.portfolio.portal.model.ToolCategory.uncategorized]]></helperUrl>
+         <layoutFile><![CDATA[org.theospi.portfolio.portal.model.ToolCategory.uncategorized]]></layoutFile>
+         <pages>
+            <page layout="0" order="2" popUp="false" selected="true" toolId="sakai.aliases">
+               <title><![CDATA[Aliases]]></title>
+               <url><![CDATA[/osp-portal/site/~admin/page/~admin-250]]></url>
+               <popUrl><![CDATA[/osp-portal/page/~admin-250]]></popUrl>
+               <columns>
+                  <column index="0">
+                     <tools>
+                        <tool>
+                           <title><![CDATA[Aliases]]></title>
+                           <escapedId><![CDATA[xadminx260]]></escapedId>
+                           <url><![CDATA[/osp-portal/tool/~admin-260?panel=Main]]></url>
+                           <titleUrl><![CDATA[/osp-portal/title/~admin-260]]></titleUrl>
+                        </tool>
+                     </tools>
+                  </column>
+                  <column index="1">
+                     <tools/>
+                  </column>
+               </columns>
+            </page>
+         </pages>
+      </category>
+      <category order="9" selected="false">
+         <key>org.theospi.portfolio.portal.model.ToolCategory.uncategorized</key>
+         <escapedKey>orgxtheospixportfolioxportalxmodelxToolCategoryxuncategorized</escapedKey>
+         <url>
+            <![CDATA[/osp-portal/category/~admin/org.theospi.portfolio.portal.model.ToolCategory.uncategorized]]></url>
+         <helperUrl>
+            <![CDATA[/osp-portal/category_helper/~admin/org.theospi.portfolio.portal.model.ToolCategory.uncategorized]]></helperUrl>
+         <layoutFile><![CDATA[org.theospi.portfolio.portal.model.ToolCategory.uncategorized]]></layoutFile>
+         <pages>
+            <page layout="0" order="9" popUp="false" selected="false" toolId="sakai.memory">
+               <title><![CDATA[Memory]]></title>
+               <url><![CDATA[/osp-portal/site/~admin/page/~admin-700]]></url>
+               <popUrl><![CDATA[/osp-portal/page/~admin-700]]></popUrl>
+               <columns>
+                  <column index="0">
+                     <tools>
+                        <tool>
+                           <title><![CDATA[Memory]]></title>
+                           <escapedId><![CDATA[xadminx710]]></escapedId>
+                           <url><![CDATA[/osp-portal/tool/~admin-710?panel=Main]]></url>
+                           <titleUrl><![CDATA[/osp-portal/title/~admin-710]]></titleUrl>
+                        </tool>
+                     </tools>
+                  </column>
+                  <column index="1">
+                     <tools/>
+                  </column>
+               </columns>
+            </page>
+         </pages>
+      </category>
+      <category order="5" selected="false">
+         <key>org.theospi.portfolio.portal.model.ToolCategory.uncategorized</key>
+         <escapedKey>orgxtheospixportfolioxportalxmodelxToolCategoryxuncategorized</escapedKey>
+         <url>
+            <![CDATA[/osp-portal/category/~admin/org.theospi.portfolio.portal.model.ToolCategory.uncategorized]]></url>
+         <helperUrl>
+            <![CDATA[/osp-portal/category_helper/~admin/org.theospi.portfolio.portal.model.ToolCategory.uncategorized]]></helperUrl>
+         <layoutFile><![CDATA[org.theospi.portfolio.portal.model.ToolCategory.uncategorized]]></layoutFile>
+         <pages>
+            <page layout="0" order="5" popUp="false" selected="false" toolId="sakai.sitesetup">
+               <title><![CDATA[Worksite Setup]]></title>
+               <url><![CDATA[/osp-portal/site/~admin/page/~admin-360]]></url>
+               <popUrl><![CDATA[/osp-portal/page/~admin-360]]></popUrl>
+               <columns>
+                  <column index="0">
+                     <tools>
+                        <tool>
+                           <title><![CDATA[Worksite Setup]]></title>
+                           <escapedId><![CDATA[xadminx365]]></escapedId>
+                           <url><![CDATA[/osp-portal/tool/~admin-365?panel=Main]]></url>
+                           <titleUrl><![CDATA[/osp-portal/title/~admin-365]]></titleUrl>
+                        </tool>
+                     </tools>
+                  </column>
+                  <column index="1">
+                     <tools/>
+                  </column>
+               </columns>
+            </page>
+         </pages>
+      </category>
+      <category order="1" selected="false">
+         <key>org.theospi.portfolio.portal.model.ToolCategory.uncategorized</key>
+         <escapedKey>orgxtheospixportfolioxportalxmodelxToolCategoryxuncategorized</escapedKey>
+         <url>
+            <![CDATA[/osp-portal/category/~admin/org.theospi.portfolio.portal.model.ToolCategory.uncategorized]]></url>
+         <helperUrl>
+            <![CDATA[/osp-portal/category_helper/~admin/org.theospi.portfolio.portal.model.ToolCategory.uncategorized]]></helperUrl>
+         <layoutFile><![CDATA[org.theospi.portfolio.portal.model.ToolCategory.uncategorized]]></layoutFile>
+         <pages>
+            <page layout="0" order="1" popUp="false" selected="false" toolId="sakai.users">
+               <title><![CDATA[Users]]></title>
+               <url><![CDATA[/osp-portal/site/~admin/page/~admin-200]]></url>
+               <popUrl><![CDATA[/osp-portal/page/~admin-200]]></popUrl>
+               <columns>
+                  <column index="0">
+                     <tools>
+                        <tool>
+                           <title><![CDATA[Users]]></title>
+                           <escapedId><![CDATA[xadminx210]]></escapedId>
+                           <url><![CDATA[/osp-portal/tool/~admin-210?panel=Main]]></url>
+                           <titleUrl><![CDATA[/osp-portal/title/~admin-210]]></titleUrl>
+                        </tool>
+                     </tools>
+                  </column>
+                  <column index="1">
+                     <tools/>
+                  </column>
+               </columns>
+            </page>
+         </pages>
+      </category>
+      <category order="13" selected="false">
+         <key>org.theospi.portfolio.portal.model.ToolCategory.uncategorized</key>
+         <escapedKey>orgxtheospixportfolioxportalxmodelxToolCategoryxuncategorized</escapedKey>
+         <url>
+            <![CDATA[/osp-portal/category/~admin/org.theospi.portfolio.portal.model.ToolCategory.uncategorized]]></url>
+         <helperUrl>
+            <![CDATA[/osp-portal/category_helper/~admin/org.theospi.portfolio.portal.model.ToolCategory.uncategorized]]></helperUrl>
+         <layoutFile><![CDATA[org.theospi.portfolio.portal.model.ToolCategory.uncategorized]]></layoutFile>
+         <pages>
+            <page layout="0" order="13" popUp="false" selected="false" toolId="">
+               <title><![CDATA[User Membership]]></title>
+               <url><![CDATA[/osp-portal/site/~admin/page/~admin-1200]]></url>
+               <popUrl><![CDATA[/osp-portal/page/~admin-1200]]></popUrl>
+               <columns>
+                  <column index="0">
+                     <tools/>
+                  </column>
+                  <column index="1">
+                     <tools/>
+                  </column>
+               </columns>
+            </page>
+         </pages>
+      </category>
+      <category order="3" selected="false">
+         <key>org.theospi.portfolio.portal.model.ToolCategory.uncategorized</key>
+         <escapedKey>orgxtheospixportfolioxportalxmodelxToolCategoryxuncategorized</escapedKey>
+         <url>
+            <![CDATA[/osp-portal/category/~admin/org.theospi.portfolio.portal.model.ToolCategory.uncategorized]]></url>
+         <helperUrl>
+            <![CDATA[/osp-portal/category_helper/~admin/org.theospi.portfolio.portal.model.ToolCategory.uncategorized]]></helperUrl>
+         <layoutFile><![CDATA[org.theospi.portfolio.portal.model.ToolCategory.uncategorized]]></layoutFile>
+         <pages>
+            <page layout="0" order="3" popUp="false" selected="false" toolId="sakai.sites">
+               <title><![CDATA[Sites]]></title>
+               <url><![CDATA[/osp-portal/site/~admin/page/~admin-300]]></url>
+               <popUrl><![CDATA[/osp-portal/page/~admin-300]]></popUrl>
+               <columns>
+                  <column index="0">
+                     <tools>
+                        <tool>
+                           <title><![CDATA[Sites]]></title>
+                           <escapedId><![CDATA[xadminx310]]></escapedId>
+                           <url><![CDATA[/osp-portal/tool/~admin-310?panel=Main]]></url>
+                           <titleUrl><![CDATA[/osp-portal/title/~admin-310]]></titleUrl>
+                        </tool>
+                     </tools>
+                  </column>
+                  <column index="1">
+                     <tools/>
+                  </column>
+               </columns>
+            </page>
+         </pages>
+      </category>
+      <category order="8" selected="false">
+         <key>org.theospi.portfolio.portal.model.ToolCategory.uncategorized</key>
+         <escapedKey>orgxtheospixportfolioxportalxmodelxToolCategoryxuncategorized</escapedKey>
+         <url>
+            <![CDATA[/osp-portal/category/~admin/org.theospi.portfolio.portal.model.ToolCategory.uncategorized]]></url>
+         <helperUrl>
+            <![CDATA[/osp-portal/category_helper/~admin/org.theospi.portfolio.portal.model.ToolCategory.uncategorized]]></helperUrl>
+         <layoutFile><![CDATA[org.theospi.portfolio.portal.model.ToolCategory.uncategorized]]></layoutFile>
+         <pages>
+            <page layout="0" order="8" popUp="false" selected="false" toolId="sakai.online">
+               <title><![CDATA[On-Line]]></title>
+               <url><![CDATA[/osp-portal/site/~admin/page/~admin-600]]></url>
+               <popUrl><![CDATA[/osp-portal/page/~admin-600]]></popUrl>
+               <columns>
+                  <column index="0">
+                     <tools>
+                        <tool>
+                           <title><![CDATA[On-Line]]></title>
+                           <escapedId><![CDATA[xadminx610]]></escapedId>
+                           <url><![CDATA[/osp-portal/tool/~admin-610?panel=Main]]></url>
+                           <titleUrl><![CDATA[/osp-portal/title/~admin-610]]></titleUrl>
+                        </tool>
+                     </tools>
+                  </column>
+                  <column index="1">
+                     <tools/>
+                  </column>
+               </columns>
+            </page>
+         </pages>
+      </category>
+      <category order="4" selected="false">
+         <key>org.theospi.portfolio.portal.model.ToolCategory.uncategorized</key>
+         <escapedKey>orgxtheospixportfolioxportalxmodelxToolCategoryxuncategorized</escapedKey>
+         <url>
+            <![CDATA[/osp-portal/category/~admin/org.theospi.portfolio.portal.model.ToolCategory.uncategorized]]></url>
+         <helperUrl>
+            <![CDATA[/osp-portal/category_helper/~admin/org.theospi.portfolio.portal.model.ToolCategory.uncategorized]]></helperUrl>
+         <layoutFile><![CDATA[org.theospi.portfolio.portal.model.ToolCategory.uncategorized]]></layoutFile>
+         <pages>
+            <page layout="0" order="4" popUp="false" selected="false" toolId="sakai.realms">
+               <title><![CDATA[Realms]]></title>
+               <url><![CDATA[/osp-portal/site/~admin/page/~admin-350]]></url>
+               <popUrl><![CDATA[/osp-portal/page/~admin-350]]></popUrl>
+               <columns>
+                  <column index="0">
+                     <tools>
+                        <tool>
+                           <title><![CDATA[Realms]]></title>
+                           <escapedId><![CDATA[xadminx355]]></escapedId>
+                           <url><![CDATA[/osp-portal/tool/~admin-355?panel=Main]]></url>
+                           <titleUrl><![CDATA[/osp-portal/title/~admin-355]]></titleUrl>
+                        </tool>
+                     </tools>
+                  </column>
+                  <column index="1">
+                     <tools/>
+                  </column>
+               </columns>
+            </page>
+         </pages>
+      </category>
+      <category order="14" selected="false">
+         <key>org.theospi.portfolio.portal.model.ToolCategory.uncategorized</key>
+         <escapedKey>orgxtheospixportfolioxportalxmodelxToolCategoryxuncategorized</escapedKey>
+         <url>
+            <![CDATA[/osp-portal/category/~admin/org.theospi.portfolio.portal.model.ToolCategory.uncategorized]]></url>
+         <helperUrl>
+            <![CDATA[/osp-portal/category_helper/~admin/org.theospi.portfolio.portal.model.ToolCategory.uncategorized]]></helperUrl>
+         <layoutFile><![CDATA[org.theospi.portfolio.portal.model.ToolCategory.uncategorized]]></layoutFile>
+         <pages>
+            <page layout="0" order="14" popUp="false" selected="false" toolId="sakai.reports">
+               <title><![CDATA[reports]]></title>
+               <url><![CDATA[/osp-portal/site/~admin/page/1807ffb4-740c-417f-0090-4980cb0aef7a]]></url>
+               <popUrl><![CDATA[/osp-portal/page/1807ffb4-740c-417f-0090-4980cb0aef7a]]></popUrl>
+               <columns>
+                  <column index="0">
+                     <tools>
+                        <tool>
+                           <title><![CDATA[reports]]></title>
+                           <escapedId><![CDATA[5f81875dxb192x46e4x80adxfa29edff885b]]></escapedId>
+                           <url><![CDATA[/osp-portal/tool/5f81875d-b192-46e4-80ad-fa29edff885b?panel=Main]]></url>
+                           <titleUrl><![CDATA[/osp-portal/title/5f81875d-b192-46e4-80ad-fa29edff885b]]></titleUrl>
+                        </tool>
+                     </tools>
+                  </column>
+                  <column index="1">
+                     <tools/>
+                  </column>
+               </columns>
+            </page>
+         </pages>
+      </category>
+      <category order="7" selected="false">
+         <key>org.theospi.portfolio.portal.model.ToolCategory.uncategorized</key>
+         <escapedKey>orgxtheospixportfolioxportalxmodelxToolCategoryxuncategorized</escapedKey>
+         <url>
+            <![CDATA[/osp-portal/category/~admin/org.theospi.portfolio.portal.model.ToolCategory.uncategorized]]></url>
+         <helperUrl>
+            <![CDATA[/osp-portal/category_helper/~admin/org.theospi.portfolio.portal.model.ToolCategory.uncategorized]]></helperUrl>
+         <layoutFile><![CDATA[org.theospi.portfolio.portal.model.ToolCategory.uncategorized]]></layoutFile>
+         <pages>
+            <page layout="0" order="7" popUp="false" selected="false" toolId="sakai.resources">
+               <title><![CDATA[Resources]]></title>
+               <url><![CDATA[/osp-portal/site/~admin/page/~admin-500]]></url>
+               <popUrl><![CDATA[/osp-portal/page/~admin-500]]></popUrl>
+               <columns>
+                  <column index="0">
+                     <tools>
+                        <tool>
+                           <title><![CDATA[Resources]]></title>
+                           <escapedId><![CDATA[xadminx510]]></escapedId>
+                           <url><![CDATA[/osp-portal/tool/~admin-510?panel=Main]]></url>
+                           <titleUrl><![CDATA[/osp-portal/title/~admin-510]]></titleUrl>
+                        </tool>
+                     </tools>
+                  </column>
+                  <column index="1">
+                     <tools/>
+                  </column>
+               </columns>
+            </page>
+         </pages>
+      </category>
+      <category order="11" selected="false">
+         <key>org.theospi.portfolio.portal.model.ToolCategory.uncategorized</key>
+         <escapedKey>orgxtheospixportfolioxportalxmodelxToolCategoryxuncategorized</escapedKey>
+         <url>
+            <![CDATA[/osp-portal/category/~admin/org.theospi.portfolio.portal.model.ToolCategory.uncategorized]]></url>
+         <helperUrl>
+            <![CDATA[/osp-portal/category_helper/~admin/org.theospi.portfolio.portal.model.ToolCategory.uncategorized]]></helperUrl>
+         <layoutFile><![CDATA[org.theospi.portfolio.portal.model.ToolCategory.uncategorized]]></layoutFile>
+         <pages>
+            <page layout="0" order="11" popUp="false" selected="false" toolId="sakai.scheduler">
+               <title><![CDATA[Job Scheduler]]></title>
+               <url><![CDATA[/osp-portal/site/~admin/page/~admin-1000]]></url>
+               <popUrl><![CDATA[/osp-portal/page/~admin-1000]]></popUrl>
+               <columns>
+                  <column index="0">
+                     <tools>
+                        <tool>
+                           <title><![CDATA[Job Scheduler]]></title>
+                           <escapedId><![CDATA[xadminx1010]]></escapedId>
+                           <url><![CDATA[/osp-portal/tool/~admin-1010?panel=Main]]></url>
+                           <titleUrl><![CDATA[/osp-portal/title/~admin-1010]]></titleUrl>
+                        </tool>
+                     </tools>
+                  </column>
+                  <column index="1">
+                     <tools/>
+                  </column>
+               </columns>
+            </page>
+         </pages>
+      </category>
+      <category order="10" selected="false">
+         <key>org.theospi.portfolio.portal.model.ToolCategory.uncategorized</key>
+         <escapedKey>orgxtheospixportfolioxportalxmodelxToolCategoryxuncategorized</escapedKey>
+         <url>
+            <![CDATA[/osp-portal/category/~admin/org.theospi.portfolio.portal.model.ToolCategory.uncategorized]]></url>
+         <helperUrl>
+            <![CDATA[/osp-portal/category_helper/~admin/org.theospi.portfolio.portal.model.ToolCategory.uncategorized]]></helperUrl>
+         <layoutFile><![CDATA[org.theospi.portfolio.portal.model.ToolCategory.uncategorized]]></layoutFile>
+         <pages>
+            <page layout="0" order="10" popUp="false" selected="false" toolId="sakai.archive">
+               <title><![CDATA[Site Archive]]></title>
+               <url><![CDATA[/osp-portal/site/~admin/page/~admin-900]]></url>
+               <popUrl><![CDATA[/osp-portal/page/~admin-900]]></popUrl>
+               <columns>
+                  <column index="0">
+                     <tools>
+                        <tool>
+                           <title><![CDATA[Site Archive]]></title>
+                           <escapedId><![CDATA[xadminx910]]></escapedId>
+                           <url><![CDATA[/osp-portal/tool/~admin-910?panel=Main]]></url>
+                           <titleUrl><![CDATA[/osp-portal/title/~admin-910]]></titleUrl>
+                        </tool>
+                     </tools>
+                  </column>
+                  <column index="1">
+                     <tools/>
+                  </column>
+               </columns>
+            </page>
+         </pages>
+      </category>
+      <category order="0" selected="false">
+         <key>org.theospi.portfolio.portal.model.ToolCategory.uncategorized</key>
+         <escapedKey>orgxtheospixportfolioxportalxmodelxToolCategoryxuncategorized</escapedKey>
+         <url>
+            <![CDATA[/osp-portal/category/~admin/org.theospi.portfolio.portal.model.ToolCategory.uncategorized]]></url>
+         <helperUrl>
+            <![CDATA[/osp-portal/category_helper/~admin/org.theospi.portfolio.portal.model.ToolCategory.uncategorized]]></helperUrl>
+         <layoutFile><![CDATA[org.theospi.portfolio.portal.model.ToolCategory.uncategorized]]></layoutFile>
+         <pages>
+            <page layout="0" order="0" popUp="false" selected="false" toolId="sakai.motd">
+               <title><![CDATA[Home]]></title>
+               <url><![CDATA[/osp-portal/site/~admin/page/~admin-100]]></url>
+               <popUrl><![CDATA[/osp-portal/page/~admin-100]]></popUrl>
+               <columns>
+                  <column index="0">
+                     <tools>
+                        <tool>
+                           <title><![CDATA[Home]]></title>
+                           <escapedId><![CDATA[xadminx110]]></escapedId>
+                           <url><![CDATA[/osp-portal/tool/~admin-110?panel=Main]]></url>
+                           <titleUrl><![CDATA[/osp-portal/title/~admin-110]]></titleUrl>
+                        </tool>
+                        <tool>
+                           <title><![CDATA[Home]]></title>
+                           <escapedId><![CDATA[xadminx120]]></escapedId>
+                           <url><![CDATA[/osp-portal/tool/~admin-120?panel=Main]]></url>
+                           <titleUrl><![CDATA[/osp-portal/title/~admin-120]]></titleUrl>
+                        </tool>
+                     </tools>
+                  </column>
+                  <column index="1">
+                     <tools/>
+                  </column>
+               </columns>
+            </page>
+         </pages>
+      </category>
+      <category order="6" selected="false">
+         <key>org.theospi.portfolio.portal.model.ToolCategory.uncategorized</key>
+         <escapedKey>orgxtheospixportfolioxportalxmodelxToolCategoryxuncategorized</escapedKey>
+         <url>
+            <![CDATA[/osp-portal/category/~admin/org.theospi.portfolio.portal.model.ToolCategory.uncategorized]]></url>
+         <helperUrl>
+            <![CDATA[/osp-portal/category_helper/~admin/org.theospi.portfolio.portal.model.ToolCategory.uncategorized]]></helperUrl>
+         <layoutFile><![CDATA[org.theospi.portfolio.portal.model.ToolCategory.uncategorized]]></layoutFile>
+         <pages>
+            <page layout="0" order="6" popUp="false" selected="false" toolId="sakai.announcements">
+               <title><![CDATA[MOTD]]></title>
+               <url><![CDATA[/osp-portal/site/~admin/page/~admin-400]]></url>
+               <popUrl><![CDATA[/osp-portal/page/~admin-400]]></popUrl>
+               <columns>
+                  <column index="0">
+                     <tools>
+                        <tool>
+                           <title><![CDATA[MOTD]]></title>
+                           <escapedId><![CDATA[xadminx410]]></escapedId>
+                           <url><![CDATA[/osp-portal/tool/~admin-410?panel=Main]]></url>
+                           <titleUrl><![CDATA[/osp-portal/title/~admin-410]]></titleUrl>
+                        </tool>
+                     </tools>
+                  </column>
+                  <column index="1">
+                     <tools/>
+                  </column>
+               </columns>
+            </page>
+         </pages>
+      </category>
+   </categories>
+   <roles>
+      <role id="maintain"/>
+   </roles>
+</portal>
+   

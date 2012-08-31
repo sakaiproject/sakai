@@ -1,0 +1,343 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<portal>
+   <currentUser>
+      <id>admin</id>
+      <first>Sakai</first>
+      <last>Administrator</last>
+      <email></email>
+   </currentUser>
+   <loginInfo>
+      <topLogin>true</topLogin>
+      <logInOutUrl>http://localhost:8080/osp-portal/logout</logInOutUrl>
+      <loginText>Logout</loginText>
+      <logoutText>Logout</logoutText>
+      <image1/>
+   </loginInfo>
+   <pageTitle>Sakai Based Service : dsfasdfsadf : Home</pageTitle>
+   <skins>
+      <skin order="0">/library/skin/default/portal.css</skin>
+   </skins>
+   <config>
+      <presence include="true">http://localhost:8080/xsl-portal/presence/5fcbd389-7ebc-4fbb-0039-68d12ac5140b</presence>
+      <logo>/library/skin/default/images/logo_inst.gif</logo>
+      <banner>/library/skin/default/images/banner_inst.gif</banner>
+      <logout>http://localhost:8080/osp-portal/logout</logout>
+      <copyright/>
+      <service>Sakai Based Service</service>
+      <serviceVersion>dev</serviceVersion>
+      <sakaiVersion>dev</sakaiVersion>
+      <server>john-ellis-computer.local</server>
+      <helpUrl/>
+      <bottomNavs>
+         <bottomNav>http://www.javasoft.com</bottomNav>
+         <bottomNav>http://www.sakaiproject.org</bottomNav>
+      </bottomNavs>
+      <poweredBy>
+         <text>Powered by Sakai</text>
+         <image>/library/image/sakai_powered.gif</image>
+         <url>http://sakaiproject.org</url>
+      </poweredBy>
+      <poweredByUrls>
+         <poweredByUrl>http://sakaiproject.org</poweredByUrl>
+      </poweredByUrls>
+      <poweredByImages>
+         <poweredByImage>/library/image/sakai_powered.gif</poweredByImage>
+      </poweredByImages>
+      <poweredByAltTexts>
+         <poweredByAltText>Powered by Sakai</poweredByAltText>
+      </poweredByAltTexts>
+   </config>
+   <sites>
+      <tabsSites>
+         <site child="false" depth="0" myWorkspace="true" order="0" selected="false">
+            <url>http://localhost:8080/osp-portal/site/%7Eadmin</url>
+            <title>Administration Workspace</title>
+            <description>Administration Workspace</description>
+            <parent/>
+         </site>
+         <site child="false" depth="0" myWorkspace="false" order="1" selected="false">
+            <url>http://localhost:8080/osp-portal/site/!admin</url>
+            <title>Administration Workspace</title>
+            <description>Administration Workspace</description>
+            <parent/>
+         </site>
+         <site child="false" depth="0" myWorkspace="false" order="2" selected="false">
+            <url>http://localhost:8080/osp-portal/site/40d004ad-754e-419a-008a-fa4087f75148</url>
+            <title>asdfasdfasdf</title>
+            <description>&amp;lt;p&amp;gt;sadfasdf&amp;lt;/p&amp;gt;</description>
+            <parent/>
+         </site>
+         <site child="false" depth="0" myWorkspace="false" order="3" selected="false">
+            <url>http://localhost:8080/osp-portal/site/mercury</url>
+            <title>mercury site</title>
+            <description></description>
+            <parent/>
+         </site>
+         <site child="false" depth="0" myWorkspace="false" order="4" selected="true">
+            <url>http://localhost:8080/osp-portal/site/5fcbd389-7ebc-4fbb-0039-68d12ac5140b</url>
+            <title>dsfasdfsadf</title>
+            <description>&amp;lt;p&amp;gt;asdf&amp;lt;/p&amp;gt;</description>
+            <parent/>
+         </site>
+      </tabsSites>
+      <tabsMoreSites/>
+   </sites>
+   <categories>
+      <category order="0" selected="false">
+         <key>org.theospi.portfolio.portal.model.ToolCategory.uncategorized</key>
+         <escapedKey>orgxtheospixportfolioxportalxmodelxToolCategoryxuncategorized</escapedKey>
+         <pages>
+            <page order="0" popUp="false" selected="false">
+               <title>Schedule</title>
+               <url>
+                  http://localhost:8080/xsl-portal/site/5fcbd389-7ebc-4fbb-0039-68d12ac5140b/page/994a095b-e910-4597-8053-fb0ed5be1682</url>
+               <popUrl>http://localhost:8080/xsl-portal/page/</popUrl>
+               <menuClass>icon-sakai-schedule</menuClass>
+            </page>
+         </pages>
+      </category>
+      <category order="1" selected="false">
+         <key>cat 1</key>
+         <escapedKey>catx1</escapedKey>
+         <pages>
+            <page order="0" popUp="false" selected="false">
+               <title>Announcements</title>
+               <url>
+                  http://localhost:8080/xsl-portal/site/5fcbd389-7ebc-4fbb-0039-68d12ac5140b/page/aa0ef310-98d8-4e25-004d-08b0160613d3</url>
+               <popUrl>http://localhost:8080/xsl-portal/page/</popUrl>
+               <menuClass>icon-sakai-announcements</menuClass>
+            </page>
+            <page order="0" popUp="false" selected="false">
+               <title>Resources</title>
+               <url>
+                  http://localhost:8080/xsl-portal/site/5fcbd389-7ebc-4fbb-0039-68d12ac5140b/page/591f57b2-335b-461d-0051-9b7932677a71</url>
+               <popUrl>http://localhost:8080/xsl-portal/page/</popUrl>
+               <menuClass>icon-sakai-resources</menuClass>
+            </page>
+         </pages>
+      </category>
+      <category order="2" selected="false">
+         <key>cat 2</key>
+         <escapedKey>catx2</escapedKey>
+         <pages>
+            <page order="0" popUp="false" selected="false">
+               <title>Email Archive</title>
+               <url>
+                  http://localhost:8080/xsl-portal/site/5fcbd389-7ebc-4fbb-0039-68d12ac5140b/page/32ba87e3-972a-43b4-00c8-54c17c4bce98</url>
+               <popUrl>http://localhost:8080/xsl-portal/page/</popUrl>
+               <menuClass>icon-sakai-mailbox</menuClass>
+            </page>
+         </pages>
+      </category>
+      <category order="3" selected="false">
+         <key>org.theospi.portfolio.portal.model.ToolCategory.uncategorized</key>
+         <escapedKey>orgxtheospixportfolioxportalxmodelxToolCategoryxuncategorized</escapedKey>
+         <pages>
+            <page order="0" popUp="false" selected="false">
+               <title>Roster</title>
+               <url>
+                  http://localhost:8080/xsl-portal/site/5fcbd389-7ebc-4fbb-0039-68d12ac5140b/page/af0c61e5-4dc6-4e99-80f9-ec298282c5fc</url>
+               <popUrl>http://localhost:8080/xsl-portal/page/</popUrl>
+               <menuClass>icon-sakai-site-roster</menuClass>
+            </page>
+         </pages>
+      </category>
+      <category order="4" selected="false">
+         <key>org.theospi.portfolio.portal.model.ToolCategory.uncategorized</key>
+         <escapedKey>orgxtheospixportfolioxportalxmodelxToolCategoryxuncategorized</escapedKey>
+         <pages>
+            <page order="0" popUp="false" selected="false">
+               <title>Evaluations</title>
+               <url>
+                  http://localhost:8080/xsl-portal/site/5fcbd389-7ebc-4fbb-0039-68d12ac5140b/page/8c22e3d1-9abc-4ecf-8050-555d8fb8a542</url>
+               <popUrl>http://localhost:8080/xsl-portal/page/</popUrl>
+               <menuClass>icon-osp-evaluation</menuClass>
+            </page>
+         </pages>
+      </category>
+      <category order="5" selected="false">
+         <key>org.theospi.portfolio.portal.model.ToolCategory.uncategorized</key>
+         <escapedKey>orgxtheospixportfolioxportalxmodelxToolCategoryxuncategorized</escapedKey>
+         <pages>
+            <page order="0" popUp="false" selected="false">
+               <title>Glossary</title>
+               <url>
+                  http://localhost:8080/xsl-portal/site/5fcbd389-7ebc-4fbb-0039-68d12ac5140b/page/88523fc1-6135-4bcb-80e5-2eebd90547aa</url>
+               <popUrl>http://localhost:8080/xsl-portal/page/</popUrl>
+               <menuClass>icon-osp-glossary</menuClass>
+            </page>
+         </pages>
+      </category>
+      <category order="6" selected="false">
+         <key>org.theospi.portfolio.portal.model.ToolCategory.uncategorized</key>
+         <escapedKey>orgxtheospixportfolioxportalxmodelxToolCategoryxuncategorized</escapedKey>
+         <pages>
+            <page order="0" popUp="false" selected="false">
+               <title>Matrices</title>
+               <url>
+                  http://localhost:8080/xsl-portal/site/5fcbd389-7ebc-4fbb-0039-68d12ac5140b/page/f3e7aedb-d1e0-4e4d-80e9-925ccf2c2009</url>
+               <popUrl>http://localhost:8080/xsl-portal/page/</popUrl>
+               <menuClass>icon-osp-matrix</menuClass>
+            </page>
+         </pages>
+      </category>
+      <category order="7" selected="false">
+         <key>org.theospi.portfolio.portal.model.ToolCategory.uncategorized</key>
+         <escapedKey>orgxtheospixportfolioxportalxmodelxToolCategoryxuncategorized</escapedKey>
+         <pages>
+            <page order="0" popUp="false" selected="false">
+               <title>Portfolio Templates</title>
+               <url>
+                  http://localhost:8080/xsl-portal/site/5fcbd389-7ebc-4fbb-0039-68d12ac5140b/page/2a2c8e3a-8389-4a54-8015-199a32403e7c</url>
+               <popUrl>http://localhost:8080/xsl-portal/page/</popUrl>
+               <menuClass>icon-osp-presTemplate</menuClass>
+            </page>
+         </pages>
+      </category>
+      <category order="8" selected="false">
+         <key>org.theospi.portfolio.portal.model.ToolCategory.uncategorized</key>
+         <escapedKey>orgxtheospixportfolioxportalxmodelxToolCategoryxuncategorized</escapedKey>
+         <pages>
+            <page order="0" popUp="false" selected="false">
+               <title>Reports</title>
+               <url>
+                  http://localhost:8080/xsl-portal/site/5fcbd389-7ebc-4fbb-0039-68d12ac5140b/page/ca790225-4ed2-4a68-80b5-7da603858c5d</url>
+               <popUrl>http://localhost:8080/xsl-portal/page/</popUrl>
+               <menuClass>icon-sakai-reports</menuClass>
+            </page>
+         </pages>
+      </category>
+      <category order="9" selected="false">
+         <key>org.theospi.portfolio.portal.model.ToolCategory.uncategorized</key>
+         <escapedKey>orgxtheospixportfolioxportalxmodelxToolCategoryxuncategorized</escapedKey>
+         <pages>
+            <page order="0" popUp="false" selected="false">
+               <title>Wizards</title>
+               <url>
+                  http://localhost:8080/xsl-portal/site/5fcbd389-7ebc-4fbb-0039-68d12ac5140b/page/ff37d671-8845-4d92-007c-bb9cd26f50cc</url>
+               <popUrl>http://localhost:8080/xsl-portal/page/</popUrl>
+               <menuClass>icon-osp-wizard</menuClass>
+            </page>
+         </pages>
+      </category>
+   </categories>
+   <externalized>
+      <entry key="org.theospi.portfolio.portal.project">
+         <value>Project</value>
+      </entry>
+      <entry key="org.theospi.portfolio.portal.model.designPublish">
+         <value>Design &amp; Publish</value>
+      </entry>
+      <entry key="org.theospi.portfolio.portal.gateway">
+         <value>Gateway</value>
+      </entry>
+      <entry key="org.theospi.portfolio.portal.portfolioAdmin">
+         <value>Administration</value>
+      </entry>
+      <entry key="org.theospi.portfolio.portal.myWorkspace">
+         <value>My Workspace</value>
+      </entry>
+      <entry key="org.theospi.portfolio.portal.model.collectReflect">
+         <value>Collect &amp; Reflect</value>
+      </entry>
+      <entry key="org.theospi.portfolio.portal.portfolio">
+         <value>Portfolio</value>
+      </entry>
+      <entry key="org.theospi.portfolio.portal.model.analyzeReport">
+         <value>Analyze &amp; Report</value>
+      </entry>
+      <entry key="org.theospi.portfolio.portal.other">
+         <value>Other</value>
+      </entry>
+      <entry key="org.theospi.portfolio.portal.course">
+         <value>Course</value>
+      </entry>
+      <entry key="org.theospi.portfolio.portal.model.guide">
+         <value>Guide</value>
+      </entry>
+      <entry key="org.theospi.portfolio.portal.model.reviewEvaluate">
+         <value>Review &amp; Evaluate</value>
+      </entry>
+      <entry key="sit_log">
+         <value>Logout</value>
+      </entry>
+      <entry key="sit_accessibility">
+         <value>go to accessibility information page</value>
+      </entry>
+      <entry key="log.ple">
+         <value>Please Login</value>
+      </entry>
+      <entry key="sit_worksites">
+         <value>Worksites</value>
+      </entry>
+      <entry key="sit_edit">
+         <value>Edit</value>
+      </entry>
+      <entry key="sit_worksiteshead">
+         <value>Worksites begin here</value>
+      </entry>
+      <entry key="sit_jumpcontent">
+         <value>jump to content</value>
+      </entry>
+      <entry key="sit_contentporttit">
+         <value>Content</value>
+      </entry>
+      <entry key="sit_help">
+         <value>Help</value>
+      </entry>
+      <entry key="sit_jumpworksite">
+         <value>jump to worksite list</value>
+      </entry>
+      <entry key="sit_mywor">
+         <value>My Workspace</value>
+      </entry>
+      <entry key="log.pass">
+         <value>password:</value>
+      </entry>
+      <entry key="sit_contentshead">
+         <value>Content begins here</value>
+      </entry>
+      <entry key="sit_worksite">
+         <value>worksite</value>
+      </entry>
+      <entry key="bread_separator">
+         <value>&gt;</value>
+      </entry>
+      <entry key="sit_jumptools">
+         <value>jump to tools list</value>
+      </entry>
+      <entry key="sit_presenceiframetit">
+         <value>Users Present in Site</value>
+      </entry>
+      <entry key="sit_toolshead">
+         <value>Tools begin here</value>
+      </entry>
+      <entry key="site_newwindow">
+         <value>Opens in a new window</value>
+      </entry>
+      <entry key="log.userid">
+         <value>user id:</value>
+      </entry>
+      <entry key="log.login">
+         <value>Login</value>
+      </entry>
+      <entry key="log.email">
+         <value>email</value>
+      </entry>
+      <entry key="sit_reset">
+         <value>Reset</value>
+      </entry>
+      <entry key="sit_more">
+         <value>- more -</value>
+      </entry>
+      <entry key="log.log">
+         <value>Log in</value>
+      </entry>
+      <entry key="sit_selectmessage">
+         <value>To operate the combo box, first press Alt+Down Arrow to open it, and then use the up and down arrow keys to scroll through the options.</value>
+      </entry>
+      <entry key="sit_presencetitle">
+         <value>Users present:</value>
+      </entry>
+   </externalized>
+</portal>
