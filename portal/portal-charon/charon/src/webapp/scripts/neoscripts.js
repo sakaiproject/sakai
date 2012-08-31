@@ -319,18 +319,21 @@ function f_filterResults(n_win, n_docel, n_body){
 function showToolMenu(e){
     e.preventDefault();
     var jqObj = $(e.target);
-    $('.toolMenus').removeClass('toolMenusActive')
-    if ($('.' + jqObj.attr('id')).length) {
+    var classId = jqObj.attr('id');
+    // We need to escape special chars, like exclamations, or else jQuery selectors don't work.
+    var id = classId.replace(/!/g,'\\!');
+    $('.toolMenus').removeClass('toolMenusActive');
+    if ($('.' + id).length) {
         $('#otherSiteTools').remove();
     }
     else {
         $('#otherSiteTools').remove();
-        var subsubmenu = "<ul id=\"otherSiteTools\" class=\"" + jqObj.attr('id') + "\">";
-        var siteURL = '/direct/site/' + jqObj.attr('id') + '/pages.json';
+        var subsubmenu = "<ul id=\"otherSiteTools\" class=\"" + classId + "\">";
+        var siteURL = '/direct/site/' + classId + '/pages.json';
         scroll(0, 0)
         var pos = jqObj.offset();
         var maxToolsInt = parseInt($('#maxToolsInt').text());
-        var goToSite = '<li class=\"otherSiteTool\"><span><a class=\"icon-sakai-see-all-tools\" href=\"' + portal.portalPath + '/site/' + jqObj.attr('id') + '\">' + $('#maxToolsAnchor').text() + '</a></span></li>';
+        var goToSite = '<li class=\"otherSiteTool\"><span><a class=\"icon-sakai-see-all-tools\" href=\"' + portal.portalPath + '/site/' + id + '\">' + $('#maxToolsAnchor').text() + '</a></span></li>';
         jQuery.getJSON(siteURL, function(data){
             $.each(data, function(i, item){
                 if (i <= maxToolsInt) {
