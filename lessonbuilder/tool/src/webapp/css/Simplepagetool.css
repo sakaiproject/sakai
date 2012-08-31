@@ -1,13 +1,13 @@
 .firstColumn {
-    width: 5%;
-    text-align: center; 
+	width: 5%;
+	text-align: center;
 }
 .secondColumn {
-    width: 65%;
+	width: 65%;
 	text-align: left;
 }
 .thirdColumn {
-    width: 10%;
+	width: 10%;
 	text-align: center;
 }
 .fourthColumn {
@@ -16,353 +16,367 @@
 }
 .firstHeader {
 	text-align: center;
-	font-size:20px;
+	font-size: 20px;
 }
 .secondtHeader {
-	text-align: left;
+	text-align: left
 }
 .thirdHeader {
-	text-align: center;
+	text-align: center
 }
 .fourthHeader {
-	text-align: left;
+	text-align: left
 }
 .bold {
-	font-weight:bold;	
+	font-weight: bold
 }
 .error {
-	font-weight:bold;
-	font-size:16px;
-	border-style:dotted;
-	border-width:2px;
-	background-color:#fdd;
-	margin-left:auto;
-	margin-right:auto;
-	width:200px;
-	text-align:center;
+	font-weight: bold;
+	font-size: 16px;
+	border-style: dotted;
+	border-width: 2px;
+	background-color: #fdd;
+	margin-left: auto;
+	margin-right: auto;
+	width: 200px;
+	text-align: center;
 }
 .expert {
 	margin-top: 15px;
-	border:1px solid black;
-	background-color:#eee;
+	border: 1px solid black;
+	background-color: #eee;
 	padding: 4px;
+}
+.nextprev {
+	font-size: 100% !important
+}
+#error {
+	left: 10px;
+	margin: 20px;
+}
+.neoPortletTitleWrap {
+	padding-bottom: 6px
+}
+.breadcrumbs a[title="Reset"] {
 
 }
-
-#error {
-       left:10px;
-       margin:20px;
+.breadcrumbs span {
+	display: inline-block;
+	margin-top: 1px;
+	margin-bottom: 3px;
 }
 .title {
-	font-weight:bold;
-	font-size:22px;	
+	font-weight: bold;
+	font-size: 1.2em;
+	color: #333;
+	display: inline-block;
+	margin-top: 1px;
+	margin-left: 2px;
 }
 .italic {
-	font-style:italic;	
+	font-style: italic
 }
 .indent {
-	margin-left:20px;	
+	margin-left: 20px
 }
 .indent2 {
-	margin-left:50px;	
+	margin-left: 50px
 }
 .indent3 {
-	margin-left:70px;	
+	margin-left: 70px
 }
 .hidden {
-	visibility:hidden;	
+	visibility: hidden
 }
 .rightJustify {
-	position:absolute;
-	right:0;	
+	position: absolute;
+	right: 0;
 }
 .fullwidth {
-	position:relative;
-	text-align:left;
-	width:100%;
+	position: relative;
+	text-align: left;
+	width: 100%;
 }
 .border {
-	border-style:solid;
-	border-width:2px;
+	border-style: solid;
+	border-width: 2px;
 }
 .border2 {
-	border-style:solid;
-	border-width:2px;
+	border-style: solid;
+	border-width: 2px;
 }
-
 .inset-text {
-	margin-top:1em;
-	border-style:solid;
-	padding-left:.5em;
-	border-width:2px;
-	width:97%;
+	margin-top: 1em;
+	border-style: solid;
+	padding-left: .5em;
+	border-width: 2px;
+	width: 97%;
 }
-
 .disabled:link {
-	color:#cccccc;	
+	color: #cccccc
 }
 .disabled:visited {
-	color:#cccccc;	
+	color: #cccccc
 }
 .disabled:active {
-	color:#cccccc;	
+	color: #cccccc
 }
 .disabled:hover {
-	color:#cccccc;	
+	color: #cccccc
 }
-a.ui-button:link,a.ui-button:visited {
-	color: black; text-decoration: none !important
+a.ui-button:link, a.ui-button:visited {
+	color: black;
+	text-decoration: none !important;
 }
 /* ff2, buttons don't work */
-a.edit-link:link,a.edit-link:visited,
-a.itemLink:link,a.itemLink:visited,
-a.multimedia-edit:link,a.multimedia-edit:visited,
-a.edit-youtube:link,a.edit-youtube:visited,
-a.edit-movie:link,a.edit-movie:visited{
+a.edit-link:link, a.edit-link:visited, a.itemLink:link, a.itemLink:visited, a.multimedia-edit:link, a.multimedia-edit:visited, a.edit-youtube:link, a.edit-youtube:visited, a.edit-movie:link, a.edit-movie:visited {
 	text-decoration: none !important;
-	background-color:#eee;
+	background-color: #eee;
 }
 #edit-title {
-	margin-left: 1em; 
-}			 
+	margin-left: 1em
+}
 .ui-button-text {
 	padding: 0.25em 0.8em !important
 }
 .itemclass {
-	margin-top: 1.0em; margin-bottom: 1.0em
+	margin-top: 1.0em;
+	margin-bottom: 1.0em;
 }
 .rowdescription {
-	margin-left: 2em;
+	margin-left: 2em
 }
 .description {
 	margin-top: 0.5em;
 	margin-bottom: 1em;
 }
 .youtubeWidth {
-	width:100%;
+	width: 100%
 }
 .shorttext textarea {
-	width: 95%;
+	width: 95%
 }
 #cc-dialog-label {
 	width: 95%;
-	margin-bottom:0.5em;
+	margin-bottom: 0.5em;
 }
 .edit-col {
-    padding-right: 10px;
-
+	padding-right: 10px
 }
 .ui-button-text {
-    font-weight:bold;
-    padding: 0px 4px !important;
+	font-weight: bold;
+	padding: 0px 4px !important;
 }
 .edit-col .ui-button-text, #show-pages .ui-button-text, #submit-grading .ui-button-text {
-    font-size:60%;
-    /*vertical-align:middle;*/
+	font-size: 60%;
+	/*vertical-align: middle;*/
 }
-
 .buttonItem {
-    padding-left: 20px;
+	padding-left: 20px
 }
-.offscreen { /* from drupal */
-    position: absolute !important;
-    clip: rect(1px 1px 1px 1px); /* IE6, IE7 */
-    clip: rect(1px, 1px, 1px, 1px);
+.offscreen {
+	/* from drupal */
+	position: absolute !important;
+	clip: rect(1px 1px 1px 1px); /* IE6, IE7 */
+	clip: rect(1px, 1px, 1px, 1px);
 }
+.fl-reorderer-movable-hover, .fl-reorderer-movable-selected {
+	background-color: #ccc
 }
-.fl-reorderer-movable-hover, .fl-reorderer-movable-selected{
-    background-color: #ccc;
-}
-
 .fl-reorderer-movable-dragging {
-    background-color: #faa;
+	background-color: #faa
 }
 .afterheader {
-   margin-top:1em;
+	margin-top: 1em
 }
-
 /* also uses nextprev. this is specific for ShowItem */
-.returnheader a:link,.returnheader a:visited { 
-   background-color: #fee !important;
+.returnheader a:link, .returnheader a:visited {
+	background-color: #fee !important
 }
-.returnheader a:hover,returnheader  a:active{ 
-   background-color: #edd !important;
+.returnheader a:hover, returnheader  a:active {
+	background-color: #edd !important
 }
-
 /* Comments */
 .author {
-	margin-right:15px;
-	font-weight:bold;
-	color:#039;
+	margin-right: 15px;
+	font-weight: bold;
+	color: #039;
 }
-
 .commentPageTitle {
-	margin-right:10px;
-	color:#906;
+	margin-right: 10px;
+	color: #906;
 }
-
 .commentDiv {
 	margin-top: 5px;
 	margin-bottom: 5px;
 	background-color: #e4edff;
-	padding:5px 10px;
+	padding: 5px 10px;
 }
-
 .commentBody {
-    margin-top: 3px;
+	margin-top: 3px
 }
-
 .commentsCell {
-	margin-bottom: 10px;
+	margin-bottom: 10px
 }
-
 .specialCommenter {
 	background-color: white;
 	padding: 0 3px 1px 3px;
 	-moz-border-radius: 3px;
 	-webkit-border-radius: 3px;
 	border-radius: 3px;
-	padding-top:1px;
+	padding-top: 1px;
 	padding-bottom: 1px;
 }
-
 /* Commenter looking at their own comment */
 .personalComment {
-	background-color: white;
+	background-color: white
 }
 /* Site Owner Comment */
 .ownerComment {
 	background-color: #CCCEED;
 	color: black;
 }
-
-.item-group-titles{
-        font-style:italic;
-        color: #930;
+.item-group-titles {
+	font-style: italic;
+	color: #930;
 	padding-left: 1em;
 }
 .returnwarning {
-   font-size:110%;
-}
-.nextprev .usebutton {
-
+	font-size: 110%
 }
 .nextprev .usebutton span {
-    font-size:inherit;
+	font-size: inherit
 }
 .link-div .usebutton {
-    font-size:160%;
+	font-size: 160%
 }
-.add-comment-button  {
-    margin: 7px 0px 2px 0px;
+.add-comment-button {
+	margin: 7px 0px 2px 0px
 }
 .add-comment-button span {
-    padding: 2px 8px 2px 8px;
+	padding: 2px 8px 2px 8px
 }
-
 .noDisplay {
-	display:none;
+	display: none
 }
 .imgCell {
-	height:10px;
-	width:10px;
+	height: 10px;
+	width: 10px;
 }
 .studentCell {
-	padding-left:7px;	
+	padding-left: 7px
 }
 .studentTitle {
-        color:black;
-	margin-top:0px;
+	color: black;
+	margin-top: 0px;
 }
 .studentContentTitle {
-        color:black;
-	margin-top:0px;
-	margin-bottom:.5em;
-	margin-left:40px;
+	color: black;
+	margin-top: 0px;
+	margin-bottom: .5em;
+	margin-left: 40px;
 }
 .studentContentTable {
-	border:none;
-	background-color:#e4edff;
-	padding:4px;
+	border: none;
+	background-color: #e4edff;
+	padding: 4px;
 	padding-bottom: 1em;
 	padding-top: 1em;
-}
-.studentRow {
 }
 .duecol {
 	padding-left: 2em !important
 }
-
 /* Dropdown Menu */
 ul#toolbar li {
-  display: inline;
-  position: relative;
+	display: inline;
+	position: relative;
 }
-
-#dropDownDiv {  
-  position:absolute;
-  width: 350px;
-  margin-top: 0.9em;
-  margin-left: 0.5em;
-  background-color: #EEE;
-  border: 1px solid black;
-  z-index: 10000;
-  
-  padding: 7px;
+#dropDownDiv {
+	position: absolute;
+	width: 350px;
+	margin-top: 0.9em;
+	margin-left: 0.5em;
+	background-color: #EEE;
+	padding: 10px !important;
+	background: #eeeeee !important;
+	background: -moz-linear-gradient(top, #eeeeee 0%, #e4e4e4 100%) !important;
+	background: -webkit-gradient(linear, left top, left bottom, color-stop(0%,#eeeeee), color-stop(100%,#e4e4e4)) !important;
+	background: -webkit-linear-gradient(top, #eeeeee 0%,#e4e4e4 100%) !important;
+	background: -o-linear-gradient(top, #eeeeee 0%,#e4e4e4 100%) !important;
+	background: -ms-linear-gradient(top, #eeeeee 0%,#e4e4e4 100%) !important;
+	background: linear-gradient(top, #eeeeee 0%,#e4e4e4 100%) !important;
+	border: 1px solid #d1d1d1 !important;
+	z-index: 10000;
+	padding: 7px;
 }
-
 /* have to undo much of the .navintratool */
-
 #dropDownDiv a {
-  border:none;
-  background-color:inherit;
-  padding: 0px;
-  margin: 0px 1em 0px 0px !important;
+	border: none;
+	background-color: inherit;
+	padding: 0px;
+	margin: 0px 1em 0px 0px !important;
 }
 #dropDownDiv span {
-  padding:0px;
-  border:none;
-  background-color:inherit;
-  margin: 0px;
+	padding: 0px;
+	border: none;
+	background-color: inherit;
+	margin: 0px;
+}
+#dropDownDiv * {
+	background: none !important;
+	border: none !important;
+	font-weight: normal !important;
+	margin: 0 !important;
+	padding: 0 !important;
+}
+#dropDownDiv span {
+	display: block !important
+}
+#dropDownDiv span>span {
+	display: inline !important
+}
+#dropDownDiv a, #dropDownDiv a>span {
+	font-weight: bold !important
+}
+#dropDownDiv a:hover {
+	color: inherit !important
 }
 span.nextprev {
-   margin-left:20px;
+	margin-left: 20px
 }
 a.nextprev {
-   margin-left:5px;
+	margin-left: 5px
 }
 img {
-	z-index:1;
+	z-index: 1
 }
 .statusImg {
-	vertical-align:middle;
-	margin-right:1px;
+	vertical-align: middle;
+	margin-right: 1px;
 }
 .unsubmitted {
-	background-color:#FFC9D7;
+	background-color: #FFC9D7
 }
 .gradingPaneLink span {
-	font-size:70%;
-	font-weight:normal;
+	font-size: 70%;
+	font-weight: normal;
 }
 .gradingTable {
-
 	border-collapse: collapse;
-	margin-top:20px;
+	margin-top: 20px;
 }
 .bottomBorder {
-	border-bottom: 1px solid black;
+	border-bottom: 1px solid black
 }
-
 .topBorder td {
-	border-top: 1px solid black;
+	border-top: 1px solid black
 }
 .gradingarea {
-	margin-left:1em;
-	padding:1px 5px;
-	display:inline-block;
-	font-size:90%;
-	background-color:#acf;
+	margin-left: 1em;
+	padding: 1px 5px;
+	display: inline-block;
+	font-size: 90%;
+	background-color: #acf;
 	-moz-border-radius: 3px;
 	-webkit-border-radius: 3px;
 	border-radius: 3px;
@@ -372,18 +386,17 @@ img {
 	background-color: #F8F8F8;
 }
 .linkCell {
-	  margin-top:1em
+	margin-top: 1em
 }
 .itemcopylink {
-	 display:none;
-	 border: 1px solid black;
-	 padding: 2px;
-	 margin-left: 2px;
-	 text-decoration:none !important;
-         background-color: #ffc;
+	display: none;
+	border: 1px solid black;
+	padding: 2px;
+	margin-left: 2px;
+	text-decoration: none !important;
+	background-color: #ffc;
 	-moz-border-radius: 2px;
 	-webkit-border-radius: 2px;
 	border-radius: 2px;
-	color:black !important;
-
+	color: black !important;
 }
