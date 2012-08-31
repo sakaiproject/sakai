@@ -685,7 +685,7 @@ public class CitationHelperAction extends VelocityPortletPaneledAction
 	}
 	
 	public void doGet(HttpServletRequest req, HttpServletResponse res) throws ServletException {
-		logger.info("doGet()");
+		logger.debug("doGet()");
 		String isAjaxRequest = req.getParameter("ajaxRequest"); 
 		if(isAjaxRequest != null && isAjaxRequest.trim().equalsIgnoreCase(Boolean.toString(true))) {
 			ParameterParser params = (ParameterParser) req.getAttribute(ATTR_PARAMS);
@@ -700,7 +700,9 @@ public class CitationHelperAction extends VelocityPortletPaneledAction
 			// html rendering. Other options might be HTML-fragment, XML, etc.
 			//String requestedMimetype = (String) toolSession.getAttribute(REQUESTED_MIMETYPE);
 			String requestedMimetype = params.getString(REQUESTED_MIMETYPE);
-			logger.info("doGet() requestedMimetype == " + requestedMimetype);
+			if(logger.isDebugEnabled()) {
+				logger.debug("doGet() requestedMimetype == " + requestedMimetype);
+			}
 			if(requestedMimetype != null && requestedMimetype.equals(MIMETYPE_JSON)) {
 				doGetJsonResponse(params, state, req, res);
 			} else if(requestedMimetype != null && requestedMimetype.equals(MIMETYPE_HTML)) {
@@ -791,19 +793,7 @@ public class CitationHelperAction extends VelocityPortletPaneledAction
 	}
 
 	public void doPost(HttpServletRequest req, HttpServletResponse res) throws ServletException {
-		logger.info("doPost()");
-		
-//		Enumeration<String> names = req.getHeaderNames();
-//		while(names.hasMoreElements()) {
-//			String name = names.nextElement();
-//			String value = req.getHeader(name);
-//			logger.info("doPost() header " + name + " == " + value);
-//		}
-//		
-//		Cookie[] cookies = req.getCookies();
-//		for(Cookie cookie : cookies) {
-//			logger.info("doPost() ==cookie== " + cookie.getName() + " == " + cookie.getValue());
-//		}
+		logger.debug("doPost()");
 		
 		// handle AJAX requests here and send other requests on to the VPPA dispatcher
 		String isAjaxRequest = req.getParameter("ajaxRequest"); 
@@ -820,7 +810,9 @@ public class CitationHelperAction extends VelocityPortletPaneledAction
 			// html rendering. Other options might be HTML-fragment, XML, etc.
 			//String requestedMimetype = (String) toolSession.getAttribute(REQUESTED_MIMETYPE);
 			String requestedMimetype = params.getString(REQUESTED_MIMETYPE);
-			logger.info("doPost() requestedMimetype == " + requestedMimetype);
+			if(logger.isDebugEnabled()) {
+				logger.debug("doPost() requestedMimetype == " + requestedMimetype);
+			}
 			if(requestedMimetype != null && requestedMimetype.equals(MIMETYPE_JSON)) {
 				doPostJsonResponse(params, state, req, res);
 			} else if(requestedMimetype != null && requestedMimetype.equals(MIMETYPE_HTML)) {

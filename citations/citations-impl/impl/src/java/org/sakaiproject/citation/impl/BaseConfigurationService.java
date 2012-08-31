@@ -94,6 +94,7 @@ public class BaseConfigurationService implements ConfigurationService, Observer
   private static final String SERVER_DEFAULT_LOCALE = Locale.ENGLISH.getLanguage();
   
   public static final String DEFAULT_SAVECITE_REFRESH_RATE = "5";
+  public static final int MAXIMUM_SAVECITE_REFRESH_RATE = 30;
 
   /*
    * All the following properties will be set by Spring using components.xml
@@ -166,16 +167,6 @@ public class BaseConfigurationService implements ConfigurationService, Observer
    */
   protected Map<String, List<Map<String, String>>> saveciteClients = new HashMap<String, List<Map<String,String>>>();
 
-  /**
-   * The number of seconds between AJAX requests to check for updates of the main window
-   * during a session searching for citations in a savecite client window.
-   */
-  protected String saveciteRefreshRate = DEFAULT_SAVECITE_REFRESH_RATE;
-  public void setSaveciteRefreshRate(String saveciteRefreshRate) {
-	  this.saveciteRefreshRate = saveciteRefreshRate;
-	  m_log.info("saveciteRefreshRate == " + this.saveciteRefreshRate);
-  }
-  
   /*
    * Interface methods
    */
@@ -1736,6 +1727,25 @@ public Collection<String> getAllCategoryXml()
    * @see org.sakaiproject.citation.api.ConfigurationService#getSaveciteRefreshRate()
    */
   public String getSaveciteRefreshRate() {
-	  return this.getConfigurationParameter("saveciteRefreshRate");
+	  String refreshRate = this.getConfigurationParameter("saveciteRefreshRate");
+	  if(refreshRate == null) {
+		// no stored value for refreshRate; use default
+		  refreshRate = DEFAULT_SAVECITE_REFRESH_RATE;
+	  } else {
+		  try {
+			  int num = Integer.parseInt(refreshRate);
+			  if(num < 1) {
+				  // stored value of refreshRate is too small; use default
+				  refreshRate = DEFAULT_SAVECITE_REFRESH_RATE;
+			  } else if(num > MAXIMUM_SAVECITE_REFRESH_RATE) {
+				  // stored value of refreshRate is too big; use max
+				  refreshRate = Integer.toString(MAXIMUM_SAVECITE_REFRESH_RATE);
+			  }
+		  } catch(NumberFormatException e) {
+			  // stored value of refreshRate is not a number; use default
+			  refreshRate = DEFAULT_SAVECITE_REFRESH_RATE;
+		  }
+	  }
+	  return refreshRate ;
   }
 }
