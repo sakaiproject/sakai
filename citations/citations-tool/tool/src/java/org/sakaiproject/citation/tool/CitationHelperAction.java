@@ -738,6 +738,8 @@ public class CitationHelperAction extends VelocityPortletPaneledAction
 			jsonMap.putAll(result);
 		} 
 		
+		jsonMap.put("saveciteRefreshRate", new Integer(this.configurationService.getSaveciteRefreshRate()));
+		
 		// convert to json string
 		String jsonString = JSONObject.fromObject(jsonMap).toString();
 		try {
@@ -871,6 +873,8 @@ public class CitationHelperAction extends VelocityPortletPaneledAction
 			Map<String,Object> result = this.createCitationList(params, state, req, res);
 			jsonMap.putAll(result);			
 		}
+		
+		jsonMap.put("saveciteRefreshRate", this.configurationService.getSaveciteRefreshRate());
 		
 		// convert to json string
 		String jsonString = JSONObject.fromObject(jsonMap).toString();

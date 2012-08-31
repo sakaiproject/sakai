@@ -281,5 +281,12 @@ public interface ConfigurationService
    * @return
    */
   public List<Map<String, String>> getSaveciteClientsForLocale(Locale locale);
+  
+  /**
+   * Access the current setting for the number of seconds between AJAX requests to check for updates 
+   * of the main window during a session searching for citations in a savecite client window.
+   * @return the number of seconds between requests.
+   */
+  public String getSaveciteRefreshRate();
 
 }

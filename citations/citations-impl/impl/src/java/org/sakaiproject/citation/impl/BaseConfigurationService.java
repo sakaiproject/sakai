@@ -92,6 +92,8 @@ public class BaseConfigurationService implements ConfigurationService, Observer
    * Locale that will be used if user's locale is not available. 
    */
   private static final String SERVER_DEFAULT_LOCALE = Locale.ENGLISH.getLanguage();
+  
+  public static final String DEFAULT_SAVECITE_REFRESH_RATE = "5";
 
   /*
    * All the following properties will be set by Spring using components.xml
@@ -163,6 +165,16 @@ public class BaseConfigurationService implements ConfigurationService, Observer
    * 
    */
   protected Map<String, List<Map<String, String>>> saveciteClients = new HashMap<String, List<Map<String,String>>>();
+
+  /**
+   * The number of seconds between AJAX requests to check for updates of the main window
+   * during a session searching for citations in a savecite client window.
+   */
+  protected String saveciteRefreshRate = DEFAULT_SAVECITE_REFRESH_RATE;
+  public void setSaveciteRefreshRate(String saveciteRefreshRate) {
+	  this.saveciteRefreshRate = saveciteRefreshRate;
+	  m_log.info("saveciteRefreshRate == " + this.saveciteRefreshRate);
+  }
   
   /*
    * Interface methods
@@ -726,6 +738,7 @@ public class BaseConfigurationService implements ConfigurationService, Observer
       saveParameter(document, parameterMap, "metasearch-username");
       saveParameter(document, parameterMap, "metasearch-password");
       saveParameter(document, parameterMap, "metasearch-baseurl");
+      saveParameter(document, parameterMap, "metasearch-enabled");
 
       saveParameter(document, parameterMap, "openurl-label");
       saveParameter(document, parameterMap, "openurl-resolveraddress");
@@ -740,6 +753,8 @@ public class BaseConfigurationService implements ConfigurationService, Observer
 
       saveParameter(document, parameterMap, "config-id");               // obsolete?
       saveParameter(document, parameterMap, "database-xml");            // obsolete?
+      
+      saveParameter(document, parameterMap, "saveciteRefreshRate");
       
       saveServletClientMappings(document);
 
@@ -1414,6 +1429,7 @@ public class BaseConfigurationService implements ConfigurationService, Observer
    * @param saveciteClients the saveciteClients to set
    */
   public void setSaveciteClients(Map<String, List<Map<String,String>>> saveciteClients) {
+	m_log.info("saveciteClients updated");
 	this.saveciteClients = saveciteClients;
 	if(m_log.isDebugEnabled()) {
 		if(this.saveciteClients == null) {
@@ -1713,5 +1729,13 @@ public Collection<String> getAllCategoryXml()
       url = m_externalSearchUrl;
     }
     return url;
+  }
+  
+  /*
+   * (non-Javadoc)
+   * @see org.sakaiproject.citation.api.ConfigurationService#getSaveciteRefreshRate()
+   */
+  public String getSaveciteRefreshRate() {
+	  return this.getConfigurationParameter("saveciteRefreshRate");
   }
 }
