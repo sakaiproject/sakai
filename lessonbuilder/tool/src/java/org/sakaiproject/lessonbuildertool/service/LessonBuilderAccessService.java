@@ -33,11 +33,14 @@ import java.util.List;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
+import org.sakaiproject.time.api.Time;
+import org.sakaiproject.time.cover.TimeService;
 import org.sakaiproject.authz.api.SecurityAdvisor;
 import org.sakaiproject.authz.api.SecurityService;
 import org.sakaiproject.authz.api.SecurityAdvisor.SecurityAdvice;
 import org.sakaiproject.content.api.ContentHostingService;
 import org.sakaiproject.content.api.ContentResource;
+import org.sakaiproject.content.api.ContentEntity;
 import org.sakaiproject.entity.api.EntityAccessOverloadException;
 import org.sakaiproject.entity.api.EntityCopyrightException;
 import org.sakaiproject.entity.api.EntityNotDefinedException;
@@ -170,6 +173,16 @@ public class LessonBuilderAccessService {
 	private static Cache accessCache = null;
 	protected static final int DEFAULT_EXPIRATION = 10 * 60;
 
+        SecurityAdvisor allowReadAdvisor = new SecurityAdvisor() {
+		public SecurityAdvice isAllowed(String userId, String function, String reference) {
+		    if("content.read".equals(function) || "content.hidden".equals(function)) {
+			return SecurityAdvice.ALLOWED;
+		    }else {
+			return SecurityAdvice.PASS;
+		    }
+		}
+	    };
+
 	public void init() {
 		lessonBuilderAccessAPI.setHttpAccess(getHttpAccess());
 
@@ -230,19 +243,9 @@ public class LessonBuilderAccessService {
 				itemString = itemString.substring(0, i);
 
 				boolean pushedAdvisor = false;
-				SecurityAdvisor advisor = null;
 				
 				try {
-					advisor = new SecurityAdvisor() {
-						public SecurityAdvice isAllowed(String userId, String function, String reference) {
-						    if("content.read".equals(function) || "content.hidden".equals(function)) {
-							return SecurityAdvice.ALLOWED;
-						    }else {
-							return SecurityAdvice.PASS;
-						    }
-						}
-					    };
-					securityService.pushAdvisor(advisor);
+					securityService.pushAdvisor(allowReadAdvisor);
 					
 					pushedAdvisor = true;
 				
@@ -307,19 +310,19 @@ public class LessonBuilderAccessService {
 						// in his own content if he wants it to be visible
 					    } else {
 						// do normal checking for other content
-						if(pushedAdvisor && advisor != null) {
+						if (pushedAdvisor) {
 						    securityService.popAdvisor();
 						    pushedAdvisor = false;
 						}
 						// our version of allowget does not check hidden but does everything else
-						if (!allowGetResource(id)) {
+						if (!allowGetResource(id, currentSiteId)) {
 						    throw new EntityPermissionException(sessionManager.getCurrentSessionUserId(), 
 							      ContentHostingService.AUTH_RESOURCE_READ, ref.getReference());
 						}
-						if(advisor != null) {
-						    securityService.pushAdvisor(advisor);
-						    pushedAdvisor = true;
-						}
+
+						securityService.pushAdvisor(allowReadAdvisor);
+						pushedAdvisor = true;
+
 					    }
 
 					    // now enforce LB access restrictions if any
@@ -360,7 +363,7 @@ public class LessonBuilderAccessService {
 					} else {
 
 					    // normal security. no reason to use advisor
-					    if(pushedAdvisor && advisor != null) securityService.popAdvisor();
+					    if(pushedAdvisor) securityService.popAdvisor();
 					    pushedAdvisor = false;
 
 					    // not uselb -- their allowget, not ours. theirs checks hidden
@@ -525,7 +528,7 @@ public class LessonBuilderAccessService {
 				}catch(Exception ex) {
 					throw new EntityNotDefinedException(ref.getReference());
 				}finally {
-				    if(pushedAdvisor && advisor != null) securityService.popAdvisor();
+				    if(pushedAdvisor) securityService.popAdvisor();
 				}
 			}
 		};
@@ -533,15 +536,16 @@ public class LessonBuilderAccessService {
 
 	// simplified versions of stuff from BaseContentService
 
-	public boolean allowGetResource(String id) {
-		return unlockCheck(ContentHostingService.AUTH_RESOURCE_READ, id);
+        public boolean allowGetResource(String id, String siteId) {
+	        return unlockCheck(ContentHostingService.AUTH_RESOURCE_READ, id, siteId);
 	}
 
 	public String getReference(String id) {
 		return "/content" + id; // apparently
 	}
 
-	protected boolean unlockCheck(String lock, String id) {
+        // specialized version for resources only. assumes it is called with advisor in place
+        protected boolean unlockCheck(String lock, String id, String siteId) {
 		boolean isAllowed = securityService.isSuperUser();
 		if (!isAllowed) {
 			// make a reference from the resource id, if specified
@@ -550,13 +554,62 @@ public class LessonBuilderAccessService {
 				ref = getReference(id);
 			}
 
+			// this will check basic access and group access. FOr that normal Sakai
+			// checking is fine.
 			isAllowed = ref != null && securityService.unlock(lock, ref);
-			// no checks of hidden or availability, since Lesson Builder does
-			// its own checks, and faculty may want to hide the area from normal
-			// access
+
+			// availability is for hidden and release date. Do our own, because
+			// we implement release date but ignore hidden. That lets faculty hide
+			// resources from normal view but still see them through Lessons
+
+			if (isAllowed) {
+			    // if site maintainer, don't check release dates. The real check is complex, involving
+			    // who owns the page. For our purposes if it's a resource in this site, allow a maintainer
+			    // to access it.
+			    if (canWritePage(siteId) && id.startsWith("/group/" + siteId))
+				return true;
+
+			    boolean pushedAdvisor = false;
+			    ContentResource resource = null;
+			    // we're used with allow all advisor in effect, so this is OK
+			    try {
+				// need advisor so we can look at resource to get its properties
+				securityService.pushAdvisor(allowReadAdvisor);
+				pushedAdvisor = true;
+
+				resource = contentHostingService.getResource(id);
+				isAllowed = isAvailable(resource);
+
+				securityService.popAdvisor();
+				pushedAdvisor = false;
+			    } catch (Exception e) {
+				isAllowed = false;
+			    } finally {
+				if (pushedAdvisor)
+				    securityService.popAdvisor();
+			    }
+			}
+
 		}
 		
 		return isAllowed;
+	}
+
+        // check release dates, both resource and collection. assumes it is called with advisor in place
+        // NOTE: does not enforce hidden
+        protected boolean isAvailable(ContentEntity entity) {
+	    Time now = TimeService.newTime();
+	    Time releaseDate = entity.getReleaseDate();
+	    if (releaseDate != null && ! releaseDate.before(now))
+		return false;
+	    Time retractDate = entity.getRetractDate();
+	    if (retractDate != null && ! retractDate.after(now))
+		return false;
+	    ContentEntity parent = (ContentEntity)entity.getContainingCollection();
+	    if (parent != null)
+		return isAvailable(parent);
+	    else
+		return true;
 	}
 
 	protected IOException copyRange(InputStream istream, OutputStream ostream, long start, long end) {
@@ -597,6 +650,11 @@ public class LessonBuilderAccessService {
 	public boolean canReadPage(String siteId) {
 		String ref = "/site/" + siteId;
 		return securityService.unlock(SimplePage.PERMISSION_LESSONBUILDER_READ, ref);
+	}
+
+	public boolean canWritePage(String siteId) {
+		String ref = "/site/" + siteId;
+		return securityService.unlock(SimplePage.PERMISSION_LESSONBUILDER_UPDATE, ref);
 	}
 
 
