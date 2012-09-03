@@ -116,12 +116,9 @@ public class PagePickerProducer implements ViewComponentProducer, NavigationCase
     //   pageMap - a map that starts out having all pages in the site, we remove entries as we show them
     //      that lets us find at the end anything that hasn't been shown
 
-    public void findAllPages(SimplePageItem pageItem, List<PageEntry>entries, Map<Long,SimplePage> pageMap, Set<Long>topLevelPages, int level) {
+    public void findAllPages(SimplePageItem pageItem, List<PageEntry>entries, Map<Long,SimplePage> pageMap, Set<Long>topLevelPages, int level, boolean toplevel) {
+	    // System.out.println("in findallpages " + pageItem.getName() + " " + toplevel);
 	    Long pageId = Long.valueOf(pageItem.getSakaiId());	    
-
-	    // already done if page is null
-	    if (pageMap.get(pageId) == null)
-	    	return;
 
 	    try {
 		if (pageItem.isPrerequisite() || simplePageBean.getItemGroups(pageItem, null, false) != null)
@@ -140,21 +137,30 @@ public class PagePickerProducer implements ViewComponentProducer, NavigationCase
 	    		somePagesHavePrerequisites = true;		    
 	    }
 
-
-	    // say done
-	    pageMap.remove(pageId);
-
 	    PageEntry entry = new PageEntry();
 	    entry.pageId = pageId;
 	    entry.itemId = pageItem.getId();
 	    entry.title = pageItem.getName();
 	    entry.level = level;
-	    entry.toplevel = (level == 0);
+	    entry.toplevel = toplevel;
 
 	    // add entry
 	    entries.add(entry);
 
+	    // if page has already been done, don't do the subpages. Otherwise we can
+	    // get into infinite loops
+
+	    // already done if removed from map.
+	    // however for top level pages, expand them for their primary entry,
+	    // i.e. when toplevel is set.
+	    if (pageMap.get(pageId) == null || (topLevelPages.contains(pageId) && !toplevel))
+	    	return;
+
+	    // say done
+	    pageMap.remove(pageId);
+
 	    // now recursively do subpages
+
 	    List<SimplePageItem> items = simplePageToolDao.findItemsOnPage(pageId);
 	    List<SimplePageItem> nexts = new ArrayList<SimplePageItem>();
 
@@ -163,38 +169,23 @@ public class PagePickerProducer implements ViewComponentProducer, NavigationCase
 	    	if (item.getType() == SimplePageItem.PAGE) {
 	    		Long pageNum = Long.valueOf(item.getSakaiId());
 
-	    		// show all pages where they appear, but for nexts and top-level
-	    		// do the full expansion later if necessary
-	    		if (item.getNextPage() || topLevelPages.contains(pageNum)) {
-	    			// if it has nexts show item here but treat it fully afterwards
-	    			PageEntry stub = new PageEntry();
-	    			stub.pageId = Long.valueOf(item.getSakaiId());
-	    			stub.itemId = item.getId();
-	    			stub.title = item.getName();
-	    			stub.level = level + 1;
-	    			stub.toplevel = (stub.level == 0);
-	    			entries.add(stub);
-	    			// if not top (which will be done anyway) schedule it to show after
-	    			// pageid = 0 is a top level page; it will be shown anyway
-	    			// if no sub pages, no need to expand it later
-	    			if (!topLevelPages.contains(pageNum)) {
-	    				if (hasSubPages(pageNum))
-	    					nexts.add(item);
-	    				else {
-	    					if (item.isPrerequisite())
-	    						somePagesHavePrerequisites = true;
-	    					// we're done with this page, don't show again
-	    					pageMap.remove(pageNum);
-	    				}
-	    			}
-	    		} else
-	    			findAllPages(item, entries, pageMap, topLevelPages, level +1);
+			// ignore top-level pages. 
+
+	    		// show next pages (including top level pages) after all the subpages
+			// so stick it on the delayed display list.
+			if (item.getNextPage())
+			    nexts.add(item);
+			else  {
+			    // System.out.println("call for subpage " + item.getName() + " " + false);
+			    findAllPages(item, entries, pageMap, topLevelPages, level +1, false);
+			}
 	    	}
 	    }
 	    // nexts done afterwards
 	    for (SimplePageItem item: nexts) {
 	    	if (item.getType() == SimplePageItem.PAGE) {
-	    		findAllPages(item, entries, pageMap, topLevelPages, level);
+		    // System.out.println("calling findallpage " + item.getName() + " " + false);
+		    findAllPages(item, entries, pageMap, topLevelPages, level, false);
 	    	}
 	    }
 	}
@@ -288,7 +279,8 @@ public class PagePickerProducer implements ViewComponentProducer, NavigationCase
 
 		// this adds everything you can find from top level pages to entries
 		for (SimplePageItem sitePageItem : sitePages) {
-		    findAllPages(sitePageItem, entries, pageMap, topLevelPages, 0);
+		    // System.out.println("findallpages " + sitePageItem.getName() + " " + true);
+		    findAllPages(sitePageItem, entries, pageMap, topLevelPages, 0, true);
 		}
 
 		// warn students if we aren't showing all the pages
@@ -342,6 +334,8 @@ public class PagePickerProducer implements ViewComponentProducer, NavigationCase
 		for (PageEntry entry: entries) {
 		    
 		    UIBranchContainer row = UIBranchContainer.make(form, "page:");
+		    if (entry.toplevel)
+			row.decorate(new UIFreeAttributeDecorator("style", "list-style-type:none; margin-top:1em"));
 		    
 		    if (entry.level < 0)
 		    	UIOutput.make(row, "heading", messageLocator.getMessage("simplepage.chooser.unused"));
