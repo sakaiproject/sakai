@@ -700,7 +700,7 @@ create index lb_items_sakaiid on lesson_builder_items(sakaiId);
 INSERT INTO SAKAI_SITE_PROPERTY VALUES ('!error', 'display-users-present', 'false');
 
 -- PRFL-612 add avatar image url column to uploaded and external image records
-alter table PROFILE_IMAGES_T add RESOURCE_AVATAR varchar2(4000);
+alter table PROFILE_IMAGES_T add RESOURCE_AVATAR varchar2(4000) not null;
 alter table PROFILE_IMAGES_EXTERNAL_T add URL_AVATAR varchar2(4000);
 
 -- BLTI-156
