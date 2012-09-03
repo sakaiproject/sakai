@@ -44,5 +44,5 @@ alter table PROFILE_PRIVACY_T add SHOW_ONLINE_STATUS number(1,0) default 0;
 
 
 /* add avatar image url to uploaded and external image records (PRFL-612) */
-alter table PROFILE_IMAGES_T add RESOURCE_AVATAR varchar2(4000);
+alter table PROFILE_IMAGES_T add RESOURCE_AVATAR varchar2(4000) not null;
 alter table PROFILE_IMAGES_EXTERNAL_T add URL_AVATAR varchar2(4000);
