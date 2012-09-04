@@ -1,0 +1,85 @@
+﻿<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE beans PUBLIC "-//SPRING//DTD BEAN//EN" "http://www.springframework.org/dtd/spring-beans.dtd">
+<beans>
+    <bean id="sectionInfoOverview" class="org.sakaiproject.component.app.help.model.ResourceBean">
+        <property name="docId">
+            <value>asxi_pt_BR</value>
+        </property>
+        <property name="name">
+            <value>Seção Info: Resumo</value>
+        </property>
+        <property name="location">
+            <value>/sakai_sections/asxi_pt_BR.html</value>
+        </property>
+		<property name="defaultForTool"><value>sakai.sections</value></property>
+    </bean>
+    <bean id="sectionsAndGroups" class="org.sakaiproject.component.app.help.model.ResourceBean">
+        <property name="docId">
+            <value>asyh_pt_BR</value>
+        </property>
+        <property name="name">
+            <value>Seções e Grupos</value>
+        </property>
+        <property name="location">
+            <value>/sakai_sections/asyh_pt_BR.html</value>
+        </property>
+    </bean>
+    <bean id="createEditDeleteSection" class="org.sakaiproject.component.app.help.model.ResourceBean">
+        <property name="docId">
+            <value>asxy_pt_BR</value>
+        </property>
+        <property name="name">
+            <value>Criar, editar, ou deletar uma seção</value>
+        </property>
+        <property name="location">
+            <value>/sakai_sections/asxy_pt_BR.html</value>
+        </property>
+    </bean>
+    <bean id="addMembers" class="org.sakaiproject.component.app.help.model.ResourceBean">
+        <property name="docId">
+            <value>asyl_pt_BR</value>
+        </property>
+        <property name="name">
+            <value>Adicionar membros do site em seções</value>
+        </property>
+        <property name="location">
+            <value>/sakai_sections/asyl_pt_BR.html</value>
+        </property>
+    </bean>
+    <bean id="addTeachingAssistants" class="org.sakaiproject.component.app.help.model.ResourceBean">
+        <property name="docId">
+            <value>asym_pt_BR</value>
+        </property>
+        <property name="name">
+            <value>Adicionar assistentes em seções</value>
+        </property>
+        <property name="location">
+            <value>/sakai_sections/asym_pt_BR.html</value>
+        </property>
+    </bean>
+
+    
+    <bean id="org.sakaiproject.api.app.help.TableOfContents" class="org.sakaiproject.component.app.help.model.TableOfContentsBean">
+        <property name="name">
+            <value>root</value>
+        </property>
+        <property name="categories">
+            <list>
+                <bean id="sectionCategory" class="org.sakaiproject.component.app.help.model.CategoryBean">
+                    <property name="name">
+                        <value>Seção Info</value>
+                    </property>
+                    <property name="resources">
+                        <list>
+                            <ref bean="sectionInfoOverview"/>
+                            <ref bean="sectionsAndGroups"/>
+                            <ref bean="createEditDeleteSection"/>
+                            <ref bean="addMembers"/>
+                            <ref bean="addTeachingAssistants"/>
+                        </list>
+                    </property>
+                </bean>
+            </list>
+        </property>
+    </bean>
+</beans>
