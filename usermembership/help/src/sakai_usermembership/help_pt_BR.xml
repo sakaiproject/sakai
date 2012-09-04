@@ -4,21 +4,21 @@
 <beans>
    <bean id="umemOverview" class="org.sakaiproject.component.app.help.model.ResourceBean">
       <property name="docId"><value>umem_overview_pt_BR</value></property>
-      <property name="name"><value>VisÃ£o Geral da ParticipaÃ§Ã£o do UsuÃ¡rio</value></property>
+      <property name="name"><value>Visão Geral da Participação do Usuário</value></property>
       <property name="location"><value>/sakai_usermembership/umem_overview_pt_BR.html</value></property>
       <property name="defaultForTool"><value>sakai.usermembership</value></property>
    </bean>
    
    <bean id="umemAddTool" class="org.sakaiproject.component.app.help.model.ResourceBean">
       <property name="docId"><value>umem_add_tool_pt_BR</value></property>
-      <property name="name"><value>Adicionar Ferramenta ParticipaÃ§Ã£o do UsuÃ¡rio </value></property>
+      <property name="name"><value>Adicionar Ferramenta Participação do Usuário </value></property>
       <property name="location"><value>/sakai_usermembership/umem_add_tool_pt_BR.html</value></property>
       <property name="defaultForTool"><value>sakai.usermembership</value></property>
    </bean>
    
    <bean id="umemGrantAccess" class="org.sakaiproject.component.app.help.model.ResourceBean">
       <property name="docId"><value>umem_grant_access_pt_BR</value></property>
-      <property name="name"><value>Conceder acesso da ferramenta para outros usuÃ¡rios</value></property>
+      <property name="name"><value>Conceder acesso da ferramenta para outros usuários</value></property>
       <property name="location"><value>/sakai_usermembership/umem_grant_access_pt_BR.html</value></property>
       <property name="defaultForTool"><value>sakai.usermembership</value></property>
    </bean>
@@ -36,7 +36,7 @@
       <property name="categories">
          <list>
             <bean id="umemCategory" class="org.sakaiproject.component.app.help.model.CategoryBean">
-               <property name="name"><value>User Membership</value></property>
+               <property name="name"><value>Participação do Usuário</value></property>
                <property name="resources">
                   <list>
                     <ref bean="umemOverview"/>
