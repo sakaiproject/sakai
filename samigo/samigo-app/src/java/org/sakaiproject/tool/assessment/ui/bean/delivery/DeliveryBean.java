@@ -3010,9 +3010,7 @@ public class DeliveryBean
         ACCEPT_LATE_SUBMISSION.equals(publishedAssessment.getAssessmentAccessControl().getLateHandling());
 
     // check 7: has dueDate arrived? if so, does it allow late submission?
-    // If it is a timed assessment and "No Late Submission" and not during a Retake, always go through. Because in this case the 
-    // assessment will be auto-submitted anyway - when time is up or when current date reaches due date (if the time limited is 
-    // longer than due date,) for either case, we want to redirect to the normal "submision successful page" after submitting.
+    // SAM-1591: timed assessments taken via URL should not allow the user to start if acceptLateSubmission=false
     if (pastDueDate()){
     	// If Accept Late and there is no submission yet, go through
     	if (acceptLateSubmission && totalSubmitted == 0) {
@@ -3023,8 +3021,8 @@ public class DeliveryBean
     		// Not during a Retake
     		if (actualNumberRetake == numberRetake) {
     	    	// If No Late, this is a timed assessment, and not during a Retake, go through (see above reason)
-    			if (!acceptLateSubmission && this.isTimedAssessment()) {
-    				log.debug("No Late Submission && timedAssessment");
+    			if (acceptLateSubmission) {
+    				log.debug("Allowing the late submission by the user");
     			}
     			else {
     				log.debug("noLateSubmission");
