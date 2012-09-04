@@ -1,0 +1,72 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE beans PUBLIC "-//SPRING//DTD BEAN//EN" "http://www.springframework.org/dtd/spring-beans.dtd">
+<beans>
+    <bean id="mcAbout" class="org.sakaiproject.component.app.help.model.ResourceBean">
+        <property name="docId"> <value>avaq_pt_BR</value> </property>
+        <property name="name"> <value>Mensagens</value> </property>
+        <property name="location"> <value>/sakai_messages/avaq_pt_BR.html</value> </property>
+		<property name="defaultForTool"> <value>sakai.messages</value> </property>
+    </bean>
+    <bean id="mcOverview" class="org.sakaiproject.component.app.help.model.ResourceBean">
+        <property name="docId"> <value>avao_pt_BR</value> </property>
+        <property name="name"> <value>Mensagens: Resumo</value> </property>
+        <property name="location"> <value>/sakai_messages/avao_pt_BR.html</value> </property>
+    </bean>
+    <bean id="mcSendPm" class="org.sakaiproject.component.app.help.model.ResourceBean">
+        <property name="docId">
+            <value>augw_pt_BR</value>
+        </property>
+        <property name="name">
+            <value>Enviar e responder mensagens</value>
+        </property>
+        <property name="location">
+            <value>/sakai_messages/augw_pt_BR.html</value>
+        </property>
+    </bean>
+    <bean id="mcViewPm" class="org.sakaiproject.component.app.help.model.ResourceBean">
+        <property name="docId">
+            <value>augv_pt_BR</value>
+        </property>
+        <property name="name">
+            <value>Ver e gerenciar mensagens</value>
+        </property>
+        <property name="location">
+            <value>/sakai_messages/augv_pt_BR.html</value>
+        </property>
+    </bean>
+    <bean id="mcSearchPm" class="org.sakaiproject.component.app.help.model.ResourceBean">
+        <property name="docId">
+            <value>atrg_pt_BR</value>
+        </property>
+        <property name="name">
+            <value>Pesquisar mensagens</value>
+        </property>
+        <property name="location">
+            <value>/sakai_messages/atrg_pt_BR.html</value>
+        </property>
+    </bean>
+    
+    <bean id="org.sakaiproject.api.app.help.TableOfContents" class="org.sakaiproject.component.app.help.model.TableOfContentsBean">
+        <property name="name">
+            <value>root</value>
+        </property>
+        <property name="categories">
+            <list>
+                <bean id="messagesCategory" class="org.sakaiproject.component.app.help.model.CategoryBean">
+                    <property name="name">
+                        <value>Mensagens</value>
+                    </property>
+                    <property name="resources">
+                        <list>
+                            <ref bean="mcAbout"/>
+                            <ref bean="mcOverview"/>
+                            <ref bean="mcSendPm" />
+                            <ref bean="mcViewPm" />
+                            <ref bean="mcSearchPm" />
+                        </list>
+                    </property>
+                </bean>
+            </list>
+        </property>
+    </bean>
+</beans>
