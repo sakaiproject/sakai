@@ -1,0 +1,84 @@
+﻿<!-- Translated by: LARC: Laboratory of Computer Architecture and Networks - USP - University of Sao Paulo - Sao Paulo, Brazil --> 
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.0 Transitional//EN">
+<html version="-//W3C//DTD HTML 3.2//EN">
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+<title>Search Administration</title>
+<link type="text/css" href="/library/skin/tool_base.css" rel="stylesheet">
+<link type="text/css" href="/library/skin/default/tool.css" rel="stylesheet">
+</head>
+<body>
+<div class="helpBody">
+<h2>Administração</h2>
+
+<p><strong>Observação:</strong> Para completar os procedimentos deste
+documento, você deve possuir um papel com as permissões necessárias.
+Para determinar seu papel, siga as instruções em <a href="content.hlp?docId=arbu_pt_BR">Papéis dos Participantes</a>.  
+Para um entendimento básico de papéis e permissões, veja <a href="content.hlp?docId=arax_pt_BR">Papéis e permissões: Resumo</a>.</p>
+<p>
+Usuários com a permissão de Atualização do Site podem administrar os aspectos do mecanismo de busca para o site.
+Administradores de instância, como por exemplo o usuário administrador, estão autorizados a administrar todos os aspectos do mecanismo de busca.
+Esses usuários têm permissão de acesso à página de administração da ferramenta de busca.
+Esta página dá a estes usuários o acesso a partes do Mecanismo de Pesquisa que é usado pela ferramenta de busca.
+<p>
+A página de Administração mostra informações sobre os tópicos de indexação de trabalho no cluster de servidor, e seu estado.
+Ele também mostra informações sobre a fila do índice corrente.
+</p>
+<p>
+<b>Fila de índice:</b> A fila de índice é uma fila de comandos de indexação que são decretadas mediante tópicos indexador de busca.
+Estes comandos leva 3 formas.
+</p>
+<ul>
+<li>
+Comandos globais que controlam o mecanismo de busca inteiro.
+</li>
+<li>
+Comandos do site de nível que controlam o mecanismo de pesquisa no contexto do atual site.
+</li>
+<li>
+Comandos de documentos que informam o mecanismo de busca de itens a serem adicionados ou removidos do índice.
+</li>
+</ul>
+<p>
+<b>Comandos Globais (Reconstruir Índice inteiro, Atualizar Índice inteiro, Remover Bloqueio)</b> 
+ Apenas instância de administradores têm permissão para executar operações globais.. 
+ Essas operações são, <em>reconstruir</em>, <em>atualizar</em> e <em>liberar bloqueio</em>. 
+ Reconstrução Global exclui todo o índice, e solicita que todas as ferramentas do sistema envie novamente todo o conteúdo para o mecanismo de pesquisa para reindexação.
+ Esta operação só deve ser realizada com cautela, já que um site grande pode levar várias horas para concluir esta operação.
+ Atualização global leva todo o conteúdo conhecido para o mecanismo de busca, e atualiza o índice.
+ Embora este comando esteja sendo adaptado em cima dos tópicos de indexador, o índice de pesquisa ainda vai conter todo o conteúdo.
+ O comando de liberação de bloqueio só deve ser emitido se o operador estiver certo que o segmento indexador, que é o suposto a realizar a operação índice corrente, morreu.
+ Isso quase nunca deve ser necessário, como cada segmento indexador emite uma pulsação para o cluster que obedece a sua performance.
+ Se qualquer segmento indexador não emitir uma pulsação, ou tornou-se atrasado, possui um bloqueio de gravação no índice, 
+  ele terá o bloqueio removido por um outro segmento do indexador, o que irá permitir que um dos segmentos de indexador recupere a operação de indexação.
+</p>
+<p>
+<b>Comandos do site: (Reconstruir Índice do Site, Atualizar Índice do Site)</b> Os administradores do site ou maintainers tem permissões às questões dos comandos de atualização e reconstrução 
+ contra o site que eles mantêm.
+</p>
+<p>
+<b>Status da Atualização:</b> Isso simplesmente atualiza a página para lhe dar informações sobre o status do mecanismo.
+</p>
+<h3>Informação de Feedback</h3>
+
+<p>
+O primeiro bloco de informações informa quando que o índice foi último a ser carregado pelo Pesquisador de Índice no nó do cluster que você está conectado.
+Ele também informa sobre a atividade do índice corrente, que pode ser <em> nenhum </em> se nenhuma indexação está sendo executada, ou um ID do segmento do indexador e um tempo de espera de conclusão, se houver uma operação de índice em andamento.
+O item de informação final neste bloco é o estado do índice e a fila de índice.
+</p>
+<p>
+Registros de Controle Mater informa sobre o estado de todos os comandos globais na fila de índice. 
+ Registros de controle do site informa sobre o estado de quaisquer registros de trabalho de controle na fila índice do site. 
+ Isso irá incluir comandos de outros sites que você mantém.
+</p>
+<p>
+Trabalhadores do Índice fornece uma lista de tópicos do indexador no cluster do Sakai.
+ Nesta lista é o ID do segmento, a última vez que uma pulsação foi recebida e o estado atual do segmento, seja inativo ou em execução. 
+ O ID de seu segmento estará presente no bloco de informação em primeiro lugar com um tempo estimativa de realização.
+</p>
+<p>
+Finalmente, há um bloco de informações sobre os segmentos de pesquisa do índice que são usados pelo mecanismo de busca para armazenar seu estado.
+</p>
+</div>
+</body>
+</html>

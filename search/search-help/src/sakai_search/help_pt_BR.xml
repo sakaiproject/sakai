@@ -1,0 +1,72 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE beans PUBLIC "-//SPRING//DTD BEAN//EN" "http://www.springframework.org/dtd/spring-beans.dtd">
+<beans>
+  <bean id="searchContent1" class="org.sakaiproject.component.app.help.model.ResourceBean">
+    <property name="docId">
+      <value>search_content1_pt_BR</value>
+    </property>
+    <property name="name">
+      <value>Busca: Resumo</value>
+    </property>
+    <property name="location">
+      <value>/sakai_search/overview_pt_BR.htm</value>
+    </property>
+    <property name="defaultForTool"><value>sakai.search</value></property>
+
+  </bean>
+  <bean id="searchContent2" class="org.sakaiproject.component.app.help.model.ResourceBean">
+    <property name="docId">
+      <value>search_content2_pt_BR</value>
+    </property>
+    <property name="name">
+      <value>Busca Básica</value>
+    </property>
+    <property name="location">
+      <value>/sakai_search/basic_search_pt_BR.htm</value>
+    </property>
+  </bean>
+  <bean id="searchContent3" class="org.sakaiproject.component.app.help.model.ResourceBean">
+    <property name="docId">
+      <value>search_content3_pt_BR</value>
+    </property>
+    <property name="name">
+      <value>Busca Avançada</value>
+    </property>
+    <property name="location">
+      <value>/sakai_search/advanced_search_pt_BR.htm</value>
+    </property>
+  </bean>
+  <bean id="searchContent4" class="org.sakaiproject.component.app.help.model.ResourceBean">
+    <property name="docId">
+      <value>search_content4_pt_BR</value>
+    </property>
+    <property name="name">
+      <value>Administração</value>
+    </property>
+    <property name="location">
+      <value>/sakai_search/administration_pt_BR.htm</value>
+    </property>
+  </bean>
+  <bean id="org.sakaiproject.api.app.help.TableOfContents" class="org.sakaiproject.component.app.help.model.TableOfContentsBean">
+    <property name="name">
+      <value>root</value>
+    </property>
+    <property name="categories">
+      <list>
+        <bean id="search1" class="org.sakaiproject.component.app.help.model.CategoryBean">
+          <property name="name">
+            <value>Busca</value>
+          </property>
+          <property name="resources">
+            <list>
+              <ref bean="searchContent1"/>
+              <ref bean="searchContent2"/>
+              <ref bean="searchContent3"/>
+              <ref bean="searchContent4"/>
+            </list>
+          </property>
+        </bean>
+      </list>
+    </property>
+  </bean>
+</beans>
