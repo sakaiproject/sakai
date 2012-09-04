@@ -60,10 +60,17 @@ public interface Area extends MutableEntity {
 
     public void setEnabled(Boolean enabled);
     
-    /**  This option was replaced by sendToEmail via MSGCNTR-708
+    /**
+     * {@link Deprecated} This option was replaced by sendToEmail via MSGCNTR-708. DO NOT USE.
+     * @return
+     */
     public Boolean getSendEmailOut();
     
-    public void setSendEmailOut(Boolean sendEmailOut);**/
+    /**
+     * {@link Deprecated} This option was replaced by sendToEmail via MSGCNTR-708. DO NOT USE.
+     * @param sendEmailOut
+     */
+    public void setSendEmailOut(Boolean sendEmailOut);
     
     /**
      * 

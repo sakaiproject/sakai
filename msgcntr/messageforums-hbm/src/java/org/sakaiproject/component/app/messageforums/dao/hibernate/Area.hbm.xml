@@ -43,9 +43,9 @@
       <column name="ENABLED" not-null="true" />
     </property>
     <!-- This column is deprecated and replaced by sendToEmail - will eventually be deleted -->
-    <!-- <property name="sendEmailOut">
+    <property name="sendEmailOut">
       <column name="SENDEMAILOUT" not-null="true" />
-    </property>-->
+    </property>
     <!-- setting for sending an email copy of messages - ie no email copy, sender's choice, always copy to email  -->
     <property name="sendToEmail" type="integer">
         <column name="SEND_TO_EMAIL" not-null="true" />

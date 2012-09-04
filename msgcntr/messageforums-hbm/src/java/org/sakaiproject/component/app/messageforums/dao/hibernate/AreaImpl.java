@@ -51,6 +51,8 @@ public class AreaImpl extends MutableEntityImpl implements Area
   
   private Boolean enabled;
   
+  private Boolean sendEmailOut=false;
+  
   private int sendToEmail;
 
   private String typeUuid;
@@ -401,5 +403,19 @@ public Set getDiscussionForumsSet() {
 	public void setHiddenGroups(Set hiddenGroups) {
 		this.hiddenGroups = hiddenGroups;
 	}
+
+      /**
+       * {@link Deprecated} This option was replaced by sendToEmail via MSGCNTR-708
+       */
+      public Boolean getSendEmailOut() {
+          return sendEmailOut;
+      }
+    
+      /**
+       * {@link Deprecated} This option was replaced by sendToEmail via MSGCNTR-708
+       */
+      public void setSendEmailOut(Boolean sendEmailOut) {
+          this.sendEmailOut = sendEmailOut;
+      }
 
 }
