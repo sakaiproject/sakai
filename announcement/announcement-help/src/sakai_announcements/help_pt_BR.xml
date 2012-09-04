@@ -47,7 +47,7 @@
       <property name="categories">
          <list>
             <bean id="announcementCategory" class="org.sakaiproject.component.app.help.model.CategoryBean">
-               <property name="name"><value>Announcements</value></property>
+               <property name="name"><value>Avisos</value></property>
                <property name="resources">
                   <list>
                      <ref bean="announcementAbout"/>
