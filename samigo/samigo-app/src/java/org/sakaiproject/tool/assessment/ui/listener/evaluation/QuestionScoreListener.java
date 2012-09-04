@@ -215,9 +215,11 @@ public class QuestionScoreListener implements ActionListener,
 			if (ContextUtil.lookupParam("sortBy") != null
 					&& !ContextUtil.lookupParam("sortBy").trim().equals(""))
 				bean.setSortType(ContextUtil.lookupParam("sortBy"));
+			
 			String itemId = ContextUtil.lookupParam("itemId");
 			if (ContextUtil.lookupParam("newItemId") != null
-					&& !ContextUtil.lookupParam("newItemId").trim().equals(""))
+					&& !ContextUtil.lookupParam("newItemId").trim().equals("")
+					&& !ContextUtil.lookupParam("newItemId").trim().equals("null"))
 				itemId = ContextUtil.lookupParam("newItemId");
 
 			if (ContextUtil.lookupParam("sortAscending") != null
