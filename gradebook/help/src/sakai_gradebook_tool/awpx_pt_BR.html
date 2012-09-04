@@ -1,0 +1,285 @@
+﻿<!-- Translated by: LARC: Laboratory of Computer Architecture and Networks - USP - University of Sao Paulo - Sao Paulo, Brazil --> 
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html><head>
+<title>How categories and weighting affect
+     grade calculation in Gradebook</title>
+<style type="text/css">
+		/* Style for specific inline images */
+		div.image{display: inline;}div.image{display: inline;}div.image{display: inline;}div.image{display: inline;}
+		/* Style for specific ordered lists */
+		
+		/* Style for specific table cells */
+		</style>
+<link type="text/css" href="/library/skin/tool_base.css" media="all" rel="stylesheet" />
+<link type="text/css" href="/library/skin/default/tool.css" media="all" rel="stylesheet" />
+</head>
+<body>
+<div class="helpBody">
+<h2>Como categorias e ponderação afetam o cálculo na nota do Quadro de Notas</h2>
+
+<p>A forma como o seu quadro de notas irá calcular notas do curso depende de como você configurou. 
+Para mais informações sobre como configurar o Quadro de Notas, veja
+<a href="content.hlp?docId=avdp_pt_BR">Usar categorias e notas ponderadas em Quadro de Notas</a>. 
+Os exemplos a seguir ajudarão você a compreender como as diferentes opções em <strong><code>Configurar 
+Quadro de Notas</code></strong> afetará a forma como as notas dos alunos do curso são calculadas.</p>
+
+<a name="top"> </a>
+
+<p>Nessa página:</p>
+
+
+
+<ul><li><a href="#percent">Exibir notas como percentagens sem categorias e nenhuma ponderação</a> 
+</li><li><a href="#percentweight">Exibir notas como percentagens com as categorias ponderadas</a>
+</li><li><a href="#pointweight">Exibir notas como pontos ponderados com as categorias</a>
+</li><li><a href="#point">Exibir notas como pontos com categorias simples e sem ponderação</a>
+</li></ul>
+
+<hr />
+
+<a name="percent"> </a>
+
+<h3>Exibir notas como percentagens sem categorias e nenhuma ponderação</h3>
+
+<p>Neste exemploo instrutor criou o quadro de notas sem categorias e nenhuma ponderação e decidiu digitar as notas como porcentagens.</p>
+
+<div class="inlineimage image"><img class="noborder" src="image/a013m.gif" alt="gradebook table" /></div>
+
+
+<p>A nota do curso é calculada da seguinte forma:</p>
+
+<table class="noborder" cellpadding="4"><col /><col /><col /><col />
+<tr valign="top">
+<th align="left" class="noborder">Título</th><th align="left" class="noborder">Nota (%)</th>
+<th align="left" class="noborder">Valor do Item</th>
+<th align="left" class="noborder">Nota em pontos</th>
+</tr>
+<tr valign="top">
+<td align="left" class="noborder">Essay</td>
+<td align="left" class="noborder">90</td>
+<td align="left" class="noborder">45</td>
+<td align="left" class="noborder">40.5 (90% of 45)</td>
+</tr>
+<tr valign="top">
+<td align="left" class="noborder">Lab</td>
+<td align="left" class="noborder">80</td>
+<td align="left" class="noborder">45</td>
+<td align="left" class="noborder">36 (80% of 45)
+</td></tr></table>
+
+<p><strong>Total:</strong> 90 pontos</p>
+
+<p><strong>Nota do Curso:</strong> 85% [(40.5+36)/90 * 100)]</p>
+
+<p><a href="#top">Voltar ao topo</a></p>
+
+<a name="percentweight"> </a>
+
+<h3>Exibir notas como percentagens com as categorias ponderadas</h3>
+
+<p>Neste exemplo, o instrutor criou o quadro de notas com as categorias ponderadas e decidiu digitar as notas como porcentagens.</p>
+
+<div class="inlineimage image"><img class="noborder" src="image/a013n.gif" alt="gradebook table" /></div>
+
+
+<p>A nota do curso é calculada da seguinte forma:</p>
+
+<h4>Categoria Essays (70% peso)</h4>
+
+<table class="noborder" cellpadding="4"><col /><col /><col /><col /><col />
+<tr valign="top">
+<th align="left" class="noborder">Título</th>
+<th align="left" class="noborder">Nota (%)</th>
+<th align="left" class="noborder">Valor do Item</th>
+<th align="left" class="noborder">Peso na  Categoria</th>
+<th align="left" class="noborder">Nota Ponderada (%)
+</th></tr><tr valign="top">
+<td align="left" class="noborder">Essay 1</td>
+<td align="left" class="noborder">50</td>
+<td align="left" class="noborder">50</td>
+<td align="left" class="noborder">0.50 [50/(50+30+20)]</td>
+<td align="left" class="noborder">25 (50*.50)
+</td></tr><tr valign="top">
+<td align="left" class="noborder">Essay 2</td>
+<td align="left" class="noborder">50</td>
+<td align="left" class="noborder">30</td>
+<td align="left" class="noborder">0.30 [30/(50+30+20)]</td>
+<td align="left" class="noborder">15 (50*.30)
+</td></tr><tr valign="top">
+<td align="left" class="noborder">Essay 3</td>
+<td align="left" class="noborder">50</td>
+<td align="left" class="noborder">20</td>
+<td align="left" class="noborder">0.20 [20/(50+30+20)]</td>
+<td align="left" class="noborder">10 (50*.20)
+</td></tr></table>
+
+<p><strong>Total (Essays):</strong> 50% (25+15+10)</p>
+
+<h4>Categoria Labs (30% peso)</h4>
+
+<table class="noborder" cellpadding="4"><col /><col /><col /><col /><col />
+<tr valign="top">
+<th align="left" class="noborder">Título</th>
+<th align="left" class="noborder">Nota (%)</th>
+<th align="left" class="noborder">Valor do Item</th>
+<th align="left" class="noborder">Peso na  Categoria</th>
+<th align="left" class="noborder">Nota Ponderada (%)
+</th></tr><tr valign="top">
+<td align="left" class="noborder">Lab 1</td>
+<td align="left" class="noborder">100</td>
+<td align="left" class="noborder">50</td>
+<td align="left" class="noborder">0.50 [50/(50+50)]</td>
+<td align="left" class="noborder">50 (100*.50)
+</td></tr><tr valign="top">
+<td align="left" class="noborder">Lab 2</td>
+<td align="left" class="noborder">100</td>
+<td align="left" class="noborder">50</td>
+<td align="left" class="noborder">0.50 [50/(50+50)]</td>
+<td align="left" class="noborder">50 (100*.50)
+</td></tr></table>
+
+<p><strong>Total (Labs):</strong> 100% (50+50)
+</p><p><strong>Nota Geral do Curso(Essays e Labs):</strong> 65%</p>
+
+<table class="noborder" cellpadding="4"><col /><col />
+<tr valign="top">
+<td align="left" class="noborder">Essays</td>
+<td align="left" class="noborder">35% (70%*50%)</td>
+</tr><tr valign="top">
+<td align="left" class="noborder">Labs</td>
+<td align="left" class="noborder">30% (30%*100%)
+</td></tr><tr valign="top">
+ <td align="left" class="noborder"><strong>Total</strong> </td><td align="left" class="noborder">65% (35%+30%)</td></tr></table>
+
+<p><a href="#top">Voltar ao topo</a></p>
+
+<a name="pointweight"> </a>
+
+<h3>Exibir notas como pontos ponderados com as categorias</h3>
+
+<p>Neste exemplo, o instrutor criou o Quadro de Notas com categorias ponderadas e escolheu para digitar as Notas como pontos.  </p>
+
+<div class="inlineimage image"><img class="noborder" src="image/a014f.gif" alt="gradebook table" /></div>
+
+
+<p>A nota do curso é calculada da seguinte forma:</p>
+
+<h4>Categoria Essays (70% weight)</h4>
+
+<p>Note que na Categoria Essays os itens têm valores diferentes de pontuação (ponderação proporcional). 
+Os itens com maior valor de ponto de ter uma maior influência sobre a Nota (por exemplo, 
+o ensaio 50-point tem um peso muito maior do que o ensaio de 20 pontos).</p>
+
+<table class="noborder" cellpadding="4"><col /><col /><col />
+<tr valign="top">
+<th align="left" class="noborder">Título</th>
+<th align="left" class="noborder">Nota (Points)</th>
+<th align="left" class="noborder">Valor do Item</th></tr>
+<tr valign="top">
+<td align="left" class="noborder">Essay 1</td>
+<td align="left" class="noborder">45</td>
+<td align="left" class="noborder">50</td>
+</tr><tr valign="top">
+<td align="left" class="noborder">Essay 2</td>
+<td align="left" class="noborder">18</td>
+<td align="left" class="noborder">30</td></tr>
+<tr valign="top">
+<td align="left" class="noborder">Essay 3</td>
+<td align="left" class="noborder">15</td>
+<td align="left" class="noborder">20</td></tr>
+<tr valign="top">
+<th align="left" class="noborder">Total</th>
+<th align="left" class="noborder">78</th>
+<th align="left" class="noborder">100</th></tr></table>
+
+<p><strong>Total (Essays):</strong> 78% (78/100)*100</p>
+
+<h4>Categoria Labs (30% weight)</h4>
+
+<p>Todos os itens na Categoria Labs têm o mesmo valor (peso igual) e influencia a nota igualmente.</p>
+
+<table class="noborder" cellpadding="4"><col /><col /><col />
+<tr valign="top">
+<th align="left" class="noborder">Título</th>
+<th align="left" class="noborder">Nota (Pontos)</th>
+<th align="left" class="noborder">Valor do Item</th></tr>
+<tr valign="top">
+<td align="left" class="noborder">Lab 1</td>
+<td align="left" class="noborder">24</td>
+<td align="left" class="noborder">30</td>
+</tr><tr valign="top">
+<td align="left" class="noborder">Lab 2</td>
+<td align="left" class="noborder">21</td>
+<td align="left" class="noborder">30</td>
+</tr><tr valign="top">
+<td align="left" class="noborder">Lab 3</td>
+<td align="left" class="noborder">19</td>
+<td align="left" class="noborder">30</td>
+</tr><tr valign="top">
+<th align="left" class="noborder">Total</th>
+<th align="left" class="noborder">64</th>
+<th align="left" class="noborder">90</th></tr></table>
+
+<p><strong>Total (Labs):</strong> 71.11% (64/90)*100</p>
+
+<p><strong>Nota Geral do Curso (Essays e Labs):</strong> 75.93%</p>
+
+<table class="noborder" cellpadding="4"><col /><col />
+<tr valign="top">
+<td align="left" class="noborder">Essays</td>
+<td align="left" class="noborder">54.6% (70%*78%)</td>
+</tr><tr valign="top">
+<td align="left" class="noborder">Labs</td>
+<td align="left" class="noborder">21.33% (30%*71.11%)</td>
+</tr><tr valign="top">
+<td align="left" class="noborder"><strong>Total</strong> </td><td align="left" class="noborder">75.93% (54.6%+21.33%)
+</td></tr></table>
+
+<p><a href="#top">Voltar ao topo</a></p>
+
+<a name="point"> </a>
+
+<h3>Exibir notas como pontos com categorias simples e sem ponderação</h3>
+
+<p>Neste exemplo, o instrutor criou o Quadro de Notas com simples (não ponderada) categorias e escolheu para digitar as Notas como pontos.</p>
+
+<div class="inlineimage image"><img class="noborder" src="image/a013p.gif" alt="gradebook table" /></div>
+
+
+<p>A nota do curso é calculada da seguinte forma:</p>
+
+<table class="noborder" cellpadding="4"><col /><col /><col /><col />
+<tr valign="top">
+<th align="left" class="noborder">Categoria</th>
+<th align="left" class="noborder">Ganho total (pontos)</th>
+<th align="left" class="noborder">Valor total</th>
+<th align="left" class="noborder">Média (%)</th>
+</tr><tr valign="top">
+<td align="left" class="noborder">Essays</td>
+<td align="left" class="noborder">80 (41+27+12)</td>
+<td align="left" class="noborder">90 (45+30+15)</td>
+<td align="left" class="noborder">88.88% (80/90)</td>
+</tr><tr valign="top">
+<td align="left" class="noborder">Labs</td>
+<td align="left" class="noborder">100 (36+55+9)</td>
+<td align="left" class="noborder">120 (45+60+15)</td>
+<td align="left" class="noborder">83.33% (100/120)</td>
+</tr><tr valign="top">
+<td align="left" class="noborder"><strong>Total</strong> </td>
+<td align="left" class="noborder">180</td>
+<td align="left" class="noborder">210</td>
+<td align="left" class="noborder">85.71%
+</td></tr></table>
+
+<p><strong>Total:</strong> 180 pontos</p>
+
+<p><strong>Nota do Curso:</strong> 85.71% (180/210)</p>
+
+<p>No exemplo acima, a média Categoria será truncada (não arredondado) para fins de exibição, 
+mas esse valor não tem efeito sobre o cálculo da nota.</p>
+
+<p><a href="#top">Voltar ao topo</a></p>
+
+
+</div>
+</body></html>
