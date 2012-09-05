@@ -82,6 +82,16 @@ import org.sakaiproject.tool.assessment.util.TextFormat;
  */
 public class GradingService
 {
+	/**
+	 *	Key for a complext numeric answer e.g. 9+9i 
+	 */
+  public static final String ANSWER_TYPE_COMPLEX = "COMPLEX";
+  
+  /**
+   * key for a real number representation e.g 1 or 10E5 
+   */
+  public static final String ANSWER_TYPE_REAL = "REAL";
+  
   private final String OPEN_BRACKET = "\\{";
   private final String CLOSE_BRACKET = "\\}";
   
@@ -1564,8 +1574,8 @@ Here are the definition and 12 cases I came up with (lydia, 01/2006):
 				  log.debug("Number is not BigDecimal: " + answer1 + " or " + answer2);
 			  }
 
-			  HashMap map = validate(studentAnswerText);
-			  studentAnswerNum = (BigDecimal) map.get("REAL");
+			  Map map = validate(studentAnswerText);
+			  studentAnswerNum = (BigDecimal) map.get(ANSWER_TYPE_REAL);
 
 			  matchresult = (answer1Num != null && answer2Num != null && studentAnswerNum != null &&
 					  (answer1Num.compareTo(studentAnswerNum) <= 0) && (answer2Num.compareTo(studentAnswerNum) >= 0));
@@ -1586,14 +1596,14 @@ Here are the definition and 12 cases I came up with (lydia, 01/2006):
 			  }
 
 			  if (data.getAnswerText() != null) {  
-				  HashMap map = validate(studentAnswerText);
+				  Map map = validate(studentAnswerText);
 
 				  if (answerNum != null) {
-					  studentAnswerNum = (BigDecimal) map.get("REAL");
+					  studentAnswerNum = (BigDecimal) map.get(ANSWER_TYPE_REAL);
 					  matchresult = (studentAnswerNum != null && answerNum.compareTo(studentAnswerNum) == 0);
 				  }
 				  else if (answerComplex != null) {
-					  studentAnswerComplex = (Complex) map.get("COMPLEX");
+					  studentAnswerComplex = (Complex) map.get(ANSWER_TYPE_COMPLEX);
 					  matchresult = (studentAnswerComplex != null && answerComplex.equals(studentAnswerComplex));
 				  }
 			  }
@@ -1602,7 +1612,12 @@ Here are the definition and 12 cases I came up with (lydia, 01/2006):
 	  return matchresult;
   }  
 
-  private HashMap validate(String value) {
+  /**
+   * Validate a students numeric answer 
+   * @param The answer to validate
+   * @return a Map containing either Real or Complex answer keyed by {@link #ANSWER_TYPE_REAL} or {@link #ANSWER_TYPE_COMPLEX} 
+   */
+  public Map validate(String value) {
 	  HashMap map = new HashMap();
 	  if (value == null || value.trim().equals("")) {
 		  return map;
@@ -1644,10 +1659,10 @@ Here are the definition and 12 cases I came up with (lydia, 01/2006):
 	  }
 
 	  if (isRealNumber) {
-		  map.put("REAL", studentAnswerReal);
+		  map.put(ANSWER_TYPE_REAL, studentAnswerReal);
 	  }
 	  else if (isComplex) {
-		  map.put("COMPLEX", studentAnswerComplex);
+		  map.put(ANSWER_TYPE_COMPLEX, studentAnswerComplex);
 	  }
 
 	  return map;
