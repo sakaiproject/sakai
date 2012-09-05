@@ -256,7 +256,7 @@ public class ETSUserNotificationProviderImpl implements UserNotificationProvider
 			replacementValues.put("specialInstruction", additionalInfo);
 			replacementValues.put("serverName", serverName);
 			
-			return emailTemplateServiceSend(NOTITY_COURSE_REQUEST_AUTHORIZER, null, instructor, from, to, headerTo, replyTo, replacementValues) == null? true:false;
+			return emailTemplateServiceSend(NOTITY_COURSE_REQUEST_AUTHORIZER, null, instructor, from, to, headerTo, replyTo, replacementValues) != null? true:false;
 			
 		}
 		catch (Exception e)
