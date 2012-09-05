@@ -375,6 +375,12 @@ html {
     display: inline !important;
 }
 /*
+tools that are iframed 
+*/
+.portletMainWrap > iframe{
+    margin-top:39px;
+}
+/*
 tweak the resources and dropbox list to make it usable in this format
 */
 /*
