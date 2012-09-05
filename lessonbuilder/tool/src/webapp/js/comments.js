@@ -49,8 +49,10 @@ $(function() {
 		var pageToRequest = $(this).parent().parent().children(".commentsBlock").attr("href");
 		// remove  pda/SITEID/. We don't want the portal to hack on this
 		//pageToRequest = pageToRequest.replace(new RegExp("pda/[^/]*/",""),"");
-                var i = pageToRequest.indexOf("Comment");
-                pageToRequest = "/sakai-lessonbuildertool-tool/faces/" + pageToRequest.substring(i);
+                var i = pageToRequest.indexOf("/tool/");
+		//http://heidelberg.rutgers.edu/portal/tool/NNNN/Comments
+		//http://heidelberg.rutgers.edu/portal/pda/SITE/tool/NNNN/Comments
+		pageToRequest = "/portal" + pageToRequest.substring(i);
 		$(this).load(pageToRequest, commentsLoaded);
 		//$.PeriodicalUpdater(pageToRequest, {minTimeout:5000, maxTimeout:120000}, function(data) {
 		//	$(".deleteLink").attr("title", msg("simplepage.comment_delete"));
@@ -119,8 +121,8 @@ function loadMore(link) {
 	});
 	
 	var pageToRequest = $(link).parent().parent().find(".to-load").attr("href");
-	var i = pageToRequest.indexOf("Comment");
-	pageToRequest = "/sakai-lessonbuildertool-tool/faces/" + pageToRequest.substring(i);
+	var i = pageToRequest.indexOf("/tool/");
+	pageToRequest = "/portal" + pageToRequest.substring(i);
 	
 	$(link).parents(".replaceWithComments").load(pageToRequest, commentsLoaded);
 	
