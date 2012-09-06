@@ -1559,7 +1559,7 @@ Here are the definition and 12 cases I came up with (lydia, 01/2006):
 
 		  String studentAnswerText = null;
 		  if (data.getAnswerText() != null) {
-			  studentAnswerText = data.getAnswerText().trim();
+			  studentAnswerText = data.getAnswerText().trim().replace(',','.');    // in Spain, comma is used as a decimal point
 		  }
 
 		  if (range) {
@@ -1567,6 +1567,13 @@ Here are the definition and 12 cases I came up with (lydia, 01/2006):
 			  String answer1 = st.nextToken().trim();
 			  String answer2 = st.nextToken().trim();
 
+			  if (answer1 != null){ 	 
+		             answer1 = answer2.trim().replace(',','.');  // in Spain, comma is used as a decimal point 	 
+			  } 	 
+			  if (answer2 != null){ 	 
+		             answer2 = answer2.trim().replace(',','.');  // in Spain, comma is used as a decimal point 	 
+		      } 	 
+		 
 			  try {
 				  answer1Num = new BigDecimal(answer1);
 				  answer2Num = new BigDecimal(answer2);
@@ -1583,6 +1590,10 @@ Here are the definition and 12 cases I came up with (lydia, 01/2006):
 		  else { // not range
 			  String answer = st.nextToken().trim();
 
+			  if (answer != null){ 	 
+		             answer = answer.trim().replace(',','.');  // in Spain, comma is used as a decimal point 	 
+			  }	 
+		 
 			  try {
 				  answerNum = new BigDecimal(answer); 
 			  } catch(NumberFormatException ex) {

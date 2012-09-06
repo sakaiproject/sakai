@@ -26,7 +26,8 @@ public class FinQuestionValidator implements Validator {
 	public void validate(FacesContext context, UIComponent component, Object value)
 			throws ValidatorException {
 	
-		String text = (String)value;
+		String text = (String) value;
+		text = text.trim().replace(',','.');  // in Spain, comma is used as a decimal point 	 
 		
 		int i = text.indexOf("{", 0);
 		int j = text.indexOf("}", 0);
