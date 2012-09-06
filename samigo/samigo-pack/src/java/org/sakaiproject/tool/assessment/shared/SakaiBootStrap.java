@@ -81,7 +81,7 @@ public class SakaiBootStrap
       LOG.debug("****autoDdl disabled.");
     }
 
-    String uploadPath = ServerConfigurationService.getString("samigo.answerUploadRepositoryPath", null);
+    String uploadPath = ServerConfigurationService.getString("samigo.answerUploadRepositoryPath", "${sakai.home}/samigo/answerUploadRepositoryPath/");
 
     if(uploadPath != null)
     {
