@@ -2266,8 +2266,8 @@ public abstract class BaseCitationService implements CitationService
 	            		String title0 = cit0.getDisplayName().toLowerCase();
 	            		String title1 = cit1.getDisplayName().toLowerCase();
 	            		*/
-	            		String title0 = ((String)cit0.getCitationProperty( Schema.TITLE, false )).toLowerCase();
-	            		String title1 = ((String)cit1.getCitationProperty( Schema.TITLE, false )).toLowerCase();
+	            		String title0 = ((String)cit0.getCitationProperty( Schema.TITLE, true )).toLowerCase();
+	            		String title1 = ((String)cit1.getCitationProperty( Schema.TITLE, true )).toLowerCase();
 
 	            		if (title0 == null)
 	            		{

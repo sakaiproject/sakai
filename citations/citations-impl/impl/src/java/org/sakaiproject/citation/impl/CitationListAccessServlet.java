@@ -343,7 +343,7 @@ public class CitationListAccessServlet implements HttpAccess
     			String href = citation.hasPreferredUrl() ? citation.getCustomUrl(citation.getPreferredUrlId()) : citation.getOpenurl();
     			
     			out.println("\t\t<td headers=\"details\">");
-    			out.println("\t\t\t<a href=\"" + Validator.escapeHtml(href) + "\" target=\"_blank\">" + Validator.escapeHtml( (String)citation.getCitationProperty( Schema.TITLE, false ) ) + "</a><br />");
+    			out.println("\t\t\t<a href=\"" + Validator.escapeHtml(href) + "\" target=\"_blank\">" + Validator.escapeHtml( (String)citation.getCitationProperty( Schema.TITLE, true ) ) + "</a><br />");
     			out.println("\t\t\t\t" + Validator.escapeHtml( citation.getCreator() ) );
     			out.println("\t\t\t\t" + Validator.escapeHtml( citation.getSource() ) );
     			out.println("\t\t\t<div class=\"itemAction\">");
@@ -416,7 +416,7 @@ public class CitationListAccessServlet implements HttpAccess
     				}
     				else
     				{
-    					String value = (String) citation.getCitationProperty(field.getIdentifier(), false);
+    					String value = (String) citation.getCitationProperty(field.getIdentifier(), true);
     					if(value != null && ! value.trim().equals(""))
     					{
  							String label = rb.getString(schema.getIdentifier() + "." + field.getIdentifier(), field.getIdentifier());
