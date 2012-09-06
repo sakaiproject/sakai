@@ -31,7 +31,7 @@ function GetFormContent(formId, buttonName) {
     for (var i=0; i<elements.length; i++) {
         var elt = elements[i]
         var name = elt.name;
-	var type = elt.type.toLowerCase();
+        var type = typeof(elt.type)=='string' ? elt.type.toLowerCase() : '';
         var value = elt.value;
         var encoded = encodeURIComponent(name)+"="+encodeURIComponent(value);
 	if (type == "submit" && !elt.disabled) {
