@@ -34,7 +34,7 @@
 // create citations_new_resource namespace if it doesn't exist
 var citations_new_resource = citations_new_resource || {};
 
-citations_new_resource.saveciteRefreshRate = 5;
+citations_new_resource.secondsBetweenSaveciteRefreshes = 5;
 
 /*
  * used in the json returned by actions that
@@ -222,8 +222,8 @@ citations_new_resource.processClick = function(successAction) {
 				$.each(jsObj, function(key, value) {
 					if(key === 'message' && value && 'null' !== value && '' !== $.trim(value)) {
 						reportSuccess(value);
-					} else if(key === 'saveciteRefreshRate') {
-						citations_new_resource.saveciteRefreshRate = value;
+					} else if(key === 'secondsBetweenSaveciteRefreshes') {
+						citations_new_resource.secondsBetweenSaveciteRefreshes = value;
 					} else if($.isArray(value)) {
 						reportError('result for key ' + key + ' is an array: ' + value);
 					} else {
@@ -373,12 +373,12 @@ citations_new_resource.watchForUpdates = function(timestamp) {
 				citations_new_resource.refreshDemanded = true;
 				showSpinner( '.firstPageLoad' );
 			}
-			if(jsObj && jsObj.saveciteRefreshRate) {
-				citations_new_resource.saveciteRefreshRate = jsObj.saveciteRefreshRate;
+			if(jsObj && jsObj.secondsBetweenSaveciteRefreshes) {
+				citations_new_resource.secondsBetweenSaveciteRefreshes = jsObj.secondsBetweenSaveciteRefreshes;
 			}
 			// if the child window is still open, schedule another check
 			if(citations_new_resource.childWindow && size(citations_new_resource.childWindow) > 0) {
-				setTimeout(function() { citations_new_resource.watchForUpdates(jsObj.timestamp); }, citations_new_resource.saveciteRefreshRate * 1000);
+				setTimeout(function() { citations_new_resource.watchForUpdates(jsObj.timestamp); }, citations_new_resource.secondsBetweenSaveciteRefreshes * 1000);
 			} 
 		},
 		error		: function(jqXHR, textStatus, errorThrown) {
@@ -434,15 +434,15 @@ citations_new_resource.init = function() {
 				if(citations_new_resource.childWindow && citations_new_resource.childWindow[this.linkId] && citations_new_resource.childWindow[this.linkId].close) {
 					citations_new_resource.childWindow[this.linkId].close();
 				}
-				if(jsObj && jsObj.saveciteRefreshRate) {
-					citations_new_resource.saveciteRefreshRate = jsObj.saveciteRefreshRate;
+				if(jsObj && jsObj.secondsBetweenSaveciteRefreshes) {
+					citations_new_resource.secondsBetweenSaveciteRefreshes = jsObj.secondsBetweenSaveciteRefreshes;
 				}
 				if(jsObj.saveciteUrl) {
 					this.saveciteClientUrl = jsObj.saveciteUrl;
 				}
 				citations_new_resource.childWindow[this.linkId] = openWindow(this.saveciteClientUrl, this.popupTitle, 'scrollbars=yes,toolbar=yes,resizable=yes,height=' + this.windowHeight + ',width=' + this.windowWidth);
 				citations_new_resource.childWindow[this.linkId].focus();
-				setTimeout(function() { citations_new_resource.watchForUpdates(jsObj.timestamp + 1); }, citations_new_resource.saveciteRefreshRate * 1000);
+				setTimeout(function() { citations_new_resource.watchForUpdates(jsObj.timestamp + 1); }, citations_new_resource.secondsBetweenSaveciteRefreshes * 1000);
 			}
 		};
 		
@@ -466,15 +466,15 @@ citations_new_resource.init = function() {
 				} catch (e) {
 					reportError(e);
 				}
-				if(jsObj && jsObj.saveciteRefreshRate) {
-					citations_new_resource.saveciteRefreshRate = jsObj.saveciteRefreshRate;
+				if(jsObj && jsObj.secondsBetweenSaveciteRefreshes) {
+					citations_new_resource.secondsBetweenSaveciteRefreshes = jsObj.secondsBetweenSaveciteRefreshes;
 				}
 				if(citations_new_resource.childWindow && citations_new_resource.childWindow[this.linkId] && citations_new_resource.childWindow[this.linkId].close) {
 					citations_new_resource.childWindow[this.linkId].close();
 				}
 				citations_new_resource.childWindow[this.linkId] = openWindow(this.searchUrl,this.popupTitle,'scrollbars=yes,toolbar=yes,resizable=yes,height=' + DEFAULT_DIALOG_HEIGHT + ',width=' + DEFAULT_DIALOG_WIDTH);
 				citations_new_resource.childWindow[this.linkId].focus();
-				setTimeout(function() { citations_new_resource.watchForUpdates(jsObj.timestamp + 1); }, citations_new_resource.saveciteRefreshRate * 1000);
+				setTimeout(function() { citations_new_resource.watchForUpdates(jsObj.timestamp + 1); }, citations_new_resource.secondsBetweenSaveciteRefreshes * 1000);
 			}
 		};
 		citations_new_resource.processClick(successObj);
@@ -490,12 +490,12 @@ citations_new_resource.init = function() {
 				if(citations_new_resource.childWindow && citations_new_resource.childWindow[this.linkId] && citations_new_resource.childWindow[this.linkId].close) {
 					citations_new_resource.childWindow[this.linkId].close();
 				}
-				if(jsObj && jsObj.saveciteRefreshRate) {
-					citations_new_resource.saveciteRefreshRate = jsObj.saveciteRefreshRate;
+				if(jsObj && jsObj.secondsBetweenSaveciteRefreshes) {
+					citations_new_resource.secondsBetweenSaveciteRefreshes = jsObj.secondsBetweenSaveciteRefreshes;
 				}
 				citations_new_resource.childWindow[this.linkId] = openWindow(this.googleUrl,this.popupTitle,'scrollbars=yes,toolbar=yes,resizable=yes,height=' + DEFAULT_DIALOG_HEIGHT + ',width=' + DEFAULT_DIALOG_WIDTH);
 				citations_new_resource.childWindow[this.linkId].focus();
-				setTimeout(function() { citations_new_resource.watchForUpdates(jsObj.timestamp + 1); }, citations_new_resource.saveciteRefreshRate * 1000);
+				setTimeout(function() { citations_new_resource.watchForUpdates(jsObj.timestamp + 1); }, citations_new_resource.secondsBetweenSaveciteRefreshes * 1000);
 			}
 		};
 		citations_new_resource.processClick(successObj);
@@ -644,8 +644,8 @@ citations_new_resource.init = function() {
 				$.each(jsObj, function(key, value) {
 					if(key === 'message' && value && 'null' !== value && '' !== $.trim(value)) {
 						reportSuccess(value);
-					} else if(key === 'saveciteRefreshRate') {
-						citations_new_resource.saveciteRefreshRate = value;
+					} else if(key === 'secondsBetweenSaveciteRefreshes') {
+						citations_new_resource.secondsBetweenSaveciteRefreshes = value;
 					} else if($.isArray(value)) {
 						reportError('result for key ' + key + ' is an array: ' + value);
 					} else {

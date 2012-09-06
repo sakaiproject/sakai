@@ -86,6 +86,7 @@ import edu.indiana.lib.twinpeaks.util.DomException;
  */
 public class BaseConfigurationService implements ConfigurationService, Observer
 {
+
   private static Log m_log = LogFactory.getLog(BaseConfigurationService.class);
 
   /**
@@ -93,8 +94,9 @@ public class BaseConfigurationService implements ConfigurationService, Observer
    */
   private static final String SERVER_DEFAULT_LOCALE = Locale.ENGLISH.getLanguage();
   
-  public static final String DEFAULT_SAVECITE_REFRESH_RATE = "5";
-  public static final int MAXIMUM_SAVECITE_REFRESH_RATE = 30;
+  public static final String DEFAULT_SECONDS_BETWEEN_SAVECITE_REFRESHES = "5";
+  public static final int MAXIMUM_SECONDS_BETWEEN_SAVECITE_REFRESHES = 30;
+  public static final String PARAM_SECONDS_BETWEEN_SAVECITE_REFRESHES = "secondsBetweenSaveciteRefreshes";
 
   /*
    * All the following properties will be set by Spring using components.xml
@@ -745,7 +747,7 @@ public class BaseConfigurationService implements ConfigurationService, Observer
       saveParameter(document, parameterMap, "config-id");               // obsolete?
       saveParameter(document, parameterMap, "database-xml");            // obsolete?
       
-      saveParameter(document, parameterMap, "saveciteRefreshRate");
+      saveParameter(document, parameterMap, PARAM_SECONDS_BETWEEN_SAVECITE_REFRESHES);
       
       saveServletClientMappings(document);
 
@@ -1724,28 +1726,28 @@ public Collection<String> getAllCategoryXml()
   
   /*
    * (non-Javadoc)
-   * @see org.sakaiproject.citation.api.ConfigurationService#getSaveciteRefreshRate()
+   * @see org.sakaiproject.citation.api.ConfigurationService#getSecondsBetweenSaveciteRefreshes()
    */
-  public String getSaveciteRefreshRate() {
-	  String refreshRate = this.getConfigurationParameter("saveciteRefreshRate");
-	  if(refreshRate == null) {
-		// no stored value for refreshRate; use default
-		  refreshRate = DEFAULT_SAVECITE_REFRESH_RATE;
+  public String getSecondsBetweenSaveciteRefreshes() {
+	  String secondsBetweenRefreshes = this.getConfigurationParameter(PARAM_SECONDS_BETWEEN_SAVECITE_REFRESHES);
+	  if(secondsBetweenRefreshes == null) {
+		// no stored value for secondsBetweenRefreshes; use default
+		  secondsBetweenRefreshes = DEFAULT_SECONDS_BETWEEN_SAVECITE_REFRESHES;
 	  } else {
 		  try {
-			  int num = Integer.parseInt(refreshRate);
+			  int num = Integer.parseInt(secondsBetweenRefreshes);
 			  if(num < 1) {
-				  // stored value of refreshRate is too small; use default
-				  refreshRate = DEFAULT_SAVECITE_REFRESH_RATE;
-			  } else if(num > MAXIMUM_SAVECITE_REFRESH_RATE) {
-				  // stored value of refreshRate is too big; use max
-				  refreshRate = Integer.toString(MAXIMUM_SAVECITE_REFRESH_RATE);
+				  // stored value of secondsBetweenRefreshes is too small; use default
+				  secondsBetweenRefreshes = DEFAULT_SECONDS_BETWEEN_SAVECITE_REFRESHES;
+			  } else if(num > MAXIMUM_SECONDS_BETWEEN_SAVECITE_REFRESHES) {
+				  // stored value of secondsBetweenRefreshes is too big; use max
+				  secondsBetweenRefreshes = Integer.toString(MAXIMUM_SECONDS_BETWEEN_SAVECITE_REFRESHES);
 			  }
 		  } catch(NumberFormatException e) {
-			  // stored value of refreshRate is not a number; use default
-			  refreshRate = DEFAULT_SAVECITE_REFRESH_RATE;
+			  // stored value of secondsBetweenRefreshes is not a number; use default
+			  secondsBetweenRefreshes = DEFAULT_SECONDS_BETWEEN_SAVECITE_REFRESHES;
 		  }
 	  }
-	  return refreshRate ;
+	  return secondsBetweenRefreshes ;
   }
 }

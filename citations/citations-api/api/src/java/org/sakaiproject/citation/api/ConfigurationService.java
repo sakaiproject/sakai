@@ -287,6 +287,6 @@ public interface ConfigurationService
    * of the main window during a session searching for citations in a savecite client window.
    * @return the number of seconds between requests.
    */
-  public String getSaveciteRefreshRate();
+  public String getSecondsBetweenSaveciteRefreshes();
 
 }

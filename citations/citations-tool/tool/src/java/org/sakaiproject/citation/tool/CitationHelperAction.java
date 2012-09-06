@@ -740,7 +740,7 @@ public class CitationHelperAction extends VelocityPortletPaneledAction
 			jsonMap.putAll(result);
 		} 
 		
-		jsonMap.put("saveciteRefreshRate", new Integer(this.configurationService.getSaveciteRefreshRate()));
+		jsonMap.put("secondsBetweenSaveciteRefreshes", new Integer(this.configurationService.getSecondsBetweenSaveciteRefreshes()));
 		
 		// convert to json string
 		String jsonString = JSONObject.fromObject(jsonMap).toString();
@@ -866,7 +866,7 @@ public class CitationHelperAction extends VelocityPortletPaneledAction
 			jsonMap.putAll(result);			
 		}
 		
-		jsonMap.put("saveciteRefreshRate", this.configurationService.getSaveciteRefreshRate());
+		jsonMap.put("secondsBetweenSaveciteRefreshes", this.configurationService.getSecondsBetweenSaveciteRefreshes());
 		
 		// convert to json string
 		String jsonString = JSONObject.fromObject(jsonMap).toString();
