@@ -31,7 +31,9 @@
 -->
   <f:view>
     <html xmlns="http://www.w3.org/1999/xhtml">
-      <head><%= request.getAttribute("html.head") %>
+      <head>
+      <meta http-equiv="x-ua-compatible" content="IE=8" />
+      <%= request.getAttribute("html.head") %>
 	  <script type="text/javascript" src="/samigo-app/js/saveForm.js"></script>	  	  
       <title> <h:outputText value="#{delivery.assessmentTitle}"/>
       </title>
