@@ -160,7 +160,8 @@ public class QuestionScoreUpdateListener
           logString.append(", itemGradingId=");
           logString.append(data.getItemGradingId());
           
-          if (MathUtils.equalsIncludingNaN(newAutoScore, oldAutoScore, 0.0001)) {
+          // if newAutoScore != oldAutoScore
+          if (!(MathUtils.equalsIncludingNaN(newAutoScore, oldAutoScore, 0.0001))) {
         	data.setAutoScore(Float.valueOf(newAutoScore));
         	logString.append(", newAutoScore=");
             logString.append(newAutoScore);
@@ -175,7 +176,8 @@ public class QuestionScoreUpdateListener
             logString.append(oldComments);
           }
           
-          if (MathUtils.equalsIncludingNaN(newAutoScore, oldAutoScore, 0.0001) || !newComments.equals(oldComments)){
+          // if newAutoScore != oldAutoScore or newComments != oldComments
+          if (!(MathUtils.equalsIncludingNaN(newAutoScore, oldAutoScore, 0.0001)) || !newComments.equals(oldComments)){
             data.setGradedBy(AgentFacade.getAgentString());
             data.setGradedDate(new Date());
             String targetString = "siteId=" + AgentFacade.getCurrentSiteId() + ", " + logString.toString();

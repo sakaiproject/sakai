@@ -169,7 +169,9 @@ public class StudentScoreUpdateListener
             else {
               oldComments = "";
             }
-            boolean updateScore = MathUtils.equalsIncludingNaN(newAutoScore, oldAutoScore, 0.0001);
+            
+            // if newAutoScore != oldAutoScore then updateScore = true
+            boolean updateScore = !(MathUtils.equalsIncludingNaN(newAutoScore, oldAutoScore, 0.0001));
             boolean updateComments = !newComments.equals(oldComments);
             StringBuffer logString = new StringBuffer();
             logString.append("gradedBy=");
