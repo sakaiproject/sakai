@@ -584,6 +584,28 @@ public String getGroupsInSite(String sessionid, String siteid) throws AxisFault 
 			groupNode.appendChild(groupId);
 			groupNode.appendChild(groupTitle);
 			groupNode.appendChild(groupDesc);
+
+            Node propertiesNode = dom.createElement("properties");
+            groupNode.appendChild(propertiesNode);
+            ResourceProperties groupProperties = group.getProperties();
+            if (groupProperties != null) {
+                for (Iterator propertiesIter = groupProperties.getPropertyNames(); propertiesIter.hasNext(); ){
+                    Node propertyNode = dom.createElement("property");
+
+                    String propertyName = (String)propertiesIter.next();
+                    Object propertyValue =(Object)groupProperties.get(propertyName);
+
+                    Node propertyNameNode = dom.createElement("propertyName");
+                    propertyNameNode.appendChild(dom.createTextNode(propertyName));
+                    Node propertyValueNode = dom.createElement("propertyValue");
+                    propertyValueNode.appendChild(dom.createTextNode(propertyValue.toString()));
+
+                    propertyNode.appendChild(propertyNameNode);
+                    propertyNode.appendChild(propertyValueNode);
+                    propertiesNode.appendChild(propertyNode);
+                }
+        }
+
 			list.appendChild(groupNode);
 			
 				
