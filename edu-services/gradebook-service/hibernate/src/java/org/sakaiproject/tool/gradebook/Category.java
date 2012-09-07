@@ -269,7 +269,7 @@ public class Category implements Serializable
 			//    	{
 			boolean adjustmentItemWithNoPoints = false;
 
-			if(assign.isCounted() && !assign.getUngraded() && assign.getPointsPossible().doubleValue() > 0.0)
+			if(assign.isCounted() && !assign.getUngraded() && assign.getPointsPossible() != null && assign.getPointsPossible().doubleValue() > 0.0)
 			{
 				if (score == null) 
 				{
