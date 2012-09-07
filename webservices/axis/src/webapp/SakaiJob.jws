@@ -1,0 +1,167 @@
+import org.apache.axis.AxisFault;
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
+import org.quartz.JobDataMap;
+import org.quartz.JobDetail;
+import org.quartz.Scheduler;
+import org.quartz.SchedulerException;
+import org.sakaiproject.api.app.scheduler.JobBeanWrapper;
+import org.sakaiproject.api.app.scheduler.SchedulerManager;
+import org.sakaiproject.authz.api.SecurityService;
+import org.sakaiproject.component.cover.ComponentManager;
+import org.sakaiproject.event.api.EventTrackingService;
+import org.sakaiproject.tool.api.Session;
+import org.sakaiproject.tool.api.SessionManager;
+
+/**
+ * SakaiJob.jws
+ * <p/>
+ * A set of administrative web services for managing quartz jobs in Sakai
+ */
+
+public class SakaiJob {
+
+    private static final Log LOG = LogFactory.getLog(SakaiJob.class);
+
+    private EventTrackingService eventTrackingService;
+    private SecurityService securityService;
+    private SessionManager sessionManager;
+    private SchedulerManager schedulerManager;
+
+
+    /**
+     * Setup dependencies
+     */
+    public SakaiJob() {
+        eventTrackingService = (EventTrackingService) ComponentManager.get(EventTrackingService.class.getName());
+        securityService = (SecurityService) ComponentManager.get(SecurityService.class.getName());
+        sessionManager = (SessionManager) ComponentManager.get(SessionManager.class.getName());
+        schedulerManager = (SchedulerManager) ComponentManager.get(SchedulerManager.class);
+    }
+
+    /**
+     * Get the Session related to the given sessionid
+     *
+     * @param sessionid the id of the session to retrieve
+     * @throws org.apache.axis.AxisFault if session is inactive
+     * @return the session, if it is active
+     */
+    private Session establishSession(String sessionid) throws AxisFault {
+        Session s = sessionManager.getSession(sessionid);
+
+        if (s == null) {
+            throw new AxisFault("Session \"" + sessionid + "\" is not active");
+        }
+        s.setActive();
+        sessionManager.setCurrentSession(s);
+        return s;
+    }
+
+    /**
+     * Delete a job from the Job Scheduler
+     * @param sessionId	valid admin session id
+     * @param name		job name
+     * @return
+     * @throws AxisFault
+     */
+    public String deleteJob(String sessionId, String name) throws AxisFault {
+        Session session = establishSession(sessionId);
+        if (!securityService.isSuperUser()) {
+            LOG.warn("NonSuperUser trying to collect configuration: " + session.getUserId());
+            throw new AxisFault("NonSuperUser trying to collect configuration: " + session.getUserId());
+        }
+        try {
+            schedulerManager.getScheduler().deleteJob(name, Scheduler.DEFAULT_GROUP);
+        } catch (SchedulerException e) {
+            LOG.warn(e.getMessage(), e);
+            return "error:" + e.getMessage();
+        }
+        return "success";
+    }
+
+    /**
+     * Create a job in the Job Scheduler
+     * @param sessionId 	valid admin session id
+     * @param name			name of job
+     * @param type			type of job
+     * @return
+     * @throws AxisFault
+     */
+    public String createJob(String sessionId, String name, String type) throws AxisFault {
+
+        Session session = establishSession(sessionId);
+        if (!securityService.isSuperUser()) {
+            LOG.warn("NonSuperUser trying to collect configuration: " + session.getUserId());
+            throw new AxisFault("NonSuperUser trying to collect configuration: " + session.getUserId());
+        }
+
+        Scheduler scheduler = schedulerManager.getScheduler();
+        JobBeanWrapper job = schedulerManager.getJobBeanWrapper(type);
+        JobDetail jd = null;
+        
+        if (job != null) {
+            // create a new JobDetail object for this job
+            jd = createJobDetail(job, name);
+            try {
+                scheduler.addJob(jd, false);
+            } catch (SchedulerException e) {
+                LOG.warn(e.getMessage(), e);
+                return "error: " + e.getMessage();
+            }
+
+            return "success";
+        }
+
+
+        return "error: can't find job of type: " + type;
+
+    }
+
+    /**
+     * Run a job from the Job Scheduler
+     * @param sessionId 	valid admin session id
+     * @param jobName		name of job to run
+     * @return
+     * @throws AxisFault
+     */
+    public String runJob(String sessionId, String jobName) throws AxisFault {
+        Session session = establishSession(sessionId);
+        if (!securityService.isSuperUser()) {
+            LOG.warn("NonSuperUser trying to collect configuration: " + session.getUserId());
+            throw new AxisFault("NonSuperUser trying to collect configuration: " + session.getUserId());
+        }
+
+        JobDetail jobDetail = null;
+        Scheduler scheduler = schedulerManager.getScheduler();
+
+        try {
+            jobDetail = scheduler.getJobDetail(jobName, Scheduler.DEFAULT_GROUP);
+        } catch (SchedulerException e) {
+            LOG.warn(e.getMessage(), e);
+            return "error: " + e.getMessage();
+        }
+        
+        if (jobDetail != null) {
+            try {
+                scheduler.triggerJob(jobDetail.getName(), jobDetail.getGroup());
+            } catch (SchedulerException e) {
+                LOG.warn(e.getMessage(), e);
+                return "error: " + e.getMessage();
+            }
+        } else {
+            return "error: can't find a job with name: " + jobName;
+        }
+
+        return "success";
+    }
+
+    private JobDetail createJobDetail(JobBeanWrapper job, String jobName) {
+        JobDetail jd = new JobDetail(jobName, Scheduler.DEFAULT_GROUP, job.getJobClass(), false, true, true);
+        JobDataMap map = jd.getJobDataMap();
+
+        map.put(JobBeanWrapper.SPRING_BEAN_NAME, job.getBeanId());
+        map.put(JobBeanWrapper.JOB_TYPE, job.getJobType());
+
+        return jd;
+    }
+}

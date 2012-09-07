@@ -40,6 +40,12 @@
             <artifactId>samigo-qti</artifactId> 
             <version>${sakai.samigo.version}</version> 
         </dependency>
+        <dependency>
+			<groupId>org.sakaiproject.scheduler</groupId>
+			<artifactId>scheduler-api</artifactId>
+			<version>${sakai.scheduler.version}</version>
+			<scope>provided</scope>
+		</dependency>
         
 		<!--  external dependencies -->
     	<dependency>
@@ -81,7 +87,13 @@
 	      	<groupId>commons-discovery</groupId>
 	      	<artifactId>commons-discovery</artifactId>
 	      	<version>0.5</version>
-	    </dependency>  
+	    </dependency> 
+		<dependency>
+			<groupId>org.opensymphony.quartz</groupId>
+			<artifactId>quartz</artifactId>
+			<version>${sakai.quartz.version}</version>
+			<scope>provided</scope>
+		</dependency> 
 	</dependencies>
   
   	<build>
