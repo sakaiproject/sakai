@@ -42,6 +42,14 @@ $Id: audioRecordingPopup.jsp 6643 2006-03-13 19:38:07Z hquinn@stanford.edu $
 			    <%@ include file="/jsf/delivery/item/audioObject.jsp" %>
 				<%@ include file="/jsf/delivery/item/audioApplet.jsp" %>
 		    </h:panelGrid>
+			<script type="text/JavaScript"><%--
+			// Applet can not call the opener window's functions directly in IE9.
+			// So, they are needed to be called through this function. --%>
+			function callOpener(name, arg) {
+				var f = new Function('arg', 'return window.opener.' + name + '(arg)');
+				f(arg);
+			}
+			</script>
 		</body>
 	</html>
 </f:view>

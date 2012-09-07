@@ -393,9 +393,9 @@ public class AudioRecorder extends JPanel implements ActionListener,
 			// System.out.println("captB");
 			lastButtonClicked = RECORD;
 			if (containingApplet != null) {
-				JSObject openingWindow = (JSObject)((JSObject)JSObject.getWindow(containingApplet).getMember("opener"));
-				openingWindow.call("disableSubmitForGrade", null);
-				openingWindow.call("disableSave", null);
+				JSObject window = (JSObject) JSObject.getWindow(containingApplet);
+				window.call("callOpener", new String[]{"disableSubmitForGrade"});
+				window.call("callOpener", new String[]{"disableSave"});
 				// openingWindow.call("hide", new Object[]{"question" + params.getQuestionId()});
 			}
 			file = null;
@@ -524,8 +524,7 @@ public class AudioRecorder extends JPanel implements ActionListener,
 				
 				if (containingApplet != null) {
 					JSObject window = (JSObject)JSObject.getWindow(containingApplet);
-					JSObject opener = (JSObject)window.getMember("opener");
-					opener.call("clickReloadLink", new Object[]{window});
+					window.call("callOpener", new Object[]{"clickReloadLink", window});
 					window.call("close", null);	
 				}
 			} // end of run
@@ -1180,9 +1179,9 @@ public class AudioRecorder extends JPanel implements ActionListener,
 		samplingGraph.repaint();
 		
 		if (containingApplet != null) {
-			JSObject openingWindow = (JSObject)((JSObject)JSObject.getWindow(containingApplet).getMember("opener"));
-			openingWindow.call("enableSubmitForGrade", null);
-			openingWindow.call("enableSave", null);
+			JSObject window = (JSObject) JSObject.getWindow(containingApplet);
+			window.call("callOpener", new String[]{"enableSubmitForGrade"});
+			window.call("callOpener", new String[]{"enableSave"});
 		}
 	}
 
