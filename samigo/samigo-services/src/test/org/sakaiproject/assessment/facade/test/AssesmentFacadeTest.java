@@ -1,9 +1,3 @@
-package org.sakaiproject.assessment.facade.test;
-
-import org.hibernate.SessionFactory;
-import org.sakaiproject.tool.assessment.facade.AssessmentFacade;
-import org.sakaiproject.tool.assessment.facade.AssessmentFacadeQueries;
-import org.springframework.test.AbstractTransactionalSpringContextTests;
 
 /**********************************************************************************
  * $URL$
@@ -25,6 +19,13 @@ import org.springframework.test.AbstractTransactionalSpringContextTests;
  * limitations under the License.
  *
  **********************************************************************************/
+
+package org.sakaiproject.assessment.facade.test;
+
+import org.hibernate.SessionFactory;
+import org.sakaiproject.tool.assessment.facade.AssessmentFacade;
+import org.sakaiproject.tool.assessment.facade.AssessmentFacadeQueries;
+import org.springframework.test.AbstractTransactionalSpringContextTests;
 
 
 public class AssesmentFacadeTest  extends AbstractTransactionalSpringContextTests{
