@@ -1,3 +1,244 @@
+var MailSender = function()
+{
+	// attachment count keeps a net count of 
+	var attachmentCount = 0;
+
+	return {
+		addAttachment : function(containerId)
+		{
+			// setup the screen to show differently if no attachments are showing
+			if (attachmentCount == 0)
+			{
+				jQuery('#attachOuter').show();
+				jQuery('#attachLink').hide();
+				jQuery('#attachMoreLink').show();
+			}
+			Attachment.addAttachment(containerId);
+			attachmentCount++;
+		},
+
+		removeAttachment : function(containerId, newDivId)
+		{
+			Attachment.removeAttachment(containerId, newDivId);
+			attachmentCount--;
+			if (attachmentCount == 0)
+			{
+				jQuery('#attachOuter').hide();
+				jQuery('#attachLink').show();
+				jQuery('#attachMoreLink').hide();
+			}
+		}
+	}; // end return
+}(); // end namespace
+
+var Attachment = function()
+{
+	// attachment index will never decrease on a single request no matter how many
+	// add/removes happen.  It is easier and safe to keep counting up than to rename and
+	// replace removed numbers
+	var attachmentIndex = 0;
+
+	return {
+
+		addAttachment : function(containerId)
+		{
+			// get a handle to the container
+			var area = document.getElementById(containerId);
+
+			// create the name for the div and the attachment field
+			var newAttachmentId = 'attachment' + (attachmentIndex);
+			var newDivId = newAttachmentId + 'Div';
+			attachmentIndex++;
+
+			// create the outer div element
+			var newDiv = document.createElement('div');
+			newDiv.id = newDivId;
+
+			// create the file upload field
+			var input = document.createElement('input');
+			input.type = 'file';
+			input.name = newAttachmentId;
+			newDiv.appendChild(input);
+
+			// create the remove link
+			var link = document.createElement('a');
+			link.className = 'removeAttachment';
+			link.href = '#';
+			link.onclick = function()
+			{
+				MailSender.removeAttachment(containerId, newDivId);
+				return false;
+			}
+			link.innerHTML = 'Remove';
+			newDiv.appendChild(link);
+
+			// append the new div to the container
+			area.appendChild(newDiv);
+		},
+
+		/**
+		 * Remove a attachment div from a container
+		 */
+		removeAttachment : function(containerId, divId)
+		{
+			var area = document.getElementById(containerId);
+			var div = document.getElementById(divId);
+			area.removeChild(div);
+		}
+	}; // end return
+}(); // end namespace
+
+var Dirty = function()
+{
+	/**
+	 * Collect all fossils on the page along with the user input fields
+	 */
+	function collectFossils()
+	{
+		var fossilex =  /^(.*)-fossil$/;
+		var fossils = {};
+		if (elements)
+		{
+			jQuery(':input').each(function()
+			{
+				var element = elements[i];
+				// see if name exists and matches regex
+				if (this.name)
+				{
+					var matches = this.name.match(fossilex);
+					if (matches != null)
+					{
+						// use the name sans '-fossil' to store the element
+						// this saves having to parse the field name again
+						// later in processing.
+						fossils[matches[1]] = this;
+					}
+				}
+			});
+		}
+		return fossils;
+	}
+
+	return {
+		isDirty : function()
+		{
+			var dirty = false;
+			var fossilElements = collectFossils();
+			var inputs = [];
+			for (propName in fossilElements)
+			{
+				var fossilElement = fossilElements[propName];
+				var fossil = RSF.parseFossil(fossilElement.value);
+				jQuery(':' + propName).each(function()
+				{
+					if (((this.type == 'checkbox') && (this.checked != (fossil.oldvalue == "true")))
+							|| ((this.type == 'select') && (this.options[this.selectedIndex].value != fossil.oldvalue))
+							|| ((this.type == 'radio') && (this.checked) && (this.value != fossil.oldvalue))
+							|| ((this.type == 'text' || this.type == 'textarea' || this.type == 'password') && (this.value != fossil.oldvalue)))
+					{
+						dirty = true;
+						// return false to make jQuery stop processing loop
+						return false;
+					}
+				});
+				if (dirty) break;
+			}
+			return dirty;
+		},
+
+		check: function(msg)
+		{
+			var retval = true;
+			if(Dirty.isDirty())
+			{
+				retval = confirm(msg);
+			}
+			return retval;
+		}
+	}; // end return
+}(); // end namespace
+
+var MailSenderUtil = function()
+{
+	return {
+		/**
+		 * Determine if a field is visible or hidden
+		 *
+		 * elementId: a element id
+		 */
+		isVisible : function(elementId)
+		{
+			var el = document.getElementById(elementId);
+			return !(el.style.display == 'none' || el.style.visibility == 'hidden');
+		},
+
+		/**
+		 * Hide a field.
+		 *
+		 * elementId: a element id or array of element ids
+		 */
+		hideElement : function(elementId)
+		{
+			if (elementId instanceof Array)
+			{
+				for (i in elementId)
+					MailSenderUtil.hideElement(elementId[i]);
+			}
+			else
+			{
+				var el = document.getElementById(elementId);
+				el.style.display = 'none';
+				el.style.visibility = 'hidden';
+			}
+		},
+
+		/**
+		 * Show a field.
+		 *
+		 * elementId: a element id or array of element ids
+		 * showInline: whether to show the element as inline or block
+		 */
+		showElement : function(elementId, showInline)
+		{
+			if (elementId instanceof Array)
+			{
+				for (i in elementId)
+					MailSenderUtil.showElement(elementId[i]);
+			}
+			else
+			{
+				var el = document.getElementById(elementId);
+				if (showInline)
+					el.style.display = 'inline';
+				else
+					el.style.display = 'block';
+				el.style.visibility = 'visible';
+			}
+		},
+
+		/**
+		 * Toggle the visibility of a field.
+		 *
+		 * elementId: a element id or array of element ids
+		 */
+		toggleElement : function(elementId)
+		{
+			if (elementId instanceof Array)
+			{
+				for (i in elementId)
+					MailSenderUtil.toggleElement(elementId[i]);
+			}
+			else
+			{
+				if (MailSenderUtil.isVisible(elementId))
+					MailSenderUtil.showElement(elementId);
+				else
+					MailSenderUtil.hideElement(elementId);
+			}
+		}
+	}; // end return
+}(); // end namespace
+
 /* global jQuery */
 var RcptSelect = function()
 {
