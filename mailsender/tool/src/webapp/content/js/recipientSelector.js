@@ -68,7 +68,9 @@ var RcptSelect = function()
 						// put the results on the page
 						resultArea.html(results).show();
 						// set the checkboxes based on the group level checkbox
-						RcptSelect.toggleSelectAll(jQuery(link).siblings('input[type=checkbox]:first').attr('id'));
+						if (!isTLM) {
+							RcptSelect.toggleSelectAll(jQuery(link).siblings('input[type=checkbox]:first').attr('id'));
+						}
 					});
 
 				// update the page
@@ -96,6 +98,7 @@ var RcptSelect = function()
 
 			// take down the wait sign
 			jQuery('body').css('cursor', 'default');
+			resetFrame();
 		},
 
 		/**
@@ -107,6 +110,7 @@ var RcptSelect = function()
 		{
 			jQuery('#otherRecipientsDiv').show();
 			jQuery('#otherRecipientsLink').hide();
+			resetFrame();
 		},
 
 		/**
@@ -124,6 +128,7 @@ var RcptSelect = function()
 			RcptSelect.showResults(link, usersAreaId, false);
 			jQuery(_safeId('a', selectLinkId)).hide();
 			jQuery(_safeId('a', collapseLinkId)).show();
+			resetFrame();
 		},
 
 		/**
@@ -139,6 +144,7 @@ var RcptSelect = function()
 		{
 			jQuery(_safeId('a', collapseLinkId) + ', ' + _safeId('div', usersAreaId)).hide();
 			jQuery(_safeId('a', selectLinkId)).show();
+			resetFrame();
 		},
 
 		/**

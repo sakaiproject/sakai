@@ -25,6 +25,7 @@ import org.sakaiproject.mailsender.tool.params.UserGroupViewParameters;
 import org.sakaiproject.mailsender.tool.producers.fragments.UserGroupingProducer;
 import org.sakaiproject.user.api.User;
 
+import uk.ac.cam.caret.sakai.rsf.producers.FrameAdjustingProducer;
 import uk.org.ponder.rsf.components.UIBoundBoolean;
 import uk.org.ponder.rsf.components.UICommand;
 import uk.org.ponder.rsf.components.UIContainer;
@@ -53,6 +54,7 @@ public class ComposeProducer implements ViewComponentProducer, NavigationCaseRep
 	private NavBarRenderer navBarRenderer;
 	private TextInputEvolver richTextEvolver;
 	private ViewStateHandler viewStateHandler;
+	private FrameAdjustingProducer frameAdjustingProducer;
 
 	public void setExternalLogic(ExternalLogic externalLogic)
 	{
@@ -77,6 +79,11 @@ public class ComposeProducer implements ViewComponentProducer, NavigationCaseRep
 	public String getViewID()
 	{
 		return VIEW_ID;
+	}
+
+	public void setFrameAdjustingProducer(FrameAdjustingProducer frameAdjustingProducer)
+	{
+		this.frameAdjustingProducer = frameAdjustingProducer;
 	}
 
 	public void fillComponents(UIContainer tofill, ViewParameters viewparams,
@@ -162,6 +169,8 @@ public class ComposeProducer implements ViewComponentProducer, NavigationCaseRep
 		UICommand.make(mainForm, "send-button", UIMessage.make("send_mail_button"),
 				"emailBean.sendEmail");
 		UICommand.make(mainForm, "cancel-button", UIMessage.make("cancel_mail_button"));
+
+		frameAdjustingProducer.fillComponents(tofill, "resize", "resetFrame");
 	}
 
 	/**
