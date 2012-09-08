@@ -12,3 +12,4 @@ bin/
 .settings
 .project
 .classpath
+.buildpath

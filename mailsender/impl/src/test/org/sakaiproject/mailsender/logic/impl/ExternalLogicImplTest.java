@@ -252,6 +252,11 @@ public class ExternalLogicImplTest {
 		assertFalse(impl.isUserAdmin(USER_ID));
 	}
 
+	@Test
+	public void getPermissionKeys() {
+		assertNotNull(impl.getPermissionKeys());
+	}
+
 	@Test(expected = MailsenderException.class)
 	public void sendMailNullFrom() throws Exception {
 		impl.sendEmail(null, null, null, null, null, null, null);

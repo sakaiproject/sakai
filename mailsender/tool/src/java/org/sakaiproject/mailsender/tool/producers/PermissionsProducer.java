@@ -17,6 +17,7 @@
 package org.sakaiproject.mailsender.tool.producers;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
 
 import org.sakaiproject.authz.api.PermissionsHelper;
@@ -65,6 +66,16 @@ public class PermissionsProducer implements ViewComponentProducer, ViewParamsRep
 				"mailsender.permissions.header", externalLogic.getCurrentSiteTitle()));
 		session.setAttribute(PermissionsHelper.PREFIX, "mailtool.");
 
+		List<String> perms = externalLogic.getPermissionKeys();
+		HashMap<String, String> pRbValues = new HashMap<String, String>();
+		for (int i = 0; i < perms.size(); i++)
+		{
+			String perm = perms.get(i);
+			String descr = messageLocator.getMessage("desc-" + perm);
+			pRbValues.put("desc-" + perm, descr);
+		}
+
+		session.setAttribute("permissionDescriptions", pRbValues);
 		UIOutput.make(tofill, HelperViewParameters.HELPER_ID, HELPER);
 		UICommand.make(tofill, HelperViewParameters.POST_HELPER_BINDING, "", null);
 	}

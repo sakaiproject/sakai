@@ -21,6 +21,7 @@ import static org.sakaiproject.mailsender.logic.impl.MailConstants.PROTOCOL_SMTP
 import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collection;
 import java.util.List;
 import java.util.Map;
@@ -449,6 +450,12 @@ public class ExternalLogicImpl implements ExternalLogic
 	{
 		return securityService.unlock(userId,
 				org.sakaiproject.site.api.SiteService.SECURE_UPDATE_SITE, locationId);
+	}
+
+	public List<String> getPermissionKeys()
+	{
+		String[] perms = new String[] {PERM_ADMIN, PERM_SEND};
+		return Arrays.asList(perms);
 	}
 
 	public void setFunctionManager(FunctionManager functionManager)
