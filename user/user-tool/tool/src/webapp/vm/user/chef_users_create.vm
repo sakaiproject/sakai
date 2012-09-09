@@ -12,13 +12,14 @@
 	<h3>
 		$tlang.getString("usecre.entthe")
 	</h3>
+    <p class="instruction"><span class="reqStarInline">*</span> $tlang.getString("usecre.instruc")</p>
+
 	#if ($alertMessage)<div class="alertMessage">$tlang.getString("useconrem.alert") $validator.escapeHtml($alertMessage)</div>#end	
 
 	<form name="user-create_edit" id="user-create_edit" action="#toolForm("$action")" method="post">
 		<p class="shorttext required">
-			#if(!$user)<span class="reqStar">*</span>#end
 			<label #if(!$user) for="eid" #end>
-				 $tlang.getString("useconrem.useid")
+				#if(!$user)<span class="reqStar">*</span>#end $tlang.getString("useconrem.useid")
 			</label>
 			#if(!$user)<input type="text" name="eid" id="eid" #if($valueEid)value="$validator.escapeHtml($valueEid)"#end/>#else$validator.escapeHtml($user.Eid)#end
 		</p>
@@ -41,16 +42,14 @@
 			<input type="text" name="email" id="email"#if($user)value="$validator.escapeHtml($user.Email)"#elseif($valueEmail)value="$validator.escapeHtml($valueEmail)"#end />
 		</p>
 		<p class="shorttext required">
-			#if ($pwRequired) <span class="reqStar">*</span> #end
 			<label for="pw">
-				$tlang.getString("usecre.crenewpass")
+				#if ($pwRequired) <span class="reqStar">*</span> #end $tlang.getString("usecre.crenewpass")
 			</label>
 			<input type="password" name="pw" id="pw"/>
 		</p>
 		<p class="shorttext required">
-			#if ($pwRequired) <span class="reqStar">*</span> #end
 			<label for="pw0">
-				$tlang.getString("usecre.vernewpass")
+				#if ($pwRequired) <span class="reqStar">*</span> #end $tlang.getString("usecre.vernewpass")
 			</label>
 			<input type="password" name="pw0" id="pw0"/>
 		</p>
