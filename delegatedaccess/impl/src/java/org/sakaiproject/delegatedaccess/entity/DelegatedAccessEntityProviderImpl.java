@@ -85,7 +85,6 @@ public class DelegatedAccessEntityProviderImpl implements DelegatedAccessEntityP
 			throw new IllegalArgumentException("NodeId: " + nodeId + " doesn't exist");
 		}
 		Map<String,String> valuesMap = new HashMap<String, String>();
-		valuesMap.put("shoppingAuth", node.getNodeShoppingPeriodAuth());
 		valuesMap.put("shoppingStartDate", Long.toString(node.getNodeShoppingPeriodStartDate().getTime()));
 		valuesMap.put("shoppingEndDate", Long.toString(node.getNodeShoppingPeriodEndDate().getTime()));
 		valuesMap.put("shoppingRealm", node.getNodeAccessRealmRole()[0]);
@@ -129,22 +128,31 @@ public class DelegatedAccessEntityProviderImpl implements DelegatedAccessEntityP
 		if(nodeId == null){
 			throw new IllegalArgumentException("Node doesn't exist or has multiple instances: " + ref.getId());
 		}
-		String shoppingAuth = (String) params.get("shoppingAuth");
 		String shoppingStartDateStr = (String) params.get("shoppingStartDate");
 		String shoppingEndDateStr = (String) params.get("shoppingEndDate");
 		String role = (String) params.get("shoppingRole");
 		String realm = (String) params.get("shoppingRealm");
-		Object toolList = params.get("shoppingShowTools");
+		Object authToolsList = params.get("shoppingShowAuthTools");
+		Object publicToolsList = params.get("shoppingShowPublicTools");
 		boolean directAccess = true;
 		if(params.get("directAccess") != null){
 			directAccess = Boolean.valueOf("" + params.get("directAccess"));
 		}
-		String[] tools = null;
-		if(toolList != null){
-			if(toolList instanceof String[]){
-				tools = (String[]) params.get("shoppingShowTools");
-			}else if(toolList instanceof String && !"".equals(toolList)){
-				tools = new String[]{(String) toolList};
+		String[] authTools = null;
+		if(authToolsList != null){
+			if(authToolsList instanceof String[]){
+				authTools = (String[]) params.get("shoppingShowAuthTools");
+			}else if(authToolsList instanceof String && !"".equals(authToolsList)){
+				authTools = new String[]{(String) authToolsList};
+			}
+		};
+		
+		String[] publicTools = null;
+		if(publicToolsList != null){
+			if(publicToolsList instanceof String[]){
+				publicTools = (String[]) params.get("shoppingShowPublicTools");
+			}else if(publicToolsList instanceof String && !"".equals(publicToolsList)){
+				publicTools = new String[]{(String) publicToolsList};
 			}
 		};
 		
@@ -172,12 +180,6 @@ public class DelegatedAccessEntityProviderImpl implements DelegatedAccessEntityP
 		if(node.getNodeShoppingPeriodRevokeInstructorEditable()){
 			throw new IllegalArgumentException("This node has the ability for an instructor to make edits to the shopping period settings revoked.  Node: " + node.getNodeId() + ", ref: " + ref.getId());
 		}
-		if(node.getNodeShoppingPeriodRevokeInstructorAuthOpt() && ".auth".equals(shoppingAuth)){
-			throw new IllegalArgumentException("This node has the ability for an instructor to set .auth for the shopping period settings revoked.  Node: " + node.getNodeId() + ", ref: " + ref.getId());
-		}
-		if(node.getNodeShoppingPeriodRevokeInstructorPublicOpt() && ".anon".equals(shoppingAuth)){
-			throw new IllegalArgumentException("This node has the ability for an instructor to set .anon for the shopping period settings revoked.  Node: " + node.getNodeId() + ", ref: " + ref.getId());
-		}
 		
 		if(!directAccess){
 			//no need to continue, just set direct access to false and save (will clear out the rest and cause
@@ -189,36 +191,51 @@ public class DelegatedAccessEntityProviderImpl implements DelegatedAccessEntityP
 		
 		//Get Original Settings before we modify it
 		boolean directAccessOrig = node.isDirectAccess();
-		String authOrig = node.getNodeShoppingPeriodAuth();
 		Date startDateOrig = node.getNodeShoppingPeriodStartDate();
 		Date endDateOrig = node.getNodeShoppingPeriodEndDate();
 		String realmOrig = node.getNodeAccessRealmRole()[0];
 		String roleOrig = node.getNodeAccessRealmRole()[1];
-		String[] toolsOrig = node.getNodeRestrictedTools();
+		String[] authToolsOrig = node.getNodeRestrictedAuthTools();
+		String[] publicToolsOrig = node.getNodeRestrictedAuthTools();
 		//modify the setting to the new settings
-		node.setShoppingPeriodAuth(shoppingAuth);
 		node.setShoppingPeriodStartDate(shoppingStartDate);
 		node.setShoppingPeriodEndDate(shoppingEndDate);
 		node.setRealm(realm);
 		node.setRole(role);
-		node.setRestrictedTools(projectLogic.getEntireToolsList());
-		if(tools != null){
-			for(String toolId : tools){
-				node.setToolRestricted(toolId, true);
+		node.setRestrictedAuthTools(projectLogic.getEntireToolsList());
+		if(authTools != null){
+			for(String toolId : authTools){
+				node.setAuthToolRestricted(toolId, true);
+			}
+		}
+		node.setRestrictedPublicTools(projectLogic.getEntireToolsList());
+		if(node.getNodeShoppingPeriodRevokeInstructorPublicOpt()){
+			//since the instructor isn't allowed to edit public options, make sure that the inherritted
+			//options are stored in this node since they could have chosen "override":
+			publicTools = node.convertListToArray(node.getInheritedRestrictedPublicTools());
+		}
+		if(publicTools != null){
+			for(String toolId : publicTools){
+				node.setPublicToolRestricted(toolId, true);
 			}
 		}
 		//user could have checked overrideDirectAccess and changed nothing else
 		node.setDirectAccess(directAccess);
 		//Get new modified settings
-		String authNew = node.getNodeShoppingPeriodAuth();
 		Date startDateNew = node.getNodeShoppingPeriodStartDate();
 		Date endDateNew = node.getNodeShoppingPeriodEndDate();
 		String realmNew = node.getNodeAccessRealmRole()[0];
 		String roleNew = node.getNodeAccessRealmRole()[1];
-		String[] toolsNew = node.getNodeRestrictedTools();
+		String[] authToolsNew = node.getNodeRestrictedAuthTools();
+		String[] publicToolsNew = node.getNodeRestrictedAuthTools();
+		
+		//Set advanced options to what it inherits since instructors can't edit this:
+		node.setShoppingPeriodRevokeInstructorEditable(node.getInheritedShoppingPeriodRevokeInstructorEditable());
+		node.setShoppingPeriodRevokeInstructorPublicOpt(node.getInheritedShoppingPeriodRevokeInstructorPublicOpt());
+		
 		//only update if there were true modifications
-		if(directAccessOrig != directAccess || node.isModified(authOrig, authNew, startDateOrig, startDateNew, endDateOrig, endDateNew,
-				realmOrig, realmNew, roleOrig, roleNew, toolsOrig, toolsNew, false, false, false, false, false, false)){
+		if(directAccessOrig != directAccess || node.isModified(startDateOrig, startDateNew, endDateOrig, endDateNew,
+				realmOrig, realmNew, roleOrig, roleNew, authToolsOrig, authToolsNew, publicToolsOrig, publicToolsNew, false, false, false, false)){
 			projectLogic.updateNodePermissionsForUser(node, DelegatedAccessConstants.SHOPPING_PERIOD_USER);
 		}
 	}
@@ -235,16 +252,15 @@ public class DelegatedAccessEntityProviderImpl implements DelegatedAccessEntityP
 		}
 
 		Map valuesMap = new HashMap<String, String>();
-		valuesMap.put("shoppingAuth", node.getNodeShoppingPeriodAuth());
 		valuesMap.put("shoppingStartDate", node.getNodeShoppingPeriodStartDate());
 		valuesMap.put("shoppingEndDate", node.getNodeShoppingPeriodEndDate());
 		valuesMap.put("shoppingRealm", node.getNodeAccessRealmRole()[0]);
 		valuesMap.put("shoppingRole", node.getNodeAccessRealmRole()[1]);
 		valuesMap.put("directAccess", node.isDirectAccess());
 		valuesMap.put("revokeInstructorEditable", node.getNodeShoppingPeriodRevokeInstructorEditable());
-		valuesMap.put("revokeInstructorAuthOpt", node.getNodeShoppingPeriodRevokeInstructorAuthOpt());
 		valuesMap.put("revokeInstructorPublicOpt", node.getNodeShoppingPeriodRevokeInstructorPublicOpt());
-		valuesMap.put("shoppingShowTools", node.getNodeRestrictedTools());
+		valuesMap.put("shoppingShowAuthTools", node.getNodeRestrictedAuthTools());
+		valuesMap.put("shoppingShowPublicTools", node.getNodeRestrictedPublicTools());
 
 		return valuesMap;
 	}
@@ -252,7 +268,6 @@ public class DelegatedAccessEntityProviderImpl implements DelegatedAccessEntityP
 	/**
 	 * shoppingOptions/roles
 	 * shoppingOptions/tools
-	 * shoppingOptions/authorization
 	 * 
 	 * @param view
 	 * @param params
@@ -268,8 +283,6 @@ public class DelegatedAccessEntityProviderImpl implements DelegatedAccessEntityP
         	return convertMapToSerializedList(projectLogic.getRealmRoleDisplay(true));
         }else if("tools".equals(option)){
         	return convertListToSerializedList(projectLogic.getEntireToolsList());
-        }else if("authorization".equals(option)){
-        	return convertListToSerializedList(projectLogic.getAuthorizationOptions());
         }else{
         	throw new IllegalArgumentException("A valid option is required:  shoppingOptions/roles, shoppingOptions/tools, shoppingOptions/authorization");
         }
@@ -343,7 +356,7 @@ public class DelegatedAccessEntityProviderImpl implements DelegatedAccessEntityP
         				accessMap.put("realm", node.getAccess()[0]);
         				accessMap.put("role", node.getAccess()[1]);
         			}
-        			accessMap.put("deniedTools", node.getDeniedTools());
+        			accessMap.put("deniedTools", node.getDeniedAuthTools());
         			accessMap.put("userId", node.getUserId());
         			User user = sakaiProxy.getUser(node.getUserId());
         			accessMap.put("userEid", "");
@@ -353,8 +366,8 @@ public class DelegatedAccessEntityProviderImpl implements DelegatedAccessEntityP
         				accessMap.put("userDisplayName", user.getDisplayName());	
         			}
         			String deniedToolsNames = "";
-        			if(node.getDeniedTools() != null){
-        				for(String toolId : node.getDeniedTools()){
+        			if(node.getDeniedAuthTools() != null){
+        				for(String toolId : node.getDeniedAuthTools()){
         					Tool tool = sakaiProxy.getTool(toolId);
         					if(tool != null){
         						if(!deniedToolsNames.equals("")){

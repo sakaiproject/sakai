@@ -29,19 +29,18 @@ public class NodeModel implements Serializable {
 	private String realmOrig = "";
 	private String roleOrig = "";
 	private NodeModel parentNode;
-	private List<ListOptionSerialized> restrictedTools;
-	private List<ListOptionSerialized> restrictedToolsOrig;
+	private List<ListOptionSerialized> restrictedAuthTools;
+	private List<ListOptionSerialized> restrictedAuthToolsOrig;
+	private List<ListOptionSerialized> restrictedPublicTools;
+	private List<ListOptionSerialized> restrictedPublicToolsOrig;
 	private Date shoppingPeriodStartDate = new Date();
 	private Date shoppingPeriodStartDateOrig = new Date();
 	private Date shoppingPeriodEndDate = new Date();
 	private Date shoppingPeriodEndDateOrig = new Date();
-//	private String shoppingPeriodAuth;
-	private String shoppingPeriodAuthOrig;
 	private boolean addedDirectChildrenFlag = false;	
 	private boolean shoppingPeriodAdmin = false;
 	private boolean shoppingPeriodAdminOrig = false;
 	private String siteInstructors;
-	private SelectOption shoppingPeriodAuthOption;
 	private SelectOption roleOption;
 	private Date shoppingAdminModified = null;
 	private String shoppingAdminModifiedBy = null;
@@ -51,8 +50,6 @@ public class NodeModel implements Serializable {
 	private boolean editable = true;
 	private boolean shoppingPeriodRevokeInstructorEditable = false;
 	private boolean shoppingPeriodRevokeInstructorEditableOrig = false;
-	private boolean shoppingPeriodRevokeInstructorAuthOpt = false;
-	private boolean shoppingPeriodRevokeInstructorAuthOptOrig = false;
 	private boolean shoppingPeriodRevokeInstructorPublicOpt = false;
 	private boolean shoppingPeriodRevokeInstructorPublicOptOrig = false;
 	
@@ -66,23 +63,21 @@ public class NodeModel implements Serializable {
 		shoppingPeriodAdminOrig = shoppingPeriodAdmin;
 		realmOrig = realm;
 		roleOrig = role;
-		restrictedToolsOrig = copyListOptions(restrictedTools);
+		restrictedAuthToolsOrig = copyListOptions(restrictedAuthTools);
+		restrictedPublicToolsOrig = copyListOptions(restrictedPublicTools);
 		shoppingPeriodStartDateOrig = shoppingPeriodStartDate;
 		shoppingPeriodEndDateOrig = shoppingPeriodEndDate;
-		shoppingPeriodAuthOrig = getShoppingPeriodAuth();
 		shoppingPeriodRevokeInstructorEditableOrig = shoppingPeriodRevokeInstructorEditable;
-		shoppingPeriodRevokeInstructorAuthOptOrig = shoppingPeriodRevokeInstructorAuthOpt;
 		shoppingPeriodRevokeInstructorPublicOptOrig = shoppingPeriodRevokeInstructorPublicOpt;
 	}
 	
 	public NodeModel(String nodeId, HierarchyNodeSerialized node,
 			boolean directAccess, String realm, String role, NodeModel parentNode,
-			List<ListOptionSerialized> restrictedTools, Date shoppingPeriodStartDate,
-			Date shoppingPeriodEndDate,
-			String shoppingPeriodAuth, boolean addedDirectChildrenFlag, boolean shoppingPeriodAdmin,
+			List<ListOptionSerialized> restrictedAuthTools, List<ListOptionSerialized> restrictedPublicTools, Date shoppingPeriodStartDate,
+			Date shoppingPeriodEndDate, boolean addedDirectChildrenFlag, boolean shoppingPeriodAdmin,
 			String modifiedBy, Date modified,
 			Date shoppingAdminModified, String shoppingAdminModifiedBy, boolean accessAdmin, boolean shoppingPeriodRevokeInstructorEditable,
-			boolean shoppingPeriodRevokeInstructorAuthOpt, boolean shoppingPeriodRevokeInstructorPublicOpt){
+			boolean shoppingPeriodRevokeInstructorPublicOpt){
 
 		this.nodeId = nodeId;
 		this.node = node;
@@ -93,10 +88,10 @@ public class NodeModel implements Serializable {
 		this.realmOrig = realm;
 		this.roleOrig = role;
 		this.parentNode = parentNode;
-		this.restrictedTools = restrictedTools;
-		this.restrictedToolsOrig = copyListOptions(restrictedTools);
-		setShoppingPeriodAuth(shoppingPeriodAuth);
-		this.shoppingPeriodAuthOrig = shoppingPeriodAuth;
+		this.restrictedAuthTools = restrictedAuthTools;
+		this.restrictedAuthToolsOrig = copyListOptions(restrictedAuthTools);
+		this.restrictedPublicTools = restrictedPublicTools;
+		this.restrictedPublicToolsOrig = copyListOptions(restrictedPublicTools);
 		this.shoppingPeriodEndDate = shoppingPeriodEndDate;
 		this.shoppingPeriodEndDateOrig = shoppingPeriodEndDate;
 		this.shoppingPeriodStartDate = shoppingPeriodStartDate;
@@ -112,8 +107,6 @@ public class NodeModel implements Serializable {
 		this.accessAdminOrig = accessAdmin;
 		this.shoppingPeriodRevokeInstructorEditable = shoppingPeriodRevokeInstructorEditable;
 		this.shoppingPeriodRevokeInstructorEditableOrig = shoppingPeriodRevokeInstructorEditable;
-		this.shoppingPeriodRevokeInstructorAuthOpt = shoppingPeriodRevokeInstructorAuthOpt;
-		this.shoppingPeriodRevokeInstructorAuthOptOrig = shoppingPeriodRevokeInstructorAuthOpt;
 		this.shoppingPeriodRevokeInstructorPublicOpt = shoppingPeriodRevokeInstructorPublicOpt;
 		this.shoppingPeriodRevokeInstructorPublicOptOrig = shoppingPeriodRevokeInstructorPublicOpt;
 	}
@@ -174,19 +167,18 @@ public class NodeModel implements Serializable {
 		
 		//only worry about modifications to a direct access node
 		if(directAccess){
-			return isModified(getShoppingPeriodAuth(), shoppingPeriodAuthOrig, shoppingPeriodStartDate, shoppingPeriodStartDateOrig, shoppingPeriodEndDate, shoppingPeriodEndDateOrig,
-					realm, realmOrig, role, roleOrig, convertListToArray(getSelectedRestrictedTools()), convertListToArray(getSelectedRestrictedToolsOrig()), shoppingPeriodRevokeInstructorEditable, shoppingPeriodRevokeInstructorEditableOrig,
-					shoppingPeriodRevokeInstructorAuthOpt, shoppingPeriodRevokeInstructorAuthOptOrig,
+			return isModified(shoppingPeriodStartDate, shoppingPeriodStartDateOrig, shoppingPeriodEndDate, shoppingPeriodEndDateOrig,
+					realm, realmOrig, role, roleOrig, convertListToArray(getSelectedRestrictedAuthTools()), convertListToArray(getSelectedRestrictedAuthToolsOrig()), 
+					convertListToArray(getSelectedRestrictedPublicTools()), convertListToArray(getSelectedRestrictedPublicToolsOrig()), shoppingPeriodRevokeInstructorEditable, shoppingPeriodRevokeInstructorEditableOrig,
 					shoppingPeriodRevokeInstructorPublicOpt, shoppingPeriodRevokeInstructorPublicOptOrig);
 		}
 
 		return false;
 	}
 
-	public boolean isModified(String shoppingAuthOld, String shoppingAuthNew, Date shoppingStartDateOld, Date shoppingStartDateNew,
+	public boolean isModified(Date shoppingStartDateOld, Date shoppingStartDateNew,
 			Date shoppingEndDateOld, Date shoppingEndDateNew, String realmOld, String realmNew, String roleOld, String roleNew,
-			String[] toolsOld, String[] toolsNew, boolean shoppingPeriodRevokeInstructorEditable, boolean shoppingPeriodRevokeInstructorEditableOrig,
-			boolean shoppingPeriodRevokeInstructorAuthOpt, boolean shoppingPeriodRevokeInstructorAuthOptOrig,
+			String[] authToolsOld, String[] authToolsNew, String[] publicToolsOld, String[] publicToolsNew, boolean shoppingPeriodRevokeInstructorEditable, boolean shoppingPeriodRevokeInstructorEditableOrig,
 			boolean shoppingPeriodRevokeInstructorPublicOpt, boolean shoppingPeriodRevokeInstructorPublicOptOrig){
 		if(realmOld != null && realmNew != null){
 			if(!realmOld.equals(realmNew))
@@ -215,20 +207,14 @@ public class NodeModel implements Serializable {
 			return true;
 		}
 
-		if(shoppingAuthOld != null && shoppingAuthNew != null){
-			if(!shoppingAuthOld.equals(shoppingAuthNew))
-				return true;
-		}else if((shoppingAuthOld == null || shoppingAuthNew == null) && !(shoppingAuthOld == null && shoppingAuthNew == null)){
-			return true;
-		}
-		if(toolsOld != null && toolsNew != null){
-			if(toolsOld.length != toolsNew.length){
+		if(authToolsOld != null && authToolsNew != null){
+			if(authToolsOld.length != authToolsNew.length){
 				return true;
 			}else{
-				for(int i = 0; i < toolsOld.length; i++){
+				for(int i = 0; i < authToolsOld.length; i++){
 					boolean found = false;
-					for(int j = 0; j < toolsNew.length; j++){
-						if(toolsOld[i].equals(toolsNew[j])){
+					for(int j = 0; j < authToolsNew.length; j++){
+						if(authToolsOld[i].equals(authToolsNew[j])){
 							found = true;
 							break;
 						}
@@ -238,12 +224,32 @@ public class NodeModel implements Serializable {
 					}
 				}
 			}
-		}else if((toolsOld == null || toolsNew == null) && !(toolsOld == null && toolsNew == null)){
+		}else if((authToolsOld == null || authToolsNew == null) && !(authToolsOld == null && authToolsNew == null)){
+			return true;
+		}
+		
+		if(publicToolsOld != null && publicToolsNew != null){
+			if(publicToolsOld.length != publicToolsNew.length){
+				return true;
+			}else{
+				for(int i = 0; i < publicToolsOld.length; i++){
+					boolean found = false;
+					for(int j = 0; j < publicToolsNew.length; j++){
+						if(publicToolsOld[i].equals(publicToolsNew[j])){
+							found = true;
+							break;
+						}
+					}
+					if(!found){
+						return true;
+					}
+				}
+			}
+		}else if((publicToolsOld == null || publicToolsNew == null) && !(publicToolsOld == null && publicToolsNew == null)){
 			return true;
 		}
 		
 		if(shoppingPeriodRevokeInstructorEditable != shoppingPeriodRevokeInstructorEditableOrig ||
-				shoppingPeriodRevokeInstructorAuthOpt != shoppingPeriodRevokeInstructorAuthOptOrig ||
 				shoppingPeriodRevokeInstructorPublicOpt != shoppingPeriodRevokeInstructorPublicOptOrig){
 			return true;
 		}
@@ -253,9 +259,22 @@ public class NodeModel implements Serializable {
 		return false;
 	}
 
-	private boolean isRestrictedToolsModified(){
-		for(ListOptionSerialized origTool : restrictedToolsOrig){
-			for(ListOptionSerialized tool : restrictedTools){
+	private boolean isRestrictedAuthToolsModified(){
+		for(ListOptionSerialized origTool : restrictedAuthToolsOrig){
+			for(ListOptionSerialized tool : restrictedAuthTools){
+				if(tool.getId().equals(origTool.getId())){
+					if(tool.isSelected() != origTool.isSelected()){
+						return true;
+					}
+				}
+			}
+		}
+		return false;
+	}
+	
+	private boolean isRestrictedPublicToolsModified(){
+		for(ListOptionSerialized origTool : restrictedPublicToolsOrig){
+			for(ListOptionSerialized tool : restrictedPublicTools){
 				if(tool.getId().equals(origTool.getId())){
 					if(tool.isSelected() != origTool.isSelected()){
 						return true;
@@ -295,14 +314,6 @@ public class NodeModel implements Serializable {
 			return new String[]{"",""};
 		}else{
 			return myAccessRealmRole;
-		}
-	}
-
-	public String getNodeShoppingPeriodAuth(){
-		if(isDirectAccess()){
-			return getShoppingPeriodAuth();
-		}else{
-			return getInheritedShoppingPeriodAuth();
 		}
 	}
 
@@ -386,20 +397,6 @@ public class NodeModel implements Serializable {
 		}
 	}
 
-	public String getInheritedShoppingPeriodAuth(){
-		return getInheritedShoppingPeriodAuthHelper(parentNode);
-	}
-
-	private String getInheritedShoppingPeriodAuthHelper(NodeModel parent){
-		if(parent == null){
-			return "";
-		}else if(parent.isDirectAccess()){
-			return parent.getShoppingPeriodAuth();
-		}else{
-			return getInheritedShoppingPeriodAuthHelper(parent.getParentNode());
-		}
-	}
-
 	public NodeModel getParentNode() {
 		return parentNode;
 	}
@@ -408,18 +405,18 @@ public class NodeModel implements Serializable {
 		this.parentNode = parentNode;
 	}
 
-	public List<ListOptionSerialized> getRestrictedTools() {
-		return restrictedTools;
+	public List<ListOptionSerialized> getRestrictedAuthTools() {
+		return restrictedAuthTools;
 	}
 
-	public void setRestrictedTools(List<ListOptionSerialized> restrictedTools) {
-		this.restrictedTools = restrictedTools;
+	public void setRestrictedAuthTools(List<ListOptionSerialized> restrictedAuthTools) {
+		this.restrictedAuthTools = restrictedAuthTools;
 	}
 
-	public String[] getNodeRestrictedTools(){
-		List<ListOptionSerialized> myRestrictedTools = getSelectedRestrictedTools();
+	public String[] getNodeRestrictedAuthTools(){
+		List<ListOptionSerialized> myRestrictedTools = getSelectedRestrictedAuthTools();
 		if(!isDirectAccess()){
-			myRestrictedTools = getInheritedRestrictedTools();
+			myRestrictedTools = getInheritedRestrictedAuthTools();
 		}
 
 		if(myRestrictedTools == null || myRestrictedTools.size() == 0){
@@ -429,7 +426,7 @@ public class NodeModel implements Serializable {
 		}
 	}
 	
-	private String[] convertListToArray(List<ListOptionSerialized> list){
+	public String[] convertListToArray(List<ListOptionSerialized> list){
 		String[] restrictedToolsArray = new String[list.size()];
 		int i = 0;
 		for(ListOptionSerialized tool : list){
@@ -439,48 +436,119 @@ public class NodeModel implements Serializable {
 		return restrictedToolsArray;
 	}
 
-	public List<ListOptionSerialized> getInheritedRestrictedTools(){
-		return getInheritedRestrictedToolsHelper(parentNode);
+	public List<ListOptionSerialized> getInheritedRestrictedAuthTools(){
+		return getInheritedRestrictedAuthToolsHelper(parentNode);
 	}
 
-	private List<ListOptionSerialized> getInheritedRestrictedToolsHelper(NodeModel parent){
+	private List<ListOptionSerialized> getInheritedRestrictedAuthToolsHelper(NodeModel parent){
 		if(parent == null){
 			return Collections.emptyList();
 		}else if(parent.isDirectAccess()){
-			return parent.getSelectedRestrictedTools();
+			return parent.getSelectedRestrictedAuthTools();
 		}else{
-			return getInheritedRestrictedToolsHelper(parent.getParentNode());
+			return getInheritedRestrictedAuthToolsHelper(parent.getParentNode());
 		}
 	}
 
-	public List<ListOptionSerialized> getSelectedRestrictedTools(){
+	public List<ListOptionSerialized> getSelectedRestrictedAuthTools(){
 		List<ListOptionSerialized> returnList = new ArrayList<ListOptionSerialized>();
-		for(ListOptionSerialized tool : restrictedTools){
+		for(ListOptionSerialized tool : restrictedAuthTools){
 			if(tool.isSelected())
 				returnList.add(tool);
 		}
 		return returnList;
 	}
 	
-	public List<ListOptionSerialized> getSelectedRestrictedToolsOrig(){
+	public List<ListOptionSerialized> getSelectedRestrictedAuthToolsOrig(){
 		List<ListOptionSerialized> returnList = new ArrayList<ListOptionSerialized>();
-		for(ListOptionSerialized tool : restrictedToolsOrig){
+		for(ListOptionSerialized tool : restrictedAuthToolsOrig){
 			if(tool.isSelected())
 				returnList.add(tool);
 		}
 		return returnList;
 	}
 
-	public boolean hasAnyRestrictedToolsSelected(){
-		for(ListOptionSerialized tool : restrictedTools){
+	public boolean hasAnyRestrictedAuthToolsSelected(){
+		for(ListOptionSerialized tool : restrictedAuthTools){
 			if(tool.isSelected())
 				return true;
 		}
 		return false;
 	}
 
-	public void setToolRestricted(String toolId, boolean restricted){
-		for(ListOptionSerialized tool : restrictedTools){
+	public void setAuthToolRestricted(String toolId, boolean restricted){
+		for(ListOptionSerialized tool : restrictedAuthTools){
+			if(tool.getId().equals(toolId)){
+				tool.setSelected(restricted);
+				break;
+			}
+		}
+	}
+	
+	//public tools:
+	public List<ListOptionSerialized> getRestrictedPublicTools() {
+		return restrictedPublicTools;
+	}
+
+	public void setRestrictedPublicTools(List<ListOptionSerialized> restrictedPublicTools) {
+		this.restrictedPublicTools = restrictedPublicTools;
+	}
+
+	public String[] getNodeRestrictedPublicTools(){
+		List<ListOptionSerialized> myRestrictedTools = getSelectedRestrictedPublicTools();
+		if(!isDirectAccess()){
+			myRestrictedTools = getInheritedRestrictedPublicTools();
+		}
+
+		if(myRestrictedTools == null || myRestrictedTools.size() == 0){
+			return new String[0];
+		}else{
+			return convertListToArray(myRestrictedTools);
+		}
+	}
+
+	public List<ListOptionSerialized> getInheritedRestrictedPublicTools(){
+		return getInheritedRestrictedPublicToolsHelper(parentNode);
+	}
+
+	private List<ListOptionSerialized> getInheritedRestrictedPublicToolsHelper(NodeModel parent){
+		if(parent == null){
+			return Collections.emptyList();
+		}else if(parent.isDirectAccess()){
+			return parent.getSelectedRestrictedPublicTools();
+		}else{
+			return getInheritedRestrictedPublicToolsHelper(parent.getParentNode());
+		}
+	}
+
+	public List<ListOptionSerialized> getSelectedRestrictedPublicTools(){
+		List<ListOptionSerialized> returnList = new ArrayList<ListOptionSerialized>();
+		for(ListOptionSerialized tool : restrictedPublicTools){
+			if(tool.isSelected())
+				returnList.add(tool);
+		}
+		return returnList;
+	}
+	
+	public List<ListOptionSerialized> getSelectedRestrictedPublicToolsOrig(){
+		List<ListOptionSerialized> returnList = new ArrayList<ListOptionSerialized>();
+		for(ListOptionSerialized tool : restrictedPublicToolsOrig){
+			if(tool.isSelected())
+				returnList.add(tool);
+		}
+		return returnList;
+	}
+
+	public boolean hasAnyRestrictedPublicToolsSelected(){
+		for(ListOptionSerialized tool : restrictedPublicTools){
+			if(tool.isSelected())
+				return true;
+		}
+		return false;
+	}
+
+	public void setPublicToolRestricted(String toolId, boolean restricted){
+		for(ListOptionSerialized tool : restrictedPublicTools){
 			if(tool.getId().equals(toolId)){
 				tool.setSelected(restricted);
 				break;
@@ -502,23 +570,6 @@ public class NodeModel implements Serializable {
 
 	public void setShoppingPeriodEndDate(Date shoppingPeriodEndDate) {
 		this.shoppingPeriodEndDate = shoppingPeriodEndDate;
-	}
-
-	public String getShoppingPeriodAuth() {
-		String shoppingPeriodAuth = null;
-		if(shoppingPeriodAuthOption != null){
-			shoppingPeriodAuth = shoppingPeriodAuthOption.getValue();
-		}
-		return shoppingPeriodAuth;
-	}
-
-	public void setShoppingPeriodAuth(String shoppingPeriodAuth){
-		if(shoppingPeriodAuthOption == null){
-			shoppingPeriodAuthOption = new SelectOption("", shoppingPeriodAuth);
-		}else{
-			shoppingPeriodAuthOption.setValue(shoppingPeriodAuth);
-			shoppingPeriodAuthOption.setLabel("");
-		}
 	}
 
 	public boolean isAddedDirectChildrenFlag() {
@@ -570,15 +621,6 @@ public class NodeModel implements Serializable {
 	public void setSiteInstructors(String siteInstructors) {
 		this.siteInstructors = siteInstructors;
 	}
-
-	public void setShoppingPeriodAuthOption(SelectOption shoppingPeriodAuthOption) {
-		this.shoppingPeriodAuthOption = shoppingPeriodAuthOption;
-	}
-
-	public SelectOption getShoppingPeriodAuthOption() {
-		return shoppingPeriodAuthOption;
-	}
-	
 	
 	public SelectOption getRoleOption() {
 		return roleOption;
@@ -707,8 +749,8 @@ public class NodeModel implements Serializable {
 	}
 	
 	public boolean getNodeShoppingPeriodRevokeInstructorEditable(){
-		if(isShoppingPeriodRevokeInstructorEditable()){
-			return true;
+		if(isDirectAccess()){
+			return isShoppingPeriodRevokeInstructorEditable();
 		}else{
 			return getInheritedShoppingPeriodRevokeInstructorEditable();
 		}
@@ -727,47 +769,7 @@ public class NodeModel implements Serializable {
 			return getInheritedShoppingPeriodRevokeInstructorEditableHelper(parent.getParentNode());
 		}
 	}
-	
-	public boolean isShoppingPeriodRevokeInstructorAuthOpt() {
-		return shoppingPeriodRevokeInstructorAuthOpt;
-	}
 
-	public void setShoppingPeriodRevokeInstructorAuthOpt(
-			boolean shoppingPeriodRevokeInstructorAuthOpt) {
-		this.shoppingPeriodRevokeInstructorAuthOpt = shoppingPeriodRevokeInstructorAuthOpt;
-	}
-
-	public boolean isShoppingPeriodRevokeInstructorAuthOptOrig() {
-		return shoppingPeriodRevokeInstructorAuthOptOrig;
-	}
-
-	public void setShoppingPeriodRevokeInstructorAuthOptOrig(
-			boolean shoppingPeriodRevokeInstructorAuthOptOrig) {
-		this.shoppingPeriodRevokeInstructorAuthOptOrig = shoppingPeriodRevokeInstructorAuthOptOrig;
-	}
-	
-	public boolean getNodeShoppingPeriodRevokeInstructorAuthOpt(){
-		if(isShoppingPeriodRevokeInstructorAuthOpt()){
-			return true;
-		}else{
-			return getInheritedShoppingPeriodRevokeInstructorAuthOpt();
-		}
-	}
-
-	public boolean getInheritedShoppingPeriodRevokeInstructorAuthOpt(){
-		return getInheritedShoppingPeriodRevokeInstructorAuthOptHelper(parentNode);
-	}
-	
-	public boolean getInheritedShoppingPeriodRevokeInstructorAuthOptHelper(NodeModel parent){
-		if(parent == null){
-			return false;
-		} else if (parent.isDirectAccess()) {
-			return parent.isShoppingPeriodRevokeInstructorAuthOpt();
-		}else{
-			return getInheritedShoppingPeriodRevokeInstructorAuthOptHelper(parent.getParentNode());
-		}
-	}
-	
 	public boolean isShoppingPeriodRevokeInstructorPublicOpt() {
 		return shoppingPeriodRevokeInstructorPublicOpt;
 	}
@@ -787,8 +789,8 @@ public class NodeModel implements Serializable {
 	}
 	
 	public boolean getNodeShoppingPeriodRevokeInstructorPublicOpt(){
-		if(isShoppingPeriodRevokeInstructorPublicOpt()){
-			return true;
+		if(isDirectAccess()){
+			return isShoppingPeriodRevokeInstructorPublicOpt();
 		}else{
 			return getInheritedShoppingPeriodRevokeInstructorPublicOpt();
 		}

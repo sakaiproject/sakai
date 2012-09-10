@@ -66,7 +66,10 @@ public class ProjectLogicImpl implements ProjectLogic {
 	private Cache nodeCache;
 	//Stores restricted tools map for users when they log back in
 	@Getter @Setter
-	private Cache restrictedToolsCache;
+	private Cache restrictedAuthToolsCache;
+	
+	@Getter @Setter
+	private Cache restrictedPublicToolsCache;
 	/**
 	 * init - perform any actions required here for when this bean starts up
 	 */
@@ -107,23 +110,32 @@ public class ProjectLogicImpl implements ProjectLogic {
 			saveRealmAndRoleAccess(userId, nodeModel.getRealm(), nodeModel.getRole(), nodeModel.getNodeId());
 
 			//tool permissions:
-			List<String> restrictedTools = new ArrayList<String>();
-			for(ListOptionSerialized tool : nodeModel.getRestrictedTools()){
+			List<String> restrictedAuthTools = new ArrayList<String>();
+			for(ListOptionSerialized tool : nodeModel.getRestrictedAuthTools()){
 				if(tool.isSelected()){
-					restrictedTools.add(tool.getId());
+					restrictedAuthTools.add(tool.getId());
 				}
 			}
-			if(!restrictedTools.isEmpty()){
-				saveRestrictedToolsForUser(userId, nodeModel.getNodeId(), restrictedTools);
+			if(!restrictedAuthTools.isEmpty()){
+				saveRestrictedAuthToolsForUser(userId, nodeModel.getNodeId(), restrictedAuthTools);
+			}
+			
+			//public tool permissions:
+			List<String> restrictedPublicTools = new ArrayList<String>();
+			for(ListOptionSerialized tool : nodeModel.getRestrictedPublicTools()){
+				if(tool.isSelected()){
+					restrictedPublicTools.add(tool.getId());
+				}
+			}
+			if(!restrictedPublicTools.isEmpty()){
+				saveRestrictedPublicToolsForUser(userId, nodeModel.getNodeId(), restrictedPublicTools);
 			}
 
 			//save shopping period information
 			if(DelegatedAccessConstants.SHOPPING_PERIOD_USER.equals(userId)){
-				saveShoppingPeriodAuth(nodeModel.getShoppingPeriodAuth(), nodeModel.getNodeId());
 				saveShoppingPeriodStartDate(nodeModel.getShoppingPeriodStartDate(), nodeModel.getNodeId());
 				saveShoppingPeriodEndDate(nodeModel.getShoppingPeriodEndDate(), nodeModel.getNodeId());
 				saveShoppingPeriodRevokeInstructorEditable(nodeModel.isShoppingPeriodRevokeInstructorEditable(), nodeModel.getNodeId());
-				saveShoppingPeriodRevokeInstructorAuthOpt(nodeModel.isShoppingPeriodRevokeInstructorAuthOpt(), nodeModel.getNodeId());
 				saveShoppingPeriodRevokeInstructorPublicOpt(nodeModel.isShoppingPeriodRevokeInstructorPublicOpt(), nodeModel.getNodeId());
 			}
 		}
@@ -193,11 +205,6 @@ public class ProjectLogicImpl implements ProjectLogic {
 		hierarchyService.assignUserNodePerm(userId, nodeId, DelegatedAccessConstants.NODE_PERM_MODIFIED_BY + sakaiProxy.getCurrentUserId(), false);
 	}
 
-	private void saveShoppingPeriodAuth(String auth, String nodeId){
-		if(auth != null && !"".equals(auth) && !"null".equals(auth)){
-			hierarchyService.assignUserNodePerm(DelegatedAccessConstants.SHOPPING_PERIOD_USER, nodeId, DelegatedAccessConstants.NODE_PERM_SHOPPING_AUTH + auth, false);
-		}
-	}
 	private void saveShoppingPeriodStartDate(Date startDate, String nodeId){
 		if(startDate != null){
 			hierarchyService.assignUserNodePerm(DelegatedAccessConstants.SHOPPING_PERIOD_USER, nodeId, DelegatedAccessConstants.NODE_PERM_SHOPPING_START_DATE + startDate.getTime(), false);
@@ -212,12 +219,6 @@ public class ProjectLogicImpl implements ProjectLogic {
 	private void saveShoppingPeriodRevokeInstructorEditable(boolean shoppingPeriodRevokeInstructorEditable, String nodeId){
 		if(shoppingPeriodRevokeInstructorEditable){
 			hierarchyService.assignUserNodePerm(DelegatedAccessConstants.SHOPPING_PERIOD_USER, nodeId, DelegatedAccessConstants.NODE_PERM_SHOPPING_REVOKE_INSTRUCTOR_EDITABLE, false);
-		}
-	}
-	
-	private void saveShoppingPeriodRevokeInstructorAuthOpt(boolean bool, String nodeId){
-		if(bool){
-			hierarchyService.assignUserNodePerm(DelegatedAccessConstants.SHOPPING_PERIOD_USER, nodeId, DelegatedAccessConstants.NODE_PERM_SHOPPING_REVOKE_INSTRUCTOR_AUTH_OPT, false);
 		}
 	}
 	
@@ -334,9 +335,13 @@ public class ProjectLogicImpl implements ProjectLogic {
 				session.setAttribute(DelegatedAccessConstants.SESSION_ATTRIBUTE_DELEGATED_ACCESS_FLAG, true);
 				//need to clear sakai realm permissions cache for user since Denied Tools list is tied to
 				//session and permissions are a saved in a system cache
-				Element el = restrictedToolsCache.get(userId);
+				Element el = restrictedAuthToolsCache.get(userId);
 				if(el != null){
 					session.setAttribute(DelegatedAccessConstants.SESSION_ATTRIBUTE_DENIED_TOOLS, el.getObjectValue());
+				}
+				Element elPub = restrictedPublicToolsCache.get(userId);
+				if(elPub != null){
+					session.setAttribute(DelegatedAccessConstants.SESSION_ATTRIBUTE_DENIED_TOOLS2, elPub.getObjectValue());
 				}
 			}
 		}
@@ -425,13 +430,26 @@ public class ProjectLogicImpl implements ProjectLogic {
 	 * @param nodeId
 	 * @return
 	 */
-	public List<ListOptionSerialized> getRestrictedToolSerializedList(Set<String> perms){
-		return getRestrictedToolSerializedList(perms, getEntireToolsList());
+	public List<ListOptionSerialized> getRestrictedAuthToolSerializedList(Set<String> perms){
+		return getRestrictedAuthToolSerializedList(perms, getEntireToolsList());
+	}
+	
+	public List<ListOptionSerialized> getRestrictedPublicToolSerializedList(Set<String> perms){
+		return getRestrictedPublicToolSerializedList(perms, getEntireToolsList());
 	}
 
 
-	public List<ListOptionSerialized> getRestrictedToolSerializedList(Set<String> perms, List<ListOptionSerialized> blankList){
-		List<String> restrictedTools = getRestrictedToolsForUser(perms);
+	public List<ListOptionSerialized> getRestrictedAuthToolSerializedList(Set<String> perms, List<ListOptionSerialized> blankList){
+		List<String> restrictedTools = getRestrictedAuthToolsForUser(perms);
+		for(ListOptionSerialized tool : blankList){
+			if(restrictedTools.contains(tool.getId()))
+				tool.setSelected(true);
+		}
+		return blankList;
+	}
+	
+	public List<ListOptionSerialized> getRestrictedPublicToolSerializedList(Set<String> perms, List<ListOptionSerialized> blankList){
+		List<String> restrictedTools = getRestrictedPublicToolsForUser(perms);
 		for(ListOptionSerialized tool : blankList){
 			if(restrictedTools.contains(tool.getId()))
 				tool.setSelected(true);
@@ -457,7 +475,7 @@ public class ProjectLogicImpl implements ProjectLogic {
 		return returnList;
 	}
 
-	private List<String> getRestrictedToolsForUser(Set<String> userPerms){
+	private List<String> getRestrictedAuthToolsForUser(Set<String> userPerms){
 		List<String> returnList = new ArrayList<String>();
 		for(String userPerm : userPerms){
 			if(userPerm.startsWith(DelegatedAccessConstants.NODE_PERM_DENY_TOOL_PREFIX)){
@@ -466,11 +484,28 @@ public class ProjectLogicImpl implements ProjectLogic {
 		}
 		return returnList;
 	}
+	
+	private List<String> getRestrictedPublicToolsForUser(Set<String> userPerms){
+		List<String> returnList = new ArrayList<String>();
+		for(String userPerm : userPerms){
+			if(userPerm.startsWith(DelegatedAccessConstants.NODE_PERM_DENY_TOOL2_PREFIX)){
+				returnList.add(userPerm.substring(DelegatedAccessConstants.NODE_PERM_DENY_TOOL2_PREFIX.length()));
+			}
+		}
+		return returnList;
+	}
 
-	private void saveRestrictedToolsForUser(String userId, String nodeId, List<String> toolIds){
+	private void saveRestrictedAuthToolsForUser(String userId, String nodeId, List<String> toolIds){
 		//add new tools:
 		for(String newTool : toolIds){
 			hierarchyService.assignUserNodePerm(userId, nodeId, DelegatedAccessConstants.NODE_PERM_DENY_TOOL_PREFIX + newTool, false);
+		}
+	}
+	
+	private void saveRestrictedPublicToolsForUser(String userId, String nodeId, List<String> toolIds){
+		//add new tools:
+		for(String newTool : toolIds){
+			hierarchyService.assignUserNodePerm(userId, nodeId, DelegatedAccessConstants.NODE_PERM_DENY_TOOL2_PREFIX + newTool, false);
 		}
 	}
 	
@@ -492,10 +527,10 @@ public class ProjectLogicImpl implements ProjectLogic {
 				AccessNode access = accessList.get(siteResult.getSiteReference());
 				if(access != null){
 					siteResult.setAccess(access.getAccess());
-					siteResult.setShoppingPeriodAuth(access.getAuth());
 					siteResult.setShoppingPeriodStartDate(access.getStartDate());
 					siteResult.setShoppingPeriodEndDate(access.getEndDate());
-					siteResult.setRestrictedTools(access.getDeniedTools());
+					siteResult.setRestrictedAuthTools(access.getDeniedAuthTools());
+					siteResult.setRestrictedPublicTools(access.getDeniedPublicTools());
 					siteResult.setModified(access.getModified());
 					siteResult.setModifiedBy(access.getModifiedBy());
 					if(!userSortNameCache.containsKey(access.getModifiedBy())){
@@ -799,15 +834,6 @@ public class ProjectLogicImpl implements ProjectLogic {
 		return returnDate;
 	}
 
-	private String getShoppingPeriodAuth(Set<String> perms){
-		for(String perm : perms){
-			if(perm.startsWith(DelegatedAccessConstants.NODE_PERM_SHOPPING_AUTH)){
-				return perm.substring(DelegatedAccessConstants.NODE_PERM_SHOPPING_AUTH.length());
-			}
-		}
-		return "";
-	}
-
 	private String getShoppingAdminModifiedBy(Set<String> perms){
 		for(String perm : perms){
 			if(perm.startsWith(DelegatedAccessConstants.NODE_PERM_SHOPPING_ADMIN_MODIFIED_BY)){
@@ -839,15 +865,6 @@ public class ProjectLogicImpl implements ProjectLogic {
 	private boolean isShoppingPeriodRevokeInstructorEditable(Set<String> perms){
 		for(String perm : perms){
 			if(perm.startsWith(DelegatedAccessConstants.NODE_PERM_SHOPPING_REVOKE_INSTRUCTOR_EDITABLE)){
-				return true;
-			}
-		}
-		return false;
-	}
-	
-	private boolean isShoppingPeriodRevokeInstructorAuthOpt(Set<String> perms){
-		for(String perm : perms){
-			if(perm.startsWith(DelegatedAccessConstants.NODE_PERM_SHOPPING_REVOKE_INSTRUCTOR_AUTH_OPT)){
 				return true;
 			}
 		}
@@ -909,17 +926,16 @@ public class ProjectLogicImpl implements ProjectLogic {
 			boolean directAccess = false;
 			Date startDate = null;
 			Date endDate = null;
-			String shoppingPeriodAuth = "";
 			Date shoppingAdminModified = null;
 			String shoppingAdminModifiedBy = null;
 			Date modified = null;
 			String modifiedBy = null;
 			boolean shoppingPeriodRevokeInstructorEditable = false;
-			boolean shoppingPeriodRevokeInstructorAuthOpt = false;
 			boolean shoppingPeriodRevokeInstructorPublicOpt = false;
 			
 			//you must copy in order not to pass changes to other nodes
-			List<ListOptionSerialized> restrictedTools = copyListOptions(blankRestrictedTools);
+			List<ListOptionSerialized> restrictedAuthTools = copyListOptions(blankRestrictedTools);
+			List<ListOptionSerialized> restrictedPublicTools = copyListOptions(blankRestrictedTools);
 			boolean accessAdmin = accessAdminNodes.contains(node.id);
 			boolean shoppingPeriodAdmin = shoppingPeriodAdminNodes.contains(node.id);
 			if(DelegatedAccessConstants.SHOPPING_PERIOD_USER.equals(userId) || accessNodes.contains(node.id) || shoppingPeriodAdminNodes.contains(node.id)){
@@ -929,15 +945,14 @@ public class ProjectLogicImpl implements ProjectLogic {
 				role = realmRole[1];
 				startDate = getShoppingStartDate(perms);
 				endDate = getShoppingEndDate(perms);
-				shoppingPeriodAuth = getShoppingPeriodAuth(perms);
-				restrictedTools = getRestrictedToolSerializedList(perms, restrictedTools);
+				restrictedAuthTools = getRestrictedAuthToolSerializedList(perms, restrictedAuthTools);
+				restrictedPublicTools = getRestrictedPublicToolSerializedList(perms, restrictedPublicTools);
 				directAccess = getIsDirectAccess(perms);
 				shoppingAdminModified = getPermDate(perms, DelegatedAccessConstants.NODE_PERM_SHOPPING_ADMIN_MODIFIED);
 				shoppingAdminModifiedBy = getShoppingAdminModifiedBy(perms);
 				modified = getPermDate(perms, DelegatedAccessConstants.NODE_PERM_MODIFIED);
 				modifiedBy = getModifiedBy(perms);
 				shoppingPeriodRevokeInstructorEditable = isShoppingPeriodRevokeInstructorEditable(perms);
-				shoppingPeriodRevokeInstructorAuthOpt = isShoppingPeriodRevokeInstructorAuthOpt(perms);
 				shoppingPeriodRevokeInstructorPublicOpt = isShoppingPeriodRevokeInstructorPublicOpt(perms);
 			}
 			NodeModel parentNodeModel = null;
@@ -946,9 +961,9 @@ public class ProjectLogicImpl implements ProjectLogic {
 			}
 			DefaultMutableTreeNode child = new DelegatedAccessMutableTreeNode();
 			NodeModel childNodeModel = new NodeModel(node.id, node, directAccess, realm, role, parentNodeModel, 
-					restrictedTools, startDate, endDate, shoppingPeriodAuth, addDirectChildren && !children.isEmpty(), shoppingPeriodAdmin,
+					restrictedAuthTools, restrictedPublicTools, startDate, endDate, addDirectChildren && !children.isEmpty(), shoppingPeriodAdmin,
 					modifiedBy, modified, shoppingAdminModified, shoppingAdminModifiedBy, accessAdmin, shoppingPeriodRevokeInstructorEditable,
-					shoppingPeriodRevokeInstructorAuthOpt, shoppingPeriodRevokeInstructorPublicOpt);
+					shoppingPeriodRevokeInstructorPublicOpt);
 			//this could be an accessAdmin modifying another user, let's check:
 			if(accessAdminNodeIds != null){
 				//if accessAdminNodeIds isn't null, this means we need to restrict this tree to these nodes by
@@ -1240,9 +1255,9 @@ public class ProjectLogicImpl implements ProjectLogic {
 			boolean selected = false;
 			Date startDate = null;
 			Date endDate = null;
-			String shoppingPeriodAuth = "";
 			//you must copy to not pass changes to other nodes
-			List<ListOptionSerialized> restrictedTools = copyListOptions(blankRestrictedTools);
+			List<ListOptionSerialized> restrictedAuthTools = copyListOptions(blankRestrictedTools);
+			List<ListOptionSerialized> restrictedPublicTools = copyListOptions(blankRestrictedTools);
 			boolean shoppingPeriodAdmin = false;
 			boolean directAccess = false;
 			Date shoppingAdminModified = null;
@@ -1251,7 +1266,6 @@ public class ProjectLogicImpl implements ProjectLogic {
 			String modifiedBy = null;
 			boolean accessAdmin = false;
 			boolean shoppingPeriodRevokeInstructorEditable = false;
-			boolean shoppingPeriodRevokeInstructorAuthOpt = false;
 			boolean shoppingPeriodRevokeInstructorPublicOpt = false;
 			
 			DefaultMutableTreeNode child = new DelegatedAccessMutableTreeNode();
@@ -1262,8 +1276,8 @@ public class ProjectLogicImpl implements ProjectLogic {
 				role = realmRole[1];
 				startDate = getShoppingStartDate(perms);
 				endDate = getShoppingEndDate(perms);
-				shoppingPeriodAuth = getShoppingPeriodAuth(perms);
-				restrictedTools = getRestrictedToolSerializedList(perms, restrictedTools);
+				restrictedAuthTools = getRestrictedAuthToolSerializedList(perms, restrictedAuthTools);
+				restrictedPublicTools = getRestrictedPublicToolSerializedList(perms, restrictedPublicTools);
 				directAccess = getIsDirectAccess(perms);
 				shoppingAdminModified = getPermDate(perms, DelegatedAccessConstants.NODE_PERM_SHOPPING_ADMIN_MODIFIED);
 				shoppingAdminModifiedBy = getShoppingAdminModifiedBy(perms);
@@ -1271,13 +1285,12 @@ public class ProjectLogicImpl implements ProjectLogic {
 				modifiedBy = getModifiedBy(perms);
 				accessAdmin = getIsAccessAdmin(perms);
 				shoppingPeriodRevokeInstructorEditable = isShoppingPeriodRevokeInstructorEditable(perms);
-				shoppingPeriodRevokeInstructorAuthOpt = isShoppingPeriodRevokeInstructorAuthOpt(perms);
 				shoppingPeriodRevokeInstructorPublicOpt = isShoppingPeriodRevokeInstructorPublicOpt(perms);
 			}
 			NodeModel node = new NodeModel(childNode.id, childNode, directAccess, realm, role,
-					((NodeModel) parentNode.getUserObject()), restrictedTools, startDate, endDate, 
-					shoppingPeriodAuth, false, shoppingPeriodAdmin,
-					modifiedBy, modified, shoppingAdminModified, shoppingAdminModifiedBy, accessAdmin, shoppingPeriodRevokeInstructorEditable, shoppingPeriodRevokeInstructorAuthOpt, shoppingPeriodRevokeInstructorPublicOpt);
+					((NodeModel) parentNode.getUserObject()), restrictedAuthTools, restrictedPublicTools, startDate, endDate, 
+					false, shoppingPeriodAdmin,
+					modifiedBy, modified, shoppingAdminModified, shoppingAdminModifiedBy, accessAdmin, shoppingPeriodRevokeInstructorEditable, shoppingPeriodRevokeInstructorPublicOpt);
 			child.setUserObject(node);
 
 			if(!onlyAccessNodes || node.getNodeAccess()){
@@ -1315,7 +1328,8 @@ public class ProjectLogicImpl implements ProjectLogic {
 		NodeModel parentNodeModel = null;
 		if(node.directParentNodeIds != null && node.directParentNodeIds.size() > 0){
 			//grad the last parent in the Set (this is the closest parent)
-			parentNodeModel = getNodeModel((String) node.directParentNodeIds.toArray()[node.directParentNodeIds.size() -1], userId);
+			List<String> orderedParents = getOrderedParentsList(node);
+			parentNodeModel = getNodeModel(orderedParents.get(orderedParents.size() -1), userId);
 		}
 		Set<String> nodePerms = hierarchyService.getPermsForUserNodes(userId, new String[]{nodeId});
 		Set<String> perms = getPermsForUserNodes(userId, node.id);
@@ -1324,8 +1338,8 @@ public class ProjectLogicImpl implements ProjectLogic {
 		String role = realmRole[1];
 		Date startDate = getShoppingStartDate(perms);
 		Date endDate = getShoppingEndDate(perms);
-		String shoppingPeriodAuth = getShoppingPeriodAuth(perms);
-		List<ListOptionSerialized> restrictedTools = getRestrictedToolSerializedList(perms, getEntireToolsList());
+		List<ListOptionSerialized> restrictedAuthTools = getRestrictedAuthToolSerializedList(perms, getEntireToolsList());
+		List<ListOptionSerialized> restrictedPublicTools = getRestrictedPublicToolSerializedList(perms, getEntireToolsList());
 		boolean direct = getIsDirectAccess(perms);
 		boolean shoppingPeriodAdmin = isShoppingPeriodAdmin(perms);
 		boolean accessAdmin = getIsAccessAdmin(perms);
@@ -1334,13 +1348,12 @@ public class ProjectLogicImpl implements ProjectLogic {
 		Date modified = getPermDate(perms, DelegatedAccessConstants.NODE_PERM_MODIFIED);
 		String modifiedBy = getModifiedBy(perms);
 		boolean shoppingPeriodRevokeInstructorEditable = isShoppingPeriodRevokeInstructorEditable(perms);
-		boolean shoppingPeriodRevokeInstructorAuthOpt = isShoppingPeriodRevokeInstructorAuthOpt(perms);
 		boolean shoppingPeriodRevokeInstructorPublicOpt = isShoppingPeriodRevokeInstructorPublicOpt(perms);
 		
 		NodeModel nodeModel = new NodeModel(node.id, node, getIsDirectAccess(nodePerms),
-				realm, role, parentNodeModel, restrictedTools, startDate, endDate, shoppingPeriodAuth, false, shoppingPeriodAdmin,
+				realm, role, parentNodeModel, restrictedAuthTools, restrictedPublicTools, startDate, endDate, false, shoppingPeriodAdmin,
 				modifiedBy, modified, shoppingAdminModified, shoppingAdminModifiedBy, accessAdmin, shoppingPeriodRevokeInstructorEditable,
-				shoppingPeriodRevokeInstructorAuthOpt, shoppingPeriodRevokeInstructorPublicOpt);
+				shoppingPeriodRevokeInstructorPublicOpt);
 		return nodeModel;
 	}
 
@@ -1430,13 +1443,6 @@ public class ProjectLogicImpl implements ProjectLogic {
 		return i;
 	}
 	
-	public List<ListOptionSerialized> getAuthorizationOptions(){
-		List<ListOptionSerialized> returnList = new ArrayList<ListOptionSerialized>();
-		returnList.add(new ListOptionSerialized(".auth", "Logged In", false));
-		returnList.add(new ListOptionSerialized(".anon", "Public", false));
-		return returnList;
-	}
-	
 	public boolean hasShoppingPeriodAdminNodes(String userId){
 		if(userId == null || "".equals(userId)){
 			return false;
@@ -1514,12 +1520,21 @@ public class ProjectLogicImpl implements ProjectLogic {
 		if(useSession){
 			session = sakaiProxy.getCurrentSession();
 		}
-		Map<String, String[]> deniedToolsMap = new HashMap<String, String[]>();
+		Map<String, String[]> deniedAuthToolsMap = new HashMap<String, String[]>();
 		if(useSession){
 			//only worry about the session for non shopping period queries
 			Object sessionDeniedToolsMap = session.getAttribute(DelegatedAccessConstants.SESSION_ATTRIBUTE_DENIED_TOOLS);
 			if(sessionDeniedToolsMap != null){
-				deniedToolsMap = (Map<String, String[]>) sessionDeniedToolsMap;
+				deniedAuthToolsMap = (Map<String, String[]>) sessionDeniedToolsMap;
+			}
+		}
+		
+		Map<String, String[]> deniedPublicToolsMap = new HashMap<String, String[]>();
+		if(useSession){
+			//only worry about the session for non shopping period queries
+			Object sessionDeniedTools2Map = session.getAttribute(DelegatedAccessConstants.SESSION_ATTRIBUTE_DENIED_TOOLS2);
+			if(sessionDeniedTools2Map != null){
+				deniedPublicToolsMap = (Map<String, String[]>) sessionDeniedTools2Map;
 			}
 		}
 
@@ -1541,7 +1556,8 @@ public class ProjectLogicImpl implements ProjectLogic {
 			}else{
 				//set default to no access and override it if the user does have access
 				//this is so we don't have to keep looking up their access for the same site:
-				deniedToolsMap.put(siteRef, null);
+				deniedAuthToolsMap.put(siteRef, null);
+				deniedPublicToolsMap.put(siteRef, null);
 				accessMap.put(siteRef, null);
 			}
 		}
@@ -1608,17 +1624,23 @@ public class ProjectLogicImpl implements ProjectLogic {
 
 										accessMap.put(siteRef, access);
 
-										//Denied Tools List
-										List<String> deniedTools = getRestrictedToolsForUser(perms);
-										String[] deniedToolsArr = (String[]) deniedTools.toArray(new String[deniedTools.size()]);
-										if(deniedToolsArr != null){
-											deniedToolsMap.put(siteRef, deniedToolsArr);
+										//Denied Auth Tools List
+										List<String> deniedAuthTools = getRestrictedAuthToolsForUser(perms);
+										String[] deniedAuthToolsArr = (String[]) deniedAuthTools.toArray(new String[deniedAuthTools.size()]);
+										if(deniedAuthToolsArr != null){
+											deniedAuthToolsMap.put(siteRef, deniedAuthToolsArr);
 										}else{
-											deniedToolsMap.put(siteRef, new String[0]);
+											deniedAuthToolsMap.put(siteRef, new String[0]);
 										}
-
-
-										String shoppingAuth = getShoppingPeriodAuth(perms);
+										
+										//Denied Public List
+										List<String> deniedPublicTools = getRestrictedPublicToolsForUser(perms);
+										String[] deniedPublicToolsArr = (String[]) deniedPublicTools.toArray(new String[deniedPublicTools.size()]);
+										if(deniedPublicToolsArr != null){
+											deniedPublicToolsMap.put(siteRef, deniedPublicToolsArr);
+										}else{
+											deniedPublicToolsMap.put(siteRef, new String[0]);
+										}
 
 										Date startDate = getShoppingStartDate(perms);
 										Date endDate = getShoppingEndDate(perms);
@@ -1626,7 +1648,7 @@ public class ProjectLogicImpl implements ProjectLogic {
 										String modifiedBy = getModifiedBy(perms);
 
 										//set returnNode
-										AccessNode returnNode = new AccessNode(userId, siteRef, access, deniedToolsArr, shoppingAuth, startDate, endDate, modified, modifiedBy);
+										AccessNode returnNode = new AccessNode(userId, siteRef, access, deniedAuthToolsArr, deniedPublicToolsArr, startDate, endDate, modified, modifiedBy);
 										returnNodes.put(siteRef, returnNode);
 									}
 									//break out of loop
@@ -1655,11 +1677,17 @@ public class ProjectLogicImpl implements ProjectLogic {
 		}
 		if(useSession){
 			//we want to set the session map no matter what so we don't have to look it up again:
-			session.setAttribute(DelegatedAccessConstants.SESSION_ATTRIBUTE_DENIED_TOOLS, deniedToolsMap);
+			session.setAttribute(DelegatedAccessConstants.SESSION_ATTRIBUTE_DENIED_TOOLS, deniedAuthToolsMap);
+			session.setAttribute(DelegatedAccessConstants.SESSION_ATTRIBUTE_DENIED_TOOLS2, deniedPublicToolsMap);
 			session.setAttribute(DelegatedAccessConstants.SESSION_ATTRIBUTE_ACCESS_MAP, accessMap);
 			//update restrictedToolsCache
 			try{
-				restrictedToolsCache.put(new Element(userId, deniedToolsMap));
+				restrictedAuthToolsCache.put(new Element(userId, deniedAuthToolsMap));
+			}catch (Exception e) {
+				log.error("grantAccessToSite: " + userId, e);
+			}
+			try{
+				restrictedPublicToolsCache.put(new Element(userId, deniedPublicToolsMap));
 			}catch (Exception e) {
 				log.error("grantAccessToSite: " + userId, e);
 			}
@@ -1672,11 +1700,21 @@ public class ProjectLogicImpl implements ProjectLogic {
 		Date startDate = getShoppingStartDate(perms);
 		Date endDate = getShoppingEndDate(perms);
 		String[] nodeAccessRealmRole = getAccessRealmRole(perms);
-		String auth = getShoppingPeriodAuth(perms);
-		return isShoppingPeriodOpenForSite(startDate, endDate, nodeAccessRealmRole, auth);
+		List<String> restrictedAuthTools = getRestrictedAuthToolsForUser(perms);
+		String[] restrictedAuthToolsArr = null;
+		if(restrictedAuthTools != null){
+			restrictedAuthToolsArr = restrictedAuthTools.toArray(new String[restrictedAuthTools.size()]); 
+		}
+		List<String> restrictedPublicTools = getRestrictedPublicToolsForUser(perms);
+		String[] restrictedPublicToolsArr = null;
+		if(restrictedPublicTools != null){
+			restrictedPublicToolsArr = restrictedPublicTools.toArray(new String[restrictedPublicTools.size()]);
+		}
+		
+		return isShoppingPeriodOpenForSite(startDate, endDate, nodeAccessRealmRole, restrictedAuthToolsArr, restrictedPublicToolsArr);
 	}
 	
-	public boolean isShoppingPeriodOpenForSite(Date startDate, Date endDate, String[] nodeAccessRealmRole, String auth){
+	public boolean isShoppingPeriodOpenForSite(Date startDate, Date endDate, String[] nodeAccessRealmRole, String[] restrictedAuthTools, String[] restrictedPublicTools){
 		Date now = new Date();
 		boolean isOpen = false;
 		if(startDate != null && endDate != null){
@@ -1692,9 +1730,9 @@ public class ProjectLogicImpl implements ProjectLogic {
 		}else{
 			isOpen = false;
 		}
-		if(auth == null || "".equals(auth)){
+		if((restrictedAuthTools == null || restrictedAuthTools.length == 0) && (restrictedPublicTools == null || restrictedPublicTools.length == 0)){
 			isOpen = false;
-		}else if(".anon".equals(auth) || ".auth".equals(auth)){
+		}else{
 			isOpen = isOpen && true;
 		}
 		

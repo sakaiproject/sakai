@@ -15,11 +15,16 @@
                 	<h3><span wicket:id="editToolsTitle"></span></h3>
                 	<span wicket:id="editToolsInstructions" class="instruction" style="white-space: normal"></span>
                 	<br/><br/>
-	                <span wicket:id="list">
-						<input wicket:id="check" type="checkbox" />
-						<span wicket:id="name">test</span>
-						<br/>
-					</span>
+                	<div wicket:id="toolTableHeader">
+                		<div style="width:10%; float:left; font-weight:bold;"><wicket:message key=".anon"/></div>
+                		<div style="width:15%; float:left; font-weight:bold;"><wicket:message key=".auth"/></div>
+                		<div style="width:74%; float:right; font-weight:bold;">Tool</div>
+                	</div>
+	                <div class="rowTool" wicket:id="list">
+	                	<span style="width:10%; float:left; text-align: center;"><input wicket:id="publicCheck" type="checkbox" /></span>
+						<span style="width:15%; float:left; text-align: center;"><input wicket:id="authCheck" type="checkbox" /></span>
+						<span style="width:74%; float:right;" wicket:id="name">test</span>
+					</div>
 				</div>
             </div>           
         </div>		

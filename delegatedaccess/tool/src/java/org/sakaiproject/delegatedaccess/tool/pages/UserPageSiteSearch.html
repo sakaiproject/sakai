@@ -65,11 +65,11 @@
     	<th><a wicket:id="termSortLink"><wicket:message key="termHeader"/></a></th>
     	<th><a wicket:id="accessSortLink"><wicket:message key="access"/></a></th>
    		<th><a wicket:id="instructorSortLink"><wicket:message key="instructorHeader"/></a></th>
-    	<wicket:enclosure child="authorizationSortLink">
-	    	<th><a wicket:id="authorizationSortLink"><wicket:message key="shoppingPeriodAuth"/></a></th>
+    	<wicket:enclosure child="startDateSortLink">
 	    	<th><a wicket:id="startDateSortLink"><wicket:message key="startDate"/></a></th>
 	    	<th><a wicket:id="endDateSortLink"><wicket:message key="endDate"/></a></th>
-	    	<th><wicket:message key="showToolsHeader"/></th>
+	    	<th><wicket:message key="showAuthToolsHeader"/></th>
+	    	<th><wicket:message key="showPublicToolsHeader"/></th>
     	</wicket:enclosure>
     	<wicket:enclosure child="accessModifiedBySortLink">
 	    	<th><a wicket:id="accessModifiedBySortLink"><wicket:message key="accessModifiedBy"/></a></th>
@@ -87,11 +87,11 @@
 	       	 	<a wicket:id="instructorLookupLink"><wicket:message key="lookupInstructor"/></a>
 	       	 </td>
        	 </wicket:enclosure>
-       	 <wicket:enclosure child="authorization">
-	       	 <td><span wicket:id="authorization">Logged In</span></td>
+       	 <wicket:enclosure child="startDate">
 	       	 <td><span wicket:id="startDate">1/1/2012</span></td>
 	       	 <td><span wicket:id="endDate">12/21/2012</span></td>
-	       	 <td><span wicket:id="showTools">Syllabus, Home</span></td>
+	       	 <td><span wicket:id="showAuthTools">Syllabus, Home</span></td>
+	       	 <td><span wicket:id="showPublicTools">Syllabus, Home</span></td>
        	 </wicket:enclosure>
        	 <wicket:enclosure child="accessModifiedBy">
        	 	<td><span wicket:id="accessModifiedBy">Bryan Holladay</span></td>

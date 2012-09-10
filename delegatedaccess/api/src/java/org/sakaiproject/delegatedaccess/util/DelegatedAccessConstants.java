@@ -19,7 +19,6 @@ public class DelegatedAccessConstants {
 	public static final int SEARCH_COMPARE_SITE_ID = 2;
 	public static final int SEARCH_COMPARE_TERM = 3;
 	public static final int SEARCH_COMPARE_INSTRUCTOR = 4;
-	public static final int SEARCH_COMPARE_AUTHORIZATION = 5;
 	public static final int SEARCH_COMPARE_ACCESS = 6;
 	public static final int SEARCH_COMPARE_START_DATE = 7;
 	public static final int SEARCH_COMPARE_END_DATE = 8;
@@ -38,18 +37,17 @@ public class DelegatedAccessConstants {
 	public static final String NODE_PERM_REALM_PREFIX = "realm:";
 	public static final String NODE_PERM_ROLE_PREFIX = "role:";
 	public static final String NODE_PERM_DENY_TOOL_PREFIX = "denyTool:";
+	public static final String NODE_PERM_DENY_TOOL2_PREFIX = "deny2Tool:";
 	public static final String NODE_PERM_TERM_PREFIX = "term:";
 	public static final String NODE_PERM_SITE_VISIT = "site.visit";
 	public static final String NODE_PERM_MODIFIED = "modified:";
 	public static final String NODE_PERM_MODIFIED_BY = "modifiedBy:";
 	public static final String NODE_PERM_SHOPPING_START_DATE = "shoppingStartDate:";
 	public static final String NODE_PERM_SHOPPING_END_DATE = "shoppingEndDate:";
-	public static final String NODE_PERM_SHOPPING_AUTH = "shoppingAuth:";
 	public static final String NODE_PERM_SHOPPING_ADMIN = "shoppingAdmin";
 	public static final String NODE_PERM_SHOPPING_ADMIN_MODIFIED = "shoppingAdminModified:";
 	public static final String NODE_PERM_SHOPPING_ADMIN_MODIFIED_BY = "shoppingAdminModifiedBy:";
 	public static final String NODE_PERM_SHOPPING_REVOKE_INSTRUCTOR_EDITABLE = "shoppingRevokeInstructorEditable";
-	public static final String NODE_PERM_SHOPPING_REVOKE_INSTRUCTOR_AUTH_OPT = "shoppingRevokeInstructorAuthOpt";
 	public static final String NODE_PERM_SHOPPING_REVOKE_INSTRUCTOR_PUBLIC_OPT = "shoppingRevokeInstructorPublicOpt";
 	public static final String NODE_PERM_ACCESS_ADMIN = "accessAdmin";
 	public static final String EVENT_ADD_USER_PERMS = "dac.nodeperms.add";
@@ -63,6 +61,7 @@ public class DelegatedAccessConstants {
 	public static final String SESSION_ATTRIBUTE_ACCESS_MAP = "delegatedaccess.accessmap";
 	public static final String SESSION_ATTRIBUTE_DELEGATED_ACCESS_FLAG = "delegatedaccess.accessmapflag";
 	public static final String SESSION_ATTRIBUTE_DENIED_TOOLS = "delegatedaccess.deniedToolsMap";
+	public static final String SESSION_ATTRIBUTE_DENIED_TOOLS2 = "delegatedaccess.deniedToolsMap2";
 	public static final String SHOPPING_PERIOD_USER = "120dv0f43cv90sdf0asv9";	
 	public static final int TYPE_ACCESS = 1;
 	public static final int TYPE_ACCESS_SHOPPING_PERIOD_USER = 2;
@@ -71,7 +70,8 @@ public class DelegatedAccessConstants {
 	public static final int TYPE_LISTFIELD_TOOLS = 1;
 	public static final int TYPE_LISTFIELD_TERMS = 2;
 	public static final int TYPE_SHOPPING_PERIOD_ADMIN = 3;
-	public static final String SITE_PROP_RESTRICTED_TOOLS = "shopping-period-restricted-tools";
+	public static final String SITE_PROP_AUTH_TOOLS = "shopping-period-auth-tools";
+	public static final String SITE_PROP_PUBLIC_TOOLS = "shopping-period-public-tools";
 	public static final String PROP_TOOL_LIST = "delegatedaccess.toolslist";
 	public static final String PROP_TOOL_LIST_TEMPLATE = "delegatedaccess.toolslist.sitetype";
 	public static final String ADVANCED_SEARCH_INSTRUCTOR = "instructorField";
@@ -94,4 +94,5 @@ public class DelegatedAccessConstants {
 	public static final String PROP_DISABLE_USER_TREE_VIEW = "delegatedaccess.disable.user.tree.view";
 	public static final String PROP_DISABLE_SHOPPING_TREE_VIEW = "delegatedaccess.disable.shopping.tree.view";
 	public static final String[] DEFAULT_HIERARCHY = new String[]{SCHOOL_PROPERTY, DEPEARTMENT_PROPERTY, SUBJECT_PROPERTY};
+	public static final String SHOPPING_PERIOD_AUTH_OPTION_ANY = "any";
 }

@@ -12,7 +12,7 @@ import org.apache.wicket.extensions.markup.html.tree.table.PropertyRenderableCol
 import org.apache.wicket.model.PropertyModel;
 import org.sakaiproject.delegatedaccess.model.NodeModel;
 import org.sakaiproject.delegatedaccess.tool.pages.EditablePanelAdvancedOptions;
-import org.sakaiproject.delegatedaccess.tool.pages.EditablePanelAdvancedOptionsInherited;
+import org.sakaiproject.delegatedaccess.tool.pages.EditablePanelAdvancedOptionsText;
 import org.sakaiproject.delegatedaccess.tool.pages.EditablePanelEmpty;
 
 public class PropertyEditableColumnAdvancedOptions extends PropertyRenderableColumn{
@@ -37,7 +37,7 @@ public class PropertyEditableColumnAdvancedOptions extends PropertyRenderableCol
 		if(((NodeModel) ((DefaultMutableTreeNode) node).getUserObject()).isDirectAccess()){
 			return new EditablePanelAdvancedOptions(id, new PropertyModel(node, getPropertyExpression()), (NodeModel) ((DefaultMutableTreeNode) node).getUserObject(), node, userType);
 		}else{
-			return new EditablePanelAdvancedOptionsInherited(id, new PropertyModel(node, getPropertyExpression()), (NodeModel) ((DefaultMutableTreeNode) node).getUserObject(), node, userType);
+			return new EditablePanelAdvancedOptionsText(id, new PropertyModel(node, getPropertyExpression()), (NodeModel) ((DefaultMutableTreeNode) node).getUserObject(), node, userType);
 		}
 	}
 

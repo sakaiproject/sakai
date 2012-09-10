@@ -11,11 +11,11 @@ import org.apache.wicket.model.IModel;
 import org.apache.wicket.model.StringResourceModel;
 import org.sakaiproject.delegatedaccess.model.NodeModel;
 
-public class EditablePanelAdvancedOptionsInherited extends Panel{
+public class EditablePanelAdvancedOptionsText extends Panel{
 
 	private boolean loadedFlag = false;
 	
-	public EditablePanelAdvancedOptionsInherited(String id, IModel inputModel, final NodeModel nodeModel, final TreeNode node, final int userType) {
+	public EditablePanelAdvancedOptionsText(String id, IModel inputModel, final NodeModel nodeModel, final TreeNode node, final int userType) {
 		super(id);
 		
 		final WebMarkupContainer inheritedSpan = new WebMarkupContainer("inheritedSpan");
@@ -48,9 +48,8 @@ public class EditablePanelAdvancedOptionsInherited extends Panel{
 		
 		boolean showInstructorGroupTitleTmp = false;
 		boolean revokeInstructorEditable = nodeModel.getNodeShoppingPeriodRevokeInstructorEditable();
-		boolean revokeInstructorAuthOpt = nodeModel.getNodeShoppingPeriodRevokeInstructorAuthOpt();
 		boolean revokeInstructorPublicOpt = nodeModel.getNodeShoppingPeriodRevokeInstructorPublicOpt();
-		if(revokeInstructorEditable || revokeInstructorAuthOpt || revokeInstructorPublicOpt){
+		if(revokeInstructorEditable || revokeInstructorPublicOpt){
 			showInstructorGroupTitleTmp = true;
 		}
 		final boolean showInstructorGroupTitle = showInstructorGroupTitleTmp;
@@ -69,13 +68,6 @@ public class EditablePanelAdvancedOptionsInherited extends Panel{
 			}
 		};
 		inheritedSpan.add(revokeInstructorEditableLabel);
-		
-		Label revokeInstructorAuthOptLabel = new Label("revokeInstructorLoggedInOpt", new StringResourceModel("shoppingPeriodRevokeLoggedInOptCheckbox", null)){
-			public boolean isVisible() {
-				return nodeModel.getNodeShoppingPeriodRevokeInstructorAuthOpt();
-			}
-		};
-		inheritedSpan.add(revokeInstructorAuthOptLabel);
 		
 		Label revokeInstructorPublicOptLabel = new Label("revokeInstructorPublicOpt", new StringResourceModel("shoppingPeriodRevokePublicOptCheckbox", null)){
 			public boolean isVisible() {

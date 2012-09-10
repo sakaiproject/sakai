@@ -27,8 +27,6 @@ public class SiteSearchResultComparator implements Comparator<SiteSearchResult> 
 			return arg0.getSiteTerm().compareToIgnoreCase(arg1.getSiteTerm());
 		case DelegatedAccessConstants.SEARCH_COMPARE_INSTRUCTOR:
 			return arg0.getInstructorsString().compareToIgnoreCase(arg1.getInstructorsString());
-		case DelegatedAccessConstants.SEARCH_COMPARE_AUTHORIZATION:
-			return arg0.getShoppingPeriodAuth().compareToIgnoreCase(arg1.getShoppingPeriodAuth());
 		case DelegatedAccessConstants.SEARCH_COMPARE_ACCESS:
 			return arg0.getAccessString().compareToIgnoreCase(arg1.getAccessString());
 		case DelegatedAccessConstants.SEARCH_COMPARE_START_DATE:

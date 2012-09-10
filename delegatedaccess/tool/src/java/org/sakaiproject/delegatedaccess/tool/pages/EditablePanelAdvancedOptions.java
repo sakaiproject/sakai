@@ -74,7 +74,6 @@ public class EditablePanelAdvancedOptions extends Panel{
 		advancedOptionsSpan.add(advancedOptionsInstructions);
 		
 		advancedOptionsSpan.add(new EditablePanelCheckbox("editablePanelCheckbox", new PropertyModel(node,  "userObject.shoppingPeriodRevokeInstructorEditable"), (NodeModel) ((DefaultMutableTreeNode) node).getUserObject(), node, DelegatedAccessConstants.TYPE_SHOPPING_ADVANCED_OPT));
-		advancedOptionsSpan.add(new EditablePanelCheckbox("revokeLoggedInOptCheckbox", new PropertyModel(node,  "userObject.shoppingPeriodRevokeInstructorAuthOpt"), (NodeModel) ((DefaultMutableTreeNode) node).getUserObject(), node, DelegatedAccessConstants.TYPE_SHOPPING_ADVANCED_OPT));
 		advancedOptionsSpan.add(new EditablePanelCheckbox("revokePublicOptCheckbox", new PropertyModel(node,  "userObject.shoppingPeriodRevokeInstructorPublicOpt"), (NodeModel) ((DefaultMutableTreeNode) node).getUserObject(), node, DelegatedAccessConstants.TYPE_SHOPPING_ADVANCED_OPT));
 	}
 	

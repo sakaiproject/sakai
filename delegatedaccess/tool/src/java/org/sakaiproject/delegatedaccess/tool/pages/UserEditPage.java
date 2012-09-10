@@ -122,7 +122,7 @@ public class UserEditPage  extends BaseTreePage{
 					"userObject.roleOption", roleMap, DelegatedAccessConstants.TYPE_ACCESS));
 		}
 		columnsList.add(new PropertyEditableColumnList(new ColumnLocation(Alignment.RIGHT, 96, Unit.PX), new StringResourceModel("restrictedToolsHeader", null).getString(),
-				"userObject.restrictedTools", DelegatedAccessConstants.TYPE_ACCESS, DelegatedAccessConstants.TYPE_LISTFIELD_TOOLS));
+				"userObject.restrictedAuthTools", DelegatedAccessConstants.TYPE_ACCESS, DelegatedAccessConstants.TYPE_LISTFIELD_TOOLS));
 		IColumn columns[] = columnsList.toArray(new IColumn[columnsList.size()]);
 
 		//if the user isn't a super user, they should only be able to edit the nodes they 

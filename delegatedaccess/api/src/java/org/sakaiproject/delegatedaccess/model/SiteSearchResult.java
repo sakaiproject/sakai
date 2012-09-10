@@ -16,10 +16,10 @@ public class SiteSearchResult implements Serializable {
 	private SiteSerialized site;
 	private List<UserSerialized> instructors = new ArrayList();
 	private String[] access;
-	private String shoppingPeriodAuth;
 	private Date shoppingPeriodStartDate;
 	private Date shoppingPeriodEndDate;
-	private String[] restrictedTools;
+	private String[] restrictedAuthTools;
+	private String[] restrictedPublicTools;
 	private Date modified;
 	private String modifiedBy;
 	private String modifiedBySortName;
@@ -65,13 +65,11 @@ public class SiteSearchResult implements Serializable {
 	public String getAccessString(){
 		return getAccess() != null && getAccess().length == 2 ? getAccess()[0] + ":" + getAccess()[1] : "";
 	}
+
+	public String getAccessRoleString(){
+		return getAccess() != null && getAccess().length == 2 ? getAccess()[1] : "";
+	}
 	
-	public String getShoppingPeriodAuth() {
-		return shoppingPeriodAuth;
-	}
-	public void setShoppingPeriodAuth(String shoppingPeriodAuth) {
-		this.shoppingPeriodAuth = shoppingPeriodAuth;
-	}
 	public Date getShoppingPeriodStartDate() {
 		return shoppingPeriodStartDate;
 	}
@@ -105,18 +103,41 @@ public class SiteSearchResult implements Serializable {
 		Object prop = getSite().getTerm();
 		return prop == null ? "" : prop.toString();
 	}
-	public String[] getRestrictedTools() {
-		return restrictedTools;
+	public String[] getRestrictedAuthTools() {
+		return restrictedAuthTools;
 	}
-	public void setRestrictedTools(String[] restrictedTools) {
-		this.restrictedTools = restrictedTools;
+	public void setRestrictedAuthTools(String[] restrictedTools) {
+		this.restrictedAuthTools = restrictedTools;
 	}
 	
-	public String getToolsString(Map<String, String> toolsMap){
+	public String getAuthToolsString(Map<String, String> toolsMap){
 		String restrictedToolsStr = "";
-		if(getRestrictedTools() != null){
-			for(String tool : getRestrictedTools()){
-				if(!"".equals(restrictedTools)){
+		if(getRestrictedAuthTools() != null){
+			for(String tool : getRestrictedAuthTools()){
+				if(!"".equals(restrictedToolsStr)){
+					restrictedToolsStr += ", ";
+				}
+				String toolName = tool;
+				if(toolsMap.containsKey(toolName)){
+					toolName = toolsMap.get(toolName);
+				}
+				restrictedToolsStr += toolName;
+			}
+		}
+		return restrictedToolsStr;
+	}
+	public String[] getRestrictedPublicTools() {
+		return restrictedPublicTools;
+	}
+	public void setRestrictedPublicTools(String[] restrictedTools) {
+		this.restrictedPublicTools = restrictedTools;
+	}
+	
+	public String getPublicToolsString(Map<String, String> toolsMap){
+		String restrictedToolsStr = "";
+		if(getRestrictedPublicTools() != null){
+			for(String tool : getRestrictedPublicTools()){
+				if(!"".equals(restrictedToolsStr)){
 					restrictedToolsStr += ", ";
 				}
 				String toolName = tool;

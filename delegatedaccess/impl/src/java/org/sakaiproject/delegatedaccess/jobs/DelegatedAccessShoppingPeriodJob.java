@@ -140,22 +140,42 @@ public class DelegatedAccessShoppingPeriodJob implements StatefulJob{
 		Date endDate = null;
 		Date now = new Date();
 
-		String auth = node.getNodeShoppingPeriodAuth();
 		startDate = node.getNodeShoppingPeriodStartDate();
 		endDate = node.getNodeShoppingPeriodEndDate();
 		String[] nodeAccessRealmRole = node.getNodeAccessRealmRole();
+		String[] restrictedAuthcTools = node.getNodeRestrictedAuthTools();
+		String[] restrictedPublicTools = node.getNodeRestrictedPublicTools();
 		//do substring(6) b/c we need site ID and what is stored is a ref: /site/1231231
 		String siteId = node.getNode().title.substring(6);
-		boolean addAuth = projectLogic.isShoppingPeriodOpenForSite(startDate, endDate, nodeAccessRealmRole, auth);
-		String restrictedToolsList = "";
+		boolean addAuth = projectLogic.isShoppingPeriodOpenForSite(startDate, endDate, nodeAccessRealmRole, restrictedAuthcTools, restrictedPublicTools);
+		String restrictedAuthToolsList = "";
+		String restrictedPublicToolsList = "";
 		if(addAuth){
 			//update the restricted tools list, otherwise it will be cleared:			
 			//set the restricted tools list to a non empty string, otherwise, the site property won't be saved
 			//when the string is empty (no tools allowed to view).
-			restrictedToolsList = ";";
-			for(String tool : node.getNodeRestrictedTools()){
-				if(!"".equals(restrictedToolsList)){
-					restrictedToolsList += ";";
+			restrictedAuthToolsList = ";";
+			for(String tool : node.getNodeRestrictedAuthTools()){
+				if("Home".equals(tool)){
+					String homeToolsVal = "";
+					String[] homeTools = sakaiProxy.getHomeTools();
+					for(String toolId : homeTools){
+						if(!"".equals(homeToolsVal)){
+							homeToolsVal += ";";
+						}
+						homeToolsVal += toolId;
+					}
+					restrictedAuthToolsList += homeToolsVal;
+				}else{
+					restrictedAuthToolsList += tool;
+				}
+				restrictedAuthToolsList += ";";
+			}
+			
+			restrictedPublicToolsList = ";";
+			for(String tool : node.getNodeRestrictedPublicTools()){
+				if(!"".equals(restrictedPublicToolsList)){
+					restrictedPublicToolsList += ";";
 				}
 				if("Home".equals(tool)){
 					String homeToolsVal = "";
@@ -166,15 +186,17 @@ public class DelegatedAccessShoppingPeriodJob implements StatefulJob{
 						}
 						homeToolsVal += toolId;
 					}
-					restrictedToolsList += homeToolsVal;
+					restrictedPublicToolsList += homeToolsVal;
 				}else{
-					restrictedToolsList += tool;
+					restrictedPublicToolsList += tool;
 				}
 			}
 
 			removeAnonAndAuthRoles(node.getNode().title);
 			//add either .anon or .auth role:
-			copyNewRole(node.getNode().title, nodeAccessRealmRole[0], nodeAccessRealmRole[1], auth);
+			boolean auth = restrictedAuthcTools != null && restrictedAuthcTools.length > 0;
+			boolean anon = restrictedPublicTools != null && restrictedPublicTools.length > 0;
+			copyNewRole(node.getNode().title, nodeAccessRealmRole[0], nodeAccessRealmRole[1], auth, anon);
 
 			//add node to shopping tree:
 			checkAndAddNode(node);
@@ -183,15 +205,27 @@ public class DelegatedAccessShoppingPeriodJob implements StatefulJob{
 			removeAnonAndAuthRoles(node.getNode().title);
 		}
 
-		if(restrictedToolsList == null || "".equals(restrictedToolsList) || ";".equals(restrictedToolsList)){
+		if(restrictedAuthToolsList == null || "".equals(restrictedAuthToolsList) || ";".equals(restrictedAuthToolsList)){
 			//no need for property if null or blank, just remove it in case it existed before
-			dao.removeSiteProperty(siteId, DelegatedAccessConstants.SITE_PROP_RESTRICTED_TOOLS);
+			dao.removeSiteProperty(siteId, DelegatedAccessConstants.SITE_PROP_AUTH_TOOLS);
 		}else{
-			String sitePropRestrictedTools = dao.getSiteProperty(DelegatedAccessConstants.SITE_PROP_RESTRICTED_TOOLS, siteId);
+			String sitePropRestrictedTools = dao.getSiteProperty(DelegatedAccessConstants.SITE_PROP_AUTH_TOOLS, siteId);
 			if(sitePropRestrictedTools != null){
-				dao.updateSiteProperty(siteId, DelegatedAccessConstants.SITE_PROP_RESTRICTED_TOOLS, restrictedToolsList);
+				dao.updateSiteProperty(siteId, DelegatedAccessConstants.SITE_PROP_AUTH_TOOLS, restrictedAuthToolsList);
 			}else{
-				dao.addSiteProperty(siteId, DelegatedAccessConstants.SITE_PROP_RESTRICTED_TOOLS, restrictedToolsList);
+				dao.addSiteProperty(siteId, DelegatedAccessConstants.SITE_PROP_AUTH_TOOLS, restrictedAuthToolsList);
+			}
+		}
+		
+		if(restrictedPublicToolsList == null || "".equals(restrictedPublicToolsList) || ";".equals(restrictedPublicToolsList)){
+			//no need for property if null or blank, just remove it in case it existed before
+			dao.removeSiteProperty(siteId, DelegatedAccessConstants.SITE_PROP_PUBLIC_TOOLS);
+		}else{
+			String sitePropRestrictedTools = dao.getSiteProperty(DelegatedAccessConstants.SITE_PROP_PUBLIC_TOOLS, siteId);
+			if(sitePropRestrictedTools != null){
+				dao.updateSiteProperty(siteId, DelegatedAccessConstants.SITE_PROP_PUBLIC_TOOLS, restrictedPublicToolsList);
+			}else{
+				dao.addSiteProperty(siteId, DelegatedAccessConstants.SITE_PROP_PUBLIC_TOOLS, restrictedPublicToolsList);
 			}
 		}
 	}
@@ -199,17 +233,25 @@ public class DelegatedAccessShoppingPeriodJob implements StatefulJob{
 	
 	private void removeAnonAndAuthRoles(String siteRef){
 		AuthzGroup ag = sakaiProxy.getAuthzGroup(siteRef);
-		log.debug("Removing .auth and.anon roles for " + siteRef);
-		for (Role role: ag.getRoles()){
-			if (role.getId().equals(".auth") || role.getId().equals(".anon")){
-				sakaiProxy.removeRoleFromAuthzGroup(ag, role);
+		if(ag != null){
+			log.debug("Removing .auth and.anon roles for " + siteRef);
+			for (Role role: ag.getRoles()){
+				if (role.getId().equals(".auth") || role.getId().equals(".anon")){
+					sakaiProxy.removeRoleFromAuthzGroup(ag, role);
+				}
 			}
 		}
 	}
 
-	private void copyNewRole(String siteRef, String copyRealm, String copyRole, String newRole){
-		log.debug("Copying " + copyRole + " to " + newRole + " for " + siteRef);
-		sakaiProxy.copyNewRole(siteRef, copyRealm, copyRole, newRole);
+	private void copyNewRole(String siteRef, String copyRealm, String copyRole, boolean auth, boolean anon){
+		if(auth){
+			log.debug("Copying " + copyRole + " to .auth for " + siteRef);
+			sakaiProxy.copyNewRole(siteRef, copyRealm, copyRole, ".auth");
+		}
+		if(anon){
+			log.debug("Copying " + copyRole + " to .anon for " + siteRef);
+			sakaiProxy.copyNewRole(siteRef, copyRealm, copyRole, ".anon");
+		}
 	}
 
 	private void checkAndAddNode(NodeModel node){

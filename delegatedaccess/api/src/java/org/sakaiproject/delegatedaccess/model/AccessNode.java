@@ -6,19 +6,19 @@ public class AccessNode {
 	private String userId;
 	private String siteRef;
 	private String[] access;
-	private String[] deniedTools;
-	private String auth;
+	private String[] deniedAuthTools;
+	private String[] deniedPublicTools;
 	private Date startDate;
 	private Date endDate;
 	private Date modified;
 	private String modifiedBy;
 	
-	public AccessNode(String userId, String siteRef, String[] access, String[] deniedTools, String auth, Date startDate,
+	public AccessNode(String userId, String siteRef, String[] access, String[] deniedAuthTools, String[] deniedPublicTools, Date startDate,
 			Date endDate, Date modified, String modifiedBy){
 		this.siteRef = siteRef;
 		this.access = access;
-		this.deniedTools = deniedTools;
-		this.setAuth(auth);
+		this.deniedAuthTools = deniedAuthTools;
+		this.setDeniedPublicTools(deniedPublicTools);
 		this.setStartDate(startDate);
 		this.setEndDate(endDate);
 		this.setModified(modified);
@@ -42,20 +42,12 @@ public class AccessNode {
 		return access;
 	}
 
-	public void setDeniedTools(String[] deniedTools) {
-		this.deniedTools = deniedTools;
+	public void setDeniedAuthTools(String[] deniedAuthTools) {
+		this.deniedAuthTools = deniedAuthTools;
 	}
 
-	public String[] getDeniedTools() {
-		return deniedTools;
-	}
-
-	public void setAuth(String auth) {
-		this.auth = auth;
-	}
-
-	public String getAuth() {
-		return auth;
+	public String[] getDeniedAuthTools() {
+		return deniedAuthTools;
 	}
 
 	public void setStartDate(Date startDate) {
@@ -96,5 +88,13 @@ public class AccessNode {
 
 	public String getUserId() {
 		return userId;
+	}
+
+	public void setDeniedPublicTools(String[] deniedPublicTools) {
+		this.deniedPublicTools = deniedPublicTools;
+	}
+
+	public String[] getDeniedPublicTools() {
+		return deniedPublicTools;
 	}
 }

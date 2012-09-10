@@ -233,14 +233,6 @@ public interface ProjectLogic {
 	public Map<String, String> getRealmRoleDisplay(boolean shopping);
 	
 	/**
-	 * returns a map of the authorization options
-	 * ex: .anon => Public
-	 * 
-	 * @return
-	 */
-	public List<ListOptionSerialized> getAuthorizationOptions();
-	
-	/**
 	 * Returns a set of hierarchy nodes that the user has been assigned accessAdmin privileges for.
 	 * @param userId
 	 * @return
@@ -253,10 +245,11 @@ public interface ProjectLogic {
 	 * @param startDate
 	 * @param endDate
 	 * @param nodeAccessRealmRole
-	 * @param auth
+	 * @param restrictedAuthTools
+	 * @param restrictedPublicTools
 	 * @return
 	 */
-	public boolean isShoppingPeriodOpenForSite(Date startDate, Date endDate, String[] nodeAccessRealmRole, String auth);
+	public boolean isShoppingPeriodOpenForSite(Date startDate, Date endDate, String[] nodeAccessRealmRole, String[] restrictedAuthTools, String[] restrictedPublicTools);
 	
 	/**
 	 * This will ensure the Delegated Access tool is synced with the user's MyWorkspace.  Another words, if the user has no

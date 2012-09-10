@@ -242,19 +242,6 @@ public class UserPageSiteSearch extends BasePage {
 		};
 		add(instructorSort);
 		
-		Link<Void> authorizationSort = new Link<Void>("authorizationSortLink"){
-			private static final long serialVersionUID = 1L;
-			public void onClick() {
-				changeOrder(DelegatedAccessConstants.SEARCH_COMPARE_AUTHORIZATION);
-			}
-			@Override
-			public boolean isVisible() {
-				//this helps with the wicket:enlosure
-				return statistics;
-			}
-		};
-		add(authorizationSort);
-		
 		Link<Void> accessSort = new Link<Void>("accessSortLink"){
 			private static final long serialVersionUID = 1L;
 			public void onClick() {
@@ -267,6 +254,11 @@ public class UserPageSiteSearch extends BasePage {
 			private static final long serialVersionUID = 1L;
 			public void onClick() {
 				changeOrder(DelegatedAccessConstants.SEARCH_COMPARE_START_DATE);
+			}
+			@Override
+			public boolean isVisible() {
+				//this helps with the wicket:enlosure
+				return statistics;
 			}
 		};
 		add(startDateSort);
@@ -346,17 +338,18 @@ public class UserPageSiteSearch extends BasePage {
 							&& siteSearchResult.isHasInstructor() && siteSearchResult.getInstructors().size() == 0;
 					}
 				});
-				item.add(new Label("authorization", getAuthString(siteSearchResult)){
+				String access = isShoppingPeriodTool() ? siteSearchResult.getAccessRoleString() :siteSearchResult.getAccessString(); 
+				item.add(new Label("access", access));
+				item.add(new Label("startDate", siteSearchResult.getShoppingPeriodStartDateStr()){
 					@Override
 					public boolean isVisible() {
 						//this helps hide all the extra columns with the wicket:enclosure in the html
 						return statistics;
 					}
 				});
-				item.add(new Label("access", siteSearchResult.getAccessString()));
-				item.add(new Label("startDate", siteSearchResult.getShoppingPeriodStartDateStr()));
 				item.add(new Label("endDate", siteSearchResult.getShoppingPeriodEndDateStr()));
-				item.add(new Label("showTools", siteSearchResult.getToolsString(toolsMap)));
+				item.add(new Label("showAuthTools", siteSearchResult.getAuthToolsString(toolsMap)));
+				item.add(new Label("showPublicTools", siteSearchResult.getPublicToolsString(toolsMap)));
 				item.add(new Label("accessModifiedBy", siteSearchResult.getModifiedBySortName()){
 					@Override
 					public boolean isVisible() {
@@ -417,29 +410,6 @@ public class UserPageSiteSearch extends BasePage {
 
 	}
 	
-	private String getAuthString(SiteSearchResult siteSearchResult){
-		String auth = siteSearchResult.getShoppingPeriodAuth();
-		if(auth != null && !"".equals(auth)){
-			return new StringResourceModel(auth, null).getString();
-		}else{
-			return "";
-		}
-	}
-
-	private String getToolsString(NodeModel nodeModel){
-		String restrictedTools = "";
-		for(String tool : nodeModel.getNodeRestrictedTools()){
-			if(!"".equals(restrictedTools)){
-				restrictedTools += ", ";
-			}
-			String toolName = tool;
-			if(toolsMap.containsKey(toolName)){
-				toolName = toolsMap.get(toolName);
-			}
-			restrictedTools += toolName;
-		}
-		return restrictedTools;
-	}
 	
 	/**
 	 * changes order by desc or asc

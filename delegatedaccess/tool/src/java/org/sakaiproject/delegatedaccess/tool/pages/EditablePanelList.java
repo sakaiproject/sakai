@@ -73,25 +73,34 @@ public class EditablePanelList  extends Panel
 
 		Label editableSpanLabel = new Label("editableNodeTitle", nodeModel.getNode().title);
 		editableSpan.add(editableSpanLabel);
-
-		List<ListOptionSerialized> listOptions = new ArrayList<ListOptionSerialized>();
 		
-		final ListView<ListOptionSerialized> listView = new ListView<ListOptionSerialized>("list", listOptions) {
+		WebMarkupContainer toolTableHeader = new WebMarkupContainer("toolTableHeader"){
+			@Override
+			public boolean isVisible() {
+				return DelegatedAccessConstants.TYPE_ACCESS_SHOPPING_PERIOD_USER == userType;
+			}
+		};
+		editableSpan.add(toolTableHeader);
+		
+		List<ListOptionSerialized[]> listOptions = new ArrayList<ListOptionSerialized[]>();
+		
+		final ListView<ListOptionSerialized[]> listView = new ListView<ListOptionSerialized[]>("list", listOptions) {
 
 			private static final long serialVersionUID = 1L;
 
 			@Override
-			protected void populateItem(ListItem<ListOptionSerialized> item) {
-				ListOptionSerialized wrapper = item.getModelObject();
+			protected void populateItem(ListItem<ListOptionSerialized[]> item) {
+				ListOptionSerialized wrapper = item.getModelObject()[0];
 				item.add(new Label("name", wrapper.getName()));
-				final CheckBox checkBox = new CheckBox("check", new PropertyModel(wrapper, "selected"));
+				//Auth Checkbox:
+				final CheckBox checkBox = new CheckBox("authCheck", new PropertyModel(wrapper, "selected"));
 				checkBox.setOutputMarkupId(true);
 				final String toolId = wrapper.getId();
 				checkBox.add(new AjaxFormComponentUpdatingBehavior("onClick")
 				{
 					protected void onUpdate(AjaxRequestTarget target){
 						if(DelegatedAccessConstants.TYPE_LISTFIELD_TOOLS == fieldType){
-							nodeModel.setToolRestricted(toolId, isChecked());
+							nodeModel.setAuthToolRestricted(toolId, isChecked());
 						}
 					}
 
@@ -112,6 +121,42 @@ public class EditablePanelList  extends Panel
 					}
 				});
 				item.add(checkBox);
+				
+				//Public Checkbox:
+				ListOptionSerialized publicWrapper = item.getModelObject()[1];
+				final CheckBox publicCheckBox = new CheckBox("publicCheck", new PropertyModel(publicWrapper, "selected")){
+					@Override
+					public boolean isVisible() {
+						return DelegatedAccessConstants.TYPE_ACCESS_SHOPPING_PERIOD_USER == userType;
+					}
+				};
+				publicCheckBox.setOutputMarkupId(true);
+				final String publicToolId = publicWrapper.getId();
+				publicCheckBox.add(new AjaxFormComponentUpdatingBehavior("onClick")
+				{
+					protected void onUpdate(AjaxRequestTarget target){
+						if(DelegatedAccessConstants.TYPE_LISTFIELD_TOOLS == fieldType){
+							nodeModel.setPublicToolRestricted(publicToolId, isPublicChecked());
+						}
+					}
+
+					private boolean isPublicChecked(){
+						final String value = publicCheckBox.getValue();
+						if (value != null)
+						{
+							try
+							{
+								return Strings.isTrue(value);
+							}
+							catch (Exception e)
+							{
+								return false;
+							}
+						}
+						return false;
+					}
+				});
+				item.add(publicCheckBox);
 
 			}
 		};
@@ -123,9 +168,9 @@ public class EditablePanelList  extends Panel
 			public void onClick(AjaxRequestTarget target) {
 				if(!loadedFlag){
 					loadedFlag = true;
-					List<ListOptionSerialized> listOptions = null;
+					List<ListOptionSerialized[]> listOptions = null;
 					if(DelegatedAccessConstants.TYPE_LISTFIELD_TOOLS == fieldType){
-						listOptions = nodeModel.getRestrictedTools();
+						listOptions = getNodeModelToolsList(nodeModel);
 					}
 					listView.setDefaultModelObject(listOptions);
 					target.addComponent(editableSpan);
@@ -138,7 +183,7 @@ public class EditablePanelList  extends Panel
 		add(new WebComponent("noToolsSelectedWarning"){
 			@Override
 			public boolean isVisible() {
-				return DelegatedAccessConstants.TYPE_ACCESS_SHOPPING_PERIOD_USER == userType && nodeModel.getSelectedRestrictedTools().isEmpty();
+				return DelegatedAccessConstants.TYPE_ACCESS_SHOPPING_PERIOD_USER == userType && nodeModel.getSelectedRestrictedAuthTools().isEmpty() && nodeModel.getSelectedRestrictedPublicTools().isEmpty();
 			}
 			@Override
 			protected void onComponentTag(ComponentTag tag) {
@@ -179,4 +224,28 @@ public class EditablePanelList  extends Panel
 
 	}
 
+	private List<ListOptionSerialized[]> getNodeModelToolsList(NodeModel nodeModel){
+		List<ListOptionSerialized[]> returnList = new ArrayList<ListOptionSerialized[]>();
+		
+		List<ListOptionSerialized> authList = nodeModel.getRestrictedAuthTools();
+		List<ListOptionSerialized> publicList = nodeModel.getRestrictedPublicTools();
+		
+		for(ListOptionSerialized opt : authList){
+			returnList.add(new ListOptionSerialized[]{opt, findListOption(publicList, opt.getName())});
+		}
+		
+		return returnList;
+	}
+	
+	private ListOptionSerialized findListOption(List<ListOptionSerialized> optList, String name){
+		ListOptionSerialized returnOpt = null;
+		for(ListOptionSerialized opt : optList){
+			if(name.equals(opt.getName())){
+				returnOpt = opt;
+				break;
+			}
+		}
+		return returnOpt;
+	}
+	
 }
