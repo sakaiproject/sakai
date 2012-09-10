@@ -78,9 +78,15 @@ public class ToolHelperImpl
 							!((Map<String, String[]>) session.getAttribute("delegatedaccess.deniedToolsMap")).containsKey(site.getReference())
 							|| ((Map<String, String[]>) session.getAttribute("delegatedaccess.deniedToolsMap")).get(site.getReference()) == null){
 						//a delegated access admin would have this map and site (even if it was set to null), if its null, that means the user is just has access to a different site and not this one
-						if(site.getMember(session.getUserId()) == null && site.getProperties().get("shopping-period-restricted-tools") != null){
+						if(site.getMember(session.getUserId()) == null && 
+								(site.getProperties().get("shopping-period-public-tools") != null || site.getProperties().get("shopping-period-auth-tools") != null)){
 							//this is .anon or .auth role in a site that needs to restrict the tools:
-							return arrayContains(((String) site.getProperties().get("shopping-period-restricted-tools")).split(";"), placement.getToolId());
+							boolean anonAccess = arrayContains(((String) site.getProperties().get("shopping-period-public-tools")).split(";"), placement.getToolId());
+							if(session.getUserId() == null){
+								return anonAccess;
+							}else{
+								return anonAccess || arrayContains(((String) site.getProperties().get("shopping-period-auth-tools")).split(";"), placement.getToolId());
+							}
 						}
 					}
 				}catch (Exception e) {
