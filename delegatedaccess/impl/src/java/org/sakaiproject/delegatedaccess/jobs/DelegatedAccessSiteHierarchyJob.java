@@ -1,5 +1,7 @@
 package org.sakaiproject.delegatedaccess.jobs;
 
+import java.io.PrintWriter;
+import java.io.StringWriter;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -169,7 +171,10 @@ public class DelegatedAccessSiteHierarchyJob implements Job{
 						if("".equals(errors)){
 							errors += "The following sites had errors: \n\n";
 						}
-						errors += site.getId() + ": " + e.getMessage();
+						errors += site.getId() + ": " + e.getMessage() + "\n\n";
+						StringWriter sw = new StringWriter();
+						e.printStackTrace(new PrintWriter(sw));
+						errors += sw.toString();
 					}
 				}
 				pageFirstRecord = (DelegatedAccessConstants.MAX_SITES_PER_PAGE * page) + 1;
