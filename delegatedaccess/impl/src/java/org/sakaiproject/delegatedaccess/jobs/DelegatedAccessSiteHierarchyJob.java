@@ -186,7 +186,7 @@ public class DelegatedAccessSiteHierarchyJob implements Job{
 			//report the errors
 			if(!"".equals(errors)){
 				log.warn(errors);
-				sakaiProxy.sendEmail("DelegatedAccessShoppingPeriodJob error", errors);
+				sakaiProxy.sendEmail("DelegatedAccessSiteHierarchyJob error", errors);
 			}else{
 				//no errors, so let's save this date so we can save time next run:
 				projectLogic.saveHierarchyJobLastRunDate(new Date(), rootNode.id);
