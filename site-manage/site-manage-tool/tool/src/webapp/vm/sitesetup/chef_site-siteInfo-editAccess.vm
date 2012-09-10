@@ -259,16 +259,6 @@
 				
 				<table>
 				<tr>
-				<td align="right">
-			 	<label for="shoppingVisibility">$tlang.getString("shopping.visibility.label"): </label>
-				</td>
-				<td>
-				<select name="shoppingVisibility" id="shoppingVisibility" class="shoppingSetting">
-					<option value="">$tlang.getString("shopping.noauth")</option>
-				</select>
-				</td>
-				</tr>
-				<tr>
                                 <td align="right">
 				<label for="shoppingVisibilityStart">$tlang.getString("shopping.start.label"): </label>
 				</td>
@@ -296,14 +286,24 @@
 				</tr>
 				<tr>
 					<td>
-						<label for="showTools">$tlang.getString("shopping.showTools.label"): </label>
+						<label for="showAuthTools">$tlang.getString("shopping.showTools.label"): </label>
 						<br/>
 						<img id="shoppingToolsWarning" src="/library/image/silk/exclamation.png" style="display:none"/>
 					</td>
 					<td>
-						<select name="showTools" id="showTools" multiple="multiple" class="shoppingSetting" style="height: 100px">
-							<option value=""></option>
-						</select>
+						<span style="width: 50%; float: left;" id="showAuthToolsSpan">
+							<div>$tlang.getString("shopping.showTools.authLabel")</div>
+							<select name="showAuthTools" id="showAuthTools" multiple="multiple" class="shoppingSetting" style="height: 100px">
+								<option value=""></option>
+							</select>
+						</span>
+						<span style="width: 40%; float: left; padding-left: 1em;" id="showPublicToolsSpan">
+							<div>$tlang.getString("shopping.showTools.publicLabel")</div>
+							<select name="showPublicTools" id="showPublicTools" multiple="multiple" class="shoppingSetting" style="height: 100px">
+								<option value=""></option>
+							</select>
+						</span>
+						
 					</td>
 				</tr>
 				</table>
