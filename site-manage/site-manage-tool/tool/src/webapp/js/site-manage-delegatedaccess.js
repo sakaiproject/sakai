@@ -40,7 +40,9 @@ $(document).ready(function(){
 				$.getJSON("/direct/delegated_access/shoppingOptions/roles.json", 
 					function(response){
 						for (var i=0; i<response.delegated_access_collection.length; i++) {
-							if(response.delegated_access_collection[i].key === data.shoppingRealm + ":" + data.shoppingRole){
+							if(response.delegated_access_collection[i].key === data.shoppingRealm + ":" + data.shoppingRole
+									|| response.delegated_access_collection.length == 1){
+								//if this is the selected option or the only option, then select it
 								$('#shoppingRole')
 									.append($("<option selected></option>")
 									.attr("value",response.delegated_access_collection[i].key)
@@ -51,6 +53,10 @@ $(document).ready(function(){
 									.attr("value",response.delegated_access_collection[i].key)
 									.text(response.delegated_access_collection[i].value));
 							}
+						}
+						if(response.delegated_access_collection.length == 1){
+							//hide the Role option since there is only one option to select and its pre-selected:
+							$('#shoppingRole').hide();
 						}
 					}
 				);
