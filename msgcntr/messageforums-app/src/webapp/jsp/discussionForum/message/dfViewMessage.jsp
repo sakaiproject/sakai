@@ -23,7 +23,9 @@
 					}
 						$('.permaLink').click(function(event){
 							event.preventDefault();
-							var url = $(this).attr('href');
+                            var url = $(this).attr('href');
+                            if (!url)
+							    url = this.href;
 							$('#permalinkHolder input').val(url);
 							$('#permalinkHolder').css({
 								'top': event.pageY + 20,
