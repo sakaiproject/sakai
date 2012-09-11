@@ -75,6 +75,11 @@
                 <artifactId>entitybroker-api</artifactId>
                 <scope>provided</scope>
         </dependency>
+    <dependency>
+        <groupId>commons-configuration</groupId>
+        <artifactId>commons-configuration</artifactId>
+   	<version>1.6</version> 
+   </dependency>
   </dependencies>
   
   <build>
@@ -90,6 +95,12 @@
 	<includes>
 		<include>**/*.properties</include>
 	</includes>
+      </resource>
+      <resource>
+        <directory>src/tutorial</directory>
+        <includes>
+                <include>**/*.config</include>
+        </includes>
       </resource>
     </resources>
   </build>
