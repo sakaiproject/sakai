@@ -934,10 +934,10 @@ public class GradingService
         }
         totalAutoScoreCheck += itemGrading.getAutoScore();
       }
-      //if it's MCMS and Not Partial Credit and the score isn't 100%, that means the user didn't
-      //answer all of the correct answers only.  We need to set their score to 0 for all ItemGrading items
-      if (TypeIfc.MULTIPLE_CORRECT.equals(itemType2) && "false".equals(mcmsPartialCredit) && MathUtils.equalsIncludingNaN(totalAutoScoreCheck, itemScore, 0.0001)){
-      //if(TypeIfc.MULTIPLE_CORRECT.equals(itemType2) && "false".equals(mcmsPartialCredit) && totalAutoScoreCheck != itemScore){
+      // if it's MCMS and Not Partial Credit and the score isn't 100% (totalAutoScoreCheck != itemScore),
+      // that means the user didn't answer all of the correct answers only.  
+      // We need to set their score to 0 for all ItemGrading items
+      if (TypeIfc.MULTIPLE_CORRECT.equals(itemType2) && "false".equals(mcmsPartialCredit) && !(MathUtils.equalsIncludingNaN(totalAutoScoreCheck, itemScore, 0.0001))){
     	  //reset all scores to 0 since the user didn't get all correct answers
     	  iter = itemGradingSet.iterator();
     	  while(iter.hasNext()){
@@ -1267,8 +1267,9 @@ public class GradingService
       }
     }
 
-    //change the final score back to the original score since it may set to average score.
-    if(MathUtils.equalsIncludingNaN(data.getFinalScore(), originalFinalScore, 0.0001)) {
+    // change the final score back to the original score since it may set to average score.
+    // data.getFinalScore() != originalFinalScore
+    if(!(MathUtils.equalsIncludingNaN(data.getFinalScore(), originalFinalScore, 0.0001))) {
     	data.setFinalScore(originalFinalScore);
     }
     } else {
