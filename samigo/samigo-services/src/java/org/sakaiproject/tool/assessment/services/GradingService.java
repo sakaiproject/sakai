@@ -37,6 +37,7 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
+import java.util.Map.Entry;
 import java.util.Random;
 import java.util.Set;
 import java.util.StringTokenizer;
@@ -906,7 +907,9 @@ public class GradingService
       // the following procedure ensure total score awarded per question is no less than 0
       // this probably only applies to MCMR question type - daisyf
       iter = itemGradingSet.iterator();
-      float totalAutoScoreCheck = 0;
+      //since the itr goes through each answer (multiple answers for a signle mc question), keep track
+      //of its total score by itemId -> autoScore[]{user's score, total possible}
+      Map<Long, Float[]> mcmcAllOrNothingCheck = new HashMap<Long, Float[]>();
       //get item information to check if it's MCMS and Not Partial Credit
       Long itemType2 = -1l;
       String mcmsPartialCredit = "";
@@ -932,17 +935,29 @@ public class GradingService
         {
         	itemGrading.setAutoScore( Float.valueOf(0));
         }
-        totalAutoScoreCheck += itemGrading.getAutoScore();
+        //keep track of MCMC answer's total score in order to check for all or nothing
+        if(TypeIfc.MULTIPLE_CORRECT.equals(itemType2)  && "false".equals(mcmsPartialCredit)){
+        	Float accumulatedScore = itemGrading.getAutoScore();
+        	if(mcmcAllOrNothingCheck.containsKey(itemId)){
+        		Float[] accumulatedScoreArr = mcmcAllOrNothingCheck.get(itemId);
+        		accumulatedScore += accumulatedScoreArr[0];
+        	}
+        	mcmcAllOrNothingCheck.put(itemId, new Float[]{accumulatedScore, item.getScore()});
+        }
       }
       // if it's MCMS and Not Partial Credit and the score isn't 100% (totalAutoScoreCheck != itemScore),
       // that means the user didn't answer all of the correct answers only.  
       // We need to set their score to 0 for all ItemGrading items
-      if (TypeIfc.MULTIPLE_CORRECT.equals(itemType2) && "false".equals(mcmsPartialCredit) && !(MathUtils.equalsIncludingNaN(totalAutoScoreCheck, itemScore, 0.0001))){
-    	  //reset all scores to 0 since the user didn't get all correct answers
-    	  iter = itemGradingSet.iterator();
-    	  while(iter.hasNext()){
-    		  ItemGradingData itemGrading = (ItemGradingData) iter.next();
-    		  itemGrading.setAutoScore(Float.valueOf(0));
+      for(Entry<Long, Float[]> entry : mcmcAllOrNothingCheck.entrySet()){
+    	  if(!(MathUtils.equalsIncludingNaN(entry.getValue()[0], entry.getValue()[1], 0.0001))){
+    		  //reset all scores to 0 since the user didn't get all correct answers
+    		  iter = itemGradingSet.iterator();
+    		  while(iter.hasNext()){
+    			  ItemGradingData itemGrading = (ItemGradingData) iter.next();
+    			  if(itemGrading.getPublishedItemId().equals(entry.getKey())){
+    				  itemGrading.setAutoScore(Float.valueOf(0));
+    			  }
+    		  }
     	  }
       }
       
