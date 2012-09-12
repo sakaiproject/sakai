@@ -6377,8 +6377,11 @@ SiteContentAdvisorProvider, SiteContentAdvisorTypeRegistry, EntityTransferrerRef
 				if (Validator.letBrowserInline(contentType))
 				{
 					// if this is an html file we have more checks
-					if (("text/html".equalsIgnoreCase(contentType) || "application/xhtml+xml".equals(contentType) ) && 
-							m_serverConfigurationService.getBoolean(SECURE_INLINE_HTML, true)) {
+				    String lcct = contentType.toLowerCase();
+				    if ( ( lcct.startsWith("text/") || lcct.startsWith("image/") 
+				            || lcct.contains("html") || lcct.contains("script") ) && 
+				            m_serverConfigurationService.getBoolean(SECURE_INLINE_HTML, true)) {
+				        // increased checks to handle more mime-types - https://jira.sakaiproject.org/browse/KNL-749
 						ResourceProperties rp = resource.getProperties();
 
 						boolean fileInline = false;
