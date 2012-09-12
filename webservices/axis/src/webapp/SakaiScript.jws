@@ -1,8 +1,14 @@
+import java.lang.String;
+import java.lang.Throwable;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collections;
+import java.util.Date;
+import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
+import java.util.Map;
 import java.util.Properties;
 import java.util.Set;
 
@@ -3452,6 +3458,139 @@ public String addToolAndPageToSite(String sessionid, String siteid, String tooli
 	}
 }
 
+
+/**
+ * Get a user property.
+ * 
+ * @param sessionid		valid session
+ * @param eid			id of the user to query
+ * @param propertyName	name of the property to retrieve
+ * @return
+ * @throws AxisFault
+ */
+public String getUserProperty(String sessionid, String eid, String propertyName) throws AxisFault
+{
+    Session session = establishSession(sessionid);
+    try {
+        User user = userDirectoryService.getUserByEid(eid);
+        return user.getProperties().getProperty(propertyName);
+    } catch (Exception e) {
+        LOG.error("WS getUserProperty() failed for user: " + eid + " : " + e.getClass().getName() + " : " + e.getMessage());
+        return "";
+    }
+}
+
+/**
+ * Find Sites that have a particular propertySet regardless of the value - Returns empty <list/> if not found
+ *
+ * @param sessionid		valid session
+ * @param propertyName		name of the property to search for.
+ * @return Sites as xml
+ */
+public String findSitesByProperty(String sessionid, String propertyName) throws AxisFault {
+	//register the session with presence
+	Session s = establishSession(sessionid);
+
+	Map propertyCriteria = new HashMap();
+	
+	// search for anything that has propertyName set, "%" will do it
+	propertyCriteria.put(propertyName, "%");
+	return findSites(propertyCriteria);
+}
+
+/**
+ * Find Sites with a property set to a specified value - Returns empty <list/> if not found
+ *
+ * @param sessionid		valid session
+ * @param propertyName		name of the property to search for
+ * @param propertyValue	value that the property much have to satisfy the query
+ * @return Sites as xml
+ */
+public String findSitesByPropertyValue(String sessionid, String propertyName, String propertyValue) throws AxisFault {
+	//register the session with presence
+	Session s = establishSession(sessionid);
+	
+	Map propertyCriteria = new HashMap();
+
+	propertyCriteria.put(propertyName, propertyValue);
+	return findSites(propertyCriteria);
+}
+
+/**
+ * Helper method to find sites based on a property criteria
+ * 
+ * @param propertyCriteria	site properties with values that wil lbe used in the search
+ * @returnSites as xml
+ */
+private String findSites(Map propertyCriteria) {
+
+     Document dom = Xml.createDocument();
+     Node list = dom.createElement("list");
+     dom.appendChild(list);
+
+     try {
+         List siteList = siteService.getSites(SelectionType.ANY, null, null,
+                 propertyCriteria, SortType.NONE, null);
+
+         if (siteList != null && siteList.size() > 0) {
+             for (Iterator i=siteList.iterator(); i.hasNext();) {
+                 Site site = (Site) i.next();
+                 Node item = dom.createElement("site");
+                 Node siteId = dom.createElement("siteId");
+                 siteId.appendChild( dom.createTextNode(site.getId()) );
+                 Node siteTitle = dom.createElement("siteTitle");
+                 siteTitle.appendChild( dom.createTextNode(site.getTitle()) );
+                 item.appendChild(siteId);
+                 item.appendChild(siteTitle);
+                 if (site.getProperties() != null) {
+                     for (Iterator j= site.getProperties().getPropertyNames(); j.hasNext(); ) {
+                         String name = (String) j.next();
+                         Node siteProperty = dom.createElement(name);
+                         siteProperty.appendChild( dom.createTextNode((String)site.getProperties().get(name)) );
+                         item.appendChild(siteProperty);
+                     }
+                 }
+                 list.appendChild(item);
+             }
+         }
+     } catch (Throwable t) {
+             LOG.warn(this + ".findSite: Error encountered" + t.getMessage(), t);
+     }
+
+     return Xml.writeDocumentToString(dom);
+ }
+
+
+
+ /**
+  * Get the placement ID for a given tool in the given site
+  * 
+  * @param sessionid	valid session
+  * @param siteId		ID of the site we are looking at
+  * @param toolId		tool id eg. "sakai.gradebook.gwt.rpc", we are looking for
+  * @return first placement id found in the site for the given tool. If the tool/site is not found, the response will be empty.
+  * @throws AxisFault
+  */
+ public String getPlacementId(String sessionid, String siteId, String toolId) throws AxisFault {
+     // register the session with presence
+     Session s = establishSession(sessionid);
+     try {
+         Site site = siteService.getSite(siteId);
+         // LOG.warn("found site" + siteId);
+         if (site != null) {
+
+             ToolConfiguration toolConfiguration = site.getToolForCommonId(toolId);
+             if (toolConfiguration != null) {
+                 return toolConfiguration.getId();
+             }
+
+         }
+     } catch (Throwable t) {
+         LOG.warn(this + "getPlacementId(): Error encountered: " + t.getMessage(), t);
+     }
+     return null;
+
+ }
 
 /**
  * Transfer a copy of all entites from another context for any entity
