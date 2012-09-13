@@ -796,3 +796,7 @@ DROP TABLE EMAIL_TEMPLATE_ITEM_TEMP;
 
 alter table EMAIL_TEMPLATE_ITEM add constraint EMAIL_TI_KEY_LOCALE_UNIQUE unique (TEMPLATE_KEY,TEMPLATE_LOCALE);
 -- end of SAK-21739
+
+-- SAM-1216 Oracle and hibernate and forcing the blob
+alter table SAM_MEDIA_T modify (MEDIA blob); 
+-- end SAM-1216
