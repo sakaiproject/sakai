@@ -70,6 +70,8 @@ public class AuthzGroupService
 	public static java.lang.String SECURE_UPDATE_AUTHZ_GROUP = org.sakaiproject.authz.api.AuthzGroupService.SECURE_UPDATE_AUTHZ_GROUP;
 
 	public static java.lang.String SECURE_UPDATE_OWN_AUTHZ_GROUP = org.sakaiproject.authz.api.AuthzGroupService.SECURE_UPDATE_OWN_AUTHZ_GROUP;
+	
+	public static java.lang.String SECURE_VIEW_ALL_AUTHZ_GROUPS = org.sakaiproject.authz.api.AuthzGroupService.SECURE_VIEW_ALL_AUTHZ_GROUPS;
 
 	public static java.lang.String ANON_ROLE = org.sakaiproject.authz.api.AuthzGroupService.ANON_ROLE;
 

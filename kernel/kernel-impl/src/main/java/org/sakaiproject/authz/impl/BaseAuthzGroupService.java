@@ -280,6 +280,7 @@ public abstract class BaseAuthzGroupService implements AuthzGroupService
 			functionManager().registerFunction(SECURE_REMOVE_AUTHZ_GROUP);
 			functionManager().registerFunction(SECURE_UPDATE_AUTHZ_GROUP);
 			functionManager().registerFunction(SECURE_UPDATE_OWN_AUTHZ_GROUP);
+			functionManager().registerFunction(SECURE_VIEW_ALL_AUTHZ_GROUPS);
 
 			// if no provider was set, see if we can find one
 			if (m_provider == null)
