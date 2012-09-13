@@ -24,9 +24,12 @@ package org.sakaiproject.authz.tool;
 import java.util.Collections;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 import java.util.Vector;
 
 import org.apache.commons.lang.StringUtils;
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
 import org.sakaiproject.authz.api.AuthzGroup;
 import org.sakaiproject.authz.api.AuthzPermissionException;
 import org.sakaiproject.authz.api.GroupAlreadyDefinedException;
@@ -48,8 +51,13 @@ import org.sakaiproject.cheftool.api.MenuItem;
 import org.sakaiproject.cheftool.menu.MenuEntry;
 import org.sakaiproject.cheftool.menu.MenuImpl;
 import org.sakaiproject.component.cover.ComponentManager;
+import org.sakaiproject.entity.api.Entity;
 import org.sakaiproject.event.api.SessionState;
 import org.sakaiproject.javax.PagingPosition;
+import org.sakaiproject.site.api.Site;
+import org.sakaiproject.site.cover.SiteService;
+import org.sakaiproject.tool.cover.SessionManager;
+import org.sakaiproject.tool.cover.ToolManager;
 import org.sakaiproject.user.api.User;
 import org.sakaiproject.user.api.UserNotDefinedException;
 import org.sakaiproject.user.cover.UserDirectoryService;
@@ -68,6 +76,8 @@ public class RealmsAction extends PagedResourceActionII
 
 	private org.sakaiproject.authz.api.GroupProvider groupProvider = (org.sakaiproject.authz.api.GroupProvider) ComponentManager
 	.get(org.sakaiproject.authz.api.GroupProvider.class);
+	
+	private static Log M_log = LogFactory.getLog(RealmsAction.class);
 
 	/**
 	 * {@inheritDoc}
@@ -122,8 +132,8 @@ public class RealmsAction extends PagedResourceActionII
 	{
 		context.put("tlang", rb);
 
-		// if not logged in as the super user, we won't do anything
-		if (!SecurityService.isSuperUser())
+		// if not allowed, we won't do anything
+		if (!isAccessAllowed())
 		{
 			return (String) getContext(rundata).get("template") + "_noaccess";
 		}
@@ -174,6 +184,14 @@ public class RealmsAction extends PagedResourceActionII
 		{
 			template = buildEditUserContext(state, context);
 		}
+		else if ("view".equals(mode))
+		{
+			template = buildViewContext(state, context);
+		}
+		else if ("viewRole".equals(mode))
+		{
+			template = buildViewRoleContext(state, context);
+		}
 
 		else
 		{
@@ -222,6 +240,9 @@ public class RealmsAction extends PagedResourceActionII
 		{
 			context.put(Menu.CONTEXT_MENU, bar);
 		}
+		
+		context.put("viewAllowed", isAccessAllowed());
+
 
 		// inform the observing courier that we just updated the page...
 		// if there are pending requests to do so they can be cleared
@@ -283,6 +304,31 @@ public class RealmsAction extends PagedResourceActionII
 		context.put(Menu.CONTEXT_MENU, bar);
 
 		return "_edit";
+
+	} // buildEditContext
+	
+	/**
+	 * Build the context for the view realm mode.
+	 */
+	private String buildViewContext(SessionState state, Context context)
+	{
+		// get the realm to edit
+		AuthzGroup realm = (AuthzGroup) state.getAttribute("realm");
+		context.put("realm", realm);
+
+		// get the roles defined in the realm
+		List roles = new Vector();
+		roles.addAll(realm.getRoles());
+		Collections.sort(roles);
+		context.put("roles", roles);
+
+		// get a list of the users who have individual grants in the realm
+		List grants = new Vector();
+		grants.addAll(realm.getMembers());
+		Collections.sort(grants);
+		context.put("grants", grants);
+
+		return "_view";
 
 	} // buildEditContext
 
@@ -380,6 +426,37 @@ public class RealmsAction extends PagedResourceActionII
 		return "_edit_role";
 
 	} // buildEditRoleContext
+	
+	/**
+	 * Build the context for the view role mode.
+	 */
+	private String buildViewRoleContext(SessionState state, Context context)
+	{
+
+		// get the realm
+		AuthzGroup realm = (AuthzGroup) state.getAttribute("realm");
+		context.put("realm", realm);
+
+		// get the role
+		Role role = (Role) state.getAttribute("role");
+		context.put("role", role);
+
+		// get all functions
+		List allFunctions = FunctionManager.getRegisteredFunctions();
+		Collections.sort(allFunctions);
+		context.put("allLocks", allFunctions);
+
+		// get all roles
+		List allRoles = new Vector();
+		if (realm != null)
+			allRoles.addAll(realm.getRoles());
+		Collections.sort(allRoles);
+		context.put("allRoles", allRoles);
+
+		return "_view_role";
+
+	} // buildViewRoleContext
+
 
 	/**
 	 * Build the context for the new user grant mode.
@@ -767,6 +844,63 @@ public class RealmsAction extends PagedResourceActionII
 		state.setAttribute("mode", "edit");
 
 	} // doCancel_remove
+	
+	/**
+	 * Handle a request to view a realm.
+	 */
+	public void doView(RunData data, Context context)
+	{
+		SessionState state = ((JetspeedRunData) data).getPortletSessionState(((JetspeedRunData) data).getJs_peid());
+		
+		String id = data.getParameters().getString("id");
+
+		// get the realm
+		try
+		{
+			AuthzGroup realm = AuthzGroupService.getAuthzGroup(id);
+			state.setAttribute("realm", realm);
+
+			state.setAttribute("mode", "view");
+
+			// disable auto-updates while in view mode
+			disableObservers(state);
+		}
+		catch (GroupNotDefinedException e)
+		{
+			Log.warn("chef", "RealmsAction.doView: realm not found: " + id);
+
+			addAlert(state, rb.getFormattedMessage("realm.notfound", new Object[]{id}));
+			state.removeAttribute("mode");
+
+			// make sure auto-updates are enabled
+			enableObserver(state);
+		}
+
+	} // doView
+	
+	/**
+	 * View a role.
+	 */
+	public void doView_role(RunData data, Context context)
+	{
+		SessionState state = ((JetspeedRunData) data).getPortletSessionState(((JetspeedRunData) data).getJs_peid());
+
+		// read the form - if rejected, leave things as they are
+		if (!readRealmForm(data, state)) return;
+
+		state.setAttribute("mode", "viewRole");
+
+		String id = data.getParameters().getString("target");
+
+		// get the role
+		AuthzGroup realm = (AuthzGroup) state.getAttribute("realm");
+		if (realm != null)
+		{
+			Role role = realm.getRole(id);
+			state.setAttribute("role", role);
+		}
+
+	} // doView_role
 
 	/**
 	 * Read the realm form and update the realm in state.
@@ -1281,5 +1415,30 @@ public class RealmsAction extends PagedResourceActionII
 		state.removeAttribute("locks");
 
 	} // cleanState
+	
+	/**
+	 * Check if the current user is allowed to access the tool
+	 * 
+	 * Super users are allowed, as well as people with the AuthzGroupService.SECURE_VIEW_ALL_AUTHZ_GROUPS permission.
+	 */
+	private boolean isAccessAllowed() {
+		if(SecurityService.isSuperUser()) {
+			return true;
+		}
+		String siteId = ToolManager.getCurrentPlacement().getContext();
+		String siteRef = siteId;
+		if(siteId != null && !siteId.startsWith(SiteService.REFERENCE_ROOT)) {
+			siteRef = SiteService.REFERENCE_ROOT + Entity.SEPARATOR + siteId;
+		}
+		
+		String userId = SessionManager.getCurrentSessionUserId();
+		
+		if(SecurityService.unlock(userId, AuthzGroupService.SECURE_VIEW_ALL_AUTHZ_GROUPS, siteRef)) {
+			M_log.debug("Granting view access to Realms tool for userId: " + userId);
+			return true;
+		}
+		
+		return false;
+	}
 
 } // RealmsAction

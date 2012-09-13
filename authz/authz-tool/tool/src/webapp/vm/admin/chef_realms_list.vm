@@ -99,6 +99,10 @@
 							<a href="#toolLinkParam("$action" "doEdit" "id=$validator.escapeUrl($realm.Id)")" title="$tlang.getString("realm.edit.edit") $validator.escapeHtml($realm.Id)">
 								$validator.escapeHtml($realm.Id)
 							</a>
+						#elseif ($viewAllowed)
+							<a href="#toolLinkParam("$action" "doView" "id=$validator.escapeUrl($realm.Id)")" title="$tlang.getString("realm.view.view") $validator.escapeHtml($realm.Id)">
+								$validator.escapeHtml($realm.Id)
+							</a>
 						#else
 							$validator.escapeHtml($realm.Id)
 						#end
