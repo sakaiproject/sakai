@@ -32,6 +32,15 @@ public class SiteSearchResult implements Serializable {
 			this.instructors.add(new UserSerialized(user));
 		}
 	}
+	
+	public SiteSearchResult(SiteSerialized site, List<User> instructors, String termProp){
+		this.site = site;
+		this.instructors = new ArrayList<UserSerialized>();
+		for(User user : instructors){
+			this.instructors.add(new UserSerialized(user));
+		}
+	}
+	
 	private SiteSerialized getSite() {
 		return site;
 	}
@@ -203,66 +212,6 @@ public class SiteSearchResult implements Serializable {
 		}
 	}
 	
-	public class SiteSerialized implements Serializable{
-		private String url;
-		private String id;
-		private String title;
-		private String term;
-		private String reference;
-
-		public SiteSerialized(Site site, String termProp){
-			this.id = site.getId();
-			this.url = site.getUrl();
-			this.title = site.getTitle();
-			Object prop = site.getProperties().get(termProp);
-			term = "";
-			if(prop != null){
-				term = prop.toString();
-			}
-			this.reference = site.getReference();
-		}
-
-		public String getUrl() {
-			return url;
-		}
-
-		public void setUrl(String url) {
-			this.url = url;
-		}
-
-		public String getId() {
-			return id;
-		}
-
-		public void setId(String id) {
-			this.id = id;
-		}
-
-		public String getTitle() {
-			return title;
-		}
-
-		public void setTitle(String title) {
-			this.title = title;
-		}
-
-		public String getTerm() {
-			return term;
-		}
-
-		public void setTerm(String term) {
-			this.term = term;
-		}
-
-		public String getReference() {
-			return reference;
-		}
-
-		public void setReference(String reference) {
-			this.reference = reference;
-		}
-	}
-
 	public Date getModified() {
 		return modified;
 	}

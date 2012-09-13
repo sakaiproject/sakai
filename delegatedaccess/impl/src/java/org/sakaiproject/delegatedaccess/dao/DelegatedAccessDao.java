@@ -25,4 +25,23 @@ public interface DelegatedAccessDao {
 	public Map<String, List<String>> getNodesBySiteRef(String[] siteRef, String hierarchyId);
 	
 	public List<String> getEmptyNonSiteNodes(String hierarchyId);
+	
+	/**
+	 * returns a list of {siteId, title} for sites returned in search
+	 * if you search for instructorsIds as well, then the results will be {siteId, title, userId}
+	 * 
+	 * @param titleSearch
+	 * @param propsMap
+	 * @param instructorIds
+	 * @return
+	 */
+	public List<String[]> searchSites(String titleSearch, Map<String, String> propsMap, String[] instructorIds);
+	
+	/**
+	 * returns a list of {siteId, map{name->value}} for the site ids and properties searched
+	 * @param props
+	 * @param siteIds
+	 * @return
+	 */
+	public Map<String, Map<String, String>> searchSitesForProp(String[] props, String[] siteIds);
 }

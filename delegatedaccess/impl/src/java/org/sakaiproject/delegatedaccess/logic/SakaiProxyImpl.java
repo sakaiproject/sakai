@@ -2,6 +2,7 @@ package org.sakaiproject.delegatedaccess.logic;
 
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collection;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.HashMap;
@@ -602,6 +603,10 @@ public class SakaiProxyImpl implements SakaiProxy {
 	
 	public boolean isUserMember(String userId, String siteRef){
 		return authzGroupService.getUserRole(userId, siteRef) != null;
+	}
+	
+	public Map<String,String> isUserMember(String userId, Collection<String> siteRefs){
+		return authzGroupService.getUserRoles(userId, siteRefs);
 	}
 	
 	public boolean isShoppingPeriodInstructorEditable(){

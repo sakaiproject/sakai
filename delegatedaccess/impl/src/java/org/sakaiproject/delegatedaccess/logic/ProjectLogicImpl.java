@@ -33,6 +33,7 @@ import org.sakaiproject.delegatedaccess.model.ListOptionSerialized;
 import org.sakaiproject.delegatedaccess.model.NodeModel;
 import org.sakaiproject.delegatedaccess.model.SearchResult;
 import org.sakaiproject.delegatedaccess.model.SiteSearchResult;
+import org.sakaiproject.delegatedaccess.model.SiteSerialized;
 import org.sakaiproject.delegatedaccess.util.DelegatedAccessConstants;
 import org.sakaiproject.delegatedaccess.util.DelegatedAccessMutableTreeNode;
 import org.sakaiproject.hierarchy.HierarchyService;
@@ -557,18 +558,9 @@ public class ProjectLogicImpl implements ProjectLogic {
 		Map<String, SiteSearchResult> sites = new HashMap<String, SiteSearchResult>();
 		Site searchByIdSite = sakaiProxy.getSiteById(search);
 		String termField = sakaiProxy.getTermField();
-				
-		//get hierarchy structure:
-		String[] hierarchy = sakaiProxy.getServerConfigurationStrings(DelegatedAccessConstants.HIERARCHY_SITE_PROPERTIES);
-		if(hierarchy == null || hierarchy.length == 0){
-			hierarchy = DelegatedAccessConstants.DEFAULT_HIERARCHY;
-		}
-		
+
 		//Since we know the hierarchy is site properties, we can use them to speed up our search
 		Map<String,String> propsMap = new HashMap<String, String>();
-		for(String prop : hierarchy){
-			propsMap.put(prop, "");
-		}
 		
 		//add term field restriction if it exist:
 		if (advancedOptions != null && advancedOptions.containsKey(DelegatedAccessConstants.ADVANCED_SEARCH_TERM)
@@ -588,6 +580,7 @@ public class ProjectLogicImpl implements ProjectLogic {
 		}
 		
 		//add instructor restriction
+		Map<String, User> instructorMap = new HashMap<String, User>();
 		if (advancedOptions != null && advancedOptions.containsKey(DelegatedAccessConstants.ADVANCED_SEARCH_INSTRUCTOR)
 				&& advancedOptions.get(DelegatedAccessConstants.ADVANCED_SEARCH_INSTRUCTOR) != null
 				&& !"".equals(advancedOptions.get(DelegatedAccessConstants.ADVANCED_SEARCH_INSTRUCTOR).trim())) {
@@ -599,28 +592,37 @@ public class ProjectLogicImpl implements ProjectLogic {
 				if(!foundSearchByIdMember && searchByIdSite.getMember(user.getId()) != null){
 					foundSearchByIdMember = true;
 				}
-				//the search will use the propsMap (term if enabled) as well as search string, so no need to do additional searching after this
-				for (Site site : getUserUpdatePermissionMembership(
-						user.getId(), search, propsMap)) {
-					if(sites.containsKey(site.getId())){
-						sites.get(site.getId()).addInstructor(user);
-					}else{
-						List<User> usersList = new ArrayList<User>();
-						usersList.add(user);
-						sites.put(site.getId(), new SiteSearchResult(site, usersList, termField));
-					}
-				}
+				instructorMap.put(user.getId(), user);
 			}
+			
 			if(!foundSearchByIdMember && searchByIdSite != null){
 				//we didn't find any members for this site in the user search, so remove it:
 				searchByIdSite = null;
 			}
-		}else{
-			// search title or id
-			for (Site site : sakaiProxy.getSites(SelectionType.NON_USER, search,
-					propsMap)) {
-				sites.put(site.getId(), new SiteSearchResult(site, new ArrayList<User>(), termField));
+		}
+		// search title, props, or instructors
+		List<String[]> siteResults = dao.searchSites(search, propsMap, instructorMap.keySet().toArray(new String[instructorMap.keySet().size()]));
+		if(siteResults != null && siteResults.size() > 0){
+			//create an array of the siteIds returned:
+			String[] siteIds = new String[siteResults.size()];
+			int i = 0;
+			for(String[] site : siteResults){
+				siteIds[i] = site[0];
+				i++;
 			}
+			Map<String, Map<String, String>> termProps = dao.searchSitesForProp(new String[]{termField}, siteIds);
+			for(String[] site : siteResults){
+				String term = "";
+				if(termProps != null && termProps.containsKey(site[0]) && termProps.get(site[0]).containsKey(termField)){
+					term = termProps.get(site[0]).get(termField);
+				}
+				List<User> instructors = new ArrayList<User>();
+				if(site.length == 3){
+					//this means the results came back with instructor data:
+					instructors.add(instructorMap.get(site[2]));
+				}
+				sites.put(site[0], new SiteSearchResult(new SiteSerialized(site[0], site[1], term), instructors, termField));
+			}	
 		}
 		
 		if(searchByIdSite != null && !sites.containsKey(searchByIdSite.getId())){
@@ -1589,6 +1591,10 @@ public class ProjectLogicImpl implements ProjectLogic {
 				//find the node for the site
 				Map<String, Map<String, Set<String>>> usersNodesAndPerms = hierarchyService.getNodesAndPermsForUser(userId);
 				Map<String, Set<String>> userNodesAndPerms = usersNodesAndPerms.get(userId);
+				Map<String, String> memberRoles = new HashMap<String, String>();
+				if(!shoppingPeriod){
+					memberRoles = sakaiProxy.isUserMember(userId, siteRefs);
+				}
 				if(userNodesAndPerms != null){
 					for(String siteRef : siteRefs){
 						if(siteRefToNodeMap != null && siteRefToNodeMap.containsKey(siteRef) && siteRefToNodeMap.get(siteRef) != null && siteRefToNodeMap.get(siteRef).size() > 0){
@@ -1599,7 +1605,7 @@ public class ProjectLogicImpl implements ProjectLogic {
 								if(perms != null && getIsDirectAccess(perms)){
 									//check first that the user's isn't a member of the site, if so, return null:
 									//don't waste time checking until we get to this level (for bulk searching speed)
-									if(!shoppingPeriod && sakaiProxy.isUserMember(userId, siteRef)){
+									if(!shoppingPeriod && memberRoles.get(siteRef) != null){
 										returnNodes.put(siteRef, null);
 									}else{
 										if(shoppingPeriod && activeShoppingData){

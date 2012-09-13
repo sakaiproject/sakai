@@ -9,6 +9,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.NoSuchElementException;
+import java.util.Map.Entry;
 
 import org.apache.commons.configuration.ConfigurationException;
 import org.apache.commons.configuration.PropertiesConfiguration;
@@ -190,6 +191,119 @@ public class DelegatedAccessDaoImpl extends JdbcDaoSupport implements DelegatedA
 			);
 		} catch (DataAccessException ex) {
            log.error("Error executing query: " + ex.getClass() + ":" + ex.getMessage());
+		}
+	}
+	
+	public List<String[]> searchSites(String titleSearch, Map<String, String> propsMap, String[] instructorIds){
+		try{
+			if(titleSearch == null){
+				titleSearch = "";
+			}
+			titleSearch ="%" + titleSearch + "%";
+			Object[] params = new Object[]{titleSearch};
+			String query = "";
+			final boolean noInstructors = instructorIds == null || instructorIds.length == 0;
+			//either grab the simple site search based on title or the one that limits by instructor ids
+			if(noInstructors){
+				query = getStatement("select.siteSearch");
+			}else{
+				query = getStatement("select.siteSearchInstructors");
+				String inParams = "(";
+				//to be on the safe side, I added oracle limit restriction, but hopefully no one is searching for
+				//more than 1000 instructors
+				for(int i = 0; i < instructorIds.length && i < ORACLE_IN_CLAUSE_SIZE_LIMIT; i++){
+					inParams += "'" + instructorIds[i] + "'";
+					if(i < instructorIds.length - 1){
+						inParams += ",";
+					}
+				}
+				inParams += ")";
+				query = query.replace("(:userIds)", inParams);
+			}
+			//add the site properties restrictions in the where clause
+			if(propsMap != null && propsMap.size() > 0){
+				params = new Object[1 + (propsMap.size() * 2)];
+				params[0] = titleSearch;
+				int i = 1;
+				for(Entry<String, String> entry : propsMap.entrySet()){
+					query += " " + getStatement("select.siteSearchPropWhere");
+					params[i] = entry.getKey();
+					i++;
+					params[i] = entry.getValue();
+					i++;
+				}
+			}
+			
+			return (List<String[]>) getJdbcTemplate().query(query, params, new RowMapper() {
+				
+				 public Object mapRow(ResultSet resultSet, int i) throws SQLException {
+					 if(noInstructors){
+						 return new String[]{resultSet.getString("SITE_ID"), resultSet.getString("TITLE")};
+					 }else{
+						 return new String[]{resultSet.getString("SITE_ID"), resultSet.getString("TITLE"), resultSet.getString("USER_ID")};
+					 }
+				}
+			});
+		}catch (DataAccessException ex) {
+			return new ArrayList<String[]>();
+		}
+	}
+	
+	public Map<String, Map<String, String>> searchSitesForProp(String[] props, String[] siteIds){
+		try{
+			Map<String, Map<String, String>> returnMap = new HashMap<String, Map<String, String>>();
+			
+			int subArrayIndex = 0;
+			do{
+				int subArraySize = ORACLE_IN_CLAUSE_SIZE_LIMIT;
+				if(subArrayIndex + subArraySize > siteIds.length){
+					subArraySize = (siteIds.length - subArrayIndex);
+				}
+				String[] subSiteRefs = Arrays.copyOfRange(siteIds, subArrayIndex, subArrayIndex + subArraySize);
+
+				String query = getStatement("select.sitesProp");
+				String propInParams = "(";
+				for(int i = 0; i < props.length; i++){
+					propInParams += "'" + props[i] + "'";
+					if(i < props.length - 1){
+						propInParams += ",";
+					}
+				}
+				propInParams += ")";
+				query = query.replace("(:props)", propInParams);
+				
+				propInParams += ")";
+				String inParams = "(";
+				for(int i = 0; i < subSiteRefs.length; i++){
+					inParams += "'" + subSiteRefs[i] + "'";
+					if(i < subSiteRefs.length - 1){
+						inParams += ",";
+					}
+				}
+				inParams += ")";
+				query = query.replace("(:siteIds)", inParams);
+				List<String[]> results =  (List<String[]>) getJdbcTemplate().query(query, new RowMapper() {
+
+					public Object mapRow(ResultSet resultSet, int i) throws SQLException {
+						return new String[]{resultSet.getString("SITE_ID"), resultSet.getString("NAME"), resultSet.getString("VALUE")};
+					}
+				});
+				if(results != null){
+					for(String[] result : results){
+						Map<String, String> propMap = new HashMap<String, String>();
+						if(returnMap.containsKey(result[0])){
+							propMap = returnMap.get(result[0]);
+						}
+						propMap.put(result[1], result[2]);
+						returnMap.put(result[0], propMap);
+					}
+				}
+				subArrayIndex = subArrayIndex + subArraySize;
+			}while(subArrayIndex < siteIds.length);
+			
+			return returnMap;
+		}catch (DataAccessException ex) {
+			return null;
 		}
 	}
 	

@@ -1,5 +1,6 @@
 package org.sakaiproject.delegatedaccess.logic;
 
+import java.util.Collection;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -359,4 +360,12 @@ public interface SakaiProxy {
 	 * @return
 	 */
 	public String[] getHideRolesForInstructorViewAccess();
+	
+	/**
+	 * returns a map of site ref -> role.  If role is null, then they are not a member
+	 * @param userId
+	 * @param siteRefs
+	 * @return
+	 */
+	public Map<String,String> isUserMember(String userId, Collection<String> siteRefs);
 }
