@@ -9,8 +9,8 @@
 	-->
 
 	<!-- An application consumer without a component. -->
-	<bean id="gradebookSessionFactory" parent="org.sakaiproject.springframework.orm.hibernate.SessionFactoryBase"
-		class="org.sakaiproject.springframework.orm.hibernate.AddableSessionFactoryBean">
+
+	<bean id="gradebookSessionFactory" parent="org.sakaiproject.springframework.orm.hibernate.GlobalSessionFactory">
 		<property name="mappingResources">
 		    <list>
   				<value>org/sakaiproject/tool/gradebook/Gradebook.hbm.xml</value>

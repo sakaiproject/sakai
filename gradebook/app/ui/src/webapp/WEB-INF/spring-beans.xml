@@ -1,7 +1,13 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<!DOCTYPE beans PUBLIC "-//SPRING//DTD BEAN//EN" "http://www.springframework.org/dtd/spring-beans.dtd">
+<beans
+    xmlns="http://www.springframework.org/schema/beans"
+    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+    xmlns:tx="http://www.springframework.org/schema/tx"
+    xsi:schemaLocation="
+    http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans-2.5.xsd
+    http://www.springframework.org/schema/tx http://www.springframework.org/schema/tx/spring-tx-2.5.xsd">
 
-<beans>
+    <tx:annotation-driven transaction-manager="gradebookTransactionManager" />
 
 	<!--
 		This Spring configuration file sets up the shared business logic of the application.
@@ -21,8 +27,26 @@
                 <property name="eventTrackingService">
                     <ref bean="org_sakaiproject_tool_gradebook_facades_EventTrackingService"/>
                 </property>
+				<property name="gradebookExternalAssessmentService">
+					<ref bean="readonlyExternalAssessmentService"/>
+				</property>
             </bean>
 		</property>
+	</bean>
+
+	<!--
+		 This bean is added because of cross-service transaction issues. There may
+		 be a cleaner fix, but various exceptions were being thrown about multiple
+		 session factories and/or transaction managers, despite efforts to use the globals
+		 and finer-grained annotations to demarcate transactionality.
+	-->
+	<bean id="readonlyExternalAssessmentService" parent="gradebookTxTemplate">
+		<property name="transactionAttributes">
+			<props>
+				<prop key="*">PROPAGATION_NOT_SUPPORTED,readOnly,+org.sakaiproject.service.gradebook.shared.GradebookException</prop>
+			</props>
+		</property>
+		<property name="target" ref="org_sakaiproject_service_gradebook_GradebookExternalAssessmentService" />
 	</bean>
 
 	<!--
