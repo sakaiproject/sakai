@@ -13,12 +13,6 @@
     <many-to-one name="itemGradingData"
       class="org.sakaiproject.tool.assessment.data.dao.grading.ItemGradingData"
       column="ITEMGRADINGID" index="SAM_MEDIA_ITEMGRADING_I" />
-    <property name="media">
-      <column name="MEDIA" not-null="false" length="1000000000"/>
-    </property>
-<!--
-    <property name="media" type="blob" length="1000000000" column="MEDIA" not-null="false"/>
--->
     <property name="fileSize" type="long" column="FILESIZE" not-null="false" />
     <property name="mimeType" type="string" length="80" column="MIMETYPE" not-null="false" />
     <property name="description" type="string" length="4000" column="DESCRIPTION" not-null="false" />
@@ -32,6 +26,7 @@
     <property name="lastModifiedBy" type="string" length="255" column="LASTMODIFIEDBY" not-null="false" />
     <property name="lastModifiedDate" type="timestamp" column="LASTMODIFIEDDATE" not-null="false" />
     <property name="duration" type="string" length="36" column="DURATION" not-null="false" />
+    <property name="media" type="blob" length="1000000000"  column="MEDIA" not-null="false" />
   </class>
 
 </hibernate-mapping>
