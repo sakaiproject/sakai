@@ -805,9 +805,6 @@ public abstract class BaseLTIService implements LTIService {
 				sitePage.setTitle(button_text);
 				sitePage.setTitleCustom(true);
 				
-				
-				siteService.save(site);
-				
 				tool.getPlacementConfig().setProperty("source",(String)content.get("launch_url"));
 				tool.setTitle(button_text);
 		
@@ -817,6 +814,8 @@ public abstract class BaseLTIService implements LTIService {
 				Properties newProps = new Properties();
 				newProps.setProperty(LTI_PLACEMENT, tool.getId());
 				retval = updateContent(key, newProps, siteId);
+				
+				siteService.save(site);
 			}
 			catch (PermissionException ee)
 			{
