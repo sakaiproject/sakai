@@ -34,7 +34,10 @@ import org.simpleframework.xml.Element;
 public class EmailTemplate implements java.io.Serializable {
 
 	// Fields
-
+	/**
+	 * The locale used to indicate the default locale
+	 */
+	public static final String DEFAULT_LOCALE = "default";
 	/**
 	 * 
 	 */

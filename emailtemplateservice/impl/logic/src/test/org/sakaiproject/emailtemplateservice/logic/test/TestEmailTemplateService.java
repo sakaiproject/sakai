@@ -16,8 +16,6 @@ public class TestEmailTemplateService extends AbstractTransactionalSpringContext
 	private static final String KEY_1 = "key1";
 	private static final String KEY_2 = "key2";
 	
-	private static final String DEFAULT_LOCALE = null;
-	
 	private static final String US_LOCALE = "en_us";
 
 	private static final String ADMIN_USER = "admin";
@@ -29,6 +27,7 @@ public class TestEmailTemplateService extends AbstractTransactionalSpringContext
 
 	EmailTemplate template1 = new EmailTemplate();
 	EmailTemplate template2 = new EmailTemplate();
+	EmailTemplate template3 = new EmailTemplate();
 
 	protected String[] getConfigLocations() {
 		// point to the needed spring config files, must be on the classpath
@@ -49,7 +48,7 @@ public class TestEmailTemplateService extends AbstractTransactionalSpringContext
 		
 
 		template1.setKey(KEY_1);
-		template1.setLocale(DEFAULT_LOCALE);
+		template1.setLocale(EmailTemplate.DEFAULT_LOCALE);
 		template1.setLastModified(new Date());
 		template1.setOwner(ADMIN_USER);
 		template1.setSubject("Subject 1");
@@ -57,11 +56,21 @@ public class TestEmailTemplateService extends AbstractTransactionalSpringContext
 		emailTemplateService.saveTemplate(template1);
 
 		template2.setKey(KEY_2);
-		template2.setLocale(DEFAULT_LOCALE);
+		template2.setLocale(EmailTemplate.DEFAULT_LOCALE);
 		template2.setLastModified(new Date());
 		template2.setOwner(ADMIN_USER);
 		template2.setSubject("Subject 2");
 		template2.setMessage("message 2");
+		
+		
+		
+		template3.setKey(KEY_1);
+		template3.setLocale("en_ZA");
+		template3.setLastModified(new Date());
+		template3.setOwner(ADMIN_USER);
+		template3.setSubject("Subject 1");
+		template3.setMessage("message 1");
+		emailTemplateService.saveTemplate(template3);
 	}
 
 
@@ -101,6 +110,7 @@ public class TestEmailTemplateService extends AbstractTransactionalSpringContext
 		//There is no specific template for en_us we still expect the default
 		EmailTemplate t2 = emailTemplateService.getEmailTemplate(KEY_1, new Locale("en", "us"));
 		assertNotNull(t2);
+		assertEquals(EmailTemplate.DEFAULT_LOCALE, t2.getLocale());
 		
 		
 	}
@@ -162,7 +172,21 @@ public class TestEmailTemplateService extends AbstractTransactionalSpringContext
 		}
 		
 		badTemplate.setMessage("something");
-				
+		try {
+			emailTemplateService.saveTemplate(badTemplate);
+			assertEquals(EmailTemplate.DEFAULT_LOCALE, badTemplate.getLocale());
+			
+		}
+		catch (IllegalArgumentException e) {
+			//we expect this
+			fail();
+		}
+		catch (Exception e) {
+			e.printStackTrace();
+			fail();
+		}
+		
+		badTemplate.setLocale("some_Locale");
 		//this should now work
 		try {
 			emailTemplateService.saveTemplate(badTemplate);
