@@ -61,6 +61,7 @@ import org.sakaiproject.exception.OverQuotaException;
 import org.sakaiproject.exception.PermissionException;
 import org.sakaiproject.exception.ServerOverloadException;
 import org.sakaiproject.exception.TypeException;
+import org.sakaiproject.site.api.Site;
 import org.sakaiproject.site.cover.SiteService;
 import org.sakaiproject.time.api.Time;
 import org.sakaiproject.time.cover.TimeService;
@@ -498,11 +499,15 @@ public class PodcastServiceImpl implements PodcastService {
 				//LOG.warn("IdUnusedException while trying to determine correct podcast folder id "
 				//		+ " for site: " + siteId + ". " + e.getMessage());
 				
+				if (!siteHasTool(siteId, "sakai.podcasts")) {
+					return null;
+				}
 				// if we get here it does not exist so create
 				if (isStudent) {
 					enablePodcastSecurityAdvisor();
 				}
 				createPodcastsFolder(siteCollection + COLLECTION_PODCASTS + Entity.SEPARATOR, siteId);
+				return siteCollection + COLLECTION_PODCASTS + Entity.SEPARATOR;
 			} 
 			catch (TypeException e) {
 				LOG.error("TypeException while trying to determine correct podcast folder Id String "
@@ -515,6 +520,29 @@ public class PodcastServiceImpl implements PodcastService {
 		}
 		
 		return null;
+	}
+
+	/**
+	 * Determines whether the site has the specified tool.
+	 * 
+	 * @param siteId
+	 *            The site id to check
+	 * @param toolId
+	 *            The tool id to check
+	 * @return True - if it has, false - otherwise
+	 */
+	private boolean siteHasTool(String siteId, String toolId) {
+		boolean result = false;
+		try {
+			Site site = SiteService.getSite(siteId);
+			if (site.getToolForCommonId(toolId) != null) {
+				result = true;
+			}
+		} catch (IdUnusedException e) {
+			LOG.warn("IdUnusedException while trying to determine whether site "
+					+ siteId + " has tool " + toolId + ". " + e.getMessage());
+		}
+		return result;
 	}
 
 	/**
