@@ -57,6 +57,7 @@ $(document).ready(function(){
 						if(response.delegated_access_collection.length == 1){
 							//hide the Role option since there is only one option to select and its pre-selected:
 							$('#shoppingRole').hide();
+							$("label[for='shoppingRole']").hide();
 						}
 					}
 				);

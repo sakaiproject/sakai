@@ -9752,17 +9752,22 @@ public class SiteAction extends PagedResourceActionII {
 	} // importToolIntoSite
 
 	
-	private void importToolIntoSiteMigrate(List toolIds, Hashtable importTools,
+	private void importToolIntoSiteMigrate(List toolIdsList, Hashtable importTools,
 			Site site) {
 		
 		if (importTools != null) {
 			Map transversalMap = new HashMap();
+			//the list of toolIds can have multiple toolIds for the same tool if a tool allows multiple instances
+			//for example: [sakai.siteinfo, sakai.lessonbuildertool, sakai.lessonbuildertool] 
+			HashSet<String> toolIds = new HashSet<String>();
+			if(toolIdsList != null){
+				for(String toolId : (List<String>) toolIdsList){
+					toolIds.add(toolId);
+				}
+			}
 			
 			// import resources first
-			boolean resourcesImported = false;
-			for (int i = 0; i < toolIds.size() && !resourcesImported; i++) {
-				String toolId = (String) toolIds.get(i);
-
+			for (String toolId : toolIds) {
 				if (toolId.equalsIgnoreCase("sakai.resources")
 						&& importTools.containsKey(toolId)) {
 					List importSiteIds = (List) importTools.get(toolId);
@@ -9780,14 +9785,13 @@ public class SiteAction extends PagedResourceActionII {
 						if(entityMap != null){							 
 							transversalMap.putAll(entityMap);
 						}						
-						resourcesImported = true;
 					}
+					break;
 				}
 			}
 
 			// import other tools then
-			for (int i = 0; i < toolIds.size(); i++) {
-				String toolId = (String) toolIds.get(i);
+			for (String toolId : toolIds) {
 				if (!toolId.equalsIgnoreCase("sakai.resources")
 						&& importTools.containsKey(toolId)) {
 					List importSiteIds = (List) importTools.get(toolId);
@@ -9803,8 +9807,7 @@ public class SiteAction extends PagedResourceActionII {
 			}
 			
 			//update entity references
-			for (int i = 0; i < toolIds.size(); i++) {
-				String toolId = (String) toolIds.get(i);
+			for (String toolId : toolIds) {
 				if(importTools.containsKey(toolId)){
 					List importSiteIds = (List) importTools.get(toolId);
 					for (int k = 0; k < importSiteIds.size(); k++) {
