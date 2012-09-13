@@ -225,10 +225,11 @@ public class EmailTemplateServiceImpl implements EmailTemplateService {
 		   throw new IllegalArgumentException("Template message can't be null");
 	   }
 	   
-	   if (template.getLocale() == null) {
-		   //For backward compatibility set it to defualt
+	   String locale = template.getLocale(); 
+	   if (locale == null || locale.trim().length() == 0) {
+		   //For backward compatibility set it to default
 		   template.setLocale(EmailTemplate.DEFAULT_LOCALE);
-	   }
+	   } 
 	   
 	   
       //update the modified date

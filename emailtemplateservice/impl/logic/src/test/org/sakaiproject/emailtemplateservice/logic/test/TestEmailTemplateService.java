@@ -172,9 +172,11 @@ public class TestEmailTemplateService extends AbstractTransactionalSpringContext
 		}
 		
 		badTemplate.setMessage("something");
+		badTemplate.setLocale(" ");
 		try {
 			emailTemplateService.saveTemplate(badTemplate);
 			assertEquals(EmailTemplate.DEFAULT_LOCALE, badTemplate.getLocale());
+			assertNotSame("Template Locale can't be empty", "", badTemplate.getLocale());
 			
 		}
 		catch (IllegalArgumentException e) {
