@@ -46,6 +46,7 @@ import org.sakaiproject.service.gradebook.shared.ConflictingAssignmentNameExcept
 import org.sakaiproject.service.gradebook.shared.ConflictingCategoryNameException;
 import org.sakaiproject.service.gradebook.shared.GradebookNotFoundException;
 import org.sakaiproject.service.gradebook.shared.GradebookService;
+import org.sakaiproject.service.gradebook.shared.GradebookExternalAssessmentService;
 import org.sakaiproject.service.gradebook.shared.StaleObjectModificationException;
 import org.sakaiproject.tool.gradebook.AbstractGradeRecord;
 import org.sakaiproject.tool.gradebook.Assignment;
@@ -79,6 +80,7 @@ public abstract class BaseHibernateManager extends HibernateDaoSupport {
     protected SectionAwareness sectionAwareness;
     protected Authn authn;
     protected EventTrackingService eventTrackingService;
+    protected GradebookExternalAssessmentService externalAssessmentService;
 
     // Local cache of static-between-deployment properties.
     protected Map propertiesMap = new HashMap();
@@ -386,6 +388,14 @@ public abstract class BaseHibernateManager extends HibernateDaoSupport {
 
     public void setEventTrackingService(EventTrackingService eventTrackingService) {
         this.eventTrackingService = eventTrackingService;
+    }
+
+    protected GradebookExternalAssessmentService getGradebookExternalAssessmentService() {
+        return externalAssessmentService;
+    }
+
+    public void setGradebookExternalAssessmentService(GradebookExternalAssessmentService externalAssessmentService) {
+        this.externalAssessmentService = externalAssessmentService;
     }
 
     public void postEvent(String message,String objectReference){        
@@ -1388,6 +1398,25 @@ public abstract class BaseHibernateManager extends HibernateDaoSupport {
         });
     }
     
+	protected boolean studentCanView(String studentId, Assignment assignment) {
+		if (assignment.isExternallyMaintained()) {
+			try {
+				String gbUid = assignment.getGradebook().getUid();
+				String extId = assignment.getExternalId();
+				
+				if (externalAssessmentService.isExternalAssignmentGrouped(gbUid, extId)) {
+					return externalAssessmentService.isExternalAssignmentVisible(gbUid, extId, studentId);
+				}
+			} catch (GradebookNotFoundException e) {
+				if (log.isDebugEnabled()) { log.debug("Bogus graded assignment checked for course grades: " + assignment.getId()); }
+			}
+		}
+		
+		// We assume that the only disqualifying condition is that the external assignment
+		// is grouped and the student is not a member of one of the groups allowed.
+		return true;
+	}
+        
     protected void finalizeNullGradeRecords(final Gradebook gradebook) {
     	final Set<String> studentUids = getAllStudentUids(gradebook.getUid());
 		final Date now = new Date();
@@ -1406,6 +1435,16 @@ public abstract class BaseHibernateManager extends HibernateDaoSupport {
     					studentToGradeRecordMap.put(scoredGradeRecord.getStudentId(), scoredGradeRecord);
     				}
     				for (String studentUid : studentUids) {
+    					//TODO: Clean this up for efficiency. The external assessment service
+    					//      only allows querying individual student/activity pairs. For better
+    					//      performance, it should take at least a list of user IDs for an
+    					//      activity and return those that can view it.
+    					
+    					// SAK-11485 - We don't want to add scores for those grouped activities
+    					//             that this student should not see or be scored on.
+    					if (!studentCanView(studentUid, assignment)) {
+    						continue;
+    					}
     					AssignmentGradeRecord gradeRecord = studentToGradeRecordMap.get(studentUid);
    						if (gradeRecord != null) {
    							if (gradeRecord.getPointsEarned() == null) {
