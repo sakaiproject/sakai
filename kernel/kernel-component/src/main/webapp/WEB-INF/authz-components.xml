@@ -35,7 +35,6 @@
               <entry key="oracle" ><ref bean="org.sakaiproject.authz.impl.DbAuthzGroupSqlOracle" /></entry>
            </map>
         </property>
-        <property name="memoryService" ref="org.sakaiproject.memory.api.MemoryService"/>
 	</bean>
 
 	<bean id="org.sakaiproject.authz.api.SecurityService"
