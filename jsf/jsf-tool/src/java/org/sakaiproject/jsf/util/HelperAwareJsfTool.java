@@ -208,7 +208,7 @@ public class HelperAwareJsfTool extends JsfTool {
     ActiveTool helperTool = ActiveToolManager.getActiveTool(helperId);
 
     //get the current location (if one doesn't exist) and save it for when we return from the helper
-    if (toolSession.getAttribute(helperTool.getId() + Tool.HELPER_DONE_URL) == null) {
+    if (toolSession.getAttribute(helperTool.getId() + Tool.HELPER_DONE_URL) == null && !target.equals("/sakai.filepicker.helper")) {
        toolSession.setAttribute(helperTool.getId() + Tool.HELPER_DONE_URL,
              req.getContextPath() + req.getServletPath() + computeDefaultTarget(true));
     }
