@@ -1027,6 +1027,8 @@ span.nil a{
 	display:block;
 	float:left;
 	width:45%;
+    overflow: hidden;
+    white-space: nowrap;
 	}
 #reorder-list li span{
 	padding-right:2em;
