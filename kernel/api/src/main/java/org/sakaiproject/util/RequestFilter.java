@@ -534,6 +534,15 @@ public class RequestFilter implements Filter
 	public void destroy()
 	{
 	}
+	
+	private boolean startsWithAny(String source, String[] toMatch) {
+		for (String test: toMatch) {
+			if (source.startsWith(test)) {
+				return true;
+			}
+		}
+		return false;
+	}
 
 	/**
 	 * Filter a request / response.
@@ -574,6 +583,33 @@ public class RequestFilter implements Filter
 
 			HttpServletRequest req = (HttpServletRequest) requestObj;
 			HttpServletResponse resp = (HttpServletResponse) responseObj;
+
+			// knl-640
+			// The AppDomain should reject:
+			// 1) all GET URL's starting with contentPaths
+			//
+			// The FileDomain should only accept:
+			// 1) any URL's in loginPath. We have to accept POST methods here
+			//    as well so folks can log in on this node.
+			// 2) any GET URL's from contentPaths (POST's any other methods not 
+			//    allowed.
+			if (useContentHostingDomain) {
+				String requestURI = req.getRequestURI();
+				if (startsWithAny(requestURI, contentPaths) && "GET".equalsIgnoreCase(req.getMethod())) {
+					if  (!req.getServerName().equals(chsDomain) && !(startsWithAny(requestURI, contentExceptions))) {
+						resp.sendRedirect(chsUrl+requestURI);
+						return;
+					}
+				}
+				else {
+					if (req.getServerName().equals(chsDomain) && 
+						!(startsWithAny(requestURI, contentPaths) && !"GET".equalsIgnoreCase(req.getMethod())) && 
+						!(startsWithAny(requestURI, loginPaths))) {
+						resp.sendRedirect(appUrl+requestURI);
+						return;
+					}
+				}
+			}
 
 			// check on file uploads and character encoding BEFORE checking if
 			// this request has already been filtered, as the character encoding
@@ -752,6 +788,15 @@ public class RequestFilter implements Filter
 		}
 	}
 
+	// knl-640
+	private String chsDomain;
+	private String appUrl;
+	private String chsUrl;
+	private boolean useContentHostingDomain;
+	private String [] contentPaths;
+	private String [] loginPaths;
+	private String [] contentExceptions;
+	
 	/**
 	 * Place this filter into service.
 	 * 
@@ -765,6 +810,25 @@ public class RequestFilter implements Filter
 		// sakai.properties settings to system properties - see SakaiPropertyPromoter() 		
 		ServerConfigurationService configService = org.sakaiproject.component.cover.ServerConfigurationService.getInstance();
 
+		// knl-640
+		appUrl = configService.getString("serverUrl", null);
+		chsDomain = configService.getString("content.chs.serverName", null);
+		chsUrl = configService.getString("content.chs.serverUrl", null);
+		useContentHostingDomain = configService.getBoolean("content.separateDomains", false);
+		contentPaths = configService.getStrings("content.chs.urlprefixes");
+		if (contentPaths == null) {
+			contentPaths = new String[] { "/access/", "/web/"};
+		}
+		loginPaths = configService.getStrings("content.login.urlprefixes");
+		if (loginPaths == null) {
+			loginPaths = new String[] { "/access/login", "/sakai-login-tool", "/access/require", "/access/accept" };
+		}
+		contentExceptions = configService.getStrings("content.chsexception.urlprefixes");
+		if (contentExceptions == null) {
+			// add in default exceptions here, if desired
+			contentExceptions = new String[] { "/access/calendar/", "/access/citation/export_ris_sel/", "/access/citation/export_ris_all/" };
+		}
+		
 		// capture the servlet context for later user
 		m_servletContext = filterConfig.getServletContext();
 
