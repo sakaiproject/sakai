@@ -123,7 +123,7 @@
 								#set($field = $!form_requiredFields.get($fieldCount))
 								#set($fieldLabel = $!form_requiredFields.get($fieldCount).labelKey)
 									<th id="$!fieldLabel">	
-										<span class ="reqStarInline">*</span>$fieldLabel
+										<span class ="reqStarInline">* </span>$fieldLabel
 									</th>
 						#end
 					</tr>
@@ -175,8 +175,8 @@
 				#if (!$!isFutureTerm)
 				  #if ($requireAuthorizer)
 					<div class="shorttext required">
-						<span class="reqStar">*</span>						
 						<label for="uniqname">
+                            <span class="reqStar">*</span>
 						   $tlang.getString("man.authoriz")
 						</label>
 						<input type="text" name="uniqname"  id="uniqname"   size="40" value="$!value_uniqname" />

@@ -157,8 +157,8 @@ function submitRemoveSection(index){
 		</p>
 	#end
 		<p class="shorttext required">
-			<span class="reqStar">*</span>
 			<label for="title">
+                <span class="reqStar">*</span>
 				$tlang.getString("sitediinf.sittit")
 			</label>
 			#if ($!siteTitleEditable || !$hasRosterAttached)
@@ -283,8 +283,8 @@ function submitRemoveSection(index){
 			</div>
 		#end
 		<p class="shorttext required">
-			<span class="reqStar">*</span>
 			<label for="siteContactName">
+                <span class="reqStar">*</span>
 				$tlang.getString("sitediinf.sitconnam")
 			</label>
 			<input type="text" name="siteContactName" id="siteContactName" size="20" value="$!validator.escapeHtml($!form_site_contact_name)" />

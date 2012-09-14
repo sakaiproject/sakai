@@ -10,7 +10,14 @@
 										$(this).parents("tr").removeClass("selectedSelected");
 									}
 			        });
-
+        $('input[name="import"]').click (function(e){
+            if ($(e.target).attr('id') === 'import_yes') {
+                $('#importSitesReq').show()
+            }
+            else{
+                $('#importSitesReq').hide()
+            }
+        })
       });
 
 
@@ -193,7 +200,9 @@
 					$tlang.getString("feat.yesfrom")
 				</label>
 			</p>
-			<select name="importSites" class="indnt2" id="importSites" size="5" multiple="multiple" #if(!$import)disabled="disabled"#end >
+            <p class="indnt3">
+            <span class="reqStar" style="display:none" id="importSitesReq">*</span>
+			<select name="importSites" id="importSites" size="5" multiple="multiple" #if(!$import)disabled="disabled"#end style="min-width: 10em ">
 				#foreach	($site in $sites)
 					#set($siteSelected = false)
 					#foreach($s in $importSites.keys())
@@ -204,6 +213,7 @@
 					<option value="$site.getId()" #if ($siteSelected)selected="selected"#end>$validator.escapeHtml($site.getTitle())</option>
 				#end
 			</select>
+            </p>
 			<p class="instruction">
 				$tlang.getString("feat.note")
 			</p>

@@ -61,8 +61,8 @@
 					#if ($type == $courseSiteType && $canAddCourse)
 						<div class="indnt3" id="termList" style="display:none;">
 							<p class="required">
-								<span class ="reqStar" id="term-required" style="height:1em;border:1px solid transparent"> * </span>
 								<label for="selectTerm">
+                                    <span class ="reqStar" id="term-required" style="height:1em;border:1px solid transparent"> * </span>
 									$tlang.getString("sitetype.acater")
 								</label>	
 								<select name="selectTerm" id="selectTerm">  ## onclick="selectSiteType('$type')"
