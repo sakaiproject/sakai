@@ -90,7 +90,7 @@ function setupCKEditorInstance(editor, path) {
 		htmlFilter.addRules({
 			elements : {
 				span : function( element ) {
-					if ( atd_core.isMarkedNode(element) ) {
+					if ( atd_core && atd_core.isMarkedNode(element) ) {
 						delete element.name;
 						return element;
 					}
