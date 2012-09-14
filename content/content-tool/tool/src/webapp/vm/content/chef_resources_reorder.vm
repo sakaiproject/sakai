@@ -57,7 +57,7 @@
 							<input type="text" size="3" value="$count" id="index$count"/>
 							<input type="hidden"  size="3" id="holder$count"  value="$count" tabindex="-2"/>
 						</span>
-						<span class="title">
+						<span title="$member.name" class="title">
 								#if($member.isFolder())
 									<img src="#imageLink($contentTypeImageService.getContentTypeImage("folder"))" border="0">
 								#else
@@ -89,7 +89,7 @@
 		</p>
 		<input type="hidden" name="sakai_csrf_token" value="$sakai_csrf_token" />
 	</form>						
-
+.
 </div>
 <script language="JavaScript" type="text/javascript">
 	<!--
