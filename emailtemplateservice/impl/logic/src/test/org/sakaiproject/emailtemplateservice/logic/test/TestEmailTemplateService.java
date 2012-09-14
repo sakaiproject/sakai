@@ -1,6 +1,7 @@
 package org.sakaiproject.emailtemplateservice.logic.test;
 
 import java.util.Date;
+import java.util.List;
 import java.util.Locale;
 
 import org.sakaiproject.emailtemplateservice.dao.impl.EmailTemplateServiceDao;
@@ -17,6 +18,7 @@ public class TestEmailTemplateService extends AbstractTransactionalSpringContext
 	private static final String KEY_2 = "key2";
 	
 	private static final String US_LOCALE = "en_us";
+	private static final String ZA_LOCALE = "en_ZA";
 
 	private static final String ADMIN_USER = "admin";
 
@@ -28,6 +30,8 @@ public class TestEmailTemplateService extends AbstractTransactionalSpringContext
 	EmailTemplate template1 = new EmailTemplate();
 	EmailTemplate template2 = new EmailTemplate();
 	EmailTemplate template3 = new EmailTemplate();
+	
+	Long template1Id = null;
 
 	protected String[] getConfigLocations() {
 		// point to the needed spring config files, must be on the classpath
@@ -37,7 +41,9 @@ public class TestEmailTemplateService extends AbstractTransactionalSpringContext
 				"classpath:org/sakaiproject/emailtemplateservice/spring-hibernate.xml"};
 	}
 	// run this before each test starts
+	@Override
 	protected void onSetUpBeforeTransaction() throws Exception {
+		
 		dao = (EmailTemplateServiceDao)applicationContext.getBean("org.sakaiproject.emailtemplateservice.dao.EmailTemplateServiceDao");
 		if (dao == null) {
 			throw new NullPointerException("DAO could not be retrieved from spring context");
@@ -46,7 +52,12 @@ public class TestEmailTemplateService extends AbstractTransactionalSpringContext
 		emailTemplateService = new EmailTemplateServiceImpl();
 		emailTemplateService.setDao(dao);
 		
+		emailTemplateService.deleteAllTemplates();
+		populateData();
 
+	}
+
+	private void populateData() {
 		template1.setKey(KEY_1);
 		template1.setLocale(EmailTemplate.DEFAULT_LOCALE);
 		template1.setLastModified(new Date());
@@ -55,6 +66,9 @@ public class TestEmailTemplateService extends AbstractTransactionalSpringContext
 		template1.setMessage("message 1");
 		emailTemplateService.saveTemplate(template1);
 
+		
+		template1Id = template1.getId();
+		
 		template2.setKey(KEY_2);
 		template2.setLocale(EmailTemplate.DEFAULT_LOCALE);
 		template2.setLastModified(new Date());
@@ -65,20 +79,18 @@ public class TestEmailTemplateService extends AbstractTransactionalSpringContext
 		
 		
 		template3.setKey(KEY_1);
-		template3.setLocale("en_ZA");
+		template3.setLocale(ZA_LOCALE);
 		template3.setLastModified(new Date());
 		template3.setOwner(ADMIN_USER);
 		template3.setSubject("Subject 1");
 		template3.setMessage("message 1");
 		emailTemplateService.saveTemplate(template3);
 	}
-
+	
 
 	public void testSaveTemplate() {
 
-
-
-
+		
 		
 		//saving should set the ID
 		assertNotNull(template1.getId());
@@ -89,13 +101,37 @@ public class TestEmailTemplateService extends AbstractTransactionalSpringContext
 		assertNotSame(template2.getId(), template1.getId());
 		
 		
+		//we should not be able to save a new template in the same locale/key
+		EmailTemplate template3 = new EmailTemplate();
+		template3.setKey(KEY_1);
+		template3.setLocale(US_LOCALE);
+		template3.setLastModified(new Date());
+		template3.setOwner(ADMIN_USER);
+		template3.setSubject("Subject 1");
+		template3.setMessage("message 1");
 		
+		EmailTemplate template4 = new EmailTemplate();
+		template4.setKey(KEY_1);
+		template4.setLocale(ZA_LOCALE);
+		template4.setLastModified(new Date());
+		template4.setOwner(ADMIN_USER);
+		template4.setSubject("Subject 1");
+		template4.setMessage("message 1");
+		
+		try {
+			emailTemplateService.saveTemplate(template3);
+			emailTemplateService.saveTemplate(template4);
+			fail();
+		}
+		catch (Exception e) {
+			//e.printStackTrace();
+		}
 		
 	}
 
 
 	public void testGetTemplatebyId() {
-		EmailTemplate t1 =this.emailTemplateService.getEmailTemplateById(Long.valueOf(1));
+		EmailTemplate t1 =this.emailTemplateService.getEmailTemplateById(template1Id);
 		assertNotNull(t1);
 		assertEquals(t1.getKey(), KEY_1);
 		

@@ -58,6 +58,7 @@ import org.sakaiproject.user.api.PreferencesService;
 import org.sakaiproject.user.api.User;
 import org.sakaiproject.user.api.UserDirectoryService;
 import org.simpleframework.xml.core.Persister;
+import org.springframework.dao.DataIntegrityViolationException;
 
 public class EmailTemplateServiceImpl implements EmailTemplateService {
 
@@ -234,8 +235,12 @@ public class EmailTemplateServiceImpl implements EmailTemplateService {
 	   
       //update the modified date
       template.setLastModified(new Date());
-
-      dao.save(template);
+      try {
+    	  dao.save(template);
+      }
+      catch (DataIntegrityViolationException die) {
+    	  throw new IllegalArgumentException("Key: " + template.getKey() + " and locale: " + template.getLocale() + " in use already", die);
+      }
       log.info("saved template: " + template.getId());
    }
    
@@ -417,7 +422,7 @@ public void sendRenderedMessages(String key, List<String> userReferences,
 
 
 private List<User> getUsersEmail(List<String> userIds) {
-	//we have a group of referenc
+	//we have a group of references
 	List<String> ids = new ArrayList<String>(); 
 	
 	for (int i = 0; i < userIds.size(); i++) {
@@ -534,6 +539,21 @@ private List<User> getUsersEmail(List<String> userIds) {
 		}
 		finally {
 			stream.close();
+		}
+	}
+	
+	/**
+	 * Delete all templates in the Database
+	 * Only used in unit tests so not in API
+	 * TODO rewrite for efficiency 
+	 */
+	public void deleteAllTemplates() {
+		log.debug("deleteAllTemplates");
+		List<EmailTemplate> templates = dao.findAll(EmailTemplate.class);
+		for (int i =0; i < templates.size(); i++) {
+			EmailTemplate template = templates.get(i);
+			log.debug("deleting template: " + template.getId());
+			dao.delete(template);
 		}
 	}
 
