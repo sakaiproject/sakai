@@ -63,7 +63,7 @@
 								#else
 									<img src="#imageLink($contentTypeImageService.getContentTypeImage("$member.type"))" border="0">
 								#end
-								$member.name
+								$validator.escapeHtml($member.name)
 						</span>
 						<span headers="creator">
 							$validator.escapeHtml($member.createdBy)
