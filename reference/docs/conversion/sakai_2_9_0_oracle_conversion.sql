@@ -797,6 +797,9 @@ DROP TABLE EMAIL_TEMPLATE_ITEM_TEMP;
 alter table EMAIL_TEMPLATE_ITEM add constraint EMAIL_TI_KEY_LOCALE_UNIQUE unique (TEMPLATE_KEY,TEMPLATE_LOCALE);
 -- end of SAK-21739
 
+-- SAK-22223 don't use null as a template key
+update EMAIL_TEMPLATE_ITEM set TEMPLATE_LOCALE = 'default' where TEMPLATE_LOCALE is null or TEMPLATE_LOCALE = '';
+
 -- SAM-1216 Oracle and hibernate and forcing the blob
 alter table SAM_MEDIA_T modify (MEDIA blob); 
 -- end SAM-1216
