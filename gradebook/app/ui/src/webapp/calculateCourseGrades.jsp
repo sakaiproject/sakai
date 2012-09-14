@@ -9,7 +9,7 @@
       
       <h2><h:outputText value="#{msgs.calculate_course_grade_name}"/></h2>
 
-	  <p class="instruction"><h:outputText value="#{msgs.calculate_course_grade_message}" /></p>
+	  <p class="messageConfirmation"><h:outputText value="#{msgs.calculate_course_grade_message}" /></p>
 	  <p class="instruction"><h:outputText value="#{msgs.calculate_course_grade_action}" /></p>
 	  
 	  <p class="act">
