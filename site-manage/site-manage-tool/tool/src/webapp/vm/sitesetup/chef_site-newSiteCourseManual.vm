@@ -179,18 +179,18 @@
                             <span class="reqStar">*</span>
 						   $tlang.getString("man.authoriz")
 						</label>
-						<input type="text" name="uniqname"  id="uniqname"   size="40" value="$!value_uniqname" />
+						<input type="text" name="uniqname"  id="uniqname"   size="40" value="$!value_uniqname"  aria-describedby="uniquenameins"/>
 					</div>
-					<p class="labelindnt instruction">
+					<p class="labelindnt instruction"  id="uniquenameins">
 					   $tlang.getString("man.email")
 					</p>
 					<div class="shorttext">
 						<label for="additional" class="block">
 							$tlang.getString("man.spec")
 						</label>
-						<textarea id="additional"   name="additional" rows="4" cols="40" wrap="virtual">$validator.escapeHtmlTextarea($form_additional)</textarea>
+						<textarea id="additional"   name="additional" rows="4" cols="40" wrap="virtual" aria-describedby="additionalinst">$validator.escapeHtmlTextarea($form_additional)</textarea>
 					</div>
-					<p  class="instruction labelindnt">
+					<p  class="instruction labelindnt" id="additionalinst">
 						$tlang.getString("man.please")
 					</p>
 					#else 
