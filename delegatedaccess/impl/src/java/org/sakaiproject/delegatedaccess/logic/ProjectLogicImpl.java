@@ -1664,16 +1664,11 @@ public class ProjectLogicImpl implements ProjectLogic {
 									Set<String> parentIds = null;
 									if(siteNodes != null && siteNodes.containsKey(nodeId)){
 										//we've already spent the time looking this up in bulk
-										parentIds = siteNodes.get(nodeId).directParentNodeIds;
+										parentIds = siteNodes.get(nodeId).parentNodeIds;
 									}else{
-										parentIds = getCachedNode(nodeId).directParentNodeIds;
+										parentIds = getCachedNode(nodeId).parentNodeIds;
 									}
-									nodeId = null;
-									if(parentIds != null && parentIds.size() == 1){
-										for(String id : parentIds){
-											nodeId = id;
-										}
-									}
+									nodeId = getFirstAccessParent(parentIds, userNodesAndPerms);
 								}
 							}
 						}
@@ -1700,6 +1695,53 @@ public class ProjectLogicImpl implements ProjectLogic {
 		}
 
 		return returnNodes;
+	}
+	
+	private String getFirstAccessParent(Set<String> parentIds, Map<String, Set<String>> userNodesAndPerms){
+		String accessParent = null;
+		
+		List<String> accessParents = new ArrayList<String>();
+		for(String parent: parentIds){
+			for(Entry<String, Set<String>> entry : userNodesAndPerms.entrySet()){
+				if(parent.equals(entry.getKey()) && getIsDirectAccess(entry.getValue())){
+					accessParents.add(parent);
+				}
+			}
+		}
+		if(accessParents.size() == 1){
+			//there is only one parent which is an access node, so lets set it to that:
+			accessParent = accessParents.get(0);
+		}else if(accessParents.size() > 1){
+			//there are more than 1 parents with access, we need to find out which one is the closest to this node
+			
+			//reverse order since most of the time (not guaranteed) parents are ordered from top to bottom,
+			//so by starting at the bottom we have a better chance of using less cylces
+			Collections.reverse(accessParents);
+
+			for(String parent: accessParents){
+				HierarchyNodeSerialized pNode = getCachedNode(parent);
+				boolean foundAccessChild = false;
+				for(String child : pNode.childNodeIds){
+					for(String childCheck: accessParents){
+						if(childCheck.equals(child)){
+							//there is a parent with access permissions at a lower level,
+							//skip this parent and go to the next one
+							foundAccessChild = true;
+							break;
+						}
+					}
+					if(foundAccessChild){
+						break;
+					}
+				}
+				if(!foundAccessChild){
+					accessParent = parent;
+					break;
+				}
+			}
+		}
+		
+		return accessParent;
 	}
 	
 	private boolean isShoppingAvailable(Set<String> perms, String siteId){
