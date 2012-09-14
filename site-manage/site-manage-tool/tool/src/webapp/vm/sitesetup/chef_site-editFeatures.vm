@@ -15,7 +15,7 @@
                 $('#importSitesReq').show()
             }
             else{
-                $('#importSitesReq').hide()
+                $('#importSitesReq').hide();
             }
         })
       });
@@ -184,37 +184,39 @@
 					#end
 			#end
 		</table>
-		#if (!$existSite && $sites.size() > 0)	
-			<h4>
-				$tlang.getString("feat.reuse")
-			</h4>
-			<p class="checkbox">
-				<input type="radio" id="import_no" name="import" value="FALSE" #if(!$import)checked="checked"#end onclick="document.featuresForm.importSites.disabled=true;" />
-				<label for="import_no">
-					$tlang.getString("feat.thanks")
-				</label>
-			</p>
-			<p class="checkbox">
-				<input type="radio" id="import_yes" name="import" value="TRUE" #if($import)checked="checked"#end onclick="document.featuresForm.importSites.disabled=false;" />
-				<label for="import_yes">
-					$tlang.getString("feat.yesfrom")
-				</label>
-			</p>
-            <p class="indnt3">
-            <span class="reqStar" style="display:none" id="importSitesReq">*</span>
-			<select name="importSites" id="importSites" size="5" multiple="multiple" #if(!$import)disabled="disabled"#end style="min-width: 10em ">
-				#foreach	($site in $sites)
-					#set($siteSelected = false)
-					#foreach($s in $importSites.keys())
-						#if ($s.Id == $site.Id)
-							#set($siteSelected = true)
-						#end
-					#end
-					<option value="$site.getId()" #if ($siteSelected)selected="selected"#end>$validator.escapeHtml($site.getTitle())</option>
-				#end
-			</select>
-            </p>
-			<p class="instruction">
+		#if (!$existSite && $sites.size() > 0)
+            <fieldset>
+    			<legend>
+    				<h4>$tlang.getString("feat.reuse")</h4>
+    			</legend>
+    			<p class="checkbox">
+    				<input type="radio" id="import_no" name="import" value="FALSE" #if(!$import)checked="checked"#end onclick="document.featuresForm.importSites.disabled=true;" />
+    				<label for="import_no">
+    					$tlang.getString("feat.thanks")
+    				</label>
+    			</p>
+    			<p class="checkbox">
+    				<input type="radio" id="import_yes" name="import" value="TRUE" #if($import)checked="checked"#end onclick="document.featuresForm.importSites.disabled=false;" />
+    				<label for="import_yes">
+    					$tlang.getString("feat.yesfrom")
+    				</label>
+    			</p>
+                <p class="indnt3">
+                <span class="reqStar" style="display:none" id="importSitesReq">*</span>
+    			<select title="$tlang.getString("feat.select.title")" name="importSites" id="importSites" size="5" multiple="multiple" #if(!$import)disabled="disabled"#end style="min-width: 10em " aria-describedby="importSelectInstructions">
+    				#foreach	($site in $sites)
+    					#set($siteSelected = false)
+    					#foreach($s in $importSites.keys())
+    						#if ($s.Id == $site.Id)
+    							#set($siteSelected = true)
+    						#end
+    					#end
+    					<option value="$site.getId()" #if ($siteSelected)selected="selected"#end>$validator.escapeHtml($site.getTitle())</option>
+    				#end
+    			</select>
+                </p>
+            </fieldset>
+			<p class="instruction" id="importSelectInstructions">
 				$tlang.getString("feat.note")
 			</p>
 		#end
