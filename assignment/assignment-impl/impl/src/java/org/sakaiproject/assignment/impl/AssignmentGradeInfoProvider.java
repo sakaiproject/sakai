@@ -34,8 +34,11 @@ import org.sakaiproject.authz.api.AuthzGroup;
 import org.sakaiproject.authz.api.AuthzGroupService;
 import org.sakaiproject.authz.api.SecurityService;
 import org.sakaiproject.authz.api.SecurityAdvisor;
+import org.sakaiproject.entity.api.Reference;
+import org.sakaiproject.entity.api.EntityManager;
 import org.sakaiproject.exception.IdUnusedException;
 import org.sakaiproject.exception.PermissionException;
+import org.sakaiproject.site.api.SiteService;
 import org.sakaiproject.service.gradebook.shared.ExternalAssignmentProvider;
 import org.sakaiproject.service.gradebook.shared.GradebookExternalAssessmentService;
 import org.sakaiproject.tool.api.SessionManager;
@@ -47,8 +50,10 @@ public class AssignmentGradeInfoProvider implements ExternalAssignmentProvider {
 
     // Sakai Service Beans
     private AssignmentService assignmentService;
+    private SiteService siteService;
     private GradebookExternalAssessmentService geaService;
     private AuthzGroupService authzGroupService;
+    private EntityManager entityManager;
     private SecurityService securityService;
     private SessionManager sessionManager;
 
@@ -66,23 +71,38 @@ public class AssignmentGradeInfoProvider implements ExternalAssignmentProvider {
         return "assignment";
     }
 
+    //NOTE: This is pretty hackish because the AssignmentService
+    //      does strenuous checking of current user and group access,
+    //      while we want to be able to check for any user.
     private Assignment getAssignment(String id) {
         Assignment assignment = null;
-        try {
-            securityService.pushAdvisor(
-            		new MySecurityAdvisor(sessionManager.getCurrentSessionUserId(), 
-            							assignmentService.SECURE_ACCESS_ASSIGNMENT,
-            							id));
-            assignment = assignmentService.getAssignment(id);
-        } catch (IdUnusedException e) {
+        String assignmentReference = assignmentService.assignmentReference(id);
+        Reference aref = null;
+        if (assignmentReference != null) {
+            aref = entityManager.newReference(assignmentReference);
+            try {
+                securityService.pushAdvisor(
+                        new MySecurityAdvisor(sessionManager.getCurrentSessionUserId(), 
+                            assignmentService.SECURE_ACCESS_ASSIGNMENT,
+                            assignmentReference));
+                securityService.pushAdvisor(
+                        new MySecurityAdvisor(sessionManager.getCurrentSessionUserId(), 
+                            assignmentService.SECURE_ALL_GROUPS,
+                            siteService.siteReference(aref.getContext())));
+                assignment = assignmentService.getAssignment(assignmentReference);
+            } catch (IdUnusedException e) {
+                log.info("Unexpected IdUnusedException after finding assignment with ID: " + id);
+            } catch (PermissionException e) {
+                log.info("Unexpected Permission Exception while using security advisor "
+                        + "for assignment with ID: " + id);
+            } finally {
+                securityService.popAdvisor();
+                securityService.popAdvisor();
+            }
+        } else {
             if (log.isDebugEnabled()) {
                 log.debug("Assignment not found with ID: " + id);
             }
-        } catch (PermissionException e) {
-            log.info("Unexpected Permission Exception while using security advisor "
-                    + "for assignment with ID: " + id);
-        } finally {
-            securityService.popAdvisor();
         }
         return assignment;
     }
@@ -131,12 +151,28 @@ public class AssignmentGradeInfoProvider implements ExternalAssignmentProvider {
         return assignmentService;
     }
 
+    public void setSiteService(SiteService siteService) {
+        this.siteService = siteService;
+    }
+
+    public SiteService getSiteService() {
+        return siteService;
+    }
+
     public void setAuthzGroupService(AuthzGroupService authzGroupService) {
         this.authzGroupService = authzGroupService;
     }
 
     public AuthzGroupService getAuthzGroupService() {
         return authzGroupService;
+    }
+
+    public void setEntityManager(EntityManager entityManager) {
+        this.entityManager = entityManager;
+    }
+
+    public EntityManager getEntityManager() {
+        return entityManager;
     }
 
     public void setSecurityService(SecurityService securityService) {
