@@ -512,6 +512,7 @@ public class ProjectLogicImpl implements ProjectLogic {
 	
 	public List<SiteSearchResult> searchUserSites(String search, Map<String, String> advancedOptions, boolean shoppingPeriod, boolean activeShoppingData){
 		List<SiteSearchResult> returnList = new ArrayList<SiteSearchResult>();
+		List<String> resultSiteIds = new ArrayList<String>();
 		if(search == null){
 			search = "";
 		}
@@ -545,9 +546,26 @@ public class ProjectLogicImpl implements ProjectLogic {
 					siteResult.setModifiedBySortName(userSortNameCache.get(access.getModifiedBy()));
 					
 					returnList.add(siteResult);
+					resultSiteIds.add(siteResult.getSiteId());
 				}
 			}
 		}
+		//only look up the terms for display if the search didn't already look it up
+		//this is done after the subsite search and the access filtering to limit the number
+		//of sites we need to look up
+		if (!(advancedOptions != null && advancedOptions.containsKey(DelegatedAccessConstants.ADVANCED_SEARCH_TERM)
+				&& advancedOptions.get(DelegatedAccessConstants.ADVANCED_SEARCH_TERM) != null
+				&& !"".equals(advancedOptions.get(DelegatedAccessConstants.ADVANCED_SEARCH_TERM).trim()))) {
+			String termField = sakaiProxy.getTermField();
+			Map<String, Map<String, String>> termProps = dao.searchSitesForProp(new String[]{termField}, resultSiteIds.toArray(new String[resultSiteIds.size()]));
+			for(SiteSearchResult result : returnList){
+				if(termProps.containsKey(result.getSiteId())){
+					result.getSite().setTerm(termProps.get(result.getSiteId()).get(termField));
+				}
+			}
+		}
+		
+		
 		return returnList;
 	}
 
@@ -558,6 +576,7 @@ public class ProjectLogicImpl implements ProjectLogic {
 		Map<String, SiteSearchResult> sites = new HashMap<String, SiteSearchResult>();
 		Site searchByIdSite = sakaiProxy.getSiteById(search);
 		String termField = sakaiProxy.getTermField();
+		String termValue = "";
 
 		//Since we know the hierarchy is site properties, we can use them to speed up our search
 		Map<String,String> propsMap = new HashMap<String, String>();
@@ -567,7 +586,8 @@ public class ProjectLogicImpl implements ProjectLogic {
 				&& advancedOptions.get(DelegatedAccessConstants.ADVANCED_SEARCH_TERM) != null
 				&& !"".equals(advancedOptions.get(DelegatedAccessConstants.ADVANCED_SEARCH_TERM).trim())) {
 			//add term field to propMap for search
-			propsMap.put(termField, advancedOptions.get(DelegatedAccessConstants.ADVANCED_SEARCH_TERM));
+			termValue = advancedOptions.get(DelegatedAccessConstants.ADVANCED_SEARCH_TERM);
+			propsMap.put(termField, termValue);
 			//check if we need to remove the searchByIdSite b/c of the term
 			if(searchByIdSite != null && searchByIdSite.getProperties() != null
 					&& searchByIdSite.getProperties().getProperty(termField) != null
@@ -612,16 +632,12 @@ public class ProjectLogicImpl implements ProjectLogic {
 			}
 			Map<String, Map<String, String>> termProps = dao.searchSitesForProp(new String[]{termField}, siteIds);
 			for(String[] site : siteResults){
-				String term = "";
-				if(termProps != null && termProps.containsKey(site[0]) && termProps.get(site[0]).containsKey(termField)){
-					term = termProps.get(site[0]).get(termField);
-				}
 				List<User> instructors = new ArrayList<User>();
 				if(site.length == 3){
 					//this means the results came back with instructor data:
 					instructors.add(instructorMap.get(site[2]));
 				}
-				sites.put(site[0], new SiteSearchResult(new SiteSerialized(site[0], site[1], term), instructors, termField));
+				sites.put(site[0], new SiteSearchResult(new SiteSerialized(site[0], site[1], termValue), instructors, termField));
 			}	
 		}
 		

@@ -41,7 +41,7 @@ public class SiteSearchResult implements Serializable {
 		}
 	}
 	
-	private SiteSerialized getSite() {
+	public SiteSerialized getSite() {
 		return site;
 	}
 	public List<UserSerialized> getInstructors() {
