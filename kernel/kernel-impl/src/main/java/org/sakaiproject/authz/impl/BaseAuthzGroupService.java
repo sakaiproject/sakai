@@ -413,7 +413,8 @@ public abstract class BaseAuthzGroupService implements AuthzGroupService
 			throw new GroupNotDefinedException(roleId);
 		}
 
-		((BaseAuthzGroup) azGroup).setEvent(SECURE_UPDATE_OWN_AUTHZ_GROUP);
+		// KNL-523 separate join and unjoin events
+		//((BaseAuthzGroup) azGroup).setEvent(SECURE_UPDATE_OWN_AUTHZ_GROUP);
 
 		// see if already a member
 		BaseMember grant = (BaseMember) azGroup.getMember(user);
@@ -476,7 +477,8 @@ public abstract class BaseAuthzGroupService implements AuthzGroupService
 			throw new AuthzPermissionException(user, SECURE_UPDATE_OWN_AUTHZ_GROUP, authzGroupId);
 		}
 
-		((BaseAuthzGroup) azGroup).setEvent(SECURE_UPDATE_OWN_AUTHZ_GROUP);
+		// KNL-523 separate join and unjoin events
+		//((BaseAuthzGroup) azGroup).setEvent(SECURE_UPDATE_OWN_AUTHZ_GROUP);
 
 		removeMemberFromGroup(azGroup, user);
 
@@ -643,9 +645,10 @@ public abstract class BaseAuthzGroupService implements AuthzGroupService
 		m_storage.addNewUser(azGroup, userId, roleId, maxSize);
 
 		// track it
-		String event = ((BaseAuthzGroup) azGroup).getEvent();
-		if (event == null) event = SECURE_JOIN_AUTHZ_GROUP;
-		eventTrackingService().post(eventTrackingService().newEvent(event, azGroup.getReference(), true));
+		// KNL-523 set the event
+		//String event = ((BaseAuthzGroup) azGroup).getEvent();
+		//if (event == null) event = SECURE_JOIN_AUTHZ_GROUP;
+		eventTrackingService().post(eventTrackingService().newEvent(SECURE_JOIN_AUTHZ_GROUP, azGroup.getReference(), true));
 
 		// close the azGroup object
 		((BaseAuthzGroup) azGroup).closeEdit();
@@ -673,9 +676,10 @@ public abstract class BaseAuthzGroupService implements AuthzGroupService
 		m_storage.removeUser(azGroup, userId);
 
 		// track it
-		String event = ((BaseAuthzGroup) azGroup).getEvent();
-		if (event == null) event = SECURE_UNJOIN_AUTHZ_GROUP;
-		eventTrackingService().post(eventTrackingService().newEvent(event, azGroup.getReference(), true));
+		// KNL-523 set the event
+		//String event = ((BaseAuthzGroup) azGroup).getEvent();
+		//if (event == null) event = SECURE_UNJOIN_AUTHZ_GROUP;
+		eventTrackingService().post(eventTrackingService().newEvent(SECURE_UNJOIN_AUTHZ_GROUP, azGroup.getReference(), true));
 
 		// close the azGroup object
 		((BaseAuthzGroup) azGroup).closeEdit();
