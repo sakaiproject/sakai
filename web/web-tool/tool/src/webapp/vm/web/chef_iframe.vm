@@ -1,8 +1,8 @@
 ##<!-- $Header: /cvs/sakai2/legacy/tools/src/webapp/vm/web/chef_iframe.vm,v 1.4 2005/05/15 17:05:28 gsilver.umich.edu Exp $ -->
 <div class="portletBody">
 #if($options_title) 
-	<ul class="navIntraTool actionToolBar" role="menu">
-		<li class="firstToolBarItem" role="menuitem"><span><a href="#" title="$validator.escapeHtml($options_title)" onclick="location = '#toolLink("" "doOptions")';return false;">
+	<ul class="navIntraTool actionToolBar">
+		<li class="firstToolBarItem"><span><a href="#" title="$validator.escapeHtml($options_title)" onclick="location = '#toolLink("" "doOptions")';return false;">
 		$tlang.getString("gen.options") </a></span></li>
 	</ul>
 #end
