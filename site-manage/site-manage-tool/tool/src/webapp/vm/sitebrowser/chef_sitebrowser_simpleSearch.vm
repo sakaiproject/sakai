@@ -2,6 +2,23 @@
 <script type="text/javascript" language="JavaScript">
 	focus_path = ["search"];
 </script>
+<script type="text/javascript" src="/library/js/jquery.js">
+    
+</script>
+<script type="text/javascript" language="JavaScript">
+    $(document).ready(function(){
+       $("input:radio").click(function(){
+           if($(this).attr('class')=='siteTypeTerm') {
+               $('#selectTerm').attr('disabled','')
+           }
+           else {
+               $('#selectTerm').attr('disabled','disabled');
+               $('#selectTerm  option')[0].selected = true;
+               
+           }
+       })
+    });
+</script>
 <div class="portletBody">
 		<h3>$tlang.getString("se.search")</h3>
 		<p class="instruction">$tlang.getString("se.complete")</p>
@@ -15,12 +32,12 @@
 					#if ($type == $termSearchSiteType)
 						<input type="hidden" name="ClassSiteFromSystem" value="true" />
 						<div class="checkbox indnt1">
-							<input  type="radio" name="siteType" id="siteType$siteTypeCount" value="$type" />
+							<input  type="radio" name="siteType" class="siteTypeTerm" id="siteType$siteTypeCount" value="$type" />
 							<label for="siteType$siteTypeCount"  style="text-transform: capitalize">$type</label>
 						</div>
-						<div class="indnt3">
+						<div class="indnt3" id="selectTermBlock">
 							<label for="selectTerm">$tlang.getString("se.term")</label>
-							<select name="selectTerm" id="selectTerm">
+							<select name="selectTerm" id="selectTerm" disabled="disabled">
 							<option value="Any">$tlang.getString("se.any")</option>
 							#foreach ($term in $terms)
 							<option value="$term.eid">$term.title</option>
