@@ -455,6 +455,7 @@
 				<tr>
 					<th id="selectResubmit" class="smallCol">
 						<input type="checkbox" name="toggleAllSelectAllowResubmit" value="" id="toggleAllSelectAllowResubmit" onclick="javascript:toggleSelectAll(this, 'selectedAllowResubmit')" />
+                        <label for="toggleAllSelectAllowResubmit" class="skip">$tlang.getString("allowResubmission.toggleall")</label>
 					</th> 
 					<th id="attachment" class="attach">
 						<img src="#imageLink("sakai/attachments.gif")" border="0" alt="$tlang.getString("gen.att")" width="15" height="15" />
@@ -568,7 +569,8 @@
 						<tr>
 							<td headers="allowResubmit" class="screenOnly smallCol">
 								#set($userId = $!siteUser)
-								<input type="checkbox" name="selectedAllowResubmit" value="$!submitterId" id="check_$submitterId" />
+								<input type="checkbox" name="selectedAllowResubmit" value="$!submitterId" id="check_$submitterDisplayId" />
+                                <label for="check_$submitterDisplayId" class="skip">$tlang.getString("allowResubmission.select.student") $validator.escapeHtml($submitterName)</label>
 							</td>
 							<td headers="attachment" class="attach">
 							 #set($size=0)
