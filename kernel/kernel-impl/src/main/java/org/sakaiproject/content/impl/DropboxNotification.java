@@ -24,10 +24,14 @@ package org.sakaiproject.content.impl;
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
+import java.util.Set;
+import java.util.Collection;
+import java.util.HashSet;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.sakaiproject.authz.cover.SecurityService;
+import org.sakaiproject.authz.api.Member;
 import org.sakaiproject.component.cover.ComponentManager;
 import org.sakaiproject.component.cover.ServerConfigurationService;
 import org.sakaiproject.content.api.ContentCollection;
@@ -143,6 +147,45 @@ public class DropboxNotification extends EmailNotification
 
 		return rv;
 	}
+
+    /**
+     * Extract a 'Set' of user ids from the given set of members.
+     *
+     * @param members   The Set of members from which to extract the userIds
+     * @return
+     *      The set of user ids that belong to the users in the member set.
+     */
+    private Set<String> getUserIds(Collection<Member> members) {
+        Set<String> userIds = new HashSet<String>();
+
+        for (Member member : members)
+            userIds.add(member.getUserId());
+
+        return userIds;
+    }
+
+   	/**
+	 * Only include actual site members in the notification.
+	 * 
+	 * @param users
+	 *        List of users that emails would be sent to.
+	 * @param site
+	 *        Site that the emails would be sent to
+	 * @return 
+     *        Refined list of users who are members of this site.
+	 */
+    protected void refineToSiteMembers(List<User> users, Site site) { 
+        Set<Member> members = site.getMembers(); 
+        Set<String> memberUserIds = getUserIds(members); 
+
+        for (Iterator<User> i = users.listIterator(); i.hasNext();) { 
+            User user = i.next(); 
+
+            if (!memberUserIds.contains(user.getId())) { 
+                i.remove(); 
+            } 
+        } 
+    } 
 	
 	/**
 	 * Get the list of User objects who are eligible to receive the notification email.
@@ -157,6 +200,17 @@ public class DropboxNotification extends EmailNotification
 		
 		String resourceRef = event.getResource();
 		Reference ref = EntityManager.newReference(resourceRef);
+        String siteId = (getSite() != null) ? getSite() : ref.getContext();
+
+        Site site;
+        // get a site 
+        try {
+          site = SiteService.getSite(siteId);
+        }
+        catch (IdUnusedException e) {
+			logger.warn("Could not getSite for " + siteId + " not returning any recipients.");
+            return recipients;
+        }
 		
 		ResourceProperties props = ref.getProperties();
 		String modifiedBy = props.getProperty(ResourceProperties.PROP_MODIFIED_BY);
@@ -175,6 +229,7 @@ public class DropboxNotification extends EmailNotification
 				String siteDropbox = buf.toString();
 
 				recipients.addAll( SecurityService.unlockUsers(ContentHostingService.AUTH_DROPBOX_MAINTAIN, siteDropbox) ); 
+                refineToSiteMembers(recipients, site);
 			}
 			else
 			{
