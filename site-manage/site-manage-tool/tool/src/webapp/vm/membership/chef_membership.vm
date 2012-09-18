@@ -11,9 +11,9 @@
 </script>
 
 <div class="portletBody">
-	<ul class="navIntraTool actionToolbar" role="menu">
-	<li class="firstToolBarItem" role="menuitem" aria-disabled="true"><span class="current">$tlang.getString("mb.cursit")</span></li>
-	<li role="menuitem"><span><a href="#toolLink("$action" "doGoto_joinable")" title="$tlang.getString('mb.joisit')">$tlang.getString('mb.joisit')</a></span></li>
+	<ul class="navIntraTool actionToolbar">
+	<li class="firstToolBarItem"><span class="current">$tlang.getString("mb.cursit")</span></li>
+	<li><span><a href="#toolLink("$action" "doGoto_joinable")" title="$tlang.getString('mb.joisit')">$tlang.getString('mb.joisit')</a></span></li>
 </ul>
 
 	#if ($unjoinableSites.size() > 0 || $search.length() > 0)
