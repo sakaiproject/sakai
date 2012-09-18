@@ -2585,9 +2585,9 @@ public String addNewToolToAllWorkspaces(String sessionid, String toolid, String 
 	Session session = establishSession(sessionid);
 	
 	//check that ONLY admin is accessing this	
-	if(!session.getUserId().equals(userDirectoryService.ADMIN_ID)) {
-		LOG.warn("WS addNewToolToAllWorkspaces() failed. Restricted to admin user.");
-		throw new AxisFault("WS failed. Restricted to admin user.");
+	if(!securityService.isSuperUser(session.getUserId())) {
+		LOG.warn("WS addNewToolToAllWorkspaces() failed. Restricted to admin users.");
+		throw new AxisFault("WS failed. Restricted to admin users.");
 	}
 	
 	try {
@@ -2834,9 +2834,9 @@ public String getAllUsers(String sessionid) throws AxisFault
 	Session session = establishSession(sessionid);
 	
 	//check that ONLY admin is accessing this	
-	if(!session.getUserId().equals(userDirectoryService.ADMIN_ID)) {
-		LOG.warn("WS getAllUsers() failed. Restricted to admin user.");
-		throw new AxisFault("WS failed. Restricted to admin user.");
+	if(!securityService.isSuperUser(session.getUserId())) {
+		LOG.warn("WS getAllUsers() failed. Restricted to admin users.");
+		throw new AxisFault("WS failed. Restricted to admin users.");
 	}
 	
 	try {

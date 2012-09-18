@@ -4,6 +4,7 @@ import java.util.HashMap;
 import java.io.InputStream;
 import java.io.IOException;
 import java.io.ByteArrayInputStream;
+import org.sakaiproject.authz.api.SecurityService;
 import org.sakaiproject.tool.api.Session;
 import org.sakaiproject.tool.api.SessionManager;
 import org.sakaiproject.exception.IdUnusedException;
@@ -42,6 +43,7 @@ public class TestsAndQuizzes {
 	private UserDirectoryService userDirectoryService;
 	private SiteService siteService;
 	private SamLiteService samLiteService;
+	private SecurityService securityService;
 
 	private static final Log LOG = LogFactory.getLog(TestsAndQuizzes.class);
 
@@ -51,6 +53,7 @@ public class TestsAndQuizzes {
 		//eventTrackingService = (EventTrackingService) ComponentManager.get(EventTrackingService.class.getName());
 		sessionManager = (SessionManager) ComponentManager.get(SessionManager.class.getName());
 		userDirectoryService = (UserDirectoryService) ComponentManager.get(UserDirectoryService.class.getName());
+		securityService = (SecurityService) ComponentManager.get(SecurityService.class.getName());
 	}
 
 
@@ -76,9 +79,9 @@ public class TestsAndQuizzes {
 		}
 
 		// must be an admin session
-		if(!session.getUserId().equals(userDirectoryService.ADMIN_ID)) {
-			LOG.warn("WS TestsAndQuizzes.establishSession: Permission denied. Restricted to admin user.");
-			throw new AxisFault("WS TestsAndQuizzes.establishSession(): Permission denied. Restricted to admin user.");
+		if(!securityService.isSuperUser(session.getUserId())) {
+			LOG.warn("WS TestsAndQuizzes.establishSession: Permission denied. Restricted to admin users.");
+			throw new AxisFault("WS TestsAndQuizzes.establishSession(): Permission denied. Restricted to admin users.");
 		}
 
 		session.setActive();
