@@ -55,10 +55,22 @@
 	    <dispatcher>INCLUDE</dispatcher>
 	</filter-mapping>
 
+	<!-- set up info needed by RSF normally done by the portal -->
+	<!-- have to add request filter because the ajax filter needs to know the user. It would 
+	     be called eventually, but filters associated with URLs are called before others, so
+	     get it in the right order -->
 	<filter>
 	    <filter-name>lessonbuilder.ajaxfilter</filter-name>
 	    <filter-class>org.sakaiproject.lessonbuildertool.AjaxFilter</filter-class>
 	</filter>
+	<filter-mapping>
+	  <filter-name>sakai.request</filter-name>
+	  <url-pattern>/faces/Comments</url-pattern>
+	</filter-mapping>
+	<filter-mapping>
+	  <filter-name>sakai.request</filter-name>
+	  <url-pattern>/faces/GradingPane</url-pattern>
+	</filter-mapping>
 	<filter-mapping>
 	    <filter-name>lessonbuilder.ajaxfilter</filter-name>
 	    <url-pattern>/faces/Comments</url-pattern>

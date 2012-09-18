@@ -27,6 +27,9 @@ import javax.servlet.*;
 import org.sakaiproject.site.cover.SiteService;
 import org.sakaiproject.site.api.ToolConfiguration; 
 import org.sakaiproject.tool.api.Tool;
+import org.sakaiproject.site.api.Site;
+import org.sakaiproject.site.cover.SiteService;
+import org.sakaiproject.user.cover.UserDirectoryService;
 
 public class AjaxFilter implements javax.servlet.Filter
 {
@@ -43,12 +46,21 @@ public class AjaxFilter implements javax.servlet.Filter
 
 	String placementId = request.getParameter("placementId");
 	ToolConfiguration placement = SiteService.findTool(placementId);
-	Tool tool = placement.getTool();
-
-	request.setAttribute("sakai.tool", tool);
-	request.setAttribute("sakai.tool.placement", placement);
-
-        chain.doFilter(request, response);
+	String siteId = placement.getSiteId();
+	// there was some concern whether it's safe to set up a placement to which the
+	// user doesn't have access. So check whether the user is in the associated site
+	// the user ID comes from requestfilter, which is run before this
+	try {
+	    Site site = SiteService.getSite(siteId);
+	    String currentUserId = UserDirectoryService.getCurrentUser().getId();
+	    Tool tool = placement.getTool();
+	    if (site != null && site.getUserRole(currentUserId) != null) {
+		request.setAttribute("sakai.tool", tool);
+		request.setAttribute("sakai.tool.placement", placement);
+	    }
+	} catch (Exception impossible) {
+	}
+	chain.doFilter(request, response);
     }
  
     public void init(final FilterConfig filterConfig)
