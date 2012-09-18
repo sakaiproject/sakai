@@ -64,9 +64,9 @@
 </style>
 
 <div class="portletBody specialLink">
-	<ul class="navIntraTool actionToolBar" role="menu">
-		<li class="firstToolBarItem" role="menuitem"><span><a href="#toolLink("ResourcesAction" "doCancel")">$tlang.getString("list.site")</a></span></li>
-		<li role="menuitem" aria-disabled="true"><span class="current">$tlang.getString('dav.webdav')</span></li>
+	<ul class="navIntraTool actionToolBar">
+		<li class="firstToolBarItem"><span><a href="#toolLink("ResourcesAction" "doCancel")">$tlang.getString("list.site")</a></span></li>
+		<li><span class="current">$tlang.getString('dav.webdav')</span></li>
 	</ul>
 	#if($menu)#toolbar($menu)#end
 	<div id="davdocs_intro">
