@@ -252,6 +252,7 @@ public class CommentsProducer implements ViewComponentProducer, ViewParamsReport
 				UIOutput.make(container, "commentDiv");
 				// UIBranchContainer container = UIBranchContainer.make(tofill, "commentDiv:");
 				CommentsViewParameters eParams = new CommentsViewParameters(VIEW_ID);
+				eParams.placementId = params.placementId;
 				eParams.itemId = params.itemId;
 				eParams.showAllComments=true;
 				eParams.showNewComments=false;
@@ -265,6 +266,7 @@ public class CommentsProducer implements ViewComponentProducer, ViewParamsReport
 				    UIOutput.make(container, "commentDiv");
 				    // UIBranchContainer container = UIBranchContainer.make(tofill, "commentDiv:");
 				    eParams = new CommentsViewParameters(VIEW_ID);
+				    eParams.placementId = params.placementId;
 				    eParams.itemId = params.itemId;
 				    eParams.showAllComments=false;
 				    eParams.showNewComments=true;
@@ -397,6 +399,7 @@ public class CommentsProducer implements ViewComponentProducer, ViewParamsReport
 			UIOutput.make(commentContainer, "deleteSpan");
 			
 			CommentsViewParameters eParams = (CommentsViewParameters) params.copy();
+			eParams.placementId = params.placementId;
 			eParams.deleteComment = comment.getUUID();
 			eParams.pageId = params.pageId;
 			eParams.siteId = params.siteId;

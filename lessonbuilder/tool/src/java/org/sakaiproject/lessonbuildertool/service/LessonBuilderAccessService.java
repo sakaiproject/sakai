@@ -406,7 +406,8 @@ public class LessonBuilderAccessService {
 					// no copyright enforcement, I don't think
 
 					try {
-						long len = resource.getContentLength();
+					    // following cast is redundant is current kernels, but is needed for Sakai 2.6.1
+						long len = (long)resource.getContentLength();
 						String contentType = resource.getContentType();
 						
 						// 	for url resource type, encode a redirect to the body URL

@@ -55,6 +55,20 @@
 	    <dispatcher>INCLUDE</dispatcher>
 	</filter-mapping>
 
+	<filter>
+	    <filter-name>lessonbuilder.ajaxfilter</filter-name>
+	    <filter-class>org.sakaiproject.lessonbuildertool.AjaxFilter</filter-class>
+	</filter>
+	<filter-mapping>
+	    <filter-name>lessonbuilder.ajaxfilter</filter-name>
+	    <url-pattern>/faces/Comments</url-pattern>
+	</filter-mapping>
+	<filter-mapping>
+	    <filter-name>lessonbuilder.ajaxfilter</filter-name>
+	    <url-pattern>/faces/GradingPane</url-pattern>
+	</filter-mapping>
+
+
 	<!-- Sakai listeners -->
 	<listener>
 		<listener-class>org.sakaiproject.util.ToolListener</listener-class>
