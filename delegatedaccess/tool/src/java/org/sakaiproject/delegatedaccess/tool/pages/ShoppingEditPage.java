@@ -104,7 +104,7 @@ public class ShoppingEditPage extends BaseTreePage{
 		columnsList.add(new PropertyTreeColumn(new ColumnLocation(Alignment.MIDDLE, 100, Unit.PROPORTIONAL),	"", "userObject.node.description"));
 		if(!singleRoleOptions){
 			columnsList.add(new PropertyEditableColumnDropdown(new ColumnLocation(Alignment.RIGHT, roleColumnSize, Unit.PX), new StringResourceModel("shoppersBecome", null).getString(),
-					"userObject.roleOption", roleMap, DelegatedAccessConstants.TYPE_ACCESS_SHOPPING_PERIOD_USER));
+					"userObject.roleOption", roleMap, DelegatedAccessConstants.TYPE_ACCESS_SHOPPING_PERIOD_USER, null));
 		}
 		columnsList.add(new PropertyEditableColumnDate(new ColumnLocation(Alignment.RIGHT, 100, Unit.PX), new StringResourceModel("startDate", null).getString(), "userObject.shoppingPeriodStartDate", true));
 		columnsList.add(new PropertyEditableColumnDate(new ColumnLocation(Alignment.RIGHT, 100, Unit.PX), new StringResourceModel("endDate", null).getString(), "userObject.shoppingPeriodEndDate", false));

@@ -52,6 +52,7 @@ public class NodeModel implements Serializable {
 	private boolean shoppingPeriodRevokeInstructorEditableOrig = false;
 	private boolean shoppingPeriodRevokeInstructorPublicOpt = false;
 	private boolean shoppingPeriodRevokeInstructorPublicOptOrig = false;
+	private String[] subAdminSiteAccess = null;
 	
 	/**
 	 * this function should be called after a save in order to reset the original values to their current value.
@@ -809,5 +810,34 @@ public class NodeModel implements Serializable {
 			return getInheritedShoppingPeriodRevokeInstructorPublicOptHelper(parent.getParentNode());
 		}
 	}
+
+	public String[] getSubAdminSiteAccess() {
+		return subAdminSiteAccess;
+	}
+
+	public void setSubAdminSiteAccess(String[] subAdminSiteAccess) {
+		this.subAdminSiteAccess = subAdminSiteAccess;
+	}
+
+	public String[] getInheritedSubAdminSiteAccess(){
+		return getInheritedSubAdminSiteAccessHelper(parentNode);
+	}
 	
+	public String[] getInheritedSubAdminSiteAccessHelper(NodeModel parent){
+		if(parent == null){
+			return null;
+		} else if (parent.getSubAdminSiteAccess() != null) {
+			return parent.subAdminSiteAccess;
+		}else{
+			return getInheritedSubAdminSiteAccessHelper(parent.getParentNode());
+		}
+	}
+	
+	public String[] getNodeSubAdminSiteAccess(){
+		if(getSubAdminSiteAccess() != null){
+			return getSubAdminSiteAccess();
+		}else{
+			return getInheritedSubAdminSiteAccess();
+		}
+	}
 }

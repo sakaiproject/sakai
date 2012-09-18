@@ -95,4 +95,5 @@ public class DelegatedAccessConstants {
 	public static final String PROP_DISABLE_SHOPPING_TREE_VIEW = "delegatedaccess.disable.shopping.tree.view";
 	public static final String[] DEFAULT_HIERARCHY = new String[]{SCHOOL_PROPERTY, DEPEARTMENT_PROPERTY, SUBJECT_PROPERTY};
 	public static final String SHOPPING_PERIOD_AUTH_OPTION_ANY = "any";
+	public static final String PROPERTIES_SUBADMIN_REALM_ROLE_ORDER = "delegatedaccess.subadmin.realmrole.order";
 }

@@ -2,6 +2,7 @@ package org.sakaiproject.delegatedaccess.tool.pages;
 
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collection;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.HashMap;
@@ -33,7 +34,7 @@ public class EditablePanelDropdown extends Panel
 	private NodeModel nodeModel;
 	private TreeNode node;
 
-	public EditablePanelDropdown(String id, IModel inputModel, final NodeModel nodeModel, final TreeNode node, final  Map<String, String> roleMap, final int type)
+	public EditablePanelDropdown(String id, IModel inputModel, final NodeModel nodeModel, final TreeNode node, final  Map<String, String> roleMap, final int type, String[] subAdminRoles)
 	{
 		super(id);
 
@@ -62,6 +63,37 @@ public class EditablePanelDropdown extends Panel
 				}
 			}
 		}
+		//sub admins should only be able to update up to their level granted to them
+		List<String> restrictedRoles = new ArrayList<String>();
+		if(subAdminRoles != null){
+			//this is a node where we need to restrict based on the sub admin's role
+			String[] realmRole = null;
+			if(nodeModel.getNodeSubAdminSiteAccess() != null){
+				realmRole = nodeModel.getNodeSubAdminSiteAccess();
+			}
+			String subAdminRole = "";
+			if(realmRole != null && realmRole.length == 2 && !"".equals(realmRole[0]) && !"".equals(realmRole[1])){
+				subAdminRole = realmRole[0] + ":" + realmRole[1];
+			}
+			for(String level : subAdminRoles){
+				//each level consists of "realm:role;realm:role;..."
+				String[] splitRoles = level.split(";");
+				boolean foundRole = false;
+				for(String levelRole : splitRoles){
+					if(!"".equals(subAdminRole) && subAdminRole.equals(levelRole)){
+						foundRole = true;
+						break;
+					}
+				}
+				if(foundRole){
+					break;
+				}else{
+					restrictedRoles.addAll(Arrays.asList(splitRoles));
+				}
+			}
+		}
+		final List<String> restrictedRolesFinal = restrictedRoles;
+		
 		ChoiceRenderer choiceRenderer = new ChoiceRenderer("label", "value");
 		final DropDownChoice choice=new DropDownChoice("roleChoices", inputModel, Arrays.asList(options), choiceRenderer){
 			@Override
@@ -71,6 +103,16 @@ public class EditablePanelDropdown extends Panel
 				}else{
 					return nodeModel.isDirectAccess();
 				}
+			}
+			@Override
+			protected boolean isDisabled(Object object, int index,
+					String selected) {
+				for(String role : restrictedRolesFinal){
+					if(role.equals(((SelectOption) object).getValue())){
+						return true;
+					}
+				}
+				return super.isDisabled(object, index, selected);
 			}
 		};
 		choice.add(new AjaxFormComponentUpdatingBehavior("onchange")

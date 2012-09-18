@@ -29,12 +29,14 @@ public class PropertyEditableColumnDropdown extends PropertyRenderableColumn
 
 	private Map<String, String> roleMap;
 	private int type;
+	private String[] subAdminRoles;
 	
-	public PropertyEditableColumnDropdown(ColumnLocation location, String header, String propertyExpression, Map<String, String> roleMap, int type)
+	public PropertyEditableColumnDropdown(ColumnLocation location, String header, String propertyExpression, Map<String, String> roleMap, int type, String[] subAdminRoles)
 	{
 		super(location, header, propertyExpression);
 		this.roleMap = roleMap;
 		this.type = type;
+		this.subAdminRoles = subAdminRoles;
 	}
 
 	/**
@@ -47,7 +49,7 @@ public class PropertyEditableColumnDropdown extends PropertyRenderableColumn
 		}
 		
 		if(((NodeModel) ((DefaultMutableTreeNode) node).getUserObject()).isDirectAccess()){
-			return new EditablePanelDropdown(id, new PropertyModel(node, getPropertyExpression()), (NodeModel) ((DefaultMutableTreeNode) node).getUserObject(), node, roleMap, type);
+			return new EditablePanelDropdown(id, new PropertyModel(node, getPropertyExpression()), (NodeModel) ((DefaultMutableTreeNode) node).getUserObject(), node, roleMap, type, subAdminRoles);
 		}else{
 			return new EditablePanelDropdownText(id, new PropertyModel(node, getPropertyExpression()), (NodeModel) ((DefaultMutableTreeNode) node).getUserObject(), node, roleMap, type);
 		}

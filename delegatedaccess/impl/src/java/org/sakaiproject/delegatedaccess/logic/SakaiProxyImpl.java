@@ -620,4 +620,8 @@ public class SakaiProxyImpl implements SakaiProxy {
 	public String[] getHideRolesForInstructorViewAccess(){
 		return serverConfigurationService.getStrings(DelegatedAccessConstants.PROPERTIES_HIDE_ROLES_FOR_VIEW_ACCESS);
 	}
+	
+	public String[] getSubAdminOrderedRealmRoles(){
+		return serverConfigurationService.getStrings(DelegatedAccessConstants.PROPERTIES_SUBADMIN_REALM_ROLE_ORDER);
+	}
 }

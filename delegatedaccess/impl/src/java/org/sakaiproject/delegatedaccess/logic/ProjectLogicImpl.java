@@ -691,21 +691,44 @@ public class ProjectLogicImpl implements ProjectLogic {
 	{
 		//this is a list of sub-admin access nodes.  if the user is a super-admin, then this will be null (as a flag that this is a super admin)
 		List<String> accessAdminNodeIds = null;
+		Set<HierarchyNodeSerialized>  accessAdminNodeSet = null;
+		List<String> subAdminsSiteAccessNodes = null;
+		Set<HierarchyNodeSerialized>  subAdminSiteAccessNodesSet = null;
 		//check if the user is a super admin, if not, then get the accessAdmin nodes connected to the current user
 		if(!sakaiProxy.isSuperUser()){
 			//only allow the current user to modify permissions for this user on the nodes that
 			//has been assigned accessAdmin for currentUser
-			Set<HierarchyNodeSerialized>  currentUserAdminNodes = getAccessAdminNodesForUser(sakaiProxy.getCurrentUserId());
+			accessAdminNodeSet = getAccessAdminNodesForUser(sakaiProxy.getCurrentUserId());
 			accessAdminNodeIds = new ArrayList<String>();
-			if(currentUserAdminNodes != null){
-				for(HierarchyNodeSerialized node : currentUserAdminNodes){
+			if(accessAdminNodeSet != null){
+				for(HierarchyNodeSerialized node : accessAdminNodeSet){
 					accessAdminNodeIds.add(node.id);
+				}
+			}
+			String[] subAdminOrderedRealmRoles = sakaiProxy.getSubAdminOrderedRealmRoles();
+			if(subAdminOrderedRealmRoles != null && subAdminOrderedRealmRoles.length > 0){
+				//we need to restrict sub admin's to only realms&roles they have permissions to set
+				//we do this by finding all the subadmin's access nodes and permissions
+				subAdminSiteAccessNodesSet = getAccessNodesForUser(sakaiProxy.getCurrentUserId());
+				subAdminsSiteAccessNodes = new ArrayList<String>();
+				if(subAdminSiteAccessNodesSet != null){
+					for(HierarchyNodeSerialized node : subAdminSiteAccessNodesSet){
+						subAdminsSiteAccessNodes.add(node.id);
+					}
 				}
 			}
 		}
 		//these are the nodes that the edit user has permissions in
-		Set<HierarchyNodeSerialized> userNodes = userNodes = getAllNodesForUser(userId);
-		
+		Set<HierarchyNodeSerialized> userNodes = getAllNodesForUser(userId);
+		if(accessAdminNodeSet != null){
+			//make sure we insert the nodes for access admin so the sub-admin
+			//can modify these nodes if they want to
+			userNodes.addAll(accessAdminNodeSet);
+		}
+		if(subAdminSiteAccessNodesSet != null){
+			//make sure we process these nodes as well
+			userNodes.addAll(subAdminSiteAccessNodesSet);
+		}
 		//Returns a List that represents the tree/node architecture:
 		//  List{ List{node, List<children>}, List{node, List<children>}, ...}.
 		List<List> l1 = getTreeListForUser(userId, addDirectChildren, cascade, userNodes);
@@ -728,7 +751,7 @@ public class ProjectLogicImpl implements ProjectLogic {
 		//order tree model:
 		orderTreeModel(l1);
 
-		return convertToTreeModel(l1, userId, getEntireToolsList(), addDirectChildren, accessAdminNodeIds);
+		return convertToTreeModel(l1, userId, getEntireToolsList(), addDirectChildren, accessAdminNodeIds, subAdminsSiteAccessNodes);
 	}
 
 	public TreeModel createAccessTreeModelForUser(String userId, boolean addDirectChildren, boolean cascade)
@@ -743,7 +766,7 @@ public class ProjectLogicImpl implements ProjectLogic {
 		//order tree model:
 		orderTreeModel(l1);
 
-		return convertToTreeModel(l1, userId, getEntireToolsList(), addDirectChildren, null);
+		return convertToTreeModel(l1, userId, getEntireToolsList(), addDirectChildren, null, null);
 	}
 
 	public TreeModel getTreeModelForShoppingPeriod(boolean includePerms){
@@ -759,7 +782,7 @@ public class ProjectLogicImpl implements ProjectLogic {
 		//order tree model:
 		orderTreeModel(l1);
 
-		return convertToTreeModel(l1, userId, getEntireToolsList(), false, null);
+		return convertToTreeModel(l1, userId, getEntireToolsList(), false, null, null);
 	}
 	
 	//get the entire tree for a user and populates the information that may exist
@@ -773,7 +796,7 @@ public class ProjectLogicImpl implements ProjectLogic {
 		//order tree model:
 		orderTreeModel(l1);
 
-		return convertToTreeModel(l1, userId, getEntireToolsList(), false, null);
+		return convertToTreeModel(l1, userId, getEntireToolsList(), false, null, null);
 	}
 
 	public TreeModel createTreeModelForShoppingPeriod(String userId)
@@ -786,7 +809,7 @@ public class ProjectLogicImpl implements ProjectLogic {
 		//order tree model:
 		orderTreeModel(l1);
 
-		return convertToTreeModel(l1, DelegatedAccessConstants.SHOPPING_PERIOD_USER, getEntireToolsList(), false, null);
+		return convertToTreeModel(l1, DelegatedAccessConstants.SHOPPING_PERIOD_USER, getEntireToolsList(), false, null, null);
 	}
 
 	/**
@@ -797,12 +820,12 @@ public class ProjectLogicImpl implements ProjectLogic {
 	 * @return
 	 */
 	private TreeModel convertToTreeModel(List<List> map, String userId, List<ListOptionSerialized> blankRestrictedTools, 
-			boolean addDirectChildren, List<String> accessAdminNodeIds)
+			boolean addDirectChildren, List<String> accessAdminNodeIds, List<String> subAdminsSiteAccessNodes)
 	{
 		TreeModel model = null;
 		if(!map.isEmpty() && map.size() == 1){
 
-			DefaultMutableTreeNode rootNode = add(null, map, userId, blankRestrictedTools, addDirectChildren, accessAdminNodeIds);
+			DefaultMutableTreeNode rootNode = add(null, map, userId, blankRestrictedTools, addDirectChildren, accessAdminNodeIds, subAdminsSiteAccessNodes);
 			model = new DefaultTreeModel(rootNode);
 		}
 		return model;
@@ -932,7 +955,7 @@ public class ProjectLogicImpl implements ProjectLogic {
 	 * @return
 	 */
 	private DefaultMutableTreeNode add(DefaultMutableTreeNode parent, List<List> sub, String userId, List<ListOptionSerialized> blankRestrictedTools, 
-			boolean addDirectChildren, List<String> accessAdminNodeIds)
+			boolean addDirectChildren, List<String> accessAdminNodeIds, List<String> subAdminsSiteAccessNodes)
 	{
 		DefaultMutableTreeNode root = null;
 		for (List nodeList : sub)
@@ -999,6 +1022,17 @@ public class ProjectLogicImpl implements ProjectLogic {
 					childNodeModel.setEditable(true);
 				}
 			}
+			if(subAdminsSiteAccessNodes != null && subAdminsSiteAccessNodes.size() > 0){
+				//we need to make sure we keep track of the subadmin's permissions if subAdminsSiteAccessNodes is set
+				for(String nodeId : subAdminsSiteAccessNodes){
+					if(childNodeModel.getNodeId().equals(nodeId)){
+						Set<String> perms = getPermsForUserNodes(sakaiProxy.getCurrentUserId(), nodeId);
+						String[] realmRole = getAccessRealmRole(perms);
+						childNodeModel.setSubAdminSiteAccess(realmRole);
+					}
+				}
+
+			}
 			child.setUserObject(childNodeModel);
 			
 			if(parent == null){
@@ -1008,7 +1042,7 @@ public class ProjectLogicImpl implements ProjectLogic {
 				parent.add(child);
 			}
 			if(!children.isEmpty()){
-				add(child, children, userId, blankRestrictedTools, addDirectChildren, accessAdminNodeIds);
+				add(child, children, userId, blankRestrictedTools, addDirectChildren, accessAdminNodeIds, subAdminsSiteAccessNodes);
 			}
 		}
 		return root;

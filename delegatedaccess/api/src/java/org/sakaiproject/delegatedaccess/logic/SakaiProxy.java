@@ -368,4 +368,18 @@ public interface SakaiProxy {
 	 * @return
 	 */
 	public Map<String,String> isUserMember(String userId, Collection<String> siteRefs);
+	
+	/**
+	 * returns a list of "realm:role;realm:role;" from highest to lowest level of access.  
+	 * For instance, if you wanted to order the importance of roles
+	 * of sakai's default permissions, it would look like:
+	 * 1-> "!site.template.course :Instructor;!site.template:maintain;"
+	 * 2-> "!site.template.course :TA;"
+	 * 3-> "!site.template.course :Student;!site.template:access;"
+	 *  
+	 *  This will only allow subadmin to assign permissions at their level and below.  
+	 *  Any realm/role that isn't in that list will be considered the last level on the bottom.
+	 * @return
+	 */
+	public String[] getSubAdminOrderedRealmRoles();
 }
