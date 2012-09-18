@@ -7,54 +7,54 @@
 
 	<script type="text/javascript" src="/library/js/reorderer.js"></script>
 
-<div class="portletBody" xmlns:wairole="http://www.w3.org/2005/01/wai-rdf/GUIRoleTaxonomy#"  xmlns:aaa="http://www.w3.org/2005/07/aaa">
+<div class="portletBody">
 	#if ($allowAddAssignment || ($withGrade && $!allowGradeSubmission))
 	## for user who cannot create assignment nor grade submission, no need to show "Assignment List" link at all since there is really no other toolbar choices
-	<ul class="navIntraTool actionToolBar" role="menu">
+	<ul class="navIntraTool actionToolBar">
 		#set($prevAction=false)
 		#if ($allowAddAssignment)
 			#set($prevAction=true)
-			<li  class="firstToolBarItem" role="menuitem">			
+			<li  class="firstToolBarItem">			
 				<span><a href="#toolLink("$action" "doNew_assignment")" title="$!tlang.getString("new")">$!tlang.getString("new")</a></span>
 			</li>	
 		#end
 		#if (!$!view.equals('lisofass1'))
 			#set($prevAction=true)
-			<li #if ($prevAction==false) class="firstToolBarItem" #set($prevAction=true)  #end role="menuitem">			
+			<li #if ($prevAction==false) class="firstToolBarItem" #set($prevAction=true)  #end>			
 				<span><a href="#toolLinkParam("$action" "doView" "view=lisofass1")" title="$!tlang.getString('lisofass1')">$!tlang.getString('lisofass1')</a></span>
 			</li>	
 		#else
-			<li role="menuitem" aria-disabled="true">
+			<li>
 				<span class="disabled">$!tlang.getString("lisofass1")</span>
 			</li>	
 		#end
 		#if ($withGrade && $!allowGradeSubmission)
-			<li #if ($prevAction==false) class="firstToolBarItem" #set($prevAction=true)  #end role="menuitem">
+			<li #if ($prevAction==false) class="firstToolBarItem" #set($prevAction=true)  #end>
 				<span><a href="#toolLinkParam("$action" "doView" "view=grarep")" title="$!tlang.getString("gen.grarep")">$!tlang.getString("gen.grarep")</a></span>
 			</li>	
 		#end
 		#if ($allowAddAssignment)
 			#if (!$!view.equals('stuvie'))
-				<li #if ($prevAction==false) class="firstToolBarItem" #set($prevAction=true)  #end role="menuitem">
+				<li #if ($prevAction==false) class="firstToolBarItem" #set($prevAction=true)  #end>
 					<span><a href="#toolLinkParam("$action" "doView" "view=stuvie")" title="$!tlang.getString("gen.stuvie")">$!tlang.getString("gen.stuvie")</a></span>
 				</li>	
 			#else
-				<li  #if ($prevAction==false) class="firstToolBarItem" #set($prevAction=true)  #end role="menuitem" aria-disabled="true">
+				<li  #if ($prevAction==false) class="firstToolBarItem" #set($prevAction=true)  #end>
 					<span class="disabled">$!tlang.getString("gen.stuvie")</span>
 				</li>	
 			#end
 		#end
 		#if (($allowAllGroups) && ($assignmentscheck))
-			<li  #if($prevAction==false) class="firstToolBarItem" #set($prevAction=true)  #end role="menuitem" aria-disabled="true">
+			<li  #if($prevAction==false) class="firstToolBarItem" #set($prevAction=true)  #end>
 				<span class="current">$tlang.getString('gen.reorder')</span>
 			</li>	
 		#end
 		#if ($allowUpdateSite)
-			<li  #if ($prevAction==false) class="firstToolBarItem" #set($prevAction=true) #end role="menuitem" aria-disabled="true">
+			<li  #if ($prevAction==false) class="firstToolBarItem" #set($prevAction=true) #end>
 				<span><a href="#toolLink("$action" "doPermissions")" title="$tlang.getString('permis')">$tlang.getString('permis')</a></span>
 			</li>
 			#if ($enableViewOption)		
-				<li #if ($prevAction==false) class="firstToolBarItem" #set($prevAction=true)  #end  role="menuitem">
+				<li #if ($prevAction==false) class="firstToolBarItem" #set($prevAction=true)  #end>
 					<span><a href="#toolLink("$action" "doOptions")" title="$tlang.getString('options')">$tlang.getString('options')</a></span>
 				</li>
 			#end	

@@ -1,18 +1,18 @@
 <!-- $Id$ -->
 <!-- start: chef_assignments_instructor_view_assignment.vm  -->
-<div class="portletBody" xmlns:wairole="http://www.w3.org/2005/01/wai-rdf/GUIRoleTaxonomy#"  xmlns:aaa="http://www.w3.org/2005/07/aaa">
+<div class="portletBody">
 	#if ($taggable && $allowAddAssignment)
 		#if (!$activityHelpers.isEmpty())
-		<ul class="navIntraTool actionToolBar" role="menu">
+		<ul class="navIntraTool actionToolBar">
 				#set ($first = true)
 				#foreach ($helperInfo in $activityHelpers)
 					#if (!$first)
-					<li  class="firstToolBarItem" role="menuitem">
+					<li  class="firstToolBarItem">
 						<span><a href="#toolLinkParam("$action" "doHelp_activity" "activityRef=$validator.escapeUrl($activity.reference)&providerId=$validator.escapeUrl($helperInfo.provider.id)")" title="$!helperInfo.description">$!helperInfo.name</a></span>
 					</li>	
 					#else
 						#set ($first = false)
-						<li role="menuitem">						
+						<li>						
 							<span><a href="#toolLinkParam("$action" "doHelp_activity" "activityRef=$validator.escapeUrl($activity.reference)&providerId=$validator.escapeUrl($helperInfo.provider.id)")" title="$!helperInfo.description">$!helperInfo.name</a></span>
 						</li>	
 					#end

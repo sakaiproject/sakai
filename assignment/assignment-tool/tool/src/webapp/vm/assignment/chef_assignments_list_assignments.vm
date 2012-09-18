@@ -24,50 +24,50 @@ function allowClick(object)
 <div class="portletBody">
 	#if ($allowAddAssignment || ($withGrade && $!allowGradeSubmission))
 	## for user who cannot create assignment nor grade submission, no need to show "Assignment List" link at all since there is really no other toolbar choices
-	<ul class="navIntraTool actionToolBar" role="menu">
+	<ul class="navIntraTool actionToolBar">
 		#set($prevAction=false)
 		#if ($allowAddAssignment)
 			#set($prevAction=true)
-			<li  class="firstToolBarItem" role="menuitem"><span><a href="#toolLink("$action" "doNew_assignment")" title="$!tlang.getString("new")">$!tlang.getString("new")</a></span></li>
+			<li  class="firstToolBarItem"><span><a href="#toolLink("$action" "doNew_assignment")" title="$!tlang.getString("new")">$!tlang.getString("new")</a></span></li>
 		#end
-		<li #if ($prevAction==false) class="firstToolBarItem" #set($prevAction=true)  #end role="menuitem"
+		<li #if ($prevAction==false) class="firstToolBarItem" #set($prevAction=true)  #end 
 			#if (!$!view.equals('lisofass1'))
 				>
 				<span><a href="#toolLinkParam("$action" "doView" "view=lisofass1")" title="$!tlang.getString('lisofass1')">$!tlang.getString('lisofass1')</a></span>
 			#else
-				 aria-disabled="true">
+				 >
 				<span class="current">$!tlang.getString("lisofass1")</span>
 			#end
 		</li>	
 		
 		#if ($withGrade && $!allowGradeSubmission)
-			<li#if ($prevAction==false) class="firstToolBarItem" #set($prevAction=true)  #end  role="menuitem">
+			<li#if ($prevAction==false) class="firstToolBarItem" #set($prevAction=true)  #end>
 				<span><a href="#toolLinkParam("$action" "doView" "view=grarep")" title="$!tlang.getString("gen.grarep")">$!tlang.getString("gen.grarep")</a></span>
 			</li>
 		#end
 	
 		#if ($allowAddAssignment)
-			<li  #if ($prevAction==false) class="firstToolBarItem" #set($prevAction=true)  #end role="menuitem"
+			<li  #if ($prevAction==false) class="firstToolBarItem" #set($prevAction=true)  #end 
 				#if (!$!view.equals('stuvie'))
 					>
 					<span><a href="#toolLinkParam("$action" "doView" "view=stuvie")" title="$!tlang.getString("gen.stuvie")">$!tlang.getString("gen.stuvie")</a></span>
 				#else
-					aria-disabled="true">
+					>
 					<span class="current">$!tlang.getString("gen.stuvie")</span>
 				#end
 			</li>	
 		#end
 		#if (($allowAllGroups) && ($assignmentscheck))
-			<li #if ($prevAction==false) class="firstToolBarItem" #set($prevAction=true)  #end  role="menuitem">
+			<li #if ($prevAction==false) class="firstToolBarItem" #set($prevAction=true)  #end>
 				<span><a href="#toolLink("$action" "doReorder")" title="$tlang.getString('gen.reorder')">$tlang.getString('gen.reorder')</a></span>
 			</li>
 		#end
 		#if ($allowUpdateSite)
-			<li #if ($prevAction==false) class="firstToolBarItem" #set($prevAction=true)  #end  role="menuitem">
+			<li #if ($prevAction==false) class="firstToolBarItem" #set($prevAction=true)  #end>
 				<span><a href="#toolLink("$action" "doPermissions")" title="$tlang.getString('permis')">$tlang.getString('permis')</a></span>
 			</li>
 			#if ($enableViewOption)		
-				<li #if ($prevAction==false) class="firstToolBarItem" #set($prevAction=true)  #end  role="menuitem">
+				<li #if ($prevAction==false) class="firstToolBarItem" #set($prevAction=true)  #end>
 					<span><a href="#toolLink("$action" "doOptions")" title="$tlang.getString('options')">$tlang.getString('options')</a></span>
 				</li>
 			#end	

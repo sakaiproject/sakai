@@ -18,39 +18,39 @@ function handleEnterKeyPress(ev)
 		setupItemNavigator();
     });
 </script>
-<div class="portletBody" xmlns:wairole="http://www.w3.org/2005/01/wai-rdf/GUIRoleTaxonomy#"  xmlns:aaa="http://www.w3.org/2005/07/aaa">
-<ul class="navIntraTool actionToolBar" role="menu">
+<div class="portletBody">
+<ul class="navIntraTool actionToolBar">
 		#set($prevAction=false)
 		#if ($allowAddAssignment)
 			#set($prevAction=true)
-			<li role="menuitem" class="firstToolBarItem">
+			<li class="firstToolBarItem">
 				<span><a href="#toolLink("$action" "doNew_assignment")" title="$!tlang.getString("new")">$!tlang.getString("new")</a></span>
 			</li>
 		#end
-		<li #if ($prevAction==false) class="firstToolBarItem" #set($prevAction=true)  #end role="menuitem">
+		<li #if ($prevAction==false) class="firstToolBarItem" #set($prevAction=true)  #end>
 			<span><a href="#" title = "$!tlang.getString('lisofass1')" onclick="javascript:document.gradeForm.onsubmit();document.getElementById('option').value='view';document.getElementById('view').value='lisofass1';document.gradeForm.submit();return false;">$!tlang.getString("lisofass1")</a></span>
 		</li>	
 		#if ($withGrade && $!allowGradeSubmission)
-			<li #if ($prevAction==false) class="firstToolBarItem" #set($prevAction=true)  #end role="menuitem">
+			<li #if ($prevAction==false) class="firstToolBarItem" #set($prevAction=true)  #end>
 				<span><a href="#" title="$!tlang.getString('gen.grarep')" onclick="javascript:document.gradeForm.onsubmit();document.getElementById('option').value='view';document.getElementById('view').value='grarep';document.gradeForm.submit();return false;">$!tlang.getString("gen.grarep")</a></span>
 			</li>				
 		#end
 		#if ($allowAddAssignment)
-			<li #if ($prevAction==false) class="firstToolBarItem" #set($prevAction=true)  #end role="menuitem">
+			<li #if ($prevAction==false) class="firstToolBarItem" #set($prevAction=true)  #end>
 				<span><a href="#" title="$!tlang.getString('gen.stuvie')" onclick="javascript:document.gradeForm.onsubmit();document.getElementById('option').value='view';document.getElementById('view').value='stuvie';document.gradeForm.submit();return false;">$!tlang.getString("gen.stuvie")</a></span>
 			</li>	
 		#end
 		#if (($allowAllGroups) && ($assignmentscheck))
-			<li #if ($prevAction==false) class="firstToolBarItem" #set($prevAction=true)  #end role="menuitem">
+			<li #if ($prevAction==false) class="firstToolBarItem" #set($prevAction=true)  #end>
 				<span><a href="#" title="$tlang.getString('gen.reorder')" onclick="javascript:document.gradeForm.onsubmit();document.getElementById('option').value='reorderNavigation';document.gradeForm.submit();return false;">$tlang.getString('gen.reorder')</a></span>
 			</li>	
 		#end
 		#if ($allowUpdateSite)
-			<li #if ($prevAction==false) class="firstToolBarItem" #set($prevAction=true)  #end role="menuitem">
+			<li #if ($prevAction==false) class="firstToolBarItem" #set($prevAction=true)  #end>
 				<span><a href="#" title="$tlang.getString('permis')" onclick="javascript:document.gradeForm.onsubmit();document.getElementById('option').value='permissions';document.gradeForm.submit();return false;">$tlang.getString('permis')</a></span>
 			</li>
 			#if ($enableViewOption)	
-				<li #if ($prevAction==false) class="firstToolBarItem" #set($prevAction=true)  #end role="menuitem">
+				<li #if ($prevAction==false) class="firstToolBarItem" #set($prevAction=true)  #end>
 					<span><a href="#" title="$tlang.getString('options')" onclick="javascript:document.gradeForm.onsubmit();document.getElementById('option').value='options';document.gradeForm.submit();return false;">$tlang.getString('options')</a></span>
 				</li>
 			#end	

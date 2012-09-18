@@ -97,31 +97,31 @@ $(document).ready(function() {
 <script type="text/javascript">
 	focus_path = [ '$fField' ];
 </script>
-<div class="portletBody"  xmlns:aaa="http://www.w3.org/2005/07/aaa">
-	<ul class="navIntraTool actionToolBar" role="menu">
+<div class="portletBody">
+	<ul class="navIntraTool actionToolBar">
 		#if ($allowAddAssignment)
-			<li class="firstToolBarItem" role="menuitem" aria-disabled="true">
+			<li class="firstToolBarItem">
 				<span class="current">$!tlang.getString("new")</span>
 			</li>
-			<li role="menuitem">
+			<li>
 				<span><a href="#" title = "$!tlang.getString('lisofass1')" onclick="javascript:document.newAssignmentForm.onsubmit();document.getElementById('option').value='view';document.getElementById('view').value='lisofass1';document.newAssignmentForm.submit();return false;">$!tlang.getString("lisofass1")</a></span>
 			</li>	
 			#if ($withGrade && $!allowGradeSubmission)
-				<li  role="menuitem">
+				<li>
 					<span><a href="#" title="$!tlang.getString('gen.grarep')" onclick="javascript:document.newAssignmentForm.onsubmit();document.getElementById('option').value='view';document.getElementById('view').value='grarep';document.newAssignmentForm.submit();return false;">$!tlang.getString("gen.grarep")</a></span>
 				</li>
 			#end
-				<li  role="menuitem">
+				<li>
 					<span><a href="#" title="$!tlang.getString('gen.stuvie')" onclick="javascript:document.newAssignmentForm.onsubmit();document.getElementById('option').value='view';document.getElementById('view').value='stuvie';document.newAssignmentForm.submit();return false;">$!tlang.getString("gen.stuvie")</a></span>
 				</li>				
 		#end
 		#if (($allowAllGroups) && ($assignmentscheck))
-			<li  role="menuitem">		
+			<li>		
 				<span><a href="#" title="$tlang.getString('gen.reorder')" onclick="javascript:document.newAssignmentForm.onsubmit();document.getElementById('option').value='reorderNavigation';document.newAssignmentForm.submit();return false;">$tlang.getString('gen.reorder')</a></span>
 			</li>
 		#end
 		#if ($allowUpdateSite)
-			<li  role="menuitem">
+			<li>
 				<span><a href="#" title="$tlang.getString('permis')" onclick="javascript:document.newAssignmentForm.onsubmit();document.getElementById('option').value='permissions';document.newAssignmentForm.submit();return false;">$tlang.getString('permis')</a></span>
 			</li>	
 		#end

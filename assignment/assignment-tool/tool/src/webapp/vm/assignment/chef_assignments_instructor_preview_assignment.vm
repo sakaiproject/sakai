@@ -1,31 +1,31 @@
 <!-- $Id$ -->
 <!-- start: chef_assignments_instructor_preview_assignment.vm  -->
 ##<!-- $Header: /cvs/sakai2/legacy/tools/src/webapp/vm/assignment/chef_assignments_instructor_preview_assignment.vm,v 1.9 2005/06/14 14:47:34 zqian.umich.edu Exp $ -->
-<div class="portletBody"  xmlns:wairole="http://www.w3.org/2005/01/wai-rdf/GUIRoleTaxonomy#"  xmlns:aaa="http://www.w3.org/2005/07/aaa">
-	<ul class="navIntraTool actionToolBar" role="menu">
+<div class="portletBody">
+	<ul class="navIntraTool actionToolBar">
 		#if ($allowAddAssignment)
-			<li  class="firstToolBarItem" role="menuitem" aria-disabled="true">
+			<li  class="firstToolBarItem">
 				<span class="current">$!tlang.getString("new")</span>
 			</li>
-			<li role="menuitem">
+			<li>
 				<span><a href="#toolLinkParam("$action" "doView" "view=lisofass1")" title = "$!tlang.getString('lisofass1')">$!tlang.getString("lisofass1")</a></span>
 			</li>				
 			#if ($withGrade && $!allowGradeSubmission)
-				<li role="menuitem">
+				<li>
 					<span><a href="#toolLinkParam("$action" "doView" "view=grarep")" title="$!tlang.getString("gen.grarep")">$!tlang.getString("gen.grarep")</a></span>
 				</li>
 			#end
-			<li role="menuitem">
+			<li>
 				<span><a href="#toolLinkParam("$action" "doView" "view=stuvie")" title="$!tlang.getString("gen.stuvie")">$!tlang.getString("gen.stuvie")</a></span>
 			</li>	
 		#end
 		#if (($allowAllGroups) && ($assignmentscheck))
-			<li role="menuitem"><span><a href="#toolLink("$action" "doReorder")" title="$tlang.getString('gen.reorder')">$tlang.getString('gen.reorder')</a></span></li>
+			<li><span><a href="#toolLink("$action" "doReorder")" title="$tlang.getString('gen.reorder')">$tlang.getString('gen.reorder')</a></span></li>
 		#end
 		#if ($allowUpdateSite)
-			<li role="menuitem"><span><a href="#toolLink("$action" "doPermissions")" title="$tlang.getString('permis')">$tlang.getString('permis')</a></span></li>
+			<li><span><a href="#toolLink("$action" "doPermissions")" title="$tlang.getString('permis')">$tlang.getString('permis')</a></span></li>
 			#if ($enableViewOption)	
-				<li #if ($prevAction==false) class="firstToolBarItem" #set($prevAction=true)  #end  role="menuitem">
+				<li #if ($prevAction==false) class="firstToolBarItem" #set($prevAction=true)  #end>
 					<span><a href="#toolLink("$action" "doOptions")" title="$tlang.getString('options')">$tlang.getString('options')</a></span>
 				</li>
 			#end

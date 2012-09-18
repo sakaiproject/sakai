@@ -6,20 +6,20 @@
         setupToggleAreas('toggleAnchor', 'toggledContent', false, 'fast');
     });
 </script>
-<div class="portletBody" xmlns:wairole="http://www.w3.org/2005/01/wai-rdf/GUIRoleTaxonomy#"  xmlns:aaa="http://www.w3.org/2005/07/aaa">
+<div class="portletBody">
 	#set ($assignment = $submission.Assignment)
 	#if ($taggable)
 		#if (!$itemHelpers.isEmpty())
-		<ul class="navIntraTool actionToolBar" role="menu">
+		<ul class="navIntraTool actionToolBar">
 				#set ($first = true)
 				#foreach ($helperInfo in $itemHelpers)
 					#if (!$first)
-						<li  class="firstToolBarItem" role="menuitem">
+						<li  class="firstToolBarItem">
 							<span><a href="#toolLinkParam("$action" "doHelp_item" "itemRef=$validator.escapeUrl($item.reference)&providerId=$validator.escapeUrl($helperInfo.provider.id)")" title="$!helperInfo.description">$!helperInfo.name</a></span>
 						</li>	
 					#else
 						#set ($first = false)
-						<li role="menuitem">	
+						<li>	
 						<span><a href="#toolLinkParam("$action" "doHelp_item" "itemRef=$validator.escapeUrl($item.reference)&providerId=$validator.escapeUrl($helperInfo.provider.id)")" title="$!helperInfo.description">$!helperInfo.name</a></span>
 					#end
 				#end
