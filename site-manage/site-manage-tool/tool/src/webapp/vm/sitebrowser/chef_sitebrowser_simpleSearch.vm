@@ -24,7 +24,9 @@
 		<p class="instruction">$tlang.getString("se.complete")</p>
 	
 		<form action="#toolForm("$action")" method="post">		
+		<fieldset style="margin-top:0"><legend>
 		<h4>$tlang.getString("se.type")</h4>
+        </legend>
 			#if ($siteTypes.size() > 0 )
 				#set($siteTypeCount=0)
 				#foreach ($type in $siteTypes)
@@ -57,6 +59,7 @@
 				<input type="radio" name="siteType" id="siteTypeAny" value="Any" checked="checked" />
 				<label for="siteTypeAny">$tlang.getString("se.any")</label>
 			</div>
+            </fieldset>
 			<p class="instruction indnt1">$tlang.getString("se.instruction")</p>
 		<p class="shorttext indnt1">
 			<label for="searchbox">$tlang.getString("se.search1") </label>
