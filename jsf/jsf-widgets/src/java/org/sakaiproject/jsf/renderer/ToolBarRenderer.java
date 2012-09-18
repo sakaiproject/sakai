@@ -62,7 +62,7 @@ public class ToolBarRenderer extends Renderer
 		return;
 	}
     ResponseWriter writer = context.getResponseWriter();
-    writer.write("<ul class=\"navIntraTool actionToolbar\" role=\"menu\">");
+    writer.write("<ul class=\"navIntraTool actionToolbar\">");
 
     return;
   }
@@ -111,11 +111,11 @@ public class ToolBarRenderer extends Renderer
       if (child.isRendered()) {
          if (!first)   
          {
-        	 writer.write("<li role=\"menuitem\"><span>");
+        	 writer.write("<li><span>");
          }
          else
          {
-        	 writer.write("<li role=\"menuitem\" class=\"firstToolBarItem\"><span>");
+        	 writer.write("<li class=\"firstToolBarItem\"><span>");
          }
          RendererUtil.encodeRecursive(context, child);
     	 writer.write("</span></li> ");
