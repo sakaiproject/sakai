@@ -871,7 +871,8 @@ public class SkinnableCharonPortal extends HttpServlet implements Portal
 			}
 			// end SAK-19089
 
-			if (pdaHandler){
+			// SAK-22633 - Only forward site urls to PDAHandler
+			if (pdaHandler && parts.length > 1 && "site".equals(parts[1])){
 				//Mobile access
 				ph = handlerMap.get("pda");
 				parts[1] = "pda";
@@ -1254,8 +1255,8 @@ public class SkinnableCharonPortal extends HttpServlet implements Portal
 				M_log.debug("Using pdaHandler: " + pdaHandler);
 			}
 			
-			// SAK-18955: do not use PDAHandler for relogin
-			if ((! parts[1].equals("relogin")) && (pdaHandler)){
+			// SAK-22633 - Only forward site urls to PDAHandler
+			if (pdaHandler && parts.length > 1 && "site".equals(parts[1])){
 				//Mobile access
 				ph = handlerMap.get("pda");
 				parts[1] = "pda";
