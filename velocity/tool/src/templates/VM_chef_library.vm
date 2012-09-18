@@ -29,7 +29,7 @@
 	#end
 
 	#if (($mnu) && (!$mnu.isEmpty())  && ($hasItems=="true"))
-		<ul class="navIntraTool actionToolBar" role="menu">
+		<ul class="navIntraTool actionToolBar">
 			#set ($toolbaritemCount=0)	
 			#foreach ($item in $mnu.Items)
 				## figure the link
@@ -50,20 +50,20 @@
 								## checked item support
 								#if($item.IsChecked)
 									#set( $toolbaritemCount=$toolbaritemCount + 1)
-									<li #if ($toolbaritemCount ==1) class="firstToolBarItem" #end role="menuitem">
+									<li #if ($toolbaritemCount ==1) class="firstToolBarItem" #end>
 										<span class="chefToolBarToggle $prevItemWasField"><a href="#" title="$item.Title" onclick="location = '$base'#if($item.Form)+buildQueryString('$item.Form')#end;return false;">$item.Title</a></span>
 									</li>
 								## unchecked item support
 								#else
 									#set( $toolbaritemCount=$toolbaritemCount + 1)
-									<li #if ($toolbaritemCount ==1) class="firstToolBarItem" #end role="menuitem">
+									<li #if ($toolbaritemCount ==1) class="firstToolBarItem" #end>
 										<span class="$prevItemWasField"><a href="#" title="$item.Title" onclick="location = '$base'#if($item.Form)+buildQueryString('$item.Form')#end;return false;">$item.Title</a></span>
 									</li>
 								#end
 							## url support (i.e. to another place, another window)
 							#else
 								#set( $toolbaritemCount=$toolbaritemCount + 1)
-								<li #if ($toolbaritemCount ==1) class="firstToolBarItem" #end role="menuitem" aria-haspopup="true">
+								<li #if ($toolbaritemCount ==1) class="firstToolBarItem" #end>
 									<span class="externalLink $prevItemWasField"><a href="$item.Url" title="$item.Title" target="_blank">$item.Title</a></span>
 								</li>	
 							#end
@@ -72,7 +72,7 @@
 						#else
 							#set( $toolbaritemCount=$toolbaritemCount + 1)
 							#set ($formItem=1)
-							<li #if ($toolbaritemCount ==1) class="firstToolBarItem inputItem" #else class="inputItem" #end role="menuitem">
+							<li #if ($toolbaritemCount ==1) class="firstToolBarItem inputItem" #else class="inputItem" #end>
 								<span class="formItem">
 									<form name="$item.Form" action="$base" class="inlineForm" method="post">
 										<input size="15" value="$validator.escapeHtml($item.Value)" name="$item.Title" id="$item.Title" type="text" class="searchField" title="$item.AccessibilityLabel" />
@@ -89,12 +89,12 @@
 			## not enabled - could be checked
 			#elseif ($item.IsChecked)
 				#set( $toolbaritemCount=$toolbaritemCount + 1)
-				<li #if ($toolbaritemCount ==1) class="firstToolBarItem" #end role="menuitem" aria-disabled="true"><span class="current $prevItemWasField">$item.Title</span></li>
+				<li #if ($toolbaritemCount ==1) class="firstToolBarItem" #end><span class="current $prevItemWasField">$item.Title</span></li>
 
 			## not enabled - not checked - show if we are showing disabled
 			#elseif ($mnu.Showdisabled)
 				#set( $toolbaritemCount=$toolbaritemCount + 1)
-				<li #if ($toolbaritemCount ==1) class="firstToolBarItem" #end role="menuitem" aria-disabled="true"><span class="disabled $prevItemWasField">$item.Title</span></li>
+				<li #if ($toolbaritemCount ==1) class="firstToolBarItem" #end><span class="disabled $prevItemWasField">$item.Title</span></li>
 			#end
 		## end of foreach loop
 		#end
