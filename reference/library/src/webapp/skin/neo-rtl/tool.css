@@ -1215,7 +1215,7 @@ input[type="submit"][disabled="disabled"],
     box-shadow: 0 1px 1px 0 #999999 !important;
     font-size: 11px !important;
     font-weight: bold !important;
-    height: 24px !important;
+    height: 24px;
     margin-left: 0 !important;
     text-shadow: 0 2px 3px #FFFFFF !important;
     border-radius: 3px;
