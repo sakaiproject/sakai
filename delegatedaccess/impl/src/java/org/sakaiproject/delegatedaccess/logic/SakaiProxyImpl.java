@@ -445,7 +445,6 @@ public class SakaiProxyImpl implements SakaiProxy {
 			// Copy the role to the dest role 
 			AuthzGroup destGroup = authzGroupService.getAuthzGroup(siteRef);
 			destGroup.removeRole(newRole);
-			authzGroupService.save(destGroup);
 			destGroup.addRole(newRole, copyFromRole);
 			authzGroupService.save(destGroup);
 

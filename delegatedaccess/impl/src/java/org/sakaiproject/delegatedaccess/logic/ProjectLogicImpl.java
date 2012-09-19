@@ -1638,9 +1638,20 @@ public class ProjectLogicImpl implements ProjectLogic {
 					nodeIds.addAll(nodeIdsList);
 				}
 				Map<String, HierarchyNode> siteNodes = hierarchyService.getNodesByIds(nodeIds.toArray(new String[nodeIds.size()]));
+				//create a set of parent ID's and lookup the user's permissions for this sub-set:
+				Set<String> subSetNodeIds = new HashSet<String>();
+				if(siteNodes != null){
+					for(HierarchyNode node : siteNodes.values()){
+						subSetNodeIds.add(node.id);
+						if(node.parentNodeIds != null){
+							for(String pId : node.parentNodeIds){
+								subSetNodeIds.add(pId);
+							}
+						}
+					}
+				}
 				//find the node for the site
-				Map<String, Map<String, Set<String>>> usersNodesAndPerms = hierarchyService.getNodesAndPermsForUser(userId);
-				Map<String, Set<String>> userNodesAndPerms = usersNodesAndPerms.get(userId);
+				Map<String, Set<String>> userNodesAndPerms = dao.getNodesAndPermsForUser(userId, subSetNodeIds.toArray(new String[subSetNodeIds.size()]));
 				Map<String, String> memberRoles = new HashMap<String, String>();
 				if(!shoppingPeriod){
 					memberRoles = sakaiProxy.isUserMember(userId, siteRefs);

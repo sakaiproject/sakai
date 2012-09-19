@@ -6,10 +6,12 @@ import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.NoSuchElementException;
 import java.util.Map.Entry;
+import java.util.Set;
 
 import org.apache.commons.configuration.ConfigurationException;
 import org.apache.commons.configuration.PropertiesConfiguration;
@@ -307,4 +309,58 @@ public class DelegatedAccessDaoImpl extends JdbcDaoSupport implements DelegatedA
 		}
 	}
 	
+	public void cleanupOrphanedPermissions(){
+		try {
+			getJdbcTemplate().update(getStatement("delete.orphaned.permissions"));
+		} catch (DataAccessException ex) {
+           log.error("Error executing query: " + ex.getClass() + ":" + ex.getMessage());
+		}
+	}
+	
+	public Map<String, Set<String>> getNodesAndPermsForUser(String userId, String[] nodeIds){
+		try{
+			Map<String, Set<String>> returnMap = new HashMap<String, Set<String>>();
+			
+			int subArrayIndex = 0;
+			do{
+				int subArraySize = ORACLE_IN_CLAUSE_SIZE_LIMIT;
+				if(subArrayIndex + subArraySize > nodeIds.length){
+					subArraySize = (nodeIds.length - subArrayIndex);
+				}
+				String[] subSiteRefs = Arrays.copyOfRange(nodeIds, subArrayIndex, subArrayIndex + subArraySize);
+
+				String query = getStatement("select.nodes.and.perms.for.user");
+				String inParams = "(";
+				for(int i = 0; i < subSiteRefs.length; i++){
+					inParams += "'" + subSiteRefs[i] + "'";
+					if(i < subSiteRefs.length - 1){
+						inParams += ",";
+					}
+				}
+				inParams += ")";
+				query = query.replace("(?)", inParams);
+				List<String[]> results =  (List<String[]>) getJdbcTemplate().query(query, new Object[]{userId}, new RowMapper() {
+
+					public Object mapRow(ResultSet resultSet, int i) throws SQLException {
+						return new String[]{resultSet.getString("NODEID"), resultSet.getString("PERMISSION")};
+					}
+				});
+				if(results != null){
+					for(String[] result : results){
+						if(result != null && result.length == 2){
+							if(!returnMap.containsKey(result[0])){
+								returnMap.put(result[0], new HashSet<String>());
+							}
+							returnMap.get(result[0]).add(result[1]);
+						}
+					}
+				}
+				subArrayIndex = subArrayIndex + subArraySize;
+			}while(subArrayIndex < nodeIds.length);
+			
+			return returnMap;
+		}catch (DataAccessException ex) {
+			return null;
+		}
+	}
 }

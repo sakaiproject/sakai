@@ -80,6 +80,7 @@ public class DelegatedAccessShoppingPeriodJob implements StatefulJob{
 				try{
 					//delete old shopping period hierarchy:
 					hierarchyService.destroyHierarchy(DelegatedAccessConstants.SHOPPING_PERIOD_HIERARCHY_ID);
+					dao.cleanupOrphanedPermissions();
 				}catch(Exception e){
 					//doesn't exist, don't worry
 				}
@@ -265,10 +266,14 @@ public class DelegatedAccessShoppingPeriodJob implements StatefulJob{
 			HierarchyNode newNode = hierarchyService.addNode(DelegatedAccessConstants.SHOPPING_PERIOD_HIERARCHY_ID, migratedHierarchyIds.get(parent.getNodeId()));
 			hierarchyService.saveNodeMetaData(newNode.id, node.getNode().title, node.getNode().description, null);
 			hierarchyService.addChildRelation(migratedHierarchyIds.get(parent.getNodeId()), newNode.id);
-			//copy old node's permissions for the shopping period user
-			for(String perm : hierarchyService.getPermsForUserNodes(DelegatedAccessConstants.SHOPPING_PERIOD_USER, new String[]{node.getNodeId()})){
-				hierarchyService.assignUserNodePerm(DelegatedAccessConstants.SHOPPING_PERIOD_USER, newNode.id, perm, false);
-			}
+			//copy old node's permissions for the shopping period user by changing only the node Id and saving it's permissions
+			String origId = node.getNodeId();
+			node.setNodeId(newNode.id);
+			projectLogic.updateNodePermissionsForUser(node, DelegatedAccessConstants.SHOPPING_PERIOD_USER);
+			node.setNodeId(origId);
+//			for(String perm : hierarchyService.getPermsForUserNodes(DelegatedAccessConstants.SHOPPING_PERIOD_USER, new String[]{node.getNodeId()})){
+//				hierarchyService.assignUserNodePerm(DelegatedAccessConstants.SHOPPING_PERIOD_USER, newNode.id, perm, false);
+//			}
 			migratedHierarchyIds.put(node.getNodeId(), newNode.id);
 		}
 	}
