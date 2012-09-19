@@ -61,7 +61,7 @@
 							<input type="hidden" name="sakai_csrf_token" value="$sakai_csrf_token" />
 						</form>
 					#else
-						<input type="submit" name="eventSubmit_doList_prev" value="&lt;"  disabled="disabled" />
+						<fieldset><legend>$tlang.getString("list.previous") $pagesize</legend><input type="submit" name="eventSubmit_doList_prev" value="&lt;"  disabled="disabled" /></fieldset>
 					#end
 				#end
 			
@@ -86,7 +86,7 @@
 						<fieldset><legend>$tlang.getString("list.next") $pagesize</legend><input type="submit" name="eventSubmit_doList_next" value="&gt;"  title="$tlang.getString("list.next") $pagesize" accesskey="n" /></fieldset>
 						</form>
 					#else
-							<input type="submit" name="eventSubmit_doList_next" value="&gt;" disabled="disabled" />
+							<fieldset><legend>$tlang.getString("list.next") $pagesize</legend><input type="submit" name="eventSubmit_doList_next" value="&gt;" disabled="disabled" /></fieldset>
 					#end
 				#end
 
