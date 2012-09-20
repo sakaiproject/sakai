@@ -519,7 +519,7 @@ public class ProjectLogicImpl implements ProjectLogic {
 		Collection<SiteSearchResult> siteSubset = null;
 		Map<String, String> userSortNameCache = new HashMap<String, String>();
 		if(!"".equals(search) || (advancedOptions != null && advancedOptions.size() > 0)){
-			siteSubset = searchSites(search, advancedOptions);
+			siteSubset = searchSites(search, advancedOptions, shoppingPeriod);
 			List<String> siteRefs = new ArrayList<String>();
 			for(SiteSearchResult siteResult : siteSubset){
 				siteRefs.add(siteResult.getSiteReference());
@@ -569,7 +569,7 @@ public class ProjectLogicImpl implements ProjectLogic {
 		return returnList;
 	}
 
-	public Collection<SiteSearchResult> searchSites(String search, Map<String, String> advancedOptions){
+	public Collection<SiteSearchResult> searchSites(String search, Map<String, String> advancedOptions, boolean publishedSitesOnly){
 		if("".equals(search)){
 			search = null;
 		}
@@ -621,7 +621,7 @@ public class ProjectLogicImpl implements ProjectLogic {
 			}
 		}
 		// search title, props, or instructors
-		List<String[]> siteResults = dao.searchSites(search, propsMap, instructorMap.keySet().toArray(new String[instructorMap.keySet().size()]));
+		List<String[]> siteResults = dao.searchSites(search, propsMap, instructorMap.keySet().toArray(new String[instructorMap.keySet().size()]), publishedSitesOnly);
 		if(siteResults != null && siteResults.size() > 0){
 			//create an array of the siteIds returned:
 			String[] siteIds = new String[siteResults.size()];
@@ -641,7 +641,7 @@ public class ProjectLogicImpl implements ProjectLogic {
 			}	
 		}
 		
-		if(searchByIdSite != null && !sites.containsKey(searchByIdSite.getId())){
+		if(searchByIdSite != null && !sites.containsKey(searchByIdSite.getId()) && (!publishedSitesOnly || searchByIdSite.isPublished())){
 			sites.put(searchByIdSite.getId(), new SiteSearchResult(searchByIdSite, new ArrayList<User>(), termField));
 		}
 		

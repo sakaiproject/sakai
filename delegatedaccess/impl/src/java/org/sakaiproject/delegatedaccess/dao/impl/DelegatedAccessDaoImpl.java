@@ -196,7 +196,7 @@ public class DelegatedAccessDaoImpl extends JdbcDaoSupport implements DelegatedA
 		}
 	}
 	
-	public List<String[]> searchSites(String titleSearch, Map<String, String> propsMap, String[] instructorIds){
+	public List<String[]> searchSites(String titleSearch, Map<String, String> propsMap, String[] instructorIds, boolean publishedOnly){
 		try{
 			if(titleSearch == null){
 				titleSearch = "";
@@ -234,6 +234,9 @@ public class DelegatedAccessDaoImpl extends JdbcDaoSupport implements DelegatedA
 					params[i] = entry.getValue();
 					i++;
 				}
+			}
+			if(publishedOnly){
+				query += " " + getStatement("select.siteSearchPublishedOnly");
 			}
 			
 			return (List<String[]>) getJdbcTemplate().query(query, params, new RowMapper() {

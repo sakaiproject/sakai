@@ -34,9 +34,10 @@ public interface DelegatedAccessDao {
 	 * @param titleSearch
 	 * @param propsMap
 	 * @param instructorIds
+	 * @param publishedOnly
 	 * @return
 	 */
-	public List<String[]> searchSites(String titleSearch, Map<String, String> propsMap, String[] instructorIds);
+	public List<String[]> searchSites(String titleSearch, Map<String, String> propsMap, String[] instructorIds, boolean publishedOnly);
 	
 	/**
 	 * returns a list of {siteId, map{name->value}} for the site ids and properties searched
