@@ -38,6 +38,7 @@ import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Set;
 
+import org.apache.commons.lang.LocaleUtils;
 import org.apache.commons.lang.StringUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
@@ -461,7 +462,7 @@ private List<User> getUsersEmail(List<String> userIds) {
 			//its possible the template has no locale set
 			Locale loc = null;
 			if (template.getLocale() != null) {
-				loc = new Locale(template.getLocale()); 
+				loc = LocaleUtils.toLocale(template.getLocale());
 			}
 			
 			EmailTemplate existingTemplate = getEmailTemplateNoDefault(template.getKey(), loc);
