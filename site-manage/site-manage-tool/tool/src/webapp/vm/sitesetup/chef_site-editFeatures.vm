@@ -12,10 +12,12 @@
 			        });
         $('input[name="import"]').click (function(e){
             if ($(e.target).attr('id') === 'import_yes') {
-                $('#importSitesReq').show()
+                $('#importSitesReq').show();
+                $('#importSites').attr('title', '$tlang.getString("feat.select.title") $tlang.getString("feat.select.title.req")')
             }
             else{
                 $('#importSitesReq').hide();
+                $('#importSites').attr('title', '$tlang.getString("feat.select.title")')
             }
         })
       });
