@@ -155,8 +155,8 @@ public class PollListManagerImpl implements PollListManager,EntityTransferrer {
             if (PollListManager.PERMISSION_VOTE.equals(permissionConstant)) {
                 // limit to polls which are open
                 Date now = new Date();
-                search.addRestriction(new Restriction("voteOpen", now));
-                search.addRestriction(new Restriction("voteClose", now));
+                search.addRestriction(new Restriction("voteOpen", now, Restriction.LESS));
+                search.addRestriction(new Restriction("voteClose", now, Restriction.GREATER));
             } else {
                 // show all polls
             }
