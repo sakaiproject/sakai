@@ -4039,6 +4039,15 @@ public class SimplePageBean {
 	    if (needsFixup == null || !needsFixup.equals("true"))
 		return;
 	    lessonBuilderEntityProducer.updateEntityReferences(getCurrentSiteId());
+	    Site site = getCurrentSite();
+	    ResourcePropertiesEdit rp = site.getPropertiesEdit();
+	    rp.removeProperty("lessonbuilder-needsfixup");
+	    try {
+		siteService.save(site);
+	    } catch (Exception e) {
+		log.warn("site save in maybeUpdateLinks " + e);
+	    }
+	    currentSite = null;  // force refetch next time
 	}
 
 	public boolean isItemAvailable(SimplePageItem item) {
