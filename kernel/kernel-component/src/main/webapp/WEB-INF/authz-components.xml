@@ -63,16 +63,11 @@
 	</bean>
 
   <!-- KNL-600 caching for the realm roles groups -->
-  <bean id="org.sakaiproject.authz.impl.DbAuthzGroupService.realmRoleGroupCache" class="org.springframework.cache.ehcache.EhCacheFactoryBean">
-    <property name="cacheManager">
-      <ref bean="org.sakaiproject.memory.api.MemoryService.cacheManager" />
-    </property>
-    <property name="cacheName">
-      <value>org.sakaiproject.authz.impl.DbAuthzGroupService.realmRoleGroupCache</value>
-    </property>
+  <bean id="org.sakaiproject.authz.impl.DbAuthzGroupService.realmRoleGroupCache" 
+        class="org.sakaiproject.memory.util.EhCacheFactoryBean">
+    <property name="cacheManager" ref="org.sakaiproject.memory.api.MemoryService.cacheManager" />
+    <property name="cacheName" value="org.sakaiproject.authz.impl.DbAuthzGroupService.realmRoleGroupCache" />
     <property name="maxElementsInMemory" value="1000" />
-    <property name="overflowToDisk" value="false" />
-    <property name="eternal" value="false" />
     <property name="timeToLive" value="7200" />
     <property name="timeToIdle" value="7200" />
   </bean>
