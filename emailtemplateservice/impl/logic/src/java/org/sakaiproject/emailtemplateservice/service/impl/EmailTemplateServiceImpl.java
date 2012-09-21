@@ -110,6 +110,7 @@ public class EmailTemplateServiceImpl implements EmailTemplateService {
    }
 
    private EmailTemplate getEmailTemplateNoDefault(String key, Locale locale) {
+	   log.debug("getEmailTemplateNoDefault( " + key +"," + locale);
 	   if (key == null || "".equals(key)) {
 		   throw new IllegalArgumentException("key cannot be null or empty");
 	   }
@@ -161,7 +162,11 @@ public class EmailTemplateServiceImpl implements EmailTemplateService {
 	public boolean templateExists(String key, Locale locale) {
 		List<EmailTemplate> et = null;
 		Search search = new Search("key", key);
-		search.addRestriction( new Restriction("locale", locale.toString()) );
+		if (locale == null) {
+			search.addRestriction( new Restriction("locale", EmailTemplate.DEFAULT_LOCALE));
+		} else {
+			search.addRestriction( new Restriction("locale", locale.toString()));
+		}
         et = dao.findBySearch(EmailTemplate.class, search);
         if (et != null && et.size() > 0) {
         	return true;
