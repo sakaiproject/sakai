@@ -2334,6 +2334,17 @@ public class AssignmentAction extends PagedResourceActionII
 							status = "selected";
 						}
 					}
+					
+					// check with the state variable
+					if ( state.getAttribute(AssignmentService.PROP_ASSIGNMENT_ASSOCIATE_GRADEBOOK_ASSIGNMENT) != null)
+					{
+						String associatedAssignment = ((String) state.getAttribute(AssignmentService.PROP_ASSIGNMENT_ASSOCIATE_GRADEBOOK_ASSIGNMENT));
+						if (associatedAssignment.equals(gaId))
+						{
+							status ="selected";
+						}
+					}
+					
 					gradebookAssignmentsSelectedDisabled.put(gaId, status);
 					
 					
@@ -9515,6 +9526,8 @@ public class AssignmentAction extends PagedResourceActionII
 		state.removeAttribute(NEW_ASSIGNMENT_USE_REVIEW_SERVICE);
 		
 		state.removeAttribute(Assignment.ASSIGNMENT_RELEASERESUBMISSION_NOTIFICATION_VALUE);
+		
+		state.removeAttribute(AssignmentService.PROP_ASSIGNMENT_ASSOCIATE_GRADEBOOK_ASSIGNMENT);
 
 	} // resetNewAssignment
 
