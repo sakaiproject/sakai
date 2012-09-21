@@ -12,7 +12,8 @@
 			class="org.sakaiproject.authz.impl.DbAuthzGroupService"
 			init-method="init"
 			destroy-method="destroy"
-			singleton="true">
+			singleton="true"
+			depends-on="org.sakaiproject.authz.impl.DbAuthzGroupService.realmRoleGroupCache">
 
 		<lookup-method name="sqlService" bean="org.sakaiproject.db.api.SqlService" />
 		<lookup-method name="userDirectoryService" bean="org.sakaiproject.user.api.UserDirectoryService" />
