@@ -460,10 +460,11 @@ private List<User> getUsersEmail(List<String> userIds) {
 
 			//check if we have an existing template of this key and locale
 			//its possible the template has no locale set
+			//The locale could also be the Default
 			Locale loc = null;
-			if (template.getLocale() != null) {
+			if (template.getLocale() != null && !"".equals(template.getLocale()) && !EmailTemplate.DEFAULT_LOCALE.equals(template.getLocale())) {
 				loc = LocaleUtils.toLocale(template.getLocale());
-			}
+			} 
 			
 			EmailTemplate existingTemplate = getEmailTemplateNoDefault(template.getKey(), loc);
 			if(existingTemplate == null) {
