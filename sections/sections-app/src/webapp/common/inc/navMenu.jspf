@@ -1,5 +1,5 @@
-<ul class="navIntraTool actionToolbar" role="menu">
-	<f:verbatim><li role="menuitem" class="firstToolBarItem"><span></f:verbatim>
+<ul class="navIntraTool actionToolbar">
+	<f:verbatim><li class="firstToolBarItem"><span></f:verbatim>
     	<h:commandLink action="overview" immediate="true" rendered="#{viewName ne 'overview'}">
         	<h:outputText value="#{msgs.nav_overview}" />
     	</h:commandLink>
@@ -7,7 +7,7 @@
 	<f:verbatim></span></li></f:verbatim>
     
     <h:panelGroup rendered="#{navMenuBean.sectionManagementEnabled}">
-  		<f:verbatim><li role="menuitem"><span></f:verbatim>
+  		<f:verbatim><li><span></f:verbatim>
         	<h:commandLink action="addSections" immediate="true" rendered="#{viewName ne 'addSections'}">
             	<h:outputText value="#{msgs.add_sections}"/>
         	</h:commandLink>
@@ -15,7 +15,7 @@
   		<f:verbatim></span></li></f:verbatim>
     </h:panelGroup>
 
-	<f:verbatim><li role="menuitem"><span></f:verbatim>
+	<f:verbatim><li><span></f:verbatim>
     	<h:commandLink action="roster" immediate="true" rendered="#{viewName ne 'roster'}">
         	<h:outputText value="#{msgs.student_member}"/>
     	</h:commandLink>
@@ -24,7 +24,7 @@
 
 
     <h:panelGroup rendered="#{navMenuBean.sectionOptionsManagementEnabled}">
-  		<f:verbatim><li role="menuitem"><span></f:verbatim>
+  		<f:verbatim><li><span></f:verbatim>
 	    <h:commandLink action="options" immediate="true" rendered="#{viewName ne 'options'}">
 	        	<h:outputText value="#{msgs.nav_options}" />
 	    </h:commandLink>
