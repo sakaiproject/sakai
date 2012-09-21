@@ -170,7 +170,7 @@
 								/>
 							</td>
 							<td>
-								<label for="$toolId">
+								<label for="lti_$toolId">
 									$toolValues.get("title")
 									#if ($selectedLtiTools.containsKey($toolId))
 									 ($selectedLtiTools.get($toolId).get("title"))
