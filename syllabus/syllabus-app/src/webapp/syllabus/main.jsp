@@ -33,15 +33,15 @@
 		<%--gsilver: would be best if used all sakai tags, or none, 2 blocks
 		following just gets tries to get around the mix --%>		
 		<syllabus:syllabus_ifnot test="#{SyllabusTool.editAble}">
-			<f:verbatim><ul class="navIntraTool actionToolbar" role="menu"></f:verbatim>
-				<f:verbatim><li role="menuitem" class="firstToolBarItem"></f:verbatim>
+			<f:verbatim><ul class="navIntraTool actionToolbar"></f:verbatim>
+				<f:verbatim><li class="firstToolBarItem"></f:verbatim>
 					<f:verbatim><span></f:verbatim>
 						<sakai:tool_bar_item
 			    			action="#{SyllabusTool.processCreateAndEdit}"
 							value="#{msgs.bar_create_edit}" />
 					<f:verbatim></span></f:verbatim>
 				<f:verbatim></li></f:verbatim>
-				<f:verbatim><li role="menuitem"></f:verbatim>
+				<f:verbatim><li></f:verbatim>
 					<f:verbatim><span></f:verbatim>
 						<h:outputLink id="print" value="javascript:printFriendly('#{SyllabusTool.printFriendlyUrl}');">
 							<h:graphicImage url="/images/printer.png" alt="#{msgs.print_friendly}" title="#{msgs.print_friendly}" />
@@ -54,8 +54,8 @@
 
 		<syllabus:syllabus_if test="#{SyllabusTool.editAble}" >
 
-			<f:verbatim><ul class="navIntraTool actionToolbar" role="menu"></f:verbatim>
-				<f:verbatim><li role="menuitem" class="firstToolBarItem"></f:verbatim>
+			<f:verbatim><ul class="navIntraTool actionToolbar"></f:verbatim>
+				<f:verbatim><li class="firstToolBarItem"></f:verbatim>
 					<f:verbatim><span></f:verbatim>
 						<h:outputLink id="printIcon" value="javascript:printFriendly('#{SyllabusTool.printFriendlyUrl}');">
 							<h:graphicImage url="/images/printer.png" alt="#{msgs.print_friendly}" title="#{msgs.print_friendly}" />
