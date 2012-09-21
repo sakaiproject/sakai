@@ -805,6 +805,8 @@ public abstract class BaseLTIService implements LTIService {
 				sitePage.setTitle(button_text);
 				sitePage.setTitleCustom(true);
 				
+				siteService.save(site);
+				
 				tool.getPlacementConfig().setProperty("source",(String)content.get("launch_url"));
 				tool.setTitle(button_text);
 		
