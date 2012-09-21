@@ -26,7 +26,7 @@
     <property name="lastModifiedBy" type="string" length="255" column="LASTMODIFIEDBY" not-null="false" />
     <property name="lastModifiedDate" type="timestamp" column="LASTMODIFIEDDATE" not-null="false" />
     <property name="duration" type="string" length="36" column="DURATION" not-null="false" />
-    <property name="media" type="blob" length="1000000000"  column="MEDIA" not-null="false" />
+    <property name="media" type="binary" length="1000000000"  column="MEDIA" not-null="false" />
   </class>
 
 </hibernate-mapping>
