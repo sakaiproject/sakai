@@ -12,6 +12,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Locale;
 
+import org.apache.commons.lang.LocaleUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.jdom.Document;
@@ -450,9 +451,14 @@ public class ETSUserNotificationProviderImpl implements UserNotificationProvider
 		String body = xmlTemplate.getChildText("message");
 		String locale = xmlTemplate.getChildText("locale");
 		String versionString = xmlTemplate.getChildText("version");
+		Locale loc = null;
+		
+		if (locale != null && !"".equals(locale)) {
+			loc = LocaleUtils.toLocale(locale);
+		}
 		
 		
-		if (!emailTemplateService.templateExists(key, new Locale(locale)))
+		if (!emailTemplateService.templateExists(key, loc))
 		{
 			EmailTemplate template = new EmailTemplate();
 			template.setSubject(subject);
