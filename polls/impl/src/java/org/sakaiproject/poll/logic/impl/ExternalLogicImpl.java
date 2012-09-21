@@ -83,7 +83,7 @@ public class ExternalLogicImpl implements ExternalLogic {
 	 private static final String
 	 	/* Email template constants */
 	 	EMAIL_TEMPLATE_NOTIFY_DELETED_OPTION = "polls.notifyDeletedOption",
-	 	FILE_NOTIFY_DELETED_OPTION_TEMPLATE = "notifyDeletedOption.xml",
+	 	FILE_NOTIFY_DELETED_OPTION_TEMPLATE = "org/sakaiproject/poll/templates/notifyDeletedOption.xml",
 	 	
 	 	/* Other constants */
 	 	USER_ADMIN_ID = "admin",
@@ -227,16 +227,10 @@ public class ExternalLogicImpl implements ExternalLogic {
     public void init() {
     	log.info("init()");
     	
-    	try {
-    		//Load the "notify deleted option" template
-			loadMailTemplate(EMAIL_TEMPLATE_NOTIFY_DELETED_OPTION, FILE_NOTIFY_DELETED_OPTION_TEMPLATE);
-		} catch (ParserConfigurationException e) {
-			throw new RuntimeException("Could not load an XML parser.", e);
-		} catch (IOException e) {
-			throw new RuntimeException("Could not read from XML template.");
-		} catch (InvalidEmailTemplateException e) {
-			throw new RuntimeException("Could not parse email template: "+e.getKey()+" from "+e.getFileName(), e);
-		}
+    	//TODO this should be set by injection
+    	List<String> templates = new ArrayList<String>();
+    	templates.add(FILE_NOTIFY_DELETED_OPTION_TEMPLATE);
+    	emailTemplateService.processEmailTemplates(templates);
     }
     
     public List<String> getSitesForUser(String userId, String permission) {
