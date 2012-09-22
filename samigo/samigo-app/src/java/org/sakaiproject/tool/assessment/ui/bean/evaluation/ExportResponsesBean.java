@@ -237,7 +237,10 @@ public class ExportResponsesBean implements Serializable, PhaseAware {
 	        headerList.add(ContextUtil.getLocalizedString("org.sakaiproject.tool.assessment.bundle.EvaluationMessages","tot"));
 	        headerList.add(itemGradingCommentsString);
         }
-        headerList.addAll((ArrayList) exportResponsesDataList.get(1));
+        //SAM-1693 the returned list could be null -DH
+        if (exportResponsesDataList != null) {
+        	headerList.addAll((ArrayList) exportResponsesDataList.get(1));
+        }
   	  	
   	    list.add(0,headerList);
   	  	
