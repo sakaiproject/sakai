@@ -282,11 +282,12 @@ function redirectBasedOnSelection(){
 									#set($sectionDescription=false)
 									#set($sectionDescription=$!sectionObject.description)
 									#if ($!sectionDescription && !$!sectionDescription.isEmpty())
-										<input type="checkbox" name="providerCourseAddDescription" value="$!sectionObject.eid" id="course$courseNumber" 
+										<input type="checkbox" name="providerCourseAddDescription" value="$!sectionObject.eid" id="courseDesc$courseNumber" 
 											#if ($!selectedProviderCourseDescription.contains($!sectionObject.eid))
 												checked="checked"
 											#end 
 										/>
+                                        <label for="courseDesc$courseNumber" class="skip">$tlang.getString("useOfficialDescription"): $validator.escapeHtml($sectionObject.title) ($sectionObject.eid) $sectionObject.getCategoryDescription()</label>
 									#end
 								</td>
 								</tr>
