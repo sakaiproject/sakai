@@ -28,6 +28,7 @@ import org.sakaiproject.entitybroker.entityprovider.EntityProviderMethodStore;
 import org.sakaiproject.entitybroker.entityprovider.extension.RequestGetterWrite;
 import org.sakaiproject.entitybroker.entityprovider.extension.RequestStorageWrite;
 import org.sakaiproject.entitybroker.providers.EntityPropertiesService;
+import org.sakaiproject.entitybroker.providers.ExternalIntegrationProvider;
 
 
 /**
@@ -62,6 +63,7 @@ public class EntityBrokerRESTServiceManager {
     private EntityProviderMethodStore entityProviderMethodStore;
     private HttpServletAccessProviderManager httpServletAccessProviderManager;
     private EntityViewAccessProviderManager entityViewAccessProviderManager;
+    private ExternalIntegrationProvider externalIntegrationProvider;
 
     // services we are starting up
     private EntityActionsManager entityActionsManager;
@@ -80,6 +82,7 @@ public class EntityBrokerRESTServiceManager {
         this.entityProviderManager = entityBrokerManager.getEntityProviderManager();
         this.entityProviderMethodStore = entityBrokerManager.getEntityProviderMethodStore();
         this.entityViewAccessProviderManager = entityBrokerManager.getEntityViewAccessProviderManager();
+        this.externalIntegrationProvider = entityBrokerManager.getExternalIntegrationProvider();
     }
 
     protected EntityBrokerRESTServiceManager() { }
@@ -124,6 +127,7 @@ public class EntityBrokerRESTServiceManager {
                 || this.entityPropertiesService == null
                 || this.entityProviderManager == null
                 || this.entityProviderMethodStore == null
+                || this.externalIntegrationProvider == null
                 || this.entityViewAccessProviderManager == null) {
             throw new IllegalArgumentException("Main services must all be set and non-null!");
         }
@@ -136,7 +140,7 @@ public class EntityBrokerRESTServiceManager {
                 httpServletAccessProviderManager, entityProviderManager, entityPropertiesService,
                 entityBrokerManager, entityProviderMethodStore);
         entityEncodingManager = new EntityEncodingManager(entityProviderManager, entityBrokerManager);
-        entityBatchHandler = new EntityBatchHandler(entityBrokerManager, entityEncodingManager);
+        entityBatchHandler = new EntityBatchHandler(entityBrokerManager, entityEncodingManager, externalIntegrationProvider);
 
         entityRequestHandler = new EntityHandlerImpl(entityProviderManager,
                 entityBrokerManager, entityEncodingManager, entityDescriptionManager,

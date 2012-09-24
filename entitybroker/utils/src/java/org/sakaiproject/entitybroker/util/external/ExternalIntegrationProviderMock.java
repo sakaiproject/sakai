@@ -81,4 +81,9 @@ public class ExternalIntegrationProviderMock implements ExternalIntegrationProvi
         return null;
     }
 
+    @Override
+    public <T> T getConfigurationSetting(String arg0, T arg1) {
+        return arg1;
+    }
+
 }

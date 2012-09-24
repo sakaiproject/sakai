@@ -29,7 +29,9 @@ import org.sakaiproject.entitybroker.entityprovider.extension.RequestStorageWrit
 import org.sakaiproject.entitybroker.impl.entityprovider.EntityProviderManagerImpl;
 import org.sakaiproject.entitybroker.mocks.data.TestData;
 import org.sakaiproject.entitybroker.providers.EntityPropertiesService;
+import org.sakaiproject.entitybroker.providers.ExternalIntegrationProvider;
 import org.sakaiproject.entitybroker.util.core.EntityProviderMethodStoreImpl;
+import org.sakaiproject.entitybroker.util.external.ExternalIntegrationProviderMock;
 
 
 /**
@@ -68,6 +70,7 @@ public class ServiceTestManager {
     public EntityViewAccessProviderManager entityViewAccessProviderManager;
     public EntityMetaPropertiesService entityMetaPropertiesService;
     public EntityTaggingService entityTaggingService;
+    public ExternalIntegrationProvider externalIntegrationProvider;
 
     public TestData td;
     public TestData getTestData() {
@@ -80,6 +83,7 @@ public class ServiceTestManager {
 
     public ServiceTestManager(TestData td, EntityBrokerDao dao) {
         this.td = td;
+        this.externalIntegrationProvider = new ExternalIntegrationProviderMock();
         this.entityBrokerCoreServiceManager = new EntityBrokerCoreServiceManager(dao, true);
 
         // init the variables for the getters
@@ -91,6 +95,7 @@ public class ServiceTestManager {
         this.requestStorage = this.entityBrokerCoreServiceManager.getRequestStorage();
         this.entityProviderManager = (EntityProviderManagerImpl) this.entityBrokerCoreServiceManager.getEntityProviderManager();
         this.entityBrokerManager = (EntityBrokerManagerImpl) this.entityBrokerCoreServiceManager.getEntityBrokerManager();
+        this.entityBrokerManager.setExternalIntegrationProvider(this.externalIntegrationProvider);
         this.entityMetaPropertiesService = this.entityBrokerCoreServiceManager.getEntityMetaPropertiesService();
         this.entityTaggingService = this.entityBrokerCoreServiceManager.getEntityTaggingService();
 

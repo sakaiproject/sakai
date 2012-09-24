@@ -113,9 +113,9 @@ public class SakaiExternalIntegrationProvider implements ExternalIntegrationProv
     /* (non-Javadoc)
      * @see org.sakaiproject.entitybroker.providers.ExternalIntegrationProvider#getMaxJSONLevel()
      */
-	public String getMaxJSONLevel() {
+    public String getMaxJSONLevel() {
         return serverConfigurationService.getString("entitybroker.maxJSONLevel","7"); // default 7
-	}
+    }
 
     /* (non-Javadoc)
      * @see org.sakaiproject.entitybroker.providers.ExternalIntegrationProvider#fetchEntity(java.lang.String)
@@ -207,8 +207,8 @@ public class SakaiExternalIntegrationProvider implements ExternalIntegrationProv
 
         // attempt to get the email address, if it is not there then we will not send an email
         String emailAddr = serverConfigurationService.getString("direct.error.email", 
-        		serverConfigurationService.getString("portal.error.email"));
- 
+                serverConfigurationService.getString("portal.error.email"));
+
         if (emailAddr != null && !"".equals(emailAddr)) {
             String from = "\"<no-reply@" + serverConfigurationService.getServerName() + ">";
             if (emailService != null) {
@@ -220,6 +220,68 @@ public class SakaiExternalIntegrationProvider implements ExternalIntegrationProv
         String errorMessage = subject + ":" + body;
         log.error(errorMessage + "\n" + stacktrace);
         return errorMessage;
+    }
+
+    /**
+     * String type: gets the printable name of this server
+     */
+    protected static final String SETTING_SERVER_NAME = "server.name";
+
+    /**
+     * String type: gets the unique id of this server (safe for clustering if used)
+     */
+    protected static final String SETTING_SERVER_ID = "server.cluster.id";
+
+    /**
+     * String type: gets the URL to this server
+     */
+    protected static final String SETTING_SERVER_URL = "server.main.URL";
+
+    /**
+     * String type: gets the URL to the portal on this server (or just returns the server URL if no
+     * portal in use)
+     */
+    protected static final String SETTING_PORTAL_URL = "server.portal.URL";
+
+    /**
+     * Boolean type: if true then there will be data preloads and DDL creation, if false then data
+     * preloads are disabled (and will cause exceptions if preload data is missing)
+     */
+    protected static final String SETTING_AUTO_DDL = "auto.ddl";
+
+    @SuppressWarnings("unchecked")
+    public <T> T getConfigurationSetting(String settingName, T defaultValue) {
+        T returnValue = defaultValue;
+        if (SETTING_SERVER_NAME.equals(settingName)) {
+            returnValue = (T) serverConfigurationService.getServerName();
+        } else if (SETTING_SERVER_URL.equals(settingName)) {
+            returnValue = (T) serverConfigurationService.getServerUrl();
+        } else if (SETTING_PORTAL_URL.equals(settingName)) {
+            returnValue = (T) serverConfigurationService.getPortalUrl();
+        } else if (SETTING_SERVER_ID.equals(settingName)) {
+            returnValue = (T) serverConfigurationService.getServerIdInstance();
+        } else {
+            if (defaultValue == null) {
+                returnValue = (T) serverConfigurationService.getString(settingName);
+                if ("".equals(returnValue)) {
+                    returnValue = null;
+                }
+            } else {
+                if (defaultValue instanceof Number) {
+                    int num = ((Number) defaultValue).intValue();
+                    int value = serverConfigurationService.getInt(settingName, num);
+                    returnValue = (T) Integer.valueOf(value);
+                } else if (defaultValue instanceof Boolean) {
+                    boolean bool = ((Boolean) defaultValue).booleanValue();
+                    boolean value = serverConfigurationService.getBoolean(settingName, bool);
+                    returnValue = (T) Boolean.valueOf(value);
+                } else if (defaultValue instanceof String) {
+                    returnValue = (T) serverConfigurationService.getString(settingName,
+                            (String) defaultValue);
+                }
+            }
+        }
+        return returnValue;
     }
 
 }

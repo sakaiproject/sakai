@@ -145,21 +145,25 @@ public class EntityDescriptionManager {
         };
         entityProviderManager.registerEntityProvider(describeEP);
 
-        batchEP = new BatchProvider() {
-            public String getEntityPrefix() {
-                return EntityRequestHandler.BATCH;
-            }
-            public String getBaseName() {
-                return getEntityPrefix();
-            }
-            public ClassLoader getResourceClassLoader() {
-                return EntityDescriptionManager.class.getClassLoader();
-            }
-            public String[] getHandledOutputFormats() {
-                return EntityEncodingManager.HANDLED_OUTPUT_FORMATS;
-            }
-        };
-        entityProviderManager.registerEntityProvider(batchEP);
+        if (this.entityBrokerManager.getExternalIntegrationProvider().getConfigurationSetting(EntityBatchHandler.CONFIG_BATCH_ENABLE, EntityBatchHandler.CONFIG_BATCH_DEFAULT)) {
+            batchEP = new BatchProvider() {
+                public String getEntityPrefix() {
+                    return EntityRequestHandler.BATCH;
+                }
+                public String getBaseName() {
+                    return getEntityPrefix();
+                }
+                public ClassLoader getResourceClassLoader() {
+                    return EntityDescriptionManager.class.getClassLoader();
+                }
+                public String[] getHandledOutputFormats() {
+                    return EntityEncodingManager.HANDLED_OUTPUT_FORMATS;
+                }
+            };
+            entityProviderManager.registerEntityProvider(batchEP);
+        } else {
+            // batch provider is disabled so do not show the docs for it - this empty on purpose
+        }
     }
 
     public void destroy() {

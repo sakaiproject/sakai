@@ -87,4 +87,15 @@ public interface ExternalIntegrationProvider {
      */
     public void handleUserSessionKey(HttpServletRequest req);
 
+    /**
+     * Retrieves settings from the configuration service (sakai.properties)
+     * 
+     * @param settingName the name of the setting to retrieve, Should be a string name: e.g. auto.ddl,
+     *            mystuff.config, etc.
+     * @param defaultValue a specified default value to return if this setting cannot be found, 
+     *          <b>NOTE:</b>  You can set the default value to null but you must specify the class type in parens
+     * @return the value of the configuration setting OR the default value if none can be found
+     */
+    public <T> T getConfigurationSetting(String settingName, T defaultValue);
+
 }
