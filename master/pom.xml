@@ -95,6 +95,9 @@
         <sakai.tomcat.version>7.0.21</sakai.tomcat.version>
         <sakai.xerces.impl.version>2.6.2</sakai.xerces.impl.version>
         <sakai.xerces.api.version>2.6.2</sakai.xerces.api.version>
+        <rsfutil.version>0.7.5</rsfutil.version> 
+        <sakairsf.components.version>0.7.5</sakairsf.components.version> 
+        <sakairsf.version>0.7.7</sakairsf.version>
         <!-- Sakai modules that are versioned separately -->
         <sakai.announcement.version>2.10-SNAPSHOT</sakai.announcement.version>
         <sakai.assignment.version>2.10-SNAPSHOT</sakai.assignment.version>
