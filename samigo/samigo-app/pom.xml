@@ -18,12 +18,6 @@
 	<inceptionYear>2005</inceptionYear>
 	<packaging>war</packaging>
     
-	<properties>
-		<rsfutil.version>0.7.5</rsfutil.version>
-	</properties>
-    
-
-    
 	<dependencies>
         <dependency>
             <groupId>${project.groupId}</groupId>
@@ -201,19 +195,19 @@
         <dependency>
             <groupId>uk.org.ponder.sakairsf</groupId>
             <artifactId>SakaiRSFComponents-templates</artifactId>
-            <version>${rsfutil.version}</version>
+            <version>${sakairsf.components.version}</version>
             <type>war</type>
         </dependency>
         <dependency>
             <groupId>uk.org.ponder.sakairsf</groupId>
             <artifactId>SakaiRSFComponents-evolvers</artifactId>
-            <version>${rsfutil.version}</version>
+            <version>${sakairsf.components.version}</version>
             <type>jar</type>
         </dependency>
         <dependency>
             <groupId>uk.org.ponder.sakairsf</groupId>
             <artifactId>sakairsf</artifactId>
-            <version>${rsfutil.version}</version>
+            <version>${sakairsf.version}</version>
             <type>jar</type>
         </dependency>
         <dependency>
