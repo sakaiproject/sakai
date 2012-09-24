@@ -75,8 +75,26 @@ public class SakaiBootStrap
     if (autoDdl)
     {
       LOG.info("SakaiBootStrap.init(): autoDdl enabled; running DDL...");
-      sqlService.ddl(this.getClass().getClassLoader(), SQL_UPDATE_SCRIPT_NAME);
-      sqlService.ddl(this.getClass().getClassLoader(), SAKAI_SAMIGO_DDL_NAME);
+
+      // Don't take down the entire instance if this update script fails!
+      // This update script makes sure the Oracle MEDIA column uses a blob 
+      // and also makes sure indexes are created. As soon as one update fails,
+      // the entire script fails.
+      try {
+        sqlService.ddl(this.getClass().getClassLoader(), SQL_UPDATE_SCRIPT_NAME);
+      }
+      catch (Throwable t) {
+        LOG.warn("SakaiBootStrap.init(): ", t);
+      }
+
+      // Don't take down the entire instance if this series of inserts fails!
+      try {
+        sqlService.ddl(this.getClass().getClassLoader(), SAKAI_SAMIGO_DDL_NAME);
+      }
+      catch (Throwable t) {
+        LOG.warn("SakaiBootStrap.init(): ", t);
+      }
+
     } else {
       LOG.debug("****autoDdl disabled.");
     }
