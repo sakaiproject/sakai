@@ -81,9 +81,12 @@ public class ExternalIntegrationProviderMock implements ExternalIntegrationProvi
         return null;
     }
 
-    @Override
-    public <T> T getConfigurationSetting(String arg0, T arg1) {
-        return arg1;
+    @SuppressWarnings("unchecked")
+    public <T> T getConfigurationSetting(String settingName, T defaultValue) {
+        if ("entitybroker.batch.enable".equals(settingName)) {
+            return ((T) Boolean.TRUE);
+        }
+        return defaultValue;
     }
 
 }

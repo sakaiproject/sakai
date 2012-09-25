@@ -37,10 +37,12 @@ import org.azeckoski.reflectutils.ArrayUtils;
 import org.azeckoski.reflectutils.map.ArrayOrderedMap;
 import org.sakaiproject.entitybroker.EntityBrokerManager;
 import org.sakaiproject.entitybroker.EntityView;
+import org.sakaiproject.entitybroker.entityprovider.EntityProvider;
 import org.sakaiproject.entitybroker.entityprovider.extension.Formats;
 import org.sakaiproject.entitybroker.exception.EntityException;
 import org.sakaiproject.entitybroker.providers.EntityRequestHandler;
 import org.sakaiproject.entitybroker.providers.ExternalIntegrationProvider;
+import org.sakaiproject.entitybroker.rest.caps.BatchProvider;
 import org.sakaiproject.entitybroker.util.http.EntityHttpServletRequest;
 import org.sakaiproject.entitybroker.util.http.EntityHttpServletResponse;
 import org.sakaiproject.entitybroker.util.http.HttpClientWrapper;
@@ -95,7 +97,45 @@ public class EntityBatchHandler {
         this.entityBrokerManager = entityBrokerManager;
         this.entityEncodingManager = entityEncodingManager;
         this.externalIntegrationProvider = externalIntegrationProvider;
+        init();
     }
+
+    private EntityProvider batchEP = null;
+
+    public void init() {
+        // register the batch EP handler
+        if (this.externalIntegrationProvider.getConfigurationSetting(CONFIG_BATCH_ENABLE, CONFIG_BATCH_DEFAULT)) {
+            batchEP = new BatchProvider() {
+                public String getEntityPrefix() {
+                    return EntityRequestHandler.BATCH;
+                }
+                public String getBaseName() {
+                    return getEntityPrefix();
+                }
+                public ClassLoader getResourceClassLoader() {
+                    return EntityDescriptionManager.class.getClassLoader();
+                }
+                public String[] getHandledOutputFormats() {
+                    return EntityEncodingManager.HANDLED_OUTPUT_FORMATS;
+                }
+            };
+            this.entityBrokerManager.getEntityProviderManager().registerEntityProvider(batchEP);
+        } else {
+            // batch provider is disabled so do not show the docs for it - this empty on purpose
+        }
+    }
+
+    public void destroy() {
+        System.out.println("INFO: EntityBatchHandler: destroy()");
+        if (batchEP != null) {
+            try {
+                this.entityBrokerManager.getEntityProviderManager().unregisterEntityProvider(batchEP);
+            } catch (RuntimeException e) {
+                System.out.println("WARN: EntityBatchHandler: Unable to unregister the batch provider: " + e);
+            }
+        }
+    }
+
 
     private EntityBrokerManager entityBrokerManager;
     public void setEntityBrokerManager(EntityBrokerManager entityBrokerManager) {
@@ -140,7 +180,7 @@ public class EntityBatchHandler {
             throw new IllegalArgumentException("Could not process batch: invalid arguments, no args can be null (view="+view+",req="+req+",res="+res+")");
         }
 
-        if (externalIntegrationProvider.getConfigurationSetting(CONFIG_BATCH_ENABLE, CONFIG_BATCH_DEFAULT)) {
+        if (!externalIntegrationProvider.getConfigurationSetting(CONFIG_BATCH_ENABLE, CONFIG_BATCH_DEFAULT)) {
             //log.info("Batch provider is disabled by default/property. See SAK-22619");
             try {
                 res.sendError(HttpServletResponse.SC_NOT_IMPLEMENTED, "Batch provider is disabled by sakai config: "+CONFIG_BATCH_ENABLE+"=false. Enable this config setting with "+CONFIG_BATCH_ENABLE+"=true to enable batch handling. See SAK-22619 for details.");

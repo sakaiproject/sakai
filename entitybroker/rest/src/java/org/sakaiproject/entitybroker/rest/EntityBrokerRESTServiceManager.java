@@ -172,6 +172,7 @@ public class EntityBrokerRESTServiceManager {
         this.entityRESTProvider.destroy();
         this.entityRESTProvider = null;
         this.entityRequestHandler = null;
+        this.entityBatchHandler.destroy();
         this.entityBatchHandler = null;
         this.entityEncodingManager = null;
         this.entityDescriptionManager.destroy();

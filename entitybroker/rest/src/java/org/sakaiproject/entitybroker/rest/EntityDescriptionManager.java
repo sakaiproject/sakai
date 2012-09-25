@@ -56,7 +56,6 @@ import org.sakaiproject.entitybroker.entityprovider.extension.Formats;
 import org.sakaiproject.entitybroker.entityprovider.extension.URLRedirect;
 import org.sakaiproject.entitybroker.providers.EntityPropertiesService;
 import org.sakaiproject.entitybroker.providers.EntityRequestHandler;
-import org.sakaiproject.entitybroker.rest.caps.BatchProvider;
 import org.sakaiproject.entitybroker.util.TemplateParseUtil;
 import org.azeckoski.reflectutils.ArrayUtils;
 import org.azeckoski.reflectutils.ClassFields;
@@ -128,10 +127,9 @@ public class EntityDescriptionManager {
     }
 
     private EntityProvider describeEP = null;
-    private EntityProvider batchEP = null;
     public void init() {
         System.out.println("INFO: EntityDescriptionManager: init()");
-        // register the describe and batch prefixes to load up descriptions
+        // register the describe prefixes to load up descriptions
         describeEP = new DescribePropertiesable() {
             public String getEntityPrefix() {
                 return EntityRequestHandler.DESCRIBE;
@@ -144,26 +142,6 @@ public class EntityDescriptionManager {
             }
         };
         entityProviderManager.registerEntityProvider(describeEP);
-
-        if (this.entityBrokerManager.getExternalIntegrationProvider().getConfigurationSetting(EntityBatchHandler.CONFIG_BATCH_ENABLE, EntityBatchHandler.CONFIG_BATCH_DEFAULT)) {
-            batchEP = new BatchProvider() {
-                public String getEntityPrefix() {
-                    return EntityRequestHandler.BATCH;
-                }
-                public String getBaseName() {
-                    return getEntityPrefix();
-                }
-                public ClassLoader getResourceClassLoader() {
-                    return EntityDescriptionManager.class.getClassLoader();
-                }
-                public String[] getHandledOutputFormats() {
-                    return EntityEncodingManager.HANDLED_OUTPUT_FORMATS;
-                }
-            };
-            entityProviderManager.registerEntityProvider(batchEP);
-        } else {
-            // batch provider is disabled so do not show the docs for it - this empty on purpose
-        }
     }
 
     public void destroy() {
@@ -176,13 +154,6 @@ public class EntityDescriptionManager {
 //                System.out.println("WARN: EntityDescriptionManager: Unable to unregister the describe description provider: " + e);
 //            }
 //        }
-        if (batchEP != null) {
-            try {
-                entityProviderManager.unregisterEntityProvider(batchEP);
-            } catch (RuntimeException e) {
-                System.out.println("WARN: EntityDescriptionManager: Unable to unregister the batch description provider: " + e);
-            }
-        }
     }
 
     private EntityViewAccessProviderManager entityViewAccessProviderManager;

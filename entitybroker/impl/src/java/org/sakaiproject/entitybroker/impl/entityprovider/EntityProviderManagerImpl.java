@@ -70,18 +70,11 @@ public class EntityProviderManagerImpl implements EntityProviderManager {
 
     public void init() {
         System.out.println("EntityProviderManagerImpl init");
-        // register the describe and batch prefixes to reserve them
+        // register the describe prefix to reserve them
         registerEntityProvider(
                 new EntityProvider() {
                     public String getEntityPrefix() {
                         return EntityRequestHandler.DESCRIBE;
-                    }
-                }
-        );
-        registerEntityProvider(
-                new EntityProvider() {
-                    public String getEntityPrefix() {
-                        return EntityRequestHandler.BATCH;
                     }
                 }
         );
