@@ -72,6 +72,7 @@ import org.sakaiproject.entity.api.Reference;
 import org.sakaiproject.entity.api.ResourceProperties;
 import org.sakaiproject.entity.cover.EntityManager;
 import org.sakaiproject.entitybroker.EntityBroker;
+import org.sakaiproject.entitybroker.exception.EntityNotFoundException;
 import org.sakaiproject.entitybroker.entityprovider.extension.ActionReturn;
 import org.sakaiproject.entitybroker.entityprovider.extension.ActionReturn.Header;
 import org.sakaiproject.event.api.NotificationService;
@@ -2313,7 +2314,14 @@ public class AnnouncementAction extends PagedResourceActionII
 			    Map<String, Object> params = new HashMap<String, Object>();
 		            params.put("messageId", message.getId());
 	                    // pass in the assignment reference to get the assignment data we need
-                            ActionReturn ret = entityBroker.executeCustomAction(assignmentReference, "annc", params, null);
+                            ActionReturn ret; 
+                            try {
+                              ret = entityBroker.executeCustomAction(assignmentReference, "annc", params, null);
+                            } 
+                            catch (EntityNotFoundException e) {
+                                ret = null;
+						        M_log.info("Assignment " + assignmentReference + " not found" + e.getMessage());
+                            }
                             if (ret != null && ret.getEntityData() != null) {
                                 Object returnData = ret.getEntityData().getData();
                                 assignData = (Map<String, Object>)returnData;

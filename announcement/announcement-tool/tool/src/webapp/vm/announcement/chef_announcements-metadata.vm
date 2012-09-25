@@ -56,7 +56,7 @@
 			<td>
 			#if ($modDate)
 				$modDate.toStringLocalFull()
-			#else
+			#elseif ($message.Header.Date)
 				$message.Header.Date.toStringLocalFull()
 			#end
 			</td>
