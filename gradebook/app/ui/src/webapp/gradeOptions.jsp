@@ -29,13 +29,14 @@
 <!-- Grade Conversion -->
 		<h4><h:outputText value="#{msgs.feedback_options_grade_conversion}"/></h4>
 		<h:panelGrid cellpadding="0" cellspacing="0"
-			columns="2"
+			columns="1"
 			columnClasses="itemName"
 			styleClass="itemSummary">
 
-			<h:outputText value="#{msgs.feedback_options_grade_type}" />
+			
 
 			<h:panelGroup>
+			    <h:outputLabel value="#{msgs.feedback_options_grade_type}" for="selectGradeType" /><h:outputText value="&nbsp;&nbsp;" escape="false" />
 				<h:selectOneMenu id="selectGradeType" value="#{feedbackOptionsBean.selectedGradeMappingId}">
 					<f:selectItems value="#{feedbackOptionsBean.gradeMappingsSelectItems}" />
 				</h:selectOneMenu>
@@ -75,13 +76,12 @@
 			id="mappingTable"
 			value="#{feedbackOptionsBean.gradeRows}"
 			var="gradeRow"
-			columnClasses="shorttext"
 			styleClass="listHier narrowTable">
 			<h:column>
 				<f:facet name="header">
 					<h:outputText value="#{msgs.feedback_options_grade_header}"/>
 				</f:facet>
-				<h:outputText value="#{gradeRow.grade}"/>
+				<h:outputLabel value="#{gradeRow.grade}" for="mappingValue"/>
 			</h:column>
 			<h:column>
 				<f:facet name="header">
