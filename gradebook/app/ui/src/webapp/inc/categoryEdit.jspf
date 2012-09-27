@@ -28,7 +28,7 @@
 		<h:outputText styleClass="instruction" value="#{msgs.categories_drop_info}" rendered="#{(gradebookSetupBean.categorySetting == 'onlyCategories' || gradebookSetupBean.categorySetting == 'categoriesAndWeighting')}"/>
 	</div>
 	<h:panelGroup rendered="#{gradebookSetupBean.displayCategories}">
-		<f:verbatim><div class="gbSection"></f:verbatim>
+		<f:verbatim><div class="gbSection indnt2"></f:verbatim>
 			<h:outputText styleClass="instruction" value="#{msgs.categories_disclude_info}" rendered="#{gradebookSetupBean.displayWeighting}"/>
 		
 			<t:dataTable cellpadding="0" cellspacing="0"
@@ -43,12 +43,14 @@
 					<f:facet name="header">
 						<h:outputText value="#{msgs.cat_list_category}"/>
 					</f:facet>
+					<h:outputLabel for="categoryName" value="#{msgs.cat_list_category}" styleClass="skip" />
 					<h:inputText id="categoryName" value="#{category.name}" styleClass="catNameInput" maxlength="250" />
 				</h:column>
 				<h:column rendered="#{gradebookSetupBean.displayWeighting}">
 					<f:facet name="header">
 						<h:outputText value="#{gradebookSetupBean.localizedPercentInput}" />
 					</f:facet>
+					<h:outputLabel for="weightInput" value="#{gradebookSetupBean.localizedPercentInput}"  styleClass="skip" />
 					<h:inputText value="#{category.weight}" size="5" maxlength="6" id="weightInput"
 							onchange="javascript:updateRunningTotal(this.form);"  styleClass="catWeightInput">
 						<f:converter converterId="org.sakaiproject.gradebook.jsf.converter.NONTRAILING_DOUBLE" />
@@ -64,6 +66,7 @@
 					<f:facet name="header">
 						<h:outputText value="#{msgs.cat_extra_credit}" />
 					</f:facet>
+					<h:outputLabel for="catExtraCredit" value="#{msgs.cat_extra_credit}"  styleClass="skip" />
 					<h:selectBooleanCheckbox id="catExtraCredit" value="#{category.isExtraCredit}" onchange="javascript:updateRunningTotal(this.form);"/>
 				</h:column>
 				<h:column>
@@ -77,6 +80,7 @@
 					<f:facet name="header">
 						<h:outputText value="#{msgs.cat_drop_highest}"/>
 					</f:facet>
+					<h:outputLabel value="#{msgs.cat_drop_highest}" for="dropHighest"  styleClass="skip" />
 					<h:inputText id="dropHighest" value="#{category.dropHighest}" size="3" title="#{msgs.cat_drop_highest_tooltip}" 
 					    onkeyup="javascript:dropScoresAdjust(this.form);"
 					    disabled="#{!category.assignmentsEqual}">
@@ -89,6 +93,7 @@
 					<f:facet name="header">
 						<h:outputText value="#{msgs.cat_drop_lowest}"/>
 					</f:facet>
+					<h:outputLabel value="#{msgs.cat_drop_lowest}" for="dropLowest"  styleClass="skip" />
 					<h:inputText id="dropLowest" value="#{category.drop_lowest}" size="3" title="#{msgs.cat_drop_lowest_tooltip}"
                         onkeyup="javascript:dropScoresAdjust(this.form);" 
                         disabled="#{!category.assignmentsEqual}" >
@@ -101,6 +106,7 @@
 					<f:facet name="header">
 						<h:outputText value="#{msgs.cat_keep_highest}"/>
 					</f:facet>
+					<h:outputLabel value="#{msgs.cat_keep_highest}" for="keepHighest"  styleClass="skip" />
 					<h:inputText id="keepHighest" value="#{category.keepHighest}" size="3" title="#{msgs.cat_keep_highest_tooltip}"
                         onkeyup="javascript:dropScoresAdjust(this.form);" 
                         disabled="#{!category.assignmentsEqual}" >
