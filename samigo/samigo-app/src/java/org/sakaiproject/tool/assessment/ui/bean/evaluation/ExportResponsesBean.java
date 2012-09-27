@@ -304,12 +304,7 @@ public class ExportResponsesBean implements Serializable, PhaseAware {
 		String escapedFilename = org.sakaiproject.util.Validator.escapeUrl(fileName);
         HttpServletRequest request = (HttpServletRequest) FacesContext.getCurrentInstance().getExternalContext().getRequest();
 		String userAgent = request.getHeader("User-Agent"); 
-		if (userAgent != null && userAgent.contains("MSIE")) { 
-            response.setHeader("Content-disposition", "attachment; filename=" + escapedFilename + extension);
-		}
-		else {
-        	response.setHeader("Content-disposition", "attachment; filename*=utf-8''" + escapedFilename + extension);
-        }
+		response.setHeader("Content-disposition", "attachment; filename=" + escapedFilename + extension	+ "; filename*=UTF-8''" + escapedFilename + extension);
 		
 		OutputStream out = null;
 		try {
