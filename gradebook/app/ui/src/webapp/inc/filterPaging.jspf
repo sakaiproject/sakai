@@ -5,12 +5,13 @@
 <h:panelGrid styleClass="gbContainerNav" columns="2" columnClasses="gbLeftNav,gbRightNav">
 	<t:div>
 		<t:div styleClass="gbListView">
-			<h:outputText value="#{msgs.search_sections_filter} "/>
+			<h:outputLabel value="#{msgs.search_sections_filter}" for="selectSectionFilter"/><h:outputText escape="false" value="&nbsp;&nbsp;" />
 			<h:selectOneMenu id="selectSectionFilter" value="#{bean.selectedSectionFilterValue}" onchange="this.form.submit()">
 				<f:selectItems value="#{bean.sectionFilterSelectItems}" />
 			</h:selectOneMenu>
 		</t:div>
-		<t:div styleClass="shorttext">
+		<t:div>
+		    <h:outputLabel value="#{msgs.search_sections_search}" for="searchString" styleClass="skip" />
 			<h:inputText
 				id="searchString"
 				value="#{bean.searchString}"
