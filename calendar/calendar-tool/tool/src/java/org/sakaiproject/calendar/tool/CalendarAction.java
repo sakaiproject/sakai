@@ -24,7 +24,6 @@ package org.sakaiproject.calendar.tool;
 import java.io.ByteArrayInputStream;
 import java.io.IOException;
 import java.io.InputStream;
-import java.io.File;
 import java.text.DateFormat;
 import java.text.NumberFormat;
 import java.util.ArrayList;
@@ -80,6 +79,7 @@ import org.sakaiproject.entity.api.Reference;
 import org.sakaiproject.entity.cover.EntityManager;
 import org.sakaiproject.entitybroker.EntityBroker;
 import org.sakaiproject.entitybroker.entityprovider.extension.ActionReturn;
+import org.sakaiproject.entitybroker.EntityReference;
 import org.sakaiproject.event.api.SessionState;
 import org.sakaiproject.exception.IdInvalidException;
 import org.sakaiproject.exception.IdUnusedException;
@@ -206,7 +206,7 @@ extends VelocityPortletStateAction
 	// tbd fix shared definition from org.sakaiproject.assignment.api.AssignmentEntityProvider
 	private final static String ASSN_ENTITY_ID     = "assignment";
 	private final static String ASSN_ENTITY_ACTION = "deepLink";
-	private final static String ASSN_ENTITY_PREFIX = File.separator+ASSN_ENTITY_ID+File.separator+ASSN_ENTITY_ACTION+File.separator;
+	private final static String ASSN_ENTITY_PREFIX = EntityReference.SEPARATOR+ASSN_ENTITY_ID+EntityReference.SEPARATOR+ASSN_ENTITY_ACTION+EntityReference.SEPARATOR;
    
 	private NumberFormat monthFormat = null;
 	
@@ -2892,7 +2892,7 @@ extends VelocityPortletStateAction
 					Map<String, Object> assignData = new HashMap<String, Object>();
 					StringBuilder entityId = new StringBuilder( ASSN_ENTITY_PREFIX );
 					entityId.append( (CalendarService.getCalendar(calEvent.getCalendarReference())).getContext() );
-					entityId.append( File.separator );
+					entityId.append( EntityReference.SEPARATOR );
 					entityId.append( assignmentId );
 					ActionReturn ret = entityBroker.executeCustomAction(entityId.toString(), ASSN_ENTITY_ACTION, null, null);
 					if (ret != null && ret.getEntityData() != null) {
