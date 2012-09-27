@@ -88,8 +88,8 @@
                 var strAfter = myId.substring(index+'matrixSurveyRadioTable'.length+2);
                 //find rows of mytable	
                 var iRow = mytable.getElementsByTagName('tr');
-                //three rows before the row containing the radio button
-                for (var i=0; i<iRow.length-2;i++){
+                //one header row before the row containing the radio button
+                for (var i=0; i<iRow.length-1;i++){
                     //alert(i);
                   //construct radio button id in the same column
                   var currentRadioButtonId= strBefore+":"+i+strAfter;
@@ -101,10 +101,8 @@
                     alert("You are only allowed one selection per column, please try again.");
                     return;
                   }
-                  else{
-                      return;
-                  }
                 }
+                return;
               }
             }
           }
