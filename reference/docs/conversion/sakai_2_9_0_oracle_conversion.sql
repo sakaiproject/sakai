@@ -711,9 +711,9 @@ CREATE TABLE lti_mapping (
     note VARCHAR2(255),
     created_at TIMESTAMP NOT NULL,
     updated_at TIMESTAMP NOT NULL
-)
+);
 
-create SEQUENCE lti_mapping_id_sequence INCREMENT BY 1 START WITH 1
+create SEQUENCE lti_mapping_id_sequence INCREMENT BY 1 START WITH 1;
 
 CREATE TABLE lti_content (
     id INTEGER,
@@ -729,9 +729,9 @@ CREATE TABLE lti_content (
     placement VARCHAR2(256),
     created_at TIMESTAMP NOT NULL,
     updated_at TIMESTAMP NOT NULL
-)
+);
 
-create SEQUENCE lti_content_id_sequence INCREMENT BY 1 START WITH 1
+create SEQUENCE lti_content_id_sequence INCREMENT BY 1 START WITH 1;
 
 CREATE TABLE lti_tools (
     id INTEGER,
@@ -755,9 +755,9 @@ CREATE TABLE lti_tools (
     splash CLOB,
     created_at TIMESTAMP NOT NULL,
     updated_at TIMESTAMP NOT NULL
-)
+);
 
-create SEQUENCE lti_tools_id_sequence INCREMENT BY 1 START WITH 1
+create SEQUENCE lti_tools_id_sequence INCREMENT BY 1 START WITH 1;
 
 -- end BLTI-156
 
