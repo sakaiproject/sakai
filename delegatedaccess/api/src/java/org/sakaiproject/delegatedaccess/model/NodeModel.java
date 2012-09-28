@@ -486,6 +486,15 @@ public class NodeModel implements Serializable {
 		}
 	}
 	
+	public boolean isAuthToolRestricted(String toolId){
+		for(ListOptionSerialized tool : restrictedAuthTools){
+			if(tool.getId().equals(toolId)){
+				return tool.isSelected();
+			}
+		}
+		return false;
+	}
+	
 	//public tools:
 	public List<ListOptionSerialized> getRestrictedPublicTools() {
 		return restrictedPublicTools;
@@ -557,6 +566,15 @@ public class NodeModel implements Serializable {
 		}
 	}
 
+	public boolean isPublicToolRestricted(String toolId){
+		for(ListOptionSerialized tool : restrictedPublicTools){
+			if(tool.getId().equals(toolId)){
+				return tool.isSelected();
+			}
+		}
+		return false;
+	}
+	
 	public Date getShoppingPeriodStartDate() {
 		return shoppingPeriodStartDate;
 	}

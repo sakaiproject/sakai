@@ -461,7 +461,7 @@ public class ProjectLogicImpl implements ProjectLogic {
 	public List<ListOptionSerialized> getEntireToolsList(){
 		List<ListOptionSerialized> returnList = new ArrayList<ListOptionSerialized>();
 		for(Tool tool : sakaiProxy.getAllTools()){
-			returnList.add(new ListOptionSerialized(tool.getId(), tool.getTitle() + " (" + tool.getId() + ")", false));
+			returnList.add(new ListOptionSerialized(tool.getId(), tool.getTitle(), false));
 		}
 		//the home tool is special, so add this case
 		String[] homeTools = sakaiProxy.getHomeTools();

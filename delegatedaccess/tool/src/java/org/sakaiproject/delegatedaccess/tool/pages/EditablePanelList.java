@@ -95,6 +95,8 @@ public class EditablePanelList  extends Panel
 				//Auth Checkbox:
 				final CheckBox checkBox = new CheckBox("authCheck", new PropertyModel(wrapper, "selected"));
 				checkBox.setOutputMarkupId(true);
+				checkBox.setOutputMarkupPlaceholderTag(true);
+				final String checkBoxId = checkBox.getMarkupId();
 				final String toolId = wrapper.getId();
 				checkBox.add(new AjaxFormComponentUpdatingBehavior("onClick")
 				{
@@ -121,6 +123,10 @@ public class EditablePanelList  extends Panel
 					}
 				});
 				item.add(checkBox);
+				if(nodeModel.isPublicToolRestricted(toolId) && !nodeModel.isAuthToolRestricted(toolId)){
+					//disable the auth option because public is already selected (only disable if it's not already selected)
+					checkBox.setEnabled(false);
+				}
 				
 				//Public Checkbox:
 				ListOptionSerialized publicWrapper = item.getModelObject()[1];
@@ -135,9 +141,23 @@ public class EditablePanelList  extends Panel
 				publicCheckBox.add(new AjaxFormComponentUpdatingBehavior("onClick")
 				{
 					protected void onUpdate(AjaxRequestTarget target){
+						boolean checked = isPublicChecked();
+						
 						if(DelegatedAccessConstants.TYPE_LISTFIELD_TOOLS == fieldType){
-							nodeModel.setPublicToolRestricted(publicToolId, isPublicChecked());
+							nodeModel.setPublicToolRestricted(publicToolId, checked);
 						}
+						
+						if(checked){
+							//if public is checked, we don't need the "auth" checkbox enabled (or selected).  Disabled and De-select it
+							checkBox.setModelValue(new String[]{"false"});
+							checkBox.setEnabled(false);
+							if(DelegatedAccessConstants.TYPE_LISTFIELD_TOOLS == fieldType){
+								nodeModel.setAuthToolRestricted(toolId, false);
+							}
+						}else{
+							checkBox.setEnabled(true);
+						}
+						target.addComponent(checkBox, checkBoxId);
 					}
 
 					private boolean isPublicChecked(){
