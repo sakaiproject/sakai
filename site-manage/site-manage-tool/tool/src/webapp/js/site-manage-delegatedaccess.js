@@ -92,6 +92,10 @@ $(document).ready(function(){
 									.text(response.delegated_access_collection[i].value));
 							}
 						}
+						setShoppingToolOptionsEnabled();
+						$('#showPublicTools').change(function (){
+							setShoppingToolOptionsEnabled();
+						});
 					}
 				);
 			
@@ -229,4 +233,25 @@ function resizeFrame(updown){
     else {
         // throw( "resizeFrame did not get the frame (using name=" + window.name + ")" );
     }
+}
+
+function setShoppingToolOptionsEnabled(){
+	$("#showPublicTools option").each(function () {
+		var pubToolId = $(this).val();
+		var pubSelected = $(this)[0].selected;
+		if("" !== pubToolId){
+			$("#showAuthTools option").each(function () {
+				if(pubToolId === $(this).val()){
+					if(pubSelected){
+						$(this)[0].selected = false;
+						$(this).attr('disabled', true)
+					}else{
+						$(this).attr('disabled', false)
+					}
+					return false;
+				}
+			});
+		}
+	});
+
 }
