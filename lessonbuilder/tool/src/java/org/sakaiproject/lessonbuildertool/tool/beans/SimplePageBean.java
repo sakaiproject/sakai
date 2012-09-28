@@ -4885,7 +4885,7 @@ public class SimplePageBean {
 		}
 		
 		StringBuilder error = new StringBuilder();
-		//		comment = FormattedText.processFormattedText(comment, error);
+		comment = FormattedText.processFormattedText(comment, error);
 		
 		if(comment == null || comment.equals("")) {
 			setErrMessage(messageLocator.getMessage("simplepage.empty-comment-error"));
