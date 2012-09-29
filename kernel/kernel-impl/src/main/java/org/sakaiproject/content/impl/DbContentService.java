@@ -1729,28 +1729,71 @@ public class DbContentService extends BaseContentService
                     boolean ok = true;
 
                     /**
-                     * https://jira.sakaiproject.org/browse/KNL-817
-                     * If the reference copy flag is set then we do NOT actually do the content data copy (in the else below)
-                     * Instead, we modify the in DB resouce table to point at the new resource id
+                     * KNL-817, KNL-955
+                     * If this is a reference copy try to perform a copy without actually 
+                     * moving data i.e. move DB/FS pointers
                      */
                     String referenceResourceId = redit.referenceCopy;
-                    if (referenceResourceId != null) {
-                        // special handling for reference commits
-                        if (M_log.isDebugEnabled()) M_log.debug("Making resource ("+redit.getId()+") reference copy of DB resource ("+referenceResourceId+"), body/contentStream is ignored");
-                        if (m_bodyPath == null) {
-                            // SPECIAL handling for a reference copy of 
-                            // for reference we just move the binary data location to point at the new one
-                            String sql = "update "+m_resourceBodyTableName+" set RESOURCE_ID=? where RESOURCE_ID=?";
-                            // this write could fail if we try to move it to a taken resource_id, no way to recover if it does
-                            ok = m_sqlService.dbWrite(sql, new Object[] {redit.getId(), referenceResourceId});
-                            if (M_log.isDebugEnabled()) M_log.debug("Moving RESOURCE_ID ("+redit.getId()+") to ("+referenceResourceId+") for DB stored content data ("+m_resourceBodyTableName+"), success="+ok);
-                            if (!ok) {
-                                // cannot recover so we will flip this over and to a normal content copy
-                                M_log.warn("Moving RESOURCE_ID ("+redit.getId()+") to ("+referenceResourceId+") for DB stored content data ("+m_resourceBodyTableName+") failed... we will do a normal content copy as a fallback");
-                                referenceResourceId = null;
-                            }
-                        }
-                    }
+					if (referenceResourceId != null) {
+						// special handling for reference commits
+						BaseResourceEdit referenceResource = (BaseResourceEdit) getResource(referenceResourceId);
+						if (referenceResource != null) {
+
+							if (M_log.isDebugEnabled())
+								M_log.debug("Start Reference Copy from (" + referenceResourceId + ") to (" + redit.getId() + "), body/contentStream is ignored");
+
+							// determine which type of copy to perform
+							if (m_bodyPath == null) {
+								// Perform a DbStorage reference copy
+								if (M_log.isDebugEnabled())
+									M_log.debug("DbStorage Reference Copy update existing (" + referenceResourceId + ") to (" + redit.getId() + ") in table (" + m_resourceBodyTableName + ")");
+
+								// Before we perform the update do some sanity
+								// checking that helps prevent bad things from happening
+								String sqlExists = "select count(RESOURCE_ID) from " + m_resourceBodyTableName + " where RESOURCE_ID=?";
+								List<String> sqlExistsResult = m_sqlService.dbRead(sqlExists, new Object[] { referenceResourceId }, null);
+
+								if (sqlExistsResult != null && Long.parseLong(sqlExistsResult.get(0)) == 1) {
+									// resource exists in CONTENT_RESOURCE_BODY_BINARY, good
+									String sqlEmpty = "select count(RESOURCE_ID) from " + m_resourceBodyTableName + " where RESOURCE_ID=?";
+									List<String> sqlEmptyResult = m_sqlService.dbRead(sqlEmpty, new Object[] { redit.getId() }, null);
+
+									if (sqlEmptyResult != null && Long.parseLong(sqlEmptyResult.get(0)) == 0) {
+										// resource does not exist, good
+										String sqlUpdate = "update " + m_resourceBodyTableName + " set RESOURCE_ID=? where RESOURCE_ID=?";
+										ok = m_sqlService.dbWrite(sqlUpdate, new Object[] { redit.getId(), referenceResourceId });
+										if (!ok) {
+											// cannot recover so we will flip this over and do a normal content copy
+											M_log.warn("DbStorage Reference Copy FAILED to update existing (" + referenceResourceId + ") in table (" + m_resourceBodyTableName + "), falling back to a normal copy");
+											referenceResourceId = null;
+										} else {
+											if (M_log.isDebugEnabled())
+												M_log.debug("DbStorage Reference Copy SUCCESS updated existing (" + referenceResourceId + ") in table (" + m_resourceBodyTableName + ")");
+										}
+									} else {
+										// Existing resource found when there shouldn't have been one
+										if (M_log.isDebugEnabled())
+											M_log.debug("DbStorage Reference Copy FAILED, content already exists for (" + redit.getId() + ") in table (" + m_resourceBodyTableName + "), falling back to a normal copy");
+										referenceResourceId = null;
+									}
+								} else {
+									// Existing resource not found when there should have been one
+									if (M_log.isDebugEnabled())
+										M_log.debug("DbStorage Reference Copy FAILED, no content found for (" + referenceResourceId + ") in table (" + m_resourceBodyTableName + "), falling back to a normal copy");
+									referenceResourceId = null;
+								}
+							} else {
+								// FsStorage reference copy
+									redit.m_filePath = referenceResource.m_filePath;
+									if (M_log.isDebugEnabled())
+										M_log.debug("FsStorage Reference Copy SUCCESS updated resource (" + redit.getId() + ") with (" + referenceResourceId + ")");
+							} 
+						} else {
+								M_log.warn("Reference Copy FAILED, fetching resource (" + referenceResourceId + ") falling back to a normal copy");
+								referenceResourceId = null;
+						}
+					}
+                    
                     if (referenceResourceId == null) {
                         // normal handling (write the resource content data)
                         if (M_log.isDebugEnabled()) M_log.debug("Normal resource ("+redit.getId()+") body/contentStream storage");
@@ -1896,15 +1939,14 @@ public class DbContentService extends BaseContentService
                 }
                 else
                 {
-
                     if (m_bodyPath != null)
                     {
                         // if we have been configured to use an external file system
                         if (removeContent) {
-                            M_log.info("Removing resource ("+edit.getId()+") content: "+m_bodyPath);
+                            M_log.info("Removing resource ("+edit.getId()+") content: "+((BaseResourceEdit) edit).m_filePath);
                             delResourceBodyFilesystem(edit);
                         } else {
-                            M_log.info("Removing original resource reference ("+edit.getId()+") without removing the actual content: "+m_bodyPath);
+                            M_log.info("Removing original resource reference ("+edit.getId()+") without removing the actual content: "+((BaseResourceEdit) edit).m_filePath);
                         }
                     }
                     else
