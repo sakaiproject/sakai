@@ -459,8 +459,10 @@ public class LessonBuilderEntityProducer extends AbstractEntityProvider
          Element lessonbuilder = doc.createElement(LESSONBUILDER);
 
 	 List<SimplePage> sitePages = simplePageToolDao.getSitePages(siteId);
-	 for (SimplePage page: sitePages)
-	     addPage(doc, lessonbuilder, page, site);
+	 if (sitePages != null && !sitePages.isEmpty()) {
+	     for (SimplePage page: sitePages)
+		 addPage(doc, lessonbuilder, page, site);
+	 }
 
          Collection<ToolConfiguration> tools = site.getTools(myToolIds());
 	 int count = 0;
