@@ -4677,9 +4677,9 @@ public class SimplePageBean {
 
 		    parser.parse(new PrintHandler(this, cartridgeLoader, simplePageToolDao, quizobject, topicobject, bltiEntity));
 		    setTopRefresh();
-
 		} catch (Exception e) {
-		    System.out.println("exception in importcc " + e);
+		    setErrKey("simplepage.cc-error", "");
+		    System.out.println("exception in importcc, backtrace follows " + e);
 		    e.printStackTrace();
 		} finally {
 		    if (cc != null)

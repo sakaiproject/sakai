@@ -151,8 +151,9 @@ public class Parser extends AbstractParser {
       Element manifest=this.getXML(utils, IMS_MANIFEST);
       processManifest(manifest, the_handler);
     } catch (Exception e) {
+	the_handler.getSimplePageBean().setErrKey("simplepage.cc-error", "");
+	System.out.println("parse error, stack trace follows " + e);
 	e.printStackTrace();
-	System.out.println("parse error " + e);
 	//      throw new ParseException(e.getMessage(),e);
     }
   }
