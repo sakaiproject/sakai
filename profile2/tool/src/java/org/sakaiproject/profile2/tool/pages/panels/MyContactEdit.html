@@ -47,7 +47,8 @@
 					<tr wicket:id="emailContainer">
 						<td class="label" wicket:id="emailLabel">[emailLabel]</td>
 						<td class="content">
-							<input type="text" wicket:id="email" class="formInputField" />
+							<label for="emailinput" class="accessibility-label"><wicket:message key="accessibility.profile.email.input">Enter your email</wicket:message></label>
+							<input type="text" wicket:id="email" class="formInputField" aria-describedby="emailFeedback" />
 							<span class="feedbackLabel" wicket:id="emailFeedback">[emailFeedback]</span>
 							<span wicket:id="emailReadOnly">[emailReadOnly]</span>
 						</td>
@@ -57,7 +58,8 @@
 					<tr wicket:id="homepageContainer">
 						<td class="label" wicket:id="homepageLabel">[homepageLabel]</td>
 						<td class="content">
-							<input type="text" wicket:id="homepage" class="formInputField" />
+							<label for="homepageinput" class="accessibility-label"><wicket:message key="accessibility.profile.homepage.input">Enter your webpage url</wicket:message></label>
+							<input type="text" wicket:id="homepage" class="formInputField" aria-describedby="homepageFeedback" />
 							<span class="feedbackLabel" wicket:id="homepageFeedback">[homepageFeedback]</span>
 						</td>
 					</tr>
@@ -66,7 +68,8 @@
 					<tr wicket:id="workphoneContainer">
 						<td class="label" wicket:id="workphoneLabel">[workphoneLabel]</td>
 						<td class="content">
-							<input type="text" wicket:id="workphone" class="formInputField" />
+							<label for="workphoneinput" class="accessibility-label"><wicket:message key="accessibility.profile.workphone.input">Enter your work phone number</wicket:message></label>
+							<input type="text" wicket:id="workphone" class="formInputField" aria-describedby="workphoneFeedback" />
 							<span class="feedbackLabel" wicket:id="workphoneFeedback">[workphoneFeedback]</span>
 						</td>
 					</tr>
@@ -75,7 +78,8 @@
 					<tr wicket:id="homephoneContainer">
 						<td class="label" wicket:id="homephoneLabel">[homephoneLabel]</td>
 						<td class="content">
-							<input type="text" wicket:id="homephone" class="formInputField" />
+							<label for="homephoneinput" class="accessibility-label"><wicket:message key="accessibility.profile.homephone.input">Enter your home phone number</wicket:message></label>
+							<input type="text" wicket:id="homephone" class="formInputField" aria-describedby="homephoneFeedback" />
 							<span class="feedbackLabel" wicket:id="homephoneFeedback">[homephoneFeedback]</span>
 						</td>
 					</tr>
@@ -84,7 +88,8 @@
 					<tr wicket:id="mobilephoneContainer">
 						<td class="label" wicket:id="mobilephoneLabel">[mobilephoneLabel]</td>
 						<td class="content">
-							<input type="text" wicket:id="mobilephone" class="formInputField" />
+							<label for="mobilephoneinput" class="accessibility-label"><wicket:message key="accessibility.profile.mobilephone.input">Enter your mobile phone number</wicket:message></label>
+							<input type="text" wicket:id="mobilephone" class="formInputField" aria-describedby="mobilephoneFeedback" />
 							<span class="feedbackLabel" wicket:id="mobilephoneFeedback">[mobilephoneFeedback]</span>
 						</td>
 					</tr>
@@ -93,7 +98,8 @@
 					<tr wicket:id="facsimileContainer">
 						<td class="label" wicket:id="facsimileLabel">[facsimileLabel]</td>
 						<td class="content">
-							<input type="text" wicket:id="facsimile" class="formInputField" />
+							<label for="facsimileinput" class="accessibility-label"><wicket:message key="accessibility.profile.facsimile.input">Enter your fax phone number</wicket:message></label>
+							<input type="text" wicket:id="facsimile" class="formInputField" aria-describedby="facsimileFeedback" />
 							<span class="feedbackLabel" wicket:id="facsimileFeedback">[facsimileFeedback]</span>
 						</td>
 					</tr>
