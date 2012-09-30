@@ -151,6 +151,8 @@ public class MyInfoEdit extends Panel {
 		WebMarkupContainer nicknameContainer = new WebMarkupContainer("nicknameContainer");
 		nicknameContainer.add(new Label("nicknameLabel", new ResourceModel("profile.nickname")));
 		TextField nickname = new TextField("nickname", new PropertyModel(userProfile, "nickname"));
+		nickname.setMarkupId("nicknameinput");
+		nickname.setOutputMarkupId(true);
 		nicknameContainer.add(nickname);
 		form.add(nicknameContainer);
 		
@@ -158,6 +160,8 @@ public class MyInfoEdit extends Panel {
 		WebMarkupContainer birthdayContainer = new WebMarkupContainer("birthdayContainer");
 		birthdayContainer.add(new Label("birthdayLabel", new ResourceModel("profile.birthday")));
 		TextField birthday = new TextField("birthday", new PropertyModel(userProfile, "birthday"));
+		birthday.setMarkupId("birthdayinput");
+		birthday.setOutputMarkupId(true);
 		birthdayContainer.add(birthday);
 		//tooltip
 		birthdayContainer.add(new IconWithClueTip("birthdayToolTip", ProfileConstants.INFO_IMAGE, new ResourceModel("text.profile.birthyear.tooltip")));
@@ -167,6 +171,8 @@ public class MyInfoEdit extends Panel {
 		WebMarkupContainer personalSummaryContainer = new WebMarkupContainer("personalSummaryContainer");
 		personalSummaryContainer.add(new Label("personalSummaryLabel", new ResourceModel("profile.summary")));
 		TextArea personalSummary = new TextArea("personalSummary", new PropertyModel(userProfile, "personalSummary"));
+		personalSummary.setMarkupId("summaryinput");
+		personalSummary.setOutputMarkupId(true);
 		
 		//add TinyMCE control
 		personalSummary.add(new TinyMceBehavior(new TextareaTinyMceSettings()));

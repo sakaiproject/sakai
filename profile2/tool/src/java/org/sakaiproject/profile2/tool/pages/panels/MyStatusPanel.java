@@ -148,6 +148,8 @@ public class MyStatusPanel extends Panel {
         		
 		//status field
 		final TextField statusField = new TextField("message", new PropertyModel(stringModel, "string"));
+		statusField.setMarkupId("messageinput");
+		statusField.setOutputMarkupId(true);
         statusField.setOutputMarkupPlaceholderTag(true);
         form.add(statusField);
         

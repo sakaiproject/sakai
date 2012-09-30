@@ -151,6 +151,8 @@ public class ChangeProfilePictureUrl extends Panel{
 		
 		//upload
 		TextField urlField = new TextField("urlField", new PropertyModel(stringModel, "string"));
+		urlField.setMarkupId("pictureurl");
+		urlField.setOutputMarkupId(true);
 		urlField.setRequired(true);
 		urlField.add(new UrlValidator(new String[]{"http", "https"}, UrlValidator.ALLOW_2_SLASHES));
 		form.add(urlField);

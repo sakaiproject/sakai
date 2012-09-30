@@ -186,6 +186,8 @@ public class ChangeProfilePictureUpload extends Panel{
 		
 		//upload
 		uploadField = new FileUploadField("picture");
+		uploadField.setMarkupId("pictureupload");
+		uploadField.setOutputMarkupId(true);
 		form.add(uploadField);
 		
         //feedback for form submit action
