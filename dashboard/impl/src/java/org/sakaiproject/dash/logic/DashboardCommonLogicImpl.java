@@ -71,13 +71,6 @@ import org.sakaiproject.util.ResourceLoader;
 public class DashboardCommonLogicImpl implements DashboardCommonLogic, Observer {
 	private static Logger logger = Logger.getLogger(DashboardCommonLogicImpl.class);
 	
-	public static final String DASHBOARD_NEGOTIATE_AVAILABILITY_CHECKS = "dash.negotiate.availCheck";
-	public static final String DASHBOARD_NEGOTIATE_REPEAT_EVENTS = "dash.negotiate.repeatEvents";
-	public static final String DASHBOARD_NEGOTIATE_EXPIRATION_AND_PURGING = "dash.negotiate.expireAndPurge";
-	
-	/** time to allow negotaion among servers -- 2 minutes */
-	public static final long NEGOTIATING_TIME = 1000L * 60L * 2L;
-	
 	public static final long TIME_BETWEEN_AVAILABILITY_CHECKS = 1000L * 60L * 1L;  // one minute
 	public static final long TIME_BETWEEN_EXPIRING_AND_PURGING = 1000L * 60L * 60L; // one hour
 
@@ -92,21 +85,14 @@ public class DashboardCommonLogicImpl implements DashboardCommonLogic, Observer 
 	
 	protected static long dashboardEventProcessorThreadId = 0L;
 
-	protected String serverId = null;
+	//protected String serverId = null;
 	protected String serverHandlingAvailabilityChecks = "";
 	protected String serverHandlingRepeatEvents = "";
 	protected String serverHandlingExpirationAndPurging = "";
 
 	protected boolean handlingAvailabilityChecks = false;
-	protected boolean notHandlingAvailabilityChecks = false;
 	protected boolean handlingRepeatedEvents = false;
-	protected boolean notHandlingRepeatedEvents = false;
 	protected boolean handlingExpirationAndPurging = false;
-	protected boolean notHandlingExpirationAndPurging = false;
-	
-	protected Date claimAvailabilityCheckDutyTime = null;
-	protected Date claimRepeatEventsDutyTime = null;
-	protected Date claimExpirationAndPurgingTime = null;
 	
 	protected static final Integer DEFAULT_NEWS_ITEM_EXPIRATION = new Integer(26);
 	protected static final Integer DEFAULT_CALENDAR_ITEM_EXPIRATION = new Integer(2);
@@ -369,6 +355,7 @@ public class DashboardCommonLogicImpl implements DashboardCommonLogic, Observer 
 				}
 				removeAvailabilityChecksBeforeTime(currentTime);
 			}
+			dashboardLogic.updateTaskLock(TaskLock.CHECK_AVAILABILITY_OF_HIDDEN_ITEMS);
 		}
 	}
 	
@@ -458,11 +445,6 @@ public class DashboardCommonLogicImpl implements DashboardCommonLogic, Observer 
 		
 	}
 
-	protected void initServerId() {
-		serverId = sakaiProxy.getServerId();
-		
-	}
-	
 	/************************************************************************
 	 * init() and destroy()
 	 ************************************************************************/
@@ -477,9 +459,9 @@ public class DashboardCommonLogicImpl implements DashboardCommonLogic, Observer 
 			}
 			this.eventProcessingThread.start();
 			
-			this.sakaiProxy.registerFunction(DASHBOARD_NEGOTIATE_AVAILABILITY_CHECKS);
-			this.sakaiProxy.registerFunction(DASHBOARD_NEGOTIATE_REPEAT_EVENTS);
-			this.sakaiProxy.registerFunction(DASHBOARD_NEGOTIATE_EXPIRATION_AND_PURGING);
+//			this.sakaiProxy.registerFunction(DASHBOARD_NEGOTIATE_AVAILABILITY_CHECKS);
+//			this.sakaiProxy.registerFunction(DASHBOARD_NEGOTIATE_REPEAT_EVENTS);
+//			this.sakaiProxy.registerFunction(DASHBOARD_NEGOTIATE_EXPIRATION_AND_PURGING);
 			
 			this.sakaiProxy.addLocalEventListener(this);
 			
@@ -696,6 +678,11 @@ public class DashboardCommonLogicImpl implements DashboardCommonLogic, Observer 
 		}
 
 		public void close() {
+			if(handlingRepeatedEvents) {
+				removeTaskLocks(TaskLock.UPDATE_REPEATING_EVENTS);
+			}
+			
+			
 			timeToQuit = true;
 		}
 
@@ -703,10 +690,6 @@ public class DashboardCommonLogicImpl implements DashboardCommonLogic, Observer 
 			try {
 				dashboardEventProcessorThreadId = Thread.currentThread().getId();
 				logger.info("Started Dashboard Event Processing Thread: " + dashboardEventProcessorThreadId);
-				
-				registerEventProcessor(new DashboardNegotiateAvailabilityChecksEventProcessor());
-				registerEventProcessor(new DashboardNegotiateRepeatEventsEventProcessor());
-				registerEventProcessor(new DashboardNegotiateExpirationAndPurgingProcessor());
 				
 				boolean timeToHandleAvailabilityChecks = true;
 				boolean timeToHandleRepeatedEvents = false;
@@ -723,11 +706,10 @@ public class DashboardCommonLogicImpl implements DashboardCommonLogic, Observer 
 							event = eventQueue.poll();
 						}
 					}
+					
+					// always give precedence to handling events from queue
+					// so skip other tasks if there's an event to process
 					if(event == null) {
-						if(serverId == null) {
-							initServerId();
-						}
-												
 						if(timeToHandleAvailabilityChecks) {
 							if(handlingAvailabilityChecks) {
 								SecurityAdvisor advisor = new DashboardLogicSecurityAdvisor();
@@ -741,22 +723,8 @@ public class DashboardCommonLogicImpl implements DashboardCommonLogic, Observer 
 									sakaiProxy.popSecurityAdvisor(advisor);
 									sakaiProxy.clearThreadLocalCache();
 								}
-							} else if(notHandlingAvailabilityChecks) {
-								// do nothing
-							} else if ("".equals(serverHandlingAvailabilityChecks)) {
-								claimAvailabilityCheckDuty();
 							} else {
-								if(handlingAvailabilityChecksTimer == null) {
-									handlingAvailabilityChecksTimer = new Date(System.currentTimeMillis() + NEGOTIATING_TIME);
-								} else if (handlingAvailabilityChecksTimer.before(new Date())) {
-									if(serverHandlingAvailabilityChecks.equals(serverId)) {
-										handlingAvailabilityChecks = true;
-									} else {
-										notHandlingAvailabilityChecks = true;
-									}
-									logger.info("Server handling availability checks is " + serverHandlingAvailabilityChecks);
-								}
-								
+								handlingAvailabilityChecks = dashboardLogic.checkTaskLock(TaskLock.CHECK_AVAILABILITY_OF_HIDDEN_ITEMS);
 							} 
 							timeToHandleRepeatedEvents = true;
 							timeToHandleAvailabilityChecks = false;
@@ -772,21 +740,8 @@ public class DashboardCommonLogicImpl implements DashboardCommonLogic, Observer 
 								} finally {
 									sakaiProxy.popSecurityAdvisor(advisor);
 								}	
-							} else if(notHandlingRepeatedEvents) {
-								// do nothing
-							} else if("".equals(serverHandlingRepeatEvents)) {
-								claimRepeatEventsDuty();
 							} else {
-								if(handlingRepeatedEventsTimer == null) {
-									handlingRepeatedEventsTimer = new Date(System.currentTimeMillis() + NEGOTIATING_TIME);
-								} else if (handlingRepeatedEventsTimer.before(new Date())) {
-									if(serverHandlingRepeatEvents.equals(serverId)) {
-										handlingRepeatedEvents = true;
-									} else {
-										notHandlingRepeatedEvents = true;
-									}
-									logger.info("Server handling repeated events is " + serverHandlingRepeatEvents);
-								}
+								handlingRepeatedEvents = dashboardLogic.checkTaskLock(TaskLock.UPDATE_REPEATING_EVENTS);
 							}
 							timeToHandleExpirationAndPurging = true;
 							timeToHandleRepeatedEvents = false;
@@ -803,30 +758,19 @@ public class DashboardCommonLogicImpl implements DashboardCommonLogic, Observer 
 								} finally {
 									sakaiProxy.popSecurityAdvisor(advisor);
 								}	
-							} else if(notHandlingExpirationAndPurging) {
-								// do nothing
-							} else if("".equals(serverHandlingExpirationAndPurging)) {
-								claimExpirationAndPurging();
 							} else {
-								if(handlingExpirationAndPurgingTime == null) {
-									handlingExpirationAndPurgingTime = new Date(System.currentTimeMillis() + NEGOTIATING_TIME);
-								} else if (handlingExpirationAndPurgingTime.before(new Date())) {
-									if(serverHandlingExpirationAndPurging.equals(serverId)) {
-										handlingExpirationAndPurging = true;
-									} else {
-										notHandlingExpirationAndPurging = true;
-									}
-									logger.info("Server handling expiration and purging is " + serverHandlingExpirationAndPurging);
-								}
+								timeToHandleExpirationAndPurging = dashboardLogic.checkTaskLock(TaskLock.EXPIRE_AND_PURGE_OLD_DASHBOARD_ITEMS);
 							}
 							timeToHandleAvailabilityChecks= true;
 							timeToHandleExpirationAndPurging = false;
 						}
 						
-						try {
-							Thread.sleep(sleepTime * 1000L);
-						} catch (InterruptedException e) {
-							logger.warn("InterruptedException in Dashboard Event Processing Thread: " + e);
+						if(eventQueue == null || eventQueue.isEmpty()) {
+							try {
+								Thread.sleep(sleepTime * 1000L);
+							} catch (InterruptedException e) {
+								logger.warn("InterruptedException in Dashboard Event Processing Thread: " + e);
+							}
 						}
 					} else {
 						if(logger.isDebugEnabled()) {
@@ -861,6 +805,8 @@ public class DashboardCommonLogicImpl implements DashboardCommonLogic, Observer 
 				expireAndPurgeNewsItems();
 				
 				nextTimeToExpireAndPurge = System.currentTimeMillis() + TIME_BETWEEN_EXPIRING_AND_PURGING;
+
+				dashboardLogic.updateTaskLock(TaskLock.EXPIRE_AND_PURGE_OLD_DASHBOARD_ITEMS);
 			}
 			
 		}
@@ -946,32 +892,11 @@ public class DashboardCommonLogicImpl implements DashboardCommonLogic, Observer 
 				}
 				Integer daysBetweenHorizonUpdates = dashboardConfig.getConfigValue(DashboardConfig.PROP_DAYS_BETWEEN_HORIZ0N_UPDATES, new Integer(1));
 				nextHorizonUpdate = new Date(nextHorizonUpdate.getTime() + daysBetweenHorizonUpdates.longValue() * DashboardLogic.ONE_DAY);
+				
+				dashboardLogic.updateTaskLock(TaskLock.UPDATE_REPEATING_EVENTS);
 			}
 		}
 
-		protected void claimAvailabilityCheckDuty() {
-			if(claimAvailabilityCheckDutyTime == null) {
-				sakaiProxy.postEvent(DASHBOARD_NEGOTIATE_AVAILABILITY_CHECKS, serverId, true);
-				
-				claimAvailabilityCheckDutyTime = new Date(System.currentTimeMillis() + NEGOTIATING_TIME);
-			} 
-		}
-		
-		protected void claimRepeatEventsDuty() {
-			if(claimRepeatEventsDutyTime == null) {
-				sakaiProxy.postEvent(DASHBOARD_NEGOTIATE_REPEAT_EVENTS, serverId, true);
-				
-				claimRepeatEventsDutyTime = new Date(System.currentTimeMillis() + NEGOTIATING_TIME);
-			} 
-		}
-
-		protected void claimExpirationAndPurging() {
-			if(claimExpirationAndPurgingTime == null) {
-				sakaiProxy.postEvent(DASHBOARD_NEGOTIATE_EXPIRATION_AND_PURGING, serverId, true);
-				
-				claimExpirationAndPurgingTime = new Date(System.currentTimeMillis() + NEGOTIATING_TIME);
-			}
-		}
 	}
 	
 	/**
@@ -1003,122 +928,6 @@ public class DashboardCommonLogicImpl implements DashboardCommonLogic, Observer 
 		
 	}
 
-	public class DashboardNegotiateAvailabilityChecksEventProcessor implements EventProcessor {
-
-		public String getEventIdentifer() {
-			return DASHBOARD_NEGOTIATE_AVAILABILITY_CHECKS;
-		}
-
-		public void processEvent(Event event) {
-			if(logger.isDebugEnabled()) {
-				logger.debug("\n\n\n=============================================================\n" + event  
-						+ "\n=============================================================\n\n\n");
-			}
-			if(event.getModify()) {
-				// this is a message indicating an attempt to claim availability-check processing
-				if(handlingAvailabilityChecks) {
-					// availability-check processing is already claimed by this server -- report that
-					sakaiProxy.postEvent(DASHBOARD_NEGOTIATE_AVAILABILITY_CHECKS, serverHandlingAvailabilityChecks, false);
-				} else if (notHandlingAvailabilityChecks) {
-					// do nothing
-				} else if(event.getEventTime() != null && (claimAvailabilityCheckDutyTime == null || event.getEventTime().before(claimAvailabilityCheckDutyTime))) {
-					// negotiate
-					synchronized(serverHandlingAvailabilityChecks) {
-						claimAvailabilityCheckDutyTime = event.getEventTime();
-						serverHandlingAvailabilityChecks = event.getResource();
-					}
-				}
-			} else {
-				// this message indicates that availability-check processing has been claimed by another server
-				if(! handlingAvailabilityChecks && ! notHandlingAvailabilityChecks) {
-					// we're trying to claim availability-check processing and it's already claimed, so stop trying
-					synchronized(serverHandlingAvailabilityChecks) {
-						claimAvailabilityCheckDutyTime = new Date(System.currentTimeMillis() - NEGOTIATING_TIME);
-						serverHandlingAvailabilityChecks = event.getResource();
-					}
-				}
-				
-			}			
-		}
-		
-	}
-	public class DashboardNegotiateRepeatEventsEventProcessor implements EventProcessor {
-
-		public String getEventIdentifer() {
-			return DASHBOARD_NEGOTIATE_REPEAT_EVENTS;
-		}
-
-		public void processEvent(Event event) {
-			if(logger.isDebugEnabled()) {
-				logger.debug("\n\n\n=============================================================\n" + event  
-						+ "\n=============================================================\n\n\n");
-			}
-			if(event.getModify()) {
-				// this is a message indicating an attempt to claim repeated events processing
-				if(handlingRepeatedEvents) {
-					// repeated events processing is already claimed by this server -- report that
-					sakaiProxy.postEvent(DASHBOARD_NEGOTIATE_REPEAT_EVENTS, serverHandlingRepeatEvents, false);
-				} else if (notHandlingRepeatedEvents) {
-					// do nothing
-				} else if(event.getEventTime() != null && (claimRepeatEventsDutyTime == null || event.getEventTime().before(claimRepeatEventsDutyTime))) {
-					// negotiate
-					synchronized(serverHandlingRepeatEvents) {
-						claimRepeatEventsDutyTime = event.getEventTime();
-						serverHandlingRepeatEvents = event.getResource();
-					}
-				}
-			} else {
-				// this message indicates that repeated events processing has been claimed by another server
-				if(! handlingRepeatedEvents && ! notHandlingRepeatedEvents) {
-					// we're trying to claim repeated events processing and it's already claimed, so stop trying
-					synchronized(serverHandlingRepeatEvents) {
-						claimRepeatEventsDutyTime = new Date(System.currentTimeMillis() - NEGOTIATING_TIME);
-						serverHandlingRepeatEvents = event.getResource();
-					}
-				}
-			}
-		}
-		
-	}
-	public class DashboardNegotiateExpirationAndPurgingProcessor implements EventProcessor {
-
-		public String getEventIdentifer() {
-			return DASHBOARD_NEGOTIATE_EXPIRATION_AND_PURGING;
-		}
-
-		public void processEvent(Event event) {
-			if(logger.isDebugEnabled()) {
-				logger.debug("\n\n\n=============================================================\n" + event  
-						+ "\n=============================================================\n\n\n");
-			}
-			if(event.getModify()) {
-				// this is a message indicating an attempt to claim expiration and purging 
-				if(handlingExpirationAndPurging) {
-					// expiration and purging is already claimed by this server -- report that
-					sakaiProxy.postEvent(DASHBOARD_NEGOTIATE_EXPIRATION_AND_PURGING, serverHandlingExpirationAndPurging, false);
-				} else if (notHandlingExpirationAndPurging) {
-					// do nothing
-				} else if(event.getEventTime() != null && (claimExpirationAndPurgingTime == null || event.getEventTime().before(claimExpirationAndPurgingTime))) {
-					// negotiate
-					synchronized(serverHandlingExpirationAndPurging) {
-						claimExpirationAndPurgingTime = event.getEventTime();
-						serverHandlingExpirationAndPurging = event.getResource();
-					}
-				}
-			} else {
-				// this message indicates that expiration and purging has been claimed by another server
-				if(! handlingExpirationAndPurging && ! notHandlingExpirationAndPurging) {
-					// we're trying to claim expiration and purging and it's already claimed, so stop trying
-					synchronized(serverHandlingExpirationAndPurging) {
-						claimExpirationAndPurgingTime = new Date(System.currentTimeMillis() - NEGOTIATING_TIME);
-						serverHandlingExpirationAndPurging = event.getResource();
-					}
-				}
-			}
-		}
-		
-	}
-	
 	/************************************************************************
 	 * DashboardLogic methods
 	 ************************************************************************/
@@ -1149,6 +958,14 @@ public class DashboardCommonLogicImpl implements DashboardCommonLogic, Observer 
 	public void addNewsLinks(String sakaiUserId, String contextId) {
 		
 		this.dashboardLogic.addNewsLinks(sakaiUserId, contextId);
+	}
+	
+	/*
+	 * (non-Javadoc)
+	 * @see org.sakaiproject.dash.logic.DashboardLogic#checkTaskLock(java.lang.String)
+	 */
+	public boolean checkTaskLock(String task) {
+		return this.dashboardLogic.checkTaskLock(task);
 	}
 
 	/* (non-Javadoc)
@@ -1550,6 +1367,14 @@ public class DashboardCommonLogicImpl implements DashboardCommonLogic, Observer 
 		
 		this.dashboardLogic.scheduleAvailabilityCheck(entityReference, entityTypeId, scheduledTime);
 	}
+	
+	/*
+	 * (non-Javadoc)
+	 * @see org.sakaiproject.dash.logic.DashboardLogic#setRepeatingEventHorizon(java.util.Date)
+	 */
+	public void setRepeatingEventHorizon(Date newHorizon) {
+		this.dashboardLogic.setRepeatingEventHorizon(newHorizon);
+	}
 
 	/* (non-Javadoc)
 	 * @see org.sakaiproject.dash.logic.DashboardLogic#updateCalendarLinks(java.lang.String)
@@ -1568,6 +1393,17 @@ public class DashboardCommonLogicImpl implements DashboardCommonLogic, Observer 
 		
 		this.dashboardLogic.updateNewsLinks(entityReference);
 	}
+	
+	/*
+	 * (non-Javadoc)
+	 * @see org.sakaiproject.dash.logic.DashboardLogic#updateTaskLock(java.lang.String)
+	 */
+	public void updateTaskLock(String task) {
+		this.dashboardLogic.updateTaskLock(task);
+		
+	}
+
+
 	
 	/************************************************************************
 	 * DashboardUserLogic methods
@@ -1722,7 +1558,12 @@ public class DashboardCommonLogicImpl implements DashboardCommonLogic, Observer 
 		return this.dashboardUserLogic.unkeepNewsItem(sakaiUserId, newsItemId);
 	}
 
-	public void setRepeatingEventHorizon(Date newHorizon) {
+	/*
+	 * (non-Javadoc)
+	 * @see org.sakaiproject.dash.logic.DashboardLogic#removeTaskLocks(java.lang.String)
+	 */
+	public void removeTaskLocks(String task) {
+		this.dashboardLogic.removeTaskLocks(task);
 	}
 
 }

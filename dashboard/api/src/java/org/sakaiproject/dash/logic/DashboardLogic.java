@@ -428,4 +428,18 @@ public interface DashboardLogic {
 	 */
 	public void updateNewsLinks(String entityReference);
 
+	/**
+	 * Determines whether a particular task has been assigned to a server and, if so, whether 
+	 * the current server has that assignment.  If the task has not been assigned to a server,
+	 * the method attempts to claim the task. 
+	 * @param task the unique identifier for the task.
+	 * @return true if the task has been assigned to the current server, and false if the task
+	 * has not been assigned or has been assigned to a different server.
+	 */
+	public boolean checkTaskLock(String task);
+
+	public void updateTaskLock(String task);
+
+	public void removeTaskLocks(String task);
+
 }

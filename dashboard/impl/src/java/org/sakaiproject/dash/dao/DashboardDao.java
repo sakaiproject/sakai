@@ -26,6 +26,7 @@ import java.util.List;
 import java.util.Set;
 import java.util.SortedSet;
 
+import org.sakaiproject.dash.logic.TaskLock;
 import org.sakaiproject.dash.model.AvailabilityCheck;
 import org.sakaiproject.dash.model.CalendarItem;
 import org.sakaiproject.dash.model.CalendarLink;
@@ -549,6 +550,18 @@ public interface DashboardDao {
 			Integer propertyValue);
 
 	public Set<String> listUsersWithLinks(CalendarItem calendarItem);
+
+	public List<TaskLock> getAssignedTaskLocks();
+
+	public List<TaskLock> getTaskLocks(String task);
+
+	public boolean updateTaskLock(long id, boolean hasLock, Date lastUpdate);
+
+	public boolean deleteTaskLocks(String task);
+
+	public boolean addTaskLock(TaskLock taskLock);
+
+	public boolean updateTaskLock(String task, String serverId, Date lastUpdate);
 
 
 }

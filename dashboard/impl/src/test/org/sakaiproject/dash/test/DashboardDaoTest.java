@@ -28,6 +28,7 @@ import java.util.List;
 import java.util.concurrent.atomic.AtomicInteger;
 
 import org.sakaiproject.dash.dao.DashboardDao;
+import org.sakaiproject.dash.logic.TaskLock;
 import org.sakaiproject.dash.model.CalendarItem;
 import org.sakaiproject.dash.model.CalendarLink;
 import org.sakaiproject.dash.model.Context;
@@ -110,7 +111,6 @@ public class DashboardDaoTest extends AbstractTransactionalSpringContextTests {
 		assertTrue(saved);
 		
 		calendarItem = dao.getCalendarItem(entityReference, calendarTimeLabelKey, null);
-		//System.out.println("calendarItem == " + calendarItem);
 
 		assertNotNull(calendarItem);
 		assertNotNull(calendarItem.getId());
@@ -160,6 +160,10 @@ public class DashboardDaoTest extends AbstractTransactionalSpringContextTests {
 				calendarTimeLabelKey, entityReference, context, sourceType, null, null, null);
 		dao.addCalendarItem(calendarItem);
 		calendarItem = dao.getCalendarItem(entityReference, calendarTimeLabelKey, null);
+		assertNotNull(calendarItem);
+		assertNotNull(calendarItem.getId());
+		assertTrue(calendarItem.getId().longValue() > 0L);
+		assertEquals(entityReference, calendarItem.getEntityReference());
 		
 		String sakaiId = getUniqueIdentifier();
 		String userId = getUniqueIdentifier();
@@ -492,8 +496,10 @@ public class DashboardDaoTest extends AbstractTransactionalSpringContextTests {
 
 		CalendarItem calendarItem = new CalendarItem(title, calendarTime,
 				calendarTimeLabelKey, entityReference, context, sourceType, null, null, null);
-		dao.addCalendarItem(calendarItem);
+		boolean saved1 = dao.addCalendarItem(calendarItem);
+		assertTrue(saved1);
 		calendarItem = dao.getCalendarItem(entityReference, calendarTimeLabelKey, null);
+		assertNotNull(calendarItem);
 		
 		String sakaiId = getUniqueIdentifier();
 		String userId = getUniqueIdentifier();
@@ -1454,9 +1460,216 @@ public class DashboardDaoTest extends AbstractTransactionalSpringContextTests {
 		links = dao.getCurrentNewsLinks(sakaiId, contextId);
 		assertNotNull(links);
 		assertEquals(expectedCount, links.size());	
-}
+	}
 
+	public void testAddTaskLock() {
+		// boolean addTaskLock(TaskLock taskLock)
+		boolean saved = false;
+		try {
+			String task = getUniqueIdentifier();
+			boolean hasLock = false;
+			String serverId = this.getUniqueIdentifier();
+			Date lastUpdate = new Date();
+			Date claimTime = new Date();
+			TaskLock taskLock = new TaskLock(task, serverId , claimTime, hasLock, lastUpdate);
+			
+			saved = this.dao.addTaskLock(taskLock);
+		} catch(Throwable t) {
+			fail("Failure while trying to create and save a task-lock");
+		}
+		
+		assertTrue(saved);
+	}
+	
+	public void testGetTaskLocks() {
+		String task00 = getUniqueIdentifier();
+		
+		List<TaskLock> locks = this.dao.getTaskLocks(task00);
+		assertNotNull(locks);
+		assertEquals(0, locks.size());
+		
+		String serverId00 = this.getUniqueIdentifier();
+		Date time00 = new Date();
+		TaskLock taskLock00 = new TaskLock(task00, serverId00 , time00, false, time00);
+		
+		boolean saved00 = this.dao.addTaskLock(taskLock00);
+		assertTrue(saved00);
+		
+		List<TaskLock> locks01 = this.dao.getTaskLocks(task00);
+		assertNotNull(locks01);
+		assertEquals(1, locks01.size());
+		
+		String task01 = getUniqueIdentifier();
+		Date time01 = new Date();
+		TaskLock taskLock01 = new TaskLock(task01, serverId00, time01 , false, time01);
+		
+		boolean saved01 = this.dao.addTaskLock(taskLock01);
+		assertTrue(saved01);
+		
+		List<TaskLock> locks02 = this.dao.getTaskLocks(task01);
+		assertNotNull(locks02);
+		assertEquals(1, locks02.size());
+		
+		String serverId02 = getUniqueIdentifier();
+		Date time02 = new Date();
+		TaskLock taskLock02 = new TaskLock(task00, serverId02, time02, false, time02);
+		
+		boolean saved02 = this.dao.addTaskLock(taskLock02);
+		assertTrue(saved02);
 
+		List<TaskLock> locks03 = this.dao.getTaskLocks(task00);
+		assertNotNull(locks03);
+		assertEquals(2, locks03.size());
+
+	}
+	 
+	public void testDeleteTaskLocks() {
+		// boolean deleteTaskLocks(String task)
+		
+		String task00 = getUniqueIdentifier();
+		String serverId00 = this.getUniqueIdentifier();
+		Date time00 = new Date();
+		TaskLock taskLock00 = new TaskLock(task00, serverId00 , time00, false, time00);
+		
+		boolean saved00 = this.dao.addTaskLock(taskLock00);
+		assertTrue(saved00);
+		
+		String task01 = getUniqueIdentifier();
+		Date time01 = new Date();
+		TaskLock taskLock01 = new TaskLock(task01, serverId00, time01 , false, time01);
+		
+		boolean saved01 = this.dao.addTaskLock(taskLock01);
+		assertTrue(saved01);
+				
+		String serverId02 = getUniqueIdentifier();
+		Date time02 = new Date();
+		TaskLock taskLock02 = new TaskLock(task00, serverId02, time02, false, time02);
+		
+		boolean saved02 = this.dao.addTaskLock(taskLock02);
+		assertTrue(saved02);
+
+		List<TaskLock> locks00 = this.dao.getTaskLocks(task00);
+		assertNotNull(locks00);
+		assertEquals(2, locks00.size());
+
+		List<TaskLock> locks01 = this.dao.getTaskLocks(task01);
+		assertNotNull(locks01);
+		assertEquals(1, locks01.size());
+		
+		boolean deleted00 = this.dao.deleteTaskLocks(task00);
+		assertTrue(deleted00);
+		
+		List<TaskLock> locks02 = this.dao.getTaskLocks(task00);
+		assertNotNull(locks02);
+		assertEquals(0, locks02.size());
+
+		List<TaskLock> locks03 = this.dao.getTaskLocks(task01);
+		assertNotNull(locks03);
+		assertEquals(1, locks03.size());
+		
+		boolean deleted01 = this.dao.deleteTaskLocks(task00);
+		assertTrue(deleted01);
+		
+		boolean deleted02 = this.dao.deleteTaskLocks(task01);
+		assertTrue(deleted02);
+		
+		List<TaskLock> locks04 = this.dao.getTaskLocks(task00);
+		assertNotNull(locks04);
+		assertEquals(0, locks04.size());
+
+		List<TaskLock> locks05 = this.dao.getTaskLocks(task01);
+		assertNotNull(locks05);
+		assertEquals(0, locks05.size());
+		
+	}
+	
+	public void testUpdateTaskLockStringStringDate() {
+		// boolean updateTaskLock(String task, String serverId, Date lastUpdate)
+		String task = getUniqueIdentifier();
+		boolean hasLock = false;
+		String serverId = this.getUniqueIdentifier();
+		Date time00 = new Date();
+		TaskLock taskLock = new TaskLock(task, serverId , time00, hasLock, time00);
+		
+		boolean saved = this.dao.addTaskLock(taskLock);
+		assertTrue(saved);
+		
+		List<TaskLock> locks00 = this.dao.getTaskLocks(task);
+		assertNotNull(locks00);
+		assertEquals(1, locks00.size());
+		
+		TaskLock savedLock = locks00.get(0);
+		assertNotNull(savedLock);
+		assertNotNull(savedLock.getId());
+		
+		assertEquals(time00.getTime(), savedLock.getClaimTime().getTime());
+		assertEquals(time00.getTime(), savedLock.getLastUpdate().getTime());
+		
+		long tasklockId = savedLock.getId().longValue();
+		Date time01 = new Date(time00.getTime() + 10000L);
+		
+		boolean updated = this.dao.updateTaskLock(task, serverId, time01);
+		
+		assertTrue(updated);
+		
+		List<TaskLock> locks01 = this.dao.getTaskLocks(task);
+		assertNotNull(locks01);
+		assertEquals(1, locks01.size());
+		
+		TaskLock updatedLock = locks01.get(0);
+		assertNotNull(updatedLock);
+		assertNotNull(updatedLock.getId());
+		assertEquals(tasklockId, updatedLock.getId().longValue());
+		assertFalse(updatedLock.isHasLock());
+		
+		assertEquals(time00.getTime(), updatedLock.getClaimTime().getTime());
+		assertEquals(time01.getTime(), updatedLock.getLastUpdate().getTime());
+		
+	}
+	
+	public void testUpdateTaskLockLongBooleanDate() {
+		// boolean updateTaskLock(long id, boolean hasLock, Date lastUpdate)
+		String task = getUniqueIdentifier();
+		boolean hasLock = false;
+		String serverId = this.getUniqueIdentifier();
+		Date time00 = new Date();
+		TaskLock taskLock = new TaskLock(task, serverId , time00, hasLock, time00);
+		
+		boolean saved = this.dao.addTaskLock(taskLock);
+		assertTrue(saved);
+		
+		List<TaskLock> locks00 = this.dao.getTaskLocks(task);
+		assertNotNull(locks00);
+		assertEquals(1, locks00.size());
+		
+		TaskLock savedLock = locks00.get(0);
+		assertNotNull(savedLock);
+		assertNotNull(savedLock.getId());
+		assertFalse(savedLock.isHasLock());
+		
+		assertEquals(time00.getTime(), savedLock.getClaimTime().getTime());
+		assertEquals(time00.getTime(), savedLock.getLastUpdate().getTime());
+		
+		long tasklockId = savedLock.getId().longValue();
+		Date time01 = new Date(time00.getTime() + 10000L);
+		
+		boolean updated = this.dao.updateTaskLock(tasklockId, true, time01);
+		
+		assertTrue(updated);
+		
+		List<TaskLock> locks01 = this.dao.getTaskLocks(task);
+		assertNotNull(locks01);
+		assertEquals(1, locks01.size());
+		
+		TaskLock updatedLock = locks01.get(0);
+		assertNotNull(updatedLock);
+		assertNotNull(updatedLock.getId());
+		assertEquals(tasklockId, updatedLock.getId().longValue());
+		assertTrue(updatedLock.isHasLock());
+		
+		assertEquals(time00.getTime(), updatedLock.getClaimTime().getTime());
+		assertEquals(time01.getTime(), updatedLock.getLastUpdate().getTime());
+	}
 
 	protected String getUniqueIdentifier() {
 		return "unique-identifier-" + counter.incrementAndGet();

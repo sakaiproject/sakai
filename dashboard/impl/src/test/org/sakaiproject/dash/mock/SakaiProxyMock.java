@@ -50,7 +50,9 @@ public class SakaiProxyMock implements SakaiProxy {
 	public static final Map<String,Site> VALID_SITES = new HashMap<String,Site>();
 	static {
 		VALID_SITES.put(VALID_SITE_ID, new SiteMock(VALID_SITE_ID, VALID_SITE_TITLE, VALID_SITE_URL));
-	};
+	}
+
+	private String serverId = "unknown-server-id";
 
 	public void addLocalEventListener(Observer observer) {
 		// TODO Auto-generated method stub
@@ -219,14 +221,21 @@ public class SakaiProxyMock implements SakaiProxy {
 		return null;
 	}
 
+	/**
+	 * 
+	 */
 	public String getServerId() {
-		// TODO Auto-generated method stub
-		return null;
+		
+		return this.serverId;
 	}
 
 	public void registerFunction(String functionName) {
 		// TODO Auto-generated method stub
 		
+	}
+
+	public void setServerId(String serverId) {
+		this.serverId = serverId;
 	}
 
 }

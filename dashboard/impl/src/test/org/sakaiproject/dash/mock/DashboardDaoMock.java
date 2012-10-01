@@ -21,15 +21,20 @@
 
 package org.sakaiproject.dash.mock;
 
+import java.util.ArrayList;
+import java.util.Comparator;
 import java.util.Date;
 import java.util.HashMap;
+import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.SortedSet;
+import java.util.TreeSet;
 import java.util.concurrent.atomic.AtomicLong;
 
 import org.sakaiproject.dash.dao.DashboardDao;
+import org.sakaiproject.dash.logic.TaskLock;
 import org.sakaiproject.dash.model.AvailabilityCheck;
 import org.sakaiproject.dash.model.CalendarItem;
 import org.sakaiproject.dash.model.CalendarLink;
@@ -50,7 +55,13 @@ public class DashboardDaoMock implements DashboardDao {
 	
 	protected Map<String,Context> contextId2contextMap = new HashMap<String,Context>(); 
 	protected Map<Long,Context> id2contextMap = new HashMap<Long,Context>();
-
+	
+	protected Map<String,SortedSet<TaskLock>> taskLocksTaskIndex = new HashMap<String,SortedSet<TaskLock>>();
+	protected Map<String,Map<String, TaskLock>> taslLocksTaskServerIdIndex = new HashMap<String,Map<String, TaskLock>>();
+	protected Map<Long, TaskLock> taskLocksIdIndex = new HashMap<Long, TaskLock>();
+	
+	protected AtomicLong taskLockSeq = new AtomicLong();
+	
 	/* (non-Javadoc)
 	 * @see org.sakaiproject.dash.dao.DashboardDao#addAvailabilityCheck(org.sakaiproject.dash.model.AvailabilityCheck)
 	 */
@@ -744,6 +755,147 @@ public class DashboardDaoMock implements DashboardDao {
 	public boolean deleteNewsItemsWithoutLinks() {
 		// TODO Auto-generated method stub
 		return false;
+	}
+
+	@Override
+	public List<TaskLock> getTaskLocks(String task) {
+		List<TaskLock> rv = new ArrayList<TaskLock>();
+		SortedSet<TaskLock> locks = this.taskLocksTaskIndex.get(task);
+		if(locks != null) {
+			rv.addAll(locks);
+		}
+		return rv;
+	}
+
+	@Override
+	public boolean updateTaskLock(long id, boolean hasLock, Date lastUpdate) {
+		TaskLock lock = this.taskLocksIdIndex.get(id);
+		if(lock != null) {
+			lock.setHasLock(hasLock);
+			lock.setLastUpdate(lastUpdate);
+			return true;
+		}
+		return false;
+	}
+
+	@Override
+	public boolean deleteTaskLocks(String task) {
+		boolean found = false;
+		SortedSet<TaskLock> locks = this.taskLocksTaskIndex.remove(task);
+		if(locks != null) {
+			for(TaskLock lock : locks) {
+				this.taskLocksIdIndex.remove(lock.getId());
+			}
+			found = true;
+		}
+		Map<String,TaskLock> lockMap = this.taslLocksTaskServerIdIndex.remove(task);
+		
+		return found;
+	}
+
+	@Override
+	public boolean addTaskLock(TaskLock taskLock) {
+		SortedSet<TaskLock> locks = this.taskLocksTaskIndex.get(taskLock.getTask());
+		if(locks == null) {
+			locks = new TreeSet<TaskLock>(new Comparator<TaskLock>(){ 
+				public int compare(TaskLock t1, TaskLock t2) {
+					int cmp = t1.getClaimTime().compareTo(t2.getClaimTime());
+					if(cmp == 0) {
+						cmp = t1.getLastUpdate().compareTo(t2.getLastUpdate());
+					}
+					return cmp;
+				}
+				
+				public boolean equals(Object obj) {
+					boolean eq = this.equals(obj);
+					if(!eq) {
+						// test whether obj is a Comparator<TaskLock>?
+						try {
+							Comparator<TaskLock> comparator = (Comparator<TaskLock>) obj;
+							// test whether obj correctly orders locks by claim-time?
+							long time00 = System.currentTimeMillis();
+							long time11 = time00 - 10000L;
+							long time01 = time00 + 10000L;
+							TaskLock base0000 = new TaskLock("t1", "s1", new Date(time00), false, new Date(time00));
+							TaskLock lock0000 = new TaskLock("t1", "s1", new Date(time00), false, new Date(time00));
+							if( comparator.compare(base0000, lock0000) == this.compare(base0000, lock0000) 
+									&& comparator.compare(lock0000, base0000) == this.compare(lock0000, base0000)) {
+								TaskLock lock1111 = new TaskLock("t1", "s1", new Date(time11), false, new Date(time11));
+								if(comparator.compare(base0000, lock1111) == this.compare(base0000, lock1111) 
+										&& comparator.compare(lock1111, base0000) == this.compare(lock1111, base0000)) {
+									TaskLock lock0101 = new TaskLock("t1", "s1", new Date(time01), false, new Date(time01));
+									if(comparator.compare(base0000, lock0101) == this.compare(base0000, lock0101)
+											&& comparator.compare(lock0101, base0000) == this.compare(lock0101, base0000)) {
+										TaskLock lock0011 = new TaskLock("t1", "s1", new Date(time00), false, new Date(time11));
+										if(comparator.compare(base0000, lock0011) == this.compare(base0000, lock0011) 
+												&& comparator.compare(lock0011, base0000) == this.compare(lock0011, base0000)) {
+											TaskLock lock0001 = new TaskLock("t1", "s1", new Date(time00), false, new Date(time01));
+											if(comparator.compare(base0000, lock0001) == this.compare(base0000, lock0001) 
+													&& comparator.compare(lock0001, base0000) == this.compare(lock0001, base0000)) {
+												eq = true;
+											}
+										}
+									}
+								}
+							}
+						} catch(ClassCastException e) {
+						}
+
+					}
+					return eq;
+				}
+			});
+			this.taskLocksTaskIndex.put(taskLock.getTask(), locks);
+		}
+		boolean found = false;
+		for(Iterator<TaskLock> it = locks.iterator(); it.hasNext(); ) {
+			TaskLock lock = it.next();
+			if(lock.getServerId().equals(taskLock.getServerId())) {
+				found = true;
+			}
+		}
+		if(found) {
+			return false;
+		}
+		
+		taskLock.setId(taskLockSeq.incrementAndGet());
+
+		locks.add(taskLock);
+		
+		Map<String, TaskLock> lockMap = this.taslLocksTaskServerIdIndex.get(taskLock.getTask());
+		if(lockMap == null) {
+			lockMap = new HashMap<String,TaskLock>();
+			this.taslLocksTaskServerIdIndex.put(taskLock.getTask(), lockMap);
+		}
+		lockMap.put(taskLock.getServerId(), taskLock);
+		
+		taskLocksIdIndex.put(taskLock.getId(), taskLock);
+		
+		return true;
+	}
+
+	@Override
+	public boolean updateTaskLock(String task, String serverId, Date lastUpdate) {
+		Map<String,TaskLock> lockMap = this.taslLocksTaskServerIdIndex.get(task);
+		if(lockMap != null) {
+			TaskLock lock = lockMap.get(serverId);
+			if(lock != null) {
+				lock.setLastUpdate(lastUpdate);
+				return true;
+			}
+		}
+		return false;
+	}
+
+	@Override
+	public List<TaskLock> getAssignedTaskLocks() {
+		List<TaskLock> assigned = new ArrayList<TaskLock>();
+		for(TaskLock lock : this.taskLocksIdIndex.values()) {
+			if(lock.isHasLock()) {
+				assigned.add(lock);
+			}
+		}
+		return assigned;
 	}
 
 }

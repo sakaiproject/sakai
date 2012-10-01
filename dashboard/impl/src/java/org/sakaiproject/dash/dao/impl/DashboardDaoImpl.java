@@ -27,16 +27,12 @@ import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Date;
-import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
-import java.util.Map;
 import java.util.NoSuchElementException;
 import java.util.Set;
 import java.util.SortedSet;
 import java.util.TreeSet;
-
-import net.sf.json.JSONArray;
 
 import org.apache.commons.configuration.ConfigurationException;
 import org.apache.commons.configuration.PropertiesConfiguration;
@@ -53,6 +49,8 @@ import org.sakaiproject.dash.dao.mapper.NewsLinkMapper;
 import org.sakaiproject.dash.dao.mapper.PersonMapper;
 import org.sakaiproject.dash.dao.mapper.RepeatingCalendarItemMapper;
 import org.sakaiproject.dash.dao.mapper.SourceTypeMapper;
+import org.sakaiproject.dash.dao.mapper.TaskLockMapper;
+import org.sakaiproject.dash.logic.TaskLock;
 import org.sakaiproject.dash.model.AvailabilityCheck;
 import org.sakaiproject.dash.model.CalendarItem;
 import org.sakaiproject.dash.model.CalendarLink;
@@ -161,20 +159,20 @@ public class DashboardDaoImpl extends JdbcDaoSupport implements DashboardDao {
 						calendarItem.getSourceType().getId(), calendarItem.getContext().getId(), 
 						calendarItem.getRepeatingCalendarItem().getId(), calendarItem.getSequenceNumber()};
 			}
-
-			template.update(sql,params);
+			int result = template.update(sql,params);
+			
 			return true;
 		} catch (DataIntegrityViolationException e) {
 			// this means we're trying to insert a duplicate
-			log.debug("addCalendarItem() " + e);
+			log.warn("addCalendarItem() " + e);
 			return false;
 		} catch (DataAccessException ex) {
             log.warn("addCalendarItem: Error executing query: " + ex.getClass() + ":" + ex.getMessage());
-	        //System.out.println("addCalendarItem: Error executing query: " + ex.getClass() + ":" + ex.getMessage());
+	        // System.out.println("addCalendarItem: Error executing query: " + ex.getClass() + ":" + ex.getMessage());
             return false;
 		} catch (Exception e) {
 	        log.warn("addCalendarItem: Error executing query: " + e.getClass() + ":" + e.getMessage());
-	        //System.out.println("addCalendarItem: Error executing query: " + e.getClass() + ":" + e.getMessage());
+	        // System.out.println("addCalendarItem: Error executing query: " + e.getClass() + ":" + e.getMessage());
 	        return false;
 		}
 	}
@@ -391,6 +389,33 @@ public class DashboardDaoImpl extends JdbcDaoSupport implements DashboardDao {
 			return false;
 		} catch (DataAccessException ex) {
            log.warn("addSourceType: Error executing query: " + ex.getClass() + ":" + ex.getMessage());
+           return false;
+		}
+	}
+	
+	/*
+	 * (non-Javadoc)
+	 * @see org.sakaiproject.dash.dao.DashboardDao#addTaskLock(org.sakaiproject.dash.logic.TaskLock)
+	 */
+	public boolean addTaskLock(TaskLock taskLock) {
+		if(log.isDebugEnabled()) {
+			log.debug("addTaskLock( " + taskLock.toString() + ")");
+		}
+		
+		//  task, server_id, claim_time, last_update
+		
+		try {
+			getJdbcTemplate().update(getStatement("insert.TaskLock"),
+				new Object[]{ taskLock.getTask(), taskLock.getServerId(), 
+						taskLock.getClaimTime(), taskLock.getLastUpdate() 
+					});
+			return true;
+		} catch (DataIntegrityViolationException e) {
+			// this means we're trying to insert a duplicate
+			log.debug("addTaskLock() " + e);
+			return false;
+		} catch (DataAccessException ex) {
+           log.warn("addTaskLock: Error executing query: " + ex.getClass() + ":" + ex.getMessage());
            return false;
 		}
 	}
@@ -660,6 +685,28 @@ public class DashboardDaoImpl extends JdbcDaoSupport implements DashboardDao {
 		}
 	}
 	
+	/*
+	 * (non-Javadoc)
+	 * @see org.sakaiproject.dash.dao.DashboardDao#deleteTaskLocks(java.lang.String)
+	 */
+	public boolean deleteTaskLocks(String task) {
+		if(log.isDebugEnabled()) {
+			log.debug("deleteTaskLocks( " + task + ")");
+		}
+		
+		try {
+			getJdbcTemplate().update(getStatement("delete.TaskLock.by.task"),
+				new Object[]{ task }
+			);
+			return true;
+		} catch (DataAccessException ex) {
+           log.warn("deleteTaskLocks: Error executing query: " + ex.getClass() + ":" + ex.getMessage());
+           return false;
+		}
+	}
+
+
+	
 	/* (non-Javadoc)
 	 * @see org.sakaiproject.dash.dao.DashboardDao#getAvailabilityChecksBeforeTime(java.util.Date)
 	 */
@@ -804,6 +851,7 @@ public class DashboardDaoImpl extends JdbcDaoSupport implements DashboardDao {
 			sql = getStatement("select.CalendarItem.by.entityReference.calendarTimeLabelKey.sequenceNumber");
 			params = new Object[]{entityReference, calendarTimeLabelKey, sequenceNumber};
 		}
+
 		try {
 			return (CalendarItem) getJdbcTemplate().queryForObject(sql,
 				params,
@@ -811,14 +859,15 @@ public class DashboardDaoImpl extends JdbcDaoSupport implements DashboardDao {
 			);
 		} catch (EmptyResultDataAccessException ex) {
 			log.debug("getCalendarItem: Empty result executing query: " + ex.getClass() + ":" + ex.getMessage());
+	        // System.out.println("addCalendarItem: Error executing query: " + ex.getClass() + ":" + ex.getMessage());
 			return null;
 		} catch (DataAccessException e) {
            log.warn("getCalendarItem: Error executing query: " + e.getClass() + ":" + e.getMessage());
-	        //System.out.println("addCalendarItem: Error executing query: " + e.getClass() + ":" + e.getMessage());
+	       // System.out.println("addCalendarItem: Error executing query: " + e.getClass() + ":" + e.getMessage());
            return null;
 		} catch (Exception e) {
 	        log.warn("addCalendarItem: Error executing query: " + e.getClass() + ":" + e.getMessage());
-	        //System.out.println("addCalendarItem: Error executing query: " + e.getClass() + ":" + e.getMessage());
+	        // System.out.println("addCalendarItem: Error executing query: " + e.getClass() + ":" + e.getMessage());
 	        return null;
 		}
 	}
@@ -1400,6 +1449,60 @@ public class DashboardDaoImpl extends JdbcDaoSupport implements DashboardDao {
            return null;
 		}
 	}
+	
+	/*
+	 * (non-Javadoc)
+	 * @see org.sakaiproject.dash.dao.DashboardDao#getTaskLocks(java.lang.String)
+	 */
+	public List<TaskLock> getTaskLocks(String task) {
+		// select.TaskLocks.by.task
+		List<NewsItem> items = null;
+		if(log.isDebugEnabled()) {
+			log.debug("getTaskLocks(" + task + ")");
+		}
+		if(task == null) {
+			return new ArrayList<TaskLock>();
+		}
+		String sql = getStatement("select.TaskLocks.by.task");
+		
+		Object[] params = new Object[]{task};
+		try {
+			return (List<TaskLock>) getJdbcTemplate().query(sql,params,
+				new TaskLockMapper()
+			);
+		} catch (EmptyResultDataAccessException ex) {
+			log.debug("getTaskLocks: Empty result executing query: " + ex.getClass() + ":" + ex.getMessage());
+	        return new ArrayList<TaskLock>();
+		} catch (DataAccessException ex) {
+           log.warn("getTaskLocks: Error executing query: " + ex.getClass() + ":" + ex.getMessage());
+           return new ArrayList<TaskLock>();
+		}
+	}
+	
+	/*
+	 * (non-Javadoc)
+	 * @see org.sakaiproject.dash.dao.DashboardDao#getAssignedTaskLocks()
+	 */
+	public List<TaskLock> getAssignedTaskLocks() {
+		// select.TaskLocks.by.hasLock
+		List<NewsItem> items = null;
+		if(log.isDebugEnabled()) {
+			log.debug("getAssignedTaskLocks()");
+		}
+		String sql = getStatement("select.TaskLocks.by.hasLock");
+		
+		try {
+			return (List<TaskLock>) getJdbcTemplate().query(sql,
+				new TaskLockMapper()
+			);
+		} catch (EmptyResultDataAccessException ex) {
+			log.debug("getAssignedTaskLocks: Empty result executing query: " + ex.getClass() + ":" + ex.getMessage());
+	        return new ArrayList<TaskLock>();
+		} catch (DataAccessException ex) {
+           log.warn("getAssignedTaskLocks: Error executing query: " + ex.getClass() + ":" + ex.getMessage());
+           return new ArrayList<TaskLock>();
+		}
+	}
 		
 	/* (non-Javadoc)
 	 * @see org.sakaiproject.dash.dao.DashboardDao#getFutureSequenceNumbers(java.lang.String, java.lang.String, java.lang.Integer)
@@ -1844,6 +1947,48 @@ public class DashboardDaoImpl extends JdbcDaoSupport implements DashboardDao {
 		}				
 	}
 	
+	/*
+	 * (non-Javadoc)
+	 * @see org.sakaiproject.dash.dao.DashboardDao#updateTaskLock(org.sakaiproject.dash.logic.TaskLock)
+	 */
+	public boolean updateTaskLock(long id, boolean hasLock, Date lastUpdate) {
+		if(log.isDebugEnabled()) {
+			log.debug("updateTaskLock( " + id + "," + hasLock + "," + lastUpdate + ")");
+		}
+		
+		try {
+			getJdbcTemplate().update(getStatement("update.TaskLock.hasLock"),
+				new Object[]{ hasLock, lastUpdate, id }
+			);
+			return true;
+		} catch (DataAccessException ex) {
+           log.warn("updateTaskLock: Error executing query: " + ex.getClass() + ":" + ex.getMessage());
+           return false;
+		}				
+	}
+
+	/*
+	 * (non-Javadoc)
+	 * @see org.sakaiproject.dash.dao.DashboardDao#updateTaskLock(java.lang.String, java.lang.String, java.util.Date)
+	 */
+	public boolean updateTaskLock(String task, String serverId, Date lastUpdate) {
+		if(log.isDebugEnabled()) {
+			log.debug("updateTaskLock( " + task + "," + serverId + "," + lastUpdate + ")");
+		}
+		
+		try {
+			getJdbcTemplate().update(getStatement("update.TaskLock.lastUpdate"),
+				new Object[]{ lastUpdate, task, serverId }
+			);
+			return true;
+		} catch (DataAccessException ex) {
+           log.warn("updateTaskLock: Error executing query: " + ex.getClass() + ":" + ex.getMessage());
+           return false;
+		}				
+	}
+
+
+	
 	/**
 	 * Get an SQL statement for the appropriate vendor from the bundle
 	
@@ -1915,6 +2060,7 @@ public class DashboardDaoImpl extends JdbcDaoSupport implements DashboardDao {
 			executeSqlStatement("create.RepeatingEvent.table");
 			executeSqlStatement("create.Config.table");
 			executeSqlStatement("create.EventLog.table");
+			executeSqlStatement("create.TaskLock.table");
 		} catch(Exception e) {
 	        //System.out.println("\ninitTables: Error executing query: " + e.getClass() + ":\n" + e.getMessage() + "\n");
 			log.warn("initTables() " + e);

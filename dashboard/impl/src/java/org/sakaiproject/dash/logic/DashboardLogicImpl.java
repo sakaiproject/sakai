@@ -21,8 +21,10 @@
 
 package org.sakaiproject.dash.logic;
 
+import java.util.Arrays;
 import java.util.Date;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -58,10 +60,28 @@ public class DashboardLogicImpl implements DashboardLogic {
 
 	private static Logger logger = Logger.getLogger(DashboardUserLogicImpl.class);
 	
+	// time before rechecking a task assignment, in milliseconds (one hour)
+	private static final long TASK_LOCK_EXPIRATION_PERIOD = 1000L * 60L * 60L * 12L;
+
+	private static final long TASK_LOCK_NEGOTIATION_LIMIT_MILLISECONDS = 1000L * 60L * 3L;
+	
+	protected static final Set<String> TASKS = new HashSet<String>(Arrays.asList(new String[]{
+			TaskLock.CHECK_AVAILABILITY_OF_HIDDEN_ITEMS,
+			TaskLock.EXPIRE_AND_PURGE_OLD_DASHBOARD_ITEMS,
+			TaskLock.UPDATE_REPEATING_EVENTS
+	})); 
+
 	protected Map<String,EventProcessor> eventProcessors = new HashMap<String,EventProcessor>();
 	protected Map<String,DashboardEntityInfo> dashboardEntityInfoMap = new HashMap<String,DashboardEntityInfo>();
 	
+	protected Map<String,Date> taskLockNegotiationsDeadlines = new HashMap<String,Date>();
+	protected Map<String,Date> taskLockExpirationTimes = new HashMap<String,Date>();
+	protected Map<String,String> taskLockServerAssignments = new HashMap<String,String>();
+	
 	protected Date horizon = new Date();
+
+	protected Date delay = null;
+
 
 	
 	/************************************************************************
@@ -1060,5 +1080,147 @@ public class DashboardLogicImpl implements DashboardLogic {
 		return saveChanges;
 	}
 
+	/*
+	 * (non-Javadoc)
+	 * @see org.sakaiproject.dash.logic.DashboardLogic#checkTaskLock(java.lang.String)
+	 */
+	public boolean checkTaskLock(String task) {
+		String serverId = this.sakaiProxy.getServerId();
+		Date expirationTime = taskLockExpirationTimes.get(task);
+		if(expirationTime != null) {
+			if(expirationTime.after(new Date())) {
+				if(taskLockServerAssignments.get(task) == null) {
+					// need to get update value from database
+				} else if(taskLockServerAssignments.get(task).equals(serverId)) {
+					return true;
+				} else {
+					return false;
+				}
+			}
+		}
+
+		List<TaskLock> taskLocks = this.dao.getTaskLocks(task);
+		if(taskLocks != null && ! taskLocks.isEmpty()) {
+			TaskLock first = taskLocks.get(0);
+			Date negotiationDeadline = taskLockNegotiationsDeadlines.get(task);
+			if(first.getServerId().equals(serverId)) {
+				// this server either has lock or is first in line for lock
+				if(first.isHasLock()) {
+					// this server has lock
+					// update task-lock data
+					assignTask(task, serverId);
+					
+					return true;
+				} else if(negotiationDeadline != null && negotiationDeadline.before(new Date())) {
+					// claim the task, update task-lock data, and return true
+					this.dao.updateTaskLock(first.getId(), true, new Date());
+					
+					// update task-lock data
+					assignTask(task, serverId);
+					
+					return true;
+				} if(first.getClaimTime().before(new Date(System.currentTimeMillis() - 2*TASK_LOCK_NEGOTIATION_LIMIT_MILLISECONDS))) {
+					// this is to deal with restarts in which no server previously claimed the task 
+					this.dao.deleteTaskLocks(task);
+					return false;
+				}
+				return false;
+			} else if(first.isHasLock()) {
+				// some other server has lock
+				// check expiration to make sure the lock is active
+				if(first.getLastUpdate().before(new Date(System.currentTimeMillis() - TASK_LOCK_EXPIRATION_PERIOD))) {
+					// server with lock is not active. clear all locks for this task so process can start again 
+					this.dao.deleteTaskLocks(task);
+					return false;
+				} else {
+					// server is active, but our data needs updating
+					assignTask(task, first.getServerId());
+					return false;
+				}
+			} else if (negotiationDeadline != null && negotiationDeadline.before(new Date())) {
+				assignTask(task, first.getServerId());
+				return false;
+			}
+			
+			// we're still negotiating.  Need to make sure this server has tried to claim the task.
+			for(TaskLock lock : taskLocks) {
+				if(lock.getServerId().equals(serverId)) {
+					return false;
+				}
+			}
+		}
+		
+		if(this.delay == null) {
+			// the task is not claimed, and this server has not tried to claim the task. do it now.
+			// Check whether this server already has any tasks or is in line for tasks. 
+			boolean giveSomeoneElseAChance = false;
+			List<TaskLock> assignedTasks = this.dao.getAssignedTaskLocks();
+			if(assignedTasks != null && !assignedTasks.isEmpty()) {
+				for(TaskLock tl : assignedTasks) {
+					if(serverId.equals(tl.getServerId())) {
+						giveSomeoneElseAChance = true;
+						break;
+					}
+				}
+			}
+			if(!giveSomeoneElseAChance) {
+				for(String t : TASKS) {
+					List<TaskLock> possibleTasks = this.dao.getTaskLocks(t);
+					if(possibleTasks != null && !possibleTasks.isEmpty() && serverId.equals(possibleTasks.get(0).getServerId())) {
+						giveSomeoneElseAChance = true;
+						break;
+					}
+					
+				}
+			}
+			
+			// If it does, wait a bit to give other servers a chance to claim this one first.
+			if(giveSomeoneElseAChance) {
+				// Skip a turn or two 
+				// (i.e. set a delay before we can claim any other task) 
+				this.delay = new Date( System.currentTimeMillis() + 5000L );
+			}
+		}
+		
+		if(this.delay == null || this.delay.getTime() < System.currentTimeMillis()) {
+			TaskLock taskLock = new TaskLock(task, serverId, new Date(), false, new Date());
+			this.dao.addTaskLock(taskLock);
+			
+			this.taskLockNegotiationsDeadlines.put(task, new Date(System.currentTimeMillis() + TASK_LOCK_NEGOTIATION_LIMIT_MILLISECONDS));
+			
+			// completely clear the delay so we are not blocked from claiming another task if need be.
+			this.delay = null;
+		}
+		return false;
+	}
+
+	/**
+	 * @param task
+	 * @param first
+	 */
+	protected void assignTask(String task, String serverId) {
+		logger.info("Dashboard task " + task + " being handled by server: " + serverId);
+		this.taskLockServerAssignments.put(task, serverId);
+		this.taskLockExpirationTimes.put(task, new Date(System.currentTimeMillis() + TASK_LOCK_EXPIRATION_PERIOD));
+	}
+
+	/*
+	 * (non-Javadoc)
+	 * @see org.sakaiproject.dash.logic.DashboardLogic#updateTaskLock(java.lang.String)
+	 */
+	public void updateTaskLock(String task) {
+		String serverId = this.sakaiProxy.getServerId();
+		Date lastUpdate = new Date();
+		this.dao.updateTaskLock(task, serverId, lastUpdate);
+		
+	}
+
+	/*
+	 * (non-Javadoc)
+	 * @see org.sakaiproject.dash.logic.DashboardLogic#removeTaskLocks(java.lang.String)
+	 */
+	public void removeTaskLocks(String task) {
+		this.dao.deleteTaskLocks(task);
+	}
 
 }
