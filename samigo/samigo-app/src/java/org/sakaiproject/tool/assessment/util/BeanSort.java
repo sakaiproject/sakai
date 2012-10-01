@@ -39,6 +39,7 @@ public class BeanSort
   private boolean string = true;
   private boolean numeric = false;
   private boolean date = false;
+  private boolean ipAddress = false;
 
   /**
    * The only public constructor.  Requires a valid property name for a a Java
@@ -134,6 +135,10 @@ public class BeanSort
     {
       bsc = new BeanDateComparator(property);
     }
+    else if (ipAddress)
+    {
+       bsc = new BeanIPComparator(property);
+    }
 
     return bsc;
   }
@@ -146,6 +151,7 @@ public class BeanSort
     string = true;
     numeric = false;
     date = false;
+    ipAddress = false;
   }
 
   /**
@@ -156,6 +162,7 @@ public class BeanSort
     string = false;
     numeric = true;
     date = false;
+       ipAddress = false;
   }
 
   /**
@@ -167,5 +174,14 @@ public class BeanSort
       string = false;
       numeric = false;
       date = true;
+      ipAddress = false;
+    }
+    
+    public void toIPAddressSort()
+    {
+       string = false;
+       numeric = false;
+       date = false;
+       ipAddress = true;
     }
 }

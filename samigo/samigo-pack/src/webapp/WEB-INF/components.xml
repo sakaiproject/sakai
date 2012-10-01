@@ -50,6 +50,7 @@
      <property name="authzQueriesFacade"><ref bean="AuthzQueriesFacade" /></property>
      <property name="favoriteColChoicesFacadeQueries"><ref bean ="FavoriteColChoicesFacadeQueries"/></property>
      <property name="sectionAwareness" ><ref bean="org.sakaiproject.section.api.SectionAwareness"/></property>
+     <property name="eventLogFacadeQueries" ><ref bean="EventLogFacadeQueries"/></property>
    </bean>
     
    <bean id="TypeFacadeQueries"
@@ -104,6 +105,21 @@
       <property name="transactionManager"><ref bean="org.sakaiproject.springframework.orm.hibernate.GlobalTransactionManager"/></property>
       <property name="target">
         <bean class="org.sakaiproject.tool.assessment.facade.AssessmentFacadeQueries">
+          <property name="sessionFactory"><ref bean="org.sakaiproject.springframework.orm.hibernate.GlobalSessionFactory"/></property>
+	</bean>
+      </property>
+      <property name="transactionAttributes">
+        <props>
+          <prop key="*">PROPAGATION_REQUIRED</prop>
+        </props>
+      </property>
+    </bean>
+    
+      <bean id="EventLogFacadeQueries"
+          class="org.springframework.transaction.interceptor.TransactionProxyFactoryBean">
+      <property name="transactionManager"><ref bean="org.sakaiproject.springframework.orm.hibernate.GlobalTransactionManager"/></property>
+      <property name="target">
+        <bean class="org.sakaiproject.tool.assessment.facade.EventLogFacadeQueries">
           <property name="sessionFactory"><ref bean="org.sakaiproject.springframework.orm.hibernate.GlobalSessionFactory"/></property>
 	</bean>
       </property>

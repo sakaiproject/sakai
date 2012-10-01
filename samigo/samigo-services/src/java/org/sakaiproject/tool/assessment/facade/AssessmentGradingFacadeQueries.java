@@ -63,6 +63,7 @@ import org.sakaiproject.exception.TypeException;
 import org.sakaiproject.service.gradebook.shared.GradebookExternalAssessmentService;
 import org.sakaiproject.service.gradebook.shared.GradebookService;
 import org.sakaiproject.spring.SpringBeanLocator;
+import org.sakaiproject.tool.assessment.data.dao.assessment.EventLogData;
 import org.sakaiproject.tool.assessment.data.dao.assessment.PublishedItemData;
 import org.sakaiproject.tool.assessment.data.dao.assessment.PublishedSectionData;
 import org.sakaiproject.tool.assessment.data.dao.grading.AssessmentGradingData;
@@ -84,6 +85,7 @@ import org.sakaiproject.tool.assessment.integration.helper.ifc.GradebookServiceH
 import org.sakaiproject.tool.assessment.services.GradebookServiceException;
 import org.sakaiproject.tool.assessment.services.ItemService;
 import org.sakaiproject.tool.assessment.services.PersistenceHelper;
+import org.sakaiproject.tool.assessment.services.assessment.EventLogService;
 import org.sakaiproject.tool.assessment.services.assessment.PublishedAssessmentService;
 import org.sakaiproject.tool.assessment.services.AutoSubmitAssessmentsJob;
 import org.sakaiproject.user.api.UserDirectoryService;
@@ -2815,6 +2817,10 @@ public class AssessmentGradingFacadeQueries extends HibernateDaoSupport implemen
 	    
 	    // SAM-1088 getting the assessment so we can check to see if last user attempt was after due date
 	    PublishedAssessmentFacade assessment = null;
+	    
+	    EventLogService eventService = new EventLogService();
+	    EventLogFacade eventLogFacade = new EventLogFacade();
+	    
 	    while (iter.hasNext()) {
 	    	AssessmentGradingData adata = (AssessmentGradingData) iter.next();
 	    	if (lastPublishedAssessmentId.equals(adata.getPublishedAssessmentId())) {
@@ -2839,7 +2845,25 @@ public class AssessmentGradingFacadeQueries extends HibernateDaoSupport implemen
 	    				adata.setStatus(Integer.valueOf(1));
 	    				toBeAutoSubmittedList.add(adata);
 	    				completeItemGradingData(adata, sectionSetMap);
-	    				updateGradebookMap(adata, studentUidsToScores, gradebookMap);
+	    				updateGradebookMap(adata, studentUidsToScores, gradebookMap);    			
+	    				    
+	    				List eventLogDataList = eventService.getEventLogData(adata.getAssessmentGradingId());
+	    				EventLogData eventLogData= (EventLogData) eventLogDataList.get(0);
+	    				//will do the i18n issue later.
+	    				eventLogData.setErrorMsg("No Errors (Auto submit)");
+	    				Date endDate = new Date();
+	    				eventLogData.setEndDate(endDate);
+	    				if(endDate != null && eventLogData.getStartDate() != null) {
+	    					double minute= 1000*60;
+	    					int eclipseTime = (int)Math.ceil(((endDate.getTime() - eventLogData.getStartDate().getTime())/minute));
+	    					eventLogData.setEclipseTime(Integer.valueOf(eclipseTime)); 
+	    				} else {
+	    					eventLogData.setEclipseTime(null); 
+	    					eventLogData.setErrorMsg("Error during auto submit");
+	    				}
+	    				eventLogFacade.setData(eventLogData);
+	    				eventService.saveOrUpdateEventLog(eventLogFacade);
+
 	    				EventTrackingService.post(EventTrackingService.newEvent("sam.auto-submit.job", 
 	    						AutoSubmitAssessmentsJob.safeEventLength("publishedAssessmentId=" + adata.getPublishedAssessmentId() + 
 	    								", assessmentGradingId=" + adata.getAssessmentGradingId()), true));		
@@ -2873,6 +2897,22 @@ public class AssessmentGradingFacadeQueries extends HibernateDaoSupport implemen
 	    			EventTrackingService.post(EventTrackingService.newEvent("sam.auto-submit.job", 
     						AutoSubmitAssessmentsJob.safeEventLength("publishedAssessmentId=" + adata.getPublishedAssessmentId() + 
     								", assessmentGradingId=" + adata.getAssessmentGradingId()), true));	
+	    			
+	    			List eventLogDataList = eventService.getEventLogData(adata.getAssessmentGradingId());
+    				EventLogData eventLogData= (EventLogData) eventLogDataList.get(0);
+    				eventLogData.setErrorMsg("No Errors (Auto submit)");
+    				Date endDate = new Date();
+    				eventLogData.setEndDate(endDate);
+    				if(endDate != null && eventLogData.getStartDate() != null) {
+    					double minute= 1000*60;
+    					int eclipseTime = (int)Math.ceil(((endDate.getTime() - eventLogData.getStartDate().getTime())/minute));
+    					eventLogData.setEclipseTime(Integer.valueOf(eclipseTime)); 
+    				} else {
+    					eventLogData.setEclipseTime(null); 
+    					eventLogData.setErrorMsg("Error during auto submit");
+    				}
+    				eventLogFacade.setData(eventLogData);
+    				eventService.saveOrUpdateEventLog(eventLogFacade);
 	    		}
 	    	}
 	    }

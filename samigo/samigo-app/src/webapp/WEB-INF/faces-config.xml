@@ -200,6 +200,19 @@
  		<value>org.sakaiproject.tool.assessment.bundle.SamLite</value>
  	</managed-property>
  </managed-bean>  
+ <managed-bean>
+ 	<description>
+ 		Dynamic Resource Bundle Loader
+ 	</description>
+ 	<managed-bean-name>eventLogMessages</managed-bean-name>
+ 	<managed-bean-class>org.sakaiproject.util.ResourceLoader</managed-bean-class>
+ 	<managed-bean-scope>session</managed-bean-scope>
+ 	<managed-property>
+ 		<description>Bundle baseName</description>
+ 		<property-name>baseName</property-name>
+ 		<value>org.sakaiproject.tool.assessment.bundle.EventLogMessages</value>
+ 	</managed-property>
+  </managed-bean>
 
   <!-- Managed Beans -->
   <!-- *** TEST *** -->
@@ -350,6 +363,12 @@
     <description>For author: Assessment Authoring backing bean.</description>
     <managed-bean-name>author</managed-bean-name>
     <managed-bean-class>org.sakaiproject.tool.assessment.ui.bean.author.AuthorBean</managed-bean-class>
+    <managed-bean-scope>session</managed-bean-scope>
+  </managed-bean>
+  <managed-bean>
+    <description>Event Log backing bean.</description>
+    <managed-bean-name>eventLog</managed-bean-name>
+    <managed-bean-class>org.sakaiproject.tool.assessment.ui.bean.author.EventLogBean</managed-bean-class>
     <managed-bean-scope>session</managed-bean-scope>
   </managed-bean>
   <managed-bean>
@@ -1075,6 +1094,12 @@
     <navigation-case>
       <from-outcome>deleteTemplate</from-outcome>
       <to-view-id>/jsf/template/templateIndex.jsp</to-view-id>
+    </navigation-case>
+    
+    <!-- EVENT LOG -->
+    <navigation-case>
+      <from-outcome>eventLog</from-outcome>
+      <to-view-id>/jsf/event/eventLog.jsp</to-view-id>
     </navigation-case>
 
   <!-- EVALUATION -->

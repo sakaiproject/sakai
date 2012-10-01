@@ -26,6 +26,7 @@ package org.sakaiproject.tool.assessment.ui.listener.delivery;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.HashMap;
+import java.util.ResourceBundle;
 
 import javax.faces.context.FacesContext;
 import javax.faces.event.AbortProcessingException;
@@ -37,9 +38,13 @@ import org.apache.commons.logging.LogFactory;
 
 import org.sakaiproject.event.cover.EventTrackingService;
 import org.sakaiproject.event.cover.NotificationService;
+import org.sakaiproject.tool.assessment.data.dao.assessment.EventLogData;
 import org.sakaiproject.tool.assessment.data.dao.grading.AssessmentGradingData;
+import org.sakaiproject.tool.assessment.facade.AgentFacade;
+import org.sakaiproject.tool.assessment.facade.EventLogFacade;
 import org.sakaiproject.tool.assessment.facade.PublishedAssessmentFacade;
 import org.sakaiproject.tool.assessment.services.GradingService;
+import org.sakaiproject.tool.assessment.services.assessment.EventLogService;
 import org.sakaiproject.tool.assessment.services.assessment.PublishedAssessmentService;
 import org.sakaiproject.tool.assessment.ui.bean.delivery.DeliveryBean;
 import org.sakaiproject.tool.assessment.ui.bean.shared.PersonBean;
@@ -51,6 +56,8 @@ public class LinearAccessDeliveryActionListener extends DeliveryActionListener
   implements ActionListener
 {
   private static Log log = LogFactory.getLog(LinearAccessDeliveryActionListener.class);
+  private static ResourceBundle eventLogMessages = ResourceBundle.getBundle("org.sakaiproject.tool.assessment.bundle.EventLogMessages");
+
 
   /**
    * ACTION.
@@ -143,6 +150,32 @@ public class LinearAccessDeliveryActionListener extends DeliveryActionListener
     	  // However, ae is not passed in getPageContentsByQuestion()
     	  // and there are multiple places to modify if I want to get ae inside getPageContentsByQuestion()
     	  delivery.setNoQuestions(false);
+    	  // ONC event log
+    	  EventLogService eventService = new EventLogService();
+          EventLogFacade eventLogFacade = new EventLogFacade();
+          String agentEid = AgentFacade.getEid();
+          //set event log data
+          EventLogData eventLogData = new EventLogData();
+          eventLogData.setAssessmentId(Long.valueOf(id));
+          eventLogData.setProcessId(delivery.getAssessmentGradingId());
+          eventLogData.setStartDate(new Date());
+          eventLogData.setTitle(publishedAssessment.getTitle());
+          eventLogData.setUserEid(agentEid); 
+          String site_id= AgentFacade.getCurrentSiteId();
+          if(site_id == null) {
+        	  //take assessment via url
+        	  PublishedAssessmentService publishedAssessmentService = new PublishedAssessmentService();
+    		  site_id = publishedAssessmentService.getPublishedAssessmentOwner(Long.valueOf(delivery.getAssessmentId()));
+          }
+          eventLogData.setSiteId(site_id);
+          
+          eventLogData.setErrorMsg(eventLogMessages.getString("no_submission"));
+          eventLogData.setEndDate(null);
+          eventLogData.setEclipseTime(null);
+              
+          eventLogFacade.setData(eventLogData);
+          eventService.saveOrUpdateEventLog(eventLogFacade);           	  
+    	// ONC event log end  
     	      	  
     	  int action = delivery.getActionMode();
     	  if (action == DeliveryBean.TAKE_ASSESSMENT) {

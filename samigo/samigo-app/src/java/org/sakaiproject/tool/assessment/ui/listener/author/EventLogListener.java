@@ -1,0 +1,218 @@
+package org.sakaiproject.tool.assessment.ui.listener.author;
+
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.Iterator;
+import java.util.List;
+import java.util.Map;
+
+import javax.faces.event.ActionEvent;
+import javax.faces.event.ActionListener;
+import javax.faces.event.ValueChangeEvent;
+import javax.faces.event.ValueChangeListener;
+import javax.faces.model.SelectItem;
+
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
+import org.sakaiproject.tool.assessment.data.dao.assessment.EventLogData;
+import org.sakaiproject.tool.assessment.data.dao.assessment.PublishedAccessControl;
+import org.sakaiproject.tool.assessment.facade.AgentFacade;
+import org.sakaiproject.tool.assessment.facade.PublishedAssessmentFacade;
+import org.sakaiproject.tool.assessment.services.assessment.EventLogService;
+import org.sakaiproject.tool.assessment.services.assessment.PublishedAssessmentService;
+import org.sakaiproject.tool.assessment.ui.bean.author.EventLogBean;
+import org.sakaiproject.tool.assessment.ui.listener.util.ContextUtil;
+import org.sakaiproject.tool.assessment.util.BeanSort;
+
+public class EventLogListener
+implements ActionListener, ValueChangeListener
+{
+	private static Log log = LogFactory.getLog(EventLogListener.class);
+	private static BeanSort bs;
+	private static String userFilterString = null;
+	
+
+	public EventLogListener()
+	{
+		userFilterString = ContextUtil.getLocalizedString("org.sakaiproject.tool.assessment.bundle.EventLogMessages", "search_hint");
+	}
+
+
+	public void processAction(ActionEvent ae)
+	{
+		log.debug("*****Log: inside EventLogListener =debugging ActionEvent: " + ae);
+		EventLogBean eventLog = (EventLogBean) ContextUtil.lookupBean("eventLog");
+		
+		String clear = ContextUtil.lookupParam("clear");
+		if (clear != null) {
+		   eventLog.setFilteredUser(null);
+		}
+		
+		processPageLoad(eventLog);		
+	}
+
+	/**
+	 * Process the ValueChangeEvent for when the Assessment filter dropdown changes 
+	 */
+	public void processValueChange(ValueChangeEvent event)
+	{
+	   log.debug("*****Log: inside EventLogListener =debugging ValueChangeEvent: " + event);
+	   EventLogBean eventLog = (EventLogBean) ContextUtil.lookupBean("eventLog");
+	   eventLog.setFilteredAssessmentId((Long)event.getNewValue());
+	   processPageLoad(eventLog);
+	}
+	
+	private List<EventLogData> updateData(List<EventLogData> eventLogDataList) {
+		List<EventLogData> updatedEventLogDataList = new ArrayList<EventLogData>();
+		PublishedAssessmentService assessmentService = new PublishedAssessmentService();	
+		Map<String, PublishedAccessControl> assessmentIdSettingMap = new HashMap<String, PublishedAccessControl>();
+		PublishedAccessControl control = null;
+		for(EventLogData data:eventLogDataList) {
+			String assessmentId = data.getAssessmentIdStr();
+			if(assessmentIdSettingMap.containsKey(assessmentId)) {
+				control = (PublishedAccessControl)assessmentIdSettingMap.get(assessmentId);
+			} else {
+				PublishedAssessmentFacade assessment = assessmentService.getSettingsOfPublishedAssessment(assessmentId);	
+				control = (PublishedAccessControl)assessment.getAssessmentAccessControl();	
+				assessmentIdSettingMap.put(assessmentId, control);
+			}
+			String releaseInfo = control.getReleaseTo();
+			if("Anonymous Users".equals(releaseInfo)) {
+				data.setUserDisplay("N/A");
+				data.setIpAddress("N/A");
+				updatedEventLogDataList.add(data);
+			}
+			else {
+				updatedEventLogDataList.add(data);
+			}
+		}
+		return updatedEventLogDataList;
+	}
+
+	
+	/**
+	 * These things need to happen each time the page loads.
+	 * @param eventLog
+	 */
+	private void processPageLoad(EventLogBean eventLog) {
+	   int numPerPage = 20;
+	   EventLogService eventLogService = new EventLogService();
+      
+      String siteId = AgentFacade.getCurrentSiteId();
+      
+      if (eventLog.getFilteredUser() != null && eventLog.getFilteredUser().equals(userFilterString)) {
+    	  eventLog.setFilteredUser(null);
+      }
+      List<EventLogData> eventLogDataList = eventLogService.getEventLogData(siteId, eventLog.getFilteredAssessmentId(), eventLog.getFilteredUser());
+      
+      //check anonymous users setting, update user name and ip address to N/A
+      List<EventLogData> updateEventLogDataList = updateData(eventLogDataList);
+      
+      List<Object[]> titles = eventLogService.getTitlesFromEventLogBySite(siteId);
+      eventLog.setAssessments(initAssessmentListFilter(titles));
+      
+      applySort(updateEventLogDataList, eventLog);
+      
+      Map<Integer, List<EventLogData>> pageDataMap = createMap(updateEventLogDataList, numPerPage);
+
+      eventLog.setPageDataMap(pageDataMap);  
+      eventLog.setEventLogDataList(pageDataMap.get(Integer.valueOf(1)));
+      eventLog.setSiteId(siteId);
+      eventLog.setPageNumber(1);
+      if(pageDataMap.size()>1) {
+         eventLog.setHasNextPage(Boolean.TRUE);
+         eventLog.setHasPreviousPage(Boolean.FALSE);
+      }
+      else {
+         eventLog.setHasNextPage(Boolean.FALSE);
+         eventLog.setHasPreviousPage(Boolean.FALSE);
+      }
+      
+	}
+	
+	/**
+	 * Init the data in the Assessment filter dropdown
+	 * @param assessmentTitles List of titles
+	 * @return
+	 */
+	private List<SelectItem> initAssessmentListFilter(List<Object[]> assessmentTitles) {
+	   List<SelectItem> assessments = new ArrayList<SelectItem>();
+	   
+	   String allStr = ContextUtil.getLocalizedString("org.sakaiproject.tool.assessment.bundle.EventLogMessages", "filterAll");
+      assessments.add(new SelectItem((long)-1, allStr));
+      for (Object[] assessment : assessmentTitles) {
+         Long id = (Long)assessment[0];
+         String title = (String)assessment[1];
+         assessments.add(new SelectItem(id, title));
+      }
+      return assessments;
+	}
+	
+	/**
+	 * Apply sorting
+	 * @param dataList
+	 * @param bean
+	 */
+	private void applySort(List<EventLogData> dataList, EventLogBean bean) {
+
+      if (ContextUtil.lookupParam("sortBy") != null &&
+            !ContextUtil.lookupParam("sortBy").trim().equals("")){
+         bean.setSortType(ContextUtil.lookupParam("sortBy"));
+
+      }
+      boolean sortAscending = true;
+      if (ContextUtil.lookupParam("sortAscending") != null &&
+            !ContextUtil.lookupParam("sortAscending").trim().equals("")){
+         sortAscending = Boolean.valueOf(ContextUtil.lookupParam("sortAscending")).booleanValue();
+         bean.setSortAscending(sortAscending);
+      }
+
+      String sortProperty = bean.getSortType();
+      bs = new BeanSort(dataList, sortProperty);
+      if ((sortProperty).equals("title")) bs.toStringSort();
+      if ((sortProperty).equals("userDisplay")) bs.toStringSort();
+      if ((sortProperty).equals("errorMsg")) bs.toStringSort();
+      if ((sortProperty).equals("startDate")) bs.toDateSort();
+      if ((sortProperty).equals("endDate")) bs.toDateSort();
+      if ((sortProperty).equals("ipAddress")) bs.toIPAddressSort();
+      if (bean.isSortAscending()) {
+         dataList = (List)bs.sort();
+      }
+      else {
+         dataList= (List)bs.sortDesc();
+      }
+      bean.setEventLogDataList(dataList);
+	}
+	
+	private Map<Integer, List<EventLogData>> createMap(List<EventLogData> eventLogAllDataList, int numPerPage) {
+		Map<Integer, List<EventLogData>> pageDataMap = new HashMap<Integer, List<EventLogData>>();		
+		List<EventLogData> dataListTempt = new ArrayList<EventLogData>();
+		int listLength = eventLogAllDataList.size();
+		Iterator<EventLogData> it= eventLogAllDataList.iterator();
+		int dataNumber = 0;
+		int pageNumber = 1;		
+		List<EventLogData> dataList = new ArrayList<EventLogData>();
+		
+		while(dataNumber < listLength ) {
+			for(int i = 0; i <numPerPage; i++) {
+				if(it.hasNext()) {
+					dataListTempt.add(it.next());
+					dataNumber++;
+				}else break;
+			}			
+			dataList = copyData(dataListTempt);					
+			pageDataMap.put(Integer.valueOf(pageNumber), dataList);		
+			dataListTempt.removeAll(dataListTempt);
+			pageNumber ++;			
+		}	
+		return pageDataMap;
+	}	
+	
+	private List<EventLogData> copyData (List<EventLogData> dataList) {
+		List<EventLogData> list = new ArrayList<EventLogData>();
+		for(int i = 0; i < dataList.size(); i++) {
+			list.add(dataList.get(i));
+		}
+		return list;
+	}
+}

@@ -25,22 +25,27 @@ import java.util.ArrayList;
 import java.util.Date;
 import java.util.Iterator;
 import java.util.TimerTask;
+import java.util.List;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.sakaiproject.event.cover.EventTrackingService;
 import org.sakaiproject.event.cover.NotificationService;
 import org.sakaiproject.tool.api.Session;
+import org.sakaiproject.tool.assessment.data.dao.assessment.EventLogData;
 import org.sakaiproject.tool.assessment.data.dao.assessment.PublishedAssessmentData;
 import org.sakaiproject.tool.assessment.data.dao.grading.AssessmentGradingData;
 import org.sakaiproject.tool.assessment.data.ifc.assessment.EvaluationModelIfc;
 import org.sakaiproject.tool.assessment.facade.AgentFacade;
+import org.sakaiproject.tool.assessment.facade.EventLogFacade;
 import org.sakaiproject.tool.assessment.facade.PublishedAssessmentFacade;
 import org.sakaiproject.tool.assessment.services.GradingService;
+import org.sakaiproject.tool.assessment.services.assessment.EventLogService;
 import org.sakaiproject.tool.assessment.services.assessment.PublishedAssessmentService;
 import org.sakaiproject.tool.assessment.ui.model.delivery.TimedAssessmentGradingModel;
 import org.sakaiproject.tool.cover.SessionManager;
 
+import java.util.ResourceBundle;
 /**
  * <p>Title: Samigo</p>
  * <p>Description: Sakai Assessment Manager</p>
@@ -51,6 +56,8 @@ public class SubmitTimedAssessmentThread extends TimerTask
 {
 
   private static Log log = LogFactory.getLog(SubmitTimedAssessmentThread.class);
+  private static ResourceBundle eventLogMessages = ResourceBundle.getBundle("org.sakaiproject.tool.assessment.bundle.EventLogMessages");
+  
   public SubmitTimedAssessmentThread(){}
 
   public void run(){
@@ -81,13 +88,30 @@ public class SubmitTimedAssessmentThread extends TimerTask
             ag.setTimeElapsed(Integer.valueOf(timedAG.getTimeLimit()));
             ag.setStatus(AssessmentGradingData.SUBMITTED); // this will change status 0 -> 1
             ag.setIsLate(islate(ag.getPublishedAssessmentId()));
-            ag.setSubmittedDate(new Date());
+	    Date submitDate = new Date();
+            ag.setSubmittedDate(submitDate);
             // SAK-7302, users taking a timed assessment may exit without completing the assessment
             // set these two scores to 0 instaed of null
     	    if (ag.getFinalScore() == null) ag.setFinalScore(Float.valueOf("0"));
     	    if (ag.getTotalAutoScore() == null) ag.setTotalAutoScore(Float.valueOf("0"));
     	    service.completeItemGradingData(ag);
             service.saveOrUpdateAssessmentGrading(ag);
+          EventLogService eventService = new EventLogService();
+          EventLogFacade eventLogFacade = new EventLogFacade();
+
+          List eventLogDataList = eventService.getEventLogData(ag.getAssessmentGradingId());
+          EventLogData eventLogData= (EventLogData) eventLogDataList.get(0);
+          eventLogData.setErrorMsg(eventLogMessages.getString("timer_submit"));
+          eventLogData.setEndDate(submitDate);
+          if(submitDate != null && eventLogData.getStartDate() != null) {
+        	  double minute= 1000*60;
+        	  int eclipseTime = (int)Math.ceil(((submitDate.getTime() - eventLogData.getStartDate().getTime())/minute));
+        	  eventLogData.setEclipseTime(Integer.valueOf(eclipseTime)); 
+          } else {
+        	  eventLogData.setEclipseTime(null); 
+        	  eventLogData.setErrorMsg(eventLogMessages.getString("error_take"));
+          }
+          eventLogFacade.setData(eventLogData);
             PublishedAssessmentService publishedAssessmentService = new PublishedAssessmentService();
             String siteId = publishedAssessmentService.getPublishedAssessmentOwner(ag.getPublishedAssessmentId());
             EventTrackingService.post(EventTrackingService.newEvent("sam.assessment.thread_submit", "siteId=" + AgentFacade.getCurrentSiteId() + ", submissionId=" + ag.getAssessmentGradingId(), siteId, true, NotificationService.NOTI_REQUIRED));

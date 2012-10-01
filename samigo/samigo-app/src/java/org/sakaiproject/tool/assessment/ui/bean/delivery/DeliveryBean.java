@@ -36,6 +36,7 @@ import java.util.Date;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
+import java.util.ResourceBundle;
 import java.util.Set;
 
 import javax.faces.application.FacesMessage;
@@ -57,6 +58,7 @@ import org.sakaiproject.site.cover.SiteService;
 import org.sakaiproject.tool.api.Placement;
 import org.sakaiproject.tool.api.Session;
 import org.sakaiproject.tool.assessment.api.SamigoApiFactory;
+import org.sakaiproject.tool.assessment.data.dao.assessment.EventLogData;
 import org.sakaiproject.tool.assessment.data.dao.assessment.PublishedAssessmentData;
 import org.sakaiproject.tool.assessment.data.dao.assessment.PublishedItemData;
 import org.sakaiproject.tool.assessment.data.dao.assessment.PublishedItemText;
@@ -69,10 +71,12 @@ import org.sakaiproject.tool.assessment.data.ifc.assessment.AssessmentAccessCont
 import org.sakaiproject.tool.assessment.data.ifc.assessment.AssessmentBaseIfc;
 import org.sakaiproject.tool.assessment.data.ifc.shared.TypeIfc;
 import org.sakaiproject.tool.assessment.facade.AgentFacade;
+import org.sakaiproject.tool.assessment.facade.EventLogFacade;
 import org.sakaiproject.tool.assessment.facade.PublishedAssessmentFacade;
 import org.sakaiproject.tool.assessment.services.FinFormatException;
 import org.sakaiproject.tool.assessment.services.GradingService;
 import org.sakaiproject.tool.assessment.services.SaLengthException;
+import org.sakaiproject.tool.assessment.services.assessment.EventLogService;
 import org.sakaiproject.tool.assessment.services.assessment.PublishedAssessmentService;
 import org.sakaiproject.tool.assessment.shared.api.assessment.SecureDeliveryServiceAPI;
 import org.sakaiproject.tool.assessment.shared.api.assessment.SecureDeliveryServiceAPI.Phase;
@@ -265,6 +269,8 @@ public class DeliveryBean
   private String secureDeliveryHTMLFragment; 
   
   private boolean isFromPrint;
+  
+  private static ResourceBundle eventLogMessages = ResourceBundle.getBundle("org.sakaiproject.tool.assessment.bundle.EventLogMessages");
   
   /**
    * Creates a new DeliveryBean object.
@@ -1425,6 +1431,7 @@ public class DeliveryBean
   }
   
   private String submitForGrade(boolean isFromTimer) {
+	try{
 	  if (this.actionMode == PREVIEW_ASSESSMENT) {
 		  return "editAssessment";
 	  }	  
@@ -1515,8 +1522,43 @@ public class DeliveryBean
 			  			secureDelivery.getHTMLFragment(moduleId, publishedAssessment, request, Phase.ASSESSMENT_FINISH, status, new ResourceLoader().getLocale() ) );    		 
 		  }
 	  }
-	  
+	 
+	  EventLogService eventService = new EventLogService();
+	 	     EventLogFacade eventLogFacade = new EventLogFacade();
+	 	 
+	 	     List eventLogDataList = eventService.getEventLogData(adata.getAssessmentGradingId());
+	 	     EventLogData eventLogData= (EventLogData) eventLogDataList.get(0);
+	 	     eventLogData.setErrorMsg(eventLogMessages.getString("no_error"));
+	 	     Date endDate = new Date();
+	 	     eventLogData.setEndDate(endDate);
+	 	     if(endDate != null && eventLogData.getStartDate() != null) {
+	 	         double minute= 1000*60;
+	 	         int eclipseTime = (int)Math.ceil(((endDate.getTime() - eventLogData.getStartDate().getTime())/minute));
+	 	         eventLogData.setEclipseTime(Integer.valueOf(eclipseTime));
+	 	     } else {
+	 	         eventLogData.setEclipseTime(null);
+	 	         eventLogData.setErrorMsg(eventLogMessages.getString("error_take"));
+	 	     }
+	 	     eventLogFacade.setData(eventLogData);
+	 	 
+	 	     eventService.saveOrUpdateEventLog(eventLogFacade);
+ 
 	  return returnValue;
+	 }catch(Exception e) {
+		 EventLogService eventService = new EventLogService();
+		 EventLogFacade eventLogFacade = new EventLogFacade();
+		 EventLogData eventLogData = null;
+
+		 List eventLogDataList = eventService.getEventLogData(adata.getAssessmentGradingId());
+		 if(eventLogDataList != null && eventLogDataList.size() > 0) {
+			 eventLogData= (EventLogData) eventLogDataList.get(0);
+			 eventLogData.setErrorMsg(eventLogMessages.getString("error_submit"));
+			 eventLogData.setEndDate(new Date());
+		 } 
+		 eventLogFacade.setData(eventLogData);
+		 eventService.saveOrUpdateEventLog(eventLogFacade);
+		 return null;
+	 }
   }
   
 
@@ -1895,9 +1937,18 @@ public class DeliveryBean
     log.debug("**** password=" + password);
     log.debug("**** setting username=" + getSettings().getUsername());
     log.debug("**** setting password=" + getSettings().getPassword());
+    EventLogService eventService = new EventLogService();
+    EventLogFacade eventLogFacade = new EventLogFacade();
+    
+    List eventLogDataList = eventService.getEventLogData(adata.getAssessmentGradingId());
+    EventLogData eventLogData= (EventLogData) eventLogDataList.get(0);
+    
     if (password == null || username == null)
     {
-      return "passwordAccessError";
+    	eventLogData.setErrorMsg(eventLogMessages.getString("error_pw_access"));
+    	eventLogFacade.setData(eventLogData);    
+    	eventService.saveOrUpdateEventLog(eventLogFacade);
+    	return "passwordAccessError";
     }
     if (password.equals(getSettings().getPassword()) &&
         username.equals(getSettings().getUsername()))
@@ -1908,7 +1959,10 @@ public class DeliveryBean
     }
     else
     {
-      return "passwordAccessError";
+    	eventLogData.setErrorMsg(eventLogMessages.getString("error_pw_access"));
+    	eventLogFacade.setData(eventLogData);    
+    	eventService.saveOrUpdateEventLog(eventLogFacade);
+    	return "passwordAccessError";
     }
   }
 
@@ -1934,6 +1988,7 @@ public class DeliveryBean
         return "takeAssessment";
       }
     }
+    
     return "ipAccessError";
   }
 
@@ -1942,20 +1997,75 @@ public class DeliveryBean
     try
     {
       String results = "takeAssessment";
+      EventLogService eventService = new EventLogService();
+      EventLogFacade eventLogFacade = new EventLogFacade();
+      EventLogData eventLogData = new EventLogData();
+      
       // #1. check password
       if (!getSettings().getUsername().equals(""))
       {
         results = validatePassword();
         log.debug("*** checked password="+results);
+        
+        if("passwordAccessError".equals(results)) {
+        	eventLogData.setAssessmentId(publishedAssessment.getPublishedAssessmentId());
+        	eventLogData.setStartDate(new Date());
+        	String agentEid = AgentFacade.getEid();
+            //ONC-3500
+            if(agentEid == null || "".equals(agentEid)){
+          	  agentEid= "N/A";
+            }
+            eventLogData.setUserEid(agentEid);
+            eventLogData.setTitle(publishedAssessment.getTitle());
+            String site_id= AgentFacade.getCurrentSiteId();
+            if(site_id == null) {
+          	  //take assessment via url
+          	  PublishedAssessmentService publishedAssessmentService = new PublishedAssessmentService();
+      		  site_id = publishedAssessmentService.getPublishedAssessmentOwner(publishedAssessment.getPublishedAssessmentId());
+            }
+            eventLogData.setSiteId(site_id);
+            eventLogData.setProcessId(null);
+            eventLogData.setEndDate(null);
+            eventLogData.setEclipseTime(null);
+            eventLogData.setErrorMsg(eventLogMessages.getString("error_pw_access"));
+        	eventLogFacade.setData(eventLogData);    
+        	eventService.saveOrUpdateEventLog(eventLogFacade);        	
+        }
       }
 
       // #2. check IP
-      if (!results.equals("passwordAccessError") &&
+      if (!"passwordAccessError".equals(results) &&
           getSettings().getIpAddresses() != null &&
           !getSettings().getIpAddresses().isEmpty())
       {
          results = validateIP();
          log.debug("*** checked password & IP="+results);
+         
+         if(("ipAccessError").equals(results)) {
+         	eventLogData.setAssessmentId(publishedAssessment.getPublishedAssessmentId());
+         	eventLogData.setStartDate(new Date());
+         	String agentEid = AgentFacade.getEid();
+             //ONC-3500
+             if(agentEid == null || ("").equals(agentEid)){
+           	  agentEid= "N/A";
+             }
+             eventLogData.setUserEid(agentEid);
+             eventLogData.setTitle(publishedAssessment.getTitle());
+             String site_id= AgentFacade.getCurrentSiteId();
+             if(site_id == null) {
+           	  //take assessment via url
+           	  PublishedAssessmentService publishedAssessmentService = new PublishedAssessmentService();
+       		  site_id = publishedAssessmentService.getPublishedAssessmentOwner(publishedAssessment.getPublishedAssessmentId());
+             }
+             eventLogData.setSiteId(site_id);
+             eventLogData.setProcessId(null);
+             eventLogData.setEndDate(null);
+             eventLogData.setEclipseTime(null);
+             eventLogData.setErrorMsg(eventLogMessages.getString("error_ip_access"));
+         	eventLogFacade.setData(eventLogData);    
+         	eventService.saveOrUpdateEventLog(eventLogFacade);        	
+         }
+         
       }
 
       // if results != "takeAssessment", stop the clock if it is a timed assessment
@@ -2017,7 +2127,18 @@ public class DeliveryBean
       return results;
     } catch (Exception e)
     {
-      e.printStackTrace();
+    	log.error("accessError" + e.getMessage());
+      EventLogService eventService = new EventLogService();
+		 EventLogFacade eventLogFacade = new EventLogFacade();
+		 EventLogData eventLogData = null;
+
+		 List eventLogDataList = eventService.getEventLogData(adata.getAssessmentGradingId());
+		 if(eventLogDataList != null && eventLogDataList.size() > 0) {
+			 eventLogData= (EventLogData) eventLogDataList.get(0);
+			 eventLogData.setErrorMsg(eventLogMessages.getString("error_access"));
+		 } 
+		 eventLogFacade.setData(eventLogData);
+		 eventService.saveOrUpdateEventLog(eventLogFacade);
       return "accessError";
     }
   }

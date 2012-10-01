@@ -50,5 +50,11 @@ $Id: evaluationHeadings.jsp 6643 2006-03-13 19:38:07Z hquinn@stanford.edu $
     </h:commandLink>
 
 <f:verbatim></span></li>
+<li role="menuitem" ><span></f:verbatim>
+    <h:commandLink id="evnetLogLink" accesskey="#{generalMessages.a_log}" title="#{generalMessages.t_eventLog}" action="eventLog" immediate="true" rendered="#{authorization.adminQuestionPool}">
+      <h:outputText value="#{generalMessages.eventLog}" />
+      <f:actionListener type="org.sakaiproject.tool.assessment.ui.listener.author.EventLogListener" />
+    </h:commandLink>
+<f:verbatim></span></li>
 </ul></f:verbatim>
   </h:panelGroup>

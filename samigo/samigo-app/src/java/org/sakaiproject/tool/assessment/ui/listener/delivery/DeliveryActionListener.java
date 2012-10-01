@@ -32,6 +32,7 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.Random;
+import java.util.ResourceBundle;
 import java.util.Set;
 import java.util.StringTokenizer;
 
@@ -48,6 +49,7 @@ import org.sakaiproject.event.cover.EventTrackingService;
 import org.sakaiproject.event.cover.NotificationService;
 import org.sakaiproject.tool.assessment.api.SamigoApiFactory;
 import org.sakaiproject.tool.assessment.data.dao.assessment.AssessmentAccessControl;
+import org.sakaiproject.tool.assessment.data.dao.assessment.EventLogData;
 import org.sakaiproject.tool.assessment.data.dao.grading.AssessmentGradingData;
 import org.sakaiproject.tool.assessment.data.dao.grading.ItemGradingData;
 import org.sakaiproject.tool.assessment.data.ifc.assessment.AnswerIfc;
@@ -61,12 +63,14 @@ import org.sakaiproject.tool.assessment.data.ifc.assessment.ItemTextIfc;
 import org.sakaiproject.tool.assessment.data.ifc.assessment.SectionDataIfc;
 import org.sakaiproject.tool.assessment.data.ifc.shared.TypeIfc;
 import org.sakaiproject.tool.assessment.facade.AgentFacade;
+import org.sakaiproject.tool.assessment.facade.EventLogFacade;
 import org.sakaiproject.tool.assessment.facade.PublishedAssessmentFacade;
 import org.sakaiproject.tool.assessment.services.GradingService;
 import org.sakaiproject.tool.assessment.services.assessment.PublishedAssessmentService;
 import org.sakaiproject.tool.assessment.shared.api.assessment.SecureDeliveryServiceAPI;
 import org.sakaiproject.tool.assessment.shared.api.assessment.SecureDeliveryServiceAPI.Phase;
 import org.sakaiproject.tool.assessment.shared.api.assessment.SecureDeliveryServiceAPI.PhaseStatus;
+import org.sakaiproject.tool.assessment.services.assessment.EventLogService;
 import org.sakaiproject.tool.assessment.ui.bean.delivery.ContentsDeliveryBean;
 import org.sakaiproject.tool.assessment.ui.bean.delivery.DeliveryBean;
 import org.sakaiproject.tool.assessment.ui.bean.delivery.FeedbackComponent;
@@ -104,6 +108,7 @@ public class DeliveryActionListener
   //private static ContextUtil cu;
   private boolean resetPageContents = true;
   private long previewGradingId = (long)(Math.random() * 1000);
+  private static ResourceBundle eventLogMessages = ResourceBundle.getBundle("org.sakaiproject.tool.assessment.bundle.EventLogMessages");
 
   /**
    * ACTION.
@@ -143,8 +148,7 @@ public class DeliveryActionListener
       setShowStudentScore(delivery, publishedAssessment);
       setShowStudentQuestionScore(delivery, publishedAssessment);
       setDeliverySettings(delivery, publishedAssessment);
-      
-      
+    
       // 3. there 3 types of navigation: by question (question will be displayed one at a time), 
       // by part (questions in a part will be displayed together) or by assessment (i.e. 
       // all questions will be displayed on one page). When navigating from TOC, a part number
@@ -368,6 +372,27 @@ public class DeliveryActionListener
             	  setTimer(delivery, publishedAssessment, true, isFirstTimeBegin);
             	  setStatus(delivery, pubService, Long.valueOf(id));
             	  
+            	  EventLogService eventService = new EventLogService();
+                  EventLogFacade eventLogFacade = new EventLogFacade();
+                  String agentEid = AgentFacade.getEid();
+                  //ONC-3500
+                  if(agentEid == null || agentEid.equals("")){
+                	  agentEid= "N/A";
+                  }
+                  //set event log data
+                  EventLogData eventLogData = new EventLogData();
+                  eventLogData.setAssessmentId(Long.valueOf(id));
+                  eventLogData.setProcessId(delivery.getAssessmentGradingId());
+                  eventLogData.setStartDate(new Date());
+                  eventLogData.setTitle(publishedAssessment.getTitle());
+                  eventLogData.setUserEid(agentEid); 
+                  eventLogData.setSiteId(AgentFacade.getCurrentSiteId());
+                  eventLogData.setErrorMsg(eventLogMessages.getString("no_submission"));
+                  eventLogData.setEndDate(null);
+                  eventLogData.setEclipseTime(null);
+                      
+                  eventLogFacade.setData(eventLogData);
+                  eventService.saveOrUpdateEventLog(eventLogFacade);           	  
             	  if (action == DeliveryBean.TAKE_ASSESSMENT) {
             		  StringBuffer eventRef = new StringBuffer("publishedAssessmentId=");
             		  eventRef.append(delivery.getAssessmentId());
@@ -434,7 +459,45 @@ public class DeliveryActionListener
     }
     catch (RuntimeException e)
     {
-      throw e;
+    	DeliveryBean delivery = (DeliveryBean) ContextUtil.lookupBean("delivery");
+    	String id = getPublishedAssessmentId(delivery);
+    	String agentEid = AgentFacade.getEid();
+    	if(agentEid == null || agentEid.equals("")) {
+    		agentEid= "N/A";
+    	}
+
+    	PublishedAssessmentFacade publishedAssessment = getPublishedAssessment(delivery, id);
+
+    	EventLogService eventService = new EventLogService();
+    	EventLogFacade eventLogFacade = new EventLogFacade();
+    	EventLogData eventLogData = null;
+
+    	List eventLogDataList = eventService.getEventLogData(delivery.getAssessmentGradingId());
+    	if(eventLogDataList != null && eventLogDataList.size() > 0) {
+    		eventLogData= (EventLogData) eventLogDataList.get(0);
+    		eventLogData.setErrorMsg(eventLogMessages.getString("error_begin"));
+    	} else {
+    		eventLogData = new EventLogData();
+    		eventLogData.setErrorMsg(eventLogMessages.getString("error_begin"));
+    		eventLogData.setAssessmentId(Long.valueOf(id));
+    		eventLogData.setProcessId(delivery.getAssessmentGradingId());
+    		eventLogData.setStartDate(new Date());
+    		eventLogData.setTitle(publishedAssessment.getTitle());
+    		eventLogData.setUserEid(agentEid); 
+    		String site_id =AgentFacade.getCurrentSiteId();
+    		//take assessment via url
+    		if(site_id == null) {
+    			PublishedAssessmentService publishedAssessmentService = new PublishedAssessmentService();
+    			site_id = publishedAssessmentService.getPublishedAssessmentOwner(Long.valueOf(delivery.getAssessmentId()));
+    		}
+    		eventLogData.setSiteId(site_id);
+    		eventLogData.setEndDate(null);
+    		eventLogData.setEclipseTime(null);
+    	}
+    	
+        eventLogFacade.setData(eventLogData);
+    	eventService.saveOrUpdateEventLog(eventLogFacade);
+    	throw e;
     }
 
   }

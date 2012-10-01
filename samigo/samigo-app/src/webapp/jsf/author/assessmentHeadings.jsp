@@ -38,6 +38,13 @@
       <h:outputText value="#{generalMessages.questionPool}" />
       <f:actionListener type="org.sakaiproject.tool.assessment.ui.listener.questionpool.QuestionPoolListener" />
     </h:commandLink>
-<f:verbatim></span></li></ul></f:verbatim>
+<f:verbatim></span></li>
+<li role="menuitem" ><span></f:verbatim>
+    <h:commandLink id="evnetLogLink" accesskey="#{generalMessages.a_log}" title="#{generalMessages.t_eventLog}" action="eventLog" immediate="true" rendered="#{authorization.adminQuestionPool}">
+      <h:outputText value="#{generalMessages.eventLog}" />
+      <f:actionListener type="org.sakaiproject.tool.assessment.ui.listener.author.EventLogListener" />
+    </h:commandLink>
+<f:verbatim></span></li>
+</ul></f:verbatim>
 
 </h:panelGroup>

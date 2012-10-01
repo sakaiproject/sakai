@@ -221,4 +221,21 @@
     <property name="ipAddress" type="string" length="255" column="IPADDRESS" not-null="false" />
   </class>
 
+<class name="org.sakaiproject.tool.assessment.data.dao.assessment.EventLogData"
+    table="SAM_EVENTLOG_T">
+    <id name="EventLogId" column="ID" type="java.lang.Long" unsaved-value="0">
+      <generator class="native">
+        <param name="sequence">SAM_EVENTLOG_ID_S</param>
+      </generator>
+    </id>
+	<property name="assessmentId" type="long" column="ASSESSMENTID" not-null="true"/>
+	<property name="processId" type="long" column="PROCESSID" not-null="false" index="SAM_EVENTLOG_PROCESSID_I"/>
+    <property name="title" type="string" length="255" column="TITLE" not-null="true" />
+    <property name="userEid" type="string" length="99" column="USEREID" not-null="true" />
+    <property name="siteId" type="string" length="99" column="SITEID" not-null="true" index="SAM_EVENTLOG_SITEID_I"/>
+    <property name="startDate" type="timestamp" column="STARTDATE" not-null="false" />
+    <property name="endDate" type="timestamp" column="ENDDATE" not-null="false" />
+    <property name="eclipseTime" type="integer" column="ECLIPSETIME" not-null="false" />
+    <property name="errorMsg" type="string" length="255" column="ERRORMSG" not-null="false" />
+ </class>
 </hibernate-mapping>
