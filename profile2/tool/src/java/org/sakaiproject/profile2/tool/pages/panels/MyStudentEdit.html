@@ -46,16 +46,20 @@
 		<!-- course -->
 		<tr wicket:id="courseContainer">
 			<td class="label" wicket:id="courseLabel">[courseLabel]</td>
-			<td class="content"><input type="text" wicket:id="course"
-				class="formInputField" /></td>
+			<td class="content">
+				<label for="courseinput" class="accessibility-label"><wicket:message key="accessibility.profile.course.input"></wicket:message></label>
+				<input type="text" wicket:id="course" class="formInputField" />
+			</td>
 		</tr>
 
 		<!-- subjects -->
 		<tr wicket:id="subjectsContainer">
 			<td class="label" style="vertical-align: middle;"
 				wicket:id="subjectsLabel">[subjectsLabel]</td>
-			<td class="content"><input type="text" wicket:id="subjects"
-				class="formInputField" /></td>
+			<td class="content">
+				<label for="subjectsinput" class="accessibility-label"><wicket:message key="accessibility.profile.subjects.input"></wicket:message></label>
+				<input type="text" wicket:id="subjects" class="formInputField" />
+			</td>
 		</tr>
 	</table>
 

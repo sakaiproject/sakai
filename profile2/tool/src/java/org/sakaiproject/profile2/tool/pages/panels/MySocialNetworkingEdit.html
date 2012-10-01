@@ -47,7 +47,8 @@
 		<tr wicket:id="facebookContainer">
 			<td class="label" wicket:id="facebookLabel">[facebookLabel]</td>
 			<td class="content">
-				<input type="text" wicket:id="facebookUrl" class="formInputField" />
+				<label for="facebookurlinput" class="accessibility-label"><wicket:message key="accessibility.profile.facebookurl.input"></wicket:message></label>
+				<input type="text" wicket:id="facebookUrl" class="formInputField" aria-describedby="facebookUrlFeedback"/>
 				<span wicket:id="facebookToolTip">[facebookToolTip]</span>
 				<span class="feedbackLabel" wicket:id="facebookUrlFeedback">[facebookUrlFeedback]</span>
 			</td>
@@ -57,7 +58,8 @@
 		<tr wicket:id="linkedinContainer">
 			<td class="label" wicket:id="linkedinLabel">[linkedinLabel]</td>
 			<td class="content">
-				<input type="text" wicket:id="linkedinUrl" class="formInputField" />
+				<label for="linkedinurlinput" class="accessibility-label"><wicket:message key="accessibility.profile.linkedinurl.input"></wicket:message></label>
+				<input type="text" wicket:id="linkedinUrl" class="formInputField" aria-describedby="linkedinUrlFeedback"/>
 				<span wicket:id="linkedinToolTip">[linkedinToolTip]</span>
 				<span class="feedbackLabel" wicket:id="linkedinUrlFeedback">[linkedinUrlFeedback]</span>
 			</td>
@@ -67,7 +69,8 @@
 		<tr wicket:id="myspaceContainer">
 			<td class="label" wicket:id="myspaceLabel">[myspaceLabel]</td>
 			<td class="content">
-				<input type="text" wicket:id="myspaceUrl" class="formInputField" />
+				<label for="myspaceurlinput" class="accessibility-label"><wicket:message key="accessibility.profile.myspaceurl.input"></wicket:message></label>
+				<input type="text" wicket:id="myspaceUrl" class="formInputField" aria-describedby="myspaceUrlFeedback"/>
 				<span wicket:id="myspaceToolTip">[myspaceToolTip]</span>
 				<span class="feedbackLabel" wicket:id="myspaceUrlFeedback">[myspaceUrlFeedback]</span>
 			</td>
@@ -77,14 +80,17 @@
 		<tr wicket:id="skypeContainer">
 			<td class="label" wicket:id="skypeLabel">[facebookLabel]</td>
 			<td class="content">
-				<input type="text" wicket:id="skypeUsername" class="formInputField" /></td>
+				<label for="skypeusernameinput" class="accessibility-label"><wicket:message key="accessibility.profile.skypeusername.input"></wicket:message></label>
+				<input type="text" wicket:id="skypeUsername" class="formInputField" />
+			</td>
 		</tr>
 
 		<!-- twitter -->
 		<tr wicket:id="twitterContainer">
 			<td class="label" wicket:id="twitterLabel">[twitterLabel]</td>
 			<td class="content">
-				<input type="text" wicket:id="twitterUrl" class="formInputField" />
+				<label for="twitterurlinput" class="accessibility-label"><wicket:message key="accessibility.profile.twitterurl.input"></wicket:message></label>
+				<input type="text" wicket:id="twitterUrl" class="formInputField" aria-describedby="twitterUrlFeedback"  />
 				<span wicket:id="twitterToolTip">[twitterToolTip]</span>
 				<span class="feedbackLabel" wicket:id="twitterUrlFeedback">[twitterUrlFeedback]</span>
 			</td>

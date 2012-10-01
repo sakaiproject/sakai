@@ -102,6 +102,8 @@ public class MySocialNetworkingEdit extends Panel {
 				validateUrl(this);
 			}
 		};
+		facebookUrl.setMarkupId("facebookurlinput");
+		facebookUrl.setOutputMarkupId(true);
 		facebookUrl.add(new UrlValidator());
 		facebookContainer.add(facebookUrl);
 		facebookContainer.add(new IconWithClueTip("facebookToolTip", ProfileConstants.INFO_IMAGE, new ResourceModel("text.profile.facebook.tooltip")));
@@ -109,6 +111,7 @@ public class MySocialNetworkingEdit extends Panel {
 		//feedback
         final FeedbackLabel facebookUrlFeedback = new FeedbackLabel("facebookUrlFeedback", facebookUrl);
         facebookUrlFeedback.setOutputMarkupId(true);
+        facebookUrlFeedback.setMarkupId("facebookUrlFeedback");
         facebookContainer.add(facebookUrlFeedback);
         facebookUrl.add(new ComponentVisualErrorBehaviour("onblur", facebookUrlFeedback));
 		
@@ -125,12 +128,15 @@ public class MySocialNetworkingEdit extends Panel {
 				validateUrl(this);
 			}
 		};
+		linkedinUrl.setMarkupId("linkedinurlinput");
+		linkedinUrl.setOutputMarkupId(true);
 		linkedinUrl.add(new UrlValidator());
 		linkedinContainer.add(linkedinUrl);
 		linkedinContainer.add(new IconWithClueTip("linkedinToolTip", ProfileConstants.INFO_IMAGE, new ResourceModel("text.profile.linkedin.tooltip")));
 		
 		//feedback
 		final FeedbackLabel linkedinUrlFeedback = new FeedbackLabel("linkedinUrlFeedback", linkedinUrl);
+        linkedinUrlFeedback.setMarkupId("linkedinUrlFeedback");
 		linkedinUrlFeedback.setOutputMarkupId(true);
 		linkedinContainer.add(linkedinUrlFeedback);
 		linkedinUrl.add(new ComponentVisualErrorBehaviour("onblur", linkedinUrlFeedback));
@@ -148,12 +154,15 @@ public class MySocialNetworkingEdit extends Panel {
 				validateUrl(this);
 			}
 		};
+		myspaceUrl.setMarkupId("myspaceurlinput");
+		myspaceUrl.setOutputMarkupId(true);
 		myspaceUrl.add(new UrlValidator());
 		myspaceContainer.add(myspaceUrl);
 		myspaceContainer.add(new IconWithClueTip("myspaceToolTip", ProfileConstants.INFO_IMAGE, new ResourceModel("text.profile.myspace.tooltip")));
 		
 		//feedback
 		final FeedbackLabel myspaceUrlFeedback = new FeedbackLabel("myspaceUrlFeedback", myspaceUrl);
+        myspaceUrlFeedback.setMarkupId("myspaceUrlFeedback");
 		myspaceUrlFeedback.setOutputMarkupId(true);
 		myspaceContainer.add(myspaceUrlFeedback);
 		myspaceUrl.add(new ComponentVisualErrorBehaviour("onblur", myspaceUrlFeedback));
@@ -171,12 +180,15 @@ public class MySocialNetworkingEdit extends Panel {
 				validateUrl(this);
 			}
 		};
+		twitterUrl.setMarkupId("twitterurlinput");
+		twitterUrl.setOutputMarkupId(true);
 		twitterUrl.add(new UrlValidator());
 		twitterContainer.add(twitterUrl);
 		twitterContainer.add(new IconWithClueTip("twitterToolTip", ProfileConstants.INFO_IMAGE, new ResourceModel("text.profile.twitter.tooltip")));
 		
 		//feedback
 		final FeedbackLabel twitterUrlFeedback = new FeedbackLabel("twitterUrlFeedback", twitterUrl);
+		twitterUrlFeedback.setMarkupId("twitterUrlFeedback");
 		twitterUrlFeedback.setOutputMarkupId(true);
 		twitterContainer.add(twitterUrlFeedback);
 		twitterUrl.add(new ComponentVisualErrorBehaviour("onblur", twitterUrlFeedback));
@@ -186,7 +198,10 @@ public class MySocialNetworkingEdit extends Panel {
 		//skype
 		WebMarkupContainer skypeContainer = new WebMarkupContainer("skypeContainer");
 		skypeContainer.add(new Label("skypeLabel", new ResourceModel("profile.socialnetworking.skype.edit")));
-		skypeContainer.add(new TextField("skypeUsername", new PropertyModel(userProfile, "socialInfo.skypeUsername")));
+		TextField skypeUsername = new TextField("skypeUsername", new PropertyModel(userProfile, "socialInfo.skypeUsername"));
+		skypeUsername.setMarkupId("skypeusernameinput");
+		skypeUsername.setOutputMarkupId(true);
+		skypeContainer.add(skypeUsername);
 		form.add(skypeContainer);
 			
 		//submit button

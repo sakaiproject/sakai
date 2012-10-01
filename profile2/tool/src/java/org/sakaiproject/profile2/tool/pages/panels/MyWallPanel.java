@@ -140,6 +140,8 @@ public class MyWallPanel extends Panel {
 				"myWallPostContainer");
 		final TextArea<String> myWallPost = new TextArea<String>("myWallPost",
 				new PropertyModel<String>(wallItem, "text"));
+		myWallPost.setMarkupId("wallpostinput");
+		myWallPost.setOutputMarkupId(true);
 		myWallPost.add(new TinyMceBehavior(new TextareaTinyMceSettings(
 				TinyMCESettings.Align.left)));
 

@@ -82,6 +82,8 @@ public class MyStudentEdit extends Panel {
 		WebMarkupContainer courseContainer = new WebMarkupContainer("courseContainer");
 		courseContainer.add(new Label("courseLabel", new ResourceModel("profile.course")));
 		TextField course = new TextField("course", new PropertyModel(userProfile, "course"));
+		course.setMarkupId("courseinput");
+		course.setOutputMarkupId(true);
 		courseContainer.add(course);
 		form.add(courseContainer);
 		
@@ -89,6 +91,8 @@ public class MyStudentEdit extends Panel {
 		WebMarkupContainer subjectsContainer = new WebMarkupContainer("subjectsContainer");
 		subjectsContainer.add(new Label("subjectsLabel", new ResourceModel("profile.subjects")));
 		TextField subjects = new TextField("subjects", new PropertyModel(userProfile, "subjects"));
+		subjects.setMarkupId("subjectsinput");
+		subjects.setOutputMarkupId(true);
 		subjectsContainer.add(subjects);
 		form.add(subjectsContainer);
 		

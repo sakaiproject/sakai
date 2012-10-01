@@ -95,6 +95,8 @@ public class MyInterestsEdit extends Panel {
 		WebMarkupContainer booksContainer = new WebMarkupContainer("booksContainer");
 		booksContainer.add(new Label("booksLabel", new ResourceModel("profile.favourite.books")));
 		TextArea favouriteBooks = new TextArea("favouriteBooks", new PropertyModel(userProfile, "favouriteBooks"));
+		favouriteBooks.setMarkupId("favouritebooksinput");
+		favouriteBooks.setOutputMarkupId(true);
 		booksContainer.add(favouriteBooks);
 		form.add(booksContainer);
 		
@@ -102,6 +104,8 @@ public class MyInterestsEdit extends Panel {
 		WebMarkupContainer tvContainer = new WebMarkupContainer("tvContainer");
 		tvContainer.add(new Label("tvLabel", new ResourceModel("profile.favourite.tv")));
 		TextArea favouriteTvShows = new TextArea("favouriteTvShows", new PropertyModel(userProfile, "favouriteTvShows"));
+		favouriteTvShows.setMarkupId("favouritetvinput");
+		favouriteTvShows.setOutputMarkupId(true);
 		tvContainer.add(favouriteTvShows);
 		form.add(tvContainer);
 		
@@ -109,6 +113,8 @@ public class MyInterestsEdit extends Panel {
 		WebMarkupContainer moviesContainer = new WebMarkupContainer("moviesContainer");
 		moviesContainer.add(new Label("moviesLabel", new ResourceModel("profile.favourite.movies")));
 		TextArea favouriteMovies = new TextArea("favouriteMovies", new PropertyModel(userProfile, "favouriteMovies"));
+		favouriteMovies.setMarkupId("favouritemoviesinput");
+		favouriteMovies.setOutputMarkupId(true);
 		moviesContainer.add(favouriteMovies);
 		form.add(moviesContainer);
 		
@@ -116,6 +122,8 @@ public class MyInterestsEdit extends Panel {
 		WebMarkupContainer quotesContainer = new WebMarkupContainer("quotesContainer");
 		quotesContainer.add(new Label("quotesLabel", new ResourceModel("profile.favourite.quotes")));
 		TextArea favouriteQuotes = new TextArea("favouriteQuotes", new PropertyModel(userProfile, "favouriteQuotes"));
+		favouriteQuotes.setMarkupId("favouritequotesinput");
+		favouriteQuotes.setOutputMarkupId(true);
 		quotesContainer.add(favouriteQuotes);
 		form.add(quotesContainer);
 		
