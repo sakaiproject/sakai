@@ -548,6 +548,11 @@ public abstract class DbAuthzGroupService extends BaseAuthzGroupService implemen
 			}
 
 			Map <String, Map> realmRoleGRCache = (Map<String, Map>)m_realmRoleGRCache.get(realm.getId());
+			
+			if (M_log.isDebugEnabled()) {
+				M_log.debug("DbAuthzGroupService: found " + realm.getId() + " in cache? " + (realmRoleGRCache != null));
+			}
+
 			if (realmRoleGRCache != null) {
 			    realm.m_roles = realmRoleGRCache.get(REALM_ROLES_CACHE);
 			    realm.m_userGrants = realmRoleGRCache.get(REALM_USER_GRANTS_CACHE);
@@ -2933,7 +2938,8 @@ public abstract class DbAuthzGroupService extends BaseAuthzGroupService implemen
 	
 	
 	public void update(Observable arg0, Object arg) {
-		if (arg == null || !(arg instanceof Event))
+		// No need to listen for events if we are not caching the authz grants
+		if (arg == null || !(arg instanceof Event) || !serverConfigurationService().getBoolean("authz.cacheGrants", false)) 
 			return;
 		Event event = (Event) arg;
 		
@@ -2942,13 +2948,22 @@ public abstract class DbAuthzGroupService extends BaseAuthzGroupService implemen
 		if (SECURE_UPDATE_AUTHZ_GROUP.equals(function) 
 				|| SECURE_UPDATE_OWN_AUTHZ_GROUP.equals(function) 
 				|| SECURE_REMOVE_AUTHZ_GROUP.equals(function)
+				|| SECURE_JOIN_AUTHZ_GROUP.equals(function)
+				|| SECURE_UNJOIN_AUTHZ_GROUP.equals(function)
 				|| SECURE_ADD_AUTHZ_GROUP.equals(function)) {
 			String eventResource = event.getResource();
 			String resourceId = eventResource;
 			
+			// realm.unjoin (KNL-523) ref looks like this /realm//site/mercury
+			eventResource = eventResource.replace(Entity.SEPARATOR + Entity.SEPARATOR, Entity.SEPARATOR);
+
 			// the azGroup id may have separators - we use everything after "/realm/"
 			if (eventResource.startsWith(REFERENCE_ROOT)) {
-				resourceId = eventResource.substring(REFERENCE_ROOT.length() + 1, eventResource.length());
+				resourceId = eventResource.substring(REFERENCE_ROOT.length(), eventResource.length());
+			}
+			
+			if (M_log.isDebugEnabled()) {
+				M_log.debug("DbAuthzGroupService update(): clear realm role cache for " + resourceId);
 			}
 
 			m_realmRoleGRCache.remove(resourceId);
