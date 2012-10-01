@@ -105,6 +105,12 @@ public class AuthorBean implements Serializable
   
   private boolean justPublishedAnAssessment = false;
   private String protocol;
+  /* properties used for editing published random pool items */
+  private boolean isEditPoolFlow = false;  
+  private String editPoolName;
+  private String editPoolSectionName;
+  private String editPoolSectionId;
+  /* ------------------------------------ /*
   
   
   /**
@@ -780,7 +786,48 @@ public class AuthorBean implements Serializable
   {
     return isErrorInSettings;
   }
-  
+
+  public boolean getIsEditPoolFlow()
+  {
+      return isEditPoolFlow;
+  }
+
+  public void setIsEditPoolFlow(boolean isEditPoolFlow)
+  {
+      this.isEditPoolFlow = isEditPoolFlow;
+  }
+
+  public String getEditPoolName()
+  {
+      return editPoolName;
+  }
+
+  public void setEditPoolName(String editPoolName)
+  {
+      this.editPoolName = editPoolName;
+  }
+
+  public String getEditPoolSectionName()
+  {
+      return editPoolSectionName;
+  }
+
+  public void setEditPoolSectionName(String editPoolSectionName)
+  {
+      this.editPoolSectionName = editPoolSectionName;
+  }
+
+  public String getEditPoolSectionId()
+  {
+      return editPoolSectionId;
+  }
+
+  public void setEditPoolSectionId(String editPoolSectionId)
+  {
+      this.editPoolSectionId = editPoolSectionId;
+  }
+
+
   public String getProtocol(){
 	  return protocol;
   }

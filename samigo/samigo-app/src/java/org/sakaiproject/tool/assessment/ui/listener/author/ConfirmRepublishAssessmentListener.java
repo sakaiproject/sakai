@@ -28,6 +28,10 @@ public class ConfirmRepublishAssessmentListener implements ActionListener {
 	
 	public void processAction(ActionEvent ae) throws AbortProcessingException {
 		AuthorBean author = (AuthorBean) ContextUtil.lookupBean("author");
+		// in case we're in published assessment pool edit view, disable that mode
+	 	if (author.getIsEditPoolFlow()) {
+	 	    author.setIsEditPoolFlow(false);
+	 	}
 		PublishedAssessmentService assessmentService = new PublishedAssessmentService();
 		SavePublishedSettingsListener savePublishedSettingsListener = new SavePublishedSettingsListener();
 		PublishedAssessmentSettingsBean assessmentSettings = (PublishedAssessmentSettingsBean) ContextUtil.lookupBean("publishedSettings");

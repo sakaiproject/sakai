@@ -80,7 +80,7 @@
 <div class="tier2">
 
 <div class="shorttext"> <h:outputLabel value="#{authorMessages.answer_point_value}" />
-<h:inputText id="answerptr" value="#{itemauthor.currentItem.itemScore}" required="true" size="6" onchange="toPoint(this.id);">
+<h:inputText id="answerptr" value="#{itemauthor.currentItem.itemScore}" required="true"  disabled="#{author.isEditPoolFlow}" size="6" onchange="toPoint(this.id);">
 <f:validateDoubleRange minimum="0.00" />
 </h:inputText>
 
@@ -313,7 +313,7 @@
     </h:selectOneRadio>
 </div>
     <!-- 6 PART -->
-<h:panelGrid columns="3"  columnClasses="shorttext" rendered="#{itemauthor.target == 'assessment'}">
+<h:panelGrid columns="3"  columnClasses="shorttext" rendered="#{itemauthor.target == 'assessment' && !author.isEditPoolFlow}">
 <f:verbatim>&nbsp;</f:verbatim>
 <h:outputLabel value="#{authorMessages.assign_to_p} " />
   <h:selectOneMenu id="assignToPart" value="#{itemauthor.currentItem.selectedSection}">

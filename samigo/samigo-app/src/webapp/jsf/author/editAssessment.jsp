@@ -112,6 +112,7 @@ document.links[newindex].onclick();
   <div class="navView">
     <h3>
        <h:outputText value="#{authorMessages.qs}#{authorMessages.column} #{assessmentBean.title}" escape="false" />
+       <h:outputText value=" #{authorMessages.dash} #{author.editPoolSectionName}" escape="false" rendered="#{author.isEditPoolFlow}"/>
     </h3>
   </div><div class="navList">
     <h:outputText value="#{assessmentBean.questionSize} #{authorMessages.existing_qs} #{authorMessages.dash} " rendered="#{assessmentBean.questionSize > 1}" />
@@ -177,6 +178,12 @@ document.links[newindex].onclick();
     </h:commandLink>
     </p>
 
+<h:panelGrid  columns="1" styleClass="validation" rendered="#{author.isEditPoolFlow}">
+	<h:outputFormat value="#{authorMessages.edit_published_assessment_warn_edit_pool_questions}">
+	    <f:param value="#{author.editPoolName}" />
+	</h:outputFormat>
+</h:panelGrid>
+
 <h:panelGrid columns="2" width="100%" columnClasses="shortText,navList" border="0">
 <h:panelGroup rendered="#{author.isEditPendingAssessmentFlow}">
 <h:commandLink title="#{authorMessages.t_addPart}" id="addPart" action="editPart" immediate="true" rendered="#{author.isEditPendingAssessmentFlow}">
@@ -207,8 +214,16 @@ document.links[newindex].onclick();
     <f:actionListener type="org.sakaiproject.tool.assessment.ui.listener.author.ConfirmRepublishAssessmentListener" />
     <f:actionListener type="org.sakaiproject.tool.assessment.ui.listener.author.SetFromPageAsEditAssessmentListener" />
   </h:commandButton>
-
 </h:panelGroup>
+
+<h:panelGroup rendered="#{!author.isEditPendingAssessmentFlow}" />
+  
+<h:panelGroup>
+  <h:commandButton value="#{authorMessages.button_return_to_main}" id="returnToMain" rendered="#{author.isEditPoolFlow}">
+      <f:actionListener type="org.sakaiproject.tool.assessment.ui.listener.author.EditPublishedQuestionPoolPartListener" />
+  </h:commandButton>
+</h:panelGroup>
+  
 </h:panelGrid>
 
 <h:panelGrid columns="1" width="100%" columnClasses="navList" border="0" rendered="#{!author.isEditPendingAssessmentFlow && assessmentBean.hasGradingData}">
@@ -233,7 +248,7 @@ document.links[newindex].onclick();
   <h:column>
 <f:verbatim><h4></f:verbatim>
  <h:panelGrid columns="2" width="100%" columnClasses="navView,navList" border="0">
-      <h:panelGroup >
+      <h:panelGroup rendered="#{!author.isEditPoolFlow}">
 		<h:outputText value="#{authorMessages.p}" /> <f:verbatim>&nbsp; </b></f:verbatim>
         <h:selectOneMenu id="number" value="#{partBean.number}" onchange="document.forms[0].submit();" rendered="#{author.isEditPendingAssessmentFlow}" >
           <f:selectItems value="#{assessmentBean.partNumbers}" />
@@ -241,7 +256,7 @@ document.links[newindex].onclick();
         </h:selectOneMenu>
         <h:outputText value="#{partBean.number}: " rendered="#{!author.isEditPendingAssessmentFlow}"/>
 		 <f:verbatim>&nbsp; </f:verbatim>
-	  <h:panelGroup >
+	  <h:panelGroup rendered="#{!author.isEditPoolFlow}">
 		<h:outputText rendered="#{(partBean.sectionAuthorType== null || partBean.sectionAuthorTypeString == '1') && partBean.questions > 1}" value="#{partBean.title} #{authorMessages.dash} #{partBean.questions} #{authorMessages.questions_lower_case}" escape="false"/>
 		<h:outputText rendered="#{(partBean.sectionAuthorType== null || partBean.sectionAuthorTypeString == '1') && partBean.questions == 1}" value="#{partBean.title} #{authorMessages.dash} #{partBean.questions} #{authorMessages.question_lower_case}" escape="false"/>
 		<h:outputText rendered="#{(partBean.sectionAuthorType== null || partBean.sectionAuthorTypeString == '1') && partBean.questions == 0}" value="#{partBean.title} #{authorMessages.dash} #{partBean.questions} #{authorMessages.questions_lower_case}" escape="false"/>
@@ -253,11 +268,16 @@ document.links[newindex].onclick();
 			onclick="document.getElementById('assesssmentForm:randomQuestionsSectionId').value='#{partBean.sectionId}'" style="margin-left: 2em">
 		  	<f:actionListener type="org.sakaiproject.tool.assessment.ui.listener.author.UpdateRandomPoolQuestionsListener" />
 		</h:commandButton>
+		
+        <f:verbatim>&nbsp;</f:verbatim>
+		<h:commandButton value="#{authorMessages.button_edit_questions}" id="editQuestionPoolQuestions" rendered="#{(partBean.sectionAuthorType!= null && partBean.sectionAuthorTypeString == '2'&& !author.isEditPendingAssessmentFlow)}">
+		    <f:actionListener type="org.sakaiproject.tool.assessment.ui.listener.author.EditPublishedQuestionPoolPartListener"/>
+		</h:commandButton>
 
 	  </h:panelGroup>
       </h:panelGroup>
 
-	  <h:panelGroup>
+	  <h:panelGroup rendered="#{!author.isEditPoolFlow}">
 		<h:commandLink title="#{authorMessages.copy_to_pool}" id="copyToPool" immediate="true" action="#{questionpool.startCopyFromAssessment}" rendered="#{author.isEditPendingAssessmentFlow}">
           <h:outputText value="#{authorMessages.copy_to_pool}" rendered="#{partBean.sectionAuthorType!= null && partBean.sectionAuthorTypeString == '1'}"/>
           <f:param name="sectionId" value="#{partBean.sectionId}"/>
@@ -286,25 +306,30 @@ document.links[newindex].onclick();
 	  
     </h:panelGrid>
       <f:verbatim></h4></f:verbatim>
-        <h:outputText escape="false" value="#{partBean.description}" />
 <f:verbatim><div class="tier2"></f:verbatim>
         <!-- PART ATTACHMENTS -->
         <%@ include file="/jsf/author/part_attachment.jsp" %>
 
-		<h:outputText rendered="#{partBean.sectionAuthorType!= null && partBean.sectionAuthorTypeString == '2' && (empty partBean.randomQuestionsDrawDate || !author.isEditPendingAssessmentFlow)}" value="#{authorMessages.random_draw_msg_no_date}"/>
+		<h:outputText rendered="#{partBean.sectionAuthorType!= null && partBean.sectionAuthorTypeString == '2' && empty partBean.randomQuestionsDrawDate}" value="#{authorMessages.random_draw_msg_no_date}"/>
         <h:outputFormat rendered="#{partBean.sectionAuthorType!= null && partBean.sectionAuthorTypeString == '2' && !empty partBean.randomQuestionsDrawDate && author.isEditPendingAssessmentFlow}" value="#{authorMessages.random_draw_msg}" escape="false">
         	<f:param value="#{partBean.poolNameToBeDrawn}"/>
         	<f:param value="#{partBean.randomQuestionsDrawDate}"/>
         	<f:param value="#{partBean.randomQuestionsDrawTime}"/>
         </h:outputFormat>
         
+        <h:outputFormat rendered="#{partBean.sectionAuthorType!= null && partBean.sectionAuthorTypeString == '2' && !author.isEditPoolFlow && !empty partBean.randomQuestionsDrawDate && !author.isEditPendingAssessmentFlow}" value="#{authorMessages.random_draw_msg_published}" escape="false">
+        	<f:param value="#{partBean.poolNameToBeDrawn}"/>
+        	<f:param value="#{partBean.randomQuestionsDrawDate}"/>
+        	<f:param value="#{partBean.randomQuestionsDrawTime}"/>
+        </h:outputFormat>
+        
         <!-- this insert should only show up when there are no questions in this part -->
-<h:panelGroup rendered="#{partBean.itemContentsSize eq '0' && author.isEditPendingAssessmentFlow}">
+<h:panelGroup rendered="#{partBean.itemContentsSize eq '0' && author.isEditPendingAssessmentFlow && !author.isEditPoolFlow}">
     <f:verbatim>    <div class="longtext"> </f:verbatim> <h:outputLabel for="changeQType" value="#{authorMessages.ins_new_q} "/>
 
 <!-- each selectItem stores the itemtype, current sequence -->
 
-<h:selectOneMenu id="changeQType" onchange="clickInsertLink(this);"  value="#{itemauthor.itemTypeString}" >
+<h:selectOneMenu id="changeQType" onchange="clickInsertLink(this);"  value="#{itemauthor.itemTypeString}">
 
   <f:valueChangeListener type="org.sakaiproject.tool.assessment.ui.listener.author.StartInsertItemListener" />
 
@@ -320,7 +345,7 @@ document.links[newindex].onclick();
 
 
   <h:dataTable id="parts" width="100%"
-        value="#{partBean.itemContents}" var="question" rendered="#{partBean.sectionAuthorType== null || partBean.sectionAuthorTypeString ==  '1'}" >
+        value="#{partBean.itemContents}" var="question" rendered="#{(! author.isEditPoolFlow && (partBean.sectionAuthorType== null || partBean.sectionAuthorTypeString ==  '1')) || (author.isEditPoolFlow && author.editPoolSectionId != null && partBean.sectionId == author.editPoolSectionId)}" >
 
       <h:column>
 <f:verbatim><h5></f:verbatim>
@@ -350,10 +375,9 @@ document.links[newindex].onclick();
      <h:outputText rendered="#{question.itemData.typeId== 15}" value=" #{authorMessages.calculated_question}"/><!-- CALCULATED_QUESTION -->
 
      <h:outputText value=" #{authorMessages.dash} " />
-     <h:inputText id="answerptr" value="#{question.updatedScore}" required="true" size="6" onkeydown="inIt()" onchange="toPoint(this.id);" rendered="#{question.itemData.typeId!= 3}">
+     <h:inputText id="answerptr" value="#{question.updatedScore}" required="true" disabled="#{author.isEditPoolFlow}"  size="6" onkeydown="inIt()" onchange="toPoint(this.id);" rendered="#{question.itemData.typeId!= 3}">
 	<f:validateDoubleRange minimum="0.00"/></h:inputText>
     <h:outputText rendered="#{question.itemData.typeId== 3}" value="#{question.updatedScore}"/>
-
 		<h:outputText rendered="#{question.itemData.score > 1}" value=" #{authorMessages.points_lower_case}"/>
 		<h:outputText rendered="#{question.itemData.score == 1}" value=" #{authorMessages.point_lower_case}"/>
 		<h:outputText rendered="#{question.itemData.score == 0}" value=" #{authorMessages.points_lower_case}"/>
@@ -456,12 +480,12 @@ document.links[newindex].onclick();
   </h:column>
 </h:dataTable>
 
-<h:commandButton value="#{authorMessages.button_update_points}" id="pointsUpdate" action="editAssessment" >
+<h:commandButton value="#{authorMessages.button_update_points}" id="pointsUpdate" action="editAssessment" rendered="#{!author.isEditPoolFlow}">
   <f:actionListener type="org.sakaiproject.tool.assessment.ui.listener.author.UpdateAssessmentTotalPointsListener" />
 </h:commandButton>
 </div>
 
-<p class="navList">
+<h:panelGrid columns="1" width="100%" columnClasses="navList" border="0">
 <h:panelGroup>
   <h:commandButton id="republish1" value="#{authorMessages.button_republish}" type="submit" styleClass="active" rendered="#{!author.isEditPendingAssessmentFlow}"
       action="#{author.getOutcome}">
@@ -474,8 +498,15 @@ document.links[newindex].onclick();
     <f:actionListener type="org.sakaiproject.tool.assessment.ui.listener.author.ConfirmRepublishAssessmentListener" />
     <f:actionListener type="org.sakaiproject.tool.assessment.ui.listener.author.SetFromPageAsEditAssessmentListener" />
   </h:commandButton>
+
 </h:panelGroup>
-</p>
+
+<h:panelGroup>
+  <h:commandButton value="#{authorMessages.button_return_to_main}" id="returnToMain1" rendered="#{author.isEditPoolFlow}">
+      <f:actionListener type="org.sakaiproject.tool.assessment.ui.listener.author.EditPublishedQuestionPoolPartListener" />
+  </h:commandButton>  
+</h:panelGroup>
+</h:panelGrid>
 
 <h:panelGrid columns="1" width="100%" columnClasses="navList" border="0" rendered="#{!author.isEditPendingAssessmentFlow && assessmentBean.hasGradingData}">
   <h:outputLink title="#{assessmentSettingsMessages.whats_this_link}" value="#" onclick="javascript:window.open('/samigo-app/jsf/author/regradeRepublishPopUp.faces','RegradeRepublish','width=400,height=400,scrollbars=yes, resizable=yes');" onkeypress="javascript:window.open('/samigo-app/jsf/author/regradeRepublishPopUp.faces','RegradeRepublishPopUp','width=400,height=400,scrollbars=yes, resizable=yes');" >
@@ -484,7 +515,12 @@ document.links[newindex].onclick();
 </h:panelGrid>
 
 
-  <h:panelGroup rendered="#{!author.isEditPendingAssessmentFlow}" styleClass="messageSamigo2">
+<h:panelGrid  columns="1" styleClass="validation" rendered="#{author.isEditPoolFlow}">
+	<h:outputFormat value="#{authorMessages.edit_published_assessment_warn_edit_pool_questions}">
+	    <f:param value="#{author.editPoolName}" />
+	</h:outputFormat>
+</h:panelGrid>
+<h:panelGroup rendered="#{!author.isEditPendingAssessmentFlow}" styleClass="messageSamigo2">
     <h:panelGrid  columns="1">
 	  <h:outputText value="#{authorMessages.edit_published_assessment_warn_1}" />
 	  <h:outputText value="#{authorMessages.edit_published_assessment_warn_21}" rendered="#{assessmentBean.hasGradingData}"/>

@@ -59,6 +59,7 @@ import org.sakaiproject.tool.assessment.data.ifc.assessment.ItemFeedbackIfc;
 import org.sakaiproject.tool.assessment.data.ifc.assessment.ItemMetaDataIfc;
 import org.sakaiproject.tool.assessment.data.ifc.assessment.ItemTextIfc;
 import org.sakaiproject.tool.assessment.services.FinFormatException;
+import org.sakaiproject.tool.assessment.data.ifc.assessment.SectionDataIfc;
 import org.sakaiproject.tool.assessment.facade.AgentFacade;
 import org.sakaiproject.tool.assessment.facade.ItemFacade;
 import org.sakaiproject.tool.assessment.facade.PublishedItemFacade;
@@ -564,11 +565,11 @@ public class ItemAddListener
       log.debug("**** isEditPendingAssessmentFlow : " + isEditPendingAssessmentFlow);
       String target = itemauthor.getTarget();
       boolean isFromQuestionPool = false;
-      if (target != null && target.equals(ItemAuthorBean.FROM_QUESTIONPOOL)) {
+      if (target != null && (target.equals(ItemAuthorBean.FROM_QUESTIONPOOL) && ! author.getIsEditPoolFlow())) {
     	  isFromQuestionPool = true;
       }
       log.debug("**** isFromQuestionPool : " + isFromQuestionPool);
-      isPendingOrPool = isEditPendingAssessmentFlow || isFromQuestionPool;
+      isPendingOrPool = isEditPendingAssessmentFlow || (isFromQuestionPool && ! author.getIsEditPoolFlow());
       ItemService delegate;
       if (isPendingOrPool) {
     	  EventTrackingService.post(EventTrackingService.newEvent("sam.assessment.revise", "siteId=" + AgentFacade.getCurrentSiteId() + ", itemId=" + itemauthor.getItemId(), true));
@@ -810,6 +811,12 @@ public class ItemAddListener
     		  // reset insertToSection to null;
     		  itemauthor.setInsertToSection(null);
     	  }
+          
+          if (author != null && author.getIsEditPoolFlow()) {
+              section.getData().setLastModifiedDate(item.getLastModifiedDate());
+              section.addSectionMetaData(SectionDataIfc.QUESTIONS_RANDOM_DRAW_DATE, item.getLastModifiedDate().toString());
+              assessdelegate.saveOrUpdateSection(section);
+          }
           
           delegate.saveItem(item);
 

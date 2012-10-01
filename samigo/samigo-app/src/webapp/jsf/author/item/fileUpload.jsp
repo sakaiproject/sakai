@@ -74,7 +74,7 @@
   <!-- 1 POINTS -->
   <div class="shorttext">
     <h:outputLabel value="#{authorMessages.answer_point_value}" />
-    <h:inputText id="answerptr" value="#{itemauthor.currentItem.itemScore}" required="true" onchange="toPoint(this.id);">
+    <h:inputText id="answerptr" value="#{itemauthor.currentItem.itemScore}" required="true" disabled="#{author.isEditPoolFlow}" onchange="toPoint(this.id);">
 <f:validateDoubleRange minimum="0.00"/>
 </h:inputText>
     <h:message for="answerptr" styleClass="validate"/><br/>
@@ -107,7 +107,7 @@
   <!-- 3 PART -->
 
 
-  <h:panelGrid columnClasses="shorttext" rendered="#{itemauthor.target == 'assessment'}" columns="3">
+  <h:panelGrid columnClasses="shorttext" rendered="#{itemauthor.target == 'assessment' && !author.isEditPoolFlow}" columns="3">
   <f:verbatim>&nbsp;</f:verbatim>  <h:outputLabel value="#{authorMessages.assign_to_p}" />
   <h:selectOneMenu id="assignToPart" value="#{itemauthor.currentItem.selectedSection}">
      <f:selectItems  value="#{itemauthor.sectionSelectList}" />

@@ -23,7 +23,9 @@
 package org.sakaiproject.tool.assessment.ui.bean.author;
 
 import java.io.Serializable;
+import java.text.DateFormat;
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.List;
 
 import javax.faces.model.SelectItem;
@@ -36,10 +38,13 @@ import org.sakaiproject.tool.assessment.data.ifc.assessment.SectionDataIfc;
 import org.sakaiproject.tool.assessment.data.ifc.shared.TypeIfc;
 import org.sakaiproject.tool.assessment.facade.AssessmentFacade;
 import org.sakaiproject.tool.assessment.facade.PublishedAssessmentFacade;
+import org.sakaiproject.tool.assessment.facade.PublishedSectionFacade;
 import org.sakaiproject.tool.assessment.services.assessment.AssessmentService;
+import org.sakaiproject.tool.assessment.services.assessment.PublishedAssessmentService;
 import org.sakaiproject.tool.assessment.services.shared.TypeService;
 import org.sakaiproject.tool.assessment.ui.bean.delivery.ItemContentsBean;
 import org.sakaiproject.tool.assessment.ui.bean.delivery.SectionContentsBean;
+import org.sakaiproject.tool.assessment.ui.listener.util.ContextUtil;
 
 /**
  * @author rshastri
@@ -154,6 +159,9 @@ public class AssessmentBean  implements Serializable {
    this.questionSize = 0;
    this.totalScore = 0;
    int randomPartCount = 0;
+
+   AuthorBean author = (AuthorBean) ContextUtil.lookupBean("author");
+   
    for(int i=0;i<this.sections.size();i++){
       SectionContentsBean sectionBean = (SectionContentsBean) sections.get(i);
       ArrayList items = sectionBean.getItemContents();
@@ -181,7 +189,7 @@ public class AssessmentBean  implements Serializable {
     }
     else {
 	setHasRandomDrawPart(false);
-    }
+    }    
   }
 
   public int updateRandomPoolQuestions(String sectionId){

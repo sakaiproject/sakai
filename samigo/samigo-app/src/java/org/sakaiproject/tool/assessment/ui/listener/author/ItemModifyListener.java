@@ -43,6 +43,7 @@ import org.sakaiproject.tool.assessment.data.ifc.assessment.ItemMetaDataIfc;
 import org.sakaiproject.tool.assessment.data.ifc.assessment.ItemTextIfc;
 import org.sakaiproject.tool.assessment.facade.AgentFacade;
 import org.sakaiproject.tool.assessment.facade.ItemFacade;
+import org.sakaiproject.tool.assessment.facade.PublishedItemFacade;
 import org.sakaiproject.tool.assessment.facade.TypeFacade;
 import org.sakaiproject.tool.assessment.services.GradingService;
 import org.sakaiproject.tool.assessment.services.ItemService;
@@ -654,6 +655,9 @@ public class ItemModifyListener implements ActionListener
 
     Set itemtextSet = itemfacade.getItemMetaDataSet();
     Iterator iter = itemtextSet.iterator();
+    
+    boolean hasSetPartId =  false;
+    
     while (iter.hasNext()){
     	ItemMetaDataIfc meta= (ItemMetaDataIfc) iter.next();
        if (meta.getLabel().equals(ItemMetaDataIfc.OBJECTIVE)){
@@ -730,6 +734,7 @@ public class ItemModifyListener implements ActionListener
 
        // get part id for the item
        if (meta.getLabel().equals(ItemMetaDataIfc.PARTID)){
+    	   hasSetPartId = true;
     	   // Because the PARTID in sam_publisheditemmetadata_t is not correct,
     	   // get it from itemfacade instead
     	   //bean.setSelectedSection(meta.getEntry());
@@ -762,6 +767,12 @@ public class ItemModifyListener implements ActionListener
 
 
      }
+    
+    if (!hasSetPartId && itemfacade != null && itemfacade instanceof PublishedItemFacade &&  
+    	itemfacade.getData()!= null && itemfacade.getData().getSection() != null && 
+    	itemfacade.getData().getSection().getSectionId() != null) {
+    	bean.setSelectedSection(itemfacade.getData().getSection().getSectionId().toString());
+    }
   }
 
 }

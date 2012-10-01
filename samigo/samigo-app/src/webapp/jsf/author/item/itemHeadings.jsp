@@ -123,13 +123,13 @@ document.links[newindex].onclick();
 </h3>
 <!-- CHANGE TYPE -->
 <div class="tier1">
-<div class=" shorttext"><h:outputLabel value="#{authorMessages.change_q_type}" rendered="#{author.isEditPendingAssessmentFlow}"/>
+<div class=" shorttext"><h:outputLabel value="#{authorMessages.change_q_type}" rendered="#{itemauthor.target == 'assessment' && author.isEditPendingAssessmentFlow || (itemauthor.target == 'questionpool' && itemauthor.itemType == '')}"/>
 <%-- todo:
 listener set selectFromQuestionPool, eliminating the rendered attribute
 --%>
 
 <%-- from question pool context, do not show question pool as option --%>
-<h:selectOneMenu rendered="#{(itemauthor.target == 'assessment' && questionpool.importToAuthoring == 'true') || itemauthor.target == 'questionpool'}" onchange="changeTypeLink(this);"
+<h:selectOneMenu rendered="#{(itemauthor.target == 'assessment' && questionpool.importToAuthoring == 'true') || (itemauthor.target == 'questionpool' && itemauthor.itemType == '')}" onchange="changeTypeLink(this);"
   value="#{itemauthor.currentItem.itemType}" required="true" id="changeQType1">
   <f:valueChangeListener
            type="org.sakaiproject.tool.assessment.ui.listener.author.StartCreateItemListener" />
