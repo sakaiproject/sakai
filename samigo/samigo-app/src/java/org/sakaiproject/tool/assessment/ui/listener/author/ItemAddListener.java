@@ -23,6 +23,8 @@
 
 package org.sakaiproject.tool.assessment.ui.listener.author;
 
+import java.text.DateFormat;
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.HashMap;
@@ -814,7 +816,8 @@ public class ItemAddListener
           
           if (author != null && author.getIsEditPoolFlow()) {
               section.getData().setLastModifiedDate(item.getLastModifiedDate());
-              section.addSectionMetaData(SectionDataIfc.QUESTIONS_RANDOM_DRAW_DATE, item.getLastModifiedDate().toString());
+              DateFormat df = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss.SSSZZ");
+              section.addSectionMetaData(SectionDataIfc.QUESTIONS_RANDOM_DRAW_DATE, df.format(item.getLastModifiedDate()));
               assessdelegate.saveOrUpdateSection(section);
           }
           
