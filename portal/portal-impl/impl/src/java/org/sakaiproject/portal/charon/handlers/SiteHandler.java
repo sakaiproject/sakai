@@ -604,7 +604,9 @@ public class SiteHandler extends WorksiteHandler
             	{
 		            String switchRoleUrl = "";
 		            Role userRole = activeSite.getUserRole(session.getUserId()); // the user's role in the site
-		            if (roleswitchvalue != null && !userRole.getId().equals(roleswitchvalue))
+		            //if the userRole is null, this means they are more than likely a Delegated Access user.  Since the security check has already allowed
+		            //the user to "swaproles" @allowroleswap, we know they have access to this site
+		            if (roleswitchvalue != null && (userRole == null || !userRole.getId().equals(roleswitchvalue)))
 		            {
 		            	switchRoleUrl = ServerConfigurationService.getPortalUrl()
 						+ "/role-switch-out/"
