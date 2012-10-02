@@ -2190,6 +2190,12 @@ public class GradebookServiceHibernateImpl extends BaseHibernateManager implemen
   		if(gradeMap != null)
   		{
   			Double rightPercent = gradeMap.getValue(letterGrade);
+  			//there could be no value in the grademap -SAK-22709
+  			if (rightPercent == null)
+  			{
+  				log.warn("no value found in grademap for: " + letterGrade);
+  				return null;
+  			}
   			BigDecimal rightPercentBD = new BigDecimal(rightPercent);
   			BigDecimal pointPossibleBD = new BigDecimal(pointPossible);
   			
