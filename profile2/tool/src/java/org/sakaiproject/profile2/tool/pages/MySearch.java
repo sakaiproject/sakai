@@ -123,6 +123,7 @@ public class MySearch extends BasePage {
         searchForm.add(new Label("searchLabel", new ResourceModel("text.search.terms")));
         searchField = new TextField<String>("searchField", new PropertyModel<String>(searchStringModel, "string"));
         searchField.setRequired(true);
+        searchField.setMarkupId("searchinput");
         searchField.setOutputMarkupId(true);
         searchForm.add(searchField);
         searchForm.add(new IconWithClueTip("searchToolTip", ProfileConstants.INFO_IMAGE, new ResourceModel("text.search.terms.tooltip")));
@@ -133,9 +134,13 @@ public class MySearch extends BasePage {
 		searchTypeRadioGroup.setOutputMarkupId(true);
 		searchTypeRadioGroup.setRenderBodyOnly(false);
 		Radio<String> searchTypeRadioName = new Radio<String>("searchTypeName", new Model<String>(ProfileConstants.SEARCH_TYPE_NAME));
+		searchTypeRadioName.setMarkupId("searchtypenameinput");
+        searchTypeRadioName.setOutputMarkupId(true);
 		searchTypeRadioName.add(new AttributeModifier("title", true, new ResourceModel("text.search.byname.tooltip")));
 		searchTypeRadioGroup.add(searchTypeRadioName);
 		Radio<String> searchTypeRadioInterest = new Radio<String>("searchTypeInterest", new Model<String>(ProfileConstants.SEARCH_TYPE_INTEREST));
+		searchTypeRadioInterest.setMarkupId("searchtypeinterestinput");
+        searchTypeRadioInterest.setOutputMarkupId(true);
 		searchTypeRadioInterest.add(new AttributeModifier("title", true, new ResourceModel("text.search.byinterest.tooltip")));
 		searchTypeRadioGroup.add(searchTypeRadioInterest);
 		searchTypeRadioGroup.add(new Label("searchTypeNameLabel", new ResourceModel("text.search.byname")));
@@ -145,6 +150,7 @@ public class MySearch extends BasePage {
 		searchForm.add(new Label("connectionsLabel", new ResourceModel("text.search.include.connections")));
 		// model is true (include connections by default)
 		connectionsCheckBox = new CheckBox("connectionsCheckBox", new Model<Boolean>(true));
+		connectionsCheckBox.setMarkupId("incudeconnectionsinput");
 		connectionsCheckBox.setOutputMarkupId(true);
 		searchForm.add(connectionsCheckBox);
 				
@@ -154,6 +160,7 @@ public class MySearch extends BasePage {
 		searchForm.add(new Label("worksiteLabel", new ResourceModel("text.search.include.worksite")));
 		// model is false (include all worksites by default)
 		worksiteCheckBox = new CheckBox("worksiteCheckBox", new Model<Boolean>(false));
+		worksiteCheckBox.setMarkupId("limittositeinput");
 		worksiteCheckBox.setOutputMarkupId(true);
 		worksiteCheckBox.setEnabled(hasWorksites);
 		searchForm.add(worksiteCheckBox);
@@ -183,6 +190,7 @@ public class MySearch extends BasePage {
 		};
 		
 		worksiteChoice = new DropDownChoice("worksiteChoice", defaultWorksiteIdModel, worksitesModel, new HashMapChoiceRenderer(worksiteMap));
+		worksiteChoice.setMarkupId("worksiteselect");
 		worksiteChoice.setOutputMarkupId(true);
 		worksiteChoice.setNullValid(false);
 		worksiteChoice.setEnabled(hasWorksites);
