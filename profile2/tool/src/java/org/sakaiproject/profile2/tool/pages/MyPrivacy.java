@@ -135,6 +135,7 @@ public class MyPrivacy extends BasePage {
 		WebMarkupContainer profileImageContainer = new WebMarkupContainer("profileImageContainer");
 		profileImageContainer.add(new Label("profileImageLabel", new ResourceModel("privacy.profileimage")));
 		DropDownChoice profileImageChoice = new DropDownChoice("profileImage", dropDownModelRelaxed, new HashMapChoiceRenderer(privacySettingsRelaxed));             
+		profileImageChoice.setMarkupId("imageprivacyinput");
 		profileImageChoice.setOutputMarkupId(true);
 		profileImageContainer.add(profileImageChoice);
 		//tooltip
@@ -153,6 +154,7 @@ public class MyPrivacy extends BasePage {
 		WebMarkupContainer basicInfoContainer = new WebMarkupContainer("basicInfoContainer");
 		basicInfoContainer.add(new Label("basicInfoLabel", new ResourceModel("privacy.basicinfo")));
 		DropDownChoice basicInfoChoice = new DropDownChoice("basicInfo", dropDownModelStrict, new HashMapChoiceRenderer(privacySettingsStrict));
+		basicInfoChoice.setMarkupId("basicinfoprivacyinput");
 		basicInfoChoice.setOutputMarkupId(true);
 		basicInfoContainer.add(basicInfoChoice);
 		//tooltip
@@ -169,6 +171,7 @@ public class MyPrivacy extends BasePage {
 		WebMarkupContainer contactInfoContainer = new WebMarkupContainer("contactInfoContainer");
 		contactInfoContainer.add(new Label("contactInfoLabel", new ResourceModel("privacy.contactinfo")));
 		DropDownChoice contactInfoChoice = new DropDownChoice("contactInfo", dropDownModelStrict, new HashMapChoiceRenderer(privacySettingsStrict));
+		contactInfoChoice.setMarkupId("contactinfoprivacyinput");
 		contactInfoChoice.setOutputMarkupId(true);
 		contactInfoContainer.add(contactInfoChoice);
 		//tooltip
@@ -185,6 +188,7 @@ public class MyPrivacy extends BasePage {
 		WebMarkupContainer staffInfoContainer = new WebMarkupContainer("staffInfoContainer");
 		staffInfoContainer.add(new Label("staffInfoLabel", new ResourceModel("privacy.staffinfo")));
 		DropDownChoice staffInfoChoice = new DropDownChoice("staffInfo", dropDownModelStrict, new HashMapChoiceRenderer(privacySettingsStrict));
+		staffInfoChoice.setMarkupId("staffinfoprivacyinput");
 		staffInfoChoice.setOutputMarkupId(true);
 		staffInfoContainer.add(staffInfoChoice);
 		//tooltip
@@ -201,6 +205,7 @@ public class MyPrivacy extends BasePage {
 		WebMarkupContainer studentInfoContainer = new WebMarkupContainer("studentInfoContainer");
 		studentInfoContainer.add(new Label("studentInfoLabel", new ResourceModel("privacy.studentinfo")));
 		DropDownChoice studentInfoChoice = new DropDownChoice("studentInfo", dropDownModelStrict, new HashMapChoiceRenderer(privacySettingsStrict));
+		studentInfoChoice.setMarkupId("studentinfoprivacyinput");
 		studentInfoChoice.setOutputMarkupId(true);
 		studentInfoContainer.add(studentInfoChoice);
 		//tooltip
@@ -217,6 +222,7 @@ public class MyPrivacy extends BasePage {
 		WebMarkupContainer businessInfoContainer = new WebMarkupContainer("businessInfoContainer");
 		businessInfoContainer.add(new Label("businessInfoLabel", new ResourceModel("privacy.businessinfo")));
 		DropDownChoice businessInfoChoice = new DropDownChoice("businessInfo", dropDownModelStrict, new HashMapChoiceRenderer(privacySettingsStrict));
+		businessInfoChoice.setMarkupId("businessinfoprivacyinput");
 		businessInfoChoice.setOutputMarkupId(true);
 		businessInfoContainer.add(businessInfoChoice);
 		//tooltip
@@ -235,6 +241,7 @@ public class MyPrivacy extends BasePage {
 		WebMarkupContainer socialNetworkingInfoContainer = new WebMarkupContainer("socialNetworkingInfoContainer");
 		socialNetworkingInfoContainer.add(new Label("socialNetworkingInfoLabel", new ResourceModel("privacy.socialinfo")));
 		DropDownChoice socialNetworkingInfoChoice = new DropDownChoice("socialNetworkingInfo", dropDownModelStrict, new HashMapChoiceRenderer(privacySettingsStrict));
+		socialNetworkingInfoChoice.setMarkupId("socialinfoprivacyinput");
 		socialNetworkingInfoChoice.setOutputMarkupId(true);
 		socialNetworkingInfoContainer.add(socialNetworkingInfoChoice);
 		//tooltip
@@ -252,6 +259,7 @@ public class MyPrivacy extends BasePage {
 		WebMarkupContainer personalInfoContainer = new WebMarkupContainer("personalInfoContainer");
 		personalInfoContainer.add(new Label("personalInfoLabel", new ResourceModel("privacy.personalinfo")));
 		DropDownChoice personalInfoChoice = new DropDownChoice("personalInfo", dropDownModelStrict, new HashMapChoiceRenderer(privacySettingsStrict));
+		personalInfoChoice.setMarkupId("personalinfoprivacyinput");
 		personalInfoChoice.setOutputMarkupId(true);
 		personalInfoContainer.add(personalInfoChoice);
 		//tooltip
@@ -268,6 +276,7 @@ public class MyPrivacy extends BasePage {
 		WebMarkupContainer birthYearContainer = new WebMarkupContainer("birthYearContainer");
 		birthYearContainer.add(new Label("birthYearLabel", new ResourceModel("privacy.birthyear")));
 		CheckBox birthYearCheckbox = new CheckBox("birthYear", new PropertyModel(privacyModel, "showBirthYear"));
+		birthYearCheckbox.setMarkupId("birthyearprivacyinput");
 		birthYearCheckbox.setOutputMarkupId(true);
 		birthYearContainer.add(birthYearCheckbox);
 		//tooltip
@@ -284,6 +293,7 @@ public class MyPrivacy extends BasePage {
 		WebMarkupContainer myFriendsContainer = new WebMarkupContainer("myFriendsContainer");
 		myFriendsContainer.add(new Label("myFriendsLabel", new ResourceModel("privacy.myfriends")));
 		DropDownChoice myFriendsChoice = new DropDownChoice("myFriends", dropDownModelStrict, new HashMapChoiceRenderer(privacySettingsStrict));
+		myFriendsChoice.setMarkupId("friendsprivacyinput");
 		myFriendsChoice.setOutputMarkupId(true);
 		myFriendsContainer.add(myFriendsChoice);
 		//tooltip
@@ -300,6 +310,7 @@ public class MyPrivacy extends BasePage {
 		WebMarkupContainer myStatusContainer = new WebMarkupContainer("myStatusContainer");
 		myStatusContainer.add(new Label("myStatusLabel", new ResourceModel("privacy.mystatus")));
 		DropDownChoice myStatusChoice = new DropDownChoice("myStatus", dropDownModelRelaxed, new HashMapChoiceRenderer(privacySettingsRelaxed));
+		myStatusChoice.setMarkupId("statusprivacyinput");
 		myStatusChoice.setOutputMarkupId(true);
 		myStatusContainer.add(myStatusChoice);
 		//tooltip
@@ -316,6 +327,7 @@ public class MyPrivacy extends BasePage {
 		WebMarkupContainer myPicturesContainer = new WebMarkupContainer("myPicturesContainer");
 		myPicturesContainer.add(new Label("myPicturesLabel", new ResourceModel("privacy.mypictures")));
 		DropDownChoice myPicturesChoice = new DropDownChoice("myPictures", dropDownModelRelaxed, new HashMapChoiceRenderer(privacySettingsRelaxed));             
+		myPicturesChoice.setMarkupId("picturesprivacyinput");
 		myPicturesChoice.setOutputMarkupId(true);
 		myPicturesContainer.add(myPicturesChoice);
 		myPicturesContainer.add(new IconWithClueTip("myPicturesToolTip", ProfileConstants.INFO_IMAGE, new ResourceModel("text.privacy.mypictures.tooltip")));
@@ -333,6 +345,7 @@ public class MyPrivacy extends BasePage {
 		WebMarkupContainer messagesContainer = new WebMarkupContainer("messagesContainer");
 		messagesContainer.add(new Label("messagesLabel", new ResourceModel("privacy.messages")));
 		DropDownChoice messagesChoice = new DropDownChoice("messages", dropDownModelSuperStrict, new HashMapChoiceRenderer(privacySettingsSuperStrict));             
+		messagesChoice.setMarkupId("messagesprivacyinput");
 		messagesChoice.setOutputMarkupId(true);
 		messagesContainer.add(messagesChoice);
 		messagesContainer.add(new IconWithClueTip("messagesToolTip", ProfileConstants.INFO_IMAGE, new ResourceModel("text.privacy.messages.tooltip")));
@@ -348,6 +361,7 @@ public class MyPrivacy extends BasePage {
 		WebMarkupContainer myKudosContainer = new WebMarkupContainer("myKudosContainer");
 		myKudosContainer.add(new Label("myKudosLabel", new ResourceModel("privacy.mykudos")));
 		DropDownChoice kudosChoice = new DropDownChoice("myKudos", dropDownModelRelaxed, new HashMapChoiceRenderer(privacySettingsRelaxed));             
+		kudosChoice.setMarkupId("kudosprivacyinput");
 		kudosChoice.setOutputMarkupId(true);
 		myKudosContainer.add(kudosChoice);
 		myKudosContainer.add(new IconWithClueTip("myKudosToolTip", ProfileConstants.INFO_IMAGE, new ResourceModel("text.privacy.mykudos.tooltip")));
@@ -363,6 +377,7 @@ public class MyPrivacy extends BasePage {
 		WebMarkupContainer myWallContainer = new WebMarkupContainer("myWallContainer");
 		myWallContainer.add(new Label("myWallLabel", new ResourceModel("privacy.mywall")));
 		DropDownChoice myWallChoice = new DropDownChoice("myWall", dropDownModelRelaxed, new HashMapChoiceRenderer(privacySettingsRelaxed));             
+		myWallChoice.setMarkupId("wallprivacyinput");
 		myWallChoice.setOutputMarkupId(true);
 		myWallContainer.add(myWallChoice);
 		myWallContainer.add(new IconWithClueTip("myWallToolTip", ProfileConstants.INFO_IMAGE, new ResourceModel("text.privacy.mywall.tooltip")));
@@ -380,6 +395,7 @@ public class MyPrivacy extends BasePage {
 		WebMarkupContainer onlineStatusContainer = new WebMarkupContainer("onlineStatusContainer");
 		onlineStatusContainer.add(new Label("onlineStatusLabel", new ResourceModel("privacy.onlinestatus")));
 		DropDownChoice onlineStatusChoice = new DropDownChoice("onlineStatus", dropDownModelRelaxed, new HashMapChoiceRenderer(privacySettingsRelaxed));             
+		onlineStatusChoice.setMarkupId("onlinestatusprivacyinput");
 		onlineStatusChoice.setOutputMarkupId(true);
 		onlineStatusContainer.add(onlineStatusChoice);
 		onlineStatusContainer.add(new IconWithClueTip("onlineStatusToolTip", ProfileConstants.INFO_IMAGE, new ResourceModel("text.privacy.onlinestatus.tooltip")));

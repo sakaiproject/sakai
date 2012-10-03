@@ -90,6 +90,7 @@ public class TwitterPrefsPane extends Panel {
 		
 		//auth code
 		final TextField<String> twitterAuthCode = new TextField<String>("twitterAuthCode", new PropertyModel<String>(twitterModel, "string"));        
+		twitterAuthCode.setMarkupId("twitterauthcodeinput");
 		twitterAuthCode.setOutputMarkupId(true);
 		twitterAuthCode.setEnabled(false);
 		twitterForm.add(twitterAuthCode);
