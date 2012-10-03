@@ -14,6 +14,7 @@ import org.sakaiproject.delegatedaccess.model.NodeModel;
 import org.sakaiproject.delegatedaccess.tool.pages.EditablePanelAdvancedOptions;
 import org.sakaiproject.delegatedaccess.tool.pages.EditablePanelAdvancedOptionsText;
 import org.sakaiproject.delegatedaccess.tool.pages.EditablePanelEmpty;
+import org.sakaiproject.delegatedaccess.util.DelegatedAccessConstants;
 
 public class PropertyEditableColumnAdvancedOptions extends PropertyRenderableColumn{
 
@@ -34,6 +35,12 @@ public class PropertyEditableColumnAdvancedOptions extends PropertyRenderableCol
 			return new EditablePanelEmpty(id);
 		}
 
+		if(DelegatedAccessConstants.TYPE_ACCESS_SHOPPING_PERIOD_USER == userType){
+			if(!((NodeModel) ((DefaultMutableTreeNode) node).getUserObject()).getNodeShoppingPeriodAdmin()){
+				return new EditablePanelEmpty(id);
+			}
+		}
+		
 		if(((NodeModel) ((DefaultMutableTreeNode) node).getUserObject()).isDirectAccess()){
 			return new EditablePanelAdvancedOptions(id, new PropertyModel(node, getPropertyExpression()), (NodeModel) ((DefaultMutableTreeNode) node).getUserObject(), node, userType);
 		}else{

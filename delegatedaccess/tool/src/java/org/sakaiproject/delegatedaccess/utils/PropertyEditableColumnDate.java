@@ -14,6 +14,7 @@ import org.sakaiproject.delegatedaccess.model.NodeModel;
 import org.sakaiproject.delegatedaccess.tool.pages.EditablePanelDate;
 import org.sakaiproject.delegatedaccess.tool.pages.EditablePanelDateText;
 import org.sakaiproject.delegatedaccess.tool.pages.EditablePanelEmpty;
+import org.sakaiproject.delegatedaccess.util.DelegatedAccessConstants;
 
 public class PropertyEditableColumnDate extends PropertyRenderableColumn
 {
@@ -32,6 +33,10 @@ public class PropertyEditableColumnDate extends PropertyRenderableColumn
 	public Component newCell(MarkupContainer parent, String id, TreeNode node, int level)
 	{
 		if(!((NodeModel) ((DefaultMutableTreeNode) node).getUserObject()).isNodeEditable()){
+			return new EditablePanelEmpty(id);
+		}
+		
+		if(!((NodeModel) ((DefaultMutableTreeNode) node).getUserObject()).getNodeShoppingPeriodAdmin()){
 			return new EditablePanelEmpty(id);
 		}
 		

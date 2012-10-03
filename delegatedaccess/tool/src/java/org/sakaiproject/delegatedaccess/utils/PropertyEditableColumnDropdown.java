@@ -17,6 +17,7 @@ import org.sakaiproject.delegatedaccess.model.NodeModel;
 import org.sakaiproject.delegatedaccess.tool.pages.EditablePanelDropdown;
 import org.sakaiproject.delegatedaccess.tool.pages.EditablePanelDropdownText;
 import org.sakaiproject.delegatedaccess.tool.pages.EditablePanelEmpty;
+import org.sakaiproject.delegatedaccess.util.DelegatedAccessConstants;
 
 /**
  * Column renderer for the dropdown column (role)
@@ -46,6 +47,12 @@ public class PropertyEditableColumnDropdown extends PropertyRenderableColumn
 	{
 		if(!((NodeModel) ((DefaultMutableTreeNode) node).getUserObject()).isNodeEditable()){
 			return new EditablePanelEmpty(id);
+		}
+		
+		if(DelegatedAccessConstants.TYPE_ACCESS_SHOPPING_PERIOD_USER == type){
+			if(!((NodeModel) ((DefaultMutableTreeNode) node).getUserObject()).getNodeShoppingPeriodAdmin()){
+				return new EditablePanelEmpty(id);
+			}
 		}
 		
 		if(((NodeModel) ((DefaultMutableTreeNode) node).getUserObject()).isDirectAccess()){

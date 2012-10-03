@@ -13,6 +13,7 @@ import org.apache.wicket.model.PropertyModel;
 import org.sakaiproject.delegatedaccess.model.NodeModel;
 import org.sakaiproject.delegatedaccess.tool.pages.EditablePanelCheckbox;
 import org.sakaiproject.delegatedaccess.tool.pages.EditablePanelEmpty;
+import org.sakaiproject.delegatedaccess.util.DelegatedAccessConstants;
 
 /**
  * Column Renderer for the checkbox colummn
@@ -37,6 +38,12 @@ public class PropertyEditableColumnCheckbox extends PropertyRenderableColumn
 	{
 		if(!((NodeModel) ((DefaultMutableTreeNode) node).getUserObject()).isNodeEditable()){
 			return new EditablePanelEmpty(id);
+		}
+
+		if(DelegatedAccessConstants.TYPE_ACCESS_SHOPPING_PERIOD_USER == type){
+			if(!((NodeModel) ((DefaultMutableTreeNode) node).getUserObject()).getNodeShoppingPeriodAdmin()){
+				return new EditablePanelEmpty(id);
+			}
 		}
 		
 		return new EditablePanelCheckbox(id, new PropertyModel(node, getPropertyExpression()), (NodeModel) ((DefaultMutableTreeNode) node).getUserObject(), node, type);
