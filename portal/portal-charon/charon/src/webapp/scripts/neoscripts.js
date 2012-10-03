@@ -548,7 +548,7 @@ var setupToolToggle = function(toggleClass){
 }
 
 function publishSite(siteId) { 
-    var reqUrl = '/direct/batch?_refs=/direct/site/'+siteId+'/edit&_method=PUT'; 
+    var reqUrl = '/direct/site/'+siteId+"/edit"; 
     var resp = $.ajax({ 
       type: 'POST', 
       data: 'published=true', 
