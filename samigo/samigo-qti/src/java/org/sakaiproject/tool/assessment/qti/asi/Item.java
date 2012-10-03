@@ -208,6 +208,13 @@ public class Item extends ASIBaseClass
     	setFieldentry("MCMS_PARTIAL_CREDIT", item.getItemMetaDataByLabel(ItemMetaDataIfc.MCMS_PARTIAL_CREDIT ));
     }
     
+    if (this.isMXSURVEY()) {
+    	setFieldentry("FORCE_RANKING", item.getItemMetaDataByLabel(ItemMetaDataIfc.FORCE_RANKING));
+    	setFieldentry("ADD_COMMENT_MATRIX", item.getItemMetaDataByLabel(ItemMetaDataIfc.ADD_COMMENT_MATRIX));
+    	setFieldentry("MX_SURVEY_QUESTION_COMMENTFIELD", item.getItemMetaDataByLabel(ItemMetaDataIfc.MX_SURVEY_QUESTION_COMMENTFIELD));
+    	setFieldentry("MX_SURVEY_RELATIVE_WIDTH", item.getItemMetaDataByLabel(ItemMetaDataIfc.MX_SURVEY_RELATIVE_WIDTH));
+    }
+    
     String instruction = item.getInstruction();
     if (this.isMatching() || this.isFIB() || this.isFIN() || this.isMXSURVEY() || this.isCalculatedQuestion())
     {

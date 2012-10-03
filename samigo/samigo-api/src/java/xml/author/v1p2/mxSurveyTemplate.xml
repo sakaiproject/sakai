@@ -28,6 +28,22 @@
         <fieldlabel>ATTACHMENT</fieldlabel>
         <fieldentry/>
       </qtimetadatafield>
+      <qtimetadatafield>
+        <fieldlabel>FORCE_RANKING</fieldlabel>
+        <fieldentry>false</fieldentry>
+      </qtimetadatafield>
+      <qtimetadatafield>
+        <fieldlabel>ADD_COMMENT_MATRIX</fieldlabel>
+        <fieldentry>false</fieldentry>
+      </qtimetadatafield>
+      <qtimetadatafield>
+        <fieldlabel>MX_SURVEY_QUESTION_COMMENTFIELD</fieldlabel>
+        <fieldentry>200 character limit</fieldentry>
+      </qtimetadatafield>
+      <qtimetadatafield>
+        <fieldlabel>MX_SURVEY_RELATIVE_WIDTH</fieldlabel>
+        <fieldentry>0</fieldentry>
+      </qtimetadatafield>
     </qtimetadata>
   </itemmetadata>
   <rubric>
