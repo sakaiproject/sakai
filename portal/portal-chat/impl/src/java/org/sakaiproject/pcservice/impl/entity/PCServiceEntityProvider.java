@@ -93,8 +93,12 @@ public class PCServiceEntityProvider extends ReceiverAdapter implements EntityPr
     /* A mapping of a list of messages onto the user id they are intended for */
 	private Map<String, List<UserMessage>> messageMap = new HashMap<String,List<UserMessage>>();
 	
-    /* A mapping of timestamps onto the user id that sent the heartbeat */
-	private Map<String,Date> heartbeatMap = new ConcurrentHashMap<String,Date>(500,0.75F,32);
+    /*
+     *  A mapping of timestamps onto the user id that sent the heartbeat. The initial capacity should be set
+     *  to the number of app servers in your cluster times the max number of threads per app server. This is
+     *  configurable in sakai.properties as portalchat.heartbeatmap.size.
+     */
+	private Map<String,Date> heartbeatMap;
 
     /* JGroups channel for keeping the above maps in sync across nodes in a Sakai cluster */
     private Channel clusterChannel = null;
@@ -148,6 +152,9 @@ public class PCServiceEntityProvider extends ReceiverAdapter implements EntityPr
         } catch (Exception e) {
             logger.error("Error creating JGroups channel. Chat messages will now NOT BE KEPT IN SYNC", e);
         }
+        
+        int heartbeatMapSize = serverConfigurationService.getInt("portalchat.heartbeatmap.size",1000);
+        heartbeatMap = new ConcurrentHashMap<String,Date>(heartbeatMapSize,0.75F,64);
 
         // SAK-20565. Get handles on the profile2 connections methods if available. If not, unset the connectionsAvailable flag.
         ComponentManager componentManager = org.sakaiproject.component.cover.ComponentManager.getInstance();
@@ -196,7 +203,9 @@ public class PCServiceEntityProvider extends ReceiverAdapter implements EntityPr
     }
     
     public void destroy() {
-    	System.out.println("DESTROY!!!!!");
+    	
+    	if(logger.isDebugEnabled()) logger.debug("DESTROY!!!!!");
+    	
     	if(clusterChannel != null && clusterChannel.isConnected()) {
     		// This calls disconnect() first
     		clusterChannel.close();
@@ -321,6 +330,8 @@ public class PCServiceEntityProvider extends ReceiverAdapter implements EntityPr
      */
 	@EntityCustomAction(action = "latestData", viewKey = EntityView.VIEW_SHOW)
 	public Map<String,Object> handleLatestData(EntityReference ref, Map<String,Object> params) {
+		
+		if(logger.isDebugEnabled()) logger.debug("handleLatestData");
 
 		User currentUser = userDirectoryService.getCurrentUser();
 		User anon = userDirectoryService.getAnonymousUser();
@@ -331,24 +342,37 @@ public class PCServiceEntityProvider extends ReceiverAdapter implements EntityPr
 		
 		String online = (String) params.get("online");
 		
-		if("true".equals(online)) {
+		if(logger.isDebugEnabled()) logger.debug("online: " + online);
+		
+		if(online != null && "true".equals(online)) {
+			
+			if(logger.isDebugEnabled()) logger.debug(currentUser.getEid() + " is online. Stamping their heartbeat ...");
+			
 			heartbeatMap.put(currentUser.getId(),new Date());
 
             if(clustered) {
+            	
+            	if(logger.isDebugEnabled()) logger.debug("We are clustered. Propagating heartbeat ...");
+            	
                 Message msg = new Message(null, null, HEARTBEAT_PREAMBLE + currentUser.getId());
                 try {
                     clusterChannel.send(msg);
+                    if(logger.isDebugEnabled()) logger.debug("Heartbeat message sent.");
                 } catch (Exception e) {
                     logger.error("Error sending JGroups heartbeat message", e);
                 }
             }
 		}
 		else {
+			
+			if(logger.isDebugEnabled()) logger.debug(currentUser.getEid() + " is offline. Removing them from the message map ...");
 			synchronized(messageMap) {
 				messageMap.remove(currentUser.getId());
 			}
 
             sendClearMessage(currentUser.getId());
+			
+			if(logger.isDebugEnabled()) logger.debug(currentUser.getEid() + " is offline. Returning an empty data map ...");
 			
 			return new HashMap<String,Object>(0);
 		}
@@ -356,6 +380,8 @@ public class PCServiceEntityProvider extends ReceiverAdapter implements EntityPr
 		List<PortalChatUser> presentUsers = new ArrayList<PortalChatUser>();
 
 		String siteId = (String) params.get("siteId");
+		
+		if(logger.isDebugEnabled()) logger.debug("Site ID: " +  siteId);
 
         if(siteId != null && siteId.length() > 0) {
 			// A site id has been specified, so we refresh our presence at the 
@@ -415,7 +441,9 @@ public class PCServiceEntityProvider extends ReceiverAdapter implements EntityPr
 		
 		synchronized(messageMap) {
 			if(messageMap.containsKey(currentUserId)) {
+				// Grab the user's messages
 				messages = messageMap.get(currentUserId);
+				// Now we can reset the replicated map.
 				messageMap.remove(currentUserId);
 			}
 
@@ -437,6 +465,9 @@ public class PCServiceEntityProvider extends ReceiverAdapter implements EntityPr
     private void sendClearMessage(String userId) {
         if(clustered) {
             try {
+            	
+            	if(logger.isDebugEnabled()) logger.debug("Sending messagMap clear message for " + userId + " ...");
+            	
                 Message msg = new Message(null, null, CLEAR_PREAMBLE + userId);
                 clusterChannel.send(msg);
             } catch (Exception e) {

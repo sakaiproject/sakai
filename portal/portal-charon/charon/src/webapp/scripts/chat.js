@@ -501,9 +501,11 @@ function PortalChat() {
         var match = /site\/([\w-]*)/.exec(url);
         var siteId = '';
         if(match && match.length == 2) siteId = match[1];
+        
+        var onlineString = portalChat.offline ? 'false' : 'true';
 
 		jQuery.ajax({
-			url : '/direct/portal-chat/' + portal.user.id + '/latestData.json?auto=true&siteId=' + siteId + '&online=' + !portalChat.offline,
+			url : '/direct/portal-chat/' + portal.user.id + '/latestData.json?auto=true&siteId=' + siteId + '&online=' + onlineString,
 			dataType : "json",
 			cache: false,
 			success : function (data,status) {
