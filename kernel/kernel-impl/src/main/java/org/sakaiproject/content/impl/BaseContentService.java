@@ -4885,6 +4885,8 @@ SiteContentAdvisorProvider, SiteContentAdvisorTypeRegistry, EntityTransferrerRef
 			        ((BaseResourceEdit)edit).setReferenceCopy(thisResource.getId());
 			        // need to manually update the content length or it ends up as 0
 			        ((BaseResourceEdit)edit).setContentLength(thisResource.getContentLength());
+			        // need to manually update the file path or it will be regenerated
+			        ((BaseResourceEdit) edit).m_filePath = ((BaseResourceEdit) thisResource).m_filePath;
 			        referenceCopy = true;
 				} else {
 	                edit.setContent(thisResource.streamContent());
