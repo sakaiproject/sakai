@@ -768,6 +768,14 @@ page estate
 	padding: 3px 3px 3px 2em;
 }
 
+#siteStatusSoftlyDeleted {
+	border: 1px solid #FC3;
+	padding: 24px 5px 5px 5px;
+	background-color: #FFF9E6;
+	background: url('/library/image/silk/error.png') center 5px no-repeat #FFF9E6;
+	text-align: left;
+}
+
 /*wrapper for all elements of presence display */
 #presenceWrapper{
 	width: 100%;
