@@ -1402,6 +1402,7 @@ public class SiteAction extends PagedResourceActionII {
 			context.put("portalUrl", portalUrl);
 
 			List sites = prepPage(state);
+			
 			state.setAttribute(STATE_SITES, sites);
 			context.put("sites", sites);
 
@@ -1699,6 +1700,13 @@ public class SiteAction extends PagedResourceActionII {
 				}
 			}
 			context.put("removals", remove);
+			
+			//check if soft deletes are activated
+			if(ServerConfigurationService.getBoolean("site.soft.deletion", false)) {
+				context.put("softDelete", true);
+			}
+
+			
 			return (String) getContext(data).get("template") + TEMPLATE[8];
 		case 10:
 			/*
@@ -4156,7 +4164,7 @@ public class SiteAction extends PagedResourceActionII {
 				sortType = sortAsc ? SortType.PUBLISHED_ASC
 						: SortType.PUBLISHED_DESC;
 			}
-
+			
 			if (SecurityService.isSuperUser()) {
 				// admin-type of user
 				String view = (String) state.getAttribute(STATE_VIEW_SELECTED);
@@ -4396,6 +4404,7 @@ public class SiteAction extends PagedResourceActionII {
 				.getStrings("selectedMembers"))); // Site id's of checked
 		// sites
 		if (!chosenList.isEmpty()) {
+			
 			for (ListIterator i = chosenList.listIterator(); i.hasNext();) {
 				String id = (String) i.next();
 				String site_title = NULL_STRING;
@@ -13120,6 +13129,7 @@ public class SiteAction extends PagedResourceActionII {
 			size = rb.getFormattedMessage("size.bytes", args);
 		}
 		return size;
-	}	
+	}
+	
 }
 
