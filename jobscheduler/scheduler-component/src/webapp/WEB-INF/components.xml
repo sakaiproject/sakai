@@ -173,5 +173,27 @@
 	      </property>
 	   </bean>
 	   -->
+	   
+	<bean id="org.sakaiproject.component.app.scheduler.jobs.SoftSiteDeletionJob"
+		class="org.sakaiproject.component.app.scheduler.jobs.SoftSiteDeletionJob"
+		init-method="init">
+		<property name="serverConfigurationService" ref="org.sakaiproject.component.api.ServerConfigurationService"/>
+		<property name="siteService" ref="org.sakaiproject.site.api.SiteService"/>
+		<property name="securityService" ref="org.sakaiproject.authz.api.SecurityService"/>
+	</bean>
+
+	<bean id="org.sakaiproject.api.app.scheduler.JobBeanWrapper.SoftSiteDeletion"
+		class="org.sakaiproject.component.app.scheduler.jobs.SpringJobBeanWrapper"
+		singleton="true" init-method="init">
+		<property name="beanId">
+			<value>org.sakaiproject.component.app.scheduler.jobs.SoftSiteDeletionJob</value>
+		</property>
+		<property name="jobName">
+			<value>Expunge softly deleted sites</value>
+		</property>
+		<property name="schedulerManager">
+			<ref bean="org.sakaiproject.api.app.scheduler.SchedulerManager" />
+		</property>
+	</bean>
    
 </beans>
