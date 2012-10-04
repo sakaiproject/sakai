@@ -725,6 +725,9 @@ public class PortalSiteHelperImpl implements PortalSiteHelper
 				&& loggedIn));
 		theMap.put("pageNavPresenceUrl", presenceUrl);
 
+		//add softly deleted status
+		theMap.put("softlyDeleted", site.isSoftlyDeleted());
+
 		// Retrieve whether or not we are to put presence in a frame
 		theMap.put("pageNavPresenceIframe", Boolean.valueOf(
 			ServerConfigurationService.getBoolean("display.users.present.iframe", false)) );
