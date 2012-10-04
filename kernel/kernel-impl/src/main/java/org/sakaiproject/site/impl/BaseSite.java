@@ -21,6 +21,7 @@
 
 package org.sakaiproject.site.impl;
 
+import java.util.Calendar;
 import java.util.Collection;
 import java.util.ArrayList;
 import java.util.Date;
@@ -1719,7 +1720,7 @@ public class BaseSite implements Site
 	public void setSoftlyDeleted(boolean flag) {
 		m_isSoftlyDeleted = flag;
 		if(flag) {
-			m_softlyDeletedDate = new Date();
+			m_softlyDeletedDate = new java.sql.Date(Calendar.getInstance().getTimeInMillis());
 		} else {
 			m_softlyDeletedDate = null;
 		}

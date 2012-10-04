@@ -560,7 +560,7 @@ public class SiteServiceSqlDefault implements SiteServiceSql
 	 */
 	public String getSitesWhereSoftlyDeletedOnlySql()
 	{
-		return "SAKAI_SITE.IS_SOFTLY_DELETED = '1'";
+		return "SAKAI_SITE.IS_SOFTLY_DELETED = '1' and ";
 	}
 	
 	/**

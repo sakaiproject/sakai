@@ -233,6 +233,12 @@ public interface SiteService extends EntityProducer
 
 		/** Get any non-user sites. */
 		public static final SelectionType NON_USER = new SelectionType("nonUser", false, true, false, true);
+		
+		/** Get my deleted sites. */
+		public static final SelectionType DELETED = new SelectionType("deleted", true, true, true, false);
+
+		/** Get any deleted sites, normally used by admin or purge job. */
+		public static final SelectionType ANY_DELETED = new SelectionType("anyDeleted", false, false, false, false);
 	}
 
 	/**

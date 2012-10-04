@@ -358,7 +358,7 @@ public interface SiteServiceSql
 	String getSitesWhereSoftlyDeletedOnlySql();
 	
 	/**
-	 * returns the sql statement which is part of the qhere clause to only retrieve sites that are NOT softly deleted
+	 * returns the sql statement which is part of the where clause to only retrieve sites that are NOT softly deleted
 	 * @return
 	 */
 	String getSitesWhereNotSoftlyDeletedSql();
