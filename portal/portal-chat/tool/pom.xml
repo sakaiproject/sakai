@@ -9,10 +9,15 @@
         <relativePath>../../pom.xml</relativePath>
     </parent>
 
-    <name>pcservice-impl</name>
-    <groupId>org.sakaiproject.pcservice</groupId>
-    <artifactId>pcservice-impl</artifactId>
-    <packaging>jar</packaging>
+    <name>sakai-portal chat</name>
+    <groupId>org.sakaiproject.portal</groupId>
+    <artifactId>portal-chat</artifactId>
+    <organization>
+        <name>University of Michigan</name>
+        <url>http://sakaiproject.org/</url>
+    </organization>
+    <inceptionYear>2003</inceptionYear>
+    <packaging>war</packaging>
 
     <repositories>
         <repository>
@@ -47,17 +52,30 @@
             <artifactId>entitybroker-api</artifactId>
         </dependency>
         <dependency>
+            <groupId>org.sakaiproject.entitybroker</groupId>
+            <artifactId>entitybroker-utils</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>org.springframework</groupId>
+            <artifactId>spring</artifactId>
+        </dependency>
+        <dependency>
             <groupId>org.sakaiproject.presence</groupId>
             <artifactId>sakai-presence-api</artifactId>
         </dependency>
         <dependency>
-			<groupId>org.jgroups</groupId>
-			<artifactId>jgroups</artifactId>
-			<version>3.0.10.Final</version>
-		</dependency>
+            <groupId>org.jgroups</groupId>
+            <artifactId>jgroups</artifactId>
+            <version>3.0.10.Final</version>
+        </dependency>
         <dependency>
             <groupId>log4j</groupId>
             <artifactId>log4j</artifactId>
         </dependency>
+        <dependency>
+            <groupId>javax.servlet</groupId>
+            <artifactId>servlet-api</artifactId>
+        </dependency>
     </dependencies>
+
 </project>

@@ -1,6 +1,8 @@
-package org.sakaiproject.pcservice.impl.entity;
+package org.sakaiproject.portal.chat.entity;
 
 import java.io.File;
+import java.io.InputStream;
+import java.io.OutputStream;
 import java.lang.reflect.Method;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -14,6 +16,7 @@ import org.apache.log4j.Logger;
 import org.sakaiproject.component.api.ComponentManager;
 import org.sakaiproject.component.api.ServerConfigurationService;
 import org.sakaiproject.email.api.EmailService;
+import org.sakaiproject.entitybroker.DeveloperHelperService;
 import org.sakaiproject.entitybroker.EntityReference;
 import org.sakaiproject.entitybroker.EntityView;
 import org.sakaiproject.entitybroker.entityprovider.EntityProvider;
@@ -25,6 +28,7 @@ import org.sakaiproject.entitybroker.entityprovider.capabilities.Inputable;
 import org.sakaiproject.entitybroker.entityprovider.capabilities.Outputable;
 import org.sakaiproject.entitybroker.entityprovider.extension.Formats;
 import org.sakaiproject.entitybroker.exception.EntityException;
+import org.sakaiproject.entitybroker.util.AbstractEntityProvider;
 import org.sakaiproject.presence.api.PresenceService;
 import org.sakaiproject.user.api.User;
 import org.sakaiproject.user.api.UserDirectoryService;
@@ -34,7 +38,8 @@ import org.jgroups.Address;
 import org.jgroups.Channel;
 import org.jgroups.JChannel;
 import org.jgroups.Message;
-import org.jgroups.ReceiverAdapter;
+import org.jgroups.Receiver;
+import org.jgroups.View;
 
 /**
  * Provides all the RESTful targets for the portal chat code in chat.js. Clustering
@@ -42,7 +47,7 @@ import org.jgroups.ReceiverAdapter;
  *
  * @author Adrian Fish (a.fish@lancaster.ac.uk)
  */
-public class PCServiceEntityProvider extends ReceiverAdapter implements EntityProvider, Createable, Inputable, Outputable, ActionsExecutable, AutoRegisterEntityProvider {
+public class PCServiceEntityProvider extends AbstractEntityProvider implements Receiver, EntityProvider, Createable, Inputable, Outputable, ActionsExecutable, AutoRegisterEntityProvider {
 
 	protected final Logger logger = Logger.getLogger(getClass());
 	/** messages. */
@@ -90,6 +95,11 @@ public class PCServiceEntityProvider extends ReceiverAdapter implements EntityPr
 		this.serverConfigurationService = serverConfigurationService;
 	}
 	
+	private DeveloperHelperService developerService = null;
+	public void setDeveloperService(DeveloperHelperService developerService) {
+		this.developerService = developerService;
+	}
+	
     /* A mapping of a list of messages onto the user id they are intended for */
 	private Map<String, List<UserMessage>> messageMap = new HashMap<String,List<UserMessage>>();
 	
@@ -111,7 +121,7 @@ public class PCServiceEntityProvider extends ReceiverAdapter implements EntityPr
     private String serverName;
 
     public void init() {
-
+    	
         service = serverConfigurationService.getString("ui.service","Sakai");
 
         portalUrl = serverConfigurationService.getServerUrl() + "/portal";
@@ -500,32 +510,6 @@ public class PCServiceEntityProvider extends ReceiverAdapter implements EntityPr
 	}
 
     /**
-     * JGroups message listener. Overrides ReceiverAdapter.
-     */
-    public void receive(Message msg) {
-        Object o = msg.getObject();
-        if (o instanceof String) {
-            String message = (String) o;
-            if (message.startsWith(HEARTBEAT_PREAMBLE)) {
-                String onlineUserId = message.substring(HEARTBEAT_PREAMBLE.length());
-                heartbeatMap.put(onlineUserId, new Date());
-            } else if (message.startsWith(MESSAGE_PREAMBLE)) {
-                Address address = clusterChannel.getAddress();
-                String[] parts = message.split(":");
-                String from = parts[1];
-                String to = parts[2];
-                String m = parts[3];
-                addMessageToMap(new UserMessage(from, to, m));
-            } else if (message.startsWith(CLEAR_PREAMBLE)) {
-                String userId = message.substring(CLEAR_PREAMBLE.length());
-                synchronized (messageMap) {
-                    messageMap.remove(userId);
-                }
-            }
-        }
-    }
-
-    /**
      * Implements a threadsafe addition to the message map
      */
     private void addMessageToMap(UserMessage m) {
@@ -570,5 +554,49 @@ public class PCServiceEntityProvider extends ReceiverAdapter implements EntityPr
                 logger.error("sendEmail() failed for email: " + email,e);
 			}
 		}
+	}
+	
+    /**
+     * JGroups message listener.
+     */
+    public void receive(Message msg) {
+        Object o = msg.getObject();
+        if (o instanceof String) {
+            String message = (String) o;
+            if (message.startsWith(HEARTBEAT_PREAMBLE)) {
+                String onlineUserId = message.substring(HEARTBEAT_PREAMBLE.length());
+                heartbeatMap.put(onlineUserId, new Date());
+            } else if (message.startsWith(MESSAGE_PREAMBLE)) {
+                Address address = clusterChannel.getAddress();
+                String[] parts = message.split(":");
+                String from = parts[1];
+                String to = parts[2];
+                String m = parts[3];
+                addMessageToMap(new UserMessage(from, to, m));
+            } else if (message.startsWith(CLEAR_PREAMBLE)) {
+                String userId = message.substring(CLEAR_PREAMBLE.length());
+                synchronized (messageMap) {
+                    messageMap.remove(userId);
+                }
+            }
+        }
+    }
+	
+	public void getState(OutputStream arg0) throws Exception {
+	}
+
+	public void setState(InputStream arg0) throws Exception {
+	}
+
+	public void block() {
+	}
+
+	public void suspect(Address arg0) {
+	}
+
+	public void unblock() {
+	}
+
+	public void viewAccepted(View arg0) {
 	}
 }

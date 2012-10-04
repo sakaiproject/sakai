@@ -20,8 +20,7 @@
         <module>portal-api/api</module>
         <module>portal-assembly</module>
         <module>portal-charon/charon</module>
-        <module>portal-chat/impl</module>
-        <module>portal-chat/pack</module>
+        <module>portal-chat/tool</module>
         <module>portal-impl/impl</module>
         <!-- Mercury portal retired as of 2.8, see http://jira.sakaiproject.org/browse/SAK-19001 -->
         <!-- <module>portal-mercury/mercury</module> --> 

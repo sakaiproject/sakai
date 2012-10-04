@@ -1,0 +1,36 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<web-app id="WebApp_9" version="2.4" xmlns="http://java.sun.com/xml/ns/j2ee" 
+    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" 
+    xsi:schemaLocation="http://java.sun.com/xml/ns/j2ee http://java.sun.com/xml/ns/j2ee/web-app_2_4.xsd">
+    <display-name>sakai-portal-chat-loader</display-name>
+    <description>sakai-portal-chat-loader</description>
+    
+    <!--sakai-->
+    <filter>
+        <filter-name>sakai.request</filter-name>
+        <filter-class>org.sakaiproject.util.RequestFilter</filter-class>
+		<init-param>
+			<param-name>http.session</param-name> 
+			<param-value>tool</param-value> 
+		</init-param>        
+    </filter>
+    
+    <servlet>
+        <servlet-name>sakai.portal.chat.loader</servlet-name>
+	    <servlet-class>org.sakaiproject.portal.chat.loader.PortalChatLoader</servlet-class>
+		<load-on-startup>1</load-on-startup>        
+     </servlet>
+
+    <listener>
+        <listener-class>org.sakaiproject.util.ToolListener</listener-class>
+    </listener>  
+    
+  	<listener>
+    	<listener-class>org.sakaiproject.util.ContextLoaderListener</listener-class>
+  	</listener>
+
+	<welcome-file-list>
+	  <welcome-file>loader.html</welcome-file>
+	</welcome-file-list>
+
+</web-app>
