@@ -29,19 +29,25 @@
 	<table class="profileContent">
 		<tr wicket:id="companyNameContainer">
 			<td class="label" wicket:id="companyNameLabel">[companyNameLabel]</td>
-			<td class="content"><input type="text" wicket:id="companyName"
-				class="formInputField" /></td>
+			<td class="content">
+				<label wicket:id="companyNameAccessibilityLabel" class="accessibility-label"></label>
+				<input type="text" wicket:id="companyName" class="formInputField" />
+			</td>
 		</tr>
 		<tr wicket:id="companyWebAddressContainer">
 			<td class="label" wicket:id="companyWebAddressLabel">[companyWebAddressLabel]</td>
-			<td class="content"><input type="text"
-				wicket:id="companyWebAddress" class="formInputField" /><span
-				class="feedbackLabel" wicket:id="companyWebAddressFeedback">[companyWebAddressFeedback]</span></td>
+			<td class="content">
+				<label wicket:id="companyUrlAccessibilityLabel" class="accessibility-label"></label>
+				<input type="text" wicket:id="companyWebAddress" class="formInputField" />
+				<span class="feedbackLabel" wicket:id="companyWebAddressFeedback">[companyWebAddressFeedback]</span>
+			</td>
 		</tr>
 		<tr wicket:id="companyDescriptionContainer">
 			<td class="label" wicket:id="companyDescriptionLabel">[companyDescriptionLabel]</td>
-			<td class="content"><textarea wicket:id="companyDescription"
-				class="formInputArea" rows="4" cols="40"></textarea></td>
+			<td class="content">
+				<label wicket:id="companyDescriptionAccessibilityLabel" class="accessibility-label"></label>
+				<textarea wicket:id="companyDescription" class="formInputArea" rows="4" cols="40"></textarea>
+			</td>
 		</tr>
 	</table>
 </wicket:panel>

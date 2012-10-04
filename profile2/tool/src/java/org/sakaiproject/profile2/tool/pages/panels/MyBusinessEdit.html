@@ -44,8 +44,10 @@
 	<table class="profileContent" wicket:id="businessBiographyContainer">
 		<tr>
 			<td class="label" wicket:id="businessBiographyLabel">[businessBiographyLabel</td>
-			<td class="content"><textarea wicket:id="businessBiography"
-				class="formInputArea" rows="4" cols="40"></textarea></td>
+			<td class="content">
+				<label for="businessbioinput" class="accessibility-label"><wicket:message key="accessibility.profile.businessbio.input"></wicket:message></label>
+				<textarea wicket:id="businessBiography" class="formInputArea" rows="4" cols="40"></textarea>
+			</td>
 		</tr>
 	</table>
 	<!-- company profiles -->	

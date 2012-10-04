@@ -119,6 +119,8 @@ public class MyBusinessEdit extends Panel {
 		TextArea<String> businessBiography = new TextArea<String>(
 				"businessBiography", new PropertyModel<String>(userProfile,
 						"businessBiography"));
+		businessBiography.setMarkupId("businessbioinput");
+		businessBiography.setOutputMarkupId(true);
 		businessBiography.add(new TinyMceBehavior(new TextareaTinyMceSettings()));
 		businessBiographyContainer.add(businessBiography);
 		form.add(businessBiographyContainer);
