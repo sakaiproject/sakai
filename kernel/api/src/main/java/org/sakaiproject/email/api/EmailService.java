@@ -132,7 +132,8 @@ public interface EmailService
 	 *            {@link EmailMessage} that contains the parameters to create a message to the
 	 *            specified recipients.
 	 * @throws AddressValidationException
-	 *             If any recipient addresses are found to be invalid. This is checked when
+	 *             If any addresses are found to be invalid that prevent all the messages from being send.
+	 *             Examples are reply-to address and from address.. This is checked when
 	 *             converting to {@link javax.mail.internet.InternetAddress}.
 	 * @throws NoRecipientsException
 	 * @return {@link java.util.List} of recipients that were found to be invalid per to
