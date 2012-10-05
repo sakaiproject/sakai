@@ -157,6 +157,18 @@
 
 #if ($tabsSites.tabsMoreSitesShow)
 	<div id="selectSite" style="display:none">
+            #if (${tabsSites.worksiteToolUrl})
+                <ul id="otherSitesMenu">
+                    <li><a id="allSites" href="${tabsSites.worksiteToolUrl}?sakai_nav_minimized=true&sakai.state.reset=true"><span>${rloader.sit_allsites}</span></a></li>
+                    <li><a id="newSite" href="${tabsSites.worksiteToolUrl}?sakai_nav_minimized=true&panel=Shortcut&sakai_action=doNew_site&sakai.state.reset=true"><span>${rloader.sit_newsite}</span></a></li>
+                    #if (${tabsSites.prefsToolUrl})
+                        <li><a href="${tabsSites.prefsToolUrl}?sakai_nav_minimized=true"><span>${rloader.sit_preferences}</span></a></li>
+                    #end
+                     <li id="otherSiteCloseW">
+                        <a href="#" onclick="closeDrawer()" title="${rloader.sit_othersitesclose}"><span>X</span><span class="skip">${rloader.sit_othersitesclose}</span></a>
+                    </li>
+                </ul>
+            #end
 		#if ($useDHTMLMore)
 			<div id="otherSitesCategorWrap">
 			### TODO: format well
@@ -202,18 +214,6 @@
       			</ul>
 			</div>
 		#end	
-		#if (${tabsSites.worksiteToolUrl})
-			<ul id="otherSitesMenu">
-				<li><a id="allSites" href="${tabsSites.worksiteToolUrl}?sakai_nav_minimized=true&sakai.state.reset=true"><span>${rloader.sit_allsites}</span></a></li>
-				<li><a id="newSite" href="${tabsSites.worksiteToolUrl}?sakai_nav_minimized=true&panel=Shortcut&sakai_action=doNew_site&sakai.state.reset=true"><span>${rloader.sit_newsite}</span></a></li>
-				#if (${tabsSites.prefsToolUrl})
-					<li><a href="${tabsSites.prefsToolUrl}?sakai_nav_minimized=true"><span>${rloader.sit_preferences}</span></a></li>
-				#end
-	             <li id="otherSiteCloseW">
-                    <a href="#" onclick="closeDrawer()" title="${rloader.sit_othersitesclose}"><span>X</span><span class="skip">${rloader.sit_othersitesclose}</span></a>
-                </li>
-			</ul>
-		#end
 	</div>
 #end
 
