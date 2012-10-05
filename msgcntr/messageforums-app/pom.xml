@@ -75,14 +75,6 @@
 			<artifactId>commons-logging</artifactId>
 		</dependency>
 		<dependency>
-			<groupId>javax.mail</groupId>
-			<artifactId>mail</artifactId>
-		</dependency>
-		<dependency>
-			<groupId>javax.activation</groupId>
-			<artifactId>activation</artifactId>
-		</dependency>
-		<dependency>
 	        <groupId>org.hibernate</groupId>
        		<artifactId>hibernate</artifactId>
      	</dependency>
