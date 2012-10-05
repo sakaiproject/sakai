@@ -12,6 +12,13 @@ var dhtml_view_sites = function(){
         if (jQuery('#selectSite').css('display') == 'none') {
             jQuery('div#selectSite div').show();
             jQuery('div#selectSite').slideDown('fast', function(){
+                // check if $('#otherSiteList li').length > some number, then show search
+                // otherwise not
+                   if(jQuery('div#otherSitesCategorWrap').height() > 300){
+                    $('div#otherSitesCategorWrap').height(300).css({overflow:"auto"});
+                }
+
+
                 jQuery('#txtSearch').focus();
             });
             createDHTMLMask(dhtml_view_sites);
@@ -464,7 +471,8 @@ var setupSiteNav = function(){
     $('.lastMenuItem a').blur(function(e){
         jQuery(this).parents('ul.subnav').slideUp('fast');
     });
-    $('.topnav a').keydown(function(e){
+
+    $('.topnav > li.nav-menu > a').keydown(function(e){
         if (e.keyCode == 40) {
             e.preventDefault();
             jQuery('#selectSite').hide();
