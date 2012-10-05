@@ -191,12 +191,12 @@ public class DelegatedAccessEntityProviderImpl implements DelegatedAccessEntityP
 		
 		//Get Original Settings before we modify it
 		boolean directAccessOrig = node.isDirectAccess();
-		Date startDateOrig = node.getNodeShoppingPeriodStartDate();
-		Date endDateOrig = node.getNodeShoppingPeriodEndDate();
-		String realmOrig = node.getNodeAccessRealmRole()[0];
-		String roleOrig = node.getNodeAccessRealmRole()[1];
-		String[] authToolsOrig = node.getNodeRestrictedAuthTools();
-		String[] publicToolsOrig = node.getNodeRestrictedAuthTools();
+		Date startDateOrig = node.getShoppingPeriodStartDate();
+		Date endDateOrig = node.getShoppingPeriodEndDate();
+		String realmOrig = node.getRealm();
+		String roleOrig = node.getRole();
+		String[] authToolsOrig = node.convertListToArray(node.getSelectedRestrictedAuthTools());
+		String[] publicToolsOrig = node.convertListToArray(node.getSelectedRestrictedPublicTools());
 		//modify the setting to the new settings
 		node.setShoppingPeriodStartDate(shoppingStartDate);
 		node.setShoppingPeriodEndDate(shoppingEndDate);
@@ -212,7 +212,13 @@ public class DelegatedAccessEntityProviderImpl implements DelegatedAccessEntityP
 		if(node.getNodeShoppingPeriodRevokeInstructorPublicOpt()){
 			//since the instructor isn't allowed to edit public options, make sure that the inherritted
 			//options are stored in this node since they could have chosen "override":
-			publicTools = node.convertListToArray(node.getInheritedRestrictedPublicTools());
+			if(directAccessOrig != directAccess){
+				//if direct access is changing from not accessed to access, then just grab the inheritted tools, otherwise, keep what is already saved
+				publicTools = node.convertListToArray(node.getInheritedRestrictedPublicTools());
+			}else{
+				//direct access isn't change, so just keep the existing restricted tools for this node
+				publicTools =  publicToolsOrig;
+			}
 		}
 		if(publicTools != null){
 			for(String toolId : publicTools){
@@ -222,16 +228,22 @@ public class DelegatedAccessEntityProviderImpl implements DelegatedAccessEntityP
 		//user could have checked overrideDirectAccess and changed nothing else
 		node.setDirectAccess(directAccess);
 		//Get new modified settings
-		Date startDateNew = node.getNodeShoppingPeriodStartDate();
-		Date endDateNew = node.getNodeShoppingPeriodEndDate();
-		String realmNew = node.getNodeAccessRealmRole()[0];
-		String roleNew = node.getNodeAccessRealmRole()[1];
-		String[] authToolsNew = node.getNodeRestrictedAuthTools();
-		String[] publicToolsNew = node.getNodeRestrictedAuthTools();
+		Date startDateNew = node.getShoppingPeriodStartDate();
+		Date endDateNew = node.getShoppingPeriodEndDate();
+		String realmNew = node.getRealm();
+		String roleNew = node.getRole();
+		String[] authToolsNew = node.convertListToArray(node.getSelectedRestrictedAuthTools());
+		String[] publicToolsNew = node.convertListToArray(node.getSelectedRestrictedPublicTools());
 		
-		//Set advanced options to what it inherits since instructors can't edit this:
-		node.setShoppingPeriodRevokeInstructorEditable(node.getInheritedShoppingPeriodRevokeInstructorEditable());
-		node.setShoppingPeriodRevokeInstructorPublicOpt(node.getInheritedShoppingPeriodRevokeInstructorPublicOpt());
+		//Set advanced options to what it inherits since instructors can't edit this if this is the first time this node is being selected,
+		//otherwise, keep whatever was assigned to it
+		if(directAccessOrig != directAccess){
+			node.setShoppingPeriodRevokeInstructorEditable(node.getInheritedShoppingPeriodRevokeInstructorEditable());
+			node.setShoppingPeriodRevokeInstructorPublicOpt(node.getInheritedShoppingPeriodRevokeInstructorPublicOpt());
+		}else{
+			node.setShoppingPeriodRevokeInstructorEditable(node.isShoppingPeriodRevokeInstructorEditable());
+			node.setShoppingPeriodRevokeInstructorPublicOpt(node.isShoppingPeriodRevokeInstructorPublicOpt());
+		}
 		
 		//only update if there were true modifications
 		if(directAccessOrig != directAccess || node.isModified(startDateOrig, startDateNew, endDateOrig, endDateNew,
