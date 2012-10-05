@@ -63,6 +63,7 @@ import org.sakaiproject.tool.api.SessionManager;
 import org.sakaiproject.user.api.User;
 import org.sakaiproject.user.cover.UserDirectoryService;
 import org.sakaiproject.component.cover.ServerConfigurationService;             
+import org.sakaiproject.entity.api.ResourceProperties;
 
 import org.sakaiproject.memory.api.Cache;
 import org.sakaiproject.memory.api.CacheRefresher;
@@ -224,10 +225,14 @@ public class AssignmentEntity implements LessonEntity {
 	// security. assume this is only used in places where it's OK, so skip security checks
 	while (i.hasNext()) {
 	    Assignment a = (Assignment) i.next();
-	    AssignmentEntity entity = new AssignmentEntity(TYPE_ASSIGNMENT, a.getId(), 1);
-	    entity.assignment = a;
-	    entity.simplePageBean = bean;
-	    ret.add(entity);
+	    String deleted = a.getProperties().getProperty(ResourceProperties.PROP_ASSIGNMENT_DELETED);
+	    // this somewhat odd test for deleted is the one used in the Assignment code
+	    if ((deleted == null || "".equals(deleted)) && !a.getDraft()) {
+		AssignmentEntity entity = new AssignmentEntity(TYPE_ASSIGNMENT, a.getId(), 1);
+		entity.assignment = a;
+		entity.simplePageBean = bean;
+		ret.add(entity);
+	    }
 	}
 
 	if (nextEntity != null) 

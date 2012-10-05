@@ -297,9 +297,12 @@ public class SamigoEntity implements LessonEntity, QuizEntity {
 	List<LessonEntity> ret = new ArrayList<LessonEntity>();
 	// security. assume this is only used in places where it's OK, so skip security checks
 	for (PublishedAssessmentFacade assessment: plist) {
-	    SamigoEntity entity = new SamigoEntity(TYPE_SAMIGO, assessment.getPublishedAssessmentId(), 1);
-	    entity.assessment = (PublishedAssessmentData)assessment.getData();
-	    ret.add(entity);
+	    SamigoEntity entity = null;
+	    if (assessment.getStatus().equals(AssessmentIfc.ACTIVE_STATUS)) {
+		entity = new SamigoEntity(TYPE_SAMIGO, assessment.getPublishedAssessmentId(), 1);
+		entity.assessment = (PublishedAssessmentData)assessment.getData();
+		ret.add(entity);
+	    }
 
 	    if (false) {  // testing
 		System.out.println(entity.getGroups(true));
