@@ -2433,6 +2433,8 @@ public class SimplePageBean {
          public String getReleaseString(SimplePageItem i) {
 	     if (i.getType() == SimplePageItem.PAGE) {
 		 SimplePage page = getPage(Long.valueOf(i.getSakaiId()));
+		 if (page == null)
+		     return null;
 		 if (page.isHidden())
 		     return messageLocator.getMessage("simplepage.hiddenpage");
 		 if (page.getReleaseDate() != null && page.getReleaseDate().after(new Date()))
