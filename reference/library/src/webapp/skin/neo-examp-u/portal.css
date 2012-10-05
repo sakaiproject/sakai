@@ -487,7 +487,7 @@ li.more-tab a span {
     color: #000;
     left: 10%;
     line-height: 1.5em;
-    padding: 15px 0;
+    padding: 0 0 15px 0;
     position: absolute;
     right: 4px;
     top: 0;
@@ -523,12 +523,9 @@ li.more-tab a span {
     vertical-align: middle
 }
 ul#otherSitesMenu {
-    position: absolute;
-    top: 15px;
-    right: 15px;
+    border-bottom: 1px solid #aaa;
     font-size: .9em;
-    margin: 0;
-    padding: 0;
+    text-align: right;
 }
 /* style the menu for the tray - since the publish site link is the same, doubled up here */ 
 ul#otherSitesMenu li, #siteStatus a {
@@ -571,7 +568,7 @@ ul#otherSitesMenu li, #siteStatus a {
     color: #c00;
 }
 /* the lists in the tray (sites and controls): two types, depending on whether portal.use.dhtml.more=true in sak.props*/
-ul#otherSiteList, ul.otherSitesCategorList {
+ul#otherSiteList {
     list-style: none;
     margin: 5px;
     padding: 0;
@@ -580,6 +577,13 @@ ul#otherSiteList, ul.otherSitesCategorList {
     font-size: .9em;
     max-height: 315px;
     overflow: auto;
+}
+ul.otherSitesCategorList {
+    float:none;
+    clear: both;
+    height:100%;
+    margin:0;
+    overflow:
 }
 /* list of sites in the "More sites" tray (both flat and categorized via s.p. "portal.use.dhtml.more=true" *), since there
  * is a lot of commonalities they are both mixed up here. The flat view container is ul#otherSiteList and the categorized one is
@@ -628,9 +632,9 @@ ul#otherSiteList li a span, ul.otherSitesCategorList li a span {
 }
 /* search elements for flat other sites tray search */
 #otherSiteSearch {
-    padding: 5px;
-    width: 70%;
-    float: left;
+    position: absolute;
+    top: 15px;
+    left:10px;
 }
 #otherSiteSearch span#noSearchResults {
     padding-left: 10px;
