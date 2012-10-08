@@ -315,7 +315,7 @@ function showToolMenu(e){
     var jqObj = $(e.target);
     var classId = jqObj.attr('id');
     // We need to escape special chars, like exclamations, or else jQuery selectors don't work.
-    var id = classId.replace(/!/g,'\\!');
+    var id = classId.replace(/!/g,'\\!').replace(/~/g,'\\~');
     $('.toolMenus').removeClass('toolMenusActive');
     if ($('.' + id).length) {
         $('#otherSiteTools').remove();
