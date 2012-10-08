@@ -25,14 +25,14 @@ alter table SAKAI_SESSION change SESSION_START SESSION_START timestamp;
 alter table SAKAI_SESSION change SESSION_END SESSION_END timestamp;
 alter table SAKAI_EVENT change EVENT_DATE EVENT_DATE timestamp;
 
---SAK-19964 Gradebook drop highest and/or lowest or keep highest score for a student
+-- SAK-19964 Gradebook drop highest and/or lowest or keep highest score for a student
 alter table GB_CATEGORY_T add column DROP_HIGHEST int(11) null;
 update GB_CATEGORY_T set DROP_HIGHEST = 0;
 
 alter table GB_CATEGORY_T add column KEEP_HIGHEST int(11) null;
 update GB_CATEGORY_T set KEEP_HIGHEST = 0;
 
---SAK-19731 - Add ability to hide columns in All Grades View for instructors
+-- SAK-19731 - Add ability to hide columns in All Grades View for instructors
 alter table GB_GRADABLE_OBJECT_T add column (HIDE_IN_ALL_GRADES_TABLE bit default false);
 update GB_GRADABLE_OBJECT_T set HIDE_IN_ALL_GRADES_TABLE = 0 where HIDE_IN_ALL_GRADES_TABLE is null;
 
