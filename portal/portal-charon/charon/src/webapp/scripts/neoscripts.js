@@ -403,16 +403,17 @@ jQuery(document).ready(function(){
             resetSearch();
         }
         if (jQuery('#txtSearch').val().length > 0) {
-            jQuery('#otherSiteList li').hide();
-            //jQuery('#otherSiteList li:first').show();
+            jQuery('#otherSiteList li, .otherSitesCategorList li').hide();
+            jQuery('#otherSitesCategorWrap h4').hide();
             jQuery('#otherSiteList li a span.fullTitle:Contains(\'' + jQuery('#txtSearch').val() + '\')').parent('a').parent('li').show();
+            jQuery('.otherSitesCategorList li a span.fullTitle:Contains(\'' + jQuery('#txtSearch').val() + '\')').parent('a').parent('li').show().closest('ul').prev('h4').show();
             jQuery('#imgSearch').fadeIn('slow');
         }
         if (jQuery('#txtSearch').val().length == 0) {
             resetSearch();
         }
         // Should be <=1 if there is a header line
-        if (jQuery('#otherSiteList li:visible').length < 1) {
+        if (jQuery('#otherSiteList li:visible').length < 1 && jQuery('.otherSitesCategorList li:visible').length < 1) {
             jQuery('.norecords').remove();
             jQuery('#otherSiteSearch #noSearchResults').fadeIn('slow');
         }
@@ -424,6 +425,8 @@ jQuery(document).ready(function(){
     function resetSearch(){
         jQuery('#txtSearch').val('');
         jQuery('#otherSiteList li').show();
+        jQuery('.otherSitesCategorList li').show();
+        jQuery('#otherSitesCategorWrap h4').show();
         jQuery('#noSearchResults').fadeOut();
         jQuery('#imgSearch').fadeOut();
         jQuery('#txtSearch').focus();

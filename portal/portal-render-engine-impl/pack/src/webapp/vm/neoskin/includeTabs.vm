@@ -157,6 +157,15 @@
 
 #if ($tabsSites.tabsMoreSitesShow)
 	<div id="selectSite" style="display:none">
+		<div id="otherSiteSearch"> 
+			#if($tabsSites.tabsMoreSites.size() > ${showSearchWhen})
+				<label for="txtSearch">${rloader.sit_search}</label> <input type="text" id="txtSearch" name="txtSearch" maxlength="50" />
+				<a id="imgSearch" href="#" style="display:none"><img src="${pageSkinRepo}/${pageSkin}/images/cancel.png" alt="${rloader.sit_search_cancel}" title="${rloader.sit_search_cancel}" /></a>
+				<span id="noSearchResults" style="display:none">${rloader.sit_search_none}</span>
+			#else
+				<h4>${rloader.sit_drawer}</h4>
+			#end
+		</div>
             #if (${tabsSites.worksiteToolUrl})
                 <ul id="otherSitesMenu">
                     <li><a id="allSites" href="${tabsSites.worksiteToolUrl}?sakai_nav_minimized=true&sakai.state.reset=true"><span>${rloader.sit_allsites}</span></a></li>
@@ -198,15 +207,6 @@
 			</div> ##  /#otherSitesCategorWrap
 		#else
 			<div id="otherSiteMenuWrap">
-				<div id="otherSiteSearch"> 
-					#if($tabsSites.tabsMoreSites.size() > ${showSearchWhen})
-						<label for="txtSearch">${rloader.sit_search}</label> <input type="text" id="txtSearch" name="txtSearch" maxlength="50" />
-						<a id="imgSearch" href="#" style="display:none"><img src="${pageSkinRepo}/${pageSkin}/images/cancel.png" alt="${rloader.sit_search_cancel}" title="${rloader.sit_search_cancel}" /></a>
-						<span id="noSearchResults" style="display:none">${rloader.sit_search_none}</span>
-					#else
-						<h4>${rloader.sit_drawer}</h4>
-					#end
-				</div>	
      			<ul id="otherSiteList" role="navigation">
 					#foreach( $site in $tabsSites.tabsMoreSites )
 						<li><a href="${site.siteUrl}" title="${site.fullTitle}" id="${site.siteId}" class="moreSitesLink"><span class="fullTitle">${site.fullTitle}</span></a><a href="javascript:;" id="${site.siteId}" class="toolMenus" tabindex="-1">&nbsp;<span class="skip">Tools</span></a></li>
