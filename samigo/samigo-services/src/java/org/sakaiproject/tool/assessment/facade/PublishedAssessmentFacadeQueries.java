@@ -2210,13 +2210,24 @@ public class PublishedAssessmentFacadeQueries extends HibernateDaoSupport
 		}
 		
 		//getEvaluationModel();
-		String query = "select e.assessment.publishedAssessmentId, e.scoringType, ac.submissionsAllowed  " +
+		final String query = "select e.assessment.publishedAssessmentId, e.scoringType, ac.submissionsAllowed  " +
 		"from PublishedEvaluationModel e, PublishedAccessControl ac, AuthorizationData az " +
 		"where e.assessment.publishedAssessmentId = ac.assessment.publishedAssessmentId " +
-		"and az.qualifierId = ac.assessment.publishedAssessmentId and az.agentIdString=? and az.functionId=?";
+		"and az.qualifierId = ac.assessment.publishedAssessmentId and az.agentIdString in (:agentIdString) and az.functionId=:functionId";
 
-		Object [] values = {siteId, "TAKE_PUBLISHED_ASSESSMENT"};
-		List l = getHibernateTemplate().find(query, values);
+		groupIds.add(siteId);
+		
+		final HibernateCallback eval_model = new HibernateCallback() {
+			public Object doInHibernate(Session session)
+			throws HibernateException, SQLException {
+				Query q = session.createQuery(query);
+				q.setParameterList("agentIdString", groupIds);
+				q.setString("functionId", "TAKE_PUBLISHED_ASSESSMENT");
+				return q.list();
+			};
+		};
+			
+		List l = getHibernateTemplate().executeFind(eval_model);
 		HashMap scoringTypeMap = new HashMap();
 		HashMap subissionAllowedMap = new HashMap();
 		Iterator iter = l.iterator();
