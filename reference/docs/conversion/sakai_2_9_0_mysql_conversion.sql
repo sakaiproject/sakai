@@ -200,20 +200,20 @@ DROP TABLE PERMISSIONS_SRC_TEMP;
 
 
 -- ADDING MSGCNTR Conversion
------------------------------------
+-- ---------------------------------
 --  MSGCNTR-401   -----
 --  Add new Property to prevent users from 
 --  using Generic Recipients in "To" field (all participants, ect)
------------------------------------
+-- ---------------------------------
 
 INSERT INTO SAKAI_REALM_FUNCTION VALUES (DEFAULT, 'msg.permissions.allowToField.allParticipants');
 INSERT INTO SAKAI_REALM_FUNCTION VALUES (DEFAULT, 'msg.permissions.allowToField.groups');
 INSERT INTO SAKAI_REALM_FUNCTION VALUES (DEFAULT, 'msg.permissions.allowToField.roles');
 
 
---msg.permissions.allowToField.allParticipants and groups and roles is false for all users by default
---if you want to turn this feature on for all "student/acces" type roles, then run 
---the following conversion:
+-- msg.permissions.allowToField.allParticipants and groups and roles is false for all users by default
+-- if you want to turn this feature on for all "student/acces" type roles, then run 
+-- the following conversion:
 
 
 INSERT INTO SAKAI_REALM_RL_FN VALUES((select REALM_KEY from SAKAI_REALM where REALM_ID = '!site.template'), (select ROLE_KEY from SAKAI_REALM_ROLE where ROLE_NAME = 'maintain'), (select FUNCTION_KEY from SAKAI_REALM_FUNCTION where FUNCTION_NAME = 'msg.permissions.allowToField.allParticipants'));
@@ -314,15 +314,15 @@ DROP TABLE PERMISSIONS_TEMP;
 DROP TABLE PERMISSIONS_SRC_TEMP;
 
 
----------------------------
+-- -------------------------
 --  END MSGCNTR-401   -----
----------------------------
+-- -------------------------
 
 
---////////////////////////////////////////////////////
---// MSGCNTR-411
---// Post First Option in Forums
---////////////////////////////////////////////////////
+-- ////////////////////////////////////////////////////
+-- // MSGCNTR-411
+-- // Post First Option in Forums
+-- ////////////////////////////////////////////////////
 -- add column to allow postFirst as template setting
 alter table MFR_AREA_T add column (POST_FIRST bit);
 update MFR_AREA_T set POST_FIRST =0 where POST_FIRST is NULL;
@@ -419,10 +419,10 @@ update  mfr_message_t set label='pvt_priority_low' where label='\u4f4e';
 -- END MSGCNTR-503 --
 
 
---////////////////////////////////////////////////////
---// MSGCNTR-438
---// Add Ability to hide specific groups
---////////////////////////////////////////////////////
+-- ////////////////////////////////////////////////////
+-- // MSGCNTR-438
+-- // Add Ability to hide specific groups
+-- ////////////////////////////////////////////////////
 
 CREATE TABLE MFR_HIDDEN_GROUPS_T  ( 
     ID                bigint(20) AUTO_INCREMENT NOT NULL,
@@ -492,7 +492,7 @@ DROP TABLE PERMISSIONS_SRC_TEMP;
 
 -- END MSGCNTR-438 --
 
---MSGCNTR-569
+-- MSGCNTR-569
 alter table MFR_TOPIC_T modify CONTEXT_ID varchar(255);
 
 -- END MSGCNTR Conversion
