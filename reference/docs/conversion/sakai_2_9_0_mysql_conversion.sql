@@ -83,6 +83,19 @@ INSERT INTO SAM_ASSESSMETADATA_T (ASSESSMENTMETADATAID, ASSESSMENTID, LABEL,
       'lockedBrowser_isInstructorEditable', 'true')
 ;
 
+
+-- SAM-1550
+-- Apply the following two queries only if you have SAM-988 in your instance
+-- Change the date format from:
+-- Wed Sep 14 11:40:53 CDT 2011 (output of Date.toString() in SAM-988)
+-- to:
+-- 2012-08-23T10:59:34.180-05:00 (ISO8601 format in SAM-1550)
+-- Please make the corresponding time zone changes to the queries:
+/*
+update SAM_SECTIONMETADATA_T set entry = date_format(str_to_date(entry, '%a %b %d %T SAST %Y'),'%Y-%m-%dT%H:%i:%S.000+02:00') where label='QUESTIONS_RANDOM_DRAW_DATE';
+update SAM_PUBLISHEDSECTIONMETADATA_T set entry = date_format(str_to_date(entry, '%a %b %d %T SAST %Y'),'%Y-%m-%dT%H:%i:%S.000+02:00') where label='QUESTIONS_RANDOM_DRAW_DATE';
+*/
+
 -- Profile2 v 1.5 conversion START
 
 -- PRFL-498 add the gravatar column, default to 0
