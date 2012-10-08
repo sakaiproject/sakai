@@ -6392,12 +6392,36 @@ public class SiteAction extends PagedResourceActionII {
 	}
 	
 	/**
+	 * The triage function for saving modified features page
+	 * @param data
+	 */
+	public void doAddRemoveFeatureConfirm_option(RunData data) {
+		SessionState state = ((JetspeedRunData) data).getPortletSessionState(((JetspeedRunData) data).getJs_peid());
+		ParameterParser params = data.getParameters();
+		
+		String option = params.getString("option");
+		if ("revise".equals(option))
+		{
+			// save the modified features
+			doSave_revised_features(state, params);
+		}
+		else if ("back".equals(option))
+		{
+			// back a step
+			doBack(data);
+		}
+		else if ("cancel".equals(option))
+		{
+			// cancel out
+			doCancel(data);
+		}
+	
+	}
+	
+	/**
 	 * doSave_revised_features
 	 */
-	public void doSave_revised_features(RunData data) {
-		SessionState state = ((JetspeedRunData) data)
-				.getPortletSessionState(((JetspeedRunData) data).getJs_peid());
-		ParameterParser params = data.getParameters();
+	public void doSave_revised_features(SessionState state, ParameterParser params) {
 		
 		Site site = getStateSite(state);
 		

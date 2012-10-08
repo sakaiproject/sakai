@@ -181,15 +181,24 @@
 		#end
 	</p>
 	
-	<form name="addRemoveFeaturnConfirmForm" action="#toolForm("$action")" method="post">
+	<form name="addRemoveFeaturnConfirmForm" id="addRemoveFeaturnConfirmForm" action="#toolForm("$action")" method="post">
 		<input type="hidden" name="cancelIndex" value="$continueIndex" />
 		<input type="hidden" name="back" value="$!backIndex" />
 		<input type="hidden" name="templateIndex" value="$!templateIndex" />
 		<input type="hidden" name="continue" value="$continueIndex" />
+		<input type="hidden" name="eventSubmit_doAddRemoveFeatureConfirm_option" value="x" />
+		<input type="hidden" name="option" value="cancel" />
 		<p class="act">
-			<input type="submit" accesskey="s" class="active" name="eventSubmit_doSave_revised_features" value="$tlang.getString('gen.finish')" />
-			<input type="submit" accesskey="b" name="eventSubmit_doBack" value="$tlang.getString('gen.back')" />
-			<input type="submit" accesskey="x" name="eventSubmit_doCancel" value="$tlang.getString('gen.cancel')" />
+			<input type="button" id="revise" name="review" accesskey="s" class="active" value="$tlang.getString('gen.finish')" 
+			onclick="showNotif('submitnotif','revise','addRemoveFeaturnConfirmForm'); document.addRemoveFeaturnConfirmForm.option.value='revise'; document.addRemoveFeaturnConfirmForm.submit(); return false;"
+			/>
+			<input type="button" id="back" name="back" accesskey="b" value="$tlang.getString('gen.back')" 
+			onclick="document.addRemoveFeaturnConfirmForm.option.value='back'; document.addRemoveFeaturnConfirmForm.submit(); return false;"
+			/>
+			<input type="button" id="cancel" name="cancel" accesskey="x" value="$tlang.getString('gen.cancel')" 
+			onclick="document.addRemoveFeaturnConfirmForm.option.value='cancel'; document.addRemoveFeaturnConfirmForm.submit(); return false;"
+			/>
+			<span id="submitnotif" style="visibility:hidden">$tlang.getString("gen.proces")</span>
 		</p>
 		<input type="hidden" name="sakai_csrf_token" value="$sakai_csrf_token" />
 	</form>
