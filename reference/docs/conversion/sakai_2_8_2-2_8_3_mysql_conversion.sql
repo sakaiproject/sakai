@@ -1,4 +1,4 @@
--- This is the Oracle Sakai 2.8.2 -> 2.8.3 conversion script
+-- This is the MYSQL Sakai 2.8.2 -> 2.8.3 conversion script
 -- --------------------------------------------------------------------------------------------------------------------------------------
 -- 
 -- use this to convert a Sakai database from 2.7.2 to 2.7.3.  Run this before you run your first app server.
@@ -9,10 +9,6 @@
 -- -- [comment continued] (repeat as necessary)
 -- SQL statement
 -- --------------------------------------------------------------------------------------------------------------------------------------
-
--- POLL-172
--- Hibernate error in 2.8.2 Oracle after running conversion scripts still present (polls)
-update poll_poll set poll_is_public = 0 where poll_is_public is null;
 
 -- This file contains SQL to fix SAK-22700 ("The citations importer in Resources doesn't always correctly import RIS- formatted files")
 update citation_schema_field set PROPERTY_VALUE='A1,AU' where FIELD_ID='creator' and PROPERTY_NAME='sakai:ris_identifier';
