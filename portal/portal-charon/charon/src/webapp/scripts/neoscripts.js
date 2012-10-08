@@ -45,12 +45,6 @@ var dhtml_view_sites = function(){
                     showToolMenu(e);
                 }
             });
-
-            jQuery('#otherSitesMenu a').last().keydown(function (e) {
-                if(e.keyCode == 9 && !e.shiftKey) {
-                    closeDrawer();
-                }
-            });
         }
         else {
             // hide the dropdown
