@@ -1078,6 +1078,7 @@ $(function() {
 			return false;
 		});
 
+		eval($("#gradingForm-init").html());
 
 	} // Closes admin if statement
 
