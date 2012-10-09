@@ -252,6 +252,10 @@ public class EmailTemplateServiceImpl implements EmailTemplateService {
    
    public void updateTemplate(EmailTemplate template) {
 	   template.setLastModified(new Date());
+	   String locale = template.getLocale();
+	   if (locale == null || "".equals(locale)) {
+		   template.setLocale(EmailTemplate.DEFAULT_LOCALE);
+	   }
 	   dao.update(template);
 	   log.info("updated template: " + template.getId());
 	}
