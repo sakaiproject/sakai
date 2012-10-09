@@ -1193,8 +1193,14 @@ public class AnnouncementAction extends PagedResourceActionII
 
 		AnnouncementActionState state = (AnnouncementActionState) getState(portlet, rundata, AnnouncementActionState.class);
 
-		SortedIterator sortedMessageIterator = new SortedIterator(messageList.iterator(), new AnnouncementComparator(state
-				.getCurrentSortedBy(), state.getCurrentSortAsc()));
+		SortedIterator sortedMessageIterator;
+		//For Announcement in User's MyWorkspace, the sort order for announcement is by date SAK-22667
+		if (isOnWorkspaceTab()){
+			sortedMessageIterator = new SortedIterator(messageList.iterator(), new AnnouncementComparator(SORT_DATE, state.getCurrentSortAsc()));
+		} else {
+			sortedMessageIterator = new SortedIterator(messageList.iterator(), new AnnouncementComparator(state
+					.getCurrentSortedBy(), state.getCurrentSortAsc()));
+		}
 		
 		while (sortedMessageIterator.hasNext())
 			showMessagesList.add((AnnouncementMessage) sortedMessageIterator.next());
