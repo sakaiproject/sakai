@@ -15,7 +15,6 @@ var RSF = RSF || {};
   function invalidate(invalidated, EL, entry) {
     if (!EL) {
       RSF.log("invalidate null EL: " + invalidated + " " + entry);
-      return;
       }
     var stack = RSF.parseEL(EL);
     invalidated[stack[0]] = entry;
@@ -27,7 +26,6 @@ var RSF = RSF || {};
   function isInvalidated(invalidated, EL) {
     if (!EL) {
       RSF.log("isInvalidated null EL: " + invalidated);
-      return false;
       }
     var stack = RSF.parseEL(EL);
     var togo = invalidated[stack[0]] || invalidated[stack[1]];
@@ -638,7 +636,6 @@ var RSF = RSF || {};
 
   /** Accepts a list of elements and a list of EL paths to be queried */
   RSF.getUVBSubmissionBody = function(elements, queryEL) {
-try {
     var queries = new Array();
     for (var i = 0; i < elements.length; i++) {
       queries.push(RSF.getPartialSubmissionSegment(elements[i]));
@@ -646,8 +643,6 @@ try {
     for (var i = 0; i < queryEL.length; i++) {
       queries.push(RSF.renderUVBQuery(queryEL[i]));
     }
-} catch (err) {
-}
     return queries.join("&");      
   };
 
