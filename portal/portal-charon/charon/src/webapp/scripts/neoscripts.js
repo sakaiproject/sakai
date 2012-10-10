@@ -332,7 +332,7 @@ function showToolMenu(e){
             $.each(data, function(i, item){
                 if (i <= maxToolsInt) {
                     if (item.tools.length === 1) {
-                        subsubmenu = subsubmenu + '<li class=\"otherSiteTool\" role=\"menuitem\"><span><a class=\"icon-' + item.tools[0].toolId.replace(/\./gi, '-') + '\" href=' + item.tools[0].url + ">" + item.tools[0].title + "</a></span></li>";
+                        subsubmenu = subsubmenu + '<li class=\"otherSiteTool\" role=\"menuitem\"><span><a class=\"icon-' + item.tools[0].toolId.replace(/\./gi, '-') + '\" href=' + item.tools[0].url + ">" + item.title + "</a></span></li>";
                     }
                 }
                 
