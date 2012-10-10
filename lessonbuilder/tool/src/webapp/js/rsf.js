@@ -638,6 +638,7 @@ var RSF = RSF || {};
 
   /** Accepts a list of elements and a list of EL paths to be queried */
   RSF.getUVBSubmissionBody = function(elements, queryEL) {
+try {
     var queries = new Array();
     for (var i = 0; i < elements.length; i++) {
       queries.push(RSF.getPartialSubmissionSegment(elements[i]));
@@ -645,6 +646,8 @@ var RSF = RSF || {};
     for (var i = 0; i < queryEL.length; i++) {
       queries.push(RSF.renderUVBQuery(queryEL[i]));
     }
+} catch (err) {
+}
     return queries.join("&");      
   };
 
