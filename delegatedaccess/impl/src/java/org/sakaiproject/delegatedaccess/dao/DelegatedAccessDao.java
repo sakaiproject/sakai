@@ -63,4 +63,16 @@ public interface DelegatedAccessDao {
 	 * @return
 	 */
 	public Map<String, Set<String>> getNodesAndPermsForUser(String userId, String[] nodeIds);
+	
+	/**
+	 * Returns a subset of sites that are active.  This requires an external feature that populates a
+	 * tables named CMS_ACTIVATED
+	 * 
+	 * DAC-40 Highlight Inactive Courses in site search
+	 * requires the job "InactiveCoursesJob" attached in the jira
+	 *
+	 * @param siteIds
+	 * @return
+	 */
+	public List<String> findActiveSites(String[] siteIds);
 }

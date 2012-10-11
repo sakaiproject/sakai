@@ -30,6 +30,7 @@ import org.sakaiproject.coursemanagement.api.CourseManagementService;
 import org.sakaiproject.delegatedaccess.dao.DelegatedAccessDao;
 import org.sakaiproject.delegatedaccess.util.DelegatedAccessConstants;
 import org.sakaiproject.email.api.EmailService;
+import org.sakaiproject.entity.api.Entity;
 import org.sakaiproject.entity.api.EntityManager;
 import org.sakaiproject.entity.api.Reference;
 import org.sakaiproject.event.api.EventTrackingService;
@@ -622,5 +623,15 @@ public class SakaiProxyImpl implements SakaiProxy {
 	
 	public String[] getSubAdminOrderedRealmRoles(){
 		return serverConfigurationService.getStrings(DelegatedAccessConstants.PROPERTIES_SUBADMIN_REALM_ROLE_ORDER);
+	}
+	
+
+	
+	/**
+	 * DAC-40 Highlight Inactive Courses in site search
+	 * requires the job "InactiveCoursesJob" attached in the jira
+	 */
+	public boolean isActiveSiteFlagEnabled(){
+		return serverConfigurationService.getBoolean(DelegatedAccessConstants.PROPERTIES_ENABLE_ACTIVE_SITE_FLAG, false);
 	}
 }

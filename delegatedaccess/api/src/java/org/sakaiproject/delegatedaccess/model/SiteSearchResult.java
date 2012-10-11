@@ -24,6 +24,7 @@ public class SiteSearchResult implements Serializable {
 	private String modifiedBy;
 	private String modifiedBySortName;
 	private boolean hasInstructor = true;
+	private boolean active = true;
 	
 	public SiteSearchResult(Site site, List<User> instructors, String termProp){
 		this.site = new SiteSerialized(site, termProp);
@@ -243,5 +244,13 @@ public class SiteSearchResult implements Serializable {
 	}
 	public boolean isHasInstructor() {
 		return hasInstructor;
+	}
+
+	public boolean isActive() {
+		return active;
+	}
+
+	public void setActive(boolean active) {
+		this.active = active;
 	}
 }

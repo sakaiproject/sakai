@@ -564,7 +564,20 @@ public class ProjectLogicImpl implements ProjectLogic {
 				}
 			}
 		}
-		
+		if(sakaiProxy.isActiveSiteFlagEnabled()){
+			//DAC-40 Highlight Inactive Courses in site search
+			//requires the job "InactiveCoursesJob" attached in the jira
+			List<String> activeSites = dao.findActiveSites(resultSiteIds.toArray(new String[resultSiteIds.size()]));
+			if(activeSites != null){
+				for(SiteSearchResult result : returnList){
+					if(activeSites.contains(result.getSiteId())){
+						result.setActive(true);
+					}else{
+						result.setActive(false);
+					}
+				}
+			}
+		}
 		
 		return returnList;
 	}

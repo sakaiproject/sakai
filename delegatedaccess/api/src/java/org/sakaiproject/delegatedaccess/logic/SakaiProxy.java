@@ -382,4 +382,18 @@ public interface SakaiProxy {
 	 * @return
 	 */
 	public String[] getSubAdminOrderedRealmRoles();
+	
+
+
+	/**
+	 * This requires an external quartz job that determines whether a site is active or not.  If ths site is
+	 * active, this job will set "activesite" permission to the site node
+	 * 
+	 * 
+	 * DAC-40 Highlight Inactive Courses in site search
+	 * requires the job "InactiveCoursesJob" attached in the jira
+	 *
+	 * @return
+	 */
+	public boolean isActiveSiteFlagEnabled();
 }

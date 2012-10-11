@@ -77,7 +77,7 @@
     	</wicket:enclosure>
     	</tr>
        <tr wicket:id="searchResult">
-       	 <td><a wicket:id="siteTitleLink"><span wicket:id="siteTitle">test</span></a></td>
+       	 <td><img wicket:id="inactiveWarning" src="/library/image/silk/bullet_error.png"/><a wicket:id="siteTitleLink"><span wicket:id="siteTitle">test</span></a></td>
        	 <td><span wicket:id="siteId">site id</span></td>
        	 <td><span wicket:id="term">term</span></td>
        	 <td><span wicket:id="access">!site.course:instructor</span></td>
@@ -103,6 +103,14 @@
 	</wicket:enclosure>
 	<div wicket:id="navigatorBottom"></div>
 
+	<wicket:enclosure child="inactiveLegend">
+		<br/>
+		<br/>
+		<span style="font-weight: bold;"><wicket:message key="legend"/></span>
+		<br/>
+		<img wicket:id="inactiveLegend" src="/library/image/silk/bullet_error.png"/>&nbsp;<wicket:message key="inactiveLegendText"/>
+	</wicket:enclosure>
+	
 </wicket:extend>
 </body>
 </html>
