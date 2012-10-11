@@ -3,7 +3,6 @@ var lessonBuilderAnimationLocked = false;
 var oldloc;
 var requirementType = 0;
 var importccactive = false;
-var releasedateinit = false;
 
 // in case user includes the URL of a site that replaces top,
 // give them a way out. Handler is set up in the html file.
@@ -165,12 +164,6 @@ $(function() {
 				$("#page-points").attr("disabled", true);
 			} else { 
 				$("#page-gradebook").attr("checked", true);
-			}
-			// we removed the call to onchange from yahoo-calendar-setup.js because of timing trouble
-			// so we have to do it now
-			if (!releasedateinit) {
-			    document.getElementById("releaseDate:1:date-field").onchange();
-			    releasedateinit = true;
 			}
 			oldloc = $(".dropdown a");
 			$('#edit-title-dialog').dialog('open');
