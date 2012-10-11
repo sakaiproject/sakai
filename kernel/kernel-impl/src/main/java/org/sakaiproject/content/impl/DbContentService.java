@@ -1738,12 +1738,23 @@ public class DbContentService extends BaseContentService
                         // special handling for reference commits
                         if (M_log.isDebugEnabled()) M_log.debug("Making resource ("+redit.getId()+") reference copy of DB resource ("+referenceResourceId+"), body/contentStream is ignored");
                         if (m_bodyPath == null) {
-                            // SPECIAL handling for a reference copy of a resource,
-                            // for reference we just move the binary data location to point at the new one
-                            String sql = "update "+m_resourceBodyTableName+" set RESOURCE_ID=? where RESOURCE_ID=?";
-                            // this write could fail if we try to move it to a taken resource_id, no way to recover if it does
-                            ok = m_sqlService.dbWrite(sql, new Object[] {redit.getId(), referenceResourceId});
-                            if (M_log.isDebugEnabled()) M_log.debug("Moving RESOURCE_ID ("+redit.getId()+") to ("+referenceResourceId+") for DB stored content data ("+m_resourceBodyTableName+"), success="+ok);
+                            /* SPECIAL handling for a reference copy of a resource,
+                             * for reference we just move the binary data location to point at the new one
+                             */
+                            // the DB write could fail so we do a count check first (still not a guarantee)
+                            String sqlExists = "select count(*) from " + m_resourceBodyTableName + " where RESOURCE_ID=?";
+                            @SuppressWarnings("unchecked")
+                            List<String> sqlExistsResult = m_sqlService.dbRead(sqlExists, new Object[] { referenceResourceId }, null);
+                            if (sqlExistsResult != null && Long.parseLong(sqlExistsResult.get(0)) == 1l) {
+                                // the resource exists already so we proceed to redirect
+                                String sql = "update "+m_resourceBodyTableName+" set RESOURCE_ID=? where RESOURCE_ID=?";
+                                // this write could fail if we try to move it to a taken resource_id, no way to recover if it does
+                                ok = m_sqlService.dbWrite(sql, new Object[] {redit.getId(), referenceResourceId});
+                                if (M_log.isDebugEnabled()) M_log.debug("Moving RESOURCE_ID ("+redit.getId()+") to ("+referenceResourceId+") for DB stored content data ("+m_resourceBodyTableName+"), success="+ok);
+                            } else {
+                                ok = false;
+                                if (M_log.isDebugEnabled()) M_log.debug("Moving RESOURCE_ID ("+redit.getId()+") to ("+referenceResourceId+") for DB stored content data ("+m_resourceBodyTableName+") failed because the referenceResourceId ("+referenceResourceId+") does not exist in the table");
+                            }
                             if (!ok) {
                                 // cannot recover so we will flip this over and do a normal content copy
                                 M_log.warn("Moving RESOURCE_ID ("+redit.getId()+") to ("+referenceResourceId+") for DB stored content data ("+m_resourceBodyTableName+") failed... we will do a normal content copy as a fallback");
