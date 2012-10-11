@@ -24,7 +24,7 @@
 
 					<h:outputLabel for="points" id="pointsLabel" value="#{msgs.import_assignment_points}"/>
 					<h:panelGroup>
-						<h:inputText id="points" value="#{spreadsheetUploadBean.assignment.pointsPossible}" onkeypress="return submitOnEnter(event, 'gbForm:saveButton');" rendered="#{spreadsheetUploadBean.localGradebook.grade_type != 3 && (!spreadsheetUploadBean.selectedCategoryDropsScores || (spreadsheetUploadBean.selectedCategoryDropsScores && empty spreadsheetUploadBean.assignmentCategory.assignmentList) || (spreadsheetUploadBean.selectedCategoryDropsScores && (spreadsheetUploadBean.assignment.selectedGradeEntryValue == msgs.add_assignment_type_adjustment)))}">
+						<h:inputText id="points" required="true" value="#{spreadsheetUploadBean.assignment.pointsPossible}" onkeypress="return submitOnEnter(event, 'gbForm:saveButton');" rendered="#{spreadsheetUploadBean.localGradebook.grade_type != 3 && (!spreadsheetUploadBean.selectedCategoryDropsScores || (spreadsheetUploadBean.selectedCategoryDropsScores && empty spreadsheetUploadBean.assignmentCategory.assignmentList) || (spreadsheetUploadBean.selectedCategoryDropsScores && (spreadsheetUploadBean.assignment.selectedGradeEntryValue == msgs.add_assignment_type_adjustment)))}">
 							<f:converter converterId="org.sakaiproject.gradebook.jsf.converter.NONTRAILING_DOUBLE" />
 							<f:validateDoubleRange minimum="0.01" />
 							<f:validator validatorId="org.sakaiproject.gradebook.jsf.validator.ASSIGNMENT_GRADE"/>
@@ -52,7 +52,7 @@
 					<h:panelGroup rendered="#{spreadsheetUploadBean.categoriesEnabled}">
                         <h:selectOneMenu id="selectCategory" value="#{spreadsheetUploadBean.selectedCategory}"
 							valueChangeListener="#{spreadsheetUploadBean.processCategoryChangeInImport}"
-							onchange="this.form.submit();">
+							onchange="this.form.submit();" immediate="true">
 							<f:selectItems value="#{(spreadsheetUploadBean.assignment.selectedGradeEntryValue == msgs.add_assignment_type_adjustment) ? spreadsheetUploadBean.categoriesAdjustmentSelectList : spreadsheetUploadBean.categoriesSelectList}" />
 						</h:selectOneMenu>
 						<f:verbatim><div class="instruction"></f:verbatim>
