@@ -42,7 +42,7 @@ var dhtml_view_sites = function(){
             // Show the tool popup on the down arrow, or slide up the drawer on escape.
             $('.moreSitesLink').keydown(function (e){
                 if (e.keyCode == 40) {
-                    showToolMenu(e);
+                    showToolMenu(e,0);
                 }
             });
         }
@@ -65,6 +65,7 @@ function closeDrawer() {
     removeDHTMLMask()
     jQuery('#otherSiteTools').remove();
     jQuery('.selectedTab').unbind('click');
+    jQuery('.moreSitesLink').unbind('keydown');
     jQuery('.more-tab a').focus();
 }
 
@@ -310,13 +311,13 @@ function f_filterResults(n_win, n_docel, n_body){
 }
 
 /** Shows a drawer site tool dropdown **/
-function showToolMenu(e){
+function showToolMenu(e, xOffset){
     e.preventDefault();
     var jqObj = $(e.target);
     var classId = jqObj.attr('id');
     // We need to escape special chars, like exclamations, or else jQuery selectors don't work.
     var id = classId.replace(/!/g,'\\!').replace(/~/g,'\\~');
-    $('.toolMenus').removeClass('toolMenusActive');
+    $('.toolMenus').removeClass("toolMenusActive");
     if ($('.' + id).length) {
         $('#otherSiteTools').remove();
     }
@@ -344,20 +345,27 @@ function showToolMenu(e){
             $('#portalOuterContainer').append(subsubmenu);
             $('#otherSiteTools').css({
                 'top': pos.top + 28,
-                'left': pos.left - 173
+                'left': pos.left - xOffset
             });
             $('#otherSiteTools li a:first').focus();
-            jqObj.addClass("toolMenusActive");
+            jqObj.parent().find('.toolMenus').addClass("toolMenusActive");
             // On up arrow or escape, hide the popup
             $('#otherSiteTools').keydown(function(e){
                 if (e.keyCode == 27) {
                     e.preventDefault();
                     jqObj.focus();
-                    $(this).hide();
+                    $(this).remove();
+                    $('.' + id).remove();
+                    jqObj.parent().find('.toolMenus').removeClass("toolMenusActive");
                 }
             });
             
-            addArrowNavAndDisableTabNav($('#otherSiteTools'), jqObj);
+            addArrowNavAndDisableTabNav($('#otherSiteTools'), function () {
+                jqObj.focus();
+                $('.' + id).remove();
+                // Switch the arrows
+                jqObj.parent().find('.toolMenus').removeClass("toolMenusActive");
+            });
         }); // end json call
     }
 }
@@ -377,7 +385,7 @@ jQuery(document).ready(function(){
     
     // open tool menus in "other sites" panel
     $('.toolMenus').click(function(e){
-        showToolMenu(e);
+        showToolMenu(e,173);
     });
     
     // prepend site title to tool title
@@ -453,7 +461,7 @@ jQuery(document).ready(function(){
 
 var setupSiteNav = function(){
     $("ul.subnav").each(function(){
-        // Add a up arrow and escape key handler to slide the page menu up
+        // Add an escape key handler to slide the page menu up
         $(this).keydown(function (e) {
             if (e.keyCode == 27) {
                 $(this).parent().children('a').focus();
@@ -580,19 +588,20 @@ function toggleShortUrlOutput(defaultUrl, checkbox, textbox) {
 	}
 }
 
-function addArrowNavAndDisableTabNav(ul,focusReturn) {
+/* Callback is a function and is called after sliding up ul */
+function addArrowNavAndDisableTabNav(ul,callback) {
     ul.find('li a').attr('tabindex','-1').keydown(function (e) {
         var obj = $(e.target);
         if(e.keyCode == 40) {
             e.preventDefault();
             var next = obj.parent().parent().next();
             if(next[0] === undefined) {
-                if(focusReturn !== undefined) {
-                    focusReturn.focus();
+                ul.slideUp('fast');
+                if(callback !== undefined) {
+                    callback();
                 } else {
                     obj.parent().parent().parent().parent().children('a').focus();
                 }
-                ul.slideUp('fast');
             } else {
                 next.find('a').focus();
             }
@@ -602,12 +611,12 @@ function addArrowNavAndDisableTabNav(ul,focusReturn) {
             e.preventDefault();
             var prev = obj.parent().parent().prev();
             if(prev[0] === undefined) {
-                if(focusReturn !== undefined) {
-                    focusReturn.focus();
+                ul.slideUp('fast');
+                if(callback !== undefined) {
+                    callback();
                 } else {
                     obj.parent().parent().parent().parent().children('a').focus();
                 }
-                ul.slideUp('fast');
             } else {
                 prev.find('a').focus();
             }
