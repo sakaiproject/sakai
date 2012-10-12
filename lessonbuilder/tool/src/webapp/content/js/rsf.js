@@ -818,14 +818,11 @@ var RSF = RSF || {};
     // a "virtual field" has no submitting name, implicitly its id.
     var subname = element.name? element.name : element.id; 
     body.push(RSF.encodeElement(subname, element.value));
-    for (var i in upstream) {
+    for (var i = 0; i < upstream.length; i++) {
       var upel = upstream[i];
    
       var fossilex = /(.*)-fossil/;
       var value = upel.value;
-      if (!value) {
-        continue;
-      }
       var name = upel.name? upel.name : upel.id;
       if (name.match(fossilex)) {
         value = 'j' + value.substring(1);
