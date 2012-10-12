@@ -45,6 +45,37 @@ var dhtml_view_sites = function(){
                     showToolMenu(e,0);
                 }
             });
+
+            // If we've tabbed backwards to the first element in the drawer, it could be the
+            // search box or the all sites list, stop tabbing. This is a hack as we are
+            // currently attaching keydown handlers to the list item text rather that the link
+            // and you can only explicitly set focus to links and form elements.
+            var txtSearch = $('#txtSearch');
+            if(txtSearch.length) {
+                $(txtSearch[0]).keydown(function (e) {
+                    if (e.keyCode == 9 && e.shiftKey) {
+                        e.preventDefault();
+                    }
+                });
+            } else {
+                $('#allSites').keydown(function (e) {
+                    if (e.keyCode == 9 && e.shiftKey) {
+                        e.preventDefault();
+                    }
+                });
+            }
+
+            // If we tab off the right of the sites list, cycle the focus.
+            $('#otherSiteList > li:last').keydown(function (e) {
+                if (e.keyCode == 9 && !e.shiftKey) {
+                    e.preventDefault();
+                    if(txtSearch.length) {
+                        txtSearch[0].focus();
+                    } else {
+                        $('#allSites').focus();
+                    }
+                }
+            });
         }
         else {
             // hide the dropdown
@@ -317,7 +348,7 @@ function showToolMenu(e, xOffset){
     var classId = jqObj.attr('id');
     // We need to escape special chars, like exclamations, or else jQuery selectors don't work.
     var id = classId.replace(/!/g,'\\!').replace(/~/g,'\\~');
-    $('.toolMenus').removeClass("toolMenusActive");
+    $('.toolMenus').removeClass('toolMenusActive');
     if ($('.' + id).length) {
         $('#otherSiteTools').remove();
     }
