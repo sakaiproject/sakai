@@ -28,7 +28,7 @@ var dhtml_view_sites = function(){
                 return false;
             });
 
-            jQuery('#otherSiteList > li > a:first').focus();
+            jQuery('#selectSite a:first').focus();
 
             // If we hit escape or the up arrow on any of the links in the drawer, slide it
             // up and focus on the more tab.
@@ -39,10 +39,10 @@ var dhtml_view_sites = function(){
                 }
             });
 
-            // Show the tool popup on the down arrow.
+            // Show the tool popup on the down arrow, or slide up the drawer on escape.
             $('.moreSitesLink').keydown(function (e){
                 if (e.keyCode == 40) {
-                    showToolMenu(e,0);
+                    showToolMenu(e);
                 }
             });
         }
@@ -65,7 +65,6 @@ function closeDrawer() {
     removeDHTMLMask()
     jQuery('#otherSiteTools').remove();
     jQuery('.selectedTab').unbind('click');
-    jQuery('.moreSitesLink').unbind('keydown');
     jQuery('.more-tab a').focus();
 }
 
@@ -311,12 +310,13 @@ function f_filterResults(n_win, n_docel, n_body){
 }
 
 /** Shows a drawer site tool dropdown **/
-function showToolMenu(e,offset){
+function showToolMenu(e){
     e.preventDefault();
     var jqObj = $(e.target);
     var classId = jqObj.attr('id');
     // We need to escape special chars, like exclamations, or else jQuery selectors don't work.
     var id = classId.replace(/!/g,'\\!').replace(/~/g,'\\~');
+    $('.toolMenus').removeClass('toolMenusActive');
     if ($('.' + id).length) {
         $('#otherSiteTools').remove();
     }
@@ -344,20 +344,20 @@ function showToolMenu(e,offset){
             $('#portalOuterContainer').append(subsubmenu);
             $('#otherSiteTools').css({
                 'top': pos.top + 28,
-                'left': pos.left - offset
+                'left': pos.left - 173
             });
             $('#otherSiteTools li a:first').focus();
-            // On escape, hide the popup
+            jqObj.addClass("toolMenusActive");
+            // On up arrow or escape, hide the popup
             $('#otherSiteTools').keydown(function(e){
                 if (e.keyCode == 27) {
                     e.preventDefault();
                     jqObj.focus();
-                    $(this).remove();
-                    $('.' + id).remove();
+                    $(this).hide();
                 }
             });
             
-            addArrowNavAndDisableTabNav($('#otherSiteTools'), jqObj,true);
+            addArrowNavAndDisableTabNav($('#otherSiteTools'), jqObj);
         }); // end json call
     }
 }
@@ -376,9 +376,8 @@ jQuery(document).ready(function(){
     });
     
     // open tool menus in "other sites" panel
-    //$('.toolMenus').click(function(e){
-    jQuery("#otherSiteList > li > span.drop").click(function(e){
-        showToolMenu(e,183);
+    $('.toolMenus').click(function(e){
+        showToolMenu(e);
     });
     
     // prepend site title to tool title
@@ -464,7 +463,7 @@ var setupSiteNav = function(){
         $(this).children('li:last').addClass('lastMenuItem')
     });
 
-    addArrowNavAndDisableTabNav($("ul.subnav"),undefined,false);
+    addArrowNavAndDisableTabNav($("ul.subnav"));
 
     $('.lastMenuItem a').blur(function(e){
         jQuery(this).parents('ul.subnav').slideUp('fast');
@@ -581,50 +580,37 @@ function toggleShortUrlOutput(defaultUrl, checkbox, textbox) {
 	}
 }
 
-function addArrowNavAndDisableTabNav(ul,focusReturn,removeAfterClose) {
-    ul.find('li > span > a')
-        .attr('tabindex','-1') // Skip this link during tabbing
-        .keydown(function (e) {
-            var obj = $(e.target);
-            if(e.keyCode == 40) {
-                // Down arrow
-                e.preventDefault();
-                var next = obj.parent().parent().next();
-                if(next[0] === undefined) {
-                    if(focusReturn !== undefined) {
-                        focusReturn.focus();
-                    } else {
-                        obj.parent().parent().parent().parent().children('a').focus();
-                    }
-                    ul.slideUp('fast');
-                    if(removeAfterClose) {
-                        ul.remove();
-                    }
+function addArrowNavAndDisableTabNav(ul,focusReturn) {
+    ul.find('li a').attr('tabindex','-1').keydown(function (e) {
+        var obj = $(e.target);
+        if(e.keyCode == 40) {
+            e.preventDefault();
+            var next = obj.parent().parent().next();
+            if(next[0] === undefined) {
+                if(focusReturn !== undefined) {
+                    focusReturn.focus();
                 } else {
-                    next.find('a').focus();
+                    obj.parent().parent().parent().parent().children('a').focus();
                 }
-            } else if(e.keyCode == 9) { // Suck up the menu if tab is pressed 
                 ul.slideUp('fast');
-                if(removeAfterClose) {
-                    ul.remove();
-                }
-            } else if(e.keyCode == 38) {
-                // Up arrow
-                e.preventDefault();
-                var prev = obj.parent().parent().prev();
-                if(prev[0] === undefined) {
-                    if(focusReturn !== undefined) {
-                        focusReturn.focus();
-                    } else {
-                        obj.parent().parent().parent().parent().children('a').focus();
-                    }
-                    ul.slideUp('fast');
-                    if(removeAfterClose) {
-                        ul.remove();
-                    }
-                } else {
-                    prev.find('a').focus();
-                }
+            } else {
+                next.find('a').focus();
             }
-        });
+        } else if(e.keyCode == 9) { // Suck up the menu if tab is pressed 
+            ul.slideUp('fast');
+        } else if(e.keyCode == 38) {
+            e.preventDefault();
+            var prev = obj.parent().parent().prev();
+            if(prev[0] === undefined) {
+                if(focusReturn !== undefined) {
+                    focusReturn.focus();
+                } else {
+                    obj.parent().parent().parent().parent().children('a').focus();
+                }
+                ul.slideUp('fast');
+            } else {
+                prev.find('a').focus();
+            }
+        }
+    });
 }
