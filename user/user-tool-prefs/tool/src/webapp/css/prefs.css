@@ -86,7 +86,7 @@
 }
 	
 .layoutReorderer-movable-hover, .layoutReorderer-movable-selected{
-    outline: 1px solid #000;
+    outline: 2px solid #000;
 }
 
 .layoutReorderer-list-emphasis {
