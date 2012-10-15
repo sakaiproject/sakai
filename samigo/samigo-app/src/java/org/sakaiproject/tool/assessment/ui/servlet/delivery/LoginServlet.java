@@ -171,7 +171,7 @@ public class LoginServlet
 
       log.debug("*** agentIdString: "+agentIdString);
 
-      String nextAction = delivery.checkBeforeProceed();
+      String nextAction = delivery.checkFromViaUrlLogin();
       log.debug("nextAction="+nextAction);
       if (isAuthorized){
         // Assessment has been permanently removed
