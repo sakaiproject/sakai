@@ -125,7 +125,7 @@ public class EhCacheFactoryBean implements FactoryBean, BeanNameAware, Initializ
 
 	private MemoryStoreEvictionPolicy memoryStoreEvictionPolicy = MemoryStoreEvictionPolicy.LRU;
 
-	private boolean overflowToDisk = true;
+	private boolean overflowToDisk = false;
 
 	private boolean eternal = false;
 
