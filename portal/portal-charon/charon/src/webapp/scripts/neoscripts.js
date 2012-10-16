@@ -504,10 +504,6 @@ var setupSiteNav = function(){
 
     addArrowNavAndDisableTabNav($("ul.subnav"));
 
-    $('.lastMenuItem a').blur(function(e){
-        jQuery(this).parents('ul.subnav').slideUp('fast');
-    });
-
     $('.topnav > li.nav-menu > a').keydown(function(e){
         if (e.keyCode == 40) {
             e.preventDefault();
