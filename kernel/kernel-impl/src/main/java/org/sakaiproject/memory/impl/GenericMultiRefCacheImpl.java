@@ -21,6 +21,7 @@
 
 package org.sakaiproject.memory.impl;
 
+import java.io.Serializable;
 import java.util.Collection;
 import java.util.Iterator;
 import java.util.List;
@@ -61,8 +62,13 @@ public class GenericMultiRefCacheImpl extends MemCache implements GenericMultiRe
 	/** Map of reference string -> Collection of cache keys. */
 	protected final ConcurrentMap<String, ConcurrentMap<Object, Object>> m_refsStore = new ConcurrentHashMap<String, ConcurrentMap<Object, Object>>();
 
-	protected class MultiRefCacheEntry extends CacheEntry
+	protected class MultiRefCacheEntry extends CacheEntry implements Serializable
 	{
+		
+		/**
+		 * The serial version UID 
+		 */
+		private static final long serialVersionUID = -4888170965591332845L;
 		/** These are the entity reference strings that this entry is sensitive to. */
 		protected List<Object> m_refs = new CopyOnWriteArrayList<Object>();
 
