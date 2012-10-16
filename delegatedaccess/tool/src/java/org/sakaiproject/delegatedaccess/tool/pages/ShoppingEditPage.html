@@ -93,7 +93,14 @@
         <input wicket:id="update" type="submit" value="Save" /> &nbsp; <input wicket:id="cancel" type="submit" value="Cancel" />
     </form>
 	<div wicket:id="formFeedback2" id="formFeedback2">[formFeedback]</div>
-	
+
+	<wicket:enclosure child="inactiveLegend">
+		<br/>
+		<br/>
+		<span style="font-weight: bold;"><wicket:message key="legend"/></span>
+		<br/>
+		<img wicket:id="inactiveLegend"/>&nbsp;<wicket:message key="inactiveLegendText"/>
+	</wicket:enclosure>		
 </wicket:extend>
 </body>
 </html>

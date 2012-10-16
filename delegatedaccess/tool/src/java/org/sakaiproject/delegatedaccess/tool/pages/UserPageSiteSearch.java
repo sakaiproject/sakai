@@ -11,7 +11,6 @@ import java.util.Map.Entry;
 import org.apache.wicket.AttributeModifier;
 import org.apache.wicket.ajax.AjaxRequestTarget;
 import org.apache.wicket.ajax.markup.html.AjaxLink;
-import org.apache.wicket.markup.html.WebComponent;
 import org.apache.wicket.markup.html.basic.Label;
 import org.apache.wicket.markup.html.form.ChoiceRenderer;
 import org.apache.wicket.markup.html.form.DropDownChoice;
@@ -293,7 +292,6 @@ public class UserPageSiteSearch extends BasePage {
 		};
 		add(accessModifiedOnSort);
 
-		final boolean isActiveSiteFlagEnabled = sakaiProxy.isActiveSiteFlagEnabled();
 		//Data:
 		provider = new SiteSearchResultDataProvider();
 		final DataView<SiteSearchResult> dataView = new DataView<SiteSearchResult>("searchResult", provider) {
@@ -360,20 +358,6 @@ public class UserPageSiteSearch extends BasePage {
 					}
 				});
 				item.add(new Label("accessModified", siteSearchResult.getModifiedStr()));
-				
-				item.add(new WebComponent("inactiveWarning"){
-					@Override
-					public boolean isVisible() {
-						if(isActiveSiteFlagEnabled){
-							if(!siteSearchResult.isActive()){
-								return true;
-							}
-						}
-						return false;
-					}
-				});
-					
-				
 			}
 			@Override
 			public boolean isVisible() {
@@ -423,16 +407,7 @@ public class UserPageSiteSearch extends BasePage {
 		});
 
 
-		add(new WebComponent("inactiveLegend"){
-			@Override
-			public boolean isVisible() {
-				if(isActiveSiteFlagEnabled){
-					return provider.size() > 0;
-				}else{
-					return false;
-				}
-			}
-		});
+
 	}
 	
 	

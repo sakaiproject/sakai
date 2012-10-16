@@ -53,6 +53,7 @@ public class NodeModel implements Serializable {
 	private boolean shoppingPeriodRevokeInstructorPublicOpt = false;
 	private boolean shoppingPeriodRevokeInstructorPublicOptOrig = false;
 	private String[] subAdminSiteAccess = null;
+	private boolean isActive = true;
 	
 	/**
 	 * this function should be called after a save in order to reset the original values to their current value.
@@ -857,5 +858,17 @@ public class NodeModel implements Serializable {
 		}else{
 			return getInheritedSubAdminSiteAccess();
 		}
+	}
+
+	public void setActive(boolean isActive) {
+		this.isActive = isActive;
+	}
+
+	public boolean isActive() {
+		return isActive;
+	}
+	
+	public boolean isSiteNode(){
+		return node != null && node.title != null && node.title.startsWith("/site/");
 	}
 }

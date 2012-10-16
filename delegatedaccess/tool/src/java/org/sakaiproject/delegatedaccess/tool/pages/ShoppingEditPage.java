@@ -10,6 +10,7 @@ import javax.swing.tree.TreeNode;
 
 import org.apache.log4j.Logger;
 import org.apache.wicket.AttributeModifier;
+import org.apache.wicket.ResourceReference;
 import org.apache.wicket.ajax.AjaxRequestTarget;
 import org.apache.wicket.ajax.markup.html.form.AjaxButton;
 import org.apache.wicket.behavior.AttributeAppender;
@@ -19,9 +20,12 @@ import org.apache.wicket.extensions.markup.html.tree.table.ColumnLocation.Unit;
 import org.apache.wicket.extensions.markup.html.tree.table.IColumn;
 import org.apache.wicket.extensions.markup.html.tree.table.PropertyTreeColumn;
 import org.apache.wicket.extensions.markup.html.tree.table.TreeTable;
+import org.apache.wicket.markup.html.WebComponent;
 import org.apache.wicket.markup.html.basic.Label;
 import org.apache.wicket.markup.html.form.Button;
 import org.apache.wicket.markup.html.form.Form;
+import org.apache.wicket.markup.html.image.Image;
+import org.apache.wicket.markup.html.resources.CompressedResourceReference;
 import org.apache.wicket.markup.html.tree.AbstractTree;
 import org.apache.wicket.model.Model;
 import org.apache.wicket.model.ResourceModel;
@@ -114,7 +118,8 @@ public class ShoppingEditPage extends BaseTreePage{
 		IColumn columns[] = columnsList.toArray(new IColumn[columnsList.size()]);
 
 		final List<ListOptionSerialized> blankRestrictedTools = projectLogic.getEntireToolsList();
-		
+		final boolean activeSiteFlagEnabled = sakaiProxy.isActiveSiteFlagEnabled();
+		final ResourceReference inactiveWarningIcon = new CompressedResourceReference(ShoppingEditPage.class, "images/bullet_error.png");
 		//a null model means the tree is empty
 		tree = new TreeTable("treeTable", treeModel, columns){
 			@Override
@@ -126,7 +131,7 @@ public class ShoppingEditPage extends BaseTreePage{
 				
 				boolean anyAdded = false;
 				if(!tree.getTreeState().isNodeExpanded(node) && !((NodeModel) ((DefaultMutableTreeNode) node).getUserObject()).isAddedDirectChildrenFlag()){
-					anyAdded = projectLogic.addChildrenNodes(node, DelegatedAccessConstants.SHOPPING_PERIOD_USER, blankRestrictedTools, false, null);
+					anyAdded = projectLogic.addChildrenNodes(node, DelegatedAccessConstants.SHOPPING_PERIOD_USER, blankRestrictedTools, false, null, true);
 					((NodeModel) ((DefaultMutableTreeNode) node).getUserObject()).setAddedDirectChildrenFlag(true);
 				}
 				if(anyAdded){
@@ -142,7 +147,7 @@ public class ShoppingEditPage extends BaseTreePage{
 				//the nodes are generated on the fly with ajax.  This will add any child nodes that 
 				//are missing in the tree.  Expanding and collapsing will refresh the tree node
 				if(tree.getTreeState().isNodeExpanded(node) && !((NodeModel) ((DefaultMutableTreeNode) node).getUserObject()).isAddedDirectChildrenFlag()){
-					boolean anyAdded = projectLogic.addChildrenNodes(node, DelegatedAccessConstants.SHOPPING_PERIOD_USER, blankRestrictedTools, false, null);
+					boolean anyAdded = projectLogic.addChildrenNodes(node, DelegatedAccessConstants.SHOPPING_PERIOD_USER, blankRestrictedTools, false, null, true);
 					((NodeModel) ((DefaultMutableTreeNode) node).getUserObject()).setAddedDirectChildrenFlag(true);
 					if(anyAdded){
 						collapseEmptyFoldersHelper((DefaultMutableTreeNode) node);
@@ -154,6 +159,18 @@ public class ShoppingEditPage extends BaseTreePage{
 			protected boolean isForceRebuildOnSelectionChange() {
 				return true;
 			};
+			
+			protected org.apache.wicket.ResourceReference getNodeIcon(TreeNode node) {
+				if(activeSiteFlagEnabled){
+					if(!((NodeModel) ((DefaultMutableTreeNode) node).getUserObject()).isActive()){
+						return inactiveWarningIcon;
+					}else{
+						return super.getNodeIcon(node);
+					}
+				}else{
+					return super.getNodeIcon(node);
+				}
+			}
 		};
 		if(singleRoleOptions){
 			tree.add(new AttributeAppender("class", new Model("noRoles"), " "));
@@ -221,6 +238,12 @@ public class ShoppingEditPage extends BaseTreePage{
 		noAccessLabel.setDefaultModel(new StringResourceModel("noShoppingAdminAccess", null));        
 		add(noAccessLabel);
 
+		add(new Image("inactiveLegend", inactiveWarningIcon){
+			@Override
+			public boolean isVisible() {
+				return activeSiteFlagEnabled;
+			}
+		});
 	}
 
 

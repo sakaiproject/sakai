@@ -564,20 +564,7 @@ public class ProjectLogicImpl implements ProjectLogic {
 				}
 			}
 		}
-		if(sakaiProxy.isActiveSiteFlagEnabled()){
-			//DAC-40 Highlight Inactive Courses in site search
-			//requires the job "InactiveCoursesJob" attached in the jira
-			List<String> activeSites = dao.findActiveSites(resultSiteIds.toArray(new String[resultSiteIds.size()]));
-			if(activeSites != null){
-				for(SiteSearchResult result : returnList){
-					if(activeSites.contains(result.getSiteId())){
-						result.setActive(true);
-					}else{
-						result.setActive(false);
-					}
-				}
-			}
-		}
+		
 		
 		return returnList;
 	}
@@ -822,9 +809,51 @@ public class ProjectLogicImpl implements ProjectLogic {
 		//order tree model:
 		orderTreeModel(l1);
 
-		return convertToTreeModel(l1, DelegatedAccessConstants.SHOPPING_PERIOD_USER, getEntireToolsList(), false, null, null);
+		TreeModel treeModel = convertToTreeModel(l1, DelegatedAccessConstants.SHOPPING_PERIOD_USER, getEntireToolsList(), false, null, null);
+		
+		if(sakaiProxy.isActiveSiteFlagEnabled()){
+			if(treeModel != null && treeModel.getRoot() != null){
+				setActiveFlagForSiteNodes((DefaultMutableTreeNode) treeModel.getRoot());
+			}
+		}
+		
+		return treeModel;
 	}
 
+	private void setActiveFlagForSiteNodes(DefaultMutableTreeNode node){
+		Set<String> siteNodes = new HashSet<String>();
+		populateSiteNodes(node, siteNodes);
+		List<String> activeSites = dao.findActiveSites(siteNodes.toArray(new String[siteNodes.size()]));
+		setActiveSiteFlag(node, activeSites, siteNodes);
+	}
+	
+	private void populateSiteNodes(DefaultMutableTreeNode node, Set<String> siteNodes){
+		if(node != null){
+			if(((NodeModel) node.getUserObject()).isSiteNode()){
+				siteNodes.add(((NodeModel) node.getUserObject()).getNode().title.substring(6));
+			}
+			
+			for(int i = 0; i < node.getChildCount(); i++){
+				populateSiteNodes((DefaultMutableTreeNode) node.getChildAt(i), siteNodes);
+			}
+		}
+	}
+	
+	private void setActiveSiteFlag(DefaultMutableTreeNode node, List<String> activeSites, Set<String> checkSites){
+		if(node != null){
+			if(((NodeModel) node.getUserObject()).isSiteNode()
+					&& checkSites.contains(((NodeModel) node.getUserObject()).getNode().title.substring(6))
+					&& !activeSites.contains(((NodeModel) node.getUserObject()).getNode().title.substring(6))){
+				((NodeModel) node.getUserObject()).setActive(false);
+			}
+			
+			for(int i = 0; i < node.getChildCount(); i++){
+				setActiveSiteFlag((DefaultMutableTreeNode) node.getChildAt(i), activeSites, checkSites);
+			}
+		}
+	}
+	
+	
 	/**
 	 * Takes a list representation of a tree and creates the TreeModel
 	 * 
@@ -1276,10 +1305,12 @@ public class ProjectLogicImpl implements ProjectLogic {
 	 * @param blankRestrictedTools
 	 * @param onlyAccessNodes
 	 * @param accessAdminNodes
+	 * @param shopping
 	 * @return
 	 */
-	public boolean addChildrenNodes(Object node, String userId, List<ListOptionSerialized> blankRestrictedTools, boolean onlyAccessNodes, List<String> accessAdminNodes){
+	public boolean addChildrenNodes(Object node, String userId, List<ListOptionSerialized> blankRestrictedTools, boolean onlyAccessNodes, List<String> accessAdminNodes, boolean shopping){
 		boolean anyAdded = false;
+		Set<String> addedSites = new HashSet<String>();
 		DefaultMutableTreeNode parentNode = (DefaultMutableTreeNode) node;
 		NodeModel nodeModel = (NodeModel) ((DefaultMutableTreeNode) node).getUserObject();
 		if(nodeModel.getNode() != null){
@@ -1297,7 +1328,14 @@ public class ProjectLogicImpl implements ProjectLogic {
 				}
 				boolean newlyAdded = addChildNodeToTree((HierarchyNodeSerialized) childList.get(0), parentNode, userId, blankRestrictedTools, onlyAccessNodes);
 				anyAdded = anyAdded || newlyAdded;
+				if(newlyAdded && ((HierarchyNodeSerialized) childList.get(0)).title.startsWith("/site/")){
+					addedSites.add(((HierarchyNodeSerialized) childList.get(0)).title.substring(6));
+				}
 			}
+		}
+		if(shopping && addedSites.size() > 0 && sakaiProxy.isActiveSiteFlagEnabled() ){
+			List<String> activeSites = dao.findActiveSites(addedSites.toArray(new String[addedSites.size()]));
+			setActiveSiteFlag(parentNode, activeSites, addedSites);
 		}
 		return anyAdded;
 	}
