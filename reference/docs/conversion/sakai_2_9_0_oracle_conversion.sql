@@ -165,19 +165,19 @@ INSERT INTO SAM_ASSESSMETADATA_T (ASSESSMENTMETADATAID, ASSESSMENTID, LABEL,
 -- Please make the corresponding time zone changes to the queries:
 /*
 update SAM_SECTIONMETADATA_T
-set entry = TO_CHAR(to_timestamp_tz(entry, 'DY MON DD HH24:MI:SS TZR YYYY'),'YYYY-MM-DD')
+set entry = TO_CHAR(to_timestamp_tz(entry, 'DY MON DD HH24:MI:SS TZD YYYY'),'YYYY-MM-DD')
 || 'T'
-|| TO_CHAR(to_timestamp_tz(entry, 'DY MON DD HH24:MI:SS TZR YYYY'),'HH24:MI:SS')
+|| TO_CHAR(to_timestamp_tz(entry, 'DY MON DD HH24:MI:SS TZD YYYY'),'HH24:MI:SS')
 || '.000'
-|| TO_CHAR(to_timestamp_tz(entry, 'DY MON DD HH24:MI:SS TZR YYYY'),'TZH:TZM')
+|| TO_CHAR(to_timestamp_tz(entry, 'DY MON DD HH24:MI:SS TZD YYYY'),'TZH:TZM')
 where label='QUESTIONS_RANDOM_DRAW_DATE';
 
 update SAM_PUBLISHEDSECTIONMETADATA_T
-set entry = TO_CHAR(to_timestamp_tz(entry, 'DY MON DD HH24:MI:SS TZR YYYY'),'YYYY-MM-DD')
+set entry = TO_CHAR(to_timestamp_tz(entry, 'DY MON DD HH24:MI:SS TZD YYYY'),'YYYY-MM-DD')
 || 'T'
-|| TO_CHAR(to_timestamp_tz(entry, 'DY MON DD HH24:MI:SS TZR YYYY'),'HH24:MI:SS')
+|| TO_CHAR(to_timestamp_tz(entry, 'DY MON DD HH24:MI:SS TZD YYYY'),'HH24:MI:SS')
 || '.000'
-|| TO_CHAR(to_timestamp_tz(entry, 'DY MON DD HH24:MI:SS TZR YYYY'),'TZH:TZM')
+|| TO_CHAR(to_timestamp_tz(entry, 'DY MON DD HH24:MI:SS TZD YYYY'),'TZH:TZM')
 where label='QUESTIONS_RANDOM_DRAW_DATE';
 */
 
