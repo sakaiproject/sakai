@@ -512,7 +512,15 @@ public class UIPermissionsManagerImpl implements UIPermissionsManager {
   }
   
   public boolean isRead(DiscussionTopic topic, DiscussionForum forum, String userId){
-	  return isRead(topic, forum, userId, getContextId());
+	  String contextId = null;
+	  try{
+		  //context could be null b/c of external queries... first check
+		  //since its faster than a DB lookup
+		  contextId = getContextId();
+	  }catch (Exception e) {
+		  contextId = forumManager.getContextForForumById(forum.getId());
+	}
+	  return isRead(topic, forum, userId, contextId);
   }
   
   public boolean isRead(DiscussionTopic topic, DiscussionForum forum, String userId, String siteId)
