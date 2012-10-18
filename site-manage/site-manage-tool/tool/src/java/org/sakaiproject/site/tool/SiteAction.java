@@ -139,6 +139,7 @@ import org.sakaiproject.user.api.User;
 import org.sakaiproject.user.api.UserNotDefinedException;
 import org.sakaiproject.user.cover.UserDirectoryService;
 import org.sakaiproject.util.ArrayUtil;
+import org.sakaiproject.util.BaseResourcePropertiesEdit;
 import org.sakaiproject.util.FileItem;
 import org.sakaiproject.util.FormattedText;
 import org.sakaiproject.util.ParameterParser;
@@ -9956,6 +9957,9 @@ public class SiteAction extends PagedResourceActionII {
 						siteInfo.site_contact_name);
 				rp.addProperty(Site.PROP_SITE_CONTACT_EMAIL,
 						siteInfo.site_contact_email);
+				
+				// SAK-22790 add props from SiteInfo object
+				rp.addAll(siteInfo.getProperties());
 
 				state.setAttribute(STATE_SITE_INSTANCE_ID, site.getId());
 
@@ -11062,7 +11066,8 @@ public class SiteAction extends PagedResourceActionII {
 		public String site_contact_email = NULL_STRING; // site contact email
 		
 		public String term = NULL_STRING; // academic term
-				
+		
+		public ResourceProperties properties = new BaseResourcePropertiesEdit();		
 
 		public String getSiteId() {
 			return site_id;
@@ -11119,6 +11124,15 @@ public class SiteAction extends PagedResourceActionII {
 		public String getFirstAlias() {
 			return siteRefAliases.isEmpty() ? NULL_STRING : siteRefAliases.iterator().next();
 		}
+		
+		public void addProperty(String key, String value) {
+			properties.addProperty(key, value);
+		}
+		
+		public ResourceProperties getProperties() {
+			return properties;
+		}
+		
 
 		public Set<String> getSiteRefAliases() {
 			return siteRefAliases;
