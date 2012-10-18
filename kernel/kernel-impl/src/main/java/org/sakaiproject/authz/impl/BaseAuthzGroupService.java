@@ -43,6 +43,7 @@ import org.sakaiproject.authz.api.GroupIdInvalidException;
 import org.sakaiproject.authz.api.GroupNotDefinedException;
 import org.sakaiproject.authz.api.GroupProvider;
 import org.sakaiproject.authz.api.Role;
+import org.sakaiproject.authz.api.RoleAlreadyDefinedException;
 import org.sakaiproject.authz.api.SecurityService;
 import org.sakaiproject.component.api.ServerConfigurationService;
 import org.sakaiproject.component.cover.ComponentManager;
@@ -746,6 +747,18 @@ public abstract class BaseAuthzGroupService implements AuthzGroupService
 		String roleName = azGroup.getMaintainRole();
 		if ((roleName != null) && (userId != null))
 		{
+			if (azGroup.getRole(roleName) == null)
+			{
+				// add the "maintain" role to the azGroup
+				try
+				{
+					azGroup.addRole(roleName);
+				}
+				catch (RoleAlreadyDefinedException e)
+				{
+					M_log.warn("addAuthzGroup: ", e);
+				}
+			}
 			azGroup.addMember(userId, roleName, true, false);
 		}
 
