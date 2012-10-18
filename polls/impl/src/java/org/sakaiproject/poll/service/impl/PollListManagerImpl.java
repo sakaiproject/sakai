@@ -677,9 +677,6 @@ public class PollListManagerImpl implements PollListManager,EntityTransferrer {
 		if (poll.getDisplayResult().equals("open"))
 			return true;
 
-		if (poll.getOwner().equals(userId))
-			return true;
-
 		if (poll.getDisplayResult().equals("afterVoting")) {
 			
 			Search search = new Search();
