@@ -107,15 +107,15 @@
 						#foreach ( $site in $tabsSites.tabsSites ) 
 							#if (${site.isCurrentSite})
 								#if (${site.isMyWorkspace})
-<li class="nav-selected nav-menu" aria-haspopup="true"><a href="#" role="menuitem"><span>${rloader.sit_mywor}</span></a>
+<li class="nav-selected nav-menu"><a href="#" role="menuitem" aria-haspopup="true"><span>${rloader.sit_mywor}</span></a>
 								#else
-<li class="nav-selected nav-menu" aria-haspopup="true"><a href="#" title="${site.fullTitle}" role="menuitem"><span>${site.siteTitle}</span></a>
+<li class="nav-selected nav-menu"><a href="#" title="${site.fullTitle}" role="menuitem" aria-haspopup="true"><span>${site.siteTitle}</span></a>
 								#end
 							#else
 								#if (${site.isMyWorkspace})
-<li class="nav-menu" aria-haspopup="true"><a href="${site.siteUrl}" title="${rloader.sit_mywor}" role="menuitem"><span>${rloader.sit_mywor}</span></a>
+<li class="nav-menu"><a href="${site.siteUrl}" title="${rloader.sit_mywor}" role="menuitem" aria-haspopup="true"><span>${rloader.sit_mywor}</span></a>
 								#else
-<li class="nav-menu" aria-haspopup="true"><a href="${site.siteUrl}" title="${site.fullTitle}" role="menuitem"><span>${site.siteTitle}</span></a>
+<li class="nav-menu"><a href="${site.siteUrl}" title="${site.fullTitle}" role="menuitem" aria-haspopup="true"><span>${site.siteTitle}</span></a>
 								#end
 							#end
 <ul class="nav-submenu subnav" role="menu">
@@ -139,7 +139,7 @@
 						#end
 
 #if ($tabsSites.tabsMoreSitesShow)
-<li class="more-tab" aria-haspopup="true"><a href="javascript:;" onclick="return dhtml_view_sites();" title="${rloader.sit_more}"><span>${rloader.sit_more}</span></a></li>
+<li class="more-tab"><a href="javascript:;" onclick="return dhtml_view_sites();" title="${rloader.sit_more}" aria-haspopup="true"><span>${rloader.sit_more}</span></a></li>
 #end
 						</ul>
 					</div> <!-- /linkNav -->
