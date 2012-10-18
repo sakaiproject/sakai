@@ -354,17 +354,17 @@ function showToolMenu(e, xOffset){
     }
     else {
         $('#otherSiteTools').remove();
-        var subsubmenu = "<ul id=\"otherSiteTools\" class=\"" + classId + "\"role=\"menu\">";
+        var subsubmenu = "<ul id=\"otherSiteTools\" class=\"" + classId + "\" role=\"menu\">";
         var siteURL = '/direct/site/' + classId + '/pages.json';
         scroll(0, 0)
         var pos = jqObj.offset();
         var maxToolsInt = parseInt($('#maxToolsInt').text());
-        var goToSite = '<li class=\"otherSiteTool\" role=\"menuitem\"><span><a class=\"icon-sakai-see-all-tools\" href=\"' + portal.portalPath + '/site/' + id + '\">' + $('#maxToolsAnchor').text() + '</a></span></li>';
+        var goToSite = '<li class=\"otherSiteTool\"><span><a role=\"menuitem\" class=\"icon-sakai-see-all-tools\" href=\"' + portal.portalPath + '/site/' + id + '\">' + $('#maxToolsAnchor').text() + '</a></span></li>';
         jQuery.getJSON(siteURL, function(data){
             $.each(data, function(i, item){
                 if (i <= maxToolsInt) {
                     if (item.tools.length === 1) {
-                        subsubmenu = subsubmenu + '<li class=\"otherSiteTool\" role=\"menuitem\"><span><a class=\"icon-' + item.tools[0].toolId.replace(/\./gi, '-') + '\" href=' + item.tools[0].url + ">" + item.title + "</a></span></li>";
+                        subsubmenu = subsubmenu + '<li class=\"otherSiteTool\"><span><a role=\"menuitem\" class=\"icon-' + item.tools[0].toolId.replace(/\./gi, '-') + '\" href=' + item.tools[0].url + ">" + item.title + "</a></span></li>";
                     }
                 }
                 
@@ -635,6 +635,7 @@ function addArrowNavAndDisableTabNav(ul,callback) {
         } else if(e.keyCode == 9) { // Suck up the menu if tab is pressed 
             ul.slideUp('fast');
         } else if(e.keyCode == 38) {
+            // Up arrow
             e.preventDefault();
             var prev = obj.parent().parent().prev();
             if(prev[0] === undefined) {

@@ -48,23 +48,23 @@
 <ul class="nav-submenu subnav" role="menu">
 					#if (${displayUserloginInfo})
 						#if (${tabsSites.profileToolUrl})
-<li class="submenuitem" role="menuitem"><span><a id="loginUser" href="${tabsSites.profileToolUrl}?sakai_nav_minimized=true&sakai.state.reset=true" class="submenuitem-profile">${loginUserDispName} (${loginUserDispId})</a></span></li>
+<li class="submenuitem"><span><a id="loginUser" role="menuitem" href="${tabsSites.profileToolUrl}?sakai_nav_minimized=true&sakai.state.reset=true" class="submenuitem-profile">${loginUserDispName} (${loginUserDispId})</a></span></li>
 						#else
 <li class="submenuitem" role="menuitem"><span>${loginUserDispName} (${loginUserDispId})</span></li>
 						#end
 					#else
 						#if (${tabsSites.profileToolUrl})
-<li class="submenuitem" role="menuitem"><span><a href="${tabsSites.profileToolUrl}?sakai_nav_minimized=true" class="submenuitem-profile"><span>${rloader.sit_profile}</span></a></span></li>
+<li class="submenuitem"><span><a role="menuitem" href="${tabsSites.profileToolUrl}?sakai_nav_minimized=true" class="submenuitem-profile"><span>${rloader.sit_profile}</span></a></span></li>
 						#end
 					#end
 					#if (${tabsSites.prefsToolUrl})
-<li class="submenuitem" role="menuitem"><span><a href="${tabsSites.prefsToolUrl}?sakai_nav_minimized=true"  class="submenuitem-prefs">${rloader.sit_preferences}</a></span></li>
+<li class="submenuitem"><span><a role="menuitem" href="${tabsSites.prefsToolUrl}?sakai_nav_minimized=true"  class="submenuitem-prefs">${rloader.sit_preferences}</a></span></li>
 					#end
 			#if (${tabsSites.worksiteToolUrl})
-<li class="submenuitem " role="menuitem"><span><a id="addNewSiteLink" href="${tabsSites.worksiteToolUrl}?sakai_nav_minimized=true&panel=Shortcut&sakai_action=doNew_site&sakai.state.reset=true" class="submenuitem-new-site">${rloader.sit_newsite}</a></span></li>
+<li class="submenuitem"><span><a id="addNewSiteLink" role="menuitem" href="${tabsSites.worksiteToolUrl}?sakai_nav_minimized=true&panel=Shortcut&sakai_action=doNew_site&sakai.state.reset=true" class="submenuitem-new-site">${rloader.sit_newsite}</a></span></li>
 			#end
 			#if (${tabsSites.tutorial})
-<li class="submenuitem " role="menuitem"><span><a id="tutorialLink" href="#" onclick="startTutorial({});" class="submenuitem-tutorial">${rloader.sit_tutorial}</a></span></li>
+<li class="submenuitem"><span><a id="tutorialLink" role="menuitem" href="#" onclick="startTutorial({});" class="submenuitem-tutorial">${rloader.sit_tutorial}</a></span></li>
 			#end
 
 </ul>
@@ -97,13 +97,13 @@
 					#end
 					</div>
 					<!-- end login component -->
-					<div id="linkNav">
+					<div id="linkNav" role="navigation" aria-labelledby="sitetabs">
 
 <!-- this allows us to reliably detect if the browser is internet explorer, depends on these elements ul#topnav h1#sitetabs -->
 <script type="text/javascript">var sakai_portal_ie_detected=false;</script>
 <!--[if IE]><script type="text/javascript">sakai_portal_ie_detected=true;</script><![endif]-->
 							<h1 class="skip" id="sitetabs">${rloader.sit_worksiteshead}</h1>
-<ul class="topnav" id="topnav" role="navigation, menubar" aria-label="${rloader.sit_worksiteshead}">
+<ul class="topnav" id="topnav" role="menubar" aria-label="${rloader.sit_worksiteshead}">
 						#foreach ( $site in $tabsSites.tabsSites ) 
 							#if (${site.isCurrentSite})
 								#if (${site.isMyWorkspace})
