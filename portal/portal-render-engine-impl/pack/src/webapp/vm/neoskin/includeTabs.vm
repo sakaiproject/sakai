@@ -227,7 +227,7 @@
             var $ul_topnav = jQuery('ul#topnav');
             var aria_label_val = $ul_topnav.attr('aria-label');
             jQuery('h1#sitetabs').attr('role','navigation').attr('aria-label', aria_label_val);
-            $ul_topnav.removeAttr('role').removeAttr('aria-label');
+            $ul_topnav.removeAttr('aria-label');
         }
     });
 </script>
