@@ -5302,8 +5302,10 @@ public class SimplePageBean {
 			// A: No; should be impossible, UI already tested
 			return null;
 		} catch (Exception e) {
-			// A: Not sure
-			log.error("SecurityException thrown by expandZippedResource method lookup", e);
+			// This is very strange. The kernel code will normally trap exceptions
+		        // and print a backtrace, robbing us of any ability to see that something
+		        // has gone wrong.
+			log.error("Exception thrown by expandZippedResource", e);
 			setErrKey("simplepage.website.cantexpand", null);
 			return null;
 		}
