@@ -24,14 +24,6 @@
             <unpack>false</unpack>
         </dependencySet>
         <dependencySet>
-            <outputDirectory>components/pcservice-pack</outputDirectory>
-            <useTransitiveDependencies>false</useTransitiveDependencies>
-            <includes>
-                <include>org.sakaiproject.pcservice:pcservice-pack:war:*</include>
-            </includes>
-            <unpack>true</unpack>
-        </dependencySet>
-        <dependencySet>
             <outputDirectory>components/sakai-portal-render-pack</outputDirectory>
             <useTransitiveDependencies>false</useTransitiveDependencies>
             <includes>

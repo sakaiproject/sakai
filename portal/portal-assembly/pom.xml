@@ -70,13 +70,6 @@
 
         <!-- Packaged Components -->
         <dependency>
-            <groupId>org.sakaiproject.pcservice</groupId>
-            <artifactId>pcservice-pack</artifactId>
-            <version>${project.version}</version>
-            <type>war</type>
-            <scope>compile</scope>
-        </dependency>
-        <dependency>
             <groupId>${project.groupId}</groupId>
             <artifactId>sakai-portal-render-pack</artifactId>
             <version>${project.version}</version>
