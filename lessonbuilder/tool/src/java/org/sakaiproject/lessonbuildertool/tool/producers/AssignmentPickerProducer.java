@@ -141,18 +141,18 @@ public class AssignmentPickerProducer implements ViewComponentProducer, Navigati
 			UIForm form = UIForm.make(tofill, "assignment-picker");
 
 			if (createLinks.size() == 0) {
-			    UIOutput.make(tofill, "error-div");
-			    UIOutput.make(tofill, "error", messageLocator.getMessage("simplepage.no_assignment_tools"));
-			    UICommand.make(tofill, "cancel", messageLocator.getMessage("simplepage.cancel"), "#{simplePageBean.cancel}");
+			    UIOutput.make(form, "error-div");
+			    UIOutput.make(form, "error", messageLocator.getMessage("simplepage.no_assignment_tools"));
+			    UICommand.make(form, "cancel", messageLocator.getMessage("simplepage.cancel"), "#{simplePageBean.cancel}");
 			    return;
 			}
 
 			List<LessonEntity> alist = assignmentEntity.getEntitiesInSite(simplePageBean);
 
 			if (alist == null || alist.size() < 1) {
-			    UIOutput.make(tofill, "error-div");
-			    UIOutput.make(tofill, "error", messageLocator.getMessage("simplepage.no_assignments"));
-			    UICommand.make(tofill, "cancel", messageLocator.getMessage("simplepage.cancel"), "#{simplePageBean.cancel}");
+			    UIOutput.make(form, "error-div");
+			    UIOutput.make(form, "error", messageLocator.getMessage("simplepage.no_assignments"));
+			    UICommand.make(form, "cancel", messageLocator.getMessage("simplepage.cancel"), "#{simplePageBean.cancel}");
 			    return;
 			}
 
