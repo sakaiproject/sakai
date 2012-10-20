@@ -157,6 +157,7 @@ $(function() {
 
 		$('#edit-title').click(function(){
 			closeDropdown();
+			$('#edit-title-error-container').hide();
 			var position =  $(this).position();
 			$("#edit-title-dialog").dialog("option", "position", [position.left, position.top]);
 			if ($("#page-points").val() == '') {
@@ -1231,6 +1232,9 @@ function checkEditTitleForm() {
 		$('#edit-title-error').text(msg("simplepage.title_notblank"));
 		$('#edit-title-error-container').show();
 		return false;
+	}else if (!isFinite(parseFloat($("#page-points").val()))) {
+		$('#edit-title-error').text(msg("simplepage.integer-expected"));
+		$('#edit-title-error-container').show();
 	}else {
 		$('#edit-title-error-container').hide();
 		return true;
@@ -1365,7 +1369,7 @@ function checkEditItemForm() {
 		$('#edit-item-error-container').show();
 		return false;
         } else if ((requirementType == 3 || requirementType == 6) && 
-		   $("#item-required2").attr("checked") && isNaN(parseFloat($("#assignment-points").val()))) {
+		   $("#item-required2").attr("checked") && !isFinite(parseFloat($("#assignment-points").val()))) {
 		$('#edit-item-error').text(msg("simplepage.integer-expected"));
 		$('#edit-item-error-container').show();
 		return false;
