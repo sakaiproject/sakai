@@ -62,4 +62,22 @@ function resizeFrame(updown){
     }	 
 }
 
-	
+$(document).ready(function () {
+
+    // Show the various in place editing buttons when they receive keyboard focus
+    $(".edit-image-button").focus(function () { 
+        $(this).removeClass("offscreen"); 
+    });
+
+    $(".edit-image-button").blur(function () { 
+        $(this).addClass("offscreen"); 
+    }); 
+
+    $(".edit-button").focus(function () { 
+        $(this).removeClass("offscreen"); 
+    }); 
+
+    $(".edit-button").blur(function () { 
+        $(this).addClass("offscreen"); 
+    }); 
+});
