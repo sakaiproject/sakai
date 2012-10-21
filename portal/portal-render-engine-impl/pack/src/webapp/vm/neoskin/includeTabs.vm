@@ -109,13 +109,13 @@
 								#if (${site.isMyWorkspace})
 <li class="nav-selected nav-menu"><a href="#" role="menuitem" aria-haspopup="true"><span>${rloader.sit_mywor}</span></a>
 								#else
-<li class="nav-selected nav-menu"><a href="#" title="${site.fullTitle}" role="menuitem" aria-haspopup="true"><span>${site.siteTitle}</span></a>
+<li class="nav-selected nav-menu"><a href="#" title="${site.fullTitle}" role="menuitem" aria-haspopup="true" aria-label="${site.siteTitle}"><span>${site.siteTitle}</span></a>
 								#end
 							#else
 								#if (${site.isMyWorkspace})
-<li class="nav-menu"><a href="${site.siteUrl}" title="${rloader.sit_mywor}" role="menuitem" aria-haspopup="true"><span>${rloader.sit_mywor}</span></a>
+<li class="nav-menu"><a href="${site.siteUrl}" title="${rloader.sit_mywor}" role="menuitem" aria-haspopup="true" aria-label="${rloader.sit_mywor}"><span>${rloader.sit_mywor}</span></a>
 								#else
-<li class="nav-menu"><a href="${site.siteUrl}" title="${site.fullTitle}" role="menuitem" aria-haspopup="true"><span>${site.siteTitle}</span></a>
+<li class="nav-menu"><a href="${site.siteUrl}" title="${site.fullTitle}" role="menuitem" aria-haspopup="true" aria-label="${site.siteTitle}"><span>${site.siteTitle}</span></a>
 								#end
 							#end
 <ul class="nav-submenu subnav" role="menu">
@@ -123,15 +123,15 @@
     #foreach ( $page in $site.sitePages.pageNavTools ) 
         #set ($pageCount =$pageCount + 1)       
         #if (${page.isPage} && $pageCount <=  $maxToolsInt )
-			<li class="submenuitem"><span#if(${page.hidden}) class="hidden"#end><a href="${page.pageRefUrl}" title="${page.description}" class="${page.menuClass}" role="menuitem">${page.pageTitle}</a></span></li>
+			<li class="submenuitem"><span#if(${page.hidden}) class="hidden"#end><a href="${page.pageRefUrl}" title="${page.description}" class="${page.menuClass}" role="menuitem" aria-label="${page.pageTitle}">${page.pageTitle}</a></span></li>
 		#end
     #end
 	#if ($pageCount > $maxToolsInt)
-		<li class="submenuitem"><span><a href="${site.siteUrl}" title="${site.siteTitle}" class="icon-sakai-see-all-tools" role="menuitem"><span>${rloader.sit_alltools}</span></a></span></li>
+		<li class="submenuitem"><span><a href="${site.siteUrl}" title="${site.siteTitle}" class="icon-sakai-see-all-tools" role="menuitem" aria-label="${rloader.sit_alltools}"><span>${rloader.sit_alltools}</span></a></span></li>
 	#end	
 
 #if (${site.sitePages.pageNavCanAddMoreTools}) 
-    <li class="submenuitem"><span class="addTool"><a href="${site.sitePages.pageNavAddMoreToolsUrl}" title="${rloader.sit_addmoretools}"  class="addTool" role="menuitem"> ${rloader.sit_addmoretools}</a></span></li>
+    <li class="submenuitem"><span class="addTool"><a href="${site.sitePages.pageNavAddMoreToolsUrl}" title="${rloader.sit_addmoretools}"  class="addTool" role="menuitem" aria-label="${rloader.sit_addmoretools}"> ${rloader.sit_addmoretools}</a></span></li>
 #end
 </ul>
 <span class="drop" tabindex="-1"></span>
