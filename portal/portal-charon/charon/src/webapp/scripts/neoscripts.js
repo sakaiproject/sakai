@@ -359,12 +359,13 @@ function showToolMenu(e, xOffset){
         scroll(0, 0)
         var pos = jqObj.offset();
         var maxToolsInt = parseInt($('#maxToolsInt').text());
-        var goToSite = '<li class=\"otherSiteTool\"><span><a role=\"menuitem\" class=\"icon-sakai-see-all-tools\" href=\"' + portal.portalPath + '/site/' + id + '\">' + $('#maxToolsAnchor').text() + '</a></span></li>';
+        var maxToolsText = $('#maxToolsAnchor').text();
+        var goToSite = '<li class=\"otherSiteTool\"><span><a role=\"menuitem\" class=\"icon-sakai-see-all-tools\" href=\"' + portal.portalPath + '/site/' + id + '\" title=\"' + maxToolsText + '\">' + maxToolsText + '</a></span></li>';
         jQuery.getJSON(siteURL, function(data){
             $.each(data, function(i, item){
                 if (i <= maxToolsInt) {
                     if (item.tools.length === 1) {
-                        subsubmenu = subsubmenu + '<li class=\"otherSiteTool\"><span><a role=\"menuitem\" class=\"icon-' + item.tools[0].toolId.replace(/\./gi, '-') + '\" href=' + item.tools[0].url + ">" + item.title + "</a></span></li>";
+                        subsubmenu = subsubmenu + '<li class=\"otherSiteTool\"><span><a role=\"menuitem\" class=\"icon-' + item.tools[0].toolId.replace(/\./gi, '-') + '\" href=\"' + item.tools[0].url + "\" title=\"" + item.title + "\">" + item.title + "</a></span></li>";
                     }
                 }
                 
