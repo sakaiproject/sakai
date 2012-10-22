@@ -81,11 +81,12 @@ public class ToolHelperImpl
 						if(site.getMember(session.getUserId()) == null && 
 								(site.getProperties().get("shopping-period-public-tools") != null || site.getProperties().get("shopping-period-auth-tools") != null)){
 							//this is .anon or .auth role in a site that needs to restrict the tools:
-							boolean anonAccess = arrayContains(((String) site.getProperties().get("shopping-period-public-tools")).split(";"), placement.getToolId());
+							boolean anonAccess = site.getProperties().get("shopping-period-public-tools") != null 
+									&& arrayContains(((String) site.getProperties().get("shopping-period-public-tools")).split(";"), placement.getToolId());
 							if(session.getUserId() == null){
 								return anonAccess;
 							}else{
-								return anonAccess || arrayContains(((String) site.getProperties().get("shopping-period-auth-tools")).split(";"), placement.getToolId());
+								return anonAccess || (site.getProperties().get("shopping-period-auth-tools") != null && arrayContains(((String) site.getProperties().get("shopping-period-auth-tools")).split(";"), placement.getToolId()));
 							}
 						}
 					}
