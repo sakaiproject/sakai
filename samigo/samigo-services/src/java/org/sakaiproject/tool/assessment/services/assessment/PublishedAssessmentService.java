@@ -185,6 +185,10 @@ public class PublishedAssessmentService extends AssessmentService{
   }
 
   public PublishedAssessmentFacade getPublishedAssessment(String assessmentId) {
+	//SAM-1995 if an empty or null id is passed throw and exception
+	if (assessmentId == null || "".equals(assessmentId)) {
+		throw new IllegalArgumentException("AssesmentId must be specified");
+	}
     try {
       return PersistenceService.getInstance().
           getPublishedAssessmentFacadeQueries().
