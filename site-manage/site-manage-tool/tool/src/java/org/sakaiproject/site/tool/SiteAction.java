@@ -5831,6 +5831,10 @@ public class SiteAction extends PagedResourceActionII {
 
 		// get the request email from configuration
 		String requestEmail = getSetupRequestEmailAddress();
+		
+		// get the request replyTo email from configuration
+		String requestReplyToEmail = getSetupRequestReplyToEmailAddress();
+		
 		if (requestEmail != null) {
 			String officialAccountName = ServerConfigurationService
 					.getString("officialAccountName", "");
@@ -5922,7 +5926,7 @@ public class SiteAction extends PagedResourceActionII {
 					if (requireAuthorizer)
 					{
 						// 1. email to course site authorizer
-						boolean result = userNotificationProvider.notifyCourseRequestAuthorizer(instructorId, requestEmail, term != null? term.getTitle():"", requestSectionInfo, title, id, additional, productionSiteName);
+						boolean result = userNotificationProvider.notifyCourseRequestAuthorizer(instructorId, requestEmail, requestReplyToEmail, term != null? term.getTitle():"", requestSectionInfo, title, id, additional, productionSiteName);
 						if (!result)
 						{
 							// append authorizer who doesn't received an notification
@@ -9890,6 +9894,18 @@ public class SiteAction extends PagedResourceActionII {
 			M_log.warn(this + " - no 'setup.request' in configuration, using: "+ from);
 		}
 		return from;
+	}
+	
+	/**
+	 * get the setup.request.replyTo setting. If missing, use setup.request setting.
+	 * @return
+	 */
+	private String getSetupRequestReplyToEmailAddress() {
+		String rv = ServerConfigurationService.getString("setup.request.replyTo", null);
+		if (rv == null) {
+			rv = getSetupRequestEmailAddress();
+		}
+		return rv;
 	}
 
 	/**

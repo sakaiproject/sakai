@@ -54,6 +54,7 @@ public interface UserNotificationProvider {
 	 * return true if such email sent successfully; false otherwise
 	 * @param instructorId
 	 * @param requestEmail
+	 * @param replyToEmail
 	 * @param termTitle
 	 * @param requestSectionInfo
 	 * @param siteTitle
@@ -62,7 +63,7 @@ public interface UserNotificationProvider {
 	 * @param serverName
 	 * @return
 	 */
-	public boolean notifyCourseRequestAuthorizer(String instructorId, String requestEmail, String termTitle, String requestSectionInfo, String siteTitle, String siteId, String additionalInfo, String serverName);
+	public boolean notifyCourseRequestAuthorizer(String instructorId, String requestEmail, String replyToEmail, String termTitle, String requestSectionInfo, String siteTitle, String siteId, String additionalInfo, String serverName);
 	
 	/**
 	 * notify support team about course creation
