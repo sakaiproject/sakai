@@ -32,6 +32,7 @@ import java.util.Arrays;
 import java.util.Collection;
 import java.util.Comparator;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Locale;
@@ -2406,8 +2407,32 @@ public abstract class BaseAssignmentService implements AssignmentService, Entity
 
 	} // commitEdit(Submission)
 	
-	protected void sendGradeReleaseNotification(boolean released, String notificationSetting, User[] submitters, AssignmentSubmission s)
+	protected void sendGradeReleaseNotification(boolean released, String notificationSetting, User[] allSubmitters, AssignmentSubmission s)
 	{
+		if (allSubmitters == null) return;
+		
+		// SAK-19916 need to filter submitters against list of valid users still in site
+		Set<User> filteredSubmitters = new HashSet<User>();
+		try {
+			String siteId = s.getAssignment().getContext();
+			Set<String> siteUsers = SiteService.getSite(siteId).getUsers();
+
+			for (int x = 0; x < allSubmitters.length; x++)
+			{
+				User u = (User) allSubmitters[x];
+				String userId = u.getId();
+				if (siteUsers.contains(userId)) {
+					filteredSubmitters.add(u);
+				}
+			}
+		} catch (IdUnusedException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+		
+		User[] submitters = new User[filteredSubmitters.size()];
+		filteredSubmitters.toArray(submitters);
+		
 		if (released && notificationSetting != null && notificationSetting.equals(Assignment.ASSIGNMENT_RELEASEGRADE_NOTIFICATION_EACH))
 		{
 			// send email to every submitters
