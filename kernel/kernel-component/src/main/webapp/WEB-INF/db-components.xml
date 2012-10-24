@@ -217,15 +217,9 @@
 				</prop>
 				<prop key="hibernate.jdbc.use_streams_for_binary">true</prop>
 				<prop key="hibernate.cache.use_query_cache">true</prop>
-				<prop key="hibernate.cache.provider_class">
-				     org.sakaiproject.springframework.orm.hibernate.SakaiCacheProvider
-				</prop>
 			</props>
 		</property>
-		<!--
-		This s 
-					org.hibernate.cache.EhCacheProvider
-		-->
+		<property name="cacheProvider" ref="org.hibernate.cache.CacheProvider"/>
 
 		<!--  update the database schema when starting -->
 		<property name="schemaUpdate">
@@ -233,8 +227,17 @@
 		</property>
 
 	</bean>
+	
+	<bean id="org.hibernate.cache.CacheProvider"
+			class="org.sakaiproject.springframework.orm.hibernate.SakaiCacheProvider">
+		<property name="sakaiCacheManager" ref="org.sakaiproject.memory.api.MemoryService.cacheManager"/>
+		<property name="defaultCache" ref="org.sakaiproject.springframework.orm.hibernate.L2Cache"/>
+	</bean>
 
     <bean id="org.sakaiproject.springframework.orm.hibernate.VendorHbmTransformer" class="org.sakaiproject.springframework.orm.hibernate.impl.VendorHbmTransformerImpl">
+        <property name="vendor">
+            <bean factory-bean="org.sakaiproject.db.api.SqlService" factory-method="getVendor"/>
+        </property>
         <property name="vendorTransforms">
             <map>
                 <entry>

@@ -32,21 +32,36 @@ import org.hibernate.cache.CacheException;
 import org.hibernate.cache.CacheProvider;
 import org.hibernate.cache.EhCache;
 import org.hibernate.cache.Timestamper;
-import org.sakaiproject.component.cover.ComponentManager;
+import org.springframework.beans.BeansException;
+import org.springframework.context.ApplicationContext;
+import org.springframework.context.ApplicationContextAware;
 
 /**
- * @author ieb
- * @author azeckoski - fixed naming issues and now gets caches from the
- *         configuration as well
+ * This class attempts to get the Hibernate cache through Sakai locations.
  */
-public class SakaiCacheProvider implements CacheProvider
+public class SakaiCacheProvider implements CacheProvider, ApplicationContextAware
 {
-
 	private static final Log LOG = LogFactory.getLog(SakaiCacheProvider.class);
 
-	private static final String DEFAULT = "org.sakaiproject.springframework.orm.hibernate.L2Cache";
+	private CacheManager sakaiCacheManager;
 
-	private static final String CACHE_MANAGER = "org.sakaiproject.memory.api.MemoryService.cacheManager";
+	private net.sf.ehcache.Cache defaultCache;
+
+	// We make the class aware it's in Spring so it doesn't need to use the component manager.
+	private ApplicationContext applicationContext;
+
+	public void setSakaiCacheManager(CacheManager sakaiCacheManager) {
+		this.sakaiCacheManager = sakaiCacheManager;
+	}
+	
+	public void setDefaultCache(net.sf.ehcache.Cache defaultCache) {
+		this.defaultCache = defaultCache;
+	}
+
+	public void setApplicationContext(ApplicationContext applicationContext)
+			throws BeansException {
+		this.applicationContext = applicationContext;
+	}
 
 	/*
 	 * (non-Javadoc)
@@ -56,61 +71,52 @@ public class SakaiCacheProvider implements CacheProvider
 	 */
 	public Cache buildCache(final String cacheName, Properties properties)
 			throws CacheException
-	{
+			{
 		try
 		{
 			net.sf.ehcache.Cache cache = null;
 			// try to get a bean which defines this cache first
-			try
+
+			if (applicationContext.containsBean(cacheName))
 			{
-				cache = (net.sf.ehcache.Cache) ComponentManager.get(cacheName);
+				try
+				{
+					cache = (net.sf.ehcache.Cache) applicationContext.getBean(cacheName);
+					LOG.info("Loaded cache from component manager: "+ cacheName);
+				}
+				catch (ClassCastException e)
+				{
+					LOG.warn("Illegal class type (must be net.sf.ehcache.Cache) for cache bean: "
+							+ cacheName);
+				}
 			}
-			catch (ClassCastException e)
-			{
-				LOG
-						.warn("Illegal class type (must be net.sf.ehcache.Cache) for cache bean: "
-								+ cacheName);
-			}
+			
 
 			// try to get cache directly from ehcache next
 			if (cache == null)
 			{
-				try
+				CacheManager cacheManager = sakaiCacheManager;
+				if (cacheManager != null && cacheManager.cacheExists(cacheName))
 				{
-					CacheManager cacheManager = (CacheManager) ComponentManager
-							.get(CACHE_MANAGER);
-					if (cacheManager != null && cacheManager.cacheExists(cacheName))
-					{
-						cache = cacheManager.getCache(cacheName);
-						LOG.info("Loaded cache from cache manager: " + cacheName);
-					}
-				}
-				catch (ClassCastException e)
-				{
-					LOG
-							.warn("Illegal class type (must be net.sf.ehcache.CacheManager) for cache manager bean: "
-									+ CACHE_MANAGER);
+					cache = cacheManager.getCache(cacheName);
+					LOG.info("Loaded cache from cache manager: " + cacheName);
 				}
 			}
 
 			// load up the default cache bean next
 			if (cache == null)
 			{
-				cache = (net.sf.ehcache.Cache) ComponentManager.get(DEFAULT);
+				cache = defaultCache;
 				if (cache != null)
 				{
-					LOG.info("Loaded Default Cache bean (" + DEFAULT + ") for "
-							+ cacheName);
+					LOG.info("Loaded Default Cache bean for "+ cacheName);
 				}
 			}
 
 			// finally just get a default cache from the cache manager
 			if (cache == null)
 			{
-				// this will throw exceptions if it fails at this point
-				CacheManager cacheManager = (CacheManager) ComponentManager
-						.get(CACHE_MANAGER);
-				cache = cacheManager.getCache(cacheName);
+				cache = sakaiCacheManager.getCache(cacheName);
 				LOG.info("Loaded default cache from cache manager: " + cacheName);
 			}
 

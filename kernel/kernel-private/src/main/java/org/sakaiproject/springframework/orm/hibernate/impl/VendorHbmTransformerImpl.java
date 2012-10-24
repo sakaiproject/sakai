@@ -1,6 +1,5 @@
 package org.sakaiproject.springframework.orm.hibernate.impl;
 
-import org.sakaiproject.db.cover.SqlService;
 import org.sakaiproject.springframework.orm.hibernate.VendorHbmTransformer;
 import org.springframework.core.io.Resource;
 import org.springframework.core.io.ClassPathResource;
@@ -29,6 +28,8 @@ public class VendorHbmTransformerImpl implements VendorHbmTransformer {
     protected final transient Log logger = LogFactory.getLog(getClass());
  
     private Map vendorTransforms = new HashMap();
+
+    private String vendor;
 
     /**
      * Applies the vendor specific xsl transformation to the given mappingDoc.  If
@@ -76,7 +77,7 @@ public class VendorHbmTransformerImpl implements VendorHbmTransformer {
     }
 
     protected InputStream loadTransformStream() throws IOException {
-        String resourcePath = (String) getVendorTransforms().get(SqlService.getVendor());
+        String resourcePath = (String) getVendorTransforms().get(vendor);
         if (resourcePath == null) {
             return null;
         }
@@ -95,5 +96,9 @@ public class VendorHbmTransformerImpl implements VendorHbmTransformer {
 
     public void setVendorTransforms(Map vendorTransforms) {
         this.vendorTransforms = vendorTransforms;
+    }
+    
+    public void setVendor(String vendor) {
+    	this.vendor = vendor;
     }
 }
