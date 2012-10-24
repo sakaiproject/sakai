@@ -132,7 +132,7 @@ create table PROFILE_WALL_ITEM_COMMENTS_T (
 	WALL_ITEM_COMMENT_ID bigint not null auto_increment,
 	WALL_ITEM_ID bigint not null,
 	CREATOR_UUID varchar(99) not null,
-	WALL_ITEM_COMMENT_TEXT text not null,
+	WALL_ITEM_COMMENT_TEXT varchar(4000) not null,
 	WALL_ITEM_COMMENT_DATE datetime not null,
 	primary key (WALL_ITEM_COMMENT_ID)
 );
@@ -643,8 +643,8 @@ create index lesson_builder_items_sakaiid on lesson_builder_items(sakaiId);
 INSERT INTO SAKAI_SITE_PROPERTY VALUES ('!error', 'display-users-present', 'false');
 
 -- PRFL-612 add avatar image url column to uploaded and external image records
-ALTER TABLE PROFILE_IMAGES_T ADD RESOURCE_AVATAR text not null;
-ALTER TABLE PROFILE_IMAGES_EXTERNAL_T ADD URL_AVATAR text;
+ALTER TABLE PROFILE_IMAGES_T ADD RESOURCE_AVATAR VARCHAR(4000) not null AFTER RESOURCE_THUMB;
+ALTER TABLE PROFILE_IMAGES_EXTERNAL_T ADD URL_AVATAR VARCHAR(4000) NULL DEFAULT NULL;
 
 -- BLTI-156
 CREATE TABLE IF NOT EXISTS lti_mapping (
@@ -734,3 +734,11 @@ alter table EMAIL_TEMPLATE_ITEM add unique key EMAIL_TEMPLATE_ITEM_KEY_LOCALE_KE
 -- SAK-22223 don't use null as a template key
 update EMAIL_TEMPLATE_ITEM set TEMPLATE_LOCALE = 'default' where TEMPLATE_LOCALE is null or TEMPLATE_LOCALE = '';
 -- end of SAK-22223 
+
+-- SAK-20884  new gradebook column
+ALTER TABLE GB_GRADEBOOK_T ADD COLUMN `DO_SHOW_STATISTICS_CHART`  bit(1) NULL DEFAULT NULL AFTER `DO_SHOW_ITEM_STATS`;
+-- end of SAK-20884 
+
+-- SAK-21683 drop a descending index because not necessary for mysql
+ALTER TABLE MAILARCHIVE_MESSAGE DROP INDEX `IE_MAILARC_MSG_DATE_DESC`;
+-- end of SAK-21683
