@@ -982,6 +982,8 @@ span.nil a{
 	margin:0;
 	padding:0;
 	list-style: none;
+    height:100%;
+    overflow: hidden;
 }
 /*a list item - children are h3.textPanelHeader, p.textPanelFooter, div.textPanel*/
 .synopticList li{ 
