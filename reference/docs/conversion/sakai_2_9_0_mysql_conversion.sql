@@ -354,15 +354,15 @@ update MFR_OPEN_FORUM_T set POST_FIRST =0 where POST_FIRST is NULL;
 alter table MFR_OPEN_FORUM_T modify column POST_FIRST bit not null;
 
 -- add column to allow POST_FIRST to be set at the topic level
-alter table MFR_TOPIC_T add column (POST_FIRST bit);
+alter table MFR_TOPIC_T add column POST_FIRST bit AFTER MODERATED;
 update MFR_TOPIC_T set POST_FIRST =0 where POST_FIRST is NULL;
 alter table MFR_TOPIC_T modify column POST_FIRST bit not null;
 
 
 -- MSGCNTR-329 - Add BCC option to Messages
-alter table MFR_PVT_MSG_USR_T add column (BCC bit);
+alter table MFR_PVT_MSG_USR_T add column BCC bit AFTER READ_STATUS;
 update MFR_PVT_MSG_USR_T set BCC=0 where BCC is NULL;
-alter table MFR_PVT_MSG_USR_T modify column BCC bit not null; 
+alter table MFR_PVT_MSG_USR_T modify column BCC bit not null DEFAULT b'0'; 
 alter table MFR_MESSAGE_T add column RECIPIENTS_AS_TEXT_BCC TEXT;
 
 -- MSGCNTR-503 - Internationalization of message priority
