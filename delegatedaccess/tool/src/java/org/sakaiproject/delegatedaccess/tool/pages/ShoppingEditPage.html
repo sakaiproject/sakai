@@ -84,6 +84,12 @@
 		<wicket:message key="shoppingAdminInstructions"/>
 		<a href="#" onclick="$('.instruction').toggle();" style="float: right;"><img src="/library/image/silk/cross.png"/></a>
 	</span>
+	<wicket:enclosure child="inactiveLegend">
+		<br/>
+		<span style="font-weight: bold;"><wicket:message key="legend"/></span>
+		<br/>
+		<img wicket:id="inactiveLegend"/>&nbsp;<wicket:message key="inactiveLegendText"/>
+	</wicket:enclosure>		
 	<br/>
 	<span wicket:id="noAccess"></span>
 	<br/>
@@ -94,13 +100,7 @@
     </form>
 	<div wicket:id="formFeedback2" id="formFeedback2">[formFeedback]</div>
 
-	<wicket:enclosure child="inactiveLegend">
-		<br/>
-		<br/>
-		<span style="font-weight: bold;"><wicket:message key="legend"/></span>
-		<br/>
-		<img wicket:id="inactiveLegend"/>&nbsp;<wicket:message key="inactiveLegendText"/>
-	</wicket:enclosure>		
+	
 </wicket:extend>
 </body>
 </html>
