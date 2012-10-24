@@ -1232,7 +1232,7 @@ function checkEditTitleForm() {
 		$('#edit-title-error').text(msg("simplepage.title_notblank"));
 		$('#edit-title-error-container').show();
 		return false;
-	}else if (!isFinite(parseFloat($("#page-points").val()))) {
+	}else if ($("#page-gradebook").attr("checked") && !isFinite(parseFloat($("#page-points").val()))) {
 		$('#edit-title-error').text(msg("simplepage.integer-expected"));
 		$('#edit-title-error-container').show();
 	}else {
