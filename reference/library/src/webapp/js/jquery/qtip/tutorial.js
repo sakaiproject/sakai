@@ -14,7 +14,7 @@ $.fn.qtip.styles.sakaiTutorial = { // Last part is the name of the style
 			color: '#666666'
 		},
 		tip: {
-			color: '#6699CC',
+			color: '#6699CC'
 		},
 		name: 'light' // Inherit the rest of the attributes from the preset dark style
 }
