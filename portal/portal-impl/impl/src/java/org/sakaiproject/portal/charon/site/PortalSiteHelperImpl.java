@@ -501,8 +501,30 @@ public class PortalSiteHelperImpl implements PortalSiteHelper
 		}
 
 		String pagePopupUrl = Web.returnUrl(req, "/page/");
-		boolean showHelp = ServerConfigurationService.getBoolean("display.help.menu",
-				true);
+		
+		// Should be pushed up to the API, similar to server configiuration service, but supporting an Enum(always, never, true, false).
+		boolean showHelp = true;
+		// Supports true, false, never, always
+		String showHelpGlobal = ServerConfigurationService.getString("display.help.menu", "true");
+		
+		if ("never".equals(showHelp))
+		{
+			showHelp = false;
+		}
+		else if ("always".equals(showHelpGlobal))
+		{
+			showHelp = true;
+		}
+		else
+		{
+			showHelp = Boolean.valueOf(showHelpGlobal).booleanValue();
+			String showHelpSite = site.getProperties().getProperty("display-help-menu");
+			if (showHelpSite != null)
+			{
+				showHelp = Boolean.valueOf(showHelpSite).booleanValue();
+			}
+		}
+		
 		String iconUrl = "";
 		try { 
 			if (site.getIconUrlFull() != null)
@@ -698,13 +720,9 @@ public class PortalSiteHelperImpl implements PortalSiteHelper
 		} else if ("always".equals(globalShowPresence)) {
 			showPresence = true;
 		} else {
+			showPresence = Boolean.valueOf(globalShowPresence).booleanValue();
 			String showPresenceSite = site.getProperties().getProperty("display-users-present");
-				
-			if (showPresenceSite == null)
-			{
-				showPresence = Boolean.valueOf(globalShowPresence).booleanValue();  
-			}
-			else 
+			if (showPresenceSite != null)
 			{
 				showPresence = Boolean.valueOf(showPresenceSite).booleanValue();
 			}	
@@ -1219,5 +1237,38 @@ public class PortalSiteHelperImpl implements PortalSiteHelper
 		return null;
 	}
 
+	public boolean isJoinable(String siteId, String userId) {
+		Site site = null;
+		try {
+			site = getSite(siteId);
+		} catch (IdUnusedException e) {
+		}
+		return site != null && site.isJoinable() && site.getUserRole(userId) == null;
+	}
+
+	public Site getSite(String siteId) throws IdUnusedException
+	{
+		Site site = null;
+		try {
+			site = SiteService.getInstance().getSite(siteId);
+			return site;
+		} catch (IdUnusedException e) {
+			// Attempt to lookup by alias.
+			String reference = portal.getSiteNeighbourhoodService().parseSiteAlias(siteId);
+			if (reference != null)
+			{
+				Reference ref = EntityManager.getInstance().newReference(reference);
+				try 
+				{
+					site = SiteService.getInstance().getSite(ref.getId());
+					return site;
+				}
+				catch (IdUnusedException e2)
+				{
+				}
+			}
+			throw e;
+		}
+	}
 
 }

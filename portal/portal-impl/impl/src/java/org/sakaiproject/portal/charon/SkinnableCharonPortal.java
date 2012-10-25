@@ -70,6 +70,7 @@ import org.sakaiproject.portal.charon.handlers.ErrorReportHandler;
 import org.sakaiproject.portal.charon.handlers.GalleryHandler;
 import org.sakaiproject.portal.charon.handlers.GalleryResetHandler;
 import org.sakaiproject.portal.charon.handlers.HelpHandler;
+import org.sakaiproject.portal.charon.handlers.JoinHandler;
 import org.sakaiproject.portal.charon.handlers.LoginHandler;
 import org.sakaiproject.portal.charon.handlers.LogoutHandler;
 import org.sakaiproject.portal.charon.handlers.NavLoginHandler;
@@ -1962,6 +1963,7 @@ public class SkinnableCharonPortal extends HttpServlet implements Portal
 		addHandler(new RoleSwitchHandler());
 		addHandler(new RoleSwitchOutHandler());
 		addHandler(new TimeoutDialogHandler());
+		addHandler(new JoinHandler());
 	}
 
 	/**

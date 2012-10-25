@@ -37,6 +37,7 @@ import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.sakaiproject.authz.api.Role;
 import org.sakaiproject.authz.api.SecurityAdvisor;
+import org.sakaiproject.authz.cover.AuthzGroupService;
 import org.sakaiproject.authz.cover.SecurityService;
 import org.sakaiproject.component.cover.ServerConfigurationService;
 import org.sakaiproject.entity.api.ResourceProperties;
@@ -155,9 +156,10 @@ public class SiteHandler extends WorksiteHandler
 		boolean doFrameSuppress = "true".equals(req.getParameter("sakai.frame.suppress"));
 
 		// default site if not set
+		String userId = session.getUserId();
 		if (siteId == null)
 		{
-			if (session.getUserId() == null)
+			if (userId == null)
 			{
 				siteId = portal.getSiteHelper().getGatewaySiteId();
 				if (siteId == null)
@@ -168,13 +170,13 @@ public class SiteHandler extends WorksiteHandler
 			else
 			{
 				// TODO Should maybe switch to portal.getSiteHelper().getMyWorkspace()
-                                AllSitesViewImpl allSites = (AllSitesViewImpl)portal.getSiteHelper().getSitesView(SiteView.View.ALL_SITES_VIEW, req, session, siteId);
-                                List<Map> sites = (List<Map>)allSites.getRenderContextObject();
-                                if (sites.size() > 0) {
-                                	siteId = (String)sites.get(0).get("siteId");
-                                }
-                                else
-                                	siteId = SiteService.getUserSiteId(session.getUserId());
+				AllSitesViewImpl allSites = (AllSitesViewImpl)portal.getSiteHelper().getSitesView(SiteView.View.ALL_SITES_VIEW, req, session, siteId);
+				List<Map> sites = (List<Map>)allSites.getRenderContextObject();
+				if (sites.size() > 0) {
+					siteId = (String)sites.get(0).get("siteId");
+				}
+				else
+					siteId = SiteService.getUserSiteId(userId);
 			}
 		}
 
@@ -185,7 +187,7 @@ public class SiteHandler extends WorksiteHandler
 		
 		// check for a mutable site to be resolved here
 		if (mutableSitename.equalsIgnoreCase(siteId) && (session.getUserId() != null)) {
-			siteId = SiteService.getUserSiteId(session.getUserId());
+			siteId = SiteService.getUserSiteId(userId);
 		}
 
 		// if no page id, see if there was a last page visited for this site
@@ -220,12 +222,20 @@ public class SiteHandler extends WorksiteHandler
 		}
 		catch (PermissionException e)
 		{
+			
+			if (ServerConfigurationService.getBoolean("portal.redirectJoin", true) &&
+					userId != null && portal.getSiteHelper().isJoinable(siteId, userId))
+			{
+				String redirectUrl = Web.returnUrl(req, "/join/"+siteId);
+				res.sendRedirect(redirectUrl);
+				return;
+			}
 		}
 
 		if (site == null)
 		{				
 			// if not logged in, give them a chance
-			if (session.getUserId() == null)
+			if (userId == null)
 			{
 				StoredState ss = portalService.newStoredState("directtool", "tool");
 				ss.setRequest(req);
