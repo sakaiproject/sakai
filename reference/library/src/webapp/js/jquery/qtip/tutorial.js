@@ -81,15 +81,15 @@ function showTutorialPage(url, opts){
 									style: {
 										name: sakaiTutorialSkin,
 										width: {
-											max: mxWidth,
-										},
+											max: mxWidth
+										}
 									},
 									api: {
 										onHide: function()
 										{
 											// javascript to run after hiding
 											$(response.data.selection).qtip("destroy");
-										},
+										}
 										
 									}
 								});
@@ -114,8 +114,8 @@ function showTutorialPage(url, opts){
 											name: sakaiTutorialSkin,
 											tip: true,
 											width: {
-												max: mxWidth,
-											},
+												max: mxWidth
+											}
 									},
 									show: {
 										ready: true, // Show it when ready
@@ -136,7 +136,7 @@ function showTutorialPage(url, opts){
 													$(response.data.selection).qtip("destroy");
 												});
 											}
-										},
+										}
 									}
 								}
 						);
