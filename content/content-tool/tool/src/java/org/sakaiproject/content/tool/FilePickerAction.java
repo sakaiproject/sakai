@@ -1678,7 +1678,10 @@ public class FilePickerAction extends PagedResourceHelperAction
 				if(copyAction == null)
 				{
 					// TODO: why would the copy action be null?
-					logger.warn("copyAction null. typeId == " + typeId + " itemId == " + itemId);
+                    // This is often null when it's invoked with file picker helper
+                    if (!MODE_HELPER.equals(state.getAttribute(STATE_MODE))) {
+					  logger.warn("copyAction null. typeId == " + typeId + " itemId == " + itemId);
+                    }
 				}
 				else if(copyAction instanceof ServiceLevelAction)
 				{
