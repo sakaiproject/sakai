@@ -1495,6 +1495,15 @@ public class SimplePageBean {
 		if (currentPageId != null)
 		    return (long)currentPageId;
 
+		Placement placement = toolManager.getCurrentPlacement();
+		// See whether the tool is disabled in Sakai site information
+		// you can either hide or disable a tool. Our page hidden is
+		// really a disable, so we sync Sakai's disabled with our hidden
+		// we're only checking when you first go into a tool
+		Properties roleConfig = placement.getPlacementConfig();
+		String roleList = roleConfig.getProperty("functions.require");
+		boolean siteHidden = (roleList != null && roleList.indexOf(SITE_UPD) > -1);
+
 		// Let's go back to where we were last time.
 		Long l = (Long) sessionManager.getCurrentToolSession().getAttribute("current-pagetool-page");
 		if (l != null && l != 0) {
@@ -1508,10 +1517,16 @@ public class SimplePageBean {
 				log.warn("getCurrentPageId Permission failed setting to item in toolsession");
 				return 0;
 			}
+
+			// currentPage should now be set
+			syncHidden(currentPage, siteHidden);
+
 			return l;
 		} else {
 			// No recent activity. Let's go to the top level page.
-			l = simplePageToolDao.getTopLevelPageId(((ToolConfiguration) toolManager.getCurrentPlacement()).getPageId());
+
+			l = simplePageToolDao.getTopLevelPageId(((ToolConfiguration) placement).getPageId());;
+			// l = simplePageToolDao.getTopLevelPageId(((ToolConfiguration) toolManager.getCurrentPlacement()).getPageId());
 
 			if (l != null) {
 				try {
@@ -1528,12 +1543,17 @@ public class SimplePageBean {
 					log.warn("getCurrentPageId Permission failed setting to page in toolsession");
 					return 0;
 				}
+
+				// currentPage should now be set
+				syncHidden(currentPage, siteHidden);
+
 				return l;
 			} else {
 				// No page found. Let's make a new one.
 				String toolId = ((ToolConfiguration) toolManager.getCurrentPlacement()).getPageId();
 				String title = getCurrentSite().getPage(toolId).getTitle(); // Use title supplied
-																			// during creation
+
+				// during creation
 				SimplePage page = simplePageToolDao.makePage(toolId, getCurrentSiteId(), title, null, null);
 				if (!saveItem(page)) {
 					currentPage = null;
@@ -1552,9 +1572,24 @@ public class SimplePageBean {
 					log.warn("getCurrentPageId Permission failed setting to new page");
 					return 0;
 				}
+
+				// currentPage should now be set
+				syncHidden(currentPage, siteHidden);
+
 				return l;
 			}
 		}
+	}
+
+        private void syncHidden (SimplePage page, boolean siteHidden) {
+	    if (page != null) {
+		// hidden in site
+		if (siteHidden != page.isHidden()) {
+		    page.setHidden(siteHidden);
+		    // use quick, as we don't want permission check. even normal users can do this
+		    simplePageToolDao.quickUpdate(page);
+		}
+	    }
 	}
 
 	public void setCurrentPageId(long p) {
