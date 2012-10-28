@@ -355,6 +355,8 @@
         <property name="maxElementsInMemory" value="10000" />
         <property name="diskPersistent" value="true" />
         <property name="eternal" value="true" />
+        <property name="timeToLive" value="0" />
+        <property name="timeToIdle" value="0" />
     </bean>
     
     <!--  connections cache: ttl=6 hours-->
