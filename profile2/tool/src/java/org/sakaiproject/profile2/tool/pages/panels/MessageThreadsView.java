@@ -163,9 +163,15 @@ public class MessageThreadsView extends Panel {
 				//message body
 				item.add(new Label("messageBody", new Model<String>(StringUtils.abbreviate(message.getMessage(), ProfileConstants.MESSAGE_PREVIEW_MAX_LENGTH))));
 				
-				//highlight if new
+				//unread notice for accessibility, off unless its new.
+				Label messageUnreadNotice = new Label("messageUnreadNotice", new ResourceModel("accessibility.messages.unread"));
+				messageUnreadNotice.setVisible(false);
+				item.add(messageUnreadNotice);
+				
+				//highlight if new, also render accessibility notice
 				if(!messageOwner && !participant.isRead()) {
 					item.add(new AttributeAppender("class", true, new Model<String>("unread-message"), " "));
+					messageUnreadNotice.setVisible(true);
 				}
 				
 				
