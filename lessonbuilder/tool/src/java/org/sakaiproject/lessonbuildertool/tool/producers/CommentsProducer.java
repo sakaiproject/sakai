@@ -419,6 +419,7 @@ public class CommentsProducer implements ViewComponentProducer, ViewParamsReport
 				UIOutput.make(commentContainer, "pointsBox").decorate(
 					 new UIFreeAttributeDecorator("title", messageLocator.getMessage("simplepage.grade-for-student").replace("{}", author)));
 				
+				UIOutput.make(commentContainer, "maxpoints", " / " + commentsItem.getGradebookPoints());
 				UIOutput.make(commentContainer, "authorUUID", comment.getAuthor());
 			}
 		}

@@ -6,6 +6,7 @@ import java.util.HashMap;
 import java.util.List;
 
 import org.sakaiproject.lessonbuildertool.SimplePage;
+import org.sakaiproject.lessonbuildertool.SimplePageItem;
 import org.sakaiproject.lessonbuildertool.SimplePageComment;
 import org.sakaiproject.lessonbuildertool.SimpleStudentPage;
 import org.sakaiproject.lessonbuildertool.model.SimplePageToolDao;
@@ -99,7 +100,8 @@ public class GradingPaneProducer implements ViewComponentProducer, ViewParamsRep
 			heading = messageLocator.getMessage("simplepage.comments-grading");
 		}
 		
-		SimplePage containingPage = simplePageToolDao.getPage(simplePageToolDao.findItem(params.commentsItemId).getPageId());
+		SimplePageItem commentItem = simplePageToolDao.findItem(params.commentsItemId);
+		SimplePage containingPage = simplePageToolDao.getPage(commentItem.getPageId());
 		heading = heading.replace("{}", containingPage.getTitle());
 		
 		UIOutput.make(tofill, "page-header", heading);
@@ -214,6 +216,7 @@ public class GradingPaneProducer implements ViewComponentProducer, ViewParamsRep
 			UIOutput.make(branch, "pointsBox").
 			    decorate(new UIFreeAttributeDecorator("title", 
 				    messageLocator.getMessage("simplepage.grade-for-student").replace("{}", user.displayName)));
+			UIOutput.make(branch, "maxpoints", " / " + commentItem.getGradebookPoints());
 			UIOutput.make(branch, "clickToExpand", messageLocator.getMessage("simplepage.click-to-expand")).
 			    decorate(new UIFreeAttributeDecorator("title", 
 				    messageLocator.getMessage("simplepage.expand-for-student").replace("{}", user.displayName)));
