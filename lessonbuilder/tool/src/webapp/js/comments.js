@@ -33,7 +33,7 @@ $(function() {
 		$(".evolved-box").hide();
 	}
 	
-	$(".submitButton").hide().val(msg("simplepage.add-comment"));
+	$(".submitButton").hide().val(msg("simplepage.save_message"));
 	$(".cancelButton").hide().val(msg("simplepage.cancel_message"));
 	
 	$(".cancelButton").click(function() {
@@ -152,7 +152,7 @@ function replyToComment(link, replytext) {
 	}
 	
 	$(link).parents(".commentsDiv").find(".comment-edit-id").val(null);
-	$(link).parents(".commentsDiv").find(".submitButton").val(msg("simplepage.add-comment"));
+	$(link).parents(".commentsDiv").find(".submitButton").val(msg("simplepage.save_message"));
 
         switchEditors(link);
 
@@ -233,7 +233,7 @@ function switchEditors(link, show) {
 			CKEDITOR.instances[evolved.children("textarea").attr("name")].setData("");
 		}
 		
-		$(link).parents(".commentsDiv").find(".submitButton").hide().val(msg("simplepage.add-comment"));
+		$(link).parents(".commentsDiv").find(".submitButton").hide().val(msg("simplepage.save_message"));
 		$(link).parents(".commentsDiv").find(".cancelButton").hide().val(msg("simplepage.cancel_message"));
 		
 		$(link).parents(".commentsDiv").find(".switchLink").show();
@@ -304,7 +304,7 @@ function edit(link, id) {
 	}
 	
 	$(link).parents(".commentsDiv").find(".comment-edit-id").val(id);
-	$(link).parents(".commentsDiv").find(".submitButton").val(msg("simplepage.edit-comment"));
+	$(link).parents(".commentsDiv").find(".submitButton").val(msg("simplepage.save_message"));
 	
 	switchEditors(link);
 }
