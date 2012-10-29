@@ -5,7 +5,7 @@ if (typeof(ScormSjax) == "undefined")
 ScormSjax.sjaxCall = function sjaxCall(scoId, url, arg1, arg2, successHandler, failureHandler, precondition, channel) {
 	//Wicket.Log.info("Calling sjaxCall with url: " + url + " sco: " + scoId + " arg1: " + arg1 + " arg2: " + arg2);
 		
-	var call = new Wicket.Ajax.Call(url + '&scoId=' + scoId + '&arg1=' + arg1 + '&arg2=' + arg2 + '&callNumber=' + call_number, function() {}, function() {}, channel);
+	var call = new Wicket.Ajax.Call(url + '&scoId=' + encodeURIComponent(scoId) + '&arg1=' + encodeURIComponent(arg1) + '&arg2=' + encodeURIComponent(arg2) + '&callNumber=' + encodeURIComponent(call_number), function() {}, function() {}, channel);
 	
 	if (typeof(precondition) != "undefined" && precondition != null) {
 		call.request.precondition = precondition;
