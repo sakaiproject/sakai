@@ -447,8 +447,7 @@ public class ShowPageProducer implements ViewComponentProducer, DefaultView, Nav
 		// actually this normally happens if the page doesn't exist and we don't
 		// have permission to create it
 		if (currentPage == null || pageItem == null || 
-		    (pageItem.getType() != SimplePageItem.STUDENT_CONTENT &&Long.valueOf(pageItem.getSakaiId()) != currentPage.getPageId()) ||
-		    !simplePageBean.isItemVisible(pageItem)) {
+		    (pageItem.getType() != SimplePageItem.STUDENT_CONTENT &&Long.valueOf(pageItem.getSakaiId()) != currentPage.getPageId())) {
 			log.warn("ShowPage item not in page");
 			UIOutput.make(tofill, "error-div");
 			if (currentPage == null)
@@ -460,6 +459,30 @@ public class ShowPageProducer implements ViewComponentProducer, DefaultView, Nav
 			    UIOutput.make(tofill, "error", messageLocator.getMessage("simplepage.not_available"));
 			return;
 		}
+
+		// check two parts of isitemvisible where we want to give specific errors
+		// potentially need time zone for setting release date
+		if (!canEditPage && currentPage.getReleaseDate() != null && currentPage.getReleaseDate().after(new Date())) {
+			DateFormat df = DateFormat.getDateTimeInstance(DateFormat.MEDIUM, DateFormat.SHORT, M_locale);
+			TimeZone tz = timeService.getLocalTimeZone();
+			df.setTimeZone(tz);
+			String releaseDate = df.format(currentPage.getReleaseDate());
+			String releaseMessage = messageLocator.getMessage("simplepage.not_yet_available_releasedate").replace("{}", releaseDate);
+
+			UIOutput.make(tofill, "error-div");
+			UIOutput.make(tofill, "error", releaseMessage);
+
+			return;
+		}
+		// the only thing not already tested in isItemVisible is groups. In theory
+		// no one should have a URL to a page for which they aren't in the group,
+		// so I'm not trying to give a better message than just hidden
+		if (!canEditPage && currentPage.isHidden() || !simplePageBean.isItemVisible(pageItem)) {
+			UIOutput.make(tofill, "error-div");
+			UIOutput.make(tofill, "error", messageLocator.getMessage("simplepage.not_available_hidden"));
+			return;
+		}
+		
 
 		// I believe we've now checked all the args for permissions issues. All
 		// other item and
@@ -565,26 +588,6 @@ public class ShowPageProducer implements ViewComponentProducer, DefaultView, Nav
 			simplePageBean.adjustBackPath(params.getBackPath(), currentPage.getPageId(), pageItem.getId(), pageItem.getName());
 		}
 		
-		// potentially need time zone for setting release date
-		if (!canEditPage && currentPage.getReleaseDate() != null && currentPage.getReleaseDate().after(new Date())) {
-			DateFormat df = DateFormat.getDateTimeInstance(DateFormat.MEDIUM, DateFormat.SHORT, M_locale);
-			TimeZone tz = timeService.getLocalTimeZone();
-			df.setTimeZone(tz);
-			String releaseDate = df.format(currentPage.getReleaseDate());
-			String releaseMessage = messageLocator.getMessage("simplepage.not_yet_available_releasedate").replace("{}", releaseDate);
-
-			UIOutput.make(tofill, "error-div");
-			UIOutput.make(tofill, "error", releaseMessage);
-
-			return;
-		}
-		if (!canEditPage && currentPage.isHidden()) {
-		    // this should actually be caught by isItemVisible above
-			UIOutput.make(tofill, "error-div");
-			UIOutput.make(tofill, "error", messageLocator.getMessage("simplepage.not_available_hidden"));
-			return;
-		}
-
 		// put out link to index of pages
 		GeneralViewParameters showAll = new GeneralViewParameters(PagePickerProducer.VIEW_ID);
 		showAll.setSource("summary");

@@ -1582,7 +1582,8 @@ public class SimplePageBean {
 	}
 
         private void syncHidden (SimplePage page, boolean siteHidden) {
-	    if (page != null) {
+	    // only do it for top level pages
+	    if (page != null && page.getParent() == null) {
 		// hidden in site
 		if (siteHidden != page.isHidden()) {
 		    page.setHidden(siteHidden);
@@ -3086,7 +3087,6 @@ public class SimplePageBean {
 				securityService.popAdvisor();
 			}
 		} else if (pageTitle != null) {
-		    // subpage
 			page.setTitle(pageTitle);
 			page.setHidden(hidePage);
 			if (hasReleaseDate)
@@ -4821,6 +4821,7 @@ public class SimplePageBean {
 			ToolConfiguration placement = iterator.next();
 			Properties roleConfig = placement.getPlacementConfig();
 			String roleList = roleConfig.getProperty("functions.require");
+			String visibility = roleConfig.getProperty("sakai-portal:visible");
 			boolean saveChanges = false;
 
 			if (roleList == null) {
@@ -4832,7 +4833,7 @@ public class SimplePageBean {
 				}
 				roleList += SITE_UPD;
 				saveChanges = true;
-			} else if (visible) {
+			} else if ((roleList.indexOf(SITE_UPD) > -1) && visible) {
 				roleList = roleList.replaceAll("," + SITE_UPD, "");
 				roleList = roleList.replaceAll(SITE_UPD, "");
 				saveChanges = true;
@@ -4840,6 +4841,10 @@ public class SimplePageBean {
 
 			if (saveChanges) {
 				roleConfig.setProperty("functions.require", roleList);
+				if (visible)
+				    roleConfig.remove("sakai-portal:visible");
+				else
+ 				    roleConfig.setProperty("sakai-portal:visible", "false");
 
 				placement.save();
 
