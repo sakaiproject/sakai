@@ -451,7 +451,13 @@ public class ShowPageProducer implements ViewComponentProducer, DefaultView, Nav
 		    !simplePageBean.isItemVisible(pageItem)) {
 			log.warn("ShowPage item not in page");
 			UIOutput.make(tofill, "error-div");
-			UIOutput.make(tofill, "error", messageLocator.getMessage("simplepage.not_available"));
+			if (currentPage == null)
+			    // most likely tool was created by site info but no page
+			    // has created. It will created the first time an item is created,
+			    // so from a user point of view it looks like no item has been added
+			    UIOutput.make(tofill, "error", messageLocator.getMessage("simplepage.noitems_error_user"));
+			else
+			    UIOutput.make(tofill, "error", messageLocator.getMessage("simplepage.not_available"));
 			return;
 		}
 
