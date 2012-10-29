@@ -57,36 +57,7 @@ public class AnswerBean implements Serializable{
   }
 
   public String getText() {
-	  if (text == null) {
-		  return text;
-	  }
-	  String status;
-	  if (text.equalsIgnoreCase("Agree"))
-		  status = "st_agree";
-	  else if (text.equalsIgnoreCase("Disagree"))
-		  status = "st_disagree";
-	  else if (text.equalsIgnoreCase("Undecided"))
-		  status = "st_undecided";
-	  else if (text.equalsIgnoreCase("Below Average"))
-		  status = "st_below_avg";
-	  else if (text.equalsIgnoreCase("Average"))
-		  status = "st_avg";
-	  else if (text.equalsIgnoreCase("Above Average"))
-		  status = "st_above_avg";
-	  else if (text.equalsIgnoreCase("Strongly Disagree"))
-		  status = "st_strong_disagree";
-	  else if (text.equalsIgnoreCase("Strongly agree"))
-		  status = "st_strong_agree";
-	  else if (text.equalsIgnoreCase("Unacceptable"))
-		  status = "st_unacceptable";
-	  else if (text.equalsIgnoreCase("Excellent"))
-		  status = "st_excellent";
-	  else status = text;
-	  String str = rb.getString(status);
-	  if (str.indexOf("missing key")!=-1)
-		  return text;
-	  else
-		  return str;
+    return text;
   }
 
   public void setText(String text) {
