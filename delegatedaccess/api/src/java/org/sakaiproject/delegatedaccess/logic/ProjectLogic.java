@@ -5,6 +5,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
+import javax.swing.tree.DefaultMutableTreeNode;
 import javax.swing.tree.TreeModel;
 
 import org.sakaiproject.delegatedaccess.model.AccessNode;
@@ -51,7 +52,7 @@ public interface ProjectLogic {
 	 * @param nodeModel
 	 * @param userId
 	 */
-	public void updateNodePermissionsForUser(NodeModel nodeModel, String userId);
+	public void updateNodePermissionsForUser(DefaultMutableTreeNode node, String userId);
 
 	/**
 	 * updates the user's Session adding all of the user's site and role access to the delegatedaccess.accessmap Session attribute.  This controls the user's 
@@ -83,13 +84,6 @@ public interface ProjectLogic {
 
 	public TreeModel createAccessTreeModelForUser(String userId, boolean addDirectChildren, boolean cascade);
 
-	/**
-	 * This returns the shopping tree model in the shopping period hierarchy.
-	 * 
-	 * @param includePerms
-	 * @return
-	 */
-	public TreeModel getTreeModelForShoppingPeriod(boolean includePerms);
 
 	/**
 	 * This returns a full tree model for a user.  It will reference both their access and shopping period admin permissions.
@@ -118,9 +112,10 @@ public interface ProjectLogic {
 	 * @param onlyAccessNodes
 	 * @param accessAdminNodes
 	 * @param shopping
+	 * @param shoppingPeriodTool
 	 * @return
 	 */
-	public boolean addChildrenNodes(Object node, String userId, List<ListOptionSerialized> blankRestrictedTools, boolean onlyAccessNodes, List<String> accessAdminNodes, boolean shopping);
+	public boolean addChildrenNodes(Object node, String userId, List<ListOptionSerialized> blankRestrictedTools, boolean onlyAccessNodes, List<String> accessAdminNodes, boolean shopping, boolean shoppingPeriodTool);
 
 	/**
 	 * returns a blank (unselected) list of all the tool options for restricting tools
@@ -268,4 +263,12 @@ public interface ProjectLogic {
 	 * @return
 	 */
 	public Map<String, AccessNode> getUserAccessForSite(String siteRef);
+	
+	/**
+	 * Call this method if you want to update a node and all it's children
+	 * it will only update nodes that start with /site/
+	 * @param node
+	 * @return a map of errors and the stack trace
+	 */
+	public Map<String, String> updateShoppingPeriodSettings(DefaultMutableTreeNode node);
 }

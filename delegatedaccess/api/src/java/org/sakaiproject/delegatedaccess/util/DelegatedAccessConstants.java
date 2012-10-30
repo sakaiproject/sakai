@@ -29,7 +29,6 @@ public class DelegatedAccessConstants {
 	public static final String DEPEARTMENT_PROPERTY = "Department";
 	public static final String SUBJECT_PROPERTY = "Subject";
 	public static final String HIERARCHY_ID = "delegatedAccessHierarchyId";
-	public static final String SHOPPING_PERIOD_HIERARCHY_ID = "shoppingPeriodHierarchyId";
 	public static final String HIERARCHY_UNCATEGORIZED = "uncategorized";
 	public static final String HIERARCHY_ROOT_TITLE_DEFAULT = "Sakai";
 	public static final String HIERARCHY_ROOT_TITLE_PROPERTY = "delegatedaccess.root.title";

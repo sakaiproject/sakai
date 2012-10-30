@@ -34,6 +34,8 @@
     	<property name="nodeCache" ref="org.sakaiproject.delegatedaccess.logic.ProjectLogic.nodeCache"/>
     	<property name="restrictedAuthToolsCache" ref="org.sakaiproject.delegatedaccess.logic.ProjectLogic.restrictedAuthToolsCache"/>
     	<property name="restrictedPublicToolsCache" ref="org.sakaiproject.delegatedaccess.logic.ProjectLogic.restrictedPublicToolsCache"/>
+    	<property name="scheduledInvocationManager" ref="org.sakaiproject.api.app.scheduler.ScheduledInvocationManager" />
+    	<property name="timeService" ref="org.sakaiproject.time.api.TimeService" />
     </bean>
     
     <bean id="org.sakaiproject.delegatedaccess.logic.DelegatedAccessObserver"
@@ -85,8 +87,6 @@
 		init-method="init">
 		<property name="projectLogic" ref="org.sakaiproject.delegatedaccess.logic.ProjectLogic" />
 		<property name="sakaiProxy" ref="org.sakaiproject.delegatedaccess.logic.SakaiProxy"/>
-		<property name="hierarchyService" ref="org.sakaiproject.hierarchy.HierarchyService" />	
-		<property name="dao" ref="org.sakaiproject.delegatedaccess.dao.DelegatedAccessDao" />
 	</bean>
 	
 	<bean id="DelegatedAccessShoppingPeriodJob"

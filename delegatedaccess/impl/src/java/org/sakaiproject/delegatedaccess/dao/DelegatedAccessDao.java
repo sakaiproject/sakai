@@ -10,11 +10,9 @@ public interface DelegatedAccessDao {
 	
 	public String getSiteProperty(String propertyName, String siteId);
 	
-	public void updateSiteProperty(String siteId, String propertyName, String propertyValue);
-	
-	public void addSiteProperty(String siteId, String propertyName, String propertyValue);
-	
-	public void removeSiteProperty(String siteId, String propertyName);
+	public void updateSiteProperty(String[] siteIds, String propertyName, String propertyValue);
+
+	public void removeSiteProperty(String[] siteIds, String propertyName);
 	
 	/**
 	 * returns a Map of -> {siteRef, {nodeId, nodeId ...}}
@@ -75,4 +73,19 @@ public interface DelegatedAccessDao {
 	 * @return
 	 */
 	public List<String> findActiveSites(String[] siteIds);
+	
+	/**
+	 * Deletes the .anon and .auth roles for all sites
+	 * @param siteRef
+	 */
+	public void removeAnonAndAuthRoles(String[] siteRefs);
+	
+	/**
+	 * 
+	 * @param fromRealm
+	 * @param fromRole
+	 * @param toRealm
+	 * @param toRole
+	 */
+	public void copyRole(String fromRealm, String fromRole, String[] toRealm, String toRole);
 }

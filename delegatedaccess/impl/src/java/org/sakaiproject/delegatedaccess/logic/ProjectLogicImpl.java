@@ -1,5 +1,7 @@
 package org.sakaiproject.delegatedaccess.logic;
 
+import java.io.PrintWriter;
+import java.io.StringWriter;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
@@ -25,6 +27,10 @@ import net.sf.ehcache.Cache;
 import net.sf.ehcache.Element;
 
 import org.apache.log4j.Logger;
+import org.sakaiproject.api.app.scheduler.DelayedInvocation;
+import org.sakaiproject.api.app.scheduler.ScheduledInvocationManager;
+import org.sakaiproject.authz.api.AuthzGroup;
+import org.sakaiproject.authz.api.Role;
 import org.sakaiproject.coursemanagement.api.AcademicSession;
 import org.sakaiproject.delegatedaccess.dao.DelegatedAccessDao;
 import org.sakaiproject.delegatedaccess.model.AccessNode;
@@ -42,6 +48,7 @@ import org.sakaiproject.site.api.Site;
 import org.sakaiproject.site.api.SitePage;
 import org.sakaiproject.site.api.ToolConfiguration;
 import org.sakaiproject.site.api.SiteService.SelectionType;
+import org.sakaiproject.time.api.TimeService;
 import org.sakaiproject.tool.api.Session;
 import org.sakaiproject.tool.api.Tool;
 import org.sakaiproject.user.api.User;
@@ -68,6 +75,10 @@ public class ProjectLogicImpl implements ProjectLogic {
 	//Stores restricted tools map for users when they log back in
 	@Getter @Setter
 	private Cache restrictedAuthToolsCache;
+	@Getter @Setter
+	private ScheduledInvocationManager scheduledInvocationManager;
+	@Getter @Setter
+	private TimeService timeService;
 	
 	@Getter @Setter
 	private Cache restrictedPublicToolsCache;
@@ -91,7 +102,8 @@ public class ProjectLogicImpl implements ProjectLogic {
 	/**
 	 * {@inheritDoc}
 	 */
-	public void updateNodePermissionsForUser(NodeModel nodeModel, String userId){
+	public void updateNodePermissionsForUser(DefaultMutableTreeNode node, String userId){
+		NodeModel nodeModel = (NodeModel) node.getUserObject();
 		//first step, remove all permissions so you can have a clear palet
 		removeAllUserPermissions(nodeModel.getNodeId(), userId);
 
@@ -178,6 +190,23 @@ public class ProjectLogicImpl implements ProjectLogic {
 			}else{
 				sakaiProxy.postEvent(DelegatedAccessConstants.EVENT_DELETE_USER_ACCESS_ADMIN, "/user/" + userId + "/node/" + nodeModel.getNodeId(), true);
 			}
+		}
+		
+		if(DelegatedAccessConstants.SHOPPING_PERIOD_USER.equals(userId)){
+			// Remove any existing notifications for this node
+	    	DelayedInvocation[] fdi = scheduledInvocationManager.findDelayedInvocations("org.sakaiproject.delegatedaccess.jobs.DelegatedAccessShoppingPeriodJob",
+	    			nodeModel.getNode().id);
+	    	if (fdi != null && fdi.length > 0)
+	    	{
+	    		for (DelayedInvocation d : fdi)
+	    		{
+	    			scheduledInvocationManager.deleteDelayedInvocation(d.uuid);
+	    		}
+	    	}
+			//update the shopping period site settings (realm, site properties, etc)
+			scheduledInvocationManager.createDelayedInvocation(timeService.newTime(),
+					"org.sakaiproject.delegatedaccess.jobs.DelegatedAccessShoppingPeriodJob",
+					nodeModel.getNode().id);
 		}
 	}
 
@@ -732,30 +761,16 @@ public class ProjectLogicImpl implements ProjectLogic {
 		//Returns a List that represents the tree/node architecture:
 		//  List{ List{node, List<children>}, List{node, List<children>}, ...}.
 		List<List> l1 = getTreeListForUser(userId, addDirectChildren, cascade, userNodes);
-		//Remove the shopping period nodes:
-		if(l1 != null){
-			HierarchyNode shoppingRoot = hierarchyService.getRootNode(DelegatedAccessConstants.SHOPPING_PERIOD_HIERARCHY_ID);
-			String shoppingPeriodRootId = "-1";
-			if(shoppingRoot != null){
-				shoppingPeriodRootId = shoppingRoot.id;
-			}
-			for (Iterator iterator = l1.iterator(); iterator.hasNext();) {
-				List list = (List) iterator.next();
-				if(shoppingPeriodRootId.equals(((HierarchyNodeSerialized) list.get(0)).id)){
-					iterator.remove();
-				}
-			}
-		}
-		
 		
 		//order tree model:
 		orderTreeModel(l1);
 
-		return convertToTreeModel(l1, userId, getEntireToolsList(), addDirectChildren, accessAdminNodeIds, subAdminsSiteAccessNodes);
+		return convertToTreeModel(l1, userId, getEntireToolsList(), addDirectChildren, accessAdminNodeIds, subAdminsSiteAccessNodes, false);
 	}
 
 	public TreeModel createAccessTreeModelForUser(String userId, boolean addDirectChildren, boolean cascade)
 	{
+		boolean shoppingPeriodTool = DelegatedAccessConstants.SHOPPING_PERIOD_USER.equals(userId);
 		//Returns a List that represents the tree/node architecture:
 		//  List{ List{node, List<children>}, List{node, List<children>}, ...}.
 		accessNodes = new ArrayList<String>();
@@ -763,26 +778,25 @@ public class ProjectLogicImpl implements ProjectLogic {
 		accessAdminNodes = new ArrayList<String>();
 
 		List<List> l1 = getTreeListForUser(userId, addDirectChildren, cascade, getAccessNodesForUser(userId));
-		//order tree model:
-		orderTreeModel(l1);
-
-		return convertToTreeModel(l1, userId, getEntireToolsList(), addDirectChildren, null, null);
-	}
-
-	public TreeModel getTreeModelForShoppingPeriod(boolean includePerms){
-		//Returns a List that represents the tree/node architecture:
-		//  List{ List{node, List<children>}, List{node, List<children>}, ...}.
-		String userId = "";
-		if(includePerms){
-			userId = DelegatedAccessConstants.SHOPPING_PERIOD_USER;
+		
+		//Remove the shopping period nodes:
+		if(l1 != null){
+			HierarchyNode hierarchyRoot = hierarchyService.getRootNode(DelegatedAccessConstants.HIERARCHY_ID);
+			String hierarchyRootId = "-1";
+			if(hierarchyRoot != null){
+				hierarchyRootId = hierarchyRoot.id;
+			}
+			for (Iterator iterator = l1.iterator(); iterator.hasNext();) {
+				List list = (List) iterator.next();
+				if(!hierarchyRootId.equals(((HierarchyNodeSerialized) list.get(0)).id)){
+					iterator.remove();
+				}
+			}
 		}
-		Set<HierarchyNodeSerialized> rootSet = new HashSet<HierarchyNodeSerialized>();
-		rootSet.add(new HierarchyNodeSerialized(hierarchyService.getRootNode(DelegatedAccessConstants.SHOPPING_PERIOD_HIERARCHY_ID)));
-		List<List> l1 = getTreeListForUser(userId, false, true, rootSet);
 		//order tree model:
 		orderTreeModel(l1);
 
-		return convertToTreeModel(l1, userId, getEntireToolsList(), false, null, null);
+		return convertToTreeModel(l1, userId, getEntireToolsList(), addDirectChildren, null, null, shoppingPeriodTool);
 	}
 	
 	//get the entire tree for a user and populates the information that may exist
@@ -796,7 +810,7 @@ public class ProjectLogicImpl implements ProjectLogic {
 		//order tree model:
 		orderTreeModel(l1);
 
-		return convertToTreeModel(l1, userId, getEntireToolsList(), false, null, null);
+		return convertToTreeModel(l1, userId, getEntireToolsList(), false, null, null, false);
 	}
 
 	public TreeModel createTreeModelForShoppingPeriod(String userId)
@@ -809,7 +823,7 @@ public class ProjectLogicImpl implements ProjectLogic {
 		//order tree model:
 		orderTreeModel(l1);
 
-		TreeModel treeModel = convertToTreeModel(l1, DelegatedAccessConstants.SHOPPING_PERIOD_USER, getEntireToolsList(), false, null, null);
+		TreeModel treeModel = convertToTreeModel(l1, DelegatedAccessConstants.SHOPPING_PERIOD_USER, getEntireToolsList(), false, null, null, false);
 		
 		if(sakaiProxy.isActiveSiteFlagEnabled()){
 			if(treeModel != null && treeModel.getRoot() != null){
@@ -862,12 +876,12 @@ public class ProjectLogicImpl implements ProjectLogic {
 	 * @return
 	 */
 	private TreeModel convertToTreeModel(List<List> map, String userId, List<ListOptionSerialized> blankRestrictedTools, 
-			boolean addDirectChildren, List<String> accessAdminNodeIds, List<String> subAdminsSiteAccessNodes)
+			boolean addDirectChildren, List<String> accessAdminNodeIds, List<String> subAdminsSiteAccessNodes, boolean shoppingPeriodTool)
 	{
 		TreeModel model = null;
 		if(!map.isEmpty() && map.size() == 1){
 
-			DefaultMutableTreeNode rootNode = add(null, map, userId, blankRestrictedTools, addDirectChildren, accessAdminNodeIds, subAdminsSiteAccessNodes);
+			DefaultMutableTreeNode rootNode = add(null, map, userId, blankRestrictedTools, addDirectChildren, accessAdminNodeIds, subAdminsSiteAccessNodes, shoppingPeriodTool);
 			model = new DefaultTreeModel(rootNode);
 		}
 		return model;
@@ -997,7 +1011,7 @@ public class ProjectLogicImpl implements ProjectLogic {
 	 * @return
 	 */
 	private DefaultMutableTreeNode add(DefaultMutableTreeNode parent, List<List> sub, String userId, List<ListOptionSerialized> blankRestrictedTools, 
-			boolean addDirectChildren, List<String> accessAdminNodeIds, List<String> subAdminsSiteAccessNodes)
+			boolean addDirectChildren, List<String> accessAdminNodeIds, List<String> subAdminsSiteAccessNodes, boolean shoppingPeriodTool)
 	{
 		DefaultMutableTreeNode root = null;
 		for (List nodeList : sub)
@@ -1021,8 +1035,9 @@ public class ProjectLogicImpl implements ProjectLogic {
 			List<ListOptionSerialized> restrictedPublicTools = copyListOptions(blankRestrictedTools);
 			boolean accessAdmin = accessAdminNodes.contains(node.id);
 			boolean shoppingPeriodAdmin = shoppingPeriodAdminNodes.contains(node.id);
-			if(DelegatedAccessConstants.SHOPPING_PERIOD_USER.equals(userId) || accessNodes.contains(node.id) || shoppingPeriodAdminNodes.contains(node.id)){
-				Set<String> perms = getPermsForUserNodes(userId, node.id);
+			Set<String> perms = null;
+			if((!shoppingPeriodTool && DelegatedAccessConstants.SHOPPING_PERIOD_USER.equals(userId)) || accessNodes.contains(node.id) || shoppingPeriodAdminNodes.contains(node.id)){
+				perms = getPermsForUserNodes(userId, node.id);
 				String[] realmRole = getAccessRealmRole(perms);
 				realm = realmRole[0];
 				role = realmRole[1];
@@ -1068,8 +1083,8 @@ public class ProjectLogicImpl implements ProjectLogic {
 				//we need to make sure we keep track of the subadmin's permissions if subAdminsSiteAccessNodes is set
 				for(String nodeId : subAdminsSiteAccessNodes){
 					if(childNodeModel.getNodeId().equals(nodeId)){
-						Set<String> perms = getPermsForUserNodes(sakaiProxy.getCurrentUserId(), nodeId);
-						String[] realmRole = getAccessRealmRole(perms);
+						Set<String> permsSubAdmin = getPermsForUserNodes(sakaiProxy.getCurrentUserId(), nodeId);
+						String[] realmRole = getAccessRealmRole(permsSubAdmin);
 						childNodeModel.setSubAdminSiteAccess(realmRole);
 					}
 				}
@@ -1081,10 +1096,14 @@ public class ProjectLogicImpl implements ProjectLogic {
 				//we have the root, set it
 				root = child;
 			}else{
-				parent.add(child);
+				if(!(DelegatedAccessConstants.SHOPPING_PERIOD_USER.equals(userId) && shoppingPeriodTool && childNodeModel.getNode().title != null && childNodeModel.isSiteNode()
+					&& perms != null && !isShoppingAvailable(perms))){
+					//add all nodes except shopping period site nodes if the activeOnly flag is true
+					parent.add(child);
+				}
 			}
 			if(!children.isEmpty()){
-				add(child, children, userId, blankRestrictedTools, addDirectChildren, accessAdminNodeIds, subAdminsSiteAccessNodes);
+				add(child, children, userId, blankRestrictedTools, addDirectChildren, accessAdminNodeIds, subAdminsSiteAccessNodes, shoppingPeriodTool);
 			}
 		}
 		return root;
@@ -1124,7 +1143,9 @@ public class ProjectLogicImpl implements ProjectLogic {
 			directParentId = node.directParentNodeIds.toArray(new String[node.directParentNodeIds.size()])[0];
 			return getOrderedParentsListHelper(getCachedNode(directParentId));
 		}else{
-			return new ArrayList<String>();
+			List<String> orderedParents = new ArrayList<String>();
+			orderedParents.add(node.id);
+			return orderedParents;
 		}
 	}
 	private List<String> getOrderedParentsListHelper(HierarchyNodeSerialized node){
@@ -1308,7 +1329,7 @@ public class ProjectLogicImpl implements ProjectLogic {
 	 * @param shopping
 	 * @return
 	 */
-	public boolean addChildrenNodes(Object node, String userId, List<ListOptionSerialized> blankRestrictedTools, boolean onlyAccessNodes, List<String> accessAdminNodes, boolean shopping){
+	public boolean addChildrenNodes(Object node, String userId, List<ListOptionSerialized> blankRestrictedTools, boolean onlyAccessNodes, List<String> accessAdminNodes, boolean shopping, boolean shoppingPeriodTool){
 		boolean anyAdded = false;
 		Set<String> addedSites = new HashSet<String>();
 		DefaultMutableTreeNode parentNode = (DefaultMutableTreeNode) node;
@@ -1326,7 +1347,7 @@ public class ProjectLogicImpl implements ProjectLogic {
 						continue;
 					}
 				}
-				boolean newlyAdded = addChildNodeToTree((HierarchyNodeSerialized) childList.get(0), parentNode, userId, blankRestrictedTools, onlyAccessNodes);
+				boolean newlyAdded = addChildNodeToTree((HierarchyNodeSerialized) childList.get(0), parentNode, userId, blankRestrictedTools, onlyAccessNodes, shoppingPeriodTool);
 				anyAdded = anyAdded || newlyAdded;
 				if(newlyAdded && ((HierarchyNodeSerialized) childList.get(0)).title.startsWith("/site/")){
 					addedSites.add(((HierarchyNodeSerialized) childList.get(0)).title.substring(6));
@@ -1349,7 +1370,7 @@ public class ProjectLogicImpl implements ProjectLogic {
 	 * @param userId
 	 * @return
 	 */
-	private boolean addChildNodeToTree(HierarchyNodeSerialized childNode, DefaultMutableTreeNode parentNode, String userId, List<ListOptionSerialized> blankRestrictedTools, boolean onlyAccessNodes){
+	private boolean addChildNodeToTree(HierarchyNodeSerialized childNode, DefaultMutableTreeNode parentNode, String userId, List<ListOptionSerialized> blankRestrictedTools, boolean onlyAccessNodes, boolean shoppingPeriodTool){
 		boolean added = false;
 		if(!doesChildExist(childNode.id, parentNode)){
 			//just create a blank child since the user should already have all the nodes with information in the db
@@ -1372,7 +1393,7 @@ public class ProjectLogicImpl implements ProjectLogic {
 			boolean shoppingPeriodRevokeInstructorPublicOpt = false;
 			
 			DefaultMutableTreeNode child = new DelegatedAccessMutableTreeNode();
-			if(DelegatedAccessConstants.SHOPPING_PERIOD_USER.equals(userId)){
+			if(!shoppingPeriodTool && DelegatedAccessConstants.SHOPPING_PERIOD_USER.equals(userId)){
 				Set<String> perms = getPermsForUserNodes(userId, childNode.id);
 				String[] realmRole = getAccessRealmRole(perms);
 				realm = realmRole[0];
@@ -1396,7 +1417,14 @@ public class ProjectLogicImpl implements ProjectLogic {
 					modifiedBy, modified, shoppingAdminModified, shoppingAdminModifiedBy, accessAdmin, shoppingPeriodRevokeInstructorEditable, shoppingPeriodRevokeInstructorPublicOpt);
 			child.setUserObject(node);
 
-			if(!onlyAccessNodes || node.getNodeAccess()){
+			boolean shoppingAvailable = true;
+			if(shoppingPeriodTool && node.isSiteNode() 
+					&& !isShoppingPeriodOpenForSite(node.getNodeShoppingPeriodStartDate(), node.getNodeShoppingPeriodEndDate(), node.getNodeAccessRealmRole(), node.getNodeRestrictedAuthTools(), node.getNodeRestrictedPublicTools())){
+				//make sure this node is available
+				shoppingAvailable = false;
+			}
+			
+			if(shoppingAvailable && (!onlyAccessNodes || node.getNodeAccess())){
 				parentNode.add(child);
 				added = true;
 			}
@@ -1668,9 +1696,6 @@ public class ProjectLogicImpl implements ProjectLogic {
 		String hierarchyId = DelegatedAccessConstants.HIERARCHY_ID;
 		if(shoppingPeriod){
 			userId = DelegatedAccessConstants.SHOPPING_PERIOD_USER;
-			if(activeShoppingData){
-				hierarchyId = DelegatedAccessConstants.SHOPPING_PERIOD_HIERARCHY_ID;
-			}
 		}
 
 		//this is a simple flag set in the delegated access login observer which
@@ -1723,7 +1748,7 @@ public class ProjectLogicImpl implements ProjectLogic {
 										if(shoppingPeriod && activeShoppingData){
 											//do substring(6) b/c we need site ID and what is stored is a ref: /site/1231231
 											String siteId = siteRef.substring(6);
-											if(!isShoppingAvailable(perms, siteId)){
+											if(!isShoppingAvailable(perms)){
 												//check that shopping period is still available unless activeShoppingData is false
 												break;
 											}
@@ -1856,7 +1881,7 @@ public class ProjectLogicImpl implements ProjectLogic {
 		return accessParent;
 	}
 	
-	private boolean isShoppingAvailable(Set<String> perms, String siteId){
+	private boolean isShoppingAvailable(Set<String> perms){
 		Date startDate = getShoppingStartDate(perms);
 		Date endDate = getShoppingEndDate(perms);
 		String[] nodeAccessRealmRole = getAccessRealmRole(perms);
@@ -1956,5 +1981,290 @@ public class ProjectLogicImpl implements ProjectLogic {
 			}
 		}
 		return returnMap;
+	}
+	
+	public Map<String, String> updateShoppingPeriodSettings(DefaultMutableTreeNode node){
+		Map<String, String> errors = new HashMap<String, String>();
+		List<String> removeAnonAuthRefs = new ArrayList<String>();
+		Map<String, Map<String, List<String>>> realmRoleCopy = new HashMap<String, Map<String, List<String>>>();
+		List<String> removeAuthToolsSiteProp = new ArrayList<String>();
+		List<String> removePublicToolsSiteProp = new ArrayList<String>();
+		Map<String, List<String>> updateAuthToolsSiteProp = new HashMap<String, List<String>>();
+		Map<String, List<String>> updatePublicToolsSiteProp = new HashMap<String, List<String>>();
+		updateShoppingPeriodSettingsHelper(node, getEntireToolsList(), errors, removeAnonAuthRefs, realmRoleCopy, removeAuthToolsSiteProp, 
+				removePublicToolsSiteProp, updateAuthToolsSiteProp, updatePublicToolsSiteProp);
+		
+		if(removeAnonAuthRefs.size() > 0){
+			//remove all .anon and .auth roles for these sites
+			dao.removeAnonAndAuthRoles(removeAnonAuthRefs.toArray(new String[removeAnonAuthRefs.size()]));
+		}
+		if(realmRoleCopy.size() > 0){
+			for(Entry<String, Map<String, List<String>>> e : realmRoleCopy.entrySet()){
+				String[] realmRole = e.getKey().split(":");
+				if(realmRole.length == 2){
+					for(Entry<String, List<String>> e2 : e.getValue().entrySet()){
+						dao.copyRole(realmRole[0], realmRole[1], e2.getValue().toArray(new String[e2.getValue().size()]), e2.getKey());
+					}
+				}
+			}
+		}
+		if(removeAuthToolsSiteProp.size() > 0){
+			dao.removeSiteProperty(removeAuthToolsSiteProp.toArray(new String[removeAuthToolsSiteProp.size()]), DelegatedAccessConstants.SITE_PROP_AUTH_TOOLS);
+		}
+		if(removePublicToolsSiteProp.size() > 0){
+			dao.removeSiteProperty(removePublicToolsSiteProp.toArray(new String[removePublicToolsSiteProp.size()]), DelegatedAccessConstants.SITE_PROP_PUBLIC_TOOLS);
+		}
+		for(Entry<String, List<String>> e : updateAuthToolsSiteProp.entrySet()){
+			dao.updateSiteProperty(e.getValue().toArray(new String[e.getValue().size()]), DelegatedAccessConstants.SITE_PROP_AUTH_TOOLS, e.getKey());
+		}
+		for(Entry<String, List<String>> e : updatePublicToolsSiteProp.entrySet()){
+			dao.updateSiteProperty(e.getValue().toArray(new String[e.getValue().size()]), DelegatedAccessConstants.SITE_PROP_PUBLIC_TOOLS, e.getKey());
+		}
+		
+		return errors;
+	}
+	
+	private void updateShoppingPeriodSettingsHelper(DefaultMutableTreeNode node, List<ListOptionSerialized> blankRestrictedTools,
+			Map<String, String> errors, List<String> removeAnonAuthRefs, Map<String, Map<String, List<String>>> realmRoleCopy,
+			List<String> removeAuthToolsSiteProp, List<String> removePublicToolsSiteProp, Map<String, List<String>> updateAuthToolsSiteProp, 
+			Map<String, List<String>> updatePublicToolsSiteProp){
+		if(node != null){
+			NodeModel nodeModel = (NodeModel) node.getUserObject();
+			if(nodeModel.isSiteNode()){
+				try{
+					ShoppingPeriodUpdateStruct struct = updateShoppingPeriodSettings(nodeModel);
+					removeAnonAuthRefs.add(nodeModel.getNode().title);
+					if(struct != null && struct.getRealmRole() != null && struct.getRealmRole().length == 2 && (struct.isAnon() || struct.isAuth())){
+						String fromRealmRole = struct.getRealmRole()[0] + ":" + struct.getRealmRole()[1];
+						Map<String, List<String>> copyTo = realmRoleCopy.get(fromRealmRole);
+						if(copyTo == null){
+							copyTo = new HashMap<String, List<String>>();
+						}
+						if(struct.isAuth()){
+							List<String> siteRefs = copyTo.get(".auth");
+							if(siteRefs == null){
+								siteRefs = new ArrayList<String>();
+							}
+							siteRefs.add(struct.getSiteRef());
+							copyTo.put(".auth", siteRefs);
+						}
+						if(struct.isAnon()){
+							List<String> siteRefs = copyTo.get(".anon");
+							if(siteRefs == null){
+								siteRefs = new ArrayList<String>();
+							}
+							siteRefs.add(struct.getSiteRef());
+							copyTo.put(".anon", siteRefs);
+						}
+						realmRoleCopy.put(fromRealmRole, copyTo);
+					}
+					
+					if(struct.getRestrictedAuthToolsList() == null || "".equals(struct.getRestrictedAuthToolsList()) || ";".equals(struct.getRestrictedAuthToolsList())){
+						removeAuthToolsSiteProp.add(struct.getSiteRef().substring(6));
+					}else{
+						List<String> siteRefs = updateAuthToolsSiteProp.get(struct.getRestrictedAuthToolsList());
+						if(siteRefs == null){
+							siteRefs = new ArrayList<String>();
+						}
+						siteRefs.add(struct.getSiteRef().substring(6));
+						updateAuthToolsSiteProp.put(struct.getRestrictedAuthToolsList(), siteRefs);
+					}
+					
+					if(struct.getRestrictedPublicToolsList() == null || "".equals(struct.getRestrictedPublicToolsList()) || ";".equals(struct.getRestrictedPublicToolsList())){
+						removePublicToolsSiteProp.add(struct.getSiteRef().substring(6));
+					}else{
+						List<String> siteRefs = updatePublicToolsSiteProp.get(struct.getRestrictedPublicToolsList());
+						if(siteRefs == null){
+							siteRefs = new ArrayList<String>();
+						}
+						siteRefs.add(struct.getSiteRef().substring(6));
+						updatePublicToolsSiteProp.put(struct.getRestrictedPublicToolsList(), siteRefs);
+					}
+				}catch(Exception e){
+					log.error(e.getMessage(), e);
+					StringWriter sw = new StringWriter();
+					e.printStackTrace(new PrintWriter(sw));
+					errors.put(nodeModel.getNode().title, sw.toString());
+				}
+			}
+			if(!nodeModel.isAddedDirectChildrenFlag()){
+				addChildrenNodes(node, DelegatedAccessConstants.SHOPPING_PERIOD_USER, blankRestrictedTools, false, null, true, false);
+				nodeModel.setAddedDirectChildrenFlag(true);
+			}
+			for(int i = 0; i < node.getChildCount(); i++){
+				updateShoppingPeriodSettingsHelper((DefaultMutableTreeNode) node.getChildAt(i), blankRestrictedTools, errors, 
+						removeAnonAuthRefs, realmRoleCopy, removeAuthToolsSiteProp, removePublicToolsSiteProp, updateAuthToolsSiteProp, updatePublicToolsSiteProp);
+			}
+		}
+	}
+	
+	private ShoppingPeriodUpdateStruct updateShoppingPeriodSettings(NodeModel node) {
+		ShoppingPeriodUpdateStruct returnStruct = null;
+		boolean auth = false;
+		boolean anon = false;
+		
+		Date startDate = null;
+		Date endDate = null;
+		Date now = new Date();
+
+		startDate = node.getNodeShoppingPeriodStartDate();
+		endDate = node.getNodeShoppingPeriodEndDate();
+		String[] nodeAccessRealmRole = node.getNodeAccessRealmRole();
+		String[] restrictedAuthcTools = node.getNodeRestrictedAuthTools();
+		String[] restrictedPublicTools = node.getNodeRestrictedPublicTools();
+		//do substring(6) b/c we need site ID and what is stored is a ref: /site/1231231
+		String siteId = node.getNode().title.substring(6);
+		boolean addAuth = isShoppingPeriodOpenForSite(startDate, endDate, nodeAccessRealmRole, restrictedAuthcTools, restrictedPublicTools);
+		String restrictedAuthToolsList = "";
+		String restrictedPublicToolsList = "";
+		if(addAuth){
+			//update the restricted tools list, otherwise it will be cleared:			
+			//set the restricted tools list to a non empty string, otherwise, the site property won't be saved
+			//when the string is empty (no tools allowed to view).
+			restrictedAuthToolsList = ";";
+			for(String tool : node.getNodeRestrictedAuthTools()){
+				if("Home".equals(tool)){
+					String homeToolsVal = "";
+					String[] homeTools = sakaiProxy.getHomeTools();
+					for(String toolId : homeTools){
+						if(!"".equals(homeToolsVal)){
+							homeToolsVal += ";";
+						}
+						homeToolsVal += toolId;
+					}
+					restrictedAuthToolsList += homeToolsVal;
+				}else{
+					restrictedAuthToolsList += tool;
+				}
+				restrictedAuthToolsList += ";";
+			}
+			
+			restrictedPublicToolsList = ";";
+			for(String tool : node.getNodeRestrictedPublicTools()){
+				if(!"".equals(restrictedPublicToolsList)){
+					restrictedPublicToolsList += ";";
+				}
+				if("Home".equals(tool)){
+					String homeToolsVal = "";
+					String[] homeTools = sakaiProxy.getHomeTools();
+					for(String toolId : homeTools){
+						if(!"".equals(homeToolsVal)){
+							homeToolsVal += ";";
+						}
+						homeToolsVal += toolId;
+					}
+					restrictedPublicToolsList += homeToolsVal;
+				}else{
+					restrictedPublicToolsList += tool;
+				}
+			}
+			//add either .anon or .auth role:
+			auth = restrictedAuthcTools != null && restrictedAuthcTools.length > 0;
+			anon = restrictedPublicTools != null && restrictedPublicTools.length > 0;
+		}
+
+//		if(restrictedAuthToolsList == null || "".equals(restrictedAuthToolsList) || ";".equals(restrictedAuthToolsList)){
+//			//no need for property if null or blank, just remove it in case it existed before
+//			dao.removeSiteProperty(siteId, DelegatedAccessConstants.SITE_PROP_AUTH_TOOLS);
+//		}else{
+//			String sitePropRestrictedTools = dao.getSiteProperty(DelegatedAccessConstants.SITE_PROP_AUTH_TOOLS, siteId);
+//			if(sitePropRestrictedTools != null){
+//				dao.updateSiteProperty(siteId, DelegatedAccessConstants.SITE_PROP_AUTH_TOOLS, restrictedAuthToolsList);
+//			}else{
+//				dao.addSiteProperty(siteId, DelegatedAccessConstants.SITE_PROP_AUTH_TOOLS, restrictedAuthToolsList);
+//			}
+//		}
+//		
+//		if(restrictedPublicToolsList == null || "".equals(restrictedPublicToolsList) || ";".equals(restrictedPublicToolsList)){
+//			//no need for property if null or blank, just remove it in case it existed before
+//			dao.removeSiteProperty(siteId, DelegatedAccessConstants.SITE_PROP_PUBLIC_TOOLS);
+//		}else{
+//			String sitePropRestrictedTools = dao.getSiteProperty(DelegatedAccessConstants.SITE_PROP_PUBLIC_TOOLS, siteId);
+//			if(sitePropRestrictedTools != null){
+//				dao.updateSiteProperty(siteId, DelegatedAccessConstants.SITE_PROP_PUBLIC_TOOLS, restrictedPublicToolsList);
+//			}else{
+//				dao.addSiteProperty(siteId, DelegatedAccessConstants.SITE_PROP_PUBLIC_TOOLS, restrictedPublicToolsList);
+//			}
+//		}
+		returnStruct = new ShoppingPeriodUpdateStruct(auth, anon, nodeAccessRealmRole, node.getNode().title, restrictedPublicToolsList, restrictedAuthToolsList);
+		return returnStruct;
+	}
+	
+	private class ShoppingPeriodUpdateStruct{
+		private boolean auth = false;
+		private boolean anon = true;
+		private String[] realmRole;
+		private String siteRef;
+		private String restrictedPublicToolsList;
+		private String restrictedAuthToolsList;
+		
+		public ShoppingPeriodUpdateStruct(boolean auth, boolean anon, String[] realmRole, String siteRef, String restrictedPublicToolsList, String restrictedAuthToolsList){
+			this.anon = anon;
+			this.auth = auth;
+			this.realmRole = realmRole;
+			this.siteRef = siteRef;
+			this.restrictedAuthToolsList = restrictedAuthToolsList;
+			this.restrictedPublicToolsList = restrictedPublicToolsList;
+		}
+		public boolean isAuth() {
+			return auth;
+		}
+		public void setAuth(boolean auth) {
+			this.auth = auth;
+		}
+		public boolean isAnon() {
+			return anon;
+		}
+		public void setAnon(boolean anon) {
+			this.anon = anon;
+		}
+		public String[] getRealmRole() {
+			return realmRole;
+		}
+		public void setRealmRole(String[] realmRole) {
+			this.realmRole = realmRole;
+		}
+		public String getSiteRef() {
+			return siteRef;
+		}
+		public void setSiteRef(String siteRef) {
+			this.siteRef = siteRef;
+		}
+		public String getRestrictedPublicToolsList() {
+			return restrictedPublicToolsList;
+		}
+		public void setRestrictedPublicToolsList(String restrictedPublicToolsList) {
+			this.restrictedPublicToolsList = restrictedPublicToolsList;
+		}
+		public String getRestrictedAuthToolsList() {
+			return restrictedAuthToolsList;
+		}
+		public void setRestrictedAuthToolsList(String restrictedAuthToolsList) {
+			this.restrictedAuthToolsList = restrictedAuthToolsList;
+		}
+		
+	}
+	
+//	private void removeAnonAndAuthRoles(String siteRef){
+//		AuthzGroup ag = sakaiProxy.getAuthzGroup(siteRef);
+//		if(ag != null){
+//			log.debug("Removing .auth and.anon roles for " + siteRef);
+//			for (Role role: ag.getRoles()){
+//				if (role.getId().equals(".auth") || role.getId().equals(".anon")){
+//					sakaiProxy.removeRoleFromAuthzGroup(ag, role);
+//				}
+//			}
+//		}
+//	}
+
+	private void copyNewRole(String siteRef, String copyRealm, String copyRole, boolean auth, boolean anon){
+		if(auth){
+			log.debug("Copying " + copyRole + " to .auth for " + siteRef);
+			sakaiProxy.copyNewRole(siteRef, copyRealm, copyRole, ".auth");
+		}
+		if(anon){
+			log.debug("Copying " + copyRole + " to .anon for " + siteRef);
+			sakaiProxy.copyNewRole(siteRef, copyRealm, copyRole, ".anon");
+		}
 	}
 }

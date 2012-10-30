@@ -12,6 +12,8 @@ import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
 
+import javax.swing.tree.DefaultMutableTreeNode;
+
 import lombok.Getter;
 import lombok.Setter;
 
@@ -21,6 +23,7 @@ import org.sakaiproject.delegatedaccess.model.AccessNode;
 import org.sakaiproject.delegatedaccess.model.ListOptionSerialized;
 import org.sakaiproject.delegatedaccess.model.NodeModel;
 import org.sakaiproject.delegatedaccess.util.DelegatedAccessConstants;
+import org.sakaiproject.delegatedaccess.util.DelegatedAccessMutableTreeNode;
 import org.sakaiproject.entitybroker.EntityReference;
 import org.sakaiproject.entitybroker.EntityView;
 import org.sakaiproject.entitybroker.entityprovider.CoreEntityProvider;
@@ -185,7 +188,9 @@ public class DelegatedAccessEntityProviderImpl implements DelegatedAccessEntityP
 			//no need to continue, just set direct access to false and save (will clear out the rest and cause
 			//the node to inherrit it's settings
 			node.setDirectAccess(false);
-			projectLogic.updateNodePermissionsForUser(node, DelegatedAccessConstants.SHOPPING_PERIOD_USER);
+			DefaultMutableTreeNode treeNode = new DelegatedAccessMutableTreeNode();
+			treeNode.setUserObject(node);
+			projectLogic.updateNodePermissionsForUser(treeNode, DelegatedAccessConstants.SHOPPING_PERIOD_USER);
 			return;
 		}
 		
@@ -248,7 +253,9 @@ public class DelegatedAccessEntityProviderImpl implements DelegatedAccessEntityP
 		//only update if there were true modifications
 		if(directAccessOrig != directAccess || node.isModified(startDateOrig, startDateNew, endDateOrig, endDateNew,
 				realmOrig, realmNew, roleOrig, roleNew, authToolsOrig, authToolsNew, publicToolsOrig, publicToolsNew, false, false, false, false)){
-			projectLogic.updateNodePermissionsForUser(node, DelegatedAccessConstants.SHOPPING_PERIOD_USER);
+			DefaultMutableTreeNode treeNode = new DelegatedAccessMutableTreeNode();
+			treeNode.setUserObject(node);
+			projectLogic.updateNodePermissionsForUser(treeNode, DelegatedAccessConstants.SHOPPING_PERIOD_USER);
 		}
 	}
 	

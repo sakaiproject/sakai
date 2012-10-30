@@ -9,8 +9,8 @@ import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
-import java.util.NoSuchElementException;
 import java.util.Map.Entry;
+import java.util.NoSuchElementException;
 import java.util.Set;
 
 import org.apache.commons.configuration.ConfigurationException;
@@ -19,17 +19,16 @@ import org.apache.commons.configuration.reloading.InvariantReloadingStrategy;
 import org.apache.log4j.Logger;
 import org.sakaiproject.component.cover.ServerConfigurationService;
 import org.sakaiproject.delegatedaccess.dao.DelegatedAccessDao;
-import org.springframework.jdbc.core.ResultSetExtractor;
+import org.springframework.dao.DataAccessException;
 import org.springframework.jdbc.core.RowMapper;
 import org.springframework.jdbc.core.support.JdbcDaoSupport;
-import org.springframework.dao.DataAccessException;
 
 public class DelegatedAccessDaoImpl extends JdbcDaoSupport implements DelegatedAccessDao {
 
 	private static final Logger log = Logger.getLogger(DelegatedAccessDaoImpl.class);
 	private PropertiesConfiguration statements;
 	private static int ORACLE_IN_CLAUSE_SIZE_LIMIT = 1000;
-		
+	private boolean oracle = false;
 	/**
 	 * init
 	 */
@@ -41,6 +40,10 @@ public class DelegatedAccessDaoImpl extends JdbcDaoSupport implements DelegatedA
 
 		//initialise the statements
 		initStatements(vendor);
+		
+		if(vendor != null && "oracle".equals(vendor)){
+			oracle = true;
+		}
 	}
 	
 	/**
@@ -166,33 +169,74 @@ public class DelegatedAccessDaoImpl extends JdbcDaoSupport implements DelegatedA
 		}
 	}
 	
-	public void addSiteProperty(String siteId, String propertyName, String propertyValue){
+//	public void addSiteProperty(String siteId, String propertyName, String propertyValue){
+//		try {
+//			getJdbcTemplate().update(getStatement("insert.siteProperty"),
+//				new Object[]{siteId, propertyName, propertyValue}
+//			);
+//		} catch (DataAccessException ex) {
+//           log.error("Error executing query: " + ex.getClass() + ":" + ex.getMessage());
+//		}
+//	}
+	
+	public void updateSiteProperty(String[] siteIds, String propertyName, String propertyValue){
 		try {
-			getJdbcTemplate().update(getStatement("insert.siteProperty"),
-				new Object[]{siteId, propertyName, propertyValue}
-			);
+			String query = getStatement("update.siteProperty");
+			
+			if(oracle){
+				//Create Replace query:
+				String values = "";
+				for(String siteId : siteIds){
+					if(!"".equals(values)){
+						values += " union ";
+					}
+					values += "select '" + siteId + "' SITE_ID, '" + propertyName + "' NAME, '" + propertyValue + "' VALUE from dual";
+				}
+				query = query.replace("?", values);
+			}else{
+				//Create Replace query:
+				String values = "";
+				for(String siteId : siteIds){
+					if(!"".equals(values)){
+						values += ",";
+					}
+					values += "('" + siteId + "', '" + propertyName + "','" + propertyValue + "')";
+				}
+				query = query + values;
+			}
+			
+			getJdbcTemplate().update(query);
 		} catch (DataAccessException ex) {
            log.error("Error executing query: " + ex.getClass() + ":" + ex.getMessage());
 		}
 	}
 	
-	public void updateSiteProperty(String siteId, String propertyName, String propertyValue){
-		try {
-			getJdbcTemplate().update(getStatement("update.siteProperty"),
-				new Object[]{propertyValue, propertyName, siteId}
-			);
-		} catch (DataAccessException ex) {
-           log.error("Error executing query: " + ex.getClass() + ":" + ex.getMessage());
-		}
-	}
-	
-	public void removeSiteProperty(String siteId, String propertyName){
-		try {
-			getJdbcTemplate().update(getStatement("delete.siteProperty"),
-				new Object[]{propertyName, siteId}
-			);
-		} catch (DataAccessException ex) {
-           log.error("Error executing query: " + ex.getClass() + ":" + ex.getMessage());
+	public void removeSiteProperty(String[] siteIds, String propertyName){
+		try{
+			int subArrayIndex = 0;
+			do{
+				int subArraySize = ORACLE_IN_CLAUSE_SIZE_LIMIT;
+				if(subArrayIndex + subArraySize > siteIds.length){
+					subArraySize = (siteIds.length - subArrayIndex);
+				}
+				String[] subSiteRefs = Arrays.copyOfRange(siteIds, subArrayIndex, subArrayIndex + subArraySize);
+
+				String query1 = getStatement("delete.siteProperty");
+				
+				String inParams = "(";
+				for(int i = 0; i < subSiteRefs.length; i++){
+					inParams += "'" + subSiteRefs[i] + "'";
+					if(i < subSiteRefs.length - 1){
+						inParams += ",";
+					}
+				}
+				inParams += ")";
+				query1 = query1.replace("(?)", inParams);
+				getJdbcTemplate().update(query1, new Object[]{propertyName});
+				subArrayIndex = subArrayIndex + subArraySize;
+			}while(subArrayIndex < siteIds.length);
+		}catch (DataAccessException ex) {
+			log.error("Error executing query: " + ex.getClass() + ":" + ex.getMessage());
 		}
 	}
 	
@@ -410,5 +454,68 @@ public class DelegatedAccessDaoImpl extends JdbcDaoSupport implements DelegatedA
 			return null;
 		}
 
+	}
+	
+	public void removeAnonAndAuthRoles(String[] siteRefs){
+		try{
+			int subArrayIndex = 0;
+			do{
+				int subArraySize = ORACLE_IN_CLAUSE_SIZE_LIMIT;
+				if(subArrayIndex + subArraySize > siteRefs.length){
+					subArraySize = (siteRefs.length - subArrayIndex);
+				}
+				String[] subSiteRefs = Arrays.copyOfRange(siteRefs, subArrayIndex, subArrayIndex + subArraySize);
+
+				String query1 = getStatement("delete.anon.auth.roles");
+				String query2 = getStatement("delete.anon.auth.permissions");
+				
+				String inParams = "(";
+				for(int i = 0; i < subSiteRefs.length; i++){
+					inParams += "'" + subSiteRefs[i] + "'";
+					if(i < subSiteRefs.length - 1){
+						inParams += ",";
+					}
+				}
+				inParams += ")";
+				query1 = query1.replace("(?)", inParams);
+				query2 = query2.replace("(?)", inParams);
+				getJdbcTemplate().update(query1);
+				getJdbcTemplate().update(query2);
+				subArrayIndex = subArrayIndex + subArraySize;
+			}while(subArrayIndex < siteRefs.length);
+		}catch (DataAccessException ex) {
+		}
+	}
+	
+	public void copyRole(String fromRealm, String fromRole, String[] toRealm, String toRole){
+
+		try{
+			int subArrayIndex = 0;
+			do{
+				int subArraySize = ORACLE_IN_CLAUSE_SIZE_LIMIT;
+				if(subArrayIndex + subArraySize > toRealm.length){
+					subArraySize = (toRealm.length - subArrayIndex);
+				}
+				String[] subSiteRefs = Arrays.copyOfRange(toRealm, subArrayIndex, subArrayIndex + subArraySize);
+
+				String query1 = getStatement("insert.copyrole");
+				String query2 = getStatement("insert.copyroledesc");
+				
+				String inParams = "(";
+				for(int i = 0; i < subSiteRefs.length; i++){
+					inParams += "'" + subSiteRefs[i] + "'";
+					if(i < subSiteRefs.length - 1){
+						inParams += ",";
+					}
+				}
+				inParams += ")";
+				query1 = query1.replace("(?)", inParams);
+				query2 = query2.replace("(?)", inParams);
+				getJdbcTemplate().update(query1, new Object[]{fromRealm, fromRole, toRole});
+				getJdbcTemplate().update(query2, new Object[]{toRole});
+				subArrayIndex = subArrayIndex + subArraySize;
+			}while(subArrayIndex < toRealm.length);
+		}catch (DataAccessException ex) {
+		}
 	}
 }
