@@ -31,6 +31,7 @@ import javax.faces.context.FacesContext;
 import javax.faces.component.UIComponent;
 import javax.faces.component.UIInput;
 import javax.print.attribute.standard.Severity;
+import org.sakaiproject.tool.assessment.jsf.convert.AnswerSurveyConverter;
 
 public class AnswerBean implements Serializable{
 
@@ -57,7 +58,8 @@ public class AnswerBean implements Serializable{
   }
 
   public String getText() {
-    return text;
+	  AnswerSurveyConverter conv = new AnswerSurveyConverter();
+	  return conv.getAsString(null, null, text);
   }
 
   public void setText(String text) {

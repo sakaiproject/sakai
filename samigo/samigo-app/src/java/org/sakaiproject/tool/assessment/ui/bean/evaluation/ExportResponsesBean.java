@@ -49,6 +49,7 @@ import org.apache.poi.ss.usermodel.Sheet;
 import org.apache.poi.ss.usermodel.Workbook;
 import org.apache.poi.xssf.usermodel.XSSFWorkbook;
 import org.sakaiproject.jsf.model.PhaseAware;
+import org.sakaiproject.tool.assessment.jsf.convert.AnswerSurveyConverter;
 import org.sakaiproject.tool.assessment.services.GradingService;
 import org.sakaiproject.tool.assessment.services.assessment.PublishedAssessmentService;
 import org.sakaiproject.tool.assessment.ui.bean.util.Validator;
@@ -56,6 +57,7 @@ import org.sakaiproject.tool.assessment.ui.listener.evaluation.HistogramListener
 import org.sakaiproject.tool.assessment.ui.listener.util.ContextUtil;
 import org.sakaiproject.util.FormattedText;
 import org.sakaiproject.util.ResourceLoader;
+
 
 
 /**
@@ -422,9 +424,10 @@ public class ExportResponsesBean implements Serializable, PhaseAware {
 							if (data instanceof Double) {
 								cell.setCellValue(((Double)data).doubleValue());
 							} else {
+								AnswerSurveyConverter converter = new AnswerSurveyConverter();
+								String datac = converter.getAsString(null, null, data.toString());
 								// stripping html for export, SAK-17021
-								cell.setCellValue(FormattedText.convertFormattedTextToPlaintext(data.toString()));
-
+								cell.setCellValue(FormattedText.convertFormattedTextToPlaintext(datac));
 							}
 						}
 					}

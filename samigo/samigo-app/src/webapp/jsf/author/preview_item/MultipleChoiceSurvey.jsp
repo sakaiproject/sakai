@@ -36,7 +36,9 @@ should be included in file importing DeliveryMessages
           <h:graphicImage id="image2"
              alt="#{authorMessages.not_correct}" url="/images/radiounchecked.gif" >
           </h:graphicImage>
-          <h:outputText escape="false" value="#{answer.text}" />
+          <h:outputText escape="false" value="#{answer.text}" >
+          	<f:converter converterId="org.sakaiproject.tool.assessment.jsf.convert.AnswerSurveyConverter" /> 
+          </h:outputText>
         </h:column>
       </h:dataTable>
 

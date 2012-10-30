@@ -47,7 +47,9 @@ include file for displaying multiple choice single correct survey questions
       </h:selectOneRadio>
     </h:column>
     <h:column rendered="#{answer.text!=null && answer.text!=''}">
-      <h:outputText value="#{answer.text}" escape="false" />
+      <h:outputText value="#{answer.text}" escape="false" >
+      	<f:converter converterId="org.sakaiproject.tool.assessment.jsf.convert.AnswerSurveyConverter" />
+      </h:outputText>
     </h:column>
    </h:dataTable>
    </h:column>

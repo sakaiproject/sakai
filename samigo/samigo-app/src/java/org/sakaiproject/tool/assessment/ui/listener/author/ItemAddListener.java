@@ -2256,44 +2256,44 @@ public class ItemAddListener
 	  // label is null because we don't use labels in survey
 	  if (ItemMetaDataIfc.SURVEY_YES.equals(scalename)) {
 		  choices = new String[2];
-		  choices[0] = ContextUtil.getLocalizedString("org.sakaiproject.tool.assessment.bundle.AuthorMessages","no");
-		  choices[1] = ContextUtil.getLocalizedString("org.sakaiproject.tool.assessment.bundle.AuthorMessages","yes");
+		  choices[0] = "st_yes";
+		  choices[1] = "st_no";
 	  }
 
 	  if (ItemMetaDataIfc.SURVEY_AGREE.equals(scalename)) {
 		  choices = new String[2];
-		  choices[0] = ContextUtil.getLocalizedString("org.sakaiproject.tool.assessment.bundle.AuthorMessages","disagree");
-		  choices[1] = ContextUtil.getLocalizedString("org.sakaiproject.tool.assessment.bundle.AuthorMessages","agree");
+		  choices[0] = "st_disagree";
+		  choices[1] = "st_agree";
 	  }
 	  if (ItemMetaDataIfc.SURVEY_UNDECIDED.equals(scalename)) {
 		  choices = new String[3];
-		  choices[0] = ContextUtil.getLocalizedString("org.sakaiproject.tool.assessment.bundle.AuthorMessages","disagree");
-		  choices[1] = ContextUtil.getLocalizedString("org.sakaiproject.tool.assessment.bundle.AuthorMessages","undecided");
-		  choices[2] = ContextUtil.getLocalizedString("org.sakaiproject.tool.assessment.bundle.AuthorMessages","agree");
+		  choices[0] = "st_disagree";
+		  choices[1] = "st_undecided";
+		  choices[2] = "st_agree";
 	  }
 
 	  if (ItemMetaDataIfc.SURVEY_AVERAGE.equals(scalename)) {
 		  choices = new String[3];
-		  choices[0] = ContextUtil.getLocalizedString("org.sakaiproject.tool.assessment.bundle.AuthorMessages","below_average");
-		  choices[1] = ContextUtil.getLocalizedString("org.sakaiproject.tool.assessment.bundle.AuthorMessages","average");
-		  choices[2] = ContextUtil.getLocalizedString("org.sakaiproject.tool.assessment.bundle.AuthorMessages","above_average");
+		  choices[0] = "st_below_average";
+		  choices[1] = "st_average";
+		  choices[2] = "st_above_average";
 	  }
 	  if (ItemMetaDataIfc.SURVEY_STRONGLY_AGREE.equals(scalename)) {
 		  choices = new String[5];
-		  choices[0] = ContextUtil.getLocalizedString("org.sakaiproject.tool.assessment.bundle.AuthorMessages","strongly_disagree");
-		  choices[1] = ContextUtil.getLocalizedString("org.sakaiproject.tool.assessment.bundle.AuthorMessages","disagree");
-		  choices[2] = ContextUtil.getLocalizedString("org.sakaiproject.tool.assessment.bundle.AuthorMessages","undecided");
-		  choices[3] = ContextUtil.getLocalizedString("org.sakaiproject.tool.assessment.bundle.AuthorMessages","agree");
-		  choices[4] = ContextUtil.getLocalizedString("org.sakaiproject.tool.assessment.bundle.AuthorMessages","strongly_agree");
+		  choices[0] = "st_strongly_disagree";
+		  choices[1] = "st_disagree";
+		  choices[2] = "st_undecided";
+		  choices[3] = "st_agree";
+		  choices[4] = "st_strongly_agree";
 	  }
 
 	  if (ItemMetaDataIfc.SURVEY_EXCELLENT.equals(scalename)) {
 		  choices = new String[5];
-		  choices[0] = ContextUtil.getLocalizedString("org.sakaiproject.tool.assessment.bundle.AuthorMessages","unacceptable");
-		  choices[1] = ContextUtil.getLocalizedString("org.sakaiproject.tool.assessment.bundle.AuthorMessages","below_average");
-		  choices[2] = ContextUtil.getLocalizedString("org.sakaiproject.tool.assessment.bundle.AuthorMessages","average");
-		  choices[3] = ContextUtil.getLocalizedString("org.sakaiproject.tool.assessment.bundle.AuthorMessages","above_average");
-		  choices[4] = ContextUtil.getLocalizedString("org.sakaiproject.tool.assessment.bundle.AuthorMessages","excellent");
+		  choices[0] = "st_unacceptable";
+		  choices[1] = "st_below_average";
+		  choices[2] = "st_average";
+		  choices[3] = "st_above_average";
+		  choices[4] = "st_excellent";
 	  }
 	  if (ItemMetaDataIfc.SURVEY_5.equals(scalename)) {
 		  choices = new String[5];

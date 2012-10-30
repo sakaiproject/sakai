@@ -244,7 +244,9 @@ $Id$
               
               <h:panelGroup>
               	<h:graphicImage width="12" height="12" url="/images/delivery/spacer.gif" />
-              	<h:outputText value="#{bar.label}" escape="false" />
+              	<h:outputText value="#{bar.label}" escape="false" >
+              		<f:converter converterId="org.sakaiproject.tool.assessment.jsf.convert.AnswerSurveyConverter" />
+             	</h:outputText>
 			  </h:panelGroup>
 			  
 			  <h:panelGroup rendered="#{item.questionType == '13' }">

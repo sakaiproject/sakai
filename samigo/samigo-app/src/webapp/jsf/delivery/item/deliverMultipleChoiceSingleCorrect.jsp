@@ -63,7 +63,9 @@ should be included in file importing DeliveryMessages
 	<h:column> 	 
 	  <h:outputText value=" #{selection.answer.label}" escape="false" /> 	 
 	  <h:outputText value="." rendered="#{selection.answer.label ne ''}" /> 	 
-	  <h:outputText value=" #{selection.answer.text}" escape="false" />
+	  <h:outputText value="#{selection.answer.text}" escape="false" >
+     	<f:converter converterId="org.sakaiproject.tool.assessment.jsf.convert.AnswerSurveyConverter" />
+      </h:outputText>
     </h:column>
     <h:column>
       <h:panelGroup rendered="#{delivery.feedback eq 'true' &&
