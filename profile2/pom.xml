@@ -195,12 +195,12 @@
     </distributionManagement>
 	    
     <properties>
-    	<wicket.version>1.4.20</wicket.version>
+    	<wicket.version>1.4.21</wicket.version>
     	<log4j.version>1.2.14</log4j.version>
     	<slf4j.version>1.4.2</slf4j.version>
     	<twitter4j.version>2.1.2</twitter4j.version>
-    	<wicketstuff.tinymce.version>1.4.20</wicketstuff.tinymce.version>
-    	<wicketstuff.objectautocomplete.version>1.4.20</wicketstuff.objectautocomplete.version>
+    	<wicketstuff.tinymce.version>1.4.21</wicketstuff.tinymce.version>
+    	<wicketstuff.objectautocomplete.version>1.4.21</wicketstuff.objectautocomplete.version>
     	<genericdao.version>0.9.18</genericdao.version>
     	<commons.codec.version>1.4</commons.codec.version>
 		<project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
