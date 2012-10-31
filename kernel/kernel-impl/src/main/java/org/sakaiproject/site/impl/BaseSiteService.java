@@ -1287,14 +1287,27 @@ public abstract class BaseSiteService implements SiteService
 
 		// if soft site deletes are active
 		if(serverConfigurationService().getBoolean("site.soft.deletion", false)) {
-			// if site is not already softly deleted, softly delete it
-			// if already marked for deletion, check permission to hard delete, if ok, let continue.
-			if(!site.isSoftlyDeleted()) {
-				site.setSoftlyDeleted(true);
-				save(site);
-				return;
+			
+			M_log.debug("Soft site deletes are enabled.");
+			
+			//KNL-983 only soft delete if not user site
+			//made it verbose for logging purposes
+			if(isUserSite(site.getId())) {
+				M_log.debug("Site: " + site.getId() + " is user site and will be hard deleted.");
+			} else if (isSpecialSite(site.getId())) {
+				M_log.debug("Site: " + site.getId() + " is special site and will be hard deleted.");
 			} else {
-				unlock(SECURE_REMOVE_SOFTLY_DELETED_SITE, site.getReference());
+				M_log.debug("Site: " + site.getId() + " is not user or special site and will be soft deleted.");
+			
+				// if site is not already softly deleted, softly delete it
+				// if already marked for deletion, check permission to hard delete, if ok, let continue.
+				if(!site.isSoftlyDeleted()) {
+					site.setSoftlyDeleted(true);
+					save(site);
+					return;
+				} else {
+					unlock(SECURE_REMOVE_SOFTLY_DELETED_SITE, site.getReference());
+				}
 			}
 		}
 		
