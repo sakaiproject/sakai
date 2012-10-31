@@ -51,6 +51,7 @@
                 <include>org.sakaiproject.portal:sakai-editor:war:*</include>
                 <!-- <include>org.sakaiproject.portal:sakai-portlet-tool:war:*</include> -->
                 <include>org.sakaiproject.portal:tool:war:*</include>
+                <include>org.sakaiproject.portal:portal-chat:war:*</include>
             </includes>
             <unpack>false</unpack>
         </dependencySet>
