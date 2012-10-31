@@ -364,29 +364,27 @@ public class ResourceLoader extends DummyMap implements InternationalizedMessage
 		}
 		
 
-		//Write the sakai locale in the session	for the user.
-		//If we don't have a user, ie anon access, write it into the session using the siteId as the key
-		String sessionId = getSessionManager().getCurrentSession().getId();
+		//Write the sakai locale into the session with sessionId as key.
+		//We do it this way so that anon users can also leverage the locale settings of sites, since anon users have a session.
+		//see KNL-984
+		try 
+		{
+			String sessionId = getSessionManager().getCurrentSession().getId();
 
-		if(sessionId != null) {
-
-			try 
-			{
-				if (M_log.isDebugEnabled()) {
-					M_log.debug("Setting locale into session: " + sessionId);
-				}
-				
-				getSessionManager().getCurrentSession().setAttribute(LOCALE_SESSION_KEY+sessionId,loc);
+			if (M_log.isDebugEnabled()) {
+				M_log.debug("Setting locale into session: " + sessionId);
 			}
-			catch (Exception e) 
-			{
-				if (M_log.isWarnEnabled()) {
-					M_log.warn("setContextLocale(Locale) swallowing Exception");
-					e.printStackTrace();
-				}
-			} //Ignore and continue
+			
+			getSessionManager().getCurrentSession().setAttribute(LOCALE_SESSION_KEY+sessionId,loc);
+		}
+		catch (Exception e) 
+		{
+			if (M_log.isWarnEnabled()) {
+				M_log.warn("setContextLocale(Locale) swallowing Exception");
+				//e.printStackTrace();
+			}
+		} //Ignore and continue
 		
-		} 
 		
 		return loc;		  
 	}
