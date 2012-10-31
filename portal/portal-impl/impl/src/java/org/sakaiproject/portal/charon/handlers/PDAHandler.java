@@ -23,6 +23,7 @@ package org.sakaiproject.portal.charon.handlers;
 
 import java.io.IOException;
 import java.util.List;
+import java.util.Locale;
 import java.util.regex.Pattern;
 import java.util.regex.Matcher;
 
@@ -50,6 +51,7 @@ import org.sakaiproject.tool.api.ToolException;
 import org.sakaiproject.tool.api.ToolSession;
 import org.sakaiproject.tool.cover.ActiveToolManager;
 import org.sakaiproject.tool.cover.SessionManager;
+import org.sakaiproject.util.ResourceLoader;
 import org.sakaiproject.util.Validator;
 import org.sakaiproject.util.Web;
 
@@ -305,6 +307,13 @@ public class PDAHandler extends PageHandler
 
 				// Add any device specific information to the context
 				portal.setupMobileDevice(req, rcontext);
+				
+				ResourceLoader rl = new ResourceLoader();
+				Locale locale = rl.setContextLocale(null);
+				String localeString = locale.getLanguage();
+				String country = locale.getCountry();
+				if(country.length() > 0) localeString += "-" + country;
+				rcontext.put("locale", localeString);
 
 				// Optionally buffer tool content to eliminate iFrames
 				boolean bc = bufferContent(req, res, session, parts, toolId, rcontext);

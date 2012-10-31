@@ -20,7 +20,7 @@
 ##
 #set ( $isPDA = 1 ) 
 <!DOCTYPE HTML>
-<html>
+<html#if (${locale}) lang="$!{locale}" xml:lang="$!{locale}"#end>
 <head>
 	<meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
 #if (${locale})
