@@ -295,6 +295,9 @@ public class SiteHandler extends WorksiteHandler
 				
 				
 		Locale locale = setSiteLanguage(site);	
+		if(log.isDebugEnabled()) {
+			log.debug("Locale for site " + site.getId() + " = " + locale.toString());
+		}
         rcontext.put("locale", locale.toString());			
 				
 		
@@ -861,19 +864,30 @@ public class SiteHandler extends WorksiteHandler
 		ResourcePropertiesEdit props = site.getPropertiesEdit();
 				
 		String locale_string = props.getProperty("locale_string");
-						
+			
+		if(log.isDebugEnabled()){
+			log.debug("setSiteLanguage - locale_string property: " + locale_string);
+		}
+		
 		Locale loc;
 				
 		// if no language was specified when creating the site, set default language to session
 		if(locale_string == null || locale_string == "")
 		{					
+			if(log.isDebugEnabled()){
+				log.debug("setSiteLanguage - no locale, setting null.");
+			}
 			loc = rl.setContextLocale(null);
 		}
 		
 		// if you have indicated a language when creating the site, set selected language to session
 		else
 		{				
-			Locale locale = getLocaleFromString(locale_string);			
+			Locale locale = getLocaleFromString(locale_string);	
+			
+			if(log.isDebugEnabled()){
+				log.debug("setSiteLanguage - locale: " + locale.toString());
+			}
 			loc = rl.setContextLocale(locale);			
 		}
 
