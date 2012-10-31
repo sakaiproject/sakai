@@ -11,11 +11,11 @@ $(document).ready(function(){
     });
     
     //allow user to click on a field to edit
-    $("input[id^=index]").click(function(event){
+    $('input[id^="index"]').click(function(event){
         event.stopPropagation();
     });
     //trap return key
-    $("input[id^=index]").bind("keypress", function(e){
+    $('input[id^="index"]').bind("keypress", function(e){
         var code = e.charCode || e.keyCode;
         return (code == 13) ? false : true;
     });
@@ -56,17 +56,17 @@ $(document).ready(function(){
     
     
     // handle changing the order text field
-    $("input[id^=index]").change(function(){
+    $('input[id^="index"]').change(function(){
         // get existing order
         var that = this;
         preserveStatus();
         //what the value was (plucked from a hidden input)
-        var oldVal = parseInt($(this).siblings('input[id^=holder]').attr('value'));
+        var oldVal = parseInt($(this).siblings('input[id^="holder"]').attr('value'));
         // the new value in the text field
         var newVal = parseInt(this.value);
-        if (isNaN(newVal) || newVal > $("input[id^=index]").size()) {
+        if (isNaN(newVal) || newVal > $('input[id^="index"]').size()) {
             var failedValidMessage = $('#failedValidMessage').text();
-            $('#messageHolder').text(failedValidMessage.replace('#', $('input[id^=index]').size()));
+            $('#messageHolder').text(failedValidMessage.replace('#', $('input[id^="index"]').size()));
             $('.orderable-selected').removeClass('orderable-selected');
             $('#messageHolder').removeClass('messageSuccess');
             $('#messageHolder').addClass('messageValidation');
@@ -90,7 +90,7 @@ $(document).ready(function(){
             return (null);
         }
         
-        var inputs = $("input[id^=index]");
+        var inputs = $('input[id^="index"]');
         // handle the things that happen after a move
         $('#undo-last').fadeIn('slow');
         $('#undo-last-inact').hide();
@@ -120,7 +120,7 @@ $(document).ready(function(){
     // the standard Fluid initialization
     var opts = {
         selectors: {
-            movables: "[id^=listitem.orderable]"
+            movables: '[id^="listitem.orderable"]'
         },
         listeners: {
             onBeginMove: preserveStatus,
@@ -145,8 +145,8 @@ var registerChange = function(originEvent, movedEl){
     var newVal = 0;
     newVal = $((movedEl).prevAll('li').length + 1);
     // change the value of all the text fields (and value holders) to reflect new order
-    var inputsX = $("input[id^=index]");
-    var holderinputs = $("input[id^=holder]");
+    var inputsX = $('input[id^="index"]');
+    var holderinputs = $('input[id^="holder"]');
     var selectItems = $("select.selectSet");
     for (var i = 0; i < inputsX.length; i = i + 1) {
         inputsX[i].value = i + 1;
