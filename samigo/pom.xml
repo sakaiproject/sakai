@@ -18,7 +18,6 @@
 	<modules>
 		<module>samigo-api</module>
 		<module>samigo-app</module>
-		<module>samigo-audio</module>
 		<module>samigo-deploy</module>
 		<module>samigo-help</module>
 		<module>samigo-hibernate</module>
@@ -29,6 +28,30 @@
 		<module>samigo-archive/sam-handlers</module>
 		<module>samlite-impl</module>
 	</modules>
+	
+	<profiles>
+		<profile>
+			<!-- 
+			* This profile is activated by the Sakai CLE release team when releases are being created, 
+			and will build/sign the jar if you have the correct keystore and credentials.
+			* See the samigo-audio/pom.xml for the information that is required to sign it.
+			* For all other builds, the jar will be downloaded from the remote Maven repo, 
+			where it is already signed by the Sakai Foundation.
+			* If you build this jar yourself without supplying the keystore and credentials,
+			the signing will fail and users may get Java prompts when using the audio module.
+			* See: https://jira.sakaiproject.org/browse/SAM-1837
+			* To verify the jar once it is signed, find the jar and run: 'jarsigner -verify samigo-audio-VERSION.jar'
+			-->
+			<id>jarsign</id>
+			<activation>
+				<activeByDefault>false</activeByDefault>
+			</activation>
+			<modules>
+				<module>samigo-audio</module>
+			</modules>
+		</profile>
+	</profiles>
+        
 	
 	<scm>
 		<connection>scm:svn:https://source.sakaiproject.org/svn/sam/trunk</connection>
