@@ -6458,15 +6458,6 @@ byte[] b = (s.getTimeSubmitted().toString()).getBytes();
 							p.clear();
 							p.addAll(oAssignment.getProperties());
 							
-							// one more touch on the gradebook-integration link
-							if (StringUtils.trimToNull(p.getProperty(PROP_ASSIGNMENT_ASSOCIATE_GRADEBOOK_ASSIGNMENT)) != null)
-							{
-								// assignments are imported as drafts;
-								// mark the integration with "add" for now, later when user posts the assignment, the corresponding assignment will be created in gradebook.
-								p.removeProperty(PROP_ASSIGNMENT_ASSOCIATE_GRADEBOOK_ASSIGNMENT);
-								p.addProperty(NEW_ASSIGNMENT_ADD_TO_GRADEBOOK, GRADEBOOK_INTEGRATION_ADD);
-							}
-							
 							// remove the link btw assignment and announcement item. One can announce the open date afterwards
 							p.removeProperty(ResourceProperties.NEW_ASSIGNMENT_CHECK_AUTO_ANNOUNCE);
 							p.removeProperty("new_assignment_open_date_announced");
