@@ -504,6 +504,12 @@ public String addGroupToSite( String sessionid, String siteid, String grouptitle
 		group.setDescription(groupdesc);
 		group.getProperties().addProperty(GROUP_PROP_WSETUP_CREATED, Boolean.TRUE.toString());
 
+		// SAK-22849 clear the provider id
+		group.setProviderGroupId(null);
+
+		// SAK-22849 clear the role provider id property
+		group.getProperties().removeProperty("group_prop_role_providerid");
+		
 		siteService.save(site);
 		return group.getId();
 	}
