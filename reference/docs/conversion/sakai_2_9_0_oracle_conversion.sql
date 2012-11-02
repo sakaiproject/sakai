@@ -14,8 +14,8 @@
 alter table SAKAI_REALM modify PROVIDER_ID varchar2(4000);
 
 -- KNL-705 new soft deletion of sites
--- TODO needs checking for correct syntax - DH
 alter table SAKAI_SITE add IS_SOFTLY_DELETED char(1) default 0 not null;
+update SAKAI_SITE set IS_SOFTLY_DELETED=0 where IS_SOFTLY_DELETED is null;
 alter table SAKAI_SITE add SOFTLY_DELETED_DATE timestamp;
 
 -- KNL-725 use a datetype with timezone
