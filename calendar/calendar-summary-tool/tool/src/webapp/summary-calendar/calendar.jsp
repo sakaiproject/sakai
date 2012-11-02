@@ -23,8 +23,10 @@
 
 	<h:form id="calendarForm">
 	<h:panelGroup>
-       <sakai:tool_bar rendered="#{CalBean.userId ne null}">
-			<sakai:tool_bar_item action="#{MenuBean.processPreferences}" value="#{msgs.menu_prefs}" immediate="true" />
+		<sakai:tool_bar rendered="#{CalBean.userId ne null}">
+			<h:commandLink action="#{MenuBean.processPreferences}" >
+				<h:outputText value="#{CalBean.accessibleOptionsLink}" escape="false"/>
+            </h:commandLink>
 		</sakai:tool_bar>
     </h:panelGroup>
 	    

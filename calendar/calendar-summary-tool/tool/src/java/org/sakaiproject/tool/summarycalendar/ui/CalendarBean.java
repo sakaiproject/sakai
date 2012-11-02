@@ -861,4 +861,20 @@ public class CalendarBean {
 		Calendar c = Calendar.getInstance(getCurrentUserTimezone(),msgs.getLocale());
 		return new CalendarUtil(c).getCalendarDaysOfWeekNames(false);
 	}
+	
+	//SAK-19700 method to get name of tool so it can be rendered with the option link, for screenreaders
+	public String getToolTitle() {
+		return M_tm.getCurrentPlacement().getTitle();
+	}
+	
+	//SAK-19700 renders a complete Options link with an additional span link for accessiblity
+	public String getAccessibleOptionsLink() {
+		StringBuilder sb = new StringBuilder();
+		sb.append(msgs.getString("menu_prefs"));
+		sb.append("<span class=\"skip\">");
+		sb.append(getToolTitle());
+		sb.append("</span>");
+		return sb.toString();
+		
+	}
 }
