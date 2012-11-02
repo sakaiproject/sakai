@@ -132,29 +132,6 @@
     
     <!-- Project repositories -->
     <repositories>
-        <repository>
-            <id>jboss</id>
-            <name>Jboss Repository for Maven</name>
-            <layout>default</layout>
-            <url>http://repository.jboss.com/maven2</url>
-            <releases>
-                <enabled>true</enabled>
-            </releases>
-            <snapshots>
-                <enabled>false</enabled>
-            </snapshots>
-        </repository>
-        <repository>
-            <id>org.wicketstuff</id>
-            <name>Wicket Stuff Repository</name>
-            <url>http://wicketstuff.org/maven/repository</url>
-			<releases>
-                <enabled>true</enabled>
-            </releases>
-            <snapshots>
-                <enabled>false</enabled>
-            </snapshots>
-        </repository>
 		<repository> 
 			<id>sonatype-nexus-snapshots</id> 
 			<name>Sonatype Nexus Snapshots</name> 
