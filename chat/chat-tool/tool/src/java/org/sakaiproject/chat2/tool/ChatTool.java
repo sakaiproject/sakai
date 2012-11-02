@@ -1613,4 +1613,14 @@ public class ChatTool implements RoomObserver, PresenceObserver {
 	   return toolManager.getCurrentPlacement().getTitle();
    }
    
+   //SAK-19700 renders a complete Options link with an additional span link for accessiblity
+   public String getAccessibleOptionsLink() {
+	   StringBuilder sb = new StringBuilder();
+	   sb.append(getMessageFromBundle("manage_tool"));
+	   sb.append("<span class=\"skip\">");
+	   sb.append(getToolTitle());
+	   sb.append("</span>");
+	   return sb.toString();
+   }
+   
 }

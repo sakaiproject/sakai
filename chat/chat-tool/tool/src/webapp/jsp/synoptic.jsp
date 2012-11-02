@@ -3,7 +3,7 @@
       <h:form>     
          <sakai:tool_bar>
             <h:commandLink action="#{ChatTool.processActionSynopticOptions}" rendered="#{ChatTool.maintainer}">
-               <h:outputText value="#{msgs.manage_tool}" />
+               <h:outputText value="#{ChatTool.accessibleOptionsLink}" escape="false"/>
             </h:commandLink>
          </sakai:tool_bar>         
          <sakai:messages rendered="#{!empty facesContext.maximumSeverity}" />         
