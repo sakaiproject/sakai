@@ -22,6 +22,8 @@
 var sakai = sakai || {};
 sakai.editor = sakai.editor || {};
 sakai.editor.editors = sakai.editor.editors || {};
+// Temporarily disable enableResourceSearch till citations plugin is ported (SAK-22862)
+sakai.editor.enableResourceSearch = false;
 
 sakai.editor.editors.ckeditor = {};
 // Please note that no more parameters should be added to this signature.
