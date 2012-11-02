@@ -4335,6 +4335,9 @@ public class AnnouncementAction extends PagedResourceActionII
 		context.put(Menu.CONTEXT_MENU, bar);
 		context.put(Menu.CONTEXT_ACTION, "AnnouncementAction");
 		context.put("tlang", rb);
+		
+		//SAK-19700 put name of tool into context so it can be rendered with the option link, for screenreaders
+		context.put("toolTitle", ToolManager.getCurrentPlacement().getTitle());
 
 	} // buildMenu
 
