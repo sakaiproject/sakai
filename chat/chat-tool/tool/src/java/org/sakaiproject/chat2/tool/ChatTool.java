@@ -1607,5 +1607,10 @@ public class ChatTool implements RoomObserver, PresenceObserver {
 	
 	    }
    }
+
+   //SAK-19700 method to get name of tool so it can be rendered with the option link, for screenreaders
+   public String getToolTitle() {
+	   return toolManager.getCurrentPlacement().getTitle();
+   }
    
 }
