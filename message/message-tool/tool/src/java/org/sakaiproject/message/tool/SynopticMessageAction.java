@@ -409,6 +409,9 @@ public class SynopticMessageAction extends VelocityPortletPaneledAction
 		// + " time: " + (endTime - startTime));
 		// }
 		// }
+		
+		//SAK-19700 put name of tool into context so it can be rendered with the option link, for screenreaders
+		context.put("toolTitle", ToolManager.getCurrentPlacement().getTitle());
 
 		return rv;
 
