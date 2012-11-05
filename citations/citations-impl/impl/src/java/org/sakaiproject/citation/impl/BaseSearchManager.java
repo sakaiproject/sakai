@@ -2598,7 +2598,8 @@ public class BaseSearchManager implements SearchManager, Observer
 		try
 		{
 			return ( m_configService.getSiteConfigGoogleBaseUrl()
-					+ "?linkurl_base="
+					+ "?sciui=2&as_sdt=0,15&"
+					+ "linkurl_base="
 					+ java.net.URLEncoder.encode( serverUrl +
 							Entity.SEPARATOR +
 							SERVLET_NAME +
