@@ -42,7 +42,10 @@
 
 		<h:panelGroup>
 			<h:message for="username" errorClass="alertMessage" infoClass="instruction" />
-			<p><h:inputText id="username" value="#{SuTool.username}" required="true" /></p>
+			<p>
+				<h:outputLabel for="username" value="#{msgs.eid}" /><h:outputText value="&nbsp;&nbsp;" escape="false"/>
+				<h:inputText id="username" value="#{SuTool.username}" required="true" />
+			</p>
 		</h:panelGroup>
 	
 		<p class="act">
