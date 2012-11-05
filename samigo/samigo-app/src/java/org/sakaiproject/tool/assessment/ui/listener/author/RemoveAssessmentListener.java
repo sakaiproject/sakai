@@ -24,18 +24,16 @@
 package org.sakaiproject.tool.assessment.ui.listener.author;
 
 import java.util.ArrayList;
-import java.util.List;
 
 import javax.faces.event.AbortProcessingException;
 import javax.faces.event.ActionEvent;
 import javax.faces.event.ActionListener;
 
 import org.sakaiproject.tool.assessment.facade.AssessmentFacade;
+import org.sakaiproject.tool.assessment.services.assessment.AssessmentService;
 import org.sakaiproject.tool.assessment.ui.bean.author.AssessmentBean;
 import org.sakaiproject.tool.assessment.ui.bean.author.AuthorBean;
 import org.sakaiproject.tool.assessment.ui.listener.util.ContextUtil;
-import org.sakaiproject.tool.assessment.services.assessment.AssessmentService;
-import org.sakaiproject.tool.assessment.data.ifc.assessment.AssessmentIfc;
 import org.sakaiproject.tool.cover.SessionManager;
 
 /**
@@ -47,7 +45,7 @@ import org.sakaiproject.tool.cover.SessionManager;
 
 public class RemoveAssessmentListener implements ActionListener
 {
-  //rivate static Log log = LogFactory.getLog(RemoveAssessmentListener.class);
+  //private static Log log = LogFactory.getLog(RemoveAssessmentListener.class);
 	
   public RemoveAssessmentListener()
   {
@@ -62,8 +60,9 @@ public class RemoveAssessmentListener implements ActionListener
 
     // #1 - remove selected assessment on a separate thread
     String assessmentId = (String) assessmentBean.getAssessmentId();
-    AssessmentIfc assessment = s.getAssessment(assessmentId); 
-    RemoveAssessmentThread thread = new RemoveAssessmentThread(assessmentId, SessionManager.getCurrentSessionUserId());
+    //SAM-2004 we need the current placement -DH
+    String context = s.getAssessmentSiteId(assessmentId);
+    RemoveAssessmentThread thread = new RemoveAssessmentThread(assessmentId, SessionManager.getCurrentSessionUserId(), context);
     thread.start();
 
     // This should have been done inside AssessmentFacadeQueries.removeAssessment()

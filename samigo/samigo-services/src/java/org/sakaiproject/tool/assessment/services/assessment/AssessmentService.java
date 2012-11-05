@@ -966,7 +966,11 @@ public class AssessmentService {
 		}
 
 	}
-	
+		/**
+		 * Get the siteid for the given assesment
+		 * @param assessmentId
+		 * @return
+		 */
 	  public String getAssessmentSiteId(String assessmentId){
 		    return PersistenceService.getInstance().getAssessmentFacadeQueries().getAssessmentSiteId(assessmentId);
 	  }
