@@ -29,7 +29,7 @@
 --%>
 -->
   <f:view>
-    <html xmlns="http://www.w3.org/1999/xhtml">
+    <html xmlns="http://www.w3.org/1999/xhtml" lang="en" xml:lang="en">
       <head><%= request.getAttribute("html.head") %>
         <h:outputText escape="false" value="<meta http-equiv='Refresh' content='0; URL=#{delivery.contextPath}/jsf/delivery/beginTakingAssessment.faces'>"/>
       </head>

@@ -31,7 +31,7 @@ $Id: createNewEmail.jsp 18063 2006-11-09 00:00:17Z ktsao@stanford.edu $
 -->
 
 <f:view>
-<html xmlns="http://www.w3.org/1999/xhtml">
+<html xmlns="http://www.w3.org/1999/xhtml" lang="en" xml:lang="en">
 <head><%= request.getAttribute("html.head") %>
 <title>
 <h:outputText value="#{evaluationMessages.title_create_new_email}#{evaluationMessages.colon} #{param.assessmentName} #{commonMessages.feedback}" rendered="#{param.fromEmailLinkClick == 'true'}"/>  
