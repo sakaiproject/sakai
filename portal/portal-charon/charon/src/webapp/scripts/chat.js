@@ -80,6 +80,9 @@ function PortalChat() {
                         avatarOrName="<span class=\"pc_displayname\">You</span>"
                     }
 
+                    // Escape markup
+                    content = content.replace(/&/g, '&amp;').replace(/>/g, '&gt;').replace(/</g, '&lt;').replace(/"/g, '&quot;');
+
 					messagePanel.append("<li>"+ avatarOrName + "<div class=\"pc_message\">" + content + "</div><span class=\"pc_messagedate\">" + dateString + "</span></li>");
 				    $('#pc_editor_for_' + to).val('');
 				}
