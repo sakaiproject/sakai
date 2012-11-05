@@ -170,7 +170,17 @@
 	</form>
 #else
 		<p class="instruction">
-			$tlang.getString("list.nosites")
+            #if ("$!siteType" == "") #set($siteType="Any") #end
+            #if($siteType=="Any")
+                #set($siteTypeDisplay=$tlang.getString("se.any"))
+            #else
+                #set($siteTypeDisplay=$siteType)
+            #end
+            #if ($termSelection)
+                $tlang.getString("list.nosites") "$siteTypeDisplay" $tlang.getString("list.type2") "$!searchText" $tlang.getString("list.text") "$termSelection" $tlang.getString("list.aca")       
+            #else
+                $tlang.getString("list.nosites") "$siteTypeDisplay" $tlang.getString("list.type1") "$!searchText".
+            #end
 		</p>
 		#if ($helperMode)
 			<p class="act">
