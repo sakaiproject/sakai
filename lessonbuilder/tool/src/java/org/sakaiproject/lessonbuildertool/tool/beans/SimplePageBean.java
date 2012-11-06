@@ -3020,25 +3020,28 @@ public class SimplePageBean {
 				}
 			}
 			// adjust gradebook entry
+			boolean add = false;
 			if (newPoints == null && currentPoints != null) {
 				gradebookIfc.removeExternalAssessment(site.getId(), "lesson-builder:" + page.getPageId());
 			} else if (newPoints != null && currentPoints == null) {
-				boolean add = gradebookIfc.addExternalAssessment(site.getId(), "lesson-builder:" + page.getPageId(), null,
+				add = gradebookIfc.addExternalAssessment(site.getId(), "lesson-builder:" + page.getPageId(), null,
 						       	pageTitle, newPoints, null, "Lesson Builder");
 				
 				if(!add) {
 					setErrMessage(messageLocator.getMessage("simplepage.no-gradebook"));
-				}
-				
-				needRecompute = true;
+				} else
+				    needRecompute = true;
 			} else if (currentPoints != null && 
 					(!currentPoints.equals(newPoints) || !pageTitle.equals(page.getTitle()))) {
-				gradebookIfc.updateExternalAssessment(site.getId(), "lesson-builder:" + page.getPageId(), null,
+				add = gradebookIfc.updateExternalAssessment(site.getId(), "lesson-builder:" + page.getPageId(), null,
 							  	pageTitle, newPoints, null);
-				if (!currentPoints.equals(newPoints))
+				if(!add) {
+					setErrMessage(messageLocator.getMessage("simplepage.no-gradebook"));
+				} else if (!currentPoints.equals(newPoints))
 					needRecompute = true;
 			}
-			page.setGradebookPoints(newPoints);
+			if (add)
+			    page.setGradebookPoints(newPoints);
 		}
 
 		if (pageTitle != null && pageItem.getPageId() == 0) {
