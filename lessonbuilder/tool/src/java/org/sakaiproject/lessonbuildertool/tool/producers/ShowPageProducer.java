@@ -1681,7 +1681,7 @@ public class ShowPageProducer implements ViewComponentProducer, DefaultView, Nav
 					// faculty missing preqs get warning but still see the comments
 					if (!isAvailable && canEditPage)
 					    UIOutput.make(tableRow, "student-missing-prereqs", messageLocator.getMessage("simplepage.student-fake-missing-prereqs"));
-					else if (!isAvailable && !canEditPage)
+					if (!isAvailable && !canEditPage)
 					    UIOutput.make(tableRow, "student-missing-prereqs", messageLocator.getMessage("simplepage.student-missing-prereqs"));
 					else {
 						UIOutput.make(tableRow, "studentDiv");
