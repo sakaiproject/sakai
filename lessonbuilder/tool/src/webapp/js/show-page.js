@@ -13,7 +13,11 @@ $(window).load(function () {
 });
 
 function msg(s) {
-   return document.getElementById(s).innerHTML;
+    var m = document.getElementById(s);
+    if (m == null) {
+       return s;
+    }  else 
+       return m.innerHTML;;
 }
 
 function checksize(oe) {
