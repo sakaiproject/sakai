@@ -14,8 +14,7 @@ SST_USERSTATS which stores daily unique logins (user.login).
 Using both of these we can recreate the original intent of the server wide stats, but in an easier to manage structure. We also
 don't have the issue with retaining historical data.
 
-The data is still retrieved via the Sakai SqlService and is still only implemented with MySQL however it would be trivial to
-support Oracle as well by providing the adapted queries. See ServerWideReportManagerImpl.java
+The data is still retrieved via the Sakai SqlService and for 2.3 is only implemented with MySQL however as of 2.4, Oracle is now supported.
 
 ######################
 Enabling this feature:
@@ -32,7 +31,7 @@ Historical data
 ###############
 
 There is no automatic conversion of the existing historical data to the new site stats database tables. 
-This needs to be performed manually. Below are the original functions and a sample of data that they return.
+This needs to be performed manually. Below are the original functions (MySQL) and a sample of data that they return.
 
 At the end are the queries required to take the historical data and put it into the format required for insert into the new tables.
 
@@ -150,9 +149,9 @@ sakai.forums		130
 blogger				87
 sakai.discussion	79
 
-##########################
-Historical data conversion
-##########################
+######################################
+Historical data conversion (for MySQL)
+######################################
 
 You need to run the following queries to convert the historical data into the new tables. No data is lost in this process.
 You should backup any data in the SSL_SERVERSTATS and SST_USERSTATS tables just in case you decide to start over.
@@ -199,3 +198,63 @@ from SAKAI_EVENT
 where EVENT ='user.del'
 and EVENT_DATE > DATE_SUB(CURDATE(), INTERVAL 5000 DAY) group by 1;
 
+#######################################
+Historical data conversion (for Oracle)
+#######################################
+
+This section contains Oracle versions of the SQL statements from the previous section.
+
+### Convert daily total user logins
+insert into sst_serverstats (id, activity_date, event_id, activity_count) 
+select sst_serverstats_id.nextval, sub.*
+from (select trunc(SESSION_START, 'DDD') as session_date, 'user.login', count(*)
+      from SAKAI_SESSION where SESSION_START > (SYSDATE - 5000)
+      group by trunc(SESSION_START, 'DDD')) sub;
+
+### Convert daily individual user logins
+insert into sst_userstats (id, login_date, user_id, login_count) 
+select sst_userstats_id.nextval, sub.*
+from (select trunc(SESSION_START, 'DDD'), SESSION_USER, count(*)
+      from SAKAI_SESSION
+      where SESSION_START > (SYSDATE - 5000)
+      group by SESSION_USER, trunc(SESSION_START, 'DDD')) sub;
+
+### Convert the daily site.add server events per day
+insert into sst_serverstats (id, activity_date, event_id, activity_count) 
+select sst_serverstats_id.nextval, sub.*
+from (select trunc(EVENT_DATE, 'DDD'), event, count(*) as event_id
+      from SAKAI_EVENT
+      where EVENT = 'site.add'
+      and REF not like '/site/~%'
+      and REF not like '/site/!%'
+      and EVENT_DATE > (SYSDATE - 5000)
+      group by trunc(EVENT_DATE, 'DDD'), event) sub;
+
+### Convert the daily site.del server events per day
+insert into sst_serverstats (id, activity_date, event_id, activity_count) 
+select sst_serverstats_id.nextval, sub.*
+from (select trunc(EVENT_DATE, 'DDD'), event, count(*) as event_id
+      from SAKAI_EVENT
+      where EVENT = 'site.del'
+      and REF not like '/site/~%'
+      and REF not like '/site/!%'
+      and EVENT_DATE > (SYSDATE - 5000)
+      group by trunc(EVENT_DATE, 'DDD'), event) sub;
+
+### Convert the daily user.add server events per day
+insert into sst_serverstats (id, activity_date, event_id, activity_count) 
+select sst_serverstats_id.nextval, sub.*
+from (select trunc(EVENT_DATE, 'DDD'), event, count(*) as event_id
+      from SAKAI_EVENT
+      where EVENT = 'user.add'
+      and EVENT_DATE > (SYSDATE - 5000)
+      group by trunc(EVENT_DATE, 'DDD'), event) sub;
+
+### Convert the daily user.del server events per day
+insert into sst_serverstats (id, activity_date, event_id, activity_count) 
+select sst_serverstats_id.nextval, sub.*
+from (select trunc(EVENT_DATE, 'DDD'), event, count(*) as event_id
+      from SAKAI_EVENT
+      where EVENT = 'user.del'
+      and EVENT_DATE > (SYSDATE - 5000)
+      group by trunc(EVENT_DATE, 'DDD'), event) sub;
