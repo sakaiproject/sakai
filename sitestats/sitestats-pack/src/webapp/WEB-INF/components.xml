@@ -259,11 +259,8 @@
         <property name="statsManager" ref="org.sakaiproject.sitestats.api.StatsManager" />
 		<property name="sqlService" ref="org.sakaiproject.db.api.SqlService"/>
         <property name="usageSessionService" ref="org.sakaiproject.event.api.UsageSessionService" />
-        <!--
-		<property name="statsManager" ref="org.sakaiproject.sitestats.api.StatsManager" />
-		<property name="siteService" ref="org.sakaiproject.site.api.SiteService"/>
-		<property name="eventTrackingService" ref="org.sakaiproject.event.api.EventTrackingService"/>
-        -->
+        <property name="serverConfigurationService" ref="org.sakaiproject.component.api.ServerConfigurationService"/>
+        
 	</bean>    
 
 
