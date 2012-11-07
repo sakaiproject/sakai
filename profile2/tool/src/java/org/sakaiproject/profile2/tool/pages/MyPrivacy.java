@@ -423,6 +423,13 @@ public class MyPrivacy extends BasePage {
 					formFeedback.setDefaultModel(new ResourceModel("error.privacy.save.failed"));
 					formFeedback.add(new AttributeModifier("class", true, new Model<String>("alertMessage")));	
 				}
+				
+				//resize iframe
+				target.appendJavascript("setMainFrameHeight(window.name);");
+				
+				//PRFL-775 - set focus to feedback message so it is announced to screenreaders
+				target.appendJavascript("$('#" + formFeedbackId + "').focus();");
+				
 				target.addComponent(formFeedback);
             }
 		};
