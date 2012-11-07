@@ -25,6 +25,7 @@ import java.io.IOException;
 import java.net.MalformedURLException;
 import java.net.URL;
 import java.text.DateFormat;
+import java.text.ParseException;
 import java.util.Date;
 import java.util.Iterator;
 import java.util.List;
@@ -345,10 +346,12 @@ public class BasicNewsChannel implements NewsChannel
 		return m_pubdate;
 	}
 	public Date getPubdateInDateFormat(){
-		if ((m_pubdate!=null)&&(m_pubdate!=""))
-			return new Date(m_pubdate);
-		else
-			return new Date();
+		if (m_pubdate!=null) {
+			try {
+				return DateFormat.getInstance().parse(m_pubdate);
+			} catch (ParseException e) {}
+		}
+		return new Date();
 	}
 
 	public String getLastbuilddate()
@@ -356,10 +359,12 @@ public class BasicNewsChannel implements NewsChannel
 		return m_lastbuilddate;
 	}
 	public Date getLastbuilddateInDateFormat(){
-		if ((m_lastbuilddate!=null)&&(m_lastbuilddate!=""))
-			return new Date(m_lastbuilddate);
-		else
-			return new Date();
+		if (m_lastbuilddate!=null) {
+			try {
+				return DateFormat.getInstance().parse(m_lastbuilddate);
+			} catch (ParseException e) {}
+		}
+		return new Date();
 	}
 
 	public String getImageUrl()

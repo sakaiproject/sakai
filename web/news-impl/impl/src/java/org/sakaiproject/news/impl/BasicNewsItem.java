@@ -21,6 +21,8 @@
 
 package org.sakaiproject.news.impl;
 
+import java.text.DateFormat;
+import java.text.ParseException;
 import java.util.List;
 import java.util.Date;
 
@@ -115,10 +117,12 @@ public class BasicNewsItem implements NewsItem
 
 	} // getPubdate
 	public Date getPubdateInDateFormat(){
-		if ((m_pubdate!=null) && (m_pubdate!=""))
-			return new Date(m_pubdate);
-		else 
-			return new Date();
+		if (m_pubdate!=null) {
+			try {
+				return DateFormat.getInstance().parse(m_pubdate);
+			} catch (ParseException e) {}
+		}
+		return new Date();
 	}
 	/**
 	 * Access the URL where the complete story can be found.
