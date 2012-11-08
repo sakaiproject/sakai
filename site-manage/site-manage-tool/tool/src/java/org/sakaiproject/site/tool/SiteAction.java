@@ -208,6 +208,8 @@ public class SiteAction extends PagedResourceActionII {
 	private static final String SITE_MODE_HELPER_DONE = "helper.done";
 
 	private static final String STATE_SITE_MODE = "site_mode";
+	
+	private static final String TERM_OPTION_ALL = "-1";
 
 	protected final static String[] TEMPLATE = {
 			"-list",// 0
@@ -313,6 +315,8 @@ public class SiteAction extends PagedResourceActionII {
 
 	/** Name of the state attribute holding the site list View selected */
 	private static final String STATE_VIEW_SELECTED = "site.view.selected";
+	
+	private static final String STATE_TERM_VIEW_SELECTED = "site.termview.selected";
 
 	/** Names of lists related to tools */
 	private static final String STATE_TOOL_REGISTRATION_LIST = "toolRegistrationList";
@@ -1378,6 +1382,34 @@ public class SiteAction extends PagedResourceActionII {
 			if (state.getAttribute(STATE_VIEW_SELECTED) != null) {
 				context.put("viewSelected", (String) state
 						.getAttribute(STATE_VIEW_SELECTED));
+			}
+
+			//term filter:
+			Hashtable termViews = new Hashtable();
+			termViews.put(TERM_OPTION_ALL, rb.getString("list.allTerms"));
+			List<AcademicSession> aSessions = setTermListForContext(context, state, false);
+			if(aSessions != null){
+				for(AcademicSession s : aSessions){
+					termViews.put(s.getTitle(), s.getTitle());
+				}
+			}
+			// default term view
+			if (state.getAttribute(STATE_TERM_VIEW_SELECTED) == null) {
+				state.setAttribute(STATE_TERM_VIEW_SELECTED, TERM_OPTION_ALL);
+			}else {
+				context.put("viewTermSelected", (String) state
+						.getAttribute(STATE_TERM_VIEW_SELECTED));
+			}
+			// sort the keys in the termViews lookup
+			List<String> termViewKeys = Collections.list(termViews.keys());
+			Collections.sort(termViewKeys);
+			context.put("termViewKeys", termViewKeys);
+			context.put("termViews", termViews);
+			if(termViews.size() == 1){
+				//this means the terms are empty, only the default option exist
+				context.put("hideTermFilter", true);
+			}else{
+				context.put("hideTermFilter", false);
 			}
 
 			String search = (String) state.getAttribute(STATE_SEARCH);
@@ -4046,7 +4078,13 @@ public class SiteAction extends PagedResourceActionII {
 		int size = 0;
 		String search = "";
 		String userId = SessionManager.getCurrentSessionUserId();
-
+		String term = (String) state.getAttribute(STATE_TERM_VIEW_SELECTED);
+		Map<String,String> termProp = null;
+		if(term != null && !"".equals(term) && !TERM_OPTION_ALL.equals(term)){
+			termProp = new HashMap<String,String>();
+			termProp.put(Site.PROP_SITE_TERM, term);
+		}
+		
 		// if called from the site list page
 		if (((String) state.getAttribute(STATE_TEMPLATE_INDEX)).equals("0")) {
 			search = StringUtils.trimToNull((String) state
@@ -4061,7 +4099,7 @@ public class SiteAction extends PagedResourceActionII {
 						size = SiteService
 								.countSites(
 										org.sakaiproject.site.api.SiteService.SelectionType.NON_USER,
-										null, search, null);
+										null, search, termProp);
 					} else if (view.equals(SiteConstants.SITE_TYPE_MYWORKSPACE)) {
 						// search for a specific user site
 						// for the particular user id in the
@@ -4077,7 +4115,7 @@ public class SiteAction extends PagedResourceActionII {
 						size = SiteService
 								.countSites(
 										org.sakaiproject.site.api.SiteService.SelectionType.NON_USER,
-										view, search, null);
+										view, search, termProp);
 					}
 				}
 			} else {
@@ -4108,7 +4146,7 @@ public class SiteAction extends PagedResourceActionII {
 						size += SiteService
 								.countSites(
 										org.sakaiproject.site.api.SiteService.SelectionType.ACCESS,
-										null, search, null);
+										null, search, termProp);
 					} else if (view.equals(SiteConstants.SITE_TYPE_MYWORKSPACE)) {
 						// get the current user MyWorkspace site
 						try {
@@ -4122,7 +4160,7 @@ public class SiteAction extends PagedResourceActionII {
 						size += SiteService
 								.countSites(
 										org.sakaiproject.site.api.SiteService.SelectionType.ACCESS,
-										view, search, null);
+										view, search, termProp);
 					}
 				}
 			}
@@ -4166,6 +4204,13 @@ public class SiteAction extends PagedResourceActionII {
 						: SortType.PUBLISHED_DESC;
 			}
 			
+			String term = (String) state.getAttribute(STATE_TERM_VIEW_SELECTED);
+			Map<String,String> termProp = null;
+			if(term != null && !"".equals(term) && !TERM_OPTION_ALL.equals(term)){
+				termProp = new HashMap<String,String>();
+				termProp.put(Site.PROP_SITE_TERM, term);
+			}
+			
 			if (SecurityService.isSuperUser()) {
 				// admin-type of user
 				String view = (String) state.getAttribute(STATE_VIEW_SELECTED);
@@ -4176,7 +4221,7 @@ public class SiteAction extends PagedResourceActionII {
 						return SiteService
 								.getSites(
 										org.sakaiproject.site.api.SiteService.SelectionType.NON_USER,
-										null, search, null, sortType,
+										null, search, termProp, sortType,
 										new PagingPosition(first, last));
 					} else if (view.equalsIgnoreCase(SiteConstants.SITE_TYPE_MYWORKSPACE)) {
 						// search for a specific user site for
@@ -4196,7 +4241,7 @@ public class SiteAction extends PagedResourceActionII {
 						return SiteService
 								.getSites(
 										org.sakaiproject.site.api.SiteService.SelectionType.ANY,
-										view, search, null, sortType,
+										view, search, termProp, sortType,
 										new PagingPosition(first, last));
 					}
 				}
@@ -4229,7 +4274,7 @@ public class SiteAction extends PagedResourceActionII {
 								.addAll(SiteService
 										.getSites(
 												org.sakaiproject.site.api.SiteService.SelectionType.ACCESS,
-												null, search, null, sortType,
+												null, search, termProp, sortType,
 												new PagingPosition(first, last)));
 					}
 					else if (view.equals(SiteConstants.SITE_TYPE_MYWORKSPACE)) {
@@ -4242,7 +4287,7 @@ public class SiteAction extends PagedResourceActionII {
 						rv.addAll(SiteService
 										.getSites(
 												org.sakaiproject.site.api.SiteService.SelectionType.ACCESS,
-												view, search, null, sortType,
+												view, search, termProp, sortType,
 												new PagingPosition(first, last)));
 					}
 				}
@@ -4576,6 +4621,7 @@ public class SiteAction extends PagedResourceActionII {
 				.getPortletSessionState(((JetspeedRunData) data).getJs_peid());
 		ParameterParser params = data.getParameters();
 		state.setAttribute(STATE_VIEW_SELECTED, params.getString("view"));
+		state.setAttribute(STATE_TERM_VIEW_SELECTED, params.getString("termview"));
 		state.setAttribute(STATE_TEMPLATE_INDEX, "0");
 
 		resetPaging(state);

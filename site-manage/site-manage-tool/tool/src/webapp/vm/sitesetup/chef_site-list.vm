@@ -55,6 +55,17 @@
 						> $views.get($view) </option>
 					#end
 				</select>
+				#if(!$hideTermFilter)
+					<br/>
+					<label for="termview">$tlang.getString("list.selectTerm")</label>
+					<select id="termview" name="termview" size="1" onchange="document.viewForm.submit();">
+						#foreach($view in $termViewKeys)
+							<option value ="$view"
+							#if($view == $viewTermSelected) selected="selected" #end
+							> $termViews.get($view) </option>
+						#end
+					</select>
+				#end
 				<input type="hidden" name="sakai_csrf_token" value="$sakai_csrf_token" />
 			</form>
 		</div>
