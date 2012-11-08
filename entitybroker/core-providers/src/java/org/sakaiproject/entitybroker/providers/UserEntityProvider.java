@@ -68,22 +68,22 @@ public class UserEntityProvider extends AbstractEntityProvider implements CoreEn
     public void setUserDirectoryService(UserDirectoryService userDirectoryService) {
         this.userDirectoryService = userDirectoryService;
     }
-    
-    
+
+
     private DeveloperHelperService developerHelperService;
     public void setDeveloperHelperService(
-			DeveloperHelperService developerHelperService) {
-		this.developerHelperService = developerHelperService;
-	}
+            DeveloperHelperService developerHelperService) {
+        this.developerHelperService = developerHelperService;
+    }
 
     private ServerConfigurationService serverConfigurationService;
-	public void setServerConfigurationService(
-			ServerConfigurationService serverConfigurationService) {
-		this.serverConfigurationService = serverConfigurationService;
-	}
+    public void setServerConfigurationService(
+            ServerConfigurationService serverConfigurationService) {
+        this.serverConfigurationService = serverConfigurationService;
+    }
 
 
-	public static String PREFIX = "user";
+    public static String PREFIX = "user";
     public String getEntityPrefix() {
         return PREFIX;
     }
@@ -128,12 +128,12 @@ public class UserEntityProvider extends AbstractEntityProvider implements CoreEn
             if (userId == null && user.getId() != null) {
                 userId = user.getId();
             }
-            
+
             //check if this user can add an account of this type
             if (!canAddAccountType(user.getType())) {
-            	throw new SecurityException("User can't add an account of type: " + user.getType());
+                throw new SecurityException("User can't add an account of type: " + user.getType());
             }
-            
+
             // NOTE: must assign empty password if user is created this way.... it sucks -AZ
             try {
                 User newUser = userDirectoryService.addUser(userId, user.getEid(), user.getFirstName(), user.getLastName(), 
@@ -152,14 +152,14 @@ public class UserEntityProvider extends AbstractEntityProvider implements CoreEn
             if (userId == null && user.getId() != null) {
                 userId = user.getId();
             }
-            
-          //check if this user can add an account of this type
+
+            //check if this user can add an account of this type
             if (!canAddAccountType(user.getType())) {
-            	throw new SecurityException("User can't add an account of type: " + user.getType());
+                throw new SecurityException("User can't add an account of type: " + user.getType());
             }
-            
+
             try {
-            	
+
                 UserEdit edit = userDirectoryService.addUser(userId, user.getEid());
                 edit.setEmail(user.getEmail());
                 edit.setFirstName(user.getFirstName());
@@ -375,12 +375,12 @@ public class UserEntityProvider extends AbstractEntityProvider implements CoreEn
         userId = findAndCheckUserId(userId, null);
         // we could have been passed a Id that no longer refers to a user
         if (userId == null) {
-        	return null;
+            return null;
         }
         /* Switched this to ID only lookup without failover to EID lookup - SAK-21654
         EntityReference ref = new EntityReference("user", userId);
         EntityUser eu = (EntityUser) getEntity(ref);
-        */
+         */
         // ID only lookup so prefix with "id="
         User user = getUserByIdEid(ID_PREFIX+userId);
         // convert
@@ -535,7 +535,7 @@ public class UserEntityProvider extends AbstractEntityProvider implements CoreEn
         }
         return userId;
     }
-    
+
     /**
      * @param userSearchValue either a user ID, a user EID, or a user email address
      * @return the first matching user, or null if no search method worked
@@ -625,49 +625,49 @@ public class UserEntityProvider extends AbstractEntityProvider implements CoreEn
         }
         return user;
     }
-    
-    
+
+
     /**
      * Can the current user add an account of this type see KNL-357
      * @param type
      * @return
      */
     private boolean canAddAccountType(String type) {
-    	log.debug("canAddAccountType(" + type + ")");
-    	//admin can always add users
-    	if (developerHelperService.isUserAdmin(developerHelperService.getCurrentUserReference()))
-    	{
-    		log.debug("Admin user is allowed!");
-    		return true;
-    	}
+        log.debug("canAddAccountType(" + type + ")");
+        //admin can always add users
+        if (developerHelperService.isUserAdmin(developerHelperService.getCurrentUserReference()))
+        {
+            log.debug("Admin user is allowed!");
+            return true;
+        }
 
-    	String currentSessionUserId = developerHelperService.getCurrentUserId();
-    	log.debug("checking if " + currentSessionUserId + " can add account of type: " + type);
+        String currentSessionUserId = developerHelperService.getCurrentUserId();
+        log.debug("checking if " + currentSessionUserId + " can add account of type: " + type);
 
-    	//this may be an anonymous session registering
-    	if (currentSessionUserId == null)
-    	{
-    		String regAccountTypes = serverConfigurationService.getString("user.registrationTypes", "registered");
-    		List<String> regTypes = Arrays.asList(regAccountTypes.split(","));
-    		if (! regTypes.contains(type))
-    		{
-    			log.warn("Anonamous user can't create an account of type: " + type + ", allowed types: " + regAccountTypes);
-    			return false;
-    		}
+        //this may be an anonymous session registering
+        if (currentSessionUserId == null)
+        {
+            String regAccountTypes = serverConfigurationService.getString("user.registrationTypes", "registered");
+            List<String> regTypes = Arrays.asList(regAccountTypes.split(","));
+            if (! regTypes.contains(type))
+            {
+                log.warn("Anonamous user can't create an account of type: " + type + ", allowed types: " + regAccountTypes);
+                return false;
+            }
 
-    	}
-    	else
-    	{
-    		//this is a authenticated non-admin user
-    		String newAccountTypes = serverConfigurationService.getString("user.nonAdminTypes", "guest");
-    		List<String> newTypes = Arrays.asList(newAccountTypes.split(","));
-    		if (! newTypes.contains(type))
-    		{
-    			log.warn("User " + currentSessionUserId + " can't create an account of type: " + type +" with eid , allowed types: " + newAccountTypes);
-    			return false;
-    		}
-    	}
-    	return true;
+        }
+        else
+        {
+            //this is a authenticated non-admin user
+            String newAccountTypes = serverConfigurationService.getString("user.nonAdminTypes", "guest");
+            List<String> newTypes = Arrays.asList(newAccountTypes.split(","));
+            if (! newTypes.contains(type))
+            {
+                log.warn("User " + currentSessionUserId + " can't create an account of type: " + type +" with eid , allowed types: " + newAccountTypes);
+                return false;
+            }
+        }
+        return true;
     }
 
     /**
