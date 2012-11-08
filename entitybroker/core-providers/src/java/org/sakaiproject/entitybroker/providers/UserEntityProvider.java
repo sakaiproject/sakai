@@ -601,13 +601,14 @@ public class UserEntityProvider extends AbstractEntityProvider implements CoreEn
                     user = userDirectoryService.getUserByEid(userEid);
                 } catch (UserNotDefinedException e) {
                     user = null;
-                    String msg = "Could not find user with eid="+userEid;
+                    //String msg = "Could not find user with eid="+userEid;
                     if (!userIdExplicitOnly()) {
-                        msg += " (attempting check using user id="+userId+")";
+                        //msg += " (attempting check using user id="+userId+")";
                         doCheckForId = true;
                     }
-                    msg += " :: " + e.getMessage();
-                    log.warn(msg);
+                    // SAK-22690 removed this log warning
+                    //msg += " :: " + e.getMessage();
+                    //log.warn(msg);
                 }
             }
             if (doCheckForId) {
@@ -615,8 +616,9 @@ public class UserEntityProvider extends AbstractEntityProvider implements CoreEn
                     user = userDirectoryService.getUser(userId);
                 } catch (UserNotDefinedException e) {
                     user = null;
-                    String msg = "Could not find user with id="+userId+" :: " + e.getMessage();
-                    log.warn(msg);
+                    // SAK-22690 removed this log warning
+                    //String msg = "Could not find user with id="+userId+" :: " + e.getMessage();
+                    //log.warn(msg);
                 }
             }
             if (user == null) {
