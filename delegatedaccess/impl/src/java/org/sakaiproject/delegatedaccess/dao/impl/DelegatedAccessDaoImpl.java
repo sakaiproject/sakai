@@ -518,4 +518,57 @@ public class DelegatedAccessDaoImpl extends JdbcDaoSupport implements DelegatedA
 		}catch (DataAccessException ex) {
 		}
 	}
+	
+	public List<String> getDelegatedAccessUsers(){
+		try{
+			return getJdbcTemplate().query(getStatement("select.delegatedaccess.user"), new RowMapper() {
+			      public Object mapRow(ResultSet resultSet, int i) throws SQLException {
+			          return resultSet.getString("userId");
+			        }
+			      });
+		}catch (DataAccessException ex) {
+			log.error("Error executing query: " + ex.getClass() + ":" + ex.getMessage(), ex);
+           return null;
+		}
+	}
+	
+	public List<String> getSitesWithDelegatedAccessTool(String[] siteIds){
+		try{
+			List<String> returnList = new ArrayList<String>();
+
+			int subArrayIndex = 0;
+			do{
+				int subArraySize = ORACLE_IN_CLAUSE_SIZE_LIMIT;
+				if(subArrayIndex + subArraySize > siteIds.length){
+					subArraySize = (siteIds.length - subArrayIndex);
+				}
+				String[] subSiteRefs = Arrays.copyOfRange(siteIds, subArrayIndex, subArrayIndex + subArraySize);
+
+				String query = getStatement("select.delegatedaccess.user.hasworkspacetool");
+				String inParams = "(";
+				for(int i = 0; i < subSiteRefs.length; i++){
+					inParams += "'" + subSiteRefs[i] + "'";
+					if(i < subSiteRefs.length - 1){
+						inParams += ",";
+					}
+				}
+				inParams += ")";
+				query = query.replace("(?)", inParams);
+				List<String> results =  (List<String>) getJdbcTemplate().query(query, new RowMapper() {
+					public Object mapRow(ResultSet resultSet, int i) throws SQLException {
+						return resultSet.getString("SITE_ID");
+					}
+				});
+				if(results != null){
+					returnList.addAll(results);
+				}
+				subArrayIndex = subArrayIndex + subArraySize;
+			}while(subArrayIndex < siteIds.length);
+
+			return returnList;
+		}catch (DataAccessException ex) {
+			return null;
+		}
+
+	}
 }

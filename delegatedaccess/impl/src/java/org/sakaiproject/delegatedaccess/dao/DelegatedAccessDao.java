@@ -88,4 +88,18 @@ public interface DelegatedAccessDao {
 	 * @param toRole
 	 */
 	public void copyRole(String fromRealm, String fromRole, String[] toRealm, String toRole);
+	
+	/**
+	 * returns a list of user ids for users who have at least one of the following permissions in any node:
+	 * site.visit, accessAdmin, or shoppingAdmin
+	 * @return
+	 */
+	public List<String> getDelegatedAccessUsers();
+	
+	/**
+	 * returns a list of site id which have have the Delegated Access tool
+	 * @param siteIds
+	 * @return
+	 */
+	public List<String> getSitesWithDelegatedAccessTool(String[] siteIds);
 }

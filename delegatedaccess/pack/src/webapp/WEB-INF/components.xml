@@ -154,5 +154,11 @@
 	    <value>org.sakaiproject.delegatedaccess.logic.ProjectLogic.restrictedPublicToolsCache</value>
 	  </property>
 	</bean>
-	
+
+	<bean id="org.sakaiproject.delegatedaccess.jobs.DelegatedAccessAddToolToMyWorkspacesJob" class="org.sakaiproject.delegatedaccess.jobs.DelegatedAccessAddToolToMyWorkspacesJob">
+		<property name="projectLogic" ref="org.sakaiproject.delegatedaccess.logic.ProjectLogic" />
+		<property name="dao" ref="org.sakaiproject.delegatedaccess.dao.DelegatedAccessDao" />
+		<property name="sakaiProxy" ref="org.sakaiproject.delegatedaccess.logic.SakaiProxy" />
+	</bean>
+		
 </beans>

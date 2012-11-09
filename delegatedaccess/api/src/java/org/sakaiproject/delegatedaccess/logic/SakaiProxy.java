@@ -396,4 +396,11 @@ public interface SakaiProxy {
 	 * @return
 	 */
 	public boolean isActiveSiteFlagEnabled();
+	
+	/**
+	 * Sets the current session userId
+	 * @param userId
+	 * @return
+	 */
+	public void setSessionUserId(String userId);
 }

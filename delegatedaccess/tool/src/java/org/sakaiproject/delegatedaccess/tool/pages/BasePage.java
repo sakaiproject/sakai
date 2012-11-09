@@ -45,6 +45,7 @@ public class BasePage extends WebPage implements IHeaderContributor {
 	Link<Void> shoppingAdminLink;
 	Link<Void> shoppingStatsLink;
 	Link<Void> searchUsersLink;
+	Link<Void> administrateLink;
 	boolean hasShoppingAdmin;
 	boolean hasDelegatedAccess;
 	boolean hasAccessAdmin;
@@ -128,6 +129,21 @@ public class BasePage extends WebPage implements IHeaderContributor {
 		searchUsersLink.add(new Label("thirdLinkLabel",new ResourceModel("link.third")).setRenderBodyOnly(true));
 		searchUsersLink.add(new AttributeModifier("title", true, new ResourceModel("link.third.tooltip")));
 		add(searchUsersLink);
+		
+		//administrate link
+		administrateLink = new Link<Void>("administrateLink") {
+			private static final long serialVersionUID = 1L;
+			public void onClick() {
+				setResponsePage(new AdministratePage());
+			}
+			@Override
+			public boolean isVisible() {
+				return sakaiProxy.isSuperUser() && !shoppingPeriodTool;
+			}
+		};
+		administrateLink.add(new Label("administrateLinkLabel",new ResourceModel("link.administrate")).setRenderBodyOnly(true));
+		administrateLink.add(new AttributeModifier("title", true, new ResourceModel("link.administrate.tooltip")));
+		add(administrateLink);
 
 		// Add a FeedbackPanel for displaying our messages
 		feedbackPanel = new FeedbackPanel("feedback"){

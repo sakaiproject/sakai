@@ -1928,7 +1928,19 @@ public class ProjectLogicImpl implements ProjectLogic {
 	@Override
 	public void syncMyworkspaceToolForUser(String userId) {
 		if(sakaiProxy.getSyncMyworkspaceTool()){
-			Site workspace = sakaiProxy.getSiteById("~" + userId);
+			String currentUserId = sakaiProxy.getCurrentUserId();
+			Site workspace = null;
+			try{
+				//trick the session into thinking you are the user who's workspace this is for.  This way,
+				//SiteService will create the workspace if its missing
+				sakaiProxy.setSessionUserId(userId);
+				workspace = sakaiProxy.getSiteById("~" + userId);
+			}catch (Exception e) {
+				log.error(e);
+			}finally{
+				sakaiProxy.setSessionUserId(currentUserId);
+			}
+			
 			if(workspace != null){
 				boolean hasAnyAccess = false;
 				//check if user has any access at all to determine if we need to add or remove the tool
@@ -2266,5 +2278,55 @@ public class ProjectLogicImpl implements ProjectLogic {
 			log.debug("Copying " + copyRole + " to .anon for " + siteRef);
 			sakaiProxy.copyNewRole(siteRef, copyRealm, copyRole, ".anon");
 		}
+	}
+	
+	public String getAddDAMyworkspaceJobStatus(){
+		HierarchyNode root = hierarchyService.getRootNode(DelegatedAccessConstants.HIERARCHY_ID);
+		if(root != null){
+			Set<String> perms = hierarchyService.getPermsForUserNodes(DelegatedAccessConstants.SITE_HIERARCHY_USER, new String[]{root.id});
+			return getAddDAMyworkspaceJobStatus(perms);
+		}
+		return null;
+	}
+	
+	private String getAddDAMyworkspaceJobStatus(Set<String> perms){
+		for(String perm : perms){
+			if(perm.startsWith(DelegatedAccessConstants.NODE_PERM_MYWORKSPACE_JOB_STATUS)){
+				return perm.substring(DelegatedAccessConstants.NODE_PERM_MYWORKSPACE_JOB_STATUS.length());
+			}
+		}
+		return null;
+	}
+	
+	public void updateAddDAMyworkspaceJobStatus(String status){
+		//first find the old status and remove it if it exist:
+		HierarchyNode root = hierarchyService.getRootNode(DelegatedAccessConstants.HIERARCHY_ID);
+		if(root != null){
+			String currentStatus = getAddDAMyworkspaceJobStatus();
+			if(currentStatus != null){
+				hierarchyService.removeUserNodePerm(DelegatedAccessConstants.SITE_HIERARCHY_USER, root.id, DelegatedAccessConstants.NODE_PERM_MYWORKSPACE_JOB_STATUS + currentStatus, false);
+			}
+			
+			//add new status:
+			hierarchyService.assignUserNodePerm(DelegatedAccessConstants.SITE_HIERARCHY_USER, root.id, 
+					DelegatedAccessConstants.NODE_PERM_MYWORKSPACE_JOB_STATUS + status, false);
+		}
+	}
+	
+	public void scheduleAddDAMyworkspaceJobStatus(){
+		// Remove any existing notifications for this node
+    	DelayedInvocation[] fdi = scheduledInvocationManager.findDelayedInvocations("org.sakaiproject.delegatedaccess.jobs.DelegatedAccessAddToolToMyWorkspacesJob", "");
+    	if (fdi != null && fdi.length > 0)
+    	{
+    		for (DelayedInvocation d : fdi)
+    		{
+    			scheduledInvocationManager.deleteDelayedInvocation(d.uuid);
+    		}
+    	}
+		//update the shopping period site settings (realm, site properties, etc)
+		scheduledInvocationManager.createDelayedInvocation(timeService.newTime(),
+				"org.sakaiproject.delegatedaccess.jobs.DelegatedAccessAddToolToMyWorkspacesJob", "");
+		
+		updateAddDAMyworkspaceJobStatus("0");
 	}
 }

@@ -634,4 +634,8 @@ public class SakaiProxyImpl implements SakaiProxy {
 	public boolean isActiveSiteFlagEnabled(){
 		return serverConfigurationService.getBoolean(DelegatedAccessConstants.PROPERTIES_ENABLE_ACTIVE_SITE_FLAG, false);
 	}
+	
+	public void setSessionUserId(String userId){
+		sessionManager.getCurrentSession().setUserId(userId);
+	}
 }

@@ -96,4 +96,5 @@ public class DelegatedAccessConstants {
 	public static final String SHOPPING_PERIOD_AUTH_OPTION_ANY = "any";
 	public static final String PROPERTIES_SUBADMIN_REALM_ROLE_ORDER = "delegatedaccess.subadmin.realmrole.order";
 	public static final String PROPERTIES_ENABLE_ACTIVE_SITE_FLAG = "delegatedaccess.enable.active.site.flag";
+	public static final String NODE_PERM_MYWORKSPACE_JOB_STATUS = "wsjstatus:";
 }

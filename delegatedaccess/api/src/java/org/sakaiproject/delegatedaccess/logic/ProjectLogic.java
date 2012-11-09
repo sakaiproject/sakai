@@ -271,4 +271,23 @@ public interface ProjectLogic {
 	 * @return a map of errors and the stack trace
 	 */
 	public Map<String, String> updateShoppingPeriodSettings(DefaultMutableTreeNode node);
+	
+	/**
+	 * returns the status of the job for adding delegated access tool to user's my workspace. 
+	 * This can be null or a string
+	 *
+	 * @return
+	 */
+	public String getAddDAMyworkspaceJobStatus();
+	
+	/**
+	 * removes the old status and updates it with the string passed in
+	 * @param status
+	 */
+	public void updateAddDAMyworkspaceJobStatus(String status);
+	
+	/**
+	 * Schedules the AddDAMyworkspace job to run immediately
+	 */
+	public void scheduleAddDAMyworkspaceJobStatus();
 }
