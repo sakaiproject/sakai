@@ -27,6 +27,12 @@
   <dependencyManagement>
     <dependencies>
       <dependency>
+       <groupId>org.sakaiproject</groupId>
+        <artifactId>sakai-chat-api</artifactId>
+        <version>${project.version}</version>
+        <scope>provided</scope>
+      </dependency>
+      <dependency>
         <groupId>org.sakaiproject.message</groupId>
         <artifactId>sakai-message-impl</artifactId>
         <version>${sakai.message.version}</version>
