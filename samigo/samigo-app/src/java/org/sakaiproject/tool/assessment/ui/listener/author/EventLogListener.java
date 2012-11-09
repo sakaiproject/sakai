@@ -14,6 +14,8 @@ import javax.faces.model.SelectItem;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
+import org.sakaiproject.exception.IdUnusedException;
+import org.sakaiproject.site.cover.SiteService;
 import org.sakaiproject.tool.assessment.data.dao.assessment.EventLogData;
 import org.sakaiproject.tool.assessment.data.dao.assessment.PublishedAccessControl;
 import org.sakaiproject.tool.assessment.facade.AgentFacade;
@@ -99,6 +101,13 @@ implements ActionListener, ValueChangeListener
 	   EventLogService eventLogService = new EventLogService();
       
       String siteId = AgentFacade.getCurrentSiteId();
+      String siteTitle = null;
+      try {
+		siteTitle = SiteService.getSite(siteId).getTitle();
+	} catch (IdUnusedException e) {
+		log.warn("can't find title for siteId: " + siteId, e);
+		
+	}
       
       if (eventLog.getFilteredUser() != null && eventLog.getFilteredUser().equals(userFilterString)) {
     	  eventLog.setFilteredUser(null);
@@ -118,6 +127,7 @@ implements ActionListener, ValueChangeListener
       eventLog.setPageDataMap(pageDataMap);  
       eventLog.setEventLogDataList(pageDataMap.get(Integer.valueOf(1)));
       eventLog.setSiteId(siteId);
+      eventLog.setSiteTitle(siteTitle);
       eventLog.setPageNumber(1);
       if(pageDataMap.size()>1) {
          eventLog.setHasNextPage(Boolean.TRUE);

@@ -31,6 +31,26 @@ public class EventLogBean implements Serializable {
 	private Long filteredAssessmentId = (long) -1;
 	private String filteredUser;
 
+	private String siteTitle;
+	
+	/**
+	 * Set the site Title
+	 * @return
+	 */
+	public String getSiteTitle() {
+		if (siteTitle != null) {
+			return siteTitle;
+		}
+		return siteId;
+	}
+	
+	/**
+	 * Get the site tile
+	 * @param siteTitle the site title or if not set the site id
+	 */
+	public void setSiteTitle(String siteTitle) {
+		this.siteTitle = siteTitle;
+	}
 	public String getSiteId() {
 		return siteId;
 	}
