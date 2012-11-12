@@ -144,18 +144,20 @@ function PortalChat() {
             $('#' + id).addClass('pc_maximised');
         }
 
-		var storedMessageStream = sessionStorage[uuid];
-		var sms = null;
-		if(storedMessageStream) {
-			sms = JSON.parse(storedMessageStream);
-			sms.minimised = minimised;
+		var chatSessionString = sessionStorage['pcsession_' + uuid];
+        var  chatSession;
+		if(chatSessionString) {
+            chatSession = JSON.parse(chatSessionString);
+            // There is currently a message stream for this chatter
+			chatSession.minimised = minimised;
 		} else {
-			sms = {'minimised':minimised,'messages':[]};
+            // There is no message stream for this chatter. Set up a new one.
+			chatSession = {'uuid': uuid, 'minimised': minimised, 'messages': []};
 		}
 
-		$('#pc_editor_for_' + uuid).focus();
+		sessionStorage.setItem('pcsession_' + uuid,JSON.stringify(chatSession));
 
-		sessionStorage.setItem(uuid,JSON.stringify(sms));
+		$('#pc_editor_for_' + uuid).focus();
 
         return false;
 	}
@@ -173,7 +175,7 @@ function PortalChat() {
 
 		this.currentChats.splice(removed,1);
 
-		sessionStorage.removeItem(uuid);
+		sessionStorage.removeItem('pcsession_' + uuid);
 
 		return false;
 	}
@@ -226,8 +228,8 @@ function PortalChat() {
 
 		if(chatDiv.length < 1) return;
 
-		var storedMessageStream = sessionStorage[uuid];
-		var sms = null;
+		var chatSessionString = sessionStorage['pcsession_' + uuid];
+		var chatSession;
 
 		if(chatDiv.hasClass('pc_maximised')) {
 
@@ -235,15 +237,13 @@ function PortalChat() {
             chatDiv.addClass('pc_minimised');
             chatDiv.removeClass('pc_maximised');
 			chatDiv.css('height','auto');
-			if(storedMessageStream) {
-				sms = JSON.parse(storedMessageStream);
-				sms.minimised = true;
+			if(chatSessionString) {
+		        chatSession = JSON.parse(chatSessionString);
+				chatSession.minimised = true;
 			}
 			else {
-				sms = {'minimised':true,'messages':[]};
+				chatSession = {'uuid': uuid, 'minimised': true, 'messages': []};
 			}
-
-			sessionStorage.setItem(uuid,JSON.stringify(sms));
 		}
 		else {
 			$('#pc_connection_chat_' + uuid + '_content').show();
@@ -252,18 +252,18 @@ function PortalChat() {
 			chatDiv.css('height','300px');
 			$('#pc_chat_with_' + uuid + ' > .pc_connection_chat_title').removeClass('pc_new_message');
 			this.scrollToBottom(uuid);
-			if(storedMessageStream) {
-				sms = JSON.parse(storedMessageStream);
-				sms.minimised = false;
+			if(chatSessionString) {
+		        chatSession = JSON.parse(chatSessionString);
+				chatSession.minimised = false;
 			}
 			else {
-				sms = {'minimised':false,'messages':[]};
+				chatSession = {'uuid': uuid, 'minimised': false,'messages': []};
 			}
 
 			$('#pc_editor_for_' + uuid).focus();
 		}
 
-		sessionStorage.setItem(uuid,JSON.stringify(sms));
+		sessionStorage.setItem('pcsession_' + uuid,JSON.stringify(chatSession));
 	}
 
 	this.scrollToBottom = function (uuid) {
@@ -575,20 +575,20 @@ function PortalChat() {
 
 	this.addToMessageStream = function (uuid,message) {
 
-		var storedMessageStream = sessionStorage[uuid];
-		var sms = null;
-		if(storedMessageStream) {
-			sms = JSON.parse(storedMessageStream);
-			if(sms.messages) {
-				sms.messages.push(message);
+		var chatSessionString = sessionStorage['pcsession_' + uuid];
+		var chatSession;
+		if(chatSessionString) {
+		    chatSession = JSON.parse(sessionStorage['pcsession_' + uuid]);
+			if(chatSession.messages) {
+			    chatSession.messages.push(message);
             } else {
-				sms.messages = [message];
+				chatSession.messages = [message];
             }
 		} else {
-			sms = {'messages':[message]};
+			chatSession = {'uuid': uuid, 'minimised': false, 'messages': [message]};
 		}
-	
-		sessionStorage.setItem(uuid,JSON.stringify(sms));
+
+		sessionStorage.setItem('pcsession_' + uuid, JSON.stringify(chatSession));
 	}
 
 	this.pingConnection = function (userId) {
@@ -788,18 +788,22 @@ function PortalChat() {
 			}
 	
 			// Check if there are any messages streams active. If there are, setup chat windows for each
-			for(var i=0,j=portalChat.currentConnections.length;i<j;i++) {
-				var storedMessageStream = sessionStorage[portalChat.currentConnections[i].uuid];
+			for(var key in sessionStorage) {
+                // Chat session key start with pcsession_
+                if(key.indexOf('pcsession_') != 0) {
+                    continue;
+                }
+				var storedMessageStream = sessionStorage[key];
 	
 				if(storedMessageStream) {
 	
 					var sms = JSON.parse(storedMessageStream);
 	
-					portalChat.setupChatWindow(portalChat.currentConnections[i].uuid,sms.minimised);
+					portalChat.setupChatWindow(sms.uuid,sms.minimised);
 	
 					// Now we've setup the chat window we can add the messages.
 	
-					var messagePanel = $("#pc_connection_chat_" + portalChat.currentConnections[i].uuid + "_messages");
+					var messagePanel = $("#pc_connection_chat_" + sms.uuid + "_messages");
 	
 					var messages = sms.messages;
 	
@@ -832,7 +836,7 @@ function PortalChat() {
 						messagePanel.append("<li>" + avatarOrName + "<div class=\"pc_message\">" + message.content + "</div><span class=\"pc_messagedate\">" + dateString + "</span></li>");
 					}
 
-					portalChat.scrollToBottom(portalChat.currentConnections[i].uuid);
+					portalChat.scrollToBottom(sms.uuid);
 				}
 			}
 		});
