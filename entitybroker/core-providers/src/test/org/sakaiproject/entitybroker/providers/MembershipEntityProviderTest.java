@@ -281,6 +281,7 @@ public class MembershipEntityProviderTest {
 
         when(siteService.findGroup("group.with.dots")).thenReturn(group);
         when(siteService.allowUpdateSite("site-foo")).thenReturn(true);
+        when(userEntityProvider.findAndCheckUserId(null, "user-foo")).thenReturn("user-foo");
 
         List<EntityData> result =
                 provider.getGroupMemberships(entityView, params);

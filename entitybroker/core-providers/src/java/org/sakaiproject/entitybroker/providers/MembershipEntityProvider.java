@@ -339,7 +339,11 @@ public class MembershipEntityProvider extends AbstractEntityProvider implements 
             if ("add".equals(action)) {
                 // add the list to the existing membership
                 for (String user : userIds) {
-                    String userId = user.trim();
+                    String userId = userEntityProvider.findAndCheckUserId(null, user.trim());
+                    if (userId == null) {
+                        log.warn("Unable to add user ("+user+") to group ("+group.getId()+") in site ("+site.getId()+"), could not find user record by id or eid");
+                        continue;
+                    }
                     Member m = site.getMember(userId);
                     Role role = m.getRole();
 
@@ -357,7 +361,11 @@ public class MembershipEntityProvider extends AbstractEntityProvider implements 
                 // replace the current membership with the provided list
                 group.removeMembers();
                 for (String user : userIds) {
-                    String userId = user.trim();
+                    String userId = userEntityProvider.findAndCheckUserId(null, user.trim());
+                    if (userId == null) {
+                        log.warn("Unable to update user ("+user+") in group ("+group.getId()+") in site ("+site.getId()+"), could not find user record by id or eid");
+                        continue;
+                    }
                     Member m = site.getMember(userId);
                     Role role = m.getRole();
 
@@ -370,6 +378,11 @@ public class MembershipEntityProvider extends AbstractEntityProvider implements 
             } else if ("remove".equals(action)) {
                 // remove the list from the existing membership
                 for (String userId : userIds) {
+                    userId = userEntityProvider.findAndCheckUserId(null, userId.trim());
+                    if (userId == null) {
+                        log.warn("Unable to remove user ("+userId+") from group ("+group.getId()+") in site ("+site.getId()+"), could not find user record by id or eid");
+                        continue;
+                    }
                     group.removeMember(userId);
                 }
             } else {
