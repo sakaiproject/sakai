@@ -51,6 +51,8 @@ import org.sakaiproject.util.RequestFilter;
 
 import uk.org.ponder.messageutil.TargettedMessage;
 import uk.org.ponder.messageutil.TargettedMessageList;
+import uk.org.ponder.rsf.components.UIBranchContainer;
+import uk.org.ponder.rsf.components.UIOutput;
 import au.com.bytecode.opencsv.CSVReader;
 /**
  * 
@@ -111,6 +113,12 @@ public class SiteManageGroupSectionRoleHandler {
     private final String GROUP_HIDE = "group.hide";
     private final String SITE_REORDER = "group.reorder";
     private final String SITE_RESET = "group.reset";
+    
+    public String joinableSetName = "";
+    public String joinableSetNameOrig = "";
+    public String joinableSetNumOfGroups = "";
+    public String joinableSetNumOfMembers = "";
+    public boolean allowViewMembership = false;
 
     // Tool session attribute name used to schedule a whole page refresh.
     public static final String ATTR_TOP_REFRESH = "sakai.vppa.top.refresh"; 
@@ -189,6 +197,11 @@ public class SiteManageGroupSectionRoleHandler {
 	    
 	    importedGroups = null;
 	    
+	    joinableSetName = "";
+	    joinableSetNameOrig = "";
+	    joinableSetNumOfGroups = "";
+	    joinableSetNumOfMembers = "";
+	    allowViewMembership = false;
 	}
 	 
     /**
@@ -591,6 +604,21 @@ public class SiteManageGroupSectionRoleHandler {
 				}
     		}
     	}
+    	
+    	int joinableSetNumOfMembersInt = -1;
+    	if(joinableSetName != null && !"".equals(joinableSetName.trim())){
+    		if(joinableSetNumOfMembers == null || "".equals(joinableSetNumOfMembers)){
+    			messages.addMessage(new TargettedMessage("maxMembers.empty.alert","num-groups"));
+    			return null;
+    		}else{
+    			try{
+    				joinableSetNumOfMembersInt = Integer.parseInt(joinableSetNumOfMembers);
+    			}catch (Exception e) {
+    				messages.addMessage(new TargettedMessage("maxMembers.empty.alert","num-max-members"));
+    				return null;
+    			}
+    		}
+    	}
 
 		if (id != null)
 		{
@@ -607,7 +635,17 @@ public class SiteManageGroupSectionRoleHandler {
 		if (group != null)
 		{
 			group.setTitle(title);
-            group.setDescription(description);   
+            group.setDescription(description);
+            
+            if(joinableSetName != null && !"".equals(joinableSetName.trim())){
+            	group.getProperties().addProperty(group.GROUP_PROP_JOINABLE_SET, joinableSetName);
+            	group.getProperties().addProperty(group.GROUP_PROP_JOINABLE_SET_MAX, joinableSetNumOfMembers);
+            	group.getProperties().addProperty(group.GROUP_PROP_JOINABLE_SET_PREVIEW,Boolean.toString(allowViewMembership));
+            }else{
+            	group.getProperties().removeProperty(group.GROUP_PROP_JOINABLE_SET);
+            	group.getProperties().removeProperty(group.GROUP_PROP_JOINABLE_SET_MAX);
+            	group.getProperties().removeProperty(group.GROUP_PROP_JOINABLE_SET_PREVIEW);
+            }
             
             boolean found = false;
             // remove those no longer included in the group
@@ -1477,6 +1515,162 @@ public class SiteManageGroupSectionRoleHandler {
     @Getter
     private List<ImportedGroup> importedGroups;
    
+    public String processCreateJoinableSet() {
+    	// reset the warning messages
+    	resetTargettedMessageList();
+    	
+    	String returnVal = processCreateJoinableSetHelper();
+    	if(returnVal == null){
+    		return null;
+    	}else{
+    		resetParams();
+    		return returnVal;
+    	}
+    }
+    
+    private String processCreateJoinableSetHelper(){
+    	if(joinableSetName == null || "".equals(joinableSetName.trim())){
+			messages.addMessage(new TargettedMessage("groupTitle.empty.alert","groupTitle-group"));
+			return null;
+		}
+    	int joinableSetNumOfGroupsInt = -1;
+    	if(joinableSetNumOfGroups == null || "".equals(joinableSetNumOfGroups)){
+    		messages.addMessage(new TargettedMessage("numGroups.empty.alert","num-groups"));
+			return null;
+    	}else{
+    		try{
+    			joinableSetNumOfGroupsInt = Integer.parseInt(joinableSetNumOfGroups);
+    			if(joinableSetNumOfGroupsInt > 1000){
+    				messages.addMessage(new TargettedMessage("maxGroups.alert","num-groups"));
+        			return null;
+    			}
+    		}catch (Exception e) {
+    			messages.addMessage(new TargettedMessage("numGroups.empty.alert","num-groups"));
+    			return null;
+			}
+    	}
+    	int joinableSetNumOfMembersInt = -1;
+    	if(joinableSetNumOfMembers == null || "".equals(joinableSetNumOfMembers)){
+    		messages.addMessage(new TargettedMessage("maxMembers.empty.alert","num-groups"));
+			return null;
+    	}else{
+    		try{
+    			joinableSetNumOfMembersInt = Integer.parseInt(joinableSetNumOfMembers);
+    		}catch (Exception e) {
+    			messages.addMessage(new TargettedMessage("maxMembers.empty.alert","num-max-members"));
+    			return null;
+			}
+    	}
+    	int groupsCreated = 0;
+    	Collection siteGroups = site.getGroups();
+    	Set<String> groupTitles = new HashSet<String>();
+		if (siteGroups != null && siteGroups.size() > 0)
+		{
+			for (Iterator iGroups = siteGroups.iterator(); iGroups.hasNext();) {
+				Group iGroup = (Group) iGroups.next();
+				groupTitles.add(iGroup.getTitle());
+			}
+		}
+    	for(int i = 1; groupsCreated < joinableSetNumOfGroupsInt && i < 1000; i++){
+    		String groupTitle = joinableSetName + " " + i;
+    		if(!groupTitles.contains(groupTitle)){
+    			Group g = site.addGroup();
+    			g.getProperties().addProperty(g.GROUP_PROP_WSETUP_CREATED, Boolean.TRUE.toString());
+    			g.getProperties().addProperty(g.GROUP_PROP_JOINABLE_SET, joinableSetName);
+    			g.getProperties().addProperty(g.GROUP_PROP_JOINABLE_SET_MAX, joinableSetNumOfMembers);
+    			g.getProperties().addProperty(g.GROUP_PROP_JOINABLE_SET_PREVIEW,Boolean.toString(allowViewMembership));
+    			g.setTitle(joinableSetName + " " + i);
+    			try{
+    				siteService.save(site);
+    				groupsCreated++;
+    			}catch (Exception e) {
+    			}
+    		}
+    	}
+    	
+    	return "success";
+    }
+    
+    public String processDeleteJoinableSet(){
+    	// reset the warning messages
+    	resetTargettedMessageList();
+    	
+    	boolean updated = false;
+    	for(Group group : site.getGroups()){
+    		String joinableSet = group.getProperties().getProperty(group.GROUP_PROP_JOINABLE_SET);
+    		if(joinableSet != null && joinableSet.equals(joinableSetNameOrig)){
+    			group.getProperties().removeProperty(group.GROUP_PROP_JOINABLE_SET);
+    			group.getProperties().removeProperty(group.GROUP_PROP_JOINABLE_SET_MAX);
+    			group.getProperties().removeProperty(group.GROUP_PROP_JOINABLE_SET_PREVIEW);
+    			updated = true;
+    		}
+    	}
+    	if(updated){
+    		try{
+    			siteService.save(site);
+    		}catch (Exception e) {
+    		}
+    	}
+    	
+    	resetParams();
+    	
+    	return "success";
+    }
    
+    public String processChangeJoinableSetName(){
+    	// reset the warning messages
+    	resetTargettedMessageList();
+    	
+    	String returnVal = processChangeJoinableSetNameHelper();
+    	
+    	if(returnVal == null){
+    		return null;
+    	}else{
+    		resetParams();
+    		return returnVal;
+    	}
+    }
+    
+    private String processChangeJoinableSetNameHelper(){
+    	if(joinableSetName == null || "".equals(joinableSetName.trim())){
+			messages.addMessage(new TargettedMessage("groupTitle.empty.alert","groupTitle-group"));
+			return null;
+		}
+    	if(!joinableSetName.equals(joinableSetNameOrig)){
+    		boolean updated = false;
+    		for(Group group : site.getGroups()){
+        		String joinableSet = group.getProperties().getProperty(group.GROUP_PROP_JOINABLE_SET);
+        		if(joinableSet != null && joinableSet.equals(joinableSetNameOrig)){
+        			group.getProperties().addProperty(group.GROUP_PROP_JOINABLE_SET, joinableSetName);
+        			updated = true;
+        		}
+        	}
+    		if(updated){
+    			try{
+    				siteService.save(site);
+    			}catch (Exception e) {
+    			}
+    		}
+    	}
+    	return "success";
+    }
+    
+    public String processGenerateJoinableSet(){
+    	// reset the warning messages
+    	resetTargettedMessageList();
+    	
+    	//first generate the new groups since it will check all the required fields
+    	String returnVal = processCreateJoinableSetHelper();
+    	if(returnVal != null && "success".equals(returnVal)){
+    		returnVal = processChangeJoinableSetNameHelper();
+    		if(returnVal == null){
+    			return null;
+    		}else{
+    			resetParams();
+    			return returnVal;
+    		}
+    	}
+    	return null;
+    }
 }
 

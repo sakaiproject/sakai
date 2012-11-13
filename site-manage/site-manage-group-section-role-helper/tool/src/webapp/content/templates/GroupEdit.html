@@ -63,6 +63,21 @@
 		<div  style="width:70%">
 			<textarea rsf:id="group_description" name="Description" cols="80" rows="10" wrap="virtual"></textarea>
 		</div>
+		<br/>
+		<label rsf:id="group_joinable_set_label">
+			Joinable Set
+		</label>&nbsp;&nbsp;
+		<select rsf:id="joinable-set" onchange="var display=''; if(this.selectedIndex == 0){display='none'}; document.getElementsByName('joinable-set-div')[0].style.display=display;">
+        </select>
+        <div id="joinable-set-div" name="joinable-set-div" rsf:id="joinable-set-div:" class="indnt2">
+	        <p class="shorttext">
+	        	<span class="reqStar" style="border: none !important;">*</span><span rsf:id="group-max-members" id="group-max-members">Max members per group:</span>
+	        	&nbsp;&nbsp;
+	        	<input rsf:id="num-max-members" id="num-max-members" type="text" size="3"/><span class="validFMess" rsf:id="msg=maxMembers.empty.alert">Need a number here</span>
+	        </p>
+	        <input rsf:id="allowViewMembership" id="allowViewMembership" type="checkbox" /><label rsf:id="allowViewMembership-label">Allow users to see group membership before joining</label>
+        </div>
+        <br/>
 	<h4 rsf:id="membership_label"></h4>
 		<table class="sidebyside" cellpadding="0" cellspacing="0" style="margin:0">
 			<tr>

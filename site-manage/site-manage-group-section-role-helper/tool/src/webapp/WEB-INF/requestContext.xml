@@ -34,6 +34,12 @@
     <property name="siteService" ref="org.sakaiproject.site.api.SiteService" />
     <property name="userDirectoryService" ref="org.sakaiproject.user.api.UserDirectoryService" />
   </bean>
+  
+  <bean id="CreateJoinableGroupsProducer" 
+      class="org.sakaiproject.site.tool.helper.managegroupsectionrole.rsf.CreateJoinableGroupsProducer">
+    <property name="handler" ref="SiteManageGroupSectionRoleHandler" />
+    <property name="messageLocator" ref="messageLocator"/>
+  </bean>
 
  	<bean id="SiteManageGroupSectionRoleHandler" init-method="init"
       class="org.sakaiproject.site.tool.helper.managegroupsectionrole.impl.SiteManageGroupSectionRoleHandler">

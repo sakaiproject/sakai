@@ -2193,6 +2193,73 @@ public class SiteAction extends PagedResourceActionII {
 					}
 					context.put("groups", filteredGroups);
 				}
+				
+				//joinable groups:
+				Collection<JoinableGroup> joinableGroups = new ArrayList<JoinableGroup>();
+				if(site.getGroups() != null){
+					//find a list of joinable-sets this user is already a member of
+					//in order to not display those groups as options
+					Set<String> joinableSetsMember = new HashSet<String>();
+					for(Group group : site.getGroupsWithMember(UserDirectoryService.getCurrentUser().getId())){
+						String joinableSet = group.getProperties().getProperty(group.GROUP_PROP_JOINABLE_SET);
+						if(joinableSet != null && !"".equals(joinableSet.trim())){
+							joinableSetsMember.add(joinableSet);
+						}
+					}
+					for(Group group : site.getGroups()){
+						String joinableSet = group.getProperties().getProperty(group.GROUP_PROP_JOINABLE_SET);
+						if(joinableSet != null && !"".equals(joinableSet.trim()) && !joinableSetsMember.contains(joinableSet)){
+							String reference = group.getReference();
+							String title = group.getTitle();
+							int max = 0;
+							try{
+								max = Integer.parseInt(group.getProperties().getProperty(group.GROUP_PROP_JOINABLE_SET_MAX));
+							}catch (Exception e) {
+							}
+							boolean preview = Boolean.valueOf(group.getProperties().getProperty(group.GROUP_PROP_JOINABLE_SET_PREVIEW));
+							String groupMembers = "";
+							int size = 0;
+			    			try
+			    			{
+			    				AuthzGroup g = authzGroupService.getAuthzGroup(group.getReference()); 
+			    				Collection<Member> gMembers = g != null ? g.getMembers():new Vector<Member>();
+			    				size = gMembers.size();
+			    				if (size > 0)
+			    				{
+				    				for (Iterator<Member> gItr=gMembers.iterator(); gItr.hasNext();){
+				    		        	Member p = (Member) gItr.next();
+				    		        	
+				    		        	// exclude those user with provided roles and rosters
+				    		        	String userId = p.getUserId();
+					    				try
+					    				{
+					    					User u = UserDirectoryService.getUser(userId);
+					    					if(!"".equals(groupMembers)){
+					        					groupMembers += ", ";
+					        				}
+					    					groupMembers += u.getDisplayName();
+					    				}
+					    	        	catch (Exception e)
+					    	        	{
+					    	        		M_log.debug(this + "joinablegroups: cannot find user with id " + userId);
+					    	        		// need to remove the group member
+					    	        		size--;
+					    	        	}
+				    				}
+			    				}
+			    			}
+			    			catch (GroupNotDefinedException e)
+			    			{
+			    				M_log.debug(this + "joinablegroups: cannot find group " + group.getReference());
+			    			}
+							joinableGroups.add(new JoinableGroup(reference, title, joinableSet, size, max, groupMembers, preview));
+						}
+					}
+					if(joinableGroups.size() > 0){
+						context.put("joinableGroups", joinableGroups);
+					}
+				}
+				
 			} catch (Exception e) {
 				M_log.warn(this + " buildContextForTemplate chef_site-siteInfo-list.vm ", e);
 			}
@@ -7089,6 +7156,70 @@ public class SiteAction extends PagedResourceActionII {
 
 	} // getReviseSite
 
+	/**
+	 * when user clicks "join" for a joinable set
+	 * @param data
+	 */
+	public void doJoinableSet(RunData data){
+		ParameterParser params = data.getParameters();
+		String groupRef = params.getString("joinable-group-ref");
+		
+		Site currentSite;
+		try {
+			currentSite = SiteService.getSite(ToolManager.getCurrentPlacement().getContext());
+			if(currentSite != null){
+				Group siteGroup = currentSite.getGroup(groupRef);
+				//make sure its a joinable set:
+				String joinableSet = siteGroup.getProperties().getProperty(Group.GROUP_PROP_JOINABLE_SET);
+				if(joinableSet != null && !"".equals(joinableSet.trim())){
+					//check that the max limit hasn't been reached:
+					int max = 0;
+					try{
+						max = Integer.parseInt(siteGroup.getProperties().getProperty(Group.GROUP_PROP_JOINABLE_SET_MAX));
+						AuthzGroup group = authzGroupService.getAuthzGroup(groupRef);
+						int size = group.getMembers().size();
+						if(size < max){
+							//check that the user isn't already a member
+							String userId = UserDirectoryService.getCurrentUser().getId();
+							boolean found =  false;
+							for(Member member : group.getMembers()){
+								if(member.getUserId().equals(userId)){
+									found = true;
+									break;
+								}
+							}
+							if(!found){
+								// add current user as the maintainer
+								Member member = currentSite.getMember(userId);
+								if(member != null){
+									siteGroup.addMember(userId, member.getRole().getId(), true, false);
+									SecurityAdvisor yesMan = new SecurityAdvisor() {
+										public SecurityAdvice isAllowed(String userId, String function, String reference) {
+											return SecurityAdvice.ALLOWED;
+										}
+									};
+									try{
+										SecurityService.pushAdvisor(yesMan);
+										commitSite(currentSite);
+									}catch (Exception e) {
+										M_log.debug(e);
+									}finally{
+										SecurityService.popAdvisor();
+									}
+								}
+							}
+						}	
+					}catch (Exception e) {
+						M_log.debug("Error adding user to group: " + groupRef + ", " + e.getMessage(), e);
+					}
+				}
+			}
+		} catch (IdUnusedException e) {
+			M_log.debug("Error adding user to group: " + groupRef + ", " + e.getMessage(), e);
+		}
+	}
+	
+	
 	/**
 	 * doUpdate_participant
 	 * 
@@ -13230,6 +13361,73 @@ public class SiteAction extends PagedResourceActionII {
 		}
 		return size;
 	}
-	
+
+	public class JoinableGroup{
+		private String reference;
+		private String title;
+		private String joinableSet;
+		private int size;
+		private int max;
+		private String members;
+		private boolean preview;
+		
+		public JoinableGroup(String reference, String title, String joinableSet, int size, int max, String members, boolean preview){
+			this.reference = reference;
+			this.title = title;
+			this.joinableSet = joinableSet;
+			this.size = size;
+			this.max = max;
+			this.members = members;
+			this.preview = preview;
+		}
+		
+		public String getTitle() {
+			return title;
+		}
+		public void setTitle(String title) {
+			this.title = title;
+		}
+		public String getJoinableSet() {
+			return joinableSet;
+		}
+		public void setJoinableSet(String joinableSet) {
+			this.joinableSet = joinableSet;
+		}
+		public int getSize() {
+			return size;
+		}
+		public void setSize(int size) {
+			this.size = size;
+		}
+		public int getMax() {
+			return max;
+		}
+		public void setMax(int max) {
+			this.max = max;
+		}
+		public String getMembers() {
+			return members;
+		}
+		public void setMembers(String members) {
+			this.members = members;
+		}
+
+		public boolean isPreview() {
+			return preview;
+		}
+
+		public void setPreview(boolean preview) {
+			this.preview = preview;
+		}
+
+		public String getReference() {
+			return reference;
+		}
+
+		public void setReference(String reference) {
+			this.reference = reference;
+		}
+
+	}
 }
 

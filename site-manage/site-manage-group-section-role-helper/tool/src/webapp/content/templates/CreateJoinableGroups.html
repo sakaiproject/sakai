@@ -1,0 +1,75 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns:rsf="http://ponder.org.uk" xmlns="http://www.w3.org/1999/xhtml">
+    <head>
+        <title rsf:id="msg=group.autocreate.newgroups">Create New Group(s)</title>
+        <link href="/library/skin/tool_base.css" rsf:id="scr=portal-matter" type="text/css" rel="stylesheet" media="all"/>
+        <link href="/library/skin/default/tool.css" rsf:id="scr=portal-matter" type="text/css" rel="stylesheet" media="all"/>
+        <link href="../css/GroupList.css" rel="stylesheet" type="text/css" />
+        <script type="text/javascript" rsf:id="resize"/>
+        <script type="text/javascript" language="JavaScript" src="/library/js/headscripts.js">
+        </script>
+        <script type="text/javascript" src="../js/selectbox.js" rsf:id="scr=rewrite-url">
+        </script>
+        <script type="text/javascript" src="../js/optionTransfer.js" rsf:id="scr=rewrite-url">
+        </script>
+        <script type="text/javascript" src="../js/util.js" rsf:id="scr=rewrite-url">
+        </script>
+        <script type="text/javascript" language="JavaScript" src="/sakai-site-manage-group-section-role-helper/content/js/jquery/jquery.js">
+        </script>
+    </head>
+    <body>
+        <div class="portletBody">
+            <form rsf:id="groups-form">
+            	<h3 rsf:id="prompt"></h3>
+				<p rsf:id="instructions" class="instruction"></p>
+				<div rsf:id="error-row:">
+	                <div class="alertMessage" rsf:id="error">
+	                    We Have Errors!
+	                </div>
+	            </div>
+				<br/>
+				<div id="groupFields" class="indnt1">
+					<table cellspacing="0" cellpadding="4px">
+						<tr>
+                			<td><p class="shorttext"><span class="reqStar">*</span><label rsf:id="group-title-group">Set name:</label></p></td>
+                			<td><input rsf:id="groupTitle-group" id="groupTitle-group" type="text"/><span class="validFMess" rsf:id="msg=groupTitle.empty.alert">Need some text here</span></td>
+                		</tr>
+                		<tr>
+                			<td style="vertical-align:top"><p class="shorttext"><label rsf:id="current-groups-title">Current Groups:</label></p></td>
+                			<td><p class="shorttext"><div rsf:id="current-groups-row:"><span rsf:id="current-group"><br/></span></div></p></td>
+                		</tr>
+                		<tr rsf:id="additional-title-row:">
+                			<td colspan="2">
+                				<p rsf:id="additional-title"></p>
+                			</td>
+                		</tr>
+                		<tr rsf:id="num-groups-row:">
+            				<td><p class="shorttext" style="border: none !important;"><span class="reqStar" style="border: none !important;">*</span><label rsf:id="group-unit" id="group-unit">Number of groups:</label></p></td>
+            				<td><input rsf:id="num-groups" id="num-groups" type="text" size="3"/><span class="validFMess" rsf:id="msg=numGroups.empty.alert">Need a number here</span></td>
+            			</tr>
+            			<tr rsf:id="max-members-row:">
+            				<td><p class="shorttext" style="border: none !important;"><span class="reqStar" style="border: none !important;">*</span><label rsf:id="group-max-members" id="group-max-members">Max members per group:</label></p></td>
+            				<td><input rsf:id="num-max-members" id="num-max-members" type="text" size="3"/><span class="validFMess" rsf:id="msg=maxMembers.empty.alert">Need a number here</span></td>
+            			</tr>
+            			<tr rsf:id="allowview-row:">
+            				<td colSpan="2">
+            					<input rsf:id="allowViewMembership" id="allowViewMembership" type="checkbox" /><label rsf:id="allowViewMembership-label">Allow users to see group membership before joining</label>
+            				</td>
+            			</tr>
+            			<tr rsf:id="generate-row:">
+                			<td colspan="2">
+                				<p><input accesskey ="g" rsf:id="gererate" class="active" value="Generate" type="submit" id="gererate"/></p>
+                			</td>
+                		</tr>
+            		</table>
+        		</div>
+        		<p class="act">
+                    <div style="float:left"><input accesskey ="s" rsf:id="save" class="active" value="Save" type="submit" id="save"/><input accesskey ="x" rsf:id="cancel" value="Cancel" type="submit"/></div>
+                    <div style="float:right"><input accesskey ="d" rsf:id="delete" class="active" value="Delete Set" type="submit" id="delete"/></div>
+                </p>
+                <input type="hidden" rsf:id="groupTitle-group-orig"/>
+            </form>
+            
+         </div>
+     </body>
+</html>
