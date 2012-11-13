@@ -181,6 +181,12 @@ public class PagerRenderer extends Renderer
 	{
 		if (!render) return;
 		
+		//SAK-22812 wrap each button with a fieldset and legend, for accessibility
+		out.startElement("fieldset", null);
+		out.startElement("legend", null);
+		out.writeText(title, null);
+		out.endElement("legend");
+		
 		out.startElement("input", null);
 		out.writeAttribute("type", "submit", null);
 		out.writeAttribute("name", name, null);
@@ -197,6 +203,7 @@ public class PagerRenderer extends Renderer
 			out.writeAttribute("disabled", "disabled", null);
 		}
 		out.endElement("input");
+		out.endElement("fieldset");
 		out.write("\n");
 	}
 	
