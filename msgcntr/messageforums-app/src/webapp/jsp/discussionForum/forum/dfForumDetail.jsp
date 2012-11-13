@@ -128,7 +128,7 @@
 							<f:param value="#{ForumTool.selectedForum.forum.id}" name="forumId"/>
 						</h:commandLink>
 
-						<h:outputText  value=" | "   rendered="#{topic.changeSettings}" />
+						<h:outputText  value=" | "   rendered="#{ForumTool.selectedForum.newTopic}" />
 						<h:commandLink action="#{ForumTool.processActionDuplicateTopicMainConfirm}" id="duplicate_confirm" value="#{msgs.cdfm_duplicate_topic}" 
 							 rendered="#{ForumTool.selectedForum.newTopic}">							
 									<f:param value="#{topic.topic.id}" name="topicId"/>

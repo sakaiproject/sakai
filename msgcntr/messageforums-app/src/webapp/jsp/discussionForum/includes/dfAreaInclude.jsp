@@ -223,7 +223,7 @@ $(document).ready(function() {
 					     <f:param value="#{topic.topic.id}" name="topicId"/>
 				       <f:param value="#{forum.forum.id}" name="forumId"/>
 				     </h:commandLink>
-							<h:outputText  value=" | " rendered="#{forum.newTopic}"/>
+							<h:outputText  value=" | " rendered="#{forum.newTopic || ForumTool.instructor || topic.changeSettings}"/>
 
 							<%-- link to display other options on this topic --%>
 							<f:verbatim><a href="#" class="moreMenuLink"></f:verbatim>
