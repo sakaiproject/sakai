@@ -2533,8 +2533,18 @@ public class SimplePageBean {
 	   }
 
 	   // only here for object types with underlying entities
-	   if (entity == null || !entity.objectExists())
+	   boolean exists = false;
+	   try {
+	       pushAdvisorAlways();  // assignments won't let the student look
+	       if (entity != null)
+		   exists = entity.objectExists();
+	   } finally {
+	       popAdvisor();
+	   }
+
+	   if (!exists) {
 	       throw new IdUnusedException(i.toString());
+	   }
 
 	   // in principle the groups are stored in a SimplePageGroup if we
 	   // are doing access control, and in the tool if not. We can
@@ -2551,9 +2561,15 @@ public class SimplePageBean {
 		   ret = Arrays.asList(groups.split(","));
 	       else 
 		   ;  // leave ret as an empty list
-	   } else
+	   } else {
 	       // not under our control, use list from tool
-	       ret = entity.getGroups(nocache);	       
+	       try {
+		   pushAdvisorAlways();
+		   ret = entity.getGroups(nocache); // assignments won't let a student see
+	       } finally {
+		   popAdvisor();
+	       }
+	   }
 
 	   if (ret == null)
 	       groupCache.put(i.getSakaiId(), "*", DEFAULT_EXPIRATION);
@@ -3669,8 +3685,9 @@ public class SimplePageBean {
 		    return true;
 		}
 		Boolean ret = visibleCache.get(item.getId());
-		if (ret != null)
+		if (ret != null) {
 		    return (boolean)ret;
+		}
 
 		// item is page, and it is hidden or not released
 		if (item.getType() == SimplePageItem.PAGE) {
@@ -5166,6 +5183,14 @@ public class SimplePageBean {
 		return map;
 	}
 	
+	private void pushAdvisorAlways() {
+	    securityService.pushAdvisor(new SecurityAdvisor() {
+		    public SecurityAdvice isAllowed(String userId, String function, String reference) {
+			return SecurityAdvice.ALLOWED;
+		    }
+		});
+	}
+
 	private boolean pushAdvisor() {
 		if(getCurrentPage().getOwner() != null) {
 			securityService.pushAdvisor(new SecurityAdvisor() {
