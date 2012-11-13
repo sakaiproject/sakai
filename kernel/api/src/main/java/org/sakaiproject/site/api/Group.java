@@ -35,6 +35,12 @@ public interface Group extends Edit, Serializable, AuthzGroup
 {
 	/** The property to indicate whether the group is created by Worksite Setup or not */
 	static final String GROUP_PROP_WSETUP_CREATED = "group_prop_wsetup_created";
+	/** The property to indicate which joinable set the group is part of **/
+	static final String GROUP_PROP_JOINABLE_SET = "group_prop_joinable_set";
+	/** The property to indicate the max number of users who can join the group **/
+	static final String GROUP_PROP_JOINABLE_SET_MAX = "group_prop_joinable_set_max";
+	/** The property to indicate whether students can preview the list of users in the set before joining **/
+	static final String GROUP_PROP_JOINABLE_SET_PREVIEW = "group_prop_joinable_set_preview";
     
 	/** @return a human readable short title of this group. */
 	String getTitle();
