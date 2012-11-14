@@ -1144,7 +1144,6 @@ public class ProjectLogicImpl implements ProjectLogic {
 			return getOrderedParentsListHelper(getCachedNode(directParentId));
 		}else{
 			List<String> orderedParents = new ArrayList<String>();
-			orderedParents.add(node.id);
 			return orderedParents;
 		}
 	}
