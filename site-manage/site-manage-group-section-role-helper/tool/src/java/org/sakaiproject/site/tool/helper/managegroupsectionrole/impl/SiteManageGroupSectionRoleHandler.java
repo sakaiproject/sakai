@@ -613,6 +613,10 @@ public class SiteManageGroupSectionRoleHandler {
     		}else{
     			try{
     				joinableSetNumOfMembersInt = Integer.parseInt(joinableSetNumOfMembers);
+    				if(joinableSetNumOfMembersInt <= 0){
+        				messages.addMessage(new TargettedMessage("maxMembers.zero.alert","num-max-members"));
+            			return null;
+        			}
     			}catch (Exception e) {
     				messages.addMessage(new TargettedMessage("maxMembers.empty.alert","num-max-members"));
     				return null;
@@ -1544,6 +1548,9 @@ public class SiteManageGroupSectionRoleHandler {
     				messages.addMessage(new TargettedMessage("maxGroups.alert","num-groups"));
         			return null;
     			}
+    			if(joinableSetNumOfGroupsInt <= 0){
+    				messages.addMessage(new TargettedMessage("numGroups.zero.alert","num-groups"));
+    			}
     		}catch (Exception e) {
     			messages.addMessage(new TargettedMessage("numGroups.empty.alert","num-groups"));
     			return null;
@@ -1556,6 +1563,10 @@ public class SiteManageGroupSectionRoleHandler {
     	}else{
     		try{
     			joinableSetNumOfMembersInt = Integer.parseInt(joinableSetNumOfMembers);
+    			if(joinableSetNumOfMembersInt <= 0){
+    				messages.addMessage(new TargettedMessage("maxMembers.zero.alert","num-max-members"));
+        			return null;
+    			}
     		}catch (Exception e) {
     			messages.addMessage(new TargettedMessage("maxMembers.empty.alert","num-max-members"));
     			return null;
