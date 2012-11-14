@@ -173,6 +173,7 @@ public class ReportManagerTest extends AbstractAnnotationAwareTransactionalTests
 		replay(msgs);
 		((FakeEventRegistryService)M_ers).setSiteService(M_ss);
 		((FakeEventRegistryService)M_ers).setToolManager(M_tm);
+		((FakeEventRegistryService)M_ers).setStatsManager(M_sm);
 		((ReportManagerImpl)M_rm).setEventRegistryService(M_ers);
 		((StatsManagerImpl)M_sm).setSiteService(M_ss);
 		//((StatsManagerImpl)M_sm).setContentHostingService(M_chs);
@@ -552,7 +553,7 @@ public class ReportManagerTest extends AbstractAnnotationAwareTransactionalTests
 			// what
 			rp.setWhat(ReportManager.WHAT_EVENTS);
 			rp.setWhatEventSelType(ReportManager.WHAT_EVENTS_BYEVENTS);
-			rp.setWhatEventIds(M_ers.getEventIds());
+			rp.setWhatEventIds(new ArrayList<String>(M_ers.getEventIds()));
 			// when
 			rp.setWhen(ReportManager.WHEN_ALL);
 			// who
@@ -582,7 +583,7 @@ public class ReportManagerTest extends AbstractAnnotationAwareTransactionalTests
 			// what
 			rp.setWhat(ReportManager.WHAT_EVENTS);
 			rp.setWhatEventSelType(ReportManager.WHAT_EVENTS_BYEVENTS);
-			rp.setWhatEventIds(M_ers.getEventIds());
+			rp.setWhatEventIds(new ArrayList<String>(M_ers.getEventIds()));
 			// when
 			rp.setWhen(ReportManager.WHEN_ALL);
 			// who

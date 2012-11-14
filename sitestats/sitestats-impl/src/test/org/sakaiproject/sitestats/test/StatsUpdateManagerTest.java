@@ -52,17 +52,19 @@ import org.sakaiproject.sitestats.impl.SiteVisitsImpl;
 import org.sakaiproject.sitestats.impl.StatsUpdateManagerImpl;
 import org.sakaiproject.sitestats.test.data.FakeData;
 import org.sakaiproject.sitestats.test.mocks.FakeEvent;
+import org.sakaiproject.sitestats.test.mocks.FakeEventRegistryService;
 import org.sakaiproject.sitestats.test.mocks.FakeSite;
 import org.springframework.test.annotation.AbstractAnnotationAwareTransactionalTests;
 
 
 public class StatsUpdateManagerTest extends AbstractAnnotationAwareTransactionalTests { 
 	// AbstractAnnotationAwareTransactionalTests / AbstractTransactionalSpringContextTests
-	private StatsUpdateManager		M_sum;
-	private StatsManager			M_sm;
-	private DB						db;
-	private SiteService				M_ss;
-	private EventTrackingService	M_ets;
+	private StatsUpdateManager			M_sum;
+	private StatsManager				M_sm;
+	private DB							db;
+	private SiteService					M_ss;
+	private EventTrackingService		M_ets;
+	private FakeEventRegistryService	M_ers;
 	
 	// Spring configuration	
 	public void setStatsUpdateManager(StatsUpdateManager M_sum) {
@@ -73,6 +75,9 @@ public class StatsUpdateManagerTest extends AbstractAnnotationAwareTransactional
 	}
 	public void setDb(DB db) {
 		this.db = db;
+	}
+	public void setEventRegistryService(FakeEventRegistryService M_ers) {
+		this.M_ers = M_ers;
 	}
 	
 	@Override
@@ -111,6 +116,8 @@ public class StatsUpdateManagerTest extends AbstractAnnotationAwareTransactional
 		// apply
 		replay(M_sm);
 		((StatsUpdateManagerImpl)M_sum).setStatsManager(M_sm);
+		// Setups fake dependencies.
+		M_ers.setStatsManager(M_sm);
 	}
 
 	// run this before each test starts and as part of the transaction

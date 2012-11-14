@@ -1209,7 +1209,7 @@ public class StatsManagerImpl extends HibernateDaoSupport implements StatsManage
 			boolean sortAscending,
 			final int maxResults) {
 		
-		final List<String> anonymousEvents = M_ers.getAnonymousEventIds();
+		final Set<String> anonymousEvents = M_ers.getAnonymousEventIds();
 		StatsSqlBuilder sqlBuilder = new StatsSqlBuilder(getDbVendor(),
 				Q_TYPE_EVENT, totalsBy, siteId, 
 				events, anonymousEvents, showAnonymousAccessEvents, null, null, 
@@ -1434,7 +1434,7 @@ public class StatsManagerImpl extends HibernateDaoSupport implements StatsManage
 			final boolean inverseUserSelection,
 			final List<String> totalsBy) {
 		
-		final List<String> anonymousEvents = M_ers.getAnonymousEventIds();
+		final Set<String> anonymousEvents = M_ers.getAnonymousEventIds();
 		StatsSqlBuilder sqlBuilder = new StatsSqlBuilder(getDbVendor(),
 				Q_TYPE_EVENT, totalsBy,
 				siteId, events, anonymousEvents, showAnonymousAccessEvents, null, null, 
@@ -1508,8 +1508,8 @@ public class StatsManagerImpl extends HibernateDaoSupport implements StatsManage
 			final int maxResults) {
 		
 		StatsSqlBuilder sqlBuilder = new StatsSqlBuilder(getDbVendor(),
-				Q_TYPE_PRESENCE, totalsBy, siteId, 
-				null, null, showAnonymousAccessEvents, null, null, 
+				Q_TYPE_PRESENCE, totalsBy, siteId,
+				(Set<String>)null, null, showAnonymousAccessEvents, null, null, 
 				iDate, fDate, userIds, inverseUserSelection, sortBy, sortAscending);
 		final String hql = sqlBuilder.getHQL();
 		final Map<Integer,Integer> columnMap = sqlBuilder.getHQLColumnMap();
@@ -1645,7 +1645,7 @@ public class StatsManagerImpl extends HibernateDaoSupport implements StatsManage
 		
 		StatsSqlBuilder sqlBuilder = new StatsSqlBuilder(getDbVendor(),
 				Q_TYPE_PRESENCE, totalsBy,
-				null, null, null, showAnonymousAccessEvents, null, null, 
+				null, (Set<String>)null, null, showAnonymousAccessEvents, null, null, 
 				iDate, fDate, userIds, inverseUserSelection, null, true);
 		final String hql = sqlBuilder.getHQL();
 
@@ -1865,7 +1865,7 @@ public class StatsManagerImpl extends HibernateDaoSupport implements StatsManage
 		
 		StatsSqlBuilder sqlBuilder = new StatsSqlBuilder(getDbVendor(),
 				Q_TYPE_RESOURCE, totalsBy, 
-				siteId, null, null, showAnonymousAccessEvents, resourceAction, resourceIds, 
+				siteId, (Set<String>)null, null, showAnonymousAccessEvents, resourceAction, resourceIds, 
 				iDate, fDate, userIds, inverseUserSelection, sortBy, sortAscending);
 		final String hql = sqlBuilder.getHQL();
 		final Map<Integer,Integer> columnMap = sqlBuilder.getHQLColumnMap();
@@ -2031,7 +2031,7 @@ public class StatsManagerImpl extends HibernateDaoSupport implements StatsManage
 
 		StatsSqlBuilder sqlBuilder = new StatsSqlBuilder(getDbVendor(),
 				Q_TYPE_RESOURCE, totalsBy, 
-				siteId, null, null, showAnonymousAccessEvents, resourceAction, resourceIds, 
+				siteId, (Set<String>)null, null, showAnonymousAccessEvents, resourceAction, resourceIds, 
 				iDate, fDate, userIds, inverseUserSelection, null, true);
 		final String hql = sqlBuilder.getHQL();
 
@@ -2097,7 +2097,7 @@ public class StatsManagerImpl extends HibernateDaoSupport implements StatsManage
 		
 		StatsSqlBuilder sqlBuilder = new StatsSqlBuilder(getDbVendor(),
 				Q_TYPE_VISITSTOTALS, totalsBy, siteId, 
-				null, null, showAnonymousAccessEvents, null, null, 
+				(Set<String>)null, null, showAnonymousAccessEvents, null, null, 
 				iDate, fDate, null, false, sortBy, sortAscending);
 		final String hql = sqlBuilder.getHQL();
 		final Map<Integer,Integer> columnMap = sqlBuilder.getHQLColumnMap();
@@ -2203,7 +2203,7 @@ public class StatsManagerImpl extends HibernateDaoSupport implements StatsManage
 			final boolean sortAscending, 
 			final int maxResults) {
 		
-		final List<String> anonymousEvents = M_ers.getAnonymousEventIds();
+		final Set<String> anonymousEvents = M_ers.getAnonymousEventIds();
 		StatsSqlBuilder sqlBuilder = new StatsSqlBuilder(getDbVendor(),
 				Q_TYPE_ACTIVITYTOTALS, totalsBy, siteId, 
 				events, anonymousEvents, showAnonymousAccessEvents, null, null, 
@@ -2359,8 +2359,8 @@ public class StatsManagerImpl extends HibernateDaoSupport implements StatsManage
 		private int						queryType;
 		private List<String>			totalsBy;
 		private String					siteId;
-		private List<String>			events;
-		private List<String>			anonymousEvents;
+		private Set<String>				events;
+		private Set<String>				anonymousEvents;
 		private boolean					showAnonymousAccessEvents;
 		private Date					iDate;
 		private Date					fDate;
@@ -2376,8 +2376,8 @@ public class StatsManagerImpl extends HibernateDaoSupport implements StatsManage
 				final int queryType,
 				final List<String> totalsBy,
 				final String siteId,
-				final List<String> events, 
-				final List<String> anonymousEvents,
+				final Set<String> events, 
+				final Set<String> anonymousEvents,
 				final boolean showAnonymousAccessEvents,
 				final String resourceAction,
 				final List<String> resourceIds,
@@ -2415,6 +2415,31 @@ public class StatsManagerImpl extends HibernateDaoSupport implements StatsManage
 			this.inverseUserSelection = inverseUserSelection;
 			this.sortBy = sortBy;
 			this.sortAscending = sortAscending;
+		}
+		
+		/**
+		 * This constructor take older style arguments (List of events) which may
+		 * be null and converts them to a set then passes them through.
+		 */
+		public StatsSqlBuilder(
+				final String dbVendor,
+				final int queryType,
+				final List<String> totalsBy,
+				final String siteId,
+				final List<String> events, 
+				final Set<String> anonymousEvents,
+				final boolean showAnonymousAccessEvents,
+				final String resourceAction,
+				final List<String> resourceIds,
+				final Date iDate, final Date fDate,
+				final List<String> userIds,
+				final boolean inverseUserSelection,
+				final String sortBy, final boolean sortAscending) {
+			this(dbVendor, queryType, totalsBy, siteId, (events == null) ? null
+					: new HashSet<String>(events), anonymousEvents,
+					showAnonymousAccessEvents, resourceAction, resourceIds,
+					iDate, fDate, userIds, inverseUserSelection, sortBy,
+					sortAscending);
 		}
 		
 		public String getHQL() {

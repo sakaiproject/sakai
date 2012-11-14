@@ -104,6 +104,7 @@
 		<property name="serverEventIds" ref="org.sakaiproject.sitestats.api.serverevents.List" />
 		
 		<!-- Sakai services -->
+		<property name="statsManager" ref="org.sakaiproject.sitestats.api.StatsManager"/>
 		<property name="siteService" ref="org.sakaiproject.site.api.SiteService"/>
 		<property name="toolManager" ref="org.sakaiproject.tool.api.ToolManager"/>
 		<property name="memoryService" ref="org.sakaiproject.memory.api.MemoryService" />   

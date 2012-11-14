@@ -30,6 +30,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Observable;
 import java.util.Observer;
+import java.util.Set;
 import java.util.concurrent.locks.ReentrantLock;
 
 import org.apache.commons.lang.StringUtils;
@@ -1489,19 +1490,7 @@ public class StatsUpdateManagerImpl extends HibernateDaoSupport implements Runna
 	
 	/** Get all registered events */
 	private Collection<String> getRegisteredEvents() {
-		// get all registered events
-		List<String> registeredEvents = M_ers.getEventIds();
-		// add site visit events
-		if (!registeredEvents.contains(StatsManager.SITEVISIT_EVENTID)) {
-			registeredEvents.add(StatsManager.SITEVISIT_EVENTID);
-		}
-		if(M_sm.isEnableSitePresences()) {
-			if (!registeredEvents.contains(StatsManager.SITEVISITEND_EVENTID)) {
-				registeredEvents.add(StatsManager.SITEVISITEND_EVENTID);
-			}
-		}
-		
-		return registeredEvents;
+		return M_ers.getEventIds();
 	}
 	
 	/** Get all server events **/

@@ -19,12 +19,15 @@
 package org.sakaiproject.sitestats.impl.event;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.Observable;
 import java.util.Observer;
+import java.util.Set;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
@@ -54,8 +57,8 @@ public class EventRegistryServiceImpl implements EventRegistry, EventRegistrySer
 	private static ResourceLoader		msgs						= new ResourceLoader("Messages");
 
 	/** Event Registry members */
-	private List<String>				toolEventIds				= null;
-	private List<String>				anonymousToolEventIds		= null;
+	private Set<String>					toolEventIds				= null;
+	private Set<String>					anonymousToolEventIds		= null;
 	private Map<String, ToolInfo>		eventIdToolMap				= null;
 	private Map<String, String>			toolIdIconMap				= null;
 	private boolean						checkLocalEventNamesFirst	= false;
@@ -69,14 +72,20 @@ public class EventRegistryServiceImpl implements EventRegistry, EventRegistrySer
 	private Cache						eventRegistryCache			= null;
 
 	/** Sakai services */
+	private StatsManager				M_sm;
 	private SiteService					M_ss;
 	private ToolManager					M_tm;
 	private MemoryService				M_ms;
 	private ServerConfigurationService	M_scs;
 
+
 	// ################################################################
 	// Spring methods
 	// ################################################################
+	public void setStatsManager(StatsManager m_sm) {
+		M_sm = m_sm;
+	}
+	
 	public void setSiteService(SiteService siteService) {
 		this.M_ss = siteService;
 	}
@@ -120,12 +129,16 @@ public class EventRegistryServiceImpl implements EventRegistry, EventRegistrySer
 	/* (non-Javadoc)
 	 * @see org.sakaiproject.sitestats.impl.event.EventRegistryService#getEventIds()
 	 */
-	public List<String> getEventIds() {
+	public Set<String> getEventIds() {
 		if(toolEventIds == null){
-			toolEventIds = new ArrayList<String>();
-			Iterator<String> i = getEventIdToolMap().keySet().iterator();
-			while(i.hasNext())
-				toolEventIds.add(i.next());
+			toolEventIds = new HashSet<String>();
+			toolEventIds.addAll(getEventIdToolMap().keySet());
+			// Add on the presence events if we're interested.
+			toolEventIds.add(StatsManager.SITEVISIT_EVENTID);
+			if(M_sm.isEnableSitePresences()) {
+				toolEventIds.add(StatsManager.SITEVISITEND_EVENTID);
+			}
+			toolEventIds = Collections.unmodifiableSet(toolEventIds);
 		}
 		return toolEventIds;
 	}
@@ -133,9 +146,9 @@ public class EventRegistryServiceImpl implements EventRegistry, EventRegistrySer
 	/* (non-Javadoc)
 	 * @see org.sakaiproject.sitestats.impl.event.EventRegistryService#getAnonymousEventIds()
 	 */
-	public List<String> getAnonymousEventIds() {
+	public Set<String> getAnonymousEventIds() {
 		if(anonymousToolEventIds == null){
-			anonymousToolEventIds = new ArrayList<String>();
+			anonymousToolEventIds = new HashSet<String>();
 			for(ToolInfo ti : getEventRegistry()){
 				for(EventInfo ei : ti.getEvents()){
 					if(ei.isAnonymous()){
@@ -143,6 +156,7 @@ public class EventRegistryServiceImpl implements EventRegistry, EventRegistrySer
 					}
 				}
 			}
+			anonymousToolEventIds = Collections.unmodifiableSet(anonymousToolEventIds);
 		}
 		return anonymousToolEventIds;
 	}

@@ -52,6 +52,7 @@ import org.sakaiproject.sitestats.api.report.ReportManager;
 import org.sakaiproject.sitestats.impl.StatsManagerImpl;
 import org.sakaiproject.sitestats.impl.StatsUpdateManagerImpl;
 import org.sakaiproject.sitestats.test.data.FakeData;
+import org.sakaiproject.sitestats.test.mocks.FakeEventRegistryService;
 import org.sakaiproject.sitestats.test.mocks.FakeServerConfigurationService;
 import org.sakaiproject.sitestats.test.mocks.FakeSite;
 import org.sakaiproject.time.api.Time;
@@ -70,6 +71,7 @@ public class StatsManagerTest extends AbstractAnnotationAwareTransactionalTests 
 	private FakeServerConfigurationService	M_scs;
 	private ContentHostingService			M_chs;
 	private ContentTypeImageService			M_ctis;
+	private FakeEventRegistryService		M_ers;
 	
 	// Spring configuration	
 	public void setStatsManager(StatsManager M_sm) {
@@ -80,6 +82,9 @@ public class StatsManagerTest extends AbstractAnnotationAwareTransactionalTests 
 	}
 	public void setServerConfigurationService(FakeServerConfigurationService M_scs) {
 		this.M_scs = M_scs;
+	}
+	public void setEventRegistryService(FakeEventRegistryService M_ers) {
+		this.M_ers = M_ers;
 	}
 	public void setDb(DB db) {
 		this.db = db;
@@ -187,6 +192,8 @@ public class StatsManagerTest extends AbstractAnnotationAwareTransactionalTests 
 		((StatsManagerImpl)M_sm).setCountFilesUsingCHS(false);
 		((StatsUpdateManagerImpl)M_sum).setSiteService(M_ss);
 		((StatsUpdateManagerImpl)M_sum).setStatsManager(M_sm);
+		
+		M_ers.setStatsManager(M_sm);
 	}
 
 	// run this before each test starts and as part of the transaction

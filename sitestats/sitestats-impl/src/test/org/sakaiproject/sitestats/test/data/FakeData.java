@@ -21,8 +21,10 @@ package org.sakaiproject.sitestats.test.data;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 
 import org.sakaiproject.sitestats.api.StatsManager;
 import org.sakaiproject.sitestats.api.event.EventInfo;
@@ -57,7 +59,7 @@ public class FakeData {
 	public final static String					EVENT_CONTENTDEL	= "content.delete";
 	
 	// EVENT LIST & EVENT MAP
-	public final static List<String>			EVENTIDS			= new ArrayList<String>();
+	public final static Set<String>				EVENTIDS			= new HashSet<String>();
 	public final static List<ToolInfo>			EVENT_REGISTRY		= new ArrayList<ToolInfo>();
 	public final static List<ToolInfo>			EVENT_REGISTRY_RES	= new ArrayList<ToolInfo>();
 	public final static List<ToolInfo>			EVENT_REGISTRY_CHAT	= new ArrayList<ToolInfo>();
@@ -67,6 +69,7 @@ public class FakeData {
 		EVENTIDS.add(EVENT_CONTENTREAD); 
 		EVENTIDS.add(EVENT_CONTENTREV); 
 		EVENTIDS.add(EVENT_CONTENTDEL); 
+		EVENTIDS.add(StatsManager.SITEVISIT_EVENTID);
 	};
 	public final static Map<String, ToolInfo>	EVENTID_TOOL_MAP	= new HashMap<String, ToolInfo>();
 	static{

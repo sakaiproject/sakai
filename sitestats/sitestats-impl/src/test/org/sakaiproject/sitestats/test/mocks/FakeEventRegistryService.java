@@ -19,11 +19,14 @@
 package org.sakaiproject.sitestats.test.mocks;
 
 import java.util.ArrayList;
-import java.util.Arrays;
+import java.util.Collections;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 
 import org.sakaiproject.site.api.SiteService;
+import org.sakaiproject.sitestats.api.StatsManager;
 import org.sakaiproject.sitestats.api.event.EventRegistryService;
 import org.sakaiproject.sitestats.api.event.ToolInfo;
 import org.sakaiproject.sitestats.api.parser.EventFactory;
@@ -41,9 +44,14 @@ public class FakeEventRegistryService implements EventRegistryService {
 	public void setToolManager(ToolManager M_tm) {
 		this.M_tm = M_tm;
 	}
+	
+	private StatsManager					M_sm;
+	public void setStatsManager(StatsManager M_sm) {
+		this.M_sm = M_sm;
+	}
 
-	public List<String> getAnonymousEventIds() {
-		return Arrays.asList(FakeData.EVENT_CONTENTDEL);
+	public Set<String> getAnonymousEventIds() {
+		return Collections.singleton(FakeData.EVENT_CONTENTDEL);
 	}
 
 	public EventFactory getEventFactory() {
@@ -55,7 +63,12 @@ public class FakeEventRegistryService implements EventRegistryService {
 		return FakeData.EVENTID_TOOL_MAP;
 	}
 
-	public List<String> getEventIds() {
+	public Set<String> getEventIds() {
+		if (M_sm.isEnableSitePresences()) {
+			Set<String> eventIds = new HashSet<String>(FakeData.EVENTIDS);
+			eventIds.add(StatsManager.SITEVISITEND_EVENTID);
+			return eventIds;
+		}
 		return FakeData.EVENTIDS;
 	}
 

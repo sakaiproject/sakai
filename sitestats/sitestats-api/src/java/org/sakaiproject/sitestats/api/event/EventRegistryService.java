@@ -20,6 +20,7 @@ package org.sakaiproject.sitestats.api.event;
 
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 
 import org.sakaiproject.sitestats.api.parser.EventFactory;
 import org.sakaiproject.sitestats.api.parser.ToolFactory;
@@ -30,15 +31,15 @@ public interface EventRegistryService {
 	
 	/**
 	 * Get all statisticable tool events.
-	 * @return A list of event ids.
+	 * @return A set of event ids.
 	 */
-	public List<String> getEventIds();
+	public Set<String> getEventIds();
 
 	/**
 	 * Get all anonymous tool events.
-	 * @return A list of anonymous event ids.
+	 * @return A set of anonymous event ids.
 	 */
-	public List<String> getAnonymousEventIds();
+	public Set<String> getAnonymousEventIds();
 	
 	/**
 	 * Get the statisticable event registry.
