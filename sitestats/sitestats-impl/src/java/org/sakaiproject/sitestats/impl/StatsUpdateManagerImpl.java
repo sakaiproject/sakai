@@ -1492,9 +1492,13 @@ public class StatsUpdateManagerImpl extends HibernateDaoSupport implements Runna
 		// get all registered events
 		List<String> registeredEvents = M_ers.getEventIds();
 		// add site visit events
-		registeredEvents.add(StatsManager.SITEVISIT_EVENTID);
+		if (!registeredEvents.contains(StatsManager.SITEVISIT_EVENTID)) {
+			registeredEvents.add(StatsManager.SITEVISIT_EVENTID);
+		}
 		if(M_sm.isEnableSitePresences()) {
-			registeredEvents.add(StatsManager.SITEVISITEND_EVENTID);
+			if (!registeredEvents.contains(StatsManager.SITEVISITEND_EVENTID)) {
+				registeredEvents.add(StatsManager.SITEVISITEND_EVENTID);
+			}
 		}
 		
 		return registeredEvents;
