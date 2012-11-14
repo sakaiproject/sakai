@@ -41,6 +41,7 @@ import java.util.Map.Entry;
 import java.util.Set;
 import java.util.Stack;
 import java.util.StringTokenizer;
+import java.util.Vector;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipOutputStream;
 
@@ -4021,7 +4022,7 @@ public abstract class BaseAssignmentService implements AssignmentService, Entity
 	 */
 	public List allowAddAnySubmissionUsers(String context)
 	{
-		List rv = new ArrayList();
+		List<String> rv = new Vector();
 		
 		try
 		{
