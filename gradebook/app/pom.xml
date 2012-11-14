@@ -14,7 +14,7 @@
   <modules>
     <module>business</module>
     <module>sakai-tool</module>
-    <module>standalone-app</module>
+    <!--module>standalone-app</module-->
     <module>ui</module>
   </modules>
 </project>
