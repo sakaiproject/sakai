@@ -39,6 +39,7 @@ create table signup_meetings (
   	allow_attendance bit(1) default '\0',
   	create_groups bit(1) default '\0',
   	maxnumof_slot integer default 1,
+  	vevent_uuid  VARCHAR(255)  default NULL,
 	primary key (id)
 ) type=InnoDB;
 
@@ -74,7 +75,8 @@ create table signup_ts (
 	canceled bit, locked bit, 
 	meeting_id bigint not null, 
 	list_index integer, 
-	group_id varchar(255), 
+	group_id varchar(255),
+	vevent_uuid VARCHAR(255) DEFAULT NULL,
 	primary key (id)
 ) type=InnoDB;
 

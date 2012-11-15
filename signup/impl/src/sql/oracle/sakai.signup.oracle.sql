@@ -35,7 +35,8 @@ create table signup_meetings (
 	auto_reminder   number(1,0)  default '0' NULL,	
 	allow_attendance  number(1,0)  default '0' NULL,
 	create_groups   number(1,0)  default '0' NULL,
-	maxnumof_slot number(10,0) default 1,
+	maxnumof_slot 	number(10,0) default 1,
+	vevent_uuid		varchar2(255) default NULL,
 	primary key (id));
 	
 create table signup_site_groups (
@@ -91,6 +92,8 @@ create table signup_ts (
 	locked number(1,0),
 	meeting_id number(19,0) not null,
 	list_index number(10,0),
+	group_id  VARCHAR2(255)  default NULL,
+	vevent_uuid  VARCHAR2(255)  default NULL,
 	primary key (id));
 
 CREATE TABLE  signup_attachments (
