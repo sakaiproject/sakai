@@ -2,6 +2,9 @@
 ## Site list Sites list on worksite setup home page
 #if ($shoppingPeriodInstructorEditable || $viewDelegatedAccessUsers)
 	<script type="text/javascript" src="/sakai-site-manage-tool/js/site-manage-delegatedaccess.js"></script>
+	<script type="text/javascript" src="/library/js/jquery-ui-latest/js/jquery-ui.min.js"></script>
+	<script type="text/javascript" src="/sakai-site-manage-tool/js/jquery.asmselect.js"></script>
+	<link type="text/css" href="/sakai-site-manage-tool/css/jquery.asmselect.css" rel="stylesheet" media="screen" />
 #end
 <script type="text/javascript">
 <!-- hide from non-JS browsers
@@ -306,25 +309,28 @@
 				</td>
 				</tr>
 				<tr>
-					<td>
+					<td style="vertical-align:top;">
 						<label for="showAuthTools">$tlang.getString("shopping.showTools.label"): </label>
 						<br/>
 						<img id="shoppingToolsWarning" src="/library/image/silk/exclamation.png" style="display:none"/>
 					</td>
 					<td>
-						<span style="width: 50%; float: left;" id="showAuthToolsSpan">
-							<div>$tlang.getString("shopping.showTools.authLabel")</div>
-							<select name="showAuthTools" id="showAuthTools" multiple="multiple" class="shoppingSetting" style="height: 100px">
-								<option value=""></option>
-							</select>
-						</span>
-						<span style="width: 40%; float: left; padding-left: 1em;" id="showPublicToolsSpan">
-							<div>$tlang.getString("shopping.showTools.publicLabel")</div>
-							<select name="showPublicTools" id="showPublicTools" multiple="multiple" class="shoppingSetting" style="height: 100px">
-								<option value=""></option>
-							</select>
-						</span>
-						
+						<div id="shoppingtabs">
+							<ul>
+						        <li><a href="#shoppingtabs-1">$tlang.getString("shopping.showTools.publicLabel")</a></li>
+						        <li><a href="#shoppingtabs-2">$tlang.getString("shopping.showTools.authLabel")</a></li>
+						    </ul>
+						    <div id="shoppingtabs-1">
+						        <select name="showPublicTools" title="$tlang.getString('shopping.showTools.publicTitle')" onchange="setShoppingToolOptionsEnabled();" id="showPublicTools" multiple="multiple" class="shoppingSetting" style="height: 100px">
+								</select>
+								<a id="showPublicToolsSelectAll" class="shoppingSetting" href="#">$tlang.getString("selectAll")</a>
+						    </div>
+						    <div id="shoppingtabs-2">
+						        <select name="showAuthTools" title="$tlang.getString('shopping.showTools.authTitle')" id="showAuthTools" multiple="multiple" class="shoppingSetting" style="height: 100px">
+								</select>
+								<a id="showAuthToolsSelectAll" class="shoppingSetting" href="#">$tlang.getString("selectAll")</a>
+						    </div>
+						</div>
 					</td>
 				</tr>
 				</table>

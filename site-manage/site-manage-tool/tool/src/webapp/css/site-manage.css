@@ -42,3 +42,7 @@ dl.defList dd{
     margin-right: 20px;
     float: right;
 }
+
+.ui-widget-content{
+	min-width: 30em;
+}
