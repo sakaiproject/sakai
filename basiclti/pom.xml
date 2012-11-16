@@ -46,7 +46,6 @@
             <properties>
                 <sakai.velocity.groupId>org.sakaiproject.velocity</sakai.velocity.groupId>
                 <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding> 
-                <sakai.velocity.version>2.10-SNAPSHOT</sakai.velocity.version>
             </properties>
         </profile>
         <profile>
@@ -54,7 +53,6 @@
             <properties>
                 <sakai.entitybroker.version>1.5-SNAPSHOT</sakai.entitybroker.version>
                 <sakai.velocity.groupId>org.sakaiproject.velocity</sakai.velocity.groupId>
-                <sakai.velocity.version>2.9-SNAPSHOT</sakai.velocity.version>
                 <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
             </properties>
         </profile>
@@ -63,7 +61,6 @@
             <properties>
                 <sakai.entitybroker.version>1.4.3</sakai.entitybroker.version>
                 <sakai.velocity.groupId>org.sakaiproject</sakai.velocity.groupId>
-                <sakai.velocity.version>2.8.1</sakai.velocity.version>
                 <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
                 <sakai.edu-services.version>1.1.3</sakai.edu-services.version> 
             </properties>
@@ -73,7 +70,6 @@
             <properties>
                 <sakai.entitybroker.version>1.3.20</sakai.entitybroker.version>
                 <sakai.velocity.groupId>org.sakaiproject</sakai.velocity.groupId>
-                <sakai.velocity.version>2.7.2</sakai.velocity.version>
                 <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
                 <sakai.edu-services.version>1.0.13</sakai.edu-services.version> 
             </properties>

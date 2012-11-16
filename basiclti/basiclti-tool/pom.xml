@@ -56,12 +56,10 @@
         <dependency>
             <groupId>${sakai.velocity.groupId}</groupId>
             <artifactId>sakai-velocity-tool-api</artifactId>
-            <version>${sakai.velocity.version}</version>
         </dependency>
         <dependency>
             <groupId>${sakai.velocity.groupId}</groupId>
             <artifactId>sakai-velocity-tool</artifactId>
-            <version>${sakai.velocity.version}</version>
         </dependency>
     </dependencies>
     
