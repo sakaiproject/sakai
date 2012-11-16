@@ -786,7 +786,7 @@ input.upload{
 }
 
 /*informational texts intended for screen readers - renders offscreen*/
-.skip{
+.skip, .fl-offScreen-hidden {
 	display: inline;
 	position: absolute;
 	top: -999px;
