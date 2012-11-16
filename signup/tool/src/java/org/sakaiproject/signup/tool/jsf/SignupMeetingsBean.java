@@ -25,6 +25,7 @@ package org.sakaiproject.signup.tool.jsf;
 import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Collection;
+import java.util.Collections;
 import java.util.Date;
 import java.util.List;
 import java.util.Set;
@@ -918,7 +919,7 @@ public class SignupMeetingsBean implements SignupBeanConstants {
 	 */
 	public boolean isAttendanceOn() {
 			
-		if ("true".equalsIgnoreCase(getSakaiFacade().getServerConfigurationService().getString("signup.enableAttendance","false"))){
+		if ("true".equalsIgnoreCase(getSakaiFacade().getServerConfigurationService().getString("signup.enableAttendance","true"))){
 			return true;
 		}
 		else{
@@ -951,8 +952,10 @@ public class SignupMeetingsBean implements SignupBeanConstants {
 
 		//format remaining list of instructors
 		for(User u : users) {
-			instructors.add(new SelectItem(u.getId(), u.getDisplayName() + " (" + u.getEid() + ")"));
+			instructors.add(new SelectItem (u.getId(), u.getDisplayName() + " (" + u.getEid() + ")"));
 		}
+		
+		Collections.sort(instructors, SignupSorter.sortSelectItemComparator);
 		
 		return instructors;
 	}

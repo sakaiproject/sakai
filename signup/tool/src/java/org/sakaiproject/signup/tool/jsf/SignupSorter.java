@@ -28,6 +28,8 @@ import java.util.Comparator;
 import java.util.Date;
 import java.util.List;
 
+import javax.faces.model.SelectItem;
+
 /**
  * *
  * <p>
@@ -67,7 +69,18 @@ public class SignupSorter {
 	public static final Comparator<SignupMeetingWrapper> sortDateComparator;
 
 	public static final Comparator<SignupMeetingWrapper> sortStatusComparator;
+	
+	public static final Comparator<SelectItem> sortSelectItemComparator;
+	
 	static {
+		sortSelectItemComparator = new Comparator<SelectItem>() {
+			public int compare(SelectItem one, SelectItem another) {
+				int comparison = Collator.getInstance().compare(one.getLabel(),
+						another.getLabel());
+				return comparison == 0 ? sortSelectItemComparator.compare(one, another) : comparison;
+			}
+		};
+		
 		sortTitleComparator = new Comparator<SignupMeetingWrapper>() {
 			public int compare(SignupMeetingWrapper one, SignupMeetingWrapper another) {
 				int comparison = Collator.getInstance().compare(one.getMeeting().getTitle(),
