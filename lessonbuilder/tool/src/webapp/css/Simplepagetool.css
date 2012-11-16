@@ -112,6 +112,10 @@
 	border-width: 2px;
 	width: 97%;
 }
+.fake-disabled {
+	color: #999 !important;
+	text-decoration: underline;
+}
 .disabled:link {
 	color: #cccccc
 }
