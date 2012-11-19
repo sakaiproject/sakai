@@ -494,7 +494,7 @@ jQuery(document).ready(function(){
 var setupSiteNav = function(){
     $("ul.subnav").each(function(){
         // Add an escape key handler to slide the page menu up
-        $(this).keydown(function (e) {
+        $(this).keydown(function(e) {
             if (e.keyCode == 27) {
                 $(this).parent().children('a').focus();
                 $(this).slideUp('fast');
@@ -502,51 +502,68 @@ var setupSiteNav = function(){
         });
         $(this).children('li:last').addClass('lastMenuItem')
     });
-
-    addArrowNavAndDisableTabNav($("ul.subnav"));
-
-    $('.topnav > li.nav-menu > a').keydown(function(e){
+    
+    $('.topnav > li.nav-menu > a').live('keydown', function(e){
         if (e.keyCode == 40) {
             e.preventDefault();
             jQuery('#selectSite').hide();
-            jQuery(this).parent().find("ul.subnav").slideDown('fast');
+            $('.nav-submenu').hide();
+            jQuery(this).parent().find(".drop").trigger('click');
             jQuery(this).parent().find("ul.subnav a:first").focus();
         }
+        if (e.keyCode == 27) {
+            $(this).parent().children('a').focus();
+            $(this).slideUp('fast');
+        }
+        
     });
     
-    jQuery("ul.topnav li span.drop").click(function(){
-        removeDHTMLMask();
-        jQuery('#selectSite').hide();
-        jQuery('#otherSiteTools').remove();
-        
-        if(jQuery(this).parent().find("ul.subnav").css('display') == 'none') {
-            jQuery(this).parent().find("ul.subnav").slideDown('fast');
-            jQuery(this).parent().hover(function(){
-            }, function(){
-                jQuery(this).parent().find("ul.subnav").slideUp('fast');
-            });
-        } else {
-            jQuery(this).parent().find("ul.subnav").slideUp('fast');
-        }
-    }).hover(function(){
-        jQuery(this).addClass("subhover"); //On hover over, add class "subhover"
-    }, function(){ //On Hover Out
-        jQuery(this).removeClass("subhover"); //On hover out, remove class "subhover"
+    jQuery("ul.topnav > li").mouseleave(function(){
+        $(this).find('ul').slideUp('fast')
     });
-
-    // Chuck Hack
-    jQuery("span.topnav span span.drop").click(function(){
-        removeDHTMLMask();
-        jQuery('#selectSite').hide();
-        jQuery('#otherSiteTools').remove();
-        
-        jQuery(this).parent().find("ul.subnav").slideDown('fast');
-        
-        jQuery(this).parent().hover(function(){
-        }, function(){
-            jQuery(this).parent().find("ul.subnav").slideUp('slow');
-        });
-        
+    jQuery("ul.topnav li span.drop").click(function(e){
+        /*
+         * see if there is a menu sibling
+         *      if there is a child, display it
+         *  if no menu sibling
+         *       retrieve data, construct the menu, append
+         */
+        e.preventDefault()
+        var jqObjDrop = $(e.target);
+        if ($(jqObjDrop).parent('li').find('ul').length) {
+            $(jqObjDrop).parent('li').find('ul').slideDown('fast')
+        }
+        else {
+            var navsubmenu = "<ul class=\"nav-submenu subnav\" role=\"menu\" style=\"display:block\">";
+            var siteId = $(jqObjDrop).attr('data').replace(/!/g, '\\!').replace(/~/g, '\\~');
+            var maxToolsInt = parseInt($('#maxToolsInt').text());
+            var maxToolsText = $('#maxToolsAnchor').text();
+            var goToSite = '<li class=\"icon-sakai-see-all-tools\"><span><a role=\"menuitem\" class=\"icon-sakai-see-all-tools\" href=\"' + portal.portalPath + '/site/' + siteId + '\" title=\"' + maxToolsText + '\">' + maxToolsText + '</a></span></li>';
+            var siteURL = '/direct/site/' + $(jqObjDrop).attr('data') + '/pages.json';
+            jQuery.ajax({
+                url: siteURL,
+                dataType: "json",
+                success: function(data){
+                    $.each(data, function(i, item){
+                        if (i <= maxToolsInt) {
+                            if (item.tools.length === 1) {
+                                navsubmenu = navsubmenu + '<li class=\"submenuitem\" ><span><a role=\"menuitem\" class=\"icon-' + item.tools[0].toolId.replace(/\./gi, '-') + '\" href=\"' + item.tools[0].url + "\" title=\"" + item.title + "\">" + item.title + "</a></span></li>";
+                            }
+                        }
+                    });
+                    if ((data.length - 1) > maxToolsInt) {
+                        navsubsubmenu = navsubmenu + goToSite
+                    }
+                    navsubmenu = navsubmenu + "</ul>"
+                    $(jqObjDrop).after(navsubmenu);
+                    jQuery(this).parent().find("ul.subnav").slideDown('fast');
+                    addArrowNavAndDisableTabNav($("ul.subnav"));
+                },
+                error: function(XMLHttpRequest, status, error){
+                    // Something happened getting the tool list. 
+                }
+            });
+        }
     }).hover(function(){
         jQuery(this).addClass("subhover"); //On hover over, add class "subhover"
     }, function(){ //On Hover Out

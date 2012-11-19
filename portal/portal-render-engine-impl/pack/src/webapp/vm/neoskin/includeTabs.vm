@@ -118,6 +118,8 @@
 <li class="nav-menu"><a href="${site.siteUrl}" title="${site.siteTitle}: ${site.fullTitle}" role="menuitem" aria-haspopup="true"><span>${site.siteTitle}</span></a>
 								#end
 							#end
+
+#* comment out menu (SAK-22907)
 <ul class="nav-submenu subnav" role="menu">
 #set ( $pageCount = 0 )
     #foreach ( $page in $site.sitePages.pageNavTools ) 
@@ -134,7 +136,9 @@
     <li class="submenuitem"><span class="addTool"><a href="${site.sitePages.pageNavAddMoreToolsUrl}" title="${rloader.sit_addmoretools}"  class="addTool" role="menuitem"> ${rloader.sit_addmoretools}</a></span></li>
 #end
 </ul>
-<span class="drop" tabindex="-1"></span>
+*#
+## add the site id as a value to data attr (SAK-22907)
+<span class="drop" tabindex="-1" data="${site.siteId}"></span>
 </li>
 						#end
 

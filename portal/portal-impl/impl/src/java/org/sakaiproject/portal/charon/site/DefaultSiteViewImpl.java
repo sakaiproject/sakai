@@ -244,7 +244,7 @@ public class DefaultSiteViewImpl extends AbstractSiteViewImpl
 		}
 		List<Map> l = siteHelper.convertSitesToMaps(request, mySites, prefix,
 				currentSiteId, myWorkspaceSiteId,
-				/* includeSummary */false, /* expandSite */true,
+				/* includeSummary */false, /* expandSite */false,
 				/* resetTools */"true".equals(serverConfigurationService
 						.getString(Portal.CONFIG_AUTO_RESET)),
 				/* doPages */true, /* toolContextPath */null, loggedIn);
