@@ -321,7 +321,7 @@
 						        <li><a href="#shoppingtabs-2">$tlang.getString("shopping.showTools.authLabel")</a></li>
 						    </ul>
 						    <div id="shoppingtabs-1">
-						        <select name="showPublicTools" title="$tlang.getString('shopping.showTools.publicTitle')" onchange="setShoppingToolOptionsEnabled();" id="showPublicTools" multiple="multiple" class="shoppingSetting" style="height: 100px">
+						        <select name="showPublicTools" title="$tlang.getString('shopping.showTools.publicTitle')" onchange="setShoppingToolOptionsEnabled(true, function(){setShoppingToolOptionsEnabled(false);});" id="showPublicTools" multiple="multiple" class="shoppingSetting" style="height: 100px">
 								</select>
 								<a id="showPublicToolsSelectAll" class="shoppingSetting" href="#">$tlang.getString("selectAll")</a>
 						    </div>

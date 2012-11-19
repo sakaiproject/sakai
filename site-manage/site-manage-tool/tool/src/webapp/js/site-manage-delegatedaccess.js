@@ -123,21 +123,20 @@ $(document).ready(function(){
 							//make the select box pretty:
 							$("#showAuthTools").asmSelect({selectClass: "shoppingSetting showAuthTools", removeClass: "asmListItemRemove shoppingSetting"})
 							.each(function(index){
-								$("#showPublicTools").asmSelect({selectClass: "shoppingSetting showPublicTools" + revokedPublicOptClass, removeClass: "asmListItemRemove shoppingSetting" + revokedPublicOptClass})
-								.each(function(index){
-									//only need to run this once :)
-									if(index < 1){
-										setShoppingToolOptionsEnabled(true, function(){setShoppingToolOptionsEnabled(false);});
-										$('.showPublicTools').change(function (){
+								if(index < 1){
+									$("#showPublicTools").asmSelect({selectClass: "shoppingSetting showPublicTools" + revokedPublicOptClass, removeClass: "asmListItemRemove shoppingSetting" + revokedPublicOptClass})
+									.each(function(index){
+										//only need to run this once :)
+										if(index < 1){
 											setShoppingToolOptionsEnabled(true, function(){setShoppingToolOptionsEnabled(false);});
-										});
-										if(!data.directAccess || data.revokeInstructorEditable){
-											setShoppingSettingsDisabled(true);
-										}else{
-											setShoppingSettingsDisabled(false);
+											if(!data.directAccess || data.revokeInstructorEditable){
+												setShoppingSettingsDisabled(true);
+											}else{
+												setShoppingSettingsDisabled(false);
+											}
 										}
-									}
-								});
+									});
+								}
 							});
 							
 							$("#showPublicToolsSelectAll").click(function() {
@@ -155,6 +154,7 @@ $(document).ready(function(){
 								return false;
 							}); 
 							
+							setShoppingToolOptionsEnabled(true, function(){setShoppingToolOptionsEnabled(false);});
 						}
 					);
 				}
@@ -222,13 +222,21 @@ $(document).ready(function(){
 			    	shoppingRealm = "";
 			    	shoppingRole = "";
 			    }
+			    var pubTools = $('#showPublicTools').val();
+			    var authTools = $('#showAuthTools').val();
+			    if(pubTools != null && pubTools.length > 0){
+			    	//filter all the public options out of the auth array list
+			    	authTools = $.grep($('#showAuthTools').val(), function(n,i){
+									return $.inArray(n, $('#showPublicTools').val()) < 0;
+								})
+			    }
 	            var data = {
 	                'shoppingStartDate' : start,
 	                'shoppingEndDate'   : end,
 	                'shoppingRealm'     : shoppingRealm,
 	                'shoppingRole'      : shoppingRole,
-	                'shoppingShowAuthTools' : $('#showAuthTools').val(),
-	                'shoppingShowPublicTools' : $('#showPublicTools').val(),
+	                'shoppingShowAuthTools' : authTools,
+	                'shoppingShowPublicTools' : pubTools,
 	                'directAccess': document.getElementById('shoppingPeriodOverride').checked
 	            };
 	            var form = $('form[name=editParticipantForm]');
@@ -271,6 +279,9 @@ function setShoppingSettingsDisabled(disabled){
 	//always set these to disabled
 	$(".shoppingSettingDisabled").attr("disabled", true).end().change();
 	$("a.shoppingSettingDisabled").hide();
+	if(!disabled){
+		setShoppingToolOptionsEnabled(true, function(){setShoppingToolOptionsEnabled(false);});
+	}
 }
 
 function optOutOfShoppingPeriod(){
@@ -309,19 +320,25 @@ function resizeFrame(updown){
  * with the flag to false so it can manipulate the select tag.
  */
 function setShoppingToolOptionsEnabled(first, callback){
+	if(first){
+		//remove all the public tool options which were added to the auth list
+		//these will be readded below:
+		$("#showAuthTools").children(".publicTool").attr("selected", "").attr('disabled', true).end().change();
+		$("#showAuthTools").children(".publicTool").removeClass("publicTool");
+	}
 	$(".showPublicTools option").each(function (i, elem) {
 		if("" !== $(elem).val()){
 			$(".showAuthTools option").each(function (j, elem2) {
 				if($(elem).val() === $(elem2).val()){
 					if($(elem).hasClass("asmOptionDisabled")){
 						if(first){
-							$("#showAuthTools").children("[value='" + $(elem).val() + "']").attr("selected", "").attr('disabled', true).end().change();
+							//add the selected public option to the auth options list to
+							//show to the user that public tools will show up for auth users as well
+							$("#showAuthTools").children("[value='" + $(elem).val() + "']").attr("selected", "selected").attr('disabled', true).end().change();
 						}else{
-							$(elem2).attr('disabled', true).end().change();
-						}
-					}else{
-						if(!first){
-							$(elem2).attr('disabled', false).end().change();
+							//hide the "remove" link for auth tools that are in the public tools list
+							$("li.asmListItem[rel='" + $(elem2).attr("rel") +"'] a.asmListItemRemove").hide();
+							$("#showAuthTools").children("[value='" + $(elem).val() + "']").addClass("publicTool");
 						}
 					}
 				}
@@ -331,6 +348,6 @@ function setShoppingToolOptionsEnabled(first, callback){
 	if(callback != null){
 		//call back to ourselves and manipulate the <select> tag.  This is because
 		//we have to wait for change() to complete first before modifying.
-		callback(false, null);
+		callback();
 	}
 }
