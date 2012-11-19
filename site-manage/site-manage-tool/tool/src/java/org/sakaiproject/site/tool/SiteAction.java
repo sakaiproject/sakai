@@ -6700,6 +6700,15 @@ public class SiteAction extends PagedResourceActionII {
 				M_log.warn(this + ".doMenu_siteinfo_addClass: " + e.getMessage() + termEid, e);
 			}
 		}
+		else
+		{
+			List currentTerms = cms.getCurrentAcademicSessions();
+			if (currentTerms != null && !currentTerms.isEmpty())
+			{
+				// if the term information is missing for the site, assign it to the first current term in list
+				state.setAttribute(STATE_TERM_SELECTED, currentTerms.get(0));
+			}
+		}
 		state.setAttribute(STATE_TEMPLATE_INDEX, "36");
 
 	} // doMenu_siteInfo_addClass
