@@ -2272,18 +2272,19 @@ public class SiteAction extends PagedResourceActionII {
 					"activeInactiveUser", Boolean.FALSE.toString());
 			if (activeInactiveUser.equalsIgnoreCase("true")) {
 				context.put("activeInactiveUser", Boolean.TRUE);
-                // UVa add realm object to context so we can provide last modified time
-                realmId = SiteService.siteReference(site.getId());
-                try {
-                        AuthzGroup realm = AuthzGroupService.getAuthzGroup(realmId);
-                        context.put("realmModifiedTime",realm.getModifiedTime().toStringLocalFullZ());
-                } catch (GroupNotDefinedException e) {
-                        M_log.warn(this + "  IdUnusedException " + realmId);
-                }
 			} else {
 				context.put("activeInactiveUser", Boolean.FALSE);
 			}
 			
+			// UVa add realm object to context so we can provide last modified time
+            realmId = SiteService.siteReference(site.getId());
+            try {
+                    AuthzGroup realm = AuthzGroupService.getAuthzGroup(realmId);
+                    context.put("realmModifiedTime",realm.getModifiedTime().toStringLocalFullZ());
+            } catch (GroupNotDefinedException e) {
+                    M_log.warn(this + "  IdUnusedException " + realmId);
+            }
+            
 			return (String) getContext(data).get("template") + TEMPLATE[12];
 
 		case 13:
