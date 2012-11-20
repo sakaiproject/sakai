@@ -163,19 +163,9 @@ public class Component {
 	}
 
 	protected void compile() {
-		String[] options = { "-g", 
-				"-source", 
-				"1.5", 
-				"-target", 
-				"1.5",
-				"-d",
-				classesDir.getAbsolutePath(),
-				"-sourcepath", 
-				srcDir.getAbsolutePath(),
-				classSrcFile.getAbsolutePath()};
 		StringWriter sw = new StringWriter();
 		PrintWriter out = new PrintWriter(sw);
-		compiler.compile(options,out);
+		compiler.compile(classSrcFile, classesDir, out);
 		out.close();
 	}
 
