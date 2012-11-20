@@ -503,6 +503,19 @@ var setupSiteNav = function(){
         $(this).children('li:last').addClass('lastMenuItem')
     });
     
+    jQuery("ul.topnav > li").mouseleave(function(){
+        $(this).find('ul').slideUp('fast')
+    });
+
+    jQuery("#loginLinks ul.nav-submenu").mouseleave(function(){
+        $(this).slideUp('fast')
+    });
+
+    jQuery("#loginLinks span.drop").click(function(e){
+        $(this).prev('ul').slideDown('fast')
+     });
+
+
     $('.topnav > li.nav-menu > a').live('keydown', function(e){
         if (e.keyCode == 40) {
             e.preventDefault();
