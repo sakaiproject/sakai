@@ -111,6 +111,10 @@ public abstract class UserAuthnComponent implements AuthenticationManager
 				authenticationCache().putAuthenticationFailure(evidence.getIdentifier(), evidence.getPassword());
 				throw new AuthenticationException("Invalid Login: Either user not found or password incorrect.");
 			}
+			String disabled = user.getProperties().getProperty("disabled");
+			if (disabled != null && "true".equals(disabled)) {
+				throw new AuthenticationException("disabled");
+			}
 
 			rv = new org.sakaiproject.util.Authentication(user.getId(), user.getEid());
 			
@@ -134,7 +138,10 @@ public abstract class UserAuthnComponent implements AuthenticationManager
 			try
 			{
 				User user = userDirectoryService().getUserByEid(evidence.getIdentifier());
-
+				String disabled = user.getProperties().getProperty("disabled");
+                        	if (disabled != null && "true".equals(disabled)) {
+                               		throw new AuthenticationException("Account Disabled: The users authentication has been disabled");
+                        	}
 				Authentication rv = new org.sakaiproject.util.Authentication(user.getId(), user.getEid());
 				return rv;
 			}
