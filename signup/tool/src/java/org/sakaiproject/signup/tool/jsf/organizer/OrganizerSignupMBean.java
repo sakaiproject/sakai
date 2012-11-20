@@ -471,7 +471,7 @@ public class OrganizerSignupMBean extends SignupUIBaseBean {
 			e.printStackTrace();
 		}
 		
-		this.allSignupUsers = sakaiFacade.getAllUsers(meeting);
+		this.allSignupUsers = sakaiFacade.getAllPossibleAttendees(meeting);
 		/*
 		 * due to efficiency, user has to input EID instead of using dropdown
 		 * user name list

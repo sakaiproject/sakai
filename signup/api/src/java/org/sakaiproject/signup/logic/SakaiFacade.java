@@ -248,6 +248,15 @@ public interface SakaiFacade {
 	 * @return a list of SignupMeeting objects
 	 */
 	public List<SignupUser> getAllUsers(SignupMeeting meeting);
+	
+	/**
+	 * get all users, who have permission to attend the meeting
+	 * 
+	 * @param meeting
+	 *            a SignupMeeting object
+	 * @return a list of SignupMeeting objects
+	 */
+	public List<SignupUser> getAllPossibleAttendees(SignupMeeting meeting);
 
 	/**
 	 * get Calendar for this specific siteId

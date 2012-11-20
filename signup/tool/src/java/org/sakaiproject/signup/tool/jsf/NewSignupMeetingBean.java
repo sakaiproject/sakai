@@ -1579,7 +1579,7 @@ public class NewSignupMeetingBean implements MeetingTypes, SignupMessageTypes, S
 			e.printStackTrace();
 		}
 		
-		this.allSignupUsers = sakaiFacade.getAllUsers(meeting);
+		this.allSignupUsers = sakaiFacade.getAllPossibleAttendees(meeting);
 
 		if (allSignupUsers != null
 				&& allSignupUsers.size() > MAX_NUM_PARTICIPANTS_FOR_DROPDOWN_BEFORE_AUTO_SWITCH_TO_EID_INPUT_MODE) {
