@@ -517,24 +517,25 @@ var setupSiteNav = function(){
 
 
     $('.topnav > li.nav-menu > a').live('keydown', function(e){
-        if (e.keyCode == 40) {
+        if (e.keyCode == 40) { // downarrow
             e.preventDefault();
             jQuery('#selectSite').hide();
             $('.nav-submenu').hide();
-            jQuery(this).parent().find(".drop").trigger('click');
-            jQuery(this).parent().find("ul.subnav a:first").focus();
-        }
-        if (e.keyCode == 27) {
+            // Trigger click on the drop <span>, passing true to set focus on
+            // the first tool in the dropdown.
+            jQuery(this).parent().find(".drop").trigger('click',[true]);
+        } else if (e.keyCode == 27) { // uparrow
             $(this).parent().children('a').focus();
             $(this).slideUp('fast');
         }
-        
     });
     
     jQuery("ul.topnav > li").mouseleave(function(){
         $(this).find('ul').slideUp('fast')
     });
-    jQuery("ul.topnav li span.drop").click(function(e){
+    // focusFirstLink is only ever passed from the keydown handler. We
+    // don't want to focus on click; it looks odd.
+    jQuery("ul.topnav li span.drop").click(function(e, focusFirstLink){
         /*
          * see if there is a menu sibling
          *      if there is a child, display it
@@ -543,16 +544,19 @@ var setupSiteNav = function(){
          */
         e.preventDefault()
         var jqObjDrop = $(e.target);
-        if ($(jqObjDrop).parent('li').find('ul').length) {
-            $(jqObjDrop).parent('li').find('ul').slideDown('fast')
+        if (jqObjDrop.parent('li').find('ul').length) {
+            jqObjDrop.parent('li').find('ul').slideDown('fast')
+            if(focusFirstLink) {
+                jqObjDrop.parent().find("ul.subnav a:first").focus();
+            }
         }
         else {
             var navsubmenu = "<ul class=\"nav-submenu subnav\" role=\"menu\" style=\"display:block\">";
-            var siteId = $(jqObjDrop).attr('data').replace(/!/g, '\\!').replace(/~/g, '\\~');
+            var siteId = jqObjDrop.attr('data').replace(/!/g, '\\!').replace(/~/g, '\\~');
             var maxToolsInt = parseInt($('#maxToolsInt').text());
             var maxToolsText = $('#maxToolsAnchor').text();
             var goToSite = '<li class=\"icon-sakai-see-all-tools\"><span><a role=\"menuitem\" class=\"icon-sakai-see-all-tools\" href=\"' + portal.portalPath + '/site/' + siteId + '\" title=\"' + maxToolsText + '\">' + maxToolsText + '</a></span></li>';
-            var siteURL = '/direct/site/' + $(jqObjDrop).attr('data') + '/pages.json';
+            var siteURL = '/direct/site/' + jqObjDrop.attr('data') + '/pages.json';
             jQuery.ajax({
                 url: siteURL,
                 dataType: "json",
@@ -568,8 +572,10 @@ var setupSiteNav = function(){
                         navsubsubmenu = navsubmenu + goToSite
                     }
                     navsubmenu = navsubmenu + "</ul>"
-                    $(jqObjDrop).after(navsubmenu);
-                    jQuery(this).parent().find("ul.subnav").slideDown('fast');
+                    jqObjDrop.after(navsubmenu);
+                    if(focusFirstLink) {
+                        jqObjDrop.parent().find("ul.subnav a:first").focus();
+                    }
                     addArrowNavAndDisableTabNav($("ul.subnav"));
                 },
                 error: function(XMLHttpRequest, status, error){
