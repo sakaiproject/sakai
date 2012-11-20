@@ -284,6 +284,36 @@ public class DelegatedAccessEntityProviderImpl implements DelegatedAccessEntityP
 		return valuesMap;
 	}
 
+	@EntityCustomAction(action="canEditShopping",viewKey=EntityView.VIEW_LIST)
+    public List<?> canEditShopping(EntityView view, Map<String, Object> params) {
+		Boolean canEdit = Boolean.FALSE;
+		String option = view.getPathSegment(2);
+        if(option == null || "".equals(option)){
+        	throw new IllegalArgumentException("Expected url path is /canEditShopping/site/{id}");
+        }
+        if("site".equals(option)){
+        	String siteId = view.getPathSegment(3);
+        	if(siteId != null && !"".equals(siteId)){
+        		if(sakaiProxy.isSuperUser() || (sakaiProxy.isUserInstructor(sakaiProxy.getCurrentUserId(), siteId)) && sakaiProxy.isShoppingPeriodInstructorEditable()){
+        			String siteRef = "/site/" + siteId;
+        			String nodeId = getFirstNodeId(siteRef, DelegatedAccessConstants.HIERARCHY_ID);
+        			if(nodeId == null){
+        				throw new IllegalArgumentException("Node doesn't exist or has multiple instances: " + siteRef);
+        			}else{
+        				//get the node to find the settings
+        				NodeModel node = projectLogic.getNodeModel(nodeId, DelegatedAccessConstants.SHOPPING_PERIOD_USER);
+        				//lets verify the instructor is able to make these modifications:
+        				//is this disabled:
+        				if(!node.getNodeShoppingPeriodRevokeInstructorEditable()){
+        					canEdit = Boolean.TRUE;
+        				}
+        			}
+        		}
+        	}
+        }
+        return Arrays.asList(canEdit);
+	}
+        
 	/**
 	 * shoppingOptions/roles
 	 * shoppingOptions/tools
