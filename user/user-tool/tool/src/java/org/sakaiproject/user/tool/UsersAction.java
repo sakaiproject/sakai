@@ -1183,6 +1183,23 @@ public class UsersAction extends PagedResourceActionII
 				}
 				User newUser = UserDirectoryService.addUser(id, eid, firstName, lastName, email, pw, type, properties);
 
+                                if (SecurityService.isSuperUser()) {
+                                        if(disabled == 1){
+                                                try {
+                                                        UserEdit editUser = UserDirectoryService.editUser(newUser.getId());
+                                                        editUser.getProperties().addProperty("disabled", "true");
+                                                        newUser = editUser;
+                                                } catch (UserNotDefinedException e) {
+                                                        addAlert(state, rb.getString("usecre.disableFailed"));
+                                                        return false;
+                                                } catch (UserLockedException e) {
+                                                        addAlert(state, rb.getString("usecre.disableFailed"));
+                                                        return false;
+                                                }
+                                        }
+                                }
+
+
 				// put the user in the state
 				state.setAttribute("newuser", newUser);
 			}
