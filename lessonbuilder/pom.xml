@@ -41,7 +41,7 @@
                 <sakai.samigo.version>2.8-SNAPSHOT</sakai.samigo.version>
 -->
  		<!-- the following 3 definitions are only used if the optional features are uncommented in tool/pom.xml. If you have uncommented the optional section, You should replace these with the versions you actually use. If you use only some of the optional components, leave these versions for the ones you don't use. They will allow the build to work, but the system will detect at runtime thta the feature isn't present, and not present it to users -->
-                <sakai.yaft.version>1.2.1-SNAPSHOT</sakai.yaft.version>
+                <sakai.yaft.version>1.3.0-SNAPSHOT</sakai.yaft.version>
                 <sakai.mneme.version>1.2-hack</sakai.mneme.version>
                 <sakai.mneme.scope>compile</sakai.mneme.scope>
                 <rsfutil.version>0.7.5</rsfutil.version> 
