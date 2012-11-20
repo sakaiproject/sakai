@@ -925,13 +925,14 @@ public class CitationHelperAction extends VelocityPortletPaneledAction
 			results.putAll(this.ensureCitationListExists(params, state, req, res));
 		} else {
 			try {
+				int priority = this.capturePriority(params);
 				String resourceId = this.getContentService().resolveUuid(resourceUuid);
 				ContentResourceEdit edit = getContentService().editResource(resourceId);
 				this.captureDisplayName(params, state, edit, results);
 				this.captureDescription(params, state, edit, results);
 				this.captureAccess(params, state, edit, results);
 				this.captureAvailability(params, edit, results);
-				getContentService().commitResource(edit);
+				getContentService().commitResource(edit, priority);
 				message = "Resource updated";
 			} catch (IdUnusedException e) {
 				message = e.getMessage();
@@ -960,6 +961,19 @@ public class CitationHelperAction extends VelocityPortletPaneledAction
 			}
 		}
 		return results;
+	}
+
+	private int capturePriority(ParameterParser params) {
+		int priority = NotificationService.NOTI_NONE;
+		if(params != null) {
+			String notify = params.getString("notify");
+			if("r".equals(notify)) {
+				priority = NotificationService.NOTI_REQUIRED;
+			} else if("o".equals(notify)) {
+				priority = NotificationService.NOTI_OPTIONAL;
+			}
+		}
+		return priority;
 	}
 
 	/**
@@ -1005,7 +1019,7 @@ public class CitationHelperAction extends VelocityPortletPaneledAction
 					// error?
 					message = rb.getString("resource.null_collectionId.error");
 				} else {
-					int priority = 0;
+					int priority = this.capturePriority(params);
 					
 					// create resource
 					try {
