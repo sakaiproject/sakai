@@ -141,6 +141,18 @@ function removeOptionalAttributeBlock(elem) {
 			#end
 			</p>	
 #end
+
+ 			<p class="shorttext">
+ 				<label>$tlang.getString("disable.user")</label>
+ 				#set($disabled = $user.Properties.getProperty("disabled"))
+ #if(!$!superUser)
+ 				#if ($disabled != 'true')$tlang.getString("false") #else $tlang.getString("true") #end 
+ #else
+                 <input type="checkbox" name="disabled" id="disabled" #if($disabled == 'true')CHECKED#end>$tlang.getString("disable")</>
+ #end
+ 			</p>
+
+
 #if ($user)
 			<p class="shorttext">
 				<label>$tlang.getString("useedi.creby")</label>

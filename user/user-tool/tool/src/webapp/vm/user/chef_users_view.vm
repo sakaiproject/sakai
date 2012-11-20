@@ -64,6 +64,15 @@
 #if($enableEdit)
 			<table class="itemSummary" summary="$tlang.getString("usevie.revuseinf")">
 				<tr>
+					<th>
+						$tlang.getString("disabled")
+					</th>
+					<td>
+						#set($disabled = $user.Properties.getProperty("disabled"))
+						#if ($disabled != 'true')$tlang.getString("false") #else $tlang.getString("true") #end
+					</td>
+				</tr>
+				<tr>
 					<th>$tlang.getString("useedi.creby")</th>
 					<td>
 						$validator.escapeHtml($user.CreatedBy.DisplayName)

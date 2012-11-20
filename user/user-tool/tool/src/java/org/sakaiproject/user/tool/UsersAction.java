@@ -1033,7 +1033,9 @@ public class UsersAction extends PagedResourceActionII
         String pwConfirm = StringUtils.trimToNull(data.getParameters().getString("pw0"));
 
         String pwcur = StringUtils.trimToNull(data.getParameters().getString("pwcur"));
-
+        
+        Integer disabled = Integer.valueOf(StringUtils.trimToNull(data.getParameters().getString("disabled")) != null ? "1" : "0" );
+        
         String mode = (String) state.getAttribute("mode");
 		boolean singleUser = ((Boolean) state.getAttribute("single-user")).booleanValue();
 		boolean createUser = ((Boolean) state.getAttribute("create-user")).booleanValue();
@@ -1243,6 +1245,14 @@ public class UsersAction extends PagedResourceActionII
 			
 			//add in the updated props
 			user.getPropertiesEdit().addAll(properties);
+			
+			if (SecurityService.isSuperUser()) {
+				if(disabled == 1){
+					user.getProperties().addProperty("disabled", "true");
+				}else{
+					user.getProperties().removeProperty("disabled");
+				}
+			}
 			
       // make sure the old password matches, but don't check for super users
       if (!SecurityService.isSuperUser()) {
