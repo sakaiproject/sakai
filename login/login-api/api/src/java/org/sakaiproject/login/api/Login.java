@@ -15,4 +15,6 @@ public interface Login {
 	
 	public static final String EXCEPTION_INVALID = "invalid";
 	
+	public static final String EXCEPTION_DISABLED = "disabled";
+	
 }

@@ -107,6 +107,13 @@ public abstract class LoginServiceComponent implements LoginService {
 			if (ex.getMessage().equals("missing-fields"))
 				throw new LoginException(Login.EXCEPTION_MISSING_CREDENTIALS);
 			
+			/**
+			 * If the Authentication Exception Equals Disabled then 
+			 * re throw the message to the top.
+			 */
+			if (ex.getMessage().equals(Login.EXCEPTION_DISABLED))
+				throw new LoginException(Login.EXCEPTION_DISABLED);
+			
 			boolean isPenaltyImposed = false;
 			
 			if (isAdvisorEnabled) {
