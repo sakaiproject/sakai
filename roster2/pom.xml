@@ -11,7 +11,7 @@
     <name>Sakai Roster2 base pom</name>
     <groupId>org.sakaiproject.roster2</groupId>
     <artifactId>roster2</artifactId>
-    <version>1.0.2</version>
+    <version>1.0.3-SNAPSHOT</version>
     <organization>
         <name>Sakai Project</name>
         <url>http://sakaiproject.org/</url>
@@ -84,9 +84,9 @@
     </developers>
 
     <scm>
-        <connection>scm:svn:https://source.sakaiproject.org/contrib/roster2/tags/roster2-1.0.2</connection>
-        <developerConnection>scm:svn:https://source.sakaiproject.org/contrib/roster2/tags/roster2-1.0.2</developerConnection>
-        <url>https://source.sakaiproject.org/contrib/roster2/tags/roster2-1.0.2</url>
+        <connection>scm:svn:https://source.sakaiproject.org/contrib/roster2/trunk/</connection>
+        <developerConnection>scm:svn:https://source.sakaiproject.org/contrib/roster2/trunk/</developerConnection>
+        <url>https://source.sakaiproject.org/contrib/roster2/trunk/</url>
     </scm>
 
     <distributionManagement>
