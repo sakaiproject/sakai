@@ -381,15 +381,15 @@ public class ServerWideReportManagerImpl implements ServerWideReportManager
 		
 		String oraclePeriod = "";
 		if (period.equals ("daily")) {
-			oraclePeriod = "trunc(ACTIVITY_DATE, 'DDD') as event_period";
+			oraclePeriod = "trunc(ACTIVITY_DATE, 'DDD')";
 		} else if (period.equals ("weekly")) {
-			oraclePeriod = "next_day(ACTIVITY_DATE - 7, 'MONDAY') event_period";
+			oraclePeriod = "next_day(ACTIVITY_DATE - 7, 'MONDAY')";
 		} else {
 			// monthly
-			oraclePeriod = "TO_DATE(TO_CHAR(ACTIVITY_DATE, 'YYYY-MM-\"01\"'),'YYYY-MM-DD') as event_period";
+			oraclePeriod = "TO_DATE(TO_CHAR(ACTIVITY_DATE, 'YYYY-MM-\"01\"'),'YYYY-MM-DD')";
 		}
 	
-		String oracle = "select " + oraclePeriod + ", "
+		String oracle = "select " + oraclePeriod + " as event_period, "
 				+ "sum(decode(EVENT_ID, 'site.add',1,0)) as site_created, "
 				+ "sum(decode(EVENT_ID, 'site.del',1,0)) as site_deleted "
 				+ "FROM SST_SERVERSTATS ";
@@ -446,15 +446,15 @@ public class ServerWideReportManagerImpl implements ServerWideReportManager
 
 		String oraclePeriod = "";
 		if (period.equals ("daily")) {
-			oraclePeriod = "trunc(ACTIVITY_DATE, 'DDD') as event_period";
+			oraclePeriod = "trunc(ACTIVITY_DATE, 'DDD')";
 		} else if (period.equals ("weekly")) {
-			oraclePeriod = "next_day(ACTIVITY_DATE - 7, 'MONDAY') as event_period";
+			oraclePeriod = "next_day(ACTIVITY_DATE - 7, 'MONDAY')";
 		} else {
 			// monthly
-			oraclePeriod = "TO_DATE(TO_CHAR(ACTIVITY_DATE, 'YYYY-MM-\"01\"'),'YYYY-MM-DD') as event_period";
+			oraclePeriod = "TO_DATE(TO_CHAR(ACTIVITY_DATE, 'YYYY-MM-\"01\"'),'YYYY-MM-DD')";
 		}
-		String oracle = "select " + oraclePeriod + ", "
-				+ " ACTIVITY_COUNT as new_user"
+		String oracle = "select " + oraclePeriod + " as event_period, "
+				+ " sum(ACTIVITY_COUNT) as new_user"
 				+ " FROM SST_SERVERSTATS"
 				+ " where EVENT_ID='user.add'";
 	 	 
