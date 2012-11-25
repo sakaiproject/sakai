@@ -114,16 +114,15 @@ public class ReorderProducer implements ViewComponentProducer, NavigationCaseRep
 			if (secondPageId != null)
 			    secondPage = simplePageBean.getPage(secondPageId);
 
-			// are they hacking us? other page should be in the same site, in which case
-			// we don't need to check rights further. also same owner (typicall null; owner is for student pages)
+			// are they hacking us? other page should be in the same site, or tests fail
+			// The tests here will handle student pages, but the UI doesn't actually present them.
 
 			if (secondPage != null && !secondPage.getSiteId().equals(page.getSiteId()))
 			    secondPage = null;
-			if (secondPage != null &&
-			    ((secondPage.getOwner() == null && page.getOwner() != null) ||
-			     (secondPage.getOwner() != null && page.getOwner() == null) ||
-			     (secondPage.getOwner() != null && !secondPage.getOwner().equals(page.getOwner()))))
-			    secondPage = null;
+			if (secondPage != null) {
+			    if (!simplePageToolDao.canEditPage(secondPageId))
+				secondPage = null;
+			}
 			
 			// Some items are tacked onto the end automatically by setting the sequence to
 			// something less than or equal to 0.  This takes them out of the Reorder tool.
@@ -203,6 +202,7 @@ public class ReorderProducer implements ViewComponentProducer, NavigationCaseRep
 			UICommand.make(form, "cancel", messageLocator.getMessage("simplepage.cancel_message"), "#{simplePageBean.cancel}");
 		}
 	}
+
 
 	public void setSimplePageBean(SimplePageBean simplePageBean) {
 		this.simplePageBean = simplePageBean;

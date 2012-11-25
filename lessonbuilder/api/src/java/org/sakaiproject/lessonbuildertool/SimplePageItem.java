@@ -175,4 +175,13 @@ public interface SimplePageItem {
     public void setAltGradebookTitle(String gradebookTitle);
     
     public String getAltGradebookTitle();
+
+    public boolean isGroupOwned();
+
+    public void setGroupOwned(Boolean o);
+
+    public String getOwnerGroups();
+
+    public void setOwnerGroups(String s);
+
 }

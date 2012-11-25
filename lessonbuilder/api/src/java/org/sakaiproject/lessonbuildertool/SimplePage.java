@@ -76,9 +76,13 @@ public interface SimplePage {
     
     public void setOwner(String owner);
     
-    public Boolean isGroupOwned();
-    
-    public void setGroupOwned(Boolean go);
+    public String getGroup();
+
+    public void setGroup(String group);
+
+    // no longer used, but left in to ease transitions
+    public boolean isGroupOwned();
+    public void setGroupOwned(Boolean g);
     
     public String getCssSheet();
     

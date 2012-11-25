@@ -45,6 +45,8 @@
 	<property name="altGradebook" type="string" length="35" />
 	<property name="altPoints" type="integer" />
 	<property name="altGradebookTitle" type="string" length="200" />
+	<property name="groupOwned" type="boolean" />
+	<property name="ownerGroups" type="string" length="4000" />
 
    </class>
 </hibernate-mapping>

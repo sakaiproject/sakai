@@ -417,6 +417,7 @@ $(function() {
 			$("#editgroups-student").after($("#grouplist"));
 			$("#grouplist").hide();
 			$("#editgroups-student").hide();
+			$("#student-group-show").hide();
 
 			var row = $(this).parent().parent().parent();
 
@@ -429,6 +430,19 @@ $(function() {
 				checkgroups(grouplist, groups);
 			    }
 			}
+
+			var groups = row.find(".student-owner-groups").text();
+			var grouplist = $("#student-grouplist");
+			if ($('#student-grouplist input').size() > 0) {
+			    $("#student-grouplist").show();
+			    if (groups != null) {
+				checkgroups(grouplist, groups);
+			    }
+			}
+			var groupOwned = row.find(".student-group-owned").text();
+			$("#student-group-owned").attr("checked",(groupOwned == "true"));
+			if (groupOwned == "true")
+			    $("#student-group-show").show();
 
 			var itemId = row.find(".student-id").text();
 			
@@ -517,8 +531,15 @@ $(function() {
 		});
 		
 		$("#editgroups-student").click(function(){
-			$("#editgroups-students").hide();
+			$("#editgroups-student").hide();
 			$("#grouplist").show();
+			checksize($("#student-dialog"));
+		    });
+
+		$("#student-group-owned").click(function(){
+			$("#student-group-show").show();
+			$("#student-grouplist").show();
+			checksize($("#student-dialog"));
 		    });
 
 		$("#student-comments").click(function() {

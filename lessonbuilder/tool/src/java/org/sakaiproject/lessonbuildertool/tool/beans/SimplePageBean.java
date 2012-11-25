@@ -189,6 +189,7 @@ public class SimplePageBean {
 	public String selectedEntity = null;
 	public String[] selectedEntities = new String[] {};
 	public String[] selectedGroups = new String[] {};
+	public String[] studentSelectedGroups = new String[] {};
 
 	public String selectedQuiz = null;
 	
@@ -220,6 +221,7 @@ public class SimplePageBean {
 	
 	public boolean comments;
 	public boolean forcedAnon;
+        public boolean groupOwned;
 	
 	public boolean isWebsite = false;
 
@@ -432,6 +434,20 @@ public class SimplePageBean {
 		if (ret != null)
 			pageCache.put(pageId, ret);
 		return ret;
+	}
+
+    // findStudentPage for current user
+    // Calls appropriate Dao code depending upon whether it's controlled by group or individual owner.
+    // by putting it here rather than in the Dao we can use caching for all the objects.
+    // This is used student-side so optimiztion is important.
+
+        public SimpleStudentPage findStudentPage(SimplePageItem item) {
+	    if (item.isGroupOwned()) {
+		Set<String> myGroups = getMyGroups();
+		return simplePageToolDao.findStudentPage(item.getId(), myGroups);
+	    } else {
+		return simplePageToolDao.findStudentPage(item.getId(), getCurrentUserId());
+	    }
 	}
 
 	public List<String> errMessages() {
@@ -860,7 +876,9 @@ public class SimplePageBean {
 
 		boolean pushed = false;
 		try {
-			pushed = pushAdvisor();
+		    // I don't think we want the user adding anything he doesn't have access to
+		    // accessservice depends upon that
+		    //	pushed = pushAdvisor();
 			contentHostingService.checkResource(id);
 		} catch (PermissionException e) {
 			return "permission-exception";
@@ -869,9 +887,10 @@ public class SimplePageBean {
 			return "cancel";
 		} catch (TypeException e) {
 			return "type-exception";
-		}finally {
-			if(pushed) popAdvisor();
 		}
+		// }finally {
+		//   if(pushed) popAdvisor();
+		//}
 
 		Long itemId = (Long)toolSession.getAttribute(LESSONBUILDER_ITEMID);
 
@@ -961,6 +980,41 @@ public class SimplePageBean {
 	}
 
 	/**
+	 * isPageOwner(page)
+	 *
+	 * if it's a student page and currernt user is owner or in owning group
+	 *
+	 **/
+
+	public boolean isPageOwner(SimplePage page) {
+	    String owner = page.getOwner();
+	    String group = page.getGroup();
+	    if (group != null)
+		group = "/site/" + page.getSiteId() + "/group/" + group;
+	    if (owner == null)
+		return false;
+	    if (group == null)
+		return owner.equals(getCurrentUserId());
+	    else
+		return AuthzGroupService.getUserRole(getCurrentUserId(), group) != null;
+
+	}
+
+	public boolean isPageOwner(SimpleStudentPage page) {
+	    String owner = page.getOwner();
+	    String group = page.getGroup();
+	    if (group != null)
+		group = "/site/" + getCurrentSiteId() + "/group/" + group;
+	    if (owner == null)
+		return false;
+	    if (group == null)
+		return owner.equals(getCurrentUserId());
+	    else
+		return AuthzGroupService.getUserRole(getCurrentUserId(), group) != null;
+
+	}
+
+	/**
 	 * Returns 0 if user has site.upd or simplepage.upd.
 	 * Returns 1 if user is page owner
 	 * Returns 2 otherwise
@@ -976,7 +1030,7 @@ public class SimplePageBean {
 		if(ok) editPrivs = 0;
 
 		SimplePage page = getCurrentPage();
-		if(editPrivs != 0 && page != null && getCurrentUserId().equals(page.getOwner())) {
+		if(editPrivs != 0 && page != null && isPageOwner(page)) {
 			editPrivs = 1;
 		}
 		
@@ -1118,7 +1172,7 @@ public class SimplePageBean {
 		return tool.getTitle();
 	}
 
-	private Site getCurrentSite() {
+	public Site getCurrentSite() {
 		if (currentSite != null) // cached value
 			return currentSite;
 		
@@ -1842,7 +1896,7 @@ public class SimplePageBean {
 		
 		// Allows students to make subpages of Student Content pages
 		String owner = page.getOwner();
-		Boolean groupOwned = page.isGroupOwned();
+		String group = page.getGroup();
 
 		if (topParent == null) {
 			topParent = parent;
@@ -1853,7 +1907,7 @@ public class SimplePageBean {
 		if (makeNewPage) {
 		    subpage = simplePageToolDao.makePage(toolId, getCurrentSiteId(), title, parent, topParent);
 		    subpage.setOwner(owner);
-		    subpage.setGroupOwned(groupOwned);
+		    subpage.setGroup(group);
 		    saveItem(subpage);
 		    selectedEntity = String.valueOf(subpage.getPageId());
 		} else {
@@ -2464,6 +2518,13 @@ public class SimplePageBean {
 	    if (ret.length() == 0)
 		return "";
 	    return ret.substring(1);
+	}
+
+	public String getItemOwnerGroupString (SimplePageItem i) {
+	    String ret = i.getOwnerGroups();
+	    if (ret == null)
+		ret = "";
+	    return ret;
 	}
 
          public String getReleaseString(SimplePageItem i) {
@@ -3117,7 +3178,7 @@ public class SimplePageBean {
 		
 		if(pageTitle != null) {
 			if(pageItem.getType() == SimplePageItem.STUDENT_CONTENT) {
-				SimpleStudentPage student = simplePageToolDao.findStudentPage(pageItem.getId(), page.getOwner());
+				SimpleStudentPage student = simplePageToolDao.findStudentPageByPageId(page.getPageId());
 				student.setTitle(pageTitle);
 				update(student, false);
 			} else {
@@ -3875,7 +3936,7 @@ public class SimplePageBean {
 		} else if (item.getType() == SimplePageItem.STUDENT_CONTENT) {
 		    // need option for also requiring the student to submit a comment on the content
 		        
-			SimpleStudentPage student = simplePageToolDao.findStudentPage(itemId, getCurrentUserId());
+			SimpleStudentPage student = findStudentPage(item);
 
 			if (student != null && ! student.isDeleted()) {
 			    completeCache.put(itemId, true);
@@ -4403,6 +4464,7 @@ public class SimplePageBean {
 		this.multipartMap = multipartMap;
 	}
 
+// for group-owned student pages, put it in the worksite of the current user
 	public String getCollectionId(boolean urls) {
 		String siteId = getCurrentPage().getSiteId();
 	    
@@ -4411,7 +4473,7 @@ public class SimplePageBean {
 		if (pageOwner == null) {
 			collectionId = contentHostingService.getSiteCollection(siteId);
 		}else {
-			collectionId = "/user/" + pageOwner + "/stuff4/";
+			collectionId = "/user/" + getCurrentUserId() + "/stuff4/";
 		}
 
 	    // folder we really want
@@ -4486,6 +4548,9 @@ public class SimplePageBean {
 
     // called by dialog to add inline multimedia item, or update existing
     // item if itemid is specified
+    // NOTE: in a group-owned student page, the files are put in the home directory
+    // of the current user. That's the only consistent approach I could come up with
+    // this function uses a security advicor, so that will work.
 	public void addMultimedia() {
 		SecurityAdvisor advisor = null;
 		try {
@@ -5116,7 +5181,7 @@ public class SimplePageBean {
 		SimplePageItem containerItem = simplePageToolDao.findItem(itemId);
 		
 		// We want to make sure each student only has one top level page per section.
-		SimpleStudentPage page = simplePageToolDao.findStudentPage(itemId, user.getId());
+		SimpleStudentPage page = findStudentPage(containerItem);
 		
 		if(page == null && containerItem != null && containerItem.getType() == SimplePageItem.STUDENT_CONTENT && canReadPage()) {
 			// First create object in lesson_builder_pages.
@@ -5128,14 +5193,53 @@ public class SimplePageBean {
 				serial = otherPages.size() + 1;
 			    title = messageLocator.getMessage("simplepage.anonymous") + " " + serial;
 			}			
+			Group group = null;
+			String groupId = null;
+			if (containerItem.isGroupOwned()) {
+			    String allowedString = containerItem.getOwnerGroups();
+			    HashSet<String> allowedGroups = null;
+			    if (allowedString != null && allowedString.length() > 0)
+				allowedGroups = new HashSet<String>(Arrays.asList(allowedString.split(",")));
+			    Collection<Group> groups = getCurrentSite().getGroupsWithMember(user.getId());
+			    if (groups.size() == 0) {
+				setErrMessage(messageLocator.getMessage("simplepage.owner-groups-nogroup"));
+				return false;
+			    }
+			    // ideally just one matches. But if more than one does, let's be deterministic
+			    // about which one we use.
+			    List<GroupEntry> groupEntries = new ArrayList<GroupEntry>();
+			    for (Group g: groups) {
+				if (allowedGroups != null && ! allowedGroups.contains(g.getId()))
+				    continue;
+				GroupEntry e = new GroupEntry();
+				e.name = g.getTitle();
+				e.id = g.getId();
+				groupEntries.add(e);
+			    }
+			    if (groupEntries.size() == 0) {
+				setErrMessage(messageLocator.getMessage("simplepage.owner-groups-nogroup"));
+				return false;
+			    }
+			    Collections.sort(groupEntries,new Comparator() {
+				    public int compare(Object o1, Object o2) {
+					GroupEntry e1 = (GroupEntry)o1;
+					GroupEntry e2 = (GroupEntry)o2;
+					return e1.name.compareTo(e2.name);
+				    }
+				});
+			    GroupEntry groupEntry = groupEntries.get(0);
+			    if (!containerItem.isAnonymous())
+				title = groupEntry.name;
+			    groupId = groupEntry.id;
+			}
 			SimplePage newPage = simplePageToolDao.makePage(curr.getToolId(), curr.getSiteId(), title, curr.getPageId(), null);
 			newPage.setOwner(user.getId());
-			newPage.setGroupOwned(false);
+			newPage.setGroup(groupId);
 			saveItem(newPage, false);
 			
 			// Then attach the lesson_builder_student_pages item.
-			page = simplePageToolDao.makeStudentPage(itemId, newPage.getPageId(), title, user.getId(), false);
-			
+			page = simplePageToolDao.makeStudentPage(itemId, newPage.getPageId(), title, user.getId(), groupId);
+						
 			SimplePageItem commentsItem = simplePageToolDao.makeItem(-1, -1, SimplePageItem.COMMENTS, null, messageLocator.getMessage("simplepage.comments-section"));
 			saveItem(commentsItem, false);
 			
@@ -5216,7 +5320,19 @@ public class SimplePageBean {
 			page.setForcedCommentsAnonymous(forcedAnon);
 			page.setRequired(required);
 			page.setPrerequisite(prerequisite);
+			page.setGroupOwned(groupOwned);
 			setItemGroups(page, selectedGroups);
+			if (studentSelectedGroups == null || studentSelectedGroups.length == 0)
+			    page.setOwnerGroups("");
+			else {
+			    StringBuilder ownerGroups = new StringBuilder();
+			    for (int i = 0; i < studentSelectedGroups.length; i++) {
+				if (i > 0)
+				    ownerGroups.append(",");
+				ownerGroups.append(studentSelectedGroups[i]);
+			    }
+			    page.setOwnerGroups(ownerGroups.toString());
+			}
 			
 			// Update the comments tools to reflect any changes
 			if(comments) {
@@ -5345,8 +5461,22 @@ public class SimplePageBean {
 		List<SimpleStudentPage> pages = simplePageToolDao.findStudentPages(pageItem.getId());
 		for(SimpleStudentPage c : pages) {
 			if(c.getPoints() != null) {
+			    if( c.getGroup() == null)
 				gradebookIfc.updateExternalAssessmentScore(getCurrentSiteId(), pageItem.getGradebookId(),
 						c.getOwner(), String.valueOf(c.getPoints()));
+			    else {
+				String group = c.getGroup();
+				if (group != null)
+				    group = "/site/" + getCurrentSiteId() + "/group/" + group;
+				HashSet groups = new HashSet<Group>();
+
+				groups.add(group);
+				Collection<String>users = AuthzGroupService.getAuthzUsersInGroups(groups);
+				for (String user: users) {
+				    gradebookIfc.updateExternalAssessmentScore(getCurrentSiteId(), pageItem.getGradebookId(),
+					       user, String.valueOf(c.getPoints()));
+				}
+			    }
 			}
 		}
 	}

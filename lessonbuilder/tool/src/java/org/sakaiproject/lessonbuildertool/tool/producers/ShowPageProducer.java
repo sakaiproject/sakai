@@ -366,7 +366,7 @@ public class ShowPageProducer implements ViewComponentProducer, DefaultView, Nav
 		}else if(params.addTool == GeneralViewParameters.STUDENT_CONTENT) {
 			simplePageBean.addStudentContentSection();
 		}else if(params.addTool == GeneralViewParameters.STUDENT_PAGE) {
-			simplePageBean.createStudentPage(params.studentItemId);
+		    simplePageBean.createStudentPage(params.studentItemId);
 			canEditPage = simplePageBean.canEditPage();
 		}
 
@@ -573,7 +573,12 @@ public class ShowPageProducer implements ViewComponentProducer, DefaultView, Nav
 			title = currentPage.getTitle();
 			if(!pageItem.isAnonymous() || canEditPage) {
 			    try {
-				ownerName = UserDirectoryService.getUser(currentPage.getOwner()).getDisplayName();
+				String owner = currentPage.getOwner();
+				String group = currentPage.getGroup();
+				if (group != null)
+				    ownerName = simplePageBean.getCurrentSite().getGroup(group).getTitle();
+				else
+				    ownerName = UserDirectoryService.getUser(owner).getDisplayName();
 			    } catch (Exception ignore) {};
 			    if (ownerName != null && !ownerName.equals(title))
 				title += " (" + ownerName + ")";
@@ -629,6 +634,8 @@ public class ShowPageProducer implements ViewComponentProducer, DefaultView, Nav
 				UIOutput.make(tofill, "remove-descrip");
 				UIOutput.make(tofill, "remove-page").decorate(new UIFreeAttributeDecorator("title", messageLocator.getMessage("simplepage.remove-page-tooltip")));
 			} else if (simplePageBean.getEditPrivs() == 0 && currentPage.getOwner() != null) {
+			    // getEditPrivs < 2 if we want to let the student delete. Currently we don't. There can be comments
+			    // from other students and the page can be shared
 				SimpleStudentPage studentPage = simplePageToolDao.findStudentPage(currentPage.getTopParent());
 				if (studentPage != null && studentPage.getPageId() == currentPage.getPageId()) {
 					UIOutput.make(tofill, "remove-descrip");
@@ -1692,16 +1699,6 @@ public class ShowPageProducer implements ViewComponentProducer, DefaultView, Nav
 						boolean hasOwnPage = false;
 						String userId = UserDirectoryService.getCurrentUser().getId();
 						
-						HashMap<String, String> anonymousLookup = new HashMap<String, String>();
-						if(i.isAnonymous()) {
-							int counter = 1;
-							for(SimpleStudentPage page : studentPages) {
-								if(anonymousLookup.get(page.getOwner()) == null) {
-									anonymousLookup.put(page.getOwner(), messageLocator.getMessage("simplepage.anonymous") + " " + counter++);
-								}
-							}
-						}
-					
 					    Collections.sort(studentPages, new Comparator<SimpleStudentPage>() {
 						    public int compare(SimpleStudentPage o1, SimpleStudentPage o2) {
 							String title1 = o1.getTitle();
@@ -1756,12 +1753,15 @@ public class ShowPageProducer implements ViewComponentProducer, DefaultView, Nav
 							String sownerName = null;
 							try {
 								if(!i.isAnonymous() || canEditPage) {
-									sownerName = UserDirectoryService.getUser(page.getOwner()).getDisplayName();
+									if (page.getGroup() != null)
+									    sownerName = simplePageBean.getCurrentSite().getGroup(page.getGroup()).getTitle();
+									else
+									    sownerName = UserDirectoryService.getUser(page.getOwner()).getDisplayName();
 									if (sownerName != null && sownerName.equals(studentTitle))
 									    studentTitle = "(" + sownerName + ")";
 									else
 									    studentTitle += " (" + sownerName + ")";
-								}else if(page.getOwner().equals(userId)) {
+								}else if (simplePageBean.isPageOwner(page)) {
 									studentTitle += " (" + messageLocator.getMessage("simplepage.comment-you") + ")";
 								}
 							} catch (UserNotDefinedException e) {
@@ -1769,7 +1769,7 @@ public class ShowPageProducer implements ViewComponentProducer, DefaultView, Nav
 							
 							UIInternalLink.make(row, "studentLink", studentTitle, eParams);
 						
-							if(page.getOwner().equals(userId)) {
+							if(simplePageBean.isPageOwner(page)) {
 								hasOwnPage = true;
 							}
 							
@@ -1829,6 +1829,8 @@ public class ShowPageProducer implements ViewComponentProducer, DefaultView, Nav
 								UIOutput.make(tableRow, "student-groups", itemGroupString);
 								UIOutput.make(tableRow, "item-group-titles7", itemGroupTitles);
 							}
+							UIOutput.make(tableRow, "student-owner-groups", simplePageBean.getItemOwnerGroupString(i));
+							UIOutput.make(tableRow, "student-group-owned", (i.isGroupOwned()?"true":"false"));
 						}
 					}
 				}  else {
@@ -1945,7 +1947,7 @@ public class ShowPageProducer implements ViewComponentProducer, DefaultView, Nav
 		createYoutubeDialog(tofill, currentPage);
 		createMovieDialog(tofill, currentPage);
 		createCommentsDialog(tofill);
-		createStudentContentDialog(tofill);
+		createStudentContentDialog(tofill, currentPage);
 	}
 
 	public void setSimplePageBean(SimplePageBean simplePageBean) {
@@ -2519,7 +2521,7 @@ public class ShowPageProducer implements ViewComponentProducer, DefaultView, Nav
 		// can't use site groups on user content, and don't want students to hack
 		// on groups for site content
 		if (currentPage.getOwner() == null)
-		    createGroupList(form, null);
+		    createGroupList(form, null, "", "#{simplePageBean.selectedGroups}");
 
 		UICommand.make(form, "delete-item", messageLocator.getMessage("simplepage.delete"), "#{simplePageBean.deleteItem}");
 		UICommand.make(form, "edit-item-cancel", messageLocator.getMessage("simplepage.cancel"), null);
@@ -2527,7 +2529,7 @@ public class ShowPageProducer implements ViewComponentProducer, DefaultView, Nav
 
 	// for both add multimedia and add resource, as well as updating resources
 	// in the edit dialogs
-	public void createGroupList(UIContainer tofill, Collection<String> groupsSet) {
+    public void createGroupList(UIContainer tofill, Collection<String> groupsSet, String prefix, String beanspec) {
 		List<GroupEntry> groups = simplePageBean.getCurrentGroups();
 		ArrayList<String> values = new ArrayList<String>();
 		ArrayList<String> initValues = new ArrayList<String>();
@@ -2552,18 +2554,18 @@ public class ShowPageProducer implements ViewComponentProducer, DefaultView, Nav
 		if (values.size() == 0)
 			return;
 
-		UIOutput.make(tofill, "grouplist");
-		UISelect select = UISelect.makeMultiple(tofill, "group-list-span", values.toArray(new String[1]), "#{simplePageBean.selectedGroups}", initValues.toArray(new String[1]));
+		UIOutput.make(tofill, prefix + "grouplist");
+		UISelect select = UISelect.makeMultiple(tofill, prefix + "group-list-span", values.toArray(new String[1]), beanspec, initValues.toArray(new String[1]));
 
 		int index = 0;
 		for (GroupEntry entry : groups) {
 			if (entry.name.startsWith("Access: ")) {
 				continue;
 			}
-			UIBranchContainer row = UIBranchContainer.make(tofill, "select-group-list:");
-			UISelectChoice.make(row, "select-group", select.getFullID(), index);
+			UIBranchContainer row = UIBranchContainer.make(tofill, prefix + "select-group-list:");
+			UISelectChoice.make(row, prefix + "select-group", select.getFullID(), index);
 
-			UIOutput.make(row, "select-group-text", entry.name);
+			UIOutput.make(row, prefix + "select-group-text", entry.name);
 			index++;
 		}
 
@@ -2913,7 +2915,7 @@ public class ShowPageProducer implements ViewComponentProducer, DefaultView, Nav
 		UICommand.make(form, "cancel-comments", messageLocator.getMessage("simplepage.cancel"), null);
 	}
 	
-	private void createStudentContentDialog(UIContainer tofill) {
+	private void createStudentContentDialog(UIContainer tofill, SimplePage currentPage) {
 		UIOutput.make(tofill, "student-dialog").decorate(new UIFreeAttributeDecorator("title", messageLocator.getMessage("simplepage.edit_studentlink")));
 
 		UIForm form = UIForm.make(tofill, "student-form");
@@ -2931,7 +2933,10 @@ public class ShowPageProducer implements ViewComponentProducer, DefaultView, Nav
 
 		UIBoundBoolean.make(form, "student-comments-graded", "#{simplePageBean.sGraded}");
 		UIInput.make(form, "student-comments-max", "#{simplePageBean.sMaxPoints}");
-		
+
+		UIBoundBoolean.make(form, "student-group-owned", "#{simplePageBean.groupOwned}");
+		createGroupList(form, null, "student-", "#{simplePageBean.studentSelectedGroups}");
+
 		UICommand.make(form, "delete-student-item", messageLocator.getMessage("simplepage.delete"), "#{simplePageBean.deleteItem}");
 		UICommand.make(form, "update-student", messageLocator.getMessage("simplepage.edit"), "#{simplePageBean.updateStudent}");
 		UICommand.make(form, "cancel-student", messageLocator.getMessage("simplepage.cancel"), null);

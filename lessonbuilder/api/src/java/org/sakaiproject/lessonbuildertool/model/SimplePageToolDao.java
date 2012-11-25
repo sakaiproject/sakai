@@ -24,6 +24,7 @@
 package org.sakaiproject.lessonbuildertool.model;
 
 import java.util.List;
+import java.util.Collection;
 
 import org.sakaiproject.lessonbuildertool.SimplePage;
 import org.sakaiproject.lessonbuildertool.SimplePageComment;
@@ -43,6 +44,7 @@ public interface SimplePageToolDao {
     // can edit pages in current site. Make sure that the page you are going to
     // edit is actually part of the current site.
 	public boolean canEditPage();
+	public boolean canEditPage(long pageid);
 
     // returns a list of all items on the page, ordered by sequence number
 	public List<SimplePageItem> findItemsOnPage(long pageId);
@@ -88,7 +90,8 @@ public interface SimplePageToolDao {
     // this is a generic one. Only use it for nearly unique sakaiids.
 	public List<SimplePageItem> findItemsBySakaiId(String sakaiId);
 	
-	public SimpleStudentPage findStudentPage(long itemId, String owner);
+	public SimpleStudentPage findStudentPage(long itemid, String owner);
+	public SimpleStudentPage findStudentPage(long itemid, Collection<String> groups);
 	
 	public SimpleStudentPage findStudentPage(long id);
 	
@@ -179,7 +182,7 @@ public interface SimplePageToolDao {
     
     public SimplePageComment makeComment(long itemId, long pageId, String author, String comment, String UUID, boolean html);
 
-    public SimpleStudentPage makeStudentPage(long itemId, long pageId, String title, String author, boolean groupOwned);
+    public SimpleStudentPage makeStudentPage(long itemId, long pageId, String title, String author, String group);
     
     public SimplePageItem copyItem(SimplePageItem old);
 

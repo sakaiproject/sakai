@@ -41,7 +41,9 @@ public class SimplePageImpl implements SimplePage {
 	private Double gradebookPoints;
 	
 	private String owner;       // If this is a student content site, lists the student
-	private Boolean groupOwned; // Or group if it's group owned
+        private String group;
+	private String groups; // group if group owned, but retain the creator
+        private boolean groupOwned = false; // no longer used
 	
 	private String cssSheet = null; // ID of a resource, if a separate CSS sheet is to be used
 
@@ -130,6 +132,8 @@ public class SimplePageImpl implements SimplePage {
 	}
         
 	public String getOwner() {
+		if (owner != null && owner.length() == 0)
+			return null;
 		return owner;
 	}
 	
@@ -137,14 +141,26 @@ public class SimplePageImpl implements SimplePage {
 		this.owner = owner;
 	}
 	
-	public Boolean isGroupOwned() {
-		return groupOwned;
+	public String getGroup() {
+		if (group != null && group.length() == 0)
+			return null;
+		return group;
 	}
 	
-	public void setGroupOwned(Boolean go) {
-		groupOwned = go;
+	public void setGroup(String g) {
+		group = g;
 	}
 	
+	public boolean isGroupOwned() {
+	    return groupOwned;
+	}
+
+	public void setGroupOwned(Boolean g) {
+	    if (g == null)
+		g = false;
+	    groupOwned = g;
+	}
+
 	public String getCssSheet() {
 		return cssSheet;
 	}

@@ -91,6 +91,8 @@ public class SimplePageItemImpl implements SimplePageItem  {
 	private String altGradebook;
 	private Integer altPoints;
 	private String altGradebookTitle;
+	private boolean groupOwned = false;
+	private String ownerGroups = null;
 	
 	public SimplePageItemImpl() {
 
@@ -117,6 +119,8 @@ public class SimplePageItemImpl implements SimplePageItem  {
 		required = false;
 		requirementText = "";
 		sameWindow = false;  // old entries have to default to off
+		groupOwned = false;
+		ownerGroups = "";
 	}
 
 	public SimplePageItemImpl(long pageId, int sequence, int type, String sakaiId, String name) {
@@ -139,6 +143,8 @@ public class SimplePageItemImpl implements SimplePageItem  {
 		required = false;
 		requirementText = "";
 		sameWindow = false;  // old entries have to default to off
+		groupOwned = false;
+		ownerGroups = "";
 	}
 
 	private String maxlength(String s, int maxlen) {
@@ -470,7 +476,27 @@ public class SimplePageItemImpl implements SimplePageItem  {
 		this.altGradebookTitle = gradebookTitle;
 	}
     
-    public String getAltGradebookTitle() {
-    	return altGradebookTitle;
-    }
+	public String getAltGradebookTitle() {
+	    return altGradebookTitle;
+	}
+
+	public boolean isGroupOwned() {
+	    return groupOwned;
+	}
+
+	public void setGroupOwned(Boolean o) {
+	    if(o == null)
+		o = false;
+	    groupOwned = o;
+	}
+
+	public String getOwnerGroups() {
+	    return ownerGroups;
+	}
+
+	public void setOwnerGroups(String s) {
+	    ownerGroups = s;
+	}
+
 }
+

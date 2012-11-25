@@ -38,9 +38,11 @@ import org.sakaiproject.time.cover.TimeService;
 import org.sakaiproject.authz.api.SecurityAdvisor;
 import org.sakaiproject.authz.api.SecurityService;
 import org.sakaiproject.authz.api.SecurityAdvisor.SecurityAdvice;
+import org.sakaiproject.authz.cover.AuthzGroupService;
 import org.sakaiproject.content.api.ContentHostingService;
 import org.sakaiproject.content.api.ContentResource;
 import org.sakaiproject.content.api.ContentEntity;
+import org.sakaiproject.user.cover.UserDirectoryService;
 import org.sakaiproject.entity.api.EntityAccessOverloadException;
 import org.sakaiproject.entity.api.EntityCopyrightException;
 import org.sakaiproject.entity.api.EntityNotDefinedException;
@@ -259,6 +261,9 @@ public class LessonBuilderAccessService {
 					SimplePageItem item = simplePageToolDao.findItem(itemId.longValue());
 					SimplePage currentPage = simplePageToolDao.getPage(item.getPageId());
 					String owner = currentPage.getOwner();  // if student content
+					String group = currentPage.getGroup();  // if student content
+					if (group != null)
+					    group = "/site/" + currentPage.getSiteId() + "/group/" + group;
 					String currentSiteId = currentPage.getSiteId();
 					
 
@@ -299,15 +304,31 @@ public class LessonBuilderAccessService {
 					}
 
 					if (useLb) {
-
 					    // key into access cache
 					    String accessKey = itemString + ":" + sessionManager.getCurrentSessionUserId();
-
-					    if (owner != null && id.startsWith("/user/" + owner)) {
-						// for a student page, if it's in the student's worksite
-						// allow it. The assumption is that only the page owner
-						// can put content in the page, and he would only put
-						// in his own content if he wants it to be visible
+					    // special access if we have a student site and item is in worksite of one of the students
+					    // Normally we require that the person doing the access be able to see the file, but in
+					    // that specific case we allow the access. Note that in order to get a sakaiid pointing
+					    // into the user's space, the person editing the page must have been able to read the file.
+					    // this allows a user in your group to share any of your resources that he can see.
+					    String usersite = null;
+					    if (owner != null && group != null && id.startsWith("/user/")) {
+						String username = id.substring(6);
+						int slash = username.indexOf("/");
+						if (slash > 0)
+						    usersite = username.substring(0,slash);
+						// normally it is /user/EID, so convert to userid
+						try {
+						    usersite = UserDirectoryService.getUserId(usersite);
+						} catch (Exception e) {};
+					    }							
+					    // for a student page, if it's in one of the groups' worksites, allow it
+					    // The assumption is that only one of those people can put content in the
+					    // page, and then only if the can see it.
+					    if (owner != null && usersite != null && AuthzGroupService.getUserRole(usersite, group) != null) {
+						// OK
+					    } else if (owner != null && group == null && id.startsWith("/user/" + owner)) {
+						// OK
 					    } else {
 						// do normal checking for other content
 						if (pushedAdvisor) {

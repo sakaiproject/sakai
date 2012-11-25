@@ -421,6 +421,8 @@ function resizeiframe(id) {
 						<span style="display:none" rsf:id="studentGrade2" class="studentGrade2"></span>
 						<span style="display:none" rsf:id="studentMaxPoints2" class="studentMaxPoints2"></span>
 						<span style="display:none" rsf:id="student-groups" class="item-groups"></span>
+						<span style="display:none" rsf:id="student-group-owned" class="student-group-owned"></span>
+						<span style="display:none" rsf:id="student-owner-groups" class="student-owner-groups"></span>
 						<span style="display:none" rsf:id="studentitem-required" class="studentitem-required"></span>
 						<span style="display:none" rsf:id="studentitem-prerequisite" class="studentitem-prerequisite"></span>
 					</td>
@@ -1112,7 +1114,18 @@ function resizeiframe(id) {
 							
 							<label for="student-comments-max" class="indent3"><span rsf:id="msg=simplepage.comments-max"></span></label>
 							<input type="text" name="student-comments-max" id="student-comments-max" rsf:id="student-comments-max" /><br />
-							
+						</div>
+						<div align="left" style="margin-top:1em">
+						  <input type="checkbox" name="student-group-owned" id="student-group-owned" rsf:id="student-group-owned" /><label for="student-group-owned"><span rsf:id="msg=simplepage.owner-groups"></span></label>
+						  <div id="student-group-show">
+						    <div align="left" id="student-grouplist" rsf:id="student-grouplist" class="indent">
+						      <span rsf:id="student-group-list-span"/>
+						      <div rsf:id="msg=simplepage.owner-groups-explanation"></div>
+						      <div rsf:id="student-select-group-list:">
+							<input type="checkbox" rsf:id="student-select-group" /><span rsf:id="student-select-group-text"></span>
+						      </div>
+						    </div>
+						  </div>
 						</div>
 
 						<div align="left" style="margin-top:1em">
@@ -1124,7 +1137,7 @@ function resizeiframe(id) {
 						  <label for="student-required"><span rsf:id="msg=simplepage.require" id="require-label"></span></label>
 						</div>
 
-                                               <p id="editgroups-student">
+                                               <p id="editgroups-student" class="editgroups-student">
                                                 <a href="#"><span rsf:id="msg=simplepage.edit-group"></span></a>
                                               </p>
 

@@ -391,6 +391,7 @@ public class LessonBuilderEntityProducer extends AbstractEntityProvider
 		addAttr(doc, itemElement, "altGradebook", item.getAltGradebook());
 		addAttr(doc, itemElement, "altPoints", String.valueOf(item.getAltPoints()));
 		addAttr(doc, itemElement, "altGradebookTitle", item.getAltGradebookTitle());
+		addAttr(doc, itemElement, "groupOwned", item.isGroupOwned() ? "true" : "false");
 		
 		if (item.getType() == SimplePageItem.FORUM || item.getType() == SimplePageItem.ASSESSMENT || item.getType() == SimplePageItem.ASSIGNMENT) {
 		    LessonEntity e = null;
@@ -719,6 +720,11 @@ public class LessonBuilderEntityProducer extends AbstractEntityProvider
 			   item.setAltGradebook(s);
 		   }
 		   
+
+		   s = itemElement.getAttribute("groupOwned");
+		   if (s != null)
+		       item.setGroupOwned(s.equals("true"));
+
 		   // save objectid for dummy items so we can do mapping; alt isn't otherwise used for these items
 		   if (type == SimplePageItem.ASSIGNMENT || type == SimplePageItem.ASSESSMENT || type == SimplePageItem.FORUM) {
 		       item.setAlt(itemElement.getAttribute("objectid"));

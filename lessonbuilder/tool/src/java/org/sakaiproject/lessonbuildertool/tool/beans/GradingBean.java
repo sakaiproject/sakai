@@ -2,12 +2,15 @@ package org.sakaiproject.lessonbuildertool.tool.beans;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.HashSet;
+import java.util.Collection;
 
 import org.sakaiproject.lessonbuildertool.SimplePageComment;
 import org.sakaiproject.lessonbuildertool.SimplePageItem;
 import org.sakaiproject.lessonbuildertool.SimpleStudentPage;
 import org.sakaiproject.lessonbuildertool.model.SimplePageToolDao;
 import org.sakaiproject.lessonbuildertool.service.GradebookIfc;
+import org.sakaiproject.authz.cover.AuthzGroupService;
 
 public class GradingBean {
 	public String id;
@@ -85,16 +88,35 @@ public class GradingBean {
 		}else if("student".equals(type)) {
 			SimpleStudentPage page = simplePageToolDao.findStudentPage(Long.valueOf(id));
 			SimplePageItem pageItem = simplePageToolDao.findItem(page.getItemId());
-			if(Double.valueOf(points).equals(page.getPoints())) {
-				return new String[] {"success", jsId, String.valueOf(page.getPoints())};
-			}
+			// the idea was to not update if there's no change in points
+			// but there can be reasons to want to force grades back to the gradebook,
+			// particually for group pages where the group may have changed
+			//if(Double.valueOf(points).equals(page.getPoints())) {
+			//  return new String[] {"success", jsId, String.valueOf(page.getPoints())};
+		        //}
 			
 			try {
+			    String owner = page.getOwner();
+			    String group = page.getGroup();
+			    if (group == null)
 				r = gradebookIfc.updateExternalAssessmentScore(simplePageBean.getCurrentSiteId(), pageItem.getGradebookId(), page.getOwner(), Double.toString(Double.valueOf(points)));
+			    else {
+				HashSet<String>groups = new HashSet<String>();
+				if (group != null)
+				    group = "/site/" + simplePageBean.getCurrentSiteId() + "/group/" + group;
+				groups.add(group);
+                                Collection<String>users = AuthzGroupService.getAuthzUsersInGroups(groups);
+				// if we have more than one user, in theory some might fail and some succeed. For the
+				// moment just update the grade 
+				r = true;
+                                for (String u: users)
+                                    gradebookIfc.updateExternalAssessmentScore(simplePageBean.getCurrentSiteId(), pageItem.getGradebookId(),
+									       u, Double.toString(Double.valueOf(points)));
+				
+			    }
 			}catch(Exception ex) {
 			    System.out.println("Exception updating grade " + ex);
 			}
-			
 			if(r) {
 				page.setPoints(Double.valueOf(points));
 				simplePageBean.update(page, false);

@@ -27,6 +27,7 @@ import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.Collection;
 import java.util.Comparator;
 import java.util.Date;
 import java.util.List;
@@ -37,6 +38,7 @@ import org.hibernate.criterion.DetachedCriteria;
 import org.hibernate.criterion.Order;
 import org.hibernate.criterion.Restrictions;
 import org.sakaiproject.authz.api.SecurityService;
+import org.sakaiproject.authz.cover.AuthzGroupService;
 import org.sakaiproject.db.api.SqlReader;
 import org.sakaiproject.db.cover.SqlService;
 import org.sakaiproject.event.cover.EventTrackingService;
@@ -54,6 +56,8 @@ import org.sakaiproject.lessonbuildertool.SimpleStudentPage;
 import org.sakaiproject.lessonbuildertool.SimpleStudentPageImpl;
 import org.sakaiproject.tool.api.ToolManager;
 import org.sakaiproject.user.cover.UserDirectoryService;
+import org.sakaiproject.site.api.Site;
+import org.sakaiproject.site.api.Group;
 import org.springframework.dao.DataAccessException;
 import org.springframework.orm.hibernate3.support.HibernateDaoSupport;
 
@@ -96,8 +100,15 @@ public class SimplePageToolDaoImpl extends HibernateDaoSupport implements Simple
 		// more than one page. But the student can't edit them anyway, so fail it
 		if(!canEdit && pageId != -1L) {
 			SimplePage page = getPage(pageId);
-			if(UserDirectoryService.getCurrentUser().getId()
-					.equals(page.getOwner())) {
+			String owner = page.getOwner();
+			String group = page.getGroup();
+			if (group != null)
+			    group = "/site/" + page.getSiteId() + "/group/" + group;
+			String currentUser = UserDirectoryService.getCurrentUser().getId();
+			if (currentUser != null) {
+			    if (group == null && currentUser.equals(owner))
+				canEdit = true;
+			    else if (group != null && AuthzGroupService.getUserRole(currentUser, group) != null)
 				canEdit = true;
 			}
 		}
@@ -105,14 +116,23 @@ public class SimplePageToolDaoImpl extends HibernateDaoSupport implements Simple
 		return canEdit;
 	}
 	
-	public boolean canEditPage(String owner) {
+	public boolean canEditPage(SimplePage page) {
 		boolean canEdit = canEditPage();
-		if(owner != null && !canEdit) {
-			if(owner.equals(UserDirectoryService.getCurrentUser().getId())) {
+		// forced comments have a pageid of -1, because they are associated with
+		// more than one page. But the student can't edit them anyway, so fail it
+		if(!canEdit && page != null) {
+			String owner = page.getOwner();
+			String group = page.getGroup();
+			if (group != null)
+			    group = "/site/" + page.getSiteId() + "/group/" + group;
+			String currentUser = UserDirectoryService.getCurrentUser().getId();
+			if (currentUser != null) {
+			    if (group == null && currentUser.equals(owner))
+				canEdit = true;
+			    else if (group != null && AuthzGroupService.getUserRole(currentUser, group) != null)
 				canEdit = true;
 			}
 		}
-		
 		return canEdit;
 	}
 
@@ -304,7 +324,10 @@ public class SimplePageToolDaoImpl extends HibernateDaoSupport implements Simple
 		return getHibernateTemplate().findByCriteria(d);
 	}
 	
-
+    // find the student's page. In theory we keep them from doing a second page. With
+    // group pages that means students in more than one group can only do one. So return the first
+    // Different versions if item is controlled by group or not. That lets us use simple
+    // hibernate queries and maximum caching
 	public SimpleStudentPage findStudentPage(long itemId, String owner) {
 		DetachedCriteria d = DetachedCriteria.forClass(SimpleStudentPage.class).add(Restrictions.eq("itemId", itemId))
 			.add(Restrictions.eq("owner", owner)).add(Restrictions.eq("deleted", false));
@@ -316,6 +339,19 @@ public class SimplePageToolDaoImpl extends HibernateDaoSupport implements Simple
 			return null;
 		}
 	}
+	
+	public SimpleStudentPage findStudentPage(long itemId, Collection<String> groups) {
+		DetachedCriteria d = DetachedCriteria.forClass(SimpleStudentPage.class).add(Restrictions.eq("itemId", itemId))
+			.add(Restrictions.in("group", groups)).add(Restrictions.eq("deleted", false));
+		List<SimpleStudentPage> list = getHibernateTemplate().findByCriteria(d);
+		
+		if(list.size() > 0) {
+			return list.get(0);
+		}else {
+			return null;
+		}
+	}
+
 	
 	public SimpleStudentPage findStudentPage(long id) {
 		DetachedCriteria d = DetachedCriteria.forClass(SimpleStudentPage.class).add(Restrictions.eq("id", id));
@@ -434,8 +470,8 @@ public class SimplePageToolDaoImpl extends HibernateDaoSupport implements Simple
 		 * 
 		 * Essentially, if any of those say that the edit is fine, it won't throw the error.
 		 */
-		if(requiresEditPermission && !(o instanceof SimplePageItem && canEditPage(((SimplePageItem)o).getPageId()))
-				&& !(o instanceof SimplePage && canEditPage(((SimplePage)o).getOwner()))
+	    if(requiresEditPermission && !(o instanceof SimplePageItem && canEditPage(((SimplePageItem)o).getPageId()))
+	    			&& !(o instanceof SimplePage && canEditPage((SimplePage)o))
 				&& !(o instanceof SimplePageLogEntry)
 				&& !(o instanceof SimplePageGroup)) {
 			elist.add(nowriteerr);
@@ -491,7 +527,7 @@ public class SimplePageToolDaoImpl extends HibernateDaoSupport implements Simple
 		 * Essentially, if any of those say that the edit is fine, it won't throw the error.
 		 */
 		if(!(o instanceof SimplePageItem && canEditPage(((SimplePageItem)o).getPageId()))
-				&& !(o instanceof SimplePage && canEditPage(((SimplePage)o).getOwner()))
+				&& !(o instanceof SimplePage && canEditPage((SimplePage)o))
 				&& (o instanceof SimplePage || o instanceof SimplePageItem)) {
 			return false;
 		}
@@ -538,7 +574,7 @@ public class SimplePageToolDaoImpl extends HibernateDaoSupport implements Simple
 		 * Essentially, if any of those say that the edit is fine, it won't throw the error.
 		 */
 		if(requiresEditPermission && !(o instanceof SimplePageItem && canEditPage(((SimplePageItem)o).getPageId()))
-				&& !(o instanceof SimplePage && canEditPage(((SimplePage)o).getOwner()))
+				&& !(o instanceof SimplePage && canEditPage((SimplePage)o))
 		   		&& !(o instanceof SimplePageLogEntry)
 				&& !(o instanceof SimplePageGroup)) {
 			elist.add(nowriteerr);
@@ -657,6 +693,7 @@ public class SimplePageToolDaoImpl extends HibernateDaoSupport implements Simple
 		}
 	}
 	
+	// owner not currently used. would need group as well
         public boolean isPageVisited(long pageId, String userId, String owner) {
 	    // if this is a student page, it's most likely the top level, so do that query first
 	    if (owner != null) {
@@ -736,8 +773,8 @@ public class SimplePageToolDaoImpl extends HibernateDaoSupport implements Simple
 		return new SimplePageCommentImpl(itemId, pageId, author, comment, UUID, html);
 	}
 	
-	public SimpleStudentPage makeStudentPage(long itemId, long pageId, String title, String author, boolean groupOwned) {
-		return new SimpleStudentPageImpl(itemId, pageId, title, author, groupOwned);
+	public SimpleStudentPage makeStudentPage(long itemId, long pageId, String title, String author, String group) {
+		return new SimpleStudentPageImpl(itemId, pageId, title, author, group);
 	}
 	
 	public SimplePageItem copyItem(SimplePageItem old) {

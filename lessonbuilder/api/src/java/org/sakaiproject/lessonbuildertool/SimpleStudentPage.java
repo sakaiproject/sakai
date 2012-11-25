@@ -21,9 +21,13 @@ public interface SimpleStudentPage {
 	public String getOwner();
 	public void setOwner(String owner);
 	
-	public boolean getGroupOwned();
-	public void setGroupOwned(boolean go);
+        public String getGroup();
+        public void setGroup(String group);
 	
+    // no longer used, but left in to ease transitions
+        public boolean isGroupOwned();
+        public void setGroupOwned(Boolean g);
+
 	public Long getCommentsSection();
 	public void setCommentsSection(Long commentsSection);
 	

@@ -9,7 +9,8 @@ public class SimpleStudentPageImpl implements SimpleStudentPage {
 	private long pageId; // ID of row in lesson_builder_pages
 	private String title; // Title of page
 	private String owner; // Owner of page
-	private boolean groupOwned; // Whether or not the owner is a group
+	private String group;
+        private boolean groupOwned = false; // no longer used
 	
 	// ID of the comments section associated with this page, if one exists.
 	private Long commentsSection; 
@@ -20,12 +21,13 @@ public class SimpleStudentPageImpl implements SimpleStudentPage {
 	
 	public SimpleStudentPageImpl() { }
 	
-	public SimpleStudentPageImpl(long itemId, long pageId, String title, String owner, boolean groupOwned) {
+	public SimpleStudentPageImpl(long itemId, long pageId, String title, String owner, String group) {
 		this.itemId = itemId;
 		this.pageId = pageId;
 		this.title = title;
 		this.owner = owner;
-		this.groupOwned = groupOwned;
+		this.group = group;
+		this.groupOwned = false;
 		this.commentsSection = null;
 	}
 	
@@ -65,19 +67,33 @@ public class SimpleStudentPageImpl implements SimpleStudentPage {
 	}
 	
 	public String getOwner() {
+		if (owner != null && owner.length() == 0)
+			return null;
 		return owner;
 	}
 	public void setOwner(String owner) {
 		this.owner = owner;;
 	}
 	
-	public boolean getGroupOwned() {
-		return groupOwned;
+	public String getGroup() {
+		if (group != null && group.length() == 0)
+			return null;
+		return group;
 	}
-	public void setGroupOwned(boolean go) {
-		this.groupOwned = go;
+	public void setGroup(String s) {
+		this.group = s;
 	}
 	
+	public boolean isGroupOwned() {
+	    return groupOwned;
+	}
+
+	public void setGroupOwned(Boolean g) {
+	    if (g == null)
+		g = false;
+	    groupOwned = g;
+	}
+
 	public Long getCommentsSection() {
 		return commentsSection;
 	}

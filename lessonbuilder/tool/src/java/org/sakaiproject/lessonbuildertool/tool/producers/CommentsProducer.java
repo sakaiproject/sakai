@@ -20,6 +20,9 @@ import org.sakaiproject.lessonbuildertool.model.SimplePageToolDao;
 import org.sakaiproject.lessonbuildertool.tool.beans.SimplePageBean;
 import org.sakaiproject.lessonbuildertool.tool.view.CommentsViewParameters;
 import org.sakaiproject.lessonbuildertool.tool.view.GeneralViewParameters;
+import org.sakaiproject.site.api.Site;
+import org.sakaiproject.site.cover.SiteService;
+import org.sakaiproject.site.api.Group;
 import org.sakaiproject.user.api.User;
 import org.sakaiproject.user.cover.UserDirectoryService;
 import org.sakaiproject.time.cover.TimeService;
@@ -121,7 +124,7 @@ public class CommentsProducer implements ViewComponentProducer, ViewParamsReport
 				comments = (List<SimplePageComment>) simplePageToolDao.findCommentsOnItemByAuthor(params.itemId, params.author);
 			}else if(filter && params.studentContentItem) {
 				List<SimpleStudentPage> studentPages = simplePageToolDao.findStudentPages(params.itemId);
-				
+				Site site = SiteService.getSite(currentPage.getSiteId());
 				itemToPageowner = new HashMap<Long, String>();
 				List<Long> commentsItemIds = new ArrayList<Long>();
 				for(SimpleStudentPage p : studentPages) {
@@ -129,8 +132,15 @@ public class CommentsProducer implements ViewComponentProducer, ViewParamsReport
 					if(!p.isDeleted()) {
 						commentsItemIds.add(p.getCommentsSection());
 						String pageOwner = p.getOwner();
+						String pageGroup = p.getGroup();
+						if (pageGroup != null)
+						    pageOwner = pageGroup;
 						try {
-						    String o = UserDirectoryService.getUser(pageOwner).getDisplayName();
+						    String o = null;
+						    if (pageGroup != null)
+							o = site.getGroup(pageGroup).getTitle();
+						    else
+							o = UserDirectoryService.getUser(pageOwner).getDisplayName();
 						    if (o != null)
 							pageOwner = o;
 						} catch (Exception ignore) {};
