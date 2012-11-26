@@ -78,7 +78,8 @@ public class MyInfoDisplay extends Panel {
 		if(dateOfBirth != null) {
 			
 			//full value contains year regardless of privacy settings
-			birthday = ProfileUtils.convertDateToString(dateOfBirth, ProfileConstants.DEFAULT_DATE_FORMAT);
+			// Passing null as the format parameter forces a user locale based format
+			birthday = ProfileUtils.convertDateToString(dateOfBirth, null);
 			
 			//get privacy on display of birthday year and format accordingly
 			//note that this particular method doesn't need the second userId param but we send for completeness

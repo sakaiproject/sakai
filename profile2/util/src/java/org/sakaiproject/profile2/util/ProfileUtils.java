@@ -20,6 +20,7 @@ import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
+import java.text.DateFormat;
 import java.text.DateFormatSymbols;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
@@ -163,11 +164,22 @@ public class ProfileUtils {
 			throw new IllegalArgumentException("Null Argument in Profile.convertDateToString()");	 
 		}
 		
-		SimpleDateFormat dateFormat = new SimpleDateFormat(format);
-        String dateStr = dateFormat.format(date);
+        String dateStr = null;
         
-        log.debug("Profile.convertDateToString(): Input date: " + date.toString()); 
-        log.debug("Profile.convertDateToString(): Converted date string: " + dateStr); 
+        if(format != null) {
+        	SimpleDateFormat dateFormat = new SimpleDateFormat(format);
+        	dateStr = dateFormat.format(date);
+        } else {
+        	// Since no specific format has been specced, we use the user's locale.
+        	Locale userLocale = (new ResourceLoader()).getLocale();
+        	DateFormat formatter = DateFormat.getDateInstance(DateFormat.MEDIUM, userLocale);
+        	dateStr = formatter.format(date);
+        }
+        
+        if(log.isDebugEnabled()) {
+        	log.debug("Profile.convertDateToString(): Input date: " + date.toString()); 
+        	log.debug("Profile.convertDateToString(): Converted date string: " + dateStr); 
+        }
 
 		return dateStr;
 	}
