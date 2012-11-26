@@ -280,8 +280,6 @@ function setupTools(data, tools){
 					setShoppingToolOptionsEnabled(true, function(){setShoppingToolOptionsEnabled(false);});
 					return false;
 				}); 
-				
-				setShoppingToolOptionsEnabled(true, function(){setShoppingToolOptionsEnabled(false);});
 			}
 		);
 }
