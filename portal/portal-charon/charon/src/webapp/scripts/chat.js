@@ -64,26 +64,9 @@ function PortalChat() {
 					var date = new Date();
 					portalChat.addToMessageStream(to,{'from':portal.user.id,'content':content,'timestamp':date.getTime()});
 					var dateString = portalChat.formatDate(new Date());
-                    var avatarPermitted;
-                    if($('#avatarPermitted').length===1){
-                        avatarPermitted =true
-                    }
-                    else{
-                        avatarPermitted =false
-                     }
 
-                    var avatarOrName="";
-                    if (avatarPermitted){
-                        avatarOrName = "<img src=\"/direct/profile/" + portal.user.id + "/image\" alt=\"You\" title=\"You\"/>"
-                    }
-                    else{
-                        avatarOrName="<span class=\"pc_displayname\">You</span>"
-                    }
+                    portalChat.appendMessageToChattersPanel({'content': content, 'panelUuid': to, 'from': portal.user.id, 'dateString': dateString, 'fromDisplayName': 'You'});
 
-                    // Escape markup
-                    content = content.replace(/&/g, '&amp;').replace(/>/g, '&gt;').replace(/</g, '&lt;').replace(/"/g, '&quot;');
-
-					messagePanel.append("<li>"+ avatarOrName + "<div class=\"pc_message\">" + content + "</div><span class=\"pc_messagedate\">" + dateString + "</span></li>");
 				    $('#pc_editor_for_' + to).val('');
 				}
 
@@ -317,23 +300,7 @@ function PortalChat() {
 		messagePanel = $("#pc_connection_chat_" + from + "_messages");
 
 		var dateString = this.formatDate(new Date(timestamp));
-        var avatarPermitted;
-        
-        if ($('#avatarPermitted').length === 1) {
-            avatarPermitted = true
-        }
-        else {
-            avatarPermitted = false
-        }
-        
-        var avatarOrName = "";
-        if (avatarPermitted) {
-            avatarOrName = "<img src=\"/direct/profile/" + userId + "/image\" alt=\"" + fromDisplayName+ "\" title=\"" + fromDisplayName + "\"/>"
-        }
-        else {
-            avatarOrName = "<span class=\"pc_displayname\">" + fromDisplayName+ "</span>"
-        }
-		messagePanel.append("<li>" + avatarOrName + "<div class=\"pc_message\">" + content + "</div><span class=\"pc_messagedate\">" + dateString + "</span></li>");
+        portalChat.appendMessageToChattersPanel({'content': content, 'panelUuid': from, 'from': from, 'dateString': dateString, 'fromDisplayName': fromDisplayName});
 
 		this.scrollToBottom(from);
 	}
@@ -652,6 +619,38 @@ function PortalChat() {
         portalChat.getLatestDataInterval = null;
     }
 
+    this.appendMessageToChattersPanel = function(params) {
+        var content = params['content'];
+        var panelUuid = params['panelUuid'];
+        var from = params['from'];
+        var dateString = params['dateString'];
+        var alt = params['alt'];
+
+        var avatarPermitted;
+        if($('#avatarPermitted').length===1){
+            avatarPermitted =true;
+        } else {
+            avatarPermitted =false;
+        }
+
+        var avatarOrName="";
+        if (avatarPermitted){
+            avatarOrName = "<img src=\"/direct/profile/" + from + "/image\" alt=\"" + alt + "\" title=\"" + alt + "\"/>";
+        } else {
+            avatarOrName="<span class=\"pc_displayname\">" + alt + "</span>";
+        }
+
+        // Escape markup
+        content = content.replace(/&/g, '&amp;').replace(/>/g, '&gt;').replace(/</g, '&lt;').replace(/"/g, '&quot;');
+
+        // Decode any unicode escapes
+        content = JSON.parse('"' + content + '"');
+
+		var messagePanel = $("#pc_connection_chat_" + panelUuid + "_messages");
+
+		messagePanel.append("<li>"+ avatarOrName + "<div class=\"pc_message\">" + content + "</div><span class=\"pc_messagedate\">" + dateString + "</span></li>");
+    }
+
 	this.init = function () {
 
 		$(document).ready(function () {
@@ -816,25 +815,8 @@ function PortalChat() {
                         }
 						var dateString = portalChat.formatDate(new Date(parseInt(message.timestamp)));
 						var fromDisplayName = portalChat.currentConnectionsMap[message.from].displayName;
-                        var avatarPermitted;
-                        if ($('#avatarPermitted').length === 1) {
-                            avatarPermitted = true
-                        }
-                        else {
-                            avatarPermitted = false
-                        }
-                        
-                        var avatarOrName = "";
-                        
-                        if (avatarPermitted) {
-                            avatarOrName = "<img src=\"/direct/profile/" + userId + "/image\" alt=\"" + fromDisplayName + "\" title=\"" + fromDisplayName + "\"/>"
-                        }
-                        else {
-                            avatarOrName = "<span class=\"pc_displayname\">" + fromDisplayName + "</span>"
-                        }
 
-
-						messagePanel.append("<li>" + avatarOrName + "<div class=\"pc_message\">" + message.content + "</div><span class=\"pc_messagedate\">" + dateString + "</span></li>");
+                        portalChat.appendMessageToChattersPanel({'content': message.content, 'panelUuid': sms.uuid, 'from': userId, 'dateString': dateString, 'fromDisplayName': fromDisplayName});
 					}
 
 					portalChat.scrollToBottom(sms.uuid);
