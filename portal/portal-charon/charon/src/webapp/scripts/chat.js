@@ -269,7 +269,8 @@ function PortalChat() {
 	this.scrollToBottom = function (uuid) {
 		$(document).ready(function () {
 			var objDiv = document.getElementById("pc_connection_chat_" + uuid + "_messages");
-			objDiv.scrollTop = 1000;
+            // Arbitrary. Just nice and big.
+			objDiv.scrollTop = 100000;
 		});
 	}
 
