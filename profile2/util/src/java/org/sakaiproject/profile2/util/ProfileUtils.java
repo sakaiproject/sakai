@@ -153,10 +153,11 @@ public class ProfileUtils {
 	}
 	
 	/**
-	 * Convert a Date into a String according to format
+	 * Convert a Date into a String according to format, or, if format
+	 * is set to null, do a current locale based conversion.
 	 *
 	 * @param date			date to convert
-	 * @param format		format in SimpleDateFormat syntax
+	 * @param format		format in SimpleDateFormat syntax. Set to null to force as locale based conversion.
 	 */
 	public static String convertDateToString(Date date, String format) {
 		
