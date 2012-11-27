@@ -21,6 +21,8 @@ package org.sakaiproject.blti;
 
 import java.io.IOException;
 import java.io.PrintWriter;
+import java.net.URI;
+import java.net.URISyntaxException;
 import java.net.URLEncoder;
 import java.util.*;
 
@@ -493,6 +495,17 @@ public class ProviderServlet extends HttpServlet {
               throw new LTIException( "launch.key.notfound",oauth_consumer_key, null);
           }
           final OAuthMessage oam = (OAuthMessage) payload.get("oauth_message");
+          
+          final String forcedURIScheme = ServerConfigurationService.getString("basiclti.provider.forcedurischeme", null);
+          
+          if(forcedURIScheme != null) {
+        	  try {
+        		  URI testURI = new URI(oam.URL);
+        		  URI newURI = new URI(forcedURIScheme,testURI.getSchemeSpecificPart(),null);
+        		  oam.URL = newURI.toString();
+        	  } catch (URISyntaxException use) {
+        	  }
+          }
           final OAuthValidator oav = new SimpleOAuthValidator();
           final OAuthConsumer cons = new OAuthConsumer("about:blank#OAuth+CallBack+NotUsed", oauth_consumer_key,oauth_secret, null);
 
