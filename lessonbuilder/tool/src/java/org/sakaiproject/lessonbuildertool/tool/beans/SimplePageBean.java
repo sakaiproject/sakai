@@ -2362,19 +2362,21 @@ public class SimplePageBean {
 					i.setName(selectedObject.getTitle());
 				    }
 				    // reset assignment-specific stuff
-				    if (selectedObject.getDueDate() != null)
-					i.setDescription("(" + messageLocator.getMessage("simplepage.due") + " " + df.format(selectedObject.getDueDate()) + ")");
-				    else
-					i.setDescription(null);
+				    // Because we don't update the due date when it changes, this raises more
+				    // problems than it fixes. It's also done only for assignments and not tests
+				    //	if (selectedObject.getDueDate() != null)
+				    //	 i.setDescription("(" + messageLocator.getMessage("simplepage.due") + " " + df.format(selectedObject.getDueDate()) + ")");
+				    //  else
+				    // i.setDescription(null);
 				    update(i);
 				}
 			    } else {
 				// no, add new item
 				i = appendItem(selectedAssignment, selectedObject.getTitle(), SimplePageItem.ASSIGNMENT);
-				if (selectedObject.getDueDate() != null)
-				    i.setDescription("(" + messageLocator.getMessage("simplepage.due") + " " + df.format(selectedObject.getDueDate()) + ")");
-				else
-				    i.setDescription(null);
+				//if (selectedObject.getDueDate() != null)
+				//  i.setDescription("(" + messageLocator.getMessage("simplepage.due") + " " + df.format(selectedObject.getDueDate()) + ")");
+				//else
+				i.setDescription(null);
 				update(i);
 			    }
 			    return "success";
