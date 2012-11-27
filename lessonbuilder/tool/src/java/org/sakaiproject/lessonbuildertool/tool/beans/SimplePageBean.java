@@ -5211,6 +5211,8 @@ public class SimplePageBean {
 			    for (Group g: groups) {
 				if (allowedGroups != null && ! allowedGroups.contains(g.getId()))
 				    continue;
+				if (allowedGroups == null && g.getTitle().startsWith("Access: "))
+				    continue;
 				GroupEntry e = new GroupEntry();
 				e.name = g.getTitle();
 				e.id = g.getId();

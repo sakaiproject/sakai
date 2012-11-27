@@ -340,7 +340,12 @@ public class SimplePageToolDaoImpl extends HibernateDaoSupport implements Simple
 		}
 	}
 	
+    // groups is set of groups to search. 
+    // null groups means there are no permitted groups, so the answer is obviously null
 	public SimpleStudentPage findStudentPage(long itemId, Collection<String> groups) {
+		if (groups == null || groups.size() == 0) // no possible groups, so no result
+		    return null;
+
 		DetachedCriteria d = DetachedCriteria.forClass(SimpleStudentPage.class).add(Restrictions.eq("itemId", itemId))
 			.add(Restrictions.in("group", groups)).add(Restrictions.eq("deleted", false));
 		List<SimpleStudentPage> list = getHibernateTemplate().findByCriteria(d);
