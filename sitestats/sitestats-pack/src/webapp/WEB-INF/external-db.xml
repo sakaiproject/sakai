@@ -9,7 +9,14 @@
 		<property name="mappingResources" ref="org.sakaiproject.sitestats.HibernateMappings"/>
 		<property name="hibernateProperties" ref="org.sakaiproject.sitestats.externalDbHibernateProperties"/>
 		<property name="dataSource" ref="org.sakaiproject.sitestats.externalDbDataSource"/>
-		<property name="schemaUpdate" value="#{sitestats.externalDb.auto.ddl}"/>		
+		<property name="schemaUpdate" value="#{sitestats.externalDb.auto.ddl}"/>
+		
+		<property name="cacheProvider">
+			<bean class="org.sakaiproject.springframework.orm.hibernate.SakaiCacheProvider">
+				<property name="sakaiCacheManager" ref="org.sakaiproject.memory.api.MemoryService.cacheManager"/>
+				<property name="defaultCache" ref="org.sakaiproject.springframework.orm.hibernate.L2Cache"/>
+			</bean>
+		</property>		
 	</bean>
 	
 	
@@ -38,12 +45,6 @@
 				<prop key="hibernate.jdbc.use_streams_for_binary">true</prop>
 				<prop key="hibernate.cache.use_query_cache">true</prop>
 			</props>
-		</property>
-		<property name="cacheProvider">
-			<bean class="org.sakaiproject.springframework.orm.hibernate.SakaiCacheProvider">
-				<property name="sakaiCacheManager" ref="org.sakaiproject.memory.api.MemoryService.cacheManager"/>
-				<property name="defaultCache" ref="org.sakaiproject.springframework.orm.hibernate.L2Cache"/>
-			</bean>
 		</property>
 	</bean>
 	
