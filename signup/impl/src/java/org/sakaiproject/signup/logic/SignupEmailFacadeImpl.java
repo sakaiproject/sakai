@@ -218,10 +218,6 @@ public class SignupEmailFacadeImpl implements SignupEmailFacade {
 
 		}
 
-		/* send one email to organizer about the update status */
-		if (!signupEventTrackingInfo.getMeeting().isReceiveEmailByOwner())
-			return;
-
 		//User organizer = null;
 		User initiator = null;
 		try {
@@ -233,11 +229,16 @@ public class SignupEmailFacadeImpl implements SignupEmailFacade {
 			
 			initiator = userDirectoryService.getUser(signupEventTrackingInfo.getInitiatorAllocationInfo().getAttendee() .getAttendeeUserId());
 
-			//AttendeeCancellationEmail email = new AttendeeCancellationEmail(organizer, initiator, sigupTList, signupEventTrackingInfo.getMeeting(), this.sakaiFacade);
-			//sendEmail(organizer, email);
-			for (User organizer : OwnerAndCoordinators) {
-				AttendeeCancellationEmail email = new AttendeeCancellationEmail(organizer, initiator, sigupTList, signupEventTrackingInfo.getMeeting(), this.sakaiFacade);
-				sendEmail(organizer, email);
+			/* send one email to organizer about the update status */			
+			if (signupEventTrackingInfo.getMeeting().isReceiveEmailByOwner()){				
+				for (User organizer : OwnerAndCoordinators) {
+					try{
+						AttendeeCancellationEmail email = new AttendeeCancellationEmail(organizer, initiator, sigupTList, signupEventTrackingInfo.getMeeting(), this.sakaiFacade);
+						sendEmail(organizer, email);
+					}catch(Exception e){
+						//do nothing: avoid one wrong email address for one user to break all things
+					}
+				}				
 			}
 			
 			//also send an email to the attendee
