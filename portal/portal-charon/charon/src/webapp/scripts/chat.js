@@ -586,21 +586,25 @@ function PortalChat() {
 		});
 	}
 
-	this.setSetting = function (setting,value) {
+    this.setSetting = function (setting,value,persistent) {
+
+        var storage = (persistent) ? localStorage : sessionStorage;
 
 		var mySettings = {};
-		var mySettingsString = sessionStorage.pcSettings;
+		var mySettingsString = storage.pcSettings;
 		if(mySettingsString) {
 			mySettings = JSON.parse(mySettingsString);
 		}
 		mySettings[setting] = value;
-		sessionStorage.pcSettings = JSON.stringify(mySettings);
+		storage.pcSettings = JSON.stringify(mySettings);
 	}
 
-	this.getSetting = function (setting) {
+	this.getSetting = function (setting, persistent) {
+
+        var storage = (persistent) ? localStorage : sessionStorage;
 
 		var mySettings = {};
-		var mySettingsString = sessionStorage.pcSettings;
+		var mySettingsString = storage.pcSettings;
 		if(mySettingsString) {
 			mySettings = JSON.parse(mySettingsString);
 		}
@@ -678,7 +682,7 @@ function PortalChat() {
 					portalChat.getLatestData();
 				}
 
-				if(portalChat.getSetting('offline')) {
+				if(portalChat.getSetting('offline',true)) {
 					$('#pc_go_offline_checkbox').attr('checked','checked');
                     portalChat.offline = true;
 				} else {
@@ -718,7 +722,7 @@ function PortalChat() {
 	
 			$('#pc_go_offline_checkbox').click(function () {
 				if($(this).attr('checked') == 'checked') {
-					portalChat.setSetting('offline',true);
+					portalChat.setSetting('offline',true,true);
 					portalChat.offline = true;
 
 				} else {
