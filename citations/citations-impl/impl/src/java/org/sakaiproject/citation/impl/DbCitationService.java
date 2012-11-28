@@ -874,7 +874,7 @@ public class DbCitationService extends BaseCitationService
 						// SAK-22296. Cunningly move the citation links into the new ordering table
 						m_sqlService.dbWrite("INSERT INTO " + m_collectionOrderTableName + " VALUES(?,?,?)", new Object[] {collectionId,(String)triple.getValue(),position});
 						position += 1;
-						m_sqlService.dbWrite("DELETE FROM " + m_collectionTableName + " WHERE " + m_collectionTableId + " = ? AND PROPERTY_NAME = '" + PROPERTY_HAS_CITATION + "' AND PROPERTY_VALUE = ?", new Object[] {collectionId,(String)triple.getValue()});
+						m_sqlService.dbWrite("DELETE FROM " + m_collectionTableName + " WHERE " + m_collectionTableId + " = ? AND PROPERTY_NAME = '" + PROPERTY_HAS_CITATION + "' AND PROPERTY_VALUE LIKE ?", new Object[] {collectionId,(String)triple.getValue()});
 					}
 					else if(triple.getName().equals(PROP_MOST_RECENT_UPDATE))
 					{
