@@ -22,9 +22,7 @@
     right: 225px;
     bottom: 0px;
     height: 300px;
-    /* This ridiculous width prevents pc_chat_windows from stacking */
-    width: 10000px;
-    pointer-events: none;
+    width: auto;
 }
 #pc_chat_close {
     padding: 0 !important
@@ -36,7 +34,6 @@
     border: #ccc solid 1px;
     border-bottom: 0;
     bottom: 0;
-    pointer-events: auto;
     margin-right: 5px;
 }
 #pc_title {
