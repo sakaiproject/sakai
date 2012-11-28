@@ -555,7 +555,7 @@ var setupSiteNav = function(){
             var siteId = jqObjDrop.attr('data').replace(/!/g, '\\!').replace(/~/g, '\\~');
             var maxToolsInt = parseInt($('#maxToolsInt').text());
             var maxToolsText = $('#maxToolsAnchor').text();
-            var goToSite = '<li class=\"icon-sakai-see-all-tools\"><span><a role=\"menuitem\" class=\"icon-sakai-see-all-tools\" href=\"' + portal.portalPath + '/site/' + siteId + '\" title=\"' + maxToolsText + '\">' + maxToolsText + '</a></span></li>';
+            var goToSite = '<li class=\"submenuitem\"><span><a role=\"menuitem\" class=\"icon-sakai-see-all-tools\" href=\"' + portal.portalPath + '/site/' + jqObjDrop.attr('data') + '\" title=\"' + maxToolsText + '\">' + maxToolsText + '</a></span></li>';
             var siteURL = '/direct/site/' + jqObjDrop.attr('data') + '/pages.json';
             jQuery.ajax({
                 url: siteURL,
@@ -569,7 +569,7 @@ var setupSiteNav = function(){
                         }
                     });
                     if ((data.length - 1) > maxToolsInt) {
-                        navsubsubmenu = navsubmenu + goToSite
+                        navsubmenu = navsubmenu + goToSite
                     }
                     navsubmenu = navsubmenu + "</ul>"
                     jqObjDrop.after(navsubmenu);
