@@ -15,7 +15,7 @@ create table signup_meetings (
 	title varchar2(255 char) not null,
 	description clob,
 	location varchar2(255 char) not null,
-	category varchar2(255 char) not null,
+	category varchar2(255 char) default null,
 	meeting_type varchar2(50 char) not null,
 	creator_user_id varchar2(255 char) not null,
 	coordinators_user_Ids   varchar2(1000 char)  default null,
