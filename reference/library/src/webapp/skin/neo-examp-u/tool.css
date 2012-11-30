@@ -982,31 +982,55 @@ tr.selectedFound td {
 }
 /* some definitions overriding tool_base.css for the external xlogin screen */
 .loginform label {
-    color: #111
+    color: #111;
+    font-size: 1.5em;
+    
+    
 }
 .login td.logo {
-    width: 122px;
-    background-color: #009DCE;
-    background-image: url(../neo-default/images/logo_inst.png);
-    background-position: -150px 25px;
-    border: 1px solid #ccc;
+    display: none;
 }
-.login td.form {
 
+.login td.form {
+    vertical-align:top; 
+}
+.login td.form form{
+    background: -moz-linear-gradient(top, rgba(255,255,255,1) 0%, rgba(255,255,255,0) 100%);
+    background: -webkit-gradient(linear, left top, left bottom, color-stop(0%,rgba(255,255,255,1)), color-stop(100%,rgba(255,255,255,0)));
+    background: -webkit-linear-gradient(top, rgba(255,255,255,1) 0%,rgba(255,255,255,0) 100%);
+    background: -o-linear-gradient(top, rgba(255,255,255,1) 0%,rgba(255,255,255,0) 100%);
+    background: -ms-linear-gradient(top, rgba(255,255,255,1) 0%,rgba(255,255,255,0) 100%);
+    background: linear-gradient(to bottom, rgba(255,255,255,1) 0%,rgba(255,255,255,0) 100%);
+    width:50%;
+    margin:100px auto;
+    padding: 55px 50px;
+    -webkit-border-radius: 10px;
+    -moz-border-radius: 10px;
+    border-radius: 10px;
 }
 .login th {
-    background: #eeeeee;
-    background: -moz-linear-gradient(top, #f3f3f3 0%, #e7e7e7 100%);
-    background: -webkit-gradient(linear, left top, left bottom, color-stop(0%,#f3f3f3), color-stop(100%,#e7e7e7));
-    background: -webkit-linear-gradient(top, #f3f3f3 0%,#e7e7e7 100%);
-    background: -o-linear-gradient(top, #f3f3f3 0%,#e7e7e7 100%);
-    background: -ms-linear-gradient(top, #f3f3f3 0%,#e7e7e7 100%);
-    background: linear-gradient(top, #f3f3f3 0%,#e7e7e7 100%);
-    border: 1px solid #ccc;
+    display: none;
 }
 .login {
+    width:100%;
+    height:2000px;
+    background: #16220e url(images/page_bg_water.jpg) top left no-repeat;
     border: 1px solid #ccc;
     border-collapse: collapse;
+    margin: 0;
+}
+.loginform {
+    width:50%;
+    margin:20px auto;
+}
+.loginform td #eid, .loginform td #pw {
+    font-size: 2em;
+    padding: .3em;
+    width: 10em;
+}
+.loginform .loginsubmit {
+    font-size:1.3em !important;
+    height: 2.2em !important;
 }
 /* ===[ Make a list based css menu ]=== */
 ul.makeMenu, ul.makeMenu ul {

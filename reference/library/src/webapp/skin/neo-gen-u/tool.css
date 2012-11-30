@@ -984,11 +984,12 @@ tr.selectedFound td {
     color: #111
 }
 .login td.logo {
-    width: 122px;
-    background-color: #009DCE;
-    background-image: url(../neo-default/images/logo_inst.png);
-    background-position: -150px 25px;
-    border: 1px solid #ccc;
+    width: 175px;
+    background: #fff url(images/x-login-logo.png) no-repeat;
+    background-position: 20px 0;
+    border-width: 1px 0 1px 1px;
+    border-style: solid;
+    border-color: #ccc;
 }
 .login td.form {
 

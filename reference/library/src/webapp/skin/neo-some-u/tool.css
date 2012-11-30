@@ -982,32 +982,53 @@ tr.selectedFound td {
 }
 /* some definitions overriding tool_base.css for the external xlogin screen */
 .loginform label {
-    color: #111
-}
-.login td.logo {
-    width: 122px;
-    background-color: #2630cc;
-    background-image: url(../neo-default/images/logo_inst.png);
-    background-position: -150px 25px;
-    border: 1px solid #ccc;
-}
-.login td.form {
+    color: #111;
+    font-size: 1.5em;
 
 }
+.login td.logo {
+    background: #eee;
+    display: none;
+}
+
+.login td.form {
+    background: #eee;
+}
 .login th {
-    background: #eeeeee;
-    background: -moz-linear-gradient(top, #f3f3f3 0%, #e7e7e7 100%);
-    background: -webkit-gradient(linear, left top, left bottom, color-stop(0%,#f3f3f3), color-stop(100%,#e7e7e7));
-    background: -webkit-linear-gradient(top, #f3f3f3 0%,#e7e7e7 100%);
-    background: -o-linear-gradient(top, #f3f3f3 0%,#e7e7e7 100%);
-    background: -ms-linear-gradient(top, #f3f3f3 0%,#e7e7e7 100%);
-    background: linear-gradient(top, #f3f3f3 0%,#e7e7e7 100%);
-    border: 1px solid #ccc;
+    background: #f9bb31 url(images/x-login-logo-head.png) 10px 0px no-repeat;
+    height: 43px;
+    width:300px;
+    padding: 50px 0 1px 160px;
+    text-align:left;
+    font-size:150%;
+    -webkit-border-radius: 5px;
+    border-radius: 5px;
+
 }
 .login {
-    border: 1px solid #ccc;
+    background: #f9bb31;
+    border: none;
     border-collapse: collapse;
+    -webkit-box-shadow:  2px 2px 22px 15px #ccc;
+    box-shadow:  2px 2px 22px 15px #ccc;
+    -webkit-border-radius: 5px;
+    border-radius: 5px;
+
 }
+.login .loginform {
+    width:80%;
+    margin: 0px auto;
+}
+.loginform td #eid, .loginform td #pw {
+    font-size: 2em;
+    padding: .3em;
+    width: 10em;
+}
+.loginform .loginsubmit {
+    font-size:1.3em !important;
+    height: 2.2em !important;
+}
+
 /* ===[ Make a list based css menu ]=== */
 ul.makeMenu, ul.makeMenu ul {
     width: auto;
