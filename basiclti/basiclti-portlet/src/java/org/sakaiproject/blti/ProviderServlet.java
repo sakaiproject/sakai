@@ -789,7 +789,14 @@ public class ProviderServlet extends HttpServlet {
 
                 // BLTI-154. If an autocreation site template has been specced in sakai.properties, use it.
                 String autoSiteTemplateId = ServerConfigurationService.getString("basiclti.provider.autositetemplate", null);
-                if(autoSiteTemplateId == null) {
+                
+                boolean templateSiteExists = SiteService.siteExists(autoSiteTemplateId);
+                
+                if(!templateSiteExists) {
+                    M_log.warn("A template site id was specced (" + autoSiteTemplateId + ") but no site with this id exists. A default lti site will be created instead.");
+                }
+                
+                if(autoSiteTemplateId == null || !templateSiteExists) {
                     //BLTI-151 If the new site type has been specified in sakai.properties, use it.
                     sakai_type = ServerConfigurationService.getString("basiclti.provider.newsitetype", null);
                     if(BasicLTIUtil.isBlank(sakai_type)) {
@@ -804,8 +811,8 @@ public class ProviderServlet extends HttpServlet {
                     site = SiteService.addSite(siteId, sakai_type);
                     site.setType(sakai_type);
                 } else {
-                    Site autoSiteTemplate = SiteService.getSite(autoSiteTemplateId);
-                    site = SiteService.addSite(siteId, autoSiteTemplate);
+               		Site autoSiteTemplate = SiteService.getSite(autoSiteTemplateId);
+               		site = SiteService.addSite(siteId, autoSiteTemplate);
                 }
 
                 if (BasicLTIUtil.isNotBlank(context_title)) {
