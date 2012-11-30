@@ -1,5 +1,6 @@
 package org.sakaiproject.signup.logic;
 
+import java.text.MessageFormat;
 import java.util.Date;
 import java.util.List;
 
@@ -8,6 +9,7 @@ import lombok.extern.apachecommons.CommonsLog;
 
 import net.fortuna.ical4j.model.component.VEvent;
 
+import org.apache.commons.lang.StringUtils;
 import org.sakaiproject.authz.api.SecurityAdvisor;
 import org.sakaiproject.calendar.api.Calendar;
 import org.sakaiproject.calendar.api.CalendarEventEdit;
@@ -21,6 +23,7 @@ import org.sakaiproject.time.api.Time;
 import org.sakaiproject.time.api.TimeRange;
 import org.sakaiproject.time.api.TimeService;
 import org.sakaiproject.user.api.User;
+import org.sakaiproject.util.ResourceLoader;
 
 /**
  * Impl of SignupCalendarHelper
@@ -89,7 +92,7 @@ public class SignupCalendarHelperImpl implements SignupCalendarHelper {
 				
 				//SIGNUP-180 add sequence to vevents
 				tsEvent.setField("vevent_sequence", String.valueOf(ts.getVersion()));
-					
+				
 				//generate VEvent for timeslot
 				v = externalCalendaringService.createEvent(tsEvent);
 				
@@ -124,6 +127,7 @@ public class SignupCalendarHelperImpl implements SignupCalendarHelper {
 					
 				//generate VEvent for timeslot
 				v = externalCalendaringService.createEvent(mEvent);
+				
 				
 			} finally {
 				sakaiFacade.popSecurityAdvisor(advisor);
@@ -191,8 +195,16 @@ public class SignupCalendarHelperImpl implements SignupCalendarHelper {
 			
 			//NOTE: these pieces of data may need adjusting so that its obvious this is a timeslot within the meeting
 			event.setDisplayName(title);
-			event.setDescription(PlainTextFormat.convertFormattedHtmlTextToPlaintext(description));
+			event.setDescription(PlainTextFormat.convertFormattedHtmlTextToICalText(addWarningMessageForCancellation(description, siteId)));
 			event.setLocation(location);
+			
+			//SIGNUP-183 add URL property to all events
+			String url = getSiteAccessUrl(siteId);
+			if(StringUtils.isNotBlank(url)){
+				event.setField("vevent_url", url);
+			}
+			
+			
 		} catch (PermissionException e) {
 			e.printStackTrace();
 			return null;
@@ -203,6 +215,32 @@ public class SignupCalendarHelperImpl implements SignupCalendarHelper {
 		
 		return event;
 	}
+	
+	
+	/**
+	 * SIGNUP-183 append some additional text to the event 
+	 */
+	protected static ResourceLoader rb = new ResourceLoader("emailMessage");
+	public static final String newline = "\n";
+	private String addWarningMessageForCancellation(String meetingDesc, String siteId){
+		StringBuffer sb = new StringBuffer(meetingDesc);
+		sb.append(newline + newline);
+		sb.append(rb.getString("ical.footer.separator"));
+		sb.append(newline + rb.getString("ical.footer.text"));
+		return sb.toString();
+	};
+	
+	/**
+	 *  Helper to get the link to access the current-site signup tool page in a site. Added to events.
+	 */ 
+	private String getSiteAccessUrl(String siteId) {
+		if (StringUtils.isNotBlank(siteId)) {
+			return sakaiFacade.getServerConfigurationService().getPortalUrl() + "/site/" + siteId + "/page/" + sakaiFacade.getCurrentPageId();
+		}
+		return null;
+	}
+	
+
 	
 	@Setter
 	private SakaiFacade sakaiFacade;

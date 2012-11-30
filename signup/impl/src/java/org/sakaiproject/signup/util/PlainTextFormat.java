@@ -53,4 +53,19 @@ public class PlainTextFormat {
 		htmlText = htmlText.replaceAll("<p />", "<br />");
 		return FormattedText.convertFormattedTextToPlaintext(htmlText);
 	}
+	
+	/**
+	 * Additional formatting for ICS files. 
+	 * Google and Yahoo calendar don't take \r and \r for description so strip them. 
+	 * Convert HTML br's
+	 * @param htmlText
+	 * @return
+	 */
+	public static String convertFormattedHtmlTextToICalText(String htmlText) {
+		htmlText = convertFormattedHtmlTextToPlaintext(htmlText);
+		htmlText = htmlText.replaceAll("\r", "");
+		htmlText = htmlText.replaceAll("\t", "");
+		htmlText = htmlText.replaceAll("<br />", "\n");
+		return htmlText;
+	}
 }

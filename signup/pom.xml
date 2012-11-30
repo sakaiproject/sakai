@@ -47,7 +47,7 @@
 	
 	<properties>
 		<project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
-		<external-calendaring-service-version>1.0.4</external-calendaring-service-version>
+		<external-calendaring-service-version>1.0.5</external-calendaring-service-version>
 	</properties>
 	
 	 <distributionManagement>
