@@ -255,22 +255,25 @@ public abstract class BaseEventTrackingService implements EventTrackingService
 	{
 		BaseEvent be = ensureBaseEvent(event);
 		// get the session id or user id
-		String id = usageSessionService().getSessionId();
-		if (id != null)
+		// KNL-997
+		UsageSession session = usageSessionService().getSession();
+		if (session != null)
 		{
-			be.setSessionId(id);
+			be.setSessionId(session.getId());
+			be.setUserId(session.getUserId());
 		}
-
 		// post for the session "thread" user
 		else
 		{
-			id = sessionManager().getCurrentSessionUserId();
+			String id = sessionManager().getCurrentSessionUserId();
 			if (id == null)
 			{
 				id = "?";
 			}
 
 			be.setUserId(id);
+			
+			M_log.debug("Unable to find session for event=" + event.getEvent() + " for user=" + id);
 		}
 
 		postEvent(be);
@@ -291,6 +294,8 @@ public abstract class BaseEventTrackingService implements EventTrackingService
 		if (session != null) id = session.getId();
 
 		be.setSessionId(id);
+		
+		be.setUserId(session.getUserId());
 
 		postEvent(be);
 	}
