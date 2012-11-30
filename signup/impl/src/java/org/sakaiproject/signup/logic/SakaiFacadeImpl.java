@@ -1066,7 +1066,8 @@ public class SakaiFacadeImpl implements SakaiFacade {
 		    group.getProperties().addProperty(GROUP_PROP_SITEINFO_VISIBLE, Boolean.TRUE.toString());
 		    
 		    //set this so the group does not show in the list of groups in signups
-		    group.getProperties().addProperty(GROUP_PROP_SIGNUP_IGNORE, Boolean.TRUE.toString());
+		    //SIGNUP-182 allow groups to be normal groups, ie dont set this property
+		    //group.getProperties().addProperty(GROUP_PROP_SIGNUP_IGNORE, Boolean.TRUE.toString());
 
 		    
 		    if(userUuids != null) {
