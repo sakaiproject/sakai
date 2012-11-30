@@ -16,6 +16,8 @@
 package org.sakaiproject.profile2.tool.pages;
 
 
+import java.net.URLDecoder;
+import java.net.URLEncoder;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Date;
@@ -655,7 +657,7 @@ public class MySearch extends BasePage {
 					searchLogic.addSearchTermToHistory(currentUserUuid, searchTerm);
 					
 					// set cookie for current search (page 0 when submitting new search)
-					setSearchCookie(searchTerm.getSearchType(), searchTerm.getSearchTerm(), searchTerm.getSearchPageNumber(), searchTerm.isConnections(), searchTerm.getWorksite());
+					setSearchCookie(searchTerm.getSearchType(), URLEncoder.encode(searchTerm.getSearchTerm()), searchTerm.getSearchPageNumber(), searchTerm.isConnections(), searchTerm.getWorksite());
 					
 					if (ProfileConstants.SEARCH_TYPE_NAME.equals(searchType)) {
 						
@@ -879,7 +881,7 @@ public class MySearch extends BasePage {
 	}
 	
 	private String getCookieSearchString(String cookieString) {
-		return cookieString.substring(cookieString.indexOf(ProfileConstants.SEARCH_COOKIE_VALUE_SEARCH_MARKER) + 1);
+		return URLDecoder.decode(cookieString.substring(cookieString.indexOf(ProfileConstants.SEARCH_COOKIE_VALUE_SEARCH_MARKER) + 1));
 	}
 
 	private String getCookieSearchType(String cookieString) {
