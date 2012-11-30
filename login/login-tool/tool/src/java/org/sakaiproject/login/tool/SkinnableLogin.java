@@ -363,6 +363,12 @@ public class SkinnableLogin extends HttpServlet implements Login {
 		{
 			skin = ServerConfigurationService.getString("skin.default");
 		}
+
+        String templates = ServerConfigurationService.getString("portal.templates", "neoskin");
+        String prefix = ServerConfigurationService.getString("portal.neoprefix", "neo-");
+        // Don't add the prefix twice
+        if ( "neoskin".equals(templates) && ! skin.startsWith(prefix) ) skin = prefix + skin;
+
 		String skinRepo = ServerConfigurationService.getString("skin.repo");
 		String uiService = ServerConfigurationService.getString("ui.service", "Sakai");
 		
