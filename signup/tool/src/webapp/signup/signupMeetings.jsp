@@ -29,25 +29,37 @@
 					<h:outputText value="#{msgs.events_attendee_instruction}" rendered="#{!SignupMeetingsBean.allowedToUpdate && SignupMeetingsBean.meetingsAvailable}" escape="false"/>
 					<h:outputText value="&nbsp;" escape="false"/>
 				</h:panelGrid>
-				<h:panelGrid columns="2">
+				
+				
+				<h:panelGrid columns="3">
+					<!-- view range dropdown -->
 					<h:panelGroup>
 						<h:outputText value="#{msgs.events_dropdownbox_title}&nbsp;" escape="false"/>
 						<h:selectOneMenu id="viewByRange" value="#{SignupMeetingsBean.viewDateRang}" valueChangeListener="#{SignupMeetingsBean.processSelectedRange}" onchange="if(validateIEDisabledItem(this)){submit()};">
 							<f:selectItems value="#{SignupMeetingsBean.viewDropDownList}"/>
 						</h:selectOneMenu>
 					</h:panelGroup>
+					
+					<!-- filter by category dropdown -->
 					<h:panelGroup>
-						<h:panelGroup styleClass="expandAllRecurMeetings" rendered="#{SignupMeetingsBean.enableExpandOption && SignupMeetingsBean.meetingsAvailable}">
+						<h:panelGroup styleClass="padLeft"> 
+							<h:outputText value="#{msgs.filter_by_category}&nbsp;" escape="false"/>
+							<h:selectOneMenu id="viewByCategory" value="#{SignupMeetingsBean.categoryFilter}" valueChangeListener="#{SignupMeetingsBean.processSelectedCategory}" onchange="if(validateIEDisabledItem(this)){submit()};">
+								<f:selectItems value="#{SignupMeetingsBean.allCategoriesForFilter}"/>
+							</h:selectOneMenu>
+						</h:panelGroup>
+					</h:panelGroup>
+					
+					<!--  expand all recurring meetings -->
+					<h:panelGroup>
+						<h:panelGroup styleClass="padLeft" rendered="#{SignupMeetingsBean.enableExpandOption && SignupMeetingsBean.meetingsAvailable}">
 							<h:selectBooleanCheckbox value="#{SignupMeetingsBean.showAllRecurMeetings}" valueChangeListener="#{SignupMeetingsBean.processExpandAllRcurEvents}" onclick="submit();"/>
 							<h:outputText value="#{msgs.expand_all_recur_events}" escape="false"/>
 						</h:panelGroup>
 						<h:outputText value="&nbsp;" escape="false" rendered="#{!SignupMeetingsBean.enableExpandOption}"/>
 					</h:panelGroup>
-					
-					
-					<h:outputText value="&nbsp;" escape="false"/>
-					<h:outputText value="&nbsp;" escape="false"/>
 				</h:panelGrid>
+				
 				<h:panelGrid columns="1" styleClass="noMeetingsWarn" rendered="#{!SignupMeetingsBean.meetingsAvailable}" >
 					<h:panelGroup>
 						<h:outputText value="#{SignupMeetingsBean.meetingUnavailableMessages}" escape="false" rendered="#{SignupMeetingsBean.userLoggedInStatus}"/>

@@ -36,7 +36,7 @@
 						</h:selectOneMenu>
 					</h:panelGroup>
 					<h:panelGroup>
-						<h:panelGroup styleClass="expandAllRecurMeetings" rendered="#{DownloadEventBean.enableExpandOption && DownloadEventBean.meetingsAvailable}">
+						<h:panelGroup styleClass="padLeft" rendered="#{DownloadEventBean.enableExpandOption && DownloadEventBean.meetingsAvailable}">
 							<h:selectBooleanCheckbox id="expandingchkbox" value="#{DownloadEventBean.showAllRecurMeetings}" valueChangeListener="#{DownloadEventBean.processExpandAllRcurEvents}" onclick="submit();"/>
 							<h:outputText value="#{msgs.expand_all_recur_events}" escape="false"/>
 						</h:panelGroup>

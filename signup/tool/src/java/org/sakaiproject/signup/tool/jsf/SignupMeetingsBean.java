@@ -24,18 +24,20 @@ package org.sakaiproject.signup.tool.jsf;
 
 import java.util.ArrayList;
 import java.util.Calendar;
-import java.util.Collection;
 import java.util.Collections;
 import java.util.Date;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
-import java.util.HashSet;
 
 import javax.faces.component.UIData;
 import javax.faces.context.FacesContext;
 import javax.faces.event.ValueChangeEvent;
 import javax.faces.model.SelectItem;
 import javax.servlet.http.HttpServletRequest;
+
+import lombok.Getter;
+import lombok.Setter;
 
 import org.apache.commons.lang.StringUtils;
 import org.apache.commons.logging.Log;
@@ -95,6 +97,10 @@ public class SignupMeetingsBean implements SignupBeanConstants {
 	protected final String disabledSelectView = "none";
 
 	protected String meetingUnavailableMessages;
+	
+	@Getter @Setter
+	protected String categoryFilter; // default setting is blank, which means all categories
+
 
 	/**
 	 * Default Constructor
@@ -195,11 +201,15 @@ public class SignupMeetingsBean implements SignupBeanConstants {
 		return MAIN_EVENTS_LIST_PAGE_URL;
 	}
 
+	/**
+	 * Get a list of locations for the UI. Unfiltered. 
+	 * @return
+	 */
 	public List<SelectItem> getAllLocations(){
 		
 		Set<String> set = new HashSet<String>();
 		List<SelectItem> locations= new ArrayList<SelectItem>();
-		List<SignupMeetingWrapper> allMeetings = getAllSignupMeetings();
+		List<SignupMeetingWrapper> allMeetings = getMeetingWrappers(VIEW_ALL, null);
 		for(SignupMeetingWrapper meeting : allMeetings) {
 			String location = meeting.getMeeting().getLocation();
 			if(StringUtils.isNotBlank(location) && set.add(location)) {
@@ -215,7 +225,7 @@ public class SignupMeetingsBean implements SignupBeanConstants {
 		
 		Set<String> set = new HashSet<String>();
 		List<SelectItem> categories = new ArrayList<SelectItem>();
-		List<SignupMeetingWrapper> allMeetings = getAllSignupMeetings();
+		List<SignupMeetingWrapper> allMeetings = getMeetingWrappers(VIEW_ALL, null);
 		
 		if(allMeetings == null) {
 			return new ArrayList<SelectItem>();
@@ -369,14 +379,14 @@ public class SignupMeetingsBean implements SignupBeanConstants {
 	}
 
 	/**
-	 * This is a getter method for UI.
+	 * This is a getter method for UI and filters the list according to what has been set.
 	 * 
 	 * @return a list of SignupMeetingWrapper objects.
 	 */
 	public List<SignupMeetingWrapper> getSignupMeetings() {
 		try {
 			if (signupMeetings == null || isRefresh()) {
-				loadMeetings(getViewDateRang());
+				loadMeetings(getViewDateRang(), getCategoryFilter());
 				setLastUpdatedTime(new Date().getTime());
 			}			
 
@@ -388,14 +398,14 @@ public class SignupMeetingsBean implements SignupBeanConstants {
 	}
 
 	/**
-	 * This is a getter method for UI.
+	 * This is a getter method for UI and returns all signup meetings. Ignores any filters.
 	 * 
 	 * @return a list of SignupMeetingWrapper objects.
 	 */
 	// TODO how to handle this more efficiently
 	public List<SignupMeetingWrapper> getAllSignupMeetings() {
 		try {
-			loadMeetings(VIEW_ALL);
+			loadMeetings(VIEW_ALL, null);
 		} catch (Exception e) {
 			log.error(Utilities.rb.getString("failed.fetch_allEvents_from_db") + " - " + e.getMessage());
 			Utilities.addErrorMessage(Utilities.rb.getString("failed.fetch_allEvents_from_db"));
@@ -403,8 +413,14 @@ public class SignupMeetingsBean implements SignupBeanConstants {
 		return signupMeetings;
 	}
 
-	private void loadMeetings(String viewRange) {
-		List<SignupMeetingWrapper> mWrappers = getMeetingWrapper(viewRange);
+	/**
+	 * Loads the signup meetings and updates the bean state
+	 * @param viewRange
+	 * @param categoryFilter
+	 */
+	private void loadMeetings(String viewRange, String categoryFilter) {
+				
+		List<SignupMeetingWrapper> mWrappers = getMeetingWrappers(viewRange, categoryFilter);
 		if (!isShowAllRecurMeetings()) {
 			markingRecurMeetings(mWrappers);
 		}
@@ -438,7 +454,7 @@ public class SignupMeetingsBean implements SignupBeanConstants {
 		}
 	}
 
-	private List<SignupMeetingWrapper> getMeetingWrapper(String viewRange) {
+	private List<SignupMeetingWrapper> getMeetingWrappers(String viewRange, String categoryFilter) {
 		String currentUserId = sakaiFacade.getCurrentUserId();
 		if(!isUserLoggedInStatus()){
 			/*Let user log-in first*/
@@ -450,8 +466,7 @@ public class SignupMeetingsBean implements SignupBeanConstants {
 		calendar.setTime(new Date());
 
 		if (VIEW_ALL.equals(viewRange)) {
-			signupMeetings = signupMeetingService.getAllSignupMeetings(sakaiFacade.getCurrentLocationId(),
-					currentUserId);
+			signupMeetings = signupMeetingService.getAllSignupMeetings(sakaiFacade.getCurrentLocationId(), currentUserId);
 		} else if (!OLD_DAYS.equals(viewRange)) {
 			/* including today's day for search */
 			int currentHour = calendar.get(Calendar.HOUR_OF_DAY);
@@ -460,40 +475,53 @@ public class SignupMeetingsBean implements SignupBeanConstants {
 			calendar.add(Calendar.MINUTE, -1 * currentMinutes);
 			String searchDateStr = viewRange;
 
-			if (VIEW_MY_SIGNED_UP.equals(viewRange) || VIEW_IMMEDIATE_AVAIL.equals(viewRange))
+			if (VIEW_MY_SIGNED_UP.equals(viewRange) || VIEW_IMMEDIATE_AVAIL.equals(viewRange)) {
 				searchDateStr = ALL_FUTURE;
+			}
 
-			signupMeetings = signupMeetingService.getSignupMeetings(sakaiFacade.getCurrentLocationId(), currentUserId,
-					calendar.getTime(), Utilities.getUserDefinedDate(Integer.parseInt(searchDateStr)));
+			signupMeetings = signupMeetingService.getSignupMeetings(sakaiFacade.getCurrentLocationId(), currentUserId, calendar.getTime(), Utilities.getUserDefinedDate(Integer.parseInt(searchDateStr)));
 
 		} else if (OLD_DAYS.equals(viewRange)) {
 			// calendar.add(Calendar.HOUR, 1 * 24);//exluding today for search
-			signupMeetings = signupMeetingService.getSignupMeetings(sakaiFacade.getCurrentLocationId(), currentUserId,
-					calendar.getTime());
+			signupMeetings = signupMeetingService.getSignupMeetings(sakaiFacade.getCurrentLocationId(), currentUserId, calendar.getTime());
 		}
 
-		if (signupMeetings == null || signupMeetings.isEmpty())
+		if (signupMeetings == null || signupMeetings.isEmpty()) {
 			return null;
+		}
+		
+		//SIGNUP-173 filter list by categoryFilter 
+		//if no category, add them all
+		List<SignupMeeting> filteredCategorySignupMeetings = new ArrayList<SignupMeeting>();
+		if(StringUtils.isNotBlank(categoryFilter)) {
+			for(SignupMeeting s: signupMeetings) {
+				if(StringUtils.equals(s.getCategory(), categoryFilter)) {
+					filteredCategorySignupMeetings.add(s);
+				}
+			}
+		} else {
+			filteredCategorySignupMeetings.addAll(signupMeetings);
+		}
 
-		List<SignupMeetingWrapper> wrapppers = new ArrayList<SignupMeetingWrapper>();
-		for (SignupMeeting meeting : signupMeetings) {
+		List<SignupMeetingWrapper> wrappers = new ArrayList<SignupMeetingWrapper>();
+		for (SignupMeeting meeting : filteredCategorySignupMeetings) {
 			SignupMeetingWrapper wrapper = new SignupMeetingWrapper(meeting, sakaiFacade.getUserDisplayName(meeting
 					.getCreatorUserId()), sakaiFacade.getCurrentUserId(), getSakaiFacade());
-			wrapppers.add(wrapper);
+			wrappers.add(wrapper);
 		}
 
 		/* filter out not-relevant ones */
 		signupFilter filter = new signupFilter(currentUserId, viewRange);
-		filter.filterSignupMeetings(wrapppers);
+		filter.filterSignupMeetings(wrappers);
 
 		/* show user the option check-box to expand all */
 		setEnableExpandOption(false);
-		for (SignupMeetingWrapper meetingWrp : wrapppers) {
+		for (SignupMeetingWrapper meetingWrp : wrappers) {
 			if (meetingWrp.getMeeting().isRecurredMeeting())
 				setEnableExpandOption(true);
 		}
 
-		return wrapppers;
+		return wrappers;
 	}
 
 	/**
@@ -995,4 +1023,33 @@ public class SignupMeetingsBean implements SignupBeanConstants {
 
 		return isAllowedUpdateSite;
 	}
+	
+	/**
+ 	 * UI method to get list of categories for the filter
+ 	 * First item has null value to signal that it is all categories
+ 	 * 
+ 	 * @return list of categories
+ 	 */
+ 	public List<SelectItem> getAllCategoriesForFilter(){
+ 		List<SelectItem> categories = getAllCategories();
+ 		categories.add(0, new SelectItem("", Utilities.rb.getString("filter_categories_top")));
+ 		return categories;
+ 	}
+ 	
+ 	/**
+	 * This is a ValueChange Listener to watch the category filter selection by user.
+	 * 
+	 * @param vce a ValuechangeEvent object.
+	 * @return a outcome string.
+	 */
+	public String processSelectedCategory(ValueChangeEvent vce) {
+		String selectedCategory = (String) vce.getNewValue();
+		//note that blank values are allowed
+		setCategoryFilter(selectedCategory);
+		setSignupMeetings(null);// reset
+		
+		return MAIN_EVENTS_LIST_PAGE_URL;
+	}
+	
+	
 }

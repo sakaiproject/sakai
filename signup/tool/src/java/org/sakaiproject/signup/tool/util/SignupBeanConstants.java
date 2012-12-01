@@ -127,5 +127,5 @@ public interface SignupBeanConstants {
 	public static final String DATA_VERSION = "data";
 	
 	public static final String FULL_DATA_BOTH_VERSION="full_data";
-
+	
 }
