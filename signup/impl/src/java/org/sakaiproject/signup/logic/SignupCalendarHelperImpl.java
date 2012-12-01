@@ -221,7 +221,7 @@ public class SignupCalendarHelperImpl implements SignupCalendarHelper {
 	 * SIGNUP-183 append some additional text to the event 
 	 */
 	protected static ResourceLoader rb = new ResourceLoader("emailMessage");
-	public static final String newline = "<br />"// somehow the "\n" is not working for linebreak here.
+	public static final String newline = "<br />";// somehow the "\n" is not working for linebreak here.
 	private String addWarningMessageForCancellation(String meetingDesc, String siteId){
 		StringBuffer sb = new StringBuffer(meetingDesc);
 		sb.append(newline + newline);
