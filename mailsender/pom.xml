@@ -21,7 +21,7 @@
     </parent>
 
     <groupId>org.sakaiproject.mailsender</groupId>
-    <artifactId>mailsender-base</artifactId>
+    <artifactId>mailsender</artifactId>
     <name>Sakai Mail Sender Project</name>
     <version>1.8-SNAPSHOT</version>
     <description>Mail Sender base pom.</description>
