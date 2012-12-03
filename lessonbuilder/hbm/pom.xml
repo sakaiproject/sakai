@@ -4,13 +4,13 @@
 
     <parent>
         <groupId>org.sakaiproject.lessonbuilder</groupId>
-        <artifactId>sakai-lessonbuildertool-tool-base</artifactId>
+        <artifactId>lessonbuilder</artifactId>
         <version>1.5-SNAPSHOT</version>
     </parent>
 
     <name>sakai-lessonbuildertool-tool-hbm</name>
     <groupId>org.sakaiproject.lessonbuilder</groupId>
-    <artifactId>sakai-lessonbuildertool-hbm</artifactId>
+    <artifactId>lessonbuilder-hbm</artifactId>
     <packaging>jar</packaging>
 
     <properties>

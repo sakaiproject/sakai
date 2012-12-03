@@ -4,13 +4,13 @@
 
     <parent>
         <groupId>org.sakaiproject.lessonbuilder</groupId>
-        <artifactId>sakai-lessonbuildertool-tool-base</artifactId>
+        <artifactId>lessonbuilder</artifactId>
         <version>1.5-SNAPSHOT</version>
     </parent>
 
     <name>sakai-lessonbuildertool-tool</name>
     <groupId>org.sakaiproject.lessonbuilder</groupId>
-    <artifactId>sakai-lessonbuildertool-tool</artifactId>
+    <artifactId>lessonbuilder-tool</artifactId>
     <packaging>war</packaging>
 
     <description>This project creates a WAR containing the Lesson Builder Tool for Sakai.</description>

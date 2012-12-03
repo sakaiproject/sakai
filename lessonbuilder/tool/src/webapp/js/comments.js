@@ -50,7 +50,7 @@ $(function() {
 		// remove  pda/SITEID/. We don't want the portal to hack on this
 		//pageToRequest = pageToRequest.replace(new RegExp("pda/[^/]*/",""),"");
                 var i = pageToRequest.indexOf("Comment");
-                pageToRequest = "/sakai-lessonbuildertool-tool/faces/" + pageToRequest.substring(i);
+                pageToRequest = "/lessonbuilder-tool/faces/" + pageToRequest.substring(i);
 		$(this).load(pageToRequest, commentsLoaded);
 		//$.PeriodicalUpdater(pageToRequest, {minTimeout:5000, maxTimeout:120000}, function(data) {
 		//	$(".deleteLink").attr("title", msg("simplepage.comment_delete"));
@@ -120,7 +120,7 @@ function loadMore(link) {
 	
 	var pageToRequest = $(link).parent().parent().find(".to-load").attr("href");
 	var i = pageToRequest.indexOf("Comment");
-	pageToRequest = "/sakai-lessonbuildertool-tool/faces/" + pageToRequest.substring(i);
+	pageToRequest = "/lessonbuilder-tool/faces/" + pageToRequest.substring(i);
 	
 	$(link).parents(".replaceWithComments").load(pageToRequest, commentsLoaded);
 	
@@ -256,7 +256,7 @@ function deleteComment(link) {
 	
 	deleteDialogCommentURL = $(link).parent().children(".deleteComment").attr("href");
 	var i = deleteDialogCommentURL.indexOf("Comment");
-	deleteDialogCommentURL = "/sakai-lessonbuildertool-tool/faces/" + deleteDialogCommentURL.substring(i);
+	deleteDialogCommentURL = "/lessonbuilder-tool/faces/" + deleteDialogCommentURL.substring(i);
 
 	//var dialog = $(link).parents(".replaceWithComments").find(".delete-dialog");
 	//$("#delete-dialog").children(".delete-dialog-comment-url").text(pageToRequest);

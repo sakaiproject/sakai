@@ -1437,9 +1437,9 @@ public class ShowPageProducer implements ViewComponentProducer, DefaultView, Nav
 							mimeType = "application/x-shockwave-flash";
 							useJwPlayer = ServerConfigurationService.getBoolean("lessonbuilder.usejwplayer", false);
 							if (useJwPlayer) {
-								movieUrl = "/sakai-lessonbuildertool-tool/templates/jwflvplayer.swf";
+								movieUrl = "/lessonbuilder-tool/templates/jwflvplayer.swf";
 							} else {
-								movieUrl = "/sakai-lessonbuildertool-tool/templates/StrobeMediaPlayback.swf";
+								movieUrl = "/lessonbuilder-tool/templates/StrobeMediaPlayback.swf";
 							}
 							useFlvPlayer = true;
 						}
@@ -1588,7 +1588,7 @@ public class ShowPageProducer implements ViewComponentProducer, DefaultView, Nav
 						UIOutput.make(tableRow, "placementId", placement.getId());
 
 					        // note: the URL will be rewritten in comments.js to look like
-					        //  /sakai-lessonbuildertool-tool/faces/Comments...
+					        //  /lessonbuilder-tool/faces/Comments...
 						CommentsViewParameters eParams = new CommentsViewParameters(CommentsProducer.VIEW_ID);
 						eParams.itemId = i.getId();
 						eParams.placementId = placement.getId();
@@ -2890,7 +2890,7 @@ public class ShowPageProducer implements ViewComponentProducer, DefaultView, Nav
 		UIComponent button = UICommand.make(form, "remove-page-submit", messageLocator.getMessage("simplepage.remove"), "#{simplePageBean.removePage}");
 		if (page.getOwner() == null) // not student page
 		    button.decorate(new UIFreeAttributeDecorator("onclick",
-			         "window.location='/sakai-lessonbuildertool-tool/removePage?site=" + simplePageBean.getCurrentSiteId() + 
+			         "window.location='/lessonbuilder-tool/removePage?site=" + simplePageBean.getCurrentSiteId() + 
 				 "&page=" + page.getPageId() + "';return false;"));
 
 		UICommand.make(form, "remove-page-cancel", messageLocator.getMessage("simplepage.cancel"), "#{simplePageBean.cancel}");
@@ -2966,7 +2966,7 @@ public class ShowPageProducer implements ViewComponentProducer, DefaultView, Nav
 	// statuses that we
 	// never ended up using
 	private void addStatusImage(Status status, UIContainer container, String imageId, String name) {
-		String imagePath = "/sakai-lessonbuildertool-tool/images/";
+		String imagePath = "/lessonbuilder-tool/images/";
 		String imageAlt = "";
 
 		// better not to include alt or title. Bundle them with the link. Avoids
@@ -3045,10 +3045,10 @@ public class ShowPageProducer implements ViewComponentProducer, DefaultView, Nav
 			}
 		} else {
 			// actual URL will be related to templates
-			defaultPath = "/sakai-lessonbuildertool-tool/templates/instructions/" + fileName;
-			prefix = "/sakai-lessonbuildertool-tool/templates/instructions/" + prefix;
+			defaultPath = "/lessonbuilder-tool/templates/instructions/" + fileName;
+			prefix = "/lessonbuilder-tool/templates/instructions/" + prefix;
 			// but have to test relative to servlet base
-			testPrefix = "";  // urlok will have to remove /sakai-lessonbuildertool-tool
+			testPrefix = "";  // urlok will have to remove /lessonbuilder-tool
 		}
 
 		String[] localeDetails = locale.toString().split("_");
@@ -3082,7 +3082,7 @@ public class ShowPageProducer implements ViewComponentProducer, DefaultView, Nav
 	}
 
     // this can be either a fully specified URL starting with http: or https: 
-    // or something relative to the servlet base, e.g. /sakai-lessonbuildertool-tool/template/instructions/general.html
+    // or something relative to the servlet base, e.g. /lessonbuilder-tool/template/instructions/general.html
 	private boolean UrlOk(String url) {
 		Boolean cached = (Boolean) urlCache.get(url);
 		if (cached != null)
@@ -3111,7 +3111,7 @@ public class ShowPageProducer implements ViewComponentProducer, DefaultView, Nav
 			return false;
 		    }
 		} else {
-		    // remove the leading /sakai-lessonbuildertool-tool, since getresource is
+		    // remove the leading /lessonbuilder-tool, since getresource is
 		    // relative to the top of the servlet
 		    int i = url.indexOf("/", 1);
 		    url = url.substring(i);

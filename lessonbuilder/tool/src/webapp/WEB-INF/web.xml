@@ -8,7 +8,7 @@
 	<!-- param-value must match the id from tool/project.xml -->
 	<context-param>
 		<param-name>resourceurlbase</param-name> 
-		<param-value>/sakai-lessonbuildertool-tool/</param-value>
+		<param-value>/lessonbuilder-tool/</param-value>
 	</context-param>
 
 	<!-- Configure standard Spring application contexts. Be sure to mention

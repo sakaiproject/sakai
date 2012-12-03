@@ -344,7 +344,7 @@ public class PagePickerProducer implements ViewComponentProducer, NavigationCase
 		    	int level = entry.level;
 		    	if (level > 5)
 		    		level = 5;
-		    	String imagePath = "/sakai-lessonbuildertool-tool/images/";
+		    	String imagePath = "/lessonbuilder-tool/images/";
 		    	SimplePageItem item = simplePageBean.findItem(entry.itemId);
 		    	SimplePageLogEntry logEntry = simplePageBean.getLogEntry(entry.itemId);
 		    	String note = null;

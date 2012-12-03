@@ -1,5 +1,5 @@
 // GradingPane is called by ajax from a URL like
-// /sakai-lessonbuildertool-tool/faces/GradingPane
+// /lessonbuilder-tool/faces/GradingPane
 // however URLs we generate need to be the usual
 // /portal/pda/xxxx/tool/xxxx/ShowPage
 // it's hard to get RSF to generate specified URLs, so
@@ -45,7 +45,7 @@ $(function() {
 					
 					var href=$(value).find(".commentsLink").attr("href");
 					var ci = href.indexOf("Comment");
-					href = "/sakai-lessonbuildertool-tool/faces/" + href.substring(ci);
+					href = "/lessonbuilder-tool/faces/" + href.substring(ci);
 					$(value).find(".replaceWithComments").load(href, function() {
 						var current = $(value);
 						var next = $(value).next().next();
@@ -110,7 +110,7 @@ function prefetchComments(value) {
 	if($(value).length > 0 && $(value).find(".replaceWithComments").children().length == 0) {
 		var href=$(value).find(".commentsLink").attr("href");
 		var ci = href.indexOf("Comment");
-		href = "/sakai-lessonbuildertool-tool/faces/" + href.substring(ci);
+		href = "/lessonbuilder-tool/faces/" + href.substring(ci);
 		$(value).find(".replaceWithComments").load(href, makeButtons);
 	}
 }
