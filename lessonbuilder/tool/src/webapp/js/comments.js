@@ -148,7 +148,19 @@ function replyToComment(link, replytext) {
 	} else if(fckEditor) {
 		FCKeditorAPI.GetInstance(evolved.children("textarea").attr("name")).SetHTML(replytext + '<div style="border-left: 2px solid black; padding-eleft:6px">' + (link).parent().children(".commentBody").html() + '</div>\n<p></p>');
 	}else {
-		CKEDITOR.instances[evolved.children("textarea").attr("name")].setData(replytext + '<div style="border-left: 2px solid black; padding-left:6px">' + $(link).parent().children(".commentBody").html() + '</div>\n<p></p>');
+	    CKEDITOR.instances[evolved.children("textarea").attr("name")].setData(replytext + '<div style="border-left: 2px solid black; padding-left:6px">' + $(link).parent().children(".commentBody").html() + '</div>\n<p></p>', function() {
+		    // this function is called after the insert happens. The goal is to move the cursor to the end
+		    var sel = this.getSelection(); // current selection will be at the start
+		    // get the whole body around it
+		    var parent = sel.getStartElement().getParent();
+		    // find the last element, which is the final <p></p>
+		    var last = parent.getLast();
+		    // select it
+		    sel.selectElement(last);
+		    this.focus();
+		});
+	    evolved.focus();
+
 	}
 	
 	$(link).parents(".commentsDiv").find(".comment-edit-id").val(null);
