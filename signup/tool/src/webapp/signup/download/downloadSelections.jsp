@@ -28,13 +28,24 @@
 					<h:outputText value="#{msgs.events_attendee_download_instruction}" rendered="#{!DownloadEventBean.allowedToUpdate && DownloadEventBean.meetingsAvailable}" escape="false"/>
 					<h:outputText value="&nbsp;" escape="false"/>
 				</h:panelGrid>
-				<h:panelGrid columns="2">
+				<h:panelGrid columns="3">
 					<h:panelGroup>
 						<h:outputText value="#{msgs.events_dropdownbox_title}&nbsp;" escape="false"/>
 						<h:selectOneMenu id="viewByRange" value="#{DownloadEventBean.viewDateRang}" valueChangeListener="#{DownloadEventBean.processSelectedRange}" onchange="if(validateIEDisabledItem(this)){submit()};">
 							<f:selectItems value="#{DownloadEventBean.viewDropDownList}"/>
 						</h:selectOneMenu>
 					</h:panelGroup>
+										
+					<!-- filter by category dropdown -->
+					<h:panelGroup>
+						<h:panelGroup styleClass="padLeft"> 
+							<h:outputText value="#{msgs.filter_by_category}&nbsp;" escape="false"/>
+							<h:selectOneMenu id="viewByCategory" value="#{DownloadEventBean.categoryFilter}" valueChangeListener="#{DownloadEventBean.processSelectedCategory}" onchange="if(validateIEDisabledItem(this)){submit()};">
+								<f:selectItems value="#{DownloadEventBean.allCategoriesForFilter}"/>
+							</h:selectOneMenu>
+						</h:panelGroup>
+					</h:panelGroup>
+					<!--  expand all recurring meetings -->
 					<h:panelGroup>
 						<h:panelGroup styleClass="padLeft" rendered="#{DownloadEventBean.enableExpandOption && DownloadEventBean.meetingsAvailable}">
 							<h:selectBooleanCheckbox id="expandingchkbox" value="#{DownloadEventBean.showAllRecurMeetings}" valueChangeListener="#{DownloadEventBean.processExpandAllRcurEvents}" onclick="submit();"/>
