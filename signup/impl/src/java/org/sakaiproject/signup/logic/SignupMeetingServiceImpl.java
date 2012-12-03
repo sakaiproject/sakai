@@ -1087,7 +1087,8 @@ public class SignupMeetingServiceImpl implements SignupMeetingService, Retry, Me
 		for(SignupMeeting m: meetings) {
 			if(!m.isMeetingExpired()) {
 				log.info("Meeting is still available, email notifications will be sent");
-				m.setSendEmailToSelectedPeopleOnly(SEND_EMAIL_ALL_PARTICIPANTS);
+				//SIGNUP-188 :If an event is cancelled, all the site members get an email
+				m.setSendEmailToSelectedPeopleOnly(SEND_EMAIL_ONLY_SIGNED_UP_ATTENDEES);
 				signupEmailFacade.sendEmailAllUsers(m, SignupMessageTypes.SIGNUP_CANCEL_MEETING);
 			}
 		}
