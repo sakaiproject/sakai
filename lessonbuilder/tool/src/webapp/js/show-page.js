@@ -1084,28 +1084,44 @@ $(function() {
 		
 		$("#studentPointsBox").keyup(function(event){
 			if(event.keyCode == 13) {
-				$("#submit-grading").click();
+			    submitgrading($(this));
+			    return false;
 			}
 		});
 		
+		$(".grading-nextprev").click(function(event){
+			// if unsubmitted grade, submit it before going to new page
+			if ($("#studentPointsBox").hasClass("unsubmitted")) {
+			    submitgrading($(this));
+			    // set hook to do follow the link when the grade update returns
+			    setGradingReturnHook($(this).attr('href'));
+			    return false;
+			}
+			return true;
+		});
+
 		$("#submit-grading").click(function() {
-			var img = $(this).parent().children("img");
-			
-			$(this).parent().children("#studentPointsBox").removeClass("unsubmitted");
-			img.attr("src", getStrippedImgSrc(img.attr("id")) + "loading.gif");
-			
-			$(".idField").val($(this).parent().children(".uuidBox").text()).change();
-			$(".jsIdField").val(img.attr("id")).change();
-			$(".typeField").val("student");
-			
-			// This one triggers the update
-			$(".pointsField").val($(this).parent().children("#studentPointsBox").val()).change();
-			
+			submitgrading($(this));
 			return false;
 		});
 
-
 	} // Closes admin if statement
+
+	function submitgrading(item) {
+	    var img = item.parent().children("img");
+			
+	    item.parent().children("#studentPointsBox").removeClass("unsubmitted");
+	    img.attr("src", getStrippedImgSrc(img.attr("id")) + "loading.gif");
+			
+	    $(".idField").val(item.parent().children(".uuidBox").text()).change();
+	    $(".jsIdField").val(img.attr("id")).change();
+	    $(".typeField").val("student");
+	    
+	    // This one triggers the update
+	    $(".pointsField").val(item.parent().children("#studentPointsBox").val()).change();
+	    
+	    return false;
+	};
 
 	if (!(navigator.userAgent.indexOf("Firefox/2.") > 0)) {
 	    $('.usebutton').button({text:true});

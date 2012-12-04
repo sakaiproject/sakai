@@ -1,3 +1,9 @@
+var gradingReturnHook = null;
+
+function setGradingReturnHook(item) {
+    gradingReturnHook = item;
+}
+
 function initGradingForm(idFieldId, pointsFieldId, jsIdFieldId, typeFieldId, elBinding) {
 	//var idField = $(this).parents("div").children(".gradingForm").children(".idField");
 	//var pointsField = $(this).parents("div").children(".gradingForm").children(".pointsField");
@@ -17,6 +23,9 @@ function initGradingForm(idFieldId, pointsFieldId, jsIdFieldId, typeFieldId, elB
 		var points = results.EL[elBinding][2];
 		
 		if(status == "success") {
+			if (gradingReturnHook != null)
+			    window.location = gradingReturnHook;
+
 			var jsObj = $("#" + jsId);
 			jsObj.attr("src", getStrippedImgSrc(jsId) + "success.png");
 			
