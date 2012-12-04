@@ -2385,25 +2385,46 @@ public class DiscussionForumTool
   }
   
   public boolean getNeedToPostFirst(){
-	  boolean needToPost = false;
-	  
-	  if(selectedTopic != null && selectedTopic.getTopic().getPostFirst() && !uiPermissionsManager.isChangeSettings(selectedTopic.getTopic(), (DiscussionForum) selectedTopic.getTopic().getBaseForum())){
-		  needToPost = true;
-		  //make sure the user has posted before they can view all messages
-		  //only need to force this for users who do not have "ChangeSettings" permission
-		  List messages = selectedTopic.getMessages();
-		  for (DiscussionMessageBean message : (List<DiscussionMessageBean>) messages) {
-			  if(message.getIsOwn() && 
-					  !message.getMessage().getDraft() && 
-					  ((message.getMessage().getApproved() != null && message.getMessage().getApproved()) || !selectedTopic.getTopic().getModerated()) &&
-					  !message.getMessage().getDeleted()){
-				  needToPost = false;
-				  break;
+	  String currentUserId = getUserId();
+	  List<String> currentUser = new ArrayList<String>();
+	  currentUser.add(currentUserId);
+	  return getNeedToPostFirst(currentUser, selectedTopic.getTopic(), selectedTopic.getMessages()).contains(currentUserId);
+  }
+
+  /**
+   * takes a list of userIds and returns a filtered list of users who need to post first
+   * @param userIds
+   * @return
+   */
+  private List<String> getNeedToPostFirst(List<String> userIds, DiscussionTopic topic, List messages){
+	  List returnList = new ArrayList<String>();
+	  if(topic != null && topic.getPostFirst()){
+		  for(String userId : userIds){
+			  boolean needToPost = true;
+			  //make sure the user has posted before they can view all messages
+			  //only need to force this for users who do not have "ChangeSettings" permission
+			  for (Object messageObj : messages) {
+				  Message message = null;
+				  if(messageObj instanceof DiscussionMessageBean){
+					  message = ((DiscussionMessageBean) messageObj).getMessage();
+				  }else if(messageObj instanceof Message){
+					  message = (Message) messageObj;
+				  }
+				  if(message != null && message.getCreatedBy().equals(userId) && 
+						  !message.getDraft() && 
+						  ((message.getApproved() != null && message.getApproved()) || !topic.getModerated()) &&
+						  !message.getDeleted()){
+					  needToPost = false;
+					  break;
+				  }
+			  }
+			  if(needToPost && !uiPermissionsManager.isChangeSettings(topic, (DiscussionForum) topic.getBaseForum(), userId)){
+				  returnList.add(userId);
 			  }
 		  }
 	  }
 	  
-	  return needToPost;
+	  return returnList;
   }
   
   public String processActionGetDisplayThread()
@@ -7955,16 +7976,6 @@ public class DiscussionForumTool
 
 		}
 		
-		// now printing out all users = # of messages in the thread - level 2 users
-		
-		if (LOG.isDebugEnabled()){
-			LOG.debug("now printing out all users, including duplicates count = " + userlist.size());
-			Iterator iter1 = userlist.iterator();
-			while (iter1.hasNext()){
-				LOG.debug("sendEmailNotification: should include both level 1 and level 2 sending to  " + (String) iter1.next());
-			}
-		}
-		
 		// now we need to remove duplicates:
 		Set<String> set = new HashSet<String>();
 		set.addAll(userlist);
@@ -7975,6 +7986,20 @@ public class DiscussionForumTool
 		if(set.size() < userlist.size()) {
 			userlist.clear();
 			userlist.addAll(set);
+		}
+		
+		//MSGCNTR-741 need to filter out post first users
+		userlist.removeAll(getNeedToPostFirst(userlist, (DiscussionTopic)reply.getTopic(), reply.getTopic().getMessages()));
+		
+		
+		// now printing out all users = # of messages in the thread - level 2 users
+		
+		if (LOG.isDebugEnabled()){
+			LOG.debug("now printing out all users, including duplicates count = " + userlist.size());
+			Iterator iter1 = userlist.iterator();
+			while (iter1.hasNext()){
+				LOG.debug("sendEmailNotification: should include both level 1 and level 2 sending to  " + (String) iter1.next());
+			}
 		}
 		
 		// now printing out all users again after removing duplicate

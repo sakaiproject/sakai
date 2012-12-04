@@ -415,16 +415,21 @@ public class UIPermissionsManagerImpl implements UIPermissionsManager {
    */
   public boolean isChangeSettings(DiscussionTopic topic, DiscussionForum forum)
   {
+	  return isChangeSettings(topic, forum, getCurrentUserId());
+  }
+  
+  public boolean isChangeSettings(DiscussionTopic topic, DiscussionForum forum, String userId)
+  {
     if (LOG.isDebugEnabled())
     {
       LOG.debug("isChangeSettings(DiscussionTopic " + topic
           + "), DiscussionForum" + forum + "");
     }
-    if (isSuperUser())
+    if (isSuperUser(userId))
     {
       return true;
     }
-    if (securityService.unlock(SiteService.SECURE_UPDATE_SITE, getContextSiteId())){
+    if (securityService.unlock(userId, SiteService.SECURE_UPDATE_SITE, getContextSiteId())){
     	return true;
     }
     try
@@ -436,11 +441,11 @@ public class UIPermissionsManagerImpl implements UIPermissionsManager {
       // return false;
       // }
       // if owner then allow change of settings on the topic or on forum.
-      if (forumManager.isTopicOwner(topic))
+      if (forumManager.isTopicOwner(topic, userId))
       {
         return true;
       }
-      Iterator iter = getTopicItemsByCurrentUser(topic);
+      Iterator iter = getTopicItemsByUser(topic, userId);
       while (iter.hasNext())
       {
         DBMembershipItem item = (DBMembershipItem) iter.next();
