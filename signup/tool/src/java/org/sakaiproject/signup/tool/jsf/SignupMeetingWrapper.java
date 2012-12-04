@@ -43,7 +43,7 @@ public class SignupMeetingWrapper implements SignupBeanConstants {
 
 	private SignupMeeting meeting;
 
-	private final String creator;
+	private String creator;
 
 	private final String currentUserId;
 
@@ -111,6 +111,14 @@ public class SignupMeetingWrapper implements SignupBeanConstants {
 	 */
 	public String getCreator() {
 		return creator;
+	}
+		
+	/**
+	 * This is a setter
+	 * @param creator -String of a display name
+	 */
+	public void setCreator(String creator) {
+		this.creator = creator;
 	}
 
 	/**

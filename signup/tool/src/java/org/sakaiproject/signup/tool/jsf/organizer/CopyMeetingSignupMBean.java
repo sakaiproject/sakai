@@ -777,6 +777,10 @@ public class CopyMeetingSignupMBean extends SignupUIBaseBean {
 	}
 	
 	public String getcreatorUserId() {
+		if(this.creatorUserId ==null){
+			//set current user as default meeting organizer if case people forget to select one
+			return sakaiFacade.getCurrentUserId();
+		}
 		return creatorUserId;
 	}
 	public void setcreatorUserId(String creatorUserId) {

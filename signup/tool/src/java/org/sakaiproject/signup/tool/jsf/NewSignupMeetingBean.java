@@ -283,6 +283,10 @@ public class NewSignupMeetingBean implements MeetingTypes, SignupMessageTypes, S
 	}
 	
 	public String getCreatorUserId() {
+		if(this.creatorUserId ==null){
+			//set current user as default meeting organizer if case people forget to select one
+			return sakaiFacade.getCurrentUserId();
+		}
 		return creatorUserId;
 	}
 

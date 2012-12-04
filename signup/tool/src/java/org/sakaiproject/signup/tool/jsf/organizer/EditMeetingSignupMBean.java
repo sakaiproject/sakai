@@ -207,6 +207,9 @@ public class EditMeetingSignupMBean extends SignupUIBaseBean {
 		getUserDefineTimeslotBean().init(this.signupMeeting, MODIFY_MEETING_PAGE_URL, this.customTimeSlotWrpList, UserDefineTimeslotBean.MODIFY_MEETING);
 		populateDropDown();	
 		
+		//populate organizer data
+		this.creatorUserId = this.signupMeeting.getCreatorUserId();
+		
 		/*pre-load all possible coordinators for step2*/
 		this.allPossibleCoordinators = this.sakaiFacade.getAllPossbileCoordinators(this.signupMeeting);
 		populateExistingCoordinators();
@@ -547,6 +550,8 @@ public class EditMeetingSignupMBean extends SignupUIBaseBean {
 				.getSessionMap().get("OrganizerSignupMBean");
 		SignupMeeting meeting = reloadMeeting(meetingWrapper.getMeeting());
 		this.meetingWrapper.setMeeting(meeting);
+		//update latest creator for UI
+		this.meetingWrapper.setCreator(sakaiFacade.getUserDisplayName(meeting.getCreatorUserId()));
 		bean.reset(meetingWrapper);
 	}
 
