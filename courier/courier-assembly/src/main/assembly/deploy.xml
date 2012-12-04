@@ -30,7 +30,7 @@
             <!-- <outputFileNameMapping>imsblti.war</outputFileNameMapping> -->
             <useTransitiveDependencies>false</useTransitiveDependencies>
             <includes>
-                 <include>org.sakaiproject.courier:courier:war:*</include>
+                 <include>org.sakaiproject.courier:courier-tool:war:*</include>
             </includes>
             <unpack>false</unpack>
         </dependencySet>

@@ -19,10 +19,6 @@
     <inceptionYear>2003</inceptionYear>
     <packaging>war</packaging>
     
-    <build>
-        <finalName>courier</finalName>
-    </build>
-    
     <dependencies>
         <dependency>
             <groupId>${project.groupId}</groupId>
@@ -45,4 +41,6 @@
             <artifactId>servlet-api</artifactId>
         </dependency>
     </dependencies>
+    
+    
 </project>

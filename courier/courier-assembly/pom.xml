@@ -35,7 +35,7 @@
         </dependency>
        <dependency>
             <groupId>${project.groupId}</groupId>
-            <artifactId>courier</artifactId>
+            <artifactId>courier-tool</artifactId>
             <version>${project.version}</version>
             <type>war</type>
             <scope>compile</scope>
