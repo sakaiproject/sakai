@@ -5413,7 +5413,6 @@ public class SimplePageBean {
 					String title = getPage(page.getPageId()).getTitle() + " Student Page Comments (item:" + page.getId() + ")";
 					boolean add = gradebookIfc.addExternalAssessment(getCurrentSiteId(), "lesson-builder:page-comment:" + page.getId(), null,
 							title, points, null, "Lesson Builder");
-					
 					// The assessment couldn't be added
 					if(!add) {
 						setErrMessage(messageLocator.getMessage("simplepage.no-gradebook"));

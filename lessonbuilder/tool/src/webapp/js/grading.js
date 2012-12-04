@@ -88,22 +88,33 @@ $(function() {
 		$(this).addClass("unsubmitted");
 	});
 	
+	// cr on individual box, update that box
 	$(".pointsBox").keyup(function(event){
-		if(event.keyCode == 13) {
-			var img = $(this).parent().children("img");
-			
-			$(this).removeClass("unsubmitted");
-			img.attr("src", getStrippedImgSrc(img.attr("id")) + "loading.gif");
-			
-			$(".idField").val($(this).parent().children(".uuidBox").text()).change();
-			$(".jsIdField").val(img.attr("id")).change();
-			$(".typeField").val("comment");
-			
-			// This one triggers the update
-			$(".pointsField").val($(this).val()).change();
-		}
+		if(event.keyCode == 13)
+		    updateGrade($(this));
+        });
+
+	// update points button, do all the need it
+	$("#clickToSubmit").click(function(event){
+		$(".unsubmitted").each(function(index) {
+			updateGrade($(this));
+		    });
 	});
+
 });
+
+function updateGrade(item) {
+    var img = item.parent().children("img");
+    item.removeClass("unsubmitted");
+    img.attr("src", getStrippedImgSrc(img.attr("id")) + "loading.gif");
+			
+    $(".idField").val(item.parent().children(".uuidBox").text()).change();
+    $(".jsIdField").val(img.attr("id")).change();
+    $(".typeField").val("comment");
+			
+    // This one triggers the update
+    $(".pointsField").val(item.val()).change();
+}
 
 function prefetchComments(value) {
 	// Prefetch the next one as well, so that it's ready when they need it.

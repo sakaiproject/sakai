@@ -174,6 +174,10 @@ public class GradingPaneProducer implements ViewComponentProducer, ViewParamsRep
 			UIOutput.make(tofill, "noEntriesWarning");
 		}
 		
+		UIOutput.make(tofill, "clickToSubmit", messageLocator.getMessage("simplepage.update-points")).
+			    decorate(new UIFreeAttributeDecorator("title", 
+								  messageLocator.getMessage("simplepage.update-points")));
+
 		for(SimpleUser user : simpleUsers) {
 			UIBranchContainer branch = UIBranchContainer.make(tofill, "student-row:");
 			
