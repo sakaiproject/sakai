@@ -741,6 +741,7 @@ public class ShowPageProducer implements ViewComponentProducer, DefaultView, Nav
 				UIOutput.make(tofill, "commentsUUID", String.valueOf(student.getId()));
 				UIOutput.make(tofill, "commentPoints", String.valueOf((student.getPoints() != null? student.getPoints() : "")));
 				UIOutput pointsBox = UIOutput.make(tofill, "studentPointsBox");
+				UIOutput.make(tofill, "topmaxpoints", String.valueOf((pageItem.getGradebookPoints() != null? pageItem.getGradebookPoints():"")));
 				if (ownerName != null)
 				    pointsBox.decorate(new UIFreeAttributeDecorator("title", messageLocator.getMessage("simplepage.grade-for-student").replace("{}",ownerName)));
 			
