@@ -561,11 +561,11 @@ public class GradebookServiceHibernateImpl extends BaseHibernateManager implemen
 							Category catTempt = getCategory(catId);
 							
 							catList_tempt.add(catTempt);
-							createAssignmentForCategory(gradebook.getId(), catId, assignmentDef.getName(), assignmentDef.getPoints(), assignmentDef.getDueDate(), !assignmentDef.isCounted(), false);
+							createAssignmentForCategory(gradebook.getId(), catId, assignmentDef.getName(), assignmentDef.getPoints(), assignmentDef.getDueDate(), true, false);
 							assignmentsAddedCount++;
 						}
 						else{
-							createAssignmentForCategory(gradebook.getId(), catId, assignmentDef.getName(), assignmentDef.getPoints(), assignmentDef.getDueDate(), !assignmentDef.isCounted(), false);
+							createAssignmentForCategory(gradebook.getId(), catId, assignmentDef.getName(), assignmentDef.getPoints(), assignmentDef.getDueDate(), true, false);
 							assignmentsAddedCount++;
 						}
 					
@@ -573,7 +573,7 @@ public class GradebookServiceHibernateImpl extends BaseHibernateManager implemen
 					//deal with assignments in undefined.
 					else {
 						if (undefined_nb == 0) {
-							createAssignment(gradebook.getId(), assignmentDef.getName(), assignmentDef.getPoints(), assignmentDef.getDueDate(), !assignmentDef.isCounted(), false);
+							createAssignment(gradebook.getId(), assignmentDef.getName(), assignmentDef.getPoints(), assignmentDef.getDueDate(), true, false);
 							assignmentsAddedCount++;
 							
 						}
@@ -618,7 +618,7 @@ public class GradebookServiceHibernateImpl extends BaseHibernateManager implemen
 				}
 				
 				// All assignments should be unreleased even if they were released in the original.
-				createAssignment(gradebook.getId(), assignmentDef.getName(), assignmentDef.getPoints(), assignmentDef.getDueDate(), !assignmentDef.isCounted(), false);
+				createAssignment(gradebook.getId(), assignmentDef.getName(), assignmentDef.getPoints(), assignmentDef.getDueDate(), true, false);
 				assignmentsAddedCount++;
 			}	
 			
@@ -683,7 +683,7 @@ public class GradebookServiceHibernateImpl extends BaseHibernateManager implemen
 			}
 			
 			// All assignments should be unreleased even if they were released in the original.
-			createAssignment(gradebook.getId(), assignmentDef.getName(), assignmentDef.getPoints(), assignmentDef.getDueDate(), !assignmentDef.isCounted(), false);
+			createAssignment(gradebook.getId(), assignmentDef.getName(), assignmentDef.getPoints(), assignmentDef.getDueDate(), true, false);
 			assignmentsAddedCount++;
 		}
 		if (log.isInfoEnabled()) log.info("Merge to gradebook " + toGradebookUid + " added " + assignmentsAddedCount + " assignments");
