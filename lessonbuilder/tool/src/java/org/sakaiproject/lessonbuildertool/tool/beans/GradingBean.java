@@ -6,6 +6,7 @@ import java.util.HashSet;
 import java.util.Collection;
 
 import org.sakaiproject.lessonbuildertool.SimplePageComment;
+import org.sakaiproject.lessonbuildertool.SimplePage;
 import org.sakaiproject.lessonbuildertool.SimplePageItem;
 import org.sakaiproject.lessonbuildertool.SimpleStudentPage;
 import org.sakaiproject.lessonbuildertool.model.SimplePageToolDao;
@@ -35,7 +36,6 @@ public class GradingBean {
 	}
 	
 	public String[] getResults() {
-	    System.out.println("called getresults");
 		if(simplePageBean.getEditPrivs() != 0) {
 			return new String[]{"failure", jsId, "-1"};
 		}
@@ -50,15 +50,30 @@ public class GradingBean {
 		boolean r = false;
 		
 		if("comment".equals(type)) {
-			System.out.println(id);
 			SimplePageComment comment = simplePageToolDao.findCommentByUUID(id);
 			SimplePageItem commentItem = simplePageToolDao.findItem(comment.getItemId());
+			SimpleStudentPage studentPage = null;  // comments on student page only
+			SimplePageItem topItem = null; // comments on student page only
+
+			if(commentItem.getPageId() <= 0) {
+			    studentPage = simplePageToolDao.findStudentPage(Long.valueOf(commentItem.getSakaiId()));
+			    topItem = simplePageToolDao.findItem(studentPage.getItemId());
+			}
+
+			String gradebookId = null;
+
+			if (studentPage != null) {
+			    gradebookId = topItem.getAltGradebook();
+			} else {
+			    gradebookId = commentItem.getGradebookId();
+			}
+
 			if(Double.valueOf(points).equals(comment.getPoints())) {
 				return new String[] {"success", jsId, String.valueOf(comment.getPoints())};
 			}
 			
 			try {
-				r = gradebookIfc.updateExternalAssessmentScore(simplePageBean.getCurrentSiteId(), commentItem.getGradebookId(), comment.getAuthor(), Double.toString(Double.valueOf(points)));
+				r = gradebookIfc.updateExternalAssessmentScore(simplePageBean.getCurrentSiteId(), gradebookId, comment.getAuthor(), Double.toString(Double.valueOf(points)));
 			}catch(Exception ex) {
 				ex.printStackTrace();
 			}
@@ -68,9 +83,7 @@ public class GradingBean {
 				if(commentItem.getPageId() > 0) {
 					comments = simplePageToolDao.findCommentsOnItemByAuthor(comment.getItemId(), comment.getAuthor());
 				}else {
-					SimpleStudentPage studentPage = simplePageToolDao.findStudentPage(Long.valueOf(commentItem.getSakaiId()));
 					List<SimpleStudentPage> studentPages = simplePageToolDao.findStudentPages(studentPage.getItemId());
-					
 					List<Long> commentsItemIds = new ArrayList<Long>();
 					for(SimpleStudentPage p : studentPages) {
 						commentsItemIds.add(p.getCommentsSection());
