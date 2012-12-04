@@ -4,20 +4,24 @@
     
     <parent>
         <groupId>org.sakaiproject.courier</groupId>
-        <artifactId>courier-base</artifactId>
+        <artifactId>courier</artifactId>
         <version>2.10-SNAPSHOT</version>
         <relativePath>../../pom.xml</relativePath>
     </parent>
     
     <name>courier</name>
     <groupId>org.sakaiproject.courier</groupId>
-    <artifactId>courier</artifactId>
+    <artifactId>courier-tool</artifactId>
     <organization>
         <name>University of Michigan</name>
         <url>http://sakaiproject.org/</url>
     </organization>
     <inceptionYear>2003</inceptionYear>
     <packaging>war</packaging>
+    
+    <build>
+        <finalName>courier</finalName>
+    </build>
     
     <dependencies>
         <dependency>
