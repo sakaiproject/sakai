@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
 <html><head>
-<title>Controlling access to Forums</title>
+<title>Controlling access in Forums</title>
 <style type="text/css">
 		/* Style for specific inline images */
 		
@@ -13,63 +13,39 @@
 </head>
 <body>
 <div class="helpBody">
-<h2>Controlling access to Forums</h2>
+<h2>Controlling access in Forums</h2>
 
-
-<p>On this page:</p>
-
-
-
-<ul><li><a href="#intro">General information</a></li><li><a href="#student">Limiting access to a specific student group</a></li></ul>
-<hr />
-
-<a name="intro"> </a><h3>General information</h3>
 
 <p><strong>Note:</strong> To complete these procedures, you must be
 assigned a role having the necessary permissions.  To determine your
 role, follow the directions in <a href="content.hlp?docId=arbu">Participant roles</a>.  For a basic understanding of roles and
 permissions, see <a href="content.hlp?docId=arax">Permissions and roles: Overview</a>.</p>
 
+<p>On this page:</p>
+
+
+
+<ul><li><a href="#intro">General information</a></li><li><a href="#custom">Custom permission levels</a></li><li><a href="#student">Limiting access to a specific student group</a></li></ul>
+<hr />
+
+<a name="intro"> </a><h3>General information</h3>
+
 <p>When you create a new forum or topic, the default permission settings
 assign each role in the site (e.g., student) to a predefined
 permission level (e.g., Contributor).  You can change the permissions
 from the default settings either while you're creating a new forum or
-topic (see <a href="content.hlp?docId=asci">Creating a new forum and topic in Forums</a>), or when you're
+topic (see <a href="content.hlp?docId=asci">Creating new forums and topics</a>), or when you're
 editing an existing forum or topic (see <a href="content.hlp?docId=atdk">Revising or deleting a forum or topic</a>).</p>
 
 
-<p>Under "Permissions", you can modify permission levels for
-participant roles (and groups, if you've created them; see <a href="content.hlp?docId=atcs">Managing groups</a>). To do so, from the drop-down list next
-to "This site role:", select a role (or group) for editing by clicking its
-name. Then, next to "gets this permission level:", use the drop-down list to
-select from several predefined permission levels. Additionally, you
-can create custom permission levels by clicking to enable or disable
-the following functions:</p>
+<p>Under "Permissions", you can modify permission levels for participant
+roles (and groups, if you've created them; see <a href="content.hlp?docId=atcs">Managing groups</a>).  Click the right arrow next to "Permissions" to expand the
+options available.  Next to the role of the participant, use the
+<strong><code>Permission Level</code></strong> drop-down list to select from several
+predefined permission levels. Additionally, you can create
+custom permission levels by clicking the right arrow next to "Customize" to enable or
+disable specific functions.</p>
  
-<ul><li><strong>New Forum:</strong> Create a new forum. You can modify this
-option only via Template Settings.
-</li><li><strong>New Topic:</strong> Create a new topic. You can modify
-this option only via Template Settings or Forum Settings.
-</li><li><strong>New Response:</strong> Create a new response to your
-topic.
-</li><li><strong>Response to Response:</strong> Send responses to a topic
-response.
-</li><li><strong>Post to Gradebook:</strong> Grade responses and add
-comments. Send grades and comments to Gradebook.
-</li><li><strong>Change Settings:</strong> Change the topic settings.
-</li><li><strong>Read:</strong> Read topic responses.
-</li><li><strong>Mark as Read:</strong> Mark messages as read.
-</li><li><strong>Moderate Postings:</strong> Moderate messages posted to
-forum (available if "Moderate Topics in Forum" option was selected
-above).
-</li><li><strong>Edit Postings:</strong> Use the radio buttons to
-indicate which postings participants with the permission level can
-revise (none, their own, or all postings).
-</li><li><strong>Delete Postings:</strong> Use the radio buttons to
-indicate which postings participants with the permission level can
-delete (none, their own, or all postings).
-
-  </li></ul>
 
 <p><strong>Note:</strong> Forum permission settings will apply to all 
 subsequently created topics in that forum, but if you modify forum
@@ -77,28 +53,62 @@ permission settings after topics have been created, you must change
 the topic permission settings separately.</p>
 
 
-<a name="student"> </a><h3>Limiting access to a specific student group</h3>
+<a name="custom"> </a><h3>Custom permission levels</h3>
 
-<p>If the student role has permission to view a given forum or topic, then all
-students will be able to see it, regardless of group settings.  To limit
-a forum or topic so that only one group can see it:</p>
+<p>When creating custom permission levels, the functions you can allow
+participants to perform are:</p>
+
+<ul><li><strong>New Forum:</strong> Create a new forum. You can modify this
+option only via Template Settings.
+</li><li><strong>New Topic:</strong> Create a new topic. You can modify
+this option only via Template Settings or Forum Settings.
+</li><li><strong>New Conversation:</strong>
+Create a new conversation in the topic.
+</li><li><strong>Reply:</strong> Respond to
+an existing conversation.
+</li><li><strong>Post to Gradebook:</strong> Grade responses and add
+comments. Send grades and comments to Gradebook.
+</li><li><strong>Change Settings:</strong> Change the forum or topic settings.
+</li><li><strong>Read:</strong> Read forum or topic responses.
+</li><li><strong>Mark as Read:</strong> Mark messages as read.
+</li><li><strong>Moderate Messages:</strong> Moderate messages posted to
+the forum/topic (available if you've chosen to moderate your forum or
+topic).
+</li><li><strong>Edit Messages:</strong> Use the radio buttons to
+indicate which messages participants with the permission level can
+revise (none, their own, or all messages).
+</li><li><strong>Delete Messages:</strong> Use the radio buttons to
+indicate which messages participants with the permission level can
+delete (none, their own, or all messages).
+
+  </li></ul>
+
+<a name="student"> </a><h3>Limiting access to a specific group</h3>
+
+<p>To limit access to a specific group, you must consider role-based
+permissions also.  For example, if the student role has permission to
+view a given forum or topic, then all students will be able to see it,
+regardless of group settings.  To limit a forum or topic so that only
+one group can see it, remove permissions from the role to which those
+group members belong, and then grant permissions to the group only, as
+follows:</p>
 
 <ol><li>In Forums, click <strong><code>New Forum</code></strong> or <strong><code>New Topic</code></strong>, or
 click <strong><code>Forum Settings</code></strong> or <strong><code>Topic Settings</code></strong> to modify an
 existing forum or topic.
 
 <br /><br />
-</li><li>On the Forum Settings or Topic Settings page, under "Permissions",
-in the drop-down list next to "This site role:", select
-<strong><code>student</code></strong>.  From the drop-down list next to "gets this
-permission level:", choose <strong><code>None</code></strong>.
+</li><li>On the <code>Forum Settings</code> or
+<code>Topic Settings</code> page, under "Permissions", next to the 
+relevant role (e.g., "student"), from the <strong><code>Permission Level</code></strong>
+drop-down list, select <strong><code>None</code></strong>.
 
 <br /><br />
-</li><li>In the drop-down list next to "This site role:", select the group
-to which you want to give access.  From the drop-down list next to
-"gets this permission level:", choose a permission level (e.g.,
-<strong><code>Contributor</code></strong>), or check the boxes below the drop-down list to
-enable or disable specific functions.
+</li><li>In the <strong><code>Permission Level</code></strong>
+drop-down list next to the group name, choose a permission level
+(e.g., <strong><code>Contributor</code></strong>), or click the right arrow next to
+"Customize" and check the boxes below the drop-down list to enable or
+disable specific functions.
 
 <br /><br />
 </li><li>At the bottom of the page, click <strong><code>Save</code></strong>.
