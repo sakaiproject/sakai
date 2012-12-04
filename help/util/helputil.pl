@@ -3,6 +3,8 @@ use XML::Parser::PerlSAX;
 use LWP::Simple qw ($ua get);
 use XML::Simple;
 use Data::Dumper;
+use File::Basename;
+my $cwd = dirname(__FILE__);
 
 my %imglist;
 my %doclist;
@@ -36,7 +38,7 @@ sub transform($$$)
   my $out = shift;
   my $xsl = shift;
 
-  system("java -cp /usr/local/sakaihelp/jars/xalan-2.6.0.jar org.apache.xalan.xslt.Process -in $in -out $out -xsl $xsl");
+  system("java -cp $cwd/xalan-2.6.0.jar org.apache.xalan.xslt.Process -in $in -out $out -xsl $xsl");
 }
 
 sub update_svn_collection ($$) 

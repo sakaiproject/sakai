@@ -10,9 +10,11 @@ use XML::Simple;
 use Data::Dumper;
 use File::Copy;
 use Getopt::Long;
+use File::Basename;
+my $cwd = dirname(__FILE__);
 
-require '/usr/local/sakaiconfig/kbauth.pl';
-require '/usr/local/sakaihelp/helputil.pl';
+require $ENV{"HOME"}.'/kbauth.pl';
+require 'helputil.pl';
 
 (my $username, my $password) = getKbAuth();
 
@@ -20,7 +22,7 @@ my $KbBaseUrl = "http://remote.kb.iu.edu/REST/v0.2";
 
 my $KbMediaUrl = "https://media.kb.iu.edu/";
 
-my $xsl = "/usr/local/sakaihelp/util/kb-to-help.xsl";
+my $xsl = "$cwd/kb-to-help.xsl";
 
 #my $docrepo = $ARGV[0];
 #my $svnrepo = $ARGV[1];
@@ -29,16 +31,16 @@ my $xsl = "/usr/local/sakaihelp/util/kb-to-help.xsl";
 my $docrepo;
 my $svnrepo;
 my $preview;
-my $offline = '';
+my $offline = 1;
 
 my $result = GetOptions ("docs=s" => \$docrepo,
    "svn=s" => \$svnrepo,
    "preview=s" => \$preview, 
    "offline" => \$offline);  
 
-#my $docrepo = "/usr/local/sakaihelp/docs";
-#my $svnrepo = "/usr/local/sakaihelp/help_trunk";
-#my $preview = "sakai25";
+my $docrepo = "$cwd/docs";
+my $svnrepo = "$cwd/sakai-trunk";
+my $preview = "sakai29";
 
 my $update_from_kb = !$offline;
 
@@ -65,11 +67,20 @@ getfile($username, $password, "$KbBaseUrl/sakaiht/documents", "$docrepo/docs_kb.
 getfile($username, $password, "$KbBaseUrl/sakainew/documents", "$docrepo/newdocs_kb.xml") || die "Cannot get newdocs index\n";
 
 # read XML files
-my $docs_local = $xml->XMLin("$docrepo/docs.xml");
-my $docs_kb = $xml->XMLin("$docrepo/docs_kb.xml");
+# If docs local doen't exist 
+my $docs_local;
+if (-e "$docrepo/docs.xml") {
+	$docs_local = $xml->XMLin("$docrepo/docs.xml");
+} 
 
-my $newdocs_local = $xml->XMLin("$docrepo/newdocs.xml");
+my $newdocs_local;
+if (-e "$docrepo/newdocs.xml") {
+	$newdocs_local = $xml->XMLin("$docrepo/newdocs.xml");
+}
+
+
 my $newdocs_kb = $xml->XMLin("$docrepo/newdocs_kb.xml");
+my $docs_kb = $xml->XMLin("$docrepo/docs_kb.xml");
 
 # Fetch any update documents from docs or newdocs collections
 # - timestamp is newer, or file doesn't exist locally
@@ -80,7 +91,7 @@ foreach my $docid (keys %{$docs_kb->{document}})
    {
       if ( (! -s "$docrepo/$docid.xml") ||
 	   (! -s "$docrepo/$docid.html") ||
-	   ($docs_kb->{document}->{$docid}->{timestamp} ne $docs_local->{document}->{$docid}->{timestamp}) )
+	   (!$docs_local || $docs_kb->{document}->{$docid}->{timestamp} ne $docs_local->{document}->{$docid}->{timestamp}) )
 	{
 		print "Fetching updated docid in docs collection: $docid\n";
 
@@ -97,7 +108,7 @@ foreach my $docid (keys %{$newdocs_kb->{document}})
    {
       if ( (! -s "$docrepo/$docid.xml") ||
 	   (! -s "$docrepo/$docid.html") ||
-	   ($newdocs_kb->{document}->{$docid}->{timestamp} ne $newdocs_local->{document}->{$docid}->{timestamp}) )
+	   (!$newdocs_local || $newdocs_kb->{document}->{$docid}->{timestamp} ne $newdocs_local->{document}->{$docid}->{timestamp}) )
 	{
 		print "Fetching updated docid in newdocs collection: $docid\n";
 
