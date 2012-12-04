@@ -51,7 +51,8 @@
 		<div id="siteTypeList" 
 			 #* if templates enabled *# class="indnt3" #*end templates enabled *#>
 			#foreach ($type in $siteTypes)
-				#if (($type == $courseSiteType && $canAddCourse) || ($type == $portfolioSiteType && $canAddPortfolio) || ($type == $projectSiteType && $canAddProject))
+				#if (($type == $courseSiteType && $canAddCourse) || ($type == $portfolioSiteType && $canAddPortfolio) || ($type == $projectSiteType && $canAddProject)
+					|| ($type != $courseSiteType && $type != $portfolioSiteType && $type != $projectSiteType))
 					<p class="checkbox indnt1">
 						<input type="radio" name="itemType" id="$type" value="$type" #if ($type == $typeSelected) checked="checked" #end/>
 						<label for = "$type">
