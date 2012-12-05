@@ -6778,6 +6778,7 @@ public class SiteAction extends PagedResourceActionII {
 		try {
 			Site site = getStateSite(state);
 			state.setAttribute(STATE_SITE_ACCESS_PUBLISH, Boolean.valueOf(site.isPublished()));
+			state.setAttribute(STATE_SITE_ACCESS_INCLUDE, Boolean.valueOf(site.isPubView()));
 			boolean joinable = site.isJoinable();
 			state.setAttribute(STATE_JOINABLE, Boolean.valueOf(joinable));
 			String joinerRole = site.getJoinerRole();
