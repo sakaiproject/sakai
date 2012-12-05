@@ -417,9 +417,12 @@ public class DelegatedAccessDaoImpl extends JdbcDaoSupport implements DelegatedA
 	 */
 	
 	public List<String> findActiveSites(String[] siteIds){
+		List<String> returnList = new ArrayList<String>();
+		
+		if(siteIds == null || siteIds.length == 0){
+			return returnList;
+		}
 		try{
-			List<String> returnList = new ArrayList<String>();
-
 			int subArrayIndex = 0;
 			do{
 				int subArraySize = ORACLE_IN_CLAUSE_SIZE_LIMIT;
