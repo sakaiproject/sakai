@@ -1,0 +1,137 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html><head>
+<title>How categories and weighting affect
+     grade calculation in percentage gradebooks</title>
+<style type="text/css">
+		/* Style for specific inline images */
+		div.image{display: inline;}div.image{display: inline;}div.image{display: inline;}
+		/* Style for specific ordered lists */
+		
+		/* Style for specific table cells */
+		</style>
+<link type="text/css" href="/library/skin/tool_base.css" media="all" rel="stylesheet" />
+<link type="text/css" href="/library/skin/default/tool.css" media="all" rel="stylesheet" />
+</head>
+<body>
+<div class="helpBody">
+<h2>How categories and weighting affect
+     grade calculation in percentage gradebooks</h2>
+
+
+<p>The way your gradebook calculates course grades depends on how you
+have set it up. For more information on setting up the Gradebook, see
+<a href="content.hlp?docId=avdp">Using categories and weighted grades in Gradebook</a>. The following examples
+illustrate how the different choices in <strong><code>Gradebook Setup</code></strong> will
+affect how students' course grades are calculated.</p>
+
+<a name="top"> </a>
+
+<p>On this page:</p>
+
+
+
+<ul><li><a href="#percent">Displaying grades as percentages with no
+categories and no weighting</a> 
+</li><li><a href="#percentcat">Displaying grades as percentages with simple
+categories and no weighting</a>
+</li><li><a href="#percentweight">Displaying grades as percentages with
+weighted categories</a>
+</li></ul>
+
+<hr />
+
+<a name="percent"> </a>
+
+<h3>Displaying grades as percentages with no categories and no
+weighting</h3>
+
+<p>In this example, the instructor has set up the gradebook with no
+categories and no weighting.</p>
+
+<div class="inlineimage image"><img class="noborder" src="image/a017i.PNG" alt="Gradebook table with percentages and  no categories" /></div>
+
+<table class="noborder" cellpadding="4"><col /><col /><col /><tr valign="top"><th align="left" class="noborder">Title </th><th align="left" class="noborder">Grade (%) </th><th align="left" class="noborder">Item value (Relative weight)</th></tr><tr valign="top"><td align="left" class="noborder">Exam 1 </td><td align="center" class="noborder">75 </td><td align="center" class="noborder">1</td></tr><tr valign="top"><td align="left" class="noborder">Final Exam </td><td align="center" class="noborder">92 </td><td align="center" class="noborder">2</td></tr><tr valign="top"><td align="left" class="noborder">Quiz 1 </td><td align="center" class="noborder">93 </td><td align="center" class="noborder">0.5</td></tr><tr valign="top"><td align="left" class="noborder">Final Project </td><td align="center" class="noborder">83 </td><td align="center" class="noborder">3</td></tr><tr valign="top"><td align="left" class="noborder">Midterm Project </td><td align="center" class="noborder">70 </td><td align="center" class="noborder">1
+</td></tr></table>
+
+<p>The course grade is the sum of all the grades multiplied by their
+respective relative weights, divided by the sum of the weights.</p>
+
+<p><strong>Course grade:</strong> 83.26% [(1*75+2*92+0.5*93+1*70+3*83)/7.5]</p>
+
+<p><a href="#top">Back to top</a></p>
+
+<a name="percentcat"> </a>
+
+<h3>Displaying grades as percentages with simple categories and no
+weighting</h3>
+
+<p>In this example, the instructor has set up the gradebook with simple,
+unweighted categories.</p>
+
+<div class="inlineimage image"><img class="noborder" src="image/a020k.png" alt="Gradebook table with percentages and  simple categories" /></div>
+
+<table class="noborder" cellpadding="4"><col /><col /><col /><col /><tr valign="top"><th align="left" class="noborder">Category </th><th align="left" class="noborder">Title </th><th align="left" class="noborder">Grade (%) </th><th align="left" class="noborder">Item value (Relative weight)</th></tr><tr valign="top"><th align="left" class="noborder">Exams </th><td align="left" class="noborder">Exam 1 </td><td align="center" class="noborder">75 </td><td align="center" class="noborder">1</td></tr><tr valign="top"><td align="left" class="noborder">  </td><td align="left" class="noborder">Final Exam </td><td align="center" class="noborder">92 </td><td align="center" class="noborder">2</td></tr><tr valign="top"><td align="left" class="noborder">  </td><td align="left" class="noborder">Quiz 1 </td><td align="center" class="noborder">93 </td><td align="center" class="noborder">0.5</td></tr><tr valign="top"><th align="left" class="noborder">Projects </th><td align="left" class="noborder">Final Project </td><td align="center" class="noborder">83 </td><td align="center" class="noborder">3</td></tr><tr valign="top"><td align="left" class="noborder">  </td><td align="left" class="noborder">Midterm Project </td><td align="center" class="noborder">70 </td><td align="center" class="noborder">1
+</td></tr></table>
+
+<p>As in the example with no categories, the course grade is the sum of
+all the grades multiplied by their respective relative weights,
+divided by the sum of the weights.</p>
+
+<p><strong>Course grade:</strong> 83.26% [(1*75+2*92+0.5*93+1*70+3*83)/7.5]</p>
+
+<p>With simple categories, the instructor is able to see the student's overall
+percentage for each category, which is calculated in the same way as the course
+grade.  For example:</p>
+
+<p><strong>Total (Projects):</strong> 79.75% [(3*83+1*70)/4]</p>
+
+<p>However, these category percentages do not affect the student's grade
+for the course.</p>
+
+<p><a href="#top">Back to top</a></p>
+
+<a name="percentweight"> </a>
+
+<h3>Displaying grades as percentages with weighted categories</h3>
+
+<p>In this example, the instructor has set up the gradebook with weighted
+categories.</p>
+
+<div class="inlineimage image"><img class="noborder" src="image/a020j.png" alt="Gradebook table with weighted categories" /></div>
+
+<h4>Category Exams (70% weight)</h4>
+
+<table class="noborder" cellpadding="4"><col /><col /><col /><tr valign="top"><th align="left" class="noborder">Title </th><th align="left" class="noborder">Grade (%) </th><th align="left" class="noborder">Item value (Relative weight)
+</th></tr><tr valign="top"><td align="left" class="noborder">Exam 1 </td><td align="center" class="noborder">75 </td><td align="center" class="noborder">1
+</td></tr><tr valign="top"><td align="left" class="noborder">Final Exam </td><td align="center" class="noborder">92 </td><td align="center" class="noborder">2
+</td></tr><tr valign="top"><td align="left" class="noborder">Quiz 1 </td><td align="center" class="noborder">93 </td><td align="center" class="noborder">0.5</td></tr></table>
+
+<p><strong>Total (Exams):</strong> 87.28% [(1*75+2*92+0.5*93)/3.5]</p>
+
+<p>The total percentage for the category is the sum of the grades
+multiplied by their respective relative weights, divided by the sum of
+the weights.</p>
+
+<h4>Category Projects (30% weight)</h4>
+
+<table class="noborder" cellpadding="4"><col /><col /><col /><tr valign="top"><th align="left" class="noborder">Title </th><th align="left" class="noborder">Grade (%) </th><th align="left" class="noborder">Item value (Relative weight)</th></tr><tr valign="top"><td align="left" class="noborder">Final Project </td><td align="center" class="noborder">83 </td><td align="center" class="noborder">3
+</td></tr><tr valign="top"><td align="left" class="noborder">Midterm Project </td><td align="center" class="noborder">70 </td><td align="center" class="noborder">1</td></tr></table>
+
+<p><strong>Total (Projects):</strong> 79.75% [(3*83+1*70)/4]</p>
+
+<p><strong>Overall course grade (Exams and Projects):</strong> 85.02%</p>
+
+<table class="noborder" cellpadding="4"><col /><col /><col /><tr valign="top"><th align="left" class="noborder">Category </th><th align="left" class="noborder">Weight </th><th align="left" class="noborder">Contribution to grade</th></tr><tr valign="top"><td align="left" class="noborder">Exams </td><td align="center" class="noborder">70 </td><td align="left" class="noborder">61.1% (70%*87.28%)</td></tr><tr valign="top"><td align="left" class="noborder">Projects </td><td align="center" class="noborder">30 </td><td align="left" class="noborder">23.92% (30%*79.75%)</td></tr><tr valign="top"><th align="left" class="noborder">Total </th><td align="left" class="noborder">  </td><td align="left" class="noborder">85.02% (61.1%+23.92%)</td></tr></table>
+
+<p>In the unweighted scenarios above, the sum of the relative weights for
+the exams was 3.5, which is about 47% of the overall sum of the
+relative weights for the course, while the projects were collectively
+worth 4/7.5, or about 53% of the total grade.  With weighted
+categories, the instructor has set those weights to 70% and 30%, respectively.
+Since this hypothetical student did better on the exams than on the projects,
+the course grade is higher than without the category weights.</p>
+
+<p><a href="#top">Back to top</a></p>
+
+</div>
+</body></html>
