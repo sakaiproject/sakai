@@ -113,8 +113,6 @@ public class NewsAction extends VelocityPortletPaneledAction
 		// detect that we have not done this, yet
 		if (state.getAttribute(STATE_CHANNEL_TITLE) == null)
 		{
-			state.setAttribute(STATE_CHANNEL_TITLE, config.getTitle());
-
 			String channelUrl = StringUtils.trimToNull(config.getInitParameter(PARAM_CHANNEL_URL));
 			if (channelUrl == null)
 			{
@@ -124,11 +122,10 @@ public class NewsAction extends VelocityPortletPaneledAction
 
 		}
 		
-		if (state.getAttribute(STATE_PAGE_TITLE) == null)
-		{
-			SitePage p = SiteService.findPage(getCurrentSitePageId());
-			state.setAttribute(STATE_PAGE_TITLE, p.getTitle());
-		}
+		// always set the titles because they might have been changed in Page Order Helper.
+		state.setAttribute(STATE_CHANNEL_TITLE, config.getTitle());
+		SitePage p = SiteService.findPage(getCurrentSitePageId());
+		state.setAttribute(STATE_PAGE_TITLE, p.getTitle());
 
 		if (state.getAttribute(GRAPHIC_VERSION_TEXT) == null)
 		{
