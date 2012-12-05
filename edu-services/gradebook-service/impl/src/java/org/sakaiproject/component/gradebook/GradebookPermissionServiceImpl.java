@@ -671,7 +671,7 @@ public class GradebookPermissionServiceImpl extends BaseHibernateManager impleme
 						if((assignMap.containsKey(key) && ((String)assignMap.get(key)).equalsIgnoreCase(GradebookService.viewPermission))
 								|| !assignMap.containsKey(key))
 						{
-							assignMap.put(key, entry.getKey());
+							assignMap.put(key, entry.getValue());
 						}
 					}
 				}
