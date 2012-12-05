@@ -20,25 +20,20 @@
       <property name="name"><value>Create/Edit/Delete Announcement</value></property>
       <property name="location"><value>/sakai_announcements/arcr.html</value></property>
    </bean>
-   <bean id="postAnnouncement" class="org.sakaiproject.component.app.help.model.ResourceBean">
-      <property name="docId"><value>arbw</value></property>
-      <property name="name"><value>Post Announcement</value></property>
-      <property name="location"><value>/sakai_announcements/arbw.html</value></property>
-   </bean>
    <bean id="reviseAnnouncement" class="org.sakaiproject.component.app.help.model.ResourceBean">
       <property name="docId"><value>arbd</value></property>
       <property name="name"><value>Read Announcement</value></property>
       <property name="location"><value>/sakai_announcements/arbd.html</value></property>
    </bean>
-   <bean id="deleteAnnouncement" class="org.sakaiproject.component.app.help.model.ResourceBean">
-      <property name="docId"><value>aram</value></property>
-      <property name="name"><value>Set Announcement Permissions</value></property>
-      <property name="location"><value>/sakai_announcements/aram.html</value></property>
-   </bean>
     <bean id="mergeAnnouncement" class="org.sakaiproject.component.app.help.model.ResourceBean">
       <property name="docId"><value>aqzq</value></property>
       <property name="name"><value>Merge Announcement</value></property>
       <property name="location"><value>/sakai_announcements/aqzq.html</value></property>
+   </bean>
+   <bean id="reorderAnnouncement" class="org.sakaiproject.component.app.help.model.ResourceBean">
+      <property name="docId"><value>bcrp</value></property>
+      <property name="name"><value>Reorder Announcements</value></property>
+      <property name="location"><value>/sakai_announcements/bcrp.html</value></property>
    </bean>
 
     <bean id="org.sakaiproject.api.app.help.TableOfContents" 
@@ -53,10 +48,9 @@
                      <ref bean="announcementAbout"/>
                      <ref bean="announcementOverview"/>
                      <ref bean="createAnnouncement"/>
-                     <ref bean="postAnnouncement"/>
                      <ref bean="reviseAnnouncement"/>
-                     <ref bean="deleteAnnouncement"/>
                      <ref bean="mergeAnnouncement"/>
+                     <ref bean="reorderAnnouncement"/>
                   </list>
                </property>
             </bean>
