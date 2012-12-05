@@ -113,7 +113,9 @@ public class DelegatedAccessDaoImpl extends JdbcDaoSupport implements DelegatedA
 	public Map<String, List<String>> getNodesBySiteRef(String[] siteRefs, String hierarchyId){
 		try{
 			Map<String, List<String>> returnMap = new HashMap<String, List<String>>();
-			
+			if(siteRefs == null || siteRefs.length == 0){
+				return returnMap;
+			}
 			int subArrayIndex = 0;
 			do{
 				int subArraySize = ORACLE_IN_CLAUSE_SIZE_LIMIT;
@@ -184,6 +186,9 @@ public class DelegatedAccessDaoImpl extends JdbcDaoSupport implements DelegatedA
 	
 	public void updateSiteProperty(String[] siteIds, String propertyName, String propertyValue){
 		try {
+			if(siteIds == null || siteIds.length == 0){
+				return;
+			}
 			String query = getStatement("update.siteProperty");
 			
 			if(oracle){
@@ -216,6 +221,9 @@ public class DelegatedAccessDaoImpl extends JdbcDaoSupport implements DelegatedA
 	
 	public void removeSiteProperty(String[] siteIds, String propertyName){
 		try{
+			if(siteIds == null || siteIds.length == 0){
+				return;
+			}
 			int subArrayIndex = 0;
 			do{
 				int subArraySize = ORACLE_IN_CLAUSE_SIZE_LIMIT;
@@ -305,7 +313,9 @@ public class DelegatedAccessDaoImpl extends JdbcDaoSupport implements DelegatedA
 	public Map<String, Map<String, String>> searchSitesForProp(String[] props, String[] siteIds){
 		try{
 			Map<String, Map<String, String>> returnMap = new HashMap<String, Map<String, String>>();
-			
+			if(props == null || props.length == 0 || siteIds == null || siteIds.length == 0){
+				return returnMap;
+			}
 			int subArrayIndex = 0;
 			do{
 				int subArraySize = ORACLE_IN_CLAUSE_SIZE_LIMIT;
@@ -372,7 +382,9 @@ public class DelegatedAccessDaoImpl extends JdbcDaoSupport implements DelegatedA
 	public Map<String, Set<String>> getNodesAndPermsForUser(String userId, String[] nodeIds){
 		try{
 			Map<String, Set<String>> returnMap = new HashMap<String, Set<String>>();
-			
+			if(nodeIds == null || nodeIds.length == 0){
+				return returnMap;
+			}
 			int subArrayIndex = 0;
 			do{
 				int subArraySize = ORACLE_IN_CLAUSE_SIZE_LIMIT;
@@ -468,6 +480,9 @@ public class DelegatedAccessDaoImpl extends JdbcDaoSupport implements DelegatedA
 	
 	public void removeAnonAndAuthRoles(String[] siteRefs){
 		try{
+			if(siteRefs == null || siteRefs.length == 0){
+				return;
+			}
 			int subArrayIndex = 0;
 			do{
 				int subArraySize = ORACLE_IN_CLAUSE_SIZE_LIMIT;
@@ -499,7 +514,9 @@ public class DelegatedAccessDaoImpl extends JdbcDaoSupport implements DelegatedA
 	}
 	
 	public void copyRole(String fromRealm, String fromRole, String[] toRealm, String toRole){
-
+		if(toRealm == null || toRealm.length == 0){
+			return;
+		}
 		try{
 			int subArrayIndex = 0;
 			do{
@@ -547,7 +564,10 @@ public class DelegatedAccessDaoImpl extends JdbcDaoSupport implements DelegatedA
 	public List<String> getSitesWithDelegatedAccessTool(String[] siteIds){
 		try{
 			List<String> returnList = new ArrayList<String>();
-
+			if(siteIds == null || siteIds.length == 0){
+				return returnList;
+			}
+			
 			int subArrayIndex = 0;
 			do{
 				int subArraySize = ORACLE_IN_CLAUSE_SIZE_LIMIT;
