@@ -11424,7 +11424,7 @@ public class SiteAction extends PagedResourceActionII {
 					edit.setTitle(siteInfo.title);
 					edit.setPublished(true);
 					edit.setPubView(false);
-					edit.setType(templateId);
+					//edit.setType(templateId);
 					// ResourcePropertiesEdit rpe = edit.getPropertiesEdit();
 					try {
 						SiteService.save(edit);
