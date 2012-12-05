@@ -62,7 +62,7 @@ public class DelegatedAccessDaoImpl extends JdbcDaoSupport implements DelegatedA
 			statements.setDelimiterParsingDisabled(true); //don't split properties
 			statements.load(url); //now load our file
 		} catch (ConfigurationException e) {
-			log.error(e.getClass() + ": " + e.getMessage());
+			log.error(e.getClass() + ": " + e.getMessage(), e);
 			return;
 		}
 	}
@@ -77,7 +77,7 @@ public class DelegatedAccessDaoImpl extends JdbcDaoSupport implements DelegatedA
 		try {
 			return statements.getString(key);
 		} catch (NoSuchElementException e) {
-			log.error("Statement: '" + key + "' could not be found in: " + statements.getFileName());
+			log.error("Statement: '" + key + "' could not be found in: " + statements.getFileName(), e);
 			return null;
 		}
 	}
@@ -105,6 +105,7 @@ public class DelegatedAccessDaoImpl extends JdbcDaoSupport implements DelegatedA
 				}
 			});
 		}catch (DataAccessException ex) {
+			log.error("Error executing query: " + ex.getClass() + ":" + ex.getMessage(), ex);
 			return null;
 		}
 	}
@@ -152,6 +153,7 @@ public class DelegatedAccessDaoImpl extends JdbcDaoSupport implements DelegatedA
 			
 			return returnMap;
 		}catch (DataAccessException ex) {
+			log.error("Error executing query: " + ex.getClass() + ":" + ex.getMessage(), ex);
 			return null;
 		}
 	}
@@ -165,6 +167,7 @@ public class DelegatedAccessDaoImpl extends JdbcDaoSupport implements DelegatedA
 				}
 			});
 		}catch (DataAccessException ex) {
+			log.error("Error executing query: " + ex.getClass() + ":" + ex.getMessage(), ex);
 			return null;
 		}
 	}
@@ -207,7 +210,7 @@ public class DelegatedAccessDaoImpl extends JdbcDaoSupport implements DelegatedA
 			
 			getJdbcTemplate().update(query);
 		} catch (DataAccessException ex) {
-           log.error("Error executing query: " + ex.getClass() + ":" + ex.getMessage());
+           log.error("Error executing query: " + ex.getClass() + ":" + ex.getMessage(), ex);
 		}
 	}
 	
@@ -236,7 +239,7 @@ public class DelegatedAccessDaoImpl extends JdbcDaoSupport implements DelegatedA
 				subArrayIndex = subArrayIndex + subArraySize;
 			}while(subArrayIndex < siteIds.length);
 		}catch (DataAccessException ex) {
-			log.error("Error executing query: " + ex.getClass() + ":" + ex.getMessage());
+			log.error("Error executing query: " + ex.getClass() + ":" + ex.getMessage(), ex);
 		}
 	}
 	
@@ -294,6 +297,7 @@ public class DelegatedAccessDaoImpl extends JdbcDaoSupport implements DelegatedA
 				}
 			});
 		}catch (DataAccessException ex) {
+			log.error("Error executing query: " + ex.getClass() + ":" + ex.getMessage(), ex);
 			return new ArrayList<String[]>();
 		}
 	}
@@ -352,6 +356,7 @@ public class DelegatedAccessDaoImpl extends JdbcDaoSupport implements DelegatedA
 			
 			return returnMap;
 		}catch (DataAccessException ex) {
+			log.error("Error executing query: " + ex.getClass() + ":" + ex.getMessage(), ex);
 			return null;
 		}
 	}
@@ -360,7 +365,7 @@ public class DelegatedAccessDaoImpl extends JdbcDaoSupport implements DelegatedA
 		try {
 			getJdbcTemplate().update(getStatement("delete.orphaned.permissions"));
 		} catch (DataAccessException ex) {
-           log.error("Error executing query: " + ex.getClass() + ":" + ex.getMessage());
+           log.error("Error executing query: " + ex.getClass() + ":" + ex.getMessage(), ex);
 		}
 	}
 	
@@ -407,6 +412,7 @@ public class DelegatedAccessDaoImpl extends JdbcDaoSupport implements DelegatedA
 			
 			return returnMap;
 		}catch (DataAccessException ex) {
+			log.error("Error executing query: " + ex.getClass() + ":" + ex.getMessage(), ex);
 			return null;
 		}
 	}
@@ -454,6 +460,7 @@ public class DelegatedAccessDaoImpl extends JdbcDaoSupport implements DelegatedA
 
 			return returnList;
 		}catch (DataAccessException ex) {
+			log.error("Error executing query: " + ex.getClass() + ":" + ex.getMessage(), ex);
 			return null;
 		}
 
@@ -487,6 +494,7 @@ public class DelegatedAccessDaoImpl extends JdbcDaoSupport implements DelegatedA
 				subArrayIndex = subArrayIndex + subArraySize;
 			}while(subArrayIndex < siteRefs.length);
 		}catch (DataAccessException ex) {
+			log.error("Error executing query: " + ex.getClass() + ":" + ex.getMessage(), ex);
 		}
 	}
 	
@@ -519,6 +527,7 @@ public class DelegatedAccessDaoImpl extends JdbcDaoSupport implements DelegatedA
 				subArrayIndex = subArrayIndex + subArraySize;
 			}while(subArrayIndex < toRealm.length);
 		}catch (DataAccessException ex) {
+			log.error("Error executing query: " + ex.getClass() + ":" + ex.getMessage(), ex);
 		}
 	}
 	
@@ -570,6 +579,7 @@ public class DelegatedAccessDaoImpl extends JdbcDaoSupport implements DelegatedA
 
 			return returnList;
 		}catch (DataAccessException ex) {
+			log.error("Error executing query: " + ex.getClass() + ":" + ex.getMessage(), ex);
 			return null;
 		}
 
