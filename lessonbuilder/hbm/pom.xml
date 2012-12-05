@@ -20,7 +20,7 @@
     <dependencies>
         <dependency>
             <groupId>${project.groupId}</groupId>
-            <artifactId>sakai-lessonbuildertool-api</artifactId>
+            <artifactId>lessonbuilder-api</artifactId>
         </dependency>
     </dependencies>
 

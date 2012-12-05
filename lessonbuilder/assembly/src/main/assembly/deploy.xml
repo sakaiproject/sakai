@@ -11,17 +11,17 @@
             <useTransitiveDependencies>false
             </useTransitiveDependencies>
             <includes>
-                <include>org.sakaiproject.lessonbuilder:sakai-lessonbuildertool-api:jar:*</include>
-                <include>org.sakaiproject.lessonbuilder:sakai-lessonbuildertool-help:jar:*</include>
-		<include>org.sakaiproject.lessonbuilder:sakai-lessonbuildertool-hbm:jar:*</include>
+                <include>org.sakaiproject.lessonbuilder:lessonbuilder-api:jar:*</include>
+                <include>org.sakaiproject.lessonbuilder:lessonbuilder-help:jar:*</include>
+		<include>org.sakaiproject.lessonbuilder:lessonbuilder-hbm:jar:*</include>
             </includes>
             <unpack>false</unpack>
         </dependencySet>
         <dependencySet>
-            <outputDirectory>components/sakai-lessonbuildertool-components</outputDirectory>
+            <outputDirectory>components/lessonbuilder-components</outputDirectory>
             <useTransitiveDependencies>false</useTransitiveDependencies>
             <includes>
-                <include>org.sakaiproject.lessonbuilder:sakai-lessonbuildertool-components:war:*</include>
+                <include>org.sakaiproject.lessonbuilder:lessonbuilder-components:war:*</include>
             </includes>
             <unpack>true</unpack>
         </dependencySet>
@@ -32,7 +32,7 @@
             <!-- <outputFileNameMapping>imsblti.war</outputFileNameMapping> -->
             <useTransitiveDependencies>false</useTransitiveDependencies>
             <includes>
-                 <include>org.sakaiproject.lessonbuilder:sakai-lessonbuildertool-tool:war:*</include>
+                 <include>org.sakaiproject.lessonbuilder:lessonbuilder-tool:war:*</include>
             </includes>
             <unpack>false</unpack>
         </dependencySet>
