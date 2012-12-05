@@ -108,6 +108,10 @@ abstract public class SignupUIBaseBean implements SignupBeanConstants, SignupMes
 
 	private int maxAttendeesPerSlot;
 	
+	protected String customLocation;
+		
+	protected String customCategory;
+	
 	protected static final String ICS_MIME_TYPE="text/calendar";
 
 
@@ -793,6 +797,22 @@ abstract public class SignupUIBaseBean implements SignupBeanConstants, SignupMes
 
 	public void setIframeId(String iframeId) {
 		this.iframeId = iframeId;
-	}	
+	}
+
+	public String getCustomLocation() {
+		return customLocation;
+	}
+
+	public void setCustomLocation(String customLocation) {
+		this.customLocation = customLocation;
+	}
+
+	public String getCustomCategory() {
+		return customCategory;
+	}
+
+	public void setCustomCategory(String customCategory) {
+		this.customCategory = customCategory;
+	}
 
 }

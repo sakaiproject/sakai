@@ -81,7 +81,7 @@
 									<f:selectItems value="#{EditMeetingSignupMBean.allLocations}"/>
 								</h:selectOneMenu>
 								<h:outputLabel id="customLocationLabel" for="customLocation" value="#{msgs.tab_event_edit_location_custom}" /><h:outputText value="&nbsp;" escape="false" />
-		                        <h:inputText id="customLocation" size="40" value="#{EditMeetingSignupMBean.signupMeeting.location}" styleClass="editText">  
+		                        <h:inputText id="customLocation" size="40" value="#{EditMeetingSignupMBean.customLocation}" styleClass="editText">  
 		                            <f:validator validatorId="Signup.EmptyStringValidator"/>
 		                            <f:validateLength maximum="255" />
 		                        </h:inputText>
@@ -98,7 +98,7 @@
 									<f:selectItems value="#{EditMeetingSignupMBean.allCategories}"/>
 								</h:selectOneMenu>
 								<h:outputLabel id="customCategoryLabel" for="customCategory" value="#{msgs.event_category_edit}" /><h:outputText value="&nbsp;" escape="false"/>
-		                        <h:inputText id="customCategory" size="40" value="#{EditMeetingSignupMBean.signupMeeting.category}" styleClass="editText">  
+		                        <h:inputText id="customCategory" size="40" value="#{EditMeetingSignupMBean.customCategory}" styleClass="editText">  
 		                            <f:validator validatorId="Signup.EmptyStringValidator"/>
 		                            <f:validateLength maximum="255" />
 		                        </h:inputText>

@@ -191,6 +191,13 @@ public class CopyMeetingSignupMBean extends SignupUIBaseBean {
 			setNumberOfSlots(1);
 
 		}
+		
+		//populate location and cateogry data for new meeting
+		//since it's copymeeting, the dropdown selections should have it already there.
+		this.selectedLocation=this.signupMeeting.getLocation();
+		this.selectedCategory = this.signupMeeting.getCategory();
+		this.customLocation=null;
+		this.customCategory=null;
 
 		populateDataForBeginDeadline(this.signupMeeting);
 		
@@ -398,7 +405,7 @@ public class CopyMeetingSignupMBean extends SignupUIBaseBean {
 		}
 		
 		//Set Location		
-		if (StringUtils.isBlank(this.signupMeeting.getLocation())){
+		if (StringUtils.isBlank(getCustomLocation())){
 			if (selectedLocation.equals(Utilities.rb.getString("select_location"))){
 				validationError = true;
 				Utilities.addErrorMessage(Utilities.rb.getString("event.location_not_assigned"));
@@ -407,18 +414,24 @@ public class CopyMeetingSignupMBean extends SignupUIBaseBean {
 			this.signupMeeting.setLocation(selectedLocation);
 			
 		}
-		//clear the location fields
+		else{
+			this.signupMeeting.setLocation(getCustomLocation());
+		}
+		//clear the location fields???
 		this.selectedLocation="";
 		
 		//Set Category
 		//if textfield is blank, check the dropdown
-		if (StringUtils.isBlank(this.signupMeeting.getCategory())){
+		if (StringUtils.isBlank(getCustomCategory())){
 			//if dropdown is not the default, then use its value
 			if(!StringUtils.equals(selectedCategory, Utilities.rb.getString("select_category"))) {
 					this.signupMeeting.setCategory(selectedCategory);
 			}
 		}
-		//clear the category fields
+		else{
+			this.signupMeeting.setCategory(getCustomCategory());
+		}
+		//clear the category fields???
 		this.selectedCategory="";
 		
 		//set the creator/organiser
@@ -770,7 +783,7 @@ public class CopyMeetingSignupMBean extends SignupUIBaseBean {
 	
 	
 	public String getselectedCategory() {
-		return selectedLocation;
+		return selectedCategory;
 	}
 	public void setselectedCategory(String selectedCategory) {
 		this.selectedCategory = selectedCategory;
