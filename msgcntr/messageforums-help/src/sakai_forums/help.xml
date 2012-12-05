@@ -122,6 +122,18 @@
             <value>/sakai_forums/avai.html</value>
         </property>
     </bean>
+    <bean id="mcChangeTemplate" class="org.sakaiproject.component.app.help.model.ResourceBean">
+        <property name="docId">
+            <value>bcss</value>
+        </property>
+        <property name="name">
+            <value>Change template settings</value>
+        </property>
+        <property name="location">
+            <value>/sakai_forums/bcss.html</value>
+        </property>
+    </bean>
+
     <bean id="mcLinking" class="org.sakaiproject.component.app.help.model.ResourceBean">
         <property name="docId">
             <value>azvh</value>
@@ -174,6 +186,7 @@
                             <ref bean="mcAbout"/>
                             <ref bean="mcOverview"/>
                             <ref bean="mcCreateForumTopic"/>
+                            <ref bean="mcChangeTemplate"/>
                             <ref bean="mcCreateModeratedForum"/>
                             <ref bean="mcChangeOrder"/>
                             <ref bean="mcPermissions"/>
