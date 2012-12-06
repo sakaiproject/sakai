@@ -4747,11 +4747,13 @@ public class SiteAction extends PagedResourceActionII {
 					siteInfo = (SiteInfo) state.getAttribute(STATE_SITE_INFO);
 				}
 				User currentUser = UserDirectoryService.getCurrentUser();
-				List<String> pList = new ArrayList<String>();
-				pList.add(currentUser.getId());
-				siteInfo.title = siteTypeProvider.getSiteTitle(type, pList);
-				siteInfo.description = siteTypeProvider.getSiteDescription(type, pList);
-				siteInfo.short_description = siteTypeProvider.getSiteShortDescription(type, pList);
+				List<String> idList = new ArrayList<String>();
+				idList.add(currentUser.getEid());
+				List<String> nameList = new ArrayList<String>();
+				nameList.add(currentUser.getDisplayName());
+				siteInfo.title = siteTypeProvider.getSiteTitle(type, idList);
+				siteInfo.description = siteTypeProvider.getSiteDescription(type, nameList);
+				siteInfo.short_description = siteTypeProvider.getSiteShortDescription(type, idList);
 				siteInfo.include = false;
 				state.setAttribute(STATE_SITE_INFO, siteInfo);
 
