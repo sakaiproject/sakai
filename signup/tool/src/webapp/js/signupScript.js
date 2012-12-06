@@ -62,6 +62,51 @@
 								
 	}
 	
+	function handleDropDownAndInput(labelAdd, labelClose, inputTagName, dropdownTagName){
+		var labelAddTag = document.getElementById(labelAdd);
+		switchShowOrHide(labelAddTag);
+		
+		var labelCloseTag = document.getElementById(labelClose);
+		switchShowOrHide(labelCloseTag);
+		
+		var inputTag = document.getElementById(inputTagName);
+		switchShowOrHide(inputTag);
+		
+		var dropdownTag = document.getElementById(dropdownTagName);
+		
+		if(dropdownTag && inputTag){
+			if(inputTag.style.display!="none"){				
+				dropdownTag.style.display="none";
+				dropdownTag.disabled=true;
+			}
+			else{
+				dropdownTag.style.display="";
+				dropdownTag.disabled=false;
+				inputTag.value='';
+			}
+		}
+	}
+	
+	function initDropDownAndInput(labelAdd, labelClose, inputTagName, dropdownTagName){
+		var labelAddTag = document.getElementById(labelAdd);
+		var labelCloseTag = document.getElementById(labelClose);
+		var inputTag = document.getElementById(inputTagName);
+		var dropdownTag = document.getElementById(dropdownTagName);
+		
+		if(!dropdownTag && inputTag){//no dropdown list exists
+			inputTag.style.display="";
+			return;
+		}
+		
+		if(inputTag && inputTag.value && inputTag.value.length >0){
+			dropdownTag.style.display="none";
+			dropdownTag.disabled=true;
+			inputTag.style.display="";
+			labelCloseTag.style.display="";
+			labelAddTag.style.display="none";
+		}		
+	}
+	
 	function switchShowOrHide(tag){
 		if(tag){
 			if(tag.style.display=="none")
@@ -297,6 +342,8 @@
 				    var startTimeTag ="startTime";
 				    var endTimeTag ="endTime";
 				    var slotNumTag = document.getElementById("meeting:numberOfSlot");
+				    if(!document.getElementById("meeting:maxSlots"))
+				    	return;
 				    var maxSlots = parseInt(document.getElementById("meeting:maxSlots").innerHTML);
 					if (!slotNumTag)
  						return;	

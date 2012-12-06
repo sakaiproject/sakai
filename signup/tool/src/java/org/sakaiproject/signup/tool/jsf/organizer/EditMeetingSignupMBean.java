@@ -144,7 +144,7 @@ public class EditMeetingSignupMBean extends SignupUIBaseBean {
 		showAttendeeName = false;
 		sendEmail = DEFAULT_SEND_EMAIL;		
 		//sendEmailAttendeeOnly = false;
-		sendEmailToSelectedPeopleOnly = SEND_EMAIL_ALL_PARTICIPANTS;
+		sendEmailToSelectedPeopleOnly = SEND_EMAIL_ONLY_SIGNED_UP_ATTENDEES;
 		
 		unlimited = false;
 
@@ -214,8 +214,8 @@ public class EditMeetingSignupMBean extends SignupUIBaseBean {
 		//since it's modifying meeting, the dropdown selections should have it already there.
 		this.selectedLocation=this.signupMeeting.getLocation();
 		this.selectedCategory = this.signupMeeting.getCategory();
-		this.customLocation=null;
-		this.customCategory=null;
+		this.customLocation="";
+		this.customCategory="";
 		
 		/*pre-load all possible coordinators for step2*/
 		this.allPossibleCoordinators = this.sakaiFacade.getAllPossbileCoordinators(this.signupMeeting);
@@ -631,7 +631,7 @@ public class EditMeetingSignupMBean extends SignupUIBaseBean {
 		
 		//Set Location		
 		if (StringUtils.isBlank(getCustomLocation())){
-			if (selectedLocation.equals(Utilities.rb.getString("select_location"))){
+			if (StringUtils.isBlank(selectedLocation) || selectedLocation.equals(Utilities.rb.getString("select_location"))){
 				validationError = true;
 				Utilities.addErrorMessage(Utilities.rb.getString("event.location_not_assigned"));
 				return;

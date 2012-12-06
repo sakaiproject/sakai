@@ -458,9 +458,9 @@ public class NewSignupMeetingBean implements MeetingTypes, SignupMessageTypes, S
 		Utilities.resetMeetingList();
 		this.eidOrEmailInputByUser = null;
 		this.selectedLocation=null;
-		this.customLocation=null;
+		this.customLocation="";
 		this.selectedCategory=null;
-		this.customCategory=null;
+		this.customCategory="";
 		this.creatorUserId=null;
 		/*clean up everything in getUserDefineTimeslotBean*/
 		getUserDefineTimeslotBean().reset(UserDefineTimeslotBean.NEW_MEETING);

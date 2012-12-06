@@ -72,13 +72,23 @@
                     <h:panelGroup>
 						<!-- Displays all the locations in the dropdown -->
                         <h:selectOneMenu id="selectedLocation" value="#{NewSignupMeetingBean.selectedLocation}" rendered="#{!NewSignupMeetingBean.allLocationsEmpty}">
+							<f:validator validatorId="Signup.EmptyStringValidator"/>
 							<f:selectItems value="#{NewSignupMeetingBean.allLocations}"/>
-						</h:selectOneMenu>
-						<h:outputLabel id="customLocationLabel" for="customLocation" value="#{msgs.tab_event_location_custom}" rendered="#{!NewSignupMeetingBean.allLocationsEmpty}" /><h:outputText value="&nbsp;" escape="false" rendered="#{!NewSignupMeetingBean.allLocationsEmpty}" />
-                        <h:inputText id="customLocation" size="40" value="#{NewSignupMeetingBean.customLocation}" styleClass="editText">  
-                            <f:validator validatorId="Signup.EmptyStringValidator"/>
+						</h:selectOneMenu>						
+						<h:inputText id="customLocation" size="30" value="#{NewSignupMeetingBean.customLocation}" styleClass="editText" style="display:none">  
                             <f:validateLength maximum="255" />
                         </h:inputText>
+						
+						<h:outputLabel id="customLocationLabel" for="customLocation" styleClass="activeTag"  onclick="handleDropDownAndInput('meeting:customLocationLabel','meeting:customLocationLabel_undo','meeting:customLocation','meeting:selectedLocation')" rendered="#{!NewSignupMeetingBean.allLocationsEmpty}">
+							<h:graphicImage value="/images/plus.gif"  alt="open" title="#{msgs.tab_event_location_custom}" style="border:none;vertical-align: middle; padding:0 5px 0 15px;" styleClass="openCloseImageIcon"/>
+					   	    <h:outputText value="#{msgs.tab_event_location_custom}" escape="false" style="vertical-align: middle;"/>
+						</h:outputLabel>
+						<h:outputLabel id="customLocationLabel_undo" for="customLocation" styleClass="activeTag" style="display:none" onclick="handleDropDownAndInput('meeting:customLocationLabel','meeting:customLocationLabel_undo','meeting:customLocation','meeting:selectedLocation')" rendered="#{!NewSignupMeetingBean.allLocationsEmpty}">
+							<h:graphicImage value="/images/minus.gif"  alt="undo" title="#{msgs.event_custom_undo_tip}" style="border:none;vertical-align: middle;padding:0 5px 0 15px;" styleClass="openCloseImageIcon"/>
+					   	    <h:outputText value="#{msgs.event_custom_undo}" escape="false" style="vertical-align: middle;"/>
+						</h:outputLabel>
+						<h:outputText value="&nbsp;" escape="false" rendered="#{!NewSignupMeetingBean.allLocationsEmpty}"/>
+												                    
                         <h:message for="customLocation" errorClass="alertMessageInline"/>
                     </h:panelGroup>  
                     
@@ -88,14 +98,24 @@
                     </h:panelGroup>                                                   
                     <h:panelGroup>
 						<!-- Displays all the categories in the dropdown -->
-                        <h:selectOneMenu id="selectedCategory" value="#{NewSignupMeetingBean.selectedCategory}" rendered="#{NewSignupMeetingBean.categoriesExist}">
+                        <h:selectOneMenu id="selectedCategory" value="#{NewSignupMeetingBean.selectedCategory}"  rendered="#{NewSignupMeetingBean.categoriesExist}">
 							<f:selectItems value="#{NewSignupMeetingBean.allCategories}"/>
 						</h:selectOneMenu>
-						<h:outputLabel id="customCategoryLabel" for="customCategory" value="#{msgs.event_category_custom}" rendered="#{NewSignupMeetingBean.categoriesExist}"/><h:outputText value="&nbsp;" escape="false"  rendered="#{NewSignupMeetingBean.categoriesExist}"/>
-                        <h:inputText id="customCategory" size="40" value="#{NewSignupMeetingBean.customCategory}" styleClass="editText">  
+						<h:inputText id="customCategory" size="30" value="#{NewSignupMeetingBean.customCategory}" style="display:none" styleClass="editText">  
                             <f:validator validatorId="Signup.EmptyStringValidator"/>
                             <f:validateLength maximum="255" />
                         </h:inputText>
+                        
+						<h:outputLabel id="customCategoryLabel" for="customLocation" styleClass="activeTag"  onclick="handleDropDownAndInput('meeting:customCategoryLabel','meeting:customCategoryLabel_undo','meeting:customCategory','meeting:selectedCategory')" rendered="#{NewSignupMeetingBean.categoriesExist}">
+							<h:graphicImage value="/images/plus.gif"  alt="open" title="#{msgs.event_category_custom}" style="border:none;vertical-align: middle; padding:0 5px 0 15px;" styleClass="openCloseImageIcon"/>
+					   	    <h:outputText value="#{msgs.event_category_custom}" escape="false" style="vertical-align: middle;"/>
+						</h:outputLabel>
+						<h:outputLabel id="customCategoryLabel_undo" for="customLocation" styleClass="activeTag" style="display:none" onclick="handleDropDownAndInput('meeting:customCategoryLabel','meeting:customCategoryLabel_undo','meeting:customCategory','meeting:selectedCategory')" rendered="#{NewSignupMeetingBean.categoriesExist}">
+							<h:graphicImage value="/images/minus.gif"  alt="undo" title="#{msgs.event_custom_undo_tip}" style="border:none;vertical-align: middle;padding:0 5px 0 15px;" styleClass="openCloseImageIcon"/>
+					   	    <h:outputText value="#{msgs.event_custom_undo}" escape="false" style="vertical-align: middle;"/>
+						</h:outputLabel>
+						<h:outputText value="&nbsp;" escape="false" rendered="#{NewSignupMeetingBean.categoriesExist}"/>
+										                        
                         <h:message for="customCategory" errorClass="alertMessageInline"/>
                     </h:panelGroup>                          
                 
@@ -399,6 +419,9 @@
 	         replaceCalendarImageIcon(); 
 	         userDefinedTsChoice();
 	         setIframeHeight_DueTo_Ckeditor();
+	         
+	         initDropDownAndInput('meeting:customLocationLabel','meeting:customLocationLabel_undo','meeting:customLocation','meeting:selectedLocation');
+	         initDropDownAndInput('meeting:customCategoryLabel','meeting:customCategoryLabel_undo','meeting:customCategory','meeting:selectedCategory');
 		</script>
     </f:verbatim>
 </f:view>

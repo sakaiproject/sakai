@@ -196,8 +196,8 @@ public class CopyMeetingSignupMBean extends SignupUIBaseBean {
 		//since it's copymeeting, the dropdown selections should have it already there.
 		this.selectedLocation=this.signupMeeting.getLocation();
 		this.selectedCategory = this.signupMeeting.getCategory();
-		this.customLocation=null;
-		this.customCategory=null;
+		this.customLocation="";
+		this.customCategory="";
 
 		populateDataForBeginDeadline(this.signupMeeting);
 		
@@ -406,7 +406,7 @@ public class CopyMeetingSignupMBean extends SignupUIBaseBean {
 		
 		//Set Location		
 		if (StringUtils.isBlank(getCustomLocation())){
-			if (selectedLocation.equals(Utilities.rb.getString("select_location"))){
+			if (StringUtils.isBlank(selectedLocation) || selectedLocation.equals(Utilities.rb.getString("select_location"))){
 				validationError = true;
 				Utilities.addErrorMessage(Utilities.rb.getString("event.location_not_assigned"));
 				return;
