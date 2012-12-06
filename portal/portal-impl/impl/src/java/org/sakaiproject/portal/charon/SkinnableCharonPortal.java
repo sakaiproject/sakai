@@ -432,6 +432,8 @@ public class SkinnableCharonPortal extends HttpServlet implements Portal
 
 		if( !siteView.isEmpty() ) {
 			rcontext.put("subSites", siteView.getRenderContextObject());
+			boolean showSubsitesAsFlyout = ServerConfigurationService.getBoolean("portal.showSubsitesAsFlyout",false);
+			rcontext.put("showSubsitesAsFlyout", showSubsitesAsFlyout);
 		}
 	}
 
