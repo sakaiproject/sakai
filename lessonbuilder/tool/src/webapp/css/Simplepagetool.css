@@ -381,6 +381,9 @@ img {
 .first-row td {
    padding: 0px;
 }
+.details-row td {
+   padding-left: 2em
+}
 .gradingarea {
 	margin-left: 1em;
 	padding: 1px 5px;
