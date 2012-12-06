@@ -373,7 +373,13 @@ img {
 	border-bottom: 1px solid black
 }
 .topBorder td {
-	border-top: 1px solid black
+	border-top: 3px solid white
+}
+.first-row {
+   background-color: #e0e8ff;
+}
+.first-row td {
+   padding: 0px;
 }
 .gradingarea {
 	margin-left: 1em;
