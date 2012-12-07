@@ -27,12 +27,6 @@
       <property name="location"><value>/sakai_syllabus/arco.html</value></property>
    </bean>
    
-   <bean id="createSyllabus" class="org.sakaiproject.component.app.help.model.ResourceBean">
-      <property name="docId"><value>arbf</value></property>
-      <property name="name"><value>Create Syllabus</value></property>
-      <property name="location"><value>/sakai_syllabus/arbf.html</value></property>
-   </bean>
-   
    <bean id="changeSequence" class="org.sakaiproject.component.app.help.model.ResourceBean">
       <property name="docId"><value>aqza</value></property>
       <property name="name"><value>Change Sequence of Syllabus Item</value></property>
@@ -43,12 +37,6 @@
       <property name="docId"><value>arov</value></property>
       <property name="name"><value>Undo or change redirected Syllabus</value></property>
       <property name="location"><value>/sakai_syllabus/arov.html</value></property>
-   </bean>
-   
-   <bean id="readSyllabus" class="org.sakaiproject.component.app.help.model.ResourceBean">
-      <property name="docId"><value>areq</value></property>
-      <property name="name"><value>Read Syllabus</value></property>
-      <property name="location"><value>/sakai_syllabus/areq.html</value></property>
    </bean>
    
    <bean id="printSyllabus" class="org.sakaiproject.component.app.help.model.ResourceBean">
@@ -71,10 +59,8 @@
                      <ref bean="syllabusOverview"/>
 					<ref bean="createSyllabusItem"/>
 					<ref bean="displayWebpage"/>
-					<ref bean="createSyllabus"/>
 					<ref bean="changeSequence"/>
 					<ref bean="undoSyllabus"/>
-					<ref bean="readSyllabus"/>
 					<ref bean="printSyllabus"/>
                   </list>
                </property>
