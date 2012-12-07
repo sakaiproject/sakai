@@ -48,17 +48,12 @@ public class SiteTypeProviderImpl implements org.sakaiproject.sitemanage.api.Sit
 	
 	private static ResourceLoader rb = new ResourceLoader("SiteTypeProvider");
 	
-	private static String SITE_TYPE_GRADTOOLS_STUDENT = "GradToolsStudent";
-	
 	/**
 	 * {@inheritDoc}
 	 */
 	public List<String> getTypes()
 	{
 		List<String> rv = new ArrayList<String>();
-		rv.add(SITE_TYPE_GRADTOOLS_STUDENT);
-		rv.add("GradToolsRackham");
-		rv.add("GradToolsDepartment");
 		return rv;
 	}
 	
@@ -67,27 +62,7 @@ public class SiteTypeProviderImpl implements org.sakaiproject.sitemanage.api.Sit
 	 */
 	public List<String> getTypesForSiteList()
 	{
-		List<String> rv = new ArrayList<String>();
-		// if there is a GradToolsStudent choice inside
-		boolean remove = false;
-		try {
-			// the Grad Tools site option is only presented to
-			// GradTools Candidates
-			String userId = StringUtils.trimToEmpty(SessionManager.getCurrentSessionUserId());
-
-			// am I a grad student?
-			if (!isGradToolsCandidate(userId)) {
-				// not a gradstudent
-				remove = true;
-			}
-		} catch (Exception e) {
-			remove = true;
-			log.warn("getTypesForSiteCreation GradToolsStudent sites", e);
-		}
-		if (!remove) {
-			rv.add(SITE_TYPE_GRADTOOLS_STUDENT);
-		}
-		return rv;
+		return new ArrayList<String>();
 	}
 	
 	/**
@@ -95,30 +70,7 @@ public class SiteTypeProviderImpl implements org.sakaiproject.sitemanage.api.Sit
 	 */
 	public List<String> getTypesForSiteCreation()
 	{
-		List<String> rv = new ArrayList<String>();
-		try {
-			// the Grad Tools site option is only presented to UM grad
-			// students
-			String userId = StringUtils.trimToEmpty(SessionManager.getCurrentSessionUserId());
-
-			// am I a UM grad student?
-			Boolean isGradStudent = Boolean.valueOf(
-					isGradToolsCandidate(userId));
-
-			// if I am a UM grad student, do I already have a Grad Tools
-			// site?
-			boolean noGradToolsSite = true;
-			if (hasGradToolsStudentSite(userId))
-				noGradToolsSite = false;
-			
-			if (isGradStudent && noGradToolsSite)
-			{
-				rv.add(SITE_TYPE_GRADTOOLS_STUDENT);
-			}
-		} catch (Exception e) {
-			log.warn(this + "getTypesForSiteCreation ", e);
-		}
-		return rv;
+		return new ArrayList<String>();
 	}
 
 	/**
@@ -126,10 +78,7 @@ public class SiteTypeProviderImpl implements org.sakaiproject.sitemanage.api.Sit
 	 */
 	public HashMap<String, String> getTemplateForSiteTypes()
 	{
-		HashMap<String, String> rv = new HashMap<String, String>();
-		// site template used to create a UM Grad Tools student site
-		rv.put(SITE_TYPE_GRADTOOLS_STUDENT, "!gtstudent");
-		return rv;	
+		return new HashMap<String, String>();	
 	}
 	
 	/**
@@ -137,21 +86,7 @@ public class SiteTypeProviderImpl implements org.sakaiproject.sitemanage.api.Sit
 	 */
 	public String getSiteTitle(String type, List<String> params)
 	{
-		String rv = "";
-		
-		if (type.equals(SITE_TYPE_GRADTOOLS_STUDENT))
-		{
-			rv += rb.getString("java.grad");
-			if (params != null)
-			{
-				for(String p : params)
-				{
-					rv += "-";
-					rv += p;
-				}
-			}
-		}
-		return rv;
+		return "";
 	}
 	
 	/**
@@ -159,21 +94,7 @@ public class SiteTypeProviderImpl implements org.sakaiproject.sitemanage.api.Sit
 	 */
 	public String getSiteDescription(String type, List<String> params)
 	{
-		String rv = "";
-		
-		if (type.equals(SITE_TYPE_GRADTOOLS_STUDENT))
-		{
-			rv += rb.getString("java.gradsite");
-			if (params != null)
-			{
-				for(String p : params)
-				{
-					rv += "-";
-					rv += p;
-				}
-			}
-		}
-		return rv;
+		return "";
 	}
 	
 	/**
@@ -181,22 +102,7 @@ public class SiteTypeProviderImpl implements org.sakaiproject.sitemanage.api.Sit
 	 */
 	public String getSiteShortDescription(String type, List<String> params)
 	{
-		String rv = "";
-		
-		if (type.equals(SITE_TYPE_GRADTOOLS_STUDENT))
-		{
-			rv += rb.getString("java.grad");
-			if (params != null)
-			{
-				for(String p : params)
-				{
-					rv += "-";
-					rv += p;
-				}
-			}
-		}
-		
-		return rv;
+		return "";
 	}
 	
 	/**
@@ -204,83 +110,8 @@ public class SiteTypeProviderImpl implements org.sakaiproject.sitemanage.api.Sit
 	 */
 	public String getSiteAlias(String type, List<String> params)
 	{
-		String rv = "";
-		
-		if (type.equals(SITE_TYPE_GRADTOOLS_STUDENT))
-		{
-			rv += "gradtools";
-			if (params != null)
-			{
-				for(String p : params)
-				{
-					rv += "-";
-					rv += p;
-				}
-			}
-		}
-		
-		return rv;
+		return "";
 	}
-	
-	/**
-	 * Special check against the Dissertation service, which might not be
-	 * here...
-	 * 
-	 * @return
-	 */
-	protected boolean isGradToolsCandidate(String userId) {
-		// DissertationService.isCandidate(userId) - but the hard way
-
-		Object service = ComponentManager
-				.get("org.sakaiproject.api.app.dissertation.DissertationService");
-		if (service == null)
-			return false;
-
-		// the method signature
-		Class[] signature = new Class[1];
-		signature[0] = String.class;
-
-		// the method name
-		String methodName = "isCandidate";
-
-		// find a method of this class with this name and signature
-		try {
-			Method method = service.getClass().getMethod(methodName, signature);
-
-			// the parameters
-			Object[] args = new Object[1];
-			args[0] = userId;
-
-			// make the call
-			Boolean rv = (Boolean) method.invoke(service, args);
-			return rv.booleanValue();
-		} catch (Throwable t) {
-		}
-
-		return false;
-	}
-
-	/**
-	 * User has a Grad Tools student site
-	 * 
-	 * @return
-	 */
-	protected boolean hasGradToolsStudentSite(String userId) {
-		boolean has = false;
-		int n = 0;
-		try {
-			n = SiteService.countSites(
-					org.sakaiproject.site.api.SiteService.SelectionType.UPDATE,
-					SITE_TYPE_GRADTOOLS_STUDENT, null, null);
-			if (n > 0)
-				has = true;
-		} catch (Exception e) {
-			log.warn(this + ".addGradToolsStudentSite:" + e.getMessage(), e);
-		}
-
-		return has;
-
-	}// hasGradToolsStudentSite
 	
 	public void init() {
 	}
