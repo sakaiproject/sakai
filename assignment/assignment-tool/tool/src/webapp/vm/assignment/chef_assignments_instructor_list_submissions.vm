@@ -141,7 +141,7 @@
 			#end
 			<p />
 			<label for="$form_search" class="skip">$tlang.getString("search")</label>
-			<input value="$validator.escapeHtml($searchString)" name="search" id="search" type="text" class="searchField"  size="20" />
+			<input value="$validator.escapeHtml($searchString)" name="search" id="$form_search" type="text" class="searchField"  size="20" />
 			<input type="button" value="$tlang.getString('search')" 
 				onclick="document.getElementById('option').value='search';document.viewForm.submit();return false;" />
 			#if (($!searchString) && (!$searchString.equals("")))
