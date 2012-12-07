@@ -51,12 +51,6 @@
       <property name="location"><value>/sakai_siteinfo/arav.html</value></property>
    </bean>
    
-   <bean id="permissionRoleOverview" class="org.sakaiproject.component.app.help.model.ResourceBean">
-      <property name="docId"><value>araa</value></property>
-      <property name="name"><value>View Particpants</value></property>
-      <property name="location"><value>/sakai_siteinfo/araa.html</value></property>
-   </bean>
-   
    <bean id="participantRole" class="org.sakaiproject.component.app.help.model.ResourceBean">
       <property name="docId"><value>ardw</value></property>
       <property name="name"><value>Add Text Description</value></property>
@@ -128,7 +122,6 @@
                      <ref bean="manageGroups"/>
                      <ref bean="grantGlobalAccess"/>
                      <ref bean="addRemoveParticipant"/>
-                     <ref bean="permissionRoleOverview"/>
                      <ref bean="participantRole"/>
                      <ref bean="changeParticipantRole"/>
                      <ref bean="publishSite"/>
