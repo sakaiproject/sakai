@@ -174,6 +174,9 @@ public class GradingPaneProducer implements ViewComponentProducer, ViewParamsRep
 			UIOutput.make(tofill, "noEntriesWarning");
 		}
 		
+		if(params.studentContentItem)
+		    UIOutput.make(tofill, "clickfiller");
+
 		UIOutput.make(tofill, "clickToSubmit", messageLocator.getMessage("simplepage.update-points")).
 			    decorate(new UIFreeAttributeDecorator("title", 
 								  messageLocator.getMessage("simplepage.update-points")));
