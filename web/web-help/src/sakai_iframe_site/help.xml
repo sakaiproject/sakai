@@ -14,11 +14,6 @@
       <property name="location"><value>/sakai_iframe_site/aqyv.html</value></property>
    </bean>
    
-   <bean id="changeWorksiteInfo" class="org.sakaiproject.component.app.help.model.ResourceBean">
-      <property name="docId"><value>aqzs</value></property>
-      <property name="name"><value>Change size of Worksite Information Box</value></property>
-      <property name="location"><value>/sakai_iframe_site/aqzs.html</value></property>
-   </bean>
 
     <bean id="addWorksiteInfo" class="org.sakaiproject.component.app.help.model.ResourceBean">
       <property name="docId"><value>arcl</value></property>
@@ -49,7 +44,6 @@
                   <list>
                      <ref bean="worksiteAbout"/>
                      <ref bean="worksiteOverview"/>
-                     <ref bean="changeWorksiteInfo"/>
                      <ref bean="addWorksiteInfo"/>
                   </list>
                </property>
