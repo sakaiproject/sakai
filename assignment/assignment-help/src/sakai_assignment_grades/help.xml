@@ -38,11 +38,6 @@
       <property name="name"><value>See How Assignments Look</value></property>
       <property name="location"><value>/sakai_assignment_grades/aqzj.html</value></property>
    </bean>  
-   <bean id="returnAssignment" class="org.sakaiproject.component.app.help.model.ResourceBean">
-      <property name="docId"><value>ardd</value></property>
-      <property name="name"><value>Return Assignments</value></property>
-      <property name="location"><value>/sakai_assignment_grades/ardd.html</value></property>
-   </bean>   
    <bean id="resubmitAssignment" class="org.sakaiproject.component.app.help.model.ResourceBean">
       <property name="docId"><value>arcy</value></property>
       <property name="name"><value>Resubmit Assignments</value></property>
@@ -105,7 +100,6 @@
 					 <ref bean="gradingAssignment"/>
 					 <ref bean="assignmentAttachment"/>
                      			 <ref bean="reviseAssignment"/>					 
-					 <ref bean="returnAssignment"/>
 					 <ref bean="resubmitAssignment"/>
 					 <ref bean="exportAssignmentGrade"/>
 					 <ref bean="readAssignment"/>
