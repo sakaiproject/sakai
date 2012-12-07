@@ -28,9 +28,9 @@
    </bean>
    
    <bean id="addTools" class="org.sakaiproject.component.app.help.model.ResourceBean">
-      <property name="docId"><value>arbj</value></property>
-      <property name="name"><value>Add/Edit/Delete Tools</value></property>
-      <property name="location"><value>/sakai_iframe_myworkspace/arbj.html</value></property>
+      <property name="docId"><value>ardx</value></property>
+      <property name="name"><value>Add or Remove Tools</value></property>
+      <property name="location"><value>/sakai_iframe_myworkspace/ardx.html</value></property>
    </bean>
    
    <bean id="setMOD" class="org.sakaiproject.component.app.help.model.ResourceBean">
@@ -84,39 +84,39 @@
    </bean>
    
    <bean id="worksiteSetupAddParticipants" class="org.sakaiproject.component.app.help.model.ResourceBean">
-      <property name="docId"><value>aqyo</value></property>
-      <property name="name"><value>Add/Edit/Delete Participants in Worksite Setup</value></property>
-      <property name="location"><value>/sakai_iframe_myworkspace/aqyo.html</value></property>
+      <property name="docId"><value>arav</value></property>
+      <property name="name"><value>Add/Edit/Delete Participants</value></property>
+      <property name="location"><value>/sakai_iframe_myworkspace/arav.html</value></property>
    </bean>
    
    <bean id="worksiteSetupControlAccess" class="org.sakaiproject.component.app.help.model.ResourceBean">
-      <property name="docId"><value>aqzw</value></property>
-      <property name="name"><value>Control Access in Worksite Setup</value></property>
-      <property name="location"><value>/sakai_iframe_myworkspace/aqzw.html</value></property>
+      <property name="docId"><value>arci</value></property>
+      <property name="name"><value>Control Access</value></property>
+      <property name="location"><value>/sakai_iframe_myworkspace/arci.html</value></property>
    </bean>
    
    <bean id="worksiteSetupTextDescription" class="org.sakaiproject.component.app.help.model.ResourceBean">
-      <property name="docId"><value>aqzk</value></property>
-      <property name="name"><value>Add Text Description in Worksite Setup</value></property>
-      <property name="location"><value>/sakai_iframe_myworkspace/aqzk.html</value></property>
+      <property name="docId"><value>ardw</value></property>
+      <property name="name"><value>Add Text Description</value></property>
+      <property name="location"><value>/sakai_iframe_myworkspace/ardw.html</value></property>
    </bean>
    
    <bean id="worksiteSetupPublish" class="org.sakaiproject.component.app.help.model.ResourceBean">
-      <property name="docId"><value>arad</value></property>
-      <property name="name"><value>Publish/Unpublish Site in Worksite Setup</value></property>
-      <property name="location"><value>/sakai_iframe_myworkspace/arad.html</value></property>
+      <property name="docId"><value>arai</value></property>
+      <property name="name"><value>Publish/Unpublish Site</value></property>
+      <property name="location"><value>/sakai_iframe_myworkspace/arai.html</value></property>
    </bean>
    
    <bean id="worksiteSetupChangeRoles" class="org.sakaiproject.component.app.help.model.ResourceBean">
-      <property name="docId"><value>ardq</value></property>
-      <property name="name"><value>Change Roles in Worksite Setup</value></property>
-      <property name="location"><value>/sakai_iframe_myworkspace/ardq.html</value></property>
+      <property name="docId"><value>arfb</value></property>
+      <property name="name"><value>Change Participant Roles</value></property>
+      <property name="location"><value>/sakai_iframe_myworkspace/arfb.html</value></property>
    </bean>
    
    <bean id="worksiteSetupEditInfo" class="org.sakaiproject.component.app.help.model.ResourceBean">
-      <property name="docId"><value>aret</value></property>
-      <property name="name"><value>Edit Info in Worksite Setup</value></property>
-      <property name="location"><value>/sakai_iframe_myworkspace/aret.html</value></property>
+      <property name="docId"><value>araw</value></property>
+      <property name="name"><value>Edit Site Information</value></property>
+      <property name="location"><value>/sakai_iframe_myworkspace/araw.html</value></property>
    </bean>
    
    <bean id="preferencesAbout" class="org.sakaiproject.component.app.help.model.ResourceBean">
@@ -150,12 +150,6 @@
       <property name="location"><value>/sakai_iframe_myworkspace/asxg.html</value></property>
    </bean>
    
-   <bean id="pastingFF" class="org.sakaiproject.component.app.help.model.ResourceBean">
-      <property name="docId"><value>atzb</value></property>
-      <property name="name"><value>Pasting text in Firefox</value></property>
-      <property name="location"><value>/sakai_iframe_myworkspace/atzb.html</value></property>
-   </bean>
-   
    <bean id="optionsAttach" class="org.sakaiproject.component.app.help.model.ResourceBean">
       <property name="docId"><value>aupf</value></property>
       <property name="name"><value>Options for adding attachments</value></property>
@@ -181,13 +175,13 @@
                      <ref bean="joinSites"/>
                      <ref bean="worksiteSetupAbout"/>
                      <ref bean="worksiteSetupOverview"/>
-                     <ref bean="addTools"/>
                      <ref bean="worksiteSetupAddParticipants"/>
-                     <ref bean="worksiteSetupControlAccess"/>
-                     <ref bean="worksiteSetupTextDescription"/>
-                     <ref bean="worksiteSetupPublish"/>
                      <ref bean="worksiteSetupChangeRoles"/>
+                     <ref bean="worksiteSetupControlAccess"/>
+                     <ref bean="worksiteSetupPublish"/>
                      <ref bean="worksiteSetupEditInfo"/>
+                     <ref bean="worksiteSetupTextDescription"/>
+                     <ref bean="addTools"/>
                      <ref bean="preferencesAbout"/>
                      <ref bean="preferencesOverview"/>
                      <ref bean="adjustTimezone"/>
@@ -195,7 +189,6 @@
                      <ref bean="customizeTabs"/>
                      <ref bean="privacyStatus"/>
                      <ref bean="whichBrowser"/>
-                     <ref bean="pastingFF"/>
                      <ref bean="optionsAttach"/>
                   </list>
                </property>

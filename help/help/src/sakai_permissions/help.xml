@@ -22,9 +22,9 @@
    </bean>
    
    <bean id="worksiteSetupChangeRoles" class="org.sakaiproject.component.app.help.model.ResourceBean">
-      <property name="docId"><value>ardq</value></property>
-      <property name="name"><value>Change Roles from Worksite Setup</value></property>
-      <property name="location"><value>/sakai_permissions/ardq.html</value></property>
+      <property name="docId"><value>arfb</value></property>
+      <property name="name"><value>Change Participant Roles</value></property>
+      <property name="location"><value>/sakai_permissions/arfb.html</value></property>
    </bean>
    
    <bean id="participantRoles" class="org.sakaiproject.component.app.help.model.ResourceBean">
@@ -40,9 +40,9 @@
    </bean>
    
    <bean id="worksiteSetupAddParticipants" class="org.sakaiproject.component.app.help.model.ResourceBean">
-      <property name="docId"><value>aqyo</value></property>
-      <property name="name"><value>Add/Edit/Delete Participants from Worksite Setup</value></property>
-      <property name="location"><value>/sakai_permissions/aqyo.html</value></property>
+      <property name="docId"><value>arav</value></property>
+      <property name="name"><value>Add/Edit/Delete Participants</value></property>
+      <property name="location"><value>/sakai_permissions/arav.html</value></property>
    </bean>
    
    <bean id="addParticipants" class="org.sakaiproject.component.app.help.model.ResourceBean">
@@ -64,9 +64,9 @@
    </bean>
    
    <bean id="worksiteSetupControlAccess" class="org.sakaiproject.component.app.help.model.ResourceBean">
-      <property name="docId"><value>aqzw</value></property>
-      <property name="name"><value>Control Access from Worksite Setup</value></property>
-      <property name="location"><value>/sakai_permissions/aqzw.html</value></property>
+      <property name="docId"><value>arci</value></property>
+      <property name="name"><value>Control Access</value></property>
+      <property name="location"><value>/sakai_permissions/arci.html</value></property>
    </bean>
    
    <bean id="changePermissions" class="org.sakaiproject.component.app.help.model.ResourceBean">
@@ -75,12 +75,6 @@
       <property name="location"><value>/sakai_permissions/ardk.html</value></property>
    </bean>
    
-   <bean id="permissionsRelationships" class="org.sakaiproject.component.app.help.model.ResourceBean">
-      <property name="docId"><value>arbp</value></property>
-      <property name="name"><value>Types/Realms/Roles/Permissions Relationships</value></property>
-      <property name="location"><value>/sakai_permissions/arbp.html</value></property>
-   </bean>
-         
    
     <bean id="org.sakaiproject.api.app.help.TableOfContents" 
           class="org.sakaiproject.component.app.help.model.TableOfContentsBean">
@@ -94,16 +88,15 @@
                      <ref bean="permissionsAbout"/>
                      <ref bean="permissionsOverview"/>
                      <ref bean="siteInfoChangeRoles"/>
-                     <ref bean="worksiteSetupChangeRoles"/>
 					 <ref bean="participantRoles"/>
 					 <ref bean="permissionsRolesTools"/>
-					 <ref bean="worksiteSetupAddParticipants"/>
 					 <ref bean="addParticipants"/>
+                     		 	 <ref bean="worksiteSetupChangeRoles"/>
+					 <ref bean="worksiteSetupAddParticipants"/>
+					 <ref bean="worksiteSetupControlAccess"/>
 					 <ref bean="siteInfoControlAccess"/>
 					 <ref bean="createWorksites"/>
-					 <ref bean="worksiteSetupControlAccess"/>
 					 <ref bean="changePermissions"/>
-					 <ref bean="permissionsRelationships"/>
                   </list>
                </property>
             </bean>
