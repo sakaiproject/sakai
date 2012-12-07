@@ -88,9 +88,9 @@
    </bean>
    
    <bean id="modifyPublishedAssessment" class="org.sakaiproject.component.app.help.model.ResourceBean">
-      <property name="docId"><value>arbq</value></property>
+      <property name="docId"><value>arab</value></property>
       <property name="name"><value>Modify Published Assessment</value></property>
-      <property name="location"><value>/sakai_samigo/arbq.html</value></property>
+      <property name="location"><value>/sakai_samigo/arab.html</value></property>
    </bean>
    
    <bean id="retractAssessment" class="org.sakaiproject.component.app.help.model.ResourceBean">
@@ -100,9 +100,9 @@
    </bean>
    
    <bean id="deleteAssessment" class="org.sakaiproject.component.app.help.model.ResourceBean">
-      <property name="docId"><value>arcx</value></property>
-      <property name="name"><value>Delete Assessment</value></property>
-      <property name="location"><value>/sakai_samigo/arcx.html</value></property>
+      <property name="docId"><value>arba</value></property>
+      <property name="name"><value>Retract or Remove Assessment</value></property>
+      <property name="location"><value>/sakai_samigo/arba.html</value></property>
    </bean>
    
    <bean id="exportAssessment" class="org.sakaiproject.component.app.help.model.ResourceBean">
