@@ -8,6 +8,7 @@
     <dependencySets>
         <dependencySet>
             <outputDirectory>shared/lib/</outputDirectory>
+            <useProjectArtifact>false</useProjectArtifact>
             <useTransitiveDependencies>false
             </useTransitiveDependencies>
             <includes>
@@ -18,6 +19,7 @@
         </dependencySet>
         <dependencySet>
             <outputDirectory>components/sakai-assignment-pack</outputDirectory>
+            <useProjectArtifact>false</useProjectArtifact>
             <useTransitiveDependencies>false</useTransitiveDependencies>
             <includes>
                 <include>org.sakaiproject.assignment:sakai-assignment-pack:war:*</include>
@@ -29,6 +31,7 @@
             <outputFileNameMapping>${artifact.artifactId}.war</outputFileNameMapping>
             <!-- <outputFileNameMapping>${artifact.artifactId}.${artifact.extension}</outputFileNameMapping> -->
             <!-- <outputFileNameMapping>imsblti.war</outputFileNameMapping> -->
+            <useProjectArtifact>false</useProjectArtifact>
             <useTransitiveDependencies>false</useTransitiveDependencies>
             <includes>
                  <include>org.sakaiproject.assignment:sakai-assignment-tool:war:*</include>
