@@ -27,6 +27,8 @@
                 <property name="eventTrackingService">
                     <ref bean="org_sakaiproject_tool_gradebook_facades_EventTrackingService"/>
                 </property>
+                <property name="serverConfigurationService" ref="org.sakaiproject.component.api.ServerConfigurationService"/>
+
 				<property name="gradebookExternalAssessmentService">
 					<ref bean="readonlyExternalAssessmentService"/>
 				</property>
