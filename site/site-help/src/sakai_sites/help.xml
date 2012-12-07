@@ -22,9 +22,9 @@
    </bean>
    
    <bean id="addTools" class="org.sakaiproject.component.app.help.model.ResourceBean">
-      <property name="docId"><value>aqzf</value></property>
-      <property name="name"><value>Add/Edit/Remove Site Tools</value></property>
-      <property name="location"><value>/sakai_sites/aqzf.html</value></property>
+      <property name="docId"><value>ardx</value></property>
+      <property name="name"><value>Add or Remove Tools</value></property>
+      <property name="location"><value>/sakai_sites/ardx.html</value></property>
    </bean>
    
    
