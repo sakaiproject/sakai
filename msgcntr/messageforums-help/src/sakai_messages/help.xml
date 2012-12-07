@@ -7,6 +7,12 @@
         <property name="location"> <value>/sakai_messages/avaq.html</value> </property>
 		<property name="defaultForTool"> <value>sakai.messages</value> </property>
     </bean>
+    <bean id="mcModifying" class="org.sakaiproject.component.app.help.model.ResourceBean">
+        <property name="docId"> <value>bcpl</value> </property>
+        <property name="name"> <value>Modifying settings</value> </property>
+        <property name="location"> <value>/sakai_messages/bcpl.html</value> </property>
+		<property name="defaultForTool"> <value>sakai.messages</value> </property>
+    </bean>
     <bean id="mcOverview" class="org.sakaiproject.component.app.help.model.ResourceBean">
         <property name="docId"> <value>avao</value> </property>
         <property name="name"> <value>Messages Overview</value> </property>
@@ -60,6 +66,7 @@
                         <list>
                             <ref bean="mcAbout"/>
                             <ref bean="mcOverview"/>
+                            <ref bean="mcModifying"/>
                             <ref bean="mcSendPm" />
                             <ref bean="mcViewPm" />
                             <ref bean="mcSearchPm" />
