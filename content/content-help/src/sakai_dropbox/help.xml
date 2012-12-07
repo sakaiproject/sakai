@@ -15,23 +15,12 @@
       <property name="location"><value>/sakai_dropbox/arfc.html</value></property>
    </bean>
    
-   <bean id="addDropboxFolder" class="org.sakaiproject.component.app.help.model.ResourceBean">
-      <property name="docId"><value>aqzb</value></property>
-      <property name="name"><value>Add/Edit/Delete Dropbox Folder</value></property>
-      <property name="location"><value>/sakai_dropbox/aqzb.html</value></property>
-   </bean>
-   
    <bean id="addDropboxItem" class="org.sakaiproject.component.app.help.model.ResourceBean">
       <property name="docId"><value>arcg</value></property>
       <property name="name"><value>Add/Edit/Delete Dropbox Item</value></property>
       <property name="location"><value>/sakai_dropbox/arcg.html</value></property>
    </bean>
    
-   <bean id="reviseDropbox" class="org.sakaiproject.component.app.help.model.ResourceBean">
-      <property name="docId"><value>aqzl</value></property>
-      <property name="name"><value>Revise Dropbox Information</value></property>
-      <property name="location"><value>/sakai_dropbox/aqzl.html</value></property>
-   </bean>
    
    <bean id="viewDropbox" class="org.sakaiproject.component.app.help.model.ResourceBean">
       <property name="docId"><value>aqzd</value></property>
@@ -45,12 +34,23 @@
       <property name="location"><value>/sakai_dropbox/ardv.html</value></property>
    </bean>
 
-   <bean id="webdavDropbox" class="org.sakaiproject.component.app.help.model.ResourceBean">
-      <property name="docId"><value>auyi</value></property>
-      <property name="name"><value>Upload files to Dropbox using WebDAV</value></property>
-      <property name="location"><value>/sakai_dropbox/auyi.html</value></property>
+   <bean id="webdavWindows" class="org.sakaiproject.component.app.help.model.ResourceBean">
+      <property name="docId"><value>araf</value></property>
+      <property name="name"><value>Using WebDAV with Windows 7, Vista or XP</value></property>
+      <property name="location"><value>/sakai_dropbox/araf.html</value></property>
    </bean>
-   
+
+   <bean id="webdavMac" class="org.sakaiproject.component.app.help.model.ResourceBean">
+      <property name="docId"><value>aqyi</value></property>
+      <property name="name"><value>Using WebDAV with Mac OSX</value></property>
+      <property name="location"><value>/sakai_dropbox/aqyi.html</value></property>
+   </bean>
+ 
+   <bean id="webdavAnyClient" class="org.sakaiproject.component.app.help.model.ResourceBean">
+      <property name="docId"><value>azda</value></property>
+      <property name="name"><value>Using WebDAV with AnyClient</value></property>
+      <property name="location"><value>/sakai_dropbox/azda.html</value></property>
+   </bean>  
     <bean id="org.sakaiproject.api.app.help.TableOfContents" 
           class="org.sakaiproject.component.app.help.model.TableOfContentsBean">
       <property name="name"><value>root</value></property>
@@ -62,12 +62,12 @@
                   <list>
                      <ref bean="dropBoxAbout"/>
                      <ref bean="dropBoxOverview"/>
-					<ref bean="addDropboxFolder"/>
 					<ref bean="addDropboxItem"/>
-					<ref bean="reviseDropbox"/>
 					<ref bean="viewDropbox"/>
 					<ref bean="copyDropbox"/>
-					<ref bean="webdavDropbox"/>
+					<ref bean="webdavWindows"/>
+					<ref bean="webdavMac"/>
+					<ref bean="webdavAnyClient"/>
                   </list>
                </property>
             </bean>
