@@ -66,6 +66,8 @@ import org.sakaiproject.tool.gradebook.facades.EventTrackingService;
 import org.springframework.orm.hibernate3.HibernateCallback;
 import org.springframework.orm.hibernate3.support.HibernateDaoSupport;
 
+import org.sakaiproject.component.api.ServerConfigurationService;
+
 /**
  * Provides methods which are shared between service business logic and application business
  * logic, but not exposed to external callers.
@@ -80,6 +82,7 @@ public abstract class BaseHibernateManager extends HibernateDaoSupport {
     protected SectionAwareness sectionAwareness;
     protected Authn authn;
     protected EventTrackingService eventTrackingService;
+    protected ServerConfigurationService serverConfigurationService;
     protected GradebookExternalAssessmentService externalAssessmentService;
 
     // Local cache of static-between-deployment properties.
@@ -380,6 +383,14 @@ public abstract class BaseHibernateManager extends HibernateDaoSupport {
     }
     public void setSectionAwareness(SectionAwareness sectionAwareness) {
         this.sectionAwareness = sectionAwareness;
+    }
+
+    protected ServerConfigurationService getServerConfigurationService() {
+        return serverConfigurationService;
+    }
+
+    public void setServerConfigurationService(ServerConfigurationService serverConfigurationService) {
+        this.serverConfigurationService = serverConfigurationService;
     }
 
     protected EventTrackingService getEventTrackingService() {
@@ -1442,9 +1453,13 @@ public abstract class BaseHibernateManager extends HibernateDaoSupport {
     					
     					// SAK-11485 - We don't want to add scores for those grouped activities
     					//             that this student should not see or be scored on.
-    					if (!studentCanView(studentUid, assignment)) {
-    						continue;
-    					}
+                        boolean checkExternalGroups = serverConfigurationService.getBoolean("gradebook.check.external.groups", false);
+
+                        if (checkExternalGroups) {
+                            if (!studentCanView(studentUid, assignment)) {
+                                continue;
+                            }
+                        }
     					AssignmentGradeRecord gradeRecord = studentToGradeRecordMap.get(studentUid);
    						if (gradeRecord != null) {
    							if (gradeRecord.getPointsEarned() == null) {
