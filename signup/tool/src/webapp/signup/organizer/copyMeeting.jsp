@@ -101,7 +101,7 @@
 		                        <h:selectOneMenu id="selectedCategory" value="#{CopyMeetingSignupMBean.selectedCategory}">
 									<f:selectItems value="#{CopyMeetingSignupMBean.allCategories}"/>
 								</h:selectOneMenu>
-		                        <h:inputText id="customCategory" size="40" value="#{CopyMeetingSignupMBean.customCategory}" style="display:none" styleClass="editText">  
+		                        <h:inputText id="customCategory" size="35" value="#{CopyMeetingSignupMBean.customCategory}" style="display:none" styleClass="editText">  
 		                            <f:validator validatorId="Signup.EmptyStringValidator"/>
 		                            <f:validateLength maximum="255" />
 		                        </h:inputText>
