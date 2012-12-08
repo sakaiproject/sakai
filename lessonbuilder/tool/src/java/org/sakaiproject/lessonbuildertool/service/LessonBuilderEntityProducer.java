@@ -392,6 +392,9 @@ public class LessonBuilderEntityProducer extends AbstractEntityProvider
 		addAttr(doc, itemElement, "altPoints", String.valueOf(item.getAltPoints()));
 		addAttr(doc, itemElement, "altGradebookTitle", item.getAltGradebookTitle());
 		addAttr(doc, itemElement, "groupOwned", item.isGroupOwned() ? "true" : "false");
+
+		Collection<Group> siteGroups = site.getGroups();
+		addGroup(doc, itemElement, item.getOwnerGroups(), "ownerGroup", siteGroups);
 		
 		if (item.getType() == SimplePageItem.FORUM || item.getType() == SimplePageItem.ASSESSMENT || item.getType() == SimplePageItem.ASSIGNMENT) {
 		    LessonEntity e = null;
@@ -415,30 +418,34 @@ public class LessonBuilderEntityProducer extends AbstractEntityProvider
 
 		//		if (item.getType() == SimplePageItem.PAGE)
 		//		    addPage(doc, itemElement, new Long(item.getSakaiId()));
-		String groupString = item.getGroups();
-		Collection<Group> siteGroups = site.getGroups();
-		if (groupString != null && !groupString.equals("") && siteGroups != null) {
-		    String [] groups = groupString.split(",");
-		    for (int i = 0; i < groups.length ; i++) {
-			Element groupElement = doc.createElement("group");
-			addAttr(doc, groupElement, "id", groups[i]);
-			Group group = null;
-			for (Group g: siteGroups)
-			    if (g.getId().equals(groups[i])) {
-				group = g;
-				break;
-			    }
-			if (group != null)
-			    addAttr(doc, groupElement, "title", group.getTitle());
-			itemElement.appendChild(groupElement);
-		    }
-		}
+
+		addGroup(doc, itemElement, item.getGroups(), "group", siteGroups);
 
 		pageElement.appendChild(itemElement);
 	    }
 	}		
 	element.appendChild(pageElement);
     }
+
+    void addGroup(Document doc, Element itemElement, String groupString, String attr, Collection<Group>siteGroups) {
+	if (groupString != null && !groupString.equals("") && siteGroups != null) {
+	    String [] groups = groupString.split(",");
+	    for (int i = 0; i < groups.length ; i++) {
+		Element groupElement = doc.createElement(attr);
+		addAttr(doc, groupElement, "id", groups[i]);
+		Group group = null;
+		for (Group g: siteGroups)
+		    if (g.getId().equals(groups[i])) {
+			group = g;
+			break;
+		    }
+		if (group != null)
+		    addAttr(doc, groupElement, "title", group.getTitle());
+		itemElement.appendChild(groupElement);
+	    }
+	}
+    }
+
 
    /**
     * {@inheritDoc}
@@ -725,6 +732,12 @@ public class LessonBuilderEntityProducer extends AbstractEntityProvider
 		   if (s != null)
 		       item.setGroupOwned(s.equals("true"));
 
+		   if (RESTORE_GROUPS) {
+		       String groupString = mergeGroups(itemElement, "ownerGroup", siteGroups);
+		       if (groupString != null)
+			   item.setOwnerGroups(groupString);
+		   }
+
 		   // save objectid for dummy items so we can do mapping; alt isn't otherwise used for these items
 		   if (type == SimplePageItem.ASSIGNMENT || type == SimplePageItem.ASSESSMENT || type == SimplePageItem.FORUM) {
 		       item.setAlt(itemElement.getAttribute("objectid"));
@@ -735,30 +748,10 @@ public class LessonBuilderEntityProducer extends AbstractEntityProvider
 		   // awareness comes from the other tools, enabling this produces
 		   // inconsistent results
 		   if (RESTORE_GROUPS) {
-		       NodeList groups = itemElement.getElementsByTagName("group");
-		       String groupString = null;
-
-		       // translate groups from title to ID
-		       if (groups != null && siteGroups != null) {
-			   for (int n = 0; n < groups.getLength(); n ++) {
-			       Element group = (Element)groups.item(n);
-			       String title = group.getAttribute("title");
-			       if (title != null && !title.equals("")) {
-				   for (Group g: siteGroups) {
-				       if (title.equals(g.getTitle())) {
-					   if (groupString == null)
-					       groupString = g.getId();
-					   else
-					       groupString = groupString + "," + g.getId();
-				       }
-				   }
-			       }
-			   }
-		       }
+		       String groupString = mergeGroups(itemElement, "group", siteGroups);
 		       if (groupString != null)
 			   item.setGroups(groupString);
 		   }
-		   // end if mergeGroups
 
 		   simplePageToolDao.quickSaveItem(item);
 		   itemMap.put(itemId, item.getId());
@@ -787,6 +780,38 @@ public class LessonBuilderEntityProducer extends AbstractEntityProvider
 	   }
        }
        return needFix;
+    }
+
+    String mergeGroups(Element itemElement, String attr, Collection<Group> siteGroups) {
+
+	// not currently doing this, although the code has been tested.
+	// The problem is that other tools don't do it. Since much of our group
+	// awareness comes from the other tools, enabling this produces
+	// inconsistent results
+
+	NodeList groups = itemElement.getElementsByTagName(attr);
+	String groupString = null;
+	
+	// translate groups from title to ID
+	if (groups != null && siteGroups != null) {
+	    for (int n = 0; n < groups.getLength(); n ++) {
+		Element group = (Element)groups.item(n);
+		String title = group.getAttribute("title");
+		if (title != null && !title.equals("")) {
+		    for (Group g: siteGroups) {
+			if (title.equals(g.getTitle())) {
+			    if (groupString == null)
+				groupString = g.getId();
+			    else
+				groupString = groupString + "," + g.getId();
+			}
+		    }
+		}
+	    }
+	}
+
+	return groupString;
+
     }
 
     // fix up items on page. does any updates that need the whole page and item map
