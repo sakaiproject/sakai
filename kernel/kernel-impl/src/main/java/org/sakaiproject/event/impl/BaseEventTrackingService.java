@@ -255,25 +255,22 @@ public abstract class BaseEventTrackingService implements EventTrackingService
 	{
 		BaseEvent be = ensureBaseEvent(event);
 		// get the session id or user id
-		// KNL-997
-		UsageSession session = usageSessionService().getSession();
-		if (session != null)
+		String id = usageSessionService().getSessionId();
+		if (id != null)
 		{
-			be.setSessionId(session.getId());
-			be.setUserId(session.getUserId());
+			be.setSessionId(id);
 		}
+
 		// post for the session "thread" user
 		else
 		{
-			String id = sessionManager().getCurrentSessionUserId();
+			id = sessionManager().getCurrentSessionUserId();
 			if (id == null)
 			{
 				id = "?";
 			}
 
 			be.setUserId(id);
-			
-			M_log.debug("Unable to find session for event=" + event.getEvent() + " for user=" + id);
 		}
 
 		postEvent(be);
@@ -294,8 +291,6 @@ public abstract class BaseEventTrackingService implements EventTrackingService
 		if (session != null) id = session.getId();
 
 		be.setSessionId(id);
-		
-		be.setUserId(session.getUserId());
 
 		postEvent(be);
 	}
@@ -639,6 +634,15 @@ public abstract class BaseEventTrackingService implements EventTrackingService
 				}
 			}
 			
+			// KNL-997
+			String uId = sessionManager().getCurrentSessionUserId();
+			if (uId == null)
+			{
+				uId = "?";
+			}
+			setUserId(uId);
+			
+			
 		}
 
 		/**
@@ -662,6 +666,14 @@ public abstract class BaseEventTrackingService implements EventTrackingService
 			m_modify = modify;
 			m_priority = priority;
 			m_context = context;
+			
+			// KNL-997
+			String uId = sessionManager().getCurrentSessionUserId();
+			if (uId == null)
+			{
+				uId = "?";
+			}
+			setUserId(uId);
 		}
 		
 		/**
