@@ -3,13 +3,13 @@
 function getAddStructure() {
 
   $cur_url = curPageURL();
-  $endpoint = str_replace("ext/lori.php","tool.php",$cur_url);
+  $endpoint = str_replace("ext/lori_json.php","tool.php",$cur_url);
 
 $addStructureCore = array(
   'resources' => array(
      array(
       'type' => 'folder',
-      'name' => 'Pre-Work',
+      'name' => 'Pre-Work Folder',
       'resources' => array(
         array(
           'type' => 'lti',
