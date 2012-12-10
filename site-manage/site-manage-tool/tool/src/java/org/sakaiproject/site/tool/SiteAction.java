@@ -11436,8 +11436,9 @@ public class SiteAction extends PagedResourceActionII {
 	
 					// now that the site and realm exist, we can set the email alias
 					// set the site alias as:
+					User currentUser = UserDirectoryService.getCurrentUser();
 					List<String> pList = new ArrayList<String>();
-					pList.add(SessionManager.getCurrentSessionUserId());
+					pList.add(currentUser != null ? currentUser.getEid():"");
 					String alias = siteTypeProvider.getSiteAlias(type, pList);
 					String channelReference = mailArchiveChannelReference(id);
 					try {
