@@ -1,0 +1,15 @@
+Add UI to tick enabling LORI in portlet
+
+Check with Scriby to see if I can architecturally ignore the PKI 
+key and just use sourcedid.  If so - work through code to insure
+sourcedid is what I think it is throughout.
+
+Refactor the key/value code to be smarter about when to include extension
+attributes.
+basiclti-common/src/java/org/sakaiproject/basiclti/util/SakaiBLTIUtil.java
+
+Refactor ServiceServlet into several files - Avoid ResourcesAction syndrome :)
+basiclti-blis/src/java/org/sakaiproject/blti/ServiceServlet.java
+
+Add ServerConfiguration stuff.
+

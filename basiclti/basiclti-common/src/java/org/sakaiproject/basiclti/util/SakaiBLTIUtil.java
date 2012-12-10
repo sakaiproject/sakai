@@ -303,6 +303,9 @@ public class SakaiBLTIUtil {
 			String allowRoster = toNull(getCorrectProperty(config,"allowroster", placement));
 			if ( ! "on".equals(allowRoster) ) allowRoster = null;
 
+			String allowLORI = toNull(getCorrectProperty(config,"allowlor", placement));
+			allowLORI = "on";
+
 			String result_sourcedid = getSourceDID(user, placement, config);
 			if ( result_sourcedid != null ) {
 
@@ -336,6 +339,14 @@ public class SakaiBLTIUtil {
 					String roster_url = ServerConfigurationService.getString("basiclti.consumer.ext_ims_lis_memberships_url",null);
 					if ( roster_url == null ) roster_url = getOurServerUrl() + "/imsblis/service/";  
 					setProperty(props,"ext_ims_lis_memberships_url", roster_url);  
+				}
+
+				if ( "on".equals(allowLORI) ) {
+					setProperty(props,"ext_lori_api_token", result_sourcedid);  
+
+					String roster_url = ServerConfigurationService.getString("basiclti.consumer.ext_lori_api_url",null);
+					if ( roster_url == null ) roster_url = getOurServerUrl() + "/imsblis/service/";  
+					setProperty(props,"ext_lori_api_url", roster_url);  
 				}
 			}
 		}

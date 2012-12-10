@@ -19,8 +19,10 @@
 
 package org.sakaiproject.blti;
 
+import java.lang.StringBuffer;
 import java.io.IOException;
 import java.io.PrintWriter;
+import java.net.URL;
 import java.util.Arrays;
 import java.util.List;
 import java.util.ArrayList;
@@ -30,7 +32,7 @@ import java.util.Properties;
 import java.util.Enumeration;
 import java.util.Set;
 import java.util.Iterator;
-import java.lang.StringBuffer;
+import java.util.UUID;
 
 import javax.servlet.ServletConfig;
 import javax.servlet.ServletException;
@@ -48,6 +50,18 @@ import net.oauth.server.OAuthServlet;
 import net.oauth.signature.OAuthSignatureMethod;
 
 import org.imsglobal.basiclti.XMLMap;
+
+import org.w3c.dom.Node;
+import org.w3c.dom.Element;
+import org.w3c.dom.NodeList;
+import javax.xml.xpath.XPath;
+import javax.xml.xpath.XPathExpression;
+import javax.xml.xpath.XPathFactory;
+import javax.xml.xpath.XPathConstants;
+
+import org.json.simple.JSONValue;
+import org.json.simple.JSONObject;
+import org.json.simple.JSONArray;
 
 import org.sakaiproject.component.cover.ComponentManager;
 import org.apache.commons.logging.Log;
@@ -85,7 +99,14 @@ import org.sakaiproject.service.gradebook.shared.ConflictingExternalIdException;
 import org.sakaiproject.service.gradebook.shared.GradebookNotFoundException;
 import org.sakaiproject.service.gradebook.shared.Assignment;
 
+import org.sakaiproject.lessonbuildertool.model.SimplePageToolDao;
+import org.sakaiproject.lessonbuildertool.SimplePage;
+import org.sakaiproject.lessonbuildertool.SimplePageComment;
+import org.sakaiproject.lessonbuildertool.SimplePageGroup;
+import org.sakaiproject.lessonbuildertool.SimplePageItem;
+
 import org.imsglobal.pox.IMSPOXRequest;
+import org.imsglobal.json.IMSJSONRequest;
 
 import org.sakaiproject.lti.api.LTIService;
 import org.sakaiproject.util.foorm.SakaiFoorm;
@@ -126,6 +147,15 @@ public class ServiceServlet extends HttpServlet {
     protected static SakaiFoorm foorm = new SakaiFoorm();
 
     protected static LTIService ltiService = null;
+    protected static SimplePageToolDao simplePageToolDao = null;
+
+	protected static XPath xpath = null;
+	protected static XPathExpression LESSONS_RESOURCES_EXPR = null;
+	protected static XPathExpression LESSONS_FOLDER_EXPR = null;
+	protected static XPathExpression LESSONS_TYPE_EXPR = null;
+	protected static XPathExpression LESSONS_NAME_EXPR = null;
+	protected static XPathExpression LESSONS_URL_EXPR = null;
+	protected static XPathExpression LESSONS_CUSTOM_EXPR = null;
 
 	private final String returnHTML = 
 		"<!DOCTYPE html PUBLIC \"-//W3C//DTD XHTML 1.0 Transitional//EN\"\n" + 
@@ -191,6 +221,19 @@ public class ServiceServlet extends HttpServlet {
 		public void init(ServletConfig config) throws ServletException {
 			super.init(config);
 			if ( ltiService == null ) ltiService = (LTIService) ComponentManager.get("org.sakaiproject.lti.api.LTIService");
+			if ( simplePageToolDao == null ) simplePageToolDao = (SimplePageToolDao)ComponentManager.get(SimplePageToolDao.class);
+			try {
+				xpath = XPathFactory.newInstance().newXPath();
+				LESSONS_RESOURCES_EXPR = xpath.compile("params/resources/*");
+				LESSONS_FOLDER_EXPR = xpath.compile("resources/*");
+				LESSONS_TYPE_EXPR = xpath.compile("type/textString");
+				LESSONS_NAME_EXPR = xpath.compile("name/textString");
+				LESSONS_URL_EXPR = xpath.compile("launchUrl/textString");
+				LESSONS_CUSTOM_EXPR = xpath.compile("launchParams/textString");
+			} catch (Exception e) {
+				M_log.error("Error compiling XPath expressions.");
+				throw new ServletException();
+			}
 		}
 
 	/* launch_presentation_return_url=http://lmsng.school.edu/portal/123/page/988/
@@ -254,7 +297,9 @@ public class ServiceServlet extends HttpServlet {
 	@SuppressWarnings("unchecked")
 		protected void doPost(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
 			String contentType = request.getContentType();
-			if ( contentType != null && contentType.startsWith("application/xml") ) {
+			if ( contentType != null && contentType.startsWith("application/json") ) {
+				doPostJSON(request, response);
+			} else if ( contentType != null && contentType.startsWith("application/xml") ) {
 				doPostXml(request, response);
 			} else {
 				doPostForm(request, response);
@@ -739,7 +784,7 @@ public class ServiceServlet extends HttpServlet {
 		}
 
 	/* IMS POX XML versions of this service */
-	public void doErrorXml(HttpServletRequest request,HttpServletResponse response, 
+	public void doErrorXML(HttpServletRequest request,HttpServletResponse response, 
 			IMSPOXRequest pox, String s, String message, Exception e) 
 		throws java.io.IOException 
 		{
@@ -759,8 +804,184 @@ public class ServiceServlet extends HttpServlet {
 			out.println(output);
 		}
 
+    /* IMS JSON version of this service */
+	public void doErrorJSON(HttpServletRequest request,HttpServletResponse response, 
+			IMSJSONRequest json, String s, String message, Exception e) 
+		throws java.io.IOException 
+		{
+			if (e != null) {
+				M_log.error(e.getLocalizedMessage(), e);
+			}
+			String msg = rb.getString(s) + ": " + message;
+			M_log.info(msg);
+			response.setContentType("application/json");
+			PrintWriter out = response.getWriter();
+            Map status = null;
+            if ( json == null ) {
+                status = IMSJSONRequest.getStatusFailure(msg);
+            } else {
+                status = json.getStatusFailure(msg);
+            }
+			Map jsonResponse = new TreeMap();
+			jsonResponse.put(IMSJSONRequest.STATUS, status);
+			String jsonText = JSONValue.toJSONString(jsonResponse);
+			System.out.print(jsonText);
+			out.println(jsonText);
+		}
+
 	@SuppressWarnings("unchecked")
-		protected void doPostXml(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
+		protected void doPostJSON(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
+			String ipAddress = request.getRemoteAddr();
+
+			M_log.debug("LTI POX Service request from IP=" + ipAddress);
+
+			IMSJSONRequest jsonRequest = new IMSJSONRequest(request);
+
+			if ( ! jsonRequest.valid ) {
+				System.out.println("CRAP:"+ jsonRequest.errorMessage);
+				return;
+			}
+
+			System.out.println(jsonRequest.getPostBody());
+			JSONObject jsonObject = (JSONObject) JSONValue.parse(jsonRequest.getPostBody());
+			System.out.println("OBJ:"+jsonObject);
+			System.out.println("gg:"+jsonObject.get("context_id"));
+			String lori_api_token = (String) jsonObject.get("lori_api_token");
+
+			// No point continuing without a lori_api_token
+			if(BasicLTIUtil.isBlank(lori_api_token)) {
+				doErrorJSON(request, response, jsonRequest, "outcomes.missing", "lori_api_token", null);
+				return;
+			}
+
+			// Truncate this to the maximum length to insure no cruft at the end
+			if ( lori_api_token.length() > 2048) lori_api_token = lori_api_token.substring(0,2048);
+
+			// Attempt to parse the lori_api_token, any failure is fatal
+			String placement_id = null;
+			String signature = null;
+			String user_id = null;
+			try {
+				int pos = lori_api_token.indexOf(":::");
+				if ( pos > 0 ) {
+					signature = lori_api_token.substring(0, pos);
+					String dec2 = lori_api_token.substring(pos+3);
+					pos = dec2.indexOf(":::");
+					user_id = dec2.substring(0,pos);
+					placement_id = dec2.substring(pos+3);
+				}
+			} catch (Exception e) {
+				// Log some detail for ourselves
+				M_log.warn("Unable to decrypt result_lori_api_token IP=" + ipAddress + " Error=" + e.getMessage(),e);
+				signature = null;
+				placement_id = null;
+				user_id = null;
+			}
+
+			// Send a more generic message back to the caller
+			if ( placement_id == null || user_id == null ) {
+				doErrorJSON(request, response, jsonRequest, "outcomes.lori_api_token_01", "lori_api_token", null);
+				return;
+			}
+
+			M_log.debug("signature="+signature);
+			System.out.println("signature="+signature);
+			M_log.debug("user_id="+user_id);
+			M_log.debug("placement_id="+placement_id);
+
+			Properties pitch = getPropertiesFromPlacement(placement_id);
+			if ( pitch == null ) {
+				M_log.debug("Error retrieving result_lori_api_token information");
+				doErrorJSON(request, response, jsonRequest, "outcomes.lori_api_token_02", "lori_api_token", null);
+				return;
+			}
+	
+			String siteId = pitch.getProperty(LTIService.LTI_SITE_ID);
+			String context_id = (String) jsonObject.get("context_id");
+			if ( siteId == null || ! siteId.equals(context_id)) {
+				doErrorJSON(request, response, jsonRequest, "outcomes.lori_api_token_03", "lori_api_token", null);
+				return;
+			}
+
+			Site site = null;
+			try { 
+				site = SiteService.getSite(siteId);
+			} catch (Exception e) {
+				M_log.debug("Error retrieving result_lori_api_token site: "+e.getLocalizedMessage(), e);
+			}
+
+			// Send a more generic message back to the caller
+			if (  site == null ) {
+				doErrorJSON(request, response, jsonRequest, "outcomes.lori_api_token_04", "lori_api_token", null);
+				return;
+			}
+
+			// Check the message signature using OAuth
+			String oauth_consumer_key = jsonRequest.getOAuthConsumerKey();
+			String oauth_secret = pitch.getProperty(LTIService.LTI_SECRET);
+
+			jsonRequest.validateRequest(oauth_consumer_key, oauth_secret, request);
+			if ( ! jsonRequest.valid ) {
+				if (jsonRequest.base_string != null) {
+					M_log.warn(jsonRequest.base_string);
+				}
+				doErrorJSON(request, response, jsonRequest, "outcome.no.validate", oauth_consumer_key, null);
+				return;
+			}
+
+			// Check the signature of the lori_api_token to make sure it was not altered
+			String placement_secret  = pitch.getProperty(LTIService.LTI_PLACEMENTSECRET);
+
+			// Send a generic message back to the caller
+			if ( placement_secret ==null ) {
+				doErrorJSON(request, response, jsonRequest, "outcomes.lori_api_token_05", "lori_api_token", null);
+				return;
+			}
+
+			String pre_hash = placement_secret + ":::" + user_id + ":::" + placement_id;
+			String received_signature = ShaUtil.sha256Hash(pre_hash);
+			M_log.debug("Received signature="+signature+" received="+received_signature);
+			boolean matched = signature.equals(received_signature);
+
+			String old_placement_secret  = pitch.getProperty(LTIService.LTI_OLDPLACEMENTSECRET);
+			if ( old_placement_secret != null && ! matched ) {
+				pre_hash = placement_secret + ":::" + user_id + ":::" + placement_id;
+				received_signature = ShaUtil.sha256Hash(pre_hash);
+				M_log.debug("Received signature II="+signature+" received="+received_signature);
+				matched = signature.equals(received_signature);
+			}
+
+			// Send a message back to the caller
+			if ( ! matched ) {
+				M_log.warn("Received signature="+signature+" received="+received_signature);
+				doErrorJSON(request, response, jsonRequest, "outcomes.lori_api_token", "lori_api_token_06", null);
+				return;
+			}
+
+			String uri = request.getRequestURI();
+			String [] parts = uri.split("/");
+			String operation = null;
+			if ( parts.length >= 4 ) operation = parts[3];
+			if ( "coursestructure".equals(operation) ) {
+			    processCourseStructureJSON(request, response, jsonObject, jsonRequest);
+			} else if ( "addcourseresources".equals(operation) ) {
+			    processAddResourcesJSON(request, response, jsonObject, jsonRequest);
+			} else { 
+				response.setContentType("application/json");
+				PrintWriter out = response.getWriter();
+				Map status = jsonRequest.getStatusUnsupported("Operation not supported:" + operation);
+				Map jsonResponse = new TreeMap();
+				jsonResponse.put(IMSJSONRequest.STATUS, status);
+				String jsonText = JSONValue.toJSONString(jsonResponse);
+				System.out.print(jsonText);
+				out.println(jsonText);
+			}
+
+		}
+
+	@SuppressWarnings("unchecked")
+	protected void doPostXml(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException 
+	{
 
 			String ipAddress = request.getRemoteAddr();
 
@@ -778,7 +999,7 @@ public class ServiceServlet extends HttpServlet {
 
 			IMSPOXRequest pox = new IMSPOXRequest(request);
 			if ( ! pox.valid ) {
-				doErrorXml(request, response, pox, "pox.invalid", pox.errorMessage, null);
+				doErrorXML(request, response, pox, "pox.invalid", pox.errorMessage, null);
 				return;
 			}
 
@@ -787,12 +1008,20 @@ public class ServiceServlet extends HttpServlet {
 
 			String sourcedid = null;
 			String message_type = null;
+			System.out.println("POST\n"+XMLMap.prettyPrint(pox.postBody));
+System.out.println("MESSAGE="+lti_message_type);
 			if ( ( "replaceResultRequest".equals(lti_message_type) || "readResultRequest".equals(lti_message_type) ||
                    "deleteResultRequest".equals(lti_message_type) )  && allowOutcomes != null ) {
 				Map<String,String> bodyMap = pox.getBodyMap();
 				sourcedid = bodyMap.get("/resultRecord/sourcedGUID/sourcedId");
 				// System.out.println("sourcedid="+sourcedid);
 				message_type = "basicoutcome";
+			} else if ( "getCourseStructureRequest".equals(lti_message_type) ) {
+				processCourseStructureXml(request, response, lti_message_type, pox);
+				return;
+			} else if ( "addCourseResourcesRequest".equals(lti_message_type) ) {
+				processAddResourceXML(request, response, lti_message_type, pox);
+				return;
 			} else {
 				String output = pox.getResponseUnsupported("Not supported "+lti_message_type);
 				response.setContentType("application/xml");
@@ -803,7 +1032,7 @@ public class ServiceServlet extends HttpServlet {
 
 			// No point continuing without a sourcedid
 			if(BasicLTIUtil.isBlank(sourcedid)) {
-				doErrorXml(request, response, pox, "outcomes.missing", "sourcedid", null);
+				doErrorXML(request, response, pox, "outcomes.missing", "sourcedid", null);
 				return;
 			}
 
@@ -833,7 +1062,7 @@ public class ServiceServlet extends HttpServlet {
 
 			// Send a more generic message back to the caller
 			if ( placement_id == null || user_id == null ) {
-				doErrorXml(request, response, pox, "outcomes.sourcedid", "sourcedid", null);
+				doErrorXML(request, response, pox, "outcomes.sourcedid", "sourcedid", null);
 				return;
 			}
 
@@ -871,7 +1100,7 @@ public class ServiceServlet extends HttpServlet {
 				if (pox.base_string != null) {
 					M_log.warn(pox.base_string);
 				}
-				doErrorXml(request, response, pox, "outcome.no.validate", oauth_consumer_key, null);
+				doErrorXML(request, response, pox, "outcome.no.validate", oauth_consumer_key, null);
 				return;
 			}
 
@@ -880,7 +1109,7 @@ public class ServiceServlet extends HttpServlet {
 
 			// Send a generic message back to the caller
 			if ( placement_secret ==null ) {
-				doErrorXml(request, response, pox, "outcomes.sourcedid", "sourcedid", null);
+				doErrorXML(request, response, pox, "outcomes.sourcedid", "sourcedid", null);
 				return;
 			}
 
@@ -899,7 +1128,7 @@ public class ServiceServlet extends HttpServlet {
 
 			// Send a message back to the caller
 			if ( ! matched ) {
-				doErrorXml(request, response, pox, "outcomes.sourcedid", "sourcedid", null);
+				doErrorXML(request, response, pox, "outcomes.sourcedid", "sourcedid", null);
 				return;
 			}
 
@@ -912,8 +1141,530 @@ public class ServiceServlet extends HttpServlet {
 				String output = pox.getResponseUnsupported(desc);
 				writer.println(output);
 			}
-
 		}
+
+	protected void processCourseStructureXml(HttpServletRequest request, HttpServletResponse response, 
+			String lti_message_type, IMSPOXRequest pox)
+		throws java.io.IOException
+	{
+			Map<String,String> bodyMap = pox.getBodyMap();
+			String context_id = bodyMap.get("/params/courseId/textString");
+System.out.println("context_id="+context_id);
+			String user_id = bodyMap.get("/params/userId/textString");
+System.out.println("user_id="+user_id);
+
+			List<Map<String,String>> structureMap = new ArrayList<Map<String,String>>();
+			List<Long> structureList = new ArrayList<Long>();
+			List<SimplePageItem> sitePages = simplePageToolDao.findItemsInSite(context_id);
+			iteratePagesXML(sitePages,structureMap,structureList,0);
+
+			response.setContentType("application/xml");
+			String output = pox.getResponseUnsupported("YO");
+			if ( structureMap.size() > 0 ) {
+				Map<String,Object> theMap = new TreeMap<String,Object>();
+				theMap.put("/getCourseStructureResponse/courseStructures/courseStructure",structureMap);
+				String theXml = XMLMap.getXMLFragment(theMap, true);
+				output = pox.getResponseSuccess("Cool", theXml);
+			}
+
+			PrintWriter out = response.getWriter();
+			out.println(output);
+			System.out.println(output);
+			return;
+	}
+
+	protected void processAddResourceXML(HttpServletRequest request, HttpServletResponse response, 
+			String lti_message_type, IMSPOXRequest pox)
+		throws java.io.IOException
+	{
+			Map<String,String> bodyMap = pox.getBodyMap();
+			String context_id = bodyMap.get("/params/courseId/textString");
+System.out.println("context_id="+context_id);
+			String user_id = bodyMap.get("/params/userId/textString");
+System.out.println("user_id="+user_id);
+			String structure_order = bodyMap.get("/params/structureOrder/textString");
+System.out.println("structure_order="+structure_order);
+			int structureOrder = -1;
+			try { structureOrder = Integer.parseInt(structure_order); }
+			catch (Exception e) { structureOrder = -1; }
+
+			List<Map<String,String>> structureMap = new ArrayList<Map<String,String>>();
+			List<Long> structureList = new ArrayList<Long>();
+			List<SimplePageItem> sitePages = simplePageToolDao.findItemsInSite(context_id);
+			iteratePagesXML(sitePages,structureMap,structureList,0);
+
+			SimplePageItem thePage = null;
+			if ( structureOrder >= 0 && structureOrder < structureList.size() ) {
+				long pageId = structureList.get(structureOrder).longValue();
+				thePage = simplePageToolDao.findItem(pageId);
+				// System.out.println("pageId = "+pageId+" thePage = "+thePage);
+			}
+
+			// Something wrong, add on the first page
+			if ( thePage == null ) {
+				System.out.println("Inserting at top...");
+				for (SimplePageItem i : sitePages) {
+					if (i.getType() != SimplePageItem.PAGE) continue;
+					// System.out.println("item="+i.getName()+"id="+i.getId()+" sakaiId="+i.getSakaiId());
+					thePage = i;
+					break;
+				}
+			}
+
+			if ( thePage == null ) {
+				doErrorXML(request, response, pox, "lessons.page.notfound", 
+					"Unable to find page in structure at "+structure_order, null);
+				return;
+			}
+
+			Element bodyElement = pox.bodyElement;
+			// System.out.println(XMLMap.nodeToString(bodyElement));
+			// System.out.println(XMLMap.nodeToString(bodyElement, true));
+			NodeList nl = null;
+			try {
+				Object result = LESSONS_RESOURCES_EXPR.evaluate(bodyElement, XPathConstants.NODESET);
+				nl = (NodeList) result;
+				// System.out.println("result = "+result+" count="+nl.getLength());
+			} catch(Exception e) {
+				e.printStackTrace();
+				nl = null;
+			}
+
+			if ( nl == null || nl.getLength() < 1 ) {
+				doErrorXML(request, response, pox, "lessons.page.noresources", 
+					"No resources to add", null);
+				return;
+			}
+
+
+            Long pageNum = Long.valueOf(thePage.getSakaiId());
+System.out.println("pageNum="+pageNum);
+            List<SimplePageItem> items = simplePageToolDao.findItemsOnPage(pageNum);
+System.out.println("items="+items);
+			int seq = items.size() + 1;
+System.out.println("seq="+seq);
+
+			recursivelyAddResourcesXML(context_id, thePage,nl, seq);
+			response.setContentType("application/xml");
+			String output = pox.getResponseSuccess("Item Added","<"+lti_message_type+"/>\n");
+
+			PrintWriter out = response.getWriter();
+			out.println(output);
+			System.out.println(output);
+	}
+
+	protected void recursivelyAddResourcesXML(String siteId, SimplePageItem thePage, NodeList nl, int startPos) 
+	{
+		for(int i=0, cnt=nl.getLength(); i<cnt; i++)
+		{
+			Node node = nl.item(i);
+			if ( node.getNodeType() != Node.ELEMENT_NODE ) continue;
+			System.out.println("Node="+node.getNodeName());
+
+			if ( ! "resource".equals(node.getNodeName()) ) {
+				continue;
+			}
+
+			String typeStr = null;
+			try {
+				typeStr = (String) LESSONS_TYPE_EXPR.evaluate(node);
+			} catch (Exception e) {
+				typeStr = null;
+			}
+			String nameStr = null;
+			try {
+				nameStr = (String) LESSONS_NAME_EXPR.evaluate(node);
+			} catch (Exception e) {
+				nameStr = null;
+			}
+			
+			if ( "folder".equals(typeStr) ) {
+				SimplePageItem subPageItem = addLessonsFolder(thePage, nameStr, startPos);
+				startPos++;
+				NodeList childNodes = null;
+				try {
+					Object result = LESSONS_FOLDER_EXPR.evaluate(node, XPathConstants.NODESET);
+					childNodes = (NodeList) result;
+					System.out.println("children of the folder = "+result+" count="+childNodes.getLength());
+				} catch(Exception e) {
+					e.printStackTrace();
+					nl = null;
+				}
+
+				System.out.println("===== DOWN THE RABIT HOLE ==========");
+				recursivelyAddResourcesXML(siteId, subPageItem, childNodes, 1);
+				continue;
+			}
+
+			if ( ! "lti".equals(typeStr) ) {
+				M_log.warn("No support for type:"+typeStr);
+				continue;
+			}
+
+			String launchUrl = null;
+			try {
+				launchUrl = (String) LESSONS_URL_EXPR.evaluate(node);
+			} catch (Exception e) {
+				launchUrl = null;
+			}
+			String launchParams = null;
+			try {
+				launchParams = (String) LESSONS_CUSTOM_EXPR.evaluate(node);
+			} catch (Exception e) {
+				launchParams = null;
+			}
+
+			if ( nameStr == null || launchUrl == null || launchParams == null ) {
+				M_log.warn("Missing required value type, name, url, launch, parms");
+				continue;
+			}
+
+System.out.println("type="+typeStr+" name="+nameStr+" launchUrl="+launchUrl+" lanchParams="+launchParams);
+
+			// Time to add the launch tool
+			String sakaiId = doImportTool(siteId, launchUrl, nameStr, null, launchParams);
+
+			if ( sakaiId == null ) {
+				M_log.warn("Unable to add LTI Placement "+nameStr);
+				continue;
+			}
+			addLessonsLaunch(thePage, sakaiId, nameStr, startPos);
+		}
+	}
+
+	protected void iteratePagesXML(List<SimplePageItem> sitePages, 
+		List<Map<String,String>> structureMap, List<Long> structureList, int depth)
+	{
+		if ( depth > 10 ) return;
+		for (SimplePageItem i : sitePages) {
+			if ( structureList.size() > 50 ) return;
+            // System.out.println("d="+depth+" o="+structureList.size()+" Page ="+i.getSakaiId()+" title="+i.getName());
+			if (i.getType() != SimplePageItem.PAGE) continue;
+			Long pageNum = Long.valueOf(i.getSakaiId());
+
+			StringBuffer sb = new StringBuffer();
+			for ( int j=0; j< depth; j++ ) {
+				sb.append(". ");
+			}
+			sb.append(i.getName());
+			String title = sb.toString();
+			if ( structureList.size() == 50 ) title = " ... More ... ";
+
+			Map<String,String> cMap = new TreeMap<String,String>();
+			cMap.put("/sourcedGUID/sourcedId",i.getSakaiId());
+			cMap.put("/structure/label/language","en-us");
+			cMap.put("/structure/label/textString",title);
+			cMap.put("/structure/title/language","en-us");
+			cMap.put("/structure/title/textString",title);
+			cMap.put("/structure/extension/extensionField/fieldName","order");
+			cMap.put("/structure/extension/extensionField/fieldType","String");
+			int order = structureList.size();
+			cMap.put("/structure/extension/extensionField/fieldValue",""+order);
+			structureMap.add(cMap);
+			structureList.add(i.getId());
+
+			List<SimplePageItem> items = simplePageToolDao.findItemsOnPage(pageNum);
+			// System.out.println("Items="+items);
+			iteratePagesXML(items, structureMap, structureList, depth+1);
+		}
+	}
+
+	protected void processCourseStructureJSON(HttpServletRequest request, HttpServletResponse response, 
+			JSONObject json, IMSJSONRequest jsonRequest)
+		throws java.io.IOException
+	{
+			String context_id = (String) json.get("context_id");
+			String user_id = (String) json.get("user_id");
+
+			List<SimplePageItem> sitePages = simplePageToolDao.findItemsInSite(context_id);
+
+			List<Long> structureList = new ArrayList<Long>();
+			JSONArray structure = iteratePagesJSON(sitePages,structureList,0);
+System.out.println("Struc="+structure);
+
+			response.setContentType("application/json");
+			JSONObject jsonResponse = new JSONObject();
+			Map status = jsonRequest.getStatusUnsupported("YO");
+			if ( structure.size() > 0 ) {
+				status = jsonRequest.getStatusSuccess("Course structure retrieved");
+			}
+			jsonResponse.put(IMSJSONRequest.STATUS, status);
+			jsonResponse.put("structure", structure);
+			PrintWriter out = response.getWriter();
+            String jsonText = JSONValue.toJSONString(jsonResponse);
+            System.out.print(jsonText);
+            out.println(jsonText);
+	}
+
+	protected void recursivelyAddResourcesJSON(String siteId, SimplePageItem thePage, JSONArray resources, int startPos) 
+	{
+		for( Object obj : resources ) {
+			JSONObject resource = (JSONObject) obj;
+			System.out.println("resource="+resource);
+			String typeStr = (String) resource.get("type");
+			String nameStr = (String) resource.get("name");
+
+			if ( "folder".equals(typeStr) ) {
+				SimplePageItem subPageItem = addLessonsFolder(thePage, nameStr, startPos);
+				startPos++;
+				JSONArray subResources = (JSONArray) resource.get("resources");
+
+				if ( subResources == null || subResources.size() < 1 ) continue;
+
+				System.out.println("===== DOWN THE RABIT HOLE ==========");
+				recursivelyAddResourcesJSON(siteId, subPageItem, subResources, 1);
+				continue;
+			}
+
+			if ( ! "lti".equals(typeStr) ) {
+				M_log.warn("No support for type:"+typeStr);
+				continue;
+			}
+
+			String launchUrl = (String) resource.get("launch");
+			if ( nameStr == null || launchUrl == null ) {
+				M_log.warn("Missing required value type, name, url, launch");
+				continue;
+			}
+
+			JSONObject custom = (JSONObject) resource.get("custom");
+System.out.println("custom="+custom);
+			String launchParams = "";
+			if ( custom != null ) {
+				StringBuilder sb = new StringBuilder();
+				for(Object oKey : custom.keySet() ) {
+					String key = (String) oKey;
+					System.out.println("key="+key);
+				}
+			}
+
+System.out.println("type="+typeStr+" name="+nameStr+" launchUrl="+launchUrl+" launchParams="+launchParams);
+
+			// Time to add the launch tool
+			String sakaiId = doImportTool(siteId, launchUrl, nameStr, null, launchParams);
+
+			if ( sakaiId == null ) {
+				M_log.warn("Unable to add LTI Placement "+nameStr);
+				continue;
+			}
+			addLessonsLaunch(thePage, sakaiId, nameStr, startPos);
+		}
+	}
+
+    protected void processAddResourcesJSON(HttpServletRequest request, HttpServletResponse response,
+            JSONObject json, IMSJSONRequest jsonRequest)
+		throws java.io.IOException
+	{
+			String context_id = (String) json.get("context_id");
+System.out.println("context_id="+context_id);
+			String resource_link_id = (String) json.get("resource_link_id");
+System.out.println("resource_link_id="+resource_link_id);
+			long pageId = -1;
+			try { pageId = Long.parseLong(resource_link_id); }
+			catch (Exception e) { pageId = -1; }
+System.out.println("pageId="+pageId);
+
+			SimplePageItem thePage = simplePageToolDao.findItem(pageId);
+
+			// Something wrong, add on the first page
+			if ( thePage == null ) {
+				List<SimplePageItem> sitePages = simplePageToolDao.findItemsInSite(context_id);
+				System.out.println("Inserting at top...");
+				for (SimplePageItem i : sitePages) {
+					if (i.getType() != SimplePageItem.PAGE) continue;
+					// System.out.println("item="+i.getName()+"id="+i.getId()+" sakaiId="+i.getSakaiId());
+					thePage = i;
+					break;
+				}
+			}
+
+			if ( thePage == null ) {
+				doErrorJSON(request, response, jsonRequest, "lessons.page.notfound", 
+					"Unable to find resource_link_id "+resource_link_id, null);
+				return;
+			}
+
+System.out.println("thePage: "+ thePage);
+System.out.println("json: "+ json);
+
+			JSONArray resources = (JSONArray) json.get("resources");
+
+			if ( resources == null || resources.size() < 1 ) {
+				doErrorJSON(request, response, jsonRequest, "lessons.page.noresources", 
+					"No resources to add", null);
+				return;
+			}
+
+            Long pageNum = Long.valueOf(thePage.getSakaiId());
+System.out.println("pageNum="+pageNum);
+            List<SimplePageItem> items = simplePageToolDao.findItemsOnPage(pageNum);
+System.out.println("items="+items);
+			int seq = items.size() + 1;
+System.out.println("seq="+seq);
+
+			recursivelyAddResourcesJSON(context_id, thePage, resources, seq);
+
+			response.setContentType("application/json");
+			// String output = pox.getResponseSuccess("Item Added","<"+lti_message_type+"/>\n");
+			String output = "YO";
+
+			PrintWriter out = response.getWriter();
+			out.println(output);
+			System.out.println(output);
+	}
+
+	protected JSONArray iteratePagesJSON(List<SimplePageItem> sitePages, 
+		List<Long> structureList, int depth)
+	{
+		if ( depth > 10 ) return null;
+		if ( structureList.size() >= 100 ) return null;
+		JSONArray structure = new JSONArray();
+		for (SimplePageItem i : sitePages) {
+			if ( structureList.size() > 100 ) break;
+            System.out.println("d="+depth+" o="+structureList.size()+" Page ="+i.getSakaiId()+" title="+i.getName());
+			if (i.getType() != SimplePageItem.PAGE) continue;
+			String title = i.getName();
+			if ( structureList.size() == 100 ) title = " ... More ... ";
+
+			JSONObject cObj = new JSONObject();
+			// cObj.put("resource_link_id",i.getSakaiId());
+			cObj.put("resource_link_id",i.getId());
+			cObj.put("title",i.getName());
+
+			Long pageNum = Long.valueOf(i.getSakaiId());
+			List<SimplePageItem> items = simplePageToolDao.findItemsOnPage(pageNum);
+			JSONArray subPages = iteratePagesJSON(items, structureList, depth+1);
+			if ( subPages != null ) cObj.put("structure",subPages);
+
+			structure.add(cObj);
+			structureList.add(i.getId());
+		}
+		if ( structure.size() > 0 ) return structure;
+		return null;
+	}
+
+	protected SimplePageItem addLessonsFolder(SimplePageItem thePage, String nameStr, int startPos)
+    {
+		// System.out.println("item="+ thePage.getName()+" id="+ thePage.getId()+" sakaiId="+ thePage.getSakaiId());
+		Long parent = Long.valueOf(thePage.getSakaiId());
+		// System.out.println("Parent="+parent);
+
+		SimplePage actualPage = simplePageToolDao.getPage(parent);
+		// System.out.println("Simple Page="+actualPage);
+		Long topParent = actualPage.getTopParent();
+		if ( topParent == null ) topParent = parent;
+		// System.out.println("topParent="+topParent);
+		// System.out.println("toolId="+actualPage.getToolId()+" siteId="+actualPage.getSiteId());
+
+		SimplePage subPage = simplePageToolDao.makePage(actualPage.getToolId(), actualPage.getSiteId(), nameStr, parent, topParent);
+		List<String>elist = new ArrayList<String>();
+		simplePageToolDao.saveItem(subPage,  elist, "ERROR WAS HERE", false);
+		System.out.println("Page Saved "+elist);
+
+		// System.out.println("subPage="+subPage);
+		String selectedEntity = String.valueOf(subPage.getPageId());
+		// System.out.println("selectedEntity="+selectedEntity);
+
+		SimplePageItem subPageItem = simplePageToolDao.makeItem(parent, startPos, SimplePageItem.PAGE, Long.toString(subPage.getPageId()), nameStr);
+		subPageItem.setFormat("");
+		elist = new ArrayList<String>();
+		simplePageToolDao.saveItem(subPageItem,  elist, "ERROR WAS HERE", false);
+		System.out.println("Item Saved "+elist);
+		// System.out.println("subItem = "+subPageItem);
+		return subPageItem;
+	}
+
+    public String doImportTool(String siteId, String launchUrl, String bltiTitle, String strXml, String custom)
+    {
+		if ( ltiService == null ) return null;
+
+		String toolUrl = launchUrl;
+		int pos = toolUrl.indexOf("?");
+		if ( pos > 0 ) {
+			toolUrl = toolUrl.substring(0, pos);
+		}
+
+		String toolName = toolUrl;
+		try {
+			URL launch = new URL(launchUrl);
+			toolName = launch.getProtocol() + "://" + launch.getAuthority();
+		} catch ( Exception e ) {
+			toolName = toolUrl;
+		}
+
+		Map<String,Object> theTool = null;
+		List<Map<String,Object>> tools = ltiService.getToolsDao(null,null,0,0,siteId);
+		for ( Map<String,Object> tool : tools ) {
+			String toolLaunch = (String) tool.get(LTIService.LTI_LAUNCH);
+			if ( launchUrl.startsWith(toolUrl) ) {
+				theTool = tool;
+				break;
+			}
+		}
+
+		if ( theTool == null ) {
+			Properties props = new Properties ();
+			props.setProperty(LTIService.LTI_LAUNCH,launchUrl);
+			props.setProperty(LTIService.LTI_TITLE, toolName);
+			props.setProperty(LTIService.LTI_CONSUMERKEY, LTIService.LTI_SECRET_INCOMPLETE);
+			props.setProperty(LTIService.LTI_SECRET, LTIService.LTI_SECRET_INCOMPLETE);
+
+			props.setProperty(LTIService.LTI_ALLOWCUSTOM, "1");
+			props.setProperty(LTIService.LTI_SENDNAME, "1");
+			props.setProperty(LTIService.LTI_SENDEMAILADDR, "1");
+			props.setProperty(LTIService.LTI_ALLOWOUTCOMES, "1");
+			props.setProperty(LTIService.LTI_ALLOWROSTER, "1");
+
+			props.setProperty(LTIService.LTI_SITE_ID,siteId);
+
+			Object result = ltiService.insertToolDao(props, siteId);
+			if ( result instanceof String ) {
+				M_log.error("Could not insert tool - "+result);
+			}
+			if ( result instanceof Long ) theTool = ltiService.getToolDao((Long) result, siteId);
+		}
+	
+		Map<String,Object> theContent = null;
+		Long contentKey = null;
+		if ( theTool != null ) {
+			Properties props = new Properties ();
+			props.setProperty(LTIService.LTI_TOOL_ID,foorm.getLong(theTool.get(LTIService.LTI_ID)).toString());
+            props.setProperty(LTIService.LTI_PLACEMENTSECRET, UUID.randomUUID().toString());
+			props.setProperty(LTIService.LTI_TITLE, bltiTitle);
+			props.setProperty(LTIService.LTI_LAUNCH,launchUrl);
+			if ( strXml != null) props.setProperty(LTIService.LTI_XMLIMPORT,strXml);
+			if ( custom != null ) props.setProperty(LTIService.LTI_CUSTOM,custom);
+			Object result = ltiService.insertContentDao(props, siteId);
+			if ( result instanceof String ) {
+				M_log.error("Could not insert content - "+result);
+			} else {
+				System.out.println("Adding LTI tool "+result);
+			}
+			if ( result instanceof Long ) theContent = ltiService.getContentDao((Long) result, siteId);
+		}
+	
+		String sakaiId = null;
+		if ( theContent != null ) {
+			sakaiId = "/blti/" + theContent.get(LTIService.LTI_ID);
+		}
+		return sakaiId;
+	}
+
+	protected boolean addLessonsLaunch(SimplePageItem thePage, String sakaiId, String nameStr, int startPos) 
+	{
+            System.out.println("Adding LTI content item "+sakaiId);
+			Long pageNum = Long.valueOf(thePage.getSakaiId());
+            System.out.println("Page ="+thePage.getSakaiId()+" title="+thePage.getName());
+
+			SimplePageItem item = simplePageToolDao.makeItem(thePage.getPageId(), startPos, SimplePageItem.BLTI, sakaiId, nameStr);
+			item.setHeight(""); // default depends upon format, so it's supplied at runtime
+			item.setPageId(pageNum.longValue());
+
+			List<String>elist = new ArrayList<String>();
+            simplePageToolDao.saveItem(item,  elist, "ERROR WAS HERE", false);
+			System.out.println("Saved "+elist);
+			return true;
+	}
 
 	protected void processOutcomeXml(HttpServletRequest request, HttpServletResponse response, 
 			String lti_message_type, 
@@ -928,7 +1679,7 @@ public class ServiceServlet extends HttpServlet {
 				if(member != null ) userExistsInSite = true;
 			} catch (Exception e) {
 				M_log.warn(e.getLocalizedMessage() + " siteId="+siteId, e);
-				doErrorXml(request, response, pox, "outcome.site.membership", "", e);
+				doErrorXML(request, response, pox, "outcome.site.membership", "", e);
 				return;
 			}
 
@@ -936,7 +1687,7 @@ public class ServiceServlet extends HttpServlet {
 			String assignment = pitch.getProperty("assignment");
 			M_log.debug("ASSN="+assignment);
 			if ( assignment == null ) {
-				doErrorXml(request, response, pox, "outcome.no.assignment", "", null);
+				doErrorXML(request, response, pox, "outcome.no.assignment", "", null);
 				return;
 			}
 
@@ -949,7 +1700,7 @@ public class ServiceServlet extends HttpServlet {
 			popAdvisor();
 
 			if ( assignmentObject == null ) {
-				doErrorXml(request, response, pox, "outcome.no.assignment", "", null);
+				doErrorXML(request, response, pox, "outcome.no.assignment", "", null);
 				return;
 			}
 
@@ -963,7 +1714,7 @@ public class ServiceServlet extends HttpServlet {
 			// System.out.println("grade="+result_resultscore_textstring);
 
 			if(BasicLTIUtil.isBlank(result_resultscore_textstring) && ! isRead && ! isDelete ) {
-				doErrorXml(request, response, pox, "outcomes.missing", "result_resultscore_textstring", null);
+				doErrorXML(request, response, pox, "outcomes.missing", "result_resultscore_textstring", null);
 				return;
 			}
 
@@ -1020,7 +1771,7 @@ public class ServiceServlet extends HttpServlet {
 				}
 				success = true;
 			} catch (Exception e) {
-				doErrorXml(request, response, pox, "outcome.grade.fail", e.getMessage()+" siteId="+siteId, e);
+				doErrorXML(request, response, pox, "outcome.grade.fail", e.getMessage()+" siteId="+siteId, e);
 			} finally {
 				sess.invalidate(); // Make sure to leave no traces
 				popAdvisor();
@@ -1125,6 +1876,9 @@ public class ServiceServlet extends HttpServlet {
 			String contentStr = placement_id.substring(8);
 			Long contentKey = foorm.getLongKey(contentStr);
 			if ( contentKey < 0 ) return null;
+
+			// Leave off the siteId - bypass all checking - because we need to 
+			// finde the siteId from the content item
 			content = ltiService.getContentDao(contentKey);
 			if ( content == null ) return null;
 			siteId = (String) content.get(LTIService.LTI_SITE_ID);
