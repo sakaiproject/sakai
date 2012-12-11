@@ -103,7 +103,8 @@ public class AssignmentPickerProducer implements ViewComponentProducer, Navigati
 		    }
 		}
 
-                UIOutput.make(tofill, "html").decorate(new UIFreeAttributeDecorator("lang", localeGetter.get().getLanguage()));        
+                UIOutput.make(tofill, "html").decorate(new UIFreeAttributeDecorator("lang", localeGetter.get().getLanguage()))
+		    .decorate(new UIFreeAttributeDecorator("xml:lang", localeGetter.get().getLanguage()));
 
 		Long itemId = ((GeneralViewParameters) viewparams).getItemId();
 

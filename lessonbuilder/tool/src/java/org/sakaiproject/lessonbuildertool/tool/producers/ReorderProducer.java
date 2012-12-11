@@ -87,7 +87,8 @@ public class ReorderProducer implements ViewComponentProducer, NavigationCaseRep
 			}
 		}
 
-                UIOutput.make(tofill, "html").decorate(new UIFreeAttributeDecorator("lang", localeGetter.get().getLanguage()));        
+                UIOutput.make(tofill, "html").decorate(new UIFreeAttributeDecorator("lang", localeGetter.get().getLanguage()))
+		    .decorate(new UIFreeAttributeDecorator("xml:lang", localeGetter.get().getLanguage()));        
 
 		ToolSession toolSession = SessionManager.getCurrentToolSession();
 		String secondPageString = (String)toolSession.getAttribute("lessonbuilder.selectedpage");

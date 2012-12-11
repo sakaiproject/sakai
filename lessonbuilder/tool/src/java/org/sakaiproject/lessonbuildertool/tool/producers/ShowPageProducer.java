@@ -298,7 +298,8 @@ public class ShowPageProducer implements ViewComponentProducer, DefaultView, Nav
 	public void fillComponents(UIContainer tofill, ViewParameters viewParams, ComponentChecker checker) {
 		GeneralViewParameters params = (GeneralViewParameters) viewParams;
 
-                UIOutput.make(tofill, "html").decorate(new UIFreeAttributeDecorator("lang", localegetter.get().getLanguage()));        
+                UIOutput.make(tofill, "html").decorate(new UIFreeAttributeDecorator("lang", localegetter.get().getLanguage()))
+		    .decorate(new UIFreeAttributeDecorator("xml:lang", localegetter.get().getLanguage()));        
 
 		boolean iframeJavascriptDone = false;
 		

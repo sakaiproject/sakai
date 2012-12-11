@@ -116,7 +116,8 @@ public class PermissionsHelperProducer implements ViewComponentProducer, ViewPar
 		if (!simplePageBean.canEditPage() && !simplePageBean.canEditSite())
 		    return;
 
-                UIOutput.make(tofill, "html").decorate(new UIFreeAttributeDecorator("lang", localeGetter.get().getLanguage()));        
+                UIOutput.make(tofill, "html").decorate(new UIFreeAttributeDecorator("lang", localeGetter.get().getLanguage()))
+		    .decorate(new UIFreeAttributeDecorator("xml:lang", localeGetter.get().getLanguage()));        
 
 		// this is purely a site config, so no permission other than caneditpage needed
 

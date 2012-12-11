@@ -57,7 +57,8 @@ public class IFrameWindowProducer implements ViewComponentProducer, ViewParamsRe
 	        if (!simplePageBean.canReadPage())
 		    return;
 
-                UIOutput.make(tofill, "html").decorate(new UIFreeAttributeDecorator("lang", localeGetter.get().getLanguage()));        
+                UIOutput.make(tofill, "html").decorate(new UIFreeAttributeDecorator("lang", localeGetter.get().getLanguage()))
+		    .decorate(new UIFreeAttributeDecorator("xml:lang", localeGetter.get().getLanguage()));        
 
 		if (((GeneralViewParameters) params).getSendingPage() != -1) {
 		    try {

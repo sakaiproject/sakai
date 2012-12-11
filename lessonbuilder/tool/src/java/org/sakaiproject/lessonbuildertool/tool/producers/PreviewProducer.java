@@ -75,7 +75,8 @@ public class PreviewProducer implements ViewComponentProducer, NavigationCaseRep
 
 	public void fillComponents(UIContainer tofill, ViewParameters params, ComponentChecker checker) {
 
-		UIOutput.make(tofill, "html").decorate(new UIFreeAttributeDecorator("lang", localeGetter.get().getLanguage()));        
+		UIOutput.make(tofill, "html").decorate(new UIFreeAttributeDecorator("lang", localeGetter.get().getLanguage()))
+		    .decorate(new UIFreeAttributeDecorator("xml:lang", localeGetter.get().getLanguage()));        
 
 		SimplePage currentPage = simplePageBean.getCurrentPage();
 

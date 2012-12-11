@@ -217,7 +217,8 @@ public class PagePickerProducer implements ViewComponentProducer, NavigationCase
 			}
 		}
 
-		UIOutput.make(tofill, "html").decorate(new UIFreeAttributeDecorator("lang", localeGetter.get().getLanguage()));        
+		UIOutput.make(tofill, "html").decorate(new UIFreeAttributeDecorator("lang", localeGetter.get().getLanguage()))
+		    .decorate(new UIFreeAttributeDecorator("xml:lang", localeGetter.get().getLanguage()));        
 
 		boolean canEditPage = (simplePageBean.getEditPrivs() == 0);
 

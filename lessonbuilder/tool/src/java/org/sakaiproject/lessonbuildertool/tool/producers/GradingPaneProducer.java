@@ -84,7 +84,8 @@ public class GradingPaneProducer implements ViewComponentProducer, ViewParamsRep
 		backParams.setItemId(params.pageItemId);
 		backParams.setPath("log");
 		
-                UIOutput.make(tofill, "html").decorate(new UIFreeAttributeDecorator("lang", localeGetter.get().getLanguage()));        
+                UIOutput.make(tofill, "html").decorate(new UIFreeAttributeDecorator("lang", localeGetter.get().getLanguage()))
+		    .decorate(new UIFreeAttributeDecorator("xml:lang", localeGetter.get().getLanguage()));        
 
 		UIInternalLink.make(tofill, "back-link", "Go Back", backParams);
 		

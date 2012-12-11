@@ -104,7 +104,8 @@ public class ShowItemProducer implements ViewComponentProducer, NavigationCaseRe
 
 	    GeneralViewParameters params = (GeneralViewParameters)viewParams;
 
-	    UIOutput.make(tofill, "html").decorate(new UIFreeAttributeDecorator("lang", localeGetter.get().getLanguage()));        
+	    UIOutput.make(tofill, "html").decorate(new UIFreeAttributeDecorator("lang", localeGetter.get().getLanguage()))
+		.decorate(new UIFreeAttributeDecorator("xml:lang", localeGetter.get().getLanguage()));        
 
 	    if (!simplePageBean.canReadPage()) {
 		UIOutput.make(tofill, "error", messageLocator.getMessage("simplepage.not_available"));

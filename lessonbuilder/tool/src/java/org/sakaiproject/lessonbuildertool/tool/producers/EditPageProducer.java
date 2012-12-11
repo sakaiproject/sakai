@@ -93,7 +93,8 @@ public class EditPageProducer implements ViewComponentProducer, NavigationCaseRe
 
 		GeneralViewParameters gparams = (GeneralViewParameters) viewparams;
 
-                UIOutput.make(tofill, "html").decorate(new UIFreeAttributeDecorator("lang", localeGetter.get().getLanguage()));        
+                UIOutput.make(tofill, "html").decorate(new UIFreeAttributeDecorator("lang", localeGetter.get().getLanguage()))
+		    .decorate(new UIFreeAttributeDecorator("xml:lang", localeGetter.get().getLanguage()));        
 
 		if (gparams.getSendingPage() != -1) {
 			// will fail if page not in this site

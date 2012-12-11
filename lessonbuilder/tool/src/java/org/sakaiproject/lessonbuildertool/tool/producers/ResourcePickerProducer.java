@@ -116,7 +116,8 @@ public class ResourcePickerProducer implements ViewComponentProducer, ViewParams
 		if (!simplePageBean.canReadPage())
 		    return;
 
-                UIOutput.make(tofill, "html").decorate(new UIFreeAttributeDecorator("lang", localeGetter.get().getLanguage()));        
+                UIOutput.make(tofill, "html").decorate(new UIFreeAttributeDecorator("lang", localeGetter.get().getLanguage()))
+		    .decorate(new UIFreeAttributeDecorator("xml:lang", localeGetter.get().getLanguage()));        
 
 		// parameters for helper
 		ToolSession toolSession = sessionManager.getCurrentToolSession();
