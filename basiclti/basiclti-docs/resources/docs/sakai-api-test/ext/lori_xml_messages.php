@@ -18,6 +18,9 @@ $getCourseStructureRequest = '<imsx_POXEnvelopeRequest xmlns="http://www.imsglob
                     <language>en-us</language>
                     <textString>USER_ID</textString>
                 </userId>
+                <sourcedGUID>
+                    <sourcedId>LIS_RESULT_SOURCEDID</sourcedId>
+                </sourcedGUID>
             </params>
             <signature>
                 <encrypted_hash>WItAKSt</encrypted_hash>

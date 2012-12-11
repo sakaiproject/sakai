@@ -28,6 +28,7 @@ if (get_magic_quotes_gpc()) $sourcedid = stripslashes($sourcedid);
 
 $user_id = $_REQUEST['user_id'];
 $context_id = $_REQUEST['context_id'];
+$lis_result_sourcedid = $_REQUEST['lis_result_sourcedid'];
 
 ?>
 <p>
@@ -38,11 +39,9 @@ context_id: <input type="text" name="context_id" disabled="true" size="100" valu
 OAuth Consumer Key: <input type="text" name="key" disabled="true" size="80" value="<?php echo(htmlentities($_REQUEST['key']));?>"/></br>
 OAuth Consumer Secret: <input type="text" name="secret" size="80" value="<?php echo(htmlentities($oauth_consumer_secret));?>"/></br>
 </p><p>
-Grade to Send to LMS: <input type="text" name="grade" value="<?php echo(htmlentities($_REQUEST['grade']));?>"/>
-(i.e. 0.95)<br/>
+lis_result_sourcedid: <input type="text" name="lis_result_sourcedid" size="80" value="<?php echo(htmlentities($_REQUEST['lis_result_sourcedid']));?>"/></br>
 <input type='submit' name='submit' value="Get Course Structure">
-<input type='submit' name='submit' value="Read Grade">
-<input type='submit' name='submit' value="Delete Grade"></br>
+</br>
 </form>
 <?php 
 $url = $_REQUEST['url'];
@@ -52,23 +51,12 @@ $method="POST";
 $endpoint = $_REQUEST['url'];
 $content_type = "application/xml";
 
-if ( $_REQUEST['submit'] == "Get Course Structure" && isset($_REQUEST['context_id'] ) ) {
+if ( $_REQUEST['submit'] == "Get Course Structure" && isset($_REQUEST['context_id'] ) &&
+    isset($_REQUEST['lis_result_sourcedid'] ) ) {
     $postBody = str_replace(
-	array('USER_ID', 'CONTEXT_ID','MESSAGE'), 
-	array($user_id, $context_id, uniqid()), 
+	array('USER_ID', 'CONTEXT_ID','LIS_RESULT_SOURCEDID', 'MESSAGE'), 
+	array($user_id, $context_id, $lis_result_sourcedid, uniqid()), 
 	$getCourseStructureRequest);
-} else if ( $_REQUEST['submit'] == "Read Grade" ) {
-    $operation = 'readResultRequest';
-    $postBody = str_replace(
-	array('SOURCEDID', 'OPERATION','MESSAGE'), 
-	array($sourcedid, $operation, uniqid()), 
-	getPOXRequest());
-} else if ( $_REQUEST['submit'] == "Delete Grade" ) {
-    $operation = 'deleteResultRequest';
-    $postBody = str_replace(
-	array('SOURCEDID', 'OPERATION','MESSAGE'), 
-	array($sourcedid, $operation, uniqid()), 
-	getPOXRequest());
 } else {
     exit();
 }
