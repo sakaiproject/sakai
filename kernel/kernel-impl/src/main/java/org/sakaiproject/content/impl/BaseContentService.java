@@ -10126,48 +10126,58 @@ SiteContentAdvisorProvider, SiteContentAdvisorTypeRegistry, EntityTransferrerRef
 			return m_accessUpdated;
 		}
 
+		private boolean isConditionallyReleased(ContentEntity entity) {
+			return StringUtils.equalsIgnoreCase("true", entity.getProperties().getProperty(ConditionService.PROP_CONDITIONAL_RELEASE));
+		}
+
 		public boolean isAvailable() 
 		{
-			boolean available = !m_hidden;
+			boolean available = !this.isHidden();
+			boolean isHiddenWebFolder = false;
+			ContentEntity currentEntity = null;
+			try {
+				currentEntity = isCollection(this.m_id)?findCollection(m_id):findResource(m_id);
+			} catch (TypeException te) {
+				return false;
+			}
 
-			if(available && (this.m_releaseDate != null || this.m_retractDate != null || isConditionallyReleased()))
-			{
-				Time now = timeService.newTime();
-				if(this.m_releaseDate != null)
+			while (available && currentEntity != null) {
+			
+				if(available && (currentEntity.getReleaseDate() != null || currentEntity.getRetractDate() != null || isConditionallyReleased(currentEntity)))
 				{
-					available = this.m_releaseDate.before(now);
-				}
-				if(available && this.m_retractDate != null)
-				{
-					available = this.m_retractDate.after(now);
-				}
-				if(available && isConditionallyReleased())
-				{
-					// first check for global rule satisfaction
-					String satisfiesRule = this.m_properties.getProperty("resource.satisfies.rule");
-					if (satisfiesRule == null) {
-						List acl = (List)this.m_properties.getPropertyList("conditional_access_list");
-						if (acl == null) {
-							available = false;
+					Time now = timeService.newTime();
+					if (currentEntity.getReleaseDate() != null) {
+						available = currentEntity.getReleaseDate().before(now);
+					}
+					if (available && currentEntity.getRetractDate() != null) {
+						available = currentEntity.getRetractDate().after(now);
+					}
+					if (available && isConditionallyReleased(currentEntity)) {
+						// first check for global rule satisfaction
+						String satisfiesRule = currentEntity.getProperties().getProperty("resource.satisfies.rule");
+						if (satisfiesRule == null) {
+							Collection<?> acl = (Collection<?>) currentEntity.getProperties().get("conditional_access_list");
+							if (acl == null) {
+								available = false;
+							} else {
+								// acl acts as a white list for availability
+								available = acl.contains(sessionManager.getCurrentSessionUserId());
+							}
 						} else {
-							// acl acts as a white list for availability
-							available = acl.contains(sessionManager.getCurrentSessionUserId());
+							available = Boolean.parseBoolean(satisfiesRule);
 						}
-					} else {
-						available = Boolean.parseBoolean(satisfiesRule);
 					}
 				}
+				if (!available) {
+					return available;
+				}
+				if (available && !isHiddenWebFolder && currentEntity.getId().endsWith(Entity.SEPARATOR)) {
+					isHiddenWebFolder = "true".equals(currentEntity.getProperties().getProperty(ResourceProperties.PROP_HIDDEN_WITH_ACCESSIBLE_CONTENT));
+				}
+				currentEntity = currentEntity.getContainingCollection();
+				available = currentEntity!=null?!currentEntity.isHidden():available;
 			}
-			if(!available)
-			{
-				return available;
-			}
-			ContentCollection parent = ((ContentEntity) this).getContainingCollection();
-			if(parent == null)
-			{
-				return available;
-			}
-			return parent.isAvailable();
+			return (available && isHiddenWebFolder && this.getId().endsWith(Entity.SEPARATOR))?!available:available;
 		}
 
 		public boolean isHidden() 

@@ -173,6 +173,9 @@ public interface ResourceProperties extends Serializable
 	
 	/** Property name on a ContentEntity indicating if we should add HTML header/footer.*/
 	static final String PROP_ADD_HTML = "SAKAI:add_html";
+	
+	/** Property name on a ContentEntity indicating if the item is hidden but it's content is public.*/
+	static final String PROP_HIDDEN_WITH_ACCESSIBLE_CONTENT = "SAKAI:hidden_accessible_content";
 
 	/**
 	 * Property name on a Resource or Collection which will allow resources with
