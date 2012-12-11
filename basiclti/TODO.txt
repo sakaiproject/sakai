@@ -13,3 +13,5 @@ basiclti-blis/src/java/org/sakaiproject/blti/ServiceServlet.java
 
 Add ServerConfiguration stuff.
 
+Make sure to match the siteId and check the userId after sourcedid
+

@@ -131,6 +131,7 @@ public class IMSBLTIPortlet extends GenericPortlet {
 		fieldList.add("maximize");
 		fieldList.add("allowsettings");
 		fieldList.add("allowroster");
+		fieldList.add("allowlori");
 		fieldList.add("contentlink");
 	}
 
@@ -283,6 +284,8 @@ public class IMSBLTIPortlet extends GenericPortlet {
 		request.setAttribute("allowSettings", new Boolean("true".equals(allowSettings)));
 		String allowRoster = ServerConfigurationService.getString(SakaiBLTIUtil.BASICLTI_ROSTER_ENABLED, null);
 		request.setAttribute("allowRoster", new Boolean("true".equals(allowRoster)));
+		String allowLori = ServerConfigurationService.getString(SakaiBLTIUtil.BASICLTI_LORI_ENABLED, null);
+		request.setAttribute("allowLori", new Boolean("true".equals(allowLori)));
 		String allowContentLink = ServerConfigurationService.getString(SakaiBLTIUtil.BASICLTI_CONTENTLINK_ENABLED, null);
 		request.setAttribute("allowContentLink", new Boolean("true".equals(allowContentLink)));
 
@@ -564,6 +567,7 @@ public class IMSBLTIPortlet extends GenericPortlet {
 			String allowOutcomes = ServerConfigurationService.getString(SakaiBLTIUtil.BASICLTI_OUTCOMES_ENABLED, null);
 			String allowSettings = ServerConfigurationService.getString(SakaiBLTIUtil.BASICLTI_SETTINGS_ENABLED, null);
 			String allowRoster = ServerConfigurationService.getString(SakaiBLTIUtil.BASICLTI_ROSTER_ENABLED, null);
+			String allowLori = ServerConfigurationService.getString(SakaiBLTIUtil.BASICLTI_LORI_ENABLED, null);
 
 			if ( "true".equals(allowOutcomes) && newAssignment != null && newAssignment.trim().length() > 1 ) {
 				if ( addGradeBookItem(request, newAssignment) ) {
@@ -574,7 +578,8 @@ public class IMSBLTIPortlet extends GenericPortlet {
 
 			// System.out.println("old placementsecret="+oldPlacementSecret);
 			if ( oldPlacementSecret == null && 
-					("true".equals(allowOutcomes) || "true".equals(allowSettings) || "true".equals(allowRoster) ) ) {
+					("true".equals(allowOutcomes) || "true".equals(allowSettings) || 
+                     "true".equals(allowRoster) || "true".equals(allowLori) ) ) {
 				try {
 					String uuid = UUID.randomUUID().toString();
 					Date date = new Date();

@@ -325,7 +325,7 @@ public class ServiceServlet extends HttpServlet {
 			if ( ! "true".equals(allowRoster) ) allowRoster = null;
 
 			if (allowOutcomes == null && allowSettings == null && allowRoster == null ) {
-				M_log.warn("Basic LTI Services are disabled IP=" + ipAddress);
+				M_log.warn("LTI Services are disabled IP=" + ipAddress);
 				response.setStatus(HttpServletResponse.SC_FORBIDDEN);
 				return;
 			}
@@ -833,7 +833,17 @@ public class ServiceServlet extends HttpServlet {
 		protected void doPostJSON(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
 			String ipAddress = request.getRemoteAddr();
 
-			M_log.debug("LTI POX Service request from IP=" + ipAddress);
+			M_log.debug("Basic LTI Service request from IP=" + ipAddress);
+
+			String allowLori = ServerConfigurationService.getString(
+					SakaiBLTIUtil.BASICLTI_LORI_ENABLED, null);
+			if ( ! "true".equals(allowLori) ) allowLori = null;
+
+			if (allowLori == null ) {
+				M_log.warn("LTI Services are disabled IP=" + ipAddress);
+				response.setStatus(HttpServletResponse.SC_FORBIDDEN);
+				return;
+			}
 
 			IMSJSONRequest jsonRequest = new IMSJSONRequest(request);
 
@@ -955,16 +965,19 @@ public class ServiceServlet extends HttpServlet {
 			if ( ! matched ) {
 				M_log.warn("Received signature="+signature+" received="+received_signature);
 				doErrorJSON(request, response, jsonRequest, "outcomes.lori_api_token", "lori_api_token_06", null);
-				return;
 			}
 
 			String uri = request.getRequestURI();
 			String [] parts = uri.split("/");
 			String operation = null;
 			if ( parts.length >= 4 ) operation = parts[3];
-			if ( "coursestructure".equals(operation) ) {
+
+            String placementLori = pitch.getProperty("allowlori");
+System.out.println("placementLori="+placementLori);
+
+			if ( allowLori != null && "on".equals(placementLori) && "coursestructure".equals(operation) ) {
 			    processCourseStructureJSON(request, response, jsonObject, jsonRequest);
-			} else if ( "addcourseresources".equals(operation) ) {
+			} else if ( allowLori != null && "on".equals(placementLori) && "addcourseresources".equals(operation) ) {
 			    processAddResourcesJSON(request, response, jsonObject, jsonRequest);
 			} else { 
 				response.setContentType("application/json");
@@ -991,8 +1004,12 @@ public class ServiceServlet extends HttpServlet {
 					SakaiBLTIUtil.BASICLTI_OUTCOMES_ENABLED, null);
 			if ( ! "true".equals(allowOutcomes) ) allowOutcomes = null;
 
-			if (allowOutcomes == null ) {
-				M_log.warn("Basic LTI Services are disabled IP=" + ipAddress);
+			String allowLori = ServerConfigurationService.getString(
+					SakaiBLTIUtil.BASICLTI_LORI_ENABLED, null);
+			if ( ! "true".equals(allowLori) ) allowLori = null;
+
+			if (allowOutcomes == null && allowLori == null ) {
+				M_log.warn("LTI Services are disabled IP=" + ipAddress);
 				response.setStatus(HttpServletResponse.SC_FORBIDDEN);
 				return;
 			}
@@ -1009,19 +1026,18 @@ public class ServiceServlet extends HttpServlet {
 			String sourcedid = null;
 			String message_type = null;
 			System.out.println("POST\n"+XMLMap.prettyPrint(pox.postBody));
+			Map<String,String> bodyMap = pox.getBodyMap();
 System.out.println("MESSAGE="+lti_message_type);
 			if ( ( "replaceResultRequest".equals(lti_message_type) || "readResultRequest".equals(lti_message_type) ||
                    "deleteResultRequest".equals(lti_message_type) )  && allowOutcomes != null ) {
-				Map<String,String> bodyMap = pox.getBodyMap();
 				sourcedid = bodyMap.get("/resultRecord/sourcedGUID/sourcedId");
-				// System.out.println("sourcedid="+sourcedid);
 				message_type = "basicoutcome";
 			} else if ( "getCourseStructureRequest".equals(lti_message_type) ) {
-				processCourseStructureXml(request, response, lti_message_type, pox);
-				return;
+                sourcedid = bodyMap.get("/params/sourcedGUID/sourcedId");
+				message_type = "getstructure";
 			} else if ( "addCourseResourcesRequest".equals(lti_message_type) ) {
-				processAddResourceXML(request, response, lti_message_type, pox);
-				return;
+                sourcedid = bodyMap.get("/params/sourcedGUID/sourcedId");
+				message_type = "addstructure";
 			} else {
 				String output = pox.getResponseUnsupported("Not supported "+lti_message_type);
 				response.setContentType("application/xml");
@@ -1029,6 +1045,8 @@ System.out.println("MESSAGE="+lti_message_type);
 				out.println(output);
 				return;
 			}
+
+System.out.println("sourcedid="+sourcedid);
 
 			// No point continuing without a sourcedid
 			if(BasicLTIUtil.isBlank(sourcedid)) {
@@ -1132,8 +1150,15 @@ System.out.println("MESSAGE="+lti_message_type);
 				return;
 			}
 
-			if ( "basicoutcome".equals(message_type) ) {
+			String placementLori = pitch.getProperty("allowlori");
+System.out.println("placementLori="+placementLori);
+
+			if ( allowOutcomes != null && "basicoutcome".equals(message_type) ) {
 				processOutcomeXml(request, response, lti_message_type, site, siteId, pitch, user_id, pox);
+			} else if ( allowLori != null && "on".equals(placementLori) && "getstructure".equals(message_type) ) {
+				processCourseStructureXml(request, response, lti_message_type, pox);
+			} else if ( allowLori != null && "on".equals(placementLori) && "addstructure".equals(message_type) ) {
+				processAddResourceXML(request, response, lti_message_type, pox);
 			} else {
 				response.setContentType("application/xml");
 				PrintWriter writer = response.getWriter();
@@ -1148,9 +1173,9 @@ System.out.println("MESSAGE="+lti_message_type);
 		throws java.io.IOException
 	{
 			Map<String,String> bodyMap = pox.getBodyMap();
-			String context_id = bodyMap.get("/params/courseId/textString");
+			String context_id = bodyMap.get("/params/courseId");
 System.out.println("context_id="+context_id);
-			String user_id = bodyMap.get("/params/userId/textString");
+			String user_id = bodyMap.get("/params/userId");
 System.out.println("user_id="+user_id);
 
 			List<Map<String,String>> structureMap = new ArrayList<Map<String,String>>();
@@ -1162,7 +1187,7 @@ System.out.println("user_id="+user_id);
 			String output = pox.getResponseUnsupported("YO");
 			if ( structureMap.size() > 0 ) {
 				Map<String,Object> theMap = new TreeMap<String,Object>();
-				theMap.put("/getCourseStructureResponse/courseStructures/courseStructure",structureMap);
+				theMap.put("/getCourseStructureResponse/resources/resource",structureMap);
 				String theXml = XMLMap.getXMLFragment(theMap, true);
 				output = pox.getResponseSuccess("Cool", theXml);
 			}
@@ -1178,11 +1203,11 @@ System.out.println("user_id="+user_id);
 		throws java.io.IOException
 	{
 			Map<String,String> bodyMap = pox.getBodyMap();
-			String context_id = bodyMap.get("/params/courseId/textString");
+			String context_id = bodyMap.get("/params/courseId");
 System.out.println("context_id="+context_id);
-			String user_id = bodyMap.get("/params/userId/textString");
+			String user_id = bodyMap.get("/params/userId");
 System.out.println("user_id="+user_id);
-			String structure_order = bodyMap.get("/params/structureOrder/textString");
+			String structure_order = bodyMap.get("/params/structureOrder");
 System.out.println("structure_order="+structure_order);
 			int structureOrder = -1;
 			try { structureOrder = Integer.parseInt(structure_order); }
@@ -1351,15 +1376,10 @@ System.out.println("type="+typeStr+" name="+nameStr+" launchUrl="+launchUrl+" la
 			if ( structureList.size() == 50 ) title = " ... More ... ";
 
 			Map<String,String> cMap = new TreeMap<String,String>();
-			cMap.put("/sourcedGUID/sourcedId",i.getSakaiId());
-			cMap.put("/structure/label/language","en-us");
-			cMap.put("/structure/label/textString",title);
-			cMap.put("/structure/title/language","en-us");
-			cMap.put("/structure/title/textString",title);
-			cMap.put("/structure/extension/extensionField/fieldName","order");
-			cMap.put("/structure/extension/extensionField/fieldType","String");
-			int order = structureList.size();
-			cMap.put("/structure/extension/extensionField/fieldValue",""+order);
+			cMap.put("/folderId",i.getSakaiId());
+			cMap.put("/title",title);
+			cMap.put("/description",title);
+			cMap.put("/type","folder");
 			structureMap.add(cMap);
 			structureList.add(i.getId());
 
@@ -1839,7 +1859,7 @@ System.out.println("seq="+seq);
 		String [] fieldList = { "key", LTIService.LTI_SECRET, LTIService.LTI_PLACEMENTSECRET, 
 				LTIService.LTI_OLDPLACEMENTSECRET, LTIService.LTI_ALLOWSETTINGS, 
 				"assignment", LTIService.LTI_ALLOWROSTER, "releasename", "releaseemail", 
-				"toolsetting"};
+				"toolsetting", "allowlori"};
 
 		Properties retval = new Properties();
 
