@@ -16,12 +16,14 @@
 		#end
 	</p>	
 	<form action="#toolForm("$action")" method="post" name="optionsForm">
-		<h4>
-			$tlang.getString("custom.display")
-		</h4>
-      
 	#if ($toolId == "sakai.announcements")
 	<!-- start of announcement options -->
+         <fieldset>
+             <legend>
+               <h4>
+                   $tlang.getString("custom.display")
+               </h4>
+               </legend>
 		
 		#set ($selected = $tlang.getString("custom.sortab"))
 		#if ( $displayOptions.isShowAllColumns())
@@ -94,10 +96,13 @@
 			#end
 			</select>
 		</p>
-		
-		<h4>
-			$tlang.getString("custom.rss_option.full") 
-		</h4>
+		</fieldset>
+        <fieldset>
+            <legend>
+        		<h4>
+        			$tlang.getString("custom.rss_option.full") 
+        		</h4>
+            </legend>
 		<p class="shorttext indnt2">
 			<label for ="rssAlias">
 				$tlang.getString("custom.rss_alias")
@@ -111,11 +116,18 @@
 			</label>
 			<a target="_blank" href="$!rssUrl" target="_new_">$rssUrl</a>
 		</p>
-		
+		</fieldset>
 	<!-- end of announcement options -->
 
 	#else
 	<!-- start of synoptic announcement options -->
+           <fieldset>
+             <legend>
+               <h4>
+                   $tlang.getString("custom.display")
+               </h4>
+               </legend>
+
 		<p class="checkbox indnt2">
 		<input 	type="checkbox"
 				name="$displayOptions.getVarNameShowAnnouncementBody()" 
@@ -159,12 +171,16 @@
 			#end
 			</select>
 		</p>
+        </fieldset>
 	<!-- end of synoptic announcement options -->
 	#end
-   
-		<h4>
-			$tlang.getString("custom.dplimits") 
-		</h4>
+        
+        <fielset>
+            <legend>
+                <h4>
+                    $tlang.getString("custom.dplimits")
+                </h4>
+            </legend>
 		<p class="shorttext indnt4">
 			<label for="${displayOptions.getVarNameNumberOfDaysInPast()}EntryField">
 				$tlang.getString("custom.number") 
@@ -191,6 +207,7 @@
 				#end
 			/>
 		</p>
+        </fielset>
 		<p class="act">
 			<input type="submit" class="active" name="eventSubmit_doUpdate" value="$tlang.getString("gen.update")"  accesskey="s" />
 			<input type="submit" name="eventSubmit_doCancel" value="$tlang.getString("gen.cancel")"  accesskey="x" />
