@@ -994,6 +994,9 @@ tr.selectedFound td {
 .login td.form {
     vertical-align:top; 
 }
+.login > tbody > tr:first-child {
+    display: none;
+}
 .login td.form form{
     background: -moz-linear-gradient(top, rgba(255,255,255,1) 0%, rgba(255,255,255,0) 100%);
     background: -webkit-gradient(linear, left top, left bottom, color-stop(0%,rgba(255,255,255,1)), color-stop(100%,rgba(255,255,255,0)));
