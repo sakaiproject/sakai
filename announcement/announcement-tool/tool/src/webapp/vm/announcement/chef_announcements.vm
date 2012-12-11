@@ -122,7 +122,8 @@
 						<form name="pagesizeForm" class="inlineForm" method="post" action="#toolForm("$action")">
 							<input type="hidden" name="eventSubmit_doChange_pagesize" value="changepagesize" />
 							<span class="skip">$tlang.getString("gen.listnavselect")</span>
-							<select name="selectPageSize" onchange="document.pagesizeForm.submit();">
+                            <label for="selectPageSize" class="skip">$tlang.getString("gen.select.label")</label>
+							<select id="selectPageSize" name="selectPageSize" onchange="document.pagesizeForm.submit();">
 								<option value="5" #if($pagesize == 5) selected="selected" #end>$tlang.getFormattedMessage("gen.show", "5")</option>
 								<option value="10" #if($pagesize == 10) selected="selected" #end>$tlang.getFormattedMessage("gen.show", "10")</option>
 								<option value="20" #if($pagesize == 20) selected="selected" #end>$tlang.getFormattedMessage("gen.show", "20")</option>
@@ -462,7 +463,8 @@
 								<form name="pagesizeForm" class="inlineForm" method="post" action="#toolForm("$action")">
 									<input type="hidden" name="eventSubmit_doChange_pagesize" value="changepagesize" />
 									<span class="skip">$tlang.getString("gen.listnavselect")</span>
-									<select name="selectPageSize" onchange="document.pagesizeForm.submit();">
+                                    <label for="selectPageSize" class="skip">$tlang.getString("gen.select.label")</label>
+									<select id="selectPageSize" name="selectPageSize" onchange="document.pagesizeForm.submit();">
 										<option value="5" #if($pagesize == 5) selected="selected" #end>$tlang.getFormattedMessage("gen.show", "5")</option>
 										<option value="10" #if($pagesize == 10) selected="selected" #end>$tlang.getFormattedMessage("gen.show", "10")</option>
 										<option value="20" #if($pagesize == 20) selected="selected" #end>$tlang.getFormattedMessage("gen.show", "20")</option>
@@ -773,7 +775,8 @@
 									<form name="pagesizeForm" class="inlineForm" method="post" action="#toolForm("$action")">
 										<input type="hidden" name="eventSubmit_doChange_pagesize" value="changepagesize" />
 										<span class="skip">$tlang.getString("gen.listnavselect")</span>
-										<select name="selectPageSize" onchange="document.pagesizeForm.submit();">
+                                        <label for="selectPageSize" class="skip">$tlang.getString("gen.select.label")</label>
+										<select id="selectPageSize" name="selectPageSize" onchange="document.pagesizeForm.submit();">
 											<option value="5" #if($pagesize == 5) selected="selected" #end>$tlang.getFormattedMessage("gen.show", "5")</option>
 											<option value="10" #if($pagesize == 10) selected="selected" #end>$tlang.getFormattedMessage("gen.show", "10")</option>
 											<option value="20" #if($pagesize == 20) selected="selected" #end>$tlang.getFormattedMessage("gen.show", "20")</option>
