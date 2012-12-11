@@ -27,6 +27,7 @@ import java.util.Set;
 import java.util.ArrayList;
 import java.util.Collection;
 import org.sakaiproject.site.api.Group;
+import org.sakaiproject.assignment.api.Assignment;
 import org.sakaiproject.component.cover.ComponentManager;
 
 /**
@@ -240,6 +241,21 @@ public class AssignmentService {
 			return false;
 
 		return service.allowAddSubmission(param0);
+	}
+	
+	/**
+	 * SAK-21525
+	 * 
+	 * @param context
+	 * @param assignment - An Assignment object. Needed for the groups to be checked.
+	 * @return
+	 */
+	public static boolean allowAddSubmissionCheckGroups(java.lang.String context, Assignment assignment) {
+		org.sakaiproject.assignment.api.AssignmentService service = getInstance();
+		if (service == null)
+			return false;
+
+		return service.allowAddSubmissionCheckGroups(context,assignment);
 	}
 
 	public static java.util.List allowAddSubmissionUsers(java.lang.String param0) {
@@ -779,12 +795,12 @@ public class AssignmentService {
 		return service.getAllowGroupAssignmentsInGradebook();
 	}
 	
-	public static boolean canSubmit(String param0, org.sakaiproject.assignment.api.Assignment param1) {
+	public static boolean canSubmit(String context, org.sakaiproject.assignment.api.Assignment assignment) {
 		org.sakaiproject.assignment.api.AssignmentService service = getInstance();
 		if (service == null)
 			return false;
 
-		return service.canSubmit(param0, param1);
+		return service.canSubmit(context, assignment);
 	}
 	
 	public static boolean getAllowSubmitByInstructor() {

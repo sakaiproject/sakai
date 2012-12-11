@@ -1389,7 +1389,8 @@ public class AssignmentAction extends PagedResourceActionII
 		context.put("contentTypeImageService", state.getAttribute(STATE_CONTENT_TYPE_IMAGE_SERVICE));
 		context.put("currentTime", TimeService.newTime());
 
-		boolean allowSubmit = AssignmentService.allowAddSubmission((String) state.getAttribute(STATE_CONTEXT_STRING));
+		// SAK-21525 - Groups were not being queried for authz
+		boolean allowSubmit = AssignmentService.allowAddSubmissionCheckGroups((String) state.getAttribute(STATE_CONTEXT_STRING),assignment);
 		if (!allowSubmit)
 		{
 			addAlert(state, rb.getString("not_allowed_to_submit"));
@@ -1766,6 +1767,7 @@ public class AssignmentAction extends PagedResourceActionII
 		context.put("contextString", contextString);
 		context.put("user", state.getAttribute(STATE_USER));
 		context.put("service", AssignmentService.getInstance());
+		context.put("AuthzGroupService", AuthzGroupService.getInstance());
 		context.put("TimeService", TimeService.getInstance());
 		context.put("LongObject", Long.valueOf(TimeService.newTime().getTime()));
 		context.put("currentTime", TimeService.newTime());

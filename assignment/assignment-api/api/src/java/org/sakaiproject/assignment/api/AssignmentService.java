@@ -264,6 +264,15 @@ public interface AssignmentService extends EntityProducer
 	 * @return True if the current User is allowed to add an AssignmentSubmission, false if not.
 	 */
 	public boolean allowAddSubmission(String context);
+	
+	/**
+	 * SAK-21525
+	 * 
+	 * @param context
+	 * @param assignment - An Assignment object. Needed for the groups to be checked.
+	 * @return
+	 */
+	public boolean allowAddSubmissionCheckGroups(String context, Assignment assignment);
 
 	/**
 	 * Get the List of Users who can addSubmission() for this assignment.

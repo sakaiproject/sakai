@@ -415,6 +415,39 @@ public abstract class BaseAssignmentService implements AssignmentService, Entity
 		return true;
 
 	}// unlockCheck
+	
+	/**
+	 * SAK-21525 Groups need to be queried, not just the site.
+	 * 
+	 * @param lock The security function to be checked, 'asn.submit' for example.
+	 * @param resource The resource to be accessed
+	 * @param assignment An Assignment object. We use this for the group checks.
+	 * @return
+	 */
+	protected boolean unlockCheckWithGroups(String lock, String resource, Assignment assignment)
+	{
+		Collection groupIds = assignment.getGroups();
+		
+		if(groupIds != null && groupIds.size() > 0)
+		{
+			Iterator i = groupIds.iterator();
+			while(i.hasNext())
+			{
+				String groupId = (String) i.next();
+				boolean isAllowed
+					= AuthzGroupService.isAllowed(
+							SessionManager.getCurrentSessionUserId(),lock,groupId);
+				
+				if(isAllowed) return true;
+			}
+			
+			return false;
+		}
+		else
+		{
+			return SecurityService.unlock(lock, resource);
+		}
+	}// unlockCheckWithGroups
 
 	/**
 	 * Check security permission.
@@ -2153,8 +2186,23 @@ public abstract class BaseAssignmentService implements AssignmentService, Entity
 		String key = submissionReference(context, submissionId, assignmentId);
 
 		M_log.debug(this + " ADD SUBMISSION : SUB REF : " + key);
+		
+		Assignment assignment = null;
+		
+		try
+		{
+			assignment = getAssignment(assignmentId);
+		}
+		catch(IdUnusedException iue)
+		{
+			// A bit terminal, this.
+		}
 
-		unlock(SECURE_ADD_ASSIGNMENT_SUBMISSION, key);
+		// SAK-21525
+		if(!unlockCheckWithGroups(SECURE_ADD_ASSIGNMENT_SUBMISSION, key,assignment))
+		{
+			throw new PermissionException(SessionManager.getCurrentSessionUserId(), SECURE_ADD_ASSIGNMENT_SUBMISSION, key);
+		}
 
 		M_log.debug(this + " ADD SUBMISSION : UNLOCKED");
 
@@ -3932,6 +3980,23 @@ public abstract class BaseAssignmentService implements AssignmentService, Entity
 		M_log.debug(this + " allowAddSubmission with resource string : " + resourceString);
 
 		return unlockCheck(SECURE_ADD_ASSIGNMENT_SUBMISSION, resourceString);
+	}
+	
+	/**
+	 * SAK-21525
+	 * 
+	 * @param context
+	 * @param assignment - An Assignment object. Needed for the groups to be checked.
+	 * @return
+	 */
+	public boolean allowAddSubmissionCheckGroups(String context, Assignment assignment)
+	{
+		// check security (throws if not permitted)
+		String resourceString = getAccessPoint(true) + Entity.SEPARATOR + "s" + Entity.SEPARATOR + context + Entity.SEPARATOR;
+
+		M_log.debug(this + " allowAddSubmission with resource string : " + resourceString);
+
+		return unlockCheckWithGroups(SECURE_ADD_ASSIGNMENT_SUBMISSION, resourceString, assignment);
 	}
 	
 	/**
@@ -6690,7 +6755,7 @@ byte[] b = (s.getTimeSubmitted().toString()).getBytes();
 	public boolean canSubmit(String context, Assignment a)
 	{
 		// return false if not allowed to submit at all
-		if (!allowAddSubmission(context)) return false;
+		if (!allowAddSubmissionCheckGroups(context, a)) return false;
 		
 		String userId = SessionManager.getCurrentSessionUserId();
 
