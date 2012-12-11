@@ -30,6 +30,12 @@
   	<link rel="apple-touch-icon" href="${pageSkinRepo}/${pageSkin}/images/pda-ico.png"/>      
 	<meta name="apple-mobile-web-app-capable" content="yes" /> 
 	<meta name="apple-mobile-web-app-status-bar-style" content="black" />
+## portalscripts.js seems to only apply to the main portal and the dhthml "More" capability
+## It depends on jquery - so we either have to include both jquery and portalscripts or neither
+## and since we don't use any of this in pda.vm - we don't include either one
+   <script type="text/javascript" language="JavaScript" src="${pageScriptPath}jquery-latest.min.js"></script>
+## <script type="text/javascript" language="JavaScript" src="/portal/scripts/portalscripts.js"></script>
+## These may someday be needed for styleable - if so - move them into styleable below
 #if ( ${bufferedResponse} && ${responseHead} ) 
 <!-- Head material from Tool (will include title and headscripts) -->
 ${responseHead}
@@ -38,12 +44,6 @@ ${responseHead}
     <title>${pageTitle}</title>
      <script type="text/javascript" language="JavaScript" src="${pageScriptPath}headscripts.js"></script>
 #end
-## portalscripts.js seems to only apply to the main portal and the dhthml "More" capability
-## It depends on jquery - so we either have to include both jquery and portalscripts or neither
-## and since we don't use any of this in pda.vm - we don't include either one
-   <script type="text/javascript" language="JavaScript" src="${pageScriptPath}jquery-latest.min.js"></script>
-## <script type="text/javascript" language="JavaScript" src="/portal/scripts/portalscripts.js"></script>
-## These may someday be needed for styleable - if so - move them into styleable below
 
 #if ( ${styleable} )
 <script type="text/javascript" 
