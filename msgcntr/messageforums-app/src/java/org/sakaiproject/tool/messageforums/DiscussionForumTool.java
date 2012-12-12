@@ -6746,7 +6746,8 @@ public class DiscussionForumTool
               i=1;
             }
             DBMembershipItem item = forumManager.getAreaDBMember(membershipItems, role.getId(), DBMembershipItem.TYPE_ROLE);
-            siteMembers.add(new SelectItem(role.getId(), role.getId() + " ("+item.getPermissionLevelName()+")"));
+            String level = item.getPermissionLevelName();
+            siteMembers.add(new SelectItem(role.getId(), role.getId() + " (" + getResourceBundleString("perm_level_" + level.replaceAll(" ", "_").toLowerCase()) + ")"));
             permissions.add(new PermissionBean(item, permissionLevelManager));
           }
         }
@@ -6764,7 +6765,8 @@ public class DiscussionForumTool
     	  {
     		  Group currentGroup = (Group) groupIterator.next();  
     		  DBMembershipItem item = forumManager.getAreaDBMember(membershipItems,currentGroup.getTitle(), DBMembershipItem.TYPE_GROUP);
-    		  siteMembers.add(new SelectItem(currentGroup.getTitle(), currentGroup.getTitle() + " ("+item.getPermissionLevel().getName()+")"));
+    		  String level = item.getPermissionLevelName();
+    		  siteMembers.add(new SelectItem(currentGroup.getTitle(), currentGroup.getTitle() + " (" + getResourceBundleString("perm_level_" + level.replaceAll(" ", "_").toLowerCase()) + ")"));
     		  permissions.add(new PermissionBean(item, permissionLevelManager));
     	  }
       }
