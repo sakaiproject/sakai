@@ -216,7 +216,7 @@ function resizeFrame(){
 					</tr>
 				</table>
 			</div>
-			<div><h4>$tlang.getString("displayto.access")</h4></div>
+			<fieldset><legend><h4>$tlang.getString("displayto.access")</h4></legend>
 		#if ($!groups || ($!groups.size()>1)) #set ($show_group = "true") #else #set ($show_group = "false") #end
 		#if ( $motd )
 			## no show this selection, but set default to public
@@ -311,9 +311,10 @@ function resizeFrame(){
 					</table>
 			#end
 		#end
+        </fieldset>
 ##
 ################### AVAILABLE section (to show/hide and set release/retract dates)
-			<h4>$tlang.getString("avail.title")</h4>
+			<fieldset><legend><h4>$tlang.getString("avail.title")</h4></legend>
 			<table border="0" cellpadding="0">
 				<tr>
 					<td style="padding:1px 0">
@@ -407,6 +408,7 @@ function resizeFrame(){
 					</td>
 				</tr>
 			</table>
+            </fieldset>
 ################### End Start and end date selectors
 ##
 			<h4>
