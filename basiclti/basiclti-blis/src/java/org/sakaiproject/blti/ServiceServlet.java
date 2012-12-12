@@ -1175,7 +1175,6 @@ System.out.println("sourcedid="+sourcedid);
             // userId is irrelevant as this is server to server
 			Map<String,String> bodyMap = pox.getBodyMap();
 			String context_id = bodyMap.get("/params/courseId");
-System.out.println("context_id="+context_id);
 			if ( context_id == null || ! context_id.equals(siteId) ) {
 				doErrorXML(request, response, pox, "outcomes.sourcedid", "sourcedid", null);
 				M_log.warn("mis-match courseId="+context_id+" siteId="+siteId);
@@ -1210,7 +1209,6 @@ System.out.println("context_id="+context_id);
             // userId is irrelevant because this is server to server
 			Map<String,String> bodyMap = pox.getBodyMap();
 			String context_id = bodyMap.get("/params/courseId");
-System.out.println("context_id="+context_id);
 
 			if ( context_id == null || ! context_id.equals(siteId) ) {
 				doErrorXML(request, response, pox, "outcomes.sourcedid", "sourcedid", null);
@@ -1265,15 +1263,12 @@ System.out.println("context_id="+context_id);
 
 
             Long pageNum = Long.valueOf(thePage.getSakaiId());
-System.out.println("pageNum="+pageNum);
             List<SimplePageItem> items = simplePageToolDao.findItemsOnPage(pageNum);
-System.out.println("items="+items);
 			int seq = items.size() + 1;
 System.out.println("seq="+seq);
             List<Map<String,String>> resultList = new ArrayList<Map<String,String>>();
 
 			recursivelyAddResourcesXML(context_id, thePage, nl, seq, resultList);
-System.out.println("resultList="+resultList);
 
             Map<String,Object> theMap = new TreeMap<String,Object>();
             theMap.put("/addCourseResourcesResponse/resources/resource",resultList);
@@ -1319,14 +1314,12 @@ System.out.println("resultList="+resultList);
 				tempId = null;
 			}
 			
-System.out.println("tempId="+tempId);
 			if ( "folder".equals(typeStr) ) {
 				SimplePageItem subPageItem = addLessonsFolder(thePage, titleStr, startPos);
                 if ( tempId != null ) {
                     Map<String,String> result = new TreeMap<String,String> ();
                     result.put("/tempId",tempId);
                     result.put("/id", subPageItem.getSakaiId());
-System.out.println("result folder="+result);
                     resultList.add(result);
                 }
 				startPos++;
@@ -1382,7 +1375,6 @@ System.out.println("type="+typeStr+" name="+titleStr+" launchUrl="+launchUrl+" l
                 Map<String,String> result = new TreeMap<String,String> ();
                 result.put("/tempId",tempId);
                 result.put("/id", sakaiId);
-System.out.println("result lti="+result);
                 resultList.add(result);
             }
 			addLessonsLaunch(thePage, sakaiId, titleStr, startPos);
@@ -1429,7 +1421,7 @@ System.out.println("result lti="+result);
 		for (SimplePageItem i : sitePages) {
 			if ( structureList.size() > 100 ) return null;
 			if (i.getType() != SimplePageItem.PAGE) continue;
-            System.out.println("d="+depth+" o="+structureList.size()+" Id="+i.getId()+" SakaiId="+i.getSakaiId()+" title="+i.getName());
+            // System.out.println("d="+depth+" o="+structureList.size()+" Id="+i.getId()+" SakaiId="+i.getSakaiId()+" title="+i.getName());
 			Long pageNum = Long.valueOf(i.getSakaiId());
 			// Note: cMap.put("/folderId",i.getSakaiId());
             if ( folderId.equals(pageNum) ) return i;

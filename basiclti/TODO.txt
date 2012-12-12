@@ -1,33 +1,44 @@
+
+=======  TODO ========
+
+processAddResourcesJSON - check siteid in addition to page id
+
+Clean up JSON to match XML 
+   name -> title
+
+Complete/Clean up test harnesses for new XML and new JSON
+
+Write/Update API documentation
+
+Talk to Stephen to coordinate
+
+Refactor ServiceServlet into several files - Avoid ResourcesAction syndrome :)
+basiclti-blis/src/java/org/sakaiproject/blti/ServiceServlet.java
+
+Add LORI-support to Velocity-based LTI structures - will 
+require conversion :(
+
+=======  COMPLETED ========
+
+Make sure collections work
+
+Add ServerConfiguration stuff.
+
+Figure out why folderId is not round tripping
+
 Add UI to tick enabling LORI in portlet
+
+Return tempids after addCourseResources
+
+processAddResourcesXML - check siteid in addition to page id
+
+Make sure to match the siteId and check the userId after sourcedid
+
+Refactor the key/value code to be smarter about when to include 
+extension attributes.
 
 Check with Scriby to see if I can architecturally ignore the PKI 
 key and just use sourcedid.  If so - work through code to insure
 sourcedid is what I think it is throughout.
 
-Refactor the key/value code to be smarter about when to include extension
-attributes.
-basiclti-common/src/java/org/sakaiproject/basiclti/util/SakaiBLTIUtil.java
-
-Refactor ServiceServlet into several files - Avoid ResourcesAction syndrome :)
-basiclti-blis/src/java/org/sakaiproject/blti/ServiceServlet.java
-
-Add ServerConfiguration stuff.
-
-Make sure to match the siteId and check the userId after sourcedid
-
-Clean up JSON to match XML 
-
-   name -> title
-
-Clean up test harnesses for new XML and new JSON
-
-Talk to Stephen
-
-Update API documentation
-
-Figure out why folderId is not roud tripping
-
-Return tempids after addCourseResources
-
-processAddResourcesJSON - check siteid in addition to page id
 
