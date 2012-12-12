@@ -22,6 +22,7 @@
 
 package org.sakaiproject.tool.assessment.integration.helper.integrated;
 
+import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Iterator;
 import java.util.List;
@@ -136,6 +137,17 @@ public class AssessmentGradeInfoProvider implements ExternalAssignmentProvider {
             }
         }
         return isAuthorized;
+    }
+
+    public List<String> getExternalAssignmentsForCurrentUser(String gradebookUid) {
+        List all = PersistenceService.getInstance().getPublishedAssessmentFacadeQueries().
+            getBasicInfoOfAllPublishedAssessments("title", true, gradebookUid);
+
+        ArrayList<String> externalIds = new ArrayList<String>();
+        for (PublishedAssessmentIfc pub : (List<PublishedAssessmentIfc>) all) {
+            externalIds.add(pub.getPublishedAssessmentId().toString());
+        }
+        return externalIds;
     }
 
     private boolean checkMembership(PublishedAssessmentIfc pub, String userId){
