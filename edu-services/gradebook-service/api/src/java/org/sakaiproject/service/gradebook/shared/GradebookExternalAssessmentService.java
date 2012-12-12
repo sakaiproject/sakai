@@ -224,6 +224,16 @@ public interface GradebookExternalAssessmentService {
 		throws GradebookNotFoundException;
 
 	/**
+	 * Retrieve all assignments for a gradebook that are marked as externally
+	 * maintained and are visible to the current user.
+	 *
+	 * @param gradebookUid The gradebook's unique identifier
+	 * @return A map from the externalId of each activity to the providerAppKey
+	 */
+	public Map<String, String> getExternalAssignmentsForCurrentUser(String gradebookUid)
+		throws GradebookNotFoundException;
+
+	/**
 	 * Register a new ExternalAssignmentProvider for handling the integration of external
 	 * assessment sources with the sakai gradebook
 	 * Registering more than once will overwrite the current with the new one

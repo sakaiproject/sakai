@@ -26,6 +26,7 @@ import java.text.NumberFormat;
 import java.text.ParseException;
 import java.util.Date;
 import java.util.HashSet;
+import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
@@ -479,6 +480,21 @@ public class GradebookExternalAssessmentServiceImpl extends BaseHibernateManager
     		}
 		}
 		return result;
+	}
+
+	public Map<String, String> getExternalAssignmentsForCurrentUser(String gradebookUid)
+		throws GradebookNotFoundException
+	{
+		final Gradebook gradebook = getGradebook(gradebookUid);
+		Map<String, String> allAssignments = new HashMap<String, String>();
+		for (ExternalAssignmentProvider provider : getExternalAssignmentProviders().values()) {
+			String appKey = provider.getAppKey();
+			List<String> assignments = provider.getExternalAssignmentsForCurrentUser(gradebookUid);
+			for (String externalId : assignments) {
+				allAssignments.put(externalId, appKey);
+			}
+		}
+		return allAssignments;
 	}
 
 
