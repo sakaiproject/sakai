@@ -15,3 +15,19 @@ Add ServerConfiguration stuff.
 
 Make sure to match the siteId and check the userId after sourcedid
 
+Clean up JSON to match XML 
+
+   name -> title
+
+Clean up test harnesses for new XML and new JSON
+
+Talk to Stephen
+
+Update API documentation
+
+Figure out why folderId is not roud tripping
+
+Return tempids after addCourseResources
+
+processAddResourcesJSON - check siteid in addition to page id
+
