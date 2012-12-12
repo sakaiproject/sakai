@@ -79,6 +79,7 @@
 					<div id="mastLogin">
 					#if (!${loginTopLogin})
 						<div id="loginLinks">
+						$portalLinks
 						#if (${displayUserloginInfo})
 							<span id="loginUser">${loginUserDispName} (${loginUserDispId}) | </span>
 						#end						

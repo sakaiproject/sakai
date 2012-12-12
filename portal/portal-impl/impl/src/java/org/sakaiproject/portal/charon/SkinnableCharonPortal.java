@@ -1819,6 +1819,11 @@ public class SkinnableCharonPortal extends HttpServlet implements Portal
 			}
 			rcontext.put("loginTopLogin", Boolean.valueOf(topLogin));
 
+			// display portal links - SAK-22983
+			String portalLinks = portalService.getPortalLinks();
+			if (portalLinks != null) {
+				rcontext.put("portalLinks",portalLinks);
+			}						
 			if (!topLogin)
 			{
 

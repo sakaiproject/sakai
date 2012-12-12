@@ -86,6 +86,8 @@ public class PortalServiceImpl implements PortalService
 
 	private SiteNeighbourhoodService siteNeighbourhoodService;
 	
+	private String m_portalLinks;
+	
 	private ContentHostingService contentHostingService;
 	
 	private EditorRegistry editorRegistry;
@@ -520,9 +522,23 @@ public class PortalServiceImpl implements PortalService
 	{
 		this.siteNeighbourhoodService = siteNeighbourhoodService;
 	}
+	/* optional portal links for portal header (SAK-22912)
+	 */
+	public String getPortalLinks()
+	{
+		return m_portalLinks;
+	}	
+	
 	
 	public ContentHostingService getContentHostingService() {
 		return contentHostingService;
+	}
+	/**
+	 * @param portalLinks the portal icons to set
+	 */
+	public void setPortalLinks(String portalLinks)
+	{
+		m_portalLinks = portalLinks;
 	}
 
 	public void setContentHostingService(ContentHostingService contentHostingService) {
