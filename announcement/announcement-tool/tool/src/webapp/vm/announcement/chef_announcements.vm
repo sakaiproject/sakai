@@ -270,7 +270,7 @@
 									<a href="#toolLinkParam("AnnouncementAction" "doReviseannouncement" "itemReference=$validator.escapeUrl($ann_item.reference)")" title="$tlang.getString('gen.editdraft')">$tlang.getFormattedMessage("gen.draft.subject", $validator.escapeHtml($ann_item.Header.subject))</a>
 									#else
 										<a href="#toolLinkParam("AnnouncementAction" "doShowmetadata" "itemReference=$validator.escapeUrl($ann_item.reference)")" title="$tlang.getFormattedMessage('gen.viewann.subject', $validator.escapeHtml($ann_item.Header.subject))">
-										$validator.escapeHtml($ann_item.Header.subject)</a>
+										$validator.escapeHtml($ann_item.Header.subject) <span class="skip">$validator.escapeHtml($ann_item.Header.subject)</span></a>
 									#end
 								</h4>	
 							</td>
@@ -626,11 +626,11 @@
 											<a href="#toolLinkParam("AnnouncementAction" "doReviseannouncement" "itemReference=$validator.escapeUrl($ann_item.reference)")" title="$tlang.getString('gen.editdraft')">$tlang.getFormattedMessage("gen.draft.subject", $validator.escapeHtml($ann_item.Header.subject))</a>
 										#else
 											<a href="#toolLinkParam("AnnouncementAction" "doShowmetadata" "itemReference=$validator.escapeUrl($ann_item.reference)")" title="$tlang.getFormattedMessage('gen.viewann.subject', $validator.escapeHtml($ann_item.Header.subject))">
-											$validator.escapeHtml($ann_item.Header.subject)</a>
+											$validator.escapeHtml($ann_item.Header.subject) <span class="skip">$validator.escapeHtml($ann_item.Header.subject)</span></a>
 										#end
 										</h4>	
 										#if ($channel.allowEditMessage($ann_item.Id))
-											<div class="itemAction"><a href="#toolLinkParam("AnnouncementAction" "doReviseannouncement" "itemReference=$validator.escapeUrl($ann_item.reference)")" title="$tlang.getFormattedMessage('gen.editann.subject', $validator.escapeHtml($ann_item.Header.subject))">$tlang.getString("gen.revise")</a></div>
+											<div class="itemAction"><a href="#toolLinkParam("AnnouncementAction" "doReviseannouncement" "itemReference=$validator.escapeUrl($ann_item.reference)")" title="$tlang.getFormattedMessage('gen.editann.subject', $validator.escapeHtml($ann_item.Header.subject))">$tlang.getString("gen.revise") <span class="skip">$validator.escapeHtml($ann_item.Header.subject)</span></a></div>
 										#end
                                                                                                                                                                                                      
 									</td>
@@ -859,7 +859,7 @@
 											#set($separator="")
 										#end
 											#if ($channel.allowEditMessage($ann_item.Id))
-												<span class="itemAction"><a href="#toolLinkParam("AnnouncementAction" "doReviseannouncement" "itemReference=$validator.escapeUrl($ann_item.reference)")" title="$tlang.getFormattedMessage("gen.editann.subject", $validator.escapeHtml($ann_item.Header.subject))">$tlang.getString("gen.revise")</a>
+												<span class="itemAction"><a href="#toolLinkParam("AnnouncementAction" "doReviseannouncement" "itemReference=$validator.escapeUrl($ann_item.reference)")" title="$tlang.getFormattedMessage("gen.editann.subject", $validator.escapeHtml($ann_item.Header.subject))">$tlang.getString("gen.revise") <span class="skip">$validator.escapeHtml($ann_item.Header.subject)</span></a>
 											#end
 											$separator 
 											#set ($ref = $entityManager.newReference($ann_item.Reference))
@@ -867,7 +867,7 @@
 											#set ($origChannelRef = $service.channelReference($ref.Context,$ref.Container)) 
 											#if ($channel.allowRemoveMessage($ann_item.Message))
 													#if ($origChannelRef.equals($channel.Reference))
-														<a href="#toolLinkParam("AnnouncementAction" "doDelete_announcement_link" "itemReference=$validator.escapeUrl($ann_item.reference)")" 	title="$tlang.getFormattedMessage("gen.removeann.subject", $validator.escapeHtml($ann_item.Header.subject))">$tlang.getString("gen.delete")</a>
+														<a href="#toolLinkParam("AnnouncementAction" "doDelete_announcement_link" "itemReference=$validator.escapeUrl($ann_item.reference)")" 	title="$tlang.getFormattedMessage("gen.removeann.subject", $validator.escapeHtml($ann_item.Header.subject))">$tlang.getString("gen.delete") <span class="skip">$validator.escapeHtml($ann_item.Header.subject)</span></a>
 													#end
 												#end
 											</span>
