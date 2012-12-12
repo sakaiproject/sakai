@@ -135,6 +135,15 @@ public class AssignmentGradeInfoProvider implements ExternalAssignmentProvider {
         return visible;
     }
 
+    public List<String> getExternalAssignmentsForCurrentUser(String gradebookUid) {
+        List<String> externalIds = new ArrayList<String>();
+        List assignments = assignmentService.getListAssignmentsForContext(gradebookUid);
+        for (Assignment a : (List<Assignment>) assignments) {
+            externalIds.add(a.getReference());
+        }
+        return externalIds;
+    }
+
     public void setGradebookExternalAssessmentService(GradebookExternalAssessmentService geaService) {
         this.geaService = geaService;
     }
