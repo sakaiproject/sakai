@@ -525,16 +525,13 @@ public class ViewByStudentBean extends EnrollmentTableBean implements Serializab
         boolean checkExternalGroups = ServerConfigurationService.getBoolean("gradebook.check.external.groups", false);
 		i = gradeRows.iterator();
         if (checkExternalGroups) { 
+            GradebookExternalAssessmentService gext = getGradebookExternalAssessmentService();
+            Map<String, String> externalAssignments = gext.getExternalAssignmentsForCurrentUser(gradebook.getUid());
             while (i.hasNext()) {
                 Assignment assignment = ((AssignmentGradeRow)i.next()).getAssociatedAssignment();
 
-                GradebookExternalAssessmentService gext = getGradebookExternalAssessmentService();
-                if (assignment.isExternallyMaintained()) {
-                    if (gext.isExternalAssignmentGrouped(gradebook.getUid(), assignment.getExternalId())) {
-                        if (!gext.isExternalAssignmentVisible(gradebook.getUid(), assignment.getExternalId(), getUserUid())) {
-                            i.remove();
-                        }
-                    }
+                if (assignment.isExternallyMaintained() && !externalAssignments.containsKey(assignment.getExternalId())) {
+                    i.remove();
                 }
             }
         }
