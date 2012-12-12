@@ -1181,11 +1181,10 @@ System.out.println("sourcedid="+sourcedid);
 				return;
 			}
 
-			List<Map<String,String>> structureMap = new ArrayList<Map<String,String>>();
 			List<Long> structureList = new ArrayList<Long>();
 
 		    List<SimplePageItem> sitePages = simplePageToolDao.findItemsInSite(context_id);
-		    iteratePagesXML(sitePages,structureMap,structureList,0);
+            List<Map<String,Object>> structureMap = iteratePagesXML(sitePages,structureList,0);
 
 			response.setContentType("application/xml");
 			String output = pox.getResponseUnsupported("YO");
@@ -1381,36 +1380,37 @@ System.out.println("type="+typeStr+" name="+titleStr+" launchUrl="+launchUrl+" l
 		}
 	}
 
-	protected void iteratePagesXML(List<SimplePageItem> sitePages, 
-		List<Map<String,String>> structureMap, List<Long> structureList, int depth)
+	protected List<Map<String,Object>> iteratePagesXML(List<SimplePageItem> sitePages, 
+		List<Long> structureList, int depth)
 	{
-		if ( depth > 10 ) return;
+		List<Map<String,Object>> structureMap = new ArrayList<Map<String,Object>>();
+
+		if ( depth > 10 ) return null;
 		for (SimplePageItem i : sitePages) {
-			if ( structureList.size() > 50 ) return;
+			if ( structureList.size() > 50 ) return structureMap;
             // System.out.println("d="+depth+" o="+structureList.size()+" Page ="+i.getSakaiId()+" title="+i.getName());
 			if (i.getType() != SimplePageItem.PAGE) continue;
 			Long pageNum = Long.valueOf(i.getSakaiId());
 
-			StringBuffer sb = new StringBuffer();
-			for ( int j=0; j< depth; j++ ) {
-				sb.append(". ");
-			}
-			sb.append(i.getName());
-			String title = sb.toString();
+			String title = i.getName();
 			if ( structureList.size() == 50 ) title = " ... More ... ";
+			structureList.add(i.getId());
 
-			Map<String,String> cMap = new TreeMap<String,String>();
+			Map<String,Object> cMap = new TreeMap<String,Object>();
 			cMap.put("/folderId",i.getSakaiId());
 			cMap.put("/title",title);
 			cMap.put("/description",title);
 			cMap.put("/type","folder");
-			structureMap.add(cMap);
-			structureList.add(i.getId());
 
 			List<SimplePageItem> items = simplePageToolDao.findItemsOnPage(pageNum);
-			// System.out.println("Items="+items);
-			iteratePagesXML(items, structureMap, structureList, depth+1);
+            // System.out.println("Items="+items);
+		    List<Map<String,Object>> subMap = iteratePagesXML(items, structureList, depth+1);
+            if (subMap != null && subMap.size() > 0 ) {
+			    cMap.put("/resources/resource",subMap);
+            }
+			structureMap.add(cMap);
 		}
+        return structureMap;
 	}
 
 	protected SimplePageItem findFolder(List<SimplePageItem> sitePages, Long folderId, 

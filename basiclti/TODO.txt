@@ -41,4 +41,6 @@ Check with Scriby to see if I can architecturally ignore the PKI
 key and just use sourcedid.  If so - work through code to insure
 sourcedid is what I think it is throughout.
 
+Switch getCourseStructure to recursive
+
 
