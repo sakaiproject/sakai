@@ -677,7 +677,7 @@
 										#if ($channel.allowRemoveMessage($ann_item.Message))
 											#if ($origChannelRef.equals($channel.Reference))
 											<td headers="checkbox" class="screenOnly">
-												<label for ="check-$rowCount" class="skip">$tlang.getString("gen.selectremove")</label>
+												<label for ="check-$rowCount" class="skip">$tlang.getString("gen.selectremove") $validator.escapeHtml($ann_item.Header.subject)</label>
 												<input title="$tlang.getString("gen.selectremove")" type="checkbox" id="check-$rowCount" name="selectedMembers" value="$ann_item.Reference" />
 											</td>
 											#end
@@ -685,7 +685,7 @@
 									 		#if ($allow_delete)
 												#if ($origChannelRef.equals($channel.Reference))
 												<td valign="top" headers="checkbox" class="screenOnly">
-													<label for ="check-$rowCount" class="skip">$tlang.getString("gen.selectremove")</label>
+													<label for ="check-$rowCount" class="skip">$tlang.getString("gen.selectremove") $validator.escapeHtml($ann_item.Header.subject)</label>
 													<input title="$tlang.getString("gen.selectremove")" type="checkbox" id="check-$rowCount" name="selectedMembers" value="$ann_item.Reference" disabled="disabled"/>
 												</td>
 												#end
