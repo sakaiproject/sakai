@@ -303,7 +303,7 @@ ${extra}")
     *#
     
     #if ($format=="m")
-    
+     <label for="$monthselect_id" class="skip"><span class="reqStar">*</span> $tlang.getString("dateselectionwidget.month")</label>
     #if ($onChangeAction)     
     <select name="$monthselect_id" id="$monthselect_id" onchange="$onChangeAction">
     #else
@@ -340,6 +340,7 @@ ${extra}")
     *#
     
     #if ($format=="d")
+     <label for="$dayselect_id" class="skip"><span class="reqStar">*</span> $tlang.getString("dateselectionwidget.day")</label>
     #if ($onChangeAction)
     <select name="$dayselect_id" id="$dayselect_id" onchange="$onChangeAction">
     #else
@@ -359,6 +360,7 @@ ${extra}")
     *#
     
     #if ($format=="y")
+      <label for="$yearselect_id" class="skip"><span class="reqStar">*</span> $tlang.getString("dateselectionwidget.year")</label>
       #if ($onChangeAction)
       <select name="$yearselect_id" id="$yearselect_id" onchange="$onChangeAction">
       #else
