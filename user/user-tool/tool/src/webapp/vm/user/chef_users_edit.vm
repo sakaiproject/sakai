@@ -135,7 +135,15 @@ function removeOptionalAttributeBlock(elem) {
 					$tlang.getString("usecre.typ")
 				</label>
 			#if ($service.allowUpdateUserType($user.Id) || !$user)
-				<input type="text" name="type" id="type" #if($user)value="$validator.escapeHtml($user.Type)"#elseif($valueType)value="$validator.escapeHtml($valueType)"#end />
+				#if($userTypes)
+					<select name="type" id="type">
+					#foreach ( $userType in $userTypes )
+						<option value="$validator.escapeHtml($userType)" #if($user.Type==$userType)selected#end>$validator.escapeHtml($userType)</option>
+					#end
+				</select>
+				#else
+					<input type="text" name="type" id="type" #if($user)value="$validator.escapeHtml($user.Type)"#elseif($valueType)value="$validator.escapeHtml($valueType)"#end />
+				#end
 			#else
 				#if($user)$validator.escapeHtml($user.Type)#elseif($valueType)$validator.escapeHtml($valueType)#end
 			#end
