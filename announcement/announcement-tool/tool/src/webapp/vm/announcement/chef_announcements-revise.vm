@@ -19,7 +19,7 @@
 			#elseif($hour < 12)
 				#set($timeType = "am")
 			#end
-			
+			<label for="${prefix}_hour" class="skip">$tlang.getString("dateselectionwidget.hour")</label>
 			<select name="${prefix}_hour" id="${prefix}_hour" onchange="hourChange('${prefix}_hour'); $!onChangeAction return false;">
 				#if($hour == 1) <option selected="selected" value="1">1</option> #else <option value="1">1</option> #end
 				#if($hour == 2) <option selected="selected" value="2">2</option> #else <option value="2">2</option> #end
@@ -34,7 +34,7 @@
 				#if($hour == 11) <option selected="selected" value="11">11</option> #else <option value="11">11</option> #end
 				#if($hour == 12) <option selected="selected" value="12">12</option> #else <option value="12">12</option> #end
 			</select>
-			
+			<label for="${prefix}_minute" class="skip">$tlang.getString("dateselectionwidget.minute")</label>
 			<select name="${prefix}_minute" id="${prefix}_minute" onchange="hourChange('${prefix}_minute'); $!onChangeAction return false;">
 				#if($minute == 0) <option selected="selected" value="0">00</option> #else <option value="0">00</option> #end
 				#if($minute == 5) <option selected="selected" value="5">05</option> #else <option value="5">05</option> #end
@@ -49,7 +49,7 @@
 				#if($minute == 50) <option selected="selected" value="50">50</option> #else <option value="50">50</option> #end
 				#if($minute == 55) <option selected="selected" value="55">55</option> #else <option value="55">55</option> #end
 			</select>
-		 
+		    <label for="${prefix}_ampm" class="skip">$tlang.getString("dateselectionwidget.ampm")</label>
 			<select name="${prefix}_ampm" id="${prefix}_ampm" onchange="ampmChange('${prefix}_ampm'); $!onChangeAction return false;">
 				#if($timeType =="am") <option selected="selected">am</option> #else <option>am</option> #end
 				#if($timeType =="pm") <option selected="selected">pm</option> #else <option>pm</option> #end
