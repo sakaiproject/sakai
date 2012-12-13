@@ -616,12 +616,13 @@ function handleEnterKeyPress(ev)
 						&nbsp;&nbsp;&nbsp;
 						<span id="allowResubmitTime" style="$!resubmitStyle">
 							## only show date selection when allowed to resubmit
-							<label for="$name_ResubmitMonth">
+							<label>
 								$tlang.getString("gen.acesubunt")
 							</label>&nbsp;
 							#chef_dateselectionwidget($name_ResubmitYear $name_ResubmitMonth $name_ResubmitDay $!value_year_from $!value_year_to $value_ResubmitYear $value_ResubmitMonth $value_ResubmitDay $dateFormat "")
 							$tlang.getString("gen.at") 
-							<select name="$name_ResubmitHour" id="$name_ResubmitHour">
+							<label class="skip" for="$name_ResubmitHour">$tlang.getString("dateselectionwidget.hour")</label>
+                            <select name="$name_ResubmitHour" id="$name_ResubmitHour">
 								#foreach ($i in [1..12])
 									#if ($i == $value_ResubmitHour)
 										<option value="$i" selected="selected">$i</option>
@@ -630,11 +631,13 @@ function handleEnterKeyPress(ev)
 									#end
 								#end
 							</select>
+                            <label class="skip" for="$name_ResubmitMin">$tlang.getString("dateselectionwidget.minute")</label>
 							<select name="$name_ResubmitMin" id="$name_ResubmitMin">
 								#foreach ($i in [0, 5, 10, 15, 20, 25, 30, 35, 40, 45, 50, 55])
 									<option value="$i" #if($i == $value_ResubmitMin)selected="selected"#end>#if($i ==0)00#elseif($i == 5)05#else$i#end</option>
 								#end
 							</select>
+                            <label class="skip" for="$name_ResubmitAMPM">$tlang.getString("dateselectionwidget.ampm")</label>
 							<select name="$name_ResubmitAMPM" id="$name_ResubmitAMPM">
 								#foreach ($i in ["AM", "PM"])
 									#if ($i == $value_ResubmitAMPM)
