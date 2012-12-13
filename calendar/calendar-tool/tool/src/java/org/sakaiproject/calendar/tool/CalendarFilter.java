@@ -147,6 +147,8 @@ class CalendarFilter
 	 */
 	synchronized public String getEndingListViewDateString()
 	{
+		LIST_VIEW_DATE_FORMAT.setTimeZone(TimeService.getLocalTimeZone());
+
 		return LIST_VIEW_DATE_FORMAT.format(
 			new Date(endingListViewDate.getTime()));
 	}
@@ -201,6 +203,8 @@ class CalendarFilter
 	 */
 	synchronized public String getStartingListViewDateString()
 	{
+		LIST_VIEW_DATE_FORMAT.setTimeZone(TimeService.getLocalTimeZone());
+
 		return LIST_VIEW_DATE_FORMAT.format(
 			new Date(startingListViewDate.getTime()));
 	}
@@ -412,6 +416,8 @@ class CalendarFilter
 		StringBuilder errorMessage)
 	{
 		Date startDate, endDate;
+
+		LIST_VIEW_DATE_FORMAT.setTimeZone(TimeService.getLocalTimeZone());
 
 		try
 		{
