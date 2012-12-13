@@ -263,7 +263,7 @@ function resizeFrame(){
 		</p>
 		<p class="shorttext">
 			<span class="reqStar">*</span>	
-			<label for="month">
+			<label>
 				$tlang.getString("gen.date")
 			</label>	
 			## Setup a date selection widget
@@ -283,7 +283,7 @@ function resizeFrame(){
 		</p>	
 		<p class="shorttext">
 			<span class="reqStar">*</span>
-			<label for="startHour">
+			<label>
 				$tlang.getString("rev.start")
 			</label>
 			#set($time = $event.getRange().firstTime().toStringLocalFull())
@@ -300,7 +300,7 @@ function resizeFrame(){
 			#elseif ($hour == 0)
 				#set($hour = 12)
 			#end
-			
+			<label for="startHour" class="skip"><span class="reqStar">*</span> $tlang.getString("start.hour")</label>
 			<select name="startHour" id="startHour" onchange="hourChange('startHour'); return false;">
 				#if($hour == 1) <option selected="selected" value="1">1</option> #else <option value="1">1</option> #end
 				#if($hour == 2) <option selected="selected" value="2">2</option> #else <option value="2">2</option> #end
@@ -319,6 +319,7 @@ function resizeFrame(){
 			#if($savedData.getMinute() != -1)
 				#set($minute = $savedData.getMinute())
 			#end
+            <label for="startMinute" class="skip"><span class="reqStar">*</span> $tlang.getString("start.minute")</label>
 			<select name="startMinute" id="startMinute" onchange="hourChange('startMinute'); return false;">
 				#if($minute == 0) <option selected="selected" value="0">00</option> #else <option value="0">00</option> #end
 				#if($minute == 5) <option selected="selected" value="5">05</option> #else <option value="5">05</option> #end
@@ -344,6 +345,7 @@ function resizeFrame(){
 					#set($timeType = "am")
 				#end
 			#end
+            <label for="startAmpm" class="skip"><span class="reqStar">*</span> $tlang.getString("start.ampm")</label>
 			<select name="startAmpm" id="startAmpm" onchange="ampmChange('startAmpm'); return false;">
 				#if($timeType =="am") <option selected="selected">am</option> #else <option>am</option> #end
 				#if($timeType =="pm") <option selected="selected">pm</option> #else <option>pm</option> #end
@@ -351,7 +353,7 @@ function resizeFrame(){
          $timezone
 		</p>	
 		<p class="shorttext">
-			<label for="duHour">
+			<label>
 				$tlang.getString("new.duration")
 			</label>	
 			## if back from attachment, there is the saved data
@@ -408,7 +410,7 @@ function resizeFrame(){
 				#if($dhour == 22) <option selected="selected" value="22">22</option> #else <option value="22">22</option> #end
 				#if($dhour == 23) <option selected="selected" value="23">23</option> #else <option value="23">23</option> #end
 			</select>
-			$tlang.getString("rev.hours")
+			<label for ="duHour" style="float: none">$tlang.getString("rev.hours")</label>
 			<select name="duMinute" id="duMinute" onchange="hourChange('duMinute'); return false;">
 				#if($dmi == 0) <option selected="selected" value="0">00</option> #else <option value="0">00</option> #end
 				#if($dmi == 5) <option selected="selected" value="5">05</option> #else <option value="5">05</option> #end
@@ -423,13 +425,14 @@ function resizeFrame(){
 				#if($dmi == 50) <option selected="selected" value="50">50</option> #else <option value="50">50</option> #end
 				#if($dmi == 55) <option selected="selected" value="55">55</option> #else <option value="55">55</option> #end
 			</select>
-			$tlang.getString("rev.minutes")
+			<label for="duMinute" style="float: none">$tlang.getString("rev.minutes")</label>
 		</p>	
 		<p class="shorttext">
-			<label for="endHour">
+			<label>
 				$tlang.getString("new.end")
 			</label>	
-			<select size="1" name="endHour" id="endHour" onchange="hourChange('endHour'); return false;">
+			<label for="endHour" class="skip">$tlang.getString("end.hour")</label>
+            <select size="1" name="endHour" id="endHour" onchange="hourChange('endHour'); return false;">
 			  <option selected="selected" value="0">0</option>
 			  <option value="1">1</option>
 			  <option value="2">2</option>
@@ -444,6 +447,7 @@ function resizeFrame(){
 			  <option value="11">11</option>
 			  <option value="12">12</option>
 			</select>
+            <label for="endMinute" class="skip">$tlang.getString("end.minute")</label>
 			<select size="1" name="endMinute" id="endMinute" onchange="hourChange('endMinute'); return false;">
 				<option selected="selected" value="0">00</option>
 				<option value="5">05</option>
@@ -458,6 +462,7 @@ function resizeFrame(){
 				<option value="50">50</option>
 				<option value="55">55</option>
 			</select>
+            <label for="endAmpm" class="skip">$tlang.getString("end.ampm")</label>
 			<select size="1" name="endAmpm" id="endAmpm" onchange="ampmChange('endAmpm'); return false;">
 			  <option selected="selected" value="am">am</option>
 			  <option value="pm">pm</option>

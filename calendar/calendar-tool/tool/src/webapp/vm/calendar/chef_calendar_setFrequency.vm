@@ -82,7 +82,7 @@
 				#end
 				<p class="checkbox">
 					<input type="radio" name="CountOrTill" value="Count" id="count" $isCountChecked><label for="count"> $tlang.getString("set.after")</label>
-					<select name="count">
+					<select name="count" id="selectCount">
 						#set ($count = $rule.Count)
 						#foreach($c in [1..100])
 							#if($count == $c)
@@ -91,7 +91,7 @@
 								<option >$c</option>
 							#end
 						#end
-					</select> $tlang.getString("set.times")
+					</select> <label for="selectCount" style="float:none">$tlang.getString("set.times")</label>
 				</p>
 				#set($month = $savedData.getMonth())
 				#set ($day = $savedData.Day)
