@@ -110,9 +110,10 @@ public class SectionAwareServiceHelperImpl extends AbstractSectionsImpl implemen
 
 		HashSet<String> membersInReleaseGroups = new HashSet<String>(0);
 		try {
-		    Set<String> availableEnrollments = new HashSet<String>(availEnrollments);
+		    List releaseGroupIds = PersistenceService.getInstance().getPublishedAssessmentFacadeQueries().getReleaseToGroupIdsForPublishedAssessment(publishedAssessmentId);
+		    Set<String> releaseGroupIdsSet = new HashSet<String>(releaseGroupIds);
 		    Site site = siteService.getInstance().getSite(siteid); // this follows the way the service is already written but it is a bad practice
-			membersInReleaseGroups = new HashSet<String>( site.getMembersInGroups(availableEnrollments) );
+			membersInReleaseGroups = new HashSet<String>( site.getMembersInGroups(releaseGroupIdsSet) );
 		} catch (IdUnusedException ex) {
 			// no site found, just log a warning
 		    log.warn("Unable to find a site with id ("+siteid+") in order to get the enrollments, will return 0 enrollments");
