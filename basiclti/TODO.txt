@@ -1,12 +1,14 @@
 
 =======  TODO ========
 
+Pull out LessonsFacade
+
 processAddResourcesJSON - check siteid in addition to page id
 
 Clean up JSON to match XML 
    name -> title
 
-Complete/Clean up test harnesses for new XML and new JSON
+Complete/Clean up test harnesses for new JSON
 
 Write/Update API documentation
 
@@ -42,5 +44,7 @@ key and just use sourcedid.  If so - work through code to insure
 sourcedid is what I think it is throughout.
 
 Switch getCourseStructure to recursive
+
+Complete/Clean up test harnesses for XML 
 
 

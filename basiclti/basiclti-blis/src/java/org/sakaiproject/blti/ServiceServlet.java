@@ -112,6 +112,8 @@ import org.sakaiproject.lti.api.LTIService;
 import org.sakaiproject.util.foorm.SakaiFoorm;
 import org.sakaiproject.util.foorm.FoormUtil;
 
+import org.sakaiproject.blti.LessonsFacade;
+
 /**
  * Notes:
  * 
@@ -147,7 +149,6 @@ public class ServiceServlet extends HttpServlet {
     protected static SakaiFoorm foorm = new SakaiFoorm();
 
     protected static LTIService ltiService = null;
-    protected static SimplePageToolDao simplePageToolDao = null;
 
 	protected static XPath xpath = null;
 	protected static XPathExpression LESSONS_RESOURCES_EXPR = null;
@@ -221,8 +222,8 @@ public class ServiceServlet extends HttpServlet {
 	@Override
 		public void init(ServletConfig config) throws ServletException {
 			super.init(config);
+            LessonsFacade.init();
 			if ( ltiService == null ) ltiService = (LTIService) ComponentManager.get("org.sakaiproject.lti.api.LTIService");
-			if ( simplePageToolDao == null ) simplePageToolDao = (SimplePageToolDao)ComponentManager.get(SimplePageToolDao.class);
 			try {
 				xpath = XPathFactory.newInstance().newXPath();
 				LESSONS_RESOURCES_EXPR = xpath.compile("params/resources/*");
@@ -1183,7 +1184,7 @@ System.out.println("sourcedid="+sourcedid);
 
 			List<Long> structureList = new ArrayList<Long>();
 
-		    List<SimplePageItem> sitePages = simplePageToolDao.findItemsInSite(context_id);
+		    List<SimplePageItem> sitePages = LessonsFacade.findItemsInSite(context_id);
             List<Map<String,Object>> structureMap = iteratePagesXML(sitePages,structureList,0);
 
 			response.setContentType("application/xml");
@@ -1221,8 +1222,8 @@ System.out.println("sourcedid="+sourcedid);
 			catch (Exception e) { folderId = null; }
 
 			List<Long> structureList = new ArrayList<Long>();
-			List<SimplePageItem> sitePages = simplePageToolDao.findItemsInSite(context_id);
-			SimplePageItem thePage = findFolder(sitePages, folderId, structureList, 1);
+			List<SimplePageItem> sitePages = LessonsFacade.findItemsInSite(context_id);
+			SimplePageItem thePage = LessonsFacade.findFolder(sitePages, folderId, structureList, 1);
 
 			// Something wrong, add on the first page
 			if ( thePage == null ) {
@@ -1262,7 +1263,7 @@ System.out.println("sourcedid="+sourcedid);
 
 
             Long pageNum = Long.valueOf(thePage.getSakaiId());
-            List<SimplePageItem> items = simplePageToolDao.findItemsOnPage(pageNum);
+            List<SimplePageItem> items = LessonsFacade.findItemsOnPage(pageNum);
 			int seq = items.size() + 1;
 System.out.println("seq="+seq);
             List<Map<String,String>> resultList = new ArrayList<Map<String,String>>();
@@ -1314,7 +1315,7 @@ System.out.println("seq="+seq);
 			}
 			
 			if ( "folder".equals(typeStr) ) {
-				SimplePageItem subPageItem = addLessonsFolder(thePage, titleStr, startPos);
+				SimplePageItem subPageItem = LessonsFacade.addLessonsFolder(thePage, titleStr, startPos);
                 if ( tempId != null ) {
                     Map<String,String> result = new TreeMap<String,String> ();
                     result.put("/tempId",tempId);
@@ -1363,7 +1364,7 @@ System.out.println("seq="+seq);
 System.out.println("type="+typeStr+" name="+titleStr+" launchUrl="+launchUrl+" lanchParams="+launchParams);
 
 			// Time to add the launch tool
-			String sakaiId = doImportTool(siteId, launchUrl, titleStr, null, launchParams);
+			String sakaiId = LessonsFacade.doImportTool(siteId, launchUrl, titleStr, null, launchParams);
 
 			if ( sakaiId == null ) {
 				M_log.warn("Unable to add LTI Placement "+titleStr);
@@ -1376,7 +1377,7 @@ System.out.println("type="+typeStr+" name="+titleStr+" launchUrl="+launchUrl+" l
                 result.put("/id", sakaiId);
                 resultList.add(result);
             }
-			addLessonsLaunch(thePage, sakaiId, titleStr, startPos);
+			LessonsFacade.addLessonsLaunch(thePage, sakaiId, titleStr, startPos);
 		}
 	}
 
@@ -1402,7 +1403,7 @@ System.out.println("type="+typeStr+" name="+titleStr+" launchUrl="+launchUrl+" l
 			cMap.put("/description",title);
 			cMap.put("/type","folder");
 
-			List<SimplePageItem> items = simplePageToolDao.findItemsOnPage(pageNum);
+			List<SimplePageItem> items = LessonsFacade.findItemsOnPage(pageNum);
             // System.out.println("Items="+items);
 		    List<Map<String,Object>> subMap = iteratePagesXML(items, structureList, depth+1);
             if (subMap != null && subMap.size() > 0 ) {
@@ -1413,27 +1414,6 @@ System.out.println("type="+typeStr+" name="+titleStr+" launchUrl="+launchUrl+" l
         return structureMap;
 	}
 
-	protected SimplePageItem findFolder(List<SimplePageItem> sitePages, Long folderId, 
-		 List<Long> structureList, int depth)
-	{
-        if ( folderId == null ) return null;
-		if ( depth > 10 ) return null;
-		for (SimplePageItem i : sitePages) {
-			if ( structureList.size() > 100 ) return null;
-			if (i.getType() != SimplePageItem.PAGE) continue;
-            // System.out.println("d="+depth+" o="+structureList.size()+" Id="+i.getId()+" SakaiId="+i.getSakaiId()+" title="+i.getName());
-			Long pageNum = Long.valueOf(i.getSakaiId());
-			// Note: cMap.put("/folderId",i.getSakaiId());
-            if ( folderId.equals(pageNum) ) return i;
-			structureList.add(i.getId());
-
-			List<SimplePageItem> items = simplePageToolDao.findItemsOnPage(pageNum);
-            SimplePageItem retval = findFolder(items, folderId, structureList, depth+1);
-            if ( retval != null ) return retval;
-		}
-        return null;
-	}
-
 	protected void processCourseStructureJSON(HttpServletRequest request, HttpServletResponse response, 
 			JSONObject json, IMSJSONRequest jsonRequest)
 		throws java.io.IOException
@@ -1441,7 +1421,7 @@ System.out.println("type="+typeStr+" name="+titleStr+" launchUrl="+launchUrl+" l
 			String context_id = (String) json.get("context_id");
 			String user_id = (String) json.get("user_id");
 
-			List<SimplePageItem> sitePages = simplePageToolDao.findItemsInSite(context_id);
+			List<SimplePageItem> sitePages = LessonsFacade.findItemsInSite(context_id);
 
 			List<Long> structureList = new ArrayList<Long>();
 			JSONArray structure = iteratePagesJSON(sitePages,structureList,0);
@@ -1470,7 +1450,7 @@ System.out.println("Struc="+structure);
 			String nameStr = (String) resource.get("name");
 
 			if ( "folder".equals(typeStr) ) {
-				SimplePageItem subPageItem = addLessonsFolder(thePage, nameStr, startPos);
+				SimplePageItem subPageItem = LessonsFacade.addLessonsFolder(thePage, nameStr, startPos);
 				startPos++;
 				JSONArray subResources = (JSONArray) resource.get("resources");
 
@@ -1506,13 +1486,13 @@ System.out.println("custom="+custom);
 System.out.println("type="+typeStr+" name="+nameStr+" launchUrl="+launchUrl+" launchParams="+launchParams);
 
 			// Time to add the launch tool
-			String sakaiId = doImportTool(siteId, launchUrl, nameStr, null, launchParams);
+			String sakaiId = LessonsFacade.doImportTool(siteId, launchUrl, nameStr, null, launchParams);
 
 			if ( sakaiId == null ) {
 				M_log.warn("Unable to add LTI Placement "+nameStr);
 				continue;
 			}
-			addLessonsLaunch(thePage, sakaiId, nameStr, startPos);
+			LessonsFacade.addLessonsLaunch(thePage, sakaiId, nameStr, startPos);
 		}
 	}
 
@@ -1530,11 +1510,11 @@ System.out.println("resource_link_id="+resource_link_id);
 System.out.println("pageId="+pageId);
 
             //  TODO: Double-check this
-			SimplePageItem thePage = simplePageToolDao.findItem(pageId);
+			SimplePageItem thePage = LessonsFacade.findItem(pageId);
 
 			// Something wrong, add on the first page
 			if ( thePage == null ) {
-				List<SimplePageItem> sitePages = simplePageToolDao.findItemsInSite(context_id);
+				List<SimplePageItem> sitePages = LessonsFacade.findItemsInSite(context_id);
 				System.out.println("Inserting at top...");
 				for (SimplePageItem i : sitePages) {
 					if (i.getType() != SimplePageItem.PAGE) continue;
@@ -1563,7 +1543,7 @@ System.out.println("json: "+ json);
 
             Long pageNum = Long.valueOf(thePage.getSakaiId());
 System.out.println("pageNum="+pageNum);
-            List<SimplePageItem> items = simplePageToolDao.findItemsOnPage(pageNum);
+            List<SimplePageItem> items = LessonsFacade.findItemsOnPage(pageNum);
 System.out.println("items="+items);
 			int seq = items.size() + 1;
 System.out.println("seq="+seq);
@@ -1598,7 +1578,7 @@ System.out.println("seq="+seq);
 			cObj.put("title",i.getName());
 
 			Long pageNum = Long.valueOf(i.getSakaiId());
-			List<SimplePageItem> items = simplePageToolDao.findItemsOnPage(pageNum);
+			List<SimplePageItem> items = LessonsFacade.findItemsOnPage(pageNum);
 			JSONArray subPages = iteratePagesJSON(items, structureList, depth+1);
 			if ( subPages != null ) cObj.put("structure",subPages);
 
@@ -1607,129 +1587,6 @@ System.out.println("seq="+seq);
 		}
 		if ( structure.size() > 0 ) return structure;
 		return null;
-	}
-
-	protected SimplePageItem addLessonsFolder(SimplePageItem thePage, String nameStr, int startPos)
-    {
-		// System.out.println("item="+ thePage.getName()+" id="+ thePage.getId()+" sakaiId="+ thePage.getSakaiId());
-		Long parent = Long.valueOf(thePage.getSakaiId());
-		// System.out.println("Parent="+parent);
-
-		SimplePage actualPage = simplePageToolDao.getPage(parent);
-		// System.out.println("Simple Page="+actualPage);
-		Long topParent = actualPage.getTopParent();
-		if ( topParent == null ) topParent = parent;
-		// System.out.println("topParent="+topParent);
-		// System.out.println("toolId="+actualPage.getToolId()+" siteId="+actualPage.getSiteId());
-
-		SimplePage subPage = simplePageToolDao.makePage(actualPage.getToolId(), actualPage.getSiteId(), nameStr, parent, topParent);
-		List<String>elist = new ArrayList<String>();
-		simplePageToolDao.saveItem(subPage,  elist, "ERROR WAS HERE", false);
-		System.out.println("Page Saved "+elist);
-
-		// System.out.println("subPage="+subPage);
-		String selectedEntity = String.valueOf(subPage.getPageId());
-		// System.out.println("selectedEntity="+selectedEntity);
-
-		SimplePageItem subPageItem = simplePageToolDao.makeItem(parent, startPos, SimplePageItem.PAGE, Long.toString(subPage.getPageId()), nameStr);
-		subPageItem.setFormat("");
-		elist = new ArrayList<String>();
-		simplePageToolDao.saveItem(subPageItem,  elist, "ERROR WAS HERE", false);
-		System.out.println("Item Saved "+elist);
-		// System.out.println("subItem = "+subPageItem);
-		return subPageItem;
-	}
-
-    public String doImportTool(String siteId, String launchUrl, String bltiTitle, String strXml, String custom)
-    {
-		if ( ltiService == null ) return null;
-
-		String toolUrl = launchUrl;
-		int pos = toolUrl.indexOf("?");
-		if ( pos > 0 ) {
-			toolUrl = toolUrl.substring(0, pos);
-		}
-
-		String toolName = toolUrl;
-		try {
-			URL launch = new URL(launchUrl);
-			toolName = launch.getProtocol() + "://" + launch.getAuthority();
-		} catch ( Exception e ) {
-			toolName = toolUrl;
-		}
-
-		Map<String,Object> theTool = null;
-		List<Map<String,Object>> tools = ltiService.getToolsDao(null,null,0,0,siteId);
-		for ( Map<String,Object> tool : tools ) {
-			String toolLaunch = (String) tool.get(LTIService.LTI_LAUNCH);
-			if ( launchUrl.startsWith(toolUrl) ) {
-				theTool = tool;
-				break;
-			}
-		}
-
-		if ( theTool == null ) {
-			Properties props = new Properties ();
-			props.setProperty(LTIService.LTI_LAUNCH,launchUrl);
-			props.setProperty(LTIService.LTI_TITLE, toolName);
-			props.setProperty(LTIService.LTI_CONSUMERKEY, LTIService.LTI_SECRET_INCOMPLETE);
-			props.setProperty(LTIService.LTI_SECRET, LTIService.LTI_SECRET_INCOMPLETE);
-
-			props.setProperty(LTIService.LTI_ALLOWCUSTOM, "1");
-			props.setProperty(LTIService.LTI_SENDNAME, "1");
-			props.setProperty(LTIService.LTI_SENDEMAILADDR, "1");
-			props.setProperty(LTIService.LTI_ALLOWOUTCOMES, "1");
-			props.setProperty(LTIService.LTI_ALLOWROSTER, "1");
-
-			props.setProperty(LTIService.LTI_SITE_ID,siteId);
-
-			Object result = ltiService.insertToolDao(props, siteId);
-			if ( result instanceof String ) {
-				M_log.error("Could not insert tool - "+result);
-			}
-			if ( result instanceof Long ) theTool = ltiService.getToolDao((Long) result, siteId);
-		}
-	
-		Map<String,Object> theContent = null;
-		Long contentKey = null;
-		if ( theTool != null ) {
-			Properties props = new Properties ();
-			props.setProperty(LTIService.LTI_TOOL_ID,foorm.getLong(theTool.get(LTIService.LTI_ID)).toString());
-            props.setProperty(LTIService.LTI_PLACEMENTSECRET, UUID.randomUUID().toString());
-			props.setProperty(LTIService.LTI_TITLE, bltiTitle);
-			props.setProperty(LTIService.LTI_LAUNCH,launchUrl);
-			if ( strXml != null) props.setProperty(LTIService.LTI_XMLIMPORT,strXml);
-			if ( custom != null ) props.setProperty(LTIService.LTI_CUSTOM,custom);
-			Object result = ltiService.insertContentDao(props, siteId);
-			if ( result instanceof String ) {
-				M_log.error("Could not insert content - "+result);
-			} else {
-				System.out.println("Adding LTI tool "+result);
-			}
-			if ( result instanceof Long ) theContent = ltiService.getContentDao((Long) result, siteId);
-		}
-	
-		String sakaiId = null;
-		if ( theContent != null ) {
-			sakaiId = "/blti/" + theContent.get(LTIService.LTI_ID);
-		}
-		return sakaiId;
-	}
-
-	protected boolean addLessonsLaunch(SimplePageItem thePage, String sakaiId, String nameStr, int startPos) 
-	{
-            System.out.println("Adding LTI content item "+sakaiId);
-			Long pageNum = Long.valueOf(thePage.getSakaiId());
-            System.out.println("Page ="+thePage.getSakaiId()+" title="+thePage.getName());
-
-			SimplePageItem item = simplePageToolDao.makeItem(thePage.getPageId(), startPos, SimplePageItem.BLTI, sakaiId, nameStr);
-			item.setHeight(""); // default depends upon format, so it's supplied at runtime
-			item.setPageId(pageNum.longValue());
-
-			List<String>elist = new ArrayList<String>();
-            simplePageToolDao.saveItem(item,  elist, "ERROR WAS HERE", false);
-			System.out.println("Saved "+elist);
-			return true;
 	}
 
 	protected void processOutcomeXml(HttpServletRequest request, HttpServletResponse response, 
