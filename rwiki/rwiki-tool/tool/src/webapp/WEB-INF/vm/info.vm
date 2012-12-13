@@ -245,7 +245,7 @@
 				      <label class="skip"  for="groupWriteId">${rlb.jsp_enable_disable_page}: ${rlb.jsp_permission_edit}</label><input type="checkbox" name="groupWrite" id="groupWriteId" checked="checked" 
 				          onClick="setPermissionDisplay('rwiki_info_secure_granted','rwiki_info_secure_denied',groupRead.checked,groupWrite.checked,groupAdmin.checked);" />
 			     #else
-			     		<label class="skip"  for="groupWriteId">${rlb.jsp_enable_disable_page}: ${rlb.jsp_permission_edit}</label>${rlb.jsp_permission_edit}<input type="checkbox" name="groupWrite" id="groupWriteId" onClick="setPermissionDisplay('rwiki_info_secure_granted','rwiki_info_secure_denied',groupRead.checked,groupWrite.checked,groupAdmin.checked);" />
+			     		<label class="skip"  for="groupWriteId">${rlb.jsp_enable_disable_page}: ${rlb.jsp_permission_edit}</label><input type="checkbox" name="groupWrite" id="groupWriteId" onClick="setPermissionDisplay('rwiki_info_secure_granted','rwiki_info_secure_denied',groupRead.checked,groupWrite.checked,groupAdmin.checked);" />
 			     #end
 			     </td>
 			     <td>
