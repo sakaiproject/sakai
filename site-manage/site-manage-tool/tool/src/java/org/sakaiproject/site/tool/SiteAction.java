@@ -5360,6 +5360,9 @@ public class SiteAction extends PagedResourceActionII {
 		} else if ("norosters".equals(option)) {
 			state.setAttribute(STATE_TEMPLATE_INDEX, "13");
 		}
+		else if (option.equalsIgnoreCase("change_user")) {  // SAK-22915
+			doChange_user(data);
+		}
 		else if (option.equalsIgnoreCase("change")) {
 			// change term
 			String termId = params.getString("selectTerm");
