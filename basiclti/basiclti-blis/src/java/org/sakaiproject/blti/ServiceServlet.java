@@ -99,10 +99,6 @@ import org.sakaiproject.service.gradebook.shared.ConflictingExternalIdException;
 import org.sakaiproject.service.gradebook.shared.GradebookNotFoundException;
 import org.sakaiproject.service.gradebook.shared.Assignment;
 
-import org.sakaiproject.lessonbuildertool.model.SimplePageToolDao;
-import org.sakaiproject.lessonbuildertool.SimplePage;
-import org.sakaiproject.lessonbuildertool.SimplePageComment;
-import org.sakaiproject.lessonbuildertool.SimplePageGroup;
 import org.sakaiproject.lessonbuildertool.SimplePageItem;
 
 import org.imsglobal.pox.IMSPOXRequest;
@@ -1394,7 +1390,7 @@ System.out.println("type="+typeStr+" name="+titleStr+" launchUrl="+launchUrl+" l
 			Long pageNum = Long.valueOf(i.getSakaiId());
 
 			String title = i.getName();
-			if ( structureList.size() == 50 ) title = " ... More ... ";
+			if ( structureList.size() == 50 ) title = " ... ";
 			structureList.add(i.getId());
 
 			Map<String,Object> cMap = new TreeMap<String,Object>();
