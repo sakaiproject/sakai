@@ -1,8 +1,6 @@
 
 =======  TODO ========
 
-Pull out LessonsFacade
-
 processAddResourcesJSON - check siteid in addition to page id
 
 Clean up JSON to match XML 
@@ -10,7 +8,7 @@ Clean up JSON to match XML
 
 Complete/Clean up test harnesses for new JSON
 
-Write/Update API documentation
+Write/Update API documentation for JSON version
 
 Talk to Stephen to coordinate
 
@@ -19,6 +17,8 @@ basiclti-blis/src/java/org/sakaiproject/blti/ServiceServlet.java
 
 Add LORI-support to Velocity-based LTI structures - will 
 require conversion :(
+
+Write test plan...
 
 =======  COMPLETED ========
 
@@ -47,4 +47,7 @@ Switch getCourseStructure to recursive
 
 Complete/Clean up test harnesses for XML 
 
+Pull out LessonsFacade
+
+Write API documentation for XML
 
