@@ -27,6 +27,7 @@ import java.lang.reflect.Method;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Iterator;
+import java.util.Locale;
 import java.util.Map;
 import java.util.Set;
 import java.text.DateFormat;
@@ -380,6 +381,16 @@ public abstract class VelocityPortletPaneledAction extends ToolServlet
 		UsageSession session = UsageSessionService.getSession();
 		if (session != null)
 		{
+            // SAK-23047 Set the proper country code in the chef_start generated markup
+            String userId = session.getUserId();
+            Locale locale = (new ResourceLoader(userId)).getLocale();
+            String languageCode = locale.getLanguage();
+            String countryCode = locale.getCountry();
+            if(countryCode != null && countryCode.length() > 0) {
+                languageCode += "_" + countryCode;
+            }
+            context.put("language",languageCode);
+
 			String browserId = session.getBrowserId();
 			if (UsageSession.WIN_IE.equals(browserId) || UsageSession.WIN_MZ.equals(browserId)
 					|| UsageSession.WIN_NN.equals(browserId) || UsageSession.MAC_MZ.equals(browserId)
