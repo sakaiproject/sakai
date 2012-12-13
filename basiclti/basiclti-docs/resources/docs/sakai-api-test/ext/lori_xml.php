@@ -29,6 +29,7 @@ if (get_magic_quotes_gpc()) $sourcedid = stripslashes($sourcedid);
 $user_id = $_REQUEST['user_id'];
 $context_id = $_REQUEST['context_id'];
 $lis_result_sourcedid = $_REQUEST['lis_result_sourcedid'];
+$folderId = $_REQUEST['folderId'];
 
 ?>
 <p>
@@ -40,7 +41,9 @@ OAuth Consumer Key: <input type="text" name="key" disabled="true" size="80" valu
 OAuth Consumer Secret: <input type="text" name="secret" size="80" value="<?php echo(htmlentities($oauth_consumer_secret));?>"/></br>
 </p><p>
 lis_result_sourcedid: <input type="text" name="lis_result_sourcedid" size="80" value="<?php echo(htmlentities($_REQUEST['lis_result_sourcedid']));?>"/></br>
+folderId: <input type="text" name="folderId" size="80" value="<?php echo(htmlentities($_REQUEST['folderId']));?>"/></br>
 <input type='submit' name='submit' value="Get Course Structure">
+<input type='submit' name='submit' value="Add Course Resource">
 </br>
 </form>
 <?php 
@@ -57,6 +60,12 @@ if ( $_REQUEST['submit'] == "Get Course Structure" && isset($_REQUEST['context_i
 	array('USER_ID', 'CONTEXT_ID','LIS_RESULT_SOURCEDID', 'MESSAGE'), 
 	array($user_id, $context_id, $lis_result_sourcedid, uniqid()), 
 	$getCourseStructureRequest);
+} else if ( $_REQUEST['submit'] == "Add Course Resource" && isset($_REQUEST['context_id'] ) &&
+    isset($_REQUEST['lis_result_sourcedid'] ) ) {
+    $postBody = str_replace(
+	array('USER_ID', 'CONTEXT_ID','LIS_RESULT_SOURCEDID', 'FOLDER_ID', 'MESSAGE'), 
+	array($user_id, $context_id, $lis_result_sourcedid, $folderId, uniqid()), 
+	$addCourseResourcesRequest);
 } else {
     exit();
 }
