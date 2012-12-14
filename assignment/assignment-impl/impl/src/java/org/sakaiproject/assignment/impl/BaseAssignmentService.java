@@ -6524,6 +6524,21 @@ byte[] b = (s.getTimeSubmitted().toString()).getBytes();
 							p.clear();
 							p.addAll(oAssignment.getProperties());
 							
+							// one more touch on the gradebook-integration link	 
+							String associatedGradebookAssignment = StringUtils.trimToNull(p.getProperty(PROP_ASSIGNMENT_ASSOCIATE_GRADEBOOK_ASSIGNMENT));
+							if (associatedGradebookAssignment != null) {
+								// see if the old assignment's associated gradebook item is an internal gradebook entry or externally defined
+								boolean isExternalAssignmentDefined = m_gradebookExternalAssessmentService.isExternalAssignmentDefined(oAssignment.getContent().getContext(), associatedGradebookAssignment);
+								if (isExternalAssignmentDefined)
+								{
+									// if this is an external defined (came from assignment)
+									// mark the link as "add to gradebook" for the new imported assignment, since the assignment is still of draft state
+									//later when user posts the assignment, the corresponding assignment will be created in gradebook.	 
+									p.removeProperty(PROP_ASSIGNMENT_ASSOCIATE_GRADEBOOK_ASSIGNMENT);	 
+									p.addProperty(NEW_ASSIGNMENT_ADD_TO_GRADEBOOK, GRADEBOOK_INTEGRATION_ADD);
+							    }
+							}
+
 							// remove the link btw assignment and announcement item. One can announce the open date afterwards
 							p.removeProperty(ResourceProperties.NEW_ASSIGNMENT_CHECK_AUTO_ANNOUNCE);
 							p.removeProperty("new_assignment_open_date_announced");
