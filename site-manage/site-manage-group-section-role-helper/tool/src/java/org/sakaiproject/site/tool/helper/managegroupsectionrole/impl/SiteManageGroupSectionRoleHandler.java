@@ -20,6 +20,7 @@ import lombok.Getter;
 import lombok.Setter;
 
 import org.apache.commons.fileupload.FileItem;
+import org.apache.commons.lang.ArrayUtils;
 import org.apache.commons.lang.StringUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
@@ -61,7 +62,9 @@ import au.com.bytecode.opencsv.CSVReader;
  */
 public class SiteManageGroupSectionRoleHandler {
 	
-	/** Our log (commons). */
+	private static final String REQ_ATTR_GROUPFILE = "groupfile";
+
+    /** Our log (commons). */
 	private static Log M_log = LogFactory.getLog(SiteManageGroupSectionRoleHandler.class);
 	
 	private List<Member> groupMembers;
@@ -122,9 +125,19 @@ public class SiteManageGroupSectionRoleHandler {
 
     // Tool session attribute name used to schedule a whole page refresh.
     public static final String ATTR_TOP_REFRESH = "sakai.vppa.top.refresh"; 
-    
-	private static final String CSV_MIME_TYPE="text/csv";
-	
+
+    // SAK-23016 - added CSV types from http://filext.com/file-extension/CSV
+    private static final String CSV_FILE_EXTENSION="csv";
+    private static final String[] CSV_MIME_TYPES = {
+        "application/csv", 
+        "application/excel", 
+        "application/vnd.ms-excel", 
+        "application/vnd.msexcel", 
+        "text/anytext", 
+        "text/comma-separated-values", 
+        "text/csv"
+    };
+
 	public TargettedMessageList messages;
 	public void setMessages(TargettedMessageList messages) {
 		this.messages = messages;
@@ -1283,31 +1296,36 @@ public class SiteManageGroupSectionRoleHandler {
      */
     public String processUploadAndCheck() {
         String uploadsDone = (String) httpServletRequest.getAttribute(RequestFilter.ATTR_UPLOADS_DONE);
-        
+
         FileItem usersFileItem;
-        
+
         if (uploadsDone != null && uploadsDone.equals(RequestFilter.ATTR_UPLOADS_DONE)) {
 
             try {
-                usersFileItem = (FileItem) httpServletRequest.getAttribute("groupfile");
-                
+                usersFileItem = (FileItem) httpServletRequest.getAttribute(REQ_ATTR_GROUPFILE);
+
                 if(usersFileItem != null && usersFileItem.getSize() > 0) {
-                	
-                	String mimetype = usersFileItem.getContentType();
-                	
-                	if(StringUtils.equals(mimetype, CSV_MIME_TYPE)) {
-                		if(processCsvFile(usersFileItem)) {
-                			return "success";
-                		}
-                	} else {
-                		M_log.error("Invalid file type: " + mimetype);
-                		return "error";
-                	}
+
+                    String mimetype = usersFileItem.getContentType();
+                    String filename = usersFileItem.getName();
+
+                    if (ArrayUtils.contains(CSV_MIME_TYPES, mimetype) 
+                            || StringUtils.endsWith(filename, "csv")) {
+                        if (processCsvFile(usersFileItem)) {
+                            return "success"; // SHORT CIRCUIT
+                        }
+                    } else {
+                        M_log.error("Invalid file type: " + mimetype);
+                        return "error"; // SHORT CIRCUIT
+                    }
                 }
             }
             catch (Exception e){
-            	M_log.error(e.getClass() + " : " + e.getMessage());
-                return "error";
+                M_log.error(e.getClass() + " : " + e.getMessage());
+                return "error"; // SHORT CIRCUIT
+            } finally {
+                // clear the groupfile attribute so the tool does not have to be reset
+                httpServletRequest.removeAttribute(REQ_ATTR_GROUPFILE);
             }
         }
 
