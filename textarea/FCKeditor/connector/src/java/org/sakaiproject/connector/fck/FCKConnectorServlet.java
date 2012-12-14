@@ -48,6 +48,7 @@ import org.apache.commons.fileupload.FileItem;
 import org.sakaiproject.authz.api.SecurityAdvisor;
 import org.sakaiproject.authz.api.SecurityService;
 import org.sakaiproject.component.cover.ComponentManager;
+import org.sakaiproject.component.cover.ServerConfigurationService;
 import org.sakaiproject.content.api.ContentCollection;
 import org.sakaiproject.content.api.ContentCollectionEdit;
 import org.sakaiproject.content.api.ContentHostingService;
@@ -55,6 +56,7 @@ import org.sakaiproject.content.api.ContentResource;
 import org.sakaiproject.entity.api.Entity;
 import org.sakaiproject.entity.api.ResourceProperties;
 import org.sakaiproject.entity.api.ResourcePropertiesEdit;
+import org.sakaiproject.entitybroker.entityprovider.extension.EntityData;
 import org.sakaiproject.event.api.NotificationService;
 import org.sakaiproject.exception.IdUsedException;
 import org.sakaiproject.exception.PermissionException;
@@ -64,6 +66,12 @@ import org.sakaiproject.util.Validator;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 import org.w3c.dom.Node;
+
+import org.sakaiproject.api.app.messageforums.entity.DecoratedForumInfo;
+import org.sakaiproject.api.app.messageforums.entity.DecoratedTopicInfo;
+
+
+
 
 /**
  * Conenctor Servlet to upload and browse files to a Sakai worksite for the FCK editor.<br>
@@ -91,8 +99,15 @@ public class FCKConnectorServlet extends HttpServlet {
 
      private static final long serialVersionUID = 1L;
 
+     private static final String MFORUM_FORUM_PREFIX = "/direct/forum/";
+     private static final String MFORUM_TOPIC_PREFIX = "/direct/forum_topic/";
+     private static final String MFORUM_MESSAGE_PREFIX = "/direct/forum_message/";
+     
+
      private static final String FCK_ADVISOR_BASE = "fck.security.advisor.";
      private static final String FCK_EXTRA_COLLECTIONS_BASE = "fck.extra.collections.";
+
+     private String serverUrlPrefix = "";
 
      private ContentHostingService contentHostingService = null;
      private SecurityService securityService = null;
@@ -157,6 +172,8 @@ public class FCKConnectorServlet extends HttpServlet {
           String type = request.getParameter("Type");
           String currentFolder = request.getParameter("CurrentFolder");
 
+          serverUrlPrefix = ServerConfigurationService.getServerUrl();
+
           String collectionBase = request.getPathInfo();
 
           SecurityAdvisor advisor = (SecurityAdvisor) sessionManager.getCurrentSession()
@@ -185,6 +202,26 @@ public class FCKConnectorServlet extends HttpServlet {
                getFolders(currentFolder, root, document, collectionBase);
                getFiles(currentFolder, root, document, type);
           }
+          else if ("GetFoldersFilesAssignsTestsTopics".equals(commandStr)) {
+             ConnectorHelper thisConnectorHelper = new ConnectorHelper();
+             thisConnectorHelper.init();
+             getFolders(currentFolder, root, document, collectionBase);
+             getFilesOnly(currentFolder, root, document, type);
+             getAssignmentsOnly(currentFolder, root, document, type, thisConnectorHelper);
+             getTestsOnly(currentFolder, root, document, type, thisConnectorHelper);
+
+             getForumsAndThreads(currentFolder, root, document, type, thisConnectorHelper);
+          }
+          else if ("GetResourcesAssignsTestsTopics".equals(commandStr)) {
+             ConnectorHelper thisConnectorHelper = new ConnectorHelper();
+             thisConnectorHelper.init();
+             getResources(currentFolder, root, document, collectionBase, type);
+             getAssignmentsOnly(currentFolder, root, document, type, thisConnectorHelper);
+             getTestsOnly(currentFolder, root, document, type, thisConnectorHelper);
+
+             getForumsAndThreads(currentFolder, root, document, type, thisConnectorHelper);
+          }
+          
           else if ("CreateFolder".equals(commandStr)) {
                String newFolderStr = request.getParameter("NewFolderName");
                String status = "110";
@@ -453,6 +490,78 @@ public class FCKConnectorServlet extends HttpServlet {
           }
      }
 
+     private void getResources(String dir, Node root, Document doc, String collectionBase, String type) {
+         Element folders = doc.createElement("Folders");
+         root.appendChild(folders);
+                   
+         ContentCollection collection = null;
+        
+         Map<String, String> map = null; 
+         Iterator foldersIterator = null;
+  
+         try {
+              //hides the real root level stuff and just shows the users the
+              //the root folders of all the top collections they actually have access to.
+              if (dir.split("/").length == 2) {
+                   List<String> collections = new ArrayList<String>();
+                   map = contentHostingService.getCollectionMap();
+                   if (map != null && map.keySet() != null) {
+                        collections.addAll(map.keySet());
+                   }
+                   List extras = (List) sessionManager.getCurrentSession()
+                        .getAttribute(FCK_EXTRA_COLLECTIONS_BASE + collectionBase);
+                   if (extras != null) {
+                        collections.addAll(extras);
+                   }
+
+                   foldersIterator = collections.iterator();
+              }
+              else if (dir.split("/").length > 2) {
+                   collection = contentHostingService.getCollection(dir);
+                   if (collection != null && collection.getMembers() != null) {
+                        foldersIterator = collection.getMembers().iterator();
+                   }
+              }          
+         }
+         catch (Exception e) {    
+              e.printStackTrace();
+              //not a valid collection? file list will be empty and so will the doc
+         }
+         if (foldersIterator != null) {
+              String current = null;
+              
+              // create a SortedSet using the elements that are going to be added to the XML doc
+              SortedSet<Element> sortedFolders = new TreeSet<Element>(new SortElementsForDisplay());
+              
+              while (foldersIterator.hasNext()) {
+                   try {
+                        current = (String) foldersIterator.next();
+                        ContentCollection myCollection = contentHostingService.getCollection(current);
+                        Element element=doc.createElement("Folder");
+                        element.setAttribute("path", current);
+			 element.setAttribute("url", contentHostingService.getUrl(current));
+                        element.setAttribute("name", myCollection.getProperties().getProperty(
+                                             myCollection.getProperties().getNamePropDisplayName()));
+                        // by adding the folders to this collection, they will be sorted for display
+                        sortedFolders.add(element);
+                   }
+                   catch (Exception e) {    
+                        //do nothing, we either don't have access to the collction or it's a resource
+                   }
+              }      
+              
+              // now append the folderse to the parent document in sorted order
+              for (Element folder: sortedFolders) {
+                 Node addedFolder = folders.appendChild(folder);
+		  getResources(folder.getAttribute("path"), addedFolder, doc, collectionBase, type); 
+              }
+
+              getFilesOnly(dir, root, doc, type);
+         }
+    }
+     
+     
+     
      private void getFiles(String dir, Node root, Document doc, String type) {
           Element files=doc.createElement("Files");
           root.appendChild(files);
@@ -523,6 +632,201 @@ public class FCKConnectorServlet extends HttpServlet {
           }
      }     
 
+     private void getFilesOnly(String dir, Node root, Document doc, String type) {
+         Element files=doc.createElement("Files");
+         root.appendChild(files);
+         
+         ContentCollection collection = null;
+         List myAssignments = null;
+         List myTests = null;
+         List myTopics = null;
+         String siteId = null;
+   	  String[] f = dir.split("/");
+   	  siteId = f[2];
+
+         
+         
+         try {
+              collection = contentHostingService.getCollection(dir);
+         }
+         catch (Exception e) {
+              //do nothing, file will be empty and so will doc
+         }     
+         if (collection != null) {
+       	   Iterator iterator = collection.getMemberResources().iterator();
+         
+              while (iterator.hasNext ()) {
+                   try {
+                   	 ContentResource current = (ContentResource)iterator.next();
+
+                        String ext = current.getProperties().getProperty(
+                                  current.getProperties().getNamePropContentType());
+                        
+                        if ( ("File".equals(type) && (ext != null) ) || 
+                             ("Flash".equals(type) && ext.equalsIgnoreCase("application/x-shockwave-flash") ) ||
+                             ("Image".equals(type) && ext.startsWith("image") ) ||
+                             "Link".equals(type)) {
+
+                       	 String id = current.getId();
+                            
+                             Element element=doc.createElement("File");
+                             // displaying the id instead of the display name because the url used
+                             // for linking in the FCK editor uses what is returned...
+                             element.setAttribute("name", current.getProperties().getProperty(
+                           		  current.getProperties().getNamePropDisplayName()));
+                             element.setAttribute("url", current.getUrl());
+                             
+                             if (current.getProperties().getProperty(
+                                           current.getProperties().getNamePropContentLength()) != null) {
+
+                                  element.setAttribute("size", "" + current.getProperties()
+                                       .getPropertyFormatted(current.getProperties()
+                                       .getNamePropContentLength()));
+                             }
+                             else {
+                                  element.setAttribute("size", "0");
+                                  
+                             }
+                             files.appendChild(element);
+                        }
+                   }
+                   catch (ClassCastException e)  {
+                   	//it's a colleciton not an item
+                   }
+                   catch (Exception e)  {
+                   	//do nothing, we don't have access to the item
+                   }
+              }     
+         }
+        
+    }
+    private void getAssignmentsOnly(String dir, Node root, Document doc, String type, ConnectorHelper ch) {
+    	
+        List myAssignments = null;
+        String siteId = null;
+     	String[] f = dir.split("/");
+       	siteId = f[2];
+
+	SortedSet<Element> sortedItems = new TreeSet<Element>(new SortElementsForDisplay());
+        
+        Element assignments=doc.createElement("Assignments");
+        root.appendChild(assignments);
+        myAssignments = ch.getSiteAssignments(siteId);
+        Iterator assignmentsIterator = myAssignments.iterator();
+        while(assignmentsIterator.hasNext()){
+     	   	String[] thisAssignmentReference = (String[]) assignmentsIterator.next();
+     	   	Element element=doc.createElement("Assignment");
+     	   	element.setAttribute("name",thisAssignmentReference[0]);
+     	   	element.setAttribute("url",serverUrlPrefix + thisAssignmentReference[1]);
+     	   	element.setAttribute("size", "0");
+     	   	sortedItems.add(element);
+        }
+
+	for (Element item: sortedItems) {
+		assignments.appendChild(item);
+	}
+          	
+    }
+    
+    private void getTestsOnly(String dir, Node root, Document doc, String type, ConnectorHelper ch) {
+    	
+        List myTests = null;
+        String siteId = null;
+     	String[] f = dir.split("/");
+       	siteId = f[2];
+
+	SortedSet<Element> sortedItems = new TreeSet<Element>(new SortElementsForDisplay());
+
+        Element assessments=doc.createElement("Assessments");
+        root.appendChild(assessments);
+        myTests = ch.getPublishedAssements(siteId);
+        Iterator assessmentIterator = myTests.iterator();
+        while(assessmentIterator.hasNext()){
+      	  String[] thisAssessmentReference = (String[]) assessmentIterator.next();
+       	   	Element element=doc.createElement("Assessment");
+         	   	element.setAttribute("name",thisAssessmentReference[0]);
+         	   	element.setAttribute("url",serverUrlPrefix + thisAssessmentReference[1]);
+         	   	element.setAttribute("size", "0");
+         	   	sortedItems.add(element);           	  
+        }
+
+	for (Element item: sortedItems) {
+		assessments.appendChild(item);
+	}
+
+    }
+
+    
+    private void getForumsAndThreads(String dir, Node root, Document doc, String type, ConnectorHelper ch) {
+
+        String siteId = null;
+     	String[] f = dir.split("/");
+       	siteId = f[2];
+    	
+    	
+    	Element msgForums=doc.createElement("MsgForums");
+    	root.appendChild(msgForums);
+    	List theseMsgForums = ch.getForumTopicReferences(siteId);
+    	if(theseMsgForums==null){
+    		return;
+    	}
+
+	SortedSet<Element> sortedForums = new TreeSet<Element>(new SortElementsForDisplay());
+
+    	Iterator msgForumsIterator = theseMsgForums.iterator();
+    	while(msgForumsIterator.hasNext()){
+    		DecoratedForumInfo thisForumBean = (DecoratedForumInfo) ((EntityData) msgForumsIterator.next()).getData();
+
+    		Element forumElement = doc.createElement("mForum");
+    		forumElement.setAttribute("url", serverUrlPrefix + MFORUM_FORUM_PREFIX+String.valueOf(thisForumBean.getForumId()));
+    		forumElement.setAttribute("name",thisForumBean.getForumTitle());
+
+		SortedSet<Element> sortedTopics = new TreeSet<Element>(new SortElementsForDisplay());
+
+    		Iterator<DecoratedTopicInfo> topicIterator = thisForumBean.getTopics().iterator();
+    		while(topicIterator.hasNext()){
+    			DecoratedTopicInfo thisTopicBean = topicIterator.next();
+
+    			Element topicElement = doc.createElement("mTopic");
+    			topicElement.setAttribute("url", serverUrlPrefix + MFORUM_TOPIC_PREFIX+String.valueOf(thisTopicBean.getTopicId()));
+    			topicElement.setAttribute("name", thisTopicBean.getTopicTitle());
+
+//			SortedSet<Element> sortedMessages = new TreeSet<Element>(new SortElementsForDisplay());
+//
+//    			Iterator thisMessageIterator = thisTopicBean.getMessages().iterator();
+//    			while(thisMessageIterator.hasNext()){
+//    				MessageBean thisMessageBean = (MessageBean) thisMessageIterator.next();
+//    				Element messageElement = doc.createElement("mMessage");
+//    				messageElement.setAttribute("url", serverUrlPrefix + MFORUM_MESSAGE_PREFIX+String.valueOf(thisMessageBean.getMessageId()));
+//    				messageElement.setAttribute("name", thisMessageBean.getMessageLabel());
+//    				sortedMessages.add(messageElement);
+//    			}
+//
+//                	for (Element item: sortedMessages) {
+//        	                topicElement.appendChild(item);
+//	                }
+
+    			sortedTopics.add(topicElement);
+    		}
+
+	        for (Element item: sortedTopics) {
+        	        forumElement.appendChild(item);
+        	}
+
+    		sortedForums.add(forumElement);
+    	}
+
+	for (Element item: sortedForums) {
+		msgForums.appendChild(item);
+	}
+
+    }
+    
+     
+     
+     
+     
+     
      private Node createCommonXml(Document doc,String commandStr, String type, String currentPath, String currentUrl ) {
           Element root = doc.createElement("Connector");
           doc.appendChild(root);
