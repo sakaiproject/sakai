@@ -109,7 +109,7 @@ import org.sakaiproject.util.Validator;
  */
 public class ListItem
 {
-	/** Resource bundle using current language locale */
+    /** Resource bundle using current language locale */
     private static ResourceLoader rb = new ResourceLoader("content");
 
 	/** Resource bundle using current language locale */
@@ -124,6 +124,7 @@ public class ListItem
     protected static final Comparator<ContentEntity> PRIORITY_SORT_COMPARATOR = ContentHostingService.newContentHostingComparator(ResourceProperties.PROP_CONTENT_PRIORITY, true);
 
 	public static final String DOT = "_";
+	private static final String PROP_HIDDEN_TRUE = "true"; // SAK-23044
 
 	/** A long representing the number of milliseconds in one week.  Used for date calculations */
 	public static final long ONE_DAY = 24L * 60L * 60L * 1000L;
@@ -412,6 +413,7 @@ public class ListItem
 	protected boolean isPubview = false;
 
 	protected boolean hidden;
+	protected boolean hiddenWithAccessibleContent;
 	protected boolean isAvailable;
 	protected boolean useReleaseDate;
 	protected Time releaseDate;
@@ -863,6 +865,12 @@ public class ListItem
 			this.retractDate = retractDate;
 		}
 		this.isAvailable = entity.isAvailable();
+
+		try {
+		    this.hiddenWithAccessibleContent = props.getBooleanProperty(ResourceProperties.PROP_HIDDEN_WITH_ACCESSIBLE_CONTENT);
+		} catch (Exception e) {
+		    this.hiddenWithAccessibleContent = false;
+		}
 		this.htmlFilter = entity.getProperties().getProperty(ResourceProperties.PROP_ADD_HTML);
 		if (this.htmlFilter == null)
 		{
@@ -1411,7 +1419,9 @@ public class ListItem
 	protected void captureAvailability(ParameterParser params, String index) 
 	{
 		// availability
-		this.hidden = params.getBoolean("hidden" + index);
+		String hiddenParam = params.getString("hidden" + index);
+		this.hidden = PROP_HIDDEN_TRUE.equalsIgnoreCase(hiddenParam);
+		this.hiddenWithAccessibleContent = "hidden_with_accessible_content".equals(hiddenParam);
 		boolean use_start_date = params.getBoolean("use_start_date" + index);
 		boolean use_end_date = params.getBoolean("use_end_date" + index);
 		
@@ -2718,6 +2728,14 @@ public class ListItem
     {
     	this.hidden = hidden;
     }
+	
+	/**
+	 * @return the hiddenWithAccessibleContent
+	 */
+	public boolean isHiddenWithAccessibleContent()
+	{
+		return this.hiddenWithAccessibleContent;
+	}
 
 	/**
 	 * @param hover
@@ -3040,7 +3058,7 @@ public class ListItem
 		//setCopyrightOnEntity(props);
 		setConditionalReleaseOnEntity(props);
 		setAccessOnEntity(edit);
-		setAvailabilityOnEntity(edit);
+		setAvailabilityOnEntity(props, edit);
 		setQuotaOnEntity(props);
 		setHtmlInlineOnEntity(props, edit);
 		
@@ -3170,8 +3188,13 @@ public class ListItem
 	}
 	
 	
-	protected void setAvailabilityOnEntity(GroupAwareEdit edit)
+	protected void setAvailabilityOnEntity(ResourcePropertiesEdit props, GroupAwareEdit edit)
 	{
+		if ( this.hiddenWithAccessibleContent ) {
+			props.addProperty(ResourceProperties.PROP_HIDDEN_WITH_ACCESSIBLE_CONTENT, PROP_HIDDEN_TRUE);
+		} else {
+			props.removeProperty(ResourceProperties.PROP_HIDDEN_WITH_ACCESSIBLE_CONTENT);
+		}
 		edit.setAvailability(hidden, releaseDate, retractDate);
 	}
 	
@@ -3274,7 +3297,7 @@ public class ListItem
 		setCopyrightOnEntity(props);
 		setHtmlFilterOnEntity(props);
 		setAccessOnEntity(edit);
-		setAvailabilityOnEntity(edit);
+		setAvailabilityOnEntity(props, edit);
 		setHtmlInlineOnEntity(props, edit);
 		
 		if(! isUrl() && ! isCollection() && this.mimetype != null)

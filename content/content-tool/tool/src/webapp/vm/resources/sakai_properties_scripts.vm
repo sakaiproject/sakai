@@ -125,6 +125,10 @@
 			{
 				tag.onclick = handleSetToHidden;
 			}
+			else if(tag.id && tag.id.match(/^hidden_with_accessible_content_true${DOT}\d+$/))
+			{
+				tag.onclick = handleSetToHidden;
+			}
 #if($model.isGroupPossible())
 			else if(tag.id && tag.id.match(/^access_mode_inherited${DOT}\d+$/))
 			{
@@ -1394,8 +1398,9 @@
 			hidden_true.checked = false;
 		}
 		var hidden_false = document.getElementById("hidden_false${DOT}" + index);
-		if(hidden_false)
-		{
+		var hidden_with_accessible_content_true = document.getElementById("hidden_with_accessible_content_true${DOT}" + index);
+		if(hidden_false && (!hidden_with_accessible_content_true || !hidden_with_accessible_content_true.checked)) 
+		{ 
 			hidden_false.checked = true;
 		}
 		var use_start_date = document.getElementById("use_start_date${DOT}" + index);
@@ -1412,7 +1417,8 @@
 			hidden_true.checked = false;
 		}
 		var hidden_false = document.getElementById("hidden_false${DOT}" + index);
-		if(hidden_false)
+		var hidden_with_accessible_content_true = document.getElementById("hidden_with_accessible_content_true${DOT}" + index);
+		if(hidden_false && (!hidden_with_accessible_content_true || !hidden_with_accessible_content_true.checked)) 
 		{
 			hidden_false.checked = true;
 		}

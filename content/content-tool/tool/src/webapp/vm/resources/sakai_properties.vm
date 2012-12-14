@@ -377,6 +377,12 @@
 								$tlang.getString("avail.show1")
 							#end
 						</label>
+						#if($model.isCollection())
+						<input type="radio" name="hidden${DOT}$i" id="hidden_with_accessible_content_true${DOT}$i" value="hidden_with_accessible_content" #if($model.isHiddenWithAccessibleContent())checked="checked" #end/>
+						<label for="hidden_with_accessible_content_true${DOT}$i">
+							$tlang.getString("avail.hide30")
+						</label>
+						#end
 					</td>
 				</tr>
 				<tr>
