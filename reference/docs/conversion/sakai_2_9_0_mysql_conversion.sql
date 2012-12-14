@@ -655,7 +655,7 @@ CREATE TABLE IF NOT EXISTS lti_mapping (
     created_at DATETIME NOT NULL,
     updated_at DATETIME NOT NULL,
  PRIMARY KEY( id )
-)
+);
 CREATE TABLE IF NOT EXISTS lti_content (
     id INTEGER NOT NULL AUTO_INCREMENT,
     tool_id INT,
@@ -671,7 +671,7 @@ CREATE TABLE IF NOT EXISTS lti_content (
     created_at DATETIME NOT NULL,
     updated_at DATETIME NOT NULL,
  PRIMARY KEY( id )
-)
+);
 CREATE TABLE IF NOT EXISTS lti_tools (
     id INTEGER NOT NULL AUTO_INCREMENT,
     SITE_ID VARCHAR(99),
@@ -695,7 +695,7 @@ CREATE TABLE IF NOT EXISTS lti_tools (
     created_at DATETIME NOT NULL,
     updated_at DATETIME NOT NULL,
  PRIMARY KEY( id )
-)
+);
 -- end of BLTI-156
 
 -- STAT-315 
