@@ -1,7 +1,7 @@
 <!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.0 Transitional//EN">
 <!--
  * FCKeditor - The text editor for Internet - http://www.fckeditor.net
- * Copyright (C) 2003-2010 Frederico Caldeira Knabben
+ * Copyright (C) 2003-2009 Frederico Caldeira Knabben
  *
  * == BEGIN LICENSE ==
  *
@@ -24,6 +24,9 @@
 -->
 <html>
 	<head>
+       		<!-- force IE to use newest rendering engine -->
+	        <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+
 		<title>Folders</title>
 		<link href="browser.css" type="text/css" rel="stylesheet">
 		<meta http-equiv="Content-Type" content="text/html; charset=utf-8">
@@ -77,26 +80,9 @@ oListManager.AddItem = function( folderName, folderPath )
 	this.TableRows[ folderPath ] = oRow ;
 }
 
-oListManager.ShowUpFolder = function( upFolderPath )
-{
-	this.UpRow.style.display = ( upFolderPath != null ? '' : 'none' ) ;
-
-	if ( upFolderPath != null )
-	{
-		document.getElementById('linkUpIcon').onclick = document.getElementById('linkUp').onclick = function()
-		{
-			LoadFolders( upFolderPath ) ;
-			return false ;
-		}
-	}
-}
-
 function CheckLoaded()
 {
-	if ( window.top.IsLoadedActualFolder
-		&& window.top.IsLoadedCreateFolder
-		&& window.top.IsLoadedUpload
-		&& window.top.IsLoadedResourcesList )
+	if ( window.top.IsLoadedResourcesList )
 	{
 		window.clearInterval( iIntervalId ) ;
 		bIsLoaded = true ;
@@ -115,6 +101,9 @@ function OpenFolder( folderPath )
 		return ;
 	}
 
+	var folderName = '';
+	folderName = ( sFolderPath == folderPath ? oListManager.TableRows[ sFolderPath ].innerHTML.replace(/<\/?[^>]+(>|$)/g, '') : folderName );
+
 	// Change the style for the select row (to show the opened folder).
 	for ( var sFolderPath in oListManager.TableRows )
 	{
@@ -122,13 +111,8 @@ function OpenFolder( folderPath )
 			( sFolderPath == folderPath ? 'FolderListCurrentFolder' : 'FolderListFolder' ) ;
 	}
 
-	// Set the current folder in all frames.
-	window.parent.frames['frmActualFolder'].SetCurrentFolder( oConnector.ResourceType, folderPath ) ;
-	window.parent.frames['frmCreateFolder'].SetCurrentFolder( oConnector.ResourceType, folderPath ) ;
-	window.parent.frames['frmUpload'].SetCurrentFolder( oConnector.ResourceType, folderPath ) ;
-
 	// Load the resources list for this folder.
-	window.parent.frames['frmResourcesList'].LoadResources( oConnector.ResourceType, folderPath ) ;
+	window.parent.frames['frmResourcesList'].LoadResources( folderPath ) ;
 }
 
 function LoadFolders( folderPath )
@@ -144,9 +128,6 @@ function LoadFolders( folderPath )
 	// Sakai specific check to prevent user getting stuck at top level with nothing to click
 	if (sParentFolderPath == '/')
 		sParentFolderPath = null;
-
-	// Show/Hide the Up Folder.
-	oListManager.ShowUpFolder( sParentFolderPath ) ;
 
 	if ( folderPath != '/' )
 	{
@@ -197,10 +178,6 @@ window.onload = function()
 	</head>
 	<body class="FileArea">
 		<table id="tableFiles" cellSpacing="0" cellPadding="0" width="100%" border="0">
-			<tr id="trUp" style="DISPLAY: none">
-				<td width="16"><a id="linkUpIcon" href="#"><img alt="" src="images/FolderUp.gif" width="16" height="16" border="0"></a></td>
-				<td nowrap width="100%">&nbsp;<a id="linkUp" href="#">..</a></td>
-			</tr>
 		</table>
 	</body>
 </html>

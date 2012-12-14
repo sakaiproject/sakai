@@ -1,6 +1,6 @@
 ﻿/*
  * FCKeditor - The text editor for Internet - http://www.fckeditor.net
- * Copyright (C) 2003-2010 Frederico Caldeira Knabben
+ * Copyright (C) 2003-2009 Frederico Caldeira Knabben
  *
  * == BEGIN LICENSE ==
  *
@@ -116,6 +116,30 @@ FCKXml.prototype.SelectNodes = function( xpath )
 		var aNodeArray = new Array();
 
 		var xPathResult = this.DOMDocument.evaluate( xpath, this.DOMDocument,
+				this.DOMDocument.createNSResolver(this.DOMDocument.documentElement), XPathResult.ORDERED_NODE_ITERATOR_TYPE, null) ;
+		if ( xPathResult )
+		{
+			var oNode = xPathResult.iterateNext() ;
+ 			while( oNode )
+ 			{
+ 				aNodeArray[aNodeArray.length] = oNode ;
+ 				oNode = xPathResult.iterateNext();
+ 			}
+		}
+		return aNodeArray ;
+	}
+}
+
+FCKXml.prototype.SelectNodesContext = function( xpath, contextNode, detxpath)
+{
+	if ( navigator.userAgent.indexOf('MSIE') >= 0 )	{	// IE
+		return this.DOMDocument.selectNodes( detxpath ) ;
+	}
+	else					// Gecko
+	{
+		var aNodeArray = new Array();
+
+		var xPathResult = this.DOMDocument.evaluate( xpath, contextNode,
 				this.DOMDocument.createNSResolver(this.DOMDocument.documentElement), XPathResult.ORDERED_NODE_ITERATOR_TYPE, null) ;
 		if ( xPathResult )
 		{
