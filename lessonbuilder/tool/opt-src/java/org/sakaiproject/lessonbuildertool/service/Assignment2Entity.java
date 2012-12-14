@@ -149,7 +149,7 @@ public class Assignment2Entity implements LessonEntity {
 	gradebookService = g;
     }
 
-
+    static OptSql optSql = null;
 
     public void init () {
     //	if (ToolManager.getTool("sakai.assignment2") != null)
@@ -157,10 +157,19 @@ public class Assignment2Entity implements LessonEntity {
 	    haveA2 = true;
 	System.out.println("Assignment2Entity init: haveA2 = " + haveA2);
 
-	if (haveA2)
+	if (haveA2) {
 	    assignmentCache = memoryService
 		.newCache("org.sakaiproject.lessonbuildertool.service.Assignment2Entity.cache");
-
+	    String vendor = SqlService.getVendor();
+	    try {
+		optSql = (OptSql) Assignment2Entity.class.getClassLoader().loadClass("org.sakaiproject.lessonbuildertool.service.OptSql" + vendor).newInstance();
+	    } catch (Exception e) {
+		try {
+		    optSql = (OptSql) Assignment2Entity.class.getClassLoader().loadClass("org.sakaiproject.lessonbuildertool.service.OptSqlDefault").newInstance();
+		} catch (Exception ee) {
+		}
+	    }
+	}
 	log.info("init()");
 
     }
@@ -607,7 +616,8 @@ public class Assignment2Entity implements LessonEntity {
 		public void run()
 		{
 		    String updatesql = "update A2_ASSIGN_GROUP_T set version=? where assignment_group_id = ?";
-		    String addsql = "insert into A2_ASSIGN_GROUP_T (version, assignment_id, group_ref) values (0, ?, ?)";
+		    //	"insert into A2_ASSIGN_GROUP_T (version, assignment_id, group_ref) values (0, ?, ?)";
+		    String addsql = optSql.Assignment2InsertGroupSql();
 		    String deletesql = "delete from A2_ASSIGN_GROUP_T where assignment_group_id = ?";
 
 		    for (AssignGroup a: fassignGroups) {
