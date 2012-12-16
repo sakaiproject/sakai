@@ -29,6 +29,7 @@ import java.util.Iterator;
 import javax.servlet.http.HttpServletRequest;
 
 import org.sakaiproject.authz.api.AuthzGroup;
+import org.sakaiproject.authz.api.Role;
 import org.sakaiproject.authz.cover.AuthzGroupService;
 import org.sakaiproject.authz.cover.SecurityService;
 import org.sakaiproject.component.api.ServerConfigurationService;
@@ -193,10 +194,11 @@ public class DefaultSiteViewImpl extends AbstractSiteViewImpl
                 // Not super duper. Test the user template realm.
                 String type = UserDirectoryService.getUser(session.getUserId()).getType();
                 AuthzGroup ag = AuthzGroupService.getAuthzGroup("!user.template." + type);
-                canAddSite = ag.getRole(".auth").isAllowed("site.add");
+                Role role = ag.getRole(".auth");
+                canAddSite = role.isAllowed("site.add.course") || role.isAllowed("site.add.portfolio") || role.isAllowed("site.add.project");
             }
         } catch(Exception e) {
-            System.err.println("WARN: Failed to set canAddSite for current user. Defaulting to false ...");
+            System.err.println("INFO: Failed to set canAddSite for current user. Defaulting to false ...");
         }
 
  		String profileToolUrl = null;
