@@ -1,0 +1,14 @@
+#!/bin/sh
+
+# compare 2.9 and 2.10 versions of database and produce updates
+# uses diff utility because doing a good diff is surprisingly complex
+
+#$1 is database, e.g. mysql
+
+java sql2cols old/$1/lessonbuilder.sql cols.old.1 cols.old.2
+java sql2cols $1/lessonbuilder.sql cols.new.1 cols.new.2
+diff -c cols.old.1 cols.new.1 > cols.diff
+java sqlupdate cols.diff cols.new.2 $1/lessonbuilder-1.4-1.5.sql
+
+
+
