@@ -50,6 +50,8 @@
         altGradebook varchar(35),
         altPoints int4,
         altGradebookTitle varchar(200),
+        groupOwned bool,
+        ownerGroups varchar(4000),
         primary key (id)
     );
 
@@ -79,6 +81,7 @@
         gradebookPoints float8,
         owner varchar(36),
         groupOwned bool,
+        groupid varchar(36),
         cssSheet varchar(250),
         primary key (pageId)
     );
@@ -91,6 +94,7 @@
         title varchar(100) not null,
         owner varchar(36) not null,
         groupOwned bool not null,
+        groupid varchar(36),
         commentsSection int8,
         lastCommentChange timestamp,
         deleted bool,

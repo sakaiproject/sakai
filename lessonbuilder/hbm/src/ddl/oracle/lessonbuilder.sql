@@ -50,6 +50,8 @@
         altGradebook varchar2(35),
         altPoints number(10,0),
         altGradebookTitle varchar2(200),
+        groupOwned number(1,0),
+        ownerGroups varchar2(4000),
         primary key (id)
     );
 
@@ -79,6 +81,7 @@
         gradebookPoints double precision,
         owner varchar2(36),
         groupOwned number(1,0),
+        groupid varchar2(36),
         cssSheet varchar2(250),
         primary key (pageId)
     );
@@ -91,6 +94,7 @@
         title varchar2(100) not null,
         owner varchar2(36) not null,
         groupOwned number(1,0) not null,
+        groupid varchar2(36),
         commentsSection number(19,0),
         lastCommentChange date,
         deleted number(1,0),
