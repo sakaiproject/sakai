@@ -608,6 +608,16 @@ public class SamigoEntity implements LessonEntity, QuizEntity {
 	if (tool == null)
 	    return null;
     
+	if (false) {
+	    // code to verify that exportObject actually works
+	    if (assessment == null)
+		assessment = getPublishedAssessment(id);
+	    String aid = assessment.getAssessmentId().toString();
+	    
+	    Document doc = exportObject(aid);
+	    System.out.println("foo " + doc.getElementsByTagName("questestinterop"));
+	}
+
 	if (samigo_linked)
 	    return ServerConfigurationService.getToolUrl() + "/" + tool + "/jsf/author/editLink?publishedAssessmentId=" + id;
 	else
@@ -628,6 +638,18 @@ public class SamigoEntity implements LessonEntity, QuizEntity {
 	    return ServerConfigurationService.getToolUrl() + "/" + tool + "/jsf/index/mainIndex";
 
     }
+
+    // export an assessment as an XML document. This is in Samigo's version of QTI
+    public Document exportObject(String assessmentId) {
+	try {
+	    QTIService qtiService = new QTIService();
+	    return qtiService.getExportedAssessment(assessmentId, QTIVersion.VERSION_1_2);
+	} catch (Exception e) {
+	    System.out.println("exception in exportobject " + e);
+	    return null;
+	}
+    }
+	
 
     public String importObject(Document document, boolean isBank, String siteId, boolean hide) {
 
