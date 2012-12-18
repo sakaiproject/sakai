@@ -502,6 +502,9 @@ textarea {
 textarea:focus {
     border: 1px solid #000
 }
+textarea.cke_source:focus {
+    border: none
+}
 /* select element for actions on items in resources tool's list view */
 .actionmenu {
     font-size: 85%
