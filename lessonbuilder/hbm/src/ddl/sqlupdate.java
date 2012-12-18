@@ -1,40 +1,57 @@
 import java.io.BufferedReader;
 import java.io.FileReader;
 import java.io.PrintWriter;
-import java.util.HashMap;
+import java.util.HashSet;
 
 public class sqlupdate {
 
     public static void main( String[] args) {
 	
 	// table col -> definition
-	HashMap<String,String> adds = new HashMap<String, String>();
+	HashSet<String> olds = new HashSet<String>();
 
 	try {
-	    BufferedReader diffs = new BufferedReader(new FileReader(args[0]));
-	    BufferedReader schema = new BufferedReader(new FileReader(args[1]));
+	    BufferedReader oldschema = new BufferedReader(new FileReader(args[0]));
+	    BufferedReader newschema = new BufferedReader(new FileReader(args[1]));
+
+	    String table = null;
+	    String line = null;
+
+	    // build a set of the old cols
+	    while ((line = oldschema.readLine()) != null) {
+		line = line.trim();
+		if (line.startsWith("create table")) {
+		    int i = line.indexOf("(");
+		    line = line.substring(12, i-1);
+		    table = line.trim();
+		} else if (line.length() > 0) {
+		    int i = line.indexOf(" ");
+		    if (i > 0) {
+			olds.add(table + " " + line.substring(0,i));
+		    }
+		}		    
+	    }
 
 	    PrintWriter out = new PrintWriter(args[2]);
-	
-	    String line;
 
-	    while ((line = diffs.readLine()) != null) {
-		if (line.startsWith("+")) {
-		    line = line.substring(2);
-		    adds.put(line,"");
-		}
-	    }
-	    while ((line = schema.readLine()) != null) {
-		int i = line.indexOf(" ");
-		String table = line.substring(0,i);
-		int j = line.indexOf(" ",i+1);
-		String col = line.substring(i+1, j);
-		String definition = line.substring(j+1);
+	    // now go through new definition. Anything not in old is added.
+	    // at the end, anythnig form the old not used should be deleted.
 
-		if (adds.get(table + " " + col) != null) {
-		    if (definition.endsWith(",") || definition.endsWith(")"))
-			definition = definition.substring(0, definition.length() - 1);
-		    out.println("alter table " + table + " add " + col + " " + definition + ";");
+	    while ((line = newschema.readLine()) != null) {
+		line = line.trim();
+		if (line.startsWith("create table")) {
+		    int i = line.indexOf("(");
+		    line = line.substring(12, i-1);
+		    table = line.trim();
+		} else if (line.length() > 0) {
+		    int i = line.indexOf(" ");
+		    if (i > 0) {
+			if (! olds.remove(table + " " + line.substring(0,i))) {
+			    if (line.endsWith(",") || line.endsWith(")"))
+				line = line.substring(0, line.length() - 1);
+			    out.println("alter table " + table + " add " + line + ";");
+			}
+		    }
 		}
 	    }
 
