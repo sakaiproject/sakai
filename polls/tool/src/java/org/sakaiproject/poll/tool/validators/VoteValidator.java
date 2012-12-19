@@ -79,7 +79,7 @@ public class VoteValidator implements Validator {
 	//is the poll open?
 	if (!(poll.getVoteClose().after(new Date()) && new Date().after(poll.getVoteOpen()))) {
 		logger.warn("poll is closed!");
-		errors.reject("vote_closed","vote closed");
+		errors.reject("vote_closed.voteCollection","vote closed");
 		return;
 	}
 		
@@ -88,7 +88,7 @@ public class VoteValidator implements Validator {
 		if (!pollVoteManager.pollIsVotable(poll))
 		{
 			logger.error("attempt to vote in " + poll.getReference() + " by unauthorized user" );
-			errors.reject("vote_noperm","no permissions");
+			errors.reject("vote_noperm.voteCollection","no permissions");
 			return;
 		}
 	}
@@ -96,7 +96,7 @@ public class VoteValidator implements Validator {
 	if (votes.getOptionsSelected() == null && votes.getOption() == null && poll.getMinOptions()>0) {
 		logger.debug("there seems to be no vote on this poll");  
 		String errStr = Integer.valueOf(poll.getMinOptions()).toString();
-		errors.reject("error_novote", new Object[] {errStr}, "no vote");
+		errors.reject("error_novote.voteCollection", new Object[] {errStr}, "no vote");
 		  return;
 	} else if (votes.getOptionsSelected() == null && votes.getOption() == null && poll.getMinOptions()==0) {
 		//to do we need to map to somthing special
@@ -116,7 +116,7 @@ public class VoteValidator implements Validator {
 	  // the exact choise case
 	  
 	  if (pollVoteManager.userHasVoted(poll.getPollId()) && poll.getLimitVoting()) {
-			errors.reject("vote_hasvoted","has voted");
+			errors.reject("vote_hasvoted.voteCollection","has voted");
 			return;
 		}
 	  
