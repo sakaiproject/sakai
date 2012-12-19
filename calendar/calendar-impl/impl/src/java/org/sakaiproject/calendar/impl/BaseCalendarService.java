@@ -1200,6 +1200,23 @@ public abstract class BaseCalendarService implements CalendarService, DoubleStor
 		{
 			return new YearlyRecurrenceRule();
 		}
+		else if (frequency.equals(MWRecurrenceRule.FREQ))
+		{
+			return new MWRecurrenceRule();
+		}
+		else if (frequency.equals(SMWRecurrenceRule.FREQ))
+		{
+			return new SMWRecurrenceRule();
+		}
+		else if (frequency.equals(SMTWRecurrenceRule.FREQ))
+		{
+			return new SMTWRecurrenceRule();
+		}
+		else if (frequency.equals(STTRecurrenceRule.FREQ))
+		{
+			return new STTRecurrenceRule();
+		}
+		//add more here
 
 		return null;
 	}
@@ -1233,6 +1250,23 @@ public abstract class BaseCalendarService implements CalendarService, DoubleStor
 		{
 			return new YearlyRecurrenceRule(interval);
 		}
+		else if (frequency.equals(MWRecurrenceRule.FREQ))
+		{
+			return new MWRecurrenceRule(interval);
+		}
+		else if (frequency.equals(SMWRecurrenceRule.FREQ))
+		{
+			return new SMWRecurrenceRule(interval);
+		}
+		else if (frequency.equals(SMTWRecurrenceRule.FREQ))
+		{
+			return new SMTWRecurrenceRule(interval);
+		}
+		else if (frequency.equals(STTRecurrenceRule.FREQ))
+		{
+			return new STTRecurrenceRule(interval);
+		}
+		//add more here
 	
 		return null;
 	}
@@ -1267,6 +1301,23 @@ public abstract class BaseCalendarService implements CalendarService, DoubleStor
 		{
 			return new YearlyRecurrenceRule(interval, count);
 		}
+		else if (frequency.equals(MWRecurrenceRule.FREQ))
+		{
+			return new MWRecurrenceRule(interval, count);
+		}
+		else if (frequency.equals(SMWRecurrenceRule.FREQ))
+		{
+			return new SMWRecurrenceRule(interval, count);
+		}
+		else if (frequency.equals(SMTWRecurrenceRule.FREQ))
+		{
+			return new SMTWRecurrenceRule(interval, count);
+		}
+		else if (frequency.equals(STTRecurrenceRule.FREQ))
+		{
+			return new STTRecurrenceRule(interval, count);
+		}
+		//add more here
 
 		return null;
 	}
@@ -1299,6 +1350,23 @@ public abstract class BaseCalendarService implements CalendarService, DoubleStor
 		{
 			return new YearlyRecurrenceRule(interval, until);
 		}
+		else if (frequency.equals(MWRecurrenceRule.FREQ))
+		{
+			return new MWRecurrenceRule(interval, until);
+		}
+		else if (frequency.equals(SMWRecurrenceRule.FREQ))
+		{
+			return new SMWRecurrenceRule(interval, until);
+		}
+		else if (frequency.equals(SMTWRecurrenceRule.FREQ))
+		{
+			return new SMTWRecurrenceRule(interval, until);
+		}
+		else if (frequency.equals(STTRecurrenceRule.FREQ))
+		{
+			return new STTRecurrenceRule(interval, until);
+		}
+		//add more here
      
 		return null;
 	}
