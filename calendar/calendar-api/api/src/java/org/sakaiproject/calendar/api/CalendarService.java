@@ -109,6 +109,9 @@ public interface CalendarService
 
 	/** Security function granted to users who will then have membership in all site groups based on their site membership. */
 	public static final String AUTH_ALL_GROUPS_CALENDAR = "calendar.all.groups";
+	
+	/** Security lock for adding to a calendar. */
+	public static final String AUTH_OPTIONS_CALENDAR = "calendar.options";
 
 	/** The Reference type for a calendar. */
 	public static final String REF_TYPE_CALENDAR = "calendar";

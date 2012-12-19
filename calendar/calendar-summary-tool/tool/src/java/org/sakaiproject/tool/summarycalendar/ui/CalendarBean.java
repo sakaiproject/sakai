@@ -877,4 +877,11 @@ public class CalendarBean {
 		return sb.toString();
 		
 	}
+	
+	/**
+	 * Tests if the options section should be displayed.
+	 */
+	public boolean isPreferencesVisible() {
+		return M_as.unlock(CalendarService.AUTH_OPTIONS_CALENDAR, M_ca.calendarReference(getSiteId(), SiteService.MAIN_CONTAINER));
+	}
 }
