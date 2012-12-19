@@ -1582,7 +1582,9 @@ public interface ContentHostingService extends EntityProducer
 
 	/**
 	 * Does this resource inherit public view by having it set in a containing folder (not counting it's own setting)?
-	 * 
+	 * <p>Note that if you have a security advisor in place when you call this method, then this method will return true 
+	 * regardless of the actual setting. (KNL-813).
+	 *
 	 * @param id
 	 *        The resource id to check.
 	 * @return true if this resource inherits public view, false if not.
