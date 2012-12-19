@@ -288,9 +288,11 @@ public class PCServiceEntityProvider extends AbstractEntityProvider implements R
 		String message = (String) params.get("message");
 		if(message == null) throw new IllegalArgumentException("You must supply a message");
 		
-		// Sanitise the message. XSS attacks.
+		// Sanitise the message. XSS attacks. Unescape single quotes. They are valid.
 		message = StringEscapeUtils.escapeHtml4(
-							StringEscapeUtils.escapeEcmaScript(message));
+							StringEscapeUtils.escapeEcmaScript(message)).replaceAll("\\\\'","'");
+		
+		//message = message.replaceAll("\\\\'","'");
 
         addMessageToMap(new UserMessage(currentUser.getId(), to, message));
 			
