@@ -19,6 +19,7 @@
 
 package org.sakaiproject.blti;
 
+import java.lang.reflect.Method;
 import java.io.IOException;
 import java.io.PrintWriter;
 import java.net.URI;
@@ -46,6 +47,7 @@ import org.sakaiproject.authz.cover.SecurityService;
 import org.sakaiproject.lti.api.BLTIProcessor;
 import org.sakaiproject.lti.api.LTIException;
 import org.sakaiproject.basiclti.util.ShaUtil;
+import org.sakaiproject.component.cover.ComponentManager;
 import org.sakaiproject.component.cover.ServerConfigurationService;
 import org.sakaiproject.entity.api.ResourcePropertiesEdit;
 import org.sakaiproject.event.cover.UsageSessionService;
@@ -102,6 +104,13 @@ public class ProviderServlet extends HttpServlet {
 	private static ResourceLoader rb = new ResourceLoader("basiclti");
 	private static final String BASICLTI_RESOURCE_LINK = "blti:resource_link_id";
     private static final String LTI_CONTEXT_ID = "lti_context_id";
+    
+    private Object profileImageLogicObject = null;
+    private Method saveOfficialImageUrlMethod = null;
+    private Object profilePreferencesLogicObject = null;
+    private Method setUseOfficialImageMethod = null;
+    private Method getPreferencesRecordForUserMethod = null;
+    private Method savePreferencesRecordMethod = null;
 
     private List<BLTIProcessor> bltiProcessors = new ArrayList();
 
@@ -169,6 +178,35 @@ public class ProviderServlet extends HttpServlet {
                         .compareTo(((BLTIProcessor) (o2)).getOrder());
             }
         });
+        
+        setupProfile2Methods();
+	}
+	
+    /**
+     * BLTI-155. Use reflection to lookup the Profile2 methods we need for setting profile
+     * pictures provided by consumers
+     */
+	private void setupProfile2Methods() {
+        // BLTI-155 START
+        // Test whether Profile2 is available and setup the reflective methods if so
+        profileImageLogicObject = ComponentManager.getInstance().get("org.sakaiproject.profile2.logic.ProfileImageLogic");
+        profilePreferencesLogicObject = ComponentManager.getInstance().get("org.sakaiproject.profile2.logic.ProfilePreferencesLogic");
+                
+        if(profileImageLogicObject != null && profilePreferencesLogicObject != null) {
+        	M_log.debug("Profile2 is installed.");
+        	// It is. Cache the methods for later use.
+            try {
+            	saveOfficialImageUrlMethod = profileImageLogicObject.getClass().getMethod("saveOfficialImageUrl", new Class[] { String.class,String.class});
+                getPreferencesRecordForUserMethod = profilePreferencesLogicObject.getClass().getMethod("getPreferencesRecordForUser", new Class[] { String.class });
+                Class preferencesClazz = Class.forName("org.sakaiproject.profile2.model.ProfilePreferences");
+                setUseOfficialImageMethod = preferencesClazz.getMethod("setUseOfficialImage", new Class[] { boolean.class});
+                savePreferencesRecordMethod = profilePreferencesLogicObject.getClass().getMethod("savePreferencesRecord", new Class[] { preferencesClazz });
+                M_log.debug("Methods cached.");
+            } catch(Exception e) {
+            	M_log.warn("Tried to locate the profile2 api but failed. Consumer user_image launch parameters WILL NOT be shown");
+            }
+        }
+        // BLTI-155 END
 	}
 
 	protected void doGet(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
@@ -233,6 +271,8 @@ public class ProviderServlet extends HttpServlet {
             invokeProcessors(payload, isTrustedConsumer, ProcessingState.afterUserCreation, user);
 
             loginUser(ipAddress, user);
+            
+            setupUserPicture(payload, user, isTrustedConsumer);
             
             invokeProcessors(payload, isTrustedConsumer, ProcessingState.afterLogin, user);
 
@@ -960,6 +1000,36 @@ public class ProviderServlet extends HttpServlet {
         UsageSessionService.login(user.getId(), user.getEid(), ipAddress, null, UsageSessionService.EVENT_LOGIN_WS);
         sess.setUserId(user.getId());
         sess.setUserEid(user.getEid());
+    }
+    
+    /**
+     * BLTI-155. If Profile2 is installed, set the profile picture to the user_image url, if supplied.
+     * 
+     * @param payload The LTI launch parameters in a Map
+     * @param user The provisioned user who MUST be already logged in.
+     * @param isTrustedConsumer If this is true, do nothing as we assume that a local
+     * 							user corresponding to the consumer user already exists
+     */
+    private void setupUserPicture(Map payload, User user, boolean isTrustedConsumer) {
+    	
+    	if(isTrustedConsumer) return;
+    	
+    	String imageUrl = (String) payload.get(BasicLTIConstants.USER_IMAGE);
+    	        
+    	if(imageUrl != null && imageUrl.length() > 0) {
+    		M_log.debug("User image supplied by consumer: " + imageUrl);
+    	        
+    		if(saveOfficialImageUrlMethod != null && getPreferencesRecordForUserMethod != null && setUseOfficialImageMethod != null && savePreferencesRecordMethod != null) {
+    			try {
+    				saveOfficialImageUrlMethod.invoke(profileImageLogicObject, new Object[] {user.getId(), imageUrl});
+    				Object prefs = getPreferencesRecordForUserMethod.invoke(profilePreferencesLogicObject, new String [] { user.getId() });
+    				setUseOfficialImageMethod.invoke(prefs,new Object[] { true });
+    				savePreferencesRecordMethod.invoke(profilePreferencesLogicObject,new Object[] { prefs });
+    			} catch(Exception e) {
+    				M_log.error("Failed to setup launcher's Profile2 picture.",e);
+    			}
+    		}
+    	}
     }
 
     protected boolean isTrustedConsumer(Map payload) {
