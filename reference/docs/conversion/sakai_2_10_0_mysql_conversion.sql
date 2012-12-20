@@ -802,4 +802,7 @@ INSERT INTO SAKAI_REALM_RL_FN VALUES((select REALM_KEY from SAKAI_REALM where RE
 INSERT INTO SAKAI_REALM_RL_FN VALUES((select REALM_KEY from SAKAI_REALM where REALM_ID = '/site/mercury'), (select ROLE_KEY from SAKAI_REALM_ROLE where ROLE_NAME = 'access'), (select FUNCTION_KEY from SAKAI_REALM_FUNCTION where FUNCTION_NAME = 'calendar.options'));
 INSERT INTO SAKAI_REALM_RL_FN VALUES((select REALM_KEY from SAKAI_REALM where REALM_ID = '/site/mercury'), (select ROLE_KEY from SAKAI_REALM_ROLE where ROLE_NAME = 'maintain'), (select FUNCTION_KEY from SAKAI_REALM_FUNCTION where FUNCTION_NAME = 'calendar.options'));
 
-
+-- KNL-1003 / SAK-21060 add sitestats admin tool to Admin Workspace
+INSERT INTO SAKAI_SITE_PAGE VALUES('!admin-1220', '!admin', 'Sitestats Admin', '0', 16, '0' );
+INSERT INTO SAKAI_SITE_TOOL VALUES('!admin-1225', '!admin-1220', '!admin', 'sakai.sitestats.admin', 1, 'Sitestats Admin', NULL );
+INSERT INTO SAKAI_SITE_PAGE_PROPERTY VALUES('!admin', '!admin-1220', 'sitePage.customTitle', 'true');
