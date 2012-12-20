@@ -30,6 +30,8 @@ import java.awt.Graphics2D;
 import java.awt.image.BufferedImage;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
+import java.sql.Connection;
+import java.sql.DatabaseMetaData;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.text.DateFormat;
@@ -92,6 +94,14 @@ import org.sakaiproject.util.ResourceLoader;
 /**
  * Server Wide Report Manager handles running the database queries for each of the server wide reports.
  * 
+ * This currently provides limited support for the SST_ tables to be in a different database to the main Sakai database
+ * so long as the credentials and URL are the same (except for the db name). It will do a cross database join onto that db.
+ * 
+ * Configure via sakai.properties:
+ * sitestats.externalDb.name=DB_NAME
+ * 
+ * In addition to the normal settings for setting up external databases for the SST_ tables
+ * 
  */
 @CommonsLog
 public class ServerWideReportManagerImpl implements ServerWideReportManager
@@ -113,11 +123,20 @@ public class ServerWideReportManagerImpl implements ServerWideReportManager
 	private ServerConfigurationService serverConfigurationService;
 
 	private String dbVendor;
+	private String externalDbName;
 
 	public void init (){
 		//setup the vendor
 		dbVendor = StringUtils.lowerCase(serverConfigurationService.getString("vendor@org.sakaiproject.db.api.SqlService", null));
 		log.info("ServerWideReportManagerImpl SQL queries configured to use: " + dbVendor);
+		
+		//setup the external db name for our cross db queries
+		externalDbName = serverConfigurationService.getString("sitestats.externalDb.name", null);
+		if(StringUtils.isNotBlank(externalDbName)){
+			log.info("ServerWideReportManagerImpl will query for Sitestats data in the external database: " + externalDbName);
+		} else {
+			log.info("ServerWideReportManagerImpl will query for Sitestats data in the main Sakai database");
+		}
 		
 	}
 
@@ -132,13 +151,13 @@ public class ServerWideReportManagerImpl implements ServerWideReportManager
 		
 		String mysql = "select STR_TO_DATE(date_format(ACTIVITY_DATE, '%Y-%m-01'),'%Y-%m-%d') as period," +
 				" sum(ACTIVITY_COUNT) as user_logins" +
-				" from SST_SERVERSTATS" +
+				" from " + getExternalDbNameAsPrefix() + "SST_SERVERSTATS" +
 				" where EVENT_ID='user.login'" +
 				" group by 1";
 		
 		String oracle = ("select TO_DATE(TO_CHAR(ACTIVITY_DATE, 'YYYY-MM-\"01\"'), 'YYYY-MM-DD') as period," +
 				" sum(ACTIVITY_COUNT) as user_logins" +
-				" from SST_SERVERSTATS" +
+				" from " + getExternalDbNameAsPrefix() + "SST_SERVERSTATS" +
 				" where EVENT_ID='user.login'" +
 				" group by TO_DATE(TO_CHAR(ACTIVITY_DATE, 'YYYY-MM-\"01\"'), 'YYYY-MM-DD')");
 
@@ -151,12 +170,13 @@ public class ServerWideReportManagerImpl implements ServerWideReportManager
 					info.add (result.getLong (2));
 				}
 				catch (SQLException e) {
+					log.error("getMonthlyTotalLogins() exception: " + e.getClass() + ": " + e.getMessage());
 					return null;
 				}
 				return info;
 			}
 		});
-
+		
 		// remove the last entry, as it might not be a complete period
 		result.remove (result.size () - 1);
 
@@ -171,12 +191,12 @@ public class ServerWideReportManagerImpl implements ServerWideReportManager
 		
 		String mysql = "select STR_TO_DATE(date_format(LOGIN_DATE, '%Y-%m-01'),'%Y-%m-%d') as period," +
 				" count(distinct user_id) as unique_users" +
-				" from sst_userstats" +
+				" from " + getExternalDbNameAsPrefix() + "sst_userstats" +
 				" group by 1";
 		
 		String oracle = "select TO_DATE(TO_CHAR(LOGIN_DATE, 'YYYY-MM-\"01\"'),'YYYY-MM-DD') as period," +
 				" count(distinct user_id) as unique_users" +
-				" from sst_userstats" +
+				" from " + getExternalDbNameAsPrefix() + "sst_userstats" +
 				" group by TO_DATE(TO_CHAR(LOGIN_DATE, 'YYYY-MM-\"01\"'),'YYYY-MM-DD')";
 			 	
 		List result = sqlService.dbRead (getSqlForVendor(mysql, oracle), null, new SqlReader () {
@@ -188,6 +208,7 @@ public class ServerWideReportManagerImpl implements ServerWideReportManager
 					info.add (result.getLong (2));
 				}
 				catch (SQLException e) {
+					log.error("getMonthlyUniqueLogins() exception: " + e.getClass() + ": " + e.getMessage());
 					return null;
 				}
 				return info;
@@ -209,13 +230,13 @@ public class ServerWideReportManagerImpl implements ServerWideReportManager
 		
 		String mysql = "select STR_TO_DATE(concat(date_format(ACTIVITY_DATE, '%x-%v'), ' Monday'),'%x-%v %W') as week_start," +
 				" sum(ACTIVITY_COUNT) as user_logins" +
-				" from SST_SERVERSTATS" +
+				" from " + getExternalDbNameAsPrefix() + "SST_SERVERSTATS" +
 				" where EVENT_ID='user.login'" +
 				" group by 1";
 		
 		String oracle = "select next_day(ACTIVITY_DATE - 7, 'MONDAY') as week_start," +
 				" sum(ACTIVITY_COUNT) as user_logins" +
-				" from SST_SERVERSTATS" +
+				" from " + getExternalDbNameAsPrefix() + "SST_SERVERSTATS" +
 				" where EVENT_ID='user.login'" +
 				" group by next_day(ACTIVITY_DATE - 7, 'MONDAY')";
 		
@@ -228,6 +249,7 @@ public class ServerWideReportManagerImpl implements ServerWideReportManager
 					info.add (result.getLong (2));
 				}
 				catch (SQLException e) {
+					log.error("getWeeklyTotalLogins() exception: " + e.getClass() + ": " + e.getMessage());
 					return null;
 				}
 				return info;
@@ -248,12 +270,12 @@ public class ServerWideReportManagerImpl implements ServerWideReportManager
 		
 		String mysql = "select STR_TO_DATE(concat(date_format(LOGIN_DATE, '%x-%v'), ' Monday'),'%x-%v %W') as week_start," +
 				" count(distinct user_id) as unique_users" +
-				" from sst_userstats" +
+				" from " + getExternalDbNameAsPrefix() + "sst_userstats" +
 				" group by 1";
 		
 		String oracle = "select next_day(LOGIN_DATE - 7, 'MONDAY') as week_start," +
 				" count(distinct user_id) as unique_users" +
-				" from sst_userstats" +
+				" from " + getExternalDbNameAsPrefix() + "sst_userstats" +
 				" group by next_day(LOGIN_DATE - 7, 'MONDAY')";
 		
 		List result = sqlService.dbRead (getSqlForVendor(mysql, oracle), null, new SqlReader () {
@@ -265,6 +287,7 @@ public class ServerWideReportManagerImpl implements ServerWideReportManager
 					info.add (result.getLong (2));
 				}
 				catch (SQLException e) {
+					log.error("getWeeklyUniqueLogins() exception: " + e.getClass() + ": " + e.getMessage());
 					return null;
 				}
 				return info;
@@ -285,14 +308,14 @@ public class ServerWideReportManagerImpl implements ServerWideReportManager
 		
 		String mysql = "select date(ACTIVITY_DATE) as session_date, " +
 				" ACTIVITY_COUNT as user_logins" +
-				" from SST_SERVERSTATS" +
+				" from " + getExternalDbNameAsPrefix() + "SST_SERVERSTATS" +
 				" where EVENT_ID='user.login' " +
 				" and ACTIVITY_DATE > DATE_SUB(CURDATE(), INTERVAL 90 DAY)" +
 				" group by 1";
 		
 		String oracle = "select trunc(ACTIVITY_DATE, 'DDD') as session_date," +
 				" sum(ACTIVITY_COUNT) as user_logins" +
-				" from SST_SERVERSTATS" +
+				" from " + getExternalDbNameAsPrefix() + "SST_SERVERSTATS" +
 				" where EVENT_ID='user.login' " +
 				" and ACTIVITY_DATE > (SYSDATE - 90)" +
 				" group by trunc(ACTIVITY_DATE, 'DDD')";
@@ -306,6 +329,7 @@ public class ServerWideReportManagerImpl implements ServerWideReportManager
 					info.add (result.getLong (2));
 				}
 				catch (SQLException e) {
+					log.error("getDailyTotalLogins() exception: " + e.getClass() + ": " + e.getMessage());
 					return null;
 				}
 				return info;
@@ -326,13 +350,13 @@ public class ServerWideReportManagerImpl implements ServerWideReportManager
 		
 		String mysql = "select date(LOGIN_DATE) as session_date, " +
 				" count(distinct user_id) as unique_users" +
-				" from sst_userstats" +
+				" from " + getExternalDbNameAsPrefix() + "sst_userstats" +
 				" where LOGIN_DATE > DATE_SUB(CURDATE(), INTERVAL 90 DAY)" +
 				" group by 1";
 		
 		String oracle = "select trunc(LOGIN_DATE, 'DDD') as session_date, " +
 				" count(distinct user_id) as unique_users" +
-				" from sst_userstats" +
+				" from " + getExternalDbNameAsPrefix() + "sst_userstats" +
 				" where LOGIN_DATE > (SYSDATE - 90)" +
 				" group by trunc(LOGIN_DATE, 'DDD')";
 		
@@ -345,6 +369,7 @@ public class ServerWideReportManagerImpl implements ServerWideReportManager
 					info.add (result.getLong (2));
 				}
 				catch (SQLException e) {
+					log.error("getDailyUniqueLogins() exception: " + e.getClass() + ": " + e.getMessage());
 					return null;
 				}
 				return info;
@@ -370,7 +395,7 @@ public class ServerWideReportManagerImpl implements ServerWideReportManager
 		String mysql = "select " + mysqlPeriod + ", "
 				+ "sum(if(EVENT_ID = 'site.add',1,0)) as site_created, "
 				+ "sum(if(EVENT_ID = 'site.del',1,0)) as site_deleted "
-				+ "FROM SST_SERVERSTATS ";
+				+ "FROM " + getExternalDbNameAsPrefix() + "SST_SERVERSTATS ";
 		
 		if (period.equals ("daily")) {
 			mysql = mysql + "where ACTIVITY_DATE > DATE_SUB(CURDATE(), INTERVAL 90 DAY) ";
@@ -392,7 +417,7 @@ public class ServerWideReportManagerImpl implements ServerWideReportManager
 		String oracle = "select " + oraclePeriod + " as event_period, "
 				+ "sum(decode(EVENT_ID, 'site.add',1,0)) as site_created, "
 				+ "sum(decode(EVENT_ID, 'site.del',1,0)) as site_deleted "
-				+ "FROM SST_SERVERSTATS ";
+				+ "FROM " + getExternalDbNameAsPrefix() + "SST_SERVERSTATS ";
 		
 		if (period.equals ("daily")) {
 			oracle = oracle + "where ACTIVITY_DATE > (SYSDATE - 90) ";
@@ -410,6 +435,7 @@ public class ServerWideReportManagerImpl implements ServerWideReportManager
 					info.add (result.getLong (3));
 				}
 				catch (SQLException e) {
+					log.error("getSiteCreatedDeletedStats() exception: " + e.getClass() + ": " + e.getMessage());
 					return null;
 				}
 				return info;
@@ -417,7 +443,9 @@ public class ServerWideReportManagerImpl implements ServerWideReportManager
 		});
 
 		// remove the last entry, as it might not be a complete period
-		result.remove (result.size () - 1);
+		if(result.size() > 0) {
+			result.remove (result.size() - 1);
+		}
 		return result;
 	}
 
@@ -434,7 +462,7 @@ public class ServerWideReportManagerImpl implements ServerWideReportManager
 		}
 		String mysql = "select " + mysqlPeriod + ", "
 				+ " ACTIVITY_COUNT as new_user"
-				+ " FROM SST_SERVERSTATS"
+				+ " FROM " + getExternalDbNameAsPrefix() + "SST_SERVERSTATS"
 				+ " where EVENT_ID='user.add'";
 				
 
@@ -455,7 +483,7 @@ public class ServerWideReportManagerImpl implements ServerWideReportManager
 		}
 		String oracle = "select " + oraclePeriod + " as event_period, "
 				+ " sum(ACTIVITY_COUNT) as new_user"
-				+ " FROM SST_SERVERSTATS"
+				+ " FROM " + getExternalDbNameAsPrefix() + "SST_SERVERSTATS"
 				+ " where EVENT_ID='user.add'";
 	 	 
 		if (period.equals ("daily")) {
@@ -472,6 +500,7 @@ public class ServerWideReportManagerImpl implements ServerWideReportManager
 					info.add (result.getLong (2));
 				}
 				catch (SQLException e) {
+					log.error("getNewUserStats() exception: " + e.getClass() + ": " + e.getMessage());
 					return null;
 				}
 				return info;
@@ -492,7 +521,7 @@ public class ServerWideReportManagerImpl implements ServerWideReportManager
 				+ "sum(if(event_date > DATE_SUB(CURDATE(), INTERVAL 7 DAY),1,0))/7 as last7, "
 				+ "sum(if(event_date > DATE_SUB(CURDATE(), INTERVAL 30 DAY),1,0))/30 as last30, "
 				+ "sum(if(event_date > DATE_SUB(CURDATE(), INTERVAL 365 DAY),1,0))/365 as last365 "
-				+ "FROM SST_EVENTS "
+				+ "FROM " + getExternalDbNameAsPrefix() + "SST_EVENTS "
 				+ "where event_id not in ('content.read', 'user.login', 'user.logout', 'pres.begin', 'pres.end', "
 				+ "'realm.upd', 'realm.add', 'realm.del', 'realm.upd.own', 'site.add', 'site.del', 'user.add', 'user.del') "
 				+ "and event_date > DATE_SUB(CURDATE(), INTERVAL 365 DAY) "
@@ -504,7 +533,7 @@ public class ServerWideReportManagerImpl implements ServerWideReportManager
 				" sum(decode(sign(event_date - (SYSDATE - 7)), 1, 1, 0)) / 7 as last7," +
 				" sum(decode(sign(event_date - (SYSDATE - 30)), 1, 1, 0)) / 30 as last30," +
 				" sum(decode(sign(event_date - (SYSDATE - 365)), 1, 1, 0)) / 365 as last365" +
-				" FROM SST_EVENTS" +
+				" FROM " + getExternalDbNameAsPrefix() + "SST_EVENTS" +
 				" where event_id not in ('content.read', 'user.login', 'user.logout', 'pres.begin', 'pres.end', 'realm.upd', 'realm.add', 'realm.del', 'realm.upd.own', 'site.add', 'site.del', 'user.add', 'user.del')" +
 				" and event_date > (SYSDATE - 365)" +
 				" group by event_id" +
@@ -522,6 +551,7 @@ public class ServerWideReportManagerImpl implements ServerWideReportManager
 					info.add (result.getDouble (4));
 				}
 				catch (SQLException e) {
+					log.error("getTop20Activities() exception: " + e.getClass() + ": " + e.getMessage());
 					return null;
 				}
 				return info;
@@ -541,7 +571,7 @@ public class ServerWideReportManagerImpl implements ServerWideReportManager
 				+ "from (select "
 				+ "STR_TO_DATE(concat(date_format(login_date, '%x-%v'), ' Monday'),'%x-%v %W') as week_start, "
 				+ "user_id, login_count as user_logins "
-				+ "from SST_USERSTATS group by 1, 2) as s " + "group by 1";
+				+ "from " + getExternalDbNameAsPrefix() + "SST_USERSTATS group by 1, 2) as s " + "group by 1";
 		
 		String oracle = "select s.week_start," +
 				" sum(decode(sign(s.user_logins - 4), 1, 1, 0)) as five_plus," +
@@ -551,7 +581,7 @@ public class ServerWideReportManagerImpl implements ServerWideReportManager
 				" sum(decode(s.user_logins, 1, 1, 0)) as once" +
 				" from (select next_day(LOGIN_DATE - 7, 'MONDAY') as week_start," +
 				"       user_id, login_count as user_logins" +
-				"       from SST_USERSTATS" +
+				"       from " + getExternalDbNameAsPrefix() + "SST_USERSTATS" +
 				"       group by next_day(LOGIN_DATE - 7, 'MONDAY'), user_id, login_count) s" +
 				" group by s.week_start";
 
@@ -568,6 +598,7 @@ public class ServerWideReportManagerImpl implements ServerWideReportManager
 					info.add (result.getLong (6));
 				}
 				catch (SQLException e) {
+					log.error("getWeeklyRegularUsers() exception: " + e.getClass() + ": " + e.getMessage());
 					return null;
 				}
 				return info;
@@ -598,6 +629,7 @@ public class ServerWideReportManagerImpl implements ServerWideReportManager
 				" where SESSION_START > (SYSDATE - 30)" +
 				" group by trunc(SESSION_START, 'DDD'), to_number(to_char(session_start, 'HH24'))";
 
+		// This query uses only the main Sakai database, so do not specify the connection as it might be external
 		List result = sqlService.dbRead (getSqlForVendor(mysql, oracle), null, new SqlReader () {
 			public Object readSqlResultRecord (ResultSet result)
 			{
@@ -608,6 +640,7 @@ public class ServerWideReportManagerImpl implements ServerWideReportManager
 					info.add (result.getLong (3));
 				}
 				catch (SQLException e) {
+					log.error("getHourlyUsagePattern() exception: " + e.getClass() + ": " + e.getMessage());
 					return null;
 				}
 				return info;
@@ -631,7 +664,8 @@ public class ServerWideReportManagerImpl implements ServerWideReportManager
 				" group by registration" +
 				" order by site_count desc";
 
-		List result = sqlService.dbRead (getSqlForVendor(mysql, oracle), null, new SqlReader () {
+		// This query uses only the main Sakai database, so do not specify the connection as it might be external
+		List result = sqlService.dbRead(getSqlForVendor(mysql, oracle), null, new SqlReader () {
 			public Object readSqlResultRecord (ResultSet result)
 			{
 				ServerWideStatsRecord info = new ServerWideStatsRecordImpl ();
@@ -640,6 +674,7 @@ public class ServerWideReportManagerImpl implements ServerWideReportManager
 					info.add (result.getInt (2));
 				}
 				catch (SQLException e) {
+					log.error("getToolCount() exception: " + e.getClass() + ": " + e.getMessage());
 					return null;
 				}
 				return info;
@@ -1579,4 +1614,18 @@ public class ServerWideReportManagerImpl implements ServerWideReportManager
 		}
 		return null;
 	}
+	
+	/**
+	 * Helper to get the externalDbName as a prefix to be used directly in queries, . is appended
+	 * If its not configured, then an empty string is returned so that whatever this returns can be used as-is
+	 * @return
+	 */
+	private String getExternalDbNameAsPrefix() {
+		if(StringUtils.isNotBlank(externalDbName)) {
+			return externalDbName+".";
+		} else {
+			return "";
+		}
+	}
+	
 }
