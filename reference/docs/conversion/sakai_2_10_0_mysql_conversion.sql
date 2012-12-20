@@ -811,3 +811,8 @@ INSERT INTO SAKAI_SITE_PAGE_PROPERTY VALUES('!admin', '!admin-1220', 'sitePage.c
 UPDATE SAKAI_SITE_PAGE SET TITLE='Email Templates' where PAGE_ID='!admin-1205' and SITE_ID='!admin' and TITLE='Email template administration';
 UPDATE SAKAI_SITE_TOOL SET TITLE='Email Templates' where SITE_ID='!admin' and REGISTRATION='sakai.emailtemplateservice' and TITLE='Email template administration';
 INSERT INTO SAKAI_SITE_PAGE_PROPERTY VALUES('!admin', '!admin-1205', 'sitePage.customTitle', 'true');
+
+-- KNL-1005 / SAK-23046 add External Tools Admin (LTI) to Admin Workspace
+INSERT INTO SAKAI_SITE_PAGE VALUES('!admin-1230', '!admin', 'External Tools', '0', 17, '0' );
+INSERT INTO SAKAI_SITE_TOOL VALUES('!admin-1235', '!admin-1230', '!admin', 'sakai.basiclti.admin', 1, 'External Tools', NULL );
+INSERT INTO SAKAI_SITE_PAGE_PROPERTY VALUES('!admin', '!admin-1230', 'sitePage.customTitle', 'true');
