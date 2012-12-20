@@ -806,3 +806,8 @@ INSERT INTO SAKAI_REALM_RL_FN VALUES((select REALM_KEY from SAKAI_REALM where RE
 INSERT INTO SAKAI_SITE_PAGE VALUES('!admin-1220', '!admin', 'Sitestats Admin', '0', 16, '0' );
 INSERT INTO SAKAI_SITE_TOOL VALUES('!admin-1225', '!admin-1220', '!admin', 'sakai.sitestats.admin', 1, 'Sitestats Admin', NULL );
 INSERT INTO SAKAI_SITE_PAGE_PROPERTY VALUES('!admin', '!admin-1220', 'sitePage.customTitle', 'true');
+
+-- KNL-1004 / SAK-22883 rename email template administration tool in Admin Workspace so it fits on one line (only updates titles if they are the defaults)
+UPDATE SAKAI_SITE_PAGE SET TITLE='Email Templates' where PAGE_ID='!admin-1205' and SITE_ID='!admin' and TITLE='Email template administration';
+UPDATE SAKAI_SITE_TOOL SET TITLE='Email Templates' where SITE_ID='!admin' and REGISTRATION='sakai.emailtemplateservice' and TITLE='Email template administration';
+INSERT INTO SAKAI_SITE_PAGE_PROPERTY VALUES('!admin', '!admin-1205', 'sitePage.customTitle', 'true');
