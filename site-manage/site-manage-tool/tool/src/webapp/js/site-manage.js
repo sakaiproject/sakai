@@ -153,6 +153,7 @@ sakai.setupSelectList = function(list, allcontrol, highlightClass){
     });
 };
 
+
 sakai.siteTypeSetup = function(){
 
     $('input[name="itemType"]').attr('checked', '');
@@ -165,22 +166,22 @@ sakai.siteTypeSetup = function(){
         $('#submitFromTemplate').show();
         $('#submitBuildOwn').hide();
         $('#submitBuildOwn').attr('disabled', 'disabled');
-	$('#copyContent').attr('checked','checked');
+        $('#copyContent').attr('checked', 'checked');
     });
     
     $('#buildOwn').click(function(e){
         $('#templateSettings').hide();
         $('#templateSettings input:checked').attr('checked', '');
+        $('#allTemplateSettings').hide();
         $('#siteTitleField').attr('value', '');
         $('input[id="copy"]').attr('checked', '');
         $('#templateSettings select').attr('selectedIndex', 0);
-        $('#templateSettings span').hide();
+        $('#templateSettingsTitleTerm span.templateTitleTerm').hide();
         $('#siteTypeList').show();
         $('#submitFromTemplate').hide();
-            $('#submitFromTemplate').attr('disabled', 'disabled');
+        $('#submitFromTemplate').attr('disabled', 'disabled');
         $('#submitFromTemplateCourse').hide();
         $('#submitBuildOwn').show();
-        $('#nextInstructions span').hide();
         utils.resizeFrame('grow');
     });
     $('#siteTitleField').keyup(function(e){
@@ -211,39 +212,55 @@ sakai.siteTypeSetup = function(){
         }
     });
     
-    $('#templateSiteId').change(function(){
-        $('#submitFromTemplateCourse').attr('disabled', 'disabled');
-        $('#submitFromTemplate').attr('disabled', 'disabled');
-        if (this.selectedIndex === 0) {
-            $('#templateSettings span').hide();
-            $('#templateSettings select').attr('selectedIndex', 0);
-            $('#submitFromTemplateCourse').attr('disabled', 'disabled');
-                $('#siteTitleField').attr('value', '');
+    $('#fromTemplateSettingsContainer_instruction_control').click(function(){
+        var pos = $(this).position()
+        $('#fromTemplateSettingsContainer_instruction_body').css({'top': pos.top - 140,'left': pos.left - 290}).toggle();
+    })
+    
+    $('#fromTemplateSettingsContainer_instruction_body').click(function(){
+        $(this).toggle();
+    })
+    
+    $('#templateList input').click(function(e){
+        var selectedTemplateId = $('#templateList input[type="radio"]:checked').val()
+        
+        if (!selectedTemplateId){  // how likely is this? 
+            $('#templateSettingsTitleTerm span').hide(); // hide title for non-course sites
+            $('#submitFromTemplateCourse, #submitFromTemplateCourse ').attr('disabled', 'disabled'); //disable submit to create from templates
+            $('#siteTitleField').attr('value', ''); // empty title input
+            $('#siteTerms select').attr('selectedIndex', 0); // zero out the term select
         }
         else {
-        
-            var type = $('#templateSiteId option:selected').attr('class');
-            $('#templateSettings span').hide();
-            $('#nextInstructions span').hide();
-            if (type == "course") {
-              $('#templateCourseInstruction').show();
-              $('#submitFromTemplate').hide();
-			  $('#submitFromTemplateCourse').show();
-    		  $('#siteTerms').show();
-              $('#siteTitle').hide();	
-              $('#siteTerms select').focus();
-              $('#siteTitleField').attr('value', '');
+            var type = $('#templateList input[type="radio"]:checked').attr('class');
+            $('#templateSettingsTitleTerm span.templateTitleTerm').hide(); // hide term selection and title input controls
+            $('#templateList li').removeClass('selectedTemplate'); // remove hightlights from all rows
+             $('#templateList #row' + selectedTemplateId).addClass('selectedTemplate'); // add highlight to selected row
+            $('#templateList #row' + selectedTemplateId  + ' .templateSettingsPlaceholder').append($('#allTemplateSettings'));
+            $('#fromTemplateSettingsContainer_instruction_body').hide();
+            $('#allTemplateSettings').fadeIn('slow')
+            if (type == "course" || type=="subject") {
+                 // this is problematic - it assumes a course site will be of site type "course" where it could be called anything.
+                $('#fromTemplateSettingsContainer .fromTemplateSettingsCourse').show(); //show the settings that are specific to courses
+                $('#submitFromTemplate').hide(); // hide the non-course submit button 
+                $('#submitFromTemplateCourse').show(); // show tfe submit button for course
+                $('#siteTerms').show(); // show the term selector
+                $('#siteTitle').hide(); // hide the title input (Note: can an installation specify that a course can have a user genreated title)?
+                $('#siteTerms select').focus(); // focus the term select control
+                $('#siteTitleField').attr('value', ''); // void the value of the title input
             }
             else {
-                $('#submitFromTemplate').show();
-                $('#submitFromTemplateCourse').hide();
-                $('#templateNonCourseInstruction').show();				
-                $('#siteTitle').show();	
-                $('#siteTerms select').attr('selectedIndex', 0);
-                $('#siteTitle input').focus();
+                $('#fromTemplateSettingsContainer .fromTemplateSettingsCourse').hide().find('input').attr('checked',false); // hide the settings that are pspecific to course, void value
+                $('#submitFromTemplate').show(); // show non-course submit button
+                $('#submitFromTemplateCourse').hide(); // hide the course submit button
+                $('#siteTitle').show(); //show title input
+                $('#siteTerms').hide();
+                $('#siteTerms select').attr('selectedIndex', 0); // zero out the term select
+                $('#siteTitle input[type="text"]').focus(); // focus the title input
             }
-        }
+      }
+
     });
+    
     $('#siteTypeList input').click(function(e){
         if ($(this).attr('id') == 'course') {
             $('#termList').show();
@@ -254,7 +271,23 @@ sakai.siteTypeSetup = function(){
         $('#submitBuildOwn').attr('disabled', '');
         
     });
+    
+    $('.siteTypeRow a').click(function(e) {
+       e.preventDefault();
+       // clean up
+       $('li[class^=row]').hide();
+       $('.siteTypeRow a .open').hide();
+       $('.siteTypeRow a .open').hide();
+       $('.siteTypeRow a .closed').show();
+       // set new category display
+       $(this).toggleClass('openDisc');
+       $('.row' + $(this).attr('href')).fadeToggle();
+       $(this).find('.closed').hide();
+       $(this).find('.open').show(); 
+       utils.resizeFrame('grow');
+    });
 };
+
 
 sakai.setupToggleAreas = function(toggler, togglee, openInit, speed){
     // toggler=class of click target
