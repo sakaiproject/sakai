@@ -386,6 +386,121 @@ ${extra}")
 	
 #end
 
+#* ------------------------------------------------------------------
+# The standard way to setup a date selection widget
+#
+# IMPORTANT: ResourceBundle with months referenced by $tlang.getString("jan")
+#            through $tlang.getString("dec") _must_ be defined
+#
+# Creates a drop-down date selection, as well as a pop-up date selection
+# $yearselect_id  The name and id attribute of the year selection dropdown list (html SELECT tag)
+# $monthselect_id The name and id attribute of the month selection dropdown list (html SELECT tag)
+# $dayselect_id   The name and id attribute of the day selection dropdown list (html SELECT tag)
+# $earliestYear   The earliest year to display in the year dropdown (2002 for example)
+# $latestYear     The latest year to display in the year dropdown (2005 for examlple)
+# $yearSelected   The year selected
+# $monthSelected  The month selected
+# $daySelected    The day selected
+# $dateFormat     Locale specific date format pattern
+# $monthtitle     The title attribute for the month selector
+# $daytitle       The title attribute for the day selector
+# $yeartitle      The title attribute for the year selector
+# $onChangeAction optional javascript for onchange attribute
+*# ------------------------------------------------------------------
+
+#macro (chef_dateselectionwidgetwithtitles $yearselect_id $monthselect_id $dayselect_id $earliestYear $latestYear $yearSelected $monthSelected $daySelected $dateFormat $monthtitle $daytitle $yeartitle $onChangeAction)
+
+	#set($yearList = [$earliestYear .. $latestYear])
+	
+   #foreach ( $format in $dateFormat )
+    
+    #* Create Month Select Box
+    *#
+    
+    #if ($format=="m")
+     <label for="$monthselect_id" class="skip"><span class="reqStar">*</span> $tlang.getString("dateselectionwidget.month")</label>
+      #if ($onChangeAction)     
+      <select name="$monthselect_id" id="$monthselect_id" title="$monthtitle" onchange="$onChangeAction">
+      #else
+      <select name="$monthselect_id" id="$monthselect_id" title="$monthtitle">
+      #end
+      #if ($monthSelected == 1) <option value="1" selected="selected">$tlang.getString("jan")</option> #else <option value="1">$tlang.getString("jan")</option> #end
+        
+		#if ($monthSelected == 2) <option value="2" selected="selected">$tlang.getString("feb")</option> #else <option value="2">$tlang.getString("feb")</option> #end
+        
+		#if ($monthSelected == 3) <option value="3" selected="selected">$tlang.getString("mar")</option> #else <option value="3">$tlang.getString("mar")</option> #end
+        
+		#if ($monthSelected == 4) <option value="4" selected="selected">$tlang.getString("apr")</option> #else <option value="4">$tlang.getString("apr")</option> #end
+        
+		#if ($monthSelected == 5) <option value="5" selected="selected">$tlang.getString("may")</option> #else <option value="5">$tlang.getString("may")</option> #end
+        
+		#if ($monthSelected == 6) <option value="6" selected="selected">$tlang.getString("jun")</option> #else <option value="6">$tlang.getString("jun")</option> #end
+        
+		#if ($monthSelected == 7) <option value="7" selected="selected">$tlang.getString("jul")</option> #else <option value="7">$tlang.getString("jul")</option> #end
+        
+		#if ($monthSelected == 8) <option value="8" selected="selected">$tlang.getString("aug")</option> #else <option value="8">$tlang.getString("aug")</option> #end
+        
+		#if ($monthSelected == 9) <option value="9" selected="selected">$tlang.getString("sep")</option> #else <option value="9">$tlang.getString("sep")</option> #end
+        
+		#if ($monthSelected == 10) <option value="10" selected="selected">$tlang.getString("oct")</option> #else <option value="10">$tlang.getString("oct")</option> #end
+        
+		#if ($monthSelected == 11) <option value="11" selected="selected">$tlang.getString("nov")</option> #else <option value="11">$tlang.getString("nov")</option> #end
+        
+		#if ($monthSelected == 12) <option value="12" selected="selected">$tlang.getString("dec")</option> #else <option value="12">$tlang.getString("dec")</option> #end
+
+    </select>
+    #end
+    
+    #* Create Day Select Box
+    *#
+    
+    #if ($format=="d")
+     <label for="$dayselect_id" class="skip"><span class="reqStar">*</span> $tlang.getString("dateselectionwidget.day")</label>
+    #if ($onChangeAction)
+    <select name="$dayselect_id" id="$dayselect_id" title="$daytitle" onchange="$onChangeAction">
+    #else
+    <select name="$dayselect_id" id="$dayselect_id" title="$daytitle">
+    #end
+      #foreach($d in [1..31])
+        #if($d == $daySelected)
+            <option value="$d" selected="selected">$d</option>
+        #else
+            <option value="$d">$d</option>
+        #end
+	   #end
+    </select>
+    #end
+    
+    #* Create Year Select Box
+    *#
+    
+    #if ($format=="y")
+      <label for="$yearselect_id" class="skip"><span class="reqStar">*</span> $tlang.getString("dateselectionwidget.year")</label>
+      #if ($onChangeAction)
+      <select name="$yearselect_id" id="$yearselect_id" title="$yeartitle" onchange="$onChangeAction">
+      #else
+      <select name="$yearselect_id" id="$yearselect_id" title="$yeartitle">
+      #end
+        #foreach ($y in $yearList)
+            #if ($y == $yearSelected)
+                    <option value="$y" selected="selected">$y</option>
+            #else
+                    <option value="$y">$y</option>
+            #end
+        #end
+      </select>
+      #end
+    
+   #end
+	
+   
+   #* Create Date Selection Popup
+   *#
+   
+   #chef_dateselectionwidgetpopup($yearselect_id $monthselect_id $dayselect_id)
+	
+#end
+
 
 #* ---------------------------------------------------------------------------------------
 # The standard way to instantiate a popup calendar widget that allows the user to select a date
