@@ -185,10 +185,10 @@ $(document).ready(function() {
 			<label>
 				$tlang.getString("gen.visible.date")
 			</label>
-			#chef_dateselectionwidget($name_VisibleYear $name_VisibleMonth $name_VisibleDay $!value_year_from $!value_year_to $value_VisibleYear $value_VisibleMonth $value_VisibleDay $dateFormat "")
+			#chef_dateselectionwidgetwithtitles($name_VisibleYear $name_VisibleMonth $name_VisibleDay $!value_year_from $!value_year_to $value_VisibleYear $value_VisibleMonth $value_VisibleDay $dateFormat $tlang.getString("dateselectionwidget.month") $tlang.getString("dateselectionwidget.day") $tlang.getString("dateselectionwidget.year") "")
 				 &nbsp;$tlang.getString("gen.at")&nbsp;
             <label class="skip" for="$name_VisibleHour">$tlang.getString("dateselectionwidget.hour")</label>
-			<select name="$name_VisibleHour" id="$name_VisibleHour">
+			<select name="$name_VisibleHour" id="$name_VisibleHour" title="$tlang.getString("dateselectionwidget.hour")">
 				#foreach ($i in [1..12])
 					#if ($i == $value_VisibleHour)
 						<option value="$i" selected="selected">$i</option>
@@ -198,13 +198,13 @@ $(document).ready(function() {
 				#end
 			</select>
             <label class="skip" for="$name_VisibleMin">$tlang.getString("dateselectionwidget.minute")</label>
-			<select name="$name_VisibleMin" id="$name_VisibleMin">
+			<select name="$name_VisibleMin" id="$name_VisibleMin" title="$tlang.getString("dateselectionwidget.minute")">
 				#foreach ($i in [00, 05, 10, 15, 20, 25, 30, 35, 40, 45, 50, 55])
 					<option value="$i" #if($i == $value_VisibleMin)selected="selected"#end>#if($i ==0)00#elseif($i == 5)05#else$i#end</option>
 				#end
 			</select>
             <label class="skip" for="$name_VisibleMin">$tlang.getString("dateselectionwidget.ampm")</label>
-			<select name="$name_VisibleAMPM" id="$name_VisibleAMPM">
+			<select name="$name_VisibleAMPM" id="$name_VisibleAMPM" title="$tlang.getString("dateselectionwidget.ampm")">
 				#foreach ($i in ["AM", "PM"])
 					#if ($i == $value_VisibleAMPM)
 						<option value="$i" selected="selected">$i</option>
@@ -223,10 +223,10 @@ $(document).ready(function() {
 			<label>
 				$tlang.getString("newassig.opedat")
 			</label>	
-			#chef_dateselectionwidget($name_OpenYear $name_OpenMonth $name_OpenDay $!value_year_from $!value_year_to $value_OpenYear $value_OpenMonth $value_OpenDay $dateFormat "")
+			#chef_dateselectionwidgetwithtitles($name_OpenYear $name_OpenMonth $name_OpenDay $!value_year_from $!value_year_to $value_OpenYear $value_OpenMonth $value_OpenDay $dateFormat $tlang.getString("dateselectionwidget.month") $tlang.getString("dateselectionwidget.day") $tlang.getString("dateselectionwidget.year") "")
 			&nbsp;$tlang.getString("gen.at")&nbsp; 
             <label class="skip" for="$name_OpenHour">$tlang.getString("dateselectionwidget.hour")</label>
-			<select name="$name_OpenHour" id="$name_OpenHour">
+			<select name="$name_OpenHour" id="$name_OpenHour" title="$tlang.getString("dateselectionwidget.hour")">
 				#foreach ($i in [1..12])
 					#if ($value_OpenHour==$i)
 						<option value="$i" selected="selected">$i</option>
@@ -236,13 +236,13 @@ $(document).ready(function() {
 				#end
 			</select>
             <label class="skip" for="$name_OpenMin">$tlang.getString("dateselectionwidget.minute")</label>
-			<select name="$name_OpenMin" id="$name_OpenMin">
+			<select name="$name_OpenMin" id="$name_OpenMin" title="$tlang.getString("dateselectionwidget.minute")">
 				#foreach ($i in [0, 5, 10, 15, 20, 25, 30, 35, 40, 45, 50, 55])
 					<option value="$i" #if($i == $value_OpenMin)selected="selected"#end>#if($i ==0)00#elseif($i == 5)05#else$i#end</option>
 				#end
 			</select>
             <label class="skip" for="$name_OpenAMPM">$tlang.getString("dateselectionwidget.ampm")</label>
-			<select name="$name_OpenAMPM" id="$name_OpenAMPM">
+			<select name="$name_OpenAMPM" id="$name_OpenAMPM" title="$tlang.getString("dateselectionwidget.ampm")">
 				#foreach ($i in ["AM", "PM"])
 					#if ($i == $value_OpenAMPM)
 						<option value="$i" selected="selected">$i</option>
@@ -260,10 +260,10 @@ $(document).ready(function() {
 			<label>
 				$tlang.getString("gen.duedat")
 			</label>
-			#chef_dateselectionwidget($name_DueYear $name_DueMonth $name_DueDay $!value_year_from $!value_year_to $value_DueYear $value_DueMonth $value_DueDay $dateFormat "")
+			#chef_dateselectionwidgetwithtitles($name_DueYear $name_DueMonth $name_DueDay $!value_year_from $!value_year_to $value_DueYear $value_DueMonth $value_DueDay $dateFormat $tlang.getString("dateselectionwidget.month") $tlang.getString("dateselectionwidget.day") $tlang.getString("dateselectionwidget.year") "")
 				&nbsp;$tlang.getString("gen.at")&nbsp; 
             <label class="skip" for="$name_DueHour">$tlang.getString("dateselectionwidget.hour")</label>
-			<select name="$name_DueHour" id="$name_DueHour">
+			<select name="$name_DueHour" id="$name_DueHour" title="$tlang.getString("dateselectionwidget.hour")">
 				#foreach ($i in [1..12])
 					#if ($i == $value_DueHour)
 						<option value="$i" selected="selected">$i</option>
@@ -273,13 +273,13 @@ $(document).ready(function() {
 				#end
 			</select>
             <label class="skip" for="$name_DueMin">$tlang.getString("dateselectionwidget.minute")</label>
-			<select name="$name_DueMin" id="$name_DueMin">
+			<select name="$name_DueMin" id="$name_DueMin" title="$tlang.getString("dateselectionwidget.minute")">
 				#foreach ($i in [00, 05, 10, 15, 20, 25, 30, 35, 40, 45, 50, 55])
 					<option value="$i" #if($i == $value_DueMin)selected="selected"#end>#if($i ==0)00#elseif($i == 5)05#else$i#end</option>
 				#end
 			</select>
             <label class="skip" for="$name_DueAMPM">$tlang.getString("dateselectionwidget.ampm")</label>
-			<select name="$name_DueAMPM" id="$name_DueAMPM">
+			<select name="$name_DueAMPM" id="$name_DueAMPM" title="$tlang.getString("dateselectionwidget.ampm")">
 				#foreach ($i in ["AM", "PM"])
 					#if ($i == $value_DueAMPM)
 						<option value="$i" selected="selected">$i</option>
@@ -295,10 +295,10 @@ $(document).ready(function() {
 				$tlang.getString("gen.acesubunt")
 			</label>
 			#if ($value_EnableCloseDate)
-				#chef_dateselectionwidget($name_CloseYear $name_CloseMonth $name_CloseDay $!value_year_from $!value_year_to $value_CloseYear $value_CloseMonth $value_CloseDay $dateFormat "")
+				#chef_dateselectionwidgetwithtitles($name_CloseYear $name_CloseMonth $name_CloseDay $!value_year_from $!value_year_to $value_CloseYear $value_CloseMonth $value_CloseDay $dateFormat $tlang.getString("dateselectionwidget.month") $tlang.getString("dateselectionwidget.day") $tlang.getString("dateselectionwidget.year") "")
 				&nbsp;$tlang.getString("gen.at")&nbsp; 
                 <label class="skip" for="$name_CloseHour">$tlang.getString("dateselectionwidget.hour")</label>
-				<select name="$name_CloseHour" id="$name_CloseHour">
+				<select name="$name_CloseHour" id="$name_CloseHour" title="$tlang.getString("dateselectionwidget.hour")">
 					#foreach ($i in [1..12])
 						#if ($i == $value_CloseHour)
 							<option value="$i" selected="selected">$i</option>
@@ -308,13 +308,13 @@ $(document).ready(function() {
 					#end
 				</select>
                 <label class="skip" for="$name_CloseMin">$tlang.getString("dateselectionwidget.minute")</label>
-				<select name="$name_CloseMin" id="$name_CloseMin">
+				<select name="$name_CloseMin" id="$name_CloseMin" title="$tlang.getString("dateselectionwidget.minute")">
 					#foreach ($i in [00, 05, 10, 15, 20, 25, 30, 35, 40, 45, 50, 55])
 						<option value="$i" #if($i == $value_CloseMin)selected="selected"#end>#if($i ==0)00#elseif($i == 5)05#else$i#end</option>
 					#end
 				</select>
                 <label class="skip" for="$name_CloseAMPM">$tlang.getString("dateselectionwidget.ampm")</label>
-				<select name="$name_CloseAMPM" id="$name_CloseAMPM">
+				<select name="$name_CloseAMPM" id="$name_CloseAMPM" title="$tlang.getString("dateselectionwidget.ampm")">
 					#foreach ($i in ["AM", "PM"])
 						#if ($i == $value_CloseAMPM)
 							<option value="$i" selected="selected">$i</option>
@@ -325,7 +325,7 @@ $(document).ready(function() {
 				</select>
 			#else
                 <label class="skip" for="$name_CloseMonth">$tlang.getString("dateselectionwidget.month")</label>
-				<select name="$name_CloseMonth" id="$name_CloseMonth" disabled="disabled">
+				<select name="$name_CloseMonth" id="$name_CloseMonth" title="$tlang.getString("dateselectionwidget.month")" disabled="disabled">
 					#foreach ($i in [1..12])
 						#if ($i == $value_CloseMonth)
 							<option value="$i" selected="selected">$monthTable.get($i)</option>
@@ -335,7 +335,7 @@ $(document).ready(function() {
 					#end
 				</select>
                 <label class="skip" for="$name_CloseDay">$tlang.getString("dateselectionwidget.day")</label>
-				<select name="$name_CloseDay" id="$name_CloseDay" disabled="disabled">
+				<select name="$name_CloseDay" id="$name_CloseDay" title="$tlang.getString("dateselectionwidget.day")" disabled="disabled">
 					#foreach ($i in [1..31])
 						#if ($i == $value_CloseDay)
 							<option value="$i" selected="selected">$i</option>
@@ -345,7 +345,7 @@ $(document).ready(function() {
 					#end
 				</select>
                 <label class="skip" for="$name_CloseYear">$tlang.getString("dateselectionwidget.year")</label>
-				<select name="$name_CloseYear" id="$name_CloseYear" disabled="disabled">
+				<select name="$name_CloseYear" id="$name_CloseYear" title="$tlang.getString("dateselectionwidget.year")" disabled="disabled">
 					#foreach ($i in [$!value_year_from..$!value_year_to])
 						#if ($i == $value_CloseYear)
 							<option value="$i" selected="selected">$i</option>
@@ -356,7 +356,7 @@ $(document).ready(function() {
 				</select>
 				&nbsp;$tlang.getString("gen.at")&nbsp;
                 <label class="skip" for="$name_CloseHour">$tlang.getString("dateselectionwidget.hour")</label>
-				<select name="$name_CloseHour" id="$name_CloseHour" disabled="disabled">
+				<select name="$name_CloseHour" id="$name_CloseHour" title="$tlang.getString("dateselectionwidget.hour")" disabled="disabled">
 					#foreach ($i in [1..12])
 						#if ($i == $value_CloseHour)
 							<option value="$i" selected="selected">$i</option>
@@ -366,13 +366,13 @@ $(document).ready(function() {
 					#end
 				</select>
                 <label class="skip" for="$name_CloseMin">$tlang.getString("dateselectionwidget.minute")</label>
-				<select name="$name_CloseMin" id="$name_CloseMin" disabled="disabled">
+				<select name="$name_CloseMin" id="$name_CloseMin" title="$tlang.getString("dateselectionwidget.minute")" disabled="disabled">
 					#foreach ($i in [00, 05, 10, 15, 20, 25, 30, 35, 40, 45, 50, 55])
 						<option value="$i" #if($i == $value_CloseMin)selected="selected"#end>#if($i ==0)00#elseif($i == 5)05#else$i#end</option>
 					#end
 				</select>
                 <label class="skip" for="$name_CloseAMPM">$tlang.getString("dateselectionwidget.ampm")</label>
-				<select name="$name_CloseAMPM" id="$name_CloseAMPM" disabled="disabled">
+				<select name="$name_CloseAMPM" id="$name_CloseAMPM" title="$tlang.getString("dateselectionwidget.ampm")" disabled="disabled">
 					#foreach ($i in ["AM", "PM"])
 						#if ($i == $value_CloseAMPM)
 							<option value="$i" selected="selected">$i</option>
@@ -391,7 +391,7 @@ $(document).ready(function() {
 			<label for="subType">
 				$tlang.getString("gen.stusub")
 			</label>
-			<select name="$name_SubmissionType" id="subType" onchange="if(document.getElementById('subType').value != 4){document.getElementById('tempAllowRes').style.display = 'block';resizeFrame();}else{document.getElementById('tempAllowRes').style.display = 'none';document.getElementById('allowResToggle').checked=false;document.getElementById('allowResubmitNumber').style.display = 'none';document.getElementById('allowResubmitTime').style.display = 'none';}" /> >
+			<select name="$name_SubmissionType" id="subType" title="$tlang.getString("gen.subformat")" onchange="if(document.getElementById('subType').value != 4){document.getElementById('tempAllowRes').style.display = 'block';resizeFrame();}else{document.getElementById('tempAllowRes').style.display = 'none';document.getElementById('allowResToggle').checked=false;document.getElementById('allowResubmitNumber').style.display = 'none';document.getElementById('allowResubmitTime').style.display = 'none';}" /> >
 				#foreach ($i in [1..$!value_totalSubmissionTypes])
 					#if ($i == $value_SubmissionType)
 						<option value="$i" selected="selected">$submissionTypeTable.get($i)</option>
@@ -415,7 +415,7 @@ $(document).ready(function() {
 				<label for="allowResubmitNumber">
 					$tlang.getString("allow.resubmit.number")
 				</label>
-				<select name="$name_allowResubmitNumber" id="allowResubmitNumber">
+				<select name="$name_allowResubmitNumber" id="allowResubmitNumber" title="$tlang.getString("allow.resubmit.number")">
 					#foreach ($i in [1..10])
 						<option value="$i" #if($i==$!value_allowResubmitNumber)selected="selected"#end>
 							$i
@@ -429,10 +429,10 @@ $(document).ready(function() {
 							<label>
 								$tlang.getString("gen.resubmission") $tlang.getString("gen.acesubunt")
 							</label>
-							#chef_dateselectionwidget($name_ResubmitYear $name_ResubmitMonth $name_ResubmitDay $!value_year_from $!value_year_to $value_ResubmitYear $value_ResubmitMonth $value_ResubmitDay $dateFormat "")
+							#chef_dateselectionwidgetwithtitles($name_ResubmitYear $name_ResubmitMonth $name_ResubmitDay $!value_year_from $!value_year_to $value_ResubmitYear $value_ResubmitMonth $value_ResubmitDay $dateFormat $tlang.getString("dateselectionwidget.month") $tlang.getString("dateselectionwidget.day") $tlang.getString("dateselectionwidget.year") "")
 							&nbsp;$tlang.getString("gen.at")&nbsp; 
                             <label class="skip" for="$name_ResubmitHour">$tlang.getString("dateselectionwidget.hour")</label>
-                            <select name="$name_ResubmitHour" id="$name_ResubmitHour">
+                            <select name="$name_ResubmitHour" id="$name_ResubmitHour" title="$tlang.getString("dateselectionwidget.hour")">
 								#foreach ($i in [1..12])
 									#if ($i == $value_ResubmitHour)
 										<option value="$i" selected="selected">$i</option>
@@ -442,13 +442,13 @@ $(document).ready(function() {
 								#end
 							</select>
                             <label class="skip" for="$name_ResubmitMin">$tlang.getString("dateselectionwidget.minute")</label>
-							<select name="$name_ResubmitMin" id="$name_ResubmitMin">
+							<select name="$name_ResubmitMin" id="$name_ResubmitMin" title="$tlang.getString("dateselectionwidget.minute")">
 								#foreach ($i in [0, 5, 10, 15, 20, 25, 30, 35, 40, 45, 50, 55])
 									<option value="$i" #if($i == $value_ResubmitMin)selected="selected"#end>#if($i ==0)00#elseif($i == 5)05#else$i#end</option>
 								#end
 							</select>
                             <label class="skip" for="$name_ResubmitAMPM">$tlang.getString("dateselectionwidget.ampm")</label>
-							<select name="$name_ResubmitAMPM" id="$name_ResubmitAMPM">
+							<select name="$name_ResubmitAMPM" id="$name_ResubmitAMPM" title="$tlang.getString("dateselectionwidget.ampm")">
 								#foreach ($i in ["AM", "PM"])
 									#if ($i == $value_ResubmitAMPM)
 										<option value="$i" selected="selected">$i</option>
@@ -476,7 +476,7 @@ $(document).ready(function() {
 					$tlang.getString("gen.grasca")
 				</label>
 				<span class="skip">$tlang.getString("newassig.selectmessage")</span>				
-				<select id="$name_GradeType"  name="$name_GradeType" onchange="SetMaxPoint(this, $name_GradePoints)">
+				<select id="$name_GradeType"  name="$name_GradeType" title="$tlang.getString("gen.grasca")" onchange="SetMaxPoint(this, $name_GradePoints)">
 					#foreach ($i in [1..5])
 						#if ($i == $value_GradeType)
 							<option value="$i" selected="selected">$gradeTypeTable.get($i)</option>
@@ -1108,7 +1108,7 @@ $(document).ready(function() {
 					$tlang.getString("modelAnswer.show_to_student.prompt")
 				</label>
 				## show to student time option
-				<select id="modelanswer_to" name="modelanswer_showto">
+				<select id="modelanswer_to" name="modelanswer_showto" title="$tlang.getString("modelAnswer.show_to_student.tooltip")">
 					#foreach ($k in ["0", "1", "2", "3", "4"])
 						#set($string = "modelAnswer.show_to_student.")
 						#set($string = $string.concat($k))
@@ -1185,7 +1185,7 @@ $(document).ready(function() {
 					$tlang.getString("note.to.prompt")
 				</label>
 				#if ($!note && $!allowEditAssignmentNoteItem || !$!note)
-					<select id="note_to" name="note_to">
+					<select id="note_to" name="note_to" title="$tlang.getString("note.to.tooltip")">
 						#foreach ($k in ["0", "1", "2", "3"])
 							#set($string = "note.to.")
 							#set($string = $string.concat($k))
@@ -1327,20 +1327,20 @@ $(document).ready(function() {
 					<td>
 					</td>
 					<td>
-					#chef_dateselectionwidget($name_allPurposeReleaseYear $name_allPurposeReleaseMonth $name_allPurposeReleaseDay $!value_year_from $!value_year_to $value_allPurposeReleaseYear $value_allPurposeReleaseMonth $value_allPurposeReleaseDay $dateFormat "")
+					#chef_dateselectionwidgetwithtitles($name_allPurposeReleaseYear $name_allPurposeReleaseMonth $name_allPurposeReleaseDay $!value_year_from $!value_year_to $value_allPurposeReleaseYear $value_allPurposeReleaseMonth $value_allPurposeReleaseDay $dateFormat $tlang.getString("dateselectionwidget.month") $tlang.getString("dateselectionwidget.day") $tlang.getString("dateselectionwidget.year") "")
 					</td>
 					<td>
-						<select name="$name_allPurposeReleaseHour" id="$name_allPurposeReleaseHour">
+						<select name="$name_allPurposeReleaseHour" id="$name_allPurposeReleaseHour" title="$tlang.getString("dateselectionwidget.hour")">
 							#foreach ($i in [1..12])
 								<option value="$i" #if ($value_allPurposeReleaseHour==$i)selected="selected"#end>$i</option>
 							#end
 						</select>
-						<select name="$name_allPurposeReleaseMin" id="$name_allPurposeReleaseMin">
+						<select name="$name_allPurposeReleaseMin" id="$name_allPurposeReleaseMin" title="$tlang.getString("dateselectionwidget.minute")">
 							#foreach ($i in [0, 5, 10, 15, 20, 25, 30, 35, 40, 45, 50, 55])
 								<option value="$i" #if($i == $value_allPurposeReleaseMin)selected="selected"#end>#if($i ==0)00#elseif($i == 5)05#else$i#end</option>
 							#end
 						</select>
-						<select name="$name_allPurposeReleaseAMPM" id="$name_allPurposeReleaseAMPM">
+						<select name="$name_allPurposeReleaseAMPM" id="$name_allPurposeReleaseAMPM" title="$tlang.getString("dateselectionwidget.ampm")">
 							#foreach ($i in ["AM", "PM"])
 								#if ($i == $value_allPurposeReleaseAMPM)
 									<option value="$i" selected="selected">$i</option>
@@ -1389,20 +1389,20 @@ $(document).ready(function() {
 					<td>
 					</td>
 					<td>
-						#chef_dateselectionwidget($name_allPurposeRetractYear $name_allPurposeRetractMonth $name_allPurposeRetractDay $!value_year_from $!value_year_to $value_allPurposeRetractYear $value_allPurposeRetractMonth $value_allPurposeRetractDay $dateFormat "")
+						#chef_dateselectionwidgetwithtitles($name_allPurposeRetractYear $name_allPurposeRetractMonth $name_allPurposeRetractDay $!value_year_from $!value_year_to $value_allPurposeRetractYear $value_allPurposeRetractMonth $value_allPurposeRetractDay $dateFormat $tlang.getString("dateselectionwidget.month") $tlang.getString("dateselectionwidget.day") $tlang.getString("dateselectionwidget.year") "")
 					</td>
 					<td>
-						<select name="$name_allPurposeRetractHour" id="$name_allPurposeRetractHour">
+						<select name="$name_allPurposeRetractHour" id="$name_allPurposeRetractHour" title="$tlang.getString("dateselectionwidget.hour")">
 							#foreach ($i in [1..12])
 								<option value="$i" #if ($value_allPurposeRetractHour==$i)selected="selected"#end>$i</option>
 							#end
 						</select>
-						<select name="$name_allPurposeRetractMin" id="$name_allPurposeRetractMin">
+						<select name="$name_allPurposeRetractMin" id="$name_allPurposeRetractMin" title="$tlang.getString("dateselectionwidget.minute")">
 							#foreach ($i in [0, 5, 10, 15, 20, 25, 30, 35, 40, 45, 50, 55])
 								<option value="$i" #if($i == $value_allPurposeRetractMin)selected="selected"#end>#if($i ==0)00#elseif($i == 5)05#else$i#end</option>
 							#end
 						</select>
-						<select name="$name_allPurposeRetractAMPM" id="$name_allPurposeRetractAMPM">
+						<select name="$name_allPurposeRetractAMPM" id="$name_allPurposeRetractAMPM" title="$tlang.getString("dateselectionwidget.ampm")">
 							#foreach ($i in ["AM", "PM"])
 								#if ($i == $value_allPurposeRetractAMPM)
 									<option value="$i" selected="selected">$i</option>
