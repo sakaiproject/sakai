@@ -270,8 +270,9 @@ public class Parser extends AbstractParser {
   processItem(Element the_item, 
               Element the_resources,
               DefaultHandler the_handler) throws ParseException {
+      try {
     if (the_item.getAttributeValue(CC_ITEM_IDREF)!=null) {
-      Element resource=findResource(the_item.getAttributeValue(CC_ITEM_IDREF), the_resources);
+	Element resource=findResource(the_handler.getNs(),the_item.getAttributeValue(CC_ITEM_IDREF), the_resources);
       // System.out.println("process item " + the_item + " resources " + the_resources + " resource " + resource);
 
       the_handler.startCCItem(the_item.getAttributeValue(CC_ITEM_ID),
@@ -292,6 +293,13 @@ public class Parser extends AbstractParser {
         processItem((Element)iter.next(), the_resources, the_handler);
       }
       the_handler.endCCFolder();
+      }
+      } catch (Exception e) {
+	  e.printStackTrace();
+	  if (the_item == null)
+	      System.out.println("processitem the item null");
+	  else 
+	      System.out.println("processitem failed " + the_item.getAttributeValue(CC_ITEM_IDREF));
       }
   } 
   

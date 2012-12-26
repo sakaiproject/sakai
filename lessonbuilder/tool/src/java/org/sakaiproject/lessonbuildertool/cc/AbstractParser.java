@@ -77,9 +77,9 @@ public abstract class AbstractParser {
   public void
   processDependencies(DefaultHandler the_handler,
                       Element the_resource) throws ParseException {
-    for (Iterator iter=the_resource.getChildren(DEPENDENCY, ns.cc_ns()).iterator(); iter.hasNext();) {
+      for (Iterator iter=the_resource.getChildren(DEPENDENCY, the_handler.getNs().cc_ns()).iterator(); iter.hasNext();) {
       String target=((Element)iter.next()).getAttributeValue(IDREF);
-      Element resource=findResource(target,the_resource.getParentElement());
+      Element resource=findResource(the_handler.getNs(),target,the_resource.getParentElement());
       the_handler.startDependency(the_resource.getAttributeValue(ID),target);
       processResource(resource, the_handler);
       the_handler.endDependency();
@@ -89,7 +89,7 @@ public abstract class AbstractParser {
   public void
   processFiles(DefaultHandler the_handler,
                Element the_resource) {
-    for (Iterator iter=the_resource.getChildren(FILE, ns.cc_ns()).iterator(); iter.hasNext();) {
+      for (Iterator iter=the_resource.getChildren(FILE, the_handler.getNs().cc_ns()).iterator(); iter.hasNext();) {
       the_handler.addFile(((Element)iter.next()).getAttributeValue(HREF));
     }
   }
@@ -97,8 +97,8 @@ public abstract class AbstractParser {
   public void
   processResourceMetadata(DefaultHandler the_handler,
                           Element the_resource) throws ParseException {
-    if (the_resource.getChild(METADATA, ns.cc_ns())!=null) {
-      Element md=the_resource.getChild(METADATA, ns.cc_ns()).getChild(MD_ROOT, ns.lom_ns());
+      if (the_resource.getChild(METADATA, the_handler.getNs().cc_ns())!=null) {
+	  Element md=the_resource.getChild(METADATA, the_handler.getNs().cc_ns()).getChild(MD_ROOT, the_handler.getNs().lom_ns());
       if (md!=null) {    
         the_handler.setResourceMetadataXml(md);
       }
@@ -128,16 +128,25 @@ public abstract class AbstractParser {
   public void
   processResource(Element the_resource,
                   DefaultHandler handler) throws ParseException {
+      try {
     handler.startResource(the_resource.getAttributeValue(ID), isProtected(the_resource));
     handler.setResourceXml(the_resource);
     processResourceMetadata(handler, the_resource);
     processFiles(handler, the_resource);
     processDependencies(handler, the_resource);
     handler.endResource();
+      } catch (Exception e) {
+	  e.printStackTrace();
+          if (the_resource == null)
+              System.out.println("processresouce the item null");
+          else
+              System.out.println("processresource failed " + the_resource.getAttributeValue(ID));
+
+      };
   }
   
   public Element
-  findResource(String the_identifier, Element the_resources) throws ParseException {
+  findResource(Ns ns, String the_identifier, Element the_resources) throws ParseException {
     Element result=null;
     try {
       String query=RESOURCE_QUERY.replaceFirst("xxx", the_identifier);
