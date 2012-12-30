@@ -160,7 +160,7 @@ public class FormattedTextTest extends TestCase {
         assertFalse( result.contains("style=\"font-weight:bold;\"")); // strips this out
         assertTrue( result.contains("target=\"_blank\"")); // adds target in
         assertTrue( result.contains("<div>hello there</div>"));
-        assertEquals("<a  href=\"blah.html\"  target=\"_blank\" >blah</a><div>hello there</div>", result);
+        assertEquals("<a  href=\"blah.html\" target=\"_blank\">blah</a><div>hello there</div>", result);
 
         strFromBrowser = TEST2;
         errorMessages = new StringBuilder();
@@ -199,6 +199,56 @@ public class FormattedTextTest extends TestCase {
         assertFalse( result.contains("src="));
         assertFalse( result.contains("data:image/svg+xml;base64"));
         assertFalse( result.contains("<script"));
+    }
+
+    public void testDataAttributes() {
+        String oneK       = "<span data-one></span>";
+        String oneKV      = "<span data-one=\"one\"></span>";
+        String twoK       = "<span data-one data-two></span>";
+        String twoKV      = "<span data-one=\"one\" data-two=\"two\"></span>";
+        String mixed      = "<span data-one data-two=\"two\"></span>";
+        String selfClose  = "<hr class=\"section\" data-section=\"Contents\"/>";
+        String subAttr    = "<span src=\"http://example.com/src\" data-src=\"http://example.com/data-src\"></span>";
+        String subAttrs   = "<span name=\"name\" src=\"src\" data-name=\"data-name\" data-src=\"http://example.com/\"></span>";
+
+        String repeatK    = "<span data-one data-one></span>";
+        String repeatKV   = "<span data-one=\"one\" data-one=\"two\"></span>";
+        String badK       = "<span class=\"foo\" data-one-></span>";
+        String badK2      = "<span class=\"foo\" data-></span>";
+        String badK3      = "<span class=\"foo\" data--></span>";
+        String badKV      = "<span class=\"foo\" data-one-=\"one\"></span>";
+
+        String resultRepeatK  = "<span data-one></span>";
+        String resultRepeatKV = "<span data-one=\"one\"></span>";
+        String resultBadK     = "<span class=\"foo\"></span>";
+        String resultBadKV    = "<span class=\"foo\"></span>";
+
+        String[] passTests = new String[] {
+            oneK, oneKV, twoK, twoKV, mixed, selfClose, subAttr, subAttrs
+        };
+        String[] failTests = new String[] {
+            repeatK, repeatKV, badK, badK2, badK3, badKV
+        };
+        String[] failResults = new String[] {
+            resultRepeatK, resultRepeatKV, resultBadK, resultBadK, resultBadK, resultBadKV
+        };
+
+        String result;
+        StringBuilder errors;
+
+        for (String passTest : passTests) {
+            errors = new StringBuilder();
+            result = formattedText.processFormattedText(passTest, errors, true);
+            assertEquals(passTest, result);
+            assertTrue(errors.length() == 0);
+        }
+
+        for (int i = 0; i < failTests.length; i++) {
+            errors = new StringBuilder();
+            result = formattedText.processFormattedText(failTests[i], errors, true);
+            assertEquals(failResults[i], result);
+            assertTrue(result, errors.length() > 10);
+        }
     }
 
     public void testKNL_528() {

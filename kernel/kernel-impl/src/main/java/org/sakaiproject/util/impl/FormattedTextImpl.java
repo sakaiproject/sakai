@@ -22,6 +22,7 @@
 package org.sakaiproject.util.impl;
 
 import java.io.UnsupportedEncodingException;
+import java.util.HashSet;
 import java.util.Stack;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
@@ -94,7 +95,7 @@ public class FormattedTextImpl implements FormattedText
         // DEFAULT values to allow for testing and in case the resource loader values do not exist
         M_evilTags = "applet,base,body,bgsound,button,col,colgroup,comment, dfn,fieldset,form,frame,frameset,head,html,iframe,ilayer,inlineinput,isindex,input,keygen,label,layer,legend,link,listing,map,meta,multicol,nextid,noframes,nolayer,noscript,optgroup,option,plaintext,script,select,sound,spacer,spell,submit,textarea,title,wbr".split(",");
         M_goodTags = "a,abbr,acronym,address,b,big,blockquote,br,center,cite,code,dd,del,dir,div,dl,dt,em,font,hr,h1,h2,h3,h4,h5,h6,i,ins,kbd,li,marquee,menu,nobr,noembed,ol,p,pre,q,rt,ruby,rbc,rb,rtc,rp,s,samp,small,span,strike,strong,sub,sup,tt,u,ul,var,xmp,img,embed,object,table,tr,td,th,tbody,caption,thead,tfoot,colgroup,col,param".split(",");
-        M_goodAttributes = "abbr,accept,accesskey,align,alink,alt,axis,background,bgcolor,border,cellpadding,cellspacing,char,charoff,charset,checked,cite,class,classid,clear,color,cols,colspan,compact,content,coords,datetime,dir,disabled,enctype,face,for,header,height,href,hreflang,hspace,id,ismap,label,lang,longdesc,maxlength,multiple,name,noshade,nowrap,profile,readonly,rel,rev,rows,rowspan,rules,scope,selected,shape,size,span,src,start,style,summary,tabindex,target,text,title,type,usemap,valign,value,vlink,vspace,width,pluginspage,play,loop,menu,codebase,data,pluginspace,wmode,allowscriptaccess,allowfullscreen".split(",");
+        M_goodAttributes = "abbr,accept,accesskey,align,alink,alt,axis,background,bgcolor,border,cellpadding,cellspacing,char,charoff,charset,checked,cite,class,classid,clear,color,cols,colspan,compact,content,coords,datetime,dir,disabled,enctype,face,for,header,height,href,hreflang,hspace,id,ismap,label,lang,longdesc,maxlength,multiple,name,noshade,nowrap,profile,readonly,rel,rev,rows,rowspan,rules,scope,selected,shape,size,span,src,start,style,summary,tabindex,target,text,title,type,usemap,valign,value,vlink,vspace,width,pluginspage,play,loop,menu,codebase,data,pluginspace,wmode,allowscriptaccess,allowfullscreen,data(?:-[A-Za-z]+)+".split(",");
         M_evilValues = "javascript:,behavior:,vbscript:,mocha:,livescript:,expression".split(",");
 
         try {
@@ -135,8 +136,8 @@ public class FormattedTextImpl implements FormattedText
         M_goodAttributePatterns = new Pattern[M_goodAttributes.length];
         for (int i = 0; i < M_goodAttributes.length; i++) 
         {
-            M_goodAttributePatterns[i] = Pattern.compile("\\s+" + M_goodAttributes[i] + 
-                    "(\\s*=\\s*(?:\".*?\"|'.*?'|[^'\">\\s]+))", 
+            M_goodAttributePatterns[i] = Pattern.compile("(\\s+" + M_goodAttributes[i] + ")" +
+                    "(?:(\\s*=\\s*(?:\".*?\"|'.*?'|[^'\">\\s]+))|(?=(\\s+|$)))", 
                     Pattern.CASE_INSENSITIVE | Pattern.UNICODE_CASE | Pattern.DOTALL);
         }
 
@@ -701,48 +702,70 @@ public class FormattedTextImpl implements FormattedText
         StringBuilder buf = new StringBuilder();
         String leftOvers = "";
 
+        String tagOpen;
+        String tagName;
         if (fullTag.matches() && fullTag.groupCount() > 2)
         {
+            tagOpen = fullTag.group(1);
             leftOvers = fullTag.group(2);
-            buf.append(fullTag.group(1));
             close = fullTag.group(fullTag.groupCount());
+            tagName = tagOpen.substring(1); 
+            buf.append(tagOpen);
         }
         else
         {
             if (M_log.isDebugEnabled()) M_log.debug("Could not parse " + tag);
             return "";
         }
-        String tagName = tag;
-        if (tag != null && tag.length() > 2) {
-            int pos = tag.indexOf(' ');
-            if (pos <= 0) {
-                pos = tag.indexOf('/');
-            }
-            if (pos <= 0) {
-                pos = tag.indexOf('>');
-            }
-            if (pos > 0) {
-                tagName = tag.substring(1, pos);
-            }
-        }
         Matcher matcher;
-        for (int i = 0; i < M_goodAttributePatterns.length; i++)
+        HashSet<String> usedAttributes = new HashSet<String>();
+        if (leftOvers != null)
         {
-            matcher = M_goodAttributePatterns[i].matcher(tag);
-            if (matcher.find())
+            for (int i = 0; i < M_goodAttributePatterns.length; i++)
             {
-                for (int j = 0; j < matcher.groupCount(); j++)
+                matcher = M_goodAttributePatterns[i].matcher(leftOvers);
+                while (matcher.find())
                 {
-                    if (checkValue(tagName, matcher.group(j) + " ", errorMessages))
+                    String attr = matcher.group(1);
+                    String cleanedAttr = attr.trim().toLowerCase();
+                    // Disallow multiple uses of the same attribute on an element.
+                    // This functionality was implicit in the one-shot match before
+                    // changing this to a find() loop.
+                    if (usedAttributes.contains(cleanedAttr)) {
+                        errorMessages.append(getResourceLoader().getFormattedMessage("html_duplicate_attribute_not_allowed", new Object[]{attr.trim()}));
+                        continue;
+                    }
+                    usedAttributes.add(cleanedAttr);
+                    buf.append(attr);
+
+                    // We were checking [0..1) (the entire attribute match only)
+                    // in a pseudo-loop, since there was only one capturing group.
+                    // This is the simpler form of the same behavior and allows
+                    // us to have a capturing group for the attribute name above.
+                    if (matcher.groupCount() < 3) {
+                        M_log.warn("Attribute cleaning failed; regex improperly modified.");
+                        break;
+                    }
+                    // Group 2 is for regular attribute values, including = and quotes
+                    // Group 3 is for valueless attributes, capturing either whitespace or tag-end
+                    // These are mutually exclusive and one is guaranteed because of the regex construction
+                    String value = matcher.group(2);
+                    if (matcher.group(3) != null) {
+                        // Discard the look-ahead whitespace since it will be included by the next
+                        // attribute if there is one, or stripped if this is the end of the tag.
+                        value = "";
+                    }
+
+                    if (checkValue(tagName, cleanedAttr, value, errorMessages))
                     {
-                        buf.append(matcher.group(j) + " ");
+                        buf.append(value);
 
                         try {
-                            leftOvers = leftOvers.replace(matcher.group(j), "");
+                            leftOvers = leftOvers.replace(attr + value, "");
                         }
                         catch (Exception e)
                         {
-                            M_log.warn(matcher.group(j));
+                            M_log.warn(attr + value);
                             e.printStackTrace();
                         }
                     }
@@ -759,7 +782,7 @@ public class FormattedTextImpl implements FormattedText
         return buf.toString();
     }
 
-    private boolean checkValue(final String tag, final String value, StringBuilder errorMessages)
+    private boolean checkValue(final String tag, final String attr, final String value, StringBuilder errorMessages)
     {
         if ( M_evilValues == null )
             init();
@@ -779,8 +802,8 @@ public class FormattedTextImpl implements FormattedText
         if (pass) {
             // Special check for src="data:image/svg+xml;base64,.... : http://jira.sakaiproject.org/browse/SAK-18269
             if ("embed".equalsIgnoreCase(tag) 
+                    && attr.equalsIgnoreCase("src")
                     && value != null 
-                    && value.toLowerCase().indexOf("src") >= 0
                     && value.toLowerCase().indexOf("data:image/svg") > 0
             ) {
                 int pos = value.toLowerCase().indexOf(";base64,");
