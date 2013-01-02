@@ -19,6 +19,7 @@
 		min-height:325px;
 	}
 	html>body #outer{height:auto}
+	.pageTitle{width:auto !important;}
 </style>
 <script type="text/javascript" rsf:id="iframeJavascript">
 function resizeiframe(id) {
@@ -514,7 +515,7 @@ function resizeiframe(id) {
 				<form action="#" rsf:id="subpage-form">
 					<p class="shorttext required">
 						<span class="reqStar">*</span>
-						<label rsf:id="subpage-label" for="subpage-title"></label>
+						<label class="pageTitle" rsf:id="subpage-label" for="subpage-title"></label>
 				 		<input type="text" name="subpage-title" id="subpage-title" rsf:id="subpage-title" maxlength="99" length="30" /><br />
 					</p>
 				
@@ -831,7 +832,7 @@ function resizeiframe(id) {
 				<form action="#" rsf:id="title-form" enctype="multipart/form-data">
 					<p class="shorttext required">
 						<span class="reqStar">*</span>
-						<label rsf:id="pageTitleLabel" for="pageTitle">Page Title</label>
+						<label class="pageTitle" rsf:id="pageTitleLabel" for="pageTitle">Page Title</label>
 						<input rsf:id="pageTitle" maxlength="99" id="pageTitle" /><br />
 					</p>
 					
@@ -899,7 +900,7 @@ function resizeiframe(id) {
 				<form action="#" rsf:id="new-page-form">
 					<p class="shorttext required">
 						<span class="reqStar">*</span>
-						<label rsf:id="msg=simplepage.new-page-title" for="newPage"></label>
+						<label class="pageTitle" rsf:id="msg=simplepage.new-page-title" for="newPage"></label>
 						<input rsf:id="newPage" id="newPage" /><br />
 					</p>
 					
