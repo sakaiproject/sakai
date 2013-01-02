@@ -293,13 +293,7 @@ public class SiteHandler extends WorksiteHandler
 		// should we consider a frameset ?
 		boolean doFrameSet = includeFrameset(rcontext, res, req, session, page);
 				
-				
-		Locale locale = setSiteLanguage(site);	
-		if(log.isDebugEnabled()) {
-			log.debug("Locale for site " + site.getId() + " = " + locale.toString());
-		}
-        rcontext.put("locale", locale.toString());			
-				
+		addLocale(rcontext, site);
 		
 		includeSiteNav(rcontext, req, session, siteId);
 
@@ -836,62 +830,6 @@ public class SiteHandler extends WorksiteHandler
 			if (framesetRequested) rcontext.put("sakaiFrameSetRequested", Boolean.TRUE);
 		}
 		return framesetRequested;
-	}
-	
-	/**
-	 * *
-	 * 
-	 * @return Locale based on its string representation (language_region)
-	 */
-	private Locale getLocaleFromString(String localeString)
-	{
-		String[] locValues = localeString.trim().split("_");
-		if (locValues.length >= 3)
-			return new Locale(locValues[0], locValues[1], locValues[2]); // language, country, variant
-		else if (locValues.length == 2)
-			return new Locale(locValues[0], locValues[1]); // language, country
-		else if (locValues.length == 1)
-			return new Locale(locValues[0]); // language
-		else
-			return Locale.getDefault();
-	}
-	
-		
-	private Locale setSiteLanguage(Site site)
-	{
-		ResourceLoader rl = new ResourceLoader();
-				
-		ResourcePropertiesEdit props = site.getPropertiesEdit();
-				
-		String locale_string = props.getProperty("locale_string");
-			
-		if(log.isDebugEnabled()){
-			log.debug("setSiteLanguage - locale_string property: " + locale_string);
-		}
-		
-		Locale loc;
-				
-		// if no language was specified when creating the site, set default language to session
-		if(locale_string == null || locale_string == "")
-		{					
-			if(log.isDebugEnabled()){
-				log.debug("setSiteLanguage - no locale, setting null.");
-			}
-			loc = rl.setContextLocale(null);
-		}
-		
-		// if you have indicated a language when creating the site, set selected language to session
-		else
-		{				
-			Locale locale = getLocaleFromString(locale_string);	
-			
-			if(log.isDebugEnabled()){
-				log.debug("setSiteLanguage - locale: " + locale.toString());
-			}
-			loc = rl.setContextLocale(locale);			
-		}
-
-        return loc;
 	}
 
 }

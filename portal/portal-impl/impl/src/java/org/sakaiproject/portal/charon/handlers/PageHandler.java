@@ -155,6 +155,8 @@ public class PageHandler extends BasePortalHandler
 		// start the response
 		PortalRenderContext rcontext = portal.startPageContext(siteType, title, page
 				.getSkin(), req);
+		
+		addLocale(rcontext, site);
 
 		includePage(rcontext, res, req, session, page, toolContextPath, "contentFull");
 

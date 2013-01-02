@@ -22,12 +22,16 @@
 package org.sakaiproject.portal.charon.handlers;
 
 import java.io.IOException;
+import java.util.Locale;
 import java.util.Map;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
 import org.sakaiproject.component.cover.ServerConfigurationService;
+import org.sakaiproject.entity.api.ResourcePropertiesEdit;
 import org.sakaiproject.exception.IdUnusedException;
 import org.sakaiproject.exception.PermissionException;
 import org.sakaiproject.portal.api.Portal;
@@ -37,6 +41,7 @@ import org.sakaiproject.site.api.Site;
 import org.sakaiproject.site.api.SitePage;
 import org.sakaiproject.tool.api.Session;
 import org.sakaiproject.tool.api.ToolException;
+import org.sakaiproject.util.ResourceLoader;
 
 /**
  * 
@@ -52,6 +57,8 @@ public class WorksiteHandler extends PageHandler
 	private static final String INCLUDE_PAGE_NAV = "include-page-nav";
 
 	private static final String URL_FRAGMENT = "worksite";
+	
+	private static final Log log = LogFactory.getLog(WorksiteHandler.class);
 
 	public WorksiteHandler()
 	{
@@ -152,6 +159,8 @@ public class WorksiteHandler extends PageHandler
 		String siteType = portal.calcSiteType(siteId);
 		PortalRenderContext rcontext = portal.startPageContext(siteType, title, site
 				.getSkin(), req);
+		
+		addLocale(rcontext, site);
 
 		includeWorksite(rcontext, res, req, session, site, page, toolContextPath,
 				getUrlFragment());

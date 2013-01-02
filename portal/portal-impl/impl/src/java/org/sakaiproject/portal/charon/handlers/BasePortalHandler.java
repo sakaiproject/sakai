@@ -21,15 +21,23 @@
 
 package org.sakaiproject.portal.charon.handlers;
 
+import java.util.Locale;
+
 import javax.servlet.ServletContext;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
+import org.sakaiproject.entity.api.ResourcePropertiesEdit;
 import org.sakaiproject.portal.api.Portal;
 import org.sakaiproject.portal.api.PortalHandler;
 import org.sakaiproject.portal.api.PortalHandlerException;
+import org.sakaiproject.portal.api.PortalRenderContext;
 import org.sakaiproject.portal.api.PortalService;
+import org.sakaiproject.site.api.Site;
 import org.sakaiproject.tool.api.Session;
+import org.sakaiproject.util.ResourceLoader;
 
 /**
  * Abstract class to hold common base methods for portal handlers.
@@ -41,6 +49,7 @@ import org.sakaiproject.tool.api.Session;
  */
 public abstract class BasePortalHandler implements PortalHandler
 {
+	private static final Log log = LogFactory.getLog(BasePortalHandler.class);
 
 	public BasePortalHandler()
 	{
@@ -123,5 +132,67 @@ public abstract class BasePortalHandler implements PortalHandler
 	{
 		this.urlFragment = urlFragment;
 	}
+	
+	/**
+	 * *
+	 * 
+	 * @return Locale based on its string representation (language_region)
+	 */
+	private Locale getLocaleFromString(String localeString)
+	{
+		String[] locValues = localeString.trim().split("_");
+		if (locValues.length >= 3)
+			return new Locale(locValues[0], locValues[1], locValues[2]); // language, country, variant
+		else if (locValues.length == 2)
+			return new Locale(locValues[0], locValues[1]); // language, country
+		else if (locValues.length == 1)
+			return new Locale(locValues[0]); // language
+		else
+			return Locale.getDefault();
+	}
+	
+	private Locale setSiteLanguage(Site site)
+	{
+		ResourceLoader rl = new ResourceLoader();
+				
+		ResourcePropertiesEdit props = site.getPropertiesEdit();
+				
+		String locale_string = props.getProperty("locale_string");
+			
+		if(log.isDebugEnabled()){
+			log.debug("setSiteLanguage - locale_string property: " + locale_string);
+		}
+		
+		Locale loc;
+				
+		// if no language was specified when creating the site, set default language to session
+		if(locale_string == null || locale_string == "")
+		{					
+			if(log.isDebugEnabled()){
+				log.debug("setSiteLanguage - no locale, setting null.");
+			}
+			loc = rl.setContextLocale(null);
+		}
+		
+		// if you have indicated a language when creating the site, set selected language to session
+		else
+		{				
+			Locale locale = getLocaleFromString(locale_string);	
+			
+			if(log.isDebugEnabled()){
+				log.debug("setSiteLanguage - locale: " + locale.toString());
+			}
+			loc = rl.setContextLocale(locale);			
+		}
 
+        return loc;
+	}
+	
+	protected void addLocale(PortalRenderContext rcontext, Site site) {
+		Locale locale = setSiteLanguage(site);	
+		if(log.isDebugEnabled()) {
+			log.debug("Locale for site " + site.getId() + " = " + locale.toString());
+		}
+        rcontext.put("locale", locale.toString());
+	}
 }
