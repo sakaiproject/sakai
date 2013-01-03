@@ -36,9 +36,9 @@
 			  </h:panelGrid>
 			  
 			  
-			  <h4><h:outputText value="#{msgs.pvt_personal_settings}" /></h4>
+			  <h4><h:outputText value="#{msgs.pvt_personal_settings}"  rendered="#{!PrivateMessagesTool.emailForwardDisabled}"/></h4>
 
-			  <h:panelGrid styleClass="jsfFormTable" columns="2" >
+			  <h:panelGrid styleClass="jsfFormTable" columns="2" rendered="#{!PrivateMessagesTool.emailForwardDisabled}">
 			    <h:panelGroup styleClass="shorttext">
 			      <h:outputLabel for=""><h:outputText	value="#{msgs.pvt_autofor1}" /></h:outputLabel>
 			    </h:panelGroup>

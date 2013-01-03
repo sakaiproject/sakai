@@ -469,6 +469,11 @@ public class PrivateMessagesTool
       return !isEmailCopyDisabled() && area.getSendToEmail() == Area.EMAIL_COPY_OPTIONAL;
   }
   
+  
+  public boolean isEmailForwardDisabled(){
+	  return ServerConfigurationService.getBoolean("mc.messages.forwardEmailDisabled", false);
+  }
+  
   //Return decorated Forum
   public PrivateForumDecoratedBean getDecoratedForum()
   {      

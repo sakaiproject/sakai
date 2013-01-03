@@ -1228,7 +1228,7 @@ public class PrivateMessageManagerImpl extends HibernateDaoSupport implements
     	emailService.sendToUsers(recipients.keySet(), additionalHeaders, bodyString);
     	}   	
 
-	if(forwardingEnabled)
+	if(!isEmailForwardDisabled() && forwardingEnabled)
 	{
 		InternetAddress fAddressesArr[] = new InternetAddress[fAddresses.size()];
 		fAddressesArr = fAddresses.toArray(fAddressesArr);
@@ -1255,6 +1255,10 @@ public class PrivateMessageManagerImpl extends HibernateDaoSupport implements
 	}
   }
 
+  public boolean isEmailForwardDisabled(){
+	  return ServerConfigurationService.getBoolean("mc.messages.forwardEmailDisabled", false);
+  }
+  
 
   private String buildMessageBody(PrivateMessage message) {
 	  User currentUser = UserDirectoryService.getCurrentUser();
