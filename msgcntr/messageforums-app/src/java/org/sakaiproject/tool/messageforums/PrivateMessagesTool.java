@@ -448,7 +448,12 @@ public class PrivateMessagesTool
           initializePrivateMessageArea();
       }
       
-      return area.getSendToEmail() == Area.EMAIL_COPY_ALWAYS;
+      
+      return !isEmailCopyDisabled() && area.getSendToEmail() == Area.EMAIL_COPY_ALWAYS;
+  }
+  
+  public boolean isEmailCopyDisabled(){
+	  return ServerConfigurationService.getBoolean("mc.messages.ccEmailDisabled", false);
   }
   
   /**
@@ -461,7 +466,7 @@ public class PrivateMessagesTool
           initializePrivateMessageArea();
       }
       
-      return area.getSendToEmail() == Area.EMAIL_COPY_OPTIONAL;
+      return !isEmailCopyDisabled() && area.getSendToEmail() == Area.EMAIL_COPY_OPTIONAL;
   }
   
   //Return decorated Forum
