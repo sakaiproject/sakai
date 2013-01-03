@@ -83,15 +83,20 @@ public class Parser extends AbstractParser {
   
   private static final String LAR0="associatedcontent/imscc_xmlv1p0/learning-application-resource";
   private static final String LAR1="associatedcontent/imscc_xmlv1p1/learning-application-resource";
+  private static final String LAR2="associatedcontent/imscc_xmlv1p2/learning-application-resource";
   private static final String DISCUSSION0="imsdt_xmlv1p0";
   private static final String DISCUSSION1="imsdt_xmlv1p1";
+  private static final String DISCUSSION2="imsdt_xmlv1p2";
   private static final String ASSESSMENT0="imsqti_xmlv1p2/imscc_xmlv1p0/assessment";
   private static final String ASSESSMENT1="imsqti_xmlv1p2/imscc_xmlv1p1/assessment";
+  private static final String ASSESSMENT2="imsqti_xmlv1p2/imscc_xmlv1p2/assessment";
   private static final String WEBLINK0="imswl_xmlv1p0";
   private static final String WEBLINK1="imswl_xmlv1p1";
+  private static final String WEBLINK2="imswl_xmlv1p2";
   private static final String WEBCONTENT="webcontent";
   private static final String QUESTION_BANK0="imsqti_xmlv1p2/imscc_xmlv1p0/question-bank";
   private static final String QUESTION_BANK1="imsqti_xmlv1p2/imscc_xmlv1p1/question-bank";
+  private static final String QUESTION_BANK2="imsqti_xmlv1p2/imscc_xmlv1p2/question-bank";
   private static final String CC_BLTI0="imsbasiclti_xmlv1p0";
   private static final String CC_BLTI1="imsbasiclti_xmlv1p1";
   
@@ -127,16 +132,20 @@ public class Parser extends AbstractParser {
     parsers=new HashMap<String, ContentParser>();
     parsers.put(LAR0, new LearningApplicationResourceParser());
     parsers.put(LAR1, new LearningApplicationResourceParser());
+    parsers.put(LAR2, new LearningApplicationResourceParser());
     parsers.put(DISCUSSION0, new DiscussionParser());
     parsers.put(DISCUSSION1, new DiscussionParser());
+    parsers.put(DISCUSSION2, new DiscussionParser());
     parsers.put(ASSESSMENT0, new AssessmentParser());
     parsers.put(ASSESSMENT1, new AssessmentParser());
+    parsers.put(ASSESSMENT2, new AssessmentParser());
     parsers.put(WEBLINK0, new WebLinkParser());
     parsers.put(WEBLINK1, new WebLinkParser());
+    parsers.put(WEBLINK2, new WebLinkParser());
     parsers.put(WEBCONTENT, new WebContentParser());
     parsers.put(CC_BLTI0, new BLTIParser());
     parsers.put(CC_BLTI1, new BLTIParser());
-
+    // there is no CC+BLTI2
   }
   
   private

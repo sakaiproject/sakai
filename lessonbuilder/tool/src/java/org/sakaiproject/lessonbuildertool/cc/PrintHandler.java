@@ -122,12 +122,16 @@ public class PrintHandler extends DefaultHandler implements AssessmentHandler, D
   private static final String CC_WEBCONTENT="webcontent";
   private static final String CC_WEBLINK0="imswl_xmlv1p0";
   private static final String CC_WEBLINK1="imswl_xmlv1p1";
+  private static final String CC_WEBLINK2="imswl_xmlv1p2";
   private static final String CC_TOPIC0="imsdt_xmlv1p0";
   private static final String CC_TOPIC1="imsdt_xmlv1p1";
+  private static final String CC_TOPIC2="imsdt_xmlv1p2";
   private static final String CC_ASSESSMENT0="imsqti_xmlv1p2/imscc_xmlv1p0/assessment";
   private static final String CC_ASSESSMENT1="imsqti_xmlv1p2/imscc_xmlv1p1/assessment";
+  private static final String CC_ASSESSMENT2="imsqti_xmlv1p2/imscc_xmlv1p2/assessment";
   private static final String CC_QUESTION_BANK0="imsqti_xmlv1p2/imscc_xmlv1p0/question-bank";
   private static final String CC_QUESTION_BANK1="imsqti_xmlv1p2/imscc_xmlv1p1/question-bank";
+  private static final String CC_QUESTION_BANK2="imsqti_xmlv1p2/imscc_xmlv1p2/question-bank";
   private static final String CC_BLTI0="imsbasiclti_xmlv1p0";
   private static final String CC_BLTI1="imsbasiclti_xmlv1p1";
   private static final boolean all = false;
@@ -299,7 +303,7 @@ public class PrintHandler extends DefaultHandler implements AssessmentHandler, D
 			 " href " + resource.getAttributeValue(HREF));
 
       String type = resource.getAttributeValue(TYPE);
-      boolean isBank = type.equals(CC_QUESTION_BANK0) || type.equals(CC_QUESTION_BANK1);
+      boolean isBank = type.equals(CC_QUESTION_BANK0) || type.equals(CC_QUESTION_BANK1) || type.equals(CC_QUESTION_BANK2);
 
       boolean hide = false;
       Iterator mdroles = resource.getDescendants(new ElementFilter("intendedEndUserRole", ns.lom_ns()));
@@ -352,7 +356,7 @@ public class PrintHandler extends DefaultHandler implements AssessmentHandler, D
 	      simplePageBean.saveItem(item);
 	      sequences.set(top, seq+1);
 	  }
-	  else if (type.equals(CC_WEBLINK0) || type.equals(CC_WEBLINK1)) {
+	  else if (type.equals(CC_WEBLINK0) || type.equals(CC_WEBLINK1) || type.equals(CC_WEBLINK2)){
 	      String filename = getFileName(resource);
 	      Element linkXml =  parser.getXML(loader, filename);
 	      Namespace linkNs = ns.link_ns();
@@ -384,7 +388,7 @@ public class PrintHandler extends DefaultHandler implements AssessmentHandler, D
 		  sequences.set(top, seq+1);
 	      }
 	      
-	  } else if (topictool != null && ( type.equals(CC_TOPIC0) || type.equals(CC_TOPIC1))) {
+	  } else if (topictool != null && ( type.equals(CC_TOPIC0) || type.equals(CC_TOPIC1) || type.equals(CC_TOPIC2))){
 	      String filename = getFileName(resource);
 	      Element topicXml =  parser.getXML(loader, filename);
 	      Namespace topicNs = ns.topic_ns();
@@ -435,8 +439,8 @@ public class PrintHandler extends DefaultHandler implements AssessmentHandler, D
 	      }
 
 	  } else if (quiztool != null && (
-		     type.equals(CC_ASSESSMENT0) || type.equals(CC_ASSESSMENT1) ||
-		     type.equals(CC_QUESTION_BANK0) || type.equals(CC_QUESTION_BANK1))) {
+		  type.equals(CC_ASSESSMENT0) || type.equals(CC_ASSESSMENT1) || type.equals (CC_ASSESSMENT2) ||
+		  type.equals(CC_QUESTION_BANK0) || type.equals(CC_QUESTION_BANK1) || type.equals(CC_QUESTION_BANK2))) {
 
 	      String fileName = getFileName(resource);
 	      String sakaiId = null;
