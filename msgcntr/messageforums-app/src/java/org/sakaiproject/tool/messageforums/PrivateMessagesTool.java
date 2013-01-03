@@ -474,6 +474,23 @@ public class PrivateMessagesTool
 	  return ServerConfigurationService.getBoolean("mc.messages.forwardEmailDisabled", false);
   }
   
+  public boolean isShowSettingsLink(){
+	  if(isInstructor()){
+		  //if the site has groups, then show the settings link b/c there
+		  //are settings for groups
+		  if(getCurrentSiteHasGroups()){
+			  return true;
+		  }else{
+			  //if no groups and all email settings are disabled, there's no
+			  //settings to show, so don't show the link
+			  return !isEmailForwardDisabled() || !isEmailCopyDisabled();
+		  }
+	  }else{
+		  //students only see forward options, if it's hidden, don't show this link
+		  return !isEmailForwardDisabled();
+	  }
+  }
+  
   //Return decorated Forum
   public PrivateForumDecoratedBean getDecoratedForum()
   {      

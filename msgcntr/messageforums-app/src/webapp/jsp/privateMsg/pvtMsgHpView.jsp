@@ -34,7 +34,7 @@
 			<sakai:tool_bar  rendered="#{PrivateMessagesTool.messages}">
   			<sakai:tool_bar_item value="#{msgs.pvt_compose}" action="#{PrivateMessagesTool.processPvtMsgCompose}"  rendered="#{! PrivateMessagesTool.dispError}" />
   			<sakai:tool_bar_item value=" #{msgs.pvt_newfolder}" action="#{PrivateMessagesTool.processPvtMsgFolderSettingAdd}"  rendered="#{! PrivateMessagesTool.dispError}" />
- 			<sakai:tool_bar_item value=" #{msgs.pvt_settings}" action="#{PrivateMessagesTool.processPvtMsgSettings}" rendered="#{PrivateMessagesTool.instructor || !PrivateMessagesTool.emailForwardDisabled}" />
+ 			<sakai:tool_bar_item value=" #{msgs.pvt_settings}" action="#{PrivateMessagesTool.processPvtMsgSettings}" rendered="#{PrivateMessagesTool.showSettingsLink}" />
  			<sakai:tool_bar_item value=" #{msgs.pvt_permissions}" action="#{PrivateMessagesTool.processActionPermissions}" rendered="#{PrivateMessagesTool.instructor}" />
  			</sakai:tool_bar>
  		
