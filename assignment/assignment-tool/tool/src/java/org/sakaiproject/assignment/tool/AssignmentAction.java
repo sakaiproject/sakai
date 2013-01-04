@@ -801,6 +801,12 @@ public class AssignmentAction extends PagedResourceActionII
 	
 	private static final int INPUT_BUFFER_SIZE = 102400;
 	
+	private static final String INVOKE = "invoke_via";
+	private static final String INVOKE_BY_LINK = "link";
+	private static final String INVOKE_BY_PORTAL = "portal";
+	
+	
+	
 	private static final String SUBMISSIONS_SEARCH_ONLY = "submissions_search_only";
 	
 	/*************** search related *******************/
@@ -811,6 +817,12 @@ public class AssignmentAction extends PagedResourceActionII
 
 	/** To know if grade_submission go from view_students_assignment view or not **/
 	private static final String FROM_VIEW = "from_view";
+	
+	public String buildLinkedPanelContext(VelocityPortlet portlet, Context context, RunData data, SessionState state){
+		state.setAttribute(INVOKE, INVOKE_BY_LINK);
+		return buildMainPanelContext(portlet, context, data, state);
+	}
+	
 	
 	/**
 	 * central place for dispatching the build routines based on the state name
@@ -1283,6 +1295,16 @@ public class AssignmentAction extends PagedResourceActionII
 	protected String build_student_view_submission_context(VelocityPortlet portlet, Context context, RunData data,
 			SessionState state)
 	{
+		String invokedByStatus = (String) state.getAttribute(INVOKE);
+		if(invokedByStatus!=null){
+			if(invokedByStatus.equalsIgnoreCase(INVOKE_BY_LINK)){
+				context.put("linkInvoked", Boolean.valueOf(true));	
+			}else{
+				context.put("linkInvoked", Boolean.valueOf(false));
+			}
+		}else{
+			context.put("linkInvoked", Boolean.valueOf(false));
+		}
 		String contextString = (String) state.getAttribute(STATE_CONTEXT_STRING);
 		context.put("context", contextString);
 
@@ -1449,6 +1471,19 @@ public class AssignmentAction extends PagedResourceActionII
 	{
 		String contextString = (String) state.getAttribute(STATE_CONTEXT_STRING);
 		context.put("context", contextString);
+		
+		String invokedByStatus = (String) state.getAttribute(INVOKE);
+		if(invokedByStatus!=null){
+			if(invokedByStatus.equalsIgnoreCase(INVOKE_BY_LINK)){
+				context.put("linkInvoked", Boolean.valueOf(true));
+				state.setAttribute(STATE_MODE, MODE_LIST_ASSIGNMENTS);
+			}else{
+				context.put("linkInvoked", Boolean.valueOf(false));
+			}
+		}else{
+			context.put("linkInvoked", Boolean.valueOf(false));
+		}
+		
 		
         context.put("view", MODE_LIST_ASSIGNMENTS);
 		// get user information
@@ -3737,6 +3772,15 @@ public class AssignmentAction extends PagedResourceActionII
 		state.setAttribute(STATE_MODE, MODE_LIST_ASSIGNMENTS);
 
 	} // doView_student
+
+
+	public void doView_submission_evap(RunData data){
+		SessionState state = ((JetspeedRunData) data).getPortletSessionState(((JetspeedRunData) data).getJs_peid());
+		state.setAttribute(INVOKE, INVOKE_BY_LINK);
+		doView_submission(data);
+	}
+
+	
 
 	/**
 	 * Action is to view the content of one specific assignment submission

@@ -183,9 +183,15 @@
 				</ul>
 			#end
 		#end	
+		#if ($!linkInvoked)
+		<p class="act">
+			<input type="submit" accesskey="x" onClick="window.close();" name="eventSubmit_doConfirm_assignment_submission" value="Close and Exit"  class="active" />
+		</p>		
+		#else	
 		<p class="act">
 			<input type="submit" accesskey="x" name="eventSubmit_doConfirm_assignment_submission" value="$tlang.getString('gen.backtolist')"  class="active" />
 		</p>
+		#end
 		<input type="hidden" name="sakai_csrf_token" value="$sakai_csrf_token" />
 	</form>
 </div>

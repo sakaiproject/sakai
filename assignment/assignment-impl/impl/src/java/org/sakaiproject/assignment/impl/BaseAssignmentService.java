@@ -154,6 +154,7 @@ import org.sakaiproject.util.SortedIterator;
 import org.sakaiproject.util.StringUtil;
 import org.sakaiproject.util.Validator;
 import org.sakaiproject.util.Xml;
+import org.sakaiproject.util.LinkMigrationHelper;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 import org.w3c.dom.Node;
@@ -6556,6 +6557,7 @@ byte[] b = (s.getTimeSubmitted().toString()).getBytes();
 							((BaseAssignmentEdit) nAssignment).closeEdit();
 							
 							transversalMap.put("assignment/" + oAssignment.getId(), "assignment/" + nAssignment.getId());
+							M_log.info("old assignment id:"+oAssignment.getId()+" - new assignment id:"+nAssignment.getId());
 							
 							try {
 								if (m_taggingManager.isTaggable()) {
@@ -12969,19 +12971,13 @@ byte[] b = (s.getTimeSubmitted().toString()).getBytes();
 				try 
 				{
 					String msgBody = assignment.getContent().getInstructions();
-					boolean updated = false;
-					Iterator<Entry<String, String>> entryItr = entrySet.iterator();
-					while(entryItr.hasNext()) {
-						Entry<String, String> entry = (Entry<String, String>) entryItr.next();
-						String fromContextRef = entry.getKey();
-						if(msgBody.contains(fromContextRef)){									
-							msgBody = msgBody.replace(fromContextRef, entry.getValue());
-							updated = true;
-						}								
-					}	
-					if(updated){
+					StringBuffer msgBodyPreMigrate = new StringBuffer(msgBody);
+					msgBody = LinkMigrationHelper.editLinks(msgBody, "sam_pub");
+					msgBody = LinkMigrationHelper.editLinks(msgBody, "/posts/");
+					msgBody = LinkMigrationHelper.miagrateAllLinks(entrySet, msgBody);
 						try
 						{
+						if(!msgBody.equals(msgBodyPreMigrate.toString())){
 							// add permission to update assignment content
 							SecurityService.pushAdvisor(
 				            		new MySecurityAdvisor(SessionManager.getCurrentSessionUserId(), 
@@ -12992,6 +12988,7 @@ byte[] b = (s.getTimeSubmitted().toString()).getBytes();
 							cEdit.setInstructions(msgBody);
 							commitEdit(cEdit);
 						}
+					}
 						catch (Exception e)
 						{
 							// exception
@@ -13003,7 +13000,6 @@ byte[] b = (s.getTimeSubmitted().toString()).getBytes();
 							SecurityService.popAdvisor();
 						}
 					}					
-				}
 				catch(Exception ee)
 				{
 					M_log.warn("UpdateEntityReference: remove Assignment and all references for " + assignment.getId() + ee.getMessage());

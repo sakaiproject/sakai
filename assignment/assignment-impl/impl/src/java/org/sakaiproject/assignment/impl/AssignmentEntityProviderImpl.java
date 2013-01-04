@@ -833,7 +833,7 @@ public class AssignmentEntityProviderImpl implements AssignmentEntityProvider, C
     public Map<String, String> getProperties(String reference) {
         Map<String, String> props = new HashMap<String, String>();
         String parsedRef = reference;
-        String defaultView = "doView_submission";
+        String defaultView = "doView_submission_evap";
         String[] refParts = reference.split(Entity.SEPARATOR);
         String submissionId = "null";  //setting to the string null
         String decWrapper = null;
@@ -967,11 +967,13 @@ public class AssignmentEntityProviderImpl implements AssignmentEntityProvider, C
                     props.put("submissionAttachmentRefs", refs
                             .substring(0, refs.lastIndexOf(":::")));
                 }
-
+/*
                 props.put("url", "/portal/tool/" + placement + "?assignmentId="
                         + assignment.getId() + "&submissionId=" + submissionId
                         + "&assignmentReference=" + assignment.getReference()
                         + "&panel=Main&sakai_action=" + defaultView);
+*/
+                props.put("url", "/portal/tool/" + placement + "?assignmentReference=" + assignment.getReference() + "&panel=Main&sakai_action=doView_submission_evap");
             }
         } catch (IdUnusedException e) {
             throw new EntityNotFoundException("No assignment found", reference, e);

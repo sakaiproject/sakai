@@ -938,6 +938,12 @@ function submitform(id)
 								onclick="document.addSubmissionForm.onsubmit();showNotif('submitnotif','save','addSubmissionForm');document.addSubmissionForm.option.value='save'; document.addSubmissionForm.submit(); return false;"
 							/>
 							#end
+							#if ($!linkInvoked)
+
+								<input class="disableme" type="submit" accesskey="x" onClick="window.close();" name="eventSubmit_doConfirm_assignment_submission" value="Close and Exit" />
+		
+							#else						
+							
 							<input 
 								class="disableme"
 								type="button" 
@@ -947,6 +953,7 @@ function submitform(id)
 								value="$tlang.getString("gen.can")"
 								onclick="document.addSubmissionForm.onsubmit();document.addSubmissionForm.option.value='cancel'; document.addSubmissionForm.submit(); return false;"
 							/>
+							#end
 							<span class="messageInformation">$tlang.getString("stuviewsubm.submitreminder")</span>
 					#end
 				<span id="submitnotif" style="visibility:hidden">$tlang.getString("gen.proces")</span>
@@ -1064,6 +1071,14 @@ function submitform(id)
 							</div>
 						#end
 					#end
+					
+		#if ($!linkInvoked)
+
+			<input type="submit" accesskey="x" onClick="window.close();" name="eventSubmit_doConfirm_assignment_submission" value="Close and Exit" class="disableme"/>
+	
+		#else						
+					
+					
 			<p class="act">
 				<input 
 					type="button" 
@@ -1074,6 +1089,7 @@ function submitform(id)
 					onclick="document.addSubmissionForm.onsubmit();document.addSubmissionForm.option.value='cancel'; document.addSubmissionForm.submit(); return false;"
 				/>
 			</p>
+		#end
 		#end
 		<input type="hidden" name="sakai_csrf_token" value="$sakai_csrf_token" />
 	</form>
