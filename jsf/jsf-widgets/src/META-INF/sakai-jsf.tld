@@ -72,6 +72,16 @@
           form submit.
       </description>
     </attribute>
+    <attribute>
+      <name>lang</name>
+      <required>false</required>
+      <rtexprvalue>false</rtexprvalue>
+      <description>
+          The html base 'lang' attribute. The html language needs to be
+          set or else screen readers don't work properly. Defaults to 'en'
+          if not specified.
+      </description>
+    </attribute>
   </tag>
 
   <tag>
@@ -116,6 +126,16 @@
           Flag indicating whether or not this component should be rendered
           (during Render Response Phase), or processed on any subsequent
           form submit.
+      </description>
+    </attribute>
+    <attribute>
+      <name>lang</name>
+      <required>false</required>
+      <rtexprvalue>false</rtexprvalue>
+      <description>
+          The html base 'lang' attribute. The html language needs to be
+          set or else screen readers don't work properly. Defaults to 'en'
+          if not specified.
       </description>
     </attribute>
   </tag>
