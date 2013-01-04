@@ -159,6 +159,7 @@ import org.sakaiproject.util.SAXEntityReader;
 import org.sakaiproject.util.Validator;
 import org.sakaiproject.util.Web;
 import org.sakaiproject.util.Xml;
+import org.sakaiproject.util.LinkMigrationHelper;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 import org.w3c.dom.Node;
@@ -2289,6 +2290,7 @@ public abstract class BaseCalendarService implements CalendarService, DoubleStor
 						CalendarEvent ce = (CalendarEvent) calEvents.get(i);	
 						String msgBodyFormatted = ce.getDescriptionFormatted();						
 						boolean updated = false;
+/*						
 						Iterator<Entry<String, String>> entryItr = entrySet.iterator();
 						while(entryItr.hasNext()) {
 							Entry<String, String> entry = (Entry<String, String>) entryItr.next();
@@ -2298,7 +2300,14 @@ public abstract class BaseCalendarService implements CalendarService, DoubleStor
 								updated = true;
 							}								
 						}	
-						if(updated){
+*/
+						StringBuffer msgBodyPreMigrate = new StringBuffer(msgBodyFormatted);
+						msgBodyFormatted = LinkMigrationHelper.editLinks(msgBodyFormatted, "sam_pub");
+						msgBodyFormatted = LinkMigrationHelper.editLinks(msgBodyFormatted, "/posts/");
+						msgBodyFormatted = LinkMigrationHelper.miagrateAllLinks(entrySet, msgBodyFormatted);
+						if(!msgBodyFormatted.equals(msgBodyPreMigrate.toString())){
+						
+//						if(updated){
 							CalendarEventEdit edit = calendarObj.getEditEvent(ce.getId(), org.sakaiproject.calendar.api.CalendarService.EVENT_MODIFY_CALENDAR);
 							edit.setDescriptionFormatted(msgBodyFormatted);
 							calendarObj.commitEvent(edit);
