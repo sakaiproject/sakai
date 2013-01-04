@@ -84,6 +84,7 @@ import org.sakaiproject.lessonbuildertool.service.LessonEntity;
 import org.sakaiproject.lessonbuildertool.service.QuizEntity;
 import org.sakaiproject.lessonbuildertool.service.ForumInterface;
 import org.sakaiproject.lessonbuildertool.service.BltiInterface;
+import org.sakaiproject.lessonbuildertool.service.AssignmentInterface;
 import org.sakaiproject.component.cover.ComponentManager;
 
 import javax.xml.parsers.DocumentBuilder;
@@ -151,6 +152,7 @@ public class PrintHandler extends DefaultHandler implements AssessmentHandler, D
   private LessonEntity quiztool = null;
   private LessonEntity topictool = null;
   private LessonEntity bltitool = null;
+  private LessonEntity assigntool = null;
   private Set<String>roles = null;
   boolean usesRole = false;
   boolean usesMentor = false;
@@ -161,7 +163,7 @@ public class PrintHandler extends DefaultHandler implements AssessmentHandler, D
     // this is the CC file name (of the XML file) -> Sakaiid for non-file items
   private Map<String,String> itemsAdded = new HashMap<String,String>();
 
-  public PrintHandler(SimplePageBean bean, CartridgeLoader utils, SimplePageToolDao dao, LessonEntity q, LessonEntity l, LessonEntity b) {
+  public PrintHandler(SimplePageBean bean, CartridgeLoader utils, SimplePageToolDao dao, LessonEntity q, LessonEntity l, LessonEntity b, LessonEntity a) {
       super();
       this.utils = utils;
       this.simplePageBean = bean;
@@ -170,6 +172,7 @@ public class PrintHandler extends DefaultHandler implements AssessmentHandler, D
       this.quiztool = q;
       this.topictool = l;
       this.bltitool = b;
+      this.assigntool = a;
   }
 
   public void setAssessmentDetails(String the_ident, String the_title) {
@@ -352,6 +355,16 @@ public class PrintHandler extends DefaultHandler implements AssessmentHandler, D
 		      item.setDescription(simplePageBean.getMessageLocator().getMessage("simplepage.import_cc_lessonplan"));
 		  else if (intendedUse.equals("syllabus"))
 		      item.setDescription(simplePageBean.getMessageLocator().getMessage("simplepage.import_cc_syllabus"));
+		  else if (assigntool != null && intendedUse.equals("assignment")) {
+		      AssignmentInterface a = (AssignmentInterface) assigntool;
+		      // file hasn't been written yet to contenthosting. A2 requires it to be there
+		      addFile(resource.getAttributeValue(HREF));
+		      String assignmentId = a.importObject(title, sakaiId, mime); // sakaiid for assignment
+		      if (assignmentId!= null) {
+			 item = simplePageToolDao.makeItem(page.getPageId(), seq, SimplePageItem.ASSIGNMENT, assignmentId, title);
+			 sakaiId = assignmentId;
+		      }
+		  }
 	      }
 	      simplePageBean.saveItem(item);
 	      sequences.set(top, seq+1);

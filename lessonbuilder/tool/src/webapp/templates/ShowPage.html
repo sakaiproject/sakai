@@ -809,6 +809,17 @@ function resizeiframe(id) {
 					    </span>
 					  </div>
 
+					  <p rsf:id="assignmsg" style="margin-bottom:0px"></p>
+					  <input type="hidden" name="assigntool" rsf:id="assigntool" />
+					  <span rsf:id="assigntools"/>
+					  <div>
+					    <span rsf:id="assigntoolitem:">
+					      <input type="radio" rsf:id="assigntoolbox" id="assigntoolbox" />
+					      <label for="assigntoolbox" rsf:id="assigntoollabel"></label><br />
+					    </span>
+					  </div>
+
+
 					  <p>
 					    <input class="bold" type="submit" id="import-cc-submit" rsf:id="import-cc-submit" />
 					    <input type="submit" rsf:id="mm-cancel" onclick="closeImportCcDialog(); return false" />

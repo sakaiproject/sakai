@@ -47,6 +47,7 @@ import org.sakaiproject.assignment.api.Assignment;
 import org.sakaiproject.assignment.api.AssignmentEdit;
 import org.sakaiproject.assignment.api.AssignmentSubmission;
 import org.sakaiproject.assignment.api.AssignmentContent;
+import org.sakaiproject.assignment.api.AssignmentContentEdit;
 import org.sakaiproject.assignment.cover.AssignmentService;
 
 import org.sakaiproject.exception.IdUnusedException;
@@ -64,6 +65,11 @@ import org.sakaiproject.user.api.User;
 import org.sakaiproject.user.cover.UserDirectoryService;
 import org.sakaiproject.component.cover.ServerConfigurationService;             
 import org.sakaiproject.entity.api.ResourceProperties;
+import org.sakaiproject.entity.cover.EntityManager;
+
+import org.sakaiproject.time.api.Time;
+import org.sakaiproject.time.api.TimeBreakdown;
+import org.sakaiproject.time.cover.TimeService;
 
 import org.sakaiproject.memory.api.Cache;
 import org.sakaiproject.memory.api.CacheRefresher;
@@ -88,7 +94,7 @@ import uk.org.ponder.messageutil.MessageLocator;
 // injected class to handle tests and quizes as well. That will eventually
 // be converted to be a LessonEntity.
 
-public class AssignmentEntity implements LessonEntity {
+public class AssignmentEntity implements LessonEntity, AssignmentInterface {
 
     private static Log log = LogFactory.getLog(AssignmentEntity.class);
 
@@ -738,6 +744,46 @@ public class AssignmentEntity implements LessonEntity {
 
 	return null;
 
+    }
+
+    public String importObject(String title, String href, String mime){
+	String context = ToolManager.getCurrentPlacement().getContext();
+	try {
+	    AssignmentContentEdit c = AssignmentService.addAssignmentContent(context);
+	    c.setTitle(title);
+	    c.setInstructions(messageLocator.getMessage("simplepage.assign_seeattach"));
+	    c.setHonorPledge(1);  // no 
+	    c.setTypeOfSubmission(3);  // inline and attachment
+	    c.setAllowReviewService(false);
+	    c.setTypeOfGrade(1);   // ungraded
+	    c.setAllowAttachments(true);
+	    c.clearAttachments();
+	    c.addAttachment(EntityManager.newReference("/content" + href));
+	    c.setContext(context);
+	    AssignmentService.commitEdit(c);
+
+	    AssignmentEdit a = AssignmentService.addAssignment(context);
+	    Time now = TimeService.newTime();
+	    a.setOpenTime(now);
+
+	    TimeBreakdown year = now.breakdownLocal();
+	    year.setYear(year.getYear() + 1);
+	    now = TimeService.newTimeLocal(year);
+	    a.setDueTime(now);
+
+	    a.setDraft(false);
+	    a.setAccess(Assignment.AssignmentAccess.SITE);
+	    a.clearGroupAccess();
+	    a.setSection("");
+	    a.setTitle(title);
+	    a.setContent(c);
+	    
+	    AssignmentService.commitEdit(a);
+	    return "/assignment/" + a.getId();
+	} catch (Exception e) {
+	    System.out.println("can't create assignment " + e);
+	};
+	return null;
     }
 
 }

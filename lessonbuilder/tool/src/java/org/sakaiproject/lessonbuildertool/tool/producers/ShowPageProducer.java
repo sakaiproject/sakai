@@ -2695,6 +2695,44 @@ public class ShowPageProducer implements ViewComponentProducer, DefaultView, Nav
 			}
 		}
 
+		int numAssignEngines = 0;
+		List<ToolData> assignEngines = new ArrayList<ToolData>();
+
+		for (LessonEntity q = assignmentEntity; q != null; q = q.getNextEntity()) {
+			String toolId = q.getToolId();
+			String toolName = simplePageBean.getCurrentToolTitle(q.getToolId());
+			// we only want the ones that are actually in our site
+			if (toolName != null) {
+				ToolData toolData = new ToolData();
+				toolData.toolId = toolId;
+				toolData.toolName = toolName;
+				numAssignEngines++;
+				assignEngines.add(toolData);
+			}
+		}
+
+		if (numAssignEngines == 0) {
+			UIVerbatim.make(form, "assignmsg", messageLocator.getMessage("simplepage.noassignengines"));
+		} else if (numAssignEngines == 1) {
+			UIInput.make(form, "assigntool", "#{simplePageBean.assigntool}", assignmentEntity.getToolId());
+		} else {
+			ArrayList<String> values = new ArrayList<String>();
+			for (ToolData toolData : assignEngines) {
+				values.add(toolData.toolId);
+			}
+
+			UIOutput.make(form, "assignmsg", messageLocator.getMessage("simplepage.chooseassignengine"));
+			UISelect assignselect = UISelect.make(form, "assigntools", values.toArray(new String[1]), "#{simplePageBean.assigntool}", null);
+			int i = 0;
+			for (ToolData toolData : assignEngines) {
+				UIBranchContainer toolItem = UIBranchContainer.make(form, "assigntoolitem:", String.valueOf(i));
+				UISelectChoice.make(toolItem, "assigntoolbox", assignselect.getFullID(), i);
+				UIOutput.make(toolItem, "assigntoollabel", toolData.toolName);
+				i++;
+			}
+		}
+
+
 	}
 
 	private void createEditMultimediaDialog(UIContainer tofill, SimplePage currentPage) {

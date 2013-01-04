@@ -30,18 +30,27 @@ import java.util.Collection;
 import java.util.List;
 import java.util.Set;
 import java.util.SortedSet;
+import java.util.HashSet;
 import java.util.TreeSet;
 import java.util.Comparator;
 import java.util.Date;
 import java.util.Map;
 import java.util.Iterator;
+import java.lang.reflect.Method;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
+import org.sakaiproject.content.api.ContentResource;
+import org.sakaiproject.entity.api.ResourceProperties;
+import org.sakaiproject.content.cover.ContentHostingService;
+import org.sakaiproject.util.Validator;
 import org.sakaiproject.lessonbuildertool.service.LessonSubmission;
 import org.sakaiproject.lessonbuildertool.tool.beans.SimplePageBean;
 import org.sakaiproject.lessonbuildertool.tool.beans.SimplePageBean.UrlItem;
+import org.sakaiproject.assignment2.model.constants.AssignmentConstants;
+import org.sakaiproject.assignment2.model.Assignment2;
+import org.sakaiproject.assignment2.model.AssignmentAttachment;
 
 import org.sakaiproject.exception.IdUnusedException;
 import org.sakaiproject.exception.InUseException;
@@ -94,7 +103,7 @@ import java.sql.ResultSet;
 // injected class to handle tests and quizes as well. That will eventually
 // be converted to be a LessonEntity.
 
-public class Assignment2Entity implements LessonEntity {
+public class Assignment2Entity implements LessonEntity, AssignmentInterface {
 
     class Assignment {
 	String context;
@@ -115,6 +124,7 @@ public class Assignment2Entity implements LessonEntity {
     private static Cache assignmentCache = null;
     protected static final int DEFAULT_EXPIRATION = 10 * 60;
     static boolean haveA2 = false;
+    Object dao = null;
 
     private SimplePageBean simplePageBean;
 
@@ -150,6 +160,7 @@ public class Assignment2Entity implements LessonEntity {
     }
 
     static OptSql optSql = null;
+    Method saveMethod = null;
 
     public void init () {
     //	if (ToolManager.getTool("sakai.assignment2") != null)
@@ -160,6 +171,29 @@ public class Assignment2Entity implements LessonEntity {
 	if (haveA2) {
 	    assignmentCache = memoryService
 		.newCache("org.sakaiproject.lessonbuildertool.service.Assignment2Entity.cache");
+
+	    // Unfortunately the interface class is part of the component, not the shared library,
+	    // so we can't get to it. The only way to invoke stuff in the DAO is through introspection.
+	    dao = ComponentManager.get("org.sakaiproject.assignment2.dao.AssignmentDao");
+	    // get the methods we need from the DAO
+	    try {
+		saveMethod = dao.getClass().getMethod("save", Object.class);
+	    } catch (Exception f) {
+		System.out.println("assignment2 lessons interface unable to get save method from A2 dao " + f);
+	    };
+
+	    //try {
+	    //		Method [] methods = dao.getClass().getMethods();
+	    //		for (int i = 0; i < methods.length; i++) {
+	    //		    Method method = methods[i];
+	    //		    if (method.getName().equals("save")) {
+	    //			saveMethod = method;
+	    //		    }
+	    //		}
+	    //	    } catch (Exception e) {
+	    //		System.out.println("getmethod failed " + e);
+	    //	    }
+
 	    String vendor = SqlService.getVendor();
 	    try {
 		optSql = (OptSql) Assignment2Entity.class.getClassLoader().loadClass("org.sakaiproject.lessonbuildertool.service.OptSql" + vendor).newInstance();
@@ -590,6 +624,12 @@ public class Assignment2Entity implements LessonEntity {
   
     // set the item to be accessible only to the specific groups.
     // null to make it accessible to the whole site
+    //
+    // We can't access the A2 support code, because it's inside the component,with no
+    // external API. This code was written before I figured out how to use the DAO.
+    // I may be able to rewrite it that way. Note that Oracle needs slightly diffferent
+    // code, so we use a loadable class for some of the SQL statements
+    //
     public void setGroups(Collection<String> tgroups) {
 	ArrayList<String> groups = null;
 	if (tgroups != null)
@@ -695,6 +735,67 @@ public class Assignment2Entity implements LessonEntity {
 	    return null;
 	return "/assignment2/" + assignments.get(0);
 
+    }
+
+    public String importObject(String title, String href, String mime){
+	String contextId = ToolManager.getCurrentPlacement().getContext();
+        Assignment2 assignment = new Assignment2();
+        assignment.setContextId(contextId);
+        assignment.setCreateDate(new Date());
+        assignment.setCreator("ADMIN");
+        assignment.setDraft(false);
+        assignment.setInstructions(messageLocator.getMessage("simplepage.assign_seeattach"));
+        assignment.setSendSubmissionNotifications(false);
+        assignment.setOpenDate(new Date());
+        assignment.setRemoved(false);
+        assignment.setSubmissionType(AssignmentConstants.SUBMIT_INLINE_AND_ATTACH);
+        assignment.setGraded(false);
+        assignment.setHonorPledge(false);
+        assignment.setHasAnnouncement(false);
+        assignment.setAddedToSchedule(false);
+	//        assignment.setSortIndex(sortIndex);
+        assignment.setTitle(title);
+        assignment.setRequiresSubmission(true);
+        assignment.setNumSubmissionsAllowed(1);
+	//	Set <Assignment2> assignSet = new HashSet<Assignment2>();
+	//	assignSet.add(assignment);
+
+	String newAttRef = null;
+	// in theory we should probably copy this into the attachment area. But
+	// if there are any relative URLs in it, they're fail in the copy. So
+	// unless there are problems, we leave it where it is. This code to make
+	// the copy has been tested and should work.
+	if (false) {
+	try {
+	    ContentResource oldAttachment = ContentHostingService.getResource(href);
+	    String toolTitle = "Assignments 2";
+	    String name = Validator.escapeResourceName(oldAttachment.getProperties().getProperty(ResourceProperties.PROP_DISPLAY_NAME));
+	    String type = oldAttachment.getContentType();
+	    byte[] content = oldAttachment.getContent();
+	    ResourceProperties properties = oldAttachment.getProperties();
+	    ContentResource newResource = ContentHostingService.addAttachmentResource(name,
+	       contextId, toolTitle, type, content, properties);
+	    newAttRef = newResource.getId();
+	} catch (Exception e) {
+	    System.out.println("unable to make attachment resource " + e);
+	}
+	}
+	newAttRef = href;
+
+	AssignmentAttachment attachment = new AssignmentAttachment(assignment, newAttRef);
+
+	//	Set<AssignmentAttachment> attachments = new HashSet<AssignmentAttachment>();
+	//	attachments.add(new AssignmentAttachment(assignment, "/content/" + href));
+	try {
+	    saveMethod.invoke(dao, assignment);
+	    saveMethod.invoke(dao, attachment);
+	    return "/assignment2/" + assignment.getId();
+
+	} catch (Exception e) {
+	    System.out.println("invoke failed " + e);
+	}
+
+	return null;
     }
 
 }
