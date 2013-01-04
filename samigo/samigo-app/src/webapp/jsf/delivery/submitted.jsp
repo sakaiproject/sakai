@@ -134,6 +134,11 @@ window.close();
     <h:commandButton type="submit" value="#{deliveryMessages.button_continue}" action="select"
        rendered="#{delivery.actionString=='takeAssessment'}" />
 
+    <h:commandButton value="#{deliveryMessages.button_close_window}" type="button" 
+       rendered="#{delivery.actionString=='takeAssessmentViaUrl' && !delivery.anonymousLogin}"
+       style="act" onclick="javascript:window.close();" />
+
+
     <h:commandButton value="#{deliveryMessages.review_results}" type="button" id="reviewAssessment"
        rendered="#{delivery.actionString=='takeAssessmentViaUrl' && delivery.anonymousLogin && (delivery.feedbackComponent.showImmediate || delivery.feedbackComponent.showOnSubmission || delivery.feedbackOnDate) && delivery.feedbackComponentOption=='2'}" 
        style="act" onclick="reviewAssessment(this);" onkeypress="reviewAssessment(this);" />

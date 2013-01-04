@@ -4,8 +4,10 @@ import java.text.DateFormat;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.HashMap;
+import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
+import java.util.Vector;
 
 import org.sakaiproject.authz.api.SecurityService;
 import org.sakaiproject.entitybroker.entityprovider.CoreEntityProvider;
@@ -15,6 +17,29 @@ import org.sakaiproject.tool.assessment.entity.api.PublishedAssessmentEntityProv
 import org.sakaiproject.tool.assessment.facade.PublishedAssessmentFacade;
 import org.sakaiproject.tool.assessment.facade.PublishedAssessmentFacadeQueriesAPI;
 import org.sakaiproject.tool.assessment.services.assessment.PublishedAssessmentService;
+import org.sakaiproject.tool.assessment.shared.api.grading.GradingServiceAPI;
+import org.sakaiproject.entitybroker.EntityReference;
+import org.sakaiproject.entitybroker.entityprovider.search.Search;
+import org.sakaiproject.entitybroker.entityprovider.capabilities.CollectionResolvable;
+import org.sakaiproject.entitybroker.entityprovider.capabilities.BrowseSearchable;
+import org.sakaiproject.entitybroker.entityprovider.extension.EntityData;
+import org.sakaiproject.entitybroker.entityprovider.search.Restriction;
+import org.sakaiproject.entitybroker.entityprovider.extension.Formats;
+import org.sakaiproject.entitybroker.entityprovider.capabilities.Outputable;
+import org.sakaiproject.entitybroker.entityprovider.capabilities.RESTful;
+import org.sakaiproject.entitybroker.entityprovider.capabilities.RedirectDefinable;
+import org.sakaiproject.entitybroker.entityprovider.extension.TemplateMap;
+import org.sakaiproject.entitybroker.DeveloperHelperService;
+
+
+
+
+
+import java.lang.IllegalArgumentException;
+import java.lang.SecurityException;
+import java.lang.IllegalStateException;
+
+
 
 /**
  * Entity Provider impl for samigo PublishedAssessments
@@ -25,12 +50,13 @@ import org.sakaiproject.tool.assessment.services.assessment.PublishedAssessmentS
  *
  */
 public class PublishedAssessmentEntityProviderImpl implements PublishedAssessmentEntityProvider,
-      CoreEntityProvider, AutoRegisterEntityProvider, PropertyProvideable {
+      CoreEntityProvider, AutoRegisterEntityProvider, PropertyProvideable,  BrowseSearchable, RESTful, Outputable, RedirectDefinable {
 
   private static final String CAN_TAKE = "assessment.takeAssessment";
   private static final String CAN_PUBLISH = "assessment.publishAssessment.any";
   private PublishedAssessmentFacadeQueriesAPI publishedAssessmentFacadeQueries;
   private SecurityService securityService;
+  private GradingServiceAPI gradingService = null;
   
   public String getEntityPrefix() {
     return ENTITY_PREFIX;
@@ -53,6 +79,13 @@ public class PublishedAssessmentEntityProviderImpl implements PublishedAssessmen
     }
     return rv;
   }
+
+  public TemplateMap[] defineURLMappings() {
+      return new TemplateMap[] {
+              new TemplateMap("/{prefix}/context/{siteId}", "{prefix}{dot-extension}") // all assignments in a site
+      };
+  }
+
 
   /**
    * Browse for the list of published assessments for a given site for a user
@@ -96,6 +129,124 @@ public class PublishedAssessmentEntityProviderImpl implements PublishedAssessmen
       }
     }
     return refs;
+  }
+
+  public List getEntities(EntityReference ref, Search search){
+	  Vector results = new Vector();
+	  
+
+	  String siteId = null;
+	  Restriction[] restrictions = search.getRestrictions();
+
+      String userId = null;	  
+	  
+	  for(int r=0;r<restrictions.length;r++){
+		  if(restrictions[r].property.equalsIgnoreCase("siteId")){
+			  siteId = (String) restrictions[r].value;
+		  }
+		  if(restrictions[r].property.equalsIgnoreCase("userId")){
+			  userId = (String) restrictions[r].value;
+		  }
+		  if(restrictions[r].property.equalsIgnoreCase("context")){
+			  siteId = (String) restrictions[r].value;
+		  }		  
+	  }
+
+	  if(userId==null){
+		  userId = developerHelperService.getCurrentUserId();
+	  }
+      if (userId == null) {
+          throw new SecurityException("No user is currently logged in so no data can be retrieved");
+      }
+	  
+	  if(userId==null)return results;
+	  if(siteId==null) return results;
+	   String orderBy = "title";
+	   List assessments = null;
+	   boolean canPublish = false;
+	   Date currentDate = new Date();
+
+	    // Check what the user can do
+	    if (securityService.unlock(CAN_PUBLISH, "/site/"+siteId)) {
+	      publishedAssessmentFacadeQueries.
+	        getBasicInfoOfAllActivePublishedAssessments(orderBy, siteId, true);
+	      assessments = publishedAssessmentFacadeQueries
+	        .getBasicInfoOfAllInActivePublishedAssessments(orderBy, siteId, true);
+	      assessments.addAll(publishedAssessmentFacadeQueries
+	        .getBasicInfoOfAllActivePublishedAssessments(orderBy, siteId, true));
+	      canPublish = true;
+	    }
+	    else if (securityService.unlock(CAN_TAKE, "/site/"+siteId)) {
+	      assessments = publishedAssessmentFacadeQueries
+	        .getBasicInfoOfAllActivePublishedAssessments(orderBy, siteId, true);
+	    }
+	    Iterator assessmentIterator = assessments.iterator();
+	    while(assessmentIterator.hasNext()){
+	    	PublishedAssessmentFacade pub = (PublishedAssessmentFacade) assessmentIterator.next();
+	    	results.add(pub);
+	    	
+	    }
+	  return results;
+  }
+  
+  public Object getEntity(EntityReference ref) {
+	  
+	  return new EntityData(new EntityReference("dummy reference"), "dummy"); 
+  }
+  
+  public List<EntityData> browseEntities(Search search,
+          String userReference,
+          String associatedReference,
+          Map<String,Object> params){
+	  
+	  Vector results = new Vector();
+	  
+	  String siteId = (String) params.get("context");
+	  Restriction[] restrictions = search.getRestrictions();
+	  String userId = null;
+	  for(int r=0;r<restrictions.length;r++){
+		  if(restrictions[r].property.equalsIgnoreCase("userId")){
+			  userId = (String) restrictions[r].value;
+		  }
+		  if(restrictions[r].property.equalsIgnoreCase("context")){
+			  siteId = (String) restrictions[r].value;
+		  }
+		  
+	  }
+	  if(userId==null)return results;
+	  if(siteId==null) return results;
+	   String orderBy = "title";
+	   List assessments = null;
+	   boolean canPublish = false;
+	   Date currentDate = new Date();
+
+	    // Check what the user can do
+	    if (securityService.unlock(CAN_PUBLISH, "/site/"+siteId)) {
+	      publishedAssessmentFacadeQueries.
+	        getBasicInfoOfAllActivePublishedAssessments(orderBy, siteId, true);
+	      assessments = publishedAssessmentFacadeQueries
+	        .getBasicInfoOfAllInActivePublishedAssessments(orderBy, siteId, true);
+	      assessments.addAll(publishedAssessmentFacadeQueries
+	        .getBasicInfoOfAllActivePublishedAssessments(orderBy, siteId, true));
+	      canPublish = true;
+	    }
+	    else if (securityService.unlock(CAN_TAKE, "/site/"+siteId)) {
+	      assessments = publishedAssessmentFacadeQueries
+	        .getBasicInfoOfAllActivePublishedAssessments(orderBy, siteId, true);
+	    }
+	    Iterator assessmentIterator = assessments.iterator();
+	    while(assessmentIterator.hasNext()){
+	    	PublishedAssessmentFacade pub = (PublishedAssessmentFacade) assessmentIterator.next();
+	        if(canPublish || pub.getStartDate() == null || currentDate.after(pub.getStartDate())){
+	            String thisEntityReference = "/" + ENTITY_PREFIX + "/" + pub.getPublishedAssessmentId();
+	            String thisEntityTitle = pub.getTitle();
+	            results.add(new EntityData(new EntityReference(thisEntityReference), thisEntityTitle));
+	        }
+
+	    	
+	    }
+	  return results;
+	  
   }
 
   public List<String> findEntityRefs(String[] prefixes, String[] name, String[] searchValue,
@@ -156,6 +307,34 @@ public class PublishedAssessmentEntityProviderImpl implements PublishedAssessmen
     return props;
   }
 
+  
+  
+	public String[] getHandledOutputFormats() {
+		return new String[] {Formats.XML, Formats.JSON};
+	}
+	
+    public String[] getHandledInputFormats() {
+        return new String[] {Formats.XML, Formats.JSON, Formats.HTML};
+    }
+
+    public String createEntity(EntityReference ref, Object entity, Map<String, Object> params) {
+    	return null;    	
+    }
+
+    public Object getSampleEntity() {
+    	return null;    	
+    	
+    }
+
+    public void updateEntity(EntityReference ref, Object entity, Map<String, Object> params) {
+
+    }
+    
+    public void deleteEntity(EntityReference ref, Map<String, Object> params) {
+
+    }
+
+
   public String getPropertyValue(String reference, String name) {
     Map<String, String> props = getProperties(reference);
     return props.get(name);
@@ -182,4 +361,10 @@ public class PublishedAssessmentEntityProviderImpl implements PublishedAssessmen
   public void setSecurityService(SecurityService security) {
     this.securityService = security;
   }
+  
+  private DeveloperHelperService developerHelperService;
+  public void setDeveloperHelperService(DeveloperHelperService developerHelperService) {
+     this.developerHelperService = developerHelperService;
+}
+
 }

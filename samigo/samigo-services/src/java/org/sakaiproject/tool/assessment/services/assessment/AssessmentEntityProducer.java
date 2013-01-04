@@ -4,9 +4,11 @@ import java.util.Collection;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
+import java.util.Map.Entry;
 import java.util.Set;
 import java.util.Stack;
 import java.util.Map.Entry;
+import org.sakaiproject.util.LinkMigrationHelper;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
@@ -215,11 +217,21 @@ public class AssessmentEntityProducer implements EntityTransferrer,
 								ItemText itemText = (ItemText) itemTextList.get(k);
 								String text = itemText.getText();
 								if(text != null){
-									text = replaceAllRefs(text, entrySet);
+									try {
+										text = LinkMigrationHelper.editLinks(text, "sam_pub");
+										text = LinkMigrationHelper.editLinks(text, "/posts/");
+									} catch (Exception e) {
+										// TODO Auto-generated catch block
+										log.debug("link neuterer failed");
+									}
+									text = LinkMigrationHelper.miagrateAllLinks(entrySet, text);
+//									text = replaceAllRefs(text, entrySet);
 									if(!text.equals(itemText.getText())){
 										//need to save since a ref has been updated:
 										needToUpdate = true;
 										itemText.setText(text);
+									}else{
+										log.info("Migration - now update");
 									}
 								}
 							}
