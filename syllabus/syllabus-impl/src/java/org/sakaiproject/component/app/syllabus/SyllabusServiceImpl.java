@@ -74,6 +74,8 @@ import org.sakaiproject.user.cover.UserDirectoryService;
 import org.sakaiproject.util.BaseResourcePropertiesEdit;
 import org.sakaiproject.util.Validator;
 
+import org.sakaiproject.util.LinkMigrationHelper;
+
 //permission convert
 import org.sakaiproject.authz.cover.SecurityService;
 
@@ -1397,7 +1399,9 @@ public class SyllabusServiceImpl implements SyllabusService, EntityTransferrer, 
 
 
 						String msgBody = fromSyllabusData.getAsset();
+						StringBuffer msgBodyPreMigrate = new StringBuffer(msgBody);
 						boolean updated = false;
+/*						
 						Iterator<Entry<String, String>> entryItr = entrySet.iterator();
 						while(entryItr.hasNext()) {
 							Entry<String, String> entry = (Entry<String, String>) entryItr.next();
@@ -1407,7 +1411,13 @@ public class SyllabusServiceImpl implements SyllabusService, EntityTransferrer, 
 								updated = true;
 							}								
 						}	
-						if(updated){
+*/
+						msgBody = LinkMigrationHelper.editLinks(msgBody, "sam_pub");
+						msgBody = LinkMigrationHelper.editLinks(msgBody, "/posts/");
+						msgBody = LinkMigrationHelper.miagrateAllLinks(entrySet, msgBody);
+						if(!msgBody.equals(msgBodyPreMigrate.toString())){
+						
+//						if(updated){
 							fromSyllabusData.setAsset(msgBody);
 							syllabusManager.saveSyllabus(fromSyllabusData);
 						}
