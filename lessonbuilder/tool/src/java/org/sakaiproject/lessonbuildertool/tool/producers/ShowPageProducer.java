@@ -46,11 +46,13 @@ import java.util.Collections;
 import java.util.Comparator;
 import java.util.Date;
 import java.util.HashMap;
+import java.util.Iterator;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
 import java.util.StringTokenizer;
 import java.util.TimeZone;
+import java.util.Vector;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
@@ -93,6 +95,9 @@ import org.sakaiproject.tool.cover.SessionManager;
 import org.sakaiproject.user.api.UserNotDefinedException;
 import org.sakaiproject.user.cover.UserDirectoryService;
 import org.sakaiproject.util.ResourceLoader;
+import org.sakaiproject.site.api.Site;
+import org.sakaiproject.site.api.SiteService;
+import org.sakaiproject.component.cover.ComponentManager;
 
 import uk.org.ponder.localeutil.LocaleGetter;
 import uk.org.ponder.messageutil.MessageLocator;
@@ -2305,23 +2310,62 @@ public class ShowPageProducer implements ViewComponentProducer, DefaultView, Nav
 	private void createToolBar(UIContainer tofill, SimplePage currentPage, boolean isStudent) {
 		UIBranchContainer toolBar = UIBranchContainer.make(tofill, "tool-bar:");
 
+		Vector LBPROPERTY_NAMES = new Vector();		
+		LBPROPERTY_NAMES.add("lessonbuilder.includeForums");
+		LBPROPERTY_NAMES.add("lessonbuilder.includeAddComments");
+		LBPROPERTY_NAMES.add("lessonbuilder.includeStudentContent");
+		LBPROPERTY_NAMES.add("lessonbuilder.includeAddMorePages");
+		LBPROPERTY_NAMES.add("lessonbuilder.addQuiz");
+		LBPROPERTY_NAMES.add("lessonbuilder.addAssignment");
+		LBPROPERTY_NAMES.add("lessonbuilder.addResource");
+		LBPROPERTY_NAMES.add("lessonbuilder.addMultimedia");
+		LBPROPERTY_NAMES.add("lessonbuilder.addText");
+		
+
+		Map localPropertyMap = initializeLocalViewProperties(LBPROPERTY_NAMES);
+		Iterator g = localPropertyMap.keySet().iterator();
+		while(g.hasNext()){
+			String thisKey = (String) g.next();
+			Boolean b = (Boolean) localPropertyMap.get(thisKey);
+			log.debug("local:"+thisKey+"="+b.toString());
+		}
+		
+		Map globalPropertyMap = initializeGlobalViewProperties(LBPROPERTY_NAMES);
+
+		g = globalPropertyMap.keySet().iterator();
+		while(g.hasNext()){
+			String thisKey = (String) g.next();
+			Boolean b = (Boolean) globalPropertyMap.get(thisKey);
+			log.debug("global:"+thisKey+"="+b.toString());
+		}
+				
+	
+		
+		
+		
+		
+
 		// decided not to use long tooltips. with screen reader they're too
 		// verbose. We now have good help
 		createToolBarLink(ReorderProducer.VIEW_ID, toolBar, "reorder", "simplepage.reorder", currentPage, "simplepage.reorder-tooltip");
-
+		if(this.getViewFlag(localPropertyMap, globalPropertyMap, "lessonbuilder.addText")){
 		createToolBarLink(EditPageProducer.VIEW_ID, toolBar, "add-text", "simplepage.text", currentPage, "simplepage.text.tooltip").setItemId(null);
-		
+		}
+		if(this.getViewFlag(localPropertyMap, globalPropertyMap, "lessonbuilder.addResource")){
 		createFilePickerToolBarLink(ResourcePickerProducer.VIEW_ID, toolBar, "add-resource", "simplepage.resource", false, false,  currentPage, "simplepage.resource.tooltip");
-
+		}
+		if(this.getViewFlag(localPropertyMap, globalPropertyMap, "lessonbuilder.includeAddMorePages")){
 		UILink subpagelink = UIInternalLink.makeURL(toolBar, "subpage-link", "#");
 		subpagelink.decorate(new UITooltipDecorator(messageLocator.getMessage("simplepage.subpage")));
 		subpagelink.linktext = new UIBoundString(messageLocator.getMessage("simplepage.subpage"));
+		}
 
 		//createToolBarLink(AssignmentPickerProducer.VIEW_ID, toolBar, "add-assignment", "simplepage.assignment", currentPage, "simplepage.assignment");
 		//createToolBarLink(QuizPickerProducer.VIEW_ID, toolBar, "add-quiz", "simplepage.quiz", currentPage, "simplepage.quiz");
 		//createToolBarLink(ForumPickerProducer.VIEW_ID, toolBar, "add-forum", "simplepage.forum", currentPage, "simplepage.forum");
+		if(this.getViewFlag(localPropertyMap, globalPropertyMap, "lessonbuilder.addMultimedia")){
 		createFilePickerToolBarLink(ResourcePickerProducer.VIEW_ID, toolBar, "add-multimedia", "simplepage.multimedia", true, false, currentPage, "simplepage.multimedia.tooltip");
-
+		}
 		UILink.make(toolBar, "help", messageLocator.getMessage("simplepage.help"), 
 			    getLocalizedURL( isStudent ? "student.html" : "general.html"));
 
@@ -2340,15 +2384,18 @@ public class ShowPageProducer implements ViewComponentProducer, DefaultView, Nav
 				// A: Not sure
 				log.warn("SecurityException thrown by expandZippedResource method lookup", e);
 			}
-			
+			if(this.getViewFlag(localPropertyMap, globalPropertyMap, "lessonbuilder.addAssignment")){
 			createToolBarLink(AssignmentPickerProducer.VIEW_ID, toolBar, "add-assignment", "simplepage.assignment", currentPage, "simplepage.assignment");
+			}
 			
 			// dropdown
-
+			if(this.getViewFlag(localPropertyMap, globalPropertyMap, "lessonbuilder.addQuiz")){
 			createToolBarLink(QuizPickerProducer.VIEW_ID, tofill, "add-quiz", "simplepage.quiz", currentPage, "simplepage.quiz");
-			
+			}
+			if(this.getViewFlag(localPropertyMap, globalPropertyMap, "lessonbuilder.includeForums")){
 			UIOutput.make(tofill, "forum-descrip");
 			createToolBarLink(ForumPickerProducer.VIEW_ID, tofill, "add-forum", "simplepage.forum", currentPage, "simplepage.forum");
+			}
 			// in case we're on an old system without current BLTI
 			if (bltiEntity != null && ((BltiInterface)bltiEntity).servicePresent()) {
 			    UIOutput.make(tofill, "blti-descrip");
@@ -2356,15 +2403,84 @@ public class ShowPageProducer implements ViewComponentProducer, DefaultView, Nav
 			}
 			UIOutput.make(tofill, "permissions-descrip");
 			createToolBarLink(PermissionsHelperProducer.VIEW_ID, tofill, "permissions", "simplepage.permissions", currentPage, "simplepage.permissions.tooltip");
-			
 			GeneralViewParameters eParams = new GeneralViewParameters(VIEW_ID);
+			if(ServerConfigurationService.getBoolean("lessonbuilder.includeStudentContent", true)){
 			eParams.addTool = GeneralViewParameters.COMMENTS;
 			UIOutput.make(tofill, "student-descrip");
 			UIInternalLink.make(tofill, "add-comments", messageLocator.getMessage("simplepage.comments"), eParams);
-			
 			eParams = new GeneralViewParameters(VIEW_ID);
 			eParams.addTool = GeneralViewParameters.STUDENT_CONTENT;
 			UIInternalLink.make(tofill, "add-content", messageLocator.getMessage("simplepage.add-content"), eParams);
+		}
+	}
+	}
+
+	private Map initializeLocalViewProperties(List propertyNames) {
+
+		HashMap localPropertyMap = new HashMap();
+		ResourceProperties rp = null;
+		SiteService siteService = (SiteService) ComponentManager.get("org.sakaiproject.site.api.SiteService");
+
+		try {
+		    Site thisSite = siteService.getSite(simplePageBean.getCurrentSiteId());
+		    log.debug("lessonbuilder in site:"+thisSite.getId());
+		    rp = thisSite.getProperties();
+		    Iterator pi = propertyNames.iterator();
+	    	while(pi.hasNext()){
+	    		String thisPropertyName = (String) pi.next();
+	    		String thisPropertyValue = (String) rp.get(thisPropertyName);
+	    		log.debug("lessonbuilder getting local property:"+thisPropertyName);
+	    		if(thisPropertyValue!=null){
+	    			if(thisPropertyValue.equalsIgnoreCase("false")){
+	    				localPropertyMap.put(thisPropertyName, new Boolean(false));
+	    			}else if((thisPropertyValue.equalsIgnoreCase("true"))){
+	    				localPropertyMap.put(thisPropertyName, new Boolean(true));
+	    			}else{
+	    				log.warn("Unrecognized local property value:"+thisPropertyValue+"-"+thisPropertyName+"-"+simplePageBean.getCurrentSiteId());
+	    			}
+	    		}
+	    		log.debug("lessonbuilder property:"+thisPropertyName+" was null");
+	    	}
+		} catch (Exception e) {
+		    if (log.isDebugEnabled()) {
+		    	log.warn("Lessonbuilder cannot figure out what site it is in - not initializing any LB local view properties in site:"+simplePageBean.getCurrentSiteId());
+		    	Iterator pi = propertyNames.iterator();
+		    	while(pi.hasNext()){
+		    		String thisPropertyName = (String) pi.next();
+		    		localPropertyMap.put(thisPropertyName, new Boolean(true));
+		    	}
+		    }
+		}
+		
+		return localPropertyMap;
+	}
+
+	private Map initializeGlobalViewProperties(List propertyNames) {
+		HashMap globalPropertyMap = new HashMap();
+		Iterator globalPropertyIterator = propertyNames.iterator();
+		while(globalPropertyIterator.hasNext()){
+			String thisPropertyName = (String) globalPropertyIterator.next();
+			boolean thisGlobalPropertyValue = ServerConfigurationService.getBoolean(thisPropertyName, true);
+			globalPropertyMap.put(thisPropertyName, new Boolean(thisGlobalPropertyValue));
+		}
+		return globalPropertyMap;
+	}
+	
+	
+	private boolean getViewFlag(Map localPropertyMap, Map globalPropertyMap,String flagName) {
+		Boolean value = (Boolean) localPropertyMap.get(flagName);
+//		log.debug("local property value:"+flagName+"="+value.toString());
+
+		if(value!=null){
+			return value.booleanValue();
+		}else{
+			value = (Boolean) globalPropertyMap.get(flagName);
+			log.debug("global property value:"+flagName+"="+value.toString());
+			if(value!=null){
+				return value.booleanValue();
+			}else{
+				return true;
+			}
 		}
 	}
 
