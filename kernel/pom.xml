@@ -1098,7 +1098,6 @@
         <module>kernel-component</module>
         <module>kernel-common</module>
         <module>kernel-impl</module>
-        <module>kernel-tim</module>
         <module>kernel-util</module>
         <module>kernel-storage-util</module>
         <module>deploy</module>
@@ -1106,6 +1105,17 @@
         <module>test-harness</module>
     </modules>
     <profiles>
+        <profile>
+            <id>terracotta</id>
+            <activation>
+                <property>
+                    <name>terracotta</name>
+                </property>
+            </activation>
+            <modules>
+                <module>kernel-tim</module>
+            </modules>
+        </profile>
         <profile>
             <id>release</id>
             <build>
