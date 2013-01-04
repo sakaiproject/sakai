@@ -46,6 +46,7 @@ import java.util.Stack;
 import java.util.StringTokenizer;
 import java.util.TreeSet;
 import java.util.Map.Entry;
+import java.util.Vector;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
@@ -168,6 +169,7 @@ import org.xml.sax.SAXException;
 
 import com.ibm.icu.text.CharsetDetector;
 import com.ibm.icu.text.CharsetMatch;
+import org.sakaiproject.util.LinkMigrationHelper;
 
 /**
  * <p>
@@ -7414,8 +7416,117 @@ SiteContentAdvisorProvider, SiteContentAdvisorTypeRegistry, EntityTransferrerRef
 	 */
 	public void updateEntityReferences(String toContext, Map transversalMap){
 		//TODO: is there any content that needs reference updates?
+		String fromContext = (String) transversalMap.get("/fromContext");
+		String fromSiteId = siteIdExtract(fromContext);
+		String thisKey = null;
+		try {					
+			Vector targetResourceList = new Vector();
+			String targetContext = "/group/"+toContext+"/";
+//			List thisTargetResourceList = getAllResources(targetContext);
+			List thisTargetResourceList = getAllResources(fromContext);
+			Iterator sourceResourceIterator = thisTargetResourceList.iterator();
+			String tId = null;
+			String rContent = null;
+			while(sourceResourceIterator.hasNext()){
+				ContentResource thisContentResource = (ContentResource) sourceResourceIterator.next();
+				tId = thisContentResource.getId();
+				String sourceType = thisContentResource.getContentType();
+				boolean contentChanged = false;
+				String targetId = null;
+				if(sourceType.startsWith("text/html")){
+//					String oldReference = siteIdSplice(tId, fromSiteId);
+					String oldReference = tId;
+					tId = siteIdSplice(tId, toContext);
+					ContentResource oldSiteContentResource = getResource(oldReference);
+					byte[] thisResourceContentRaw = oldSiteContentResource.getContent();
+					rContent = new String(thisResourceContentRaw);
+					StringBuffer saveOldEntity = new StringBuffer(rContent);
+					Iterator contentKeys = transversalMap.keySet().iterator();
+					while(contentKeys.hasNext()){							
+						String oldValue = (String) contentKeys.next();
+						if(!oldValue.equals("/fromContext")){
+							String newValue = "";
+							newValue = (String) transversalMap.get(oldValue);
+							targetId = (String) transversalMap.get(oldValue);
+							if(newValue.length()>0){
+								try {
+									rContent = LinkMigrationHelper.editLinks(rContent, "sam_pub");
+									rContent = LinkMigrationHelper.editLinks(rContent, "/posts/");
+								} catch (Exception e) {
+									// TODO Auto-generated catch block
+									e.printStackTrace();
+	}
+/*									
+								oldValue = oldValue.replace(" ",ESCAPED_SPACE);
+								newValue = newValue.replace(" ",ESCAPED_SPACE);
+								rContent = rContent.replaceAll(oldValue, newValue);
+*/
+								rContent = LinkMigrationHelper.miagrateOneLink(oldValue, newValue, rContent);
+	
+/*
+								if(!saveOldEntity.toString().equals(rContent)){
+									contentChanged=true;
+								}
+*/
+							}
+						}
+					}
+					try {
+						rContent = LinkMigrationHelper.bracketLinks(rContent, "assignment");
+						rContent = LinkMigrationHelper.bracketLinks(rContent, "forum");
+					} catch (Exception e) {
+						// TODO Auto-generated catch block
+						M_log.debug ("Forums LinkMigrationHelper.editLinks failed" + e);
+					}					
+					try {
+						ContentResourceEdit edit = editResource(tId);
+						edit.setContent(rContent.getBytes());
+						m_storage.commitResource(edit);
+					} catch (InUseException e6) {
+						// TODO Auto-generated catch block
+						M_log.warn(this + thisKey, e6);
+					}catch (PermissionException e1) {
+						M_log.warn(this + thisKey, e1);
+					} catch (IdUnusedException e2) {
+						M_log.warn(this + thisKey, e2);
+					} catch (TypeException e3) {
+						M_log.warn(this + thisKey, e3);
+					} 
+	
+				}
+			}
+		} catch (PermissionException e1) {
+			M_log.warn(this + thisKey, e1);
+		} catch (IdUnusedException e2) {
+			M_log.warn(this + thisKey, e2);
+		} catch (TypeException e3) {
+			M_log.warn(this + thisKey, e3);
+		} catch (ServerOverloadException e4) {
+			M_log.warn(this + thisKey, e4);
+//		}catch(OverQuotaException e5){
+//			M_log.warn(this + thisKey, e5);
+		}
+		
 	}
 	
+	private String siteIdExtract(String ref){
+		String[] components = ref.split("/");
+		return components[2];
+	}
+	
+	private String siteIdSplice(String ref, String siteId){
+		String[] components = ref.split("/");
+		StringBuffer splicedString = new StringBuffer();
+		for(int i=1;i< components.length;i++){
+			splicedString.append("/");
+			if(i==2){
+				splicedString.append(siteId);
+			}else{
+				splicedString.append(components[i]);
+			}
+		}
+		return splicedString.toString();
+	}
 	
 	/**
 	 * {@inheritDoc}
@@ -7643,7 +7754,7 @@ SiteContentAdvisorProvider, SiteContentAdvisorTypeRegistry, EntityTransferrerRef
 			{
 			}
 		}
-
+		transversalMap.put("/fromContext", fromContext);
 		return transversalMap;
 	} // importResources
 
