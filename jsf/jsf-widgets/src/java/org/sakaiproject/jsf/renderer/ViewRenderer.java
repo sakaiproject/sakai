@@ -25,6 +25,7 @@
 package org.sakaiproject.jsf.renderer;
 
 import java.io.IOException;
+import java.util.Locale;
 
 import javax.faces.component.UIComponent;
 import javax.faces.component.UIOutput;
@@ -35,6 +36,7 @@ import javax.faces.render.Renderer;
 import javax.servlet.http.HttpServletRequest;
 
 import org.sakaiproject.jsf.util.RendererUtil;
+import org.sakaiproject.jsf.util.LocaleUtil;
 
 public class ViewRenderer extends Renderer
 {
@@ -70,12 +72,19 @@ public class ViewRenderer extends Renderer
 			String headJs = (String)req.getAttribute("sakai.html.head.js");
 			String bodyonload = (String) req.getAttribute("sakai.html.body.onload");
 
-			writer.write("<!DOCTYPE html PUBLIC \"-//W3C//DTD XHTML 1.0 Transitional//EN\" \"http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd\">\n");
-			String lang = (String) RendererUtil.getAttribute(context, component, "lang");
-            if(lang == null || lang.equals(""))
-            {
-                lang = "en";
+            // SAK-23099 - Set the lang tag to the current user's locale.
+            Locale locale = LocaleUtil.getLocale(context);
+
+            String lang = locale.getLanguage();
+
+            if(lang == null || lang.equals("")) lang = "en";
+
+            String countryCode = locale.getCountry();
+            if(countryCode != null && countryCode.length() > 0) {
+                lang += "_" + countryCode;
             }
+
+			writer.write("<!DOCTYPE html PUBLIC \"-//W3C//DTD XHTML 1.0 Transitional//EN\" \"http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd\">\n");
 			writer.write("<html xmlns=\"http://www.w3.org/1999/xhtml\" lang=\"" + lang + "\" xml:lang=\"" + lang + "\">\n");
 			writer.write("<head>\n");
 			String title = (String) RendererUtil.getAttribute(context, component, "title");
