@@ -38,7 +38,6 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
-import java.util.Map.Entry;
 import java.util.Properties;
 import java.util.Set;
 import java.util.Stack;
@@ -65,7 +64,6 @@ import org.sakaiproject.entity.api.EntityTransferrerRefMigrator;
 import org.sakaiproject.entity.api.HttpAccess;
 import org.sakaiproject.entity.api.Reference;
 import org.sakaiproject.entity.api.ResourceProperties;
-import org.sakaiproject.exception.IdUnusedException;
 import org.sakaiproject.entity.cover.EntityManager;
 import org.sakaiproject.entitybroker.EntityReference;
 import org.sakaiproject.thread_local.cover.ThreadLocalManager;
@@ -99,7 +97,6 @@ import org.sakaiproject.tool.api.ToolManager;
 import org.sakaiproject.entity.api.ResourceProperties;
 import org.sakaiproject.entity.api.ResourcePropertiesEdit;
 import org.sakaiproject.util.ResourceLoader;
-import org.sakaiproject.util.LinkMigrationHelper;
 import org.sakaiproject.util.Xml;
 import uk.org.ponder.messageutil.MessageLocator;
 import org.w3c.dom.Attr;
@@ -1172,8 +1169,7 @@ public class LessonBuilderEntityProducer extends AbstractEntityProvider
 			    while (toolIter.hasNext()) {
 				
 				ToolConfiguration toolConfig = (ToolConfiguration)toolIter.next();
-				logger.info("toolid="+toolConfig.getToolId());
-				logger.info("placementId="+toolConfig.getId());
+
 				if (toolIds.contains(toolConfig.getToolId())) {
 				    removePageIds.add(toolConfig.getPageId());
 				}
@@ -1445,14 +1441,7 @@ public class LessonBuilderEntityProducer extends AbstractEntityProvider
 	    contentPos = copyEnd;
 	}
 	    output.append(content.substring(contentPos));
-	    String lbOutput = output.toString();
-	    try{
-	    	lbOutput = LinkMigrationHelper.editLinks(lbOutput, "sam_pub");
-	    	lbOutput = LinkMigrationHelper.editLinks(lbOutput, "/posts/");
-	    }catch(Exception e){
-	    	
-    }
-	    return lbOutput.toString();
+	    return output.toString();
     }
 
     final String ITEMDUMMY = "http://lessonbuilder.sakaiproject.org/";
