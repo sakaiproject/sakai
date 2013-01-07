@@ -45,7 +45,7 @@ public class Ns  {
     }
 
     public int getVersions() {
-	return 2;
+	return 3;
     }
 
     public Namespace lom_ns() {
