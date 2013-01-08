@@ -7455,7 +7455,7 @@ SiteContentAdvisorProvider, SiteContentAdvisorTypeRegistry, EntityTransferrerRef
 								} catch (Exception e) {
 									// TODO Auto-generated catch block
 									e.printStackTrace();
-	}
+								}
 /*									
 								oldValue = oldValue.replace(" ",ESCAPED_SPACE);
 								newValue = newValue.replace(" ",ESCAPED_SPACE);
@@ -7479,9 +7479,11 @@ SiteContentAdvisorProvider, SiteContentAdvisorTypeRegistry, EntityTransferrerRef
 						M_log.debug ("Forums LinkMigrationHelper.editLinks failed" + e);
 					}					
 					try {
-						ContentResourceEdit edit = editResource(tId);
-						edit.setContent(rContent.getBytes());
-						m_storage.commitResource(edit);
+						if(!saveOldEntity.toString().equals(rContent)){
+							ContentResourceEdit edit = editResource(tId);
+							edit.setContent(rContent.getBytes());
+							m_storage.commitResource(edit);
+						}
 					} catch (InUseException e6) {
 						// TODO Auto-generated catch block
 						M_log.warn(this + thisKey, e6);
