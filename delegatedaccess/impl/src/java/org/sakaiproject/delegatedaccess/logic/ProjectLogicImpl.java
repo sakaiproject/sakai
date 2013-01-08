@@ -178,7 +178,7 @@ public class ProjectLogicImpl implements ProjectLogic {
 			}else{
 				sakaiProxy.postEvent(DelegatedAccessConstants.EVENT_DELETE_USER_SHOPPING_ADMIN, "/user/" + userId + "/node/" + nodeModel.getNodeId(), true);
 			}
-		}else if(!DelegatedAccessConstants.SHOPPING_PERIOD_USER.equals(userId) && nodeModel.getShoppingAdminModified() != null){
+		}else if(!DelegatedAccessConstants.SHOPPING_PERIOD_USER.equals(userId) && nodeModel.getShoppingAdminModified() != null && (nodeModel.isDirectAccess() || nodeModel.isShoppingPeriodAdmin() || nodeModel.isAccessAdmin())){
 			//If there was no modification to shopping admin permission but there is a timestamp of previous modifications,
 			//we need to resave it so we don't lose this information:
 			hierarchyService.assignUserNodePerm(userId, nodeModel.getNodeId(), DelegatedAccessConstants.NODE_PERM_SHOPPING_ADMIN_MODIFIED + nodeModel.getShoppingAdminModified().getTime(), false);
@@ -288,7 +288,14 @@ public class ProjectLogicImpl implements ProjectLogic {
 
 	private void removeAllUserPermissions(String nodeId, String userId){
 		for(String perm : getPermsForUserNodes(userId, nodeId)){
-			hierarchyService.removeUserNodePerm(userId, nodeId, perm, false);
+			//Only delete DA permissions
+			for(String daPerm : DelegatedAccessConstants.NODE_PERMS){;
+				//DA permissions are usually prefix's
+				if(perm.startsWith(daPerm)){
+					hierarchyService.removeUserNodePerm(userId, nodeId, perm, false);
+					break;
+				}
+			}
 		}
 	}
 
