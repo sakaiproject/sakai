@@ -4582,7 +4582,8 @@ public abstract class BaseCitationService implements CitationService
 			synonyms.add("meeting");
 			synonyms.add("wire feed");
 			synonyms.add("wire story");
-      synonyms.add("journal article (cije)");
+			synonyms.add("news");
+			synonyms.add("journal article (cije)");
 		}
 		else if (mediatype.equalsIgnoreCase("book"))
 		{
@@ -4601,7 +4602,7 @@ public abstract class BaseCitationService implements CitationService
 			synonyms.add("editorial material");
 			synonyms.add("technical report");
 			synonyms.add("se");
-      synonyms.add("document (rie)");
+			synonyms.add("document (rie)");
 		}
 
 		return synonyms;
