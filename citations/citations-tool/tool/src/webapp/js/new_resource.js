@@ -115,7 +115,6 @@ var deleteSelectedCitations = function( baseUrl ) {
       baseUrl += "&citationId=" + this.value;
     }
   );
-  
   // do the action
   window.location.assign( baseUrl );
 };
@@ -607,11 +606,9 @@ citations_new_resource.init = function() {
 		resetSelectableActions();
 	});
 	$('.citationActionSelect').on('change', function(eventObject){
-		//onchange="doCitationAction(this.value)"
 		doCitationAction(eventObject.target);
 	});
 	$('.citationSortAction').on('change', function(eventObject){
-		// onchange="doCitationSortAction(this.value)"
 		var newSort = $(eventObject.target).val();
 		var oldSort = $('#currentSort').val();
 		if(newSort !== oldSort) {
@@ -624,7 +621,6 @@ citations_new_resource.init = function() {
 		}
 	});
 	$('#savesort').on('click', function(eventObject){
-		//  onclick="document.getElementById('sakai_action').value='doSaveCollection';submitform('$FORM_NAME');"
 		var actionUrl = $('#newCitationListForm').attr('action');
 		//alert("savesort actionUrl:: " + actionUrl);
 		$('#ajaxRequest').val('true');
@@ -640,7 +636,6 @@ citations_new_resource.init = function() {
 			data		: params,
 			dataType	: 'json',
 			success		: function(jsObj) {
-				//alert("savesort success: " + jsObj);
 				$.each(jsObj, function(key, value) {
 					if(key === 'message' && value && 'null' !== value && '' !== $.trim(value)) {
 						reportSuccess(value);

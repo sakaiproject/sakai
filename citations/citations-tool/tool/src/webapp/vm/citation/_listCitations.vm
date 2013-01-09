@@ -39,7 +39,7 @@
       <td NOWRAP>
         <div class="viewNav" style="padding: 0pt;">
           $tlang.getString( "actions.list" )
-          <select name="citationAction" id="citationAction" class="citationActionSelect">
+          <select name="citationAction" class="citationActionSelect">
             <option value="null"> - $tlang.getString( "select.action.list" ) - </option>
             <option class="selectAction" disabled="disabled" value="exportSelected">$tlang.getString( "export.select.list" )</option>
             <option value="exportList">$tlang.getString( "export.all.list" )</option>
@@ -49,10 +49,9 @@
           </select>
           <span style="display:none;" id="exportUrlSel">$exportUrlSel</span>
           <span style="display:none;" id="exportUrlAll">$exportUrlAll</span>
-          <span style="display:none;" id="removeUrlSel">#contentLink("Main")&sakai_action=doRemoveSelectedCitations&collectionId=$collectionId</span>
-          <span style="display:none;" id="removeUrlAll">$removeUrlAll</span>
+          <span style="display:none;" id="removeUrlSel">#contentLink("Main")&sakai_action=doRemoveSelectedCitations&collectionId=$citationCollectionId</span>
           <span style="display:none;" id="reorderList">$contentLink("Main")&sakai_action=doShowReorderCitations</span>
-          <span style="display:none;" class="collectionId">$collectionId</span>
+          <span style="display:none;" class="collectionId">$citationCollectionId</span>
           <span style="display:none;" id="selectActionWarnLabel">$tlang.getString( "select.warn.list" )</span>
         </div>
       </td>
@@ -94,7 +93,7 @@
       <td>
         <div class="viewNav" style="padding: 0pt;">
           $tlang.getString( "actions.list" )
-          <select name="citationAction" id="citationAction" class="citationActionSelect">
+          <select name="citationAction" class="citationActionSelect">
             <option value="null"> - $tlang.getString( "select.action.list" ) - </option>
             <option class="selectAction" disabled="disabled" value="exportSelected">$tlang.getString( "export.select.list" )</option>
             <option value="exportList">$tlang.getString( "export.all.list" )</option>
@@ -102,6 +101,13 @@
             <option value="removeList">$tlang.getString( "remove.all.list" )</option>
             <option value="reorderList">$tlang.getString( "reorder.list" )</option>
           </select>
+          <span style="display:none;" id="exportUrlSel">$exportUrlSel</span>
+          <span style="display:none;" id="exportUrlAll">$exportUrlAll</span>
+          <span style="display:none;" id="removeUrlSel">#contentLink("Main")&sakai_action=doRemoveSelectedCitations&collectionId=$citationCollectionId</span>
+          <span style="display:none;" id="reorderList">$contentLink("Main")&sakai_action=doShowReorderCitations</span>
+          <span style="display:none;" class="collectionId">$collectionId</span>
+          <span style="display:none;" id="selectActionWarnLabel">$tlang.getString( "select.warn.list" )</span>
+          
         </div>
       </td>
       <td>
