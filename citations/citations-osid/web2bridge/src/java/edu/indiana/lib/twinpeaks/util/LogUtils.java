@@ -97,9 +97,9 @@ public class LogUtils {
 
 		Log log = LogUtils.getLog(LogUtils.class);
 
-		log.debug("Debug");
-		log.error("Error");
-		log.warn("Warn");
-		log.info("Info");
+		//		log.debug("Debug");
+		//		log.error("Error");
+		//		log.warn("Warn");
+		//		log.info("Info");
 	}
 }

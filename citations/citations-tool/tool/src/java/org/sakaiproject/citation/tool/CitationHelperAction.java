@@ -4598,7 +4598,7 @@ public class CitationHelperAction extends VelocityPortletPaneledAction
 	 */
 	protected boolean initHelper(SessionState state)
 	{
-		logger.info("initHelper()");
+		logger.debug("initHelper()");
 		Mode mode;
 
 		/*

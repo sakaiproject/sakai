@@ -88,7 +88,7 @@ public class BatchCitationServlet extends CitationServlet
 	 */
 	public void doPost(HttpServletRequest req, HttpServletResponse res) throws ServletException, IOException
 	{
-		log.info("doPost() " + req.getMethod());
+		//log.info("doPost() " + req.getMethod());
 		
 		// process any login that might be present
 		basicAuth.doLogin(req);
@@ -210,7 +210,7 @@ public class BatchCitationServlet extends CitationServlet
 						queryString.append(URLEncoder.encode(val, "UTF-8"));
 					} catch (UnsupportedEncodingException uee) {
 						// These should really never happen since UTF-8 is the W3C advised encoding
-						log.info("Error encoding key/value pairs for OpenURL 1.0. [" + key + " => " + val + "] -- " + uee.getLocalizedMessage());
+						log.warn("Error encoding key/value pairs for OpenURL 1.0. [" + key + " => " + val + "] -- " + uee.getLocalizedMessage());
 					}
 				}
 			}

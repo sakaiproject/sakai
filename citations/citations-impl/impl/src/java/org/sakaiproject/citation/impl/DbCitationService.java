@@ -290,7 +290,7 @@ public class DbCitationService extends BaseCitationService
 				}
 				else
 				{
-					M_log.info("DbCitationStorage.saveCitation value not List or String: " + value.getClass().getCanonicalName() + " " + value);
+					M_log.debug("DbCitationStorage.saveCitation value not List or String: " + value.getClass().getCanonicalName() + " " + value);
 					fields[1] = name;
 					fields[2] = value;
 

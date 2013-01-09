@@ -1575,7 +1575,7 @@ public Collection<String> getAllCategoryXml()
       }
       catch (IdUnusedException e)
       {
-        m_log.info("Citations configuration XML is missing ("
+        m_log.warn("Citations configuration XML is missing ("
               +    configFileRef
               +    "); Citations ConfigurationService will watch for its creation");
       }

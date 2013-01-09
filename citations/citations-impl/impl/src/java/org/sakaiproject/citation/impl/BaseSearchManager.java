@@ -410,7 +410,7 @@ public class BaseSearchManager implements SearchManager, Observer
                 }
                 catch (IdUnusedException e)
                 {
-	                m_log.info("BasicSearch.getPage() unable to retrieve ciataion: " + id);
+	                m_log.warn("BasicSearch.getPage() unable to retrieve ciataion: " + id);
                 }
         	}
         	m_lastPageViewed = page;
@@ -2558,7 +2558,7 @@ public class BaseSearchManager implements SearchManager, Observer
     }
     catch (Exception exception)
     {
-      m_log.info("Failed to load "
+      m_log.warn("Failed to load "
               +  databaseXmlReference
               +  " (no changes made): "
               +  exception);
