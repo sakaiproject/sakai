@@ -2928,6 +2928,7 @@ public class SiteAction extends PagedResourceActionII {
 				
 			if (site != null) {
 				context.put("site", site);
+				context.put("siteTitle", site.getTitle());
 
 				List providerCourseList = (List) state
 						.getAttribute(SITE_PROVIDER_COURSE_LIST);
