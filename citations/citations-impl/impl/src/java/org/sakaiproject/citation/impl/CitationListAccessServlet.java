@@ -364,6 +364,8 @@ public class CitationListAccessServlet implements HttpAccess
     			out.println("\t\t\t\t<a id=\"link_" + escapedId + "\" href=\"#\" onclick=\"viewFullCitation('" + escapedId + "'); return false;\">"
     					+ rb.getString( "action.view" ) + "</a>" );
     			*/
+    			// TODO This doesn't need any Inline HTTP Transport.
+    			out.println("\t\t\t\t<span class=\"Z3988\" title=\""+ citation.getOpenurlParameters().substring(1).replace("&", "&amp;")+ "\"></span>");
     			out.println("\t\t\t</div>");
 
     			// show detailed info
