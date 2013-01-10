@@ -33,6 +33,7 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 
+import javax.xml.XMLConstants;
 import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
 import javax.xml.parsers.ParserConfigurationException;
@@ -64,7 +65,11 @@ public abstract class IMSFileParser extends ZipFileParser {
 	    InputStream fis = null;
         try {
             fis = new FileInputStream(absolutepathToManifest);
-            DocumentBuilder docBuilder = DocumentBuilderFactory.newInstance().newDocumentBuilder();
+            DocumentBuilderFactory builderFactory = DocumentBuilderFactory.newInstance();
+            builderFactory.setFeature(XMLConstants.FEATURE_SECURE_PROCESSING, true);
+            builderFactory.setFeature("http://xml.org/sax/features/external-general-entities", false);
+            builderFactory.setFeature("http://xml.org/sax/features/external-parameter-entities", false);
+            DocumentBuilder docBuilder = builderFactory.newDocumentBuilder();
             this.archiveManifest = (Document) docBuilder.parse(fis);
         } catch (FileNotFoundException e) {
             // TODO Auto-generated catch block

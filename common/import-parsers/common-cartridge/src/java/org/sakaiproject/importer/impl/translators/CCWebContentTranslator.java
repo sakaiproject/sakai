@@ -24,9 +24,6 @@ package org.sakaiproject.importer.impl.translators;
 import java.io.FileInputStream;
 import java.io.InputStream;
 
-import javax.xml.parsers.DocumentBuilder;
-import javax.xml.parsers.DocumentBuilderFactory;
-
 import org.sakaiproject.importer.api.IMSResourceTranslator;
 import org.sakaiproject.importer.api.Importable;
 import org.sakaiproject.importer.impl.importables.HtmlDocument;

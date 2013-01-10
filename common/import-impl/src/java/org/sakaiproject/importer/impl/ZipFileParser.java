@@ -37,6 +37,7 @@ import java.util.TreeSet;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipInputStream;
 import javax.activation.MimetypesFileTypeMap;
+import javax.xml.XMLConstants;
 import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
 import javax.xml.parsers.FactoryConfigurationError;
@@ -227,10 +228,12 @@ public abstract class ZipFileParser implements ImportFileParser {
 			pathAndFilename = pathAndFilename.substring(1);
 		}
 		DocumentBuilderFactory docBuilderFactory = DocumentBuilderFactory.newInstance();
-		docBuilderFactory.setNamespaceAware(true);
-		DocumentBuilder docBuilder;
 		try {
-			docBuilder = docBuilderFactory.newDocumentBuilder();
+			docBuilderFactory.setFeature(XMLConstants.FEATURE_SECURE_PROCESSING, true);
+			docBuilderFactory.setFeature("http://xml.org/sax/features/external-general-entities", false);
+			docBuilderFactory.setFeature("http://xml.org/sax/features/external-parameter-entities", false);
+			docBuilderFactory.setNamespaceAware(true);
+			DocumentBuilder docBuilder = docBuilderFactory.newDocumentBuilder();
 			entry = (ZipEntry) zipStream.getNextEntry();
 		    while (entry != null) {
 		    	entryName = entry.getName();
