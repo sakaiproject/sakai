@@ -92,6 +92,7 @@ import org.sakaiproject.tool.api.ToolSession;
 import org.sakaiproject.tool.cover.SessionManager;
 import org.sakaiproject.user.api.UserNotDefinedException;
 import org.sakaiproject.user.cover.UserDirectoryService;
+import org.sakaiproject.exception.IdUnusedException;
 import org.sakaiproject.util.ResourceLoader;
 
 import uk.org.ponder.localeutil.LocaleGetter;
@@ -1183,7 +1184,12 @@ public class ShowPageProducer implements ViewComponentProducer, DefaultView, Nav
 							itemGroupString = simplePageBean.getItemGroupString(i, null, true);
 							UIOutput.make(tableRow, "item-groups", itemGroupString);
 						} else if (i.getType() == SimplePageItem.RESOURCE) {
-						        itemGroupString = simplePageBean.getItemGroupString(i, null, true);
+						        try {
+							    itemGroupString = simplePageBean.getItemGroupStringOrErr(i, null, true);
+							} catch (IdUnusedException e) {
+							    itemGroupString = "";
+							    entityDeleted = true;
+							}
 							if (simplePageBean.getInherited())
 							    UIOutput.make(tableRow, "item-groups", "--inherited--");
 							else
@@ -1230,14 +1236,27 @@ public class ShowPageProducer implements ViewComponentProducer, DefaultView, Nav
 
 				 	String itemGroupString = null;
 					String itemGroupTitles = null;
+					boolean entityDeleted = false;
 					if (canEditPage) {
-					    itemGroupString = simplePageBean.getItemGroupString(i, null, true);
+					    try {
+						itemGroupString = simplePageBean.getItemGroupStringOrErr(i, null, true);
+					    } catch (IdUnusedException e) {
+						itemGroupString = "";
+						entityDeleted = true;
+					    }
 					    itemGroupTitles = simplePageBean.getItemGroupTitles(itemGroupString);
+					    if (entityDeleted) {
+						if (itemGroupTitles != null)
+						    itemGroupTitles = itemGroupTitles + " " + messageLocator.getMessage("simplepage.deleted-entity");
+						else
+						    itemGroupTitles = messageLocator.getMessage("simplepage.deleted-entity");
+					    }
 					    if (itemGroupTitles != null) {
 						itemGroupTitles = "[" + itemGroupTitles + "]";
 					    }
 					    UIOutput.make(tableRow, "item-groups", itemGroupString);
-					}
+					} else if (entityDeleted)
+					    continue;
 					
 					UIVerbatim.make(tableRow, "item-path", getItemPath(i));
 

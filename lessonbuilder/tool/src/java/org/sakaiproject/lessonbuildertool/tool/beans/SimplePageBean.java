@@ -2507,16 +2507,26 @@ public class SimplePageBean {
 	    return ret;
 	}
 
+    // too much existing code to convert to throw at the moment
         public String getItemGroupString (SimplePageItem i, LessonEntity entity, boolean nocache) {
-	    StringBuilder ret = new StringBuilder("");
-	    Collection<String> groups = null;
+	    String groups = null;
 	    try {
-		groups = getItemGroups (i, entity, nocache);
+		groups = getItemGroupStringOrErr (i, entity, nocache);
 	    } catch (IdUnusedException exp) {
 		// unfortunately some uses aren't user-visible, so it's this or
 		// add error handling to all callers
 		return "";
 	    }
+	    return groups;
+	}
+
+    // use this one in the future
+        public String getItemGroupStringOrErr (SimplePageItem i, LessonEntity entity, boolean nocache)
+	           throws IdUnusedException{
+	    StringBuilder ret = new StringBuilder("");
+	    Collection<String> groups = null;
+	    // may throw IdUnUsed
+	    groups = getItemGroups (i, entity, nocache);
 	    if (groups == null)
 		return "";
 	    for (String g: groups) {
