@@ -51,7 +51,12 @@ import org.jdom.JDOMException;
 import org.jdom.Namespace;
 import org.jdom.input.SAXBuilder;
 import org.jdom.xpath.XPath;
+
 import org.jdom.output.XMLOutputter;
+
+import org.xml.sax.EntityResolver;
+import org.xml.sax.InputSource;
+import java.io.StringBufferInputStream;
 
 public abstract class AbstractParser {
 
@@ -67,8 +72,21 @@ public abstract class AbstractParser {
   private static final String PROT_NAME ="protected";
   private static final Namespace AUTH_NS = Namespace.getNamespace("auth", "http://www.imsglobal.org/xsd/imsccauth_v1p0");
   
+    // This will disable all external entities. The ones we really care
+    // about are file:. We could check the IDs and allow some forms, e.g.
+    // http. For the moment we're disabling them all.
+
+  public static class NoOpEntityResolver implements EntityResolver {
+      public InputSource resolveEntity(String publicId, String systemId) {
+	  return new InputSource(new StringBufferInputStream(""));
+      }
+  }
+
   static {
     builder=new SAXBuilder();
+    // the normal feature approach doesn't seem to work.
+    // this will disable processing of external entities. internal still work
+    builder.setEntityResolver(new NoOpEntityResolver());
   }
   
   // set by Parser
@@ -110,7 +128,7 @@ public abstract class AbstractParser {
          String the_file) throws IOException, ParseException {
     Element result=null;
     try {
-      result=builder.build(the_cartridge.getFile(the_file)).getRootElement();
+	result=builder.build(the_cartridge.getFile(the_file)).getRootElement();
       XMLOutputter outputter = new XMLOutputter();
       //      try {
 	  //	  outputter.output(result, System.out);       
@@ -118,8 +136,7 @@ public abstract class AbstractParser {
       //      catch (IOException e) {
       //	  System.err.println("output problem " + e);
       //      }
-
-    } catch (JDOMException e) {
+    } catch (Exception e) {
       throw new ParseException(e);
     }
     return result;

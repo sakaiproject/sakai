@@ -490,6 +490,8 @@ public class PrintHandler extends DefaultHandler implements AssessmentHandler, D
 		      DocumentBuilderFactory builderFactory =
 			  DocumentBuilderFactory.newInstance();
 		      builderFactory.setNamespaceAware(true);
+		      builderFactory.setFeature("http://xml.org/sax/features/external-general-entities", false);
+		      builderFactory.setFeature("http://xml.org/sax/features/external-parameter-entities", false);
 		      DocumentBuilder documentBuilder = builderFactory.newDocumentBuilder();
 		      Document document = documentBuilder.parse(inputStream);
 

@@ -208,7 +208,8 @@ public class Parser extends AbstractParser {
       for (Iterator iter=the_manifest.getChild(CC_RESOURCES, ns.cc_ns()).getChildren(CC_RESOURCE, ns.cc_ns()).iterator(); iter.hasNext(); ) {
         Element resource=(Element)iter.next();
         if (resource.getAttributeValue(CC_RES_TYPE).equals(QUESTION_BANK0) ||
-	    resource.getAttributeValue(CC_RES_TYPE).equals(QUESTION_BANK1)) {
+	    resource.getAttributeValue(CC_RES_TYPE).equals(QUESTION_BANK1) ||
+	    resource.getAttributeValue(CC_RES_TYPE).equals(QUESTION_BANK2)) {
 	    // I know it's not really an item, but it uses the same code as an assessment
 	    the_handler.setCCItemXml(null, resource, this, utils);
           processResource(resource, the_handler);

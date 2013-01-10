@@ -1591,6 +1591,8 @@ public class QtiImport {
 	DocumentBuilderFactory factory = DocumentBuilderFactory.newInstance();
 
 	try {
+	    factory.setFeature("http://xml.org/sax/features/external-general-entities", false);
+	    factory.setFeature("http://xml.org/sax/features/external-parameter-entities", false);
 
 	    DocumentBuilder builder = factory.newDocumentBuilder();
 	    document = builder.parse(i);
@@ -1618,7 +1620,6 @@ public class QtiImport {
 			    Node e = getFirstByName(item, "fieldentry");
 			    String entry = (e == null ? null : getNodeText(e));			    
 
-			    System.out.println("metadata " + label + " " + entry);
 			    if ("qmd_feedbackpermitted".equals(label))
 				feedbackpermitted = "yes".equalsIgnoreCase(entry);
 			    else if ("qmd_timelimit".equals(label))
@@ -1631,7 +1632,6 @@ public class QtiImport {
 		    }
 		}
 	    }
-	    System.out.println("final " + feedbackpermitted + "::" + timelimit + "::" + allowlate + "::" + maxattempts);
 
 	    Node section;
 	    int numsections;

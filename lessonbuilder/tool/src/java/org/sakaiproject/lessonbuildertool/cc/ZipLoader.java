@@ -74,15 +74,17 @@ import java.util.zip.ZipInputStream;
 public class ZipLoader implements CartridgeLoader {
 
   private File root;
+  private String rootPath;
   private File cc;
   private boolean unzipped;
   private final int BUFFER=4096;
   
   private
-  ZipLoader(File the_cc, File dir) {
+  ZipLoader(File the_cc, File dir) throws IOException {
     root=dir;
     cc=the_cc;
     unzipped=false;
+    rootPath = root.getCanonicalPath();
   }
   
   private void
@@ -94,6 +96,9 @@ public class ZipLoader implements CartridgeLoader {
       ZipEntry entry;
       while ((entry = zis.getNextEntry())!=null) {
         File target=new File(root, entry.getName());
+	// not sure if you can put things like .. into a zip file, but be careful
+	if (!target.getCanonicalPath().startsWith(rootPath))
+	    throw new FileNotFoundException(target.getCanonicalPath());
         if (entry.isDirectory()) {
           target.mkdirs();
         } else {
@@ -125,11 +130,15 @@ public class ZipLoader implements CartridgeLoader {
   getFile(String the_target) throws FileNotFoundException, IOException {
     unzip();
     // System.out.println("getfile " + root + "::"  + the_target + "::" + (new File(root, the_target)).getCanonicalPath());
+    File f = new File(root, the_target);
+    // check for people using .. or other tricks
+    if (!f.getCanonicalPath().startsWith(rootPath))
+	throw new FileNotFoundException(f.getCanonicalPath());
     return new FileInputStream(new File(root, the_target));
   }
     
   public static CartridgeLoader
-  getUtilities(File the_cc, String unzip_dir) throws FileNotFoundException {
+    getUtilities(File the_cc, String unzip_dir) throws FileNotFoundException, IOException {
     File unzip=new File(unzip_dir,the_cc.getName());
     if (!unzip.exists()) {
       unzip.mkdir();
@@ -138,7 +147,7 @@ public class ZipLoader implements CartridgeLoader {
   }
   
   public static CartridgeLoader
-  getUtilities(File the_cc) throws FileNotFoundException {
+    getUtilities(File the_cc) throws FileNotFoundException, IOException {
     return getUtilities(the_cc, System.getProperty("java.io.tmpdir"));
   }
   
