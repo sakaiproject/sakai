@@ -9,7 +9,7 @@
   </parent>
   <name>savecite</name>
   <groupId>org.sakaiproject</groupId>
-  <artifactId>savecite</artifactId>
+  <artifactId>sakai-citations-servlet</artifactId>
   <organization>
     <name>University of Michigan</name>
     <url>http://sakaiproject.org/</url>
@@ -74,6 +74,7 @@
     </dependency>
   </dependencies>
   <build>
+    <finalName>savecite</finalName>
     <resources>
       <resource>
         <directory>${basedir}/src/webapp</directory>
