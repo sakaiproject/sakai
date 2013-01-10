@@ -32,6 +32,7 @@ import java.util.HashSet;
 import java.util.TreeMap;
 import java.util.Iterator;
 
+import javax.xml.XMLConstants;
 import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
 import javax.xml.transform.OutputKeys;
@@ -122,7 +123,11 @@ public class XMLMap {
     private static Document documentFromString(String input)
     {
 	try{
-            DocumentBuilder parser = DocumentBuilderFactory.newInstance().newDocumentBuilder();
+            DocumentBuilderFactory builderFactory = DocumentBuilderFactory.newInstance();
+            builderFactory.setFeature(XMLConstants.FEATURE_SECURE_PROCESSING, true);
+            builderFactory.setFeature("http://xml.org/sax/features/external-general-entities", false);
+            builderFactory.setFeature("http://xml.org/sax/features/external-parameter-entities", false);
+            DocumentBuilder parser = builderFactory.newDocumentBuilder();
             Document document = parser.parse(new ByteArrayInputStream(input.getBytes()));
 	    return document;
 	} catch (Exception e) {

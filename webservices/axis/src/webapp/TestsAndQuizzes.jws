@@ -26,6 +26,7 @@ import org.sakaiproject.tool.assessment.facade.AssessmentTemplateFacade;
 import org.sakaiproject.tool.assessment.services.assessment.AssessmentService;
 import org.sakaiproject.tool.assessment.qti.util.XmlUtil;
 import org.sakaiproject.util.FormattedText;
+import javax.xml.XMLConstants;
 import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
 import javax.xml.parsers.ParserConfigurationException;
@@ -148,6 +149,9 @@ public class TestsAndQuizzes {
 			inputStream = new ByteArrayInputStream(bytes);
 
 			DocumentBuilderFactory builderFactory = DocumentBuilderFactory.newInstance();
+			builderFactory.setFeature(XMLConstants.FEATURE_SECURE_PROCESSING, true);
+			builderFactory.setFeature("http://xml.org/sax/features/external-general-entities", false);
+			builderFactory.setFeature("http://xml.org/sax/features/external-parameter-entities", false);
 			builderFactory.setNamespaceAware(true);
 			DocumentBuilder documentBuilder = builderFactory.newDocumentBuilder();
 			document = documentBuilder.parse(inputStream);
