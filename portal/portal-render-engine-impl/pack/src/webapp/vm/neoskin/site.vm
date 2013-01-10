@@ -1,6 +1,7 @@
 #parse("/vm/neoskin/includeStandardHead.vm")
 <body class="portalBody">
   <noscript><div id="portal_js_warn">${rloader.sit_noscript_message}</div></noscript>
+  #if (${portal_add_mobile_link})<div  id="mobile-portal-link"><a href="/portal/pda/?force.login=yes">${rloader.sit_switch_mobile}</a></div>#end
 #if ( $pageTop )
 <script type="text/javascript" language="JavaScript">
 	var sakaiPortalWindow = "";
