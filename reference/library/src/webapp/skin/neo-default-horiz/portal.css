@@ -1753,3 +1753,20 @@ a.qtipLinkButton:hover {
     border-top-left-radius: 5px;
     border-top-right-radius: 5px;
 }
+/*back to mobile link*/
+#mobile-portal-link{
+    display:block;
+    position:absolute;
+    top:8px;
+    right:8px;
+    background: #fff;
+    padding:8px 5px;
+    -webkit-border-radius: 5px;
+    -moz-border-radius: 5px;
+    border-radius: 5px;
+}
+#mobile-portal-link a,#mobile-portal-link a:visited{
+    color:#000;
+    font-size: 120%;
+    text-decoration:none;
+}

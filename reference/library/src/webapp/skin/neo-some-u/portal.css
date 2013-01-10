@@ -1704,3 +1704,23 @@ a.qtipLinkButton:hover {
     border-top-left-radius: 5px;
     border-top-right-radius: 5px;
 }
+/*back to mobile link*/
+#mobile-portal-link{
+    display:block;
+    position:absolute;
+    top:0px;
+    right:8px;
+    background: #000;
+    padding:8px;
+    -webkit-border-bottom-right-radius: 5px;
+    -webkit-border-bottom-left-radius: 5px;
+    -moz-border-radius-bottomright: 5px;
+    -moz-border-radius-bottomleft: 5px;
+    border-bottom-right-radius: 5px;
+    border-bottom-left-radius: 5px;
+}
+#mobile-portal-link a,#mobile-portal-link a:visited{
+    color:#fff;
+    font-size: 120%;
+    text-decoration:none;
+}
