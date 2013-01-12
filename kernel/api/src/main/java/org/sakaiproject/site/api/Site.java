@@ -90,8 +90,14 @@ public interface Site extends Edit, Comparable, Serializable, AuthzGroup
 	/** @return A short text Description of the site. */
 	String getShortDescription();
 
+	/** @return An HTML-safe version of the short Description of the site. */
+	String getHtmlShortDescription();
+
 	/** @return A longer text Description of the site. */
 	String getDescription();
+
+	/** @return An HTML-safe version of the Description of the site. */
+	String getHtmlDescription();
 
 	/** @return The Site's icon URL. */
 	String getIconUrl();
@@ -118,7 +124,7 @@ public interface Site extends Edit, Comparable, Serializable, AuthzGroup
 	List<SitePage> getPages();
 
 	/**
-	 * Make sure pages and tools, groups and properties are loaded, not lazy
+	 * Make sure description, pages, tools, groups, and properties are loaded, not lazy
 	 */
 	void loadAll();
 

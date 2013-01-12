@@ -55,4 +55,17 @@
 		<!-- property name="propagateExceptions" value="false" / -->
 	</bean>
 
+	<!-- Cache to save repeated database hits for user site list. Individual user records are  -->
+	<!-- invalidated on site member add/join/remove/unjoin. It is best to set these TTL values -->
+	<!-- the same as for the site cache for the best synchronization. -->
+	<bean id="org.sakaiproject.site.api.SiteService.userSiteCache"
+		class="org.sakaiproject.memory.util.EhCacheFactoryBean">
+		<property name="cacheManager" ref="org.sakaiproject.memory.api.MemoryService.cacheManager" />
+		<property name="cacheName" value="org.sakaiproject.site.api.SiteService.userSiteCache" />
+		<property name="maxElementsInMemory" value="10000" />
+		<property name="timeToLive" value="300" />
+		<property name="timeToIdle" value="300" />
+		<property name="overflowToDisk" value="false" />
+	</bean>
+
 </beans>

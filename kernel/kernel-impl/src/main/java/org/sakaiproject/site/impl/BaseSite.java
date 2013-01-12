@@ -63,6 +63,7 @@ import org.sakaiproject.util.BaseResourceProperties;
 import org.sakaiproject.util.BaseResourcePropertiesEdit;
 import org.sakaiproject.util.StringUtil;
 import org.sakaiproject.util.Validator;
+import org.sakaiproject.util.Web;
 import org.sakaiproject.util.Xml;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
@@ -100,8 +101,17 @@ public class BaseSite implements Site
 	/** The site short description. */
 	protected String m_shortDescription = null;
 
+	/** The HTML-safe version of the short description */
+	protected String m_htmlShortDescription = null;
+
 	/** The site description. */
 	protected String m_description = null;
+
+	/** The HTML-safe version of the description */
+	protected String m_htmlDescription = null;
+
+	/** Track whether this description has been loaded. */
+	protected boolean m_descriptionLoaded = false;
 
 	/** The name of the role given to users who join a joinable site. */
 	protected String m_joinerRole = null;
@@ -257,20 +267,23 @@ public class BaseSite implements Site
 		m_title = StringUtils.trimToNull(el.getAttribute("title"));
 
 		// description might be encripted
-		m_description = StringUtils.trimToNull(el.getAttribute("description"));
-		if (m_description == null)
+		String tmpDesc = StringUtils.trimToNull(el.getAttribute("description"));
+		if (tmpDesc == null)
 		{
-			m_description = StringUtils.trimToNull(Xml.decodeAttribute(el,
+			tmpDesc = StringUtils.trimToNull(Xml.decodeAttribute(el,
 					"description-enc"));
 		}
+		setDescription(tmpDesc);
+		m_descriptionLoaded = true;
 
 		// short description might be encripted
-		m_shortDescription = StringUtils.trimToNull(el.getAttribute("short-description"));
-		if (m_shortDescription == null)
+		String tmpShortDesc = StringUtils.trimToNull(el.getAttribute("short-description"));
+		if (tmpShortDesc == null)
 		{
-			m_shortDescription = StringUtils.trimToNull(Xml.decodeAttribute(el,
+			tmpShortDesc = StringUtils.trimToNull(Xml.decodeAttribute(el,
 					"short-description-enc"));
 		}
+		setShortDescription(tmpShortDesc);
 
 		m_joinable = Boolean.valueOf(el.getAttribute("joinable")).booleanValue();
 		m_joinerRole = StringUtils.trimToNull(el.getAttribute("joiner-role"));
@@ -481,6 +494,20 @@ public class BaseSite implements Site
 			String modifiedBy, Time modifiedOn, boolean customPageOrdered,
 			boolean isSoftlyDeleted, Date softlyDeletedDate)
 	{
+		// Since deferred description loading is the edge case, assume the description is real.
+		// This could be masked by extending String and using instanceof, or extending BaseSite to mark lazy instances,
+		// but it not sure which is cleanest for now.
+		this(siteService, id, title, type, shortDesc, description, iconUrl, infoUrl, skin, published, joinable, pubView, joinRole,
+				isSpecial, isUser, createdBy, createdOn, modifiedBy, modifiedOn, customPageOrdered, isSoftlyDeleted, softlyDeletedDate, true);
+	}
+
+	public BaseSite(BaseSiteService siteService, String id, String title, String type, String shortDesc,
+			String description, String iconUrl, String infoUrl, String skin,
+			boolean published, boolean joinable, boolean pubView, String joinRole,
+			boolean isSpecial, boolean isUser, String createdBy, Time createdOn,
+			String modifiedBy, Time modifiedOn, boolean customPageOrdered,
+			boolean isSoftlyDeleted, Date softlyDeletedDate, boolean descriptionLoaded)
+	{
 		this.siteService = siteService;
 
 		// setup for properties
@@ -495,8 +522,9 @@ public class BaseSite implements Site
 		m_id = id;
 		m_title = title;
 		m_type = type;
-		m_shortDescription = shortDesc;
-		m_description = description;
+		setShortDescription(shortDesc);
+		setDescription(description);
+		m_descriptionLoaded = descriptionLoaded;
 		m_icon = iconUrl;
 		m_info = infoUrl;
 		m_skin = skin;
@@ -544,7 +572,10 @@ public class BaseSite implements Site
 
 		m_title = other.m_title;
 		m_shortDescription = other.m_shortDescription;
+		m_htmlShortDescription = other.m_htmlShortDescription;
 		m_description = other.m_description;
+		m_htmlDescription = other.m_htmlDescription;
+		m_descriptionLoaded = other.m_descriptionLoaded;
 		m_joinable = other.m_joinable;
 		m_joinerRole = other.m_joinerRole;
 		m_published = other.m_published;
@@ -750,12 +781,40 @@ public class BaseSite implements Site
 		return m_shortDescription;
 	}
 
+	/** HTML escape and store the site's short description. */
+	protected void escapeShortDescription()
+	{
+		m_htmlShortDescription = Web.escapeHtml(m_shortDescription);
+	}
+
+	/**
+	 * @inheritDoc
+	 */
+	public String getHtmlShortDescription()
+	{
+		return m_htmlShortDescription;
+	}
+
+	/** HTML escape and store the site's full description. */
+	protected void escapeDescription()
+	{
+		m_htmlDescription = Web.escapeHtml(m_description);
+	}
+
 	/**
 	 * @inheritDoc
 	 */
 	public String getDescription()
 	{
 		return m_description;
+	}
+
+	/**
+	 * @inheritDoc
+	 */
+	public String getHtmlDescription()
+	{
+		return m_htmlDescription;
 	}
 
 	/**
@@ -938,6 +997,18 @@ public class BaseSite implements Site
 	 */
 	public void loadAll()
 	{
+		// Load up the full description if needed. If we fail to find the site in the database,
+		// mark the description as loaded anyway to avoid retrying if multiple calls come in.
+		if (!m_descriptionLoaded)
+		{
+			Site fullSite = siteService.storage().get(getId());
+			if (fullSite != null)
+			{
+				setDescription(fullSite.getDescription());
+			}
+			m_descriptionLoaded = true;
+		}
+
 		// first, pages
 		getPages();
 
@@ -1285,6 +1356,7 @@ public class BaseSite implements Site
 	public void setShortDescription(String shortDescripion)
 	{
 		m_shortDescription = StringUtils.trimToNull(shortDescripion);
+		escapeShortDescription();
 	}
 
 	/**
@@ -1293,6 +1365,7 @@ public class BaseSite implements Site
 	public void setDescription(String description)
 	{
 		m_description = StringUtils.trimToNull(description);
+		escapeDescription();
 	}
 
 	/**
@@ -1724,6 +1797,21 @@ public class BaseSite implements Site
 		} else {
 			m_softlyDeletedDate = null;
 		}
+	}
+
+	/**
+	 * Check if this Site's description field has been populated.
+	 * Note that this is intentionally not exposed through the Site interface to keep it
+	 * within the implementation package. The specifics of other lazy loading are not exposed
+	 * through the Site interface; the collections are simply empty if not loaded. The
+	 * SiteService encourages calls to {@link SiteService#getSite(String) getSite} and the
+	 * Site interface exposes {@link Site#loadAll() loadAll} to ensure all loading.
+	 * 
+	 * @return true if the description has been loaded for this Site object
+	 */
+	public boolean isDescriptionLoaded()
+	{
+		return m_descriptionLoaded;
 	}
 
 

@@ -449,6 +449,63 @@ public class BaseDbFlatStorage
 	 */
 	public List getSelectedResources(String where, String order, Object[] values, String join)
 	{
+		return getSelectedResources(where, order, values, join, m_reader);
+	}
+
+	/**
+	 * Get all Resources matching an SQL where clause, with sorting and ordering, using a specialized reader.
+	 *
+	 * This is provided for specialized cases, where a known operation should make some optimizations or
+	 * apply transformations to given fields during row retrieval. For example, reading CLOBs may be the
+	 * default, but in some cases like long descriptions in simple search results, they are not relevant
+	 * and could hurt performance. Note that specialized readers should have the same return type and
+	 * expect the same indices as the default reader.
+	 *
+	 * @param where
+	 *        The SQL where clause with bind variables indicated (not including the preceding "where ").
+	 * @param order
+	 *        the SQL order clause (not including the preceding "order by ").
+	 * @param values
+	 *        The bind values
+	 * @param join
+	 *        a single or comma separated set of other tables to join in the from clause
+	 * @param reader
+	 *        a specialized SqlReader for this request supplied to read each row differently than the default
+	 * @return The list of all Resources that meet the criteria.
+	 */
+	protected List getSelectedResources(String where, String order, Object[] values, String join, SqlReader reader)
+	{
+		// read all resources from the db with a where
+		String sql = getResourceSql(where, order, values, join);
+		List all = m_sql.dbRead(sql, values, reader);
+
+		return all;
+	}
+
+	/**
+	 * Get the SQL to retrieve all resources matching specified conditions.
+	 *
+	 * TODO: Push this down to FlatStorageSql
+	 *
+	 * See {@link #getSelectedResources(String where, String order, Object[] values, String join)} for parameter details
+	 */
+	protected String getResourceSql(String where, String order, Object[] values, String join)
+	{
+		String fieldNames = fieldList(m_resourceTableReadFields, null);
+		return getResourceSql(fieldNames, where, order, values, join);
+	}
+
+	/**
+	 * Get the SQL to retrieve a subset of fields for all resources matching specified conditions.
+	 *
+	 * TODO: Push this down to FlatStorageSql
+	 *
+	 * @param fieldNames the fully qualified field list to select as used in an SQL query
+	 *
+	 * See {@link #getSelectedResources(String where, String order, Object[] values, String join)} for other parameter details
+	 */
+	protected String getResourceSql(String fieldNames, String where, String order, Object[] values, String join)
+	{
 		if (order == null)
 		{
 			order = m_resourceTableName + "." + m_resourceTableSortField1
@@ -456,13 +513,9 @@ public class BaseDbFlatStorage
 		}
 		if (where == null) where = "";
 
-		// read all resources from the db with a where
-		String sql = "select " + fieldList(m_resourceTableReadFields, null) + " from " + m_resourceTableName + ((join == null) ? "" : ("," + join))
+		String sql = "select " + fieldNames + " from " + m_resourceTableName + ((join == null) ? "" : ("," + join))
 				+ ((where.length() > 0) ? (" where " + where) : "") + " order by " + order;
-
-		List all = m_sql.dbRead(sql, values, m_reader);
-
-		return all;
+		return sql;
 	}
 
 	/**
@@ -546,7 +599,7 @@ public class BaseDbFlatStorage
 	}
 
 	/**
-	 * Get all Resources matching a SQL where clause.
+	 * Get all Resources matching an SQL where clause.
 	 * 
 	 * @param where
 	 *        The SQL where clause with bind variables indicated (not including the preceeding "where ".
@@ -554,13 +607,74 @@ public class BaseDbFlatStorage
 	 *        the SQL order clause (not including the preceeding "order by ").
 	 * @param values
 	 *        The bind values
+	 * @param first
+	 *        the row number of the first record to include for pagination
+	 * @param last
+	 *        the row number of the last record to include for pagination
 	 * @param join
 	 *        a single or comma separated set of other tables to join in the from clause
 	 * @return The list of all Resources that meet the criteria.
 	 */
 	public List getSelectedResources(String where, String order, Object[] values, int first, int last, String join)
 	{
-		Object[] fields;
+		return getSelectedResources(where, order, values, first, last, join, m_reader);
+	}
+
+	/**
+	 * Get all Resources matching an SQL where clause, with sorting and ordering, using a specialized reader.
+	 *
+	 * This is provided for specialized cases, where a known operation should make some optimizations or
+	 * apply transformations to given fields during row retrieval. For example, reading CLOBs may be the
+	 * default, but in some cases like long descriptions in simple search results, they are not relevant
+	 * and could hurt performance. Note that specialized readers should have the same return type and
+	 * expect the same indices as the default reader.
+	 *
+	 * @param where
+	 *        The SQL where clause with bind variables indicated (not including the preceding "where ".
+	 * @param order
+	 *        the SQL order clause (not including the preceding "order by ").
+	 * @param values
+	 *        The bind values
+	 * @param first
+	 *        the number of the first sorted record to include for pagination
+	 * @param last
+	 *        the number of the last sorted record to include for pagination
+	 * @param join
+	 *        a single or comma separated set of other tables to join in the from clause
+	 * @param reader
+	 *        a specialized SqlReader for this request supplied to read each row differently than the default
+	 * @return The list of all Resources that meet the criteria.
+	 */
+	protected List getSelectedResources(String where, String order, Object[] values, int first, int last, String join, SqlReader reader)
+	{
+		Object[] params = getPagedParameters(values, first, last);
+		String sql = getResourceSql(where, order, values, first, last, join);
+		List rv = m_sql.dbRead(sql, params, reader);
+
+		return rv;
+	}
+
+	/**
+	 * Get the SQL to retrieve all paged resources matching specified conditions.
+	 *
+	 * TODO: Push this down to FlatStorageSql
+	 *
+	 * See {@link #getSelectedResources(String where, String order, Object[] values, int first, int last, String join)} for parameter details.
+	 */
+	protected String getResourceSql(String where, String order, Object[] values, int first, int last, String join)
+	{
+		return getResourceSql(fieldList(m_resourceTableReadFields, null), where, order, values, first, last, join);
+	}
+
+	/**
+	 * Get the SQL to retrieve all paged resources matching specified conditions.
+	 *
+	 * TODO: Push this down to FlatStorageSql
+	 *
+	 * See {@link #getSelectedResources(String where, String order, Object[] values, int first, int last, String join)} for parameter details.
+	 */
+	protected String getResourceSql(String fieldNames, String where, String order, Object[] values, int first, int last, String join)
+	{
 		String sql;
 
 		if (order == null)
@@ -568,6 +682,36 @@ public class BaseDbFlatStorage
 			order = flatStorageSql.getOrder(m_resourceTableName, m_resourceTableSortField1, m_resourceTableSortField2);
 		}
 
+		if ("oracle".equals(m_sql.getVendor()))
+		{
+			sql = flatStorageSql.getSelectFieldsSql3(m_resourceTableName, fieldNames, m_resourceTableIdField,
+					m_resourceTableSortField1, m_resourceTableSortField2, (first - 1), (last - first + 1), join, where, order);
+		}
+		else
+		{
+			sql = flatStorageSql.getSelectFieldsSql3(m_resourceTableName, fieldNames, null,
+					m_resourceTableSortField1, m_resourceTableSortField2, (first - 1), (last - first + 1), join, where, order);
+		}
+		return sql;
+	}
+
+	/**
+	 * Get the finalized parameter array for passing to a vendor-specific paged query (as from getResourceSql)
+	 * to getSelectedResources.
+	 *
+	 * TODO: Push this down to FlatStorageSql
+	 *
+	 * @param values The parameter values to pass
+	 * @param first The first record to include for pagination
+	 * @param last The last record to include for pagination
+	 * @return A new array with the original values copied in and pagination parameters in the correct places.
+	 *
+	 * @see #getResourceSql(String, String, String, Object[], int, int, String)
+	 * @see #getSelectedResources(String, String, Object[], int, int, String)
+	 */
+	protected Object[] getPagedParameters(Object[] values, int first, int last)
+	{
+		Object[] fields;
 		if ("oracle".equals(m_sql.getVendor()))
 		{
 			if (values != null)
@@ -579,20 +723,14 @@ public class BaseDbFlatStorage
 			{
 				fields = new Object[2];
 			}
-			sql = flatStorageSql.getSelectFieldsSql3(m_resourceTableName, fieldList(m_resourceTableReadFields, null), m_resourceTableIdField,
-					m_resourceTableSortField1, m_resourceTableSortField2, (first - 1), (last - first + 1), join, where, order);
 			fields[fields.length - 2] = Long.valueOf(last);
 			fields[fields.length - 1] = Long.valueOf(first);
 		}
 		else
 		{
-			sql = flatStorageSql.getSelectFieldsSql3(m_resourceTableName, fieldList(m_resourceTableReadFields, null), null,
-					m_resourceTableSortField1, m_resourceTableSortField2, (first - 1), (last - first + 1), join, where, order);
 			fields = values;
 		}
-		List rv = m_sql.dbRead(sql, fields, m_reader);
-
-		return rv;
+		return fields;
 	}
 
 	/**
