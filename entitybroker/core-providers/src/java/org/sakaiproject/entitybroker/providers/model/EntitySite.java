@@ -50,6 +50,7 @@ import org.sakaiproject.site.api.SitePage;
 import org.sakaiproject.site.api.ToolConfiguration;
 import org.sakaiproject.time.api.Time;
 import org.sakaiproject.user.api.User;
+import org.sakaiproject.util.Web;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 
@@ -69,7 +70,9 @@ public class EntitySite implements Site {
     @EntityFieldRequired
     private String title;
     private String shortDescription;
+    private String htmlShortDescription;
     private String description;
+    private String htmlDescription;
     private String iconUrl;
     private String iconUrlFull;
     private String infoUrl;
@@ -127,9 +130,22 @@ public class EntitySite implements Site {
             String iconFullUrl, String infoUrl, String infoUrlFull, boolean joinable,
             String joinerRole, String maintainRole, String skin, boolean published, boolean pubView,
             String type, String providerGroupId, boolean customPageOrdered) {
+        this(title, shortDescription, Web.escapeHtml(shortDescription), description, Web.escapeHtml(description),
+             iconUrl, iconFullUrl, infoUrl, infoUrlFull, joinable,
+             joinerRole, maintainRole, skin, published, pubView, type, providerGroupId, customPageOrdered);
+    }
+
+    public EntitySite(String title,
+            String shortDescription, String htmlShortDescription,
+            String description, String htmlDescription,
+            String iconUrl, String iconFullUrl, String infoUrl, String infoUrlFull, boolean joinable,
+            String joinerRole, String maintainRole, String skin, boolean published, boolean pubView,
+            String type, String providerGroupId, boolean customPageOrdered) {
         this.title = title;
         this.shortDescription = shortDescription;
+        this.htmlShortDescription = htmlShortDescription;
         this.description = description;
+        this.htmlDescription = htmlDescription;
         this.iconUrl = iconUrl;
         this.iconUrlFull = iconFullUrl;
         this.infoUrl = infoUrl;
@@ -152,7 +168,9 @@ public class EntitySite implements Site {
         this.id = site.getId();
         this.title = site.getTitle();
         this.shortDescription = site.getShortDescription();
+        this.htmlShortDescription = site.getHtmlShortDescription();
         this.description = site.getDescription();
+        this.htmlDescription = site.getHtmlDescription();
         this.iconUrl = site.getIconUrl();
         this.infoUrl = site.getInfoUrl();
         this.iconUrlFull = site.getIconUrlFull();
@@ -249,8 +267,13 @@ public class EntitySite implements Site {
         return shortDescription;
     }
 
+    public String getHtmlShortDescription() {
+        return htmlShortDescription;
+    }
+
     public void setShortDescription(String shortDescription) {
         this.shortDescription = shortDescription;
+        this.htmlShortDescription = Web.escapeHtml(shortDescription);
     }
 
     @EntitySummary
@@ -258,8 +281,13 @@ public class EntitySite implements Site {
         return description;
     }
 
+    public String getHtmlDescription() {
+        return htmlDescription;
+    }
+
     public void setDescription(String description) {
         this.description = description;
+        this.htmlDescription = Web.escapeHtml(description);
     }
 
     public String getIconUrl() {
