@@ -43,6 +43,8 @@ import org.sakaiproject.component.cover.ServerConfigurationService;
 import org.sakaiproject.entity.api.ResourceProperties;
 import org.sakaiproject.entity.api.ResourcePropertiesEdit;
 import org.sakaiproject.entity.cover.EntityManager;
+import org.sakaiproject.event.api.Event;
+import org.sakaiproject.event.cover.EventTrackingService;
 import org.sakaiproject.exception.IdUnusedException;
 import org.sakaiproject.exception.PermissionException;
 import org.sakaiproject.portal.api.Portal;
@@ -200,6 +202,7 @@ public class SiteHandler extends WorksiteHandler
 		}
 
 		// find the site, for visiting
+		boolean siteDenied = false;
 		Site site = null;
 		try
 		{
@@ -222,7 +225,6 @@ public class SiteHandler extends WorksiteHandler
 		}
 		catch (PermissionException e)
 		{
-			
 			if (ServerConfigurationService.getBoolean("portal.redirectJoin", true) &&
 					userId != null && portal.getSiteHelper().isJoinable(siteId, userId))
 			{
@@ -230,6 +232,8 @@ public class SiteHandler extends WorksiteHandler
 				res.sendRedirect(redirectUrl);
 				return;
 			}
+
+			siteDenied = true;
 		}
 
 		if (site == null)
@@ -245,6 +249,15 @@ public class SiteHandler extends WorksiteHandler
 			}
 			else
 			{
+				// Post an event for denied site visits by known users.
+				// This can be picked up to check the user state and refresh it if stale,
+				// such as showing links to sites that are no longer accessible.
+				// It is also helpful for event log analysis for user trouble or bad behavior.
+				if (siteDenied)
+				{
+					Event event = EventTrackingService.newEvent(SiteService.EVENT_SITE_VISIT_DENIED, siteId, false);
+					EventTrackingService.post(event);
+				}
 				portal.doError(req, res, session, Portal.ERROR_SITE);
 			}
 			return;
