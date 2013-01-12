@@ -105,6 +105,11 @@ public class FakeSite implements Site {
 		return null;
 	}
 
+	public String getHtmlDescription() {
+		// TODO Auto-generated method stub
+		return null;
+	}
+
 	public Group getGroup(String arg0) {
 		// TODO Auto-generated method stub
 		return null;
@@ -180,6 +185,11 @@ public class FakeSite implements Site {
 	}
 
 	public String getShortDescription() {
+		// TODO Auto-generated method stub
+		return null;
+	}
+
+	public String getHtmlShortDescription() {
 		// TODO Auto-generated method stub
 		return null;
 	}
