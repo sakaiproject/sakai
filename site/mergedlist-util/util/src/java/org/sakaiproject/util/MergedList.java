@@ -449,8 +449,8 @@ public class MergedList extends ArrayList
 		 List finalList = new ArrayList();
 		 String [] returnArray = null;
 
-		List siteList = SiteService.getSites(org.sakaiproject.site.api.SiteService.SelectionType.ACCESS,
-						null, null, null, org.sakaiproject.site.api.SiteService.SortType.TITLE_ASC, null);
+		 // Get all accessible sites for the current user, not requiring descriptions
+		 List siteList = SiteService.getUserSites(false);
 		 
 		 Iterator it = siteList.iterator();
 		 
