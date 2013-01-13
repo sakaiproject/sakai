@@ -3152,7 +3152,7 @@ public abstract class BaseSiteService implements SiteService, Observer
 				}
 			}
 		}
-		else if (EVENT_SITE_VISIT_DENIED.equals(eventType))
+		else if (EVENT_SITE_VISIT_DENIED.equals(eventType) || AuthzGroupService.SECURE_UNJOIN_AUTHZ_GROUP.equals(eventType))
 		{
 			clearUserCacheForUser(event.getUserId());
 		}
