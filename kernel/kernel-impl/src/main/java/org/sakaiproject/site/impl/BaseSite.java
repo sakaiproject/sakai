@@ -554,8 +554,13 @@ public class BaseSite implements Site
 	}
 
 	/**
-	 * Set me to be a deep copy of other (all but my id.)
+	 * Set me to be a deep copy of other (all but my id.).
 	 * 
+	 * Note that this no longer triggers lazy loading as of KNL-1011. This should
+	 * not cause any issues because the getters still trigger fetching by default.
+	 * If a copy is made of a site that is not fully loaded, it should stay lazy,
+	 * rather than accidentally triggering fetches.
+	 *
 	 * @param bOther
 	 *        the other to copy.
 	 * @param exact
@@ -604,8 +609,9 @@ public class BaseSite implements Site
 		if (other.m_lastModifiedTime != null)
 			m_lastModifiedTime = (Time) other.m_lastModifiedTime.clone();
 
+		// We make sure to avoid triggering fetching by passing false to getProperties
 		m_properties = new BaseResourcePropertiesEdit();
-		ResourceProperties pOther = other.getProperties();
+		ResourceProperties pOther = other.getProperties(false);
 		if (exact)
 		{
 			m_properties.addAll(pOther);
@@ -621,20 +627,20 @@ public class BaseSite implements Site
 			}
 		}
 		((BaseResourcePropertiesEdit) m_properties)
-				.setLazy(((BaseResourceProperties) other.getProperties()).isLazy());
+				.setLazy(((BaseResourceProperties) pOther).isLazy());
 
-		// deep copy the pages
+		// deep copy the pages, but avoid triggering fetching by passing false to getPages
 		m_pages = new ResourceVector();
-		for (Iterator iPages = other.getPages().iterator(); iPages.hasNext();)
+		for (Iterator iPages = other.getPages(false).iterator(); iPages.hasNext();)
 		{
 			BaseSitePage page = (BaseSitePage) iPages.next();
 			m_pages.add(new BaseSitePage(siteService,page, this, exact));
 		}
 		m_pagesLazy = other.m_pagesLazy;
 
-		// deep copy the groups
+		// deep copy the groups, but avoid triggering fetching by passing false to getGroups
 		m_groups = new ResourceVector();
-		for (Iterator iGroups = other.getGroups().iterator(); iGroups.hasNext();)
+		for (Iterator iGroups = other.getGroups(false).iterator(); iGroups.hasNext();)
 		{
 			Group group = (Group) iGroups.next();
 			m_groups.add(new BaseGroup(siteService, group, this, exact));
@@ -697,8 +703,27 @@ public class BaseSite implements Site
 	 */
 	public ResourceProperties getProperties()
 	{
-		// if lazy, resolve
-		if (((BaseResourceProperties) m_properties).isLazy())
+		// Default to loading the properties if lazy
+		return getProperties(true);
+	}
+
+	/**
+	 * Access the Site's properties, with control over fetching of lazy collections.
+	 * 
+	 * The allowFetch flag is typically passed as true, but passed as false for
+	 * fine-grained control while building copies, etc. This signature is not provided
+	 * on the Site interface and is only intended for use within the implementation package.
+	 * 
+	 * @param allowFetch
+	 *        when true, fetch properties if not loaded;
+	 *        when false, avoid fetching and return the properties collection as-is
+	 * @return The Site's properties.
+	 * 
+	 */
+	public ResourceProperties getProperties(boolean allowFetch)
+	{
+		// if lazy, resolve unless requested to avoid fetching (as for copy constructor)
+		if (allowFetch && ((BaseResourceProperties) m_properties).isLazy())
 		{
 			siteService.storage().readSiteProperties(
 					this, m_properties);
@@ -890,7 +915,26 @@ public class BaseSite implements Site
 	 */
 	public List getPages()
 	{
-		if (m_pagesLazy)
+		// Default to loading the pages if lazy
+		return getPages(true);
+	}
+
+	/**
+	 * Access the Site's list of pages, with control over fetching of lazy collections.
+	 * 
+	 * The allowFetch flag is typically passed as true, but passed as false for
+	 * fine-grained control while building copies, etc. This signature is not provided
+	 * on the Site interface and is only intended for use within the implementation package.
+	 * 
+	 * @param allowFetch
+	 *        when true, fetch pages if not loaded;
+	 *        when false, avoid fetching and return the page list as-is
+	 * @return The Site's list of SitePages.
+	 * 
+	 */
+	public List getPages(boolean allowFetch)
+	{
+		if (allowFetch && m_pagesLazy)
 		{
 			siteService.storage().readSitePages(this,
 					m_pages);
@@ -905,7 +949,27 @@ public class BaseSite implements Site
 	 */
 	public Collection getGroups()
 	{
-		if (m_groupsLazy)
+		// Default to loading the groups if lazy
+		return getGroups(true);
+	}
+
+	/**
+	 * Access the Site's list of groups, with control over fetching of lazy collections.
+	 * 
+	 * The allowFetch flag is typically passed as true, but passed as false for
+	 * fine-grained control while building copies, etc. This signature is not provided
+	 * on the Site interface and is only intended for use within the implementation package.
+	 * 
+	 * @param allowFetch
+	 *        when true, fetch groups if not loaded;
+	 *        when false, avoid fetching and return the group list as-is
+	 * @return The Site's list of Groups.
+	 * 
+	 */
+	public Collection getGroups(boolean allowFetch)
+	{
+		// Avoid fetching if requested (as for copy constructor)
+		if (allowFetch && m_groupsLazy)
 		{
 			siteService.storage().readSiteGroups(
 					this, m_groups);
