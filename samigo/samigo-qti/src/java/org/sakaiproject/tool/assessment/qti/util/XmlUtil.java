@@ -29,6 +29,7 @@ import javax.servlet.ServletContext;
 import org.sakaiproject.util.FormattedText;
 import org.springframework.core.io.ClassPathResource;
 
+import javax.xml.XMLConstants;
 import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
 import javax.xml.parsers.ParserConfigurationException;
@@ -660,8 +661,9 @@ public final class XmlUtil
   } 
   
   private static void setDocumentBuilderFactoryFeatures(
-		  DocumentBuilderFactory builderFactory) throws ParserConfigurationException {
-	  builderFactory.setFeature("http://xml.org/sax/features/external-general-entities", false);
-	  builderFactory.setFeature("http://xml.org/sax/features/external-parameter-entities", false);
-  }
+	  DocumentBuilderFactory builderFactory) throws ParserConfigurationException {
+	      builderFactory.setFeature("http://xml.org/sax/features/external-general-entities", false);
+	      builderFactory.setFeature("http://xml.org/sax/features/external-parameter-entities", false);
+	      builderFactory.setFeature(XMLConstants.FEATURE_SECURE_PROCESSING, true);
+	  }
 }
