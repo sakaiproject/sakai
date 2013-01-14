@@ -39,6 +39,7 @@ import org.apache.commons.logging.LogFactory;
 import org.sakaiproject.tool.assessment.data.dao.assessment.AssessmentAccessControl;
 import org.sakaiproject.tool.assessment.data.dao.assessment.EvaluationModel;
 import org.sakaiproject.tool.assessment.data.dao.assessment.PublishedAnswer;
+import org.sakaiproject.tool.assessment.data.dao.grading.ItemGradingAttachment;
 import org.sakaiproject.tool.assessment.data.dao.grading.ItemGradingData;
 import org.sakaiproject.tool.assessment.data.dao.grading.MediaData;
 import org.sakaiproject.tool.assessment.data.ifc.assessment.AnswerIfc;
@@ -502,7 +503,6 @@ public class QuestionScoreListener implements ActionListener,
 			// authoringHelper.getRemoteUserName() needs servlet stuff
 
 			/* Dump the grading and agent information into AgentResults */
-			// ArrayList agents = new ArrayList();
 			iter = scoresByItem.values().iterator();
 			while (iter.hasNext()) {
 				AgentResults results = new AgentResults();
@@ -818,7 +818,7 @@ public class QuestionScoreListener implements ActionListener,
 		HashMap map = (HashMap) itemScoresMap.get(itemId);
 		if (map == null) {
 			log.debug("getItemScores: map == null ");
-			map = delegate.getItemScores(publishedId, itemId, which);
+			map = delegate.getItemScores(publishedId, itemId, which, true);
 			log.debug("getItemScores: map size " + map.size());
 			itemScoresMap.put(itemId, map);
 		}

@@ -353,13 +353,25 @@ public class GradingService
       return new HashMap();
     }
   }
-
-  public HashMap getItemScores(Long itemId, List scores)
+  
+  public HashMap getItemScores(Long publishedId, Long itemId, String which, boolean loadItemGradingAttachment)
   {
     try {
       return (HashMap) PersistenceService.getInstance().
         getAssessmentGradingFacadeQueries()
-          .getItemScores(itemId, scores);
+          .getItemScores(publishedId, itemId, which, loadItemGradingAttachment);
+    } catch (Exception e) {
+      e.printStackTrace();
+      return new HashMap();
+    }
+  }
+
+  public HashMap getItemScores(Long itemId, List scores, boolean loadItemGradingAttachment)
+  {
+    try {
+      return (HashMap) PersistenceService.getInstance().
+        getAssessmentGradingFacadeQueries()
+          .getItemScores(itemId, scores, loadItemGradingAttachment);
     } catch (Exception e) {
       e.printStackTrace();
       return new HashMap();

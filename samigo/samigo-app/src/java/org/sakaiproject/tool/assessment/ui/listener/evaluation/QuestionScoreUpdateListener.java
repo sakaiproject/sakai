@@ -43,6 +43,7 @@ import org.apache.commons.math.util.MathUtils;
 import org.sakaiproject.event.cover.EventTrackingService;
 import org.sakaiproject.tool.assessment.data.dao.grading.ItemGradingAttachment;
 import org.sakaiproject.tool.assessment.data.dao.grading.ItemGradingData;
+import org.sakaiproject.tool.assessment.data.ifc.assessment.AttachmentIfc;
 import org.sakaiproject.tool.assessment.facade.AgentFacade;
 import org.sakaiproject.tool.assessment.services.GradebookServiceException;
 import org.sakaiproject.tool.assessment.services.GradingService;
@@ -219,6 +220,7 @@ public class QuestionScoreUpdateListener
 		  else{
 			  // new attachments
 			  itemGradingAttachment.setItemGrading(itemGradingData);
+			  itemGradingAttachment.setAttachmentType(AttachmentIfc.ITEMGRADING_ATTACHMENT);
 			  attachmentList.add(itemGradingAttachment);
 		  }
 	  }      

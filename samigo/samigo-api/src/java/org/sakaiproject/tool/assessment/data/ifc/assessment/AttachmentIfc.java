@@ -29,10 +29,13 @@ import java.util.Date;
 public interface AttachmentIfc
     extends Serializable{
 
+  // This three parameters are for SAM_ATTACHMENT_T table	
   public static Long ASSESSMENT_ATTACHMENT = Long.valueOf(1);
   public static Long SECTION_ATTACHMENT = Long.valueOf(2);
   public static Long ITEM_ATTACHMENT = Long.valueOf(3);
-  public static Long ITEMGRADING_ATTACHMENT = Long.valueOf(4);
+  //This parameter is for SAM_GRADINGATTACHMENT_T table
+  public static Long ITEMGRADING_ATTACHMENT = Long.valueOf(1);
+  
   public static Integer ACTIVE_STATUS = Integer.valueOf(1);
   public static Integer INACTIVE_STATUS = Integer.valueOf(0);
 

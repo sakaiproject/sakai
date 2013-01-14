@@ -292,10 +292,16 @@ public class AssessmentGradingFacadeQueries extends HibernateDaoSupport implemen
   public HashMap getItemScores(Long publishedId, final Long itemId, String which)
   {
 	  List scores = getTotalScores(publishedId.toString(), which);
-	  return getItemScores(itemId, scores);
+	  return getItemScores(itemId, scores, false);
   }
   
-  public HashMap getItemScores(final Long itemId, List scores)
+  public HashMap getItemScores(Long publishedId, final Long itemId, String which, boolean loadItemGradingAttachment)
+  {
+	  List scores = getTotalScores(publishedId.toString(), which);
+	  return getItemScores(itemId, scores, loadItemGradingAttachment);
+  }
+  
+  public HashMap getItemScores(final Long itemId, List scores, boolean loadItemGradingAttachment)
   {
     try {
       HashMap map = new HashMap();
@@ -353,10 +359,24 @@ public class AssessmentGradingFacadeQueries extends HibernateDaoSupport implemen
       };
       List temp = (List) getHibernateTemplate().execute(hcb);
 
+      HashMap<Long,ArrayList<ItemGradingAttachment>> attachmentMap = new HashMap<Long,ArrayList<ItemGradingAttachment>> ();
+      if (loadItemGradingAttachment) {
+    	  attachmentMap = getItemGradingAttachmentMap(Long.valueOf(itemId));
+      }
       Iterator iter2 = temp.iterator();
       while (iter2.hasNext())
       {
         ItemGradingData data = (ItemGradingData) iter2.next();
+        if (loadItemGradingAttachment) {
+        	if (attachmentMap.get(data.getItemGradingId()) != null) {
+        		//ArrayList itemGradingAttachmentList = new ArrayList();
+				//itemGradingAttachmentList.addAll((ArrayList<ItemGradingAttachment>)attachmentMap.get(data.getItemGradingId()));
+				data.setItemGradingAttachmentList((ArrayList<ItemGradingAttachment>) attachmentMap.get(data.getItemGradingId()));
+			}
+			else {
+				data.setItemGradingAttachmentList(new ArrayList<ItemGradingAttachment>());
+			}
+        }
         ArrayList thisone = (ArrayList)
           map.get(data.getPublishedItemId());
         if (thisone == null)
@@ -515,11 +535,19 @@ public class AssessmentGradingFacadeQueries extends HibernateDaoSupport implemen
       if (scores.isEmpty())
         return new HashMap();
       AssessmentGradingData gdata = (AssessmentGradingData) scores.toArray()[0];
+      HashMap attachmentMap = getItemGradingAttachmentMapByAssessmentGradingId(gdata.getAssessmentGradingId());
       gdata.setItemGradingSet(getItemGradingSet(gdata.getAssessmentGradingId()));
       Iterator iter = gdata.getItemGradingSet().iterator();
       while (iter.hasNext())
       {
         ItemGradingData data = (ItemGradingData) iter.next();
+        if (attachmentMap.get(data.getItemGradingId()) != null) {
+    		data.setItemGradingAttachmentList((ArrayList<ItemGradingAttachment>) attachmentMap.get(data.getItemGradingId()));
+    	}
+    	else {
+    		data.setItemGradingAttachmentList(new ArrayList<ItemGradingAttachment>());
+    	}
+        
         ArrayList thisone = (ArrayList)
           map.get(data.getPublishedItemId());
         if (thisone == null)
@@ -863,8 +891,25 @@ public class AssessmentGradingFacadeQueries extends HibernateDaoSupport implemen
 
   public AssessmentGradingData load(Long id) {
     AssessmentGradingData gdata = (AssessmentGradingData) getHibernateTemplate().load(AssessmentGradingData.class, id);
-    //This is unnecessary as these objects aren't lazy loaded -DH
-    gdata.setItemGradingSet(getItemGradingSet(gdata.getAssessmentGradingId()));
+    // Get (ItemGradingId, ItemGradingData) pair
+    HashMap<Long, ItemGradingData> itemGradingMap = getItemGradingMap(gdata.getAssessmentGradingId());
+    // Get (ItemGradingId, ItemGradingAttachment) pair
+    HashMap attachmentMap = getItemGradingAttachmentMap(itemGradingMap.keySet());
+
+    Collection<ItemGradingData> itemGradingCollection = itemGradingMap.values();
+    Set<ItemGradingData> itemGradingSet = new HashSet();
+    Iterator<ItemGradingData> iter = itemGradingCollection.iterator();
+    while (iter.hasNext()) {
+    	ItemGradingData itemGradingData = iter.next();
+    	if (attachmentMap.get(itemGradingData.getItemGradingId()) != null) {
+    		itemGradingData.setItemGradingAttachmentList((ArrayList<ItemGradingAttachment>) attachmentMap.get(itemGradingData.getItemGradingId()));
+    	}
+    	else {
+    		itemGradingData.setItemGradingAttachmentList(new ArrayList<ItemGradingAttachment>());
+    	}
+    	itemGradingSet.add(itemGradingData);
+    }
+    gdata.setItemGradingSet(itemGradingSet);
     return gdata;
   }
 
@@ -1414,15 +1459,29 @@ public class AssessmentGradingFacadeQueries extends HibernateDaoSupport implemen
     	};
     };
     List itemGradings = getHibernateTemplate().executeFind(hcb);
-
-//    List itemGradings = getHibernateTemplate().find(query,
-//                                                    new Object[] { assessmentGradingId },
-//                                                    new org.hibernate.type.Type[] { Hibernate.LONG });
     HashSet s = new HashSet();
     for (int i=0; i<itemGradings.size();i++){
       s.add(itemGradings.get(i));
     }
     return s;
+  }
+  
+  public HashMap<Long, ItemGradingData> getItemGradingMap(final Long assessmentGradingId){
+	    final String query = "from ItemGradingData i where i.assessmentGradingId=?";
+
+	    final HibernateCallback hcb = new HibernateCallback(){
+	    	public Object doInHibernate(Session session) throws HibernateException, SQLException {
+	    		Query q = session.createQuery(query);
+	    		q.setLong(0, assessmentGradingId.longValue());
+	    		return q.list();
+	    	};
+	    };
+	    List itemGradingList = getHibernateTemplate().executeFind(hcb);
+	    HashMap<Long, ItemGradingData> m = new HashMap<Long, ItemGradingData>();
+	    for (int i=0; i<itemGradingList.size();i++){
+	      m.put(((ItemGradingData)itemGradingList.get(i)).getItemGradingId(), (ItemGradingData) itemGradingList.get(i));
+	    }
+	    return m;
   }
 
   public HashMap getAssessmentGradingByItemGradingId(final Long publishedAssessmentId){
@@ -3311,6 +3370,71 @@ public class AssessmentGradingFacadeQueries extends HibernateDaoSupport implemen
 		  return h;
 	  }
 
+	  public HashMap<Long,ArrayList<ItemGradingAttachment>> getItemGradingAttachmentMap(final Set itemGradingIds) {
+		  final String query = "from ItemGradingAttachment a where a.itemGrading.itemGradingId in (:itemGradingIds)";
+
+		  final HibernateCallback hcb = new HibernateCallback(){
+			  public Object doInHibernate(Session session) throws HibernateException, SQLException {
+				  Query q = session.createQuery(query);
+				  q.setParameterList("itemGradingIds", itemGradingIds);
+				  return q.list();
+			  };
+		  };
+		  List itemGradingAttachmentList = getHibernateTemplate().executeFind(hcb);
+		  return processItemGradingAttachment(itemGradingAttachmentList);
+	  }
+	  
+	  public HashMap<Long,ArrayList<ItemGradingAttachment>> getItemGradingAttachmentMap(final Long publishedItemId) {
+		  final String query = "select a from ItemGradingAttachment a " +
+			  		"where a.itemGrading.publishedItemId = :publishedItemId ";
+
+		  final HibernateCallback hcb = new HibernateCallback(){
+			  public Object doInHibernate(Session session) throws HibernateException, SQLException {
+				  Query q = session.createQuery(query);
+				  q.setLong("publishedItemId", publishedItemId);
+				  return q.list();
+			  };
+		  };
+		  List itemGradingAttachmentList = getHibernateTemplate().executeFind(hcb);
+		  return processItemGradingAttachment(itemGradingAttachmentList);
+	  }
+	  
+	  public HashMap<Long,ArrayList<ItemGradingAttachment>> getItemGradingAttachmentMapByAssessmentGradingId(final Long assessmentGradingId) {
+		  final String query = "select a from ItemGradingAttachment a, ItemGradingData i " +
+		  		"where a.itemGrading.itemGradingId = i.itemGradingId " +
+		  		"and i.assessmentGradingId = :assessmentGradingId";
+
+		  final HibernateCallback hcb = new HibernateCallback(){
+			  public Object doInHibernate(Session session) throws HibernateException, SQLException {
+				  Query q = session.createQuery(query);
+				  q.setLong("assessmentGradingId", assessmentGradingId);
+				  return q.list();
+			  };
+		  };
+		    
+		  List itemGradingAttachmentList = getHibernateTemplate().executeFind(hcb);
+		  return processItemGradingAttachment(itemGradingAttachmentList);
+	  }
+	  
+	  private HashMap<Long,ArrayList<ItemGradingAttachment>> processItemGradingAttachment(List itemGradingAttachmentList) {
+		  HashMap<Long,ArrayList<ItemGradingAttachment>> itemGradingAttachmentMap = new HashMap();
+		  for (int i=0; i<itemGradingAttachmentList.size(); i++){
+			  ItemGradingAttachment attachment = (ItemGradingAttachment)itemGradingAttachmentList.get(i);
+			  Long itemGrdingId = attachment.getItemGrading().getItemGradingId();
+			  ArrayList attachmentList;
+			  if (itemGradingAttachmentMap.containsKey(itemGrdingId)) {
+				  attachmentList = (ArrayList<ItemGradingAttachment>) itemGradingAttachmentMap.get(itemGrdingId);  
+			  }
+			  else {
+				  attachmentList = new ArrayList();
+			  }
+			  attachmentList.add(attachment);
+			  itemGradingAttachmentMap.put(itemGrdingId, attachmentList);
+		  }
+	    
+		  return itemGradingAttachmentMap;
+	  }
+	  
     /**
      * This is a dummy class for sections that are made up of random questions
      * from a pool

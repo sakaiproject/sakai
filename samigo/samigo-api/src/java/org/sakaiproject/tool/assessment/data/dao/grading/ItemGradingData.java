@@ -55,7 +55,7 @@ public class ItemGradingData implements java.io.Serializable {
 	private Integer attemptsRemaining;
 	private String lastDuration;
 	private List mediaArray;
-	private Set<ItemGradingAttachment> itemGradingAttachmentSet;
+	private Set<ItemGradingAttachment> itemGradingAttachmentSet = new HashSet<ItemGradingAttachment>();
 
 	public ItemGradingData() {
 	}
@@ -237,8 +237,7 @@ public class ItemGradingData implements java.io.Serializable {
 
 	public void setItemGradingAttachmentList(
 			List<ItemGradingAttachment> itemGradingAttachmentList) {
-		Set<ItemGradingAttachment> itemGradingAttachmentSet = new HashSet<ItemGradingAttachment>(
-				itemGradingAttachmentList);
+		Set<ItemGradingAttachment> itemGradingAttachmentSet = new HashSet<ItemGradingAttachment>(itemGradingAttachmentList);
 		this.itemGradingAttachmentSet = itemGradingAttachmentSet;
 	}
 
@@ -265,10 +264,6 @@ public class ItemGradingData implements java.io.Serializable {
 				+ ((gradedBy == null) ? 0 : gradedBy.hashCode());
 		result = prime * result
 				+ ((gradedDate == null) ? 0 : gradedDate.hashCode());
-		result = prime
-				* result
-				+ ((itemGradingAttachmentSet == null) ? 0
-						: itemGradingAttachmentSet.hashCode());
 		result = prime * result
 				+ ((itemGradingId == null) ? 0 : itemGradingId.hashCode());
 		result = prime * result
@@ -343,12 +338,6 @@ public class ItemGradingData implements java.io.Serializable {
 			if (other.gradedDate != null)
 				return false;
 		} else if (!gradedDate.equals(other.gradedDate))
-			return false;
-		if (itemGradingAttachmentSet == null) {
-			if (other.itemGradingAttachmentSet != null)
-				return false;
-		} else if (!itemGradingAttachmentSet
-				.equals(other.itemGradingAttachmentSet))
 			return false;
 		if (itemGradingId == null) {
 			if (other.itemGradingId != null)

@@ -28,10 +28,10 @@
     <property name="lastDuration" type="string" length="36" column="LASTDURATION" not-null="false" />
 
 	<set name="itemGradingAttachmentSet" table="SAM_GRADINGATTACHMENT_T" cascade="all" order-by="createdDate asc"
-        inverse="true" lazy="false">
+        inverse="true" lazy="true">
         <cache usage="read-write"/>
         <key column="ITEMGRADINGID"/>
-        <one-to-many class="org.sakaiproject.tool.assessment.data.dao.grading.ItemGradingAttachment"/>
+        <one-to-many class="org.sakaiproject.tool.assessment.data.dao.grading.ItemGradingAttachment" not-found="ignore"/>
     </set>
   </class>
 
@@ -139,7 +139,7 @@
     <property name="lastModifiedDate" type="timestamp" column="LASTMODIFIEDDATE" not-null="true" />
 
     <subclass name="org.sakaiproject.tool.assessment.data.dao.grading.ItemGradingAttachment"
-      discriminator-value="1" lazy="false" > 
+      discriminator-value="1" lazy="true" > 
       <many-to-one name="itemGrading" column="ITEMGRADINGID" not-null="false"
         class="org.sakaiproject.tool.assessment.data.dao.grading.ItemGradingData"/>
     </subclass>

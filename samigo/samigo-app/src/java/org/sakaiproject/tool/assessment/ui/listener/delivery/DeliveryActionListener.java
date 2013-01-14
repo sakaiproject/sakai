@@ -51,6 +51,7 @@ import org.sakaiproject.tool.assessment.api.SamigoApiFactory;
 import org.sakaiproject.tool.assessment.data.dao.assessment.AssessmentAccessControl;
 import org.sakaiproject.tool.assessment.data.dao.assessment.EventLogData;
 import org.sakaiproject.tool.assessment.data.dao.grading.AssessmentGradingData;
+import org.sakaiproject.tool.assessment.data.dao.grading.ItemGradingAttachment;
 import org.sakaiproject.tool.assessment.data.dao.grading.ItemGradingData;
 import org.sakaiproject.tool.assessment.data.ifc.assessment.AnswerIfc;
 import org.sakaiproject.tool.assessment.data.ifc.assessment.AssessmentAccessControlIfc;
@@ -1140,7 +1141,15 @@ public class DeliveryActionListener
       if (data.getAttemptsRemaining() !=null ){
         itemBean.setAttemptsRemaining(data.getAttemptsRemaining());
       }
-      itemGradingAttachmentList.addAll(data.getItemGradingAttachmentList());
+      
+      // set the itemGradingAttachment only for Review and Grading flows because itemGradingAttachment 
+      // can exist in these two flows only (grader can only enter comments for submitted assessments) 
+      if (delivery.getActionMode() == 3 || delivery.getActionMode() == 4) {
+    	  itemGradingAttachmentList.addAll(data.getItemGradingAttachmentList());
+      }
+      else {
+    	  itemGradingAttachmentList.addAll(new ArrayList<ItemGradingAttachment>());
+      }
       //itemBean.setItemGradingAttachmentList(data.getItemGradingAttachmentList());
     }
     itemBean.setItemGradingAttachmentList(itemGradingAttachmentList);

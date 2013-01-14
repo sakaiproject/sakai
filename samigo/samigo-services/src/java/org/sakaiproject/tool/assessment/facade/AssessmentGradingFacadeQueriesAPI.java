@@ -54,8 +54,10 @@ public interface AssessmentGradingFacadeQueriesAPI
   public List getAllAssessmentGradingData(Long publishedId);
 
   public HashMap getItemScores(Long publishedId, Long itemId, String which);
+  
+  public HashMap getItemScores(Long publishedId, Long itemId, String which, boolean loadItemGradingAttachment);
 
-  public HashMap getItemScores(final Long itemId, List scores);
+  public HashMap getItemScores(final Long itemId, List scores, boolean loadItemGradingAttachment);
   
   /**
    * This returns a hashmap of all the latest item entries, keyed by
