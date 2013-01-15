@@ -1662,12 +1662,16 @@ public abstract class BaseUserDirectoryService implements UserDirectoryService, 
 	 */
 	protected String cleanEid(String eid)
 	{
-		if (!m_caseSensitiveEid)
-		{
-			return StringUtil.trimToNullLower(eid);
-		}
+        if (!m_caseSensitiveEid) {
+            eid = StringUtils.lowerCase(eid);
+        }
+        eid = StringUtils.trimToNull(eid);
 
-		return StringUtils.trimToNull(eid);
+        if (eid != null) {
+            // remove all instances of these chars <>,;:\"
+            eid.replaceAll("[<>,;:\\\\]", "");
+        }
+        return eid;
 	}
 
 	protected UserEdit getCachedUser(String ref)
