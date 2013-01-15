@@ -369,9 +369,7 @@ public class AssessmentGradingFacadeQueries extends HibernateDaoSupport implemen
         ItemGradingData data = (ItemGradingData) iter2.next();
         if (loadItemGradingAttachment) {
         	if (attachmentMap.get(data.getItemGradingId()) != null) {
-        		//ArrayList itemGradingAttachmentList = new ArrayList();
-				//itemGradingAttachmentList.addAll((ArrayList<ItemGradingAttachment>)attachmentMap.get(data.getItemGradingId()));
-				data.setItemGradingAttachmentList((ArrayList<ItemGradingAttachment>) attachmentMap.get(data.getItemGradingId()));
+        		data.setItemGradingAttachmentList((ArrayList<ItemGradingAttachment>) attachmentMap.get(data.getItemGradingId()));
 			}
 			else {
 				data.setItemGradingAttachmentList(new ArrayList<ItemGradingAttachment>());
@@ -891,24 +889,27 @@ public class AssessmentGradingFacadeQueries extends HibernateDaoSupport implemen
 
   public AssessmentGradingData load(Long id) {
     AssessmentGradingData gdata = (AssessmentGradingData) getHibernateTemplate().load(AssessmentGradingData.class, id);
+    Set<ItemGradingData> itemGradingSet = new HashSet();
     // Get (ItemGradingId, ItemGradingData) pair
     HashMap<Long, ItemGradingData> itemGradingMap = getItemGradingMap(gdata.getAssessmentGradingId());
-    // Get (ItemGradingId, ItemGradingAttachment) pair
-    HashMap attachmentMap = getItemGradingAttachmentMap(itemGradingMap.keySet());
-
-    Collection<ItemGradingData> itemGradingCollection = itemGradingMap.values();
-    Set<ItemGradingData> itemGradingSet = new HashSet();
-    Iterator<ItemGradingData> iter = itemGradingCollection.iterator();
-    while (iter.hasNext()) {
-    	ItemGradingData itemGradingData = iter.next();
-    	if (attachmentMap.get(itemGradingData.getItemGradingId()) != null) {
-    		itemGradingData.setItemGradingAttachmentList((ArrayList<ItemGradingAttachment>) attachmentMap.get(itemGradingData.getItemGradingId()));
+    if (itemGradingMap.keySet().size() > 0) {
+    	// Get (ItemGradingId, ItemGradingAttachment) pair
+    	HashMap attachmentMap = getItemGradingAttachmentMap(itemGradingMap.keySet());
+    	Collection<ItemGradingData> itemGradingCollection = itemGradingMap.values();
+    	
+    	Iterator<ItemGradingData> iter = itemGradingCollection.iterator();
+    	while (iter.hasNext()) {
+    		ItemGradingData itemGradingData = iter.next();
+    		if (attachmentMap.get(itemGradingData.getItemGradingId()) != null) {
+    			itemGradingData.setItemGradingAttachmentList((ArrayList<ItemGradingAttachment>) attachmentMap.get(itemGradingData.getItemGradingId()));
+    		}
+    		else {
+    			itemGradingData.setItemGradingAttachmentList(new ArrayList<ItemGradingAttachment>());
+    		}
+    		itemGradingSet.add(itemGradingData);
     	}
-    	else {
-    		itemGradingData.setItemGradingAttachmentList(new ArrayList<ItemGradingAttachment>());
-    	}
-    	itemGradingSet.add(itemGradingData);
     }
+    
     gdata.setItemGradingSet(itemGradingSet);
     return gdata;
   }
