@@ -223,6 +223,7 @@ public class SignupCalendarHelperImpl implements SignupCalendarHelper {
 	protected static ResourceLoader rb = new ResourceLoader("emailMessage");
 	public static final String newline = "<br />";// somehow the "\n" is not working for linebreak here.
 	private String addWarningMessageForCancellation(String meetingDesc, String siteId){
+		meetingDesc = meetingDesc ==null? " ": meetingDesc;
 		StringBuffer sb = new StringBuffer(meetingDesc);
 		sb.append(newline + newline);
 		sb.append(rb.getString("ical.footer.separator"));
