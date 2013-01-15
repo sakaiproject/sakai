@@ -37,6 +37,7 @@ import java.util.Observer;
 import java.util.SortedSet;
 import java.util.TreeSet;
 
+import javax.xml.XMLConstants;
 import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
 import javax.xml.transform.OutputKeys;
@@ -850,6 +851,9 @@ public class BaseConfigurationService implements ConfigurationService, Observer
 
       factory = DocumentBuilderFactory.newInstance();
       factory.setNamespaceAware(false);
+      factory.setFeature(XMLConstants.FEATURE_SECURE_PROCESSING, true);
+      factory.setFeature("http://xml.org/sax/features/external-general-entities", false);
+      factory.setFeature("http://xml.org/sax/features/external-parameter-entities", false);
 
       return factory.newDocumentBuilder();
     }
