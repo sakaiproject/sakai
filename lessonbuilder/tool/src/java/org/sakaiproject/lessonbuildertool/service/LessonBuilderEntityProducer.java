@@ -633,7 +633,11 @@ public class LessonBuilderEntityProducer extends AbstractEntityProvider
 			   logger.error("sakaiId not recognized " + sakaiId);
 		   } else if (type == SimplePageItem.PAGE) {
 		       // sakaiId should be the new page ID
-		       sakaiId = pageMap.get(Long.valueOf(sakaiId)).toString();
+		       Long newPageId = pageMap.get(Long.valueOf(sakaiId));
+		       // we've seen a few cases where sakaiId of a subpage is 0. It won't be
+		       // in the map, so this leaves it zero.
+		       if (newPageId != null)
+			   sakaiId = newPageId.toString();
 		   }
 
 		   if (type == SimplePageItem.ASSIGNMENT || type == SimplePageItem.ASSESSMENT || type == SimplePageItem.FORUM) {

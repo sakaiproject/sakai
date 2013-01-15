@@ -120,11 +120,15 @@ public class PagePickerProducer implements ViewComponentProducer, NavigationCase
 	    // System.out.println("in findallpages " + pageItem.getName() + " " + toplevel);
 	    Long pageId = Long.valueOf(pageItem.getSakaiId());	    
 
+	    if (pageId == 0L)
+		return;
+
 	    try {
 		if (pageItem.isPrerequisite() || simplePageBean.getItemGroups(pageItem, null, false) != null)
 		    somePagesHavePrerequisites = true;
 	    } catch (IdUnusedException exe) {
 		// underlying item missing. should be impossible for a page
+		return;
 	    }
 
 
