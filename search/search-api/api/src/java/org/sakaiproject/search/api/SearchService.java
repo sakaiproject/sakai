@@ -100,7 +100,7 @@ public interface SearchService extends Diagnosable
 	/**
 	 * Search Field The tool type of the entity
 	 */
-	//public static final String FIELD_TYPE = "type";
+	public static final String FIELD_TYPE = "type";
 
 	/**
 	 * Search Field The Sakai id of the entity
@@ -290,6 +290,9 @@ public interface SearchService extends Diagnosable
 	 * @return a suggestion
 	 */
 	public String getSearchSuggestion(String searchString);
+
+    public String[] getSearchSuggestions(String searchString, String currentSite, boolean allMySites);
+
 	
 	/**
 	 * SRCH-96

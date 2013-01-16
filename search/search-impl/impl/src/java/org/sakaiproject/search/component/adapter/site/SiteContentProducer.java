@@ -423,20 +423,7 @@ public class SiteContentProducer implements EntityContentProducer
 		Entity entity = reference.getEntity();
 		if (entity instanceof Site)
 		{
-			Site s = (Site) entity;
-			if (s.isPublished() && s.isPubView())
-			{
-				return ".auth";
-			}
-			else if (s.isPublished() && s.isJoinable())
-			{
-				return ".anon";
-			}
-			else
-			{
-				// make unjoinable sites as private
-				return ".private";
-			}
+			return entity.getId();
 		}
 		return null;
 		

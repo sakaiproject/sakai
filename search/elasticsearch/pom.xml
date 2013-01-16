@@ -1,0 +1,134 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
+    <modelVersion>4.0.0</modelVersion>
+    <parent>
+        <artifactId>search</artifactId>
+        <groupId>org.sakaiproject.search</groupId>
+        <version>1.5-SNAPSHOT</version>
+        <relativePath>../pom.xml</relativePath>
+    </parent>
+    <groupId>org.sakaiproject.search.elasticsearch</groupId>
+    <artifactId>elasticsearch-base</artifactId>
+    <packaging>pom</packaging>
+    <name>ElasticSearch Base</name>
+
+    <properties>
+        <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
+
+        <!-- maven-compiler-plugin config -->
+        <maven.compiler.source>6</maven.compiler.source>
+        <maven.compiler.target>6</maven.compiler.target>
+
+        <!-- dependencies versions -->
+        <elasticsearch.version>0.20.0.RC1</elasticsearch.version>
+        <guava.version>11.0.2</guava.version>
+        <lucene.version>2.9.4</lucene.version>
+    </properties>
+
+
+
+    <modules>
+        <module>impl</module>
+        <module>pack</module>
+    </modules>
+
+    <dependencyManagement>
+        <dependencies>
+            <!-- Internal dependencies -->
+            <dependency>
+                <groupId>org.elasticsearch</groupId>
+                <artifactId>elasticsearch</artifactId>
+                <version>${elasticsearch.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>com.google.guava</groupId>
+                <artifactId>guava</artifactId>
+                <version>${guava.version}</version>
+            </dependency>
+            <!-- Dependencies -->
+
+            <dependency>
+                <groupId>org.springframework</groupId>
+                <artifactId>spring</artifactId>
+                <version>${sakai.spring.version}</version>
+            </dependency>
+
+
+
+            <!-- Sakai dependencies -->
+            <dependency>
+                <groupId>org.sakaiproject.search</groupId>
+                <artifactId>search-api</artifactId>
+                <version>${sakai.search.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>org.sakaiproject.search</groupId>
+                <artifactId>sakai-search-tool</artifactId>
+                <version>${sakai.search.version}</version>
+                <type>war</type>
+            </dependency>
+            <dependency>
+                <groupId>org.sakaiproject.kernel</groupId>
+                <artifactId>sakai-kernel-api</artifactId>
+                <version>${sakai.kernel.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>org.sakaiproject.kernel</groupId>
+                <artifactId>sakai-component-manager</artifactId>
+                <version>${sakai.kernel.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>org.sakaiproject.entitybroker</groupId>
+                <artifactId>entitybroker-api</artifactId>
+                <version>${sakai.entitybroker.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>org.sakaiproject.entitybroker</groupId>
+                <artifactId>entitybroker-utils</artifactId>
+                <version>${sakai.entitybroker.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>org.sakaiproject.kernel</groupId>
+                <artifactId>sakai-kernel-component</artifactId>
+                <version>${sakai.kernel.version}</version>
+                <type>sakai-component</type>
+            </dependency>
+
+
+        </dependencies>
+    </dependencyManagement>
+
+
+
+    <repositories>
+        <repository>
+            <id>sakai.maven2</id>
+            <name>Sakai Maven2 Repo</name>
+            <url>https://source.sakaiproject.org/maven2</url>
+        </repository>
+        <repository>
+            <id>sakai.maven2-snapshot</id>
+            <name>Sakai Maven Repo</name>
+            <layout>default</layout>
+            <url>http://source.sakaiproject.org/maven2-snapshots</url>
+            <snapshots>
+                <enabled>true</enabled>
+            </snapshots>
+        </repository>
+
+    </repositories>
+
+
+
+    <pluginRepositories>
+        <pluginRepository>
+            <id>Sakai Plugin Repo</id>
+            <url>http://source.sakaiproject.org/maven2</url>
+            <releases>
+                <enabled>true</enabled>
+            </releases>
+        </pluginRepository>
+
+    </pluginRepositories>
+</project>

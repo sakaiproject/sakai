@@ -42,9 +42,12 @@ import org.sakaiproject.search.api.SearchService;
 public class RestSearchServlet extends HttpServlet
 {
 
-	private static final Log log = LogFactory.getLog(RestSearchServlet.class);
+    private static final Log log = LogFactory.getLog(RestSearchServlet.class);
+    public static final String REQUEST_PARAM_CTX = "ctx";
+    public static final String REQUEST_PARAM_SCOPE = "scope";
+    public static final String REQUEST_PARAMETER_Q = "q";
 
-	private SearchService searchService;
+    private SearchService searchService;
 
 	public void init()
 	{
@@ -100,13 +103,48 @@ public class RestSearchServlet extends HttpServlet
 			out.write(sb.toString());
 		} else {
 */
-			String result = searchService.searchXML(request.getParameterMap());
-			response.setContentType("text/xml");
-			Writer out = response.getWriter();
-			out.write(result);
-//		}
+        // /sakai-search-tool/xmlsearch/suggestion
+        String result;
+        String[] parts = request.getRequestURI().split("/");
+        if (parts.length == 4 && "suggestion".equalsIgnoreCase(parts[3])) {
+            boolean searchAllMySites = true;
+            String currentSiteId = null;
+            if (request.getParameter(REQUEST_PARAM_SCOPE) != null) {
+                if ("SITE".equalsIgnoreCase(request.getParameter(REQUEST_PARAM_SCOPE)))  {
+                    searchAllMySites = false;
+                }
+            }
+            if (request.getParameter(REQUEST_PARAM_CTX) != null) {
+                currentSiteId = request.getParameter(REQUEST_PARAM_CTX);
+            }
 
-	}
+            String[] suggestions = searchService.getSearchSuggestions(request.getParameter(REQUEST_PARAMETER_Q), currentSiteId, searchAllMySites);
+            response.setContentType("application/json");
+            result = stringArrayAsJson(suggestions);
+        // /sakai-search-tool/xmlsearch
+        } else {
+			result = searchService.searchXML(request.getParameterMap());
+            response.setContentType("text/xml");
+        }
+        Writer out = response.getWriter();
+        out.write(result);
+
+    }
+
+    private String stringArrayAsJson(String[] strArray) {
+        StringBuffer sb = new StringBuffer();
+        sb.append("[");
+        int i=0;
+        for (String item: strArray) {
+            if (i > 0) {
+                sb.append(",");
+            }
+            sb.append("\"" + item + "\"");
+            i++;
+        }
+        sb.append("]");
+        return sb.toString();
+    }
 
 
 }

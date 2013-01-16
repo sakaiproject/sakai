@@ -1,0 +1,25 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE beans PUBLIC "-//SPRING//DTD BEAN//EN" "http://www.springframework.org/dtd/spring-beans.dtd">
+<beans default-lazy-init="false">
+    <bean id="org.sakaiproject.search.api.SearchService"
+          class="org.sakaiproject.search.elasticsearch.ElasticSearchService" init-method="init" destroy-method="destroy">
+        <property name="triggerFunctions">
+            <list/>
+        </property>
+        <property name="notificationService" ref="org.sakaiproject.event.api.NotificationService"/>
+        <property name="indexBuilder" ref="org.sakaiproject.search.api.SearchIndexBuilder"/>
+        <property name="eventTrackingService" ref="org.sakaiproject.event.api.EventTrackingService"/>
+        <property name="serverConfigurationService"><ref bean="org.sakaiproject.component.api.ServerConfigurationService"/></property>
+        <property name="userDirectoryService"><ref bean="org.sakaiproject.user.api.UserDirectoryService" /></property>
+        <property name="sessionManager"><ref bean="org.sakaiproject.tool.api.SessionManager" /></property>
+        <property name="siteService" ref="org.sakaiproject.site.api.SiteService"/>
+    </bean>
+    <bean id="org.sakaiproject.search.api.SearchIndexBuilder"
+          class="org.sakaiproject.search.elasticsearch.ElasticSearchIndexBuilder"
+          init-method="init">
+        <property name="siteService"><ref bean="org.sakaiproject.site.api.SiteService"/></property>
+        <property name="securityService"><ref bean="org.sakaiproject.authz.api.SecurityService" /></property>
+        <property name="serverConfigurationService"><ref bean="org.sakaiproject.component.api.ServerConfigurationService"/></property>
+    </bean>
+
+</beans>

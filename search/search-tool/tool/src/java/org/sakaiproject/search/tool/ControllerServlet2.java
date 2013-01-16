@@ -45,6 +45,7 @@ import org.sakaiproject.search.tool.api.SearchBeanFactory;
 import org.sakaiproject.tool.api.SessionManager;
 import org.sakaiproject.tool.api.Tool;
 import org.sakaiproject.tool.api.ToolSession;
+import org.sakaiproject.tool.cover.ToolManager;
 import org.sakaiproject.util.ResourceLoader;
 import org.springframework.web.context.WebApplicationContext;
 import org.springframework.web.context.support.WebApplicationContextUtils;
@@ -188,6 +189,7 @@ public class ControllerServlet2 extends HttpServlet
 		vc.put("skin", skin);
 		vc.put("sakaiheader", sakaiHeader);
 		vc.put("rlb",rlb);
+        vc.put("currentSiteId",ToolManager.getCurrentPlacement().getContext());
 		vc.put("sakai_tool_placement_id", toolPlacement);
 		vc.put("sakai_tool_placement_id_js", toolPlacementJs);
 		vc.put("serverurl", serverUrl);

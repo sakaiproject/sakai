@@ -1,0 +1,48 @@
+{
+    "sakai_doc" : {
+        "properties" : {
+            "siteid" : {
+                "type" : "string",
+                "index" : "not_analyzed"
+            },
+            "title" : {
+                "type" : "string",
+                "index" : "not_analyzed"
+            },
+            "url" : {
+                "type" : "string",
+                "index" : "not_analyzed"
+            },
+            "reference" : {
+                "type" : "string",
+                "index" : "not_analyzed"
+            },
+            "id" : {
+                "type" : "string",
+                "index" : "not_analyzed"
+            },
+            "tool" : {
+                "type" : "string",
+                "index" : "not_analyzed"
+            },
+            "container" : {
+                "type" : "string",
+                "index" : "not_analyzed"
+            },
+            "type" : {
+                "type" : "string",
+                "index" : "not_analyzed"
+            },
+            "subtype" : {
+                "type" : "string",
+                "index" : "not_analyzed"
+            },
+            "contents" : {
+                "type" : "string",
+                "index" : "analyzed"
+            }
+
+
+        }
+    }
+}

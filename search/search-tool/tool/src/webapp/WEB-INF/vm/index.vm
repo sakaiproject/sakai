@@ -1,5 +1,34 @@
 #header(true ${searchModel.searchTitle} )
-<div class="portletBody">    		
+
+<script>
+  jQuery(document).ready(function() {
+
+      jQuery('#search').autocomplete({
+          source: function(request, response) {
+              jQuery.ajax({
+                  url: "/sakai-search-tool/xmlsearch/suggestion",
+                  dataType: "json",
+                  data: {
+                      term : request.term,
+                      s : 0,
+                      e : 10,
+                      ctx : '${currentSiteId}',
+                      q : jQuery('#search').val(),
+                      scope : jQuery('input:radio[name=scope]:checked').val()
+                  },
+                  success: function(data) { response(data); }
+              });
+          },
+          minLength: 2,
+          open: function(event, ui) { setMainFrameHeightNoScroll('${sakai_tool_placement_id}'); }
+
+      });
+  });
+
+
+</script>
+
+<div class="portletBody">
 #if ( ${searchModel.hasAdmin()} && ${searchModel.searchServer} )  	
    <div class="navIntraTool">
 	  <span class="rwiki_pageLinks">

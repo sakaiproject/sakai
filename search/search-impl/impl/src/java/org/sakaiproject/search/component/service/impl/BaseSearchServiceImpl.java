@@ -1098,7 +1098,15 @@ public abstract class BaseSearchServiceImpl implements SearchService
 	}
 	
 	Directory spellIndexDirectory = null;
-	
+
+    public String[] getSearchSuggestions(String searchString, String currentSiteId, boolean allMySites) {
+        String suggestion = getSearchSuggestion(searchString);
+        if (suggestion != null && suggestion.length() > 0) {
+            return new String[]{searchString};
+        }
+        return new String[]{};
+    }
+
 	public String getSearchSuggestion(String queryString) {
 		log.info("getSearchSuggestion( " + queryString + ")");
 		
