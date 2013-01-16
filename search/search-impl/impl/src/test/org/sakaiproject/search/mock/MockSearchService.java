@@ -396,8 +396,13 @@ public class MockSearchService implements SearchService
 		// TODO Auto-generated method stub
 		return null;
 	}
-	
-	public boolean isSearchServer()
+
+    @Override
+    public String[] getSearchSuggestions(String searchString, String currentSite, boolean allMySites) {
+        return new String[0];  //To change body of implemented methods use File | Settings | File Templates.
+    }
+
+    public boolean isSearchServer()
 	{
 		return false;
 	}
