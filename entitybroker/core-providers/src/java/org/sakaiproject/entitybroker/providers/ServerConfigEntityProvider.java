@@ -213,7 +213,7 @@ public class ServerConfigEntityProvider extends AbstractEntityProvider implement
         m.put("gatewaySiteId", serverConfigurationService.getGatewaySiteId());
         m.put("loggedOutUrl", serverConfigurationService.getLoggedOutUrl());
         m.put("portalUrl", serverConfigurationService.getPortalUrl());
-        m.put("sakaiHomePath", serverConfigurationService.getSakaiHomePath());
+        //m.put("sakaiHomePath", serverConfigurationService.getSakaiHomePath()); // SAK-23142
         m.put("serverId", serverConfigurationService.getServerId());
         m.put("serverIdInstance", serverConfigurationService.getServerIdInstance());
         m.put("serverInstance", serverConfigurationService.getServerInstance());
