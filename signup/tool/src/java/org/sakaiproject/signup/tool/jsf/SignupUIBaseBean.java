@@ -723,8 +723,16 @@ abstract public class SignupUIBaseBean implements SignupBeanConstants, SignupMes
 	 * This method is in this particular bean because 1. We have access to the meeting here, and 2. it is used in more than one sub-bean.
 	 */
 	public void downloadICSForMeeting() {
-			
-		String filePath = calendarHelper.createCalendarFile(Collections.singletonList(calendarHelper.generateVEventForMeeting(meetingWrapper.getMeeting())));;
+		String filePath;
+		try{	
+			filePath = calendarHelper.createCalendarFile(Collections.singletonList(calendarHelper.generateVEventForMeeting(meetingWrapper.getMeeting())));
+		}catch(NullPointerException ne){
+			logger.error("The Scheduler tool may not be availabe for the site");
+			String warningFileName = Utilities.rb.getString("ics_file_name_for_missing_scheduler_tool");
+			String warningMsg = Utilities.rb.getString("ics_warning_msg_for_missing_scheduler_tool");			
+			sendDownloadWarning(warningFileName,warningMsg);
+			return;
+		}
 		
 		if(StringUtils.isNotBlank(filePath)) {
 			logger.debug("filepath: " + filePath);
@@ -767,6 +775,44 @@ abstract public class SignupUIBaseBean implements SignupBeanConstants, SignupMes
 			logger.warn("Error generating file for download:" + ex.getMessage());
 		} finally {
 			IOUtils.closeQuietly(out);
+		}
+		fc.responseComplete();
+		
+	}
+	
+	/**
+	 * Send a warning message to user about failed ICS file generation
+	 * @param fileName
+	 * @param warningMsg
+	 */
+	protected void sendDownloadWarning(String fileName, String warningMsg) {
+
+		FacesContext fc = FacesContext.getCurrentInstance();
+		ServletOutputStream out = null;
+		
+		
+		try {
+			HttpServletResponse response = (HttpServletResponse) fc.getExternalContext().getResponse();
+			
+			response.reset();
+			response.setHeader("Pragma", "public");
+			response.setHeader("Cache-Control","public, must-revalidate, post-check=0, pre-check=0, max-age=0"); 
+			response.setContentType("text/plain");
+			response.setHeader("Content-disposition", "attachment; filename=" + fileName);
+			
+			out = response.getOutputStream();
+			warningMsg= warningMsg!=null? warningMsg:"Missing Scheduler tool on site";
+			out.print(warningMsg);
+
+			out.flush();
+		} catch (IOException ex) {
+			logger.warn("Error generating file for download:" + ex.getMessage());
+		} finally {
+			try{
+				out.close();
+			}catch (Exception e){
+				//do nothing;
+			}
 		}
 		fc.responseComplete();
 		
