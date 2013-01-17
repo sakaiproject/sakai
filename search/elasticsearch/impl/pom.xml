@@ -12,6 +12,7 @@
     <groupId>org.sakaiproject.search.elasticsearch</groupId>
     <name>Sakai search - ElasticSearch impl</name>
     <packaging>jar</packaging>
+
     <dependencies>
         <!-- Dependencies -->
         <dependency>
@@ -61,23 +62,63 @@
             <groupId>org.springframework</groupId>
             <artifactId>spring</artifactId>
         </dependency>
-
-
+        <dependency>
+            <groupId>org.mockito</groupId>
+            <artifactId>mockito-core</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>junit</groupId>
+            <artifactId>junit</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>javax.servlet</groupId>
+            <artifactId>servlet-api</artifactId>
+            <scope>test</scope>
+        </dependency>
+        <dependency>
+            <groupId>com.github.javafaker</groupId>
+            <artifactId>javafaker</artifactId>
+            <version>0.2</version>
+            <scope>test</scope>
+        </dependency>
+        <dependency>
+          <groupId>log4j</groupId>
+          <artifactId>log4j</artifactId>
+          <type>jar</type>
+          <scope>test</scope>
+        </dependency>
+        <dependency>
+            <groupId>org.slf4j</groupId>
+            <artifactId>slf4j-api</artifactId>
+            <version>1.6.1</version>
+            <scope>test</scope>
+        </dependency>
     </dependencies>
-
     <build>
-        <sourceDirectory>src/main/java</sourceDirectory>
-        <resources>
-            <resource>
-                <directory>src/main/resources</directory>
-                <includes>
-                    <include>**/*.properties</include>
-                    <include>**/*.txt</include>
-                    <include>**/*.json</include>
-
-                </includes>
-            </resource>
-        </resources>
-
+        <!--plugins>
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-surefire-plugin</artifactId>
+                <configuration>
+                    <forkMode>pertest</forkMode>
+                    <argLine>-Xms256m -Xmx512m</argLine>
+                    <testFailureIgnore>false</testFailureIgnore>
+                    <skip>false</skip>
+                    <includes>
+                        <include>**/*</include>
+                    </includes>
+                </configuration>
+            </plugin>
+        </plugins-->
+      <testResources>
+        <testResource>
+          <directory>${basedir}/src/test-resources</directory>
+          <includes>
+            <include>**/*.*</include>
+          </includes>
+          <filtering>false</filtering>
+        </testResource>
+      </testResources>
     </build>
+
 </project>

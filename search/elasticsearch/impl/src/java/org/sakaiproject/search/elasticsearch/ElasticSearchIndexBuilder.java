@@ -427,6 +427,8 @@ public class ElasticSearchIndexBuilder implements SearchIndexBuilder {
         // to eat up all the CPU cycles.
         Thread.currentThread().setPriority(Thread.NORM_PRIORITY - 1);
 
+        assureIndex();
+
         SearchResponse response = client.prepareSearch(indexName)
                 .setQuery(matchAllQuery())
                 .setTypes(ElasticSearchService.SAKAI_DOC_TYPE)
@@ -555,7 +557,7 @@ public class ElasticSearchIndexBuilder implements SearchIndexBuilder {
                 log.error("Failed to load Stop words into Analyzer", ex);
             }
         }
-        log.info("ElasticSearch mapping will be configured as follows:" + mapping);
+        log.debug("ElasticSearch mapping will be configured as follows:" + mapping);
     }
 
     /**

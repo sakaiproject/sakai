@@ -137,7 +137,6 @@ public class ElasticSearchService implements SearchService {
      */
     private String sharedKey = null;
 
-
     /**
      * Register a notification action to listen to events and modify the search
      * index
@@ -169,6 +168,8 @@ public class ElasticSearchService implements SearchService {
         // set the action
         notification.setAction(new SearchNotificationAction(indexBuilder));
     }
+
+
 
     protected void initializeElasticSearch() {
         Map properties = new HashMap<String, String>();
@@ -785,4 +786,5 @@ public class ElasticSearchService implements SearchService {
     public void setFacetTermSize(int facetTermSize) {
         this.facetTermSize = facetTermSize;
     }
+
 }
