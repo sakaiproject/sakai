@@ -740,7 +740,6 @@ public class ElasticSearchIndexBuilder implements SearchIndexBuilder {
                 .setTypes(ElasticSearchService.SAKAI_DOC_TYPE)
                 .execute()
                 .actionGet();
-        //flushIndex();
     }
 
     protected void deleteDocument(String ref, EntityContentProducer ecp) {
@@ -788,7 +787,7 @@ public class ElasticSearchIndexBuilder implements SearchIndexBuilder {
         log.debug("Obtaining indexed elements for site: '" + siteId + "'");
 
         SearchResponse response = client.prepareSearch(indexName)
-                .setSearchType(SearchType.QUERY_AND_FETCH)
+                .setSearchType(SearchType.QUERY_THEN_FETCH)
                 .setQuery(termQuery(SearchService.FIELD_SITEID, siteId))
                 .setTypes(ElasticSearchService.SAKAI_DOC_TYPE)
                 .setSize(Integer.MAX_VALUE)
