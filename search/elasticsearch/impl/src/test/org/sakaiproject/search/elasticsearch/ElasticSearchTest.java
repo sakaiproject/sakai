@@ -79,15 +79,15 @@ public class ElasticSearchTest {
 
     List<String> siteIds = new ArrayList<String>();
 
-     Faker faker = new Faker();
+    Faker faker = new Faker();
 
-     String siteId = faker.phoneNumber();
+    String siteId = faker.phoneNumber();
 
-     String resourceName = faker.name();
+    String resourceName = faker.name();
     String url = "http://localhost/test123";
 
-    private  Map<String, Resource> resources = new HashMap();
-    private  List<Event> events = new ArrayList();
+    private Map<String, Resource> resources = new HashMap();
+    private List<Event> events = new ArrayList();
 
     List<Site> sites = new ArrayList<Site>();
 
@@ -112,7 +112,7 @@ public class ElasticSearchTest {
         when(entityContentProducer.getId(resourceName)).thenReturn(resourceName);
 
 
-        for (int i=0;i<100;i++) {
+        for (int i = 0; i < 100; i++) {
             String name = faker.name();
             Event newEvent = mock(Event.class);
             Resource resource1 = new Resource(generateContent(), faker.phoneNumber(), name);
@@ -131,16 +131,16 @@ public class ElasticSearchTest {
         when(entityContentProducer.getSiteContentIterator(siteId)).thenReturn(resources.keySet().iterator());
     }
 
-     private String generateContent() {
+    private String generateContent() {
         StringBuffer sb = new StringBuffer();
-        for (int i=0;i<10;i++) {
+        for (int i = 0; i < 10; i++) {
             sb.append(faker.paragraph(10) + " ");
         }
         return sb.toString();
     }
 
     @Before
-   	public void setUp() throws Exception {
+    public void setUp() throws Exception {
         createTestResources();
 
         when(site.getId()).thenReturn(siteId);
@@ -149,8 +149,9 @@ public class ElasticSearchTest {
         when(serverConfigurationService.getConfigData().getItems()).thenReturn(new ArrayList());
         when(serverConfigurationService.getServerId()).thenReturn("server1");
         when(serverConfigurationService.getServerName()).thenReturn("clusterName");
-        when(serverConfigurationService.getSakaiHomePath()).thenReturn(System.getProperty("java.io.tmpdir")  + new Date().getTime());
-        when(notificationService.addTransientNotification()).thenReturn(notificationEdit); siteIds.add(siteId);
+        when(serverConfigurationService.getSakaiHomePath()).thenReturn(System.getProperty("java.io.tmpdir") + "/" + new Date().getTime());
+        when(notificationService.addTransientNotification()).thenReturn(notificationEdit);
+        siteIds.add(siteId);
         when(siteService.getSites(SiteService.SelectionType.ANY, null, null, null, SiteService.SortType.NONE, null)).thenReturn(sites);
         when(siteService.isSpecialSite(siteId)).thenReturn(false);
         elasticSearchIndexBuilder = new ElasticSearchIndexBuilder();
@@ -231,7 +232,7 @@ public class ElasticSearchTest {
     }
 
     private void addResources() {
-        for (Event event : events)  {
+        for (Event event : events) {
             elasticSearchIndexBuilder.addResource(notification, event);
         }
     }
@@ -244,7 +245,7 @@ public class ElasticSearchTest {
     }
 
     @Test
-    public void testGetSearchSuggestions(){
+    public void testGetSearchSuggestions() {
         elasticSearchIndexBuilder.addResource(notification, event);
         wait(2000);
         String[] suggestions = elasticSearchService.getSearchSuggestions("te", siteId, false);
@@ -257,14 +258,14 @@ public class ElasticSearchTest {
     }
 
     @Test
-    public void deleteAllDocumentForSite(){
+    public void deleteAllDocumentForSite() {
         elasticSearchIndexBuilder.addResource(notification, event);
         addResources();
         wait(2000);
         elasticSearchIndexBuilder.deleteAllDocumentForSite(siteId);
         try {
             SearchList list = elasticSearchService.search("asdf", siteIds, 0, 10);
-            assertFalse(list.size() > 0 );
+            assertFalse(list.size() > 0);
         } catch (InvalidSearchQueryException e) {
             e.printStackTrace();
             fail();
@@ -288,8 +289,8 @@ public class ElasticSearchTest {
         wait(2000);
         try {
             SearchList list = elasticSearchService.search("asdf", siteIds, 0, 10);
-            assertNotNull(list.get(0) ) ;
-            assertEquals(list.get(0).getReference(),resourceName);
+            assertNotNull(list.get(0));
+            assertEquals(list.get(0).getReference(), resourceName);
         } catch (InvalidSearchQueryException e) {
             e.printStackTrace();
             fail();
@@ -306,7 +307,7 @@ public class ElasticSearchTest {
 
 
     //TODO this test is causing out of memory issue do not turn on until the problem can be addressed
-    public void testRefreshSite(){
+    public void testRefreshSite() {
         elasticSearchIndexBuilder.addResource(notification, event);
         addResources();
         wait(2000);
@@ -315,7 +316,7 @@ public class ElasticSearchTest {
 
 
     @Test
-    public void testRefresh(){
+    public void testRefresh() {
         elasticSearchIndexBuilder.addResource(notification, event);
         addResources();
         wait(2000);
@@ -323,7 +324,7 @@ public class ElasticSearchTest {
     }
 
     @Test
-    public void testRebuild(){
+    public void testRebuild() {
         elasticSearchIndexBuilder.addResource(notification, event);
         addResources();
         wait(2000);
@@ -336,7 +337,7 @@ public class ElasticSearchTest {
         assertTrue(elasticSearchService.getNDocs() == 101);
     }
 
-     public class Resource {
+    public class Resource {
         private String content;
         private String siteId;
         private String name;
