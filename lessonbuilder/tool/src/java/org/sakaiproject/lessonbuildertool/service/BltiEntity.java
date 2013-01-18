@@ -299,7 +299,10 @@ public class BltiEntity implements LessonEntity, BltiInterface {
 	    	&& LTIService.LTI_SECRET_INCOMPLETE.equals((String) tool.get(LTIService.LTI_SECRET)) 
 		&& LTIService.LTI_SECRET_INCOMPLETE.equals((String) tool.get(LTIService.LTI_CONSUMERKEY)) ) {
 		String toolId = getCurrentTool("sakai.siteinfo");
-		if ( toolId != null ) ret = editItemUrl(toolId);
+		if ( toolId != null ) {
+		    ret = editItemUrl(toolId);
+		    return ret;
+		}
 	}
 
 	ret = ServerConfigurationService.getServerUrl() + ret;
