@@ -25,22 +25,30 @@ package org.sakaiproject.tool.assessment.integration.helper.integrated;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Iterator;
+import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Map;
+import java.util.Set;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
+import org.sakaiproject.authz.api.Member;
 import org.sakaiproject.exception.IdUnusedException;
 import org.sakaiproject.service.gradebook.shared.ExternalAssignmentProvider;
 import org.sakaiproject.service.gradebook.shared.GradebookExternalAssessmentService;
 import org.sakaiproject.site.api.Group;
+import org.sakaiproject.site.api.Site;
 import org.sakaiproject.site.api.SiteService;
 import org.sakaiproject.tool.assessment.data.dao.assessment.AssessmentAccessControl;
 import org.sakaiproject.tool.assessment.data.dao.authz.AuthorizationData;
 import org.sakaiproject.tool.assessment.data.ifc.assessment.PublishedAssessmentIfc;
+import org.sakaiproject.tool.assessment.facade.PublishedAssessmentFacade;
 import org.sakaiproject.tool.assessment.services.PersistenceService;
 import org.sakaiproject.tool.assessment.services.assessment.PublishedAssessmentService;
 import org.sakaiproject.user.api.UserDirectoryService;
+
 
 /**
  * Provides info to the gradebook about which assessments are visible
@@ -148,6 +156,132 @@ public class AssessmentGradeInfoProvider implements ExternalAssignmentProvider {
             externalIds.add(pub.getPublishedAssessmentId().toString());
         }
         return externalIds;
+    }
+
+    public Map<String, List<String>> getAllExternalAssignments(String gradebookUid, Collection<String> studentIds) {
+        List allPublished = PersistenceService.getInstance().getPublishedAssessmentFacadeQueries().
+            getBasicInfoOfAllPublishedAssessments2("title", true, gradebookUid);
+
+        //TODO: Update PublishedAssessmentFacadeQueriesAPI to return a list of group IDs
+        //      or member lists instead of only group titles.
+        //      This borrows some releasedTo logic to keep a narrower patch for now.
+        Map<String, Set<String>> allExternals = new HashMap<String, Set<String>>();
+        for (String studentId : studentIds) {
+            allExternals.put(studentId, new HashSet<String>());
+        }
+
+        Set<String> siteUserIds = getSiteUserIds(gradebookUid);
+        Map<String, Set<String>> userIdGroupIds = getUserGroups(gradebookUid, studentIds);
+        Map<String, Set<String>> groupIdUserIds = invertMapSet(userIdGroupIds);
+
+        // Get all groups for site, and all members therein
+        // Get access control for each assessment
+        //   1: anonymous - all site users
+        //   2: no specific groups - all site users
+        //   3: specific groups - all users in all specified groups
+        for (PublishedAssessmentFacade pub : (List<PublishedAssessmentFacade>) allPublished) {
+            String assessmentId = pub.getPublishedAssessmentId().toString();
+            String releaseTo = pub.getReleaseTo();
+            if (releaseTo != null && assessmentId != null) {
+                if (releaseTo.indexOf("Anonymous Users")> -1) {
+                    for (String studentId : studentIds) {
+                        allExternals.get(studentId).add(assessmentId);
+                    }
+                } else if (AssessmentAccessControl.RELEASE_TO_SELECTED_GROUPS.equals(releaseTo)) {
+                    //TODO: Add a signature to AuthzQueriesFacadeAPI to get authorized groups for
+                    //      a set of assessments, rather than just one.
+                    Set<String> authorizedGroups = getAuthorizedGroups(assessmentId);
+                    for (String groupId : authorizedGroups) {
+                        if (groupIdUserIds.containsKey(groupId)) {
+                            for (String userId : groupIdUserIds.get(groupId)) {
+                                if (allExternals.containsKey(userId)) {
+                                    allExternals.get(userId).add(assessmentId);
+                                }
+                            }
+                        }
+                    }
+                } else {
+                    for (String studentId : studentIds) {
+                        if (siteUserIds.contains(studentId)) {
+                            allExternals.get(studentId).add(assessmentId);
+                        }
+                    }
+                }
+            }
+        }
+
+        Map<String, List<String>> allExternalsList = new HashMap<String, List<String>>();
+        for (String studentId : allExternals.keySet()) {
+            allExternalsList.put(studentId, new ArrayList<String>(allExternals.get(studentId)));
+        }
+        return allExternalsList;
+    }
+
+    private Set<String> getAuthorizedGroups(String assessmentId) {
+        List authorizations = PersistenceService.getInstance().getAuthzQueriesFacade()
+            .getAuthorizationByFunctionAndQualifier("TAKE_PUBLISHED_ASSESSMENT", assessmentId);
+        Set<String> authorizedGroups = new HashSet<String>();
+        if (authorizations != null && authorizations.size()>0) {
+            Iterator authsIter = authorizations.iterator();
+            while (authsIter.hasNext()) {
+                AuthorizationData ad = (AuthorizationData) authsIter.next();
+                authorizedGroups.add(ad.getAgentIdString());
+            }
+        }
+        return authorizedGroups;
+    }
+
+    private Set<String> getSiteUserIds(String siteId) {
+        Set<String> userIds = new HashSet<String>();
+        try {
+            Site site = siteService.getSite(siteId);
+            for (Member m : site.getMembers()) {
+                userIds.add(m.getUserId());
+            }
+        } catch (IdUnusedException e) {
+            if (log.isDebugEnabled()) {
+                log.debug("Site not found when attempting to retrieve its users: " + siteId);
+            }
+        }
+        return userIds;
+    }
+
+    // Retrieve a map of student ID -> group IDs for a list of users in a site
+    private Map<String, Set<String>> getUserGroups(String siteId, Collection<String> studentIds) {
+        Map<String, Set<String>> userIdGroupIds = new HashMap<String, Set<String>>();
+        for (String studentId : studentIds) {
+            userIdGroupIds.put(studentId, new HashSet<String>());
+        }
+        try {
+            Site site = siteService.getSite(siteId);
+            for (Group g : site.getGroups()) {
+                for (Member m : g.getMembers()) {
+                    String userId = m.getUserId();
+                    if (userIdGroupIds.containsKey(userId)) {
+                        userIdGroupIds.get(userId).add(g.getId());
+                    }
+                }
+            }
+        } catch (IdUnusedException e) {
+            if (log.isDebugEnabled()) {
+                log.debug("Site not found when attempting to retrieve user groups: " + siteId);
+            }
+        }
+        return userIdGroupIds;
+    }
+
+    private Map<String, Set<String>> invertMapSet(Map<String, Set<String>> mapSet) {
+        Map<String, Set<String>> inverted = new HashMap<String, Set<String>>();
+        for (String key : mapSet.keySet()) {
+            Set<String> values = mapSet.get(key);
+            for (String value : values) {
+                if (!inverted.containsKey(value)) {
+                    inverted.put(value, new HashSet<String>());
+                }
+                inverted.get(value).add(key);
+            }
+        }
+        return inverted;
     }
 
     private boolean checkMembership(PublishedAssessmentIfc pub, String userId){
