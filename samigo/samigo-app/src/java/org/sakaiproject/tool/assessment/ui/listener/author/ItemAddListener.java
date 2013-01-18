@@ -1975,7 +1975,8 @@ public class ItemAddListener
 		  if (afteropen.length>1) {
 			  //	 must have text in between {}
 			  String[] lastpart = afteropen[1].split("\\}");
-			  list.add(lastpart[0]);
+			  String answer = FormattedText.convertFormattedTextToPlaintext(lastpart[0].replaceAll("&lt;.*?&gt;", ""));
+			  list.add(answer);
 		  }
 	  }
 	  else {
@@ -1983,15 +1984,18 @@ public class ItemAddListener
 			  if (i == 0) {
 				  String[] firstpart = tokens[i].split("\\{");
 				  if (firstpart.length>1) {
-					  list.add(firstpart[1]);
+					  String answer = FormattedText.convertFormattedTextToPlaintext(firstpart[1].replaceAll("&lt;.*?&gt;", ""));
+					  list.add(answer);
 				  }
 			  }
 			  else if (i == (tokens.length - 1)) {
 				  String[] lastpart = tokens[i].split("\\}");
-				  list.add(lastpart[0]);
+				  String answer = FormattedText.convertFormattedTextToPlaintext(lastpart[0].replaceAll("&lt;.*?&gt;", ""));
+				  list.add(answer);
 			  }
 			  else {
-				  list.add(tokens[i]);
+				  String answer = FormattedText.convertFormattedTextToPlaintext(tokens[i].replaceAll("&lt;.*?&gt;", ""));
+				  list.add(answer);
 			  }
 		  }
 	  } // token.length>1
