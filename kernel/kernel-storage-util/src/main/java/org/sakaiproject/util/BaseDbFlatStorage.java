@@ -989,6 +989,9 @@ public class BaseDbFlatStorage
 		// if not properties table set, skip it
 		if (table == null) return;
 
+		// check we have an ID to lookup otherwise we get cross thread cache contamination.
+		if (id == null) return;
+
 		// the properties to fill in
 		final ResourcePropertiesEdit props = p;
 
