@@ -23,7 +23,10 @@ package org.sakaiproject.assignment.impl;
 
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Map;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
@@ -142,6 +145,24 @@ public class AssignmentGradeInfoProvider implements ExternalAssignmentProvider {
             externalIds.add(a.getReference());
         }
         return externalIds;
+    }
+
+    public Map<String, List<String>> getAllExternalAssignments(String gradebookUid, Collection<String> studentIds) {
+        Map<String, List<String>> allExternals = new HashMap<String, List<String>>();
+        for (String studentId : studentIds) {
+            allExternals.put(studentId, new ArrayList<String>());
+        }
+
+        Map<Assignment, List<String>> submitters = assignmentService.getSubmittableAssignmentsForContext(gradebookUid);
+        for (Assignment assignment : submitters.keySet()) {
+            String externalId = assignment.getReference();
+            for (String userId : submitters.get(assignment)) {
+                if (allExternals.containsKey(userId)) {
+                    allExternals.get(userId).add(externalId);
+                }
+            }
+        }
+        return allExternals;
     }
 
     public void setGradebookExternalAssessmentService(GradebookExternalAssessmentService geaService) {
