@@ -80,8 +80,9 @@ public class JForumEntity implements LessonEntity, ForumInterface {
 
     public void init() {
 
-	if (ComponentManager.get("org.etudes.api.app.jforum.JforumService") != null)
-    //	if (toolManager.getTool("sakai.jforum.tool") != null)
+	// they changed the capitalization, so check for both
+	if (ComponentManager.get("org.etudes.api.app.jforum.JforumService") != null ||
+	    ComponentManager.get("org.etudes.api.app.jforum.JForumService") != null)
 	    haveJforum = true;
 	System.out.println("JforumEntity init: haveJforum = " + haveJforum);
     }
