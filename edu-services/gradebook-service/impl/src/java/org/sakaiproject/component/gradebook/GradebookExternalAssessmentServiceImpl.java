@@ -24,7 +24,9 @@ package org.sakaiproject.component.gradebook;
 import java.text.DecimalFormat;
 import java.text.NumberFormat;
 import java.text.ParseException;
+import java.util.ArrayList;
 import java.util.Date;
+import java.util.Collection;
 import java.util.HashSet;
 import java.util.HashMap;
 import java.util.Iterator;
@@ -497,6 +499,30 @@ public class GradebookExternalAssessmentServiceImpl extends BaseHibernateManager
 		return allAssignments;
 	}
 
+	public Map<String, List<String>> getVisibleExternalAssignments(String gradebookUid, Collection<String> studentIds)
+		throws GradebookNotFoundException
+	{
+		final Gradebook gradebook = getGradebook(gradebookUid);
+		Map<String, Set<String>> visible = new HashMap<String, Set<String>>();
+		for (String studentId : studentIds) {
+			visible.put(studentId, new HashSet<String>());
+		}
+
+		for (ExternalAssignmentProvider provider : getExternalAssignmentProviders().values()) {
+			Map<String, List<String>> externals = provider.getAllExternalAssignments(gradebookUid, studentIds);
+			for (String studentId : externals.keySet()) {
+				if (visible.containsKey(studentId)) {
+					visible.get(studentId).addAll(externals.get(studentId));
+				}
+			}
+		}
+
+		Map<String, List<String>> visibleList = new HashMap<String, List<String>>();
+		for (String studentId : visible.keySet()) {
+			visibleList.put(studentId, new ArrayList<String>(visible.get(studentId)));
+		}
+		return visibleList;
+	}
 
 	public void setExternalAssessmentToGradebookAssignment(final String gradebookUid, final String externalId) {
         final Assignment assignment = getExternalAssignment(gradebookUid, externalId);

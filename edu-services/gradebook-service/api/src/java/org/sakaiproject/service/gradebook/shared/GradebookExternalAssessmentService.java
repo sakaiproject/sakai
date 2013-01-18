@@ -22,6 +22,8 @@
 package org.sakaiproject.service.gradebook.shared;
 
 import java.util.Date;
+import java.util.Collection;
+import java.util.List;
 import java.util.Map;
 
 /**
@@ -231,6 +233,16 @@ public interface GradebookExternalAssessmentService {
 	 * @return A map from the externalId of each activity to the providerAppKey
 	 */
 	public Map<String, String> getExternalAssignmentsForCurrentUser(String gradebookUid)
+		throws GradebookNotFoundException;
+
+	/**
+	 * Retrieve a list of all visible, external assignments
+	 *
+	 * @param gradebookUid The gradebook's unique identifier
+	 * @param studentIds The collection of student IDs for which to retrieve assignments
+	 * @return A map from the student ID to all visible, external activity IDs
+	 */
+	public Map<String, List<String>> getVisibleExternalAssignments(String gradebookUid, Collection<String> studentIds)
 		throws GradebookNotFoundException;
 
 	/**

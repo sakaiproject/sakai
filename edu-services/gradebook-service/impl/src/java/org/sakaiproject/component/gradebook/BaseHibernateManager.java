@@ -1409,6 +1409,36 @@ public abstract class BaseHibernateManager extends HibernateDaoSupport {
         });
     }
     
+    // Student ID -> Assignments
+    protected Map<String, Set<Assignment>> getVisibleExternalAssignments(
+            Gradebook gradebook, Collection<String> studentIds, List<Assignment> assignments)
+    {
+        String gradebookUid = gradebook.getUid();
+        Map<String, List<String>> allExternals = externalAssessmentService.getVisibleExternalAssignments(gradebookUid, studentIds);
+        Map<String, Assignment> allRequested = new HashMap<String, Assignment>();
+
+        for (Assignment a : assignments) {
+            if (a.isExternallyMaintained()) {
+                allRequested.put(a.getExternalId(), a);
+            }
+        }
+
+        Map<String, Set<Assignment>> visible = new HashMap<String, Set<Assignment>>();
+        for (String studentId : allExternals.keySet()) {
+            if (studentIds.contains(studentId)) {
+                Set<Assignment> studentAssignments = new HashSet<Assignment>();
+                for (String assignmentId : allExternals.get(studentId)) {
+                    if (allRequested.containsKey(assignmentId)) {
+                        studentAssignments.add(allRequested.get(assignmentId));
+                    }
+                }
+                visible.put(studentId, studentAssignments);
+            }
+        }
+        return visible;
+    }
+
+	// NOTE: This should not be called in a loop. Anything for sets should use getVisibleExternalAssignments
 	protected boolean studentCanView(String studentId, Assignment assignment) {
        boolean checkExternalGroups = serverConfigurationService.getBoolean("gradebook.check.external.groups", false);
 
@@ -1442,6 +1472,7 @@ public abstract class BaseHibernateManager extends HibernateDaoSupport {
     			List<Assignment> countedAssignments = session.createQuery(
     				"from Assignment as asn where asn.gradebook.id=:gb and asn.removed=false and asn.notCounted=false and asn.ungraded=false").
     				setLong("gb", gradebook.getId().longValue()).list();
+    			Map<String, Set<Assignment>> visible = getVisibleExternalAssignments(gradebook, studentUids, countedAssignments);
     			for (Assignment assignment : countedAssignments) {
     				List<AssignmentGradeRecord> scoredGradeRecords = session.createQuery(
     					"from AssignmentGradeRecord as agr where agr.gradableObject.id=:go").
@@ -1451,16 +1482,11 @@ public abstract class BaseHibernateManager extends HibernateDaoSupport {
     					studentToGradeRecordMap.put(scoredGradeRecord.getStudentId(), scoredGradeRecord);
     				}
     				for (String studentUid : studentUids) {
-    					//TODO: Clean this up for efficiency. The external assessment service
-    					//      only allows querying individual student/activity pairs. For better
-    					//      performance, it should take at least a list of user IDs for an
-    					//      activity and return those that can view it.
-    					
     					// SAK-11485 - We don't want to add scores for those grouped activities
     					//             that this student should not see or be scored on.
-                        if (!studentCanView(studentUid, assignment)) {
-                                continue;
-                        }
+    					if (!visible.containsKey(studentUid) || !visible.get(studentUid).contains(assignment)) {
+    						continue;
+    					}
     					AssignmentGradeRecord gradeRecord = studentToGradeRecordMap.get(studentUid);
    						if (gradeRecord != null) {
    							if (gradeRecord.getPointsEarned() == null) {

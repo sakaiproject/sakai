@@ -21,7 +21,9 @@
 **********************************************************************************/
 package org.sakaiproject.service.gradebook.shared;
 
+import java.util.Collection;
 import java.util.List;
+import java.util.Map;
 
 /**
  * Provider model to integrate external assessment sources with the gradebook.
@@ -77,5 +79,15 @@ public interface ExternalAssignmentProvider {
 	 * @return A list of IDs (as for externalId) of assignments visible to the current user
 	 */
 	List<String> getExternalAssignmentsForCurrentUser(String gradebookUid);
+
+	/**
+	 * Retrieve all assignments for a gradebook that are marked as externally
+	 * maintained and are (potentially variably) visible to a set of users.
+	 *
+	 * @param gradebookUid The gradebook's unique identifier
+	 * @param studentIds The collection of user IDs to search/filter for
+	 * @return A map of Student ID to list of external IDs of assignments visible to each user
+	 */
+	Map<String, List<String>> getAllExternalAssignments(String gradebookUid, Collection<String> studentIds);
 }
 
