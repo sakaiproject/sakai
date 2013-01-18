@@ -19,6 +19,7 @@ package org.sakaiproject.tool.gradebook.ui;
 import java.io.Serializable;
 import java.math.BigDecimal;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.Date;
@@ -526,7 +527,22 @@ public class ViewByStudentBean extends EnrollmentTableBean implements Serializab
 		i = gradeRows.iterator();
         if (checkExternalGroups) { 
             GradebookExternalAssessmentService gext = getGradebookExternalAssessmentService();
-            Map<String, String> externalAssignments = gext.getExternalAssignmentsForCurrentUser(gradebook.getUid());
+            Map<String, String> externalAssignments = null;
+            if (isInstructorView) {
+                Map<String, List<String>> visible = gext.getVisibleExternalAssignments(gradebook.getUid(), Arrays.asList(studentUid));
+                if (visible.containsKey(studentUid)) {
+                    externalAssignments = new HashMap<String, String>();
+                    for (String externalId : visible.get(studentUid)) {
+                        //FIXME: Take one of the following options for consistency:
+                        //        1. Strip off the appKey from the single-user query
+                        //        2. Add a layer to the all-user return to identify the appKey
+                        externalAssignments.put(externalId, "");
+                    }
+                }
+            } else {
+                externalAssignments = gext.getExternalAssignmentsForCurrentUser(gradebook.getUid());
+            }
+
             while (i.hasNext()) {
                 Assignment assignment = ((AssignmentGradeRow)i.next()).getAssociatedAssignment();
 

@@ -154,8 +154,22 @@ public class GradebookCalculationImpl extends GradebookManagerHibernateImpl impl
 	        // no need to calculate anything for non-calculating gradebook
 	        if (gbGradeType != GradebookService.GRADE_TYPE_LETTER)
 	        {
+                Map<String, Set<Assignment>> visibleExternals =
+                    getVisibleExternalAssignments(courseGrade.getGradebook(), studentUids, countedAssigns);
+
 	            for(CourseGradeRecord cgr : courseGradeRecs) 
 	            {
+                    // Filter out external activities that are not visible to this student, considering them "uncounted"
+                    List<Assignment> studentCountedAssigns = new ArrayList<Assignment>();
+                    String studentId = cgr.getStudentId();
+                    for (Assignment a : countedAssigns) {
+                        if (!a.isExternallyMaintained() ||
+                                (visibleExternals.containsKey(studentId) && visibleExternals.get(studentId).contains(a)))
+                        {
+                            studentCountedAssigns.add(a);
+                        }
+                    }
+
 	                //double totalPointsEarned = getTotalPointsEarnedInternal(gradebookId, cgr.getStudentId(), session);
 	                List<AssignmentGradeRecord> studentGradeRecs;
 	                if (studentIdGradeRecordsMap == null) {
@@ -166,10 +180,10 @@ public class GradebookCalculationImpl extends GradebookManagerHibernateImpl impl
 
 	                applyDropScores(studentGradeRecs);
 
-	                List totalEarned = getTotalPointsEarnedInternal(cgr.getStudentId(), gradebook, cates, studentGradeRecs, countedAssigns);
+	                List totalEarned = getTotalPointsEarnedInternal(cgr.getStudentId(), gradebook, cates, studentGradeRecs, studentCountedAssigns);
 	                double totalPointsEarned = ((Double)totalEarned.get(0)).doubleValue();
 	                double literalTotalPointsEarned = ((Double)totalEarned.get(1)).doubleValue();	                
-	                double totalPointsPossible = getTotalPointsInternal(gradebook, cates, cgr.getStudentId(), studentGradeRecs, countedAssigns, false);
+	                double totalPointsPossible = getTotalPointsInternal(gradebook, cates, cgr.getStudentId(), studentGradeRecs, studentCountedAssigns, false);
 	                cgr.initNonpersistentFields(totalPointsPossible, totalPointsEarned, literalTotalPointsEarned);
 	                if(log.isDebugEnabled()) log.debug("Points earned = " + cgr.getPointsEarned());
 	            }
@@ -326,6 +340,8 @@ public class GradebookCalculationImpl extends GradebookManagerHibernateImpl impl
 		
 		double totalPointsPossible = 0;
 
+        HashSet<Assignment> countedSet = new HashSet<Assignment>(countedAssigns);
+
 		// we need to filter this list to identify only "counted" grade recs
         List<AssignmentGradeRecord> countedGradeRecs = new ArrayList<AssignmentGradeRecord>();
         for (AssignmentGradeRecord gradeRec : studentGradeRecs) {
@@ -334,9 +350,8 @@ public class GradebookCalculationImpl extends GradebookManagerHibernateImpl impl
             if(gradebook.getCategory_type() != GradebookService.CATEGORY_TYPE_NO_CATEGORY && assign.getCategory() != null && assign.getCategory().isExtraCredit())
             	extraCredit = true;
             
-            if (assign.isCounted() && !assign.getUngraded() && !assign.isRemoved() && 
-                    assign.getPointsPossible() != null && assign.getPointsPossible() > 0 && !gradeRec.getDroppedFromGrade() && !extraCredit &&
-                    studentCanView(studentId, assign)) {
+            if (assign.isCounted() && !assign.getUngraded() && !assign.isRemoved() && countedSet.contains(assign) &&
+                    assign.getPointsPossible() != null && assign.getPointsPossible() > 0 && !gradeRec.getDroppedFromGrade() && !extraCredit) {
                 countedGradeRecs.add(gradeRec);
             }
         }
