@@ -95,7 +95,7 @@ should be included in file importing DeliveryMessages
     <h:outputText value=" "/>
   </h:panelGrid>
 
-  <h:panelGrid rendered="#{delivery.actionString !='gradeAssessment' &&  delivery.feedbackComponent.showItemLevel && !delivery.noFeedback=='true' && question.feedbackIsNotEmpty}">
+  <h:panelGrid rendered="#{delivery.feedbackComponent.showItemLevel && !delivery.noFeedback=='true' && question.feedbackIsNotEmpty}">
     <h:panelGroup>
       <h:outputLabel for="feedSC" styleClass="answerkeyFeedbackCommentLabel" value="#{commonMessages.feedback}#{deliveryMessages.column} " />
       <h:outputText id="feedSC" value="#{question.feedback}" escape="false" />
