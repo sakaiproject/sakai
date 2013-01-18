@@ -11,7 +11,7 @@
 <link rsf:id="scr=portal-matter" href="/library/skin/default/tool.css" type="text/css" rel="stylesheet" media="all" />
 <link rel="stylesheet" rsf:id="scr=rewrite-url" href="../css/Simplepagetool.css" type="text/css" />
 <link rel="stylesheet" rsf:id="customCSS" type="text/css" />
-<link type="text/css" href="$context/css/simplepage-theme/jquery-ui-1.8.17.custom.css" rel="stylesheet" />	
+<link type="text/css" href="$context/css/simplepage-theme/jquery-ui-1.9.2.custom.css" rel="stylesheet" />	
 <title rsf:id="msg=simplepage.showpage"></title>
 
 <style type="text/css">
@@ -41,8 +41,9 @@ function resizeiframe(id) {
 
 <body rsf:id="scr=sakai-body">
 <!-- <script type="text/javascript" src="$context/js/jquery-1.4.2.min.js"></script> -->
-<script type="text/javascript" src="$context/js/jquery-1.6.2.min.js"></script>
-<script type="text/javascript" src="$context/js/jquery-ui-1.8.17.custom.min.js"></script>
+<script type="text/javascript" src="$context/js/jquery-1.8.3.min.js"></script>
+<script type="text/javascript" src="$context/js/jquery-ui-1.9.2.custom.min.js"></script>
+<script type="text/javascript" src="$context/js/jqBarGraph.1.1.customized.js"></script>
 <script type="text/javascript" src="../js/simple-page.js" rsf:id="scr=rewrite-url"></script>
 <script type="text/javascript" src="$context/js/hoverIntent.js"></script>
 <script type="text/javascript" src="$context/js/show-page.js"></script>
@@ -121,6 +122,7 @@ function resizeiframe(id) {
 				<li><a href="#" rsf:id="add-multimedia" class="add-multimedia"><span rsf:id="msg.simplepage.multimedia"></span></a></li>
 				<li><a href="#" rsf:id="add-resource" class="add-resource"><span rsf:id="msg.simplepage.resource"></span></a></li>
 				<li><a href="#" rsf:id="subpage-link" class="subpage-link"><span rsf:id="msg=simplepage.subpage"></span></a></li>
+				<li><a href="#" rsf:id="question-link" class="question-link"><span rsf:id="msg=simplepage.questionLinkText"></span></a></li>
 				<li><a href="#" rsf:id="add-assignment"><span rsf:id="msg.simplepage.assignment"></span></a></li>
 				<li><a href="#" rsf:id="add-quiz"><span rsf:id="msg.simplepage.quiz"></span></a></li>
 				<a href="#" rsf:id="help" target="_blank"></a>
@@ -426,6 +428,73 @@ function resizeiframe(id) {
 						<span style="display:none" rsf:id="student-owner-groups" class="student-owner-groups"></span>
 						<span style="display:none" rsf:id="studentitem-required" class="studentitem-required"></span>
 						<span style="display:none" rsf:id="studentitem-prerequisite" class="studentitem-prerequisite"></span>
+					</td>
+					
+					
+					<td rsf:id="question-td" class="edit-col"><div><a href="#" class="usebutton edit-question" onclick="return false" rsf:id="edit-question"></a></div></td>
+					
+					<td rsf:id="questionSpan">
+						<div class="questionDiv" rsf:id="questionDiv" style="margin:10px 0;">
+							<div>
+								<a href="#" style="margin-top:15px;" class="usebutton gradingPaneLink" rsf:id="questionGradingPaneLink" ></a>
+								
+								<a href="#" style="margin-top:15px;" class="usebutton showPollGraph" rsf:id="showPollGraph" onclick="return false;"></a>
+								<span style="display:none" rsf:id="msg=simplepage.show-poll" class="show-poll"></span>
+								<span style="display:none" rsf:id="msg=simplepage.hide-poll" class="hide-poll"></span>
+							</div>
+							
+							<div style="float:left"><img class="status-image" rsf:id="questionStatus" height="18" width="18" style="margin-right:3px" /></div>
+						
+							<div style="margin-left:30px;">
+								<span class="questionText" rsf:id="questionText"></span>
+								<div class="multiplechoiceDiv" rsf:id="multipleChoiceDiv" style="padding-left:10px">
+									<form action="#" rsf:id="multipleChoiceForm" class="multipleChoiceForm">
+										<input type="hidden" rsf:id="multipleChoiceId" />
+										<span rsf:id="multipleChoiceSelect:"></span>
+										<div rsf:id="multipleChoiceAnswer:">
+											<input type="radio" rsf:id="multipleChoiceAnswerRadio" name="multipleChoiceAnswerRadio" />
+											<label rsf:id="multipleChoiceAnswerText" />
+										</div>
+										
+										<input class="bold" type="submit" value="Answer!" rsf:id="answerMultipleChoice" />
+									</form>
+								</div>
+								
+								<div class="shortanswerDiv" rsf:id="shortanswerDiv">
+									<form action="#" rsf:id="shortanswerForm" class="shortanswerForm">
+										<input type="hidden" rsf:id="shortanswerId" />
+										<span rsf:id="msg=simplepage.answer"></span>
+										<input type="text" rsf:id="shortanswerInput" />
+										<input class="bold" type="submit" value="Answer!" rsf:id="answerShortanswer" />
+									</form>
+								</div>
+								
+								<div rsf:id="questionStatusText" style="margin:10px"></div>
+								
+								<div style="display:none" rsf:id="questionPollData:" class="questionPollData">
+									<span rsf:id="questionPollText" class="questionPollText"></span>
+									<span rsf:id="questionPollNumber" class="questionPollNumber"></span>
+								</div>
+								<div rsf:id="questionPollGraph" class="questionPollGraph"></div>
+							</div>
+						</div>
+						
+						<span style="display:none" rsf:id="questionId" class="question-id"></span>
+						<span style="display:none" rsf:id="questionAnswer" class="questionAnswer"></span>
+						<span style="display:none" rsf:id="questionType" class="questionType"></span>
+						<div style="display:none" rsf:id="questionMultipleChoiceAnswer:" class="questionMultipleChoiceAnswer">
+							<span rsf:id="questionMultipleChoiceAnswerId" class="questionMultipleChoiceAnswerId"></span>
+							<span rsf:id="questionMultipleChoiceAnswerText" class="questionMultipleChoiceAnswerText"></span>
+							<span rsf:id="questionMultipleChoiceAnswerCorrect" class="questionMultipleChoiceAnswerCorrect"></span>
+						</div>
+						<span style="display:none" rsf:id="questionShowPoll" class="questionShowPoll"></span>
+						<span style="display:none" rsf:id="questionGrade" class="questionGrade"></span>
+						<span style="display:none" rsf:id="questionMaxPoints" class="questionMaxPoints"></span>
+						<span style="display:none" rsf:id="questionGradebookTitle" class="questionGradebookTitle"></span>
+						<span style="display:none" rsf:id="questionitem-required" class="questionitem-required"></span>
+						<span style="display:none" rsf:id="questionitem-prerequisite" class="questionitem-prerequisite"></span>
+						<span style="display:none" rsf:id="questionCorrectText" class="questionCorrectText"></span>
+						<span style="display:none" rsf:id="questionIncorrectText" class="questionIncorrectText"></span>
 					</td>
 
 				</tr>
@@ -1165,6 +1234,102 @@ function resizeiframe(id) {
 		
 					<input class="bold" type="submit" onclick="return true;" id="update-student" rsf:id="update-student" />
 					<input type="submit" rsf:id="cancel-student" onclick="closeStudentDialog(); return false" />
+
+				</form>
+			</div>
+			
+			<div id="question-dialog" rsf:id="question-dialog">
+				<form action="#" rsf:id="question-form">
+					<div class="border">
+						<input type="hidden" rsf:id="questionEditId" id="questionEditId" />
+						<div align="left" style="padding:5px">
+							<span rsf:id="question-select" />
+							<input type="radio" name="questionTypeGroup" rsf:id="multipleChoiceSelect" id="multipleChoiceSelect" />
+							<label for="multipleChoiceSelect" rsf:id="msg=simplepage.multipleChoice" />
+							<input type="radio" name="questionTypeGroup" rsf:id="shortanswerSelect" id="shortanswerSelect" />
+							<label for="shortanswerSelect" rsf:id="msg=simplepage.shortanswer" />
+						</div>
+						
+						<div align="left" style="padding:5px">
+							<label for="question-text-input"><span rsf:id="msg=simplepage.question-text-input"></span></label>
+							<input type="text" rsf:id="question-text-input" id="question-text-input" />
+							
+							<br />
+							
+							<div id="shortanswerDialogDiv">
+								<p rsf:id="msg=simplepage.answers"></p>
+								<input type="hidden" rsf:id="question-answer-full-shortanswer" id="question-answer-full-shortanswer" />
+							
+								<div id="shortanswers">
+									<div id="copyableShortanswerDiv">
+										<input type="text" class="question-shortanswer-answer" />
+										<a href="#" onclick="deleteAnswer($(this)); return false;" style="display:none" class="deleteAnswerLink"><img src="$context/images/delete.png"></img></a>
+									</div>
+									<div id="extraShortanswers"></div>
+								</div>
+								
+								<button onclick="addShortanswer(); return false;" rsf:id="msg=simplepage.addAnswer"/><br /><br />
+							</div>
+							
+							<div id="multipleChoiceDialogDiv">
+								<p rsf:id="msg=simplepage.answers"></p>
+								<div id="multipleChoiceAnswers">
+									<div id="copyableMultipleChoiceAnswerDiv">
+										<input type="hidden" rsf:id="question-multiplechoice-answer-complete" class="question-multiplechoice-answer-complete" />
+										<input type="hidden" rsf:id="question-multiplechoice-answer-id" class="question-multiplechoice-answer-id" />
+										<input type="checkbox" name="question-multiplechoice-answer-correct" rsf:id="question-multiplechoice-answer-correct"  class="question-multiplechoice-answer-correct" />
+										<input type="text" rsf:id="question-multiplechoice-answer" class="question-multiplechoice-answer" />
+										<a href="#" onclick="deleteAnswer($(this)); return false;" style="display:none" class="deleteAnswerLink"><img src="$context/images/delete.png"></img></a>
+									</div>
+									<div id="extraMultipleChoiceAnswers"></div>
+								</div>
+
+								<button onclick="addMultipleChoiceAnswer(); return false;" rsf:id="msg=simplepage.addAnswer"/><br /><br />
+								
+								<input type="checkbox" name="question-show-poll" id="question-show-poll" rsf:id="question-show-poll" />
+								<label for="question-show-poll"><span rsf:id="msg=simplepage.question-show-poll-option"></span></label><br />
+							</div>
+							
+							<br /><br />
+							
+							<input type="checkbox" name="question-graded" id="question-graded" rsf:id="question-graded" />
+							<label for="question-graded"><span rsf:id="msg=simplepage.question-graded"></span></label><br />
+							<label for="question-gradebook-title" class="indent2"><span rsf:id="msg=simplepage.question-gradebook-title"></span></label>
+							<input type="text" name="question-gradebook-title" id="question-gradebook-title" rsf:id="question-gradebook-title" /><br />
+							<label for="question-max" class="indent2"><span rsf:id="msg=simplepage.question-max"></span></label>
+							<input type="text" name="question-max" id="question-max" rsf:id="question-max" />
+							
+							<br /><br />
+							
+							<span rsf:id="msg=simplepage.correct-text"></span><br />
+							<textarea rsf:id="question-correct-text" id="question-correct-text" rows="3" columns="30"></textarea><br />
+							
+							<span rsf:id="msg=simplepage.incorrect-text"></span><br />
+							<textarea rsf:id="question-incorrect-text" id="question-incorrect-text" rows="3" columns="30"></textarea>
+							
+							<br /><br />
+
+							<input type="checkbox" name="question-prerequisite" id="question-prerequisite" rsf:id="question-prerequisite" />
+							<label for="question-prerequisite"><span rsf:id="msg=simplepage.prerequisites_label"></span></label>
+							
+							<br />
+					
+							<input type="checkbox" name="question-required" id="question-required" rsf:id="question-required" />
+							<label for="question-required"><span rsf:id="msg=simplepage.require" id="require-label"></span></label>
+						</div>
+					</div>
+					
+					<br />
+
+					<div class="border2" id="delete-question-div">
+						<div style="margin-top:5px; margin-bottom:5px;">
+							<b style="margin-left:50px;"><span rsf:id="msg=simplepage.delete"></span>:</b>
+							<input type="submit" style="margin-left:50px;" rsf:id="delete-question-item" />
+						</div>
+					</div>
+		
+					<input class="bold" type="submit" onclick="prepareQuestionDialog(); return true;" id="update-question" rsf:id="update-question" />
+					<input type="submit" rsf:id="cancel-question" onclick="closeQuestionDialog(); return false" />
 
 				</form>
 			</div>

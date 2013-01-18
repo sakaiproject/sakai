@@ -146,6 +146,14 @@ $(function() {
 			resizable: false,
 			draggable: false
 		});
+		
+		$('#question-dialog').dialog({
+			autoOpen: false,
+			width: 600,
+			modal: false,
+			resizable: false,
+			draggable: false
+		});
 	
 		$("#select-resource-group").hide();
 
@@ -259,6 +267,7 @@ $(function() {
 			$("#subpage-link").dialog("option", "width", outerWidth-10);
 			$("#comments-dialog").dialog("option", "width", outerWidth-10);
 			$("#student-dialog").dialog("option", "width", outerWidth-10);
+			$("#question-dialog").dialog("option", "width", outerWidth-10);
 		}
 		
 		$(".edit-youtube").click(function(){
@@ -557,6 +566,179 @@ $(function() {
 		$("#editgroups-movie").click(function(){
 			$("#editgroups-movie").hide();
 			$("#grouplist").show();
+		});
+		
+		// IE8 was handling this event oddly.  This is the only pattern I could
+		// get to work.
+		$("[name='question-select-selection']").bind('click', function() {
+			if($(this).attr("id") === "multipleChoiceSelect") {
+				$("#shortanswerDialogDiv").hide();
+				$("#multipleChoiceDialogDiv").show();
+			}else {
+				$("#shortanswerDialogDiv").show();
+				$("#multipleChoiceDialogDiv").hide();
+			}
+		});
+		
+		$('.question-link').click(function(){
+			closeDropdown();
+			var position =  $(this).position();
+			
+			$("#questionEditId").val("-1");
+			$("#question-text-input").val("");
+			$("#question-answer-input").val("");
+			$("#question-graded").attr("checked", false);
+			$("#question-gradebook-title").val("");
+			$("#question-max").val("");
+			$("#question-required").attr("checked", false);
+			$("#question-prerequisite").attr("checked", false);
+			$("#question-show-poll").attr("checked", false);
+			$("#multipleChoiceSelect").click();
+			resetMultipleChoiceAnswers();
+			resetShortanswers();
+			
+			$("#multipleChoiceSelect").removeAttr("disabled");
+			$("#shortanswerSelect").removeAttr("disabled");
+			checkQuestionGradedForm();
+			
+			$("#question-correct-text").val("");
+			$("#question-incorrect-text").val("");
+			
+			$("#delete-question-div").hide();
+			
+			$("#question-dialog").dialog("option", "position", [position.left, position.top]);
+			oldloc = $(this);
+			$('#question-dialog').dialog('open');
+			checksize($('#subpage-dialog'));
+			return false;
+		});
+		
+		$("#question-graded").click(checkQuestionGradedForm);
+		
+		$(".edit-question").click(function(){
+			closeDropdown();
+			
+			var row = $(this).parent().parent().parent();
+			
+			var itemId = row.find(".question-id").text();
+			$("#questionEditId").val(itemId);
+			
+			var questionText = row.find(".questionText").text();
+			$("#question-text-input").val(questionText);
+			
+			resetMultipleChoiceAnswers();
+			resetShortanswers();
+			
+			// We can't have these disabled when trying to select them (which we do to set the type
+			// in the dialog).  They're disabled again later in this function so that users can't
+			// change the question type of an already existing question.
+			$("#multipleChoiceSelect").removeAttr("disabled");
+			$("#shortanswerSelect").removeAttr("disabled");
+			
+			var questionType = row.find(".questionType").text();
+			if(questionType === "shortanswer") {
+				$("#shortanswerSelect").click();
+				
+				var questionAnswers = row.find(".questionAnswer").text().split("\n");
+				for(var index = 0; index < questionAnswers.length - 1; index++) {
+					var answerSlot;
+					if(index == 0) {
+						answerSlot = $("#copyableShortanswerDiv").first();
+					}else {
+						answerSlot = addShortanswer();
+					}
+					
+					answerSlot.find(".question-shortanswer-answer").val(questionAnswers[index]);
+				}
+			}else {
+				$("#multipleChoiceSelect").click();
+				
+				$("#question-answer-input").val("");
+				
+				row.find(".questionMultipleChoiceAnswer").each(function(index, el) {
+					var id = $(el).find(".questionMultipleChoiceAnswerId").text();
+					var text = $(el).find(".questionMultipleChoiceAnswerText").text();
+					var correct = $(el).find(".questionMultipleChoiceAnswerCorrect").text();
+					
+					var answerSlot;
+					if(index == 0) {
+						answerSlot = $("#copyableMultipleChoiceAnswerDiv").first();
+					}else {
+						answerSlot = addMultipleChoiceAnswer();
+					}
+					
+					answerSlot.find(".question-multiplechoice-answer-id").val(id);
+					answerSlot.find(".question-multiplechoice-answer").val(text);
+					if(correct == "true") {
+						answerSlot.find(".question-multiplechoice-answer-correct").attr("checked", true);
+					}else {
+						answerSlot.find(".question-multiplechoice-answer-correct").attr("checked", false);
+					}
+				});
+				
+				var questionShowPoll = row.find(".questionShowPoll").text();
+				if(questionShowPoll == "true") {
+					$("#question-show-poll").attr("checked", true);
+				}else {
+					$("#question-show-poll").attr("checked", false);
+				}
+			}
+			
+			// Don't allow question types to be changed.  Simplifies consistency in grading on the backend.
+			$("#multipleChoiceSelect").attr("disabled", "disabled");
+			$("#shortanswerSelect").attr("disabled", "disabled");
+			
+			var questionGraded = row.find(".questionGrade").text();
+			if(questionGraded == "true") {
+				$("#question-graded").attr("checked", true);
+			}else {
+				$("#question-graded").attr("checked", false);
+			}
+			
+			checkQuestionGradedForm();
+			
+			var gradebookTitle = row.find(".questionGradebookTitle").text();
+			if(gradebookTitle == "null") {
+				$("#question-gradebook-title").val("");
+			}else {
+				$("#question-gradebook-title").val(gradebookTitle);
+			}
+			
+			var maxPoints = row.find(".questionMaxPoints").text();
+			if(maxPoints == "null") {
+				$("#question-max").val("");
+			}else {
+				$("#question-max").val(maxPoints);
+			}
+			
+			var questionCorrectText = row.find(".questionCorrectText").text();
+			$("#question-correct-text").val(questionCorrectText);
+			
+			var questionIncorrectText = row.find(".questionIncorrectText").text();
+			$("#question-incorrect-text").val(questionIncorrectText);
+			
+			var required = row.find(".questionitem-required").text();
+			if(required == "true") {
+				$("#question-required").attr("checked", true);
+			}else {
+				$("#question-required").attr("checked", false);
+			}
+			
+			var prerequisite = row.find(".questionitem-prerequisite").text();
+			if(prerequisite == "true") {
+				$("#question-prerequisite").attr("checked", true);
+			}else {
+				$("#question-prerequisite").attr("checked", false);
+			}
+			
+			$("#delete-question-div").show();
+			
+			var position = row.position();
+			$("#question-dialog").dialog("option", "position", [position.left, position.top]);
+			oldloc = $(this);
+			$('#question-dialog').dialog('open');
+			checksize($("#question-dialog"));
+			return false;
 		});
 		
 		$('#change-resource-movie').click(function(){
@@ -1065,7 +1247,8 @@ $(function() {
 				$('#movie-dialog').dialog('isOpen') ||
 				$('#import-cc-dialog').dialog('isOpen') ||
 				$('#comments-dialog').dialog('isOpen') ||
-				$('#student-dialog').dialog('isOpen'))) {
+				$('#student-dialog').dialog('isOpen')) ||
+				$('#question-dialog').dialog('isOpen')) {
 					unhideMultimedia();
 				}
 		});
@@ -1107,6 +1290,33 @@ $(function() {
 
 	} // Closes admin if statement
 
+	$(".showPollGraph").click(function() {
+		var pollGraph = $(this).parents(".questionDiv").find(".questionPollGraph");
+		
+		if($(this).find("span").text() === $(this).parent().find(".show-poll").text()) {
+			pollGraph.empty();
+			var pollData = [];
+			pollGraph.parent().find(".questionPollData").each(function(index) {
+				var text = $(this).find(".questionPollText").text();
+				var count = $(this).find(".questionPollNumber").text();
+				
+				pollData[index] = [parseInt(count), text];
+			});
+			
+			pollGraph.show();
+			pollGraph.jqBarGraph({data: pollData, height:100, speed:1});
+			
+			$(this).find("span").text($(this).parent().find(".hide-poll").text());
+		}else {
+			pollGraph.hide();
+			pollGraph.empty();
+			
+			$(this).find("span").text($(this).parent().find(".show-poll").text());
+		}
+		
+		setMainFrameHeight(window.name);
+	});
+	
 	function submitgrading(item) {
 	    var img = item.parent().children("img");
 			
@@ -1265,6 +1475,11 @@ function closeCommentsDialog() {
 
 function closeStudentDialog() {
 	$('#student-dialog').dialog('close');
+	oldloc.focus();
+}
+
+function closeQuestionDialog() {
+	$('#question-dialog').dialog('close');
 	oldloc.focus();
 }
 
@@ -1610,3 +1825,113 @@ function unhideMultimedia() {
 	$("#outer").height("auto");
 	setMainFrameHeight(window.name);
 }
+
+// Clones one of the multiplechoice answers in the Question dialog and appends it to the end of the list
+function addMultipleChoiceAnswer() {
+	var clonedAnswer = $("#copyableMultipleChoiceAnswerDiv").clone(true);
+	var num = $("#extraMultipleChoiceAnswers").find("div").length + 2; // Should be currentNumberOfAnswers + 1
+	
+	clonedAnswer.find(".question-multiplechoice-answer-id").val("-1");
+	clonedAnswer.find(".question-multiplechoice-answer-correct").attr("checked", false);
+	clonedAnswer.find(".question-multiplechoice-answer").val("");
+	
+	clonedAnswer.attr("id", "multipleChoiceAnswerDiv" + num);
+	
+	// Each input has to be renamed so that RSF will recognize them as distinct
+	clonedAnswer.find("[name='question-multiplechoice-answer-complete']")
+		.attr("name", "question-multiplechoice-answer-complete" + num);
+	clonedAnswer.find("[name='question-multiplechoice-answer-complete-fossil']")
+		.attr("name", "question-multiplechoice-answer-complete" + num + "-fossil");
+	clonedAnswer.find("[name='question-multiplechoice-answer-id']")
+		.attr("name", "question-multiplechoice-answer-id" + num);
+	clonedAnswer.find("[name='question-multiplechoice-answer-correct']")
+		.attr("name", "question-multiplechoice-answer-correct" + num);
+	clonedAnswer.find("[name='question-multiplechoice-answer']")
+		.attr("name", "question-multiplechoice-answer" + num);
+	
+	// Unhide the delete link on every answer choice other than the first.
+	// Not allowing them to remove the first makes this AddAnswer code simpler,
+	// and ensures that there is always at least one answer choice.
+	clonedAnswer.find(".deleteAnswerLink").removeAttr("style");
+	
+	clonedAnswer.appendTo("#extraMultipleChoiceAnswers");
+	
+	return clonedAnswer;
+}
+
+// Clones one of the shortanswers in the Question dialog and appends it to the end of the list
+function addShortanswer() {
+	var clonedAnswer = $("#copyableShortanswerDiv").clone(true);
+	
+	clonedAnswer.find(".question-shortanswer-answer").val("");
+	
+	// Unhide the delete link on every answer choice other than the first.
+	// Not allowing them to remove the first makes this AddAnswer code simpler,
+	// and ensures that there is always at least one answer choice.
+	clonedAnswer.find(".deleteAnswerLink").removeAttr("style");
+	
+	clonedAnswer.appendTo("#extraShortanswers");
+	
+	return clonedAnswer;
+}
+
+function updateMultipleChoiceAnswers() {
+	$(".question-multiplechoice-answer-complete").each(function(index, el) {
+		var id = $(el).parent().find(".question-multiplechoice-answer-id").val();
+		var checked = $(el).parent().find(".question-multiplechoice-answer-correct").is(":checked");
+		var text = $(el).parent().find(".question-multiplechoice-answer").val();
+		
+		$(el).val(index + ":" + id + ":" + checked + ":" + text);
+	});
+}
+
+function updateShortanswers() {
+	var answerText = "";
+	
+	$(".question-shortanswer-answer").each(function() {
+		answerText += $(this).val() + "\n"; 
+	});
+	
+	$("#question-answer-full-shortanswer").val(answerText);
+}
+
+function deleteAnswer(el) {
+	el.parent('div').remove();
+}
+
+// Enabled or disables the subfields under grading in the question dialog
+function checkQuestionGradedForm() {
+	if($("#question-graded").is(":checked")) {
+		$("#question-max").removeAttr("disabled");
+		$("#question-gradebook-title").removeAttr("disabled");
+	}else {
+		$("#question-max").attr("disabled", "disabled");
+		$("#question-gradebook-title").attr("disabled", "disabled");
+	}
+}
+
+// Prepares the question dialog to be submitted
+function prepareQuestionDialog() {
+	updateMultipleChoiceAnswers();
+	updateShortanswers();
+	
+	// RSF bugs out if we don't undisable these before submitting
+	$("#multipleChoiceSelect").removeAttr("disabled");
+	$("#shortanswerSelect").removeAttr("disabled");
+}
+
+// Reset the multiple choice answers to prevent problems when submitting a shortanswer
+function resetMultipleChoiceAnswers() {
+	var firstMultipleChoice = $("#copyableMultipleChoiceAnswerDiv");
+	firstMultipleChoice.find(".question-multiplechoice-answer-id").val("-1");
+	firstMultipleChoice.find(".question-multiplechoice-answer").val("");
+	firstMultipleChoice.find(".question-multiplechoice-answer-correct").attr("checked", false);
+	$("#extraMultipleChoiceAnswers").empty();
+}
+
+//Reset the shortanswers to prevent problems when submitting a multiple choice
+function resetShortanswers() {
+	$("#copyableShortanswerDiv").find(".question-shortanswer-answer").val("");
+	$("#extraShortanswers").empty();
+}
+

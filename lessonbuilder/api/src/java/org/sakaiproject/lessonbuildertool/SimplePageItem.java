@@ -23,6 +23,8 @@
 
 package org.sakaiproject.lessonbuildertool;
 
+import java.util.Collection;
+
 /**
  * This is a single item on a simple page.
  * 
@@ -41,7 +43,8 @@ public interface SimplePageItem {
 	public static final int FORUM = 8;
 	public static final int COMMENTS = 9;
 	public static final int STUDENT_CONTENT = 10;
-        public static final int BLTI = 12;
+	public static final int QUESTION = 11;
+    public static final int BLTI = 12;
 
     // sakaiId used for an item copied from another site with no real content
 	public static final String DUMMY = "/dummy";
@@ -183,5 +186,9 @@ public interface SimplePageItem {
     public String getOwnerGroups();
 
     public void setOwnerGroups(String s);
+    
+    public String getAttribute(String attr);
+    
+    public void setAttribute(String attr, String value);
 
 }

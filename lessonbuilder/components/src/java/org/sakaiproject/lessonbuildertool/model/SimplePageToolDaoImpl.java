@@ -26,8 +26,8 @@ package org.sakaiproject.lessonbuildertool.model;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.Collection;
+import java.util.Collections;
 import java.util.Comparator;
 import java.util.Date;
 import java.util.List;
@@ -35,7 +35,6 @@ import java.util.List;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.hibernate.criterion.DetachedCriteria;
-import org.hibernate.criterion.Order;
 import org.hibernate.criterion.Restrictions;
 import org.sakaiproject.authz.api.SecurityService;
 import org.sakaiproject.authz.cover.AuthzGroupService;
@@ -52,12 +51,14 @@ import org.sakaiproject.lessonbuildertool.SimplePageItem;
 import org.sakaiproject.lessonbuildertool.SimplePageItemImpl;
 import org.sakaiproject.lessonbuildertool.SimplePageLogEntry;
 import org.sakaiproject.lessonbuildertool.SimplePageLogEntryImpl;
+import org.sakaiproject.lessonbuildertool.SimplePageQuestionAnswer;
+import org.sakaiproject.lessonbuildertool.SimplePageQuestionAnswerImpl;
+import org.sakaiproject.lessonbuildertool.SimplePageQuestionResponse;
+import org.sakaiproject.lessonbuildertool.SimplePageQuestionResponseImpl;
 import org.sakaiproject.lessonbuildertool.SimpleStudentPage;
 import org.sakaiproject.lessonbuildertool.SimpleStudentPageImpl;
 import org.sakaiproject.tool.api.ToolManager;
 import org.sakaiproject.user.cover.UserDirectoryService;
-import org.sakaiproject.site.api.Site;
-import org.sakaiproject.site.api.Group;
 import org.springframework.dao.DataAccessException;
 import org.springframework.orm.hibernate3.support.HibernateDaoSupport;
 
@@ -455,6 +456,54 @@ public class SimplePageToolDaoImpl extends HibernateDaoSupport implements Simple
 			
 		return list.get(0);
 	}
+	
+	public List<SimplePageQuestionAnswer> findAnswerChoices(long questionId) {
+        DetachedCriteria d = DetachedCriteria.forClass(SimplePageQuestionAnswer.class).add(Restrictions.eq("questionId", questionId));
+
+        List<SimplePageQuestionAnswer> list = getHibernateTemplate().findByCriteria(d);
+        return list;
+	}
+	
+	public SimplePageQuestionAnswer findAnswerChoice(long answerId) {
+        DetachedCriteria d = DetachedCriteria.forClass(SimplePageQuestionAnswer.class).add(Restrictions.eq("id", answerId));
+
+        List<SimplePageQuestionAnswer> list = getHibernateTemplate().findByCriteria(d);
+        if(list != null && list.size() > 0) {
+        	return list.get(0);
+        }else {
+        	return null;
+        }
+	}
+	
+	public SimplePageQuestionResponse findQuestionResponse(long questionId, String userId) {
+        DetachedCriteria d = DetachedCriteria.forClass(SimplePageQuestionResponse.class).add(Restrictions.eq("questionId", questionId))
+        		.add(Restrictions.eq("userId", userId));
+
+        List<SimplePageQuestionResponse> list = getHibernateTemplate().findByCriteria(d);
+        if(list != null && list.size() > 0) {
+        	return list.get(0);
+        }else {
+        	return null;
+        }
+	}
+	
+	public SimplePageQuestionResponse findQuestionResponse(long responseId) {
+        DetachedCriteria d = DetachedCriteria.forClass(SimplePageQuestionResponse.class).add(Restrictions.eq("id", responseId));
+
+        List<SimplePageQuestionResponse> list = getHibernateTemplate().findByCriteria(d);
+        if(list != null && list.size() > 0) {
+        	return list.get(0);
+        }else {
+        	return null;
+        }
+	}
+	
+	public List<SimplePageQuestionResponse> findQuestionResponses(long questionId) {
+        DetachedCriteria d = DetachedCriteria.forClass(SimplePageQuestionResponse.class).add(Restrictions.eq("questionId", questionId));
+
+        List<SimplePageQuestionResponse> list = getHibernateTemplate().findByCriteria(d);
+        return list;
+	}
 
 	public void getCause(Throwable t, List<String>elist) {
 		while (t.getCause() != null) {
@@ -470,14 +519,14 @@ public class SimplePageToolDaoImpl extends HibernateDaoSupport implements Simple
 		 * This checks a lot of conditions:
 		 * 1) If o is SimplePageItem or SimplePage, it makes sure it gets the right page and checks the
 		 *    permissions on it.
-		 * 2) If it's a log entry, it lets it go.
+		 * 2) If it's a log entry or question response, it lets it go.
 		 * 3) If requiresEditPermission is set to false, it lets it go.
 		 * 
 		 * Essentially, if any of those say that the edit is fine, it won't throw the error.
 		 */
 	    if(requiresEditPermission && !(o instanceof SimplePageItem && canEditPage(((SimplePageItem)o).getPageId()))
 	    			&& !(o instanceof SimplePage && canEditPage((SimplePage)o))
-				&& !(o instanceof SimplePageLogEntry)
+				&& !(o instanceof SimplePageLogEntry || o instanceof SimplePageQuestionResponse)
 				&& !(o instanceof SimplePageGroup)) {
 			elist.add(nowriteerr);
 			return false;
@@ -580,7 +629,7 @@ public class SimplePageToolDaoImpl extends HibernateDaoSupport implements Simple
 		 */
 		if(requiresEditPermission && !(o instanceof SimplePageItem && canEditPage(((SimplePageItem)o).getPageId()))
 				&& !(o instanceof SimplePage && canEditPage((SimplePage)o))
-		   		&& !(o instanceof SimplePageLogEntry)
+		   		&& !(o instanceof SimplePageLogEntry || o instanceof SimplePageQuestionResponse)
 				&& !(o instanceof SimplePageGroup)) {
 			elist.add(nowriteerr);
 			return false;
@@ -769,6 +818,9 @@ public class SimplePageToolDaoImpl extends HibernateDaoSupport implements Simple
 		return new SimplePageGroupImpl(itemId, groupId, groups);
     }
 
+	public SimplePageQuestionResponse makeQuestionResponse(String userId, long questionId) {
+		return new SimplePageQuestionResponseImpl(userId, questionId);
+	}
 
 	public SimplePageLogEntry makeLogEntry(String userId, long itemId, Long studentPageId) {
 		return new SimplePageLogEntryImpl(userId, itemId, studentPageId);
@@ -780,6 +832,40 @@ public class SimplePageToolDaoImpl extends HibernateDaoSupport implements Simple
 	
 	public SimpleStudentPage makeStudentPage(long itemId, long pageId, String title, String author, String group) {
 		return new SimpleStudentPageImpl(itemId, pageId, title, author, group);
+	}
+	
+	public SimplePageQuestionAnswer makeQuestionAnswer(long questionId, String text, boolean correct) {
+		return new SimplePageQuestionAnswerImpl(questionId, text, correct);
+	}
+	
+	public boolean saveQuestionAnswer(SimplePageQuestionAnswer questionAnswer, long pageId) {
+	    if(!canEditPage(pageId)) {
+	    	log.warn("User tried to edit question on page without edit permission. PageId: " + pageId);
+	    	return false;
+	    }
+
+		try {
+		    getHibernateTemplate().saveOrUpdate(questionAnswer);
+		    return true;
+		} catch (Exception e) {
+		    log.warn("Error saving QuestionAnswer: " + e.getMessage());
+		    return false;
+		}
+	}
+	
+	public boolean deleteQuestionAnswer(SimplePageQuestionAnswer questionAnswer, long pageId) {
+		if(!canEditPage(pageId)) {
+	    	log.warn("User tried to edit question on page without edit permission. PageId: " + pageId);
+	    	return false;
+	    }
+
+		try {
+		    getHibernateTemplate().delete(questionAnswer);
+		    return true;
+		} catch (Exception e) {
+		    log.warn("Error deleting QuestionAnswer: " + e.getMessage());
+		    return false;
+		}
 	}
 	
 	public SimplePageItem copyItem(SimplePageItem old) {

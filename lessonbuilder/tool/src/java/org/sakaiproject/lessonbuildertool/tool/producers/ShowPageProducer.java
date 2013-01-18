@@ -54,12 +54,11 @@ import java.util.TimeZone;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
-import org.springframework.web.context.support.ServletContextResource;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
-import org.sakaiproject.component.cover.ServerConfigurationService;
 import org.sakaiproject.component.cover.ComponentManager;
+import org.sakaiproject.component.cover.ServerConfigurationService;
 import org.sakaiproject.content.api.ContentHostingService;
 import org.sakaiproject.content.api.ContentResource;
 import org.sakaiproject.content.cover.ContentTypeImageService;
@@ -70,6 +69,8 @@ import org.sakaiproject.lessonbuildertool.SimplePage;
 import org.sakaiproject.lessonbuildertool.SimplePageComment;
 import org.sakaiproject.lessonbuildertool.SimplePageItem;
 import org.sakaiproject.lessonbuildertool.SimplePageLogEntry;
+import org.sakaiproject.lessonbuildertool.SimplePageQuestionAnswer;
+import org.sakaiproject.lessonbuildertool.SimplePageQuestionResponse;
 import org.sakaiproject.lessonbuildertool.SimpleStudentPage;
 import org.sakaiproject.lessonbuildertool.model.SimplePageToolDao;
 import org.sakaiproject.lessonbuildertool.service.BltiInterface;
@@ -78,10 +79,11 @@ import org.sakaiproject.lessonbuildertool.tool.beans.SimplePageBean;
 import org.sakaiproject.lessonbuildertool.tool.beans.SimplePageBean.GroupEntry;
 import org.sakaiproject.lessonbuildertool.tool.beans.SimplePageBean.Status;
 import org.sakaiproject.lessonbuildertool.tool.evolvers.SakaiFCKTextEvolver;
+import org.sakaiproject.lessonbuildertool.tool.view.CommentsGradingPaneViewParameters;
 import org.sakaiproject.lessonbuildertool.tool.view.CommentsViewParameters;
 import org.sakaiproject.lessonbuildertool.tool.view.FilePickerViewParameters;
 import org.sakaiproject.lessonbuildertool.tool.view.GeneralViewParameters;
-import org.sakaiproject.lessonbuildertool.tool.view.GradingPaneViewParameters;
+import org.sakaiproject.lessonbuildertool.tool.view.QuestionGradingPaneViewParameters;
 import org.sakaiproject.memory.api.Cache;
 import org.sakaiproject.memory.api.MemoryService;
 import org.sakaiproject.time.api.TimeService;
@@ -908,7 +910,8 @@ public class ShowPageProducer implements ViewComponentProducer, DefaultView, Nav
 				// everything that isn't inline.
 
 				boolean listItem = !(i.getType() == SimplePageItem.TEXT || i.getType() == SimplePageItem.MULTIMEDIA
-						|| i.getType() == SimplePageItem.COMMENTS || i.getType() == SimplePageItem.STUDENT_CONTENT);
+						|| i.getType() == SimplePageItem.COMMENTS || i.getType() == SimplePageItem.STUDENT_CONTENT
+						|| i.getType() == SimplePageItem.QUESTION);
 				// (i.getType() == SimplePageItem.PAGE &&
 				// "button".equals(i.getFormat())))
 
@@ -932,6 +935,7 @@ public class ShowPageProducer implements ViewComponentProducer, DefaultView, Nav
 				case SimplePageItem.FORUM: itemClassName = "forumType"; break;
 				case SimplePageItem.COMMENTS: itemClassName = "commentsType"; break;
 				case SimplePageItem.STUDENT_CONTENT: itemClassName = "studentContentType"; break;
+				case SimplePageItem.QUESTION: itemClassName = "question"; break;
 				case SimplePageItem.BLTI: itemClassName = "bltiType"; break;
 				}
 
@@ -1638,7 +1642,7 @@ public class ShowPageProducer implements ViewComponentProducer, DefaultView, Nav
 							// Checks to make sure that the comments item isn't on a student page.
 							// That it is graded.  And that we didn't just come from the grading pane.
 							if(i.getPageId() > 0 && i.getGradebookId() != null && !cameFromGradingPane) {
-								GradingPaneViewParameters gp = new GradingPaneViewParameters(GradingPaneProducer.VIEW_ID);
+								CommentsGradingPaneViewParameters gp = new CommentsGradingPaneViewParameters(CommentGradingPaneProducer.VIEW_ID);
 								gp.placementId = toolManager.getCurrentPlacement().getId();
 								gp.commentsItemId = i.getId();
 								gp.pageId = currentPage.getPageId();
@@ -1816,7 +1820,7 @@ public class ShowPageProducer implements ViewComponentProducer, DefaultView, Nav
 							// Checks to make sure that the comments are graded and that we didn't
 							// just come from a grading pane (would be confusing)
 							if(i.getAltGradebook() != null && !cameFromGradingPane) {
-								GradingPaneViewParameters gp = new GradingPaneViewParameters(GradingPaneProducer.VIEW_ID);
+								CommentsGradingPaneViewParameters gp = new CommentsGradingPaneViewParameters(CommentGradingPaneProducer.VIEW_ID);
 								gp.placementId = toolManager.getCurrentPlacement().getId();
 								gp.commentsItemId = i.getId();
 								gp.pageId = currentPage.getPageId();
@@ -1852,6 +1856,157 @@ public class ShowPageProducer implements ViewComponentProducer, DefaultView, Nav
 							}
 							UIOutput.make(tableRow, "student-owner-groups", simplePageBean.getItemOwnerGroupString(i));
 							UIOutput.make(tableRow, "student-group-owned", (i.isGroupOwned()?"true":"false"));
+						}
+					}
+				}else if(i.getType() == SimplePageItem.QUESTION) {
+					SimplePageQuestionResponse response = simplePageToolDao.findQuestionResponse(i.getId(), simplePageBean.getCurrentUserId());
+					
+					UIOutput.make(tableRow, "questionSpan");
+
+					boolean isAvailable = simplePageBean.isItemAvailable(i);
+					
+					UIOutput.make(tableRow, "questionDiv");
+					
+					UIOutput.make(tableRow, "questionText", i.getAttribute("questionText"));
+					
+					List<SimplePageQuestionAnswer> answers = null;
+					if("multipleChoice".equals(i.getAttribute("questionType"))) {
+						answers = simplePageToolDao.findAnswerChoices(i.getId());
+						
+						UIOutput.make(tableRow, "multipleChoiceDiv");
+						UIForm questionForm = UIForm.make(tableRow, "multipleChoiceForm");
+						UIInput.make(questionForm, "multipleChoiceId", "#{simplePageBean.questionId}", String.valueOf(i.getId()));
+						
+						String[] options = new String[answers.size()];
+						String initValue = null;
+						for(int j = 0; j < answers.size(); j++) {
+							options[j] = String.valueOf(answers.get(j).getId());
+							if(response != null && answers.get(j).getId() == response.getMultipleChoiceId()) {
+								initValue = String.valueOf(answers.get(j).getId());
+							}
+						}
+						
+						UISelect multipleChoiceSelect = UISelect.make(questionForm, "multipleChoiceSelect:", options, "#{simplePageBean.questionResponse}", initValue);
+						if(!isAvailable || response != null) {
+							multipleChoiceSelect.decorate(new UIDisabledDecorator());
+						}
+						 
+						for(int j = 0; j < answers.size(); j++) {
+							UIBranchContainer answerContainer = UIBranchContainer.make(questionForm, "multipleChoiceAnswer:", String.valueOf(j));
+							UISelectChoice multipleChoiceInput = UISelectChoice.make(answerContainer, "multipleChoiceAnswerRadio", multipleChoiceSelect.getFullID(), j);
+							
+							multipleChoiceInput.decorate(new UIFreeAttributeDecorator("id", multipleChoiceInput.getFullID()));
+							UIOutput.make(answerContainer, "multipleChoiceAnswerText", answers.get(j).getText())
+								.decorate(new UIFreeAttributeDecorator("for", multipleChoiceInput.getFullID()));
+							
+							if(!isAvailable || response != null) {
+								multipleChoiceInput.decorate(new UIDisabledDecorator());
+							}
+						}
+						 
+						UICommand answerButton = UICommand.make(questionForm, "answerMultipleChoice", messageLocator.getMessage("simplepage.answer_question"), "#{simplePageBean.answerMultipleChoiceQuestion}");
+						if(!isAvailable || response != null) {
+							answerButton.decorate(new UIDisabledDecorator());
+						}
+					}else if("shortanswer".equals(i.getAttribute("questionType"))) {
+						UIOutput.make(tableRow, "shortanswerDiv");
+						
+						UIForm questionForm = UIForm.make(tableRow, "shortanswerForm");
+						UIInput.make(questionForm, "shortanswerId", "#{simplePageBean.questionId}", String.valueOf(i.getId()));
+						
+						UIInput shortanswerInput = UIInput.make(questionForm, "shortanswerInput", "#{simplePageBean.questionResponse}");
+						if(!isAvailable || response != null) {
+							shortanswerInput.decorate(new UIDisabledDecorator());
+							if(response != null) {
+								shortanswerInput.setValue(response.getShortanswer());
+							}
+						}
+						
+						UICommand answerButton = UICommand.make(questionForm, "answerShortanswer", messageLocator.getMessage("simplepage.answer_question"), "#{simplePageBean.answerShortanswerQuestion}");
+						if(!isAvailable || response != null) {
+							answerButton.decorate(new UIDisabledDecorator());
+						}
+					}
+					
+					Status questionStatus = getQuestionStatus(i, response);
+					addStatusImage(questionStatus, tableRow, "questionStatus", null);
+					if(questionStatus == Status.COMPLETED) {
+						UIOutput.make(tableRow, "questionStatusText", i.getAttribute("questionCorrectText"));
+					}else if(questionStatus == Status.FAILED) {
+						UIOutput.make(tableRow, "questionStatusText", i.getAttribute("questionIncorrectText"));
+					}
+					
+					// Output the poll data
+					if("multipleChoice".equals(i.getAttribute("questionType")) &&
+							(canEditPage || ("true".equals(i.getAttribute("questionShowPoll")) &&
+									(questionStatus == Status.COMPLETED || questionStatus == Status.FAILED)))) {
+						UIOutput.make(tableRow, "showPollGraph", messageLocator.getMessage("simplepage.show-poll"));
+						UIOutput questionGraph = UIOutput.make(tableRow, "questionPollGraph");
+						questionGraph.decorate(new UIFreeAttributeDecorator("id", "poll" + i.getId()));
+						
+						List<SimplePageQuestionResponse> responses = simplePageToolDao.findQuestionResponses(i.getId());
+						HashMap<Long, Integer> responseCounts = new HashMap<Long, Integer>();
+						for(SimplePageQuestionAnswer answer : answers) {
+							responseCounts.put(answer.getId(), 0);
+						}
+						
+						for(SimplePageQuestionResponse qResponse : responses) {
+							Integer responseCount = responseCounts.get(qResponse.getMultipleChoiceId());
+							if(responseCount != null) {
+								responseCounts.put(qResponse.getMultipleChoiceId(), ++responseCount);
+							}
+						}
+						
+						for(int j = 0; j < answers.size(); j++) {
+							UIBranchContainer pollContainer = UIBranchContainer.make(tableRow, "questionPollData:", String.valueOf(j));
+							UIOutput.make(pollContainer, "questionPollText", answers.get(j).getText());
+							UIOutput.make(pollContainer, "questionPollNumber", String.valueOf(responseCounts.get(answers.get(j).getId())));
+						}
+					}
+					
+					
+					if(canEditPage) {
+						UIOutput.make(tableRow, "question-td");
+						
+						// Checks to make sure that the question is graded and that we didn't
+						// just come from a grading pane (would be confusing)
+						if(i.getGradebookId() != null && !cameFromGradingPane) {
+							QuestionGradingPaneViewParameters gp = new QuestionGradingPaneViewParameters(QuestionGradingPaneProducer.VIEW_ID);
+							gp.placementId = toolManager.getCurrentPlacement().getId();
+							gp.questionItemId = i.getId();
+							gp.pageId = currentPage.getPageId();
+							gp.pageItemId = pageItem.getId();
+						
+							UIInternalLink.make(tableRow, "questionGradingPaneLink", messageLocator.getMessage("simplepage.show-grading-pane"), gp)
+							    .decorate(new UIFreeAttributeDecorator("title", messageLocator.getMessage("simplepage.show-grading-pane")));
+						}
+						
+						UILink.make(tableRow, "edit-question", messageLocator.getMessage("simplepage.editItem"), "")
+							.decorate(new UIFreeAttributeDecorator("title", messageLocator.getMessage("simplepage.edit-title.question")));
+						
+						UIOutput.make(tableRow, "questionId", String.valueOf(i.getId()));
+						UIOutput.make(tableRow, "questionGrade", String.valueOf(i.getGradebookId() != null));
+						UIOutput.make(tableRow, "questionMaxPoints", String.valueOf(i.getGradebookPoints()));
+						UIOutput.make(tableRow, "questionGradebookTitle", String.valueOf(i.getGradebookTitle()));
+						UIOutput.make(tableRow, "questionitem-required", String.valueOf(i.isRequired()));
+						UIOutput.make(tableRow, "questionitem-prerequisite", String.valueOf(i.isPrerequisite()));
+						UIOutput.make(tableRow, "questionCorrectText", String.valueOf(i.getAttribute("questionCorrectText")));
+						UIOutput.make(tableRow, "questionIncorrectText", String.valueOf(i.getAttribute("questionIncorrectText")));
+						
+						if("shortanswer".equals(i.getAttribute("questionType"))) {
+							UIOutput.make(tableRow, "questionType", "shortanswer");
+							UIOutput.make(tableRow, "questionAnswer", i.getAttribute("questionAnswer"));
+						}else {
+							UIOutput.make(tableRow, "questionType", "multipleChoice");
+							
+							for(int j = 0; j < answers.size(); j++) {
+								UIBranchContainer answerContainer = UIBranchContainer.make(tableRow, "questionMultipleChoiceAnswer:", String.valueOf(j));
+								UIOutput.make(answerContainer, "questionMultipleChoiceAnswerId", String.valueOf(answers.get(j).getId()));
+								UIOutput.make(answerContainer, "questionMultipleChoiceAnswerText", answers.get(j).getText());
+								UIOutput.make(answerContainer, "questionMultipleChoiceAnswerCorrect", String.valueOf(answers.get(j).isCorrect()));
+							}
+							
+							UIOutput.make(tableRow, "questionShowPoll", String.valueOf(i.getAttribute("questionShowPoll")));
 						}
 					}
 				}  else {
@@ -1969,6 +2124,7 @@ public class ShowPageProducer implements ViewComponentProducer, DefaultView, Nav
 		createMovieDialog(tofill, currentPage);
 		createCommentsDialog(tofill);
 		createStudentContentDialog(tofill, currentPage);
+		createQuestionDialog(tofill, currentPage);
 	}
 
 	public void setSimplePageBean(SimplePageBean simplePageBean) {
@@ -2336,6 +2492,10 @@ public class ShowPageProducer implements ViewComponentProducer, DefaultView, Nav
 		subpagelink.decorate(new UITooltipDecorator(messageLocator.getMessage("simplepage.subpage")));
 		subpagelink.linktext = new UIBoundString(messageLocator.getMessage("simplepage.subpage"));
 
+		UILink questionlink = UIInternalLink.makeURL(toolBar, "question-link", "#");
+		questionlink.decorate(new UITooltipDecorator(messageLocator.getMessage("simplepage.questionDescription")));
+		questionlink.linktext = new UIBoundString(messageLocator.getMessage("simplepage.questionLinkText"));
+		
 		//createToolBarLink(AssignmentPickerProducer.VIEW_ID, toolBar, "add-assignment", "simplepage.assignment", currentPage, "simplepage.assignment");
 		//createToolBarLink(QuizPickerProducer.VIEW_ID, toolBar, "add-quiz", "simplepage.quiz", currentPage, "simplepage.quiz");
 		//createToolBarLink(ForumPickerProducer.VIEW_ID, toolBar, "add-forum", "simplepage.forum", currentPage, "simplepage.forum");
@@ -3000,6 +3160,40 @@ public class ShowPageProducer implements ViewComponentProducer, DefaultView, Nav
 		UICommand.make(form, "update-student", messageLocator.getMessage("simplepage.edit"), "#{simplePageBean.updateStudent}");
 		UICommand.make(form, "cancel-student", messageLocator.getMessage("simplepage.cancel"), null);
 	}
+	
+	private void createQuestionDialog(UIContainer tofill, SimplePage currentPage) {
+		UIOutput.make(tofill, "question-dialog").decorate(new UIFreeAttributeDecorator("title", messageLocator.getMessage("simplepage.edit_questionlink")));
+		
+		UIForm form = UIForm.make(tofill, "question-form");
+		
+		UISelect questionType = UISelect.make(form, "question-select", new String[] {"multipleChoice", "shortanswer"}, "#{simplePageBean.questionType}", "");
+		UISelectChoice.make(form, "multipleChoiceSelect", questionType.getFullID(), 0);
+		UISelectChoice.make(form, "shortanswerSelect", questionType.getFullID(), 1);
+		
+		UIInput.make(form, "questionEditId", "#{simplePageBean.itemId}");
+		
+		UIBoundBoolean.make(form, "question-required", "#{simplePageBean.required}");
+		UIBoundBoolean.make(form, "question-prerequisite", "#{simplePageBean.prerequisite}");
+		UIInput.make(form, "question-text-input", "#{simplePageBean.questionText}");
+		UIInput.make(form, "question-answer-full-shortanswer", "#{simplePageBean.questionAnswer}");
+		
+		UIBoundBoolean.make(form, "question-graded", "#{simplePageBean.graded}");
+		UIInput.make(form, "question-gradebook-title", "#{simplePageBean.gradebookTitle}");
+		UIInput.make(form, "question-max", "#{simplePageBean.maxPoints}");
+		
+		UIInput.make(form, "question-multiplechoice-answer-complete", "#{simplePageBean.addAnswerData}");
+		UIInput.make(form, "question-multiplechoice-answer-id", null);
+		UIBoundBoolean.make(form, "question-multiplechoice-answer-correct");
+		UIInput.make(form, "question-multiplechoice-answer", null);
+		UIBoundBoolean.make(form, "question-show-poll", "#{simplePageBean.questionShowPoll}");
+		
+		UIInput.make(form, "question-correct-text", "#{simplePageBean.questionCorrectText}");
+		UIInput.make(form, "question-incorrect-text", "#{simplePageBean.questionIncorrectText}");
+		
+		UICommand.make(form, "delete-question-item", messageLocator.getMessage("simplepage.delete"), "#{simplePageBean.deleteItem}");
+		UICommand.make(form, "update-question", messageLocator.getMessage("simplepage.edit"), "#{simplePageBean.updateQuestion}");
+		UICommand.make(form, "cancel-question", messageLocator.getMessage("simplepage.cancel"), null);
+	}
 
 	/*
 	 * return true if the item is required and not completed, i.e. if we need to
@@ -3019,6 +3213,22 @@ public class ShowPageProducer implements ViewComponentProducer, DefaultView, Nav
 			}
 		}
 		return Status.NOT_REQUIRED;
+	}
+	
+	/**
+	 * Returns a Status object with the status of a user's response to a question.
+	 * For showing status images next to the question.
+	 */
+	private Status getQuestionStatus(SimplePageItem question, SimplePageQuestionResponse response) {
+		if(response != null && response.isCorrect()) {
+			return Status.COMPLETED;
+		}else if(response != null && !response.isCorrect()) {
+			return Status.FAILED;
+		}else if(question.isRequired()) {
+			return Status.REQUIRED;
+		}else {
+			return Status.NOT_REQUIRED;
+		}
 	}
 
 	// add the checkmark or asterisk. This code supports a couple of other

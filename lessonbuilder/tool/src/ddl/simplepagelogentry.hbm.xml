@@ -1,0 +1,24 @@
+<?xml version="1.0"?>
+<!DOCTYPE hibernate-mapping PUBLIC
+	"-//Hibernate/Hibernate Mapping DTD 3.0//EN"
+	"http://hibernate.sourceforge.net/hibernate-mapping-3.0.dtd">
+<hibernate-mapping>
+
+	<class name="org.sakaiproject.lessonbuildertool.SimplePageLogEntryImpl" table="lesson_builder_log">
+	
+		<id name="id" type="long">
+			<generator class="native" />
+		</id>
+		
+		<timestamp name="lastViewed" />
+		
+		<property name="itemId" type="long" not-null="true" />
+		<property name="userId" type="string" not-null="true" />
+		<property name="firstViewed" type="timestamp" not-null="true" />
+		<property name="complete" type="boolean" not-null="true" />
+		<property name="dummy" type="boolean" not-null="true" />
+		<property name="path" type="string" length="255"/>
+		<property name="toolId" type="string" length="250" />
+		<property name="studentPageId" type="long" />
+	</class>
+</hibernate-mapping>

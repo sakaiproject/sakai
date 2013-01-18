@@ -31,6 +31,8 @@ import org.sakaiproject.lessonbuildertool.SimplePageComment;
 import org.sakaiproject.lessonbuildertool.SimplePageGroup;
 import org.sakaiproject.lessonbuildertool.SimplePageItem;
 import org.sakaiproject.lessonbuildertool.SimplePageLogEntry;
+import org.sakaiproject.lessonbuildertool.SimplePageQuestionAnswer;
+import org.sakaiproject.lessonbuildertool.SimplePageQuestionResponse;
 import org.sakaiproject.lessonbuildertool.SimpleStudentPage;
 
 public interface SimplePageToolDao {
@@ -117,6 +119,16 @@ public interface SimplePageToolDao {
 
     // find resource items with access control involving specified sakaiid
 	public List findControlledResourcesBySakaiId(String id, String siteid);
+	
+	// get all of the multiple choice answers for a question item
+	public List<SimplePageQuestionAnswer> findAnswerChoices(long questionId);
+	
+	// get a specific multiple choice answer for a question item
+	public SimplePageQuestionAnswer findAnswerChoice(long answerId);
+	
+	public SimplePageQuestionResponse findQuestionResponse(long questionId, String userId);
+	public SimplePageQuestionResponse findQuestionResponse(long responseId);
+	public List<SimplePageQuestionResponse> findQuestionResponses(long questionId);
 
     // basically, this is the Hibernate save. It works with any of our object types.
     // Checks for canEditPage, Except for SimplePageLog, where the code is assumed to 
@@ -178,11 +190,19 @@ public interface SimplePageToolDao {
 
     public SimplePageGroup makeGroup(String itemId, String groupId, String groups);
 
+    public SimplePageQuestionResponse makeQuestionResponse(String userId, long questionId);
+    
     public SimplePageLogEntry makeLogEntry(String userId, long itemId, Long studentPageId);
     
     public SimplePageComment makeComment(long itemId, long pageId, String author, String comment, String UUID, boolean html);
 
     public SimpleStudentPage makeStudentPage(long itemId, long pageId, String title, String author, String group);
+    
+    public SimplePageQuestionAnswer makeQuestionAnswer(long questionId, String text, boolean correct);
+    
+    public boolean saveQuestionAnswer(SimplePageQuestionAnswer questionAnswer, long pageId);
+    
+    public boolean deleteQuestionAnswer(SimplePageQuestionAnswer questionAnswer, long pageId);
     
     public SimplePageItem copyItem(SimplePageItem old);
 

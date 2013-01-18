@@ -1,5 +1,5 @@
-// GradingPane is called by ajax from a URL like
-// /lessonbuilder-tool/faces/GradingPane
+// CommentsGradingPane is called by ajax from a URL like
+// /lessonbuilder-tool/faces/CommentsGradingPane
 // however URLs we generate need to be the usual
 // /portal/pda/xxxx/tool/xxxx/ShowPage
 // it's hard to get RSF to generate specified URLs, so
@@ -8,7 +8,7 @@
 function fixurls() {
     
     var pageurl = window.location + "";
-    var pi = pageurl.indexOf("/GradingPane");
+    var pi = pageurl.indexOf("/CommentsGradingPane");
 
     pageurl = pageurl.substring(0,pi);
     $('a[target="_lbcomments"]').each(function(index, value) {

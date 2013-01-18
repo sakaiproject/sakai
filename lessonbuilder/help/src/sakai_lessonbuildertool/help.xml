@@ -50,6 +50,12 @@
       <property name="name"><value>Add Additional Pages to a Page</value></property>
       <property name="location"><value>/sakai_lessonbuildertool/addsubpages.html</value></property>
    </bean>
+   
+   <bean id="lessonbuildertoolAddQuestions" class="org.sakaiproject.component.app.help.model.ResourceBean">
+      <property name="docId"><value>lessonbuildertoolAddQuestions</value></property>
+      <property name="name"><value>Add Simple Questions to a Page</value></property>
+      <property name="location"><value>/sakai_lessonbuildertool/addquestions.html</value></property>
+   </bean>
 
    <bean id="lessonbuildertoolReorganize" class="org.sakaiproject.component.app.help.model.ResourceBean">
       <property name="docId"><value>lessonbuildertoolReorganize</value></property>
@@ -115,6 +121,7 @@
                      <ref bean="lessonbuildertoolAddQuizzes"/>
                      <ref bean="lessonbuildertoolAddTopics"/>
                      <ref bean="lessonbuildertoolAddSubpages"/>
+                     <ref bean="lessonbuildertoolAddQuestions"/>
                      <ref bean="lessonbuildertoolReorganize"/>
                      <ref bean="lessonbuildertoolComments"/>
                      <ref bean="lessonbuildertoolStudentContent"/>

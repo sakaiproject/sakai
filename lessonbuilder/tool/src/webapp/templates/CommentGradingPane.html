@@ -1,0 +1,111 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html rsf:id="html" xmlns="http://www.w3.org/1999/xhtml">
+
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
+<META HTTP-EQUIV="CACHE-CONTROL" CONTENT="NO-CACHE"/>
+<script rsf:id="scr=portal-matter" type="text/javascript" language="JavaScript" src="/library/js/headscripts.js"></script>
+<script language="JavaScript" src="/lessonbuilder-tool/js/SakaiRSFWidgets.js" type="text/javascript" rsf:id="fckScript"></script>
+<script type="text/javascript" language="JavaScript" src="../js/rsf.js"></script>
+<link rsf:id="scr=portal-matter" href="/library/skin/tool_base.css" type="text/css" rel="stylesheet" media="all" />
+<link rsf:id="scr=portal-matter" href="/library/skin/default/tool.css" type="text/css" rel="stylesheet" media="all" />
+<link rel="stylesheet" rsf:id="scr=rewrite-url" href="../css/Simplepagetool.css" type="text/css" />
+<link type="text/css" href="$context/css/simplepage-theme/jquery-ui-1.8.17.custom.css" rel="stylesheet" />
+
+<title rsf:id="msg=simplepage.gradingpane"></title>
+
+<style type="text/css">
+	#outer{
+		min-height:325px;
+	}
+	html>body #outer{height:auto}
+</style>
+</head>
+
+<body rsf:id="scr=sakai-body">
+<script type="text/javascript" src="$context/js/jquery-1.6.2.min.js"></script>
+<script type="text/javascript" src="$context/js/jquery-ui-1.8.17.custom.min.js"></script>
+<script type="text/javascript" language="JavaScript" src="../js/commentGrading.js"></script>
+<script type="text/javascript" language="JavaScript" src="../js/gradingAjax.js"></script>
+
+	<a href="#" rsf:id="back-link"></a>
+
+	<br />
+	
+	<h2 rsf:id="page-header"></h2>
+
+	<div rsf:id="permissionsError" class="ui-widget" role="alert">
+		<div class="ui-state-error ui-corner-all" style="margin-top: 20px; padding: .5em .7em;">
+			<span class="ui-icon ui-icon-info" style="float: left; margin-right: .3em;"></span>
+			<div rsf:id="msg=simplepage.permissions-general" ></div>
+		</div>
+	</div>
+	
+	<div rsf:id="noEntriesWarning" class="ui-widget">
+		<div class="ui-state-highlight ui-corner-all" style="margin-bottom: 10px; margin-top:10px; padding: 0 .7em;"> 
+			<p><span class="ui-icon ui-icon-info" style="float: left; margin-right: .3em;"></span>
+			<span rsf:id="msg=simplepage.nothing-here"></span></p>
+		</div>
+	</div>
+
+	<table rsf:id="gradingTable" class="gradingTable" width="100%" role="list">
+		<tr class="bottomBorder">
+			<th rsf:id="msg=simplepage.grading-student" width="210px"></th>
+			<th rsf:id="unique-header" width="50px"></th>
+			<th rsf:id="msg=simplepage.grading-total-posts" width="70px"></th>
+			<th rsf:id="msg=simplepage.grading-grade" width="145px"></th>
+			<th></th>
+		</tr>
+		
+		<div class="student-row" rsf:id="student-row:" role="listitem">
+			<tr rsf:id="first-row" class="first-row topBorder" id="first-row">
+				<td rsf:id="student-name" style="padding-left:0.7em;"></td>
+				<td style="text-align:center;" rsf:id="student-unique"></td>
+				<td style="text-align:center;" rsf:id="student-total"></td>
+				<td style="text-align:center;" rsf:id="student-grade">
+					<span rsf:id="gradingSpan">
+						<img class="statusImg" src="$context/images/no-status.png" id="statusImg" height="16px" width="16px" alt=""></img>
+						<span rsf:id="msg=simplepage.comments-points"></span><span style="display:none" class="uuidBox" rsf:id="commentsUUID"></span>
+						<span style="display:none" class="pointsSpan" rsf:id="commentPoints"></span>
+						<input rsf:id="pointsBox" class="pointsBox" type="text" size="3"></input>
+						<span rsf:id="maxpoints"></span>
+					</span>
+				</td>
+				<td>
+					<a href="#" class="usebutton toggleButton" style="margin:4px 0px 3px 10px;" onclick="return false;" rsf:id="clickToExpand"></a>
+					<img class="toggleStatus" src="$context/images/no-status.png" height="16px" width="16px" alt=""></img>
+				</td>
+			</tr>
+			
+			<tr rsf:id="details-row" id="details-row" class="details-row">
+				<td rsf:id="details-cell">
+					<div class="replaceWithComments"></div>
+					<a href="#" style="display:none" rsf:id="commentsLink" class="commentsLink"></a>
+				</td>
+			</tr>
+
+		</div>
+		<tr id="last-row" class="last-row">
+		  <td></td>
+		  <td rsf:id="clickfiller"></td>
+		  <td></td>
+		  <td><a id="clickToSubmit" href="#" class="usebutton toggleButton" style="margin:4px 0px 3px 10px; " onclick="return false;" rsf:id="clickToSubmit"></a> </td>
+		  <td></td>
+		</tr>
+
+	</table>
+	
+	<form class="gradingForm" rsf:id="gradingForm" style="display:none;">
+		<input type="hidden" class="idField" id="gradingForm-id" rsf:id="gradingForm-id"></input>
+		<input type="hidden" class="jsIdField" id="gradingForm-jsId" rsf:id="gradingForm-jsId"></input>
+		<input type="hidden" class="pointsField" id="gradingForm-points" rsf:id="gradingForm-points"></input>
+		<input type="hidden" class="typeField" id="gradingForm-type" rsf:id="gradingForm-type"></input>
+	</form>
+		
+	<script rsf:id="gradingForm-init" type="text/javascript">
+    	// a real function call with real values which come from the 
+    	// "emitJavascriptCall" method will be placed here by RSF
+	</script>
+</body>
+</html>

@@ -168,7 +168,16 @@
     <bean class="org.sakaiproject.lessonbuildertool.tool.producers.ReloadPageProducer" >
     </bean>
     
-    <bean class="org.sakaiproject.lessonbuildertool.tool.producers.GradingPaneProducer" >
+    <bean class="org.sakaiproject.lessonbuildertool.tool.producers.CommentGradingPaneProducer" >
+		<property name="simplePageBean" ref="simplePageBean" />
+		<property name="simplePageToolDao">
+			<ref bean="org.sakaiproject.lessonbuildertool.model.SimplePageToolDao" />
+    	</property>
+    	<property name="messageLocator" ref="messageLocator"/>
+	<property name="localeGetter" ref="requestLocaleProxy" />
+    </bean>
+    
+    <bean class="org.sakaiproject.lessonbuildertool.tool.producers.QuestionGradingPaneProducer" >
 		<property name="simplePageBean" ref="simplePageBean" />
 		<property name="simplePageToolDao">
 			<ref bean="org.sakaiproject.lessonbuildertool.model.SimplePageToolDao" />

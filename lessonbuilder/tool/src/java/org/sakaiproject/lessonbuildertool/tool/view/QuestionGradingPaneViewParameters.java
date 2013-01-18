@@ -2,9 +2,8 @@ package org.sakaiproject.lessonbuildertool.tool.view;
 
 import uk.org.ponder.rsf.viewstate.SimpleViewParameters;
 
-public class GradingPaneViewParameters extends SimpleViewParameters {
-	public boolean studentContentItem = false;
-	public long commentsItemId;
+public class QuestionGradingPaneViewParameters extends SimpleViewParameters {
+	public long questionItemId;
 	
 	// So that we can make a back link.
 	public long pageId;
@@ -12,11 +11,11 @@ public class GradingPaneViewParameters extends SimpleViewParameters {
 	public String siteId = null;
 	public String placementId = null;
 	
-	public GradingPaneViewParameters() {
+	public QuestionGradingPaneViewParameters() {
 		super();
 	}
 	
-	public GradingPaneViewParameters(String VIEW_ID) {
+	public QuestionGradingPaneViewParameters(String VIEW_ID) {
 		super(VIEW_ID);
 	}
 }

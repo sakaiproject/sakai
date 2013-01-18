@@ -1,0 +1,18 @@
+<?xml version="1.0"?>
+<!DOCTYPE hibernate-mapping PUBLIC
+	"-//Hibernate/Hibernate Mapping DTD 3.0//EN"
+	"http://hibernate.sourceforge.net/hibernate-mapping-3.0.dtd">
+<hibernate-mapping>
+
+	<class name="org.sakaiproject.lessonbuildertool.SimplePageQuestionAnswerImpl" table="lesson_builder_question_answers">
+	
+		<id name="id" type="long">
+			<generator class="native" />
+		</id>
+		
+		<property name="questionId" type="long" not-null="true" />
+		<property name="text" column="answerText" type="text" />
+		<property name="correct" type="boolean" />
+		
+	</class>
+</hibernate-mapping>

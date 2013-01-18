@@ -12,5 +12,8 @@
         <mapping resource="org/sakaiproject/lessonbuildertool/simplepagegroup.hbm.xml"/>
         <mapping resource="org/sakaiproject/lessonbuildertool/simplepagelogentry.hbm.xml"/>
         <mapping resource="org/sakaiproject/lessonbuildertool/simplestudentpage.hbm.xml"/>
+        <mapping resource="org/sakaiproject/lessonbuildertool/simplepageitemattribute.hbm.xml"/>
+        <mapping resource="org/sakaiproject/lessonbuildertool/simplepagequestionanswer.hbm.xml"/>
+        <mapping resource="org/sakaiproject/lessonbuildertool/simplepagequestionresponse.hbm.xml"/>
     </session-factory>
 </hibernate-configuration>

@@ -69,7 +69,11 @@
 	</filter-mapping>
 	<filter-mapping>
 	  <filter-name>sakai.request</filter-name>
-	  <url-pattern>/faces/GradingPane</url-pattern>
+	  <url-pattern>/faces/CommentGradingPane</url-pattern>
+	</filter-mapping>
+	<filter-mapping>
+	  <filter-name>sakai.request</filter-name>
+	  <url-pattern>/faces/QuestionGradingPane</url-pattern>
 	</filter-mapping>
 	<filter-mapping>
 	    <filter-name>lessonbuilder.ajaxfilter</filter-name>
@@ -77,7 +81,11 @@
 	</filter-mapping>
 	<filter-mapping>
 	    <filter-name>lessonbuilder.ajaxfilter</filter-name>
-	    <url-pattern>/faces/GradingPane</url-pattern>
+	    <url-pattern>/faces/CommentGradingPane</url-pattern>
+	</filter-mapping>
+	<filter-mapping>
+	    <filter-name>lessonbuilder.ajaxfilter</filter-name>
+	    <url-pattern>/faces/QuestionGradingPane</url-pattern>
 	</filter-mapping>
 
 

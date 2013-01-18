@@ -80,6 +80,8 @@ import org.sakaiproject.lessonbuildertool.SimplePageComment;
 import org.sakaiproject.lessonbuildertool.SimplePageGroup;
 import org.sakaiproject.lessonbuildertool.SimplePageItem;
 import org.sakaiproject.lessonbuildertool.SimplePageLogEntry;
+import org.sakaiproject.lessonbuildertool.SimplePageQuestionAnswer;
+import org.sakaiproject.lessonbuildertool.SimplePageQuestionResponse;
 import org.sakaiproject.lessonbuildertool.SimpleStudentPage;
 import org.sakaiproject.lessonbuildertool.cc.CartridgeLoader;
 import org.sakaiproject.lessonbuildertool.cc.Parser;
@@ -89,12 +91,12 @@ import org.sakaiproject.lessonbuildertool.model.SimplePageToolDao;
 import org.sakaiproject.lessonbuildertool.service.BltiInterface;
 import org.sakaiproject.lessonbuildertool.service.GradebookIfc;
 import org.sakaiproject.lessonbuildertool.service.GroupPermissionsService;
+import org.sakaiproject.lessonbuildertool.service.LessonBuilderEntityProducer;
 import org.sakaiproject.lessonbuildertool.service.LessonEntity;
 import org.sakaiproject.lessonbuildertool.service.LessonSubmission;
 import org.sakaiproject.lessonbuildertool.tool.producers.ShowItemProducer;
 import org.sakaiproject.lessonbuildertool.tool.producers.ShowPageProducer;
 import org.sakaiproject.lessonbuildertool.tool.view.GeneralViewParameters;
-import org.sakaiproject.lessonbuildertool.service.LessonBuilderEntityProducer;
 import org.sakaiproject.memory.api.Cache;
 import org.sakaiproject.memory.api.MemoryService;
 import org.sakaiproject.site.api.Group;
@@ -217,11 +219,21 @@ public class SimplePageBean {
 	public String formattedComment;
 	public String editId;
 	public boolean graded, sGraded;
+	public String gradebookTitle;
 	public String maxPoints, sMaxPoints;
 	
 	public boolean comments;
 	public boolean forcedAnon;
-        public boolean groupOwned;
+	public boolean groupOwned;
+    
+	public String questionType;
+    public String questionText, questionCorrectText, questionIncorrectText;
+    public String questionAnswer;
+    public Boolean questionShowPoll;
+    private HashMap<Integer, String> questionAnswers = null;
+    
+    public Long questionId;
+    public String questionResponse;
 	
 	public boolean isWebsite = false;
 
@@ -1114,12 +1126,15 @@ public class SimplePageBean {
 	}
 
 	public String deleteItem()  {
-		if (!itemOk(itemId))
+		if (!itemOk(itemId) || !canEditPage()) {
 		    return "permission-failed";
-		if (!canEditPage())
-		    return "permission-failed";
+		}
 
 		SimplePageItem i = findItem(itemId);
+		if(i == null) {
+			log.warn("deleteItem: null item.  id: " + itemId);
+			return "failure";
+		}
 
 		int seq = i.getSequence();
 
@@ -3969,6 +3984,15 @@ public class SimplePageBean {
 			// we know that that the page has already been viewed.
 			completeCache.put(itemId, true);
 			return true;
+		} else if (item.getType() == SimplePageItem.QUESTION) {
+			SimplePageQuestionResponse response = simplePageToolDao.findQuestionResponse(item.getId(), getCurrentUserId());
+			if(response != null) {
+				completeCache.put(itemId, true);
+				return true;
+			}else {
+				completeCache.put(itemId, false);
+				return false;
+			}
 		} else {
 			completeCache.put(itemId, false);
 			return false;
@@ -5337,6 +5361,281 @@ public class SimplePageBean {
 	
 	private void popAdvisor() {
 		securityService.popAdvisor();
+	}
+	
+	public void setAddAnswerData(String data) {
+		if(data == null || data.equals("")) {
+			return;
+		}
+		
+		int separator = data.indexOf(":");
+		String indexString = data.substring(0, separator);
+		Integer index = Integer.valueOf(indexString);
+		data = data.substring(separator+1);
+		
+		
+		// I think this method should only be called from one thread
+		// so this should be safe.
+		if(questionAnswers == null) {
+			questionAnswers = new HashMap<Integer, String>();
+		}
+		
+		// We store with the index so that we can maintain the order
+		// in which the instructor inputted the answers
+		questionAnswers.put(index, data);
+	}
+	
+	/** Used for both adding and updating questions on a page. */
+	public String updateQuestion() {
+		if(!canEditPage()) {
+			setErrMessage(messageLocator.getMessage("simplepage.permissions-general"));
+			return "failure";
+		}
+		
+		if(questionType == null) {
+			setErrMessage(messageLocator.getMessage("simplepage.no-question-type"));
+			log.warn("No question type provided for question.");
+			return "failure";
+		}
+		
+		SimplePageItem item;
+		if(itemId != null && itemId != -1) {
+			item = findItem(Long.valueOf(itemId));
+		}else {
+			// Adding a question to the page
+			item = appendItem("", messageLocator.getMessage("simplepage.questionName"), SimplePageItem.QUESTION);
+			
+			item.setAttribute("questionType", "shortanswer");
+		}
+		
+		item.setAttribute("questionText", questionText);
+		item.setAttribute("questionCorrectText", questionCorrectText);
+		item.setAttribute("questionIncorrectText", questionIncorrectText);
+		item.setAttribute("questionType", questionType);
+		
+		if(questionType.equals("shortanswer")) {
+			item.setAttribute("questionAnswer", questionAnswer);
+		}else if(questionType.equals("multipleChoice")) {
+			List<SimplePageQuestionAnswer> existingAnswers = simplePageToolDao.findAnswerChoices(item.getId());
+			HashMap<Long, SimplePageQuestionAnswer> existingAnswersLookup = new HashMap<Long, SimplePageQuestionAnswer>();
+			for(SimplePageQuestionAnswer answer : existingAnswers) {
+				existingAnswersLookup.put(answer.getId(), answer);
+			}
+			
+			for(int i = 0; questionAnswers.get(i) != null; i++) {
+				String data = questionAnswers.get(i);
+				
+				int separator = data.indexOf(":");
+				String idString = data.substring(0, separator);
+				Long answerId = Long.valueOf(idString.equals("") ? "-1" : idString);
+				data = data.substring(separator+1);
+				
+				separator = data.indexOf(":");
+				Boolean correct = data.substring(0, separator).equals("true");
+				
+				String text = data.substring(separator+1);
+				
+				long questionId = item.getId();
+			
+				SimplePageQuestionAnswer answer = existingAnswersLookup.get(answerId);
+				if(answer == null) {
+					answer = simplePageToolDao.makeQuestionAnswer(questionId, text, correct);
+				}else {
+					existingAnswers.remove(answer);
+					
+					answer.setCorrect(correct);
+					answer.setText(text);
+				}
+				
+				simplePageToolDao.saveQuestionAnswer(answer, item.getPageId());
+			}
+			
+			// Anything left in existingAnswers didn't exist in the form submission, and must have been deleted
+			for(SimplePageQuestionAnswer deletedAnswer : existingAnswers) {
+				simplePageToolDao.deleteQuestionAnswer(deletedAnswer, item.getPageId());
+			}
+			
+			item.setAttribute("questionShowPoll", String.valueOf(questionShowPoll));
+		}
+		
+		int pointsInt = 10;
+		if(maxPoints != null && !maxPoints.equals("")) {
+			try {
+				pointsInt = Integer.valueOf(maxPoints);
+			}catch(Exception ex) {
+				setErrMessage(messageLocator.getMessage("simplepage.integer-expected"));
+				return "failure";
+			}
+		}
+		
+		if(graded && (item.getGradebookId() == null || item.getGradebookId().equals(""))) {
+			// Creating new gradebook entry
+			
+			String gradebookId = "lesson-builder:question:" + item.getId();
+			String title = gradebookTitle;
+			if(title == null || title.equals("")) {
+				title = questionText;
+			}	
+			
+			boolean add = gradebookIfc.addExternalAssessment(getCurrentSiteId(), gradebookId, null, title, pointsInt, null, "Lesson Builder");
+			
+			if(!add) {
+				setErrMessage(messageLocator.getMessage("simplepage.no-gradebook"));
+			}else {
+				item.setGradebookId(gradebookId);
+				item.setGradebookTitle(title);
+				item.setGradebookPoints(pointsInt);
+			}
+		}else if(graded) {
+			// Updating an old gradebook entry
+			
+			gradebookIfc.updateExternalAssessment(getCurrentSiteId(), item.getGradebookId(), null, gradebookTitle, pointsInt, null);
+			
+			item.setGradebookTitle(gradebookTitle);
+			item.setGradebookPoints(pointsInt);
+		}else if(!graded && (item.getGradebookId() != null && !item.getGradebookId().equals(""))) {
+			// Removing an existing gradebook entry
+			
+			gradebookIfc.removeExternalAssessment(getCurrentSiteId(), item.getGradebookId());
+			item.setGradebookId(null);
+			item.setGradebookTitle(null);
+			item.setGradebookPoints(null);
+		}
+		
+		item.setRequired(required);
+		item.setPrerequisite(prerequisite);
+		
+		update(item);
+		
+		regradeAllQuestionResponses(item.getId());
+		
+		return "success";
+	}
+	
+	private void regradeAllQuestionResponses(long questionId) {
+		List<SimplePageQuestionResponse> responses = simplePageToolDao.findQuestionResponses(questionId);
+		for(SimplePageQuestionResponse response : responses) {
+			gradeQuestionResponse(response);
+			update(response);
+		}
+	}
+	
+	private boolean gradeQuestionResponse(SimplePageQuestionResponse response) {
+		SimplePageItem question = findItem(response.getQuestionId());
+		if(question == null) {
+			log.warn("Invalid question for QuestionResponse " + response.getId());
+			return false;
+		}
+		
+		Double gradebookPoints;
+		if(question.getGradebookId() != null && !question.getGradebookId().equals("")) {
+			gradebookPoints = (double) question.getGradebookPoints();
+		}else {
+			gradebookPoints = null;
+		}
+		boolean correct = true;
+		if(response.isOverridden()) {
+			// The teacher set this score manually, so we'd rather not mess with it.
+			correct = response.isCorrect();
+			gradebookPoints = response.getPoints();
+		}else if(question.getAttribute("questionType") != null && question.getAttribute("questionType").equals("multipleChoice")) {
+			SimplePageQuestionAnswer answer = simplePageToolDao.findAnswerChoice(response.getMultipleChoiceId());
+			if(answer != null && answer.isCorrect()) {
+				correct = true;
+			}else if(answer != null && !answer.isCorrect()){
+				correct = false;
+				gradebookPoints = 0.0;
+			}else {
+				// The answer no longer exists, so we'll just leave everything the way it was last time it was graded.
+				correct = response.isCorrect();
+				gradebookPoints = response.getPoints();
+			}
+		}else if(question.getAttribute("questionType") != null && question.getAttribute("questionType").equals("shortanswer")) {
+			String correctAnswer = question.getAttribute("questionAnswer");
+			StringTokenizer correctAnswerTokenizer = new StringTokenizer(correctAnswer, "\n");
+			String theirResponse = response.getShortanswer().trim().toLowerCase();
+			
+			int totalTokens = correctAnswerTokenizer.countTokens();
+			boolean foundAnswer = false;
+			for(int i = 0; i < totalTokens; i++) {
+				String token = correctAnswerTokenizer.nextToken().replaceAll("\n", "").trim().toLowerCase();
+				
+				if(theirResponse.equals(token)) {
+					foundAnswer = true;
+					break;
+				}
+			}
+			if(foundAnswer) {
+				correct = true;
+			}else {
+				correct = false;
+				gradebookPoints = 0.0;
+			}
+		}else {
+			log.warn("Invalid question type for question " + question.getId());
+			correct = false;
+		}
+		
+		response.setCorrect(correct);
+		
+		if(question.getGradebookId() != null && !question.getGradebookId().equals("")) {
+			gradebookIfc.updateExternalAssessmentScore(getCurrentSiteId(), question.getGradebookId(),
+			       response.getUserId(), String.valueOf(gradebookPoints));
+			
+			response.setPoints(gradebookPoints);
+		}
+		
+		return correct;
+	}
+	
+	public String answerMultipleChoiceQuestion() {
+		String userId = getCurrentUserId();
+		
+		SimplePageQuestionResponse response = simplePageToolDao.findQuestionResponse(questionId, userId); 
+		if(response != null) {
+			if(!canEditPage()) {
+				// Don't let students re-answer questions.
+				setErrMessage(messageLocator.getMessage("simplepage.permissions-question"));
+				return "failure";
+			}
+		}else {
+			response = simplePageToolDao.makeQuestionResponse(userId, questionId);
+		}
+		
+		response.setMultipleChoiceId(Long.valueOf(questionResponse));
+		
+		SimplePageQuestionAnswer answer = simplePageToolDao.findAnswerChoice(response.getMultipleChoiceId());
+		response.setOriginalText(answer.getText());
+		
+		gradeQuestionResponse(response);
+
+		saveItem(response);
+		
+		return "success";
+	}
+	
+	public String answerShortanswerQuestion() {
+		String userId = getCurrentUserId();
+		
+		SimplePageQuestionResponse response = simplePageToolDao.findQuestionResponse(questionId, userId); 
+		if(response != null) {
+			if(!canEditPage()) {
+				// Don't let students re-answer questions.
+				setErrMessage(messageLocator.getMessage("simplepage.permissions-question"));
+				return "failure";
+			}
+		}else {
+			response = simplePageToolDao.makeQuestionResponse(userId, questionId);
+		}
+		
+		SimplePageItem question = findItem(response.getQuestionId());
+		
+		response.setShortanswer(questionResponse);
+		gradeQuestionResponse(response);
+		
+		saveItem(response);
+		
+		return "success";
 	}
 	
 	public String updateStudent() {

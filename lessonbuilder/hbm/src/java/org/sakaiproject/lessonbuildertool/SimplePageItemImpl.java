@@ -23,6 +23,9 @@
 
 package org.sakaiproject.lessonbuildertool;
 
+import java.util.HashMap;
+import java.util.Map;
+
 /**
  * This is a single item on a simple page.
  * 
@@ -32,6 +35,9 @@ package org.sakaiproject.lessonbuildertool;
  * write "", Oracle will read it as null, but our code expects it to come back as "".
  * Note that this code is called both to construct new items in our code and by hibernate
  * to build an object when reading from the database.
+ * 
+ * NOTE: Please don't add any more fields to this class.  Instead, take a look at
+ * the SimplePageItemAttribute system we have set up.
  *
  * @author jeney
  * 
@@ -48,6 +54,8 @@ public class SimplePageItemImpl implements SimplePageItem  {
 	public static final int FORUM = 8;
 	public static final int COMMENTS = 9;
 	public static final int STUDENT_CONTENT = 10;
+	public static final int QUESTION = 11;
+    public static final int BLTI = 12;
 
     // must agree with definition in hbm file
 	public static final int MAXNAME = 100;
@@ -94,6 +102,11 @@ public class SimplePageItemImpl implements SimplePageItem  {
 	private boolean groupOwned = false;
 	private String ownerGroups = null;
 	
+	/* All future fields should be added as attributes instead of
+	 * additional columns.
+	 */
+	private Map<String, SimplePageItemAttributeImpl> attributes;
+	
 	public SimplePageItemImpl() {
 
 	}
@@ -121,6 +134,7 @@ public class SimplePageItemImpl implements SimplePageItem  {
 		sameWindow = false;  // old entries have to default to off
 		groupOwned = false;
 		ownerGroups = "";
+		attributes = new HashMap<String, SimplePageItemAttributeImpl>();
 	}
 
 	public SimplePageItemImpl(long pageId, int sequence, int type, String sakaiId, String name) {
@@ -145,6 +159,7 @@ public class SimplePageItemImpl implements SimplePageItem  {
 		sameWindow = false;  // old entries have to default to off
 		groupOwned = false;
 		ownerGroups = "";
+		attributes = new HashMap<String, SimplePageItemAttributeImpl>();
 	}
 
 	private String maxlength(String s, int maxlen) {
@@ -497,6 +512,40 @@ public class SimplePageItemImpl implements SimplePageItem  {
 	public void setOwnerGroups(String s) {
 	    ownerGroups = s;
 	}
-
+	
+	/* Yes, it's odd to have these two getters and setters here when they're private,
+	 * but Hibernate requires them to be here, and I don't want to give access
+	 * to them through the API.
+	 */
+	private void setAttributes(Map<String, SimplePageItemAttributeImpl> attributes) {
+		this.attributes = attributes;
+	}
+	
+	private Map<String, SimplePageItemAttributeImpl> getAttributes() {
+		return attributes;
+	}
+	
+	/* This is the getter I want everyone else to use for attributes. */
+	public String getAttribute(String attr) {
+		SimplePageItemAttributeImpl attribute = attributes.get(attr);
+		if(attribute != null) {
+			return attribute.toString();
+		}else {
+			return null;
+		}
+	}
+	
+	public void setAttribute(String attr, String value) {
+		SimplePageItemAttributeImpl attribute = attributes.get(attr);
+		
+		/* Key already existed in the table. */
+		if(attribute != null) {
+			attribute.setValue(value);
+		}else {
+			attribute = new SimplePageItemAttributeImpl(this, attr, value); 
+		}
+		
+		attributes.put(attr, attribute);
+	}
 }
 

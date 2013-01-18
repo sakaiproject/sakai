@@ -361,7 +361,7 @@ img {
 .unsubmitted {
 	background-color: #FFC9D7
 }
-.gradingPaneLink span {
+.gradingPaneLink span, .showPollGraph span {
 	font-size: 70%;
 	font-weight: normal;
 }
@@ -412,4 +412,14 @@ img {
 	-webkit-border-radius: 2px;
 	border-radius: 2px;
 	color: black !important;
+}
+#question-correct-text, #question-incorrect-text {
+	width: 400px;
+	height: 55px;
+}
+#question-text-input {
+	width: 400px;
+}
+.question-multiplechoice-answer, .question-shortanswer-answer {
+	width: 250px;
 }

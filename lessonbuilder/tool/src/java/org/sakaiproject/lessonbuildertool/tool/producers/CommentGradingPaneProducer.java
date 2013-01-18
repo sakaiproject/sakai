@@ -13,7 +13,7 @@ import org.sakaiproject.lessonbuildertool.model.SimplePageToolDao;
 import org.sakaiproject.lessonbuildertool.tool.beans.SimplePageBean;
 import org.sakaiproject.lessonbuildertool.tool.view.CommentsViewParameters;
 import org.sakaiproject.lessonbuildertool.tool.view.GeneralViewParameters;
-import org.sakaiproject.lessonbuildertool.tool.view.GradingPaneViewParameters;
+import org.sakaiproject.lessonbuildertool.tool.view.CommentsGradingPaneViewParameters;
 import org.sakaiproject.user.cover.UserDirectoryService;
 import org.sakaiproject.tool.cover.ToolManager;
 
@@ -35,8 +35,8 @@ import uk.org.ponder.rsf.viewstate.ViewParameters;
 import uk.org.ponder.rsf.viewstate.ViewParamsReporter;
 
 
-public class GradingPaneProducer implements ViewComponentProducer, ViewParamsReporter {
-	public static final String VIEW_ID = "GradingPane";
+public class CommentGradingPaneProducer implements ViewComponentProducer, ViewParamsReporter {
+	public static final String VIEW_ID = "CommentGradingPane";
 
 	private SimplePageBean simplePageBean;
 	private SimplePageToolDao simplePageToolDao;
@@ -73,7 +73,7 @@ public class GradingPaneProducer implements ViewComponentProducer, ViewParamsRep
 	}
 
 	public void fillComponents(UIContainer tofill, ViewParameters viewparams, ComponentChecker checker) {
-		GradingPaneViewParameters params = (GradingPaneViewParameters) viewparams;
+		CommentsGradingPaneViewParameters params = (CommentsGradingPaneViewParameters) viewparams;
 		
 		SimplePage currentPage = simplePageToolDao.getPage(params.pageId);
 		simplePageBean.setCurrentSiteId(params.siteId);
@@ -87,7 +87,7 @@ public class GradingPaneProducer implements ViewComponentProducer, ViewParamsRep
                 UIOutput.make(tofill, "html").decorate(new UIFreeAttributeDecorator("lang", localeGetter.get().getLanguage()))
 		    .decorate(new UIFreeAttributeDecorator("xml:lang", localeGetter.get().getLanguage()));        
 
-		UIInternalLink.make(tofill, "back-link", "Go Back", backParams);
+		UIInternalLink.make(tofill, "back-link", messageLocator.getMessage("simplepage.go-back"), backParams);
 		
 		if(simplePageBean.getEditPrivs() != 0) {
 			UIOutput.make(tofill, "permissionsError");
@@ -242,7 +242,7 @@ public class GradingPaneProducer implements ViewComponentProducer, ViewParamsRep
 	}
 	
 	public ViewParameters getViewParameters() {
-		return new GradingPaneViewParameters();
+		return new CommentsGradingPaneViewParameters();
 	}
 
 }
