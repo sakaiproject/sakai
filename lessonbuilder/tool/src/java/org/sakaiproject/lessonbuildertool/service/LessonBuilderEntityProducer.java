@@ -78,6 +78,9 @@ import org.sakaiproject.entitybroker.util.AbstractEntityProvider;
 import org.sakaiproject.lessonbuildertool.LessonBuilderAccessAPI;
 import org.sakaiproject.lessonbuildertool.SimplePage;
 import org.sakaiproject.lessonbuildertool.SimplePageItem;
+import org.sakaiproject.lessonbuildertool.SimplePageItemImpl;
+import org.sakaiproject.lessonbuildertool.SimplePageItemAttributeImpl;
+import org.sakaiproject.lessonbuildertool.SimplePageQuestionAnswer;
 import org.sakaiproject.lessonbuildertool.model.SimplePageToolDao;
 import org.sakaiproject.lessonbuildertool.cc.CartridgeLoader;
 import org.sakaiproject.lessonbuildertool.cc.Parser;
@@ -421,6 +424,34 @@ public class LessonBuilderEntityProducer extends AbstractEntityProvider
 
 		addGroup(doc, itemElement, item.getGroups(), "group", siteGroups);
 
+		Map<String, SimplePageItemAttributeImpl> attrs = ((SimplePageItemImpl)item).getAttributes();
+		if (attrs != null) {
+		    Collection<SimplePageItemAttributeImpl> attributes = attrs.values();
+		    if (attributes.size() > 0) {
+			Element attributesElement = doc.createElement("attributes");
+		        itemElement.appendChild(attributesElement);
+			for (SimplePageItemAttributeImpl attr: attributes) {
+			    Element attributeElement = doc.createElement("attribute");
+			    addAttr(doc, attributeElement, "key", attr.getAttr());
+			    addAttr(doc, attributeElement, "value", attr.getValue());
+			    attributesElement.appendChild(attributeElement);
+			}
+		    }
+		}
+		if (item.getType() == SimplePageItem.QUESTION) {
+		    List<SimplePageQuestionAnswer> answers = simplePageToolDao.findAnswerChoices(item.getId());
+		    if (answers != null && answers.size() > 0) {
+			Element answersElement = doc.createElement("answers");
+		        itemElement.appendChild(answersElement);
+			for (SimplePageQuestionAnswer answer: answers) {
+			    Element answerElement = doc.createElement("answer");
+			    addAttr(doc, answerElement, "text", answer.getText());
+			    addAttr(doc, answerElement, "isCorrect", (answer.isCorrect()?"true":"false"));
+			    answersElement.appendChild(answerElement);
+			}
+		    }
+		}
+
 		pageElement.appendChild(itemElement);
 	    }
 	}		
@@ -736,6 +767,20 @@ public class LessonBuilderEntityProducer extends AbstractEntityProvider
 		   if (s != null)
 		       item.setGroupOwned(s.equals("true"));
 
+		   NodeList attributes = itemElement.getElementsByTagName("attributes");
+		   if (attributes != null && attributes.getLength() > 0) {
+		       Node attributesNode = attributes.item(0); // only one
+		       attributes = attributesNode.getChildNodes();
+		       if (attributes != null && attributes.getLength() > 0) {
+			   for (int n = 0; n < attributes.getLength() ; n++) {
+			       Element attributeElement = (Element)attributes.item(n);
+			       String key = attributeElement.getAttribute("key");
+			       String value = attributeElement.getAttribute("value");
+			       item.setAttribute(key, value);
+			   }
+		       }
+		   }
+
 		   if (RESTORE_GROUPS) {
 		       String groupString = mergeGroups(itemElement, "ownerGroup", siteGroups);
 		       if (groupString != null)
@@ -777,6 +822,22 @@ public class LessonBuilderEntityProducer extends AbstractEntityProvider
 			       entityid = REF_LB_FORUM + item.getId();
 			   if (entityMap != null)
 			       entityMap.put(entityid, objectid);
+		       }
+		   }
+
+		   NodeList answers = itemElement.getElementsByTagName("answers");
+
+		   if (answers != null && answers.getLength() > 0) {
+		       Node answersNode = answers.item(0); // only one
+		       answers = answersNode.getChildNodes();
+		       if (answers != null && answers.getLength() > 0) {
+			   for (int n = 0; n < answers.getLength() ; n++) {
+			       Element answerElement = (Element)answers.item(n);
+			       String text = answerElement.getAttribute("text");
+			       boolean isCorrect = "true".equals(answerElement.getAttribute("isCorrect"));
+			       SimplePageQuestionAnswer answer = simplePageToolDao.makeQuestionAnswer(item.getId(), text, isCorrect);
+			       simplePageToolDao.saveQuestionAnswer(answer, item.getPageId());
+			   }
 		       }
 		   }
 

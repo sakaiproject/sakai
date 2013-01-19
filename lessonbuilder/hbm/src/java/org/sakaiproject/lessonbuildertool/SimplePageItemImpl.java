@@ -521,7 +521,7 @@ public class SimplePageItemImpl implements SimplePageItem  {
 		this.attributes = attributes;
 	}
 	
-	private Map<String, SimplePageItemAttributeImpl> getAttributes() {
+	public Map<String, SimplePageItemAttributeImpl> getAttributes() {
 		return attributes;
 	}
 	
