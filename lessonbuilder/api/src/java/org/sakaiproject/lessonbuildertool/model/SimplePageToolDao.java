@@ -206,4 +206,6 @@ public interface SimplePageToolDao {
     
     public SimplePageItem copyItem(SimplePageItem old);
 
+    public SimplePageItem copyItem2(SimplePageItem old, SimplePageItem item);
+
 }

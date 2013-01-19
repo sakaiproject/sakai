@@ -31,6 +31,7 @@ import java.util.Collections;
 import java.util.Comparator;
 import java.util.Date;
 import java.util.List;
+import java.util.Map;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
@@ -49,6 +50,7 @@ import org.sakaiproject.lessonbuildertool.SimplePageGroupImpl;
 import org.sakaiproject.lessonbuildertool.SimplePageImpl;
 import org.sakaiproject.lessonbuildertool.SimplePageItem;
 import org.sakaiproject.lessonbuildertool.SimplePageItemImpl;
+import org.sakaiproject.lessonbuildertool.SimplePageItemAttributeImpl;
 import org.sakaiproject.lessonbuildertool.SimplePageLogEntry;
 import org.sakaiproject.lessonbuildertool.SimplePageLogEntryImpl;
 import org.sakaiproject.lessonbuildertool.SimplePageQuestionAnswer;
@@ -887,6 +889,37 @@ public class SimplePageToolDaoImpl extends HibernateDaoSupport implements Simple
 		item.setPrerequisite(old.isPrerequisite());
 		item.setSubrequirement(old.getSubrequirement());
 		item.setRequirementText(old.getRequirementText());
+		item.setSameWindow(old.isSameWindow());
+		item.setAnonymous(old.isAnonymous());
+		item.setShowComments(old.getShowComments());
+		item.setForcedCommentsAnonymous(old.getForcedCommentsAnonymous());
+
+		Map<String, SimplePageItemAttributeImpl> attrs = ((SimplePageItemImpl)old).getAttributes();
+		if (attrs != null) {
+		    Collection<SimplePageItemAttributeImpl> attributes = attrs.values();
+		    if (attributes.size() > 0) {
+			for (SimplePageItemAttributeImpl attr: attributes) {
+			    item.setAttribute(attr.getAttr(), attr.getValue());
+			}
+		    }
+		}
+
+		return item;
+	}
+
+    // phase 2 of copy after save, we need item number here
+	public SimplePageItem copyItem2(SimplePageItem old, SimplePageItem item) {
+
+		if (old.getType() == SimplePageItem.QUESTION) {
+		    List<SimplePageQuestionAnswer> answers = findAnswerChoices(old.getId());
+		    if (answers != null && answers.size() > 0) {
+			for (SimplePageQuestionAnswer answer: answers) {
+			    SimplePageQuestionAnswer newAnswer = makeQuestionAnswer(item.getId(), answer.getText(), answer.isCorrect());
+			    saveQuestionAnswer(newAnswer, item.getPageId());
+			}
+		    }
+		}
+
 		return item;
 	}
 	

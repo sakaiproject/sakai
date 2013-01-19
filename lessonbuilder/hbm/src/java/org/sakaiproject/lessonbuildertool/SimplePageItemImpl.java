@@ -108,7 +108,7 @@ public class SimplePageItemImpl implements SimplePageItem  {
 	private Map<String, SimplePageItemAttributeImpl> attributes;
 	
 	public SimplePageItemImpl() {
-
+		attributes = new HashMap<String, SimplePageItemAttributeImpl>();
 	}
 
 	public SimplePageItemImpl(long id, long pageId, int sequence, int type, String sakaiId, String name) {
