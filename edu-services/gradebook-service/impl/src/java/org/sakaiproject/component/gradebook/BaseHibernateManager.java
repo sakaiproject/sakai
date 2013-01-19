@@ -1440,23 +1440,18 @@ public abstract class BaseHibernateManager extends HibernateDaoSupport {
 
 	// NOTE: This should not be called in a loop. Anything for sets should use getVisibleExternalAssignments
 	protected boolean studentCanView(String studentId, Assignment assignment) {
-       boolean checkExternalGroups = serverConfigurationService.getBoolean("gradebook.check.external.groups", false);
+		if (assignment.isExternallyMaintained()) {
+			try {
+				String gbUid = assignment.getGradebook().getUid();
+				String extId = assignment.getExternalId();
 
-        // Skip all this if we don't want to check external groups
-        if (checkExternalGroups) { 
-            if (assignment.isExternallyMaintained()) {
-                try {
-                    String gbUid = assignment.getGradebook().getUid();
-                    String extId = assignment.getExternalId();
-
-                    if (externalAssessmentService.isExternalAssignmentGrouped(gbUid, extId)) {
-                        return externalAssessmentService.isExternalAssignmentVisible(gbUid, extId, studentId);
-                    }
-                } catch (GradebookNotFoundException e) {
-                    if (log.isDebugEnabled()) { log.debug("Bogus graded assignment checked for course grades: " + assignment.getId()); }
-                }
-            }
-        }
+				if (externalAssessmentService.isExternalAssignmentGrouped(gbUid, extId)) {
+					return externalAssessmentService.isExternalAssignmentVisible(gbUid, extId, studentId);
+				}
+			} catch (GradebookNotFoundException e) {
+				if (log.isDebugEnabled()) { log.debug("Bogus graded assignment checked for course grades: " + assignment.getId()); }
+			}
+		}
 		
 		// We assume that the only disqualifying condition is that the external assignment
 		// is grouped and the student is not a member of one of the groups allowed.
