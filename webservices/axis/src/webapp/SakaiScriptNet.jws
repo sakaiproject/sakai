@@ -2911,7 +2911,7 @@ public String getSessionForUser(String sessionid, String eid, boolean wsonly) th
         authzGroupService.refreshUser(user.getId());
 
         // post the login event
-        eventTrackingService.post(eventTrackingService.newEvent("user.login", null, true));
+        eventTrackingService.post(eventTrackingService.newEvent(UsageSessionService.EVENT_LOGIN_WS, null, true));
 		
 		if (newsession == null){
 			LOG.warn("WS getSessionForUser() failed. Unable to establish session for userid=" + eid + ", ipAddress=" + ipAddress);

@@ -2907,7 +2907,7 @@ public String getAllUsers(String sessionid) throws AxisFault
  * 
  * @param	sessionid	the sessionid of a valid session for a super user
  * @param	eid			the eid of the user you want to create a session for
- * @param	wsonly		should the session created be ties to the web services only?
+ * @param	wsonly		should the session created be tied to the web services only?
  * 						the initial implementation of this will just set an attribute on the Session that identifies it as originating from the web services.
  * 						but in essence it will be just like a normal session. However this attribute is used elsewhere for filtering for these web service sessions.
  * @return				the sessionid for the user specified
@@ -2976,7 +2976,7 @@ public String getSessionForUser(String sessionid, String eid, boolean wsonly) th
         authzGroupService.refreshUser(user.getId());
 
         // post the login event
-        eventTrackingService.post(eventTrackingService.newEvent("user.login", null, true));
+        eventTrackingService.post(eventTrackingService.newEvent(UsageSessionService.EVENT_LOGIN_WS, null, true));
 		
 		if (newsession == null){
 			LOG.warn("WS getSessionForUser() failed. Unable to establish session for userid=" + eid + ", ipAddress=" + ipAddress);
