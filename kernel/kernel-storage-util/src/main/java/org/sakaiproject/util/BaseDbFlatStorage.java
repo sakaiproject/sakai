@@ -1047,8 +1047,12 @@ public class BaseDbFlatStorage
 
 		if ( myCache != null )
 		{
-			// System.out.println("CACHE PUT cacheKey="+cacheKey+" props="+props);
-			myCache.put(cacheKey,props);
+			// We don't want to put the returned value in the cache otherwise the
+			// caller may changes it the copy in the cache is updated too, even if
+			// the caller's changed copy is never persisted into the database.
+			ResourcePropertiesEdit cacheCopy = new BaseResourcePropertiesEdit();
+			cacheCopy.addAll(props);
+			myCache.put(cacheKey,cacheCopy);
 		}
 	}
 
