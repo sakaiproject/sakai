@@ -63,6 +63,7 @@ import org.sakaiproject.tool.api.ToolManager;
 import org.sakaiproject.user.cover.UserDirectoryService;
 import org.springframework.dao.DataAccessException;
 import org.springframework.orm.hibernate3.support.HibernateDaoSupport;
+import org.springframework.orm.hibernate3.HibernateTemplate;
 
 public class SimplePageToolDaoImpl extends HibernateDaoSupport implements SimplePageToolDao {
 	private static Log log = LogFactory.getLog(SimplePageToolDaoImpl.class);
@@ -71,11 +72,17 @@ public class SimplePageToolDaoImpl extends HibernateDaoSupport implements Simple
 	private SecurityService securityService;
 	private static String SITE_UPD = "site.upd";
 
+        private HibernateTemplate altTemplate = null;
+
         // part of HibernateDaoSupport; this is the only context in which it is OK
         // to modify the template configuration
 	protected void initDao() throws Exception {
 		super.initDao();
 		getHibernateTemplate().setCacheQueries(true);
+		// sometimes we need to do a query with caching disabled.
+		// create a second template set that way
+		altTemplate = createHibernateTemplate(getSessionFactory());
+		altTemplate.setCacheQueries(false);
 		log.info("initDao template " + getHibernateTemplate());
 	}
 
@@ -481,7 +488,10 @@ public class SimplePageToolDaoImpl extends HibernateDaoSupport implements Simple
         DetachedCriteria d = DetachedCriteria.forClass(SimplePageQuestionResponse.class).add(Restrictions.eq("questionId", questionId))
         		.add(Restrictions.eq("userId", userId));
 
-        List<SimplePageQuestionResponse> list = getHibernateTemplate().findByCriteria(d);
+	// responses can be cached. That's needed to avoid disaster, because polling data is pulled at every
+	// page display. However for showing the user's own score, I think we don't want it to be cached.
+	// altTemplate has caching disabled.
+        List<SimplePageQuestionResponse> list = altTemplate.findByCriteria(d);
         if(list != null && list.size() > 0) {
         	return list.get(0);
         }else {

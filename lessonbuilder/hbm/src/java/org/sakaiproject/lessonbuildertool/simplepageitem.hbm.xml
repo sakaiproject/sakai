@@ -48,7 +48,8 @@
 	<property name="groupOwned" type="boolean" />
 	<property name="ownerGroups" type="string" length="4000" />
 	
-	<map name="attributes" lazy="false" inverse="true" cascade="all" >
+	<map name="attributes" lazy="false" inverse="true" cascade="all">
+	        <cache usage="nonstrict-read-write" />
 		<key column="itemId" not-null="true" />
 		<map-key formula="attr" type="string" />
 		<one-to-many class="org.sakaiproject.lessonbuildertool.SimplePageItemAttributeImpl" not-found="ignore" />

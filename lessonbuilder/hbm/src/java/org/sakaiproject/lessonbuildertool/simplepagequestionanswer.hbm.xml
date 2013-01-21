@@ -5,6 +5,8 @@
 <hibernate-mapping>
 
 	<class name="org.sakaiproject.lessonbuildertool.SimplePageQuestionAnswerImpl" table="lesson_builder_question_answers">
+
+		<cache usage="nonstrict-read-write" />
 	
 		<id name="id" type="long">
 			<generator class="native" />
