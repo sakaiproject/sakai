@@ -127,6 +127,7 @@
 						onkeypress="return submitOnEnter(event, 'gbForm:saveButton');">
 						<f:converter converterId="org.sakaiproject.gradebook.jsf.converter.COURSE_GRADE" />
 					</h:inputText>
+                    <h:outputLabel for="Grade" value="#{msgs.course_grade_details_export_course_grades_options_gradeoverr}" />
 					<h:outputText rendered="#{!scoreRow.userCanGrade && scoreRow.enteredGrade != null}" value="#{scoreRow.enteredGrade}">
 						<f:converter converterId="org.sakaiproject.gradebook.jsf.converter.COURSE_GRADE" />
 					</h:outputText>
