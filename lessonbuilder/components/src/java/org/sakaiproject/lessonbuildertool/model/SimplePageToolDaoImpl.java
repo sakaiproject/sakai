@@ -932,6 +932,42 @@ public class SimplePageToolDaoImpl extends HibernateDaoSupport implements Simple
 		return false;
 	}
 	
+       // methods above are historical. I leave them for completeness. THere are the ones actually used:
+
+	public void clearQuestionAnswers(SimplePageItem question) {
+		question.setJsonAttribute("answers", null);
+	}
+
+	public void addQuestionAnswer(SimplePageItem question, Long id, String text, Boolean isCorrect) {
+		// no need to check security. that happens when item is saved
+		
+		List answers = (List)question.getJsonAttribute("answers");
+		if (answers == null) {
+		    answers = new JSONArray();
+		    question.setJsonAttribute("answers", answers);
+		    if (id <= 0L)
+			id = 1L;
+		} else if (id <= 0L) {
+		    Long max = 0L;
+		    for (Object a: answers) {
+			Map answer = (Map) a;
+			Long i = (Long)answer.get("id");
+			if (i > max)
+			    max = i;
+		    }
+		    id = max + 1;
+		}
+		
+		// create and add the json form of the answer
+		Map newAnswer = new JSONObject();
+		newAnswer.put("id", id);
+		newAnswer.put("text", text);
+		newAnswer.put("correct", isCorrect);
+		answers.add(newAnswer);
+
+	}
+
+
 	public SimplePageItem copyItem(SimplePageItem old) {
 		SimplePageItem item =  new SimplePageItemImpl();
 		item.setPageId(old.getPageId());
@@ -1005,6 +1041,10 @@ public class SimplePageToolDaoImpl extends HibernateDaoSupport implements Simple
 
 	public Map newJSONObject() {
 	    return new JSONObject();
+	}
+
+	public List newJSONArray() {
+	    return new JSONArray();
 	}
 
 }

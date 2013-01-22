@@ -5418,42 +5418,18 @@ public class SimplePageBean {
 		if(questionType.equals("shortanswer")) {
 			item.setAttribute("questionAnswer", questionAnswer);
 		}else if(questionType.equals("multipleChoice")) {
-			List<SimplePageQuestionAnswer> existingAnswers = simplePageToolDao.findAnswerChoices(item);
-			HashMap<Long, SimplePageQuestionAnswer> existingAnswersLookup = new HashMap<Long, SimplePageQuestionAnswer>();
-			for(SimplePageQuestionAnswer answer : existingAnswers) {
-				existingAnswersLookup.put(answer.getId(), answer);
-			}
-			
+			simplePageToolDao.clearQuestionAnswers(item);
 			for(int i = 0; questionAnswers.get(i) != null; i++) {
+				// get data sent from post operation for this answer
 				String data = questionAnswers.get(i);
 				
-				int separator = data.indexOf(":");
-				String idString = data.substring(0, separator);
-				Long answerId = Long.valueOf(idString.equals("") ? "-1" : idString);
-				data = data.substring(separator+1);
+				// split the data into the actual fields
+				String[] fields = data.split(":");
+				Long answerId = Long.valueOf(fields[0].equals("") ? "-1" : fields[0]);
+				Boolean correct = fields[1].equals("true");
+				String text = fields[2];
 				
-				separator = data.indexOf(":");
-				Boolean correct = data.substring(0, separator).equals("true");
-				
-				String text = data.substring(separator+1);
-				
-				long questionId = item.getId();
-			
-				SimplePageQuestionAnswer answer = existingAnswersLookup.get(answerId);
-				if(answer == null) {
-					answer = simplePageToolDao.makeQuestionAnswer(text, correct);
-				}else {
-					existingAnswers.remove(answer);
-					answer.setCorrect(correct);
-					answer.setText(text);
-				}
-				
-				simplePageToolDao.saveQuestionAnswer(answer, item);
-			}
-			
-			// Anything left in existingAnswers didn't exist in the form submission, and must have been deleted
-			for(SimplePageQuestionAnswer deletedAnswer : existingAnswers) {
-				simplePageToolDao.deleteQuestionAnswer(deletedAnswer, item);
+				simplePageToolDao.addQuestionAnswer(item, answerId, text, correct);
 			}
 			
 			item.setAttribute("questionShowPoll", String.valueOf(questionShowPoll));

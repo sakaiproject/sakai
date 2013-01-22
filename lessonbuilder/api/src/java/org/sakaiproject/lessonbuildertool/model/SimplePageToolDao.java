@@ -204,6 +204,10 @@ public interface SimplePageToolDao {
     public boolean saveQuestionAnswer(SimplePageQuestionAnswer questionAnswer, SimplePageItem item);
     
     public boolean deleteQuestionAnswer(SimplePageQuestionAnswer questionAnswer, SimplePageItem item);
+
+    public void clearQuestionAnswers(SimplePageItem question);
+
+    public void addQuestionAnswer(SimplePageItem question, Long id, String text, Boolean isCorrect);
     
     public SimplePageItem copyItem(SimplePageItem old);
 
@@ -212,5 +216,7 @@ public interface SimplePageToolDao {
     public Map JSONParse(String s);
 
     public Map newJSONObject();
+
+    public List newJSONArray();
 
 }
