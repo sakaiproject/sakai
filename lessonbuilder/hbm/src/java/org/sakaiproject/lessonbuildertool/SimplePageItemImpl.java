@@ -25,6 +25,9 @@ package org.sakaiproject.lessonbuildertool;
 
 import java.util.HashMap;
 import java.util.Map;
+import org.json.simple.JSONObject;
+import org.sakaiproject.component.cover.ComponentManager;
+import org.sakaiproject.lessonbuildertool.model.SimplePageToolDao;
 
 /**
  * This is a single item on a simple page.
@@ -55,7 +58,7 @@ public class SimplePageItemImpl implements SimplePageItem  {
 	public static final int COMMENTS = 9;
 	public static final int STUDENT_CONTENT = 10;
 	public static final int QUESTION = 11;
-    public static final int BLTI = 12;
+        public static final int BLTI = 12;
 
     // must agree with definition in hbm file
 	public static final int MAXNAME = 100;
@@ -103,12 +106,19 @@ public class SimplePageItemImpl implements SimplePageItem  {
 	private String ownerGroups = null;
 	
 	/* All future fields should be added as attributes instead of
-	 * additional columns.
+	 * additional columns. This is actually a JSONObject, but we can't
+	 * refer to that here. In practice values are normally strings but
+	 * can be JSON objects.
 	 */
-	private Map<String, SimplePageItemAttributeImpl> attributes;
+	private Map<String, Object> attributes;
 	
+        private static SimplePageToolDao simplePageToolDao = null;
+
 	public SimplePageItemImpl() {
-		attributes = new HashMap<String, SimplePageItemAttributeImpl>();
+	    if (simplePageToolDao == null)
+		simplePageToolDao = (SimplePageToolDao)ComponentManager.get("org.sakaiproject.lessonbuildertool.model.SimplePageToolDao");
+	    if (simplePageToolDao != null)
+		attributes = simplePageToolDao.newJSONObject();
 	}
 
 	public SimplePageItemImpl(long id, long pageId, int sequence, int type, String sakaiId, String name) {
@@ -134,7 +144,9 @@ public class SimplePageItemImpl implements SimplePageItem  {
 		sameWindow = false;  // old entries have to default to off
 		groupOwned = false;
 		ownerGroups = "";
-		attributes = new HashMap<String, SimplePageItemAttributeImpl>();
+		if (simplePageToolDao == null)
+		    simplePageToolDao = (SimplePageToolDao)ComponentManager.get("org.sakaiproject.lessonbuildertool.model.SimplePageToolDao");
+		attributes = simplePageToolDao.newJSONObject();
 	}
 
 	public SimplePageItemImpl(long pageId, int sequence, int type, String sakaiId, String name) {
@@ -159,7 +171,9 @@ public class SimplePageItemImpl implements SimplePageItem  {
 		sameWindow = false;  // old entries have to default to off
 		groupOwned = false;
 		ownerGroups = "";
-		attributes = new HashMap<String, SimplePageItemAttributeImpl>();
+		if (simplePageToolDao == null)
+		    simplePageToolDao = (SimplePageToolDao)ComponentManager.get("org.sakaiproject.lessonbuildertool.model.SimplePageToolDao");
+		attributes = simplePageToolDao.newJSONObject();
 	}
 
 	private String maxlength(String s, int maxlen) {
@@ -513,39 +527,51 @@ public class SimplePageItemImpl implements SimplePageItem  {
 	    ownerGroups = s;
 	}
 	
-	/* Yes, it's odd to have these two getters and setters here when they're private,
-	 * but Hibernate requires them to be here, and I don't want to give access
-	 * to them through the API.
-	 */
-	private void setAttributes(Map<String, SimplePageItemAttributeImpl> attributes) {
-		this.attributes = attributes;
-	}
-	
-	public Map<String, SimplePageItemAttributeImpl> getAttributes() {
+	public Map<String, Object> getAttributes() {
 		return attributes;
 	}
 	
+	public void setAttributes(Map<String, Object> map) {
+		attributes = map;
+	}
+
 	/* This is the getter I want everyone else to use for attributes. */
 	public String getAttribute(String attr) {
-		SimplePageItemAttributeImpl attribute = attributes.get(attr);
-		if(attribute != null) {
-			return attribute.toString();
-		}else {
-			return null;
-		}
+	    return (String)attributes.get(attr);
 	}
 	
 	public void setAttribute(String attr, String value) {
-		SimplePageItemAttributeImpl attribute = attributes.get(attr);
-		
-		/* Key already existed in the table. */
-		if(attribute != null) {
-			attribute.setValue(value);
-		}else {
-			attribute = new SimplePageItemAttributeImpl(this, attr, value); 
-		}
-		
-		attributes.put(attr, attribute);
+	    attributes.put(attr, value);
 	}
+
+	public Object getJsonAttribute(String attr) {
+		return attributes.get(attr);
+	}
+	
+        public void setJsonAttribute(String attr, Object value) {
+		attributes.put(attr, value);
+	}
+
+    // JSON operations are put through the Dao because this code is in shared, and we have no way
+    // to add the JSON jar file to shared. This has to be in shared so other people can use it.
+    // setting simplePageToolDao has a possible race condition, but it's very unlikely, and even if
+    // it happens, both threads will be setting the same value.
+
+        public String getAttributeString() {
+	    if (attributes != null)
+		return attributes.toString();
+	    else
+		return null;
+	}
+
+        public void setAttributeString(String s) {
+	    if (simplePageToolDao == null)
+		simplePageToolDao = (SimplePageToolDao)ComponentManager.get("org.sakaiproject.lessonbuildertool.model.SimplePageToolDao");
+	    if (s == null || s.equals(""))
+		attributes = simplePageToolDao.newJSONObject();
+	    else
+		attributes = simplePageToolDao.JSONParse(s);
+	}
+
 }
 

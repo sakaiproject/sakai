@@ -31,8 +31,8 @@ public class SimplePageQuestionAnswerImpl implements SimplePageQuestionAnswer {
 	
 	public SimplePageQuestionAnswerImpl() {}
 	
-	public SimplePageQuestionAnswerImpl(long questionId, String answerText, boolean correct) {
-		this.questionId = questionId;
+	public SimplePageQuestionAnswerImpl(long id, String answerText, boolean correct) {
+		this.id = id;
 		this.answerText = answerText;
 		this.correct = correct;
 	}

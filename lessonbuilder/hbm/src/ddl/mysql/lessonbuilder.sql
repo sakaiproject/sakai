@@ -52,6 +52,7 @@
         altGradebookTitle varchar(200),
         groupOwned bit,
         ownerGroups text,
+        attributeString text,
         primary key (id)
     );
 
@@ -84,6 +85,20 @@
         groupid varchar(36),
         cssSheet varchar(250),
         primary key (pageId)
+    );
+
+    create table lesson_builder_question_responses (
+        id bigint not null auto_increment,
+        timeAnswered datetime not null,
+        questionId bigint not null,
+        userId varchar(255) not null,
+        correct bit not null,
+        shortanswer text,
+        multipleChoiceId bigint,
+        originalText text,
+        overridden bit not null,
+        points double precision,
+        primary key (id)
     );
 
     create table lesson_builder_student_pages (

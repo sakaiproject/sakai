@@ -1869,10 +1869,9 @@ public class ShowPageProducer implements ViewComponentProducer, DefaultView, Nav
 					
 					UIOutput.make(tableRow, "questionText", i.getAttribute("questionText"));
 					
-					List<SimplePageQuestionAnswer> answers = null;
+					List<SimplePageQuestionAnswer> answers = new ArrayList<SimplePageQuestionAnswer>();
 					if("multipleChoice".equals(i.getAttribute("questionType"))) {
-						answers = simplePageToolDao.findAnswerChoices(i.getId());
-						
+						answers = simplePageToolDao.findAnswerChoices(i);
 						UIOutput.make(tableRow, "multipleChoiceDiv");
 						UIForm questionForm = UIForm.make(tableRow, "multipleChoiceForm");
 						UIInput.make(questionForm, "multipleChoiceId", "#{simplePageBean.questionId}", String.valueOf(i.getId()));

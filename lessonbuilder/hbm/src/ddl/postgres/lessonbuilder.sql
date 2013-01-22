@@ -52,6 +52,7 @@
         altGradebookTitle varchar(200),
         groupOwned bool,
         ownerGroups varchar(4000),
+        attributeString text,
         primary key (id)
     );
 
@@ -84,6 +85,20 @@
         groupid varchar(36),
         cssSheet varchar(250),
         primary key (pageId)
+    );
+
+    create table lesson_builder_question_responses (
+        id int8 not null,
+        timeAnswered timestamp not null,
+        questionId int8 not null,
+        userId varchar(255) not null,
+        correct bool not null,
+        shortanswer text,
+        multipleChoiceId int8,
+        originalText text,
+        overridden bool not null,
+        points float8,
+        primary key (id)
     );
 
     create table lesson_builder_student_pages (

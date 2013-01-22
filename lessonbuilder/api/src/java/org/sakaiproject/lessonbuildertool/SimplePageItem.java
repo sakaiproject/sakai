@@ -191,4 +191,11 @@ public interface SimplePageItem {
     
     public void setAttribute(String attr, String value);
 
+    public Object getJsonAttribute(String attr);
+    
+    public void setJsonAttribute(String attr, Object value);
+
+    public String getAttributeString();
+
+    public void setAttributeString(String s);
 }

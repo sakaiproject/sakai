@@ -65,6 +65,10 @@ import org.springframework.dao.DataAccessException;
 import org.springframework.orm.hibernate3.support.HibernateDaoSupport;
 import org.springframework.orm.hibernate3.HibernateTemplate;
 
+import org.json.simple.JSONObject;
+import org.json.simple.JSONValue;
+import org.json.simple.JSONArray;
+
 public class SimplePageToolDaoImpl extends HibernateDaoSupport implements SimplePageToolDao {
 	private static Log log = LogFactory.getLog(SimplePageToolDaoImpl.class);
 
@@ -466,22 +470,35 @@ public class SimplePageToolDaoImpl extends HibernateDaoSupport implements Simple
 		return list.get(0);
 	}
 	
-	public List<SimplePageQuestionAnswer> findAnswerChoices(long questionId) {
-        DetachedCriteria d = DetachedCriteria.forClass(SimplePageQuestionAnswer.class).add(Restrictions.eq("questionId", questionId));
+	public List<SimplePageQuestionAnswer> findAnswerChoices(SimplePageItem question) {
+		List<SimplePageQuestionAnswer> ret = new ArrayList<SimplePageQuestionAnswer>();
 
-        List<SimplePageQuestionAnswer> list = getHibernateTemplate().findByCriteria(d);
-        return list;
+		// find new id number, max + 1
+		List answers = (List)question.getJsonAttribute("answers");
+		if (answers == null)
+		    return ret;
+		for (Object a: answers) {
+		    Map answer = (Map) a;
+		    SimplePageQuestionAnswer newAnswer = new SimplePageQuestionAnswerImpl((Long)answer.get("id"),
+			       (String)answer.get("text"), (Boolean) answer.get("correct"));
+		    ret.add(newAnswer);
+		}
+		return ret;
 	}
 	
-	public SimplePageQuestionAnswer findAnswerChoice(long answerId) {
-        DetachedCriteria d = DetachedCriteria.forClass(SimplePageQuestionAnswer.class).add(Restrictions.eq("id", answerId));
-
-        List<SimplePageQuestionAnswer> list = getHibernateTemplate().findByCriteria(d);
-        if(list != null && list.size() > 0) {
-        	return list.get(0);
-        }else {
-        	return null;
-        }
+	public SimplePageQuestionAnswer findAnswerChoice(SimplePageItem question, long answerId) {
+		// find new id number, max + 1
+		List answers = (List)question.getJsonAttribute("answers");
+		if (answers == null)
+		    return null;
+		for (Object a: answers) {
+		    Map answer = (Map) a;
+		    if (answerId == (Long)answer.get("id")) {
+			SimplePageQuestionAnswer newAnswer = new SimplePageQuestionAnswerImpl(answerId,(String)answer.get("text"), (Boolean) answer.get("correct"));
+			return newAnswer;
+		    }
+		}
+		return null;
 	}
 	
 	public SimplePageQuestionResponse findQuestionResponse(long questionId, String userId) {
@@ -846,38 +863,73 @@ public class SimplePageToolDaoImpl extends HibernateDaoSupport implements Simple
 		return new SimpleStudentPageImpl(itemId, pageId, title, author, group);
 	}
 	
-	public SimplePageQuestionAnswer makeQuestionAnswer(long questionId, String text, boolean correct) {
-		return new SimplePageQuestionAnswerImpl(questionId, text, correct);
+    // answer is stored as id [int], text, correct [boolean]
+
+	public SimplePageQuestionAnswer makeQuestionAnswer(String text, boolean correct) {
+		return new SimplePageQuestionAnswerImpl(0, text, correct);
 	}
 	
-	public boolean saveQuestionAnswer(SimplePageQuestionAnswer questionAnswer, long pageId) {
-	    if(!canEditPage(pageId)) {
-	    	log.warn("User tried to edit question on page without edit permission. PageId: " + pageId);
-	    	return false;
-	    }
-
-		try {
-		    getHibernateTemplate().saveOrUpdate(questionAnswer);
-		    return true;
-		} catch (Exception e) {
-		    log.warn("Error saving QuestionAnswer: " + e.getMessage());
+	public boolean saveQuestionAnswer(SimplePageQuestionAnswer questionAnswer, SimplePageItem question) {
+		if(!canEditPage(question.getPageId())) {
+		    log.warn("User tried to edit question on page without edit permission. PageId: " + question.getPageId());
 		    return false;
 		}
+		
+		long oldid = questionAnswer.getId();
+
+		// find new id number, max + 1
+		List answers = (List)question.getJsonAttribute("answers");
+		Long max = -1L;
+		if (answers == null) {
+		    answers = new JSONArray();
+		    question.setJsonAttribute("answers", answers);
+		} else
+		    for (Object a: answers) {
+			Map answer = (Map) a;
+			Long id = (Long)answer.get("id");
+			if (id == oldid) {
+			    // entry exists. replace it
+			    answer.put("text", questionAnswer.getText());
+			    answer.put("correct", (Boolean)questionAnswer.isCorrect());
+			    return true;
+			}
+			if (id > max)
+			    max = id;
+		    }
+		
+		// create and add the json form of the answer
+		Map newAnswer = new JSONObject();
+		newAnswer.put("id", (Long)(max + 1));
+		newAnswer.put("text", questionAnswer.getText());
+		newAnswer.put("correct", (Boolean)questionAnswer.isCorrect());
+		answers.add(newAnswer);
+
+		return true;
 	}
-	
-	public boolean deleteQuestionAnswer(SimplePageQuestionAnswer questionAnswer, long pageId) {
-		if(!canEditPage(pageId)) {
-	    	log.warn("User tried to edit question on page without edit permission. PageId: " + pageId);
-	    	return false;
-	    }
 
-		try {
-		    getHibernateTemplate().delete(questionAnswer);
-		    return true;
-		} catch (Exception e) {
-		    log.warn("Error deleting QuestionAnswer: " + e.getMessage());
+    // only implemented for existing questions, i.e. questions with id numbers
+	public boolean deleteQuestionAnswer(SimplePageQuestionAnswer questionAnswer, SimplePageItem question) {
+		if(!canEditPage(question.getPageId())) {
+		    log.warn("User tried to edit question on page without edit permission. PageId: " + question.getPageId());
 		    return false;
 		}
+
+		Long delid = questionAnswer.getId();
+
+		// find new id number, max + 1
+		List answers = (List)question.getJsonAttribute("answers");
+		Long max = -1L;
+		if (answers == null)
+		    return false;
+		for (Object a: answers) {
+		    Map answer = (Map) a;
+		    if (answer.get("id") == delid) {
+			answers.remove(a);
+			return true;
+		    }
+		}
+
+		return false;
 	}
 	
 	public SimplePageItem copyItem(SimplePageItem old) {
@@ -903,32 +955,25 @@ public class SimplePageToolDaoImpl extends HibernateDaoSupport implements Simple
 		item.setAnonymous(old.isAnonymous());
 		item.setShowComments(old.getShowComments());
 		item.setForcedCommentsAnonymous(old.getForcedCommentsAnonymous());
+		item.setAttributeString(old.getAttributeString()); // copy via json
 
-		Map<String, SimplePageItemAttributeImpl> attrs = ((SimplePageItemImpl)old).getAttributes();
-		if (attrs != null) {
-		    Collection<SimplePageItemAttributeImpl> attributes = attrs.values();
-		    if (attributes.size() > 0) {
-			for (SimplePageItemAttributeImpl attr: attributes) {
-			    item.setAttribute(attr.getAttr(), attr.getValue());
-			}
-		    }
-		}
+		//		Map<String, SimplePageItemAttributeImpl> attrs = ((SimplePageItemImpl)old).getAttributes();
+		//		if (attrs != null) {
+		//		    Collection<SimplePageItemAttributeImpl> attributes = attrs.values();
+		//		    if (attributes.size() > 0) {
+		//			for (SimplePageItemAttributeImpl attr: attributes) {
+		//			    item.setAttribute(attr.getAttr(), attr.getValue());
+		//}
+		//		    }
+		//		}
 
 		return item;
 	}
 
     // phase 2 of copy after save, we need item number here
 	public SimplePageItem copyItem2(SimplePageItem old, SimplePageItem item) {
-
-		if (old.getType() == SimplePageItem.QUESTION) {
-		    List<SimplePageQuestionAnswer> answers = findAnswerChoices(old.getId());
-		    if (answers != null && answers.size() > 0) {
-			for (SimplePageQuestionAnswer answer: answers) {
-			    SimplePageQuestionAnswer newAnswer = makeQuestionAnswer(item.getId(), answer.getText(), answer.isCorrect());
-			    saveQuestionAnswer(newAnswer, item.getPageId());
-			}
-		    }
-		}
+	       
+	    // currently nothing to do
 
 		return item;
 	}
@@ -953,4 +998,13 @@ public class SimplePageToolDaoImpl extends HibernateDaoSupport implements Simple
 			}
 		}
 	}
+
+	public Map JSONParse(String s) {
+	    return (JSONObject)JSONValue.parse(s);
+	}
+
+	public Map newJSONObject() {
+	    return new JSONObject();
+	}
+
 }

@@ -5418,7 +5418,7 @@ public class SimplePageBean {
 		if(questionType.equals("shortanswer")) {
 			item.setAttribute("questionAnswer", questionAnswer);
 		}else if(questionType.equals("multipleChoice")) {
-			List<SimplePageQuestionAnswer> existingAnswers = simplePageToolDao.findAnswerChoices(item.getId());
+			List<SimplePageQuestionAnswer> existingAnswers = simplePageToolDao.findAnswerChoices(item);
 			HashMap<Long, SimplePageQuestionAnswer> existingAnswersLookup = new HashMap<Long, SimplePageQuestionAnswer>();
 			for(SimplePageQuestionAnswer answer : existingAnswers) {
 				existingAnswersLookup.put(answer.getId(), answer);
@@ -5441,20 +5441,19 @@ public class SimplePageBean {
 			
 				SimplePageQuestionAnswer answer = existingAnswersLookup.get(answerId);
 				if(answer == null) {
-					answer = simplePageToolDao.makeQuestionAnswer(questionId, text, correct);
+					answer = simplePageToolDao.makeQuestionAnswer(text, correct);
 				}else {
 					existingAnswers.remove(answer);
-					
 					answer.setCorrect(correct);
 					answer.setText(text);
 				}
 				
-				simplePageToolDao.saveQuestionAnswer(answer, item.getPageId());
+				simplePageToolDao.saveQuestionAnswer(answer, item);
 			}
 			
 			// Anything left in existingAnswers didn't exist in the form submission, and must have been deleted
 			for(SimplePageQuestionAnswer deletedAnswer : existingAnswers) {
-				simplePageToolDao.deleteQuestionAnswer(deletedAnswer, item.getPageId());
+				simplePageToolDao.deleteQuestionAnswer(deletedAnswer, item);
 			}
 			
 			item.setAttribute("questionShowPoll", String.valueOf(questionShowPoll));
@@ -5541,7 +5540,7 @@ public class SimplePageBean {
 			correct = response.isCorrect();
 			gradebookPoints = response.getPoints();
 		}else if(question.getAttribute("questionType") != null && question.getAttribute("questionType").equals("multipleChoice")) {
-			SimplePageQuestionAnswer answer = simplePageToolDao.findAnswerChoice(response.getMultipleChoiceId());
+			SimplePageQuestionAnswer answer = simplePageToolDao.findAnswerChoice(question, response.getMultipleChoiceId());
 			if(answer != null && answer.isCorrect()) {
 				correct = true;
 			}else if(answer != null && !answer.isCorrect()){
@@ -5593,6 +5592,10 @@ public class SimplePageBean {
 	public String answerMultipleChoiceQuestion() {
 		String userId = getCurrentUserId();
 		
+		if (!itemOk(questionId))
+		    return "permission-failed";
+		SimplePageItem question = findItem(questionId);
+
 		SimplePageQuestionResponse response = simplePageToolDao.findQuestionResponse(questionId, userId); 
 		if(response != null) {
 			if(!canEditPage()) {
@@ -5606,7 +5609,7 @@ public class SimplePageBean {
 		
 		response.setMultipleChoiceId(Long.valueOf(questionResponse));
 		
-		SimplePageQuestionAnswer answer = simplePageToolDao.findAnswerChoice(response.getMultipleChoiceId());
+		SimplePageQuestionAnswer answer = simplePageToolDao.findAnswerChoice(question, response.getMultipleChoiceId());
 		response.setOriginalText(answer.getText());
 		
 		gradeQuestionResponse(response);
@@ -5619,6 +5622,9 @@ public class SimplePageBean {
 	public String answerShortanswerQuestion() {
 		String userId = getCurrentUserId();
 		
+		if (!itemOk(questionId))
+		    return "permission-failed";
+
 		SimplePageQuestionResponse response = simplePageToolDao.findQuestionResponse(questionId, userId); 
 		if(response != null) {
 			if(!canEditPage()) {

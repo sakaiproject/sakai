@@ -24,6 +24,7 @@
 package org.sakaiproject.lessonbuildertool.model;
 
 import java.util.List;
+import java.util.Map;
 import java.util.Collection;
 
 import org.sakaiproject.lessonbuildertool.SimplePage;
@@ -121,10 +122,10 @@ public interface SimplePageToolDao {
 	public List findControlledResourcesBySakaiId(String id, String siteid);
 	
 	// get all of the multiple choice answers for a question item
-	public List<SimplePageQuestionAnswer> findAnswerChoices(long questionId);
+	public List<SimplePageQuestionAnswer> findAnswerChoices(SimplePageItem question);
 	
 	// get a specific multiple choice answer for a question item
-	public SimplePageQuestionAnswer findAnswerChoice(long answerId);
+	public SimplePageQuestionAnswer findAnswerChoice(SimplePageItem question, long answerId);
 	
 	public SimplePageQuestionResponse findQuestionResponse(long questionId, String userId);
 	public SimplePageQuestionResponse findQuestionResponse(long responseId);
@@ -198,14 +199,18 @@ public interface SimplePageToolDao {
 
     public SimpleStudentPage makeStudentPage(long itemId, long pageId, String title, String author, String group);
     
-    public SimplePageQuestionAnswer makeQuestionAnswer(long questionId, String text, boolean correct);
+    public SimplePageQuestionAnswer makeQuestionAnswer(String text, boolean correct);
     
-    public boolean saveQuestionAnswer(SimplePageQuestionAnswer questionAnswer, long pageId);
+    public boolean saveQuestionAnswer(SimplePageQuestionAnswer questionAnswer, SimplePageItem item);
     
-    public boolean deleteQuestionAnswer(SimplePageQuestionAnswer questionAnswer, long pageId);
+    public boolean deleteQuestionAnswer(SimplePageQuestionAnswer questionAnswer, SimplePageItem item);
     
     public SimplePageItem copyItem(SimplePageItem old);
 
     public SimplePageItem copyItem2(SimplePageItem old, SimplePageItem item);
+
+    public Map JSONParse(String s);
+
+    public Map newJSONObject();
 
 }
