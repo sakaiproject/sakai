@@ -22,6 +22,7 @@
 package org.sakaiproject.site.impl;
 
 import java.io.PrintWriter;
+import java.util.Arrays;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
@@ -1083,12 +1084,26 @@ public abstract class BaseSiteService implements SiteService
 			return unlockCheck(SECURE_ADD_SITE, siteReference(id));
 		}
 	}
+	
+	/**
+	 * read the site Type definition from configuration files
+	 */
+	private List<String> getSiteTypeStrings(String typeName, String defaultValue)
+	{
+		String[] siteTypes = serverConfigurationService().getStrings(typeName);
+		if (siteTypes == null || siteTypes.length == 0)
+		{
+			siteTypes = new String[] {defaultValue};
+		}
+		return Arrays.asList(siteTypes);
+	}
 
 	private boolean isCourseSite(String siteId) {
 		boolean rv = false;
 		try {
 			Site s = getSite(siteId);
-			if (serverConfigurationService().getString("courseSiteType", "course").equals(s.getType())) 
+			List<String> courseSiteTypes = getSiteTypeStrings("courseSiteType", "course");
+			if (courseSiteTypes.contains(s.getType())) 
 				return true;
 				
 		} catch (IdUnusedException e) {
@@ -1102,7 +1117,8 @@ public abstract class BaseSiteService implements SiteService
 		boolean rv = false;
 		try {
 			Site s = getSite(siteId);
-			if (serverConfigurationService().getString("portfolioSiteType", "portfolio").equals(s.getType())) 
+			List<String> portfolioSiteTypes = getSiteTypeStrings("portfolioSiteType", "portfolio");
+			if (portfolioSiteTypes.contains(s.getType())) 
 				return true;
 				
 		} catch (IdUnusedException e) {
@@ -1116,7 +1132,8 @@ public abstract class BaseSiteService implements SiteService
 		boolean rv = false;
 		try {
 			Site s = getSite(siteId);
-			if (serverConfigurationService().getString("projectSiteType", "project").equals(s.getType())) 
+			List<String> projectSiteTypes = getSiteTypeStrings("projectSiteType", "project");
+			if (projectSiteTypes.contains(s.getType())) 
 				return true;
 				
 		} catch (IdUnusedException e) {
