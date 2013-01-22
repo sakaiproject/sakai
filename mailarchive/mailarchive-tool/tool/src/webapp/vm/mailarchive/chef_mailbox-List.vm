@@ -61,7 +61,7 @@
 				#if ($pagesize != 0)
 					#if ($goPPButton == "true")
 						<form name="firstpageForm" class="inlineForm" method="post" action="#toolForm("$action")">
-							<fielset><legend>$tlang.getString("list.first")</legend><input type="submit" name="eventSubmit_doList_first" value="|&lt;" title="$tlang.getString("list.first")" /></fielset>
+							<fieldset><legend>$tlang.getString("list.first")</legend><input type="submit" name="eventSubmit_doList_first" value="|&lt;" title="$tlang.getString("list.first")" /></fieldset>
 							<input type="hidden" name="sakai_csrf_token" value="$sakai_csrf_token" />
 						</form>
 					#else
@@ -109,7 +109,7 @@
 					#end
 					#if ($goNPButton == "true")
 						<form name="lastpageForm" class="inlineForm" method="post" action="#toolForm("$action")">
-							<fieldset><legend>$tlang.getString("list.last")</legend><input type="submit" name="eventSubmit_doList_last" value="&gt;|" title="$tlang.getString("list.last")" />
+							<fieldset><legend>$tlang.getString("list.last")</legend><input type="submit" name="eventSubmit_doList_last" value="&gt;|" title="$tlang.getString("list.last")" /></fieldset>
 							<input type="hidden" name="sakai_csrf_token" value="$sakai_csrf_token" />
 						</form>
 					#else
