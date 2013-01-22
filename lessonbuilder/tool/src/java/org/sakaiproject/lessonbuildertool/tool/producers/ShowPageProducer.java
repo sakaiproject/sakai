@@ -71,6 +71,7 @@ import org.sakaiproject.lessonbuildertool.SimplePageItem;
 import org.sakaiproject.lessonbuildertool.SimplePageLogEntry;
 import org.sakaiproject.lessonbuildertool.SimplePageQuestionAnswer;
 import org.sakaiproject.lessonbuildertool.SimplePageQuestionResponse;
+import org.sakaiproject.lessonbuildertool.SimplePageQuestionResponseTotals;
 import org.sakaiproject.lessonbuildertool.SimpleStudentPage;
 import org.sakaiproject.lessonbuildertool.model.SimplePageToolDao;
 import org.sakaiproject.lessonbuildertool.service.BltiInterface;
@@ -1943,18 +1944,14 @@ public class ShowPageProducer implements ViewComponentProducer, DefaultView, Nav
 						UIOutput questionGraph = UIOutput.make(tableRow, "questionPollGraph");
 						questionGraph.decorate(new UIFreeAttributeDecorator("id", "poll" + i.getId()));
 						
-						List<SimplePageQuestionResponse> responses = simplePageToolDao.findQuestionResponses(i.getId());
-						HashMap<Long, Integer> responseCounts = new HashMap<Long, Integer>();
-						for(SimplePageQuestionAnswer answer : answers) {
-							responseCounts.put(answer.getId(), 0);
-						}
-						
-						for(SimplePageQuestionResponse qResponse : responses) {
-							Integer responseCount = responseCounts.get(qResponse.getMultipleChoiceId());
-							if(responseCount != null) {
-								responseCounts.put(qResponse.getMultipleChoiceId(), ++responseCount);
-							}
-						}
+						List<SimplePageQuestionResponseTotals> totals = simplePageToolDao.findQRTotals(i.getId());
+						HashMap<Long, Long> responseCounts = new HashMap<Long, Long>();
+						// in theory we don't need the first loop, as there should be a total
+						// entry for all possible answers. But in case things are out of sync ...
+						for(SimplePageQuestionAnswer answer : answers)
+						    responseCounts.put(answer.getId(), 0L);
+						for(SimplePageQuestionResponseTotals total : totals)
+						    responseCounts.put(total.getResponseId(), total.getCount());
 						
 						for(int j = 0; j < answers.size(); j++) {
 							UIBranchContainer pollContainer = UIBranchContainer.make(tableRow, "questionPollData:", String.valueOf(j));

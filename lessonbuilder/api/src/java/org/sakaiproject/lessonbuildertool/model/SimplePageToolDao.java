@@ -34,6 +34,7 @@ import org.sakaiproject.lessonbuildertool.SimplePageItem;
 import org.sakaiproject.lessonbuildertool.SimplePageLogEntry;
 import org.sakaiproject.lessonbuildertool.SimplePageQuestionAnswer;
 import org.sakaiproject.lessonbuildertool.SimplePageQuestionResponse;
+import org.sakaiproject.lessonbuildertool.SimplePageQuestionResponseTotals;
 import org.sakaiproject.lessonbuildertool.SimpleStudentPage;
 
 public interface SimplePageToolDao {
@@ -207,7 +208,9 @@ public interface SimplePageToolDao {
 
     public void clearQuestionAnswers(SimplePageItem question);
 
-    public void addQuestionAnswer(SimplePageItem question, Long id, String text, Boolean isCorrect);
+    public Long maxQuestionAnswer(SimplePageItem question);
+
+    public Long addQuestionAnswer(SimplePageItem question, Long id, String text, Boolean isCorrect);
     
     public SimplePageItem copyItem(SimplePageItem old);
 
@@ -218,5 +221,12 @@ public interface SimplePageToolDao {
     public Map newJSONObject();
 
     public List newJSONArray();
+
+    public SimplePageQuestionResponseTotals makeQRTotals(long qid, long rid);
+
+    public List<SimplePageQuestionResponseTotals> findQRTotals(long questionId);
+
+    public void incrementQRCount(long questionId, long responseId);
+
 
 }

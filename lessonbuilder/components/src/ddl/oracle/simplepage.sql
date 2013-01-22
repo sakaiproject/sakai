@@ -5,6 +5,10 @@
 -- update SAKAI_CLUSTER set SERVER_ID='1' where SERVER_ID='1';
 -- ---------------------------------------------------------------------------
 
+create index lb_qr_total_qi on lesson_builder_qr_totals(questionId);
+create index lb_qa_questionId on lesson_builder_question_answers(questionId);
+create index lb_qr_questionId_userId on lesson_builder_question_responses(questionId, userId);
+create index lb_qr_questionId on lesson_builder_question_responses(questionId);
 create index lb_comments_itemid_author on lesson_builder_comments(itemId, author);
 create index lb_student_pages_pageId on lesson_builder_student_pages(pageId);
 create index lb_student_pages_itemId on lesson_builder_student_pages(itemId);

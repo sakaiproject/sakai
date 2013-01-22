@@ -57,6 +57,8 @@ import org.sakaiproject.lessonbuildertool.SimplePageQuestionAnswer;
 import org.sakaiproject.lessonbuildertool.SimplePageQuestionAnswerImpl;
 import org.sakaiproject.lessonbuildertool.SimplePageQuestionResponse;
 import org.sakaiproject.lessonbuildertool.SimplePageQuestionResponseImpl;
+import org.sakaiproject.lessonbuildertool.SimplePageQuestionResponseTotals;
+import org.sakaiproject.lessonbuildertool.SimplePageQuestionResponseTotalsImpl;
 import org.sakaiproject.lessonbuildertool.SimpleStudentPage;
 import org.sakaiproject.lessonbuildertool.SimpleStudentPageImpl;
 import org.sakaiproject.tool.api.ToolManager;
@@ -88,6 +90,7 @@ public class SimplePageToolDaoImpl extends HibernateDaoSupport implements Simple
 		altTemplate = createHibernateTemplate(getSessionFactory());
 		altTemplate.setCacheQueries(false);
 		log.info("initDao template " + getHibernateTemplate());
+		SimplePageItemImpl.setSimplePageToolDao(this);
 	}
 
 	// the permissions model here is preliminary. I'm not convinced that all the code in
@@ -938,7 +941,21 @@ public class SimplePageToolDaoImpl extends HibernateDaoSupport implements Simple
 		question.setJsonAttribute("answers", null);
 	}
 
-	public void addQuestionAnswer(SimplePageItem question, Long id, String text, Boolean isCorrect) {
+	public Long maxQuestionAnswer(SimplePageItem question)  {
+		Long max = 0L;
+		List answers = (List)question.getJsonAttribute("answers");
+		if (answers == null)
+		    return max;
+		for (Object a: answers) {
+		    Map answer = (Map) a;
+		    Long i = (Long)answer.get("id");
+		    if (i > max)
+			max = i;
+		}
+		return max;
+	}
+
+	public Long addQuestionAnswer(SimplePageItem question, Long id, String text, Boolean isCorrect) {
 		// no need to check security. that happens when item is saved
 		
 		List answers = (List)question.getJsonAttribute("answers");
@@ -965,6 +982,7 @@ public class SimplePageToolDaoImpl extends HibernateDaoSupport implements Simple
 		newAnswer.put("correct", isCorrect);
 		answers.add(newAnswer);
 
+		return id;
 	}
 
 
@@ -1046,5 +1064,24 @@ public class SimplePageToolDaoImpl extends HibernateDaoSupport implements Simple
 	public List newJSONArray() {
 	    return new JSONArray();
 	}
+
+	public SimplePageQuestionResponseTotals makeQRTotals(long qid, long rid) {
+	    return new SimplePageQuestionResponseTotalsImpl(qid, rid);
+	}
+
+	public List<SimplePageQuestionResponseTotals> findQRTotals(long questionId) {
+		DetachedCriteria d = DetachedCriteria.forClass(SimplePageQuestionResponseTotals.class).add(Restrictions.eq("questionId", questionId));
+		List<SimplePageQuestionResponseTotals> list = getHibernateTemplate().findByCriteria(d);
+		
+		return list;
+	}
+
+	public void incrementQRCount(long questionId, long responseId) {
+	    Object [] fields = new Object[2];
+	    fields[0] = questionId;
+	    fields[1] = responseId;
+	    SqlService.dbWrite("update lesson_builder_qr_totals set count = count + 1 where questionId = ? and responseId = ?", fields);
+	}
+
 
 }

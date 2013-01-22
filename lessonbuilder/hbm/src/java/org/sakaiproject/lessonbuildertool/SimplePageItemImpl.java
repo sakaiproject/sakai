@@ -115,10 +115,8 @@ public class SimplePageItemImpl implements SimplePageItem  {
         private static SimplePageToolDao simplePageToolDao = null;
 
 	public SimplePageItemImpl() {
-	    if (simplePageToolDao == null)
-		simplePageToolDao = (SimplePageToolDao)ComponentManager.get("org.sakaiproject.lessonbuildertool.model.SimplePageToolDao");
-	    if (simplePageToolDao != null)
-		attributes = simplePageToolDao.newJSONObject();
+		if (simplePageToolDao != null)
+		    attributes = simplePageToolDao.newJSONObject();
 	}
 
 	public SimplePageItemImpl(long id, long pageId, int sequence, int type, String sakaiId, String name) {
@@ -144,9 +142,8 @@ public class SimplePageItemImpl implements SimplePageItem  {
 		sameWindow = false;  // old entries have to default to off
 		groupOwned = false;
 		ownerGroups = "";
-		if (simplePageToolDao == null)
-		    simplePageToolDao = (SimplePageToolDao)ComponentManager.get("org.sakaiproject.lessonbuildertool.model.SimplePageToolDao");
-		attributes = simplePageToolDao.newJSONObject();
+		if (simplePageToolDao != null)
+		    attributes = simplePageToolDao.newJSONObject();
 	}
 
 	public SimplePageItemImpl(long pageId, int sequence, int type, String sakaiId, String name) {
@@ -171,9 +168,8 @@ public class SimplePageItemImpl implements SimplePageItem  {
 		sameWindow = false;  // old entries have to default to off
 		groupOwned = false;
 		ownerGroups = "";
-		if (simplePageToolDao == null)
-		    simplePageToolDao = (SimplePageToolDao)ComponentManager.get("org.sakaiproject.lessonbuildertool.model.SimplePageToolDao");
-		attributes = simplePageToolDao.newJSONObject();
+		if (simplePageToolDao != null)
+		    attributes = simplePageToolDao.newJSONObject();
 	}
 
 	private String maxlength(String s, int maxlen) {
@@ -566,11 +562,15 @@ public class SimplePageItemImpl implements SimplePageItem  {
 
         public void setAttributeString(String s) {
 	    if (simplePageToolDao == null)
-		simplePageToolDao = (SimplePageToolDao)ComponentManager.get("org.sakaiproject.lessonbuildertool.model.SimplePageToolDao");
+		return;
 	    if (s == null || s.equals(""))
 		attributes = simplePageToolDao.newJSONObject();
 	    else
 		attributes = simplePageToolDao.JSONParse(s);
+	}
+
+	public static void setSimplePageToolDao(SimplePageToolDao dao) {
+	    simplePageToolDao = dao;
 	}
 
 }

@@ -82,6 +82,7 @@ import org.sakaiproject.lessonbuildertool.SimplePageItem;
 import org.sakaiproject.lessonbuildertool.SimplePageLogEntry;
 import org.sakaiproject.lessonbuildertool.SimplePageQuestionAnswer;
 import org.sakaiproject.lessonbuildertool.SimplePageQuestionResponse;
+import org.sakaiproject.lessonbuildertool.SimplePageQuestionResponseTotals;
 import org.sakaiproject.lessonbuildertool.SimpleStudentPage;
 import org.sakaiproject.lessonbuildertool.cc.CartridgeLoader;
 import org.sakaiproject.lessonbuildertool.cc.Parser;
@@ -5418,21 +5419,49 @@ public class SimplePageBean {
 		if(questionType.equals("shortanswer")) {
 			item.setAttribute("questionAnswer", questionAnswer);
 		}else if(questionType.equals("multipleChoice")) {
+			// set showing old total entries. set of answerids for which we have total entries
+			Map<Long, SimplePageQuestionResponseTotals> oldTotals = new HashMap<Long, SimplePageQuestionResponseTotals>();
+			List<SimplePageQuestionResponseTotals> oldQrTotals = simplePageToolDao.findQRTotals(item.getId());
+			for (SimplePageQuestionResponseTotals total: oldQrTotals)
+			    oldTotals.put(total.getResponseId(), total);
+
+			Long max = simplePageToolDao.maxQuestionAnswer(item);
 			simplePageToolDao.clearQuestionAnswers(item);
+
 			for(int i = 0; questionAnswers.get(i) != null; i++) {
 				// get data sent from post operation for this answer
 				String data = questionAnswers.get(i);
 				
 				// split the data into the actual fields
 				String[] fields = data.split(":", 3);
-				Long answerId = Long.valueOf(fields[0].equals("") ? "-1" : fields[0]);
+				Long answerId;
+				if (fields[0].equals(""))
+				    answerId = -1L;
+				else
+				    answerId = Long.valueOf(fields[0]);
+				if (answerId <= 0L)
+				    answerId = ++max;
 				Boolean correct = fields[1].equals("true");
 				String text = fields[2];
 				
-				simplePageToolDao.addQuestionAnswer(item, answerId, text, correct);
+			        Long id = simplePageToolDao.addQuestionAnswer(item, answerId, text, correct);
+				
+				if (oldTotals.get(id) != null)
+				    oldTotals.remove(id);  // in both old and new, done with it
+				else {
+				    // in new but not old, add it
+				    SimplePageQuestionResponseTotals total = simplePageToolDao.makeQRTotals(item.getId(), id);
+				    simplePageToolDao.quickSaveItem(total);
+				}
 			}
 			
 			item.setAttribute("questionShowPoll", String.valueOf(questionShowPoll));
+
+			// entries that were in old list but not new one, remove them
+			for (Long rid: oldTotals.keySet()) {
+			    simplePageToolDao.deleteItem(oldTotals.get(rid));
+			}
+
 		}
 		
 		int pointsInt = 10;
@@ -5583,7 +5612,9 @@ public class SimplePageBean {
 			response = simplePageToolDao.makeQuestionResponse(userId, questionId);
 		}
 		
-		response.setMultipleChoiceId(Long.valueOf(questionResponse));
+		long responseId = Long.valueOf(questionResponse);
+		response.setMultipleChoiceId(responseId);
+		simplePageToolDao.incrementQRCount(questionId, responseId);
 		
 		SimplePageQuestionAnswer answer = simplePageToolDao.findAnswerChoice(question, response.getMultipleChoiceId());
 		response.setOriginalText(answer.getText());
