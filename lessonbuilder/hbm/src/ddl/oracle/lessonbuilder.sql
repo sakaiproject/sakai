@@ -87,6 +87,14 @@
         primary key (pageId)
     );
 
+    create table lesson_builder_qr_totals (
+        id number(19,0) not null,
+        questionId number(19,0),
+        responseId number(19,0),
+        count number(19,0),
+        primary key (id)
+    );
+
     create table lesson_builder_question_responses (
         id number(19,0) not null,
         timeAnswered date not null,

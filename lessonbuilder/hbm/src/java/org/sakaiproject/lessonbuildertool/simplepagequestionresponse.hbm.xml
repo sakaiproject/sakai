@@ -6,8 +6,6 @@
 
 	<class name="org.sakaiproject.lessonbuildertool.SimplePageQuestionResponseImpl" table="lesson_builder_question_responses">
 	
-		<cache usage="nonstrict-read-write" />
-
 		<id name="id" type="long">
 			<generator class="native" />
 		</id>
