@@ -5424,7 +5424,7 @@ public class SimplePageBean {
 				String data = questionAnswers.get(i);
 				
 				// split the data into the actual fields
-				String[] fields = data.split(":");
+				String[] fields = data.split(":", 3);
 				Long answerId = Long.valueOf(fields[0].equals("") ? "-1" : fields[0]);
 				Boolean correct = fields[1].equals("true");
 				String text = fields[2];
