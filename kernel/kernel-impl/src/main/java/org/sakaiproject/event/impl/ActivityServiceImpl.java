@@ -25,7 +25,7 @@ import org.sakaiproject.memory.api.MemoryService;
  */
 public class ActivityServiceImpl implements ActivityService, Observer {
 
-	private static Log log = LogFactory.getLog(ClusterEventTracking.class);
+	private static Log log = LogFactory.getLog(ActivityServiceImpl.class);
 	
 	private Cache userActivityCache = null;
 	private final String USER_ACTIVITY_CACHE_NAME = "org.sakaiproject.event.api.ActivityService.userActivityCache";
