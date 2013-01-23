@@ -771,11 +771,14 @@ public class LessonBuilderEntityProducer extends AbstractEntityProvider
 		   simplePageToolDao.quickSaveItem(item);
 		   itemMap.put(itemId, item.getId());
 
-		   // this needs item id, so it has to be done here
+		   // these needs item id, so it has to be done here
 		   // save item ID to object id. This will allow references to be fixed up.
 		   // object id identifies the Sakai object in the old site. The fixup will
 		   // find the object in the new site and fix up the item. Hence we need
 		   // a mapping of item ID to object id.
+
+		   simplePageToolDao.syncQRTotals(item);
+		   
 		   if (type == SimplePageItem.ASSIGNMENT || type == SimplePageItem.ASSESSMENT || type == SimplePageItem.FORUM) {
 		       String objectid = itemElement.getAttribute("objectid");
 		       if (objectid != null) {

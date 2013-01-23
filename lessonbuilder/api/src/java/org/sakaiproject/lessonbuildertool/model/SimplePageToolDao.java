@@ -228,5 +228,6 @@ public interface SimplePageToolDao {
 
     public void incrementQRCount(long questionId, long responseId);
 
+    public void syncQRTotals(SimplePageItem item);
 
 }

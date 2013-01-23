@@ -5390,6 +5390,10 @@ public class SimplePageBean {
 	
 	/** Used for both adding and updating questions on a page. */
 	public String updateQuestion() {
+		if (!itemOk(itemId)) {
+		    setErrMessage(messageLocator.getMessage("simplepage.permissions-general"));
+		    return "permission-failed";
+		}
 		if(!canEditPage()) {
 			setErrMessage(messageLocator.getMessage("simplepage.permissions-general"));
 			return "failure";
@@ -5419,12 +5423,6 @@ public class SimplePageBean {
 		if(questionType.equals("shortanswer")) {
 			item.setAttribute("questionAnswer", questionAnswer);
 		}else if(questionType.equals("multipleChoice")) {
-			// set showing old total entries. set of answerids for which we have total entries
-			Map<Long, SimplePageQuestionResponseTotals> oldTotals = new HashMap<Long, SimplePageQuestionResponseTotals>();
-			List<SimplePageQuestionResponseTotals> oldQrTotals = simplePageToolDao.findQRTotals(item.getId());
-			for (SimplePageQuestionResponseTotals total: oldQrTotals)
-			    oldTotals.put(total.getResponseId(), total);
-
 			Long max = simplePageToolDao.maxQuestionAnswer(item);
 			simplePageToolDao.clearQuestionAnswers(item);
 
@@ -5445,22 +5443,12 @@ public class SimplePageBean {
 				String text = fields[2];
 				
 			        Long id = simplePageToolDao.addQuestionAnswer(item, answerId, text, correct);
-				
-				if (oldTotals.get(id) != null)
-				    oldTotals.remove(id);  // in both old and new, done with it
-				else {
-				    // in new but not old, add it
-				    SimplePageQuestionResponseTotals total = simplePageToolDao.makeQRTotals(item.getId(), id);
-				    simplePageToolDao.quickSaveItem(total);
-				}
+
 			}
 			
 			item.setAttribute("questionShowPoll", String.valueOf(questionShowPoll));
 
-			// entries that were in old list but not new one, remove them
-			for (Long rid: oldTotals.keySet()) {
-			    simplePageToolDao.deleteItem(oldTotals.get(rid));
-			}
+			simplePageToolDao.syncQRTotals(item);
 
 		}
 		

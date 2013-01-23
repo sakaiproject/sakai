@@ -32,6 +32,7 @@ import java.util.Comparator;
 import java.util.Date;
 import java.util.List;
 import java.util.Map;
+import java.util.HashMap;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
@@ -1018,7 +1019,7 @@ public class SimplePageToolDaoImpl extends HibernateDaoSupport implements Simple
     // phase 2 of copy after save, we need item number here
 	public SimplePageItem copyItem2(SimplePageItem old, SimplePageItem item) {
 	       
-	    // currently nothing to do
+		syncQRTotals(item);
 
 		return item;
 	}
@@ -1074,5 +1075,30 @@ public class SimplePageToolDaoImpl extends HibernateDaoSupport implements Simple
 	    SqlService.dbWrite("update lesson_builder_qr_totals set count = count + 1 where questionId = ? and responseId = ?", fields);
 	}
 
+	public void syncQRTotals(SimplePageItem item) {
+	    if (item.getType() != SimplePageItem.QUESTION || ! item.getAttribute("questionType").equals("multipleChoice"))
+		return;
+
+	    Map<Long, SimplePageQuestionResponseTotals> oldTotals = new HashMap<Long, SimplePageQuestionResponseTotals>();
+	    List<SimplePageQuestionResponseTotals> oldQrTotals = findQRTotals(item.getId());
+	    for (SimplePageQuestionResponseTotals total: oldQrTotals)
+		oldTotals.put(total.getResponseId(), total);
+
+	    for (SimplePageQuestionAnswer answer: findAnswerChoices(item)) {
+		Long id = answer.getId();
+		if (oldTotals.get(id) != null)
+		    oldTotals.remove(id);  // in both old and new, done with it
+		else {
+		    // in new but not old, add it
+		    SimplePageQuestionResponseTotals total = makeQRTotals(item.getId(), id);
+		    quickSaveItem(total);
+		}
+	    }
+
+	    // entries that were in old list but not new one, remove them
+	    for (Long rid: oldTotals.keySet()) {
+		deleteItem(oldTotals.get(rid));
+	    }
+	}
 
 }
