@@ -79,13 +79,10 @@ public class PermissionException extends Exception
 	 */
 	public PermissionException(String user, String lock, String resource)
 	{
+		super("user=" + user + " lock=" + lock + " resource=" + resource);
 		m_user = user;
 		m_lock = lock;
 		m_resource = resource;
 	}
 
-	public String toString()
-	{
-		return super.toString() + " user=" + m_user + " lock=" + m_lock + " resource=" + m_resource;
-	}
 }
