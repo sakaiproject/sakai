@@ -30,6 +30,7 @@
    				<h:outputText value="#{msgs.hide_show_hide}"/>
    			</f:facet>
    			<h:selectBooleanCheckbox id="hide" value="#{colVar.hideInAllGradesTable}"/>
+            <h:outputLabel for="hide" value="#{msgs.hide_show_hide}" />
    		</h:column>
    		<h:column rendered="#{colVar.assignmentColumn}">
    			<f:facet name="header">
