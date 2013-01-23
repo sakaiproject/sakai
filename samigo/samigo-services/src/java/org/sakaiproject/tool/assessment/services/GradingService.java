@@ -868,11 +868,6 @@ public class GradingService
         	}
         }
         
-        if (itemType == 8 && itemGrading.getAnswerText() != null) {
-        	String processedAnswerText = TextFormat.convertPlaintextToFormattedTextNoHighUnicode(log, itemGrading.getAnswerText().trim());
-        	itemGrading.setAnswerText(processedAnswerText);
-        }
-        
         // note that totalItems & fibAnswersMap would be modified by the following method
         try {
         	autoScore = getScoreByQuestionType(itemGrading, item, itemType, publishedItemTextHash, 
