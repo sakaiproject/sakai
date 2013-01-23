@@ -36,6 +36,9 @@ Lesson Builder has quite simple data structures.
    /assignment/23. The type code is the same for all tools of the
    type. I.e. ASSESSMENT is used for both Samigo and Mneme. The
    reference has the actual tool name.
+      Note that we've stopped adding fields to SimplePageItem.
+   New fields are being stored as attributions in a JSON object
+   that is saved in text form as attributeString.
 * SimplePageComment - a comment entry. Note that entries are not 
    deleted, but the contents are set to full.
 * SimplePageLogEntry - we keep an entry for each user and each page,
@@ -83,6 +86,13 @@ Lesson Builder has quite simple data structures.
    share the same access control group. It also means that if you
    remove access control, the group is preserved. If you later put
    it back, anyone who qualified previously will still be there.
+* SimplePageQuestionResponse - stores students answers to the
+   inline Question type
+* SimplePageQuestionResponseTotals - stores totals for multiple-choice
+   questions. This allows the poll to be displayed without having to
+   retrieve every student answer. The complexity is that it has to be
+   kept updated withe the list of possible  ansers and with student
+   responses
    
 The main classes are
  ShowPageProducer - displays the main user page. Mostly UI code
@@ -352,7 +362,12 @@ producer) should never show something you're not allowed to get to.
 SimplePageBean checks permissions for most actions, so even if 
 someone fakes up a POST it should be caught. Note that we use a
 new provision in RSF to declare which of the public methods can
-be called directly through EL expressions.
+be called directly through EL expressions. If you add functions
+to SimplePageBean please be careful that a user can't cause you to
+make changes he isn't allowed to make. Typically we check that the
+user has update permission in the site and we check that the item
+he's about to change is on a page that's in that site. Both 
+checks are needed.
 
 The Dao checks permission for most updates. In theory the checks in
 SimplePageBean should be good enough, but the application is complex
