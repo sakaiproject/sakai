@@ -5617,7 +5617,7 @@ public class SimplePageBean {
 	public String answerShortanswerQuestion() {
 		String userId = getCurrentUserId();
 		
-		if (!itemOk(questionId) || !canReadPage()))
+		if (!itemOk(questionId) || !canReadPage())
 		    return "permission-failed";
 
 		SimplePageQuestionResponse response = simplePageToolDao.findQuestionResponse(questionId, userId); 
