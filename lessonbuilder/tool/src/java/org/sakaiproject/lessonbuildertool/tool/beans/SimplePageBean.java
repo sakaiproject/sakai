@@ -5585,7 +5585,7 @@ public class SimplePageBean {
 	public String answerMultipleChoiceQuestion() {
 		String userId = getCurrentUserId();
 		
-		if (!itemOk(questionId))
+		if (!itemOk(questionId) || !canReadPage())
 		    return "permission-failed";
 		SimplePageItem question = findItem(questionId);
 
@@ -5617,7 +5617,7 @@ public class SimplePageBean {
 	public String answerShortanswerQuestion() {
 		String userId = getCurrentUserId();
 		
-		if (!itemOk(questionId))
+		if (!itemOk(questionId) || !canReadPage()))
 		    return "permission-failed";
 
 		SimplePageQuestionResponse response = simplePageToolDao.findQuestionResponse(questionId, userId); 
