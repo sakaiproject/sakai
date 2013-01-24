@@ -110,6 +110,14 @@
                 </configuration>
             </plugin>
         </plugins-->
+        <resources>
+            <resource>
+                <directory>src/resources</directory>
+                <includes>
+                    <include>**/*.json</include>
+                </includes>
+            </resource>
+        </resources>
       <testResources>
         <testResource>
           <directory>${basedir}/src/test-resources</directory>
