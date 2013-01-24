@@ -63,6 +63,20 @@ margin-right:345px;
 <p>If you need to work with Apple devices, your best bet is probably MP4. However the MP4 files will need to be prepared specially. MP4 has many options, not all of which work with iPads and iPhones. Also, not all converters produce files that will start playing immediately,  rather than waiting for the whole file to download. You can use Quicktime Pro, and export using the profile &quot;Movie to iPhone.&quot; Then rename the file from .m4v to .mp4.</p>
 <p>Unfortunately experiments with MP4 on Windows produced mixed results when using Windows' built-in players. For that reason Lesson Builder has been set to play MP4s using Flash if it is available. I strongly recommend telling your users to install Flash. Quicktime and Windows Media can sometimes play MP4 files, but results were mixed on Windows. There were particular problems getting the files to start playing immediately when Flash wasn't available.</p>
 </div>
+<h2>URLs for video sites</h2>
+<div class="textblock">
+<p>If you want to use a URL to another site, you'll need the URL of the actual video. Many times you'll have a URL that points to a whole page with the video showing in the middle of it. You want the video itself. Many sites have a way to get an "embed" code. That is normally a piece of HTML code with a URL as part of it. </p>
+<p>For example, a user gave us the following URL: http://www.myspace.com/video/mystery-hole/studs-terkel-39-s-working-broadway-theatre-archive/17687576. If you look at it, you'll find a page with lots of text, and a video in the middle of it. This will not work. Right below the video there's a button "embed". It gives you an "embed code"</p>
+<blockquote>
+&lt;object width="425px" height="360px" >&lt;param name="allowFullScreen" value="true"/>&lt;param name="wmode" value="transparent"/>&lt;param name="movie" value="http://mediaservices.myspace.com/services/media/embed.aspx/m=17687576,t=1,mt=video"/>&lt;embed src="http://mediaservices.myspace.com/services/media/embed.aspx/m=17687576,t=1,mt=video" width="425" height="360" allowFullScreen="true" type="application/x-shockwave-flash" wmode="transparent">&lt;/embed>&lt;/object>
+</blockquote>
+<p>Within the embed code you'll find the URL that will work with "add multimedia": </p>
+<blockquote>
+http://mediaservices.myspace.com/services/media/embed.aspx/m=17687576,t=1,mt=video
+</blockquote>
+<p>Note that not all sites permit tools such as Sakai to refer to their videos directly, but this approach will work with many sites.</p>
+
+</div>
 <h2>Problems with Image Size</h2>
 <div class="textblock">
 <p>After sele <b>Add multimedia</b>, you will probably need to use the <b>Edit</b> button to adjust the size. The size starts out 300 pixels high and the full width of the window. This size should let you see the content, but you may need to adjust it to match the size of your movie or Flash program.</p>
@@ -84,6 +98,7 @@ margin-right:345px;
     <li>With Safari on the Macintosh, if you edit a Youtube video, and change  the URL, when the page updates the player isn't there. If you refresh  the page it works fine. Everything works fine for normal users.</li>
     <li>Internet Explorer will give warning messages unless all content on the page uses https: URLs. Files that are stored on Sakai will automatically be served with an appropriate URL, but if you define any URLs for yourself, you shold be careful about this.&nbsp;</li>
     <li>On Windows, users may need to adjust the security settings in Internet Explorer. For some player types, Active X needs to be enabled. You may not get any sign that this is the problem with IE, just an empty box where your content should be.</li>
+    <li>Chrome requires a URL starting with https: if your Sakai site uses https:. Many video services support https:, so you can usually take a URL starting with http: and convert it to https:</li>
     <li>Some players will not play content if you are using an https: URL and  the site you're pointing to does not have a proper certificate  installed.</li>
     <li>If a plugin needs to talk to the user, it may fail. E.g. after installing Acrobat, the first time you run Acrobat, you need to accept the license. With Firefox you are prompted to do this. With Internet Explorer, it simply gives you an empty box where your content should be.</li>
 </ol>
