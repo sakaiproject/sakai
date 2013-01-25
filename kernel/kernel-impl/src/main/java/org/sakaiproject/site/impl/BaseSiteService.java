@@ -1716,30 +1716,23 @@ public abstract class BaseSiteService implements SiteService
 	 */
 	public String getSiteSkin(String id)
 	{
-		String rv = null;
-
 		// check the site cache
 		if (m_siteCache != null)
 		{
 			try
 			{
 				// this gets the site from the cache, or reads the site / pages / tools and caches it
-				Site s = getDefinedSite(id);
-				String skin = adjustSkin(s.getSkin(), s.isPublished());
-
-				return skin;
+                Site s = getDefinedSite(id);
+                return adjustSkin(s.getSkin(), s.isPublished());
 			}
 			catch (IdUnusedException e)
 			{
+                return adjustSkin(null,true);
 			}
+        }
 
-			// if the site's not around, use the default
-			return adjustSkin(null, true);
-		}
-
-		rv = storage().getSiteSkin(id);
-
-		return rv;
+        //No site cache. Check the db.
+        return adjustSkin(storage().getSiteSkin(id),true);
 	}
 
 	/**
@@ -2713,7 +2706,16 @@ public abstract class BaseSiteService implements SiteService
 	protected String adjustSkin(String skin, boolean published)
 	{
 		// return the skin as just a name, no ".css", and not dependent on the published status, or a null if not defined
-		if (skin == null) return null;
+		if (skin == null) {
+			skin = serverConfigurationService().getString("skin.default");
+		}
+
+		String templates = serverConfigurationService().getString("portal.templates", "neoskin");
+		if("neoskin".equals(templates))
+		{
+			String prefix = serverConfigurationService().getString("portal.neoprefix", "neo-");
+			skin = prefix + skin;
+		}
 
 		if (!skin.endsWith(".css")) return skin;
 
