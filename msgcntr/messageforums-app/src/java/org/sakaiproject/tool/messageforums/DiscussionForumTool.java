@@ -5347,7 +5347,7 @@ public class DiscussionForumTool
           // send out email notifications now that the message is visible
 		  if (selectedTopic != null && selectedForum != null) {
 		      Message msgWithAttach = messageManager.getMessageByIdWithAttachments(msgId);
-		      Topic topic = selectedTopic.getTopic();
+		      Topic topic = forumManager.getTopicByIdWithMessages(selectedTopic.getTopic().getId());
 		      topic.setBaseForum(selectedForum.getForum());
 		      msgWithAttach.setTopic(topic);
 		      sendEmailNotification(msgWithAttach, getThreadHeadForMessage(msgWithAttach), false);
