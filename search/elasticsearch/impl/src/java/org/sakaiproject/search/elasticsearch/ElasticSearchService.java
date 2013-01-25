@@ -89,6 +89,14 @@ public class ElasticSearchService implements SearchService {
     private ElasticSearchIndexBuilder indexBuilder;
     private SiteService siteService;
 
+    /**
+     * This property is ignored at the present time it here to preserve backwards capatability.
+     *
+     * TODO We could interpret this to mean whether or not this node will hold data indices
+     * and shards be allocated to it.  So setting this to false for this node to only be a search client.
+     * That would take some rework to assure nodes don't attempt indexing work that will fail.
+     */
+    private boolean searchServer = true;
 
     /**
      * dependency
@@ -229,6 +237,9 @@ public class ElasticSearchService implements SearchService {
 
     @Override
     public SearchList search(String searchTerms, List<String> siteIds, int start, int end, String filterName, String sorterName) throws InvalidSearchQueryException {
+        if (siteIds == null) {
+            throw new InvalidSearchQueryException("siteIds can't be null, trying sending in a list bro.", new RuntimeException());
+        }
 
         BoolQueryBuilder query = boolQuery();
 
@@ -258,7 +269,7 @@ public class ElasticSearchService implements SearchService {
                 .addFacet(termsFacet(FACET_NAME).field("contents").size(facetTermSize));
 
         // if we have sites filter results to include only the sites included
-        if (siteIds != null && siteIds.size() > 0) {
+        if (siteIds.size() > 0) {
             OrFilterBuilder siteFilter = orFilter().add(
                     termsFilter(SearchService.FIELD_SITEID, siteIds.toArray(new String[siteIds.size()])));
             searchRequestBuilder.setFilter(siteFilter);
@@ -787,4 +798,7 @@ public class ElasticSearchService implements SearchService {
         this.facetTermSize = facetTermSize;
     }
 
+    public void setSearchServer(boolean searchServer) {
+        this.searchServer = searchServer;
+    }
 }
