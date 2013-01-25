@@ -273,8 +273,8 @@ public class ProfileImageLogicImpl implements ProfileImageLogic {
 				image.setUploadedImage(data);
 			}
 			catch (IOException e) {
-				log.error("Could not find file: " + filename);
-				return null;
+				log.error("Could not find official profile image file: " + filename + ". The default profile image will be used instead.");
+				image.setExternalImageUrl(defaultImageUrl);
 			}
 		}
 		image.setAltText(getAltText(userUuid, isSameUser, true));
