@@ -142,6 +142,11 @@ function saveTime()
 	disabled="#{delivery.actionString=='previewAssessment'}" 
     onclick="disableSubmitForGrade()" onkeypress="" />
 
+    <h:commandButton value="#{deliveryMessages.button_close_window}" type="button" 
+       rendered="#{delivery.actionString=='takeAssessmentViaUrl' && !delivery.anonymousLogin}"
+       style="act" onclick="javascript:window.close();" />
+    
+
   <%-- SUBMIT FOR GRADE FOR LINEAR ACCESS --%>
   <h:commandButton type="submit" value="#{deliveryMessages.button_submit_grading}"
       action="#{delivery.submitForGrade}"  id="submitForm" styleClass="active"

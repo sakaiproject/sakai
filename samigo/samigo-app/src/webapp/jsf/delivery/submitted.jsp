@@ -129,14 +129,13 @@ window.close();
 </div>
 
 <br /><br />
+
+
 <div class="tier1">
   <h:panelGrid columns="2" cellpadding="3" cellspacing="3">
     <h:commandButton type="submit" value="#{deliveryMessages.button_continue}" action="select"
        rendered="#{delivery.actionString=='takeAssessment'}" />
 
-    <h:commandButton value="#{deliveryMessages.button_close_window}" type="button" 
-       rendered="#{delivery.actionString=='takeAssessmentViaUrl' && !delivery.anonymousLogin}"
-       style="act" onclick="javascript:window.close();" />
 
 
     <h:commandButton value="#{deliveryMessages.review_results}" type="button" id="reviewAssessment"
