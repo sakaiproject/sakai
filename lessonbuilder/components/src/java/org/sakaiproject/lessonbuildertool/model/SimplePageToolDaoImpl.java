@@ -1076,9 +1076,9 @@ public class SimplePageToolDaoImpl extends HibernateDaoSupport implements Simple
 	}
 
 	public void syncQRTotals(SimplePageItem item) {
-	    if (item.getType() != SimplePageItem.QUESTION || ! item.getAttribute("questionType").equals("multipleChoice"))
+	    if (item.getType() != SimplePageItem.QUESTION || ! "multipleChoice".equals(item.getAttribute("questionType")))
 		return;
-
+	    
 	    Map<Long, SimplePageQuestionResponseTotals> oldTotals = new HashMap<Long, SimplePageQuestionResponseTotals>();
 	    List<SimplePageQuestionResponseTotals> oldQrTotals = findQRTotals(item.getId());
 	    for (SimplePageQuestionResponseTotals total: oldQrTotals)
