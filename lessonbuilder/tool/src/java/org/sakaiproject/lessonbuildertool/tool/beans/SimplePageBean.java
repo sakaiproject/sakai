@@ -5411,7 +5411,6 @@ public class SimplePageBean {
 		}else {
 			// Adding a question to the page
 			item = appendItem("", messageLocator.getMessage("simplepage.questionName"), SimplePageItem.QUESTION);
-			item.setDescription(messageLocator.getMessage("simplepage.questionName")); // needed by reorder
 			item.setAttribute("questionType", "shortanswer");
 		}
 		

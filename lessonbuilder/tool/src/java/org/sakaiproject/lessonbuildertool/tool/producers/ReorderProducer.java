@@ -46,7 +46,9 @@ import uk.org.ponder.rsf.components.UIContainer;
 import uk.org.ponder.rsf.components.UIForm;
 import uk.org.ponder.rsf.components.UIInput;
 import uk.org.ponder.rsf.components.UIOutput;
-import uk.org.ponder.rsf.components.decorators.UIFreeAttributeDecorator;                                                               
+import uk.org.ponder.rsf.components.UIComponent;
+import uk.org.ponder.rsf.components.decorators.UIFreeAttributeDecorator;
+
 import uk.org.ponder.rsf.flow.jsfnav.NavigationCase;
 import uk.org.ponder.rsf.flow.jsfnav.NavigationCaseReporter;
 import uk.org.ponder.rsf.view.ComponentChecker;
@@ -155,8 +157,8 @@ public class ReorderProducer implements ViewComponentProducer, NavigationCaseRep
 				if (i == null) {
 				    // marker between used and not used
 				    UIContainer row = UIBranchContainer.make(tofill, "item:");
-				    UIOutput.make(row, "seq", "---");
-				    UIOutput.make(row, "description", messageLocator.getMessage(secondPageId == null ? "simplepage.reorder-belowdelete" : "simplepage.reorder-aboveuse"));
+				    UIOutput.make(row, "seq", "---").decorate(new UIFreeAttributeDecorator("class", "marker"));
+				    UIOutput.make(row, "text-snippet", messageLocator.getMessage(secondPageId == null ? "simplepage.reorder-belowdelete" : "simplepage.reorder-aboveuse")).decorate(new UIFreeAttributeDecorator("style", "font-weight: bold;padding-left:3em"));
 				    second = true;
 				    continue;
 				}
@@ -166,22 +168,28 @@ public class ReorderProducer implements ViewComponentProducer, NavigationCaseRep
 								  // so that links work properly.
 				}
 
-
 				UIContainer row = UIBranchContainer.make(tofill, "item:");
 				// * prefix indicates items are from the other page, and have to be copied.
 				UIOutput.make(row, "seq", (second ? "*" : "") +
 					                   String.valueOf(i.getSequence()));
-				UIOutput.make(row, "description", i.getDescription());
+
 				if (i.getType() == 5) {
-					String text = FormattedText.convertFormattedTextToPlaintext(i.getHtml());
-					if (text.length() > 100) {
-					    UIOutput.make(row, "text-snippet", text.substring(0,100));
-					} else {
-					    UIOutput.make(row, "text-snippet", text);
-					}
+				    String text = FormattedText.convertFormattedTextToPlaintext(i.getHtml());
+				    if (text.length() > 100)
+					text = text.substring(0,100);
+				    UIOutput.make(row, "text-snippet", text);
+				} else if (i.getType() == SimplePageItem.QUESTION) {
+				    String text = i.getAttribute("questionText");
+				    if (text.length() > 100)
+					text = text.substring(0,100);
+				    UIOutput.make(row, "text-snippet", text);
 				} else {
+				    UIOutput.make(row, "description", i.getDescription());
 				    showPageProducer.makeLink(row, "link", i, simplePageBean, simplePageToolDao, messageLocator, true, currentPage, false, Status.NOT_REQUIRED);
 				}
+				UIComponent del = UIOutput.make(row, "dellink").decorate(new UIFreeAttributeDecorator("alt", messageLocator.getMessage("simplepage.delete")));
+				if (second)
+				    del.decorate(new UIFreeAttributeDecorator("style", "display:none"));
 			}
 
 

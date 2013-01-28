@@ -24,10 +24,12 @@
 	
 		<table class="indent" id="itemTable" rsf:id="itemTable" border="0">
 			<tbody id="listx">
-				<tr rsf:id="item:" class="movable" style="border:1px solid #000">
+				<tr rsf:id="item:" class="movable" style="border:1px solid #000" aftermove="aftermove($(this))">
 					<td rsf:id="seq"></td>
-					<td><a href="#" rsf:id="link-button"><span rsf:id="link-button-text"></span></a><a href="#" rsf:id="link"><span rsf:id="link-text"></span></a><span rsf:id="text-snippet"></span></td>
-					<td class="italic" rsf:id="description"></td>
+					<td><a href="#" rsf:id="link-button"><span rsf:id="link-button-text"></span></a><a href="#" rsf:id="link"><span rsf:id="link-text"></span></a><span rsf:id="text-snippet"></span>
+					<span class="italic" style="padding-left:3em" rsf:id="description"></span>
+					<a href="#" onclick="deleteitem($(this)); return false" class="deleteAnswerLink"><img src="$context/images/delete.png" rsf:id="dellink"></img></a>
+					</td>
 				</tr>
 			</tbody>
 		</table>
