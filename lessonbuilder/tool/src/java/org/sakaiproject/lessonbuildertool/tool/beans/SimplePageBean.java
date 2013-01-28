@@ -5058,6 +5058,10 @@ public class SimplePageBean {
 		if (!itemOk(itemId) || !canReadPage())
 		    return "permission-failed";
 
+		SimplePageItem item = findItem(itemId);
+		if (item.getType() != SimplePageItem.COMMENTS)
+		    return "permission-failed";
+
 		boolean html = false;
 		
 		// Patch in the fancy editor's comment, if it's been used
