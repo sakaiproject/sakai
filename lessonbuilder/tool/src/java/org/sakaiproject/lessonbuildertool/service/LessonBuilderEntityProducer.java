@@ -1486,8 +1486,17 @@ public class LessonBuilderEntityProducer extends AbstractEntityProvider
 		int i = num.indexOf("/");
 		if (i >= 0)
 		    num = num.substring(0, i);
-		long oldItem = Long.parseLong(num);
+		else 
+		    return value;
+		long oldItem = 0;
+		try {
+		    oldItem = Long.parseLong(num);
+		} catch (Exception e) {
+		    return value;
+		}
 		Long newItem = itemMap.get(oldItem);
+		if (newItem == null)
+		    return value;
 		return ITEMDUMMY + newItem + "/";
 	    } else if ("http".equals(uri.getScheme())
 		|| "https".equals(uri.getScheme())) {
