@@ -27,7 +27,7 @@
         type integer not null,
         sakaiId varchar(250),
         name varchar(100),
-        html text,
+        html mediumtext,
         description text,
         height varchar(8),
         width varchar(8),

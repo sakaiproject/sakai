@@ -21,7 +21,7 @@
 	<property name="type" type="integer" not-null="true" />
 	<property name="sakaiId" type="string" length="250" />
 	<property name="name" type="string" length="100" />
-	<property name="html" type="text" />
+	<property name="html" type="text" length="200000" />
 	<property name="description" type="string" length="500" />
 	<property name="height" type="string" length="8" />
 	<property name="width" type="string" length="8" />
