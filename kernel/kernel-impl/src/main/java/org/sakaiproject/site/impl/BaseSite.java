@@ -709,16 +709,16 @@ public class BaseSite implements Site
 
 	/**
 	 * Access the Site's properties, with control over fetching of lazy collections.
-	 * 
+	 *
 	 * The allowFetch flag is typically passed as true, but passed as false for
 	 * fine-grained control while building copies, etc. This signature is not provided
 	 * on the Site interface and is only intended for use within the implementation package.
-	 * 
+	 *
 	 * @param allowFetch
 	 *        when true, fetch properties if not loaded;
 	 *        when false, avoid fetching and return the properties collection as-is
 	 * @return The Site's properties.
-	 * 
+	 *
 	 */
 	public ResourceProperties getProperties(boolean allowFetch)
 	{
@@ -921,16 +921,16 @@ public class BaseSite implements Site
 
 	/**
 	 * Access the Site's list of pages, with control over fetching of lazy collections.
-	 * 
+	 *
 	 * The allowFetch flag is typically passed as true, but passed as false for
 	 * fine-grained control while building copies, etc. This signature is not provided
 	 * on the Site interface and is only intended for use within the implementation package.
-	 * 
+	 *
 	 * @param allowFetch
 	 *        when true, fetch pages if not loaded;
 	 *        when false, avoid fetching and return the page list as-is
 	 * @return The Site's list of SitePages.
-	 * 
+	 *
 	 */
 	public List getPages(boolean allowFetch)
 	{
@@ -955,16 +955,16 @@ public class BaseSite implements Site
 
 	/**
 	 * Access the Site's list of groups, with control over fetching of lazy collections.
-	 * 
+	 *
 	 * The allowFetch flag is typically passed as true, but passed as false for
 	 * fine-grained control while building copies, etc. This signature is not provided
 	 * on the Site interface and is only intended for use within the implementation package.
-	 * 
+	 *
 	 * @param allowFetch
 	 *        when true, fetch groups if not loaded;
 	 *        when false, avoid fetching and return the group list as-is
 	 * @return The Site's list of Groups.
-	 * 
+	 *
 	 */
 	public Collection getGroups(boolean allowFetch)
 	{
@@ -1870,7 +1870,7 @@ public class BaseSite implements Site
 	 * through the Site interface; the collections are simply empty if not loaded. The
 	 * SiteService encourages calls to {@link SiteService#getSite(String) getSite} and the
 	 * Site interface exposes {@link Site#loadAll() loadAll} to ensure all loading.
-	 * 
+	 *
 	 * @return true if the description has been loaded for this Site object
 	 */
 	public boolean isDescriptionLoaded()

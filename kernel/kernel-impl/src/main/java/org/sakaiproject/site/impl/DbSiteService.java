@@ -224,9 +224,9 @@ public abstract class DbSiteService extends BaseSiteService
 		/** SqlReader for reading just the Site IDs, used for tuning getSites performance. */
 		protected SqlReader siteIdReader = new SiteIdSqlReader();
 
-		/** 
+		/**
 		 * The sizes of parameters to use for IN clauses padded with NULLs; up to Oracle maximum.
-		 * 
+		 *
 		 * TODO: Push this down to storage/SQL classes.
 		 */
 		protected Integer[] batchBuckets = {10, 50, 250, 1000};
@@ -1005,7 +1005,7 @@ public abstract class DbSiteService extends BaseSiteService
 			{
 				return sites;
 			}
-			
+
 			for (String id : siteIds)
 			{
 				// Reuse cached sites

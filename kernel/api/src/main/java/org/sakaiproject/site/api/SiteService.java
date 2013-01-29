@@ -753,7 +753,7 @@ public interface SiteService extends EntityProducer
 	 * This is a convenience and performance wrapper for getSites, because there are many places that need
 	 * the complete list of sites for the current user, and getSites is unnecessarily verbose in that case.
 	 * Because the semantics of this call are specific, it can also be optimized by the implementation.
-	 
+	 *
 	 * The sites returned follow the same semantics as those from
 	 * {@link #getSites(SelectionType, Object, String, Map, SortType, PagingPosition) getSites}.
 	 *
