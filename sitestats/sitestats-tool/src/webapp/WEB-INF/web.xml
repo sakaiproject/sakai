@@ -46,10 +46,12 @@
             <param-value>siteStatsApplication</param-value>
         </init-param>
     </servlet>
+    <!--
     <servlet-mapping>
         <servlet-name>sakai.sitestats</servlet-name>
         <url-pattern>/sitestats-tool/*</url-pattern>      
     </servlet-mapping>
+    -->
                 
                 
     <!-- Tool: sakai.sitestats -->
@@ -65,10 +67,12 @@
             <param-value>siteStatsAdminApplication</param-value>
         </init-param>
     </servlet>
+    <!--
     <servlet-mapping>
         <servlet-name>sakai.sitestats.admin</servlet-name>
         <url-pattern>/sitestats-tool/*</url-pattern>      
     </servlet-mapping>
+    -->
 
 
     <!--  The ToolListener causes this tool to be registered with Sakai.  -->
