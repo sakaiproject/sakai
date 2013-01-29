@@ -3165,7 +3165,9 @@ public class ShowPageProducer implements ViewComponentProducer, DefaultView, Nav
 		UISelect questionType = UISelect.make(form, "question-select", new String[] {"multipleChoice", "shortanswer"}, "#{simplePageBean.questionType}", "");
 		UISelectChoice.make(form, "multipleChoiceSelect", questionType.getFullID(), 0);
 		UISelectChoice.make(form, "shortanswerSelect", questionType.getFullID(), 1);
-		
+
+		UIOutput.make(form, "question-shortans-del").decorate(new UIFreeAttributeDecorator("alt", messageLocator.getMessage("simplepage.delete")));
+		UIOutput.make(form, "question-mc-del").decorate(new UIFreeAttributeDecorator("alt", messageLocator.getMessage("simplepage.delete")));
 		UIInput.make(form, "questionEditId", "#{simplePageBean.itemId}");
 		
 		UIBoundBoolean.make(form, "question-required", "#{simplePageBean.required}");

@@ -1262,8 +1262,9 @@ function resizeiframe(id) {
 							
 								<div id="shortanswers">
 									<div id="copyableShortanswerDiv">
-										<input type="text" class="question-shortanswer-answer" />
-										<a href="#" onclick="deleteAnswer($(this)); return false;" style="display:none" class="deleteAnswerLink"><img src="$context/images/delete.png"></img></a>
+										<label for="question-showans-alt"><span rsf:id="msg=simplepage.question-possible-answer" class="offscreen"></span></label>									        
+										<input type="text" name="question-showans-alt" class="question-shortanswer-answer" />
+										<a href="#" onclick="deleteAnswer($(this)); return false;" style="display:none" class="deleteAnswerLink"><img src="$context/images/delete.png" rsf:id="question-shortans-del"></img></a>
 									</div>
 									<div id="extraShortanswers"></div>
 								</div>
@@ -1277,9 +1278,11 @@ function resizeiframe(id) {
 									<div id="copyableMultipleChoiceAnswerDiv">
 										<input type="hidden" rsf:id="question-multiplechoice-answer-complete" class="question-multiplechoice-answer-complete" />
 										<input type="hidden" rsf:id="question-multiplechoice-answer-id" class="question-multiplechoice-answer-id" />
+										<label for="question-multiplechoice-answer-correct"><span rsf:id="msg=simplepage.question-correct-answer" class="offscreen"></span></label>
 										<input type="checkbox" name="question-multiplechoice-answer-correct" rsf:id="question-multiplechoice-answer-correct"  class="question-multiplechoice-answer-correct" />
-										<input type="text" rsf:id="question-multiplechoice-answer" class="question-multiplechoice-answer" />
-										<a href="#" onclick="deleteAnswer($(this)); return false;" style="display:none" class="deleteAnswerLink"><img src="$context/images/delete.png"></img></a>
+										<label for="question-multiplechoice-answer"><span rsf:id="msg=simplepage.question-possible-answer" class="offscreen"></span></label>
+										<input type="text" rsf:id="question-multiplechoice-answer" name="question-multiplechoice-answer" class="question-multiplechoice-answer" />
+										<a href="#" onclick="deleteAnswer($(this)); return false;" style="display:none" class="deleteAnswerLink"><img src="$context/images/delete.png" rsf:id="question-mc-del"></img></a>
 									</div>
 									<div id="extraMultipleChoiceAnswers"></div>
 								</div>
@@ -1301,11 +1304,11 @@ function resizeiframe(id) {
 							
 							<br /><br />
 							
-							<span rsf:id="msg=simplepage.correct-text"></span><br />
-							<textarea rsf:id="question-correct-text" id="question-correct-text" rows="3" columns="30"></textarea><br />
+							<label for="question-correct-text"><span rsf:id="msg=simplepage.correct-text"></span></label><br />
+							<textarea rsf:id="question-correct-text" name="question-correct-text" id="question-correct-text" rows="3" columns="30"></textarea><br />
 							
-							<span rsf:id="msg=simplepage.incorrect-text"></span><br />
-							<textarea rsf:id="question-incorrect-text" id="question-incorrect-text" rows="3" columns="30"></textarea>
+							<label for="question-incorrect-text"><span rsf:id="msg=simplepage.incorrect-text"></span></label><br />
+							<textarea rsf:id="question-incorrect-text" name="question-incorrect-text" id="question-incorrect-text" rows="3" columns="30"></textarea>
 							
 							<br /><br />
 

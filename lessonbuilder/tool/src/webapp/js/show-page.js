@@ -1844,8 +1844,12 @@ function addMultipleChoiceAnswer() {
 		.attr("name", "question-multiplechoice-answer-complete" + num + "-fossil");
 	clonedAnswer.find("[name='question-multiplechoice-answer-id']")
 		.attr("name", "question-multiplechoice-answer-id" + num);
+	clonedAnswer.find("[for='question-multiplechoice-answer-correct']")
+		.attr("for", "question-multiplechoice-answer-correct" + num);
 	clonedAnswer.find("[name='question-multiplechoice-answer-correct']")
 		.attr("name", "question-multiplechoice-answer-correct" + num);
+	clonedAnswer.find("[for='question-multiplechoice-answer']")
+		.attr("for", "question-multiplechoice-answer" + num);
 	clonedAnswer.find("[name='question-multiplechoice-answer']")
 		.attr("name", "question-multiplechoice-answer" + num);
 	
@@ -1853,7 +1857,7 @@ function addMultipleChoiceAnswer() {
 	// Not allowing them to remove the first makes this AddAnswer code simpler,
 	// and ensures that there is always at least one answer choice.
 	clonedAnswer.find(".deleteAnswerLink").removeAttr("style");
-	
+
 	clonedAnswer.appendTo("#extraMultipleChoiceAnswers");
 	
 	return clonedAnswer;
@@ -1869,8 +1873,17 @@ function addShortanswer() {
 	// Not allowing them to remove the first makes this AddAnswer code simpler,
 	// and ensures that there is always at least one answer choice.
 	clonedAnswer.find(".deleteAnswerLink").removeAttr("style");
+
+	// have to make name unique, so append a count
+	var n = $("#extraShortanswers div").length;
+	var elt = clonedAnswer.find("label");
+	elt.attr("for", elt.attr("for") + n);
+	elt = clonedAnswer.find("input");
+	elt.attr("name", elt.attr("name") + n);
 	
 	clonedAnswer.appendTo("#extraShortanswers");
+
+
 	
 	return clonedAnswer;
 }
