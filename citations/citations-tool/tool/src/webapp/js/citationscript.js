@@ -556,8 +556,8 @@ function updateSelectableActions() {
   }
 }
 
-function exportSelectedCitations( baseUrl, collectionId ) {
-  var exportUrl = baseUrl + "?collectionId=" + collectionId;
+function exportSelectedCitations( baseUrl, citationCollectionId, resourceId ) {
+  var exportUrl = baseUrl + "?citationCollectionId=" + citationCollectionId + "&resourceId=" + encodeURIComponent(resourceId);
   
   // get each selected checkbox and append it to be exported
   $( "input[@type=checkbox][@checked]" ).each( function() {
@@ -568,8 +568,8 @@ function exportSelectedCitations( baseUrl, collectionId ) {
   window.location.assign( exportUrl );
 }
 
-function exportAllCitations( baseUrl, collectionId ) {
-  var exportUrl = baseUrl + "?collectionId=" + collectionId;
+function exportAllCitations( baseUrl, citationCollectionId, resourceId ) {
+  var exportUrl = baseUrl + "?citationCollectionId=" + citationCollectionId + "&resourceId=" + encodeURIComponent(resourceId);
   window.location.assign( exportUrl );
 }
 

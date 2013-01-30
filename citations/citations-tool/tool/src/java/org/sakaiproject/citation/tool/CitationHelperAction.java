@@ -1817,6 +1817,8 @@ public class CitationHelperAction extends VelocityPortletPaneledAction
 		}
 		context.put("citations", newIterator);
 		context.put("citationCollectionId", collection.getId());
+		context.put("resourceId", resourceId);
+		
 		if(! collection.isEmpty())
 		{
 			context.put("show_citations", Boolean.TRUE);

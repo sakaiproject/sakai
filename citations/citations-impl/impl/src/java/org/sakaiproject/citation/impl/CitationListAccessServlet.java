@@ -123,8 +123,19 @@ public class CitationListAccessServlet implements HttpAccess
 	
 	protected void handleExportRequest(HttpServletRequest req, HttpServletResponse res,
 			Reference ref, String format, String subtype) 
-			throws EntityNotDefinedException, EntityAccessOverloadException 
+			throws EntityNotDefinedException, EntityAccessOverloadException, EntityPermissionException 
 	{
+		if(! ContentHostingService.allowGetResource(req.getParameter("resourceId")))
+		{
+			String url = (req.getRequestURL()).toString();
+			String user = "";
+			if(req.getUserPrincipal() != null)
+			{
+				user = req.getUserPrincipal().getName();
+			}
+			throw new EntityPermissionException(user, ContentHostingService.EVENT_RESOURCE_READ, ref.getReference());
+		}			
+		
 		String fileName = req.getParameter("resourceDisplayName");
 		if(fileName == null || fileName.trim().equals("")) {
 			fileName = rb.getString("export.default.filename");

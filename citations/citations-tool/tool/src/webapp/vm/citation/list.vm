@@ -192,12 +192,12 @@ function doCitationAction( action ) {
   // do action
   if( action == "exportSelected" ) {
     if( numCitationsSelected() > 0 ) {
-      exportSelectedCitations( "$exportUrlSel", "$collectionId" );
+      exportSelectedCitations( "$exportUrlSel", "$citationCollectionId", "$resourceId" );
     } else {
       alert( "$tlang.getString( "select.warn.list" )" );
     }
   } else if( action == "exportList" ) {
-    exportAllCitations( "$exportUrlAll", "$collectionId" );
+    exportAllCitations( "$exportUrlAll", "$citationCollectionId", "$resourceId" );
   } else if( action == "removeSelected" ) {
     if( numCitationsSelected() > 0 ) {
       removeSelectedCitations( "#contentLink("Main")&sakai_action=doRemoveSelectedCitations&collectionId=$collectionId", "$FORM_NAME" );
