@@ -1,37 +1,4 @@
 ##<!-- $Header: /cvs/sakai2/legacy/tools/src/webapp/vm/web/chef_iframe.vm,v 1.4 2005/05/15 17:05:28 gsilver.umich.edu Exp $ -->
-<div class="portletBody">
-#if($options_title) 
-	<ul class="navIntraTool actionToolBar">
-		<li class="firstToolBarItem"><span><a href="#" title="$validator.escapeHtml($options_title)" onclick="location = '#toolLink("" "doOptions")';return false;">
-		$tlang.getString("gen.options") </a></span></li>
-	</ul>
-#end
-
-#if ($alertMessage)<div class="alertMessage">$tlang.getString("gen.alert") $validator.escapeHtml($alertMessage)</div>#end
-
-	#if($TargetPageUrl)
-         <h3><a href=$TargetPageUrl>$TargetPageName</a></h3><br>
-         $desp      
-     #end
-	 	<div class="wcwmenu"> ##style="padding:0; margin:3px -2em -1em  -2em">
-		<iframe 
-			title="$tlang.getString("gen.info.title.message")"
-			width="100%"
-			id="wciframe"
-			name="wciframe"
-			style="width:100%;padding:0 !important; height:$validator.escapeHtml($height)"
-			frameborder="0"
-			marginwidth="0"
-			marginheight="0"
-			scrolling="auto"
-			 #if(!$TargetPageUrl)	
-				src="$!validator.escapeHtml($url)"	
-  			 #end
-			onload="updateMainFrameHeight();">
-		</iframe>
-	</div>
-</div>
-
 <script  type="text/javascript" language="JavaScript">
 
 	function updateMainFrameHeight()
@@ -74,3 +41,38 @@
 		
 	}
 </script>
+
+<div class="portletBody">
+#if($options_title) 
+	<ul class="navIntraTool actionToolBar">
+		<li class="firstToolBarItem"><span><a href="#" title="$validator.escapeHtml($options_title)" onclick="location = '#toolLink("" "doOptions")';return false;">
+		$tlang.getString("gen.options") </a></span></li>
+	</ul>
+#end
+
+#if ($alertMessage)<div class="alertMessage">$tlang.getString("gen.alert") $validator.escapeHtml($alertMessage)</div>#end
+
+	#if($TargetPageUrl)
+         <h3><a href=$TargetPageUrl>$TargetPageName</a></h3><br>
+         $desp      
+     #end
+	 	<div class="wcwmenu"> ##style="padding:0; margin:3px -2em -1em  -2em">
+		<iframe 
+			title="$tlang.getString("gen.info.title.message")"
+			width="100%"
+			id="wciframe"
+			name="wciframe"
+			style="width:100%;padding:0 !important; height:$validator.escapeHtml($height)"
+			frameborder="0"
+			marginwidth="0"
+			marginheight="0"
+			scrolling="auto"
+			 #if(!$TargetPageUrl)	
+				src="$!validator.escapeHtml($url)"	
+  			 #end
+			onload="updateMainFrameHeight();">
+		</iframe>
+	</div>
+</div>
+
+
