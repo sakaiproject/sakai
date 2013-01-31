@@ -77,6 +77,67 @@ you will want to create the indices using
 You may get an error because there is one index created by
 the first sql script.
 
+DATABASE UPDATES WITH AUTODDL
+
+When moving from an old version to a new one, the easiest approach
+is to have auto.ddl on. In that case, the update should happen
+automatically. Unfortunately a few changes can't happen automatically.
+So you may find files in ./components/src/ddl/mysql for specific
+changes, e.g.
+
+./components/src/ddl/mysql/simplepage.pre29-to29.sql
+
+Comments at the start of the files will give more detalis. We
+hope that they will be harmless if used when they are not needed,
+but the comments will note that.
+
+
+DATABASE UPDATES WITHOUT AUTODDL
+
+When moving from an old version to a new one, you need to do two
+separate things: (1) things that Hibernate would do if auto.ddl
+were on and (2) other changes.
+
+Starting with the 2.9 release of Sakai, we will include update scripts
+that do what Hibernate would do, e.g.
+
+hbm/src/ddl/mysql/lessonbuilder-2.9.0-2.10.0.sql
+
+These scripts are not perfect. They will only work if you are startin
+with a version that is shipped with Sakai. I am maintaining a version
+lessonbuilder-2.9.0-trunk.sql. That will update you from 2.9.0 (or
+2.9.1) and lessonbuilder trunk. But after doing that, if there are
+further changes in trunk, I will not supply scripts for every possible
+update.
+
+However you can make your own. 
+
+hbm/src/ddl/mysql/lessonbuilder.sql 
+
+will create the tables for the current version. If you take the
+file from the version you're moving from and put it in
+
+hbm/src/ddl/old/mysql/lessonbuilder.sql 
+
+and run 
+
+hbm/src/ddl/old/schemaupdate
+
+it will produce an update script for you in
+
+hbm/src/ddl/mysql/
+
+So to update without auto.ddl, generate an update script or
+use a prepackaged one, and also use 
+
+./components/src/ddl/mysql/simplepage.sql
+
+and any other scripts in ./components/src/ddl/mysql that
+apply to your change, e.g.
+
+./components/src/ddl/mysql/simplepage.pre29-to29.sql
+
+
 TOMCAT
 
 We strongly recommend using "-Dfile.encoding=UTF-8" in JAVAOPTS for Tomcat. 
