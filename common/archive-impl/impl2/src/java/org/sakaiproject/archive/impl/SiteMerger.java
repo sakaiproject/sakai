@@ -201,7 +201,7 @@ public class SiteMerger {
 			theSite = m_siteService.getSite(siteId);
 		}
 		catch (IdUnusedException ignore) {
-			M_log.warn(ignore,ignore);
+			M_log.info("Site not found for id:"+siteId+". New site will be created.");
 		}
 
 		// read the whole file into a DOM
