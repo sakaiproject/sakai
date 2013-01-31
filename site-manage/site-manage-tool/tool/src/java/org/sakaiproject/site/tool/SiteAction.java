@@ -3967,7 +3967,6 @@ public class SiteAction extends PagedResourceActionII {
 		}
 		// remove attributes
 		state.removeAttribute(ALL_ZIP_IMPORT_SITES);
-		state.removeAttribute(FINAL_ZIP_IMPORT_SITES);
 		state.removeAttribute(DIRECT_ZIP_IMPORT_SITES);
 		state.removeAttribute(CLASSIC_ZIP_FILE_NAME);
 		state.removeAttribute(SESSION_CONTEXT_ID);
