@@ -40,6 +40,7 @@ public class QtiImport {
     String maxattempts = "1";
     String siteId = null;
     boolean usesPatternMatch = false;
+    boolean usesCurriculum = false;
 
     class Pair {
 	String left;
@@ -1581,6 +1582,10 @@ public class QtiImport {
     }
 
 
+    public boolean getUsesCurriculum() {
+	return usesCurriculum;
+    }
+
     public boolean mainproc (InputStream i, PrintWriter o, boolean isBank, String base, String s, SimplePageBean b) throws IOException {
 
         out = o;
@@ -1663,6 +1668,10 @@ public class QtiImport {
 		    String newtitle = getAttribute(section, "title");
 		    if (newtitle == null || newtitle.equals(""))
 			newtitle = "Respondus Converted Questions";
+
+		    Node md = getFirstByName(item, "itemmetadata");
+		    if (md != null && getFirstByName(md, "curriculumStandardsMetadataSet") != null)
+			usesCurriculum = true;
 
 		    // for the moment can only write one section
 		    if (false) {

@@ -39,6 +39,9 @@ public class Ns  {
 						Namespace.getNamespace("blti", "http://www.imsglobal.org/xsd/imsbasiclti_v1p0"),
 						Namespace.getNamespace("blti", "http://www.imsglobal.org/xsd/imsbasiclti_v1p0")};
 
+    private static final Namespace CSMD_NS[] = {Namespace.NO_NAMESPACE,
+						Namespace.NO_NAMESPACE,
+						Namespace.getNamespace("", "http://www.imsglobal.org/xsd/imscsmetadata_v1p0")};
 
     public void setVersion(int v) {
 	version = v;
@@ -74,6 +77,10 @@ public class Ns  {
 
     public Namespace blti_ns() {
 	return BLTI_NS[version];
+    }
+
+    public Namespace csmd_ns() {
+	return CSMD_NS[version];
     }
 
 }

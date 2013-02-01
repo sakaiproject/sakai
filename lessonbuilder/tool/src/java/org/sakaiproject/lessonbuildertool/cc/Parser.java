@@ -234,6 +234,7 @@ public class Parser extends AbstractParser {
     if (metadata!=null) {
       the_handler.startManifestMetadata(metadata.getChildText(MD_SCHEMA, ns.cc_ns()), 
                                         metadata.getChildText(MD_SCHEMA_VERSION, ns.cc_ns()));
+      the_handler.checkCurriculum(metadata);
       Element lom=metadata.getChild(MD_ROOT, ns.lomimscc_ns());
       if (lom!=null) {
         the_handler.setManifestMetadataXml(lom);

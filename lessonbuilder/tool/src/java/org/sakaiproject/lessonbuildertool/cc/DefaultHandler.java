@@ -151,6 +151,8 @@ public class DefaultHandler implements AssessmentHandler, DiscussionHandler, Aut
   public void startAuthorization(boolean isCartridgeScope,
       boolean isResourceScope, boolean isImportScope) {}
 
+  public void checkCurriculum(Element the_md) {}
+
   public void setManifestMetadataXml(Element the_md) {}
 
   public void endManifestMetadata() {}

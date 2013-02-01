@@ -115,12 +115,14 @@ public abstract class AbstractParser {
   public void
   processResourceMetadata(DefaultHandler the_handler,
                           Element the_resource) throws ParseException {
-      if (the_resource.getChild(METADATA, the_handler.getNs().cc_ns())!=null) {
-	  Element md=the_resource.getChild(METADATA, the_handler.getNs().cc_ns()).getChild(MD_ROOT, the_handler.getNs().lom_ns());
-      if (md!=null) {    
-        the_handler.setResourceMetadataXml(md);
+      Element md = the_resource.getChild(METADATA, the_handler.getNs().cc_ns());
+      if (md != null) {
+	 the_handler.checkCurriculum(md);
+	 md=the_resource.getChild(METADATA, the_handler.getNs().cc_ns()).getChild(MD_ROOT, the_handler.getNs().lom_ns());
+	 if (md!=null) {    
+	     the_handler.setResourceMetadataXml(md);
+	 }
       }
-    }
   }
   
   public Element

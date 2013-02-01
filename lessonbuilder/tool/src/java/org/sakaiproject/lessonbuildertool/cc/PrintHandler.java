@@ -157,6 +157,7 @@ public class PrintHandler extends DefaultHandler implements AssessmentHandler, D
   boolean usesRole = false;
   boolean usesMentor = false;
   boolean usesPatternMatch = false;
+  boolean usesCurriculum = false;
 
     // this is the CC file name for all files added
   private Set<String> filesAdded = new HashSet<String>();
@@ -479,6 +480,8 @@ public class PrintHandler extends DefaultHandler implements AssessmentHandler, D
 		      boolean thisUsesPattern = imp.mainproc(instream, outwriter, isBank, base, siteId, simplePageBean);
 		      if (thisUsesPattern)
 			  usesPatternMatch = true;
+		      if (imp.getUsesCurriculum())
+			  usesCurriculum = true;
 		  } catch (Exception e) {
 		      e.printStackTrace();
 		  }
@@ -590,9 +593,19 @@ public class PrintHandler extends DefaultHandler implements AssessmentHandler, D
 	  System.err.println("start manifest");
   }
 
+  public void checkCurriculum(Element the_xml) {
+      Element md = the_xml.getChild("curriculumStandardsMetadataSet",ns.csmd_ns());
+      if (md != null) {
+	  if (md.getChild("curriculumStandardsMetadata",ns.csmd_ns()) != null) {
+	      usesCurriculum = true;
+	  }
+      }
+  }
+
   public void setManifestXml(Element the_xml) {
       if (all)
 	  System.err.println("manifest xml: "+the_xml);
+
   }
 
   public void endManifest() {
@@ -603,6 +616,8 @@ public class PrintHandler extends DefaultHandler implements AssessmentHandler, D
 	     (usesMentor ? simplePageBean.getMessageLocator().getMessage("simplepage.cc-uses-mentor") : null));
       if (usesPatternMatch)
 	  simplePageBean.setErrKey("simplepage.import_cc_usespattern", null);
+      if (usesCurriculum)
+	  simplePageBean.setErrKey("simplepage.cc-uses-curriculum", null);
 
   }
 
