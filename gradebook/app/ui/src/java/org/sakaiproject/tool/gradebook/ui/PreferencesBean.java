@@ -24,6 +24,7 @@ package org.sakaiproject.tool.gradebook.ui;
 
 import org.sakaiproject.tool.gradebook.Assignment;
 import org.sakaiproject.tool.gradebook.Category;
+import org.sakaiproject.component.cover.ServerConfigurationService;
 
 /**
  * Session-scoped preferences for the sakai gradebook.  These are currently
@@ -84,6 +85,23 @@ public class PreferencesBean {
         rosterTableSelectedSectionFilter = new Integer(EnrollmentTableBean.ALL_SECTIONS_SELECT_VALUE);
 
         defaultMaxDisplayedScoreRows = 50;
+        String defaultMaxDisplayedScoreRowsSakaiProp = ServerConfigurationService.getString("gradebook.defaultMaxDisplayedScoreRows");
+        if(defaultMaxDisplayedScoreRowsSakaiProp != null){
+        	try{
+        		int defaultMaxDisplayedScoreRowsSakaiPropInt = Integer.parseInt(defaultMaxDisplayedScoreRowsSakaiProp);
+        		if(defaultMaxDisplayedScoreRowsSakaiPropInt == 5 ||
+        				defaultMaxDisplayedScoreRowsSakaiPropInt == 10 ||
+        				defaultMaxDisplayedScoreRowsSakaiPropInt == 15 ||
+        				defaultMaxDisplayedScoreRowsSakaiPropInt == 20 ||
+        				defaultMaxDisplayedScoreRowsSakaiPropInt == 50 ||
+        				defaultMaxDisplayedScoreRowsSakaiPropInt == 100 ||
+        				defaultMaxDisplayedScoreRowsSakaiPropInt == 0){
+        			defaultMaxDisplayedScoreRows = defaultMaxDisplayedScoreRowsSakaiPropInt;
+        		}
+        	}catch (Exception e) {
+        		//integer parse issue, bad property
+			}
+        }
     }
 
 	// Paging preferences
