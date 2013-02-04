@@ -36,9 +36,9 @@
 			  <h:outputText value="#{msgs.feedback_options_cannot_change_percentage3}" rendered="#{!gradebookSetupBean.isValidWithCourseGrade}"/>
 			</h:panelGroup>
 	
-			<h4><h:outputText value="#{msgs.grade_entry_heading}"/></h4>
-			
-			<div class="indnt1">
+			<fieldset>
+			<legend><h4><h:outputText value="#{msgs.grade_entry_heading}"/></h4></legend>
+			<div class="indnt1 gbSection">
 				<div class="instruction"><h:outputText value="#{msgs.grade_entry_info}" escape="false"/></div>
 			
 				<h:selectOneRadio value="#{gradebookSetupBean.gradeEntryMethod}" id="gradeEntryMethod1" layout="pageDirection"  rendered="#{gradebookSetupBean.enableLetterGrade}"
@@ -54,6 +54,7 @@
 				</h:selectOneRadio>
 
 			</div>
+			</fieldset>
 			
 			<% /*Per SAK-10879, no longer allow user to customize letter grading scale. set rendered="false" and removed js call from select radio button */
 				/*onclick="javascript:displayHideElement(this.form, 'gradeEntryScale', 'gradeEntryMethod', 'letterGrade'); resize();"*/ %>
@@ -85,9 +86,9 @@
 				</t:dataTable>
 				
 			</h:panelGroup>
-				
-			<h4><h:outputText value="#{msgs.gb_setup_items_display}"/></h4>
 			
+			<fieldset>
+			<legend><h4><h:outputText value="#{msgs.gb_setup_items_display}"/></h4></legend>
 			<div class="indnt1">
 				<div class="gbSection">
 					<h:selectBooleanCheckbox id="releaseItems" value="#{gradebookSetupBean.localGradebook.assignmentsDisplayed}"	/>
@@ -97,6 +98,7 @@
 					</div>
 				</div>
 			</div>
+			</fieldset>
 			<%--
 			<h4><h:outputText value="#{msgs.gb_setup_grader_perms_title}"/></h4>
 			<div class="indnt1 gbSection">

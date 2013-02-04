@@ -1,7 +1,7 @@
 <script type="text/javascript" src="/library/js/jquery.js"></script>
 
-<h4><h:outputText value="#{msgs.cat_heading}" styleClass="gbSection" /></h4>
-
+<fieldset>
+<legend><h4><h:outputText value="#{msgs.cat_heading}" styleClass="gbSection" /></h4></legend>
 <div class="indnt1 gbSection">
 	<h:selectOneRadio value="#{gradebookSetupBean.categorySetting}" id="categorySetting" layout="pageDirection" 
 			valueChangeListener="#{gradebookSetupBean.processCategorySettingChange}" onclick="reEnableCategoryDropInputs();this.form.submit();">
@@ -189,6 +189,7 @@
 		<f:verbatim></div></f:verbatim>
 	</h:panelGroup>
 </div>
+</fieldset>
 
 <f:verbatim>
 <div style="visibility: hidden; left: 589px; top: 386px;" class="dhtmlPopup" id="dhtmlPopup_cat_point_value">
