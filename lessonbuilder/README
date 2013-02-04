@@ -103,39 +103,50 @@ that do what Hibernate would do, e.g.
 
 hbm/src/ddl/mysql/lessonbuilder-2.9.0-2.10.0.sql
 
-These scripts are not perfect. They will only work if you are startin
-with a version that is shipped with Sakai. I am maintaining a version
-lessonbuilder-2.9.0-trunk.sql. That will update you from 2.9.0 (or
-2.9.1) and lessonbuilder trunk. But after doing that, if there are
-further changes in trunk, I will not supply scripts for every possible
-update.
+These scripts are not perfect. They will only work if you are going 
+between two versions of Lessons that shipped with a Sakai release.
 
-However you can make your own. 
+In other situations, you can make your own update script. There is a
+script, schemaupdate, that reads lessonbuilder.sql for the old version
+and the new version, and produces a file that will update your schema
+from one to the other.
+
+You'll want to go to hbm/src/ddl and do "mvn clean install sakai:deploy"
+That will read the hibernate files and produce the following file
+that has all the declarations that Hibernate would use:
 
 hbm/src/ddl/mysql/lessonbuilder.sql 
 
-will create the tables for the current version. If you take the
-file from the version you're moving from and put it in
+Then go to your new surce, do the same thing, and put the copy from
+the old source here:
 
 hbm/src/ddl/old/mysql/lessonbuilder.sql 
 
-and run 
+Then run
 
 hbm/src/ddl/old/schemaupdate
 
-it will produce an update script for you in
+This will produce an update script for you in
 
 hbm/src/ddl/mysql/
 
-So to update without auto.ddl, generate an update script or
-use a prepackaged one, and also use 
+So to update without auto.ddl, 
+
+1. generate and load the update script (or if you're going between two
+versions shipped with Sakai starting with 2.9, use the update scrip I
+supply).
+
+2. Use the follwoing to upgrade indices.
 
 ./components/src/ddl/mysql/simplepage.sql
 
-and any other scripts in ./components/src/ddl/mysql that
+3. Look for  any other scripts in ./components/src/ddl/mysql that
 apply to your change, e.g.
 
 ./components/src/ddl/mysql/simplepage.pre29-to29.sql
+
+However we're going to try and avoid special scripts like that
+in the future if possible.
 
 
 TOMCAT
