@@ -434,6 +434,8 @@ public class Foorm {
 		int val = 0;
 		if (value != null && value instanceof Integer)
 			val = ((Integer) value).intValue();
+		if (value != null && value instanceof Number)
+			val = ((Number) value).intValue();
 		if (value != null && value instanceof String) {
 			Integer ival = new Integer((String) value);
 			val = ival.intValue();
