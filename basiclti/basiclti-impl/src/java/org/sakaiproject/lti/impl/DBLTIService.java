@@ -37,6 +37,7 @@ import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.SQLException;
 import java.util.Arrays;
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -276,6 +277,36 @@ public class DBLTIService extends BaseLTIService implements LTIService {
 		}
 
 		String[] contentModel = getContentModelDao(tool, siteId, isMaintainRole);
+		
+		//check to see whether the contentModel contains title or page title
+		List<String> contentModelList = new ArrayList<String>(Arrays.asList(contentModel));
+		if (!contentModelList.contains(LTI_TITLE) || !contentModelList.contains(LTI_PAGETITLE))
+		{
+			if (!contentModelList.contains(LTI_TITLE))
+			{
+				// add title
+				contentModelList.add(LTI_TITLE + ":text");
+				
+			}
+			if (!contentModelList.contains(LTI_PAGETITLE))
+			{
+				// add page title
+				contentModelList.add(LTI_PAGETITLE + ":text");
+			}
+			contentModel = contentModelList.toArray(new String[contentModelList.size()]);
+		
+			if (!newProps.containsKey(LTI_TITLE))
+			{
+				// update the 
+				newProps.put(LTI_TITLE, tool.get(LTI_TITLE));
+			}
+			
+			if (!newProps.containsKey(LTI_PAGETITLE))
+			{
+				newProps.put(LTI_PAGETITLE, tool.get(LTI_PAGETITLE));
+			}
+		}
+		
 		if (contentModel == null)
 			return rb.getString("error.invalid.toolid");
 		return insertThingDao("lti_content", contentModel, LTIService.CONTENT_MODEL, newProps, siteId, isMaintainRole);

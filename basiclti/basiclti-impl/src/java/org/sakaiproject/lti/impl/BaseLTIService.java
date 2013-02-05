@@ -801,23 +801,17 @@ public abstract class BaseLTIService implements LTIService {
 				SitePage sitePage = site.addPage();
 		
 				ToolConfiguration tool = sitePage.addTool(WEB_PORTLET);
-				String toolId = tool.getPageId();
+				tool.getPlacementConfig().setProperty("source",(String)content.get("launch_url"));
+				tool.setTitle((String) content.get(LTI_TITLE));
+				
 				sitePage.setTitle(button_text);
 				sitePage.setTitleCustom(true);
-				
 				siteService.save(site);
-				
-				tool.getPlacementConfig().setProperty("source",(String)content.get("launch_url"));
-				tool.setTitle(button_text);
-		
-				tool.save();
 		
 				// Record the new placement in the content item
 				Properties newProps = new Properties();
 				newProps.setProperty(LTI_PLACEMENT, tool.getId());
 				retval = updateContent(key, newProps, siteId);
-				
-				siteService.save(site);
 			}
 			catch (PermissionException ee)
 			{

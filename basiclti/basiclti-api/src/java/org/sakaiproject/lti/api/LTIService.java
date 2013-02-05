@@ -413,7 +413,8 @@ public interface LTIService {
 		"id:key", 
 		"tool_id:integer:hidden=true",
 		"SITE_ID:text:label=bl_content_site_id:required=true:maxlength=99:role=admin",
-		"title:text:label=bl_content_title:required=true:maxlength=255",
+		"title:text:label=bl_title:required=true:hidden=true:maxlength=255",
+		"pagetitle:text:label=bl_pagetitle:required=true:hidden=true:maxlength=255",
 		"frameheight:integer:label=bl_frameheight",
 		"newpage:checkbox:label=bl_newpage",
 		"debug:checkbox:label=bl_debug",
@@ -436,15 +437,21 @@ public interface LTIService {
 		"id:key",
 		"SITE_ID:text:maxlength=99:role=admin",
 		"title:text:label=bl_title:required=true:maxlength=255",
+		"allowtitle:radio:label=bl_allowtitle:choices=disallow,allow",
+		"pagetitle:text:label=bl_pagetitle:required=true:maxlength=255",
+		"allowpagetitle:radio:label=bl_allowpagetitle:choices=disallow,allow",
 		"description:textarea:label=bl_description:maxlength=4096:",
 		"status:radio:label=bl_status:choices=enable,disable",
 		"visible:radio:label=bl_visible:choices=visible,stealth:role=admin",
 		"launch:url:label=bl_launch:required=true:maxlength=1024",
+		"allowlaunch:radio:label=bl_allowlaunch:choices=disallow,allow",
 		"domain:text:label=bl_domain:hidden=true:maxlength=255",
 		"consumerkey:text:label=bl_consumerkey:required=true:maxlength=255",
+		"allowconsumerkey:radio:label=bl_allowconsumerkey:choices=disallow,allow",
 		"secret:text:required=true:label=bl_secret:maxlength=255",
+		"allowsecret:radio:label=bl_allowsecret:choices=disallow,allow",
 		"frameheight:integer:label=bl_frameheight",
-		"allowframeheight:checkbox:label=bl_allowframeheight",
+		"allowframeheight:radio:label=bl_allowframeheight:choices=disallow,allow",
 		"privacy:header:fields=sendname,sendemailaddr",
 		"sendname:checkbox:label=bl_sendname",
 		"sendemailaddr:checkbox:label=bl_sendemailaddr",
@@ -476,13 +483,19 @@ public interface LTIService {
 	static final String LTI_SITE_ID =     "SITE_ID";
 	static final String LTI_TOOL_ID =     "tool_id";
 	static final String LTI_TITLE =    	"title";
+	static final String LTI_ALLOWTITLE =	"allowtitle";
+	static final String LTI_PAGETITLE =    	"pagetitle";
+	static final String LTI_ALLOWPAGETITLE =	"allowpagetitle";
 	static final String LTI_PLACEMENT =    "placement";
 	static final String LTI_DESCRIPTION = "description";
 	static final String LTI_STATUS = 	"status";
 	static final String LTI_VISIBLE = 	"visible";
 	static final String LTI_LAUNCH = 	"launch";
+	static final String LTI_ALLOWLAUNCH = 	"allowlaunch";
 	static final String LTI_CONSUMERKEY= 	"consumerkey";
+	static final String LTI_ALLOWCONSUMERKEY= 	"allowconsumerkey";
 	static final String LTI_SECRET =   	"secret";
+	static final String LTI_ALLOWSECRET =   	"allowsecret";
 	static final String LTI_SECRET_INCOMPLETE = "-----";
 	static final String LTI_FRAMEHEIGHT = "frameheight";
 	static final String LTI_ALLOWFRAMEHEIGHT = "allowframeheight";

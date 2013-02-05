@@ -847,7 +847,7 @@ public class LTIAdminTool extends VelocityPortletPaneledAction
 		Properties reqProps = data.getParameters().getProperties();
 		String id = data.getParameters().getString(LTIService.LTI_ID);
 		String toolId = data.getParameters().getString(LTIService.LTI_TOOL_ID);
-		String title = data.getParameters().getString(LTIService.LTI_TITLE);
+		String title = data.getParameters().getString(LTIService.LTI_PAGETITLE);
 		Object retval = ltiService.insertToolContent(id, toolId, reqProps);
 		
 		if ( retval instanceof String ) 
