@@ -4117,7 +4117,7 @@ public class SimplePageBean {
 		List<SimplePageItem> items = getItemsOnPage(Long.valueOf(findItem(itemId).getSakaiId()));
 
 		for (SimplePageItem item : items) {
-			if (!isItemComplete(item)) {
+			if (!isItemComplete(item) && isItemVisible(item)) {
 			    if (item.getType() == SimplePageItem.PAGE) {
 				// If we get here, must be not completed or isItemComplete would be true
 				SimplePageLogEntry entry = getLogEntry(item.getId());
@@ -4187,7 +4187,7 @@ public class SimplePageBean {
 			if (i.getSakaiId().equals(currentPageId)) {
 				return needed;  // reached current page. we're done
 			}
-			if (i.isRequired() && !isItemComplete(i))
+			if (i.isRequired() && !isItemComplete(i) && isItemVisible(i))
 				needed.add(i.getName());
 		}
 
