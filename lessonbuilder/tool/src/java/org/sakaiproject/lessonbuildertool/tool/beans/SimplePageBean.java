@@ -4660,7 +4660,7 @@ public class SimplePageBean {
 					}
 					sakaiId = res.getId();
 
-					if("application/zip".equals(mimeType) && isWebsite) {
+					if(("application/zip".equals(mimeType) || "application/x-zip-compressed".equals(mimeType))  && isWebsite) {
 					    // We need to set the sakaiId to the resource id of the index file
 					    sakaiId = expandZippedResource(sakaiId);
 					    if (sakaiId == null)
