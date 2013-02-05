@@ -1659,6 +1659,7 @@ public class SiteAction extends PagedResourceActionII {
 								Map<String, Object> m = new HashMap<String, Object>();
 								Map<String, Object> ltiToolValues = m_ltiService.getTool(Long.valueOf(ltiToolId));
 								m.put("toolTitle", ltiToolValues.get(LTIService.LTI_TITLE));
+								m.put("pageTitle", ltiToolValues.get(LTIService.LTI_PAGETITLE));
 								m.put(LTIService.LTI_TITLE, (String) content.get(LTIService.LTI_TITLE));
 								m.put("contentKey", content.get(LTIService.LTI_ID));
 								linkedLtiContents.put(ltiToolId, m);
@@ -2707,7 +2708,8 @@ public class SiteAction extends PagedResourceActionII {
 					{
 						contentToolModel[k] = ltiToolId + "_" + contentToolModel[k];
 					}
-					String formInput=m_ltiService.formInput(null, contentToolModel);
+					Map<String, Object> ltiTool = m_ltiService.getTool(Long.valueOf(ltiToolId));
+					String formInput=m_ltiService.formInput(ltiTool, contentToolModel);
 					toolMap.put("formInput", formInput);
 					currentLtiTools.put(ltiToolId, toolMap);
 				}
@@ -9599,8 +9601,8 @@ public class SiteAction extends PagedResourceActionII {
 	                else
 	                {
 	                	// success inserting tool content
-	                	String title = reqProperties.getProperty("title");
-	                	retval = m_ltiService.insertToolSiteLink(((Long) retval).toString(), title, site.getId());
+	                	String pageTitle = reqProperties.getProperty("pagetitle");
+	                	retval = m_ltiService.insertToolSiteLink(((Long) retval).toString(), pageTitle, site.getId());
 	                	if (retval instanceof String)
 	                	{
 		        			addAlert(state, ((String) retval).substring(2));
