@@ -55,6 +55,8 @@ Boolean allowSettings = (Boolean) rReq.getAttribute("allowSettings");
 
 Boolean allowRoster = (Boolean) rReq.getAttribute("allowRoster");
 
+Boolean allowLori = (Boolean) rReq.getAttribute("allowLori");
+
 Boolean allowContentLink = (Boolean) rReq.getAttribute("allowContentLink");
 
 %>
@@ -66,6 +68,7 @@ Boolean allowContentLink = (Boolean) rReq.getAttribute("allowContentLink");
 			<a href="<%=viewURL.toString()%>"><%=rb.getString("edit.exit")%></a>
 		</span>
 	</li>	
+ri
 	<li role="menuitem">
 		<span>
 			<a href="<%=resetURL.toString()%>"><%=rb.getString("edit.clear.prefs")%></a>
@@ -79,7 +82,8 @@ Boolean allowContentLink = (Boolean) rReq.getAttribute("allowContentLink");
         allow(sp,"height") || allow(sp,"width") || 
         allow(sp,"frameheight") || allow(sp,"custom") || 
         allow(sp, "releasename") || allow(sp,"releaseemail")  ||
-        allow(sp, "allowroster") || allow(sp,"allowsettings") 
+        allow(sp, "allowroster") || allow(sp,"allowsettings") ||
+        allow(sp, "allowlori")
 ) { %>
 <form method="post" action="<%=launchURL.toString()%>">
 <!-- If key and secret are final, then either xml or launch final means no launch change by the user -->
@@ -240,7 +244,9 @@ if ( document.getElementById("UISwitcher") ) switchui();
 <% } %>
 
 <% if ( allow(sp,"releasename") || allow(sp, "releaseemail") || 
-        ( allow(sp, "allowroster") && allowRoster ) ) { %>
+        ( allow(sp, "allowroster") && allowRoster )  || 
+        ( allow(sp, "allowlori") && allowLori ) 
+) { %>
 <h3><%=rb.getString("launch.privacy") %></h3>
 <% if ( allow(sp,"releasename") ) { %>
 	<p class="checkbox indnt1">
@@ -276,6 +282,19 @@ if ( document.getElementById("UISwitcher") ) switchui();
 <% } %>
 <label for="imsti.allowroster"><%=rb.getString("privacy.allowroster") %></label>
 <span class="textPanelFooter"><%=rb.getString("allowroster.detail") %></span>
+</p>
+<% } %>
+<% if ( allow(sp,"allowlori") && allowLori ) { %>
+<p>
+
+<input type="checkbox" size="10" name="imsti.allowlori" id="imsti.allowlori" 
+<% if ( ov.getProperty("imsti.allowlori",null) != null ) { %>
+  checked="yes" />
+<% } else { %>
+   />
+<% } %>
+<label for="imsti.allowlori"><%=rb.getString("privacy.allowlori") %></label>
+<span class="textPanelFooter"><%=rb.getString("allowlori.detail") %></span>
 </p>
 <% } %>
 

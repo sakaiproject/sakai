@@ -19,8 +19,10 @@
 
 package org.sakaiproject.blti;
 
+import java.lang.StringBuffer;
 import java.io.IOException;
 import java.io.PrintWriter;
+import java.net.URL;
 import java.util.Arrays;
 import java.util.List;
 import java.util.ArrayList;
@@ -30,7 +32,7 @@ import java.util.Properties;
 import java.util.Enumeration;
 import java.util.Set;
 import java.util.Iterator;
-import java.lang.StringBuffer;
+import java.util.UUID;
 
 import javax.servlet.ServletConfig;
 import javax.servlet.ServletException;
@@ -48,6 +50,14 @@ import net.oauth.server.OAuthServlet;
 import net.oauth.signature.OAuthSignatureMethod;
 
 import org.imsglobal.basiclti.XMLMap;
+
+import org.w3c.dom.Node;
+import org.w3c.dom.Element;
+import org.w3c.dom.NodeList;
+import javax.xml.xpath.XPath;
+import javax.xml.xpath.XPathExpression;
+import javax.xml.xpath.XPathFactory;
+import javax.xml.xpath.XPathConstants;
 
 import org.sakaiproject.component.cover.ComponentManager;
 import org.apache.commons.logging.Log;
@@ -85,11 +95,15 @@ import org.sakaiproject.service.gradebook.shared.ConflictingExternalIdException;
 import org.sakaiproject.service.gradebook.shared.GradebookNotFoundException;
 import org.sakaiproject.service.gradebook.shared.Assignment;
 
+import org.sakaiproject.lessonbuildertool.SimplePageItem;
+
 import org.imsglobal.pox.IMSPOXRequest;
 
 import org.sakaiproject.lti.api.LTIService;
 import org.sakaiproject.util.foorm.SakaiFoorm;
 import org.sakaiproject.util.foorm.FoormUtil;
+
+import org.sakaiproject.blti.LessonsFacade;
 
 /**
  * Notes:
@@ -126,6 +140,15 @@ public class ServiceServlet extends HttpServlet {
     protected static SakaiFoorm foorm = new SakaiFoorm();
 
     protected static LTIService ltiService = null;
+
+	protected static XPath xpath = null;
+	protected static XPathExpression LESSONS_RESOURCES_EXPR = null;
+	protected static XPathExpression LESSONS_FOLDER_EXPR = null;
+	protected static XPathExpression LESSONS_TYPE_EXPR = null;
+	protected static XPathExpression LESSONS_TITLE_EXPR = null;
+	protected static XPathExpression LESSONS_TEMPID_EXPR = null;
+	protected static XPathExpression LESSONS_URL_EXPR = null;
+	protected static XPathExpression LESSONS_CUSTOM_EXPR = null;
 
 	private final String returnHTML = 
 		"<!DOCTYPE html PUBLIC \"-//W3C//DTD XHTML 1.0 Transitional//EN\"\n" + 
@@ -190,7 +213,21 @@ public class ServiceServlet extends HttpServlet {
 	@Override
 		public void init(ServletConfig config) throws ServletException {
 			super.init(config);
+            LessonsFacade.init();
 			if ( ltiService == null ) ltiService = (LTIService) ComponentManager.get("org.sakaiproject.lti.api.LTIService");
+			try {
+				xpath = XPathFactory.newInstance().newXPath();
+				LESSONS_RESOURCES_EXPR = xpath.compile("params/resources/*");
+				LESSONS_FOLDER_EXPR = xpath.compile("resources/*");
+				LESSONS_TYPE_EXPR = xpath.compile("type");
+				LESSONS_TITLE_EXPR = xpath.compile("title");
+				LESSONS_TEMPID_EXPR = xpath.compile("tempId");
+				LESSONS_URL_EXPR = xpath.compile("launchUrl");
+				LESSONS_CUSTOM_EXPR = xpath.compile("launchParams");
+			} catch (Exception e) {
+				M_log.error("Error compiling XPath expressions.");
+				throw new ServletException();
+			}
 		}
 
 	/* launch_presentation_return_url=http://lmsng.school.edu/portal/123/page/988/
@@ -254,7 +291,9 @@ public class ServiceServlet extends HttpServlet {
 	@SuppressWarnings("unchecked")
 		protected void doPost(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
 			String contentType = request.getContentType();
-			if ( contentType != null && contentType.startsWith("application/xml") ) {
+			if ( contentType != null && contentType.startsWith("application/json") ) {
+				doPostJSON(request, response);
+			} else if ( contentType != null && contentType.startsWith("application/xml") ) {
 				doPostXml(request, response);
 			} else {
 				doPostForm(request, response);
@@ -280,7 +319,7 @@ public class ServiceServlet extends HttpServlet {
 			if ( ! "true".equals(allowRoster) ) allowRoster = null;
 
 			if (allowOutcomes == null && allowSettings == null && allowRoster == null ) {
-				M_log.warn("Basic LTI Services are disabled IP=" + ipAddress);
+				M_log.warn("LTI Services are disabled IP=" + ipAddress);
 				response.setStatus(HttpServletResponse.SC_FORBIDDEN);
 				return;
 			}
@@ -739,7 +778,7 @@ public class ServiceServlet extends HttpServlet {
 		}
 
 	/* IMS POX XML versions of this service */
-	public void doErrorXml(HttpServletRequest request,HttpServletResponse response, 
+	public void doErrorXML(HttpServletRequest request,HttpServletResponse response, 
 			IMSPOXRequest pox, String s, String message, Exception e) 
 		throws java.io.IOException 
 		{
@@ -759,8 +798,21 @@ public class ServiceServlet extends HttpServlet {
 			out.println(output);
 		}
 
+
 	@SuppressWarnings("unchecked")
-		protected void doPostXml(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
+    protected void doPostJSON(HttpServletRequest request, HttpServletResponse response) 
+            throws ServletException, IOException 
+    {
+        String ipAddress = request.getRemoteAddr();
+
+        M_log.warn("LTI JSON Services not implemented IP=" + ipAddress);
+        response.setStatus(HttpServletResponse.SC_FORBIDDEN);
+        return;
+    }
+
+	@SuppressWarnings("unchecked")
+	protected void doPostXml(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException 
+	{
 
 			String ipAddress = request.getRemoteAddr();
 
@@ -770,15 +822,19 @@ public class ServiceServlet extends HttpServlet {
 					SakaiBLTIUtil.BASICLTI_OUTCOMES_ENABLED, null);
 			if ( ! "true".equals(allowOutcomes) ) allowOutcomes = null;
 
-			if (allowOutcomes == null ) {
-				M_log.warn("Basic LTI Services are disabled IP=" + ipAddress);
+			String allowLori = ServerConfigurationService.getString(
+					SakaiBLTIUtil.BASICLTI_LORI_ENABLED, null);
+			if ( ! "true".equals(allowLori) ) allowLori = null;
+
+			if (allowOutcomes == null && allowLori == null ) {
+				M_log.warn("LTI Services are disabled IP=" + ipAddress);
 				response.setStatus(HttpServletResponse.SC_FORBIDDEN);
 				return;
 			}
 
 			IMSPOXRequest pox = new IMSPOXRequest(request);
 			if ( ! pox.valid ) {
-				doErrorXml(request, response, pox, "pox.invalid", pox.errorMessage, null);
+				doErrorXML(request, response, pox, "pox.invalid", pox.errorMessage, null);
 				return;
 			}
 
@@ -787,12 +843,19 @@ public class ServiceServlet extends HttpServlet {
 
 			String sourcedid = null;
 			String message_type = null;
+			System.out.println("POST\n"+XMLMap.prettyPrint(pox.postBody));
+			Map<String,String> bodyMap = pox.getBodyMap();
+System.out.println("MESSAGE="+lti_message_type);
 			if ( ( "replaceResultRequest".equals(lti_message_type) || "readResultRequest".equals(lti_message_type) ||
                    "deleteResultRequest".equals(lti_message_type) )  && allowOutcomes != null ) {
-				Map<String,String> bodyMap = pox.getBodyMap();
 				sourcedid = bodyMap.get("/resultRecord/sourcedGUID/sourcedId");
-				// System.out.println("sourcedid="+sourcedid);
 				message_type = "basicoutcome";
+			} else if ( "getCourseStructureRequest".equals(lti_message_type) ) {
+                sourcedid = bodyMap.get("/params/sourcedGUID/sourcedId");
+				message_type = "getstructure";
+			} else if ( "addCourseResourcesRequest".equals(lti_message_type) ) {
+                sourcedid = bodyMap.get("/params/sourcedGUID/sourcedId");
+				message_type = "addstructure";
 			} else {
 				String output = pox.getResponseUnsupported("Not supported "+lti_message_type);
 				response.setContentType("application/xml");
@@ -801,9 +864,11 @@ public class ServiceServlet extends HttpServlet {
 				return;
 			}
 
+System.out.println("sourcedid="+sourcedid);
+
 			// No point continuing without a sourcedid
 			if(BasicLTIUtil.isBlank(sourcedid)) {
-				doErrorXml(request, response, pox, "outcomes.missing", "sourcedid", null);
+				doErrorXML(request, response, pox, "outcomes.missing", "sourcedid", null);
 				return;
 			}
 
@@ -833,7 +898,7 @@ public class ServiceServlet extends HttpServlet {
 
 			// Send a more generic message back to the caller
 			if ( placement_id == null || user_id == null ) {
-				doErrorXml(request, response, pox, "outcomes.sourcedid", "sourcedid", null);
+				doErrorXML(request, response, pox, "outcomes.sourcedid", "sourcedid", null);
 				return;
 			}
 
@@ -871,7 +936,7 @@ public class ServiceServlet extends HttpServlet {
 				if (pox.base_string != null) {
 					M_log.warn(pox.base_string);
 				}
-				doErrorXml(request, response, pox, "outcome.no.validate", oauth_consumer_key, null);
+				doErrorXML(request, response, pox, "outcome.no.validate", oauth_consumer_key, null);
 				return;
 			}
 
@@ -880,7 +945,7 @@ public class ServiceServlet extends HttpServlet {
 
 			// Send a generic message back to the caller
 			if ( placement_secret ==null ) {
-				doErrorXml(request, response, pox, "outcomes.sourcedid", "sourcedid", null);
+				doErrorXML(request, response, pox, "outcomes.sourcedid", "sourcedid", null);
 				return;
 			}
 
@@ -899,12 +964,18 @@ public class ServiceServlet extends HttpServlet {
 
 			// Send a message back to the caller
 			if ( ! matched ) {
-				doErrorXml(request, response, pox, "outcomes.sourcedid", "sourcedid", null);
+				doErrorXML(request, response, pox, "outcomes.sourcedid", "sourcedid", null);
 				return;
 			}
 
-			if ( "basicoutcome".equals(message_type) ) {
+			String placementLori = pitch.getProperty("allowlori");
+
+			if ( allowOutcomes != null && "basicoutcome".equals(message_type) ) {
 				processOutcomeXml(request, response, lti_message_type, site, siteId, pitch, user_id, pox);
+			} else if ( allowLori != null && "on".equals(placementLori) && "getstructure".equals(message_type) ) {
+				processCourseStructureXml(request, response, lti_message_type, siteId, pox);
+			} else if ( allowLori != null && "on".equals(placementLori) && "addstructure".equals(message_type) ) {
+				processAddResourceXML(request, response, lti_message_type, siteId, pox);
 			} else {
 				response.setContentType("application/xml");
 				PrintWriter writer = response.getWriter();
@@ -912,8 +983,252 @@ public class ServiceServlet extends HttpServlet {
 				String output = pox.getResponseUnsupported(desc);
 				writer.println(output);
 			}
-
 		}
+
+	protected void processCourseStructureXml(HttpServletRequest request, HttpServletResponse response, 
+			String lti_message_type, String siteId, IMSPOXRequest pox)
+		throws java.io.IOException
+	{
+            // userId is irrelevant as this is server to server
+			Map<String,String> bodyMap = pox.getBodyMap();
+			String context_id = bodyMap.get("/params/courseId");
+			if ( context_id == null || ! context_id.equals(siteId) ) {
+				doErrorXML(request, response, pox, "outcomes.sourcedid", "sourcedid", null);
+				M_log.warn("mis-match courseId="+context_id+" siteId="+siteId);
+				return;
+			}
+
+			List<Long> structureList = new ArrayList<Long>();
+
+		    List<SimplePageItem> sitePages = LessonsFacade.findItemsInSite(context_id);
+            List<Map<String,Object>> structureMap = iteratePagesXML(sitePages,structureList,0);
+
+			response.setContentType("application/xml");
+			String output = pox.getResponseUnsupported("YO");
+			if ( structureMap.size() > 0 ) {
+				Map<String,Object> theMap = new TreeMap<String,Object>();
+				theMap.put("/getCourseStructureResponse/resources/resource",structureMap);
+				String theXml = XMLMap.getXMLFragment(theMap, true);
+				output = pox.getResponseSuccess("Cool", theXml);
+			}
+
+			PrintWriter out = response.getWriter();
+			out.println(output);
+			System.out.println(output);
+			return;
+	}
+
+	protected void processAddResourceXML(HttpServletRequest request, HttpServletResponse response, 
+			String lti_message_type, String siteId, IMSPOXRequest pox)
+		throws java.io.IOException
+	{
+            // userId is irrelevant because this is server to server
+			Map<String,String> bodyMap = pox.getBodyMap();
+			String context_id = bodyMap.get("/params/courseId");
+
+			if ( context_id == null || ! context_id.equals(siteId) ) {
+				doErrorXML(request, response, pox, "outcomes.sourcedid", "sourcedid", null);
+				M_log.warn("mis-match courseId="+context_id+" siteId="+siteId);
+				return;
+			}
+
+			String folder_id = bodyMap.get("/params/folderId");
+			Long folderId = null;
+			try { folderId = new Long(folder_id); }
+			catch (Exception e) { folderId = null; }
+
+			List<Long> structureList = new ArrayList<Long>();
+			List<SimplePageItem> sitePages = LessonsFacade.findItemsInSite(context_id);
+			SimplePageItem thePage = LessonsFacade.findFolder(sitePages, folderId, structureList, 1);
+
+			// Something wrong, add on the first page
+			if ( thePage == null ) {
+				System.out.println("Inserting at top...");
+				for (SimplePageItem i : sitePages) {
+					if (i.getType() != SimplePageItem.PAGE) continue;
+					// System.out.println("item="+i.getName()+"id="+i.getId()+" sakaiId="+i.getSakaiId());
+					thePage = i;
+					break;
+				}
+			}
+
+			if ( thePage == null ) {
+				doErrorXML(request, response, pox, "lessons.page.notfound", 
+					"Unable to find page in structure at "+folderId, null);
+				return;
+			}
+
+			Element bodyElement = pox.bodyElement;
+			// System.out.println(XMLMap.nodeToString(bodyElement));
+			// System.out.println(XMLMap.nodeToString(bodyElement, true));
+			NodeList nl = null;
+			try {
+				Object result = LESSONS_RESOURCES_EXPR.evaluate(bodyElement, XPathConstants.NODESET);
+				nl = (NodeList) result;
+				// System.out.println("result = "+result+" count="+nl.getLength());
+			} catch(Exception e) {
+				e.printStackTrace();
+				nl = null;
+			}
+
+			if ( nl == null || nl.getLength() < 1 ) {
+				doErrorXML(request, response, pox, "lessons.page.noresources", 
+					"No resources to add", null);
+				return;
+			}
+
+
+            Long pageNum = Long.valueOf(thePage.getSakaiId());
+            List<SimplePageItem> items = LessonsFacade.findItemsOnPage(pageNum);
+			int seq = items.size() + 1;
+System.out.println("seq="+seq);
+            List<Map<String,String>> resultList = new ArrayList<Map<String,String>>();
+
+			recursivelyAddResourcesXML(context_id, thePage, nl, seq, resultList);
+
+            Map<String,Object> theMap = new TreeMap<String,Object>();
+            theMap.put("/addCourseResourcesResponse/resources/resource",resultList);
+            String theXml = XMLMap.getXMLFragment(theMap, true);
+
+			response.setContentType("application/xml");
+			String output = pox.getResponseSuccess("Items Added",theXml);
+
+			PrintWriter out = response.getWriter();
+			out.println(output);
+			System.out.println(output);
+	}
+
+	protected void recursivelyAddResourcesXML(String siteId, SimplePageItem thePage, NodeList nl, 
+        int startPos, List<Map<String,String>> resultList)
+	{
+		for(int i=0, cnt=nl.getLength(); i<cnt; i++)
+		{
+			Node node = nl.item(i);
+			if ( node.getNodeType() != Node.ELEMENT_NODE ) continue;
+			System.out.println("Node="+node.getNodeName());
+
+			if ( ! "resource".equals(node.getNodeName()) ) {
+				continue;
+			}
+
+			String typeStr = null;
+			try {
+				typeStr = (String) LESSONS_TYPE_EXPR.evaluate(node);
+			} catch (Exception e) {
+				typeStr = null;
+			}
+			String titleStr = null;
+			try {
+				titleStr = (String) LESSONS_TITLE_EXPR.evaluate(node);
+			} catch (Exception e) {
+				titleStr = null;
+			}
+			String tempId = null;
+			try {
+				tempId = (String) LESSONS_TEMPID_EXPR.evaluate(node);
+			} catch (Exception e) {
+				tempId = null;
+			}
+			
+			if ( "folder".equals(typeStr) ) {
+				SimplePageItem subPageItem = LessonsFacade.addLessonsFolder(thePage, titleStr, startPos);
+                if ( tempId != null ) {
+                    Map<String,String> result = new TreeMap<String,String> ();
+                    result.put("/tempId",tempId);
+                    result.put("/id", subPageItem.getSakaiId());
+                    resultList.add(result);
+                }
+				startPos++;
+				NodeList childNodes = null;
+				try {
+					Object result = LESSONS_FOLDER_EXPR.evaluate(node, XPathConstants.NODESET);
+					childNodes = (NodeList) result;
+					System.out.println("children of the folder = "+result+" count="+childNodes.getLength());
+				} catch(Exception e) {
+					e.printStackTrace();
+					nl = null;
+				}
+
+				System.out.println("===== DOWN THE RABIT HOLE ==========");
+				recursivelyAddResourcesXML(siteId, subPageItem, childNodes, 1, resultList);
+				continue;
+			}
+
+			if ( ! "lti".equals(typeStr) ) {
+				M_log.warn("No support for type:"+typeStr);
+				continue;
+			}
+
+			String launchUrl = null;
+			try {
+				launchUrl = (String) LESSONS_URL_EXPR.evaluate(node);
+			} catch (Exception e) {
+				launchUrl = null;
+			}
+			String launchParams = null;
+			try {
+				launchParams = (String) LESSONS_CUSTOM_EXPR.evaluate(node);
+			} catch (Exception e) {
+				launchParams = null;
+			}
+
+			if ( titleStr == null || launchUrl == null || launchParams == null ) {
+				M_log.warn("Missing required value type, name, url, launch, parms");
+				continue;
+			}
+
+System.out.println("type="+typeStr+" name="+titleStr+" launchUrl="+launchUrl+" lanchParams="+launchParams);
+
+			// Time to add the launch tool
+			String sakaiId = LessonsFacade.doImportTool(siteId, launchUrl, titleStr, null, launchParams);
+
+			if ( sakaiId == null ) {
+				M_log.warn("Unable to add LTI Placement "+titleStr);
+				continue;
+			}
+
+            if ( tempId != null ) {
+                Map<String,String> result = new TreeMap<String,String> ();
+                result.put("/tempId",tempId);
+                result.put("/id", sakaiId);
+                resultList.add(result);
+            }
+			LessonsFacade.addLessonsLaunch(thePage, sakaiId, titleStr, startPos);
+		}
+	}
+
+	protected List<Map<String,Object>> iteratePagesXML(List<SimplePageItem> sitePages, 
+		List<Long> structureList, int depth)
+	{
+		List<Map<String,Object>> structureMap = new ArrayList<Map<String,Object>>();
+
+		if ( depth > 10 ) return null;
+		for (SimplePageItem i : sitePages) {
+			if ( structureList.size() > 50 ) return structureMap;
+            // System.out.println("d="+depth+" o="+structureList.size()+" Page ="+i.getSakaiId()+" title="+i.getName());
+			if (i.getType() != SimplePageItem.PAGE) continue;
+			Long pageNum = Long.valueOf(i.getSakaiId());
+
+			String title = i.getName();
+			if ( structureList.size() == 50 ) title = " ... ";
+			structureList.add(i.getId());
+
+			Map<String,Object> cMap = new TreeMap<String,Object>();
+			cMap.put("/folderId",i.getSakaiId());
+			cMap.put("/title",title);
+			cMap.put("/description",title);
+			cMap.put("/type","folder");
+
+			List<SimplePageItem> items = LessonsFacade.findItemsOnPage(pageNum);
+            // System.out.println("Items="+items);
+		    List<Map<String,Object>> subMap = iteratePagesXML(items, structureList, depth+1);
+            if (subMap != null && subMap.size() > 0 ) {
+			    cMap.put("/resources/resource",subMap);
+            }
+			structureMap.add(cMap);
+		}
+        return structureMap;
+	}
 
 	protected void processOutcomeXml(HttpServletRequest request, HttpServletResponse response, 
 			String lti_message_type, 
@@ -928,7 +1243,7 @@ public class ServiceServlet extends HttpServlet {
 				if(member != null ) userExistsInSite = true;
 			} catch (Exception e) {
 				M_log.warn(e.getLocalizedMessage() + " siteId="+siteId, e);
-				doErrorXml(request, response, pox, "outcome.site.membership", "", e);
+				doErrorXML(request, response, pox, "outcome.site.membership", "", e);
 				return;
 			}
 
@@ -936,7 +1251,7 @@ public class ServiceServlet extends HttpServlet {
 			String assignment = pitch.getProperty("assignment");
 			M_log.debug("ASSN="+assignment);
 			if ( assignment == null ) {
-				doErrorXml(request, response, pox, "outcome.no.assignment", "", null);
+				doErrorXML(request, response, pox, "outcome.no.assignment", "", null);
 				return;
 			}
 
@@ -949,7 +1264,7 @@ public class ServiceServlet extends HttpServlet {
 			popAdvisor();
 
 			if ( assignmentObject == null ) {
-				doErrorXml(request, response, pox, "outcome.no.assignment", "", null);
+				doErrorXML(request, response, pox, "outcome.no.assignment", "", null);
 				return;
 			}
 
@@ -963,7 +1278,7 @@ public class ServiceServlet extends HttpServlet {
 			// System.out.println("grade="+result_resultscore_textstring);
 
 			if(BasicLTIUtil.isBlank(result_resultscore_textstring) && ! isRead && ! isDelete ) {
-				doErrorXml(request, response, pox, "outcomes.missing", "result_resultscore_textstring", null);
+				doErrorXML(request, response, pox, "outcomes.missing", "result_resultscore_textstring", null);
 				return;
 			}
 
@@ -1020,7 +1335,7 @@ public class ServiceServlet extends HttpServlet {
 				}
 				success = true;
 			} catch (Exception e) {
-				doErrorXml(request, response, pox, "outcome.grade.fail", e.getMessage()+" siteId="+siteId, e);
+				doErrorXML(request, response, pox, "outcome.grade.fail", e.getMessage()+" siteId="+siteId, e);
 			} finally {
 				sess.invalidate(); // Make sure to leave no traces
 				popAdvisor();
@@ -1088,7 +1403,7 @@ public class ServiceServlet extends HttpServlet {
 		String [] fieldList = { "key", LTIService.LTI_SECRET, LTIService.LTI_PLACEMENTSECRET, 
 				LTIService.LTI_OLDPLACEMENTSECRET, LTIService.LTI_ALLOWSETTINGS, 
 				"assignment", LTIService.LTI_ALLOWROSTER, "releasename", "releaseemail", 
-				"toolsetting"};
+				"toolsetting", "allowlori"};
 
 		Properties retval = new Properties();
 
@@ -1125,6 +1440,9 @@ public class ServiceServlet extends HttpServlet {
 			String contentStr = placement_id.substring(8);
 			Long contentKey = foorm.getLongKey(contentStr);
 			if ( contentKey < 0 ) return null;
+
+			// Leave off the siteId - bypass all checking - because we need to 
+			// finde the siteId from the content item
 			content = ltiService.getContentDao(contentKey);
 			if ( content == null ) return null;
 			siteId = (String) content.get(LTIService.LTI_SITE_ID);

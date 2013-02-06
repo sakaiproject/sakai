@@ -45,6 +45,17 @@ if ( $context->valid ) {
         print 'Test LTI 1.1 Outcome Service</a>.</p>'."\n";
     }
 
+    if ( $_POST['context_id'] && $_POST['ext_lori_api_url_xml'] && $_POST['lis_result_sourcedid'] ) {
+        print "<p>\n";
+        print '<a href="ext/lori_xml.php?context_id='.htmlentities($_POST['context_id']);
+        print '&lis_result_sourcedid='.urlencode($_POST['lis_result_sourcedid']);
+        print '&user_id='.urlencode($_POST['user_id']);
+        print '&key='.urlencode($_POST['oauth_consumer_key']);
+        print '&url='.urlencode($_POST['ext_lori_api_url_xml']).'">';
+        print 'Test LORI XML API</a>.</p>'."\n";
+        $found = true;
+    }
+
     if ( $_POST['ext_ims_lis_memberships_id'] && $_POST['ext_ims_lis_memberships_url'] ) {
         print "<p>\n";
         print '<a href="ext/memberships.php?id='.htmlentities($_POST['ext_ims_lis_memberships_id']);
@@ -53,6 +64,7 @@ if ( $context->valid ) {
         print 'Test Sakai Roster API</a>.</p>'."\n";
 		$found = true;
     }
+
     if ( $_POST['lis_result_sourcedid'] && $_POST['ext_ims_lis_basic_outcome_url'] ) {
         print "<p>\n";
         print '<a href="ext/setoutcome.php?sourcedid='.$sourcedid;

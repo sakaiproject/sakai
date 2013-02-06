@@ -1,0 +1,53 @@
+
+=======  TODO ========
+
+processAddResourcesJSON - check siteid in addition to page id
+
+Clean up JSON to match XML 
+   name -> title
+
+Complete/Clean up test harnesses for new JSON
+
+Write/Update API documentation for JSON version
+
+Talk to Stephen to coordinate
+
+Refactor ServiceServlet into several files - Avoid ResourcesAction syndrome :)
+basiclti-blis/src/java/org/sakaiproject/blti/ServiceServlet.java
+
+Add LORI-support to Velocity-based LTI structures - will 
+require conversion :(
+
+Write test plan...
+
+=======  COMPLETED ========
+
+Make sure collections work
+
+Add ServerConfiguration stuff.
+
+Figure out why folderId is not round tripping
+
+Add UI to tick enabling LORI in portlet
+
+Return tempids after addCourseResources
+
+processAddResourcesXML - check siteid in addition to page id
+
+Make sure to match the siteId and check the userId after sourcedid
+
+Refactor the key/value code to be smarter about when to include 
+extension attributes.
+
+Check with Scriby to see if I can architecturally ignore the PKI 
+key and just use sourcedid.  If so - work through code to insure
+sourcedid is what I think it is throughout.
+
+Switch getCourseStructure to recursive
+
+Complete/Clean up test harnesses for XML 
+
+Pull out LessonsFacade
+
+Write API documentation for XML
+

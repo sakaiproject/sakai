@@ -47,6 +47,7 @@
                 <configuration name="imsti.allowsettings" />
                 <configuration name="imsti.allowroster" />
                 <configuration name="imsti.allowoutcomes" />
+                <configuration name="imsti.allowlori" />
                 <configuration name="imsti.contentlink" />
 
                 <!-- Setting these to true means the corresponding above values 
@@ -68,6 +69,7 @@
                 <configuration name="final.allowsettings" value="false"/>
                 <configuration name="final.allowroster" value="false"/>
                 <configuration name="final.allowoutcomes" value="false"/>
+                <configuration name="final.allowlori" value="false"/>
                 <configuration name="final.contentlink" value="false"/>
 
                 <!-- Allow multiple instances of this tool within one site -->
@@ -109,6 +111,7 @@
                 <configuration name="imsti.allowsettings" value="on"/>
                 <configuration name="imsti.allowroster" value="on"/> 
                 <configuration name="imsti.allowoutcomes" value="on"/> 
+                <configuration name="imsti.allowlori" value="on"/> 
                 <configuration name="imsti.contentlink" />
 
                 <configuration name="final.launch" value="true"/>
@@ -128,6 +131,7 @@
                 <configuration name="final.allowsettings" value="true"/>
                 <configuration name="final.allowroster" value="true"/>
                 <configuration name="final.allowoutcomes" value="true"/>
+                <configuration name="final.allowlori" value="true"/>
                 <configuration name="final.contentlink" value="true"/>
         </tool>
         -->
