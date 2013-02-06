@@ -54,6 +54,52 @@
 		<property name="timeService"><ref bean="org.sakaiproject.time.api.TimeService"/></property>
 		<property name="toolManager"><ref bean="org.sakaiproject.tool.api.ToolManager"/></property>
 		<property name="idManager"><ref bean="org.sakaiproject.id.api.IdManager"/></property>
+		<property name="institutionalSubscriptionCache">
+			<ref bean="org.sakaiproject.calendar.impl.BaseExternalCacheSubscriptionService.institutionalCache"/>
+		</property>
+		<property name="userSubscriptionCache">
+			<ref bean="org.sakaiproject.calendar.impl.BaseExternalCacheSubscriptionService.userCache"/>
+		</property>
+		<property name="timer">
+			<ref bean="org.sakaiproject.calendar.impl.EhCacheRefresh.timer"/>
+		</property>
+	</bean>
+ 
+	<!-- This holds most of the stuff for the calendar caches. -->
+	<import resource="classpath:/calendar-caches.xml"/>
+	
+	<!-- Beans to pull configuration from sakai.properties. -->
+	<bean id="calendar.external.subscriptions.institutional.cachetime" factory-bean="org.sakaiproject.component.api.ServerConfigurationService"
+		factory-method="getInt">
+			<constructor-arg value="calendar.external.subscriptions.institutional.cachetime"/>
+			<constructor-arg value="120"/>
+	</bean>
+	
+	<bean id="calendar.external.subscriptions.user.cachetime" factory-bean="org.sakaiproject.component.api.ServerConfigurationService"
+		factory-method="getInt">
+			<constructor-arg value="calendar.external.subscriptions.user.cachetime"/>
+			<constructor-arg value="120"/>
+	</bean>
+	
+	<bean id="calendar.external.subscriptions.institutional.cacheentries" factory-bean="org.sakaiproject.component.api.ServerConfigurationService"
+		factory-method="getInt">
+			<constructor-arg value="calendar.external.subscriptions.institutional.cacheentries"/>
+			<constructor-arg value="16"/>
+	</bean>
+ 
+	<bean id="calendar.external.subscriptions.user.cacheentries" factory-bean="org.sakaiproject.component.api.ServerConfigurationService"
+		factory-method="getInt">
+			<constructor-arg value="calendar.external.subscriptions.user.cacheentries"/>
+			<constructor-arg value="32"/>
+	</bean>
+	
+	<!-- This is the bean that reloads a calendar in a particular case -->
+	<bean id="org.sakaiproject.calendar.impl.ExternalCalendarElementRefresher"
+		class="org.sakaiproject.calendar.impl.ExternalCalendarElementRefresher">
+		<property name="exeternalCalendarSubscriptionService">
+			<ref
+				bean="org.sakaiproject.calendar.api.ExternalCalendarSubscriptionService"/>
+		</property>
 	</bean>
 
 </beans>

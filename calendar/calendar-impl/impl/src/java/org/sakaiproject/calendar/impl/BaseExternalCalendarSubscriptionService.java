@@ -33,15 +33,14 @@ import java.util.Collection;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Iterator;
-import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Properties;
 import java.util.Set;
 import java.util.Stack;
+import java.util.Timer;
+import java.util.TimerTask;
 import java.util.Vector;
-import java.util.Map.Entry;
-import java.util.concurrent.ConcurrentHashMap;
 
 import org.apache.commons.codec.binary.Base64;
 import org.apache.commons.codec.binary.StringUtils;
@@ -50,15 +49,14 @@ import org.apache.commons.logging.LogFactory;
 import org.sakaiproject.authz.api.SecurityService;
 import org.sakaiproject.calendar.api.Calendar;
 import org.sakaiproject.calendar.api.CalendarEvent;
+import org.sakaiproject.calendar.api.CalendarEvent.EventAccess;
 import org.sakaiproject.calendar.api.CalendarEventEdit;
 import org.sakaiproject.calendar.api.CalendarImporterService;
 import org.sakaiproject.calendar.api.CalendarService;
 import org.sakaiproject.calendar.api.ExternalCalendarSubscriptionService;
 import org.sakaiproject.calendar.api.ExternalSubscription;
 import org.sakaiproject.calendar.api.RecurrenceRule;
-import org.sakaiproject.calendar.api.CalendarEvent.EventAccess;
 import org.sakaiproject.component.api.ServerConfigurationService;
-import org.sakaiproject.entity.api.Entity;
 import org.sakaiproject.entity.api.EntityManager;
 import org.sakaiproject.entity.api.Reference;
 import org.sakaiproject.entity.api.ResourceProperties;
@@ -101,18 +99,6 @@ public class BaseExternalCalendarSubscriptionService implements
 	/** Default connect timeout when retrieving external subscriptions */
 	private final static int TIMEOUT = 30000;
 
-	/** Default max cached external subscription entries (institutional) */
-	private final static int DEFAULT_MAX_INST_CACHED_ENTRIES = 16;
-	
-	/** Default max cached external subscription entries (user) */
-	private final static int DEFAULT_MAX_USER_CACHED_ENTRIES = 16;
-
-	/** Default max cached external subscription time in minutes (institutional) */
-	private final static int DEFAULT_MAX_INST_CACHED_TIME = 2 * 60; // 2h
-
-	/** Default max cached external subscription time in minutes (user) */
-	private final static int DEFAULT_MAX_USER_CACHED_TIME = 2 * 60; // 2h
-
 	/** iCal external subscription enable flag */
 	private boolean enabled = false;
 	
@@ -123,10 +109,10 @@ public class BaseExternalCalendarSubscriptionService implements
 	private Map columnMap = null;
 
 	/** Cache map of Institutional Calendars: <String url, Calendar cal> */
-	private Map<String, ExternalSubscription> institutionalSubscriptions = null;
+	private SubscriptionCache institutionalSubscriptionCache = null;
 
 	/** Cache map of user Calendars: <String url, Calendar cal> */
-	private Map<String, ExternalSubscription> userSubscriptions = null;
+	private SubscriptionCache usersSubscriptionCache = null;
 
 	// ######################################################
 	// Spring services
@@ -236,6 +222,24 @@ public class BaseExternalCalendarSubscriptionService implements
 	{
 		this.m_idManager = idManager;
 	}
+	
+	public void setInstitutionalSubscriptionCache(SubscriptionCache subscriptionCache)
+	{
+		this.institutionalSubscriptionCache = subscriptionCache;
+	}
+
+	public void setUserSubscriptionCache(SubscriptionCache subscriptionCache)
+	{
+		this.usersSubscriptionCache = subscriptionCache;
+	}
+
+	/** Dependency: Timer */
+	protected Timer m_timer = null;
+	
+	public void setTimer(Timer timer)
+	{
+		this.m_timer = timer;
+	}
 
 	public void init()
 	{
@@ -260,56 +264,18 @@ public class BaseExternalCalendarSubscriptionService implements
 				return;
 			}
 
-			// subscription cache config
-			// Institutional subscription defaults: max 16 entries, max 2 hours
-			int institutionalMaxSize = m_configurationService.getInt(SAK_PROP_EXTSUBSCRIPTIONS_URL+".count",
-					DEFAULT_MAX_INST_CACHED_ENTRIES );
-			int institutionalMaxTime = m_configurationService.getInt(
-					SAK_PROP_EXTSUBSCRIPTIONS_INST_CACHETIME, DEFAULT_MAX_INST_CACHED_TIME);
-			m_log.info("init(): " + institutionalMaxSize
-					+ " institutional subscriptions in memory, re-loading every "
-					+ institutionalMaxTime + " min");
-			institutionalSubscriptions = new SubscriptionCacheMap(institutionalMaxSize,
-					institutionalMaxTime * 60 * 1000 );
-			// User subscription defaults: max 32 entries, max 2 hours
-			int userMaxSize = m_configurationService.getInt(
-					SAK_PROP_EXTSUBSCRIPTIONS_USER_CACHEENTRIES, DEFAULT_MAX_USER_CACHED_ENTRIES);
-			int userMaxTime = m_configurationService.getInt(
-					SAK_PROP_EXTSUBSCRIPTIONS_USER_CACHETIME, DEFAULT_MAX_USER_CACHED_TIME);
-			m_log.info("init(): max " + userMaxSize
-					+ " user subscriptions in memory, re-loading every " + userMaxTime
-					+ " min");
-			userSubscriptions = new SubscriptionCacheMap(userMaxSize,
-					userMaxTime * 60 * 1000);
-
-			// add reload-on-expire listener
-			SubscriptionExpiredListener listener = new SubscriptionReloadOnExpiredListener();
-			((SubscriptionCacheMap) institutionalSubscriptions)
-					.setSubscriptionExpiredListener(listener);
-			((SubscriptionCacheMap) userSubscriptions)
-					.setSubscriptionExpiredListener(listener);
-
-			// load institutional calendar subscriptions
-			loadInstitutionalSubscriptions();
-		}
-	}
-
-	public void destroy()
-	{
-		m_log.info("destroy()");
-		try
-		{
-			if (institutionalSubscriptions != null) {
-				((SubscriptionCacheMap) institutionalSubscriptions)
-						.stopCleanerThread();
+			// load institutional calendar subscriptions as timer tasks, this is so that 
+			// we don't slow up the loading of sakai.
+			for (final InsitutionalSubscription sub: getInstitutionalSubscriptions()) {
+				m_timer.schedule(new TimerTask() {
+					@Override
+					public void run() {
+						String reference =  calendarSubscriptionReference(INSTITUTIONAL_CONTEXT, getIdFromSubscriptionUrl(sub.url));
+						getCalendarSubscription(reference);
+					}
+					
+				}, 0);
 			}
-			if (userSubscriptions != null) {
-				((SubscriptionCacheMap) userSubscriptions).stopCleanerThread();
-			}
-		}
-		catch (Throwable e)
-		{
-			e.printStackTrace();
 		}
 	}
 
@@ -334,9 +300,7 @@ public class BaseExternalCalendarSubscriptionService implements
 	 */
 	public String calendarSubscriptionReference(String context, String id)
 	{
-		return CalendarService.REFERENCE_ROOT + Entity.SEPARATOR
-				+ CalendarService.REF_TYPE_CALENDAR_SUBSCRIPTION + Entity.SEPARATOR
-				+ context + Entity.SEPARATOR + id;
+		return BaseExternalSubscription.calendarSubscriptionReference(context, id);
 	}
 
 	/*
@@ -356,41 +320,9 @@ public class BaseExternalCalendarSubscriptionService implements
 				+ reference + ")");
 		m_log.debug(" |-> subscriptionUrl: " + subscriptionUrl);
 
-		ExternalSubscription subscription = null;
-		// 1. Is a institutional subscription (cached)?
-		if (institutionalSubscriptions.containsKey(subscriptionUrl))
-		{
-			m_log.debug(" |-> Is a institutional subscription");
-			subscription = institutionalSubscriptions.get(subscriptionUrl);
-			// may not have this one loaded yet...
-			if (subscription == null || subscription.getCalendar() == null)
-			{
-				m_log.debug(" |-> Not cached yet...");
-				reloadInstitutionalSubscription(subscriptionUrl, INSTITUTIONAL_CONTEXT);
-				subscription = institutionalSubscriptions.get(subscriptionUrl);
-			}
-			if (subscription != null) subscription.setContext(_ref.getContext());
-		}
-		// 2. Is the user subscription cached?
-		else if (userSubscriptions.containsKey(subscriptionUrl))
-		{
-			m_log.debug(" |-> Is a user subscription");
-			subscription = userSubscriptions.get(subscriptionUrl);
-		}
+		ExternalSubscription subscription = getExternalSubscription(subscriptionUrl,
+				_ref.getContext());
 
-		// 3. Is a user subscription but is not cached.
-		if (!institutionalSubscriptions.containsKey(subscriptionUrl)
-				&& (subscription == null || subscription.getCalendar() == null))
-		{
-			m_log.debug(" |-> Not cached yet...");
-			subscription = loadCalendarSubscriptionFromUrl(subscriptionUrl, _ref
-					.getContext());
-			if (subscription != null)
-			{
-				userSubscriptions.put(subscriptionUrl, subscription);
-				subscription.setContext(_ref.getContext());
-			}
-		}
 
 		m_log.debug(" |-> Subscription is " + subscription);
 		if (subscription != null)
@@ -403,6 +335,20 @@ public class BaseExternalCalendarSubscriptionService implements
 			m_log.debug(" |-> Calendar is NULL");
 			return null;
 		}
+	}
+
+	private ExternalSubscription getExternalSubscription(String subscriptionUrl, String context) {
+		// Decide which cache to use.
+		SubscriptionCache cache = (getInstitutionalSubscription(subscriptionUrl) != null)? institutionalSubscriptionCache : usersSubscriptionCache;
+		
+		ExternalSubscription subscription = cache.get(subscriptionUrl);
+		// Did we get it?
+		if (subscription == null)
+		{
+			subscription = loadCalendarSubscriptionFromUrl(subscriptionUrl, context);
+			cache.put(subscription);
+		}
+		return subscription;
 	}
 
 	public Set<String> getCalendarSubscriptionChannelsForChannels(
@@ -481,12 +427,16 @@ public class BaseExternalCalendarSubscriptionService implements
 		if (!isEnabled() || reference == null) return subscriptions;
 
 		Reference ref = m_entityManager.newReference(reference);
-		for (ExternalSubscription subscription : institutionalSubscriptions.values())
-		{
-			subscription.setContext(ref.getContext());
-			subscriptions.add(subscription);
+		// If the cache has been flushed then we may need to reload it.
+		for (InsitutionalSubscription sub : getInstitutionalSubscriptions()) {
+			// Need to have way to load these.
+			ExternalSubscription subscription = getExternalSubscription(sub.url, ref.getContext());
+			if (subscription != null) {
+				subscription.setContext(ref.getContext());
+				subscriptions.add(subscription);
+				subscription.setCalendar(null);
+			}
 		}
-
 		return subscriptions;
 	}
 
@@ -531,7 +481,7 @@ public class BaseExternalCalendarSubscriptionService implements
 					{
 						try
 						{
-							name = institutionalSubscriptions.get(url)
+							name = institutionalSubscriptionCache.get(url)
 									.getSubscriptionName();
 						}
 						catch (Exception e)
@@ -606,101 +556,103 @@ public class BaseExternalCalendarSubscriptionService implements
 		if (subscriptionUrl == null || subscriptionUrl.equals("null")) return false;
 
 		// Is a institutional subscription?
-		return institutionalSubscriptions.containsKey(subscriptionUrl);
+		String[] subscriptionURLs = m_configurationService
+				.getStrings(SAK_PROP_EXTSUBSCRIPTIONS_URL);
+		for (String url: subscriptionURLs)
+		{
+			if (subscriptionUrl.equals(url)) {
+				return true;
+			}
+		}
+		return false;
 	}
 
 	public String getIdFromSubscriptionUrl(String url)
 	{
-		// use Base64
-		byte[] encoded = Base64.encodeBase64(url.getBytes());
-		// '/' cannot be used in Reference => use '.' instead (not part of Base64 alphabet)
-		String encStr = StringUtils.newStringUtf8(encoded).replaceAll("/", "\\.");
-		return encStr;
+		return BaseExternalSubscription.getIdFromSubscriptionUrl(url);
 	}
 
 	public String getSubscriptionUrlFromId(String id)
 	{
-		// use Base64
-		byte[] decoded = Base64.decodeBase64(id.replaceAll("\\.", "/").getBytes());
-		return StringUtils.newStringUtf8(decoded);
+		return BaseExternalSubscription.getSubscriptionUrlFromId(id);
 	}
 
 	// ######################################################
 	// PRIVATE methods
 	// ######################################################
-	private void loadInstitutionalSubscriptions()
+	/**
+	 * Get the event type for this institutional subscription. 
+	 * @param url
+	 * @return The forced event type or <code>null</code> if it isn't defined.
+	 */
+	String getEventType(String url)
 	{
+		InsitutionalSubscription sub = getInstitutionalSubscription(url);
+		return  (sub != null)? sub.eventType: null;
+	}
+	
+	
+	/**
+	 * Insitutional subscriptions loaded from configuration.
+	 */
+	class InsitutionalSubscription {
+		String url;
+		String name;
+		String eventType;
+	}
+	
+	InsitutionalSubscription getInstitutionalSubscription(String url)
+	{
+		for (InsitutionalSubscription sub: getInstitutionalSubscriptions())
+		{
+			if(sub.url.equals(url))
+			{
+				return sub;
+			}
+		}
+		return null;
+	}
+	
+	List<InsitutionalSubscription> getInstitutionalSubscriptions() {
 		String[] subscriptionURLs = m_configurationService
 				.getStrings(SAK_PROP_EXTSUBSCRIPTIONS_URL);
 		String[] subscriptionNames = m_configurationService
 				.getStrings(SAK_PROP_EXTSUBSCRIPTIONS_NAME);
 		String[] subscriptionEventTypes = m_configurationService
 				.getStrings(SAK_PROP_EXTSUBSCRIPTIONS_EVENTTYPE);
+		ArrayList<InsitutionalSubscription> subs = new ArrayList<InsitutionalSubscription>();
 		if (subscriptionURLs != null)
 		{
-			for (int i = 0; i < subscriptionURLs.length; i++)
+			for (int i = 0; i < subscriptionURLs.length; i++) 
 			{
-				if (!institutionalSubscriptions.containsKey(subscriptionURLs[i])
-						|| institutionalSubscriptions.get(subscriptionURLs[i]) == null
-						|| institutionalSubscriptions.get(subscriptionURLs[i])
-								.getCalendar() == null)
-				{
-					String calendarName = subscriptionURLs[i];
-					if (subscriptionNames != null && subscriptionNames.length > i)
-						calendarName = subscriptionNames[i];
-					String forcedEventType = null;
-					if (subscriptionEventTypes != null
-							&& subscriptionEventTypes.length > i)
-						forcedEventType = subscriptionEventTypes[i];
-
-					ExternalSubscription subscription = loadCalendarSubscriptionFromUrl(
-							subscriptionURLs[i], INSTITUTIONAL_CONTEXT, calendarName,
-							forcedEventType);
-					institutionalSubscriptions.put(subscriptionURLs[i], subscription);
+				String name = subscriptionNames[i];
+				String eventType = subscriptionEventTypes[i];
+				if (name != null) {
+					InsitutionalSubscription sub = new InsitutionalSubscription();
+					sub.url = subscriptionURLs[i];
+					sub.name = name;
+					sub.eventType = eventType;
+					subs.add(sub);
 				}
 			}
 		}
+		return subs;
 	}
 
-	private void reloadInstitutionalSubscription(String subscriptionUrl, String context)
-	{
-		String[] subscriptionURLs = m_configurationService
-				.getStrings(SAK_PROP_EXTSUBSCRIPTIONS_URL);
-		String[] subscriptionNames = m_configurationService
-				.getStrings(SAK_PROP_EXTSUBSCRIPTIONS_NAME);
-		String[] subscriptionEventTypes = m_configurationService
-				.getStrings(SAK_PROP_EXTSUBSCRIPTIONS_EVENTTYPE);
-		if (subscriptionURLs != null)
-		{
-			for (int i = 0; i < subscriptionURLs.length; i++)
-			{
-				if (subscriptionURLs[i].equals(subscriptionUrl))
-				{
-					String calendarName = null;
-					if (subscriptionNames != null && subscriptionNames.length > i)
-						calendarName = subscriptionNames[i];
-					String forcedEventType = null;
-					if (subscriptionEventTypes != null
-							&& subscriptionEventTypes.length > i)
-						forcedEventType = subscriptionEventTypes[i];
-
-					ExternalSubscription subscription = loadCalendarSubscriptionFromUrl(
-							subscriptionURLs[i], context, calendarName, forcedEventType);
-					subscription.setInstitutional(true);
-					institutionalSubscriptions.put(subscriptionURLs[i], subscription);
-					break;
-				}
-			}
-		}
-	}
-
-	private ExternalSubscription loadCalendarSubscriptionFromUrl(String url,
+	ExternalSubscription loadCalendarSubscriptionFromUrl(String url,
 			String context)
 	{
-		return loadCalendarSubscriptionFromUrl(url, context, null, null);
-	}
+		InsitutionalSubscription sub = getInstitutionalSubscription(url);
+		String name = null;
+		String forcedEventType = null;
+		if (sub != null)
+		{
+			name = sub.name;
+			forcedEventType = sub.eventType;
+		}
+		return loadCalendarSubscriptionFromUrl(url, context, name, forcedEventType);	}
 
-	private ExternalSubscription loadCalendarSubscriptionFromUrl(String url,
+	ExternalSubscription loadCalendarSubscriptionFromUrl(String url,
 			String context, String calendarName, String forcedEventType)
 	{
 		ExternalSubscription subscription = new BaseExternalSubscription(calendarName,
@@ -736,6 +688,7 @@ public class BaseExternalCalendarSubscriptionService implements
 			}
 			calendar.setName(calendarName);
 			subscription.setCalendar(calendar);
+			subscription.setInstitutional(getInstitutionalSubscription(url) != null);
 			m_log.info("Loaded calendar subscription: " + subscription.toString());
 		}
 		catch (ImportException e)
@@ -794,133 +747,6 @@ public class BaseExternalCalendarSubscriptionService implements
 	// ######################################################
 	// Support classes
 	// ######################################################
-
-	public class BaseExternalSubscription implements ExternalSubscription
-	{
-		private String subscriptionName;
-
-		private String subscriptionUrl;
-
-		private String reference;
-
-		private String context;
-
-		private Calendar calendar;
-
-		private boolean isInstitutional;
-
-		public BaseExternalSubscription()
-		{
-		}
-
-		public BaseExternalSubscription(String subscriptionName, String subscriptionUrl,
-				String context, Calendar calendar, boolean isInstitutional)
-		{
-			setSubscriptionName(subscriptionName);
-			setSubscriptionUrl(subscriptionUrl);
-			setCalendar(calendar);
-			setContext(context);
-			setInstitutional(isInstitutional);
-			if (calendar != null) setReference(calendar.getReference());
-		}
-
-		public String getSubscriptionName()
-		{
-			return subscriptionName;
-		}
-
-		public void setSubscriptionName(String subscriptionName)
-		{
-			this.subscriptionName = subscriptionName;
-		}
-
-		public String getSubscriptionUrl()
-		{
-			return subscriptionUrl;
-		}
-
-		public void setSubscriptionUrl(String subscriptionUrl)
-		{
-			this.subscriptionUrl = subscriptionUrl;
-		}
-
-		public String getContext()
-		{
-			return context;
-		}
-
-		public void setContext(String context)
-		{
-			this.context = context;
-			if (calendar != null)
-				((ExternalCalendarSubscription) calendar).setContext(context);
-		}
-
-		public void setReference(String reference)
-		{
-			this.reference = reference;
-		}
-
-		public String getReference()
-		{
-			if (calendar != null)
-				return calendar.getReference();
-			else
-				return calendarSubscriptionReference(context,
-						getIdFromSubscriptionUrl(subscriptionUrl));
-		}
-
-		public Calendar getCalendar()
-		{
-			return calendar;
-		}
-
-		public void setCalendar(Calendar calendar)
-		{
-			this.calendar = calendar;
-		}
-
-		public boolean isInstitutional()
-		{
-			return isInstitutional;
-		}
-
-		public void setInstitutional(boolean isInstitutional)
-		{
-			this.isInstitutional = isInstitutional;
-		}
-
-		@Override
-		public boolean equals(Object o)
-		{
-			if (o instanceof BaseExternalSubscription)
-				return getReference().equals(
-						((BaseExternalSubscription) o).getReference());
-			return false;
-		}
-		
-		@Override
-		public int hashCode() {
-			int hashCode = super.hashCode(); 
-			if (getReference() != null)
-			{
-				hashCode += getReference().hashCode();
-			};
-			return hashCode;
-		}
-
-		@Override
-		public String toString()
-		{
-			StringBuilder buff = new StringBuilder();
-			buff.append(getSubscriptionName() != null ? getSubscriptionName() : "");
-			buff.append('|');
-			buff.append(getSubscriptionUrl());
-			buff.append('|');
-			buff.append(getReference());
-			return buff.toString();
-		}
-	}
 
 	public class ExternalCalendarSubscription implements Calendar
 	{
@@ -1654,261 +1480,5 @@ public class BaseExternalCalendarSubscriptionService implements
 			return calendarName;
 		}
 		
-	}
-
-	/**
-	 * Hash table and linked list implementation of the Map interface,
-	 * access-ordered. Older entries will be removed if map exceeds the maximum
-	 * capacity specified.
-	 * 
-	 * @author nfernandes
-	 */
-	class SubscriptionCacheMap extends LinkedHashMap<String, ExternalSubscription>
-			implements Runnable
-	{
-		private static final long serialVersionUID = 1L;
-
-		private final static float DEFAULT_LOAD_FACTOR = 0.75f;
-
-		private int maxCachedEntries;
-
-		private int maxCachedTime;
-
-		private Thread threadCleaner;
-
-		private boolean threadCleanerRunning = false;
-
-		private Object threadCleanerRunningSemaphore = new Object();
-
-		private Map<String, Long> cacheTime;
-
-		private SubscriptionExpiredListener listener;
-		private Object listenerLock = new Object();
-
-		public SubscriptionCacheMap()
-		{
-			this(DEFAULT_MAX_USER_CACHED_ENTRIES, DEFAULT_MAX_USER_CACHED_TIME);
-		}
-
-		/**
-		 * LinkedHashMap implementation that removes least accessed entry and
-		 * (optionally) removes entries with more that maxCachedTime.
-		 * 
-		 * @param maxCachedEntries
-		 *        Maximum number of entries to keep cached.
-		 * @param maxCachedTime
-		 *        If > 0, entries will be removed after being 'maxCachedTime' in
-		 *        cache.
-		 */
-		public SubscriptionCacheMap(int maxCachedEntries, int maxCachedTime)
-		{
-			super(maxCachedEntries, DEFAULT_LOAD_FACTOR, true);
-			this.maxCachedEntries = maxCachedEntries;
-			this.maxCachedTime = maxCachedTime;
-			if (maxCachedTime > 0)
-			{
-				cacheTime = new ConcurrentHashMap<String, Long>();
-				startCleanerThread();
-			}
-		}
-
-		public void setSubscriptionExpiredListener(SubscriptionExpiredListener listener)
-		{
-			synchronized(listenerLock)
-			{
-				this.listener = listener;
-			}
-		}
-
-		public void removeSubscriptionExpiredListener()
-		{
-			synchronized(listenerLock)
-			{
-				this.listener = null;
-			}
-		}
-
-		@Override
-		public ExternalSubscription get(Object arg0)
-		{
-			ExternalSubscription e = super.get(arg0);
-			return e;
-		}
-
-		@Override
-		public ExternalSubscription put(String key, ExternalSubscription value)
-		{
-			if (maxCachedTime > 0 && key != null)
-			{
-				cacheTime.put(key, System.currentTimeMillis());
-			}
-			return super.put(key, value);
-		}
-
-		@Override
-		public void putAll(Map<? extends String, ? extends ExternalSubscription> map)
-		{
-			if (maxCachedTime > 0 && map != null)
-			{
-				for (String key : map.keySet())
-				{
-					cacheTime.put(key, System.currentTimeMillis());
-				}
-			}
-			if ( map != null )
-				super.putAll(map);
-		}
-
-		@Override
-		public void clear()
-		{
-			if (maxCachedTime > 0)
-			{
-				cacheTime.clear();
-			}
-			super.clear();
-		}
-
-		@Override
-		public ExternalSubscription remove(Object key)
-		{
-			if (maxCachedTime > 0 && key != null)
-			{
-				if (cacheTime.containsKey(key)) cacheTime.remove(key);
-			}
-			return super.remove(key);
-		}
-
-		public void setMaxCachedEntries(int maxCachedEntries)
-		{
-			this.maxCachedEntries = maxCachedEntries;
-		}
-
-		@Override
-		protected boolean removeEldestEntry(Entry<String, ExternalSubscription> arg0)
-		{
-			return size() > maxCachedEntries;
-		}
-
-		public void run()
-		{
-			try
-			{
-				while (threadCleanerRunning)
-				{
-					// clean expired entries
-					List<String> toClear = new ArrayList<String>();
-					for (String key : this.keySet())
-					{
-						long cachedFor = System.currentTimeMillis() - cacheTime.get(key);
-						if (cachedFor > maxCachedTime)
-						{
-							toClear.add(key);
-						}
-					}
-					// cleaning is not object removal but, Calendar removal from
-					// value (ExternalSubscription)
-					for (String key : toClear)
-					{
-						synchronized (listenerLock)
-						{
-							ExternalSubscription e = this.get(key);
-							if (e != null)
-							{
-								e.setCalendar(null);
-								this.put(key, e);
-								m_log.debug("Cleared cache for expired Calendar Subscription: " + key);
-								if (listener != null)
-								{
-									listener.subscriptionExpired(key, e);
-								}
-							}
-						}
-					}
-
-					// sleep if no work to do
-					if (!threadCleanerRunning) break;
-					try
-					{
-						synchronized (threadCleanerRunningSemaphore)
-						{
-							threadCleanerRunningSemaphore.wait(maxCachedTime);
-						}
-					}
-					catch (InterruptedException e)
-					{
-						m_log.warn("Failed to sleep SmallCacheMap entry cleaner thread",
-								e);
-					}
-				}
-			}
-			catch (Throwable t)
-			{
-				m_log.debug("Failed to execute SmallCacheMap entry cleaner thread", t);
-			}
-			finally
-			{
-				if (threadCleanerRunning)
-				{
-					// thread was stopped by an unknown error: restart
-					m_log
-							.debug("SmallCacheMap entry cleaner thread was stoped by an unknown error: restarting...");
-					startCleanerThread();
-				}
-				else
-					m_log.debug("Finished SmallCacheMap entry cleaner thread");
-			}
-		}
-
-		/** Start the update thread */
-		private void startCleanerThread()
-		{
-			threadCleanerRunning = true;
-			threadCleaner = null;
-			threadCleaner = new Thread(this, this.getClass().getName());
-			threadCleaner.start();
-		}
-
-		/** Stop the update thread */
-		private void stopCleanerThread()
-		{
-			threadCleanerRunning = false;
-			synchronized (threadCleanerRunningSemaphore)
-			{
-				threadCleanerRunningSemaphore.notifyAll();
-			}
-		}
-	}
-
-	interface SubscriptionExpiredListener
-	{
-		public void subscriptionExpired(String subscriptionUrl,
-				ExternalSubscription subscription);
-	}
-
-	class SubscriptionReloadOnExpiredListener implements SubscriptionExpiredListener
-	{
-		public void subscriptionExpired(String subscriptionUrl,
-				ExternalSubscription subscription)
-		{
-			if (institutionalSubscriptions.containsKey(subscriptionUrl))
-			{
-				// if is a Institutional calendar, re-load expired
-				m_log.debug("Re-loading institutional calendar: " + subscriptionUrl);
-				reloadInstitutionalSubscription(subscriptionUrl, subscription
-						.getContext());
-			}
-			else
-			{
-				// if is a User-specified calendar, re-load expired
-				m_log.debug("Re-loading user-specified calendar: " + subscriptionUrl);
-				if (subscription != null) {
-					ExternalSubscription s = loadCalendarSubscriptionFromUrl(subscriptionUrl,
-						subscription.getContext());
-					//userSubscriptions.put(subscriptionUrl, subscription);
-					userSubscriptions.put(subscriptionUrl, s);
-				}
-			}
-		}
 	}
 }
