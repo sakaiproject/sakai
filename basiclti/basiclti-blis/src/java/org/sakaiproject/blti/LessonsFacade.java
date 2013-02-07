@@ -140,18 +140,22 @@ public class LessonsFacade {
 
 		Map<String,Object> theTool = null;
 		List<Map<String,Object>> tools = ltiService.getToolsDao(null,null,0,0,siteId);
+        String lastLaunch = "";
 		for ( Map<String,Object> tool : tools ) {
 			String toolLaunch = (String) tool.get(LTIService.LTI_LAUNCH);
-			if ( launchUrl.startsWith(toolUrl) ) {
+			if ( toolUrl.startsWith(toolLaunch) && toolLaunch.length() > lastLaunch.length()) {
 				theTool = tool;
+                lastLaunch = toolLaunch;
 				break;
 			}
 		}
 
 		if ( theTool == null ) {
+            M_log.debug("Inserting tool - "+toolUrl);
 			Properties props = new Properties ();
-			props.setProperty(LTIService.LTI_LAUNCH,launchUrl);
+			props.setProperty(LTIService.LTI_LAUNCH,toolUrl);
 			props.setProperty(LTIService.LTI_TITLE, toolName);
+			props.setProperty(LTIService.LTI_PAGETITLE, toolName);
 			props.setProperty(LTIService.LTI_CONSUMERKEY, LTIService.LTI_SECRET_INCOMPLETE);
 			props.setProperty(LTIService.LTI_SECRET, LTIService.LTI_SECRET_INCOMPLETE);
 
@@ -163,7 +167,9 @@ public class LessonsFacade {
 
 			props.setProperty(LTIService.LTI_SITE_ID,siteId);
 
-			Object result = ltiService.insertToolDao(props, siteId);
+            // Go ahead and throw up...
+            Object result = ltiService.insertToolDao(props, siteId);
+
 			if ( result instanceof String ) {
 				M_log.error("Could not insert tool - "+result);
 			}
@@ -177,14 +183,17 @@ public class LessonsFacade {
 			props.setProperty(LTIService.LTI_TOOL_ID,foorm.getLong(theTool.get(LTIService.LTI_ID)).toString());
             props.setProperty(LTIService.LTI_PLACEMENTSECRET, UUID.randomUUID().toString());
 			props.setProperty(LTIService.LTI_TITLE, bltiTitle);
+			props.setProperty(LTIService.LTI_PAGETITLE, bltiTitle);
 			props.setProperty(LTIService.LTI_LAUNCH,launchUrl);
 			if ( strXml != null) props.setProperty(LTIService.LTI_XMLIMPORT,strXml);
 			if ( custom != null ) props.setProperty(LTIService.LTI_CUSTOM,custom);
-			Object result = ltiService.insertContentDao(props, siteId);
+
+            // Throw upwards..
+            Object result = ltiService.insertContentDao(props, siteId);
 			if ( result instanceof String ) {
 				M_log.error("Could not insert content - "+result);
 			} else {
-				System.out.println("Adding LTI tool "+result);
+				M_log.debug("Adding LTI tool "+result);
 			}
 			if ( result instanceof Long ) theContent = ltiService.getContentDao((Long) result, siteId);
 		}
@@ -198,9 +207,9 @@ public class LessonsFacade {
 
 	public static boolean addLessonsLaunch(SimplePageItem thePage, String sakaiId, String nameStr, int startPos) 
 	{
-            System.out.println("Adding LTI content item "+sakaiId);
+            M_log.debug("Adding LTI content item "+sakaiId);
 			Long pageNum = Long.valueOf(thePage.getSakaiId());
-            System.out.println("Page ="+thePage.getSakaiId()+" title="+thePage.getName());
+            M_log.debug("Page ="+thePage.getSakaiId()+" title="+thePage.getName());
 
 			SimplePageItem item = simplePageToolDao.makeItem(thePage.getPageId(), startPos, SimplePageItem.BLTI, sakaiId, nameStr);
 			item.setHeight(""); // default depends upon format, so it's supplied at runtime
@@ -208,7 +217,7 @@ public class LessonsFacade {
 
 			List<String>elist = new ArrayList<String>();
             simplePageToolDao.saveItem(item,  elist, "ERROR WAS HERE", false);
-			System.out.println("Saved "+elist);
+			M_log.debug("Saved "+elist);
 			return true;
 	}
 

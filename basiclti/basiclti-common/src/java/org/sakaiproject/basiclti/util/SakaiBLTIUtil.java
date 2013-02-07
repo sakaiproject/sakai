@@ -79,6 +79,9 @@ public class SakaiBLTIUtil {
 		String allowRoster = ServerConfigurationService.getString(BASICLTI_ROSTER_ENABLED, null);
 		if ( "allowroster".equals(propName) && ! "true".equals(allowRoster) ) return "false";
 
+		String allowLori = ServerConfigurationService.getString(BASICLTI_LORI_ENABLED, null);
+		if ( "allowlori".equals(propName) && ! "true".equals(allowLori) ) return "false";
+
 		String allowContentLink = ServerConfigurationService.getString(BASICLTI_CONTENTLINK_ENABLED, null);
 		if ( "contentlink".equals(propName) && ! "true".equals(allowContentLink) ) return null;
 
@@ -525,6 +528,7 @@ public class SakaiBLTIUtil {
 		int allowoutcomes = getInt(tool.get("allowoutcomes"));
 		int allowroster = getInt(tool.get("allowroster"));
 		int allowsettings = getInt(tool.get("allowsettings"));
+		int allowlori = getInt(tool.get("allowlori"));
 		String placement_secret = (String) content.get("placementsecret");
 
 		String result_sourcedid = getSourceDID(user, resource_link_id, placement_secret);
@@ -560,6 +564,17 @@ public class SakaiBLTIUtil {
 				String roster_url = ServerConfigurationService.getString("basiclti.consumer.ext_ims_lis_memberships_url",null);
 				if ( roster_url == null ) roster_url = getOurServerUrl() + "/imsblis/service/";  
 				setProperty(ltiProps,"ext_ims_lis_memberships_url", roster_url);  
+			}
+
+			if ( allowlori == 1 ) {
+				setProperty(ltiProps,"ext_lori_api_token", result_sourcedid);  
+				setProperty(ltiProps,"lis_result_sourcedid", result_sourcedid);  
+				String lori_url = ServerConfigurationService.getString("basiclti.consumer.ext_lori_api_url",null);
+				if ( lori_url == null ) lori_url = getOurServerUrl() + "/imsblis/service/";  
+				String lori_url_xml = ServerConfigurationService.getString("basiclti.consumer.ext_lori_api_url_xml",null);
+				if ( lori_url_xml == null ) lori_url_xml = getOurServerUrl() + "/imsblis/service/";  
+				setProperty(ltiProps,"ext_lori_api_url", lori_url);  
+				setProperty(ltiProps,"ext_lori_api_url_xml", lori_url_xml);  
 			}
 		}
 

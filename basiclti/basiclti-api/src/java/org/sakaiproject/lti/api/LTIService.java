@@ -458,6 +458,7 @@ public interface LTIService {
 		"allowoutcomes:checkbox:label=bl_allowoutcomes",
 		"allowroster:checkbox:label=bl_allowroster",
 		"allowsettings:checkbox:label=bl_allowsettings",
+		"allowlori:checkbox:label=bl_allowlori",
 		"newpage:radio:label=bl_newpage:choices=off,on,content",
 		"debug:radio:label=bl_debug:choices=off,on,content",
 		"custom:textarea:label=bl_custom:rows=5:cols=25:maxlength=1024",
@@ -504,6 +505,7 @@ public interface LTIService {
 	static final String LTI_ALLOWOUTCOMES = "allowoutcomes";
 	static final String LTI_ALLOWROSTER = "allowroster";
 	static final String LTI_ALLOWSETTINGS = "allowsettings";
+	static final String LTI_ALLOWLORI = "allowlori";
 	static final String LTI_SETTINGS = "settings";
 	static final String LTI_NEWPAGE =	"newpage";
 	static final String LTI_DEBUG =	"debug";

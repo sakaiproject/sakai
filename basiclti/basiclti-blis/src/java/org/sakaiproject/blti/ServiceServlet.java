@@ -843,9 +843,8 @@ public class ServiceServlet extends HttpServlet {
 
 			String sourcedid = null;
 			String message_type = null;
-			System.out.println("POST\n"+XMLMap.prettyPrint(pox.postBody));
+            if ( M_log.isDebugEnabled() ) M_log.debug("POST\n"+XMLMap.prettyPrint(pox.postBody));
 			Map<String,String> bodyMap = pox.getBodyMap();
-System.out.println("MESSAGE="+lti_message_type);
 			if ( ( "replaceResultRequest".equals(lti_message_type) || "readResultRequest".equals(lti_message_type) ||
                    "deleteResultRequest".equals(lti_message_type) )  && allowOutcomes != null ) {
 				sourcedid = bodyMap.get("/resultRecord/sourcedGUID/sourcedId");
@@ -863,8 +862,6 @@ System.out.println("MESSAGE="+lti_message_type);
 				out.println(output);
 				return;
 			}
-
-System.out.println("sourcedid="+sourcedid);
 
 			// No point continuing without a sourcedid
 			if(BasicLTIUtil.isBlank(sourcedid)) {
@@ -1014,7 +1011,7 @@ System.out.println("sourcedid="+sourcedid);
 
 			PrintWriter out = response.getWriter();
 			out.println(output);
-			System.out.println(output);
+			M_log.debug(output);
 			return;
 	}
 
@@ -1043,7 +1040,7 @@ System.out.println("sourcedid="+sourcedid);
 
 			// Something wrong, add on the first page
 			if ( thePage == null ) {
-				System.out.println("Inserting at top...");
+				M_log.debug("Inserting at top...");
 				for (SimplePageItem i : sitePages) {
 					if (i.getType() != SimplePageItem.PAGE) continue;
 					// System.out.println("item="+i.getName()+"id="+i.getId()+" sakaiId="+i.getSakaiId());
@@ -1081,7 +1078,6 @@ System.out.println("sourcedid="+sourcedid);
             Long pageNum = Long.valueOf(thePage.getSakaiId());
             List<SimplePageItem> items = LessonsFacade.findItemsOnPage(pageNum);
 			int seq = items.size() + 1;
-System.out.println("seq="+seq);
             List<Map<String,String>> resultList = new ArrayList<Map<String,String>>();
 
 			recursivelyAddResourcesXML(context_id, thePage, nl, seq, resultList);
@@ -1095,7 +1091,7 @@ System.out.println("seq="+seq);
 
 			PrintWriter out = response.getWriter();
 			out.println(output);
-			System.out.println(output);
+			M_log.debug(output);
 	}
 
 	protected void recursivelyAddResourcesXML(String siteId, SimplePageItem thePage, NodeList nl, 
@@ -1105,7 +1101,7 @@ System.out.println("seq="+seq);
 		{
 			Node node = nl.item(i);
 			if ( node.getNodeType() != Node.ELEMENT_NODE ) continue;
-			System.out.println("Node="+node.getNodeName());
+			M_log.debug("Node="+node.getNodeName());
 
 			if ( ! "resource".equals(node.getNodeName()) ) {
 				continue;
@@ -1143,13 +1139,13 @@ System.out.println("seq="+seq);
 				try {
 					Object result = LESSONS_FOLDER_EXPR.evaluate(node, XPathConstants.NODESET);
 					childNodes = (NodeList) result;
-					System.out.println("children of the folder = "+result+" count="+childNodes.getLength());
+					M_log.debug("children of the folder = "+result+" count="+childNodes.getLength());
 				} catch(Exception e) {
 					e.printStackTrace();
 					nl = null;
 				}
 
-				System.out.println("===== DOWN THE RABIT HOLE ==========");
+				M_log.debug("===== DOWN THE RABIT HOLE ==========");
 				recursivelyAddResourcesXML(siteId, subPageItem, childNodes, 1, resultList);
 				continue;
 			}
@@ -1177,22 +1173,34 @@ System.out.println("seq="+seq);
 				continue;
 			}
 
-System.out.println("type="+typeStr+" name="+titleStr+" launchUrl="+launchUrl+" lanchParams="+launchParams);
+            M_log.debug("type="+typeStr+" name="+titleStr+" launchUrl="+launchUrl+" lanchParams="+launchParams);
+
+            Map<String,String> result = new TreeMap<String,String> ();
+            result.put("/tempId",tempId);
 
 			// Time to add the launch tool
-			String sakaiId = LessonsFacade.doImportTool(siteId, launchUrl, titleStr, null, launchParams);
-
-			if ( sakaiId == null ) {
-				M_log.warn("Unable to add LTI Placement "+titleStr);
-				continue;
-			}
-
-            if ( tempId != null ) {
-                Map<String,String> result = new TreeMap<String,String> ();
-                result.put("/tempId",tempId);
-                result.put("/id", sakaiId);
-                resultList.add(result);
+			String sakaiId = null;
+            try {
+			    sakaiId = LessonsFacade.doImportTool(siteId, launchUrl, titleStr, null, launchParams);
+                if ( sakaiId == null ) {
+                    result.put("/status", "failure");
+                    result.put("/description","doImportTool failed");
+				    M_log.warn("Unable to add LTI Placement "+titleStr);
+                } else {
+                    result.put("/status", "success");
+                    result.put("/description","doImportTool success");
+                    result.put("/id", sakaiId);
+                }
+            } catch (Exception e) {
+                sakaiId = null;
+                e.printStackTrace();
+                result.put("/status", "failure");
+                result.put("/description", e.getMessage());
             }
+            resultList.add(result);
+
+			if ( sakaiId == null ) continue;
+
 			LessonsFacade.addLessonsLaunch(thePage, sakaiId, titleStr, startPos);
 		}
 	}
