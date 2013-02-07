@@ -17,7 +17,7 @@
 
       <property name="questionId" type="long" />
       <property name="responseId" type="long" />
-      <property name="count" type="long" />
+      <property name="count" type="long" column="respcount" />
 
    </class>
 </hibernate-mapping>
