@@ -68,9 +68,9 @@
         class="org.sakaiproject.memory.util.EhCacheFactoryBean">
     <property name="cacheManager" ref="org.sakaiproject.memory.api.MemoryService.cacheManager" />
     <property name="cacheName" value="org.sakaiproject.authz.impl.DbAuthzGroupService.realmRoleGroupCache" />
-    <property name="maxElementsInMemory" value="5000" />
-    <property name="timeToLive" value="7200" />
-    <property name="timeToIdle" value="7200" />
+    <property name="maxElementsInMemory" value="125000" />
+    <property name="timeToLive" value="3600" />
+    <property name="timeToIdle" value="0" />
     <!-- As the base classes stored in this cache are in impl
     writing them to disk results in an error see KNL-975 -->
     <property name="overflowToDisk" value="false" />

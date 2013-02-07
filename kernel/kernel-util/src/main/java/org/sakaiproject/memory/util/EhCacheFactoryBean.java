@@ -425,6 +425,8 @@ public class EhCacheFactoryBean implements FactoryBean, BeanNameAware, Initializ
 		if (this.disabled) {
 			cache.setDisabled(true);
 		}
+		net.sf.ehcache.config.CacheConfiguration config = cache.getCacheConfiguration();
+		config.setMaxEntriesLocalHeap(maxElementsInMemory);
 		return cache;
 	}
 
