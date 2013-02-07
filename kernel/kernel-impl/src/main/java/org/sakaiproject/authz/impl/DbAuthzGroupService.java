@@ -1686,10 +1686,7 @@ public abstract class DbAuthzGroupService extends BaseAuthzGroupService implemen
 			{
 				fields[pos++] = realmId;
 			}
-
-			// Would be better to get this initially to make the code more efficient, but the realms collection
-			// does not have a common order for the site's id which is needed to determine if the session variable exists
-			String roleswap = SecurityService.getUserEffectiveRole(siteRef);
+			
 			/* Delegated access essentially behaves like roleswap except instead of just specifying which role, you can also specify
 			 * the realm as well.  The access map is populated by an Event Listener that listens for dac.checkaccess and is stored in the session
 			 * attribute: delegatedaccess.accessmap.  This is a map of: SiteRef -> String[]{realmId, roleId}.  Delegated access
@@ -1697,6 +1694,21 @@ public abstract class DbAuthzGroupService extends BaseAuthzGroupService implemen
 			 */
 			String[] delegatedAccessGroupAndRole = getDelegatedAccessRealmRole(siteRef);
 			boolean delegatedAccess = delegatedAccessGroupAndRole != null && delegatedAccessGroupAndRole.length == 2;
+			
+			// Would be better to get this initially to make the code more efficient, but the realms collection
+			// does not have a common order for the site's id which is needed to determine if the session variable exists
+			// ZQIAN: since the role swap is only done at the site level, for group reference, use its parent site reference instead.
+			String roleswap = null;
+			Reference ref = entityManager().newReference(siteRef);
+			if (SiteService.GROUP_SUBTYPE.equals(ref.getSubType())) {
+			    String containerSiteRef = SiteService.siteReference(ref.getContainer());
+			    roleswap = securityService().getUserEffectiveRole(containerSiteRef);
+			    if (roleswap != null) {
+			        siteRef = containerSiteRef;
+			    }
+			} else {
+			    roleswap = securityService().getUserEffectiveRole(siteRef);
+			}
 			
 			List results = null;
 
