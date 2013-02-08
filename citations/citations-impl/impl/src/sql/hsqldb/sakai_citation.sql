@@ -29,7 +29,7 @@ CREATE TABLE CITATION_COLLECTION_ORDER
 (
 	COLLECTION_ID VARCHAR (36) NOT NULL,
 	CITATION_ID VARCHAR (36) NOT NULL,
-	POSITION INTEGER NOT NULL
+	LOCATION INTEGER NOT NULL
 );
 
 -- ---------------------------------------------------------------------------
