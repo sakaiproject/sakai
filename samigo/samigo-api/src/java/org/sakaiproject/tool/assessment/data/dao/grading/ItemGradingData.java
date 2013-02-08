@@ -54,6 +54,7 @@ public class ItemGradingData implements java.io.Serializable {
 	// these two properties are used by audio question in Samigo 2.2
 	private Integer attemptsRemaining;
 	private String lastDuration;
+	private Boolean isCorrect;
 	private List mediaArray;
 	private Set<ItemGradingAttachment> itemGradingAttachmentSet = new HashSet<ItemGradingAttachment>();
 
@@ -199,6 +200,17 @@ public class ItemGradingData implements java.io.Serializable {
 
 	public void setLastDuration(String lastDuration) {
 		this.lastDuration = lastDuration;
+	}
+	
+	public Boolean getIsCorrect() {
+		if (isCorrect == null) {
+			isCorrect = Boolean.FALSE;
+		}
+		return isCorrect;
+	}
+
+	public void setIsCorrect(Boolean isCorrect) {
+		this.isCorrect = isCorrect;
 	}
 
 	public List getMediaArray() {

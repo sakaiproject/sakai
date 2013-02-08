@@ -26,7 +26,8 @@
     <property name="review" type="boolean" column="REVIEW" not-null="false" />
     <property name="attemptsRemaining" type="integer" column="ATTEMPTSREMAINING" not-null="false" />
     <property name="lastDuration" type="string" length="36" column="LASTDURATION" not-null="false" />
-
+	<property name="isCorrect" type="boolean" column="ISCORRECT" not-null="false" />
+	
 	<set name="itemGradingAttachmentSet" table="SAM_GRADINGATTACHMENT_T" cascade="all" order-by="createdDate asc"
         inverse="true" lazy="true">
         <cache usage="read-write"/>

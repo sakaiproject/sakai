@@ -136,6 +136,18 @@ public class StudentScoreUpdateListener
             gradingarray = question.getItemGradingDataArray();
           }
 
+          int fibFinNumCorrect  = 0;
+          if (question.getItemData().getTypeId().equals(Long.valueOf(8)) || question.getItemData().getTypeId().equals(Long.valueOf(11))) {
+        	  Iterator itemGradingIter = gradingarray.iterator();
+        	  while (itemGradingIter.hasNext()){
+        		  Object obj = itemGradingIter.next();
+        		  ItemGradingData data = (ItemGradingData) obj;
+        		  if (Boolean.TRUE.equals(data.getIsCorrect())) {
+        			  fibFinNumCorrect++;
+        		  }
+        	  }
+          }
+          
           log.debug("****3a Gradingarray length2 = " + gradingarray.size());
           log.debug("****3b set points = " + question.getExactPoints() + ", comments to " + question.getGradingComment());
           Iterator iter3 = gradingarray.iterator();
@@ -150,7 +162,16 @@ public class StudentScoreUpdateListener
               data.setSubmittedDate(null);
               data.setAgentId(bean.getStudentId());
             }
-            float newAutoScore = (question.getExactPoints() / (float) gradingarray.size());
+            
+            float newAutoScore = 0;            
+            if ((question.getItemData().getTypeId().equals(Long.valueOf(8)) || question.getItemData().getTypeId().equals(Long.valueOf(11))) && fibFinNumCorrect != 0) {
+            	if (Boolean.TRUE.equals(data.getIsCorrect())) {
+            		newAutoScore = (question.getExactPoints() / (float) fibFinNumCorrect);
+            	}
+            }
+            else {
+          	  newAutoScore = (question.getExactPoints() / (float) gradingarray.size());
+            }
             float oldAutoScore = 0;
             if (data.getAutoScore() !=null) {
               oldAutoScore=data.getAutoScore().floatValue();

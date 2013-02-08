@@ -126,6 +126,19 @@ public class QuestionScoreUpdateListener
           (ar.getAssessmentGradingId() + ":" + itemId);
         if (datas == null)
           datas = new ArrayList();
+        
+        int fibFinNumCorrect  = 0;
+        if (bean.getTypeId().equals("8") || bean.getTypeId().equals("11")) {        
+        	Iterator iter1 = datas.iterator();
+        	while (iter1.hasNext()){
+        		Object obj = iter1.next();
+        		ItemGradingData data = (ItemGradingData) obj;
+        		if (data.getIsCorrect() != null && data.getIsCorrect().booleanValue()) {
+        			fibFinNumCorrect++;
+        		}
+        	}
+        }
+        
         Iterator iter2 = datas.iterator();
         while (iter2.hasNext()){
           Object obj = iter2.next();
@@ -133,7 +146,15 @@ public class QuestionScoreUpdateListener
           ItemGradingData data = (ItemGradingData) obj;
 
           // check if there is differnce in score, if so, update. Otherwise, do nothing
-          float newAutoScore = (Float.valueOf(ar.getTotalAutoScore())).floatValue() / (float) datas.size();
+          float newAutoScore = 0;
+          if ((bean.getTypeId().equals("8") || bean.getTypeId().equals("11")) && fibFinNumCorrect != 0) {
+        	  if (Boolean.TRUE.equals(data.getIsCorrect())) {
+        		  newAutoScore = (Float.valueOf(ar.getTotalAutoScore())).floatValue() / (float) fibFinNumCorrect;
+        	  }
+          }
+          else {
+        	  newAutoScore = (Float.valueOf(ar.getTotalAutoScore())).floatValue() / (float) datas.size();
+          }
           String newComments = TextFormat.convertPlaintextToFormattedTextNoHighUnicode(log, ar.getComments());
           ar.setComments(newComments);
           if (newComments!=null) {

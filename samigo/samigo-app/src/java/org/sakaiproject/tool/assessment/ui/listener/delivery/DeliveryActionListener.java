@@ -1766,23 +1766,10 @@ public class DeliveryActionListener
             {
               answer.setText("");
             }
-            StringTokenizer st2 = new StringTokenizer(answer.getText(), "|");
-            while (st2.hasMoreTokens())
+            
+            if (data.getIsCorrect() != null && data.getIsCorrect().booleanValue())
             {
-              String nextT = st2.nextToken();
-              log.debug("nextT = " + nextT);
-//  mark answer as correct if autoscore > 0
- 
-/*
-              if (data.getAnswerText() != null &&
-                  data.getAnswerText().equalsIgnoreCase(nextT))
-*/
-              if (data.getAutoScore() != null &&
-                  data.getAutoScore().floatValue() > 0.0)
-              {
-                fbean.setIsCorrect(true);
-              }
-// need to check if case sensitive, mutual exclusive.
+              fbean.setIsCorrect(true);
             }
           }
         }
@@ -1926,23 +1913,10 @@ public class DeliveryActionListener
             {
               answer.setText("");
             }
-            StringTokenizer st2 = new StringTokenizer(answer.getText(), "|");
-            while (st2.hasMoreTokens())
+            
+            if (data.getIsCorrect() != null && data.getIsCorrect().booleanValue())
             {
-              String nextT = st2.nextToken();
-              log.debug("nextT = " + nextT);
-//  mark answer as correct if autoscore > 0
- 
-/*
-              if (data.getAnswerText() != null &&
-                  data.getAnswerText().equalsIgnoreCase(nextT))
-*/
-              if (data.getAutoScore() != null &&
-                  data.getAutoScore().floatValue() > 0.0)
-               {
-                fbean.setIsCorrect(true);
-              }
-// need to check if case sensitive, mutual exclusive.
+              fbean.setIsCorrect(true);
             }
           }
         }
