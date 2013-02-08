@@ -117,8 +117,11 @@ public interface ContentHostingService extends EntityProducer
 	/** Name of the event when removing a resource. */
 	public static final String EVENT_RESOURCE_REMOVE = "content.delete";
 	
-	/** Name of the event when removing a resource. */
+	/** Name of the event when a resource becomes available (e.g. scheduled release date) */
 	public static final String EVENT_RESOURCE_AVAILABLE = "content.available";
+
+	/** Name of the event when a resource becomes unavailable (e.g. scheduled retract date) */
+	public static final String EVENT_RESOURCE_UNAVAILABLE = "content.unavailable";
 
 	/** 
 	 * Name of the event when the availability of a content-entity changes - includes 

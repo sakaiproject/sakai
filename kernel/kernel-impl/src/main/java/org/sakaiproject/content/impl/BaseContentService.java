@@ -2685,12 +2685,22 @@ SiteContentAdvisorProvider, SiteContentAdvisorTypeRegistry, EntityTransferrerRef
 		// cancel all scheduled available events for this entity. 
 		eventTrackingService.cancelDelays(ref, EVENT_RESOURCE_AVAILABLE);
 
-		// if resource isn't available yet, schedule an event to tell when it becomes available
-		if (!entity.isAvailable())
+		if ( ! entity.isAvailable() )
 		{
-			eventTrackingService.delay(eventTrackingService.newEvent(EVENT_RESOURCE_AVAILABLE, ref,
-					false, priority), entity.getReleaseDate());
-			entity.getProperties().addProperty(PROP_AVAIL_NOTI, Boolean.FALSE.toString());
+			// schedule an event to tell when resource becomes available
+			if (entity.getReleaseDate() != null)
+			{
+				eventTrackingService.delay(eventTrackingService.newEvent(EVENT_RESOURCE_AVAILABLE, ref,
+																							false, priority), entity.getReleaseDate());
+				entity.getProperties().addProperty(PROP_AVAIL_NOTI, Boolean.FALSE.toString());
+			}
+			// schedule an event to tell when resource becomes unavailable
+			if ( entity.getRetractDate() != null )
+			{
+				eventTrackingService.delay(eventTrackingService.newEvent(EVENT_RESOURCE_UNAVAILABLE, ref,
+																							false, priority), entity.getRetractDate());
+				entity.getProperties().addProperty(PROP_AVAIL_NOTI, Boolean.FALSE.toString());
+			}
 		}
 		else
 		{
@@ -2705,6 +2715,14 @@ SiteContentAdvisorProvider, SiteContentAdvisorTypeRegistry, EntityTransferrerRef
 				eventTrackingService.post(eventTrackingService.newEvent(EVENT_RESOURCE_AVAILABLE,
 						ref, false, priority));
 				entity.getProperties().addProperty(PROP_AVAIL_NOTI, Boolean.TRUE.toString());
+			}
+			
+			// schedule an event to tell when resource becomes unavailable
+			if ( entity.getRetractDate() != null )
+			{
+				eventTrackingService.delay(eventTrackingService.newEvent(EVENT_RESOURCE_UNAVAILABLE, ref,
+																							false, priority), entity.getRetractDate());
+				entity.getProperties().addProperty(PROP_AVAIL_NOTI, Boolean.FALSE.toString());
 			}
 		}
 	}
