@@ -719,14 +719,15 @@ INSERT INTO SAKAI_SITE_PAGE VALUES('~admin-1120', '~admin', 'Preferences', '0', 
 INSERT INTO SAKAI_SITE_TOOL VALUES('~admin-1125', '~admin-1120', '~admin', 'sakai.preferences', 1, 'Preferences', NULL );
 
 -- -----------------------------------------------------------------------
--- SAK-22296
+-- SAK-22296 and SAK-23217. Changed POSITION to LOCATION for SAK-23217.
+-- POSITION is reserved in hsqldb.
 -- -----------------------------------------------------------------------
 
 CREATE TABLE CITATION_COLLECTION_ORDER
 (
     COLLECTION_ID VARCHAR2 (36) NOT NULL,
     CITATION_ID VARCHAR2 (36) NOT NULL,
-    POSITION NUMBER(10,0) NOT NULL
+    LOCATION NUMBER(10,0) NOT NULL
 );
 
 CREATE INDEX CITATION_COLL_ORDER_INDEX ON CITATION_COLLECTION_ORDER (COLLECTION_ID,CITATION_ID);
