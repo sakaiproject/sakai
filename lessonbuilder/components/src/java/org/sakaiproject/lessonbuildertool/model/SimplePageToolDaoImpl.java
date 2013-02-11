@@ -1072,7 +1072,7 @@ public class SimplePageToolDaoImpl extends HibernateDaoSupport implements Simple
 	    Object [] fields = new Object[2];
 	    fields[0] = questionId;
 	    fields[1] = responseId;
-	    SqlService.dbWrite("update lesson_builder_qr_totals set count = count + 1 where questionId = ? and responseId = ?", fields);
+	    SqlService.dbWrite("update lesson_builder_qr_totals set respcount = respcount + 1 where questionId = ? and responseId = ?", fields);
 	}
 
 	public void syncQRTotals(SimplePageItem item) {
