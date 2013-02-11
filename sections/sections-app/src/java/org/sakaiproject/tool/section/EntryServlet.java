@@ -53,7 +53,7 @@ public class EntryServlet extends HttpServlet {
             Calendar open = sm.getOpenDate(siteContext);
             Calendar now = Calendar.getInstance();
             if (now.before(open)) {
-            	System.out.println("SECTIONS: Grupos Cerrados...");
+            	log.debug("SECTIONS: Grupos Cerrados...");
             	path.append("/closed.jsf");
             }else {
             	path.append("/studentView.jsf");
