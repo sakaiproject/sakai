@@ -672,6 +672,7 @@ public class SiteAction extends PagedResourceActionII {
 	
 	/** the web content tool id **/
 	private final static String WEB_CONTENT_TOOL_ID = "sakai.iframe";
+	private final static String SITE_INFO_TOOL_ID = "sakai.iframe.site";
 	private final static String WEB_CONTENT_TOOL_SOURCE_CONFIG = "source";
 	private final static String WEB_CONTENT_TOOL_SOURCE_CONFIG_VALUE = "http://";
 
@@ -1658,6 +1659,7 @@ public class SiteAction extends PagedResourceActionII {
 								Map<String, Object> m = new HashMap<String, Object>();
 								Map<String, Object> ltiToolValues = m_ltiService.getTool(Long.valueOf(ltiToolId));
 								m.put("toolTitle", ltiToolValues.get(LTIService.LTI_TITLE));
+								m.put("pageTitle", ltiToolValues.get(LTIService.LTI_PAGETITLE));
 								m.put(LTIService.LTI_TITLE, (String) content.get(LTIService.LTI_TITLE));
 								m.put("contentKey", content.get(LTIService.LTI_ID));
 								linkedLtiContents.put(ltiToolId, m);
@@ -2706,7 +2708,8 @@ public class SiteAction extends PagedResourceActionII {
 					{
 						contentToolModel[k] = ltiToolId + "_" + contentToolModel[k];
 					}
-					String formInput=m_ltiService.formInput(null, contentToolModel);
+					Map<String, Object> ltiTool = m_ltiService.getTool(Long.valueOf(ltiToolId));
+					String formInput=m_ltiService.formInput(ltiTool, contentToolModel);
 					toolMap.put("formInput", formInput);
 					currentLtiTools.put(ltiToolId, toolMap);
 				}
@@ -2787,6 +2790,15 @@ public class SiteAction extends PagedResourceActionII {
 					.getAttribute(STATE_TOOL_HOME_SELECTED));
 			context.put("importSupportedTools", importTools());
 
+			if(ServerConfigurationService.getBoolean("site-manage.importoption.siteinfo", false)){
+				try{
+					String siteInfoToolTitle = ToolManager.getTool(SITE_INFO_TOOL_ID).getTitle();
+					context.put("siteInfoToolTitle", siteInfoToolTitle);
+				}catch(Exception e){
+					
+				}
+			}
+			
 			return (String) getContext(data).get("template") + TEMPLATE[27];
 		case 60:
 			/*
@@ -2928,6 +2940,7 @@ public class SiteAction extends PagedResourceActionII {
 				
 			if (site != null) {
 				context.put("site", site);
+				context.put("siteTitle", site.getTitle());
 
 				List providerCourseList = (List) state
 						.getAttribute(SITE_PROVIDER_COURSE_LIST);
@@ -3956,7 +3969,6 @@ public class SiteAction extends PagedResourceActionII {
 		}
 		// remove attributes
 		state.removeAttribute(ALL_ZIP_IMPORT_SITES);
-		state.removeAttribute(FINAL_ZIP_IMPORT_SITES);
 		state.removeAttribute(DIRECT_ZIP_IMPORT_SITES);
 		state.removeAttribute(CLASSIC_ZIP_FILE_NAME);
 		state.removeAttribute(SESSION_CONTEXT_ID);
@@ -6352,7 +6364,7 @@ public class SiteAction extends PagedResourceActionII {
 	 */
 	private String findOriginalToolId(SessionState state, String toolId) {
 		// treat home tool differently
-		if (toolId.equals(TOOL_ID_HOME))
+		if (toolId.equals(TOOL_ID_HOME) || SITE_INFO_TOOL_ID.equals(toolId))
 		{
 			return toolId;
 		}
@@ -9589,8 +9601,8 @@ public class SiteAction extends PagedResourceActionII {
 	                else
 	                {
 	                	// success inserting tool content
-	                	String title = reqProperties.getProperty("title");
-	                	retval = m_ltiService.insertToolSiteLink(((Long) retval).toString(), title, site.getId());
+	                	String pageTitle = reqProperties.getProperty("pagetitle");
+	                	retval = m_ltiService.insertToolSiteLink(((Long) retval).toString(), pageTitle, site.getId());
 	                	if (retval instanceof String)
 	                	{
 		        			addAlert(state, ((String) retval).substring(2));
@@ -9959,11 +9971,15 @@ public class SiteAction extends PagedResourceActionII {
 					for (int k = 0; k < importSiteIds.size(); k++) {
 						String fromSiteId = (String) importSiteIds.get(k);
 						String toSiteId = site.getId();
-						Map<String,String> entityMap = transferCopyEntities(toolId, fromSiteId, toSiteId);
-						if(entityMap != null){							 
-							transversalMap.putAll(entityMap);
+						if(SITE_INFO_TOOL_ID.equals(toolId)){
+								copySiteInformation(fromSiteId, site);
+						}else{
+							Map<String,String> entityMap = transferCopyEntities(toolId, fromSiteId, toSiteId);
+							if(entityMap != null){							 
+								transversalMap.putAll(entityMap);
+							}
+							resourcesImported = true;
 						}
-						resourcesImported = true;
 					}
 				}
 			}
@@ -10025,9 +10041,13 @@ public class SiteAction extends PagedResourceActionII {
 					for (int k = 0; k < importSiteIds.size(); k++) {
 						String fromSiteId = (String) importSiteIds.get(k);
 						String toSiteId = site.getId();
-						Map<String,String> entityMap = transferCopyEntitiesMigrate(toolId, fromSiteId, toSiteId);
-						if(entityMap != null){							 
-							transversalMap.putAll(entityMap);
+						if(SITE_INFO_TOOL_ID.equals(toolId)){
+							copySiteInformation(fromSiteId, site);
+						}else{
+							Map<String,String> entityMap = transferCopyEntitiesMigrate(toolId, fromSiteId, toSiteId);
+							if(entityMap != null){
+								transversalMap.putAll(entityMap);
+							}
 						}
 					}
 				}
@@ -10047,6 +10067,19 @@ public class SiteAction extends PagedResourceActionII {
 		}
 	} // importToolIntoSiteMigrate
 
+	private void copySiteInformation(String fromSiteId, Site toSite){
+		try {
+			Site fromSite = SiteService.getSite(fromSiteId);
+			//we must get the new site again b/c some tools (lesson builder) can make changes to the site structure (i.e. add pages).
+			Site editToSite = SiteService.getSite(toSite.getId());
+			editToSite.setDescription(fromSite.getDescription());
+			editToSite.setInfoUrl(fromSite.getInfoUrl());
+			commitSite(editToSite);
+			toSite = editToSite;
+		} catch (IdUnusedException e) {
+
+		}
+	}
 
 	public void saveSiteStatus(SessionState state, boolean published) {
 		Site site = getStateSite(state);
@@ -11577,8 +11610,11 @@ public class SiteAction extends PagedResourceActionII {
 					}								
 				}	
 				if(updated){
-					newSite.setDescription(msgBody);
+					//update the site b/c some tools (Lessonbuilder) updates the site structure (add/remove pages) and we don't want to
+					//over write this
 					try {
+						newSite = SiteService.getSite(newSite.getId());
+						newSite.setDescription(msgBody);
 						SiteService.save(newSite);
 					} catch (IdUnusedException e) {
 						// TODO:
@@ -11675,6 +11711,10 @@ public class SiteAction extends PagedResourceActionII {
 			}
 		}
 
+		if (ServerConfigurationService.getBoolean("site-manage.importoption.siteinfo", false)){
+			rv.add(SITE_INFO_TOOL_ID);
+		}
+		
 		return rv;
 	}
 
@@ -11719,7 +11759,11 @@ public class SiteAction extends PagedResourceActionII {
 			toolIdList.add(WEB_CONTENT_TOOL_ID);
 		if (displayNews && !toolIdList.contains(NEWS_TOOL_ID))
 			toolIdList.add(NEWS_TOOL_ID);
-
+		if (ServerConfigurationService.getBoolean("site-manage.importoption.siteinfo", false)){
+			toolIdList.add(SITE_INFO_TOOL_ID);
+		}
+		
+		
 		return toolIdList;
 	} // getToolsAvailableForImport
 

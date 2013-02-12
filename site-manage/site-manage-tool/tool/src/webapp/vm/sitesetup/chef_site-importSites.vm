@@ -38,6 +38,9 @@
 										#set($toolTitle = $t.getTitle())
 									#end
 								#end
+								#if($toolId == "sakai.iframe.site")
+									#set($toolTitle = $siteInfoToolTitle)
+								#end
 								<h4>$toolTitle</h4>
 							</td>
 							#set ($siteCount=0)

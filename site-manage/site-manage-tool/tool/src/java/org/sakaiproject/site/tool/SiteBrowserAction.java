@@ -24,6 +24,8 @@ package org.sakaiproject.site.tool;
 import java.io.IOException;
 import java.lang.reflect.Method;
 import java.util.ArrayList;
+import java.util.Collection;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
@@ -47,6 +49,7 @@ import org.sakaiproject.component.cover.ServerConfigurationService;
 import org.sakaiproject.content.api.ContentHostingService;
 import org.sakaiproject.content.api.FilePickerHelper;
 import org.sakaiproject.content.cover.ContentTypeImageService;
+import org.sakaiproject.coursemanagement.api.AcademicSession;
 import org.sakaiproject.entity.api.Reference;
 import org.sakaiproject.entity.cover.EntityManager;
 import org.sakaiproject.event.api.SessionState;
@@ -68,6 +71,7 @@ import org.sakaiproject.util.ResourceLoader;
 import org.apache.commons.lang.StringUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
+import org.apache.velocity.tools.generic.SortTool;
 
 /**
  * <p>
@@ -122,6 +126,9 @@ public class SiteBrowserAction extends PagedResourceActionII implements SiteHelp
 	private static final String STATE_NEXT_SITE = PREFIX+ "state_next_site";
 	
 	private static final String STATE_HELPER_DONE = PREFIX+ "helperDone";
+	
+	private final static String SORT_KEY_SESSION = "worksitesetup.sort.key.session";
+	private final static String SORT_ORDER_SESSION = "worksitesetup.sort.order.session";
 
 	public SiteBrowserAction() {
 		 contentHostingService = (ContentHostingService) ComponentManager.get(ContentHostingService.class.getName());
@@ -374,13 +381,67 @@ public class SiteBrowserAction extends PagedResourceActionII implements SiteHelp
 			context.put("termSearchSiteType", termSearchSiteType);
 			if (cms != null) 
 			{
-				context.put("terms", cms.getAcademicSessions());
+				context.put("terms", sortAcademicSessions( cms.getAcademicSessions() ));
 			}
 		}
 
 		return "_simpleSearch";
 
 	} // buildSimpleSearchContext
+	
+	/**
+	 * Helper method for sortCmObject 
+	 * by order from sakai properties if specified or 
+	 * by default of eid, title
+	 * using velocity SortTool
+	 * 
+	 * @param sessions
+	 * @return
+	 */
+	private Collection sortAcademicSessions(Collection<AcademicSession> sessions) {
+		// Get the keys from sakai.properties
+		String[] keys = ServerConfigurationService.getStrings(SORT_KEY_SESSION);
+		String[] orders = ServerConfigurationService.getStrings(SORT_ORDER_SESSION);
+
+		return sortCmObject(sessions, keys, orders);
+	} // sortCourseOffering
+	
+	/**
+	 * Custom sort CM collections using properties provided object has getter & setter for 
+	 * properties in keys and orders
+	 * defaults to eid & title if none specified
+	 * 
+	 * @param collection a collection to be sorted
+	 * @param keys properties to sort on
+	 * @param orders properties on how to sort (asc, dsc)
+	 * @return Collection the sorted collection
+	 */
+	private Collection sortCmObject(Collection collection, String[] keys, String[] orders) {
+		if (collection != null && !collection.isEmpty()) {
+			// Add them to a list for the SortTool (they must have the form
+			// "<key:order>" in this implementation)
+			List propsList = new ArrayList();
+			
+			if (keys == null || orders == null || keys.length == 0 || orders.length == 0) {
+				// No keys are specified, so use the default sort order
+				propsList.add("eid");
+				propsList.add("title");
+			} else {
+				// Populate propsList
+				for (int i = 0; i < Math.min(keys.length, orders.length); i++) {
+					String key = keys[i];
+					String order = orders[i];
+					propsList.add(key + ":" + order);
+				}
+			}
+			// Sort the collection and return
+			SortTool sort = new SortTool();
+			return sort.sort(collection, propsList);
+		}
+			
+		return Collections.emptyList();
+
+	} // sortCmObject
 
 	/**
 	 * Build the context for the visit site mode.

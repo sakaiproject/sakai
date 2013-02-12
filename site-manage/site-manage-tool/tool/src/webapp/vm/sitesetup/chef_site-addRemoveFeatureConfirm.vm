@@ -168,13 +168,21 @@
 				#set($ltiToolProperties=$ltiToolValues.get("reqProperties"))
 				#if (!$!oldLtiTools.containsKey($ltiToolId))
 					## highlight for newly selected lti tools
+					## init the page title with tool title first
+					#set($ltiPageTitle=$ltiToolValues.get("pagetitle"))
+					## then check whether there was a page title
+					#set($ltiPageTitle=$ltiToolProperties.get("pagetitle"))
 					<span class="highlight">
-						$ltiToolTitle ($ltiToolProperties.get("title"))
+						$ltiToolTitle ($ltiPageTitle)
 					</span>
 				#else
 					## existing lti tools
 					#set($oldLtiToolValues=$oldLtiTools.get($ltiToolId))
-					$ltiToolTitle ($oldLtiToolValues.get("title"))
+					## init the page title with tool title first
+					#set($oldLtiPageTitle=$oldLtiToolValues.get("title"))
+					## then check whether there was a page title
+					#set($oldLtiPageTitle=$oldLtiToolValues.get("pagetitle"))
+					$ltiToolTitle ($oldLtiPageTitle)
 				#end
 				<br/>
 			#end

@@ -173,7 +173,7 @@
 								<label for="lti_$toolId">
 									$toolValues.get("title")
 									#if ($selectedLtiTools.containsKey($toolId))
-									 ($selectedLtiTools.get($toolId).get("title"))
+									 ($selectedLtiTools.get($toolId).get("pageTitle"))
 									#end
 								</label>
 							</td>
