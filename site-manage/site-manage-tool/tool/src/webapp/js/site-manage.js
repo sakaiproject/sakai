@@ -154,7 +154,7 @@ sakai.setupSelectList = function(list, allcontrol, highlightClass){
 };
 
 sakai.siteTypeSetup = function(){
-     var courseSiteTypes = $('#courseSiteTypes').text().replace('[','').replace(']','').split(',');
+     var courseSiteTypes = $('#courseSiteTypes').val();
     $('input[name="itemType"]').attr('checked', '');
     $('#copy').click(function(e){
         $('#templateSettings').show();

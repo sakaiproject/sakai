@@ -22,10 +22,7 @@
     <h3>
         $tlang.getString("sitetype.crenewsit")  AAA
     </h3>
-        ##<h4 style="color: red;font-size: 2em">$getSiteTypeStrings('course')</h4>
-        
-        
-        <span id="courseSiteTypes" style="color: red;">[course,subject]</span>
+        <span id="courseSiteTypes" style="color: red;display:none" >$courseSiteTypeStrings</span>
         
     #if ($alertMessage)<div class="alertMessage">$tlang.getString("sitetype.alert") $validator.escapeHtml($alertMessage)</div>  #end
     <p class="step">
