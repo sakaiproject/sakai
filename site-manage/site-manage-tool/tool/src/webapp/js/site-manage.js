@@ -153,9 +153,8 @@ sakai.setupSelectList = function(list, allcontrol, highlightClass){
     });
 };
 
-
 sakai.siteTypeSetup = function(){
-
+     var courseSiteTypes = $('#courseSiteTypes').text().replace('[','').replace(']','').split(',');
     $('input[name="itemType"]').attr('checked', '');
     $('#copy').click(function(e){
         $('#templateSettings').show();
@@ -213,16 +212,16 @@ sakai.siteTypeSetup = function(){
     });
     
     $('#fromTemplateSettingsContainer_instruction_control').click(function(){
-        var pos = $(this).position()
+        var pos = $(this).position();
         $('#fromTemplateSettingsContainer_instruction_body').css({'top': pos.top - 140,'left': pos.left - 290}).toggle();
-    })
+    });
     
     $('#fromTemplateSettingsContainer_instruction_body').click(function(){
         $(this).toggle();
-    })
+    });
     
     $('#templateList input').click(function(e){
-        var selectedTemplateId = $('#templateList input[type="radio"]:checked').val()
+        var selectedTemplateId = $('#templateList input[type="radio"]:checked').val();
         
         if (!selectedTemplateId){  // how likely is this? 
             $('#templateSettingsTitleTerm span').hide(); // hide title for non-course sites
@@ -235,11 +234,16 @@ sakai.siteTypeSetup = function(){
             $('#templateSettingsTitleTerm span.templateTitleTerm').hide(); // hide term selection and title input controls
             $('#templateList li').removeClass('selectedTemplate'); // remove hightlights from all rows
              $('#templateList #row' + selectedTemplateId).addClass('selectedTemplate'); // add highlight to selected row
+             $('#allTemplateSettings').addClass('allTemplateSettingsHighlight');
             $('#templateList #row' + selectedTemplateId  + ' .templateSettingsPlaceholder').append($('#allTemplateSettings'));
             $('#fromTemplateSettingsContainer_instruction_body').hide();
-            $('#allTemplateSettings').fadeIn('slow')
-            if (type == "course" || type=="subject") {
+            $('#allTemplateSettings').fadeIn('slow',function() {
+                $(this).removeClass('allTemplateSettingsHighlight');
+            });
+             if ($.inArray(type, courseSiteTypes) !==-1) {
+            //if (type == "course" || type=="subject") {
                  // this is problematic - it assumes a course site will be of site type "course" where it could be called anything.
+                 // instead it should use $courseSiteType from sakai.properties / kernel
                 $('#fromTemplateSettingsContainer .fromTemplateSettingsCourse').show(); //show the settings that are specific to courses
                 $('#submitFromTemplate').hide(); // hide the non-course submit button 
                 $('#submitFromTemplateCourse').show(); // show tfe submit button for course
@@ -273,21 +277,25 @@ sakai.siteTypeSetup = function(){
     });
     
     $('.siteTypeRow a').click(function(e) {
+       $('#submitFromTemplateCourse').hide();
+       $('#submitFromTemplate').attr('disabled','disabled');
+       $('#submitFromTemplate').show();
        e.preventDefault();
        // clean up
        $('li[class^=row]').hide();
        $('.siteTypeRow a .open').hide();
-       $('.siteTypeRow a .open').hide();
        $('.siteTypeRow a .closed').show();
        // set new category display
-       $(this).toggleClass('openDisc');
+       //if ($(this).attr('class') ==='openDisc') {
+        $('.siteTypeRow a').removeClass('openDisc');
+        $(this).toggleClass('openDisc');
+       //}
        $('.row' + $(this).attr('href')).fadeToggle();
        $(this).find('.closed').hide();
        $(this).find('.open').show(); 
        utils.resizeFrame('grow');
     });
 };
-
 
 sakai.setupToggleAreas = function(toggler, togglee, openInit, speed){
     // toggler=class of click target

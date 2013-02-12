@@ -70,17 +70,23 @@ dl.defList dd{
  #templateList li {
     background:#fff;
     margin:0 5px!important;
-    padding: 2px 5px;
+    padding: 10px 5px;
     height:100%;
     overflow: hidden;
     border-bottom: 1px solid #ccc;
 }
+#templateList li.siteTypeRow {
+        padding: 2px 5px;
+}
 #allTemplateSettings {
-    margin:2px;
+    margin: 15px 5px 0;
     height:100%;
     overflow: hidden;
     background: #fff;
     border:1px solid #eee;
+}
+.allTemplateSettingsHighlight {
+    border:1px solid #aaa !important
 }
 #templateSettingsTitleTermContainer {
      padding:5px 8px;
@@ -89,19 +95,22 @@ dl.defList dd{
 #fromTemplateSettingsContainer {
     padding:5px 8px;
     float:left;
-    
 }
 
  #templateList li .templateName {
      float: left;
      width:25%;
+     overflow: hidden;
+    text-overflow: ellipsis;
 }
 #templateList li .templateDescription {
      float: right;
      width:68%;
+     overflow: hidden;
+    text-overflow: ellipsis;
 }
 #templateList li .templateDescription p:first-child {
-    margin-top: 0;
+    margin: 0;
 }
 #templateList li.selectedTemplate {
     background: #ffe
@@ -138,6 +147,13 @@ dl.defList dd{
     -webkit-border-radius: 5px;
     -moz-border-radius: 5px;
     border-radius: 5px;
+    text-transform: capitalize;
+}
+#templateList li.siteTypeRow span.siteTypeRowBlurb {
+    color: #555;
+    padding: 5px;
+    font-size: 85%;
+    text-transform: none;
 }
 #templateList li.siteTypeRow h4 a .siteType {
         text-transform: capitalize;
