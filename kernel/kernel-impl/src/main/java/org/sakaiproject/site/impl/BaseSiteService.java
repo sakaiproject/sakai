@@ -1088,12 +1088,12 @@ public abstract class BaseSiteService implements SiteService
 	/**
 	 * read the site Type definition from configuration files
 	 */
-	private List<String> getSiteTypeStrings(String typeName, String defaultValue)
+	public List<String> getSiteTypeStrings(String type)
 	{
-		String[] siteTypes = serverConfigurationService().getStrings(typeName);
+		String[] siteTypes = serverConfigurationService().getStrings(type + "SiteType");
 		if (siteTypes == null || siteTypes.length == 0)
 		{
-			siteTypes = new String[] {defaultValue};
+			siteTypes = new String[] {type};
 		}
 		return Arrays.asList(siteTypes);
 	}
@@ -1102,7 +1102,7 @@ public abstract class BaseSiteService implements SiteService
 		boolean rv = false;
 		try {
 			Site s = getSite(siteId);
-			List<String> courseSiteTypes = getSiteTypeStrings("courseSiteType", "course");
+			List<String> courseSiteTypes = getSiteTypeStrings("course");
 			if (courseSiteTypes.contains(s.getType())) 
 				return true;
 				
@@ -1117,7 +1117,7 @@ public abstract class BaseSiteService implements SiteService
 		boolean rv = false;
 		try {
 			Site s = getSite(siteId);
-			List<String> portfolioSiteTypes = getSiteTypeStrings("portfolioSiteType", "portfolio");
+			List<String> portfolioSiteTypes = getSiteTypeStrings("portfolio");
 			if (portfolioSiteTypes.contains(s.getType())) 
 				return true;
 				
@@ -1132,7 +1132,7 @@ public abstract class BaseSiteService implements SiteService
 		boolean rv = false;
 		try {
 			Site s = getSite(siteId);
-			List<String> projectSiteTypes = getSiteTypeStrings("projectSiteType", "project");
+			List<String> projectSiteTypes = getSiteTypeStrings("project");
 			if (projectSiteTypes.contains(s.getType())) 
 				return true;
 				
@@ -1177,17 +1177,17 @@ public abstract class BaseSiteService implements SiteService
 		
 		
 		// SAK-12631
-		if (serverConfigurationService().getString("courseSiteType", "course").equals(type)) {
+		if (getSiteTypeStrings("course").contains(type)) {
 			unlock(SECURE_ADD_COURSE_SITE, siteReference(id));
 		}
 
 		// KNL-703
-		if (serverConfigurationService().getString("portfolioSiteType", "portfolio").equals(type)) {
+		if (getSiteTypeStrings("portfolio").contains(type)) {
 			unlock(SECURE_ADD_PORTFOLIO_SITE, siteReference(id));
 		}
 		
 		// KNL-952
-		if (serverConfigurationService().getString("projectSiteType", "project").equals(type)) {
+		if (getSiteTypeStrings("project").contains(type)) {
 			unlock(SECURE_ADD_PROJECT_SITE, siteReference(id));
 		}
 

@@ -485,4 +485,12 @@ public class SiteService
 
 		return service.allowRoleSwap(param0);
 	}
+	
+	public static java.util.List<String> getSiteTypeStrings(java.lang.String param0)
+	{
+		org.sakaiproject.site.api.SiteService service = getInstance();
+		if (service == null) return null;
+
+		return service.getSiteTypeStrings(param0);
+	}
 }

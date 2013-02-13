@@ -857,4 +857,16 @@ public interface SiteService extends EntityProducer
 	 * @return true if the site is allowed to addRoleSwap(id), false if not.
 	 */
 	boolean allowRoleSwap(String id);
-}
+	
+	/**
+	 * returns all type strings that are associated with specified site type.
+	 * Following is an example of site type settings, which defines two strings as "course"-type
+	 * courseSiteType.count=2
+	 * courseSiteType.1=course
+	 * courseSiteType.2=course2
+	 * @param type Site type
+	 * @return list of site type strings
+	 */
+	public List<String> getSiteTypeStrings(String type);
+	
+} 
