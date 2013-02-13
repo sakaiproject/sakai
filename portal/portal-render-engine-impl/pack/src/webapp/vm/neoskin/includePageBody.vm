@@ -5,10 +5,10 @@
 <!-- START from includePageBody.vm -->
 		#if ( $sitePages.pageMaxIfSingle )
 			#if ( $sitePages.pageNavToolsCount > 1 ) 
-			<div id="$pageWrapperClass" role="main">
+			<div id="$pageWrapperClass" role="main"><div id="innercontent">
 			#end
 		#else
-			<div id="$pageWrapperClass" role="main">
+			<div id="$pageWrapperClass" role="main"><div id="innercontent">
 		#end
 
 
@@ -207,7 +207,7 @@
 				</div>
 			#end
 			</div>
-
+        </div>
 			<div>
 			<!-- include bottom -->
 			#if ( !$pagepopup)
