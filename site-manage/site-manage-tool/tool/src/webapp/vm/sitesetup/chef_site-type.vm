@@ -20,9 +20,9 @@
 <div class ="portletBody">
 
     <h3>
-        $tlang.getString("sitetype.crenewsit")  AAA
+        $tlang.getString("sitetype.crenewsit")
     </h3>
-        <span id="courseSiteTypes" style="color: red;display:none" >$courseSiteTypeStrings</span>
+        <input type="text" id="courseSiteTypes" style="color:red" value="$courseSiteTypeStrings">
         
     #if ($alertMessage)<div class="alertMessage">$tlang.getString("sitetype.alert") $validator.escapeHtml($alertMessage)</div>  #end
     <p class="step">
@@ -41,7 +41,7 @@
                 <input type="radio" name="createMode" id="buildOwn" value="buildOwn" checked="checked"/>    
                 <label for="buildOwn">$tlang.getString("sitetype.buildown")</label>
             </p>
-            <p class="indnt4 textPanelFooter" style="margin-bottom:5px;">A <strong>Build-Your-Own</strong> site (for experienced users) lets you choose individual site tools and functions.</p>
+            <p class="indnt4 textPanelFooter" style="margin-bottom:5px;">$tlang.getString("sitetype.chothetyp.withtemplate.build.own.info")</p>
         #else
             ## otherwise, default to the choice
             <input type="hidden" name="createMode" id="buildOwn" value="buildOwn" />    
@@ -115,7 +115,7 @@
                 <input type="radio" name="itemType" id="copy" value="copy"/>
                 <label for="copy">$tlang.getString("sitetype.createfromtemplate")</label>
             </p>
-            <p class="indnt4 textPanelFooter" style="margin-bottom:5px;">A <strong>Template-based</strong> site (recommended for new users) comes pre-loaded with essential tools and functions. Please note, you can add or remove tools from either type of site, once created. </p>
+            <p class="indnt4 textPanelFooter" style="margin-bottom:5px;">$tlang.getString("sitetype.chothetyp.withtemplate.use.template.info")</p>
             <div class="indnt3" id="templateSettings" style="display:none;">
                 <div id="allTemplateSettings" style="display:none;">
                     <div id="templateSettingsTitleTermContainer">
@@ -159,16 +159,16 @@
                             <label for="publishSite">$tlang.getString("sitetype.publishSite")</label>
                         </span>
                         <span id="fromTemplateSettingsContainer_instruction">
-                            <a href="#" id="fromTemplateSettingsContainer_instruction_control" class="itemAction">What is this?</a>
-                            <div id="fromTemplateSettingsContainer_instruction_body" style="display:none;" title="Click to dismiss">
-                                <p id="fromTemplateSettingsContainer_instruction_body_copyUsers"> ## style="display: none"
-                                    <strong>Copy Users:</strong> users specified in the template will be copied to your new site. This usually consist of support staff from your school. 
+                            <a href="#" id="fromTemplateSettingsContainer_instruction_control" class="itemAction">$tlang.getString("sitetype.template.get.info")</a>
+                            <div id="fromTemplateSettingsContainer_instruction_body" style="display:none;" title="$tlang.getString("sitetype.template.close.info")">
+                                <p id="fromTemplateSettingsContainer_instruction_body_copyUsers">
+                                    $tlang.getString("sitetype.template.copy.users.info") 
                                 </p>
                                 <p id="fromTemplateSettingsContainer_instruction_body_copyContent">
-                                    <strong>Copy Content:</strong> content included in the template will be copied to your site. This may consist of material selected by your campus, school or department.
+                                    $tlang.getString("sitetype.template.copy.content.info")
                                 </p>
                                 <p id="fromTemplateSettingsContainer_instruction_body_publishSite">
-                                    <strong>Publish site:</strong> your site will be published inmediately and be available to your users. Leave unchecked if you want to do further setup. 
+                                    $tlang.getString("sitetype.template.publish.now") 
                                 </p>
                                 </div>
                             </span>
@@ -179,25 +179,23 @@
                         #set($templateCatNum = 0)
                         #set($templateCatPrefix = "")
                         #foreach($templateSite in $templateSites)
-
-
-                              #if ($siteType == "course")
-                                 #set($templateCatDisp = "(select from templates for common <u>class</u> types)")
-                              #end
-                              #if ($siteType == "project")
-                                 #set($templateCatDisp = "(select from templates for common <u>project</u> types)")
-                              #end
-                              #if($siteType !="course" && $siteType !="project") 
-                                 #set($templateCatDisp = "(select from templates created by <u>specific schools or campuses</u>)")
-                              #end
-
-
-                        
                             #set($description=false)
                             #set($description=$templateSite.description)
                             #set($siteType = false)
                             #set($siteType = $!templateSite.type)
+
                             #if($siteTypePrev != $siteType)
+
+                              #if ($siteType == "course")
+                                 #set($templateCatDisp = $tlang.getString("sitetype.course.template.info"))
+                              #end
+                              #if ($siteType == "project")
+                                 #set($templateCatDisp = $tlang.getString("sitetype.project.template.info"))
+                              #end
+                              #if($siteType !="course" && $siteType !="project") 
+                                 #set($templateCatDisp = $tlang.getString("sitetype.other.template.info"))
+                              #end
+
                             ## new site type - so render a row containg the toggle and type name
                                 #set($templateCatNum = $templateCatNum + 1)
                                 <li  class="siteTypeRow">
