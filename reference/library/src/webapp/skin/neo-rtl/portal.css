@@ -49,6 +49,11 @@ body.portalBody {
 #content {
     padding: .8em 13.2em 0 0;
 }
+/* second wrapper for content - needed by SAK-12563 */
+#innercontent {
+    float: left;
+    width:100%
+}
 #col1of2 .portletTitleWrap, #col2of2 .portletTitleWrap {
     width: 98.5%;
     border-bottom: 2px solid #009DCE;
