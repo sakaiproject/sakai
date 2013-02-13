@@ -77,7 +77,7 @@ ${tool.toolRenderResult.getTitle()}
 #else 
     <title>${pageTitle}</title>
 ${sakai_html_head_css}
-     <script type="text/javascript" language="JavaScript" src="${pageScriptPath}headscripts.js"></script>
+${sakai_html_head_js}
      <script type="text/javascript" language="JavaScript" src="${pageScriptPath}/jquery/1.7.1/jquery-1.7.1.min.js"></script>
      <script type="text/javascript" language="JavaScript" src="${pageScriptPath}/trimpath-template-latest.js"></script>
 #end
