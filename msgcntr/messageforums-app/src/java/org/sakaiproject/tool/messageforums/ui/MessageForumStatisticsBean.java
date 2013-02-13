@@ -2500,7 +2500,7 @@ public class MessageForumStatisticsBean {
 					String studentUuid = gradeDef.getStudentUid();		  
 					DecoratedGradebookAssignment gradeAssignment = new DecoratedGradebookAssignment();
 					gradeAssignment.setAllowedToGrade(true);						
-					gradeAssignment.setScore(gradeDef.getGrade());
+					gradeAssignment.setScore(gradebookService.getAssignmentScoreString(gradebookUid, selAssignName, studentUuid));
 					gradeAssignment.setComment(gradeDef.getGradeComment());
 					gradeAssignment.setName(selAssignName);
 					gradeAssignment.setPointsPossible(gbItemPointsPossible);						

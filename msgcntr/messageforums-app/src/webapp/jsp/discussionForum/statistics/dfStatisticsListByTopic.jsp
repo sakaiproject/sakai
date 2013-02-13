@@ -319,6 +319,10 @@
 					   	<h:outputText value="#{mfStatisticsBean.selAssignName}" />
 						<h:graphicImage value="/images/sortascending.gif" rendered="#{mfStatisticsBean.gradeSort && mfStatisticsBean.ascending}" alt="#{mfStatisticsBean.selAssignName}"/>
 						<h:graphicImage value="/images/sortdescending.gif" rendered="#{mfStatisticsBean.gradeSort && !mfStatisticsBean.ascending}" alt="#{mfStatisticsBean.selAssignName}"/>
+						<f:verbatim><br/></f:verbatim>
+						<h:outputFormat value=" #{msgs.cdfm_points_possible}">
+							<f:param value="#{mfStatisticsBean.gbItemPointsPossible}"/>
+						</h:outputFormat>
 					</h:commandLink>
   				</f:facet>
   				<h:inputText size="5" value="#{stat.gradebookAssignment.score}" rendered="#{stat.gradebookAssignment.allowedToGrade}" styleClass="gradeInput"/>
