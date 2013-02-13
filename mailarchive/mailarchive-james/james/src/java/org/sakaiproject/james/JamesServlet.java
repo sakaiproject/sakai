@@ -149,6 +149,11 @@ public class JamesServlet extends HttpServlet
 		super.destroy();
 	}
 
+    @Override
+    protected void doGet(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
+        // do not return anything - SAK-23222
+    }
+    
 	protected static String getLogDirectory()
 	{
 		String logDir = StringUtils.trimToNull(ServerConfigurationService.getString("smtp.logdir"));

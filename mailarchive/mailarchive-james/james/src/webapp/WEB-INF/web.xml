@@ -22,4 +22,11 @@
         <load-on-startup>1</load-on-startup>
     </servlet>
 
+    <security-constraint>
+        <web-resource-collection>
+            <url-pattern>/apps/james/SAR-INF/config.xml</url-pattern> 
+        </web-resource-collection>
+        <auth-constraint />
+    </security-constraint>
+
 </web-app>
