@@ -113,9 +113,7 @@ public class FormattedTextTest extends TestCase {
                 formattedText.escapeHtmlFormattedText("<b>simple</b><b class=\"AZ\">bold</b><a href=\"other.html\" class=\"azeckoski\">link</a><a href=\"other.html\" target=\"_AZ\" class=\"azeckoski\">link</a>") );
     }
 
-
-    // DISABLED TEST
-    public void donottestAntisamyProcessFormattedText() {
+    public void testAntisamyProcessFormattedText() {
         // TESTS using the antiSamy library
         String strFromBrowser = null;
         String result = null;
@@ -142,7 +140,7 @@ public class FormattedTextTest extends TestCase {
         errorMessages = new StringBuilder();
         result = formattedText.processFormattedText(strFromBrowser, errorMessages, false);
         assertNotNull(result);
-        assertEquals("", result);
+        assertEquals("<div>hello</div>", result);
     }
 
     public void testLegacyProcessFormattedText() {
@@ -180,6 +178,48 @@ public class FormattedTextTest extends TestCase {
 
         strFromBrowser = SVG_GOOD;
         errorMessages = new StringBuilder();
+        result = formattedText.processFormattedText(strFromBrowser, errorMessages);
+        assertNotNull(result);
+        assertTrue( errorMessages.length() > 50 );
+        assertTrue( result.contains("<div"));
+        assertFalse( result.contains("<embed"));
+
+        strFromBrowser = SVG_BAD;
+        errorMessages = new StringBuilder();
+        result = formattedText.processFormattedText(strFromBrowser, errorMessages);
+        assertNotNull(result);
+        assertTrue( errorMessages.length() > 50 );
+        assertTrue( result.contains("<div"));
+        assertFalse( result.contains("<embed"));
+
+        /* CHANGED BEHAVIOR
+         * Antisamy strips the entire embed tag
+        strFromBrowser = SVG_GOOD;
+        errorMessages = new StringBuilder();
+        result = formattedText.processFormattedText(strFromBrowser, errorMessages);
+        assertNotNull(result);
+        assertTrue( errorMessages.length() == 0 );
+        assertTrue( result.contains("<div"));
+        assertTrue( result.contains("<embed"));
+        assertTrue( result.contains("src="));
+        assertTrue( result.contains("data:image/svg+xml;base64"));
+        assertFalse( result.contains("<script"));
+
+        strFromBrowser = SVG_BAD;
+        errorMessages = new StringBuilder();
+        result = formattedText.processFormattedText(strFromBrowser, errorMessages);
+        assertNotNull(result);
+        assertTrue( errorMessages.length() > 10 );
+        assertTrue( result.contains("<div"));
+        assertTrue( result.contains("<embed"));
+        assertFalse( result.contains("src="));
+        assertFalse( result.contains("data:image/svg+xml;base64"));
+        assertFalse( result.contains("<script"));
+        */
+
+        // test legacy
+        strFromBrowser = SVG_GOOD;
+        errorMessages = new StringBuilder();
         result = formattedText.processFormattedText(strFromBrowser, errorMessages, true);
         assertNotNull(result);
         assertTrue( errorMessages.length() == 0 );
@@ -202,39 +242,62 @@ public class FormattedTextTest extends TestCase {
     }
 
     public void testDataAttributes() {
-        String oneK       = "<span data-one></span>";
-        String oneKV      = "<span data-one=\"one\"></span>";
-        String twoK       = "<span data-one data-two></span>";
-        String twoKV      = "<span data-one=\"one\" data-two=\"two\"></span>";
-        String mixed      = "<span data-one data-two=\"two\"></span>";
-        String selfClose  = "<hr class=\"section\" data-section=\"Contents\"/>";
-        String subAttr    = "<span src=\"http://example.com/src\" data-src=\"http://example.com/data-src\"></span>";
-        String subAttrs   = "<span name=\"name\" src=\"src\" data-name=\"data-name\" data-src=\"http://example.com/\"></span>";
-
-        String repeatK    = "<span data-one data-one></span>";
-        String repeatKV   = "<span data-one=\"one\" data-one=\"two\"></span>";
-        String badK       = "<span class=\"foo\" data-one-></span>";
-        String badK2      = "<span class=\"foo\" data-></span>";
-        String badK3      = "<span class=\"foo\" data--></span>";
-        String badKV      = "<span class=\"foo\" data-one-=\"one\"></span>";
-
-        String resultRepeatK  = "<span data-one></span>";
-        String resultRepeatKV = "<span data-one=\"one\"></span>";
-        String resultBadK     = "<span class=\"foo\"></span>";
-        String resultBadKV    = "<span class=\"foo\"></span>";
-
-        String[] passTests = new String[] {
-            oneK, oneKV, twoK, twoKV, mixed, selfClose, subAttr, subAttrs
-        };
-        String[] failTests = new String[] {
-            repeatK, repeatKV, badK, badK2, badK3, badKV
-        };
-        String[] failResults = new String[] {
-            resultRepeatK, resultRepeatKV, resultBadK, resultBadK, resultBadK, resultBadKV
-        };
-
+        String[] passTests;
+        String[] failTests;
+        String[] failResults;
         String result;
         StringBuilder errors;
+
+        String oneK       = "<span class></span>"; // technically invalid
+        String oneKV      = "<span class=\"one\"></span>";
+        String twoK       = "<span class id></span>"; // technically invalid
+        String twoKV      = "<span class=\"one\" id=\"two\"></span>";
+        String mixed      = "<span class id=\"two\"></span>"; // technically invalid
+        String selfClose  = "<hr class=\"section\" title=\"Contents\" />";
+        String selfCloseL = "<hr class=\"section\" title=\"Contents\"/>";
+        String subAttr    = "<span id=\"name\" title=\"http://example.com/data-src\"></span>";
+        String subAttrs   = "<span class=\"data-name\" id=\"name\" title=\"http://example.com/\"></span>";
+
+        String repeatK    = "<span class class></span>";
+        String repeatKV   = "<span class=\"one\" class=\"two\"></span>";
+        String badK       = "<span class=\"foo\" class-></span>";
+        String badK2      = "<span class=\"foo\" data-></span>";
+        String badK3      = "<span class=\"foo\" data--></span>";
+        String badKV      = "<span class=\"foo\" class-=\"one\"></span>";
+
+        String resultRepeatK    = "<span></span>";
+        String resultRepeatKL   = "<span class></span>";
+        String resultRepeatKV   = "<span class=\"two\"></span>";
+        String resultRepeatKVL  = "<span class=\"one\"></span>"; // antisamy does not report duplicate attributes as errors
+        String resultBadK       = "<span class=\"foo\"></span>";
+        String resultBadKV      = "<span class=\"foo\"></span>";
+
+        // antisamy will not allow empty attributes OR unknown attributes
+        passTests   = new String[] { oneKV, twoKV, selfClose, subAttr, subAttrs };
+        failTests   = new String[] { repeatK, badK, badK2, badK3, badKV };
+        failResults = new String[] { resultRepeatK, resultBadK, resultBadK, resultBadK, resultBadKV };
+
+        result = formattedText.processFormattedText(repeatKV, new StringBuilder());
+        assertEquals(resultRepeatKV, result);
+
+        for (String passTest : passTests) {
+            errors = new StringBuilder();
+            result = formattedText.processFormattedText(passTest, errors);
+            assertEquals(passTest+" != "+result, 0, errors.length());
+            assertEquals(passTest+" != "+result, passTest, result);
+        }
+
+        for (int i = 0; i < failTests.length; i++) {
+            errors = new StringBuilder();
+            result = formattedText.processFormattedText(failTests[i], errors);
+            assertEquals(failResults[i]+" != "+result, failResults[i], result);
+            assertTrue(failTests[i]+": "+failResults[i]+" != "+result, errors.length() > 10);
+        }
+
+        // LEGACY tests
+        passTests   = new String[] { oneK, oneKV, twoK, twoKV, mixed, selfCloseL, subAttr, subAttrs };
+        failTests   = new String[] { repeatK, repeatKV, badK, badK2, badK3, badKV };
+        failResults = new String[] { resultRepeatKL, resultRepeatKVL, resultBadK, resultBadK, resultBadK, resultBadKV };
 
         for (String passTest : passTests) {
             errors = new StringBuilder();

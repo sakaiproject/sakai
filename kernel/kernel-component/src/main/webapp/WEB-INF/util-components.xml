@@ -78,6 +78,8 @@
 
     <bean id="org.sakaiproject.util.api.FormattedText"
             class="org.sakaiproject.util.impl.FormattedTextImpl"
-            init-method="init" singleton="true" />
+            init-method="init" singleton="true">
+        <property name="serverConfigurationService" ref="org.sakaiproject.component.api.ServerConfigurationService"/>
+    </bean>
 
 </beans>

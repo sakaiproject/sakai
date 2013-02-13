@@ -22,6 +22,7 @@
 package org.sakaiproject.util.impl;
 
 import java.io.UnsupportedEncodingException;
+import java.net.URL;
 import java.util.HashSet;
 import java.util.Stack;
 import java.util.regex.Matcher;
@@ -34,6 +35,12 @@ import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.w3c.dom.Element;
 
+import org.owasp.validator.html.AntiSamy;
+import org.owasp.validator.html.CleanResults;
+import org.owasp.validator.html.Policy;
+import org.owasp.validator.html.PolicyException;
+import org.owasp.validator.html.ScanException;
+import org.sakaiproject.component.api.ServerConfigurationService;
 import org.sakaiproject.component.cover.ComponentManager;
 import org.sakaiproject.util.ResourceLoader;
 import org.sakaiproject.util.Xml;
@@ -46,6 +53,11 @@ public class FormattedTextImpl implements FormattedText
 {
     /** Our log (commons). */
     private static final Log M_log = LogFactory.getLog(FormattedTextImpl.class);
+
+    private ServerConfigurationService serverConfigurationService = null;
+    public void setServerConfigurationService(ServerConfigurationService serverConfigurationService) {
+        this.serverConfigurationService = serverConfigurationService;
+    }
 
     /** Resource bundle and class for retrieving good and bad html tags, attributes and values */
     private String RESOURCE_BUNDLE = "org.sakaiproject.localization.bundle.content_type.formattedtext";
@@ -69,29 +81,28 @@ public class FormattedTextImpl implements FormattedText
     /** An array of regular expression pattern-matchers, that will match the attributes given in M_evilValues */
     private Pattern[] M_evilValuePatterns;
 
-    // Commented out the antisamy stuff for now -AZ
-    //	/**
-    //	 * This is the html cleaner object
-    //	 */
-    //	private AntiSamy antiSamy = null;
-    //	static {
-    //        // added in support for antisamy html cleaner
-    //        try {
-    //            InputStream is = FormattedText.class.getClassLoader().getResourceAsStream("antisamy/policy.xml");
-    //            Policy policy = Policy.getInstance(is);
-    //            antiSamy = new AntiSamy(policy);
-    //        } catch (Exception e) {
-    //            M_log.warn("Unable to startup the antisamy html code cleanup handler: " + e, e);
-    //        }
-    //	}
-
     /**
-     * If true then the legacy HTML cleaner is used, if false use the antiSamy html cleaner
+     * This is the html cleaner object
      */
-    public boolean useLegacyCleaner = true;
+    private AntiSamy antiSamy = null;
 
-    public void init()
-    {
+    public void init() {
+        boolean useLegacyCleaner = useLegacyCleaner();
+
+        if (!useLegacyCleaner) {
+            // INIT Antisamy
+            // added in support for antisamy html cleaner
+            try {
+                URL policyURL = FormattedTextImpl.class.getClassLoader().getResource("antisamy/policy.xml");
+                Policy policy = Policy.getInstance(policyURL);
+                antiSamy = new AntiSamy(policy);
+            } catch (Exception e) {
+                useLegacyCleaner = true;
+                M_log.warn("Unable to startup the antisamy html code cleanup handler (using the legacy cleaner): " + e, e);
+            }
+        }
+
+        // INIT for the non-antisamy code
         // DEFAULT values to allow for testing and in case the resource loader values do not exist
         M_evilTags = "applet,base,body,bgsound,button,col,colgroup,comment, dfn,fieldset,form,frame,frameset,head,html,iframe,ilayer,inlineinput,isindex,input,keygen,label,layer,legend,link,listing,map,meta,multicol,nextid,noframes,nolayer,noscript,optgroup,option,plaintext,script,select,sound,spacer,spell,submit,textarea,title,wbr".split(",");
         M_goodTags = "a,abbr,acronym,address,b,big,blockquote,br,center,cite,code,dd,del,dir,div,dl,dt,em,font,hr,h1,h2,h3,h4,h5,h6,i,ins,kbd,li,marquee,menu,nobr,noembed,ol,p,pre,q,rt,ruby,rbc,rb,rtc,rp,s,samp,small,span,strike,strong,sub,sup,tt,u,ul,var,xmp,img,embed,object,table,tr,td,th,tbody,caption,thead,tfoot,colgroup,col,param".split(",");
@@ -159,6 +170,18 @@ public class FormattedTextImpl implements FormattedText
 
     }
 
+    /**
+     * Asks SCS for the value of the "content.use.legacy.html.cleaner", DEFAULT is false
+     * @return true if the legacy HTML cleaner is used OR false use the antiSamy html cleaner
+     */
+    private boolean useLegacyCleaner() {
+        boolean useLegacy = false;
+        if (serverConfigurationService != null) { // this keeps the tests from dying
+            useLegacy = serverConfigurationService.getBoolean("content.use.legacy.html.cleaner", useLegacy);
+        }
+        return useLegacy;
+    }
+
     /** Matches HTML-style line breaks like &lt;br&gt; */
     private Pattern M_patternTagBr = Pattern.compile("<\\s*br\\s+?[^<>]*?>", Pattern.CASE_INSENSITIVE);
 
@@ -217,7 +240,7 @@ public class FormattedTextImpl implements FormattedText
     {
         boolean checkForEvilTags = true;
         boolean replaceWhitespaceTags = true;
-        return processFormattedText(strFromBrowser, errorMessages, checkForEvilTags, replaceWhitespaceTags, useLegacyCleaner);
+        return processFormattedText(strFromBrowser, errorMessages, checkForEvilTags, replaceWhitespaceTags, useLegacyCleaner());
     }
 
     /* (non-Javadoc)
@@ -245,7 +268,7 @@ public class FormattedTextImpl implements FormattedText
     public String processFormattedText(final String strFromBrowser, StringBuilder errorMessages, boolean checkForEvilTags,
             boolean replaceWhitespaceTags)
     {
-        return processFormattedText(strFromBrowser, errorMessages, checkForEvilTags, replaceWhitespaceTags, useLegacyCleaner);
+        return processFormattedText(strFromBrowser, errorMessages, checkForEvilTags, replaceWhitespaceTags, useLegacyCleaner());
     }
 
     /* (non-Javadoc)
@@ -254,6 +277,12 @@ public class FormattedTextImpl implements FormattedText
     public String processFormattedText(final String strFromBrowser,
             StringBuilder errorMessages, boolean checkForEvilTags, boolean replaceWhitespaceTags,
             boolean useLegacySakaiCleaner) {
+
+        if (useLegacySakaiCleaner && antiSamy == null) {
+            useLegacySakaiCleaner = false;
+            M_log.warn("Cannot use the new html cleaner (useLegacySakaiCleaner=false), Antisamy cleaner not available, falling back to the legacy cleaner");
+        }
+
         String val = strFromBrowser;
         if (val == null || val.length() == 0)
             return val;
@@ -270,30 +299,29 @@ public class FormattedTextImpl implements FormattedText
             }
 
             if (checkForEvilTags) {
-                //            if (useLegacySakaiCleaner || antiSamy == null) {
-                val = processHtml(strFromBrowser, errorMessages);
-                //            } else {
-                //                // use the owasp processor
-                //                if (antiSamy != null) {
-                //                    try {
-                //                        CleanResults cr = antiSamy.scan(strFromBrowser);
-                //                        if (cr.getNumberOfErrors() > 0) {
-                //                            for (Object errorMsg : cr.getErrorMessages()) {
-                //                                errorMessages.append("<div class=\"error\">");
-                //                                errorMessages.append(errorMsg.toString());
-                //                                errorMessages.append("</div>");
-                //                            }
-                //                        }
-                //                        val = cr.getCleanHTML();
-                //                    } catch (ScanException e) {
-                //                        // this will match the current behavior
-                //                        val = "";
-                //                        M_log.warn("processFormattedText: Failure during scan of input html: " + e, e);
-                //                    } catch (PolicyException e) {
-                //                        throw new RuntimeException("Unable to access the antiSamy policy file: "+e, e);
-                //                    }
-                //                }
-                //            }
+                if (useLegacySakaiCleaner || antiSamy == null) {
+                    val = processHtml(strFromBrowser, errorMessages);
+                } else {
+                    // use the owasp antisamy processor
+                    try {
+                        CleanResults cr = antiSamy.scan(strFromBrowser);
+                        if (cr.getNumberOfErrors() > 0) {
+                            for (Object errorMsg : cr.getErrorMessages()) {
+                                errorMessages.append("<div class=\"error\">");
+                                errorMessages.append(errorMsg.toString());
+                                errorMessages.append("</div>");
+                            }
+                        }
+                        val = cr.getCleanHTML();
+                    } catch (ScanException e) {
+                        // this will match the legacy behavior
+                        val = "";
+                        M_log.warn("processFormattedText: Failure during scan of input html: " + e, e);
+                    } catch (PolicyException e) {
+                        // this is an unrecoverable failure
+                        throw new RuntimeException("Unable to access the antiSamy policy file: "+e, e);
+                    }
+                }
             }
 
             // deal with hardcoded empty space character from Firefox 1.5
@@ -301,27 +329,20 @@ public class FormattedTextImpl implements FormattedText
                 val = "";
             }
 
-            //        if (useLegacySakaiCleaner || antiSamy == null) {
-            // close any open HTML tags (that the user may have accidentally left open)
-            StringBuilder buf = new StringBuilder();
-            trimFormattedText(val, Integer.MAX_VALUE, buf);
-            val = buf.toString();
-            //        }
+            if (useLegacySakaiCleaner || antiSamy == null) {
+                // close any open HTML tags (that the user may have accidentally left open)
+                StringBuilder buf = new StringBuilder();
+                trimFormattedText(val, Integer.MAX_VALUE, buf);
+                val = buf.toString();
+            }
         } catch (Exception e) {
             // We catch all exceptions here because doing so will usually give the user the
             // opportunity to work around the issue, rather than causing a tool stack trace
 
             M_log.warn("Unexpected error processing text", e);
             errorMessages.append(getResourceLoader().getString("unknown_error_markup"));
-            return null;
+            val = null;
         }
-
-        // TODO: Fully parse and validate the formatted text against
-        // the formatted text specification. Perhaps this could be
-        // done by treating the text as an XML document and validating
-        // the XML document against a Document-Type-Definition (DTD) for
-        // formatted text. This would allow for validating the
-        // attributes of allowed tags, for example.
 
         return val;
     }

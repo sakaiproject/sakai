@@ -139,7 +139,22 @@
       <groupId>org.hibernate</groupId>
       <artifactId>hibernate</artifactId>
     </dependency>
-   <dependency>
+    <dependency>
+        <groupId>com.ibm.icu</groupId>
+        <artifactId>icu4j</artifactId>
+        <version>4.8</version>
+        <type>jar</type>
+        <scope>compile</scope>
+    </dependency>
+    <!-- antisamy -->
+    <dependency>
+      <groupId>org.owasp.antisamy</groupId>
+      <artifactId>antisamy</artifactId>
+      <version>1.5</version>
+      <type>jar</type>
+    </dependency>
+    <!-- TESTING -->
+    <dependency>
       <groupId>org.subethamail</groupId>
       <artifactId>subethasmtp</artifactId>
       <version>3.1.6</version>
@@ -168,13 +183,6 @@
       <artifactId>jmock-junit3</artifactId>
       <version>2.5.1</version>
       <scope>test</scope>
-    </dependency>
-    <dependency>
-    	<groupId>com.ibm.icu</groupId>
-    	<artifactId>icu4j</artifactId>
-    	<version>4.8</version>
-    	<type>jar</type>
-    	<scope>compile</scope>
     </dependency>
   </dependencies>
 </project>
