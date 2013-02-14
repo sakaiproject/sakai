@@ -26,6 +26,7 @@
         <module>web-impl/impl</module>
         <module>web-impl/pack</module>
         <module>web-tool/tool</module>
+        <module>web-portlet</module> 
       </modules>
     </profile>
     <profile>
@@ -43,6 +44,7 @@
         <module>web-impl/impl</module>
         <module>web-impl/pack</module>
         <module>web-tool/tool</module>
+        <module>web-portlet</module> 
       </modules>
     </profile>
   </profiles>
