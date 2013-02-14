@@ -154,9 +154,16 @@ sakai.setupSelectList = function(list, allcontrol, highlightClass){
 };
 
 sakai.siteTypeSetup = function(){
+    var templateControls='';
+    //from sakai.properties - json with what controls to display (and in what state) for each site type    
+    if ($('#templateControls').val() !== '') {
+        templateControls = eval('(' + $('#templateControls').val() + ')');
+    }
+    else {
+        templateControls =='';
+    }
      //the #courseSiteTypes input[type=text] contains what site types are associated with the course category
      // if there are none associated in sakai.properties, the value will be just one ('course')
-     
      var courseSiteTypes = $('#courseSiteTypes').val().replace('[','').replace(']','').replace(' ','').split(',');
     
     //uncheck site type radio
@@ -271,11 +278,68 @@ sakai.siteTypeSetup = function(){
             $('#templateList #row' + selectedTemplateId  + ' .templateSettingsPlaceholder').append($('#allTemplateSettings'));
             // hide instructions for settings
             $('#fromTemplateSettingsContainer_instruction_body').hide();
+            $('#publishSiteWrapper input').attr('checked', '');
+
+            //templateControls is a json that comes from a sakai.property
+            //it identifies for each site type, whether to show a control, and what attrs it has. 
+            if (templateControls !== '') {
+                $.each(templateControls.templateControls, function(key, value){
+                    if (key === type) {
+                        if (this.copyContentVis === true) {
+                            $('#copyContentWrapper').show();
+                            $('#fromTemplateSettingsContainer_instruction_body_copyUsers').show();
+                        }
+                        else {
+                            $('#copyContentWrapper').hide();
+                            $('#fromTemplateSettingsContainer_instruction_body_copyUsers').hide();
+                        }
+                        if (this.copyContentChecked === true) {
+                            $('#copyContentWrapper input').attr('checked', 'checked');
+                        }
+                        else {
+                            $('#copyContentWrapper input').attr('checked', '')
+                        }
+                        if (this.copyContentLocked === true) {
+                            $('#copyContentWrapper input').attr('disabled', 'disabled');
+                        }
+                        else {
+                            $('#copyContentWrapper input').attr('disabled', '');
+                        }
+                        if (this.copyUsersVis === true) {
+                            $('#copyUsersWrapper').show();
+                            $('#fromTemplateSettingsContainer_instruction_body_copyContent').show();
+                        }
+                        else {
+                            $('#copyUsersWrapper').hide();
+                            $('#fromTemplateSettingsContainer_instruction_body_copyContent').hide();
+                        }
+                        if (this.copyUsersChecked === true) {
+                            $('#copyUsersWrapper input').attr('checked', 'checked');
+                        }
+                        else {
+                            $('#copyUsersWrapper input').attr('checked', '')
+                        }
+                        if (this.copyUsersLocked === true) {
+                            $('#copyUsersWrapper input').attr('disabled', 'disabled');
+                        }
+                        else {
+                            $('#copyUsersWrapper input').attr('disabled', '');
+                        }
+                    }
+                });
+            }
+            else {
+                //show all the controls, unchecked, unlocked, since there are no settings
+                $('#copyContentWrapper').show().find('input').attr('disabled', '').attr('checked','');
+                $('#copyUsersWrapper').show().find('input').attr('disabled', '').attr('checked','');
+                $('#fromTemplateSettingsContainer_instruction_body_copyUsers').show();
+                $('#fromTemplateSettingsContainer_instruction_body_copyContent').show();
+            }
+            
             // show settings
             $('#allTemplateSettings').fadeIn('slow');
             //check to see if this template is of a type that maps to a course
             if ($.inArray(type, courseSiteTypes) !==-1) { //either there is a mapping to what types of sites resolve to courses or a fallback to 'course'  
-                $('#fromTemplateSettingsContainer .fromTemplateSettingsCourse').show(); //show the settings that are specific to courses
                 $('#submitFromTemplate').hide(); // hide the non-course submit button 
                 $('#submitFromTemplateCourse').show(); // show the submit button for course
                 $('#siteTerms').show(); // show the term selector
@@ -285,7 +349,6 @@ sakai.siteTypeSetup = function(){
             }
             // the picked template has a type that does not resolve to a course
             else { 
-                $('#fromTemplateSettingsContainer .fromTemplateSettingsCourse').hide().find('input').attr('checked',false); // hide the settings that are pspecific to course, void value
                 $('#submitFromTemplate').show(); // show non-course submit button
                 $('#submitFromTemplateCourse').hide(); // hide the course submit button
                 $('#siteTitle').show(); //show title input

@@ -1498,7 +1498,7 @@ public class SiteAction extends PagedResourceActionII {
 			}
 			context.put("siteTypes", types);
 			context.put("courseSiteTypeStrings", SiteService.getSiteTypeStrings("course"));
-
+            context.put("templateControls", ServerConfigurationService.getString("templateControls", ""));
 			// put selected/default site type into context
 			String typeSelected = (String) state.getAttribute(STATE_TYPE_SELECTED);
 			context.put("typeSelected", state.getAttribute(STATE_TYPE_SELECTED) != null?state.getAttribute(STATE_TYPE_SELECTED):types.get(0));

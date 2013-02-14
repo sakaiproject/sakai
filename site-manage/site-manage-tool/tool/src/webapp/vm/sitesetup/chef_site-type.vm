@@ -22,7 +22,9 @@
     <h3>
         $tlang.getString("sitetype.crenewsit")
     </h3>
-        <input type="text" id="courseSiteTypes" style="color:red" value="$courseSiteTypeStrings">
+    <textarea id="templateControls" style="display:none">$templateControls</textarea>
+    
+        <input type="text" id="courseSiteTypes" style="display:none" value="$courseSiteTypeStrings">
         
     #if ($alertMessage)<div class="alertMessage">$tlang.getString("sitetype.alert") $validator.escapeHtml($alertMessage)</div>  #end
     <p class="step">
@@ -146,25 +148,25 @@
                         </span>
                     </div>
                     <div id="fromTemplateSettingsContainer">
-                        <span class="fromTemplateSettingsCourse">
+                        <span id="copyUsersWrapper">
                             <input type="checkbox" name="copyUsers" id="copyUsers" value="true"/>
                             <label for="copyUsers">$tlang.getString("sitetype.copyusers")</label>
                         </span>
-                        <span class="">
+                        <span id="copyContentWrapper">
                             <input type="checkbox" name="copyContent" id="copyContent" value="true"/>
                             <label for="copyContent">$tlang.getString("sitetype.copycontent")</label>
                         </span>
-                        <span class="">
+                        <span id="publishSiteWrapper">
                             <input type="checkbox" name="publishSite" id="publishSite" value="true"/>
                             <label for="publishSite">$tlang.getString("sitetype.publishSite")</label>
                         </span>
                         <span id="fromTemplateSettingsContainer_instruction">
                             <a href="#" id="fromTemplateSettingsContainer_instruction_control" class="itemAction">$tlang.getString("sitetype.template.get.info")</a>
                             <div id="fromTemplateSettingsContainer_instruction_body" style="display:none;" title="$tlang.getString("sitetype.template.close.info")">
-                                <p id="fromTemplateSettingsContainer_instruction_body_copyUsers">
+                                <p id="fromTemplateSettingsContainer_instruction_body_copyUsers" style="display: none">
                                     $tlang.getString("sitetype.template.copy.users.info") 
                                 </p>
-                                <p id="fromTemplateSettingsContainer_instruction_body_copyContent">
+                                <p id="fromTemplateSettingsContainer_instruction_body_copyContent" style="display: none">
                                     $tlang.getString("sitetype.template.copy.content.info")
                                 </p>
                                 <p id="fromTemplateSettingsContainer_instruction_body_publishSite">
