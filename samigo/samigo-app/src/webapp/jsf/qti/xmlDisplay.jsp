@@ -4,6 +4,7 @@
 <%@ taglib uri="http://java.sun.com/jsf/core" prefix="f" %>
 <% response.setHeader("Cache-Control", "private"); %>
 <% response.setHeader("Pragma", "cache"); %>
+<% response.setHeader("Content-Disposition", "attachment; filename=exported-assessment.xml"); %>
 
 <%--
 ***********************************************************************************
