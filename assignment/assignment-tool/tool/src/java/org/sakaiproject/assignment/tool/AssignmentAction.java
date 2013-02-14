@@ -876,6 +876,7 @@ public class AssignmentAction extends PagedResourceActionII
 			String reviewServiceUse = rb.getFormattedMessage("review.use", new Object[]{reviewServiceName});
 			context.put("reviewServiceName", reviewServiceTitle);
 			context.put("reviewServiceUse", reviewServiceUse);
+			context.put("reviewIndicator", rb.getFormattedMessage("review.contentReviewIndicator", new Object[]{reviewServiceName}));
 		}
 		
 		// grading option

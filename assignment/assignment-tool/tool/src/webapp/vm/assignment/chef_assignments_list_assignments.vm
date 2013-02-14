@@ -343,6 +343,10 @@ function allowClick(object)
 												<span class="highlight">$tlang.getString("gen.dra2") </span>
 											#end
 												$validator.escapeHtml($validator.limit($!assignment.getTitle(), 64))
+												
+											#if ($assignment.getContent().getAllowReviewService())
+												<img alt="$reviewIndicator" title="$reviewIndicator" src="/library/image/silk/rosette.png" />
+											#end
 											</a>
 										</h4>
 										<div class="itemAction">

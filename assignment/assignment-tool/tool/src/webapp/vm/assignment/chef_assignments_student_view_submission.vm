@@ -659,6 +659,9 @@ function submitform(id)
 					<h3 style="margin-top:0;margin-bottom:.5em">
 						$tlang.getString("gen.att")
 					</h3>	
+					#if ($assignment.getContent().getAllowReviewService())
+						<p class="instruction"><img alt="$reviewIndicator" title="$reviewIndicator" src="/library/image/silk/rosette.png" /> $reviewIndicator</p>
+					#end
 					#set ($size = 0)
 					#set ($props = false)
 					#foreach ($attachment in $attachments) 
