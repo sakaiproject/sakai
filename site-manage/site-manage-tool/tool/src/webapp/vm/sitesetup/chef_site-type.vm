@@ -200,13 +200,13 @@
 
                             ## new site type - so render a row containg the toggle and type name
                                 #set($templateCatNum = $templateCatNum + 1)
-                                <li  class="siteTypeRow">
+                                <li  class="siteTypeRow $siteType">
                                     <div>
                                         <h4 class="specialLink" id="templateSettingsTitleTerm">
                                             <a href="$siteType">
                                                 <span class="open"  style="display: none">&#9662;</span><span class="closed"> &#9656;</span>
                                                  $siteType
-                                                 <span class="siteTypeRowBlurb">$templateCatDisp</span>
+                                                 <span class="siteTypeRowBlurb"></span>
                                              </a>
                                          </h4>
                                     </div>
