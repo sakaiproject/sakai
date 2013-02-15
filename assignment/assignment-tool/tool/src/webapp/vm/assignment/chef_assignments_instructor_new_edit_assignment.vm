@@ -39,6 +39,13 @@ $(document).ready(function() {
 		border:none
 	}
 
+	.smallMatches{
+		background-color: lightyellow;
+		border-style: solid;
+		border-width: 1px;
+		border-color: lightgray;
+		padding: 1em 1em 1em 2em;
+	}
 </style>
 <script type="text/javascript">
     function SetMaxPoint(obj_option, obj_textfield)
@@ -91,6 +98,32 @@ $(document).ready(function() {
 			section.style.display="block";
 		}else{
 			section.style.display="none";
+		}
+	}
+	
+	function toggleSmallMatchesOptions(checked){
+		var section = document.getElementById("smallMatchesOptions");
+		if(checked){
+			section.style.display="inline-block";
+		}else{
+			section.style.display="none";
+		}
+	}
+	
+	function toggleSmallMatchesDisabled(){
+		var radioOption1 = document.getElementById("wordCount");
+		var radioOption2 = document.getElementById("percentage")
+		var excludeWords = document.getElementById("tiiExcludeValueWords");
+		var excludePercentages = document.getElementById("tiiExcludeValuePercentages");
+		
+		excludeWords.disabled = true;
+		excludeWords.value = "";
+		excludePercentages.disabled = true;
+		excludePercentages.value = "";
+		if(radioOption1.checked){
+			excludeWords.disabled = false;
+		}else if(radioOption2.checked){
+			excludePercentages.disabled = false;
 		}
 	}
 </script>
@@ -598,6 +631,76 @@ $(document).ready(function() {
 							$tlang.getString("review.allow") 
 						</label>
 					</div>
+					<br/>
+					#if($show_NEW_ASSIGNMENT_REVIEW_SERVICE_EXCLUDE_BIBLIOGRAPHIC || $show_NEW_ASSIGNMENT_REVIEW_SERVICE_EXCLUDE_QUOTED || $show_NEW_ASSIGNMENT_REVIEW_SERVICE_EXCLUDE_SMALL_MATCHES)
+						$tlang.getString("review.exclude.matches.header")
+						<br/>
+					#end
+					
+					<!-- Exclude Bibliographic materials -->
+					#if($show_NEW_ASSIGNMENT_REVIEW_SERVICE_EXCLUDE_BIBLIOGRAPHIC)
+					<div class="checkbox indnt1">
+							#if ($!value_NEW_ASSIGNMENT_REVIEW_SERVICE_EXCLUDE_BIBLIOGRAPHIC.equals("true"))
+								<input id="$name_NEW_ASSIGNMENT_REVIEW_SERVICE_EXCLUDE_BIBLIOGRAPHIC" name="$name_NEW_ASSIGNMENT_REVIEW_SERVICE_EXCLUDE_BIBLIOGRAPHIC" type="checkbox" value="true" checked="checked" />
+							#else
+								<input id="$name_NEW_ASSIGNMENT_REVIEW_SERVICE_EXCLUDE_BIBLIOGRAPHIC" name="$name_NEW_ASSIGNMENT_REVIEW_SERVICE_EXCLUDE_BIBLIOGRAPHIC" type="checkbox" value="true" />
+							#end
+							<label for="$name_NEW_ASSIGNMENT_REVIEW_SERVICE_EXCLUDE_BIBLIOGRAPHIC">
+								$tlang.getString("review.exclude.bibliographic") 
+							</label>
+					</div>
+					#end
+					<!-- Exclude Quoted materials -->
+					#if($show_NEW_ASSIGNMENT_REVIEW_SERVICE_EXCLUDE_QUOTED)
+					<div class="checkbox indnt1">
+							#if ($!value_NEW_ASSIGNMENT_REVIEW_SERVICE_EXCLUDE_QUOTED.equals("true"))
+								<input id="$name_NEW_ASSIGNMENT_REVIEW_SERVICE_EXCLUDE_QUOTED" name="$name_NEW_ASSIGNMENT_REVIEW_SERVICE_EXCLUDE_QUOTED" type="checkbox" value="true" checked="checked" />
+							#else
+								<input id="$name_NEW_ASSIGNMENT_REVIEW_SERVICE_EXCLUDE_QUOTED" name="$name_NEW_ASSIGNMENT_REVIEW_SERVICE_EXCLUDE_QUOTED" type="checkbox" value="true" />
+							#end
+							<label for="$name_NEW_ASSIGNMENT_REVIEW_SERVICE_EXCLUDE_QUOTED">
+								$tlang.getString("review.exclude.quoted") 
+							</label>
+					</div>
+					#end
+					<!-- Exclude small matches -->
+					
+					#if($show_NEW_ASSIGNMENT_REVIEW_SERVICE_EXCLUDE_SMALL_MATCHES)
+						<div class="checkbox indnt1">
+							#if ($value_NEW_ASSIGNMENT_REVIEW_SERVICE_EXCLUDE_TYPE == 1 || $value_NEW_ASSIGNMENT_REVIEW_SERVICE_EXCLUDE_TYPE == 2)
+								<input type="checkbox" value="true" name="$name_NEW_ASSIGNMENT_REVIEW_SERVICE_EXCLUDE_SMALL_MATCHES" checked="checked"  onclick="toggleSmallMatchesOptions(this.checked)"/>
+							#else
+								<input type="checkbox" value="true" name="$name_NEW_ASSIGNMENT_REVIEW_SERVICE_EXCLUDE_SMALL_MATCHES" onclick="toggleSmallMatchesOptions(this.checked)"/>
+							#end
+							<label for="$name_NEW_ASSIGNMENT_REVIEW_SERVICE_EXCLUDE_TYPE">
+								$tlang.getString("review.exclude.smallMatches") 
+							</label>
+							<br/>
+								#if ($value_NEW_ASSIGNMENT_REVIEW_SERVICE_EXCLUDE_TYPE == 1 || $value_NEW_ASSIGNMENT_REVIEW_SERVICE_EXCLUDE_TYPE == 2)
+									<div id="smallMatchesOptions" class="indnt2 smallMatches" style="display:inline-block;">
+								#else
+									<div id="smallMatchesOptions" class="indnt2 smallMatches" style="display:none;">
+								#end
+								$tlang.getString("review.exclude.matches.by")<span class="reqStar">*</span>
+								<br/>
+								<input onchange="toggleSmallMatchesDisabled()" type="radio" name="$name_NEW_ASSIGNMENT_REVIEW_SERVICE_EXCLUDE_TYPE" id="wordCount" value="1" #if ($value_NEW_ASSIGNMENT_REVIEW_SERVICE_EXCLUDE_TYPE ==  1) checked="checked" #end/>
+								<label for="wordCount">
+									$tlang.getString("review.exclude.matches.wordcount") 
+								</label>
+								<input type="text" size="3" maxlength="3" id="tiiExcludeValueWords" name="$name_NEW_ASSIGNMENT_REVIEW_SERVICE_EXCLUDE_VALUE" #if ($value_NEW_ASSIGNMENT_REVIEW_SERVICE_EXCLUDE_TYPE ==  1) value="$value_NEW_ASSIGNMENT_REVIEW_SERVICE_EXCLUDE_VALUE" #else disabled="disabled" #end/>
+								$tlang.getString("review.exclude.matches.words")
+								<br/>
+								
+								<input onchange="toggleSmallMatchesDisabled()" type="radio" name="$name_NEW_ASSIGNMENT_REVIEW_SERVICE_EXCLUDE_TYPE" id="percentage" value="2" #if ($value_NEW_ASSIGNMENT_REVIEW_SERVICE_EXCLUDE_TYPE == 2) checked="checked" #end/>
+								<label for="percentage">
+									$tlang.getString("review.exclude.matches.percentage") 
+								</label>
+								<input type="text" size="3" maxlength="3" id="tiiExcludeValuePercentages" name="$name_NEW_ASSIGNMENT_REVIEW_SERVICE_EXCLUDE_VALUE" #if ($value_NEW_ASSIGNMENT_REVIEW_SERVICE_EXCLUDE_TYPE == 2) value="$value_NEW_ASSIGNMENT_REVIEW_SERVICE_EXCLUDE_VALUE" #else disabled="disabled" #end/>
+								%
+								<!--end div for smallMatchesOptions -->
+								</div>
+						</div>
+					#end
 					<br/>
 					$tlang.getString("review.originality.check")
 					<br/>

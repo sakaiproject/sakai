@@ -209,4 +209,46 @@ public interface AssignmentContent extends Entity, AttachmentContainer
 	public boolean isCheckInstitution();
 
 	public void setCheckInstitution(boolean m_checkInstitution);
+	
+	public boolean isExcludeBibliographic();
+
+	public void setExcludeBibliographic(boolean m_excludeBibliographic);
+	
+	public boolean isExcludeQuoted();
+
+	public void setExcludeQuoted(boolean m_excludeQuoted);
+	
+	/**
+	 * Exclude type options:
+	 * 0 none
+	 * 1 word count
+	 * 2 percentage
+	 * @return
+	 */
+	 
+	public int getExcludeType();
+	
+	/**
+	 * Exclude type options:
+	 * 0 none
+	 * 1 word count
+	 * 2 percentage
+	 * 
+	 * @param m_excludeType
+	 */
+	public void setExcludeType(int m_excludeType);
+	
+	/**
+	 * if word count: 1-? (max integer)
+	 * if percentage: 0-100 
+	 * @return
+	 */
+	public int getExcludeValue();
+	
+	/**
+	 * if word count: 1-? (max integer)
+	 * if percentage: 0-100
+	 * @param m_excludeValue
+	 */
+	public void setExcludeValue(int m_excludeValue);
 }

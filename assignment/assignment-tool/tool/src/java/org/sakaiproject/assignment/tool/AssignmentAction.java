@@ -190,7 +190,11 @@ public class AssignmentAction extends PagedResourceActionII
 	private static final String NEW_ASSIGNMENT_REVIEW_SERVICE_CHECK_INTERNET = "internet_check";
 	private static final String NEW_ASSIGNMENT_REVIEW_SERVICE_CHECK_PUB = "journal_check";
 	private static final String NEW_ASSIGNMENT_REVIEW_SERVICE_CHECK_INSTITUTION = "institution_check";
-	
+	private static final String NEW_ASSIGNMENT_REVIEW_SERVICE_EXCLUDE_BIBLIOGRAPHIC = "exclude_biblio";
+	private static final String NEW_ASSIGNMENT_REVIEW_SERVICE_EXCLUDE_QUOTED = "exclude_quoted";
+	private static final String NEW_ASSIGNMENT_REVIEW_SERVICE_EXCLUDE_SMALL_MATCHES = "exclude_smallmatches";
+	private static final String NEW_ASSIGNMENT_REVIEW_SERVICE_EXCLUDE_TYPE = "exclude_type";
+	private static final String NEW_ASSIGNMENT_REVIEW_SERVICE_EXCLUDE_VALUE = "exclude_value";
 	
 	
 	
@@ -1984,6 +1988,11 @@ public class AssignmentAction extends PagedResourceActionII
 		context.put("name_NEW_ASSIGNMENT_REVIEW_SERVICE_CHECK_INTERNET", NEW_ASSIGNMENT_REVIEW_SERVICE_CHECK_INTERNET);
 		context.put("name_NEW_ASSIGNMENT_REVIEW_SERVICE_CHECK_PUB", NEW_ASSIGNMENT_REVIEW_SERVICE_CHECK_PUB);
 		context.put("name_NEW_ASSIGNMENT_REVIEW_SERVICE_CHECK_INSTITUTION", NEW_ASSIGNMENT_REVIEW_SERVICE_CHECK_INSTITUTION);
+		context.put("name_NEW_ASSIGNMENT_REVIEW_SERVICE_EXCLUDE_BIBLIOGRAPHIC", NEW_ASSIGNMENT_REVIEW_SERVICE_EXCLUDE_BIBLIOGRAPHIC);
+		context.put("name_NEW_ASSIGNMENT_REVIEW_SERVICE_EXCLUDE_QUOTED", NEW_ASSIGNMENT_REVIEW_SERVICE_EXCLUDE_QUOTED);
+		context.put("name_NEW_ASSIGNMENT_REVIEW_SERVICE_EXCLUDE_SMALL_MATCHES", NEW_ASSIGNMENT_REVIEW_SERVICE_EXCLUDE_SMALL_MATCHES);
+		context.put("name_NEW_ASSIGNMENT_REVIEW_SERVICE_EXCLUDE_TYPE", NEW_ASSIGNMENT_REVIEW_SERVICE_EXCLUDE_TYPE);
+		context.put("name_NEW_ASSIGNMENT_REVIEW_SERVICE_EXCLUDE_VALUE", NEW_ASSIGNMENT_REVIEW_SERVICE_EXCLUDE_VALUE);
 		
 		
 		context.put("name_title", NEW_ASSIGNMENT_TITLE);
@@ -2076,14 +2085,29 @@ public class AssignmentAction extends PagedResourceActionII
 		context.put("show_NEW_ASSIGNMENT_REVIEW_SERVICE_CHECK_TURNITIN", ServerConfigurationService.getBoolean("turnitin.option.s_paper_check", true));
 		context.put("show_NEW_ASSIGNMENT_REVIEW_SERVICE_CHECK_INTERNET", ServerConfigurationService.getBoolean("turnitin.option.internet_check", true));
 		context.put("show_NEW_ASSIGNMENT_REVIEW_SERVICE_CHECK_PUB", ServerConfigurationService.getBoolean("turnitin.option.journal_check", true));
-		context.put("show_NEW_ASSIGNMENT_REVIEW_SERVICE_CHECK_INSTITUTION", ServerConfigurationService.getBoolean("turnitin.option.institution_check", true));
+		context.put("show_NEW_ASSIGNMENT_REVIEW_SERVICE_CHECK_INSTITUTION", ServerConfigurationService.getBoolean("turnitin.option.institution_check", false));
 		
 		context.put("value_NEW_ASSIGNMENT_REVIEW_SERVICE_CHECK_TURNITIN", (state.getAttribute(NEW_ASSIGNMENT_REVIEW_SERVICE_CHECK_TURNITIN) == null) ? Boolean.toString(ServerConfigurationService.getBoolean("turnitin.option.s_paper_check.default", ServerConfigurationService.getBoolean("turnitin.option.s_paper_check", true) ? true : false)) : state.getAttribute(NEW_ASSIGNMENT_REVIEW_SERVICE_CHECK_TURNITIN));
 		context.put("value_NEW_ASSIGNMENT_REVIEW_SERVICE_CHECK_INTERNET", state.getAttribute(NEW_ASSIGNMENT_REVIEW_SERVICE_CHECK_INTERNET) == null ? Boolean.toString(ServerConfigurationService.getBoolean("turnitin.option.internet_check.default", ServerConfigurationService.getBoolean("turnitin.option.internet_check", true) ? true : false)) : state.getAttribute(NEW_ASSIGNMENT_REVIEW_SERVICE_CHECK_INTERNET));
 		context.put("value_NEW_ASSIGNMENT_REVIEW_SERVICE_CHECK_PUB", state.getAttribute(NEW_ASSIGNMENT_REVIEW_SERVICE_CHECK_PUB) == null ? Boolean.toString(ServerConfigurationService.getBoolean("turnitin.option.journal_check.default", ServerConfigurationService.getBoolean("turnitin.option.journal_check", true) ? true : false)) : state.getAttribute(NEW_ASSIGNMENT_REVIEW_SERVICE_CHECK_PUB));
 		context.put("value_NEW_ASSIGNMENT_REVIEW_SERVICE_CHECK_INSTITUTION", state.getAttribute(NEW_ASSIGNMENT_REVIEW_SERVICE_CHECK_INSTITUTION) == null ? Boolean.toString(ServerConfigurationService.getBoolean("turnitin.option.institution_check.default", ServerConfigurationService.getBoolean("turnitin.option.institution_check", true) ? true : false)) : state.getAttribute(NEW_ASSIGNMENT_REVIEW_SERVICE_CHECK_INSTITUTION));
+
+		//exclude bibliographic materials
+		context.put("show_NEW_ASSIGNMENT_REVIEW_SERVICE_EXCLUDE_BIBLIOGRAPHIC", ServerConfigurationService.getBoolean("turnitin.option.exclude_bibliographic", true));
+		context.put("value_NEW_ASSIGNMENT_REVIEW_SERVICE_EXCLUDE_BIBLIOGRAPHIC", (state.getAttribute(NEW_ASSIGNMENT_REVIEW_SERVICE_EXCLUDE_BIBLIOGRAPHIC) == null) ? Boolean.toString(ServerConfigurationService.getBoolean("turnitin.option.exclude_bibliographic.default", ServerConfigurationService.getBoolean("turnitin.option.exclude_bibliographic", true) ? true : false)) : state.getAttribute(NEW_ASSIGNMENT_REVIEW_SERVICE_EXCLUDE_BIBLIOGRAPHIC));
 		
+		//exclude quoted materials
+		context.put("show_NEW_ASSIGNMENT_REVIEW_SERVICE_EXCLUDE_QUOTED", ServerConfigurationService.getBoolean("turnitin.option.exclude_quoted", true));
+		context.put("value_NEW_ASSIGNMENT_REVIEW_SERVICE_EXCLUDE_QUOTED", (state.getAttribute(NEW_ASSIGNMENT_REVIEW_SERVICE_EXCLUDE_QUOTED) == null) ? Boolean.toString(ServerConfigurationService.getBoolean("turnitin.option.exclude_quoted.default", ServerConfigurationService.getBoolean("turnitin.option.exclude_quoted", true) ? true : false)) : state.getAttribute(NEW_ASSIGNMENT_REVIEW_SERVICE_EXCLUDE_QUOTED));
 		
+		//exclude quoted materials
+		boolean displayExcludeType = ServerConfigurationService.getBoolean("turnitin.option.exclude_smallmatches", true);
+		context.put("show_NEW_ASSIGNMENT_REVIEW_SERVICE_EXCLUDE_SMALL_MATCHES", displayExcludeType);
+		if(displayExcludeType){
+			context.put("value_NEW_ASSIGNMENT_REVIEW_SERVICE_EXCLUDE_TYPE", (state.getAttribute(NEW_ASSIGNMENT_REVIEW_SERVICE_EXCLUDE_TYPE) == null) ? Integer.toString(ServerConfigurationService.getInt("turnitin.option.exclude_type.default", 0)) : state.getAttribute(NEW_ASSIGNMENT_REVIEW_SERVICE_EXCLUDE_TYPE));
+			context.put("value_NEW_ASSIGNMENT_REVIEW_SERVICE_EXCLUDE_VALUE", (state.getAttribute(NEW_ASSIGNMENT_REVIEW_SERVICE_EXCLUDE_VALUE) == null) ? Integer.toString(ServerConfigurationService.getInt("turnitin.option.exclude_value.default", 1)) : state.getAttribute(NEW_ASSIGNMENT_REVIEW_SERVICE_EXCLUDE_VALUE));
+		}
+
 		// don't show the choice when there is no Schedule tool yet
 		if (state.getAttribute(CALENDAR) != null)
 		context.put("value_CheckAddDueDate", state.getAttribute(ResourceProperties.NEW_ASSIGNMENT_CHECK_ADD_DUE_DATE));
@@ -5088,6 +5112,49 @@ public class AssignmentAction extends PagedResourceActionII
 		else b = Boolean.TRUE.toString();
 		state.setAttribute(NEW_ASSIGNMENT_REVIEW_SERVICE_CHECK_INSTITUTION, b);
 		
+		//exclude bibliographic materials:
+		r = params.getString(NEW_ASSIGNMENT_REVIEW_SERVICE_EXCLUDE_BIBLIOGRAPHIC);
+		if (r == null) b = Boolean.FALSE.toString();
+		else b = Boolean.TRUE.toString();
+		state.setAttribute(NEW_ASSIGNMENT_REVIEW_SERVICE_EXCLUDE_BIBLIOGRAPHIC, b);
+		
+		//exclude quoted materials:
+		r = params.getString(NEW_ASSIGNMENT_REVIEW_SERVICE_EXCLUDE_QUOTED);
+		if (r == null) b = Boolean.FALSE.toString();
+		else b = Boolean.TRUE.toString();
+		state.setAttribute(NEW_ASSIGNMENT_REVIEW_SERVICE_EXCLUDE_QUOTED, b);
+
+		//exclude small matches
+		r = params.getString(NEW_ASSIGNMENT_REVIEW_SERVICE_EXCLUDE_SMALL_MATCHES);
+		if (r == null) b = Boolean.FALSE.toString();
+		else b = Boolean.TRUE.toString();
+		state.setAttribute(NEW_ASSIGNMENT_REVIEW_SERVICE_EXCLUDE_SMALL_MATCHES, b);
+		
+		//exclude type:
+		//only options are 0=none, 1=words, 2=percentages
+		r = params.getString(NEW_ASSIGNMENT_REVIEW_SERVICE_EXCLUDE_TYPE);
+		if(!"0".equals(r) && !"1".equals(r) && !"2".equals(r)){
+			//this really shouldn't ever happen (unless someone's messing with the parameters)
+			r = "0";
+		}
+		state.setAttribute(NEW_ASSIGNMENT_REVIEW_SERVICE_EXCLUDE_TYPE, r);
+		
+		//exclude value
+		if(!"0".equals(r)){
+			r = params.getString(NEW_ASSIGNMENT_REVIEW_SERVICE_EXCLUDE_VALUE);
+			try{
+				int rInt = Integer.parseInt(r);
+				if(rInt < 0 || rInt > 100){
+					addAlert(state, rb.getString("review.exclude.matches.value_error"));
+				}
+			}catch (Exception e) {
+				addAlert(state, rb.getString("review.exclude.matches.value_error"));
+			}
+			state.setAttribute(NEW_ASSIGNMENT_REVIEW_SERVICE_EXCLUDE_VALUE, r);
+		}else{
+			state.setAttribute(NEW_ASSIGNMENT_REVIEW_SERVICE_EXCLUDE_VALUE, "1");
+		}
+		
 		// treat the new assignment description as formatted text
 		boolean checkForFormattingErrors = true; // instructor is creating a new assignment - so check for errors
 		String description = processFormattedTextFromBrowser(state, params.getCleanString(NEW_ASSIGNMENT_DESCRIPTION),
@@ -5915,6 +5982,35 @@ public class AssignmentAction extends PagedResourceActionII
 			boolean checkInternet = "true".equalsIgnoreCase((String) state.getAttribute(NEW_ASSIGNMENT_REVIEW_SERVICE_CHECK_INTERNET));
 			boolean checkPublications = "true".equalsIgnoreCase((String) state.getAttribute(NEW_ASSIGNMENT_REVIEW_SERVICE_CHECK_PUB));
 			boolean checkInstitution = "true".equalsIgnoreCase((String) state.getAttribute(NEW_ASSIGNMENT_REVIEW_SERVICE_CHECK_INSTITUTION));
+			//exclude bibliographic materials
+			boolean excludeBibliographic = "true".equalsIgnoreCase((String) state.getAttribute(NEW_ASSIGNMENT_REVIEW_SERVICE_EXCLUDE_BIBLIOGRAPHIC));
+			//exclude quoted materials
+			boolean excludeQuoted = "true".equalsIgnoreCase((String) state.getAttribute(NEW_ASSIGNMENT_REVIEW_SERVICE_EXCLUDE_QUOTED));
+			//exclude small matches
+			boolean excludeSmallMatches = "true".equalsIgnoreCase((String) state.getAttribute(NEW_ASSIGNMENT_REVIEW_SERVICE_EXCLUDE_SMALL_MATCHES));
+			//exclude type 0=none, 1=words, 2=percentages
+			int excludeType = 0;
+			int excludeValue = 1;
+			if(excludeSmallMatches){
+				try{
+					excludeType = Integer.parseInt((String) state.getAttribute(NEW_ASSIGNMENT_REVIEW_SERVICE_EXCLUDE_TYPE));
+					if(excludeType != 0 && excludeType != 1 && excludeType != 2){
+						excludeType = 0;
+					}
+				}catch (Exception e) {
+					//Numberformatexception
+				}
+				//exclude value
+				try{
+					excludeValue = Integer.parseInt((String) state.getAttribute(NEW_ASSIGNMENT_REVIEW_SERVICE_EXCLUDE_VALUE));
+					if(excludeValue < 0 || excludeValue > 100){
+						excludeValue = 1;
+					}
+				}catch (Exception e) {
+					//Numberformatexception
+				}
+			}
+			
 			
 			// the attachments
 			List attachments = (List) state.getAttribute(NEW_ASSIGNMENT_ATTACHMENT);
@@ -5966,7 +6062,7 @@ public class AssignmentAction extends PagedResourceActionII
 				oldCloseTime = a.getCloseTime();
 				
 				// commit the changes to AssignmentContent object
-				commitAssignmentContentEdit(state, ac, title, submissionType,useReviewService,allowStudentViewReport, gradeType, gradePoints, description, checkAddHonorPledge, attachments, submitReviewRepo, generateOriginalityReport, checkTurnitin, checkInternet, checkPublications, checkInstitution, openTime, dueTime, closeTime);
+				commitAssignmentContentEdit(state, ac, title, submissionType,useReviewService,allowStudentViewReport, gradeType, gradePoints, description, checkAddHonorPledge, attachments, submitReviewRepo, generateOriginalityReport, checkTurnitin, checkInternet, checkPublications, checkInstitution, excludeBibliographic, excludeQuoted, excludeType, excludeValue, openTime, dueTime, closeTime);
 				
 				// set the Assignment Properties object
 				ResourcePropertiesEdit aPropertiesEdit = a.getPropertiesEdit();
@@ -6984,7 +7080,8 @@ public class AssignmentAction extends PagedResourceActionII
 		}
 	}
 
-	private void commitAssignmentContentEdit(SessionState state, AssignmentContentEdit ac, String title, int submissionType,boolean useReviewService, boolean allowStudentViewReport, int gradeType, String gradePoints, String description, String checkAddHonorPledge, List attachments, String submitReviewRepo, String generateOriginalityReport, boolean checkTurnitin, boolean checkInternet, boolean checkPublications, boolean checkInstitution, Time openTime, Time dueTime, Time closeTime) 
+	private void commitAssignmentContentEdit(SessionState state, AssignmentContentEdit ac, String title, int submissionType,boolean useReviewService, boolean allowStudentViewReport, int gradeType, String gradePoints, String description, String checkAddHonorPledge, List attachments, 
+			String submitReviewRepo, String generateOriginalityReport, boolean checkTurnitin, boolean checkInternet, boolean checkPublications, boolean checkInstitution, boolean excludeBibliographic, boolean excludeQuoted, int excludeType, int excludeValue, Time openTime, Time dueTime, Time closeTime) 
 	{
 		ac.setTitle(title);
 		ac.setInstructions(description);
@@ -6998,6 +7095,10 @@ public class AssignmentAction extends PagedResourceActionII
 		ac.setCheckInternet(checkInternet);
 		ac.setCheckPublications(checkPublications);
 		ac.setCheckTurnitin(checkTurnitin);
+		ac.setExcludeBibliographic(excludeBibliographic);
+		ac.setExcludeQuoted(excludeQuoted);
+		ac.setExcludeType(excludeType);
+		ac.setExcludeValue(excludeValue);
 		ac.setTypeOfGrade(gradeType);
 		if (gradeType == 3)
 		{
@@ -7057,6 +7158,20 @@ public class AssignmentAction extends PagedResourceActionII
         opts.put("journal_check", assign.isCheckPublications() ? "1" : "0");
         opts.put("s_paper_check", assign.isCheckTurnitin() ? "1" : "0");        
         opts.put("s_view_report", assign.getAllowStudentViewReport() ? "1" : "0");        
+        if(ServerConfigurationService.getBoolean("turnitin.option.exclude_bibliographic", true)){
+			//we don't want to pass parameters if the user didn't get an option to set it
+        	opts.put("exclude_biblio", assign.isExcludeBibliographic() ? "1" : "0");
+		}
+		if(ServerConfigurationService.getBoolean("turnitin.option.exclude_quoted", true)){
+			//we don't want to pass parameters if the user didn't get an option to set it
+			opts.put("exclude_quoted", assign.isExcludeQuoted() ? "1" : "0");
+		}
+        
+        if((assign.getExcludeType() == 1 || assign.getExcludeType() == 2) 
+        		&& assign.getExcludeValue() >= 0 && assign.getExcludeValue() <= 100){
+        	opts.put("exclude_type", Integer.toString(assign.getExcludeType()));
+        	opts.put("exclude_value", Integer.toString(assign.getExcludeValue()));
+        }
         opts.put("late_accept_flag", "1");
         
         SimpleDateFormat dform = ((SimpleDateFormat) DateFormat.getDateInstance());
@@ -7460,8 +7575,14 @@ public class AssignmentAction extends PagedResourceActionII
 				state.setAttribute(NEW_ASSIGNMENT_REVIEW_SERVICE_CHECK_INTERNET, Boolean.valueOf(a.getContent().isCheckInternet()).toString());
 				state.setAttribute(NEW_ASSIGNMENT_REVIEW_SERVICE_CHECK_PUB, Boolean.valueOf(a.getContent().isCheckPublications()).toString());
 				state.setAttribute(NEW_ASSIGNMENT_REVIEW_SERVICE_CHECK_INSTITUTION, Boolean.valueOf(a.getContent().isCheckInstitution()).toString());
-				
-				
+				//exclude bibliographic
+				state.setAttribute(NEW_ASSIGNMENT_REVIEW_SERVICE_EXCLUDE_BIBLIOGRAPHIC, Boolean.valueOf(a.getContent().isExcludeBibliographic()).toString());
+				//exclude quoted
+				state.setAttribute(NEW_ASSIGNMENT_REVIEW_SERVICE_EXCLUDE_QUOTED, Boolean.valueOf(a.getContent().isExcludeQuoted()).toString());
+				//exclude type
+				state.setAttribute(NEW_ASSIGNMENT_REVIEW_SERVICE_EXCLUDE_TYPE, a.getContent().getExcludeType());
+				//exclude value
+				state.setAttribute(NEW_ASSIGNMENT_REVIEW_SERVICE_EXCLUDE_VALUE,a.getContent().getExcludeValue());
 				
 				state.setAttribute(NEW_ASSIGNMENT_GROUPS, a.getGroups());
 				
@@ -7499,7 +7620,6 @@ public class AssignmentAction extends PagedResourceActionII
         if (submissionRepoSettings.isEmpty()) {
             // add all three
             submissionRepoSettings.add(NEW_ASSIGNMENT_REVIEW_SERVICE_SUBMIT_NONE);
-            submissionRepoSettings.add(NEW_ASSIGNMENT_REVIEW_SERVICE_SUBMIT_INSITUTION);
             submissionRepoSettings.add(NEW_ASSIGNMENT_REVIEW_SERVICE_SUBMIT_STANDARD);
         }
 

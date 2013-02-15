@@ -8439,6 +8439,10 @@ byte[] b = (s.getTimeSubmitted().toString()).getBytes();
 		boolean m_checkInternet = true;
 		boolean m_checkPublications = true;
 		boolean m_checkInstitution = true;
+		boolean m_excludeBibliographic = true;
+		boolean m_excludeQuoted = true;
+		int m_excludeType = 0;
+		int m_excludeValue = 1;
 		
 		protected Time m_timeCreated;
 
@@ -8511,7 +8515,26 @@ byte[] b = (s.getTimeSubmitted().toString()).getBytes();
 			m_checkInternet = getBool(el.getAttribute("checkInternet"));
 			m_checkPublications = getBool(el.getAttribute("checkPublications"));
 			m_checkInstitution = getBool(el.getAttribute("checkInstitution"));
-			
+			m_excludeBibliographic = getBool(el.getAttribute("excludeBibliographic"));
+			m_excludeQuoted = getBool(el.getAttribute("excludeQuoted"));
+			String excludeTypeStr = el.getAttribute("excludeType");
+			try{
+				m_excludeType = Integer.parseInt(excludeTypeStr);
+				if(m_excludeType != 0 && m_excludeType != 1 && m_excludeType != 2){
+					m_excludeType = 0;
+				}
+			}catch (Exception e) {
+				m_excludeType = 0;
+			}
+			String excludeValueStr = el.getAttribute("excludeValue");
+			try{
+				m_excludeValue = Integer.parseInt(excludeValueStr);
+				if(m_excludeValue < 0 || m_excludeValue > 100){
+					m_excludeValue = 1;
+				}
+			}catch (Exception e) {
+				m_excludeValue = 1;
+			}
 			m_timeCreated = getTimeObject(el.getAttribute("datecreated"));
 			m_timeLastModified = getTimeObject(el.getAttribute("lastmod"));
 
@@ -8697,6 +8720,26 @@ byte[] b = (s.getTimeSubmitted().toString()).getBytes();
 							m_checkInternet = getBool(attributes.getValue("checkInternet"));
 							m_checkPublications = getBool(attributes.getValue("checkPublications"));
 							m_checkInstitution = getBool(attributes.getValue("checkInstitution"));
+							m_excludeBibliographic = getBool(attributes.getValue("excludeBibliographic"));
+							m_excludeQuoted = getBool(attributes.getValue("excludeQuoted"));
+							String excludeTypeStr = attributes.getValue("excludeType");
+							try{
+								m_excludeType = Integer.parseInt(excludeTypeStr);
+								if(m_excludeType != 0 && m_excludeType != 1 && m_excludeType != 2){
+									m_excludeType = 0;
+								}
+							}catch (Exception e) {
+								m_excludeType = 0;
+							}
+							String excludeValueStr = attributes.getValue("excludeValue");
+							try{
+								m_excludeValue = Integer.parseInt(excludeValueStr);
+								if(m_excludeValue < 0 || m_excludeValue > 100){
+									m_excludeValue = 1;
+								}
+							}catch (Exception e) {
+								m_excludeValue = 1;
+							}
 							
 							m_timeCreated = getTimeObject(attributes.getValue("datecreated"));
 							m_timeLastModified = getTimeObject(attributes.getValue("lastmod"));
@@ -8851,6 +8894,10 @@ byte[] b = (s.getTimeSubmitted().toString()).getBytes();
 			content.setAttribute("checkInternet", getBoolString(m_checkInternet));
 			content.setAttribute("checkPublications", getBoolString(m_checkPublications));
 			content.setAttribute("checkInstitution", getBoolString(m_checkInstitution));
+			content.setAttribute("excludeBibliographic", getBoolString(m_excludeBibliographic));
+			content.setAttribute("excludeQuoted", getBoolString(m_excludeQuoted));
+			content.setAttribute("excludeType", Integer.toString(m_excludeType));
+			content.setAttribute("excludeValue", Integer.toString(m_excludeValue));
 			
 			content.setAttribute("honorpledge", String.valueOf(m_honorPledge));
 			content.setAttribute("submissiontype", String.valueOf(m_typeOfSubmission));
@@ -8925,6 +8972,10 @@ byte[] b = (s.getTimeSubmitted().toString()).getBytes();
 				m_checkInternet = content.isCheckInternet();
 				m_checkPublications = content.isCheckPublications();
 				m_checkInstitution = content.isCheckInstitution();
+				m_excludeBibliographic = content.isExcludeBibliographic();
+				m_excludeQuoted = content.isExcludeQuoted();
+				m_excludeType = content.getExcludeType();
+				m_excludeValue = content.getExcludeValue();
 				m_timeCreated = content.getTimeCreated();
 				m_timeLastModified = content.getTimeLastModified();
 				m_properties = new BaseResourcePropertiesEdit();
@@ -9359,6 +9410,38 @@ byte[] b = (s.getTimeSubmitted().toString()).getBytes();
 
 		public void setCheckInstitution(boolean m_checkInstitution) {
 			this.m_checkInstitution = m_checkInstitution;
+		}
+		
+		public boolean isExcludeBibliographic() {
+			return m_excludeBibliographic;
+		}
+
+		public void setExcludeBibliographic(boolean m_excludeBibliographic) {
+			this.m_excludeBibliographic = m_excludeBibliographic;
+		}
+		
+		public boolean isExcludeQuoted() {
+			return m_excludeQuoted;
+		}
+
+		public void setExcludeQuoted(boolean m_excludeQuoted) {
+			this.m_excludeQuoted = m_excludeQuoted;
+		}
+		
+		public int getExcludeType(){
+			return m_excludeType;
+		}
+		
+		public void setExcludeType(int m_excludeType){
+			this.m_excludeType = m_excludeType;
+		}
+		
+		public int getExcludeValue(){
+			return m_excludeValue;
+		}
+		
+		public void setExcludeValue(int m_excludeValue){
+			this.m_excludeValue = m_excludeValue;
 		}
 
 	}// BaseAssignmentContent
