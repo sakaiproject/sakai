@@ -246,10 +246,10 @@ sakai.siteTypeSetup = function(){
     
     // handler that opens a block explaining what all the options are 
     // in the template selection (copy users, content, publish now)
-    // TODO: What explanations get shown should be a factor of what controls are showing 
     $('#fromTemplateSettingsContainer_instruction_control').click(function(){
         var pos = $(this).position();
-        $('#fromTemplateSettingsContainer_instruction_body').css({'top': pos.top - 140,'left': pos.left - 290}).toggle();
+        varContainerHeight = $('#fromTemplateSettingsContainer_instruction_body').height();
+        $('#fromTemplateSettingsContainer_instruction_body').css({'top': pos.top - varContainerHeight - 20,'left': pos.left - 290}).toggle();
     });
     // handler to 
     $('#fromTemplateSettingsContainer_instruction_body').click(function(){
