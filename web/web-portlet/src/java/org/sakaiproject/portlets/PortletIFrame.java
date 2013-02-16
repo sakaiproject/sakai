@@ -27,13 +27,19 @@ import java.io.PrintWriter;
 import java.io.IOException;
 import java.io.InputStream;
 
+import java.net.URL;
+import java.net.URLEncoder;
+import java.net.HttpURLConnection;
+
 import java.util.Map;
+import java.util.Set;
 import java.util.Properties;
 import java.util.Iterator;
+import java.util.List;
 import java.util.ArrayList;
 import java.util.ResourceBundle;
 import java.util.Locale;
-import java.net.URLEncoder;
+import java.util.Date;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
@@ -114,6 +120,8 @@ public class PortletIFrame extends GenericPortlet {
 	VelocityEngine vengine = null;
 
 	private PortletContext pContext;
+
+    private static long xframeTimeout = 3600000*2;
 
 	// TODO: Perhaps these constancts should come from portlet.xml
 
@@ -200,9 +208,24 @@ public class PortletIFrame extends GenericPortlet {
 
     private static final String MACRO_DEFAULT_ALLOWED = "${USER_ID},${USER_EID},${USER_FIRST_NAME},${USER_LAST_NAME},${SITE_ID},${USER_ROLE}";
 
+    private static final String IFRAME_XFRAME_TIMEOUT = "iframe.xframe.timeout";
+
+    private static final String IFRAME_XFRAME_TIMEOUT_DEFAULT = "7200000";
+
+    private static final String XFRAME_LAST_TIME = "xframe-last-time";
+    private static final String XFRAME_LAST_STATUS = "xframe-last-status";
+
     private static ArrayList allowedMacrosList;
     static
     {
+        String xframeTimeoutS = 
+            ServerConfigurationService.getString(IFRAME_XFRAME_TIMEOUT, IFRAME_XFRAME_TIMEOUT_DEFAULT);
+        try { 
+            xframeTimeout = Long.parseLong(xframeTimeoutS);
+        } catch (NumberFormatException nfe) {
+            xframeTimeout = 7200000;
+        }
+
         allowedMacrosList = new ArrayList();
 
         final String allowedMacros =
@@ -245,7 +268,6 @@ public class PortletIFrame extends GenericPortlet {
 			throw new PortletException("Cannot initialize Velocity ", e);
 		}
 		M_log.info("iFrame Portlet vengine="+vengine+" rb="+rb);
-
 	}
 
 	private void addAlert(ActionRequest request,String message) {
@@ -301,6 +323,7 @@ public class PortletIFrame extends GenericPortlet {
             //System.out.println("special="+special+" source="+source+" pgc="+placement.getContext()+" macroExpansion="+macroExpansion+" passPid="+passPid+" PGID="+placement.getId()+" sakaiPropertiesUrlKey="+sakaiPropertiesUrlKey+" url="+url);
 
 			if ( url != null && url.trim().length() > 0 ) {
+                popup = popup || popupXFrame(placement, url);
 				Context context = new VelocityContext();
 
                 Session session = SessionManager.getCurrentSession();
@@ -327,6 +350,69 @@ public class PortletIFrame extends GenericPortlet {
 
 			// System.out.println("==== doView complete ====");
 		}
+
+    // Determine if we should pop up due to an X-Frame-Options : [SAMEORIGIN]
+    public boolean popupXFrame(Placement placement, String url) 
+    {
+        if ( xframeTimeout < 1 ) return false;
+        if ( ! ( url.startsWith("http://") || url.startsWith("https://") ) ) return false;
+
+        Date date = new Date();
+        long nowTime = date.getTime();
+        
+        String lastTimeS = placement.getPlacementConfig().getProperty(XFRAME_LAST_TIME);
+        long lastTime = -1;
+        try {
+            lastTime = Long.parseLong(lastTimeS);
+        } catch (NumberFormatException nfe) {
+            lastTime = -1;
+        }
+
+        M_log.debug("lastTime="+lastTime+" nowTime="+nowTime);
+
+        if ( lastTime > 0 && nowTime < lastTime + xframeTimeout ) {
+            String lastXF = placement.getPlacementConfig().getProperty(XFRAME_LAST_STATUS);
+            M_log.debug("Status from placement="+lastXF);
+            return "true".equals(lastXF);
+        }
+
+        placement.getPlacementConfig().setProperty(XFRAME_LAST_TIME, String.valueOf(nowTime));
+        boolean retval = false;
+        try {
+            // note : you may also need
+            //        HttpURLConnection.setInstanceFollowRedirects(false)
+            HttpURLConnection.setFollowRedirects(true);
+            HttpURLConnection con =
+                (HttpURLConnection) new URL(url).openConnection();
+            con.setRequestMethod("HEAD");
+
+            Map headerfields = con.getHeaderFields();
+            Set headers = headerfields.entrySet(); 
+            for(Iterator i = headers.iterator(); i.hasNext();) { 
+                Map.Entry map = (Map.Entry)i.next();
+                String key = (String) map.getKey();
+                if ( key == null ) continue;
+                key = key.toLowerCase();
+                if ( ! "x-frame-options".equals(key) ) continue;
+
+                // Since the valid entries are SAMEORIGIN, DENY, or ALLOW-URI
+                // we can pretty much assume the answer is "not us" if the header
+                // is present
+                retval = true;
+                break;
+            }
+
+        }
+        catch (Exception e) {
+            // Fail pretty silently because this could be pretty chatty with bad urs and all
+            M_log.debug(e.getMessage());
+            retval = false;
+        }
+        placement.getPlacementConfig().setProperty(XFRAME_LAST_STATUS, String.valueOf(retval));
+        placement.save();
+        M_log.debug("Retrieved="+url+" XFrame="+retval);
+        return retval;
+    }
 
 	public void doEdit(RenderRequest request, RenderResponse response)
 		throws PortletException, IOException 
@@ -643,6 +729,9 @@ public class PortletIFrame extends GenericPortlet {
 			if ( source == null ) source = "";
 			placement.getPlacementConfig().setProperty(SOURCE, source);
 
+            // Make sure we re-check X-Frame-Options
+            placement.getPlacementConfig().setProperty(XFRAME_LAST_STATUS, "");
+            placement.getPlacementConfig().setProperty(XFRAME_LAST_TIME, "-1");
 			placement.save();
 
             // Handle the infoUrl
