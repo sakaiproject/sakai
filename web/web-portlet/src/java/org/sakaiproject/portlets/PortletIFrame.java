@@ -121,7 +121,9 @@ public class PortletIFrame extends GenericPortlet {
 
 	private PortletContext pContext;
 
-    private static long xframeTimeout = 3600000*2;
+    private static long xframeCache = 3600*1000*2;
+
+    private static long xframeLoad = 4000;
 
 	// TODO: Perhaps these constancts should come from portlet.xml
 
@@ -208,22 +210,32 @@ public class PortletIFrame extends GenericPortlet {
 
     private static final String MACRO_DEFAULT_ALLOWED = "${USER_ID},${USER_EID},${USER_FIRST_NAME},${USER_LAST_NAME},${SITE_ID},${USER_ROLE}";
 
-    private static final String IFRAME_XFRAME_TIMEOUT = "iframe.xframe.timeout";
-
-    private static final String IFRAME_XFRAME_TIMEOUT_DEFAULT = "7200000";
+    private static final String IFRAME_XFRAME_CACHETIME = "iframe.xframe.cachetime";
+    private static final String IFRAME_XFRAME_CACHETIME_DEFAULT = "7200000";
 
     private static final String XFRAME_LAST_TIME = "xframe-last-time";
     private static final String XFRAME_LAST_STATUS = "xframe-last-status";
 
+    private static final String IFRAME_XFRAME_LOADTIME = "iframe.xframe.loadtime";
+    private static final String IFRAME_XFRAME_LOADTIME_DEFAULT = "4000";
+
     private static ArrayList allowedMacrosList;
     static
     {
-        String xframeTimeoutS = 
-            ServerConfigurationService.getString(IFRAME_XFRAME_TIMEOUT, IFRAME_XFRAME_TIMEOUT_DEFAULT);
+        String xframeCacheS = 
+            ServerConfigurationService.getString(IFRAME_XFRAME_CACHETIME, IFRAME_XFRAME_CACHETIME_DEFAULT);
         try { 
-            xframeTimeout = Long.parseLong(xframeTimeoutS);
+            xframeCache = Long.parseLong(xframeCacheS);
         } catch (NumberFormatException nfe) {
-            xframeTimeout = 7200000;
+            xframeCache = 7200000;
+        }
+
+        String xframeLoadS = 
+            ServerConfigurationService.getString(IFRAME_XFRAME_LOADTIME, IFRAME_XFRAME_LOADTIME_DEFAULT);
+        try { 
+            xframeLoad = Long.parseLong(xframeLoadS);
+        } catch (NumberFormatException nfe) {
+            xframeLoad = 4000;
         }
 
         allowedMacrosList = new ArrayList();
@@ -336,6 +348,8 @@ public class PortletIFrame extends GenericPortlet {
 				sendAlert(request,context);
 				context.put("popup", Boolean.valueOf(popup));
 				context.put("maximize", Boolean.valueOf(maximize));
+				context.put("placement", placement.getId().replaceAll("[^a-zA-Z0-9]","_"));
+				context.put("loadTime", new Long(xframeLoad));
 
                 // TODO: state.setAttribute(TARGETPAGE_URL,config.getProperty(TARGETPAGE_URL));
                 // TODO: state.setAttribute(TARGETPAGE_NAME,config.getProperty(TARGETPAGE_NAME));
@@ -354,7 +368,7 @@ public class PortletIFrame extends GenericPortlet {
     // Determine if we should pop up due to an X-Frame-Options : [SAMEORIGIN]
     public boolean popupXFrame(Placement placement, String url) 
     {
-        if ( xframeTimeout < 1 ) return false;
+        if ( xframeCache < 1 ) return false;
         if ( ! ( url.startsWith("http://") || url.startsWith("https://") ) ) return false;
 
         Date date = new Date();
@@ -370,7 +384,7 @@ public class PortletIFrame extends GenericPortlet {
 
         M_log.debug("lastTime="+lastTime+" nowTime="+nowTime);
 
-        if ( lastTime > 0 && nowTime < lastTime + xframeTimeout ) {
+        if ( lastTime > 0 && nowTime < lastTime + xframeCache ) {
             String lastXF = placement.getPlacementConfig().getProperty(XFRAME_LAST_STATUS);
             M_log.debug("Status from placement="+lastXF);
             return "true".equals(lastXF);
