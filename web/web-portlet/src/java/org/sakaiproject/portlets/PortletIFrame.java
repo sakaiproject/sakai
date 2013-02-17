@@ -43,6 +43,7 @@ import java.util.Date;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
+import org.apache.commons.validator.UrlValidator;
 
 import javax.portlet.GenericPortlet;
 import javax.portlet.RenderRequest;
@@ -648,6 +649,35 @@ public class PortletIFrame extends GenericPortlet {
             Properties config = getAllProperties(placement);
             String special = getSpecial(config);
 
+            // Get and verify the source
+			String source = StringUtils.trimToEmpty(request.getParameter("source"));
+
+            // If this is a normal placement (i.e. not special)
+            if ( special == null ) {
+                if (StringUtils.isBlank(source))
+                {
+                    addAlert(request, rb.getString("gen.url.empty"));
+                    return;
+                }
+
+                if ((!source.startsWith("/")) && (source.indexOf("://") == -1))
+                {
+                    source = "http://" + source;
+                }
+
+                // Validate the url
+                UrlValidator urlValidator = new UrlValidator();
+                if (!urlValidator.isValid(source))
+                {
+                    addAlert(request, rb.getString("gen.url.invalid"));
+                    return;
+                }
+            }
+
+            // update state
+			if ( source == null ) source = "";
+            placement.getPlacementConfig().setProperty(SOURCE, source);
+
             // site info url 
             String infoUrl = StringUtils.trimToNull(request.getParameter("infourl"));
             if (infoUrl != null && infoUrl.length() > MAX_SITE_INFO_URL_LENGTH)
@@ -739,9 +769,6 @@ public class PortletIFrame extends GenericPortlet {
 			String smax = request.getParameter("maximize");
 			if ( ! "true".equals(smax) ) smax = "false";
 			placement.getPlacementConfig().setProperty(MAXIMIZE, smax);
-			String source = request.getParameter("source");
-			if ( source == null ) source = "";
-			placement.getPlacementConfig().setProperty(SOURCE, source);
 
             // Make sure we re-check X-Frame-Options
             placement.getPlacementConfig().setProperty(XFRAME_LAST_STATUS, "");
