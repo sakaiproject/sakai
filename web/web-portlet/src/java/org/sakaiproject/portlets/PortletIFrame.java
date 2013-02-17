@@ -123,7 +123,7 @@ public class PortletIFrame extends GenericPortlet {
 
     private static long xframeCache = 3600*1000*2;
 
-    private static long xframeLoad = 4000;
+    private static long xframeLoad = 8000;
 
 	// TODO: Perhaps these constancts should come from portlet.xml
 
@@ -217,7 +217,7 @@ public class PortletIFrame extends GenericPortlet {
     private static final String XFRAME_LAST_STATUS = "xframe-last-status";
 
     private static final String IFRAME_XFRAME_LOADTIME = "iframe.xframe.loadtime";
-    private static final String IFRAME_XFRAME_LOADTIME_DEFAULT = "4000";
+    private static final String IFRAME_XFRAME_LOADTIME_DEFAULT = "8000";
 
     private static ArrayList allowedMacrosList;
     static
@@ -235,7 +235,7 @@ public class PortletIFrame extends GenericPortlet {
         try { 
             xframeLoad = Long.parseLong(xframeLoadS);
         } catch (NumberFormatException nfe) {
-            xframeLoad = 4000;
+            xframeLoad = 8000;
         }
 
         allowedMacrosList = new ArrayList();

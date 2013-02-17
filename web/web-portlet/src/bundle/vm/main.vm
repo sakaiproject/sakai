@@ -18,15 +18,6 @@ try { portalMaximizeTool(); } catch (err) { }
 
 if ( '$!source'.indexOf('http://') == 0 || '$!source'.indexOf('https://') == 0 ) {
 
-    var timer$placement = false;
-    function loaded$placement() {
-        console.log && console.log("$!source loaded event");
-        if ( timer$placement != false ) {
-            // window.clearTimeout(timer$placement);
-            timer$placement = false;
-        }
-    }
-
     function timeout$placement() { 
         var myframe = $("#id$placement");
         var loaded = false;
@@ -60,13 +51,11 @@ if ( '$!source'.indexOf('http://') == 0 || '$!source'.indexOf('https://') == 0 )
         } else {
             console.log && console.log('$!source load success');
         }
-            
+
     }
-    
+
+    var timer$placement = false;
     $(document).ready(function() {
-        $('#id$placement').load(function()  {
-            loaded$placement();
-        });
         timer$placement = window.setTimeout("timeout$placement()",$loadTime);
     });
 } else {
@@ -88,7 +77,6 @@ $tlang.getString("gen.trouble.loading")
 	marginwidth="0"
 	marginheight="0"
 	scrolling="auto"
-    onload="loaded$placement();"
 	src="$!source">
 </iframe>
 </div>
