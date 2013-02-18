@@ -60,6 +60,14 @@ public interface TriggerEventManager
      * @return
      */
     public List<TriggerEvent> getTriggerEvents (Date after, Date before, List<String> jobs, String triggerName, TriggerEvent.TRIGGER_EVENT_TYPE[] types);
+    
+    public int getTriggerEventsSize ();
+    
+    public int getTriggerEventsSize (Date after, Date before, List<String> jobs, String triggerName, TriggerEvent.TRIGGER_EVENT_TYPE[] types);
+    
+    public List<TriggerEvent> getTriggerEvents (int first, int size);
+    
+    public List<TriggerEvent> getTriggerEvents (Date after, Date before, List<String> jobs, String triggerName, TriggerEvent.TRIGGER_EVENT_TYPE[] types, int first, int size);
 
     /**
      * 

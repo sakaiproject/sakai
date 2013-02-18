@@ -80,6 +80,26 @@ public class TriggerEventManagerImpl implements TriggerEventManager
         return Collections.unmodifiableList(results);
     }
 
+    public int getTriggerEventsSize()
+    {
+        return events.size();
+    }
+    
+    public int getTriggerEventsSize (Date after, Date before, List<String> jobs, String triggerName, TriggerEvent.TRIGGER_EVENT_TYPE[] types)
+    {
+    	return getTriggerEvents(after, before, jobs, triggerName, types).size();
+    }
+
+    public List<TriggerEvent> getTriggerEvents (int first, int size)
+    {
+    	return Collections.unmodifiableList(events.subList(first, first+size));
+    }
+    
+    public List<TriggerEvent> getTriggerEvents (Date after, Date before, List<String> jobs, String triggerName, TriggerEvent.TRIGGER_EVENT_TYPE[] types, int first, int size)
+    {
+    	return Collections.unmodifiableList(getTriggerEvents(after, before, jobs, triggerName, types).subList(first, first+size));
+    }
+    
     public void purgeEvents(Date before)
     {
         int i = 0;

@@ -4,6 +4,7 @@ import org.hibernate.Criteria;
 import org.hibernate.Query;
 import org.hibernate.Session;
 import org.hibernate.criterion.Order;
+import org.hibernate.criterion.Projections;
 import org.hibernate.criterion.Restrictions;
 import org.sakaiproject.scheduler.events.hibernate.TriggerEventHibernateImpl;
 import org.sakaiproject.api.app.scheduler.events.TriggerEvent;
@@ -25,10 +26,9 @@ public class TriggerEventManagerHibernateImpl
     implements TriggerEventManager
 {
     public TriggerEvent createTriggerEvent(TriggerEvent.TRIGGER_EVENT_TYPE type, String jobName, String triggerName,
-                                           Date time, String message, String serverId)
+            Date time, String message, String serverId)
     {
-        TriggerEventHibernateImpl
-            event = new TriggerEventHibernateImpl();
+        TriggerEventHibernateImpl event = new TriggerEventHibernateImpl();
 
         event.setEventType(type);
         event.setJobName(jobName);
@@ -44,32 +44,68 @@ public class TriggerEventManagerHibernateImpl
 
     public List<TriggerEvent> getTriggerEvents()
     {
-        final Session
-            session = this.getSession();
-        final Criteria
-            criteria = session.createCriteria(TriggerEventHibernateImpl.class);
+        return getTriggerEvents(null, null, null, null, null);
+    }
 
+    public List<TriggerEvent> getTriggerEvents(int first, int size)
+    {
+        return getTriggerEvents(null, null, null, null, null, first, size);
+    }
+
+    public int getTriggerEventsSize()
+    {
+        return getTriggerEventsSize(null, null, null, null, null);
+    }
+
+    public int getTriggerEventsSize(Date after, Date before, List<String> jobs, String triggerName,
+            TriggerEvent.TRIGGER_EVENT_TYPE[] types)
+    {
+        final Criteria criteria = buildCriteria(after, before, jobs, triggerName, types);
+        criteria.setProjection(Projections.rowCount());
+        return (Integer) criteria.list().get(0);
+    }
+
+    public List<TriggerEvent> getTriggerEvents(Date after, Date before, List<String> jobs, String triggerName,
+            TriggerEvent.TRIGGER_EVENT_TYPE[] types)
+    {
+        return getTriggerEvents(after, before, jobs, triggerName, types, null, null);
+
+    }
+    public List<TriggerEvent> getTriggerEvents(Date after, Date before, List<String> jobs, String triggerName,
+            TriggerEvent.TRIGGER_EVENT_TYPE[] types, int first, int size) {
+        return getTriggerEvents(after, before, jobs, triggerName, types, Integer.valueOf(first),  Integer.valueOf(size));
+    }
+
+    /**
+     * Internal search for events. Applies the sort and optionally the limit/offset.
+     */
+    protected List<TriggerEvent> getTriggerEvents(Date after, Date before, List<String> jobs, String triggerName,
+            TriggerEvent.TRIGGER_EVENT_TYPE[] types, Integer first, Integer size)
+    {
+        final Criteria criteria = buildCriteria(after, before, jobs, triggerName, types);
         criteria.addOrder(Order.asc("time"));
-
+        if (first != null && size != null)
+        {
+            criteria.setFirstResult(first).setMaxResults(size);
+        }
         return criteria.list();
     }
 
-    public List<TriggerEvent> getTriggerEvents(Date after, Date before, List<String> jobs, String triggerName, TriggerEvent.TRIGGER_EVENT_TYPE[] types)
+    /**
+     * Creates a criteria with all restrictions applied.
+     */
+    protected Criteria buildCriteria(Date after, Date before, List<String> jobs,
+            String triggerName, TriggerEvent.TRIGGER_EVENT_TYPE[] types)
     {
-        final Session
-            session = this.getSession();
-        final Criteria
-            criteria = session.createCriteria(TriggerEventHibernateImpl.class);
-
-        criteria.addOrder(Order.asc("time"));
-        
+        final Session session = this.getSession();
+        final Criteria criteria = session.createCriteria(TriggerEventHibernateImpl.class);
         if (after != null)
         {
-            criteria.add(Restrictions.or(Restrictions.gt("time", after), Restrictions.eq("time", after)));
+            criteria.add(Restrictions.ge("time", after));
         }
         if (before != null)
         {
-            criteria.add(Restrictions.or(Restrictions.lt("time", before), Restrictions.eq("time", before)));
+            criteria.add(Restrictions.le("time", before));
         }
         if (jobs != null && !jobs.isEmpty())
         {
@@ -83,14 +119,12 @@ public class TriggerEventManagerHibernateImpl
         {
             criteria.add(Restrictions.in("eventType", types));
         }
-
-        return criteria.list();
+        return criteria;
     }
 
     public void purgeEvents(Date before)
     {
-        Query
-            q = getSession().getNamedQuery("purgeEventsBefore");
+        Query q = getSession().getNamedQuery("purgeEventsBefore");
 
         q.setTimestamp(0, before);
 

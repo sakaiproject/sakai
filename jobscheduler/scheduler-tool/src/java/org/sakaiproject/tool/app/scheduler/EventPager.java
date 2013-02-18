@@ -199,7 +199,14 @@ public class EventPager
 
     public int getTotalItems()
     {
-        return getEvents().size();
+        if (isFilterEnabled())
+        {
+            return getTriggerEventManager().getTriggerEventsSize(after, before, jobs, triggerName, getTypes());
+        }
+        else
+        {
+            return getTriggerEventManager().getTriggerEventsSize();
+        }
     }
 
     public int getFirstItem()
@@ -246,11 +253,11 @@ public class EventPager
     {
         if (isFilterEnabled())
         {
-            return getTriggerEventManager().getTriggerEvents(after, before, jobs, triggerName, getTypes());
+            return getTriggerEventManager().getTriggerEvents(after, before, jobs, triggerName, getTypes(), first, numRows);
         }
         else
         {
-            return getTriggerEventManager().getTriggerEvents();
+            return getTriggerEventManager().getTriggerEvents(first, numRows);
         }
     }
 

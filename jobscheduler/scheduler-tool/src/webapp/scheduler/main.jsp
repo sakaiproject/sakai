@@ -36,7 +36,6 @@
                            immediate="true"/>
 
   	      <h:dataTable
-                    first="#{schedulerTool.eventPager.firstItem}"
                     rows="#{schedulerTool.eventPager.pageSize}"
                     value="#{schedulerTool.eventPager.events}" var="event" styleClass="listHier lines">
   	        <h:column>
