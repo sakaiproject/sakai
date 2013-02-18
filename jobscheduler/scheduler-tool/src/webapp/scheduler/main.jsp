@@ -55,7 +55,7 @@
     	          <h:outputText value="#{msgs.timestamp}"/>
     	        </f:facet>
   	          <h:outputText value="#{event.time}">
-  	            <f:convertDateTime pattern="#{msgs.date_format}"/>
+  	            <f:convertDateTime type="both" dateStyle="short"/>
   	          </h:outputText>
   	        </h:column>            	      
             <h:column>
