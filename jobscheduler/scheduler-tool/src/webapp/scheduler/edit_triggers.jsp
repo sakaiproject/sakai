@@ -49,7 +49,7 @@
     	        <h:outputText value="#{msgs.trigger_willrun}"/>
     	      </f:facet>
     	      <h:outputText value="#{wrapper.trigger.nextFireTime}">
-    	        <f:convertDateTime pattern="#{msgs.date_format}"/>
+    	        <f:convertDateTime type="both" dateStyle="short"/>
     	      </h:outputText>
     	    </h:column>  	      
         </h:dataTable>
