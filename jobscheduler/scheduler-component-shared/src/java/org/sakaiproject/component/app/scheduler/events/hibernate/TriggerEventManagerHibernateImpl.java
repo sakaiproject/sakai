@@ -83,7 +83,8 @@ public class TriggerEventManagerHibernateImpl
             TriggerEvent.TRIGGER_EVENT_TYPE[] types, Integer first, Integer size)
     {
         final Criteria criteria = buildCriteria(after, before, jobs, triggerName, types);
-        criteria.addOrder(Order.asc("time"));
+        // We put the newest items first as generally that's what people are most interested in.
+        criteria.addOrder(Order.desc("time"));
         if (first != null && size != null)
         {
             criteria.setFirstResult(first).setMaxResults(size);
