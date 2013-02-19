@@ -20,7 +20,7 @@
         />
       #end
       <div style="display: none;" id="spinner_$citation.id" class="addSpinner">
-        <img src="/library/image/sakai/spinner.gif" alt="$tlang.getString( "wait.list" )" />
+        <img src="/library/image/sakai/spinner.gif" alt="$stlang.getString("gen.proces")" />
       </div>
     </td>
     <td class="attach">

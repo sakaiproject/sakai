@@ -119,6 +119,7 @@ import org.sakaiproject.tool.api.ToolManager;
 import org.sakaiproject.tool.api.ToolSession;
 import org.sakaiproject.util.FileItem;
 import org.sakaiproject.util.ParameterParser;
+import org.sakaiproject.util.Resource;
 import org.sakaiproject.util.ResourceLoader;
 import org.sakaiproject.util.Validator;
 import org.sakaiproject.util.api.FormattedText;
@@ -481,6 +482,14 @@ public class CitationHelperAction extends VelocityPortletPaneledAction
 
 	public static ResourceLoader rb = new ResourceLoader("citations");
 	
+	/** Shared messages */
+	private static final String DEFAULT_RESOURCECLASS = "org.sakaiproject.sharedI18n.SharedProperties";
+	private static final String DEFAULT_RESOURCEBUNDLE = "org.sakaiproject.sharedI18n.bundle.shared";
+	private static final String RESOURCECLASS = "resource.class.shared";
+	private static final String RESOURCEBUNDLE = "resource.bundle.shared";
+	
+	private ResourceLoader srb;
+	
 	protected CitationService citationService;
 	protected ConfigurationService configurationService;
 	protected SearchManager searchManager;
@@ -636,6 +645,11 @@ public class CitationHelperAction extends VelocityPortletPaneledAction
 	public void init() throws ServletException {
 		ServerConfigurationService scs
 			= (ServerConfigurationService) ComponentManager.get(ServerConfigurationService.class);
+		
+		String resourceClass = scs.getString(RESOURCECLASS, DEFAULT_RESOURCECLASS);
+		String resourceBundle = scs.getString(RESOURCEBUNDLE, DEFAULT_RESOURCEBUNDLE);
+		srb = new Resource().getLoader(resourceClass, resourceBundle);		
+		
 		if(scs != null) {
 			defaultListPageSize = scs.getInt("citations.default.list.page.size", DEFAULT_LIST_PAGE_SIZE);
 		} else {
@@ -1449,6 +1463,7 @@ public class CitationHelperAction extends VelocityPortletPaneledAction
 
 		// always put appropriate bundle in velocity context
 		context.put("tlang", rb);
+		context.put("stlang", srb);
 
 		// validator
 		context.put("xilator", new Validator());
@@ -1475,6 +1490,7 @@ public class CitationHelperAction extends VelocityPortletPaneledAction
 
     	 // always put appropriate bundle in velocity context
 		context.put("tlang", rb);
+		context.put("stlang", srb);
 
 		// body onload handler
 		context.put("sakai_onload", "setMainFrameHeight( window.name )");
@@ -1574,6 +1590,7 @@ public class CitationHelperAction extends VelocityPortletPaneledAction
 
 		// always put appropriate bundle in velocity context
 		context.put("tlang", rb);
+		context.put("stlang", srb);
 
 		// validator
 		context.put("xilator", new Validator());
@@ -1615,6 +1632,7 @@ public class CitationHelperAction extends VelocityPortletPaneledAction
 	{
 		// always put appropriate bundle in velocity context
 		context.put("tlang", rb);
+		context.put("stlang", srb);
 
 		// get hierarchy
 		SearchDatabaseHierarchy hierarchy = ( SearchDatabaseHierarchy )
@@ -1665,6 +1683,7 @@ public class CitationHelperAction extends VelocityPortletPaneledAction
     {
 		// always put appropriate bundle in velocity context
 		context.put("tlang", rb);
+		context.put("stlang", srb);
 
 		// validator
 		context.put("xilator", new Validator());
@@ -1742,6 +1761,7 @@ public class CitationHelperAction extends VelocityPortletPaneledAction
 
 		// always put appropriate bundle in velocity context
 		context.put("tlang", rb);
+		context.put("stlang", srb);
 
 		// validator
 		context.put("xilator", new Validator());
@@ -1873,6 +1893,7 @@ public class CitationHelperAction extends VelocityPortletPaneledAction
 	public String buildReorderPanelContext(VelocityPortlet portlet, Context context, RunData rundata, SessionState state) {
 		// always put appropriate bundle in velocity context
 		context.put("tlang", rb);
+		context.put("stlang", srb);
 
 		// validator
 		context.put("xilator", new Validator());
@@ -1975,6 +1996,7 @@ public class CitationHelperAction extends VelocityPortletPaneledAction
 		logger.debug("buildMainPanelContext()");
 		// always put appropriate bundle in velocity context
 		context.put("tlang", rb);
+		context.put("stlang", srb);
 
 		//context.put("mainFrameId", CitationHelper.CITATION_FRAME_ID);
 		//context.put("citationToolId", CitationHelper.CITATION_ID);
@@ -2359,6 +2381,7 @@ public class CitationHelperAction extends VelocityPortletPaneledAction
 
 		// always put appropriate bundle in velocity context
 		context.put("tlang", rb);
+		context.put("stlang", srb);
 
 		// validators
 		context.put("TextValidator", new QuotedTextValidator());
@@ -2493,6 +2516,7 @@ public class CitationHelperAction extends VelocityPortletPaneledAction
 
     	// always put appropriate bundle in velocity context
     	context.put("tlang", rb);
+    	context.put("stlang", srb);
 
     	// validators
     	context.put("TextValidator", new QuotedTextValidator());
@@ -2590,6 +2614,7 @@ public class CitationHelperAction extends VelocityPortletPaneledAction
     {
 		// always put appropriate bundle in velocity context
 		context.put("tlang", rb);
+		context.put("stlang", srb);
 
 		// validator
 		context.put("xilator", new Validator());

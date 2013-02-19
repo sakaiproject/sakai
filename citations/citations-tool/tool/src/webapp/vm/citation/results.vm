@@ -109,8 +109,8 @@
       #end
 
       <span class="processing" style="display: none;">
-        <img src="/library/image/sakai/spinner.gif" alt="$tlang.getString( "label.process" )" />
-        $tlang.getString( "label.process" )
+        <img src="/library/image/sakai/spinner.gif" alt="$stlang.getString("gen.proces")" />
+        $stlang.getString("gen.proces")
       </span>
     </p>
 

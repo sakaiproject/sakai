@@ -431,8 +431,8 @@ span.searchTargetLink { margin-right:50px; }
 	<div class="act">
 		<input type="button" name="Cancel" class="Cancel active" value="$tlang.getString("resource.done")" />
         <span class="firstPageLoad" style="display: none; vertical-align: bottom; padding: 0.5em; border: 1px solid #000; background: #fff;">
-            <img src="/library/image/sakai/spinner.gif" alt="$tlang.getString( "wait.list" )" />
-            $tlang.getString( "wait.list" )
+            <img src="/library/image/sakai/spinner.gif" alt="$stlang.getString("gen.proces")" />
+            $stlang.getString("gen.proces")
         </span>
  
 	</div>
