@@ -1,75 +1,24 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<web-app id="WebApp_9" version="2.4" xmlns="http://java.sun.com/xml/ns/j2ee" 
-    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" 
-    xsi:schemaLocation="http://java.sun.com/xml/ns/j2ee http://java.sun.com/xml/ns/j2ee/web-app_2_4.xsd">
+<web-app id="WebApp_9" version="2.4" xmlns="http://java.sun.com/xml/ns/j2ee" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+    xsi:schemaLocation="http://java.sun.com/xml/ns/j2ee http://java.sun.com/xml/ns/j2ee/web-app_2_4.xsd"
+>
     <display-name>podcasts</display-name>
     <description>Sakai Podcasts Feed Servlet</description>
 
-    <context-param>
-        <param-name>javax.faces.STATE_SAVING_METHOD</param-name>
-        <param-value>server</param-value>
-    </context-param>
- 
-    <context-param>
-        <param-name>contextConfigLocation</param-name>
-        <param-value>/WEB-INF/local.xml</param-value>
-    </context-param>
-    
-   
-<!--sakai-->
-    
-  <!-- to wire up the FacesServlet -->
-  <!-- so the app can hook your content into faces -->
     <servlet>
-        <servlet-name>Faces Servlet</servlet-name>
-        <servlet-class>javax.faces.webapp.FacesServlet</servlet-class>
-        <load-on-startup> 2 </load-on-startup>
+        <description>This generates the actual Poddcast feed</description>
+        <display-name>RSSPodfeedServlet</display-name>
+        <servlet-name>podcasts</servlet-name>
+        <servlet-class>org.sakaiproject.tool.podcasts.RSSPodfeedServlet</servlet-class>
+        <load-on-startup>2</load-on-startup>
     </servlet>
- 
+
     <servlet-mapping>
-        <servlet-name>Faces Servlet</servlet-name>
-        <url-pattern>*.jsf</url-pattern>
+        <servlet-name>podcasts</servlet-name>
+        <url-pattern>/site/*</url-pattern>
     </servlet-mapping>
-     
-  <servlet>
-    <description>This generates the actual Poddcast feed</description>
-    <display-name>RSSPodfeedServlet</display-name>
-    <servlet-name>podcasts</servlet-name>
-    <servlet-class>org.sakaiproject.tool.podcasts.RSSPodfeedServlet</servlet-class>
-     <load-on-startup>2</load-on-startup>
-  </servlet>
- 
-   <servlet-mapping>
-       <servlet-name>podcasts</servlet-name>
-       <url-pattern>/site/*</url-pattern>
-    </servlet-mapping>
-  
-<!--  <security-constraint>
-		<web-resource-collection>
-			<web-resource-name>Sakai Podcast Feed Servlet</web-resource-name>
-			<url-pattern>/site/*</url-pattern>
-			<http-method>GET</http-method>
-			<http-method>POST</http-method>
-		</web-resource-collection>
-		<auth-constraint>
-			<role-name>tomcat</role-name>
-		</auth-constraint>
-	</security-constraint>
 
-	<login-config>
-		<auth-method>BASIC</auth-method>
-		<realm-name></realm-name>
-	</login-config>
 
-	<security-role>
-		<description>
-			An example role defined in "conf/tomcat-users.xml"
-		</description>
-		<role-name>tomcat</role-name>
-	</security-role>
--->
-
-	<!-- the RequestFilter works with JsfTool to intercept requests -->
     <filter>
         <filter-name>org.sakaiproject.util.RequestFilter</filter-name>
         <filter-class>org.sakaiproject.util.RequestFilter</filter-class>
@@ -77,47 +26,12 @@
 
   <!-- tells RequestFilter what can be done with your servlet
   	   usually all 3 dispachers values kept -->
-   <filter-mapping>
+    <filter-mapping>
         <filter-name>org.sakaiproject.util.RequestFilter</filter-name>
         <servlet-name>podcasts</servlet-name>
         <dispatcher>REQUEST</dispatcher>
         <dispatcher>FORWARD</dispatcher>
         <dispatcher>INCLUDE</dispatcher>
     </filter-mapping>
-
-  <!-- tells RequestFilter what can be done with your servlet
-  	   usually all 3 dispachers values kept -->
-    <filter>
-        <filter-name>sakai.request</filter-name>
-        <filter-class>org.sakaiproject.util.RequestFilter</filter-class>
-     </filter>
-
-  <filter-mapping>
-    <filter-name>sakai.request</filter-name>
-        <servlet-name>podcasts</servlet-name>
-        <dispatcher>REQUEST</dispatcher>
-        <dispatcher>FORWARD</dispatcher>
-        <dispatcher>INCLUDE</dispatcher>
-    </filter-mapping>
- 
-    <filter-mapping>
-        <filter-name>sakai.request</filter-name>
-        <servlet-name>Faces Servlet</servlet-name>
-        <dispatcher>REQUEST</dispatcher>
-        <dispatcher>FORWARD</dispatcher>
-        <dispatcher>INCLUDE</dispatcher>
-    </filter-mapping>
-    
-    <!-- add a listener so the tool can "hear" and be "heard" -->
-    <listener>
-        <listener-class>org.sakaiproject.util.ContextLoaderListener</listener-class>
-    </listener>
-    <listener>
-        <listener-class>org.sakaiproject.util.ToolListener</listener-class>
-    </listener>
- 
-  	<welcome-file-list>
-	    <welcome-file>index.html</welcome-file>
-  	</welcome-file-list>
 
 </web-app>
