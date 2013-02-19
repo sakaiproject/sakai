@@ -63,6 +63,9 @@ public class ScheduledInvocationManagerImpl implements ScheduledInvocationManage
 
 	public void init() {
 		LOG.info("init()");
+		// Create the additional indexes as hibernate currently fails todo this.
+		// Once hibernate is updated to 3.6 it should be able to manage in it's own.
+		m_sqlService.ddl(getClass().getClassLoader(), "indexes");
 	      try {
 	          registerScheduledInvocationRunner();
 	       } catch (SchedulerException e) {
