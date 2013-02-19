@@ -99,7 +99,7 @@ public class SignupMeetingsBean implements SignupBeanConstants {
 	protected String meetingUnavailableMessages;
 	
 	@Getter @Setter
-	protected String categoryFilter; // default setting is blank, which means all categories
+	protected String categoryFilter = ""; // default setting is blank, which means all categories
 
 
 	/**
