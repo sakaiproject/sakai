@@ -113,6 +113,11 @@ public class MyPictures extends BasePage {
 		addPictureForm.setOutputMarkupId(true);
 		add(addPictureForm);
 		
+		Label invalidFileTypeMessageLabel = new Label("invalidFileTypeMessage",new ResourceModel("pictures.filetypewarning"));
+		invalidFileTypeMessageLabel.setMarkupId("invalidFileTypeMessage");
+		invalidFileTypeMessageLabel.setOutputMarkupId(true);
+		addPictureForm.add(invalidFileTypeMessageLabel);
+		
 		WebMarkupContainer addPictureContainer = new WebMarkupContainer(
 				"addPictureContainer");
 		addPictureContainer.add(new Label("addPictureLabel", new ResourceModel(
