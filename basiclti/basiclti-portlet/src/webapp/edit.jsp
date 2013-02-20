@@ -62,14 +62,14 @@ Boolean allowContentLink = (Boolean) rReq.getAttribute("allowContentLink");
 %>
 <portlet:defineObjects/>
 <div class="portletBody">
-<ul role="menu" class="navIntraTool actionToolBar">
-	<li role="menuitem" class="firstToolBarItem">
+<ul class="navIntraTool actionToolBar">
+	<li class="firstToolBarItem">
 		<span>
 			<a href="<%=viewURL.toString()%>"><%=rb.getString("edit.exit")%></a>
 		</span>
 	</li>	
 ri
-	<li role="menuitem">
+	<li>
 		<span>
 			<a href="<%=resetURL.toString()%>"><%=rb.getString("edit.clear.prefs")%></a>
 		</span>
