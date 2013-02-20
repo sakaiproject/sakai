@@ -360,9 +360,11 @@ sakai.siteTypeSetup = function(){
     });
     
     // populate the blurbs about each type from the json
-    $.each(templateControls.templateControls, function(key, value){
-        $('.' + key).find('.siteTypeRowBlurb').html(this.blurb);
-    });
+    if (templateControls !== '') { 
+        $.each(templateControls.templateControls, function(key, value){
+          $('.' + key).find('.siteTypeRowBlurb').html(this.blurb);
+        });
+    }
 
     // handles clicking on a category (course, project, whatever)
     // opens the list in the category, does clean up (closes other categories, resets control UI)
