@@ -186,7 +186,7 @@ public class BasicLTIConstants {
 	 * This field contains the LIS identifier for the user account that is 
 	 * performing this launch.    The example syntax of "school:user" 
 	 * is not the required format – lis_person_sourcedid is simply a
-	 * globally unique identifier (i.e., a normalized string). This field 
+	 * unique identifier (i.e., a normalized string). This field 
 	 * is optional and its content and meaning are defined by LIS.    
 	 */
 	public static final String LIS_PERSON_SOURCEDID = "lis_person_sourcedid";
