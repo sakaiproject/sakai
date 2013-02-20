@@ -36,12 +36,14 @@ import org.sakaiproject.tool.api.Placement;
 import org.sakaiproject.authz.cover.SecurityService;
 import org.sakaiproject.site.api.Site;
 import org.sakaiproject.site.cover.SiteService;
+import org.sakaiproject.api.privacy.PrivacyManager;
 import org.sakaiproject.authz.cover.AuthzGroupService;
 import org.sakaiproject.authz.api.AuthzGroup;
 import org.sakaiproject.authz.api.Role;
 import org.sakaiproject.authz.api.GroupNotDefinedException;
 import org.sakaiproject.entity.api.ResourceProperties;
 import org.sakaiproject.component.cover.ServerConfigurationService;
+import org.sakaiproject.component.cover.ComponentManager;
 import org.sakaiproject.util.ResourceLoader;
 import org.sakaiproject.util.Web;
 
@@ -266,9 +268,16 @@ public class SakaiBLTIUtil {
 
 		User user = UserDirectoryService.getCurrentUser();
 
+        PrivacyManager pm = (PrivacyManager) 
+                ComponentManager.get("org.sakaiproject.api.privacy.PrivacyManager");
+
 		// TODO: Think about anonymus
 		if ( user != null )
 		{
+		    String context = placement.getContext();
+            boolean isViewable = pm.isViewable("/site/" + context, user.getId());
+            setProperty(props,"ext_sakai_privacy", isViewable ? "visible" : "hidden");
+
 			setProperty(props,BasicLTIConstants.USER_ID,user.getId());
 
 			if(ServerConfigurationService.getBoolean(SakaiBLTIUtil.BASICLTI_CONSUMER_USERIMAGE_ENABLED, true)) {
