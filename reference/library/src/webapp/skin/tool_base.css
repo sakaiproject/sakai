@@ -854,6 +854,11 @@ placeholder till more standard way of doing it*/
         color:#09C;
 }
 
+#login-choice {
+	border-spacing: 0;
+	text-align: center;
+}
+
 /*
 Buttons dont have hover anymore
 .loginform td #submit:hover{
