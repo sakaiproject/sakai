@@ -13,12 +13,12 @@
 	<body>
 		
 		<!-- choice.vm -->
-		<table class="login" cellpadding="0" cellspacing="0" border="0">
+		<table id="login-choice" class="login">
 			<tr>
-    			<th colspan="2">${choiceRequired}</th>
+    			<th id="login-choice-header" colspan="2">${choiceRequired}</th>
     		</tr>
     		<tr>
-    			<td class="form" align="center">
+    			<td class="form" id="login-choice-container">
 					<p>
 						<a href="${containerLoginUrl}">
     						#if("$containerLoginChoiceIcon" != "")
@@ -30,7 +30,7 @@
 					
 				</td>
 				
-				<td class="form" align="center">
+				<td class="form" id="login-choice-xlogin">
 					<p>
 						<a href="${xloginUrl}">
     						#if("$xloginChoiceIcon" != "")
