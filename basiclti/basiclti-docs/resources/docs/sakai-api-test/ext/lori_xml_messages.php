@@ -1,7 +1,7 @@
 <?php
 
 $cur_url = curPageURL();
-$endpoint = str_replace("ext/lori_json.php","tool.php",$cur_url);
+$endpoint = str_replace("ext/lori_xml.php","tool.php",$cur_url);
 
 $getCourseStructureRequest = '<imsx_POXEnvelopeRequest xmlns="http://www.imsglobal.org/lis/oms1p0/pox">
     <imsx_POXHeader>
