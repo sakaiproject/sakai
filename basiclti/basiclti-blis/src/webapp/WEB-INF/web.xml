@@ -4,36 +4,6 @@
     xsi:schemaLocation="http://java.sun.com/xml/ns/j2ee http://java.sun.com/xml/ns/j2ee/web-app_2_4.xsd">
   <display-name>IMS Services Servlet</display-name>
 
-    <filter>
-        <filter-name>RemoteHostFilter</filter-name>
-        <filter-class>
-            org.sakaiproject.util.RemoteHostFilter
-        </filter-class>
-        <init-param>
-            <param-name>allow</param-name>
-            <!-- Allow "Private Use" IP addresses by default -->
-            <param-value>
-                localhost, 127\.0\.0\.1, 192\.168\.[0-9.]+, 10\.[0-9.]+,
-                172\.1[6-9]\.[0-9.]+, 172\.2[0-9]\.[0-9.]+,
-                172\.3[0-1]\.[0-9.]+, 
-		0:0:0:0:0.+  <!-- Special localhost on Mac OS/X -->
-            </param-value>
-        </init-param>
-        <init-param>
-            <param-name>log-allowed</param-name>
-            <param-value>false</param-value>
-        </init-param>
-        <init-param>
-            <param-name>deny</param-name>
-            <!-- No Explicit Denials, implies deny unless allowed -->
-            <param-value></param-value>
-        </init-param>
-        <init-param>
-            <param-name>log-denied</param-name>
-            <param-value>true</param-value>
-        </init-param>
-    </filter>
-
   <servlet>
     <servlet-name>ServiceServlet</servlet-name>
     <servlet-class>org.sakaiproject.blti.ServiceServlet</servlet-class>

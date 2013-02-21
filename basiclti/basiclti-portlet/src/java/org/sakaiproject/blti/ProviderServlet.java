@@ -78,10 +78,6 @@ import org.springframework.web.context.support.WebApplicationContextUtils;
  * so it must be carefully reviewed and any changes must be looked at carefully.
  * Here are some issues:
  * 
- * - This uses the RemoteHostFilter so by default it only accepts local IP
- * addresses. This configuration can be changed in web.xml or using the
- * webservices.allow, etc (see RemoteHostFilter)
- * 
  * - This will only function when it is enabled via sakai.properties
  * 
  * - This servlet makes use of security advisors - once an advisor has been
