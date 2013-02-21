@@ -459,9 +459,9 @@ public class BasicLTIUtil {
 				String value = entry.getValue();
 				if (value == null)
 					continue;
-				text.append(key);
+				text.append(htmlspecialchars(key));
 				text.append("=");
-				text.append(value);
+				text.append(htmlspecialchars(value));
 				text.append("\n");
 			}
 			text.append("</pre>\n");
