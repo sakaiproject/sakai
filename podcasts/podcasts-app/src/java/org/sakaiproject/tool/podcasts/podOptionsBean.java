@@ -84,12 +84,14 @@ public class podOptionsBean {
 	 */
 	public String processOptionChange() {
 
-		podcastService.reviseOptions(podOption == PUBLIC);
+		int previousOption = podcastService.getOptions();
+		if(podOption != previousOption) {
+			podcastService.reviseOptions(podOption == PUBLIC);
 
-		if (podOption == SITE) {
-			// Set the display message because changed to Display to Site
-			setErrorMessage(CHANGE_TO_SITE);
-
+			if (podOption == SITE) {
+				// Set the display message because changed to Display to Site
+				setErrorMessage(CHANGE_TO_SITE);
+			}
 		}
 
 		return "cancel";
