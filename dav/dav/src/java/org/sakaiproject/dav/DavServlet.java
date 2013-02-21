@@ -990,6 +990,9 @@ public class DavServlet extends HttpServlet
 				DocumentBuilderFactory.newInstance();
 			documentBuilderFactory.setNamespaceAware(true);
 			documentBuilderFactory.setExpandEntityReferences(false);
+			documentBuilderFactory.setFeature("http://xml.org/sax/features/external-general-entities", false); 
+			documentBuilderFactory.setFeature("http://xml.org/sax/features/external-parameter-entities", false); 
+
 			documentBuilder =
 				documentBuilderFactory.newDocumentBuilder();
 		}
@@ -2352,6 +2355,9 @@ public class DavServlet extends HttpServlet
 	    try {
 		DocumentBuilderFactory factory = DocumentBuilderFactory.newInstance();
 		factory.setNamespaceAware(true);
+		factory.setFeature("http://xml.org/sax/features/external-general-entities", false); 
+		factory.setFeature("http://xml.org/sax/features/external-parameter-entities", false); 
+
 		documentBuilder = factory.newDocumentBuilder();
 	    } catch (Exception e) {
 		resp.sendError(SakaidavStatus.SC_METHOD_FAILURE);
