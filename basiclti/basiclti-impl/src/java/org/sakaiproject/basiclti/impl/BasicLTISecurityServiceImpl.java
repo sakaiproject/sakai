@@ -31,7 +31,9 @@ import javax.servlet.ServletOutputStream;
 
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
+import org.w3c.dom.Node;
 
+import org.apache.commons.lang.StringUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.sakaiproject.authz.cover.SecurityService;
@@ -46,8 +48,10 @@ import org.sakaiproject.entity.api.HttpAccess;
 import org.sakaiproject.entity.api.Reference;
 import org.sakaiproject.entity.api.ResourceProperties;
 import org.sakaiproject.tool.cover.SessionManager;
+import org.sakaiproject.tool.cover.ToolManager;
 import org.sakaiproject.site.api.Site;
 import org.sakaiproject.site.cover.SiteService;
+import org.sakaiproject.component.cover.ComponentManager;
 import org.sakaiproject.component.cover.ServerConfigurationService;
 import org.sakaiproject.util.StringUtil;
 import org.sakaiproject.exception.IdUnusedException;
@@ -60,21 +64,26 @@ import org.sakaiproject.lti.api.LTIService;
 import org.sakaiproject.component.cover.ComponentManager;
 import org.sakaiproject.util.Validator;
 import org.sakaiproject.util.Web;
+import org.sakaiproject.site.api.SitePage;
+import org.sakaiproject.site.api.ToolConfiguration;
 
 import org.sakaiproject.util.foorm.SakaiFoorm;
 
 import org.sakaiproject.basiclti.LocalEventTrackingService;
 import org.sakaiproject.basiclti.util.SakaiBLTIUtil;
+import org.sakaiproject.basiclti.impl.BasicLTIArchiveBean;
 
 
 @SuppressWarnings("deprecation")
 public class BasicLTISecurityServiceImpl implements EntityProducer {
+	public static final String SERVICE_NAME = BasicLTISecurityServiceImpl.class.getName();
 
 	private static ResourceLoader rb = new ResourceLoader("basicltisvc");
 
 	public static final String MIME_TYPE_BLTI="ims/basiclti";
 	public static final String REFERENCE_ROOT="/basiclti";
 	public static final String APPLICATION_ID = "sakai:basiclti";
+	public static final String TOOL_REGISTRATION = "sakai.basiclti";
 	public static final String EVENT_BASICLTI_LAUNCH = "basiclti.launch";
 
 	protected static SakaiFoorm foorm = new SakaiFoorm();
@@ -388,20 +397,105 @@ public class BasicLTISecurityServiceImpl implements EntityProducer {
 
 	public boolean willArchiveMerge()
 	{
-		return false;
+		return true;
 	}
 
 	@SuppressWarnings("unchecked")
 		public String merge(String siteId, Element root, String archivePath, String fromSiteId, Map attachmentNames, Map userIdTrans,
 				Set userListAllowImport)
 		{
-			return null;
+			StringBuilder results = new StringBuilder("Merging BasicLTI ");
+			org.w3c.dom.NodeList nodeList = root.getElementsByTagName("basicLTI");
+
+			try {
+				Site site = SiteService.getSite(siteId);
+			
+				for(int i=0; i < nodeList.getLength(); i++)
+				{
+					BasicLTIArchiveBean basicLTI = new BasicLTIArchiveBean(nodeList.item(i));
+					logger.info("BASIC LTI: " + basicLTI);
+					results.append(", merging basicLTI tool " + basicLTI.getPageTitle());
+				
+					SitePage sitePage = site.addPage();
+					sitePage.setTitle(basicLTI.getPageTitle());
+					// This property affects both the Tool and SitePage.
+					sitePage.setTitleCustom(true);
+				
+					ToolConfiguration toolConfiguration = sitePage.addTool();
+					toolConfiguration.setTool(TOOL_REGISTRATION, ToolManager.getTool(TOOL_REGISTRATION));
+					toolConfiguration.setTitle(basicLTI.getToolTitle());
+
+					for(Object key: basicLTI.getSiteToolProperties().keySet())
+					{
+						toolConfiguration.getPlacementConfig().setProperty((String)key, (String)basicLTI.getSiteToolProperties().get(key));
+					}
+				
+					SiteService.save(site);
+				}
+			} catch (IdUnusedException ie) {
+				// This would be thrown by SiteService.getSite(siteId)
+				ie.printStackTrace();
+			} catch (PermissionException pe) {
+				// This would be thrown by SiteService.save(site)
+				pe.printStackTrace();
+			} catch (Exception e) {
+				// This is a generic exception that would be thrown by the BasicLTIArchiveBean constructor.
+				e.printStackTrace();
+			}
+
+			results.append(".");
+			return results.toString();
 		}
 
 	@SuppressWarnings("unchecked")
 		public String archive(String siteId, Document doc, Stack stack, String archivePath, List attachments)
 		{
-			return null;
-		}
+			logger.info("-------basic-lti-------- archive('"
+				+ StringUtils.join(new Object[] { siteId, doc, stack,
+						archivePath, attachments }, "','") + "')");
 
+			StringBuilder results = new StringBuilder("archiving basiclti "+siteId+"\n");
+		
+			int count = 0;
+			try {
+				Site site = SiteService.getSite(siteId);
+				logger.info("SITE: " + site.getId() + " : " + site.getTitle());
+				Element basicLtiList = doc.createElement("org.sakaiproject.basiclti.service.BasicLTISecurityService");
+
+				for (SitePage sitePage : site.getPages()) {
+					for (ToolConfiguration toolConfiguration : sitePage.getTools()) {
+						if ( toolConfiguration.getTool() == null ) continue;
+						if (toolConfiguration.getTool().getId().equals(
+							TOOL_REGISTRATION)) {
+							// results.append(" tool=" + toolConfiguration.getId() + "\n");
+							count++;
+
+							BasicLTIArchiveBean basicLTIArchiveBean = new BasicLTIArchiveBean();
+							basicLTIArchiveBean.setPageTitle(sitePage.getTitle());
+							basicLTIArchiveBean.setToolTitle(toolConfiguration.getTitle());
+							basicLTIArchiveBean.setSiteToolProperties(toolConfiguration.getConfig());
+						
+							Node newNode = basicLTIArchiveBean.toNode(doc);
+							basicLtiList.appendChild(newNode);
+						}
+					}
+				}
+
+				((Element) stack.peek()).appendChild(basicLtiList);
+				stack.push(basicLtiList);
+				stack.pop();
+			}
+			catch (IdUnusedException iue) {
+				logger.info("SITE ID " + siteId + " DOES NOT EXIST.");
+				results.append("Basic LTI Site does not exist\n");
+			}
+			// Something we did not expect
+			catch (Exception e) {
+				e.printStackTrace();
+				results.append("basiclti exception:"+e.getClass().getName()+"\n");
+			}
+			results.append("archiving basiclti ("+count+") tools archived\n");
+
+			return results.toString();
+		}
 }
