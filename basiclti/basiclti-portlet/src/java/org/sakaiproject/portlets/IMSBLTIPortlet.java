@@ -74,6 +74,7 @@ import org.sakaiproject.event.api.NotificationService;
 //import org.sakaiproject.event.cover.EventTrackingService;
 import org.sakaiproject.basiclti.LocalEventTrackingService;
 import org.sakaiproject.basiclti.util.SakaiBLTIUtil;
+import org.sakaiproject.basiclti.util.SimpleEncryption;
 
 import org.sakaiproject.service.gradebook.shared.Assignment;
 import org.sakaiproject.service.gradebook.shared.AssignmentHasIllegalPointsException;
@@ -653,7 +654,21 @@ public class IMSBLTIPortlet extends GenericPortlet {
 			for (String element : fieldList) {
 				String formParm  = getFormParameter(request,sakaiProperties,element);
 				if ( "assignment".equals(element) ) formParm = assignment;
-				if ( "secret".equals(element) && LEAVE_SECRET_ALONE.equals(formParm) ) continue;
+
+				if ( "secret".equals(element) ) {
+					if ( LEAVE_SECRET_ALONE.equals(formParm) ) continue;
+					String key = ServerConfigurationService.getString(SakaiBLTIUtil.BASICLTI_ENCRYPTION_KEY, null);
+					if (key != null) {
+						try {
+							formParm = SimpleEncryption.encrypt(key, formParm);
+							prefs.reset("sakai:imsti.secret"); // Clear out any plain text key.
+							element = "encryptedsecret";
+						} catch (RuntimeException re) {
+							M_log.warn("Failed to encrypt secret, falling back to plaintext: "+ re.getMessage());
+						}
+					}
+				}
+
 				try {
 					prefs.setValue("sakai:imsti."+element, formParm);
 					changed = true;

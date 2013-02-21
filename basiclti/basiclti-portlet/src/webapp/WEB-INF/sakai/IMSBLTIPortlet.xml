@@ -34,6 +34,7 @@
                 <configuration name="imsti.launch" />
                 <configuration name="imsti.xml" />
                 <configuration name="imsti.secret" />
+                <configuration name="imsti.encryptedsecret" />
                 <configuration name="imsti.key" />
                 <configuration name="imsti.pagetitle" />
                 <configuration name="imsti.tooltitle" />
@@ -56,6 +57,7 @@
 		<!-- We default xml to final to suppress it in the configuration display -->
                 <configuration name="final.xml" value="true"/>
                 <configuration name="final.secret" value="false"/>
+                <configuration name="final.encryptedsecret" value="false"/>
                 <configuration name="final.key" value="false"/>
                 <configuration name="final.pagetitle" value="false"/>
                 <configuration name="final.tooltitle" value="false"/>
