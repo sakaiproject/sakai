@@ -243,6 +243,8 @@ public class IMSBLTIPortlet extends GenericPortlet {
 		// Hand up the old values
 		Properties oldValues = new Properties();
 		Map map = getErrorMap(request);
+		String errorMsg = getErrorMessage(request);
+		request.setAttribute("error.message", errorMsg);
 		addProperty(oldValues, request, "launch", "");
 		for (String element : fieldList) {
 			if ( "launch".equals(element) ) continue;
@@ -735,10 +737,21 @@ public class IMSBLTIPortlet extends GenericPortlet {
 		return PortletHelper.getErrorMap(request);
 	}
 
+	public String getErrorOutput(PortletRequest request)
+	{
+		return PortletHelper.getErrorOutput(request);
+	}
+
 	public void setErrorMessage(PortletRequest request, String errorMsg)
 	{
 		PortletHelper.setErrorMessage(request,errorMsg);
 	}
+
+	public String getErrorMessage(PortletRequest request)
+	{
+		return PortletHelper.getErrorMessage(request);
+	}
+
 
 	public void setErrorMessage(PortletRequest request, String errorMsg, Throwable t)
 	{

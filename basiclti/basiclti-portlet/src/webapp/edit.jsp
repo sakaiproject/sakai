@@ -42,8 +42,7 @@ launchURL.setParameter("sakai.action","edit.save");
 
 PortletURL actionURL = rResp.createActionURL();
 
-String errorOutput = (String) pSession.getAttribute("error.output");
-if ( errorOutput != null ) out.println(errorOutput);
+String errorMsg = (String) rReq.getAttribute("error.message");
 
 Properties ov = (Properties) rReq.getAttribute("imsti.oldvalues");
 
@@ -75,7 +74,12 @@ ri
 		</span>
 	</li>
 </ul>	
-<% if ( allow(sp,"launch") || allow(sp,"key") || allow(sp,"secret") || 
+<% 
+    if ( errorMsg != null ) { %>
+		<div class="alertMessage"><%= rb.getString("gen.alert") %> <%= errorMsg %></div>
+	<% }
+
+    if ( allow(sp,"launch") || allow(sp,"key") || allow(sp,"secret") || 
         allow(sp,"xml") ||
         allow(sp,"pagetitle") || allow(sp,"tooltitle") ||
         allow(sp,"resource") || allow(sp,"preferwidget") || 
