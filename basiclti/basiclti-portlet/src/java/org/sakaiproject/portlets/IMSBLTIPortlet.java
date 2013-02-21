@@ -547,7 +547,7 @@ public class IMSBLTIPortlet extends GenericPortlet {
 			} else if ( imsTIUrl == null ) {
 				setErrorMessage(request, rb.getString("error.no.input") );
 				return;
-			} else {
+			} else if ( imsTIUrl.startsWith("http://") || imsTIUrl.startsWith("https://") ) {
 				try {
 					URL testUrl = new URL(imsTIUrl);
 					URI testUri = new URI(imsTIUrl);
@@ -556,6 +556,9 @@ public class IMSBLTIPortlet extends GenericPortlet {
 					setErrorMessage(request, rb.getString("error.bad.url") );
 					return;
 				}
+			} else {
+				setErrorMessage(request, rb.getString("error.bad.url") );
+				return;
 			}
 
 			// Prepare to store preferences
