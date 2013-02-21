@@ -38,8 +38,8 @@ public class podOptionsBean {
 	// no need for lazy initialization here since its not called in any init() and just on demand in the podcasts tool
 	private static ResourceLoader rb = new ResourceLoader(FacesContext.getCurrentInstance().getApplication().getMessageBundle());
 
-	public static final int PUBLIC = 0;
-	public static final int SITE = 1;
+	private static final int PUBLIC = 0;
+	private static final int SITE = 1;
 	private static final String OPTIONS_PUBLIC = "options_public";
 	private static final String OPTIONS_SITE = "options_site";
 	private static final String OPTIONS_SITE_DISABLED = "options_site_disabled";
