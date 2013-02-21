@@ -21,6 +21,8 @@
 
 package org.sakaiproject.component.app.podcasts;
 
+import static org.sakaiproject.component.app.podcasts.Utilities.checkSet;
+
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Calendar;
@@ -35,7 +37,7 @@ import org.sakaiproject.api.app.podcasts.PodcastPermissionsService;
 import org.sakaiproject.api.app.podcasts.PodcastService;
 import org.sakaiproject.api.app.podcasts.exception.PodcastException;
 import org.sakaiproject.authz.api.SecurityAdvisor;
-import org.sakaiproject.authz.cover.SecurityService;
+import org.sakaiproject.authz.api.SecurityService;
 import org.sakaiproject.content.api.ContentCollection;
 import org.sakaiproject.content.api.ContentCollectionEdit;
 import org.sakaiproject.content.api.ContentHostingService;
@@ -49,7 +51,7 @@ import org.sakaiproject.entity.api.ResourceProperties;
 import org.sakaiproject.entity.api.ResourcePropertiesEdit;
 import org.sakaiproject.event.api.Event;
 import org.sakaiproject.event.api.NotificationService;
-import org.sakaiproject.event.cover.EventTrackingService;
+import org.sakaiproject.event.api.EventTrackingService;
 import org.sakaiproject.exception.IdInvalidException;
 import org.sakaiproject.exception.IdLengthException;
 import org.sakaiproject.exception.IdUniquenessException;
@@ -62,45 +64,45 @@ import org.sakaiproject.exception.PermissionException;
 import org.sakaiproject.exception.ServerOverloadException;
 import org.sakaiproject.exception.TypeException;
 import org.sakaiproject.site.api.Site;
-import org.sakaiproject.site.cover.SiteService;
+import org.sakaiproject.site.api.SiteService;
 import org.sakaiproject.time.api.Time;
-import org.sakaiproject.time.cover.TimeService;
+import org.sakaiproject.time.api.TimeService;
 import org.sakaiproject.tool.api.ToolManager;
-import org.sakaiproject.tool.cover.SessionManager;
-import org.sakaiproject.user.cover.UserDirectoryService;
+import org.sakaiproject.tool.api.SessionManager;
+import org.sakaiproject.user.api.UserDirectoryService;
 import org.sakaiproject.util.ResourceLoader;
 
 public class PodcastServiceImpl implements PodcastService {
 	/** Used to retrieve global podcast title and description from podcast folder collection **/
-	private final String PODFEED_TITLE = "podfeedTitle";
-	private final String PODFEED_DESCRIPTION = "podfeedDescription";
+	private static final String PODFEED_TITLE = "podfeedTitle";
+	private static final String PODFEED_DESCRIPTION = "podfeedDescription";
 	
 	/** Used to grab the default feed title prefix */
-	private final String FEED_TITLE_STRING = "feed_title";
+	private static final String FEED_TITLE_STRING = "feed_title";
 
 	/** Used to get the default feed description pieces from the message bundle */
-	private final String FEED_DESC1_STRING = "feed_desc1";
-	private final String FEED_DESC2_STRING = "feed_desc2";
+	private static final String FEED_DESC1_STRING = "feed_desc1";
+	private static final String FEED_DESC2_STRING = "feed_desc2";
 	
 	/** Used to pull message bundle */
-	private final String PODFEED_MESSAGE_BUNDLE = "org.sakaiproject.api.podcasts.bundle.Messages";
+	private static final String PODFEED_MESSAGE_BUNDLE = "org.sakaiproject.api.podcasts.bundle.Messages";
 //	private ResourceBundle resbud = ResourceBundle.getBundle(PODFEED_MESSAGE_BUNDLE);
-	private ResourceLoader resbud = new ResourceLoader(PODFEED_MESSAGE_BUNDLE);
+	private static ResourceLoader resbud = new ResourceLoader(PODFEED_MESSAGE_BUNDLE);
 
 	/** Used for event tracking of podcasts - adding a podcast **/
-	private final String EVENT_ADD_PODCAST = "podcast.add";
+	private static final String EVENT_ADD_PODCAST = "podcast.add";
 	
 	/** Used for event tracking of podcasts - revisiong a podcast **/
-	private final String EVENT_REVISE_PODCAST = "podcast.revise";
+	private static final String EVENT_REVISE_PODCAST = "podcast.revise";
 	
 	/** Used for event tracking of podcasts - deleting a podcast **/
-	private final String EVENT_DELETE_PODCAST = "podcast.delete";
+	private static final String EVENT_DELETE_PODCAST = "podcast.delete";
 
 	/** Options. 0 = Display to non-members, 1 = Display to Site * */
-	private final int PUBLIC = 0;
-	private final int SITE = 1;
+	private static final int PUBLIC = 0;
+	private static final int SITE = 1;
 
-	private Log LOG = LogFactory.getLog(PodcastServiceImpl.class);
+	private static Log LOG = LogFactory.getLog(PodcastServiceImpl.class);
 	
 	private Reference siteRef;
 
@@ -109,6 +111,11 @@ public class PodcastServiceImpl implements PodcastService {
 	private ToolManager toolManager;
 	private SessionManager sessionManager;
 	private PodcastPermissionsService podcastPermissionsService;
+	private UserDirectoryService userDirectoryService;
+	private TimeService timeService;
+	private SecurityService securityService;
+	private SiteService siteService;
+	private EventTrackingService eventTrackingService;
 
 	// FUTURE; TO BE IMPLEMENTED 
 //	private NotificationService notificationService;
@@ -129,6 +136,36 @@ public class PodcastServiceImpl implements PodcastService {
 		toolManager = tm;
 	}
 
+	/** Injects the UserDirectoryService into this service **/
+	public void setUserDirectoryService(UserDirectoryService uds) {
+		this.userDirectoryService = uds;
+	}
+
+	/** Injects the SessionManager into this service **/
+	public void setSessionManager(SessionManager sm) {
+		this.sessionManager = sm;
+	}
+
+	/** Injects the TimeService into this service **/
+	public void setTimeService(TimeService ts) {
+		this.timeService = ts;
+	}
+
+	/** Injects the SecurityService into this service **/
+	public void setSecurityService(SecurityService ss) {
+		this.securityService = ss;
+	}
+
+	/** Injects the SiteService into this service **/
+	public void setSiteService(SiteService ss) {
+		this.siteService = ss;
+	}
+
+	/**Injects the EventTrackingService into this service **/
+	 public void setEventTrackingService(EventTrackingService ets) {
+		 this.eventTrackingService = ets;
+	 }
+
 	/** Injects PodcastAuthzService into this service **/
 	public void setPodcastPermissionsService(PodcastPermissionsService podcastPermissionsService) {
 		this.podcastPermissionsService = podcastPermissionsService;
@@ -145,14 +182,14 @@ public class PodcastServiceImpl implements PodcastService {
 	 * Retrieve the current user id
 	 */
 	public String getUserId() {
-		return SessionManager.getCurrentSessionUserId();
+		return sessionManager.getCurrentSessionUserId();
 	}
 
 	/**
 	 * Retrieve the current user display name
 	 */
 	public String getUserName() {
-		return UserDirectoryService.getCurrentUser().getDisplayName();
+		return userDirectoryService.getCurrentUser().getDisplayName();
 	}
 
 	/**
@@ -191,7 +228,7 @@ public class PodcastServiceImpl implements PodcastService {
 	public List filterPodcasts(List resourcesList, String siteId) {
 		List filteredPodcasts = new ArrayList();
 
-		final Time now = TimeService.newTime();
+		final Time now = timeService.newTime();
 
 		// loop to check if DISPLAY_DATE has been set. If not, set it
 		final Iterator podcastIter = resourcesList.iterator();
@@ -365,8 +402,8 @@ public class PodcastServiceImpl implements PodcastService {
 		// is this user an instructor?
 		// need to clear advisors so doesn't blindly return true
 		boolean hadAdvisor = false;
-		if (SecurityService.hasAdvisors())  {
-			SecurityService.popAdvisor();
+		if (securityService.hasAdvisors())  {
+			securityService.popAdvisor();
 			hadAdvisor = true;
 		}
 		final boolean canUpdateSite = podcastPermissionsService.canUpdateSite(siteId);
@@ -431,7 +468,7 @@ public class PodcastServiceImpl implements PodcastService {
 			}
 
 			boolean result = podcastPermissionsService.isResourceHidden(podcastFolder, tempDate);
-			SecurityService.popAdvisor();
+			securityService.popAdvisor();
 		
 			if (result) {
 			// a student/access user is attempting to access and the folder is 'hidden' so just log the
@@ -516,7 +553,7 @@ public class PodcastServiceImpl implements PodcastService {
 			}
 		}
 		finally {
-			SecurityService.popAdvisor();
+			securityService.popAdvisor();
 		}
 		
 		return null;
@@ -534,7 +571,7 @@ public class PodcastServiceImpl implements PodcastService {
 	private boolean siteHasTool(String siteId, String toolId) {
 		boolean result = false;
 		try {
-			Site site = SiteService.getSite(siteId);
+			Site site = siteService.getSite(siteId);
 			if (site.getToolForCommonId(toolId) != null) {
 				result = true;
 			}
@@ -670,7 +707,7 @@ public class PodcastServiceImpl implements PodcastService {
 			return null;
 		}
 		finally{
-			SecurityService.popAdvisor();
+			securityService.popAdvisor();
 		}
 
 		return crEdit;
@@ -753,12 +790,12 @@ public class PodcastServiceImpl implements PodcastService {
 				description);
 
 		final SimpleDateFormat formatter = new SimpleDateFormat("yyyyMMddHHmmssSSS");
-		formatter.setTimeZone(TimeService.getLocalTimeZone());
+		formatter.setTimeZone(timeService.getLocalTimeZone());
 		
 		resourceProperties.addProperty(DISPLAY_DATE, formatter
 				.format(displayDate));
 
-		cr.setReleaseDate(TimeService.newTime(displayDate.getTime()));
+		cr.setReleaseDate(timeService.newTime(displayDate.getTime()));
 		
 		resourceProperties.addProperty(ResourceProperties.PROP_CONTENT_LENGTH,
 				new Integer(body.length).toString());
@@ -767,9 +804,9 @@ public class PodcastServiceImpl implements PodcastService {
 		contentHostingService.commitResource(cr, NotificationService.NOTI_NONE);
 		
 		// add entry for event tracking
-		final Event event = EventTrackingService.newEvent(EVENT_ADD_PODCAST,
+		final Event event = eventTrackingService.newEvent(EVENT_ADD_PODCAST,
 				getEventMessage(cr.getReference()), true, NotificationService.NOTI_NONE);
-		EventTrackingService.post(event);
+		eventTrackingService.post(event);
 
 	}
 
@@ -789,9 +826,9 @@ public class PodcastServiceImpl implements PodcastService {
 		contentHostingService.removeResource(edit);
 
 		// add entry for event tracking
-		final Event event = EventTrackingService.newEvent(EVENT_DELETE_PODCAST,
+		final Event event = eventTrackingService.newEvent(EVENT_DELETE_PODCAST,
 				edit.getReference(), true, NotificationService.NOTI_NONE);
-		EventTrackingService.post(event);
+		eventTrackingService.post(event);
 
 	}
 
@@ -916,11 +953,11 @@ public class PodcastServiceImpl implements PodcastService {
 				podcastResourceEditable.removeProperty(DISPLAY_DATE);
 
 				final SimpleDateFormat formatter = new SimpleDateFormat("yyyyMMddHHmmssSSS");
-				formatter.setTimeZone(TimeService.getLocalTimeZone());
+				formatter.setTimeZone(timeService.getLocalTimeZone());
 
 				podcastResourceEditable.addProperty(DISPLAY_DATE, formatter.format(date));
 
-				podcastEditable.setReleaseDate(TimeService.newTime(date.getTime()));
+				podcastEditable.setReleaseDate(timeService.newTime(date.getTime()));
 			}
 
 			// REMOVED SINCE IF FILENAME CHANGED, ENTIRELY NEW RESOURCE CREATED SO THIS CODE SHOULD NEVER BE EXECUTED
@@ -953,9 +990,9 @@ public class PodcastServiceImpl implements PodcastService {
 					NotificationService.NOTI_NONE);
 
 			// add entry for event tracking
-			Event event = EventTrackingService.newEvent(EVENT_REVISE_PODCAST,
+			Event event = eventTrackingService.newEvent(EVENT_REVISE_PODCAST,
 					podcastEditable.getReference(), true);
-			EventTrackingService.post(event);
+			eventTrackingService.post(event);
 
 		}
 		catch (IdUnusedException e) {
@@ -1068,7 +1105,7 @@ public class PodcastServiceImpl implements PodcastService {
 
 			}
 			finally {
-				SecurityService.popAdvisor();
+				securityService.popAdvisor();
 			}
 
 			// aResource values properly set, so add to list
@@ -1108,10 +1145,10 @@ public class PodcastServiceImpl implements PodcastService {
 				contentHostingService.commitResource(aResourceEdit, NotificationService.NOTI_NONE);
 			
 				// add entry for event tracking
-				final Event event = EventTrackingService.newEvent(EVENT_REVISE_PODCAST,
+				final Event event = eventTrackingService.newEvent(EVENT_REVISE_PODCAST,
 						getEventMessage(aResourceEdit.getProperties().getProperty(ResourceProperties.PROP_DISPLAY_NAME), siteId),
 											true, NotificationService.NOTI_NONE);
-				EventTrackingService.post(event);
+				eventTrackingService.post(event);
 			}
 		}
 		catch (Exception e1) {
@@ -1171,10 +1208,10 @@ public class PodcastServiceImpl implements PodcastService {
 			contentHostingService.commitResource(aResource, NotificationService.NOTI_NONE);
 			
 			// add entry for event tracking
-			final Event event = EventTrackingService.newEvent(EVENT_REVISE_PODCAST,
+			final Event event = eventTrackingService.newEvent(EVENT_REVISE_PODCAST,
 									getEventMessage(aResource.getProperties().getProperty(ResourceProperties.PROP_DISPLAY_NAME), siteId),
 										true, NotificationService.NOTI_NONE);
-			EventTrackingService.post(event);
+			eventTrackingService.post(event);
 		} 
 		catch (Exception e) {
 			// catches EntityPropertyNotDefinedException
@@ -1205,7 +1242,7 @@ public class PodcastServiceImpl implements PodcastService {
 	 */
 	public Time getDISPLAY_DATE(ResourceProperties rp) {
 		final SimpleDateFormat formatterProp = new SimpleDateFormat("yyyyMMddHHmmssSSS");
-		formatterProp.setTimeZone(TimeService.getLocalTimeZone());
+		formatterProp.setTimeZone(timeService.getLocalTimeZone());
 
 		Date tempDate = null;
 
@@ -1213,14 +1250,14 @@ public class PodcastServiceImpl implements PodcastService {
 			// Convert GMT time stored by Resources into local time
 			tempDate = formatterProp.parse(rp.getTimeProperty(DISPLAY_DATE).toStringLocal());
 			
-			return TimeService.newTime(tempDate.getTime());
+			return timeService.newTime(tempDate.getTime());
 		}
 		catch (Exception e) {
 			try {
 				tempDate = formatterProp.parse(rp.getTimeProperty(
 						ResourceProperties.PROP_MODIFIED_DATE).toStringLocal());
 
-				return TimeService.newTime(tempDate.getTime());
+				return timeService.newTime(tempDate.getTime());
 			} 
 			catch (Exception e1) {
 				// catches EntityPropertyNotDefinedException
@@ -1262,10 +1299,10 @@ public class PodcastServiceImpl implements PodcastService {
 
 				try {
 					// Set default feed title and description
-					resourceProperties.addProperty(PODFEED_TITLE, SiteService.getSite(siteId).getTitle() + "'s Official Podcasts");
+					resourceProperties.addProperty(PODFEED_TITLE, siteService.getSite(siteId).getTitle() + "'s Official Podcasts");
 
 					final String feedDescription = "This is the official podcast for course "
-							+ SiteService.getSite(siteId).getTitle() + ". Please check back throughout the semester for updates.";
+							+ siteService.getSite(siteId).getTitle() + ". Please check back throughout the semester for updates.";
 					resourceProperties.addProperty(PODFEED_DESCRIPTION, feedDescription);
 			
 					commitContentCollection(podcastsEdit);
@@ -1323,6 +1360,15 @@ public class PodcastServiceImpl implements PodcastService {
 	 *
 	 */
 	public void init() {
+		checkSet(contentHostingService, "contentHostingService");
+		checkSet(eventTrackingService, "eventTrackingService");
+		checkSet(podcastPermissionsService, "podcastPermissionService");
+		checkSet(securityService, "securityService");
+		checkSet(sessionManager, "sessionManager");
+		checkSet(siteService, "siteService");
+		checkSet(timeService, "timeService");
+		checkSet(toolManager, "toolManager");
+		checkSet(userDirectoryService, "userDirectoryService");
 /*		EntityManager.registerEntityProducer(this, REFERENCE_ROOT);
 
 		m_relativeAccessPoint = REFERENCE_ROOT;
@@ -1465,7 +1511,7 @@ public class PodcastServiceImpl implements PodcastService {
 		}
 
 		boolean result = podcastPermissionsService.isResourceHidden(podcastFolder, tempDate);
-		SecurityService.popAdvisor();
+		securityService.popAdvisor();
 		return result;
 	}
 	
@@ -1495,9 +1541,9 @@ public class PodcastServiceImpl implements PodcastService {
 
 			// Set default feed title and description
 			resourceProperties.addProperty(PODFEED_TITLE,
-					SiteService.getSite(siteId).getTitle() + getMessageBundleString(FEED_TITLE_STRING));
+					siteService.getSite(siteId).getTitle() + getMessageBundleString(FEED_TITLE_STRING));
 
-			final String feedDescription =  SiteService.getSite(siteId).getTitle()
+			final String feedDescription =  siteService.getSite(siteId).getTitle()
 												+ getMessageBundleString(FEED_DESC1_STRING)
 												+ getMessageBundleString(FEED_DESC2_STRING);
 
@@ -1529,7 +1575,7 @@ public class PodcastServiceImpl implements PodcastService {
 	 * 			The Date object set in GMT time
 	 */
 	public Date getGMTdate(long date) {
-		final Calendar cal = Calendar.getInstance(TimeService.getLocalTimeZone());
+		final Calendar cal = Calendar.getInstance(timeService.getLocalTimeZone());
 		cal.setTimeInMillis(date);
 		
 		int gmtoffset = cal.get(Calendar.ZONE_OFFSET) + cal.get(Calendar.DST_OFFSET);
@@ -1593,7 +1639,7 @@ public class PodcastServiceImpl implements PodcastService {
 	protected void enablePodcastSecurityAdvisor() {
 		// put in a security advisor so we can do our podcast work without need
 		// of further permissions
-		SecurityService.pushAdvisor(new SecurityAdvisor() {
+		securityService.pushAdvisor(new SecurityAdvisor() {
 			public SecurityAdvice isAllowed(String userId, String function,
 					String reference) {
 				return SecurityAdvice.ALLOWED;

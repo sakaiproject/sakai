@@ -21,15 +21,15 @@
 
 package org.sakaiproject.component.app.podcasts;
 
+import static org.sakaiproject.component.app.podcasts.Utilities.checkSet;
+
 import java.util.Collection;
 import java.util.Date;
 import java.util.Iterator;
 
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
 import org.sakaiproject.api.app.podcasts.PodcastPermissionsService;
 import org.sakaiproject.authz.api.Member;
-import org.sakaiproject.authz.cover.SecurityService;
+import org.sakaiproject.authz.api.SecurityService;
 import org.sakaiproject.content.api.ContentEntity;
 import org.sakaiproject.content.api.ContentHostingService;
 import org.sakaiproject.content.api.GroupAwareEntity;
@@ -37,17 +37,52 @@ import org.sakaiproject.content.api.GroupAwareEntity.AccessMode;
 import org.sakaiproject.exception.IdUnusedException;
 import org.sakaiproject.site.api.Group;
 import org.sakaiproject.site.api.Site;
-import org.sakaiproject.site.cover.SiteService;
-import org.sakaiproject.time.cover.TimeService;
-import org.sakaiproject.tool.cover.SessionManager;
-import org.sakaiproject.tool.cover.ToolManager;
+import org.sakaiproject.site.api.SiteService;
+import org.sakaiproject.time.api.TimeService;
+import org.sakaiproject.tool.api.SessionManager;
+import org.sakaiproject.tool.api.ToolManager;
 
 public class PodcastPermissionsServiceImpl implements PodcastPermissionsService {
 
-	private Log LOG = LogFactory.getLog(PodcastPermissionsServiceImpl.class);
-	
 	private ContentHostingService contentHostingService;
+	private SecurityService securityService;
+	private ToolManager toolManager;
+	private SessionManager sessionManager;
+	private TimeService timeService;
+	private SiteService siteService;
 
+	public void setContentHostingService(ContentHostingService contentHostingService) {
+		this.contentHostingService = contentHostingService;
+	}
+
+	public void setSecurityService(SecurityService securityService) {
+		this.securityService = securityService;
+	}
+
+	public void setToolManager(ToolManager toolManager) {
+		this.toolManager = toolManager;
+	}
+
+	public void setSessionManager(SessionManager sessionManager) {
+		this.sessionManager = sessionManager;
+	}
+
+	public void setTimeService(TimeService timeService) {
+		this.timeService = timeService;
+	}
+
+	public void setSiteService(SiteService siteService) {
+		this.siteService = siteService;
+	}
+
+	public void init() {
+		checkSet(contentHostingService, "contentHostingService");
+		checkSet(securityService, "securityService");
+		checkSet(toolManager, "toolManager");
+		checkSet(sessionManager, "sessionManager");
+		checkSet(timeService, "timeService");
+		checkSet(siteService, "siteService");
+	}
 	/**
 	 * Determines if authenticated user has 'read' access to podcast collection folder
 	 * 
@@ -85,7 +120,7 @@ public class PodcastPermissionsServiceImpl implements PodcastPermissionsService 
 	 * 				True if can update, False otherwise
 	 */
 	public boolean canUpdateSite(String siteId) {
-			return SecurityService.unlock(UPDATE_PERMISSIONS, "/site/"+ siteId);
+			return securityService.unlock(UPDATE_PERMISSIONS, "/site/"+ siteId);
 	}
 	
 	/**
@@ -104,7 +139,7 @@ public class PodcastPermissionsServiceImpl implements PodcastPermissionsService 
 		}
 		else {
 			if (resourceId != null) {
-				return SecurityService.unlock(function, "/content" + resourceId);
+				return securityService.unlock(function, "/content" + resourceId);
 			}
 		}
 	
@@ -122,11 +157,11 @@ public class PodcastPermissionsServiceImpl implements PodcastPermissionsService 
 	 * Determine if current user can access this group restricted entity
 	 */
 	public boolean canAccessViaGroups(Collection groups, String siteId) {
-		final String userId = SessionManager.getCurrentSessionUserId();
+		final String userId = sessionManager.getCurrentSessionUserId();
 		
 		Site site = null;
 		try {
-			site = SiteService.getSite(siteId);
+			site = siteService.getSite(siteId);
 		}
 		catch (IdUnusedException e) {
 			// Mucho Weirdness since called from within tool which should
@@ -153,8 +188,8 @@ public class PodcastPermissionsServiceImpl implements PodcastPermissionsService 
 	public boolean isResourceHidden(ContentEntity podcastResource, Date tempDate) {
 		return podcastResource.isHidden() 
 				|| (podcastResource.getRetractDate() != null 
-						&& podcastResource.getRetractDate().getTime() <= TimeService.newTime().getTime())
-				|| (tempDate != null && tempDate.getTime() >= TimeService.newTime().getTime());
+						&& podcastResource.getRetractDate().getTime() <= timeService.newTime().getTime())
+				|| (tempDate != null && tempDate.getTime() >= timeService.newTime().getTime());
 	}
 
 
@@ -164,11 +199,8 @@ public class PodcastPermissionsServiceImpl implements PodcastPermissionsService 
 	 * Retrieve the site id
 	 */
 	private String getSiteId() {
-		return ToolManager.getCurrentPlacement().getContext();
+		return toolManager.getCurrentPlacement().getContext();
 	}
 
-	public void setContentHostingService(ContentHostingService contentHostingService) {
-		this.contentHostingService = contentHostingService;
-	}
 
 }

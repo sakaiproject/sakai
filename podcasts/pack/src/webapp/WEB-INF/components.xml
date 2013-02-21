@@ -2,53 +2,80 @@
 <!DOCTYPE beans PUBLIC "-//SPRING//DTD BEAN//EN" "http://www.springframework.org/dtd/spring-beans.dtd">
 <beans>
 	<bean id="org.sakaiproject.api.app.podcasts.PodcastPermissionsService"
-		class="org.sakaiproject.component.app.podcasts.PodcastPermissionsServiceImpl">
+		class="org.sakaiproject.component.app.podcasts.PodcastPermissionsServiceImpl"
+		init-method="init">
 
 		<property name="contentHostingService">
  			<ref bean="org.sakaiproject.content.api.ContentHostingService" />
 		</property>
-	</bean>
-	
-	<bean id="org.sakaiproject.api.app.podcasts.PodcastService"
-		class="org.sakaiproject.component.app.podcasts.PodcastServiceImpl">
-		<!-- these properties are defined to be injected into the bean -->
-		
-		<!-- needed to get information about the site -->
-		<property name="contentHostingService">
- 			<ref bean="org.sakaiproject.content.api.ContentHostingService" />
-		</property>
-
-		<!-- needed to help get site information -->
-		<property name="toolManager">
- 			<ref bean="org.sakaiproject.tool.api.ActiveToolManager" />
-		</property>
-		
-		<!-- needed to get information about the site -->
-		<property name="podcastPermissionsService">
- 			<ref bean="org.sakaiproject.api.app.podcasts.PodcastPermissionsService" />
-		</property>
-
-<!--		<property name="notificationService">
-			<ref bean="org.sakaiproject.event.api.NotificationService" />
-		</property> -->
-	</bean>
-
-    <bean id="org.sakaiproject.api.app.podcasts.PodfeedService"
-       class="org.sakaiproject.component.app.podcasts.BasicPodfeedService">
-       
-       <property name="podcastService">
-           <ref bean="org.sakaiproject.api.app.podcasts.PodcastService"/>
-       </property>
-       
-       <property name="podcastPermissionsService">
-           <ref bean="org.sakaiproject.api.app.podcasts.PodcastPermissionsService"/>
-       </property>
-       
-		<!-- needed to get current user's permissions -->
 		<property name="securityService">
-		    <ref bean="org.sakaiproject.authz.api.SecurityService" />
+			<ref bean="org.sakaiproject.authz.api.SecurityService" />
 		</property>
+		<property name="toolManager">
+			<ref bean="org.sakaiproject.tool.api.ActiveToolManager" />
+		</property>
+		<property name="sessionManager">
+			<ref bean="org.sakaiproject.tool.api.SessionManager" />
+		</property>
+		<property name="timeService">
+			<ref bean="org.sakaiproject.time.api.TimeService" />
+		</property>
+		<property name="siteService">
+			<ref bean="org.sakaiproject.site.api.SiteService" />
+		</property>
+	</bean>
 
-     </bean>
+	<bean id="org.sakaiproject.api.app.podcasts.PodcastService" class="org.sakaiproject.component.app.podcasts.PodcastServiceImpl"
+		init-method="init">
+		<property name="contentHostingService">
+			<ref bean="org.sakaiproject.content.api.ContentHostingService" />
+		</property>
+		<property name="toolManager">
+			<ref bean="org.sakaiproject.tool.api.ActiveToolManager" />
+		</property>
+		<property name="sessionManager">
+			<ref bean="org.sakaiproject.tool.api.SessionManager" />
+		</property>
+		<property name="userDirectoryService">
+			<ref bean="org.sakaiproject.user.api.UserDirectoryService" />
+		</property>
+		<property name="timeService">
+			<ref bean="org.sakaiproject.time.api.TimeService" />
+		</property>
+		<!-- needed to get information about the site -->
+		<property name="siteService">
+			<ref bean="org.sakaiproject.site.api.SiteService" />
+		</property>
+		<property name="eventTrackingService">
+			<ref bean="org.sakaiproject.event.api.EventTrackingService" />
+		</property>
+		<property name="podcastPermissionsService">
+			<ref bean="org.sakaiproject.api.app.podcasts.PodcastPermissionsService" />
+		</property>
+		<property name="securityService">
+			<ref bean="org.sakaiproject.authz.api.SecurityService" />
+		</property>
+		<!--
+		<property name="notificationService">
+			<ref bean="org.sakaiproject.event.api.NotificationService" />
+		</property>
+		-->
+	</bean>
+
+	<bean id="org.sakaiproject.api.app.podcasts.PodfeedService" class="org.sakaiproject.component.app.podcasts.BasicPodfeedService"
+		init-method="init">
+		<property name="podcastService">
+			<ref bean="org.sakaiproject.api.app.podcasts.PodcastService" />
+		</property>
+		<property name="podcastPermissionsService">
+			<ref bean="org.sakaiproject.api.app.podcasts.PodcastPermissionsService" />
+		</property>
+		<property name="securityService">
+			<ref bean="org.sakaiproject.authz.api.SecurityService" />
+		</property>
+		<property name="siteService">
+			<ref bean="org.sakaiproject.site.api.SiteService" />
+		</property>
+	</bean>
  
 </beans>
