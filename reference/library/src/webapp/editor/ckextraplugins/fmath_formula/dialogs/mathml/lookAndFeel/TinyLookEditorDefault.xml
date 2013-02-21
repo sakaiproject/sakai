@@ -1,0 +1,30 @@
+<?xml version="1.0" encoding="utf-8"?>
+<configuration>
+	<design>TinyMCE Design</design>
+	<theme>Befault</theme>	
+	<properties>
+		<property id="BACKGROUND_COLOR">0xF0F0EE</property>		
+		<property id="DARK_LINE_COLOR">0xCCCCCC</property>
+		
+		<property id="TITLEBAR_DARK_COLOR">0x758999</property>		
+		<property id="TITLEBAR_LIGHT_COLOR">0xCBD5DC</property>		
+		
+		<property id="TEXTAREA_COLOR">0x092469</property>		
+		<property id="TEXTAREA_SIZE">18</property>		
+
+		<property id="BUTTON_OVER_COLOR">0xB2BBD0</property>		
+		<property id="BUTTON_LINE_COLOR">0x0A246A</property>				
+		<property id="BUTTON_CLOSE_COLOR">0x000000</property>				
+	</properties>
+	<textformat>
+		<property id="FOR_BUTTONS" font="Arial" size="11" color="#000000" bold="true" italic="false"/>
+		<property id="FOR_TITLE" font="Arial" size="15" color="#ffffff" bold="false" italic="false"/>
+		<property id="FOR_STATUS" font="Arial" size="13" color="#808080" bold="false" italic="false"/>		
+		<property id="FOR_PROPERTIES_TITLE" font="Arial" size="14" color="#000000" bold="true" italic="false"/>		
+		<property id="FOR_PROPERTIES" font="Arial" size="11" color="#000000" bold="true" italic="false"/>		
+		<property id="FOR_PROPERTIES2" font="Arial" size="11" color="#000000" bold="false" italic="false"/>		
+		<property id="FOR_MATHML" font="normal" size="13" color="#000000" bold="false" italic="false"/>				
+	</textformat>	
+</configuration>
+
+	

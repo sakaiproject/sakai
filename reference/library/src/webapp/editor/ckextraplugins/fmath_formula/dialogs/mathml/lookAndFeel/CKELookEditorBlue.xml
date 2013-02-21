@@ -1,0 +1,32 @@
+<?xml version="1.0" encoding="utf-8"?>
+<configuration>
+	<design>CKEditor Design</design>
+	<theme>Blue</theme>	
+	<properties>
+		<property id="BACKGROUND_COLOR">0xffffff</property>		
+		<property id="DARK_LINE_COLOR">0xd9d9d9</property>
+		
+		<property id="TITLEBAR_DARK_COLOR">0xd9d9d9</property>		
+		<property id="TITLEBAR_LIGHT_COLOR">0xf0f0f0</property>		
+		
+		<property id="TOOLBAR_BACKCOLOR">0xffffff</property>
+		
+		<property id="BUTTON_LINE_COLOR">0x303080</property>		
+		
+		<property id="TEXTAREA_COLOR">0x092469</property>		
+		<property id="TEXTAREA_SIZE">18</property>		
+
+		<property id="BUTTON_CLOSE_COLOR">0x000000</property>		
+	</properties>
+	<textformat>
+		<property id="FOR_BUTTONS" font="Arial" size="11" color="#000000" bold="true" italic="false"/>
+		<property id="FOR_TITLE" font="Arial" size="15" color="#000000" bold="false" italic="false"/>
+		<property id="FOR_STATUS" font="Arial" size="13" color="#808080" bold="false" italic="false"/>		
+		<property id="FOR_PROPERTIES_TITLE" font="Arial" size="14" color="#000000" bold="true" italic="false"/>		
+		<property id="FOR_PROPERTIES" font="Arial" size="11" color="#000000" bold="true" italic="false"/>		
+		<property id="FOR_PROPERTIES2" font="Arial" size="11" color="#000000" bold="false" italic="false"/>		
+		<property id="FOR_MATHML" font="normal" size="13" color="#000000" bold="false" italic="false"/>				
+	</textformat>	
+</configuration>
+
+	

@@ -85,8 +85,8 @@ sakai.editor.editors.ckeditor.launch = function(targetId, config, w, h) {
             ['BidiLtr', 'BidiRtl' ],
             ['Link','Unlink','Anchor'],
             (sakai.editor.enableResourceSearch
-                ? ['ResourceSearch', 'Image','Movie','Flash','Table','HorizontalRule','Smiley','SpecialChar','PageBreak']
-                : ['Image','Movie','Flash','Table','HorizontalRule','Smiley','SpecialChar','PageBreak']),
+                ? ['ResourceSearch', 'Image','Movie','Flash','Table','HorizontalRule','Smiley','SpecialChar','fmath_formula']
+                : ['Image','Movie','Flash','Table','HorizontalRule','Smiley','SpecialChar','fmath_formula']),
             '/',
             ['Styles','Format','Font','FontSize'],
             ['TextColor','BGColor'],
@@ -135,6 +135,7 @@ sakai.editor.editors.ckeditor.launch = function(targetId, config, w, h) {
 		(function() { 
 		   CKEDITOR.plugins.addExternal('movieplayer',basePath+'movieplayer/', 'plugin.js'); 
 		   CKEDITOR.plugins.addExternal('wordcount',basePath+'wordcount/', 'plugin.js'); 
+		   CKEDITOR.plugins.addExternal('fmath_formula',basePath+'fmath_formula/', 'plugin.js'); 
 			 /*
 			  To enable after the deadline uncomment these two lines and add atd-ckeditor to toolbar
 			  and to extraPlugins. This also needs extra stylesheets.
@@ -147,7 +148,7 @@ sakai.editor.editors.ckeditor.launch = function(targetId, config, w, h) {
 			 //ckconfig.extraPlugins+="movieplayer,wordcount,atd-ckeditor,stylesheetparser";
 			 //ckconfig.contentsCss = basePath+'/atd-ckeditor/atd.css';
 
-			 ckconfig.extraPlugins+="movieplayer,wordcount";
+			 ckconfig.extraPlugins+="movieplayer,wordcount,fmath_formula";
     })();
 
 	  CKEDITOR.replace(targetId, ckconfig);

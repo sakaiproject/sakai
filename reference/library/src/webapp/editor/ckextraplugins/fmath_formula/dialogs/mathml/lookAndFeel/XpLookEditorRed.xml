@@ -1,0 +1,42 @@
+<?xml version="1.0" encoding="utf-8"?>
+<configuration>
+	<design>XP</design>
+	<theme>Red</theme>	
+	<properties>
+		<property id="TOP_LINE_COLOR">0xffffff</property>		
+		<property id="LIGHT_LINE_COLOR">0xf6e4dd</property>		
+		<property id="MIDDLE_LINE_COLOR">0x7b7f84</property>		
+		<property id="DARK_LINE_COLOR">0x73685d</property>
+		
+		<property id="TITLEBAR_DARK_COLOR">0x692409</property>		
+		<property id="TITLEBAR_LIGHT_COLOR">0xd7c7b7</property>		
+		
+		<property id="TOOLBAR_BACKGROUND">0xffd4bd</property>		
+		<property id="TOOLBAR_GROUP_BACKGROUND">0xe4aaaa</property>		
+		<property id="TOOLBAR_MIDDLE_LINE_COLOR">0x7b7f84</property>		
+		<property id="TOOLBAR_OUT_LINE_COLOR">0xffffff</property>
+		
+		<property id="BGBUTTON_COLOR_UP">0xffdcc6</property>		
+		<property id="BGBUTTON_COLOR_DOWN">0xe2c0b9</property>		
+		<property id="BUTTON_DARK_COLOR">0x73685d</property>		
+		<property id="BUTTON_MIDDLE_COLOR">0x7b7f84</property>		
+		<property id="BUTTON_LIGHT_COLOR">0xffffff</property>
+		
+		<property id="TEXTAREA_COLOR">0x692409</property>		
+		<property id="TEXTAREA_SIZE">20</property>		
+
+		<property id="BUTTON_CLOSE_COLOR">0x000000</property>		
+	</properties>
+	<textformat>
+		<property id="FOR_BUTTONS" font="Tahoma" size="11" color="#000000" bold="true" italic="false"/>
+		<property id="FOR_TITLE" font="Tahoma" size="11" color="#ffffff" bold="true" italic="false"/>
+		<property id="FOR_STATUS" font="Tahoma" size="10" color="#000000" bold="false" italic="false"/>		
+		<property id="FOR_HELP" font="Tahoma" size="12" color="#bbbbbb" bold="false" italic="false"/>				
+		<property id="FOR_PROPERTIES_TITLE" font="Tahoma" size="14" color="#ff3333" bold="true" italic="false"/>		
+		<property id="FOR_PROPERTIES" font="Tahoma" size="11" color="#ff3333" bold="true" italic="false"/>		
+		<property id="FOR_PROPERTIES2" font="Tahoma" size="11" color="#330000" bold="false" italic="false"/>		
+		<property id="FOR_MATHML" font="normal" size="13" color="#000000" bold="false" italic="false"/>				
+	</textformat>	
+</configuration>
+
+	
