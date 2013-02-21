@@ -21,8 +21,6 @@
 
 package org.sakaiproject.tool.podcasts;
 
-import java.util.Locale;
-
 import javax.faces.application.FacesMessage;
 import javax.faces.context.FacesContext;
 import javax.faces.model.SelectItem;
@@ -31,31 +29,30 @@ import org.sakaiproject.api.app.podcasts.PodcastService;
 import org.sakaiproject.util.ResourceLoader;
 
 public class podOptionsBean {
-  private int podOption;
+	private int podOption;
 
-  /** Used to acccess podcast service functions */
-  private PodcastService podcastService;
-  
-  /** Used to access message bundle */
-  // no need for lazy initialization here since its not called in any init() and just on demand in the podcasts tool
-  private static ResourceLoader rb = new ResourceLoader(FacesContext.getCurrentInstance().getApplication().getMessageBundle());
+	/** Used to acccess podcast service functions */
+	private PodcastService podcastService;
 
-  private static final int PUBLIC = 0;
-  private static final int SITE = 1;
-  private static final String OPTIONS_PUBLIC = "options_public";
-  private static final String OPTIONS_SITE = "options_site";
-  private static final String CHANGE_TO_SITE = "option_change_confirm";
-  
-  private SelectItem [] displayItems = new SelectItem [] {
-    new SelectItem(new Integer(PUBLIC), rb.getString(OPTIONS_PUBLIC)),
-    new SelectItem(new Integer(SITE), rb.getString(OPTIONS_SITE))
-  };
-  
-  public podOptionsBean() {
+	/** Used to access message bundle */
+	// no need for lazy initialization here since its not called in any init() and just on demand in the podcasts tool
+	private static ResourceLoader rb = new ResourceLoader(FacesContext.getCurrentInstance().getApplication().getMessageBundle());
+
+	public static final int PUBLIC = 0;
+	public static final int SITE = 1;
+	private static final String OPTIONS_PUBLIC = "options_public";
+	private static final String OPTIONS_SITE = "options_site";
+	private static final String OPTIONS_SITE_DISABLED = "options_site_disabled";
+	private static final String CHANGE_TO_SITE = "option_change_confirm";
+
+	// Initialised the first time.
+	private SelectItem [] displayItems = null;
+
+	public podOptionsBean() {
 		podOption = 0;
 	}
 
-  	/** Returns whether podcast folder is PUBLIC (0) or SITE (1) **/
+	/** Returns whether podcast folder is PUBLIC (0) or SITE (1) **/
 	public int getPodOption() {
 		return podcastService.getOptions();
 	}
@@ -67,13 +64,13 @@ public class podOptionsBean {
 
 	/** Returns the options of what the podcast folder can be set to **/
 	public SelectItem[] getDisplayItems() {
-		// Reset labels for i18n
-		for (SelectItem displayItem : displayItems) {
-			if (Integer.valueOf(PUBLIC).equals(displayItem.getValue())) {
-				displayItem.setLabel(rb.getString(OPTIONS_PUBLIC));
-			} else if (Integer.valueOf(SITE).equals(displayItem.getValue())) {
-				displayItem.setLabel(rb.getString(OPTIONS_SITE));
-			}
+		if (displayItems == null) {
+			boolean publicDisabled = !podcastService.allowOptions(PUBLIC);
+			boolean siteDisabled = !podcastService.allowOptions(SITE);
+			displayItems = new SelectItem [] {
+					new SelectItem(PUBLIC, rb.getString(OPTIONS_PUBLIC), null, publicDisabled),
+					new SelectItem(SITE, rb.getString((siteDisabled)?OPTIONS_SITE_DISABLED:OPTIONS_SITE),null, siteDisabled),
+			};
 		}
 		return displayItems;
 	}

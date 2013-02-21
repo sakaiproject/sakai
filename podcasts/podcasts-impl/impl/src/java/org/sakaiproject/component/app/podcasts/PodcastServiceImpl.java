@@ -1600,5 +1600,25 @@ public class PodcastServiceImpl implements PodcastService {
 			}
 		});
 	}
+	
+	
+	public boolean allowOptions(int option) {
+		if (option == SITE) {
+			try{
+				String folderId = retrievePodcastFolderId(getSiteId());
+				ContentCollection parentCollection = contentHostingService.getCollection(folderId).getContainingCollection();
+				return !contentHostingService.isPubView(parentCollection.getId());
+			}catch(IdUnusedException e){
+				LOG.error("Shouldn't happen as folder should have already been created.", e);
+			}catch(PermissionException e){
+				LOG.error("Shouldn't happen as folder should have already been created correctly.", e);
+			}catch(TypeException e){
+				LOG.error("Shouldn't happen as folder should have already been created correctly.", e);
+			}
+		} else if (option == PUBLIC) {
+			// No special rules at the moment.
+		}
+		return true;
+	}
 
 }

@@ -321,4 +321,11 @@ public interface PodcastService // extends EntityProducer
 	 */
 	public boolean isPodcastFolderHidden(String siteId)
 			throws IdUnusedException, PermissionException;
+	
+	/**
+	 * Check if an option should be presented to the user.
+	 * @see #reviseOptions(boolean)
+	 * @see #getOptions()
+	 */
+	public boolean allowOptions(int option);
 }

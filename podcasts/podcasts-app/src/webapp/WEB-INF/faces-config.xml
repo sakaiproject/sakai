@@ -63,7 +63,7 @@
     <description>Bean to hold display option (Public / Site)</description>
     <managed-bean-name>podOptions</managed-bean-name>
     <managed-bean-class>org.sakaiproject.tool.podcasts.podOptionsBean</managed-bean-class>
-    <managed-bean-scope>session</managed-bean-scope>
+    <managed-bean-scope>request</managed-bean-scope>
 
     <!--	 Needed to access the services of PodcastService -->
     <managed-property>
