@@ -76,7 +76,7 @@ ri
 </ul>	
 <% 
     if ( errorMsg != null ) { %>
-		<div class="alertMessage"><%= rb.getString("gen.alert") %> <%= errorMsg %></div>
+		<div class="alertMessage"><%= errorMsg %></div>
 	<% }
 
     if ( allow(sp,"launch") || allow(sp,"key") || allow(sp,"secret") || 
