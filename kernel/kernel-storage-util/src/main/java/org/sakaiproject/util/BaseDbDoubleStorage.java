@@ -24,6 +24,8 @@ package org.sakaiproject.util;
 import java.sql.Connection;
 import java.sql.ResultSet;
 import java.sql.SQLException;
+import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Hashtable;
 import java.util.Iterator;
 import java.util.List;
@@ -933,6 +935,26 @@ public class BaseDbDoubleStorage
 		return null;
 	}
 
+
+	/**
+	 * Get all Resources.
+	 *
+	 * @param container
+	 *        The container for this resource.
+	 * @param softFilter
+	 *        an optional software filter
+	 * @param sqlFilter
+	 *        an optional conditional for select statement
+	 * @param asc
+	 *        true means ascending
+	 * @param pager
+	 *        an optional range of elements to return inclusive
+	 * @return The list (Resource) of all Resources.
+	 */
+	public List getAllResources(Entity container, Filter softFilter, String sqlFilter, boolean asc, PagingPosition pager) {
+		return getAllResources(container, softFilter, sqlFilter, asc, pager, null);
+	}
+
 	/**
 	 * Get all Resources.
 	 * 
@@ -946,9 +968,11 @@ public class BaseDbDoubleStorage
 	 *        true means ascending
 	 * @param pager
 	 *        an optional range of elements to return inclusive
+	 * @param bindVariables
+	 *        an optional list of bind variables
 	 * @return The list (Resource) of all Resources.
 	 */
-	public List getAllResources(Entity container, Filter softFilter, String sqlFilter, boolean asc, PagingPosition pager)
+	public List getAllResources(Entity container, Filter softFilter, String sqlFilter, boolean asc, PagingPosition pager, List <String> bindVariables)
 	{
 		
 		pager = fixPagingPosition(softFilter, pager);
@@ -1013,6 +1037,17 @@ public class BaseDbDoubleStorage
 		Object[] fields = new Object[1+searchFieldCount];
 		fields[0] = container.getReference();
 		for ( int i=0; i < searchFieldCount; i++) fields[i+1] = "%" + searchString + "%";
+
+		if(bindVariables != null && bindVariables.size() > 0) {
+			List<Object> fieldsArray = new ArrayList<Object>();
+			if(fields != null && fields.length > 0) {
+				fieldsArray.addAll(Arrays.asList(fields));
+			}
+			for(Object bindVariable : bindVariables) {
+				fieldsArray.add(bindVariable);
+			}
+			fields = fieldsArray.toArray();
+		}
 
 		// System.out.println("getAllResources="+sql);
 
