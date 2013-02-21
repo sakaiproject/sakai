@@ -22,6 +22,7 @@
 package org.sakaiproject.calendar.impl;
 
 import java.sql.Date;
+import java.util.ArrayList;
 import java.util.GregorianCalendar;
 import java.util.List;
 
@@ -226,29 +227,26 @@ public class DbCalendarService
 			// get to the end of the GMT day
 			endDate = endDate + (oneDay-(endDate%oneDay));  
 			// this will work untill 9 Oct 246953 07:00:00
-			int startDateHours = (int)(startDate/oneHour);
-			int endDateHours = (int)(endDate/oneHour);
+			Integer startDateHours = (int)(startDate/oneHour);
+			Integer endDateHours = (int)(endDate/oneHour);
 			
-			if ( M_log.isErrorEnabled() ) {
+			if ( M_log.isDebugEnabled() ) {
 				M_log.debug("Selecting Range from "+(new Date(startDate)).toGMTString()+" to "+(new Date(endDate)).toGMTString());
 			}
-            StringBuilder filter = new StringBuilder("(");
-            filter.append(" (RANGE_START > ");
-            filter.append( startDateHours );
-            filter.append( " and RANGE_START < ");
-            filter.append( endDateHours );
-            filter.append( " ) or ( ");
-            filter.append(" RANGE_END > ");
-            filter.append( startDateHours );
-            filter.append( " and RANGE_END < ");
-            filter.append( endDateHours );
-            filter.append( " ) or ( ");
-            filter.append(" RANGE_START < ");
-            filter.append( startDateHours );
-            filter.append( " and RANGE_END > ");
-            filter.append( endDateHours );
-            filter.append( " )) ");
-            return super.getAllResources(calendar, filter.toString()); 
+			
+            String filter = "((RANGE_START > ? and RANGE_START < ? ) " +
+            		"or (  RANGE_END > ? and RANGE_END < ? ) " +
+            		"or ( RANGE_START < ? and RANGE_END > ? ))";
+            
+			List<String> rangeValues = new ArrayList<String>();
+			rangeValues.add(startDateHours.toString());
+			rangeValues.add(endDateHours.toString());
+			rangeValues.add(startDateHours.toString());
+			rangeValues.add(endDateHours.toString());
+			rangeValues.add(startDateHours.toString());
+			rangeValues.add(endDateHours.toString());
+			
+            return super.getAllResources(calendar, null, filter, true, null, rangeValues);
          }
 
 		public CalendarEventEdit putEvent(Calendar calendar,String id)
