@@ -371,6 +371,18 @@ public class SakaiBLTIUtil {
 		String contentlink = toNull(getCorrectProperty(config,"contentlink", placement));
 		if ( contentlink != null ) setProperty(props,"ext_resource_link_content",contentlink);
 
+		// Send along the signed session if requested
+		String sendsession = toNull(getCorrectProperty(config,"ext_sakai_session", placement));
+		if ( "true".equals(sendsession) ) {
+			Session s = SessionManager.getCurrentSession();
+			if (s != null) {
+				String sessionid = s.getId();
+				if (sessionid != null) {
+					sessionid = LinkToolUtil.encrypt(sessionid);
+					setProperty(props,"ext_sakai_session",sessionid);
+				}
+			}
+		}
 	} 
 
 	public static void addGlobalData(Properties props, ResourceLoader rb)
@@ -401,15 +413,6 @@ public class SakaiBLTIUtil {
 		setProperty(props,BasicLTIConstants.TOOL_CONSUMER_INFO_PRODUCT_FAMILY_CODE, 
 			sakaiVersion);  
 		setProperty(props,BasicLTIConstants.TOOL_CONSUMER_INFO_VERSION, sakaiVersion);  
-		// Sakai-Unique fields - compatible with LinkTool
-		Session s = SessionManager.getCurrentSession();
-		if (s != null) {
-			String sessionid = s.getId();
-			if (sessionid != null) {
-				sessionid = LinkToolUtil.encrypt(sessionid);
-				setProperty(props,"ext_sakai_session",sessionid);
-			}
-		}
 
 		// We pass this along in the Sakai world - it might
 		// might be useful to the external tool
