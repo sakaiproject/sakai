@@ -123,7 +123,7 @@ public class GalleryHandler extends SiteHandler
 		}
 
 		// /Include the site materials
-		doSite(req, res, session, siteId, pageId, req.getContextPath()
+		doSite(req, res, session, siteId, pageId, null, req.getContextPath()
 						+ req.getServletPath());
 	}
 	

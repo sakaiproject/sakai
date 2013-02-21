@@ -131,8 +131,15 @@ public class SiteHandler extends WorksiteHandler
 				{
 					siteId = parts[2];
 				}
+				
+				String commonToolId = null;
+				
+				if(parts.length == 4)
+				{
+					commonToolId = parts[3];
+				}
 
-				doSite(req, res, session, siteId, pageId, req.getContextPath()
+				doSite(req, res, session, siteId, pageId, commonToolId, req.getContextPath()
 						+ req.getServletPath());
 				return END;
 			}
@@ -148,7 +155,7 @@ public class SiteHandler extends WorksiteHandler
 	}
 
 	public void doSite(HttpServletRequest req, HttpServletResponse res, Session session,
-			String siteId, String pageId, String toolContextPath) throws ToolException,
+			String siteId, String pageId, String commonToolId, String toolContextPath) throws ToolException,
 			IOException
 	{		
 				
@@ -248,6 +255,27 @@ public class SiteHandler extends WorksiteHandler
 				portal.doError(req, res, session, Portal.ERROR_SITE);
 			}
 			return;
+		}
+		
+		// Supports urls like: /portal/site/{SITEID}/sakai.announcements
+		if(site != null && commonToolId != null)
+		{
+			ToolConfiguration tc = null;
+			if(!commonToolId.startsWith("sakai."))
+			{
+				// Try the most likely case first, that of common tool ids starting with 'sakai.'
+				tc = site.getToolForCommonId("sakai." + commonToolId);
+				if(tc == null)
+				{
+					// That failed, try the supplied tool id
+					tc = site.getToolForCommonId(commonToolId);
+				}
+			}
+			
+			if(tc != null)
+			{
+				pageId = tc.getPageId();
+			}
 		}
 
 		// If the page is the mutable page name then look up the 
