@@ -448,9 +448,7 @@ public class RichTextEditArea extends Renderer
     writer.write("\n\tif (status.value == \"firsttime\") {");
     if (org.sakaiproject.tool.cover.ToolManager.getCurrentPlacement() != null) {
     	writer.write("\n\t\tsetMainFrameHeight('Main" + org.sakaiproject.tool.cover.ToolManager.getCurrentPlacement().getId().replace("-","x") + "');");
-    } else {
-         writer.write("\n\t\tsetMainFrameHeight('Main" + "');");
-    }
+    } 
     writer.write("\n\t\tstatus.value = \"expaneded\";");
     writer.write("\n\t\tchef_setupformattedtextarea(client_id, true);");
     writer.write("\n\t\tif (typeof setBlockDivs == \"function\" && typeof retainHideUnhideStatus == \"function\") {");
