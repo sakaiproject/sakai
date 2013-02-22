@@ -169,16 +169,16 @@
 							</td>
 							<td>
 								<label for="lti_$toolId">
-									$toolValues.get("title")
+									$validator.escapeHtml($toolValues.get("title"))
 									#if ($selectedLtiTools.containsKey($toolId))
-									 ($selectedLtiTools.get($toolId).get("pageTitle"))
+									 ($validator.escapeHtml($selectedLtiTools.get($toolId).get("pageTitle")))
 									#end
 								</label>
 							</td>
 							<td>
 								#set($toolDescription=$toolValues.get("description"))
 								#set($toolUsage=$toolValues.get("toolCount"))
-								$!toolDescription
+								$validator.escapeHtml($!toolDescription)
 							</td>
 						</tr>
 					#end
