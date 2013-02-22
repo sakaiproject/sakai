@@ -14,6 +14,7 @@ import java.sql.SQLException;
 import java.sql.Statement;
 
 import org.sakaiproject.util.ResourceLoader;
+import org.sakaiproject.util.FormattedText;
 import org.sakaiproject.db.api.SqlService;
 
 import org.apache.commons.logging.Log;
@@ -24,7 +25,7 @@ public class SakaiFoorm extends Foorm {
 	@Override
 		public String htmlSpecialChars(String str)
 		{
-			return str;
+			return FormattedText.escapeHtml(str, false);
 		}
 
 	// Abstract this away for testing purposes - return null if non existant

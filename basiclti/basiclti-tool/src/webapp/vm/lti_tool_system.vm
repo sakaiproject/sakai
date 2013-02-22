@@ -149,7 +149,7 @@
 				#set($toolId=$tool.getKey())
 				#set($toolValues=$tool.getValue())
 				<tr>
-	                <td headers="title"><a href="$sakai_ActionURL.setPanel("ToolView")&id=$toolValues.get("id")">$toolValues.get("title")</td>
+	                <td headers="title"><a href="$sakai_ActionURL.setPanel("ToolView")&id=$toolValues.get("id")">$validator.escapeHtml($toolValues.get("title"))</td>
 	                <td headers="launch">$toolValues.get("launch")</td>
 	                <td headers="site_id">
 	                	#set($siteId="<span style='display:none;'>zzzz</span>")

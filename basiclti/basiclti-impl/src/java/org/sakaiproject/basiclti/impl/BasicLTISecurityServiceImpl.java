@@ -54,6 +54,7 @@ import org.sakaiproject.site.cover.SiteService;
 import org.sakaiproject.component.cover.ComponentManager;
 import org.sakaiproject.component.cover.ServerConfigurationService;
 import org.sakaiproject.util.StringUtil;
+import org.sakaiproject.util.FormattedText;
 import org.sakaiproject.exception.IdUnusedException;
 import org.sakaiproject.exception.PermissionException;
 import org.sakaiproject.util.ResourceLoader;
@@ -72,7 +73,6 @@ import org.sakaiproject.util.foorm.SakaiFoorm;
 import org.sakaiproject.basiclti.LocalEventTrackingService;
 import org.sakaiproject.basiclti.util.SakaiBLTIUtil;
 import org.sakaiproject.basiclti.impl.BasicLTIArchiveBean;
-
 
 @SuppressWarnings("deprecation")
 public class BasicLTISecurityServiceImpl implements EntityProducer {
@@ -313,10 +313,13 @@ public class BasicLTISecurityServiceImpl implements EntityProducer {
 							   }
 							   String splash = (String) tool.get("splash");
 							   String splashParm = req.getParameter("splash");
+							   String siteId = (String) tool.get(LTIService.LTI_SITE_ID);
 							   if ( splashParm == null && splash != null && splash.trim().length() > 1 )
 							   {
-								doSplash(req, res, splash, rb);
-								return;
+									// XSS Note: Administrator-created tools can put HTML in the splash.
+									if ( siteId != null ) splash = FormattedText.escapeHtml(splash,false);
+									doSplash(req, res, splash, rb);
+									return;
 							   }
 							   retval = SakaiBLTIUtil.postLaunchHTML(content, tool, rb);
 						   }
