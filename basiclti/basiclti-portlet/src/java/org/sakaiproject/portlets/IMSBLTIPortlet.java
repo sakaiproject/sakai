@@ -277,6 +277,7 @@ public class IMSBLTIPortlet extends GenericPortlet {
 		request.setAttribute("imsti.oldvalues", oldValues);
 
 		String allowOutcomes = ServerConfigurationService.getString(SakaiBLTIUtil.BASICLTI_OUTCOMES_ENABLED, null);
+		request.setAttribute("allowOutcomes", new Boolean("true".equals(allowOutcomes)));
 		if ( "true".equals(allowOutcomes) ) {
 			List<String> assignments = getGradeBookAssignments();
 			if ( assignments != null && assignments.size() > 0 ) request.setAttribute("assignments", assignments);

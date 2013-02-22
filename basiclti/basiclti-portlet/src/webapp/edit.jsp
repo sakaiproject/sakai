@@ -50,6 +50,8 @@ Properties sp = (Properties) rReq.getAttribute("imsti.properties");
 
 List<String> assignments = (List<String>) rReq.getAttribute("assignments");
 
+Boolean allowOutcomes = (Boolean) rReq.getAttribute("allowOutcomes");
+
 Boolean allowSettings = (Boolean) rReq.getAttribute("allowSettings");
 
 Boolean allowRoster = (Boolean) rReq.getAttribute("allowRoster");
@@ -172,7 +174,7 @@ if ( document.getElementById("UISwitcher") ) switchui();
 
 <% } %>
 
-<% if ( allow(sp,"gradable") ) { %>
+<% if ( allowOutcomes && allow(sp,"gradable") ) { %>
 <h3><%=rb.getString("gradable.information") %></h3>
 <p  class="shorttext" style="clear:none;">
 <label for="imsti.newassignment"><%=rb.getString("gradable.newassignment") %></label>
@@ -182,7 +184,7 @@ if ( document.getElementById("UISwitcher") ) switchui();
 
 <% } %>
 
-<% if ( allow(sp,"gradable") && assignments != null ) { %>
+<% if ( allowOutcomes && allow(sp,"gradable") && assignments != null ) { %>
 <p  class="shorttext" style="clear:none;">
 <%=rb.getString("gradable.title") %>
 <select name="imsti.assignment">
