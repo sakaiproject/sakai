@@ -92,7 +92,8 @@ public class SimpleEncryption {
 			throws NoSuchAlgorithmException, InvalidKeySpecException {
 		SecretKeyFactory factory = SecretKeyFactory.getInstance("PBKDF2WithHmacSHA1");
 		// 128 bit keys don't cause problems with the export restrictions in the JVM
-		KeySpec spec = new PBEKeySpec(password, salt, 8, 256);
+		// 258 bit keys only work when the JCE unlimited strength policy is installed.
+		KeySpec spec = new PBEKeySpec(password, salt, 8, 128);
 		SecretKey tmp = factory.generateSecret(spec);
 		SecretKey secret = new SecretKeySpec(tmp.getEncoded(), "AES");
 		return secret;
