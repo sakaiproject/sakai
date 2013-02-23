@@ -119,8 +119,6 @@ public class SakaiBLTIUtil {
 		// TODO: BLTI-195 - See if we can remove this compatibility check
 		if ( secret == null || secret.trim().length() < 1 ) secret = getCorrectProperty(config,"encryptedsecret", placement);
 
-		// If it is encrypted, decrypt it
-		secret = decryptSecret(secret);
 		setProperty(info, "secret", secret );
 
 		setProperty(info, "key", getCorrectProperty(config,"key", placement) );
@@ -160,6 +158,17 @@ public class SakaiBLTIUtil {
 				setProperty(info, "custom_"+key, value);
 			}
 		}
+	}
+
+	public static String encryptSecret(String orig)
+	{
+		if ( orig == null || orig.trim().length() < 1 ) return orig;
+		String encryptionKey = ServerConfigurationService.getString(BASICLTI_ENCRYPTION_KEY, null);
+		if ( encryptionKey == null ) return orig;
+	
+		// May throw runtime exception - just let it log as this is abnormal...
+		String newsecret = SimpleEncryption.encrypt(encryptionKey, orig);
+		return newsecret;
 	}
 
 	public static String decryptSecret(String orig)
@@ -671,6 +680,9 @@ public class SakaiBLTIUtil {
 			secret = toNull(toolProps.getProperty("secret"));
 			key = toNull(toolProps.getProperty("key"));
 		}
+
+		// If secret is encrypted, decrypt it
+		secret = decryptSecret(secret);
 
 		// Pull in all of the custom parameters
 		for(Object okey : toolProps.keySet() ) {
