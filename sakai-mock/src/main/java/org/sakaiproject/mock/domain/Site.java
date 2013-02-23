@@ -252,8 +252,16 @@ public class Site extends AuthzGroup implements org.sakaiproject.site.api.Site {
 		return shortDescription;
 	}
 
+	public String getHtmlShortDescription() {
+		return shortDescription;
+	}
+
 	public void setShortDescription(String shortDescription) {
 		this.shortDescription = shortDescription;
+	}
+
+	public String getHtmlDescription() {
+		return description;
 	}
 
 	public String getSkin() {

@@ -184,8 +184,24 @@ public class SiteService implements org.sakaiproject.site.api.SiteService {
 		return null;
 	}
 
+	public List getUserSites() {
+		// TODO Auto-generated method stub
+		return null;
+	}
+
+	public List getUserSites(boolean requireDescription) {
+		// TODO Auto-generated method stub
+		return null;
+	}
+
 	public List getSites(SelectionType type, Object ofType, String criteria,
 			Map propertyCriteria, SortType sort, PagingPosition page) {
+		// TODO Auto-generated method stub
+		return null;
+	}
+
+	public List getSites(SelectionType type, Object ofType, String criteria,
+			Map propertyCriteria, SortType sort, PagingPosition page, boolean requireDescription) {
 		// TODO Auto-generated method stub
 		return null;
 	}
