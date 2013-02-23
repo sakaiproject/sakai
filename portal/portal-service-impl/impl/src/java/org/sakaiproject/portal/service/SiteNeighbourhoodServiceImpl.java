@@ -124,10 +124,8 @@ public class SiteNeighbourhoodServiceImpl implements SiteNeighbourhoodService
 			return mySites;
 		}
 
-		// collect the user's sites
-		mySites = siteService.getSites(
-				org.sakaiproject.site.api.SiteService.SelectionType.ACCESS, null, null,
-				null, org.sakaiproject.site.api.SiteService.SortType.TITLE_ASC, null);
+		// collect the user's sites - don't care whether long descriptions are loaded
+		mySites = siteService.getUserSites(false);
 
 		// collect the user's preferences
 		List prefExclude = new ArrayList();

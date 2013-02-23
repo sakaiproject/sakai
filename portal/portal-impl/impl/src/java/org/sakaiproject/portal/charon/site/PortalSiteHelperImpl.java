@@ -215,6 +215,8 @@ public class PortalSiteHelperImpl implements PortalSiteHelper
 		if (site == null) return null;
 		Map<String, String> propMap = new HashMap<String, String>();
 		propMap.put(PROP_PARENT_ID, site.getId());
+
+		// This should not call getUserSites(boolean) because the property is variable, while the call is cacheable otherwise
 		List<Site> mySites = SiteService.getSites(
 				org.sakaiproject.site.api.SiteService.SelectionType.ACCESS, null, null,
 				propMap, org.sakaiproject.site.api.SiteService.SortType.TITLE_ASC, null);
@@ -357,8 +359,8 @@ public class PortalSiteHelperImpl implements PortalSiteHelper
 		}
 		m.put("siteTitle", Web.escapeHtml(titleStr));
 		m.put("fullTitle", Web.escapeHtml(fullTitle));
-		m.put("siteDescription", Web.escapeHtml(s.getDescription()));
-		m.put("shortDescription", Web.escapeHtml(s.getShortDescription()));
+		m.put("siteDescription", s.getHtmlDescription());
+		m.put("shortDescription", s.getHtmlShortDescription());
 		String siteUrl = Web.serverUrl(req)
 				+ ServerConfigurationService.getString("portalPath") + "/";
 		if (prefix != null) siteUrl = siteUrl + prefix + "/";
