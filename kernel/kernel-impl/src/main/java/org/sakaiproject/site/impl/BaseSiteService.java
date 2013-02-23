@@ -29,6 +29,8 @@ import java.util.Collections;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
+import java.util.Observable;
+import java.util.Observer;
 import java.util.Properties;
 import java.util.Set;
 import java.util.Stack;
@@ -44,6 +46,7 @@ import org.sakaiproject.authz.api.AuthzGroupService;
 import org.sakaiproject.authz.api.AuthzPermissionException;
 import org.sakaiproject.authz.api.FunctionManager;
 import org.sakaiproject.authz.api.GroupNotDefinedException;
+import org.sakaiproject.authz.api.Member;
 import org.sakaiproject.authz.api.Role;
 import org.sakaiproject.authz.api.SecurityAdvisor;
 import org.sakaiproject.authz.api.SecurityService;
@@ -61,6 +64,7 @@ import org.sakaiproject.entity.api.HttpAccess;
 import org.sakaiproject.entity.api.Reference;
 import org.sakaiproject.entity.api.ResourceProperties;
 import org.sakaiproject.entity.api.ResourcePropertiesEdit;
+import org.sakaiproject.event.api.Event;
 import org.sakaiproject.event.api.EventTrackingService;
 import org.sakaiproject.exception.IdInvalidException;
 import org.sakaiproject.exception.IdUnusedException;
@@ -68,6 +72,7 @@ import org.sakaiproject.exception.IdUsedException;
 import org.sakaiproject.exception.PermissionException;
 import org.sakaiproject.id.api.IdManager;
 import org.sakaiproject.javax.PagingPosition;
+import org.sakaiproject.memory.api.Cache;
 import org.sakaiproject.memory.api.MemoryService;
 import org.sakaiproject.site.api.Group;
 import org.sakaiproject.site.api.Site;
@@ -83,6 +88,7 @@ import org.sakaiproject.tool.api.SessionManager;
 import org.sakaiproject.user.api.User;
 import org.sakaiproject.user.api.UserDirectoryService;
 import org.sakaiproject.user.api.UserNotDefinedException;
+import org.sakaiproject.util.BasicConfigItem;
 import org.sakaiproject.util.Resource;
 import org.sakaiproject.util.ResourceLoader;
 import org.sakaiproject.util.StorageUser;
@@ -96,7 +102,7 @@ import org.w3c.dom.Element;
  * BaseSiteService is a base implementation of the SiteService.
  * </p>
  */
-public abstract class BaseSiteService implements SiteService
+public abstract class BaseSiteService implements SiteService, Observer
 {
 	/** Our logger. */
 	private static Log M_log = LogFactory.getLog(BaseSiteService.class);
@@ -133,6 +139,12 @@ public abstract class BaseSiteService implements SiteService
 
 	/** A site cache. */
 	protected SiteCacheImpl m_siteCache = null;
+
+	/** The name/bean for the User-Site cache. */
+	protected static final String USER_SITE_CACHE = "org.sakaiproject.site.api.SiteService.userSiteCache";
+
+	/** Cache for sites accessible to a given user. */
+	protected Cache m_userSiteCache = null;
 
 	/** A list of observers watching site save events **/
 	protected List<SiteAdvisor> siteAdvisors;
@@ -472,6 +484,17 @@ public abstract class BaseSiteService implements SiteService
 				m_siteCache = new SiteCacheImpl(memoryService(), m_cacheCleanerSeconds, siteReference(""));
 			}
 
+			// Register our user-site cache property
+			serverConfigurationService().registerConfigItem(BasicConfigItem.makeDefaultedConfigItem(PROP_CACHE_USER_SITES, true, "org.sakaiproject.api.SiteService"));
+
+			// Get the user-site cache from the MemoryService for now -- maybe directly from cache manager or Spring later.
+			// Also register as an observer so we can catch site updates and invalidate.
+			if (serverConfigurationService().getBoolean(PROP_CACHE_USER_SITES, true))
+			{
+				m_userSiteCache = memoryService().newCache(USER_SITE_CACHE);
+				eventTrackingService().addObserver(this);
+			}
+
 			// register as an entity producer
 			entityManager().registerEntityProducer(this, REFERENCE_ROOT);
 
@@ -506,6 +529,9 @@ public abstract class BaseSiteService implements SiteService
 	{
 		storage().close();
 		m_storage = null;
+
+		// Stop listening for site update events
+		eventTrackingService().deleteObserver(this);
 
 		M_log.info("destroy()");
 	}
@@ -611,6 +637,24 @@ public abstract class BaseSiteService implements SiteService
 	}
 
 	/**
+	 * Cache a copy of a site if caching is enabled.
+	 *
+	 * @param site the Site to cache
+	 * @return true when the site was cached, false when the site is null or caching is disabled
+	 */
+	protected boolean cacheSite(Site site)
+	{
+		if (site != null && m_siteCache != null)
+		{
+			String ref = siteReference(site.getId());
+			Site copy = new BaseSite(this, site, true);
+			m_siteCache.put(ref, copy, m_cacheSeconds);
+			return true;
+		}
+		return false;
+	}
+
+	/**
 	 * Access an already defined site object.
 	 * 
 	 * @param id
@@ -624,8 +668,16 @@ public abstract class BaseSiteService implements SiteService
 		if (id == null) throw new IdUnusedException("<null>");
 
 		Site rv = getCachedSite(id);
-		if ( rv != null ) return rv;
 
+		// Return the site from cache only if it is a BaseSite and has the description loaded.
+		//
+		// Note that getCachedSite always returns a BaseSite instance now, so
+		// this instanceof check is not strictly necessary, but paranoid. If
+		// the cast would fail, we have to retrieve the site. This is slightly
+		// kludgy because the caching and lazy-loading are somewhat bolted on.
+		if ( rv != null && rv instanceof BaseSite && ((BaseSite)rv).isDescriptionLoaded()) return rv;
+
+		// Get the whole site, including the description.
 		rv = storage().get(id);
 
 		// if not found
@@ -638,12 +690,7 @@ public abstract class BaseSiteService implements SiteService
 		// EventTrackingService.post(EventTrackingService.newEvent(SECURE_ACCESS_SITE, site.getReference()));
 
 		// cache a copy
-		if (m_siteCache != null)
-		{
-			String ref = siteReference(id);
-			Site copy = new BaseSite(this, rv, true);
-			m_siteCache.put(ref, copy, m_cacheSeconds);
-		}
+		cacheSite(rv);
 
 		return rv;
 	}
@@ -1746,12 +1793,122 @@ public abstract class BaseSiteService implements SiteService
 	/**
 	 * @inheritDoc
 	 */
+	public List<Site> getUserSites() {
+		return getUserSites(true);
+	}
+
+	/**
+	 * @inheritDoc
+	 */
+	public List<Site> getUserSites(boolean requireDescription) {
+		String userId = sessionManager().getCurrentSessionUserId();
+		List<Site> userSites = getCachedUserSites(userId);
+
+		// Retrieve sites on cache miss or anonymous user
+		if (userSites == null)
+		{
+			userSites = getSites(
+					org.sakaiproject.site.api.SiteService.SelectionType.ACCESS, null, null,
+					null, org.sakaiproject.site.api.SiteService.SortType.TITLE_ASC, null, requireDescription);
+
+			// Cache the results
+			setCachedUserSites(userId, userSites);
+		}
+
+		return userSites;
+	}
+
+	/**
+	 * Cache the list of accessible Sites for a user.
+	 *
+	 * @param userId the (internal) user ID for whom to cache sites; null will result in a no-op
+	 * @param sites the list of sites that are accessible for the user; may be null to remove the user from the cache
+	 */
+	protected void setCachedUserSites(String userId, List<Site> sites)
+	{
+		if (m_userSiteCache != null && userId != null)
+		{
+			if (sites == null)
+			{
+				clearUserCacheForUser(userId);
+			}
+			else
+			{
+				m_userSiteCache.put(userId, sites);
+			}
+		}
+	}
+
+	/**
+	 * Remove the list of cached sites for a specified user.
+	 *
+	 * @param userId the (internal) user ID for whom to purge sites; null will result in a no-op
+	 */
+	protected void clearUserCacheForUser(String userId)
+	{
+		if (m_userSiteCache != null && userId != null)
+		{
+			m_userSiteCache.remove(userId);
+		}
+	}
+
+	/**
+	 * Clear the user-site cache for all the members of this site.
+	 *
+	 * This is provided to force retrieval of the user-site list for all members of an updated site.
+	 *
+	 * If the site and user-site cache were more tightly integrated, we could update, but membership
+	 * updates are relatively rare and the retrieval is relatively cheap when done occasionally.
+	 *
+	 * @param site The site for which all members' site cache should be cleared.
+	 *
+	 */
+	protected void clearUserCacheForSite(Site site)
+	{
+		if (m_userSiteCache != null && site != null)
+		{
+			for (Member member : site.getMembers())
+			{
+				clearUserCacheForUser(member.getUserId());
+			}
+		}
+	}
+
+	/**
+	 * Get the list of sites that are accessible to a given user from the cache.
+	 *
+	 * @param the internal user ID to check in the cache; null results in a null return
+	 * @return a List of Sites that are accessible to the user, null on cache miss
+	 */
+	@SuppressWarnings("unchecked")
+	protected List<Site> getCachedUserSites(String userId)
+	{
+		List<Site> userSites = null;
+		if (m_userSiteCache != null && userId != null)
+		{
+			userSites = (List<Site>) m_userSiteCache.get(userId);
+		}
+		return userSites;
+	}
+
+	/**
+	 * @inheritDoc
+	 */
 	public List<Site> getSites(SelectionType type, Object ofType, String criteria, Map propertyCriteria, SortType sort,
 			PagingPosition page)
 	{
-		return storage().getSites(type, ofType, criteria, propertyCriteria, sort, page);
+		return getSites(type, ofType, criteria, propertyCriteria, sort, page, true);
 	}
 	
+	/**
+	 * @inheritDoc
+	 */
+	public List<Site> getSites(SelectionType type, Object ofType, String criteria, Map propertyCriteria, SortType sort,
+			PagingPosition page, boolean requireDescription)
+	{
+		return storage().getSites(type, ofType, criteria, propertyCriteria, sort, page, requireDescription);
+	}
+
 	/**
 	 * @inheritDoc
 	 */
@@ -1776,6 +1933,9 @@ public abstract class BaseSiteService implements SiteService
 
 		// the site's azg may have just been updated, so enforce site group subset membership
 		enforceGroupSubMembership(siteId);
+
+		Event invalidate = eventTrackingService().newEvent(EVENT_SITE_USER_INVALIDATE, siteId, true);
+		eventTrackingService().post(invalidate);
 	}
 
 	/**
@@ -2482,7 +2642,7 @@ public abstract class BaseSiteService implements SiteService
 		public List getSiteTypes();
 
 		/**
-		 * Access a list of Site objets that meet specified criteria.
+		 * Access a list of Site objects that meet specified criteria.
 		 * 
 		 * @param type
 		 *        The SelectionType specifying what sort of selection is intended.
@@ -2496,10 +2656,40 @@ public abstract class BaseSiteService implements SiteService
 		 *        A SortType indicating the desired sort. For no sort, set to SortType.NONE.
 		 * @param page
 		 *        The PagePosition subset of items to return.
-		 * @return The List (Site) of Site objets that meet specified criteria.
+		 * @return The List (Site) of Site objects that meet specified criteria.
 		 */
 		public List getSites(SelectionType type, Object ofType, String criteria, Map propertyCriteria, SortType sort,
 				PagingPosition page);
+
+		/**
+		 * Access a list of Site objects that meet specified criteria, with control over description retrieval.
+		 * Note that this signature is primarily provided to help with performance when retrieving lists of
+		 * sites not for full display, specifically for the list of a user's sites for navigation. Note that
+		 * any sites that have their descriptions, pages, or tools cached will be returned completely, so some
+		 * or all full descriptions may be present even when requireDescription is passed as false.
+		 *
+		 * If a fully populated Site is desired from a potentially partially populated Site, call
+		 * {@link #getSite(String id) getSite} or {@link Site#loadAll()}. Either method will load and cache
+		 * whatever additional data is not yet cached.
+		 *
+		 * @param type
+		 *        The SelectionType specifying what sort of selection is intended.
+		 * @param ofType
+		 *        Site type criteria: null for any type; a String to match a single type; A String[], List or Set to match any type in the collection.
+		 * @param criteria
+		 *        Additional selection criteria: sits returned will match this string somewhere in their id, title, description, or skin.
+		 * @param propertyCriteria
+		 *        Additional selection criteria: sites returned will have a property named to match each key in the map, whose values match (somewhere in their value) the value in the map (may be null or empty).
+		 * @param sort
+		 *        A SortType indicating the desired sort. For no sort, set to SortType.NONE.
+		 * @param page
+		 *        The PagePosition subset of items to return.
+		 * @param requireDescription
+		 *        When true, force a full retrieval of each description; when false, return any uncached descriptions as the empty string
+		 * @return The List of Site objects that meet specified criteria.
+		 */
+		public List<Site> getSites(SelectionType type, Object ofType, String criteria, Map propertyCriteria, SortType sort,
+				PagingPosition page, boolean requireDescription);
 
 		/**
 		 * Count the Site objets that meet specified criteria.
@@ -2924,6 +3114,68 @@ public abstract class BaseSiteService implements SiteService
 		return siteAdvisors.remove(siteAdvisor);
 	}
 
+	/**
+	 * Process site update events (from EventTrackingService)
+	 *
+	 * The only events processed now are "site.usersite.invalidate" and "site.visit.denied",
+	 * which were added to encapsulate the peculiarities of real-world events (users being
+	 * added and removed from sites) versus the posted site and authz group events. The
+	 * interesting actions where we can expect a user's view of membership to update
+	 * immediately (add, join, unjoin) flow through setSiteSecurity with some variety of
+	 * other events being posted. The invalidate event gets posted at the conclusion of that
+	 * method to be picked up here, across the cluster. The visit denied event gets posted
+	 * when a known user visits a known site and is denied. This is considered a signal to
+	 * regenerate that user's cache since the assumption is generally that the user would have
+	 * clicked a site link presented to them before their access was revoked.
+	 *
+	 * @param _ The Observable, which is effectively nothing with ETS
+	 * @param eventObj The event from ETS; will be checked and no-op if null or not an Event
+	 */
+	public void update(Observable _, Object eventObj) {
+		if (eventObj == null || !(eventObj instanceof Event))
+		{
+			return;
+		}
+
+		// TODO: Update this dispatching once ETS can register listeners for specific events
+		Event event = (Event) eventObj;
+
+		// When membership updates come in, we purge the user-site cache for all members.
+		// This could be optimized by integrating the site and user-site caches more closely, but
+		// it is a reasonable cost since the user-site cache will be regenerated for each user on
+		// on their first portal hit. Membership updates are much more rare than visits, so this
+		// allows the cache to have a reasonably high TTL across the cluster. The site will be
+		// cached on every server, so it will not force each user to retrieve it, just recalculate
+		// based on the cache and any other uncached sites on the next portal hit.
+		//
+		// We are catching adds and role updates with the invalidate event. The denied visit event
+		// captures the case where someone visits a site from which they were removed. Drops are
+		// harder to catch (because EVENT_USER_SITE_MEMBERSHIP_REMOVE is not fired consistently),
+		// but this approach is generally acceptable. A user may need to be added to a site and
+		// may communicate with someone who can do so and is logged in on a different server. This
+		// will invalidate immediately. Drops are not typically communicated. The user will not
+		// retain the privilege to view the site and the denied visit will remove the inaccessible
+		// site from the user cache, so having his/her cache persist for the TTL is not problematic.
+
+		String eventType = event.getEvent();
+
+		if (EVENT_SITE_USER_INVALIDATE.equals(eventType))
+		{
+			try {
+				Site site = getSite(event.getResource());
+				clearUserCacheForSite(site);
+			} catch (IdUnusedException e) {
+				if (M_log.isDebugEnabled())
+				{
+					M_log.debug("Site not found when handling an event (" + eventType + "), ID/REF: " + event.getResource());
+				}
+			}
+		}
+		else if (EVENT_SITE_VISIT_DENIED.equals(eventType) || AuthzGroupService.SECURE_UNJOIN_AUTHZ_GROUP.equals(eventType))
+		{
+			clearUserCacheForUser(event.getUserId());
+		}
+	}
 	protected Storage storage() {
 		return m_storage;
 	}

@@ -128,6 +128,9 @@ public interface SiteService extends EntityProducer
 	/** The property to indicate whether or not subsites are to be added to the tool list */
 	public static final String PROP_SHOW_SUBSITES = "sakai:show-subsites";
 	
+	/** The configuration property for enabling or disabling user-site caching, defaults to true. */
+	public static final String PROP_CACHE_USER_SITES = "user.site.cache.enabled";
+
 	/**
 	 * Event for adding user to site
 	 * info logged: user id, site id, role name, active status, provided status
@@ -163,6 +166,18 @@ public interface SiteService extends EntityProducer
 	 * info logged: user id, site id, role name
 	 */
 	static final String EVENT_USER_GROUP_MEMBERSHIP_REMOVE = "user.group.membership.delete";
+
+	/**
+	 * Event for recording site visits that are denied based on permissions.
+	 * The resource referenced is the Site ID and the User ID will be available.
+	 */
+	static final String EVENT_SITE_VISIT_DENIED = "site.visit.denied";
+
+	/**
+	 * An event to trigger User-Site cache invalidation across the cluster.
+	 * The resource referenced is the Site ID.
+	 */
+	static final String EVENT_SITE_USER_INVALIDATE = "site.usersite.invalidate";
 
 	/**
 	 * <p>
@@ -733,8 +748,39 @@ public interface SiteService extends EntityProducer
 	List<String> getSiteTypes();
 
 	/**
+	 * Access a list of sites that the current user can visit, sorted by title.
+	 *
+	 * This is a convenience and performance wrapper for getSites, because there are many places that need
+	 * the complete list of sites for the current user, and getSites is unnecessarily verbose in that case.
+	 * Because the semantics of this call are specific, it can also be optimized by the implementation.
+	 *
+	 * The sites returned follow the same semantics as those from
+	 * {@link #getSites(SelectionType, Object, String, Map, SortType, PagingPosition) getSites}.
+	 *
+	 * This signature is a wrapper for {@link #getUserSites(boolean) getUserSites(true)}, requiring descriptions be included.
+	 *
+	 * @return A List<Site> of those sites the current user can access.
+	 */
+	List<Site> getUserSites();
+
+	/**
+	 * Access a list of sites that the current user can visit, sorted by title, optionally requiring descriptions.
+	 *
+	 * This is a convenience and performance wrapper for getSites, because there are many places that need
+	 * the complete list of sites for the current user, and getSites is unnecessarily verbose in that case.
+	 * Because the semantics of this call are specific, it can also be optimized by the implementation.
+	 *
+	 * The sites returned follow the same semantics as those from
+	 * {@link #getSites(SelectionType, Object, String, Map, SortType, PagingPosition) getSites}.
+	 *
+	 * @param requireDescription when true, full descriptions will be included; when false, full descriptions may be omitted.
+	 * @return A List<Site> of those sites the current user can access.
+	 */
+	List<Site> getUserSites(boolean requireDescription);
+
+	/**
 	 * Access a list of Site objects that meet specified criteria.
-	 * NOTE: The sites returned will not have child objects loaded. If these sites need to be saved
+	 * NOTE: The sites returned may not have child objects loaded. If these sites need to be saved
 	 * a completely populated site should be retrieved from {@link #getSite(String)}
 	 * @param type
 	 *        The SelectionType specifying what sort of selection is intended.
@@ -751,8 +797,37 @@ public interface SiteService extends EntityProducer
 	 * @return The List (Site) of Site objets that meet specified criteria.
 	 */
 	List<Site> getSites(SelectionType type, Object ofType, String criteria, Map<String, String> propertyCriteria, SortType sort, PagingPosition page);
-
 	
+	/**
+	 * Access a list of Site objects that meet specified criteria, with control over description retrieval.
+	 *
+	 * Note that this signature is primarily provided to help with performance when retrieving lists of
+	 * sites not for full display, specifically for the list of a user's sites for navigation. Note that
+	 * any sites that have their descriptions, pages, or tools cached will be returned completely, so some
+	 * or all full descriptions may be present even when requireDescription is passed as false.
+	 *
+	 * If a fully populated Site is desired from a potentially partially populated Site, call
+	 * {@link #getSite(String id) getSite} or {@link Site#loadAll()}. Either method will load and cache
+	 * whatever additional data is not yet cached.
+	 *
+	 * @param type
+	 *        The SelectionType specifying what sort of selection is intended.
+	 * @param ofType
+	 *        Site type criteria: null for any type; a String to match a single type; A String[], List or Set to match any type in the collection.
+	 * @param criteria
+	 *        Additional selection criteria: sites returned will match this string somewhere in their id, title, description, or skin.
+	 * @param propertyCriteria
+	 *        Additional selection criteria: sites returned will have a property named to match each key in the map, whose values match (somewhere in their value) the value in the map (may be null or empty).
+	 * @param sort
+	 *        A SortType indicating the desired sort. For no sort, set to SortType.NONE.
+	 * @param page
+	 *        The PagePosition subset of items to return.
+	 * @param requireDescription
+	 *        When true, force a full retrieval of each description; when false, return any uncached descriptions as the empty string
+	 * @return The List of Site objects that meet specified criteria, with potentially empty descriptions based on requireDescription and caching.
+	 */
+	List<Site> getSites(SelectionType type, Object ofType, String criteria, Map<String, String> propertyCriteria, SortType sort, PagingPosition page, boolean requireDescription);
+
 	/**
 	 * Get all sites that have been softly deleted
 	 * 

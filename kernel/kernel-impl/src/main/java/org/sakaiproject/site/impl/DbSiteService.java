@@ -26,8 +26,10 @@ import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Date;
+import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Iterator;
+import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Properties;
@@ -36,6 +38,7 @@ import java.util.Set;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.sakaiproject.db.api.SqlReader;
+import org.sakaiproject.db.api.SqlReaderFinishedException;
 import org.sakaiproject.db.api.SqlService;
 import org.sakaiproject.entity.api.ResourcePropertiesEdit;
 import org.sakaiproject.javax.PagingPosition;
@@ -76,6 +79,9 @@ public abstract class DbSiteService extends BaseSiteService
 	protected String[] m_siteFieldNames = {"SITE_ID", "TITLE", "TYPE", "SHORT_DESC", "DESCRIPTION", "ICON_URL", "INFO_URL", "SKIN", "PUBLISHED",
 			"JOINABLE", "PUBVIEW", "JOIN_ROLE", "IS_SPECIAL", "IS_USER", "CREATEDBY", "MODIFIEDBY", "CREATEDON", "MODIFIEDON", "CUSTOM_PAGE_ORDERED",
 			"IS_SOFTLY_DELETED", "SOFTLY_DELETED_DATE"};
+
+	/** ID field as an array to avoid instantiating it repeatedly for no reason. */
+	protected String[] m_siteIdFieldArray = {m_siteIdFieldName};
 
 	/*************************************************************************************************************************************************
 	 * Dependencies
@@ -208,6 +214,22 @@ public abstract class DbSiteService extends BaseSiteService
 
 		/** The service. */
 		protected BaseSiteService m_service = null;
+
+		/** Default SqlReader for retrieving complete sites. */
+		protected SqlReader fullSiteReader = new SiteSqlReader(true);
+
+		/** SqlReader for retrieving sites with lazy site description CLOBs. */
+		protected SqlReader lightSiteReader = new SiteSqlReader(false);
+
+		/** SqlReader for reading just the Site IDs, used for tuning getSites performance. */
+		protected SqlReader siteIdReader = new SiteIdSqlReader();
+
+		/**
+		 * The sizes of parameters to use for IN clauses padded with NULLs; up to Oracle maximum.
+		 *
+		 * TODO: Push this down to storage/SQL classes.
+		 */
+		protected Integer[] batchBuckets = {10, 50, 250, 1000};
 
 		/**
 		 * Construct.
@@ -802,47 +824,269 @@ public abstract class DbSiteService extends BaseSiteService
 		}
 		
 		/**
+		 * Get an appropriate size for a bucket of parameter placeholders, based on an actual parameter count.
+		 *
+		 * TODO: Push this down to storage/SQL classes.
+		 *
+		 * This is intended to be used for IN queries to prepare a fixed set of prepared statements with
+		 * placeholders and value arrays.
+		 *
+		 * @param parameters the number of actual parameters that will need to be set at execution
+		 * @return the appropriate bucket size for the supplied number of parameters, always positive.
+		 */
+		protected int getBucketSize(int parameters)
+		{
+			// Max batch size should come from the vendor, but the Sql interfaces don't expose it -- Oracle's is 1000
+			// TODO: This should be pushed down into storage classes and overridden by vendor if necessary.
+			final int maxBatchSize = 1000;
+			int batch = 0;
+			for (Integer k : batchBuckets)
+			{
+				batch = k;
+				if (k >= parameters)
+				{
+					break;
+				}
+			}
+			if (batch == 0)
+			{
+				batch = maxBatchSize;
+			}
+			return batch;
+		}
+
+		/**
+		 * Create and fill a bucket with as many values as can be used, leaving unused slots null.
+		 *
+		 * TODO: Push this down to storage/SQL classes.
+		 *
+		 * The bucket may not consume the entire list, and will likely have null slots after the
+		 * last used object. If this is the case, this should be called again with a sublist from
+		 * the first unused object to the end. Another bucket, which may also not consume the
+		 * entire list will be created. Check the length of the returned array for the bucket size.
+		 * If it is greater than or equal to the number of objects in the list, all objects in the
+		 * list will be copied, leaving the trailing indices null. This implies that the entire list
+		 * fit in the bucket and should need no further processing.
+		 *
+		 * @param objects The list from which to copy objects.
+		 * @return a new array as big as is necessary or possible, with elements from objects copied in,
+		 *         and null in all trailing indices where the bucket is bigger than the object list.
+		 *         Will never be null; may be empty but only when objects is null or empty.
+		 *
+		 */
+		protected Object[] getFilledBucket(List<? extends Object> objects)
+		{
+			Object[] values = new Object[0];
+			if (objects != null && objects.size() > 0)
+			{
+				int bucketSize = getBucketSize(objects.size());
+				int elements = Math.min(objects.size(), bucketSize);
+				values = objects.subList(0, elements).toArray(new Object[bucketSize]);
+			}
+			return values;
+		}
+
+		/**
+		 * Build up the ID field condition string for a WHERE ... IN query based on Site ID.
+		 *
+		 * @param values the array of values which will be set in the placeholders; must not be null or empty
+		 * @return an SQL condition string of the form SITE_ID IN (?,?,...), with the
+		 *         fully qualified table and ID field names, and correct number of placeholders.
+		 * @throws IllegalArgumentException if values is null or empty -- any return is potentially dangerous
+		 *         as it could return all or inappropriate rows
+		 */
+		protected String getWhereSiteIdIn(Object[] values)
+		{
+			int numParams = values != null ? values.length : 0;
+			return getWhereSiteIdIn(numParams);
+		}
+
+		/**
+		 * Build up the ID field condition string for a WHERE ... IN query based on Site ID.
+		 *
+		 * @param numParams the number of placeholders desired; must not be zero
+		 * @return an SQL condition string of the form SITE_ID IN (?,?,...), with the
+		 *         fully qualified table and ID field names, and numParams placeholders
+		 * @throws IllegalArgumentException if numParms is zero -- any return is potentially dangerous
+		 *         as it could return all or inappropriate rows
+		 */
+		protected String getWhereSiteIdIn(int numParams)
+		{
+			String fieldName = qualifyField(m_resourceTableIdField, m_resourceTableName);
+			return getWhereIdIn(fieldName, numParams);
+		}
+
+		/**
+		 * Build up the ID field condition string for a WHERE ... IN query based a specified ID.
+		 *
+		 * TODO: Push this down to storage/SQL classes.
+		 *
+		 * @param numParams the number of placeholders desired; must not be zero
+		 * @return an SQL condition string of the form SOME_ID IN (?,?,...), with the
+		 *         supplied field name and numParams placeholders
+		 * @throws IllegalArgumentException if numParms is zero -- any return is potentially dangerous
+		 *         as it could return all or inappropriate rows
+		 */
+		protected String getWhereIdIn(String fieldName, int numParams)
+		{
+			if (numParams == 0)
+			{
+				String msg = "Attempting to build a zero-length IN() clause for " + fieldName;
+				M_log.warn(msg);
+				throw new IllegalArgumentException(msg);
+			}
+			StringBuilder params = new StringBuilder(fieldName + " IN (");
+			for (int i = 0; i < numParams; i++)
+			{
+				params.append("?,");
+			}
+			params.deleteCharAt(params.length() - 1);
+			params.append(")");
+			return params.toString();
+		}
+
+		/**
 		 * {@inheritDoc}
 		 */
 		public List getSites(SelectionType type, Object ofType, String criteria, Map propertyCriteria, SortType sort, PagingPosition page)
 		{
-			List rv = null;
+			return getSites(type, ofType, criteria, propertyCriteria, sort, page, true);
+		}
 
+		/**
+		 * Get the Site IDs for all sites matching criteria.
+		 *
+		 * All parameters are the same as {@link #getSites(org.sakaiproject.site.api.SiteService.SelectionType, Object, String, Map, org.sakaiproject.site.api.SiteService.SortType, PagingPosition)}
+		 * @return a List of the Site IDs for the sites matching the criteria.
+		 */
+		@SuppressWarnings("unchecked")
+		protected List<String> getSiteIds(SelectionType type, Object ofType, String criteria, Map propertyCriteria, SortType sort, PagingPosition page)
+		{
 			String join = getSitesJoin( type, sort );
 			String order = getSitesOrder( sort );
-			Object[] fields = getSitesFields( type, ofType, criteria, propertyCriteria );
+			Object[] values = getSitesFields( type, ofType, criteria, propertyCriteria );
 			String where = getSitesWhere(type, ofType, criteria, propertyCriteria, sort);
-			
-			// paging
+
+			String sql;
 			if (page != null)
 			{
-				// adjust to the size of the set found
-				// page.validate(rv.size());
-				rv = getSelectedResources(where, order, fields, page.getFirst(), page.getLast(), join);
+				int first = page.getFirst();
+				int last = page.getLast();
+				sql = getResourceSql(fieldList(m_siteIdFieldArray, null), where, order, values, first, last, join);
+				values = getPagedParameters(values, first, last);
 			}
 			else
 			{
-				rv = getSelectedResources(where, order, fields, join);
+				sql = getResourceSql(fieldList(m_siteIdFieldArray, null), where, order, values, join);
 			}
 
-			if ( m_siteCache == null ) return rv;
+			List<String> siteIds = (List<String>) sqlService().dbRead(sql, values, siteIdReader);
+			return siteIds;
+		}
 
-			// Loop through the sites to see if we have cached copies 
-			// of the sites
-			List newrv = new ArrayList();
+		/**
+		 * Get an ordered map corresponding to a list of Site IDs, filled with any matching cached sites.
+		 *
+		 * @param siteIds
+		 *        The list of site IDs to use as the basis of the map and check in the cache; null will result in an empty map
+		 * @param requireDescription
+		 *        When true, only return cached sites with loaded descriptions; when false, allow lazy-loaded descriptions
+		 * @return
+		 *        An ordered map in the same order as the siteIds list, one key for each non-null ID, corresponding to
+		 *        either the cached Site or null when the site is not cached or does not have the full description loaded
+		 *        and requireDescription is true. The map will never be null but may be empty.
+		 */
+		protected LinkedHashMap<String, Site> getOrderedSiteMap(List<String> siteIds, boolean requireDescription)
+		{
+			// LinkedHashMap maintains ordering based on initial order for keys,
+			// so we can use a single, simple collection
+			LinkedHashMap<String, Site> sites = new LinkedHashMap<String, Site>();
+			if (siteIds == null)
+			{
+				return sites;
+			}
 
-			for ( Site s : (List<Site>) rv) { 
-				Site news = getCachedSite(s.getId()); 
-				if ( news != null )
+			for (String id : siteIds)
+			{
+				// Reuse cached sites
+				Site site = getCachedSite(id);
+
+				// But only use a cached site if we are ignoring descriptions or it is loaded.
+				// This instanceof is similar to the safety valve in getCachedSite; see there for detail.
+				if (requireDescription && site != null && site instanceof BaseSite)
 				{
-					newrv.add(news);
+					BaseSite bSite = (BaseSite) site;
+					if (!bSite.isDescriptionLoaded())
+					{
+						site = null;
+					}
+				}
+
+				// Always preserve ordering of sites, regardless of whether cached
+				// or to be retrieved, as long as the ID was not null.
+				if (id != null)
+				{
+					sites.put(id, site);
+				}
+			}
+			return sites;
+		}
+
+		/**
+		 * @inheritDoc
+		 */
+		@SuppressWarnings("unchecked")
+		public List getSites(SelectionType type, Object ofType, String criteria, Map propertyCriteria, SortType sort, PagingPosition page, boolean requireDescription)
+		{
+			List<String> siteIds = getSiteIds(type, ofType, criteria, propertyCriteria, sort, page);
+			LinkedHashMap<String, Site> siteMap = getOrderedSiteMap(siteIds, requireDescription);
+
+			SqlReader reader = requireDescription ? fullSiteReader : lightSiteReader;
+			String order = getSitesOrder(sort);
+
+
+			// Account for limitations in the number of IN parameters we can use by batching
+			int remaining = siteIds.size();
+			while (remaining > 0)
+			{
+				// We are using fixed sized buckets for IN clause parameters, up to the platform maximum number and filling
+				// with as many values as we have for this batch. This is to prepare a small number of queries and tabulate
+				// query statistics in a meaningful way. Any remaining slots are filled with null, which optimizes nicely
+				// and does not affect results against a non-null column (as with IDs).
+
+				// Fill a bucket by passing the sublist from our current element to the end (remaining length)
+				int start = siteIds.size() - remaining;
+				Object[] values = getFilledBucket(siteIds.subList(start, start + remaining));
+				int bucketSize = values.length;
+				String where = getWhereSiteIdIn(values);
+
+				List<Site> dbSites;
+				if (page != null)
+				{
+					dbSites = (List<Site>) getSelectedResources(where, order, values, page.getFirst(), page.getLast(), null, reader);
 				}
 				else
 				{
-					newrv.add(s);
+					dbSites = (List<Site>) getSelectedResources(where, order, values, null, reader);
 				}
-			} 
-			return newrv;
+
+				// Cache the sites we retrieved and put them in the right ordered slots for return
+				for (Site site : dbSites)
+				{
+					cacheSite(site);
+					siteMap.put(site.getId(), site);
+				}
+
+				remaining -= bucketSize;
+			}
+
+			// Ensure we don't have any nulls in the return list
+			for (Iterator<Site> i = siteMap.values().iterator(); i.hasNext(); )
+			{
+				if (i.next() == null) i.remove();
+			}
+
+			return new ArrayList<Site>(siteMap.values());
 		}
 		
 		/**
@@ -2174,6 +2418,64 @@ public abstract class DbSiteService extends BaseSiteService
 		 * @return The Resource object.
 		 */
 		public Object readSqlResultRecord(ResultSet result)
+				throws SqlReaderFinishedException
+		{
+			return fullSiteReader.readSqlResultRecord(result);
+		}
+
+	}
+
+	/**
+	 * A very simple SqlReader for ID-only queries
+	 */
+	protected class SiteIdSqlReader implements SqlReader {
+		public Object readSqlResultRecord(ResultSet result)
+		{
+			try
+			{
+				String id = result.getString(1);
+				return id;
+			}
+			catch (SQLException e)
+			{
+				M_log.warn("getSites, ID retrieval: " + e);
+				return null;
+			}
+		}
+	}
+
+	/**
+	 * The SqlReader for full site records.
+	 *
+	 * This class was extracted from the storage class above so it can hold
+	 * the includeDescription setting. This allows the normal iteration with
+	 * the same queries and indexes, whether or not we are reading the
+	 * description CLOB.
+	 *
+	 */
+	protected class SiteSqlReader implements SqlReader {
+		/** Flag to indicate whether we should retrieve the description */
+		protected boolean includeDescription;
+
+		/** Default constructor gives an SqlReader that reads all fields */
+		public SiteSqlReader() {
+			includeDescription = true;
+		}
+
+		/**
+		 * Specialized constructor to specify whether the description should be read or not.
+		 * @param includeDescription
+		 *        when true, all fields will be read as normal; when false, the description will always be empty ("").
+		 */
+		public SiteSqlReader(boolean includeDescription)
+		{
+			this.includeDescription = includeDescription;
+		}
+
+		/**
+		 * Read result set one record at a time, optionally retrieving long description, based on includeDescription;
+		 */
+		public Object readSqlResultRecord(ResultSet result)
 		{
 			try
 			{
@@ -2181,7 +2483,7 @@ public abstract class DbSiteService extends BaseSiteService
 				String title = result.getString(2);
 				String type = result.getString(3);
 				String shortDesc = result.getString(4);
-				String description = result.getString(5);
+				String description = includeDescription ? result.getString(5) : "";
 				String icon = result.getString(6);
 				String info = result.getString(7);
 				String skin = result.getString(8);
@@ -2211,7 +2513,7 @@ public abstract class DbSiteService extends BaseSiteService
 
 				// create the Resource from these fields
 				return new BaseSite(DbSiteService.this,id, title, type, shortDesc, description, icon, info, skin, published, joinable, pubView, joinRole, isSpecial,
-						isUser, createdBy, createdOn, modifiedBy, modifiedOn, customPageOrdered, isSoftlyDeleted, softlyDeletedDate);
+						isUser, createdBy, createdOn, modifiedBy, modifiedOn, customPageOrdered, isSoftlyDeleted, softlyDeletedDate, includeDescription);
 			}
 			catch (SQLException e)
 			{
