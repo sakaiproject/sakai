@@ -55,6 +55,8 @@ public class SimpleEncryption {
 			out.append(ShaUtil.byteToHex(iv));
 			out.append(":");
 			out.append(ShaUtil.byteToHex(ciphertext));
+			out.append(":");
+			out.append(CIPHER);
 			return out.toString();
 		} catch (Exception e) {
 			throw new RuntimeException(e);
@@ -69,7 +71,13 @@ public class SimpleEncryption {
 		char[] password = key.toCharArray();
 
 		String parts[] = encrypted.split(":");
-		if (parts.length != 3) {
+	
+		if ( parts.length == 4 && CIPHER.equals(parts[3]) ) {
+			// Preferred - with the CIPHER appended
+		} else if ( parts.length == 3 ) {
+			// TODO: Make sure this is needed
+			// BLTI-195 - Would prefer not to have this here
+		} else {
 			throw new RuntimeException("Corrupt encrypted source. Can't split source.");
 		}
 		byte[] salt = ShaUtil.hexToByte(parts[0]);

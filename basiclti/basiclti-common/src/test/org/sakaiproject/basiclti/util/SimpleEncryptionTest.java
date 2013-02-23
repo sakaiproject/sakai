@@ -13,11 +13,13 @@ import org.sakaiproject.basiclti.util.SimpleEncryption;
 
 public class SimpleEncryptionTest {
 
+	private String CIPHER = "AES/CBC/PKCS5Padding";
 	// Result of SimpleEncryption.encrypt("key", "plain text"));
-	private String goodEncrypt = "0bdd94442e437fac:d8e4be4ae67a7bdf8f0717cebf425832:133df2f919b2e686a0c4ed5451b5af6f";
-	private String badEncryptLength1 = "0bdd94442e437fac:d8e4be4ae67a7bdf8f0717cebf425832:133df2f919b2e686a0c4ed5451b5af";
-	private String badEncryptLength2 = "dd94442e437fac:d8e4bee67a7bdf8f0717cebf425832:133df2f919b2e686a0c4ed5451b5af6f";
-	private String badEncryptNotHex = "0bzz94442e437fac:d8e4be4ae67a7bdf8f0717cebf425832:133df2f919b2e686a0c4ed5451b5af6f";
+	private String goodEncrypt = "0bdd94442e437fac:d8e4be4ae67a7bdf8f0717cebf425832:133df2f919b2e686a0c4ed5451b5af6f:"+CIPHER;
+	private String goodEncrypt3 = "0bdd94442e437fac:d8e4be4ae67a7bdf8f0717cebf425832:133df2f919b2e686a0c4ed5451b5af6f";
+	private String badEncryptLength1 = "0bdd94442e437fac:d8e4be4ae67a7bdf8f0717cebf425832:133df2f919b2e686a0c4ed5451b5af:"+CIPHER;
+	private String badEncryptLength2 = "dd94442e437fac:d8e4bee67a7bdf8f0717cebf425832:133df2f919b2e686a0c4ed5451b5af6f:"+CIPHER;
+	private String badEncryptNotHex = "0bzz94442e437fac:d8e4be4ae67a7bdf8f0717cebf425832:133df2f919b2e686a0c4ed5451b5af6f:"+CIPHER;
 
 	@Before
 	public void setUp() throws Exception {
@@ -31,8 +33,14 @@ public class SimpleEncryptionTest {
 	
 	@Test(expected=Exception.class)
 	public void testBadDecryptButSplits() {
+		SimpleEncryption.decrypt("key", "salt:iv:data:"+CIPHER);
+	}
+
+	@Test(expected=Exception.class)
+	public void testBadDecryptButSplits3() {
 		SimpleEncryption.decrypt("key", "salt:iv:data");
 	}
+	
 	
 	@Test(expected=Exception.class)
 	public void testBadDecryptLength1() {
