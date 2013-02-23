@@ -114,18 +114,13 @@ public class SakaiBLTIUtil {
 			BasicLTIUtil.parseDescriptor(info, launch, xml);
 		}
 
-		String encryptionKey = ServerConfigurationService.getString(BASICLTI_ENCRYPTION_KEY, null);
-		String secret = null;
-		try {
-			if (encryptionKey != null) {
-				secret = SimpleEncryption.decrypt(encryptionKey, getCorrectProperty(config,"encryptedsecret", placement)); 
-			}
-		} catch (RuntimeException re) {
-			secret = null;
-		}
-		if (secret == null) {
-			secret = getCorrectProperty(config,"secret", placement);
-		}
+		String secret = getCorrectProperty(config,"secret", placement);
+
+		// TODO: BLTI-195 - See if we can remove this compatibility check
+		if ( secret == null || secret.trim().length() < 1 ) secret = getCorrectProperty(config,"encryptedsecret", placement);
+
+		// If it is encrypted, decrypt it
+		secret = decryptSecret(secret);
 		setProperty(info, "secret", secret );
 
 		setProperty(info, "key", getCorrectProperty(config,"key", placement) );
@@ -164,6 +159,20 @@ public class SakaiBLTIUtil {
 				if ( value.length() < 1 ) continue;
 				setProperty(info, "custom_"+key, value);
 			}
+		}
+	}
+
+	public static String decryptSecret(String orig)
+	{
+		if ( orig == null || orig.trim().length() < 1 ) return orig;
+		String encryptionKey = ServerConfigurationService.getString(BASICLTI_ENCRYPTION_KEY, null);
+		if ( encryptionKey == null ) return orig;
+		try {
+			String newsecret = SimpleEncryption.decrypt(encryptionKey, orig);
+			return newsecret;
+		} catch (RuntimeException re) {
+			dPrint("Exception when decrypting secret - this is normal if the secret is unencrypted");      
+			return orig;
 		}
 	}
 

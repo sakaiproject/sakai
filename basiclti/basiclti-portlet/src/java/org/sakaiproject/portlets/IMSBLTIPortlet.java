@@ -249,14 +249,7 @@ public class IMSBLTIPortlet extends GenericPortlet {
 			if ( "launch".equals(element) ) continue;
 			String propKey = "imsti."+element;
 			// addProperty(oldValues, request, element, null);
-			String propValue = null;
-			if ( "secret".equals(element) ) {
-				String key = ServerConfigurationService.getString(SakaiBLTIUtil.BASICLTI_ENCRYPTION_KEY, null);
-				if ( key != null ) {
-					propValue = getCorrectProperty(request, "encryptedsecret", null);
-				} 
-			}
-			if ( propValue == null ) propValue = getCorrectProperty(request, element, null);
+			String propValue = getCorrectProperty(request, element, null);
 
 			if ( map != null ) {
 				if ( map.containsKey(propKey) ) {
@@ -670,9 +663,9 @@ public class IMSBLTIPortlet extends GenericPortlet {
 						try {
 							if ( formParm != null && formParm.trim().length() > 0 ) {
 									formParm = SimpleEncryption.encrypt(key, formParm);
+									// TODO: BLTI-195 Check if we can remove this code (its harmless)
+									prefs.reset("sakai:imsti.encryptedsecret"); 
 							}
-							prefs.reset("sakai:imsti.secret"); // Clear out any plain text key.
-							element = "encryptedsecret";
 						} catch (RuntimeException re) {
 							M_log.warn("Failed to encrypt secret, falling back to plaintext: "+ re.getMessage());
 						}
