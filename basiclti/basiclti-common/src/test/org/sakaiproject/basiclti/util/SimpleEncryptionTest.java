@@ -13,6 +13,12 @@ import org.sakaiproject.basiclti.util.SimpleEncryption;
 
 public class SimpleEncryptionTest {
 
+	// Result of SimpleEncryption.encrypt("key", "plain text"));
+	private String goodEncrypt = "0bdd94442e437fac:d8e4be4ae67a7bdf8f0717cebf425832:133df2f919b2e686a0c4ed5451b5af6f";
+	private String badEncryptLength1 = "0bdd94442e437fac:d8e4be4ae67a7bdf8f0717cebf425832:133df2f919b2e686a0c4ed5451b5af";
+	private String badEncryptLength2 = "dd94442e437fac:d8e4bee67a7bdf8f0717cebf425832:133df2f919b2e686a0c4ed5451b5af6f";
+	private String badEncryptNotHex = "0bzz94442e437fac:d8e4be4ae67a7bdf8f0717cebf425832:133df2f919b2e686a0c4ed5451b5af6f";
+
 	@Before
 	public void setUp() throws Exception {
 	}
@@ -29,6 +35,21 @@ public class SimpleEncryptionTest {
 	}
 	
 	@Test(expected=Exception.class)
+	public void testBadDecryptLength1() {
+		SimpleEncryption.decrypt("key", badEncryptLength1);
+	}
+
+	@Test(expected=Exception.class)
+	public void testBadDecryptLength2() {
+		SimpleEncryption.decrypt("key", badEncryptLength2);
+	}
+
+	@Test(expected=Exception.class)
+	public void testBadDecryptNotHex() {
+		SimpleEncryption.decrypt("key", badEncryptNotHex);
+	}
+	
+	@Test(expected=Exception.class)
 	public void testBadKey() {
 		SimpleEncryption.decrypt("badkey", SimpleEncryption.encrypt("goodkey", "Hello"));
 	}
@@ -38,6 +59,8 @@ public class SimpleEncryptionTest {
 		assertNotNull(SimpleEncryption.encrypt("key", "Hello").length());
 		assertFalse("Hello".equals(SimpleEncryption.encrypt("key", "Hello")));
 		assertEquals("Hello", SimpleEncryption.decrypt("key", SimpleEncryption.encrypt("key", "Hello")));
+		assertEquals("plain text", SimpleEncryption.decrypt("key", goodEncrypt));
+		assertFalse("wrong text".equals(SimpleEncryption.decrypt("key", goodEncrypt)));
 	}
 	
 	@Test
