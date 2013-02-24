@@ -577,6 +577,15 @@ function previewContent(contentId,previewId,pageVersionId,realmId,pageNameId,url
 
 function divReplaceCallback(responsestring) {
 	previewDiv.innerHTML = responsestring;
+	
+        if (typeof jsMath != 'undefined') {
+            // re-check whether math equation exists and load jsMath 
+            // require jsMath 3.3c or newer
+            jsMath.Autoload.ReCheck();
+            // restrict jsMath to process new content for efficiency
+            jsMath.ProcessBeforeShowing(previewDiv);
+        }
+	
 	sizeFrameAfterAjax(previewDiv);
 }
 
