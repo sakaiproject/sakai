@@ -70,6 +70,22 @@ public class ShaUtil {
 			return null;
 		}
 	}
+	
+
+	public static byte[] hexToByte(String hex) {
+		if (hex == null) {
+			return null;
+		}
+		byte[] base = new byte[hex.length() / 2];
+		int i = 0;
+		for (int j = 0; j < base.length; j++) {
+			int digit = -128;
+			digit += Character.digit(hex.charAt(i++), 16) * 0x10;
+			digit += Character.digit(hex.charAt(i++), 16) % 0x10;
+			base[j] = (byte) digit;
+		}
+		return base;
+	}
 
 	public static void main(String[] args) {
 		final String sample1 = "12345:/sites/foo/bar !@#$%^&*()_+|}{\":?><[]\';/.,'Áª£¢°¤¦¥»¼Ð­ÇÔÒ¹¿ö¬ ¨«Ï¶Ä©úÆûÂÉ¾Ö³²µ÷ÃÅ½";

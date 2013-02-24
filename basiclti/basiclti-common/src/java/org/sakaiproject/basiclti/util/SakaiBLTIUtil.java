@@ -63,6 +63,7 @@ public class SakaiBLTIUtil {
 	public static final String BASICLTI_LORI_ENABLED = "basiclti.lori.enabled";
 	public static final String BASICLTI_CONTENTLINK_ENABLED = "basiclti.contentlink.enabled";
 	public static final String BASICLTI_CONSUMER_USERIMAGE_ENABLED = "basiclti.consumer.userimage.enabled";
+	public static final String BASICLTI_ENCRYPTION_KEY = "basiclti.encryption.key";
 
 	public static void dPrint(String str)
 	{
@@ -112,7 +113,14 @@ public class SakaiBLTIUtil {
 			if ( xml == null ) return false;
 			BasicLTIUtil.parseDescriptor(info, launch, xml);
 		}
-		setProperty(info, "secret", getCorrectProperty(config,"secret", placement) );
+
+		String secret = getCorrectProperty(config,"secret", placement);
+
+		// TODO: BLTI-195 - See if we can remove this compatibility check
+		if ( secret == null || secret.trim().length() < 1 ) secret = getCorrectProperty(config,"encryptedsecret", placement);
+
+		setProperty(info, "secret", secret );
+
 		setProperty(info, "key", getCorrectProperty(config,"key", placement) );
 		setProperty(info, "debug", getCorrectProperty(config,"debug", placement) );
 		setProperty(info, "frameheight", getCorrectProperty(config,"frameheight", placement) );
@@ -149,6 +157,31 @@ public class SakaiBLTIUtil {
 				if ( value.length() < 1 ) continue;
 				setProperty(info, "custom_"+key, value);
 			}
+		}
+	}
+
+	public static String encryptSecret(String orig)
+	{
+		if ( orig == null || orig.trim().length() < 1 ) return orig;
+		String encryptionKey = ServerConfigurationService.getString(BASICLTI_ENCRYPTION_KEY, null);
+		if ( encryptionKey == null ) return orig;
+	
+		// May throw runtime exception - just let it log as this is abnormal...
+		String newsecret = SimpleEncryption.encrypt(encryptionKey, orig);
+		return newsecret;
+	}
+
+	public static String decryptSecret(String orig)
+	{
+		if ( orig == null || orig.trim().length() < 1 ) return orig;
+		String encryptionKey = ServerConfigurationService.getString(BASICLTI_ENCRYPTION_KEY, null);
+		if ( encryptionKey == null ) return orig;
+		try {
+			String newsecret = SimpleEncryption.decrypt(encryptionKey, orig);
+			return newsecret;
+		} catch (RuntimeException re) {
+			dPrint("Exception when decrypting secret - this is normal if the secret is unencrypted");      
+			return orig;
 		}
 	}
 
@@ -650,6 +683,9 @@ public class SakaiBLTIUtil {
 			secret = toNull(toolProps.getProperty("secret"));
 			key = toNull(toolProps.getProperty("key"));
 		}
+
+		// If secret is encrypted, decrypt it
+		secret = decryptSecret(secret);
 
 		// Pull in all of the custom parameters
 		for(Object okey : toolProps.keySet() ) {

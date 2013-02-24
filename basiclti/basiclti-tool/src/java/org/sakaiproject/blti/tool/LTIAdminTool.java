@@ -63,6 +63,7 @@ import org.sakaiproject.component.api.ServerConfigurationService;
 import org.sakaiproject.tool.cover.SessionManager;
 
 import org.sakaiproject.lti.api.LTIService;
+import org.sakaiproject.basiclti.util.SakaiBLTIUtil;
 // import org.sakaiproject.lti.impl.DBLTIService; // HACK
 
 import org.sakaiproject.util.foorm.SakaiFoorm;
@@ -514,13 +515,17 @@ public class LTIAdminTool extends VelocityPortletPaneledAction
 		String id = data.getParameters().getString(LTIService.LTI_ID);
 		Object retval = null;
 		String success = null;
+		String newSecret = reqProps.getProperty(LTIService.LTI_SECRET);
+		if ( newSecret != null ) {
+			newSecret = SakaiBLTIUtil.encryptSecret(newSecret.trim());
+			reqProps.setProperty(LTIService.LTI_SECRET, newSecret);
+		}
+
 		if ( id == null ) 
 		{
 			retval = ltiService.insertTool(reqProps);
 			success = rb.getString("success.created");
 		} else {
-			String newSecret = reqProps.getProperty(LTIService.LTI_SECRET);
-			if ( newSecret != null ) newSecret = newSecret.trim();
 			if ( SECRET_HIDDEN.equals(newSecret) ) reqProps.remove(LTIService.LTI_SECRET);
 			Long key = new Long(id);
 			retval = ltiService.updateTool(key, reqProps);
