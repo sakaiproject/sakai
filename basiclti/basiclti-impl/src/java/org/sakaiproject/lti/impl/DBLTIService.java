@@ -352,17 +352,18 @@ public class DBLTIService extends BaseLTIService implements LTIService {
 		}
 		Long oldToolKey = foorm.getLongNull(content.get(LTIService.LTI_TOOL_ID));
 
-		// Make sure we like the proposed tool_id
-		String newToolId = (String) foorm.getField(newProps, LTIService.LTI_TOOL_ID);
+		Object oToolId = (Object) foorm.getField(newProps, LTIService.LTI_TOOL_ID);
 		Long newToolKey = null;
-		if ( newToolId != null ) {
+		if ( oToolId != null && oToolId instanceof Number ) {
+			newToolKey = new Long( ((Number) oToolId).longValue());
+		} else if ( oToolId != null ) {
 			try {
-				newToolKey = new Long(newToolId);
+				newToolKey = new Long((String) oToolId);
 			} catch (Exception e) {
 				return rb.getString("error.invalid.toolid");
 			}
 		}
-		if ( newToolKey == null ) newToolKey = oldToolKey;
+		if ( newToolKey == null || newToolKey < 0 ) newToolKey = oldToolKey;
 
 		// Load the tool we are aiming for
 		Map<String, Object> tool = getToolDao(newToolKey, siteId, isMaintainRole);
