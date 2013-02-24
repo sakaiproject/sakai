@@ -296,7 +296,6 @@ public class IMSBLTIPortlet extends GenericPortlet {
 		try {
 			Site site = SiteService.getSite(toolConfig.getSiteId());
 			for (SitePage page : (List<SitePage>)site.getPages()) {
-				List<ToolConfiguration> pTools = page.getTools();
 				for(ToolConfiguration tool : (List<ToolConfiguration>) page.getTools()) {
 					String tid = tool.getToolId();
 					if ( "sakai.lessonbuildertool".equals(tid) ) foundLessons = true;
