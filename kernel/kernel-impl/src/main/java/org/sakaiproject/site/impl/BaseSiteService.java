@@ -667,7 +667,9 @@ public abstract class BaseSiteService implements SiteService, Observer
 	{
 		if (id == null) throw new IdUnusedException("<null>");
 
-		Site rv = getCachedSite(id);
+		// TODO: Fix this KNL-1011 
+		// Site rv = getCachedSite(id);
+		Site rv = null;
 
 		// Return the site from cache only if it is a BaseSite and has the description loaded.
 		//
@@ -689,8 +691,8 @@ public abstract class BaseSiteService implements SiteService, Observer
 		// track it - we don't track site access -ggolden
 		// EventTrackingService.post(EventTrackingService.newEvent(SECURE_ACCESS_SITE, site.getReference()));
 
-		// cache a copy
-		cacheSite(rv);
+		// TODO: Fix this KNL-1011 
+		// cacheSite(rv);
 
 		return rv;
 	}
@@ -1802,7 +1804,9 @@ public abstract class BaseSiteService implements SiteService, Observer
 	 */
 	public List<Site> getUserSites(boolean requireDescription) {
 		String userId = sessionManager().getCurrentSessionUserId();
-		List<Site> userSites = getCachedUserSites(userId);
+		// TODO: Fix this KNL-1011 
+		// List<Site> userSites = getCachedUserSites(userId);
+		List<Site> userSites = null;
 
 		// Retrieve sites on cache miss or anonymous user
 		if (userSites == null)
@@ -1812,7 +1816,8 @@ public abstract class BaseSiteService implements SiteService, Observer
 					null, org.sakaiproject.site.api.SiteService.SortType.TITLE_ASC, null, requireDescription);
 
 			// Cache the results
-			setCachedUserSites(userId, userSites);
+			// TODO: Fix this KNL-1011 
+			// setCachedUserSites(userId, userSites);
 		}
 
 		return userSites;
