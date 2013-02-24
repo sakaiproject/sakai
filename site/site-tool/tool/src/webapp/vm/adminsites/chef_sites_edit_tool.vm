@@ -73,7 +73,7 @@
 							#set ($paramValue = $toolParams.getProperty($paramName))
 								<p class="shorttext">
 									<label for="param_$paramName">
-										$paramName:
+										$validator.escapeHtml($paramName):
 									</label>
 									<input type="text" name="param_$paramName" id="param_$paramName" value="$validator.escapeHtml($paramValue)" />
 								</p>	
@@ -94,7 +94,7 @@
 						<tr>
 							<th>
 								<label for="param_$paramName">
-									$paramName:
+									$validator.escapeHtml($paramName):
 								</label>
 							</th>
 							<td>

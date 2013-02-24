@@ -53,7 +53,7 @@
 						#set ($toolParams = $tool.PlacementConfig)
 						#set ($paramNames = $toolParams.propertyNames())
 						#foreach ($name in $paramNames)
-							$name = $toolParams.getProperty($name)<br/>
+							$validator.escapeHtml($name) = $validator.escapeHtml($toolParams.getProperty($name))<br/>
 						#end
 						#if ($tool.LayoutHints)
 							$tlang.getString("sittoo.lay") $tool.LayoutHints
