@@ -27,7 +27,7 @@ import javax.crypto.spec.SecretKeySpec;
  */
 public class SimpleEncryption {
 
-	private static final String CIPHER = "AES/CBC/PKCS5Padding";
+	public static final String CIPHER = "AES/CBC/PKCS5Padding";
 	
 	public static String encrypt(String key, String source) {
 		if (source == null) {
@@ -73,10 +73,7 @@ public class SimpleEncryption {
 		String parts[] = encrypted.split(":");
 	
 		if ( parts.length == 4 && CIPHER.equals(parts[3]) ) {
-			// Preferred - with the CIPHER appended
-		} else if ( parts.length == 3 ) {
-			// TODO: Make sure this is needed
-			// BLTI-195 - Would prefer not to have this here
+			// Things are where they should be.
 		} else {
 			throw new RuntimeException("Corrupt encrypted source. Can't split source.");
 		}

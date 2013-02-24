@@ -116,8 +116,13 @@ public class SakaiBLTIUtil {
 
 		String secret = getCorrectProperty(config,"secret", placement);
 
-		// TODO: BLTI-195 - See if we can remove this compatibility check
-		if ( secret == null || secret.trim().length() < 1 ) secret = getCorrectProperty(config,"encryptedsecret", placement);
+		// BLTI-195 - Compatibility mode for old-style encrypted secrets
+		if ( secret == null || secret.trim().length() < 1 ) {
+			String eSecret = getCorrectProperty(config,"encryptedsecret", placement);
+			if ( eSecret != null && eSecret.trim().length() > 0 ) {
+				secret = eSecret.trim() + ":" + SimpleEncryption.CIPHER;
+			}
+		}
 
 		setProperty(info, "secret", secret );
 

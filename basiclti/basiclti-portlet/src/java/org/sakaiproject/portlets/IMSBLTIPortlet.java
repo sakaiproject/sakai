@@ -669,7 +669,7 @@ public class IMSBLTIPortlet extends GenericPortlet {
 						try {
 							if ( formParm != null && formParm.trim().length() > 0 ) {
 									formParm = SimpleEncryption.encrypt(key, formParm);
-									// TODO: BLTI-195 Check if we can remove this code (its harmless)
+									// BLTI-195 convert old-style encrypted secrets
 									prefs.reset("sakai:imsti.encryptedsecret"); 
 							}
 						} catch (RuntimeException re) {
