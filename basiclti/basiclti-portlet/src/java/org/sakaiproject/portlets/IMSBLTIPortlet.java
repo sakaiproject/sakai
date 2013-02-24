@@ -66,6 +66,7 @@ import org.sakaiproject.tool.api.Placement;
 import org.sakaiproject.site.api.Site;
 import org.sakaiproject.site.api.SitePage;
 import org.sakaiproject.site.cover.SiteService;
+import org.sakaiproject.exception.IdUnusedException;
 import org.sakaiproject.component.cover.ServerConfigurationService;
 import org.sakaiproject.util.ResourceLoader;
 import org.sakaiproject.util.FormattedText;
@@ -278,21 +279,44 @@ public class IMSBLTIPortlet extends GenericPortlet {
 
 		request.setAttribute("imsti.oldvalues", oldValues);
 
+		String allowSettings = ServerConfigurationService.getString(SakaiBLTIUtil.BASICLTI_SETTINGS_ENABLED, null);
+		request.setAttribute("allowSettings", new Boolean("true".equals(allowSettings)));
+		String allowRoster = ServerConfigurationService.getString(SakaiBLTIUtil.BASICLTI_ROSTER_ENABLED, null);
+		request.setAttribute("allowRoster", new Boolean("true".equals(allowRoster)));
+		String allowContentLink = ServerConfigurationService.getString(SakaiBLTIUtil.BASICLTI_CONTENTLINK_ENABLED, null);
+		request.setAttribute("allowContentLink", new Boolean("true".equals(allowContentLink)));
+
+		// For outcomes and LORI we check for tools in the site before offering the options
 		String allowOutcomes = ServerConfigurationService.getString(SakaiBLTIUtil.BASICLTI_OUTCOMES_ENABLED, null);
+		String allowLori = ServerConfigurationService.getString(SakaiBLTIUtil.BASICLTI_LORI_ENABLED, null);
+
+		boolean foundLessons = false;
+		boolean foundGradebook = false;
+		ToolConfiguration toolConfig = SiteService.findTool(placement.getId());
+		try {
+			Site site = SiteService.getSite(toolConfig.getSiteId());
+			for (SitePage page : (List<SitePage>)site.getPages()) {
+				List<ToolConfiguration> pTools = page.getTools();
+				for(ToolConfiguration tool : (List<ToolConfiguration>) page.getTools()) {
+					String tid = tool.getToolId();
+					if ( "sakai.lessonbuildertool".equals(tid) ) foundLessons = true;
+					if ( "sakai.gradebook.tool".equals(tid) || "sakai.gradebook.gwt.rpc".equals(tid) ) foundGradebook = true;
+				}
+			}
+		} catch (IdUnusedException ex) {
+			M_log.warn("Could not load site.");
+		}
+
+		if ( ! foundLessons ) allowLori = "false";
+		if ( ! foundGradebook ) allowOutcomes = "false";
+
 		request.setAttribute("allowOutcomes", new Boolean("true".equals(allowOutcomes)));
+		request.setAttribute("allowLori", new Boolean("true".equals(allowLori)));
 		if ( "true".equals(allowOutcomes) ) {
 			List<String> assignments = getGradeBookAssignments();
 			if ( assignments != null && assignments.size() > 0 ) request.setAttribute("assignments", assignments);
 		}
 
-		String allowSettings = ServerConfigurationService.getString(SakaiBLTIUtil.BASICLTI_SETTINGS_ENABLED, null);
-		request.setAttribute("allowSettings", new Boolean("true".equals(allowSettings)));
-		String allowRoster = ServerConfigurationService.getString(SakaiBLTIUtil.BASICLTI_ROSTER_ENABLED, null);
-		request.setAttribute("allowRoster", new Boolean("true".equals(allowRoster)));
-		String allowLori = ServerConfigurationService.getString(SakaiBLTIUtil.BASICLTI_LORI_ENABLED, null);
-		request.setAttribute("allowLori", new Boolean("true".equals(allowLori)));
-		String allowContentLink = ServerConfigurationService.getString(SakaiBLTIUtil.BASICLTI_CONTENTLINK_ENABLED, null);
-		request.setAttribute("allowContentLink", new Boolean("true".equals(allowContentLink)));
 
 		clearErrorMessage(request);
 	}
