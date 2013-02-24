@@ -95,7 +95,7 @@
                         </div>
                         <div style="display: block;" id="rwiki_sidebar">
                         <div class="rwiki_renderedContent">
-                  <xsl:copy-of select="/entity-service/sidebar/rendered-content/content/rendered/node()"/>
+                  <xsl:value-of select="/entity-service/sidebar/rendered-content/content/rendered/node()" disable-output-escaping="yes"/>
     					</div>
     					</div>
                       </xsl:when>
@@ -106,7 +106,7 @@
 -->                         
                             <div class="rwikiRenderBody">
                                 <div class="rwiki_RenderedContent">
-				  <xsl:copy-of select="/entity-service/entity/rendered-content/content/rendered/node()"/>
+				  <xsl:value-of select="/entity-service/entity/rendered-content/content/rendered/node()" disable-output-escaping="yes"/>
                                 </div>
                             </div>
                         </div>
