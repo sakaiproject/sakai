@@ -112,6 +112,9 @@ public class BaseSite implements Site
 
 	/** Track whether this description has been loaded. */
 	protected boolean m_descriptionLoaded = false;
+	
+	/** Track whether this site has been fully loaded. */
+	protected boolean m_fullyLoaded = false;
 
 	/** The name of the role given to users who join a joinable site. */
 	protected String m_joinerRole = null;
@@ -1093,6 +1096,8 @@ public class BaseSite implements Site
 		// now all properties
 		siteService.storage()
 				.readAllSiteProperties(this);
+		
+		m_fullyLoaded = true;
 	}
 
 	/**
@@ -1876,6 +1881,21 @@ public class BaseSite implements Site
 	public boolean isDescriptionLoaded()
 	{
 		return m_descriptionLoaded;
+	}
+	
+	/**
+	 * Check whether this Site has been fully populated.
+	 * Note that this is intentionally not exposed through the Site interface to keep it
+	 * within the implementation package. The specifics of other lazy loading are not exposed
+	 * through the Site interface; the collections are simply empty if not loaded. The
+	 * SiteService encourages calls to {@link SiteService#getSite(String) getSite} and the
+	 * Site interface exposes {@link Site#loadAll() loadAll} to ensure all loading.
+	 *
+	 * @return true if the Site object has been fully loaded (by loadAll)
+	 */
+	public boolean isFullyLoaded()
+	{
+		return m_fullyLoaded;
 	}
 
 

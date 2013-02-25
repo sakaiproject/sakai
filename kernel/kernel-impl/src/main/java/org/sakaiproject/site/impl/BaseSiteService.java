@@ -648,6 +648,7 @@ public abstract class BaseSiteService implements SiteService, Observer
 		{
 			String ref = siteReference(site.getId());
 			Site copy = new BaseSite(this, site, true);
+			clearUserCacheForSite(site);
 			m_siteCache.put(ref, copy, m_cacheSeconds);
 			return true;
 		}
@@ -667,17 +668,15 @@ public abstract class BaseSiteService implements SiteService, Observer
 	{
 		if (id == null) throw new IdUnusedException("<null>");
 
-		// TODO: Fix this KNL-1011 
-		// Site rv = getCachedSite(id);
-		Site rv = null;
+		Site rv = getCachedSite(id);
 
-		// Return the site from cache only if it is a BaseSite and has the description loaded.
+		// Return the site from cache only if it is a BaseSite and is fully loaded.
 		//
 		// Note that getCachedSite always returns a BaseSite instance now, so
 		// this instanceof check is not strictly necessary, but paranoid. If
 		// the cast would fail, we have to retrieve the site. This is slightly
 		// kludgy because the caching and lazy-loading are somewhat bolted on.
-		if ( rv != null && rv instanceof BaseSite && ((BaseSite)rv).isDescriptionLoaded()) return rv;
+		if ( rv != null && rv instanceof BaseSite && ((BaseSite)rv).isFullyLoaded()) return rv;
 
 		// Get the whole site, including the description.
 		rv = storage().get(id);
@@ -691,8 +690,8 @@ public abstract class BaseSiteService implements SiteService, Observer
 		// track it - we don't track site access -ggolden
 		// EventTrackingService.post(EventTrackingService.newEvent(SECURE_ACCESS_SITE, site.getReference()));
 
-		// TODO: Fix this KNL-1011 
-		// cacheSite(rv);
+		// cache a copy
+		cacheSite(rv);
 
 		return rv;
 	}
@@ -987,6 +986,7 @@ public abstract class BaseSiteService implements SiteService, Observer
 
 		// complete the edit
 		storage().save(site);
+		cacheSite(site);
 
 		// save any modified azgs
 		try
@@ -1804,9 +1804,7 @@ public abstract class BaseSiteService implements SiteService, Observer
 	 */
 	public List<Site> getUserSites(boolean requireDescription) {
 		String userId = sessionManager().getCurrentSessionUserId();
-		// TODO: Fix this KNL-1011 
-		// List<Site> userSites = getCachedUserSites(userId);
-		List<Site> userSites = null;
+		List<Site> userSites = getCachedUserSites(userId);
 
 		// Retrieve sites on cache miss or anonymous user
 		if (userSites == null)
@@ -1816,8 +1814,7 @@ public abstract class BaseSiteService implements SiteService, Observer
 					null, org.sakaiproject.site.api.SiteService.SortType.TITLE_ASC, null, requireDescription);
 
 			// Cache the results
-			// TODO: Fix this KNL-1011 
-			// setCachedUserSites(userId, userSites);
+			setCachedUserSites(userId, userSites);
 		}
 
 		return userSites;
