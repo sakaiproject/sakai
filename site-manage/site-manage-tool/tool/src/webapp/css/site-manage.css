@@ -46,3 +46,161 @@ dl.defList dd{
 .ui-widget-content{
 	min-width: 30em;
 }
+
+#templateSettings, #siteTypeList{
+    padding:.5em;
+    background:#eee;
+    width:60em;
+    -webkit-border-radius:5px;
+   -moz-border-radius:5px;
+    border-radius:5px;
+}
+#siteTypeList p {
+    border:none;
+    padding:.1em 0;
+    margin:5px !important
+}
+
+#templateList {
+    margin: 0 !important;
+    padding: 0;
+    list-style: none;
+}
+
+ #templateList li {
+    background:#fff;
+    margin:0 5px!important;
+    padding: 10px 5px;
+    height:100%;
+    overflow: hidden;
+    border-bottom: 1px solid #ccc;
+}
+#templateList li.siteTypeRow {
+        padding: 2px 5px;
+}
+#allTemplateSettings {
+    margin: 15px 5px 0;
+    height:100%;
+    overflow: hidden;
+    background: #fff;
+    border:1px solid #eee;
+}
+.allTemplateSettingsHighlight {
+    border:1px solid #aaa !important
+}
+#templateSettingsTitleTermContainer {
+     padding:5px 8px;
+     float:left;
+}
+#fromTemplateSettingsContainer {
+    padding:5px 8px;
+    float:left;
+}
+
+ #templateList li .templateName {
+     float: left;
+     width:25%;
+     overflow: hidden;
+    text-overflow: ellipsis;
+}
+#templateList li .templateDescription {
+     float: right;
+     width:68%;
+     overflow: hidden;
+    text-overflow: ellipsis;
+}
+#templateList li .templateDescription p:first-child {
+    margin: 0;
+}
+#templateList li.selectedTemplate {
+    background: #ffe
+}
+
+.templateSettingsPlaceholder {
+    float: none;
+    clear: both;
+    height:100%;
+    overflow: hidden;
+}
+#templateList li.siteTypeRow {
+    background: #eee;
+    outline: none;
+    margin:5px 0 0 0 !important;
+    border-bottom: none;
+}
+#templateList li.siteTypeRow h4 {
+    margin:0 !important;
+}
+#templateList li.siteTypeRow h4 a{
+    border: 1px solid #d6d7d9;
+    background: #e3e4e5;
+    background: -moz-linear-gradient(top, #e3e4e5 0%, #d9d9d9 100%);
+    background: -webkit-gradient(linear, left top, left bottom, color-stop(0%,#e3e4e5), color-stop(100%,#d9d9d9));
+    background: -webkit-linear-gradient(top, #e3e4e5 0%,#d9d9d9 100%);
+    background: -o-linear-gradient(top, #e3e4e5 0%,#d9d9d9 100%);
+    background: -ms-linear-gradient(top, #e3e4e5 0%,#d9d9d9 100%);
+    background: linear-gradient(to bottom, #e3e4e5 0%,#d9d9d9 100%);
+    text-decoration: none;
+    padding: 5px;
+    display: block;
+    margin: 0;
+    -webkit-border-radius: 5px;
+    -moz-border-radius: 5px;
+    border-radius: 5px;
+    text-transform: capitalize;
+}
+#templateList li.siteTypeRow span.siteTypeRowBlurb {
+    color: #555;
+    padding: 5px;
+    font-size: 85%;
+    text-transform: none;
+}
+#templateList li.siteTypeRow h4 a .siteType {
+        text-transform: capitalize;
+        padding:2px 8px;
+        background: #fff;
+        -webkit-border-radius: 3px;
+        -moz-border-radius: 3px;
+        border-radius: 3px;
+}
+#templateList li.siteTypeRow h4 a:hover {
+    border: 1px solid #cccdd1;
+    background: #d9dadd;
+    background: -moz-linear-gradient(top, #d9dadd 0%, #cccccc 100%);
+    background: -webkit-gradient(linear, left top, left bottom, color-stop(0%,#d9dadd), color-stop(100%,#cccccc));
+    background: -webkit-linear-gradient(top, #d9dadd 0%,#cccccc 100%);
+    background: -o-linear-gradient(top, #d9dadd 0%,#cccccc 100%);
+    background: -ms-linear-gradient(top, #d9dadd 0%,#cccccc 100%);
+    background: linear-gradient(to bottom, #d9dadd 0%,#cccccc 100%);
+}
+
+#templateList li.siteTypeRow h4 a.openDisc {
+    -webkit-border-bottom-right-radius: 0;
+    -webkit-border-bottom-left-radius: 0;
+    -moz-border-radius-bottomright: 0;
+    -moz-border-radius-bottomleft: 0;
+    border-bottom-right-radius: 0;
+    border-bottom-left-radius: 0;
+}
+
+#fromTemplateSettingsContainer_instruction_control {
+    padding-left: 4em;
+}
+#fromTemplateSettingsContainer_instruction_body {
+    position: absolute;
+    background: #ffe;
+    color: #000;
+    border: 1px solid #9d9d9d;
+    padding:3px;
+    -webkit-box-shadow:  2px 2px 2px 2px #CECECE;
+     box-shadow:  2px 2px 2px 2px #CECECE;
+     font-size: 90%;
+}
+#fromTemplateSettingsContainer_instruction_body:hover {
+    cursor: pointer;
+}
+
+#fromTemplateSettingsContainer_instruction_body p {
+    padding:5px;
+    margin:0;
+}

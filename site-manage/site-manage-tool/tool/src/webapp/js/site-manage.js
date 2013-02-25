@@ -154,35 +154,67 @@ sakai.setupSelectList = function(list, allcontrol, highlightClass){
 };
 
 sakai.siteTypeSetup = function(){
-
+    var templateControls='';
+    //from sakai.properties - json with what controls to display (and in what state) for each site type    
+    if ($('#templateControls').val() !== '') {
+        templateControls = eval('(' + $('#templateControls').val() + ')');
+    }
+    else {
+        templateControls =='';
+    }
+     //the #courseSiteTypes input[type=text] contains what site types are associated with the course category
+     // if there are none associated in sakai.properties, the value will be just one ('course')
+     var courseSiteTypes = $('#courseSiteTypes').val().replace('[','').replace(']','').replace(' ','').split(',');
+    
+    //uncheck site type radio
     $('input[name="itemType"]').attr('checked', '');
+    
+    // handles clicking in "Build site from template"
     $('#copy').click(function(e){
+        //open template picker
         $('#templateSettings').show();
+        //uncheck build own option
         $('#buildOwn').attr('checked', '');
+        //hide the list of sites availabel when building own
         $('#siteTypeList').hide();
+        //hide the term select used when selecting a course when building own
         $('#termList').hide();
         utils.resizeFrame('grow');
+        //show submit button used when using templates 
         $('#submitFromTemplate').show();
+        //show submit button used when building own, disable it
         $('#submitBuildOwn').hide();
         $('#submitBuildOwn').attr('disabled', 'disabled');
-	$('#copyContent').attr('checked','checked');
+        //TODO: why? commenting out for now
+        //$('#copyContent').attr('checked', 'checked');
     });
     
     $('#buildOwn').click(function(e){
+        //hide template picker
         $('#templateSettings').hide();
+        //uncheck any checked inputs in the template picker
         $('#templateSettings input:checked').attr('checked', '');
+        //hide template inner container for title/term selection, "copy users" etc.
+        $('#allTemplateSettings').hide();
+        //void the template title and reset the term selection
         $('#siteTitleField').attr('value', '');
-        $('input[id="copy"]').attr('checked', '');
         $('#templateSettings select').attr('selectedIndex', 0);
-        $('#templateSettings span').hide();
+        //hide the template containers for both title and term selection
+        $('#templateSettingsTitleTerm span.templateTitleTerm').hide();
+        //uncheck the "Create site from template" radio
+        $('input[id="copy"]').attr('checked', '');
+        // show the build own choices
         $('#siteTypeList').show();
-        $('#submitFromTemplate').hide();
-            $('#submitFromTemplate').attr('disabled', 'disabled');
+        //hide the submit for creating from template and disable it
+        $('#submitFromTemplate').hide().attr('disabled', 'disabled');
+        // hide the submit for creating a course from template, in case it was showing
         $('#submitFromTemplateCourse').hide();
+        //show the submit for build own
         $('#submitBuildOwn').show();
-        $('#nextInstructions span').hide();
         utils.resizeFrame('grow');
     });
+    // check for a value in the create from template non-course title 
+    // field and either enable or disable the submit, also check onblur below
     $('#siteTitleField').keyup(function(e){
         if ($(this).attr('value').length >= 1) {
             $('#submitFromTemplate').attr('disabled', '');
@@ -200,7 +232,8 @@ sakai.siteTypeSetup = function(){
         }
     });
     
-    
+    // check that user has picked a term in the term selection field
+    //to enable or disable submits for create course from template
     $('#selectTermTemplate').change(function(){
         if (this.selectedIndex === 0) {
             $('#submitFromTemplateCourse').attr('disabled', 'disabled');
@@ -211,39 +244,153 @@ sakai.siteTypeSetup = function(){
         }
     });
     
-    $('#templateSiteId').change(function(){
-        $('#submitFromTemplateCourse').attr('disabled', 'disabled');
-        $('#submitFromTemplate').attr('disabled', 'disabled');
-        if (this.selectedIndex === 0) {
-            $('#templateSettings span').hide();
-            $('#templateSettings select').attr('selectedIndex', 0);
-            $('#submitFromTemplateCourse').attr('disabled', 'disabled');
-                $('#siteTitleField').attr('value', '');
+    // handler that opens a block explaining what all the options are 
+    // in the template selection (copy users, content, publish now)
+    $('#fromTemplateSettingsContainer_instruction_control').click(function(){
+        var pos = $(this).position();
+        varContainerHeight = $('#fromTemplateSettingsContainer_instruction_body').height();
+        $('#fromTemplateSettingsContainer_instruction_body').css({'top': pos.top - varContainerHeight - 20,'left': pos.left - 290}).toggle();
+    });
+    // handler to 
+    $('#fromTemplateSettingsContainer_instruction_body').click(function(){
+        $(this).fadeOut('slow');
+    });
+    
+    // handler for the template picker radio
+    $('#templateList input').click(function(e){
+        //what is the ID of the template site
+        var selectedTemplateId = $('#templateList input[type="radio"]:checked').val();
+
+        if (!selectedTemplateId){  // how likely is this? 
+            $('#templateSettingsTitleTerm span').hide(); // hide title for non-course sites
+            $('#submitFromTemplateCourse, #submitFromTemplateCourse ').attr('disabled', 'disabled'); //disable submit to create from templates
+            $('#siteTitleField').attr('value', ''); // empty title input
+            $('#siteTerms select').attr('selectedIndex', 0); // zero out the term select
         }
         else {
-        
-            var type = $('#templateSiteId option:selected').attr('class');
-            $('#templateSettings span').hide();
-            $('#nextInstructions span').hide();
-            if (type == "course") {
-              $('#templateCourseInstruction').show();
-              $('#submitFromTemplate').hide();
-			  $('#submitFromTemplateCourse').show();
-    		  $('#siteTerms').show();
-              $('#siteTitle').hide();	
-              $('#siteTerms select').focus();
-              $('#siteTitleField').attr('value', '');
+            // what is the site type of the template site
+            var type = $('#templateList input[type="radio"]:checked').attr('class');
+            $('#templateSettingsTitleTerm span.templateTitleTerm').hide(); // hide template term selection and title input controls
+            $('#templateList li').removeClass('selectedTemplate'); // remove hightlights from all template rows
+             $('#templateList #row' + selectedTemplateId).addClass('selectedTemplate'); // add highlight to selected row
+             $('#allTemplateSettings').addClass('allTemplateSettingsHighlight');
+             // move in the DOM the template settings to this row
+            $('#templateList #row' + selectedTemplateId  + ' .templateSettingsPlaceholder').append($('#allTemplateSettings'));
+            // hide instructions for settings
+            $('#fromTemplateSettingsContainer_instruction_body').hide();
+            $('#publishSiteWrapper input').attr('checked', '');
+
+            //templateControls is a json that comes from a sakai.property
+            //it identifies for each site type, whether to show a control, and what attrs it has. 
+            if (templateControls !== '') {
+                $.each(templateControls.templateControls, function(key, value){
+                    if (key === type) {
+                        if (this.copyContentVis === true) {
+                            $('#copyContentWrapper').show();
+                            $('#fromTemplateSettingsContainer_instruction_body_copyUsers').show();
+                        }
+                        else {
+                            $('#copyContentWrapper').hide();
+                            $('#fromTemplateSettingsContainer_instruction_body_copyUsers').hide();
+                        }
+                        if (this.copyContentChecked === true) {
+                            $('#copyContentWrapper input').attr('checked', 'checked');
+                        }
+                        else {
+                            $('#copyContentWrapper input').attr('checked', '')
+                        }
+                        if (this.copyContentLocked === true) {
+                            $('#copyContentWrapper input').attr('disabled', 'disabled');
+                        }
+                        else {
+                            $('#copyContentWrapper input').attr('disabled', '');
+                        }
+                        if (this.copyUsersVis === true) {
+                            $('#copyUsersWrapper').show();
+                            $('#fromTemplateSettingsContainer_instruction_body_copyContent').show();
+                        }
+                        else {
+                            $('#copyUsersWrapper').hide();
+                            $('#fromTemplateSettingsContainer_instruction_body_copyContent').hide();
+                        }
+                        if (this.copyUsersChecked === true) {
+                            $('#copyUsersWrapper input').attr('checked', 'checked');
+                        }
+                        else {
+                            $('#copyUsersWrapper input').attr('checked', '')
+                        }
+                        if (this.copyUsersLocked === true) {
+                            $('#copyUsersWrapper input').attr('disabled', 'disabled');
+                        }
+                        else {
+                            $('#copyUsersWrapper input').attr('disabled', '');
+                        }
+                    }
+                });
             }
             else {
-                $('#submitFromTemplate').show();
-                $('#submitFromTemplateCourse').hide();
-                $('#templateNonCourseInstruction').show();				
-                $('#siteTitle').show();	
-                $('#siteTerms select').attr('selectedIndex', 0);
-                $('#siteTitle input').focus();
+                //show all the controls, unchecked, unlocked, since there are no settings
+                $('#copyContentWrapper').show().find('input').attr('disabled', '').attr('checked','');
+                $('#copyUsersWrapper').show().find('input').attr('disabled', '').attr('checked','');
+                $('#fromTemplateSettingsContainer_instruction_body_copyUsers').show();
+                $('#fromTemplateSettingsContainer_instruction_body_copyContent').show();
             }
-        }
+            
+            // show settings
+            $('#allTemplateSettings').fadeIn('slow');
+            //check to see if this template is of a type that maps to a course
+            if ($.inArray(type, courseSiteTypes) !==-1) { //either there is a mapping to what types of sites resolve to courses or a fallback to 'course'  
+                $('#submitFromTemplate').hide(); // hide the non-course submit button 
+                $('#submitFromTemplateCourse').show(); // show the submit button for course
+                $('#siteTerms').show(); // show the term selector
+                $('#siteTitle').hide(); // hide the title input (Note: can an installation specify that a course can have a user generated title)?
+                $('#siteTerms select').focus(); // focus the term select control
+                $('#siteTitleField').attr('value', ''); // void the value of the title input
+            }
+            // the picked template has a type that does not resolve to a course
+            else { 
+                $('#submitFromTemplate').show(); // show non-course submit button
+                $('#submitFromTemplateCourse').hide(); // hide the course submit button
+                $('#siteTitle').show(); //show title input
+                $('#siteTerms').hide();//hide the container that holds the site terms
+                $('#siteTerms select').attr('selectedIndex', 0); // zero out the term select
+                $('#siteTitle input[type="text"]').focus(); // focus the title input
+            }
+      }
     });
+    
+    // populate the blurbs about each type from the json
+    if (templateControls !== '') { 
+        $.each(templateControls.templateControls, function(key, value){
+          $('.' + key).find('.siteTypeRowBlurb').html(this.blurb);
+        });
+    }
+
+    // handles clicking on a category (course, project, whatever)
+    // opens the list in the category, does clean up (closes other categories, resets control UI)
+    $('.siteTypeRow a').click(function(e) {
+        e.preventDefault();
+        // hide the submit for a course creation via template
+       $('#submitFromTemplateCourse').hide();
+       //disable and show the generic submit for creating from template
+       $('#submitFromTemplate').attr('disabled','disabled').show();
+       // clean up - hide all rows
+       $('li[class^=row]').hide();
+       // toggle the UI of all the category links
+       $('.siteTypeRow a .open').hide();
+       $('.siteTypeRow a .closed').show();
+       // reset all categories control UI to "closed" 
+        $('.siteTypeRow a').removeClass('openDisc');
+        $(this).toggleClass('openDisc');
+       // display all rows belonging to this category
+       $('.row' + $(this).attr('href')).fadeToggle();
+       // set new category control UI some more
+       $(this).find('.closed').hide();
+       $(this).find('.open').show(); 
+       utils.resizeFrame('grow');
+    });
+    
+    // this handles selections on the site type list (trad course, project, portfolio, etc.)
     $('#siteTypeList input').click(function(e){
         if ($(this).attr('id') == 'course') {
             $('#termList').show();
