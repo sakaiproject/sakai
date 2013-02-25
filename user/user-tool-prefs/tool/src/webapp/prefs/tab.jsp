@@ -24,9 +24,25 @@ function checkReloadTop() {
 
 jQuery(document).ready(function () {
     setTimeout('checkReloadTop();', 1500);
+    setupMultipleSelect();
 });
 //-->
 </script>
+<div id="movePanel">
+    <div id="movePanelTop"><a href="#" accesskey="t" title="<h:outputText value="#{msgs.tabs_move_top}"/>"><h:graphicImage value="prefs/to-top.png" alt="#{msgs.tabs_move_top}" /><h:outputText styleClass="skip" value="#{msgs.tabs_move_top}"/></a></div>
+    <div id="movePanelTopDummy" style="display:none"><h:graphicImage value="prefs/to-top-dis.png" alt="" /></div>
+    <div id="movePanelLeftRight">
+        
+        <a href="#" id="movePanelLeft" accesskey="l" title="<h:outputText value="#{msgs.tabs_move_left}"/>"><h:graphicImage value="prefs/to-left.png" alt="#{msgs.tab_move_inst_re}" /><h:outputText styleClass="skip" value="#{msgs.tabs_move_left}"/></a>
+        <span id="movePanelLeftDummy" style="display:none"><h:graphicImage value="prefs/to-left-dis.png" alt="" /></span> 
+        
+        <a href="#" id="movePanelRight" accesskey="r" title="<h:outputText value="#{msgs.tabs_move_right}"/>"><h:graphicImage value="prefs/to-right.png" alt="#{msgs.tabs_move_right}" /><h:outputText styleClass="skip" value="#{msgs.tabs_move_right}"/></a>
+        <span id="movePanelRightDummy"><h:graphicImage value="prefs/to-right-dis.png" alt="" /></span> 
+    </div>
+    
+    <div id="movePanelBottom"><a href="#" accesskey="b" title="<h:outputText value="#{msgs.tabs_move_bottom}"/>"><h:graphicImage value="prefs/to-bottom.png" alt="#{msgs.tabs_move_bottom}" /><h:outputText styleClass="skip" value="#{msgs.tabs_move_bottom}"/></a></div>
+    <div id="movePanelBottomDummy" style="display:none"><h:graphicImage value="prefs/to-bottom-dis.png" alt="" /></div>
+</div> 
 </f:verbatim>
 		<h:form id="prefs_form">
 				<sakai:tool_bar>
@@ -69,17 +85,24 @@ jQuery(document).ready(function () {
 						<jsp:include page="prefUpdatedMsg.jsp"/>	
 					</h:panelGroup>
 				</h3>
-				
+        <div class="act">
+            <h:commandButton accesskey="s" id="prefAllSub" styleClass="active formButton" value="#{msgs.update_pref}" action="#{UserPrefsTool.processActionSaveOrder}"></h:commandButton>
+            <h:commandButton accesskey="x" id="cancel"  value="#{msgs.cancel_pref}" action="#{UserPrefsTool.processActionCancel}" styleClass="formButton"></h:commandButton>
+        </div>				
 				
                           <sakai:messages rendered="#{!empty facesContext.maximumSeverity}" />
 <f:verbatim>
 <div class="layoutReorderer-container fl-container-flex" id="layoutReorderer" style="margin:.5em 0">
-<p>
-<h:outputText value="#{msgs.prefs_mouse_instructions}" escape="false"/>
-</p>
-<p>
-<h:outputText value="#{msgs.prefs_keyboard_instructions}" escape="false"/>
-</p>
+    <p>
+        <h:outputText value="#{msgs.prefs_mouse_instructions}" escape="false"/>
+    </p>
+    <p>
+        <h:outputText value="#{msgs.prefs_keyboard_instructions}" escape="false"/>
+    </p>
+    <p>
+        <h:outputText value="#{msgs.prefs_multitples_instructions}" escape="false"/>
+    </p>
+    
 <div class="columnSetup3 fluid-vertical-order">
 <!-- invalid drag n drop message template -->
 <p class="flc-reorderer-dropWarning layoutReorderer-dropWarning">
@@ -88,7 +111,7 @@ jQuery(document).ready(function () {
 </f:verbatim>
                 <f:verbatim>
 			<!-- Column #1 -->
-                        <div class="flc-reorderer-column col1">
+                        <div class="flc-reorderer-column col1" id="reorderCol1">
                             <div class="colTitle layoutReorderer-locked"><h4><h:outputText value="#{msgs.prefs_fav_sites}" /></h4></div>
 
 <div class="flc-reorderer-module layoutReorderer-module layoutReorderer-locked">
@@ -106,14 +129,25 @@ jQuery(document).ready(function () {
                  <f:verbatim>">
                       <div class="demoSelector-layoutReorderer layoutReorderer-module-dragbar">
 		</f:verbatim>
-                <t:outputText value="#{item.label}"></t:outputText>
-                <f:verbatim></div></div></f:verbatim>
+                <t:outputText value="#{item.label}" styleClass="siteLabel"></t:outputText>
+                <f:verbatim>
+                    <div class="checkBoxContainer"><label>
+                </f:verbatim>
+                <t:outputText value="#{msgs.tabs_screen_reader_label} " styleClass="skip"/>
+                <t:outputText value="#{item.label}" styleClass="skip"/>
+                <f:verbatim></label>
+                <input type="checkbox" class="selectSiteCheck" title="</f:verbatim>
+                <t:outputText value="#{msgs.tabs_screen_reader_label} "/>
+                <t:outputText value="#{item.label}"/>
+                <f:verbatim>"/></div></div></div></f:verbatim>
+
+
 		</t:dataList>
                 <f:verbatim></div></f:verbatim>
 
                 <f:verbatim>
 			<!-- Column #2 -->
-                        <div class="flc-reorderer-column col2">
+                        <div class="flc-reorderer-column col2"  id="reorderCol2">
                             <div class="colTitle layoutReorderer-locked"><h4><h:outputText value="#{msgs.prefs_active_sites}" /></h4></div>
 		</f:verbatim>
 		<t:dataList id="dt2" value="#{UserPrefsTool.prefDrawerItems}" 
@@ -127,14 +161,23 @@ jQuery(document).ready(function () {
                  <f:verbatim>">
                       <div class="demoSelector-layoutReorderer layoutReorderer-module-dragbar">
 		</f:verbatim>
-                <t:outputText value="#{item.label}"></t:outputText>
-                <f:verbatim></div></div></f:verbatim>
+                <t:outputText value="#{item.label}" styleClass="siteLabel"></t:outputText>
+                <f:verbatim>
+                    <div class="checkBoxContainer"><label>
+                </f:verbatim>
+                <t:outputText value="#{msgs.tabs_screen_reader_label} " styleClass="skip"/>
+                <t:outputText value="#{item.label}" styleClass="skip"/>
+                <f:verbatim></label>
+                <input type="checkbox" class="selectSiteCheck" title="</f:verbatim>
+                <t:outputText value="#{msgs.tabs_screen_reader_label} "/>
+                <t:outputText value="#{item.label}"/>
+                <f:verbatim>"/></div></div></div></f:verbatim>
 		</t:dataList>
                 <f:verbatim></div></f:verbatim>
 
                 <f:verbatim>
 			<!-- Column #3 -->
-                        <div class="flc-reorderer-column fl-container-flex25 fl-force-left col3">
+                        <div class="flc-reorderer-column fl-container-flex25 fl-force-left col3"  id="reorderCol3">
                             <div class="colTitle layoutReorderer-locked"><h4><h:outputText value="#{msgs.prefs_archive_sites}" /></h4></div>
 		</f:verbatim>
 		<t:dataList id="dt3" value="#{UserPrefsTool.prefHiddenItems}" 
@@ -148,8 +191,18 @@ jQuery(document).ready(function () {
                  <f:verbatim>">
                       <div class="demoSelector-layoutReorderer layoutReorderer-module-dragbar">
 		</f:verbatim>
-                <t:outputText value="#{item.label}"></t:outputText>
-                <f:verbatim></div></div></f:verbatim>
+                <t:outputText value="#{item.label}" styleClass="siteLabel"></t:outputText>
+                <f:verbatim>
+                    <div class="checkBoxContainer"><label>
+                </f:verbatim>
+                <t:outputText value="#{msgs.tabs_screen_reader_label} " styleClass="skip"/>
+                <t:outputText value="#{item.label}" styleClass="skip"/>
+                <f:verbatim></label>
+                <input type="checkbox" class="selectSiteCheck" title="</f:verbatim>
+                <t:outputText value="#{msgs.tabs_screen_reader_label} "/>
+                <t:outputText value="#{item.label}"/>
+                <f:verbatim>"/></div></div></div></f:verbatim>
+
 		</t:dataList>
                 <f:verbatim></div></f:verbatim>
                 <f:verbatim></div></div>
@@ -170,10 +223,11 @@ jQuery(document).ready(function () {
 <script type="text/javascript">
    initlayoutReorderer();
 </script>
+
 </f:verbatim>
 </h:form>
-
-</sakai:view_content>                                                                                                                     
+</sakai:view_content>
 </sakai:view_container>
 
 </f:view>
+

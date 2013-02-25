@@ -56,7 +56,7 @@
  }
 .colTitle {
      background-color:#fff;
-     margin:-18px -5px 10px -5px;
+     margin:-18px 0px 10px 0px;
      
  }
 .layoutReorderer-locked .layoutReorderer-module-dragbar {
@@ -65,7 +65,7 @@
     padding:3px 5px;
     cursor: default;
     outline:none;
-    background: #eee url("/library/image/silk/lock.png")  99% 50% no-repeat;
+    background: #fff url("/library/image/silk/lock.png")  99% 50% no-repeat;
 }
 
 /* 
@@ -145,8 +145,80 @@
 .col1, .col2, .col3{
     width:30%;
     float:left;
-    margin:0 5px;
+    margin:0;
     padding:5px;
-    min-height:50px;
-    background:#eee
+    background:#fff;
+}
+.siteLabel {
+    width: 85%;
+    white-space: nowrap;
+    overflow: hidden;
+    display: block;
+    float: left;
+    margin-top:2px;
+    text-overflow: ellipsis
+}
+.siteSelected {
+    background: #eee
+}
+.checkBoxContainer {
+    float:right;
+    width:20px;
+}
+.selectSiteCheck {
+    cursor:default;
+}
+#movePanel {
+    display: none;
+    position:absolute;
+    width: 75px;
+    height:75px;
+    border:1px solid #ccc;
+    background: #eee;
+    padding:3px;
+    -webkit-box-shadow: 4px 3px 10px rgba(50, 50, 50, 0.75);
+    -moz-box-shadow: 4px 3px 10px rgba(50, 50, 50, 0.75);
+    box-shadow: 4px 3px 10px rgba(50, 50, 50, 0.75);
+    -webkit-border-radius: 5px;
+    -moz-border-radius: 5px;
+    border-radius: 5px;
+}
+#movePanel a {
+    text-decoration: none;
+}
+#movePanelLeftRight {
+    height:25px;
+    padding:0;
+}
+#movePanelLeft, #movePanelLeftDummy,#movePanelRight, #moveRightDummy, #movePanelTop, #movePanelBottom {
+    display:block;
+} 
+#movePanelLeft, #movePanelLeftDummy {
+    float:left;
+}
+#movePanelRight, #movePanelRightDummy {
+      float:right;
+}
+#movePanelTop, #movePanelBottom,#movePanelTopDummy, #movePanelBottomDummy  {
+    text-align:center;
+    width:100%;
+    height:25px;
+}
+#reorderCol1 > span, #reorderCol2 > span, #reorderCol3 > span {
+    min-height: 350px;
+    height: 350px;
+}
+#reorderCol1 > span {
+    min-height: 320px;
+    height: 320px;
+} 
+#reorderCol3 > span {
+    /*
+     * This was intended to provide scrollbars if the lists went 
+     * over a certain height - but really complicated the 
+     * drag and drop and keyboard moves.
+    */
+    display:block;
+    outline: 1px solid #ccc;
+    overflow: auto
 }
