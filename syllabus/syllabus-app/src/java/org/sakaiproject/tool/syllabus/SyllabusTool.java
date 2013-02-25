@@ -397,7 +397,7 @@ public class SyllabusTool
 
     //Registramos el evento de que se ha accedido a Syllabus
     //Register the event when the syllabus is accessed
-    Event event = EventTrackingService.newEvent("syllabus.read","/syllabus/"+currentSiteId+"/1", true, 0);
+    Event event = EventTrackingService.newEvent("syllabus.read","/syllabus/"+currentSiteId+"/1", false, 0);
     EventTrackingService.post(event);
     
     return entries;
