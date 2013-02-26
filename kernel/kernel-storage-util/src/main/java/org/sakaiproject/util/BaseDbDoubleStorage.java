@@ -24,8 +24,6 @@ package org.sakaiproject.util;
 import java.sql.Connection;
 import java.sql.ResultSet;
 import java.sql.SQLException;
-import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.Hashtable;
 import java.util.Iterator;
 import java.util.List;
@@ -973,7 +971,7 @@ public class BaseDbDoubleStorage
 	 *        an optional list of bind variables
 	 * @return The list (Resource) of all Resources.
 	 */
-	public List getAllResources(Entity container, Filter softFilter, String sqlFilter, boolean asc, PagingPosition pager, List <Object> bindVariables)
+	public List getAllResources(Entity container, Filter softFilter, String sqlFilter, boolean asc, PagingPosition pager, List <String> bindVariables)
 	{
 		
 		pager = fixPagingPosition(softFilter, pager);
@@ -1039,9 +1037,9 @@ public class BaseDbDoubleStorage
 		fields[0] = container.getReference();
 		for ( int i=0; i < searchFieldCount; i++) fields[i+1] = "%" + searchString + "%";
 
-		if(bindVariables != null && bindVariables.size() > 0) {
+		if (bindVariables != null && bindVariables.size() > 0) {
 			// Add the bind variables to the fields to substitute in the prepared statement
-			fields = ArrayUtils.addAll(fields, bindVariables.toArray());
+			fields = ArrayUtils.addAll(fields, bindVariables.toArray(new String[fields.length]));
 		}
 
 		// System.out.println("getAllResources="+sql);
