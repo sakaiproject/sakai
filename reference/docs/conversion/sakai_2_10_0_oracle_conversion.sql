@@ -821,3 +821,6 @@ INSERT INTO SAKAI_SITE_PAGE_PROPERTY VALUES('!admin', '!admin-1230', 'sitePage.c
 -- SAM-973
 alter table SAM_ITEMGRADING_t add ISCORRECT number(1,0);
 
+-- SAM-2063
+alter table SAM_ASSESSMENTGRADING_T add HASAUTOSUBMISSIONRUN number(1,0) default 0 not null;
+

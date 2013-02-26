@@ -821,3 +821,5 @@ INSERT INTO SAKAI_SITE_PAGE_PROPERTY VALUES('!admin', '!admin-1230', 'sitePage.c
 -- SAM-973
 alter table SAM_ITEMGRADING_t add ISCORRECT bit;
 
+-- SAM-2063
+alter table SAM_ASSESSMENTGRADING_T add HASAUTOSUBMISSIONRUN bit not null DEFAULT false;
