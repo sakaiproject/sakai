@@ -17,11 +17,21 @@
   	<profile>
   	  <id>1.6</id>
   	  <activation>
+                <activeByDefault>true</activeByDefault>
   	  	<jdk>1.6</jdk>
   	  </activation>
   	  <modules>
   	    <module>test-1.6</module>
   	  </modules>
   	</profile>
+   <profile>
+     <id>1.7</id>
+     <activation>
+      <jdk>1.7</jdk>
+     </activation>
+     <modules>
+       <module>test-1.7</module>
+     </modules>
+   </profile>   
   </profiles>
 </project>
