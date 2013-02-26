@@ -786,8 +786,10 @@ public class SubmitToGradingActionListener implements ActionListener {
 				ItemService itemService = new ItemService();
 				Long itemTextId = itemService.getItemTextId(publishedItemId);
 				log.debug("itemTextId = " + itemTextId);
-				itemGrading.setPublishedItemTextId(itemTextId);
-				adds.add(itemGrading);
+				if(itemTextId != -1){
+					itemGrading.setPublishedItemTextId(itemTextId);
+					adds.add(itemGrading);
+				}
 			}
 			else {
 				// For File Upload question, if user clicks on "Upload", a ItemGradingData will be created. 

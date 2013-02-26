@@ -226,7 +226,8 @@ public class ItemService
 	    }
 	    catch(Exception e)
 	    {
-	      log.error(e); throw new RuntimeException(e);
+	      log.error(e);
+	      return -1l;
 	    }
   }
 
