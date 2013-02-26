@@ -972,7 +972,7 @@ public class BaseDbDoubleStorage
 	 *        an optional list of bind variables
 	 * @return The list (Resource) of all Resources.
 	 */
-	public List getAllResources(Entity container, Filter softFilter, String sqlFilter, boolean asc, PagingPosition pager, List <String> bindVariables)
+	public List getAllResources(Entity container, Filter softFilter, String sqlFilter, boolean asc, PagingPosition pager, List <Object> bindVariables)
 	{
 		
 		pager = fixPagingPosition(softFilter, pager);
