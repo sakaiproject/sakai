@@ -58,6 +58,7 @@ public class AssessmentGradingData implements java.io.Serializable
 	private Boolean isAutoSubmitted;
 	private Integer lastVisitedPart = 0;
 	private Integer lastVisitedQuestion = 0;
+	private Boolean hasAutoSubmissionRun = false;
 
 	// Because of SAK-16456, we no longer need to show the auto/human graded
 	// status per submission, I don't think we
@@ -396,6 +397,14 @@ public class AssessmentGradingData implements java.io.Serializable
 	public void setIsRecorded(boolean isRecorded) {
 		this.isRecorded = isRecorded;
 	}
+
+	public Boolean getHasAutoSubmissionRun() {
+		  return hasAutoSubmissionRun;
+	  }
+
+	  public void setHasAutoSubmissionRun(Boolean hasAutoSubmissionRun) {
+		  this.hasAutoSubmissionRun = hasAutoSubmissionRun;
+	  }
 
 	@Override
 	public int hashCode() {

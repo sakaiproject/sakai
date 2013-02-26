@@ -59,6 +59,8 @@
     <property name="isAutoSubmitted" type="boolean" column="ISAUTOSUBMITTED" not-null="false" />
     <property name="lastVisitedPart" type="integer" column="LASTVISITEDPART" not-null="false"/>
     <property name="lastVisitedQuestion" type="integer" column="LASTVISITEDQUESTION" not-null="false"/>
+    <property name="hasAutoSubmissionRun" type="boolean" column="HASAUTOSUBMISSIONRUN" not-null="true" />
+    
     <set name="itemGradingSet" table="SAM_ITEMGRADING_T" cascade="all" order-by="itemGradingId asc"
       inverse="true" lazy="true">
       <cache usage="read-write"/>

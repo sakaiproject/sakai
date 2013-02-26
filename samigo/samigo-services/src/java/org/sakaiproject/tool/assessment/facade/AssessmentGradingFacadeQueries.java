@@ -2855,21 +2855,21 @@ public class AssessmentGradingFacadeQueries extends HibernateDaoSupport implemen
 	}
 	
 	public void autoSubmitAssessments() {
-		Object[] values = { 1 };
-
 		List list = getHibernateTemplate()
 				.find("select new AssessmentGradingData(a.assessmentGradingId, a.publishedAssessmentId, " +
 						" a.agentId, a.submittedDate, a.isLate, a.forGrade, a.totalAutoScore, a.totalOverrideScore, " +
 						" a.finalScore, a.comments, a.status, a.gradedBy, a.gradedDate, a.attemptDate, a.timeElapsed) " +
 						" from AssessmentGradingData a, PublishedAccessControl c " +
 						" where a.publishedAssessmentId = c.assessment.publishedAssessmentId " +
-						" and current_timestamp() >= c.retractDate and a.status not in (4, 5) and c.autoSubmit = ? " +
-						" order by a.publishedAssessmentId, a.agentId, a.forGrade desc ", values);
+						" and current_timestamp() >= c.retractDate " +
+						" and a.status not in (4, 5) and (a.hasAutoSubmissionRun = 0 or a.hasAutoSubmissionRun is null) and c.autoSubmit = 1 " +
+						" order by a.publishedAssessmentId, a.agentId, a.forGrade desc ");
 		
 	    Iterator iter = list.iterator();
 	    String lastAgentId = "";
 	    Long lastPublishedAssessmentId = Long.valueOf(0);
 	    ArrayList toBeAutoSubmittedList = new ArrayList();
+	    ArrayList hasAutoSubmisionRunUpdateList = new ArrayList();
 	    HashMap sectionSetMap = new HashMap();
 	    HashMap gradebookMap = new HashMap();
 	    HashMap studentUidsToScores = new HashMap();
@@ -2883,6 +2883,8 @@ public class AssessmentGradingFacadeQueries extends HibernateDaoSupport implemen
 	    
 	    while (iter.hasNext()) {
 	    	AssessmentGradingData adata = (AssessmentGradingData) iter.next();
+	    	adata.setHasAutoSubmissionRun(Boolean.TRUE);
+	    	hasAutoSubmisionRunUpdateList.add(adata);
 	    	if (lastPublishedAssessmentId.equals(adata.getPublishedAssessmentId())) {
 	    		if (!lastAgentId.equals(adata.getAgentId())) {
     				lastAgentId = adata.getAgentId();
@@ -2904,6 +2906,7 @@ public class AssessmentGradingFacadeQueries extends HibernateDaoSupport implemen
 	    				adata.setIsAutoSubmitted(Boolean.TRUE);
 	    				adata.setStatus(Integer.valueOf(1));
 	    				toBeAutoSubmittedList.add(adata);
+	    				hasAutoSubmisionRunUpdateList.remove(adata); // for performance. don't update the same record twice
 	    				completeItemGradingData(adata, sectionSetMap);
 	    				updateGradebookMap(adata, studentUidsToScores, gradebookMap);    			
 	    				    
@@ -2952,6 +2955,7 @@ public class AssessmentGradingFacadeQueries extends HibernateDaoSupport implemen
     				adata.setIsAutoSubmitted(Boolean.TRUE);
 	    			adata.setStatus(Integer.valueOf(1));
 	    			toBeAutoSubmittedList.add(adata);
+	    			hasAutoSubmisionRunUpdateList.remove(adata); // for performance. don't update the same record twice
 	    			completeItemGradingData(adata, sectionSetMap);
 	    			updateGradebookMap(adata, studentUidsToScores, gradebookMap);
 	    			EventTrackingService.post(EventTrackingService.newEvent("sam.auto-submit.job", 
@@ -2978,6 +2982,7 @@ public class AssessmentGradingFacadeQueries extends HibernateDaoSupport implemen
 	    }
 	      
 	    this.saveOrUpdateAll(toBeAutoSubmittedList);
+	    this.saveOrUpdateAll(hasAutoSubmisionRunUpdateList);
 	    notifyGradebook(gradebookMap);
 	}
 
