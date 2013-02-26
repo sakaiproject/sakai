@@ -33,6 +33,7 @@ import java.util.Map;
 import java.util.Stack;
 import java.util.Vector;
 
+import org.apache.commons.lang.ArrayUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.sakaiproject.db.api.SqlReader;
@@ -1039,14 +1040,8 @@ public class BaseDbDoubleStorage
 		for ( int i=0; i < searchFieldCount; i++) fields[i+1] = "%" + searchString + "%";
 
 		if(bindVariables != null && bindVariables.size() > 0) {
-			List<Object> fieldsArray = new ArrayList<Object>();
-			if(fields != null && fields.length > 0) {
-				fieldsArray.addAll(Arrays.asList(fields));
-			}
-			for(Object bindVariable : bindVariables) {
-				fieldsArray.add(bindVariable);
-			}
-			fields = fieldsArray.toArray();
+			// Add the bind variables to the fields to substitute in the prepared statement
+			fields = ArrayUtils.addAll(fields, bindVariables.toArray());
 		}
 
 		// System.out.println("getAllResources="+sql);
