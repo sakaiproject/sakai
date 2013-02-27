@@ -3444,14 +3444,14 @@ public class ShowPageProducer implements ViewComponentProducer, DefaultView, Nav
 		{
 			if(isURL)
 			{
-				itemPath+= "/<a target=\"_blank\" href=\"\" class=\"" + pathId + "\">" + itemPathTokens[tokenIndex] + "</a>";
+				itemPath+= "/<a target=\"_blank\" href=\"\" class=\"" + URLEncoder.encode(pathId) + "\">" + FormattedText.escapeHtml(itemPathTokens[tokenIndex],false) + "</a>";
 				isURL = false;
 			}
 			else
-				itemPath+="/" + itemPathTokens[tokenIndex];
+			    itemPath+="/" + FormattedText.escapeHtml(itemPathTokens[tokenIndex],false);
 			
 			isURL = itemPathTokens[tokenIndex].equals("urls") ? true: false;
 		}
-		return FormattedText.escapeHtml(itemPath, true);
+		return itemPath;
 	}
 }
