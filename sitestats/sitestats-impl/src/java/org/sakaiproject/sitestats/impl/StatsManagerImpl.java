@@ -36,6 +36,7 @@ import java.util.Observer;
 import java.util.Set;
 
 import org.apache.commons.digester.Digester;
+import org.apache.commons.lang.StringEscapeUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.hibernate.Criteria;
@@ -779,7 +780,7 @@ public class StatsManagerImpl extends HibernateDaoSupport implements StatsManage
 		}
 		Reference r = M_em.newReference(ref);
 		if(r != null) {
-			return Validator.escapeHtml(r.getUrl());
+			return StringEscapeUtils.escapeHtml(r.getUrl());
 		}else{
 			return null;
 		}
