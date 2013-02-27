@@ -18,18 +18,21 @@ import java.util.*;
  * To change this template use File | Settings | File Templates.
  */
 public class ElasticSearchList extends ForwardingList<SearchResult> implements SearchList {
-    private final List<SearchResult> results;
+    private final List<SearchResult> results = new ArrayList<SearchResult>();
     private final SearchResponse response;
+
+    public ElasticSearchList(){
+        this.response = null;
+    }
 
     public ElasticSearchList(SearchResponse response, SearchIndexBuilder searchIndexBuilder, String facetName) {
         this.response = response;
-        results = new ArrayList<SearchResult>();
-            int i=0;
-            for (SearchHit hit : response.getHits()) {
-                ElasticSearchResult result = new ElasticSearchResult(hit, (InternalTermsFacet) response.getFacets().facet(facetName), searchIndexBuilder);
-                result.setIndex(i++);
-                results.add(result);
-            }
+        int i=0;
+        for (SearchHit hit : response.getHits()) {
+            ElasticSearchResult result = new ElasticSearchResult(hit, (InternalTermsFacet) response.getFacets().facet(facetName), searchIndexBuilder);
+            result.setIndex(i++);
+            results.add(result);
+        }
     }
 
 
@@ -44,6 +47,9 @@ public class ElasticSearchList extends ForwardingList<SearchResult> implements S
 
     @Override
     public int getFullSize() {
+        if (response == null) {
+            return 0;
+        }
         return (int) response.getHits().getTotalHits();
     }
 

@@ -237,6 +237,10 @@ public class ElasticSearchService implements SearchService {
 
     @Override
     public SearchList search(String searchTerms, List<String> siteIds, int start, int end, String filterName, String sorterName) throws InvalidSearchQueryException {
+        if (!isEnabled()) {
+            log.info("ElasticSearch is not enabled. Set search.enable=true to change that.");
+            return new ElasticSearchList();
+        }
         if (siteIds == null) {
             throw new InvalidSearchQueryException("siteIds can't be null, trying sending in a list bro.", new RuntimeException());
         }
