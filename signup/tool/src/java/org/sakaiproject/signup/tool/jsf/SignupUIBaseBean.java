@@ -711,11 +711,13 @@ abstract public class SignupUIBaseBean implements SignupBeanConstants, SignupMes
 		
 		for(String e: emails) {
 			sb.append(e);
-			sb.append(',');
+			//for compatibility with Outlook, this should be a semicolon not a comma as per the RFC. 
+			//Also tested in Thunderbird, Yahoo and GMail.
+			sb.append(';'); 
 		}
 		
 		//trim off last , and return
-		return StringUtils.removeEnd(sb.toString(), ",");
+		return StringUtils.removeEnd(sb.toString(), ";");
 	}
 	
 	/**
