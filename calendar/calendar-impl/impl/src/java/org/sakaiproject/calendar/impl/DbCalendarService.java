@@ -238,13 +238,13 @@ public class DbCalendarService
             		"or (  RANGE_END > ? and RANGE_END < ? ) " +
             		"or ( RANGE_START < ? and RANGE_END > ? ))";
             
-			List<String> rangeValues = new ArrayList<String>();
-			rangeValues.add(startDateHours.toString());
-			rangeValues.add(endDateHours.toString());
-			rangeValues.add(startDateHours.toString());
-			rangeValues.add(endDateHours.toString());
-			rangeValues.add(startDateHours.toString());
-			rangeValues.add(endDateHours.toString());
+			List<Object> rangeValues = new ArrayList<Object>();
+			rangeValues.add(startDateHours);
+			rangeValues.add(endDateHours);
+			rangeValues.add(startDateHours);
+			rangeValues.add(endDateHours);
+			rangeValues.add(startDateHours);
+			rangeValues.add(endDateHours);
 			
             return super.getAllResources(calendar, null, filter, true, null, rangeValues);
          }
