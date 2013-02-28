@@ -21,8 +21,12 @@
 package org.sakaiproject.component.app.syllabus;
 
 import java.sql.SQLException;
+import java.util.ArrayList;
+import java.util.Date;
 import java.util.HashSet;
+import java.util.List;
 import java.util.Set;
+import java.util.TimeZone;
 import java.util.TreeSet;
 
 import org.hibernate.Criteria;
@@ -37,10 +41,28 @@ import org.sakaiproject.api.app.syllabus.SyllabusAttachment;
 import org.sakaiproject.api.app.syllabus.SyllabusData;
 import org.sakaiproject.api.app.syllabus.SyllabusItem;
 import org.sakaiproject.api.app.syllabus.SyllabusManager;
+import org.sakaiproject.calendar.api.Calendar;
+import org.sakaiproject.calendar.api.CalendarEvent;
+import org.sakaiproject.calendar.api.CalendarEventEdit;
+import org.sakaiproject.calendar.api.CalendarService;
 import org.sakaiproject.component.cover.ServerConfigurationService;
 import org.sakaiproject.content.api.ContentHostingService;
 import org.sakaiproject.content.api.ContentResource;
+import org.sakaiproject.entity.api.Reference;
+import org.sakaiproject.entity.api.ResourceProperties;
+import org.sakaiproject.entity.api.EntityManager;
+import org.sakaiproject.exception.IdUnusedException;
+import org.sakaiproject.exception.InUseException;
+import org.sakaiproject.exception.PermissionException;
+import org.sakaiproject.exception.TypeException;
+import org.sakaiproject.site.api.Group;
+import org.sakaiproject.site.api.SiteService;
+import org.sakaiproject.time.api.Time;
+import org.sakaiproject.time.api.TimeRange;
+import org.sakaiproject.time.api.TimeService;
 import org.sakaiproject.user.cover.UserDirectoryService;
+import org.sakaiproject.user.api.Preferences;
+import org.sakaiproject.user.api.PreferencesService;
 import org.sakaiproject.user.api.User;
 
 import org.springframework.orm.hibernate3.HibernateCallback;
@@ -55,7 +77,10 @@ import org.springframework.orm.hibernate3.support.HibernateDaoSupport;
 public class SyllabusManagerImpl extends HibernateDaoSupport implements SyllabusManager
 {
   private ContentHostingService contentHostingService;
-
+  private CalendarService calendarService;
+  private PreferencesService preferencesService;
+  private TimeService timeService;
+  private EntityManager entityManager;
   private static final String QUERY_BY_USERID_AND_CONTEXTID = "findSyllabusItemByUserAndContextIds";
   private static final String QUERY_BY_CONTEXTID = "findSyllabusItemByContextId";
   private static final String QUERY_LARGEST_POSITION = "findLargestSyllabusPosition";
@@ -288,6 +313,24 @@ public class SyllabusManagerImpl extends HibernateDaoSupport implements Syllabus
       return new HashSet<SyllabusData>(getHibernateTemplate().executeFind(hcb));
   }
   
+  @SuppressWarnings("unchecked")
+  private Set<SyllabusData> findPublicSyllabusDataWithCalendarEvent(final long syllabusId) {
+      HibernateCallback hcb = new HibernateCallback()
+      {
+        public Object doInHibernate(Session session) throws HibernateException,
+            SQLException
+        {
+          Criteria crit = session.createCriteria(SyllabusDataImpl.class)
+          				.add(Expression.eq("syllabusItem.surrogateKey", syllabusId))
+                      .add(Expression.eq("status", "posted"))
+                      .add(Expression.eq("linkCalendar", true));
+
+          return crit.list();
+        }
+      };
+      return new HashSet<SyllabusData>(getHibernateTemplate().executeFind(hcb));
+  }
+  
   /**
    * getSyllabusItemByUserAndContextIds finds a SyllabusItem
    * @param userId
@@ -347,6 +390,11 @@ public class SyllabusManagerImpl extends HibernateDaoSupport implements Syllabus
     }; 
     getHibernateTemplate().execute(hcb);    
     updateSyllabusAttachmentsViewState(syllabusData);
+    syllabusData.setSyllabusItem(syllabusItem);
+    boolean modified = updateCalendarSettings(syllabusData);
+    if(modified){
+    	getHibernateTemplate().saveOrUpdate(syllabusData);
+    }
   }  
   
   
@@ -426,8 +474,21 @@ public class SyllabusManagerImpl extends HibernateDaoSupport implements Syllabus
    */
   public void saveSyllabus(SyllabusData data)
   {
+    //calendar check
+	updateCalendarSettings(data);
     getHibernateTemplate().saveOrUpdate(data);
     updateSyllabusAttachmentsViewState(data);
+  //update calendar attachments
+    if(data.getAttachments() != null && data.getAttachments().size() > 0){
+    	if(data.getCalendarEventIdStartDate() != null
+    			&& !"".equals(data.getCalendarEventIdStartDate())){
+    		addCalendarAttachments(data.getSyllabusItem().getContextId(), data.getCalendarEventIdStartDate(), new ArrayList(data.getAttachments()));
+    	}
+    	if(data.getCalendarEventIdEndDate() != null
+    			&& !"".equals(data.getCalendarEventIdEndDate())){
+    		addCalendarAttachments(data.getSyllabusItem().getContextId(), data.getCalendarEventIdEndDate(), new ArrayList(data.getAttachments()));
+    	}
+    }
   }  
 
   public SyllabusData getSyllabusData(final String dataId)
@@ -615,6 +676,286 @@ public class SyllabusManagerImpl extends HibernateDaoSupport implements Syllabus
 
   }
   
+  public CalendarService getCalendarService() {
+		return calendarService;
+	}
+
+	public void setCalendarService(CalendarService calendarService) {
+		this.calendarService = calendarService;
+	}
+
+	public void removeCalendarEvent(String siteId, String eventId){
+		try{
+			String calendarId = calendarReference(siteId, SiteService.MAIN_CONTAINER);
+			Calendar calendar = getCalendar(calendarId);
+			if(calendar != null && eventId != null && !"".equals(eventId)){
+				try{
+					CalendarEvent calendarEvent = calendar.getEvent(eventId);
+					calendar.removeEvent(calendar.getEditEvent(calendarEvent.getId(), CalendarService.EVENT_REMOVE_CALENDAR));
+				}catch (PermissionException e)
+				{
+					//log.warn(e);
+				}
+				catch (InUseException e)
+				{
+					//log.warn(e);
+				}
+				catch (IdUnusedException e)
+				{
+					//log.warn(e);
+				}
+			}
+
+		}catch (IdUnusedException e)
+		{
+			//log.warn(e);
+		}catch (PermissionException e)
+		{
+			//log.warn(e);
+		}
+	}
+	
+	private boolean isOnSameDay(Date startDate, Date endDate){
+		if(startDate != null && endDate != null){
+			//check that the two dates are on the same day
+			java.util.Calendar cal1 = java.util.Calendar.getInstance();
+			java.util.Calendar cal2 = java.util.Calendar.getInstance();
+			cal1.setTime(startDate);
+			cal2.setTime(endDate);
+			boolean sameDay = cal1.get(java.util.Calendar.YEAR) == cal2.get(java.util.Calendar.YEAR) &&
+			cal1.get(java.util.Calendar.DAY_OF_YEAR) == cal2.get(java.util.Calendar.DAY_OF_YEAR);
+			if(sameDay){
+				return true;
+			}
+		}
+		return false;
+	}
+
+	public boolean addCalendarEvent(SyllabusData data){
+		boolean changed = false;
+		String calendarId = calendarReference(data.getSyllabusItem().getContextId(), SiteService.MAIN_CONTAINER);
+		try {
+			Calendar calendar = getCalendar(calendarId);
+			if(calendar != null){
+				TimeRange timeRangeStart = null;
+				TimeRange timeRangeEnd = null;
+				if(data.getStartDate() != null && data.getEndDate() != null && isOnSameDay(data.getStartDate(), data.getEndDate())){
+					Time sTime = timeService.newTime(data.getStartDate().getTime());
+					Time eTime = timeService.newTime(data.getEndDate().getTime());
+					timeRangeStart = timeService.newTimeRange(sTime, eTime);
+				}else{ 
+					if(data.getStartDate() != null){
+						Time sTime = timeService.newTime(data.getStartDate().getTime());
+						timeRangeStart = timeService.newTimeRange(sTime);
+					}
+					if(data.getEndDate() != null){
+						Time sTime = timeService.newTime(data.getEndDate().getTime());
+						timeRangeEnd = timeService.newTimeRange(sTime);
+					}
+				}
+				
+				List<Reference> attachments = entityManager.newReferenceList();
+				
+				//Start Date Event (or both if on the same day)
+				if(timeRangeStart != null){
+					CalendarEvent.EventAccess eAccess = CalendarEvent.EventAccess.SITE;
+					// add event to calendar
+					CalendarEvent event = calendar.addEvent(timeRangeStart,
+							data.getTitle(),
+							data.getAsset(),
+							"Activity",
+							"",
+							eAccess,
+							null,
+							attachments);
+					// now add the linkage to the assignment on the calendar side
+					if (event.getId() != null) {
+						// add the assignmentId to the calendar object
+
+						CalendarEventEdit edit = calendar.getEditEvent(event.getId(), CalendarService.EVENT_ADD_CALENDAR);
+
+						edit.setDescriptionFormatted(data.getAsset());
+
+						calendar.commitEvent(edit);
+						
+						data.setCalendarEventIdStartDate(event.getId());
+						
+						changed = true;
+					}
+				}
+				//End Date Event
+				if(timeRangeEnd != null){
+					CalendarEvent.EventAccess eAccess = CalendarEvent.EventAccess.SITE;
+					// add event to calendar
+					CalendarEvent event = calendar.addEvent(timeRangeEnd,
+							data.getTitle(),
+							data.getAsset(),
+							"Deadline",
+							"",
+							eAccess,
+							null,
+							attachments);
+
+					// now add the linkage to the assignment on the calendar side
+					if (event.getId() != null) {
+						// add the assignmentId to the calendar object
+
+						CalendarEventEdit edit = calendar.getEditEvent(event.getId(), CalendarService.EVENT_ADD_CALENDAR);
+
+						edit.setDescriptionFormatted(data.getAsset());
+
+						calendar.commitEvent(edit);
+						data.setCalendarEventIdEndDate(event.getId());
+						changed = true;
+					}
+				}
+			}
+		} catch (IdUnusedException e) {
+			//log.warn(e);
+		} catch  (InUseException e) {
+			//log.warn(e);
+		}catch (PermissionException e){
+			//log.warn(e);
+		}
+
+
+		return changed;
+	}
+  
+	public void addCalendarAttachments(String siteId, String calendarEventId, List<SyllabusAttachment> attachments){
+		if(attachments != null){
+			String calendarId = calendarReference(siteId, SiteService.MAIN_CONTAINER);
+				Calendar calendar;
+				try {
+					calendar = getCalendar(calendarId);
+					if(calendar != null){
+						CalendarEventEdit event = calendar.getEditEvent(calendarEventId, CalendarService.EVENT_ADD_CALENDAR);
+						if(event != null){
+							for(SyllabusAttachment attachment : attachments){
+								ContentResource cr;
+								try {
+									cr = contentHostingService.getResource(attachment.getAttachmentId());
+									if(cr != null){
+										Reference ref = entityManager.newReference(cr.getReference());
+										event.addAttachment(ref);
+									}
+								} catch (TypeException e) {
+								}
+							}
+							calendar.commitEvent(event);
+						}
+					}
+				} catch (IdUnusedException e) {
+				} catch (PermissionException e) {
+				} catch (InUseException e) {
+				}
+		}
+	}
+	
+	public void removeCalendarAttachments(String siteId, String calendarEventId, SyllabusAttachment attachment){
+		String calendarId = calendarReference(siteId, SiteService.MAIN_CONTAINER);
+		Calendar calendar;
+		try {
+			calendar = getCalendar(calendarId);
+			if(calendar != null){
+				CalendarEventEdit event = calendar.getEditEvent(calendarEventId, CalendarService.EVENT_ADD_CALENDAR);
+				if(event != null){
+					for(Reference ref : event.getAttachments()){
+						if(ref.getReference().equals(attachment.getAttachmentId())){
+							event.removeAttachment(ref);
+							break;
+						}
+					}
+					calendar.commitEvent(event);
+				}
+			}
+		} catch (IdUnusedException e) {
+		} catch (PermissionException e) {
+		} catch (InUseException e) {
+		}
+	}
+	
+	public String calendarReference(String siteId, String container){
+		return calendarService.calendarReference(siteId, container);
+	}
+
+	public Calendar getCalendar(String ref) throws IdUnusedException, PermissionException {
+		return calendarService.getCalendar(ref);
+	}
+	
+	public void updateAllCalendarEvents(long syllabusId){
+		for(SyllabusData data : findPublicSyllabusDataWithCalendarEvent(syllabusId)){
+			boolean updated = updateCalendarSettings(data);
+			if(updated){
+				getHibernateTemplate().saveOrUpdate(data);
+			}
+			if(data.getAttachments() != null && data.getAttachments().size() > 0){
+		    	if(data.getCalendarEventIdStartDate() != null
+		    			&& !"".equals(data.getCalendarEventIdStartDate())){
+		    		addCalendarAttachments(data.getSyllabusItem().getContextId(), data.getCalendarEventIdStartDate(), new ArrayList(data.getAttachments()));
+		    	}
+		    	if(data.getCalendarEventIdEndDate() != null
+		    			&& !"".equals(data.getCalendarEventIdEndDate())){
+		    		addCalendarAttachments(data.getSyllabusItem().getContextId(), data.getCalendarEventIdEndDate(),  new ArrayList(data.getAttachments()));
+		    	}
+		    }
+		}
+	}
+	
+	public boolean removeCalendarEvents(SyllabusData data){
+		boolean updated = false;
+		//Remove Start Date Calendar Event
+		if (data.getCalendarEventIdStartDate() != null) {
+			  // first remove any existing calendar event
+			  try {
+				  String calendarDueDateEventId = data.getCalendarEventIdStartDate();
+				  if (calendarDueDateEventId != null) {
+					  removeCalendarEvent(data.getSyllabusItem().getContextId(),
+							  calendarDueDateEventId);
+				  }
+			  } catch (Exception e) {
+				  // user could have manually removed the calendar event
+			  }
+			  data.setCalendarEventIdStartDate(null);
+			  updated = true;
+		}
+		//Remove End Date Calendar Event
+		if (data.getCalendarEventIdEndDate() != null) {
+			  // first remove any existing calendar event
+			  try {
+				  String calendarDueDateEventId = data.getCalendarEventIdEndDate();
+				  if (calendarDueDateEventId != null) {
+					  removeCalendarEvent(data.getSyllabusItem().getContextId(),
+							  calendarDueDateEventId);
+				  }
+			  } catch (Exception e) {
+				  // user could have manually removed the calendar event
+			  }
+			  data.setCalendarEventIdEndDate(null);
+			  updated = true;
+		}
+		return updated;
+	}
+	
+	private boolean updateCalendarSettings(SyllabusData data){
+		boolean updated = false;
+		//calendar check
+		updated = removeCalendarEvents(data);
+		
+		if (data.isLinkCalendar() 
+				  && !SyllabusData.ITEM_DRAFT.equals(data.getStatus())
+				  && (data.getSyllabusItem().getRedirectURL() == null
+						  || data.getSyllabusItem().getRedirectURL().isEmpty())
+				  && (data.getStartDate() != null || data.getEndDate() != null)) {
+			// ok, let's post this to the calendar
+			boolean changed = addCalendarEvent(data);
+			if(changed){
+				updated = true;
+			}
+		}
+		return updated;
+	}
+
 /*  public SyllabusAttachment creatSyllabusAttachmentResource(String attachId, String name)
   {
     SyllabusAttachment attach = new SyllabusAttachmentImpl();
@@ -625,6 +966,30 @@ public class SyllabusManagerImpl extends HibernateDaoSupport implements Syllabus
     
     return attach;
   }*/
+
+	public PreferencesService getPreferencesService() {
+		return preferencesService;
+	}
+
+	public void setPreferencesService(PreferencesService preferencesService) {
+		this.preferencesService = preferencesService;
+	}
+
+	public TimeService getTimeService() {
+		return timeService;
+	}
+
+	public void setTimeService(TimeService timeService) {
+		this.timeService = timeService;
+	}
+
+	public EntityManager getEntityManager() {
+		return entityManager;
+	}
+
+	public void setEntityManager(EntityManager entityManager) {
+		this.entityManager = entityManager;
+	}
 }
 
 

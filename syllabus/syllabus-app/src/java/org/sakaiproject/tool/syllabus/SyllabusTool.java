@@ -22,7 +22,10 @@ package org.sakaiproject.tool.syllabus;
 
 import java.net.MalformedURLException;
 import java.net.URL;
+import java.text.ParseException;
 import java.util.ArrayList;
+import java.util.Date;
+import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
@@ -43,6 +46,9 @@ import org.sakaiproject.api.app.syllabus.SyllabusData;
 import org.sakaiproject.api.app.syllabus.SyllabusItem;
 import org.sakaiproject.api.app.syllabus.SyllabusManager;
 import org.sakaiproject.api.app.syllabus.SyllabusService;
+import org.sakaiproject.calendar.api.Calendar;
+import org.sakaiproject.calendar.api.CalendarEventEdit;
+import org.sakaiproject.calendar.api.CalendarService;
 import org.sakaiproject.component.cover.ServerConfigurationService;
 import org.sakaiproject.content.api.ContentHostingService;
 import org.sakaiproject.content.api.ContentResource;
@@ -89,7 +95,7 @@ public class SyllabusTool
     protected boolean justCreated = false;
     
     protected ArrayList attachmentList = new ArrayList();
-
+    
     public DecoratedSyllabusEntry(SyllabusData en)
     {
       in_entry = en;
@@ -211,6 +217,8 @@ public class SyllabusTool
   
   private boolean displayEvilTagMsg=false;
   
+  private boolean displayDateError=false;
+  
   private String evilTagMsg=null;
   
   private SyllabusService syllabusService;
@@ -238,6 +246,10 @@ public class SyllabusTool
   private ContentHostingService contentHostingService;
   
   private ResourceLoader rb = new ResourceLoader("org.sakaiproject.tool.syllabus.bundle.Messages");
+  
+  private CalendarService calendarService;
+  private Boolean calendarExistsForSite = null;
+  private Map<String, Boolean> calendarExistCache = new HashMap<String, Boolean>();
   
   private String alertMessage = null;
   
@@ -636,8 +648,10 @@ public class SyllabusTool
             if(id.toLowerCase().startsWith("/attachment"))
               contentHostingService.removeResource(id);
           }
+          syllabusManager.removeCalendarEvents(den.getEntry());
           syllabusManager.removeSyllabusFromSyllabusItem(syllabusItem, den
               .getEntry());
+         
         }
       }
       Placement currentPlacement = ToolManager.getCurrentPlacement();
@@ -675,6 +689,7 @@ public class SyllabusTool
         {
           String id = ((SyllabusAttachment)attachments.get(i)).getAttachmentId();
           syllabusManager.removeSyllabusAttachmentObject((SyllabusAttachment)attachments.get(i));
+          removeCalendarAttachment(entry.getEntry(), (SyllabusAttachment)attachments.get(i));
           if(id.toLowerCase().startsWith("/attachment"))
             contentHostingService.removeResource(id);
         }
@@ -688,6 +703,7 @@ public class SyllabusTool
     }
     displayTitleErroMsg = false;
     displayEvilTagMsg=false;
+    displayDateError=false;
     entries.clear();
     entry = null;
     attachments.clear();
@@ -703,6 +719,7 @@ public class SyllabusTool
     {
       displayTitleErroMsg = false;
       displayEvilTagMsg=false;
+      displayDateError=false;
       if (!this.checkAccess())
       {
         return "permission_error";
@@ -737,6 +754,12 @@ public class SyllabusTool
     		{
     			logger.warn(this + " " + errorMsg,e);
     		}
+        }
+        if(entry.getEntry().getStartDate() != null 
+        		&& entry.getEntry().getEndDate() != null 
+        		&& entry.getEntry().getStartDate().after(entry.getEntry().getEndDate())){
+        	displayDateError = true;
+        	return "edit";
         }
         if (entry.justCreated == true)
         {
@@ -777,6 +800,7 @@ public class SyllabusTool
     { 
       displayTitleErroMsg = false;
       displayEvilTagMsg=false;
+      displayDateError=false;
       if (!this.checkAccess())
       {
         return "permission_error";
@@ -812,6 +836,12 @@ public class SyllabusTool
     			logger.warn(this + " " + errorMsg,e);
     		}
         }
+        if(entry.getEntry().getStartDate() != null 
+        		&& entry.getEntry().getEndDate() != null 
+        		&& entry.getEntry().getStartDate().after(entry.getEntry().getEndDate())){
+        	displayDateError = true;
+        	return "edit";
+        }
         if (entry.justCreated == true)
         {
           getEntry().getEntry().setStatus(SyllabusData.ITEM_POSTED);
@@ -822,6 +852,15 @@ public class SyllabusTool
           {
             syllabusManager.addSyllabusAttachToSyllabusData(getEntry().getEntry(), 
                 (SyllabusAttachment)attachments.get(i));            
+          }
+          //update calendar attachments
+          if(getEntry().getEntry().getCalendarEventIdStartDate() != null
+        		  && !"".equals(getEntry().getEntry().getCalendarEventIdStartDate())){
+        	  syllabusManager.addCalendarAttachments(siteId, getEntry().getEntry().getCalendarEventIdStartDate(), attachments);
+          }
+          if(getEntry().getEntry().getCalendarEventIdEndDate() != null
+        		  && !"".equals(getEntry().getEntry().getCalendarEventIdEndDate())){
+        	  syllabusManager.addCalendarAttachments(siteId, getEntry().getEntry().getCalendarEventIdEndDate(), attachments);
           }
           
           syllabusService.postNewSyllabus(getEntry().getEntry());
@@ -932,6 +971,7 @@ public class SyllabusTool
       {
         String id = ((SyllabusAttachment)attachments.get(i)).getAttachmentId();
         syllabusManager.removeSyllabusAttachmentObject((SyllabusAttachment)attachments.get(i));
+        removeCalendarAttachment(entry.getEntry(), (SyllabusAttachment)attachments.get(i));
         if(id.toLowerCase().startsWith("/attachment"))
           contentHostingService.removeResource(id);
       }
@@ -944,6 +984,7 @@ public class SyllabusTool
     
     displayTitleErroMsg = false;
     displayEvilTagMsg=false;
+    displayDateError=false;
     entries.clear();
     entry = null;
     attachments.clear();
@@ -960,6 +1001,7 @@ public class SyllabusTool
     {
       displayTitleErroMsg = false;
       displayEvilTagMsg=false;	
+      displayDateError=false;
       if (!this.checkAccess())
       {
         return "permission_error";
@@ -996,7 +1038,13 @@ public class SyllabusTool
     			logger.warn(this + " " + errorMsg,e);
     		}
         }
-        if (entry.justCreated == false)
+        if(entry.getEntry().getStartDate() != null 
+        		&& entry.getEntry().getEndDate() != null 
+        		&& entry.getEntry().getStartDate().after(entry.getEntry().getEndDate())){
+        	displayDateError = true;
+        	return "edit";
+        }
+       if (entry.justCreated == false)
         {
           getEntry().getEntry().setStatus(SyllabusData.ITEM_DRAFT);
           syllabusManager.saveSyllabus(getEntry().getEntry());
@@ -1005,6 +1053,13 @@ public class SyllabusTool
           {
             syllabusManager.addSyllabusAttachToSyllabusData(getEntry().getEntry(), 
                 (SyllabusAttachment)attachments.get(i));            
+          }
+          //update calendar attachments
+          if(getEntry().getEntry().getCalendarEventIdStartDate() != null){
+        	  syllabusManager.addCalendarAttachments(getEntry().getEntry().getSyllabusItem().getContextId(), getEntry().getEntry().getCalendarEventIdStartDate(), attachments);
+          }
+          if(getEntry().getEntry().getCalendarEventIdEndDate() != null){
+        	  syllabusManager.addCalendarAttachments(getEntry().getEntry().getSyllabusItem().getContextId(), getEntry().getEntry().getCalendarEventIdEndDate(), attachments);
           }
           
           syllabusService.draftChangeSyllabus(getEntry().getEntry());
@@ -1038,6 +1093,7 @@ public class SyllabusTool
     {
       displayTitleErroMsg = false;
       displayEvilTagMsg=false;	
+      displayDateError=false;
       if (!this.checkAccess())
       {
         return "permission_error";
@@ -1073,6 +1129,12 @@ public class SyllabusTool
     			logger.warn(this + " " + errorMsg,e);
     		}
         }
+        if(entry.getEntry().getStartDate() != null 
+        		&& entry.getEntry().getEndDate() != null 
+        		&& entry.getEntry().getStartDate().after(entry.getEntry().getEndDate())){
+        	displayDateError = true;
+        	return "read";
+        }
         if (entry.justCreated == false)
         {
           getEntry().getEntry().setStatus(SyllabusData.ITEM_POSTED);
@@ -1084,6 +1146,13 @@ public class SyllabusTool
           {
             syllabusManager.addSyllabusAttachToSyllabusData(getEntry().getEntry(), 
                 (SyllabusAttachment)attachments.get(i));            
+          }
+          //update calendar attachments
+          if(getEntry().getEntry().getCalendarEventIdStartDate() != null){
+        	  syllabusManager.addCalendarAttachments(getEntry().getEntry().getSyllabusItem().getContextId(), getEntry().getEntry().getCalendarEventIdStartDate(), attachments);
+          }
+          if(getEntry().getEntry().getCalendarEventIdEndDate() != null){
+        	  syllabusManager.addCalendarAttachments(getEntry().getEntry().getSyllabusItem().getContextId(), getEntry().getEntry().getCalendarEventIdEndDate(), attachments);
           }
                
           entries.clear();
@@ -1162,6 +1231,7 @@ public class SyllabusTool
   {
 	displayTitleErroMsg = false;
     displayEvilTagMsg=false;
+    displayDateError=false;
     if(entry.getEntry().getTitle() == null)
     {
       displayTitleErroMsg = true;
@@ -1191,7 +1261,13 @@ public class SyllabusTool
 			logger.warn(this + " " + errorMsg,e);
 		}
     } 
-      return "preview";
+    if(entry.getEntry().getStartDate() != null 
+    		&& entry.getEntry().getEndDate() != null 
+    		&& entry.getEntry().getStartDate().after(entry.getEntry().getEndDate())){
+    	displayDateError = true;
+    	return "edit";
+    }
+    return "preview";
     
   }
 
@@ -1204,6 +1280,7 @@ public class SyllabusTool
   {
 	displayTitleErroMsg = false;
     displayEvilTagMsg=false;  
+    displayDateError=false;
     if(entry.getEntry().getTitle() == null)
     {
       displayTitleErroMsg = true;
@@ -1232,8 +1309,14 @@ public class SyllabusTool
 		{
 			logger.warn(this + " " + errorMsg,e);
 		}
-    }      
-      return "read_preview";
+    }    
+    if(entry.getEntry().getStartDate() != null 
+    		&& entry.getEntry().getEndDate() != null 
+    		&& entry.getEntry().getStartDate().after(entry.getEntry().getEndDate())){
+    	displayDateError = true;
+    	return "read";
+    }
+    return "read_preview";
     
   }
 
@@ -1326,8 +1409,17 @@ public class SyllabusTool
       				// validate the input string to be a valid URL.
       				URL ignore = new URL(currentRediredUrl);
       			}
-    	    	syllabusItem.setRedirectURL(currentRediredUrl);
+      			String origURL = syllabusItem.getRedirectURL();
+    	    	syllabusItem.setRedirectURL(currentRediredUrl.trim());
     	        syllabusManager.saveSyllabusItem(syllabusItem);
+    	        if(((origURL == null || origURL.isEmpty())
+    	    			&& !currentRediredUrl.trim().isEmpty())
+    	    		|| (origURL != null && !origURL.isEmpty()
+        	    			&& currentRediredUrl.trim().isEmpty())){
+    	    		//the URL went from empty to set, or visa versa
+    	    		//we need to update the calendar events too
+    	        	syllabusManager.updateAllCalendarEvents(syllabusItem.getSurrogateKey());
+    	    	}
     	
     	        entries.clear();
     	        entry = null;
@@ -1669,6 +1761,7 @@ public class SyllabusTool
         }
         
         syllabusManager.removeSyllabusAttachmentObject(sa);
+        removeCalendarAttachment(entry.getEntry(), sa);
         if(id.toLowerCase().startsWith("/attachment"))
           contentHostingService.removeResource(id);
       }
@@ -1715,6 +1808,7 @@ public class SyllabusTool
         
         ContentResource cr = contentHostingService.getResource(id);
         syllabusManager.removeSyllabusAttachmentObject(sa);
+        removeCalendarAttachment(entry.getEntry(), sa);
         if(id.toLowerCase().startsWith("/attachment"))
           contentHostingService.removeResource(id);
         
@@ -2096,6 +2190,206 @@ public class SyllabusTool
               {
                       syllabusData.setEmailNotification(emailNotification);
               }
+      }
+  }
+  
+  /**
+   * get Asset attribute of Syllabus
+   * @return
+   */
+  public String getSyllabusDataStartDate()
+  {
+	  String rv = "";
+	  DecoratedSyllabusEntry entry = getEntry();
+	  boolean alert = true;
+
+	  if (entry != null)
+	  {
+		  SyllabusData syllabusData = entry.getEntry();
+		  if (syllabusData != null)
+		  {
+			  Date rvDate = syllabusData.getStartDate();
+			  if(rvDate != null){
+				  rv = SyllabusData.dateFormat.format(rvDate);
+			  }
+			  alert = false;
+		  }
+	  }
+
+	  if (alert)
+	  {
+		  setAlertMessage(rb.getString("refresh"));
+	  }
+
+	  return rv;
+  }
+  
+  /**
+   * set the asset for saving
+   * @param asset
+   */
+  public void setSyllabusDataStartDate(String date)
+  {
+	  DecoratedSyllabusEntry entry = getEntry();
+	  if (entry != null)
+	  {
+		  SyllabusData syllabusData = entry.getEntry();
+		  if (syllabusData != null)
+		  {
+			  if(date == null || "".equals(date)){
+				  syllabusData.setStartDate(null);
+			  }else{
+				  try {
+					  syllabusData.setStartDate(SyllabusData.dateFormat.parse(date));
+				  } catch (ParseException e) {
+					  //date won't be changed
+				  }
+			  }
+		  }
+	  }
+  }
+  
+  /**
+   * get Asset attribute of Syllabus
+   * @return
+   */
+  public String getSyllabusDataEndDate()
+  {
+	  String rv = "";
+	  DecoratedSyllabusEntry entry = getEntry();
+	  boolean alert = true;
+
+	  if (entry != null)
+	  {
+		  SyllabusData syllabusData = entry.getEntry();
+		  if (syllabusData != null)
+		  {
+			  Date rvDate = syllabusData.getEndDate();
+			  if(rvDate != null){
+				  rv = SyllabusData.dateFormat.format(rvDate);
+			  }
+			  alert = false;
+		  }
+	  }
+
+	  if (alert)
+	  {
+		  setAlertMessage(rb.getString("refresh"));
+	  }
+
+	  return rv;
+  }
+  
+  /**
+   * set the asset for saving
+   * @param asset
+   */
+  public void setSyllabusDataEndDate(String date)
+  {
+	  DecoratedSyllabusEntry entry = getEntry();
+	  if (entry != null)
+	  {
+		  SyllabusData syllabusData = entry.getEntry();
+		  if (syllabusData != null)
+		  {
+			  if(date == null || "".equals(date)){
+				  syllabusData.setEndDate(null);
+			  }else{
+				  try {
+					  syllabusData.setEndDate(SyllabusData.dateFormat.parse(date));
+				  } catch (ParseException e) {
+					  //date won't be changed
+				  }
+			  }
+		  }
+	  }
+  }
+  
+  public boolean getSyllabusDataLinkCalendar(){
+	  boolean rv = false;
+	  DecoratedSyllabusEntry entry = getEntry();
+	  boolean alert = true;
+
+	  if (entry != null)
+	  {
+		  SyllabusData syllabusData = entry.getEntry();
+		  if (syllabusData != null)
+		  {
+			  rv = syllabusData.isLinkCalendar();
+			  alert = false;
+		  }
+	  }
+
+	  if (alert)
+	  {
+		  setAlertMessage(rb.getString("refresh"));
+	  }
+
+	  return rv;
+  }
+
+  public void setSyllabusDataLinkCalendar(boolean linkCalendar){
+	  DecoratedSyllabusEntry entry = getEntry();
+	  if (entry != null)
+	  {
+		  SyllabusData syllabusData = entry.getEntry();
+		  if (syllabusData != null)
+		  {
+			  syllabusData.setLinkCalendar(linkCalendar);
+		  }
+	  }
+  }
+
+  public boolean isDisplayDateError() {
+	  return displayDateError;
+  }
+
+  public void setDisplayDateError(boolean displayDateError) {
+	  this.displayDateError = displayDateError;
+  }
+  public Boolean getCalendarExistsForSite(){
+	  String siteContext = ToolManager.getCurrentPlacement().getContext();
+	  if(calendarExistCache.containsKey(siteContext)){
+		  return calendarExistCache.get(siteContext);
+	  }else{
+
+		  Site site = null;
+		  try
+		  {
+			  site = SiteService.getSite(siteContext);
+			  if (site.getToolForCommonId("sakai.schedule") != null)
+			  {
+				  calendarExistCache.put(siteContext, Boolean.TRUE);
+				  return true;
+			  }else{
+				  calendarExistCache.put(siteContext, Boolean.FALSE);
+				  return false;
+			  }
+		  }
+		  catch (Exception e) {
+			  logger.warn("Exception thrown while getting site", e);
+		  }
+		  return false;
+	  }
+  }
+
+  public CalendarService getCalendarService() {
+	  return calendarService;
+  }
+
+  public void setCalendarService(CalendarService calendarService) {
+	  this.calendarService = calendarService;
+  }
+
+  private void removeCalendarAttachment(SyllabusData data, SyllabusAttachment attachment){
+	//update calendar attachments
+      if(data.getCalendarEventIdStartDate() != null
+    		  && !"".equals(data.getCalendarEventIdStartDate())){
+    	  syllabusManager.removeCalendarAttachments(siteId, data.getCalendarEventIdStartDate(), attachment);
+      }
+      if(getEntry().getEntry().getCalendarEventIdEndDate() != null
+    		  && !"".equals(getEntry().getEntry().getCalendarEventIdEndDate())){
+    	  syllabusManager.removeCalendarAttachments(siteId, data.getCalendarEventIdEndDate(), attachment);
       }
   }
 }

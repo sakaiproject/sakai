@@ -34,6 +34,12 @@
 				<property name="contentHostingService">
 					<ref bean="org.sakaiproject.content.api.ContentHostingService" />
 				</property>
+				<property name="calendarService">
+					<ref bean="org.sakaiproject.calendar.api.CalendarService" />
+				</property>
+				<property name="preferencesService" ref="org.sakaiproject.user.api.PreferencesService" />
+				<property name="timeService" ref="org.sakaiproject.time.api.TimeService" />
+				<property name="entityManager"><ref bean="org.sakaiproject.entity.api.EntityManager"/></property>
 			</bean>
 		</property>
 		<property name="transactionAttributes">

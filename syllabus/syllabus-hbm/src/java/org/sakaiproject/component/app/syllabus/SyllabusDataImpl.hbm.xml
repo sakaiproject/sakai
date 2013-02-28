@@ -43,6 +43,26 @@
             <column name="emailNotification" length="128" not-null="false"/>
         </property>                        
         
+        <property name="startDate" type="java.util.Date">
+        	<column name="START_DATE"/>
+        </property>
+        
+        <property name="endDate" type="java.util.Date">
+        	<column name="END_DATE"/>
+        </property>
+        
+        <property name="linkCalendar" type="java.lang.Boolean">
+        	<column name="LINK_CALENDAR"/>
+        </property>
+        
+        <property name="calendarEventIdStartDate">
+        	<column name="CALENDAR_EVENT_ID_START" length="99"/>
+        </property>
+        
+        <property name="calendarEventIdEndDate">
+        	<column name="CALENDAR_EVENT_ID_END" length="99"/>
+        </property>
+        
         <set name="attachments" lazy="true" sort="natural"
              cascade="all-delete-orphan">
             <key column="syllabusId"/>                        

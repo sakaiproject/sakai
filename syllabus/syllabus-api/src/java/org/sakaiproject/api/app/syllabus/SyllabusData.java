@@ -20,12 +20,15 @@
  **********************************************************************************/
 package org.sakaiproject.api.app.syllabus;
 
+import java.text.SimpleDateFormat;
+import java.util.Date;
 import java.util.Set;
 
 public interface SyllabusData
 {
  	public final String ITEM_POSTED="posted";
  	public final String ITEM_DRAFT= "draft";
+ 	public final SimpleDateFormat dateFormat = new SimpleDateFormat("MM/dd/yyyy hh:mm a");
   /**
    * @return Returns the emailNotification.
    */
@@ -109,6 +112,62 @@ public interface SyllabusData
   public Set getAttachments();
   
   public void setAttachments(Set attachments);
+  
+  /**
+   * @return Returns the syllabus' start time
+   */
+  public Date getStartDate();
+  
+  /**
+   * @param startDate The syllabus' start time
+   */
+  public void setStartDate(Date date);
+  
+  /**
+   * @return end date, the syllabus' end time
+   */
+  public Date getEndDate();
+  
+  /**
+   * @param end date, the syllabus' end time
+   */
+  public void setEndDate(Date dateDuration);
+  
+  /**
+   * flag used to associate date to the calendar tool
+   * @return
+   */
+  public Boolean isLinkCalendar();
+  
+  /**
+   * flag used to associate date to the calendar tool
+   * @param linkCalendar
+   */
+  public void setLinkCalendar(Boolean linkCalendar);
+  
+  /**
+   * keep track of the calendar event ID so you can edit/remove it
+   * @param calendarEventId
+   */
+  public String getCalendarEventIdStartDate();
+  
+  /**
+   * keep track of the calendar event ID so you can edit/remove it
+   * @param calendarEventIdStartDate
+   */
+  public void setCalendarEventIdStartDate(String calendarEventIdStartDate);
+  
+  /**
+   * keep track of the calendar event ID so you can edit/remove it
+   * @return
+   */
+  public String getCalendarEventIdEndDate();
+  
+  /**
+   * keep track of the calendar event ID so you can edit/remove it
+   * @param calendarEventIdEndDate
+   */
+  public void setCalendarEventIdEndDate(String calendarEventIdEndDate);
 }
 
 

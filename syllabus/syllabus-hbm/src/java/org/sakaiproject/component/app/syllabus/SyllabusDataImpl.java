@@ -20,6 +20,7 @@
  **********************************************************************************/
 package org.sakaiproject.component.app.syllabus;
 
+import java.util.Date;
 import java.util.Set;
 import java.util.TreeSet;
 
@@ -47,6 +48,11 @@ public class SyllabusDataImpl implements SyllabusData, Comparable
   private String status;
   private String emailNotification;
   private Set attachments = new TreeSet();
+  private Date startDate;
+  private Date endDate;
+  private Boolean linkCalendar = Boolean.FALSE;
+  private String calendarEventIdStartDate;
+  private String calendarEventIdEndDate;
   
   /**
    * @return Returns the emailNotification.
@@ -246,5 +252,45 @@ public class SyllabusDataImpl implements SyllabusData, Comparable
   public int compareTo(Object obj)
   {
     return this.position.compareTo(((SyllabusData) obj).getPosition());  
+  }
+  @Override
+  public Date getStartDate() {
+	  return startDate;
+  }
+  @Override
+  public void setStartDate(Date startDate) {
+	  this.startDate = startDate;
+  }
+  @Override
+  public Date getEndDate() {
+	  return endDate;
+  }
+  @Override
+  public void setEndDate(Date endDate) {
+	  this.endDate = endDate;
+  }
+  @Override
+  public Boolean isLinkCalendar() {
+	  if(linkCalendar == null){
+		  linkCalendar = Boolean.FALSE;
+	  }
+	  return linkCalendar;
+  }
+  @Override
+  public void setLinkCalendar(Boolean linkCalendar) {
+	  this.linkCalendar = linkCalendar;
+  }
+
+  public String getCalendarEventIdStartDate() {
+	  return calendarEventIdStartDate;
+  }
+  public void setCalendarEventIdStartDate(String calendarEventIdStartDate) {
+	  this.calendarEventIdStartDate = calendarEventIdStartDate;
+  }
+  public String getCalendarEventIdEndDate() {
+	  return calendarEventIdEndDate;
+  }
+  public void setCalendarEventIdEndDate(String calendarEventIdEndDate) {
+	  this.calendarEventIdEndDate = calendarEventIdEndDate;
   }
 }

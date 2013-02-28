@@ -59,6 +59,11 @@
 			<description>contentHostingService</description>
 			<property-name>contentHostingService</property-name>
 			<value>#{Components["org.sakaiproject.content.api.ContentHostingService"]}</value>
+		</managed-property>
+		<managed-property>
+			<description>calendarService</description>
+			<property-name>calendarService</property-name>
+			<value>#{Components["org.sakaiproject.calendar.api.CalendarService"]}</value>
 		</managed-property> 
 	</managed-bean>
 

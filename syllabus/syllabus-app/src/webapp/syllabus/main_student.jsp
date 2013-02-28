@@ -21,6 +21,19 @@
 							<h:outputText style="height: 16px; width=72px" value="#{msgs.mainEditHeaderItem}" />
 						</f:facet>
 						<h:outputText value="#{eachEntry.entry.title}"/>
+						<f:subview id="date" rendered="#{eachEntry.entry.startDate != null || eachEntry.entry.endDate != null}">
+							<f:verbatim><br/><span style="font-weight: normal"></f:verbatim>
+							<h:outputText value="("/>
+							<h:outputText value="#{eachEntry.entry.startDate}">
+								<f:convertDateTime type="date" pattern="EEE MMM dd, yyyy hh:mm a"/>
+							</h:outputText>
+							<h:outputText value=" - " rendered="#{eachEntry.entry.startDate != null && eachEntry.entry.endDate != null}"/>
+							<h:outputText value="#{eachEntry.entry.endDate}">
+						  		<f:convertDateTime type="date" pattern="EEE MMM dd, yyyy hh:mm a"/>
+							</h:outputText>
+							<h:outputText value=")"/>
+							<f:verbatim></span></f:verbatim>
+						</f:subview>
 					</h:column>
 					<h:column>
 						<f:facet name="header">
