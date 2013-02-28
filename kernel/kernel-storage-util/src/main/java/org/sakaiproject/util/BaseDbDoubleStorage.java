@@ -971,7 +971,7 @@ public class BaseDbDoubleStorage
 	 *        an optional list of bind variables
 	 * @return The list (Resource) of all Resources.
 	 */
-	public List getAllResources(Entity container, Filter softFilter, String sqlFilter, boolean asc, PagingPosition pager, List <String> bindVariables)
+	public List getAllResources(Entity container, Filter softFilter, String sqlFilter, boolean asc, PagingPosition pager, List <Object> bindVariables)
 	{
 		
 		pager = fixPagingPosition(softFilter, pager);
@@ -1039,7 +1039,7 @@ public class BaseDbDoubleStorage
 
 		if (bindVariables != null && bindVariables.size() > 0) {
 			// Add the bind variables to the fields to substitute in the prepared statement
-			fields = ArrayUtils.addAll(fields, bindVariables.toArray(new String[fields.length]));
+			fields = ArrayUtils.addAll(fields, bindVariables.toArray(new Object[fields.length]));
 		}
 
 		// System.out.println("getAllResources="+sql);
