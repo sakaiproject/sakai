@@ -104,13 +104,13 @@ public class InputRichTextRenderer extends Renderer
     TOOLBAR_SCRIPT_SMALL = makeToolbarScript(cr.get("inputRichText_small"));
     TOOLBAR_SCRIPT_MEDIUM = makeToolbarScript(cr.get("inputRichText_medium"));
     TOOLBAR_SCRIPT_LARGE = makeToolbarScript(cr.get("inputRichText_large"));
-    DEFAULT_WIDTH_PX = Integer.parseInt(cr.get("inputRichTextDefaultWidthPx"));
+    DEFAULT_WIDTH_PX = Integer.parseInt(cr.get("inputRichTextDefaultWidthPx").trim());
     /*SAK-20809 if an erant white space is left after the value this could throw a
      * number format exception so we trim it
     */
     DEFAULT_HEIGHT_PX = Integer.parseInt(cr.get("inputRichTextDefaultHeightPx").trim());
-    DEFAULT_COLUMNS = Integer.parseInt(cr.get("inputRichTextDefaultTextareaColumns"));
-    DEFAULT_ROWS = Integer.parseInt(cr.get("inputRichTextDefaultTextareaRows"));
+    DEFAULT_COLUMNS = Integer.parseInt(cr.get("inputRichTextDefaultTextareaColumns").trim());
+    DEFAULT_ROWS = Integer.parseInt(cr.get("inputRichTextDefaultTextareaRows").trim());
     INSERT_IMAGE_LOC = "/" + RESOURCE_PATH + "/" + cr.get("inputRichTextFileInsertImage");
   }
 
