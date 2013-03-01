@@ -213,7 +213,12 @@ $(document).ready(function() {
 				</p>	
 			*#
                 #if ($visible_date_enabled) 
-                    <p class="shorttext">
+               <p class="shorttext">
+                <p class="checkbox" id="tempVisibleDate" >
+                    <input type="checkbox" id="allowVisibleDateToggle" name="allowVisibleDateToggle" #if($!assignment.getVisibleTime())checked="checked"#end onclick="if(checked){jQuery('.visibleDatePanel').show();resizeFrame();}else{jQuery('.visibleDatePanel').hide();}" />
+                    <label for="allowVisibleDateToggle">$tlang.getString("allowVisibleDate")</label>
+                </p>
+               <p class="shorttext visibleDatePanel" #if(!$!assignment.getVisibleTime())style="display:none;"#end>
 			<span class="reqStar">*</span>
 			<label>
 				$tlang.getString("gen.visible.date")
@@ -247,10 +252,10 @@ $(document).ready(function() {
 				#end
 			</select>
                     </p>
-                #end
-		<p class="instruction labelindnt">
+               <p class="instruction labelindnt visibleDatePanel" #if(!$!assignment.getVisibleTime())style="display:none;"#end>
 			$tlang.getString("gen.stuwonsee")
 		</p>
+		#end
 		<p class="shorttext">
 			<span class="reqStar">*</span>
 			<label>

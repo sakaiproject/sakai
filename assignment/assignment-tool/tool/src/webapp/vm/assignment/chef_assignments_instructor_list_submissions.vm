@@ -575,7 +575,7 @@
 							<td headers="allowResubmit" class="screenOnly smallCol">
 								#set($userId = $!siteUser)
 								<input type="checkbox" name="selectedAllowResubmit" value="$!submitterId" id="check_$submitterDisplayId" />
-                                <label for="check_$submitterDisplayId" class="skip">$tlang.getString("allowResubmission.select.student") $validator.escapeHtml($submitterName)</label>
+								<label for="check_$submitterDisplayId" class="skip">$tlang.getString("allowResubmission.select.student") $validator.escapeHtml($submitterName)</label>
 							</td>
 							<td headers="attachment" class="attach">
 							 #set($size=0)
@@ -601,13 +601,24 @@
 									#end
 									$validator.escapeHtml($submitterName)
 									#if ($gusers)
-                                                                                <div style="font-size: smaller; color: blue;">
-                                                                                        #foreach ($user in $gusers)
-												#if($velocityCount > 1), #end
-												$user.getDisplayName()
-                                                                                        #end
-                                                                                </div>
-                                                                        #end
+									   <div style="font-size: smaller; color: blue;">
+									   #foreach ($user in $gusers)
+									       #if($velocityCount > 1), #end
+									       #set($is_user_duplicate=false)
+									       #if($usersinmultiplegroups)
+									       #foreach ($userin in $usersinmultiplegroups)
+									           #if ($userin.indexOf($user.getDisplayName()) > -1)#set($is_user_duplicate=true)#end
+								           #end
+								       #end
+								       #if($is_user_duplicate)<em class="error alertMessage"><abbr title="$tlang.getString("group.user.duplicate.error")">#end$user.getDisplayName()#if($is_user_duplicate)</abbr></em>#end
+								           #set ($group_value_grade = "")
+								           #set ($group_value_grade = $value_grades.get($user.getId()))
+								           #if ($!group_value_grade.length() > 0)
+								           <abbr title="$tlang.getFormattedMessage("group.user.grade.override", $user.getDisplayName())">($!group_value_grade)</abbr>
+								           #end
+								       #end
+								       </div>
+								    #end
 
 									<div class="itemAction">
 										<a href="#toolLinkParam("AssignmentAction" "doGrade_submission" "assignmentId=$validator.escapeUrl($assignment.Reference)&submissionId=$validator.escapeUrl($submission.Reference)")" title="$tlang.getString("listsub.grasub")">$!tlang.getString("gen.assign.gra")<span class="skip">:$validator.escapeHtml($submitterName)</span></a>

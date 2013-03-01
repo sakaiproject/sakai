@@ -74,7 +74,8 @@ public interface AssignmentSubmissionEdit extends AssignmentSubmission, Edit
          */
         public void addSubmissionLogEntry(String entry);
         
-        
+        public void addGradeForUser(String id, String grade);
+
 	/**
 	 * Remove an User from the submitter list
 	 * 

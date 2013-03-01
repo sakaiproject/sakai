@@ -24,26 +24,21 @@ package org.sakaiproject.assignment.impl.conversion.impl;
 import java.io.Reader;
 import java.io.StringReader;
 import java.util.ArrayList;
-import java.util.Enumeration;
 import java.util.HashMap;
-import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
-import java.util.Stack;
 
 import javax.xml.parsers.ParserConfigurationException;
 import javax.xml.parsers.SAXParser;
 import javax.xml.parsers.SAXParserFactory;
 
+import org.apache.commons.lang.StringUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.sakaiproject.assignment.impl.conversion.api.SerializableSubmissionAccess;
 import org.sakaiproject.assignment.impl.conversion.impl.SAXSerializablePropertiesAccess;
-import org.sakaiproject.entity.api.Reference;
 import org.sakaiproject.entity.api.serialize.EntityParseException;
 import org.sakaiproject.entity.api.serialize.SerializableEntity;
-import org.sakaiproject.util.FormattedText;
-import org.sakaiproject.util.StringUtil;
 import org.sakaiproject.util.Xml;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
@@ -109,6 +104,8 @@ public class AssignmentSubmissionAccess implements SerializableSubmissionAccess,
 	protected List<String> feedbackattachments = new ArrayList<String>();
 
         protected List<String> submissionLog = new ArrayList<String>();
+
+	protected List<String> grades = new ArrayList<String>();
 
 	protected String datesubmitted = null;
 
@@ -180,7 +177,18 @@ public class AssignmentSubmissionAccess implements SerializableSubmissionAccess,
 				submission.setAttribute(attributeString, itemString);
 			}
 		}
-                
+
+		// SAVE GRADE OVERRIDES
+		numItemsString = "" + this.grades.size();
+		submission.setAttribute("numberofgrades", numItemsString);
+		for (int x = 0; x < this.grades.size(); x++) {
+		    attributeString = "grade" + x;
+		    itemString = (String) this.grades.get(x);
+		    if (itemString != null) {
+		        submission.setAttribute(attributeString, itemString);
+		    }
+		}
+
 		// SAVE THE FEEDBACK ATTACHMENTS
 		numItemsString = "" + this.feedbackattachments.size();
 		submission.setAttribute("numberoffeedbackattachments", numItemsString);
@@ -312,11 +320,11 @@ public class AssignmentSubmissionAccess implements SerializableSubmissionAccess,
 				{
 
 					String name = attributes.getValue("name");
-					String enc = StringUtil.trimToNull(attributes.getValue("enc"));
+					String enc = StringUtils.trimToNull(attributes.getValue("enc"));
 					String value = null;
 					if ("BASE64".equalsIgnoreCase(enc))
 					{
-						String charset = StringUtil.trimToNull(attributes
+						String charset = StringUtils.trimToNull(attributes
 								.getValue("charset"));
 						if (charset == null) charset = "UTF-8";
 
@@ -363,36 +371,36 @@ public class AssignmentSubmissionAccess implements SerializableSubmissionAccess,
 				else if ("submission".equals(qName))
 				{
 					setId( attributes.getValue("id") );
-					setAssignment(StringUtil.trimToNull(attributes.getValue("assignment")));
-					setContext(StringUtil.trimToNull(attributes.getValue("context")));
-					setDatereturned(StringUtil.trimToNull(attributes.getValue("datereturned")));
-					setDatesubmitted(StringUtil.trimToNull(attributes.getValue("datesubmitted")));
-					setFeedbackcomment(StringUtil.trimToNull(attributes.getValue("feedbackcomment")));
-					if (StringUtil.trimToNull(attributes.getValue("feedbackcomment-html"))  != null)
+					setAssignment(StringUtils.trimToNull(attributes.getValue("assignment")));
+					setContext(StringUtils.trimToNull(attributes.getValue("context")));
+					setDatereturned(StringUtils.trimToNull(attributes.getValue("datereturned")));
+					setDatesubmitted(StringUtils.trimToNull(attributes.getValue("datesubmitted")));
+					setFeedbackcomment(StringUtils.trimToNull(attributes.getValue("feedbackcomment")));
+					if (StringUtils.trimToNull(attributes.getValue("feedbackcomment-html"))  != null)
 					{
-						setFeedbackcomment_html(StringUtil.trimToNull(attributes.getValue("feedbackcomment-html")));
+						setFeedbackcomment_html(StringUtils.trimToNull(attributes.getValue("feedbackcomment-html")));
 					}
-					else if (StringUtil.trimToNull(attributes.getValue("feedbackcomment-formatted"))  != null)
+					else if (StringUtils.trimToNull(attributes.getValue("feedbackcomment-formatted"))  != null)
 					{
-						setFeedbackcomment_html(StringUtil.trimToNull(attributes.getValue("feedbackcomment-formatted")));
+						setFeedbackcomment_html(StringUtils.trimToNull(attributes.getValue("feedbackcomment-formatted")));
 					}
-					setFeedbacktext(StringUtil.trimToNull(attributes.getValue("feedbacktext")));
+					setFeedbacktext(StringUtils.trimToNull(attributes.getValue("feedbacktext")));
 					
-					if (StringUtil.trimToNull(attributes.getValue("feedbacktext-html")) != null)
+					if (StringUtils.trimToNull(attributes.getValue("feedbacktext-html")) != null)
 					{
-						setFeedbacktext_html(StringUtil.trimToNull(attributes.getValue("feedbacktext-html")));
+						setFeedbacktext_html(StringUtils.trimToNull(attributes.getValue("feedbacktext-html")));
 					}
-					else if (StringUtil.trimToNull(attributes.getValue("feedbacktext-formatted")) != null)
+					else if (StringUtils.trimToNull(attributes.getValue("feedbacktext-formatted")) != null)
 					{
-						setFeedbacktext_html(StringUtil.trimToNull(attributes.getValue("feedbacktext-formatted")));
+						setFeedbacktext_html(StringUtils.trimToNull(attributes.getValue("feedbacktext-formatted")));
 					}
 						
 					
 					// get grade
-					String grade = StringUtil.trimToNull(attributes.getValue("scaled_grade"));
+					String grade = StringUtils.trimToNull(attributes.getValue("scaled_grade"));
 					if (grade == null)
 					{
-						grade = StringUtil.trimToNull(attributes.getValue("grade"));
+						grade = StringUtils.trimToNull(attributes.getValue("grade"));
 						if (grade != null)
 						{
 							try
@@ -409,10 +417,10 @@ public class AssignmentSubmissionAccess implements SerializableSubmissionAccess,
 					}
 					setGrade(grade);
 					
-					setGraded(StringUtil.trimToNull(attributes.getValue("graded")));
-					setGradereleased(StringUtil.trimToNull(attributes.getValue("gradereleased")));
-					setLastmod(StringUtil.trimToNull(attributes.getValue("lastmod")));
-					String numberoffeedbackattachments = StringUtil.trimToNull(attributes.getValue("numberoffeedbackattachments"));
+					setGraded(StringUtils.trimToNull(attributes.getValue("graded")));
+					setGradereleased(StringUtils.trimToNull(attributes.getValue("gradereleased")));
+					setLastmod(StringUtils.trimToNull(attributes.getValue("lastmod")));
+					String numberoffeedbackattachments = StringUtils.trimToNull(attributes.getValue("numberoffeedbackattachments"));
 					int feedbackAttachmentCount = 0;
 					try
 					{
@@ -425,13 +433,13 @@ public class AssignmentSubmissionAccess implements SerializableSubmissionAccess,
 					}
 					for(int i = 0; i < feedbackAttachmentCount; i++)
 					{
-						String feedbackattachment = StringUtil.trimToNull(attributes.getValue("feedbackattachment" + i));
+						String feedbackattachment = StringUtils.trimToNull(attributes.getValue("feedbackattachment" + i));
 						if(feedbackattachment != null)
 						{
 							feedbackattachments.add(feedbackattachment);
 						}
 					}
-					String numberofsubmittedattachments = StringUtil.trimToNull(attributes.getValue("numberofsubmittedattachments"));
+					String numberofsubmittedattachments = StringUtils.trimToNull(attributes.getValue("numberofsubmittedattachments"));
 					int submittedAttachmentCount = 0;
 					try
 					{
@@ -444,24 +452,24 @@ public class AssignmentSubmissionAccess implements SerializableSubmissionAccess,
 					}
 					for(int i = 0; i < submittedAttachmentCount; i++)
 					{
-						String submittedattachment = StringUtil.trimToNull(attributes.getValue("submittedattachment" + i));
+						String submittedattachment = StringUtils.trimToNull(attributes.getValue("submittedattachment" + i));
 						if(submittedattachment != null)
 						{
 							submittedattachments.add(submittedattachment);
 						}
 					}
-					setPledgeflag(StringUtil.trimToNull(attributes.getValue("pledgeflag")));
-					setReturned(StringUtil.trimToNull(attributes.getValue("returned")));
-					setReviewReport(StringUtil.trimToNull(attributes.getValue("reviewReport")));
-					setReviewScore(StringUtil.trimToNull(attributes.getValue("reviewScore")));
-					setReviewStatus(StringUtil.trimToNull(attributes.getValue("reviewStatus")));
-					setSubmitted(StringUtil.trimToNull(attributes.getValue("submitted")));
+					setPledgeflag(StringUtils.trimToNull(attributes.getValue("pledgeflag")));
+					setReturned(StringUtils.trimToNull(attributes.getValue("returned")));
+					setReviewReport(StringUtils.trimToNull(attributes.getValue("reviewReport")));
+					setReviewScore(StringUtils.trimToNull(attributes.getValue("reviewScore")));
+					setReviewStatus(StringUtils.trimToNull(attributes.getValue("reviewStatus")));
+					setSubmitted(StringUtils.trimToNull(attributes.getValue("submitted")));
 					
 					// submittedtext and submittedtext_html are base-64
-					setSubmittedtext(StringUtil.trimToNull(attributes.getValue("submittedtext")));
-					setSubmittedtext_html(StringUtil.trimToNull(attributes.getValue("submittedtext-html")));
-					setSubmitterId(StringUtil.trimToNull(attributes.getValue("submitterid")));
-					String numberofsubmitters = StringUtil.trimToNull(attributes.getValue("numberofsubmitters"));
+					setSubmittedtext(StringUtils.trimToNull(attributes.getValue("submittedtext")));
+					setSubmittedtext_html(StringUtils.trimToNull(attributes.getValue("submittedtext-html")));
+					setSubmitterId(StringUtils.trimToNull(attributes.getValue("submitterid")));
+					String numberofsubmitters = StringUtils.trimToNull(attributes.getValue("numberofsubmitters"));
 					int submitterCount = 0;
 					try
 					{
@@ -474,29 +482,47 @@ public class AssignmentSubmissionAccess implements SerializableSubmissionAccess,
 					}
 					for(int i = 0; i < submitterCount; i++)
 					{
-						String submitter = StringUtil.trimToNull(attributes.getValue("submitter" + i));
+						String submitter = StringUtils.trimToNull(attributes.getValue("submitter" + i));
 						if(submitter != null)
 						{
 							submitters.add(submitter);
 						}
 					}
-                                        String numberoflogs = StringUtil.trimToNull(attributes.getValue("numberoflogs"));
-                                        int logCount = 0;
+					String numberoflogs = StringUtils.trimToNull(attributes.getValue("numberoflogs"));
+					int logCount = 0;
 					try
 					{
-						logCount = Integer.parseInt(numberoflogs);
-				}
-					catch (Exception e)
+					    logCount = Integer.parseInt(numberoflogs);
+					}
+					catch (NumberFormatException e)
 					{
-						log.warn(this + ":Parse " + e.getMessage());
-			}
+					    log.warn(this + ":Parse " + e.getMessage());
+					}
 					for(int i = 0; i < logCount; i++)
 					{
-						String log = StringUtil.trimToNull(attributes.getValue("log" + i));
+						String log = StringUtils.trimToNull(attributes.getValue("log" + i));
 						if(log != null)
 						{
 							submissionLog.add(log);
 						}
+					}
+					String numberofgrades = StringUtils.trimToNull(attributes.getValue("numberofgrades"));
+					int gradeCount = 0;
+					try
+					{
+					    gradeCount = Integer.parseInt(numberofgrades);
+					}
+					catch (NumberFormatException e)
+					{
+					    log.warn(this + ":Parse " + e.getMessage());
+					}
+					for(int i = 0; i < logCount; i++)
+					{
+					    String gr = StringUtils.trimToNull(attributes.getValue("grade" + i));
+					    if( gr != null)
+					    {
+					        grades.add(gr);
+					    }
 					}
 				}
 			}
@@ -937,6 +963,10 @@ public class AssignmentSubmissionAccess implements SerializableSubmissionAccess,
         public void setSubmissionLog(List<String> log) {
             this.submissionLog = log;
         }
+        public List<String>getGrades() { return grades; }
+        public void setGrades(List<String> gr) { this.grades = gr; }
+
+
 	/* (non-Javadoc)
 	 * @see org.sakaiproject.assignment.impl.conversion.impl.SerializableSubmissionAccess#setSubmitters(java.util.List)
 	 */

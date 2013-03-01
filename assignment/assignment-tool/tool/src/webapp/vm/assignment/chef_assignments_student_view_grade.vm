@@ -109,7 +109,7 @@
 							<td class="highlight">
 								<strong>
 									#if ($assignment.getContent().TypeOfGrade != 1)
-										$submission.GradeDisplay
+                                                                               #if($!override)$override#else$submission.GradeDisplay#end
 									#else
 										$tlang.getString("gen.nograd")
 									#end

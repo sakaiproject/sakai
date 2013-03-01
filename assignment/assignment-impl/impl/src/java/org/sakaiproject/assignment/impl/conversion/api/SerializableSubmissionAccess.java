@@ -279,7 +279,9 @@ public interface SerializableSubmissionAccess
 	public void setSubmitterId(String id);
         public void setSubmissionLog(List<String> log);
         public List<String> getSubmissionLog();
-        
+        public void setGrades(List<String> grades);
+        public List<String> getGrades();
+
 	/**
 	 * @param submitters the submitters to set
 	 */

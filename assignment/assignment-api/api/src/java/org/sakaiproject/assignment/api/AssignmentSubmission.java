@@ -74,6 +74,8 @@ public interface AssignmentSubmission extends Entity
          * @return The LIST of submission log entries.
          */
         public List getSubmissionLog();
+        public List getGrades();
+        public String getGradeForUser(String id);
         
 	/**
 	 * Access the list of Users who submitted this response to the Assignment.
