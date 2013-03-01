@@ -6,8 +6,9 @@
 
 <div class="portletBody">
 	<h3>
-		$heading <br>	
+		$heading 
 	</h3>
+    <br /><br />
 	#if ($alertMessage)<div class="alertMessage">$tlang.getString("gen.alert") $validator.escapeHtml($alertMessage)</div><div class="clear"></div>#end
 	<form action="#toolForm("")" method="post" name="customizeForm" >
 		
@@ -15,7 +16,9 @@
 		<p class="shorttext indnt1">
 			<span class="reqStar">*</span>
 			<label for="title"> $tlang.getString("gen.title")</label>
-			<input type="text" id="title" name="title" value="$!validator.escapeHtml($title)" maxlength="$max_length_title" /><br />
+			<input type="text" id="title" name="title" value="$!validator.escapeHtml($title)" maxlength="$max_length_title" />
+        </p>
+        <br />
 	
 	
 		<p class="shorttext indnt1">
@@ -32,21 +35,18 @@
 			</select>
 		</p>			
 
-		<p class="shorttext indnt1">
+		<div class="longtext indnt1">
 			<label for="description">$tlang.getString("gen.description")</label>
 			<br />
 			<table border="0" cellpadding="0" cellspacing="0" >
 					<tr>
 						<td>
-						<textarea id="description" name="description" rows="5" cols="40" tabindex="1" wrap="virtual">$!description</textarea>
+						<textarea id="description" name="description" rows="23" cols="40"  wrap="virtual">$!description</textarea>
 						#chef_setupformattedtextarea("description")
 						</td>
 					</tr>
 			</table>
-		</p>
-
-		
-
+		</div>
 		<p class="act">
 			<input type="submit" accesskey ="s" class="active" name="$doUpdate" value="$tlang.getString('gen.save')" />
 			<input type="submit" accesskey ="x" name="$doCancel" value="$tlang.getString('gen.cancel')" />
