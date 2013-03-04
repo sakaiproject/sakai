@@ -169,6 +169,25 @@
       <to-view-id>/syllabus/main.jsp</to-view-id>
       <redirect/>
     </navigation-case>
+     <navigation-case>
+      <from-outcome>edit_bulk</from-outcome>
+      <to-view-id>/syllabus/edit_bulk.jsp</to-view-id>
+      <redirect/>
+    </navigation-case>
+  </navigation-rule>
+  
+  <navigation-rule>
+    <from-view-id>/syllabus/edit_bulk.jsp</from-view-id>
+    <navigation-case>
+      <from-outcome>edit_bulk</from-outcome>
+      <to-view-id>/syllabus/edit_bulk.jsp</to-view-id>
+      <redirect/>
+    </navigation-case>
+    <navigation-case>
+      <from-outcome>main_edit</from-outcome>
+      <to-view-id>/syllabus/main_edit.jsp</to-view-id>
+      <redirect/>
+    </navigation-case>
   </navigation-rule>
 
   <navigation-rule>

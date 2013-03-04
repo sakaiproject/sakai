@@ -188,6 +188,33 @@ public class SyllabusManagerImpl extends HibernateDaoSupport implements Syllabus
       return data;
     }
   }
+  
+  public SyllabusData createSyllabusDataObject(String title, Integer position,
+	        String asset, String view, String status, String emailNotification,
+	        Date startDate, Date endDate, boolean linkCalendar)      
+	  {
+	    if (position == null)
+	    {
+	      throw new IllegalArgumentException("Null Argument");
+	    }
+	    else
+	    {
+	      // construct a new SyllabusData persistent object
+	      SyllabusData data = new SyllabusDataImpl();
+	      data.setTitle(title);
+	      data.setPosition(position);
+	      data.setAsset(asset);
+	      data.setView(view);
+	      data.setStatus(status);
+	      data.setEmailNotification(emailNotification);
+	      data.setStartDate(startDate);
+	      data.setEndDate(endDate);
+	      data.setLinkCalendar(linkCalendar);
+	            
+	      saveSyllabus(data);
+	      return data;
+	    }
+	  }
     
   /**
    * removes a syllabus data object (on form cancel action) 

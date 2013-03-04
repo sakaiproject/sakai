@@ -26,6 +26,10 @@
 					action="#{SyllabusTool.processStudentView}"
 					value="#{msgs.bar_student_view}" 
 		   			rendered="#{SyllabusTool.editAble == 'true'}" />
+		   	<sakai:tool_bar_item
+					action="#{SyllabusTool.processListNewBulk}"
+					value="#{msgs.bar_new_bulk}" 
+		   			rendered="#{SyllabusTool.editAble == 'true'}" />
    	      </sakai:tool_bar>
    	      <h:messages globalOnly="true" styleClass="alertMessage" rendered="#{!empty facesContext.maximumSeverity}" />
 	      <syllabus:syllabus_if test="#{SyllabusTool.syllabusItem.redirectURL}">

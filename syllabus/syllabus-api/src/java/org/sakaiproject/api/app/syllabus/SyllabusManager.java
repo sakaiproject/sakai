@@ -20,6 +20,7 @@
  **********************************************************************************/
 package org.sakaiproject.api.app.syllabus;
 
+import java.util.Date;
 import java.util.List;
 import java.util.Set;
 
@@ -82,6 +83,8 @@ public interface SyllabusManager
   public boolean removeCalendarEvents(SyllabusData data);
   
   public void removeCalendarAttachments(String siteId, String calendarEventId, SyllabusAttachment attachment);
+
+  public SyllabusData createSyllabusDataObject(String title, Integer position, String asset, String view, String status, String emailNotification, Date startDate, Date endDate, boolean linkCalendar);
   
   //public SyllabusAttachment creatSyllabusAttachmentResource(String attachId, String name);
 }
