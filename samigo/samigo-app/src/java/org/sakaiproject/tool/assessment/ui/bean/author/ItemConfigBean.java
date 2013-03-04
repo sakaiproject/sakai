@@ -24,6 +24,9 @@ package org.sakaiproject.tool.assessment.ui.bean.author;
 
 import java.io.Serializable;
 import java.util.ArrayList;
+import java.util.Collections;
+import java.util.Comparator;
+import java.util.List;
 
 import javax.faces.model.SelectItem;
 
@@ -275,11 +278,11 @@ private static final String msgResource =
    * @return ArrayList of model SelectItems
    */
 
-  public ArrayList getItemTypeSelectList()
+  public List<SelectItem> getItemTypeSelectList()
   {
-    ArrayList list = new ArrayList();
+    List<SelectItem> list = new ArrayList<SelectItem>();
 
-    list.add(new SelectItem("", getResourceDisplayName("select_qtype")));
+    
 
     if (isShowAllMultipleChoice())
       list.add(new SelectItem("1",
@@ -335,8 +338,22 @@ if (showFillInNumeric)
 					getResourceDisplayName("import_from_question_bank")));
     	}
     }
-
-    return list;
+    
+    Comparator<SelectItem> comparator = new Comparator<SelectItem>() {
+        @Override
+        public int compare(SelectItem s1, SelectItem s2) {
+            // the items must be compared based on their value (assuming String or Integer value here)
+            return s1.getLabel().compareTo(s2.getLabel());
+        }
+    };
+    
+    Collections.sort(list, comparator);
+    
+    List<SelectItem> ret = new ArrayList<SelectItem>();
+    ret.add(new SelectItem("", getResourceDisplayName("select_qtype")));
+    ret.addAll(list);
+    
+    return ret;
   }
 
   /**
