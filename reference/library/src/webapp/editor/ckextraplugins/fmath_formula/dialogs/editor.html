@@ -48,6 +48,16 @@
 		return mathml;
 	}
 
+    function getMathMLInit(name){
+		var mathml = parent.CKEDITOR.plugins.get('fmath_formula').getCurrentMathML();
+		if(mathml==null){
+			mathml = "<mrow><mtext>...</mtext></mrow>";
+		}
+		document.getElementById('editML').focus();
+		return mathml;
+	}
+
+
 	function setMathMLToEditor(mathml){
 		getSWF("editML").setMathML(mathml);
 	}
@@ -82,7 +92,8 @@
 			var mathml = getMathMLFromEditor();
 			var newId = parent.CKEDITOR.plugins.get('fmath_formula').addMathML(mathml);
 
-			ed.insertHtml("<img src='"+name+"' border='0' id='"+newId+"'/>");
+            ed.insertHtml("<img src='"+name+"' border='0' id='"+newId+"' data-mathml='" + escape(mathml) + "' />");
+
 
 			var dialog = parent.CKEDITOR.dialog.getCurrent();
 			dialog.hide();

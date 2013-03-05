@@ -12,6 +12,9 @@
 		<property id="defaultItalic">true</property>		
 		<property id="defaultForegroundColor">#ff0000</property>		
 		<property id="fontList">fraktur,script</property-->
+        <property id="loadOnInit">true</property>
+        <property id="loadOnInitMethod">getMathMLInit</property>
+
 		
 		<property id="urlGenerateImage">/capture/imageCapture.jsp</property>
 		<property id="defaultImageType">PNG</property>

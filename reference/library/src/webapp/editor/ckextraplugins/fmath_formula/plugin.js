@@ -41,8 +41,13 @@
 				
 				if(element!=null){
 					var id = element.getAttribute("id");
+                    var ml = element.getAttribute("data-mathml");
 					if(id!=null && id.indexOf("MathMLEq")>=0){
 						fmath_currentElement = id;
+                        if (ml!=null) {
+
+                             fmath_flashMathML[fmath_currentElement] = unescape(ml);
+                         }
 					}
 				}
 			} );
