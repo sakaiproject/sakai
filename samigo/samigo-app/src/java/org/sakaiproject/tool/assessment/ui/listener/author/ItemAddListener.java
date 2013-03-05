@@ -439,7 +439,7 @@ public class ItemAddListener
 		    break;
 		}
 		else{
-		    if((notEmpty==true)&&(index+1 !=index)&&(!(text.substring(indexOfOpen+1,index).equals("</p><p>")))){
+		    if((notEmpty==true)&&(indexOfOpen+1 !=index)&&(!(text.substring(indexOfOpen+1,index).equals("</p><p>")))){
 		       hasOpen=false;
                        notEmpty=false;
 		    }
@@ -502,7 +502,7 @@ public class ItemAddListener
     		    break;
     		}
     		else{
-    		    if((notEmpty==true)&&(index+1 !=index)&&(!(text.substring(indexOfOpen+1,index).equals("</p><p>")))){
+    		    if((notEmpty==true)&&(indexOfOpen+1 !=index)&&(!(text.substring(indexOfOpen+1,index).equals("</p><p>")))){
     		       hasOpen=false;
                            notEmpty=false;
     		    }
