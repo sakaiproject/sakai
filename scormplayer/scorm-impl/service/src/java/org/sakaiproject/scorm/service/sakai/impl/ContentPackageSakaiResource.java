@@ -49,9 +49,14 @@ public class ContentPackageSakaiResource extends ContentPackageResource {
 	public long getLastModified() {
 		try {
 			ContentResource resource = ContentHostingService.getResource(contentResourceId);
-			Time created = resource.getProperties().getTimeProperty(resource.getProperties().getNamePropCreationDate());
-			if (created != null) {
-				return created.getTime();
+			Time modiefied = resource.getProperties().getTimeProperty(resource.getProperties().getNamePropModifiedDate());
+			if (modiefied != null) {
+				return modiefied.getTime();
+			} else {
+				Time created = resource.getProperties().getTimeProperty(resource.getProperties().getNamePropCreationDate());
+				if (created != null) {
+					return created.getTime();
+				}
 			}
 		} catch (EntityPropertyNotDefinedException e) {
 			//  ignore
@@ -81,7 +86,7 @@ public class ContentPackageSakaiResource extends ContentPackageResource {
 		}
 		return -1;
 	}
-	
+
 	@Override
 	public String getMimeType() {
 		try {
