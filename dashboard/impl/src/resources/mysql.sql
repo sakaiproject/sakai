@@ -77,3 +77,14 @@ create index dash_repeating_event_last_idx on dash_repeating_event (last_time);
 create table if not exists dash_sourcetype 
 ( id bigint not null auto_increment, identifier varchar(255) not null, primary key (id) ); 
 create unique index dash_source_idx on dash_sourcetype (identifier);
+
+create table if not exists dash_task_lock
+( id bigint not null auto_increment, 
+task varchar(255) not null, 
+server_id varchar(255) not null, 
+claim_time timestamp, 
+last_update timestamp, 
+has_lock bit default 0,
+primary key (id));
+create index dash_lock_ct_idx on dash_task_lock (claim_time); 
+create unique index dash_lock_ts_idx on dash_task_lock (task, server_id);

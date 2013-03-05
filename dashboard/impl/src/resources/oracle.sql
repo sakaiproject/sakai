@@ -90,3 +90,14 @@ create table dash_sourcetype
 ( id number not null primary key, identifier varchar2(255) not null ); 
 create sequence dash_sourcetype_seq start with 1 increment by 1 nomaxvalue; 
 create unique index dash_source_idx on dash_sourcetype (identifier);
+
+create table dash_task_lock
+( id number not null primary key, 
+task varchar2(255) not null, 
+server_id varchar2(255) not null, 
+claim_time timestamp(9), 
+last_update timestamp(9), 
+has_lock number(1,0) default 0); 
+create sequence dash_task_lock_seq start with 1 increment by 1 nomaxvalue; 
+create index dash_lock_ct_idx on dash_task_lock (claim_time); 
+create unique index dash_lock_ts_idx on dash_task_lock (task, server_id);
