@@ -397,6 +397,16 @@ public class SiteMock implements Site {
 		return null;
 	}
 
+	public String getHtmlDescription() {
+		// TODO Auto-generated method stub
+		return null;
+	}
+	
+	public String getHtmlShortDescription() {
+		// TODO Auto-generated method stub
+		return null;
+	}
+	
 	public boolean hasGroups() {
 		// TODO Auto-generated method stub
 		return false;
