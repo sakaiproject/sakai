@@ -64,6 +64,11 @@
 		if(saved) return;
 		saved=true;
 		ed = editor;
+        //debugger;
+        if (editor.config.fileConnectorUrl != null) {
+          url = editor.config.fileConnectorUrl+'&Command=QuickUploadEquation';
+          getSWF("editML").setUrlGenerateImage(url);
+        }
 		getSWF("editML").saveImageOnServer();
 	}
 

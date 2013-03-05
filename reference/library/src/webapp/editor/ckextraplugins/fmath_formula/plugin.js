@@ -48,7 +48,6 @@
 			} );
 			
 			//search the last Id
-			
 		},
 		
 		addMathML : function(m){
