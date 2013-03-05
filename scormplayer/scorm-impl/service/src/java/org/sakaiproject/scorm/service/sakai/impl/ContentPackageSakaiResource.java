@@ -9,6 +9,8 @@ import org.sakaiproject.content.cover.ContentHostingService;
 import org.sakaiproject.entity.api.EntityPropertyNotDefinedException;
 import org.sakaiproject.entity.api.EntityPropertyTypeException;
 import org.sakaiproject.exception.IdUnusedException;
+import org.sakaiproject.exception.PermissionException;
+import org.sakaiproject.exception.TypeException;
 import org.sakaiproject.scorm.exceptions.ResourceNotFoundException;
 import org.sakaiproject.scorm.model.api.ContentPackageResource;
 import org.sakaiproject.time.api.Time;
@@ -19,22 +21,15 @@ public class ContentPackageSakaiResource extends ContentPackageResource {
 
 	private static Log log = LogFactory.getLog(ContentPackageSakaiResource.class);
 
-	Time lastModifiedTime = null;
-
 	String contentResourceId;
-
-	String mimeType;
 
 	public ContentPackageSakaiResource(String path, ContentResource contentResource) {
 		this(path, contentResource.getId(), contentResource.getContentLength(), contentResource.getContentType());
-		setLastModificationTime(contentResource);
 	}
 
 	public ContentPackageSakaiResource(String path, String contentResourceId, long contentLength, String mimeType) {
 		super(path);
 		this.contentResourceId = contentResourceId;
-		this.mimeType = mimeType;
-		this.setLength(contentLength);
 	}
 
 	@Override
@@ -51,21 +46,55 @@ public class ContentPackageSakaiResource extends ContentPackageResource {
 	}
 
 	@Override
-	public String getMimeType() {
-		return mimeType;
-	}
-
-	protected void setLastModificationTime(ContentResource contentResource) {
+	public long getLastModified() {
 		try {
-			Time created = contentResource.getProperties().getTimeProperty(contentResource.getProperties().getNamePropCreationDate());
+			ContentResource resource = ContentHostingService.getResource(contentResourceId);
+			Time created = resource.getProperties().getTimeProperty(resource.getProperties().getNamePropCreationDate());
 			if (created != null) {
-				setLastModified(created.getTime());
+				return created.getTime();
 			}
 		} catch (EntityPropertyNotDefinedException e) {
 			//  ignore
 		} catch (EntityPropertyTypeException e) {
 			// ignore
+		} catch (PermissionException e) {
+			// ignore
+		} catch (IdUnusedException e) {
+			// ignore
+		} catch (TypeException e) {
+			// ignore
 		}
+		return System.currentTimeMillis();
+	}
+
+	@Override
+	public long getLength() {
+		try {
+			ContentResource resource = ContentHostingService.getResource(contentResourceId);
+			return resource.getContentLength();
+		} catch (PermissionException e) {
+			//  ignore
+		} catch (IdUnusedException e) {
+			//  ignore
+		} catch (TypeException e) {
+			//  ignore
+		}
+		return -1;
+	}
+	
+	@Override
+	public String getMimeType() {
+		try {
+			ContentResource resource = ContentHostingService.getResource(contentResourceId);
+			return resource.getContentType();
+		} catch (PermissionException e) {
+			//  ignore
+		} catch (IdUnusedException e) {
+			//  ignore
+		} catch (TypeException e) {
+			//  ignore
+		}
+		return "";
 	}
 
 }
