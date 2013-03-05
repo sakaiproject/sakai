@@ -216,6 +216,8 @@ public interface ResourceToolAction
 	public static final String COMPRESS_ZIP_FOLDER = "compress_zip_folder";
 	public static final String EXPAND_ZIP_ARCHIVE = "expand_zip_archive";
 	public static final String MAKE_SITE_PAGE = "make_site_page";
+	public static final String SHOW = "show";
+	public static final String HIDE = "hide";
 
 	
 	public static final String ACTION_DELIMITER = ":";
