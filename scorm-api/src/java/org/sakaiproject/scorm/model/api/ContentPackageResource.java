@@ -22,7 +22,6 @@ package org.sakaiproject.scorm.model.api;
 
 import java.io.InputStream;
 import java.io.Serializable;
-import java.util.Date;
 
 import org.sakaiproject.scorm.exceptions.ResourceNotFoundException;
 
@@ -35,41 +34,23 @@ public abstract class ContentPackageResource implements Serializable {
 
 	private String path;
 
-	private long length;
-
-	private long lastModified;
-
 	public ContentPackageResource() {
 	}
 
 	public ContentPackageResource(String path) {
 		this.path = path;
-		this.length = -1;
-		this.lastModified = new Date().getTime();
 	}
 
 	public abstract InputStream getInputStream() throws ResourceNotFoundException;
 
-	public long getLastModified() {
-		return lastModified;
-	}
+	public abstract long getLastModified();
 
-	public long getLength() {
-		return length;
-	}
+	public abstract long getLength();
 
 	public abstract String getMimeType();
 
 	public String getPath() {
 		return path;
-	}
-
-	public void setLastModified(long lastModified) {
-		this.lastModified = lastModified;
-	}
-
-	public void setLength(long length) {
-		this.length = length;
 	}
 
 	public void setPath(String path) {

@@ -26,8 +26,6 @@ public class ContentPackageFile extends ContentPackageResource {
 		super(path);
 		this.archiveResourceId = archiveResourceId;
 		this.file = file;
-		this.setLength(file.length());
-		this.setLastModified(file.lastModified());
 	}
 
 	@Override
@@ -60,4 +58,14 @@ public class ContentPackageFile extends ContentPackageResource {
 
 		return mimeType;
 	}
+
+	@Override
+    public long getLastModified() {
+	    return file.lastModified();
+    }
+
+	@Override
+    public long getLength() {
+	    return file.length();
+    }
 }
