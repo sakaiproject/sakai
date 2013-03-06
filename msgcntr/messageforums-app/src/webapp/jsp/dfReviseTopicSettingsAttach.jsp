@@ -35,11 +35,11 @@
 	}
 
 	function openDateCal(){
-		NewCal('revise:openDate','MMDDYYYY',true,12);
+		NewCal('revise:openDate','MMDDYYYY',true,12, '<h:outputText value="#{ForumTool.defaultAvailabilityTime}"/>');
 	}
 
 	function closeDateCal(){
-		NewCal('revise:closeDate','MMDDYYYY',true,12);	
+		NewCal('revise:closeDate','MMDDYYYY',true,12, '<h:outputText value="#{ForumTool.defaultAvailabilityTime}"/>');	
 	}
 	function setAutoCreatePanel(radioButton) {
 		$(".createOneTopicPanel").slideToggle("fast");

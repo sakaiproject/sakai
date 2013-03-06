@@ -8759,5 +8759,9 @@ public class DiscussionForumTool
 	public Locale getUserLocale(){
 		return new ResourceLoader().getLocale();
 	}
+	
+	public String getDefaultAvailabilityTime(){
+		return ServerConfigurationService.getString("msgcntr.forums.defaultAvailabilityTime", "").toLowerCase();
+	}
 }
 
