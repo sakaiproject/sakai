@@ -38,7 +38,7 @@ import java.util.StringTokenizer;
 import java.util.Map.Entry;
 
 import javax.activation.DataHandler;
-import javax.activation.FileDataSource;
+import javax.activation.DataSource;
 import javax.mail.Address;
 import javax.mail.Message;
 import javax.mail.MessagingException;
@@ -1232,7 +1232,7 @@ public class BasicEmailService implements EmailService
 	 */
 	private MimeBodyPart createAttachmentPart(Attachment attachment) throws MessagingException
 	{
-		FileDataSource source = new FileDataSource(attachment.getFile());
+		DataSource source = attachment.getDataSource();
 		MimeBodyPart attachPart = new MimeBodyPart();
 		attachPart.setDataHandler(new DataHandler(source));
 		attachPart.setFileName(attachment.getFilename());

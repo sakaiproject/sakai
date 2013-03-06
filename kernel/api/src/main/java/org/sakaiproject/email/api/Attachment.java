@@ -17,6 +17,8 @@
 package org.sakaiproject.email.api;
 
 import java.io.File;
+import javax.activation.DataSource;
+import javax.activation.FileDataSource;
 
 /**
  * Holds an attachment for an email message. The attachment will be included with the message.
@@ -30,32 +32,47 @@ public class Attachment
 	/**
 	 * files to associated to this attachment
 	 */
-	private final File file;
+	private DataSource dataSource;
 	private final String filename;
 
 	public Attachment(File file, String filename)
 	{
-		this.file = file;
-		this.filename = filename;
+		this(new FileDataSource(file),filename);
+	}
+
+	public Attachment(DataSource dataSource,String filename) { 
+		this.dataSource = dataSource; 
+		this.filename = filename; 
 	}
 
 	/**
 	 * Get the file associated to this attachment
 	 *
-	 * @return
+	 * @return file associated with this attachment (created from the DataSource)
 	 */
 	public File getFile()
 	{
-		return file;
+		return ((FileDataSource)dataSource).getFile();
 	}
 
 	/**
 	 * Get the name of the attached file.
 	 *
-	 * @return
+	 * @return name of the attached file
 	 */
 	public String getFilename()
 	{
 		return filename;
 	}
+	
+	/**
+	 * Get the datasource of the attachment
+	 * 
+	 * @return datasource of the attachment
+	 */
+	public DataSource getDataSource() 
+	{ 
+		return dataSource; 
+	}
+
 }
