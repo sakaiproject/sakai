@@ -20,6 +20,7 @@
 			<list>
 				<value>AnnouncementService</value>
 				<value>AssignmentService</value>
+				<value>AssessmentEntityProducer</value>
 				<value>ContentHostingService</value>
 				<value>CalendarService</value>
 				<value>ChatEntityProducer</value>
