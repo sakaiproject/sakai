@@ -161,11 +161,16 @@ public interface ServerConfigurationService
 	String getString(String name, String dflt);
 
 	/**
-	 * Access some named configuration values as an array of strings. The name is the base name. name + ".count" must be defined to be a positive integer - how many are defined. name + "." + i (1..count) must be defined to be the values.
+	 * Access some named configuration values as an array of strings. 
+	 * There are 2 ways this is indicated in the system:
+	 * 1) The name is the base name. name + ".count" must be defined to be a positive integer - how many are defined. name + "." + i (1..count) must be defined to be the values.
+	 * 2) A comma delimited list of values: name=val1,val2,val3
+	 * If count is 0 or the value is empty then an empty string array is the resulting return value.
+	 * Null is returned ONLY in the case the value cannot be found at all.
 	 * 
 	 * @param name
 	 *        The configuration value name base.
-	 * @return The configuration value with this name, or the null if not found.
+	 * @return The configuration value with this name, empty array if no values or count=0, OR null if config name is not found.
 	 */
 	String[] getStrings(String name);
 
