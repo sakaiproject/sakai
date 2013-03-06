@@ -74,7 +74,7 @@ import org.sakaiproject.user.cover.UserDirectoryService;
 import org.sakaiproject.util.BaseResourcePropertiesEdit;
 import org.sakaiproject.util.Validator;
 
-import org.sakaiproject.util.LinkMigrationHelper;
+import org.sakaiproject.util.cover.LinkMigrationHelper;
 
 //permission convert
 import org.sakaiproject.authz.cover.SecurityService;
@@ -1401,23 +1401,8 @@ public class SyllabusServiceImpl implements SyllabusService, EntityTransferrer, 
 						String msgBody = fromSyllabusData.getAsset();
 						StringBuffer msgBodyPreMigrate = new StringBuffer(msgBody);
 						boolean updated = false;
-/*						
-						Iterator<Entry<String, String>> entryItr = entrySet.iterator();
-						while(entryItr.hasNext()) {
-							Entry<String, String> entry = (Entry<String, String>) entryItr.next();
-							String fromContextRef = entry.getKey();
-							if(msgBody.contains(fromContextRef)){									
-								msgBody = msgBody.replace(fromContextRef, entry.getValue());
-								updated = true;
-							}								
-						}	
-*/
-						msgBody = LinkMigrationHelper.editLinks(msgBody, "sam_pub");
-						msgBody = LinkMigrationHelper.editLinks(msgBody, "/posts/");
-						msgBody = LinkMigrationHelper.miagrateAllLinks(entrySet, msgBody);
+						msgBody = LinkMigrationHelper.migrateAllLinks(entrySet, msgBody);
 						if(!msgBody.equals(msgBodyPreMigrate.toString())){
-						
-//						if(updated){
 							fromSyllabusData.setAsset(msgBody);
 							syllabusManager.saveSyllabus(fromSyllabusData);
 						}
