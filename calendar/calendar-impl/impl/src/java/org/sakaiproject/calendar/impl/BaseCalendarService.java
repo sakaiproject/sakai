@@ -159,7 +159,7 @@ import org.sakaiproject.util.SAXEntityReader;
 import org.sakaiproject.util.Validator;
 import org.sakaiproject.util.Web;
 import org.sakaiproject.util.Xml;
-import org.sakaiproject.util.LinkMigrationHelper;
+import org.sakaiproject.util.cover.LinkMigrationHelper;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 import org.w3c.dom.Node;
@@ -2302,9 +2302,7 @@ public abstract class BaseCalendarService implements CalendarService, DoubleStor
 						}	
 */
 						StringBuffer msgBodyPreMigrate = new StringBuffer(msgBodyFormatted);
-						msgBodyFormatted = LinkMigrationHelper.editLinks(msgBodyFormatted, "sam_pub");
-						msgBodyFormatted = LinkMigrationHelper.editLinks(msgBodyFormatted, "/posts/");
-						msgBodyFormatted = LinkMigrationHelper.miagrateAllLinks(entrySet, msgBodyFormatted);
+						msgBodyFormatted = LinkMigrationHelper.migrateAllLinks(entrySet, msgBodyFormatted);
 						if(!msgBodyFormatted.equals(msgBodyPreMigrate.toString())){
 						
 //						if(updated){
