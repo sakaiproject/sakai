@@ -25,23 +25,28 @@ import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang.StringUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
-import org.elasticsearch.action.admin.cluster.health.ClusterHealthRequest;
 import org.elasticsearch.action.admin.indices.create.CreateIndexRequest;
 import org.elasticsearch.action.admin.indices.create.CreateIndexResponse;
 import org.elasticsearch.action.admin.indices.delete.DeleteIndexRequest;
-import org.elasticsearch.action.admin.indices.delete.DeleteIndexResponse;
 import org.elasticsearch.action.admin.indices.exists.indices.IndicesExistsRequest;
 import org.elasticsearch.action.admin.indices.exists.indices.IndicesExistsResponse;
 import org.elasticsearch.action.admin.indices.flush.FlushRequest;
 import org.elasticsearch.action.admin.indices.refresh.RefreshRequest;
 import org.elasticsearch.action.admin.indices.refresh.RefreshResponse;
+import org.elasticsearch.action.bulk.BulkItemResponse;
+import org.elasticsearch.action.bulk.BulkRequestBuilder;
+import org.elasticsearch.action.bulk.BulkResponse;
 import org.elasticsearch.action.count.CountResponse;
+import org.elasticsearch.action.delete.DeleteRequestBuilder;
 import org.elasticsearch.action.delete.DeleteResponse;
 import org.elasticsearch.action.deletebyquery.DeleteByQueryResponse;
+import org.elasticsearch.action.index.IndexRequestBuilder;
 import org.elasticsearch.action.search.SearchResponse;
 import org.elasticsearch.action.search.SearchType;
 import org.elasticsearch.client.Client;
+import org.elasticsearch.common.settings.loader.JsonSettingsLoader;
 import org.elasticsearch.common.xcontent.XContentBuilder;
+import org.elasticsearch.indices.IndexAlreadyExistsException;
 import org.elasticsearch.search.SearchHit;
 import org.sakaiproject.authz.api.SecurityAdvisor;
 import org.sakaiproject.authz.api.SecurityService;
@@ -86,19 +91,40 @@ public class ElasticSearchIndexBuilder implements SearchIndexBuilder {
     private String indexName;
 
     /**
-     * number of documents to index at a time for each run of the context indexing task (defaults to 500)
+     * Number of documents to index at a time for each run of the context indexing task (defaults to 500).
+     * Setting this too low will slow things down, setting it to high won't allow all nodes in the cluster
+     * to share the load.
      */
     private int contentIndexBatchSize = 500;
+
+    /**
+     * Number of actions to send in one elasticsearch bulk index call
+     * defaults to 10, which actually processes ~5 docs at the same time
+     * since there is a delete than an add for each doc.  Setting this
+     * to too high a number will have memory implications as you'll be keeping
+     * more content in memory until the request is executed.
+     */
+    private int bulkRequestSize = 10;
 
     /**
      * by default the mapping in configured in the mapping.json file.  This can be overridden by injecting
      * json into this property.
      *
      * See {@link <a href="http://www.elasticsearch.org/guide/reference/mapping/">elasticsearch mapping reference</a> } for
-     * more information on configuration that is available.  For example, if you want to change the analyzer config
-     * this is the place to do it.
+     * more information on configuration that is available.  For example, if you want to change the analyzer config for
+     * a particular field this is the place to do it.
      */
     private String mapping = null;
+
+    /**
+     * Expects a JSON string of ElasticSearch index settings.  You can set this in your
+     * sakai.properties files and inject a value using the indexSettings@org.sakaiproject.search.api.SearchIndexBuilder
+     * property.  By default this value is configured by the indexSettings.json files.
+     *
+     * See {@link <a href="http://www.elasticsearch.org/guide/reference/index-modules/">elasticsearch index modules</a>}
+     * for more information on configuration that is available.
+     */
+    private String indexSettings = null;
 
     /**
      * indexing thread that performs loading the actual content into the index.
@@ -123,12 +149,25 @@ public class ElasticSearchIndexBuilder implements SearchIndexBuilder {
     private boolean onlyIndexSearchToolSites = true;
 
     /**
-     * set to false to inclue user site content in index
+     * set to false to include user site content in index
      */
     private boolean excludeUserSites = true;
-    private Date startTime;
+    private long startTime;
     private long lastLoad;
 
+    /**
+     * comma separated list of sites to always ignore when indexing.  Defaults to ~admin, !admin, PortfolioAdmin
+     * use injection to set this value.
+     */
+    private String ignoredSites = null;
+
+    /**
+     * parsed list of ignoredSites configuration. If you wish to change this use the ignoredSites field not this
+     * one to avoid having to change Spring xml
+     */
+    private List<String> ignoredSitesList = new ArrayList();
+
+    private Map<String, String> settings = new HashMap();
 
     static {
         allowAllAdvisor = new SecurityAdvisor() {
@@ -148,12 +187,62 @@ public class ElasticSearchIndexBuilder implements SearchIndexBuilder {
             return;
         }
 
-        initMapping();
+        if (ignoredSites != null) {
+            ignoredSitesList = Arrays.asList(ignoredSites.split(","));
+        } else {
+            ignoredSitesList.add("~admin");
+            ignoredSitesList.add("!admin");
+            ignoredSitesList.add("PortfolioAdmin");
+        }
+
+         // if there is a value here its been overridden by injection, we will use the overridden configuration
+        if (org.apache.commons.lang.StringUtils.isEmpty(mapping)) {
+            try {
+                StringWriter writer = new StringWriter();
+                IOUtils.copy(ElasticSearchService.class.getResourceAsStream("/org/sakaiproject/search/elastic/bundle/mapping.json"), writer, "UTF-8");
+                mapping = writer.toString();
+            } catch (Exception ex) {
+                log.error("Failed to load mapping config: " + ex.getMessage(), ex);
+            }
+        }
+        log.debug("ElasticSearch mapping will be configured as follows:" + mapping);
+
+        if (org.apache.commons.lang.StringUtils.isEmpty(indexSettings)) {
+            try {
+                StringWriter writer = new StringWriter();
+                IOUtils.copy(ElasticSearchService.class.getResourceAsStream("/org/sakaiproject/search/elastic/bundle/indexSettings.json"), writer, "UTF-8");
+                indexSettings = writer.toString();
+            } catch (Exception ex) {
+                log.error("Failed to load indexSettings config: " + ex.getMessage(), ex);
+            }
+        }
+
+        JsonSettingsLoader loader = new JsonSettingsLoader();
+
+        try {
+            settings = loader.load(indexSettings);
+        } catch (IOException e) {
+            log.error("problem loading indexSettings:" + e.getMessage(), e);
+        }
+
+        // load anything set into the ServerConfigurationService that starts with "elasticsearch.index."  this will
+        // override anything set in the indexSettings config
+        for (ServerConfigurationService.ConfigItem configItem : serverConfigurationService.getConfigData().getItems()) {
+            if (configItem.getName().startsWith(ElasticSearchService.CONFIG_PROPERTY_PREFIX + "index.")) {
+                String propertyName = configItem.getName().replaceFirst(ElasticSearchService.CONFIG_PROPERTY_PREFIX, "");
+                settings.put(propertyName, (String) configItem.getValue());
+            }
+        }
+
+        if (log.isDebugEnabled()) {
+            for (String name : settings.keySet()) {
+                log.debug("index property '" + name + "' set to: " + settings.get(name));
+            }
+
+        }
+
         bulkContentIndexTimer.schedule(new BulkContentIndexerTask(), (delay * 1000), (period * 1000));
-
     }
-
-
 
     /**
      * register an entity content producer to provide content to the search
@@ -239,9 +328,9 @@ public class ElasticSearchIndexBuilder implements SearchIndexBuilder {
         SecurityAdvisor popped = securityService.popAdvisor(allowAllAdvisor);
         if (!allowAllAdvisor.equals(popped)) {
             if (popped == null) {
-                log.warn("Someone has removed our advisor.");
+                log.info("Someone has removed our advisor.");
             } else {
-                log.warn("Removed someone elses advisor, adding it back.");
+                log.info("Removed someone elses advisor, adding it back.");
                 securityService.pushAdvisor(popped);
             }
         }
@@ -253,19 +342,25 @@ public class ElasticSearchIndexBuilder implements SearchIndexBuilder {
      * @param ecp
      * @return
      */
+    protected IndexRequestBuilder prepareIndex(String resourceName, EntityContentProducer ecp, boolean includeContent) throws IOException {
+            return client.prepareIndex(indexName, ElasticSearchService.SAKAI_DOC_TYPE, ecp.getId(resourceName))
+                    .setSource(buildIndexRequest(ecp, resourceName, includeContent))
+                    .setRouting(ecp.getSiteId(resourceName));
+    }
+
+
+    /**
+     *
+     * @param resourceName
+     * @param ecp
+     * @return
+     */
     protected void prepareIndexAdd(String resourceName, EntityContentProducer ecp, boolean includeContent) {
         try {
-            client.prepareIndex(indexName, ecp.getType(resourceName), ecp.getId(resourceName))
-                    .setSource(buildIndexRequest(ecp, resourceName, includeContent))
-                    .setType(ElasticSearchService.SAKAI_DOC_TYPE)
-                    .setRouting(ecp.getSiteId(resourceName))
-                    .execute()
-                    .actionGet();
-
+            prepareIndex(resourceName, ecp, includeContent).execute().actionGet();
         } catch (Throwable t) {
             log.error("Error: trying to register resource " + resourceName
-                    + " in search engine this resource will"
-                    + " not be indexed until it is modified: " + t.getMessage());
+                    + " in search engine: " + t.getMessage(), t);
         }
 
     }
@@ -323,6 +418,7 @@ public class ElasticSearchIndexBuilder implements SearchIndexBuilder {
         return lastLoad;
     }
 
+
     protected class RebuildSiteTask extends TimerTask {
         private final String siteId;
 
@@ -341,28 +437,53 @@ public class ElasticSearchIndexBuilder implements SearchIndexBuilder {
                 enableAzgSecurityAdvisor();
                 deleteAllDocumentForSite(siteId);
 
-                for (final EntityContentProducer entityContentProducer : getProducers()) {
-                    try {
-                        for (Iterator<String> i = entityContentProducer.getSiteContentIterator(siteId); i.hasNext(); ) {
-                            String ref = i.next();
-                            // this won't index the actual content just load the doc
-                            // another thread will pick up the content, this allows the task to finish
-                            // quickly and spread the content digesting across the cluster
-                            prepareIndexAdd(ref, entityContentProducer, false);
+                long start = System.currentTimeMillis();
+                int numberOfDocs = 0;
+
+                BulkRequestBuilder bulkRequest = client.prepareBulk();
+
+                for (final EntityContentProducer ecp : getProducers()) {
+
+                    for (Iterator<String> i = ecp.getSiteContentIterator(siteId); i.hasNext(); ) {
+
+                        if (bulkRequest.numberOfActions() < bulkRequestSize) {
+                            String reference = i.next();
+
+                            log.debug("indexing content for entity:" + reference);
+
+                            if (StringUtils.isNotEmpty(ecp.getContent(reference))) {
+                                //updating was causing issues without a _source, so doing delete and re-add
+                                try {
+                                    bulkRequest.add(prepareDelete(reference, ecp));
+                                    bulkRequest.add(prepareIndex(reference, ecp, false));
+                                    numberOfDocs++;
+                                } catch (Exception e) {
+                                    log.error(e.getMessage(), e);
+                                }
+                            }
+
+                        } else {
+                            executeBulkRequest(bulkRequest);
+                            bulkRequest = client.prepareBulk();
                         }
-                    } catch (Exception e) {
-                        log.error("An exception occurred while rebuilding the index of '" + siteId + "'", e);
                     }
+
+                    // execute any remaining bulks requests not executed yet
+                    if (bulkRequest.numberOfActions()  > 0) {
+                        executeBulkRequest(bulkRequest);
+                    }
+
                 }
 
-                flushIndex();
-                refreshIndex();
+                log.info("Queued " + numberOfDocs + " docs for indexing from site: " + siteId + " in " + (System.currentTimeMillis() - start) + " ms");
+
+                //flushIndex();
+                //refreshIndex();
             } catch (Exception e) {
                 log.error("An exception occurred while rebuilding the index of '" + siteId + "'", e);
             } finally {
                 disableAzgSecurityAdvisor();
             }
-
         }
 
     }
@@ -420,57 +541,85 @@ public class ElasticSearchIndexBuilder implements SearchIndexBuilder {
      * digests the content and loads it into the index.  Any docs with empty content will be removed from
      * the index.
      */
-    protected void processContentQueue() {
-        startTime = new Date();
+    public void processContentQueue() {
+        startTime = System.currentTimeMillis();
 
         // If there are a lot of docs queued up this could take awhile we don't want
         // to eat up all the CPU cycles.
         Thread.currentThread().setPriority(Thread.NORM_PRIORITY - 1);
 
-        assureIndex();
+        if (getPendingDocuments() == 0) {
+            log.trace("no pending docs.");
+            return;
+        }
 
         SearchResponse response = client.prepareSearch(indexName)
                 .setQuery(matchAllQuery())
                 .setTypes(ElasticSearchService.SAKAI_DOC_TYPE)
                 .setFilter(missingFilter(SearchService.FIELD_CONTENTS))
                 .setSize(contentIndexBatchSize)
+                .addFields(SearchService.FIELD_REFERENCE)
                 .execute().actionGet();
 
         SearchHit[] hits = response.getHits().hits();
 
-
         log.debug(getPendingDocuments() + " pending docs.");
 
+        BulkRequestBuilder bulkRequest = client.prepareBulk();
+
         for (SearchHit hit : hits) {
-            String reference = getFieldFromSearchHit(SearchService.FIELD_REFERENCE, hit);
-            log.debug("indexing content for entity:" + reference);
-            try {
+
+            if (bulkRequest.numberOfActions() < bulkRequestSize) {
+                String reference = getFieldFromSearchHit(SearchService.FIELD_REFERENCE, hit);
+
+                log.debug("indexing content for entity:" + reference);
+
                 EntityContentProducer ecp = this.getContentProducerForReference(reference);
+
                 if (StringUtils.isNotEmpty(ecp.getContent(reference))) {
-
-                    //updating was causing issues, so doing delete and re-add
-                    deleteDocument(reference, ecp);
-                    prepareIndexAdd(reference, ecp, true);
-
+                    //updating was causing issues without a _source, so doing delete and re-add
+                    try {
+                        bulkRequest.add(prepareDelete(reference, ecp));
+                        bulkRequest.add(prepareIndex(reference, ecp, true));
+                    } catch (Exception e) {
+                        log.error(e.getMessage(), e);
+                    }
                 } else {
                     // if there is no content to index remove the doc, its pointless to have it included in the index
                     // and we will just waste cycles looking at it again everytime this thread runs
-                    deleteDocument(reference, ecp);
+                    bulkRequest.add(prepareDelete(reference, ecp));
                 }
 
-            } catch (Exception e) {
-                log.error("problem updating content indexing for entity: " + reference + " error: " + e.getMessage());
+            } else {
+                executeBulkRequest(bulkRequest);
+                bulkRequest = client.prepareBulk();
             }
         }
 
-        flushIndex();
-        refreshIndex();
-        lastLoad = new Date().getTime();
-        if (hits.length > 0) {
-            log.debug("Finished indexing " + hits.length + " docs in " +
-                    ((new Date().getTime() - startTime.getTime()) / 1000) + " seconds.");
+        // execute any remaining bulks requests not executed yet
+        if (bulkRequest.numberOfActions() > 0) {
+            executeBulkRequest(bulkRequest);
         }
 
+        lastLoad = System.currentTimeMillis();
+
+        if (hits.length > 0) {
+            log.info("Finished indexing " + hits.length + " docs in " +
+                    ((lastLoad - startTime)) + " ms");
+        }
+
+    }
+
+    protected void executeBulkRequest(BulkRequestBuilder bulkRequest) {
+        BulkResponse bulkResponse = bulkRequest.execute().actionGet();
+        log.info("bulk request of batch size: " + bulkRequest.numberOfActions() + " took " + bulkResponse.getTookInMillis() + " ms");
+        if (bulkResponse.hasFailures()) {
+            // process failures by iterating through each bulk response item
+            for (BulkItemResponse item : bulkResponse.items() ){
+                log.error("problem updating content indexing for entity: " + item.getId() + " error: " + item.failureMessage());
+            }
+
+        }
     }
 
     /**
@@ -539,25 +688,16 @@ public class ElasticSearchIndexBuilder implements SearchIndexBuilder {
 
     @Override
     public int getPendingDocuments() {
-        CountResponse response = client.prepareCount(indexName)
-                .setQuery(filteredQuery(matchAllQuery(), missingFilter(SearchService.FIELD_CONTENTS)))
-                .execute()
-                .actionGet();
-        return (int) response.count();
-    }
-
-    protected void initMapping() {
-        // if there is a value here its been overridden by injection, we will use the overridden configuration
-        if (org.apache.commons.lang.StringUtils.isEmpty(mapping)) {
-            try {
-                StringWriter writer = new StringWriter();
-                IOUtils.copy(ElasticSearchService.class.getResourceAsStream("/org/sakaiproject/search/elastic/bundle/mapping.json"), writer, "UTF-8");
-                mapping = writer.toString();
-            } catch (Exception ex) {
-                log.error("Failed to load Stop words into Analyzer", ex);
-            }
+        try {
+            CountResponse response = client.prepareCount(indexName)
+                    .setQuery(filteredQuery(matchAllQuery(), missingFilter(SearchService.FIELD_CONTENTS)))
+                    .execute()
+                    .actionGet();
+            return (int) response.count();
+        } catch (Exception e) {
+            log.error("problem getting pending docs: " + e.getMessage());
         }
-        log.debug("ElasticSearch mapping will be configured as follows:" + mapping);
+        return 0;
     }
 
     /**
@@ -574,13 +714,16 @@ public class ElasticSearchIndexBuilder implements SearchIndexBuilder {
      * creates a new index, does not check if the exist exists
      */
     public void createIndex() {
-        // create index
-        CreateIndexResponse createResponse = client.admin().indices().create(new CreateIndexRequest(indexName).mapping(ElasticSearchService.SAKAI_DOC_TYPE, mapping)).actionGet();
-        if (!createResponse.acknowledged()) {
-            log.error("Index wasn't created, can't rebuild");
+        try {
+            CreateIndexResponse createResponse = client.admin().indices().create(new CreateIndexRequest(indexName).settings(settings).mapping(ElasticSearchService.SAKAI_DOC_TYPE, mapping)).actionGet();
+            if (!createResponse.acknowledged()) {
+                log.error("Index wasn't created, can't rebuild");
+            }
+        } catch (IndexAlreadyExistsException e) {
+            log.warn("Index already created.");
         }
 
-        client.admin().cluster().health(new ClusterHealthRequest(indexName).waitForYellowStatus()).actionGet();
+       // client.admin().cluster().health(new ClusterHealthRequest(indexName).waitForYellowStatus()).actionGet();
     }
 
 
@@ -591,12 +734,11 @@ public class ElasticSearchIndexBuilder implements SearchIndexBuilder {
         IndicesExistsResponse response = client.admin().indices().exists(new IndicesExistsRequest(indexName)).actionGet();
         if (response.exists()) {
 
-            DeleteIndexResponse delete = client.admin().indices().delete(new DeleteIndexRequest(indexName)).actionGet();
-            if (!delete.acknowledged()) {
-                log.error("Index wasn't deleted, can't recreate it");
-                return;
-            }
+            client.admin().indices().delete(new DeleteIndexRequest(indexName)).actionGet();
+
+           // client.admin().cluster().health(new ClusterHealthRequest(indexName).waitForYellowStatus()).actionGet();
         }
+
 
         // create index
         createIndex();
@@ -633,6 +775,7 @@ public class ElasticSearchIndexBuilder implements SearchIndexBuilder {
      * <li>Special sites</li>
      * <li>Sites without the search tool (if the option is enabled)</li>
      * <li>User sites (if the option is enabled)</li>
+     * <li>Any sites included in the ignoreSitesList (~admin and !admin are the default ignored sites)</li>
      * </ul>
      * </p>
      *
@@ -643,7 +786,8 @@ public class ElasticSearchIndexBuilder implements SearchIndexBuilder {
         log.debug("Check if '" + site + "' is indexable.");
         return !(siteService.isSpecialSite(site.getId()) ||
                 (isOnlyIndexSearchToolSites() && site.getToolForCommonId(SEARCH_TOOL_ID) == null) ||
-                (isExcludeUserSites() && siteService.isUserSite(site.getId())));
+                (isExcludeUserSites() && siteService.isUserSite(site.getId())) ||
+                (ignoredSitesList.contains(site.getId())));
     }
 
     @Override
@@ -742,13 +886,13 @@ public class ElasticSearchIndexBuilder implements SearchIndexBuilder {
                 .actionGet();
     }
 
+    protected DeleteRequestBuilder prepareDelete(String ref, EntityContentProducer ecp) {
+       return client.prepareDelete(indexName, ElasticSearchService.SAKAI_DOC_TYPE, ecp.getId(ref)).setRouting(ecp.getSiteId(ref));
+    }
+
     protected void deleteDocument(String ref, EntityContentProducer ecp) {
         log.debug("deleting " + ref + " from the search index");
-        DeleteResponse response = client.prepareDelete(indexName, ecp.getType(ref), ecp.getId(ref))
-                .setType(ElasticSearchService.SAKAI_DOC_TYPE)
-                .execute()
-                .actionGet();
-        //flushIndex();
+        DeleteResponse response = prepareDelete(ref, ecp).execute().actionGet();
     }
 
     /**
@@ -758,6 +902,21 @@ public class ElasticSearchIndexBuilder implements SearchIndexBuilder {
     public void refreshIndex(String siteId) {
         log.info("Refreshing the index for '" + siteId + "'");
         //Get the currently indexed resources for this site
+
+        Site site = null;
+
+        try {
+            site = siteService.getSite(siteId);
+        } catch (IdUnusedException e) {
+            log.error("site with siteId=" + siteId + " does not exist can't refresh its index");
+           return;
+        }
+
+        if (!isSiteIndexable(site)) {
+            log.debug("ignoring request to refreshIndex for site:" + siteId + " as its not indexable");
+            return;
+        }
+
         Collection<String> resourceNames = getResourceNames(siteId);
         log.debug(resourceNames.size() + " elements will be refreshed");
         for (String resourceName : resourceNames) {
@@ -772,9 +931,6 @@ public class ElasticSearchIndexBuilder implements SearchIndexBuilder {
 
             prepareIndexAdd(resourceName, entityContentProducer, false);
         }
-
-        flushIndex();
-        refreshIndex();
     }
 
     /**
@@ -791,6 +947,7 @@ public class ElasticSearchIndexBuilder implements SearchIndexBuilder {
                 .setQuery(termQuery(SearchService.FIELD_SITEID, siteId))
                 .setTypes(ElasticSearchService.SAKAI_DOC_TYPE)
                 .setSize(Integer.MAX_VALUE)
+                .addFields(SearchService.FIELD_REFERENCE)
                 .execute()
                 .actionGet();
 
@@ -803,18 +960,18 @@ public class ElasticSearchIndexBuilder implements SearchIndexBuilder {
     }
 
     /**
-     * loads the field from the SearchHit. It does this by looking at the source, not the fields.
-     * This is safer as depending on how the SearchHit was loaded the field data might not be there,
-     * but there will always be a copy in the source.
+     * loads the field from the SearchHit. Loads from field not from source since
+     * we aren't storing the source.
      * @param field
      * @param hit
      * @return
      */
     static public String getFieldFromSearchHit(String field, SearchHit hit) {
-        if (hit == null || hit.getSource().get(field) == null) {
-            return null;
+        if (hit != null && hit.getFields() != null && hit.getFields().get(field) != null) {
+            return hit.getFields().get(field).value();
         }
-        return (String) hit.getSource().get(field);
+        return null;
+
     }
 
     @Override
@@ -932,7 +1089,7 @@ public class ElasticSearchIndexBuilder implements SearchIndexBuilder {
 
 
     public Date getStartTime() {
-        return startTime;
+        return new Date(startTime);
     }
 
     public String getMapping() {
@@ -953,5 +1110,21 @@ public class ElasticSearchIndexBuilder implements SearchIndexBuilder {
 
     public void setServerConfigurationService(ServerConfigurationService serverConfigurationService) {
         this.serverConfigurationService = serverConfigurationService;
+    }
+
+    public void setBulkRequestSize(int bulkRequestSize) {
+        this.bulkRequestSize = bulkRequestSize;
+    }
+
+    public void setIgnoredSites(String ignoredSites) {
+        this.ignoredSites = ignoredSites;
+    }
+
+    public void setIgnoredSitesList(List<String> ignoredSitesList) {
+        this.ignoredSitesList = ignoredSitesList;
+    }
+
+    public void setIndexSettings(String indexSettings) {
+        this.indexSettings = indexSettings;
     }
 }

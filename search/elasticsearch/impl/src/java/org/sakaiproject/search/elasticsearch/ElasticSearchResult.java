@@ -4,14 +4,27 @@ import org.apache.commons.codec.binary.Base64;
 import org.apache.commons.lang.StringEscapeUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
+import org.apache.lucene.analysis.Analyzer;
+import org.apache.lucene.analysis.StopAnalyzer;
+import org.apache.lucene.analysis.TokenStream;
+import org.apache.lucene.analysis.snowball.SnowballAnalyzer;
+import org.apache.lucene.analysis.standard.StandardAnalyzer;
+import org.apache.lucene.index.Term;
+import org.apache.lucene.search.BooleanClause;
+import org.apache.lucene.search.BooleanQuery;
+import org.apache.lucene.search.TermQuery;
+import org.apache.lucene.search.highlight.*;
+import org.apache.lucene.util.Version;
 import org.elasticsearch.common.text.Text;
 import org.elasticsearch.search.SearchHit;
+import org.elasticsearch.search.SearchHitField;
 import org.elasticsearch.search.facet.terms.InternalTermsFacet;
 import org.elasticsearch.search.facet.terms.TermsFacet;
 import org.elasticsearch.search.highlight.HighlightField;
 import org.sakaiproject.search.api.*;
 
 import java.io.IOException;
+import java.io.StringReader;
 import java.io.UnsupportedEncodingException;
 import java.util.*;
 
@@ -29,11 +42,14 @@ public class ElasticSearchResult implements SearchResult {
     private String newUrl;
     private InternalTermsFacet facet;
     private SearchIndexBuilder searchIndexBuilder;
+    private static Analyzer analyzer = new SnowballAnalyzer(Version.LUCENE_36,"English", StopAnalyzer.ENGLISH_STOP_WORDS_SET);
+    private String searchTerms;
 
-    public ElasticSearchResult(SearchHit hit, InternalTermsFacet facet, SearchIndexBuilder searchIndexBuilder) {
+    public ElasticSearchResult(SearchHit hit, InternalTermsFacet facet, SearchIndexBuilder searchIndexBuilder, String searchTerms) {
         this.hit = hit;
         this.facet = facet;
         this.searchIndexBuilder = searchIndexBuilder;
+        this.searchTerms = searchTerms;
     }
 
 
@@ -49,17 +65,22 @@ public class ElasticSearchResult implements SearchResult {
 
     @Override
     public String[] getFieldNames() {
-        return hit.getSource().keySet().toArray(new String[hit.getSource().size()]);
+        return hit.getFields().keySet().toArray(new String[hit.getFields().size()]);
     }
 
     @Override
     public String[] getValues(String string) {
-        return hit.getSource().values().toArray(new String[hit.getSource().size()]);
+        String[] values = new String[hit.getFields().size()];
+        int i=0;
+        for (SearchHitField field: hit.getFields().values()) {
+            values[i++] = field.getValue();
+        }
+        return values;
     }
 
     @Override
     public Map<String, String[]> getValueMap() {
-        //TODO figure out what the fuck this is
+        //TODO figure out what this is
         return new HashMap<String, String[]>();
     }
 
@@ -79,13 +100,35 @@ public class ElasticSearchResult implements SearchResult {
 
     @Override
     public String getSearchResult() {
-        StringBuilder sb = new StringBuilder();
-        for (HighlightField fieldEntry : hit.getHighlightFields().values()) {
-            sb.append(fieldEntry.getName()).append(": ");
-            for (Text highlight : fieldEntry.getFragments())
-                sb.append(highlight).append("... ");
+        try {
+            TermQuery query = new TermQuery(new Term("text",searchTerms));
+
+            Scorer scorer = new QueryScorer(query);
+            Highlighter hightlighter = new Highlighter(new SimpleHTMLFormatter(), new SimpleHTMLEncoder(), scorer);
+            StringBuilder sb = new StringBuilder();
+            // contents no longer contains the digested contents, so we need to
+            // fetch it from the EntityContentProducer
+
+            String reference = getFieldFromSearchHit(SearchService.FIELD_REFERENCE);
+
+            if (reference != null) {
+
+                EntityContentProducer sep = searchIndexBuilder
+                        .newEntityContentProducer(reference);
+                if (sep != null) {
+                    sb.append(sep.getContent(reference));
+                }
+            }
+            String text = sb.toString();
+            TokenStream tokenStream = analyzer.tokenStream(
+                    SearchService.FIELD_CONTENTS, new StringReader(text));
+            return hightlighter.getBestFragments(tokenStream, text, 5, " ... "); //$NON-NLS-1$
+        } catch (IOException e) {
+            return e.getMessage(); //$NON-NLS-1$
+        } catch (InvalidTokenOffsetsException e) {
+            return e.getMessage();
         }
-        return sb.toString();
+
     }
 
     @Override
@@ -95,6 +138,9 @@ public class ElasticSearchResult implements SearchResult {
 
     @Override
     public TermFrequency getTerms() throws IOException {
+        if (facet == null) {
+            return new ElasticSearchTermFrequency();
+        }
 
         String[] terms = new String[facet.entries().size()];
         int[] frequencies = new int[facet.entries().size()];
@@ -121,10 +167,7 @@ public class ElasticSearchResult implements SearchResult {
     }
 
     protected String getFieldFromSearchHit(String field) {
-        if (hit == null || hit.getSource().get(field) == null) {
-            return null;
-        }
-        return (String) hit.getSource().get(field);
+        return ElasticSearchIndexBuilder.getFieldFromSearchHit(field, hit);
     }
 
     @Override
@@ -186,6 +229,11 @@ public class ElasticSearchResult implements SearchResult {
     public class ElasticSearchTermFrequency implements TermFrequency {
         String[] terms;
         int[] frequencies;
+
+        public ElasticSearchTermFrequency(){
+            this.terms = new String[0];
+            this.frequencies = new int[0];
+        }
 
         public ElasticSearchTermFrequency(String[] terms, int[] frequencies) {
             this.terms = terms;

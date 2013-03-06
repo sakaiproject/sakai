@@ -30,6 +30,12 @@
             <artifactId>search-api</artifactId>
         </dependency>
         <dependency>
+          <groupId>org.sakaiproject.search</groupId>
+          <artifactId>search-util</artifactId>
+          <version>${project.version}</version>
+          <type>jar</type>
+        </dependency>
+        <dependency>
             <groupId>org.sakaiproject.kernel</groupId>
             <artifactId>sakai-kernel-api</artifactId>
             <scope>provided</scope>
@@ -95,26 +101,12 @@
         </dependency>
     </dependencies>
     <build>
-        <!--plugins>
-            <plugin>
-                <groupId>org.apache.maven.plugins</groupId>
-                <artifactId>maven-surefire-plugin</artifactId>
-                <configuration>
-                    <forkMode>pertest</forkMode>
-                    <argLine>-Xms256m -Xmx512m</argLine>
-                    <testFailureIgnore>false</testFailureIgnore>
-                    <skip>false</skip>
-                    <includes>
-                        <include>**/*</include>
-                    </includes>
-                </configuration>
-            </plugin>
-        </plugins-->
         <resources>
             <resource>
                 <directory>src/resources</directory>
                 <includes>
                     <include>**/*.json</include>
+                    <include>**/*.properties</include>
                 </includes>
             </resource>
         </resources>

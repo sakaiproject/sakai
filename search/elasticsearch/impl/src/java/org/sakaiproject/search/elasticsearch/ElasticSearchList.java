@@ -1,12 +1,13 @@
 package org.sakaiproject.search.elasticsearch;
 
 import com.google.common.collect.ForwardingList;
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
 import org.elasticsearch.action.search.SearchResponse;
 import org.elasticsearch.search.SearchHit;
 import org.elasticsearch.search.facet.terms.InternalTermsFacet;
-import org.sakaiproject.search.api.SearchIndexBuilder;
-import org.sakaiproject.search.api.SearchList;
-import org.sakaiproject.search.api.SearchResult;
+import org.sakaiproject.search.api.*;
+import org.sakaiproject.search.elasticsearch.filter.SearchItemFilter;
 
 import java.util.*;
 
@@ -18,20 +19,39 @@ import java.util.*;
  * To change this template use File | Settings | File Templates.
  */
 public class ElasticSearchList extends ForwardingList<SearchResult> implements SearchList {
-    private final List<SearchResult> results = new ArrayList<SearchResult>();
+    private static final Log log = LogFactory.getLog(ElasticSearchList.class);
+    private final List<SearchResult> results;
     private final SearchResponse response;
+    private final SearchItemFilter filter;
 
-    public ElasticSearchList(){
-        this.response = null;
-    }
-
-    public ElasticSearchList(SearchResponse response, SearchIndexBuilder searchIndexBuilder, String facetName) {
+    public ElasticSearchList(String searchTerms, SearchResponse response, ElasticSearchService elasticSearchService, ElasticSearchIndexBuilder searchIndexBuilder, String facetName, SearchItemFilter filter) {
         this.response = response;
-        int i=0;
+        this.filter = filter;
+        results = new ArrayList<SearchResult>();
+        List<String> references = new ArrayList<String>();
         for (SearchHit hit : response.getHits()) {
-            ElasticSearchResult result = new ElasticSearchResult(hit, (InternalTermsFacet) response.getFacets().facet(facetName), searchIndexBuilder);
+            references.add(searchIndexBuilder.getFieldFromSearchHit(SearchService.FIELD_REFERENCE, hit) );
+        }
+
+        SearchResponse highlightedResponse = null;
+
+
+        try {
+            highlightedResponse = elasticSearchService.search(searchTerms, new ArrayList<String>(), 0, references.size(), references);
+        } catch (Exception e) {
+            log.error("problem running hightlighted and facetted search: " + e.getMessage(), e);
+            return;
+        }
+
+        int i=0;
+        for (SearchHit hit : highlightedResponse.getHits()) {
+            InternalTermsFacet facet = null;
+            if (elasticSearchService.getUseFacetting()){
+                facet = (InternalTermsFacet) highlightedResponse.getFacets().facet(facetName);
+            }
+            ElasticSearchResult result = new ElasticSearchResult(hit, facet, searchIndexBuilder, searchTerms);
             result.setIndex(i++);
-            results.add(result);
+            results.add(filter.filter(result));
         }
     }
 

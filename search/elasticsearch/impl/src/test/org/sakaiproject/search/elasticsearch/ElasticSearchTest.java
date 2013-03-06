@@ -16,6 +16,9 @@ import org.sakaiproject.event.api.*;
 import org.sakaiproject.search.api.EntityContentProducer;
 import org.sakaiproject.search.api.InvalidSearchQueryException;
 import org.sakaiproject.search.api.SearchList;
+import org.sakaiproject.search.api.SearchResult;
+import org.sakaiproject.search.elasticsearch.filter.SearchItemFilter;
+import org.sakaiproject.search.elasticsearch.filter.impl.SearchSecurityFilter;
 import org.sakaiproject.search.model.SearchBuilderItem;
 import org.sakaiproject.site.api.Site;
 import org.sakaiproject.site.api.SiteService;
@@ -83,13 +86,14 @@ public class ElasticSearchTest {
 
     String siteId = faker.phoneNumber();
 
-    String resourceName = faker.name();
+     String resourceName = faker.name() + " key keyboard";
     String url = "http://localhost/test123";
 
     private Map<String, Resource> resources = new HashMap();
     private List<Event> events = new ArrayList();
 
     List<Site> sites = new ArrayList<Site>();
+    SearchSecurityFilter filter = new SearchSecurityFilter();
 
     @After
     public void tearDown() {
@@ -97,7 +101,8 @@ public class ElasticSearchTest {
     }
 
     public void createTestResources() {
-        Resource resource = new Resource("asdf te tem temp tempo tempora " + generateContent(), siteId, resourceName);
+        String content = "asdf organ organize organizations " + generateContent();
+        Resource resource = new Resource(content, siteId, resourceName);
         resources.put(resourceName, resource);
 
         when(event.getResource()).thenReturn(resource.getName());
@@ -107,12 +112,13 @@ public class ElasticSearchTest {
 
         when(entityContentProducer.getSiteId(resourceName)).thenReturn(siteId);
         when(entityContentProducer.getAction(event)).thenReturn(SearchBuilderItem.ACTION_ADD);
-        when(entityContentProducer.getContent(resourceName)).thenReturn("asdf te tem temp tempo tempora " + generateContent());
+        when(entityContentProducer.getContent(resourceName)).thenReturn(content);
         when(entityContentProducer.getType(resourceName)).thenReturn("sakai:content");
         when(entityContentProducer.getId(resourceName)).thenReturn(resourceName);
+        when(entityContentProducer.getTitle(resourceName)).thenReturn(resourceName);
 
 
-        for (int i = 0; i < 100; i++) {
+        for (int i=0;i<105;i++) {
             String name = faker.name();
             Event newEvent = mock(Event.class);
             Resource resource1 = new Resource(generateContent(), faker.phoneNumber(), name);
@@ -127,7 +133,7 @@ public class ElasticSearchTest {
             when(entityContentProducer.getContent(name)).thenReturn(resource1.getContent());
             when(entityContentProducer.getType(name)).thenReturn("sakai:content");
             when(entityContentProducer.getId(name)).thenReturn(name);
-
+            when(entityContentProducer.canRead(any(String.class))).thenReturn(true);
         }
 
         when(entityContentProducer.getSiteContentIterator(siteId)).thenReturn(resources.keySet().iterator());
@@ -146,11 +152,15 @@ public class ElasticSearchTest {
         createTestResources();
 
         when(site.getId()).thenReturn(siteId);
+        when(siteService.getSite(site.getId())).thenReturn(site);
         sites.add(site);
         when(serverConfigurationService.getBoolean("search.enable", false)).thenReturn(true);
         when(serverConfigurationService.getConfigData().getItems()).thenReturn(new ArrayList());
         when(serverConfigurationService.getServerId()).thenReturn("server1");
         when(serverConfigurationService.getServerName()).thenReturn("clusterName");
+        when(serverConfigurationService.getString("elasticsearch.index.number_of_shards")).thenReturn("1");
+        when(serverConfigurationService.getString("elasticsearch.index.number_of_replicas")).thenReturn("0");
+
         when(serverConfigurationService.getSakaiHomePath()).thenReturn(System.getProperty("java.io.tmpdir") + "/" + new Date().getTime());
         when(notificationService.addTransientNotification()).thenReturn(notificationEdit);
         siteIds.add(siteId);
@@ -162,57 +172,100 @@ public class ElasticSearchTest {
         elasticSearchIndexBuilder.setSecurityService(securityService);
         elasticSearchIndexBuilder.setSiteService(siteService);
         elasticSearchIndexBuilder.setServerConfigurationService(serverConfigurationService);
-        elasticSearchIndexBuilder.setDelay(10);
-        elasticSearchIndexBuilder.setPeriod(2);
-
+        elasticSearchIndexBuilder.setDelay(200);
+        elasticSearchIndexBuilder.setPeriod(10);
+        elasticSearchIndexBuilder.setContentIndexBatchSize(50);
+        elasticSearchIndexBuilder.setBulkRequestSize(20);
         elasticSearchIndexBuilder.setMapping("{\n" +
-                "    \"sakai_doc\" : {\n" +
-                "        \"properties\" : {\n" +
-                "            \"siteid\" : {\n" +
-                "                \"type\" : \"string\",\n" +
-                "                \"index\" : \"not_analyzed\"\n" +
+                "    \"sakai_doc\": {\n" +
+                "        \"_source\": {\n" +
+                "            \"enabled\": false\n" +
+                "        },\n" +
+                "\n" +
+                "        \"properties\": {\n" +
+                "            \"siteid\": {\n" +
+                "                \"type\": \"string\",\n" +
+                "                \"index\": \"not_analyzed\",\n" +
+                "                \"store\": \"yes\"\n" +
                 "            },\n" +
-                "            \"title\" : {\n" +
-                "                \"type\" : \"string\",\n" +
-                "                \"index\" : \"not_analyzed\"\n" +
+                "            \"title\": {\n" +
+                "                \"type\": \"string\",\n" +
+                "                \"store\": \"yes\",\n" +
+                "                \"term_vector\" : \"with_positions_offsets\",\n" +
+                "                \"search_analyzer\": \"str_search_analyzer\",\n" +
+                "                \"index_analyzer\": \"str_index_analyzer\"\n" +
                 "            },\n" +
-                "            \"url\" : {\n" +
-                "                \"type\" : \"string\",\n" +
-                "                \"index\" : \"not_analyzed\"\n" +
+                "            \"url\": {\n" +
+                "                \"type\": \"string\",\n" +
+                "                \"index\": \"not_analyzed\",\n" +
+                "                \"store\": \"yes\"\n" +
                 "            },\n" +
-                "            \"reference\" : {\n" +
-                "                \"type\" : \"string\",\n" +
-                "                \"index\" : \"not_analyzed\"\n" +
+                "            \"reference\": {\n" +
+                "                \"type\": \"string\",\n" +
+                "                \"index\": \"not_analyzed\",\n" +
+                "                \"store\": \"yes\"\n" +
                 "            },\n" +
-                "            \"id\" : {\n" +
-                "                \"type\" : \"string\",\n" +
-                "                \"index\" : \"not_analyzed\"\n" +
+                "            \"id\": {\n" +
+                "                \"type\": \"string\",\n" +
+                "                \"index\": \"not_analyzed\",\n" +
+                "                \"store\": \"yes\"\n" +
                 "            },\n" +
-                "            \"tool\" : {\n" +
-                "                \"type\" : \"string\",\n" +
-                "                \"index\" : \"not_analyzed\"\n" +
+                "            \"tool\": {\n" +
+                "                \"type\": \"string\",\n" +
+                "                \"index\": \"not_analyzed\",\n" +
+                "                \"store\": \"yes\"\n" +
                 "            },\n" +
-                "            \"container\" : {\n" +
-                "                \"type\" : \"string\",\n" +
-                "                \"index\" : \"not_analyzed\"\n" +
+                "            \"container\": {\n" +
+                "                \"type\": \"string\",\n" +
+                "                \"index\": \"not_analyzed\",\n" +
+                "                \"store\": \"yes\"\n" +
                 "            },\n" +
-                "            \"type\" : {\n" +
-                "                \"type\" : \"string\",\n" +
-                "                \"index\" : \"not_analyzed\"\n" +
+                "            \"type\": {\n" +
+                "                \"type\": \"string\",\n" +
+                "                \"index\": \"not_analyzed\",\n" +
+                "                \"store\": \"yes\"\n" +
                 "            },\n" +
-                "            \"subtype\" : {\n" +
-                "                \"type\" : \"string\",\n" +
-                "                \"index\" : \"not_analyzed\"\n" +
+                "            \"subtype\": {\n" +
+                "                \"type\": \"string\",\n" +
+                "                \"index\": \"not_analyzed\",\n" +
+                "                \"store\": \"yes\"\n" +
                 "            },\n" +
-                "            \"contents\" : {\n" +
-                "                \"type\" : \"string\",\n" +
-                "                \"index\" : \"analyzed\"\n" +
+                "            \"contents\": {\n" +
+                "                \"type\": \"string\",\n" +
+                "                \"analyzer\": \"snowball\",\n" +
+                "                \"index\": \"analyzed\",\n" +
+                "                \"store\": \"no\"\n" +
                 "            }\n" +
-                "\n" +
-                "\n" +
                 "        }\n" +
                 "    }\n" +
                 "}");
+        elasticSearchIndexBuilder.setIndexSettings("{\n" +
+                "    \"analysis\": {\n" +
+                "        \"filter\": {\n" +
+                "            \"substring\": {\n" +
+                "                \"type\": \"nGram\",\n" +
+                "                \"min_gram\": 1,\n" +
+                "                \"max_gram\": 20\n" +
+                "            }\n" +
+                "        },\n" +
+                "        \"analyzer\": {\n" +
+                "            \"snowball\": {\n" +
+                "                \"type\": \"snowball\",\n" +
+                "                \"language\": \"English\"\n" +
+                "            },\n" +
+                "            \"str_search_analyzer\": {\n" +
+                "                \"tokenizer\": \"keyword\",\n" +
+                "                \"filter\": [\"lowercase\"]\n" +
+                "            },\n" +
+                "            \"str_index_analyzer\": {\n" +
+                "                \"tokenizer\": \"keyword\",\n" +
+                "                \"filter\": [\"lowercase\", \"substring\"]\n" +
+                "            }\n" +
+                "        }\n" +
+                "    }\n" +
+                "}\n" +
+                "\n");
+
         elasticSearchIndexBuilder.init();
 
         elasticSearchService = new ElasticSearchService();
@@ -225,12 +278,13 @@ public class ElasticSearchTest {
         elasticSearchService.setSiteService(siteService);
         elasticSearchService.setIndexBuilder(elasticSearchIndexBuilder);
         elasticSearchIndexBuilder.setOnlyIndexSearchToolSites(false);
+        filter.setSearchIndexBuilder(elasticSearchIndexBuilder);
+        elasticSearchService.setFilter(filter);
+        elasticSearchIndexBuilder.setIgnoredSites("!admin,~admin");
         elasticSearchService.init();
+
         elasticSearchIndexBuilder.assureIndex();
-
         elasticSearchIndexBuilder.registerEntityContentProducer(entityContentProducer);
-
-
     }
 
     private void addResources() {
@@ -243,25 +297,45 @@ public class ElasticSearchTest {
     public void testAddResource() {
         elasticSearchIndexBuilder.addResource(notification, event);
         addResources();
-        wait(2000);
-        assertTrue(elasticSearchService.getNDocs() == 101);
+        wait(3000);
+        assertTrue(elasticSearchService.getNDocs() == 106);
     }
 
     @Test
     public void testGetSearchSuggestions() {
         elasticSearchIndexBuilder.addResource(notification, event);
         wait(2000);
-        String[] suggestions = elasticSearchService.getSearchSuggestions("te", siteId, false);
+        String[] suggestions = elasticSearchService.getSearchSuggestions("key", siteId, false);
         List suggestionList = Arrays.asList(suggestions);
-        assertTrue(suggestionList.contains("te"));
-        assertTrue(suggestionList.contains("tem"));
-        assertTrue(suggestionList.contains("tempo"));
-        assertTrue(suggestionList.contains("tempora"));
+        assertTrue(suggestionList.contains(resourceName));
+
+        suggestions = elasticSearchService.getSearchSuggestions("keyboard", siteId, false);
+        suggestionList = Arrays.asList(suggestions);
+        assertTrue(suggestionList.contains(resourceName));
 
     }
 
     @Test
-    public void deleteAllDocumentForSite() {
+    public void deleteDoc(){
+        assertTrue(elasticSearchService.getNDocs() == 0);
+        elasticSearchIndexBuilder.addResource(notification, event);
+        wait(2000);
+        assertTrue(elasticSearchService.getNDocs() == 1);
+        elasticSearchIndexBuilder.deleteDocument(resourceName, entityContentProducer);
+        wait(2000);
+        assertTrue(elasticSearchService.getNDocs() == 0);
+        try {
+            SearchList list = elasticSearchService.search("asdf", siteIds, 0, 10);
+            assertFalse(list.size() > 0 );
+        } catch (InvalidSearchQueryException e) {
+            e.printStackTrace();
+            fail();
+        }
+
+    }
+
+    @Test
+    public void deleteAllDocumentForSite(){
         elasticSearchIndexBuilder.addResource(notification, event);
         addResources();
         wait(5000);
@@ -274,10 +348,6 @@ public class ElasticSearchTest {
             fail();
         }
         assertTrue(elasticSearchService.getPendingDocs() == 0);
-
-        //TODO this is not coming out right, normal searches work fine.  Not sure if it a problem with
-        // the delete or the count query
-        //assertTrue(elasticSearchService.getNDocs() == 0);
     }
 
     protected void wait(int millis) {
@@ -295,8 +365,10 @@ public class ElasticSearchTest {
         wait(2000);
         try {
             SearchList list = elasticSearchService.search("asdf", siteIds, 0, 10);
-            assertNotNull(list.get(0));
-            assertEquals(list.get(0).getReference(), resourceName);
+            assertNotNull(list.get(0) ) ;
+            assertEquals(list.get(0).getReference(),resourceName);
+            SearchResult result = list.get(0);
+            assertTrue(result.getSearchResult().toLowerCase().contains("<b>") );
         } catch (InvalidSearchQueryException e) {
             e.printStackTrace();
             fail();
@@ -309,19 +381,34 @@ public class ElasticSearchTest {
         addResources();
         wait(2000);
         elasticSearchIndexBuilder.rebuildIndex(siteId);
+        wait(2000);
+        elasticSearchIndexBuilder.setContentIndexBatchSize(200);
+        elasticSearchIndexBuilder.setBulkRequestSize(400);
+        elasticSearchIndexBuilder.processContentQueue();
+        wait(2000);
+
+        System.out.println(elasticSearchService.getNDocs());
+        assertTrue(elasticSearchService.getNDocs() == 106);
     }
 
     @Test
-    public void testRefreshSite() {
+    public void testRefreshSite(){
+        elasticSearchIndexBuilder.setContentIndexBatchSize(200);
+        elasticSearchIndexBuilder.setBulkRequestSize(20);
+
         elasticSearchIndexBuilder.addResource(notification, event);
         addResources();
-        wait(1000);
-        elasticSearchService.refreshSite(siteId);
-        wait(1000);
-        assertTrue(elasticSearchIndexBuilder.getPendingDocuments() > 0);
-        wait(5000);
+
+        wait(2000);
+
+        elasticSearchIndexBuilder.processContentQueue();
         assertTrue(elasticSearchIndexBuilder.getPendingDocuments() == 0);
-        assertTrue(elasticSearchService.getNDocs() == 101);
+        assertTrue(elasticSearchService.getNDocs() == 106);
+
+        elasticSearchService.refreshSite(siteId);
+        elasticSearchIndexBuilder.processContentQueue();
+        assertTrue(elasticSearchIndexBuilder.getPendingDocuments() == 0);
+        assertTrue(elasticSearchService.getNDocs() == 106);
 
     }
 
@@ -336,16 +423,21 @@ public class ElasticSearchTest {
 
     @Test
     public void testRebuild() {
+        elasticSearchIndexBuilder.setContentIndexBatchSize(200);
+        elasticSearchIndexBuilder.setBulkRequestSize(500);
+
         elasticSearchIndexBuilder.addResource(notification, event);
         addResources();
-        wait(2000);
-        elasticSearchService.rebuildInstance();
         wait(1000);
-        assertTrue(elasticSearchIndexBuilder.getPendingDocuments() > 0);
-        wait(5000);
-        verify(entityContentProducer, atLeast(101)).getContent(any(String.class));
-        assertTrue(elasticSearchIndexBuilder.getPendingDocuments() == 0);
-        assertTrue(elasticSearchService.getNDocs() == 101);
+
+        elasticSearchService.rebuildInstance();
+        wait(2000);
+        elasticSearchIndexBuilder.processContentQueue();
+        wait(2000);
+        verify(entityContentProducer, atLeast(106)).getContent(any(String.class));
+
+        assertTrue(elasticSearchService.getPendingDocs() == 0);
+        assertTrue(elasticSearchService.getNDocs() == 106);
     }
 
     public class Resource {

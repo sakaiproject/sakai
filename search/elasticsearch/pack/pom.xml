@@ -26,6 +26,10 @@
             <version>${sakai.search.version}</version>
         </dependency>
         <dependency>
+            <groupId>org.elasticsearch</groupId>
+            <artifactId>elasticsearch-cloud-aws</artifactId>
+        </dependency>
+        <dependency>
             <groupId>org.sakaiproject.search</groupId>
             <artifactId>search-api</artifactId>
             <scope>provided</scope>
@@ -40,5 +44,13 @@
             <scope>provided</scope>
         </dependency>
     </dependencies>
+
+    <repositories>
+        <repository>
+            <id>Sonatype</id>
+            <name>Sonatype</name>
+            <url>http://oss.sonatype.org/content/repositories/releases/</url>
+        </repository>
+    </repositories>
 
 </project>

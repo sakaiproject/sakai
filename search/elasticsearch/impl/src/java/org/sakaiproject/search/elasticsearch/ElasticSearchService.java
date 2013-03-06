@@ -20,14 +20,15 @@ import org.elasticsearch.client.Client;
 import org.elasticsearch.common.settings.ImmutableSettings;
 import org.elasticsearch.index.query.BoolQueryBuilder;
 import org.elasticsearch.index.query.OrFilterBuilder;
+import org.elasticsearch.index.query.TermQueryBuilder;
 import org.elasticsearch.node.Node;
-import org.elasticsearch.search.facet.terms.InternalTermsFacet;
-import org.elasticsearch.search.facet.terms.TermsFacet;
+import org.elasticsearch.search.SearchHit;
 import org.sakaiproject.component.api.ServerConfigurationService;
 import org.sakaiproject.event.api.EventTrackingService;
 import org.sakaiproject.event.api.NotificationEdit;
 import org.sakaiproject.event.api.NotificationService;
 import org.sakaiproject.search.api.*;
+import org.sakaiproject.search.elasticsearch.filter.SearchItemFilter;
 import org.sakaiproject.search.model.SearchBuilderItem;
 import org.sakaiproject.site.api.Site;
 import org.sakaiproject.site.api.SiteService;
@@ -43,8 +44,10 @@ import java.security.MessageDigest;
 import java.text.DecimalFormat;
 import java.util.*;
 
+import static org.sakaiproject.search.elasticsearch.ElasticSearchIndexBuilder.getFieldFromSearchHit;
 import static org.elasticsearch.common.settings.ImmutableSettings.settingsBuilder;
 import static org.elasticsearch.index.query.FilterBuilders.*;
+import static org.elasticsearch.index.query.FilterBuilders.termsFilter;
 import static org.elasticsearch.index.query.QueryBuilders.*;
 import static org.elasticsearch.index.query.QueryBuilders.termQuery;
 import static org.elasticsearch.node.NodeBuilder.nodeBuilder;
@@ -72,7 +75,7 @@ public class ElasticSearchService implements SearchService {
     private static final Log log = LogFactory.getLog(ElasticSearchService.class);
 
     /* constant config */
-    private static final String CONFIG_PROPERTY_PREFIX = "elasticsearch.";
+    public static final String CONFIG_PROPERTY_PREFIX = "elasticsearch.";
     public final static String SAKAI_DOC_TYPE = "sakai_doc";
     public static final String FACET_NAME = "tag";
 
@@ -88,6 +91,8 @@ public class ElasticSearchService implements SearchService {
     private ServerConfigurationService serverConfigurationService;
     private ElasticSearchIndexBuilder indexBuilder;
     private SiteService siteService;
+    private boolean localNode = false;
+    private boolean useSiteFilters = false;
 
     /**
      * This property is ignored at the present time it here to preserve backwards capatability.
@@ -97,6 +102,9 @@ public class ElasticSearchService implements SearchService {
      * That would take some rework to assure nodes don't attempt indexing work that will fail.
      */
     private boolean searchServer = true;
+    
+    private boolean useFacetting = true;
+    private boolean useSuggestions = true;
 
     /**
      * dependency
@@ -121,7 +129,8 @@ public class ElasticSearchService implements SearchService {
     private String clusterName;
 
     /**
-     * set to true to force an index rebuild at startup time, defaults to false.
+     * set to true to force an index rebuild at startup time, defaults to false.  This is probably something
+     * you never want to use, other than in development or testing
      */
     private boolean rebuildIndexOnStartup = false;
 
@@ -138,12 +147,14 @@ public class ElasticSearchService implements SearchService {
     /**
      *  N most frequent terms
      */
-    private int facetTermSize = 100;
+    private int facetTermSize = 10;
 
     /**
      * used in searchXML() to maintain backwards compatibility
      */
     private String sharedKey = null;
+
+    private SearchItemFilter filter;
 
     /**
      * Register a notification action to listen to events and modify the search
@@ -184,6 +195,9 @@ public class ElasticSearchService implements SearchService {
 
         // load anything set into the ServerConfigurationService that starts with "elasticsearch."
         for (ServerConfigurationService.ConfigItem configItem : serverConfigurationService.getConfigData().getItems()) {
+            if (configItem.getName().startsWith(ElasticSearchService.CONFIG_PROPERTY_PREFIX + "index.")){
+                continue;
+            }
             if (configItem.getName().startsWith(CONFIG_PROPERTY_PREFIX)) {
                 properties.put(configItem.getName().replaceFirst(CONFIG_PROPERTY_PREFIX, ""), configItem.getValue());
             }
@@ -212,7 +226,7 @@ public class ElasticSearchService implements SearchService {
 
         node = nodeBuilder()
                 .settings(settings)
-                .data(true).node();
+                .data(true).local(localNode).node();
 
         client = node.client();
 
@@ -229,68 +243,88 @@ public class ElasticSearchService implements SearchService {
         }
     }
 
+    public SearchResponse search(String searchTerms, List<String> siteIds, int start, int end, List<String> references) throws InvalidSearchQueryException {
+        return  search(searchTerms, siteIds, start, end, null, null, references);
+    }
+
+     public SearchResponse search(String searchTerms, List<String> siteIds, int start, int end, String filterName, String sorterName, List<String> references) throws InvalidSearchQueryException {
+         if (references == null) {
+             references = new ArrayList();
+         }
+         if (siteIds == null) {
+             siteIds = new ArrayList();
+         }
+
+         BoolQueryBuilder query = boolQuery();
+
+         if (searchTerms.contains(":")) {
+             String[] termWithType = searchTerms.split(":");
+             String termType = termWithType[0];
+             String termValue = termWithType[1];
+             // little fragile but seems like most providers follow this convention, there isn't a nice way to get the type
+             // without a handle to a reference.
+             query.must(termQuery(SearchService.FIELD_TYPE, "sakai:" + termType));
+             query.must(matchQuery(SearchService.FIELD_CONTENTS, termValue));
+         } else {
+             query.must(matchQuery(SearchService.FIELD_CONTENTS, searchTerms));
+         }
+
+         if (references.size() > 0){
+             query.must(termsQuery(SearchService.FIELD_REFERENCE, references.toArray(new String[references.size()])));
+         }
+
+         SearchRequestBuilder searchRequestBuilder = client.prepareSearch(indexName)
+                 .setSearchType(SearchType.QUERY_THEN_FETCH)
+                 .setQuery(query)
+                 .setTypes(SAKAI_DOC_TYPE)
+                 .addFields(SearchService.FIELD_REFERENCE, SearchService.FIELD_SITEID,
+                         SearchService.FIELD_TITLE, SearchService.FIELD_URL, SearchService.FIELD_TYPE, SearchService.FIELD_TOOL)
+                 .setFrom(start).setSize(end - start);
+
+         if(useFacetting) {
+            searchRequestBuilder.addFacet(termsFacet(FACET_NAME).field("contents.lowercase").size(facetTermSize));
+         }
+
+         // if we have sites filter results to include only the sites included
+         if (siteIds.size() > 0) {
+             searchRequestBuilder.setRouting(siteIds.toArray(new String[siteIds.size()]));
+
+             // creating config whether or not to use filter, there are performance and caching differences that
+             // maybe implementation decisions
+             if (useSiteFilters) {
+                 OrFilterBuilder siteFilter = orFilter().add(
+                         termsFilter(SearchService.FIELD_SITEID, siteIds.toArray(new String[siteIds.size()])).execution("bool"));
+
+                 searchRequestBuilder.setFilter(siteFilter);
+             } else {
+                 query.must(termsQuery(SearchService.FIELD_SITEID, siteIds.toArray(new String[siteIds.size()])));
+             }
+         }
+
+         log.debug("search request: " + searchRequestBuilder.toString());
+
+         SearchResponse response = searchRequestBuilder.execute().actionGet();
+
+         log.debug("search request took: " + response.took().format());
+
+         eventTrackingService.post(eventTrackingService.newEvent(EVENT_SEARCH,
+                 EVENT_SEARCH_REF + query.toString(), true,
+                 NotificationService.PREF_IMMEDIATE));
+
+         return response;
+
+     }
+
 
     @Override
     public SearchList search(String searchTerms, List<String> siteIds, int searchStart, int searchEnd) throws InvalidSearchQueryException {
-        return search(searchTerms, siteIds, searchStart, searchEnd, null, null);
+        SearchResponse response = search(searchTerms, siteIds, searchStart, searchEnd, null, null, new ArrayList<String>());
+        return new ElasticSearchList(searchTerms, response, this, indexBuilder, FACET_NAME, filter);
     }
 
     @Override
     public SearchList search(String searchTerms, List<String> siteIds, int start, int end, String filterName, String sorterName) throws InvalidSearchQueryException {
-        if (!isEnabled()) {
-            log.info("ElasticSearch is not enabled. Set search.enable=true to change that.");
-            return new ElasticSearchList();
-        }
-        if (siteIds == null) {
-            throw new InvalidSearchQueryException("siteIds can't be null, trying sending in a list bro.", new RuntimeException());
-        }
-
-        BoolQueryBuilder query = boolQuery();
-
-        if (searchTerms.contains(":")) {
-            String[] termWithType = searchTerms.split(":");
-            String termType = termWithType[0];
-            String termValue = termWithType[1];
-            // little fragile but seems like most providers follow this convention, there isn't a nice way to get the type
-            // without a handle to a reference.
-            query.must(termQuery(SearchService.FIELD_TYPE, "sakai:" + termType));
-            query.must(matchQuery(SearchService.FIELD_CONTENTS, termValue));
-        } else {
-            query.must(matchQuery(SearchService.FIELD_CONTENTS, searchTerms));
-        }
-
-        log.debug("Compiled Query is " + query.toString());
-
-        SearchRequestBuilder searchRequestBuilder = client.prepareSearch(indexName)
-                .setSearchType(SearchType.QUERY_THEN_FETCH)
-                .setQuery(query)
-                .setTypes(SAKAI_DOC_TYPE)
-                .setFrom(start).setSize(end-start)
-                .addHighlightedField(SearchService.FIELD_CONTENTS)
-                .setHighlighterPreTags("<b>")
-                .setHighlighterPostTags("</b>")
-                .setRouting(siteIds.toArray(new String[siteIds.size()]))
-                .addFacet(termsFacet(FACET_NAME).field("contents").size(facetTermSize));
-
-        // if we have sites filter results to include only the sites included
-        if (siteIds.size() > 0) {
-            OrFilterBuilder siteFilter = orFilter().add(
-                    termsFilter(SearchService.FIELD_SITEID, siteIds.toArray(new String[siteIds.size()])));
-            searchRequestBuilder.setFilter(siteFilter);
-        }
-
-        log.debug("search request: " + searchRequestBuilder.toString());
-
-        SearchResponse response = searchRequestBuilder.execute().actionGet();
-
-        log.debug("search request took: " + response.took().format());
-
-        eventTrackingService.post(eventTrackingService.newEvent(EVENT_SEARCH,
-                EVENT_SEARCH_REF + query.toString(), true,
-                NotificationService.PREF_IMMEDIATE));
-
-        return new ElasticSearchList(response, indexBuilder, FACET_NAME);
-
+        return search(searchTerms, siteIds, start, end);
     }
 
     public String searchXML(Map parameterMap) {
@@ -649,17 +683,26 @@ public class ElasticSearchService implements SearchService {
 		List<Site> sites = siteService.getSites(
 				org.sakaiproject.site.api.SiteService.SelectionType.ACCESS,
 				null, null, null, null, null);
-		List<String> siteIds = new ArrayList<String>(sites.size());
-		for (Site site: sites) {
-			if (site != null && site.getId() != null) {
-				siteIds.add(site.getId());
-			}
-		}
+        List<String> siteIds = convertSitesToStringArray(sites);
 		siteIds.add(siteService.getUserSiteId(currentUser));
 		return siteIds.toArray(new String[siteIds.size()]);
 	}
 
+    protected List<String> convertSitesToStringArray(List<Site> sites) {
+        List<String> siteIds = new ArrayList<String>(sites.size());
+        for (Site site: sites) {
+            if (site != null && site.getId() != null) {
+                siteIds.add(site.getId());
+            }
+        }
+        return siteIds;
+    }
+
     public String[] getSearchSuggestions(String searchString, String currentSite, boolean allMySites) {
+        if (!useSuggestions) {
+            return new String[0];
+        }
+
         String currentUser = "";
         User user = userDirectoryService.getCurrentUser();
 		if (user != null)  {
@@ -671,20 +714,26 @@ public class ElasticSearchService implements SearchService {
         } else {
             sites = new String[]{currentSite};
         }
-        BoolQueryBuilder query = boolQuery();
-        query.should(termsQuery(SearchService.FIELD_SITEID, sites)).minimumNumberShouldMatch(1);
+
+        TermQueryBuilder query = termQuery("title", searchString);
 
         SearchRequestBuilder searchRequestBuilder = client.prepareSearch(indexName)
                 .setSearchType(SearchType.QUERY_THEN_FETCH)
                 .setQuery(query)
                 .setTypes(SAKAI_DOC_TYPE)
-                .setSize(0)
+                .setSize(maxNumberOfSuggestions)
                 .setRouting(sites)
+         //       .addHighlightedField(SearchService.FIELD_TITLE, 255, 0)
                 .addField(SearchService.FIELD_TYPE)
                 .addField(SearchService.FIELD_REFERENCE)
                 //.addField(SearchService.FIELD_ID)
                 .addField(SearchService.FIELD_SITEID)
-                .addFacet(termsFacet("tag").field("contents").size(maxNumberOfSuggestions).regex(searchString + ".*"));
+                .addField(SearchService.FIELD_TITLE);
+
+        OrFilterBuilder siteFilter = orFilter().add(
+                termsFilter(SearchService.FIELD_SITEID, sites).execution("bool"));
+
+        searchRequestBuilder.setFilter(siteFilter);
 
         log.debug("search request: " + searchRequestBuilder.toString());
 
@@ -692,16 +741,14 @@ public class ElasticSearchService implements SearchService {
 
         log.debug("search request took: " + response.took().format());
 
-        InternalTermsFacet facet = (InternalTermsFacet) response.getFacets().facet("tag");
-        String[] suggestions = new String[facet.entries().size()];
+        List<String> suggestions = new ArrayList();
 
-        int i = 0;
-
-        for (TermsFacet.Entry termFacet : facet.entries()) {
-           suggestions[i++] = termFacet.getTerm();
+        for (SearchHit hit : response.getHits()) {
+            suggestions.add(getFieldFromSearchHit(SearchService.FIELD_TITLE, hit));
+//            suggestions.add(hit.getHighlightFields().get(SearchService.FIELD_TITLE).getFragments()[0].string());
         }
 
-        return suggestions;
+        return suggestions.toArray(new String[suggestions.size()]);
     }
 
     @Override
@@ -802,7 +849,31 @@ public class ElasticSearchService implements SearchService {
         this.facetTermSize = facetTermSize;
     }
 
-    public void setSearchServer(boolean searchServer) {
-        this.searchServer = searchServer;
+    public void setLocalNode(boolean localNode) {
+        this.localNode = localNode;
+    }
+
+    public void setUseSiteFilters(boolean useSiteFilters) {
+        this.useSiteFilters = useSiteFilters;
+    }
+
+    public boolean getUseFacetting() {
+        return useFacetting;
+    }
+
+    public void setUseFacetting(boolean useFacetting) {
+        this.useFacetting = useFacetting;
+    }
+
+    public boolean getUseSuggestions() {
+        return useSuggestions;
+    }
+
+    public void setUseSuggestions(boolean useSuggestions) {
+        this.useSuggestions = useSuggestions;
+    }
+
+    public void setFilter(SearchItemFilter filter) {
+        this.filter = filter;
     }
 }

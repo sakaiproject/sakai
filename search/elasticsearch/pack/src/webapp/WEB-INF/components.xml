@@ -13,6 +13,7 @@
         <property name="userDirectoryService"><ref bean="org.sakaiproject.user.api.UserDirectoryService" /></property>
         <property name="sessionManager"><ref bean="org.sakaiproject.tool.api.SessionManager" /></property>
         <property name="siteService" ref="org.sakaiproject.site.api.SiteService"/>
+        <property name="filter" ref="org.sakaiproject.search.elasticsearch.filter.impl.SearchSecurityFilter"/>
     </bean>
     <bean id="org.sakaiproject.search.api.SearchIndexBuilder"
           class="org.sakaiproject.search.elasticsearch.ElasticSearchIndexBuilder"
@@ -21,5 +22,10 @@
         <property name="securityService"><ref bean="org.sakaiproject.authz.api.SecurityService" /></property>
         <property name="serverConfigurationService"><ref bean="org.sakaiproject.component.api.ServerConfigurationService"/></property>
     </bean>
-
+    <bean id="org.sakaiproject.search.elasticsearch.filter.impl.SearchSecurityFilter"
+      class="org.sakaiproject.search.elasticsearch.filter.impl.SearchSecurityFilter"
+      init-method="init">
+      <property name="entityManager"><ref bean="org.sakaiproject.entity.api.EntityManager" /></property>
+      <property name="searchIndexBuilder"><ref bean="org.sakaiproject.search.api.SearchIndexBuilder" /></property>
+    </bean>
 </beans>
