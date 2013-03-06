@@ -250,7 +250,21 @@ public class SignupMeetingsBean implements SignupBeanConstants {
 		// TODO ??? need to check if we have covered the case for people, who
 		// have only view permission; we need
 		// to disable everything in that page
-		SignupMeetingWrapper meetingWrapper = (SignupMeetingWrapper) meetingTable.getRowData();
+		SignupMeetingWrapper meetingWrapper=null;
+		try{
+			meetingWrapper = (SignupMeetingWrapper) meetingTable.getRowData();
+		}
+		catch (Exception ex){
+			/* sometimes, it throw 
+			 * java.lang.IllegalArgumentException
+			 * at javax.faces.model.ListDataModel.getRowData(ListDataModel.java:139)
+			 * Retry for user
+			 */
+			//reset main page data
+			setSignupMeetings(null);
+			return MAIN_EVENTS_LIST_PAGE_URL;
+		}
+		
 		Permission permission = meetingWrapper.getMeeting().getPermission();
 		try {
 			if (permission.isUpdate()) {
