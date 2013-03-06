@@ -71,7 +71,7 @@ import org.sakaiproject.site.api.Site;
 import org.sakaiproject.site.cover.SiteService;
 import org.sakaiproject.tool.cover.ToolManager;
 import org.sakaiproject.util.Validator;
-import org.sakaiproject.util.LinkMigrationHelper;
+import org.sakaiproject.util.cover.LinkMigrationHelper;
 import org.w3c.dom.DOMException;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
@@ -1350,14 +1350,8 @@ public class DiscussionForumServiceImpl  implements DiscussionForumService, Enti
 	
 	private String replaceAllRefs(String msgBody, Set<Entry<String, String>> entrySet){
 		if(msgBody != null){
-			try {
-				msgBody = LinkMigrationHelper.editLinks(msgBody, "sam_pub");
-				msgBody = LinkMigrationHelper.editLinks(msgBody, "/posts/");
-			} catch (Exception e) {
-				LOG.debug ("Forums LinkMigrationHelper.editLinks failed" + e);
+			msgBody = LinkMigrationHelper.migrateAllLinks(entrySet, msgBody);
 			}	
-			msgBody = LinkMigrationHelper.miagrateAllLinks(entrySet, msgBody);
-		}	
 		return msgBody;		
 	}
 
