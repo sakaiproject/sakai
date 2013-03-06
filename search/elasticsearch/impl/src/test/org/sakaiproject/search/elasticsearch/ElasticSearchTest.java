@@ -408,6 +408,8 @@ public class ElasticSearchTest {
         assertTrue(elasticSearchService.getNDocs() == 106);
 
         elasticSearchService.refreshSite(siteId);
+        wait(2000);
+
         elasticSearchIndexBuilder.processContentQueue();
         wait(2000);
 
