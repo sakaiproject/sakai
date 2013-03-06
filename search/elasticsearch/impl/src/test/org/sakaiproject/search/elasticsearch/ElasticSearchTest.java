@@ -402,11 +402,15 @@ public class ElasticSearchTest {
         wait(2000);
 
         elasticSearchIndexBuilder.processContentQueue();
+        wait(2000);
+
         assertTrue(elasticSearchIndexBuilder.getPendingDocuments() == 0);
         assertTrue(elasticSearchService.getNDocs() == 106);
 
         elasticSearchService.refreshSite(siteId);
         elasticSearchIndexBuilder.processContentQueue();
+        wait(2000);
+
         assertTrue(elasticSearchIndexBuilder.getPendingDocuments() == 0);
         assertTrue(elasticSearchService.getNDocs() == 106);
 
