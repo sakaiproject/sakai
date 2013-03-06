@@ -393,8 +393,8 @@ public class ServerWideReportManagerImpl implements ServerWideReportManager
 			mysqlPeriod = "STR_TO_DATE(date_format(ACTIVITY_DATE, '%Y-%m-01'),'%Y-%m-%d') as event_period";
 		}
 		String mysql = "select " + mysqlPeriod + ", "
-				+ "sum(if(EVENT_ID = 'site.add',1,0)) as site_created, "
-				+ "sum(if(EVENT_ID = 'site.del',1,0)) as site_deleted "
+				+ "sum(if(EVENT_ID = 'site.add',activity_count,0)) as site_created, "
+				+ "sum(if(EVENT_ID = 'site.del',activity_count,0)) as site_deleted "
 				+ "FROM " + getExternalDbNameAsPrefix() + "SST_SERVERSTATS ";
 		
 		if (period.equals ("daily")) {
@@ -415,8 +415,8 @@ public class ServerWideReportManagerImpl implements ServerWideReportManager
 		}
 	
 		String oracle = "select " + oraclePeriod + " as event_period, "
-				+ "sum(decode(EVENT_ID, 'site.add',1,0)) as site_created, "
-				+ "sum(decode(EVENT_ID, 'site.del',1,0)) as site_deleted "
+				+ "sum(decode(EVENT_ID, 'site.add',activity_count,0)) as site_created, "
+				+ "sum(decode(EVENT_ID, 'site.del',activity_count,0)) as site_deleted "
 				+ "FROM " + getExternalDbNameAsPrefix() + "SST_SERVERSTATS ";
 		
 		if (period.equals ("daily")) {
