@@ -154,7 +154,7 @@ import org.sakaiproject.util.SortedIterator;
 import org.sakaiproject.util.StringUtil;
 import org.sakaiproject.util.Validator;
 import org.sakaiproject.util.Xml;
-import org.sakaiproject.util.LinkMigrationHelper;
+import org.sakaiproject.util.cover.LinkMigrationHelper;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 import org.w3c.dom.Node;
@@ -13430,9 +13430,7 @@ public abstract class BaseAssignmentService implements AssignmentService, Entity
 				{
 					String msgBody = assignment.getContent().getInstructions();
 					StringBuffer msgBodyPreMigrate = new StringBuffer(msgBody);
-					msgBody = LinkMigrationHelper.editLinks(msgBody, "sam_pub");
-					msgBody = LinkMigrationHelper.editLinks(msgBody, "/posts/");
-					msgBody = LinkMigrationHelper.miagrateAllLinks(entrySet, msgBody);
+					msgBody = LinkMigrationHelper.migrateAllLinks(entrySet, msgBody);
 						try
 						{
 						if(!msgBody.equals(msgBodyPreMigrate.toString())){
