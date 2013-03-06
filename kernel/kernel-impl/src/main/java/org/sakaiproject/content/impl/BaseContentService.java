@@ -169,7 +169,7 @@ import org.xml.sax.SAXException;
 
 import com.ibm.icu.text.CharsetDetector;
 import com.ibm.icu.text.CharsetMatch;
-import org.sakaiproject.util.LinkMigrationHelper;
+import org.sakaiproject.util.cover.LinkMigrationHelper;
 
 /**
  * <p>
@@ -7467,31 +7467,12 @@ SiteContentAdvisorProvider, SiteContentAdvisorTypeRegistry, EntityTransferrerRef
 							newValue = (String) transversalMap.get(oldValue);
 							targetId = (String) transversalMap.get(oldValue);
 							if(newValue.length()>0){
-								try {
-									rContent = LinkMigrationHelper.editLinks(rContent, "sam_pub");
-									rContent = LinkMigrationHelper.editLinks(rContent, "/posts/");
-								} catch (Exception e) {
-									// TODO Auto-generated catch block
-									e.printStackTrace();
+								rContent = LinkMigrationHelper.migrateOneLink(oldValue, newValue, rContent);
 								}
-/*									
-								oldValue = oldValue.replace(" ",ESCAPED_SPACE);
-								newValue = newValue.replace(" ",ESCAPED_SPACE);
-								rContent = rContent.replaceAll(oldValue, newValue);
-*/
-								rContent = LinkMigrationHelper.miagrateOneLink(oldValue, newValue, rContent);
-	
-/*
-								if(!saveOldEntity.toString().equals(rContent)){
-									contentChanged=true;
 								}
-*/
 							}
-						}
-					}
 					try {
-						rContent = LinkMigrationHelper.bracketLinks(rContent, "assignment");
-						rContent = LinkMigrationHelper.bracketLinks(rContent, "forum");
+						rContent = LinkMigrationHelper.bracketAndNullifySelectedLinks(rContent);
 					} catch (Exception e) {
 						// TODO Auto-generated catch block
 						M_log.debug ("Forums LinkMigrationHelper.editLinks failed" + e);
