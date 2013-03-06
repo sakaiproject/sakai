@@ -278,10 +278,16 @@
       </property>
     </bean>
 
+  <bean id="QTIService"
+    class="org.sakaiproject.tool.assessment.services.qti.QTIService">
+  </bean>
+
     <bean id="org.sakaiproject.tool.assessment.services.assessment.AssessmentEntityProducer"
               class="org.sakaiproject.tool.assessment.services.assessment.AssessmentEntityProducer"
               singleton="true" init-method="init" destroy-method="destroy">
+	  <property name="qtiService" ref="QTIService"/>
     </bean>
+
 
   <bean id ="org.sakaiproject.tool.assessment.entity.api.PublishedEntityProvider"
       class="org.sakaiproject.tool.assessment.entity.impl.PublishedAssessmentEntityProviderImpl">

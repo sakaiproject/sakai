@@ -147,8 +147,6 @@ public final class XmlUtil
       log.debug("readDocument(String " + path + ")");
     }
 
-      log.debug("readDocument(String " + path + ")");
-
     Document document = null;
     InputStream inputStream = context.getResourceAsStream(path);
     String fullpath = context.getRealPath(path);
@@ -192,8 +190,6 @@ public final class XmlUtil
     {
       log.debug("readDocument(String " + path + ")");
     }
-
-      log.debug("readDocument(String " + path + ")");
 
     Document document = null;
     DocumentBuilderFactory builderFactory =
@@ -485,9 +481,6 @@ public final class XmlUtil
         "Document transformDocument(Document " + document + ", Document " +
         stylesheet + ")");
     }
-      log.debug(
-        "Document transformDocument(Document " + document + ", Document " +
-        stylesheet + ")");
 
     Document transformedDoc = createDocument();
     DOMSource docSource = new DOMSource(document);
@@ -505,7 +498,8 @@ public final class XmlUtil
   public static Document transformDocument(Document document, Transformer transformer)
   {
 
-    log.debug("Document transformDocument(Document " + document + ", Trasformer " + transformer);
+    if(log.isDebugEnabled()) log.debug("Document transformDocument(Document " + document + ", Trasformer " + transformer);
+
     Document transformedDoc = createDocument();
     DOMSource docSource = new DOMSource(document);
     DOMResult docResult = new DOMResult(transformedDoc);

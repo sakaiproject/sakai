@@ -30,6 +30,7 @@ import org.sakaiproject.tool.assessment.data.ifc.assessment.ItemDataIfc;
 import org.sakaiproject.tool.assessment.services.qti.QTIService;
 import org.sakaiproject.tool.assessment.shared.api.qti.QTIServiceAPI;
 import org.sakaiproject.tool.assessment.services.qti.QTIServiceException;
+import org.sakaiproject.tool.assessment.qti.util.XmlUtil;
 
 /**
  * QTIServiceImpl implements a shared interface to get/set assessment
@@ -62,6 +63,46 @@ public class QTIServiceImpl implements QTIServiceAPI
     log.error("createImportedAssessment() returning null");
     return null;
   }
+
+   public AssessmentIfc createImportedAssessment(Document document, int qtiVersion, String unzipLocation, String templateId, String siteId) {
+    try
+    {
+      QTIService nativeQTIService = new QTIService();
+      return (AssessmentIfc) nativeQTIService.createImportedAssessment(document, qtiVersion, unzipLocation, templateId, siteId);
+    }
+    catch (Exception ex)
+    {
+       log.warn("createImportedAssessment() returning null");
+       //new QTIServiceException(ex);
+    }
+    log.error("createImportedAssessment() returning null");
+    return null;
+
+   }
+
+  /**
+   * Import an assessment XML document in QTI format, extract & persist the data.
+   * @param documentPath the pathname to a file with the assessment XML document in QTI format
+   * @param qtiVersion either 1=QTI VERSION 1.2  or 2=QTI Version 2.0
+   * @param siteId the site the assessment will be associated with
+   * @return a persisted assessment
+   */
+    public AssessmentIfc createImportedAssessment(String documentPath, int qtiVersion, String siteId) 
+    {
+        try
+        {
+            QTIService nativeQTIService = new QTIService();
+            return (AssessmentIfc) nativeQTIService.createImportedAssessment(documentPath, qtiVersion, siteId);
+        }
+        catch (Exception ex)
+        {
+            log.warn("createImportedAssessment() returning null");
+            //new QTIServiceException(ex);
+        }
+        log.error("createImportedAssessment() returning null");
+        return null;
+    }
+
 
   /**
    * Import an item XML document in QTI format, extract & persist the data.
@@ -111,6 +152,23 @@ public class QTIServiceImpl implements QTIServiceAPI
     log.error("getExportedAssessment() returning null");
     return null;
   }
+
+
+  /**
+   * Get an assessment in String form.
+   *
+   * Note:  this service requires a Faces context.
+   *
+   * @param assessmentId the assessment's Id
+   * @param qtiVersion either 1=QTI VERSION 1.2  or 2=QTI Version 2.0
+   * @return the Document with the assessment data
+   */
+    public String getExportedAssessmentAsString(String assessmentId, int qtiVersion) 
+  {
+      return XmlUtil.getDOMString(getExportedAssessment(assessmentId, qtiVersion));
+  }
+
+
 
   /**
    * Get an item in Document form.

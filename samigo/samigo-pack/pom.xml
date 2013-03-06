@@ -59,6 +59,12 @@
 			<artifactId>jsr173</artifactId>
 			<version>1.0_api</version>
 		</dependency>
+
+        <dependency>
+            <groupId>${project.groupId}</groupId>
+            <artifactId>samigo-qti</artifactId>
+        </dependency>
+
 	</dependencies>
     
 	<build>

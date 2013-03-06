@@ -31,7 +31,9 @@ import org.sakaiproject.tool.assessment.facade.QuestionPoolFacade;
 import org.sakaiproject.tool.assessment.qti.constants.QTIVersion;
 import org.sakaiproject.tool.assessment.qti.exception.RespondusMatchingException;
 import org.sakaiproject.tool.assessment.qti.helper.AuthoringHelper;
+import org.sakaiproject.tool.assessment.shared.api.qti.QTIServiceAPI;
 import org.w3c.dom.Document;
+import org.sakaiproject.tool.assessment.qti.util.XmlUtil;
 
 /**
  * <p>This service provides translation between database and QTI representations.
@@ -43,7 +45,7 @@ import org.w3c.dom.Document;
  * @version $Id$
  */
 
-public class QTIService
+public class QTIService implements QTIServiceAPI
 {
   private static Log log = LogFactory.getLog(QTIService.class);
   public QTIService()
@@ -111,6 +113,25 @@ public class QTIService
       throw new QTIServiceException(ex);
     }
   }
+
+  /**
+   * Import an assessment XML document in QTI format, extract & persist the data.
+   * @param documentPath the pathname to a file with the assessment XML document in QTI format
+   * @param qtiVersion either 1=QTI VERSION 1.2  or 2=QTI Version 2.0
+   * @param siteId the site the assessment will be associated with
+   * @return a persisted assessment
+   */
+    public AssessmentFacade createImportedAssessment(String documentPath, int qtiVersion, String siteId) 
+    {
+        try {
+            return createImportedAssessment(XmlUtil.readDocument(documentPath, true),
+                                            qtiVersion, null, null, siteId);
+        } catch (Exception e) {
+            throw new QTIServiceException(e);
+        }
+                                                
+    }
+
   
   /**
    * Import an assessment XML document in QTI format, extract & persist the data.
@@ -183,6 +204,21 @@ public class QTIService
       throw new QTIServiceException(ex);
     }
   }
+
+  /**
+   * Get an assessment in String form.
+   *
+   * Note:  this service requires a Faces context.
+   *
+   * @param assessmentId the assessment's Id
+   * @param qtiVersion either 1=QTI VERSION 1.2  or 2=QTI Version 2.0
+   * @return the Document with the assessment data
+   */
+    public String getExportedAssessmentAsString(String assessmentId, int qtiVersion) 
+  {
+      return XmlUtil.getDOMString(getExportedAssessment(assessmentId, qtiVersion));
+  }
+
 
   /**
    * Get an item in Document form.
