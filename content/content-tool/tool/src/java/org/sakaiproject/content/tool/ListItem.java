@@ -1359,6 +1359,12 @@ public class ListItem
 		return isPermitted(ContentPermissions.READ);
 	}
 
+        public boolean getCanRevise()
+        {
+                return isPermitted(ContentPermissions.REVISE);
+        } 
+
+
 	/**
      * @return
      */

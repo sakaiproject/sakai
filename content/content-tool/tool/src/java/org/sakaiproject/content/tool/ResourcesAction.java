@@ -510,6 +510,8 @@ public class ResourcesAction
 	/************** the edit context *****************************************/
 
 	private static final String MODE_DELETE_FINISH = "deleteFinish";
+	private static final String MODE_SHOW_FINISH = "showFinish";
+	private static final String MODE_HIDE_FINISH = "hideFinish"; 
 	
 	private static final String MODE_DROPBOX_OPTIONS = "dropboxOptions";
 
@@ -596,6 +598,9 @@ protected static final String PARAM_PAGESIZE = "collections_per_page";
 
 	protected static final String STATE_DELETE_SET = PREFIX + REQUEST + "delete_set";
 	
+	protected static final String STATE_SHOW_SET = PREFIX + "show_set";
+	protected static final String STATE_HIDE_SET = PREFIX + "hide_set"; 
+
 	protected static final String STATE_DROPBOX_HIGHLIGHT = PREFIX + REQUEST + "dropbox_highlight";
 
 	/** The name of the state attribute indicating whether the hierarchical list is expanded */
@@ -672,6 +677,8 @@ protected static final String PARAM_PAGESIZE = "collections_per_page";
 	private static final String STATE_NEED_TO_EXPAND_ALL = PREFIX + REQUEST + "need_to_expand_all";
 
 	protected static final String STATE_NON_EMPTY_DELETE_SET = PREFIX + REQUEST + "non-empty_delete_set";
+	protected static final String STATE_NON_EMPTY_SHOW_SET = PREFIX + "non-empty_show_set";
+	protected static final String STATE_NON_EMPTY_HIDE_SET = PREFIX + "non-empty_hide_set";
 	
 	/** The can-paste flag */
 	private static final String STATE_PASTE_ALLOWED_FLAG = PREFIX + REQUEST + "can_paste_flag";
@@ -756,6 +763,9 @@ protected static final String PARAM_PAGESIZE = "collections_per_page";
 
 	private static final String TEMPLATE_DELETE_FINISH = "content/sakai_resources_deleteFinish";
 	
+	private static final String TEMPLATE_SHOW_FINISH = "content/sakai_resources_showFinish";
+	private static final String TEMPLATE_HIDE_FINISH = "content/sakai_resources_hideFinish";
+
 	private static final String TEMPLATE_DROPBOX_OPTIONS = "content/sakai_dropbox_options";
 
 	private static final String TEMPLATE_MORE = "content/chef_resources_more";
@@ -4340,6 +4350,13 @@ protected static final String PARAM_PAGESIZE = "collections_per_page";
 				}
 			}
 			
+                          // listActions needs to add Show and Hide
+                        boolean canShowHide = canReviseOwn() || canReviseAny();
+                        context.put("canShowHide", canShowHide);
+
+                        boolean canViewHidden= canViewHidden();
+                        context.put("canViewHidden", canViewHidden); 
+
 			String containingCollectionId = contentService.getContainingCollectionId(item.getId());
 			if(contentService.COLLECTION_DROPBOX.equals(containingCollectionId))
 			{
@@ -4548,6 +4565,59 @@ protected static final String PARAM_PAGESIZE = "collections_per_page";
 
 	}	// buildListContext
 
+
+	/**
+	 * Check if you have 'content.revise.own' in the site @return
+	 * @return true if the user can revise
+	 */
+	public boolean canReviseOwn() {
+	    boolean canReviseOwn = false;
+	    try {
+	        Site site = SiteService.getSite(ToolManager.getCurrentPlacement().getContext());
+	        canReviseOwn = SecurityService.unlock(
+	                ContentHostingService.AUTH_RESOURCE_WRITE_OWN, site.getReference());
+
+	    } catch (IdUnusedException e) {
+	        logger.debug("ResourcesAction.canReviseOwn: cannot find current site");
+	    }
+	    return canReviseOwn;
+	}
+
+	/**
+	 * Check if you have 'content.view.hidden' in the site
+	 * @return true if can view hidden
+	 */
+	public boolean canViewHidden() {
+	    boolean canViewHidden= false;
+	    try {
+	        Site site = SiteService.getSite(ToolManager.getCurrentPlacement().getContext());
+	        canViewHidden= SecurityService.unlock(
+	                ContentHostingService.AUTH_RESOURCE_HIDDEN, site.getReference());
+
+	    } catch (IdUnusedException e) {
+	        logger.debug("ResourcesAction.canViewHidden: cannot find current site");
+	    }
+	    return canViewHidden;
+	}
+
+	/**
+	 * Check if you have 'content.revise.any' in the site
+	 * @return true if user can revise
+	 */
+	public boolean canReviseAny() {
+	    boolean canReviseAny = false;
+	    try {
+	        Site site = SiteService.getSite(ToolManager.getCurrentPlacement().getContext());
+	        canReviseAny = SecurityService.unlock(
+	                ContentHostingService.AUTH_RESOURCE_WRITE_ANY, site.getReference());
+
+	    } catch (IdUnusedException e) {
+	        logger.debug("ResourcesAction.canReviseAny: cannot find current site");
+	    }
+	    return canReviseAny;
+	}
+
+
 	/**
 	* Build the context for normal display
 	*/
@@ -4641,6 +4711,16 @@ protected static final String PARAM_PAGESIZE = "collections_per_page";
 		{
 			// build the context for the basic step of delete confirm page
 			template = buildDeleteFinishContext (portlet, context, data, state);
+		}
+		else if (mode.equals (MODE_SHOW_FINISH))
+		{
+		    // build the context for the basic step of delete confirm page
+		    template = buildShowFinishContext (portlet, context, data, state);
+		}
+		else if (mode.equals (MODE_HIDE_FINISH))
+		{
+		    // build the context for the basic step of delete confirm page
+		    template = buildHideFinishContext (portlet, context, data, state);
 		}
 		else if (mode.equals (MODE_OPTIONS))
 		{
@@ -6647,6 +6727,14 @@ protected static final String PARAM_PAGESIZE = "collections_per_page";
 		else if(ResourceToolAction.DELETE.equals(actionId))
 		{
 			doDeleteconfirm(data);
+		}
+		else if(ResourceToolAction.SHOW.equals(actionId))
+		{
+			doShowconfirm(data);
+		}
+		else if(ResourceToolAction.HIDE.equals(actionId))
+		{
+			doHideconfirm(data);
 		}
 		
 	}
@@ -8730,4 +8818,593 @@ protected static final String PARAM_PAGESIZE = "collections_per_page";
 		
 	}
 	
+	// BEGIN SAK-23304 additions:
+	
+	/**
+	 * set the state name to be "showfinish" if any item has been selected for deleting
+	 * @param data
+	 */
+	public void doShowconfirm(RunData data)
+	{
+	    SessionState state = ((JetspeedRunData)data).getPortletSessionState (((JetspeedRunData)data).getJs_peid ());
+
+	    // cancel copy if there is one in progress
+	    if(! Boolean.FALSE.toString().equals(state.getAttribute (STATE_COPY_FLAG)))
+	    {
+	        initCopyContext(state);
+	    }
+
+	    // cancel move if there is one in progress
+	    if(! Boolean.FALSE.toString().equals(state.getAttribute (STATE_MOVE_FLAG)))
+	    {
+	        initMoveContext(state);
+	    }
+
+	    Set showIdSet  = new TreeSet();
+	    String[] showIds = data.getParameters ().getStrings ("selectedMembers");
+	    if (showIds == null)
+	    {
+	        // there is no resource selected, show the alert message to the user
+	        addAlert(state, rb.getString("choosefile3"));
+	    }
+	    else
+	    {
+	        showIdSet.addAll(Arrays.asList(showIds));
+	        showItems(state, showIdSet);
+	    }
+
+	    if (state.getAttribute(STATE_MESSAGE) == null)
+	    {
+	        state.setAttribute (STATE_MODE, MODE_SHOW_FINISH);
+	        state.setAttribute(STATE_LIST_SELECTIONS, showIdSet);
+	    }
+	}       // doShowconfirm
+
+	/**
+	 * set the state name to be "hidefinish" if any item has been selected for deleting
+	 * @param data
+	 */
+	public void doHideconfirm(RunData data)
+	{
+	    SessionState state = ((JetspeedRunData)data).getPortletSessionState (((JetspeedRunData)data).getJs_peid ());
+
+	    // cancel copy if there is one in progress
+	    if(! Boolean.FALSE.toString().equals(state.getAttribute (STATE_COPY_FLAG)))
+	    {
+	        initCopyContext(state);
+	    }
+
+	    // cancel move if there is one in progress
+	    if(! Boolean.FALSE.toString().equals(state.getAttribute (STATE_MOVE_FLAG)))
+	    {
+	        initMoveContext(state);
+	    }
+
+	    Set hideIdSet  = new TreeSet();
+	    String[] hideIds = data.getParameters ().getStrings ("selectedMembers");
+	    if (hideIds == null)
+	    {
+	        // there is no resource selected, show the alert message to the user
+	        addAlert(state, rb.getString("choosefile3"));
+	    }
+	    else
+	    {
+	        hideIdSet.addAll(Arrays.asList(hideIds));
+	        hideItems(state, hideIdSet);
+	    }
+
+	    if (state.getAttribute(STATE_MESSAGE) == null)
+	    {
+	        state.setAttribute (STATE_MODE, MODE_HIDE_FINISH);
+	        state.setAttribute(STATE_LIST_SELECTIONS, hideIdSet);
+	    }
+	}       // doHideconfirm
+
+	/**
+	 * @param state
+	 * @param showIdSet
+	 */
+	protected void showItems(SessionState state, Set showIdSet)
+	{
+	    List showItems = new Vector();
+	    List notShowItems = new Vector();
+	    List nonEmptyFolders = new Vector();
+
+	    org.sakaiproject.content.api.ContentHostingService contentService = ContentHostingService.getInstance();
+
+	    for(String showId : (Set<String>) showIdSet)
+	    {
+	        ContentEntity entity = null;
+	        try
+	        {
+	            if(contentService.isCollection(showId))
+	            {
+	                entity = contentService.getCollection(showId);
+	            }
+	            else if(contentService.allowUpdateResource(showId))
+	            {
+	                entity = contentService.getResource(showId);
+	            }
+	            else
+	            {
+	                // do nothing
+	            }
+	            ListItem item = new ListItem(entity);
+	            if(item.isCollection() && contentService.allowUpdateCollection(showId))
+	            {
+	                showItems.add(item);
+	                if(! item.isEmpty)
+	                {
+	                    nonEmptyFolders.add(item);
+	                }
+	            }
+	            else if(!item.isCollection() && contentService.allowUpdateResource(showId))
+	            {
+	                showItems.add(item);
+	            }
+	            else
+	            {
+	                notShowItems.add(item);
+	            }
+
+	        }
+	        catch(PermissionException e)
+	        {
+	            logger.warn("PermissionException: "+e,e);
+	        }
+	        catch (IdUnusedException e)
+	        {
+	            logger.warn("IdUnusedException: "+e,e);
+	        }
+	        catch (TypeException e)
+	        {
+	            logger.warn("TypeException: "+e,e);
+	        }
+	    }
+
+	    if(! notShowItems.isEmpty())
+	    {
+	        String notShowNames = "";
+	        boolean first_item = true;
+	        Iterator notIt = notShowItems.iterator();
+	        while(notIt.hasNext())
+	        {
+	            ListItem item = (ListItem) notIt.next();
+	            if(first_item)
+	            {
+	                notShowNames = item.getName();
+	                first_item = false;
+	            }
+	            else if(notIt.hasNext())
+	            {
+	                notShowNames += ", " + item.getName();
+	            }
+	            else
+	            {
+	                notShowNames += " and " + item.getName();
+	            }
+	        }
+	        addAlert(state, rb.getString("notpermis_modify_remove") );
+	    }
+
+	    state.setAttribute (STATE_SHOW_SET, showItems);
+	    state.setAttribute (STATE_NON_EMPTY_SHOW_SET, nonEmptyFolders);
+	}
+
+	/**
+	 * @param state
+	 * @param hideIdSet
+	 * @param hideIds
+	 */
+	protected void hideItems(SessionState state, Set hideIdSet)
+	{
+	    List hideItems = new Vector();
+	    List notHideItems = new Vector();
+	    List nonEmptyFolders = new Vector();
+
+	    org.sakaiproject.content.api.ContentHostingService contentService = ContentHostingService.getInstance();
+
+	    for(String hideId : (Set<String>) hideIdSet)
+	    {
+	        ContentEntity entity = null;
+	        try
+	        {
+	            if(contentService.isCollection(hideId))
+	            {
+	                entity = contentService.getCollection(hideId);
+	            }
+	            else if(contentService.allowUpdateResource(hideId))
+	            {
+	                entity = contentService.getResource(hideId);
+	            }
+	            else
+	            {
+	                // do nothing
+	            }
+	            ListItem item = new ListItem(entity);
+	            if(item.isCollection() && contentService.allowUpdateCollection(hideId))
+	            {
+	                hideItems.add(item);
+	                if(! item.isEmpty)
+	                {
+	                    nonEmptyFolders.add(item);
+	                }
+	            }
+	            else if(!item.isCollection() && contentService.allowUpdateResource(hideId))
+	            {
+	                hideItems.add(item);
+	            }
+	            else
+	            {
+	                notHideItems.add(item);
+	            }
+
+	        }
+	        catch(PermissionException e)
+	        {
+	            logger.warn("PermissionException: "+e,e);
+	        }
+	        catch (IdUnusedException e)
+	        {
+	            logger.warn("IdUnusedException: "+e,e);
+	        }
+	        catch (TypeException e)
+	        {
+	            logger.warn("TypeException: "+e,e);
+	        }
+	    }
+
+	    if(! notHideItems.isEmpty())
+	    {
+	        String notHideNames = "";
+	        boolean first_item = true;
+	        Iterator notIt = notHideItems.iterator();
+	        while(notIt.hasNext())
+	        {
+	            ListItem item = (ListItem) notIt.next();
+	            if(first_item)
+	            {
+	                notHideNames = item.getName();
+	                first_item = false;
+	            }
+	            else if(notIt.hasNext())
+	            {
+	                notHideNames += ", " + item.getName();
+	            }
+	            else
+	            {
+	                notHideNames += " and " + item.getName();
+	            }
+	        }
+	        addAlert(state, rb.getString("notpermis_modify_remove") );
+	    }
+
+	    state.setAttribute (STATE_HIDE_SET, hideItems);
+	    state.setAttribute (STATE_NON_EMPTY_HIDE_SET, nonEmptyFolders);
+	}
+
+	/**
+	 * @param portlet
+	 * @param context
+	 * @param data
+	 * @param state
+	 * @return
+	 */
+	public String buildShowFinishContext(VelocityPortlet portlet, Context context, RunData data, SessionState state)
+	{
+	    context.put("tlang",trb);
+	    context.put ("collectionId", state.getAttribute (STATE_COLLECTION_ID) );
+
+
+	    List showItems = (List) state.getAttribute(STATE_SHOW_SET);
+	    List nonEmptyFolders = (List) state.getAttribute(STATE_NON_EMPTY_SHOW_SET);
+
+	    context.put ("showItems", showItems);
+
+	    /*
+        Iterator it = nonEmptyFolders.iterator();
+        while(it.hasNext())
+        {
+                ListItem folder = (ListItem) it.next();
+                String[] args = { folder.getName() };
+                String msg = rb.getFormattedMessage("folder.notempty_show", args) + " ";
+                addAlert(state, msg);
+        }
+	     */
+	    return TEMPLATE_SHOW_FINISH;
+	}
+
+	/**
+	 * @param portlet
+	 * @param context
+	 * @param data
+	 * @param state
+	 * @return
+	 */
+	public String buildHideFinishContext(VelocityPortlet portlet, Context context, RunData data, SessionState state)
+	{
+	    context.put("tlang",trb);
+	    context.put ("collectionId", state.getAttribute (STATE_COLLECTION_ID) );
+
+	    List hideItems = (List) state.getAttribute(STATE_HIDE_SET);
+	    List nonEmptyFolders = (List) state.getAttribute(STATE_NON_EMPTY_HIDE_SET);
+
+	    context.put ("hideItems", hideItems);
+
+	    /*
+        Iterator it = nonEmptyFolders.iterator();
+        while(it.hasNext())
+        {
+                ListItem folder = (ListItem) it.next();
+                String[] args = { folder.getName() };
+                String msg = rb.getFormattedMessage("folder.notempty_hide", args) + " ";
+                addAlert(state, msg);
+        }
+	     */
+
+	    // get site type
+	    String siteType = null;
+	    Site site;
+
+	    try
+	    {
+	        site = SiteService.getSite(ToolManager.getCurrentPlacement().getContext());
+	        siteType = site.getType();
+	    }
+	    catch (IdUnusedException e)
+	    {
+	        logger.debug("ResourcesAction.buildHideFinishContext: cannot find current site");
+	    }
+	    context.put ("sitetype",siteType);
+	    return TEMPLATE_HIDE_FINISH;
+	}
+
+	/**
+	 * show the selected collection or resource items
+	 */
+	public void doFinalizeShow( RunData data)
+	{
+	    SessionState state = ((JetspeedRunData)data).getPortletSessionState (((JetspeedRunData)data).getJs_peid ());
+	    state.setAttribute(STATE_LIST_SELECTIONS, new TreeSet());
+
+	    // cancel copy if there is one in progress
+	    if(! Boolean.FALSE.toString().equals(state.getAttribute (STATE_COPY_FLAG)))
+	    {
+	        initCopyContext(state);
+	    }
+
+	    // cancel move if there is one in progress
+	    if(! Boolean.FALSE.toString().equals(state.getAttribute (STATE_MOVE_FLAG)))
+	    {
+	        initMoveContext(state);
+	    }
+
+	    ParameterParser params = data.getParameters ();
+
+	    List items = (List) state.getAttribute(STATE_SHOW_SET);
+
+	    // delete the lowest item in the hireachy first
+	    Hashtable showItems = new Hashtable();
+	    // String collectionId = (String) state.getAttribute (STATE_COLLECTION_ID);
+	    int maxDepth = 0;
+	    int depth = 0;
+
+	    Iterator it = items.iterator();
+	    while(it.hasNext())
+	    {
+	        ListItem item = (ListItem) it.next();
+	        String[] parts = item.getId().split(Entity.SEPARATOR);
+	        depth = parts.length;
+	        if (depth > maxDepth)
+	        {
+	            maxDepth = depth;
+	        }
+	        List v = (List) showItems.get(new Integer(depth));
+	        if(v == null)
+	        {
+	            v = new Vector();
+	        }
+	        v.add(item);
+	        showItems.put(new Integer(depth), v);
+	    }
+
+	    boolean isCollection = false;
+	    for (int j=maxDepth; j>0; j--)
+	    {
+	        List v = (List) showItems.get(new Integer(j));
+	        if (v==null)
+	        {
+	            v = new Vector();
+	        }
+	        Iterator itemIt = v.iterator();
+	        while(itemIt.hasNext())
+	        {
+	            ListItem item = (ListItem) itemIt.next();
+	            try
+	            {
+	                if (item.isCollection())
+	                {
+	                    logger.debug("show this collection resource" + item.getId());
+	                    ContentCollectionEdit edit= ContentHostingService.editCollection(item.getId());
+	                    edit.setAvailability(false, null, null);
+	                    ContentHostingService.commitCollection(edit);
+
+	                }
+	                else
+	                {
+	                    logger.debug("show this non-collection resource " + item.getId());
+	                    ContentResourceEdit edit= ContentHostingService.editResource(item.getId());
+	                    edit.setAvailability(false, null, null);
+	                    ContentHostingService.commitResource(edit, 0);
+
+	                }
+	            }
+	            catch (IdUnusedException e)
+	            {
+	                logger.warn("IdUnusedException", e);
+	            }
+	            catch (TypeException e)
+	            {
+	                logger.warn("TypeException", e);
+	            }
+	            catch (PermissionException e)
+	            {
+	                logger.warn("PermissionException", e);
+	            }
+	            catch (ServerOverloadException e)
+	            {
+	                logger.warn("ServerOverloadException", e);
+	            }
+	            catch (OverQuotaException e)
+	            {
+	                logger.warn("OverQuotaException ", e);
+	            }
+	            catch (InUseException e)
+	            {
+	                logger.warn("InUseException ", e);
+	            }
+	        }       // for
+	    }       // for
+
+	    if (state.getAttribute(STATE_MESSAGE) == null)
+	    {
+	        // show sucessful
+	        state.setAttribute (STATE_MODE, MODE_LIST);
+	        state.removeAttribute(STATE_SHOW_SET);
+	        state.removeAttribute(STATE_NON_EMPTY_SHOW_SET);
+
+	        if (((String) state.getAttribute (STATE_SELECT_ALL_FLAG)).equals (Boolean.TRUE.toString()))
+	        {
+	            state.setAttribute (STATE_SELECT_ALL_FLAG, Boolean.FALSE.toString());
+	        }
+
+	    }       // if-else
+
+	}       // doFinalizeShow
+
+	/**
+	 * Hide the selected collection or resource items
+	 */
+	public void doFinalizeHide(RunData data)
+	{
+	    SessionState state = ((JetspeedRunData)data).getPortletSessionState (((JetspeedRunData)data).getJs_peid ());
+	    state.setAttribute(STATE_LIST_SELECTIONS, new TreeSet());
+
+	    // cancel copy if there is one in progress
+	    if(! Boolean.FALSE.toString().equals(state.getAttribute (STATE_COPY_FLAG)))
+	    {
+	        initCopyContext(state);
+	    }
+
+	    // cancel move if there is one in progress
+	    if(! Boolean.FALSE.toString().equals(state.getAttribute (STATE_MOVE_FLAG)))
+	    {
+	        initMoveContext(state);
+	    }
+
+	    ParameterParser params = data.getParameters ();
+
+	    List items = (List) state.getAttribute(STATE_HIDE_SET);
+
+	    // hide the lowest item in the hireachy first
+	    Hashtable hideItems = new Hashtable();
+	    // String collectionId = (String) state.getAttribute (STATE_COLLECTION_ID);
+	    int maxDepth = 0;
+	    int depth = 0;
+
+	    Iterator it = items.iterator();
+	    while(it.hasNext())
+	    {
+	        ListItem item = (ListItem) it.next();
+	        String[] parts = item.getId().split(Entity.SEPARATOR);
+	        depth = parts.length;
+	        if (depth > maxDepth)
+	        {
+	            maxDepth = depth;
+	        }
+	        List v = (List) hideItems.get(new Integer(depth));
+	        if(v == null)
+	        {
+	            v = new Vector();
+	        }
+	        v.add(item);
+	        hideItems.put(new Integer(depth), v);
+	    }
+	    boolean isCollection = false;
+	    for (int j=maxDepth; j>0; j--)
+	    {
+	        List v = (List) hideItems.get(new Integer(j));
+	        if (v==null)
+	        {
+	            v = new Vector();
+	        }
+	        Iterator itemIt = v.iterator();
+	        while(itemIt.hasNext())
+	        {
+	            ListItem item = (ListItem) itemIt.next();
+	            try
+	            {
+	                if (item.isCollection())
+	                {
+	                    logger.debug("show this collection resource" + item.getId());
+	                    ContentCollectionEdit edit= ContentHostingService.editCollection(item.getId());
+	                    edit.setAvailability(true, null, null);
+	                    ContentHostingService.commitCollection(edit);
+
+	                }
+	                else
+	                {
+	                    logger.debug("show this non-collection resource " + item.getId());
+	                    ContentResourceEdit edit= ContentHostingService.editResource(item.getId());
+	                    edit.setAvailability(true, null, null);
+	                    ContentHostingService.commitResource(edit, 0);
+
+	                }
+	            }
+
+	            catch (IdUnusedException e)
+	            {
+	                logger.warn("IdUnusedException", e);
+	            }
+	            catch (TypeException e)
+	            {
+	                logger.warn("TypeException", e);
+	            }
+	            catch (PermissionException e)
+	            {
+	                logger.warn("PermissionException", e);
+	            }
+	            catch (ServerOverloadException e)
+	            {
+	                logger.warn("ServerOverloadException", e);
+	            }
+	            catch (OverQuotaException e)
+	            {
+	                logger.warn("OverQuotaException ", e);
+	            }
+	            catch (InUseException e)
+	            {
+	                logger.warn("InUseException ", e);
+	            }
+	        }       // for
+	    }       // for
+
+	    if (state.getAttribute(STATE_MESSAGE) == null)
+	    {
+	        // Hide sucessful
+	        state.setAttribute (STATE_MODE, MODE_LIST);
+	        state.removeAttribute(STATE_HIDE_SET);
+	        state.removeAttribute(STATE_NON_EMPTY_HIDE_SET);
+
+	        if (((String) state.getAttribute (STATE_SELECT_ALL_FLAG)).equals (Boolean.TRUE.toString()))
+	        {
+	            state.setAttribute (STATE_SELECT_ALL_FLAG, Boolean.FALSE.toString());
+	        }
+
+	    }       // if-else
+
+	}       // doFinalizeShow
+
+// END SAK-23304 additions
+
 }	// ResourcesAction
