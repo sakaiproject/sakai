@@ -556,9 +556,9 @@ public interface GradebookService {
 	 * @param gradebookUid
 	 * @return
 	 * 
-	 * @Deprecated see {@link  #checkStudentsNotSubmitted(String)}
+	 * @deprecated see {@link  #checkStudentsNotSubmitted(String)}
 	 */
-	public boolean checkStuendsNotSubmitted(String gradebookUid);
+	public boolean checkStduendsNotSubmitte(String gradebookUid);
 	
 	/**
 	 * 
