@@ -201,6 +201,7 @@
 				</label>
 			</p>
 			<div id="joinerrole" #if ($joinable) style="visibility:visible" #else  style="visibility:hidden" #end>
+			     <div class="messageValidation indnt3" style="width:60%">$tlang.getString("ediacc.yousitcan.warn")</div>
 				<p class="checkbox indnt3">
 					<label for="joinerRole">
 							<span class="reqStar" id="joinreqStar">*</span>
