@@ -139,6 +139,13 @@ public class InputRichTextRenderer extends Renderer
         value = (String) ((UIInput) component).getSubmittedValue();
     if (value == null && component instanceof ValueHolder)
         value = (String) ((ValueHolder) component).getValue();
+    // SAK-23313
+    // The rich-text editor will interpret a string like &lt;tag&gt; as a real tag
+    // So we double-escape the ampersand to create &amp;lt; so CKEditor displays this as text
+    if (value!=null) {
+    	java.util.regex.Pattern pattern = java.util.regex.Pattern.compile("&([^\\s])");
+    	value = pattern.matcher(value).replaceAll("&amp;$1");
+    }
 
     ///////////////////////////////////////////////////////////////////////////
     // attributes
