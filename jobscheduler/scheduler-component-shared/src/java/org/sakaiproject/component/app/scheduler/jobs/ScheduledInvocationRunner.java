@@ -53,8 +53,8 @@ public class ScheduledInvocationRunner implements StatefulJob {
 					command.execute(invocation.contextId);
 				} catch (Exception e) {
 					LOG.error("Failed to execute component: [" + invocation.componentId + "]: " + e);
-					if (LOG.isDebugEnabled()
-						 LOG.printStackTrace();
+					if (LOG.isDebugEnabled())
+						 e.printStackTrace();
 				} finally {
 					sql = "DELETE FROM SCHEDULER_DELAYED_INVOCATION WHERE INVOCATION_ID = ?";
 
