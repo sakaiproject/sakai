@@ -132,6 +132,8 @@ public interface AssessmentGradingFacadeQueriesAPI
       Long publishedItemId);
 
   public AssessmentGradingData load(Long id);
+  
+  public AssessmentGradingData load(Long id, boolean loadGradingAttachment);
 
   public ItemGradingData getItemGrading(Long id);
 

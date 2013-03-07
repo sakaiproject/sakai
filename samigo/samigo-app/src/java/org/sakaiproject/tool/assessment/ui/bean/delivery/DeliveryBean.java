@@ -3067,7 +3067,7 @@ public class DeliveryBean
     GradingService service = new GradingService();
     AssessmentGradingData assessmentGrading=null;
     if (adata!=null){
-      assessmentGrading = service.load(adata.getAssessmentGradingId().toString());
+      assessmentGrading = service.load(adata.getAssessmentGradingId().toString(), false);
     }
     PublishedAssessmentService pubService = new PublishedAssessmentService();
     int totalSubmitted = (pubService.getTotalSubmission(AgentFacade.getAgentString(), 

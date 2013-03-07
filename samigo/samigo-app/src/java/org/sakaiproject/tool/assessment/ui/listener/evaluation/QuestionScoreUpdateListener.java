@@ -139,6 +139,7 @@ public class QuestionScoreUpdateListener
         	}
         }
         
+        boolean hasUpdateAttachment = false;
         Iterator iter2 = datas.iterator();
         while (iter2.hasNext()){
           Object obj = iter2.next();
@@ -208,7 +209,10 @@ public class QuestionScoreUpdateListener
             delegate.updateItemScore(data, newAutoScore-oldAutoScore, tbean.getPublishedAssessment());
           }
           
-          updateAttachment(data, ar, bean);
+          if (!hasUpdateAttachment) {
+        	  hasUpdateAttachment = true;
+        	  updateAttachment(data, ar, bean);
+          }
         }
       }
 

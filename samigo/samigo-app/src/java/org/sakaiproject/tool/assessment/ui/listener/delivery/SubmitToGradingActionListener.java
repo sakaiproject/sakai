@@ -374,7 +374,7 @@ public class SubmitToGradingActionListener implements ActionListener {
 				itemGradingSet = service.getItemGradingSet(adata
 						.getAssessmentGradingId().toString());
 				log.debug("*** 2ac. load assessmentGarding " + (new Date()));
-				adata = service.load(adata.getAssessmentGradingId().toString());
+				adata = service.load(adata.getAssessmentGradingId().toString(), false);
 
 				Iterator<ItemGradingData> iter = adds.iterator();
 				while (iter.hasNext()) {

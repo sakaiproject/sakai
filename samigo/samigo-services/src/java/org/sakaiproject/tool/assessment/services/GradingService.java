@@ -508,9 +508,13 @@ public class GradingService
   }
 
   public AssessmentGradingData load(String assessmentGradingId) {
+	    return load(assessmentGradingId, true);
+  }
+  
+  public AssessmentGradingData load(String assessmentGradingId, boolean loadGradingAttachment) {
     try{
       return PersistenceService.getInstance().getAssessmentGradingFacadeQueries().
-          load(Long.valueOf(assessmentGradingId));
+          load(Long.valueOf(assessmentGradingId), loadGradingAttachment);
     }
     catch(Exception e)
     {
