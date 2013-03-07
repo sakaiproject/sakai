@@ -407,7 +407,7 @@ public class DashboardDaoImpl extends JdbcDaoSupport implements DashboardDao {
 		try {
 			getJdbcTemplate().update(getStatement("insert.TaskLock"),
 				new Object[]{ taskLock.getTask(), taskLock.getServerId(), 
-						taskLock.getClaimTime(), taskLock.getLastUpdate() 
+						taskLock.getClaimTime(), taskLock.getLastUpdate(), taskLock.isHasLock() 
 					});
 			return true;
 		} catch (DataIntegrityViolationException e) {
