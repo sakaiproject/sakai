@@ -72,6 +72,8 @@ public abstract class ActiveToolComponent extends ToolComponent implements Activ
 	private static Log M_log = LogFactory.getLog(ActiveToolComponent.class);
 
 	public static final String TOOL_PORTLET_CONTEXT_PATH = "portlet-context";
+	static final String TOOL_CATEGORIES_PREFIX = "tool.categories.";
+	static final String TOOL_CATEGORIES_APPEND_PREFIX = TOOL_CATEGORIES_PREFIX+"append.";
 
 	// private ResourceLoader toolProps = null;
 
@@ -367,6 +369,28 @@ public abstract class ActiveToolComponent extends ToolComponent implements Activ
 					keywords.add(name);
 				}
 			}
+		}
+
+		// KNL-1031 - Override OR Add additional categories from sakai.properties
+		String[] categoriesArray = serverConfigurationService().getStrings(TOOL_CATEGORIES_PREFIX+tool.getId());
+		if (categoriesArray != null) {
+		    // override the set of categories
+		    categories.clear();
+		    for (String category: categoriesArray) {
+		        if (StringUtils.isNotBlank(category)) {
+		            categories.add(category);
+		        }
+		    }
+		} else {
+		    categoriesArray = serverConfigurationService().getStrings(TOOL_CATEGORIES_APPEND_PREFIX+tool.getId());
+		    if (categoriesArray != null) {
+		        // add categories instead of overriding
+		        for (String category: categoriesArray) {
+		            if (StringUtils.isNotBlank(category)) {
+		                categories.add(category);
+		            }
+		        }
+		    }
 		}
 
 		// set the tool's collected values
