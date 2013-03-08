@@ -633,7 +633,7 @@ public class QuestionScoreListener implements ActionListener,
 					// non-abbreviated answers
 					// for essay questions
 
-					int answerTextLength = 35;
+					int answerTextLength = 1000;
 					if (!bean.getTypeId().equals("5")) {
 						String s = ServerConfigurationService.getString("samigo.questionScore.answerText.length");
 						if (s != null) {
@@ -644,6 +644,9 @@ public class QuestionScoreListener implements ActionListener,
 								log.warn("NumberFormatException. Use the default value for answerTextLength");
 							}
 						}
+					}
+					else {
+						answerTextLength = 35;
 					}
 					
 					// Fix for SAK-6932: Strip out all HTML tags except image tags
