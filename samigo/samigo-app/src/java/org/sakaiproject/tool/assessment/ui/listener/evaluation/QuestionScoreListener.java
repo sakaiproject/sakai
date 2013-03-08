@@ -60,6 +60,7 @@ import org.sakaiproject.tool.assessment.ui.listener.util.ContextUtil;
 import org.sakaiproject.tool.assessment.util.BeanSort;
 import org.sakaiproject.util.FormattedText;
 import org.sakaiproject.util.ResourceLoader;
+import org.sakaiproject.component.cover.ServerConfigurationService;
 
 // end testing
 
@@ -632,9 +633,21 @@ public class QuestionScoreListener implements ActionListener,
 					// non-abbreviated answers
 					// for essay questions
 
-					// Fix for SAK-6932: Strip out all HTML tags except image
-					// tags
-					if (answerText.length() > 35) {
+					int answerTextLength = 35;
+					if (!bean.getTypeId().equals("5")) {
+						String s = ServerConfigurationService.getString("samigo.questionScore.answerText.length");
+						if (s != null) {
+							try {
+								answerTextLength = Integer.parseInt(s);
+							}
+							catch (NumberFormatException e) {
+								log.warn("NumberFormatException. Use the default value for answerTextLength");
+							}
+						}
+					}
+					
+					// Fix for SAK-6932: Strip out all HTML tags except image tags
+ 					if (answerText.length() > answerTextLength) {
 						String noHTMLAnswerText;
 						noHTMLAnswerText = answerText.replaceAll(
 								"<((..?)|([^iI][^mM][^gG].*?))>", "");
@@ -644,8 +657,8 @@ public class QuestionScoreListener implements ActionListener,
 						if (index != -1) {
 							answerText = noHTMLAnswerText;
 						} else {
-							if (noHTMLAnswerText.length() > 35) {
-								answerText = noHTMLAnswerText.substring(0, 35)
+							if (noHTMLAnswerText.length() > answerTextLength) {
+								answerText = noHTMLAnswerText.substring(0, answerTextLength)
 										+ "...";
 							} else {
 								answerText = noHTMLAnswerText;
