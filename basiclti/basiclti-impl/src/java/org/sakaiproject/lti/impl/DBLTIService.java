@@ -278,33 +278,23 @@ public class DBLTIService extends BaseLTIService implements LTIService {
 
 		String[] contentModel = getContentModelDao(tool, siteId, isMaintainRole);
 		
-		//check to see whether the contentModel contains title or page title
+		// Since page title and title are both required and dynamically hideable, 
+		// They may not be in the model.  If they are not there, add them for the purpose
+		// of the insert, and then copy the values from the tool.
 		List<String> contentModelList = new ArrayList<String>(Arrays.asList(contentModel));
 		if (!contentModelList.contains(LTI_TITLE) || !contentModelList.contains(LTI_PAGETITLE))
 		{
 			if (!contentModelList.contains(LTI_TITLE))
 			{
-				// add title
 				contentModelList.add(LTI_TITLE + ":text");
-				
+				newProps.put(LTI_TITLE, tool.get(LTI_TITLE));
 			}
 			if (!contentModelList.contains(LTI_PAGETITLE))
 			{
-				// add page title
 				contentModelList.add(LTI_PAGETITLE + ":text");
-			}
-			contentModel = contentModelList.toArray(new String[contentModelList.size()]);
-		
-			if (!newProps.containsKey(LTI_TITLE))
-			{
-				// update the 
-				newProps.put(LTI_TITLE, tool.get(LTI_TITLE));
-			}
-			
-			if (!newProps.containsKey(LTI_PAGETITLE))
-			{
 				newProps.put(LTI_PAGETITLE, tool.get(LTI_PAGETITLE));
 			}
+			contentModel = contentModelList.toArray(new String[contentModelList.size()]);
 		}
 		
 		if (contentModel == null)

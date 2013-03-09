@@ -990,11 +990,23 @@ public class Foorm {
 			}
 			if ( "header".equals(type) ) continue;
 			String label = info.getProperty("label", field);
+			// System.out.println("field="+field+" type="+type);
+
+			// Check the automatically populate empty date fields
+			if ("autodate".equals(type) && dataMap != null && (!isFieldSet(parms, field)) ) {
+				java.sql.Timestamp sqlTimestamp = new java.sql.Timestamp(
+						new java.util.Date().getTime());
+				if ("updated_at".equals(field) || (forInsert && "created_at".equals(field))) {
+					dataMap.put(field, sqlTimestamp);
+				}
+			}
 
 			// For update, we don't worry about fields that are not set
 			if ((!forInsert) && (!isFieldSet(parms, field)))
 				continue;
+
 			Object dataField = getField(parms, field);
+			// System.out.println("field="+field+" data="+dataField);
 			String sdf = null;
 			if (dataField instanceof String)
 				sdf = (String) dataField;
@@ -1002,15 +1014,6 @@ public class Foorm {
 				sdf = null;
 				dataField = null;
 			}
-
-			if ("autodate".equals(type)
-					&& ("created_at".equals(field) || "updated_at".equals(field))) {
-				java.sql.Timestamp sqlTimestamp = new java.sql.Timestamp(
-						new java.util.Date().getTime());
-				if (dataMap != null)
-					dataMap.put(field, sqlTimestamp);
-			}
-			// System.out.println("field="+field+" data="+dataField);
 
 			if ("true".equals(info.getProperty("required")) && (dataField == null)) {
 				if (sb.length() > 0) sb.append(", ");
@@ -1261,26 +1264,22 @@ public class Foorm {
 			Properties fields = parseFormString(line);
 			String field = fields.getProperty("field", null);
 			String type = fields.getProperty("type", null);
+			String allowed = fields.getProperty("allowed", null);
 			if (field == null || type == null) {
 				throw new IllegalArgumentException(
 						"All model elements must include field name and type");
 			}
+			// We always assume radio and checkbox may be allowed
 			if ("radio".equals(type) || "checkbox".equals(type) ) {
 				// Field = Always Off (0), Always On (1), or Delegate(2)
 				int value = getInt(getField(controlRow, field));
 				if ( value == 2 || ! isFieldSet(controlRow, field) ) ret.add(line);
-			} else {
-				// Allow = 0ff (0) or On (1)
+			//  For allowed fields, allow = 0ff (0) or On (1)
+			} else if ("true".equals(allowed) ) {
 				int value = getInt(getField(controlRow, "allow" + field));
-				if (value == 1)
-				{
-					line = line.replaceAll("hidden=true", "hidden=false");
-					ret.add(line);
-				}
-				else if (! isFieldSet(controlRow, "allow"+field) )
-				{
-					ret.add(line);
-				}
+				if ( value == 1 || ! isFieldSet(controlRow, field) ) ret.add(line);
+			} else {
+				ret.add(line);
 			}
 		}
 		return ret.toArray(new String[ret.size()]);
