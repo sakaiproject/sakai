@@ -91,15 +91,17 @@ public class BlockMacro extends BaseMacro
 		writer.write("<div"); //$NON-NLS-1$
 		if (cssClass != null && !"".equals(cssClass)) //$NON-NLS-1$
 		{
+			cssClass = cssClass.replaceAll("[^A-Za-z0-9]", "");
 			writer.write(" class='"); //$NON-NLS-1$
-			writer.write(cssClass.replaceAll("'", "&apos;")); //$NON-NLS-1$ //$NON-NLS-2$
+			writer.write(cssClass); //$NON-NLS-1$ //$NON-NLS-2$
 			writer.write('\'');
 		}
 		if (style != null && !"".equals(style)) //$NON-NLS-1$
 		{
-			writer.write(" style='"); //$NON-NLS-1$
-			writer.write(style.replaceAll("'", "&apos;")); //$NON-NLS-1$ //$NON-NLS-2$
-			writer.write('\'');
+			// SAK-20449 disabling style output
+			// writer.write(" style='"); //$NON-NLS-1$
+			// writer.write(style.replaceAll("'", "&apos;")); //$NON-NLS-1$ //$NON-NLS-2$
+			// writer.write('\'');
 		}
 		if (id != null && !"".equals(id)) //$NON-NLS-1$
 		{

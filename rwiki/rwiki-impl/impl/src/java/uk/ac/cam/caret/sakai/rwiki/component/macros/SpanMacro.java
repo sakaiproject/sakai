@@ -86,8 +86,9 @@ public class SpanMacro extends BaseMacro
 		writer.write("<span"); //$NON-NLS-1$
 		if (cssClass != null && !"".equals(cssClass)) //$NON-NLS-1$
 		{
+			cssClass = cssClass.replaceAll("[^A-Za-z0-9]", "");
 			writer.write(" class='"); //$NON-NLS-1$
-			writer.write(cssClass.replaceAll("'", "&apos;")); //$NON-NLS-1$ //$NON-NLS-2$
+			writer.write(cssClass); //$NON-NLS-1$ //$NON-NLS-2$
 			writer.write('\'');
 		}
 		if (id != null && !"".equals(id)) //$NON-NLS-1$

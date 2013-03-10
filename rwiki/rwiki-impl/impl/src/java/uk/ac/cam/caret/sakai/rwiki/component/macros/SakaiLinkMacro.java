@@ -24,6 +24,9 @@ package uk.ac.cam.caret.sakai.rwiki.component.macros;
 import java.io.IOException;
 import java.io.Writer;
 
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
+
 import org.radeox.api.engine.ImageRenderEngine;
 import org.radeox.api.engine.RenderEngine;
 import org.radeox.api.macro.MacroParameter;
@@ -42,6 +45,7 @@ import uk.ac.cam.caret.sakai.rwiki.component.radeox.service.impl.SpecializedRend
 public class SakaiLinkMacro extends BaseLocaleMacro
 {
 
+	private static Log log = LogFactory.getLog(SakaiLinkMacro.class);
 
 	public String[] getParamDescription()
 	{
@@ -113,6 +117,13 @@ public class SakaiLinkMacro extends BaseLocaleMacro
 			
 			url = context.convertLink(url);
 			
+
+			// SAK-20449 XSS protection
+			if (!url.startsWith("http://") && !url.startsWith("https://") && !url.startsWith("ftp://") &&
+				!url.startsWith("mailto:")) {
+				log.warn("RWiki URL (" + url + ") looks invalid so we're removing it from the display.");
+				url = "";
+			}
 
 			writer.write("<a href=\"" + url + "\""); //$NON-NLS-1$ //$NON-NLS-2$
 			if (!"none".equals(target)) //$NON-NLS-1$
