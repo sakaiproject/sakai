@@ -36,8 +36,92 @@
 								});
 							}
 			});
+			
+			//radio options:
+			$('.radioByDate input:radio').change(
+				function(){
+					$('.radioByItems input:radio').each(function(i){
+						this.checked = false;
+					});
+					$('.radioOption').each(function(i){
+						$(this).removeClass("radioOptionSelected");
+					});
+					$('.radioByDate').each(function(i){
+						$(this).addClass("radioOptionSelected");
+					});
+					$('.bulkAddByItemsPanel').slideUp();
+					$('.bulkAddByDatePanel').slideDown();
+					resizeFrame('grow');
+				}
+			);
+			$('.radioByItems input:radio').change(
+				function(){
+					$('.radioByDate input:radio').each(function(i){
+						this.checked = false;
+					});
+					$('.radioOption').each(function(i){
+						$(this).removeClass("radioOptionSelected");
+					});
+					$('.radioByItems').each(function(i){
+						$(this).addClass("radioOptionSelected");
+					});
+					$('.bulkAddByItemsPanel').slideDown();
+					$('.bulkAddByDatePanel').slideUp();
+					resizeFrame('shrink');
+				}
+			);
+			if($('.radioByDate input:radio').is(':checked')){
+				//date option is selected... we need to setup the UI
+				//this can happen if a user gets a warning message when
+				//setting up the dates options
+				$('.radioByDate input:radio').each(function(){
+					$('.radioByItems input:radio').each(function(i){
+						this.checked = false;
+					});
+					$('.radioOption').each(function(i){
+						$(this).removeClass("radioOptionSelected");
+					});
+					$('.radioByDate').each(function(i){
+						$(this).addClass("radioOptionSelected");
+					});
+					$('.bulkAddByItemsPanel').hide();
+					$('.bulkAddByDatePanel').show();
+					resizeFrame('grow');
+				});
+			}
 		});
+		//this function needs jquery 1.1.2 or later - it resizes the parent iframe without bringing the scroll to the top
+		function resizeFrame(updown){
+		    var clientH;
+		    if (top.location != self.location) {
+		        var frame = parent.document.getElementById(window.name);
+		    }
+		    if (frame) {
+		        if (updown == 'shrink') {
+		            clientH = document.body.clientHeight - 200;
+		        }
+		        else {
+		            clientH = document.body.clientHeight + 200;
+		        }
+		        $(frame).height(clientH);
+		    }
+		    else {
+		        throw ("resizeFrame did not get the frame (using name=" + window.name + ")");
+		    }
+		}
 	</script>
+	<style>
+		.radioOption{
+			background: none repeat scroll 0 0 #EEEEEE;
+			border-radius: 5px 5px 5px 5px;
+			padding: .5em;
+			width: 35em;
+		}
+		
+		.radioOptionSelected{
+			background: none repeat scroll 0 0 #CCCCCC;
+		}
+	</style>
 	<jsp:useBean id="msgs" class="org.sakaiproject.util.ResourceLoader" scope="session">
 		<jsp:setProperty name="msgs" property="baseName" value="org.sakaiproject.tool.syllabus.bundle.Messages"/>
 	</jsp:useBean>
@@ -52,75 +136,99 @@
 			<h:form>
 				<h:panelGrid columns="1" styleClass="jsfFormTable">
 					<h:panelGroup styleClass="shorttext">
-	 					<h:outputLabel for="title">
-	 						<h:outputText value="*" styleClass="reqStar"/>
-	 						<h:outputText value="#{msgs.syllabus_title}"/>
-	 					</h:outputLabel>
-	 					<h:inputText value="#{SyllabusTool.bulkEntry.title}" id="title"/>
-					</h:panelGroup>
-					<h:panelGroup styleClass="shorttext">
-						<h:outputLabel for="dataStartDate">
+						<h:outputLabel for="title">
 							<h:outputText value="*" styleClass="reqStar"/>
-							<h:outputText value="#{msgs.startdatetitle}"/>
+							<h:outputText value="#{msgs.syllabus_title}"/>
 						</h:outputLabel>
-						<h:inputText styleClass="dateInput datInputStart" value="#{SyllabusTool.bulkEntry.startDateString}" id="dataStartDate"/>
-						<f:verbatim><img src="/library/image/silk/calendar_view_month.png" onclick="$('.datInputStart').focus();"/></f:verbatim>
+						<h:inputText value="#{SyllabusTool.bulkEntry.title}" id="title"/>
 					</h:panelGroup>
-					<h:panelGroup styleClass="shorttext">
-						<h:outputLabel for="dataEndDate">
-							<h:outputText value="*" styleClass="reqStar"/>
-							<h:outputText value="#{msgs.enddatetitle}"/>
-						</h:outputLabel>
-						<h:inputText styleClass="dateInput datInputEnd" value="#{SyllabusTool.bulkEntry.endDateString}" id="dataEndDate"/>
-						<f:verbatim><img src="/library/image/silk/calendar_view_month.png" onclick="$('.datInputEnd').focus();"/></f:verbatim>
+					<h:panelGroup>
+						<h:selectOneRadio id="radioByItems" value="#{SyllabusTool.bulkEntry.addByItems}" styleClass="radioByItems radioOption radioOptionSelected">
+							<f:selectItem id="byItems" itemLabel="#{msgs.bulkAddByItems}" itemValue="1" />
+						</h:selectOneRadio>
 					</h:panelGroup>
-					<h:panelGroup styleClass="shorttext">
-						<h:outputLabel for="dataStartTime">
-							<h:outputText value="*" styleClass="reqStar"/>
-							<h:outputText value="#{msgs.starttimetitle}"/>
-						</h:outputLabel>
-						<h:inputText styleClass="timeInput timeInputStart" value="#{SyllabusTool.bulkEntry.startTimeString}" id="dataStartTime"/>
-						<f:verbatim><img src="/library/image/silk/calendar_view_month.png" onclick="$('.timeInputStart').focus();"/></f:verbatim>
+					
+					<!-- Add X Bulk Entries -->
+					<h:panelGrid columns="1" styleClass="jsfFormTable indnt1 bulkAddByItemsPanel">
+						<h:panelGroup styleClass="shorttext">
+							<h:outputLabel for="numOfItems">
+								<h:outputText value="*" styleClass="reqStar"/>
+								<h:outputText value="#{msgs.numberOfItems}"/>
+							</h:outputLabel>
+							<h:inputText value="#{SyllabusTool.bulkEntry.bulkItems}" id="numOfItems" size="3" maxlength="3"/>
+						</h:panelGroup>
+					</h:panelGrid>
+					<h:panelGroup>
+						<h:selectOneRadio id="radioByDate" value="#{SyllabusTool.bulkEntry.addByDate}" styleClass="radioByDate radioOption ">
+							<f:selectItem id="byDate" itemLabel="#{msgs.bulkAddByDate}" itemValue="1" />
+						</h:selectOneRadio>
 					</h:panelGroup>
-					<h:panelGroup styleClass="shorttext">
-						<h:outputLabel for="dataEndTime">
-							<h:outputText value="#{msgs.endtimetitle}"/>
-						</h:outputLabel>
-						<h:inputText styleClass="timeInput timeInputEnd" value="#{SyllabusTool.bulkEntry.endTimeString}" id="dataEndTime"/>
-						<f:verbatim><img src="/library/image/silk/calendar_view_month.png" onclick="$('.timeInputEnd').focus();"/></f:verbatim>
-					</h:panelGroup>
-					<h:panelGroup styleClass="shorttext" rendered="#{SyllabusTool.calendarExistsForSite}">
-						<h:selectBooleanCheckbox id="linkCalendar" value="#{SyllabusTool.bulkEntry.linkCalendar}" />
-						<h:outputLabel for="linkCalendar">
-							<h:outputText value="#{msgs.linkcalendartitle}"/>
-						</h:outputLabel>
-					</h:panelGroup>
-					<h:panelGroup styleClass="shorttext" rendered="#{SyllabusTool.calendarExistsForSite}">
-						<h:selectBooleanCheckbox id="monday" value="#{SyllabusTool.bulkEntry.monday}" />
-						<h:outputText value="#{msgs.monday}"/>
-						<h:outputText value=" | "/>
-						<h:selectBooleanCheckbox id="tuesday" value="#{SyllabusTool.bulkEntry.tuesday}" />
-						<h:outputText value="#{msgs.tuesday}"/>
-						<h:outputText value=" | "/>
-						<h:selectBooleanCheckbox id="wednesday" value="#{SyllabusTool.bulkEntry.wednesday}" />
-						<h:outputText value="#{msgs.wednesday}"/>
-						<h:outputText value=" | "/>
-						<h:selectBooleanCheckbox id="thursday" value="#{SyllabusTool.bulkEntry.thursday}" />
-						<h:outputText value="#{msgs.thursday}"/>
-						<h:outputText value=" | "/>
-						<h:selectBooleanCheckbox id="friday" value="#{SyllabusTool.bulkEntry.friday}" />
-						<h:outputText value="#{msgs.friday}"/>
-						<h:outputText value=" | "/>
-						<h:selectBooleanCheckbox id="saturday" value="#{SyllabusTool.bulkEntry.saturday}" />
-						<h:outputText value="#{msgs.saturday}"/>
-						<h:outputText value=" | "/>
-						<h:selectBooleanCheckbox id="sunday" value="#{SyllabusTool.bulkEntry.sunday}" />
-						<h:outputText value="#{msgs.sunday}"/>
-						<h:outputLabel for="monday">
-							<h:outputText value="*" styleClass="reqStar"/>
-							<h:outputText value="#{msgs.classMeetingDays}"/>
-						</h:outputLabel>
-					</h:panelGroup>
+					<!-- Add Bulk Entries by date -->
+					<h:panelGrid columns="1" styleClass="jsfFormTable indnt1 bulkAddByDatePanel" style="display: none">
+						<h:panelGroup styleClass="shorttext">
+							<h:outputLabel for="dataStartDate">
+								<h:outputText value="*" styleClass="reqStar"/>
+								<h:outputText value="#{msgs.startdatetitle}"/>
+							</h:outputLabel>
+							<h:inputText styleClass="dateInput datInputStart" value="#{SyllabusTool.bulkEntry.startDateString}" id="dataStartDate"/>
+							<f:verbatim><img src="/library/image/silk/calendar_view_month.png" onclick="$('.datInputStart').focus();"/></f:verbatim>
+						</h:panelGroup>
+						<h:panelGroup styleClass="shorttext">
+							<h:outputLabel for="dataEndDate">
+								<h:outputText value="*" styleClass="reqStar"/>
+								<h:outputText value="#{msgs.enddatetitle}"/>
+							</h:outputLabel>
+							<h:inputText styleClass="dateInput datInputEnd" value="#{SyllabusTool.bulkEntry.endDateString}" id="dataEndDate"/>
+							<f:verbatim><img src="/library/image/silk/calendar_view_month.png" onclick="$('.datInputEnd').focus();"/></f:verbatim>
+						</h:panelGroup>
+						<h:panelGroup styleClass="shorttext">
+							<h:outputLabel for="dataStartTime">
+								<h:outputText value="*" styleClass="reqStar"/>
+								<h:outputText value="#{msgs.starttimetitle}"/>
+							</h:outputLabel>
+							<h:inputText styleClass="timeInput timeInputStart" value="#{SyllabusTool.bulkEntry.startTimeString}" id="dataStartTime"/>
+							<f:verbatim><img src="/library/image/silk/calendar_view_month.png" onclick="$('.timeInputStart').focus();"/></f:verbatim>
+						</h:panelGroup>
+						<h:panelGroup styleClass="shorttext">
+							<h:outputLabel for="dataEndTime">
+								<h:outputText value="#{msgs.endtimetitle}"/>
+							</h:outputLabel>
+							<h:inputText styleClass="timeInput timeInputEnd" value="#{SyllabusTool.bulkEntry.endTimeString}" id="dataEndTime"/>
+							<f:verbatim><img src="/library/image/silk/calendar_view_month.png" onclick="$('.timeInputEnd').focus();"/></f:verbatim>
+						</h:panelGroup>
+						<h:panelGroup styleClass="shorttext" rendered="#{SyllabusTool.calendarExistsForSite}">
+							<h:selectBooleanCheckbox id="linkCalendar" value="#{SyllabusTool.bulkEntry.linkCalendar}" />
+							<h:outputLabel for="linkCalendar">
+								<h:outputText value="#{msgs.linkcalendartitle}"/>
+							</h:outputLabel>
+						</h:panelGroup>
+						<h:panelGroup styleClass="shorttext" rendered="#{SyllabusTool.calendarExistsForSite}">
+							<h:selectBooleanCheckbox id="monday" value="#{SyllabusTool.bulkEntry.monday}" />
+							<h:outputText value="#{msgs.monday}"/>
+							<h:outputText value=" | "/>
+							<h:selectBooleanCheckbox id="tuesday" value="#{SyllabusTool.bulkEntry.tuesday}" />
+							<h:outputText value="#{msgs.tuesday}"/>
+							<h:outputText value=" | "/>
+							<h:selectBooleanCheckbox id="wednesday" value="#{SyllabusTool.bulkEntry.wednesday}" />
+							<h:outputText value="#{msgs.wednesday}"/>
+							<h:outputText value=" | "/>
+							<h:selectBooleanCheckbox id="thursday" value="#{SyllabusTool.bulkEntry.thursday}" />
+							<h:outputText value="#{msgs.thursday}"/>
+							<h:outputText value=" | "/>
+							<h:selectBooleanCheckbox id="friday" value="#{SyllabusTool.bulkEntry.friday}" />
+							<h:outputText value="#{msgs.friday}"/>
+							<h:outputText value=" | "/>
+							<h:selectBooleanCheckbox id="saturday" value="#{SyllabusTool.bulkEntry.saturday}" />
+							<h:outputText value="#{msgs.saturday}"/>
+							<h:outputText value=" | "/>
+							<h:selectBooleanCheckbox id="sunday" value="#{SyllabusTool.bulkEntry.sunday}" />
+							<h:outputText value="#{msgs.sunday}"/>
+							<h:outputLabel for="monday">
+								<h:outputText value="*" styleClass="reqStar"/>
+								<h:outputText value="#{msgs.classMeetingDays}"/>
+							</h:outputLabel>
+						</h:panelGroup>
+					</h:panelGrid>
 				</h:panelGrid>
 				<sakai:button_bar>
 					<sakai:button_bar_item
