@@ -953,6 +953,42 @@ public class SakaiProxyImpl implements SakaiProxy {
 				"profile2.profile.business.enabled",
 				ProfileConstants.SAKAI_PROP_PROFILE2_PROFILE_BUSINESS_ENABLED);
 	}
+	
+	/**
+	 * {@inheritDoc}
+	 */
+	public boolean isSocialProfileEnabled() {
+		return serverConfigurationService.getBoolean(
+				"profile2.profile.social.enabled",
+				ProfileConstants.SAKAI_PROP_PROFILE2_PROFILE_SOCIAL_ENABLED);
+	}
+
+	/**
+	 * {@inheritDoc}
+	 */
+	public boolean isInterestsProfileEnabled() {
+		return serverConfigurationService.getBoolean(
+				"profile2.profile.interests.enabled",
+				ProfileConstants.SAKAI_PROP_PROFILE2_PROFILE_INTERESTS_ENABLED);
+	}
+
+	/**
+	 * {@inheritDoc}
+	 */
+	public boolean isStaffProfileEnabled() {
+		return serverConfigurationService.getBoolean(
+				"profile2.profile.staff.enabled",
+				ProfileConstants.SAKAI_PROP_PROFILE2_PROFILE_STAFF_ENABLED);
+	}
+
+	/**
+	 * {@inheritDoc}
+	 */
+	public boolean isStudentProfileEnabled() {
+		return serverConfigurationService.getBoolean(
+				"profile2.profile.student.enabled",
+				ProfileConstants.SAKAI_PROP_PROFILE2_PROFILE_STUDENT_ENABLED);
+	}
 
 	/**
 	 * {@inheritDoc}
@@ -1583,6 +1619,7 @@ public class SakaiProxyImpl implements SakaiProxy {
 
 	//INJECT OTHER RESOURCES
 	@Setter
+
 	private ArrayList<String> emailTemplates;
 	
 	

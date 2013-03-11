@@ -838,4 +838,40 @@ public interface SakaiProxy {
 	 * @return true or false. 
 	 */
 	public boolean isProfileStatusEnabled();
+
+	/**
+	 * Is the profile2.profile.social.enabled flag set in sakai.properties? 
+	 * If not set, defaults to true.
+	 * 
+	 * @return <code>true</code> if the profile2.profile.social.enabled flag
+	 *         is set, otherwise returns <code>false</code>.
+	 */
+	public boolean isSocialProfileEnabled();
+
+	/**
+	 * Is the profile2.profile.interests.enabled flag set in sakai.properties? 
+	 * If not set, defaults to true.
+	 * 
+	 * @return <code>true</code> if the profile2.profile.interests.enabled flag
+	 *         is set, otherwise returns <code>false</code>.
+	 */
+	public boolean isInterestsProfileEnabled();
+
+	/**
+	 * Is the profile2.profile.staff.enabled flag set in sakai.properties? 
+	 * If not set, defaults to true.
+	 * 
+	 * @return <code>true</code> if the profile2.profile.staff.enabled flag
+	 *         is set, otherwise returns <code>false</code>.
+	 */
+	public boolean isStaffProfileEnabled();
+
+	/**
+	 * Is the profile2.profile.student.enabled flag set in sakai.properties? 
+	 * If not set, defaults to true.
+	 * 
+	 * @return <code>true</code> if the profile2.profile.student.enabled flag
+	 *         is set, otherwise returns <code>false</code>.
+	 */
+	public boolean isStudentProfileEnabled();
 }

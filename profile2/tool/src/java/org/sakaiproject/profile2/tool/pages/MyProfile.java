@@ -45,6 +45,7 @@ import org.apache.wicket.model.StringResourceModel;
 import org.sakaiproject.api.common.edu.person.SakaiPerson;
 import org.sakaiproject.profile2.exception.ProfileNotDefinedException;
 import org.sakaiproject.profile2.exception.ProfilePreferencesNotDefinedException;
+import org.sakaiproject.profile2.model.MyProfilePanelState;
 import org.sakaiproject.profile2.model.ProfilePreferences;
 import org.sakaiproject.profile2.model.SocialNetworkingInfo;
 import org.sakaiproject.profile2.model.UserProfile;
@@ -478,8 +479,13 @@ public class MyProfile extends BasePage {
 				public Panel getPanel(String panelId) {
 	
 					setTabCookie(ProfileConstants.TAB_INDEX_PROFILE);
-					return new MyProfilePanel(panelId, userProfile,
-							sakaiProxy.isBusinessProfileEnabled());
+					MyProfilePanelState panelState = new MyProfilePanelState();
+					panelState.showBusinessDisplay = sakaiProxy.isBusinessProfileEnabled();
+					panelState.showSocialNetworkingDisplay = sakaiProxy.isSocialProfileEnabled();
+					panelState.showInterestsDisplay = sakaiProxy.isInterestsProfileEnabled();
+					panelState.showStaffDisplay = sakaiProxy.isStaffProfileEnabled();
+					panelState.showStudentDisplay = sakaiProxy.isStudentProfileEnabled();
+					return new MyProfilePanel(panelId, userProfile,panelState);
 				}
 	
 			});

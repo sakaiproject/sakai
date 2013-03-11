@@ -17,6 +17,7 @@ package org.sakaiproject.profile2.tool.pages.panels;
 
 import org.apache.wicket.markup.html.panel.EmptyPanel;
 import org.apache.wicket.markup.html.panel.Panel;
+import org.sakaiproject.profile2.model.MyProfilePanelState;
 import org.sakaiproject.profile2.model.UserProfile;
 
 /**
@@ -27,7 +28,7 @@ public class MyProfilePanel extends Panel {
 	private static final long serialVersionUID = 1L;
 
 	public MyProfilePanel(String id, UserProfile userProfile,
-			boolean displayBusinessPanel) {
+			MyProfilePanelState panelState) {
 		
 		super(id);
 		
@@ -42,13 +43,18 @@ public class MyProfilePanel extends Panel {
 		add(myContactDisplay);
 		
 		//university staff panel - load the display version by default
-		Panel myStaffDisplay = new MyStaffDisplay("myStaff", userProfile);
-		myStaffDisplay.setOutputMarkupId(true);
+		Panel myStaffDisplay;
+		if (panelState.showStaffDisplay) {
+			myStaffDisplay = new MyStaffDisplay("myStaff", userProfile);
+			myStaffDisplay.setOutputMarkupId(true);
+		} else {
+			myStaffDisplay = new EmptyPanel("myStaff");
+		}
 		add(myStaffDisplay);
 		
 		//business panel - load the display version by default
 		Panel myBusinessDisplay;
-		if (displayBusinessPanel) {
+		if (panelState.showBusinessDisplay) {
 			myBusinessDisplay = new MyBusinessDisplay("myBusiness", userProfile);
 			myBusinessDisplay.setOutputMarkupId(true);
 		} else {
@@ -57,18 +63,33 @@ public class MyProfilePanel extends Panel {
 		add(myBusinessDisplay);
 		
 		//student panel
-		Panel myStudentDisplay = new MyStudentDisplay("myStudent", userProfile);
-		myStudentDisplay.setOutputMarkupId(true);
+		Panel myStudentDisplay;
+		if (panelState.showStudentDisplay) {
+			myStudentDisplay = new MyStudentDisplay("myStudent", userProfile);
+			myStudentDisplay.setOutputMarkupId(true);
+		} else {
+			myStudentDisplay = new EmptyPanel("myStudent");
+		}
 		add(myStudentDisplay);
 		
 		//social networking panel
-		Panel mySocialNetworkingDisplay = new MySocialNetworkingDisplay("mySocialNetworking", userProfile);
-		mySocialNetworkingDisplay.setOutputMarkupId(true);
+		Panel mySocialNetworkingDisplay;
+		if (panelState.showSocialNetworkingDisplay) {
+			mySocialNetworkingDisplay = new MySocialNetworkingDisplay("mySocialNetworking", userProfile);
+			mySocialNetworkingDisplay.setOutputMarkupId(true);
+		} else {
+			mySocialNetworkingDisplay = new EmptyPanel("mySocialNetworking");
+		}
 		add(mySocialNetworkingDisplay);
 		
 		//interests panel - load the display version by default
-		Panel myInterestsDisplay = new MyInterestsDisplay("myInterests", userProfile);
-		myInterestsDisplay.setOutputMarkupId(true);
+		Panel myInterestsDisplay;
+		if (panelState.showInterestsDisplay) {
+			myInterestsDisplay = new MyInterestsDisplay("myInterests", userProfile);
+			myInterestsDisplay.setOutputMarkupId(true);
+		} else {
+			myInterestsDisplay = new EmptyPanel("myInterests");
+		}
 		add(myInterestsDisplay);
 	}
 
