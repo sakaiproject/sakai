@@ -98,9 +98,9 @@ public interface AuthzGroupService extends EntityProducer
 	 *        AuthzGroup selection criteria (list of AuthzGroup ids)
 	 * @param userid
 	 *        Return only groups with userid as a member
-	 * @return The List (String) that contain the specified userid
+	 * @return The List (AuthzGroup) that contain the specified userid
 	 */
-	List<String> getAuthzUserGroupIds(ArrayList<String> authzGroupIds, String userid);
+	List<AuthzGroup> getAuthzUserGroupIds(ArrayList<String> authzGroupIds, String userid);
 
 	/**
 	 * Count the AuthzGroups that meet specified criteria.
