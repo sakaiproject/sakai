@@ -279,7 +279,7 @@ function submitRemoveSection(index){
 		#else
 			<div class="shorttext">
 				<label for="iconUrl">$tlang.getString("sitediinf.ico")</label>
-				<input type="text" name="iconUrl" id="iconUrl" size="40" value="$!validator.escapeHtml($!iconUrl)" />
+				<input type="text" name="iconUrl" id="iconUrl" size="40" maxlength="255" value="$!validator.escapeHtml($!iconUrl)" />
 			</div>
 		#end
 		<p class="shorttext required">
@@ -287,13 +287,13 @@ function submitRemoveSection(index){
                 <span class="reqStar">*</span>
 				$tlang.getString("sitediinf.sitconnam")
 			</label>
-			<input type="text" name="siteContactName" id="siteContactName" size="20" value="$!validator.escapeHtml($!form_site_contact_name)" />
+			<input type="text" name="siteContactName" id="siteContactName" size="20" maxlength="99" value="$!validator.escapeHtml($!form_site_contact_name)" />
 		</p>				
 		<p class="shorttext">
 			<label for="siteContactEmail">
 				$tlang.getString("sitediinf.sitconema")
 			</label>	
-			<input type="text" name="siteContactEmail" id="siteContactEmail" size="20" value="$!form_site_contact_email" />
+			<input type="text" name="siteContactEmail" id="siteContactEmail" size="20" maxlength="99" value="$!form_site_contact_email" />
 		</p>
 		<input type="hidden" name="back" value="$!backIndex" />
 		<input type="hidden" name="templateIndex" value="$!templateIndex" />
