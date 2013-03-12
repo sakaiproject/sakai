@@ -39,6 +39,7 @@ import org.sakaiproject.authz.api.SecurityAdvisor;
 import org.sakaiproject.authz.api.SecurityService;
 import org.sakaiproject.authz.api.SecurityAdvisor.SecurityAdvice;
 import org.sakaiproject.authz.cover.AuthzGroupService;
+import org.sakaiproject.component.cover.ServerConfigurationService;
 import org.sakaiproject.content.api.ContentHostingService;
 import org.sakaiproject.content.api.ContentResource;
 import org.sakaiproject.content.api.ContentEntity;
@@ -47,6 +48,7 @@ import org.sakaiproject.entity.api.EntityAccessOverloadException;
 import org.sakaiproject.entity.api.EntityCopyrightException;
 import org.sakaiproject.entity.api.EntityNotDefinedException;
 import org.sakaiproject.entity.api.EntityPermissionException;
+import org.sakaiproject.entity.api.EntityPropertyNotDefinedException;
 import org.sakaiproject.entity.api.HttpAccess;
 import org.sakaiproject.entity.api.Reference;
 import org.sakaiproject.entity.api.ResourceProperties;
@@ -65,6 +67,7 @@ import org.sakaiproject.memory.api.MemoryService;
 import org.sakaiproject.site.api.SiteService;
 import org.sakaiproject.tool.api.SessionManager;
 import org.sakaiproject.tool.api.ToolManager;
+import org.sakaiproject.tool.api.Placement;
 import org.sakaiproject.util.Validator;
 import org.sakaiproject.util.Web;
 
@@ -167,6 +170,8 @@ public class LessonBuilderAccessService {
 
 	protected static final long MAX_URL_LENGTH = 8192;
 	protected static final int STREAM_BUFFER_SIZE = 102400;
+	public static final String INLINEHTML = "lessonbuilder.inlinehtml";
+	private boolean inlineHtml = ServerConfigurationService.getBoolean(INLINEHTML, true);
 
 	// cache for availability check. Is the item available?
 	// we cache only positive answers, because they can easily change
@@ -457,11 +462,43 @@ public class LessonBuilderAccessService {
 							
 							String disposition = null;
 							
-							// 	checks whether type can reasonably be done inline.
-							// 	but we bypass
-							// 	the usual check whether HTML is allowed to be done
-							// 	inline
+							boolean inline = false;
 							if (Validator.letBrowserInline(contentType)) {
+							    // type can be inline, but if HTML we have more checks to do
+							    if (inlineHtml || 
+								(! "text/html".equalsIgnoreCase(contentType) && ! "application/xhtml+xml".equals(contentType)))
+								// easy cases: not HTML or HTML always OK
+								inline = true;
+							    else {
+								// HTML and html is not allowed globally. code copied from BaseContentServices
+								ResourceProperties rp = resource.getProperties();
+								
+								boolean fileInline = false;
+								boolean folderInline = false;
+
+								try {
+								    fileInline = rp.getBooleanProperty(ResourceProperties.PROP_ALLOW_INLINE);
+								}
+								catch (EntityPropertyNotDefinedException e) {
+								    // we expect this so nothing to do!
+								}
+
+								if (!fileInline) 
+								    try
+									{
+									    folderInline = resource.getContainingCollection().getProperties().getBooleanProperty(ResourceProperties.PROP_ALLOW_INLINE);
+									}
+								    catch (EntityPropertyNotDefinedException e) {
+									// we expect this so nothing to do!
+								    }		
+						
+								if (fileInline || folderInline) {
+								    inline = true;
+								}
+							    }
+							}								
+
+							if (inline) {
 								disposition = "inline; filename=\"" + fileName + "\"";
 							} else {
 								disposition = "attachment; filename=\"" + fileName + "\"";

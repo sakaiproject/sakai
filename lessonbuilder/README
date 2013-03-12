@@ -19,6 +19,53 @@ that this shouldn't conflict with the original tool.)
 It has only been tested on mysql, though I would expect it to work
 with the other databases.
 
+SECURITY WARNING
+
+In order to prevent "cross-site scripting" attacks, Sakai takes two
+precautions that would interfere with Lessons:
+
+* When you prepare content using an HTML editor, most of Sakai will
+  remove Javascript and other "dangerous" types of content
+* When you upload an HTML file to resources, and a user clicks on 
+  its link, the Resource tool will download the HTML file rather
+  than displaying it.
+
+Lessons does not normally do these things. 
+
+* If you add text using the "add text" button, we will display the
+  HTML without modification. Note that student-owned content is
+  an exception. We will use the normal Sakai filter that removes
+  Javascript, etc.
+* When you upload HTML files through Lessons, we will show them as
+  HTML in your browser.
+
+If you want the normal Sakai precautions to apply within Lessons,
+add the following properties in sakai.properties:
+
+lessonbuilder.filterhtml=true
+lessonbuilder.inlinehtml=false
+
+If you do this, you can still enable specific sites to use 
+Javascript and display HTML:
+
+* To allow an instance of Lessons to show "add text" blocks without
+  removing Javascript, add the property
+    filterHtml
+  to the instance of Lessons
+
+As an administrator, use the Sites tool to find the site.
+Use the "pages" button to show the pages in the site. That
+will show a list of pages. Click on the pageid for the specific
+instance of Lessons. Click "Properties". Add the property "filterHtml"
+with value "false".
+
+* To allow specific HTML files to be displayed rather than downloaded,
+  as an administrator, go to Resources. Find the site's resources.
+  Do "edit details" for the specific HTML file or for the folder in
+  which it is located. Click the box that says "Allow HTML file"
+  and save.
+
+
 BUILDING
 
 To build, the normal Sakai maven commands will work. However you'll

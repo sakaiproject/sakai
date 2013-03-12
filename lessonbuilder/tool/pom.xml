@@ -25,7 +25,7 @@
             <id>local-hack</id>
             <name>Backup API copies</name>
             <layout>default</layout>
-	    <url>http://sakai.rutgers.edu/stats/repos</url>
+	    <url>https://sakai.rutgers.edu/stats/repos</url>
             <snapshots>
                 <enabled>true</enabled>
             </snapshots>
