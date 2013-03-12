@@ -323,7 +323,7 @@ public abstract class BaseAuthzGroupService implements AuthzGroupService
 	/**
 	 * {@inheritDoc}
 	 */
-	public List getAuthzUserGroupIds(ArrayList authzGroupIds, String userid)
+	public List<String> getAuthzUserGroupIds(ArrayList authzGroupIds, String userid)
 	{
 		return m_storage.getAuthzUserGroupIds(authzGroupIds, userid);
 	}
