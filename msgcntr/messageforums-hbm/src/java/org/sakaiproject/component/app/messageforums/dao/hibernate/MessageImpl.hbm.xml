@@ -220,7 +220,6 @@
       join fetch message.topic join fetch message.topic.openForum
     where message.id = us.messageId and message.topic.openForum.area.contextId = :contextId and 
       us.userId = :userId and us.read = true and message.draft = false and message.deleted = false
-    order by message.created desc
   ]]></query>
   
   <query name="findReadMessagesForStudentByTopicId"><![CDATA[
@@ -231,7 +230,6 @@
     where message.id = us.messageId and message.topic.openForum.area.contextId = :contextId and 
       us.userId = :userId and us.read = true and message.draft = false and message.deleted = false
       and message.topic.id = :topicId
-    order by message.created desc
   ]]></query>
   
   <query name="findReadMessagesForStudentByForumId"><![CDATA[
@@ -242,7 +240,6 @@
     where message.id = us.messageId and message.topic.openForum.area.contextId = :contextId and 
       us.userId = :userId and us.read = true and message.draft = false and message.deleted = false
       and message.topic.openForum.id = :forumId
-    order by message.created desc
   ]]></query>
   
   <query name="findReadMessageCountForAllStudents"><![CDATA[
