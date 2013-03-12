@@ -24,7 +24,7 @@
   </parent>
   <artifactId>sakai-scorm-base</artifactId>
   <name>Sakai Scorm Project</name>
-  <version>3.0.4-SNAPSHOT</version>
+  <version>3.0.5-SNAPSHOT</version>
   <scm>
     <connection>scm:svn:https://source.sakaiproject.org/contrib/scorm/SCORM.2004.3ED.RTE/trunk/
 		</connection>
