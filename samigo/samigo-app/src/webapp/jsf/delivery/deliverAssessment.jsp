@@ -111,7 +111,10 @@
 
       </script>
       
-      <div id="timer-warning" style="display:none;">
+      <div id="timer-warning" style="display:none" title="&nbsp;<span class='skip'> 
+      	<h:outputText value="#{deliveryMessages.warning_2} " />
+      	<h:outputText value="#{deliveryMessages.five_minutes_left1} " />
+      	<h:outputText value="#{deliveryMessages.five_minutes_left2}" /></span>">
       	<h3><h:outputText value="#{deliveryMessages.five_minutes_left1}" /></h3>
       	<p><h:outputText value="#{deliveryMessages.five_minutes_left2}" /></p>
       </div>
