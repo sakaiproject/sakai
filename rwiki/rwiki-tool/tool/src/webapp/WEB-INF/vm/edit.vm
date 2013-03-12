@@ -14,7 +14,6 @@
 		    ##            uhl  upl  uvl  vln    uel   uil  uhl  uwl  wn
 		  	 #commandlinks(false false false ${rlb.jsp_view} false  false false false false	${homeBean} ${viewBean} ${rlb} ) 
 		</ul>	 
-		<input type="hidden" name="sakai_csrf_token" value="$sakai_csrf_token" />
 	  </form>
 	<h3 class="breadcrumb specialLink">
 		<ul class="wikiCrumb">
@@ -256,7 +255,6 @@
 					    </div>
 			 	  </div> <!-- endof autosave tab -->	
 	  </div>
-		<input type="hidden" name="sakai_csrf_token" value="$sakai_csrf_token" />
 	  </form>
 	#sidebar()
 	</div>

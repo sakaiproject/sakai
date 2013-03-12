@@ -38,7 +38,6 @@
 	      <input type="text" id="searchField" name="search" />
 	    </li>
 		</ul>
-	 	<input type="hidden" name="sakai_csrf_token" value="$sakai_csrf_token" />
 	  </form>
 
 	
@@ -112,7 +111,6 @@
 	     <input type="hidden" name="action" value="updatePreferences" />
 	     <input type="hidden" name="pageName" value="${util.escapeHtml($viewBean.pageName)}"/>
 		 </p>
-		 <input type="hidden" name="sakai_csrf_token" value="$sakai_csrf_token" />
 	    </form>
 	 #sidebar()
 	 

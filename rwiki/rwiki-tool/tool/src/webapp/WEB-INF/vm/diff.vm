@@ -21,7 +21,6 @@
 	      <input type="hidden" name="panel" value="Main" />
 	      <input type="text" name="search" />
 	    </span>
-		<input type="hidden" name="sakai_csrf_token" value="$sakai_csrf_token" />
 	  </form>
 	</div>
 	
