@@ -462,7 +462,8 @@ public abstract class ClusterEventTracking extends BaseEventTrackingService impl
 		}
 
 		fields[0] = ((BaseEvent) event).m_time;
-		fields[1] = event.getEvent();
+		fields[1] = event.getEvent() != null && event.getEvent().length() > 32 ?
+				event.getEvent().substring(0, 32) : event.getEvent();
 		fields[2] = event.getResource() != null && event.getResource().length() > 255 ? 
 				event.getResource().substring(0, 255) : event.getResource();
 		fields[3] = reportId;
