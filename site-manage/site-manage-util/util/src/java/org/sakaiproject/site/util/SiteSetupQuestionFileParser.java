@@ -552,7 +552,11 @@ public class SiteSetupQuestionFileParser
 	  {
 	    try
 	    {
-	      DocumentBuilder documentBuilder = getXmlDocumentBuilder();
+	      DocumentBuilderFactory builderFactory = DocumentBuilderFactory.newInstance();
+	      builderFactory.setFeature(javax.xml.XMLConstants.FEATURE_SECURE_PROCESSING, true);
+	      builderFactory.setFeature("http://xml.org/sax/features/external-general-entities", false);
+	      builderFactory.setFeature("http://xml.org/sax/features/external-parameter-entities", false);
+	      DocumentBuilder documentBuilder = builderFactory.newDocumentBuilder();
 
 	      if (documentBuilder != null)
 	      {
