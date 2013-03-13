@@ -344,8 +344,8 @@ public class LTIAdminTool extends VelocityPortletPaneledAction
 		Long key = new Long(id);
 		Map<String,Object> tool = ltiService.getTool(key);
 		if (  tool == null ) return "lti_main";	
-		tool.put(LTIService.LTI_SECRET,"***************");	
-		tool.put(LTIService.LTI_CONSUMERKEY,"***************");
+		tool.put(LTIService.LTI_SECRET,SECRET_HIDDEN);
+		tool.put(LTIService.LTI_CONSUMERKEY,SECRET_HIDDEN);
 		String formOutput = ltiService.formOutput(tool, mappingForm);
 		context.put("formOutput", formOutput);
 		state.removeAttribute(STATE_SUCCESS);
@@ -515,7 +515,13 @@ public class LTIAdminTool extends VelocityPortletPaneledAction
 		String id = data.getParameters().getString(LTIService.LTI_ID);
 		Object retval = null;
 		String success = null;
+
 		String newSecret = reqProps.getProperty(LTIService.LTI_SECRET);
+		if ( SECRET_HIDDEN.equals(newSecret) ) {
+			reqProps.remove(LTIService.LTI_SECRET);
+			newSecret = null;
+		}
+
 		if ( newSecret != null ) {
 			newSecret = SakaiBLTIUtil.encryptSecret(newSecret.trim());
 			reqProps.setProperty(LTIService.LTI_SECRET, newSecret);
@@ -526,7 +532,6 @@ public class LTIAdminTool extends VelocityPortletPaneledAction
 			retval = ltiService.insertTool(reqProps);
 			success = rb.getString("success.created");
 		} else {
-			if ( SECRET_HIDDEN.equals(newSecret) ) reqProps.remove(LTIService.LTI_SECRET);
 			Long key = new Long(id);
 			retval = ltiService.updateTool(key, reqProps);
 			success = rb.getString("success.updated");
