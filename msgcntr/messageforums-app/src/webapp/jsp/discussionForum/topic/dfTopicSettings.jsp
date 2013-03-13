@@ -10,7 +10,7 @@
 <f:view>
 	<sakai:view toolCssHref="/messageforums-tool/css/msgcntr.css">
       <h:form id="revise">
-             		<script type="text/javascript" src="/library/js/jquery.js"></script>
+        <script type="text/javascript" src="/library/js/jquery-ui-latest/js/jquery.min.js"></script>
 		<script type="text/javascript">
 			$(document).ready(function(){
 				//fade permission block and then disable all the inputs/selects in the permission include so as not to confuse people
@@ -200,23 +200,24 @@
           </h:commandButton>
           <h:commandButton action="#{ForumTool.processActionDeleteTopicConfirm}" id="delete_confirm" 
                            value="#{msgs.cdfm_button_bar_delete_topic}" rendered="#{!ForumTool.selectedTopic.markForDeletion && !ForumTool.selectedTopic.markForDuplication}"
-                           >
+                           styleClass="blockMe">
 	        	<f:param value="#{ForumTool.selectedTopic.topic.id}" name="topicId"/>
           </h:commandButton>
           <h:commandButton action="#{ForumTool.processActionDeleteTopic}" id="delete" 
                            value="#{msgs.cdfm_button_bar_delete_topic}" rendered="#{ForumTool.selectedTopic.markForDeletion}"
-                           >
+                           styleClass="blockMe">
 	        	<f:param value="#{ForumTool.selectedTopic.topic.id}" name="topicId"/>
           </h:commandButton>
           
           <h:commandButton id="duplicate" action="#{ForumTool.processActionDuplicateTopic}" 
                            value="#{msgs.cdfm_duplicate_topic}" rendered="#{ForumTool.selectedTopic.markForDuplication}"
-                           accesskey="">
+                           accesskey="s" styleClass="blockMe">
 	        	<f:param value="#{ForumTool.selectedTopic.topic.id}" name="topicId"/>
           </h:commandButton>
           
           <h:commandButton immediate="true" action="#{ForumTool.processReturnToOriginatingPage}" id="cancel" 
                            value="#{msgs.cdfm_button_bar_cancel} " accesskey="x" />
+         <h:outputText styleClass="messageProgress" style="display:none" value="#{msgs.cdfm_processing_submit_message}" />
        </div>
 	 </h:form>
     </sakai:view>

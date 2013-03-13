@@ -620,3 +620,62 @@ $(document).ready(function() {
 		$(this).attr('href', 'javascript:;');
 	});
 });	
+
+
+$(document).ready(function(){
+    $('.blockMe').click(function(e){
+        var buttonContainer = $(this).parents('.act');
+        var pos = $(this).position();
+        var blockerWidth = $(this).width();
+        var blockerHeight = $(this).height();
+
+        $(this).blur();
+        $(buttonContainer).find('#buttonBlocker').remove();
+        $(buttonContainer).find('input').css({
+            'opacity': '1',
+            'filter': 'alpha(opacity = 100)'
+        });
+        $(this).css({
+            'opacity': '.5',
+            'filter': 'alpha(opacity = 50)',
+            'zoom':'1'
+        });
+        $(buttonContainer).append('<div id=\"buttonBlocker\"></div>');
+        $('#buttonBlocker').css({
+            'width': blockerWidth,
+            'height': blockerHeight,
+            'top': pos.top,
+            'left': pos.left,
+            'display': 'block'
+        });
+        $(buttonContainer).find('.messageProgress').fadeIn('slow')
+    });
+
+    
+    $('.blockAll').click(function(e){
+        $(this).blur();
+        var buttonContainer = $(this).parents('.act');
+        $(buttonContainer).find('.blockAll').each(function(i){
+            var pos = $(this).position();
+            var blockerWidth = $(this).width();
+            var blockerHeight = $(this).height();
+            $(this).css({
+                'opacity': '.5',
+                'filter': 'alpha(opacity = 50)',
+                'zoom': '1'
+            });
+            $(this).after('<div class=\"buttonBlocker buttonBlocker' + i +'\"></div>');
+            $(this).next('.buttonBlocker' + i).css({
+                'width': blockerWidth,
+                'height': blockerHeight,
+                'top': pos.top,
+                'left': pos.left,
+                'display': 'block',
+            });
+        });
+        $(buttonContainer).find('.messageProgress').fadeIn('slow')
+    });
+
+
+
+});

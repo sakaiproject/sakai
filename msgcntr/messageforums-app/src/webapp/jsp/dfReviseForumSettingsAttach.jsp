@@ -265,33 +265,34 @@
 			<%@ include file="/jsp/discussionForum/permissions/permissions_include.jsp"%>
 
 				
-
+        
       <div class="act">
           <h:commandButton action="#{ForumTool.processActionSaveForumSettings}" value="#{msgs.cdfm_button_bar_save_setting}"
-          								 rendered="#{!ForumTool.selectedForum.markForDeletion}" accesskey="s"> 
+          								 rendered="#{!ForumTool.selectedForum.markForDeletion}" accesskey="s" styleClass="blockMe"> 
     	 	  	<f:param value="#{ForumTool.selectedForum.forum.id}" name="forumId"/>         
           </h:commandButton>
 				<h:commandButton action="#{ForumTool.processActionSaveForumAndAddTopic}" value="#{msgs.cdfm_button_bar_save_setting_add_topic}" accesskey="t"
-          								 rendered = "#{!ForumTool.selectedForum.markForDeletion}">
+          								 rendered = "#{!ForumTool.selectedForum.markForDeletion}" styleClass="blockMe">
 	        	<f:param value="#{ForumTool.selectedForum.forum.id}" name="forumId"/>
           </h:commandButton>  
 				<h:commandButton action="#{ForumTool.processActionSaveForumAsDraft}" value="#{msgs.cdfm_button_bar_save_draft}" accesskey="v"
-          								 rendered = "#{!ForumTool.selectedForum.markForDeletion}">
+          								 rendered = "#{!ForumTool.selectedForum.markForDeletion}" styleClass="blockMe">
 	        	<f:param value="#{ForumTool.selectedForum.forum.id}" name="forumId"/>
           </h:commandButton>
 				<%-- // designNote: these next 2 actions  should be available in the list view instead of here --%>
           <h:commandButton id="delete_confirm" action="#{ForumTool.processActionDeleteForumConfirm}" 
                            value="#{msgs.cdfm_button_bar_delete_forum}" rendered="#{!ForumTool.selectedForum.markForDeletion && ForumTool.displayForumDeleteOption}"
-                           accesskey="d">
+                           accesskey="d" styleClass="blockMe">
 	        	<f:param value="#{ForumTool.selectedForum.forum.id}" name="forumId"/>
           </h:commandButton>
           
           <h:commandButton id="delete" action="#{ForumTool.processActionDeleteForum}" 
                            value="#{msgs.cdfm_button_bar_delete_forum}" rendered="#{ForumTool.selectedForum.markForDeletion}"
-                           accesskey="d">
+                           accesskey="d"  styleClass="blockMe">
 	        	<f:param value="#{ForumTool.selectedForum.forum.id}" name="forumId"/>
           </h:commandButton>
           <h:commandButton  action="#{ForumTool.processActionHome}" value="#{msgs.cdfm_button_bar_cancel}" accesskey="x" />
+          <h:outputText styleClass="messageProgress" style="display:none" value="#{msgs.cdfm_processing_submit_message}" />
        </div>
 	 </h:form>
     </sakai:view>

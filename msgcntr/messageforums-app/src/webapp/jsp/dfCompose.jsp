@@ -10,7 +10,7 @@
 	<sakai:view title="#{msgs.cdfm_container_title}" toolCssHref="/messageforums-tool/css/msgcntr.css">
   <!--jsp/dfCompose.jsp-->
     <h:form id="dfCompose">
-           		<script type="text/javascript" src="/library/js/jquery.js"></script>
+           		<script type="text/javascript" src="/library/js/jquery-ui-latest/js/jquery.min.js"></script>
        		<sakai:script contextBase="/messageforums-tool" path="/js/sak-10625.js"/>
        		<sakai:script contextBase="/messageforums-tool" path="/js/forum.js"/>
 			<script type="text/javascript">
@@ -164,9 +164,10 @@
 --%>		        
 			<h:outputText value="#{msgs.cdfm_reply_message_note}" styleClass="highlight" rendered="#{ForumTool.selectedTopic.moderated == 'true' }" /><h:outputText value="#{msgs.cdfm_reply_message_mod_inst}" styleClass="instruction" rendered="#{ForumTool.selectedTopic.moderated == 'true' }" />
 			<p style="padding:0" class="act">
-				<h:commandButton id="post" action="#{ForumTool.processDfMsgPost}" value="#{msgs.cdfm_button_bar_post_message}" accesskey="s" styleClass="active" onclick="disable()"/>
+				<h:commandButton id="post" action="#{ForumTool.processDfMsgPost}" value="#{msgs.cdfm_button_bar_post_message}" accesskey="s" styleClass="active blockMe"/>
 				<%--  <sakai:button_bar_item action="#{ForumTool.processDfMsgSaveDraft}" value="#{msgs.cdfm_button_bar_save_draft}" /> --%>
 				<h:commandButton action="#{ForumTool.processDfMsgCancel}" value="#{msgs.cdfm_button_bar_cancel}" immediate="true" accesskey="x" />
+                <h:outputText styleClass="messageProgress" style="display:none" value="#{msgs.cdfm_processing_submit_message}" />
 			</p>
 			<%--
       <sakai:button_bar>

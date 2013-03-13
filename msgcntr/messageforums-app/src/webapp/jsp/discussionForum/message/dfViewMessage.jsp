@@ -280,8 +280,9 @@
 			<h:inputHidden value="#{ForumTool.fromPage}" />
 		
 			<sakai:button_bar rendered="#{ForumTool.deleteMsg}" > 
-				<sakai:button_bar_item action="#{ForumTool.processDfMsgDeleteConfirmYes}" value="#{msgs.cdfm_button_bar_delete}" accesskey="x" />
+				<sakai:button_bar_item action="#{ForumTool.processDfMsgDeleteConfirmYes}" value="#{msgs.cdfm_button_bar_delete}" accesskey="x" styleClass ="blockMe"/>
 				<sakai:button_bar_item action="#{ForumTool.processDfMsgDeleteCancel}" value="#{msgs.cdfm_button_bar_cancel}" accesskey="c" />
+                <h:outputText styleClass="messageProgress" style="display:none" value="#{msgs.cdfm_processing_submit_message}" />
 			</sakai:button_bar>
 
 		</h:form>

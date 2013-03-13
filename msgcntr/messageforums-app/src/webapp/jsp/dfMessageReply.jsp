@@ -10,7 +10,7 @@
 	<sakai:view title="#{msgs.cdfm_reply_tool_bar_message}" toolCssHref="/messageforums-tool/css/msgcntr.css">
 	<!--jsp/dfMessageReplyThread.jsp-->    
 		<h:form id="dfCompose" styleClass="specialLink">
-             		<script type="text/javascript" src="/library/js/jquery.js"></script>
+             		<script type="text/javascript" src="/library/js/jquery-ui-latest/js/jquery.min.js"></script>
 			<script type="text/javascript">
 				$(document).ready(function() {
 					$('#openLinkBlock').hide();
@@ -224,9 +224,10 @@
 
 						<h:outputText value="#{msgs.cdfm_reply_message_note} " styleClass="highlight" rendered="#{ForumTool.selectedTopic.moderated == 'true' }" /><h:outputText value="#{msgs.cdfm_reply_message_mod_inst}" styleClass="instruction" rendered="#{ForumTool.selectedTopic.moderated == 'true' }" />	  
 			<p style="padding:0" class="act">
-        <sakai:button_bar_item id="post" action="#{ForumTool.processDfReplyMsgPost}" value="#{msgs.cdfm_button_bar_post_message}" accesskey="s" styleClass="active" onclick="disable()"/>
+        <sakai:button_bar_item id="post" action="#{ForumTool.processDfReplyMsgPost}" value="#{msgs.cdfm_button_bar_post_message}" accesskey="s" styleClass="blockMe"/>
     <%--    <sakai:button_bar_item action="#{ForumTool.processDfReplyMsgSaveDraft}" value="#{msgs.cdfm_button_bar_save_draft}" /> --%>
 		<sakai:button_bar_item action="#{ForumTool.processDfReplyThreadCancel}" value="#{msgs.cdfm_button_bar_cancel}" accesskey="x" />
+        <h:outputText styleClass="messageProgress" style="display:none" value="#{msgs.cdfm_processing_submit_message}" />
 			</p>
 
 <script type="text/javascript">
