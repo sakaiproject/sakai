@@ -7683,6 +7683,8 @@ SiteContentAdvisorProvider, SiteContentAdvisorTypeRegistry, EntityTransferrerRef
 								p.clear();
 								p.addAll(oProperties);
 								edit.setAvailability(((ContentCollection) oResource).isHidden(), ((ContentCollection) oResource).getReleaseDate(), ((ContentCollection) oResource).getRetractDate());
+								// SAK-23305
+								hideImportedContent(edit);
 								// complete the edit
 								m_storage.commitCollection(edit);
 								((BaseCollectionEdit) edit).closeEdit();
@@ -7719,6 +7721,8 @@ SiteContentAdvisorProvider, SiteContentAdvisorTypeRegistry, EntityTransferrerRef
 								ResourcePropertiesEdit p = edit.getPropertiesEdit();
 								p.clear();
 								p.addAll(oProperties);
+								// SAK-23305
+								hideImportedContent(edit);
 								// complete the edit
 								m_storage.commitResource(edit);
 								((BaseResourceEdit) edit).closeEdit();
@@ -7758,6 +7762,50 @@ SiteContentAdvisorProvider, SiteContentAdvisorTypeRegistry, EntityTransferrerRef
 		transversalMap.put("/fromContext", fromContext);
 		return transversalMap;
 	} // importResources
+
+	/**
+	 * Hide imported content -- SAK-23305
+	 * @param edit Object either a ContentResourceEdit or ContentCollectionEdit object
+	 */
+	private void hideImportedContent(Object edit)
+	{
+		if (m_serverConfigurationService.getBoolean("content.import.hidden", false))
+		{
+			ContentResourceEdit resource = null;
+			ContentCollectionEdit collection = null;
+			String containingCollectionId = null;
+			if (edit instanceof ContentResourceEdit) 
+			{
+				resource = (ContentResourceEdit) edit;
+				containingCollectionId = resource.getContainingCollection().getId();
+			}
+			else if (edit instanceof ContentCollectionEdit)
+			{
+				collection = (ContentCollectionEdit) edit;
+				containingCollectionId = collection.getContainingCollection().getId();
+			}
+			if (resource != null || collection != null)
+			{
+				/*
+				 * If this is "reuse content" during worksite setup, the site collection at this time is
+				 * /group/!admin/ for all content including ones in the folders, so count how many "/" in
+				 * the collection ID. If <= 3, then it's a top-level item and needs to be hidden.
+				 */
+				int slashcount = StringUtils.countMatches(containingCollectionId, "/");
+				if (slashcount <= 3)
+				{
+					if (resource != null)
+					{
+						resource.setHidden();
+					}
+					else if (collection != null)
+					{
+						collection.setHidden();
+					}
+				}
+			}
+		}
+	}
 
 	/**
 	 * {@inheritDoc}
