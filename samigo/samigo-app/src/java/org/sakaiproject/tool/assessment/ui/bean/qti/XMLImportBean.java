@@ -29,9 +29,12 @@ import java.text.MessageFormat;
 import java.util.ArrayList;
 import java.util.Iterator;
 
-import javax.faces.application.FacesMessage;
-import javax.faces.context.FacesContext;
 import javax.faces.event.ValueChangeEvent;
+import javax.faces.application.FacesMessage;
+import javax.faces.context.ExternalContext;
+import javax.faces.context.FacesContext;
+import javax.servlet.ServletContext;
+import javax.servlet.http.HttpServletRequest;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
@@ -105,7 +108,9 @@ public class XMLImportBean implements Serializable
 	  String uploadFile = (String) e.getNewValue();
 
 	  if (uploadFile!= null && uploadFile.startsWith("SizeTooBig:")) {
-		  String paramValue = ServerConfigurationService.getString("samigo.sizeMax");
+		  FacesContext context = FacesContext.getCurrentInstance();
+		  ExternalContext external = context.getExternalContext();
+		  String paramValue = ((Long)((ServletContext)external.getContext()).getAttribute("FILEUPLOAD_SIZE_MAX")).toString();
 		  Long sizeMax = null;
 		  float sizeMax_float = 0f;
 		  if (paramValue != null) {
