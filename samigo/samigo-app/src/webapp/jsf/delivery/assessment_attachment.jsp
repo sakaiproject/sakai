@@ -21,9 +21,12 @@
 --%>
 -->
 <!-- 2a ATTACHMENTS -->
+
  <h:panelGroup rendered="#{delivery.hasAttachment}">
  	<f:verbatim><p></p></f:verbatim>
  </h:panelGroup>
+ <h:outputLabel value="#{deliveryMessages.attachments}" rendered="#{delivery.hasAttachment}"/>
+  <f:verbatim><br/></f:verbatim>
 
   <h:panelGroup rendered="#{delivery.hasAttachment}">
     <h:dataTable value="#{delivery.attachmentList}" var="attach" border="0">
@@ -58,6 +61,10 @@
     </h:column>
     </h:dataTable>
   </h:panelGroup>
+  
+   <h:panelGroup rendered="#{delivery.hasAttachment}">
+ 	<f:verbatim><br /></f:verbatim>
+   </h:panelGroup>
 
-  <f:verbatim><br/></f:verbatim>
+
 

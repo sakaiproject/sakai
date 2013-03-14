@@ -65,62 +65,63 @@
 <div class="tier1">
  <h4> <h:outputText value="\"#{delivery.assessmentTitle}\" #{deliveryMessages.for} #{delivery.courseName} " escape="false"/></h4>
 <div class="tier2">
+</div>
+
 <h:messages styleClass="messageSamigo" rendered="#{! empty facesContext.maximumSeverity}" layout="table"/>
  
 <!-- ASSESSMENT INTRODUCTION-->
-<div class="assessmentIntroduction"><h:outputText value="#{delivery.instructorMessage}" escape="false"/></div>
-   
+<h:outputText value="<br/>#{delivery.instructorMessage}<br/>" escape="false" rendered="#{delivery.instructorMessage != null && delivery.instructorMessage != ''}"/>
+
   <!-- ASSESSMENT ATTACHMENTS -->
   <%@ include file="/jsf/delivery/assessment_attachment.jsp" %>
 
+<div class="tier2">
 <h:panelGrid columns="1" border="0">
 	<h:outputText value="#{deliveryMessages.begin_assessment_msg_due} <b>#{delivery.dayDueDateString}</b>." rendered="#{delivery.dueDate!=null && delivery.dueDate ne ''}" escape="false"/>
     <h:outputText value="#{deliveryMessages.begin_assessment_msg_no_due}" rendered="#{delivery.dueDate==null || delivery.dueDate eq ''}" escape="false"/>
     
     <h:outputText value=" "/>
     <h:outputText value=" "/>
-    
+
     <h:panelGroup rendered="#{delivery.hasTimeLimit}">
 	    <h:outputText value="#{deliveryMessages.begin_assessment_msg_timed_1}" escape="false"/>
-    	<h:outputText value="<b>#{delivery.timeLimit_hour} #{deliveryMessages.time_limit_hour} #{delivery.timeLimit_minute} #{deliveryMessages.time_limit_minute}</b> " escape="false"/>
+    	<h:outputText value="<b>#{delivery.timeLimit_minute} #{deliveryMessages.time_limit_minute}</b> " rendered="#{delivery.timeLimit_hour == 0 && delivery.timeLimit_minute == 1}" escape="false"/>
+    	<h:outputText value="<b>#{delivery.timeLimit_minute} #{deliveryMessages.time_limit_minutes}</b> " rendered="#{delivery.timeLimit_hour == 0 && delivery.timeLimit_minute > 1}" escape="false"/>
+    	<h:outputText value="<b>#{delivery.timeLimit_hour} #{deliveryMessages.time_limit_hour}</b> " rendered="#{delivery.timeLimit_hour == 1 && delivery.timeLimit_minute == 0}" escape="false"/>
+    	<h:outputText value="<b>#{delivery.timeLimit_hour} #{deliveryMessages.time_limit_hour} #{delivery.timeLimit_minute} #{deliveryMessages.time_limit_minute}</b> " rendered="#{delivery.timeLimit_hour == 1 && delivery.timeLimit_minute == 1}" escape="false"/>
+    	<h:outputText value="<b>#{delivery.timeLimit_hour} #{deliveryMessages.time_limit_hour} #{delivery.timeLimit_minute} #{deliveryMessages.time_limit_minutes}</b> " rendered="#{delivery.timeLimit_hour == 1 && delivery.timeLimit_minute > 1}" escape="false"/>
+    	<h:outputText value="<b>#{delivery.timeLimit_hour} #{deliveryMessages.time_limit_hours} " rendered="#{delivery.timeLimit_hour > 1 && delivery.timeLimit_minute == 0}" escape="false"/>
+    	<h:outputText value="<b>#{delivery.timeLimit_hour} #{deliveryMessages.time_limit_hours} #{delivery.timeLimit_minute} #{deliveryMessages.time_limit_minute}</b> " rendered="#{delivery.timeLimit_hour > 1 && delivery.timeLimit_minute == 1}" escape="false"/>
+    	<h:outputText value="<b>#{delivery.timeLimit_hour} #{deliveryMessages.time_limit_hours} #{delivery.timeLimit_minute} #{deliveryMessages.time_limit_minutes}</b> " rendered="#{delivery.timeLimit_hour > 1 && delivery.timeLimit_minute > 1}" escape="false"/>
 		<h:outputText value="#{deliveryMessages.begin_assessment_msg_timed_2}" escape="false"/>
     </h:panelGroup>
     <h:outputText value="#{deliveryMessages.begin_assessment_msg_no_time_limit}" rendered="#{!delivery.hasTimeLimit}" escape="false"/>
-     
-    <h:outputText value=" "/>
-    <h:outputText value=" "/>
     
-    <h:panelGrid rendered="#{delivery.navigation == 1}">  
-	    <h:outputText value="#{deliveryMessages.begin_assessment_msg_linear}" escape="false"/>
-    	<h:outputText value=" "/>
-    	<h:outputText value=" "/>
-    </h:panelGrid>
+    <h:outputText value=" "/>
+    <h:outputText value=" "/>
+     
+	<h:outputText value="#{deliveryMessages.begin_assessment_msg_linear}" escape="false" rendered="#{delivery.navigation == 1}"/>
+    <h:outputText value=" " rendered="#{delivery.navigation == 1}"/>
+    <h:outputText value=" " rendered="#{delivery.navigation == 1}"/>
       
     <h:panelGroup>
 	    <h:outputText value="#{deliveryMessages.begin_assessment_msg_unlimited_submission} " rendered="#{delivery.settings.unlimitedAttempts && !delivery.anonymousLogin}" escape="false"/>
 		<h:outputText value="#{deliveryMessages.submission_allowed_1} #{delivery.settings.maxAttempts} #{deliveryMessages.submission_allowed_2} " rendered="#{!delivery.settings.unlimitedAttempts && delivery.totalSubmissions==0 && !delivery.anonymousLogin}" escape="false"/>
 		<h:outputText value="#{deliveryMessages.submission_allowed_1} #{delivery.submissionsRemaining} #{deliveryMessages.submission_allowed_3} " rendered="#{!delivery.settings.unlimitedAttempts && delivery.totalSubmissions!=0 && !delivery.anonymousLogin}" escape="false"/>
 		
-		<h:outputText value="#{deliveryMessages.begin_assessment_msg_highest}" rendered="#{delivery.scoringType == 1}" escape="false"/>
-		<h:outputText value="#{deliveryMessages.begin_assessment_msg_latest}" rendered="#{delivery.scoringType == 2}" escape="false"/>
-		<h:outputText value="#{deliveryMessages.begin_assessment_msg_average}" rendered="#{delivery.scoringType == 4}" escape="false"/>
+		<h:outputText value="#{deliveryMessages.begin_assessment_msg_highest}" rendered="#{delivery.scoringType == 1 && delivery.settings.maxAttempts > 1}" escape="false"/>
+		<h:outputText value="#{deliveryMessages.begin_assessment_msg_latest}" rendered="#{delivery.scoringType == 2 && delivery.settings.maxAttempts > 1}" escape="false"/>
+		<h:outputText value="#{deliveryMessages.begin_assessment_msg_average}" rendered="#{delivery.scoringType == 4 && delivery.settings.maxAttempts > 1}" escape="false"/>
     </h:panelGroup>
-    
     <h:outputText value=" "/>
     <h:outputText value=" "/>
     
-    <h:panelGroup>
-      <h:outputText value="#{deliveryMessages.begin_assessment_msg_feedback_upon_submission}" rendered="#{delivery.feedbackComponent.showOnSubmission}"/>
-      <h:outputText value="#{deliveryMessages.begin_assessment_msg_feedback_during_assessment}" rendered="#{delivery.feedbackComponent.showImmediate}"/>
-      <h:panelGroup rendered="#{delivery.feedbackComponent.showDateFeedback}">
-      	<h:outputText value="#{deliveryMessages.begin_assessment_msg_feedback_provide_on} " />
-      	<h:outputText value="#{delivery.settings.feedbackDate}">
-        	<f:convertDateTime pattern="#{generalMessages.output_date_no_sec}"/>
-      	</h:outputText>
-      	<h:outputText value="."/>
-      </h:panelGroup>
-      <h:outputText value="#{deliveryMessages.begin_assessment_msg_feedback_no}" rendered="#{delivery.feedbackComponent.showNoFeedback}"/>
-    </h:panelGroup>
+    <h:panelGroup rendered="#{delivery.recURL != null && delivery.recURL != ''}">
+ 	    <h:outputText value="#{deliveryMessages.please_read_1} " />
+		<h:outputLink value="#{delivery.recURL}" target="_blank"><h:outputText value="#{deliveryMessages.please_read_2}"/></h:outputLink >
+		<h:outputText value=" #{deliveryMessages.please_read_3}" /> 
+	</h:panelGroup>
+	
 </h:panelGrid>
 	
 <h:panelGrid columns="2" border="0">
@@ -132,7 +133,9 @@
     <h:outputLabel for="baPassword" value="#{deliveryMessages.password}" rendered="#{delivery.settings.username ne ''}" />
     <h:inputSecret id="baPassword" value="#{delivery.password}" size="20" rendered="#{delivery.settings.username ne ''}" />
 </h:panelGrid>
+
  </div></div>
+
 
 <p class="act">
 

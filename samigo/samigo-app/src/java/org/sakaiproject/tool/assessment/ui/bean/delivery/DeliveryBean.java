@@ -269,6 +269,9 @@ public class DeliveryBean
   private String secureDeliveryHTMLFragment; 
   
   private boolean isFromPrint;
+
+  private static String ACCESSBASE = ServerConfigurationService.getAccessUrl();
+  private static String RECPATH = ServerConfigurationService.getString("samigo.recommendations.path"); 
   
   private static ResourceBundle eventLogMessages = ResourceBundle.getBundle("org.sakaiproject.tool.assessment.bundle.EventLogMessages");
   
@@ -3644,5 +3647,14 @@ public class DeliveryBean
 	    this.redrawAnchorName = redrawAnchorName;
 	  }
 	 
+	  public String getRecURL()
+	  {
+  	    if (RECPATH == null || RECPATH.trim().equals("")) {
+  	    	return "";
+  	    }
+		String recURL = ACCESSBASE + RECPATH;
+	    return recURL;
+	  }
+
 }
 
