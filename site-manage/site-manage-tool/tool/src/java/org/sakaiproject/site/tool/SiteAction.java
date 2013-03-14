@@ -2790,6 +2790,7 @@ public class SiteAction extends PagedResourceActionII {
 			context.put("check_home", state
 					.getAttribute(STATE_TOOL_HOME_SELECTED));
 			context.put("importSupportedTools", importTools());
+			context.put("hideImportedContent", ServerConfigurationService.getBoolean("content.import.hidden", false));
 
 			if(ServerConfigurationService.getBoolean("site-manage.importoption.siteinfo", false)){
 				try{
