@@ -2,6 +2,7 @@
 <%@ taglib uri="http://java.sun.com/jsf/core" prefix="f" %>
 <%@ taglib uri="http://sakaiproject.org/jsf/sakai" prefix="sakai" %>
 <%@ taglib uri="http://sakaiproject.org/jsf/syllabus" prefix="syllabus" %>
+<%@ taglib uri="http://myfaces.apache.org/tomahawk" prefix="t"%>
 <% response.setContentType("text/html; charset=UTF-8"); %>
 <f:view>
 
@@ -11,7 +12,19 @@
 
 	<sakai:view_container title="#{msgs.title_list}">
 	<sakai:view_content>
+	
+	<%
+	  	String thisId = request.getParameter("panel");
+  		if (thisId == null) 
+  		{
+    		thisId = "Main" + org.sakaiproject.tool.cover.ToolManager.getCurrentPlacement().getId();
+  		}
+	%>
 
+<script type="text/javascript" src="/library/js/jquery.js"></script>
+<script type="text/javascript" src="js/jquery-ui-1.10.1.custom.min.js"></script>
+<script type="text/javascript" src="js/syllabus.js"></script>
+<sakai:stylesheet path="/syllabus/css/ui-lightness/jquery-ui-1.10.1.custom.min.css" />
 <script language="JavaScript">
 	// if redirected, just open in another window else
 	// open with size approx what actual print out will look like
@@ -23,6 +36,12 @@
 			window.open(url,"mywindow","width=960,height=1100,scrollbars=yes"); 
 		}
 	}
+	
+	$(function() {
+		setupAccordion('<%= org.sakaiproject.util.Web.escapeJavascript(thisId)%>');
+	});
+	
+	
 </script>
 
 <%-- gsilver: global things about syllabus tool:
@@ -66,12 +85,16 @@
 				
 			</syllabus:syllabus_if>
 			<syllabus:syllabus_if test="#{SyllabusTool.syllabusItem.redirectURL}">
-				<h:dataTable value="#{SyllabusTool.entries}" var="eachEntry" rendered="#{! SyllabusTool.syllabusItem.redirectURL}" style="margin-top:1em;clear:both;" summary="#{msgs.mainCaption}" >
-					<h:column>
-							<f:verbatim><h4 class="textPanelHeader"></f:verbatim>		  
-								<h:outputText value="#{eachEntry.entry.title}" />
-								<f:subview id="date" rendered="#{eachEntry.entry.startDate != null || eachEntry.entry.endDate != null}">
-									<f:verbatim><br/><span style="font-weight: normal"></f:verbatim>
+					<f:verbatim>
+						<br/>
+						<br/>
+						<div id="accordion">
+					</f:verbatim>
+					<t:dataList value="#{SyllabusTool.entries}" var="eachEntry" layout="simple">
+						<f:verbatim><h3><a href="#"></f:verbatim>		  
+							<h:outputText value="#{eachEntry.entry.title}" />
+							<f:subview id="date" rendered="#{eachEntry.entry.startDate != null || eachEntry.entry.endDate != null}">
+								<f:verbatim><br/><span style="font-weight: normal"></f:verbatim>
 									<h:outputText value="("/>
 									<h:outputText value="#{eachEntry.entry.startDate}">
 										<f:convertDateTime type="date" pattern="EEE MMM dd, yyyy hh:mm a"/>
@@ -81,11 +104,12 @@
 								  		<f:convertDateTime type="date" pattern="EEE MMM dd, yyyy hh:mm a"/>
 									</h:outputText>
 									<h:outputText value=")"/>
-									<f:verbatim></span></f:verbatim>
-								</f:subview>
-								<h:outputText rendered="#{eachEntry.status == 'draft'}" value="#{msgs.mainDraft}"/>
-							<f:verbatim></h4></f:verbatim>
-							<f:verbatim><div class="textPanel"></f:verbatim>
+								<f:verbatim></span></f:verbatim>
+							</f:subview>
+							<h:outputText rendered="#{eachEntry.status == 'draft'}" value="#{msgs.mainDraft}"/>
+						<f:verbatim></a></h3></f:verbatim>
+						<f:verbatim><div></f:verbatim>
+							<f:verbatim><div></f:verbatim>
 							<syllabus:syllabus_htmlShowArea value="#{eachEntry.entry.asset}" />
 							<f:verbatim></div></f:verbatim>
 							<h:dataTable value="#{eachEntry.attachmentList}" var="eachAttach" styleClass="indnt1">
@@ -100,8 +124,9 @@
 									</h:outputLink>
 								</h:column>
 							</h:dataTable>
-					</h:column>
-				</h:dataTable>
+						<f:verbatim></div></f:verbatim>
+					</t:dataList>
+				<f:verbatim></div></f:verbatim>
 				<h:outputText value="#{msgs.syllabus_noEntry}" styleClass="instruction" rendered="#{SyllabusTool.displayNoEntryMsg}"/>
 			</syllabus:syllabus_if>				
 			<syllabus:syllabus_ifnot test="#{SyllabusTool.syllabusItem.redirectURL}">
