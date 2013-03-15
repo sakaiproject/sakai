@@ -39,6 +39,10 @@
 	font-size: .92em;
 	line-height: 1.5em;
 }
+.toggle .textPanel {
+    -ms-word-break: break-all;
+     word-break: break-all;
+}
 .topicBloc{
 	/*inner container topic metadata in forum list view, or single topic view*/
 	margin: .5em 0 1em 1em;
@@ -65,6 +69,8 @@
 	display: block;
 	margin: .5em 0;
     font-size:.85em;
+    -ms-word-break: break-all;
+     word-break: break-all;
 }
 .messageNew{
 	color: #000;
@@ -158,6 +164,8 @@
 .messagesThreaded tbody tr td div.hierItemBlock .textPanel{
 	clear: both;
 	width: 60%;
+    -ms-word-break: break-all;
+     word-break: break-all;
 }
 .titleBarBorder{
 	/*create an underline under message title + metadata in view body thread view*/
