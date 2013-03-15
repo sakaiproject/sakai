@@ -350,7 +350,7 @@ public class AudioSampleGraphPanel
     AttributedCharacterIterator aci = as.getIterator();
     FontRenderContext frc = g2.getFontRenderContext();
     LineBreakMeasurer lbm = new LineBreakMeasurer(aci, frc);
-    double x = 5, y = 25;
+    float x = 5, y = 25;
     lbm.setPosition(0);
     while (lbm.getPosition() < errStr.length())
     {

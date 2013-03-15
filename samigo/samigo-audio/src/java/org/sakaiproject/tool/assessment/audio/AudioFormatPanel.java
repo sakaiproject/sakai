@@ -288,7 +288,7 @@ public class AudioFormatPanel extends JPanel
 
       AudioFormat.Encoding encoding = AudioFormat.Encoding.ULAW;
       String encString = (String) v.get(0);
-      double rate = Double.valueOf( (String) v.get(1)).doubleValue();
+      float rate = Float.valueOf( (String) v.get(1)).floatValue();
       int sampleSize = Integer.valueOf( (String) v.get(2)).intValue();
       String signedString = (String) v.get(3);
       boolean bigEndian = ( (String) v.get(4)).startsWith(res.getString("big"));
@@ -335,7 +335,7 @@ public class AudioFormatPanel extends JPanel
         linrB.doClick();
         unsignB.doClick();
       }
-      double rate = format.getFrameRate();
+      float rate = format.getFrameRate();
       if (rate == 8000)
       {
         rate8B.doClick();
