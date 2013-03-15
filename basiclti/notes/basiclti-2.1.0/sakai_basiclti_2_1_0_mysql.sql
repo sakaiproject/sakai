@@ -1,4 +1,4 @@
-ALTER TABLE lti_content ADD     pagetitle VARCHAR(255) NOT NULL
+ALTER TABLE lti_content ADD     pagetitle VARCHAR(255)
 ALTER TABLE lti_content MODIFY     launch TEXT(1024)
 ALTER TABLE lti_content ADD     consumerkey VARCHAR(255)
 ALTER TABLE lti_content ADD     secret VARCHAR(255)
@@ -6,7 +6,7 @@ ALTER TABLE lti_content ADD     settings TEXT(8096)
 ALTER TABLE lti_content ADD     placementsecret TEXT(512)
 ALTER TABLE lti_content ADD     oldplacementsecret TEXT(512)
 ALTER TABLE lti_tools ADD     allowtitle TINYINT DEFAULT '0'
-ALTER TABLE lti_tools ADD     pagetitle VARCHAR(255) NOT NULL
+ALTER TABLE lti_tools ADD     pagetitle VARCHAR(255)
 ALTER TABLE lti_tools ADD     allowpagetitle TINYINT DEFAULT '0'
 ALTER TABLE lti_tools MODIFY     launch TEXT(1024)
 ALTER TABLE lti_tools ADD     allowlaunch TINYINT DEFAULT '0'

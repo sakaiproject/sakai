@@ -1355,8 +1355,11 @@ public class Foorm {
 		if (schema == null)
 			return null;
 
-		if ("true".equals(required) && !(schema.indexOf("NOT NULL") > 0))
-			schema += " NOT NULL";
+		// BLTI-220 - This makes migrations challenging, adding columns
+		// With no data - the software can still enforce required - but	
+		// we leave it up to the insert and update code
+		//if ("true".equals(required) && !(schema.indexOf("NOT NULL") > 0))
+			//schema += " NOT NULL";
 		return "    " + field + " " + schema;
 	}
 
