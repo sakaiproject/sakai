@@ -43,7 +43,7 @@ public class AssessmentQuestion extends AbstractImportable {
 	private Set correctAnswerIDs;
 	private String feedbackWhenCorrect;
 	private String feedbackWhenIncorrect;
-	private Float pointValue;
+	private Double pointValue;
 	private Integer position;
 
 	public Integer getPosition() {
@@ -114,11 +114,11 @@ public class AssessmentQuestion extends AbstractImportable {
 		this.choices = choices;
 	}
 
-	public Float getPointValue() {
+	public Double getPointValue() {
 		return pointValue;
 	}
 
-	public void setPointValue(Float pointValue) {
+	public void setPointValue(Double pointValue) {
 		this.pointValue = pointValue;
 	}
 
