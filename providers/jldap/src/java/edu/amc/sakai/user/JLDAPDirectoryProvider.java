@@ -655,6 +655,14 @@ public class JLDAPDirectoryProvider implements UserDirectoryProvider, LdapConnec
 				
 					for (LdapUserData ldapUserData : ldapUsers) {
 						String ldapEid = ldapUserData.getEid();
+
+						if (StringUtils.isEmpty(ldapEid)) {
+							continue;
+						}
+						if (!(caseSensitiveCacheKeys)) {
+							ldapEid = ldapEid.toLowerCase();
+						}
+
 						UserEdit ue = usersToSearchInLDAP.get(ldapEid);
 						mapUserDataOntoUserEdit(ldapUserData, ue);
 						usersToSearchInLDAP.remove(ldapEid);
