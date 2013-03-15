@@ -375,8 +375,10 @@ public class LTIAdminTool extends VelocityPortletPaneledAction
 		Map<String,Object> tool = ltiService.getTool(key);
 		if (  tool == null ) return "lti_main";
 
-		// Hide the old tool secret
-		tool.put(LTIService.LTI_SECRET,SECRET_HIDDEN);		
+		// Hide the old tool secret unless it is incomplete
+		if ( ! LTIService.LTI_SECRET_INCOMPLETE.equals(tool.get(LTIService.LTI_SECRET)) ) {
+			tool.put(LTIService.LTI_SECRET,SECRET_HIDDEN);		
+		}
 		String formInput = ltiService.formInput(tool, mappingForm);
 		context.put("formInput", formInput);
 		state.removeAttribute(STATE_SUCCESS);

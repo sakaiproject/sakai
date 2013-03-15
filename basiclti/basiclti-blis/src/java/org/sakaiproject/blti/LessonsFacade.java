@@ -162,6 +162,9 @@ public class LessonsFacade {
 			props.setProperty(LTIService.LTI_ALLOWCUSTOM, "1");
 			props.setProperty(LTIService.LTI_SENDNAME, "1");
 			props.setProperty(LTIService.LTI_SENDEMAILADDR, "1");
+			props.setProperty(LTIService.LTI_ALLOWTITLE, "1");
+			props.setProperty(LTIService.LTI_ALLOWPAGETITLE, "1");
+			props.setProperty(LTIService.LTI_ALLOWLAUNCH, "1");
 			props.setProperty(LTIService.LTI_ALLOWOUTCOMES, "1");
 			props.setProperty(LTIService.LTI_ALLOWROSTER, "1");
 
