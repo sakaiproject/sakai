@@ -489,29 +489,29 @@ public class HistogramListener
 							  }
                               }
 						  
-                              float percentCorrectFromUpperQuartileStudents =
-							  ((float) numStudentsWithAllCorrectFromUpperQuartile / 
-									  (float) percent27ForThisQuestion) * 100f;
+                              double percentCorrectFromUpperQuartileStudents =
+							  ((double) numStudentsWithAllCorrectFromUpperQuartile / 
+									  (double) percent27ForThisQuestion) * 100d;
 
-                              float percentCorrectFromLowerQuartileStudents =
-							  ((float) numStudentsWithAllCorrectFromLowerQuartile / 
-									  (float) percent27ForThisQuestion) * 100f;
+                              double percentCorrectFromLowerQuartileStudents =
+							  ((double) numStudentsWithAllCorrectFromLowerQuartile / 
+									  (double) percent27ForThisQuestion) * 100d;
 
                               questionScores.setPercentCorrectFromUpperQuartileStudents(
 								  Integer.toString((int) percentCorrectFromUpperQuartileStudents));
                               questionScores.setPercentCorrectFromLowerQuartileStudents(
 								  Integer.toString((int) percentCorrectFromLowerQuartileStudents));
                                                   
-                                                    float discrimination = ((float)numStudentsWithAllCorrectFromUpperQuartile -
-								  (float)numStudentsWithAllCorrectFromLowerQuartile)/(float)percent27ForThisQuestion ;
+                                                    double discrimination = ((double)numStudentsWithAllCorrectFromUpperQuartile -
+								  (double)numStudentsWithAllCorrectFromLowerQuartile)/(double)percent27ForThisQuestion ;
 
                               // round to 2 decimals
                               if (discrimination > 999999 || discrimination < -999999) {
 							  questionScores.setDiscrimination("NaN");
                               }
                               else {
-							  discrimination = ((int) (discrimination*100.00f)) / 100.00f;
-							  questionScores.setDiscrimination(Float.toString(discrimination));
+							  discrimination = ((int) (discrimination*100.00d)) / 100.00d;
+							  questionScores.setDiscrimination(Double.toString(discrimination));
                               }
                           }else{
                               questionScores.setPercentCorrectFromUpperQuartileStudents(rbEval.getString("na"));
@@ -779,8 +779,8 @@ public class HistogramListener
 				if ((qbean.getQuestionType().equals("8"))
 						|| (qbean.getQuestionType().equals("11"))) {
 					// for fib we only count the number of correct responses
-					Float autoscore = data.getAutoScore();
-					if (!(Float.valueOf(0)).equals(autoscore)) {
+					Double autoscore = data.getAutoScore();
+					if (!(Double.valueOf(0)).equals(autoscore)) {
 						results.put(answer.getId(), Integer.valueOf(
 								num.intValue() + 1));
 					}
@@ -853,8 +853,8 @@ public class HistogramListener
 					// TODO: we are checking to see if the score is > 0, this
 					// will not work if the question is worth 0 points.
 					// will need to verify each answer individually.
-					Float autoscore = item.getAutoScore();
-					if ((Float.valueOf(0)).equals(autoscore)) {
+					Double autoscore = item.getAutoScore();
+					if ((Double.valueOf(0)).equals(autoscore)) {
 						hasIncorrect = true;
 						break;
 					}
@@ -936,7 +936,7 @@ public class HistogramListener
 		if (qbean.getNumResponses() > 0)
 			qbean
 					.setPercentCorrect(Integer
-							.toString((int) (((float) correctresponses / (float) qbean.getNumResponses()) * 100)));
+							.toString((int) (((double) correctresponses / (double) qbean.getNumResponses()) * 100)));
 	}
 
   /*
@@ -965,8 +965,8 @@ public class HistogramListener
 	 * numStudentRespondedMap.put(data.getAssessmentGradingId(),
 	 * studentResponseList); // we found a response, and got the existing num ,
 	 * now update one if (qbean.getQuestionType().equals("11")) { // for fib we
-	 * only count the number of correct responses Float autoscore =
-	 * data.getAutoScore(); if (!(new Float(0)).equals(autoscore)) {
+	 * only count the number of correct responses Double autoscore =
+	 * data.getAutoScore(); if (!(new Double(0)).equals(autoscore)) {
 	 * results.put(answer.getId(), Integer.valueOf(num.intValue() + 1)); } } else { //
 	 * for mc, we count the number of all responses results.put(answer.getId(),
 	 * Integer.valueOf(num.intValue() + 1)); } } } HistogramBarBean[] bars = new
@@ -996,8 +996,8 @@ public class HistogramListener
 	 * hasIncorrect = false; Iterator listiter =
 	 * resultsForOneStudent.iterator(); while (listiter.hasNext()) {
 	 * ItemGradingData item = (ItemGradingData)listiter.next(); if
-	 * (qbean.getQuestionType().equals("11")) { Float autoscore =
-	 * item.getAutoScore(); if (!(new Float(0)).equals(autoscore)) {
+	 * (qbean.getQuestionType().equals("11")) { Double autoscore =
+	 * item.getAutoScore(); if (!(new Double(0)).equals(autoscore)) {
 	 * hasIncorrect = true; break; } } else if
 	 * (qbean.getQuestionType().equals("2")) {
 	 *  // only answered choices are created in the ItemGradingData_T, so we
@@ -1028,8 +1028,8 @@ public class HistogramListener
 	 * calColumnHeight(numarray); for (i=0; i<bars.length; i++)
 	 * bars[i].setColumnHeight(Integer.toString(heights[i]));
 	 * qbean.setHistogramBars(bars); qbean.setNumResponses(responses); if
-	 * (responses > 0) qbean.setPercentCorrect(Integer.toString((int)(((float)
-	 * correctresponses/(float) responses) * 100))); }
+	 * (responses > 0) qbean.setPercentCorrect(Integer.toString((int)(((double)
+	 * correctresponses/(double) responses) * 100))); }
 	 */
 
   private void getTFMCScores(HashMap publishedAnswerHash, ArrayList scores,
@@ -1170,7 +1170,7 @@ public class HistogramListener
 		if (qbean.getNumResponses() > 0)
 			qbean
 					.setPercentCorrect(Integer
-							.toString((int) (((float) correctresponses / (float) qbean.getNumResponses()) * 100)));
+							.toString((int) (((double) correctresponses / (double) qbean.getNumResponses()) * 100)));
 	}
 
 
@@ -1236,8 +1236,8 @@ private void getCalculatedQuestionScores(List<ItemGradingData> scores, Histogram
     if (qbean.getNumResponses() > 0) {
         int correct = qbean.getNumResponses() - assessmentQuestionIncorrect.size();
         int total = qbean.getNumResponses();
-        float percentCorrect = ((float) correct / (float) total) * 100;
-        String percentCorrectStr = Float.toString(percentCorrect);
+        double percentCorrect = ((double) correct / (double) total) * 100;
+        String percentCorrectStr = Double.toString(percentCorrect);
         qbean.setPercentCorrect(percentCorrectStr);
     }
 }
@@ -1387,7 +1387,7 @@ private void getCalculatedQuestionScores(List<ItemGradingData> scores, Histogram
     
     qbean.setHistogramBars(bars);
     if (qbean.getNumResponses() > 0)
-      qbean.setPercentCorrect(Integer.toString((int)(((float) correctresponses/(float) qbean.getNumResponses()) * 100)));
+      qbean.setPercentCorrect(Integer.toString((int)(((double) correctresponses/(double) qbean.getNumResponses()) * 100)));
   }
 
   private void getMatrixSurveyScores(HashMap publishedItemTextHash, HashMap publishedAnswerHash, 
@@ -1616,34 +1616,34 @@ private void getCalculatedQuestionScores(List<ItemGradingData> scores, Histogram
     {
       Object data = iter.next();
       if (data instanceof AssessmentGradingData) {
-    	  Float finalScore = ((AssessmentGradingData) data).getFinalScore();
+    	  Double finalScore = ((AssessmentGradingData) data).getFinalScore();
     	  if (finalScore == null) {
-    		  finalScore = Float.valueOf("0");
+    		  finalScore = Double.valueOf("0");
     	  }
         floats.add(finalScore);
       }
       else
       {
-        float autoScore = (float) 0.0;
+        double autoScore = (double) 0.0;
         if (((ItemGradingData) data).getAutoScore() != null)
-          autoScore = ((ItemGradingData) data).getAutoScore().floatValue();
-        float overrideScore = (float) 0.0;
+          autoScore = ((ItemGradingData) data).getAutoScore().doubleValue();
+        double overrideScore = (double) 0.0;
         if (((ItemGradingData) data).getOverrideScore() != null)
           overrideScore =
-            ((ItemGradingData) data).getOverrideScore().floatValue();
-        floats.add(Float.valueOf(autoScore + overrideScore));
+            ((ItemGradingData) data).getOverrideScore().doubleValue();
+        floats.add(Double.valueOf(autoScore + overrideScore));
       }
     }
 
     if (floats.isEmpty())
-      floats.add(new Float(0.0));
+      floats.add(new Double(0.0));
     Object[] array = floats.toArray();
     Arrays.sort(array);
 
     double[] scores = new double[array.length];
     for (int i=0; i<array.length; i++)
 {
-      scores[i] = ((Float) array[i]).doubleValue();
+      scores[i] = ((Double) array[i]).doubleValue();
 }
 
     HashMap statMap = new HashMap();

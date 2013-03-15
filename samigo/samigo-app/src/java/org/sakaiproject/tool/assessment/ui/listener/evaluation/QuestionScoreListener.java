@@ -421,7 +421,7 @@ public class QuestionScoreListener implements ActionListener,
 				bean.setMaxScore(publishedAssessment.getEvaluationModel()
 						.getFixedTotalScore().toString());
 			} catch (RuntimeException e) {
-				float score = (float) 0.0;
+				double score = (double) 0.0;
 				Iterator iter2 = publishedAssessment.getSectionArraySorted()
 				.iterator();
 				while (iter2.hasNext()) {
@@ -431,10 +431,10 @@ public class QuestionScoreListener implements ActionListener,
 					while (iter3.hasNext()) {
 						ItemDataIfc idata = (ItemDataIfc) iter3.next();
 						if (idata.getItemId().equals(Long.valueOf(itemId)))
-							score = idata.getScore().floatValue();
+							score = idata.getScore().doubleValue();
 					}
 				}
-				bean.setMaxScore(Float.toString(score));
+				bean.setMaxScore(Double.toString(score));
 			}
 			
 			// need to get id from somewhere else, not from data. data only
@@ -688,10 +688,10 @@ public class QuestionScoreListener implements ActionListener,
 							if(gdataAnswer.getScore() > 0){
 								//if score is 0, there is no way to tell if user got the correct answer
 								//by using "autoscore"... wish there was a better way to tell if its correct or not
-								Float autoscore = gdata.getAutoScore();
-								if (!(Float.valueOf(0)).equals(autoscore)) {
+								Double autoscore = gdata.getAutoScore();
+								if (!(Double.valueOf(0)).equals(autoscore)) {
 									answerText = "<img src='/samigo-app/images/delivery/checkmark.gif'>" + answerText;
-								}else if(Float.valueOf(0).equals(autoscore)){
+								}else if(Double.valueOf(0).equals(autoscore)){
 									answerText = "<img src='/samigo-app/images/crossmark.gif'>" + answerText;
 								}
 							}
@@ -713,13 +713,13 @@ public class QuestionScoreListener implements ActionListener,
 						results.setAnswer(results.getAnswer() + "<br/>"
 								+ answerText);
 						if (gdata.getAutoScore() != null) {
-							results.setTotalAutoScore(Float.toString((Float.valueOf(
-								results.getExactTotalAutoScore())).floatValue()
-								+ gdata.getAutoScore().floatValue()));
+							results.setTotalAutoScore(Double.toString((Double.valueOf(
+								results.getExactTotalAutoScore())).doubleValue()
+								+ gdata.getAutoScore().doubleValue()));
 						}
 						else {
-							results.setTotalAutoScore(Float.toString((Float.valueOf(
-									results.getExactTotalAutoScore())).floatValue()));
+							results.setTotalAutoScore(Double.toString((Double.valueOf(
+									results.getExactTotalAutoScore())).doubleValue()));
 						}
 						results.setItemGradingAttachmentList(itemGradingAttachmentList);
 					} else {
@@ -732,7 +732,7 @@ public class QuestionScoreListener implements ActionListener,
 							results.setTotalAutoScore(gdata.getAutoScore()
 									.toString());
 						} else {
-							results.setTotalAutoScore(Float.toString(0));
+							results.setTotalAutoScore(Double.toString(0));
 						}
 						results.setComments(FormattedText.convertFormattedTextToPlaintext(gdata.getComments()));
 						results.setAnswer(answerText);
@@ -852,7 +852,7 @@ public class QuestionScoreListener implements ActionListener,
 			int maxDurationAllowed = item.getDuration().intValue();
 			for (int i = 0; i < mediaList.size(); i++) {
 				MediaData m = (MediaData) mediaList.get(i);
-				float duration = (Float.valueOf(m.getDuration())).floatValue();
+				double duration = (Double.valueOf(m.getDuration())).doubleValue();
 				if (duration > maxDurationAllowed) {
 					m.setDurationIsOver(true);
 					m.setTimeAllowed(String.valueOf(maxDurationAllowed));

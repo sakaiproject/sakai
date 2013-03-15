@@ -434,22 +434,22 @@ public class AssessmentService {
 
 				// ItemService itemservice = new ItemService();
 				boolean hasRandomPartScore = false;
-				Float score = null;
+				Double score = null;
 				String requestedScore = (section.getSectionMetaDataByLabel(SectionDataIfc.POINT_VALUE_FOR_QUESTION) != null) ? 
 						                 section.getSectionMetaDataByLabel(SectionDataIfc.POINT_VALUE_FOR_QUESTION)	: "";
 						                 
 				if (requestedScore != null && !requestedScore.equals("")) {
 					hasRandomPartScore = true;
-					score = new Float(requestedScore);
+					score = new Double(requestedScore);
 				}
 				boolean hasRandomPartDiscount = false;
-				Float discount = null;
+				Double discount = null;
 				String requestedDiscount = (section.getSectionMetaDataByLabel(SectionDataIfc.DISCOUNT_VALUE_FOR_QUESTION) != null) ? 
 											section.getSectionMetaDataByLabel(SectionDataIfc.DISCOUNT_VALUE_FOR_QUESTION) : "";
 
 				if (requestedDiscount != null && !requestedDiscount.equals("")) {
 					hasRandomPartDiscount = true;
-					discount = new Float(requestedDiscount);
+					discount = new Double(requestedDiscount);
 				}
 
 				int i = 0;

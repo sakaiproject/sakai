@@ -692,8 +692,8 @@ public class PublishedAssessmentFacade
     return service.getPublishedAssessmentOwner(this.publishedAssessmentId);
   }
 
-  public Float getTotalScore(){
-    float total = 0;
+  public Double getTotalScore(){
+    double total = 0;
     Iterator iter = this.publishedSectionSet.iterator();
     while (iter.hasNext()){
       SectionDataIfc s = (SectionDataIfc) iter.next();
@@ -720,10 +720,10 @@ public class PublishedAssessmentFacade
 
       while (iter2.hasNext()){
         ItemDataIfc item = (ItemDataIfc)iter2.next();
-        total= total + item.getScore().floatValue();
+        total= total + item.getScore().doubleValue();
       }
     }
-    return  Float.valueOf(total);
+    return  Double.valueOf(total);
   }
 
   public PublishedAssessmentFacade clonePublishedAssessment(){

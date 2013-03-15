@@ -32,10 +32,10 @@
  	<column name="ANSWERTEXT" not-null="false" sql-type="text" />
     </property>
     <property name="autoScore">
-      <column name="AUTOSCORE" not-null="false" sql-type="float" />
+      <column name="AUTOSCORE" not-null="false" sql-type="double" />
     </property>
     <property name="overrideScore">
-      <column name="OVERRIDESCORE" not-null="false" sql-type="float" />
+      <column name="OVERRIDESCORE" not-null="false" sql-type="double" />
     </property>
     <property name="comments">
       <column name="COMMENTS" not-null="false" sql-type="varchar(4000)" />
@@ -72,13 +72,13 @@
       <column name="FORGRADE" not-null="true" sql-type="integer" />
     </property>
     <property name="totalAutoScore">
-      <column name="TOTALAUTOSCORE" not-null="false" sql-type="float" />
+      <column name="TOTALAUTOSCORE" not-null="false" sql-type="double" />
     </property>
     <property name="totalOverrideScore">
-      <column name="TOTALOVERRIDESCORE" not-null="false" sql-type="float" />
+      <column name="TOTALOVERRIDESCORE" not-null="false" sql-type="double" />
     </property>
     <property name="finalScore">
-      <column name="FINALSCORE" not-null="false" sql-type="float" />
+      <column name="FINALSCORE" not-null="false" sql-type="double" />
     </property>
     <property name="comments">
       <column name="COMMENTS" not-null="false" sql-type="varchar(4000)" />
@@ -132,34 +132,34 @@
       <column name="LASTSUBMITTEDASSESSMENTISLATE" not-null="true" sql-type="integer" />
     </property>
     <property name="sumOf_autoScoreForGrade">
-      <column name="SUMOF_AUTOSCOREFORGRADE" not-null="false" sql-type="float" />
+      <column name="SUMOF_AUTOSCOREFORGRADE" not-null="false" sql-type="double" />
     </property>
     <property name="average_autoScoreForGrade">
-      <column name="AVERAGE_AUTOSCOREFORGRADE" not-null="false" sql-type="float" />
+      <column name="AVERAGE_AUTOSCOREFORGRADE" not-null="false" sql-type="double" />
     </property>
     <property name="highest_autoScoreForGrade">
-      <column name="HIGHEST_AUTOSCOREFORGRADE" not-null="false" sql-type="float" />
+      <column name="HIGHEST_AUTOSCOREFORGRADE" not-null="false" sql-type="double" />
     </property>
     <property name="lowest_autoScoreForGrade">
-      <column name="LOWEST_AUTOSCOREFORGRADE" not-null="false" sql-type="float" />
+      <column name="LOWEST_AUTOSCOREFORGRADE" not-null="false" sql-type="double" />
     </property>
     <property name="last_autoScoreForGrade">
-      <column name="LAST_AUTOSCOREFORGRADE" not-null="false" sql-type="float" />
+      <column name="LAST_AUTOSCOREFORGRADE" not-null="false" sql-type="double" />
     </property>
     <property name="sumOf_overrideScoreForGrade">
-      <column name="SUMOF_OVERRIDESCOREFORGRADE" not-null="false" sql-type="float" />
+      <column name="SUMOF_OVERRIDESCOREFORGRADE" not-null="false" sql-type="double" />
     </property>
     <property name="average_overrideScoreForGrade">
-      <column name="AVERAGE_OVERRIDESCOREFORGRADE" not-null="false" sql-type="float" />
+      <column name="AVERAGE_OVERRIDESCOREFORGRADE" not-null="false" sql-type="double" />
     </property>
     <property name="highest_overrideScoreForGrade">
-      <column name="HIGHEST_OVERRIDESCOREFORGRADE" not-null="false" sql-type="float" />
+      <column name="HIGHEST_OVERRIDESCOREFORGRADE" not-null="false" sql-type="double" />
     </property>
     <property name="lowest_overrideScoreForGrade">
-      <column name="LOWEST_OVERRIDESCOREFORGRADE" not-null="false" sql-type="float" />
+      <column name="LOWEST_OVERRIDESCOREFORGRADE" not-null="false" sql-type="double" />
     </property>
     <property name="last_overrideScoreForGrade">
-      <column name="LAST_OVERRIDESCOREFORGRADE" not-null="false" sql-type="float" />
+      <column name="LAST_OVERRIDESCOREFORGRADE" not-null="false" sql-type="double" />
     </property>
     <property name="scoringType">
       <column name="SCORINGTYPE" not-null="false" sql-type="integer" />
@@ -171,7 +171,7 @@
       <column name="ACCEPTEDASSESSMENTISLATE" not-null="false" sql-type="integer" />
     </property>
     <property name="finalAssessmentScore">
-      <column name="FINALASSESSMENTSCORE" not-null="false" sql-type="float" />
+      <column name="FINALASSESSMENTSCORE" not-null="false" sql-type="double" />
     </property>
     <property name="feedToGradeBook">
       <column name="FEEDTOGRADEBOOK" not-null="false" sql-type="integer" />

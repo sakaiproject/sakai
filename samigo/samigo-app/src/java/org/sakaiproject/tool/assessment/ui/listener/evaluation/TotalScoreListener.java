@@ -727,7 +727,7 @@ log.debug("totallistener: firstItem = " + bean.getFirstItem());
     	Iterator it=agents.iterator();
     	while(it.hasNext()){
     		AgentResults ar=(AgentResults)it.next();
-    		Float averageScore=ar.getScoreSummation()/ar.getSubmissionCount();
+    		Double averageScore=ar.getScoreSummation()/ar.getSubmissionCount();
     		ar.setFinalScore(averageScore.toString());
     		ar.setComments(null);
     		ar.setSubmittedDate(new Date());

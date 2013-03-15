@@ -118,7 +118,7 @@ public class TotalScoreUpdateListener
   	  String applyToUngraded = bean.getApplyToUngraded().trim();
   	  if(applyToUngraded != null && !"".equals(applyToUngraded)){
   		  try{
-  			  Float.valueOf(applyToUngraded).floatValue();
+  			  Double.valueOf(applyToUngraded).doubleValue();
   			  ArrayList allAgents = bean.getAllAgentsDirect();
   			  iter = allAgents.iterator();
   			  while(iter.hasNext()){
@@ -173,24 +173,24 @@ public class TotalScoreUpdateListener
   		  
         if (update){
         	log.debug("update is true");
-        	Float newScore = new Float(0f);
+        	Double newScore = new Double(0d);
         	AssessmentGradingData data = new AssessmentGradingData();
         	try {
         		if (!agentResults.getAssessmentGradingId().equals(Long.valueOf(-1)) ) {
         			// these are students who have submitted for grades.
         			// Add up new score
-        			newScore = Float.valueOf(newScoreString.toString());
+        			newScore = Double.valueOf(newScoreString.toString());
         			agentResults.setFinalScore(newScore+"");
         			BeanUtils.copyProperties(data, agentResults);
         			data.setPublishedAssessmentId(bean.getPublishedAssessment().getPublishedAssessmentId());
         			if ("-".equals(agentResults.getTotalAutoScore())) {
-        				data.setTotalAutoScore(Float.valueOf(0f));
+        				data.setTotalAutoScore(Double.valueOf(0d));
         			}
         			else {
-        				data.setTotalAutoScore(Float.valueOf(agentResults.getTotalAutoScore()));
+        				data.setTotalAutoScore(Double.valueOf(agentResults.getTotalAutoScore()));
         			}
-        			data.setTotalOverrideScore(Float.valueOf(agentResults.getTotalOverrideScore()));
-        			data.setFinalScore(Float.valueOf(agentResults.getFinalScore()));
+        			data.setTotalOverrideScore(Double.valueOf(agentResults.getTotalOverrideScore()));
+        			data.setFinalScore(Double.valueOf(agentResults.getFinalScore()));
         			data.setIsLate(agentResults.getIsLate());
         			data.setComments(agentResults.getComments());
         			data.setGradedBy(AgentFacade.getAgentString());
@@ -200,7 +200,7 @@ public class TotalScoreUpdateListener
         		else {
         			// these are students who have not submitted for grades and instructor made adjustment to their scores
         			// Add up new score
-        			newScore = Float.valueOf(newScoreString.toString());
+        			newScore = Double.valueOf(newScoreString.toString());
         			agentResults.setFinalScore(newScore+"");
 
         			BeanUtils.copyProperties(data, agentResults);
@@ -213,9 +213,9 @@ public class TotalScoreUpdateListener
         			// tell hibernate this is a new record
         			data.setAssessmentGradingId(Long.valueOf(0));
         			data.setSubmittedDate(null);
-        			data.setTotalAutoScore(Float.valueOf(0f));
-        			data.setTotalOverrideScore(Float.valueOf(agentResults.getTotalOverrideScore()));
-        			data.setFinalScore(Float.valueOf(agentResults.getFinalScore()));
+        			data.setTotalAutoScore(Double.valueOf(0d));
+        			data.setTotalOverrideScore(Double.valueOf(agentResults.getTotalOverrideScore()));
+        			data.setFinalScore(Double.valueOf(agentResults.getFinalScore()));
         			data.setComments(agentResults.getComments());
         			data.setGradedBy(AgentFacade.getAgentString());
         			data.setGradedDate(new Date());
@@ -283,17 +283,17 @@ public class TotalScoreUpdateListener
     agentResults.setComments(newComments);
     log.debug("newComments = " + newComments);
 
-    float totalAutoScore = 0; 
+    double totalAutoScore = 0; 
     if (agentResults.getTotalAutoScore()!=null && !("").equals(agentResults.getTotalAutoScore())){
       try{
-        totalAutoScore = Float.valueOf(agentResults.getTotalAutoScore()).floatValue();
+        totalAutoScore = Double.valueOf(agentResults.getTotalAutoScore()).doubleValue();
       }
       catch (NumberFormatException e){
         totalAutoScore = 0;
       }
     }
 
-    float totalOverrideScore = 0; 
+    double totalOverrideScore = 0; 
     Boolean newIsLate = agentResults.getIsLate(); // if the duedate were postpond, we need to adjust this
     // we will check if there is change of grade. if so, add up new score
     // else skip
@@ -301,7 +301,7 @@ public class TotalScoreUpdateListener
     if (old != null){
         if (agentResults.getTotalOverrideScore()!=null && !("").equals(agentResults.getTotalOverrideScore())){
         	try{
-        		totalOverrideScore = Float.valueOf(agentResults.getTotalOverrideScore()).floatValue();
+        		totalOverrideScore = Double.valueOf(agentResults.getTotalOverrideScore()).doubleValue();
         	}
         	catch (NumberFormatException e){
         		log.warn("Adj has wrong input type" + e);
@@ -309,11 +309,11 @@ public class TotalScoreUpdateListener
         	}
         }
 
-      float newScore = totalAutoScore + totalOverrideScore;
-      newScoreString.append(Float.valueOf(newScore));
-	  float oldScore = 0;
+      double newScore = totalAutoScore + totalOverrideScore;
+      newScoreString.append(Double.valueOf(newScore));
+	  double oldScore = 0;
       if (old.getFinalScore()!=null){
-        oldScore = old.getFinalScore().floatValue();
+        oldScore = old.getFinalScore().doubleValue();
       }
       Boolean oldIsLate=old.getIsLate();
       
@@ -342,7 +342,7 @@ public class TotalScoreUpdateListener
     	if (score != null) {
     		if (!("").equals(score.trim()) && !("-").equals(score.trim())) {
     			try{
-    				totalOverrideScore = Float.valueOf(agentResults.getTotalOverrideScore()).floatValue();
+    				totalOverrideScore = Double.valueOf(agentResults.getTotalOverrideScore()).doubleValue();
     				noOverrideScore = false;
     			}
     			catch (NumberFormatException e){
@@ -359,8 +359,8 @@ public class TotalScoreUpdateListener
     		noOverrideScore = true;
     		totalAutoScore = 0;
     	}
-		float newScore = totalAutoScore + totalOverrideScore;
-		newScoreString.append(Float.valueOf(newScore));
+		double newScore = totalAutoScore + totalOverrideScore;
+		newScoreString.append(Double.valueOf(newScore));
 	    
     	if ("".equals(agentResults.getComments().trim()))
     		noComment = true;

@@ -198,7 +198,7 @@ public class RepublishAssessmentListener implements ActionListener {
 								if(ag.getStatus() ==5) {
 									ag.setFinalScore(ag.getFinalScore());
 								} else {
-									Float averageScore = PersistenceService.getInstance().getAssessmentGradingFacadeQueries().
+									Double averageScore = PersistenceService.getInstance().getAssessmentGradingFacadeQueries().
 									getAverageSubmittedAssessmentGrading(Long.valueOf(assessment.getPublishedAssessmentId()), ag.getAgentId());
 									ag.setFinalScore(averageScore);
 								}	

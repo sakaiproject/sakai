@@ -64,8 +64,8 @@ public class SectionContentsBean
   private java.util.ArrayList itemContents;
   private String sectionId;
   private String number;
-  private float maxPoints;
-  private float points;
+  private double maxPoints;
+  private double points;
   private int questions;
   private int numbering;
   private String numParts;
@@ -122,7 +122,7 @@ public class SectionContentsBean
    *
    * @return the points
    */
-  public float getPoints()
+  public double getPoints()
   {
     return points;
   }
@@ -131,7 +131,7 @@ public class SectionContentsBean
    * Points earned thus far for part.
    * @param points
    */
-  public void setPoints(float points)
+  public void setPoints(double points)
   {
     this.points = points;
   }
@@ -168,12 +168,12 @@ public class SectionContentsBean
    * Total points the part is worth.
    * @return max total points for part
    */
-  public float getMaxPoints()
+  public double getMaxPoints()
   {
     return maxPoints;
   }
 
-  public float getRoundedMaxPoints()
+  public double getRoundedMaxPoints()
   {
     // only show 2 decimal places 
     
@@ -184,7 +184,7 @@ public class SectionContentsBean
    * Total points the part is worth.
    * @param maxPoints points the part is worth.
    */
-  public void setMaxPoints(float maxPoints)
+  public void setMaxPoints(double maxPoints)
   {
     this.maxPoints = maxPoints;
   }
@@ -631,10 +631,11 @@ public class SectionContentsBean
     return pointsDisplayString;
   }
 
-  public static float roundTo2Decimals(float points)
+  public static double roundTo2Decimals(double points)
   {
-    int tmp = Math.round(points * 100.0f);
-    points = (float) tmp / 100.0f;
+    Double dTmp = points * 100.0d;
+    int tmp = dTmp.intValue();
+    points = (double) tmp / 100.0d;
     return points;
   }
 

@@ -92,8 +92,8 @@ public class SubmitTimedAssessmentThread extends TimerTask
             ag.setSubmittedDate(submitDate);
             // SAK-7302, users taking a timed assessment may exit without completing the assessment
             // set these two scores to 0 instaed of null
-    	    if (ag.getFinalScore() == null) ag.setFinalScore(Float.valueOf("0"));
-    	    if (ag.getTotalAutoScore() == null) ag.setTotalAutoScore(Float.valueOf("0"));
+    	    if (ag.getFinalScore() == null) ag.setFinalScore(Double.valueOf("0"));
+    	    if (ag.getTotalAutoScore() == null) ag.setTotalAutoScore(Double.valueOf("0"));
     	    service.completeItemGradingData(ag);
             service.saveOrUpdateAssessmentGrading(ag);
           EventLogService eventService = new EventLogService();

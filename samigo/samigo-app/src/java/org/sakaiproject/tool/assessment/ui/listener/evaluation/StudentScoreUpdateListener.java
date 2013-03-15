@@ -163,18 +163,18 @@ public class StudentScoreUpdateListener
               data.setAgentId(bean.getStudentId());
             }
             
-            float newAutoScore = 0;            
+            double newAutoScore = 0;            
             if ((question.getItemData().getTypeId().equals(Long.valueOf(8)) || question.getItemData().getTypeId().equals(Long.valueOf(11))) && fibFinNumCorrect != 0) {
             	if (Boolean.TRUE.equals(data.getIsCorrect())) {
-            		newAutoScore = (question.getExactPoints() / (float) fibFinNumCorrect);
+            		newAutoScore = (question.getExactPoints() / (double) fibFinNumCorrect);
             	}
             }
             else {
-          	  newAutoScore = (question.getExactPoints() / (float) gradingarray.size());
+          	  newAutoScore = (question.getExactPoints() / (double) gradingarray.size());
             }
-            float oldAutoScore = 0;
+            double oldAutoScore = 0;
             if (data.getAutoScore() !=null) {
-              oldAutoScore=data.getAutoScore().floatValue();
+              oldAutoScore=data.getAutoScore().doubleValue();
             }
             String newComments = TextFormat.convertPlaintextToFormattedTextNoHighUnicode(log, question.getGradingComment());
             if (newComments != null) {
@@ -201,7 +201,7 @@ public class StudentScoreUpdateListener
             logString.append(data.getItemGradingId());
             
             if (updateScore) {
-              data.setAutoScore(Float.valueOf(newAutoScore));
+              data.setAutoScore(Double.valueOf(newAutoScore));
               logString.append(", newAutoScore=");
               logString.append(newAutoScore);
               logString.append(", oldAutoScore=");

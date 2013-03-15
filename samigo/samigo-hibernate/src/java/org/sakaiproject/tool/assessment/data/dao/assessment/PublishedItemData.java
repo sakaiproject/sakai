@@ -59,8 +59,8 @@ public class PublishedItemData
   private String description;
   private Long typeId;
   private String grade;
-  private Float score;
-  private Float discount;
+  private Double score;
+  private Double discount;
   private String hint;
   private Boolean hasRationale;
   private Integer status;
@@ -82,7 +82,7 @@ public class PublishedItemData
   // this constructor should be deprecated, it is missing triesAllowed
   public PublishedItemData(SectionDataIfc section, Integer sequence,
                   Integer duration, String instruction, String description,
-                  Long typeId, String grade, Float score, Float discount, String hint,
+                  Long typeId, String grade, Double score, Double discount, String hint,
                   Boolean hasRationale, Integer status, String createdBy,
                   Date createdDate, String lastModifiedBy,
                   Date lastModifiedDate,
@@ -111,7 +111,7 @@ public class PublishedItemData
 
   public PublishedItemData(SectionDataIfc section, Integer sequence,
                   Integer duration, String instruction, String description,
-                  Long typeId, String grade, Float score, Float discount, String hint,
+                  Long typeId, String grade, Double score, Double discount, String hint,
                   Boolean hasRationale, Integer status, String createdBy,
                   Date createdDate, String lastModifiedBy,
                   Date lastModifiedDate,
@@ -213,24 +213,24 @@ public class PublishedItemData
     this.grade = grade;
   }
 
-  public Float getScore() {
+  public Double getScore() {
     return this.score;
   }
 
-  public void setScore(Float score) {
+  public void setScore(Double score) {
     this.score = score;
   }
 
-  public Float getDiscount() {
+  public Double getDiscount() {
 	  if (this.discount==null){
-		  this.discount= Float.valueOf(0);
+		  this.discount= Double.valueOf(0);
 	  }
 	  return this.discount;
   }
 
-  public void setDiscount(Float discount) {
+  public void setDiscount(Double discount) {
 	  if (discount==null){
-		  discount =Float.valueOf(0);
+		  discount =Double.valueOf(0);
 	  }
 	  this.discount = discount;
   }
@@ -595,9 +595,9 @@ public class PublishedItemData
 				}
 				//multiple choice partial credit:
 				if (this.getTypeId().equals(TypeD.MULTIPLE_CHOICE) && this.getPartialCreditFlag()){
-					Float pc =  Float.valueOf(a.getPartialCredit()); //--mustansar
+					Double pc =  Double.valueOf(a.getPartialCredit()); //--mustansar
 					if (pc == null) {
-						pc = Float.valueOf(0f);
+						pc = Double.valueOf(0d);
 					}
 					if(pc > 0){
 						String correct = rb.getString("correct");

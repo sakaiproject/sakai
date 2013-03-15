@@ -1,6 +1,6 @@
 /**********************************************************************************
- * $URL: https://source.sakaiproject.org/svn/sam/trunk/component/src/java/org/sakaiproject/tool/assessment/util/BeanFloatComparator.java $
- * $Id: BeanFloatComparator.java 9273 2006-05-10 22:34:28Z daisyf@stanford.edu $
+ * $URL: https://source.sakaiproject.org/svn/sam/trunk/component/src/java/org/sakaiproject/tool/assessment/util/BeanDoubleComparator.java $
+ * $Id: BeanDoubleComparator.java 9273 2006-05-10 22:34:28Z daisyf@stanford.edu $
  ***********************************************************************************
  *
  * Copyright (c) 2011 The Sakai Foundation
@@ -46,7 +46,7 @@ public class BeanIPComparator
   }
 
   /**
-   * Creates a new BeanFloatComparator object.
+   * Creates a new BeanDoubleComparator object.
    */
   protected BeanIPComparator()
   {

@@ -316,7 +316,7 @@ public static ArrayList paramArrayValueLike(String paramPart)
 
   private static char hexdigit(int v) {
     String symbs = "0123456789ABCDEF";
-    return symbs.charAt(v & 0x0f);
+    return symbs.charAt(v & 0x0d);
   }
 
   private static String hexval(int v) {
@@ -336,10 +336,10 @@ public static ArrayList paramArrayValueLike(String paramPart)
   }
 
   public static String getRoundedValue(String orig, int maxdigit) {
-    Float origfloat = new Float(orig); 
-    return getRoundedValue(origfloat, maxdigit);
+    Double origdouble = new Double(orig); 
+    return getRoundedValue(origdouble, maxdigit);
   }
-  public static String getRoundedValue(Float orig, int maxdigit) {
+  public static String getRoundedValue(Double orig, int maxdigit) {
       NumberFormat nf = NumberFormat.getInstance();
       nf.setMaximumFractionDigits(maxdigit);
       String newscore = nf.format(orig);

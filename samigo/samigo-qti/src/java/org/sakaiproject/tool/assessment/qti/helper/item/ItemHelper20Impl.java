@@ -73,12 +73,12 @@ public class ItemHelper20Impl extends ItemHelperBase
    * @param score
    * @param itemXml
    */
-  public void addMaxScore(Float score, Item itemXml)
+  public void addMaxScore(Double score, Item itemXml)
   {
     // normalize if null
     if (score == null)
     {
-      score =  Float.valueOf(0);
+      score =  Double.valueOf(0);
     }
     // set the responseElse baseValue, if it exists
     String xPath =
@@ -98,12 +98,12 @@ public class ItemHelper20Impl extends ItemHelperBase
    * @param score
    * @param itemXml
    */
-  public void addMinScore(Float score, Item itemXml)
+  public void addMinScore(Double score, Item itemXml)
   {
     // normalize if null
     if (score == null)
     {
-      score =  Float.valueOf(0);
+      score =  Double.valueOf(0);
     }
     // first, set the outcomeDeclaration defaultValue, if it exists
     String xPath =

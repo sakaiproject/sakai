@@ -44,7 +44,7 @@ public interface PublishedAssessmentIfc
 
   public void setAssessmentId(Long assessmentId);
 
-  Float getTotalScore();
+  Double getTotalScore();
   
   Date getLastNeedResubmitDate();
 

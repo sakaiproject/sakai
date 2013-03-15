@@ -147,14 +147,14 @@ public class QuestionScoreUpdateListener
           ItemGradingData data = (ItemGradingData) obj;
 
           // check if there is differnce in score, if so, update. Otherwise, do nothing
-          float newAutoScore = 0;
+          double newAutoScore = 0;
           if ((bean.getTypeId().equals("8") || bean.getTypeId().equals("11")) && fibFinNumCorrect != 0) {
         	  if (Boolean.TRUE.equals(data.getIsCorrect())) {
-        		  newAutoScore = (Float.valueOf(ar.getTotalAutoScore())).floatValue() / (float) fibFinNumCorrect;
+        		  newAutoScore = (Double.valueOf(ar.getTotalAutoScore())).doubleValue() / (double) fibFinNumCorrect;
         	  }
           }
           else {
-        	  newAutoScore = (Float.valueOf(ar.getTotalAutoScore())).floatValue() / (float) datas.size();
+        	  newAutoScore = (Double.valueOf(ar.getTotalAutoScore())).doubleValue() / (double) datas.size();
           }
           String newComments = TextFormat.convertPlaintextToFormattedTextNoHighUnicode(log, ar.getComments());
           ar.setComments(newComments);
@@ -165,9 +165,9 @@ public class QuestionScoreUpdateListener
         	  newComments = "";
           }
 
-          float oldAutoScore = 0;
+          double oldAutoScore = 0;
           if (data.getAutoScore() !=null)
-            oldAutoScore=data.getAutoScore().floatValue();
+            oldAutoScore=data.getAutoScore().doubleValue();
           
           String oldComments = data.getComments();
           if (oldComments!=null) {
@@ -185,7 +185,7 @@ public class QuestionScoreUpdateListener
           
           // if newAutoScore != oldAutoScore
           if (!(MathUtils.equalsIncludingNaN(newAutoScore, oldAutoScore, 0.0001))) {
-        	data.setAutoScore(Float.valueOf(newAutoScore));
+        	data.setAutoScore(Double.valueOf(newAutoScore));
         	logString.append(", newAutoScore=");
             logString.append(newAutoScore);
             logString.append(", oldAutoScore=");

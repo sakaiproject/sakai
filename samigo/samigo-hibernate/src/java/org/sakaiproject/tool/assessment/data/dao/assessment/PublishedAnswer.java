@@ -47,9 +47,9 @@ public class PublishedAnswer
   private String label;
   private Boolean isCorrect;
   private String grade;
-  private Float score;
-  private Float discount;
-  private Float  partialCredit; //partial credit
+  private Double score;
+  private Double discount;
+  private Double  partialCredit; //partial credit
   private Set answerFeedbackSet;
   private HashMap answerFeedbackMap;
   private PublishedItemData publishedItemData = new PublishedItemData();
@@ -57,7 +57,7 @@ public class PublishedAnswer
   public PublishedAnswer() {}
 
   public PublishedAnswer(ItemTextIfc itemText, String text, Long sequence, String label,
-		  Boolean isCorrect, String grade, Float score, Float partialCredit, Float discount) {
+		  Boolean isCorrect, String grade, Double score, Double partialCredit, Double discount) {
     this.itemText = itemText;
     this.item = itemText.getItem();
     this.text = text;
@@ -71,7 +71,7 @@ public class PublishedAnswer
   }
 
   public PublishedAnswer(ItemTextIfc itemText, String text, Long sequence, String label,
-                Boolean isCorrect, String grade, Float score,Float partialCredit, Float discount,
+                Boolean isCorrect, String grade, Double score,Double partialCredit, Double discount,
                 Set answerFeedbackSet) {
     this.itemText = itemText;
     this.item = itemText.getItem();
@@ -150,24 +150,24 @@ public class PublishedAnswer
     this.grade = grade;
   }
 
-  public Float getScore() {
+  public Double getScore() {
     return score;
   }
 
-  public void setScore(Float score) {
+  public void setScore(Double score) {
     this.score = score;
   }
 
-  public Float getDiscount() {
+  public Double getDiscount() {
 	  if (this.discount==null){
-		  this.discount= Float.valueOf(0);
+		  this.discount= Double.valueOf(0);
 	  }
 	  return this.discount;
   }
 
-  public void setDiscount(Float discount) {
+  public void setDiscount(Double discount) {
 	  if (discount==null){
-		  discount= Float.valueOf(0);
+		  discount= Double.valueOf(0);
 	  }
 	  this.discount = discount;
   }
@@ -254,11 +254,11 @@ public class PublishedAnswer
 	}
 	
 	//--mustansar for partial credit
-	public Float getPartialCredit(){
+	public Double getPartialCredit(){
 		return partialCredit;
 	}
 	
-	public void setPartialCredit(Float pCredit ){
+	public void setPartialCredit(Double pCredit ){
 		this.partialCredit=pCredit;
 	} 
 }

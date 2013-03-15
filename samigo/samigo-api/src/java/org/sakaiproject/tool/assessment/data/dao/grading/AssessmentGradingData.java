@@ -42,9 +42,9 @@ public class AssessmentGradingData implements java.io.Serializable
 	private Date submittedDate;
 	private Boolean isLate;
 	private Boolean forGrade;
-	private Float totalAutoScore;
-	private Float totalOverrideScore;
-	private Float finalScore; // final total score
+	private Double totalAutoScore;
+	private Double totalOverrideScore;
+	private Double finalScore; // final total score
 	private String comments;
 	private Integer status;
 	private String gradedBy;
@@ -106,8 +106,8 @@ public class AssessmentGradingData implements java.io.Serializable
 	public AssessmentGradingData(Long assessmentGradingId,
 			Long publishedAssessmentId, String publishedAssessmentTitle,
 			String agentId, Date submittedDate, Boolean isLate,
-			Boolean forGrade, Float totalAutoScore, Float totalOverrideScore,
-			Float finalScore, String comments, Integer status, String gradedBy,
+			Boolean forGrade, Double totalAutoScore, Double totalOverrideScore,
+			Double finalScore, String comments, Integer status, String gradedBy,
 			Date gradedDate, Date attemptDate, Integer timeElapsed,
 			Boolean isAutoSubmitted) {
 		this.assessmentGradingId = assessmentGradingId;
@@ -132,8 +132,8 @@ public class AssessmentGradingData implements java.io.Serializable
 	public AssessmentGradingData(Long assessmentGradingId,
 			Long publishedAssessmentId, String publishedAssessmentTitle,
 			String agentId, Date submittedDate, Boolean isLate,
-			Boolean forGrade, Float totalAutoScore, Float totalOverrideScore,
-			Float finalScore, String comments, Integer status, String gradedBy,
+			Boolean forGrade, Double totalAutoScore, Double totalOverrideScore,
+			Double finalScore, String comments, Integer status, String gradedBy,
 			Date gradedDate, Date attemptDate, Integer timeElapsed) {
 		this(assessmentGradingId, publishedAssessmentId,
 				publishedAssessmentTitle, agentId, submittedDate, isLate,
@@ -144,8 +144,8 @@ public class AssessmentGradingData implements java.io.Serializable
 
 	public AssessmentGradingData(Long assessmentGradingId,
 			Long publishedAssessmentId, String agentId, Date submittedDate,
-			Boolean isLate, Boolean forGrade, Float totalAutoScore,
-			Float totalOverrideScore, Float finalScore, String comments,
+			Boolean isLate, Boolean forGrade, Double totalAutoScore,
+			Double totalOverrideScore, Double finalScore, String comments,
 			Integer status, String gradedBy, Date gradedDate, Date attemptDate,
 			Integer timeElapsed) {
 		this.assessmentGradingId = assessmentGradingId;
@@ -218,14 +218,14 @@ public class AssessmentGradingData implements java.io.Serializable
 		this.forGrade = forGrade;
 	}
 
-	public Float getTotalAutoScore() {
+	public Double getTotalAutoScore() {
 		return this.totalAutoScore;
 	}
 
-	public void setTotalAutoScore(Float totalAutoScore) {
+	public void setTotalAutoScore(Double totalAutoScore) {
 		if (totalAutoScore != null) {
-			if (totalAutoScore.floatValue() < 0) {
-				this.totalAutoScore = new Float("0");
+			if (totalAutoScore.doubleValue() < 0) {
+				this.totalAutoScore = new Double("0");
 			} else {
 				this.totalAutoScore = totalAutoScore;
 			}
@@ -234,32 +234,32 @@ public class AssessmentGradingData implements java.io.Serializable
 		}
 	}
 
-	public Float getTotalOverrideScore() {
+	public Double getTotalOverrideScore() {
 		return this.totalOverrideScore;
 	}
 
-	public void setTotalOverrideScore(Float totalOverrideScore) {
+	public void setTotalOverrideScore(Double totalOverrideScore) {
 		this.totalOverrideScore = totalOverrideScore;
 	}
 
-	public Float getFinalScore() {
+	public Double getFinalScore() {
 		/*
 		 * if (this.totalAutoScore != null && this.totalOverrideScore != null ){
-		 * float total = 0; if (this.totalAutoScore != null) total +=
-		 * this.totalAutoScore.floatValue(); if (this.totalOverrideScore !=
-		 * null) total += this.totalOverrideScore.floatValue(); this.finalScore
-		 * = new Float(total); }
+		 * double total = 0; if (this.totalAutoScore != null) total +=
+		 * this.totalAutoScore.doubleValue(); if (this.totalOverrideScore !=
+		 * null) total += this.totalOverrideScore.doubleValue(); this.finalScore
+		 * = new Double(total); }
 		 * 
 		 * // remove rounding , SAK-2848 // Round to the nearest 1/10th. if
-		 * (this.finalScore !=null ){ float alignment =
-		 * this.finalScore.floatValue(); int tmp = Math.round(alignment *
-		 * 10.0f); alignment = (float)tmp / 10.0f; this.finalScore = new
-		 * Float(alignment); }
+		 * (this.finalScore !=null ){ double alignment =
+		 * this.finalScore.doubleValue(); int tmp = Math.round(alignment *
+		 * 10.0d); alignment = (double)tmp / 10.0d; this.finalScore = new
+		 * Double(alignment); }
 		 */
 		return this.finalScore;
 	}
 
-	public void setFinalScore(Float finalScore) {
+	public void setFinalScore(Double finalScore) {
 		this.finalScore = finalScore;
 	}
 
@@ -357,7 +357,7 @@ public class AssessmentGradingData implements java.io.Serializable
 	}
 
 	public AssessmentGradingData(Long assessmentGradingId,
-			Long publishedItemId, String agentId, Float finalScore,
+			Long publishedItemId, String agentId, Double finalScore,
 			Date submittedDate) {
 		this.assessmentGradingId = assessmentGradingId;
 		this.publishedItemId = publishedItemId;

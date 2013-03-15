@@ -371,7 +371,7 @@ private static Log log = LogFactory.getLog(UploadAudioMediaServlet.class);
       itemGrading.setPublishedItemId(item.getItemId());
       itemGrading.setPublishedItemTextId(itemText.getId());
       itemGrading.setAgentId(agentId);
-      itemGrading.setOverrideScore(Float.valueOf(0));
+      itemGrading.setOverrideScore(Double.valueOf(0));
       itemGrading.setSubmittedDate(new Date());
       itemGrading.setAttemptsRemaining(Integer.valueOf(attemptsRemaining));
       itemGrading.setLastDuration(duration);
@@ -427,7 +427,7 @@ private static Log log = LogFactory.getLog(UploadAudioMediaServlet.class);
     itemGrading.setAttemptsRemaining(Integer.valueOf(attemptsRemaining));
     itemGrading.setSubmittedDate(new Date());
     itemGrading.setAnswerText(mediaId + "");
-    itemGrading.setAutoScore(Float.valueOf(0));
+    itemGrading.setAutoScore(Double.valueOf(0));
     gradingService.saveItemGrading(itemGrading);
 
     // 3. if saveToDB, remove file from file system

@@ -677,8 +677,8 @@ public class PublishedAssessmentData
     return this.feedbackDate;
   }
 
-  public Float getTotalScore(){
-    float total = 0;
+  public Double getTotalScore(){
+    double total = 0;
     Iterator iter = this.sectionSet.iterator();
     while (iter.hasNext()){
       PublishedSectionData s = (PublishedSectionData) iter.next();
@@ -704,10 +704,10 @@ public class PublishedAssessmentData
 
       while (iter2.hasNext()){
         PublishedItemData item = (PublishedItemData)iter2.next();
-        total= total + item.getScore().floatValue();
+        total= total + item.getScore().doubleValue();
       }
     }
-    return  Float.valueOf(total);
+    return  Double.valueOf(total);
   }
 
   public Set getAssessmentAttachmentSet() {

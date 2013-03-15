@@ -85,11 +85,11 @@ public class ItemContentsBean implements Serializable {
 
 	private String[] responseIds = null;
 
-	private float points;
+	private double points;
 	
-	private float discount;
+	private double discount;
 
-	private float maxPoints;
+	private double maxPoints;
 
 	private int number;
 
@@ -232,7 +232,7 @@ public class ItemContentsBean implements Serializable {
 	 * 
 	 * @return String representation of the points.
 	 */
-	public float getPoints() {
+	public double getPoints() {
 		return SectionContentsBean.roundTo2Decimals(points);
 	}
 
@@ -241,7 +241,7 @@ public class ItemContentsBean implements Serializable {
 	 * 
 	 * @return String representation of the points.
 	 */
-	public float getExactPoints() {
+	public double getExactPoints() {
 		return points;
 	}
 
@@ -251,7 +251,7 @@ public class ItemContentsBean implements Serializable {
 	 * @param points
 	 *            String representation of the points.
 	 */
-	public void setPoints(float points) {
+	public void setPoints(double points) {
 		this.points = points;
 	}
 
@@ -267,7 +267,7 @@ public class ItemContentsBean implements Serializable {
 	 * @return String representation of the points.
 	 */
 	public String getPointsForEdit() {
-		return Float.toString(getPoints());
+		return Double.toString(getPoints());
 	}
 
 	/**
@@ -280,7 +280,7 @@ public class ItemContentsBean implements Serializable {
 		if (pointsForEdit == null || pointsForEdit.equals("")) {
 			pointsForEdit = "0";
 		}
-		setPoints(Float.parseFloat(pointsForEdit));
+		setPoints(Double.parseDouble(pointsForEdit));
 	}
 	
     /**
@@ -288,7 +288,7 @@ public class ItemContentsBean implements Serializable {
      *
      * @return String representation of the discount.
      */
-    public float getDiscount() {
+    public double getDiscount() {
     	 return SectionContentsBean.roundTo2Decimals(discount);
     }
 
@@ -297,7 +297,7 @@ public class ItemContentsBean implements Serializable {
      *
      * @return String representation of the discount.
      */
-    public float getExactDiscount() {
+    public double getExactDiscount() {
     	return discount;
     }
 
@@ -307,7 +307,7 @@ public class ItemContentsBean implements Serializable {
      * @param discount
      *            String representation of the Discount.
      */
-    public void setDiscount(float discount) {
+    public void setDiscount(double discount) {
     	this.discount = discount;
     }
 
@@ -317,7 +317,7 @@ public class ItemContentsBean implements Serializable {
      * @return String representation of the Discount.
      */
     public String getDiscountForEdit() {
-    	return Float.toString(getDiscount());
+    	return Double.toString(getDiscount());
     }
  
     /**
@@ -330,7 +330,7 @@ public class ItemContentsBean implements Serializable {
     	if (discountForEdit == null || discountForEdit.equals("")) {
     		discountForEdit = "0";
     	}
-    	setDiscount(Float.parseFloat(discountForEdit));
+    	setDiscount(Double.parseDouble(discountForEdit));
     }
 	
 	public boolean getReview() {
@@ -447,7 +447,7 @@ public class ItemContentsBean implements Serializable {
 	 * 
 	 * @return String representation of the max points.
 	 */
-	public float getMaxPoints() {
+	public double getMaxPoints() {
 		return maxPoints;
 	}
 
@@ -456,7 +456,7 @@ public class ItemContentsBean implements Serializable {
 	 * 
 	 * @return String representation of the max points.
 	 */
-	public float getRoundedMaxPoints() {
+	public double getRoundedMaxPoints() {
 		return SectionContentsBean.roundTo2Decimals(maxPoints);
 	}
 
@@ -466,7 +466,7 @@ public class ItemContentsBean implements Serializable {
 	 * @param maxPoints
 	 *            String representation of the max points available
 	 */
-	public void setMaxPoints(float maxPoints) {
+	public void setMaxPoints(double maxPoints) {
 		this.maxPoints = maxPoints;
 	}
 
@@ -1170,7 +1170,7 @@ public class ItemContentsBean implements Serializable {
     }
     for (int i=0; i<mediaList.size(); i++){
       MediaData m = (MediaData) mediaList.get(i);
-      float duration = (new Float(m.getDuration())).floatValue();
+      double duration = (new Double(m.getDuration())).doubleValue();
       if (duration > maxDurationAllowed)
         m.setDurationIsOver(true);
       else
@@ -1267,11 +1267,11 @@ public class ItemContentsBean implements Serializable {
     return hasAttachment;
   }
 
-  public Float getUpdatedScore () {
+  public Double getUpdatedScore () {
 	  return itemData.getScore();
   }
 	 
-  public void setUpdatedScore(Float score) {
+  public void setUpdatedScore(Double score) {
 	  if (!score.equals(itemData.getScore())) {
 		  AuthorBean author = (AuthorBean) ContextUtil.lookupBean("author");
 		  ItemService itemService = null;

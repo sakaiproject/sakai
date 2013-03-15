@@ -830,8 +830,8 @@ public class AudioRecorder extends JPanel implements ActionListener,
 		                int loByte = data[i+1];
 	                    short shortVal = (short) hiByte;
 	                    value = (short) ((shortVal << 8) | (byte) loByte);
-	                    float level = (float) value / Short.MAX_VALUE;
-	                    float adj_level = level * 110;
+	                    double level = (double) value / Short.MAX_VALUE;
+	                    double adj_level = level * 110;
 	                    //System.out.println("adj_level = " + adj_level);
 	                    audioMeter.setLevel(Math.round(Math.abs(adj_level)));
 	                    audioMeter.setSeconds(seconds);

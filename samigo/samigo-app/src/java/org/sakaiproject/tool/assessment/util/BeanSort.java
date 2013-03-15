@@ -128,7 +128,7 @@ public class BeanSort
     	  bsc = new BeanIntegerComparator(property);
       }
       else {
-    	  bsc = new BeanFloatComparator(property);
+    	  bsc = new BeanDoubleComparator(property);
       }
     }
     else if(date)

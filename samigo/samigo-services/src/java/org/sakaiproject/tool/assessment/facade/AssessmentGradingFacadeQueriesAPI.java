@@ -99,7 +99,7 @@ public interface AssessmentGradingFacadeQueriesAPI
    * Choices should be given negative score values if one wants them
    * to lose points for the wrong choice.
    */
-  //public float getAnswerScore(ItemGradingIfc data);
+  //public double getAnswerScore(ItemGradingIfc data);
 
   public Long add(AssessmentGradingData a);
 
@@ -248,6 +248,6 @@ public interface AssessmentGradingFacadeQueriesAPI
   public void completeItemGradingData(AssessmentGradingData assessmentGradingData);	
   
   public List getHighestSubmittedAssessmentGradingList(final Long publishedAssessmentId);
-  public Float getAverageSubmittedAssessmentGrading( final Long publishedAssessmentId, final String agentId);
+  public Double getAverageSubmittedAssessmentGrading( final Long publishedAssessmentId, final String agentId);
   public HashMap getAverageAssessmentGradingByPublishedItem(Long publishedAssessmentId);	
 }

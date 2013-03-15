@@ -584,7 +584,7 @@ implements ActionListener
 		boolean gbError = false;
 
 		if (assessmentSettings.getToDefaultGradebook() != null && assessmentSettings.getToDefaultGradebook().equals("1")) {
-			if (assessment.getTotalScore().floatValue() <= 0) {
+			if (assessment.getTotalScore().doubleValue() <= 0) {
 				String gb_err = (String) ContextUtil.getLocalizedString(
 						"org.sakaiproject.tool.assessment.bundle.AuthorMessages","gradebook_exception_min_points");
 				context.addMessage(null, new FacesMessage(gb_err));
@@ -692,7 +692,7 @@ implements ActionListener
 									if(ag.getStatus() ==5) {
 										ag.setFinalScore(ag.getFinalScore());
 									} else {
-										Float averageScore = PersistenceService.getInstance().getAssessmentGradingFacadeQueries().
+										Double averageScore = PersistenceService.getInstance().getAssessmentGradingFacadeQueries().
 										getAverageSubmittedAssessmentGrading(Long.valueOf(assessment.getPublishedAssessmentId()), ag.getAgentId());
 										ag.setFinalScore(averageScore);
 									}

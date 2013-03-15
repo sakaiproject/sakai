@@ -91,17 +91,17 @@ public class AgentResults
   private List itemGradingAttachmentList;
   private Integer timeElapsed;
   private int submissionCount=0;
-  private Float scoreSummation=new Float("0");
-  private Float averageScore= new Float("0");
+  private Double scoreSummation=new Double("0");
+  private Double averageScore= new Double("0");
   
   public AgentResults() {
   }
 
-  public Float getScoreSummation(){
+  public Double getScoreSummation(){
 	  return scoreSummation;
   }
 
-  public void setScoreSummation(Float scoreSummation){
+  public void setScoreSummation(Double scoreSummation){
 	  this.scoreSummation= scoreSummation;
   }
 

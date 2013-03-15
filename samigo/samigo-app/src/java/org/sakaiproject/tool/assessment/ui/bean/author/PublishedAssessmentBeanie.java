@@ -55,7 +55,7 @@ public class PublishedAssessmentBeanie
   private ArrayList sections = new ArrayList();
   private ArrayList partNumbers = new ArrayList();
   private int questionSize=0;
-  private float totalScore=0;
+  private double totalScore=0;
   private String newQuestionTypeId;
 
   /*
@@ -140,13 +140,13 @@ public class PublishedAssessmentBeanie
       for (int j=0; j<items.size();j++){
         ItemContentsBean item = (ItemContentsBean)items.get(j);
         if (item.getItemData().getScore()!=null){
-          this.totalScore += item.getItemData().getScore().floatValue();
+          this.totalScore += item.getItemData().getScore().doubleValue();
         }
       }
     }
   }
 
-  public float getTotalScore() {
+  public double getTotalScore() {
     return this.totalScore;
   }
 

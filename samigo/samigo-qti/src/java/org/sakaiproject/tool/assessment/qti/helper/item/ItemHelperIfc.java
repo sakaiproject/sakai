@@ -124,14 +124,14 @@ public interface ItemHelperIfc
    * @param score
    * @param itemXml
    */
-  public void addMaxScore(Float score, Item itemXml);
+  public void addMaxScore(Double score, Item itemXml);
 
   /**
    * Add maximum score to item XML
    * @param score
    * @param itemXml
    */
-  public void addMinScore(Float score, Item itemXml);
+  public void addMinScore(Double score, Item itemXml);
 
   /**
    * Flags an answer as correct.

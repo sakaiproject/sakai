@@ -75,13 +75,13 @@ public interface ItemDataIfc extends java.io.Serializable {
 
   void setGrade(String grade);
 
-  Float getScore();
+  Double getScore();
 
-  void setScore(Float score);
+  void setScore(Double score);
   
-  Float getDiscount();
+  Double getDiscount();
 
-  void setDiscount(Float discount);
+  void setDiscount(Double discount);
 
   String getHint();
 

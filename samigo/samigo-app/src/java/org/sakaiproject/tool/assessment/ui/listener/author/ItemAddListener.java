@@ -599,8 +599,8 @@ public class ItemAddListener
      		item = new PublishedItemFacade();
      	}
       }
-      item.setScore(Float.valueOf(bean.getItemScore()));
-      item.setDiscount(Float.valueOf(bean.getItemDiscount()));
+      item.setScore(Double.valueOf(bean.getItemScore()));
+      item.setDiscount(Double.valueOf(bean.getItemDiscount()));
       item.setHint("");
 
       item.setStatus(ItemDataIfc.ACTIVE_STATUS);
@@ -930,16 +930,16 @@ public class ItemAddListener
 			  answer = new Answer(choicetext, stripPtags(answerbean
 					  .getMatch()), answerbean.getSequence(), AnswerBean
 					  .getChoiceLabels()[answerbean.getSequence()
-					                     .intValue() - 1], Boolean.TRUE, null, Float.valueOf(
-					                    		 bean.getItemScore()), Float.valueOf(0f), Float.valueOf(bean.getItemDiscount()));
+					                     .intValue() - 1], Boolean.TRUE, null, Double.valueOf(
+					                    		 bean.getItemScore()), Double.valueOf(0d), Double.valueOf(bean.getItemDiscount()));
 
 		  } else {
 			  // incorrect answers
 			  answer = new Answer(choicetext, stripPtags(answerbean
 					  .getMatch()), answerbean.getSequence(), AnswerBean
 					  .getChoiceLabels()[answerbean.getSequence()
-					                     .intValue() - 1], Boolean.FALSE, null,  Float.valueOf(
-					                    		 bean.getItemScore()), Float.valueOf(0f), Float.valueOf(bean.getItemDiscount()));
+					                     .intValue() - 1], Boolean.FALSE, null,  Double.valueOf(
+					                    		 bean.getItemScore()), Double.valueOf(0d), Double.valueOf(bean.getItemDiscount()));
 		  }
 
 		  // record answers for all combination of pairs
@@ -1017,7 +1017,7 @@ public class ItemAddListener
 		  HashSet answerSet = new HashSet();
 		  Answer answer = null;
 		  for(int j=0; j< columnChoices.length;j++){
-			  answer = new Answer(itemText,columnChoices[j],Long.valueOf(j+1),null, null, null, Float.valueOf(bean.getItemScore()), Float.valueOf(0f), Float.valueOf(bean.getItemDiscount()));
+			  answer = new Answer(itemText,columnChoices[j],Long.valueOf(j+1),null, null, null, Double.valueOf(bean.getItemScore()), Double.valueOf(0d), Double.valueOf(bean.getItemDiscount()));
 			  answerSet.add(answer);
 		  }
 		  itemText.setAnswerSet(answerSet);
@@ -1061,12 +1061,12 @@ public class ItemAddListener
 					// choice type
 
 					newanswer = new Answer(text1, theanswer, Long.valueOf(i + 1),
-							"", Boolean.TRUE, null, Float.valueOf(bean
-									.getItemScore()), Float.valueOf(0f), Float.valueOf(bean.getItemDiscount()));
+							"", Boolean.TRUE, null, Double.valueOf(bean
+									.getItemScore()), Double.valueOf(0d), Double.valueOf(bean.getItemDiscount()));
 				} else {
 					newanswer = new Answer(text1, theanswer, Long.valueOf(i + 1),
-							"", Boolean.FALSE, null, Float.valueOf(bean
-									.getItemScore()), Float.valueOf(0f), Float.valueOf(bean.getItemDiscount()));
+							"", Boolean.FALSE, null, Double.valueOf(bean
+									.getItemScore()), Double.valueOf(0d), Double.valueOf(bean.getItemDiscount()));
 				}
 				answerSet1.add(newanswer);
 			}
@@ -1086,7 +1086,7 @@ public class ItemAddListener
 			// label is null because we don't use labels in essay questions
 			// theanswer is the model answer used as a sample for student
 			Answer modelanswer = new Answer(text1, theanswer, Long.valueOf(1),
-					null, Boolean.TRUE, null, Float.valueOf(bean.getItemScore()), Float.valueOf(0f), Float.valueOf(bean.getItemDiscount()));
+					null, Boolean.TRUE, null, Double.valueOf(bean.getItemScore()), Double.valueOf(0d), Double.valueOf(bean.getItemDiscount()));
 
 			HashSet answerFeedbackSet1 = new HashSet();
 
@@ -1106,7 +1106,7 @@ public class ItemAddListener
 
 			for (int i = 0; i < choices.length; i++) {
 				Answer answer1 = new Answer(text1, choices[i], Long.valueOf(i + 1),
-						null, null, null, Float.valueOf(bean.getItemScore()), Float.valueOf(0f), Float.valueOf(bean.getItemDiscount()));
+						null, null, null, Double.valueOf(bean.getItemScore()), Double.valueOf(0d), Double.valueOf(bean.getItemDiscount()));
 				answerSet1.add(answer1);
 			}
 			text1.setAnswerSet(answerSet1);
@@ -1125,7 +1125,7 @@ public class ItemAddListener
 				String oneanswer = (String) fibanswers[i];
 				Answer answer1 = new Answer(text1, oneanswer, Long.valueOf(i + 1),
 						null, Boolean.TRUE, null,
-						Float.valueOf(bean.getItemScore()), Float.valueOf(0f), Float.valueOf(bean.getItemDiscount()));
+						Double.valueOf(bean.getItemScore()), Double.valueOf(0d), Double.valueOf(bean.getItemDiscount()));
 				answerSet1.add(answer1);
 			}
 
@@ -1144,7 +1144,7 @@ public class ItemAddListener
 				String oneanswer = (String) finanswers[i];
 				Answer answer1 = new Answer(text1, oneanswer, Long.valueOf(i + 1),
 						null, Boolean.TRUE, null,
-						Float.valueOf(bean.getItemScore()), Float.valueOf(0f), Float.valueOf(bean.getItemDiscount()));
+						Double.valueOf(bean.getItemScore()), Double.valueOf(0d), Double.valueOf(bean.getItemDiscount()));
 				answerSet1.add(answer1);
 			}
 
@@ -1168,28 +1168,28 @@ public class ItemAddListener
 					answer = new Answer(text1,
 							stripPtags(answerbean.getText()), answerbean
 									.getSequence(), answerbean.getLabel(),
-							Boolean.TRUE, null, Float.valueOf(bean.getItemScore()), Float.valueOf(100f), Float.valueOf(bean.getItemDiscount()));
+							Boolean.TRUE, null, Double.valueOf(bean.getItemScore()), Double.valueOf(100d), Double.valueOf(bean.getItemDiscount()));
 				} else {
 					if (item.getTypeId().equals(TypeFacade.MULTIPLE_CHOICE) && item.getPartialCreditFlag()){
-						Float pc =  Float.valueOf(answerbean.getPartialCredit()); //--mustansar
+						Double pc =  Double.valueOf(answerbean.getPartialCredit()); //--mustansar
 						if (pc == null) {
-							pc = Float.valueOf(0f);
+							pc = Double.valueOf(0d);
 						}
 						answer = new Answer(text1, 
 								stripPtags(answerbean.getText()), 
 								answerbean.getSequence(),
 								answerbean.getLabel(),
-								Boolean.FALSE, null, Float.valueOf(bean.getItemScore()) , 
+								Boolean.FALSE, null, Double.valueOf(bean.getItemScore()) , 
 								pc,
-								Float.valueOf(bean.getItemDiscount()));}
+								Double.valueOf(bean.getItemDiscount()));}
 					else {
 						answer = new Answer(text1, 
 								stripPtags(answerbean.getText()), 
 								answerbean.getSequence(),
 								answerbean.getLabel(),
-								Boolean.FALSE, null, Float.valueOf(bean.getItemScore()) ,
-								Float.valueOf(0f), //No partial Credit since it is not enabled the column is not null 
-								Float.valueOf(bean.getItemDiscount()));
+								Boolean.FALSE, null, Double.valueOf(bean.getItemScore()) ,
+								Double.valueOf(0d), //No partial Credit since it is not enabled the column is not null 
+								Double.valueOf(bean.getItemDiscount()));
 					}
 				}
 				HashSet answerFeedbackSet1 = new HashSet();
@@ -1238,9 +1238,9 @@ public class ItemAddListener
 	          ItemAuthorBean itemauthor) {
 	      CalculatedQuestionBean calcBean = bean.getCalculatedQuestion();      
 	      Set<ItemText> textSet = new HashSet<ItemText>();
-	      float score = Float.valueOf(bean.getItemScore());
-	      float partialCredit = 0f;
-	      float discount = Float.valueOf(bean.getItemDiscount());
+	      double score = Double.valueOf(bean.getItemScore());
+	      double partialCredit = 0d;
+	      double discount = Double.valueOf(bean.getItemDiscount());
 	      String grade = null;            
 	      
 	      // Variables and formulas are very similar, and both have entries in the 
@@ -1339,8 +1339,8 @@ public class ItemAddListener
 		  Iterator answerIter = answerSet.iterator();
 		  while (answerIter.hasNext()) {
 			  answer = (AnswerIfc) answerIter.next();
-			  answer.setScore(Float.valueOf(bean.getItemScore()));
-			  answer.setDiscount(Float.valueOf(bean.getItemDiscount()));
+			  answer.setScore(Double.valueOf(bean.getItemScore()));
+			  answer.setDiscount(Double.valueOf(bean.getItemDiscount()));
 			  if (answer.getText().equals(bean.getCorrAnswer())) {
 				  answer.setIsCorrect(Boolean.TRUE);
 			  }
@@ -1365,7 +1365,7 @@ public class ItemAddListener
 		  // Storing the model answer essay as an Answer, and feedback in the Answerfeedback	
 		  while (answerIter.hasNext()) {
 			  answer = (AnswerIfc) answerIter.next();
-			  answer.setScore(Float.valueOf(bean.getItemScore()));
+			  answer.setScore(Double.valueOf(bean.getItemScore()));
 			  String theanswer = bean.getCorrAnswer();
 		      if (theanswer == null) {
 		        theanswer = ""; // can be empty
@@ -1397,7 +1397,7 @@ public class ItemAddListener
 		  
 		  for (int i = 0; i < choices.length; i++) {
 			  AnswerIfc answer = new PublishedAnswer(text, choices[i], Long.valueOf(i + 1),
-					null, null, null, Float.valueOf(bean.getItemScore()), null, Float.valueOf(bean.getItemDiscount()));
+					null, null, null, Double.valueOf(bean.getItemScore()), null, Double.valueOf(bean.getItemDiscount()));
 			  answerSet.add(answer);
 		  }
 		  text.setAnswerSet(answerSet);
@@ -1431,7 +1431,7 @@ public class ItemAddListener
 			Iterator answerIter = answerSet.iterator();
 			while (answerIter.hasNext()) {
 				AnswerIfc answer = (AnswerIfc) answerIter.next();
-				answer.setScore(Float.valueOf(bean.getItemScore()));
+				answer.setScore(Double.valueOf(bean.getItemScore()));
 				i = answer.getSequence().intValue();
 				if (i <= newAnswersSize) {
 					String oneanswer = (String) answers[i - 1];
@@ -1445,7 +1445,7 @@ public class ItemAddListener
 					String oneanswer = (String) answers[j];
 					AnswerIfc answer = new PublishedAnswer(text, oneanswer,
 							Long.valueOf(j + 1), null, Boolean.TRUE, null,
-							Float.valueOf(bean.getItemScore()), null, Float.valueOf(bean.getItemDiscount()));
+							Double.valueOf(bean.getItemScore()), null, Double.valueOf(bean.getItemDiscount()));
 					answerSet.add(answer);
 				}
 			}
@@ -1479,13 +1479,13 @@ public class ItemAddListener
 			Iterator answerIter = answerSet.iterator();
 			while (answerIter.hasNext()) {
 				AnswerIfc answer = (AnswerIfc) answerIter.next();
-				answer.setDiscount(Float.valueOf(bean.getItemDiscount()));
+				answer.setDiscount(Double.valueOf(bean.getItemDiscount()));
 				i = answer.getSequence().intValue();
 				if (i <= newAnswersSize) {				
-					answer.setScore(Float.valueOf(bean.getItemScore()));
+					answer.setScore(Double.valueOf(bean.getItemScore()));
 					answerBean = (AnswerBean) newAnswerMap.get(Long.valueOf(String.valueOf(i)));
 					String oneAnswer = stripPtags(answerBean.getText());
-					answer.setPartialCredit(Float.valueOf(answerBean.getPartialCredit()));
+					answer.setPartialCredit(Double.valueOf(answerBean.getPartialCredit()));
 					String oneLabel = answerBean.getLabel();
 					log.debug("oneAnswer = " + oneAnswer);
 					log.debug("oneLabel = " + oneLabel);
@@ -1516,12 +1516,12 @@ public class ItemAddListener
 					if (isCorrectChoice(bean, answerBean.getLabel().trim())) {
 						answer = new PublishedAnswer(text, oneAnswer,
 							Long.valueOf(j), oneLabel, Boolean.TRUE, null,
-							Float.valueOf(bean.getItemScore()), Float.valueOf(100f), Float.valueOf(bean.getItemDiscount()));
+							Double.valueOf(bean.getItemScore()), Double.valueOf(100d), Double.valueOf(bean.getItemDiscount()));
 					}
 					else {
 						answer = new PublishedAnswer(text, oneAnswer,
 								Long.valueOf(j), oneLabel, Boolean.FALSE, null,
-								Float.valueOf(bean.getItemScore()), Float.valueOf(answerBean.getPartialCredit()), Float.valueOf(bean.getItemDiscount()));
+								Double.valueOf(bean.getItemScore()), Double.valueOf(answerBean.getPartialCredit()), Double.valueOf(bean.getItemDiscount()));
 					}
 					HashSet answerFeedbackSet = new HashSet();
 				    answerFeedbackSet.add(new PublishedAnswerFeedback(answer,
@@ -1539,9 +1539,9 @@ public class ItemAddListener
   private void preparePublishedTextForCalculatedQueston(ItemFacade item, ItemBean bean, ItemService delegate) {
       Set<ItemTextIfc> itemTextSet = item.getItemTextSet();            
       CalculatedQuestionBean calcBean = bean.getCalculatedQuestion();      
-      float score = Float.valueOf(bean.getItemScore());
-      float partialCredit = 0f;
-      float discount = Float.valueOf(bean.getItemDiscount());
+      double score = Double.valueOf(bean.getItemScore());
+      double partialCredit = 0d;
+      double discount = Double.valueOf(bean.getItemDiscount());
       String grade = null;            
       
       // Variables and formulas are very similar, and both have entries in the 
@@ -1694,14 +1694,14 @@ public class ItemAddListener
 										.getSequence(), AnswerBean
 										.getChoiceLabels()[matchBean
 										.getSequence().intValue() - 1],
-								Boolean.TRUE, null, new Float(bean.getItemScore()), null, Float.valueOf(bean.getItemDiscount()));
+								Boolean.TRUE, null, new Double(bean.getItemScore()), null, Double.valueOf(bean.getItemDiscount()));
 					} else {
 						answer = new PublishedAnswer(itemText,
 								stripPtags(matchBean.getMatch()), matchBean
 										.getSequence(), AnswerBean
 										.getChoiceLabels()[matchBean
 										.getSequence().intValue() - 1],
-								Boolean.FALSE, null, new Float(bean.getItemScore()), null, Float.valueOf(bean.getItemDiscount()));
+								Boolean.FALSE, null, new Double(bean.getItemScore()), null, Double.valueOf(bean.getItemDiscount()));
 					}
 
 					// record answers for all combination of pairs
@@ -1717,7 +1717,7 @@ public class ItemAddListener
 					
 				} else {
 					answer = (AnswerIfc) answerMap.get(matchSequence);
-					answer.setScore(Float.valueOf(bean.getItemScore()));
+					answer.setScore(Double.valueOf(bean.getItemScore()));
 					String oneAnswer = stripPtags(matchBean.getMatch());
 					String oneLabel = AnswerBean.getChoiceLabels()[matchSequence
 							.intValue() - 1];
@@ -2043,9 +2043,9 @@ public class ItemAddListener
 	  String processedAnswer = "";
 	  if (answer.indexOf("|") == -1) {
 		  processedAnswer = answer.replaceAll(" ", "").replaceAll(",", ".");
-		  // Test if it is a valid Float
+		  // Test if it is a valid Double
 		  try {
-			  Float.parseFloat(processedAnswer); 
+			  Double.parseDouble(processedAnswer); 
 		  }
 		  catch (NumberFormatException e) {
 			  return false;
@@ -2059,9 +2059,9 @@ public class ItemAddListener
 	  }
 	  for (int i = 0; i < 2; i++) {
 		  String tmpAnswer = tokens[i].replaceAll(" ", "").replaceAll(",", ".");
-		  // Test if it is a valid Float
+		  // Test if it is a valid Double
 		  try {
-			  Float.parseFloat(tmpAnswer);
+			  Double.parseDouble(tmpAnswer);
 		  }
 		  catch (NumberFormatException e) {
 			  return false;

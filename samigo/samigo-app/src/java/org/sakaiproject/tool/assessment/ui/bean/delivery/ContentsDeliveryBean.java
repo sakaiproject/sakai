@@ -40,8 +40,8 @@ public class ContentsDeliveryBean
 	 */
 	private static final long serialVersionUID = -4619361961662881387L;
 private java.util.ArrayList partsContents;
-  private float currentScore;
-  private float maxScore; // SectionContentsBean
+  private double currentScore;
+  private double maxScore; // SectionContentsBean
   // for display/hide score
   private boolean showStudentScore;
   private String pointsDisplayString;
@@ -50,7 +50,7 @@ private java.util.ArrayList partsContents;
    * Current score for entire contents.
    * @return current score for entire contents
    */
-  public float getCurrentScore()
+  public double getCurrentScore()
   {
     return currentScore;
   }
@@ -59,7 +59,7 @@ private java.util.ArrayList partsContents;
    * Current score for entire contents
    * @param currentScore current score for entire contents
    */
-  public void setCurrentScore(float currentScore)
+  public void setCurrentScore(double currentScore)
   {
     this.currentScore = currentScore;
   }
@@ -68,7 +68,7 @@ private java.util.ArrayList partsContents;
    * Maximum score for entire contents.
    * @return maximum score for entire contents
    */
-  public float getMaxScore()
+  public double getMaxScore()
   {
     return maxScore;
   }
@@ -77,7 +77,7 @@ private java.util.ArrayList partsContents;
    * Maximum score for entire contents.
    * @param maxScore maximum score for entire contents
    */
-  public void setMaxScore(float maxScore)
+  public void setMaxScore(double maxScore)
   {
     this.maxScore = maxScore;
   }

@@ -316,33 +316,33 @@ public class SelectActionListener
     
     String lastPublishedAssessmentId = "";
     HashMap averageScoreMap = new HashMap();
-    float totalScores= 0f;
+    double totalScores= 0d;
 	int totalSubmissions= 0;
-	float averageScore = 0f;
+	double averageScore = 0d;
     
 	for (int i = 0; i < averageScoreAssessmentGradingList.size(); i++)
 	{
 		DeliveryBeanie db = (DeliveryBeanie) averageScoreAssessmentGradingList.get(i);
 		if ((lastPublishedAssessmentId != null && lastPublishedAssessmentId.equals(db.getAssessmentId())) || averageScoreAssessmentGradingList.size() == 1) {
-			totalScores += Float.parseFloat(db.getFinalScore());
+			totalScores += Double.parseDouble(db.getFinalScore());
 			totalSubmissions++;
 			if (i == averageScoreAssessmentGradingList.size() - 1) {
 				averageScore = totalScores/totalSubmissions;
-				averageScoreMap.put(db.getAssessmentId(), Float.valueOf(averageScore));
+				averageScoreMap.put(db.getAssessmentId(), Double.valueOf(averageScore));
 			}
 		}
 		else {
 			if (i > 0) {
 				averageScore = totalScores/totalSubmissions;
-				averageScoreMap.put(lastPublishedAssessmentId, Float.valueOf(averageScore));
+				averageScoreMap.put(lastPublishedAssessmentId, Double.valueOf(averageScore));
 			}
 			lastPublishedAssessmentId = db.getAssessmentId(); 
-			totalScores = Float.parseFloat(db.getFinalScore());
+			totalScores = Double.parseDouble(db.getFinalScore());
 			totalSubmissions = 1;
 			
 			if (i == averageScoreAssessmentGradingList.size() - 1) {
 				averageScore = totalScores/totalSubmissions;
-				averageScoreMap.put(db.getAssessmentId(), Float.valueOf(averageScore));
+				averageScoreMap.put(db.getAssessmentId(), Double.valueOf(averageScore));
 			}
 		}
 	}

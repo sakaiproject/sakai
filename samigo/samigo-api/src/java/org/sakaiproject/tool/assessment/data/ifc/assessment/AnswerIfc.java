@@ -58,22 +58,22 @@ public  interface AnswerIfc
 
   void setIsCorrect(Boolean isCorrect);
 
-  Float getDiscount();
+  Double getDiscount();
   
-  void setDiscount(Float discount);
+  void setDiscount(Double discount);
   
   String getGrade();
 
   void setGrade(String grade);
 
-  Float getScore();
+  Double getScore();
 
-  void setScore(Float score);
+  void setScore(Double score);
   
   // to incorporate partial credit we need to add field for partial credit
-  void setPartialCredit(Float partialCredit);
+  void setPartialCredit(Double partialCredit);
   
-  Float getPartialCredit();
+  Double getPartialCredit();
 
   Set getAnswerFeedbackSet();
 

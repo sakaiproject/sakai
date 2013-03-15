@@ -142,7 +142,7 @@ public class ItemModifyListener implements ActionListener
         itemauthorbean.setItemNo(String.valueOf(itemfacade.getSequence().intValue() ));
       }
 
-      Float points = itemfacade.getScore();
+      Double points = itemfacade.getScore();
       String score;
       if (points!=null)
        {
@@ -154,7 +154,7 @@ public class ItemModifyListener implements ActionListener
        }
       bean.setItemScore(score);
 
-      Float discountpoints = itemfacade.getDiscount();
+      Double discountpoints = itemfacade.getDiscount();
       String discount;
       if (discountpoints!=null)
       {

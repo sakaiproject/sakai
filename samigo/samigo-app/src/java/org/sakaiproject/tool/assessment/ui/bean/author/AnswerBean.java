@@ -48,7 +48,7 @@ public class AnswerBean implements Serializable{
   public static final String choiceLabels = rb.getString("choice_labels"); 
   public AnswerBean() {}
 
-  public AnswerBean(String ptext, Long pseq, String plabel, String pfdbk, Boolean pcorr, String pgrade , Float pscore) {
+  public AnswerBean(String ptext, Long pseq, String plabel, String pfdbk, Boolean pcorr, String pgrade , Double pscore) {
     this.text = ptext;
     this.sequence = pseq;
     this.label = plabel;
@@ -105,7 +105,7 @@ public class AnswerBean implements Serializable{
   
   // additional constroctor for partial credit
 	public AnswerBean(String ptext, Long pseq, String plabel, String pfdbk,
-			Boolean pcorr, String pgrade, Float pscore, String pCredit) {
+			Boolean pcorr, String pgrade, Double pscore, String pCredit) {
 		this.text = ptext;
 		this.sequence = pseq;
 		this.label = plabel;

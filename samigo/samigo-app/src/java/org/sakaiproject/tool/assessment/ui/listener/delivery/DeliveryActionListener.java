@@ -600,8 +600,8 @@ public class DeliveryActionListener
                                            HashMap publishedAnswerHash)
   {
     ContentsDeliveryBean contents = new ContentsDeliveryBean();
-    float currentScore = 0;
-    float maxScore = 0;
+    double currentScore = 0;
+    double maxScore = 0;
 
     // get parts
     ArrayList partSet = publishedAssessment.getSectionArraySorted();
@@ -718,8 +718,8 @@ public class DeliveryActionListener
     DeliveryBean delivery, HashMap publishedAnswerHash)
   {
     ContentsDeliveryBean contents = new ContentsDeliveryBean();
-    float currentScore = 0;
-    float maxScore = 0;
+    double currentScore = 0;
+    double maxScore = 0;
 
     // get parts
     ArrayList partSet = publishedAssessment.getSectionArraySorted();
@@ -763,8 +763,8 @@ public class DeliveryActionListener
     DeliveryBean delivery, HashMap publishedAnswerHash)
   {
     ContentsDeliveryBean contents = new ContentsDeliveryBean();
-    float currentScore = 0;
-    float maxScore = 0;
+    double currentScore = 0;
+    double maxScore = 0;
     int sectionCount = 0;
 
     // get parts
@@ -826,8 +826,8 @@ public class DeliveryActionListener
     DeliveryBean delivery, HashMap publishedAnswerHash)
   {
     ContentsDeliveryBean contents = new ContentsDeliveryBean();
-    float currentScore = 0;
-    float maxScore = 0;
+    double currentScore = 0;
+    double maxScore = 0;
     int sectionCount = 0;
     int questionCount = 0; // This is to increment the part if we run
     // out of questions
@@ -921,8 +921,8 @@ public class DeliveryActionListener
   private SectionContentsBean getPartBean(SectionDataIfc part, HashMap itemGradingHash,
                                           DeliveryBean delivery, HashMap publishedAnswerHash)
   {
-    float maxPoints = 0;
-    float points = 0;
+    double maxPoints = 0;
+    double points = 0;
     int unansweredQuestions = 0;
 
     //SectionContentsBean sec = new SectionContentsBean();
@@ -1016,8 +1016,8 @@ public class DeliveryActionListener
     SectionDataIfc part, int itemIndex, HashMap itemGradingHash, 
     DeliveryBean delivery, HashMap publishedAnswerHash)
   {
-    float maxPoints = 0;
-    float points = 0;
+    double maxPoints = 0;
+    double points = 0;
     int unansweredQuestions = 0;
     int itemCount = 0;
 
@@ -1102,8 +1102,8 @@ public class DeliveryActionListener
   {
     ItemContentsBean itemBean = new ItemContentsBean();
     itemBean.setItemData(item);
-    itemBean.setMaxPoints(item.getScore().floatValue());
-    itemBean.setPoints( (float) 0);
+    itemBean.setMaxPoints(item.getScore().doubleValue());
+    itemBean.setPoints( (double) 0);
 
     // update maxNumAttempts for audio
     if (item.getTriesAllowed() != null)
@@ -1134,7 +1134,7 @@ public class DeliveryActionListener
       if (data.getAutoScore() != null)
       {
         itemBean.setPoints(itemBean.getExactPoints() +
-                           data.getAutoScore().floatValue());
+                           data.getAutoScore().doubleValue());
       }
       // set attempts remaining for audio, there is only one itemGradingData
       // per question in this case  
@@ -1417,9 +1417,9 @@ public class DeliveryActionListener
           
           //multiple choice partial credit:
           if (item.getTypeId().equals(TypeIfc.MULTIPLE_CHOICE) && item.getPartialCreditFlag()){
-        	  Float pc =  Float.valueOf(answer.getPartialCredit());
+        	  Double pc =  Double.valueOf(answer.getPartialCredit());
         	  if (pc == null) {
-        		  pc = Float.valueOf(0f);
+        		  pc = Double.valueOf(0d);
         	  }
         	  if(pc > 0){
         		  if (rb == null) { 	 
@@ -2169,7 +2169,7 @@ public class DeliveryActionListener
               //  mark answer as correct if autoscore > 0
 
               if (data.getAutoScore() != null &&
-                  data.getAutoScore().floatValue() > 0.0)
+                  data.getAutoScore().doubleValue() > 0.0)
                {
                 fbean.setIsCorrect(true);
               }
@@ -2404,7 +2404,7 @@ public class DeliveryActionListener
       //AssessmentGradingData ag = delivery.getAssessmentGrading();
       //delivery.setBeginTime(ag.getAttemptDate());
       if (delivery.isTimeRunning() && delivery.getBeginAssessment()){
-    	//int timeElapsed  = Math.round((float)((new Date()).getTime() - ag.getAttemptDate().getTime())/1000.0f); //in sec
+    	//int timeElapsed  = Math.round((double)((new Date()).getTime() - ag.getAttemptDate().getTime())/1000.0d); //in sec
     	//delivery.setTimeElapse(String.valueOf(timeElapsed));
         /*
     	if (ag.getTimeElapsed() != null){
@@ -2475,7 +2475,7 @@ public class DeliveryActionListener
 	    int timeLimit = Integer.parseInt(delivery.getPublishedAssessment().getAssessmentAccessControl().getTimeLimit().toString());
 		// due date
 	    if (delivery.getDueDate() != null && !acceptLateSubmission) {
-	    	int timeBeforeDue  = Math.round((float)(delivery.getDueDate().getTime() - (new Date()).getTime())/1000.0f); //in sec
+	    	int timeBeforeDue  = Math.round((double)(delivery.getDueDate().getTime() - (new Date()).getTime())/1000.0d); //in sec
 	    	if (timeBeforeDue < timeLimit && fromBeginAssessment) {
 				delivery.setTimeElapse("0");
 				timedAG.setBeginDate(new Date());
@@ -2484,7 +2484,7 @@ public class DeliveryActionListener
 	    }
 	    // retract date
 	    if (delivery.getRetractDate() != null) {
-	    	int timeBeforeRetract  = Math.round((float)(delivery.getRetractDate().getTime() - (new Date()).getTime())/1000.0f); //in sec
+	    	int timeBeforeRetract  = Math.round((double)(delivery.getRetractDate().getTime() - (new Date()).getTime())/1000.0d); //in sec
 	    	if (timeBeforeRetract < timeLimit && fromBeginAssessment) {
 				delivery.setTimeElapse("0");
 				timedAG.setBeginDate(new Date());
@@ -2516,7 +2516,7 @@ public class DeliveryActionListener
     adata.setAttemptDate(new Date());
     adata.setIsLate(Boolean.FALSE);
     adata.setStatus(Integer.valueOf(0));
-    adata.setTotalOverrideScore(Float.valueOf(0));
+    adata.setTotalOverrideScore(Double.valueOf(0));
     adata.setTimeElapsed(Integer.valueOf("0"));
     GradingService gradingService = new GradingService();
     gradingService.saveOrUpdateAssessmentGrading(adata);

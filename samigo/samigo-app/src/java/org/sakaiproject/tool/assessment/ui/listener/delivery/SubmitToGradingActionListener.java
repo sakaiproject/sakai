@@ -408,7 +408,7 @@ public class SubmitToGradingActionListener implements ActionListener {
 			adata.setGradedBy(null);
 			adata.setGradedDate(null);
 			adata.setComments(null);
-			adata.setTotalOverrideScore(Float.valueOf(0f));
+			adata.setTotalOverrideScore(Double.valueOf(0d));
 		}
 	
 		log.debug("*** 2b. before storingGrades, did all the removes and adds "
@@ -561,7 +561,7 @@ public class SubmitToGradingActionListener implements ActionListener {
 		adata.setAttemptDate(new Date());
 		adata.setIsLate(Boolean.FALSE);
 		adata.setStatus(Integer.valueOf(0));
-		adata.setTotalOverrideScore(Float.valueOf(0));
+		adata.setTotalOverrideScore(Double.valueOf(0));
 		adata.setTimeElapsed(Integer.valueOf("0"));
 		return adata;
 	}

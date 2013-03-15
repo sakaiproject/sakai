@@ -1645,18 +1645,18 @@ public class ExtractionHelper
     item.setInstruction( (String) itemMap.get("instruction"));
     if (notNullOrEmpty(score))
     {
-      item.setScore( Float.valueOf(score));
+      item.setScore( Double.valueOf(score));
     }
     else {
-    	item.setScore(Float.valueOf(0));
+    	item.setScore(Double.valueOf(0));
     }
     
     if (notNullOrEmpty(discount))
     {
-    	item.setDiscount(Float.valueOf(discount));
+    	item.setDiscount(Double.valueOf(discount));
     }
     else {
-    	item.setDiscount(Float.valueOf(0));
+    	item.setDiscount(Double.valueOf(0));
     }
 
     if (notNullOrEmpty( partialCreditFlag))
@@ -1825,8 +1825,8 @@ public class ExtractionHelper
 				  answer.setLabel(label); // up to 26, is this a problem?
 
 				  // correct answer and score
-				  float score = 0;
-				  float discount = 0;
+				  double score = 0;
+				  double discount = 0;
 
 				  answer.setIsCorrect(Boolean.FALSE);
 				  // if label matches correct answer it is correct
@@ -1847,9 +1847,9 @@ public class ExtractionHelper
 				  score = getCorrectScore(item, 1);
 				  discount = getCorrectDiscount(item);
 				  log.debug("setting answer" + label + " score to:" + score);
-				  answer.setScore( Float.valueOf(score));
+				  answer.setScore( Double.valueOf(score));
 				  log.debug("setting answer " + label + " discount to:" + discount);
-				  answer.setDiscount(Float.valueOf(discount));
+				  answer.setDiscount(Double.valueOf(discount));
 
 				  answer.setText(makeFCKAttachment(answerText));
 				  answer.setItemText(itemText);
@@ -1879,10 +1879,10 @@ public class ExtractionHelper
 						  index = index - 1L;
 						  int indexInteger = Long.valueOf(index).intValue();
 						  String strPCredit = (String) answerScoreList.get(indexInteger);
-						  float fltPCredit = Float.parseFloat(strPCredit);
-						  Float pCredit = (fltPCredit/(item.getScore().floatValue()))*100;
+						  double fltPCredit = Double.parseDouble(strPCredit);
+						  Double pCredit = (fltPCredit/(item.getScore().doubleValue()))*100;
 						  if (pCredit.isNaN()){
-							  answer.setPartialCredit(0F);
+							  answer.setPartialCredit(0D);
 						  }
 						  else{
 							  answer.setPartialCredit(pCredit);
@@ -1988,17 +1988,17 @@ public class ExtractionHelper
 			  answer.setLabel(label); // up to 26, is this a problem?
 
 			  // correct answer and score
-			  float score = 0;
-			  float discount = 0;
+			  double score = 0;
+			  double discount = 0;
 
 			  // manual authoring disregards correctness
 			  // so we will do the same.
 			  score = getCorrectScore(item, 1);
 			  discount = getCorrectDiscount(item);
 			  log.debug("setting answer" + label + " score to:" + score);
-			  answer.setScore( Float.valueOf(score));
+			  answer.setScore( Double.valueOf(score));
 			  log.debug("setting answer " + label + " discount to:" + discount);
-			  answer.setDiscount(Float.valueOf(discount));
+			  answer.setDiscount(Double.valueOf(discount));
 
 			  answer.setItemText(itemText);
 			  answer.setItem(item.getData());
@@ -2014,22 +2014,22 @@ public class ExtractionHelper
 	  item.setItemTextSet(itemTextSet);
   }
 
-  private float getCorrectScore(ItemDataIfc item, int answerSize)
+  private double getCorrectScore(ItemDataIfc item, int answerSize)
   {
-    float score =0;
+    double score =0;
     if (answerSize>0 && item!=null && item.getScore()!=null)
     {
-      score = item.getScore().floatValue()/answerSize;
+      score = item.getScore().doubleValue()/answerSize;
     }
     return score;
   }
 
-  private float getCorrectDiscount(ItemDataIfc item)
+  private double getCorrectDiscount(ItemDataIfc item)
   {
-	  float discount =0;
+	  double discount =0;
 	  if (item!=null && item.getDiscount()!=null)
 	  {
-		  discount = item.getDiscount().floatValue();
+		  discount = item.getDiscount().doubleValue();
 	  }
 	  return discount;
   }
@@ -2181,15 +2181,15 @@ public class ExtractionHelper
         answer.setIsCorrect(Boolean.TRUE);
         // manual authoring disregards the number of partial answers
         // so we will do the same.
-        float score = getCorrectScore(item, 1);
-        float discount = getCorrectDiscount(item);
-//        float score = getCorrectScore(item, answerList.size());
+        double score = getCorrectScore(item, 1);
+        double discount = getCorrectDiscount(item);
+//        double score = getCorrectScore(item, answerList.size());
 
         log.debug("setting answer " + label + " score to:" + score);
-        answer.setScore( Float.valueOf(score));
+        answer.setScore( Double.valueOf(score));
         
         log.debug("setting answer " + label + " discount to:" + discount);
-        answer.setDiscount( Float.valueOf(discount));
+        answer.setDiscount( Double.valueOf(discount));
         
         answer.setItem(item.getData());
         int sequence = a + 1;
@@ -2258,7 +2258,7 @@ public class ExtractionHelper
 	  answer.setText(makeFCKAttachment(answerTextStringbuf.toString()));
 	  answer.setItemText(itemText);
 	  answer.setIsCorrect(Boolean.TRUE);
-	  answer.setScore(Float.valueOf(item.getScore()));
+	  answer.setScore(Double.valueOf(item.getScore()));
 	  answer.setItem(item.getData());
 	  answer.setSequence(Long.valueOf(1l));
 	  answerSet.add(answer);
@@ -2416,9 +2416,9 @@ public class ExtractionHelper
         // correct answer and score
         // manual authoring disregards the number of partial answers
         // or whether the answer is correct so we will do the same.
-//        float score = 0;
-        float score = getCorrectScore(item, 1);
-        float discount = getCorrectDiscount(item);
+//        double score = 0;
+        double score = getCorrectScore(item, 1);
+        double discount = getCorrectDiscount(item);
         
         // assume that the xslt creates the three important lists in the correct order
         // sourceList and target list individually don't matter
@@ -2437,8 +2437,8 @@ public class ExtractionHelper
           target.setIsCorrect(Boolean.FALSE);
         }
         log.debug("setting answer " + a + " score to:" + score);
-        target.setScore( Float.valueOf(score));
-        target.setDiscount(Float.valueOf(discount));
+        target.setScore( Double.valueOf(score));
+        target.setDiscount(Double.valueOf(discount));
 
         if (answerFeedbackList != null)
         {
@@ -2544,7 +2544,7 @@ public class ExtractionHelper
 			  answer.setItemText(sourceItemText);
 			  answer.setItem(item.getData());
 			  answer.setSequence( Long.valueOf(answerSequence++));
-			  answer.setScore(Float.valueOf(getCorrectScore(item, 1)));
+			  answer.setScore(Double.valueOf(getCorrectScore(item, 1)));
 
 			  ident = source.getKey();
 			  correctVar = correctMap.get(ident);
@@ -2665,13 +2665,13 @@ public class ExtractionHelper
 				  // correct answer and score
 				  // manual authoring disregards the number of partial answers
 				  // or whether the answer is correct so we will do the same.
-				  // float score = 0;
-				  float score = 0.0f;
-				  float discount = 0.0f;
+				  // double score = 0;
+				  double score = 0.0d;
+				  double discount = 0.0d;
 
 				  log.debug("setting answer " + a + " score to:" + score);
-				  target.setScore( Float.valueOf(score));
-				  target.setDiscount(Float.valueOf(discount));
+				  target.setScore( Double.valueOf(score));
+				  target.setDiscount(Double.valueOf(discount));
 
 				  targetSet.add(target);
 

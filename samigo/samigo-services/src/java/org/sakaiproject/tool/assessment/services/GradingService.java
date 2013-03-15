@@ -706,15 +706,15 @@ public class GradingService
     }
   }
 
-  public void updateItemScore(ItemGradingData gdata, float scoreDifference, PublishedAssessmentIfc pub){
+  public void updateItemScore(ItemGradingData gdata, double scoreDifference, PublishedAssessmentIfc pub){
     try {
       AssessmentGradingData adata = load(gdata.getAssessmentGradingId().toString());
       adata.setItemGradingSet(getItemGradingSet(adata.getAssessmentGradingId().toString()));
 
       Set itemGradingSet = adata.getItemGradingSet();
       Iterator iter = itemGradingSet.iterator();
-      float totalAutoScore = 0;
-      float totalOverrideScore = adata.getTotalOverrideScore().floatValue();
+      double totalAutoScore = 0;
+      double totalOverrideScore = adata.getTotalOverrideScore().doubleValue();
       while (iter.hasNext()){
         ItemGradingData i = (ItemGradingData)iter.next();
         if (i.getItemGradingId().equals(gdata.getItemGradingId())){
@@ -724,14 +724,14 @@ public class GradingService
           i.setGradedDate(new Date());
 	}
         if (i.getAutoScore()!=null)
-          totalAutoScore += i.getAutoScore().floatValue();
+          totalAutoScore += i.getAutoScore().doubleValue();
       }
       
-      adata.setTotalAutoScore( Float.valueOf(totalAutoScore));
-      if (Float.compare((totalAutoScore+totalOverrideScore),Float.valueOf("0").floatValue())<0){
-    	  adata.setFinalScore(Float.valueOf("0"));
+      adata.setTotalAutoScore( Double.valueOf(totalAutoScore));
+      if (Double.compare((totalAutoScore+totalOverrideScore),Double.valueOf("0").doubleValue())<0){
+    	  adata.setFinalScore(Double.valueOf("0"));
       }else{
-    	  adata.setFinalScore(Float.valueOf(totalAutoScore+totalOverrideScore));
+    	  adata.setFinalScore(Double.valueOf(totalAutoScore+totalOverrideScore));
       }
       saveOrUpdateAssessmentGrading(adata);
       if (scoreDifference != 0){
@@ -832,7 +832,7 @@ public class GradingService
       //change algorithm based on each question (SAK-1930 & IM271559) -cwen
       HashMap totalItems = new HashMap();
       log.debug("****x2. "+(new Date()).getTime());
-      float autoScore = (float) 0;
+      double autoScore = (double) 0;
       Long itemId = (long)0;
       int calcQuestionAnswerSequence = 1; // sequence of answers for CALCULATED_QUESTION
       while(iter.hasNext())
@@ -856,12 +856,12 @@ public class GradingService
         	continue;
         }
         Long itemType = item.getTypeId();  
-    	autoScore = (float) 0;
+    	autoScore = (double) 0;
 
         itemGrading.setAssessmentGradingId(data.getAssessmentGradingId());
         //itemGrading.setSubmittedDate(new Date());
         itemGrading.setAgentId(agent);
-        itemGrading.setOverrideScore(Float.valueOf(0));
+        itemGrading.setOverrideScore(Double.valueOf(0));
         
         if (itemType == 5 && itemGrading.getAnswerText() != null) {
         	String processedAnswerText = itemGrading.getAnswerText().replaceAll("\r", "").replaceAll("\n", "");
@@ -878,7 +878,7 @@ public class GradingService
                                totalItems, fibAnswersMap, publishedAnswerHash, regrade, calcQuestionAnswerSequence );
         }
         catch (FinFormatException e) {
-        	autoScore = 0f;
+        	autoScore = 0d;
         	if (invalidFINMap != null) {
         		if (invalidFINMap.containsKey(itemId)) {
         			ArrayList list = (ArrayList) invalidFINMap.get(itemId);
@@ -894,12 +894,12 @@ public class GradingService
         
         log.debug("**!regrade, autoScore="+autoScore);
         if (!(TypeIfc.MULTIPLE_CORRECT).equals(itemType))
-          totalItems.put(itemId, Float.valueOf(autoScore));
+          totalItems.put(itemId, Double.valueOf(autoScore));
         
         if (regrade && TypeIfc.AUDIO_RECORDING.equals(itemType))
         	itemGrading.setAttemptsRemaining(item.getTriesAllowed());
 	
-        itemGrading.setAutoScore(Float.valueOf(autoScore));
+        itemGrading.setAutoScore(Double.valueOf(autoScore));
       }
 
       if ((invalidFINMap != null && invalidFINMap.size() > 0) || (invalidSALengthList != null && invalidSALengthList.size() > 0)) {
@@ -920,11 +920,11 @@ public class GradingService
       iter = itemGradingSet.iterator();
       //since the itr goes through each answer (multiple answers for a signle mc question), keep track
       //of its total score by itemId -> autoScore[]{user's score, total possible}
-      Map<Long, Float[]> mcmcAllOrNothingCheck = new HashMap<Long, Float[]>();
+      Map<Long, Double[]> mcmcAllOrNothingCheck = new HashMap<Long, Double[]>();
       //get item information to check if it's MCMS and Not Partial Credit
       Long itemType2 = -1l;
       String mcmsPartialCredit = "";
-      float itemScore = -1;
+      double itemScore = -1;
       while(iter.hasNext())
       {
         ItemGradingData itemGrading = (ItemGradingData) iter.next();
@@ -939,34 +939,34 @@ public class GradingService
         //get item information to check if it's MCMS and Not Partial Credit
         mcmsPartialCredit = item.getItemMetaDataByLabel(ItemMetaDataIfc.MCMS_PARTIAL_CREDIT);
         itemScore = item.getScore();
-        //float autoScore = (float) 0;
+        //double autoScore = (double) 0;
 
-        float eachItemScore = ((Float) totalItems.get(itemId)).floatValue();
+        double eachItemScore = ((Double) totalItems.get(itemId)).doubleValue();
         if((eachItemScore < 0) && !((TypeIfc.MULTIPLE_CHOICE).equals(itemType2)||(TypeIfc.TRUE_FALSE).equals(itemType2)))
         {
-        	itemGrading.setAutoScore( Float.valueOf(0));
+        	itemGrading.setAutoScore( Double.valueOf(0));
         }
         //keep track of MCMC answer's total score in order to check for all or nothing
         if(TypeIfc.MULTIPLE_CORRECT.equals(itemType2)  && "false".equals(mcmsPartialCredit)){
-        	Float accumulatedScore = itemGrading.getAutoScore();
+        	Double accumulatedScore = itemGrading.getAutoScore();
         	if(mcmcAllOrNothingCheck.containsKey(itemId)){
-        		Float[] accumulatedScoreArr = mcmcAllOrNothingCheck.get(itemId);
+        		Double[] accumulatedScoreArr = mcmcAllOrNothingCheck.get(itemId);
         		accumulatedScore += accumulatedScoreArr[0];
         	}
-        	mcmcAllOrNothingCheck.put(itemId, new Float[]{accumulatedScore, item.getScore()});
+        	mcmcAllOrNothingCheck.put(itemId, new Double[]{accumulatedScore, item.getScore()});
         }
       }
       // if it's MCMS and Not Partial Credit and the score isn't 100% (totalAutoScoreCheck != itemScore),
       // that means the user didn't answer all of the correct answers only.  
       // We need to set their score to 0 for all ItemGrading items
-      for(Entry<Long, Float[]> entry : mcmcAllOrNothingCheck.entrySet()){
+      for(Entry<Long, Double[]> entry : mcmcAllOrNothingCheck.entrySet()){
     	  if(!(MathUtils.equalsIncludingNaN(entry.getValue()[0], entry.getValue()[1], 0.0001))){
     		  //reset all scores to 0 since the user didn't get all correct answers
     		  iter = itemGradingSet.iterator();
     		  while(iter.hasNext()){
     			  ItemGradingData itemGrading = (ItemGradingData) iter.next();
     			  if(itemGrading.getPublishedItemId().equals(entry.getKey())){
-    				  itemGrading.setAutoScore(Float.valueOf(0));
+    				  itemGrading.setAutoScore(Double.valueOf(0));
     			  }
     		  }
     	  }
@@ -987,13 +987,13 @@ public class GradingService
       // save#2: now, we need to get the full set so we can calculate the total score accumulate for the
       // whole assessment.
       Set fullItemGradingSet = getItemGradingSet(data.getAssessmentGradingId().toString());
-      float totalAutoScore = getTotalAutoScore(fullItemGradingSet);
-      data.setTotalAutoScore( Float.valueOf(totalAutoScore));
+      double totalAutoScore = getTotalAutoScore(fullItemGradingSet);
+      data.setTotalAutoScore( Double.valueOf(totalAutoScore));
       //log.debug("**#1 total AutoScore"+totalAutoScore);
-      if (Float.compare((totalAutoScore + data.getTotalOverrideScore().floatValue()),new Float("0").floatValue())<0){
-    	  data.setFinalScore( Float.valueOf("0"));
+      if (Double.compare((totalAutoScore + data.getTotalOverrideScore().doubleValue()),new Double("0").doubleValue())<0){
+    	  data.setFinalScore( Double.valueOf("0"));
       }else{
-    	  data.setFinalScore(Float.valueOf(totalAutoScore + data.getTotalOverrideScore().floatValue()));
+    	  data.setFinalScore(Double.valueOf(totalAutoScore + data.getTotalOverrideScore().doubleValue()));
       }
       log.debug("****x6. "+(new Date()).getTime());
     } catch (GradebookServiceException ge) {
@@ -1029,15 +1029,15 @@ public class GradingService
     }
   }
 
-  private float getTotalAutoScore(Set itemGradingSet){
+  private double getTotalAutoScore(Set itemGradingSet){
       //log.debug("*** no. of itemGrading="+itemGradingSet.size());
-    float totalAutoScore =0;
+    double totalAutoScore =0;
     Iterator iter = itemGradingSet.iterator();
     while (iter.hasNext()){
       ItemGradingData i = (ItemGradingData)iter.next();
       //log.debug(i.getItemGradingId()+"->"+i.getAutoScore());
       if (i.getAutoScore()!=null)
-	totalAutoScore += i.getAutoScore().floatValue();
+	totalAutoScore += i.getAutoScore().doubleValue();
     }
     return totalAutoScore;
   }
@@ -1053,15 +1053,15 @@ public class GradingService
     }
   }
   
-  private float getScoreByQuestionType(ItemGradingData itemGrading, ItemDataIfc item,
+  private double getScoreByQuestionType(ItemGradingData itemGrading, ItemDataIfc item,
                                        Long itemType, HashMap publishedItemTextHash, 
                                        HashMap totalItems, HashMap fibAnswersMap,
                                        HashMap publishedAnswerHash, boolean regrade,
                                        int calcQuestionAnswerSequence) throws FinFormatException {
-    //float score = (float) 0;
-    float initScore = (float) 0;
-    float autoScore = (float) 0;
-    float accumelateScore = (float) 0;
+    //double score = (double) 0;
+    double initScore = (double) 0;
+    double autoScore = (double) 0;
+    double accumelateScore = (double) 0;
     Long itemId = item.getItemId();
     int type = itemType.intValue();
     switch (type){ 
@@ -1073,8 +1073,8 @@ public class GradingService
     	}
     	//overridescore
     	if (itemGrading.getOverrideScore() != null)
-    		autoScore += itemGrading.getOverrideScore().floatValue();
-    	totalItems.put(itemId, new Float(autoScore));
+    		autoScore += itemGrading.getOverrideScore().doubleValue();
+    	totalItems.put(itemId, new Double(autoScore));
     	break;// MC Single Correct
       case 12: // MC Multiple Correct Single Selection    	  
       case 3: // MC Survey
@@ -1082,8 +1082,8 @@ public class GradingService
               autoScore = getAnswerScore(itemGrading, publishedAnswerHash);
               //overridescore
               if (itemGrading.getOverrideScore() != null)
-                autoScore += itemGrading.getOverrideScore().floatValue();
-	      totalItems.put(itemId,  Float.valueOf(autoScore));
+                autoScore += itemGrading.getOverrideScore().doubleValue();
+	      totalItems.put(itemId,  Double.valueOf(autoScore));
               break;
       case 2: // MC Multiple Correct
               ItemTextIfc itemText = (ItemTextIfc) publishedItemTextHash.get(itemGrading.getPublishedItemTextId());
@@ -1100,23 +1100,23 @@ public class GradingService
               if (initScore > 0)
                 autoScore = initScore / correctAnswers;
               else
-                autoScore = (getTotalCorrectScore(itemGrading, publishedAnswerHash) / correctAnswers) * ((float) -1);
+                autoScore = (getTotalCorrectScore(itemGrading, publishedAnswerHash) / correctAnswers) * ((double) -1);
 
               //overridescore?
               if (itemGrading.getOverrideScore() != null)
-                autoScore += itemGrading.getOverrideScore().floatValue();
+                autoScore += itemGrading.getOverrideScore().doubleValue();
               if (!totalItems.containsKey(itemId)){
-                totalItems.put(itemId,  Float.valueOf(autoScore));
+                totalItems.put(itemId,  Double.valueOf(autoScore));
                 //log.debug("****0. first answer score = "+autoScore);
               }
               else{
-                accumelateScore = ((Float)totalItems.get(itemId)).floatValue();
+                accumelateScore = ((Double)totalItems.get(itemId)).doubleValue();
                 //log.debug("****1. before adding new score = "+accumelateScore);
                 //log.debug("****2. this answer score = "+autoScore);
                 accumelateScore += autoScore;
                 //log.debug("****3. add 1+2 score = "+accumelateScore);
-                totalItems.put(itemId,  Float.valueOf(accumelateScore));
-                //log.debug("****4. what did we put in = "+((Float)totalItems.get(itemId)).floatValue());
+                totalItems.put(itemId,  Double.valueOf(accumelateScore));
+                //log.debug("****4. what did we put in = "+((Double)totalItems.get(itemId)).doubleValue());
               }
               break;
 
@@ -1135,29 +1135,29 @@ public class GradingService
               	}
               //overridescore?
               if (itemGrading.getOverrideScore() != null)
-                autoScore += itemGrading.getOverrideScore().floatValue();
+                autoScore += itemGrading.getOverrideScore().doubleValue();
 
               if (!totalItems.containsKey(itemId))
-                totalItems.put(itemId,  Float.valueOf(autoScore));
+                totalItems.put(itemId,  Double.valueOf(autoScore));
               else {
-                accumelateScore = ((Float)totalItems.get(itemId)).floatValue();
+                accumelateScore = ((Double)totalItems.get(itemId)).doubleValue();
                 accumelateScore += autoScore;
-                totalItems.put(itemId,  Float.valueOf(accumelateScore));
+                totalItems.put(itemId,  Double.valueOf(accumelateScore));
               }
               break;
 
       case 8: // FIB
-              autoScore = getFIBScore(itemGrading, fibAnswersMap, item, publishedAnswerHash) / (float) ((ItemTextIfc) item.getItemTextSet().toArray()[0]).getAnswerSet().size();
+              autoScore = getFIBScore(itemGrading, fibAnswersMap, item, publishedAnswerHash) / (double) ((ItemTextIfc) item.getItemTextSet().toArray()[0]).getAnswerSet().size();
               //overridescore - cwen
               if (itemGrading.getOverrideScore() != null)
-                autoScore += itemGrading.getOverrideScore().floatValue();
+                autoScore += itemGrading.getOverrideScore().doubleValue();
 
               if (!totalItems.containsKey(itemId))
-                totalItems.put(itemId, Float.valueOf(autoScore));
+                totalItems.put(itemId, Double.valueOf(autoScore));
               else {
-                accumelateScore = ((Float)totalItems.get(itemId)).floatValue();
+                accumelateScore = ((Double)totalItems.get(itemId)).doubleValue();
                 accumelateScore += autoScore;
-                totalItems.put(itemId, Float.valueOf(accumelateScore));
+                totalItems.put(itemId, Double.valueOf(accumelateScore));
               }
               break;
       case 15:  // CALCULATED_QUESTION
@@ -1166,9 +1166,9 @@ public class GradingService
     	      if (type == 15) {  // CALCULATED_QUESTION
 	              HashMap calculatedAnswersMap = getCalculatedAnswersMap(itemGrading, item);
 	              int numAnswers = calculatedAnswersMap.size();
-	              autoScore = getCalcQScore(itemGrading, item, calculatedAnswersMap, calcQuestionAnswerSequence ) / (float) numAnswers;
+	              autoScore = getCalcQScore(itemGrading, item, calculatedAnswersMap, calcQuestionAnswerSequence ) / (double) numAnswers;
 	          } else {
-	              autoScore = getFINScore(itemGrading, item, publishedAnswerHash) / (float) ((ItemTextIfc) item.getItemTextSet().toArray()[0]).getAnswerSet().size();
+	              autoScore = getFINScore(itemGrading, item, publishedAnswerHash) / (double) ((ItemTextIfc) item.getItemTextSet().toArray()[0]).getAnswerSet().size();
 	          }
     	  }
     	  catch (FinFormatException e) {
@@ -1176,14 +1176,14 @@ public class GradingService
     	  }
     	  //overridescore - cwen
           if (itemGrading.getOverrideScore() != null)
-            autoScore += itemGrading.getOverrideScore().floatValue();
+            autoScore += itemGrading.getOverrideScore().doubleValue();
 
           if (!totalItems.containsKey(itemId))
-            totalItems.put(itemId, Float.valueOf(autoScore));
+            totalItems.put(itemId, Double.valueOf(autoScore));
           else {
-            accumelateScore = ((Float)totalItems.get(itemId)).floatValue();
+            accumelateScore = ((Double)totalItems.get(itemId)).doubleValue();
             accumelateScore += autoScore;
-            totalItems.put(itemId, Float.valueOf(accumelateScore));
+            totalItems.put(itemId, Double.valueOf(accumelateScore));
           }
           break;
 
@@ -1195,13 +1195,13 @@ public class GradingService
     	  	    autoScore = itemGrading.getAutoScore();
     	  	  }
               if (itemGrading.getOverrideScore() != null)
-                autoScore += itemGrading.getOverrideScore().floatValue();
+                autoScore += itemGrading.getOverrideScore().doubleValue();
               if (!totalItems.containsKey(itemId))
-                totalItems.put(itemId, Float.valueOf(autoScore));
+                totalItems.put(itemId, Double.valueOf(autoScore));
               else {
-                accumelateScore = ((Float)totalItems.get(itemId)).floatValue();
+                accumelateScore = ((Double)totalItems.get(itemId)).doubleValue();
                 accumelateScore += autoScore;
-                totalItems.put(itemId, Float.valueOf(accumelateScore));
+                totalItems.put(itemId, Double.valueOf(accumelateScore));
               }
               break;
     }
@@ -1215,25 +1215,25 @@ public class GradingService
    * Choices should be given negative score values if one wants them
    * to lose points for the wrong choice.
    */
-  public float getAnswerScore(ItemGradingData data, HashMap publishedAnswerHash)
+  public double getAnswerScore(ItemGradingData data, HashMap publishedAnswerHash)
   {
     AnswerIfc answer = (AnswerIfc) publishedAnswerHash.get(data.getPublishedAnswerId());
     if (answer == null || answer.getScore() == null) {
-    	return (float) 0;
+    	return (double) 0;
     }
     ItemDataIfc item = (ItemDataIfc) answer.getItem();
     Long itemType = item.getTypeId();
     if (answer.getIsCorrect() == null || !answer.getIsCorrect().booleanValue())
     {
-    	// return (float) 0;
+    	// return (double) 0;
     	// Para que descuente (For discount)
     	if ((TypeIfc.MULTIPLE_CHOICE).equals(itemType)||(TypeIfc.TRUE_FALSE).equals(itemType)){
-    		return (Math.abs(answer.getDiscount().floatValue()) * ((float) -1));
+    		return (Math.abs(answer.getDiscount().doubleValue()) * ((double) -1));
     	}else{
-    		return (float) 0;
+    		return (double) 0;
     	}
     }
-    return answer.getScore().floatValue();
+    return answer.getScore().doubleValue();
   }
 
   public void notifyGradebook(AssessmentGradingData data, PublishedAssessmentIfc pub) throws GradebookServiceException {
@@ -1259,7 +1259,7 @@ public class GradingService
 
     // add retry logic to resolve deadlock problem while sending grades to gradebook
 
-    Float originalFinalScore = data.getFinalScore();
+    Double originalFinalScore = data.getFinalScore();
     int retryCount = PersistenceService.getInstance().getPersistenceHelper().getRetryCount().intValue();
     while (retryCount > 0){
     	try {
@@ -1270,7 +1270,7 @@ public class GradingService
     			if(data.getStatus() ==5) {
     				data.setFinalScore(data.getFinalScore());
     			} else {
-    				Float averageScore = PersistenceService.getInstance().getAssessmentGradingFacadeQueries().
+    				Double averageScore = PersistenceService.getInstance().getAssessmentGradingFacadeQueries().
     				getAverageSubmittedAssessmentGrading(Long.valueOf(pub.getPublishedAssessmentId()), data.getAgentId());
     				data.setFinalScore(averageScore);
     			}
@@ -1388,11 +1388,11 @@ Here are the definition and 12 cases I came up with (lydia, 01/2006):
 
   */
   
-  public float getFIBScore(ItemGradingData data, HashMap fibmap,  ItemDataIfc itemdata, HashMap publishedAnswerHash)
+  public double getFIBScore(ItemGradingData data, HashMap fibmap,  ItemDataIfc itemdata, HashMap publishedAnswerHash)
   {
     String studentanswer = "";
     boolean matchresult = false;
-    float totalScore = (float) 0;
+    double totalScore = (double) 0;
     data.setIsCorrect(Boolean.FALSE);
     
     if (data.getPublishedAnswerId() == null) {
@@ -1455,7 +1455,7 @@ Here are the definition and 12 cases I came up with (lydia, 01/2006):
             }
 
             if (!alreadyused) {
-              totalScore += ((AnswerIfc) publishedAnswerHash.get(data.getPublishedAnswerId())).getScore().floatValue();
+              totalScore += ((AnswerIfc) publishedAnswerHash.get(data.getPublishedAnswerId())).getScore().doubleValue();
               data.setIsCorrect(Boolean.TRUE);
             }
 
@@ -1547,12 +1547,12 @@ Here are the definition and 12 cases I came up with (lydia, 01/2006):
   }
   
   
-  public float getFINScore(ItemGradingData data,  ItemDataIfc itemdata, HashMap publishedAnswerHash) throws FinFormatException
+  public double getFINScore(ItemGradingData data,  ItemDataIfc itemdata, HashMap publishedAnswerHash) throws FinFormatException
   {
-	  float totalScore = (float) 0;
+	  double totalScore = (double) 0;
 	  boolean matchresult = getFINResult(data, itemdata, publishedAnswerHash);
 	  if (matchresult){
-		  totalScore += ((AnswerIfc) publishedAnswerHash.get(data.getPublishedAnswerId())).getScore().floatValue();
+		  totalScore += ((AnswerIfc) publishedAnswerHash.get(data.getPublishedAnswerId())).getScore().doubleValue();
 		  data.setIsCorrect(Boolean.TRUE);
 	  }	
 	  return totalScore;
@@ -1709,14 +1709,14 @@ Here are the definition and 12 cases I came up with (lydia, 01/2006):
   }
   /**
    * CALCULATED_QUESTION
-   * Returns a float score value for the ItemGrading element being scored for a Calculated Question
+   * Returns a double score value for the ItemGrading element being scored for a Calculated Question
    * 
    * @param calcQuestionAnswerSequence the order of answers in the list
    * @return score for the item.
    */
-  public float getCalcQScore(ItemGradingData data,  ItemDataIfc itemdata, HashMap calculatedAnswersMap, int calcQuestionAnswerSequence)
+  public double getCalcQScore(ItemGradingData data,  ItemDataIfc itemdata, HashMap calculatedAnswersMap, int calcQuestionAnswerSequence)
   {
-	  float totalScore = (float) 0;
+	  double totalScore = (double) 0;
 	  
 	  if (data.getAnswerText() == null) return totalScore; // zero for blank
 	  
@@ -1758,12 +1758,12 @@ Here are the definition and 12 cases I came up with (lydia, 01/2006):
   }
   
   
-  public float getTotalCorrectScore(ItemGradingData data, HashMap publishedAnswerHash)
+  public double getTotalCorrectScore(ItemGradingData data, HashMap publishedAnswerHash)
   {
     AnswerIfc answer = (AnswerIfc) publishedAnswerHash.get(data.getPublishedAnswerId());
     if (answer == null || answer.getScore() == null)
-      return (float) 0;
-    return answer.getScore().floatValue();
+      return (double) 0;
+    return answer.getScore().doubleValue();
   }
 
   private void setIsLate(AssessmentGradingData data, PublishedAssessmentIfc pub){
@@ -1776,7 +1776,7 @@ Here are the definition and 12 cases I came up with (lydia, 01/2006):
     if (data.getForGrade().booleanValue())
       data.setStatus( Integer.valueOf(1));
     
-    data.setTotalOverrideScore(Float.valueOf(0));
+    data.setTotalOverrideScore(Double.valueOf(0));
   }
 
   public void deleteAll(Collection c)
@@ -1796,20 +1796,20 @@ Here are the definition and 12 cases I came up with (lydia, 01/2006):
     try {
       Set itemGradingSet = adata.getItemGradingSet();
       Iterator iter = itemGradingSet.iterator();
-      float totalAutoScore = 0;
-      float totalOverrideScore = adata.getTotalOverrideScore().floatValue();
+      double totalAutoScore = 0;
+      double totalOverrideScore = adata.getTotalOverrideScore().doubleValue();
       while (iter.hasNext()){
         ItemGradingData i = (ItemGradingData)iter.next();
         if (i.getAutoScore()!=null)
-          totalAutoScore += i.getAutoScore().floatValue();
+          totalAutoScore += i.getAutoScore().doubleValue();
         }
-        float oldAutoScore = adata.getTotalAutoScore().floatValue();
-        float scoreDifference = totalAutoScore - oldAutoScore;
-        adata.setTotalAutoScore(Float.valueOf(totalAutoScore));
-        if (Float.compare((totalAutoScore+totalOverrideScore),Float.valueOf("0").floatValue())<0){
-        	adata.setFinalScore(Float.valueOf("0"));
+        double oldAutoScore = adata.getTotalAutoScore().doubleValue();
+        double scoreDifference = totalAutoScore - oldAutoScore;
+        adata.setTotalAutoScore(Double.valueOf(totalAutoScore));
+        if (Double.compare((totalAutoScore+totalOverrideScore),Double.valueOf("0").doubleValue())<0){
+        	adata.setFinalScore(Double.valueOf("0"));
         }else{
-        	adata.setFinalScore(Float.valueOf(totalAutoScore+totalOverrideScore));
+        	adata.setFinalScore(Double.valueOf(totalAutoScore+totalOverrideScore));
         }
         saveOrUpdateAssessmentGrading(adata);
         if (scoreDifference != 0){
@@ -2499,8 +2499,8 @@ Here are the definition and 12 cases I came up with (lydia, 01/2006):
 		  
 		  String delimRange = entry.getValue().toString(); // ie. "-100|100,2"
 		  		  
-		  float minVal = Float.valueOf(delimRange.substring(0, delimRange.indexOf('|')));
-		  float maxVal = Float.valueOf(delimRange.substring(delimRange.indexOf('|')+1, delimRange.indexOf(',')));
+		  double minVal = Double.valueOf(delimRange.substring(0, delimRange.indexOf('|')));
+		  double maxVal = Double.valueOf(delimRange.substring(delimRange.indexOf('|')+1, delimRange.indexOf(',')));
 		  int decimalPlaces = Integer.valueOf(delimRange.substring(delimRange.indexOf(',')+1, delimRange.length()));
 		  		  
 		  // This line does the magic of creating the random variable value within the range.
@@ -2683,16 +2683,16 @@ Here are the definition and 12 cases I came up with (lydia, 01/2006):
    * Choices should be given negative score values if one wants them
    * to lose points for the wrong choice.
    */
-  public float getAnswerScoreMCQ(ItemGradingData data, HashMap publishedAnswerHash)
+  public double getAnswerScoreMCQ(ItemGradingData data, HashMap publishedAnswerHash)
   {
 	  AnswerIfc answer = (AnswerIfc) publishedAnswerHash.get(data.getPublishedAnswerId());
 	  if (answer == null || answer.getScore() == null) {
-		  return 0f;
+		  return 0d;
 	  }
 	  else if (answer.getIsCorrect().booleanValue()){ // instead of using answer score Item score needs to be used here 
-		  return (answer.getItem().getScore().floatValue()); //--mustansar 
+		  return (answer.getItem().getScore().doubleValue()); //--mustansar 
 	  }
-	  return (answer.getItem().getScore().floatValue()*answer.getPartialCredit().floatValue())/100f;
+	  return (answer.getItem().getScore().doubleValue()*answer.getPartialCredit().doubleValue())/100d;
   }
 	
   	/**

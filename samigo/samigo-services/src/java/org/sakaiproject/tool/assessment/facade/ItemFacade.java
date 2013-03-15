@@ -76,8 +76,8 @@ public class ItemFacade implements Serializable, ItemDataIfc, Comparable {
   protected String instruction;
   protected Long typeId;
   protected String grade;
-  protected Float score;
-  protected Float discount;
+  protected Double score;
+  protected Double discount;
   protected String hint;
   protected Boolean partialCreditFlag;
   protected Boolean hasRationale;
@@ -428,7 +428,7 @@ public class ItemFacade implements Serializable, ItemDataIfc, Comparable {
    * @return
    * @throws DataFacadeException
    */
-  public Float getScore() throws DataFacadeException {
+  public Double getScore() throws DataFacadeException {
     try {
       this.data = (ItemDataIfc) item.getData();
     }
@@ -442,7 +442,7 @@ public class ItemFacade implements Serializable, ItemDataIfc, Comparable {
    * Set Score for ItemFacade
    * @param score
    */
-  public void setScore(Float score) {
+  public void setScore(Double score) {
     this.score = score;
     this.data.setScore(score);
   }
@@ -452,7 +452,7 @@ public class ItemFacade implements Serializable, ItemDataIfc, Comparable {
    * @return
    * @throws DataFacadeException
    */
-  public Float getDiscount() throws DataFacadeException {
+  public Double getDiscount() throws DataFacadeException {
 	  try {
 		  this.data = (ItemDataIfc) item.getData();
 	  }
@@ -466,7 +466,7 @@ public class ItemFacade implements Serializable, ItemDataIfc, Comparable {
    * Set Discount for ItemFacade
    * @param discount
    */
-  public void setDiscount(Float discount) {
+  public void setDiscount(Double discount) {
 	  this.discount = discount;
 	  this.data.setDiscount(discount);
   }

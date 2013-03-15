@@ -710,7 +710,7 @@ public class AssessmentGradingFacadeQueries extends HibernateDaoSupport implemen
     
     if (itemGradingId != null) {
     	ItemGradingData itemGradingData = getItemGrading(itemGradingId);
-    	itemGradingData.setAutoScore(Float.valueOf(0));
+    	itemGradingData.setAutoScore(Double.valueOf(0));
     	saveItemGrading(itemGradingData);
     }
   }
@@ -1435,7 +1435,7 @@ public class AssessmentGradingFacadeQueries extends HibernateDaoSupport implemen
 
 //    ArrayList l = new ArrayList();
     String currentAgent="";
-    Float finalScore = null;
+    Double finalScore = null;
     for (int i=0; i<assessmentGradings.size(); i++){
       AssessmentGradingData g = (AssessmentGradingData)assessmentGradings.get(i);
       Long itemId = g.getPublishedItemId();
@@ -2068,7 +2068,7 @@ public class AssessmentGradingFacadeQueries extends HibernateDaoSupport implemen
 	  
 	  // gopalrc - Nov 2007
 	  HashSet publishedAssessmentSections = pubService.getSectionSetForAssessment(Long.valueOf(publishedAssessmentId));
-	  Float zeroFloat = new Float(0.0);
+	  Double zeroDouble = new Double(0.0);
 	  HashMap publishedAnswerHash = pubService.preparePublishedAnswerHash(pubService.getPublishedAssessment(publishedAssessmentId));
 	  HashMap publishedItemTextHash = pubService.preparePublishedItemTextHash(pubService.getPublishedAssessment(publishedAssessmentId));
 	  HashMap publishedItemHash = pubService.preparePublishedItemHash(pubService.getPublishedAssessment(publishedAssessmentId));
@@ -2107,7 +2107,7 @@ public class AssessmentGradingFacadeQueries extends HibernateDaoSupport implemen
 				itemsForSection.put(item.getItemId(), item.getItemId());
 			  }
 			  sectionItems.put(publishedSection.getSequence(), itemsForSection);
-			  sectionScores.put(publishedSection.getSequence(), zeroFloat);
+			  sectionScores.put(publishedSection.getSequence(), zeroDouble);
 		  }
 		  
 		  AssessmentGradingData assessmentGradingData = (AssessmentGradingData) assessmentGradingIter.next();
@@ -2159,7 +2159,7 @@ public class AssessmentGradingFacadeQueries extends HibernateDaoSupport implemen
 			  //gopalrc - Dec 2007
 			  int sectionScoreColumnStart = responseList.size();
 			  if (showPartAndTotalScoreSpreadsheetColumns) {
-				  Float finalScore = assessmentGradingData.getFinalScore();
+				  Double finalScore = assessmentGradingData.getFinalScore();
 				  if (finalScore != null) {
                       responseList.add((Double)finalScore.doubleValue()); // gopal - cast for spreadsheet numerics
 				  } else {
@@ -2219,7 +2219,7 @@ public class AssessmentGradingFacadeQueries extends HibernateDaoSupport implemen
 				  boolean isFinFib = false;
 
 				  // gopalrc - Dec 2007
-				  float itemScore = 0.0f;
+				  double itemScore = 0.0d;
 
                   //Add the missing sequences!
 				  for (Object ooo: l) {
@@ -2229,7 +2229,7 @@ public class AssessmentGradingFacadeQueries extends HibernateDaoSupport implemen
 					  }
 					  // gopalrc - Dec 2007
 					  if (grade!=null && grade.getAutoScore()!=null) {
-						  itemScore += grade.getAutoScore().floatValue();
+						  itemScore += grade.getAutoScore().doubleValue();
 					  }
 
 					  // now print answer data
@@ -2400,7 +2400,7 @@ public class AssessmentGradingFacadeQueries extends HibernateDaoSupport implemen
 				  if (sectionScores.size() > 1) {
 					  Iterator keys = sectionScores.keySet().iterator();
 					  while (keys.hasNext()) {
-						  Double partScore = (Double) ((Float) sectionScores.get(keys.next())).doubleValue() ;
+						  Double partScore = (Double) ((Double) sectionScores.get(keys.next())).doubleValue() ;
 						  responseList.add(sectionScoreColumnStart++, partScore);
 					  }
 				  }
@@ -2447,7 +2447,7 @@ public class AssessmentGradingFacadeQueries extends HibernateDaoSupport implemen
    * @param grade
    * @return The section sequence number, or zero if the section is not found(unlikely)
    */
-  private int updateSectionScore(HashMap sectionItems, TreeMap sectionScores, Long publishedItemId, float itemScore) {
+  private int updateSectionScore(HashMap sectionItems, TreeMap sectionScores, Long publishedItemId, double itemScore) {
 
 	  for (Iterator it = sectionItems.entrySet().iterator(); it.hasNext();) {
 		  Map.Entry entry = (Map.Entry) it.next();
@@ -2455,7 +2455,7 @@ public class AssessmentGradingFacadeQueries extends HibernateDaoSupport implemen
 		  HashMap itemsForSection = (HashMap) entry.getValue();
 
 		  if (itemsForSection.get(publishedItemId)!=null) {
-			  Float score = Float.valueOf( ((Float)sectionScores.get(sectionSequence)).floatValue() + itemScore);
+			  Double score = Double.valueOf( ((Double)sectionScores.get(sectionSequence)).doubleValue() + itemScore);
 			  sectionScores.put(sectionSequence, score);
                           return ((Integer)sectionSequence).intValue();
 		  }
@@ -2907,10 +2907,10 @@ public class AssessmentGradingFacadeQueries extends HibernateDaoSupport implemen
 	    			if (Boolean.FALSE.equals(adata.getForGrade())) {
 	    				adata.setForGrade(Boolean.TRUE);
 	    				if (adata.getTotalAutoScore() == null) {
-	    					adata.setTotalAutoScore(0f);
+	    					adata.setTotalAutoScore(0d);
 	    				}
 	    				if (adata.getFinalScore() == null) {
-	    					adata.setFinalScore(0f);
+	    					adata.setFinalScore(0d);
 	    				}
 	    				// SAM-1088
 	    				if (adata.getSubmittedDate() != null && assessment != null && assessment.getDueDate() != null &&
@@ -2956,10 +2956,10 @@ public class AssessmentGradingFacadeQueries extends HibernateDaoSupport implemen
 	    		if (Boolean.FALSE.equals(adata.getForGrade())) {
 	    			adata.setForGrade(Boolean.TRUE);
 	    			if (adata.getTotalAutoScore() == null) {
-    					adata.setTotalAutoScore(0f);
+    					adata.setTotalAutoScore(0d);
     				}
 	    			if (adata.getFinalScore() == null) {
-    					adata.setFinalScore(0f);
+    					adata.setFinalScore(0d);
     				}
 	    			// SAM-1088
     				if (adata.getSubmittedDate() != null && assessment != null && assessment.getDueDate() != null &&
@@ -3281,9 +3281,9 @@ public class AssessmentGradingFacadeQueries extends HibernateDaoSupport implemen
 	   * 
 	   *@author Mustansar Mehmood
 	   */
-	  public Float getAverageSubmittedAssessmentGrading( final Long publishedAssessmentId, final String agentId)
+	  public Double getAverageSubmittedAssessmentGrading( final Long publishedAssessmentId, final String agentId)
 	  {
-		  Float averageScore= new Float(0.0);
+		  Double averageScore= new Double(0.0);
 		  AssessmentGradingData ag = null;
 		  final String query ="from AssessmentGradingData a "+
 		  " where a.publishedAssessmentId=? and a.agentId=? and "+
@@ -3302,7 +3302,7 @@ public class AssessmentGradingFacadeQueries extends HibernateDaoSupport implemen
 
 		  if (assessmentGradings.size() != 0){
 			  AssessmentGradingData agd=null;
-			  Float cumulativeScore=new Float(0);
+			  Double cumulativeScore=new Double(0);
 			  Iterator i = assessmentGradings.iterator();
 
 			  while(i.hasNext()){
@@ -3310,7 +3310,7 @@ public class AssessmentGradingFacadeQueries extends HibernateDaoSupport implemen
 				  cumulativeScore+=agd.getFinalScore();	
 			  }
 			  averageScore= cumulativeScore/assessmentGradings.size();
-			  averageScore= new Float((new DecimalFormat("0.##").format((float)averageScore)));
+			  averageScore= new Double((new DecimalFormat("0.##").format((double)averageScore)));
 		  }  
 		  return averageScore;
 	  }

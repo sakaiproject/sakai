@@ -972,7 +972,7 @@ publishedId = ppublishedId;
               if(String.valueOf(EvaluationModelIfc.ALL_SCORE).equals(allSubmissions)){
                   return false;
               }
-              return getTotalScore() == null ? false : Float.parseFloat(getTotalScore())!=0.0f;
+              return getTotalScore() == null ? false : Double.parseDouble(getTotalScore())!=0.0d;
 	  }
 	  catch (NumberFormatException ex) {
 		  return false;
@@ -981,7 +981,7 @@ publishedId = ppublishedId;
   
   public boolean getShowPartAndTotalScoreSpreadsheetColumns() {
 	  try {
-		  return getTotalScore() == null ? false : Float.parseFloat(getTotalScore())!=0.0f;
+		  return getTotalScore() == null ? false : Double.parseDouble(getTotalScore())!=0.0d;
 	  }
 	  catch (NumberFormatException ex) {
 		  return false;

@@ -18,8 +18,8 @@
     <property name="publishedAnswerId" type="long" column="PUBLISHEDANSWERID" not-null="false" index="SAM_ITEMGRADING_PUBANS_I"  unique-key="uniqueStudentResponse" />
     <property name="rationale" type="string" length="4000" column="RATIONALE" not-null="false" />
     <property name="answerText" type="text" column="ANSWERTEXT" not-null="false" />
-    <property name="autoScore" type="float" column="AUTOSCORE" not-null="false" />
-    <property name="overrideScore" type="float" column="OVERRIDESCORE" not-null="false" />
+    <property name="autoScore" type="double" column="AUTOSCORE" not-null="false" />
+    <property name="overrideScore" type="double" column="OVERRIDESCORE" not-null="false" />
     <property name="comments" type="string" length="4000" column="COMMENTS" not-null="false" />
     <property name="gradedBy" type="string" length="255" column="GRADEDBY" not-null="false" />
     <property name="gradedDate" type="timestamp" column="GRADEDDATE" not-null="false" />
@@ -47,9 +47,9 @@
     <property name="submittedDate" type="timestamp" column="SUBMITTEDDATE" not-null="false" />
     <property name="isLate" type="boolean" column="ISLATE" not-null="true" />
     <property name="forGrade" type="boolean" column="FORGRADE" not-null="true" />
-    <property name="totalAutoScore" type="float" column="TOTALAUTOSCORE" not-null="false" />
-    <property name="totalOverrideScore" type="float" column="TOTALOVERRIDESCORE" not-null="false" />
-    <property name="finalScore" type="float" column="FINALSCORE" not-null="false" />
+    <property name="totalAutoScore" type="double" column="TOTALAUTOSCORE" not-null="false" />
+    <property name="totalOverrideScore" type="double" column="TOTALOVERRIDESCORE" not-null="false" />
+    <property name="finalScore" type="double" column="FINALSCORE" not-null="false" />
     <property name="comments" type="string" length="4000" column="COMMENTS" not-null="false" />
     <property name="gradedBy" type="string" length="255" column="GRADEDBY" not-null="false" />
     <property name="gradedDate" type="timestamp" column="GRADEDDATE" not-null="false" />
@@ -85,22 +85,22 @@
        />
     <property name="lastSubmittedDate" type="timestamp" column="LASTSUBMITTEDDATE" not-null="false" />
     <property name="lastSubmittedAssessmentIsLate" type="boolean" column="LASTSUBMITTEDASSESSMENTISLATE" not-null="true" />
-    <property name="sumOf_autoScoreForGrade" type="float" column="SUMOF_AUTOSCOREFORGRADE" not-null="false" />
-    <property name="average_autoScoreForGrade" type="float" column="AVERAGE_AUTOSCOREFORGRADE" not-null="false" />
-    <property name="highest_autoScoreForGrade" type="float" column="HIGHEST_AUTOSCOREFORGRADE" not-null="false" />
-    <property name="lowest_autoScoreForGrade" type="float" column="LOWEST_AUTOSCOREFORGRADE" not-null="false" />
-    <property name="last_autoScoreForGrade" type="float" column="LAST_AUTOSCOREFORGRADE" not-null="false" />
-    <property name="sumOf_overrideScoreForGrade" type="float" column="SUMOF_OVERRIDESCOREFORGRADE" not-null="false" />
-    <property name="average_overrideScoreForGrade" type="float" column="AVERAGE_OVERRIDESCOREFORGRADE" not-null="false" />
-    <property name="highest_overrideScoreForGrade" type="float" column="HIGHEST_OVERRIDESCOREFORGRADE" not-null="false" />
-    <property name="lowest_overrideScoreForGrade" type="float" column="LOWEST_OVERRIDESCOREFORGRADE" not-null="false" />
-    <property name="last_overrideScoreForGrade" type="float" column="LAST_OVERRIDESCOREFORGRADE" not-null="false" />
+    <property name="sumOf_autoScoreForGrade" type="double" column="SUMOF_AUTOSCOREFORGRADE" not-null="false" />
+    <property name="average_autoScoreForGrade" type="double" column="AVERAGE_AUTOSCOREFORGRADE" not-null="false" />
+    <property name="highest_autoScoreForGrade" type="double" column="HIGHEST_AUTOSCOREFORGRADE" not-null="false" />
+    <property name="lowest_autoScoreForGrade" type="double" column="LOWEST_AUTOSCOREFORGRADE" not-null="false" />
+    <property name="last_autoScoreForGrade" type="double" column="LAST_AUTOSCOREFORGRADE" not-null="false" />
+    <property name="sumOf_overrideScoreForGrade" type="double" column="SUMOF_OVERRIDESCOREFORGRADE" not-null="false" />
+    <property name="average_overrideScoreForGrade" type="double" column="AVERAGE_OVERRIDESCOREFORGRADE" not-null="false" />
+    <property name="highest_overrideScoreForGrade" type="double" column="HIGHEST_OVERRIDESCOREFORGRADE" not-null="false" />
+    <property name="lowest_overrideScoreForGrade" type="double" column="LOWEST_OVERRIDESCOREFORGRADE" not-null="false" />
+    <property name="last_overrideScoreForGrade" type="double" column="LAST_OVERRIDESCOREFORGRADE" not-null="false" />
     <property name="scoringType" type="integer" column="SCORINGTYPE" not-null="false" />
     <one-to-one name="acceptedAssessmentGrading"
       class="org.sakaiproject.tool.assessment.data.dao.grading.AssessmentGradingData"
        />
     <property name="acceptedAssessmentIsLate" type="boolean" column="ACCEPTEDASSESSMENTISLATE" not-null="false" />
-    <property name="finalAssessmentScore" type="float" column="FINALASSESSMENTSCORE" not-null="false" />
+    <property name="finalAssessmentScore" type="double" column="FINALASSESSMENTSCORE" not-null="false" />
     <property name="feedToGradeBook" type="boolean" column="FEEDTOGRADEBOOK" not-null="false" />
   </class>
   
