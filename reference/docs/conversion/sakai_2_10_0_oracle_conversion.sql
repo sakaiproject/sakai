@@ -824,3 +824,37 @@ alter table SAM_ITEMGRADING_t add ISCORRECT number(1,0);
 -- SAM-2063
 alter table SAM_ASSESSMENTGRADING_T add HASAUTOSUBMISSIONRUN number(1,0) default 0 not null;
 
+-- Start SAM-2087
+alter table SAM_ANSWER_T modify SCORE double precision;
+alter table SAM_ANSWER_T modify DISCOUNT double precision;
+alter table SAM_ANSWER_T modify PARTIAL_CREDIT double precision;
+
+alter table SAM_ASSESSMENTGRADING_T modify TOTALAUTOSCORE double precision;
+alter table SAM_ASSESSMENTGRADING_T modify TOTALOVERRIDESCORE double precision;
+alter table SAM_ASSESSMENTGRADING_T modify FINALSCORE double precision;
+
+alter table SAM_GRADINGSUMMARY_T modify SUMOF_AUTOSCOREFORGRADE double precision;
+alter table SAM_GRADINGSUMMARY_T modify AVERAGE_AUTOSCOREFORGRADE double precision;
+alter table SAM_GRADINGSUMMARY_T modify HIGHEST_AUTOSCOREFORGRADE double precision;
+alter table SAM_GRADINGSUMMARY_T modify LOWEST_AUTOSCOREFORGRADE double precision;
+alter table SAM_GRADINGSUMMARY_T modify LAST_AUTOSCOREFORGRADE double precision;
+alter table SAM_GRADINGSUMMARY_T modify SUMOF_OVERRIDESCOREFORGRADE double precision;
+alter table SAM_GRADINGSUMMARY_T modify AVERAGE_OVERRIDESCOREFORGRADE double precision;
+alter table SAM_GRADINGSUMMARY_T modify HIGHEST_OVERRIDESCOREFORGRADE double precision;
+alter table SAM_GRADINGSUMMARY_T modify LOWEST_OVERRIDESCOREFORGRADE double precision;
+alter table SAM_GRADINGSUMMARY_T modify LAST_OVERRIDESCOREFORGRADE double precision;
+alter table SAM_GRADINGSUMMARY_T modify FINALASSESSMENTSCORE double precision;
+
+alter table SAM_ITEMGRADING_T modify AUTOSCORE double precision;
+alter table SAM_ITEMGRADING_T modify OVERRIDESCORE double precision;
+
+alter table SAM_ITEM_T modify SCORE double precision;
+alter table SAM_ITEM_T modify DISCOUNT double precision;
+
+alter table SAM_PUBLISHEDANSWER_T modify SCORE double precision;
+alter table SAM_PUBLISHEDANSWER_T modify DISCOUNT double precision;
+alter table SAM_PUBLISHEDANSWER_T modify PARTIAL_CREDIT double precision;
+
+alter table SAM_PUBLISHEDITEM_T modify SCORE double precision;
+alter table SAM_PUBLISHEDITEM_T modify DISCOUNT double precision;
+-- End SAM-2087
