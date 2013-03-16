@@ -47,6 +47,7 @@ import java.io.File;
 import java.io.FileNotFoundException;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
+import java.lang.reflect.Method;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
@@ -99,8 +100,10 @@ import org.sakaiproject.tool.api.SessionManager;
 import org.sakaiproject.tool.api.ToolManager;
 import org.sakaiproject.entity.api.ResourceProperties;
 import org.sakaiproject.entity.api.ResourcePropertiesEdit;
+import org.sakaiproject.exception.IdUnusedException;
 import org.sakaiproject.util.ResourceLoader;
 import org.sakaiproject.util.Xml;
+import org.sakaiproject.util.RequestFilter;
 import uk.org.ponder.messageutil.MessageLocator;
 import org.w3c.dom.Attr;
 import org.w3c.dom.DOMException;
@@ -109,6 +112,7 @@ import org.w3c.dom.Element;
 import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
 import org.springframework.context.MessageSource;
+
 
 /**
  * @author hedrick
@@ -178,6 +182,10 @@ public class LessonBuilderEntityProducer extends AbstractEntityProvider
 
    private Pattern pathPattern;
 
+   private Class linkMigrationHelper = null;
+   private Method migrateAllLinks = null;
+   private Object linkMigrationHelperInstance = null;
+
    public void init() {
       logger.info("init()");
       
@@ -186,6 +194,23 @@ public class LessonBuilderEntityProducer extends AbstractEntityProvider
       }
       catch (Exception e) {
          logger.warn("Error registering Link Tool Entity Producer", e);
+      }
+
+      // LinkMigrationHelper is not present before 2.10. So this code can compile on older systems,
+      // find it via introspection.
+
+      try {
+	  linkMigrationHelper = RequestFilter.class.getClassLoader().loadClass("org.sakaiproject.util.api.LinkMigrationHelper");
+	  System.out.println("linkMigrationHelper " + linkMigrationHelper);
+	  // this is in the kernel, so it should already be loaded
+	  linkMigrationHelperInstance = ComponentManager.get(linkMigrationHelper);
+	  System.out.println("linkMigrationHelper instance " + linkMigrationHelperInstance);
+	  if (linkMigrationHelper != null)
+	      migrateAllLinks = linkMigrationHelper.getMethod("migrateAllLinks", new Class[] { Set.class, String.class });
+	  System.out.println("migrateAllLinks " + linkMigrationHelper);
+      } catch (Exception e) {
+	  System.out.println("Exception in introspection " + e);
+	  System.out.println("loader " + RequestFilter.class.getClassLoader());
       }
 
       // Builds a Regexp selector.
@@ -1254,6 +1279,7 @@ public class LessonBuilderEntityProducer extends AbstractEntityProvider
     // this is mapping from LB item id to underlying object in old site.
     // find the object in the new site and fix up the item id
     public void updateEntityReferences(String toContext, Map<String, String> transversalMap) {
+	migrateEmbeddedLinks(toContext, transversalMap);
 	for (Map.Entry<String,String> entry: transversalMap.entrySet()) {
 	    String entityid = entry.getKey();
 	    String objectid = entry.getValue();
@@ -1286,6 +1312,22 @@ public class LessonBuilderEntityProducer extends AbstractEntityProvider
 		}
 	    }
 	}
+    }
+
+    private void migrateEmbeddedLinks(String toContext, Map<String, String> transversalMap){
+    	Set entrySet = (Set) transversalMap.entrySet();
+	List<SimplePageItem> items = simplePageToolDao.findTextItemsInSite(toContext);
+	for (SimplePageItem item: items) {
+	    String msgBody = item.getHtml();
+	    try {
+		msgBody = (String) migrateAllLinks.invoke(linkMigrationHelperInstance, new Object[] { entrySet, msgBody});
+		item.setHtml(msgBody);
+		logger.debug("html - (post mod):"+msgBody);
+		simplePageToolDao.quickUpdate(item);
+	    } catch (Exception e) {
+		logger.warn("Problem migrating links in Lessonbuilder"+e);
+	    }
+	}		
     }
 
     // called from tool, to fix up all dummy references in site toContext if possible

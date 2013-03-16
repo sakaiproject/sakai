@@ -73,6 +73,8 @@ public interface SimplePageToolDao {
 
 	public List<SimplePageItem> findDummyItemsInSite(String siteId);
 
+	public List<SimplePageItem> findTextItemsInSite(String siteId);
+
 	public SimplePageItem findItem(long id);
 	
 	public List<SimplePageComment> findComments(long commentWidgetId);

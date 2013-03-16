@@ -202,6 +202,22 @@ public class SimplePageToolDaoImpl extends HibernateDaoSupport implements Simple
 	}
 
 
+	public List<SimplePageItem> findTextItemsInSite(String siteId) {
+	    Object [] fields = new Object[1];
+	    fields[0] = siteId;
+	    List<String> ids = SqlService.dbRead("select b.id from lesson_builder_pages a,lesson_builder_items b where a.siteId = ? and a.pageId = b.pageId and b.type = 5", fields, null);
+
+	    List<SimplePageItem> result = new ArrayList<SimplePageItem>();
+	    
+	    if (result != null) {
+		for (String id: ids) {
+		    SimplePageItem i = findItem(new Long(id));
+		    result.add(i);
+		}
+	    }
+	    return result;
+	}
+
     public PageData findMostRecentlyVisitedPage(final String userId, final String toolId) {
     	Object [] fields = new Object[4];
     	fields[0] = userId;
