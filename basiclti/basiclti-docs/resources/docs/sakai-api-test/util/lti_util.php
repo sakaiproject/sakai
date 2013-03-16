@@ -1,5 +1,8 @@
 <?php
 
+// Just turn if off...
+if ( function_exists ( 'libxml_disable_entity_loader' ) ) libxml_disable_entity_loader();
+
 require_once 'OAuth.php';
 
 // Returns true if this is a Basic LTI message
