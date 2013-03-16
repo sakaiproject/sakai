@@ -263,7 +263,10 @@ public class XMLMap {
 	public static Document documentFromString(String input)
 	{
 		try{
-			DocumentBuilder parser = DocumentBuilderFactory.newInstance().newDocumentBuilder();
+			DocumentBuilderFactory factory = DocumentBuilderFactory.newInstance(); 
+			factory.setFeature("http://xml.org/sax/features/external-general-entities", false); 
+			factory.setFeature("http://xml.org/sax/features/external-parameter-entities", false); 
+			DocumentBuilder parser = factory.newDocumentBuilder();
 			Document document = parser.parse(new ByteArrayInputStream(input.getBytes()));
 			return document;
 		} catch (Exception e) {
@@ -489,7 +492,10 @@ public class XMLMap {
 		Document document = null;
 
 		try{
-			DocumentBuilder parser = DocumentBuilderFactory.newInstance().newDocumentBuilder();
+			DocumentBuilderFactory factory = DocumentBuilderFactory.newInstance(); 
+			factory.setFeature("http://xml.org/sax/features/external-general-entities", false); 
+			factory.setFeature("http://xml.org/sax/features/external-parameter-entities", false); 
+			DocumentBuilder parser = factory.newDocumentBuilder();
 			document = parser.newDocument();
 		} catch (Exception e) {
 			return null;

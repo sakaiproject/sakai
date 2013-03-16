@@ -250,8 +250,10 @@ public class IMSPOXRequest {
 
 	public void parsePostBody()
 	{
-		DocumentBuilderFactory dbf = DocumentBuilderFactory.newInstance();
 		try {
+			DocumentBuilderFactory dbf = DocumentBuilderFactory.newInstance();
+			dbf.setFeature("http://xml.org/sax/features/external-general-entities", false); 
+			dbf.setFeature("http://xml.org/sax/features/external-parameter-entities", false); 
 			DocumentBuilder db = dbf.newDocumentBuilder();
 			postDom = db.parse(new ByteArrayInputStream(postBody.getBytes()));
 		}catch(Exception e) {
