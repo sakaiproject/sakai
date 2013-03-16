@@ -1279,7 +1279,8 @@ public class LessonBuilderEntityProducer extends AbstractEntityProvider
     // this is mapping from LB item id to underlying object in old site.
     // find the object in the new site and fix up the item id
     public void updateEntityReferences(String toContext, Map<String, String> transversalMap) {
-	migrateEmbeddedLinks(toContext, transversalMap);
+	if (migrateAllLinks != null)
+	    migrateEmbeddedLinks(toContext, transversalMap);
 	for (Map.Entry<String,String> entry: transversalMap.entrySet()) {
 	    String entityid = entry.getKey();
 	    String objectid = entry.getValue();
