@@ -650,7 +650,7 @@ function handleEnterKeyPress(ev)
 							&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<label for="allowResubmitNumberSelect">
 								$tlang.getString("allow.resubmit.number")
 							</label>&nbsp;
-							<select name="$name_allowResubmitNumber" id="allowResubmitNumberSelect" onchange="if (document.getElementById('allowResubmitNumber').value!=0 && document.getElementById('closeTime') !=null){document.getElementById('closeTime').style.display = 'block';}else {document.getElementById('closeTime').style.display = 'none';}">
+							<select name="$name_allowResubmitNumber" id="allowResubmitNumberSelect">
 								#foreach ($i in [1..10])
 									<option value="$i" #if($i==$!value_allowResubmitNumber)selected="selected"#end>
 										$i
