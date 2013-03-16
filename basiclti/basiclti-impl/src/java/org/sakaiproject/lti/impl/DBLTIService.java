@@ -284,15 +284,21 @@ public class DBLTIService extends BaseLTIService implements LTIService {
 		List<String> contentModelList = new ArrayList<String>(Arrays.asList(contentModel));
 		if (!contentModelList.contains(LTI_TITLE) || !contentModelList.contains(LTI_PAGETITLE))
 		{
+			String toolTitle = (String) tool.get(LTI_TITLE);
+			if ( toolTitle == null ) toolTitle = "...";  // should not happen
 			if (!contentModelList.contains(LTI_TITLE))
 			{
 				contentModelList.add(LTI_TITLE + ":text");
-				newProps.put(LTI_TITLE, tool.get(LTI_TITLE));
+				newProps.put(LTI_TITLE, toolTitle);
 			}
+
 			if (!contentModelList.contains(LTI_PAGETITLE))
 			{
+				// May happen for old / upgraded tool items
+				String pageTitle = (String) tool.get(LTI_PAGETITLE);
+				if ( pageTitle == null ) pageTitle = toolTitle;
 				contentModelList.add(LTI_PAGETITLE + ":text");
-				newProps.put(LTI_PAGETITLE, tool.get(LTI_PAGETITLE));
+				newProps.put(LTI_PAGETITLE, pageTitle);
 			}
 			contentModel = contentModelList.toArray(new String[contentModelList.size()]);
 		}
