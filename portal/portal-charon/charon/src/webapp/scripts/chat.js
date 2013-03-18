@@ -614,7 +614,7 @@ function PortalChat() {
 
     this.setGetLatestDataInterval = function () {
         if(portalChat.getLatestDataInterval === null) {
-		    portalChat.getLatestDataInterval = window.setInterval(function () {portalChat.getLatestData();},5000);
+		    portalChat.getLatestDataInterval = window.setInterval(function () {portalChat.getLatestData();}, portalChatPollInterval);
         }
     }
 

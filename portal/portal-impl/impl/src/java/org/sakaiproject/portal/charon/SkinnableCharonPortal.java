@@ -1651,6 +1651,8 @@ public class SkinnableCharonPortal extends HttpServlet implements Portal
 
                         rcontext.put("neoChat", 
 				ServerConfigurationService.getBoolean("portal.neochat", true));
+                        rcontext.put("portalChatPollInterval", 
+				ServerConfigurationService.getInt("portal.chat.pollInterval", 5000));
                         rcontext.put("neoAvatar", 
 				ServerConfigurationService.getBoolean("portal.neoavatar", true));
 
