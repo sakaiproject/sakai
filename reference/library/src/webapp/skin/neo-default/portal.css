@@ -747,8 +747,9 @@ ul#otherSiteList li a span, ul.otherSitesCategorList li a span {
     background: inherit !important;
     *background: #f3f3f3 !important;
 }
-/* span holds the tool icon bkgnd image - here a default is provided */
-#toolMenu li span, #subSites li span {
+/* span holds the tool icon bkgnd image for left hand menu 
+ * and "a" the icon for tool pull downs - here a default is provided */
+#toolMenu li span, #subSites li span, .submenuitem a, .otherSiteTool a {
     background-repeat: no-repeat;
     background-position: right;
     background-image: url(../../image/silk/application.png);
