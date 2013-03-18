@@ -81,9 +81,9 @@ languages, as follows:
     Local ID: fr_CA
 	 
 13) Spanish (Spain)
-    Status: released
-    Translated by: David Roldán Martínez, Diego del Blanco, Raúl Mengod
-    Contact: Federico Jesœs Carvajal Rodrigo (fcarvajal@abierta.upv.es)
+    Status: released (updated up to 2.9)
+    Translated by: UPV and SAMOO
+    Contact: Valerio Cerní (vacercon@upvnet.upv.es)
     Local ID: es_ES
 
 14) Spanish (Mexico)
