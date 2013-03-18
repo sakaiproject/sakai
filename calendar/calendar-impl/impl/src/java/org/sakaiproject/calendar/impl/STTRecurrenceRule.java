@@ -182,11 +182,13 @@ public class STTRecurrenceRule extends RecurrenceRuleBase
 					int increment = (((getInterval()-1)*7)+1);
 					
 					nextCalendarDate.add(java.util.Calendar.DAY_OF_MONTH, increment);
+					currentCount+=increment;
 				}
 				else 
 				//check next day
 				{
 					nextCalendarDate.add(java.util.Calendar.DAY_OF_MONTH, 1);
+					currentCount++;
 				}
 			} while((nextCalendarDate.get(GregorianCalendar.DAY_OF_WEEK)!=1)&&(nextCalendarDate.get(GregorianCalendar.DAY_OF_WEEK)!=3)&&((nextCalendarDate.get(GregorianCalendar.DAY_OF_WEEK))!=5));
 			

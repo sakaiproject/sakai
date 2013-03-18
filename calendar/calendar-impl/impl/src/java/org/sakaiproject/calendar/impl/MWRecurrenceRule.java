@@ -187,11 +187,13 @@ public class MWRecurrenceRule extends RecurrenceRuleBase
 					//System.out.println("weekday is 5, adding: " + increment);
 					
 					nextCalendarDate.add(java.util.Calendar.DAY_OF_MONTH, increment);
+					currentCount+=increment;
 				}
 				else 
 				//check next day
 				{
 					nextCalendarDate.add(java.util.Calendar.DAY_OF_MONTH, 1);
+					currentCount++;
 				}
 			} while((nextCalendarDate.get(GregorianCalendar.DAY_OF_WEEK)!=2)&&((nextCalendarDate.get(GregorianCalendar.DAY_OF_WEEK))!=4));
 			
