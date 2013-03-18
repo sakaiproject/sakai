@@ -63,9 +63,9 @@ languages, as follows:
    Local ID: sk_SK
     
 10) Catalan
-    Status: released
-    Translated by: n/a
-    Contact: Alex Ballesté 
+    Status: released (updated up to 2.9)
+    Translated by: Universitat de Lleida (UdL)
+    Contact: Alexandre Ballesté (alexandre.balleste@udl.cat)
     Local ID: ca_ES
     
 11) Chinese/Traditional (Taiwan)
