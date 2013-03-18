@@ -186,6 +186,8 @@ public class SkinnableCharonPortal extends HttpServlet implements Portal
 	
 	private String gatewaySiteUrl;
 
+	private String gatewayPdaSiteUrl;
+
 	private WorksiteHandler worksiteHandler;
 
 	private SiteHandler siteHandler;
@@ -853,7 +855,6 @@ public class SkinnableCharonPortal extends HttpServlet implements Portal
 				parts = option.split("/");
 			}
 
-
 			Map<String, PortalHandler> handlerMap = portalService.getHandlerMap(this);
 
 			PortalHandler ph;
@@ -865,8 +866,8 @@ public class SkinnableCharonPortal extends HttpServlet implements Portal
 
 			// begin SAK-19089
 			// if not logged in and accessing "/" and not from PDA, redirect to gatewaySiteUrl
-			if ((gatewaySiteUrl != null) && (option == null || "/".equals(option)) 
-					&& (!pdaHandler) && (session.getUserId() == null)) 
+			if ((gatewaySiteUrl != null) && (option == null || "/".equals(option) || "/pda".equals(option)) 
+					/* && (!pdaHandler) */ && (session.getUserId() == null)) 
 			{
 				// redirect to gatewaySiteURL 
 				res.sendRedirect(gatewaySiteUrl);
@@ -874,6 +875,16 @@ public class SkinnableCharonPortal extends HttpServlet implements Portal
 			}
 			// end SAK-19089
 
+			// begin SAK-22991
+			// if not logged in and from PDA, redirect to gatewayPdaSiteUrl
+			if ((gatewayPdaSiteUrl != null) && (option == null ||  "/pda".equals(option)) && (session.getUserId() == null)) 
+			{
+				// redirect to gatewaySiteURL 
+				res.sendRedirect(gatewayPdaSiteUrl);
+				return;
+			}
+			
+			// end SAK-19089
 			// SAK-22633 - Only forward site urls to PDAHandler
 			if (pdaHandler && parts.length > 1 && "site".equals(parts[1])){
 				//Mobile access
@@ -1925,6 +1936,8 @@ public class SkinnableCharonPortal extends HttpServlet implements Portal
 		handlerPrefix = ServerConfigurationService.getString("portal.handler.default", "site");
 		
 		gatewaySiteUrl = ServerConfigurationService.getString("gatewaySiteUrl", null);
+		
+		gatewayPdaSiteUrl = ServerConfigurationService.getString("gatewayPdaSiteUrl", null);
 		
 		sakaiTutorialEnabled = ServerConfigurationService.getBoolean("portal.use.tutorial", true);
 
