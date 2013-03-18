@@ -498,8 +498,6 @@ public class BasicConfigurationService implements ServerConfigurationService, Ap
         if (ci != null) {
             if (ci.getValue() != null) {
                 value = StringUtils.trimToNull(ci.getValue().toString());
-                // check if we need to do any variable replacement
-                value = dereferenceValue(value);
             } else {
                 // if the default value is set then we will return that instead
                 if (ci.getDefaultValue() != null) {
@@ -508,6 +506,10 @@ public class BasicConfigurationService implements ServerConfigurationService, Ap
                     // the stored value and default value are null so we will allow the dflt to override
                 }
             }
+        }
+        if (StringUtils.isNotEmpty(value)) {
+            // check if we need to do any variable replacement
+            value = dereferenceValue(value);
         }
         return value;
     }

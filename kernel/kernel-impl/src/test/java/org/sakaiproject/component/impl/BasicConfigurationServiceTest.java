@@ -100,15 +100,21 @@ public class BasicConfigurationServiceTest extends TestCase {
         assertEquals("Aaron Zeckoski", basicConfigurationService.getConfig("test7", "default") );
     }
 
-    public void disabled_testKNL1038() throws Exception {
-        // KNL-1038 - "${sakai.home}/samigo/answerUploadRepositoryPath"
+    public void testKNL1038() throws Exception {
+        /* KNL-1038 - "${sakai.home}/samigo/answerUploadRepositoryPath"
+         * This is basically testing whether replacements work in default values
+         * (as they should)
+         */
         String val = null;
         val = basicConfigurationService.getString("name");
-        assertNotNull(val);
+        assertNotSame("", val);
         assertEquals("Aaron", val);
 
+        // namePlusLast should NOT exist
+        val = basicConfigurationService.getString("namePlusLast");
+        assertEquals("", val);
         val = basicConfigurationService.getString("namePlusLast", "${name} Zeckoski");
-        assertNotNull(val);
+        assertNotSame("", val);
         assertEquals("Aaron Zeckoski", val);
     }
 
