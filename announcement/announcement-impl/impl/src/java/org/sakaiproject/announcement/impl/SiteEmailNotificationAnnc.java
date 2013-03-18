@@ -45,6 +45,7 @@ import org.sakaiproject.event.api.Event;
 import org.sakaiproject.event.api.Notification;
 import org.sakaiproject.event.api.NotificationEdit;
 import org.sakaiproject.event.api.NotificationService;
+import org.sakaiproject.content.api.ContentHostingService;
 import org.sakaiproject.event.cover.EventTrackingService;
 import org.sakaiproject.exception.IdUnusedException;
 import org.sakaiproject.exception.PermissionException;
@@ -458,7 +459,7 @@ public class SiteEmailNotificationAnnc extends SiteEmailNotification
 		SecurityService.pushAdvisor(new SecurityAdvisor() {
 			public SecurityAdvice isAllowed(String userId, String function,
 					String reference) {
-				if (function.equals(AnnouncementService.SECURE_ANNC_READ))
+				if (function.equals(AnnouncementService.SECURE_ANNC_READ) || function.equals(ContentHostingService.AUTH_RESOURCE_READ)) // SAK-23300
 					return SecurityAdvice.ALLOWED;
 				else
 					return SecurityAdvice.PASS;
@@ -501,6 +502,7 @@ public class SiteEmailNotificationAnnc extends SiteEmailNotification
 		}
 		catch (Exception ignore)
 		{
+			
 		}
 
 		// Now build up the message text.
