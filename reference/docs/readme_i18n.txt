@@ -155,9 +155,9 @@ languages, as follows:
     Local ID:km_KH 
     
 25) French (France)
-   Status: First release in 2.6.x/2.6.1, 2.6.x maintained
-   Translated by: (see files comments)
-   Contact: Jean-Francois Leveque (jean-francois.leveque@upmc.fr)
+   Status: released (updated up to 2.9)
+   Translated by: French Sakai Community
+   Contact: Jean-François Lévêque (jean-francois.leveque@upmc.fr)
    Local ID: fr_FR
 
 26) Basque
