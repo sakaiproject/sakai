@@ -554,9 +554,13 @@ public abstract class DbAuthzGroupService extends BaseAuthzGroupService implemen
 			}
 
 			if (realmRoleGRCache != null) {
-			    realm.m_roles = realmRoleGRCache.get(REALM_ROLES_CACHE);
-			    realm.m_userGrants = realmRoleGRCache.get(REALM_USER_GRANTS_CACHE);
-
+				// KNL-1037 read the cached role and membership information
+				Map<?,?> roles = realmRoleGRCache.get(REALM_ROLES_CACHE);
+				Map<String, Member> userGrants = new HashMap<String, Member>();
+				Map<String, MemberWithRoleId> userGrantsWithRoleId = (Map<String, MemberWithRoleId>) realmRoleGRCache.get(REALM_USER_GRANTS_CACHE);
+				userGrants.putAll(getMemberMap(userGrantsWithRoleId, roles));
+				realm.m_roles = roles;
+				realm.m_userGrants = userGrants;
 			} else {
 
 			    // read the roles and role functions
@@ -680,7 +684,7 @@ public abstract class DbAuthzGroupService extends BaseAuthzGroupService implemen
 			        Map<String, Map> payLoad = new HashMap<String, Map>();
 
 			        payLoad.put(REALM_ROLES_CACHE,realm.m_roles);
-			        payLoad.put(REALM_USER_GRANTS_CACHE,realm.m_userGrants);
+			        payLoad.put(REALM_USER_GRANTS_CACHE, getMemberWithRoleIdMap(realm.m_userGrants));
 
 			        m_realmRoleGRCache.put(realm.getId(), payLoad);
 			    }
@@ -2983,4 +2987,103 @@ public abstract class DbAuthzGroupService extends BaseAuthzGroupService implemen
 		
 		
 	}
+
+	/**
+	 * An inner class used in the membership cache in RealmRoleGroupCache
+	 * The cache key is userId String, 
+	 * and cache value is of MemberWithRoleId object, which contains information of roleId, provided, active 
+	 * KNL-1037
+	 * 
+	 * @author zqian
+	 */
+	class MemberWithRoleId
+	{
+	    protected String roleId = null;
+	    protected boolean provided = false;
+	    protected boolean active = true;
+
+	    public MemberWithRoleId(String roleId, boolean active, boolean provided)
+	    {
+	        this.roleId = roleId;
+	        this.active = active;
+	        this.provided = provided;
+	    }
+
+	    public MemberWithRoleId(Member m)
+	    {
+	        this.roleId = m.getRole() != null? m.getRole().getId():null;
+	        this.active = m.isActive();
+	        this.provided = m.isProvided();
+	    }
+
+	    public String getRoleId()
+	    {
+	        return roleId;
+	    }
+
+	    /**
+	     * whether the member is provided or not
+	     */
+	    public boolean isProvided()
+	    {
+	        return provided;
+	    }
+
+	    /**
+	     * whether the member is active or not
+	     */
+	    public boolean isActive()
+	    {
+	        return active;
+	    }
+
+	    /**
+	     * set the active attribute
+	     */
+	    public void setActive(boolean active)
+	    {
+	        this.active = active;
+	    }
+	}
+
+	/**
+	 * based on value from RealmRoleGroupCache
+	 * transform a Map<String, MemberWithRoleId> object into a Map<String, Member> object
+	 * KNL-1037
+	 */
+	private Map<String, Member> getMemberMap(Map<String, MemberWithRoleId> mMap, Map<?,?> roleMap)
+	{
+	    Map<String, Member> rv = new HashMap<String, Member>();
+	    for (Map.Entry<String, MemberWithRoleId> entry : mMap.entrySet())
+	    {
+	        String userId = entry.getKey();
+	        MemberWithRoleId m = entry.getValue();
+	        String roleId = m.getRoleId();
+	        if (roleId != null && roleMap != null && roleMap.containsKey(roleId))
+	        {
+	            Role role = (Role) roleMap.get(roleId);
+	            rv.put(userId, new BaseMember(role, m.isActive(), m.isProvided(), userId));
+	        }
+	    }
+	    return rv;
+	}
+
+
+	/**
+	 * transform a Map<String, Member> object into a Map<String, MemberWithRoleId> object
+	 * to be used in RealmRoleGroupCache
+	 * KNL-1037
+	 */
+	private Map<String, MemberWithRoleId> getMemberWithRoleIdMap(Map<String, Member> userGrants)
+	{
+	    Map<String, MemberWithRoleId> rv = new HashMap<String, MemberWithRoleId>();
+	    for (Map.Entry<String, Member> entry : userGrants.entrySet())
+	    {
+	        String userId = entry.getKey();
+	        Member member = entry.getValue();
+	        rv.put(userId, new MemberWithRoleId(member));
+	    }
+	    return rv;
+	}
+
 }
