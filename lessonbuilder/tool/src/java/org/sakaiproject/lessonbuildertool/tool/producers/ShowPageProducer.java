@@ -2501,6 +2501,7 @@ public class ShowPageProducer implements ViewComponentProducer, DefaultView, Nav
 
 		UILink.make(toolBar, "help", messageLocator.getMessage("simplepage.help"), 
 			    getLocalizedURL( isStudent ? "student.html" : "general.html"));
+		UIOutput.make(toolBar, "icondrop");
 
 		// Don't show these tools on a student page.
 		if(currentPage.getOwner() == null) {
