@@ -345,6 +345,10 @@ public class MembershipEntityProvider extends AbstractEntityProvider implements 
                         continue;
                     }
                     Member m = site.getMember(userId);
+                    if (m == null) {
+                        log.warn("Unable to add user ("+user+") to group ("+group.getId()+") in site ("+site.getId()+"), user is not a member of the site (and must be)");
+                        continue;
+                    }
                     Role role = m.getRole();
 
                     if (group.getMember(userId) == null && (role != null && role.getId() != null)) {
