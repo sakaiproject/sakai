@@ -19,9 +19,9 @@ languages, as follows:
    Local ID: ko_KR
    
 3) Japanese
-   Status: released
-   Translated by: Shoji Kajita (and others)
-   Contact: Shoji Kajita kajita@nagoya-u.jp
+   Status: released (updated up to 2.9)
+   Translated by: Ja Sakai Community
+   Contact: Ja Sakai Community (dev@sakaiproject.jp)
    Local ID: ja_JP
    
 4) Dutch
