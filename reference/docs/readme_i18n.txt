@@ -7,9 +7,9 @@ localized and internationalized. Translations are underway in many
 languages, as follows:
 
 1) Chinese/Simplified (China)
-   Status: released  (last update Sakai 2.5)
-   Translated by: Tianhua Ding, Kun Lv (and others)
-   Contact: n/a (unmaintained)
+   Status: released  (updated up to 2.9)
+   Translated by: Fudan University
+   Contact: 高珺 (gaojun@fudan.edu.cn)
    Local ID: zh_CN
    
 2) Korean
