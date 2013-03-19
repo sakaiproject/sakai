@@ -144,7 +144,9 @@
                         <td headers="term">
              			#if ($termProp)
              				#if ($site.getProperties().getProperty($termProp))
-	                        	$site.getProperties().getProperty($termProp)
+                                #set ($termprop = $site.getProperties().getProperty($termProp).toString())
+                                $termsmap.get($termprop)
+
 	                        #else
 	                        	$tlang.getString("list.noterm")
 	                        #end

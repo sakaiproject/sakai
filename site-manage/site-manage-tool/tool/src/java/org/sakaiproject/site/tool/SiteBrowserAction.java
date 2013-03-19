@@ -331,6 +331,17 @@ public class SiteBrowserAction extends PagedResourceActionII implements SiteHelp
 		// inform the observing courier that we just updated the page...
 		// if there are pending requests to do so they can be cleared
 		// justDelivered(state);
+        if (cms != null) 
+        {
+            Map<String, String> smap =new HashMap<String, String>();
+            Collection<AcademicSession> sessions = cms.getAcademicSessions();
+            for (AcademicSession s: sessions) {
+                smap.put(s.getEid(),s.getTitle());
+            } 
+
+            context.put("termsmap", smap );
+        }
+
 
 		return "_list";
 
@@ -381,7 +392,7 @@ public class SiteBrowserAction extends PagedResourceActionII implements SiteHelp
 			context.put("termSearchSiteType", termSearchSiteType);
 			if (cms != null) 
 			{
-				context.put("terms", sortAcademicSessions( cms.getAcademicSessions() ));
+                context.put("terms", sortAcademicSessions( cms.getAcademicSessions()));
 			}
 		}
 
