@@ -65,7 +65,7 @@ languages, as follows:
 10) Catalan
     Status: released (updated up to 2.9)
     Translated by: Universitat de Lleida (UdL)
-    Contact: Alexandre Ballesté (alexandre.balleste@udl.cat)
+    Contact: Alexandre BallestÃ© (alexandre.balleste@udl.cat)
     Local ID: ca_ES
     
 11) Chinese/Traditional (Taiwan)
@@ -83,7 +83,7 @@ languages, as follows:
 13) Spanish (Spain)
     Status: released (updated up to 2.9)
     Translated by: UPV and SAMOO
-    Contact: Valerio Cerní (vacercon@upvnet.upv.es)
+    Contact: Valerio CernÃ­ (vacercon@upvnet.upv.es)
     Local ID: es_ES
 
 14) Spanish (Mexico)
@@ -96,7 +96,7 @@ languages, as follows:
 15) Spanish (Argentina)
     Status: ??
     Translated by: n/a
-    Contact: Sebasti‡n Barreiro (sbarreiro@gmail.com)
+    Contact: SebastiÂ‡n Barreiro (sbarreiro@gmail.com)
     Local ID: es_AR
     
 16) Spanish (Chile)
@@ -127,7 +127,7 @@ languages, as follows:
 20) Turkish
     Status: 2.8 initial release
     Translated by: n/a
-    Contact: Yasin ÖZARSLAN <ozarslan@gmail.com>
+    Contact: Yasin Ã–ZARSLAN <ozarslan@gmail.com>
     Local ID: tr_TR
                 
 21) Mongolian
