@@ -786,7 +786,7 @@ public class AssessmentFacadeQueries extends HibernateDaoSupport implements
 			AssessmentData a = (AssessmentData) list.get(i);
 			agent = new AgentFacade(a.getLastModifiedBy());
 			if (agent != null) {
-				lastModifiedBy = agent.getFirstName() + " " + agent.getLastName();
+				lastModifiedBy = agent.getDisplayName();
 			}
 			int questionSize = 0;
 			if (questionSizeMap.get(a.getAssessmentBaseId()) != null) {

@@ -1226,7 +1226,7 @@ public class PublishedAssessmentFacadeQueries extends HibernateDaoSupport
 
 			agent = new AgentFacade(p.getLastModifiedBy());
 			if (agent != null) {
-				lastModifiedBy = agent.getFirstName() + " " + agent.getLastName();
+				lastModifiedBy = agent.getDisplayName();
 			}
 
 			PublishedAssessmentFacade f = new PublishedAssessmentFacade(p
@@ -1305,7 +1305,7 @@ public class PublishedAssessmentFacadeQueries extends HibernateDaoSupport
 
 			agent = new AgentFacade(p.getLastModifiedBy());
 			if (agent != null) {
-				lastModifiedBy = agent.getFirstName() + " " + agent.getLastName();
+				lastModifiedBy = agent.getDisplayName();
 			}
 			PublishedAssessmentFacade f = new PublishedAssessmentFacade(p
 					.getPublishedAssessmentId(), p.getTitle(),
@@ -1503,7 +1503,7 @@ public class PublishedAssessmentFacadeQueries extends HibernateDaoSupport
 
 			agent = new AgentFacade(p.getLastModifiedBy());
 			if (agent != null) {
-				lastModifiedBy = agent.getFirstName() + " " + agent.getLastName();
+				lastModifiedBy = agent.getDisplayName();
 			}
 
 			PublishedAssessmentFacade f = new PublishedAssessmentFacade(p
