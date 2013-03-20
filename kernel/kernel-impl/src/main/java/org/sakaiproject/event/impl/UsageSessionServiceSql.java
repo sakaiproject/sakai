@@ -49,6 +49,11 @@ public interface UsageSessionServiceSql
 	String getSakaiSessionSql3(String alias, String joinAlias, String joinTable, String joinColumn, String joinCriteria);
 
 	/**
+	 * return the sql statement which retrieves all the open sakai sessions belong to one certain user.
+	 */
+	String getSakaiSessionSql4();
+
+	/**
 	 * returns the sql statement which updates a sakai session in the sakai_session table for a given session id.
 	 */
 	String getUpdateSakaiSessionSql();

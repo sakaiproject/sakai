@@ -66,6 +66,11 @@ public class UsageSessionServiceSqlDefault implements UsageSessionServiceSql
              "ON "    + alias + ".SESSION_ID = " + joinAlias + "." + joinColumn + " " +
              "where " + alias + ".SESSION_ACTIVE=1 and " + joinCriteria;
    }
+   
+   public String getSakaiSessionSql4()
+   {
+	   return "select " + USAGE_SESSION_COLUMNS + " from SAKAI_SESSION where SESSION_ACTIVE=1 AND SESSION_USER = ?";
+   }
 
    /**
     * returns the sql statement which updates a sakai session in the sakai_session table for a given session id.
