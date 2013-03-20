@@ -63,6 +63,8 @@ $method="POST";
 $endpoint = $_REQUEST['url'];
 $content_type = "application/xml";
 
+$sourcedid = htmlspecialchars($sourcedid);
+
 if ( $_REQUEST['submit'] == "Send Grade" && isset($_REQUEST['grade'] ) ) {
     $operation = 'replaceResultRequest';
     $postBody = str_replace(
