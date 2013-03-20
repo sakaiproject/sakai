@@ -623,15 +623,15 @@ $(document).ready(function() {
 
 
 $(document).ready(function(){
-    $('.blockMe').click(function(e){
-        var buttonContainer = $(this).parents('.act');
+    $('.blockMeOnClick').click(function(e){
+        var $buttonContainer = $(this).parents('.act');
         var pos = $(this).position();
         var blockerWidth = $(this).width();
         var blockerHeight = $(this).height();
 
         $(this).blur();
-        $(buttonContainer).find('#buttonBlocker').remove();
-        $(buttonContainer).find('input').css({
+        $buttonContainer.find('#buttonBlocker').remove();
+        $buttonContainer.find('input').css({
             'opacity': '1',
             'filter': 'alpha(opacity = 100)'
         });
@@ -640,7 +640,7 @@ $(document).ready(function(){
             'filter': 'alpha(opacity = 50)',
             'zoom':'1'
         });
-        $(buttonContainer).append('<div id=\"buttonBlocker\"></div>');
+        $buttonContainer.append('<div id=\"buttonBlocker\"></div>');
         $('#buttonBlocker').css({
             'width': blockerWidth,
             'height': blockerHeight,
@@ -648,14 +648,14 @@ $(document).ready(function(){
             'left': pos.left,
             'display': 'block'
         });
-        $(buttonContainer).find('.messageProgress').fadeIn('slow')
+        $buttonContainer.find('.messageProgress').fadeIn('slow')
     });
 
     
-    $('.blockAll').click(function(e){
+    $('.blockAllOnClick').click(function(e){
         $(this).blur();
-        var buttonContainer = $(this).parents('.act');
-        $(buttonContainer).find('.blockAll').each(function(i){
+        var $buttonContainer = $(this).parents('.act');
+        $buttonContainer.find('.blockAllOnClick').each(function(i){
             var pos = $(this).position();
             var blockerWidth = $(this).width();
             var blockerHeight = $(this).height();
@@ -673,9 +673,7 @@ $(document).ready(function(){
                 'display': 'block',
             });
         });
-        $(buttonContainer).find('.messageProgress').fadeIn('slow')
+        $buttonContainer.find('.messageProgress').fadeIn('slow')
     });
-
-
 
 });
