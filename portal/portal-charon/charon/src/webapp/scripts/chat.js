@@ -1,9 +1,11 @@
-function PortalChat() {
+function PortalChat() {//
 
 	this.showOfflineConnections = false;
 	this.currentConnections = {};
 	this.onlineConnections = [];
 	this.currentConnectionsMap = {};
+	this.currentPeerConnectionsMap = {};
+	this.localMediaStream = null;
 	this.currentSiteUsers = {};
 	this.currentSiteUsersMap = {};
 	this.expanded = false;
@@ -13,7 +15,14 @@ function PortalChat() {
 	this.connectionErrors = 0;
 	this.MAX_CONTENT_HEIGHT = 250;
 	this.originalTitle = document.title;
-    this.connectionsAvailable = true;
+	this.connectionsAvailable = true;
+
+
+	/** Set up the webRTC references depending on the navigator is executed */
+
+	navigator.getUserMedia = navigator.getUserMedia || navigator.webkitGetUserMedia ||
+                                            navigator.mozGetUserMedia || navigator.msGetUserMedia;
+        window.URL = window.URL || window.webkitURL;
 
     /**
      *  Utility for rendering trimpath templates. Takes the id of the template,
@@ -41,6 +50,7 @@ function PortalChat() {
    
    		return render;
 	}
+
 
 	this.sendMessageToUser = function (to,content) {
 
@@ -82,6 +92,133 @@ function PortalChat() {
 			}
 		});
 	}
+
+
+	this.sendVideoMessageToUser = function (to,content) {
+
+		jQuery.ajax({
+			url : "/direct/portal-chat/new",
+			dataType : "text",
+			cache: false,
+			type: 'POST',
+			data: {
+				'to':to,
+				'peerMessage':content
+			},
+			success : function (text,status) {
+			},
+			error : function (xhr,textStatus,error) {
+
+		        if(403 == xhr.status) {
+                    portalChat.handleSecurityError();
+                }
+
+				alert("Failed to send message. Reason: " + textStatus + ". Error: " + error);
+			}
+		});
+	}
+
+
+    this.doCall = function (to){
+		var pc = this.currentPeerConnectionsMap[to];
+
+
+                if (pc==null)
+               		pc = this.setupPeerConnection (to);
+
+	 	pChat = this;
+/*                 // get the local stream, show it in the local video element and send it
+		if (this.localMediaStream != null){
+			this.offerStream (pc,to,this.localMediaStream,true);	
+		}else{*/
+		      navigator.getUserMedia({audio: true, video: true},function (localMediaStream){
+			  var local_video = document.getElementById("local_video");
+			  pChat.attachMediaStream (local_video,localMediaStream);
+			  pChat.offerStream(pc,to,localMediaStream,true);
+		   });
+/*		}*/
+
+    }
+ 
+   this.doAnswer = function (to){
+
+		var pc = this.currentPeerConnectionsMap[to];
+			
+	 	pChat = this;
+		if (this.localMediaStream != null){
+			this.offerStream (pc,to,this.localMediaStream,false);	
+		}else{
+		      navigator.getUserMedia({audio: true, video: true},function (localMediaStream){
+			  var local_video = document.getElementById("local_video");
+			  pChat.attachMediaStream (local_video,localMediaStream);
+			  pChat.offerStream(pc,to,localMediaStream,false);
+		   });
+		}
+    }	
+
+ 
+
+    this.offerStream = function (pc,to,localMediaStream,isCaller){
+                        	  pc.addStream(localMediaStream);
+				  this.currentPeerConnectionsMap[to] = pc; 			  
+
+				  var pChat = this;
+
+				  if (isCaller){
+		                        pc.createOffer(function (desc){ 
+						pChat.gotDescription(to,desc);
+					});
+				  }else{
+					pc.createAnswer(function (desc) {
+						pChat.gotDescription(to,desc);
+					});
+			          }
+				  //Falta crear els video contents i enviar el missatge
+
+    }
+
+   this.attachMediaStream = function (element,stream){
+	    this.localMediaStream = stream;
+            element.src = URL.createObjectURL(stream);
+            element.play();
+   }
+
+  this.setupPeerConnection = function (uuid){
+             var pc_config = {"iceServers": [{"url": "stun:stun.l.google.com:19302"}]};//provisional, can we get a stun server?
+
+             var pc = new webkitRTCPeerConnection(pc_config);
+
+             // send any ice candidates to the other peer
+	     var peeruuid = uuid;
+	     var pChat = this;
+
+             pc.onicecandidate = function (event){
+		 if (event.candidate) {
+	           pChat.sendVideoMessageToUser(peeruuid,JSON.stringify(
+			{  type: 'candidate',
+        	           label: event.candidate.sdpMLineIndex,
+	                   id: event.candidate.sdpMid,
+        	           candidate: event.candidate.candidate}
+			));
+		    }
+	     };
+
+             pc.onaddstream = function (evt) {
+		     var remote_video = document.getElementById("remote_video_" + uuid);
+		     pChat.attachMediaStream(remote_video,event.stream);
+	     };
+	    
+	     return pc;	
+   }
+  
+   this.gotDescription = function (uuid,desc){
+         var pc = this.currentPeerConnectionsMap[uuid];
+
+	 if (pc != null){
+		 pc.setLocalDescription(desc);
+                 this.sendVideoMessageToUser(uuid,JSON.stringify({"sdp":desc }));
+	}
+   }
 
     /**
      * This is a bad news failure. Clear the getLatestData interval.
@@ -459,11 +596,41 @@ function PortalChat() {
 
 			var lastMessage = messages[messages.length - 1];
 			var fromDisplayName = portalChat.currentConnectionsMap[lastMessage.from].displayName;
+
 			if(document.hasFocus() == false) {
 				document.title = 'Message from ' + fromDisplayName;
 			}
         }
     }
+
+    this.updateVideoMessages = function (messages) {
+		for(var i=0,j=messages.length;i<j;i++) {
+			this.onvideomessage(messages[i].from,messages[i]);
+		}
+    }
+
+    this.onvideomessage = function (uuid,message){
+
+	
+		var signal = JSON.parse(message.content);
+
+	        if (signal.sdp){
+       			var pc = this.currentPeerConnectionsMap[uuid];
+
+        	        if (pc==null){
+               			pc = this.setupPeerConnection (uuid); 
+				this.currentPeerConnectionsMap[uuid] = pc;
+				this.doAnswer (uuid);//If we receive an sdp message and we haven't a peer connection we assume we are not callin :)
+			}
+
+         	pc.setRemoteDescription(new RTCSessionDescription(signal.sdp));
+		}else if (signal.candidate != null){
+       			var pc = this.currentPeerConnectionsMap[uuid];
+			pc.addIceCandidate(new RTCIceCandidate({sdpMLineIndex:signal.label, candidate:signal.candidate}));
+		}
+
+    }
+ 
 
 	this.getLatestData = function () {
 
@@ -481,7 +648,7 @@ function PortalChat() {
 			cache: false,
 			success : function (data,status) {
 				portalChat.updateMessages(data.data.messages);
-
+				portalChat.updateVideoMessages(data.data.videoMessages);
                 // SAK-20565. Profile2 may not be installed, so no connections :(
                 if(portalChat.connectionsAvailable === true) {
                     if(data.data.connectionsAvailable) {
