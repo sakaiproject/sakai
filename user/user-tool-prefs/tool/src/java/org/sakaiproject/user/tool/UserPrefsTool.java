@@ -41,6 +41,8 @@ import javax.faces.context.FacesContext;
 import javax.faces.event.ValueChangeEvent;
 import javax.faces.model.SelectItem;
 
+import org.apache.commons.lang.ArrayUtils;
+import org.apache.commons.lang.StringUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.sakaiproject.component.cover.ComponentManager;
@@ -71,6 +73,14 @@ public class UserPrefsTool
 {
 	/** Our log (commons). */
 	private static final Log LOG = LogFactory.getLog(UserPrefsTool.class);
+
+    private static final String SAKAI_LOCALES_KEY = "locales";
+    /**
+     * This should be complete list of supported locales and should match the list in default.sakai.properties
+     * It MUST be a comma separated list of locale keys (be careful with your formatting)
+     */
+    private static final String SAKAI_LOCALES_DEFAULT = "en_US, en_GB, en_AU, en_NZ, en_ZA, ja_JP, ko_KR, nl_NL, zh_CN, zh_TW, es_ES, fr_CA, fr_FR, ca_ES, sv_SE, ar, ru_RU, pt_PT, pt_BR, eu, vi_VN, tr_TR, es_MX, mn, pl_PL";
+    private static final String SAKAI_LOCALES_MORE = "locales.more"; // default is blank/null
 
 	/** * Resource bundle messages */
 	ResourceLoader msgs = new ResourceLoader("user-tool-prefs");
@@ -227,7 +237,7 @@ public class UserPrefsTool
 
 	private List prefTimeZones = new ArrayList();
 
-	private List prefLocales = new ArrayList();
+	private List<SelectItem> prefLocales = new ArrayList<SelectItem>();
 
 	private int DEFAULT_TAB_COUNT = 4;
 	private int MAX_TAB_COUNT = 20;
@@ -274,9 +284,6 @@ public class UserPrefsTool
 
 	/** The user id retrieved from UsageSessionService */
 	private String userId = "";
-
-	private String SAKAI_LOCALES = "locales";
-	private String SAKAI_LOCALES_MORE = "locales.more";
 
 	/**
 	 * SAK-11460:  With DTHML More Sites, there are potentially two
@@ -532,54 +539,66 @@ public class UserPrefsTool
 	 */
 	private Locale getLocaleFromString(String localeString)
 	{
-		String[] locValues = localeString.trim().split("_");
-		if (locValues.length >= 3)
+		String[] locValues = (localeString == null ? new String[0] : localeString.trim().split("_"));
+		if (locValues.length >= 3) {
 			return new Locale(locValues[0], locValues[1], locValues[2]); // language, country, variant
-		else if (locValues.length == 2)
+		} else if (locValues.length == 2) {
 			return new Locale(locValues[0], locValues[1]); // language, country
-		else if (locValues.length == 1)
+		} else if (locValues.length == 1) {
 			return new Locale(locValues[0]); // language
-		else
+		} else {
 			return Locale.getDefault();
+		}
 	}
+
+	/**
+	 * Get the list of allowed locales as controlled by config params for {@value #SAKAI_LOCALES_KEY} and {@value #SAKAI_LOCALES_MORE}
+	 * @return an array of all allowed Locales for this installation
+	 */
+	public Locale[] getSakaiLocales() {
+	    org.sakaiproject.component.api.ServerConfigurationService scs = (org.sakaiproject.component.api.ServerConfigurationService) ComponentManager.get(org.sakaiproject.component.api.ServerConfigurationService.class);
+	    String localesStr = scs.getString(SAKAI_LOCALES_KEY, SAKAI_LOCALES_DEFAULT);
+	    if (StringUtils.isEmpty(localesStr)) {
+	        localesStr = SAKAI_LOCALES_DEFAULT;
+	    }
+	    String[] locales = StringUtils.split(localesStr, ','); // NOTE: these need to be trimmed (which getLocaleFromString will do)
+	    String[] localesMore = scs.getStrings(SAKAI_LOCALES_MORE);
+
+	    locales = (String[]) ArrayUtils.addAll(locales, localesMore);
+	    Locale[] localesArray;
+	    if (ArrayUtils.isEmpty(locales)) {
+	        // if no locales then use the default only
+	        localesArray = new Locale[] { Locale.getDefault() };
+	    } else {
+	        // convert from strings to Locales
+	        localesArray = new Locale[locales.length + 1];
+	        for (int i = 0; i < locales.length; i++) {
+	            localesArray[i] = getLocaleFromString(locales[i]);
+	        }
+	        // add default in on the end
+	        localesArray[localesArray.length - 1] = Locale.getDefault();
+	    }
+
+	    // Sort Locales and remove duplicates
+	    Arrays.sort(localesArray, localeComparator);
+	    return localesArray;
+	}
+
 
 	/**
 	 * @return Returns the prefLocales
 	 */
-	public List getPrefLocales()
+	public List<SelectItem> getPrefLocales()
 	{
 		// Initialize list of supported locales, if necessary
-		if (prefLocales.size() == 0)
+		if (prefLocales.isEmpty())
 		{
-			Locale[] localeArray = null;
-			String localeString = ServerConfigurationService.getString(SAKAI_LOCALES);
-			String localeStringMore = ServerConfigurationService.getString(SAKAI_LOCALES_MORE);
-			
-			if ( localeString == null )
-				localeString = "";
-			if ( localeStringMore != null && !localeStringMore.equals("") )
-				localeString += ","+localeStringMore;
-
-			if ( !localeString.equals("") )
-			{
-				String[] sakai_locales = localeString.split(",");
-				localeArray = new Locale[sakai_locales.length + 1];
-				for (int i = 0; i < sakai_locales.length; i++)
-					localeArray[i] = getLocaleFromString(sakai_locales[i]);
-				localeArray[localeArray.length - 1] = Locale.getDefault();
-			}
-			else
-				// if no locales specified, get default list
-			{
-				localeArray = new Locale[] { Locale.getDefault() };
-			}
-
-			// Sort locales and add to prefLocales (removing duplicates)
-			Arrays.sort(localeArray, localeComparator);
+		    Locale[] localeArray = getSakaiLocales();
 			for (int i = 0; i < localeArray.length; i++)
 			{
-				if (i == 0 || !localeArray[i].equals(localeArray[i - 1]))
+				if (i == 0 || !localeArray[i].equals(localeArray[i - 1])) {
 					prefLocales.add(new SelectItem(localeArray[i].toString(), localeArray[i].getDisplayName()));
+				}
 			}
 		}
 

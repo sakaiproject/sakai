@@ -27,33 +27,22 @@ import java.util.Locale;
 /**
  * Comparator for sorting locale by DisplayName
  */
-public final class LocaleComparator implements Comparator
+public final class LocaleComparator implements Comparator<Locale>
 {
 	/**
 	 * * Compares Locale objects by comparing the DisplayName * *
 	 * 
-	 * @param obj1
+	 * @param localeOne
 	 *        1st Locale Object for comparison *
-	 * @param obj2
+	 * @param localeTwo
 	 *        2nd Locale Object for comparison *
 	 * @return negative, zero, or positive integer * (obj1 charge is less than, equal to, or greater than the obj2 charge)
 	 */
-	public int compare(Object obj1, Object obj2)
+	public int compare(Locale localeOne, Locale localeTwo)
 	{
-		if (obj1 instanceof Locale && obj2 instanceof Locale)
-		{
-			Locale localeOne = (Locale) obj1;
-			Locale localeTwo = (Locale) obj2;
-
-			String displayNameOne = localeOne.getDisplayName();
-			String displayNameTwo = localeTwo.getDisplayName();
-
-			return displayNameOne.compareTo(displayNameTwo);
-		}
-		else
-		{
-			throw new ClassCastException("Inappropriate object class for LocaleComparator");
-		}
+		String displayNameOne = localeOne.getDisplayName();
+		String displayNameTwo = localeTwo.getDisplayName();
+		return displayNameOne.compareTo(displayNameTwo);
 	}
 
 	/**
