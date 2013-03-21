@@ -80,12 +80,12 @@ import java.util.ArrayList;
 		
 		public String getShowLabel()
 		{
-			return metaMsg.getFormattedMessage("metadata.show", new String[]{this.m_name});
+			return metaMsg.getFormattedMessage("metadata.show", new String[]{this.getName()});
 		}
 		
 		public String getHideLabel()
 		{
-			return metaMsg.getFormattedMessage("metadata.hide", new String[]{this.m_name});
+			return metaMsg.getFormattedMessage("metadata.hide", new String[]{this.getName()});
 		}
 
 	}
