@@ -565,7 +565,7 @@
 			#end
 		</h4>
 	
-		<table class="itemSummary" border="0" style="clear:both;"">
+		<table class="itemSummary" border="0" style="clear:both;">
 			#if (!($dropboxMode && $collectionId==$homeCollectionId))
 				<tr> 
 					<th> 
