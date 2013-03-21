@@ -238,7 +238,6 @@ public class AliasesAction extends PagedResourceActionII
 
 		if (menuPopulated)
 		{
-			state.setAttribute(Menu.STATE_MENU, bar);
 			context.put(Menu.CONTEXT_MENU, bar);
 		}
 
