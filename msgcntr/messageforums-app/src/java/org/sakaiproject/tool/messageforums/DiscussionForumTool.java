@@ -95,6 +95,7 @@ import org.sakaiproject.event.cover.EventTrackingService;
 import org.sakaiproject.exception.IdUnusedException;
 import org.sakaiproject.service.gradebook.shared.Assignment;
 import org.sakaiproject.service.gradebook.shared.CommentDefinition;
+import org.sakaiproject.service.gradebook.shared.GradeDefinition;
 import org.sakaiproject.service.gradebook.shared.GradebookService;
 import org.sakaiproject.site.api.Group;
 import org.sakaiproject.site.api.Site;
@@ -232,6 +233,7 @@ public class DiscussionForumTool
   private static final String GRADE_SUCCESSFUL = "cdfm_grade_successful";
   private static final String GRADE_GREATER_ZERO = "cdfm_grade_greater_than_zero";
   private static final String GRADE_DECIMAL_WARN = "cdfm_grade_decimal_warn";
+  private static final String GRADE_INVALID_GENERIC = "cdfm_grade_invalid_warn";
   private static final String ALERT = "cdfm_alert";
   private static final String SELECT_ASSIGN = "cdfm_select_assign";
   private static final String INVALID_COMMENT = "cdfm_add_comment_invalid";
@@ -317,6 +319,10 @@ public class DiscussionForumTool
    */
   private String gbItemScore;
   private String gbItemComment;
+  
+  private boolean gradeByPoints;
+  private boolean gradeByPercent;
+  private boolean gradeByLetter;
 
 
   /**
@@ -4179,25 +4185,40 @@ public class DiscussionForumTool
 		  allowedToGradeItem = false;
 		  selGBItemRestricted = false;
 	  }
+	  
+	  // get the grade entry type for the gradebook
+	  int gradeEntryType = gradebookService.getGradeEntryType(gradebookUid);
+	  if (gradeEntryType == GradebookService.GRADE_TYPE_LETTER) {
+	      gradeByLetter = true;
+	      gradeByPoints = false;
+	      gradeByPercent = false;
+	  } else if (gradeEntryType == GradebookService.GRADE_TYPE_PERCENTAGE) {
+	      gradeByLetter = false;
+	      gradeByPoints = false;
+	      gradeByPercent = true;
+	  } else {
+	      gradeByLetter = false;
+	      gradeByPoints = true;
+	      gradeByPercent = false;
+	  }
 
 	  NumberFormat numberFormat = DecimalFormat.getInstance(new ResourceLoader().getLocale());
 	  if (!selGBItemRestricted) {
 		  Assignment assign = gradebookService.getAssignment(gradebookUid, selAssignmentName);
-		  if (assign != null) {
+		  if (assign != null && assign.getPoints() != null) {
 			  gbItemPointsPossible = ((DecimalFormat) numberFormat).format(assign.getPoints());
 		  }
+		  
+		  GradeDefinition gradeDef = gradebookService.getGradeDefinitionForStudentForItem(gradebookUid, assign.getId(), studentId);
 
-		  Double assignScore = gradebookService.getAssignmentScore(gradebookUid,  
-				  selAssignmentName, studentId);
-		  CommentDefinition assgnComment = gradebookService.getAssignmentScoreComment(gradebookUid, selAssignmentName, studentId);
+		  if (gradeDef.getGrade() != null) {
+		      gbItemScore = gradeDef.getGrade();
+		  }
 
-		  if (assignScore != null) {
-			  gbItemScore = ((DecimalFormat) numberFormat).format(assignScore);
-			  setSelectedAssignForMessage(selAssignmentName);
+		  if (gradeDef.getGradeComment() != null) {
+		      gbItemComment = gradeDef.getGradeComment();
 		  }
-		  if (assgnComment != null) {
-			  gbItemComment = assgnComment.getCommentText();
-		  }
+		  
 		  setSelectedAssignForMessage(selAssignmentName);
 	  } else {
 		  resetGradeInfo();
@@ -5800,6 +5821,16 @@ public class DiscussionForumTool
     return gbItemComment; 
   } 
   
+  public boolean isGradeByPoints() {
+      return gradeByPoints;
+  }
+  public boolean isGradeByPercent() {
+      return gradeByPercent;
+  }
+  public boolean isGradeByLetter() {
+      return gradeByLetter;
+  }
+  
   public void rearrageTopicMsgsThreaded()
   {
 	  if (selectedTopic != null)
@@ -6037,31 +6068,39 @@ public class DiscussionForumTool
      return true;
    }
   
-  private boolean validateGradeInput()
-  {
-    if(!isNumber(gradePoint))
-    {
-      FacesContext currentContext = FacesContext.getCurrentInstance();
-      String uiComponentId = "msgForum:dfMsgGradeGradePoint";
-      FacesMessage validateMessage = new FacesMessage(getResourceBundleString(GRADE_GREATER_ZERO));
-      validateMessage.setSeverity(FacesMessage.SEVERITY_ERROR);
-      currentContext.addMessage(uiComponentId, validateMessage);
-      
-      return false;
-    }
-    else if(!isFewerDigit(gradePoint))
-    {
-      FacesContext currentContext = FacesContext.getCurrentInstance();
-      String uiComponentId = "msgForum:dfMsgGradeGradePoint";
-      FacesMessage validateMessage = new FacesMessage(getResourceBundleString(GRADE_DECIMAL_WARN));
-      validateMessage.setSeverity(FacesMessage.SEVERITY_ERROR);
-      currentContext.addMessage(uiComponentId, validateMessage); 
-      
-      return false;
-    }
-    
-    return true;
-  }
+   private boolean validateGradeInput()
+   {
+       GradebookService gradebookService = getGradebookService();
+       if (gradebookService == null) {
+           return false;
+       }
+
+       String gradebookUid = getSiteId();
+       boolean gradeValid = gradebookService.isGradeValid(gradebookUid, gradePoint);
+
+       if (!gradeValid) {
+           // see if we can figure out why
+           String errorMessageRef = GRADE_INVALID_GENERIC;
+           if (gradebookService.getGradeEntryType(gradebookUid) != GradebookService.GRADE_TYPE_LETTER) {
+               if(!isNumber(gradePoint))
+               {
+                   errorMessageRef = GRADE_GREATER_ZERO;
+               }
+               else if(!isFewerDigit(gradePoint))
+               {
+                   errorMessageRef = GRADE_DECIMAL_WARN; 
+               } 
+           }
+
+           FacesContext currentContext = FacesContext.getCurrentInstance();
+           String uiComponentId = "msgForum:dfMsgGradeGradePoint";
+           FacesMessage validateMessage = new FacesMessage(getResourceBundleString(errorMessageRef));
+           validateMessage.setSeverity(FacesMessage.SEVERITY_ERROR);
+           currentContext.addMessage(uiComponentId, validateMessage);
+       }
+
+       return gradeValid;
+   }
   
   public String processDfGradeSubmitFromDialog(){
 	  String result = processDfGradeSubmit();
@@ -6114,19 +6153,21 @@ public class DiscussionForumTool
 	      return null;
 	  }
 
-      try {
-          double pointsPossibleAsDouble = nf.parse(gbItemPointsPossible).doubleValue();
-          if((gradeAsDouble.doubleValue() > pointsPossibleAsDouble) && !grade_too_large_make_sure) {
-              setErrorMessage(getResourceBundleString(TOO_LARGE_GRADE));
-              grade_too_large_make_sure = true;
-              return null;
-          } else {
-              LOG.info("the user confirms he wants to give student higher grade");
-          }	  
-      } catch(ParseException e) {
-          LOG.warn("Unable to parse points possible " + gbItemPointsPossible + 
-                  " to determine if entered grade is greater than points possible");
-      }	  
+	  if (gradeByPoints) {
+	      try {
+	          double pointsPossibleAsDouble = nf.parse(gbItemPointsPossible).doubleValue();
+	          if((gradeAsDouble.doubleValue() > pointsPossibleAsDouble) && !grade_too_large_make_sure) {
+	              setErrorMessage(getResourceBundleString(TOO_LARGE_GRADE));
+	              grade_too_large_make_sure = true;
+	              return null;
+	          } else {
+	              LOG.info("the user confirms he wants to give student higher grade");
+	          }	  
+	      } catch(ParseException e) {
+	          LOG.warn("Unable to parse points possible " + gbItemPointsPossible + 
+	                  " to determine if entered grade is greater than points possible");
+	      }	  
+	  }
     
     try 
     {   
@@ -6139,13 +6180,8 @@ public class DiscussionForumTool
         	studentUid = UserDirectoryService.getUser(selectedMessage.getMessage().getCreatedBy()).getId();
         }
         
-        gradebookService.setAssignmentScore(gradebookUuid,  
-        		  selectedAssignName, studentUid, gradeAsDouble, "");
-        if (gradeComment != null && gradeComment.trim().length() > 0)
-        {
-        	gradebookService.setAssignmentScoreComment(gradebookUuid,  
-      		  selectedAssignName, studentUid, gradeComment);
-        }
+        Long gbItemId = gradebookService.getAssignment(gradebookUuid, selectedAssignName).getId();
+        gradebookService.saveGradeAndCommentForStudent(gradebookUuid, gbItemId, studentUid, gradePoint, gradeComment);
         
         if(selectedMessage != null){
         	Message msg = selectedMessage.getMessage();

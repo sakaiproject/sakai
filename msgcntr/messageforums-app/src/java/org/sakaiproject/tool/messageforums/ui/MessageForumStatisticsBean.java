@@ -550,12 +550,16 @@ public class MessageForumStatisticsBean {
  	private boolean gradebookItemChosen = false;
  	private String selAssignName;
  	private String gbItemPointsPossible;
+ 	private boolean gradeByPoints;
+ 	private boolean gradeByPercent;
+ 	private boolean gradeByLetter;
  	private List<DecoratedCompiledMessageStatistics> gradeStatistics = null;
  	private static final String NO_ASSGN = "cdfm_no_assign_for_grade";
  	private static final String ALERT = "cdfm_alert";
  	private static final String GRADE_SUCCESSFUL = "cdfm_grade_successful";
  	private static final String GRADE_GREATER_ZERO = "cdfm_grade_greater_than_zero";
  	private static final String GRADE_DECIMAL_WARN = "cdfm_grade_decimal_warn";
+ 	private static final String GRADE_INVALID_GENERIC = "cdfm_grade_invalid_warn";
 
 	
 	public Map getCourseMemberMap(){
@@ -2487,6 +2491,21 @@ public class MessageForumStatisticsBean {
 
 			GradebookService gradebookService = getGradebookService();
 			if (gradebookService == null) return returnVal;
+			
+			int gradeEntryType = gradebookService.getGradeEntryType(gradebookUid);
+			if (gradeEntryType == GradebookService.GRADE_TYPE_LETTER) {
+			    gradeByLetter = true;
+			    gradeByPoints = false;
+			    gradeByPercent = false;
+			} else if (gradeEntryType == GradebookService.GRADE_TYPE_PERCENTAGE) {
+			    gradeByPercent = true;
+			    gradeByPoints = false;
+			    gradeByLetter = false;
+			} else {
+			    gradeByPoints = true;
+			    gradeByPercent = false;
+			    gradeByLetter = false;
+			}        
 
 			Assignment assignment = gradebookService.getAssignment(gradebookUid, selAssignName);
 			if(assignment != null){
@@ -2500,7 +2519,7 @@ public class MessageForumStatisticsBean {
 					String studentUuid = gradeDef.getStudentUid();		  
 					DecoratedGradebookAssignment gradeAssignment = new DecoratedGradebookAssignment();
 					gradeAssignment.setAllowedToGrade(true);						
-					gradeAssignment.setScore(gradebookService.getAssignmentScoreString(gradebookUid, selAssignName, studentUuid));
+					gradeAssignment.setScore(gradeDef.getGrade());
 					gradeAssignment.setComment(gradeDef.getGradeComment());
 					gradeAssignment.setName(selAssignName);
 					gradeAssignment.setPointsPossible(gbItemPointsPossible);						
@@ -2542,6 +2561,18 @@ public class MessageForumStatisticsBean {
 		this.gbItemPointsPossible = gbItemPointsPossible;
 	}
 	
+	public boolean isGradeByPoints() {
+	    return gradeByPoints;
+	}
+	
+	public boolean isGradeByPercent() {
+	    return gradeByPercent;
+	}
+	
+	public boolean isGradeByLetter() {
+	    return gradeByLetter;
+	}
+	
 	public String proccessActionSubmitGrades(){
 		GradebookService gradebookService = getGradebookService();
 		if (gradebookService == null) {
@@ -2564,23 +2595,25 @@ public class MessageForumStatisticsBean {
 				String selectedAssignName = ((SelectItem)assignments.get((Integer.valueOf(selectedAssign)).intValue())).getLabel();
 				String gradebookUuid = ToolManager.getCurrentPlacement().getContext();
 				
+				List<GradeDefinition> gradeInfoToSave = new ArrayList<GradeDefinition>();
 				for (DecoratedCompiledMessageStatistics gradeStatistic : gradeStatistics) {
 					if(gradeStatistic.getGradebookAssignment() != null && gradeStatistic.getGradebookAssignment().isAllowedToGrade()){
 						//ignore empty grades                                                                                  
 		                                if(gradeStatistic.getGradebookAssignment().getScore() != null &&
                 		                        !"".equals(gradeStatistic.getGradebookAssignment().getScore())){
 
-							gradebookService.setAssignmentScore(gradebookUuid,  
-									selectedAssignName, gradeStatistic.getGradebookAssignment().getUserUuid(), Double.valueOf(gradeStatistic.getGradebookAssignment().getScore()), "");
-							if (gradeStatistic.getGradebookAssignment().getComment() != null 
-									&& gradeStatistic.getGradebookAssignment().getComment().trim().length() > 0)
-							{
-								gradebookService.setAssignmentScoreComment(gradebookUuid,  
-										selectedAssignName, gradeStatistic.getGradebookAssignment().getUserUuid(), gradeStatistic.getGradebookAssignment().getComment());
-							}
+		                                    GradeDefinition gradeDef = new GradeDefinition();
+		                                    gradeDef.setStudentUid(gradeStatistic.getGradebookAssignment().getUserUuid());
+		                                    gradeDef.setGrade(gradeStatistic.getGradebookAssignment().getScore());
+		                                    gradeDef.setGradeComment(gradeStatistic.getGradebookAssignment().getComment());
+		                                    
+		                                    gradeInfoToSave.add(gradeDef);
+
 						}
 					}
 				}
+				
+				gradebookService.saveGradesAndComments(gradebookUuid, gradebookService.getAssignment(gradebookUuid, selectedAssignName).getId(), gradeInfoToSave);
 
 				setSuccessMessage(getResourceBundleString(GRADE_SUCCESSFUL));
 			} 
@@ -2628,24 +2661,51 @@ public class MessageForumStatisticsBean {
 	private boolean validateGradeInput(){
 		boolean validated = true;
 
+		Map<String, String> studentIdToGradeMap = new HashMap<String, String>();
 		for (DecoratedCompiledMessageStatistics gradeStatistic : gradeStatistics) {
 			if(gradeStatistic.getGradebookAssignment() != null && gradeStatistic.getGradebookAssignment().isAllowedToGrade()){
 				//ignore empty grades
                                 if(gradeStatistic.getGradebookAssignment().getScore() != null &&
                                         !"".equals(gradeStatistic.getGradebookAssignment().getScore())){
-					if(!isNumber(gradeStatistic.getGradebookAssignment().getScore()))
-					{
-						setErrorMessage(getResourceBundleString(GRADE_GREATER_ZERO));
-						return false;
-					}
-					else if(!isFewerDigit(gradeStatistic.getGradebookAssignment().getScore()))
-					{
-						setErrorMessage(getResourceBundleString(GRADE_DECIMAL_WARN));
-						return false;
-					}
+                                    studentIdToGradeMap.put(gradeStatistic.getGradebookAssignment().getUserUuid(), gradeStatistic.getGradebookAssignment().getScore());
+					
 				}
 			}
 		}
+		
+		GradebookService gradebookService = getGradebookService();
+		String gradebookUid = ToolManager.getCurrentPlacement().getContext();
+		List<String> studentsWithInvalidGrades = gradebookService.identifyStudentsWithInvalidGrades(
+		        gradebookUid, studentIdToGradeMap);
+		
+		if (studentsWithInvalidGrades != null && !studentsWithInvalidGrades.isEmpty()) {
+		    // let's see if we can give the user additional information. Otherwise,
+		    // just use the generic error message
+		    if (gradebookService.getGradeEntryType(gradebookUid) == GradebookService.GRADE_TYPE_LETTER) {
+		        setErrorMessage(getResourceBundleString(GRADE_INVALID_GENERIC));
+		        return false;
+		    }
+		    
+		    for (String studentId : studentsWithInvalidGrades) {
+		        String grade = studentIdToGradeMap.get(studentId);
+		        
+		        if(!isNumber(grade))
+	                {
+	                        setErrorMessage(getResourceBundleString(GRADE_GREATER_ZERO));
+	                        return false;
+	                }
+	                else if(!isFewerDigit(grade))
+	                {
+	                        setErrorMessage(getResourceBundleString(GRADE_DECIMAL_WARN));
+	                        return false;
+	                }
+		    }
+		    
+		    // if we made it this far, just use the generic message
+		    setErrorMessage(getResourceBundleString(GRADE_INVALID_GENERIC));
+                    return false;
+		}
+		
 		return validated;
 	}
 	
