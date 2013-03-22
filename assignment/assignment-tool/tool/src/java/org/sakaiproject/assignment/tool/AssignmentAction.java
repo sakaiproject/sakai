@@ -10476,7 +10476,7 @@ public class AssignmentAction extends PagedResourceActionII
 				// error with init RuleBasedCollator with rules
 				// use the default Collator
 				collator = Collator.getInstance();
-				M_log.warn(this + "AssignmentComparator cannot init RuleBasedCollator. Will use the default Collator instead. ");
+				M_log.warn(this + " AssignmentComparator cannot init RuleBasedCollator. Will use the default Collator instead. " + e);
 			}
 		} // constructor
 
