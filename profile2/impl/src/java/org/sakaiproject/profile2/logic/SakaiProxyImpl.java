@@ -26,11 +26,13 @@ import java.util.Map;
 
 import lombok.Setter;
 
+import org.apache.commons.lang.StringEscapeUtils;
 import org.apache.commons.lang.StringUtils;
 import org.apache.log4j.Logger;
 import org.sakaiproject.api.common.edu.person.SakaiPerson;
 import org.sakaiproject.api.common.edu.person.SakaiPersonManager;
 import org.sakaiproject.authz.api.SecurityAdvisor;
+import org.sakaiproject.authz.api.SecurityAdvisor.SecurityAdvice;
 import org.sakaiproject.authz.api.SecurityService;
 import org.sakaiproject.component.api.ServerConfigurationService;
 import org.sakaiproject.content.api.ContentHostingService;
@@ -1288,27 +1290,6 @@ public class SakaiProxyImpl implements SakaiProxy {
  	*/
 	public String getOfficialImageAttribute() {
 		return serverConfigurationService.getString("profile2.official.image.attribute", ProfileConstants.USER_PROPERTY_JPEG_PHOTO);
-	}
-	
-	/**
- 	* {@inheritDoc}
- 	*/
-	public String getSkinRepoProperty(){
-		return serverConfigurationService.getString("skin.repo");
-	}
-	
-	/**
- 	* {@inheritDoc}
- 	*/
-	public String getToolSkinCSS(String skinRepo){
-		
-		String skin = siteService.findTool(sessionManager.getCurrentToolSession().getPlacementId()).getSkin();			
-		
-		if(skin == null) {
-			skin = serverConfigurationService.getString("skin.default");
-		}
-		
-		return skinRepo + "/" + skin + "/tool.css";
 	}
 	
 	/**

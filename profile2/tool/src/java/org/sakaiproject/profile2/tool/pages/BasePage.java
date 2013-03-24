@@ -18,6 +18,7 @@ package org.sakaiproject.profile2.tool.pages;
 import java.util.Locale;
 
 import javax.servlet.http.Cookie;
+import javax.servlet.http.HttpServletRequest;
 
 import org.apache.log4j.Logger;
 import org.apache.wicket.AttributeModifier;
@@ -253,14 +254,10 @@ public class BasePage extends WebPage implements IHeaderContributor {
 	
 	//Style it like a Sakai tool
 	public void renderHead(IHeaderResponse response) {
-		//Sakai skin
-		String skinRepo = sakaiProxy.getSkinRepoProperty();
-		String toolCSS = sakaiProxy.getToolSkinCSS(skinRepo);
-		String toolBaseCSS = skinRepo + "/tool_base.css";
 		
-		//Sakai additions
-		response.renderCSSReference(toolBaseCSS);
-		response.renderCSSReference(toolCSS);
+		//get the Sakai skin header fragment from the request attribute
+		HttpServletRequest request = getWebRequestCycle().getWebRequest().getHttpServletRequest();
+		response.renderString((String)request.getAttribute("sakai.html.head"));
 		response.renderOnLoadJavascript("setMainFrameHeight( window.name )");
 		
 		//wicketstuff TinyMCE
