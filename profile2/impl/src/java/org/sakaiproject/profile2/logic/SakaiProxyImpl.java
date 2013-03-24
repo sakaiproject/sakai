@@ -64,7 +64,6 @@ import org.sakaiproject.user.api.User;
 import org.sakaiproject.user.api.UserDirectoryService;
 import org.sakaiproject.user.api.UserEdit;
 import org.sakaiproject.user.api.UserNotDefinedException;
-import org.sakaiproject.util.Validator;
 
 /**
  * Implementation of SakaiProxy for Profile2.
@@ -677,7 +676,7 @@ public class SakaiProxyImpl implements SakaiProxy {
 				sb.append(MIME_ADVISORY);
 				sb.append(BOUNDARY_LINE);
 				sb.append(PLAIN_TEXT_HEADERS);
-				sb.append(Validator.escapeHtmlFormattedText(message));
+				sb.append(StringEscapeUtils.escapeHtml(message));
 				sb.append(BOUNDARY_LINE);
 				sb.append(HTML_HEADERS);
 				sb.append(htmlPreamble(subject));
