@@ -632,7 +632,9 @@ public class MySearch extends BasePage {
 				if(target != null) {
 					//get the model and text entered
 					StringModel model = (StringModel) form.getModelObject();
-					String searchText = ProfileUtils.stripAndCleanHtml(model.getString());
+					//PRFL-811 - dont strip this down, we will lose i18n chars.
+					//And there is no XSS risk since its only for the current user.
+					String searchText = model.getString();
 					
 					//get search type
 					String searchType = searchTypeRadioGroup.getModelObject();
@@ -729,27 +731,29 @@ public class MySearch extends BasePage {
 		numSearchResultsContainer.setVisible(true);
 		
 		//text
+		//Strip the chars for display purposes
+		String cleanedSearchTerm = ProfileUtils.stripAndCleanHtml(searchTerm);
 		if(numResults == 0) {
-			numSearchResults.setDefaultModel(new StringResourceModel("text.search.byname.no.results", null, new Object[]{ searchTerm } ));
+			numSearchResults.setDefaultModel(new StringResourceModel("text.search.byname.no.results", null, new Object[]{ cleanedSearchTerm } ));
 			resultsContainer.setVisible(false);
 			searchResultsNavigator.setVisible(false);
 		} else if (numResults == 1) {
-			numSearchResults.setDefaultModel(new StringResourceModel("text.search.byname.one.result", null, new Object[]{ searchTerm } ));
+			numSearchResults.setDefaultModel(new StringResourceModel("text.search.byname.one.result", null, new Object[]{ cleanedSearchTerm } ));
 			resultsContainer.setVisible(true);
 			searchResultsNavigator.setVisible(false);
 		} else if (numResults == maxResults) {
 			resultsListView.setCurrentPage(currentPage);
-			numSearchResults.setDefaultModel(new StringResourceModel("text.search.toomany.results", null, new Object[]{ searchTerm, maxResults, maxResults } ));
+			numSearchResults.setDefaultModel(new StringResourceModel("text.search.toomany.results", null, new Object[]{ cleanedSearchTerm, maxResults, maxResults } ));
 			resultsContainer.setVisible(true);
 			searchResultsNavigator.setVisible(true);
 		} else if (numResults > maxResultsPerPage) {
 	        resultsListView.setCurrentPage(currentPage);
-			numSearchResults.setDefaultModel(new StringResourceModel("text.search.byname.paged.results", null, new Object[]{ numResults, resultsListView.getViewSize(), searchTerm } ));
+			numSearchResults.setDefaultModel(new StringResourceModel("text.search.byname.paged.results", null, new Object[]{ numResults, resultsListView.getViewSize(), cleanedSearchTerm } ));
 			resultsContainer.setVisible(true);
 			searchResultsNavigator.setVisible(true);
 		} else {
 			resultsListView.setCurrentPage(currentPage);
-			numSearchResults.setDefaultModel(new StringResourceModel("text.search.byname.all.results", null, new Object[]{ numResults, searchTerm } ));
+			numSearchResults.setDefaultModel(new StringResourceModel("text.search.byname.all.results", null, new Object[]{ numResults, cleanedSearchTerm } ));
 			resultsContainer.setVisible(true);
 			searchResultsNavigator.setVisible(false);
 		}
@@ -795,27 +799,29 @@ public class MySearch extends BasePage {
 		numSearchResultsContainer.setVisible(true);
 		
 		//text
+		//Strip the chars for display purposes
+		String cleanedSearchTerm = ProfileUtils.stripAndCleanHtml(searchTerm);
 		if(numResults == 0) {
-			numSearchResults.setDefaultModel(new StringResourceModel("text.search.byinterest.no.results", null, new Object[]{ searchTerm } ));
+			numSearchResults.setDefaultModel(new StringResourceModel("text.search.byinterest.no.results", null, new Object[]{ cleanedSearchTerm } ));
 			resultsContainer.setVisible(false);
 			searchResultsNavigator.setVisible(false);
 		} else if (numResults == 1) {
-			numSearchResults.setDefaultModel(new StringResourceModel("text.search.byinterest.one.result", null, new Object[]{ searchTerm } ));
+			numSearchResults.setDefaultModel(new StringResourceModel("text.search.byinterest.one.result", null, new Object[]{ cleanedSearchTerm } ));
 			resultsContainer.setVisible(true);
 			searchResultsNavigator.setVisible(false);
 		} else if (numResults == maxResults) {
 			resultsListView.setCurrentPage(currentPage);
-			numSearchResults.setDefaultModel(new StringResourceModel("text.search.toomany.results", null, new Object[]{ searchTerm, maxResults, maxResults } ));
+			numSearchResults.setDefaultModel(new StringResourceModel("text.search.toomany.results", null, new Object[]{ cleanedSearchTerm, maxResults, maxResults } ));
 			resultsContainer.setVisible(true);
 			searchResultsNavigator.setVisible(true);
 		} else if (numResults > maxResultsPerPage) {
 			resultsListView.setCurrentPage(currentPage);
-			numSearchResults.setDefaultModel(new StringResourceModel("text.search.byinterest.paged.results", null, new Object[]{ numResults, resultsListView.getViewSize(), searchTerm } ));
+			numSearchResults.setDefaultModel(new StringResourceModel("text.search.byinterest.paged.results", null, new Object[]{ numResults, resultsListView.getViewSize(), cleanedSearchTerm } ));
 			resultsContainer.setVisible(true);
 			searchResultsNavigator.setVisible(true);
 		} else {
 			resultsListView.setCurrentPage(currentPage);
-			numSearchResults.setDefaultModel(new StringResourceModel("text.search.byinterest.all.results", null, new Object[]{ numResults, searchTerm } ));
+			numSearchResults.setDefaultModel(new StringResourceModel("text.search.byinterest.all.results", null, new Object[]{ numResults, cleanedSearchTerm } ));
 			resultsContainer.setVisible(true);
 			searchResultsNavigator.setVisible(false);
 		}
