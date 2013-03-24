@@ -846,6 +846,11 @@ h2 {
 	padding: 0;
 }
 
+.connections-wrap .connection-summary-wrap,
+.search-result .search-result-summary-wrap {
+	width:340px;
+}
+
 .search-result-summary {
 	word-wrap:break-word;
 }
