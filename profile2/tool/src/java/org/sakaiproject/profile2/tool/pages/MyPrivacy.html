@@ -145,6 +145,16 @@
 							<td class="toolTip"><span wicket:id="myFriendsToolTip">[myFriendsToolTip]</span></td>
 						</tr>
 						
+						<!-- myOnlineStatus -->
+						<tr wicket:id="onlineStatusContainer">
+							<td class="label" wicket:id="onlineStatusLabel">[onlineStatusLabel]</td>
+							<td class="content">
+								<label for="onlinestatusprivacyinput" class="accessibility-label"><wicket:message key="accessibility.privacy.onlinestatus"></wicket:message></label>
+								<select wicket:id="onlineStatus" wicket:message="title:accessibility.privacy.onlinestatus"></select>
+							</td>
+							<td class="toolTip"><span wicket:id="onlineStatusToolTip">[onlineStatusToolTip]</span></td>
+						</tr>
+						
 						<!-- myStatus -->
 						<tr wicket:id="myStatusContainer">
 							<td class="label" wicket:id="myStatusLabel">[myStatusLabel]</td>
@@ -193,16 +203,6 @@
 								<select wicket:id="myWall" wicket:message="title:accessibility.privacy.wall"></select>
 							</td>
 							<td class="toolTip"><span wicket:id="myWallToolTip">[myWallToolTip]</span></td>
-						</tr>
-						
-						<!-- myOnlineStatus -->
-						<tr wicket:id="onlineStatusContainer">
-							<td class="label" wicket:id="onlineStatusLabel">[onlineStatusLabel]</td>
-							<td class="content">
-								<label for="onlinestatusprivacyinput" class="accessibility-label"><wicket:message key="accessibility.privacy.onlinestatus"></wicket:message></label>
-								<select wicket:id="onlineStatus" wicket:message="title:accessibility.privacy.onlinestatus"></select>
-							</td>
-							<td class="toolTip"><span wicket:id="onlineStatusToolTip">[onlineStatusToolTip]</span></td>
 						</tr>
 											
 					</table>
