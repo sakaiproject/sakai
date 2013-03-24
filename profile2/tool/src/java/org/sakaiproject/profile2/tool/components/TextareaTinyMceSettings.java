@@ -73,8 +73,9 @@ public class TextareaTinyMceSettings extends TinyMCESettings {
 		firstRowButtons.add(Button.separator);
 		firstRowButtons.add(Button.bullist);
 		firstRowButtons.add(Button.numlist);
-		firstRowButtons.add(Button.separator);
-		firstRowButtons.add(Button.code);
+		//PRFL-803 remove HTML button, gives an access restriction error
+		//firstRowButtons.add(Button.separator);
+		//firstRowButtons.add(Button.code);
 
 		//set first toolbar
 		setToolbarButtons(TinyMCESettings.Toolbar.first, firstRowButtons);
