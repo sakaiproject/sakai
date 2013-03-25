@@ -56,25 +56,21 @@ public class UploadFilter implements Filter {
 
    public void init(FilterConfig config) throws ServletException {
        repositoryPath = ServerConfigurationService.getString(
-	 "samigo.answerUploadRepositoryPath", config.getInitParameter(
-         "com.corejsf.UploadFilter.repositoryPath"));
+	 "samigo.answerUploadRepositoryPath", "${sakai.home}/samigo/answerUploadRepositoryPath/");
 
       try {
          String paramValue = ServerConfigurationService.getString(
-            "samigo.sizeThreshold", config.getInitParameter(
-            "com.corejsf.UploadFilter.sizeThreshold"));
+            "samigo.sizeThreshold", "1024");
          if (paramValue != null)
             sizeThreshold = Integer.parseInt(paramValue);
 
          paramValue = ServerConfigurationService.getString(
-            "samigo.sizeMax", config.getInitParameter(
-            "com.corejsf.UploadFilter.sizeMax"));
+            "samigo.sizeMax", "40960");
          if (paramValue != null)
             sizeMax = Long.parseLong(paramValue);
 
          paramValue = ServerConfigurationService.getString(
-            "samigo.saveMediaToDb", config.getInitParameter(
-            "com.corejsf.UploadFilter.saveMediaToDb"));
+            "samigo.saveMediaToDb", "true");
          if (paramValue != null)
             saveMediaToDb = paramValue;
 
