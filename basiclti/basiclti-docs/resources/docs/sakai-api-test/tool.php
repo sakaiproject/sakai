@@ -25,6 +25,7 @@ if (get_magic_quotes_gpc()) $sourcedid = stripslashes($sourcedid);
 $sourcedid = htmlentities($sourcedid);
 
 if ( $context->valid ) {
+   print "<p style=\"color:green\">Launch Validated.<p>\n";
    if ( $_POST['launch_presentation_return_url']) {
      $msg = 'A%20message%20from%20the%20tool%20provider.';
      $error_msg = 'An%20error%20message%20from%20the%20tool%20provider.';
