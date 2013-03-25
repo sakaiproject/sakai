@@ -188,7 +188,7 @@ $(document).ready(function() {
     	</div>
 
     	<div>
-			<h:selectOneRadio layout="pageDirection" value="#{author.assessCreationMode}">
+			<h:selectOneRadio layout="pageDirection" value="#{author.assessCreationMode}" rendered="#{samLiteBean.visible}">
 		      <f:selectItem itemValue="1" itemLabel="#{authorFrontDoorMessages.assessmentBuild}" />
 		      <f:selectItem itemValue="2" itemLabel="#{authorFrontDoorMessages.markupText}" />
 		    </h:selectOneRadio>

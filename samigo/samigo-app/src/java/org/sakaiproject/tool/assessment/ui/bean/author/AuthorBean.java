@@ -639,6 +639,9 @@ public class AuthorBean implements Serializable
   }
 
   public String getAssessCreationMode(){
+	  if (assessCreationMode == null || assessCreationMode.trim().equals("")) {
+		  return "1";
+	  }
 	  return assessCreationMode;
   }
 
