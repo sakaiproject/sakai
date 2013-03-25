@@ -7,6 +7,7 @@ import java.util.List;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.Setter;
+import lombok.extern.apachecommons.CommonsLog;
 
 import org.apache.commons.lang.StringUtils;
 import org.apache.commons.logging.Log;
@@ -22,6 +23,7 @@ import org.sakaiproject.entitybroker.entityprovider.extension.Formats;
 import org.sakaiproject.entitybroker.exception.EntityNotFoundException;
 import org.sakaiproject.entitybroker.util.AbstractEntityProvider;
 import org.sakaiproject.exception.IdUnusedException;
+import org.sakaiproject.exception.PermissionException;
 import org.sakaiproject.news.api.NewsConnectionException;
 import org.sakaiproject.news.api.NewsFormatException;
 import org.sakaiproject.news.api.NewsService;
@@ -32,6 +34,7 @@ import org.sakaiproject.site.api.ToolConfiguration;
 /**
  * Entity provider for the News tool
  */
+@CommonsLog
 public class NewsEntityProvider extends AbstractEntityProvider implements
 		EntityProvider, AutoRegisterEntityProvider, ActionsExecutable,
 		Outputable, Describeable
@@ -40,8 +43,6 @@ public class NewsEntityProvider extends AbstractEntityProvider implements
 	private static final String SAKAI_NEWS_TOOL_ID = "sakai.news";
 
 	private static final String NEWS_CHANNEL_URL_PROP = "channel-url";
-
-	private static final Log log = LogFactory.getLog(NewsEntityProvider.class);
 
 	public final static String ENTITY_PREFIX = "news";
 
@@ -69,13 +70,14 @@ public class NewsEntityProvider extends AbstractEntityProvider implements
 					"siteId must be set in order to get the news feeds for a site, via the URL /news/site/siteId");
 		}
 
-		//user being logged in and having access to the site is to be handled in the API
-
+		//user being logged in and having access to the site is handled in the API
 		Site site;
 		try {
-			site = siteService.getSite(siteId);
+			site = siteService.getSiteVisit(siteId);
 		} catch (IdUnusedException e) {
 			throw new EntityNotFoundException("Invalid siteId: " + siteId, siteId);
+		} catch (PermissionException e) {
+			throw new EntityNotFoundException("No access to site: " + siteId, siteId);
 		}
 
 		Collection<ToolConfiguration> newsTools = site.getTools(SAKAI_NEWS_TOOL_ID);
