@@ -51,7 +51,7 @@ require_once("util/lti_util.php");
   if ( ! $secret ) $secret = "secret";
   $endpoint = trim($_REQUEST["endpoint"]);
   $b64 = base64_encode($key.":::".$secret);
-  if ( ! $endpoint ) $endpoint = str_replace("lms.php","auto.php",$cur_url);
+  if ( ! $endpoint ) $endpoint = str_replace("lms.php","tool.php",$cur_url);
   $cssurl = str_replace("lms.php","lms.css",$cur_url);
 
   $outcomes = trim($_REQUEST["outcomes"]);

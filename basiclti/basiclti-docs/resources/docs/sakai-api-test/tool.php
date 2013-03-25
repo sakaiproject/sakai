@@ -82,10 +82,7 @@ if ( $context->valid ) {
 		$found = true;
     }
     if ( ! $found ) {
-		echo("<p>This launch did not include the necessary settings for any of the ");
-		echo("Sakai External Tool API such as:\n<pre>\n");
-		echo("ext_ims_lis_memberships_url\next_ims_lis_basic_outcome_url\next_ims_lti_tool_setting_url\n");
-		echo("</pre>\n</p>\n");
+		echo("<p>No Services are available for this launch.</p>\n");
 	}
     print "<pre>\n";
     print "Context Information:\n\n";
