@@ -5,6 +5,19 @@
     <display-name>sakai-news-tool</display-name>
     <description>sakai-news-tool</description>
 
+ <!-- Configure standard Spring application contexts.   -->
+  <context-param>
+    <param-name>contextConfigLocation</param-name>
+    <param-value>
+      /WEB-INF/applicationContext.xml
+    </param-value>
+  </context-param>
+<!--       classpath:conf/sakai-applicationContext.xml, -->
+<!--       classpath:conf/components-applicationContext.xml, -->
+<!--       classpath:conf/sakaiComponents-applicationContext.xml, -->
+<!--       classpath:conf/sakai-portalErrors-applicationContext.xml, -->
+
+
 	<!-- Sakai request filter -->
     <filter>
         <filter-name>sakai.request</filter-name>
@@ -60,5 +73,10 @@
     <listener>
         <listener-class>org.sakaiproject.util.ToolListener</listener-class>
     </listener>
+	<listener>
+		<listener-class>
+			org.sakaiproject.util.ContextLoaderListener
+		</listener-class>
+	</listener>    
 
 </web-app>

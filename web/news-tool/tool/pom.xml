@@ -34,6 +34,15 @@
       <artifactId>sakai-news-api</artifactId>
     </dependency>
     <dependency>
+      <groupId>org.sakaiproject.entitybroker</groupId>
+      <artifactId>entitybroker-api</artifactId>
+    </dependency>
+    <dependency>
+      <groupId>org.sakaiproject.entitybroker</groupId>
+      <artifactId>entitybroker-utils</artifactId>
+      <version>${sakai.entitybroker.version}</version>
+    </dependency>
+    <dependency>
       <groupId>org.sakaiproject.velocity</groupId>
       <artifactId>sakai-velocity-tool-api</artifactId>
     </dependency>
@@ -46,6 +55,15 @@
       <artifactId>commons-logging</artifactId>
       <version>1.0.4</version>
     </dependency>
+    <dependency>
+      <groupId>org.springframework</groupId>
+      <artifactId>spring-webmvc</artifactId>
+    </dependency>
+    <dependency>
+      <groupId>org.projectlombok</groupId>
+      <artifactId>lombok</artifactId>
+      <version>0.11.4</version>
+    </dependency>        
   </dependencies>
   <build>
     <resources>
