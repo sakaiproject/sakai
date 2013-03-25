@@ -172,6 +172,10 @@ $(document).ready(function() {
             </select>
         </div>
         #end		
+        ## SAK-23350
+        #if ($dropboxMode)
+            <p>$tlang.getString("dropbox.privacy.note")</p>
+        #end
 		#if($listActions || $showHotDropboxWidget)
 			<div class="navPanel">
 				<div class="navIntraToolLink viewNav">
