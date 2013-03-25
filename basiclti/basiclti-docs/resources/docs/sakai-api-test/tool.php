@@ -44,6 +44,7 @@ if ( $context->valid ) {
         print '&seret=secret';
         print '&url='.urlencode($_POST['lis_outcome_service_url']).'">';
         print 'Test LTI 1.1 Outcome Service</a>.</p>'."\n";
+		$found = true;
     }
 
     if ( $_POST['context_id'] && $_POST['ext_lori_api_url_xml'] && $_POST['lis_result_sourcedid'] ) {
