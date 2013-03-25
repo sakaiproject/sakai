@@ -64,16 +64,19 @@ public abstract class EnrollmentTableBean
      * A comparator that sorts enrollments by student sortName
      */
     static final Comparator<EnrollmentRecord> ENROLLMENT_NAME_COMPARATOR = new Comparator<EnrollmentRecord>() {
-		public int compare(EnrollmentRecord o1, EnrollmentRecord o2)
-		{
-			RuleBasedCollator collator_ini = (RuleBasedCollator)Collator.getInstance();
-			try {
-				RuleBasedCollator collator= new RuleBasedCollator(collator_ini.getRules().replaceAll("<'\u005f'", "<' '<'\u005f'"));
-				return collator.compare(o1.getUser().getSortName(), o2.getUser().getSortName());
-			} catch (ParseException e) {
-				log.error("ERROR: EnrollmentTableBean had an issue parsing users: " + o1.getUser().getSortName() + " and " + o2.getUser().getSortName(),e);
+    	Collator collator;
+    	{
+    		collator = Collator.getInstance();
+	    	try
+	    	{
+	    		collator= new RuleBasedCollator(((RuleBasedCollator) collator).getRules().replaceAll("<'\u005f'", "<' '<'\u005f'"));
+	    	} catch (ParseException e) {
+				log.warn(this + " Cannot init RuleBasedCollator. Will use the default Collator instead.", e);
 			}
-		    return Collator.getInstance().compare(o1.getUser().getSortName(), o2.getUser().getSortName());
+    	}
+    	public int compare(EnrollmentRecord o1, EnrollmentRecord o2)
+		{
+			return collator.compare(o1.getUser().getSortName(), o2.getUser().getSortName());
 		}
 	};
 
