@@ -124,6 +124,11 @@ public class TimeUtil
 
   public String getDisplayDateTime(SimpleDateFormat ndf, Date serverDate ){
     String displayDate = "";
+     //we can't format a null date
+    if (serverDate == null) {
+    	return displayDate;
+    }
+    
     try {
       if ((m_client_timezone !=null) && (m_server_timezone!=null) 
 	&& (!m_client_timezone.hasSameRules(m_server_timezone))) {
