@@ -370,7 +370,7 @@ function uncheckOther(field){
   <f:verbatim><table bgcolor="#CCCCCC"><tr><td></f:verbatim>  
   
   <f:verbatim></td><td></f:verbatim>
-  <h:outputText value="#{assessmentSettingsMessages.title_description}" />
+  <h:outputText value="#{assessmentSettingsMessages.select_all_groups}" />
   <f:verbatim></td></tr></table></f:verbatim>
   
   <h:selectManyCheckbox disabled="true" id="groupsForSite" layout="pagedirection" value="#{publishedSettings.groupsAuthorized}">

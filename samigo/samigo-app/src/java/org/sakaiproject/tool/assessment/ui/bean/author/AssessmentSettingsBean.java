@@ -1414,20 +1414,16 @@ public class AssessmentSettingsBean
     HashMap targets = ptHelper.getTargets();
     Set e = targets.keySet();
     Iterator iter = e.iterator();
-    int numSelections = getNumberOfGroupsForSite() > 0 ? 3 : 2;
+    int numSelections = getNumberOfGroupsForSite() > 0 ? 2 : 1;
    	SelectItem[] target = new SelectItem[numSelections];
+   	ResourceLoader rb = new ResourceLoader("org.sakaiproject.tool.assessment.bundle.AssessmentSettingsMessages");
     while (iter.hasNext()){
 	    String t = (String)iter.next();
-	    if ("Anonymous Users".equals(t)) {
-	  	  ResourceLoader rb = new ResourceLoader("org.sakaiproject.tool.assessment.bundle.AssessmentSettingsMessages");
-	  	  target[0] = new SelectItem(t, rb.getString("anonymous_users"));
-	    }
-	    else if (numSelections == 3 && t.equals(AssessmentAccessControl.RELEASE_TO_SELECTED_GROUPS)) {
-	  	  ResourceLoader rb = new ResourceLoader("org.sakaiproject.tool.assessment.bundle.AssessmentSettingsMessages");
-	  	  target[2] = new SelectItem(t, rb.getString("selected_groups"));
+	    if (numSelections == 2 && t.equals(AssessmentAccessControl.RELEASE_TO_SELECTED_GROUPS)) {
+	      target[1] = new SelectItem(t, rb.getString("selected_groups"));
 	    }
 	    else if (t.equals(AgentFacade.getCurrentSiteName())) {
-	  	  target[1] = new SelectItem(t, t);
+	      target[0] = new SelectItem(t, rb.getString("entire_site"));
 	    }
     }
     return target;
@@ -1655,34 +1651,29 @@ public class AssessmentSettingsBean
   public SelectItem[] getGroupsForSite(){
       SelectItem[] groupSelectItems = new SelectItem[0];
       TreeMap sortedSelectItems = new TreeMap();
-	  Site site = null;
-	  try {
-		 site = SiteService.getSite(ToolManager.getCurrentPlacement().getContext());
-		 Collection groups = site.getGroups();
-	     if (groups != null && groups.size() > 0) {
-	    	 groupSelectItems = new SelectItem[groups.size()];
-	    	 Iterator groupIter = groups.iterator();
-	    	 while (groupIter.hasNext()) {
-	    		 Group group = (Group) groupIter.next();
-	    		 //String groupType = group.getProperties().getProperty("sections_category");
-	    		 //groupType = groupType == null ? "" : " (" + groupType + ")";
-	    		 String groupDescription = group.getDescription()==null || group.getDescription().equals("") ? "" : " : " + group.getDescription();
-                         String selectDescription = createUniqueKey(groupDescription.toUpperCase(), sortedSelectItems);
-	    		 String displayDescription = group.getTitle() + groupDescription;
-			 sortedSelectItems.put(selectDescription, new SelectItem(group.getId(), displayDescription));
-	    	 }
-	    	 Set keySet = sortedSelectItems.keySet();
-	    	 groupIter = keySet.iterator();
-	    	 int i=0;
-	    	 while (groupIter.hasNext()) {
-	    		 groupSelectItems[i++] = (SelectItem) sortedSelectItems.get(groupIter.next());
-	    	 }
-	     }
-	  }
-	  catch (IdUnusedException ex) {
-		  // No site available
-	  }
-	  return groupSelectItems;
+      Site site = null;
+      try {
+          site = SiteService.getSite(ToolManager.getCurrentPlacement().getContext());
+          Collection groups = site.getGroups();
+          if (groups != null && groups.size() > 0) {
+              groupSelectItems = new SelectItem[groups.size()];
+              Iterator groupIter = groups.iterator();
+              while (groupIter.hasNext()) {
+                  Group group = (Group) groupIter.next();
+                  String title = group.getTitle();
+                  sortedSelectItems.put(title.toUpperCase(), new SelectItem(group.getId(), title));
+              }
+              Set keySet = sortedSelectItems.keySet();
+              groupIter = keySet.iterator();
+              int i = 0;
+              while (groupIter.hasNext()) {
+                  groupSelectItems[i++] = (SelectItem) sortedSelectItems.get(groupIter.next());
+              }
+          }
+      } catch (IdUnusedException ex) {
+          // No site available
+      }
+      return groupSelectItems;
   }
   
   

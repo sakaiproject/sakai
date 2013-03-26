@@ -60,6 +60,7 @@ import org.sakaiproject.exception.TypeException;
 import org.sakaiproject.tool.api.ToolSession;
 import org.sakaiproject.entity.api.Reference;
 import org.sakaiproject.entity.cover.EntityManager;
+import org.sakaiproject.tool.assessment.data.dao.assessment.AssessmentAccessControl;
 import org.sakaiproject.tool.assessment.data.ifc.assessment.AssessmentAccessControlIfc;
 import org.sakaiproject.tool.assessment.data.ifc.assessment.AssessmentFeedbackIfc;
 import org.sakaiproject.tool.assessment.data.ifc.assessment.AssessmentMetaDataIfc;
@@ -1303,34 +1304,24 @@ public void setFeedbackComponentOption(String feedbackComponentOption) {
   }
 
   public SelectItem[] getPublishingTargets() {
-    HashMap targets = ptHelper.getTargets();
-    Set e = targets.keySet();
-    Iterator iter = e.iterator();
-    // sort the targets
-    String[] titles = new String[targets.size()];
-    while (iter.hasNext()){
-	for (int m = 0; m < e.size(); m++) {
-	    String t = (String)iter.next();
-	    //log.info("target "+m+"="+t);
-	    titles[m] = t;
-	}
-    }
-    Arrays.sort(titles);
-    SelectItem[] target = new SelectItem[targets.size()];
-    for (int i=0; i<titles.length; i++){
-	target[i] = new SelectItem(titles[i]);
-    }
-    /**
-    SelectItem[] target = new SelectItem[targets.size()];
-    while (iter.hasNext()) {
-      for (int i = 0; i < e.size(); i++) {
-        target[i] = new SelectItem( (String) iter.next());
-      }
-    }
-    */
-    return target;
+	  HashMap targets = ptHelper.getTargets();
+	  Set e = targets.keySet();
+	  Iterator iter = e.iterator();
+	  int numSelections = getNumberOfGroupsForSite() > 0 ? 2 : 1;
+	  SelectItem[] target = new SelectItem[numSelections];
+	  ResourceLoader rb = new ResourceLoader("org.sakaiproject.tool.assessment.bundle.AssessmentSettingsMessages");
+	  while (iter.hasNext()){
+	      String t = (String)iter.next();
+	      if (numSelections == 2 && t.equals(AssessmentAccessControl.RELEASE_TO_SELECTED_GROUPS)) {
+	          target[1] = new SelectItem(t, rb.getString("selected_groups"));
+	      } else if (t.equals(AgentFacade.getCurrentSiteName())) {
+	        target[0] = new SelectItem(t, rb.getString("entire_site"));
+	      }
+	  }
+	  return target;
   }
 
+  
   public void setTargetSelected(String[] targetSelected) {
     this.targetSelected = targetSelected;
   }
@@ -1473,22 +1464,15 @@ public void setFeedbackComponentOption(String feedbackComponentOption) {
 				Iterator groupIter = groups.iterator();
 				while (groupIter.hasNext()) {
 					Group group = (Group) groupIter.next();
-					//String groupType = group.getProperties().getProperty("sections_category");
-					//groupType = groupType == null ? "" : " (" + groupType + ")";
-					String groupDescription = group.getDescription() == null
-							|| group.getDescription().equals("") ? "" : " : "
-							+ group.getDescription();
-					String selectDescription = createUniqueKey(groupDescription.toUpperCase(), sortedSelectItems);
-					String displayDescription = group.getTitle()
-							+ groupDescription;
- 					sortedSelectItems.put(selectDescription, new SelectItem(group.getId(), displayDescription));
+					String title = group.getTitle();
+					sortedSelectItems.put(title.toUpperCase(),
+							new SelectItem(group.getId(), title));
 				}
 				Set keySet = sortedSelectItems.keySet();
 				groupIter = keySet.iterator();
 				int i = 0;
 				while (groupIter.hasNext()) {
-					groupSelectItems[i++] = (SelectItem) sortedSelectItems
-							.get(groupIter.next());
+					groupSelectItems[i++] = (SelectItem) sortedSelectItems.get(groupIter.next());
 				}
 			}
 		} catch (IdUnusedException ex) {
