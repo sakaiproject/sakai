@@ -307,9 +307,7 @@
 					<h:panelGroup styleClass="displayMoreAutoCreatePanel instruction" style="display:none">
 						<h:outputText value="#{msgs.cdfm_autocreate_topics_desc_more}" />
 						<h:outputText value="#{ForumTool.autoRolesNoneDesc}" />
-						<h:outputFormat value="#{msgs.cdfm_autocreate_topics_desc_groups}" >
-							<f:param value="#{ForumTool.autoGroupsPermConfig}" />
-						</h:outputFormat>
+						<h:outputText value="#{ForumTool.autoGroupsDesc}" />
 					</h:panelGroup>
 					<h:dataTable value="#{ForumTool.siteGroups}" var="siteGroup" cellpadding="0" cellspacing="0" styleClass="indnt1 jsfFormTable" 
 								 rendered="#{ForumTool.selectedTopic.topic.id==null}">
