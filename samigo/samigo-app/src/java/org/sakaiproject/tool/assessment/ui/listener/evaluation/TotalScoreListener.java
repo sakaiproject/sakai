@@ -182,7 +182,7 @@ public class TotalScoreListener
     questionbean.setTypeId("0");   // if setting "", QuestionScoreBean.getTypeId will default to 1. Thus setting it to 0. 
     questionbean.setMaxScore("");
     questionbean.setDeliveryItem(new ArrayList());
-    questionbean.setSelectedSARationaleView(QuestionScoresBean.SHOW_SA_RATIONALE_RESPONSES_POPUP);
+    questionbean.setSelectedSARationaleView(QuestionScoresBean.SHOW_SA_RATIONALE_RESPONSES_INLINE);
     
     // if comes from scores link in author index (means to view the score of a different assessment)
     // we reset the following values for paging (for audio, displays 5 records; for others, display all)

@@ -245,8 +245,7 @@ public class QuestionScoreListener implements ActionListener,
 			if (bean.getSelectedSARationaleView() == null) {
 				// if bean.showSARationaleInLine is null, then set inline to be
 				// the default
-				bean
-						.setSelectedSARationaleView(QuestionScoresBean.SHOW_SA_RATIONALE_RESPONSES_POPUP);
+				bean.setSelectedSARationaleView(QuestionScoresBean.SHOW_SA_RATIONALE_RESPONSES_INLINE);
 			}
 
 			if ("true".equalsIgnoreCase(totalBean.getAnonymous())) {
