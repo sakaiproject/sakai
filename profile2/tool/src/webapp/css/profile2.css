@@ -16,7 +16,7 @@
 /* Profile2 styles */
 
 #pageWrapper { 
-	width: 750px;
+	width: 760px;
 	position: relative;
 	left: 5px;
 	top: 5px;
@@ -34,7 +34,7 @@
 	position: relative;
 	top: 0;
 	left: 200px;
-	width: 500px;
+	width: 520px;
 	padding-left: 20px;
 }
 
@@ -46,7 +46,7 @@
 }
 
 div#footer {
-	width: 750px;
+	width: 760px;
 	clear: both;
 	position: relative;
 }
@@ -1459,7 +1459,7 @@ main-profile-tabpanel .tab-row a:visited.active,
 }
 
 .wall-post-container {
-	height: 150px;
+/*	height: 150px; let this be set automatically by the contents*/
 	padding-bottom: 5px;
 }
 

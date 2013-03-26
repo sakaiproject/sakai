@@ -46,8 +46,6 @@ import org.sakaiproject.profile2.tool.components.LocaleAwareHtmlTag;
 import org.sakaiproject.profile2.util.ProfileConstants;
 import org.sakaiproject.profile2.util.ProfileUtils;
 
-import wicket.contrib.tinymce.settings.TinyMCESettings;
-
 
 public class BasePage extends WebPage implements IHeaderContributor {
 
@@ -259,10 +257,6 @@ public class BasePage extends WebPage implements IHeaderContributor {
 		HttpServletRequest request = getWebRequestCycle().getWebRequest().getHttpServletRequest();
 		response.renderString((String)request.getAttribute("sakai.html.head"));
 		response.renderOnLoadJavascript("setMainFrameHeight( window.name )");
-		
-		//wicketstuff TinyMCE
-		response.renderJavascriptReference(TinyMCESettings.javaScriptReference());
-
 		
 		//Tool additions (at end so we can override if required)
 		response.renderString("<meta http-equiv=\"Content-Type\" content=\"text/html; charset=UTF-8\" />");

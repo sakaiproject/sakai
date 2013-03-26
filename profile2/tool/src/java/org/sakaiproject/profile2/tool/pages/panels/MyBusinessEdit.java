@@ -42,11 +42,9 @@ import org.sakaiproject.profile2.logic.ProfileWallLogic;
 import org.sakaiproject.profile2.logic.SakaiProxy;
 import org.sakaiproject.profile2.model.CompanyProfile;
 import org.sakaiproject.profile2.model.UserProfile;
-import org.sakaiproject.profile2.tool.components.TextareaTinyMceSettings;
+import org.sakaiproject.profile2.tool.components.CKEditorConfig;
+import org.sakaiproject.profile2.tool.components.CKEditorTextArea;
 import org.sakaiproject.profile2.util.ProfileConstants;
-
-import wicket.contrib.tinymce.TinyMceBehavior;
-import wicket.contrib.tinymce.ajax.TinyMceAjaxSubmitModifier;
 
 /**
  * Panel for displaying and editing business profile data.
@@ -116,12 +114,12 @@ public class MyBusinessEdit extends Panel {
 				"businessBiographyContainer");
 		businessBiographyContainer.add(new Label("businessBiographyLabel",
 				new ResourceModel("profile.business.bio")));
-		TextArea<String> businessBiography = new TextArea<String>(
+		CKEditorTextArea businessBiography = new CKEditorTextArea(
 				"businessBiography", new PropertyModel<String>(userProfile,
 						"businessBiography"));
 		businessBiography.setMarkupId("businessbioinput");
 		businessBiography.setOutputMarkupId(true);
-		businessBiography.add(new TinyMceBehavior(new TextareaTinyMceSettings()));
+		businessBiography.setEditorConfig(CKEditorConfig.createCkConfig());
 		businessBiographyContainer.add(businessBiography);
 		form.add(businessBiographyContainer);
 
@@ -139,7 +137,7 @@ public class MyBusinessEdit extends Panel {
 
 		AjaxFallbackButton submitButton = createSaveChangesButton(id,
 				userProfile, form, formFeedback);
-		submitButton.add(new TinyMceAjaxSubmitModifier());
+		submitButton.add(new CKEditorTextArea.CKEditorAjaxSubmitModifier());
 		form.add(submitButton);
 
 		AjaxFallbackButton cancelButton = createCancelChangesButton(id,

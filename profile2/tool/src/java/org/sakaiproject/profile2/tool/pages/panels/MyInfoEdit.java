@@ -24,11 +24,11 @@ import org.apache.log4j.Logger;
 import org.apache.wicket.AttributeModifier;
 import org.apache.wicket.Component;
 import org.apache.wicket.ajax.AjaxRequestTarget;
+import org.apache.wicket.ajax.IAjaxCallDecorator;
 import org.apache.wicket.ajax.markup.html.form.AjaxFallbackButton;
 import org.apache.wicket.markup.html.WebMarkupContainer;
 import org.apache.wicket.markup.html.basic.Label;
 import org.apache.wicket.markup.html.form.Form;
-import org.apache.wicket.markup.html.form.TextArea;
 import org.apache.wicket.markup.html.form.TextField;
 import org.apache.wicket.markup.html.panel.Panel;
 import org.apache.wicket.model.Model;
@@ -41,13 +41,12 @@ import org.sakaiproject.profile2.logic.ProfileLogic;
 import org.sakaiproject.profile2.logic.ProfileWallLogic;
 import org.sakaiproject.profile2.logic.SakaiProxy;
 import org.sakaiproject.profile2.model.UserProfile;
+import org.sakaiproject.profile2.tool.components.CKEditorConfig;
+import org.sakaiproject.profile2.tool.components.CKEditorTextArea;
 import org.sakaiproject.profile2.tool.components.IconWithClueTip;
-import org.sakaiproject.profile2.tool.components.TextareaTinyMceSettings;
 import org.sakaiproject.profile2.util.ProfileConstants;
 import org.sakaiproject.profile2.util.ProfileUtils;
 
-import wicket.contrib.tinymce.TinyMceBehavior;
-import wicket.contrib.tinymce.ajax.TinyMceAjaxSubmitModifier;
 
 public class MyInfoEdit extends Panel {
 	
@@ -170,13 +169,10 @@ public class MyInfoEdit extends Panel {
 		//personal summary
 		WebMarkupContainer personalSummaryContainer = new WebMarkupContainer("personalSummaryContainer");
 		personalSummaryContainer.add(new Label("personalSummaryLabel", new ResourceModel("profile.summary")));
-		TextArea personalSummary = new TextArea("personalSummary", new PropertyModel(userProfile, "personalSummary"));
+		CKEditorTextArea personalSummary = new CKEditorTextArea("personalSummary", new PropertyModel(userProfile, "personalSummary"));
 		personalSummary.setMarkupId("summaryinput");
-		personalSummary.setOutputMarkupId(true);
-		
-		//add TinyMCE control
-		personalSummary.add(new TinyMceBehavior(new TextareaTinyMceSettings()));
-		
+		personalSummary.setEditorConfig(CKEditorConfig.createCkConfig());
+		personalSummary.setOutputMarkupId(true);		
 		personalSummaryContainer.add(personalSummary);
 		form.add(personalSummaryContainer);
 		
@@ -216,9 +212,13 @@ public class MyInfoEdit extends Panel {
 				
             }
 			
+			@Override
+			protected IAjaxCallDecorator getAjaxCallDecorator() {
+				return CKEditorTextArea.getAjaxCallDecoratedToUpdateElementForAllEditorsOnPage();
+			}
+			
 		};
 		submitButton.setModel(new ResourceModel("button.save.changes"));
-		submitButton.add(new TinyMceAjaxSubmitModifier());
 		form.add(submitButton);
 		
         
