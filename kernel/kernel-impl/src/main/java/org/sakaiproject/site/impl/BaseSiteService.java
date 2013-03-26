@@ -1532,7 +1532,7 @@ public abstract class BaseSiteService implements SiteService, Observer
 			{
 			}
 
-			rv = "\"" + userName + "'s site\" " + rv;
+			rv = "\"" + rb.getFormattedMessage("sitdis.usr", new Object[]{userName}) + "\" " + rv;
 		}
 
 		else
@@ -2126,15 +2126,16 @@ public abstract class BaseSiteService implements SiteService, Observer
 		// double check that it's mine
 		if (!APPLICATION_ID.equals(ref.getType())) return null;
 
-		String rv = "Site: " + ref.getReference();
+		String rv = rb.getFormattedMessage("entdsc.sit", new Object[]{ref.getReference()});
 
 		try
 		{
 			Site site = getSite(ref.getId());
-			rv = "Site: " + site.getTitle() + " (" + site.getId() + ")" + " Created: "
-					+ site.getCreatedTime().toStringLocalFull() + " by " + site.getCreatedBy().getDisplayName() + " ("
-					+ site.getCreatedBy().getDisplayId() + ") "
-					+ StringUtil.limit((site.getDescription() == null ? "" : site.getDescription()), 30);
+			rv = rb.getFormattedMessage("entdsc.sit_usr", new Object[]{
+					site.getTitle() + " (" + site.getId() + ")",
+					site.getCreatedTime().toStringLocalFull(),
+					site.getCreatedBy().getDisplayName() + " (" + site.getCreatedBy().getDisplayId() + ")",
+					StringUtil.limit((site.getDescription() == null ? "" : site.getDescription()), 30)});
 		}
 		catch (IdUnusedException e)
 		{
