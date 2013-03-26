@@ -34,6 +34,7 @@ import javax.faces.event.AbortProcessingException;
 import javax.faces.event.ActionEvent;
 import javax.faces.event.ActionListener;
 
+import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.sakaiproject.component.cover.ServerConfigurationService;
@@ -77,7 +78,8 @@ public class AuthorActionListener
     implements ActionListener
 {
   private static Log log = LogFactory.getLog(AuthorActionListener.class);
-  private HashMap hm = new HashMap();
+  private HashMap<String, ArrayList<String>> groupUsersIdMap = new HashMap<String, ArrayList<String>>();
+  private ArrayList<String> siteUsersIdList = new ArrayList<String>();
   private String display_dateFormat= ContextUtil.getLocalizedString("org.sakaiproject.tool.assessment.bundle.GeneralMessages","output_data_picker_w_sec");
   private SimpleDateFormat displayFormat = new SimpleDateFormat(display_dateFormat, new ResourceLoader().getLocale());
   private TimeUtil tu = new TimeUtil();
@@ -163,15 +165,10 @@ public class AuthorActionListener
 	  try {
 		  Site site = SiteService.getSite(ToolManager.getCurrentPlacement().getContext());
 		  Set siteStudentRoles = site.getRolesIsAllowed(SectionAwareness.STUDENT_MARKER);
-		  ArrayList siteUsersIdList = new ArrayList();
 		  if(siteStudentRoles != null && !siteStudentRoles.isEmpty()) {
 			  for(Iterator iter = siteStudentRoles.iterator(); iter.hasNext();) {
 				  String role = (String) iter.next();
 				  siteUsersIdList.addAll(site.getUsersHasRole(role));
-			  }
-			  if (siteUsersIdList.size() != 0) {
-				  String siteId = site.getId();
-				  hm.put(siteId, siteUsersIdList);
 			  }
 		  }
 		  
@@ -181,7 +178,7 @@ public class AuthorActionListener
 		  while (iter.hasNext()) {
 			  Group group = (Group) iter.next();
 			  Set groupStudentRoles = group.getRolesIsAllowed(SectionAwareness.STUDENT_MARKER);
-			  ArrayList groupUsersIdList = new ArrayList();
+			  ArrayList<String> groupUsersIdList = new ArrayList<String>();
 			  if(groupStudentRoles != null && !groupStudentRoles.isEmpty()) {
 				  for(Iterator iter2 = groupStudentRoles.iterator(); iter2.hasNext();) {
 					  String role = (String) iter2.next();
@@ -189,7 +186,7 @@ public class AuthorActionListener
 				  }
 				  if (groupUsersIdList.size() != 0) {
 					  String groupId = group.getId();
-					  hm.put(groupId, groupUsersIdList);
+					  groupUsersIdMap.put(groupId, groupUsersIdList);
 				  }
 			  }
 		  }
@@ -291,7 +288,7 @@ public class AuthorActionListener
 		  maxSubmissionsAllowed = f.getSubmissionsAllowed().intValue();
 	  }
 	  
-	  ArrayList userIdList = new ArrayList();
+	  ArrayList<String> userIdList = new ArrayList<String>();
 	  if (f.getReleaseTo() != null && !("").equals(f.getReleaseTo())) {
 		  if (f.getReleaseTo().indexOf("Anonymous Users") >= 0) {
 			  if (submissionCountHash != null) {
@@ -319,13 +316,11 @@ public class AuthorActionListener
 				  publishedAssessmentSettingsBean.setAssessmentId(f.getPublishedAssessmentId());
 				  String [] groupsAuthorized = publishedAssessmentSettingsBean.getGroupsAuthorized();
 				  for (int i = 0; i < groupsAuthorized.length; i++) {
-					  if (hm.get(groupsAuthorized[i]) != null) {
-						  userIdList.addAll((ArrayList) hm.get(groupsAuthorized[i]));
-					  }
+					  CollectionUtils.addIgnoreNull(userIdList, groupUsersIdMap.get(groupsAuthorized[i]));
 				  }
 			  }
 			  else {
-				  userIdList = (ArrayList) hm.get(AgentFacade.getCurrentSiteId());
+				  userIdList = siteUsersIdList;
 			  }
 			  
 			  int submittedCounts = 0;
