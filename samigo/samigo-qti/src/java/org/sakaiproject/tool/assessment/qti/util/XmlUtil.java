@@ -24,9 +24,12 @@ import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.net.MalformedURLException;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 import javax.servlet.ServletContext;
 
-import org.sakaiproject.util.FormattedText;
+import org.sakaiproject.component.cover.ComponentManager;
+import org.sakaiproject.util.api.FormattedText;
 import org.springframework.core.io.ClassPathResource;
 
 import javax.xml.XMLConstants;
@@ -42,6 +45,7 @@ import javax.xml.transform.TransformerFactory;
 import javax.xml.transform.dom.DOMResult;
 import javax.xml.transform.dom.DOMSource;
 
+import org.apache.commons.lang.StringUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.w3c.dom.Document;
@@ -50,7 +54,6 @@ import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
 import org.xml.sax.SAXException;
 import java.io.FileReader;
-import java.io.Reader;
 import java.io.BufferedReader;
 import java.io.ByteArrayInputStream;
 
@@ -68,6 +71,12 @@ import java.io.ByteArrayInputStream;
 public final class XmlUtil
 {
   private static Log log = LogFactory.getLog(XmlUtil.class);
+  private static String[] M_goodTags = "a,abbr,acronym,address,b,big,blockquote,br,center,cite,code,dd,del,dir,div,dl,dt,em,font,hr,h1,h2,h3,h4,h5,h6,i,ins,kbd,li,marquee,menu,nobr,noembed,ol,p,pre,q,rt,ruby,rbc,rb,rtc,rp,s,samp,small,span,strike,strong,sub,sup,tt,u,ul,var,xmp,img,embed,object,table,tr,td,th,tbody,caption,thead,tfoot,colgroup,col,param".split(",");
+  private static Pattern[] M_goodTagsPatterns;
+  private static Pattern[] M_goodCloseTagsPatterns;
+  private static Pattern M_htmlPattern = Pattern.compile("(<([a-z]\\w*)\\b[^>]*>)|(</\\s*[a-z]\\w*(\\s.*>|>))|(<([a-z]\\w*)\\b[^>]*/>)", Pattern.CASE_INSENSITIVE | Pattern.DOTALL);
+
+  private static FormattedText formattedText = (FormattedText)ComponentManager.get(FormattedText.class);
 
   /**
    * Create document object
@@ -621,18 +630,60 @@ public final class XmlUtil
   }
   
   public static String processFormattedText(Log log, String value) {
-	  if (value == null || value.length() == 0){
-		  return value;
-	  }
-	  StringBuilder alertMsg = new StringBuilder();
-	  String finalValue = FormattedText.processFormattedText(value, alertMsg);
-	  if (alertMsg.length() > 0)
-	  {
-		  log.debug(alertMsg.toString());
-	  }
-	  return finalValue;
+      if (StringUtils.isEmpty(value)) {
+          return value;
+      }
+      StringBuilder alertMsg = new StringBuilder();
+      String finalValue = "";
+      Matcher matcher = M_htmlPattern.matcher(value);
+      boolean hasHtmlPattern = false;
+      int index = 0;
+      StringBuilder textStringBuilder = new StringBuilder();
+      String tmpText = "";
+      if (M_goodTagsPatterns == null || M_goodCloseTagsPatterns == null) {
+          M_goodTagsPatterns = new Pattern[M_goodTags.length];
+          M_goodCloseTagsPatterns = new Pattern[M_goodTags.length];
+          for (int i = 0; i < M_goodTags.length; i++) {
+              M_goodTagsPatterns[i] = Pattern.compile(".*<\\s*" + M_goodTags[i] + "(\\s+.*>|>|/>).*",
+                      Pattern.CASE_INSENSITIVE | Pattern.UNICODE_CASE | Pattern.DOTALL);
+              M_goodCloseTagsPatterns[i] = Pattern.compile("<\\s*/\\s*" + M_goodTags[i] + "(\\s.*>|>)",
+                      Pattern.CASE_INSENSITIVE | Pattern.UNICODE_CASE | Pattern.DOTALL);
+          }
+      }
+      while (matcher.find()) {
+          hasHtmlPattern = true;
+          tmpText = value.substring(index, matcher.start());
+          textStringBuilder.append(convertoLTGT(tmpText));
+          String group = matcher.group();
+          boolean isGoodTag = false;
+          for (int i = 0; i < M_goodTags.length; i++) {
+              if (M_goodTagsPatterns[i].matcher(group).matches() || M_goodCloseTagsPatterns[i].matcher(group).matches()) {
+                  textStringBuilder.append(group);
+                  isGoodTag = true;
+                  break;
+              }
+          }
+          if (!isGoodTag) {
+              textStringBuilder.append(convertoLTGT(group));
+          }
+          index = matcher.end();
+      }
+      textStringBuilder.append(convertoLTGT(value.substring(index)));
+      if (hasHtmlPattern) {
+          finalValue = formattedText.processFormattedText(textStringBuilder.toString(), alertMsg);
+      } else {
+          finalValue = formattedText.processFormattedText(convertoLTGT(value), alertMsg);
+      }
+      if (alertMsg.length() > 0) {
+          log.debug(alertMsg.toString());
+      }
+      return finalValue;
   }
-  
+
+  public static String convertoLTGT(String value) {
+      return StringUtils.replaceEach(value, new String[]{"<", ">"}, new String[]{"&lt;", "&gt;"});
+  }
+
   public static String convertStrforCDATA(String myString)
   {
 	  StringBuffer sbuff = new StringBuffer("<![CDATA[");
