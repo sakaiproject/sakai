@@ -373,7 +373,8 @@ public interface SiteService extends EntityProducer
 	boolean siteExists(String id);
 
 	/**
-	 * Access a site object.
+	 * Access a site object. This method does not perform any security/permission checks. 
+	 * If you need permission checks to occur, use {@link getSiteVisit(String id)} instead
 	 * 
 	 * @param id
 	 *        The site id string.
