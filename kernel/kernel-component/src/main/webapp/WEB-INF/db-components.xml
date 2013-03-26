@@ -50,8 +50,15 @@
 
 	<!-- Base DataSource for all pooled database connections -->
 	<!-- See http://jakarta.apache.org/commons/dbcp/configuration.html -->
+    <!--
 	<bean id="javax.sql.BaseDataSource" abstract="true"
 			class="org.apache.commons.dbcp.SakaiBasicDataSource"
+			destroy-method="close">
+    -->
+
+	<bean id="javax.sql.BaseDataSource" abstract="true"
+			class="org.apache.tomcat.jdbc.pool.SakaiBasicDataSource"
+            init-method="init"
 			destroy-method="close">
 
 		<!--  The fully qualified Java class name of the JDBC driver to be used. -->
