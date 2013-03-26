@@ -325,7 +325,9 @@ public class PDFAssessmentBean implements Serializable {
 					partIntros.append("</h2>");
 				}
 				partIntros.append("<br />");
-				partIntros.append(section.getDescription());
+				if (section.getDescription() != null) {
+					partIntros.append(section.getDescription());
+				}
 				partIntros.append("<br />");
 
 				

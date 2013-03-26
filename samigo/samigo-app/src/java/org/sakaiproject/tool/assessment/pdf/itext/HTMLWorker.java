@@ -186,7 +186,6 @@ public class HTMLWorker implements SimpleXMLDocHandler, DocListener {
 				if (currentParagraph == null)
 					currentParagraph = new Paragraph();
 				stack.push(currentParagraph);
-				endElement("p");
 				currentParagraph = new Paragraph();
 				return;
 			}
