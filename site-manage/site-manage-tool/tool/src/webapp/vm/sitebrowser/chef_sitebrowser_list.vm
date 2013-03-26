@@ -145,7 +145,11 @@
              			#if ($termProp)
              				#if ($site.getProperties().getProperty($termProp))
                                 #set ($termprop = $site.getProperties().getProperty($termProp).toString())
-                                $termsmap.get($termprop)
+                                #if ($termsmap.get($termprop))
+                                  $termsmap.get($termprop)
+                                #else
+                                  $termprop
+                                #end
 
 	                        #else
 	                        	$tlang.getString("list.noterm")
