@@ -60,7 +60,7 @@ should be included in file importing DeliveryMessages
 <h:inputTextarea rows="20" cols="80" value="#{question.responseText}" 
    rendered="#{delivery.actionString!='reviewAssessment'
             && delivery.actionString!='gradeAssessment' && !delivery.studentRichText}">
-<f:validateLength maximum="60000"/>
+<f:validateLength maximum="32000"/>
 </h:inputTextarea>
 <h:outputText value="#{question.responseTextForDisplay}" 
    rendered="#{delivery.actionString=='reviewAssessment'
