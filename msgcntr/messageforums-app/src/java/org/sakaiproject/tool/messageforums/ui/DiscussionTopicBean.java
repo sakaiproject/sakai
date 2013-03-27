@@ -32,7 +32,6 @@ import org.apache.commons.logging.LogFactory;
 import org.sakaiproject.api.app.messageforums.Attachment;
 import org.sakaiproject.api.app.messageforums.DiscussionForum;
 import org.sakaiproject.api.app.messageforums.DiscussionTopic;
-import org.sakaiproject.api.app.messageforums.Message;
 import org.sakaiproject.api.app.messageforums.ui.DiscussionForumManager;
 import org.sakaiproject.api.app.messageforums.ui.UIPermissionsManager;
 
@@ -1001,7 +1000,7 @@ public class DiscussionTopicBean
 	public List<DecoratedAttachment> getAttachList()
 	{
 		List<DecoratedAttachment> decoAttachList = new ArrayList<DecoratedAttachment>();
-		List<Attachment> attachList =  topic.getAttachments(); 
+		List<Attachment> attachList = forumManager.getTopicAttachments(topic.getId());  
 		if(attachList != null)
 		{
 			for(int i=0; i<attachList.size(); i++)
