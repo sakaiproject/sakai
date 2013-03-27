@@ -278,9 +278,6 @@ public interface LearningResourceObjectService {
          */
         String id;
         /**
-         * use of the empty constructor is restricted
-         */
-        /**
          * OPTIONAL: 
          * A language map containing the human readable display representation 
          * of the object in at least one language. This does not have any impact 
@@ -289,6 +286,9 @@ public interface LearningResourceObjectService {
          * Example: { "en-US" => "ran", "es" => "corrió" }
          */
         Map<String, String> name;
+        /**
+         * use of the empty constructor is restricted
+         */
         protected LRS_Object() {
             objectType = "Activity";
         }
@@ -324,6 +324,29 @@ public interface LearningResourceObjectService {
          * The result field represents a measured outcome related to the statement, such as completion, success, or score. 
          * It is also extendible to allow for arbitrary measurements to be included.
          */
+        // TODO the API score fields types are unclear (maybe int or float)?
+        /**
+         * true if successful, false if not, or not specified
+         */
+        Boolean success;
+        /**
+         * true if completed, false if not, or not specified
+         */
+        Boolean completion;
+        /**
+         * Duration of the activity in seconds
+         * Have to convert this to https://en.wikipedia.org/wiki/ISO_8601#Durations for sending to the Experience API
+         */
+        int duration;
+        /**
+         * A string response appropriately formatted for the given activity.
+         */
+        String response;
+        /**
+         * use of the empty constructor is restricted
+         */
+        protected LRS_Result() {
+        }
         // TODO optional fields?
     }
 
