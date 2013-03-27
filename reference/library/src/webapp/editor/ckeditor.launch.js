@@ -95,7 +95,10 @@ sakai.editor.editors.ckeditor.launch = function(targetId, config, w, h) {
             ['Maximize', 'ShowBlocks']
         ],
         toolbar: 'Full',
-        resize_dir: 'vertical'
+        resize_dir: 'vertical',
+        //SAK-23418
+        pasteFromWordRemoveFontStyles : false,
+        pasteFromWordRemoveStyles : false
     };
 
     //NOTE: The height and width properties are handled discretely here.
