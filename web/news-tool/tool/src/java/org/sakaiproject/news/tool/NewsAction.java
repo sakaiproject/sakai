@@ -22,11 +22,13 @@
 package org.sakaiproject.news.tool;
 
 import java.net.URL;
-import java.util.List;
-import java.util.Properties;
-import java.util.Vector;
 import java.text.DateFormat;
+import java.util.List;
+import java.util.Vector;
 
+import lombok.extern.apachecommons.CommonsLog;
+
+import org.apache.commons.lang.StringUtils;
 import org.sakaiproject.cheftool.Context;
 import org.sakaiproject.cheftool.JetspeedRunData;
 import org.sakaiproject.cheftool.PortletConfig;
@@ -47,21 +49,19 @@ import org.sakaiproject.site.api.Site;
 import org.sakaiproject.site.api.SitePage;
 import org.sakaiproject.site.api.ToolConfiguration;
 import org.sakaiproject.site.cover.SiteService;
+import org.sakaiproject.time.cover.TimeService;
 import org.sakaiproject.tool.api.Placement;
 import org.sakaiproject.tool.api.ToolSession;
 import org.sakaiproject.tool.cover.SessionManager;
 import org.sakaiproject.tool.cover.ToolManager;
 import org.sakaiproject.util.ResourceLoader;
-import org.sakaiproject.util.FormattedText;
-import org.sakaiproject.util.Validator;
-import org.apache.commons.lang.StringUtils;
-import org.sakaiproject.time.cover.TimeService;
 
 /**
  * <p>
  * NewsAction is the Sakai RSS news tool.
  * </p>
  */
+@CommonsLog
 public class NewsAction extends VelocityPortletPaneledAction
 {
 	private static final long serialVersionUID = 1L;
@@ -190,16 +190,19 @@ public class NewsAction extends VelocityPortletPaneledAction
 		{
 			// display message
 			addAlert(state, rb.getFormattedMessage("unavailable", new Object[]{e.getLocalizedMessage()}));
+			if(log.isDebugEnabled()) { log.debug(e); }
 		}
 		catch (NewsFormatException e)
 		{
 			// display message
 			addAlert(state, rb.getFormattedMessage("unavailable", new Object[]{e.getLocalizedMessage()}));
+			if(log.isDebugEnabled()) { log.debug(e); }
 		}
 		catch (Exception e)
 		{
 			// display message
 			addAlert(state, rb.getFormattedMessage("unavailable", new Object[]{e.getLocalizedMessage()}));
+			if(log.isDebugEnabled()) { log.debug(e); }
 		}
 
 		context.put("channel", channel);
@@ -339,6 +342,7 @@ public class NewsAction extends VelocityPortletPaneledAction
 				Log.debug("chef", " Caught Exception " + e + " user doesn't seem to have " +
 							 "rights to update site: " + ToolManager.getCurrentPlacement().getContext());
 			}
+			
 		}
 		catch (Exception e)
 		{	
@@ -381,18 +385,21 @@ public class NewsAction extends VelocityPortletPaneledAction
 			{
 				// display message
 				addAlert(state, rb.getFormattedMessage("invalidfeed", new Object[]{newChannelUrl}));
+				if(log.isDebugEnabled()) { log.debug(e); }
 				return;
 			}
 			catch (NewsFormatException e)
 			{
 				// display message
 				addAlert(state, rb.getFormattedMessage("invalidfeed", new Object[]{newChannelUrl}));
+				if(log.isDebugEnabled()) { log.debug(e); }
 				return;
 			}
 			catch (Exception e)
 			{
 				// display message
 				addAlert(state, rb.getFormattedMessage("invalidfeed", new Object[]{newChannelUrl}));
+				if(log.isDebugEnabled()) { log.debug(e); }
 				return;
 			}
 
