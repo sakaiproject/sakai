@@ -120,6 +120,10 @@ public interface LearningResourceObjectService {
             this.verb = verb;
             this.object = object;
         }
+        public LRS_Statement(LRS_Actor actor, LRS_Verb verb, LRS_Object object, LRS_Result result) {
+            this(actor, verb, object);
+            this.result = result;
+        }
         /**
          * Construct a simple LRS statement
          * 
@@ -129,6 +133,19 @@ public interface LearningResourceObjectService {
          */
         public LRS_Statement(String actorEmail, String verbStr, String objectURI) {
             this(new LRS_Actor(actorEmail), new LRS_Verb(verbStr), new LRS_Object(objectURI));
+        }
+        /**
+         * Construct a simple LRS statement with Result
+         * 
+         * @param actorEmail the user email address, "I"
+         * @param verbStr a string indicating the action, "did"
+         * @param objectURI URI indicating the object of the statement, "this"
+         * @param resultSuccess true if the result was successful (pass) or false if not (fail), "well"
+         * @param resultScaledScore Score from 0 to 1.0 where 0=0% and 1.0=100%
+         */
+        public LRS_Statement(String actorEmail, String verbStr, String objectURI, boolean resultSuccess, float resultScaledScore) {
+            this(new LRS_Actor(actorEmail), new LRS_Verb(verbStr), new LRS_Object(objectURI));
+            this.result = new LRS_Result(resultScaledScore, resultSuccess);
         }
     }
 
@@ -323,8 +340,24 @@ public interface LearningResourceObjectService {
         /*
          * The result field represents a measured outcome related to the statement, such as completion, success, or score. 
          * It is also extendible to allow for arbitrary measurements to be included.
+         * NOTE: the API score fields types are unclear in the spec (maybe int or float)
          */
-        // TODO the API score fields types are unclear (maybe int or float)?
+        /**
+         * Score from 0 to 1.0 where 0=0% and 1.0=100%
+         */
+        Float scaled;
+        /**
+         * Raw score - any number
+         */
+        Number raw;
+        /**
+         * Minimum score (range) - any number
+         */
+        Number min;
+        /**
+         * Maximum score (range) - any number
+         */
+        Number max;
         /**
          * true if successful, false if not, or not specified
          */
@@ -335,9 +368,10 @@ public interface LearningResourceObjectService {
         Boolean completion;
         /**
          * Duration of the activity in seconds
-         * Have to convert this to https://en.wikipedia.org/wiki/ISO_8601#Durations for sending to the Experience API
+         * Have to convert this to https://en.wikipedia.org/wiki/ISO_8601#Durations for sending to the Experience API,
+         * ignore the value if it is less than 0
          */
-        int duration;
+        int duration = -1;
         /**
          * A string response appropriately formatted for the given activity.
          */
@@ -347,7 +381,67 @@ public interface LearningResourceObjectService {
          */
         protected LRS_Result() {
         }
-        // TODO optional fields?
+        public LRS_Result(Float scaled, Boolean success) {
+            this();
+            if (scaled == null) {
+                throw new IllegalArgumentException("LRS_Object uri cannot be null");
+            }
+            setScore(scaled);
+        }
+        // TODO optional extensions?
+        /**
+         * @param scaled Score from 0 to 1.0 where 0=0% and 1.0=100%
+         */
+        public void setScore(Float scaled) {
+            this.scaled = scaled;
+            if (scaled != null) {
+                if (scaled.floatValue() < 0.0f) {
+                    this.scaled = 0f;
+                }
+            }
+        }
+        /**
+         * @param raw Raw score - any number
+         */
+        public void setScore(Number raw) {
+            this.raw = raw;
+        }
+        /**
+         * @param scaled Score from 0 to 1.0 where 0=0% and 1.0=100% (can be null)
+         * @param raw Raw score - any number (can be null)
+         * @param min Minimum score (range) - any number (can be null)
+         * @param max Maximum score (range) - any number (can be null)
+         * @throws IllegalArgumentException if the minimum is not less than (or equal to) the maximum
+         */
+        public void setScore(Float scaled, Number raw, Number min, Number max) {
+            setScore(scaled);
+            setScore(raw);
+            this.min = min;
+            this.max = max;
+            if (this.min != null && this.max != null) {
+                if (min.floatValue() > max.floatValue()) {
+                    throw new IllegalArgumentException("score min must be less than max");
+                }
+            }
+        }
+        /**
+         * @param success true if successful, false if not, or null if not specified
+         */
+        public void setSuccess(Boolean success) {
+            this.success = success;
+        }
+        /**
+         * @param completion true if completed, false if not, or null if not specified
+         */
+        public void setCompletion(Boolean completion) {
+            this.completion = completion;
+        }
+        /**
+         * @param duration Time spent on the activity in seconds, set to -1 to clear this
+         */
+        public void setDuration(int duration) {
+            this.duration = duration;
+        }
     }
 
     public static class LRS_Context {
