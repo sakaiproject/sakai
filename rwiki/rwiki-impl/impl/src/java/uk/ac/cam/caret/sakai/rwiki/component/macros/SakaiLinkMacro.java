@@ -117,6 +117,8 @@ public class SakaiLinkMacro extends BaseLocaleMacro
 			
 			url = context.convertLink(url);
 			
+            //Trim url
+            url=url.trim();
 
 			// SAK-20449 XSS protection
 			if (!url.startsWith("http://") && !url.startsWith("https://") && !url.startsWith("ftp://") &&
