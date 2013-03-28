@@ -384,6 +384,7 @@ RESTful, ActionsExecutable, Redirectable, RequestStorable, DepthLimitable {
                 if (groupDescription != null) {
                     groupDescription = groupDescription.trim();
                 }
+                group.setDescription(groupDescription);
             } else {
                 throw new IllegalArgumentException("Cannot find a group with given id: " + groupId
                         + " in site:" + siteId);
