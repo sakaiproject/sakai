@@ -71,6 +71,8 @@ public class PCServiceEntityProvider extends AbstractEntityProvider implements R
     
     /* Setting used to configure if site users should be available in the chat. */
     private boolean showSiteUsers = true;
+    
+    private int pollInterval = 5000;
 
     /* SAK-20565. We now use reflection to call the profile connection methods */
     private Object profileServiceObject = null;
@@ -132,6 +134,8 @@ public class PCServiceEntityProvider extends AbstractEntityProvider implements R
         portalUrl = serverConfigurationService.getServerUrl() + "/portal";
 
         serverName = serverConfigurationService.getServerName();
+        
+        pollInterval = serverConfigurationService.getInt("portal.chat.pollInterval", 5000);
 
         showSiteUsers = serverConfigurationService.getBoolean("portal.chat.showSiteUsers", true);
         
@@ -287,7 +291,7 @@ public class PCServiceEntityProvider extends AbstractEntityProvider implements R
 		
 		if(lastHeartbeat == null) return "OFFLINE";
 			
-		if((now.getTime() - lastHeartbeat.getTime()) >= 5000L)
+		if((now.getTime() - lastHeartbeat.getTime()) >= pollInterval)
 			return "OFFLINE";
 		
 		String message = (String) params.get("message");
@@ -453,7 +457,7 @@ public class PCServiceEntityProvider extends AbstractEntityProvider implements R
 			
 			if(lastHeartbeat == null) continue;
 			
-			if((now.getTime() - lastHeartbeat.getTime()) < 5000L) {
+			if((now.getTime() - lastHeartbeat.getTime()) < pollInterval) {
 				onlineConnections.add(uuid);
 			}
 		}
