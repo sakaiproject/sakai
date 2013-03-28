@@ -21,35 +21,42 @@
 
 package uk.ac.cam.caret.sakai.rwiki.component.service.impl;
 
-import java.util.ArrayList;
+import java.text.DateFormat;
+import java.util.Collection;
 import java.util.Date;
 import java.util.List;
 import java.util.Vector;
 
+import org.apache.commons.collections.CollectionUtils;
+import org.apache.commons.lang.StringUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.sakaiproject.authz.api.SecurityService;
+import org.sakaiproject.component.cover.ComponentManager;
 import org.sakaiproject.component.cover.ServerConfigurationService;
 import org.sakaiproject.email.api.DigestService;
 import org.sakaiproject.entity.api.EntityManager;
 import org.sakaiproject.entity.api.Reference;
 import org.sakaiproject.entity.api.ResourceProperties;
 import org.sakaiproject.event.api.Event;
-import org.sakaiproject.event.api.Notification;
 import org.sakaiproject.event.api.NotificationAction;
 import org.sakaiproject.event.api.NotificationService;
 import org.sakaiproject.exception.IdUnusedException;
 import org.sakaiproject.site.api.Site;
+import org.sakaiproject.site.api.SitePage;
 import org.sakaiproject.site.api.SiteService;
+import org.sakaiproject.site.api.ToolConfiguration;
 import org.sakaiproject.thread_local.api.ThreadLocalManager;
 import org.sakaiproject.time.api.TimeService;
+import org.sakaiproject.tool.api.Tool;
+import org.sakaiproject.tool.api.ToolManager;
 import org.sakaiproject.user.api.User;
 import org.sakaiproject.user.api.UserDirectoryService;
 import org.sakaiproject.user.api.UserNotDefinedException;
+import org.sakaiproject.util.api.FormattedText;
+import org.sakaiproject.util.ResourceLoader;
 import org.sakaiproject.util.SiteEmailNotification;
-import org.sakaiproject.util.Web;
 
-import uk.ac.cam.caret.sakai.rwiki.component.Messages;
 import uk.ac.cam.caret.sakai.rwiki.service.api.RWikiObjectService;
 import uk.ac.cam.caret.sakai.rwiki.service.api.RenderService;
 import uk.ac.cam.caret.sakai.rwiki.service.api.model.RWikiEntity;
@@ -103,6 +110,11 @@ public class SiteEmailNotificationRWiki extends SiteEmailNotification {
 
 	private UserDirectoryService userDirectoryService;
 
+	private FormattedText formattedText = (FormattedText) ComponentManager.get(FormattedText.class);
+
+	private ToolManager toolManager = (ToolManager) ComponentManager.get(ToolManager.class);
+
+	private static ResourceLoader rl = new ResourceLoader("uk.ac.cam.caret.sakai.rwiki.component.bundle.Messages");
 
 	/**
 	 * Construct.
@@ -175,33 +187,72 @@ public class SiteEmailNotificationRWiki extends SiteEmailNotification {
 	 * @inheritDoc
 	 */
 	protected String getPlainMessage(Event event) {
-
 		MessageContent mc = getMessageContent(event);
-		
-		String message = Messages.getString("SiteEmailNotificationRWiki.5") + mc.title + Messages.getString("SiteEmailNotificationRWiki.6") //$NON-NLS-1$ //$NON-NLS-2$
-				+ ServerConfigurationService.getString("ui.service", "Sakai") + " (" + ServerConfigurationService.getPortalUrl() //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
-				+ ")  " + " \n" + " \n" + Messages.getString("SiteEmailNotificationRWiki.13") + mc.title + "\" > Wiki  > " + mc.localName + "\n" + Messages.getString("SiteEmailNotificationRWiki.16") //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$ //$NON-NLS-4$ //$NON-NLS-5$ //$NON-NLS-6$ //$NON-NLS-7$
-				+ mc.moddate
-				+ "\n" + Messages.getString("SiteEmailNotificationRWiki.18") + mc.user + "\n" + " \n" + " 	Page: " + mc.localName + " " + mc.url + " \n" + " \n" //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$ //$NON-NLS-4$ //$NON-NLS-5$ //$NON-NLS-6$ //$NON-NLS-7$ //$NON-NLS-8$
-				+ Messages.getString("SiteEmailNotificationRWiki.4") + mc.content + "\n"; //$NON-NLS-1$ //$NON-NLS-2$
-
+		StringBuilder message = new StringBuilder();
+		message.append(rl.getString("SiteEmailNotificationRWiki.5"))
+		    .append(mc.title)
+		    .append(rl.getString("SiteEmailNotificationRWiki.6"))
+			.append(ServerConfigurationService.getString("ui.service", "Sakai"))
+			.append(" (")
+			.append(ServerConfigurationService.getPortalUrl())
+			.append(")  \n\n")
+			.append(rl.getString("SiteEmailNotificationRWiki.13"))
+			.append(mc.title)
+			.append("\" > ")
+			.append(getWikiToolPageName(event))
+			.append("  > ")
+			.append(mc.localName)
+			.append("\n")
+			.append(rl.getString("SiteEmailNotificationRWiki.16"))
+			.append(mc.moddate)
+			.append("\n")
+			.append(rl.getString("SiteEmailNotificationRWiki.18"))
+			.append(mc.user)
+			.append("\n \n")
+			.append(rl.getString("SiteEmailNotificationRWiki.19"))
+			.append(mc.localName)
+			.append(" ")
+			.append(mc.url)
+			.append(" \n \n")
+			.append(rl.getString("SiteEmailNotificationRWiki.4"))
+			.append(mc.content)
+			.append("\n"); 
 		log.debug("Message is " + message);
-
-		return message;
+		return message.toString();
 	}
 
-	
 	protected String getHtmlMessage(Event event) {
-
 		MessageContent mc = getMessageContent(event);
-		String message = 
-			    Messages.getString("SiteEmailNotificationRWiki.5") + mc.title + Messages.getString("SiteEmailNotificationRWiki.6") //$NON-NLS-1$ //$NON-NLS-2$
-				+ ServerConfigurationService.getString("ui.service", "Sakai") + " (" + ServerConfigurationService.getPortalUrl() //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
-				+ ")  " + " \n" + " \n" + Messages.getString("SiteEmailNotificationRWiki.13") + mc.title + "\" > Wiki  > " + mc.localName + "\n" + Messages.getString("SiteEmailNotificationRWiki.16") //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$ //$NON-NLS-4$ //$NON-NLS-5$ //$NON-NLS-6$ //$NON-NLS-7$
-				+ mc.moddate
-				+ "\n" + Messages.getString("SiteEmailNotificationRWiki.18") + mc.user + "\n" + " \n" + " 	Page: " + mc.localName + " " + mc.url + " \n" + " \n" //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$ //$NON-NLS-4$ //$NON-NLS-5$ //$NON-NLS-6$ //$NON-NLS-7$ //$NON-NLS-8$
-				+ Messages.getString("SiteEmailNotificationRWiki.4");
-		message = Web.escapeHtml(message, true) + mc.contentHTML;
+		StringBuilder sb = new StringBuilder();
+		sb.append(rl.getString("SiteEmailNotificationRWiki.5"))
+			.append(mc.title)
+			.append(rl.getString("SiteEmailNotificationRWiki.6"))
+			.append(ServerConfigurationService.getString("ui.service", "Sakai"))
+			.append(" (")
+			.append(ServerConfigurationService.getPortalUrl()) 
+			.append(")  \n\n")
+			.append(rl.getString("SiteEmailNotificationRWiki.13"))
+			.append(mc.title)
+			.append("\" > ")
+			.append(getWikiToolPageName(event))
+			.append("  > ")
+			.append(mc.localName)
+			.append("\n")
+			.append(rl.getString("SiteEmailNotificationRWiki.16"))
+			.append(mc.moddate)
+			.append("\n")
+			.append(rl.getString("SiteEmailNotificationRWiki.18"))
+			.append(mc.user)
+			.append("\n \n")
+			.append(rl.getString("SiteEmailNotificationRWiki.19"))
+			.append(mc.localName)
+			.append(" ")
+			.append(mc.url)
+			.append(" \n \n")
+			.append(rl.getString("SiteEmailNotificationRWiki.4"))
+			.append(mc.content)
+			.append("\n"); 
+		String message = formattedText.escapeHtml(sb.toString(), true);
 		log.debug("Message is " + message);
 		return message;
 	}
@@ -240,8 +291,8 @@ public class SiteEmailNotificationRWiki extends SiteEmailNotification {
 		} catch (UserNotDefinedException e) {
 			messageContent.user = userId;
 		}
-		messageContent.moddate = new Date(Long.parseLong(props
-				.getProperty(RWikiEntity.RP_VERSION))).toString();
+		Date date = new Date(Long.parseLong(props.getProperty(RWikiEntity.RP_VERSION)));
+		messageContent.moddate = DateFormat.getDateInstance(DateFormat.FULL, rl.getLocale()).format(date);
 		try {
 			RWikiEntity rwe = (RWikiEntity) rwikiObjectService.getEntity(ref);
 			RWikiObject rwikiObject = rwe.getRWikiObject();
@@ -271,8 +322,8 @@ public class SiteEmailNotificationRWiki extends SiteEmailNotification {
 	/**
 	 * @inheritDoc
 	 */
-	protected List getHeaders(Event e) {
-		List rv = super.getHeaders(e);
+	protected List<String> getHeaders(Event e) {
+		List<String> rv = super.getHeaders(e);
 		Reference ref = entityManager.newReference(e.getResource());
 		ResourceProperties props = ref.getProperties();
 
@@ -280,10 +331,14 @@ public class SiteEmailNotificationRWiki extends SiteEmailNotification {
 		String realm = props.getProperty(RWikiEntity.RP_REALM);
 		String localName = NameHelper.localizeName(pageName, realm);
 
-		String subjectHeader = "Subject: " + Messages
-				.getString("SiteEmailNotificationRWiki.27") + localName + Messages.getString("SiteEmailNotificationRWiki.28"); //$NON-NLS-1$ //$NON-NLS-2$
+		StringBuilder subjectHeader = new StringBuilder();
+		subjectHeader.append(rl.getString("SiteEmailNotificationRWiki.37", "Subject: "))
+			.append(rl.getString("SiteEmailNotificationRWiki.27"))
+			.append(localName)
+			.append(rl.getString("SiteEmailNotificationRWiki.28"));
+		
 		// the Subject
-		rv.add(subjectHeader);
+		rv.add(subjectHeader.toString());
 
 		// from
 		rv.add(getFrom(e));
@@ -297,20 +352,33 @@ public class SiteEmailNotificationRWiki extends SiteEmailNotification {
 	/**
 	 * @inheritDoc
 	 */
-	protected String getTag(String newline, String title) {
+	protected String getTag(String title, boolean shouldUseHtml) {
 		// tag the message
-		String rv = "----------------------\n" + Messages.getString("SiteEmailNotificationRWiki.30") //$NON-NLS-1$ //$NON-NLS-2$
-				+ ServerConfigurationService.getString("ui.service", "Sakai") + " (" + ServerConfigurationService.getPortalUrl() //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
-				+ Messages.getString("SiteEmailNotificationRWiki.3") + title + Messages.getString("SiteEmailNotificationRWiki.35") //$NON-NLS-1$ //$NON-NLS-2$
-				+ Messages.getString("SiteEmailNotificationRWiki.36"); //$NON-NLS-1$
-		/*
-		 * String rv = newline + "------" + newline + rb.getString("this") + " " +
-		 * ServerConfigurationService.getString("ui.service", "Sakai") + " (" +
-		 * ServerConfigurationService.getPortalUrl() + ") " +
-		 * rb.getString("forthe") + " " + title + " " + rb.getString("site") +
-		 * newline + rb.getString("youcan") + newline;
-		 */
-		return rv;
+		StringBuilder rv = new StringBuilder();
+		if (shouldUseHtml) {
+			rv.append("<hr/><br/>")
+				.append(rl.getString("SiteEmailNotificationRWiki.30"))
+				.append(ServerConfigurationService.getString("ui.service", "Sakai"))
+				.append(" (<a href=\"")
+				.append(ServerConfigurationService.getPortalUrl())
+				.append("\">")
+				.append(ServerConfigurationService.getPortalUrl())
+				.append("</a>")
+				.append(rl.getString("SiteEmailNotificationRWiki.3"))
+				.append(rl.getString("SiteEmailNotificationRWiki.35"))
+				.append(rl.getString("SiteEmailNotificationRWiki.36"))
+				.append("<br/>");
+		} else {
+			rv.append("----------------------\n")
+				.append(rl.getString("SiteEmailNotificationRWiki.30"))
+				.append(ServerConfigurationService.getString("ui.service", "Sakai"))
+				.append(" (")
+				.append(ServerConfigurationService.getPortalUrl())
+				.append(rl.getString("SiteEmailNotificationRWiki.3"))
+				.append(rl.getString("SiteEmailNotificationRWiki.35"))
+				.append(rl.getString("SiteEmailNotificationRWiki.36"));
+		}
+		return rv.toString();
 	}
 
 	protected int getOption(User user, String notificationId, String resourceFilter, int eventPriority, Event event) {
@@ -405,4 +473,39 @@ public class SiteEmailNotificationRWiki extends SiteEmailNotification {
 		}
 	}
 
+	/**
+	 * Get the wiki tool's page name
+	 * 
+	 * @param event Event the event
+	 * @return the name of the wiki tool's page
+	 */
+	private String getWikiToolPageName(Event event) {
+		String toolName = "Wiki";
+		Tool tool = toolManager.getCurrentTool();
+		if (tool != null) {
+			toolName = tool.getTitle();
+			String toolId = tool.getId(); // sakai.rwiki
+			// get the site id
+			String siteId = getSite();
+			if (StringUtils.isEmpty(siteId)) {
+				Reference ref = entityManager.newReference(event.getResource());
+				getSiteId(ref.getContext());
+			}
+			try {
+				Site site = siteService.getSite(siteId);
+				List<SitePage> pages = site.getPages();
+				for (SitePage p : pages) {
+					Collection<ToolConfiguration> toolConfigurations = p.getTools(new String[] {toolId});
+					// if tool exists in this page, get the page title
+					if (CollectionUtils.isNotEmpty(toolConfigurations)) {
+						toolName = p.getTitle();
+						break;
+					}
+				}
+			} catch (IdUnusedException e) {
+				log.error("Site not found while getting wiki name", e);
+			}
+		}
+		return toolName;
+	}
 }
