@@ -104,6 +104,12 @@ public class LinkMacro extends BaseLocaleMacro
 				}
 
 			}
+
+            //Trim these elements to eliminate whitespace
+            url=url.trim();
+            target=target.trim();
+            text=text.trim();
+
 			writer.write("<span class=\"nobr\">"); //$NON-NLS-1$
 			if (!"none".equals(img) && engine instanceof ImageRenderEngine) //$NON-NLS-1$
 			{
