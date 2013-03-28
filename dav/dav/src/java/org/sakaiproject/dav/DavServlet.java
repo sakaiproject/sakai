@@ -526,11 +526,6 @@ public class DavServlet extends HttpServlet
 	private boolean doProtected = false;
 
 	/**
-	 * The MD5 helper object for this class.
-	 */
-	protected static final MD5Encoder md5Encoder = new MD5Encoder();
-
-	/**
 	 * MD5 message digest provider.
 	 */
 	protected static MessageDigest md5Helper;
@@ -3273,7 +3268,7 @@ public class DavServlet extends HttpServlet
 			String lockTokenStr = req.getServletPath() + "-" + lock.type + "-" + lock.scope + "-" + req.getUserPrincipal() + "-"
 					+ lock.depth + "-" + lock.owner + "-" + lock.tokens + "-" + lock.expiresAt + "-" + System.currentTimeMillis()
 					+ "-" + secret;
-			lockToken = md5Encoder.encode(md5Helper.digest(lockTokenStr.getBytes()));
+			lockToken = MD5Encoder.encode(md5Helper.digest(lockTokenStr.getBytes()));
 
 			if ((exists) && (object instanceof DirContext) && (lock.depth == INFINITY))
 			{
