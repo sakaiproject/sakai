@@ -68,6 +68,9 @@ public class PCServiceEntityProvider extends AbstractEntityProvider implements R
 
     /* SAK-20565. Gets set to false if Profile2 isn't available */
     private boolean connectionsAvailable = true;
+    
+    /* Setting used to configure if site users should be available in the chat. */
+    private boolean showSiteUsers = true;
 
     /* SAK-20565. We now use reflection to call the profile connection methods */
     private Object profileServiceObject = null;
@@ -130,6 +133,8 @@ public class PCServiceEntityProvider extends AbstractEntityProvider implements R
 
         serverName = serverConfigurationService.getServerName();
 
+        showSiteUsers = serverConfigurationService.getBoolean("portal.chat.showSiteUsers", true);
+        
         try {
             String channelId = serverConfigurationService.getString("portalchat.cluster.channel");
             if(channelId != null && !channelId.equals("")) {
@@ -401,7 +406,7 @@ public class PCServiceEntityProvider extends AbstractEntityProvider implements R
 		
 		if(logger.isDebugEnabled()) logger.debug("Site ID: " +  siteId);
 
-        if(siteId != null && siteId.length() > 0) {
+        if(siteId != null && siteId.length() > 0 && showSiteUsers) {
 			// A site id has been specified, so we refresh our presence at the 
 			// location and retrieve the present users
 			String location = siteId + "-presence";
@@ -474,6 +479,7 @@ public class PCServiceEntityProvider extends AbstractEntityProvider implements R
 		data.put("connections", connections);
 		data.put("messages", messages);
 		data.put("online", onlineConnections);
+		data.put("showSiteUsers", showSiteUsers);
 		data.put("presentUsers", presentUsers);
 		data.put("connectionsAvailable", connectionsAvailable);
 		
