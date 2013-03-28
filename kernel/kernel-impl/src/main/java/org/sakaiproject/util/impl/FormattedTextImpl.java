@@ -21,6 +21,7 @@
 
 package org.sakaiproject.util.impl;
 
+import java.io.File;
 import java.io.UnsupportedEncodingException;
 import java.net.URL;
 import java.util.HashSet;
@@ -91,17 +92,29 @@ public class FormattedTextImpl implements FormattedText
 
         if (!useLegacyCleaner) {
             // INIT Antisamy
-            // added in support for antisamy html cleaner
+            // added in support for antisamy html cleaner - KNL-1015
             try {
-                URL policyURL;
                 ClassLoader current = FormattedTextImpl.class.getClassLoader();
-                if (defaultLowSecurity()) {
-                    policyURL = current.getResource("antisamy/low-security-policy.xml");
-                } else {
-                    policyURL = current.getResource("antisamy/high-security-policy.xml");
+                URL lowPolicyURL = current.getResource("antisamy/low-security-policy.xml");
+                URL highPolicyURL = current.getResource("antisamy/high-security-policy.xml");
+                // Allow lookup of the policy files in sakai home - KNL-1047
+                String sakaiHomePath = getSakaiHomeDir();
+                File lowFile = new File(sakaiHomePath, "antisamy"+File.separator+"low-security-policy.xml");
+                if (lowFile.canRead()) {
+                    lowPolicyURL = lowFile.toURI().toURL();
+                    M_log.info("AntiSamy found override for low policy file at: "+lowPolicyURL);
                 }
-                Policy policy = Policy.getInstance(policyURL);
+                File highFile = new File(sakaiHomePath, "antisamy"+File.separator+"high-security-policy.xml");
+                if (highFile.canRead()) {
+                    highPolicyURL = highFile.toURI().toURL();
+                    M_log.info("AntiSamy found override for high policy file at: "+highPolicyURL);
+                }
+                // Select the default policy as high or low - KNL-1015
+                URL defaultPolicyURL = defaultLowSecurity() ? lowPolicyURL : highPolicyURL;
+                M_log.info("AntiSamy default policy file ("+(defaultLowSecurity()?"LOW":"high")+"): "+defaultPolicyURL);
+                Policy policy = Policy.getInstance(defaultPolicyURL);
                 antiSamy = new AntiSamy(policy);
+                M_log.info("AntiSamy content scanner INIT complete");
             } catch (Exception e) {
                 useLegacyCleaner = true;
                 M_log.warn("Unable to startup the antisamy html code cleanup handler (using the legacy cleaner): " + e, e);
@@ -198,6 +211,21 @@ public class FormattedTextImpl implements FormattedText
             defaultLowSecurity = serverConfigurationService.getBoolean("content.cleaner.default.low.security", defaultLowSecurity);
         }
         return defaultLowSecurity;
+    }
+
+    /**
+     * @return the path to the sakai home directory on the server
+     */
+    private String getSakaiHomeDir() {
+        String sakaiHome = ""; // current dir (should be tomcat home) - this failsafe should not be used
+        if (serverConfigurationService != null) { // this keeps the tests from dying
+            String sh = serverConfigurationService.getSakaiHomePath();
+            if (sh != null) {
+                sakaiHome = sh;
+            }
+        }
+        sakaiHome = new File(sakaiHome).getAbsolutePath(); // standardize
+        return sakaiHome;
     }
 
     /** Matches HTML-style line breaks like &lt;br&gt; */
