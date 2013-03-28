@@ -119,7 +119,7 @@ function PortalChat() {//
 	}
 
 
-    this.doCall = function (to){
+/*    this.doCall = function (to){
 		var pc = this.currentPeerConnectionsMap[to];
 
 
@@ -127,18 +127,18 @@ function PortalChat() {//
                		pc = this.setupPeerConnection (to);
 
 	 	pChat = this;
-/*                 // get the local stream, show it in the local video element and send it
+                 // get the local stream, show it in the local video element and send it
 		if (this.localMediaStream != null){
 			this.offerStream (pc,to,this.localMediaStream,true);	
-		}else{*/
+		}else{
 		      navigator.getUserMedia({audio: true, video: true},function (localMediaStream){
 			  var local_video = document.getElementById("local_video");
 			  pChat.attachMediaStream (local_video,localMediaStream);
 			  pChat.offerStream(pc,to,localMediaStream,true);
 		   });
-/*		}*/
+/*		}
 
-    }
+    }*/
  
    this.doAnswer = function (to){
 
@@ -610,25 +610,7 @@ function PortalChat() {//
     }
 
     this.onvideomessage = function (uuid,message){
-
-	
-		var signal = JSON.parse(message.content);
-
-	        if (signal.sdp){
-       			var pc = this.currentPeerConnectionsMap[uuid];
-
-        	        if (pc==null){
-               			pc = this.setupPeerConnection (uuid); 
-				this.currentPeerConnectionsMap[uuid] = pc;
-				this.doAnswer (uuid);//If we receive an sdp message and we haven't a peer connection we assume we are not callin :)
-			}
-
-         	pc.setRemoteDescription(new RTCSessionDescription(signal.sdp));
-		}else if (signal.candidate != null){
-       			var pc = this.currentPeerConnectionsMap[uuid];
-			pc.addIceCandidate(new RTCIceCandidate({sdpMLineIndex:signal.label, candidate:signal.candidate}));
-		}
-
+    	receiveMessage (uuid,message); //mock message function. It will send to rtc to process it
     }
  
 

@@ -380,7 +380,7 @@
                 </div>
 	
 		    <video style="position: relative; background: #000; width: 256px; height:auto ;  -webkit-transform: scale(-1, 1);" id="remote_video_${uuid}"></video>    			
-		    <div style="background-color: #CCC; border: 1px solid #AAA;" id="pc_video_for_${uuid}" onclick="portalChat.doCall('${uuid}')">Call</div>
+		    <div style="background-color: #CCC; border: 1px solid #AAA;" id="pc_video_for_${uuid}" onclick="webRTC.doCall('${uuid}',startCall,successCall,failedCall)">Call</div>
  
                 <div id="pc_connection_chat_${uuid}_content" class="pc_connection_chat_content">
                     <ul id="pc_connection_chat_${uuid}_messages" class="pc_message_panel"></ul>
