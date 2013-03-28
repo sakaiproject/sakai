@@ -22,6 +22,7 @@
 package org.sakaiproject.event.api;
 
 import java.util.Date;
+import java.util.LinkedHashMap;
 import java.util.Map;
 
 /**
@@ -46,13 +47,29 @@ public interface LearningResourceObjectService {
      * NOTE: this will run asynchronously to avoid slowing anything down so there is no return
      * 
      * @param statement the LRS statement representing the activity statement
-     * @throws IllegalArgumentException if the input statement is invalid
-     * @throws RuntimeException if there is a failure
+     * @throws IllegalArgumentException if the input statement is invalid or cannot be handled
+     * @throws RuntimeException if there is a FATAL failure
      */
     public void registerStatement(LRS_Statement statement);
 
     public static class LRS_Statement {
         // actor, verb, and object are required
+        /**
+         * if true then this LRS_Statement is populated with all required fields (actor, verb, and object),
+         * if false then check the raw data fields instead: {@link #rawMap} first and if null or empty then {@link #rawJSON},
+         * it should be impossible for object to have none of these fields populated
+         */
+        boolean populated = false;
+        /**
+         * A raw map of the keys and values which should be able to basically be converted directly into a JSON statement,
+         * MUST contain at least actor, verb, and object keys and the values for those cannot be null or empty
+         */
+        Map<String, Object> rawMap;
+        /**
+         * The raw JSON string to send as a statement
+         * WARNING: this will not be validated
+         */
+        String rawJSON;
         /**
          * UUID assigned by LRS or other trusted source.
          * Set by LRS.
@@ -146,6 +163,45 @@ public interface LearningResourceObjectService {
         public LRS_Statement(String actorEmail, String verbStr, String objectURI, boolean resultSuccess, float resultScaledScore) {
             this(new LRS_Actor(actorEmail), new LRS_Verb(verbStr), new LRS_Object(objectURI));
             this.result = new LRS_Result(resultScaledScore, resultSuccess);
+        }
+        /**
+         * EXPERT USE ONLY
+         * @param rawData map of the keys and values which MUST contain at least actor, verb, and object keys and the values for those cannot be null or empty
+         * @throws IllegalArgumentException if any required keys are missing
+         * @see #rawMap
+         */
+        public LRS_Statement(Map<String, Object> rawData) {
+            this();
+            this.populated = false;
+            this.rawMap = rawData;
+            if (rawData != null) {
+                if (!rawData.containsKey("actor") || rawData.get("actor") == null) {
+                    throw new IllegalArgumentException("actor key MUST be set and NOT null");
+                }
+                if (!rawData.containsKey("verb") || rawData.get("verb") == null) {
+                    throw new IllegalArgumentException("verb key MUST be set and NOT null");
+                }
+                if (!rawData.containsKey("object") || rawData.get("object") == null) {
+                    throw new IllegalArgumentException("object key MUST be set and NOT null");
+                }
+                this.rawMap = new LinkedHashMap<String, Object>(rawData);
+                this.rawJSON = null;
+            }
+        }
+        /**
+         * INTERNAL USE ONLY
+         * Probably will not work for anything that is NOT the Experience API
+         * @param rawJSON JSON string to send as a statement
+         *          WARNING: this will NOT be validated!
+         * @see #rawJSON
+         */
+        public LRS_Statement(String rawJSON) {
+            this();
+            this.populated = false;
+            this.rawJSON = rawJSON;
+            if (rawJSON != null) {
+                this.rawMap = null;
+            }
         }
     }
 
