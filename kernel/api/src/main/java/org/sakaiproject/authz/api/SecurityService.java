@@ -190,7 +190,8 @@ public interface SecurityService
 
 	/**
 	 * Clear all effective roles with the session.
-	 * @param sessionId 
+	 * @param sessionId the session identifier
+	 * @throws IllegalArgumentException if the session cannot be found (on this server)
 	 */
 	Session clearUserEffectiveRolesBySession(String sessionId);
 

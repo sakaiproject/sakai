@@ -28,7 +28,6 @@ import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
 import java.sql.ResultSet;
 import java.sql.SQLException;
-import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.Enumeration;
@@ -597,9 +596,17 @@ public abstract class UsageSessionServiceAdaptor implements UsageSessionService
 					if (sessionsToLogout <= 0) {
 						break; // exit the loop after max diff sessions have been expired
 					}
-					logout(usageSession.getId());
-					if (M_log.isDebugEnabled()) M_log.debug("Logged out session ("+usageSession.getId()+") number ("+sessionsToLogout+") sessions for user: "+userId);
-					sessionsToLogout--;
+					if (serverConfigurationService().getServerIdInstance() != null 
+					        && serverConfigurationService().getServerIdInstance().equals(usageSession.getServer())) {
+					    // Make sure the session is on this server before we try to log it out
+					    try {
+					        logout(usageSession.getId());
+					        if (M_log.isDebugEnabled()) M_log.debug("Logged out session ("+usageSession.getId()+") number ("+sessionsToLogout+") sessions for user ("+userId+")");
+					        sessionsToLogout--;
+					    } catch (IllegalArgumentException e) {
+					        if (M_log.isDebugEnabled()) M_log.debug("Failed to logout out session ("+usageSession.getId()+") number ("+sessionsToLogout+") sessions for user ("+userId+"): "+e);
+					    }
+					}
 				}
 				M_log.info("Old session cleanup logged out "+sessionsToLogout+" sessions past the max ("+maxSessionsPerUser+") (out of "+currentUserSessions.size()+") for user: "+userId);
 			}
@@ -610,6 +617,7 @@ public abstract class UsageSessionServiceAdaptor implements UsageSessionService
 	 * Logout the session defined by this id
 	 * KNL-1035
 	 * @param sessionId the Sakai session id
+	 * @throws IllegalArgumentException if the sessionId is invalid (on this server)
 	 */
 	private void logout(String sessionId)
 	{

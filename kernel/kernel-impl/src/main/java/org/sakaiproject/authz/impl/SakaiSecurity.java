@@ -527,7 +527,11 @@ public abstract class SakaiSecurity implements SecurityService
 		// get all the roleswaps from the session and clear them
 		
 		Session session = sessionManager().getCurrentSession();
-		clearUserEffectiveRolesBySession(session);
+		try {
+		    clearUserEffectiveRolesBySession(session);
+		} catch (Exception e) {
+		    M_log.warn("Could not clear clear roles for session which could not be found on this server: "+session);
+		}
 	}
 
 	/**
