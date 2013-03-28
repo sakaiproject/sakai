@@ -93,7 +93,13 @@ public class FormattedTextImpl implements FormattedText
             // INIT Antisamy
             // added in support for antisamy html cleaner
             try {
-                URL policyURL = FormattedTextImpl.class.getClassLoader().getResource("antisamy/policy.xml");
+                URL policyURL;
+                ClassLoader current = FormattedTextImpl.class.getClassLoader();
+                if (defaultLowSecurity()) {
+                    policyURL = current.getResource("antisamy/low-security-policy.xml");
+                } else {
+                    policyURL = current.getResource("antisamy/high-security-policy.xml");
+                }
                 Policy policy = Policy.getInstance(policyURL);
                 antiSamy = new AntiSamy(policy);
             } catch (Exception e) {
@@ -171,15 +177,27 @@ public class FormattedTextImpl implements FormattedText
     }
 
     /**
-     * Asks SCS for the value of the "content.use.legacy.html.cleaner", DEFAULT is false
+     * Asks SCS for the value of the "content.cleaner.use.legacy.html", DEFAULT is false
      * @return true if the legacy HTML cleaner is used OR false use the antiSamy html cleaner
      */
     private boolean useLegacyCleaner() {
         boolean useLegacy = false;
         if (serverConfigurationService != null) { // this keeps the tests from dying
-            useLegacy = serverConfigurationService.getBoolean("content.use.legacy.html.cleaner", useLegacy);
+            useLegacy = serverConfigurationService.getBoolean("content.cleaner.use.legacy.html", useLegacy);
         }
         return useLegacy;
+    }
+
+    /**
+     * Asks SCS for the value of the "content.cleaner.default.low.security", DEFAULT is false
+     * @return true if low security is on be default for the scanner OR false to use high security scan (no unsafe embeds or objects)
+     */
+    private boolean defaultLowSecurity() {
+        boolean defaultLowSecurity = false;
+        if (serverConfigurationService != null) { // this keeps the tests from dying
+            defaultLowSecurity = serverConfigurationService.getBoolean("content.cleaner.default.low.security", defaultLowSecurity);
+        }
+        return defaultLowSecurity;
     }
 
     /** Matches HTML-style line breaks like &lt;br&gt; */
