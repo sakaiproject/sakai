@@ -699,7 +699,14 @@
                 </literal-list>
             </attribute>
             <attribute name="name"/>
-            
+            <attribute name="target" onInvalid="filterTag">
+                <literal-list>
+                    <literal value="_blank"/>
+                    <literal value="_top"/>
+                    <literal value="_self"/>
+                    <literal value="_parent"/>
+                </literal-list>
+            </attribute>
         </tag>
 
         <tag name="map" action="validate"/>
@@ -849,6 +856,11 @@
                     <literal value=""/>
                 </literal-list>
             </attribute>
+            <attribute name="summary">
+                <regexp-list>
+                    <regexp value="^[a-zA-Z0-9\s-_]*$"/>
+                </regexp-list>
+            </attribute>
         </tag>
         
         <tag name="td" action="validate">
@@ -922,7 +934,13 @@
             </attribute>
             <attribute name="width"/>
         </tag>
-                
+
+        <tag name="caption" action="validate">
+            <regexp-list>
+                <regexp value="^[a-zA-Z0-9\s-_]*$"/>
+            </regexp-list>
+        </tag>
+
         <tag name="fieldset" action="validate"/>
         <tag name="legend" action="validate"/>
         
