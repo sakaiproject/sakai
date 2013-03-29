@@ -93,6 +93,7 @@ public class FormattedTextImpl implements FormattedText
         if (!useLegacyCleaner) {
             // INIT Antisamy
             // added in support for antisamy html cleaner - KNL-1015
+            // https://www.owasp.org/index.php/Category:OWASP_AntiSamy_Project
             try {
                 ClassLoader current = FormattedTextImpl.class.getClassLoader();
                 URL lowPolicyURL = current.getResource("antisamy/low-security-policy.xml");

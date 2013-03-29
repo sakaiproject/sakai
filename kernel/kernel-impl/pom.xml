@@ -150,7 +150,7 @@
     <dependency>
       <groupId>org.owasp.antisamy</groupId>
       <artifactId>antisamy</artifactId>
-      <version>1.5</version>
+      <version>1.5.1</version>
       <type>jar</type>
     </dependency>
     <!-- TESTING -->
