@@ -107,6 +107,9 @@
 
     <!-- This is where we specify what Flash src to allow -->
     <regexp name="flashSites" value=".*" />
+
+    <!-- This is a basic alphanumeric and punctuation string -->
+    <regexp name="basicAlphaNumeric" value="^[a-zA-Z0-9\s\-_.\?!,]*$" />
   </common-regexps>
 
     <!-- 
@@ -451,7 +454,25 @@
         <tag name="noscript" action="validate"/> <!-- although no javascript can fire inside a noscript tag, css is still a viable attack vector -->
 
         <!-- Frame & related tags -->
-        <tag name="iframe" action="remove"/>
+        <tag name="iframe" action="validate">
+            <attribute name="height"/>
+            <attribute name="width"/>
+            <attribute name="frameborder">
+                <regexp-list>
+                    <regexp name="integer"/>
+                </regexp-list>
+            </attribute>
+            <attribute name="src">
+                <regexp-list>
+                    <regexp name="flashSites"/>
+                </regexp-list>
+            </attribute>
+            <attribute name="allowfullscreen">
+                <regexp-list>
+                    <regexp name="boolean"/>
+                </regexp-list>
+            </attribute>
+        </tag>
         <tag name="frameset" action="remove"/>
         <tag name="frame" action="remove"/>
 
@@ -858,7 +879,7 @@
             </attribute>
             <attribute name="summary">
                 <regexp-list>
-                    <regexp value="^[a-zA-Z0-9\s-_]*$"/>
+                    <regexp name="basicAlphaNumeric"/>
                 </regexp-list>
             </attribute>
         </tag>
@@ -937,7 +958,7 @@
 
         <tag name="caption" action="validate">
             <regexp-list>
-                <regexp value="^[a-zA-Z0-9\s-_]*$"/>
+                <regexp name="basicAlphaNumeric"/>
             </regexp-list>
         </tag>
 
@@ -952,9 +973,9 @@
             <attribute name="classid" />
             <attribute name="codebase" />
             <attribute name="type" onInvalid="removeTag">
-                <literal-list>
-                    <literal value="application/x-shockwave-flash" />
-                </literal-list>
+                <regexp-list>
+                    <regexp name="anything" />
+                </regexp-list>
             </attribute>
             <attribute name="data" onInvalid="removeTag">
                 <regexp-list>
@@ -995,14 +1016,14 @@
                 </regexp-list>
             </attribute>
             <attribute name="base">
-                <literal-list>
-                    <literal value="http://admin.brightcove.com" />
-                </literal-list>
+                <regexp-list>
+                    <regexp name="flashSites" />
+                </regexp-list>
             </attribute>
             <attribute name="type">
-                <literal-list>
-                    <literal value="application/x-shockwave-flash" />
-                </literal-list>
+                <regexp-list>
+                    <regexp name="anything" />
+                </regexp-list>
             </attribute>
             <attribute name="name">
                 <regexp-list>
@@ -1053,6 +1074,17 @@
                 <literal-list>
                     <literal value="all" />
                 </literal-list>
+            </attribute>
+            <attribute name="autostart">
+                <literal-list>
+                    <literal value="0"/>
+                    <literal value="1"/>
+                </literal-list>
+            </attribute>
+            <attribute name="controller">
+                <regexp-list>
+                    <regexp name="boolean" />
+                </regexp-list>
             </attribute>
         </tag>
         
