@@ -338,7 +338,7 @@ public class FormattedTextImpl implements FormattedText
      */
     public String processFormattedText(final String strFromBrowser, StringBuilder errorMessages, Level level,
             boolean checkForEvilTags, boolean replaceWhitespaceTags, boolean useLegacySakaiCleaner) {
-        if (level == null) {
+        if (level == null || Level.DEFAULT.equals(level)) {
             // Select the default policy as high or low - KNL-1015
             level = defaultLowSecurity() ? Level.LOW : Level.HIGH; // default to system setting
         } else if (Level.NONE.equals(level)) {
