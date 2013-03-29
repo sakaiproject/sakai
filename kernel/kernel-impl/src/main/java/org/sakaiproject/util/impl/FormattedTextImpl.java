@@ -353,10 +353,9 @@ public class FormattedTextImpl implements FormattedText
                     try {
                         CleanResults cr = antiSamy.scan(strFromBrowser);
                         if (cr.getNumberOfErrors() > 0) {
+                            // TODO currently no way to get internationalized versions of error messages
                             for (Object errorMsg : cr.getErrorMessages()) {
-                                errorMessages.append("<div class=\"error\">");
-                                errorMessages.append(errorMsg.toString());
-                                errorMessages.append("</div>");
+                                errorMessages.append(errorMsg.toString()+"\n\r");
                             }
                         }
                         val = cr.getCleanHTML();
