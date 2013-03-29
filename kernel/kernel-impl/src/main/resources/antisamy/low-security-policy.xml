@@ -106,7 +106,7 @@
     <regexp name="systemColor" value="(activeborder|activecaption|appworkspace|background|buttonface|buttonhighlight|buttonshadow|buttontext|captiontext|graytext|highlight|highlighttext|inactiveborder|inactivecaption|inactivecaptiontext|infobackground|infotext|menu|menutext|scrollbar|threeddarkshadow|threedface|threedhighlight|threedlightshadow|threedshadow|window|windowframe|windowtext)" />
 
     <!-- This is where we specify what Flash src to allow -->
-    <regexp name="flashSites" value="anything" />
+    <regexp name="flashSites" value=".*" />
   </common-regexps>
 
     <!-- 
