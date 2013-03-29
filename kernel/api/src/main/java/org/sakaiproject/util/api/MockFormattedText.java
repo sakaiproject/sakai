@@ -46,6 +46,11 @@ public class MockFormattedText implements FormattedText {
         return strFromBrowser;
     }
 
+    public String processFormattedText(String strFromBrowser, StringBuilder errorMessages, Level level) {
+        log.warn(WARNING);
+        return strFromBrowser;
+    }
+
     public String processFormattedText(String strFromBrowser, StringBuilder errorMessages, boolean useLegacySakaiCleaner) {
         log.warn(WARNING);
         return strFromBrowser;
@@ -62,7 +67,7 @@ public class MockFormattedText implements FormattedText {
         return strFromBrowser;
     }
 
-    public String processFormattedText(String strFromBrowser, StringBuilder errorMessages, boolean checkForEvilTags,
+    public String processFormattedText(String strFromBrowser, StringBuilder errorMessages, Level level, boolean checkForEvilTags,
             boolean replaceWhitespaceTags, boolean useLegacySakaiCleaner) {
         log.warn(WARNING);
         return strFromBrowser;

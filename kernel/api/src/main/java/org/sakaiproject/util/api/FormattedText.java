@@ -35,6 +35,29 @@ import org.w3c.dom.Element;
 public interface FormattedText {
 
     /**
+     * Level of security to use while doing the scan of html content
+     */
+    public enum Level {
+        /**
+         * Use the configured system default (typically HIGH but may have been configured to LOW),
+         * this should be used in most cases and will be used if the level was set to null
+         */
+        DEFAULT,
+        /**
+         * Use for untrusted users (e.g. students)
+         */
+        HIGH,
+        /**
+         * Use for trusted users (e.g. teachers)
+         */
+        LOW,
+        /**
+         * Use for admins and special cases only (e.g. super admin)
+         */
+        NONE
+    }
+
+    /**
      * This is maintained for backwards compatibility
      * @see #processFormattedText(String, StringBuilder)
      * @deprecated since Nov 2007, use {@link #processFormattedText(String, StringBuilder)} instead
@@ -54,6 +77,23 @@ public interface FormattedText {
      * @return The validated processed formatted text, ready for use by the system.
      */
     public String processFormattedText(final String strFromBrowser, StringBuilder errorMessages);
+
+    /**
+     * Processes and validates user-entered HTML received from the web browser (from the WYSIWYG editor). Validates that the user input follows the Sakai formatted text specification; disallows dangerous stuff such as &lt;SCRIPT&gt; JavaScript tags.
+     * Encodes the text according to the formatted text specification, for the rest of the system to use.
+     * <br/>
+     * Use {@link #processFormattedText(String, StringBuilder, boolean)} if you need the behavior of the old sakai html cleaner processor
+     * 
+     * @param strFromBrowser
+     *        The formatted text as sent from the web browser (from the WYSIWYG editor)
+     * @param errorMessages
+     *        User-readable error messages will be returned here.
+     * @param level
+     *        The security level used for the scan (HIGH level will be more aggressive about what is allowed while NONE will allow anything),
+     *        null or DEFAULT will use whatever security level the system is configured for
+     * @return The validated processed formatted text, ready for use by the system.
+     */
+    public String processFormattedText(final String strFromBrowser, StringBuilder errorMessages, Level level);
 
     /**
      * Processes and validates user-entered HTML received from the web browser (from the WYSIWYG editor). Validates that the user input follows the Sakai formatted text specification; disallows dangerous stuff such as &lt;SCRIPT&gt; JavaScript tags.
@@ -103,6 +143,9 @@ public interface FormattedText {
      *        The formatted text as sent from the web browser (from the WYSIWYG editor)
      * @param errorMessages
      *        User-readable error messages will be returned here.
+     * @param level
+     *        The security level used for the scan (HIGH level will be more aggressive about what is allowed while NONE will allow anything),
+     *        null or DEFAULT will use whatever security level the system is configured for
      * @param checkForEvilTags
      *        If true, check for tags and attributes that shouldn't be in formatted text
      * @param replaceWhitespaceTags
@@ -110,7 +153,7 @@ public interface FormattedText {
      * @param useLegacySakaiCleaner if true the old html cleaner is used, if false the new OWASP antisamy cleaner is used
      * @return The validated processed HTML formatted text, ready for use by the system.
      */
-    public String processFormattedText(final String strFromBrowser, StringBuilder errorMessages, boolean checkForEvilTags,
+    public String processFormattedText(final String strFromBrowser, StringBuilder errorMessages, Level level, boolean checkForEvilTags,
             boolean replaceWhitespaceTags, boolean useLegacySakaiCleaner);
 
     /**

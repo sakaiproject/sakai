@@ -23,6 +23,7 @@ package org.sakaiproject.util.impl;
 
 import java.util.regex.Pattern;
 import org.sakaiproject.component.cover.ComponentManager;
+import org.sakaiproject.util.api.FormattedText.Level;
 
 import junit.framework.TestCase;
 
@@ -430,6 +431,71 @@ public class FormattedTextTest extends TestCase {
         assertTrue( result.contains("XSS"));
         assertFalse( result.contains("<SCRIPT"));
 
+    }
+
+    public void testHighLowNoneScanning() {
+        // KNL-1048 KNL-1009
+        String strFromBrowser = null;
+        String result = null;
+        StringBuilder errorMessages = null;
+
+        String SCRIPT1 = "<div>testing</div><embed src=\"DANGER.swf\"><SCRIPT>alert(\"XSS\");//</SCRIPT>";
+        String SCRIPT2 = "<div>testing</div><script>alert(\"XSS\");<BR>";
+
+        // Test KNL-1009
+        strFromBrowser = SCRIPT2;
+        errorMessages = new StringBuilder();
+        result = formattedText.processFormattedText(strFromBrowser, errorMessages, Level.HIGH);
+        assertNotNull(result);
+        assertTrue( errorMessages.length() > 10 );
+        assertTrue( result.contains("<div>testing</div>"));
+        assertFalse( result.contains("XSS"));
+        assertFalse( result.contains("<script"));
+
+        // check the options
+        strFromBrowser = SCRIPT1;
+        errorMessages = new StringBuilder();
+        result = formattedText.processFormattedText(strFromBrowser, errorMessages, null); // default: high
+        assertNotNull(result);
+        assertTrue( errorMessages.length() > 10 );
+        assertTrue( result.contains("<div>testing</div>"));
+        assertFalse( result.contains("XSS"));
+        assertFalse( result.contains("<SCRIPT"));
+        assertFalse( result.contains("DANGER"));
+        assertFalse( result.contains("<embed"));
+
+        strFromBrowser = SCRIPT1;
+        errorMessages = new StringBuilder();
+        result = formattedText.processFormattedText(strFromBrowser, errorMessages, Level.HIGH);
+        assertNotNull(result);
+        assertTrue( errorMessages.length() > 10 );
+        assertTrue( result.contains("<div>testing</div>"));
+        assertFalse( result.contains("XSS"));
+        assertFalse( result.contains("<SCRIPT"));
+        assertFalse( result.contains("DANGER"));
+        assertFalse( result.contains("<embed"));
+
+        strFromBrowser = SCRIPT1;
+        errorMessages = new StringBuilder();
+        result = formattedText.processFormattedText(strFromBrowser, errorMessages, Level.LOW);
+        assertNotNull(result);
+        assertTrue( errorMessages.length() > 10 );
+        assertTrue( result.contains("<div>testing</div>"));
+        assertFalse( result.contains("XSS"));
+        assertFalse( result.contains("<SCRIPT"));
+        assertTrue( result.contains("DANGER"));
+        assertTrue( result.contains("<embed"));
+
+        strFromBrowser = SCRIPT1;
+        errorMessages = new StringBuilder();
+        result = formattedText.processFormattedText(strFromBrowser, errorMessages, Level.NONE);
+        assertNotNull(result);
+        assertTrue( errorMessages.length() == 0 );
+        assertTrue( result.contains("<div>testing</div>"));
+        assertTrue( result.contains("XSS"));
+        assertTrue( result.contains("<SCRIPT"));
+        assertTrue( result.contains("DANGER"));
+        assertTrue( result.contains("<embed"));
     }
 
     public void testNullParams() {

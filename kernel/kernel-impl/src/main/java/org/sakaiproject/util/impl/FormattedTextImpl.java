@@ -83,9 +83,13 @@ public class FormattedTextImpl implements FormattedText
     private Pattern[] M_evilValuePatterns;
 
     /**
-     * This is the html cleaner object
+     * This is the high level html cleaner object
      */
-    private AntiSamy antiSamy = null;
+    private AntiSamy antiSamyHigh = null;
+    /**
+     * This is the low level html cleaner object
+     */
+    private AntiSamy antiSamyLow = null;
 
     public void init() {
         boolean useLegacyCleaner = useLegacyCleaner();
@@ -110,14 +114,16 @@ public class FormattedTextImpl implements FormattedText
                     highPolicyURL = highFile.toURI().toURL();
                     M_log.info("AntiSamy found override for high policy file at: "+highPolicyURL);
                 }
-                // Select the default policy as high or low - KNL-1015
-                URL defaultPolicyURL = defaultLowSecurity() ? lowPolicyURL : highPolicyURL;
-                M_log.info("AntiSamy default policy file ("+(defaultLowSecurity()?"LOW":"high")+"): "+defaultPolicyURL);
-                Policy policy = Policy.getInstance(defaultPolicyURL);
-                antiSamy = new AntiSamy(policy);
-                M_log.info("AntiSamy content scanner INIT complete");
+                Policy policyHigh = Policy.getInstance(highPolicyURL);
+                antiSamyHigh = new AntiSamy(policyHigh);
+                Policy policyLow = Policy.getInstance(lowPolicyURL);
+                antiSamyLow = new AntiSamy(policyLow);
+                // TODO should we attempt to fallback to internal files if the parsing/init fails of external ones?
+                M_log.info("AntiSamy INIT default security level ("+(defaultLowSecurity()?"LOW":"high")+"), policy files: high="+highPolicyURL+", low="+lowPolicyURL);
             } catch (Exception e) {
                 useLegacyCleaner = true;
+                antiSamyHigh = null;
+                antiSamyLow = null;
                 M_log.warn("Unable to startup the antisamy html code cleanup handler (using the legacy cleaner): " + e, e);
             }
         }
@@ -287,7 +293,16 @@ public class FormattedTextImpl implements FormattedText
     {
         boolean checkForEvilTags = true;
         boolean replaceWhitespaceTags = true;
-        return processFormattedText(strFromBrowser, errorMessages, checkForEvilTags, replaceWhitespaceTags, useLegacyCleaner());
+        return processFormattedText(strFromBrowser, errorMessages, null, checkForEvilTags, replaceWhitespaceTags, useLegacyCleaner());
+    }
+
+    /* (non-Javadoc)
+     * @see org.sakaiproject.util.api.FormattedText#processFormattedText(java.lang.String, java.lang.StringBuilder, org.sakaiproject.util.api.FormattedText.Level)
+     */
+    public String processFormattedText(String strFromBrowser, StringBuilder errorMessages, Level level) {
+        boolean checkForEvilTags = true;
+        boolean replaceWhitespaceTags = true;
+        return processFormattedText(strFromBrowser, errorMessages, level, checkForEvilTags, replaceWhitespaceTags, useLegacyCleaner());
     }
 
     /* (non-Javadoc)
@@ -297,7 +312,7 @@ public class FormattedTextImpl implements FormattedText
             StringBuilder errorMessages, boolean useLegacySakaiCleaner) {
         boolean checkForEvilTags = true;
         boolean replaceWhitespaceTags = true;
-        return processFormattedText(strFromBrowser, errorMessages, checkForEvilTags,
+        return processFormattedText(strFromBrowser, errorMessages, null, checkForEvilTags,
                 replaceWhitespaceTags, useLegacySakaiCleaner);
     }
 
@@ -315,24 +330,29 @@ public class FormattedTextImpl implements FormattedText
     public String processFormattedText(final String strFromBrowser, StringBuilder errorMessages, boolean checkForEvilTags,
             boolean replaceWhitespaceTags)
     {
-        return processFormattedText(strFromBrowser, errorMessages, checkForEvilTags, replaceWhitespaceTags, useLegacyCleaner());
+        return processFormattedText(strFromBrowser, errorMessages, null, checkForEvilTags, replaceWhitespaceTags, useLegacyCleaner());
     }
 
     /* (non-Javadoc)
-     * @see org.sakaiproject.utils.impl.FormattedText#processFormattedText(java.lang.String, java.lang.StringBuilder, boolean, boolean, boolean)
+     * @see org.sakaiproject.util.api.FormattedText#processFormattedText(java.lang.String, java.lang.StringBuilder, org.sakaiproject.util.api.FormattedText.Level, boolean, boolean, boolean)
      */
-    public String processFormattedText(final String strFromBrowser,
-            StringBuilder errorMessages, boolean checkForEvilTags, boolean replaceWhitespaceTags,
-            boolean useLegacySakaiCleaner) {
-
-        if (useLegacySakaiCleaner && antiSamy == null) {
+    public String processFormattedText(final String strFromBrowser, StringBuilder errorMessages, Level level,
+            boolean checkForEvilTags, boolean replaceWhitespaceTags, boolean useLegacySakaiCleaner) {
+        if (level == null) {
+            // Select the default policy as high or low - KNL-1015
+            level = defaultLowSecurity() ? Level.LOW : Level.HIGH; // default to system setting
+        } else if (Level.NONE.equals(level)) {
+            checkForEvilTags = false; // disable scan
+        }
+        if (useLegacySakaiCleaner && antiSamyHigh == null) {
             useLegacySakaiCleaner = false;
             M_log.warn("Cannot use the new html cleaner (useLegacySakaiCleaner=false), Antisamy cleaner not available, falling back to the legacy cleaner");
         }
 
         String val = strFromBrowser;
-        if (val == null || val.length() == 0)
+        if (val == null || val.length() == 0) {
             return val;
+        }
 
         try {
             if (replaceWhitespaceTags) {
@@ -346,12 +366,16 @@ public class FormattedTextImpl implements FormattedText
             }
 
             if (checkForEvilTags) {
-                if (useLegacySakaiCleaner || antiSamy == null) {
+                if (useLegacySakaiCleaner || antiSamyHigh == null) {
                     val = processHtml(strFromBrowser, errorMessages);
                 } else {
                     // use the owasp antisamy processor
+                    AntiSamy as = antiSamyHigh;
+                    if (Level.LOW.equals(level)) {
+                        as = antiSamyLow;
+                    }
                     try {
-                        CleanResults cr = antiSamy.scan(strFromBrowser);
+                        CleanResults cr = as.scan(strFromBrowser);
                         if (cr.getNumberOfErrors() > 0) {
                             // TODO currently no way to get internationalized versions of error messages
                             for (Object errorMsg : cr.getErrorMessages()) {
@@ -375,7 +399,7 @@ public class FormattedTextImpl implements FormattedText
                 val = "";
             }
 
-            if (useLegacySakaiCleaner || antiSamy == null) {
+            if (useLegacySakaiCleaner || antiSamyHigh == null) {
                 // close any open HTML tags (that the user may have accidentally left open)
                 StringBuilder buf = new StringBuilder();
                 trimFormattedText(val, Integer.MAX_VALUE, buf);
@@ -1333,9 +1357,9 @@ public class FormattedTextImpl implements FormattedText
     }
 
     /**
-     * HTML character entity references. These abreviations are used in HTML to escape certain Unicode characters, including characters used in HTML markup. These character entity references were taken directly from the HTML 4.0 specification at:
+     * HTML character entity references. These abbreviations are used in HTML to escape certain Unicode characters, including characters used in HTML markup. These character entity references were taken directly from the HTML 4.0 specification at:
      * 
-     * @link http://www.w3.org/TR/REC-html40/sgml/entities.html
+     * http://www.w3.org/TR/REC-html40/sgml/entities.html
      */
     private final String[] M_htmlCharacterEntityReferences = { "&nbsp;", "&iexcl;", "&cent;", "&pound;", "&curren;",
             "&yen;", "&brvbar;", "&sect;", "&uml;", "&copy;", "&ordf;", "&laquo;", "&not;", "&shy;", "&reg;", "&macr;", "&deg;",
@@ -1365,7 +1389,7 @@ public class FormattedTextImpl implements FormattedText
     /**
      * These character entity references were taken directly from the HTML 4.0 specification at:
      * 
-     * @link http://www.w3.org/TR/REC-html40/sgml/entities.html
+     * http://www.w3.org/TR/REC-html40/sgml/entities.html
      */
     private final char[] M_htmlCharacterEntityReferencesUnicode = { 160, 161, 162, 163, 164, 165, 166, 167, 168, 169, 170,
             171, 172, 173, 174, 175, 176, 177, 178, 179, 180, 181, 182, 183, 184, 185, 186, 187, 188, 189, 190, 191, 192, 193, 194,
