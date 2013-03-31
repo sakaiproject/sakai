@@ -2,4 +2,14 @@
 <!DOCTYPE beans PUBLIC "-//SPRING//DTD BEAN//EN" "http://www.springframework.org/dtd/spring-beans.dtd">
 
 <beans>
+
+	<!-- entity providers -->
+	<bean
+		parent="org.sakaiproject.entitybroker.entityprovider.AbstractEntityProvider"
+		class="org.sakaiproject.tool.syllabus.entityproviders.SyllabusEntityProvider">
+		<property name="syllabusManager" ref="org.sakaiproject.api.app.syllabus.SyllabusManager"/>
+		<property name="siteService" ref="org.sakaiproject.site.api.SiteService"/>
+		<property name="toolManager" ref="org.sakaiproject.tool.api.ToolManager"/>
+	</bean>
+
 </beans>
