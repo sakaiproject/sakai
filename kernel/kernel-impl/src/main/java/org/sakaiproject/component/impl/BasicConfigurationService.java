@@ -57,7 +57,6 @@ import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
-import org.apache.commons.io.FilenameUtils;
 
 import au.com.bytecode.opencsv.CSVParser;
 
@@ -177,6 +176,11 @@ public class BasicConfigurationService implements ServerConfigurationService, Ap
             }
         }
         M_log.info("Configured "+this.secureConfigurationKeys.size()+" secured key names: "+this.secureConfigurationKeys);
+
+        // load up some things that are not part of the config but are used by it
+        this.addConfigItem(new ConfigItemImpl("sakai.home", this.getSakaiHomePath()), "SCS");
+        this.addConfigItem(new ConfigItemImpl("sakai.gatewaySiteId", this.getGatewaySiteId()), "SCS");
+        this.addConfigItem(new ConfigItemImpl("portal.loggedOutURL", this.getLoggedOutUrl()), "SCS");
 
         // put all the properties into the configuration map
         Map<String, Properties> allSakaiProps = sakaiProperties.getSeparateProperties();
@@ -840,7 +844,6 @@ public class BasicConfigurationService implements ServerConfigurationService, Ap
      */
     private void loadToolGroups(InputStream in)
     {
-       int groupCount = 0;
        Document doc = Xml.readDocumentFromStream(in);
        Element root = doc.getDocumentElement();
        if (!root.getTagName().equals("toolGroups"))
@@ -852,7 +855,6 @@ public class BasicConfigurationService implements ServerConfigurationService, Ap
        NodeList groupNodes = root.getElementsByTagName("group");
        if (groupNodes != null) {
            for (int k = 0; k < groupNodes.getLength(); k++) {
-              groupCount++;
               Node g_node = groupNodes.item(k);
               if (g_node.getNodeType() != Node.ELEMENT_NODE) continue;
               Element g_element = (Element) g_node;
