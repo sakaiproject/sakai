@@ -66,6 +66,7 @@ import org.sakaiproject.event.api.NotificationService;
 import org.sakaiproject.exception.IdUsedException;
 import org.sakaiproject.exception.PermissionException;
 import org.sakaiproject.tool.api.SessionManager;
+import org.sakaiproject.util.ResourceLoader;
 import org.sakaiproject.util.StringUtil;
 import org.sakaiproject.util.Validator;
 import org.w3c.dom.Document;
@@ -123,6 +124,7 @@ public class FCKConnectorServlet extends HttpServlet {
      private NotificationService notificationService = null;
      private EntityBroker entityBroker;
      private ServerConfigurationService serverConfigurationService = null;
+     private ResourceLoader resourceLoader = null;
 
 
      /**
@@ -160,8 +162,12 @@ public class FCKConnectorServlet extends HttpServlet {
         	   entityBroker = (EntityBroker) inject("org.sakaiproject.entitybroker.EntityBroker");
           }
           if (serverConfigurationService == null) {
-       	   serverConfigurationService = (ServerConfigurationService) inject("org.sakaiproject.component.api.ServerConfigurationService");
-         }
+        	  serverConfigurationService = (ServerConfigurationService) inject("org.sakaiproject.component.api.ServerConfigurationService");
+          }
+          if (resourceLoader == null) {
+        	  resourceLoader = new ResourceLoader("fckconnector");
+          }
+
         	  
      }
 
@@ -819,12 +825,15 @@ public class FCKConnectorServlet extends HttpServlet {
 
        	SortedSet<Element> sortedItems = new TreeSet<Element>(new SortElementsForDisplay());
 
-        Element otherentities=doc.createElement("OtherEntities");
+        Element otherEntities=doc.createElement("OtherEntities");
         
-        root.appendChild(otherentities);
+        root.appendChild(otherEntities);
         //Discover other entities available that this class doesn't already know about.
         
+        //Get registered provider prefixes
         Set<String> providers = entityBroker.getRegisteredPrefixes();
+        
+        //TODO: Add default hidden providers that this already does (currently assignments, resources, forums, tests and quizzes)
 
 		if (serverConfigurationService.getString("entity-browser.hiddenProviders") != null &&
               !"".equals(serverConfigurationService.getString("entity-browser.hiddenProviders")))
@@ -838,22 +847,31 @@ public class FCKConnectorServlet extends HttpServlet {
               skip = true;
           }
           if (!skip) {
-              // TODO: is there a better way to figure out if the selected site dbParams.context has this
-              // provider...
-              List<String> entities =
-                entityBroker.findEntityRefs(new String[] { provider },
-                    new String[] { "context", "userId" }, new String[] { siteId, user }, true);
-              if (entities != null && entities.size() > 0) {
-            	  M_log.info(provider);
-            	  //Create this in the XML somehow?!!
-            	String title = provider;
-                if (title == null) {
-                  title = provider;
-                }
-                //Get references
-//                entityBroker.getEntityURL(reference))
-              }
-            }
+        	  //Find entities in the provider
+        	  List<String> entities =
+        			  entityBroker.findEntityRefs(new String[] { provider },
+        					  new String[] { "context", "userId" }, new String[] { siteId, user }, true);
+        	  if (entities != null && entities.size() > 0) {
+        		  Element entityProvider=doc.createElement("EntityProvider");
+        		  //Get the title from the local properties file
+        		  String title = resourceLoader.getString("entitybrowser." + provider);
+        		  if (title == null) {
+        			  title = provider;
+        		  }
+        		  entityProvider.setAttribute("name", title);
+        		  otherEntities.appendChild(entityProvider);
+        		  //Does this need the children recursion of the ListProducer?
+        		  for (String entity: entities) {
+        			  M_log.info(provider);
+        			  title = entityBroker.getPropertyValue(entity, "title");
+        			  Element element=doc.createElement("EntityItem");
+        			  element.setAttribute("url", entityBroker.getEntityURL(entity));
+        			  element.setAttribute("name",title);
+        			  element.setAttribute("size","0");
+        			  entityProvider.appendChild(element);
+        		  }
+        	  }
+          }
         }
 
         /*
