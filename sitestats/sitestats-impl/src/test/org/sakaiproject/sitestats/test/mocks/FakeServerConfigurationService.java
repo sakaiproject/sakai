@@ -166,6 +166,44 @@ public class FakeServerConfigurationService implements ServerConfigurationServic
 		return null;
 	}
 
+	/*
+	 * Returns true if selected tool is contained in pre-initialized list of selected items
+	 * @parms toolId id of the selected tool
+	 */
+	public boolean toolGroupIsSelected(String groupName, String toolId) {
+		return false;
+	}
+
+	 /*
+	  * Returns true if selected tool is contained in pre-initialized list of required items
+	  * @parms toolId id of the selected tool
+	  */
+	public boolean toolGroupIsRequired(String groupName, String toolId) {
+		return false;
+	}		
+	
+	/**
+	 * Access the list of groups by category (site type)
+	 * 
+	 * @param category
+	 *			 The tool category
+	 * @return An ordered list of tool ids (String) indicating the desired tool display order, or an empty list if there are none for this category.
+	 */
+	public List getCategoryGroups(String category){		
+		return null;
+	}
+	
+	/**
+	 * Access the list of tools by group
+	 * 
+	 * @param category
+	 *			 The tool category
+	 * @return An unordered list of tool ids (String) in selected group, or an empty list if there are none for this category.
+	 */
+	public List getToolGroup(String category) {
+		return null;
+	}
+
 	public List getToolsRequired(String arg0) {
 		// TODO Auto-generated method stub
 		return null;
