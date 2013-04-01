@@ -131,4 +131,11 @@ public class ToolManager
 		return manager.isVisible (site, config);
 	}
 	
+	public static String getLocalizedToolProperty(String toolId, String key){
+		org.sakaiproject.tool.api.ToolManager manager = getInstance();
+		if (manager == null) return null;
+
+		return manager.getLocalizedToolProperty(toolId, key);
+	}	
+	
 }

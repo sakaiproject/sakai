@@ -216,12 +216,64 @@ public class ServerConfigurationService
 		return service.getToolOrder(param0);
 	}
 
+	/** 
+	 * Access the list of tools by group
+	 * 
+	 * @param category
+	 *			 The tool category
+	 * @return An unordered list of tool ids (String) in selected group, or an empty list if there are none for this category.
+	 */	
 	public static java.util.List getToolsRequired(java.lang.String param0)
 	{
 		org.sakaiproject.component.api.ServerConfigurationService service = getInstance();
 		if (service == null) return null;
 
 		return service.getToolsRequired(param0);
+	}
+	
+	/**
+	 * Access the list of groups by category (site type)
+	 * 
+	 * @param category
+	 *			 The tool category
+	 * @return An ordered list of tool ids (String) indicating the desired tool display order, or an empty list if there are none for this category.
+	 */
+	public static java.util.List getCategoryGroups(java.lang.String param0)
+	{
+		org.sakaiproject.component.api.ServerConfigurationService service = getInstance();
+		if (service == null) return null;
+
+		return service.getCategoryGroups(param0);
+	}	
+
+
+	/*
+	 * Returns true if selected tool is contained in pre-initialized list of selected items
+	 * @parms toolId id of the selected tool
+	 */
+	public static boolean toolGroupIsSelected(String param0,String param1) {
+		org.sakaiproject.component.api.ServerConfigurationService service = getInstance();
+		if (service == null) return false;
+
+		return service.toolGroupIsSelected(param0,param1);			
+	}
+
+	 /*
+	  * Returns true if selected tool is contained in pre-initialized list of required items
+	  * @parms toolId id of the selected tool
+	  */
+	public static boolean toolGroupIsRequired(String param0, String param1) {
+		org.sakaiproject.component.api.ServerConfigurationService service = getInstance();
+		if (service == null) return false;
+		return service.toolGroupIsRequired(param0,param1);			
+	}
+	
+	public static java.util.List getToolGroup(java.lang.String param0)
+	{
+		org.sakaiproject.component.api.ServerConfigurationService service = getInstance();
+		if (service == null) return null;
+
+		return service.getToolGroup(param0);
 	}
 
 	public static java.util.List getDefaultTools(java.lang.String param0)
