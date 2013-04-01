@@ -22,9 +22,7 @@
 package org.sakaiproject.entity.impl;
 
 import java.util.Collection;
-import java.util.Iterator;
 import java.util.Vector;
-import java.util.concurrent.ConcurrentHashMap;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
@@ -32,9 +30,8 @@ import org.sakaiproject.entity.api.Entity;
 import org.sakaiproject.entity.api.EntityProducer;
 import org.sakaiproject.entity.api.Reference;
 import org.sakaiproject.entity.api.ResourceProperties;
-import org.sakaiproject.entity.cover.EntityManager;
 import org.sakaiproject.user.api.User;
-import org.sakaiproject.user.cover.UserDirectoryService;
+import org.sakaiproject.user.api.UserDirectoryService;
 
 /**
  * <p>
@@ -78,6 +75,8 @@ public class ReferenceComponent implements Reference
 
 	public static final String GRADTOOLS_ROOT = "dissertation";
 
+	private UserDirectoryService userDirectoryService;
+
 	/**
 	 * Construct with a reference string.
 	 * 
@@ -88,6 +87,7 @@ public class ReferenceComponent implements Reference
 	public ReferenceComponent(EntityManagerComponent entityManagerComponent, String ref)
 	{
 		m_reference = ref;
+		this.userDirectoryService = entityManagerComponent.getUserDirectoryService();
 		parse(entityManagerComponent);
 	}
 
@@ -108,6 +108,7 @@ public class ReferenceComponent implements Reference
 		m_container = ref.m_container;
 		m_context = ref.m_context;
 		m_service = ref.m_service;
+		this.userDirectoryService = ref.userDirectoryService;
 	}
 
 	/**
@@ -305,10 +306,14 @@ public class ReferenceComponent implements Reference
 	 */
 	public void addUserAuthzGroup(Collection rv, String id)
 	{
-		if (id == null) id = "";
+		if (id == null) {
+			id = "";
+		}
 
 		// the user's realm (unless it's anon)
-		if (id.length() > 0) rv.add(UserDirectoryService.userReference(id));
+		if (id.length() > 0) {
+			rv.add(userDirectoryService.userReference(id));
+		}
 
 		addUserTemplateAuthzGroup(rv, id);
 	}
@@ -323,21 +328,20 @@ public class ReferenceComponent implements Reference
 	 */
 	public void addUserTemplateAuthzGroup(Collection rv, String id)
 	{
-		if (id == null) id = "";
+		if (id == null) {
+			id = "";
+		}
 
 		// user type template
 		String template = "!user.template";
-		try
-		{
-			User user = UserDirectoryService.getUser(id);
+		try {
+			User user = userDirectoryService.getUser(id);
 			String type = user.getType();
-			if (type != null)
-			{
+			if (type != null) {
 				rv.add(template + "." + type);
 			}
 		}
-		catch (Exception ignore)
-		{
+		catch (Exception ignore) {
 		}
 
 		// general user template

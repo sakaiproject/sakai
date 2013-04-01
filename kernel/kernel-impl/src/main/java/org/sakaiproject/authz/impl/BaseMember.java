@@ -24,8 +24,8 @@ package org.sakaiproject.authz.impl;
 import org.sakaiproject.authz.api.Member;
 import org.sakaiproject.authz.api.Role;
 import org.sakaiproject.user.api.User;
+import org.sakaiproject.user.api.UserDirectoryService;
 import org.sakaiproject.user.api.UserNotDefinedException;
-import org.sakaiproject.user.cover.UserDirectoryService;
 
 /**
  * <p>
@@ -45,12 +45,15 @@ public class BaseMember implements Member
 
 	protected String userId = null;
 
-	public BaseMember(Role role, boolean active, boolean provided, String userId)
+	private UserDirectoryService userDirectoryService;
+
+	public BaseMember(Role role, boolean active, boolean provided, String userId, UserDirectoryService userDirectoryService)
 	{
 		this.role = role;
 		this.active = active;
 		this.provided = provided;
 		this.userId = userId;
+		this.userDirectoryService = userDirectoryService;
 	}
 
 	/**
@@ -76,7 +79,7 @@ public class BaseMember implements Member
 	{
 		try
 		{
-			return UserDirectoryService.getUserEid(userId);
+			return userDirectoryService.getUserEid(userId);
 		}
 		catch (UserNotDefinedException e)
 		{
@@ -91,7 +94,7 @@ public class BaseMember implements Member
 	{
 		try
 		{
-			User user = UserDirectoryService.getUser(userId);
+			User user = userDirectoryService.getUser(userId);
 			return user.getDisplayId();
 		}
 		catch (UserNotDefinedException e)

@@ -35,16 +35,15 @@ import org.apache.commons.logging.LogFactory;
 import org.sakaiproject.component.cover.ServerConfigurationService;
 import org.sakaiproject.content.api.ContentCollection;
 import org.sakaiproject.content.api.ContentEntity;
-import org.sakaiproject.content.cover.ContentHostingService;
+import org.sakaiproject.content.api.ContentHostingService;
 import org.sakaiproject.entity.api.Entity;
 import org.sakaiproject.entity.api.Reference;
 import org.sakaiproject.entity.api.ResourceProperties;
 import org.sakaiproject.exception.IdUnusedException;
 import org.sakaiproject.site.api.Site;
-import org.sakaiproject.site.cover.SiteService;
+import org.sakaiproject.site.api.SiteService;
 import org.sakaiproject.user.api.User;
 import org.sakaiproject.user.api.UserNotDefinedException;
-import org.sakaiproject.user.cover.UserDirectoryService;
 import org.sakaiproject.util.ResourceLoader;
 import org.sakaiproject.util.Validator;
 
@@ -63,11 +62,11 @@ public class CollectionAccessFormatter
 	 * Format the collection as an HTML display.
 	 */
 	@SuppressWarnings({ "unchecked" })
-	public static void format(ContentCollection x, Reference ref, HttpServletRequest req, HttpServletResponse res,
-			ResourceLoader rb, String accessPointTrue, String accessPointFalse)
+	public static void format(ContentCollection x, Reference ref, HttpServletRequest req, HttpServletResponse res, ResourceLoader rb,
+			String accessPointTrue, String accessPointFalse, ContentHostingService contentHostingService, SiteService siteService)
 	{
 		// do not allow directory listings for /attachments and its subfolders  
-		if(ContentHostingService.isAttachmentResource(x.getId()))
+		if (contentHostingService.isAttachmentResource(x.getId()))
 		{
 			try
 			{
@@ -106,7 +105,7 @@ public class CollectionAccessFormatter
 				if (parts.length > 1) {
 					String siteId = parts[1];
 					try {
-						Site site = SiteService.getSite(siteId);
+						Site site = siteService.getSite(siteId);
 						if (site.getSkin() != null) {
 							skinName = site.getSkin();
 						}
@@ -181,11 +180,11 @@ public class CollectionAccessFormatter
 				// These both perform the same check in the implementation but we should observe the API.
 				// This also checks to see if a resource is hidden or time limited.
 				if ( isCollection) {
-					if (!ContentHostingService.allowGetCollection(xs)) {
+					if (!contentHostingService.allowGetCollection(xs)) {
 						continue;
 					}
 				} else {
-					if (!ContentHostingService.allowGetResource(xs)) {
+					if (!contentHostingService.allowGetResource(xs)) {
 						continue;
 					}
 				}
@@ -273,19 +272,22 @@ public class CollectionAccessFormatter
 		}
 	}
 
+	/**
+	 * @deprecated - no references to this method found
+	 */
 	protected static User getUserProperty(ResourceProperties props, String name)
 	{
-		String id = props.getProperty(name);
-		if (id != null)
-		{
-			try
-			{
-				return UserDirectoryService.getUser(id);
-			}
-			catch (UserNotDefinedException e)
-			{
-			}
-		}
+		// String id = props.getProperty(name);
+		// if (id != null)
+		// {
+		// try
+		// {
+		// return UserDirectoryService.getUser(id);
+		// }
+		// catch (UserNotDefinedException e)
+		// {
+		// }
+		// }
 
 		return null;
 	}

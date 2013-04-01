@@ -52,7 +52,6 @@ import org.sakaiproject.authz.api.SecurityAdvisor;
 import org.sakaiproject.authz.api.SecurityService;
 import org.sakaiproject.component.api.ServerConfigurationService;
 import org.sakaiproject.entity.api.ContextObserver;
-import org.sakaiproject.entity.api.Edit;
 import org.sakaiproject.entity.api.Entity;
 import org.sakaiproject.entity.api.EntityAccessOverloadException;
 import org.sakaiproject.entity.api.EntityCopyrightException;
@@ -2953,7 +2952,7 @@ public abstract class BaseSiteService implements SiteService, Observer
 					}
 
 					// assign source site's attributes to the target site
-					((BaseSite) site).set(new BaseSite(this,el), false);
+					((BaseSite) site).set(new BaseSite(this, el, timeService()), false);
 
 					try
 					{

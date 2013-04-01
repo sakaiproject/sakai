@@ -88,11 +88,9 @@ public abstract class BaseAuthzGroupService implements AuthzGroupService
 	/** A provider of additional Abilities for a userId. */
 	protected GroupProvider m_provider = null;
 
-	
 	/**********************************************************************************************************************************************************************************************************************************************************
 	 * Abstractions, etc.
 	 *********************************************************************************************************************************************************************************************************************************************************/
-
 	
 	/**
 	 * Construct storage for this service.
@@ -250,7 +248,7 @@ public abstract class BaseAuthzGroupService implements AuthzGroupService
 	protected abstract UserDirectoryService userDirectoryService();
 
 	
-	private SiteService siteService;
+	protected SiteService siteService;
 	public void setSiteService(SiteService siteService) {
 		this.siteService = siteService;
 	}

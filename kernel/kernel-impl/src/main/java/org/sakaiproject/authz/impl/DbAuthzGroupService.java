@@ -44,18 +44,17 @@ import org.sakaiproject.authz.api.GroupFullException;
 import org.sakaiproject.authz.api.Member;
 import org.sakaiproject.authz.api.Role;
 import org.sakaiproject.authz.api.GroupNotDefinedException;
-import org.sakaiproject.authz.cover.SecurityService;
 import org.sakaiproject.db.api.SqlReader;
 import org.sakaiproject.db.api.SqlService;
 import org.sakaiproject.entity.api.Entity;
+import org.sakaiproject.entity.api.EntityManager;
 import org.sakaiproject.entity.api.Reference;
-import org.sakaiproject.entity.cover.EntityManager;
 import org.sakaiproject.event.api.Event;
 import org.sakaiproject.event.api.NotificationService;
 import org.sakaiproject.javax.PagingPosition;
 import org.sakaiproject.memory.api.Cache;
 import org.sakaiproject.memory.api.MemoryService;
-import org.sakaiproject.site.cover.SiteService;
+import org.sakaiproject.site.api.SiteService;
 import org.sakaiproject.time.api.Time;
 import org.sakaiproject.user.api.UserNotDefinedException;
 import org.sakaiproject.util.BaseDbFlatStorage;
@@ -259,7 +258,7 @@ public abstract class DbAuthzGroupService extends BaseAuthzGroupService implemen
 	 */
 	protected Storage newStorage()
 	{
-		DbStorage storage = new DbStorage();
+		DbStorage storage = new DbStorage(entityManager(), siteService);
 		storage.setPromoteUsersToProvided(m_promoteUsersToProvided);
 		return storage;
 
@@ -459,6 +458,8 @@ public abstract class DbAuthzGroupService extends BaseAuthzGroupService implemen
 		private static final String REALM_USER_GRANTS_CACHE = "REALM_USER_GRANTS_CACHE";
 		private static final String REALM_ROLES_CACHE = "REALM_ROLES_CACHE";
 		private boolean promoteUsersToProvided = true;
+		private EntityManager entityManager;
+		private SiteService siteService;
 		
 		/**
 		 * Configure whether or not users with same status and role will be "promoted" to
@@ -473,7 +474,7 @@ public abstract class DbAuthzGroupService extends BaseAuthzGroupService implemen
 		/**
 		 * Construct.
 		 */
-		public DbStorage()
+		public DbStorage(EntityManager entityManager, SiteService siteService)
 		{
 			super(m_realmTableName, m_realmIdFieldName, m_realmReadFieldNames, m_realmPropTableName, m_useExternalLocks, null, sqlService());
 			m_reader = this;
@@ -482,6 +483,8 @@ public abstract class DbAuthzGroupService extends BaseAuthzGroupService implemen
 			setWriteFields(m_realmUpdateFieldNames, m_realmInsertFieldNames, m_realmInsertValueNames);
 
 			setLocking(false);
+			this.entityManager = entityManager;
+			this.siteService = siteService;
 
 			// setSortField(m_realmSortField, null);
 		}
@@ -662,7 +665,7 @@ public abstract class DbAuthzGroupService extends BaseAuthzGroupService implemen
 			                        realm.m_roles.put(role.getId(), role);
 			                    }
 
-			                    grant = new BaseMember(role, "1".equals(active), "1".equals(provided), userId);
+								grant = new BaseMember(role, "1".equals(active), "1".equals(provided), userId, userDirectoryService());
 
 			                    realm.m_userGrants.put(userId, grant);
 			                }
@@ -862,7 +865,7 @@ public abstract class DbAuthzGroupService extends BaseAuthzGroupService implemen
 					String[] refs = StringUtil.split(i.next().toString(), Entity.SEPARATOR); // splits the azGroups values so we can look for swapped state
 					for (int i2 = 0; i2 < refs.length; i2++)  // iterate through the groups to see if there is a swapped state in the variable
 					{
-						roleswap = SecurityService.getUserEffectiveRole("/site/" + refs[i2]);
+						roleswap = securityService().getUserEffectiveRole("/site/" + refs[i2]);
 						
 						 // break from this loop if the user is the current user and a swapped state is found
 						if (roleswap != null && auth && userId.equals(sessionManager().getCurrentSessionUserId()))
@@ -1593,7 +1596,7 @@ public abstract class DbAuthzGroupService extends BaseAuthzGroupService implemen
 			fields[2] = realmId;
 
 			// checks to see if the user is the current user and has the roleswap variable set in the session
-			String roleswap = SecurityService.getUserEffectiveRole(realmId);
+			String roleswap = securityService().getUserEffectiveRole(realmId);
 			
             if (roleswap != null && auth && userId.equals(sessionManager().getCurrentSessionUserId()))
             {
@@ -1674,7 +1677,7 @@ public abstract class DbAuthzGroupService extends BaseAuthzGroupService implemen
 				
 				if (realmId.startsWith(SiteService.REFERENCE_ROOT + Entity.SEPARATOR))		// Starts with /site/ 
 				{
-					if (userId != null && userId.equals(SiteService.getSiteUserId(realmId))) {
+					if (userId != null && userId.equals(siteService.getSiteUserId(realmId))) {
 						userSiteRef = realmId;
 					} else {
 						siteRef = realmId; // set this variable for potential use later
@@ -1705,7 +1708,7 @@ public abstract class DbAuthzGroupService extends BaseAuthzGroupService implemen
 			String roleswap = null;
 			Reference ref = entityManager().newReference(siteRef);
 			if (SiteService.GROUP_SUBTYPE.equals(ref.getSubType())) {
-			    String containerSiteRef = SiteService.siteReference(ref.getContainer());
+				String containerSiteRef = siteService.siteReference(ref.getContainer());
 			    roleswap = securityService().getUserEffectiveRole(containerSiteRef);
 			    if (roleswap != null) {
 			        siteRef = containerSiteRef;
@@ -2277,7 +2280,7 @@ public abstract class DbAuthzGroupService extends BaseAuthzGroupService implemen
 			// if of Group Realm, get the containing Site Realm
 			String containingRealmId = null;
 			AuthzGroup containingRealm = null;
-			Reference ref = EntityManager.newReference(realm.getId());
+			Reference ref = entityManager.newReference(realm.getId());
 			if (SiteService.APPLICATION_ID.equals(ref.getType()) 
 				&& SiteService.GROUP_SUBTYPE.equals(ref.getSubType()))
 			{
@@ -2285,7 +2288,7 @@ public abstract class DbAuthzGroupService extends BaseAuthzGroupService implemen
 			}
 			if (containingRealmId != null)
 			{
-				String containingRealmRef = SiteService.siteReference(containingRealmId);
+				String containingRealmRef = siteService.siteReference(containingRealmId);
 				try
 				{
 					containingRealm = getAuthzGroup(containingRealmRef);
@@ -2690,7 +2693,7 @@ public abstract class DbAuthzGroupService extends BaseAuthzGroupService implemen
 			String rv = null;
 			
 			if (userId.equals(sessionManager().getCurrentSessionUserId())) {
-				rv = SecurityService.getUserEffectiveRole(azGroupId);
+				rv = securityService().getUserEffectiveRole(azGroupId);
 			}
 
 			// otherwise drop through to the usual check
@@ -3062,7 +3065,7 @@ public abstract class DbAuthzGroupService extends BaseAuthzGroupService implemen
 	        if (roleId != null && roleMap != null && roleMap.containsKey(roleId))
 	        {
 	            Role role = (Role) roleMap.get(roleId);
-	            rv.put(userId, new BaseMember(role, m.isActive(), m.isProvided(), userId));
+				rv.put(userId, new BaseMember(role, m.isActive(), m.isProvided(), userId, userDirectoryService()));
 	        }
 	    }
 	    return rv;
@@ -3085,5 +3088,4 @@ public abstract class DbAuthzGroupService extends BaseAuthzGroupService implemen
 	    }
 	    return rv;
 	}
-
 }

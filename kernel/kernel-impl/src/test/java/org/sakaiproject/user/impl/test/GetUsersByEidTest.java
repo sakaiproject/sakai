@@ -34,18 +34,14 @@ import junit.framework.TestSuite;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
-import org.sakaiproject.authz.cover.AuthzGroupService;
+import org.sakaiproject.authz.api.AuthzGroupService;
 import org.sakaiproject.memory.api.Cache;
 import org.sakaiproject.memory.api.MemoryService;
 import org.sakaiproject.test.SakaiKernelTestBase;
-import org.sakaiproject.thread_local.cover.ThreadLocalManager;
-import org.sakaiproject.tool.cover.SessionManager;
+import org.sakaiproject.thread_local.api.ThreadLocalManager;
+import org.sakaiproject.tool.api.SessionManager;
 import org.sakaiproject.user.api.User;
-import org.sakaiproject.user.api.UserAlreadyDefinedException;
 import org.sakaiproject.user.api.UserDirectoryProvider;
-import org.sakaiproject.user.api.UserIdInvalidException;
-import org.sakaiproject.user.api.UserPermissionException;
-import org.sakaiproject.user.cover.UserDirectoryService;
 import org.sakaiproject.user.api.UserEdit;
 import org.sakaiproject.user.impl.DbUserService;
 
@@ -79,6 +75,9 @@ public class GetUsersByEidTest extends SakaiKernelTestBase {
 	// test provider or to clear the user cache through the official API.
 	private static DbUserService dbUserService;
 	private static Cache callCache;
+	private static AuthzGroupService authzGroupService;
+	private static ThreadLocalManager threadLocalManager;
+	private static SessionManager sessionManager;
 
 	public static Test suite() {
 		TestSetup setup = new TestSetup(new TestSuite(GetUsersByEidTest.class)) {
@@ -107,6 +106,12 @@ public class GetUsersByEidTest extends SakaiKernelTestBase {
 		
 		callCache = ((MemoryService) getService("org.sakaiproject.memory.api.MemoryService")).newCache(
 				"org.sakaiproject.user.api.UserDirectoryService.callCache", "/user/");
+
+		authzGroupService = (AuthzGroupService) getService(AuthzGroupService.class);
+
+		threadLocalManager = (ThreadLocalManager) getService(ThreadLocalManager.class);
+
+		sessionManager = (SessionManager) getService(SessionManager.class);
 		
 		// Sakai provides no way to undo a EID-to-ID mapping, and so we can't use
 		// a normal setUp and tearDown approach to loading test data.
@@ -116,26 +121,26 @@ public class GetUsersByEidTest extends SakaiKernelTestBase {
 		
 		// Add two local users for honesty's sake.
 		User user;
-			user = UserDirectoryService.addUser(null, LOCAL_USER_EID, "Joe", "Guest", "joe@somewhere.edu", "pw", "Student", null);
+		user = dbUserService.addUser(null, LOCAL_USER_EID, "Joe", "Guest", "joe@somewhere.edu", "pw", "Student", null);
 		mappedUserIds.add(user.getId());	// Store for later use
 		clearUserFromServiceCaches(user.getId());
 		
 		//for the search later we want a similar user
-		user = UserDirectoryService.addUser(null, "thisIs a search user", "Joe", "Guest", "joe@somewhere.edu", "pw", "Student", null);
+		user = dbUserService.addUser(null, "thisIs a search user", "Joe", "Guest", "joe@somewhere.edu", "pw", "Student", null);
 		
 		// The User Directory Service implementation currently includes no metadata that
 		// distinguishes a metadata-free Sakai-managed user from a provided user, and so
 		// no field of a full join can be safely checked to decide whether the provider
 		// needs to be called. To make sure no erroneous assumptions get made, create a
 		// mostly-null user record.
-		user = UserDirectoryService.addUser(null, LOCAL_USER_WITH_NO_METADATA_EID);
+		user = dbUserService.addUser(null, LOCAL_USER_WITH_NO_METADATA_EID);
 		mappedUserIds.add(user.getId());	// Store for later use
 		clearUserFromServiceCaches(user.getId());
 		
 		// Our interest is in testing retrieval rather than creation. Pre-load all the
 		// EID-to-ID mappings before doing the searches.
 		for (int providedCounter = 0; providedCounter < MAX_NUMBER_OF_SQL_PARAMETERS_IN_LIST; providedCounter++) {
-			user = UserDirectoryService.getUserByEid(String.valueOf(providedCounter));
+			user = dbUserService.getUserByEid(String.valueOf(providedCounter));
 			mappedUserIds.add(user.getId());	// Store for later use
 			clearUserFromServiceCaches(user.getId());
 		}
@@ -164,7 +169,7 @@ public class GetUsersByEidTest extends SakaiKernelTestBase {
 		
 		TestProvider.GET_USER_CALLS_COUNTER = 0;
 		TestProvider.GET_USERS_CALLS_COUNTER = 0;
-		List<User> users = UserDirectoryService.getUsersByEids(searchEids);
+		List<User> users = dbUserService.getUsersByEids(searchEids);
 		Assert.assertEquals(MAX_NUMBER_OF_SQL_PARAMETERS_IN_LIST + 3, users.size());	// Everyone but the NO_SUCH_EID
 		searchEids.remove(NO_SUCH_EID);
 		Assert.assertEquals(0, TestProvider.GET_USER_CALLS_COUNTER);
@@ -177,7 +182,7 @@ public class GetUsersByEidTest extends SakaiKernelTestBase {
 		
 		TestProvider.GET_USER_CALLS_COUNTER = 0;
 		for (String eid : searchEids) {
-			User user = UserDirectoryService.getUserByEid(eid);
+			User user = dbUserService.getUserByEid(eid);
 			clearUserFromServiceCaches(user.getId());
 		}
 		Assert.assertEquals(0, TestProvider.GET_USER_CALLS_COUNTER);
@@ -198,7 +203,7 @@ public class GetUsersByEidTest extends SakaiKernelTestBase {
 		
 		TestProvider.GET_USER_CALLS_COUNTER = 0;
 		TestProvider.GET_USERS_CALLS_COUNTER = 0;
-		List<User> users = UserDirectoryService.getUsers(searchIds);
+		List<User> users = dbUserService.getUsers(searchIds);
 		Assert.assertEquals(mappedUserIds.size(), users.size());	// Everyone but the NO_SUCH_EID
 		Assert.assertEquals(0, TestProvider.GET_USER_CALLS_COUNTER);
 		Assert.assertEquals(1, TestProvider.GET_USERS_CALLS_COUNTER);
@@ -210,7 +215,7 @@ public class GetUsersByEidTest extends SakaiKernelTestBase {
 		
 		TestProvider.GET_USER_CALLS_COUNTER = 0;
 		for (String id : mappedUserIds) {
-			User user = UserDirectoryService.getUser(id);
+			User user = dbUserService.getUser(id);
 			clearUserFromServiceCaches(user.getId());
 		}
 		Assert.assertEquals(0, TestProvider.GET_USER_CALLS_COUNTER);
@@ -218,7 +223,7 @@ public class GetUsersByEidTest extends SakaiKernelTestBase {
 	
 	
 	public void testSearchUsers() {
-		List<User> users = UserDirectoryService.searchUsers("Joe", 1, 1);
+		List<User> users = dbUserService.searchUsers("Joe", 1, 1);
 		if (users == null) {
 			log.error("empty list from search");
 			fail();
@@ -229,14 +234,14 @@ public class GetUsersByEidTest extends SakaiKernelTestBase {
  	}
 
 	private static void actAsAdmin() {
-		SessionManager.getCurrentSession().setUserId("admin");
-		AuthzGroupService.refreshUser("admin");
+		sessionManager.getCurrentSession().setUserId("admin");
+		authzGroupService.refreshUser("admin");
 	}
 	
 	private static void clearUserFromServiceCaches(String userId) {
 		dbUserService.getIdEidCache().removeAll();
 		String ref = "/user/" + userId;
-		ThreadLocalManager.set(ref, null);
+		threadLocalManager.set(ref, null);
 		if (callCache != null) { callCache.remove(ref); }
 	}
 

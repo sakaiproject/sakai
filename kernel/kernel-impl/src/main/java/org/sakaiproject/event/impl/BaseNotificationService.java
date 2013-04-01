@@ -31,8 +31,8 @@ import java.util.Vector;
 import org.apache.commons.lang.StringUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
+import org.sakaiproject.component.api.ComponentManager;
 import org.sakaiproject.component.api.ServerConfigurationService;
-import org.sakaiproject.component.cover.ComponentManager;
 import org.sakaiproject.entity.api.Edit;
 import org.sakaiproject.entity.api.Entity;
 import org.sakaiproject.entity.api.ResourceProperties;
@@ -47,6 +47,7 @@ import org.sakaiproject.event.api.NotificationNotDefinedException;
 import org.sakaiproject.event.api.NotificationService;
 import org.sakaiproject.id.api.IdManager;
 import org.sakaiproject.memory.api.CacheRefresher;
+import org.sakaiproject.memory.api.MemoryService;
 import org.sakaiproject.time.api.Time;
 import org.sakaiproject.tool.api.SessionBindingEvent;
 import org.sakaiproject.tool.api.SessionBindingListener;
@@ -78,6 +79,8 @@ public abstract class BaseNotificationService implements NotificationService, Ob
 
 	/** Transient notifications (NotificationEdit). */
 	protected List m_transients = null;
+
+	private ComponentManager componentManager = org.sakaiproject.component.cover.ComponentManager.getInstance();
 
 	/**********************************************************************************************************************************************************************************************************************************************************
 	 * Abstractions, etc.
@@ -117,6 +120,13 @@ public abstract class BaseNotificationService implements NotificationService, Ob
 	protected String getAccessPoint(boolean relative)
 	{
 		return (relative ? "" : serverConfigurationService().getAccessUrl()) + m_relativeAccessPoint;
+	}
+
+	/**
+	 * @return the ComponentManager collaborator
+	 */
+	protected ComponentManager getComponentManager() {
+		return componentManager;
 	}
 
 	/**
@@ -165,6 +175,11 @@ public abstract class BaseNotificationService implements NotificationService, Ob
 	 * @return the IdManager collaborator.
 	 */
 	protected abstract IdManager idManager();
+
+	/**
+	 * @return the MemoryService collaborator
+	 */
+	protected abstract MemoryService memoryService();
 
 	/**********************************************************************************************************************************************************************************************************************************************************
 	 * Configuration
@@ -223,7 +238,7 @@ public abstract class BaseNotificationService implements NotificationService, Ob
 			m_storage.open();
 
 			// make the cache
-			m_cache = new NotificationCache(this, notificationReference(""));
+			m_cache = new NotificationCache(this, notificationReference(""), eventTrackingService(), memoryService());
 
 			// start watching the events - only those generated on this server, not those from elsewhere
 			eventTrackingService().addLocalObserver(this);
@@ -246,7 +261,7 @@ public abstract class BaseNotificationService implements NotificationService, Ob
 	public void destroy()
 	{
 		// if we are not in a global shutdown, remove my event notification registration
-		if (!ComponentManager.hasBeenClosed())
+		if (!getComponentManager().hasBeenClosed())
 		{
 			eventTrackingService().deleteObserver(this);
 		}
@@ -984,7 +999,7 @@ public abstract class BaseNotificationService implements NotificationService, Ob
 							} catch (ClassNotFoundException cnfe) {
 								// we're trying to access a class not in the event pack's classloader
 								// So ask the ComponentManager
-								Object obj = ComponentManager.get(className);
+								Object obj = getComponentManager().get(className);
 								if (obj == null) throw new ClassNotFoundException("Cannot reconstitute the NotificationAction named as " + className);
 								else actionClass = obj.getClass();
 							}

@@ -21,10 +21,12 @@
 
 package org.sakaiproject.event.impl;
 
+import org.sakaiproject.component.api.ComponentManager;
 import org.sakaiproject.component.api.ServerConfigurationService;
 import org.sakaiproject.db.api.SqlService;
 import org.sakaiproject.event.api.EventTrackingService;
 import org.sakaiproject.id.api.IdManager;
+import org.sakaiproject.memory.api.MemoryService;
 
 /**
  * <p>
@@ -62,6 +64,13 @@ public class NotificationServiceTest extends DbNotificationService
 	 */
 	protected SqlService sqlService()
 	{
+		return null;
+	}
+
+	/**
+	 * @see org.sakaiproject.event.impl.BaseNotificationService#memoryService()
+	 */
+	protected MemoryService memoryService() {
 		return null;
 	}
 }

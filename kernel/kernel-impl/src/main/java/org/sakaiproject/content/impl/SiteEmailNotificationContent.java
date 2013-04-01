@@ -23,23 +23,24 @@ package org.sakaiproject.content.impl;
 
 import java.util.List;
 
-import org.sakaiproject.authz.cover.SecurityService;
+import org.sakaiproject.authz.api.SecurityService;
+import org.sakaiproject.component.api.ServerConfigurationService;
 import org.sakaiproject.component.cover.ComponentManager;
-import org.sakaiproject.component.cover.ServerConfigurationService;
 import org.sakaiproject.content.api.ContentCollection;
+import org.sakaiproject.content.api.ContentHostingService;
 import org.sakaiproject.content.api.ContentResource;
-import org.sakaiproject.content.cover.ContentHostingService;
 import org.sakaiproject.entity.api.Entity;
+import org.sakaiproject.entity.api.EntityManager;
 import org.sakaiproject.entity.api.Reference;
 import org.sakaiproject.entity.api.ResourceProperties;
-import org.sakaiproject.entity.cover.EntityManager;
 import org.sakaiproject.event.api.Event;
 import org.sakaiproject.exception.IdUnusedException;
 import org.sakaiproject.exception.PermissionException;
 import org.sakaiproject.exception.TypeException;
 import org.sakaiproject.site.api.Site;
-import org.sakaiproject.site.cover.SiteService;
+import org.sakaiproject.site.api.SiteService;
 import org.sakaiproject.user.api.User;
+import org.sakaiproject.user.api.UserDirectoryService;
 import org.sakaiproject.util.EmailNotification;
 import org.sakaiproject.util.api.FormattedText;
 import org.sakaiproject.util.Resource;
@@ -62,14 +63,19 @@ public class SiteEmailNotificationContent extends SiteEmailNotification
 	private static final String DEFAULT_RESOURCEBUNDLE = "org.sakaiproject.localization.bundle.siteemacon.siteemacon";
 	private static final String RESOURCECLASS = "resource.class.siteemacon";
 	private static final String RESOURCEBUNDLE = "resource.bundle.siteemacon";
-	private String resourceClass = ServerConfigurationService.getString(RESOURCECLASS, DEFAULT_RESOURCECLASS);
-	private String resourceBundle = ServerConfigurationService.getString(RESOURCEBUNDLE, DEFAULT_RESOURCEBUNDLE);
-	private ResourceLoader rb = new Resource().getLoader(resourceClass, resourceBundle);
-	// private static ResourceBundle rb = ResourceBundle.getBundle("siteemacon");
+	private String resourceClass;
+	private String resourceBundle;
+	private ResourceLoader rb;
 
     private static Object LOCK = new Object();
 
     private static FormattedText formattedText;
+
+	private SecurityService securityService;
+	private ServerConfigurationService serverConfigurationService;
+	private ContentHostingService contentHostingService;
+	private EntityManager entityManager;
+	private SiteService siteService;
 
     protected static FormattedText getFormattedText() {
         if (formattedText == null) {
@@ -95,7 +101,7 @@ public class SiteEmailNotificationContent extends SiteEmailNotification
 
 	private String generateContentForType(boolean shouldProduceHtml, Event event) {
 		// get the content & properties
-		Reference ref = EntityManager.newReference(event.getResource());
+		Reference ref = entityManager.newReference(event.getResource());
 		// TODO:  ResourceProperties props = ref.getProperties();
 
 		// get the function
@@ -109,7 +115,7 @@ public class SiteEmailNotificationContent extends SiteEmailNotification
 		String title = siteId;
 		try
 		{
-			Site site = SiteService.getSite(siteId);
+			Site site = siteService.getSite(siteId);
 			title = site.getTitle();
 		}
 		catch (Exception ignore)
@@ -121,19 +127,37 @@ public class SiteEmailNotificationContent extends SiteEmailNotification
 		return buf.toString();
 	}
 
-	/**
-	 * Construct.
-	 */
-	public SiteEmailNotificationContent()
-	{
+	public SiteEmailNotificationContent(SecurityService securityService, ServerConfigurationService serverConfigurationService,
+			ContentHostingService contentHostingService, EntityManager entityManager, SiteService siteService) {
+		this.securityService = securityService;
+		this.serverConfigurationService = serverConfigurationService;
+		this.contentHostingService = contentHostingService;
+		this.entityManager = entityManager;
+		this.siteService = siteService;
+		loadResources(serverConfigurationService);
+	}
+
+	private void loadResources(ServerConfigurationService serverConfigurationService) {
+		resourceClass = serverConfigurationService.getString(RESOURCECLASS, DEFAULT_RESOURCECLASS);
+		resourceBundle = serverConfigurationService.getString(RESOURCEBUNDLE, DEFAULT_RESOURCEBUNDLE);
+		rb = new Resource().getLoader(resourceClass, resourceBundle);
 	}
 
 	/**
-	 * Construct.
+	 * The preferred form for construction is to supply the needed items rather than having to do a lookup. This constructor was
+	 * left in place for compatibility with any custom tool that might currently be using it, but should be considered deprecated.
+	 * 
+	 * @deprecated
 	 */
 	public SiteEmailNotificationContent(String siteId)
 	{
 		super(siteId);
+		this.securityService = (SecurityService) ComponentManager.get("org.sakaiproject.authz.api.SecurityService");
+		this.contentHostingService = (ContentHostingService) ComponentManager.get("org.sakaiproject.content.api.ContentHostingService");
+		this.entityManager = (EntityManager) ComponentManager.get("org.sakaiproject.entity.api.EntityManager");
+		this.siteService = (SiteService) ComponentManager.get("org.sakaiproject.site.api.SiteService");
+		this.serverConfigurationService = (ServerConfigurationService) ComponentManager.get("org.sakaiproject.component.api.ServerConfigurationService");
+		loadResources(serverConfigurationService);
 	}
 
 	/**
@@ -141,11 +165,12 @@ public class SiteEmailNotificationContent extends SiteEmailNotification
 	 */
 	protected String getResourceAbility()
 	{
-		return ContentHostingService.EVENT_RESOURCE_READ;
+		return contentHostingService.EVENT_RESOURCE_READ;
 	}
 	
 	protected EmailNotification makeEmailNotification() {
-		return new SiteEmailNotificationContent();
+		return new SiteEmailNotificationContent(securityService, serverConfigurationService, contentHostingService, entityManager,
+				siteService);
 	}
 
 	/**
@@ -177,7 +202,7 @@ public class SiteEmailNotificationContent extends SiteEmailNotification
 		if (doHtml) {
 			buf.append("<p>");
 		}
-		if (ContentHostingService.EVENT_RESOURCE_AVAILABLE.equals(function))
+		if (contentHostingService.EVENT_RESOURCE_AVAILABLE.equals(function))
 		{
 			buf.append(rb.getString("anewres"));
 		}
@@ -195,16 +220,16 @@ public class SiteEmailNotificationContent extends SiteEmailNotification
 		if ( doHtml )
 		{
 			buf.append("<a href=\"");
-			buf.append(ServerConfigurationService.getPortalUrl());
+			buf.append(serverConfigurationService.getPortalUrl());
 			buf.append("\">");
-			buf.append(ServerConfigurationService.getString("ui.service", "Sakai"));
+			buf.append(serverConfigurationService.getString("ui.service", "Sakai"));
 			buf.append("</a>");
 		}
 		else
 		{
-			buf.append(ServerConfigurationService.getString("ui.service", "Sakai"));
+			buf.append(serverConfigurationService.getString("ui.service", "Sakai"));
 			buf.append(" (");
-			buf.append(ServerConfigurationService.getPortalUrl());
+			buf.append(serverConfigurationService.getPortalUrl());
 			buf.append(")");
 		}
 		buf.append(blankLine);
@@ -253,12 +278,12 @@ public class SiteEmailNotificationContent extends SiteEmailNotification
 		// Add the tag
 		if (doHtml) {
 			buf.append("<hr/>" + newLine + rb.getString("this") + " "
-	                                + ServerConfigurationService.getString("ui.service", "Sakai") + " (<a href=\"" + ServerConfigurationService.getPortalUrl()
-	                                + "\" >" + ServerConfigurationService.getPortalUrl() + "</a>) " + rb.getString("forthe") + " " + title + " "
+	                                + serverConfigurationService.getString("ui.service", "Sakai") + " (<a href=\"" + serverConfigurationService.getPortalUrl()
+	                                + "\" >" + serverConfigurationService.getPortalUrl() + "</a>) " + rb.getString("forthe") + " " + title + " "
 	                                + rb.getString("site") + newLine + rb.getString("youcan"));
 		} else {
 			buf.append(rb.getString("separator") + newLine + rb.getString("this") + " "
-                    + ServerConfigurationService.getString("ui.service", "Sakai") + " (" + ServerConfigurationService.getPortalUrl()
+                    + serverConfigurationService.getString("ui.service", "Sakai") + " (" + serverConfigurationService.getPortalUrl()
                     + ") " + rb.getString("forthe") + " " + title + " " + rb.getString("site") + newLine + rb.getString("youcan"));
 		}
 		
@@ -325,7 +350,7 @@ public class SiteEmailNotificationContent extends SiteEmailNotification
 				try
 				{
 					// get the display name
-					ContentCollection collection = ContentHostingService.getCollection(root.toString());
+					ContentCollection collection = contentHostingService.getCollection(root.toString());
 					buf.append(collection.getProperties().getPropertyFormatted(ResourceProperties.PROP_DISPLAY_NAME));
 				}
 				catch (Exception any)
@@ -348,7 +373,7 @@ public class SiteEmailNotificationContent extends SiteEmailNotification
 	 */
 	protected String getSubject(Event event)
 	{
-		Reference ref = EntityManager.newReference(event.getResource());
+		Reference ref = entityManager.newReference(event.getResource());
 		ResourceProperties props = ref.getProperties();
 
 		// get the function
@@ -361,7 +386,7 @@ public class SiteEmailNotificationContent extends SiteEmailNotification
 		String title = siteId;
 		try
 		{
-			Site site = SiteService.getSite(siteId);
+			Site site = siteService.getSite(siteId);
 			title = site.getTitle();
 		}
 		catch (Exception ignore)
@@ -371,7 +396,7 @@ public class SiteEmailNotificationContent extends SiteEmailNotification
 		// use the message's subject
 		String resourceName = props.getPropertyFormatted(ResourceProperties.PROP_DISPLAY_NAME);
 		return "[ " + title + " - "
-				+ (ContentHostingService.EVENT_RESOURCE_AVAILABLE.equals(function) ? rb.getString("new") : rb.getString("chan")) + " "
+				+ (contentHostingService.EVENT_RESOURCE_AVAILABLE.equals(function) ? rb.getString("new") : rb.getString("chan")) + " "
 				+ rb.getString("reso2") + " ] " + resourceName;
 	}
 
@@ -386,18 +411,18 @@ public class SiteEmailNotificationContent extends SiteEmailNotification
 	protected void addSpecialRecipients(List<User> users, Reference ref)
 	{
 		// include any users who have AnnouncementService.SECURE_ALL_GROUPS and getResourceAbility() in the context
-		String contextRef = SiteService.siteReference(ref.getContext());
+		String contextRef = siteService.siteReference(ref.getContext());
 
 		// get the list of users who have SECURE_ALL_GROUPS
-		List<User> allGroupUsers = SecurityService.unlockUsers(ContentHostingService.AUTH_RESOURCE_ALL_GROUPS, contextRef);
+		List<User> allGroupUsers = securityService.unlockUsers(contentHostingService.AUTH_RESOURCE_ALL_GROUPS, contextRef);
 
 		// filter down by the permission
 		if (getResourceAbility() != null)
 		{
 			boolean hidden = false;
-			if (!ContentHostingService.isCollection(ref.getId())) {
+			if (!contentHostingService.isCollection(ref.getId())) {
 				try {
-					ContentResource resource = ContentHostingService.getResource(ref.getId());
+					ContentResource resource = contentHostingService.getResource(ref.getId());
 					hidden = resource.isHidden();
 					
 				    //we need to check the containing folder too
@@ -419,10 +444,10 @@ public class SiteEmailNotificationContent extends SiteEmailNotification
 			List<User> allGroupUsers2 = null;
 			if (!hidden) {
 				//resource is visible get all users
-				allGroupUsers2 = SecurityService.unlockUsers(getResourceAbility(), contextRef);
+				allGroupUsers2 = securityService.unlockUsers(getResourceAbility(), contextRef);
 				
 			} else {
-				allGroupUsers2 = SecurityService.unlockUsers(ContentHostingService.AUTH_RESOURCE_HIDDEN, contextRef);
+				allGroupUsers2 = securityService.unlockUsers(contentHostingService.AUTH_RESOURCE_HIDDEN, contextRef);
 				//we need to remove all users from the list as that is too open in this case
 				users.clear();
 				

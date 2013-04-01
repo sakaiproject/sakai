@@ -11,7 +11,6 @@ import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.sakaiproject.authz.api.Role;
 import org.sakaiproject.authz.api.SecurityService;
-import org.sakaiproject.component.cover.ComponentManager;
 import org.sakaiproject.exception.IdInvalidException;
 import org.sakaiproject.exception.IdUnusedException;
 import org.sakaiproject.exception.IdUsedException;
@@ -51,12 +50,11 @@ public class SiteServiceTest extends SakaiKernelTestBase {
 	}
 
 	public void testNullSiteId() {
-		SiteService siteService = org.sakaiproject.site.cover.SiteService.getInstance();
+		SiteService siteService = getService(SiteService.class);
 		workAsAdmin();
 
-
 		try {
-			Site site = siteService.addSite("", "other");
+			siteService.addSite("", "other");
 			fail();
 		} catch (IdInvalidException e) {
 			log.info("when passed a null id the test correctly responded with an IdInvalidException");
@@ -76,7 +74,7 @@ public class SiteServiceTest extends SakaiKernelTestBase {
 	}
 	
 	private void workAsUser(String eid, String id) {
-		SessionManager sessionManager = org.sakaiproject.tool.cover.SessionManager.getInstance();
+		SessionManager sessionManager = getService(SessionManager.class);
 		Session session = sessionManager.getCurrentSession();
 		session.setUserEid(eid);
 		session.setUserId(id);
@@ -90,7 +88,7 @@ public class SiteServiceTest extends SakaiKernelTestBase {
 		 * 
 		 */
 
-		SiteService siteService = org.sakaiproject.site.cover.SiteService.getInstance();
+		SiteService siteService = getService(SiteService.class);
 		workAsAdmin();
 
 		Set<String> siteSet =  new TreeSet<String>();
@@ -109,13 +107,13 @@ public class SiteServiceTest extends SakaiKernelTestBase {
 	 */
 	public void testRoleSwapSiteVisit() throws IdUnusedException, PermissionException, IdInvalidException, IdUsedException, UserIdInvalidException, UserAlreadyDefinedException, UserPermissionException {
 		
-		SiteService siteService = (SiteService) ComponentManager.get(SiteService.class);
+		SiteService siteService = (SiteService) getService(SiteService.class);
 		
-		SecurityService securityService = (SecurityService) ComponentManager.get(SecurityService.class);
+		SecurityService securityService = (SecurityService) getService(SecurityService.class);
 		workAsAdmin();
 		
 		// Create another user.
-		UserDirectoryService userService = (UserDirectoryService)ComponentManager.get(UserDirectoryService.class);
+		UserDirectoryService userService = (UserDirectoryService) getService(UserDirectoryService.class);
 		UserEdit accessUser = userService.addUser("access", "access");
 		userService.commitEdit(accessUser);
 		UserEdit maintainUser = userService.addUser("maintain", "maintain");
@@ -150,10 +148,7 @@ public class SiteServiceTest extends SakaiKernelTestBase {
 	}
 	
 	public void testGroupSave() throws IdInvalidException, IdUsedException, PermissionException, IdUnusedException {
-		
-		SiteService siteService = (SiteService) ComponentManager.get(SiteService.class);
-		
-		SecurityService securityService = (SecurityService) ComponentManager.get(SecurityService.class);
+		SiteService siteService = (SiteService) getService(SiteService.class);
 		workAsAdmin();
 		
 		Site site = siteService.addSite("groupTestSite", "test");
@@ -166,7 +161,7 @@ public class SiteServiceTest extends SakaiKernelTestBase {
 		
 		//This should get an IllegalArgumentException
 		try {
-			Group group = site.addGroup();
+			site.addGroup();
 			siteService.save(site);
 			fail("Should not be able to save a group without a title");
 		}

@@ -41,9 +41,9 @@ import org.sakaiproject.entity.api.Reference;
 import org.sakaiproject.entity.api.ResourceProperties;
 import org.sakaiproject.entity.api.ResourcePropertiesEdit;
 import org.sakaiproject.time.api.Time;
-import org.sakaiproject.time.cover.TimeService;
+import org.sakaiproject.time.api.TimeService;
 import org.sakaiproject.user.api.User;
-import org.sakaiproject.user.cover.UserDirectoryService;
+import org.sakaiproject.user.api.UserDirectoryService;
 import org.sakaiproject.util.BaseResourceProperties;
 import org.sakaiproject.util.BaseResourcePropertiesEdit;
 import org.sakaiproject.util.StringUtil;
@@ -112,6 +112,8 @@ public class BaseAuthzGroup implements AuthzGroup
 
 	private BaseAuthzGroupService baseAuthzGroupService;
 
+	private UserDirectoryService userDirectoryService;
+
 	/**
 	 * Construct.
 	 * 
@@ -121,6 +123,7 @@ public class BaseAuthzGroup implements AuthzGroup
 	public BaseAuthzGroup(BaseAuthzGroupService baseAuthzGroupService, String id)
 	{
 		this.baseAuthzGroupService = baseAuthzGroupService;
+		this.userDirectoryService = baseAuthzGroupService.userDirectoryService();
 		m_id = id;
 
 		// setup for properties
@@ -144,6 +147,7 @@ public class BaseAuthzGroup implements AuthzGroup
 	public BaseAuthzGroup(BaseAuthzGroupService baseAuthzGroupService, AuthzGroup azGroup)
 	{
 		this.baseAuthzGroupService = baseAuthzGroupService;
+		this.userDirectoryService = baseAuthzGroupService.userDirectoryService();
 		setAll(azGroup);
 	}
 
@@ -171,6 +175,7 @@ public class BaseAuthzGroup implements AuthzGroup
 			String modifiedBy, Time modifiedOn)
 	{
 		this.baseAuthzGroupService = baseAuthzGroupService;
+		this.userDirectoryService = baseAuthzGroupService.userDirectoryService();
 		// setup for properties
 		ResourcePropertiesEdit props = new BaseResourcePropertiesEdit();
 		m_properties = props;
@@ -203,6 +208,8 @@ public class BaseAuthzGroup implements AuthzGroup
 	public BaseAuthzGroup(BaseAuthzGroupService baseAuthzGroupService, Element el)
 	{
 		this.baseAuthzGroupService = baseAuthzGroupService;
+		this.userDirectoryService = baseAuthzGroupService.userDirectoryService();
+		TimeService timeService = baseAuthzGroupService.timeService();
 		m_userGrants = new HashMap();
 		m_roles = new HashMap();
 
@@ -219,13 +226,13 @@ public class BaseAuthzGroup implements AuthzGroup
 		String time = StringUtils.trimToNull(el.getAttribute("created-time"));
 		if (time != null)
 		{
-			m_createdTime = TimeService.newTimeGmt(time);
+			m_createdTime = timeService.newTimeGmt(time);
 		}
 
 		time = StringUtils.trimToNull(el.getAttribute("modified-time"));
 		if (time != null)
 		{
-			m_lastModifiedTime = TimeService.newTimeGmt(time);
+			m_lastModifiedTime = timeService.newTimeGmt(time);
 		}
 
 		// process the children (properties, grants, abilities, roles)
@@ -282,7 +289,7 @@ public class BaseAuthzGroup implements AuthzGroup
 					else
 					{
 						grant = new BaseMember(role, Boolean.valueOf(active).booleanValue(), Boolean.valueOf(provided)
-								.booleanValue(), userId);
+								.booleanValue(), userId, userDirectoryService);
 						m_userGrants.put(userId, grant);
 					}
 				}
@@ -374,7 +381,7 @@ public class BaseAuthzGroup implements AuthzGroup
 						}
 						else
 						{
-							grant = new BaseMember(role, true, false, userId);
+							grant = new BaseMember(role, true, false, userId, userDirectoryService);
 							m_userGrants.put(userId, grant);
 						}
 					}
@@ -428,7 +435,7 @@ public class BaseAuthzGroup implements AuthzGroup
 
 		if (m_createdTime == null)
 		{
-			m_createdTime = TimeService.newTime();
+			m_createdTime = timeService.newTime();
 		}
 
 		if (m_lastModifiedTime == null)
@@ -554,8 +561,8 @@ public class BaseAuthzGroup implements AuthzGroup
 			BaseMember grant = (BaseMember) entry.getValue();
 			String id = (String) entry.getKey();
 
-			m_userGrants
-					.put(id, new BaseMember((Role) m_roles.get(grant.role.getId()), grant.active, grant.provided, grant.userId));
+			m_userGrants.put(id, new BaseMember((Role) m_roles.get(grant.role.getId()), grant.active, grant.provided, grant.userId,
+					userDirectoryService));
 		}
 
 		m_properties = new BaseResourcePropertiesEdit();
@@ -696,11 +703,11 @@ public class BaseAuthzGroup implements AuthzGroup
 	{
 		try
 		{
-			return UserDirectoryService.getUser(m_createdUserId);
+			return userDirectoryService.getUser(m_createdUserId);
 		}
 		catch (Exception e)
 		{
-			return UserDirectoryService.getAnonymousUser();
+			return userDirectoryService.getAnonymousUser();
 		}
 	}
 
@@ -711,11 +718,11 @@ public class BaseAuthzGroup implements AuthzGroup
 	{
 		try
 		{
-			return UserDirectoryService.getUser(m_lastModifiedUserId);
+			return userDirectoryService.getUser(m_lastModifiedUserId);
 		}
 		catch (Exception e)
 		{
-			return UserDirectoryService.getAnonymousUser();
+			return userDirectoryService.getAnonymousUser();
 		}
 	}
 
@@ -763,7 +770,7 @@ public class BaseAuthzGroup implements AuthzGroup
 		}
 
 		// consider auth role
-		if (!UserDirectoryService.getAnonymousUser().getId().equals(user))
+		if (!userDirectoryService.getAnonymousUser().getId().equals(user))
 		{
 			Role auth = (Role) m_roles.get(AuthzGroupService.AUTH_ROLE);
 			if (auth != null)
@@ -1027,7 +1034,7 @@ public class BaseAuthzGroup implements AuthzGroup
 		BaseMember grant = (BaseMember) m_userGrants.get(user);
 		if (grant == null)
 		{
-			grant = new BaseMember(role, active, provided, user);
+			grant = new BaseMember(role, active, provided, user, userDirectoryService);
 			m_userGrants.put(user, grant);
 		}
 		else

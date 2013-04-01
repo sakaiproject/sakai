@@ -62,8 +62,8 @@ public class ContentHostingServiceTest extends SakaiKernelTestBase {
 	 * Checks the resources of zero bytes are handled correctly.
 	 */
 	public void testEmptyResources() throws Exception {
-		ContentHostingService ch = org.sakaiproject.content.cover.ContentHostingService.getInstance();
-		SessionManager sm = org.sakaiproject.tool.cover.SessionManager.getInstance();
+		ContentHostingService ch = getService(ContentHostingService.class);
+		SessionManager sm = getService(SessionManager.class);
 		Session session = sm.getCurrentSession();
 		session.setUserEid("admin");
 		session.setUserId("admin");
@@ -95,8 +95,8 @@ public class ContentHostingServiceTest extends SakaiKernelTestBase {
 	
 	
 	public void testSaveRetriveFolder() {
-		ContentHostingService ch = org.sakaiproject.content.cover.ContentHostingService.getInstance();
-		SessionManager sm = org.sakaiproject.tool.cover.SessionManager.getInstance();
+		ContentHostingService ch = getService(ContentHostingService.class);
+		SessionManager sm = getService(SessionManager.class);
 		Session session = sm.getCurrentSession();
 		session.setUserEid("admin");
 		session.setUserId("admin");
@@ -183,8 +183,8 @@ public class ContentHostingServiceTest extends SakaiKernelTestBase {
 	 */
 	public void testUtfFolders() {
 		//lets test saving a utf8
-		ContentHostingService ch = org.sakaiproject.content.cover.ContentHostingService.getInstance();
-		SessionManager sm = org.sakaiproject.tool.cover.SessionManager.getInstance();
+		ContentHostingService ch = getService(ContentHostingService.class);
+		SessionManager sm = getService(SessionManager.class);
 		Session session = sm.getCurrentSession();
 		session.setUserEid("admin");
 		session.setUserId("admin");
@@ -249,8 +249,8 @@ public class ContentHostingServiceTest extends SakaiKernelTestBase {
 	
 	
 	public void testDeleteResource() {
-		ContentHostingService ch = org.sakaiproject.content.cover.ContentHostingService.getInstance();
-		SessionManager sm = org.sakaiproject.tool.cover.SessionManager.getInstance();
+		ContentHostingService ch = getService(ContentHostingService.class);
+		SessionManager sm = getService(SessionManager.class);
 		Session session = sm.getCurrentSession();
 		session.setUserEid("admin");
 		session.setUserId("admin");

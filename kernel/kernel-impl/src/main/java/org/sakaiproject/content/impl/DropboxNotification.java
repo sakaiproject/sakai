@@ -30,25 +30,25 @@ import java.util.HashSet;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
-import org.sakaiproject.authz.cover.SecurityService;
+import org.sakaiproject.authz.api.SecurityService;
 import org.sakaiproject.authz.api.Member;
+import org.sakaiproject.component.api.ServerConfigurationService;
 import org.sakaiproject.component.cover.ComponentManager;
-import org.sakaiproject.component.cover.ServerConfigurationService;
 import org.sakaiproject.content.api.ContentCollection;
-import org.sakaiproject.content.cover.ContentHostingService;
+import org.sakaiproject.content.api.ContentHostingService;
 import org.sakaiproject.entity.api.Entity;
+import org.sakaiproject.entity.api.EntityManager;
 import org.sakaiproject.entity.api.Reference;
 import org.sakaiproject.entity.api.ResourceProperties;
-import org.sakaiproject.entity.cover.EntityManager;
 import org.sakaiproject.event.api.Event;
 import org.sakaiproject.event.api.NotificationAction;
 import org.sakaiproject.exception.IdUnusedException;
 import org.sakaiproject.exception.PermissionException;
 import org.sakaiproject.site.api.Site;
-import org.sakaiproject.site.cover.SiteService;
+import org.sakaiproject.site.api.SiteService;
 import org.sakaiproject.user.api.User;
+import org.sakaiproject.user.api.UserDirectoryService;
 import org.sakaiproject.user.api.UserNotDefinedException;
-import org.sakaiproject.user.cover.UserDirectoryService;
 import org.sakaiproject.util.EmailNotification;
 import org.sakaiproject.util.Resource;
 import org.sakaiproject.util.ResourceLoader;
@@ -81,9 +81,9 @@ public class DropboxNotification extends EmailNotification
 	private static final String DEFAULT_RESOURCEBUNDLE = "org.sakaiproject.localization.bundle.siteemacon.siteemacon";
 	private static final String RESOURCECLASS = "resource.class.siteemacon";
 	private static final String RESOURCEBUNDLE = "resource.bundle.siteemacon";
-	private String resourceClass = ServerConfigurationService.getString(RESOURCECLASS, DEFAULT_RESOURCECLASS);
-	private String resourceBundle = ServerConfigurationService.getString(RESOURCEBUNDLE, DEFAULT_RESOURCEBUNDLE);
-	private ResourceLoader rb = new Resource().getLoader(resourceClass, resourceBundle);
+	private String resourceClass;
+	private String resourceBundle;
+	private ResourceLoader rb;
 	// private static ResourceBundle rb = ResourceBundle.getBundle("siteemacon");
 	
 	private final String MULTIPART_BOUNDARY = "======sakai-multi-part-boundary======";
@@ -95,6 +95,13 @@ public class DropboxNotification extends EmailNotification
     private static Object LOCK = new Object();
 
     private static FormattedText formattedText;
+
+	private SecurityService securityService;
+	private ContentHostingService contentHostingService;
+	private EntityManager entityManager;
+	private SiteService siteService;
+	private UserDirectoryService userDirectoryService;
+	private ServerConfigurationService serverConfigurationService;
 
     protected static FormattedText getFormattedText() {
         if (formattedText == null) {
@@ -109,6 +116,39 @@ public class DropboxNotification extends EmailNotification
         }
         return formattedText;
     }
+
+	/**
+	 * The preferred form for construction is to supply the needed items rather than having to do a lookup. This constructor was
+	 * left in place for compatibility with any custom tool that might currently be using it, but should be considered deprecated.
+	 * 
+	 * @deprecated
+	 */
+	public DropboxNotification() {
+		this.securityService = (SecurityService) ComponentManager.get("org.sakaiproject.authz.api.SecurityService");
+		this.contentHostingService = (ContentHostingService) ComponentManager.get("org.sakaiproject.content.api.ContentHostingService");
+		this.entityManager = (EntityManager) ComponentManager.get("org.sakaiproject.entity.api.EntityManager");
+		this.siteService = (SiteService) ComponentManager.get("org.sakaiproject.site.api.SiteService");
+		this.userDirectoryService = (UserDirectoryService) ComponentManager.get("org.sakaiproject.user.api.UserDirectoryService");
+		this.serverConfigurationService = (ServerConfigurationService) ComponentManager
+				.get("org.sakaiproject.component.api.ServerConfigurationService");
+	}
+
+	private void loadResources() {
+		resourceClass = serverConfigurationService.getString(RESOURCECLASS, DEFAULT_RESOURCECLASS);
+		resourceBundle = serverConfigurationService.getString(RESOURCEBUNDLE, DEFAULT_RESOURCEBUNDLE);
+		rb = new Resource().getLoader(resourceClass, resourceBundle);
+	}
+
+	public DropboxNotification(SecurityService securityService, ContentHostingService contentHostingService, EntityManager entityManager,
+			SiteService siteService, UserDirectoryService userDirectoryService, ServerConfigurationService serverConfigurationService) {
+		this.securityService = securityService;
+		this.contentHostingService = contentHostingService;
+		this.entityManager = entityManager;
+		this.siteService = siteService;
+		this.userDirectoryService = userDirectoryService;
+		this.serverConfigurationService = serverConfigurationService;
+		loadResources();
+	}
 
 	/* (non-Javadoc)
 	 * @see org.sakaiproject.util.EmailNotification#getClone()
@@ -199,13 +239,13 @@ public class DropboxNotification extends EmailNotification
 		List recipients = new ArrayList();
 		
 		String resourceRef = event.getResource();
-		Reference ref = EntityManager.newReference(resourceRef);
+		Reference ref = entityManager.newReference(resourceRef);
         String siteId = (getSite() != null) ? getSite() : ref.getContext();
 
         Site site;
         // get a site 
         try {
-          site = SiteService.getSite(siteId);
+			site = siteService.getSite(siteId);
         }
         catch (IdUnusedException e) {
 			logger.warn("Could not getSite for " + siteId + " not returning any recipients.");
@@ -228,7 +268,7 @@ public class DropboxNotification extends EmailNotification
 				buf.append("/"); 
 				String siteDropbox = buf.toString();
 
-				recipients.addAll( SecurityService.unlockUsers(ContentHostingService.AUTH_DROPBOX_MAINTAIN, siteDropbox) ); 
+				recipients.addAll(securityService.unlockUsers(contentHostingService.AUTH_DROPBOX_MAINTAIN, siteDropbox));
                 refineToSiteMembers(recipients, site);
 			}
 			else
@@ -236,14 +276,14 @@ public class DropboxNotification extends EmailNotification
 				// notify student
 				try
 				{
-					User user = UserDirectoryService.getUser(dropboxOwnerId);
+					User user = userDirectoryService.getUser(dropboxOwnerId);
 					recipients.add(user);
 				}
 				catch(UserNotDefinedException e0)
 				{
 					try
 					{
-						User user = UserDirectoryService.getUserByEid(dropboxOwnerId);
+						User user = userDirectoryService.getUserByEid(dropboxOwnerId);
 						recipients.add(user);
 					}
 					catch(UserNotDefinedException e1)
@@ -294,7 +334,7 @@ public class DropboxNotification extends EmailNotification
 	private String generateContentForType(boolean shouldProduceHtml, Event event) 
 	{
 		// get the content & properties
-		Reference ref = EntityManager.newReference(event.getResource());
+		Reference ref = entityManager.newReference(event.getResource());
 		// TODO:  ResourceProperties props = ref.getProperties();
 
 		// get the function
@@ -308,7 +348,7 @@ public class DropboxNotification extends EmailNotification
 		String title = siteId;
 		try
 		{
-			Site site = SiteService.getSite(siteId);
+			Site site = siteService.getSite(siteId);
 			title = site.getTitle();
 		}
 		catch (Exception ignore)
@@ -332,11 +372,11 @@ public class DropboxNotification extends EmailNotification
 		String blankLine = "\n\n";
 		String newLine = "\n";
 
-		String dropboxId = ContentHostingService.getIndividualDropboxId(ref.getId());
+		String dropboxId = contentHostingService.getIndividualDropboxId(ref.getId());
 		String dropboxTitle = null;
 		try 
 		{
-			ResourceProperties dbProps = ContentHostingService.getProperties(dropboxId);
+			ResourceProperties dbProps = contentHostingService.getProperties(dropboxId);
 			dropboxTitle = dbProps.getPropertyFormatted(ResourceProperties.PROP_DISPLAY_NAME);
 		} 
 		catch (PermissionException e) 
@@ -367,13 +407,13 @@ public class DropboxNotification extends EmailNotification
 		{
 			buf.append("<p>");
 		}
-		String portalName = ServerConfigurationService.getString("ui.service", "Sakai");
-		String portalUrl = ServerConfigurationService.getPortalUrl();
+		String portalName = serverConfigurationService.getString("ui.service", "Sakai");
+		String portalUrl = serverConfigurationService.getPortalUrl();
 		if(doHtml)
 		{
 			portalUrl = "<a href=\"" + portalUrl + "\">" + portalName + "</a>";
 		}
-		if (ContentHostingService.EVENT_RESOURCE_AVAILABLE.equals(function))
+		if (contentHostingService.EVENT_RESOURCE_AVAILABLE.equals(function))
 		{
 			buf.append(rb.getFormattedMessage("db.text.new", new String[]{dropboxTitle, siteTitle, portalName, portalUrl}));
 		}
@@ -445,7 +485,7 @@ public class DropboxNotification extends EmailNotification
 	 */
 	protected String getSubject(Event event)
 	{
-		Reference ref = EntityManager.newReference(event.getResource());
+		Reference ref = entityManager.newReference(event.getResource());
 		Entity r = ref.getEntity();
 		ResourceProperties props = ref.getProperties();
 
@@ -459,7 +499,7 @@ public class DropboxNotification extends EmailNotification
 		String siteTitle = siteId;
 		try
 		{
-			Site site = SiteService.getSite(siteId);
+			Site site = siteService.getSite(siteId);
 			siteTitle = site.getTitle();
 		}
 		catch (Exception ignore)
@@ -469,11 +509,11 @@ public class DropboxNotification extends EmailNotification
 		// use the message's subject
 		String resourceName = props.getPropertyFormatted(ResourceProperties.PROP_DISPLAY_NAME);
 		
-		String dropboxId = ContentHostingService.getIndividualDropboxId(ref.getId());
+		String dropboxId = contentHostingService.getIndividualDropboxId(ref.getId());
 		String dropboxTitle = null;
 		try 
 		{
-			ResourceProperties dbProps = ContentHostingService.getProperties(dropboxId);
+			ResourceProperties dbProps = contentHostingService.getProperties(dropboxId);
 			dropboxTitle = dbProps.getPropertyFormatted(ResourceProperties.PROP_DISPLAY_NAME);
 		} 
 		catch (PermissionException e) 
@@ -487,7 +527,8 @@ public class DropboxNotification extends EmailNotification
 		
 		String[] args = {siteTitle, dropboxTitle, resourceName};
 		
-		return rb.getFormattedMessage((ContentHostingService.EVENT_RESOURCE_AVAILABLE.equals(function) ? "db.subj.new" : "db.subj.upd"), args);
+		return rb.getFormattedMessage((contentHostingService.EVENT_RESOURCE_AVAILABLE.equals(function) ? "db.subj.new" : "db.subj.upd"),
+				args);
 		
 	}
 	
@@ -521,7 +562,7 @@ public class DropboxNotification extends EmailNotification
 				try
 				{
 					// get the display name
-					ContentCollection collection = ContentHostingService.getCollection(rootBuilder.toString());
+					ContentCollection collection = contentHostingService.getCollection(rootBuilder.toString());
 					buf.append(collection.getProperties().getPropertyFormatted(ResourceProperties.PROP_DISPLAY_NAME));
 				}
 				catch (Exception any)
@@ -535,4 +576,7 @@ public class DropboxNotification extends EmailNotification
 		return buf.toString();
 	}
 	
+	public void setSecurityService(SecurityService securityService) {
+		this.securityService = securityService;
+	}
 }

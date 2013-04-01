@@ -25,7 +25,6 @@ import java.util.Calendar;
 import java.util.Collection;
 import java.util.ArrayList;
 import java.util.Date;
-import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
@@ -38,11 +37,11 @@ import org.apache.commons.lang.StringUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.sakaiproject.authz.api.AuthzGroup;
+import org.sakaiproject.authz.api.AuthzGroupService;
 import org.sakaiproject.authz.api.GroupNotDefinedException;
 import org.sakaiproject.authz.api.Member;
 import org.sakaiproject.authz.api.Role;
 import org.sakaiproject.authz.api.RoleAlreadyDefinedException;
-import org.sakaiproject.authz.cover.AuthzGroupService;
 import org.sakaiproject.entity.api.Entity;
 import org.sakaiproject.entity.api.Reference;
 import org.sakaiproject.entity.api.ResourceProperties;
@@ -50,15 +49,15 @@ import org.sakaiproject.entity.api.ResourcePropertiesEdit;
 import org.sakaiproject.site.api.Group;
 import org.sakaiproject.site.api.Site;
 import org.sakaiproject.site.api.SitePage;
+import org.sakaiproject.site.api.SiteService;
 import org.sakaiproject.site.api.ToolConfiguration;
-import org.sakaiproject.site.cover.SiteService;
 import org.sakaiproject.time.api.Time;
-import org.sakaiproject.time.cover.TimeService;
+import org.sakaiproject.time.api.TimeService;
 import org.sakaiproject.tool.api.Session;
-import org.sakaiproject.tool.cover.SessionManager;
+import org.sakaiproject.tool.api.SessionManager;
 import org.sakaiproject.user.api.User;
+import org.sakaiproject.user.api.UserDirectoryService;
 import org.sakaiproject.user.api.UserNotDefinedException;
-import org.sakaiproject.user.cover.UserDirectoryService;
 import org.sakaiproject.util.BaseResourceProperties;
 import org.sakaiproject.util.BaseResourcePropertiesEdit;
 import org.sakaiproject.util.StringUtil;
@@ -170,6 +169,8 @@ public class BaseSite implements Site
 	/** The azg from the AuthzGroupService that is my AuthzGroup impl. */
 	protected AuthzGroup m_azg = null;
 
+	private AuthzGroupService authzGroupService;
+
 	/**
 	 * Set to true if we have changed our azg, so it need to be written back on
 	 * save.
@@ -183,6 +184,10 @@ public class BaseSite implements Site
 	protected boolean m_customPageOrdered = false;
 
 	private BaseSiteService siteService;
+
+	private SessionManager sessionManager;
+
+	private UserDirectoryService userDirectoryService;
 
 	/** Softly deleted data */
 	protected boolean m_isSoftlyDeleted = false;
@@ -198,6 +203,7 @@ public class BaseSite implements Site
 	public BaseSite(BaseSiteService siteService, String id)
 	{
 		this.siteService = siteService;
+		authzGroupService = siteService.authzGroupService();
 		m_id = id;
 
 		// setup for properties
@@ -227,6 +233,7 @@ public class BaseSite implements Site
 	public BaseSite(BaseSiteService siteService, Site other)
 	{
 		this.siteService = siteService;
+		authzGroupService = siteService.authzGroupService();
 
 		BaseSite bOther = (BaseSite) other;
 		set(bOther, true);
@@ -244,6 +251,7 @@ public class BaseSite implements Site
 	public BaseSite(BaseSiteService siteService, Site other, boolean exact)
 	{
 		this.siteService = siteService;
+		authzGroupService = siteService.authzGroupService();
 		BaseSite bOther = (BaseSite) other;
 		set(bOther, exact);
 	}
@@ -254,9 +262,11 @@ public class BaseSite implements Site
 	 * @param el
 	 *        The message in XML in a DOM element.
 	 */
-	public BaseSite(BaseSiteService siteService, Element el)
+	public BaseSite(BaseSiteService siteService, Element el, TimeService timeService)
 	{
 		this.siteService = siteService;
+		authzGroupService = siteService.authzGroupService();
+
 		// setup for properties
 		m_properties = new BaseResourcePropertiesEdit();
 
@@ -314,13 +324,13 @@ public class BaseSite implements Site
 		String time = StringUtils.trimToNull(el.getAttribute("created-time"));
 		if (time != null)
 		{
-			m_createdTime = TimeService.newTimeGmt(time);
+			m_createdTime = timeService.newTimeGmt(time);
 		}
 
 		time = StringUtils.trimToNull(el.getAttribute("modified-time"));
 		if (time != null)
 		{
-			m_lastModifiedTime = TimeService.newTimeGmt(time);
+			m_lastModifiedTime = timeService.newTimeGmt(time);
 		}
 
 		String customOrder = StringUtils.trimToNull(el.getAttribute("customPageOrdered"));
@@ -495,13 +505,14 @@ public class BaseSite implements Site
 			boolean published, boolean joinable, boolean pubView, String joinRole,
 			boolean isSpecial, boolean isUser, String createdBy, Time createdOn,
 			String modifiedBy, Time modifiedOn, boolean customPageOrdered,
-			boolean isSoftlyDeleted, Date softlyDeletedDate)
+			boolean isSoftlyDeleted, Date softlyDeletedDate, SessionManager sessionManager, UserDirectoryService userDirectoryService)
 	{
 		// Since deferred description loading is the edge case, assume the description is real.
 		// This could be masked by extending String and using instanceof, or extending BaseSite to mark lazy instances,
 		// but it not sure which is cleanest for now.
 		this(siteService, id, title, type, shortDesc, description, iconUrl, infoUrl, skin, published, joinable, pubView, joinRole,
-				isSpecial, isUser, createdBy, createdOn, modifiedBy, modifiedOn, customPageOrdered, isSoftlyDeleted, softlyDeletedDate, true);
+				isSpecial, isUser, createdBy, createdOn, modifiedBy, modifiedOn, customPageOrdered, isSoftlyDeleted, softlyDeletedDate,
+				true, sessionManager, userDirectoryService);
 	}
 
 	public BaseSite(BaseSiteService siteService, String id, String title, String type, String shortDesc,
@@ -509,10 +520,13 @@ public class BaseSite implements Site
 			boolean published, boolean joinable, boolean pubView, String joinRole,
 			boolean isSpecial, boolean isUser, String createdBy, Time createdOn,
 			String modifiedBy, Time modifiedOn, boolean customPageOrdered,
-			boolean isSoftlyDeleted, Date softlyDeletedDate, boolean descriptionLoaded)
+			boolean isSoftlyDeleted, Date softlyDeletedDate, boolean descriptionLoaded, SessionManager sessionManager, UserDirectoryService userDirectoryService)
 	{
 		this.siteService = siteService;
-
+		this.authzGroupService = siteService.authzGroupService();
+		this.sessionManager = sessionManager;
+		this.userDirectoryService = userDirectoryService;
+		
 		// setup for properties
 		m_properties = new BaseResourcePropertiesEdit();
 
@@ -593,6 +607,8 @@ public class BaseSite implements Site
 		m_type = other.m_type;
 		m_pubView = other.m_pubView;
 		m_customPageOrdered = other.m_customPageOrdered;
+		sessionManager = other.sessionManager;
+		userDirectoryService = other.userDirectoryService;
 		
 		//site copies keep soft site deletion flags
 		m_isSoftlyDeleted = other.m_isSoftlyDeleted;
@@ -604,7 +620,7 @@ public class BaseSite implements Site
 		}
 		else
 		{
-			m_createdUserId = UserDirectoryService.getCurrentUser().getId();
+			m_createdUserId = userDirectoryService.getCurrentUser().getId();
 		}
 		m_lastModifiedUserId = other.m_lastModifiedUserId;
 		if (other.m_createdTime != null)
@@ -665,7 +681,7 @@ public class BaseSite implements Site
 	 */
 	public String getUrl()
 	{
-		Session s = SessionManager.getCurrentSession();
+		Session s = sessionManager.getCurrentSession();
 		String controllingPortal = (String) s.getAttribute("sakai-controlling-portal");
 		String siteString = "/site/";
 		if (controllingPortal != null)
@@ -743,11 +759,11 @@ public class BaseSite implements Site
 	{
 		try
 		{
-			return UserDirectoryService.getUser(m_createdUserId);
+			return userDirectoryService.getUser(m_createdUserId);
 		}
 		catch (Exception e)
 		{
-			return UserDirectoryService.getAnonymousUser();
+			return userDirectoryService.getAnonymousUser();
 		}
 	}
 
@@ -758,11 +774,11 @@ public class BaseSite implements Site
 	{
 		try
 		{
-			return UserDirectoryService.getUser(m_lastModifiedUserId);
+			return userDirectoryService.getUser(m_lastModifiedUserId);
 		}
 		catch (Exception e)
 		{
-			return UserDirectoryService.getAnonymousUser();
+			return userDirectoryService.getAnonymousUser();
 		}
 	}
 
@@ -995,7 +1011,7 @@ public class BaseSite implements Site
                 siteGroupRefs.add(group.getReference());
             }
         }
-        Collection<String> membersInGroups = AuthzGroupService.getAuthzUsersInGroups(siteGroupRefs);
+		Collection<String> membersInGroups = authzGroupService.getAuthzUsersInGroups(siteGroupRefs);
 		return membersInGroups;
 	}
 
@@ -1009,7 +1025,7 @@ public class BaseSite implements Site
 		for ( Iterator it=siteGroups.iterator(); it.hasNext(); )
 			siteGroupRefs.add( ((Group)it.next()).getReference() );
 			
-		List groups = AuthzGroupService.getAuthzUserGroupIds(siteGroupRefs, userId);
+		List groups = authzGroupService.getAuthzUserGroupIds(siteGroupRefs, userId);
 		Collection<Group> rv = new Vector<Group>();
 		for (Iterator i = groups.iterator(); i.hasNext();)
 		{
@@ -1035,7 +1051,7 @@ public class BaseSite implements Site
 		for ( Iterator it=siteGroups.iterator(); it.hasNext(); )
 			siteGroupRefs.add( ((Group)it.next()).getReference() );
 			
-		List groups = AuthzGroupService.getAuthzUserGroupIds(siteGroupRefs, userId);
+		List groups = authzGroupService.getAuthzUserGroupIds(siteGroupRefs, userId);
 		Collection<Group> rv = new Vector<Group>();
 		for (Iterator i = groups.iterator(); i.hasNext();)
 		{
@@ -1654,7 +1670,7 @@ public class BaseSite implements Site
 		{
 			try
 			{
-				m_azg = AuthzGroupService.getAuthzGroup(getReference());
+				m_azg = authzGroupService.getAuthzGroup(getReference());
 			}
 			catch (GroupNotDefinedException e)
 			{
@@ -1671,7 +1687,7 @@ public class BaseSite implements Site
 						// make sure it's valid
 						try
 						{
-							UserDirectoryService.getUser(userId);
+							userDirectoryService.getUser(userId);
 						}
 						catch (UserNotDefinedException e1)
 						{
@@ -1682,7 +1698,7 @@ public class BaseSite implements Site
 					// use the current user if needed
 					if (userId == null)
 					{
-						User user = UserDirectoryService.getCurrentUser();
+						User user = userDirectoryService.getCurrentUser();
 						userId = user.getId();
 					}
 
@@ -1691,7 +1707,7 @@ public class BaseSite implements Site
 					AuthzGroup template = null;
 					try
 					{
-						template = AuthzGroupService.getAuthzGroup(groupAzgTemplate);
+						template = authzGroupService.getAuthzGroup(groupAzgTemplate);
 					}
 					catch (Exception e1)
 					{
@@ -1699,14 +1715,14 @@ public class BaseSite implements Site
 						{
 							// if the template is not defined, try the fall back
 							// template
-							template = AuthzGroupService.getAuthzGroup("!site.template");
+							template = authzGroupService.getAuthzGroup("!site.template");
 						}
 						catch (Exception e2)
 						{
 						}
 					}
 
-					m_azg = AuthzGroupService.newAuthzGroup(getReference(), template,
+					m_azg = authzGroupService.newAuthzGroup(getReference(), template,
 							userId);
 					m_azgChanged = true;
 				}

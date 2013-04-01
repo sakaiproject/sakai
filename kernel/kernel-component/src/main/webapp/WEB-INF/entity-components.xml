@@ -8,6 +8,7 @@
 			init-method="init"
 			destroy-method="destroy"
 			singleton="true">
+         <property name="userDirectoryService" ref="org.sakaiproject.user.api.UserDirectoryService"/>
 	</bean>
 
 </beans>

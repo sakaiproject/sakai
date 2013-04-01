@@ -33,12 +33,12 @@ import java.util.Vector;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.sakaiproject.event.api.Event;
+import org.sakaiproject.event.api.EventTrackingService;
 import org.sakaiproject.event.api.Notification;
-import org.sakaiproject.event.cover.EventTrackingService;
 import org.sakaiproject.memory.api.Cache;
 import org.sakaiproject.memory.api.CacheRefresher;
 import org.sakaiproject.memory.api.Cacher;
-import org.sakaiproject.memory.cover.MemoryServiceLocator;
+import org.sakaiproject.memory.api.MemoryService;
 
 /**
  * <p>
@@ -78,6 +78,10 @@ public class NotificationCache implements Cacher, Observer {
 	/** The events we are holding for later processing. */
 	protected List m_heldEvents = new Vector();	
 
+	protected EventTrackingService eventTrackingService;
+
+	protected MemoryService memoryService;
+
 	/**
 	 * Construct the Cache. Attempts to keep complete on Event notification by calling the refresher.
 	 * 
@@ -86,18 +90,21 @@ public class NotificationCache implements Cacher, Observer {
 	 * @param pattern
 	 *        The "startsWith()" string for all resources that may be in this cache.
 	 */
-	public NotificationCache(CacheRefresher refresher, String pattern)
+	public NotificationCache(CacheRefresher refresher, String pattern, EventTrackingService eventTrackingService,
+			MemoryService memoryService)
 	{
-		cache = MemoryServiceLocator.getInstance().newCache(
-				"org.sakaiproject.event.api.NotificationService.cache",
-				refresher, pattern); // TODO check logic with proxied class
+		this.memoryService = memoryService;
+		cache = memoryService.newCache("org.sakaiproject.event.api.NotificationService.cache", refresher, pattern);
+		// TODO check logic with proxied class
+
 		m_functionMap = new HashMap();
 
 		m_refresher = refresher;
 		m_resourcePattern = pattern;
 
 		// register to get events - first, before others
-		EventTrackingService.addPriorityObserver(this);
+		this.eventTrackingService = eventTrackingService;
+		eventTrackingService.addPriorityObserver(this);
 
 	} // NotificationCache
 
@@ -131,7 +138,7 @@ public class NotificationCache implements Cacher, Observer {
 	public void disable()
 	{
 		m_disabled = true;
-		EventTrackingService.deleteObserver(this);
+		eventTrackingService.deleteObserver(this);
 		clear();
 
 	} // disable
@@ -153,7 +160,7 @@ public class NotificationCache implements Cacher, Observer {
 	public void enable()
 	{
 		m_disabled = false;
-		EventTrackingService.addPriorityObserver(this);
+		eventTrackingService.addPriorityObserver(this);
 
 	} // enable
 
@@ -163,10 +170,10 @@ public class NotificationCache implements Cacher, Observer {
 	protected void finalize()
 	{
 		// unregister as a cacher
-		MemoryServiceLocator.getInstance().unregisterCacher(this);
+		memoryService.unregisterCacher(this);
 
 		// unregister to get events
-		EventTrackingService.deleteObserver(this);
+		eventTrackingService.deleteObserver(this);
 
 	} // finalize
 

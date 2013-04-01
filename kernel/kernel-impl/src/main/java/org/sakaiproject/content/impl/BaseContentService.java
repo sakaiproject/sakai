@@ -159,6 +159,7 @@ import org.sakaiproject.util.StringUtil;
 import org.sakaiproject.util.Validator;
 import org.sakaiproject.util.Web;
 import org.sakaiproject.util.Xml;
+import org.sakaiproject.util.api.LinkMigrationHelper;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 import org.w3c.dom.Node;
@@ -169,7 +170,6 @@ import org.xml.sax.SAXException;
 
 import com.ibm.icu.text.CharsetDetector;
 import com.ibm.icu.text.CharsetMatch;
-import org.sakaiproject.util.cover.LinkMigrationHelper;
 
 /**
  * <p>
@@ -291,9 +291,11 @@ SiteContentAdvisorProvider, SiteContentAdvisorTypeRegistry, EntityTransferrerRef
 		m_siteService = service;
 	}
 
+	protected LinkMigrationHelper linkMigrationHelper;
 	
-
-	
+	public void setLinkMigrationHelper(LinkMigrationHelper linkMigrationHelper) {
+		this.linkMigrationHelper = linkMigrationHelper;
+	}
 	
 	/** Dependency: NotificationService. */
 	protected NotificationService m_notificationService = null;
@@ -792,7 +794,9 @@ SiteContentAdvisorProvider, SiteContentAdvisorTypeRegistry, EntityTransferrerRef
 			// %%% is this the best we can do? -ggolden
 
 			// set the action
-			edit.setAction(new SiteEmailNotificationContent());
+			SiteEmailNotificationContent siteEmailNotificationContent = new SiteEmailNotificationContent(m_securityService,
+					m_serverConfigurationService, this, m_entityManager, m_siteService);
+			edit.setAction(siteEmailNotificationContent);
 
 			NotificationEdit dbNoti = m_notificationService.addTransientNotification();
 
@@ -805,7 +809,9 @@ SiteContentAdvisorProvider, SiteContentAdvisorTypeRegistry, EntityTransferrerRef
 			// %%% is this the best we can do? -ggolden
 
 			// set the action
-			dbNoti.setAction(new DropboxNotification());
+			DropboxNotification dropboxNotification = new DropboxNotification(m_securityService, this, m_entityManager, m_siteService,
+					userDirectoryService, m_serverConfigurationService);
+			dbNoti.setAction(dropboxNotification);
 
 
 			StringBuilder buf = new StringBuilder();
@@ -6751,7 +6757,8 @@ SiteContentAdvisorProvider, SiteContentAdvisorTypeRegistry, EntityTransferrerRef
 		try
 		{
 			// use the helper
-			CollectionAccessFormatter.format(collection, ref, req, res, rb, getAccessPoint(true), getAccessPoint(false));
+			CollectionAccessFormatter.format(collection, ref, req, res, rb, getAccessPoint(true), getAccessPoint(false), this,
+					m_siteService);
 
 			// track event
 			// eventTrackingService.post(eventTrackingService.newEvent(EVENT_RESOURCE_READ, collection.getReference(), false));
@@ -7467,12 +7474,12 @@ SiteContentAdvisorProvider, SiteContentAdvisorTypeRegistry, EntityTransferrerRef
 							newValue = (String) transversalMap.get(oldValue);
 							targetId = (String) transversalMap.get(oldValue);
 							if(newValue.length()>0){
-								rContent = LinkMigrationHelper.migrateOneLink(oldValue, newValue, rContent);
+								rContent = linkMigrationHelper.migrateOneLink(oldValue, newValue, rContent);
 								}
 								}
 							}
 					try {
-						rContent = LinkMigrationHelper.bracketAndNullifySelectedLinks(rContent);
+						rContent = linkMigrationHelper.bracketAndNullifySelectedLinks(rContent);
 					} catch (Exception e) {
 						// TODO Auto-generated catch block
 						M_log.debug ("Forums LinkMigrationHelper.editLinks failed" + e);
@@ -13462,7 +13469,7 @@ SiteContentAdvisorProvider, SiteContentAdvisorTypeRegistry, EntityTransferrerRef
         ZipContentUtil extractZipArchive = new ZipContentUtil();
 
         // KNL-900 Total size of files should be checked before unzipping (KNL-273)
-        Map <String, Long> zipManifest = extractZipArchive.getZipManifest(resourceId);
+		Map<String, Long> zipManifest = extractZipArchive.getZipManifest(resourceId);
         if (zipManifest == null) {
             M_log.error("Zip file for resource ("+resourceId+") has no zip manifest, cannot extract");
         } else if (zipManifest.size() >= maxZipExtractSize) {
@@ -13485,7 +13492,7 @@ SiteContentAdvisorProvider, SiteContentAdvisorTypeRegistry, EntityTransferrerRef
                 throw new OverQuotaException(resource.getReference());
             }
             // zip files are not too large to extract so do the extract
-            extractZipArchive.extractArchive(resourceId);
+			extractZipArchive.extractArchive(resourceId);
         }
     }
 
