@@ -721,12 +721,9 @@
             </attribute>
             <attribute name="name"/>
             <attribute name="target" onInvalid="filterTag">
-                <literal-list>
-                    <literal value="_blank"/>
-                    <literal value="_top"/>
-                    <literal value="_self"/>
-                    <literal value="_parent"/>
-                </literal-list>
+                <regexp-list>
+                    <regexp name="basicAlphaNumeric"/>
+                </regexp-list>
             </attribute>
         </tag>
 

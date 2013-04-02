@@ -122,6 +122,7 @@ public class FormattedTextTest extends TestCase {
 
         strFromBrowser = TEST1;
         errorMessages = new StringBuilder();
+        formattedText.setDefaultAddBlankTargetToLinks(false);
         result = formattedText.processFormattedText(strFromBrowser, errorMessages, false);
         assertNotNull(result);
         assertTrue( result.contains("href=\"blah.html\""));
@@ -129,6 +130,17 @@ public class FormattedTextTest extends TestCase {
         //assertTrue( result.contains("target=\"_blank\"")); // adds target in
         assertTrue( result.contains("<div>hello there</div>"));
         assertEquals("<a href=\"blah.html\" style=\"font-weight: bold;\">blah</a>\n<div>hello there</div>", result);
+
+        strFromBrowser = TEST1;
+        errorMessages = new StringBuilder();
+        formattedText.setDefaultAddBlankTargetToLinks(true);
+        result = formattedText.processFormattedText(strFromBrowser, errorMessages, false);
+        assertNotNull(result);
+        assertTrue( result.contains("href=\"blah.html\""));
+        //assertFalse( result.contains("style=\"font-weight:bold;\"")); // strips this out
+        //assertTrue( result.contains("target=\"_blank\"")); // adds target in
+        assertTrue( result.contains("<div>hello there</div>"));
+        assertEquals("<a href=\"blah.html\" style=\"font-weight: bold;\" target=\"_blank\">blah</a>\n<div>hello there</div>", result);
 
         strFromBrowser = TEST2;
         errorMessages = new StringBuilder();

@@ -208,6 +208,27 @@ public class FormattedTextImpl implements FormattedText
         return useLegacy;
     }
 
+    boolean defaultAddBlankTargetToLinks = true;
+    /**
+     * For TESTING
+     * Sets the default - if not set, this will be "true"
+     * @param addBlankTargetToLinks if we should add ' target="_blank" ' to all A tags which contain no target, false if they should not be touched
+     */
+    void setDefaultAddBlankTargetToLinks(boolean addBlankTargetToLinks) {
+        this.defaultAddBlankTargetToLinks = addBlankTargetToLinks;
+    }
+    /**
+     * Asks SCS for the value of the "content.cleaner.add.blank.target", DEFAULT is true (match legacy)
+     * @return true if we should add ' target="_blank" ' to all A tags which contain no target, false if they should not be touched
+     */
+    private boolean addBlankTargetToLinks() {
+        boolean add = defaultAddBlankTargetToLinks;
+        if (serverConfigurationService != null) { // this keeps the tests from dying
+            add = serverConfigurationService.getBoolean("content.cleaner.add.blank.target", defaultAddBlankTargetToLinks);
+        }
+        return add;
+    }
+
     /**
      * Asks SCS for the value of the "content.cleaner.default.low.security", DEFAULT is false
      * @return true if low security is on be default for the scanner OR false to use high security scan (no unsafe embeds or objects)
@@ -383,6 +404,14 @@ public class FormattedTextImpl implements FormattedText
                             }
                         }
                         val = cr.getCleanHTML();
+
+                        // now replace all the A tags WITHOUT a target with _blank (to match the old functionality)
+                        if (addBlankTargetToLinks() && StringUtils.isNotBlank(val)) {
+                            Matcher m = M_patternAnchorTagWithOutTarget.matcher(val);
+                            if (m.find()) {
+                                val = m.replaceAll("$1$2 target=\"_blank\">"); // adds a target to A tags without one
+                            }
+                        }
                     } catch (ScanException e) {
                         // this will match the legacy behavior
                         val = "";
@@ -466,9 +495,11 @@ public class FormattedTextImpl implements FormattedText
         //value = M_patternAnchorTag.matcher(value).replaceAll("$1$2$3 target=\"_blank\">"); // adds in blank targets
         // added for KNL-526
 
-        Matcher m = M_patternAnchorTagWithOutTarget.matcher(value);
-        if (m.find()) {
-            value = m.replaceAll("$1$2 target=\"_blank\">"); // adds a target to A tags without one
+        if (addBlankTargetToLinks()) {
+            Matcher m = M_patternAnchorTagWithOutTarget.matcher(value);
+            if (m.find()) {
+                value = m.replaceAll("$1$2 target=\"_blank\">"); // adds a target to A tags without one
+            }
         }
 
         return value;
@@ -621,8 +652,10 @@ public class FormattedTextImpl implements FormattedText
             hrefTarget = hrefTarget.replaceFirst("target=", ""); // slightly paranoid
             hrefTarget = " target=\"" + hrefTarget + "\"";
         } else {
-            // default to _blank
-            hrefTarget = " target=\"_blank\"";
+            // default to _blank if not set and configured to force
+            if (addBlankTargetToLinks()) {
+                hrefTarget = " target=\"_blank\"";
+            }
         }
 
         if (hrefTitle != null) {
