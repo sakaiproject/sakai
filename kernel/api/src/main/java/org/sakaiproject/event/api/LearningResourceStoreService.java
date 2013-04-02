@@ -39,7 +39,7 @@ import java.util.Map;
  * 
  * @author Aaron Zeckoski (azeckoski @ vt.edu)
  */
-public interface LearningResourceObjectService {
+public interface LearningResourceStoreService {
 
     /**
      * Register an activity statement with the LRS
@@ -51,6 +51,25 @@ public interface LearningResourceObjectService {
      * @throws RuntimeException if there is a FATAL failure
      */
     public void registerStatement(LRS_Statement statement);
+
+    /**
+     * @return true if LRS tracking is enabled, false otherwise
+     */
+    public boolean isEnabled();
+
+    /**
+     * Allows for manual registration of an LRSP,
+     * it is best to simply allow the system to discover all the 
+     * LRSPs which the main Sakai Spring AC knows about instead but
+     * this allows for some testing and also for cases where Spring is not being used
+     * 
+     * NOTE: there is no "unregister", the system will simply ignore the provider
+     * if it is completely destroyed some time after registration
+     * 
+     * @param provider an instantiated LRSP
+     * @return true if the provider replaced another one with the same ID, false if it was the first one
+     */
+    public boolean registerProvider(LearningResourceStoreProvider provider);
 
     public static class LRS_Statement {
         // actor, verb, and object are required
@@ -122,6 +141,12 @@ public interface LearningResourceObjectService {
         protected LRS_Statement() {
             timestamp = new Date();
         }
+        /**
+         * MINIMAL objects constructor
+         * @param actor
+         * @param verb
+         * @param object
+         */
         public LRS_Statement(LRS_Actor actor, LRS_Verb verb, LRS_Object object) {
             this();
             if (actor == null) {
@@ -137,9 +162,18 @@ public interface LearningResourceObjectService {
             this.verb = verb;
             this.object = object;
         }
-        public LRS_Statement(LRS_Actor actor, LRS_Verb verb, LRS_Object object, LRS_Result result) {
+        /**
+         * FULL objects constructor
+         * @param actor
+         * @param verb
+         * @param object
+         * @param result
+         * @param context
+         */
+        public LRS_Statement(LRS_Actor actor, LRS_Verb verb, LRS_Object object, LRS_Result result, LRS_Context context) {
             this(actor, verb, object);
             this.result = result;
+            this.context = context;
         }
         /**
          * Construct a simple LRS statement
@@ -203,6 +237,79 @@ public interface LearningResourceObjectService {
                 this.rawMap = null;
             }
         }
+        // GETTERS
+        /**
+         * @see #populated
+         */
+        public boolean isPopulated() {
+            return populated;
+        }
+        /**
+         * @see #rawMap
+         */
+        public Map<String, Object> getRawMap() {
+            return rawMap;
+        }
+        /**
+         * @see #rawJSON
+         */
+        public String getRawJSON() {
+            return rawJSON;
+        }
+        /**
+         * @see #id
+         */
+        public String getId() {
+            return id;
+        }
+        /**
+         * @see #voided
+         */
+        public boolean isVoided() {
+            return voided;
+        }
+        /**
+         * @see #timestamp
+         */
+        public Date getTimestamp() {
+            return timestamp;
+        }
+        /**
+         * @see #stored
+         */
+        public Date getStored() {
+            return stored;
+        }
+        /**
+         * @see #actor
+         */
+        public LRS_Actor getActor() {
+            return actor;
+        }
+        /**
+         * @see #verb
+         */
+        public LRS_Verb getVerb() {
+            return verb;
+        }
+        /**
+         * @see #object
+         */
+        public LRS_Object getObject() {
+            return object;
+        }
+        /**
+         * @see #result
+         */
+        public LRS_Result getResult() {
+            return result;
+        }
+        /**
+         * @see #context
+         */
+        public LRS_Context getContext() {
+            return context;
+        }
     }
 
     public static class LRS_Actor {
@@ -264,6 +371,25 @@ public interface LearningResourceObjectService {
         public void setName(String name) {
             this.name = name;
         }
+        // GETTERS
+        /**
+         * @see #objectType
+         */
+        public String getObjectType() {
+            return objectType;
+        }
+        /**
+         * @see #name
+         */
+        public String getName() {
+            return name;
+        }
+        /**
+         * @see #mbox
+         */
+        public String getMbox() {
+            return mbox;
+        }
     }
 
     public static class LRS_Verb {
@@ -322,6 +448,19 @@ public interface LearningResourceObjectService {
          */
         public void setDisplay(Map<String, String> display) {
             this.display = display;
+        }
+        // GETTERS
+        /**
+         * @see #id
+         */
+        public String getId() {
+            return id;
+        }
+        /**
+         * @see #display
+         */
+        public Map<String, String> getDisplay() {
+            return display;
         }
     }
 
@@ -390,6 +529,25 @@ public interface LearningResourceObjectService {
         public void setName(Map<String, String> name) {
             this.name = name;
         }
+        // GETTERS
+        /**
+         * @see #objectType
+         */
+        public String getObjectType() {
+            return objectType;
+        }
+        /**
+         * @see #id
+         */
+        public String getId() {
+            return id;
+        }
+        /**
+         * @see #name
+         */
+        public Map<String, String> getName() {
+            return name;
+        }
     }
 
     public static class LRS_Result {
@@ -437,6 +595,10 @@ public interface LearningResourceObjectService {
          */
         protected LRS_Result() {
         }
+        /**
+         * @param scaled Score from 0 to 1.0 where 0=0% and 1.0=100%
+         * @param success true if successful, false if not, or null for not specified
+         */
         public LRS_Result(Float scaled, Boolean success) {
             this();
             if (scaled == null) {
@@ -498,10 +660,185 @@ public interface LearningResourceObjectService {
         public void setDuration(int duration) {
             this.duration = duration;
         }
+        // GETTERS
+        /**
+         * @see #scaled
+         */
+        public Float getScaled() {
+            return scaled;
+        }
+        /**
+         * @see #raw
+         */
+        public Number getRaw() {
+            return raw;
+        }
+        /**
+         * @see #min
+         */
+        public Number getMin() {
+            return min;
+        }
+        /**
+         * @see #max
+         */
+        public Number getMax() {
+            return max;
+        }
+        /**
+         * @see #success
+         */
+        public Boolean getSuccess() {
+            return success;
+        }
+        /**
+         * @see #completion
+         */
+        public Boolean getCompletion() {
+            return completion;
+        }
+        /**
+         * @see #duration
+         */
+        public int getDuration() {
+            return duration;
+        }
+        /**
+         * @see #response
+         */
+        public String getResponse() {
+            return response;
+        }
     }
 
     public static class LRS_Context {
-        // TODO incomplete
+        /*
+         * The context field provides a place to add some contextual information to a statement. 
+         * We can add information such as the instructor for an experience, if this experience 
+         * happened as part of a team activity, or how an experience fits into some broader activity.
+         */
+        /**
+         * OPTIONAL
+         * Instructor that the statement relates to, 
+         * if not included as the actor or object of the overall statement.
+         */
+        LRS_Actor instructor;
+        /**
+         * OPTIONAL
+         * Revision of the learning activity associated with this statement.
+         * Revisions are to track fixes of minor issues (like a spelling error), 
+         * if there is any substantive change to the learning objectives, pedagogy, 
+         * or assets associated with an activity, a new activity ID should be used.
+         * Revision format is up to the owner of the associated activity.
+         */
+        String revision;
+        /**
+         * A map of the types of context to learning activities “activity” this statement is related to.
+         * Valid context types are: "parent", "grouping", and "other".
+         * For example, if I am studying a textbook, for a test, the textbook is the activity the statement is about, 
+         * but the test is a context activity, and the context type is "other".
+         * "other" : {"id" : "http://example.adlnet.gov/xapi/example/test"}
+         * There could be an activity hierarchy to keep track of, for example question 1 on test 1 for the course Algebra 1. 
+         * When recording results for question 1, it we can declare that the question is part of test 1, 
+         * but also that it should be grouped with other statements about Algebra 1. This can be done using parent and grouping:
+         * { 
+         *   "parent" : {"id" : "http://example.adlnet.gov/xapi/example/test 1"}, 
+         *   "grouping" : {"id" : "http://example.adlnet.gov/xapi/example/Algebra1"}
+         * }
+         */
+        Map<String, Map<String, String>> activitiesMap;
+        // TODO include fields like team, platform, language, statement, and extensions
+        /**
+         * use of the empty constructor is restricted
+         */
+        protected LRS_Context() {
+        }
+        /**
+         * @param instructor Instructor user that the statement relates to
+         */
+        public LRS_Context(LRS_Actor instructor) {
+            this();
+            if (instructor == null) {
+                throw new IllegalArgumentException("LRS_Context instructor cannot be null");
+            }
+            this.instructor = instructor;
+        }
+        /**
+         * @param contextType must be "parent", "grouping", and "other"
+         * @param activityId a URI or key identifying the activity type (e.g. http://example.adlnet.gov/xapi/example/test)
+         */
+        public LRS_Context(String contextType, String activityId) {
+            this();
+            setActivity(contextType, activityId);
+        }
+        /**
+         * @param instructor Instructor user that the statement relates to
+         */
+        public void setInstructor(LRS_Actor instructor) {
+            this.instructor = instructor;
+        }
+        /**
+         * @param instructorEmail Instructor user email that the statement relates to
+         */
+        public void setInstructor(String instructorEmail) {
+            this.instructor = new LRS_Actor(instructorEmail);
+        }
+        /**
+         * @param contextType must be "parent", "grouping", and "other"
+         * @param activityId a URI or key identifying the activity type (e.g. http://example.adlnet.gov/xapi/example/test)
+         */
+        public void setActivity(String contextType, String activityId) {
+            if (contextType == null || "".equals(contextType)) {
+                throw new IllegalArgumentException("contextType MUST be set");
+            }
+            if (activityId == null || "".equals(activityId)) {
+                throw new IllegalArgumentException("activityId MUST be set");
+            }
+            if (this.activitiesMap == null) {
+                this.activitiesMap = new LinkedHashMap<String, Map<String, String>>();
+            }
+            if (!this.activitiesMap.containsKey(contextType) || this.activitiesMap.get(contextType) == null) {
+                this.activitiesMap.put(contextType, new LinkedHashMap<String, String>());
+            }
+            this.activitiesMap.get(contextType).put("id", activityId);
+        }
+        /**
+         * A map of the types of context to learning activities “activity” this statement is related to.
+         * Valid context types are: "parent", "grouping", and "other".
+         * For example, if I am studying a textbook, for a test, the textbook is the activity the statement is about, 
+         * but the test is a context activity, and the context type is "other".
+         * "other" : {"id" : "http://example.adlnet.gov/xapi/example/test"}
+         * There could be an activity hierarchy to keep track of, for example question 1 on test 1 for the course Algebra 1. 
+         * When recording results for question 1, it we can declare that the question is part of test 1, 
+         * but also that it should be grouped with other statements about Algebra 1. This can be done using parent and grouping:
+         * { 
+         *   "parent" : {"id" : "http://example.adlnet.gov/xapi/example/test 1"}, 
+         *   "grouping" : {"id" : "http://example.adlnet.gov/xapi/example/Algebra1"}
+         * }
+         * @param activitiesMap map where the values should be strings or other maps
+         */
+        public void setActivitiesMap(Map<String, Map<String, String>> activitiesMap) {
+            this.activitiesMap = activitiesMap;
+        }
+        // GETTERS
+        /**
+         * @see #instructor
+         */
+        public LRS_Actor getInstructor() {
+            return instructor;
+        }
+        /**
+         * @see #revision
+         */
+        public String getRevision() {
+            return revision;
+        }
+        /**
+         * @see #activitiesMap
+         */
+        public Map<String, Map<String, String>> getActivitiesMap() {
+            return activitiesMap;
+        }
     }
 
 }
