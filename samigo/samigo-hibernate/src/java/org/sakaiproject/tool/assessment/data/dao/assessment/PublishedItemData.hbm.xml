@@ -31,19 +31,19 @@
     <property name="createdDate" type="timestamp" column="CREATEDDATE" not-null="true" />
     <property name="lastModifiedBy" type="string" length="255" column="LASTMODIFIEDBY" not-null="true" />
     <property name="lastModifiedDate" type="timestamp" column="LASTMODIFIEDDATE" not-null="true" />
-    <set name="itemTextSet" table="SAM_PUBLISHEDITEMTEXT_T" cascade="all" order-by="sequence asc" inverse="true" lazy="false">
+    <set name="itemTextSet" table="SAM_PUBLISHEDITEMTEXT_T" cascade="all" order-by="sequence asc" inverse="true" lazy="false" batch-size="50">
        <key column="ITEMID"/>
        <one-to-many class="org.sakaiproject.tool.assessment.data.dao.assessment.PublishedItemText"/>
     </set>
-    <set name="itemMetaDataSet" table="SAM_PUBLISHEDITEMMETADATA_T" cascade="all" inverse="true" lazy="false">
+    <set name="itemMetaDataSet" table="SAM_PUBLISHEDITEMMETADATA_T" cascade="all" inverse="true" lazy="false" batch-size="50">
        <key column="ITEMID"/>
        <one-to-many class="org.sakaiproject.tool.assessment.data.dao.assessment.PublishedItemMetaData"/>
     </set>
-    <set name="itemFeedbackSet" table="SAM_PUBLISHEDFEEDBACK_T" cascade="all" inverse="true" lazy="true">
+    <set name="itemFeedbackSet" table="SAM_PUBLISHEDFEEDBACK_T" cascade="all" inverse="true" lazy="false" batch-size="50">
        <key column="ITEMID"/>
        <one-to-many class="org.sakaiproject.tool.assessment.data.dao.assessment.PublishedItemFeedback"/>
     </set>
-    <set name="itemAttachmentSet" table="SAM_PUBLISHEDATTACHMENT_T" cascade="all" order-by="createdDate asc" inverse="true" lazy="false">
+    <set name="itemAttachmentSet" table="SAM_PUBLISHEDATTACHMENT_T" cascade="all" order-by="createdDate asc" inverse="true" lazy="false" batch-size="50">
        <key column="ITEMID"/>
        <one-to-many class="org.sakaiproject.tool.assessment.data.dao.assessment.PublishedItemAttachment"/>
     </set>
@@ -60,7 +60,7 @@
       column="ITEMID" not-null="true" index="SAM_PUBITEMTEXT_ITEM_I" />
     <property name="sequence" type="long" column="SEQUENCE" not-null="true" />
     <property name="text" type="text" column="TEXT" not-null="false" />
-    <set name="answerSet" table="SAM_PUBLISHEDANSWER_T" cascade="all" inverse="true" lazy="false">
+    <set name="answerSet" table="SAM_PUBLISHEDANSWER_T" cascade="all" inverse="true" lazy="false" batch-size="50">
        <key column="ITEMTEXTID"/>
        <one-to-many class="org.sakaiproject.tool.assessment.data.dao.assessment.PublishedAnswer"/>
     </set>
@@ -108,7 +108,8 @@
     <property name="score" type="double" column="SCORE" not-null="false" />
     <property name="partialCredit" type="double" column="PARTIAL_CREDIT" not-null="false" /> 
     <property name="discount" type="double" column="DISCOUNT" not-null="false" />
-    <set name="answerFeedbackSet" table="SAM_PUBLISHEDANSWERFEEDBACK_T" cascade="all" inverse="true" lazy="false">
+    <set name="answerFeedbackSet" table="SAM_PUBLISHEDANSWERFEEDBACK_T" cascade="all" inverse="true" lazy="false" batch-size="50">
+      <cache usage="nonstrict-read-write" />
       <key column="ANSWERID" />
       <one-to-many class="org.sakaiproject.tool.assessment.data.dao.assessment.PublishedAnswerFeedback" />
     </set>
