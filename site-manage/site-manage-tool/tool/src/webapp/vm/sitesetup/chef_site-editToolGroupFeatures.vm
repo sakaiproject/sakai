@@ -1,3 +1,13 @@
+<script type="text/javascript">
+    function showToolHolder() {
+    		$('#toolHolder').show();
+    }
+    
+    function hideToolHolder() {
+		$('#toolHolder').hide();    	
+    }
+</script>
+
 ##<!-- $Header: /cvs/sakai2/legacy/tools/src/webapp/vm/sitesetup/chef_site-newSiteFeatures.vm,v 1.1 2005/04/14 20:22:06 ggolden.umich.edu Exp $ -->
 <div class="portletBody">
     #if ($!isProjectSite)
@@ -21,8 +31,10 @@
     <form name="featuresForm" action="#toolForm("$action")" method="post">
         <input type="hidden" name="option" value="add" />
         <input type="hidden" name="eventSubmit_doAdd_features" value="x" />
-         #parse("/vm/sitesetup/toolListDisplay.vm")
-         #if (!$existSite && $sites.size() > 0)
+    
+            #parse("/vm/sitesetup/toolGroupMultipleDisplay.vm")
+   
+            #if (!$existSite && $sites.size() > 0)
             <fieldset style="clear: both">
                 <legend>
                     <h4>$tlang.getString("feat.reuse")</h4>
@@ -65,7 +77,7 @@
                     value="$tlang.getString('gen.continue')"
                     accesskey="s"
                     class="active"
-                    onclick="document.featuresForm.option.value='continue';javascript:document.featuresForm.submit();" />
+                    onclick="javascript:hideToolHolder()" />
             #if (!$!existSite)
             <input type="button" value="$tlang.getString('gen.back')" 
                     name="Back" 

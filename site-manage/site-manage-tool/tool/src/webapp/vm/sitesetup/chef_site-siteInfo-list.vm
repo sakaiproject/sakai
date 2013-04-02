@@ -350,8 +350,7 @@ function printPreview(target){
 		 <div class="navPanel">
 		 	<div class="viewNav">
 			 	<h4>
-					$validator.escapeHtml($!siteTitle) $tlang.getString("sitegen.siteinfolist.part") ($tlang.getFormattedMessage("sinfo.list.participantListSize", $!participantListSize))
-
+					$validator.escapeHtml($!siteTitle) $tlang.getString("sitegen.siteinfolist.part") (# $!participantListSize)		 		
 			 	</h4>
 			</div>
 			<div class="listNav">
