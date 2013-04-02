@@ -54,8 +54,6 @@ public class ItemData
   private Set itemTextSet;
   private Set itemMetaDataSet;
   private Set itemFeedbackSet;
-  private HashMap itemMetaDataMap = new HashMap();
-  private HashMap itemFeedbackMap;
   private Set itemAttachmentSet;
 
   public ItemData() {}
@@ -379,18 +377,6 @@ public class ItemData
 
   public void setItemMetaDataSet(Set itemMetaDataSet) {
     this.itemMetaDataSet = itemMetaDataSet;
-    this.itemMetaDataMap = getItemMetaDataMap(itemMetaDataSet);
-  }
-
-  public HashMap getItemMetaDataMap(Set itemMetaDataSet) {
-    HashMap itemMetaDataMap = new HashMap();
-    if (itemMetaDataSet != null){
-      for (Iterator i = itemMetaDataSet.iterator(); i.hasNext(); ) {
-        ItemMetaData itemMetaData = (ItemMetaData) i.next();
-        itemMetaDataMap.put(itemMetaData.getLabel(), itemMetaData.getEntry());
-      }
-    }
-    return itemMetaDataMap;
   }
 
   public Set getItemFeedbackSet() {
@@ -399,18 +385,6 @@ public class ItemData
 
   public void setItemFeedbackSet(Set itemFeedbackSet) {
     this.itemFeedbackSet = itemFeedbackSet;
-    this.itemFeedbackMap = getItemFeedbackMap(itemFeedbackSet);
-  }
-
-  public HashMap getItemFeedbackMap(Set itemFeedbackSet) {
-    HashMap itemFeedbackMap = new HashMap();
-    if (itemFeedbackSet != null){
-      for (Iterator i = itemFeedbackSet.iterator(); i.hasNext(); ) {
-        ItemFeedbackIfc itemFeedback = (ItemFeedbackIfc) i.next();
-        itemFeedbackMap.put(itemFeedback.getTypeId(), itemFeedback.getText());
-      }
-    }
-    return itemFeedbackMap;
   }
 
   private void writeObject(java.io.ObjectOutputStream out) throws IOException {
@@ -432,15 +406,19 @@ public class ItemData
   }
 
   public String getItemMetaDataByLabel(String label) {
-    return (String)this.itemMetaDataMap.get(label);
+    for (Iterator i = this.itemMetaDataSet.iterator(); i.hasNext(); ) {
+      ItemMetaData imd = (ItemMetaData) i.next();
+      if (imd.getLabel().equals(label)) {
+        return (String) imd.getEntry();
+      }
+    }
+    return null;
   }
 
   public void addItemMetaData(String label, String entry) {
     if (this.itemMetaDataSet == null) {
       setItemMetaDataSet(new HashSet());
-      this.itemMetaDataMap = new HashMap();
     }
-    this.itemMetaDataMap.put(label, entry);
     this.itemMetaDataSet.add(new ItemMetaData(this, label, entry));
   }
 
@@ -480,17 +458,19 @@ public class ItemData
   }
 
   public String getItemFeedback(String typeId) {
-    if (this.itemFeedbackMap == null)
-      this.itemFeedbackMap = getItemFeedbackMap(this.itemFeedbackSet);
-    return (String)this.itemFeedbackMap.get(typeId);
+    for (Iterator i = this.itemFeedbackSet.iterator(); i.hasNext(); ) {
+      ItemFeedback itemFeedback = (ItemFeedback) i.next();
+      if (itemFeedback.getTypeId().equals(typeId)) {
+        return (String) itemFeedback.getText();
+      }
+    }
+    return null;
   }
 
   public void addItemFeedback(String typeId, String text) {
     if (this.itemFeedbackSet == null) {
       setItemFeedbackSet(new HashSet());
-      this.itemFeedbackMap = new HashMap();
     }
-    this.itemFeedbackMap.put(typeId, text);
     this.itemFeedbackSet.add(new ItemFeedback(this, typeId, text));
   }
 

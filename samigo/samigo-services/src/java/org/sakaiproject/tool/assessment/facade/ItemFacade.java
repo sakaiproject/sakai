@@ -89,8 +89,6 @@ public class ItemFacade implements Serializable, ItemDataIfc, Comparable {
   protected Set itemTextSet;
   protected Set itemMetaDataSet;
   protected Set itemFeedbackSet;
-  protected HashMap itemMetaDataMap = new HashMap();
-  protected HashMap itemFeedbackMap = new HashMap();
   protected TypeFacade itemTypeFacade;
   protected Set itemAttachmentSet;
   protected String itemAttachmentMetaData;
@@ -141,9 +139,7 @@ public class ItemFacade implements Serializable, ItemDataIfc, Comparable {
     this.itemType = getItemType();
     this.itemTextSet = getItemTextSet();
     this.itemMetaDataSet = getItemMetaDataSet();
-    this.itemMetaDataMap = getItemMetaDataMap(this.itemMetaDataSet);
     this.itemFeedbackSet = getItemFeedbackSet();
-    this.itemFeedbackMap = getItemFeedbackMap(this.itemFeedbackSet);
     this.hasRationale= data.getHasRationale();//rshastri :SAK-1824
     this.itemAttachmentSet = getItemAttachmentSet();
   }
@@ -683,24 +679,6 @@ public class ItemFacade implements Serializable, ItemDataIfc, Comparable {
   public void setItemMetaDataSet(Set itemMetaDataSet) {
     this.itemMetaDataSet = itemMetaDataSet;
     this.data.setItemMetaDataSet(itemMetaDataSet);
-    this.itemMetaDataMap = getItemMetaDataMap(itemMetaDataSet);
-  }
-
-  /**
-   * Get item metadata in HashMap (String Label, ItemMetaData itemMetaData) of
-   * ItemFacade
-   * @param itemMetaDataSet
-   * @return
-   */
-  public HashMap getItemMetaDataMap(Set itemMetaDataSet) {
-    HashMap itemMetaDataMap = new HashMap();
-    if (itemMetaDataSet !=null){
-      for (Iterator i = itemMetaDataSet.iterator(); i.hasNext(); ) {
-        ItemMetaDataIfc itemMetaData = (ItemMetaDataIfc) i.next();
-        itemMetaDataMap.put(itemMetaData.getLabel(), itemMetaData.getEntry());
-      }
-    }
-    return itemMetaDataMap;
   }
 
   /**
@@ -724,25 +702,7 @@ public class ItemFacade implements Serializable, ItemDataIfc, Comparable {
    public void setItemFeedbackSet(Set itemFeedbackSet) {
      this.itemFeedbackSet = itemFeedbackSet;
      this.data.setItemFeedbackSet(itemFeedbackSet);
-     this.itemFeedbackMap = getItemFeedbackMap(itemFeedbackSet);
    }
-
-  /**
-   * Get a HashMap (Long feedbackTypeId, ItemFeedback itemFeedback) of item
-   * feedback for ItemFacade
-   * @param itemFeedbackSet
-   * @return
-   */
-  public HashMap getItemFeedbackMap(Set itemFeedbackSet) {
-    HashMap itemFeedbackMap = new HashMap();
-    if (itemFeedbackSet != null){
-      for (Iterator i = itemFeedbackSet.iterator(); i.hasNext(); ) {
-        ItemFeedbackIfc itemFeedback = (ItemFeedbackIfc) i.next();
-        itemFeedbackMap.put(itemFeedback.getTypeId(), itemFeedback.getText());
-      }
-    }
-    return itemFeedbackMap;
-  }
 
   /**
    * implements Serializable method
@@ -789,7 +749,13 @@ public class ItemFacade implements Serializable, ItemDataIfc, Comparable {
    * @return
    */
   public String getItemMetaDataByLabel(String label) {
-    return (String)this.itemMetaDataMap.get(label);
+    for (Iterator i = this.itemMetaDataSet.iterator(); i.hasNext(); ) {
+      ItemMetaDataIfc itemMetaData = (ItemMetaDataIfc) i.next();
+      if (itemMetaData.getLabel().equals(label)) {
+        return itemMetaData.getEntry();
+      }
+    }
+    return null;
   }
 
   /**
@@ -800,9 +766,7 @@ public class ItemFacade implements Serializable, ItemDataIfc, Comparable {
   public void addItemMetaData(String label, String entry) {
     if (this.itemMetaDataSet == null) {
       setItemMetaDataSet(new HashSet());
-      this.itemMetaDataMap = new HashMap();
     }
-    this.itemMetaDataMap.put(label, entry);
     this.data.getItemMetaDataSet().add(new ItemMetaData((ItemData)this.data, label, entry));
     this.itemMetaDataSet = this.data.getItemMetaDataSet();
   }
@@ -865,7 +829,13 @@ public class ItemFacade implements Serializable, ItemDataIfc, Comparable {
    * @return
    */
   public String getItemFeedback(String feedbackTypeId) {
-    return (String)this.itemFeedbackMap.get(feedbackTypeId);
+    for (Iterator i = this.itemFeedbackSet.iterator(); i.hasNext(); ) {
+      ItemFeedbackIfc itemFeedback = (ItemFeedbackIfc) i.next();
+      if (itemFeedback.getTypeId().equals(feedbackTypeId)) {
+        return itemFeedback.getText();
+      }
+    }
+    return null;
   }
 
   /**
@@ -877,9 +847,7 @@ public class ItemFacade implements Serializable, ItemDataIfc, Comparable {
   public void addItemFeedback(String feedbackTypeId, String text) {
     if (this.itemFeedbackSet == null) {
       setItemFeedbackSet(new HashSet());
-      this.itemFeedbackMap = new HashMap();
     }
-    this.itemFeedbackMap.put(feedbackTypeId, text);
     this.data.getItemFeedbackSet().add(new ItemFeedback((ItemData)this.data, feedbackTypeId, text));
     this.itemFeedbackSet = this.data.getItemFeedbackSet();
   }

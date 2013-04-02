@@ -125,13 +125,9 @@ public interface ItemDataIfc extends java.io.Serializable {
 
   void setItemMetaDataSet(Set itemMetaDataSet);
 
-  HashMap getItemMetaDataMap(Set itemMetaDataSet) ;
-
   Set getItemFeedbackSet();
 
   void setItemFeedbackSet(Set itemFeedbackSet);
-
-  HashMap getItemFeedbackMap(Set itemFeedbackSet) ;
 
   String getItemMetaDataByLabel(String label);
 

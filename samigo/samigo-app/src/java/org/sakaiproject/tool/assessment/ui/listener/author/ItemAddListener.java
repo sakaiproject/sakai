@@ -2240,7 +2240,7 @@ public class ItemAddListener
   
   private void updateItemFeedback(ItemFacade item, String feedbackTypeId, String feedbackText) {
 	  Set itemFeedbackSet = item.getItemFeedbackSet();
-	  if ((itemFeedbackSet == null || itemFeedbackSet.size() == 0) || !item.getItemFeedbackMap(itemFeedbackSet).containsKey(feedbackTypeId)) {
+	  if ((itemFeedbackSet == null || itemFeedbackSet.size() == 0)) {
 		  item.addItemFeedback(feedbackTypeId, feedbackText);
 	  }
 	  else {
@@ -2249,7 +2249,6 @@ public class ItemAddListener
 			  ItemFeedbackIfc itemFeedback = (ItemFeedbackIfc) iter.next();
 			  if (itemFeedback.getTypeId().equals(feedbackTypeId)) {
 				  itemFeedback.setText(feedbackText);
-				  item.getItemFeedbackMap(itemFeedbackSet).put(feedbackTypeId, feedbackText);
 			  }
 		  }
 	  }

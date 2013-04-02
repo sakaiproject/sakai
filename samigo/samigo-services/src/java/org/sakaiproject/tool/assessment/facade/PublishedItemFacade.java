@@ -65,9 +65,7 @@ public class PublishedItemFacade extends ItemFacade implements Serializable, Ite
 	    this.itemType = getItemType();
 	    this.itemTextSet = getItemTextSet();
 	    this.itemMetaDataSet = getItemMetaDataSet();
-	    this.itemMetaDataMap = getItemMetaDataMap(this.itemMetaDataSet);
 	    this.itemFeedbackSet = getItemFeedbackSet();
-	    this.itemFeedbackMap = getItemFeedbackMap(this.itemFeedbackSet);
 	    this.hasRationale= data.getHasRationale();//rshastri :SAK-1824
 	    this.itemAttachmentSet = getItemAttachmentSet();
 	  }
@@ -154,9 +152,7 @@ public class PublishedItemFacade extends ItemFacade implements Serializable, Ite
 	  public void addItemMetaData(String label, String entry) {
 	    if (this.itemMetaDataSet == null) {
 	      setItemMetaDataSet(new HashSet());
-	      this.itemMetaDataMap = new HashMap();
 	    }
-	    this.itemMetaDataMap.put(label, entry);
 	    this.data.getItemMetaDataSet().add(new PublishedItemMetaData((PublishedItemData)this.data, label, entry));
 	    this.itemMetaDataSet = this.data.getItemMetaDataSet();
 	  }
@@ -170,9 +166,7 @@ public class PublishedItemFacade extends ItemFacade implements Serializable, Ite
 	  public void addItemFeedback(String feedbackTypeId, String text) {
 	    if (this.itemFeedbackSet == null) {
 	      setItemFeedbackSet(new HashSet());
-	      this.itemFeedbackMap = new HashMap();
 	    }
-	    this.itemFeedbackMap.put(feedbackTypeId, text);
 	    this.data.getItemFeedbackSet().add(new PublishedItemFeedback((PublishedItemData)this.data, feedbackTypeId, text));
 	    this.itemFeedbackSet = this.data.getItemFeedbackSet();
 	  }

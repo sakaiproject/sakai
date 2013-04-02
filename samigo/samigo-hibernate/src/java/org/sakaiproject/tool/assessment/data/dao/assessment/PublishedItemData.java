@@ -71,8 +71,6 @@ public class PublishedItemData
   private Set itemTextSet;
   private Set itemMetaDataSet;
   private Set itemFeedbackSet;
-  private HashMap itemMetaDataMap = new HashMap();
-  private HashMap itemFeedbackMap = new HashMap();
   private ItemGradingData lastItemGradingDataByAgent;
   private Set itemAttachmentSet;
   private Boolean partialCreditFlag;
@@ -305,18 +303,6 @@ public class PublishedItemData
 
   public void setItemMetaDataSet(Set itemMetaDataSet) {
     this.itemMetaDataSet = itemMetaDataSet;
-    this.itemMetaDataMap = getItemMetaDataMap(itemMetaDataSet);
-  }
-
-  public HashMap getItemMetaDataMap(Set itemMetaDataSet) {
-    HashMap itemMetaDataMap = new HashMap();
-    if (itemMetaDataSet != null){
-      for (Iterator i = itemMetaDataSet.iterator(); i.hasNext(); ) {
-        PublishedItemMetaData itemMetaData = (PublishedItemMetaData) i.next();
-        itemMetaDataMap.put(itemMetaData.getLabel(), itemMetaData.getEntry());
-      }
-    }
-    return itemMetaDataMap;
   }
 
   public Set getItemFeedbackSet() {
@@ -325,18 +311,6 @@ public class PublishedItemData
 
   public void setItemFeedbackSet(Set itemFeedbackSet) {
     this.itemFeedbackSet = itemFeedbackSet;
-    this.itemFeedbackMap = getItemFeedbackMap(itemFeedbackSet);
-  }
-
-  public HashMap getItemFeedbackMap(Set itemFeedbackSet) {
-    HashMap itemFeedbackMap = new HashMap();
-    if (itemFeedbackSet != null){
-      for (Iterator i = itemFeedbackSet.iterator(); i.hasNext(); ) {
-        PublishedItemFeedback itemFeedback = (PublishedItemFeedback) i.next();
-        itemFeedbackMap.put(itemFeedback.getTypeId(), itemFeedback.getText());
-      }
-    }
-    return itemFeedbackMap;
   }
 
   private void writeObject(java.io.ObjectOutputStream out) throws IOException {
@@ -358,15 +332,19 @@ public class PublishedItemData
   }
 
   public String getItemMetaDataByLabel(String label) {
-    return (String)this.itemMetaDataMap.get(label);
+    for (Iterator<PublishedItemMetaData> it = this.itemMetaDataSet.iterator(); it.hasNext();) {
+      PublishedItemMetaData imd = (PublishedItemMetaData) it.next();
+      if (imd.getLabel().equals(label)) {
+        return (String) imd.getEntry();
+      }
+    }
+    return null;
   }
 
   public void addItemMetaData(String label, String entry) {
     if (this.itemMetaDataSet == null) {
       setItemMetaDataSet(new HashSet());
-      this.itemMetaDataMap = new HashMap();
     }
-    this.itemMetaDataMap.put(label, entry);
     this.itemMetaDataSet.add(new PublishedItemMetaData(this, label, entry));
   }
 
@@ -406,15 +384,20 @@ public class PublishedItemData
   }
 
   public String getItemFeedback(String typeId) {
-    return (String)this.itemFeedbackMap.get(typeId);
+    for (Iterator i = this.itemFeedbackSet.iterator(); i.hasNext(); ) {
+      PublishedItemFeedback itemFeedback = (PublishedItemFeedback) i.next();
+      if (itemFeedback.getTypeId().equals(typeId)) {
+        return itemFeedback.getText();
+      }
+    }
+
+    return null;
   }
 
   public void addItemFeedback(String typeId, String text) {
     if (this.itemFeedbackSet == null) {
       setItemFeedbackSet(new HashSet());
-      this.itemFeedbackMap = new HashMap();
     }
-    this.itemFeedbackMap.put(typeId, text);
     this.itemFeedbackSet.add(new PublishedItemFeedback(this, typeId, text));
   }
 
