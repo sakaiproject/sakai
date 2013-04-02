@@ -876,4 +876,8 @@ public class ElasticSearchService implements SearchService {
     public void setFilter(SearchItemFilter filter) {
         this.filter = filter;
     }
+
+    public void setSearchServer(boolean searchServer) {
+        this.searchServer = searchServer;
+    }
 }
