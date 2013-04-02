@@ -332,8 +332,8 @@ function GetResourcesAssignsTestsTopicsCallBack( fckXml )
                 oHtml.Append('<\/td><td colspan="3" class="ListHeading">'+nodeName+'<\/td><\/tr><tbody id="grp'+provider+'" class="grpCollapsed">' ) ;
 
                 for (var j = 0 ; j < jNodes.length ; j++) {
-                    var sItemName = jNodes[i].attributes.getNamedItem('name').value ;
-                    var sItemUrl = jNodes[i].attributes.getNamedItem('url').value ;
+                    var sItemName = jNodes[j].attributes.getNamedItem('name').value ;
+                    var sItemUrl = jNodes[j].attributes.getNamedItem('url').value ;
                     oHtml.Append( oListManager.GetItemRowHtml( sItemName, sItemUrl, true ) ) ;
                 }
 	            oHtml.Append( '<\/tbody><tr><td colspan="4">&nbsp;<\/td><\/tr>' ) ;
