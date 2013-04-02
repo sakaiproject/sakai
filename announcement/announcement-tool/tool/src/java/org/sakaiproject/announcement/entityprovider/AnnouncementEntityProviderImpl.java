@@ -30,31 +30,33 @@ import java.util.List;
 import java.util.Map;
 import java.util.Properties;
 
+import lombok.Getter;
+import lombok.NoArgsConstructor;
+import lombok.Setter;
+
 import org.apache.commons.lang.StringUtils;
 import org.apache.commons.lang.math.NumberUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.sakaiproject.announcement.api.AnnouncementChannel;
 import org.sakaiproject.announcement.api.AnnouncementMessage;
-import org.sakaiproject.announcement.api.AnnouncementMessageEdit;
 import org.sakaiproject.announcement.api.AnnouncementMessageHeader;
-import org.sakaiproject.announcement.api.AnnouncementMessageHeaderEdit;
 import org.sakaiproject.announcement.api.AnnouncementService;
 import org.sakaiproject.authz.api.SecurityService;
-import org.sakaiproject.component.cover.ServerConfigurationService;
 import org.sakaiproject.entity.api.EntityManager;
 import org.sakaiproject.entity.api.EntityPermissionException;
 import org.sakaiproject.entity.api.Reference;
-import org.sakaiproject.entitybroker.EntityBrokerManager;
 import org.sakaiproject.entitybroker.EntityReference;
 import org.sakaiproject.entitybroker.EntityView;
-import org.sakaiproject.entitybroker.entityprovider.CoreEntityProvider;
+import org.sakaiproject.entitybroker.entityprovider.EntityProvider;
 import org.sakaiproject.entitybroker.entityprovider.annotations.EntityCustomAction;
 import org.sakaiproject.entitybroker.entityprovider.capabilities.ActionsExecutable;
 import org.sakaiproject.entitybroker.entityprovider.capabilities.AutoRegisterEntityProvider;
-import org.sakaiproject.entitybroker.entityprovider.capabilities.RESTful;
+import org.sakaiproject.entitybroker.entityprovider.capabilities.Describeable;
+import org.sakaiproject.entitybroker.entityprovider.capabilities.Outputable;
+import org.sakaiproject.entitybroker.entityprovider.capabilities.Resolvable;
+import org.sakaiproject.entitybroker.entityprovider.capabilities.Sampleable;
 import org.sakaiproject.entitybroker.entityprovider.extension.Formats;
-import org.sakaiproject.entitybroker.entityprovider.search.Search;
 import org.sakaiproject.entitybroker.exception.EntityException;
 import org.sakaiproject.entitybroker.exception.EntityNotFoundException;
 import org.sakaiproject.entitybroker.util.AbstractEntityProvider;
@@ -80,7 +82,7 @@ import org.sakaiproject.util.Validator;
  * the {siteId}:{channelId}:{announcementId} into the ID.
  *
  */
-public class AnnouncementEntityProviderImpl extends AbstractEntityProvider implements CoreEntityProvider, AutoRegisterEntityProvider, ActionsExecutable, RESTful{
+public class AnnouncementEntityProviderImpl extends AbstractEntityProvider implements EntityProvider, AutoRegisterEntityProvider, ActionsExecutable, Outputable, Describeable, Sampleable, Resolvable {
 
 	public final static String ENTITY_PREFIX = "announcement";
 	
@@ -92,21 +94,14 @@ public class AnnouncementEntityProviderImpl extends AbstractEntityProvider imple
 	public static int DEFAULT_DAYS_IN_PAST = 10;
 	private static final Log log = LogFactory.getLog(AnnouncementEntityProviderImpl.class);
 	private static ResourceLoader rb = new ResourceLoader("announcement");
-	private EntityBrokerManager entityBrokerManager;
-    
-    
-    public void setEntityBrokerManager(EntityBrokerManager entityBrokerManager)
-    {
-       this.entityBrokerManager = entityBrokerManager;
-    }
     
 	/**
 	 * Prefix for this provider
 	 */
+	@Override
 	public String getEntityPrefix() {
 		return ENTITY_PREFIX;
 	}
-
 	
 	/**
 	 * Get the list of announcements for a site (or user site, or !site for motd)
@@ -116,7 +111,7 @@ public class AnnouncementEntityProviderImpl extends AbstractEntityProvider imple
 	 * @param onlyPublic - only show public announcements
 	 * @return
 	 */
-	public List<?> getAnnouncements(String siteId, Map<String,Object> params, boolean onlyPublic) {
+	private List<?> getAnnouncements(String siteId, Map<String,Object> params, boolean onlyPublic) {
 				
 		//check if we are loading the MOTD
 		boolean motdView = false;
@@ -132,10 +127,12 @@ public class AnnouncementEntityProviderImpl extends AbstractEntityProvider imple
 		//get currentUserId for permissions checks, although unused for motdView and onlyPublic
 		String currentUserId = sessionManager.getCurrentSessionUserId();
 		
-		log.debug("motdView: " + motdView);
-		log.debug("siteId: " + siteId);
-		log.debug("currentUserId: " + currentUserId);
-		log.debug("onlyPublic: " + onlyPublic);
+		if(log.isDebugEnabled()) {
+			log.debug("motdView: " + motdView);
+			log.debug("siteId: " + siteId);
+			log.debug("currentUserId: " + currentUserId);
+			log.debug("onlyPublic: " + onlyPublic);
+		}
 		
 		//check current user has annc.read permissions for this site, not for public or motd though
 		if(!onlyPublic && !motdView) {
@@ -150,8 +147,10 @@ public class AnnouncementEntityProviderImpl extends AbstractEntityProvider imple
 			throw new EntityNotFoundException("No announcement channels found for site: " + siteId, siteId);
 		}
 		
-		log.debug("channels: " + channels.toString());
-		log.debug("num channels: " + channels.size());
+		if(log.isDebugEnabled()) {
+			log.debug("channels: " + channels.toString());
+			log.debug("num channels: " + channels.size());
+		}
 		
 		Site site = null;
 		String siteTitle = null;
@@ -205,8 +204,10 @@ public class AnnouncementEntityProviderImpl extends AbstractEntityProvider imple
 			numberOfDaysInThePast = DEFAULT_DAYS_IN_PAST;
 		}
 
-		log.debug("numberOfAnnouncements: " + numberOfAnnouncements);
-		log.debug("numberOfDaysInThePast: " + numberOfDaysInThePast);
+		if(log.isDebugEnabled()) {
+			log.debug("numberOfAnnouncements: " + numberOfAnnouncements);
+			log.debug("numberOfDaysInThePast: " + numberOfDaysInThePast);
+		}
 		
 		//get the Sakai Time for the given java Date
 		Time t = timeService.newTime(getTimeForDaysInPast(numberOfDaysInThePast).getTime());
@@ -223,7 +224,9 @@ public class AnnouncementEntityProviderImpl extends AbstractEntityProvider imple
 			}
 		}
 		
-		log.debug("announcements.size(): " + announcements.size());
+		if(log.isDebugEnabled()) {
+			log.debug("announcements.size(): " + announcements.size());
+		}
 		
 		//convert raw announcements into decorated announcements
 		List<DecoratedAnnouncement> decoratedAnnouncements = new ArrayList<DecoratedAnnouncement>();
@@ -257,8 +260,7 @@ public class AnnouncementEntityProviderImpl extends AbstractEntityProvider imple
 	}
 
 
-	private DecoratedAnnouncement createDecoratedAnnouncement(
-			AnnouncementMessage a, String siteTitle) {
+	private DecoratedAnnouncement createDecoratedAnnouncement(AnnouncementMessage a, String siteTitle) {
 		String reference = a.getReference();
 		String announcementId = a.getId();
 		Reference ref = entityManager.newReference(reference);
@@ -274,25 +276,24 @@ public class AnnouncementEntityProviderImpl extends AbstractEntityProvider imple
 		da.setSiteId(siteId);
 		da.setSiteTitle(siteTitle);
 		
-
 		//get attachments
 		List<DecoratedAttachment> attachments = new ArrayList<DecoratedAttachment>();
 		for (Reference attachment : (List<Reference>) a.getHeader().getAttachments()) {
-				String url = attachment.getUrl();
-				String name = attachment.getProperties().getPropertyFormatted(attachment.getProperties().getNamePropDisplayName());
-				DecoratedAttachment decoratedAttachment = new DecoratedAttachment(name, url);
-				attachments.add(decoratedAttachment);
+			String url = attachment.getUrl();
+			String name = attachment.getProperties().getPropertyFormatted(attachment.getProperties().getNamePropDisplayName());
+			DecoratedAttachment decoratedAttachment = new DecoratedAttachment(name, url);
+			attachments.add(decoratedAttachment);
 		}
 		da.setAttachments(attachments);
 		return da;
 	}
 	
-	   /**
-	    * Return a list of DecoratedAttachment objects
-	    * @param attachments List of Reference objects
-	    * @return
-	    */
-	 private List<DecoratedAttachment> decorateAttachments(List<Reference> attachments) {
+	/**
+	* Return a list of DecoratedAttachment objects
+	* @param attachments List of Reference objects
+	* @return
+	*/
+	private List<DecoratedAttachment> decorateAttachments(List<Reference> attachments) {
 	      List<DecoratedAttachment> decoAttachments = new ArrayList<DecoratedAttachment>();
 	      for(Reference attachment : attachments){
 	         DecoratedAttachment da = new DecoratedAttachment();
@@ -306,18 +307,22 @@ public class AnnouncementEntityProviderImpl extends AbstractEntityProvider imple
 	      }
 	      return decoAttachments;
 	   }
-	 
-	public DecoratedAnnouncement findEntityById(String entityId, String siteId) {
+	
+	/**
+	 * Gets an announcement based on the id and site
+	 * @param entityId	id of the announcement
+	 * @param siteId	siteid
+	 * @return
+	 */
+	private DecoratedAnnouncement findEntityById(String entityId, String siteId) {
 	      AnnouncementMessage tempMsg=null;
 	      DecoratedAnnouncement decoratedAnnouncement = new DecoratedAnnouncement();
 	      if (entityId != null) {
 	         try {
 	            AnnouncementChannel announcementChannel = announcementService.getAnnouncementChannel("/announcement/channel/"+siteId+"/main");
 	            tempMsg = (AnnouncementMessage)announcementChannel.getMessage(entityId);
-	         } catch (IdUnusedException e) {
-	            log.error("ID Unused Exception");
-	         } catch (PermissionException e) {
-	            log.error("ID PermissionException");
+	         } catch (Exception e) {
+				log.error("Error finding announcement: " + entityId + " in site: " + siteId + "." + e.getClass() + ":" + e.getStackTrace());
 	         }
 	      }
 	      decoratedAnnouncement.setSiteId(tempMsg.getId());
@@ -542,170 +547,101 @@ public class AnnouncementEntityProviderImpl extends AbstractEntityProvider imple
 		return getAnnouncement(siteId, channelId, announcementId);
 	}
 	
-/**
-* message/siteId/EntityID
-*/
-   @EntityCustomAction(action="message",viewKey=EntityView.VIEW_LIST)
-   public Object getAnnouncementByID(EntityView view, Map<String, Object> params) {
-
-      String siteId = view.getPathSegment(2);
-      String msgId = view.getPathSegment(3);
-
-      //check siteId supplied
-      if (StringUtils.isBlank(siteId)|| StringUtils.isBlank(msgId)) {
-         throw new IllegalArgumentException("siteId must be set in order to get the announcements for a site, via the URL /announcement/site/siteId");
-      }
-
-      boolean onlyPublic = false;
-
-      //check if logged in
-      String currentUserId = sessionManager.getCurrentSessionUserId();
-      if (StringUtils.isBlank(currentUserId)) {
-         //not logged in so set flag to just return any public announcements for the site
-         onlyPublic = true;
-      }
-
-      //check this is a valid site
-      if(!siteService.siteExists(siteId)) {
-         throw new EntityNotFoundException("Invalid siteId: " + siteId, siteId);
-      }
-
-      return findEntityById(msgId, siteId);
-   }
-
-   private DecoratedAnnouncement getAnnouncement(String siteId, String channelId, String announcementId) {
-	if (announcementId == null || announcementId.length() == 0) {
-		throw new IllegalArgumentException("You must supply an announcementId");
-	}
-	if (siteId == null || siteId.length() == 0) {
-		throw new IllegalArgumentException("You must supply the siteId.");
-	}
-	if (channelId == null || channelId.length() == 0) {
-		throw new IllegalArgumentException("You must supply an channelId");
-	}
-	String ref = announcementService.channelReference(siteId, channelId);
-	try {
-		AnnouncementChannel channel = announcementService.getAnnouncementChannel(ref);
-		AnnouncementMessage message = channel.getAnnouncementMessage(announcementId);
-		return createDecoratedAnnouncement(message, null);
+	/**
+	* message/siteId/EntityID
+	*/
+	@EntityCustomAction(action="message",viewKey=EntityView.VIEW_LIST)
+	public Object getAnnouncementByID(EntityView view, Map<String, Object> params) {
+		String siteId = view.getPathSegment(2);
+		String msgId = view.getPathSegment(3);
 		
-	} catch (IdUnusedException e) {
-		throw new EntityNotFoundException("Couldn't find: "+ e.getId(), e.getId());
-	} catch (PermissionException e) {
-		throw new EntityException("You don't have permissions to access this channel.", e.getResource(), 403);
+		//check siteId supplied
+		if (StringUtils.isBlank(siteId)|| StringUtils.isBlank(msgId)) {
+			throw new IllegalArgumentException("siteId and msgId must be set in order to get the announcements for a site, via the URL /announcement/message");
+		}
+		
+		boolean onlyPublic = false;
+		
+		//check if logged in
+		String currentUserId = sessionManager.getCurrentSessionUserId();
+		if (StringUtils.isBlank(currentUserId)) {
+			//not logged in so set flag to just return any public announcements for the site
+			onlyPublic = true;
+		}
+		
+		//check this is a valid site
+		if(!siteService.siteExists(siteId)) {
+			throw new EntityNotFoundException("Invalid siteId: " + siteId, siteId);
+		}
+		return findEntityById(msgId, siteId);
 	}
-}
 
-   public class DecoratedAttachment {
-	  private String id;
-	  private String name;
-	  private String type;
-	  private String url;
-	  private String ref;
-	  
-      public DecoratedAttachment() {
-         
-      }
-      
-      public DecoratedAttachment(String name, String url){
-    	  this.name = name;
-    	  this.url = url;
-      }
-      public DecoratedAttachment(String id, String name, String type, String url, String ref) {
-         this.id = id;
-         this.name = name;
-         this.type = type;
-         this.url = url;
-         this.setRef(ref);
-      }
+	/**
+	 * Get a DecoratedAnnouncement given the siteId, channelId and announcementId
+	 * @param siteId		
+	 * @param channelId
+	 * @param announcementId
+	 * @return
+	 */
+	private DecoratedAnnouncement getAnnouncement(String siteId, String channelId, String announcementId) {
+		if (announcementId == null || announcementId.length() == 0) {
+			throw new IllegalArgumentException("You must supply an announcementId");
+		}
+		if (siteId == null || siteId.length() == 0) {
+			throw new IllegalArgumentException("You must supply the siteId.");
+		}
+		if (channelId == null || channelId.length() == 0) {
+			throw new IllegalArgumentException("You must supply an channelId");
+		}
+		String ref = announcementService.channelReference(siteId, channelId);
+		try {
+			AnnouncementChannel channel = announcementService.getAnnouncementChannel(ref);
+			AnnouncementMessage message = channel.getAnnouncementMessage(announcementId);
+			return createDecoratedAnnouncement(message, null);
+		} catch (IdUnusedException e) {
+			throw new EntityNotFoundException("Couldn't find: "+ e.getId(), e.getId());
+		} catch (PermissionException e) {
+			throw new EntityException("You don't have permissions to access this channel.", e.getResource(), 403);
+		}
+	}
 
-      public String getId() {
-         return id;
-      }
+	/**
+	 * Model class for an attachment
+	 */
+	@NoArgsConstructor
+	public class DecoratedAttachment {
 
-      public void setId(String id) {
-         this.id = id;
-      }
-
-      public String getName() {
-         return name;
-      }
-
-      public void setName(String name) {
-         this.name = name;
-      }
-
-      public String getType() {
-         return type;
-      }
-
-      public void setType(String type) {
-         this.type = type;
-      }
-
-      public void setUrl(String url) {
-         this.url = url;
-      }
-
-      public String getUrl() {
-         return url;
-      }
-
-      public void setRef(String ref) {
-         this.ref = ref;
-      }
-
-      public String getRef() {
-         return ref;
-      }
-   }
+		@Getter @Setter private String id;
+		@Getter @Setter private String name;
+		@Getter @Setter private String type;
+		@Getter @Setter private String url;
+		@Getter @Setter private String ref;
+		
+		public DecoratedAttachment(String name, String url){
+			this.name = name;
+			this.url = url;
+		}
+		
+		public DecoratedAttachment(String id, String name, String type, String url, String ref) {
+			this.id = id;
+			this.name = name;
+			this.type = type;
+			this.url = url;
+			this.setRef(ref);
+		}
+	}
 
 	
-	public boolean entityExists(String id) {
-		return true;
-	}
-	
+	@Override
 	public Object getSampleEntity() {
 		return new DecoratedAnnouncement();
-	}
-	
-	
-	/**
-	 * Unimplemented EntityBroker methods
-	 */
-	public List<String> findEntityRefs(String[] arg0, String[] arg1, String[] arg2, boolean arg3) {
-		// TODO Auto-generated method stub
-		return null;
-	}
-
-	public String createEntity(EntityReference ref, Object entity, Map<String, Object> params) {
-		// TODO Auto-generated method stub
-		return null;
-	}
-
-	public void updateEntity(EntityReference ref, Object entity, Map<String, Object> params) {
-		// TODO Auto-generated method stub
-		
-	}
-	
-	public void deleteEntity(EntityReference ref, Map<String, Object> params) {
-		// TODO Auto-generated method stub
-		
 	}
 	
 	public String[] getHandledOutputFormats() {
 		return new String[] { Formats.XML, Formats.JSON };
 	}
-
-	public String[] getHandledInputFormats() {
-		// TODO Auto-generated method stub
-		return null;
-	}
-
-	public List<?> getEntities(EntityReference ref, Search search) {
-		return null;
-	}
-
+	
+	@Override
 	public Object getEntity(EntityReference ref) {
 		// This is the packed ID.
 		String id = ref.getId();
@@ -724,19 +660,18 @@ public class AnnouncementEntityProviderImpl extends AbstractEntityProvider imple
 	/**
 	 * Class to hold only the fields that we want to return
 	 */
+	@NoArgsConstructor
 	public class DecoratedAnnouncement implements Comparable<Object> {
-		private String announcementId;
-		private String title;
-		private String body;
-		private String createdByDisplayName;
-		private Date createdOn;
-		private List<DecoratedAttachment> attachments;
-		private String siteId;
-		private String siteTitle;
-		private String channel;
 		
-		public DecoratedAnnouncement(){
-		}
+		@Getter @Setter private String title;
+		@Getter @Setter private String body;
+		@Getter @Setter private String createdByDisplayName;
+		@Getter @Setter private Date createdOn;
+		@Getter @Setter private List<DecoratedAttachment> attachments;
+		@Getter @Setter private String siteId;
+		@Getter @Setter private String announcementId;
+		@Getter @Setter private String siteTitle;
+		private String channel;
 
 		/**
 		 * As we are packing these fields into the ID, we need all of them.
@@ -750,74 +685,6 @@ public class AnnouncementEntityProviderImpl extends AbstractEntityProvider imple
 			this.announcementId = announcementId;
 		}
 
-		public String getId() {
-			return (siteId != null && channel != null && announcementId != null)?siteId+":"+ channel+ ":"+announcementId: null;
-		}
-
-		public String getTitle() {
-			return title;
-		}
-
-		public void setTitle(String title) {
-			this.title = title;
-		}
-
-		public String getBody() {
-			return body;
-		}
-
-		public void setBody(String body) {
-			this.body = body;
-		}
-
-		public String getCreatedByDisplayName() {
-			return createdByDisplayName;
-		}
-
-		public void setCreatedByDisplayName(String createdByDisplayName) {
-			this.createdByDisplayName = createdByDisplayName;
-		}
-
-		public Date getCreatedOn() {
-			return createdOn;
-		}
-
-		public void setCreatedOn(Date createdOn) {
-			this.createdOn = createdOn;
-		}
-
-		public List<DecoratedAttachment> getAttachments() {
-			return attachments;
-		}
-
-		public void setAttachments(List<DecoratedAttachment> attachments) {
-			this.attachments = attachments;
-		}
-
-		public String getSiteId() {
-			return siteId;
-		}
-
-		public void setSiteId(String siteId) {
-			this.siteId = siteId;
-		}
-
-		public String getAnnouncementId() {
-			return announcementId;
-		}
-
-		public void setAnnouncementId(String announcementId) {
-			this.announcementId = announcementId;
-		}
-
-		public String getSiteTitle() {
-			return siteTitle;
-		}
-
-		public void setSiteTitle(String siteTitle) {
-			this.siteTitle = siteTitle;
-		}
-
 		//default sort by date ascending
 		public int compareTo(Object o) {
 			Date field = ((DecoratedAnnouncement)o).getCreatedOn();
@@ -826,44 +693,29 @@ public class AnnouncementEntityProviderImpl extends AbstractEntityProvider imple
 		}
 		
 	}
+	
+	@Setter
 	private EntityManager entityManager;
-	public void setEntityManager(EntityManager entityManager) {
-		this.entityManager = entityManager;
-	}
-
+	
+	@Setter
 	private SecurityService securityService;
-	public void setSecurityService(SecurityService securityService) {
-		this.securityService = securityService;
-	}
 	
+	@Setter
 	private SessionManager sessionManager;
-	public void setSessionManager(SessionManager sessionManager) {
-		this.sessionManager = sessionManager;
-	}
 	
+	@Setter
 	private SiteService siteService;
-	public void setSiteService(SiteService siteService) {
-		this.siteService = siteService;
-	}
 	
+	@Setter
 	private AnnouncementService announcementService;
-	public void setAnnouncementService(AnnouncementService announcementService) {
-		this.announcementService = announcementService;
-	}
-	
+
+	@Setter
 	private UserDirectoryService userDirectoryService;
-	public void setUserDirectoryService(UserDirectoryService userDirectoryService) {
-		this.userDirectoryService = userDirectoryService;
-	}
-
-	private TimeService timeService;
-	public void setTimeService(TimeService timeService) {
-		this.timeService = timeService;
-	}
 	
+	@Setter
+	private TimeService timeService;
+	
+	@Setter
 	private ToolManager toolManager;
-	public void setToolManager(ToolManager toolManager) {
-		this.toolManager = toolManager;
-	}
-
+	
 }

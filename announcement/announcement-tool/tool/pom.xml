@@ -81,6 +81,11 @@
             <groupId>org.springframework</groupId>
             <artifactId>spring</artifactId>
         </dependency>
+		<dependency>
+			<groupId>org.projectlombok</groupId>
+			<artifactId>lombok</artifactId>
+			<version>0.11.6</version>
+		</dependency>  
     </dependencies>
 
     <build>
