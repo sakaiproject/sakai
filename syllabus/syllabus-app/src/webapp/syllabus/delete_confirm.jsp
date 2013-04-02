@@ -53,7 +53,7 @@
 						<h:outputText value="#{eachEntry.entry.endDate}" rendered="#{eachEntry.endTimeChanged}" styleClass="modified">
 							<f:convertDateTime type="date" pattern="EEE MMM dd, yyyy hh:mm a"/>
 						</h:outputText>
-						<h:outputText value="#{msgs.delConfRemoved}" rendered="#{eachEntry.startTimeChanged && eachEntry.entry.endDate == null}" styleClass="modified"/>
+						<h:outputText value="#{msgs.delConfRemoved}" rendered="#{eachEntry.endTimeChanged && eachEntry.entry.endDate == null}" styleClass="modified"/>
 					</h:column>
 					<h:column>
 						<f:facet name="header">
