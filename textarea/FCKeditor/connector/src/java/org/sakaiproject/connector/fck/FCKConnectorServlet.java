@@ -24,6 +24,8 @@ package org.sakaiproject.connector.fck;
 import java.io.IOException;
 import java.io.PrintWriter;
 import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
@@ -49,6 +51,7 @@ import org.apache.commons.fileupload.FileItem;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.apache.commons.codec.binary.Base64;
+
 import org.sakaiproject.authz.api.SecurityAdvisor;
 import org.sakaiproject.authz.api.SecurityService;
 import org.sakaiproject.component.cover.ComponentManager;
@@ -114,7 +117,9 @@ public class FCKConnectorServlet extends HttpServlet {
      private static final String FCK_ADVISOR_BASE = "fck.security.advisor.";
      private static final String FCK_EXTRA_COLLECTIONS_BASE = "fck.extra.collections.";
 
-     private String[] hiddenProviders = {"forum_message", "forum_topic"};
+//   private String[] hiddenProviders = {"forum_message", "forum_topic"};
+     //Default hidden providers
+     private List <String> hiddenProviders;
      
      private String serverUrlPrefix = "";
 
@@ -168,7 +173,9 @@ public class FCKConnectorServlet extends HttpServlet {
         	  resourceLoader = new ResourceLoader("fckconnector");
           }
 
-        	  
+          //Default providers to exclude, add addition with the property textarea.hiddenProviders if needed 
+//          hiddenProviders = Array.asList("");
+          hiddenProviders = Arrays.asList("assignment","sam_pub","forum","forum_topic","topic");
      }
 
      public void init() throws ServletException {
@@ -833,17 +840,21 @@ public class FCKConnectorServlet extends HttpServlet {
         //Get registered provider prefixes
         Set<String> providers = entityBroker.getRegisteredPrefixes();
         
-        //TODO: Add default hidden providers that this already does (currently assignments, resources, forums, tests and quizzes)
-
-		if (serverConfigurationService.getString("entity-browser.hiddenProviders") != null &&
-              !"".equals(serverConfigurationService.getString("entity-browser.hiddenProviders")))
-            hiddenProviders = serverConfigurationService.getString("entity-browser.hiddenProviders").split(",");
+        //Read the additional hidden providers, provide backward compatibily with that old property
+        String[] txhiddenProviders = serverConfigurationService.getStrings("textarea.hiddenProviders");
+        String[] ebhiddenProviders = serverConfigurationService.getStrings("entity-browser.hiddenProviders");
+        //Combine txhiddenProviders, ebhiddenProviders and hiddenProviders
+        if (txhiddenProviders != null)
+        	Collections.addAll(hiddenProviders,txhiddenProviders);
+        if (ebhiddenProviders != null)
+        	Collections.addAll(hiddenProviders,ebhiddenProviders);
+        
         for (String provider : providers) {
           // Check if this provider is hidden or not
           boolean skip = false;
 
-          for (int i = 0; i < hiddenProviders.length; i++) {
-            if (provider.equals(hiddenProviders[i]))
+          for (int i = 0; i < hiddenProviders.size(); i++) {
+            if (provider.equals(hiddenProviders.get(i)))
               skip = true;
           }
           if (!skip) {
@@ -859,6 +870,7 @@ public class FCKConnectorServlet extends HttpServlet {
         			  title = provider;
         		  }
         		  entityProvider.setAttribute("name", title);
+        		  entityProvider.setAttribute("provider", provider);
         		  otherEntities.appendChild(entityProvider);
         		  //Does this need the children recursion of the ListProducer?
         		  for (String entity: entities) {
