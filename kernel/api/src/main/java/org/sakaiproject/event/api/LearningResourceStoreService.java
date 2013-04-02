@@ -466,6 +466,8 @@ public interface LearningResourceStoreService {
 
     public static class LRS_Object {
         /*
+         * NOTE: For our use, objectType will always be "Activity" and we will only use a limited set of the detail fields
+         * 
          * The object of a statement is the Activity, Agent, or Statement that is the object of the statement, "this". 
          * Note that objects which are provided as a value for this field should include an "objectType" field. 
          * If not specified, the object is assumed to be an Activity.
@@ -479,16 +481,17 @@ public interface LearningResourceStoreService {
          * two authors or organizations may have used the same activity URI.
          */
         /**
-         * Should always be "Activity" when present. Used in cases where type cannot otherwise be determined, 
-         * such as the value of a statement’s object field.
-         */
-        String objectType;
-        /**
          * URI. An activity URI must always refer to a single unique activity.
          * If a URL, the URL should refer to metadata for this activity
          * Example: http://example.adlnet.gov/xapi/example/simpleCBT
          */
         String id;
+        /**
+         * URI, the type of activity. (e.g. assessment)
+         * Note, URI fragments (sometimes called relative URLs) are not valid URIs. 
+         * Similar to verbs, we recommend that Learning Activity Providers look for and use established, widely adopted, activity types.
+         */
+        String activityType;
         /**
          * OPTIONAL: 
          * A language map containing the human readable display representation 
@@ -497,12 +500,11 @@ public interface LearningResourceStoreService {
          * of the meaning already determined by the chosen verb.
          * Example: { "en-US" => "ran", "es" => "corrió" }
          */
-        Map<String, String> name;
+        Map<String, String> activityName;
         /**
          * use of the empty constructor is restricted
          */
         protected LRS_Object() {
-            objectType = "Activity";
         }
         // TODO include the other optional Interaction Activities and Activities fields?
         /**
@@ -519,6 +521,23 @@ public interface LearningResourceStoreService {
             id = uri;
         }
         /**
+         * @param uri activity URI that refers to a single unique activity. (e.g. http://example.com/activity/spelling-test)
+         * @param activityType activity URI that refers to the type of activity. (e.g. assessment)
+         */
+        public LRS_Object(String uri, String activityType) {
+            this(uri);
+            if (activityType == null) {
+                throw new IllegalArgumentException("LRS_Object type cannot be null");
+            }
+            this.activityType = activityType;
+        }
+        /**
+         * @param activityType activity URI that refers to the type of activity. (e.g. assessment)
+         */
+        public void setActivityType(String type) {
+            this.activityType = type;
+        }
+        /**
          * OPTIONAL: 
          * A language map containing the human readable display representation 
          * of the object in at least one language. This does not have any impact 
@@ -526,16 +545,10 @@ public interface LearningResourceStoreService {
          * of the meaning already determined by the chosen verb.
          * Example: { "en-US" => "ran", "es" => "corrió" }
          */
-        public void setName(Map<String, String> name) {
-            this.name = name;
+        public void setActivityName(Map<String, String> name) {
+            this.activityName = name;
         }
         // GETTERS
-        /**
-         * @see #objectType
-         */
-        public String getObjectType() {
-            return objectType;
-        }
         /**
          * @see #id
          */
@@ -545,8 +558,14 @@ public interface LearningResourceStoreService {
         /**
          * @see #name
          */
-        public Map<String, String> getName() {
-            return name;
+        public Map<String, String> getActivityName() {
+            return activityName;
+        }
+        /**
+         * @see #type
+         */
+        public String getActivityType() {
+            return activityType;
         }
     }
 
