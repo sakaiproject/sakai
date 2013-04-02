@@ -506,6 +506,7 @@ public class FormattedTextTest extends TestCase {
 
         String youTubeObject = "<object width=\"560\" height=\"315\"><param name=\"movie\" value=\"http://www.youtube.com/v/1yqVD0swvWU?hl=en_US&amp;version=3&amp;rel=0\"></param><param name=\"allowFullScreen\" value=\"true\"></param><param name=\"allowscriptaccess\" value=\"always\"></param><embed src=\"http://www.youtube.com/v/1yqVD0swvWU?hl=en_US&amp;version=3&amp;rel=0\" type=\"application/x-shockwave-flash\" width=\"560\" height=\"315\" allowscriptaccess=\"always\" allowfullscreen=\"true\"></embed></object>";
         String youTubeIframe = "<iframe width=\"560\" height=\"315\" src=\"http://www.youtube.com/embed/1yqVD0swvWU?rel=0\" frameborder=\"0\" allowfullscreen></iframe>";
+        String youTubeIframeOptions = "<iframe width=\"560\" height=\"315\" src=\"https://www.youtube-nocookie.com/embed/3pAnRKD4raY?rel=0\" frameborder=\"0\" allowfullscreen></iframe>";
         String youTubeCK = "<object data=\"/library/editor/ckextraplugins/movieplayer/StrobeMediaPlayback.swf\" height=\"240\" id=\"movie941276\" type=\"application/x-shockwave-flash\" width=\"320\"><param name=\"movie\" value=\"http://www.youtube.com/v/1yqVD0swvWU\" /><param name=\"FlashVars\" value=\"src=http://www.youtube.com/v/1yqVD0swvWU&amp;showplayer=always&amp;width=320&amp;height=240&amp;showiconplay=true&amp;autoplay=0&amp;plugin_YouTubePlugin=/library/editor/ckextraplugins/movieplayer/YouTubePlugin.swf\" /><param name=\"allowFullScreen\" value=\"true\" /></object>";
         String youTubeSpecialCK = "<object data=\"http://youtu.be/1yqVD0swvWU\" height=\"240\" id=\"movie791812\" type=\"video/x-ms-wmv\" width=\"320\"><param name=\"src\" value=\"http://youtu.be/1yqVD0swvWU\" /><param name=\"autostart\" value=\"0\" /><param name=\"controller\" value=\"true\" /></object>";
 
@@ -528,6 +529,15 @@ public class FormattedTextTest extends TestCase {
         assertTrue( result.contains("<iframe"));
         assertTrue( result.contains("allowfullscreen"));
         assertTrue( result.contains("www.youtube.com/embed/1yqVD0swvWU"));
+
+        strFromBrowser = youTubeIframeOptions;
+        errorMessages = new StringBuilder();
+        result = formattedText.processFormattedText(strFromBrowser, errorMessages);
+        assertNotNull(result);
+        assertTrue( errorMessages.length() == 0 );
+        assertTrue( result.contains("<iframe"));
+        assertTrue( result.contains("allowfullscreen"));
+        assertTrue( result.contains("www.youtube-nocookie.com/embed/3pAnRKD4raY"));
 
         strFromBrowser = youTubeCK;
         errorMessages = new StringBuilder();
