@@ -509,6 +509,8 @@ public class FormattedTextTest extends TestCase {
         String youTubeCK = "<object data=\"/library/editor/ckextraplugins/movieplayer/StrobeMediaPlayback.swf\" height=\"240\" id=\"movie941276\" type=\"application/x-shockwave-flash\" width=\"320\"><param name=\"movie\" value=\"http://www.youtube.com/v/1yqVD0swvWU\" /><param name=\"FlashVars\" value=\"src=http://www.youtube.com/v/1yqVD0swvWU&amp;showplayer=always&amp;width=320&amp;height=240&amp;showiconplay=true&amp;autoplay=0&amp;plugin_YouTubePlugin=/library/editor/ckextraplugins/movieplayer/YouTubePlugin.swf\" /><param name=\"allowFullScreen\" value=\"true\" /></object>";
         String youTubeSpecialCK = "<object data=\"http://youtu.be/1yqVD0swvWU\" height=\"240\" id=\"movie791812\" type=\"video/x-ms-wmv\" width=\"320\"><param name=\"src\" value=\"http://youtu.be/1yqVD0swvWU\" /><param name=\"autostart\" value=\"0\" /><param name=\"controller\" value=\"true\" /></object>";
 
+        String dangerEmbed = "<div>SAFE</div><object data=\"/access/library/hacked/DANGER.swf\" height=\"240\" id=\"movie941276\" type=\"application/x-shockwave-flash\" width=\"320\"><param name=\"movie\" value=\"http://www.youtube.com/v/1yqVD0swvWU\" /><param name=\"FlashVars\" value=\"src=http://www.youtube.com/v/1yqVD0swvWU&amp;showplayer=always&amp;width=320&amp;height=240&amp;showiconplay=true&amp;autoplay=0&amp;plugin_YouTubePlugin=/library/editor/ckextraplugins/movieplayer/YouTubePlugin.swf\" /><param name=\"allowFullScreen\" value=\"true\" /></object>";
+
         strFromBrowser = youTubeObject;
         errorMessages = new StringBuilder();
         result = formattedText.processFormattedText(strFromBrowser, errorMessages);
@@ -544,6 +546,16 @@ public class FormattedTextTest extends TestCase {
         assertTrue( result.contains("<object"));
         assertTrue( result.contains("<param"));
         assertTrue( result.contains("youtu.be/1yqVD0swvWU"));
+
+        // test bad stuff
+        strFromBrowser = dangerEmbed;
+        errorMessages = new StringBuilder();
+        result = formattedText.processFormattedText(strFromBrowser, errorMessages);
+        assertNotNull(result);
+        assertTrue( errorMessages.length() > 10 );
+        assertTrue( result.contains("SAFE"));
+        assertFalse( result.contains("<object"));
+        assertFalse( result.contains("DANGER"));
     }
 
     public void testNullParams() {
