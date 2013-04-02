@@ -317,6 +317,31 @@ function GetResourcesAssignsTestsTopicsCallBack( fckXml )
 	        oHtml.Append( '<\/tbody><tr><td colspan="4">&nbsp;<\/td><\/tr>' ) ;
 	}
 
+    if (oConnector.ShowAllTypes) {
+
+	        // Add the Other Entities.
+	        iNodes = fckXml.SelectNodes( 'Connector/OtherEntities/EntityProvider' ) ;
+            for ( var i = 0 ; i < iNodes.length ; i++ ) {
+                var jNodes = fckXml.SelectNodesContext('EntityItem', iNodes[i], 'Connector/OtherEntities/EntityProvider[' + i + ']/EntityItem' );
+                var nodeName = iNodes[i].attributes.getNamedItem('name').value ;
+                var provider = iNodes[i].attributes.getNamedItem('provider').value ;
+                oHtml.Append('<tr><td width="20px">');
+                if (jNodes.length > 0) {
+                  oHtml.Append('<img src="images/expand.gif" id="imgOther" onclick="toggleGrp(\''+provider+'\')" \/>');
+                }
+                oHtml.Append('<\/td><td colspan="3" class="ListHeading">'+nodeName+'<\/td><\/tr><tbody id="grp'+provider+'" class="grpCollapsed">' ) ;
+
+                for (var j = 0 ; j < jNodes.length ; j++) {
+                    var sItemName = jNodes[i].attributes.getNamedItem('name').value ;
+                    var sItemUrl = jNodes[i].attributes.getNamedItem('url').value ;
+                    oHtml.Append( oListManager.GetItemRowHtml( sItemName, sItemUrl, true ) ) ;
+                }
+	            oHtml.Append( '<\/tbody><tr><td colspan="4">&nbsp;<\/td><\/tr>' ) ;
+            }
+	}
+
+
+
 	oHtml.Append( '<\/table>' ) ;
 
 	document.body.innerHTML = oHtml.ToString() ;
