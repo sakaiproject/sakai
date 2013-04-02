@@ -202,7 +202,7 @@
 								<h:outputText value="#{msgs.linkcalendartitle}"/>
 							</h:outputLabel>
 						</h:panelGroup>
-						<h:panelGroup styleClass="shorttext" rendered="#{SyllabusTool.calendarExistsForSite}">
+						<h:panelGroup styleClass="shorttext">
 							<h:selectBooleanCheckbox id="monday" value="#{SyllabusTool.bulkEntry.monday}" />
 							<h:outputText value="#{msgs.monday}"/>
 							<h:outputText value=" | "/>
