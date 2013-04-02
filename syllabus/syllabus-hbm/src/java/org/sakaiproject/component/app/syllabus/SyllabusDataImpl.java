@@ -270,6 +270,10 @@ public class SyllabusDataImpl implements SyllabusData, Comparable
 	  this.endDate = endDate;
   }
   @Override
+  public Boolean getLinkCalendar() {
+	  return isLinkCalendar();
+  }
+  @Override
   public Boolean isLinkCalendar() {
 	  if(linkCalendar == null){
 		  linkCalendar = Boolean.FALSE;

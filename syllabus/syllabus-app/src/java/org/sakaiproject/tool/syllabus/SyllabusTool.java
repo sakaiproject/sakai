@@ -90,8 +90,14 @@ public class SyllabusTool
   public class DecoratedSyllabusEntry
   {
     protected SyllabusData in_entry = null;
-
+    protected String orig_title;
+    protected Date orig_startDate, orig_endDate;
+    protected Boolean orig_isLinkCalendar;
+    protected String orig_status;
+    
     protected boolean selected = false;
+    
+    protected boolean posted = false;
 
     protected boolean justCreated = false;
     
@@ -100,6 +106,13 @@ public class SyllabusTool
     public DecoratedSyllabusEntry(SyllabusData en)
     {
       in_entry = en;
+      //b/c of pass by reference, we need to clone the values we want to check
+      //against
+      this.orig_title = en.getTitle();
+      this.orig_startDate = en.getStartDate() == null ? null : (Date) en.getStartDate().clone();
+      this.orig_endDate = en.getEndDate() == null ? null : (Date) en.getEndDate().clone();
+      this.orig_isLinkCalendar= en.isLinkCalendar();
+      this.orig_status = en.getStatus();
     }
 
     public SyllabusData getEntry()
@@ -120,6 +133,16 @@ public class SyllabusTool
     public void setSelected(boolean b)
     {
       selected = b;
+    }
+    
+    public boolean isPosted()
+    {
+      return SyllabusData.ITEM_POSTED.equals(getEntry().getStatus());
+    }
+
+    public void setPosted(boolean b)
+    {
+    	getEntry().setStatus(b ? SyllabusData.ITEM_POSTED : SyllabusData.ITEM_DRAFT);
     }
 
     public void setJustCreated(boolean b)
@@ -160,12 +183,14 @@ public class SyllabusTool
     public String processDownMove()
     {
       downOnePlace(this.getEntry());
+      dontUpdateEntries = true;
       return "main_edit";
     }
 
     public String processUpMove()
     {
       upOnePlace(this.getEntry());
+      dontUpdateEntries = true;
       return "main_edit";
     }
     
@@ -190,6 +215,88 @@ public class SyllabusTool
     public String getStatus(){
 		return rb.getString(in_entry.getStatus().toLowerCase());
 	}
+    public boolean getTitleChanged(){
+    	//Title Changed?
+    	if((in_entry.getTitle() == null && orig_title != null)
+    		|| (in_entry.getTitle() != null && orig_title == null)
+    		|| (in_entry.getTitle() != null && orig_title != null
+    			&& (!in_entry.getTitle().equals(orig_title)))){
+    		return true;
+    	}else{
+    		return false;
+    	}
+    }
+    
+    public boolean getStartTimeChanged(){
+    	//Start Time
+    	if((in_entry.getStartDate() == null && orig_startDate != null)
+        		|| (in_entry.getStartDate() != null && orig_startDate == null)
+        		|| (in_entry.getStartDate() != null && orig_startDate != null
+        			&& (!in_entry.getStartDate().equals(orig_startDate)))){
+    		return true;
+    	}else{
+    		return false;
+    	}
+    }
+    
+    public boolean getEndTimeChanged(){
+    	//End Time
+    	if((in_entry.getEndDate() == null && orig_endDate != null)
+        		|| (in_entry.getEndDate() != null && orig_endDate == null)
+        		|| (in_entry.getEndDate() != null && orig_endDate != null
+        			&& (!in_entry.getEndDate().equals(orig_endDate)))){
+    		return true;
+    	}else{
+    		return false;
+    	}
+    }
+    
+    public boolean getPostToCalendarChanged(){
+    	//posted to cal:
+    	if(in_entry.isLinkCalendar() != orig_isLinkCalendar){
+    		return true;
+    	}else{
+    		return false;
+    	}
+    }
+    
+    public boolean getStatusChanged(){
+    	//draft status:
+    	if((in_entry.getStatus() == null && orig_status != null)
+        		|| (in_entry.getStatus() != null && orig_status == null)
+        		|| (in_entry.getStatus() != null && orig_status != null
+        			&& (!in_entry.getStatus().equals(orig_status)))){
+    		return true;
+    	}else{
+    		return false;
+    	}
+    }
+    
+    
+    public boolean hasChanged(){
+    	if(getTitleChanged() || getStartTimeChanged()
+    			|| getEndTimeChanged() || getPostToCalendarChanged()
+    			|| getStatusChanged()){
+    		return true;
+    	}else{
+    		return false;
+    	}
+    }
+    
+    public String validateInput(){
+    	//Title
+    	if(in_entry.getTitle() == null || in_entry.getTitle().trim().equals(""))
+        {
+    		return MessageFactory.getMessage(FacesContext.getCurrentInstance(),
+					"empty_title_validate", null).getSummary();
+        }else  if(in_entry.getStartDate() != null 
+        		&& in_entry.getEndDate() != null 
+        		&& in_entry.getStartDate().after(in_entry.getEndDate())){
+        	return MessageFactory.getMessage(FacesContext.getCurrentInstance(),
+					"invalid_dates", null).getSummary();
+        }
+    	return "";
+    }
   }
 
   protected SyllabusManager syllabusManager;
@@ -221,6 +328,8 @@ public class SyllabusTool
   private boolean displayEvilTagMsg=false;
   
   private boolean displayDateError=false;
+  
+  private boolean dontUpdateEntries = false;
   
   private String evilTagMsg=null;
   
@@ -353,14 +462,20 @@ public class SyllabusTool
         }
 
         boolean getFromDbAgain = true;
-        for(int i=0; i<entries.size(); i++)
-        {
-          DecoratedSyllabusEntry thisDecEn = (DecoratedSyllabusEntry) entries.get(i);
-          if(thisDecEn.isSelected())
-          {
-            getFromDbAgain = false;
-            break;
-          }
+        if(dontUpdateEntries){
+        	getFromDbAgain = false;
+        	//reset to false:
+        	dontUpdateEntries = false;
+        }else{
+	        for(int i=0; i<entries.size(); i++)
+	        {
+	          DecoratedSyllabusEntry thisDecEn = (DecoratedSyllabusEntry) entries.get(i);
+	          if(thisDecEn.isSelected())
+	          {
+	            getFromDbAgain = false;
+	            break;
+	          }
+	        }
         }
         
         if(getFromDbAgain)
@@ -436,7 +551,7 @@ public class SyllabusTool
       for (int i = 0; i < entries.size(); i++)
       {
         DecoratedSyllabusEntry den = (DecoratedSyllabusEntry) entries.get(i);
-        if (den.isSelected())
+        if (den.isSelected() || den.hasChanged())
         {
           rv.add(den);
         }
@@ -603,13 +718,19 @@ public class SyllabusTool
   {
 	this.evilTagMsg = evilTagMsg;
   }
-
+  public String processMainEditCancel(){
+	  entries.clear();
+	  entry = null;
+	  
+	  return null;
+  }
+  
   public String processDeleteCancel()
   {
     //logger.info(this + ".processDeleteCancel() in SyllabusTool.");
 
-    entries.clear();
-    entry = null;
+	  //we want to keep the changes, so set this flag 
+	  dontUpdateEntries = true;
   
     return "main_edit";
   }
@@ -632,28 +753,41 @@ public class SyllabusTool
         for (int i = 0; i < selected.size(); i++)
         {
           DecoratedSyllabusEntry den = (DecoratedSyllabusEntry) selected.get(i);
-          
-//          if(den.getEntry().getStatus().equalsIgnoreCase("Posted"))
-//          {
-            syllabusService.deletePostedSyllabus(den.getEntry());
-//          }
-          
-          //Set syllabusAttachments = den.getEntry().getAttachments();
-          Set syllabusAttachments = syllabusManager.getSyllabusAttachmentsForSyllabusData(den.getEntry());
-          //den.getEntry().getAttachments();
-          Iterator iter = syllabusAttachments.iterator();
-          while(iter.hasNext())
-          {
-            SyllabusAttachment attach = (SyllabusAttachment)iter.next();
-            String id = attach.getAttachmentId();
-            
-            syllabusManager.removeSyllabusAttachSyllabusData(den.getEntry(), attach);  
-            if(id.toLowerCase().startsWith("/attachment"))
-              contentHostingService.removeResource(id);
+          if(den.isSelected()){
+        	  //Delete item
+        	  syllabusService.deletePostedSyllabus(den.getEntry());
+        	  //Set syllabusAttachments = den.getEntry().getAttachments();
+        	  Set syllabusAttachments = syllabusManager.getSyllabusAttachmentsForSyllabusData(den.getEntry());
+        	  //den.getEntry().getAttachments();
+        	  Iterator iter = syllabusAttachments.iterator();
+        	  while(iter.hasNext())
+        	  {
+        		  SyllabusAttachment attach = (SyllabusAttachment)iter.next();
+        		  String id = attach.getAttachmentId();
+
+        		  syllabusManager.removeSyllabusAttachSyllabusData(den.getEntry(), attach);  
+        		  if(id.toLowerCase().startsWith("/attachment"))
+        			  contentHostingService.removeResource(id);
+        	  }
+        	  syllabusManager.removeCalendarEvents(den.getEntry());
+        	  syllabusManager.removeSyllabusFromSyllabusItem(syllabusItem, den
+        			  .getEntry());
+          }else{
+        	  //update item:
+        	  boolean posted = SyllabusData.ITEM_POSTED.equals(den.getEntry().getStatus());
+        	  boolean statusChanged = den.getStatusChanged();
+        	  
+        	  //this will update the calendar if it's posted and inCalendar is selected
+              syllabusManager.saveSyllabus(den.getEntry());
+              if(posted && statusChanged){
+            	  //went from draft to post:
+            	  syllabusService.postChangeSyllabus(den.getEntry());
+              }
+              if(!posted && statusChanged){
+            	  //went from post to draft
+            	  syllabusService.draftChangeSyllabus(den.getEntry());
+              }
           }
-          syllabusManager.removeCalendarEvents(den.getEntry());
-          syllabusManager.removeSyllabusFromSyllabusItem(syllabusItem, den
-              .getEntry());
          
         }
       }
@@ -1040,8 +1174,28 @@ public class SyllabusTool
                   "error_delete_select", null));
 
           return null;
+        }else{
+        	//verify valid modifications:
+        	for(DecoratedSyllabusEntry entry : (ArrayList<DecoratedSyllabusEntry>) selected){
+        		String validate = entry.validateInput();
+        		if(!"".equals(validate)){
+        			String itemTitle = entry.getEntry().getTitle();
+        			if(itemTitle == null || "".equals(itemTitle.trim())){
+        				//title is null, so just point to the item #
+        				itemTitle = MessageFactory.getMessage(FacesContext.getCurrentInstance(),
+    							"error_invalid_entry_item", new String[]{Integer.toString(entry.getEntry().getPosition())}).getSummary();
+        			}
+        			//invalid entry:
+        			FacesContext.getCurrentInstance().addMessage(
+        					null,
+        					MessageFactory.getMessage(FacesContext.getCurrentInstance(),
+        							"error_invalid_entry", new String[]{itemTitle, validate}));
+        			return null;
+        		}
+        	}
+        	
+        	return "delete_confirm";
         }
-        return "delete_confirm";
       }
     }
     catch (Exception e)
@@ -1121,6 +1275,33 @@ public class SyllabusTool
 
       return null;
     }
+  }
+  
+  public String processListEditBulk() throws PermissionException
+  {
+	  try
+	    {
+	      if (!this.checkAccess())
+	      {
+	        return "permission_error";
+	      }
+	      else
+	      {
+	     //   bulkEntry = new BulkSyllabusEntry();
+
+	        return "main_edit_bulk";
+	      }
+	    }
+	    catch (Exception e)
+	    {
+	      logger.info(this + ".processListEditBulk in SyllabusTool: " + e);
+	      FacesContext.getCurrentInstance().addMessage(
+	          null,
+	          MessageFactory.getMessage(FacesContext.getCurrentInstance(),
+	              "error_general", (new Object[] { e.toString() })));
+
+	      return null;
+	    }
   }
 
   public String processReadCancel()
@@ -1345,6 +1526,7 @@ public class SyllabusTool
     SyllabusData swapData = null;
     Iterator iter = syllabusManager.getSyllabiForSyllabusItem(syllabusItem)
         .iterator();
+    int i = 0;
     while (iter.hasNext())
     {
       SyllabusData data = (SyllabusData) iter.next();
@@ -1353,13 +1535,27 @@ public class SyllabusTool
         if (iter.hasNext()) swapData = (SyllabusData) iter.next();
         break;
       }
+      i++;
     }
 
-    if (swapData != null)
+    if (swapData != null){
         syllabusManager.swapSyllabusDataPositions(syllabusItem, en, swapData);
+        
+        //reorder array to show to the user it was updated:
+        ArrayList firstPart = new ArrayList(entries.subList(0, i));
+        if(entries.size() > i + 1){
+        	firstPart.add(entries.get(i+1));
+        }
+        firstPart.add(entries.get(i));
+        if(entries.size() > i + 2){
+        	firstPart.addAll(entries.subList(i+2, entries.size()));
+        }
+        entries = firstPart;
+        
+    }
 
-    entries.clear();
-    entry = null;
+//    entries.clear();
+//    entry = null;
   }
 
   public void upOnePlace(SyllabusData en)
@@ -1369,6 +1565,7 @@ public class SyllabusTool
     SyllabusData swapData = null;
     Iterator iter = syllabusManager.getSyllabiForSyllabusItem(syllabusItem)
         .iterator();
+    int i = 0;
     while (iter.hasNext())
     {
       SyllabusData data = (SyllabusData) iter.next();
@@ -1380,13 +1577,27 @@ public class SyllabusTool
       {
         swapData = data;
       }
+      i++;
     }
 
-    if (swapData != null)
+    if (swapData != null){
         syllabusManager.swapSyllabusDataPositions(syllabusItem, en, swapData);
+        //reorder array to show to the user it was updated:
+        if(i > 0){
+        	ArrayList firstPart = new ArrayList(entries.subList(0, i-1));
+        	if(entries.size() > i){
+        		firstPart.add(entries.get(i));
+        		firstPart.add(entries.get(i-1));
+        	}
+        	if(entries.size() > i + 1){
+        		firstPart.addAll(entries.subList(i+1, entries.size()));
+        	}
+        	entries = firstPart;
+        }
+    }
 
-    entries.clear();
-    entry = null;
+//    entries.clear();
+//    entry = null;
   }
 
   public String processEditPreview()
