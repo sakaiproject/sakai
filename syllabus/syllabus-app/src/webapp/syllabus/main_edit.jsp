@@ -156,7 +156,7 @@
 							</h:inputText>
 							<f:verbatim><img src="/library/image/silk/calendar_view_month.png" onclick="$(this).prev().focus();"/></f:verbatim>
 						</h:column>
-						<h:column rendered="#{! SyllabusTool.displayNoEntryMsg}">
+						<h:column rendered="#{! SyllabusTool.displayNoEntryMsg && SyllabusTool.calendarExistsForSite}">
 							<f:facet name="header">
 								<h:panelGroup>
 									<h:outputText value="#{msgs.mainEditHeaderInCalendar}"/>

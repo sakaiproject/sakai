@@ -55,7 +55,7 @@
 						</h:outputText>
 						<h:outputText value="#{msgs.delConfRemoved}" rendered="#{eachEntry.endTimeChanged && eachEntry.entry.endDate == null}" styleClass="modified"/>
 					</h:column>
-					<h:column>
+					<h:column rendered="#{SyllabusTool.calendarExistsForSite}">
 						<f:facet name="header">
 							<h:outputText value="#{msgs.delConfHeaderCalendar}"/>
 						</f:facet>
