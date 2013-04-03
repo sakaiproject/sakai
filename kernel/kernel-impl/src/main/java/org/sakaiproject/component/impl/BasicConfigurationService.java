@@ -847,7 +847,6 @@ public class BasicConfigurationService implements ServerConfigurationService, Ap
         return new HashMap();
     }
 
-    
     /*
      * Load tools by group, from toolOrder.xml file with optional groups defined
      */
