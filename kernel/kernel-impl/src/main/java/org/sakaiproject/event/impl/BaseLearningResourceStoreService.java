@@ -60,11 +60,11 @@ public class BaseLearningResourceStoreService implements LearningResourceStoreSe
                     registerProvider(lrsp);
                 }
             }
-            log.info("Registered "+beans.size()+" LearningResourceStoreProviders from the Spring AC during service INIT");
+            log.info("LRS Registered "+beans.size()+" LearningResourceStoreProviders from the Spring AC during service INIT");
         } else {
-            log.info("Did not search for existing LearningResourceStoreProviders in the system (ac="+applicationContext+", enabled="+isEnabled()+")");
+            log.info("LRS did not search for existing LearningResourceStoreProviders in the system (ac="+applicationContext+", enabled="+isEnabled()+")");
         }
-        log.info("INIT: enabled="+isEnabled());
+        log.info("LRS INIT: enabled="+isEnabled());
     }
 
     public void destroy() {
@@ -72,7 +72,7 @@ public class BaseLearningResourceStoreService implements LearningResourceStoreSe
             providers.clear();
         }
         providers = null;
-        log.info("DESTROY");
+        log.info("LRS DESTROY");
     }
 
     /* (non-Javadoc)
@@ -104,7 +104,7 @@ public class BaseLearningResourceStoreService implements LearningResourceStoreSe
             try {
                 lrsp.handleStatement(statement);
             } catch (Exception e) {
-                log.error("Failure running LRS statement in provider ("+lrsp.getID()+"): statement=("+statement+"): "+e, e);
+                log.error("LRS Failure running LRS statement in provider ("+lrsp.getID()+"): statement=("+statement+"): "+e, e);
             }
         }
     };
@@ -125,7 +125,7 @@ public class BaseLearningResourceStoreService implements LearningResourceStoreSe
      */
     public boolean registerProvider(LearningResourceStoreProvider provider) {
         if (provider == null) {
-            throw new IllegalArgumentException("provider must not be null");
+            throw new IllegalArgumentException("LRS provider must not be null");
         }
         return providers.put(provider.getID(), provider) != null;
     }
