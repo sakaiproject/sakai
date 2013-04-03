@@ -722,9 +722,6 @@ public class SiteAction extends PagedResourceActionII {
 	private final static String m_baseDir = "/WEB-INF";
 
 	private List prefLocales = new ArrayList();
-	private String SAKAI_LOCALES = "locales";
-	private String SAKAI_LOCALES_MORE = "locales.more";
-	private LocaleComparator localeComparator = new LocaleComparator();	
 	
 	// state variable for whether any multiple instance tool has been selected
 	private String STATE_MULTIPLE_TOOL_INSTANCE_SELECTED = "state_multiple_tool_instance_selected";
@@ -13769,46 +13766,17 @@ private Map<String,List> getToolGroupList(SessionState state, String type, Strin
 	/**
 	 * @return Returns the prefLocales
 	 */
-	 
-	public List getPrefLocales()
+	public List<Locale> getPrefLocales()
 	{
 		// Initialize list of supported locales, if necessary
-		if (prefLocales.size() == 0)
-		{
-			Locale[] localeArray = null;
-			String localeString = ServerConfigurationService.getString(SAKAI_LOCALES);
-			String localeStringMore = ServerConfigurationService.getString(SAKAI_LOCALES_MORE);
-			
-			if ( localeString == null )
-				localeString = "";
-			if ( localeStringMore != null && !localeStringMore.equals("") )
-				localeString += ","+localeStringMore;
-
-			if ( !localeString.equals("") )
-			{
-				String[] sakai_locales = localeString.split(",");
-				localeArray = new Locale[sakai_locales.length + 1];
-				for (int i = 0; i < sakai_locales.length; i++)
-					localeArray[i] = getLocaleFromString(sakai_locales[i]);
-				localeArray[localeArray.length - 1] = Locale.getDefault();
-			}
-			else
-				// if no locales specified, get default list
-			{
-				localeArray = new Locale[] { Locale.getDefault() };
-			}
-
-			// Sort locales and add to prefLocales (removing duplicates)
-			Arrays.sort(localeArray, localeComparator);
-			for (int i = 0; i < localeArray.length; i++)
-			{
-				if (i == 0 || !localeArray[i].equals(localeArray[i - 1]))
-				{					
-					prefLocales.add(localeArray[i]);
-				}
+		if (prefLocales.size() == 0) {
+		    org.sakaiproject.component.api.ServerConfigurationService scs = (org.sakaiproject.component.api.ServerConfigurationService) ComponentManager.get(org.sakaiproject.component.api.ServerConfigurationService.class);
+		    Locale[] localeArray = scs.getSakaiLocales();
+			// Add to prefLocales list
+			for (int i = 0; i < localeArray.length; i++) {
+				prefLocales.add(localeArray[i]);
 			}
 		}
-
 		return prefLocales;
 	}
 
