@@ -1,6 +1,6 @@
 /**********************************************************************************
- * $URL:  $
- * $Id:  $
+ * $URL$
+ * $Id$
  ***********************************************************************************
  *
  * Copyright (c) 2003, 2004, 2005, 2006, 2008 Sakai Foundation
@@ -47,10 +47,12 @@ public interface LearningResourceStoreService {
      * NOTE: this will run asynchronously to avoid slowing anything down so there is no return
      * 
      * @param statement the LRS statement representing the activity statement
+     * @param origin [OPTIONAL] a key identifying the origin of the statement, used for logging and filtering
+     *               (typically the Sakai toolId if known OR null if not known)
      * @throws IllegalArgumentException if the input statement is invalid or cannot be handled
      * @throws RuntimeException if there is a FATAL failure
      */
-    public void registerStatement(LRS_Statement statement);
+    public void registerStatement(LRS_Statement statement, String origin);
 
     /**
      * @return true if LRS tracking is enabled, false otherwise
