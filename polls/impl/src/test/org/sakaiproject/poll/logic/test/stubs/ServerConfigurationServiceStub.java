@@ -24,6 +24,7 @@ package org.sakaiproject.poll.logic.test.stubs;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Locale;
 
 import org.sakaiproject.component.api.ServerConfigurationService;
 
@@ -225,6 +226,14 @@ public class ServerConfigurationServiceStub implements ServerConfigurationServic
 
     public void registerListener(ConfigurationListener configurationListener) {
         
+    }
+
+    public Locale[] getSakaiLocales() {
+        return new Locale[] {Locale.getDefault()};
+    }
+
+    public Locale getLocaleFromString(String localeString) {
+        return Locale.getDefault();
     }
 
 }
