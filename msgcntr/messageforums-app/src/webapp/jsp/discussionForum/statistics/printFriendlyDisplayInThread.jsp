@@ -14,7 +14,7 @@
 			<li class="firstToolBarItem">
 				<span>
 					<h:graphicImage url="/../../library/image/silk/printer.png" alt="#{msgs.print_friendly}" title="#{msgs.print_friendly}" />
-					<a id="printIcon" href="" onClick="javascript:window.print();">
+					<a id="printIcon" href="javascript:" onClick="javascript:window.print();">
 						<h:outputText value="#{msgs.send_to_printer}" />
 					</a>
 				</span>
