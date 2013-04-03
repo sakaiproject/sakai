@@ -74,14 +74,6 @@ public class UserPrefsTool
 	/** Our log (commons). */
 	private static final Log LOG = LogFactory.getLog(UserPrefsTool.class);
 
-    private static final String SAKAI_LOCALES_KEY = "locales";
-    /**
-     * This should be complete list of supported locales and should match the list in default.sakai.properties
-     * It MUST be a comma separated list of locale keys (be careful with your formatting)
-     */
-    private static final String SAKAI_LOCALES_DEFAULT = "en_US, en_GB, en_AU, en_NZ, en_ZA, ja_JP, ko_KR, nl_NL, zh_CN, zh_TW, es_ES, fr_CA, fr_FR, ca_ES, sv_SE, ar, ru_RU, pt_PT, pt_BR, eu, vi_VN, tr_TR, es_MX, mn, pl_PL";
-    private static final String SAKAI_LOCALES_MORE = "locales.more"; // default is blank/null
-
 	/** * Resource bundle messages */
 	ResourceLoader msgs = new ResourceLoader("user-tool-prefs");
 
@@ -279,8 +271,6 @@ public class UserPrefsTool
 
 	// user's currently selected regional language locale
 	private Locale m_locale = null;
-
-	private LocaleComparator localeComparator = new LocaleComparator();
 
 	/** The user id retrieved from UsageSessionService */
 	private String userId = "";
@@ -533,59 +523,6 @@ public class UserPrefsTool
 	}
 
 	/**
-	 * *
-	 * 
-	 * @return Locale based on its string representation (language_region)
-	 */
-	private Locale getLocaleFromString(String localeString)
-	{
-		String[] locValues = (localeString == null ? new String[0] : localeString.trim().split("_"));
-		if (locValues.length >= 3) {
-			return new Locale(locValues[0], locValues[1], locValues[2]); // language, country, variant
-		} else if (locValues.length == 2) {
-			return new Locale(locValues[0], locValues[1]); // language, country
-		} else if (locValues.length == 1) {
-			return new Locale(locValues[0]); // language
-		} else {
-			return Locale.getDefault();
-		}
-	}
-
-	/**
-	 * Get the list of allowed locales as controlled by config params for {@value #SAKAI_LOCALES_KEY} and {@value #SAKAI_LOCALES_MORE}
-	 * @return an array of all allowed Locales for this installation
-	 */
-	public Locale[] getSakaiLocales() {
-	    org.sakaiproject.component.api.ServerConfigurationService scs = (org.sakaiproject.component.api.ServerConfigurationService) ComponentManager.get(org.sakaiproject.component.api.ServerConfigurationService.class);
-	    String localesStr = scs.getString(SAKAI_LOCALES_KEY, SAKAI_LOCALES_DEFAULT);
-	    if (StringUtils.isEmpty(localesStr)) {
-	        localesStr = SAKAI_LOCALES_DEFAULT;
-	    }
-	    String[] locales = StringUtils.split(localesStr, ','); // NOTE: these need to be trimmed (which getLocaleFromString will do)
-	    String[] localesMore = scs.getStrings(SAKAI_LOCALES_MORE);
-
-	    locales = (String[]) ArrayUtils.addAll(locales, localesMore);
-	    Locale[] localesArray;
-	    if (ArrayUtils.isEmpty(locales)) {
-	        // if no locales then use the default only
-	        localesArray = new Locale[] { Locale.getDefault() };
-	    } else {
-	        // convert from strings to Locales
-	        localesArray = new Locale[locales.length + 1];
-	        for (int i = 0; i < locales.length; i++) {
-	            localesArray[i] = getLocaleFromString(locales[i]);
-	        }
-	        // add default in on the end
-	        localesArray[localesArray.length - 1] = Locale.getDefault();
-	    }
-
-	    // Sort Locales and remove duplicates
-	    Arrays.sort(localesArray, localeComparator);
-	    return localesArray;
-	}
-
-
-	/**
 	 * @return Returns the prefLocales
 	 */
 	public List<SelectItem> getPrefLocales()
@@ -593,7 +530,8 @@ public class UserPrefsTool
 		// Initialize list of supported locales, if necessary
 		if (prefLocales.isEmpty())
 		{
-		    Locale[] localeArray = getSakaiLocales();
+		    org.sakaiproject.component.api.ServerConfigurationService scs = (org.sakaiproject.component.api.ServerConfigurationService) ComponentManager.get(org.sakaiproject.component.api.ServerConfigurationService.class);
+		    Locale[] localeArray = scs.getSakaiLocales();
 			for (int i = 0; i < localeArray.length; i++)
 			{
 				if (i == 0 || !localeArray[i].equals(localeArray[i - 1])) {
@@ -705,10 +643,12 @@ public class UserPrefsTool
 		ResourceProperties props = prefs.getProperties(ResourceLoader.APPLICATION_ID);
 		String prefLocale = props.getProperty(ResourceLoader.LOCALE_KEY);
 
-		if (hasValue(prefLocale))
-			m_locale = getLocaleFromString(prefLocale);
-		else
+		if (hasValue(prefLocale)) {
+		    org.sakaiproject.component.api.ServerConfigurationService scs = (org.sakaiproject.component.api.ServerConfigurationService) ComponentManager.get(org.sakaiproject.component.api.ServerConfigurationService.class);
+			m_locale = scs.getLocaleFromString(prefLocale);
+		} else {
 			m_locale = Locale.getDefault();
+		}
 
 		return m_locale;
 	}
@@ -735,7 +675,10 @@ public class UserPrefsTool
 	 */
 	public void setSelectedLocaleString(String selectedLocale)
 	{
-		if (selectedLocale != null) m_locale = getLocaleFromString(selectedLocale);
+		if (selectedLocale != null) {
+		    org.sakaiproject.component.api.ServerConfigurationService scs = (org.sakaiproject.component.api.ServerConfigurationService) ComponentManager.get(org.sakaiproject.component.api.ServerConfigurationService.class);
+		    m_locale = scs.getLocaleFromString(selectedLocale);
+		}
 	}
 
 	/**
