@@ -21,9 +21,11 @@
 
 package org.sakaiproject.event.impl;
 
+import java.util.HashSet;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 
+import org.apache.commons.lang.StringUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.sakaiproject.component.api.ServerConfigurationService;
@@ -38,6 +40,14 @@ import org.springframework.context.ApplicationContextAware;
  * This will basically just reroute calls over to the set of known {@link LearningResourceStoreProvider}.
  * It also does basic config handling (around enabling/disabling the overall processing) and filtering handled statement origins.
  * 
+ * Configuration:
+ * 1) Enable LRS processing
+ * Default: false
+ * lrs.enabled=true
+ * 2) Enabled statement origin filters
+ * Default: No filters (all statements processed)
+ * lrs.origins.filter=tool1,tool2,tool3
+ * 
  * @author Aaron Zeckoski (azeckoski @ vt.edu)
  */
 public class BaseLearningResourceStoreService implements LearningResourceStoreService, ApplicationContextAware {
@@ -48,6 +58,11 @@ public class BaseLearningResourceStoreService implements LearningResourceStoreSe
      * Stores the complete set of known LRSP providers (from the Spring AC or registered manually)
      */
     private ConcurrentHashMap<String, LearningResourceStoreProvider> providers;
+    /**
+     * Stores the complete set of origin filters for the LRS service,
+     * Anything with an origin that matches the ones in this set will be blocked from being processed
+     */
+    private HashSet<String> originFilters;
 
     public void init() {
         providers = new ConcurrentHashMap<String, LearningResourceStoreProvider>();
@@ -64,6 +79,20 @@ public class BaseLearningResourceStoreService implements LearningResourceStoreSe
         } else {
             log.info("LRS did not search for existing LearningResourceStoreProviders in the system (ac="+applicationContext+", enabled="+isEnabled()+")");
         }
+        if (isEnabled() && serverConfigurationService != null) {
+            String[] filters = serverConfigurationService.getStrings("lrs.origins.filter");
+            if (filters == null || filters.length == 0) {
+                log.info("LRS filters are not configured: All statements will be passed through to the LRS");
+            } else {
+                originFilters = new HashSet<String>(filters.length);
+                for (int i = 0; i < filters.length; i++) {
+                    if (filters[i] != null) {
+                        originFilters.add(filters[i]);
+                    }
+                }
+                log.info("LRS found "+originFilters.size()+" origin filters: "+originFilters);
+            }
+        }
         log.info("LRS INIT: enabled="+isEnabled());
     }
 
@@ -71,6 +100,7 @@ public class BaseLearningResourceStoreService implements LearningResourceStoreSe
         if (providers != null) {
             providers.clear();
         }
+        originFilters = null;
         providers = null;
         log.info("LRS DESTROY");
     }
@@ -81,17 +111,32 @@ public class BaseLearningResourceStoreService implements LearningResourceStoreSe
     public void registerStatement(LRS_Statement statement, String origin) {
         if (isEnabled() 
                 && providers != null && !providers.isEmpty()) {
-            // TODO filter out certain tools and statement origins
-            for (LearningResourceStoreProvider lrsp : providers.values()) {
-                // run the statement processing in a new thread
-                String threadName = "LRS_"+lrsp.getID();
-                Thread t = new Thread(new RunStatementThread(lrsp, statement), threadName); // each provider has it's own thread
-                t.setDaemon(true); // allow this thread to be killed when the JVM dies
-                t.start();
+            // filter out certain tools and statement origins
+            boolean skip = false;
+            if (originFilters != null && !originFilters.isEmpty()) {
+                origin = StringUtils.trimToNull(origin);
+                if (origin != null && originFilters.contains(origin)) {
+                    if (log.isDebugEnabled()) log.debug("LRS statement skipped because origin ("+origin+") matches the originFilter");
+                    skip = true;
+                }
+            }
+            if (!skip) {
+                // process this statement
+                if (log.isDebugEnabled()) log.debug("LRS statement being processed, origin="+origin+", statement="+statement);
+                for (LearningResourceStoreProvider lrsp : providers.values()) {
+                    // run the statement processing in a new thread
+                    String threadName = "LRS_"+lrsp.getID();
+                    Thread t = new Thread(new RunStatementThread(lrsp, statement), threadName); // each provider has it's own thread
+                    t.setDaemon(true); // allow this thread to be killed when the JVM dies
+                    t.start();
+                }
             }
         }
     }
 
+    /**
+     * internal class to support threaded execution of statements processing
+     */
     private static class RunStatementThread implements Runnable {
         final LearningResourceStoreProvider lrsp;
         final LRS_Statement statement;
