@@ -105,7 +105,9 @@ public class SameRoleProducer implements ViewComponentProducer, NavigationCaseRe
 	            UILabelTargetDecorator.targetLabel(lb, choice);
 	            
 	            // add role description
-	            UIOutput.make(roleRow, "role-descr-label", StringUtils.trimToEmpty(r.getDescription()));
+	            if (StringUtils.isNotBlank(r.getDescription())) {
+	            	UIOutput.make(roleRow, "role-descr-label", StringUtils.trimToEmpty(r.getDescription()));
+	            }
 	            
 	            roleItems.add(r.getId());
 	            String label = r.getId();
