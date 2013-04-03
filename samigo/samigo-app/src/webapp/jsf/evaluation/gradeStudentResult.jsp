@@ -48,7 +48,7 @@ $Id$
     <samigo:script path="/jsf/widget/hideDivision/hideDivision.js" />
 
       </head>
-  <body onload="hideUnhideAllDivsExceptFirst('none');;<%= request.getAttribute("html.body.onload") %>">
+  <body onload="<%= request.getAttribute("html.body.onload") %>">
 <!-- $Id:  -->
 <!-- content... -->
 <script type="text/javascript">
