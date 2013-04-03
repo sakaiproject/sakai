@@ -1,6 +1,7 @@
 package org.sakai.memory.impl.test;
 
 import java.util.List;
+import java.util.Locale;
 import java.util.Map;
 
 import org.sakaiproject.component.api.ServerConfigurationService;
@@ -199,6 +200,14 @@ public class MockServerConfigurationService implements
     public void registerListener(ConfigurationListener configurationListener) {
         // TODO Auto-generated method stub
         
+    }
+
+    public Locale[] getSakaiLocales() {
+        return new Locale[] {Locale.getDefault()};
+    }
+
+    public Locale getLocaleFromString(String localeString) {
+        return Locale.getDefault();
     }
 
 }
