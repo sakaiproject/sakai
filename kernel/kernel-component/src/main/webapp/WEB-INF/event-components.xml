@@ -115,6 +115,11 @@
 	 	<property name="usageSessionService" ref="org.sakaiproject.event.api.UsageSessionService"/>
 	 	
 	 </bean>
-    
+
+    <bean id="org.sakaiproject.event.api.LearningResourceStoreService"
+            class="org.sakaiproject.event.impl.BaseLearningResourceStoreService"
+            init-method="init" destroy-method="destroy" singleton="true">
+        <property name="serverConfigurationService" ref="org.sakaiproject.component.api.ServerConfigurationService"/>
+    </bean>
 
 </beans>
