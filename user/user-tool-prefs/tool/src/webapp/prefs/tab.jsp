@@ -25,6 +25,7 @@ function checkReloadTop() {
 jQuery(document).ready(function () {
     setTimeout('checkReloadTop();', 1500);
     setupMultipleSelect();
+    setupPrefsGen();
 });
 //-->
 </script>

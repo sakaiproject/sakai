@@ -138,7 +138,7 @@ var postMoveCleanUp = function(selectedItems) {
 
 setupPrefsGen = function(){
     if ($('.success').length) {
-        $('.success').fadeOut(5000);
+        $('.success').attr('tabindex','-1').fadeTo(5000,1).fadeOut(1000).css('outline','none').focus();
     }
     $('.formButton').click(function(e){
         $('.formButton').hide();
