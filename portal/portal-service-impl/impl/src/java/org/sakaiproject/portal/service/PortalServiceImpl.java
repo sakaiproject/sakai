@@ -40,7 +40,7 @@ import org.apache.pluto.spi.optional.PortletRegistryService;
 import org.exolab.castor.util.LocalConfiguration;
 import org.exolab.castor.util.Configuration.Property;
 import org.sakaiproject.component.cover.ComponentManager;
-import org.sakaiproject.component.cover.ServerConfigurationService;
+import org.sakaiproject.component.api.ServerConfigurationService;
 import org.sakaiproject.content.api.ContentHostingService;
 import org.sakaiproject.exception.IdUnusedException;
 import org.sakaiproject.portal.api.BaseEditor;
@@ -76,11 +76,19 @@ public class PortalServiceImpl implements PortalService
 	 */
 	public static final String PARM_STATE_RESET = "sakai.state.reset";
 
+	private static final String PORTAL_SKIN_NEOPREFIX_PROPERTY = "portal.neoprefix";
+	
+	private static final String PORTAL_SKIN_NEOPREFIX_DEFAULT = "neo-";
+	
+	private static String portalSkinPrefix;
+
 	private Map<String, PortalRenderEngine> renderEngines = new ConcurrentHashMap<String, PortalRenderEngine>();
 
 	private Map<String, Map<String, PortalHandler>> handlerMaps = new ConcurrentHashMap<String, Map<String, PortalHandler>>();
 
 	private Map<String, Portal> portals = new ConcurrentHashMap<String, Portal>();
+	
+	private ServerConfigurationService serverConfigurationService;
 
 	private StyleAbleProvider stylableServiceProvider;
 
@@ -98,12 +106,17 @@ public class PortalServiceImpl implements PortalService
 	{
 		try
 		{
+			stylableServiceProvider = (StyleAbleProvider) ComponentManager
+					.get(StyleAbleProvider.class.getName());
+			serverConfigurationService = (ServerConfigurationService) ComponentManager
+					.get(ServerConfigurationService.class.getName());
+
 			try
-			{
+			{	
 				// configure the parser for castor.. before anything else get a
 				// chance
 				Properties castorProperties = LocalConfiguration.getDefault();
-				String parser = ServerConfigurationService.getString(
+				String parser = serverConfigurationService.getString(
 						"sakai.xml.sax.parser",
 						"com.sun.org.apache.xerces.internal.parsers.SAXParser");
 				log.info("Configured Castor to use SAX Parser " + parser);
@@ -113,8 +126,11 @@ public class PortalServiceImpl implements PortalService
 			{
 				log.error("Failed to configure Castor", ex);
 			}
-			stylableServiceProvider = (StyleAbleProvider) ComponentManager
-					.get(StyleAbleProvider.class.getName());
+			
+			portalSkinPrefix = serverConfigurationService.getString(PORTAL_SKIN_NEOPREFIX_PROPERTY, PORTAL_SKIN_NEOPREFIX_DEFAULT);
+			if (portalSkinPrefix == null) {
+				portalSkinPrefix = "";
+			}
 		}
 		catch (Exception ex)
 		{
@@ -193,7 +209,7 @@ public class PortalServiceImpl implements PortalService
 
 	public boolean isEnableDirect()
 	{
-		boolean directEnable = "true".equals(ServerConfigurationService.getString(
+		boolean directEnable = "true".equals(serverConfigurationService.getString(
 				"charon.directurl", "true"));
 		log.debug("Direct Enable is " + directEnable);
 		return directEnable;
@@ -561,7 +577,7 @@ public class PortalServiceImpl implements PortalService
 	}
 
 	public Editor getActiveEditor(Placement placement) {
-		String systemEditor = ServerConfigurationService.getString("wysiwyg.editor", "ckeditor");
+		String systemEditor = serverConfigurationService.getString("wysiwyg.editor", "ckeditor");
 		
 		String activeEditor = systemEditor;
 		if (placement != null) {
@@ -606,6 +622,10 @@ public class PortalServiceImpl implements PortalService
 
 	public void setEditorRegistry(EditorRegistry editorRegistry) {
 		this.editorRegistry = editorRegistry;
+	}
+	
+	public String getSkinPrefix() {
+		return portalSkinPrefix;
 	}
 
 

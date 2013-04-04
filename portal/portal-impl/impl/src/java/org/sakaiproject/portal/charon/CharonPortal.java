@@ -3121,8 +3121,8 @@ public class CharonPortal extends HttpServlet
 			skin = ServerConfigurationService.getString("skin.default");
 		}
 		String templates = ServerConfigurationService.getString("portal.templates", "neoskin");
-		String prefix = ServerConfigurationService.getString("portal.neoprefix", "neo-");
-		if ( "neoskin".equals(templates) ) skin = prefix + skin;
+		String prefix = portalService.getSkinPrefix();
+		if ( "neoskin".equals(templates)) skin = prefix + skin;
 		return skin;
 	}
 

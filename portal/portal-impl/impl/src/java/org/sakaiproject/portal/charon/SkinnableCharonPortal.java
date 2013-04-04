@@ -2244,9 +2244,9 @@ public class SkinnableCharonPortal extends HttpServlet implements Portal
 			skin = ServerConfigurationService.getString("skin.default");
 		}
 		String templates = ServerConfigurationService.getString("portal.templates", "neoskin");
-		String prefix = ServerConfigurationService.getString("portal.neoprefix", "neo-");
+		String prefix = portalService.getSkinPrefix();
 		// Don't add the prefix twice
-		if ( "neoskin".equals(templates) && ! skin.startsWith(prefix) ) skin = prefix + skin;
+		if ( "neoskin".equals(templates) && !StringUtils.startsWith(skin, prefix) ) skin = prefix + skin;
 		return skin;
 	}
 
