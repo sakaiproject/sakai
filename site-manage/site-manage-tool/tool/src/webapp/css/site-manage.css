@@ -204,3 +204,566 @@ dl.defList dd{
     padding:5px;
     margin:0;
 }
+
+#toolHolderWW {
+    clear: both;
+    height: 100%;
+    overflow: hidden;
+}
+
+#toolHolderW {
+    background: none repeat scroll 0 0 #EEEEEE;
+    border-radius: 5px 5px 5px 5px;
+    padding: 0.5em;
+    width: 50em;
+    float: left;
+}
+
+#toolSelectionList {
+    float: left;
+    padding: 0 20px;
+    line-height: 200%;
+}
+
+#toolSelectionList h4{
+    margin:0
+}
+#toolSelectionList li:first-child {
+    -webkit-border-top-left-radius: 3px;
+    -webkit-border-top-right-radius: 3px;
+    -moz-border-radius-topleft: 3px;
+    -moz-border-radius-topright: 3px;
+    border-top-left-radius: 3px;
+    border-top-right-radius: 3px;
+}
+
+#toolSelectionList li:last-child {
+    -webkit-border-bottom-right-radius: 3px;
+    -webkit-border-bottom-left-radius: 3px;
+    -moz-border-radius-bottomright: 3px;
+    -moz-border-radius-bottomleft: 3px;
+    border-bottom-right-radius: 3px;
+    border-bottom-left-radius: 3px;
+}
+
+#toolHolder, #toolHolder ul {
+    list-style: none;
+    margin: 0;
+    padding: 0;
+}
+
+#toolHolder h4 {
+    margin-top: 5px;
+}
+
+#toolHolder h4 a {
+    border: 1px solid #d6d7d9;
+    background: #e3e4e5;
+    background: -moz-linear-gradient(top, #e3e4e5 0%, #d9d9d9 100%);
+    background: -webkit-gradient(linear, left top, left bottom, color-stop(0%,#e3e4e5), color-stop(100%,#d9d9d9));
+    background: -webkit-linear-gradient(top, #e3e4e5 0%,#d9d9d9 100%);
+    background: -o-linear-gradient(top, #e3e4e5 0%,#d9d9d9 100%);
+    background: -ms-linear-gradient(top, #e3e4e5 0%,#d9d9d9 100%);
+    background: linear-gradient(to bottom, #e3e4e5 0%,#d9d9d9 100%);
+    text-decoration: none;
+    text-transform: capitalize;
+    padding: 5px;
+    display: block;
+    margin: 0;
+    -webkit-border-radius: 5px;
+    -moz-border-radius: 5px;
+    border-radius: 5px;
+}
+
+#toolHolder h4 a:hover {
+     border: 1px solid #cccdd1;
+    background: #d9dadd;
+    background: -moz-linear-gradient(top, #d9dadd 0%, #cccccc 100%);
+    background: -webkit-gradient(linear, left top, left bottom, color-stop(0%,#d9dadd), color-stop(100%,#cccccc));
+    background: -webkit-linear-gradient(top, #d9dadd 0%,#cccccc 100%);
+    background: -o-linear-gradient(top, #d9dadd 0%,#cccccc 100%);
+    background: -ms-linear-gradient(top, #d9dadd 0%,#cccccc 100%);
+    background: linear-gradient(to bottom, #d9dadd 0%,#cccccc 100%);
+}
+#toolHolder h4 a:before {
+    content:"\25B8\0020\0020";
+} 
+#toolHolder h4 a.open:before {
+    content:"\25BE\0020\0020";
+}
+#toolHolder h4 a.toggleNone:before {
+    content:"";
+}
+#toolHolder h4 a.toggleNone:hover {
+    border: 1px solid #d6d7d9;
+    background: #e3e4e5;
+    background: -moz-linear-gradient(top, #e3e4e5 0%, #d9d9d9 100%);
+    background: -webkit-gradient(linear, left top, left bottom, color-stop(0%,#e3e4e5), color-stop(100%,#d9d9d9));
+    background: -webkit-linear-gradient(top, #e3e4e5 0%,#d9d9d9 100%);
+    background: -o-linear-gradient(top, #e3e4e5 0%,#d9d9d9 100%);
+    background: -ms-linear-gradient(top, #e3e4e5 0%,#d9d9d9 100%);
+    background: linear-gradient(to bottom, #e3e4e5 0%,#d9d9d9 100%);
+    color: #555;
+}
+#toolHolder ul {
+    padding: 5px 20px;
+    display:none;
+}
+#toolHolder li:first-child ul {
+    display: block
+}
+ #toolHolder ul li div.toolListDesc, #toolHolder ul li div.toolListControl {
+     padding:5px
+ }
+ 
+ #toolHolder ul li div.toolListControl label {
+     color:#555;
+ }
+#toolHolder ul li div.toolListDesc {
+     padding:0px 30px 5px 30px;
+ }
+
+#toolHolder .checkedCount {
+    color:#555;
+    margin: 0;
+    display:block;
+    float:right;
+    padding: 0 3px;
+    text-align:center;
+    min-width:10px;
+    background: #eee;
+    font-size:90%;
+    -webkit-border-radius: 3px;
+    -moz-border-radius: 3px;
+    border-radius: 3px;
+}
+.selectAll, #collExpContainer a {
+    font-style: normal;
+    margin-left: 10px;
+    color: #0064CD;
+    font-weight: bold;
+    text-decoration: none;
+    font-size:90%;
+    text-transform:none;
+}
+.selectAll:hover {
+    cursor: pointer
+}
+
+#toolSelectionList ul {
+    list-style:none;
+    margin:1em 0;
+    padding:0;
+    width:200px;
+        -webkit-border-radius: 3px;
+    -moz-border-radius: 3px;
+    border-radius: 3px;
+   
+    border-width: 1px;
+    border-style: none solid none solid;
+    border-color: #ddd
+}
+#toolSelectionList ul li {
+    background-image: url(/library/image/silk/application.png);
+    background-position: 8px 9px;
+    background-repeat: no-repeat;
+    line-height: 200%;
+    padding: 5px 45px 5px 28px;
+    position:relative;
+    border-bottom: 1px solid #ddd
+}
+
+#toolSelectionList ul li.highlightTool{
+    background-color: #ffc
+}
+#toolSelectionList ul li:first-child {
+    border-top: 1px solid #ddd
+}
+.removeTool {
+    background: #c00;
+    color:#fff !important;
+    -webkit-border-radius: 4px;
+    -moz-border-radius: 4px;
+    border-radius: 4px;
+    text-decoration: none !important;
+    position:absolute;
+    top:9px;
+    right:7px;
+    width:10px;
+    display: block;
+    padding: 1px 5px 2px;
+    line-height: 1.2em;
+    text-align: center;
+}
+
+
+.icon-osp-evaluation {
+    background-image: url(/library/image/silk/thumb_up.png) !important;
+}
+
+.icon-osp-glossary {
+    background-image: url(/library/image/silk/text_list_bullets.png) !important;
+}
+
+.icon-osp-matrix {
+    background-image: url(/library/image/silk/table.png) !important;
+}
+
+.icon-osp-presentation {
+    background-image: url(/library/image/silk/briefcase.png) !important;
+}
+
+.icon-osp-presLayout {
+    background-image: url(/library/image/silk/layout_content.png) !important;
+}
+
+.icon-osp-presTemplate {
+    background-image: url(/library/image/silk/application_view_tile.png) !important;
+}
+
+.icon-osp-style {
+    background-image: url(/library/image/silk/style.png) !important;
+}
+
+.icon-osp-wizard {
+    background-image: url(/library/image/silk/wand.png) !important;
+}
+
+.icon-sakai-announcements {
+    background-image: url(/library/image/silk/flag_blue.png) !important;
+}
+
+.icon-sakai-chat {
+    background-image: url(/library/image/silk/user_comment.png) !important;
+}
+
+.icon-sakai-datapoint {
+    background-image: url(/library/image/silk/chart_line.png) !important;
+}
+
+.icon-sakai-discussion {
+    background-image: url(/library/image/silk/comments.png) !important;
+}
+
+.icon-sakai-dropbox {
+    background-image: url(/library/image/silk/folder_page.png) !important;
+}
+
+.icon-sakai-emailtemplateservice {
+    background-image: url(/library/image/silk/email_edit.png) !important;
+}
+
+.icon-sakai-gmt {
+    background-image: url(/library/image/silk/award_star_gold_3.png) !important;
+}
+
+.icon-sakai-help {
+    background-image: url(/library/image/silk/help.png) !important;
+}
+
+.icon-sakai-iframe {
+    background-image: url(/library/image/silk/page_world.png) !important;
+}
+
+.icon-sakai-iframe-site {
+    background-image: url(/library/image/silk/house.png) !important;
+}
+
+.icon-sakai-web-168 {
+    background-image: url(/library/image/silk/application_go.png) !important;
+}
+
+.icon-sakai-mailbox {
+    background-image: url(/library/image/silk/email.png) !important;
+}
+
+.icon-sakai-messages {
+    background-image: url(/library/image/silk/comment.png) !important;
+}
+
+.icon-sakai-metaobj {
+    background-image: url(/library/image/silk/application_form.png) !important;
+}
+
+.icon-sakai-membership {
+    background-image: url(/library/image/silk/group.png) !important;
+}
+
+.icon-sakai-news {
+    background-image: url(/library/image/silk/rss.png) !important;
+}
+
+.icon-sakai-podcasts{
+    background-image: url(/library/image/silk/ipod_cast.png) !important;
+}
+
+.icon-sakai-postem{
+    background-image: url(/library/image/silk/database_table.png) !important;
+}
+
+.icon-sakai-preferences{
+    background-image: url(/library/image/silk/cog.png) !important;
+}
+
+.icon-sakai-rutgers-linktool{
+    background-image: url(/library/image/silk/application.png) !important;
+}
+
+.icon-sakai-sections{
+    background-image: url(/library/image/silk/group_gear.png) !important;
+}
+
+.icon-sakai-singleuser{
+    background-image: url(/library/image/silk/user.png) !important;
+}
+
+.icon-sakai-syllabus{
+    background-image: url(/library/image/silk/script.png) !important;
+}
+
+.icon-blogger{
+    background-image: url(/library/image/silk/book_edit.png) !important;
+}
+
+.icon-sakai-assignment-grades{
+    background-image: url(/library/image/silk/page_edit.png) !important;
+}
+
+.icon-sakai-forums{
+    background-image: url(/library/image/silk/comments.png) !important;
+}
+
+.icon-sakai-gradebook-tool{
+    background-image: url(/library/image/silk/report.png) !important;
+}
+
+.icon-sakai-mailtool {
+    background-image: url(/library/image/silk/email_go.png) !important;
+}
+
+.icon-sakai-poll{
+    background-image: url(/library/image/silk/chart_bar.png) !important;
+}
+
+.icon-sakai-sitestats {
+    background-image: url(/library/image/silk/chart_bar.png) !important;
+}
+
+.icon-sakai-sitestats-admin {
+        background-image: url(/library/image/silk/chart_line.png) !important;
+}
+
+.icon-sakai-presentation {
+    background-image: url(/library/image/silk/monitor.png) !important;
+}
+
+.icon-sakai-profile {
+    background-image: url(/library/image/silk/vcard_edit.png) !important;
+}
+
+.icon-sakai-reports {
+    background-image: url(/library/image/silk/report_magnify.png) !important;
+}
+
+.icon-sakai-resetpass {
+    background-image: url(/library/image/silk/key.png) !important;
+}
+
+.icon-sakai-resources {
+    background-image: url(/library/image/silk/folder.png) !important;
+}
+
+.icon-sakai-rwiki {
+    background-image: url(/library/image/silk/page_white_edit.png) !important;
+}
+
+.icon-sakai-samigo {
+    background-image: url(/library/image/silk/pencil.png) !important;
+}
+
+.icon-sakai-schedule {
+    background-image: url(/library/image/silk/calendar.png) !important;
+}
+
+.icon-sakai-search {
+    background-image: url(/library/image/silk/find.png) !important;
+}
+
+.icon-sakai-siteinfo {
+    background-image: url(/library/image/silk/application_lightning.png) !important;
+}
+
+.icon-sakai-sitesetup{
+    background-image: url(/library/image/silk/application_lightning.png) !important;
+}
+
+.icon-sakai-site-roster {
+    background-image: url(/library/image/silk/vcard.png) !important;
+}
+
+.icon-sakai-synoptic-messagecenter{
+background-image: url(/library/image/silk/comment.png) !important;
+}
+
+.icon-sakai-conferencing {
+    background-image : url(/library/image/silk/webcam.png) !important;
+}
+
+.icon-sakai-profile2 { 
+    background-image: url(/library/image/silk/vcard.png) !important; 
+} 
+
+/*admin tools*/
+.icon-sakai-users{
+    background-image: url(/library/image/silk/folder_user.png) !important;
+}
+.icon-sakai-aliases{
+    background-image: url(/library/image/silk/tag_blue.png) !important;
+}
+.icon-sakai-sites{
+    background-image: url(/library/image/silk/application_cascade.png) !important;
+}
+.icon-sakai-realms{
+    background-image: url(/library/image/silk/sitemap_color.png) !important;
+}
+.icon-sakai-online{
+    background-image: url(/library/image/silk/report_user.png) !important;
+}
+.icon-sakai-memory{
+    background-image: url(/library/image/silk/server_chart.png) !important;
+}
+.icon-sakai-archive{
+    background-image: url(/library/image/silk/page_white_compressed.png) !important;
+}
+.icon-sakai-scheduler{
+    background-image: url(/library/image/silk/clock.png) !important;
+}
+.icon-sakai-su{
+    background-image: url(/library/image/silk/user_go.png) !important;
+}
+.icon-sakai-usermembership{
+    background-image: url(/library/image/silk/drive_user.png) !important;
+}
+
+.icon-sakai-motd { 
+    background-image: url(/library/image/silk/house.png) !important; 
+} 
+.icon-sakai-sitebrowser { 
+    background-image: url(/library/image/silk/world.png) !important; 
+} 
+.icon-sakai-createuser { 
+    background-image: url(/library/image/silk/user_add.png) !important; 
+} 
+.icon-sakai-subsite { 
+    background-image: url(/library/image/silk/chart_organisation.png) !important; 
+}
+
+.icon-sakai-iframe-service {
+    background-image: url(/library/image/silk/house.png) !important;
+}
+.icon-sakai-iframe-myworkspace {
+    background-image: url(/library/image/silk/house.png) !important;
+}
+
+.icon-sakai-basiclti { 
+    background-image: url(/library/image/silk/application_go.png) !important; 
+}
+.icon-sakai-basiclti-admin { 
+    background-image: url(/library/image/silk/application_go.png) !important; 
+}
+.icon-sakai-lessonbuildertool {
+    background-image: url(/library/image/silk/book_open.png) !important;
+}
+.icon-sakai-see-all-tools {
+    background-image: url(/library/image/silk/bullet_go.png) !important;
+}
+.icon-sakai-signup {
+    background-image: url(/library/image/silk/date.png) !important;
+}
+.icon-sakai-site-roster2 { 
+    background-image: url(/library/image/silk/vcard.png) !important; 
+}
+.icon-sakai-home { 
+  background-image: url("/library/image/silk/house.png") !important;
+}
+#alertBox {
+    -webkit-border-radius: 3px;
+    -moz-border-radius: 3px;
+    border-radius: 3px;
+    position:absolute;
+    padding:5px 10px;
+    background: #c00;
+    color: #fff;
+    white-space: nowrap;
+    z-index: 100
+    
+}
+#alertBox a:first-child {
+    margin-left: 20px;
+}
+#alertBox a{
+    color:#fff;
+    margin: 0 5px
+} 
+
+#moreInfoHolder img {
+    width:100%;
+}
+#collExpContainer {
+    text-align:right
+}
+
+#toolHolder h4.communication a {
+    color: #fff;
+    border: 1px solid #47a2ff;
+    background: #7abcff;
+    background: -moz-linear-gradient(top, #7abcff 0%, #60abf8 44%, #4096ee 100%);
+    background: -webkit-gradient(linear, left top, left bottom, color-stop(0%,#7abcff), color-stop(44%,#60abf8), color-stop(100%,#4096ee));
+    background: -webkit-linear-gradient(top, #7abcff 0%,#60abf8 44%,#4096ee 100%);
+    background: -o-linear-gradient(top, #7abcff 0%,#60abf8 44%,#4096ee 100%);
+    background: -ms-linear-gradient(top, #7abcff 0%,#60abf8 44%,#4096ee 100%);
+    background: linear-gradient(to bottom, #7abcff 0%,#60abf8 44%,#4096ee 100%);
+}
+#toolHolder h4.assessment a {
+    color:#fff;
+    border: 1px solid #a89e37;
+background: #bbb03d;
+background: -moz-linear-gradient(top, #bbb03d 0%, #928b36 100%);
+background: -webkit-gradient(linear, left top, left bottom, color-stop(0%,#bbb03d), color-stop(100%,#928b36));
+background: -webkit-linear-gradient(top, #bbb03d 0%,#928b36 100%);
+background: -o-linear-gradient(top, #bbb03d 0%,#928b36 100%);
+background: -ms-linear-gradient(top, #bbb03d 0%,#928b36 100%);
+background: linear-gradient(to bottom, #bbb03d 0%,#928b36 100%);
+
+}
+#toolHolder h4.content a {
+color: #fff;
+border:1px solid #b80324;
+background: #d10329;
+background: -moz-linear-gradient(top, #d10329 0%, #bc0224 44%, #9e001d 100%);
+background: -webkit-gradient(linear, left top, left bottom, color-stop(0%,#d10329), color-stop(44%,#bc0224), color-stop(100%,#9e001d));
+background: -webkit-linear-gradient(top, #d10329 0%,#bc0224 44%,#9e001d 100%);
+background: -o-linear-gradient(top, #d10329 0%,#bc0224 44%,#9e001d 100%);
+background: -ms-linear-gradient(top, #d10329 0%,#bc0224 44%,#9e001d 100%);
+background: linear-gradient(to bottom, #d10329 0%,#bc0224 44%,#9e001d 100%);
+
+
+}
+#toolHolder h4.site_management a {
+color: #fff;
+border: 1px solid #754326;
+background: #884e2c;
+background: -moz-linear-gradient(top, #884e2c 0%, #6b3d21 100%);
+background: -webkit-gradient(linear, left top, left bottom, color-stop(0%,#884e2c), color-stop(100%,#6b3d21));
+background: -webkit-linear-gradient(top, #884e2c 0%,#6b3d21 100%);
+background: -o-linear-gradient(top, #884e2c 0%,#6b3d21 100%);
+background: -ms-linear-gradient(top, #884e2c 0%,#6b3d21 100%);
+background: linear-gradient(to bottom, #884e2c 0%,#6b3d21 100%);
+}
+
+#toolHolder h4.miscellaneous a {
+}
+
+.multitool {
+ padding-left :30px !important
+}
