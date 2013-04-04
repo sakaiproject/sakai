@@ -39,6 +39,7 @@ import java.util.Vector;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
+import org.apache.commons.lang.StringUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.sakaiproject.authz.api.AuthzGroup;
@@ -127,6 +128,10 @@ public abstract class BaseSiteService implements SiteService, Observer
 	private static final String DEFAULT_RESOURCEBUNDLE = "org.sakaiproject.localization.bundle.siteimpl.site-impl";
 	private static final String RESOURCECLASS = "resource.class.siteimpl";
 	private static final String RESOURCEBUNDLE = "resource.bundle.siteimpl";
+	private static final String PORTAL_SKIN_NEOPREFIX_PROPERTY = "portal.neoprefix";
+	private static final String PORTAL_SKIN_NEOPREFIX_DEFAULT = "neo-";
+	private static String portalSkinPrefix;
+
 	private ResourceLoader rb = null;
 	// protected ResourceLoader rb = new ResourceLoader("site-impl");
 
@@ -513,6 +518,8 @@ public abstract class BaseSiteService implements SiteService, Observer
 			functionManager().registerFunction(SITE_VISIT_SOFTLY_DELETED);
 			functionManager().registerFunction(SECURE_REMOVE_SOFTLY_DELETED_SITE);
 			functionManager().registerFunction(SECURE_ADD_PROJECT_SITE);
+			
+			portalSkinPrefix = serverConfigurationService().getString(PORTAL_SKIN_NEOPREFIX_PROPERTY, PORTAL_SKIN_NEOPREFIX_DEFAULT);
 
 		}
 		catch (Exception t)
@@ -2898,15 +2905,16 @@ public abstract class BaseSiteService implements SiteService, Observer
 	protected String adjustSkin(String skin, boolean published)
 	{
 		// return the skin as just a name, no ".css", and not dependent on the published status, or a null if not defined
-		if (skin == null) {
-			skin = serverConfigurationService().getString("skin.default");
+		if (StringUtils.isEmpty(skin)) {
+			skin = serverConfigurationService().getString("skin.default", "default");
 		}
 
 		String templates = serverConfigurationService().getString("portal.templates", "neoskin");
 		if("neoskin".equals(templates))
 		{
-			String prefix = serverConfigurationService().getString("portal.neoprefix", "neo-");
-			skin = prefix + skin;
+			if (StringUtils.isNotEmpty(portalSkinPrefix)) {
+				skin = portalSkinPrefix + skin;
+			}
 		}
 
 		if (!skin.endsWith(".css")) return skin;
