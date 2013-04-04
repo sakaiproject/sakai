@@ -108,7 +108,7 @@
 			var warn = true;
 			window.onbeforeunload = function (evt) {
 				if(warn && '<h:outputText value="#{mfStatisticsBean.selectedAssign}"/>' != 'Default_0'){
-					var message = '<h:outputText value="#{msgs.confirm_navigation}"/>';
+					var message = "<h:outputText value="#{msgs.confirm_navigation}" escape="false"/>";
 					if (typeof evt == "undefined") {
 					evt = window.event;
 					}
@@ -125,7 +125,7 @@
 			<link rel="stylesheet" type="text/css" href="/messageforums-tool/css/dialog.css" />
 		<script type="text/javascript">		
 			function toggleComments(link){
-				if(link.innerHTML == '<h:outputText value="#{msgs.stat_forum_comments_show}"/>'){
+				if(link.innerHTML == "<h:outputText value="#{msgs.stat_forum_comments_show}" escape="false"/>"){
 					$('.comments').fadeIn();
 					$('.commentsHidden').fadeOut();
 					link.innerHTML = '<h:outputText value="#{msgs.stat_forum_comments_hide}"/>';
