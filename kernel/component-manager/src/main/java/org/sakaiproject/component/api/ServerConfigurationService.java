@@ -145,21 +145,24 @@ public interface ServerConfigurationService
 
 	/**
 	 * Access some named configuration value as a string.
+	 * 1) IF "name=value" THEN this will return "value"
+	 * 2) IF "name=" THEN this will return null
+	 * 3) IF name is not defined in the config THEN this will return "" (empty string)
 	 * 
-	 * @param name
-	 *        The configuration value name.
-	 * @return The configuration value with this name, or "" if not found.
+	 * @param name The configuration value name (or key).
+	 * @return The configuration value for this name OR null if defined as 'blank' OR "" (empty string) if not defined.
 	 */
 	String getString(String name);
 
 	/**
 	 * Access some named configuration value as a string.
+	 * 1) IF "name=value" THEN this will return "value"
+	 * 2) IF "name=" THEN this will return null
+	 * 3) IF name is not defined in the config THEN this will return the provided default value
 	 * 
-	 * @param name
-	 *        The configuration value name.
-	 * @param dflt
-	 *        The value to return if not found.
-	 * @return The configuration value with this name, or the default value if not found.
+	 * @param name The configuration value name (or key).
+	 * @param dflt The value to return if not found in the config.
+	 * @return The configuration value for this name OR null if defined as 'blank' OR default value if not defined.
 	 */
 	String getString(String name, String dflt);
 
