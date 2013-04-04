@@ -18,7 +18,7 @@
 		<configuration name="reset.button" value="false" type="final" />
 		<configuration name="help.id" value="sakai.chat" type="final" />
 
-		<configuration name="functions.require" value="chat.read" /> 
+        <configuration name="functions.require" value="site.visit" />
 
 	</tool>
 
