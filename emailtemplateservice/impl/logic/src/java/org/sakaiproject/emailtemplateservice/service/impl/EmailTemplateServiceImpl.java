@@ -197,8 +197,8 @@ public class EmailTemplateServiceImpl implements EmailTemplateService {
 
       ret.setRenderedSubject(this.processText(ret.getSubject(), replacementValues, key));
       ret.setRenderedMessage(this.processText(ret.getMessage(), replacementValues, key));
-      //HTML component might be null
-      if (ret.getHtmlMessage() != null)
+      //HTML component is optional, so might be null or empty
+      if (ret.getHtmlMessage() != null && !ret.getHtmlMessage().trim().isEmpty())
     	  ret.setRenderedHtmlMessage(this.processText(ret.getHtmlMessage(), replacementValues, key));
       return ret;
    }
