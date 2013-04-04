@@ -117,8 +117,12 @@
           <f:selectItems value="#{publishRepublishNotification.notificationLevelChoices}" />
           <f:valueChangeListener type="org.sakaiproject.tool.assessment.ui.listener.author.PublishRepublishNotificationListener" />
     </h:selectOneMenu>
-	<h:panelGroup rendered="#{not empty assessmentSettings.dueDate && calendarServiceHelper.calendarExistsForSite}">
+	<h:panelGroup rendered="#{author.isEditPendingAssessmentFlow && not empty assessmentSettings.dueDate && calendarServiceHelper.calendarExistsForSite}">
 		<h:selectBooleanCheckbox id="calendarDueDate" value="true"/>
+		<h:outputText value="#{assessmentSettingsMessages.calendarDueDate} #{calendarServiceHelper.calendarTitle}" escape="false"/>
+	</h:panelGroup>
+	<h:panelGroup rendered="#{!author.isEditPendingAssessmentFlow && not empty publishedSettings.dueDate && calendarServiceHelper.calendarExistsForSite}">
+		<h:selectBooleanCheckbox id="calendarDueDate2" value="true"/>
 		<h:outputText value="#{assessmentSettingsMessages.calendarDueDate} #{calendarServiceHelper.calendarTitle}" escape="false"/>
 	</h:panelGroup>
 </h:panelGrid>
