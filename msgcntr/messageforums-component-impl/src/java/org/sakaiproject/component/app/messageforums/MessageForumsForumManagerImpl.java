@@ -400,6 +400,7 @@ public class MessageForumsForumManagerImpl extends HibernateDaoSupport implement
     	HibernateCallback hcb = new HibernateCallback() {
     		public Object doInHibernate(Session session) throws HibernateException, SQLException {
     			Query q = session.getNamedQuery("findTopicAttachments");
+    			q.setCacheable(true);
     			q.setParameter("topic", topicId, Hibernate.LONG);
     			return q.list();
     		}

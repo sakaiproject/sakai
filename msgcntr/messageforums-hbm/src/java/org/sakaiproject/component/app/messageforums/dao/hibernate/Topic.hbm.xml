@@ -46,16 +46,16 @@
       <column name="EXTENDED_DESCRIPTION" not-null="false" length="100000000"/>
     </property>
     <set name="attachmentsSet" lazy="true" cascade="all-delete-orphan"
-      sort="org.sakaiproject.component.app.messageforums.dao.hibernate.util.comparator.AttachmentByCreatedDateDesc">
+      sort="org.sakaiproject.component.app.messageforums.dao.hibernate.util.comparator.AttachmentByCreatedDateDesc" batch-size="10">
         <key column="t_surrogateKey"/>                        
         <one-to-many class="org.sakaiproject.component.app.messageforums.dao.hibernate.AttachmentImpl"/>            
     </set>
     <set name="messagesSet" lazy="true" cascade="save-update"
-      sort="org.sakaiproject.component.app.messageforums.dao.hibernate.util.comparator.MessageByCreatedDateDesc">
+      sort="org.sakaiproject.component.app.messageforums.dao.hibernate.util.comparator.MessageByCreatedDateDesc" batch-size="100">
         <key column="surrogateKey"/>                        
         <one-to-many class="org.sakaiproject.component.app.messageforums.dao.hibernate.MessageImpl"/>            
     </set>    
-     <set name="membershipItemSet" lazy="true" cascade="save-update">
+     <set name="membershipItemSet" lazy="true" cascade="save-update" batch-size="50">
         <key column="t_surrogateKey"/>
         <one-to-many class="org.sakaiproject.component.app.messageforums.dao.hibernate.DBMembershipItemImpl"/>
     </set>
