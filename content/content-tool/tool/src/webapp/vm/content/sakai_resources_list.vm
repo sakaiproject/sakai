@@ -737,7 +737,7 @@ $(document).ready(function() {
 
 							</td>
 							#if($item.depth > 0)
-								<td headers="access" title="$item.effectiveGroups">
+								<td headers="access" title="$item.effectiveGroupsLabel">
 									#if($item.isPubviewInherited() || $item.isPubview())
 										$tlang.getString("access.public")
 									#elseif($item.isInDropbox())
