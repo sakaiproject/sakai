@@ -50,7 +50,7 @@
 				#if($minute == 55) <option selected="selected" value="55">55</option> #else <option value="55">55</option> #end
 			</select>
 		    <label for="${prefix}_ampm" class="skip">$tlang.getString("dateselectionwidget.ampm")</label>
-			<select name="${prefix}_ampm" id="${prefix}_ampm" onchange="ampmChange('${prefix}_ampm'); $!onChangeAction return false;">
+			<select name="${prefix}_ampm" id="${prefix}_ampm" onchange="$!onChangeAction return false;">
 				#if($timeType =="am") <option selected="selected">am</option> #else <option>am</option> #end
 				#if($timeType =="pm") <option selected="selected">pm</option> #else <option>pm</option> #end
 			</select>
