@@ -163,6 +163,7 @@ public interface LearningResourceStoreService {
             this.actor = actor;
             this.verb = verb;
             this.object = object;
+            this.populated = true;
         }
         /**
          * FULL objects constructor
@@ -395,6 +396,38 @@ public interface LearningResourceStoreService {
     }
 
     public static class LRS_Verb {
+        /**
+         * Set of Sakai verbs (limited set of verbs that make sense for use in Sakai)
+         * Based on ADL approved verbs for 1.0
+         * http://www.adlnet.gov/expapi/verbs/
+         */
+        public enum SAKAI_VERB {
+            answered,
+            asked,
+            attempted,
+            attended,
+            commented,
+            completed,
+            exited,
+            experienced,
+            failed,
+            imported,
+            initialized,
+            interacted,
+            launched,
+            mastered,
+            passed,
+            preferred,
+            progressed,
+            registered,
+            responded,
+            resumed,
+            scored,
+            shared,
+            suspended,
+            terminated,
+            voided,
+        }
         /*
          * A verb defines what the action is between actors, activities, or most commonly, between an actor and activity. 
          * The Experience API does not specify any particular verbs, but rather defines how verbs are to be created. 
@@ -428,6 +461,22 @@ public interface LearningResourceStoreService {
          */
         protected LRS_Verb() {}
         /**
+         * Create a verb to indicate what the user did.
+         * Limited to the restricted set of applicable verbs
+         * 
+         * @param verb an ADL approved verb for 1.0
+         */
+        public LRS_Verb(SAKAI_VERB verb) {
+            this();
+            if (verb == null) {
+                throw new IllegalArgumentException("LRS_Verb SAKAI_VERB verb cannot be null");
+            }
+            id = "http://www.adlnet.gov/expapi/verbs/" + verb.name();
+        }
+        /**
+         * Create a verb to indicate what the user did.
+         * Open to any verb (recommend using lowercase for consistency)
+         * 
          * The verb should probably come from this listing:
          * http://tincanapi.wikispaces.com/Verbs+and+Activities
          * 
@@ -438,7 +487,7 @@ public interface LearningResourceStoreService {
             if (verb == null) {
                 throw new IllegalArgumentException("LRS_Verb verb cannot be null");
             }
-            id = "www.adlnet.gov/XAPIprofile/"+verb;
+            id = "http://sakaiproject.org/expapi/verbs/" + verb;
         }
         /**
          * OPTIONAL: 
