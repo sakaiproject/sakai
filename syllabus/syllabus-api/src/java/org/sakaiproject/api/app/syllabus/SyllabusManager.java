@@ -38,6 +38,7 @@ public interface SyllabusManager
   public void saveSyllabusItem(SyllabusItem item);
   
   public void addSyllabusToSyllabusItem(final SyllabusItem syllabusItem, final SyllabusData syllabusData);
+  public void addSyllabusToSyllabusItem(final SyllabusItem syllabusItem, final SyllabusData syllabusData, boolean updateCalendar);
   
   public void removeSyllabusFromSyllabusItem(final SyllabusItem syllabusItem, final SyllabusData syllabusData);
   
@@ -84,7 +85,7 @@ public interface SyllabusManager
   
   public void removeCalendarAttachments(String siteId, String calendarEventId, SyllabusAttachment attachment);
 
-  public SyllabusData createSyllabusDataObject(String title, Integer position, String asset, String view, String status, String emailNotification, Date startDate, Date endDate, boolean linkCalendar);
+  public SyllabusData createSyllabusDataObject(String title, Integer position, String asset, String view, String status, String emailNotification, Date startDate, Date endDate, boolean linkCalendar, SyllabusItem syllabusItem);
   
   //public SyllabusAttachment creatSyllabusAttachmentResource(String attachId, String name);
 }

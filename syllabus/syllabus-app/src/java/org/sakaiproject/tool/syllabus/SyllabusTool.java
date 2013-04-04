@@ -937,9 +937,16 @@ public class SyllabusTool
 	  alertMessage = null;
 	  return "main_edit";
   }
-
-	public String processEditBulkPost() throws PermissionException{
+  	public String processEditBulkPost() throws PermissionException{
+  		return processEditBulk(true);
+  	}
+	public String processEditBulkDraft() throws PermissionException{
+		return processEditBulk(false);
+	}
+	
+	private String processEditBulk(boolean post) throws PermissionException{
 		try{
+			String status = post ? SyllabusData.ITEM_POSTED : SyllabusData.ITEM_DRAFT;
 			alertMessage = null;
 			boolean addByDate = "1".equals(bulkEntry.getAddByDate());
 			int bulkItems = -1;
@@ -1028,9 +1035,9 @@ public class SyllabusTool
 									cal.set(java.util.Calendar.MINUTE, calStartTime.get(java.util.Calendar.MINUTE));
 									cal.set(java.util.Calendar.SECOND, calStartTime.get(java.util.Calendar.SECOND));
 								}
-
-								syllabusManager.addSyllabusToSyllabusItem(syllabusItem, syllabusManager.createSyllabusDataObject(bulkEntry.getTitle() + " - " + i,
-										new Integer(initPosition), null, "no", SyllabusData.ITEM_DRAFT, "none", startDate, endDate, bulkEntry.isLinkCalendar()));
+								SyllabusData syllabusDataObj = syllabusManager.createSyllabusDataObject(bulkEntry.getTitle() + " - " + i,
+										new Integer(initPosition), null, "no", status, "none", startDate, endDate, bulkEntry.isLinkCalendar(), syllabusItem);
+								syllabusManager.addSyllabusToSyllabusItem(syllabusItem, syllabusDataObj, false);
 								i++;
 								initPosition++;
 							}
@@ -1040,7 +1047,7 @@ public class SyllabusTool
 						//add by bulk items
 						for(int i = 1; i <= bulkItems; i++){
 							syllabusManager.addSyllabusToSyllabusItem(syllabusItem, syllabusManager.createSyllabusDataObject(bulkEntry.getTitle() + " - " + i,
-									new Integer(initPosition), null, "no", SyllabusData.ITEM_DRAFT, "none", null, null, false));
+									new Integer(initPosition), null, "no", status, "none", null, null, false, syllabusItem), false);
 							initPosition++;
 						}
 					}

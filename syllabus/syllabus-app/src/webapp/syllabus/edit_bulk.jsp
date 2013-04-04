@@ -238,6 +238,12 @@
 						accesskey="s"
 						title="#{msgs.button_post}" />
 					<sakai:button_bar_item
+						action="#{SyllabusTool.processEditBulkDraft}"
+						styleClass="active"
+						value="#{msgs.bar_save_draft}" 
+						accesskey="s"
+						title="#{msgs.button_save}" />
+					<sakai:button_bar_item
 						action="#{SyllabusTool.processEditBulkCancel}"
 						value="#{msgs.cancel}" 
 						accesskey="x"
