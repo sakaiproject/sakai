@@ -1,6 +1,3 @@
-var editing = false;
-var editorIndex = 1;
-
 function setupAccordion(iframId){
 	var activeVar = false;
 	if($( "#accordion" ).children("h3").size() == 1){
@@ -24,8 +21,8 @@ function setupAccordion(iframId){
 				}
 			}
 		}
-	})
-	$( "#accordion h3:first-child" ).focus();
+	});
+	$( "#accordion h3:first-child" ).focus()
 }
 
 // if the containing frame is small, then offsetHeight is pretty good for all but ie/xp.
@@ -83,95 +80,4 @@ function mySetMainFrameHeight(id)
 		var s = " scrollH: " + scrollH + " offsetH: " + offsetH + " clientH: " + clientH + " innerDocScrollH: " + innerDocScrollH + " Read height: " + height + " Set height to: " + newHeight;
 
 	}
-}
-
-function setupEditable(msgs, iframId){
-//	//Edit button display/hide
-//	$(".ui-accordion-header").focus(function() {
-//		displayEditButtons(this);
-//	}).blur(function() {
-//		hideEditButtons(this);
-//	}).hover(
-//		function () {
-//			//enter
-//			displayEditButtons(this);
-//		},
-//		function () {
-//			//leave
-//			hideEditButtons(this);
-//		}
-//	);
-//	//focus on the first child to recall "focus" to display edit button
-//	$( "#accordion h3:first-child" ).focus();
-	//setup editables:
-	$(".editItemTitle").editable({
-		type: 'text',
-		title: msgs.syllabus_title,
-		emptytext: msgs.clickToAddTitle,
-		//set tooltip position (popup)
-		position: { my: "right center", at: "left center" },
-		show: { effect: "blind", duration: 100 }
-	});
-	$(".startTimeInput").editable({
-		type: "combodate",
-		title: msgs.startdatetitle,
-		emptytext: msgs.clickToAddStartDate,
-		combodate: {
-			
-		},
-		format: 'YYYY-MM-DD HH:mm',
-		viewformat: 'MM/DD/YYYY h:mm a',
-		template: 'MM / DD / YYYY HH:mm a',
-		//set tooltip position (popup)
-		position: { my: "right center", at: "left center" },
-		show: { effect: "blind", duration: 100 }
-	});
-	$(".endTimeInput").editable({
-		type: "combodate",
-		title: msgs.enddatetitle,
-		emptytext: msgs.clickToAddEndDate,
-		combodate: {
-			
-		},
-		format: 'YYYY-MM-DD HH:mm',
-		viewformat: 'MM/DD/YYYY h:mm a',
-		template: 'MM / DD / YYYY HH:mm a',
-		//set tooltip position (popup)
-		position: { my: "right center", at: "left center" },
-		show: { effect: "blind", duration: 100 }
-	});
-	$(".bodyInput").editable({
-		savenochange: true,
-		type: 'textarea',
-		emptytext: 'click to add body text',
-		onblur: "ignore",
-		display: function(value, sourceData) {
-			//clear out old html
-			$(this).html("");
-			//set the new html
-			$(this).append(value);
-		}
-	}).on( "tooltipopen", function( event, ui ) {
-		
-		setTimeout(function(){
-					$("#textAreaWysiwyg").attr("id","textAreaWysiwyg" + editorIndex);
-					$("#loading").hide();
-					$(".editable-submit").click(function(event) {
-						editorClick(event);
-					});
-					var toolTipLeft = $("#loading").closest(".ui-tooltip").position().left;
-					var accordionLeft = $( "#accordion" ).position().left;
-					var moveLeft = toolTipLeft - accordionLeft - 50;
-					$("#loading").closest(".ui-tooltip").animate({left: "-=" + moveLeft}, 10);
-					var width = $( "#accordion" ).width() - 100;
-					sakai.editor.launch("textAreaWysiwyg" + editorIndex, {}, width, 300);
-					editorIndex++;
-					mySetMainFrameHeight(iframId);
-			}, 1000);
-	});
-	
-}
-
-function editorClick(event){
-	$("#textAreaWysiwyg" + (editorIndex - 1)).val($(event.target).closest(".control-group").find("iframe").contents().find('body').html()).change();
 }
