@@ -31,9 +31,11 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
 import org.apache.commons.lang.StringEscapeUtils;
+import org.apache.commons.lang.StringUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
-import org.sakaiproject.component.cover.ServerConfigurationService;
+import org.sakaiproject.component.cover.ComponentManager;
+import org.sakaiproject.component.api.ServerConfigurationService;
 import org.sakaiproject.event.cover.UsageSessionService;
 import org.sakaiproject.login.api.Login;
 import org.sakaiproject.login.api.LoginCredentials;
@@ -66,6 +68,15 @@ public class SkinnableLogin extends HttpServlet implements Login {
 
 	/** Marker to indicate we are logging in the PDA Portal and should put out abbreviated HTML */
 	public static final String PDA_PORTAL_SUFFIX = "/pda/";
+	
+	/** The Neo-portal in 2.9+ introduced a portal.neoprefix config variable */
+	private static final String PORTAL_SKIN_NEOPREFIX_PROPERTY = "portal.neoprefix";
+	
+	private static final String PORTAL_SKIN_NEOPREFIX_DEFAULT = "neo-";
+	
+	private static String portalSkinPrefix;
+	
+	private static ServerConfigurationService serverConfigurationService;
 
 	private static ResourceLoader rb = new ResourceLoader("auth");
 	
@@ -84,6 +95,11 @@ public class SkinnableLogin extends HttpServlet implements Login {
 		
 		loginService = org.sakaiproject.login.cover.LoginService.getInstance();
 		
+		serverConfigurationService = (ServerConfigurationService) ComponentManager
+				.get(ServerConfigurationService.class.getName());
+
+		portalSkinPrefix = serverConfigurationService.getString(PORTAL_SKIN_NEOPREFIX_PROPERTY, PORTAL_SKIN_NEOPREFIX_DEFAULT);
+
 		log.info("init()");
 	}
 	
@@ -152,7 +168,7 @@ public class SkinnableLogin extends HttpServlet implements Login {
 		}
 
 		// see if we need to check container
-		boolean checkContainer = ServerConfigurationService.getBoolean("container.login", false);
+		boolean checkContainer = serverConfigurationService.getBoolean("container.login", false);
 		if (checkContainer && !skipContainer)
 		{
 			// if we have not checked the container yet, check it now
@@ -175,9 +191,9 @@ public class SkinnableLogin extends HttpServlet implements Login {
 				 */
 				
 				//SAK-21498 choice page for selecting auth sources
-				showAuthChoice = ServerConfigurationService.getBoolean("login.auth.choice", false);
+				showAuthChoice = serverConfigurationService.getBoolean("login.auth.choice", false);
 				if (showAuthChoice) {
-					String xloginUrl = ServerConfigurationService.getPortalUrl() + "/xlogin";
+					String xloginUrl = serverConfigurationService.getPortalUrl() + "/xlogin";
 					
 					// Present the choice template
 					LoginRenderContext rcontext = startChoiceContext("", req, res);
@@ -208,7 +224,7 @@ public class SkinnableLogin extends HttpServlet implements Login {
 		rcontext.put("isPDA", isPDA);
 
 		// Decide whether or not to put up the Cancel
-		String actualPortal = ServerConfigurationService.getPortalUrl();
+		String actualPortal = serverConfigurationService.getPortalUrl();
                 if ( portalUrl != null && portalUrl.indexOf("/site/") < 1 && portalUrl.startsWith(actualPortal) ) {
 			rcontext.put("doCancel", Boolean.TRUE);
 		}
@@ -285,7 +301,7 @@ public class SkinnableLogin extends HttpServlet implements Login {
 				} else if (message.equals(EXCEPTION_DISABLED)) {
 					rcontext.put(ATTR_MSG, rb.getString("log.disabled.user"));
 					logFailedAttempt(credentials);
-					String disabledUrl = ServerConfigurationService.getString("disabledSiteUrl");
+					String disabledUrl = serverConfigurationService.getString("disabledSiteUrl");
 					if(disabledUrl != null && !"".equals(disabledUrl)){
 						res.sendRedirect(disabledUrl);
 					}
@@ -311,7 +327,7 @@ public class SkinnableLogin extends HttpServlet implements Login {
 
 				// Decide whether or not to put up the Cancel
 				String portalUrl = (String) session.getAttribute(Tool.HELPER_DONE_URL);
-				String actualPortal = ServerConfigurationService.getPortalUrl();
+				String actualPortal = serverConfigurationService.getPortalUrl();
                 		if ( portalUrl != null && portalUrl.indexOf("/site/") < 1 && portalUrl.startsWith(actualPortal) ) {
 					rcontext.put("doCancel", Boolean.TRUE);
 				}
@@ -359,18 +375,20 @@ public class SkinnableLogin extends HttpServlet implements Login {
 		LoginRenderEngine rengine = loginService.getRenderEngine(loginContext, request);
 		LoginRenderContext rcontext = rengine.newRenderContext(request);
 
-		if (skin == null || skin.trim().length() == 0)
+		if (StringUtils.isEmpty(skin))
 		{
-			skin = ServerConfigurationService.getString("skin.default");
+			skin = serverConfigurationService.getString("skin.default", "default");
 		}
 
-        String templates = ServerConfigurationService.getString("portal.templates", "neoskin");
-        String prefix = ServerConfigurationService.getString("portal.neoprefix", "neo-");
-        // Don't add the prefix twice
-        if ( "neoskin".equals(templates) && ! skin.startsWith(prefix) ) skin = prefix + skin;
+        String templates = serverConfigurationService.getString("portal.templates", "neoskin");
 
-		String skinRepo = ServerConfigurationService.getString("skin.repo");
-		String uiService = ServerConfigurationService.getString("ui.service", "Sakai");
+		if ("neoskin".equals(templates) && portalSkinPrefix != null && !StringUtils.startsWith(skin, portalSkinPrefix)) {
+			// Don't add the prefix twice
+            skin = portalSkinPrefix + skin;
+		}
+
+		String skinRepo = serverConfigurationService.getString("skin.repo");
+		String uiService = serverConfigurationService.getString("ui.service", "Sakai");
 		
 		String eidWording = rb.getString("userid");
 		String pwWording = rb.getString("log.pass");
@@ -410,10 +428,10 @@ public class SkinnableLogin extends HttpServlet implements Login {
 
 		if (skin == null || skin.trim().length() == 0)
 		{
-			skin = ServerConfigurationService.getString("skin.default");
+			skin = serverConfigurationService.getString("skin.default");
 		}
-		String skinRepo = ServerConfigurationService.getString("skin.repo");
-		String uiService = ServerConfigurationService.getString("ui.service","Sakai");
+		String skinRepo = serverConfigurationService.getString("skin.repo");
+		String uiService = serverConfigurationService.getString("ui.service","Sakai");
 		
 		rcontext.put("pageSkinRepo", skinRepo);
 		rcontext.put("pageSkin", skin);
@@ -422,12 +440,12 @@ public class SkinnableLogin extends HttpServlet implements Login {
 		
 		rcontext.put("choiceRequired", rb.getString("log.choicereq"));
 		
-		rcontext.put("containerLoginChoiceIcon", ServerConfigurationService.getString("container.login.choice.icon"));
-		rcontext.put("xloginChoiceIcon", ServerConfigurationService.getString("xlogin.choice.icon"));
+		rcontext.put("containerLoginChoiceIcon", serverConfigurationService.getString("container.login.choice.icon"));
+		rcontext.put("xloginChoiceIcon", serverConfigurationService.getString("xlogin.choice.icon"));
 		//the URLs for these are set above, as containerLoginUrl and xloginUrl
 		
-		rcontext.put("containerLoginChoiceText", ServerConfigurationService.getString("container.login.choice.text"));
-		rcontext.put("xloginChoiceText", ServerConfigurationService.getString("xlogin.choice.text"));
+		rcontext.put("containerLoginChoiceText", serverConfigurationService.getString("container.login.choice.text"));
+		rcontext.put("xloginChoiceText", serverConfigurationService.getString("xlogin.choice.text"));
 		
 		return rcontext;
 	}
@@ -461,7 +479,7 @@ public class SkinnableLogin extends HttpServlet implements Login {
 		// if we end up with nowhere to go, go to the portal
 		if (returnUrl == null)
 		{
-			returnUrl = ServerConfigurationService.getPortalUrl();
+			returnUrl = serverConfigurationService.getPortalUrl();
 			log.info("complete: nowhere set to go, going to portal");
 		}
 
@@ -481,7 +499,7 @@ public class SkinnableLogin extends HttpServlet implements Login {
 	 * Note that this could easily be extedned to track login attempts per session and report on it here
 	 */
 	private void logFailedAttempt(LoginCredentials credentials) {
-		if(ServerConfigurationService.getBoolean("login.log-failed", true)) {
+		if(serverConfigurationService.getBoolean("login.log-failed", true)) {
 			log.warn("Login attempt failed. ID=" + credentials.getIdentifier() + ", IP Address=" + credentials.getRemoteAddr());
 		}
 	}
