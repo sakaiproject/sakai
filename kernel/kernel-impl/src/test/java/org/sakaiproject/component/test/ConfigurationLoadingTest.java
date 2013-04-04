@@ -100,8 +100,36 @@ public class ConfigurationLoadingTest extends SakaiKernelTestBase {
 		Object aliasedObject = getService("testAliasRetention");
 		Assert.assertTrue(aliasedObject instanceof ITestComponent);
 	}
-	
-	/**
+
+    public void testStringHandling() throws Exception {
+        /*
+        stringSetToValue=value
+        stringIsEmpty=
+        #stringNotSet=
+        */
+        String s;
+        String defaultS = "DEFAULT";
+        s = serverConfigurationService.getString("stringSetToValue");
+        assertNotNull(s);
+        assertEquals("value", s);
+        s = serverConfigurationService.getString("stringIsEmpty");
+        assertNotNull(s);
+        assertEquals("", s);
+        s = serverConfigurationService.getString("stringNotSet");
+        assertNotNull(s);
+        assertEquals("", s);
+        s = serverConfigurationService.getString("stringSetToValue", defaultS);
+        assertNotNull(s);
+        assertEquals("value", s);
+        s = serverConfigurationService.getString("stringIsEmpty", defaultS);
+        assertNotNull(s);
+        assertEquals("", s);
+        s = serverConfigurationService.getString("stringNotSet", defaultS);
+        assertNotNull(s);
+        assertEquals(defaultS, s);
+    }
+
+    /**
 	 * As implemented (configured, actually), verifies that property placeholders are
 	 * dereferenced recursively. I.e. the property retrieved references another property,
 	 * which references another, and so on. Presumably simpler scenarios work implicitly.
