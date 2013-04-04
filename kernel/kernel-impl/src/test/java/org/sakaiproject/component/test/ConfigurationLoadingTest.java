@@ -113,8 +113,8 @@ public class ConfigurationLoadingTest extends SakaiKernelTestBase {
         assertNotNull(s);
         assertEquals("value", s);
         s = serverConfigurationService.getString("stringIsEmpty");
-        assertNotNull(s);
-        assertEquals("", s);
+        assertNull(s);
+        //assertEquals("", s);
         s = serverConfigurationService.getString("stringNotSet");
         assertNotNull(s);
         assertEquals("", s);
@@ -122,8 +122,8 @@ public class ConfigurationLoadingTest extends SakaiKernelTestBase {
         assertNotNull(s);
         assertEquals("value", s);
         s = serverConfigurationService.getString("stringIsEmpty", defaultS);
-        assertNotNull(s);
-        assertEquals("", s);
+        assertNull(s);
+        //assertEquals(defaultS, s);
         s = serverConfigurationService.getString("stringNotSet", defaultS);
         assertNotNull(s);
         assertEquals(defaultS, s);
