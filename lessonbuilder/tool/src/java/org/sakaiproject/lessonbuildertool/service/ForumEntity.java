@@ -795,13 +795,18 @@ public class ForumEntity extends HibernateDaoSupport implements LessonEntity, Fo
 		}
 	    }
 
+	    String shortText = null;
 	    if (texthtml) {
 		ourTopic.setExtendedDescription(text.replaceAll("\\$IMS-CC-FILEBASE\\$", base) + attachHtml.toString());
-		ourTopic.setShortDescription(FormattedText.convertFormattedTextToPlaintext(text));
+		shortText = FormattedText.convertFormattedTextToPlaintext(text);
 	    } else {
 		ourTopic.setExtendedDescription(FormattedText.convertPlaintextToFormattedText(text) + attachHtml.toString());
-		ourTopic.setShortDescription(text);
+		shortText = text;
 	    }
+	    shortText = org.apache.commons.lang.StringUtils.abbreviate(shortText,254);
+
+	    ourTopic.setShortDescription(shortText);
+
 	    // there's a better way to do attachments, but it's too complex for now
 
 	    if (hide) 
