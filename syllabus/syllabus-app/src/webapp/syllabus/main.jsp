@@ -43,6 +43,11 @@
 	
 	
 </script>
+<style>
+	a.draft{
+		color: grey !important
+	}
+</style>
 
 <%-- gsilver: global things about syllabus tool:
 1 ) what happens to empty lists - still generate a table?
@@ -91,7 +96,12 @@
 						<div id="accordion">
 					</f:verbatim>
 					<t:dataList value="#{SyllabusTool.entries}" var="eachEntry" layout="simple">
-						<f:verbatim><h3><a href="#"></f:verbatim>		  
+						<f:verbatim><h3><a href="#" </f:verbatim>
+							<f:subview id="draftclass" rendered="#{eachEntry.status == eachEntry.draftStatus}">
+								<f:verbatim>class="draft"</f:verbatim>
+							</f:subview>
+							<f:verbatim>></f:verbatim>		 
+							<h:outputText rendered="#{eachEntry.status == eachEntry.draftStatus}" value="#{msgs.mainDraft} - "/> 
 							<h:outputText value="#{eachEntry.entry.title}" />
 							<f:subview id="date" rendered="#{eachEntry.entry.startDate != null || eachEntry.entry.endDate != null}">
 								<f:verbatim><br/><span style="font-weight: normal"></f:verbatim>
@@ -100,13 +110,16 @@
 										<f:convertDateTime type="date" pattern="EEE MMM dd, yyyy hh:mm a"/>
 									</h:outputText>
 									<h:outputText value=" - " rendered="#{eachEntry.entry.startDate != null && eachEntry.entry.endDate != null}"/>
-									<h:outputText value="#{eachEntry.entry.endDate}">
+									<h:outputText value="#{eachEntry.entry.endDate}" rendered="#{!eachEntry.startAndEndDatesSameDay}">
 								  		<f:convertDateTime type="date" pattern="EEE MMM dd, yyyy hh:mm a"/>
+									</h:outputText>
+									<h:outputText value="#{eachEntry.entry.endDate}" rendered="#{eachEntry.startAndEndDatesSameDay}">
+								  		<f:convertDateTime type="date" pattern="hh:mm a"/>
 									</h:outputText>
 									<h:outputText value=")"/>
 								<f:verbatim></span></f:verbatim>
 							</f:subview>
-							<h:outputText rendered="#{eachEntry.status == 'draft'}" value="#{msgs.mainDraft}"/>
+							
 						<f:verbatim></a></h3></f:verbatim>
 						<f:verbatim><div></f:verbatim>
 							<f:verbatim><div></f:verbatim>

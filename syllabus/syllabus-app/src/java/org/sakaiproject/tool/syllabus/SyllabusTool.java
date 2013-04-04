@@ -94,7 +94,7 @@ public class SyllabusTool
     protected Date orig_startDate, orig_endDate;
     protected Boolean orig_isLinkCalendar;
     protected String orig_status;
-    
+    private String draftStatus = SyllabusData.ITEM_DRAFT;
     protected boolean selected = false;
     
     protected boolean posted = false;
@@ -213,7 +213,7 @@ public class SyllabusTool
       this.attachmentList = attachmentList;
     }
     public String getStatus(){
-		return rb.getString(in_entry.getStatus().toLowerCase());
+		return in_entry.getStatus();
 	}
     public boolean getTitleChanged(){
     	//Title Changed?
@@ -297,6 +297,23 @@ public class SyllabusTool
         }
     	return "";
     }
+    
+    public boolean getStartAndEndDatesSameDay(){
+    	if(in_entry.getStartDate() != null && in_entry.getEndDate() != null){
+    		java.util.Calendar cal1 = java.util.Calendar.getInstance();
+    		java.util.Calendar cal2 = java.util.Calendar.getInstance();
+    		cal1.setTime(in_entry.getStartDate());
+    		cal2.setTime(in_entry.getEndDate());
+    		return cal1.get(java.util.Calendar.YEAR) == cal2.get(java.util.Calendar.YEAR) &&
+    				cal1.get(java.util.Calendar.DAY_OF_YEAR) == cal2.get(java.util.Calendar.DAY_OF_YEAR);
+    	}else{
+    		return false;
+    	}
+    }
+
+	public String getDraftStatus() {
+		return draftStatus;
+	}
   }
 
   protected SyllabusManager syllabusManager;
