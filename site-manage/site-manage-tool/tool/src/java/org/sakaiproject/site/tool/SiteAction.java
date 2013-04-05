@@ -26,8 +26,6 @@ import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
-import java.net.MalformedURLException;
-import java.net.URL;
 import java.text.NumberFormat;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -46,7 +44,6 @@ import java.util.Map.Entry;
 import java.util.Properties;
 import java.util.Set;
 import java.util.Vector;
-import java.util.Map.Entry;
 
 import javax.servlet.ServletContext;
 import javax.servlet.http.HttpServletRequest;
@@ -719,7 +716,6 @@ public class SiteAction extends PagedResourceActionII {
 	private final static String SORT_ORDER_COURSE_OFFERING = "worksitesetup.sort.order.courseOffering";
 	private final static String SORT_KEY_SECTION = "worksitesetup.sort.key.section";
 	private final static String SORT_ORDER_SECTION = "worksitesetup.sort.order.section";
-	private final static String m_baseDir = "/WEB-INF";
 
 	private List prefLocales = new ArrayList();
 	
@@ -911,7 +907,7 @@ public class SiteAction extends PagedResourceActionII {
 	/*
 	 * Configure directory for moreInfo content
 	 */
-	private String setMoreInfoPath(ServletContext ctx) { //, String contentDir) {
+	private String setMoreInfoPath(ServletContext ctx) {
 		String rpath = ctx.getRealPath("");
 		String ctxPath = ctx.getServletContextName();
 		String rserve = StringUtils.remove(rpath,ctxPath);
@@ -924,8 +920,7 @@ public class SiteAction extends PagedResourceActionII {
 	protected void initState(SessionState state, VelocityPortlet portlet,
 			JetspeedRunData rundata) {
 		ServletContext ctx = rundata.getRequest().getSession().getServletContext();
-		String contentDir = File.separator + "content" + File.separator + "moreinfo";
-		String serverContextPath =  ServerConfigurationService.getString("config.sitemanage.moreInfoDir", contentDir);
+		String serverContextPath = ServerConfigurationService.getString("config.sitemanage.moreInfoDir", "/library/image");
 		libraryPath = File.separator + serverContextPath;
 		moreInfoPath = setMoreInfoPath(ctx) + serverContextPath;
 		// Cleanout if the helper has been asked to start afresh.
@@ -1329,6 +1324,10 @@ public class SiteAction extends PagedResourceActionII {
 		if (preIndex != null)
 			context.put("backIndex", preIndex);
 		
+		// SAK-16600 adjust index for toolGroup mode 
+		boolean useToolGroups = ServerConfigurationService.getBoolean(CONFIG_TOOL_GROUP, false);
+		if (useToolGroups==true && index==3) 
+			index = 4;
 		context.put("templateIndex", String.valueOf(index));
 		
 		
@@ -1376,11 +1375,6 @@ public class SiteAction extends PagedResourceActionII {
 		
 		List unJoinableSiteTypes = (List) state.getAttribute(STATE_DISABLE_JOINABLE_SITE_TYPE);
 
-		// SAK-16600 adjust index for toolGroup mode 
-		boolean useToolGroups = ServerConfigurationService.getBoolean(CONFIG_TOOL_GROUP, false);
-		if (useToolGroups==true) {
-			if (index==3) index = 4;
-		}
 		
 		switch (index) {
 		case 0:
@@ -1560,11 +1554,6 @@ public class SiteAction extends PagedResourceActionII {
 			 * buildContextForTemplate chef_site-editFeatures.vm
 			 * 
 			 */
-			//boolean useToolGroups = ServerConfigurationService.getBoolean(CONFIG_TOOL_GROUP, false);
-		    M_log.info("*** chef_site-editFeatures.vm");
- 		
-			context.put("isToolsByGroup", useToolGroups);
-
 			String type = (String) state.getAttribute(STATE_SITE_TYPE);
 			if (type != null && type.equalsIgnoreCase(courseSiteType)) {
 				context.put("isCourseSite", Boolean.TRUE);
@@ -1755,15 +1744,12 @@ public class SiteAction extends PagedResourceActionII {
 			 * buildContextForTemplate chef_site-editToolGroups.vm
 			 * 
 			 */
-			 M_log.info("*** chef_site-editToolGroupFeatures.vm");
-			context.put("isToolsByGroup", useToolGroups);
 			state.removeAttribute(STATE_TOOL_GROUP_LIST);
 			
 			 type = (String) state.getAttribute(STATE_SITE_TYPE);
 			setTypeIntoContext(context, type,courseSiteType);
 
-			Map<String,List> groupTools = getToolGroupList(state,type, site.getId());
-			Map<String,List> sortedToolList = groupTools; // sortThisList()
+			Map<String,List> groupTools = getToolGroupList(state, type, site);
 			state.setAttribute(STATE_TOOL_GROUP_LIST, groupTools);
 			
 			if (SecurityService.isSuperUser()) {
@@ -5347,8 +5333,10 @@ public class SiteAction extends PagedResourceActionII {
  * all tool types - normal, home, multiples and blti.
  * @param state
  * @param is type
+ * @param site
  */
-private Map<String,List> getToolGroupList(SessionState state, String type, String siteId) {
+private Map<String,List> getToolGroupList(SessionState state, String type, Site site) {
+
 	boolean checkhome = false;
 	M_log.debug("setToolGroupList:Loading group list for " + type);
 	String countryCode = rb.getLocale().getCountry();
@@ -5413,8 +5401,8 @@ private Map<String,List> getToolGroupList(SessionState state, String type, Strin
 	// TODO sort and add methods to remove highlighted groupNames from sort (i.e. where 'Core' defaults to top of list)
 	M_log.debug("setToolGroupList:complete");
 	// add external tools to end of toolGroup list
-	String externaltoolgroupname = ServerConfigurationService.getString("config.sitemanage.externalToolGroupName","External Tools");
-	toolGroup.put(externaltoolgroupname, getPluginToolGroup(externaltoolgroupname, moreInfoDir, countryCode, siteId));
+	String externaltoolgroupname = ServerConfigurationService.getString("config.sitemanage.externalToolGroupName","Plugin Tools");
+	toolGroup.put(externaltoolgroupname, getLtiToolGroup(externaltoolgroupname, moreInfoDir, countryCode, site));
 	// set checkhome too SAK-23208
 	if (checkhome==true) {
 		state.setAttribute(STATE_TOOL_HOME_SELECTED, new Boolean(true));
@@ -5514,9 +5502,10 @@ private Map<String,List> getToolGroupList(SessionState state, String type, Strin
 	}
 
 
-	private List selectedLTITools(String siteId) {
+	private List selectedLTITools(Site site) {
 		List selectedLTI = new ArrayList();
-		if (siteId !=null) {
+		if (site !=null) {
+			String siteId = site.getId();
 			List<Map<String,Object>> contents = m_ltiService.getContents(null,null,0,0);
 			HashMap<String, Map<String, Object>> linkedLtiContents = new HashMap<String, Map<String, Object>>();
 			for ( Map<String,Object> content : contents ) {
@@ -5550,13 +5539,12 @@ private Map<String,List> getToolGroupList(SessionState state, String type, Strin
 	// tools already added to a sites with properties read to add to toolsByGroup list
 	 * @param	groupName		name of the current group
 	 * @param	moreInfoDir		file pointer to directory of MoreInfo content
-	 * @param    countryCode 	current country code used to generate localized MoreInfo url
-	 * @param	siteId					current site
+	 * @param   countryCode 	current country code used to generate localized MoreInfo url
+	 * @param	site				current site
 	 * @return	list of MyTool items 
 	 */
-	private List getPluginToolGroup(String groupName, File moreInfoDir,
-			String countryCode, String siteId) {
-		List ltiSelectedTools = selectedLTITools(siteId);
+	private List getLtiToolGroup(String groupName, File moreInfoDir, String countryCode, Site site) {
+		List ltiSelectedTools = selectedLTITools(site);
 		List ltiTools = new ArrayList();
 		List<Map<String, Object>> allTools = m_ltiService.getTools(null, null,
 				0, 0);
@@ -8103,26 +8091,16 @@ private Map<String,List> getToolGroupList(SessionState state, String type, Strin
 			 */
 			break;
 		case 3:
+		case 4:
 			/*
 			 * actionForTemplate chef_site-editFeatures.vm
+			 * actionForTemplate chef_site-editToolGroupFeatures.vm
 			 * 
 			 */
 			if (forward) {
 				// editing existing site or creating a new one?
 				Site site = getStateSite(state);
 				getFeatures(params, state, site==null?"18":"15");
-			}
-			break;
-			
-		case 4:
-			/*
-			 * actionForTemplate chef_site-editFeatures.vm
-			 * 
-			 */
-			if (forward) {
-				// editing existing site or creating a new one?
-				Site site = getStateSite(state);
-				//getFeatures(params, state, site==null?"18":"15");
 			}
 			break;
 			

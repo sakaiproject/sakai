@@ -78,7 +78,7 @@
 					document.getElementById('removedInstruction').style.display='block'
 				</script>
 				#set($oldLtiToolValues=$oldLtiTools.get($oldLtiToolKey))
-				$oldLtiToolValues.get("toolTitle") ($oldLtiToolValues.get("title"))cd 
+				$oldLtiToolValues.get("toolTitle") ($oldLtiToolValues.get("title"))
 			#end
 		#end
 	</p>

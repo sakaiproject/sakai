@@ -69,7 +69,6 @@
                                                 />
                                                 <label for="$toolId">
                                                     #set($title=$validator.escapeHtml($tool.getTitle()))
-                                                    #end
                                                     $title
                                                     ## only shown then title is customized
                                                     #if ($!allowPageOrderHelper)
