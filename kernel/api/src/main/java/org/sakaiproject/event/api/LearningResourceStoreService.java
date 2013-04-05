@@ -627,7 +627,7 @@ public interface LearningResourceStoreService {
          * NOTE: the API score fields types are unclear in the spec (maybe int or float)
          */
         /**
-         * Score from 0 to 1.0 where 0=0% and 1.0=100%
+         * Score from -1.0 to 1.0 where 0=0% and 1.0=100%
          */
         Float scaled;
         /**
@@ -666,51 +666,89 @@ public interface LearningResourceStoreService {
         protected LRS_Result() {
         }
         /**
-         * @param scaled Score from 0 to 1.0 where 0=0% and 1.0=100%
+         * @param scaled Score from -1.0 to 1.0 where 0=0% and 1.0=100%
          * @param success true if successful, false if not, or null for not specified
+         * @throws IllegalArgumentException if scaled is not valid
          */
         public LRS_Result(Float scaled, Boolean success) {
             this();
             if (scaled == null) {
-                throw new IllegalArgumentException("LRS_Object uri cannot be null");
+                throw new IllegalArgumentException("LRS_Result scaled cannot be null");
             }
             setScore(scaled);
+            this.success = success;
+        }
+        /**
+         * @param raw Raw score - any number, must be >= min and <= max (if they are set)
+         * @param min Minimum score (range) - any number (can be null)
+         * @param max Maximum score (range) - any number (can be null)
+         * @param success true if successful, false if not, or null for not specified
+         * @throws IllegalArgumentException if the minimum is not less than (or equal to) the maximum OR raw is not within the range OR all values are null 
+         */
+        public LRS_Result(Number raw, Number min, Number max, Boolean success) {
+            this();
+            if (raw == null) {
+                throw new IllegalArgumentException("LRS_Result raw cannot be null");
+            }
+            setScore(null, raw, min, max);
+            this.success = success;
         }
         // TODO optional extensions?
         /**
-         * @param scaled Score from 0 to 1.0 where 0=0% and 1.0=100%
+         * Set the score to a floating point scaled range value
+         * 
+         * @param scaled Score from -1.0 to 1.0 where 0=0% and 1.0=100%
+         * @throws IllegalArgumentException if the scaled value is outside the -1 to 1 (inclusive) range
          */
         public void setScore(Float scaled) {
             this.scaled = scaled;
             if (scaled != null) {
-                if (scaled.floatValue() < 0.0f) {
-                    this.scaled = 0f;
+                if (scaled.floatValue() < -1.0f) {
+                    throw new IllegalArgumentException("LRS_Result scaled cannot be < -1");
+                } else if (scaled.floatValue() > 1.0f) {
+                    throw new IllegalArgumentException("LRS_Result scaled cannot be > 1");
                 }
             }
         }
         /**
-         * @param raw Raw score - any number
+         * @param raw Raw score - any number (can be null), must be >= min and <= max (if they are set)
+         * @throws IllegalArgumentException if raw is not within the min-max range
          */
-        public void setScore(Number raw) {
+        public void setRawScore(Number raw) {
+            if (raw != null) {
+                if (this.min != null && raw.floatValue() < min.floatValue()) {
+                    throw new IllegalArgumentException("score raw ("+raw+") must not be less than min ("+this.min+")");
+                }
+                if (this.max != null && raw.floatValue() > max.floatValue()) {
+                    throw new IllegalArgumentException("score raw ("+raw+") must not be greater than max ("+this.max+") inclusive");
+                }
+            }
             this.raw = raw;
         }
         /**
-         * @param scaled Score from 0 to 1.0 where 0=0% and 1.0=100% (can be null)
-         * @param raw Raw score - any number (can be null)
+         * Set up a completely detailed score,
+         * NOTE: scaled MUST be within the range of -1 to 1 inclusive
+         * NOTE: raw MUST be within the range of min to max inclusive
+         * 
+         * @param scaled Score from -1.0 to 1.0 where 0=0% and 1.0=100%
+         * @param raw Raw score - any number (can be null), must be >= min and <= max (if they are set)
          * @param min Minimum score (range) - any number (can be null)
          * @param max Maximum score (range) - any number (can be null)
-         * @throws IllegalArgumentException if the minimum is not less than (or equal to) the maximum
+         * @throws IllegalArgumentException if the scaled value is outside the -1 to 1 (inclusive) range OR if the minimum is not less than (or equal to) the maximum OR raw is not within the range OR all values are null 
          */
         public void setScore(Float scaled, Number raw, Number min, Number max) {
+            if (scaled == null && raw == null && min == null && max == null) {
+                throw new IllegalArgumentException("score inputs cannot all be null");
+            }
             setScore(scaled);
-            setScore(raw);
             this.min = min;
             this.max = max;
             if (this.min != null && this.max != null) {
                 if (min.floatValue() > max.floatValue()) {
-                    throw new IllegalArgumentException("score min must be less than max");
+                    throw new IllegalArgumentException("score min ("+this.min+") must be less than max ("+this.max+")");
                 }
             }
+            setRawScore(raw);
         }
         /**
          * @param success true if successful, false if not, or null if not specified
