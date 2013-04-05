@@ -284,6 +284,10 @@ public class Parser extends AbstractParser {
       try {
     if (the_item.getAttributeValue(CC_ITEM_IDREF)!=null) {
 	Element resource=findResource(the_handler.getNs(),the_item.getAttributeValue(CC_ITEM_IDREF), the_resources);
+	if (resource == null) {
+	    the_handler.getSimplePageBean().setErrKey("simplepage.cc-noresource", the_item.getAttributeValue(CC_ITEM_IDREF));
+	    return;
+	}
       // System.out.println("process item " + the_item + " resources " + the_resources + " resource " + resource);
 
       the_handler.startCCItem(the_item.getAttributeValue(CC_ITEM_ID),

@@ -1712,6 +1712,10 @@ public class QtiImport {
 
 	    }
 		
+	    // if there are no valid items, still need the header. This will
+	    // only output the header if it hasn't been done already
+	    doHeader();
+
 	    if (out != null) {
 		out.println("</section>");
 		out.println("</assessment>");

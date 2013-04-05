@@ -505,7 +505,7 @@ public class PrintHandler extends DefaultHandler implements AssessmentHandler, D
 			  sakaiId = SimplePageItem.DUMMY;
 
 		  } catch (Exception e) {
-		      System.out.println(e);
+		      System.out.println("CC import error creating or parsing QTI file " + fileName + " " +  e);
 		      simplePageBean.setErrKey("simplepage.resource100", e.toString());
 		  }
 
