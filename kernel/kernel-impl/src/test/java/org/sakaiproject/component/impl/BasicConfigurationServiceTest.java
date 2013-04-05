@@ -22,8 +22,14 @@
 
 package org.sakaiproject.component.impl;
 
+import java.util.Arrays;
+import java.util.Collection;
+import java.util.HashSet;
+import java.util.Locale;
+
 import junit.framework.TestCase;
 
+import org.apache.commons.lang.ArrayUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.sakaiproject.component.api.ServerConfigurationService.ConfigData;
@@ -116,6 +122,45 @@ public class BasicConfigurationServiceTest extends TestCase {
         val = basicConfigurationService.getString("namePlusLast", "${name} Zeckoski");
         assertNotSame("", val);
         assertEquals("Aaron Zeckoski", val);
+    }
+
+    public void testLocales() {
+        // not set - use all defaults
+        Locale[] locales;
+        int lsize = 0;
+
+        // check the basic retrieval
+        locales = basicConfigurationService.getSakaiLocales();
+        assertNotNull(locales);
+        lsize = locales.length;
+        assertTrue( lsize > 0 );
+        assertFalse( hasDuplicate(Arrays.asList(locales)) );
+        assertTrue( ArrayUtils.contains(locales, Locale.getDefault()) );
+
+        /*
+        basicConfigurationService.addConfigItem( new ConfigItemImpl("locales", "az, az_JP, az_ZW"), SOURCE);
+        locales = basicConfigurationService.getSakaiLocales();
+        assertNotNull(locales);
+        lsize = locales.length;
+        assertTrue( lsize > 0 );
+        assertFalse( hasDuplicate(Arrays.asList(locales)) );
+        assertTrue( ArrayUtils.contains(locales, Locale.getDefault()) );
+        assertEquals(4, lsize);
+        assertTrue( ArrayUtils.contains(locales, new Locale("az")) );
+        assertTrue( ArrayUtils.contains(locales, new Locale("az","JP")) );
+        assertTrue( ArrayUtils.contains(locales, new Locale("az","ZW")) );
+        */
+    }
+
+    public static <T> boolean hasDuplicate(Collection<T> list) {
+        HashSet<T> set = new HashSet<T>();
+        // Set#add returns false if the set does not change, which indicates that a duplicate element has been added.
+        for (T each: list) {
+            if (!set.add(each)) {
+                return true;
+            }
+        }
+        return false;
     }
 
 }

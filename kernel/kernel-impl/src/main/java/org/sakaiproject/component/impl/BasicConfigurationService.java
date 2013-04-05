@@ -49,7 +49,6 @@ import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.sakaiproject.component.api.ServerConfigurationService;
 import org.sakaiproject.component.api.ServerConfigurationService.ConfigurationListener.BlockingConfigItem;
-import org.sakaiproject.component.cover.ComponentManager;
 import org.sakaiproject.component.locales.SakaiLocales;
 import org.sakaiproject.thread_local.api.ThreadLocalManager;
 import org.sakaiproject.tool.api.SessionManager;
@@ -1091,33 +1090,29 @@ public class BasicConfigurationService implements ServerConfigurationService, Ap
      * @return an array of all allowed Locales for this installation
      */
     public Locale[] getSakaiLocales() {
-        org.sakaiproject.component.api.ServerConfigurationService scs = (org.sakaiproject.component.api.ServerConfigurationService) ComponentManager.get(org.sakaiproject.component.api.ServerConfigurationService.class);
-        String localesStr = scs.getString(SAKAI_LOCALES_KEY, SakaiLocales.SAKAI_LOCALES_DEFAULT);
+        String localesStr = getString(SAKAI_LOCALES_KEY, SakaiLocales.SAKAI_LOCALES_DEFAULT);
         if (StringUtils.isEmpty(localesStr)) {
             localesStr = SakaiLocales.SAKAI_LOCALES_DEFAULT;
         }
         String[] locales = StringUtils.split(localesStr, ','); // NOTE: these need to be trimmed (which getLocaleFromString will do)
-        String[] localesMore = scs.getStrings(SAKAI_LOCALES_MORE);
+        String[] localesMore = getStrings(SAKAI_LOCALES_MORE);
 
         locales = (String[]) ArrayUtils.addAll(locales, localesMore);
-        Locale[] localesArray;
-        if (ArrayUtils.isEmpty(locales)) {
-            // if no locales then use the default only
-            localesArray = new Locale[] { Locale.getDefault() };
-        } else {
+        HashSet<Locale> localesSet = new HashSet<Locale>();
+        // always include the default locale
+        localesSet.add(Locale.getDefault());
+        if (!ArrayUtils.isEmpty(locales)) {
             // convert from strings to Locales
-            localesArray = new Locale[locales.length + 1];
             for (int i = 0; i < locales.length; i++) {
-                localesArray[i] = getLocaleFromString(locales[i]);
+                localesSet.add(getLocaleFromString(locales[i]));
             }
-            // add default in on the end
-            localesArray[localesArray.length - 1] = Locale.getDefault();
         }
-
         // Sort Locales and remove duplicates
+        Locale[] localesArray = localesSet.toArray(new Locale[localesSet.size()]);
         Arrays.sort(localesArray, new LocaleComparator());
         return localesArray;
     }
+
     /**
      * Comparator for sorting locale by DisplayName
      */
@@ -1152,6 +1147,11 @@ public class BasicConfigurationService implements ServerConfigurationService, Ap
      * @see org.sakaiproject.component.api.ServerConfigurationService#getLocaleFromString(java.lang.String)
      */
     public Locale getLocaleFromString(String localeString) {
+        // should this just use LocalUtils.toLocale()?
+        if (localeString != null) {
+            // force en-US (dash separated) values into underscore style
+            localeString = StringUtils.replaceChars(localeString, '-', '_');
+        }
         String[] locValues = (localeString == null ? new String[0] : localeString.trim().split("_"));
         if (locValues.length >= 3) {
             return new Locale(locValues[0], locValues[1], locValues[2]); // language, country, variant
