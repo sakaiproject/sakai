@@ -47,6 +47,9 @@
 	a.draft{
 		color: grey !important
 	}
+	.ui-accordion .ui-accordion-header{
+		overflow: auto !important;
+	}
 </style>
 
 <%-- gsilver: global things about syllabus tool:
@@ -104,8 +107,7 @@
 							<h:outputText rendered="#{eachEntry.status == eachEntry.draftStatus}" value="#{msgs.mainDraft} - "/> 
 							<h:outputText value="#{eachEntry.entry.title}" />
 							<f:subview id="date" rendered="#{eachEntry.entry.startDate != null || eachEntry.entry.endDate != null}">
-								<f:verbatim><br/><span style="font-weight: normal"></f:verbatim>
-									<h:outputText value="("/>
+								<f:verbatim><span style="font-weight: normal; color: grey; float: right"></f:verbatim>
 									<h:outputText value="#{eachEntry.entry.startDate}">
 										<f:convertDateTime type="date" pattern="EEE MMM dd, yyyy hh:mm a"/>
 									</h:outputText>
@@ -116,7 +118,6 @@
 									<h:outputText value="#{eachEntry.entry.endDate}" rendered="#{eachEntry.startAndEndDatesSameDay}">
 								  		<f:convertDateTime type="date" pattern="hh:mm a"/>
 									</h:outputText>
-									<h:outputText value=")"/>
 								<f:verbatim></span></f:verbatim>
 							</f:subview>
 							
