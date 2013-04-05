@@ -4197,7 +4197,7 @@ protected static final String PARAM_PAGESIZE = "collections_per_page";
 			else
 			{
 				
-				if(!inMyWorkspace )
+				if(!inMyWorkspace && !isSpecialSite)
 				{
 					context.put("showPermissions", Boolean.TRUE.toString());
 					//buildListMenu(portlet, context, data, state);
