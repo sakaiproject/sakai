@@ -124,6 +124,18 @@ public class BasicConfigurationServiceTest extends TestCase {
         assertEquals("Aaron Zeckoski", val);
     }
 
+    public void testKNL_1052() {
+        String val;
+        val = basicConfigurationService.getString("xxxxxxxAAAZZZZ");
+        assertEquals("", val);
+        val = basicConfigurationService.getString("xxxxxxxAAAZZZZ","DEFAULT");
+        assertEquals("DEFAULT", val);
+
+        basicConfigurationService.addConfigItem( new ConfigItemImpl("xxxxxxxAAAZZZZ", "AZ"), SOURCE);
+        val = basicConfigurationService.getString("xxxxxxxAAAZZZZ");
+        assertEquals("AZ", val);
+    }
+
     public void testLocales() {
         // not set - use all defaults
         Locale[] locales;

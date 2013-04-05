@@ -1283,6 +1283,10 @@ public class BasicConfigurationService implements ServerConfigurationService, Ap
                     if (!SOURCE_GET_STRINGS.equals(source)) {
                         // only update if the source is not the getStrings() method
                         currentCI.changed(configItem.getValue(), source);
+                        if (!currentCI.isRegistered() && configItem.isRegistered()) {
+                            // need to force items which are not yet registered to be registered
+                            currentCI.registered = true;
+                        }
                     }
                     ci = currentCI;
                 } else {
