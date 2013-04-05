@@ -1,21 +1,5 @@
 ##<!-- $Header: /cvs/sakai2/legacy/tools/src/webapp/vm/sitesetup/chef_site-siteInfo-duplicate.vm,v 1.2 2005/04/29 13:44:25 zqian.umich.edu Exp $ -->
 ## enter the site title for duplicated site.
-<script type="text/javascript" language="JavaScript">
- 	function selectCourseType()
- 	{
- 		for (var i=0; i<document.typeform.itemType.length; i++)
- 		{
- 			if (document.typeform.itemType[i].value=="course")
- 			{
- 				document.typeform.itemType[i].checked=true;
- 			}
- 			else
- 			{
- 				document.typeform.itemType[i].checked=false;
- 			}
- 		}
- 	}
-</script>
 <div class="portletBody">
 	<form name = "duplicateSiteForm" method = "post" action="#toolForm($action)">
 		<input type="hidden" name="eventSubmit_doDuplicate_site_option" value="x" />
@@ -45,7 +29,7 @@
 									<label for="selectTerm">
 										$tlang.getString("sitetype.acater")
 									</label>	
-									<select name="selectTerm" id="selectTerm" onchange="javascript:selectCourseType();">
+									<select name="selectTerm" id="selectTerm">
 										#foreach($term in $termList)
 											<option value ="$term.eid"
 												#if ($!currentTermId)
