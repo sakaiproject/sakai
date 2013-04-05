@@ -4392,7 +4392,7 @@ protected static final String PARAM_PAGESIZE = "collections_per_page";
 			String allowed_to_see_other_sites = (String) state.getAttribute(STATE_SHOW_ALL_SITES);
 			String show_other_sites = (String) state.getAttribute(STATE_SHOW_OTHER_SITES);
 			context.put("show_other_sites", show_other_sites);
-			if(Boolean.TRUE.toString().equals(allowed_to_see_other_sites))
+			if(Boolean.TRUE.toString().equals(allowed_to_see_other_sites) && canReviseAny())
 			{
 				context.put("allowed_to_see_other_sites", Boolean.TRUE.toString());
 				show_all_sites = Boolean.TRUE.toString().equals(show_other_sites);
@@ -6736,7 +6736,17 @@ protected static final String PARAM_PAGESIZE = "collections_per_page";
 		{
 			doHideconfirm(data);
 		}
-		
+		else if(ResourceToolAction.COPY_OTHER.equals(actionId))
+		{
+			List<String> selectedSet  = new ArrayList<String>();
+			String[] selectedItems = params.getStrings("selectedMembers-other");
+			if(selectedItems != null)
+			{
+				selectedSet.addAll(Arrays.asList(selectedItems));
+			}
+			state.setAttribute(STATE_ITEMS_TO_BE_COPIED, selectedSet);
+			state.removeAttribute(STATE_ITEMS_TO_BE_MOVED);
+		}
 	}
 
 	/**

@@ -119,7 +119,7 @@ $(document).ready(function() {
 			</ul>
 	#end 
 	#if ($alertMessage)
-                 <br /><div class="alertMessage">$validator.escapeHtml($alertMessage)</div><div class="clear" ></div>  
+                 <br /><div class="messageValidation">$alertMessage</div><div class="clear"></div>
 	#end
 	<form name="showForm" id="showForm" action="#toolForm("ResourcesAction")" method="post">
 		<input type="hidden" name="source" id="source" value="0" />
@@ -525,18 +525,33 @@ $(document).ready(function() {
 						<th colspan="10"  style="border:none">
 						<h3>
 							<a href="javascript:document.getElementById('sakai_action').value='doHideOtherSites';document.getElementById('showForm').submit();"
-								title= "$clang.getString('list.hide')">
-							##<a href="#toolLink("ResourcesAction" "doHideOtherSites")" title= "$clang.getString('list.hide')">
-								<img src="#imageLink("sakai/collapse.gif")" alt="$clang.getString('list.hide')" border="0" align="top" />
-								$validator.escapeHtml("$clang.getString('list.hide')")
+								title= "$clang.getString('list.copycontent')">
+								<img src="#imageLink("sakai/collapse.gif")" alt="$clang.getString('list.copycontent')" border="0" align="top" />
+								$validator.escapeHtml("$clang.getString('list.copycontent')")
 							</a>
 						</h3>
 						</th>
 					</tr>
+					<tr>
+						<td colspan="10">
+							$tlang.getString('notes.expandfolder')
+						</td>					
+					</tr>
 					################################################################ Begin Paging widgets
 					#if($!allMsgNumber && $allMsgNumberInt && $allMsgNumberInt > 5)
 						<tr class="exclude">
-							<td colspan="10">
+							<td>
+								<div class="navPanel">
+									<div class="navIntraToolLink viewNav">
+									<span>
+										<input id="copy-button-other" type="button" value="Copy"
+											onclick="javascript:document.getElementById('sakai_action').value='doMultiItemDispatch';document.getElementById('rt_action').value='copy-other';document.getElementById('showForm').submit();"
+											disabled="disabled" alt="copy" />
+										</span>
+									</div>
+								</div>
+							</td>
+							<td colspan="9">
 								<div class="navPanel">
 								<div class="listNav">
  									<div class="instruction" style="margin-bottom:.3em;">$tlang.getString("viewing") $topMsgPos - $btmMsgPos $tlang.getString("of") $allMsgNumber $tlang.getString("items")</div>
@@ -576,6 +591,21 @@ $(document).ready(function() {
 								</div></div>
 							</td>
 						</tr>
+						#else
+						<tr class="exclude">
+							<td>
+								<div class="navPanel">
+									<div class="navIntraToolLink viewNav">
+										<span>
+											<input id="copy-button-other" type="button" value="Copy"
+												onclick="javascript:document.getElementById('sakai_action').value='doMultiItemDispatch';document.getElementById('rt_action').value='copy-other';document.getElementById('showForm').submit();"
+												disabled="disabled" alt="copy" />
+										</span>
+									</div>
+								</div>
+							</td>
+							<td colspan="9"></td>
+						</tr>
 					#end
 					################################################################ Eng Paging widgets
 					#foreach($item in $other_sites)
@@ -607,9 +637,9 @@ $(document).ready(function() {
 							</td>
 							<td headers="checkboxes">
 								#if($item.depth > 0 && $item.hasMultipleItemActions())
-									<input type="checkbox" name="selectedMembers" id="list$num" 
+									<input type="checkbox" name="selectedMembers-other" id="list$num"
 											#if($selectedItems.contains($item.id))checked="checked"#end
-											onclick="#foreach($key in $item.multipleItemActions.keySet())adjustCount(this, '$key');#end;adjustShowHideCount(this)"
+											onclick="adjustCountOther(this, 'copy')"
  											value="$dqid" /><label for="list$num" class="skip">$clang.getString("att.select")</label>
 									#foreach($key in $item.multipleItemActions.keySet())$counter.increment("$key") $counter.increment("selectall")#if($selectedItems.contains($item.id))$counter.increment("${key}selected")#end#end
 								#end
@@ -688,66 +718,13 @@ $(document).ready(function() {
 									#if ($item.description !="" && $item.description) <a class="toggleDescription" href="#" title="$tlang.getString("list.description.link")"> <img src="#imageLink("/silk/information.png")" alt="$tlang.getString("list.description.link")"/></a><div role="alertdialog" aria-hidden="true" class="descPanel" style="display:none;border:2px solid #ccc;height:auto;background:#fff;padding:3px;position:absolute;top:-1000px;left:-1000px;z-index:100000;width:25%"><div class="descriptionClose" style="text-align:right;padding:2px;">x</div>$validator.escapeHtml($item.description)</div>#end
 								</h$headerDepth>	
 							</td>
-							<td headers="actions1"  class="attach" style="white-space:nowrap;vertical-align:middle">
-								#if($item.pasteActions && !$item.pasteActions.isEmpty())
-									#set ($itemsOnLine = 0)
-									#foreach($action in $item.pasteActions)
-										#if($itemsOnLine > 0)|#end
-										<a class=" highlightlink" title="$labeler.getLabel($action) $tlang.getString("paste.here")" href="javascript:document.getElementById('selectedItemId').value='$qid';document.getElementById('rt_action').value='${action.typeId}${ACTION_DELIMITER}$action.id';document.getElementById('sakai_action').value='doDispatchAction';submitform('showForm');"><img src = "#imageLink("silk/page_paste.gif")" border="0"  alt="$labeler.getLabel($action)"/></a> 
-										#set ($itemsOnLine = $itemsOnLine + 1)
-									#end
-								#end
-							</td>
-							<td headers="actions2" class="attach">
-								#if($item.addActions && !$item.addActions.isEmpty())
-									<ul style="margin:0;display:block" class="makeMenu" role="menubar">
-										<li class="menuOpen" tabindex="0" role="menuitem" aria-haspopup="true" aria-label="$tlang.getString("button.add"): $validator.escapeHtml(${item.name}) $item.hoverText">
-											&nbsp;$tlang.getString("button.add")
-											<img src = "#imageLink("sakai/icon-dropdn.gif")" border="0"  alt="$tlang.getString("button.add")" class="dropdn"/>
-											<ul class="makeMenuChild" role="menu">
-							    #foreach($action in $item.addActions)
-												<li>
-													<a tabindex="-1" role="menuitem" style="width:auto" href="javascript:document.getElementById('selectedItemId').value='$qid';document.getElementById('rt_action').value='${action.typeId}${ACTION_DELIMITER}$action.id';document.getElementById('sakai_action').value='doDispatchAction';submitform('showForm');">$labeler.getLabel($action)</a>
-												</li>
-							    #end
-											</ul>
-										</li>
-									</ul>
-								#end
-
-								</td>
-							<td headers="actions3" class="attach">
-							#if($item.otherActions && !$item.otherActions.isEmpty())
-									<ul style="margin:0;display:block" class="makeMenu" role="menubar">
-										<li class="menuOpen" tabindex="0" role="menuitem" aria-haspopup="true" aria-label="$tlang.getString("button.actions"): $validator.escapeHtml(${item.name}) $item.hoverText">
-											&nbsp;$tlang.getString("button.actions")
-											<img src = "#imageLink("sakai/icon-dropdn.gif")" border="0"   alt="$tlang.getString("button.actions")"  class="dropdn"/>
-											<ul class="makeMenuChild" role="menu">
-												#foreach($action in $item.otherActions)
-													<li>
-														<a tabindex="-1" role="menuitem" style="width:auto" href="javascript:document.getElementById('selectedItemId').value='$qid';document.getElementById('rt_action').value='${action.typeId}${ACTION_DELIMITER}$action.id';document.getElementById('sakai_action').value='doDispatchAction';submitform('showForm');">
-															$labeler.getLabel($action)
-														</a>
-													</li>
-												#end
-											</ul>
-								  	</li>
-									</ul>
-								#end
-
-							</td>
+							<td></td>
+							#set ($actionCount=($actionCount - 1))
+							#set ($actionCount2=($actionCount2 - 1))
+							<td headers="actions2" class="attach"></td>
+							<td headers="actions3" class="attach"></td>
 							#if($item.depth > 0)
-								<td headers="access" title="$item.effectiveGroupsLabel">
-									#if($item.isPubviewInherited() || $item.isPubview())
-										$tlang.getString("access.public")
-									#elseif($item.isInDropbox())
-										$tlang.getString("access.dropbox")
-									#elseif($item.effectiveAccess == $INHERITED_ACCESS || $item.effectiveAccess == $SITE_ACCESS)
-										$tlang.getString("access.site")
-									#elseif($item.effectiveAccess == $GROUP_ACCESS)
-										$tlang.getString("access.group")
-									#end
-								</td>
+								<td headers="access" title="$item.effectiveGroups"></td>
 								<td headers="creator">
 									$validator.escapeHtml($item.createdBy)
 								</td>
@@ -769,9 +746,9 @@ $(document).ready(function() {
 						<th colspan="10"  style="border:none">
 						<h3>
 							<a href="javascript:document.getElementById('sakai_action').value='doShowOtherSites';document.getElementById('showForm').submit();"
-								title= "$clang.getString('list.show')">
-								<img src="#imageLink("sakai/expand.gif")" alt="$clang.getString('list.show')" border="0" align="top" />
-								$validator.escapeHtml("$clang.getString('list.show')")
+								title= "$clang.getString('list.copycontent')">
+								<img src="#imageLink("sakai/expand.gif")" alt="$clang.getString('list.copycontent')" border="0" align="top" />
+								$validator.escapeHtml("$clang.getString('list.copycontent')")
 							</a>
 						</h3>
 						</th>
@@ -790,6 +767,8 @@ $(document).ready(function() {
 		<input type="hidden" name="sakai_csrf_token" value="$sakai_csrf_token" />
 		<input type="hidden" id="show-count" value="$counter.getValue("showselected")" />
 		<input type="hidden" id="hide-count" value="$counter.getValue("hideselected")" /> 
+		## copy for other sites
+		<input type="hidden" id="copy-count-other" value="0" />
 	</form>						
 </div>
 <script language="JavaScript" type="text/JavaScript">
@@ -908,7 +887,26 @@ $(document).ready(function() {
 				}
 			}
 		}
-		
+
+		function adjustCountOther(caller, key) {
+			var counter = document.getElementById(key + "-count-other");
+			var button = document.getElementById(key + "-button-other");
+			if (caller && caller.checked && caller.checked == true) {
+				counter.value = parseInt(counter.value) + 1;
+			} else {
+				counter.value = parseInt(counter.value) - 1;
+			}
+			if (button) {
+				if (counter.value > 0) {
+					button.disabled = false;
+					button.className='enabled';
+				} else {
+					button.disabled = true;
+					button.className='disabled';
+				}
+			}
+		}
+
    function adjustShowHideCount(caller) {
                 var trlist = caller.parentNode.parentNode.parentNode.childNodes;
                 var enableshow=  false ;
