@@ -98,6 +98,8 @@ import org.sakaiproject.tool.api.Tool;
 import org.sakaiproject.tool.api.ToolSession;
 import org.sakaiproject.tool.cover.SessionManager;
 import org.sakaiproject.tool.cover.ToolManager;
+import org.sakaiproject.user.api.Preferences;
+import org.sakaiproject.user.api.PreferencesService;
 import org.sakaiproject.user.api.UserNotDefinedException;
 import org.sakaiproject.user.api.ContextualUserDisplayService;
 import org.sakaiproject.user.api.User;
@@ -232,6 +234,11 @@ public class AnnouncementAction extends PagedResourceActionII
    private static final String SYNOPTIC_ANNOUNCEMENT_TOOL = "sakai.synoptic.announcement";
  
    private static final String UPDATE_PERMISSIONS = "site.upd";
+   
+	/** Used to retrieve non-notification sites for MyWorkspace page */
+	private static final String TABS_EXCLUDED_PREFS = "sakai:portal:sitenav";
+	
+	private final String TAB_EXCLUDED_SITES = "exclude";
 
    private ContentHostingService contentHostingService = null;
    
@@ -292,6 +299,24 @@ public class AnnouncementAction extends PagedResourceActionII
 	 */
 	class EntryProvider extends MergedListEntryProviderBase
 	{
+		/** announcement channels from hidden sites */
+		private final List excludedSites = new ArrayList();
+
+		public EntryProvider() {
+			this(false);
+		}
+
+		public EntryProvider(boolean excludeHiddenSites) {
+			if (excludeHiddenSites) {
+				List<String> excludedSiteIds = getExcludedSitesFromTabs();
+				if (excludedSiteIds != null) {
+					for (String siteId : excludedSiteIds) {
+						excludedSites.add(AnnouncementService.channelReference(siteId, SiteService.MAIN_CONTAINER));
+					}
+				}
+			}
+		}
+
 		/*
 		 * (non-Javadoc)
 		 * 
@@ -328,7 +353,7 @@ public class AnnouncementAction extends PagedResourceActionII
 		 */
 		public boolean allowGet(String ref)
 		{
-			return AnnouncementService.allowGetChannel(ref);
+			return (!excludedSites.contains(ref) && AnnouncementService.allowGetChannel(ref));
 		}
 
 		/*
@@ -814,11 +839,13 @@ public class AnnouncementAction extends PagedResourceActionII
 
 		MergedList mergedAnnouncementList = new MergedList();
 
-		mergedAnnouncementList.loadChannelsFromDelimitedString(isOnWorkspaceTab(), new EntryProvider(), StringUtil
-				.trimToZero(SessionManager.getCurrentSessionUserId()), mergedAnnouncementList
-				.getChannelReferenceArrayFromDelimitedString(state.getChannelId(), portlet.getPortletConfig().getInitParameter(
-						getPortletConfigParameterNameForLoadOnly(portlet))), SecurityService.isSuperUser(), ToolManager
-				.getCurrentPlacement().getContext());
+		mergedAnnouncementList.loadChannelsFromDelimitedString(
+		        isOnWorkspaceTab(), new EntryProvider(true), 
+		        StringUtils.trimToEmpty(SessionManager.getCurrentSessionUserId()), 
+		        mergedAnnouncementList.getChannelReferenceArrayFromDelimitedString(state.getChannelId(), 
+		                portlet.getPortletConfig().getInitParameter(
+		                        getPortletConfigParameterNameForLoadOnly(portlet))), SecurityService.isSuperUser(), 
+		                        ToolManager.getCurrentPlacement().getContext());
 
 		// Place this object in the context so that the velocity template
 		// can get at it.
@@ -1427,7 +1454,7 @@ public class AnnouncementAction extends PagedResourceActionII
 		MergedList mergedAnnouncementList = new MergedList(); 
 
 		// TODO - MERGE FIX
-		String[] channelArrayFromConfigParameterValue = null;	
+		String[] channelArrayFromConfigParameterValue = new String[0];	
 		
 		// Figure out the list of channel references that we'll be using.
 		// If we're on the workspace tab, we get everything.
@@ -1449,14 +1476,61 @@ public class AnnouncementAction extends PagedResourceActionII
 
 				if (isOnWorkspaceTab() && !SecurityService.isSuperUser())
 				{
-					channelArrayFromConfigParameterValue = mergedAnnouncementList
-					.getAllPermittedChannels(new AnnouncementChannelReferenceMaker());
+					String[] channelArrayFromConfigParameterValuebeBefore = null;
+
+					channelArrayFromConfigParameterValuebeBefore = mergedAnnouncementList
+							.getAllPermittedChannels(new AnnouncementChannelReferenceMaker());
+					if (channelArrayFromConfigParameterValuebeBefore !=null) {
+						int sizeBefore = channelArrayFromConfigParameterValuebeBefore.length;
+						List<String> channelIdStrArray = new ArrayList<String>();
+						for (int q = 0; q < sizeBefore; q++) {
+							String channeIDD = channelArrayFromConfigParameterValuebeBefore[q];
+							String contextt = null; 
+							Site siteDD = null;
+
+							try {
+								AnnouncementChannel annChannell= AnnouncementService.getAnnouncementChannel(channeIDD);
+								if (annChannell != null ) {	
+									contextt = annChannell.getContext();
+								}
+								if (contextt != null) { 
+									siteDD = SiteService.getSite(contextt);
+								}
+								if ( siteDD!=null && siteDD.isPublished()) {
+									channelIdStrArray.add(channeIDD);
+								}
+							} catch(Exception e) {
+								M_log.warn(e.getMessage());
+							}
+						}
+						if (channelIdStrArray.size()>0) {
+							channelArrayFromConfigParameterValue = new String[channelIdStrArray.size()];						
+							Iterator<String> itChannel = channelIdStrArray.iterator();
+							int channelArrayC = 0;
+							while (itChannel.hasNext()) {
+								channelArrayFromConfigParameterValue[channelArrayC] = (String)itChannel.next();
+								channelArrayC++;
+							}
+						}
+					}
+					mergedAnnouncementList.loadChannelsFromDelimitedString(isOnWorkspaceTab(), new MergedListEntryProviderFixedListWrapper(
+							new EntryProvider(true), state.getChannelId(), channelArrayFromConfigParameterValue,
+							new AnnouncementReferenceToChannelConverter()), StringUtil.trimToZero(SessionManager
+							.getCurrentSessionUserId()), channelArrayFromConfigParameterValue, SecurityService.isSuperUser(),
+							ToolManager.getCurrentPlacement().getContext());
+
 				}
 				else
 				{
 					channelArrayFromConfigParameterValue = mergedAnnouncementList
 					.getChannelReferenceArrayFromDelimitedString(state.getChannelId(), initMergeList);
-
+					
+					mergedAnnouncementList
+					.loadChannelsFromDelimitedString(isOnWorkspaceTab(), new MergedListEntryProviderFixedListWrapper(
+							new EntryProvider(), state.getChannelId(), channelArrayFromConfigParameterValue,
+							new AnnouncementReferenceToChannelConverter()), StringUtil.trimToZero(SessionManager
+							.getCurrentSessionUserId()), channelArrayFromConfigParameterValue, SecurityService.isSuperUser(),
+							ToolManager.getCurrentPlacement().getContext());
 				}
 
 			} catch (IdUnusedException e1) {
@@ -1476,15 +1550,19 @@ public class AnnouncementAction extends PagedResourceActionII
 								getPortletConfigParameterNameForLoadOnly(portlet)));
 				
 			}
+		}
 
-		}			
-		
-		mergedAnnouncementList
-				.loadChannelsFromDelimitedString(isOnWorkspaceTab(), new MergedListEntryProviderFixedListWrapper(
-						new EntryProvider(), state.getChannelId(), channelArrayFromConfigParameterValue,
-						new AnnouncementReferenceToChannelConverter()), StringUtil.trimToZero(SessionManager
-						.getCurrentSessionUserId()), channelArrayFromConfigParameterValue, SecurityService.isSuperUser(),
-						ToolManager.getCurrentPlacement().getContext());
+		mergedAnnouncementList.loadChannelsFromDelimitedString(
+		        isOnWorkspaceTab(), 
+		        new MergedListEntryProviderFixedListWrapper(
+		            new EntryProvider(), 
+		            state.getChannelId(), 
+		            channelArrayFromConfigParameterValue,
+		            new AnnouncementReferenceToChannelConverter() ), 
+		        StringUtils.trimToEmpty(SessionManager.getCurrentSessionUserId()), 
+		        channelArrayFromConfigParameterValue, 
+		        SecurityService.isSuperUser(),
+		        ToolManager.getCurrentPlacement().getContext());
 
 		Iterator channelsIt = mergedAnnouncementList.iterator();
 
@@ -4352,7 +4430,7 @@ public class AnnouncementAction extends PagedResourceActionII
 			}
 
 			mergedAnnouncementList.loadChannelsFromDelimitedString(isOnWorkspaceTab(), new MergedListEntryProviderFixedListWrapper(
-					new EntryProvider(), annState.getChannelId(), channelArrayFromConfigParameterValue,
+					new EntryProvider(true), annState.getChannelId(), channelArrayFromConfigParameterValue,
 					new AnnouncementReferenceToChannelConverter()),
 					StringUtil.trimToZero(SessionManager.getCurrentSessionUserId()), channelArrayFromConfigParameterValue,
 					SecurityService.isSuperUser(), ToolManager.getCurrentPlacement().getContext());
@@ -5127,5 +5205,16 @@ public class AnnouncementAction extends PagedResourceActionII
 	} // releaseState
 
 	// ******* end of copy from VelocityPortletStateAction
+
+	/**
+	 * Pulls excluded site ids from Tabs preferences
+	 */
+	private List<String> getExcludedSitesFromTabs() {
+	    PreferencesService m_pre_service = (PreferencesService) ComponentManager.get(PreferencesService.class.getName());
+	    final Preferences prefs = m_pre_service.getPreferences(SessionManager.getCurrentSessionUserId());
+	    final ResourceProperties props = prefs.getProperties(TABS_EXCLUDED_PREFS);
+	    final List<String> l = props.getPropertyList(TAB_EXCLUDED_SITES);
+	    return l;
+	}
 
 }
