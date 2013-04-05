@@ -137,9 +137,44 @@ public class BasicConfigurationServiceTest extends TestCase {
     }
 
     public void testLocales() {
-        // not set - use all defaults
+        Locale locale;
+        Locale defaultLocale = Locale.getDefault();
         Locale[] locales;
         int lsize = 0;
+
+        locale = basicConfigurationService.getLocaleFromString("az");
+        assertNotNull(locale);
+        assertNotSame(defaultLocale, locale);
+        assertEquals(new Locale("az"), locale);
+
+        locale = basicConfigurationService.getLocaleFromString("az_JP");
+        assertNotNull(locale);
+        assertNotSame(defaultLocale, locale);
+        assertEquals(new Locale("az","JP"), locale);
+
+        locale = basicConfigurationService.getLocaleFromString("az-JP");
+        assertNotNull(locale);
+        assertNotSame(defaultLocale, locale);
+        assertEquals(new Locale("az","JP"), locale);
+
+        // blank should become Default Locale to match existing behavior
+        locale = basicConfigurationService.getLocaleFromString("");
+        assertNotNull(locale);
+        assertEquals(defaultLocale, locale);
+
+        // invalid format should become Default to match existing behaviors
+        locale = basicConfigurationService.getLocaleFromString("_");
+        assertNotNull(locale);
+        assertEquals(defaultLocale, locale);
+
+        locale = basicConfigurationService.getLocaleFromString("__");
+        assertNotNull(locale);
+        assertEquals(defaultLocale, locale);
+
+        // null stays as null
+        locale = basicConfigurationService.getLocaleFromString(null);
+        assertNull(locale);
+
 
         // check the basic retrieval
         locales = basicConfigurationService.getSakaiLocales();
@@ -149,7 +184,7 @@ public class BasicConfigurationServiceTest extends TestCase {
         assertFalse( hasDuplicate(Arrays.asList(locales)) );
         assertTrue( ArrayUtils.contains(locales, Locale.getDefault()) );
 
-        /*
+        // test limited set
         basicConfigurationService.addConfigItem( new ConfigItemImpl("locales", "az, az_JP, az_ZW"), SOURCE);
         locales = basicConfigurationService.getSakaiLocales();
         assertNotNull(locales);
@@ -161,8 +196,30 @@ public class BasicConfigurationServiceTest extends TestCase {
         assertTrue( ArrayUtils.contains(locales, new Locale("az")) );
         assertTrue( ArrayUtils.contains(locales, new Locale("az","JP")) );
         assertTrue( ArrayUtils.contains(locales, new Locale("az","ZW")) );
-        */
-    }
+
+        // test dupes and empty entries (which should just become the default)
+        basicConfigurationService.addConfigItem( new ConfigItemImpl("locales", "az, az, az, az, az_JP, az_JP, az_ZW, , "), SOURCE);
+        locales = basicConfigurationService.getSakaiLocales();
+        assertNotNull(locales);
+        lsize = locales.length;
+        assertTrue( lsize > 0 );
+        assertFalse( hasDuplicate(Arrays.asList(locales)) );
+        assertTrue( ArrayUtils.contains(locales, Locale.getDefault()) );
+        assertEquals(4, lsize);
+        assertTrue( ArrayUtils.contains(locales, new Locale("az")) );
+        assertTrue( ArrayUtils.contains(locales, new Locale("az","JP")) );
+        assertTrue( ArrayUtils.contains(locales, new Locale("az","ZW")) );
+
+        // test empty has at least the default one
+        basicConfigurationService.addConfigItem( new ConfigItemImpl("locales", ""), SOURCE);
+        locales = basicConfigurationService.getSakaiLocales();
+        assertNotNull(locales);
+        lsize = locales.length;
+        assertTrue( lsize > 0 );
+        assertFalse( hasDuplicate(Arrays.asList(locales)) );
+        assertTrue( ArrayUtils.contains(locales, Locale.getDefault()) );
+        assertEquals(1, lsize);
+}
 
     public static <T> boolean hasDuplicate(Collection<T> list) {
         HashSet<T> set = new HashSet<T>();

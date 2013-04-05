@@ -1091,7 +1091,9 @@ public class BasicConfigurationService implements ServerConfigurationService, Ap
      */
     public Locale[] getSakaiLocales() {
         String localesStr = getString(SAKAI_LOCALES_KEY, SakaiLocales.SAKAI_LOCALES_DEFAULT);
-        if (StringUtils.isEmpty(localesStr)) {
+        if (localesStr == null) { // means locales= is set
+            localesStr = ""; // empty to get default locale only
+        } else if (StringUtils.isBlank(localesStr)) { // missing or not set
             localesStr = SakaiLocales.SAKAI_LOCALES_DEFAULT;
         }
         String[] locales = StringUtils.split(localesStr, ','); // NOTE: these need to be trimmed (which getLocaleFromString will do)
@@ -1147,17 +1149,19 @@ public class BasicConfigurationService implements ServerConfigurationService, Ap
      * @see org.sakaiproject.component.api.ServerConfigurationService#getLocaleFromString(java.lang.String)
      */
     public Locale getLocaleFromString(String localeString) {
-        // should this just use LocalUtils.toLocale()?
+        // should this just use LocalUtils.toLocale()? - can't - it thinks en_GB is invalid for example
         if (localeString != null) {
             // force en-US (dash separated) values into underscore style
             localeString = StringUtils.replaceChars(localeString, '-', '_');
+        } else {
+            return null;
         }
-        String[] locValues = (localeString == null ? new String[0] : localeString.trim().split("_"));
-        if (locValues.length >= 3) {
+        String[] locValues = localeString.trim().split("_");
+        if (locValues.length >= 3 && StringUtils.isNotBlank(locValues[2])) {
             return new Locale(locValues[0], locValues[1], locValues[2]); // language, country, variant
-        } else if (locValues.length == 2) {
+        } else if (locValues.length == 2 && StringUtils.isNotBlank(locValues[1])) {
             return new Locale(locValues[0], locValues[1]); // language, country
-        } else if (locValues.length == 1) {
+        } else if (locValues.length == 1 && StringUtils.isNotBlank(locValues[0])) {
             return new Locale(locValues[0]); // language
         } else {
             return Locale.getDefault();
