@@ -38,20 +38,20 @@
                             ## generate list of all tools in groups
                             #foreach($tool in $mapEntry.value)
                                 #set ($rowCount=0)
-                                    #set($toolId = $tool.getId())                                    
-                                    #if (!$toolId.equals("sakai.basiclti"))
-                                        ## SAK-22108: exclude the Basic LTI tools, since they would be listed separately down the list
-                                        #set ($rowCount=$rowCount + 1)
-                                        #if ($!tool.isRequired())
+                                #set($toolId = $tool.getId())                                    
+                                #if (!$toolId.equals("sakai.basiclti"))
+                                     ## SAK-22108: exclude the Basic LTI tools, since they would be listed separately down the list
+                                     #set ($rowCount=$rowCount + 1)
+                                     #if ($!tool.isRequired())
                                             <li style="display:none">
                                                 <input type="hidden" name="selectedTools" value="$toolId" />
                                             </li>
-                                        #end
-                                        ## SAK-16600 Tool Multiples
-                                        <li id="row-$rowCount">
-                                         #if ($!toolId.equals($!homeToolId))
-                                    			#parse("/vm/sitesetup/toolGroupHomeDisplay.vm")
-                                    	#else 
+                                     #end
+                                     ## SAK-16600 Tool Multiples
+                                     <li id="row-$rowCount">
+                                     #if ($!toolId.equals($!homeToolId))
+                                             #parse("/vm/sitesetup/toolGroupHomeDisplay.vm")
+                                     #else 
                                             <div class="toolListControl">
                                                 <input type="checkbox" name="selectedTools" value="$toolId" id="$toolId"
                                                 #if ($tool.isRequired())
@@ -69,8 +69,6 @@
                                                 />
                                                 <label for="$toolId">
                                                     #set($title=$validator.escapeHtml($tool.getTitle()))
-                                                    #if ($tool.hasMultiples()==true) 
-                                                    	#set($title="+"+$title)
                                                     #end
                                                     $title
                                                     ## only shown then title is customized
@@ -97,21 +95,21 @@
                                                         <a class="moreInfoTool" id="moreInfoLink" title='$tool.getTitle()' href="$tool.getMoreInfo()" target="_blank">More info</a>
                                                      #end
                                             </div>
-                                         #end
+                                     #end
                                         </li>
-                                       ## add multi if required
-                                        #if ($tool.hasMultiples())
-						#foreach($key in $toolGroupMultiples.keySet() )
-							#if ($key==$toolId)
-								#set($toolMultipleList=$toolGroupMultiples.get($key))
-								#set($multiListSize = $toolMultipleList.size())
-								#if($multiListSize > 0)
-                                            				#parse("/vm/sitesetup/toolGroupMultiples.vm")
-								#end
-							#end
-						#end
-                                        #end 
-                                    #end
+                                     ## add multi if required
+                                     #if ($tool.hasMultiples())
+                                        #foreach($key in $toolGroupMultiples.keySet() )
+                                           #if ($key==$toolId)
+                                              #set($toolMultipleList=$toolGroupMultiples.get($key))
+                                              #set($multiListSize = $toolMultipleList.size())
+                                              #if($multiListSize > 0)
+                                                 #parse("/vm/sitesetup/toolGroupMultiples.vm")
+                                              #end
+                                           #end
+                                        #end
+                                     #end 
+                                #end
                             #end
                         </ul> 
                     </li>
