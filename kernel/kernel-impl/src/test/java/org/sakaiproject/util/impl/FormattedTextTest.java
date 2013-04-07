@@ -526,8 +526,9 @@ public class FormattedTextTest extends TestCase {
         String dangerLibraryPath = "<div>SAFE</div><object data=\"/library/../access/content/user/myUser/DANGER.swf\" type=\"application/x-shockwave-flash\"><param name=\"FlashVars\" value=\"hacked=true\" /></object>";
         String dangerLibraryPath2 = "<div>SAFE</div><object data=\"/library/happy/../../access/content/user/myUser/DANGER.swf\" type=\"application/x-shockwave-flash\"><param name=\"FlashVars\" value=\"hacked=true\" /></object>";
         String dangerLibraryPath3 = "<div>SAFE</div><object data=\"/access/content/user/myUser/library/test/DANGER.swf\" type=\"application/x-shockwave-flash\"><param name=\"FlashVars\" value=\"hacked=true\" /></object>";
-        String dangerLibraryPath4 = "<div>SAFE</div><object data=\"/library\\../access/content/user/myUser/DANGER.swf\" type=\"application/x-shockwave-flash\"><param name=\"FlashVars\" value=\"hacked=true\" /></object>";
+        String dangerLibraryPath4 = "<div>SAFE</div><object data=\"/library\\../access/content/user/myUser/DANGER..swf\" type=\"application/x-shockwave-flash\"><param name=\"FlashVars\" value=\"hacked=true\" /></object>";
         String dangerLibraryPath5 = "<div>SAFE</div><object data=\"/libraryAnyString/path/DANGER.swf\" type=\"application/x-shockwave-flash\"><param name=\"FlashVars\" value=\"hacked=true\" /></object>";
+        String dangerLibraryPath6 = "<div>SAFE</div><object data=\"/library/aaa\\..\\..\\access/content/user//myUser/DANGER..swf\" type=\"application/x-shockwave-flash\"><param name=\"FlashVars\" value=\"hacked=true\" /></object>";
 
         strFromBrowser = youTubeObject;
         errorMessages = new StringBuilder();
@@ -628,6 +629,16 @@ public class FormattedTextTest extends TestCase {
         assertTrue( result.contains("SAFE"));
         assertFalse( result.contains("<object"));
         assertFalse( result.contains("DANGER"));
+
+        strFromBrowser = dangerLibraryPath6;
+        errorMessages = new StringBuilder();
+        result = formattedText.processFormattedText(strFromBrowser, errorMessages);
+        assertNotNull(result);
+        assertTrue( errorMessages.length() > 10 );
+        assertTrue( result.contains("SAFE"));
+        assertFalse( result.contains("<object"));
+        assertFalse( result.contains("DANGER"));
+
     }
 
     public void testNullParams() {
