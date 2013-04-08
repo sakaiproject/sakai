@@ -321,9 +321,6 @@ public class SyllabusEntityProvider extends AbstractEntityProvider implements En
 									}
 									count++;
 								}
-								for(SyllabusData d : movedData){
-									
-								}
 								//now that the positions are swapped, store it:
 								for(SyllabusData d : movedData){
 									syllabusManager.updateSyllabudDataPosition(d, d.getPosition());
