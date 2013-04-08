@@ -1,10 +1,15 @@
 package org.sakaiproject.tool.syllabus.entityproviders;
 
+import java.io.Serializable;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Calendar;
+import java.util.Collections;
 import java.util.Date;
+import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
 
 import lombok.Getter;
@@ -16,6 +21,7 @@ import org.sakaiproject.api.app.syllabus.SyllabusAttachment;
 import org.sakaiproject.api.app.syllabus.SyllabusData;
 import org.sakaiproject.api.app.syllabus.SyllabusItem;
 import org.sakaiproject.api.app.syllabus.SyllabusManager;
+import org.sakaiproject.entitybroker.EntityReference;
 import org.sakaiproject.entitybroker.EntityView;
 import org.sakaiproject.entitybroker.entityprovider.EntityProvider;
 import org.sakaiproject.entitybroker.entityprovider.annotations.EntityCustomAction;
@@ -23,7 +29,9 @@ import org.sakaiproject.entitybroker.entityprovider.capabilities.ActionsExecutab
 import org.sakaiproject.entitybroker.entityprovider.capabilities.AutoRegisterEntityProvider;
 import org.sakaiproject.entitybroker.entityprovider.capabilities.Describeable;
 import org.sakaiproject.entitybroker.entityprovider.capabilities.Outputable;
+import org.sakaiproject.entitybroker.entityprovider.capabilities.RESTful;
 import org.sakaiproject.entitybroker.entityprovider.extension.Formats;
+import org.sakaiproject.entitybroker.entityprovider.search.Search;
 import org.sakaiproject.entitybroker.exception.EntityNotFoundException;
 import org.sakaiproject.entitybroker.util.AbstractEntityProvider;
 import org.sakaiproject.exception.IdUnusedException;
@@ -37,7 +45,7 @@ import org.sakaiproject.tool.api.ToolManager;
  * Entity provider for the Syllabus tool
  */
 @CommonsLog
-public class SyllabusEntityProvider extends AbstractEntityProvider implements EntityProvider, AutoRegisterEntityProvider, ActionsExecutable, Outputable, Describeable
+public class SyllabusEntityProvider extends AbstractEntityProvider implements EntityProvider, AutoRegisterEntityProvider, ActionsExecutable, Outputable, Describeable, RESTful
 {
 
 	public final static String ENTITY_PREFIX = "syllabus";
@@ -248,5 +256,107 @@ public class SyllabusEntityProvider extends AbstractEntityProvider implements En
 		}
 	}
 	
+	public Object getEntity(EntityReference ref){
+		return new HashMap();
+	}
+	
+	public void updateEntity(EntityReference ref, Object entity, Map<String, Object> params){
+		if(params != null){
+			if(params.containsKey("move")){
+				//this is a re-order update:
+				try{
+					int move = Integer.parseInt(params.get("move").toString());
+					boolean ascend = move > 0;
+					move = Math.abs(move);
+					SyllabusData data = syllabusManager.getSyllabusData(ref.getId());
+					SyllabusItem item = syllabusManager.getSyllabusItem(data.getSyllabusItem().getSurrogateKey());
+					Long tmp = data.getSyllabusItem().getSurrogateKey();
+					//now that we have an obj that has SiteId, let's verify that the user has access to modify it:
+					if(!isMaintainer(item.getContextId())){
+						throw new IllegalArgumentException("User doesn't have access to modify this site.");
+					}
+					
+					if(data != null){
+						boolean foundItem = false;
+						int arrayCount = 0;
+						List<SyllabusData> movedData = new ArrayList<SyllabusData>();
+						String error = "";
+						Set syllabusData = syllabusManager.getSyllabiForSyllabusItem(item);
+						if(syllabusData != null){
+							for(SyllabusData d : (Set<SyllabusData>) syllabusData){
+								if(d.getSyllabusId().equals(data.getSyllabusId())){
+									foundItem = true;
+									if(ascend){
+										//we don't need to loop anymore
+										break;
+									}
+								}else{
+									if((ascend && !foundItem) || (!ascend && foundItem)){
+										movedData.add(d);
+										arrayCount++;
+									}
+								}
+								if(!ascend && arrayCount >= move){
+									break;
+								}
+							}
+							if("".equals(error)){
+								if(ascend){
+									//reverse the array if we are ascending
+									Collections.reverse(movedData);
+								}
+								int count = 0;
+								for (Iterator iterator = movedData.iterator(); iterator.hasNext();) {
+									SyllabusData d = (SyllabusData) iterator.next();
+									if(count < move){
+										//unfortunately, the positions aren't predictable like a simple pattern 1,2,3,4...
+										//but can be a random pattern like 1,4,5,6,9...  This means we can only swap positions
+										Integer p1 = data.getPosition();
+										Integer p2 = d.getPosition();
+										data.setPosition(new Integer(p2));
+										d.setPosition(new Integer(p1));
+									}else{
+										//this isn't being moved
+										iterator.remove();
+									}
+									count++;
+								}
+								for(SyllabusData d : movedData){
+									
+								}
+								//now that the positions are swapped, store it:
+								for(SyllabusData d : movedData){
+									syllabusManager.updateSyllabudDataPosition(d, d.getPosition());
+								}
+								syllabusManager.updateSyllabudDataPosition(data, data.getPosition());
+							}else{
+								log.warn("Error while changing syllabus position: " + error);
+							}
+						}
+					}
+				}catch(Exception e){
+					log.warn("Move value wasn't a valid number: " + params.get("move"));
+				}
+			}
+		}
+	}
 
+	public String createEntity(EntityReference ref, Object entity, Map<String, Object> params){
+		return null;
+	}
+	
+	public void deleteEntity(EntityReference ref, Map<String, Object> params){
+		
+	}
+	public Object getSampleEntity(){
+		return new HashMap();
+	}
+
+	public List<?> getEntities(EntityReference ref, Search search){
+		return null;
+	}
+	
+	public String[] getHandledInputFormats(){
+		return new String[] { Formats.XML, Formats.JSON, Formats.HTML};
+	}
 }

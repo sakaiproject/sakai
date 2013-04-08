@@ -260,6 +260,14 @@ public class SyllabusManagerImpl extends HibernateDaoSupport implements Syllabus
     }
   }    
 
+  public void updateSyllabudDataPosition(final SyllabusData d, final Integer position){
+	  if(d == null || position == null){
+		  throw new IllegalArgumentException("Null Argument");
+	  }else{
+		  d.setPosition(position);
+	      getHibernateTemplate().update(d);
+	  }
+  }
 
   /**
    * findLargestSyllabusPosition finds the largest syllabus data position for an item
@@ -548,6 +556,28 @@ public class SyllabusManagerImpl extends HibernateDaoSupport implements Syllabus
 
   }  
 
+  public SyllabusItem getSyllabusItem(final Long itemId)
+  {
+    if (itemId == null)
+    {
+      throw new IllegalArgumentException("Null Argument");
+    }
+    else
+    {                 
+      HibernateCallback hcb = new HibernateCallback()
+      {
+        public Object doInHibernate(Session session) throws HibernateException,
+            SQLException
+        {
+          SyllabusItem returnedData = (SyllabusItem) session.get(SyllabusItemImpl.class, itemId);
+          return returnedData;
+        }
+      }; 
+      return (SyllabusItem) getHibernateTemplate().execute(hcb);
+    }
+
+  }
+  
   public SyllabusAttachment createSyllabusAttachmentObject(String attachId, String name)      
   {
     try

@@ -1,10 +1,13 @@
-function setupAccordion(iframId){
+var dragStartIndex;
+
+function setupAccordion(iframId, isInstructor){
 	var activeVar = false;
 	if($( "#accordion" ).children("h3").size() == 1){
 		//since there is only 1 option, might was well keep it open instead of collapsed
 		activeVar = 0;
 	}
 	$( "#accordion" ).accordion({ 
+		header: "> div > h3",
 		active: activeVar,
 		autoHeight: false,
 		collapsible: true,
@@ -22,7 +25,39 @@ function setupAccordion(iframId){
 			}
 		}
 	});
-	$( "#accordion h3:first-child" ).focus()
+	if(isInstructor){
+		$( "#accordion" ).sortable({
+			axis: "y",
+			handle: "h3",
+			start: function(event, ui){
+			dragStartIndex = ui.item.index();
+		},
+		stop: function( event, ui ) {
+			// IE doesn't register the blur when sorting
+			// so trigger focusout handlers to remove .ui-state-focus
+			ui.item.children( "h3" ).triggerHandler( "focusout" );
+
+			//find how much this item was dragged:
+			var dragEndIndex = ui.item.index();
+			var moved = dragStartIndex - dragEndIndex;
+			if(moved != 0){
+				//update the position:
+				$.ajax({
+					type: 'POST',
+					url: "/direct/syllabus/" + $(ui.item).attr("syllabusItem") + ".json",
+					data: {"move": moved},
+					async:false,
+					failure: function failure(data){
+						// TODO: internationalize
+						alert("There was an error saving the order.");
+					}
+				});
+			}
+		}
+		});
+	}
+	
+	$( "#accordion div.group:first-child h3:first-child").focus();
 }
 
 // if the containing frame is small, then offsetHeight is pretty good for all but ie/xp.

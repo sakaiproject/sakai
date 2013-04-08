@@ -38,7 +38,7 @@
 	}
 	
 	$(function() {
-		setupAccordion('<%= org.sakaiproject.util.Web.escapeJavascript(thisId)%>');
+		setupAccordion('<%= org.sakaiproject.util.Web.escapeJavascript(thisId)%>'<h:outputText value=", true" rendered="#{SyllabusTool.editAble == 'true'}"/>);
 	});
 	
 	
@@ -49,6 +49,14 @@
 	}
 	.ui-accordion .ui-accordion-header{
 		overflow: auto !important;
+	}
+	 /* IE has layout issues when sorting (see #5413) */
+	.group { zoom: 1 }
+	
+	.imgMove{
+		position: relative;
+		top: 2px;
+		right: 8px;
 	}
 </style>
 
@@ -99,7 +107,11 @@
 						<div id="accordion">
 					</f:verbatim>
 					<t:dataList value="#{SyllabusTool.entries}" var="eachEntry" layout="simple">
-						<f:verbatim><h3><a href="#" </f:verbatim>
+						<f:verbatim><div class="group" syllabusItem="</f:verbatim>
+						<h:outputText value="#{eachEntry.entry.syllabusId}"/>
+						<f:verbatim>"><h3></f:verbatim>
+						<h:graphicImage url="/images/cursor_drag_arrow.png" rendered="#{SyllabusTool.editAble == 'true'}" styleClass="imgMove"/>
+						<f:verbatim><a href="#" </f:verbatim>
 							<f:subview id="draftclass" rendered="#{eachEntry.status == eachEntry.draftStatus}">
 								<f:verbatim>class="draft"</f:verbatim>
 							</f:subview>
@@ -138,7 +150,7 @@
 									</h:outputLink>
 								</h:column>
 							</h:dataTable>
-						<f:verbatim></div></f:verbatim>
+						<f:verbatim></div></div></f:verbatim>
 					</t:dataList>
 				<f:verbatim></div></f:verbatim>
 				<h:outputText value="#{msgs.syllabus_noEntry}" styleClass="instruction" rendered="#{SyllabusTool.displayNoEntryMsg}"/>

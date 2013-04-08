@@ -86,6 +86,10 @@ public interface SyllabusManager
   public void removeCalendarAttachments(String siteId, String calendarEventId, SyllabusAttachment attachment);
 
   public SyllabusData createSyllabusDataObject(String title, Integer position, String asset, String view, String status, String emailNotification, Date startDate, Date endDate, boolean linkCalendar, SyllabusItem syllabusItem);
+
+  public void updateSyllabudDataPosition(final SyllabusData d, final Integer position);
+
+  public SyllabusItem getSyllabusItem(final Long itemId);
   
   //public SyllabusAttachment creatSyllabusAttachmentResource(String attachId, String name);
 }
