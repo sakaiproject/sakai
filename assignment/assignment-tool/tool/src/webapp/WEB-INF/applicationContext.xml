@@ -1,0 +1,17 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE beans PUBLIC "-//SPRING//DTD BEAN//EN" "http://www.springframework.org/dtd/spring-beans.dtd">
+<beans>
+    <!-- entity providers -->
+<!-- 	<bean id="org.sakaiproject.assignment.api.AssignmentEntityProvider"
+ -->	<bean
+		parent="org.sakaiproject.entitybroker.entityprovider.AbstractEntityProvider"
+		class="org.sakaiproject.assignment.entityproviders.AssignmentEntityProvider">
+		<property name="assignmentService" ref="org.sakaiproject.assignment.api.AssignmentService" />
+        <property name="entityBroker" ref="org.sakaiproject.entitybroker.EntityBroker" />
+        <property name="sessionManager" ref="org.sakaiproject.tool.api.SessionManager" />
+		<property name="siteService" ref="org.sakaiproject.site.api.SiteService" />
+        <property name="securityService" ref="org.sakaiproject.authz.api.SecurityService" />
+		
+	</bean>
+	
+</beans>

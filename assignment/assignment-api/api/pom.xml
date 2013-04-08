@@ -33,10 +33,6 @@
             <artifactId>sakai-component-manager</artifactId>
         </dependency>
         <dependency>
-            <groupId>org.sakaiproject.entitybroker</groupId>
-            <artifactId>entitybroker-api</artifactId>
-        </dependency>
-        <dependency>
             <groupId>org.sakaiproject.taggable</groupId>
             <artifactId>sakai-taggable-api</artifactId>
         </dependency>

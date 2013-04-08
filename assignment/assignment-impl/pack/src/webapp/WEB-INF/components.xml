@@ -111,15 +111,6 @@
 		</property>
     </bean>
 
-	<bean id="org.sakaiproject.assignment.api.AssignmentEntityProvider"
-		      class="org.sakaiproject.assignment.impl.AssignmentEntityProviderImpl">
-		<property name="assignmentService" ref="org.sakaiproject.assignment.api.AssignmentService" />
-        <property name="entityBroker" ref="org.sakaiproject.entitybroker.EntityBroker" />
-        <property name="sessionManager" ref="org.sakaiproject.tool.api.SessionManager" />
-		<property name="siteService" ref="org.sakaiproject.site.api.SiteService" />
-        <property name="securityService" ref="org.sakaiproject.authz.api.SecurityService" />
-	</bean>
-
     <bean id="org.sakaiproject.assignment.impl.AssignmentGradeInfoProvider"
         class="org.sakaiproject.assignment.impl.AssignmentGradeInfoProvider"
         singleton="true" lazy-init="false" init-method="init" destroy-method="destroy">

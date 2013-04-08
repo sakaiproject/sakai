@@ -13573,7 +13573,7 @@ public abstract class BaseAssignmentService implements AssignmentService, Entity
      * @param context
      * @return
      */
-    static protected String getContextReference(String context) 
+    public static String getContextReference(String context) 
     {   
             String resourceString = getAccessPoint(true) + Entity.SEPARATOR + "a" + Entity.SEPARATOR + context + Entity.SEPARATOR;
             return resourceString;

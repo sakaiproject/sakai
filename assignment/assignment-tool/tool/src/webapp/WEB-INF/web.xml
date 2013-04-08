@@ -5,6 +5,14 @@
     <display-name>sakai-assignment-tool</display-name>
     <description>sakai-assignment-tool</description>
 
+	<!-- Configure standard Spring application contexts. -->
+	<context-param>
+		<param-name>contextConfigLocation</param-name>
+		<param-value>
+      /WEB-INF/applicationContext.xml
+    </param-value>
+	</context-param>
+  
 	<!-- Sakai request filter -->
     <filter>
         <filter-name>sakai.request</filter-name>
@@ -56,16 +64,6 @@
         <load-on-startup>1</load-on-startup>
      </servlet>
 
-     <servlet>
-        <servlet-name>
-            sakai.assignment.entityaccess
-        </servlet-name>
-        <servlet-class>
-            org.sakaiproject.assignment.tool.RedirectingAssignmentEntityServlet
-        </servlet-class>
-        <load-on-startup>1</load-on-startup>
-    </servlet>
-
 	<servlet>
         <servlet-name>
            sakai.assignment.grades
@@ -83,5 +81,7 @@
     <listener>
         <listener-class>org.sakaiproject.util.ToolListener</listener-class>
     </listener>
-
+	<listener>
+		<listener-class>org.sakaiproject.util.ContextLoaderListener</listener-class>
+	</listener>   
 </web-app>
