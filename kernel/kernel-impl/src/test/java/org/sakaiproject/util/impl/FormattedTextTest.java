@@ -35,6 +35,7 @@ public class FormattedTextTest extends TestCase {
     protected void setUp() throws Exception {
         ComponentManager.testingMode = true;
         formattedText = new FormattedTextImpl();
+        formattedText.setDefaultUseLegacyCleaner(false); // FORCE antisamy to be loaded and used by default
         formattedText.init();
     }
 
@@ -120,6 +121,8 @@ public class FormattedTextTest extends TestCase {
         String result = null;
         StringBuilder errorMessages = null;
 
+        formattedText.setDefaultUseLegacyCleaner(false); // FORCE antisamy
+
         strFromBrowser = TEST1;
         errorMessages = new StringBuilder();
         formattedText.setDefaultAddBlankTargetToLinks(false);
@@ -185,6 +188,8 @@ public class FormattedTextTest extends TestCase {
         String strFromBrowser = null;
         String result = null;
         StringBuilder errorMessages = null;
+
+        formattedText.setDefaultUseLegacyCleaner(false); // FORCE antisamy
 
         String SVG_GOOD = "<div>hello</div><embed allowscriptaccess=\"always\" type=\"image/svg+xml\" src=\"data:image/svg+xml;base64,PHN2ZyB4bWxuczpzdmc9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIiB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHhtbG5zOnhsaW5rPSJodHRwOi8vd3d3LnczLm9yZy8xOTk5L3hsaW5rIiB2ZXJzaW9uPSIxLjAiIHg9IjAiIHk9IjAiIHdpZHRoPSIxOTQiIGhlaWdodD0iMjAwIiBpZD0ieHNzIj5pbWFnZTwvc3ZnPg==\"></embed>";
         String SVG_BAD = "<div>hello</div><embed allowscriptaccess=\"always\" type=\"image/svg+xml\" src=\"data:image/svg+xml;base64,PHN2ZyB4bWxuczpzdmc9Imh0dH A6Ly93d3cudzMub3JnLzIwMDAvc3ZnIiB4bWxucz0iaHR0cDovL3d3dy53My5vcmcv MjAwMC9zdmciIHhtbG5zOnhsaW5rPSJodHRwOi8vd3d3LnczLm9yZy8xOTk5L3hs aW5rIiB2ZXJzaW9uPSIxLjAiIHg9IjAiIHk9IjAiIHdpZHRoPSIxOTQiIGhlaWdodD0iMjAw IiBpZD0ieHNzIj48c2NyaXB0IHR5cGU9InRleHQvZWNtYXNjcmlwdCI+YWxlcnQoIlh TUyIpOzwvc2NyaXB0Pjwvc3ZnPg==\"></embed>";
@@ -289,6 +294,8 @@ public class FormattedTextTest extends TestCase {
         passTests   = new String[] { oneKV, twoKV, selfClose, subAttr, subAttrs };
         failTests   = new String[] { repeatK, badK, badK2, badK3, badKV };
         failResults = new String[] { resultRepeatK, resultBadK, resultBadK, resultBadK, resultBadKV };
+
+        formattedText.setDefaultUseLegacyCleaner(false); // FORCE antisamy
 
         result = formattedText.processFormattedText(repeatKV, new StringBuilder());
         assertEquals(resultRepeatKV, result);
@@ -454,6 +461,8 @@ public class FormattedTextTest extends TestCase {
         String SCRIPT1 = "<div>testing</div><embed src=\"DANGER.swf\"><SCRIPT>alert(\"XSS\");//</SCRIPT>";
         String SCRIPT2 = "<div>testing</div><script>alert(\"XSS\");<BR>";
 
+        formattedText.setDefaultUseLegacyCleaner(false); // FORCE antisamy
+
         // Test KNL-1009
         strFromBrowser = SCRIPT2;
         errorMessages = new StringBuilder();
@@ -529,6 +538,8 @@ public class FormattedTextTest extends TestCase {
         String dangerLibraryPath4 = "<div>SAFE</div><object data=\"/library\\../access/content/user/myUser/DANGER..swf\" type=\"application/x-shockwave-flash\"><param name=\"FlashVars\" value=\"hacked=true\" /></object>";
         String dangerLibraryPath5 = "<div>SAFE</div><object data=\"/libraryAnyString/path/DANGER.swf\" type=\"application/x-shockwave-flash\"><param name=\"FlashVars\" value=\"hacked=true\" /></object>";
         String dangerLibraryPath6 = "<div>SAFE</div><object data=\"/library/aaa\\..\\..\\access/content/user//myUser/DANGER..swf\" type=\"application/x-shockwave-flash\"><param name=\"FlashVars\" value=\"hacked=true\" /></object>";
+
+        formattedText.setDefaultUseLegacyCleaner(false); // FORCE antisamy
 
         strFromBrowser = youTubeObject;
         errorMessages = new StringBuilder();

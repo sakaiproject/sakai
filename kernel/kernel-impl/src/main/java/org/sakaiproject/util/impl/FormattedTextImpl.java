@@ -196,12 +196,21 @@ public class FormattedTextImpl implements FormattedText
 
     }
 
+    boolean defaultUseLegacyCleaner = false;
+    /**
+     * For TESTING
+     * Sets the default - if not set, this will be "false"
+     * @param defaultUseLegacyCleaner if true, use the old legacy security cleaner (no longer supported), if false use the new antisamy based cleaner
+     */
+    void setDefaultUseLegacyCleaner(boolean defaultUseLegacyCleaner) {
+        this.defaultUseLegacyCleaner = defaultUseLegacyCleaner;
+    }
     /**
      * Asks SCS for the value of the "content.cleaner.use.legacy.html", DEFAULT is false
      * @return true if the legacy HTML cleaner is used OR false use the antiSamy html cleaner
      */
     private boolean useLegacyCleaner() {
-        boolean useLegacy = false;
+        boolean useLegacy = this.defaultUseLegacyCleaner;
         if (serverConfigurationService != null) { // this keeps the tests from dying
             useLegacy = serverConfigurationService.getBoolean("content.cleaner.use.legacy.html", useLegacy);
         }
