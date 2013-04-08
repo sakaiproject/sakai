@@ -359,12 +359,12 @@ function showToolMenu(e, xOffset){
         var pos = jqObj.offset();
         var maxToolsInt = parseInt($('#maxToolsInt').text());
         var maxToolsText = $('#maxToolsAnchor').text();
-        var goToSite = '<li class=\"otherSiteTool\"><span><a role=\"menuitem\" class=\"icon-sakai-see-all-tools\" href=\"' + portal.portalPath + '/site/' + id + '\" title=\"' + maxToolsText + '\">' + maxToolsText + '</a></span></li>';
+        var goToSite = '<li class=\"otherSiteTool\"><span><a role=\"menuitem\" href=\"' + portal.portalPath + '/site/' + id + '\" title=\"' + maxToolsText + '\"><span class=\"toolMenuIcon icon-sakai-see-all-tools\"> </span>' + maxToolsText + '</a></span></li>';
         jQuery.getJSON(siteURL, function(data){
             $.each(data, function(i, item){
                 if (i <= maxToolsInt) {
                     if (item.tools.length === 1) {
-                        subsubmenu = subsubmenu + '<li class=\"otherSiteTool\"><span><a role=\"menuitem\" class=\"icon-' + item.tools[0].toolId.replace(/\./gi, '-') + '\" href=\"' + item.tools[0].url + "\" title=\"" + item.title + "\">" + item.title + "</a></span></li>";
+                        subsubmenu = subsubmenu + '<li class=\"otherSiteTool\"><span><a role=\"menuitem\"  href=\"' + item.tools[0].url + "\" title=\"" + item.title + "\"><span class=\"toolMenuIcon icon-" + item.tools[0].toolId.replace(/\./gi, '-') + "\"> </span>" + item.title + "</a></span></li>";
                     }
                 }
                 
@@ -566,7 +566,7 @@ var setupSiteNav = function(){
             var siteId = jqObjDrop.attr('data').replace(/!/g, '\\!').replace(/~/g, '\\~');
             var maxToolsInt = parseInt($('#maxToolsInt').text());
             var maxToolsText = $('#maxToolsAnchor').text();
-            var goToSite = '<li class=\"submenuitem\"><span><a role=\"menuitem\" class=\"icon-sakai-see-all-tools\" href=\"' + portal.portalPath + '/site/' + siteId + '\" title=\"' + maxToolsText + '\">' + maxToolsText + '</a></span></li>';
+            var goToSite = '<li class=\"submenuitem\"><a role=\"menuitem\" href=\"' + portal.portalPath + '/site/' + siteId + '\" title=\"' + maxToolsText + '\"><span class=\"toolMenuIcon icon-sakai-see-all-tools\"></span>' + maxToolsText + '</a></li>';
             var siteURL = '/direct/site/' + jqObjDrop.attr('data') + '/pages.json';
             jQuery.ajax({
                 url: siteURL,
@@ -575,7 +575,7 @@ var setupSiteNav = function(){
                     $.each(data, function(i, item){
                         if (i <= maxToolsInt) {
                             if (item.tools.length === 1) {
-                                navsubmenu = navsubmenu + '<li class=\"submenuitem\" ><span><a role=\"menuitem\" class=\"icon-' + item.tools[0].toolId.replace(/\./gi, '-') + '\" href=\"' + item.tools[0].url + "\" title=\"" + item.title + "\">" + item.title + "</a></span></li>";
+                                navsubmenu = navsubmenu + '<li class=\"submenuitem\" ><span><a role=\"menuitem\" href=\"' + item.tools[0].url + "\" title=\"" + item.title + "\"><span class=\"toolMenuIcon icon-" + item.tools[0].toolId.replace(/\./gi, '-') + "\"></span>" + item.title + "</a></span></li>";
                             }
                         }
                     });

@@ -26,20 +26,20 @@
 		  		#if (${page.current})
 						<li class="selectedTool">
 							<a class="toolMenuLink #if(${page.hidden})hidden#end" title="${page.pageTitle}" role="presentation" aria-disabled="true">
-							<span class="toolMenuIcon ${page.menuClass} $!{page.menuClassOverride}">${page.pageTitle}</span>
+							<span class="toolMenuIcon ${page.menuClass} $!{page.menuClassOverride}"> </span><span class="menuTitle">${page.pageTitle}</span>
 							</a>
 						</li>
 		  		#else
 		  			 #if (${page.ispopup})
 						<li>
 							<a class="toolMenuLink #if(${page.hidden})hidden#end" href="javascript:;" title="${page.pageTitle}" onclick="window.open('${page.pagePopupUrl}${page.pageId}','${page.jsPageTitle}','resizable=yes,toolbar=no,scrollbars=yes, width=800,height=600')">
-							<span class="toolMenuIcon ${page.menuClass} $!{page.menuClassOverride}">${page.pageTitle}</span>
+							<span class="toolMenuIcon ${page.menuClass} $!{page.menuClassOverride}"> </span><span class="menuTitle">${page.pageTitle}</span>
 							</a>
 						</li>
 		   			#else
 						<li>
 							<a class="toolMenuLink #if(${page.hidden})hidden#end" href="${page.pageRefUrl}" title="${page.description}">
-							<span class="toolMenuIcon ${page.menuClass} $!{page.menuClassOverride}">${page.pageTitle}</span>
+							<span class="toolMenuIcon ${page.menuClass} $!{page.menuClassOverride}"></span><span class="menuTitle">${page.pageTitle}</span>
 							</a>
 						</li>
 		   			#end
@@ -48,7 +48,7 @@
 			#if ( $subSites && $showSubsitesAsFlyout ) 
                         <li>
 							<a id="toggleSubsitesLink" class="toolMenuLink" href="javascript:;" title="${rloader.subsitesTitle}" aria-haspopup="true">
-							    <span class="toolMenuIcon icon-sakai-subsite">${rloader.subsites}</span>
+							    <span  class="toolMenuIcon icon-sakai-subsite"> </span><span class="menuTitle">${rloader.subsites}</span>
 							</a>
 						</li>
 			#end
@@ -58,7 +58,7 @@
 									onclick="openWindow('${sitePages.pageNavHelpUrl}', 
 									'Help', 'resizable=yes,toolbar=no,scrollbars=yes,menubar=yes,width=800,height=600'); 
 									return false" title="${rloader.sit_help}">
-								<span class="toolMenuIcon ${sitePages.helpMenuClass}">${rloader.sit_help}</span>
+								<span  class="toolMenuIcon ${sitePages.helpMenuClass}"> </span><span class="menuTitle">${rloader.sit_help}</span>
 								<span class="skip">${rloader.site_newwindow}</span> </a>
 								</a>
 						 </li>
@@ -79,7 +79,7 @@
 				#foreach ( $site in $subSites ) 
 						<li>
 							<a href="${site.siteUrl}" title="${site.siteTitle}" role="menuitem">
-							<span class="${sitePages.subsiteClass}">${rloader.subsite} ${site.siteTitle}</span>
+							<span class="toolMenuIcon ${sitePages.subsiteClass}"></span><span class="menuTitle">${rloader.subsite} ${site.siteTitle}</span>
 							</a>
 						</li>
 				#end
