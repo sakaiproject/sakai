@@ -117,13 +117,15 @@
 					</h:outputLink>
 				</h:panelGroup>
 		--%>
-					<h:outputText value="</div>" escape="false" />
-		<h:panelGroup rendered="#{!message.deleted}"  style="display:block;margin:0">
+		<h:panelGroup rendered="#{!message.deleted}"  >
 				<%--//designNote: panel holds other actions, display toggled above (do some testing - do they show up when they should not? Do I get a 
 						"moderate" link when it is not a moderated context, or when the message is mine?) --%>
-				<h:outputText escape="false" value="<div id=\"#{message.message.id}_advanced_box\" class=\"otherActions\" style=\"margin:2px 0;\">" />
+				<h:outputText escape="false" value="<span id=\"#{message.message.id}_advanced_box\" class=\"otherActions\" style=\"margin:2px 0;\">" />
+
+
 					<%-- Email --%>
                     <h:panelGroup rendered="#{message.userCanEmail}">
+                        <h:outputText value=" #{msgs.cdfm_toolbar_separator} " />
                     	<h:outputLink id="createEmail1" value="mailto:#{message.authorEmail}">
                         	<f:param value="Feedback on #{message.message.title}" name="subject" />
                         	<h:outputText value="#{msgs.cdfm_button_bar_email}"/>
@@ -172,8 +174,28 @@
 							<f:param value="#{ForumTool.selectedTopic.topic.baseForum.id}" name="forumId" />
 						</h:commandLink>
 					</h:panelGroup>
-			<f:verbatim></div></f:verbatim>			
+
 			</h:panelGroup>
+                        <f:verbatim></span></f:verbatim>
+			<h:outputText value="</div>" escape="false" />
+
+                                        <%-- End of div for messageMetadata --%>
+
+
+                                        <%-- Rank IMAGE --%>
+                    <h:panelGroup rendered="#{message.authorRank != null}">
+                        <h:outputText escape="false" value="<img src=\"#{message.authorRank.rankImage.attachmentUrl}\" height=\"35\" width=\"35\" />" />
+                    </h:panelGroup>
+
+                                        <%-- Rank NAME--%>
+                        <f:verbatim><div></f:verbatim>
+                        <h:outputText value="#{message.authorRank.title}" styleClass="forumsRankName"/>
+                        <f:verbatim></div></f:verbatim>
+                                        <%-- Number of Post --%>
+                        <f:verbatim><div></f:verbatim>
+			<h:outputText value="#{msgs.num_of_posts} #{message.authorPostCount}" styleClass="forumsRankName" rendered="#{message.authorRank.type == 2}"/>
+                        <f:verbatim></div></f:verbatim>
+
 			<!-- close the div with class of specialLink -->
 	<%--<f:verbatim></div></f:verbatim>-->
 	<%-- the message body--%>

@@ -355,7 +355,7 @@ public class MessageForumsMessageManagerImpl extends HibernateDaoSupport impleme
     	
         HibernateCallback hcb = new HibernateCallback() {
             public Object doInHibernate(Session session) throws HibernateException, SQLException {
-                Query q = session.getNamedQuery("findAuthoredMessageCountForStudentInSite");
+                Query q = session.getNamedQuery("findAuthoredMessageCountForStudent");
                 q.setParameter("contextId", getContextId(), Hibernate.STRING);
                 q.setParameter("userId", userId, Hibernate.STRING);
                 return q.uniqueResult();

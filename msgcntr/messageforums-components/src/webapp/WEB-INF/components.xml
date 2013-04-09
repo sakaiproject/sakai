@@ -18,7 +18,9 @@
                 <value>org/sakaiproject/component/app/messageforums/dao/hibernate/PermissionLevelImpl.hbm.xml</value>
                 <value>org/sakaiproject/component/app/messageforums/dao/hibernate/EmailNotification.hbm.xml</value>
                 <value>org/sakaiproject/component/app/messageforums/dao/hibernate/SynopticMsgcntrItem.hbm.xml</value>
-                <value>org/sakaiproject/component/app/messageforums/dao/hibernate/HiddenGroupImpl.hbm.xml</value>                  
+                <value>org/sakaiproject/component/app/messageforums/dao/hibernate/HiddenGroupImpl.hbm.xml</value>
+                <value>org/sakaiproject/component/app/messageforums/dao/hibernate/Rank.hbm.xml</value>                  
+                <value>org/sakaiproject/component/app/messageforums/dao/hibernate/RankImage.hbm.xml</value>
             </list>
         </property>
     </bean>
@@ -640,6 +642,40 @@
        <property name="schedulerManager">
           <ref bean="org.sakaiproject.api.app.scheduler.SchedulerManager" />
        </property>
+    </bean>
+    
+    <bean id="org.sakaiproject.api.app.messageforums.RankManager" class="org.springframework.transaction.interceptor.TransactionProxyFactoryBean">
+        <property name="transactionManager">
+            <ref bean="org.sakaiproject.springframework.orm.hibernate.GlobalTransactionManager"/>
+        </property>
+        <property name="target">
+            <bean class="org.sakaiproject.component.app.messageforums.RankManagerImpl" singleton="true" init-method="init">
+                <property name="sessionFactory">
+                    <ref bean="org.sakaiproject.springframework.orm.hibernate.GlobalSessionFactory"/>
+                </property>
+ 				<property name="userDirectoryService">
+				    <ref bean="org.sakaiproject.user.api.UserDirectoryService"/>
+				</property>				
+		        <property name="eventTrackingService">
+        		    <ref bean="org.sakaiproject.event.api.EventTrackingService"/>
+		        </property>
+		        <property name="sessionManager">
+					<ref bean="org.sakaiproject.tool.api.SessionManager" />
+				</property>		
+				<property name="idManager">
+					<ref bean="org.sakaiproject.id.api.IdManager" />
+				</property>		 								
+		        <property name="contentHostingService">
+        		    <ref bean="org.sakaiproject.content.api.ContentHostingService"/>
+		        </property>
+		        
+            </bean>           
+        </property>
+         <property name="transactionAttributes">
+            <props>
+                <prop key="*">PROPAGATION_REQUIRED</prop>
+            </props>
+        </property> 
     </bean>
  
 </beans>

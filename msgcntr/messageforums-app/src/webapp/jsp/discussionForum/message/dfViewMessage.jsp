@@ -254,6 +254,21 @@
 						<h:outputText value="#{msgs.cdfm_next_msg}" rendered="#{!ForumTool.selectedMessage.hasNext}" />
 					</h:panelGroup>
 				</h:panelGrid>
+ 
+			                                        <%-- Rank IMAGE --%>
+                        <f:verbatim><div></f:verbatim>
+                    <h:panelGroup rendered="#{ForumTool.selectedMessage.authorRank != null}">
+                        <h:outputText escape="false" value="<img src=\"#{ForumTool.selectedMessage.authorRank.rankImage.attachmentUrl}\" height=\"35\" width=\"35\" />" />
+                    </h:panelGroup>
+                        <f:verbatim></div></f:verbatim>
+
+                                        <%-- Rank NAME--%>
+                        <h:outputText value="#{ForumTool.selectedMessage.authorRank.title}" styleClass="forumsRankName"/>
+			<h:outputText value="#{msgs.num_of_posts} #{ForumTool.selectedMessage.authorPostCount}" styleClass="forumsRankName" rendered="#{ForumTool.selectedMessage.authorRank.type == 2}"/>
+			
+			
+
+	
 				<f:verbatim><div class="textPanel"></f:verbatim>
 					<h:outputText escape="false" value="#{ForumTool.selectedMessage.message.body}" id="messageBody" 
 							rendered="#{!ForumTool.selectedMessage.message.deleted}" />
