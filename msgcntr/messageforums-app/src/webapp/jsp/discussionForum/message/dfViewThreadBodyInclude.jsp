@@ -57,12 +57,24 @@
 				</h:commandLink>
 				<h:outputText value="<br /><div class=\"messageMetadata\">" escape="false" />
 				<%--author --%>
-				<h:outputLink value="#{ForumTool.serverUrl}/direct/profile/#{message.message.authorId}/formatted" styleClass="authorProfile" rendered="#{ForumTool.showProfileLink}">
-					<h:outputText value="  #{message.message.author}" rendered="#{message.read}" styleClass="textPanelFooter md"/>
-					<h:outputText  value="  #{message.message.author}" rendered="#{!message.read }" styleClass="unreadMsg textPanelFooter md"/>
-				</h:outputLink>
-				<h:outputText value="  #{message.message.author}" rendered="#{message.read && !ForumTool.showProfileLink}" styleClass="textPanelFooter md"/>
-				<h:outputText  value="  #{message.message.author}" rendered="#{!message.read && !ForumTool.showProfileLink}" styleClass="unreadMsg textPanelFooter md"/>
+				
+                <h:outputText value="#{message.message.author}" rendered="#{!ForumTool.instructor && message.read}" styleClass="textPanelFooter md"/>
+                <h:outputText value="#{message.message.author}" rendered="#{!ForumTool.instructor && !message.read}" styleClass="unreadMsg textPanelFooter md" />
+                
+                <f:verbatim><span class="md"></f:verbatim>
+                <h:commandLink action="#{mfStatisticsBean.processActionStatisticsUser}" immediate="true" title=" #{message.message.author }" rendered="#{ForumTool.instructor && message.read}" styleClass="textPanelFooter md">
+                    <f:param value="#{message.authorEid}" name="siteUserId"/>
+                    <f:param value="#{message.message.author}" name="siteUser"/>
+					<h:outputText value="  #{message.message.author}"/>
+                </h:commandLink>
+
+                <h:commandLink action="#{mfStatisticsBean.processActionStatisticsUser}" immediate="true" title=" #{message.message.author }" rendered="#{ForumTool.instructor && !message.read}" styleClass="unreadMsg textPanelFooter md">
+                    <f:param value="#{message.authorEid}" name="siteUserId"/>
+                    <f:param value="#{message.message.author}" name="siteUser"/>
+					<h:outputText  value="  #{message.message.author}" rendered="#{!message.read }"/>
+                </h:commandLink>
+                <f:verbatim></span></f:verbatim>
+
 				<%--date --%>
 				<h:outputText value="#{message.message.created}" rendered="#{message.read}" styleClass="textPanelFooter md">
 					<f:convertDateTime pattern="#{msgs.date_format_paren}" timeZone="#{ForumTool.userTimeZone}" locale="#{ForumTool.userLocale}"/>

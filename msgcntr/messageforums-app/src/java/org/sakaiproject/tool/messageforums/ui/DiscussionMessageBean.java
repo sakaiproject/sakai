@@ -367,4 +367,9 @@ LOG.debug("... before return getAuthorEmail(): userEmail = " + userEmail);
 		
 		return userEmail;
 	}
+	
+	public String getAuthorEid(){
+		String userEid = this.getMessage().getCreatedBy();
+ 		return userEid;
+	}	
 }

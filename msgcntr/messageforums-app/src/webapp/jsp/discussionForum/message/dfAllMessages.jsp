@@ -304,8 +304,12 @@
 					<h:outputText value="#{msgs.cdfm_authoredby}" />
 				</f:facet>
 				<h:panelGroup rendered="#{!message.deleted}" >
-						<h:outputText value="#{message.message.author}"/>
-						<%--<h:outputText styleClass="unreadMsg" value="#{message.message.author}" rendered="#{!message.read || message.childUnread > 0}"/>--%>
+                    <h:outputText value="#{message.message.author}" rendered="#{!ForumTool.instructor}"/>
+                    <h:commandLink action="#{mfStatisticsBean.processActionStatisticsUser}" immediate="true" title=" #{message.message.author}" rendered="#{ForumTool.instructor}">
+                        <f:param value="#{message.authorEid}" name="siteUserId"/>
+                        <f:param value="#{message.message.author}" name="siteUser"/>
+                        <h:outputText value="#{message.message.author}" />
+                    </h:commandLink>
 				</h:panelGroup>
 			</h:column>
 				<%-- date column --%>

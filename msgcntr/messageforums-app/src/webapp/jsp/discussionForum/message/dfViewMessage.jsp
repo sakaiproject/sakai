@@ -227,10 +227,12 @@
 						<h:outputText 	rendered="#{ForumTool.allowedToApproveMsg && ForumTool.allowedToDenyMsg}" value="#{msgs.cdfm_msg_pending_label}" styleClass="messagePending"/>
 						<h:outputText value="#{ForumTool.selectedMessage.message.title}"  styleClass="title" />
 						<h:outputText value="<br />" escape="false" />
-						<h:outputLink value="#{ForumTool.serverUrl}/direct/profile/#{ForumTool.selectedMessage.message.authorId}/formatted" styleClass="authorProfile" rendered="#{ForumTool.showProfileLink}">
-							<h:outputText value="#{ForumTool.selectedMessage.message.author}" styleClass="textPanelFooter"/>
-						</h:outputLink>
-						<h:outputText value="#{ForumTool.selectedMessage.message.author}" styleClass="textPanelFooter" rendered="#{!ForumTool.showProfileLink}"/>
+						<h:outputText value="#{ForumTool.selectedMessage.message.author}" styleClass="textPanelFooter" rendered="#{!ForumTool.instructor}"/>
+                        <h:commandLink action="#{mfStatisticsBean.processActionStatisticsUser}" immediate="true" title=" #{ForumTool.selectedMessage.message.author }" styleClass="textPanelFooter" rendered="#{ForumTool.instructor}">
+                        	<f:param value="#{ForumTool.selectedMessage.authorEid}" name="siteUserId"/>
+                        	<f:param value="#{ForumTool.selectedMessage.message.author}" name="siteUser"/>
+                        	<h:outputText value="#{ForumTool.selectedMessage.message.author}"/>
+                        </h:commandLink>
 						<h:outputText value=" #{msgs.cdfm_openb} "  styleClass="textPanelFooter" />
 						<h:outputText value="#{ForumTool.selectedMessage.message.created}"  styleClass="textPanelFooter" >
 							<f:convertDateTime pattern="#{msgs.date_format}" timeZone="#{ForumTool.userTimeZone}" locale="#{ForumTool.userLocale}"/>  
