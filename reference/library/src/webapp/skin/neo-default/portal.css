@@ -281,7 +281,7 @@ guests, for example */
 #mastLogin ul.subnav li.submenuitem {
     margin: 0;
     display: block;
-    height:100%;s
+    height:100%;
     overflow: hidden;
     text-align: left;
     position:relative;
@@ -291,9 +291,6 @@ ul.nav-submenu li.submenuitem .toolMenuIcon, #mastLogin li.submenuitem a .toolMe
     background-color: transparent;
     background-image: url(/library/image/silk/fff-sprites/images/famfamfam.png);
     background-repeat: no-repeat;
-/*
-    background-position: -36px -0px;
-*/
     left: 1px;
     position: absolute;
     top: 1px;

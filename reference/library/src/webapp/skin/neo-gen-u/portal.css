@@ -41,8 +41,25 @@ body.portalBody {
     display: block;
     float: right;
 }
-.toolMenuIcon {
-    padding: 1px 0;
+.toolMenuIcon { 
+    background-color: transparent;
+    background-image: url(/library/image/silk/fff-sprites/images/famfamfam.png);
+    background-repeat: no-repeat;
+    background-position: -36px -0px;
+    display: inline-block;
+    height: 16px;
+    width: 16px;
+    margin: 5px;
+    position:absolute;
+    top:7px;
+    right:3px;
+    vertical-align: middle;
+}
+
+.menuTitle {
+    margin: 5px 25px 5px 0;
+    display:block;
+    
 }
 /* wrapper for site content (portlets) - children can be #col1 or #col1of2 and #col2of2 depending in the number of columns  */
 #content {
@@ -332,31 +349,41 @@ guests, for example */
     text-align: left;
 }
 /* link items in above menu (some attr/vals are same as for site tool sub-menu, and submenus in othe rsites tray so both are doubled up here)*/
+ul.nav-submenu li.submenuitem .toolMenuIcon, #mastLogin li.submenuitem a .toolMenuIcon, #otherSiteTools li .toolMenuIcon {
+    background-color: transparent;
+    background-image: url(/library/image/silk/fff-sprites/images/famfamfam.png);
+    background-repeat: no-repeat;
+    left: 1px;
+    position: absolute;
+    top: 1px;
+}
+#mastLogin li.submenuitem a .toolMenuIcon {
+    left:5px;
+    top:1px;
+}
+
 ul.nav-submenu li.submenuitem a, #mastLogin li.submenuitem a, #otherSiteTools li a {
-    background-position: 3px center !important;
-    background-repeat: no-repeat !important;
-    outline: none;
     text-decoration: none;
     width: 180px;
-    padding-left: 25px;
     font-weight: normal;
     color: #111;
     color: #444;
-    padding: 7px 6px 6px 25px !important;
+    padding: 7px 6px 6px 30px !important;
     font-size: 1em !important;
+    position:relative;
 }
 /* icons for specific menu items */
-#mastLogin ul.subnav li.submenuitem a.submenuitem-new-site {
-    background-image: url(/library/image/silk/application_lightning.png )
+#mastLogin ul.subnav li.submenuitem a span.submenuitem-new-site {
+    background-position: -324px -0px;
 }
-#mastLogin ul.subnav li.submenuitem a.submenuitem-profile {
-    background-image: url(/library/image/silk/vcard_edit.png)
+#mastLogin ul.subnav li.submenuitem a span.submenuitem-profile {
+    background-position: -198px -522px;
 }
-#mastLogin ul.subnav li.submenuitem a.submenuitem-prefs {
-    background-image: url(/library/image/silk/cog.png)
+#mastLogin ul.subnav li.submenuitem a  span.submenuitem-prefs{
+    background-position: -54px -126px;
 }
-#mastLogin ul.subnav li.submenuitem a.submenuitem-tutorial {
-    background-image: url(/library/image/silk/help.png)
+#mastLogin ul.subnav li.submenuitem a span.submenuitem-tutorial {
+    background-position: -54px -252px;
 }
 #mastLogin ul.subnav li.submenuitem:last-child a {
     border-bottom: none
@@ -484,6 +511,7 @@ ul.topnav li ul.subnav li, #mastLogin ul.subnav li, .otherSiteTool {
     border: 1px solid #ccc;
     border-width: 0 0 1px 0;
     width: 100%;
+    position:relative;
 }
 /* some overrides for the menu in #mastLogin */
 #mastLogin ul.subnav li {
@@ -830,11 +858,13 @@ ul#otherSiteList li a span, ul.otherSitesCategorList li a span {
 /* span holds the tool icon bkgnd image for left hand menu 
  * and "a" the icon for tool pull downs - here a default is provided */
 #toolMenu li span, #subSites li span, .submenuitem a, .otherSiteTool a {
+/*
     background-repeat: no-repeat;
     background-position: right;
     background-image: url(../../image/silk/application.png);
     padding-right: 22px;
     line-height: 1.4;
+*/
 }
 /* adjusting rendering of last item in the tool menu */
 #toolMenuWrap > div:last-of-type li:last-of-type {
@@ -856,6 +886,7 @@ ul#otherSiteList li a span, ul.otherSitesCategorList li a span {
     margin-right: 0px;
     margin-top: 0px;
     overflow: hidden;
+    position: relative;
 }
 #toolMenu li a:hover, #subSites li a:hover, #toolMenu li a:focus, #subSites li a:focus {
     text-decoration: none;
@@ -1080,272 +1111,272 @@ ul#otherSiteList li a span, ul.otherSitesCategorList li a span {
 /* PART 9 - Tool Icons - applies to both left hand menu and submenus, as well as to submenus of sites in "Other sites" tray */
 
 .icon-osp-evaluation {
-    background-image: url(/library/image/silk/thumb_up.png) !important
+    background-position: -252px -504px;
 }
 .icon-osp-glossary {
-    background-image: url(/library/image/silk/text_list_bullets.png) !important
+    background-position: -468px -486px;
 }
 .icon-osp-matrix, .icon-osp-exposedmatrix {
-    background-image: url(/library/image/silk/table.png) !important
+    background-position: -558px -450px;
 }
 .icon-osp-presentation {
-    background-image: url(/library/image/silk/briefcase.png) !important
+    background-position: -234px -54px;
 }
 .icon-osp-presLayout {
-    background-image: url(/library/image/silk/layout_content.png) !important
+    background-position: -198px -270px;
 }
 .icon-osp-presTemplate {
-    background-image: url(/library/image/silk/application_view_tile.png) !important
+    background-position: -54px -18px;
 }
 .icon-osp-style {
-    background-image: url(/library/image/silk/style.png) !important
+    background-position: -360px -450px;
 }
 .icon-osp-wizard, .icon-osp-exposedwizard {
-    background-image: url(/library/image/silk/wand.png) !important
+    background-position: -270px -522px;
 }
 .icon-sakai-announcements {
-    background-image: url(/library/image/silk/flag_blue.png) !important
+    background-position: -324px -216px;
 }
 .icon-sakai-chat {
-    background-image: url(/library/image/silk/user_comment.png) !important
+    background-position: -558px -504px;
 }
 .icon-sakai-datapoint {
-    background-image: url(/library/image/silk/chart_line.png) !important
+    background-position: -180px -108px;
 }
 .icon-sakai-discussion {
-    background-image: url(/library/image/silk/comments.png) !important
+    background-position: -324px -126px;
 }
 .icon-sakai-dropbox {
-    background-image: url(/library/image/silk/folder_page.png) !important
+    background-position: -216px -234px;
 }
 .icon-sakai-emailtemplateservice {
-    background-image: url(/library/image/silk/email_edit.png) !important
+    background-position: -162px -198px;
 }
 .icon-sakai-gmt {
-    background-image: url(/library/image/silk/award_star_gold_3.png) !important
+    background-position: -54px -36px;
 }
 .icon-sakai-help {
-    background-image: url(/library/image/silk/help.png) !important
+    background-position: -54px -252px;
 }
 .icon-sakai-iframe {
-    background-image: url(/library/image/silk/page_world.png) !important
+    background-position: -432px -360px;
 }
 .icon-sakai-iframe-site {
-    background-image: url(/library/image/silk/house.png) !important
+    background-position: -162px -252px;
 }
 .icon-sakai-web-168 {
-    background-image: url(/library/image/silk/application_go.png) !important
+    background-position: -270px -0px;
 }
 .icon-sakai-mailbox {
-    background-image: url(/library/image/silk/email.png) !important
+    background-position: -90px -198px;
 }
 .icon-sakai-messages {
-    background-image: url(/library/image/silk/comment.png ) !important
+    background-position: -252px -126px;
 }
 .icon-sakai-metaobj {
-    background-image: url(/library/image/silk/application_form.png) !important
+    background-position: -162px -0px;
 }
 .icon-sakai-membership {
-    background-image: url(/library/image/silk/group.png) !important
+    background-position: -432px -234px;
 }
 .icon-sakai-news {
-    background-image: url(/library/image/silk/rss.png) !important
+    background-position: -432px -396px;
 }
 .icon-sakai-podcasts {
-    background-image: url(/library/image/silk/ipod_cast.png) !important
+   background-position: -450px -252px;
 }
 .icon-sakai-postem {
-    background-image: url(/library/image/silk/database_table.png )  !important
+    background-position: -450px -162px;
 }
 .icon-sakai-preferences {
-    background-image: url(/library/image/silk/cog.png ) !important
+    background-position: -54px -126px;
 }
 .icon-sakai-rutgers-linktool {
-    background-image: url(/library/image/silk/application.png) !important
+    background-position: -36px -0px;
 }
 .icon-sakai-sections {
-    background-image: url(/library/image/silk/group_gear.png ) !important
+    background-position: -522px -234px;
 }
 .icon-sakai-singleuser {
-    background-image: url(/library/image/silk/user.png) !important
+    background-position: -522px -504px;
 }
 .icon-sakai-syllabus {
-    background-image: url(/library/image/silk/script.png) !important
+    background-position: -90px -414px;
 }
 .icon-blogger {
-    background-image: url(/library/image/silk/book_edit.png) !important
+    background-position: -522px -36px;
 }
 .icon-sakai-assignment-grades, .icon-sakai-assignment2 {
-    background-image: url(/library/image/silk/page_edit.png) !important
+    background-position: -324px -324px;
 }
 .icon-sakai-forums, .icon-sakai-jforum-tool {
-    background-image: url(/library/image/silk/comments.png) !important
+    background-position: -324px -126px;
 }
 .icon-sakai-gradebook-tool, .icon-sakai-gradebook-gwt-rpc {
-    background-image: url(/library/image/silk/report.png) !important
+    background-position: -126px -396px;
 }
 .icon-sakai-mailtool {
-    background-image: url(/library/image/silk/email_go.png) !important
+    background-position: -198px -198px;
 }
 .icon-sakai-poll {
-    background-image: url(/library/image/silk/chart_bar.png) !important
+    background-position: -540px -90px;
 }
 .icon-sakai-sitestats {
-    background-image: url(/library/image/silk/chart_bar.png) !important
+    background-position: -540px -90px;
 }
 .icon-sakai-sitestats-admin {
-    background-image: url(/library/image/silk/chart_line.png) !important
+    background-position: -180px -108px;
 }
 .icon-sakai-presentation {
-    background-image: url(/library/image/silk/monitor.png) !important
+    background-position: -234px -306px;
 }
 .icon-sakai-profile {
-    background-image: url(/library/image/silk/vcard_edit.png) !important
+    background-position: -198px -522px;
 }
 .icon-sakai-reports {
-    background-image: url(/library/image/silk/report_magnify.png) !important
+    background-position: -270px -396px;
 }
 .icon-sakai-resetpass {
-    background-image: url(/library/image/silk/key.png) !important
+    background-position: -0px -270px;
 }
 .icon-sakai-resources {
-    background-image: url(/library/image/silk/folder.png) !important
+    background-position: -450px -216px;
 }
 .icon-sakai-rwiki {
-    background-image: url(/library/image/silk/page_white_edit.png) !important
+    background-position: -324px -342px;
 }
 .icon-sakai-samigo, .icon-sakai-mneme-admin, .icon-sakai-mneme {
-    background-image: url(/library/image/silk/pencil.png) !important
+    background-position: -540px -360px;
 }
 .icon-sakai-schedule {
-    background-image: url(/library/image/silk/calendar.png) !important
+    background-position: -504px -72px;
 }
 .icon-sakai-search {
-    background-image: url(/library/image/silk/find.png) !important
+    background-position: -306px -216px;
 }
 .icon-sakai-siteinfo {
-    background-image: url(/library/image/silk/application_lightning.png) !important
+    background-position: -324px -0px;
 }
 .icon-sakai-sitesetup {
-    background-image: url(/library/image/silk/application_lightning.png) !important
+    background-position: -324px -0px;
 }
 .icon-sakai-site-roster {
-    background-image: url(/library/image/silk/vcard.png) !important
+    background-position: -144px -522px;
 }
 .icon-sakai-synoptic-messagecenter {
-    background-image: url(/library/image/silk/comment.png) !important
+    background-position: -252px -126px;
 }
 .icon-sakai-conferencing {
-    background-image: url(/library/image/silk/webcam.png) !important
+    background-position: -396px -522px;
 }
 .icon-sakai-profile2 {
-    background-image: url(/library/image/silk/vcard.png) !important
+    background-position: -144px -522px;
 }
 .icon-sakai-summary-calendar {
-    background-image: url(../../image/silk/calendar.png);
+    background-position: -504px -72px;
 }
 .icon-sakai-synoptic-announcement {
-    background-image: url(../../image/silk/flag_blue.png);
+    background-position: -324px -216px;
 }
 .icon-sakai-synoptic-chat {
-    background-image: url(../../image/silk/user_comment.png);
+    background-position: -558px -504px;
 }
 .icon-sakai-subsite {
-    background-image: url(/library/image/silk/chart_organisation.png) !important
+    background-position: -288px -108px;
 }
 .icon-sakai-iframe-service {
-    background-image: url(/library/image/silk/house.png) !important
+    background-position: -162px -252px;
 }
 .icon-sakai-iframe-myworkspace {
-    background-image: url(/library/image/silk/house.png) !important
+    background-position: -162px -252px;
 }
 .icon-sakai-basiclti {
-    background-image: url(/library/image/silk/application_go.png) !important
+    background-position: -270px -0px;
 }
 .icon-sakai-basiclti-admin {
-    background-image: url(../../image/silk/application_go.png) !important
+    background-position: -270px -0px;
 }
 .icon-sakai-lessonbuildertool {
-    background-image: url(../../image/silk/book_open.png) !important
+    background-position: -36px -54px;
 }
 .icon-my-libintro, .icon-my-libguides {
-    background-image: url(../../image/silk/book.png) !important
+    background-position: -450px -36px;
 }
 .icon-sakai-see-all-tools {
-    background-image: url(../../image/silk/bullet_go.png) !important
+    background-position: -126px -72px;
 }
 .icon-sakai-signup {
-    background-image: url(../../image/silk/date.png) !important
+    background-position: -468px -162px;
 }
 .icon-sakai-privacy {
-    background-image: url(../../image/silk/eye.png) !important
+    background-position: -522px -198px;
 }
 .icon-sakai-rsf-evaluation {
-    background-image: url(../../image/silk/page_edit.png) !important
+    background-position: -324px -324px;
 }
 .icon-sakai-iclicker, .icon-sakai-turningtool {
-    background-image: url(../../image/silk/calculator.png) !important
+    background-position: -396px -72px;
 }
 .icon-sakai-bbb, .icon-sakai-rutgers-connect, .icon-portlet-\/sakai-elluminate-tool-sakai-elluminate {
-    background-image: url(../../image/silk/group.png) !important
+    background-position: -432px -234px;
 }
 .icon-sakai-melete {
     background-image: url(../../image/sakai/tool-icons/sakai.melete.png);
 }
 .icon-sakai-blogwow {
-    background-image: url(../../image/silk/application_view_gallery.png) !important
+    background-position: -0px -18px;
 }
 .icon-sakai-scormcloud {
-    background-image: url(../../image/silk/script.png) !important
+    background-position: -90px -414px;
 }
 .icon-sakai-njvidbrowser {
-    background-image: url(../../image/silk/film.png) !important
+    background-position: -144px -216px;
 }
 .icon-role-enter {
-    background-image: url(/library/image/silk/arrow_undo.png) !important
+    background-position: -432px -18px;
 }
 .icon-role-exit {
-    background-image: url(/library/image/silk/arrow_redo.png) !important
+    background-position: -270px -18px;
 }
 /* admin tools  */
 .icon-sakai-users {
-    background-image: url(/library/image/silk/folder_user.png) !important
+    background-position: -324px -234px;
 }
 .icon-sakai-aliases {
-    background-image: url(/library/image/silk/tag_blue.png) !important
+    background-position: -288px -468px;
 }
 .icon-sakai-sites {
-    background-image: url(/library/image/silk/application_cascade.png) !important
+    background-position: -72px -0px;
 }
 .icon-sakai-realms {
-    background-image: url(/library/image/silk/sitemap_color.png) !important
+    background-position: -558px -432px;
 }
 .icon-sakai-online {
-    background-image: url(/library/image/silk/report_user.png) !important
+    background-position: -306px -396px;
 }
 .icon-sakai-memory {
-    background-image: url(/library/image/silk/server_chart.png) !important
+    background-position: -378px -414px;
 }
 .icon-sakai-archive {
-    background-image: url(/library/image/silk/page_white_compressed.png) !important
+    background-position: -180px -342px;
 }
 .icon-sakai-scheduler {
-    background-image: url(/library/image/silk/clock.png) !important
+    background-position: -450px -108px;
 }
 .icon-sakai-su {
-    background-image: url(/library/image/silk/user_go.png) !important
+    background-position: -36px -522px;
 }
 .icon-sakai-usermembership {
-    background-image: url(/library/image/silk/drive_user.png) !important
+    background-position: -504px -180px;
 }
 .icon-sakai-motd {
-    background-image: url(/library/image/silk/house.png) !important
+    background-position: -162px -252px;
 }
 .icon-sakai-sitebrowser {
-    background-image: url(/library/image/silk/world.png) !important
+    background-position: -468px -522px;
 }
 .icon-sakai-createuser {
-    background-image: url(/library/image/silk/user_add.png) !important
+    background-position: -540px -504px;
 }
 
 /* PART 10: specific functionality: presence, chat */
@@ -1639,15 +1670,26 @@ a#toggleToolMenu {
     -moz-opacity: 0.5;
     opacity: 0.5;
 }
-.sakaiMinimizePageNavigation #toolMenu li span, .sakaiMinimizePageNavigation #subSites li span {
-    background-position: center left;
-    padding-left: 25px;
+.sakaiMinimizePageNavigation #toolMenu li span.menuTitle, .sakaiMinimizePageNavigation #subSites li span.menuTitle {
+    display: inline !important; 
+    position: fixed !important; 
+    height: 1px !important; 
+    width: 1px !important; 
+    overflow: hidden !important;
+    top: 0px !important;
+    left: 0px; 
+    padding: 0px 0px 0px 0px !important; 
 }
+.sakaiMinimizePageNavigation #toolMenu li span.toolMenuIcon, .sakaiMinimizePageNavigation #subSites li span.toolMenuIcon {
+    top:2px;
+    left:2px;   
+}
+
 .sakaiMinimizePageNavigation #toolMenu li a, .sakaiMinimizePageNavigation #subSites li a {
-    display: block;
+    width:20px;
     height: 16px;
-    padding-right: 0 !important;
 }
+
 /*when the tool menu is shoved away a class of .sakaiMinimizePageNavigation gets added to parent block, here we style the selected tool link so that when 
 everything except the tool icon is gone it is still distincts as the current tool (also hover treatment for tools and subsites)*/
 .sakaiMinimizePageNavigation #toolMenu li.selectedTool a, .sakaiMinimizePageNavigation #toolMenu li a:hover, .sakaiMinimizePageNavigation #subSites li a:hover,.sakaiMinimizePageNavigation #toolMenu li a:focus, .sakaiMinimizePageNavigation #subSites li a:focus {
