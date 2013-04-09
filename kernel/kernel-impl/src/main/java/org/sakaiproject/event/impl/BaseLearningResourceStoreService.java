@@ -59,6 +59,10 @@ public class BaseLearningResourceStoreService implements LearningResourceStoreSe
      */
     private ConcurrentHashMap<String, LearningResourceStoreProvider> providers;
     /**
+     * Contains a timestamp of the last time we warned that there are no providers to handle processing
+     */
+    private long noProvidersWarningTS = 0;
+    /**
      * Stores the complete set of origin filters for the LRS service,
      * Anything with an origin that matches the ones in this set will be blocked from being processed
      */
@@ -109,26 +113,37 @@ public class BaseLearningResourceStoreService implements LearningResourceStoreSe
      * @see org.sakaiproject.event.api.LearningResourceStoreService#registerStatement(org.sakaiproject.event.api.LearningResourceStoreService.LRS_Statement, java.lang.String)
      */
     public void registerStatement(LRS_Statement statement, String origin) {
-        if (isEnabled() 
-                && providers != null && !providers.isEmpty()) {
-            // filter out certain tools and statement origins
-            boolean skip = false;
-            if (originFilters != null && !originFilters.isEmpty()) {
-                origin = StringUtils.trimToNull(origin);
-                if (origin != null && originFilters.contains(origin)) {
-                    if (log.isDebugEnabled()) log.debug("LRS statement skipped because origin ("+origin+") matches the originFilter");
-                    skip = true;
+        if (statement == null) {
+            log.error("LRS registerStatement call INVALID, statement is null and must not be");
+            //throw new IllegalArgumentException("statement must be set");
+        } else if (isEnabled()) {
+            if (providers == null || providers.isEmpty()) {
+                if (noProvidersWarningTS < (System.currentTimeMillis() - 86400000)) { // check if we already warned in the last 24 hours
+                    noProvidersWarningTS = System.currentTimeMillis();
+                    log.warn("LRS statement from ("+origin+") skipped because there are no providers to process it: "+statement);
                 }
-            }
-            if (!skip) {
-                // process this statement
-                if (log.isDebugEnabled()) log.debug("LRS statement being processed, origin="+origin+", statement="+statement);
-                for (LearningResourceStoreProvider lrsp : providers.values()) {
-                    // run the statement processing in a new thread
-                    String threadName = "LRS_"+lrsp.getID();
-                    Thread t = new Thread(new RunStatementThread(lrsp, statement), threadName); // each provider has it's own thread
-                    t.setDaemon(true); // allow this thread to be killed when the JVM dies
-                    t.start();
+            } else {
+                // filter out certain tools and statement origins
+                boolean skip = false;
+                if (originFilters != null && !originFilters.isEmpty()) {
+                    origin = StringUtils.trimToNull(origin);
+                    if (origin != null && originFilters.contains(origin)) {
+                        if (log.isDebugEnabled()) log.debug("LRS statement skipped because origin ("+origin+") matches the originFilter");
+                        skip = true;
+                    }
+                }
+                if (!skip) {
+                    // process this statement
+                    if (log.isDebugEnabled()) log.debug("LRS statement being processed, origin="+origin+", statement="+statement);
+                    for (LearningResourceStoreProvider lrsp : providers.values()) {
+                        // run the statement processing in a new thread
+                        String threadName = "LRS_"+lrsp.getID();
+                        Thread t = new Thread(new RunStatementThread(lrsp, statement), threadName); // each provider has it's own thread
+                        t.setDaemon(true); // allow this thread to be killed when the JVM dies
+                        t.start();
+                    }
+                } else {
+                    if (log.isDebugEnabled()) log.debug("LRS statement being skipped, origin="+origin+", statement="+statement);
                 }
             }
         }
