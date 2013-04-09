@@ -500,6 +500,19 @@ public class SimplePageToolDaoImpl extends HibernateDaoSupport implements Simple
 		return ret;
 	}
 	
+	public boolean hasCorrectAnswer(SimplePageItem question) {
+		// find new id number, max + 1
+		List answers = (List)question.getJsonAttribute("answers");
+		if (answers == null)
+		    return false;
+		for (Object a: answers) {
+		    Map answer = (Map) a;
+		    if ((Boolean) answer.get("correct"))
+			return true;
+		}
+		return false;
+	}
+
 	public SimplePageQuestionAnswer findAnswerChoice(SimplePageItem question, long answerId) {
 		// find new id number, max + 1
 		List answers = (List)question.getJsonAttribute("answers");

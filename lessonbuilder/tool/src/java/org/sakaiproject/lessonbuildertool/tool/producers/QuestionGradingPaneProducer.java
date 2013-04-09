@@ -125,10 +125,16 @@ public class QuestionGradingPaneProducer implements ViewComponentProducer, ViewP
 			UIOutput.make(tofill, "noEntriesWarning");
 		}
 
-		UIOutput.make(tofill, "clickToSubmit", messageLocator.getMessage("simplepage.update-points")).
+		boolean graded = "true".equals(questionItem.getAttribute("questionGraded")) || questionItem.getGradebookId() != null;
+		
+		if (graded) {
+		    UIOutput.make(tofill, "clickToSubmit", messageLocator.getMessage("simplepage.update-points")).
 			    decorate(new UIFreeAttributeDecorator("title", 
 								  messageLocator.getMessage("simplepage.update-points")));
-
+		    UIOutput.make(tofill, "grade-header",  messageLocator.getMessage("simplepage.grading-grade"));
+		}
+		
+		String pointsText = messageLocator.getMessage("simplepage.question-points");
 		for(SimpleUser user : simpleUsers) {
 			UIBranchContainer branch = UIBranchContainer.make(tofill, "student-row:");
 			
@@ -145,12 +151,15 @@ public class QuestionGradingPaneProducer implements ViewComponentProducer, ViewP
 			UIOutput.make(branch, "student-grade");
 			UIOutput.make(branch, "gradingSpan");
 			UIOutput.make(branch, "responseId", String.valueOf(user.response.getId()));
-			UIOutput.make(branch, "responsePoints",
-					(user.grade == null? "" : String.valueOf(user.grade)));
-			UIOutput.make(branch, "pointsBox").
-			    decorate(new UIFreeAttributeDecorator("title", 
-				    messageLocator.getMessage("simplepage.grade-for-student").replace("{}", user.displayName)));
-			UIOutput.make(branch, "maxpoints", " / " + (questionItem.getGradebookPoints()));
+			if (graded) {
+			    UIOutput.make(branch, "points-text", pointsText);
+			    UIOutput.make(branch, "responsePoints",
+					  (user.grade == null? "" : String.valueOf(user.grade)));
+			    UIOutput.make(branch, "pointsBox").
+				decorate(new UIFreeAttributeDecorator("title", 
+								      messageLocator.getMessage("simplepage.grade-for-student").replace("{}", user.displayName)));
+			    UIOutput.make(branch, "maxpoints", " / " + (questionItem.getGradebookPoints()));
+			}
 		}
 		
 		UIForm gradingForm = UIForm.make(tofill, "gradingForm");

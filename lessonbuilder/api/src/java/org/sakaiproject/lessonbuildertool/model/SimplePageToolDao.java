@@ -127,6 +127,9 @@ public interface SimplePageToolDao {
 	// get all of the multiple choice answers for a question item
 	public List<SimplePageQuestionAnswer> findAnswerChoices(SimplePageItem question);
 	
+	// does question have one answer marked correct?
+	public boolean hasCorrectAnswer(SimplePageItem question);
+
 	// get a specific multiple choice answer for a question item
 	public SimplePageQuestionAnswer findAnswerChoice(SimplePageItem question, long answerId);
 	

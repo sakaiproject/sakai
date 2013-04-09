@@ -1932,6 +1932,9 @@ public class ShowPageProducer implements ViewComponentProducer, DefaultView, Nav
 					
 					Status questionStatus = getQuestionStatus(i, response);
 					addStatusImage(questionStatus, tableRow, "questionStatus", null);
+					String statusNote = getStatusNote(questionStatus);
+					if (statusNote != null) // accessibility version of icon
+					    UIOutput.make(tableRow, "questionNote", statusNote);
 					if(questionStatus == Status.COMPLETED) {
 						UIOutput.make(tableRow, "questionStatusText", i.getAttribute("questionCorrectText"));
 					}else if(questionStatus == Status.FAILED) {
@@ -1966,9 +1969,8 @@ public class ShowPageProducer implements ViewComponentProducer, DefaultView, Nav
 					if(canEditPage) {
 						UIOutput.make(tableRow, "question-td");
 						
-						// Checks to make sure that the question is graded and that we didn't
-						// just come from a grading pane (would be confusing)
-						if(i.getGradebookId() != null && !cameFromGradingPane) {
+						// always show grading panel. Currently this is the only way to get feedback
+						if( !cameFromGradingPane) {
 							QuestionGradingPaneViewParameters gp = new QuestionGradingPaneViewParameters(QuestionGradingPaneProducer.VIEW_ID);
 							gp.placementId = toolManager.getCurrentPlacement().getId();
 							gp.questionItemId = i.getId();
@@ -1983,7 +1985,8 @@ public class ShowPageProducer implements ViewComponentProducer, DefaultView, Nav
 							.decorate(new UIFreeAttributeDecorator("title", messageLocator.getMessage("simplepage.edit-title.question")));
 						
 						UIOutput.make(tableRow, "questionId", String.valueOf(i.getId()));
-						UIOutput.make(tableRow, "questionGrade", String.valueOf(i.getGradebookId() != null));
+						boolean graded = "true".equals(i.getAttribute("questionGraded")) || i.getGradebookId() != null;
+						UIOutput.make(tableRow, "questionGrade", String.valueOf(graded));
 						UIOutput.make(tableRow, "questionMaxPoints", String.valueOf(i.getGradebookPoints()));
 						UIOutput.make(tableRow, "questionGradebookTitle", String.valueOf(i.getGradebookTitle()));
 						UIOutput.make(tableRow, "questionitem-required", String.valueOf(i.isRequired()));
@@ -3221,16 +3224,48 @@ public class ShowPageProducer implements ViewComponentProducer, DefaultView, Nav
 	 * For showing status images next to the question.
 	 */
 	private Status getQuestionStatus(SimplePageItem question, SimplePageQuestionResponse response) {
-		if(response != null && response.isCorrect()) {
+		String questionType = question.getAttribute("questionType");
+		boolean noSpecifiedAnswers = false;
+		boolean manuallyGraded = false;
+
+		if ("multipleChoice".equals(questionType) &&
+		    !simplePageToolDao.hasCorrectAnswer(question))
+		    noSpecifiedAnswers = true;
+		else if ("shortanswer".equals(questionType) &&
+			 "".equals(question.getAttribute("questionAnswer")))
+		    noSpecifiedAnswers = true;
+
+		if (noSpecifiedAnswers && "true".equals(question.getAttribute("questionGraded")))
+		    manuallyGraded = true;
+
+		if (noSpecifiedAnswers && !manuallyGraded)
+		    return Status.COMPLETED;  // a poll    
+
+		if (manuallyGraded && (response == null || !response.isOverridden())) {
+			return Status.NEEDSGRADING;
+		} else if (response != null && response.isCorrect()) {
 			return Status.COMPLETED;
-		}else if(response != null && !response.isCorrect()) {
-			return Status.FAILED;
+		} else if (response != null && !response.isCorrect()) {
+			return Status.FAILED;			
 		}else if(question.isRequired()) {
 			return Status.REQUIRED;
 		}else {
 			return Status.NOT_REQUIRED;
 		}
 	}
+
+        String getStatusNote(Status status) {
+	    if (status == Status.COMPLETED)
+		return messageLocator.getMessage("simplepage.status.completed");
+	    else if (status == Status.REQUIRED)
+		return messageLocator.getMessage("simplepage.status.required");
+	    else if (status == Status.NEEDSGRADING)
+		return messageLocator.getMessage("simplepage.status.needsgrading");
+	    else if (status == Status.FAILED)
+		return messageLocator.getMessage("simplepage.status.failed");
+	    else 
+		return null;
+	}	    
 
 	// add the checkmark or asterisk. This code supports a couple of other
 	// statuses that we
@@ -3256,6 +3291,10 @@ public class ShowPageProducer implements ViewComponentProducer, DefaultView, Nav
 			// + " " + name;
 		} else if (status == Status.REQUIRED) {
 			imagePath += "available.png";
+			imageAlt = ""; // messageLocator.getMessage("simplepage.status.required")
+			// + " " + name;
+		} else if (status == Status.NEEDSGRADING) {
+			imagePath += "blue-question.png";
 			imageAlt = ""; // messageLocator.getMessage("simplepage.status.required")
 			// + " " + name;
 		} else if (status == Status.NOT_REQUIRED) {

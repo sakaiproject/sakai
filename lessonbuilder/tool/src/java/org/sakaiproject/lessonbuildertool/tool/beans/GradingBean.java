@@ -167,11 +167,13 @@ public class GradingBean {
 		SimplePageQuestionResponse response = simplePageToolDao.findQuestionResponse(Long.valueOf(id));
 		SimplePageItem questionItem = simplePageBean.findItem(response.getQuestionId());
 		
-		try {
+		r = "true".equals(questionItem.getAttribute("questionGraded")) || questionItem.getGradebookId() != null;
+		if (questionItem.getGradebookId() != null)
+		    try {
 			r = gradebookIfc.updateExternalAssessmentScore(simplePageBean.getCurrentSiteId(), questionItem.getGradebookId(), response.getUserId(), Double.toString(Double.valueOf(points)));
-		}catch(Exception ex) {
-		    System.out.println("Exception updating grade " + ex);
-		}
+		    }catch(Exception ex) {
+			System.out.println("Exception updating grade " + ex);
+		    }
 		
 		if(r) {
 			response.setPoints(Double.valueOf(points));
@@ -179,6 +181,8 @@ public class GradingBean {
 			// Only set the answer as correct if they got the maximum number of points.
 			// Unfortunately, points don't map well to the boolean correct/incorrect model,
 			// but I'd rather not clutter the faculty interface with more options.
+			if (questionItem.getGradebookPoints() == null || points == null)
+			    return false;
 			if(Double.valueOf(points).equals(Double.valueOf(questionItem.getGradebookPoints()))) {
 				response.setCorrect(true);
 			}else {
