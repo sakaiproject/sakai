@@ -86,9 +86,18 @@
 	font-size:87%;
 	font-weight:bold;
 	padding: 1px 2px;
-	margin: 5px;
+	margin-left: 5px;
 	/*	display:none; - uncomment to hide the message associated with parents of new messages*/
 }
+
+
+.childrenNewZero {
+    color: #555555;
+    font-size: 85%;
+    font-weight: normal;
+    margin-left: 5px;
+}
+
 #messNavHolder{
 	float:none;
 	display:block;

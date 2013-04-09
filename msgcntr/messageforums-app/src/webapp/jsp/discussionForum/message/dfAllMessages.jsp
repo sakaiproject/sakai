@@ -131,14 +131,8 @@
 					
 					<h:outputText value="#{ForumTool.selectedTopic.topic.title}" styleClass="title"/>
 					
-					<%-- // display singular ('message') if one message --%>
-					<h:outputText styleClass="textPanelFooter" id="topic_msg_count55" value=" #{msgs.cdfm_openb} #{ForumTool.selectedTopic.totalNoMessages} #{msgs.cdfm_lowercase_msg} - #{ForumTool.selectedTopic.unreadNoMessages} #{msgs.cdfm_unread} " 
-								rendered="#{ForumTool.selectedTopic.totalNoMessages == 1}"/>
-						<%-- // display plural ('messages') if 0 or more than 1 messages --%>
-						<h:outputText id="topic_msg_count56" value=" #{msgs.cdfm_openb} #{ForumTool.selectedTopic.totalNoMessages} #{msgs.cdfm_lowercase_msgs} - #{ForumTool.selectedTopic.unreadNoMessages} #{msgs.cdfm_unread} " 
-						  rendered="#{(ForumTool.selectedTopic.totalNoMessages > 1 || ForumTool.selectedTopic.totalNoMessages == 0) }" styleClass="textPanelFooter" />
-						<h:outputText id="topic_moderated" value="#{msgs.cdfm_topic_moderated_flag} " styleClass="textPanelFooter" rendered="#{ForumTool.selectedTopic.moderated == 'true' }" />
-						<h:outputText value="#{msgs.cdfm_closeb}" styleClass="textPanelFooter"/>
+                                
+			         <h:outputText id="topic_moderated" value=" #{msgs.cdfm_forum_moderated_flag}" styleClass="childrenNewZero" rendered="#{ForumTool.selectedTopic.moderated == 'true' }" />
 					
 					  <%--//designNote: for paralellism to other views, need to add read/unread count here as well as Moderated attribute--%>  
 					  <%-- 
@@ -278,10 +272,21 @@
 					<h:outputText value=" cu: #{message.childUnread }" />
 					<h:outputText value= " mr: #{message.read}" />
 					--%>
-					<h:outputText escape="false" styleClass="textPanelFooter" rendered="#{message.depth == 0 && message.childCount ==0}"  value=" #{msgs.cdfm_openb} #{message.childCount + 1} #{msgs.cdfm_lowercase_msg} - <em>#{(message.childUnread) + (message.read ? 0 : 1)}</em> #{msgs.cdfm_unread} #{msgs.cdfm_closeb}" />
-					<h:outputText escape="false" styleClass="textPanelFooter" rendered="#{message.depth == 0 && message.childCount ==1}"  value=" #{msgs.cdfm_openb} #{message.childCount + 1} #{msgs.cdfm_lowercase_msgs} - <em>#{(message.childUnread) + (message.read ? 0 : 1)}</em> #{msgs.cdfm_unread} #{msgs.cdfm_closeb}" />
-					<h:outputText  escape="false" styleClass="textPanelFooter" rendered="#{message.depth == 0 && message.childCount > 1}" value=" #{msgs.cdfm_openb} #{message.childCount + 1} #{msgs.cdfm_lowercase_msgs} - <em>#{(message.childUnread) + (message.read ? 0 : 1)}</em> #{msgs.cdfm_unread} #{msgs.cdfm_closeb}" />
-					<h:outputText  value="#{msgs.cdfm_newflagresponses}" styleClass="childrenNew childrenNewThread" rendered="#{message.depth == 0 && ((message.childUnread) + (message.read ? 0 : 1)) > 0}"/>							
+                    <%-- // display  ('unread ') if unread message is>= 1 --%>
+                    <h:outputText styleClass="childrenNew" id="topic_msg_count55" value="  #{(message.childUnread) + (message.read ? 0 : 1)} #{msgs.cdfm_lowercase_unread_msg}" 
+                                  rendered="#{message.depth == 0 && ((message.childUnread) + (message.read ? 0 : 1)) >= 1}"/>     
+   
+                    <%-- // display ('unread ') with different style sheet if unread message is 0 --%>  
+                    <h:outputText styleClass="childrenNewZero" id="topic_msg_count57" value="  #{(message.childUnread) + (message.read ? 0 : 1)} #{msgs.cdfm_lowercase_unread_msg}" 
+                                  rendered="#{message.depth == 0 && ((message.childUnread) + (message.read ? 0 : 1)) == 0}"/> 
+                               
+                     <%-- // display singular ('message') if total message is 1--%>                   
+                     <h:outputText styleClass="textPanelFooter" id="topic_msg_count58" value="#{msgs.cdfm_of} #{message.childCount + 1} #{msgs.cdfm_lowercase_msg}"
+                                   rendered="#{message.depth == 0 && message.childCount ==0}"  />
+                                                                           
+                     <%-- // display singular ('message') if total message is 0 or more than 1--%>                   
+                     <h:outputText styleClass="textPanelFooter" id="topic_msg_count59" value="#{msgs.cdfm_of} #{message.childCount + 1} #{msgs.cdfm_lowercase_msgs}"
+                                   rendered="#{message.depth == 0 && message.childCount >=1}"  />
 			</h:column>
 				<%-- author column --%>
 			<h:column>

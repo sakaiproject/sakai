@@ -110,16 +110,23 @@
 						  <f:param value="#{topic.topic.id}" name="topicId"/>
 						  <f:param value="#{ForumTool.selectedForum.forum.id}" name="forumId"/>
 					  </h:commandLink>
-						<h:outputText styleClass="textPanelFooter" id="topic_msg_count" value=" #{msgs.cdfm_openb} #{topic.totalNoMessages} #{msgs.cdfm_lowercase_msg} - #{topic.unreadNoMessages} #{msgs.cdfm_unread}" rendered="#{topic.isRead && topic.totalNoMessages == 1}"/>
-						<h:outputText styleClass="textPanelFooter" id="topic_msgs_count" value=" #{msgs.cdfm_openb} #{topic.totalNoMessages} #{msgs.cdfm_lowercase_msgs} - #{topic.unreadNoMessages} #{msgs.cdfm_unread}" rendered="#{topic.isRead && (topic.totalNoMessages > 1 ||  topic.totalNoMessages == 0)}"/>
-
-
-
-
-				  	<h:outputText id="topic_moderated" value="#{msgs.cdfm_topic_moderated_flag}" styleClass="textPanelFooter" rendered="#{topic.moderated == 'true'}" />
-    	      <h:outputText value=" #{msgs.cdfm_closeb}" styleClass="textPanelFooter" rendered="#{topic.isRead}" />
-
-						<h:outputText styleClass="childrenNew" value=" #{msgs.cdfm_newflagparent}"  rendered="#{topic.unreadNoMessages > 0 }" />
+                      <%-- // display  singular ('unread message') if unread message is  1 --%> 
+                      <h:outputText styleClass="childrenNew" id="topic_msg_count_unread" value="  #{topic.unreadNoMessages} #{msgs.cdfm_lowercase_unread_msg}" 
+                                     rendered="#{topic.isRead && topic.unreadNoMessages >= 1}"/>		
+                
+                      <%-- // display  plural ('unread messages') with different style sheet if unread message is 0 --%>  
+                      <h:outputText styleClass="childrenNewZero" id="topic_msgs_count0_unread" value="  #{topic.unreadNoMessages} #{msgs.cdfm_lowercase_unread_msg}" 
+                                    rendered="#{topic.isRead && topic.unreadNoMessages == 0}"/> 
+                            
+                      <%-- // display singular ('message') if total message is 1--%>                   
+                      <h:outputText styleClass="textPanelFooter" id="topic_msg_count" value="#{msgs.cdfm_of} #{topic.totalNoMessages} #{msgs.cdfm_lowercase_msg}"
+                                    rendered="#{topic.isRead && topic.totalNoMessages == 1}"/>
+                                                  
+                      <%-- // display singular ('message') if total message is 0 or more than 1--%>                   
+                      <h:outputText styleClass="textPanelFooter" id="topic_msgs_count" value="#{msgs.cdfm_of} #{topic.totalNoMessages} #{msgs.cdfm_lowercase_msgs}"
+                                    rendered="#{topic.isRead && (topic.totalNoMessages > 1 || topic.totalNoMessages == 0)}"/>
+                                             
+                      <h:outputText id="topic_moderated" value=" #{msgs.cdfm_forum_moderated_flag}" styleClass="textPanelFooter" rendered="#{topic.moderated == 'true' && topic.isRead}" />
 
 						<h:outputText value=" "  styleClass="actionLinks"/>
 						<h:commandLink action="#{ForumTool.processActionTopicSettings}" id="topic_setting" value="#{msgs.cdfm_topic_settings}"
