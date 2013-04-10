@@ -492,13 +492,15 @@ Aside from controversies involving the GPL, it doesn't do progressive
 download, and the progress bar doesn't work for all users.
 
 By default, Lesson Builder will use this player for MIME types
-video/mp4 and video/x-m4v. However the players can handle additional
+video/mp4 and video/x-m4v, except that JW player is also used
+for FLV file. The players can handle additional
 types. If you want to customize the list, you can set
 lessonbuilder.mp4.types in sakai.properties to a comma-separated list
 of MIME types, e.g.
 
 lessonbuilder.mp4.types=video/mp4,video/x-m4v
 
+Use lessonbuilder.jw.types for JW player.
 
 OPTIONS FOR MULTIMEDIA SUPPORT
 
