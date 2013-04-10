@@ -447,7 +447,7 @@ function resizeiframe(id) {
 						
 							<div style="margin-left:30px;">
 								<span class="offscreen" rsf:id="questionNote"></span>
-								<span class="questionText" rsf:id="questionText"></span>
+								<div class="questionText" rsf:id="questionText"></div>
 								<div class="multiplechoiceDiv" rsf:id="multipleChoiceDiv" style="padding-left:10px">
 									<form action="#" rsf:id="multipleChoiceForm" class="multipleChoiceForm">
 										<input type="hidden" rsf:id="multipleChoiceId" />
@@ -470,7 +470,7 @@ function resizeiframe(id) {
 									</form>
 								</div>
 								
-								<div rsf:id="questionStatusText" style="margin:10px"></div>
+								<div rsf:id="questionStatusText" class="questionStatusText"></div>
 								
 								<div style="display:none" rsf:id="questionPollData:" class="questionPollData">
 									<span rsf:id="questionPollText" class="questionPollText"></span>
@@ -1253,7 +1253,9 @@ function resizeiframe(id) {
 						
 						<div align="left" style="padding:5px">
 							<label for="question-text-input"><span rsf:id="msg=simplepage.question-text-input"></span></label>
-							<input type="text" rsf:id="question-text-input" id="question-text-input" />
+							<div>
+							  <textarea rsf:id="question-text-input" id="question-text-input" rows="3" columns="30"></textarea>
+							</div>
 							
 							<br />
 							

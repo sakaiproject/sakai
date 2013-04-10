@@ -417,6 +417,11 @@ img {
 	width: 400px;
 	height: 55px;
 }
+.questionText, .questionStatusText {
+	white-space:pre;
+	margin: 1em;
+}
+
 #question-text-input {
 	width: 400px;
 }

@@ -1935,11 +1935,13 @@ public class ShowPageProducer implements ViewComponentProducer, DefaultView, Nav
 					String statusNote = getStatusNote(questionStatus);
 					if (statusNote != null) // accessibility version of icon
 					    UIOutput.make(tableRow, "questionNote", statusNote);
-					if(questionStatus == Status.COMPLETED) {
-						UIOutput.make(tableRow, "questionStatusText", i.getAttribute("questionCorrectText"));
-					}else if(questionStatus == Status.FAILED) {
-						UIOutput.make(tableRow, "questionStatusText", i.getAttribute("questionIncorrectText"));
-					}
+					String statusText = null;
+					if(questionStatus == Status.COMPLETED)
+					    statusText = i.getAttribute("questionCorrectText");
+					else if(questionStatus == Status.FAILED)
+					    statusText = i.getAttribute("questionIncorrectText");
+					if (statusText != null && !"".equals(statusText.trim()))
+					    UIOutput.make(tableRow, "questionStatusText", statusText);
 					
 					// Output the poll data
 					if("multipleChoice".equals(i.getAttribute("questionType")) &&
