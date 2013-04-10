@@ -3243,7 +3243,7 @@ public class ShowPageProducer implements ViewComponentProducer, DefaultView, Nav
 		if (noSpecifiedAnswers && !manuallyGraded)
 		    return Status.COMPLETED;  // a poll    
 
-		if (manuallyGraded && (response == null || !response.isOverridden())) {
+		if (manuallyGraded && (response != null && !response.isOverridden())) {
 			return Status.NEEDSGRADING;
 		} else if (response != null && response.isCorrect()) {
 			return Status.COMPLETED;

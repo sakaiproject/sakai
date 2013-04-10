@@ -5535,12 +5535,10 @@ public class SimplePageBean {
 			return false;
 		}
 		
-		Double gradebookPoints;
-		if(question.getGradebookId() != null && !question.getGradebookId().equals("")) {
-			gradebookPoints = (double) question.getGradebookPoints();
-		}else {
-			gradebookPoints = null;
-		}
+		Double gradebookPoints = null;
+		if (question.getGradebookPoints() != null)
+		    gradebookPoints = (double)question.getGradebookPoints();
+
 		boolean correct = true;
 		if(response.isOverridden()) {
 			// The teacher set this score manually, so we'd rather not mess with it.
@@ -5585,14 +5583,14 @@ public class SimplePageBean {
 		}
 		
 		response.setCorrect(correct);
+		if ("true".equals(question.getAttribute("questionGraded")))
+		    response.setPoints(gradebookPoints);
 		
 		if(question.getGradebookId() != null && !question.getGradebookId().equals("")) {
 			gradebookIfc.updateExternalAssessmentScore(getCurrentSiteId(), question.getGradebookId(),
 			       response.getUserId(), String.valueOf(gradebookPoints));
-			
-			response.setPoints(gradebookPoints);
 		}
-		
+
 		return correct;
 	}
 	

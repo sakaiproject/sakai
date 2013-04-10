@@ -101,6 +101,22 @@ public class QuestionGradingPaneProducer implements ViewComponentProducer, ViewP
 		ArrayList<String> userIds = new ArrayList<String>();
 		HashMap<String, SimpleUser> users = new HashMap<String, SimpleUser>();
 		
+		// logic is from SimplePageBean.getQuestionStatus
+
+		String questionType = questionItem.getAttribute("questionType");
+		boolean noSpecifiedAnswers = false;
+		boolean manuallyGraded = false;
+
+		if ("multipleChoice".equals(questionType) &&
+		    !simplePageToolDao.hasCorrectAnswer(questionItem))
+		    noSpecifiedAnswers = true;
+		else if ("shortanswer".equals(questionType) &&
+			 "".equals(questionItem.getAttribute("questionAnswer")))
+		    noSpecifiedAnswers = true;
+
+		if (noSpecifiedAnswers && "true".equals(questionItem.getAttribute("questionGraded")))
+		    manuallyGraded = true;
+
 		for(SimplePageQuestionResponse response : responses) {			
 			if(!userIds.contains(response.getUserId())) {
 				userIds.add(response.getUserId());
@@ -108,7 +124,10 @@ public class QuestionGradingPaneProducer implements ViewComponentProducer, ViewP
 					SimpleUser user = new SimpleUser();
 					user.displayName = UserDirectoryService.getUser(response.getUserId()).getDisplayName();
 					user.userId = response.getUserId();
-					user.grade = response.getPoints();
+					if (manuallyGraded && !response.isOverridden())
+					    user.grade = null;
+					else
+					    user.grade = response.getPoints();
 					user.response = response;
 					
 					users.put(response.getUserId(), user);
