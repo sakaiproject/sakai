@@ -321,8 +321,13 @@ function resizeiframe(id) {
 
 					<td rsf:id="movie-td" class="edit-col"><div><a href="#" class="usebutton edit-movie" onclick="return false" rsf:id="edit-movie"></a></div></td>
 
+					<script rsf:id="jwload" type="text/javascript" language="JavaScript" src="../js/jwplayer.js" ></script>
+
 					<td rsf:id="movieSpan" class="hideOnDialog"><div>
 					    <div rsf:id="item-group-titles5" class="item-group-titles"></div>
+					    <div rsf:id="jwmovie" id="jwmovie"></div>
+					    <script rsf:id="jwscript" type="text/javascript">
+					    </script>
 					    <embed rsf:id="movieEmbed" autoplay="false" autostart="false" scale="aspect" />
 					    <object rsf:id="movieObject"><param name="src" rsf:id="movieURLInject" /><param name="FlashVars" rsf:id="flashvars"/><param name="autoplay" value="false"/><param name="autostart" value="false"/><param name="scale" value="aspect"/>
 					      <p rsf:id="noplugin-p"></p><br rsf:id="noplugin-br"/><a href="#" rsf:id="noplugin" target="_blank"></a>

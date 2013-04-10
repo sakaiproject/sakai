@@ -177,6 +177,9 @@ public class ShowPageProducer implements ViewComponentProducer, DefaultView, Nav
 	private static String[] multimediaTypes = null;
         private static final String DEFAULT_MP4_TYPES = "video/mp4,video/x-m4v";
         private static String[] mp4Types = null;
+        private static final String DEFAULT_JW_TYPES = "video/x-flv,video/mp4,video/x-m4v,video/webm";
+    // jw can also handle audio: audio/mp4,audio/mpeg,audio/ogg
+        private static String[] jwTypes = null;
 
     // WARNING: this must occur after memoryService, for obvious reasons. 
     // I'm doing it this way because it doesn't appear that Spring can do this kind of initialization
@@ -307,6 +310,7 @@ public class ShowPageProducer implements ViewComponentProducer, DefaultView, Nav
 		    .decorate(new UIFreeAttributeDecorator("xml:lang", localegetter.get().getLanguage()));        
 
 		boolean iframeJavascriptDone = false;
+		boolean jwLoaded = false;
 		
 		// security model:
 		// canEditPage and canReadPage are normal Sakai privileges. They apply
@@ -428,6 +432,15 @@ public class ShowPageProducer implements ViewComponentProducer, DefaultView, Nav
 				mp4Types[i] = mp4Types[i].trim().toLowerCase();
 			}
 			Arrays.sort(mp4Types);
+		}
+
+		if (jwTypes == null) {
+			String jTypes = ServerConfigurationService.getString("lessonbuilder.jw.types", DEFAULT_JW_TYPES);
+			jwTypes = jTypes.split(",");
+			for (int i = 0; i < jwTypes.length; i++) {
+				jwTypes[i] = jwTypes[i].trim().toLowerCase();
+			}
+			Arrays.sort(jwTypes);
 		}
 
 		// remember that page tool was reset, so we need to give user the option
@@ -1421,6 +1434,44 @@ public class ShowPageProducer implements ViewComponentProducer, DefaultView, Nav
 						// use EMBED. OBJECT does work with Flash.
 						// application/xhtml+xml is XHTML.
 
+					} else if (mimeType != null && 
+						   (Arrays.binarySearch(jwTypes, mimeType) >= 0) &&
+						   ServerConfigurationService.getBoolean("lessonbuilder.usejwplayer", false)) {
+					    
+					    if (!jwLoaded) {
+						UIOutput.make(tableRow, "jwload");
+						jwLoaded = true;
+					    }
+
+					    // new jw player code. uses javascript, so separate from normal embed
+					    // duplicates code from next section, but anything else is too confusing
+					    if (itemGroupString != null) {
+						UIOutput.make(tableRow, "item-group-titles5", itemGroupTitles);
+						UIOutput.make(tableRow, "item-groups5", itemGroupString);
+					    }
+					    UIOutput.make(tableRow, "movieSpan");
+					    String movieUrl = i.getItemURL(simplePageBean.getCurrentSiteId(),currentPage.getOwner());
+					    UIComponent movieDiv = UIOutput.make(tableRow, "jwmovie"); // dummy div to replace with player
+					    String sizeString = "";
+					    if (lengthOk(height) && height.getOld().indexOf("%") < 0)
+						sizeString = ",height: " + height.getOld();
+					    if (lengthOk(width) && width.getOld().indexOf("%") < 0)
+						sizeString += ",width: " + width.getOld();
+
+					    UIVerbatim.make(tableRow, "jwscript", "jwplayer(\"" + movieDiv.getFullID() + "\").setup({file:\"" + movieUrl + "\"" + sizeString + "});");
+					    if (canEditPage) {
+						UIOutput.make(tableRow, "movieId", String.valueOf(i.getId()));
+						UIOutput.make(tableRow, "movieHeight", getOrig(height));
+						UIOutput.make(tableRow, "movieWidth", getOrig(width));
+						UIOutput.make(tableRow, "mimetype5", mimeType);
+						UIOutput.make(tableRow, "current-item-id6", Long.toString(i.getId()));
+						
+						UIOutput.make(tableRow, "movie-td");
+						UILink.make(tableRow, "edit-movie", messageLocator.getMessage("simplepage.editItem"), "").decorate(new UIFreeAttributeDecorator("title", messageLocator.getMessage("simplepage.edit-title.url").replace("{}", abbrevUrl(i.getURL()))));
+					    }
+					    
+					    UIOutput.make(tableRow, "description3", i.getDescription());
+						    
 					} else if ((mimeType != null && !mimeType.equals("text/html") && !mimeType.equals("application/xhtml+xml")) || (mimeType == null && Arrays.binarySearch(multimediaTypes, extension) >= 0)) {
 
 						if (mimeType == null)
