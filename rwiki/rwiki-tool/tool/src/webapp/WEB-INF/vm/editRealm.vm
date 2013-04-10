@@ -45,7 +45,7 @@
 			             #if (${role.secureCreate} )
 			               <label class="skip"  for="create_${role.id}_id">${role.id} ${rlb.jsp_permission_create}</label><input type="checkbox" name="create_${role.id}" id="create_${role.id}_id" checked="checked" title="${role.id} ${rlb.jsp_permission_create}"/>
 			             #else
-			               <label class="skip"  for="create_${role.id}_id">${role.id} ${rlb.jsp_permission_create}<input type="checkbox" name="create_${role.id}" id="create_${role.id}_id" title="${role.id} ${rlb.jsp_permission_create}"/>
+			               <label class="skip"  for="create_${role.id}_id">${role.id} ${rlb.jsp_permission_create}</label><input type="checkbox" name="create_${role.id}" id="create_${role.id}_id" title="${role.id} ${rlb.jsp_permission_create}"/>
 			             #end
 			             </td>
 			             <td>
