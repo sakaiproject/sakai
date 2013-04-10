@@ -514,6 +514,15 @@ public class Assignment2Entity implements LessonEntity, AssignmentInterface {
 	return true;
     }
 
+    public Double toDouble(Object f) {
+	if (f instanceof Double)
+	    return (Double)f;
+	else if (f instanceof Float)
+	    return ((Float)f).doubleValue();
+        else
+	    return null;
+    }
+
     public LessonSubmission getSubmission(String userId) {
 	if (assignment == null)
 	    assignment = getAssignment(id);
@@ -537,9 +546,9 @@ public class Assignment2Entity implements LessonEntity, AssignmentInterface {
 		// following will give a security error if assignment not released. I think that's better than
 		// checking myself, as that would require fetchign the assignment definition from the gradebook
 		// A2 doesn't seem to save that.  Score is scaled, so need * 10
-		Double score = gradebookService.getAssignmentScore(assignment.context, assignment.gradebookitem, userId);
+		Double score = toDouble(gradebookService.getAssignmentScore(assignment.context, assignment.gradebookitem, userId));
 		if (score != null) {
-		    LessonSubmission ret = new LessonSubmission(score.floatValue());
+		    LessonSubmission ret = new LessonSubmission(score);
 		    // shouldn't actually need the string value
 		    score = score * 10.0;
 		    ret.setGradeString(Long.toString(score.longValue()));

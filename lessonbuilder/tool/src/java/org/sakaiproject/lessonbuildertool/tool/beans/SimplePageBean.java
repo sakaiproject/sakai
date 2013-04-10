@@ -3944,8 +3944,8 @@ public class SimplePageBean {
 				completeCache.put(itemId, true);
 				return true;
 			} else {
-				Float grade = submission.getGrade();
-			    if (grade >= Float.valueOf(item.getRequirementText())) {
+				Double grade = submission.getGrade();
+			    if (grade >= Double.valueOf(item.getRequirementText())) {
 			    	completeCache.put(itemId, true);
 			    	return true;
 			    } else {

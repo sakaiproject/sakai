@@ -331,13 +331,23 @@ public class MnemeEntity implements LessonEntity, QuizEntity {
 
 	Session ses = SessionManager.getCurrentSession();
 
-	Float score = submissionService.getSubmissionOfficialScore(assessment, ses.getUserId());
+	Double score = toDouble(submissionService.getSubmissionOfficialScore(assessment, ses.getUserId()));
 
 	if (score == null)
 	    return null;
 
 	return new LessonSubmission(score);
     }
+
+    public Double toDouble(Object f) {
+        if (f instanceof Double)
+            return (Double)f;
+        else if (f instanceof Float)
+            return ((Float)f).doubleValue();
+        else
+            return null;
+    }
+
 
 // we can do this for real, but the API will cause us to get all the submissions in full, not just a count.
 // I think it's cheaper to get the best assessment, since we don't actually care whether it's 1 or >= 1.

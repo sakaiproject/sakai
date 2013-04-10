@@ -45,18 +45,18 @@ public class LessonSubmission {
     // care about, e.g. user, assignment type.  This is really only used
     // to show whether something was submitted and what its grade was.
 
-    private Float grade;
+    private Double grade;
     private int type;
     private String gradeString = null;
 
     // add grading type when we do assignments. We can't hide that, since
     // it's in the UI. I sure hope Assignment 2 uses the same grading types
 
-    public LessonSubmission(Float grade) {
+    public LessonSubmission(Double grade) {
 	this.grade = grade;
     }
 
-    public Float getGrade() {
+    public Double getGrade() {
 	return grade;
     }
 
