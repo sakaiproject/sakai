@@ -119,7 +119,10 @@
     <bean id="org.sakaiproject.event.api.LearningResourceStoreService"
             class="org.sakaiproject.event.impl.BaseLearningResourceStoreService"
             init-method="init" destroy-method="destroy" singleton="true">
+        <property name="eventTrackingService" ref="org.sakaiproject.event.api.EventTrackingService"/>
         <property name="serverConfigurationService" ref="org.sakaiproject.component.api.ServerConfigurationService"/>
+        <property name="sessionManager" ref="org.sakaiproject.tool.api.SessionManager"/>
+        <property name="userDirectoryService" ref="org.sakaiproject.user.api.UserDirectoryService"/>
     </bean>
 
 </beans>
