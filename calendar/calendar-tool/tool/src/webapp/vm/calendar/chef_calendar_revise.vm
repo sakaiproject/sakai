@@ -160,6 +160,10 @@ function minuteChange(FieldName)
 				{
 					endHour = 0;
 				}
+				if (startHour == 12)
+				{
+					startHour = 0;
+				}
                 startAmpmIndex = document.getElementById('startAmpm').selectedIndex;
                 endAmpmIndex = document.getElementById('endAmpm').selectedIndex;
                 sm = (startHour + startAmpmIndex * 12) * 60 + startMinute;
