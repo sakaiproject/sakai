@@ -535,7 +535,7 @@ public class UserPrefsTool
 			for (int i = 0; i < localeArray.length; i++)
 			{
 				if (i == 0 || !localeArray[i].equals(localeArray[i - 1])) {
-					prefLocales.add(new SelectItem(localeArray[i].toString(), localeArray[i].getDisplayName()));
+					prefLocales.add(new SelectItem(localeArray[i].toString(), localeArray[i].getDisplayName(localeArray[i])));
 				}
 			}
 		}
@@ -658,7 +658,8 @@ public class UserPrefsTool
 	 */
 	public String getSelectedLocaleName()
 	{
-		return getSelectedLocale().getDisplayName();
+		Locale loc = getSelectedLocale();
+		return loc.getDisplayName(loc);
 	}
 
 	/**

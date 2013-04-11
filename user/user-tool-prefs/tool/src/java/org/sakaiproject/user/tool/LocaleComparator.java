@@ -40,8 +40,8 @@ public final class LocaleComparator implements Comparator<Locale>
 	 */
 	public int compare(Locale localeOne, Locale localeTwo)
 	{
-		String displayNameOne = localeOne.getDisplayName();
-		String displayNameTwo = localeTwo.getDisplayName();
+		String displayNameOne = localeOne.getDisplayName(localeOne).toLowerCase();
+		String displayNameTwo = localeTwo.getDisplayName(localeTwo).toLowerCase();
 		return displayNameOne.compareTo(displayNameTwo);
 	}
 
