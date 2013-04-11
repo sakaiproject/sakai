@@ -377,8 +377,8 @@ function resizeFrame(){
 				#end
 				#if ($dmi == 60)
 					#set ($dmi = 0)
-					#if ($dhour == 12)
-						#set ($dhour = 1)
+					#if ($dhour == 23)
+						#set ($dhour = 0)
 					#else
 						#set ($dhour = $dhour + 1)
 					#end
