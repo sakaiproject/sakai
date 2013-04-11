@@ -60,6 +60,7 @@ import org.apache.poi.hssf.usermodel.HSSFCellStyle;
 import org.apache.poi.hssf.usermodel.HSSFRow;
 import org.apache.poi.hssf.usermodel.HSSFSheet;
 import org.apache.poi.hssf.usermodel.HSSFWorkbook;
+import org.apache.poi.ss.util.WorkbookUtil;
 import org.sakaiproject.announcement.api.AnnouncementChannel;
 import org.sakaiproject.announcement.api.AnnouncementService;
 import org.sakaiproject.assignment.api.Assignment;
@@ -4510,16 +4511,7 @@ public abstract class BaseAssignmentService implements AssignmentService, Entity
 			short rowNum = 0;
 			HSSFWorkbook wb = new HSSFWorkbook();
 			
-			// a tab title in a workbook have a maximum length of 31 chars.
-			// otherwise an Exception will been thrown "Sheet name cannot be blank, greater than 31 chars, or contain any of /\*?[]"
-			// we truncate it if it's too long
-			String sheetTitle = siteTitle;
-			int siteTitleLength = sheetTitle.length();
-			if (siteTitleLength > 31) {
-			    M_log.info(this + " Site title is too long (" + siteTitleLength + " chars) truncating it down to 31 chars!");
-			    sheetTitle = sheetTitle.substring(0, 31);
-			}
-			HSSFSheet sheet = wb.createSheet(Validator.escapeZipEntry(sheetTitle));
+			HSSFSheet sheet = wb.createSheet(WorkbookUtil.createSafeSheetName(siteTitle));
 	
 			// Create a row and put some cells in it. Rows are 0 based.
 			HSSFRow row = sheet.createRow(rowNum++);
