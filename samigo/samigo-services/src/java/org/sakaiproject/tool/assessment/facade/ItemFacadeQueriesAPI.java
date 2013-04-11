@@ -45,8 +45,6 @@ public interface ItemFacadeQueriesAPI
 
   public void show(Long itemId);
 
-  public ItemFacade getItem(Long itemId, String agent);
-
   public void showType(Long typeId);
 
   public void listType();
@@ -75,6 +73,15 @@ public interface ItemFacadeQueriesAPI
    */
   public ItemFacade getItem(Long itemId);
 
+  /**
+   * Retrieve an item from storage
+   * @param itemId the itemId
+   * @param agent agentId not used
+   * @return the item or null if not found
+   * @deprecated use {@link getItem}
+   */
+  public ItemFacade getItem(Long itemId, String agent);
+  
   public HashMap getItemsByKeyword(String keyword);
 
   public Long getItemTextId(Long publishedItemId);

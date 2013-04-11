@@ -128,8 +128,7 @@ public class ItemFacadeQueries extends HibernateDaoSupport implements ItemFacade
   }
 
   public ItemFacade getItem(Long itemId, String agent) {
-	ItemFacade item = new ItemFacade((ItemData)getHibernateTemplate().load(ItemData.class, itemId));
-	return item;
+	return getItem(itemId);
   }
 
   public void showType(Long typeId) {

@@ -61,6 +61,10 @@ public class ItemService
 
   /**
    * Get a particular item from the backend, with all questions.
+   * @param itemId
+   * @param agentId
+   * @return
+   * @deprecated 
    */
   public ItemFacade getItem(Long itemId, String agentId)
   {
@@ -199,6 +203,11 @@ public class ItemService
     }
   }
 
+  /**
+   *  Get a particular item from the backend, with all questions.
+   * @param itemId
+   * @return
+   */
   public ItemFacade getItem(String itemId) {
     try{
       return PersistenceService.getInstance().getItemFacadeQueries().
