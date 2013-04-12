@@ -46,7 +46,7 @@
             <!-- <outputFileNameMapping>imsblti.war</outputFileNameMapping> -->
             <useTransitiveDependencies>false</useTransitiveDependencies>
             <includes>
-                <include>org.sakaiproject.portal:portal-charon:war:*</include>
+                <include>org.sakaiproject.portal:portal:war:*</include>
                 <include>org.sakaiproject.portal:portal-render:war:*</include>
                 <include>org.sakaiproject.portal:sakai-editor:war:*</include>
                 <!-- <include>org.sakaiproject.portal:sakai-portlet-tool:war:*</include> -->
