@@ -68,7 +68,7 @@
 	#if ($isOnWorkspaceTab.equals("true")) ##in workspace
 		## <h3>$tlang.getString("gen.announcements")</h3>
 		<h3>$tlang.getString("gen.announcements") <span class="textPanelFooter">($tlang.getFormattedMessage("gen.viewing.days.phrase", $daysList.toArray()))</span></h3>
-		#if ($alertMessage)<div class="alertMessage">$tlang.getFormattedMessage("gen.alert.message", $validator.escapeHtml($alertMessage))</div><div class="clear"></div>#end
+		#if ($alertMessage)<div class="alertMessage">$tlang.getFormattedMessage("gen.alert.message", $alertMessage)</div><div class="clear"></div>#end
 ##		#if ($messageListVector.iterator().hasNext())
 		<div class="navPanel">
 			<div class="viewNav">
@@ -345,7 +345,7 @@
 		#if ($toolId == "sakai.synoptic.announcement") 
 		##in home portlet  - so reduce display to title, attach marker, body (if selected), author and date
 
-			#if ($alertMessage)<div class="alertMessage">$tlang.getFormattedMessage("gen.alert.message", $validator.escapeHtml($alertMessage))</div><div class="clear"></div>#end
+			#if ($alertMessage)<div class="alertMessage">$tlang.getFormattedMessage("gen.alert.message", $alertMessage)</div><div class="clear"></div>#end
 			
 			<h3>$tlang.getString("gen.announcements") <span class="textPanelFooter">($tlang.getFormattedMessage("gen.viewing.days.phrase", $daysList.toArray()))</span></h3>
 			
@@ -411,7 +411,7 @@
 				#if ($displayOptions.isShowAllColumns())
 					## <h3>$tlang.getString("gen.announcements")</h3>
 					<h3>$tlang.getString("gen.announcements") <span class=" textPanelFooter">($tlang.getFormattedMessage("gen.viewing.days.phrase", $daysList.toArray()))</span></h3>
-					#if ($alertMessage)<div class="alertMessage">$tlang.getFormattedMessage("gen.alert.message", $validator.escapeHtml($alertMessage))</div><div class="clear"></div>#end
+					#if ($alertMessage)<div class="alertMessage">$tlang.getFormattedMessage("gen.alert.message", $alertMessage)</div><div class="clear"></div>#end
 					<div class="navPanel">
 						<div class="viewNav">
 							<form name="viewForm" class="inlineForm" method="post" action="#toolForm("$action")">
@@ -736,7 +736,7 @@
 				#else
 					## <h3>$tlang.getString("gen.announcements")</h3>
 					<h3>$tlang.getString("gen.announcements") <span class="textPanelFooter">($tlang.getFormattedMessage("gen.viewing.days.phrase", $daysList.toArray()))</span></h3>
-					#if ($alertMessage)<div class="alertMessage">$tlang.getFormattedMessage("gen.alert.message", $validator.escapeHtml($alertMessage))</div><div class="clear"></div>#end
+					#if ($alertMessage)<div class="alertMessage">$tlang.getFormattedMessage("gen.alert.message", $alertMessage)</div><div class="clear"></div>#end
 
 						#if (!$messageListVector.iterator().hasNext())
 							<p class="instruction">

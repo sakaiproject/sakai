@@ -3,7 +3,7 @@
 	<h3>
 		$tlang.getString("del.deleting")
 	</h3>
-	#if ($alertMessage)<div class="alertMessage">$tlang.getFormattedMessage("gen.alert.message", $validator.escapeHtml($alertMessage))</div>#end
+	#if ($alertMessage)<div class="alertMessage">$tlang.getFormattedMessage("gen.alert.message", $alertMessage)</div>#end
 	<div class="alertMessage">$tlang.getString("del.areyou")</div>
 	<form name="forNotLetDeleteSelectedOnLoad"></form>
 		<table class="listHier lines nolines" cellspacing="0">

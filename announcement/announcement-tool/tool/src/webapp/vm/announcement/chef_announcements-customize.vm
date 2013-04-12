@@ -7,7 +7,7 @@
 	<h3>
 		$tlang.getString("custom.options")
 	</h3>
-	#if ($alertMessage)<div class="alertMessage">$tlang.getFormattedMessage("gen.alert.message", $validator.escapeHtml($alertMessage))</div><div class="clear"></div>#end
+	#if ($alertMessage)<div class="alertMessage">$tlang.getFormattedMessage("gen.alert.message", $alertMessage)</div><div class="clear"></div>#end
 	<p class="instruction indnt2">
 		#if ($toolId == "sakai.announcements")
 			$tlang.getString("custom.setoptions")

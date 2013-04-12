@@ -40,7 +40,7 @@
 	<h3>
 		$tlang.getString("meta.title")
 	</h3>	
-	#if ($alertMessage)<div class="alertMessage">$tlang.getFormattedMessage("gen.alert.message", $validator.escapeHtml($alertMessage))</div><div class="clear"></div>#end
+	#if ($alertMessage)<div class="alertMessage">$tlang.getFormattedMessage("gen.alert.message", $alertMessage)</div><div class="clear"></div>#end
 	<table cellspacing="0" class="itemSummary">
 		<tr>
 			<th>$tlang.getString("gen.subject")</th>

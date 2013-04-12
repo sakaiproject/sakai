@@ -16,7 +16,7 @@
 	#end
 	<h3>$tlang.getString("reorder.title")</h3>
  	
-	#if ($alertMessage)<div class="alertMessage">$tlang.getFormattedMessage("gen.alert.message", $validator.escapeHtml($alertMessage))</div><div class="clear"></div>#end
+	#if ($alertMessage)<div class="alertMessage">$tlang.getFormattedMessage("gen.alert.message", $alertMessage)</div><div class="clear"></div>#end
 	<div class="navPanel">
 			<span class="instruction">
 				$tlang.getString('reorder.instruction.general')
