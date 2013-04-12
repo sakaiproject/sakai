@@ -172,7 +172,7 @@ $(document).ready(function() {
 	</p>
 	#if ($alertMessage)
 		<div class="alertMessage" style="width:80%  !important">
-			$tlang.getString("gen.alert") 		$validator.escapeHtml($alertMessage)
+			$tlang.getString("gen.alert") 		$alertMessage
 		</div>
 		<div style="display:block;clear:both">
 		</div>

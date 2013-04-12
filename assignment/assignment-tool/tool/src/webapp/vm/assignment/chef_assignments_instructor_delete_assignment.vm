@@ -10,7 +10,7 @@
 	</h3>
 
 		#if ($alertMessage)
-			<div class="alertMessage">  $tlang.getString("gen.alert")  $validator.escapeHtml($alertMessage)</div><div class="clear"></div>
+			<div class="alertMessage">  $tlang.getString("gen.alert")  $alertMessage</div><div class="clear"></div>
 		#else
 			<div class="alertMessage">
 				$confirmMessage

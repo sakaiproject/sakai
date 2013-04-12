@@ -39,7 +39,7 @@
 		#end
 	</ul>
 		<h3>
-		#if ($alertMessage)<div class="alertMessage">$tlang.getString("gen.alert") $validator.escapeHtml($alertMessage)</div><div class="clear"></div>#end
+		#if ($alertMessage)<div class="alertMessage">$tlang.getString("gen.alert") $alertMessage</div><div class="clear"></div>#end
 		$!tlang.getString('gen.grarep')
 	</h3>
 	#if ($!submissions.size() == 0)
@@ -118,7 +118,7 @@
 				#end
 			</div>
 		</div>	
-		#if ($alertMessage)<div class="alertMessage">$tlang.getString("gen.alert") $validator.escapeHtml($alertMessage)</div><div class="clear"></div>#end
+		#if ($alertMessage)<div class="alertMessage">$tlang.getString("gen.alert") $alertMessage</div><div class="clear"></div>#end
 		<form name="reportForm" action="#toolForm("AssignmentAction")" method="post">
 			#if ($submissions.size()==0)
 				<p class="instruction">

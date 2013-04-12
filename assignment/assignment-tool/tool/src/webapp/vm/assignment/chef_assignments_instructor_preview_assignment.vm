@@ -35,7 +35,7 @@
 		$tlang.getString("prevassig.preass")
 	</h3>
 	
-		#if ($alertMessage)<div class="alertMessage">$tlang.getString("gen.alert") $validator.escapeHtml($alertMessage)</div>#end
+		#if ($alertMessage)<div class="alertMessage">$tlang.getString("gen.alert") $alertMessage</div>#end
 		<div class="clear"></div>
 		<form name="previewAssignmentsForm" action="#toolForm("AssignmentAction")" method="post" onsubmit="return true;"> 
 			<input type="hidden" name="assignmentId" value="$!value_assignment_id" />

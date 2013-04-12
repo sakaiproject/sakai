@@ -40,7 +40,7 @@
 			#end
 		</h3>
 
-		#if ($alertMessage)<div class="alertMessage">$tlang.getString("gen.alert") $validator.escapeHtml($alertMessage)</div>#end
+		#if ($alertMessage)<div class="alertMessage">$tlang.getString("gen.alert") $alertMessage</div>#end
 		#set($submitTime=false)
 		#set($submitTime=$submission.getTimeSubmitted())
 		#set($returnTime=false)

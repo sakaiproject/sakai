@@ -7,7 +7,7 @@
 	<h3>
 		$tlang.getString("options")
 	</h3>
-	#if ($alertMessage)<div class="alertMessage">$tlang.getString("gen.alert") $validator.escapeHtml($alertMessage)</div><div class="clear"></div>#end	
+	#if ($alertMessage)<div class="alertMessage">$tlang.getString("gen.alert") $alertMessage</div><div class="clear"></div>#end	
 	<form action="#toolForm("$action")" method="post" name="optionsForm">
 		<h4>
 			$tlang.getString("options_instruction") 

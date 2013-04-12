@@ -42,7 +42,7 @@
 	<h3>
 		$!tlang.getString('lisofass2')
 	</h3>
-	#if ($alertMessage)<div class="alertMessage">$tlang.getString("gen.alert") $validator.escapeHtml($alertMessage)</div>#end
+	#if ($alertMessage)<div class="alertMessage">$tlang.getString("gen.alert") $alertMessage</div>#end
 		#if ($!studentMembers.size() == 0)
 			<p class="instruction" style="clear:both">
 				$tlang.getString("theisnostudent")

@@ -74,7 +74,7 @@
 		$tlang.getString('uploadall.title')
 	#end
 	</h3>
-	#if ($alertMessage)<div class="alertMessage">$tlang.getString("gen.alert") $validator.escapeHtml($alertMessage)</div>#end
+	#if ($alertMessage)<div class="alertMessage">$tlang.getString("gen.alert") $alertMessage</div>#end
 	<p class="instruction">
 		#if ($!download)
 			$tlang.getString('downloadall.instruction')
