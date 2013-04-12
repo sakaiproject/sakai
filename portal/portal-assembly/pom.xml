@@ -87,7 +87,7 @@
         <!-- Webapps -->
         <dependency>
             <groupId>${project.groupId}</groupId>
-            <artifactId>portal</artifactId>
+            <artifactId>portal-charon</artifactId>
             <version>${project.version}</version>
             <type>war</type>
             <scope>compile</scope>
