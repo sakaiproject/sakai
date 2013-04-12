@@ -109,7 +109,7 @@
 # The standard way to deal with the ToolPortlet Alert
 *# ------------------------------------------------------------------
 #macro (chef_alert)
-	#if(!$sakai_alert.isEmpty())<div class="alertMessage">#chef_html($sakai_alert.Alert)</div>#end
+	#if(!$sakai_alert.isEmpty())<div class="alertMessage">$sakai_alert.Alert</div>#end
 #end
 
 #* ------------------------------------------------------------------
