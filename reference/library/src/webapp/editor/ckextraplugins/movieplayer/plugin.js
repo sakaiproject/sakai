@@ -39,7 +39,7 @@ Movie.prototype.getInnerHTML = function (objectId){
 			s += '        type="application/x-shockwave-flash" ';
 			s += '        data="'+ flashPlayer +'" ';
 			s += '        width="'+this.width+'" height="'+this.height+'" >';
-			s += '  <PARAM name="movie" value="'+ encodeURI(this.url) +'" />';
+			s += '  <PARAM name="movie" value="'+ flashPlayer +'" />';
 		    s += '  <PARAM name="FlashVars" value="src='+encodeURI(this.url)+'&amp;showplayer=always&amp;width='+this.width+'&amp;height='+this.height+'&amp;showiconplay=true&amp;autoplay='+this.autoplay+addYoutube+'" />';
 				s += '<param name="allowFullScreen" value="true">';
 		    s += '</OBJECT>';

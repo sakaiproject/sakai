@@ -87,8 +87,10 @@ function loadMovieSelection() {
                 for ( var fv = 0; fv < vars.length; fv++) {
                     var varsT = vars[fv].split('=');
                     name = varsT[0];
+                    // If the text was escaped, we split on & and left amp; 
+                    name = name.replace('amp;', '');
                     value = varsT[1];
-                    if (name == 'flv') {
+                    if (name == 'flv' || name == 'src') {
                         oMovie.setAttribute('url', decodeURI(value));
                     } else {
                         oMovie.setAttribute(name, value);
@@ -97,8 +99,7 @@ function loadMovieSelection() {
             } else if (name == 'autostart' || name == 'autoplay') {
                 value = (value == 'true' || value == '1') ? 1 : 0;
                 oMovie.setAttribute('autoplay', value);
-            } else if (name == 'src'
-                || (name == 'movie' && !name.endsWith(flashPlayer))) {
+            } else if (name == 'src') {
                 oMovie.setAttribute('url', decodeURI(value));
             } else {
                 // Other movie types
