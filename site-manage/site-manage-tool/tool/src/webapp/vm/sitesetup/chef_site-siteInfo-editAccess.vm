@@ -73,7 +73,7 @@
 		</p>
 	#end
 	#if ($alertMessage)
-		<div class="alertMessage">$tlang.getString("ediacc.alert") $validator.escapeHtml($alertMessage)</div>
+		<div class="alertMessage">$tlang.getString("ediacc.alert") $alertMessage</div>
 		<div class="clear"></div>
 	#end
 	<form name="editParticipantForm" action="#toolForm("SiteAction")" method="post">

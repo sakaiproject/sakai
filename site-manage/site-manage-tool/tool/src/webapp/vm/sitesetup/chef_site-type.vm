@@ -26,7 +26,7 @@
     
         <input type="text" id="courseSiteTypes" style="display:none" value="$courseSiteTypeStrings">
         
-    #if ($alertMessage)<div class="alertMessage">$tlang.getString("sitetype.alert") $validator.escapeHtml($alertMessage)</div>  #end
+    #if ($alertMessage)<div class="alertMessage">$tlang.getString("sitetype.alert") $alertMessage</div>  #end
     <p class="step">
         ## if there is NO template site types
         $tlang.getString("sitetype.chothetyp.withouttemplate")

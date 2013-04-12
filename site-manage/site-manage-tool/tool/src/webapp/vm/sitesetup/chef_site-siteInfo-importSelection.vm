@@ -5,7 +5,7 @@
 		$tlang.getString("sitinfimp.importgrades")
 	</h3>
 	#if ($alertMessage)
-		<div class="alertMessage">$tlang.getString("sitinfimp.alert") $validator.escapeHtml($alertMessage)</div>
+		<div class="alertMessage">$tlang.getString("sitinfimp.alert") $alertMessage</div>
 		<div class="clear"></div>
 	#end
 	<form name="importSelectionForm" action="#toolForm("$action")" method="post">

@@ -6,7 +6,7 @@
 		$tlang.getString("sitedicla.edit_roster") <span class="highlight">$!siteTitle</span>
 	</h3>
 	#if ($alertMessage)
-		<div class="alertMessage">$tlang.getString("sitedicla.alert") $validator.escapeHtml($alertMessage)</div>
+		<div class="alertMessage">$tlang.getString("sitedicla.alert") $alertMessage</div>
 		<div class="clear"></div>
 	#end
 	<form name="removeClassForm" id="removeClassForm" action="#toolForm("$action")" method="post">

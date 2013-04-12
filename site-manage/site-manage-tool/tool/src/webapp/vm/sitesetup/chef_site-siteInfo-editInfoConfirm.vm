@@ -7,7 +7,7 @@
 	<p class="instruction">
 		$tlang.getString("sitediconf.cli")
 	</p>
-	#if ($alertMessage)<div class="alertMessage">$tlang.getString("sitediinf.alert") $validator.escapeHtml($alertMessage)</div><div class="clear"></div>#end
+	#if ($alertMessage)<div class="alertMessage">$tlang.getString("sitediinf.alert") $alertMessage</div><div class="clear"></div>#end
 	<form name="classInformationForm" method="post" action="#toolForm("SiteAction")">
 		<table class="itemSummary">
 			<tr>

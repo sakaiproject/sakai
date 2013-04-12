@@ -33,7 +33,7 @@
 		$tlang.getString("nscourse.findCourse") - $term.title
 	</p>
 		
-	#if ($alertMessage)<div class="alertMessage">$tlang.getString("gen.alert") $validator.escapeHtml($alertMessage)</div>#end
+	#if ($alertMessage)<div class="alertMessage">$tlang.getString("gen.alert") $alertMessage</div>#end
 		   #if ($selectedProviderCourse || $cmRequestedSections)
 				<p class="instruction">
 					$tlang.getString("sitegen.addcourse.you")

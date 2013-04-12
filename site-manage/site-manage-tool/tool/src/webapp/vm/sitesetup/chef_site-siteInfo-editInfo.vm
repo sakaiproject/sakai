@@ -72,7 +72,7 @@ function submitRemoveSection(index){
 			$tlang.getString("sitediinf.rev") <span class="highlight">$validator.escapeHtml($title)</span>
 		</h3>
 	#end
-	#if ($alertMessage)<div class="alertMessage">$tlang.getString("sitediinf.alert") $validator.escapeHtml($alertMessage)</div><div class="clear"></div>#end
+	#if ($alertMessage)<div class="alertMessage">$tlang.getString("sitediinf.alert") $alertMessage</div><div class="clear"></div>#end
 	## adding a new course site
 	#if ($isCourseSite)
 	<table class="listHier lines nolines indnt1" style="width:auto" summary="$tlang.getString("sinfo.rosterlist.summary")" border="0">

@@ -7,7 +7,7 @@
 		<h3>
 			$tlang.getString("sitdup.dupsit") <span class="highlight">$siteTitle</span>
 		</h3>
-	#if ($alertMessage)<div class="alertMessage">$tlang.getString("sitdup.alert") $validator.escapeHtml($alertMessage)</div>#end
+	#if ($alertMessage)<div class="alertMessage">$tlang.getString("sitdup.alert") $alertMessage</div>#end
 			#if (!$!siteDuplicated)
 				<p class="instruction">
 					#if ($!isCourseSite)

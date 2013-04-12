@@ -56,7 +56,7 @@ function printPreview(target){
 <div class ="portletBody specialLink">
 	#if($menu)#toolbar($menu)#end
 	#if ($alertMessage)
-		<div class="alertMessage">$tlang.getString("gen.alert") $validator.escapeHtml($alertMessage)</div>
+		<div class="alertMessage">$tlang.getString("gen.alert") $alertMessage</div>
 		<div class="clear"></div>
 	#end
 	#if ($fromWSetup)

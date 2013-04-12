@@ -42,7 +42,7 @@
 			</span>
 		#end
 	</div>
-	#if ($alertMessage)<div class="alertMessage">$tlang.getString("gen.alert") $validator.escapeHtml($alertMessage)</div>#end
+	#if ($alertMessage)<div class="alertMessage">$tlang.getString("gen.alert") $alertMessage</div>#end
 	<div class="navPanel">
 		<div class="viewNav">
 			<form name="viewForm" class="inlineForm" method="post" action="#toolForm("SiteAction")">

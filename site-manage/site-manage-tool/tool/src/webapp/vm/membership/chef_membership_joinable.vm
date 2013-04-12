@@ -50,7 +50,7 @@
 			## join/unjoin action info normally is the only value of "alertMessage"
 			#if ($alertMessage)
 				<p class="information messageInformation viewNav" id="messageHolder" style="width:50%;padding:0 0 0 2em;margin:0">
-					$validator.escapeHtml($alertMessage)
+					$alertMessage
 				</p>
 			#end
 			
@@ -167,7 +167,7 @@
 		## join/unjoin action info normally is the only value of "alertMessage"
 		#if ($alertMessage)
 			<p class="information messageInformation viewNav" id="messageHolder" style="width:50%;padding:0 0 0 2em;margin:0">
-				$validator.escapeHtml($alertMessage)
+				$alertMessage
 			</p>
 		#end
 					
@@ -177,7 +177,7 @@
 		## join/unjoin action info normally is the only value of "alertMessage"
 		#if ($alertMessage)
 			<p class="information messageInformation viewNav" id="messageHolder" style="width:50%;padding:0 0 0 2em;margin:0">
-				$validator.escapeHtml($alertMessage)
+				$alertMessage
 			</p>
 		#end
 			

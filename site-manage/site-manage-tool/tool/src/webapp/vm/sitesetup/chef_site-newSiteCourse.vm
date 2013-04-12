@@ -139,7 +139,7 @@ function redirectBasedOnSelection(){
 	#else
 		<h3>$tlang.getString("nscourse.edit") <span class="highlight">$!siteTitle</span></h3>
 	#end
-	#if ($alertMessage)<div class="alertMessage">$tlang.getString("gen.alert") $validator.escapeHtml($alertMessage)</div>#end
+	#if ($alertMessage)<div class="alertMessage">$tlang.getString("gen.alert") $alertMessage</div>#end
 	<p class="instruction">
 		#if (!$!site)
 		$tlang.getString("nscourse.select")
