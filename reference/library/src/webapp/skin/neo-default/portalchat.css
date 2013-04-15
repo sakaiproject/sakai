@@ -21,7 +21,7 @@
     /* The chats container is placed just to the left of the connections menu */
     right: 225px;
     bottom: 0px;
-    height: 300px;
+    /*height: 450px;*/
     width: auto;
 }
 #pc_chat_close {
@@ -278,4 +278,45 @@
     -webkit-border-radius: 3px;
     -khtml-border-radius: 3px;
     border-radius: 3px;
+}
+/* Video Chat Styles */
+.pc_connection_videochat_bar {
+    font-size: 14px;
+    font-weight: bold;
+    cursor: pointer;
+    color: black;
+    background: #aaa;
+    overflow: hidden;
+    position: relative;
+    height: 18px;
+    border-bottom: 1px solid #ccc;
+}
+.pc_chat_video {
+	width: 100%;
+	height: 192px;
+}
+.pc_chat_video_min {
+	height: 40px;
+}
+.pc_chat_video_remote {
+	background: black;
+	position: relative;
+}
+.pc_chat_video_local {
+	position: absolute;
+	top: 143px;
+	left: 5px;
+	border: 2px solid;
+	border-color: red; 
+}
+.pc_connection_videochat_bar_left {
+	float: left;
+	width: 25%;
+}
+.pc_connection_videochat_bar_right {
+    font-size: 12px;
+    font-weight: bold;
+	float: right;
+	width: 75%;
+	text-align: right;
 }
