@@ -163,6 +163,9 @@ import org.sakaiproject.lti.api.LTIService;
  * </p>
  */
 public class SiteAction extends PagedResourceActionII {
+	// SAK-23491 add template_used property
+	private static final String TEMPLATE_USED = "template_used";
+	
 	/** Our log (commons). */
 	private static Log M_log = LogFactory.getLog(SiteAction.class);
 	
@@ -10606,6 +10609,12 @@ private Map<String,List> getToolGroupList(SessionState state, String type, Site 
 				
 				// SAK-22790 add props from SiteInfo object
 				rp.addAll(siteInfo.getProperties());
+				
+				// SAK-23491 add template_used property
+				if (templateSite != null) {
+					// if the site was created from template
+					rp.addProperty(TEMPLATE_USED, templateSite.getId());
+				}
 
 				state.setAttribute(STATE_SITE_INSTANCE_ID, site.getId());
 
@@ -11900,8 +11909,8 @@ private Map<String,List> getToolGroupList(SessionState state, String type, Site 
 					edit.setTitle(siteInfo.title);
 					edit.setPublished(true);
 					edit.setPubView(false);
-					//edit.setType(templateId);
-					// ResourcePropertiesEdit rpe = edit.getPropertiesEdit();
+					// SAK-23491 add template_used property
+					edit.getPropertiesEdit().addProperty(TEMPLATE_USED, templateId);
 					try {
 						SiteService.save(edit);
 					} catch (Exception e) {
