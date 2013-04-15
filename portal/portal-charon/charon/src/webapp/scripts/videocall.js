@@ -9,32 +9,24 @@ var mockSignalService = null;
 /* Define the actions executed in each event */
 
 function successCall(uuid, remoteMediaStream) {
-	alert("call succeded");
-	webRTC.attachMediaStream(document.getElementById("remote_video_"+uuid),
-			remoteMediaStream);
+	webRTC.attachMediaStream(document.getElementById("pc_chat_"+uuid+"_remote_video"),remoteMediaStream);
 
 }
 
 function startCall(uuid, localMediaStream) {
-
-	webRTC.attachMediaStream(document.getElementById("local_video"),
-			localMediaStream);
-
+	webRTC.attachMediaStream(document.getElementById("pc_chat_"+uuid+"_local_video"),localMediaStream);
 }
 
 function startAnswer (uuid,localMediaStream){
-	webRTC.attachMediaStream(document.getElementById("local_video"),
-			localMediaStream);
-	
+	webRTC.attachMediaStream(document.getElementById("pc_chat_"+uuid+"_local_video"),localMediaStream);
 }
 
 function failedCall(uuid) {
-	alert("call failed");
+	alert("Call failed");
 }
 
-
-function receiveMessage (uid,message){
-	mockSignalService.onReceive (uid,message);
+function receiveMessage(uid,message) {
+	mockSignalService.onReceive(uid,message);
 } 
 
 /*
@@ -48,24 +40,30 @@ function SignalService() {
 		portalChat.sendVideoMessageToUser(userid, content);
 	}
 
-	this.onReceive = null; // To be implemented by consumer  (webRTC) in this case it will consume parameters userid and message
+	this.onReceive = function(userid, content) {
+		portalChat.openVideoCall(userid,true);
+	}
 }
 
 $("document").ready(function() {
-
 	webRTC = new WebRTC();
 	mockSignalService = new SignalService ();
 	webRTC.init(mockSignalService);
 	
 	/* This is a way to determine what to do when a webrtc call is received*/
 	webRTC.onReceiveCall = function (userid){
-		alert ("Hello I've received a call from" + userid);
-		
+		portalChat.openVideoCall(userid,true);
 		//Just send an automatic answer response when alert is confirmed
 		webRTC.answerCall(userid,startAnswer,successCall, failedCall)
-		
 	}
 	
+	webRTC.hangUp = function(userid, success, fail) {
+		portalChat.closeVideoCall(userid);
+	}
+
+	webRTC.onHangUp = function(userid) {
+		portalChat.closeVideoCall(userid);
+	}
 	
 	
 	

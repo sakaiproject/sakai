@@ -249,7 +249,7 @@ function PortalChat() {//
 		if($('#' + id).length) return false;
 
         // Append a new chat div to the container
-		$('#pc_chat_window_container').prepend("<div id=\"" + id + "\" class=\"pc_chat_window\"></div>");
+		$('#pc_chat_window_container').prepend("<div id=\"" + id + "\" class=\"pc_chat_window\" data-height=\"300\"></div>");
 
 		this.renderTemplate('pc_connection_chat_template',connection,id);
 
@@ -278,7 +278,19 @@ function PortalChat() {//
 		sessionStorage.setItem('pcsession_' + uuid,JSON.stringify(chatSession));
 
 		$('#pc_editor_for_' + uuid).focus();
-
+		// Test if video is enabled
+    	$('#pc_chat_'+uuid+'_video_content').hide();
+	    $('#pc_connection_'+uuid+'_videoin').hide();
+		$('#pc_connection_'+uuid+'_videochat_bar .video_on').hide();
+        if ($.browser.msie) {
+		   $('#pc_connection_'+uuid+'_videochat_bar').hide();
+        } else {
+        	if (!minimised) {
+        		$('#' + id).css('height','318px');
+        	}
+        	$('#' + id).attr('data-height','318');
+        }
+		
         return false;
 	}
 
@@ -369,7 +381,7 @@ function PortalChat() {//
 			$('#pc_connection_chat_' + uuid + '_content').show();
             chatDiv.removeClass('pc_minimised');
             chatDiv.addClass('pc_maximised');
-			chatDiv.css('height','300px');
+			chatDiv.css('height',chatDiv.attr('data-height')+'px');
 			$('#pc_chat_with_' + uuid + ' > .pc_connection_chat_title').removeClass('pc_new_message');
 			this.scrollToBottom(uuid);
 			if(chatSessionString) {
@@ -804,6 +816,51 @@ function PortalChat() {//
 		messagePanel.append("<li>"+ avatarOrName + "<div class=\"pc_message\">" + content + "</div><span class=\"pc_messagedate\">" + dateString + "</span></li>");
     }
 
+    this.openVideoCall = function (uuid,incomming) {
+		// If a chat window is already open for this sender, show video.
+		var messagePanel = $("#pc_chat_with_" + uuid);
+		if(!messagePanel.length) {
+            // No current chat window for this sender. Create one.
+			portalChat.setupChatWindow(uuid,true);
+		}
+		if (incomming) {
+			$('#pc_connection_'+uuid+'_videoin').show();
+		} else {
+			webRTC.doCall(uuid,startCall,successCall,failedCall);
+			this.acceptVideoCall(uuid);
+		}
+    }
+
+    this.ignoreVideoCall = function(uuid) {
+    	$('#pc_connection_'+uuid+'_videoin').hide();
+    }
+    
+    this.acceptVideoCall = function(uuid) {
+    	$("#pc_chat_"+uuid+"_video_content").show();
+    	if ($("#pc_chat_with_" + uuid).css('height')!='auto') {
+    		$("#pc_chat_with_" + uuid).css('height','512px');
+    		$("#pc_chat_with_" + uuid).css('margin-top','-192px');
+    	}
+    	$("#pc_chat_with_" + uuid).attr('data-height','512');
+    	$('#pc_connection_'+uuid+'_videoin').hide();
+		$('#pc_connection_'+uuid+'_videochat_bar .video_off').hide();
+		$('#pc_connection_'+uuid+'_videochat_bar .video_on').show();
+    }
+    
+    this.closeVideoCall = function (uuid) {
+    	$("#pc_chat_"+uuid+"_video_content").hide();
+    	$("#pc_chat_with_" + uuid).css('height','318px');
+    	$("#pc_chat_with_" + uuid).css('margin-top','0px');
+    	$("#pc_chat_with_" + uuid).attr('data-height','318');
+		$('#pc_connection_'+uuid+'_videochat_bar .video_off').show();
+		$('#pc_connection_'+uuid+'_videochat_bar .video_on').hide();
+    }
+
+    this.maximizeVideoCall = function (uuid) {
+    	// ToDo Maximize Video Canvas
+    	$("#pc_chat_"+uuid+"_video_content").show();
+    }
+
 	this.init = function () {
 
 		$(document).ready(function () {
@@ -975,6 +1032,7 @@ function PortalChat() {//
 					portalChat.scrollToBottom(sms.uuid);
 				}
 			}
+			
 		});
 
         // 15 minutes
@@ -987,7 +1045,7 @@ function PortalChat() {//
         });
 
 	} //init
-
+	
 	this.init();
 }
 

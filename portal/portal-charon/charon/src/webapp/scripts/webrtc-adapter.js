@@ -16,16 +16,24 @@ function WebRTC() {
 	this.init = function(signalService) {
 		// First of all we try to detect which navigator is trying to use the
 		// videoconference from getUserMedia diferences
-		if (navigator.mozGetUserMedia)
+		if (navigator.mozGetUserMedia) {
 			this.webrtcDetectedBrowser = "firefox";
-		else if (navigator.webkitGetUserMedia) {
+			// Adapt the RTCPeerConnection object
+			RTCPeerConnection = mozRTCPeerConnection;
+		} else if (navigator.webkitGetUserMedia) {
 			this.webrtcDetectedBrowser = "chrome";
+			// Adapt the RTCPeerConnection object
+			RTCPeerConnection = webkitRTCPeerConnection;
 		} else if (navigator.getUserMedia) {
 			this.webrtcDetectedBrowser = "webrtcenabled";
+			// Adapt the RTCPeerConnection object
+			RTCPeerConnection = (RTCPeerConnection || webkitRTCPeerConnection || mozRTCPeerConnection);
 		} else {
 			this.webrtcDetectedBrowser = "nonwebrtc";
+			// Adapt the RTCPeerConnection object
+			RTCPeerConnection = (RTCPeerConnection || webkitRTCPeerConnection || mozRTCPeerConnection);
 		}
-
+		
 		// Setup the generic objects
 
 		// Adapt the getUserMedia with all the prefixs to ensure that any of
@@ -39,9 +47,6 @@ function WebRTC() {
 		// Addapt the window.URL object
 		window.URL = (window.URL || window.webkitURL || window.mozURL || window.msURL);
 
-		// Adapt the RTCPeerConnection object
-		RTCPeerConnection = (RTCPeerConnection || webkitRTCPeerConnection || mozRTCPeerConnection);
-
 		/*RTCSessionDescription = (RTCSessionDescription || mozRTCSessionDescription);*/
 
 		// Adapt the RTCIceCandidate object
@@ -51,6 +56,7 @@ function WebRTC() {
 		this.signalService.onReceive  = function (userid,message){
 			webRTCClass.onReceive (userid,message); //Called custom method when signalService receives some videomessage
 		}
+
 	}
 
 	/* Call this process to start a video call */
