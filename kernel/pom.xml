@@ -42,7 +42,7 @@
     <inceptionYear>2003</inceptionYear>
     <properties>
          <sakai.jdk.version>1.6</sakai.jdk.version>
-	 <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding> 
+	 <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
     </properties>
     <mailingLists>
         <mailingList>
@@ -1082,13 +1082,13 @@
                 </plugin>
             </plugins>
         </pluginManagement>
-        <extensions> 
-           <!-- Enable the use of external ssh for deploys --> 
-            <extension> 
-                <groupId>org.apache.maven.wagon</groupId> 
-                <artifactId>wagon-ssh-external</artifactId> 
-                <version>2.0</version> 
-            </extension> 
+        <extensions>
+           <!-- Enable the use of external ssh for deploys -->
+            <extension>
+                <groupId>org.apache.maven.wagon</groupId>
+                <artifactId>wagon-ssh-external</artifactId>
+                <version>2.0</version>
+            </extension>
         </extensions>
     </build>
     <modules>
@@ -1101,7 +1101,6 @@
         <module>kernel-util</module>
         <module>kernel-storage-util</module>
         <module>deploy</module>
-        <module>kernel-site</module>
         <module>test-harness</module>
     </modules>
     <profiles>
