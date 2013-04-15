@@ -23,6 +23,7 @@ package org.sakaiproject.dash.mock;
 
 import java.util.List;
 import java.util.Map;
+import java.util.Locale;
 
 import org.sakaiproject.component.api.ServerConfigurationService;
 import org.sakaiproject.component.api.ServerConfigurationService.ConfigData;
@@ -268,5 +269,40 @@ public class MockServerConfigurationService implements
 		// TODO Auto-generated method stub
 		
 	}
+	
+	// new API introduced in KNL-1051
+    public Locale getLocaleFromString(String localeString) {
+    	return null;
+    }
+    
+    // new API introduced in KNL-1051
+    public Locale[] getSakaiLocales()
+    {
+    	return null;
+    }
+    
+    // new API introduced in KNL-989
+    public List<String> getCategoryGroups(String category)
+    {
+    	return null;
+    }
+    
+    // new API introduced in KNL-989
+    public boolean toolGroupIsRequired(String groupName, String toolId)
+    {
+    	return false;
+    }
+    
+    // new API introduced in KNL-989
+    public List getToolGroup(String category)
+    {
+    	return null;
+    }
+    
+    // new API introduced in KNL-989
+    public boolean toolGroupIsSelected(String groupName, String toolId)
+    {
+    	return false;
+    }
 
 }
