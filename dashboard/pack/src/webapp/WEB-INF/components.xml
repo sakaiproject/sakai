@@ -146,4 +146,17 @@
 		init-method="init">
 		<property name="dashboardLogic" ref="org.sakaiproject.dash.logic.DashboardLogic"></property>
 	</bean>
+    	<bean parent="org.sakaiproject.entitybroker.entityprovider.AbstractEntityProvider" 
+		class="org.sakaiproject.dash.entityprovider.DashboardEntityProvider">
+		<property name="sakaiProxy" ref="org.sakaiproject.dash.logic.SakaiProxy" />
+		<property name="dashboardLogic" ref="org.sakaiproject.dash.logic.DashboardLogic" />
+                <property name="dashboardCommonLogic" ref="org.sakaiproject.dash.logic.DashboardCommonLogicImpl" />
+	</bean>
+	
+		<bean parent="org.sakaiproject.entitybroker.entityprovider.AbstractEntityProvider" 
+		class="org.sakaiproject.dash.entityprovider.DashboardEntityProvider">
+		<property name="sakaiProxy" ref="org.sakaiproject.dash.logic.SakaiProxy" />
+		<property name="dashboardLogic" ref="org.sakaiproject.dash.logic.DashboardLogic" />
+	</bean>   
+       
 </beans>
