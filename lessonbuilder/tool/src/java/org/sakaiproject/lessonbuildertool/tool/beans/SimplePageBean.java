@@ -4796,6 +4796,10 @@ public class SimplePageBean {
 		return ret && path.delete();
 	}
 
+	public void exportCc () {
+	    System.out.println("export cc");
+	}
+
 	public void importCc() {
 	    if (!canEditPage())
 		return;

@@ -159,6 +159,8 @@ public class ShowPageProducer implements ViewComponentProducer, DefaultView, Nav
 	}
         public boolean useSakaiIcons = ServerConfigurationService.getBoolean("lessonbuilder.use-sakai-icons", false);
         public boolean allowSessionId = ServerConfigurationService.getBoolean("session.parameter.allow", false);
+        public boolean allowCcExport = ServerConfigurationService.getBoolean("lessonbuilder.cc-export", false);
+
 
 	// I don't much like the static, because it opens us to a possible race
 	// condition, but I don't see much option
@@ -645,6 +647,16 @@ public class ShowPageProducer implements ViewComponentProducer, DefaultView, Nav
 				UIOutput.make(tofill, "toppage-descrip");
 				UIOutput.make(tofill, "new-page").decorate(new UIFreeAttributeDecorator("title", messageLocator.getMessage("simplepage.new-page-tooltip")));
 				UIOutput.make(tofill, "import-cc").decorate(new UIFreeAttributeDecorator("title", messageLocator.getMessage("simplepage.import_cc")));
+				if (allowCcExport) {
+				    // OK so this is weird. An invisible form, which is submitted by onclick attached to the <A> following.
+				    // The problem is that even if I make the button look like a link it won't show up the same in
+				    // screen readers, so I really need to trigger it with a link
+				    UIOutput.make(tofill, "export-cc-group");
+				    UIForm form = UIForm.make(tofill, "export-cc-form");
+				    UICommand.make(form, "export-cc-input", "#{simplePageBean.exportCc}");
+				    UIOutput.make(tofill, "export-cc");
+				}				    
+
 			}
 			
 			// Checks to see that user can edit and that this is either a top level page,
