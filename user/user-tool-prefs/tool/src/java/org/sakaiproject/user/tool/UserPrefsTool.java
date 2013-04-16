@@ -272,6 +272,8 @@ public class UserPrefsTool
 	// user's currently selected regional language locale
 	private Locale m_locale = null;
 
+	private LocaleComparator localeComparator = new LocaleComparator();
+
 	/** The user id retrieved from UsageSessionService */
 	private String userId = "";
 
@@ -532,6 +534,7 @@ public class UserPrefsTool
 		{
 		    org.sakaiproject.component.api.ServerConfigurationService scs = (org.sakaiproject.component.api.ServerConfigurationService) ComponentManager.get(org.sakaiproject.component.api.ServerConfigurationService.class);
 		    Locale[] localeArray = scs.getSakaiLocales();
+			Arrays.sort(localeArray, localeComparator);
 			for (int i = 0; i < localeArray.length; i++)
 			{
 				if (i == 0 || !localeArray[i].equals(localeArray[i - 1])) {
