@@ -65,6 +65,14 @@
                                                             #end
                                                         #end
                                                     #end
+                                                    ## for LTI tools
+                                                    #if ($ltiTools)
+                                                    	#foreach($tId in $ltiTools.keySet())
+                                                    		#if ($tId == $toolId)
+                                                                checked="checked"
+                                                            #end
+                                                    	#end
+                                                    #end
                                                 #end
                                                 />
                                                 <label for="$toolId">
@@ -73,14 +81,17 @@
                                                     ## only shown then title is customized
                                                     #if ($!allowPageOrderHelper)
                                                         #set($currentTitle = $validator.escapeHtml($!toolRegistrationTitleList.get($toolId)))
-                                                        #if (!$currentTitle.equals($title))
+                                                        #if (!$currentTitle.equals($title) && !$currentTitle.isEmpty())
                                                             ($currentTitle)
                                                         #end
                                                     #end
                                                 </label>
                                             </div>
                                             <div class="toolListDesc textPanelFooter specialLink">
-                                                    $tool.getDescription()
+                                              		## in case that a tool does not have description defined
+                                              		#set($description="")
+                                              		#set($description=$tool.getDescription())
+                                              		$description
                                                     #if ($!multipleToolIdTitleMap.containsKey($toolId))
                                                         #set($properties = $!multipleToolConfiguration.get($toolId))
                                                         #if (!$properties.isEmpty())

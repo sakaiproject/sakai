@@ -19,7 +19,10 @@
    			</label>
 		</div>
 		<div class="toolListDesc textPanelFooter specialLink">
-  			$tool.getDescription()
+  			## in case a tool does not have description defined
+  			#set($description="")
+      		#set($description=$tool.getDescription())
+      		$description
       		</div>
     	</li>
 #end
