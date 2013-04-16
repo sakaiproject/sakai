@@ -2227,7 +2227,8 @@ public class DavServlet extends HttpServlet
 
 		if (!exists)
 		{
-			resp.sendError(HttpServletResponse.SC_NOT_FOUND, "/dav" + path);
+			// We're not exactly sure why, but SC_BAD_REQUEST (not SC_NOT_FOUND) resolves a session clearing problem resulting in inflated open session counts
+			resp.sendError(HttpServletResponse.SC_BAD_REQUEST, "/dav" + path);
 			return;
 		}
 
