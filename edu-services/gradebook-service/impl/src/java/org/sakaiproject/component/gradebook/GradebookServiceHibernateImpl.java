@@ -2464,8 +2464,11 @@ public class GradebookServiceHibernateImpl extends BaseHibernateManager implemen
 		return (Map)getHibernateTemplate().execute(hc);		
 	}
 	
-	public Map getCalculatedCourseGrade(String gradebookUid)
-	{
+	public Map getCalculatedCourseGrade(String gradebookUid) {
+		return getCalculatedCourseGrade (gradebookUid, true);
+	}
+
+	public Map getCalculatedCourseGrade(String gradebookUid, boolean mapTheGrades) {
 		HashMap returnMap = new HashMap();
 
 		try
@@ -2504,8 +2507,14 @@ public class GradebookServiceHibernateImpl extends BaseHibernateManager implemen
 				EnrollmentRecord enr = (EnrollmentRecord)enrollmentMapUid.get(gradeRecord.getStudentId());
 				if(enr != null)
 				{
-					if(!nonAssignment)
+					if(!nonAssignment) {
+					  if (mapTheGrades) {
 						returnMap.put(enr.getUser().getDisplayId(), (String)gradeMap.getGrade(gradeRecord.getNonNullAutoCalculatedGrade()));
+					  } 
+					  else {
+						returnMap.put(enr.getUser().getDisplayId(), gradeRecord.getNonNullAutoCalculatedGrade().toString());
+					  }
+					}
 				}
 			}
 		}
