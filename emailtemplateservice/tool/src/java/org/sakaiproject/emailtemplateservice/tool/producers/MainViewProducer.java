@@ -1,5 +1,7 @@
 package org.sakaiproject.emailtemplateservice.tool.producers;
 
+import java.util.Collections;
+import java.util.Comparator;
 import java.util.List;
 
 import org.apache.commons.logging.Log;
@@ -65,6 +67,7 @@ public class MainViewProducer implements ViewComponentProducer, DefaultView {
 		UIBranchContainer table = UIBranchContainer.make(tofill, "table:");
 
 		List<EmailTemplate> templates = emailTemplateService.getEmailTemplates(0, 0);
+		Collections.sort(templates, new EmailTemplateComaparator()); 
 		for (int i =0; i < templates.size(); i++) {
 			EmailTemplate template = templates.get(i);
 			log.debug("got template: " + template.getKey());
@@ -77,6 +80,33 @@ public class MainViewProducer implements ViewComponentProducer, DefaultView {
 			UIInternalLink.make(row,"template-edit" , UIMessage.make("mainview.edit"), new EmailTemplateViewParams(ModifyEmailProducer.VIEW_ID, template.getId().toString()));
 			//UIInternalLink.make(row,"template-delete" , UIMessage.make("mainview.delete"), new EmailTemplateViewParams(ModifyEmailProducer.VIEW_ID, template.getId().toString()));
 		}
+	}
+	
+	private class EmailTemplateComaparator implements Comparator<EmailTemplate> {
+
+		
+		public int compare(EmailTemplate o1, EmailTemplate o2) {
+			if (o1 == null && o2 != null) {
+				return 1;
+			} else if (o1 != null && o2 == null) {
+				return -1;
+			}
+			
+			String key1 = o1.getKey();
+			String key2 = o2.getKey();
+			String locale1 = o1.getLocale();
+			String locale2 = o2.getLocale();
+			
+			int keyDiff = key1.compareTo(key2);
+			if (keyDiff != 0) {
+				return keyDiff;
+			}
+			
+			//keys are equal compare the locale
+			return locale1.compareTo(locale2);
+
+		}
+		
 	}
 
 }
