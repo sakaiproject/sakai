@@ -8072,7 +8072,10 @@ public class DiscussionForumTool
 		}
 		
 		//MSGCNTR-741 need to filter out post first users
-		userlist.removeAll(getNeedToPostFirst(userlist, (DiscussionTopic)reply.getTopic(), reply.getTopic().getMessages()));
+		if (((DiscussionTopic)reply.getTopic()).getPostFirst()) {
+		    Topic topicWithMessages = forumManager.getTopicByIdWithMessagesAndAttachments(reply.getTopic().getId());
+		    userlist.removeAll(getNeedToPostFirst(userlist, (DiscussionTopic)reply.getTopic(), topicWithMessages.getMessages()));
+		}
 		
 		
 		// now printing out all users = # of messages in the thread - level 2 users
