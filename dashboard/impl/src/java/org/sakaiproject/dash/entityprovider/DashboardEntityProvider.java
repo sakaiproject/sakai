@@ -1,4 +1,4 @@
-package org.sakaiproject.dash.entity;
+package org.sakaiproject.dash.entityprovider;
 
 import java.util.List;
 import java.util.Map;
