@@ -1,6 +1,6 @@
 /**********************************************************************************
- * $URL: https://source.sakaiproject.org/contrib/rsmart/dbrefactor/chat/chat-impl/impl/src/java/org/sakaiproject/chat/impl/ChatServiceSqlMySql.java $
- * $Id: ChatServiceSqlMySql.java 3560 2007-02-19 22:08:01Z jbush@rsmart.com $
+ * $URL$
+ * $Id$
  ***********************************************************************************
  *
  * Copyright (c) 2007, 2008 Sakai Foundation
