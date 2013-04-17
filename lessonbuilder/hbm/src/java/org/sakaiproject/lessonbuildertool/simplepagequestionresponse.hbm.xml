@@ -4,7 +4,7 @@
 	"http://hibernate.sourceforge.net/hibernate-mapping-3.0.dtd">
 <hibernate-mapping>
 
-	<class name="org.sakaiproject.lessonbuildertool.SimplePageQuestionResponseImpl" table="lesson_builder_question_responses">
+	<class name="org.sakaiproject.lessonbuildertool.SimplePageQuestionResponseImpl" table="lesson_builder_q_responses">
 	
 		<id name="id" type="long">
 			<generator class="native" />
