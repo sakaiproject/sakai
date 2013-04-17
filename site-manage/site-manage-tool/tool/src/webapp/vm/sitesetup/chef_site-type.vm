@@ -202,10 +202,10 @@
                                 #set($templateCatNum = $templateCatNum + 1)
                                 <li  class="siteTypeRow $siteType">
                                     <div>
-                                        <h4 class="specialLink" id="templateSettingsTitleTerm">
+                                        <h4 class="specialLink">
                                             <a href="$siteType">
                                                 <span class="open"  style="display: none">&#9662;</span><span class="closed"> &#9656;</span>
-                                                 $siteType
+                                                 <em>$siteType</em>
                                                  <span class="siteTypeRowBlurb"></span>
                                              </a>
                                          </h4>

@@ -149,6 +149,9 @@ dl.defList dd{
     border-radius: 5px;
     text-transform: capitalize;
 }
+#templateList li.siteTypeRow h4 a em{
+    font-style:normal;
+}
 #templateList li.siteTypeRow span.siteTypeRowBlurb {
     color: #555;
     padding: 5px;
