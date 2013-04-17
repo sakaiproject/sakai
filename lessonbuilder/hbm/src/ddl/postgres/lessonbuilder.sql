@@ -87,15 +87,7 @@
         primary key (pageId)
     );
 
-    create table lesson_builder_qr_totals (
-        id int8 not null,
-        questionId int8,
-        responseId int8,
-        count int8,
-        primary key (id)
-    );
-
-    create table lesson_builder_question_responses (
+    create table lesson_builder_q_responses (
         id int8 not null,
         timeAnswered timestamp not null,
         questionId int8 not null,
@@ -106,6 +98,14 @@
         originalText text,
         overridden bool not null,
         points float8,
+        primary key (id)
+    );
+
+    create table lesson_builder_qr_totals (
+        id int8 not null,
+        questionId int8,
+        responseId int8,
+        respcount int8,
         primary key (id)
     );
 

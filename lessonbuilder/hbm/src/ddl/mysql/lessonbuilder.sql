@@ -87,15 +87,7 @@
         primary key (pageId)
     );
 
-    create table lesson_builder_qr_totals (
-        id bigint not null auto_increment,
-        questionId bigint,
-        responseId bigint,
-        count bigint,
-        primary key (id)
-    );
-
-    create table lesson_builder_question_responses (
+    create table lesson_builder_q_responses (
         id bigint not null auto_increment,
         timeAnswered datetime not null,
         questionId bigint not null,
@@ -106,6 +98,14 @@
         originalText text,
         overridden bit not null,
         points double precision,
+        primary key (id)
+    );
+
+    create table lesson_builder_qr_totals (
+        id bigint not null auto_increment,
+        questionId bigint,
+        responseId bigint,
+        respcount bigint,
         primary key (id)
     );
 

@@ -2,15 +2,7 @@ alter table lesson_builder_items add groupOwned number(1,0);
 alter table lesson_builder_items add ownerGroups varchar2(4000);
 alter table lesson_builder_items add attributeString clob;
 alter table lesson_builder_pages add groupid varchar2(36);
-    create table lesson_builder_qr_totals (
-        id number(19,0) not null,
-        questionId number(19,0),
-        responseId number(19,0),
-        count number(19,0),
-        primary key (id)
-    );
-
-    create table lesson_builder_question_responses (
+    create table lesson_builder_q_responses (
         id number(19,0) not null,
         timeAnswered date not null,
         questionId number(19,0) not null,
@@ -21,6 +13,14 @@ alter table lesson_builder_pages add groupid varchar2(36);
         originalText clob,
         overridden number(1,0) not null,
         points double precision,
+        primary key (id)
+    );
+
+    create table lesson_builder_qr_totals (
+        id number(19,0) not null,
+        questionId number(19,0),
+        responseId number(19,0),
+        respcount number(19,0),
         primary key (id)
     );
 
