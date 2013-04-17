@@ -64,8 +64,6 @@ public class GradebookExternalAssessmentServiceImpl extends BaseHibernateManager
     // Special logger for data contention analysis.
     private static final Log logData = LogFactory.getLog(GradebookExternalAssessmentServiceImpl.class.getName() + ".GB_DATA");
 
-    private NumberFormat numberFormat;
-    
     private EventTrackingService eventTrackingService;
 	
     public void setEventTrackingService(EventTrackingService eventTrackingService) {
@@ -759,11 +757,7 @@ public class GradebookExternalAssessmentServiceImpl extends BaseHibernateManager
 	}
 
 	private NumberFormat getNumberFormat() {
-	    if (numberFormat == null) {
-	        numberFormat = NumberFormat.getInstance(new ResourceLoader().getLocale());
-	    }
-
-	    return numberFormat;
+	    return NumberFormat.getInstance(new ResourceLoader().getLocale());
 	}
 
 }
