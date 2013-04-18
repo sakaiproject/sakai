@@ -238,7 +238,6 @@ function show_timeout_alert(min){
     else {
         var dialog = timeoutDialogFragment.replace("{0}", min);
         jQuery("body").append(dialog);
-        jQuery('#timeout_alert_body').css('top', (f_scrollTop() + 100) + "px");
     }
 }
 
