@@ -301,7 +301,7 @@ public class BaseLearningResourceStoreService implements LearningResourceStoreSe
         if ("user.login".equals(event.getEvent()) || "user.logout".equals(event.getEvent())) {
             object = new LRS_Object(serverConfigurationService.getPortalUrl(), "session");
         } else if ("content.read".equals(event.getEvent())) {
-            object = new LRS_Object("sakai:"+event.getResource(), "read");
+            object = new LRS_Object(serverConfigurationService.getAccessUrl()+event.getResource(), "read");
         }
         return object;
     }
