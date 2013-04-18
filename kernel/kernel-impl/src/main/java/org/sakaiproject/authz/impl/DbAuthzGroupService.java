@@ -2992,64 +2992,6 @@ public abstract class DbAuthzGroupService extends BaseAuthzGroupService implemen
 	}
 
 	/**
-	 * An inner class used in the membership cache in RealmRoleGroupCache
-	 * The cache key is userId String, 
-	 * and cache value is of MemberWithRoleId object, which contains information of roleId, provided, active 
-	 * KNL-1037
-	 * 
-	 * @author zqian
-	 */
-	class MemberWithRoleId
-	{
-	    protected String roleId = null;
-	    protected boolean provided = false;
-	    protected boolean active = true;
-
-	    public MemberWithRoleId(String roleId, boolean active, boolean provided)
-	    {
-	        this.roleId = roleId;
-	        this.active = active;
-	        this.provided = provided;
-	    }
-
-	    public MemberWithRoleId(Member m)
-	    {
-	        this.roleId = m.getRole() != null? m.getRole().getId():null;
-	        this.active = m.isActive();
-	        this.provided = m.isProvided();
-	    }
-
-	    public String getRoleId()
-	    {
-	        return roleId;
-	    }
-
-	    /**
-	     * whether the member is provided or not
-	     */
-	    public boolean isProvided()
-	    {
-	        return provided;
-	    }
-
-	    /**
-	     * whether the member is active or not
-	     */
-	    public boolean isActive()
-	    {
-	        return active;
-	    }
-
-	    /**
-	     * set the active attribute
-	     */
-	    public void setActive(boolean active)
-	    {
-	        this.active = active;
-	    }
-	}
-
-	/**
 	 * based on value from RealmRoleGroupCache
 	 * transform a Map<String, MemberWithRoleId> object into a Map<String, Member> object
 	 * KNL-1037
