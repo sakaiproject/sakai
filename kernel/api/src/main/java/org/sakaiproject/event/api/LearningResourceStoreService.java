@@ -396,6 +396,19 @@ public interface LearningResourceStoreService {
     }
 
     public static class LRS_Verb {
+        /*
+         * A verb defines what the action is between actors, activities, or most commonly, between an actor and activity. 
+         * The Experience API does not specify any particular verbs, but rather defines how verbs are to be created. 
+         * It is expected that verb lists exist for various communities of practice. Verbs appear in statements as objects 
+         * consisting of a URI and a set of display names.
+         * 
+         * The Verb URI should identify the particular semantics of a word, not the word itself. 
+         * For example, the English word "fired" could mean different things depending on context, 
+         * such as "fired a weapon", "fired a kiln", or "fired an employee". 
+         * In this case, a URI should identify one of these specific meanings, not the word "fired".
+         */
+        static String ADLNET_VERBS_PREFIX = "http://www.adlnet.gov/expapi/verbs/";
+        static String SAKAI_VERBS_PREFIX = "http://sakaiproject.org/expapi/verbs/";
         /**
          * Set of Sakai verbs (limited set of verbs that make sense for use in Sakai)
          * Based on ADL approved verbs for 1.0
@@ -428,17 +441,6 @@ public interface LearningResourceStoreService {
             terminated,
             voided,
         }
-        /*
-         * A verb defines what the action is between actors, activities, or most commonly, between an actor and activity. 
-         * The Experience API does not specify any particular verbs, but rather defines how verbs are to be created. 
-         * It is expected that verb lists exist for various communities of practice. Verbs appear in statements as objects 
-         * consisting of a URI and a set of display names.
-         * 
-         * The Verb URI should identify the particular semantics of a word, not the word itself. 
-         * For example, the English word "fired" could mean different things depending on context, 
-         * such as "fired a weapon", "fired a kiln", or "fired an employee". 
-         * In this case, a URI should identify one of these specific meanings, not the word "fired".
-         */
         /**
          * REQUIRED: 
          * A URI that corresponds to a verb definition. 
@@ -471,7 +473,7 @@ public interface LearningResourceStoreService {
             if (verb == null) {
                 throw new IllegalArgumentException("LRS_Verb SAKAI_VERB verb cannot be null");
             }
-            id = "http://www.adlnet.gov/expapi/verbs/" + verb.name();
+            id = ADLNET_VERBS_PREFIX + verb.name();
         }
         /**
          * Create a verb to indicate what the user did.
@@ -487,7 +489,7 @@ public interface LearningResourceStoreService {
             if (verb == null) {
                 throw new IllegalArgumentException("LRS_Verb verb cannot be null");
             }
-            id = "http://sakaiproject.org/expapi/verbs/" + verb;
+            this.id = (verb.indexOf("://") == -1 ? SAKAI_VERBS_PREFIX + verb : verb);
         }
         /**
          * OPTIONAL: 
@@ -531,6 +533,7 @@ public interface LearningResourceStoreService {
          * the same URI as references to different activities, regardless of any information which indicates 
          * two authors or organizations may have used the same activity URI.
          */
+        static String SAKAI_OBJECTS_PREFIX = "http://sakaiproject.org/expapi/activity/";
         /**
          * URI. An activity URI must always refer to a single unique activity.
          * If a URL, the URL should refer to metadata for this activity
@@ -538,7 +541,7 @@ public interface LearningResourceStoreService {
          */
         String id;
         /**
-         * URI, the type of activity. (e.g. assessment)
+         * URI, the type of activity. (e.g. http://sakaiproject.org/expapi/activity/assessment)
          * Note, URI fragments (sometimes called relative URLs) are not valid URIs. 
          * Similar to verbs, we recommend that Learning Activity Providers look for and use established, widely adopted, activity types.
          */
@@ -573,14 +576,14 @@ public interface LearningResourceStoreService {
         }
         /**
          * @param uri activity URI that refers to a single unique activity. (e.g. http://example.com/activity/spelling-test)
-         * @param activityType activity URI that refers to the type of activity. (e.g. assessment)
+         * @param activityType activity URI that refers to the type of activity. (e.g. http://sakaiproject.org/expapi/activity/assessment)
          */
         public LRS_Object(String uri, String activityType) {
             this(uri);
             if (activityType == null) {
                 throw new IllegalArgumentException("LRS_Object type cannot be null");
             }
-            this.activityType = activityType;
+            this.activityType = (activityType.indexOf("://") == -1 ? SAKAI_OBJECTS_PREFIX + activityType : activityType);
         }
         /**
          * @param activityType activity URI that refers to the type of activity. (e.g. assessment)
