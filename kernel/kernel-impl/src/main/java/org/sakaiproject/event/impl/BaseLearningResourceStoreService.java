@@ -58,7 +58,7 @@ import org.springframework.context.ApplicationContextAware;
  * Default: No filters (all statements processed)
  * lrs.origins.filter=tool1,tool2,tool3
  * 
- * @author Aaron Zeckoski (azeckoski @ vt.edu)
+ * @author Aaron Zeckoski (azeckoski @ unicon.net) (azeckoski @ vt.edu)
  */
 public class BaseLearningResourceStoreService implements LearningResourceStoreService, ApplicationContextAware {
 
@@ -159,14 +159,32 @@ public class BaseLearningResourceStoreService implements LearningResourceStoreSe
                     }
                 }
                 if (!skip) {
-                    // process this statement
-                    if (log.isDebugEnabled()) log.debug("LRS statement being processed, origin="+origin+", statement="+statement);
-                    for (LearningResourceStoreProvider lrsp : providers.values()) {
-                        // run the statement processing in a new thread
-                        String threadName = "LRS_"+lrsp.getID();
-                        Thread t = new Thread(new RunStatementThread(lrsp, statement), threadName); // each provider has it's own thread
-                        t.setDaemon(true); // allow this thread to be killed when the JVM dies
-                        t.start();
+                    // validate the statement
+                    boolean valid = false;
+                    if (statement.isPopulated()
+                            && statement.getActor() != null 
+                            && statement.getVerb() != null 
+                            && statement.getObject() != null) {
+                        valid = true;
+                    } else if (statement.getRawMap() != null 
+                            && !statement.getRawMap().isEmpty()) {
+                        valid = true;
+                    } else if (statement.getRawJSON() != null 
+                            && !StringUtils.isNotBlank(statement.getRawJSON())) {
+                        valid = true;
+                    }
+                    if (valid) {
+                        // process this statement
+                        if (log.isDebugEnabled()) log.debug("LRS statement being processed, origin="+origin+", statement="+statement);
+                        for (LearningResourceStoreProvider lrsp : providers.values()) {
+                            // run the statement processing in a new thread
+                            String threadName = "LRS_"+lrsp.getID();
+                            Thread t = new Thread(new RunStatementThread(lrsp, statement), threadName); // each provider has it's own thread
+                            t.setDaemon(true); // allow this thread to be killed when the JVM is shutdown
+                            t.start();
+                        }
+                    } else {
+                        log.warn("Invalid statment registered, statement will not be processed: "+statement);
                     }
                 } else {
                     if (log.isDebugEnabled()) log.debug("LRS statement being skipped, origin="+origin+", statement="+statement);
@@ -243,12 +261,20 @@ public class BaseLearningResourceStoreService implements LearningResourceStoreSe
     private LRS_Statement getEventStatement(Event event) {
         LRS_Statement statement;
         try {
-            LRS_Actor actor = getEventActor(event);
             LRS_Verb verb = getEventVerb(event);
-            LRS_Object object = getEventObject(event);
-            statement = new LRS_Statement(actor, verb, object);
+            if (verb != null) {
+                LRS_Object object = getEventObject(event);
+                if (object != null) {
+                    LRS_Actor actor = getEventActor(event);
+                    statement = new LRS_Statement(actor, verb, object);
+                } else {
+                    statement = null;
+                }
+            } else {
+                statement = null;
+            }
         } catch (Exception e) {
-            if (log.isDebugEnabled()) log.debug("Unablde to convert event ("+event+") into statement: "+e);
+            if (log.isDebugEnabled()) log.debug("LRS Unable to convert event ("+event+") into statement: "+e);
             statement = null;
         }
         return statement;
@@ -277,8 +303,15 @@ public class BaseLearningResourceStoreService implements LearningResourceStoreSe
                 }
             }
         }
-        if (user != null && StringUtils.isNotEmpty(user.getEmail())) {
-            String actorEmail = user.getEmail();
+        if (user != null) {
+            String actorEmail;
+            if (StringUtils.isNotEmpty(user.getEmail())) {
+                actorEmail = user.getEmail();
+            } else {
+                // no email set - make up something like one
+                actorEmail = user.getId()+"@"+serverConfigurationService.getServerName();
+                log.warn("LRS Actor: No email set for user ("+user.getId()+"), using generated one: "+actorEmail);
+            }
             actor = new LRS_Actor(actorEmail);
         }
         return actor;

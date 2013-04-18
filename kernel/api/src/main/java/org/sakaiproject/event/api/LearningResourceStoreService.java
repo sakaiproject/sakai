@@ -313,6 +313,25 @@ public interface LearningResourceStoreService {
         public LRS_Context getContext() {
             return context;
         }
+        /* (non-Javadoc)
+         * @see java.lang.Object#toString()
+         */
+        @Override
+        public String toString() {
+            String s;
+            if (this.getRawJSON() != null && !"".equals(this.getRawJSON())) {
+                s = "Statement(json):"+this.getRawJSON();
+            } else if (this.getRawMap() != null && !this.getRawMap().isEmpty()) {
+                s = "Statement(map):"+this.getRawJSON();
+            } else {
+                s = "Statement[pop=" + populated + ", id=" + id + ", timestamp=" + timestamp 
+                        + ", actor=" + actor + ", verb=" + verb + ", object=" + object 
+                        + (result==null?"":", result=" + result) 
+                        + (context==null?"":", context=" + context) 
+                        + ", voided=" + voided + "]";
+            }
+            return s;
+        }
     }
 
     public static class LRS_Actor {
@@ -392,6 +411,13 @@ public interface LearningResourceStoreService {
          */
         public String getMbox() {
             return mbox;
+        }
+        /* (non-Javadoc)
+         * @see java.lang.Object#toString()
+         */
+        @Override
+        public String toString() {
+            return "Actor[mbox=" + mbox + ", name=" + name + "]";
         }
     }
 
@@ -515,6 +541,13 @@ public interface LearningResourceStoreService {
         public Map<String, String> getDisplay() {
             return display;
         }
+        /* (non-Javadoc)
+         * @see java.lang.Object#toString()
+         */
+        @Override
+        public String toString() {
+            return "Verb[id=" + id + "]";
+        }
     }
 
     public static class LRS_Object {
@@ -620,6 +653,13 @@ public interface LearningResourceStoreService {
          */
         public String getActivityType() {
             return activityType;
+        }
+        /* (non-Javadoc)
+         * @see java.lang.Object#toString()
+         */
+        @Override
+        public String toString() {
+            return "Object[id=" + id + ", activityType=" + activityType + "]";
         }
     }
 
@@ -820,6 +860,23 @@ public interface LearningResourceStoreService {
         public String getResponse() {
             return response;
         }
+        /* (non-Javadoc)
+         * @see java.lang.Object#toString()
+         */
+        @Override
+        public String toString() {
+            String points = "";
+            if (scaled != null) {
+                points = "scaled=" + scaled;
+            }
+            if (raw != null) {
+                points += ",raw=" + scaled;
+            }
+            if (min != null && max != null) {
+                points += ",min=" + min + ",max=" + max;
+            }
+            return "Result["+points+(success?" success":" fail")+(completion?" complete":" incomplete")+ "]";
+        }
     }
 
     public static class LRS_Context {
@@ -949,6 +1006,13 @@ public interface LearningResourceStoreService {
          */
         public Map<String, Map<String, String>> getActivitiesMap() {
             return activitiesMap;
+        }
+        /* (non-Javadoc)
+         * @see java.lang.Object#toString()
+         */
+        @Override
+        public String toString() {
+            return "Context[instructor=" + instructor + ", rev=" + revision + ", activities=" + activitiesMap + "]";
         }
     }
 
