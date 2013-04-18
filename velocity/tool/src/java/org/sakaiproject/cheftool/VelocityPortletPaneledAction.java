@@ -27,6 +27,7 @@ import java.lang.reflect.Method;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Iterator;
+import java.util.LinkedHashSet;
 import java.util.Locale;
 import java.util.Map;
 import java.util.Set;
@@ -1261,5 +1262,41 @@ public abstract class VelocityPortletPaneledAction extends ToolServlet
       } 
    }
 
+	private static final String[] DEFAULT_TIME_FORMAT_ARRAY = new String[] {"h", "m", "a"};
+
+	/**
+	 ** Return a String array containing the "h", "m", "a", or "H" characters (corresponding to hour, minute, am/pm, or 24-hour)
+	 ** in the locale specific order
+	 **/
+	public String[] getTimeFormatString()
+	{
+		SimpleDateFormat sdf = (SimpleDateFormat) DateFormat.getTimeInstance(DateFormat.SHORT, rb.getLocale());
+		String format = sdf.toPattern();
+
+		Set<String> formatSet = new LinkedHashSet<String>();
+		char curChar;
+		char lastChar = 0;
+		for (int i = 0; i < format.length(); i++)
+		{
+			curChar = format.charAt(i);
+			if ((curChar == 'h' || curChar == 'm' || curChar == 'a' || curChar == 'H') && curChar != lastChar)
+			{
+				formatSet.add(String.valueOf(curChar));
+				lastChar = curChar;
+			}
+		}
+
+		String[] formatArray = formatSet.toArray(new String[formatSet.size()]);
+		if (formatArray.length != DEFAULT_TIME_FORMAT_ARRAY.length
+				&& formatArray.length != DEFAULT_TIME_FORMAT_ARRAY.length - 1)
+		{
+			M_log.warn("Unknown time format string (using default): " + format);
+			return DEFAULT_TIME_FORMAT_ARRAY.clone();
+		}
+		else
+		{
+			return formatArray;
+		}
+	}
 } // class VelocityPortletPaneledAction
 
