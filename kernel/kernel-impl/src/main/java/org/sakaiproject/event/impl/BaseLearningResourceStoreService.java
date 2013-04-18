@@ -309,7 +309,13 @@ public class BaseLearningResourceStoreService implements LearningResourceStoreSe
                 actorEmail = user.getEmail();
             } else {
                 // no email set - make up something like one
-                actorEmail = user.getId()+"@"+serverConfigurationService.getServerName();
+                String server = serverConfigurationService.getServerName();
+                if ("localhost".equals(server)) {
+                    server = "tincanapi.dev.sakaiproject.org";
+                } else {
+                    server = serverConfigurationService.getServerId()+"."+server;
+                }
+                actorEmail = user.getId()+"@"+server;
                 log.warn("LRS Actor: No email set for user ("+user.getId()+"), using generated one: "+actorEmail);
             }
             actor = new LRS_Actor(actorEmail);
