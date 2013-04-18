@@ -33,20 +33,7 @@
 		#if ($freq == "once")
 			<p class="instruction">
 				$tlang.getString("set.theonly")
-				#set($month = $savedData.getMonth())
-				#if ($month == 1)$tlang.getString("jan") #end
-				#if ($month == 2)$tlang.getString("feb") #end
-				#if ($month == 3)$tlang.getString("mar") #end
-				#if ($month == 4)$tlang.getString("apr") #end
-				#if ($month == 5)$tlang.getString("may") #end
-				#if ($month == 6)$tlang.getString("jun") #end
-				#if ($month == 7)$tlang.getString("jul") #end
-				#if ($month == 8)$tlang.getString("aug") #end
-				#if ($month == 9)$tlang.getString("sep") #end
-				#if ($month == 10)$tlang.getString("oct") #end
-				#if ($month == 11)$tlang.getString("nov") #end
-				#if ($month == 12)$tlang.getString("dec") #end
-				$savedData.Day, $savedData.Year
+				$freqOnceDate
 			</p>
 		#else ## for daily, weekly, and etc.
 			<p class="shorttext">

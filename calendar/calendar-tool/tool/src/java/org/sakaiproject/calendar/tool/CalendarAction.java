@@ -61,6 +61,7 @@ import org.sakaiproject.calendar.api.RecurrenceRule;
 import org.sakaiproject.calendar.cover.CalendarImporterService;
 import org.sakaiproject.calendar.cover.CalendarService;
 import org.sakaiproject.calendar.cover.ExternalCalendarSubscriptionService;
+import org.sakaiproject.calendar.tool.CalendarActionState.LocalEvent;
 import org.sakaiproject.cheftool.Context;
 import org.sakaiproject.cheftool.JetspeedRunData;
 import org.sakaiproject.cheftool.RunData;
@@ -2581,6 +2582,12 @@ extends VelocityPortletStateAction
 		
 		context.put("realDate", TimeService.newTime());
 				
+		if (DEFAULT_FREQ.equals(freq))
+		{
+			LocalEvent savedData = state.getNewData();
+			Time m_time = TimeService.newTimeLocal(savedData.getYearInt(), savedData.getMonth(), savedData.getDay(), 0, 0, 0, 0);
+			context.put("freqOnceDate", m_time.toStringLocalDate());
+		}
 	} // buildFrequencyContext
 	
 	/**
