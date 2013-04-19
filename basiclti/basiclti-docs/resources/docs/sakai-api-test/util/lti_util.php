@@ -530,26 +530,12 @@ function get_string($key,$bundle) {
 
 function do_post_request($url, $data, $optional_headers = null)
 {
-  $params = array('http' => array(
-              'method' => 'POST',
-              'content' => $data
-            ));
-
   if ($optional_headers !== null) {
      $header = $optional_headers . "\r\n";
   }
-  // $header = $header . "Content-type: application/x-www-form-urlencoded\r\n";
-  $params['http']['header'] = $header;
-  $ctx = stream_context_create($params);
-  $fp = @fopen($url, 'rb', false, $ctx);
-  if (!$fp) {
-    throw new Exception("Problem with $url, $php_errormsg");
-  }
-  $response = @stream_get_contents($fp);
-  if ($response === false) {
-    throw new Exception("Problem reading data from $url, $php_errormsg");
-  }
-  return $response;
+  $header = $header . "Content-type: application/x-www-form-urlencoded\r\n";
+
+  return do_post($url,$data,$header);
 }
 
 
@@ -669,66 +655,13 @@ function handleOAuthBodyPOST($oauth_consumer_key, $oauth_consumer_secret)
     $hash = base64_encode(sha1($postdata, TRUE));
 
     global $LastOAuthBodyHashInfo;
-  $LastOAuthBodyHashInfo = "hdr_hash=$oauth_body_hash body_len=".strlen($postdata)." body_hash=$hash";
+    $LastOAuthBodyHashInfo = "hdr_hash=$oauth_body_hash body_len=".strlen($postdata)." body_hash=$hash";
 
     if ( $hash != $oauth_body_hash ) {
         throw new Exception("OAuth oauth_body_hash mismatch");
     }
 
     return $postdata;
-}
-
-// From: http://php.net/manual/en/function.file-get-contents.php
-function post_socket_xml($endpoint, $data, $moreheaders=false) {
-    $url = parse_url($endpoint);
-
-    if (!isset($url['port'])) {
-      if ($url['scheme'] == 'http') { $url['port']=80; }
-      elseif ($url['scheme'] == 'https') { $url['port']=443; }
-    }
-
-    $url['query']=isset($url['query'])?$url['query']:'';
-
-    $hostport = ':'.$url['port'];
-    if ($url['scheme'] == 'http' && $hostport == ':80' ) $hostport = '';
-    if ($url['scheme'] == 'https' && $hostport == ':443' ) $hostport = '';
-
-    $url['protocol']=$url['scheme'].'://';
-    $eol="\r\n";
-
-  $uri = "/";
-  if ( isset($url['path'])) $uri = $url['path'];
-  if ( strlen($url['query']) > 0 ) $uri .= '?'.$url['query'];
-  if ( strlen($url['fragment']) > 0 ) $uri .= '#'.$url['fragment'];
-
-    $headers =  "POST ".$uri." HTTP/1.0".$eol.
-                "Host: ".$url['host'].$hostport.$eol.
-                "Referer: ".$url['protocol'].$url['host'].$url['path'].$eol.
-                "Content-Length: ".strlen($data).$eol;
-  if ( is_string($moreheaders) ) $headers .= $moreheaders;
-  $len = strlen($headers);
-  if ( substr($headers,$len-2) != $eol ) {
-        $headers .= $eol;
-  }
-    $headers .= $eol.$data;
-  // echo("\n"); echo($headers); echo("\n");
-    // echo("PORT=".$url['port']);
-    try {
-      $fp = fsockopen($url['host'], $url['port'], $errno, $errstr, 30);
-      if($fp) {
-        fputs($fp, $headers);
-        $result = '';
-        while(!feof($fp)) { $result .= fgets($fp, 128); }
-        fclose($fp);
-        //removes headers
-        $pattern="/^.*\r\n\r\n/s";
-        $result=preg_replace($pattern,'',$result);
-        return $result;
-      }
-  } catch(Exception $e) {
-    return false;
-  }
-  return false;
 }
 
 function sendOAuthBodyPOST($method, $endpoint, $oauth_consumer_key, $oauth_consumer_secret, $content_type, $body)
@@ -752,9 +685,77 @@ function sendOAuthBodyPOST($method, $endpoint, $oauth_consumer_key, $oauth_consu
     $header = $acc_req->to_header();
     $header = $header . "\r\nContent-Type: " . $content_type . "\r\n";
 
-    $response = post_socket_xml($endpoint,$body,$header);
-    if ( $response !== false && strlen($response) > 0) return $response;
+    return do_post($endpoint,$body,$header);
+}
 
+function do_post($url, $body, $header) {
+    $response = post_socket($url, $body, $header);
+    if ( $response !== false ) return $response;
+    $response = post_stream($url, $body, $header);
+    if ( $response !== false ) return $response;
+    $response = post_curl($url, $body, $header);
+    if ( $response !== false ) return $response;
+    echo("Unable to post<br/>\n");
+    echo("Url=$url <br/>\n");
+    echo("Headers:<br/>\n$headers<br/>\n");
+    echo("Body:<br/>\n$data<br/>\n");
+    throw new Exception("Unable to post");
+}
+
+// From: http://php.net/manual/en/function.file-get-contents.php
+function post_socket($endpoint, $data, $moreheaders=false) {
+    $url = parse_url($endpoint);
+
+    if (!isset($url['port'])) {
+      if ($url['scheme'] == 'http') { $url['port']=80; }
+      elseif ($url['scheme'] == 'https') { $url['port']=443; }
+    }
+
+    $url['query']=isset($url['query'])?$url['query']:'';
+
+    $hostport = ':'.$url['port'];
+    if ($url['scheme'] == 'http' && $hostport == ':80' ) $hostport = '';
+    if ($url['scheme'] == 'https' && $hostport == ':443' ) $hostport = '';
+
+    $url['protocol']=$url['scheme'].'://';
+    $eol="\r\n";
+
+    $uri = "/";
+    if ( isset($url['path'])) $uri = $url['path'];
+    if ( strlen($url['query']) > 0 ) $uri .= '?'.$url['query'];
+    if ( strlen($url['fragment']) > 0 ) $uri .= '#'.$url['fragment'];
+
+    $headers =  "POST ".$uri." HTTP/1.0".$eol.
+                "Host: ".$url['host'].$hostport.$eol.
+                "Referer: ".$url['protocol'].$url['host'].$url['path'].$eol.
+                "Content-Length: ".strlen($data).$eol;
+    if ( is_string($moreheaders) ) $headers .= $moreheaders;
+    $len = strlen($headers);
+    if ( substr($headers,$len-2) != $eol ) {
+        $headers .= $eol;
+    }
+    $headers .= $eol.$data;
+    // echo("\n"); echo($headers); echo("\n");
+    // echo("PORT=".$url['port']);
+    try {
+        $fp = fsockopen($url['host'], $url['port'], $errno, $errstr, 30);
+        if($fp) {
+            fputs($fp, $headers);
+            $result = '';
+            while(!feof($fp)) { $result .= fgets($fp, 128); }
+            fclose($fp);
+            // removes HTTP response headers
+            $pattern="/^.*\r\n\r\n/s";
+            $result=preg_replace($pattern,'',$result);
+            return $result;
+        }
+    } catch(Exception $e) {
+        return false;
+    }
+    return false;
+}
+
+function post_stream($url, $body, $header) {
     $params = array('http' => array(
         'method' => 'POST',
         'content' => $body,
@@ -762,25 +763,17 @@ function sendOAuthBodyPOST($method, $endpoint, $oauth_consumer_key, $oauth_consu
         ));
 
     $ctx = stream_context_create($params);
-  try {
-    $fp = @fopen($endpoint, 'r', false, $ctx);
-    } catch (Exception $e) {
-        $fp = false;
-    }
-    if ($fp) {
+    try {
+        $fp = @fopen($endpoint, 'r', false, $ctx);
         $response = @stream_get_contents($fp);
-    } else {  // Try CURL
-        $headers = explode("\r\n",$header);
-        $response = sendXmlOverPost($endpoint, $body, $headers);
-    }
-
-    if ($response === false) {
-        throw new Exception("Problem reading data from $endpoint, $php_errormsg");
+    } catch (Exception $e) {
+        return false;
     }
     return $response;
 }
 
-function sendXmlOverPost($url, $xml, $header) {
+
+function post_curl($url, $xml, $header) {
   if ( ! function_exists('curl_init') ) return false;
   $ch = curl_init();
   curl_setopt($ch, CURLOPT_URL, $url);
