@@ -75,18 +75,25 @@
 
 							#set($roleCount=0)
 							#foreach($role in $roles)
+								## The roles can come from a different realm so get the current realm's roles.
+								## Might not exist in current realm so might be empty
 								#set($myRole = $realm.getRole($role.Id))
 								#set($roleAbilities = $rolesAbilities.get($role.Id))
-								#set($roleCount=$roleCount + 1)		
+								#set($roleCount=$roleCount + 1)
+								#set($alreadyGranted = $roleAbilities.contains($lock))
+								#set($granted = ($myRole) && ($myRole.Id==$role.Id) && ($myRole.AllowedFunctions.contains($lock)))
 								<td class="$roleCount checkboxCell">
-									#if($roleAbilities.contains($lock))
-										<img src="#imageLink("sakai/checkon.gif")" border="0" alt="$thelp.getString("per.alrgra")" hspace="5" />
-									#else
-										<label for="$role.Id$lock"> <span class="skip">$thelp.getString("gen.enable") $role.Id: $desc</span>
-											<input class="$role.Id$lock" type="checkbox" name="$role.Id$lock" id="$role.Id$lock" value="$role.Id$lock" #if(($myRole) && ($myRole.Id==$role.Id) && ($myRole.AllowedFunctions.contains($lock)))checked="checked"#end />
-										</label>	
-									#end
-									#end
+									<label for="$role.Id$lock">
+										<span class="skip">
+										#if($alreadyGranted)
+											$thelp.getString("gen.enable")
+										#else
+											$thelp.getString("per.alrgra")
+										#fi
+										$role.Id: $desc
+										</span>
+										<input class="$role.Id$lock" type="checkbox" name="$role.Id$lock" id="$role.Id$lock" value="$role.Id$lock" #if($granted)checked="checked"#end />
+									</label>
 								</td>
 							#end
 						</tr>
