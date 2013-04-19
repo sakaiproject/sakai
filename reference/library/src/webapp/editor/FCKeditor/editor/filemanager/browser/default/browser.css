@@ -98,3 +98,11 @@ body, td, input, select
 .grpExpanded {
 	display: ;
 }
+
+.optHide {
+       display: none;
+}
+
+.optShow {
+       display: ;
+}

@@ -55,6 +55,12 @@ FCKXml.prototype.LoadUrl = function( urlToCall, asyncFunctionPointer )
 
 	oXmlHttp.open( "GET", urlToCall, bAsync ) ;
 
+        // fix for IE 10
+        try {
+                oXmlHttp.responseType = 'msxml-document';
+        }
+        catch(e) {}
+
 	if ( bAsync )
 	{
 		oXmlHttp.onreadystatechange = function()
@@ -89,12 +95,6 @@ FCKXml.prototype.LoadUrl = function( urlToCall, asyncFunctionPointer )
 				}
 
 				oFCKXml.DOMDocument = oXml ;
-                //For MSIE > 9
-        	    if ( navigator.userAgent.indexOf('MSIE') >= 0 ) { 		// IE
-                  var doc = new ActiveXObject('Msxml2.DOMDocument.6.0');
-                  doc.loadXML(new XMLSerializer().serializeToString(oFCKXml.DOMDocument));
-                  oFCKXml.DOMDocument = doc;
-                }
 				asyncFunctionPointer( oFCKXml ) ;
 			}
 		}
@@ -104,15 +104,8 @@ FCKXml.prototype.LoadUrl = function( urlToCall, asyncFunctionPointer )
 
 	if ( ! bAsync )
 	{
-		if ( oXmlHttp.status == 200 || oXmlHttp.status == 304 ) {
+		if ( oXmlHttp.status == 200 || oXmlHttp.status == 304 )
 			this.DOMDocument = oXmlHttp.responseXML ;
-        	if ( navigator.userAgent.indexOf('MSIE') >= 0 ) { 		// IE
-             //For MSIE > 9
-              var doc = new ActiveXObject('Msxml2.DOMDocument.6.0');
-              doc.loadXML(new XMLSerializer().serializeToString(this.DOMDocument));
-              this.DOMDocument = doc;
-          }
-        }
 		else
 		{
 			alert( 'XML request error: ' + oXmlHttp.statusText + ' (' + oXmlHttp.status + ')' ) ;
