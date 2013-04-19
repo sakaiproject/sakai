@@ -60,6 +60,7 @@ import org.springframework.context.ApplicationContextAware;
  * 
  * @author Aaron Zeckoski (azeckoski @ unicon.net) (azeckoski @ vt.edu)
  */
+//@Aspect
 public class BaseLearningResourceStoreService implements LearningResourceStoreService, ApplicationContextAware {
 
     private static final String ORIGIN_SAKAI_SYSTEM = "sakai.system";
@@ -213,26 +214,6 @@ public class BaseLearningResourceStoreService implements LearningResourceStoreSe
         }
     };
 
-    private static class ExperienceObserver implements Observer {
-        final BaseLearningResourceStoreService lrss;
-        public ExperienceObserver(BaseLearningResourceStoreService lrss) {
-            this.lrss = lrss;
-        }
-        @Override
-        public void update(Observable observable, Object object) {
-            if (object != null && object instanceof Event) {
-                Event event = (Event) object;
-                // convert event into origin
-                String origin = this.lrss.getEventOrigin(event);
-                // convert event into statement when possible
-                LRS_Statement statement = this.lrss.getEventStatement(event);
-                if (statement != null) {
-                    this.lrss.registerStatement(statement, origin);
-                }
-            }
-        }
-    }
-
     /* (non-Javadoc)
      * @see org.sakaiproject.event.api.LearningResourceStoreService#isEnabled()
      */
@@ -252,6 +233,63 @@ public class BaseLearningResourceStoreService implements LearningResourceStoreSe
             throw new IllegalArgumentException("LRS provider must not be null");
         }
         return providers.put(provider.getID(), provider) != null;
+    }
+
+
+    /* AOP processing of events
+     * NOTE: this probably won't end up working - we might need to just use the service directly
+     * mostly because the types of the objects (like Assignment) cannot be pulled into the
+     * kernel because it would make the kernel depend on those projects,
+     * but I think we will need access to the values in those objects and getting them
+     * all via reflection is going to be a too much effort -AZ
+     * 
+     * Alos, for runtime weaving (load-time) we have to add this to spring and put aspect j into shared
+     * <aop:aspectj-autoproxy/>
+     * <bean class="org.springframework.aop.aspectj.annotation.AnnotationAwareAspectJAutoProxyCreator" />
+     */
+
+    /* 
+     * Leaving this in so we don't forget that it was attempted
+     * 
+    @Before("execution(* org.sakaiproject.event.impl.*Service.init())")
+    public void sampleBeforeInit() {
+        log.info("AOP Before init()");
+    }
+
+    @AfterReturning("execution(* org.sakaiproject.event.impl.*Service.init(..))")
+    public void sampleAfterInit() {
+        log.info("AOP After init()");
+    }
+
+    @Around("execution(* *.setUsageSessionServiceSql(String)) && args(vendor)")
+    public void sampleAround(ProceedingJoinPoint thisJoinPoint, String vendor) throws Throwable {
+        log.info("AOP Around (before) setUsageSessionServiceSql("+vendor+")");
+        thisJoinPoint.proceed(new Object[] {vendor});
+        log.info("AOP Around (after) setUsageSessionServiceSql("+vendor+")");
+    }
+    */
+
+
+    // EVENT conversion to statements
+
+    private static class ExperienceObserver implements Observer {
+        final BaseLearningResourceStoreService lrss;
+        public ExperienceObserver(BaseLearningResourceStoreService lrss) {
+            this.lrss = lrss;
+        }
+        @Override
+        public void update(Observable observable, Object object) {
+            if (object != null && object instanceof Event) {
+                Event event = (Event) object;
+                // convert event into origin
+                String origin = this.lrss.getEventOrigin(event);
+                // convert event into statement when possible
+                LRS_Statement statement = this.lrss.getEventStatement(event);
+                if (statement != null) {
+                    this.lrss.registerStatement(statement, origin);
+                }
+            }
+        }
     }
 
     /**
