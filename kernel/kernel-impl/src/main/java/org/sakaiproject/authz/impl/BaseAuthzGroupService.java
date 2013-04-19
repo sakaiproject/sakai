@@ -1091,17 +1091,30 @@ public abstract class BaseAuthzGroupService implements AuthzGroupService
 	public boolean parseEntityReference(String reference, Reference ref)
 	{
 		// for azGroup access
-		if (reference.startsWith(REFERENCE_ROOT))
+		String id = extractEntityId(reference);
+		if (id != null)
 		{
-			// the azGroup id may have separators - we use everything after "/realm/"
-			String id = reference.substring(REFERENCE_ROOT.length() + 1, reference.length());
-
 			ref.set(APPLICATION_ID, null, id, null, null);
-
 			return true;
 		}
 
 		return false;
+	}
+
+	/**
+	 * Get the realm ID from a reference string. 
+	 * @param reference The reference to a realm. eg<code>/realm//site/mercury</code>
+	 * @return The ID of the realm or <code>null</code> if it's not a realm reference.
+	 */
+	protected String extractEntityId(String reference)
+	{
+		if (reference.startsWith(REFERENCE_ROOT) && REFERENCE_ROOT.length() + 1 <= reference.length())
+		{
+			// the azGroup id may have separators - we use everything after "/realm/"
+			String id = reference.substring(REFERENCE_ROOT.length() + 1, reference.length());
+			return id;
+		}
+		return null;
 	}
 
 	/**

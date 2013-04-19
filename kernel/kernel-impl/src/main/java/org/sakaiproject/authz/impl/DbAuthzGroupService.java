@@ -2970,22 +2970,19 @@ public abstract class DbAuthzGroupService extends BaseAuthzGroupService implemen
 				|| SECURE_JOIN_AUTHZ_GROUP.equals(function)
 				|| SECURE_UNJOIN_AUTHZ_GROUP.equals(function)
 				|| SECURE_ADD_AUTHZ_GROUP.equals(function)) {
-			String eventResource = event.getResource();
-			String resourceId = eventResource;
-			
-			// realm.unjoin (KNL-523) ref looks like this /realm//site/mercury
-			eventResource = eventResource.replace(Entity.SEPARATOR + Entity.SEPARATOR, Entity.SEPARATOR);
+			// Get the resource ID
+			String realmId = extractEntityId(event.getResource());
 
-			// the azGroup id may have separators - we use everything after "/realm/"
-			if (eventResource.startsWith(REFERENCE_ROOT)) {
-				resourceId = eventResource.substring(REFERENCE_ROOT.length(), eventResource.length());
+			if (realmId != null) {
+				if (M_log.isDebugEnabled()) {
+					M_log.debug("DbAuthzGroupService update(): clear realm role cache for " + realmId);
+				}
+				m_realmRoleGRCache.remove(realmId);
+			} else {
+				// This should never happen as the events we generate should always have 
+				// a /realm/ prefix on the resource.
+				M_log.warn("DBAuthzGroupService update(): failed to extract realm ID from "+ event.getResource()); 
 			}
-			
-			if (M_log.isDebugEnabled()) {
-				M_log.debug("DbAuthzGroupService update(): clear realm role cache for " + resourceId);
-			}
-
-			m_realmRoleGRCache.remove(resourceId);
 		}
 		
 		
