@@ -222,6 +222,10 @@ public class FCKConnectorServlet extends HttpServlet {
 
              getForumsAndThreads(currentFolder, root, document, type, thisConnectorHelper);
           }
+          else if ("GetResources".equals(commandStr)) {
+              getResources(currentFolder, root, document, collectionBase, type);
+          }          
+          
           
           else if ("CreateFolder".equals(commandStr)) {
                String newFolderStr = request.getParameter("NewFolderName");
@@ -420,16 +424,14 @@ public class FCKConnectorServlet extends HttpServlet {
                }
                else {
                    out.println("<script type=\"text/javascript\">");
+               	   out.println("(function(){ var d = document.domain ; while ( true ) {");
+                   out.println("try { var test = parent.document.domain ; break ; } catch( e ) {}");
+                   out.println("d = d.replace( /.*?(?:\\.|$)/, '' ) ; if ( d.length == 0 ) break ;");
+                   out.println("try { document.domain = d ; } catch (e) { break ; }}})() ;");
 
-                   if ("QuickUpload".equals(command)) {
                        out.println("window.parent.OnUploadCompleted(" + status + ",'"
                                + contentHostingService.getUrl(currentFolder) + fileName
                                + "','" + fileName + "','" + errorMessage + "');");
-                   }
-
-                   else {
-                       out.println("window.parent.frames['frmUpload'].OnUploadCompleted("+status+",'"+fileName+"');");
-                   }
 
                    out.println("</script>");
                }
