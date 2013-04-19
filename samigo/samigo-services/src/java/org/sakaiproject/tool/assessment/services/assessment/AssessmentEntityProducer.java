@@ -4,17 +4,19 @@ import java.io.File;
 import java.io.FileWriter;
 import java.io.IOException;
 import java.util.Collection;
+import java.util.HashMap;
+import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Set;
 import java.util.Stack;
-import java.util.Map.Entry;
-import org.sakaiproject.util.cover.LinkMigrationHelper;
 
+import org.apache.commons.lang.StringUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
+import org.sakaiproject.content.api.ContentResource;
 import org.sakaiproject.entity.api.Entity;
 import org.sakaiproject.entity.api.EntityProducer;
 import org.sakaiproject.entity.api.EntityTransferrer;
@@ -23,6 +25,10 @@ import org.sakaiproject.entity.api.HttpAccess;
 import org.sakaiproject.entity.api.Reference;
 import org.sakaiproject.entity.api.ResourceProperties;
 import org.sakaiproject.entity.cover.EntityManager;
+import org.sakaiproject.exception.IdUnusedException;
+import org.sakaiproject.exception.PermissionException;
+import org.sakaiproject.exception.TypeException;
+import org.sakaiproject.tool.assessment.data.dao.assessment.Answer;
 import org.sakaiproject.tool.assessment.data.dao.assessment.AssessmentData;
 import org.sakaiproject.tool.assessment.data.dao.assessment.ItemData;
 import org.sakaiproject.tool.assessment.data.dao.assessment.ItemText;
@@ -77,7 +83,11 @@ public class AssessmentEntityProducer implements EntityTransferrer,
 	{
 		AssessmentService service = new AssessmentService();
 		service.copyAllAssessments(fromContext, toContext);
-		return null;
+		
+		// At a minimum, we need to remap all the attachment URLs to point to the new site
+		Map<String, String> transversalMap = new HashMap<String, String>();
+		transversalMap.put("/content/attachment/" + fromContext + "/", "/content/attachment/" + toContext + "/");
+		return transversalMap;
 	}
 
 	public String archive(String siteId, Document doc, Stack stack,
@@ -227,9 +237,8 @@ public class AssessmentEntityProducer implements EntityTransferrer,
 			e.printStackTrace();
 			log.info("transferCopyEntities: End removing Assessment data");
 		}
-		transferCopyEntitiesRefMigrator(fromContext, toContext, ids);
-
-		return null;
+		
+		return transferCopyEntitiesRefMigrator(fromContext, toContext, ids);
 	}
 
 	/**
@@ -313,8 +322,65 @@ public class AssessmentEntityProducer implements EntityTransferrer,
 										log.info("Migration - now update");
 									}
 								}
+								
+								List answerSetList = itemText.getAnswerArray();
+								if (answerSetList != null) {
+									for (int l = 0; l < answerSetList.size(); l++) {
+										Answer answer = (Answer) answerSetList.get(l);
+										String answerText = answer.getText();
+										
+										if (answerText != null) {
+											// Parse the answer and find all media elements with a "src"
+											String[] sources = StringUtils.splitByWholeSeparator(answerText, "src=\"");
+											
+											Set<String> attachments = new HashSet<String>();
+											for (String source : sources) {
+												String theHref = StringUtils.substringBefore(source, "\"");
+												if (StringUtils.contains(theHref, "/access/content/attachment")) {
+													attachments.add(theHref);
+												}
+											}
+											
+											if (attachments.size() > 0) {
+												log.info("Found " + attachments.size() + " attachments buried in question answers");
+											}
+																				
+											for (String attachment : attachments) {
+												String resourceId = "/attachment/" + StringUtils.substringAfter(attachment, "/access/content/attachment/");
+												String filename = StringUtils.substringAfterLast(attachment, "/");
+												ContentResource cr = null;
+												
+												try {
+													cr = AssessmentService.getContentHostingService().getResource(resourceId);
+												} catch (IdUnusedException e) {
+													log.warn("Could not find resource (" + resourceId + ") that was embedded in a question answer");
+												} catch (TypeException e) {
+													log.warn("TypeException for resource (" + resourceId + ") that was embedded in a question answer", e);
+												} catch (PermissionException e) {
+													log.warn("No permission for resource (" + resourceId + ") that was embedded in a question answer");
+												}
+												
+												if (cr != null) {
+													ContentResource crCopy = service.createCopyOfContentResource(cr.getId(), filename, toContext);
+													answerText = StringUtils.replace(answerText, cr.getId(), crCopy.getId());
+												}
+											}
+											
+											// Now rewrite the answerText with links to the new site
+											answerText = org.sakaiproject.util.cover.LinkMigrationHelper.migrateAllLinks(entrySet, answerText);
+											
+											if (!answerText.equals(answer.getText())) {
+												needToUpdate = true;
+												answer.setText(answerText);
+											}
+										}
+									}
+								}
+								
+								
 							}
-						}						
+						}	
+						
 					}					
 				}
 				
