@@ -59,32 +59,35 @@
 						onclick="resize();$(this).next('.hide').toggle(); $('div.toggle:first', $(this).parents('table.forumHeader')).slideToggle(resize);$(this).toggle();">
 					<h:graphicImage url="/images/collapse.gif" /><h:outputText value="#{msgs.cdfm_view}" />
 					<h:outputText value=" #{msgs.cdfm_full_description}"  rendered="#{ForumTool.selectedForum.forum.extendedDescription != '' && ForumTool.selectedForum.forum.extendedDescription != null && ForumTool.selectedForum.forum.extendedDescription != '<br/>'}"/>
-			  </h:outputLink>
+                                        <h:outputText value=" #{msgs.cdfm_and}"  rendered="#{!empty ForumTool.selectedForum.attachList && ForumTool.selectedForum.forum.extendedDescription != '' && ForumTool.selectedForum.forum.extendedDescription != null && ForumTool.selectedForum.forum.extendedDescription != '<br/>'}"/>
+                                        <h:outputText value=" #{msgs.cdfm_attach}"  rendered="#{!empty ForumTool.selectedForum.attachList}"/>
+			        </h:outputLink>
 			  
 				<h:outputLink id="forum_extended_hide" value="#" title="#{msgs.cdfm_hide}" style="display:none;" styleClass="hide" 
-				rendered="#{ForumTool.selectedForum.forum.extendedDescription != '' && ForumTool.selectedForum.forum.extendedDescription != null && ForumTool.selectedForum.forum.extendedDescription != '<br/>'}"
+				                rendered="#{ForumTool.selectedForum.forum.extendedDescription != '' && ForumTool.selectedForum.forum.extendedDescription != null && ForumTool.selectedForum.forum.extendedDescription != '<br/>'}"
 						onclick="resize();$(this).prev('.show').toggle(); $('div.toggle:first', $(this).parents('table.forumHeader')).slideToggle(resize);$(this).toggle();">
 					<h:graphicImage url="/images/expand.gif"/> <h:outputText value="#{msgs.cdfm_hide}" />
 					<h:outputText value=" #{msgs.cdfm_full_description}"  rendered="#{ForumTool.selectedForum.forum.extendedDescription != '' && ForumTool.selectedForum.forum.extendedDescription != null && ForumTool.selectedForum.forum.extendedDescription != '<br/>'}"/>
-			  </h:outputLink>
+                                        <h:outputText value=" #{msgs.cdfm_and}"  rendered="#{!empty ForumTool.selectedForum.attachList && ForumTool.selectedForum.forum.extendedDescription != '' && ForumTool.selectedForum.forum.extendedDescription != null && ForumTool.selectedForum.forum.extendedDescription != '<br/>'}"/>
+                                        <h:outputText value=" #{msgs.cdfm_attach}"  rendered="#{!empty ForumTool.selectedForum.attachList}"/>
+			        </h:outputLink>
 
 			 	<f:verbatim><div class="toggle" style="display:none"></f:verbatim>
 				<mf:htmlShowArea value="#{ForumTool.selectedForum.forum.extendedDescription}"  
 		                     hideBorder="true" />
-					<%--//designNote: need thge atts list but it is not in scope --%>
-					<%--
-						<h:dataTable  value="#{ForumTool.selectedForum.forum.attachList}" var="eachAttach" rendered="#{!empty ForumTool.selectedForum.forum.attachList}" columnClasses="attach,bogus"  summary="layout" style="font-size:.9em;width:auto;margin-left:1em" border="0" cellpadding="3" cellspacing="0">
-							<h:column>
-								<sakai:contentTypeMap fileType="#{eachAttach.attachment.attachmentType}" mapType="image" var="imagePath" pathPrefix="/library/image/"/>
-  								<h:graphicImage id="exampleFileIcon" value="#{imagePath}" />
-							</h:column>
-							<h:column>
-								<h:outputLink value="#{eachAttach.url}" target="_blank">
-									<h:outputText value="#{eachAttach.attachment.attachmentName}"  />
-								</h:outputLink>			
-							</h:column>	
-						</h:dataTable>
-					--%>	
+				<%-- attachments --%>
+				<h:dataTable  styleClass="attachListTable" value="#{ForumTool.selectedForum.attachList}" var="eachAttach" rendered="#{!empty ForumTool.selectedForum.attachList}" columnClasses="attach,bogus" style="font-size:.9em;width:auto;margin-left:1em" border="0" cellpadding="3" cellspacing="0">
+				    <h:column>
+				        <sakai:contentTypeMap fileType="#{eachAttach.attachment.attachmentType}" mapType="image" var="imagePath" pathPrefix="/library/image/"/>                                                                 
+				        <h:graphicImage id="exampleFileIcon" value="#{imagePath}" />                            
+				    </h:column>
+				    <h:column>        
+				        <h:outputLink value="#{eachAttach.url}" target="_blank">
+				            <h:outputText value="#{eachAttach.attachment.attachmentName}"  />
+				        </h:outputLink>                 
+				     </h:column>     
+				</h:dataTable>
+				
 				<f:verbatim></div></f:verbatim>
 			</h:panelGroup>
 		</h:panelGrid>
