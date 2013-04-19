@@ -2226,9 +2226,21 @@ public abstract class BaseSiteService implements SiteService, Observer
 	/**
 	 * {@inheritDoc}
 	 */
-	public String getEntityUrl(Reference ref)
-	{
-		return null;
+	public String getEntityUrl(Reference ref) {
+		String url = null;
+		if (ref != null) {
+		    try {
+		        Site site = getSite(ref.getId());
+		        url = site.getUrl();
+		    } catch (IdUnusedException e) {
+		        // this could happen if the site reference is invalid
+		        if (M_log.isDebugEnabled()) M_log.debug("getEntityUrl(): " + e);
+		    } catch (Exception e) {
+		        // this is a real failure
+		        M_log.error("getEntityUrl(): "+e.getClass().getName()+": " + e, e);
+		    }
+		}
+		return url;
 	}
 
 	/**
