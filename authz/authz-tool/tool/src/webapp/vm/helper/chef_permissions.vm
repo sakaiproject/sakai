@@ -79,16 +79,13 @@
 								#set($roleAbilities = $rolesAbilities.get($role.Id))
 								#set($roleCount=$roleCount + 1)		
 								<td class="$roleCount checkboxCell">
-									#if (($!hiddenLock.size()>0 && $!hiddenLock.indexOf($lock) != -1) || ($lock == "site.viewRoster" && !$!editViewRoster))
-										## don't show checkbox for those roles
+									#if($roleAbilities.contains($lock))
+										<img src="#imageLink("sakai/checkon.gif")" border="0" alt="$thelp.getString("per.alrgra")" hspace="5" />
 									#else
-										#if($roleAbilities.contains($lock))
-											<img src="#imageLink("sakai/checkon.gif")" border="0" alt="$thelp.getString("per.alrgra")" hspace="5" />
-										#else
 										<label for="$role.Id$lock"> <span class="skip">$thelp.getString("gen.enable") $role.Id: $desc</span>
 											<input class="$role.Id$lock" type="checkbox" name="$role.Id$lock" id="$role.Id$lock" value="$role.Id$lock" #if(($myRole) && ($myRole.Id==$role.Id) && ($myRole.AllowedFunctions.contains($lock)))checked="checked"#end />
 										</label>	
-										#end
+									#end
 									#end
 								</td>
 							#end
