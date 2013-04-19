@@ -2,4 +2,27 @@
 <!DOCTYPE beans PUBLIC "-//SPRING//DTD BEAN//EN" "http://www.springframework.org/dtd/spring-beans.dtd">
 
 <beans>
+
+	<bean parent="org.sakaiproject.entitybroker.entityprovider.AbstractEntityProvider"
+        abstract="true"
+		class="org.sakaiproject.tool.messageforums.entityproviders.BaseEntityProviderImpl">
+		<property name="forumManager" ref="org.sakaiproject.api.app.messageforums.ui.DiscussionForumManager" />
+		<property name="siteService" ref="org.sakaiproject.site.api.SiteService" />
+		<property name="toolManager" ref="org.sakaiproject.tool.api.ToolManager" />
+		<property name="uiPermissionsManager" ref="org.sakaiproject.api.app.messageforums.ui.UIPermissionsManager" />
+    </bean>
+
+	<bean parent="org.sakaiproject.tool.messageforums.entityproviders.BaseEntityProviderImpl"
+			class="org.sakaiproject.tool.messageforums.entityproviders.ForumsForumEntityProviderImpl">
+		<property name="securityService" ref="org.sakaiproject.authz.api.SecurityService" />
+    </bean>
+    
+	<bean parent="org.sakaiproject.tool.messageforums.entityproviders.BaseEntityProviderImpl"
+			class="org.sakaiproject.tool.messageforums.entityproviders.ForumsTopicEntityProviderImpl">
+    </bean>
+    
+	<bean parent="org.sakaiproject.tool.messageforums.entityproviders.BaseEntityProviderImpl"
+			class="org.sakaiproject.tool.messageforums.entityproviders.ForumsMessageEntityProviderImpl">
+    </bean>
+    
 </beans>
