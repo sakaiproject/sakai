@@ -449,6 +449,7 @@ public class PermissionsHelperAction extends VelocityPortletPaneledAction
 				rolesAbilities.put(role.getId(), locks);
 			}
 		}
+		
 
 		context.put("realm", viewEdit != null ? viewEdit : edit);
 		context.put("prefix", prefix);
@@ -569,8 +570,8 @@ public class PermissionsHelperAction extends VelocityPortletPaneledAction
 			{
 				String lock = (String) iLocks.next();
 
-				String checked = data.getParameters().getString(role.getId() + lock);
-				if (checked != null)
+				boolean checked = data.getParameters().getBoolean(role.getId() + lock);
+				if (checked)
 				{
 					// we have an ability! Make sure there's a role
 					Role myRole = edit.getRole(role.getId());
