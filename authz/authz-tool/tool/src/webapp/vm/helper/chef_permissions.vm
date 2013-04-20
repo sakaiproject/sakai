@@ -84,15 +84,16 @@
 								#set($granted = ($myRole) && ($myRole.Id==$role.Id) && ($myRole.AllowedFunctions.contains($lock)))
 								<td class="$roleCount checkboxCell">
 									<label for="$role.Id$lock">
-										<span class="skip">
-										#if($alreadyGranted)
-											$thelp.getString("gen.enable")
-										#else
-											$thelp.getString("per.alrgra")
-										#fi
-										$role.Id: $desc
-										</span>
-										<input class="$role.Id$lock" type="checkbox" name="$role.Id$lock" id="$role.Id$lock" value="$role.Id$lock" #if($granted)checked="checked"#end />
+									#if($alreadyGranted)
+										<span class="skip">$thelp.getString("per.alrgra") $role.Id: $desc </span>
+										<input type="checkbox" disabled="true" checked="checked" title="$thelp.getString("per.alrgra")"/>
+										## Hidden field is to preseve the existing value in the realm even if overridden.
+										<input type="hidden" name="$role.Id$lock" value="$granted"/>
+									#else
+										<span class="skip">$thelp.getString("gen.enable") $role.Id: $desc </span>
+										<input class="$role.Id$lock" type="checkbox" name="$role.Id$lock" id="$role.Id$lock"
+											value="true" #if($granted)checked="checked"#end/>
+									#end
 									</label>
 								</td>
 							#end
