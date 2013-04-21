@@ -30,7 +30,7 @@ function WebRTC() {
 		} else {
 			this.webrtcDetectedBrowser = "nonwebrtc";
 		}
-
+		
 		// Setup the generic objects
 
 		// Adapt the getUserMedia with all the prefixs to ensure that any of
@@ -183,7 +183,7 @@ function WebRTC() {
 	/* Suport functions */
 
 	this.isWebRTCEnabled = function() {
-		return webrtcDetecteBrowser != "nonwebrtc";
+		return this.webrtcDetectedBrowser != "nonwebrtc";
 	}
 
 	this.setupPeerConnection = function(userid, successConn, failConn) {

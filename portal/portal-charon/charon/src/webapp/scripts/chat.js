@@ -181,7 +181,7 @@ function PortalChat() {//
     	$('#pc_chat_'+uuid+'_video_content').hide();
 	    $('#pc_connection_'+uuid+'_videoin').hide();
 		$('#pc_connection_'+uuid+'_videochat_bar .video_on').hide();
-        if ($.browser.msie) {
+		if (!this.videoCall.webRTC.isWebRTCEnabled()) {
 		   $('#pc_connection_'+uuid+'_videochat_bar').hide();
         } else {
         	if (!minimised) {
@@ -734,8 +734,6 @@ function PortalChat() {//
 					alert ("Sorry Video Call failed!");
 					this.closeVideoCall (uuid);
 			});
-		
-
 		     //temporaly show my video
 			this.showVideoCall(uuid);
 		}
@@ -757,8 +755,6 @@ function PortalChat() {//
     
    this.receiveVideoCall = function (uuid){
 		$('#pc_connection_'+uuid+'_videoin').show();
-		
-
    }
 
     this.ignoreVideoCall = function(uuid) {
@@ -766,12 +762,18 @@ function PortalChat() {//
     }
     
     this.showVideoCall = function(uuid) {
+    	var chatDiv = $("#pc_chat_with_" + uuid);
     	$("#pc_chat_"+uuid+"_video_content").show();
-    	if ($("#pc_chat_with_" + uuid).css('height')!='auto') {
-    		$("#pc_chat_with_" + uuid).css('height','512px');
-    		$("#pc_chat_with_" + uuid).css('margin-top','-192px');
-    	}
-    	$("#pc_chat_with_" + uuid).attr('data-height','512');
+		if (chatDiv.hasClass('pc_minimised')) {
+			portalChat.toggleChatWindow(uuid);
+		} else {
+			
+		}
+    	if (chatDiv.css('height')!='auto') {
+    		chatDiv.css('height','512px');
+    		chatDiv.css('margin-top','-192px');
+     	}
+    	chatDiv.attr('data-height','512');
     	$('#pc_connection_'+uuid+'_videoin').hide();
 		$('#pc_connection_'+uuid+'_videochat_bar .video_off').hide();
 		$('#pc_connection_'+uuid+'_videochat_bar .video_on').show();
@@ -793,10 +795,10 @@ function PortalChat() {//
     
     this.setVideoStatus = function (uuid,text,display){
     	if (display){
-    		$("#pc_chat_"+uuid+"_video_content > .pc_chat_video_statusbar > span").text(text);
-    		$("#pc_chat_"+uuid+"_video_content > .pc_chat_video_statusbar").show();
+    		$("#pc_connection_"+uuid+"_videochat_bar > .pc_chat_video_statusbar > span").text(text);
+    		$("#pc_connection_"+uuid+"_videochat_bar > .pc_chat_video_statusbar").show();
     	}else{
-    		$("#pc_chat_"+uuid+"_video_content > .pc_chat_video_statusbar").hide();
+    		$("#pc_connection_"+uuid+"_videochat_bar > .pc_chat_video_statusbar").hide();
     	}
     	
     }

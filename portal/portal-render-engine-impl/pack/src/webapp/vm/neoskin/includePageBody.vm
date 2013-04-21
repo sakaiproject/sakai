@@ -397,9 +397,9 @@
 							<img src="/library/image/silk/cancel.png" width="16" height="16" border="0" alt=""/>
 						</a>
 					</div>
+					<div style="display:none" class="pc_chat_video_statusbar"><span></span></div>
                 </div>
 				<div id="pc_chat_${uuid}_video_content" class="pc_chat_video_content">
-					<div style="display:none" class="pc_chat_video_statusbar"><span></span></div>
 					<div class="pc_chat_video_remote">
 						<video id="pc_chat_${uuid}_remote_video" class="pc_chat_video" autoplay></video>
 						<div class="pc_chat_video_local">
