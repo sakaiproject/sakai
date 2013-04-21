@@ -378,7 +378,7 @@
                 </div>
 				<div id="pc_connection_${uuid}_videochat_bar" class="pc_connection_videochat_bar">
 					<div class="pc_connection_videochat_bar_left">
-						<a href="javascript:;" onclick="return portalChat.openVideoCall('${uuid}',false);" class="video_off" title="Video call">
+						<a href="javascript:;" onclick="return portalChat.openVideoCall('${uuid}',false);" class="video_off" title="Video call" >
 							<img src="/library/image/silk/webcam.png" width="16" height="16" border="0" alt=""/>
 						</a>
 						<a href="javascript:;" onclick="return portalChat.closeVideoCall('${uuid}');" class="video_on" title="End video call">
@@ -399,13 +399,17 @@
 					</div>
                 </div>
 				<div id="pc_chat_${uuid}_video_content" class="pc_chat_video_content">
+					<div style="display:none" class="pc_chat_video_statusbar"><span></span></div>
 					<div class="pc_chat_video_remote">
-						<video id="pc_chat_${uuid}_remote_video" class="pc_chat_video"></video>
+						<video id="pc_chat_${uuid}_remote_video" class="pc_chat_video" autoplay></video>
 						<div class="pc_chat_video_local">
-							<video id="pc_chat_${uuid}_local_video" class="pc_chat_video_min"></video>
+							<video id="pc_chat_${uuid}_local_video" class="pc_chat_video_min" autoplay></video>
 						</div>
 					</div>
-				</div>
+
+
+
+					</div>
                 <div id="pc_connection_chat_${uuid}_content" class="pc_connection_chat_content">
                     <ul id="pc_connection_chat_${uuid}_messages" class="pc_message_panel"></ul>
                 

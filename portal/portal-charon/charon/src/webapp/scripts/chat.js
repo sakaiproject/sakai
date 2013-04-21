@@ -16,7 +16,7 @@ function PortalChat() {//
 	this.MAX_CONTENT_HEIGHT = 250;
 	this.originalTitle = document.title;
 	this.connectionsAvailable = true;
-
+	this.videoCall = null;
 
 	/** Set up the webRTC references depending on the navigator is executed */
 
@@ -118,107 +118,6 @@ function PortalChat() {//
 		});
 	}
 
-
-/*    this.doCall = function (to){
-		var pc = this.currentPeerConnectionsMap[to];
-
-
-                if (pc==null)
-               		pc = this.setupPeerConnection (to);
-
-	 	pChat = this;
-                 // get the local stream, show it in the local video element and send it
-		if (this.localMediaStream != null){
-			this.offerStream (pc,to,this.localMediaStream,true);	
-		}else{
-		      navigator.getUserMedia({audio: true, video: true},function (localMediaStream){
-			  var local_video = document.getElementById("local_video");
-			  pChat.attachMediaStream (local_video,localMediaStream);
-			  pChat.offerStream(pc,to,localMediaStream,true);
-		   });
-/*		}
-
-    }*/
- 
-   this.doAnswer = function (to){
-
-		var pc = this.currentPeerConnectionsMap[to];
-			
-	 	pChat = this;
-		if (this.localMediaStream != null){
-			this.offerStream (pc,to,this.localMediaStream,false);	
-		}else{
-		      navigator.getUserMedia({audio: true, video: true},function (localMediaStream){
-			  var local_video = document.getElementById("local_video");
-			  pChat.attachMediaStream (local_video,localMediaStream);
-			  pChat.offerStream(pc,to,localMediaStream,false);
-		   });
-		}
-    }	
-
- 
-
-    this.offerStream = function (pc,to,localMediaStream,isCaller){
-                        	  pc.addStream(localMediaStream);
-				  this.currentPeerConnectionsMap[to] = pc; 			  
-
-				  var pChat = this;
-
-				  if (isCaller){
-		                        pc.createOffer(function (desc){ 
-						pChat.gotDescription(to,desc);
-					});
-				  }else{
-					pc.createAnswer(function (desc) {
-						pChat.gotDescription(to,desc);
-					});
-			          }
-				  //Falta crear els video contents i enviar el missatge
-
-    }
-
-   this.attachMediaStream = function (element,stream){
-	    this.localMediaStream = stream;
-            element.src = URL.createObjectURL(stream);
-            element.play();
-   }
-
-  this.setupPeerConnection = function (uuid){
-             var pc_config = {"iceServers": [{"url": "stun:stun.l.google.com:19302"}]};//provisional, can we get a stun server?
-
-             var pc = new webkitRTCPeerConnection(pc_config);
-
-             // send any ice candidates to the other peer
-	     var peeruuid = uuid;
-	     var pChat = this;
-
-             pc.onicecandidate = function (event){
-		 if (event.candidate) {
-	           pChat.sendVideoMessageToUser(peeruuid,JSON.stringify(
-			{  type: 'candidate',
-        	           label: event.candidate.sdpMLineIndex,
-	                   id: event.candidate.sdpMid,
-        	           candidate: event.candidate.candidate}
-			));
-		    }
-	     };
-
-             pc.onaddstream = function (evt) {
-		     var remote_video = document.getElementById("remote_video_" + uuid);
-		     pChat.attachMediaStream(remote_video,event.stream);
-	     };
-	    
-	     return pc;	
-   }
-  
-   this.gotDescription = function (uuid,desc){
-         var pc = this.currentPeerConnectionsMap[uuid];
-
-	 if (pc != null){
-		 pc.setLocalDescription(desc);
-                 this.sendVideoMessageToUser(uuid,JSON.stringify({"sdp":desc }));
-	}
-   }
 
     /**
      * This is a bad news failure. Clear the getLatestData interval.
@@ -622,7 +521,7 @@ function PortalChat() {//
     }
 
     this.onvideomessage = function (uuid,message){
-    	receiveMessage (uuid,message); //mock message function. It will send to rtc to process it
+    	this.videoCall.receiveMessage (uuid,message); //mock message function. It will send to rtc to process it
     }
  
 
@@ -826,16 +725,47 @@ function PortalChat() {//
 		if (incomming) {
 			$('#pc_connection_'+uuid+'_videoin').show();
 		} else {
-			webRTC.doCall(uuid,startCall,successCall,failedCall);
-			this.acceptVideoCall(uuid);
+			this.videoCall.doCall(uuid,function (uuid){
+				//hide the buttons 
+				// show a new cancel button
+				//show a image initializating
+				portalChat.setVideoStatus (uuid,"Connecting ...");
+			},this.showVideoCall,function (uuid){
+					alert ("Sorry Video Call failed!");
+					this.closeVideoCall (uuid);
+			});
+		
+
+		     //temporaly show my video
+			this.showVideoCall(uuid);
 		}
+	}
+    
+    
+    
+    this.acceptVideoCall = function (uuid){
+    		this.videoCall.doAnswer (uuid,function (uuid){
+					//hide the buttons 
+					// show a new cancel button
+					//show a image initializating
+    			    portalChat.setVideoStatus (uuid,"Connecting ...",true);
+    				},this.showVideoCall,function(){
+    						alert ("Sorry Video Call could no be established");
+    						this.closeVideoCall(uuid);
+    				});
     }
+    
+   this.receiveVideoCall = function (uuid){
+		$('#pc_connection_'+uuid+'_videoin').show();
+		
+
+   }
 
     this.ignoreVideoCall = function(uuid) {
     	$('#pc_connection_'+uuid+'_videoin').hide();
     }
     
-    this.acceptVideoCall = function(uuid) {
+    this.showVideoCall = function(uuid) {
     	$("#pc_chat_"+uuid+"_video_content").show();
     	if ($("#pc_chat_with_" + uuid).css('height')!='auto') {
     		$("#pc_chat_with_" + uuid).css('height','512px');
@@ -860,13 +790,30 @@ function PortalChat() {//
     	// ToDo Maximize Video Canvas
     	$("#pc_chat_"+uuid+"_video_content").show();
     }
+    
+    this.setVideoStatus = function (uuid,text,display){
+    	if (display){
+    		$("#pc_chat_"+uuid+"_video_content > .pc_chat_video_statusbar > span").text(text);
+    		$("#pc_chat_"+uuid+"_video_content > .pc_chat_video_statusbar").show();
+    	}else{
+    		$("#pc_chat_"+uuid+"_video_content > .pc_chat_video_statusbar").hide();
+    	}
+    	
+    }
+    
 
 	this.init = function () {
 
 		$(document).ready(function () {
 			
             if(portal.loggedIn) {
-                $('#chatToggle').click(function () {
+                
+            	/*Initialize videoChat */
+            	portalChat.videoCall = new VideoCall();
+            	portalChat.videoCall.init(portalChat);
+            	
+            	
+            	$('#chatToggle').click(function () {
 			        portalChat.toggleChat();
                     //$('#presenceArea').toggle();
                 });

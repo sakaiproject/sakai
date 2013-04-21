@@ -1,5 +1,4 @@
 var RTCPeerConnection = null;
-//var RTCSessionDescription = null;
 
 function WebRTC() {
 
@@ -16,47 +15,53 @@ function WebRTC() {
 	this.init = function(signalService) {
 		// First of all we try to detect which navigator is trying to use the
 		// videoconference from getUserMedia diferences
-		if (navigator.mozGetUserMedia) {
+		if (navigator.mozGetUserMedia){
 			this.webrtcDetectedBrowser = "firefox";
-			// Adapt the RTCPeerConnection object
+			navigator.getUserMedia = navigator.mozGetUserMedia;
 			RTCPeerConnection = mozRTCPeerConnection;
-		} else if (navigator.webkitGetUserMedia) {
-			this.webrtcDetectedBrowser = "chrome";
-			// Adapt the RTCPeerConnection object
+			RTCSessionDescription = mozRTCSessionDescription;
+			RTCIceCandidate = mozRTCIceCandidate;
+		}else if (navigator.webkitGetUserMedia) {
+			this.webrtcDetectedBrowser = "chrome";	
+			navigator.getUserMedia = navigator.webkitGetUserMedia;
 			RTCPeerConnection = webkitRTCPeerConnection;
 		} else if (navigator.getUserMedia) {
-			this.webrtcDetectedBrowser = "webrtcenabled";
-			// Adapt the RTCPeerConnection object
-			RTCPeerConnection = (RTCPeerConnection || webkitRTCPeerConnection || mozRTCPeerConnection);
+			// this.webrtcDetectedBrowser = "webrtcenabled";
 		} else {
 			this.webrtcDetectedBrowser = "nonwebrtc";
-			// Adapt the RTCPeerConnection object
-			RTCPeerConnection = (RTCPeerConnection || webkitRTCPeerConnection || mozRTCPeerConnection);
 		}
-		
+
 		// Setup the generic objects
 
 		// Adapt the getUserMedia with all the prefixs to ensure that any of
 		// that will work for you
-		navigator.getUserMedia = (navigator.getUserMedia || // Opera
-				navigator.webkitGetUserMedia || // webkit based browsers like chrome
-				navigator.mozGetUserMedia // mozilla firefox
-				// navigator.msGetUserMedia //Microsoft -- uncomment when it really with all browsers
-		);
-
-		// Addapt the window.URL object
-		window.URL = (window.URL || window.webkitURL || window.mozURL || window.msURL);
-
-		/*RTCSessionDescription = (RTCSessionDescription || mozRTCSessionDescription);*/
+	/*
+	 * navigator.getUserMedia = (navigator.getUserMedia || // Opera
+	 * navigator.webkitGetUserMedia || // webkit based browsers like chrome
+	 * navigator.mozGetUserMedia // mozilla firefox // navigator.msGetUserMedia
+	 * //Microsoft -- uncomment when it really with all browsers );
+	 *  // Addapt the window.URL object window.URL = (window.URL ||
+	 * window.webkitURL || window.mozURL || window.msURL);
+	 *  // Adapt the RTCPeerConnection object
+	 * 
+	 * RTCPeerConnection = (RTCPeerConnection || webkitRTCPeerConnection ||
+	 * mozRTCPeerConnection);
+	 */
+		/*
+		 * RTCSessionDescription = (RTCSessionDescription ||
+		 * mozRTCSessionDescription);
+		 */
 
 		// Adapt the RTCIceCandidate object
-		/*RTCIceCandidate = (mozRTCIceCandidate);*/
-		this.signalService = signalService; // Use the signal service provided by instantiator
+		/* RTCIceCandidate = (mozRTCIceCandidate); */
+		this.signalService = signalService; // Use the signal service provided
+											// by instantiator
 		var webRTCClass = this;
 		this.signalService.onReceive  = function (userid,message){
-			webRTCClass.onReceive (userid,message); //Called custom method when signalService receives some videomessage
+			webRTCClass.onReceive (userid,message); // Called custom method when
+													// signalService receives
+													// some videomessage
 		}
-
 	}
 
 	/* Call this process to start a video call */
@@ -76,8 +81,8 @@ function WebRTC() {
 			/* Call started function to fire rendering effects on the screen */
 			started(userid,localMediaStream);
 			callConnection.localMediaStream = localMediaStream;
-			webRTCClass.offerStream(callConnection, userid); // WebRTC. ?
-		});
+			webRTCClass.offerStream(callConnection, userid,success,fail); // WebRTC. ?
+		},fail);
 	}
 
 	/*
@@ -92,7 +97,7 @@ function WebRTC() {
 	this.answerCall = function(userid,startAnswer, success, fail) {
 		var callConnection = this.currentPeerConnectionsMap[userid];
 		
-		//Set up the triggered functions 
+		// Set up the triggered functions
 		callConnection.onsuccessconn = success;
 		callConnection.onfail = fail;
 		callConnection.isCaller = false;
@@ -101,7 +106,7 @@ function WebRTC() {
 		var webRTCClass = this;
 		
 		if (this.localMediaStream != null) {
-			//offerStream(pc, to, this.localMediaStream, false);
+			// offerStream(pc, to, this.localMediaStream, false);
 		} else {
 			navigator.getUserMedia({
 				audio : true,
@@ -110,7 +115,7 @@ function WebRTC() {
 				/* Call started function to fire rendering effects on the screen */
 				startAnswer(userid,localMediaStream);
 				callConnection.localMediaStream = localMediaStream;
-				webRTCClass.offerStream(callConnection, userid); // WebRTC. ?
+				webRTCClass.offerStream(callConnection, userid,success,fail); // WebRTC. ?
 			}, fail);
 		
 		}
@@ -141,32 +146,34 @@ function WebRTC() {
 				element.mozSrcObject = stream;
 			    element.play();
 			}else if (this.webrtcDetectedBrowser = "chrome"){
-			    element.src = window.URL.createObjectURL(stream);
+			    element.src = webkitURL.createObjectURL(stream);
 			}
 			element.play();
 	}
 
-	this.offerStream = function(callConnection, to) {
+	this.offerStream = function(callConnection, to,successCall,failedCall) {
 		var pc = callConnection.rtcPeerConnection;
 		
 		pc.addStream(callConnection.localMediaStream);
 
-		//this.currentPeerConnectionsMap[to] = pc;
+		// this.currentPeerConnectionsMap[to] = pc;
 
 		var webRTCClass = this;
 
 		/*
-		 * Declare the success function to be launched when remote stream is added
+		 * Declare the success function to be launched when remote stream is
+		 * added
 		 */
 	
 		
 		if (callConnection.isCaller) {
 			pc.createOffer(function(desc) {
-				webRTCClass.gotDescription(to, desc);
+				webRTCClass.gotDescription(to, desc); //we won't call success, we will wait until peer offers the stream.
 			});
 		} else {
 			pc.createAnswer(function(desc) {
 				webRTCClass.gotDescription(to, desc);
+				successCall (to,callConnection.remoteStream); //In this case we have to wait here to declare the success, instead on addStream
 			});
 		}
 
@@ -182,7 +189,7 @@ function WebRTC() {
 	this.setupPeerConnection = function(userid, successConn, failConn) {
 		
 		var pc = new RTCPeerConnection(this.pc_config);
-		
+			
 		// send any ice candidates to the other peer
 		var callConnection = new CallConnection (pc,successConn,failConn);
 		
@@ -203,7 +210,12 @@ function WebRTC() {
 		};
 		
 		pc.onaddstream = function(event) {
-			callConnection.onsuccessconn(userid, event.stream);
+				callConnection.remoteStream = event.stream
+			    
+				if (callConnection.onsuccessconn != null) { /* In this case we have declared what to do in case of success connection (Offer)*/
+					callConnection.onsuccessconn(userid, event.stream);
+				}
+				 
 		};
 		
 		this.currentPeerConnectionsMap[userid] = callConnection; 
@@ -222,7 +234,7 @@ function WebRTC() {
 		}
 	}
 	
-	/* 
+	/*
 	 * That function is called when the signal service receive a message
 	 */
 	this.onReceive = function (from,message){
@@ -246,7 +258,7 @@ function WebRTC() {
 			if (signal.sdp.type=="offer"){
 				this.onReceiveCall (from);	
 			}else if (signal.sdp.type="response"){
-				//this.onReceiveAnswer(userid)
+				// this.onReceiveAnswer(userid)
 				
 			}
 
@@ -265,12 +277,13 @@ function WebRTC() {
 
 
 
-/*Object to handle connection and call success, fail events */
+/* Object to handle connection and call success, fail events */
 
 function CallConnection (pc,success,failed){
 	this.rtcPeerConnection =pc;
 	this.onsuccessconn = success;
 	this.onfailedconn = failed;
 	this.isCaller = null;
+	this.remoteStream = null;
 }
 
