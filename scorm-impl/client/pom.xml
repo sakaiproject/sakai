@@ -75,5 +75,14 @@
         <activeByDefault>true</activeByDefault>
       </activation>
     </profile>
+    <profile>
+      <id>sakai2.9</id>
+      <dependencies>
+        <dependency>
+          <groupId>org.sakaiproject.kernel</groupId>
+          <artifactId>sakai-kernel-api</artifactId>
+        </dependency>
+      </dependencies>
+    </profile>
   </profiles>
 </project>
