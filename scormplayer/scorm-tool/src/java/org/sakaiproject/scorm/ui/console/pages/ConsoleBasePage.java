@@ -31,16 +31,13 @@ import org.apache.wicket.markup.html.resources.CompressedResourceReference;
 import org.apache.wicket.model.IModel;
 import org.apache.wicket.model.ResourceModel;
 import org.apache.wicket.spring.injection.annot.SpringBean;
-import org.sakaiproject.component.cover.ServerConfigurationService;
 import org.sakaiproject.scorm.service.api.LearningManagementSystem;
 import org.sakaiproject.scorm.ui.Icon;
 import org.sakaiproject.scorm.ui.console.components.BreadcrumbPanel;
 import org.sakaiproject.scorm.ui.console.components.SakaiFeedbackPanel;
 import org.sakaiproject.scorm.ui.upload.pages.UploadPage;
 import org.sakaiproject.scorm.ui.validation.pages.ValidationPage;
-import org.sakaiproject.site.cover.SiteService;
 import org.sakaiproject.tool.api.ToolManager;
-import org.sakaiproject.tool.cover.SessionManager;
 import org.sakaiproject.wicket.markup.html.SakaiPortletWebPage;
 import org.sakaiproject.wicket.markup.html.link.NavIntraLink;
 
@@ -137,17 +134,6 @@ public class ConsoleBasePage extends SakaiPortletWebPage implements IHeaderContr
 	public void renderHead(IHeaderResponse response) {
 		super.renderHead(response);
 		response.renderCSSReference(CONSOLE_CSS);
-		
-		// bjones86 - SAK-21890 - new 'neo' skin prefix support
-		String skinRepo = ServerConfigurationService.getString( "skin.repo" );
-		String skin = SiteService.findTool( SessionManager.getCurrentToolSession().getPlacementId() ).getSkin();
-		if( skin == null )
-			skin = ServerConfigurationService.getString( "skin.default" );
-		String templates = ServerConfigurationService.getString( "portal.templates", "neoskin" );
-		String prefix = ServerConfigurationService.getString( "portal.neoprefix", "neo-" );
-		if( "neoskin".equals( templates ) && !skin.startsWith( prefix ) )
-			skin = prefix + skin;
-		response.renderCSSReference( skinRepo + "/" + skin + "/tool.css" );
 	}
 	
 	protected ResourceReference getPageIconReference() {

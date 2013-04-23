@@ -18,7 +18,6 @@ import org.apache.wicket.markup.html.link.PopupSettings;
 import org.apache.wicket.markup.html.panel.FeedbackPanel;
 import org.apache.wicket.spring.injection.annot.SpringBean;
 import org.sakaiproject.component.cover.ComponentManager;
-import org.sakaiproject.component.cover.ServerConfigurationService;
 import org.sakaiproject.scorm.api.ScormConstants;
 import org.sakaiproject.scorm.model.api.ContentPackage;
 import org.sakaiproject.scorm.service.api.LearningManagementSystem;
@@ -26,9 +25,7 @@ import org.sakaiproject.scorm.service.api.ScormContentService;
 import org.sakaiproject.scorm.ui.player.pages.PlayerPage;
 import org.sakaiproject.scorm.ui.reporting.pages.LearnerResultsPage;
 import org.sakaiproject.scorm.ui.reporting.pages.ResultsListPage;
-import org.sakaiproject.site.cover.SiteService;
 import org.sakaiproject.tool.api.ToolManager;
-import org.sakaiproject.tool.cover.SessionManager;
 import org.sakaiproject.wicket.markup.html.SakaiPortletWebPage;
 
 public class DisplayDesignatedPackage extends SakaiPortletWebPage implements IHeaderContributor, ScormConstants {
@@ -59,17 +56,6 @@ public class DisplayDesignatedPackage extends SakaiPortletWebPage implements IHe
 	public void renderHead(IHeaderResponse response) {
 		super.renderHead(response);
 		response.renderCSSReference(new ResourceReference(DisplayDesignatedPackage.class, "DisplayDesignatedPackage.css"));
-		
-		// bjones86 - SAK-21890 - new 'neo' skin prefix support
-		String skinRepo = ServerConfigurationService.getString( "skin.repo" );
-		String skin = SiteService.findTool( SessionManager.getCurrentToolSession().getPlacementId() ).getSkin();
-		if( skin == null )
-			skin = ServerConfigurationService.getString( "skin.default" );
-		String templates = ServerConfigurationService.getString( "portal.templates", "neoskin" );
-		String prefix = ServerConfigurationService.getString( "portal.neoprefix", "neo-" );
-		if( "neoskin".equals( templates ) && !skin.startsWith( prefix ) )
-			skin = prefix + skin;
-		response.renderCSSReference( skinRepo + "/" + skin + "/tool.css" );
 	}
 
 	private ContentPackage getDesignatedPackage() {
