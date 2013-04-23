@@ -793,7 +793,7 @@ public class SimplePageBean {
 				filter = FILTER_LOW;
 			    // old specifications
 			    else if (filterSpec.equalsIgnoreCase("true"))
-				filter = FILTER_DEFAULT;
+				filter = FILTER_LOW; // old value of true produced the same result as missing
 			    else if (filterSpec.equalsIgnoreCase("false"))			    
 				filter = FILTER_NONE;
 			    // new ones
@@ -824,13 +824,18 @@ public class SimplePageBean {
 
 				html = (String)ftMethod.invoke(ftInstance, new Object[] { contents, error, level });
 			    } catch (Exception e) {
-				// in theory this shouldn't fail. ftInstance should be null if the new interface won't work
-				// don't have anti-samy. Use old instructor behavior: no filtering
-				html = FormattedText.processHtmlDocument(contents, error);
+				// this should never happen. If it does, emulate what the anti-samy
+				// code does if antisamy is disabled. It always filters
+				html = FormattedText.processFormattedText(contents, error);
 			    }
 			} else {
-			    // don't have new format Formattedtext. Use old instructor behavior
-			    html = FormattedText.processHtmlDocument(contents, error);
+			    // don't have antisamy. For LOW, use old instructor behavior, since
+			    // LOW is the default. For high, it makes sense to filter
+			    if (filter.equals(FILTER_HIGH))
+				html = FormattedText.processFormattedText(contents, error);
+			    else
+				html = FormattedText.processHtmlDocument(contents, error);
+
 			}
 
 			// if (getCurrentPage().getOwner() != null || filterHtml 
