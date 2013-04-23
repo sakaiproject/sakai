@@ -182,7 +182,7 @@ public class SimplePageBean {
 	private List<GroupEntry> currentGroups = null;
 	private Set<String> myGroups = null;
 
-	private boolean filterHtml = ServerConfigurationService.getBoolean(FILTERHTML, false);
+	private String filterHtml = ServerConfigurationService.getString(FILTERHTML);
 
 	public String selectedAssignment = null;
 	public String selectedBlti = null;
@@ -415,6 +415,29 @@ public class SimplePageBean {
 	}
 
     // End Injection
+    
+	static Class levelClass = null;
+	static Object[] levels = null;
+	static Class ftClass = null;
+	static Method ftMethod = null;
+	static Object ftInstance = setupFtStuff();
+
+	static Object setupFtStuff () {
+	    Object ret = null;
+	    try {
+		levelClass = Class.forName("org.sakaiproject.util.api.FormattedText$Level");
+		levels = levelClass.getEnumConstants();
+		ftClass = Class.forName("org.sakaiproject.util.api.FormattedText");
+		ftMethod = ftClass.getMethod("processFormattedText", 
+		   new Class[] { String.class, StringBuilder.class, levelClass }); 
+		ret = org.sakaiproject.component.cover.ComponentManager.get("org.sakaiproject.util.api.FormattedText");
+		return ret;
+	    } catch (Exception e) {
+		log.error("Formatted Text with levels not available: " + e);
+		return null;
+	    }
+	}
+
 
 	public void init () {	
 		if (groupCache == null) {
@@ -748,15 +771,75 @@ public class SimplePageBean {
 			// a lot of people feel users shouldn't be able to add javascript, etc
 			// to their HTML. I think enforcing that makes Sakai less than useful.
 			// So check config options to see whether to do that check
+			final Integer FILTER_DEFAULT=0;
+			final Integer FILTER_HIGH=1;
+			final Integer FILTER_LOW=2;
+			final Integer FILTER_NONE=3;
+
 			String html = contents;
-			if (getCurrentPage().getOwner() != null || filterHtml 
-					&& !"false".equals(placement.getPlacementConfig().getProperty("filterHtml")) ||
-					"true".equals(placement.getPlacementConfig().getProperty("filterHtml"))) {
-				html = FormattedText.processFormattedText(contents, error);
+
+			// figure out how to filter
+			Integer filter = FILTER_DEFAULT;
+			if (getCurrentPage().getOwner() != null) {
+			    filter = FILTER_DEFAULT; // always filter student content
 			} else {
+			    // this is instructor content.
+			    // see if specified
+			    String filterSpec = placement.getPlacementConfig().getProperty("filterHtml");
+			    if (filterSpec == null)
+				filterSpec = filterHtml;
+			    // no, default to LOW. That will allow embedding but not Javascript
+			    if (filterSpec == null) // should never be null. unspeciifed should give ""
+				filter = FILTER_LOW;
+			    // old specifications
+			    else if (filterSpec.equalsIgnoreCase("true"))
+				filter = FILTER_DEFAULT;
+			    else if (filterSpec.equalsIgnoreCase("false"))			    
+				filter = FILTER_NONE;
+			    // new ones
+			    else if (filterSpec.equalsIgnoreCase("default"))			    
+				filter = FILTER_DEFAULT;
+			    else if (filterSpec.equalsIgnoreCase("high")) 
+				filter = FILTER_HIGH;
+			    else if (filterSpec.equalsIgnoreCase("low")) 
+				filter = FILTER_LOW;
+			    else if (filterSpec.equalsIgnoreCase("none")) 
+				filter = FILTER_NONE;
+			    // unspecified
+			    else
+				filter = FILTER_LOW;
+			}			    
+			if (filter.equals(FILTER_NONE)) {
+			    html = FormattedText.processHtmlDocument(contents, error);
+			} else if (filter.equals(FILTER_DEFAULT)) {
+			    html = FormattedText.processFormattedText(contents, error);
+			} else if (ftInstance != null) {
+			    try {
+				// now filter is set. Implement it. Depends upon whether we have the anti-samy code
+				Object level = null;
+				if (filter.equals(FILTER_HIGH))
+				    level = levels[1];
+				else
+				    level = levels[2];
+
+				html = (String)ftMethod.invoke(ftInstance, new Object[] { contents, error, level });
+			    } catch (Exception e) {
+				// in theory this shouldn't fail. ftInstance should be null if the new interface won't work
+				// don't have anti-samy. Use old instructor behavior: no filtering
 				html = FormattedText.processHtmlDocument(contents, error);
+			    }
+			} else {
+			    // don't have new format Formattedtext. Use old instructor behavior
+			    html = FormattedText.processHtmlDocument(contents, error);
 			}
-			
+
+			// if (getCurrentPage().getOwner() != null || filterHtml 
+			//		&& !"false".equals(placement.getPlacementConfig().getProperty("filterHtml")) ||
+			//		"true".equals(placement.getPlacementConfig().getProperty("filterHtml"))) {
+			//	html = FormattedText.processFormattedText(contents, error);
+			//} else {
+			//	html = FormattedText.processHtmlDocument(contents, error);
+
 			if (html != null) {
 				SimplePageItem item;
 				// itemid -1 means we're adding a new item to the page, 
