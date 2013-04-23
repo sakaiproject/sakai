@@ -27,12 +27,6 @@
     </dependency>
     <!-- External dependencies -->
     <dependency>
-      <groupId>net.sf.ehcache</groupId>
-      <artifactId>ehcache</artifactId>
-      <type>jar</type>
-      <scope>provided</scope>
-    </dependency>
-    <dependency>
       <groupId>javax.activation</groupId>
       <artifactId>activation</artifactId>
       <scope>provided</scope>
@@ -100,6 +94,12 @@
           <groupId>org.sakaiproject.kernel</groupId>
           <artifactId>sakai-kernel-util</artifactId>
         </dependency>
+        <dependency>
+          <groupId>net.sf.ehcache</groupId>
+          <artifactId>ehcache</artifactId>
+          <type>jar</type>
+          <scope>provided</scope>
+        </dependency>
       </dependencies>
     </profile>
     <profile>
@@ -113,10 +113,39 @@
           <groupId>org.sakaiproject.kernel</groupId>
           <artifactId>sakai-kernel-util</artifactId>
         </dependency>
+        <dependency>
+          <groupId>net.sf.ehcache</groupId>
+          <artifactId>ehcache</artifactId>
+          <type>jar</type>
+          <scope>provided</scope>
+        </dependency>
       </dependencies>
       <activation>
         <activeByDefault>true</activeByDefault>
       </activation>
+    </profile>
+    <profile>
+      <id>sakai2.9</id>
+      <dependencies>
+        <dependency>
+          <groupId>org.sakaiproject.kernel</groupId>
+          <artifactId>sakai-kernel-api</artifactId>
+        </dependency>
+        <dependency>
+          <groupId>org.sakaiproject.kernel</groupId>
+          <artifactId>sakai-kernel-util</artifactId>
+        </dependency>
+        <dependency>
+          <groupId>org.sakaiproject.kernel</groupId>
+          <artifactId>sakai-kernel-storage-util</artifactId>
+        </dependency>
+        <dependency>
+          <groupId>net.sf.ehcache</groupId>
+          <artifactId>ehcache-core</artifactId>
+          <type>jar</type>
+          <scope>provided</scope>
+        </dependency>
+      </dependencies>
     </profile>
   </profiles>
 </project>
