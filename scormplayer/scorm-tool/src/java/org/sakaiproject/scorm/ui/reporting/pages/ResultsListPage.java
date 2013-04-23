@@ -29,12 +29,15 @@ import org.apache.commons.logging.LogFactory;
 import org.apache.wicket.PageParameters;
 import org.apache.wicket.ResourceReference;
 import org.apache.wicket.extensions.markup.html.repeater.data.table.IColumn;
+import org.apache.wicket.markup.html.WebMarkupContainer;
+import org.apache.wicket.markup.html.basic.Label;
 import org.apache.wicket.model.IModel;
 import org.apache.wicket.model.Model;
 import org.apache.wicket.model.ResourceModel;
 import org.apache.wicket.spring.injection.annot.SpringBean;
 import org.sakaiproject.scorm.model.api.ContentPackage;
 import org.sakaiproject.scorm.model.api.LearnerExperience;
+import org.sakaiproject.scorm.service.api.LearningManagementSystem;
 import org.sakaiproject.scorm.service.api.ScormContentService;
 import org.sakaiproject.scorm.service.api.ScormResultService;
 import org.sakaiproject.scorm.ui.NameValuePair;
@@ -57,6 +60,8 @@ public class ResultsListPage extends ConsoleBasePage {
 	@SuppressWarnings("unused")
 	private static Log log = LogFactory.getLog(ResultsListPage.class);
 	
+	@SpringBean
+	LearningManagementSystem lms;
 	@SpringBean(name="org.sakaiproject.scorm.service.api.ScormContentService")
 	ScormContentService contentService;
 	@SpringBean(name="org.sakaiproject.scorm.service.api.ScormResultService")
@@ -67,19 +72,36 @@ public class ResultsListPage extends ConsoleBasePage {
 		
 		final long contentPackageId = pageParams.getLong("contentPackageId");
 		
-		ContentPackage contentPackage = contentService.getContentPackage(contentPackageId);
+		// bjones86 - SCO-94 - deny users who do not have scorm.view.results permission
+		String context = lms.currentContext();
+		boolean canViewResults = lms.canViewResults( context );
+		Label heading = new Label( "heading", new ResourceModel( "page.heading.notAllowed" ) );
+		add( heading );
+		if( !canViewResults )
+		{
+			heading.setVisibilityAllowed( true );
+			add( new WebMarkupContainer( "attemptPresenter" ) );
+			add( new WebMarkupContainer( "details" ) );
+		}
+		else
+		{
+			// bjones86 - SCO-94
+			heading.setVisibilityAllowed( false );
+		
+			ContentPackage contentPackage = contentService.getContentPackage(contentPackageId);
+				
+			addBreadcrumb(new Model(contentPackage.getTitle()), ResultsListPage.class, new PageParameters(), false);	
 			
-		addBreadcrumb(new Model(contentPackage.getTitle()), ResultsListPage.class, new PageParameters(), false);	
-		
-		AttemptDataProvider dataProvider = new AttemptDataProvider(contentPackageId);
-		dataProvider.setFilterConfigurerVisible(true);
-		dataProvider.setTableTitle(getLocalizer().getString("table.title", this));
-
-		EnhancedDataPresenter presenter = new EnhancedDataPresenter("attemptPresenter", getColumns(), dataProvider);
-		
-		add(presenter);
-		
-		add(new ContentPackageDetailPanel("details", contentPackage));
+			AttemptDataProvider dataProvider = new AttemptDataProvider(contentPackageId);
+			dataProvider.setFilterConfigurerVisible(true);
+			dataProvider.setTableTitle(getLocalizer().getString("table.title", this));
+	
+			EnhancedDataPresenter presenter = new EnhancedDataPresenter("attemptPresenter", getColumns(), dataProvider);
+			
+			add(presenter);
+			
+			add(new ContentPackageDetailPanel("details", contentPackage));
+		}
 	}
 
 	

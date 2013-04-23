@@ -28,6 +28,8 @@ import org.apache.wicket.PageParameters;
 import org.apache.wicket.ResourceReference;
 import org.apache.wicket.extensions.markup.html.repeater.data.table.IColumn;
 import org.apache.wicket.extensions.markup.html.repeater.data.table.PropertyColumn;
+import org.apache.wicket.markup.html.WebMarkupContainer;
+import org.apache.wicket.markup.html.basic.Label;
 import org.apache.wicket.markup.html.link.Link;
 import org.apache.wicket.model.IModel;
 import org.apache.wicket.model.Model;
@@ -70,25 +72,42 @@ public class InteractionResultsPage extends BaseResultsPage {
 		parentParams.put("learnerId", learner.getId());
 		parentParams.put("attemptNumber", attemptNumber);
 		
-		String interactionId = pageParams.getString("interactionId");
+		// bjones86 - SCO-94 - deny users who do not have scorm.view.results permission
+		String context = lms.currentContext();
+		boolean canViewResults = lms.canViewResults( context );
+		Label heading = new Label( "heading3", new ResourceModel( "page.heading.notAllowed" ) );
+		add( heading );
+		if( !canViewResults )
+		{
+			heading.setVisibilityAllowed( true );
+			add( new WebMarkupContainer( "interactionPanel" ) );
+			add( new WebMarkupContainer( "objectivePresenter" ) );
+		}
+		else
+		{
+			// bjones86 - SCO-94
+			heading.setVisibilityAllowed( false );
 		
-		Interaction interaction = resultService.getInteraction(contentPackage.getContentPackageId(), learner.getId(), attemptNumber, scoId, interactionId);
-		
-		add(new InteractionPanel("interactionPanel", interaction));
-		
-		IModel breadcrumbModel = new StringResourceModel("uberuberparent.breadcrumb", this, new Model(contentPackage));
-		addBreadcrumb(breadcrumbModel, ResultsListPage.class, uberuberparentParams, true);	
-		addBreadcrumb(new Model(learner.getDisplayName()), LearnerResultsPage.class, parentParams, true);
-		addBreadcrumb(new Model(interaction.getActivityTitle()), ScoResultsPage.class, pageParams, true);
-		addBreadcrumb(new Model(interaction.getInteractionId()), InteractionResultsPage.class, pageParams, false);
-		
-		List<Objective> objectives = interaction.getObjectives();
-		ObjectiveProvider dataProvider = new ObjectiveProvider(objectives);
-		dataProvider.setTableTitle("Objectives");
-		EnhancedDataPresenter presenter = new EnhancedDataPresenter("objectivePresenter", getColumns(), dataProvider);
-		add(presenter);	
-		
-		presenter.setVisible(objectives != null && objectives.size() > 0);
+			String interactionId = pageParams.getString("interactionId");
+			
+			Interaction interaction = resultService.getInteraction(contentPackage.getContentPackageId(), learner.getId(), attemptNumber, scoId, interactionId);
+			
+			add(new InteractionPanel("interactionPanel", interaction));
+			
+			IModel breadcrumbModel = new StringResourceModel("uberuberparent.breadcrumb", this, new Model(contentPackage));
+			addBreadcrumb(breadcrumbModel, ResultsListPage.class, uberuberparentParams, true);	
+			addBreadcrumb(new Model(learner.getDisplayName()), LearnerResultsPage.class, parentParams, true);
+			addBreadcrumb(new Model(interaction.getActivityTitle()), ScoResultsPage.class, pageParams, true);
+			addBreadcrumb(new Model(interaction.getInteractionId()), InteractionResultsPage.class, pageParams, false);
+			
+			List<Objective> objectives = interaction.getObjectives();
+			ObjectiveProvider dataProvider = new ObjectiveProvider(objectives);
+			dataProvider.setTableTitle("Objectives");
+			EnhancedDataPresenter presenter = new EnhancedDataPresenter("objectivePresenter", getColumns(), dataProvider);
+			add(presenter);	
+			
+			presenter.setVisible(objectives != null && objectives.size() > 0);
+		}
 	}
 
 	@Override

@@ -27,6 +27,8 @@ import org.apache.wicket.PageParameters;
 import org.apache.wicket.ResourceReference;
 import org.apache.wicket.extensions.markup.html.repeater.data.table.IColumn;
 import org.apache.wicket.extensions.markup.html.repeater.data.table.PropertyColumn;
+import org.apache.wicket.markup.html.WebMarkupContainer;
+import org.apache.wicket.markup.html.basic.Label;
 import org.apache.wicket.markup.html.link.Link;
 import org.apache.wicket.model.IModel;
 import org.apache.wicket.model.Model;
@@ -64,33 +66,49 @@ public class LearnerResultsPage extends BaseResultsPage {
 		parentParams.put("learnerId", learner.getId());
 		parentParams.put("attemptNumber", attemptNumber);
 		
-		IModel breadcrumbModel = new StringResourceModel("parent.breadcrumb", this, new Model(contentPackage));
-		// MvH
-		if (isSinglePackageTool()) {
-			if (lms.canGrade(lms.currentContext())) {
-				addBreadcrumb(breadcrumbModel, ResultsListPage.class, uberparentParams, true);
+		// bjones86 - SCO-94 - deny users who do not have scorm.view.results permission
+		String context = lms.currentContext();
+		boolean canViewResults = lms.canViewResults( context );
+		Label heading = new Label( "heading1", new ResourceModel( "page.heading.notAllowed" ) );
+		add( heading );
+		if( !canViewResults )
+		{
+			heading.setVisibilityAllowed( true );
+			add( new WebMarkupContainer( "summaryPresenter" ) );
+		}
+		else
+		{
+			// bjones86 - SCO-94
+			heading.setVisibilityAllowed( false );
+		
+			IModel breadcrumbModel = new StringResourceModel("parent.breadcrumb", this, new Model(contentPackage));
+			// MvH
+			if (isSinglePackageTool()) {
+				if (lms.canGrade(lms.currentContext())) {
+					addBreadcrumb(breadcrumbModel, ResultsListPage.class, uberparentParams, true);
+				}
+				else {
+					addBreadcrumb(breadcrumbModel, DisplayDesignatedPackage.class, uberparentParams, true);
+				}
 			}
 			else {
-				addBreadcrumb(breadcrumbModel, DisplayDesignatedPackage.class, uberparentParams, true);
+				if (lms.canGrade(lms.currentContext())) {
+					addBreadcrumb(breadcrumbModel, ResultsListPage.class, uberparentParams, true);
+				}
+				else {
+					addBreadcrumb(breadcrumbModel, PackageListPage.class, uberparentParams, true);
+				}
 			}
+			addBreadcrumb(new Model(learner.getDisplayName()), LearnerResultsPage.class, parentParams, false);
+			
+			List<ActivitySummary> summaries = resultService.getActivitySummaries(contentPackage.getContentPackageId(), learner.getId(), attemptNumber);
+			SummaryProvider dataProvider = new SummaryProvider(summaries);
+			dataProvider.setTableTitle(getLocalizer().getString("table.title", this));
+			EnhancedDataPresenter presenter = new EnhancedDataPresenter("summaryPresenter", getColumns(), dataProvider);
+			add(presenter);
+			
+			presenter.setVisible(summaries != null && summaries.size() > 0);
 		}
-		else {
-			if (lms.canGrade(lms.currentContext())) {
-				addBreadcrumb(breadcrumbModel, ResultsListPage.class, uberparentParams, true);
-			}
-			else {
-				addBreadcrumb(breadcrumbModel, PackageListPage.class, uberparentParams, true);
-			}
-		}
-		addBreadcrumb(new Model(learner.getDisplayName()), LearnerResultsPage.class, parentParams, false);
-		
-		List<ActivitySummary> summaries = resultService.getActivitySummaries(contentPackage.getContentPackageId(), learner.getId(), attemptNumber);
-		SummaryProvider dataProvider = new SummaryProvider(summaries);
-		dataProvider.setTableTitle(getLocalizer().getString("table.title", this));
-		EnhancedDataPresenter presenter = new EnhancedDataPresenter("summaryPresenter", getColumns(), dataProvider);
-		add(presenter);
-		
-		presenter.setVisible(summaries != null && summaries.size() > 0);
 	}
 	
 	@Override
