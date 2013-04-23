@@ -24,13 +24,13 @@
   </parent>
   <artifactId>sakai-scorm-base</artifactId>
   <name>Sakai Scorm Project</name>
-  <version>3.0.5-SNAPSHOT</version>
+  <version>3.0.5</version>
   <scm>
-    <connection>scm:svn:https://source.sakaiproject.org/contrib/scorm/SCORM.2004.3ED.RTE/trunk/
+    <connection>scm:svn:https://source.sakaiproject.org/contrib/scorm/SCORM.2004.3ED.RTE/tags/3.0.5
 		</connection>
-    <developerConnection>scm:svn:https://source.sakaiproject.org/contrib/scorm/SCORM.2004.3ED.RTE/trunk/
+    <developerConnection>scm:svn:https://source.sakaiproject.org/contrib/scorm/SCORM.2004.3ED.RTE/tags/3.0.5
 		</developerConnection>
-    <url>https://source.sakaiproject.org/contrib/scorm/SCORM.2004.3ED.RTE/trunk
+    <url>https://source.sakaiproject.org/contrib/scorm/SCORM.2004.3ED.RTE/tags/3.0.5
 		</url>
   </scm>
   <properties>
@@ -95,36 +95,36 @@
       <dependency>
         <groupId>org.sakaiproject.scorm</groupId>
         <artifactId>sakai-scorm-adl-impl</artifactId>
-        <version>3.0.5-SNAPSHOT</version>
+        <version>3.0.5</version>
       </dependency>
       <dependency>
         <groupId>org.sakaiproject.scorm</groupId>
         <artifactId>sakai-scorm-content-impl</artifactId>
-        <version>3.0.5-SNAPSHOT</version>
+        <version>3.0.5</version>
         <type>jar</type>
       </dependency>
       <dependency>
         <groupId>org.sakaiproject.scorm</groupId>
         <artifactId>sakai-scorm-client-impl</artifactId>
-        <version>3.0.5-SNAPSHOT</version>
+        <version>3.0.5</version>
         <type>jar</type>
       </dependency>
       <dependency>
         <groupId>org.sakaiproject.scorm</groupId>
         <artifactId>sakai-scorm-model-impl</artifactId>
-        <version>3.0.5-SNAPSHOT</version>
+        <version>3.0.5</version>
         <type>jar</type>
       </dependency>
       <dependency>
         <groupId>org.sakaiproject.scorm</groupId>
         <artifactId>sakai-scorm-service-impl</artifactId>
-        <version>3.0.5-SNAPSHOT</version>
+        <version>3.0.5</version>
         <type>jar</type>
       </dependency>
       <dependency>
         <groupId>org.sakaiproject.scorm</groupId>
         <artifactId>sakai-scorm-api</artifactId>
-        <version>3.0.5-SNAPSHOT</version>
+        <version>3.0.5</version>
         <type>jar</type>
       </dependency>
       <dependency>
