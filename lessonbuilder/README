@@ -30,12 +30,14 @@ precautions that would interfere with Lessons:
   its link, the Resource tool will download the HTML file rather
   than displaying it.
 
-Lessons does not normally do these things. 
+Sakai's behavior is configurable. By default, it doesn't either of
+those things in older versions of Sakai. Starting in Sakai 2.9.2,
+Lessons will filter dangerous content in HTML.
 
 * If you add text using the "add text" button, we will display the
-  HTML without modification. Note that student-owned content is
-  an exception. We will use the normal Sakai filter that removes
-  Javascript, etc.
+  HTML without modification before Sakai 2.9.2. Starting with 2.9.2
+  we will use the kernel's HTML filtering. It should allow EMBED
+  but prohibit Javascript.
 * When you upload HTML files through Lessons, we will show them as
   HTML in your browser.
 
@@ -65,6 +67,13 @@ with value "false".
   which it is located. Click the box that says "Allow HTML file"
   and save.
 
+Starting with Sakai 2.9.2 lessonbuilder.filterhtml and the
+filterhtml instance property can also be set to explicit antisamy
+filter levels: default, none, high, low.
+
+true is equivalent to low, false to none.
+
+The default is false before Sakai 2.9.2, true starting with 2.9.2.
 
 BUILDING
 
