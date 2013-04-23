@@ -95,36 +95,36 @@
       <dependency>
         <groupId>org.sakaiproject.scorm</groupId>
         <artifactId>sakai-scorm-adl-impl</artifactId>
-        <version>3.0.4-SNAPSHOT</version>
+        <version>3.0.5-SNAPSHOT</version>
       </dependency>
       <dependency>
         <groupId>org.sakaiproject.scorm</groupId>
         <artifactId>sakai-scorm-content-impl</artifactId>
-        <version>3.0.4-SNAPSHOT</version>
+        <version>3.0.5-SNAPSHOT</version>
         <type>jar</type>
       </dependency>
       <dependency>
         <groupId>org.sakaiproject.scorm</groupId>
         <artifactId>sakai-scorm-client-impl</artifactId>
-        <version>3.0.4-SNAPSHOT</version>
+        <version>3.0.5-SNAPSHOT</version>
         <type>jar</type>
       </dependency>
       <dependency>
         <groupId>org.sakaiproject.scorm</groupId>
         <artifactId>sakai-scorm-model-impl</artifactId>
-        <version>3.0.4-SNAPSHOT</version>
+        <version>3.0.5-SNAPSHOT</version>
         <type>jar</type>
       </dependency>
       <dependency>
         <groupId>org.sakaiproject.scorm</groupId>
         <artifactId>sakai-scorm-service-impl</artifactId>
-        <version>3.0.4-SNAPSHOT</version>
+        <version>3.0.5-SNAPSHOT</version>
         <type>jar</type>
       </dependency>
       <dependency>
         <groupId>org.sakaiproject.scorm</groupId>
         <artifactId>sakai-scorm-api</artifactId>
-        <version>3.0.4-SNAPSHOT</version>
+        <version>3.0.5-SNAPSHOT</version>
         <type>jar</type>
       </dependency>
       <dependency>
@@ -136,4 +136,16 @@
       </dependency>
     </dependencies>
   </dependencyManagement>
+  <build>
+    <plugins>
+      <plugin>
+        <artifactId>maven-release-plugin</artifactId>
+        <version>2.3.2</version>
+        <configuration>
+          <tagNameFormat>@{project.version}</tagNameFormat>
+          <autoVersionSubmodules>true</autoVersionSubmodules>
+        </configuration>
+      </plugin>
+    </plugins>
+  </build>
 </project>
