@@ -80,6 +80,18 @@
   		startDateValues[$(this).attr('id')] = $(this).val();
   	});
   });
+  
+	function toggleCalendarCheckbox(postCheckbox){
+		$(postCheckbox).parent().parent().find(".calendarBox").each(function(){
+			if(postCheckbox.checked){
+				$(this).removeAttr("disabled");
+			}else{
+				$(this).attr("disabled", "disabled");
+				this.checked = false;
+			}
+		});
+	}
+
  </script>
 <jsp:useBean id="msgs" class="org.sakaiproject.util.ResourceLoader" scope="session">
    <jsp:setProperty name="msgs" property="baseName" value="org.sakaiproject.tool.syllabus.bundle.Messages"/>
@@ -162,11 +174,11 @@
 									<h:outputText value="#{msgs.mainEditHeaderInCalendar}"/>
 									<f:verbatim>
 										<br/>
-										<input type="checkbox" onchange="$('.calendarBox').attr('checked', this.checked);"/>
+										<input type="checkbox" onchange="$('.calendarBox').not(':disabled').attr('checked', this.checked);"/>
 									</f:verbatim>
 								</h:panelGroup>
 							</f:facet>
-							<h:selectBooleanCheckbox styleClass="calendarBox" value="#{eachEntry.entry.linkCalendar}" title="#{msgs.selectThisCheckBoxCal}"/>
+							<h:selectBooleanCheckbox styleClass="calendarBox" value="#{eachEntry.entry.linkCalendar}" title="#{msgs.selectThisCheckBoxCal}" disabled="#{!eachEntry.posted}"/>
 						</h:column>
 						<h:column rendered="#{! SyllabusTool.displayNoEntryMsg}">
 							<f:facet name="header">
@@ -178,7 +190,7 @@
 									</f:verbatim>
 								</h:panelGroup>
 							</f:facet>
-							<h:selectBooleanCheckbox styleClass="postBox" value="#{eachEntry.posted}" title="#{msgs.selectThisCheckBoxPost}"/>
+							<h:selectBooleanCheckbox styleClass="postBox" value="#{eachEntry.posted}" title="#{msgs.selectThisCheckBoxPost}" onchange="toggleCalendarCheckbox(this);"/>
 						</h:column>
 						<h:column rendered="#{! SyllabusTool.displayNoEntryMsg}">
 							<f:facet name="header">
