@@ -103,6 +103,17 @@
 			<syllabus:syllabus_if test="#{SyllabusTool.syllabusItem.redirectURL}">
 					<f:verbatim>
 						<br/>
+						<a href="#" id="expandLink" style="float: right" onclick="expandAccordion('<%= org.sakaiproject.util.Web.escapeJavascript(thisId)%>')">
+						</f:verbatim>
+							<h:outputText value="#{msgs.expandAll}"/>
+						<f:verbatim>
+						</a>
+						<a href="#" id="collapseLink" style="float: right; display:none" onclick="collapseAccordion('<%= org.sakaiproject.util.Web.escapeJavascript(thisId)%>')">
+						</f:verbatim>
+							<h:outputText value="#{msgs.collapseAll}"/>
+						<f:verbatim>
+						</a>
+						<br/>
 						<br/>
 						<div id="accordion">
 					</f:verbatim>
