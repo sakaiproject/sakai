@@ -155,6 +155,8 @@
             ref="org.sakaiproject.entity.api.EntityManager" />
         <property name="eventTrackingService"
             ref="org.sakaiproject.event.api.EventTrackingService" />
+        <property name="learningResourceStoreService"
+            ref="org.sakaiproject.event.api.LearningResourceStoreService" />
         <property name="serverConfigurationService"
             ref="org.sakaiproject.component.api.ServerConfigurationService" />
         <property name="emailService"

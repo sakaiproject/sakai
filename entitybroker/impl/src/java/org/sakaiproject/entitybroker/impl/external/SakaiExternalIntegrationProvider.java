@@ -36,9 +36,11 @@ import org.sakaiproject.entitybroker.providers.ExternalIntegrationProvider;
 import org.sakaiproject.entitybroker.util.servlet.DirectServlet;
 import org.sakaiproject.event.api.Event;
 import org.sakaiproject.event.api.EventTrackingService;
+import org.sakaiproject.event.api.LearningResourceStoreService;
 import org.sakaiproject.event.api.NotificationService;
 import org.sakaiproject.event.api.UsageSession;
 import org.sakaiproject.event.api.UsageSessionService;
+import org.sakaiproject.event.api.LearningResourceStoreService.LRS_Statement;
 import org.sakaiproject.tool.api.Session;
 import org.sakaiproject.tool.api.SessionManager;
 
@@ -64,6 +66,11 @@ public class SakaiExternalIntegrationProvider implements ExternalIntegrationProv
     private EventTrackingService eventTrackingService; // for fire event
     public void setEventTrackingService(EventTrackingService eventTrackingService) {
         this.eventTrackingService = eventTrackingService;
+    }
+
+    private LearningResourceStoreService learningResourceStoreService;
+    public void setLearningResourceStoreService(LearningResourceStoreService learningResourceStoreService) {
+        this.learningResourceStoreService = learningResourceStoreService;
     }
 
     private ServerConfigurationService serverConfigurationService;
@@ -282,6 +289,22 @@ public class SakaiExternalIntegrationProvider implements ExternalIntegrationProv
             }
         }
         return returnValue;
+    }
+
+    /* (non-Javadoc)
+     * @see org.sakaiproject.entitybroker.entityprovider.extension.LearningTrackingProvider#registerStatement(java.lang.String, java.lang.String, java.lang.String, java.lang.String, java.lang.Boolean, java.lang.Float)
+     */
+    public void registerStatement(String prefix, String actorEmail, String verbStr, String objectURI, Boolean resultSuccess, Float resultScaledScore) {
+        if (prefix == null || "".equals(prefix)) {
+            throw new IllegalArgumentException("prefix must be set");
+        }
+        LRS_Statement statement = new LRS_Statement(actorEmail, verbStr, objectURI);
+        if (resultSuccess != null && resultScaledScore != null) {
+            statement = new LRS_Statement(actorEmail, verbStr, objectURI, resultSuccess.booleanValue(), resultScaledScore.floatValue());
+        } else {
+            statement = new LRS_Statement(actorEmail, verbStr, objectURI);
+        }
+        learningResourceStoreService.registerStatement(statement, prefix);
     }
 
 }

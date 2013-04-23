@@ -328,6 +328,14 @@ public class EntityBrokerImpl implements EntityBroker, PropertiesProvider {
     }
 
 
+    /* (non-Javadoc)
+     * @see org.sakaiproject.entitybroker.entityprovider.extension.LearningTrackingProvider#registerStatement(java.lang.String, java.lang.String, java.lang.String, java.lang.String, java.lang.Boolean, java.lang.Float)
+     */
+    public void registerStatement(String prefix, String actorEmail, String verbStr, String objectURI, Boolean resultSuccess, Float resultScaledScore) {
+        externalIntegrationProvider.registerStatement(prefix, actorEmail, verbStr, objectURI, resultSuccess, resultScaledScore);
+    }
+
+
     public void formatAndOutputEntity(String reference, String format, List<?> entities,
             OutputStream output, Map<String, Object> params) {
         EntityReference ref = entityBrokerManager.parseReference(reference);

@@ -5,7 +5,9 @@ import java.util.Map;
 
 import javax.servlet.http.HttpServletRequest;
 
-public interface ExternalIntegrationProvider {
+import org.sakaiproject.entitybroker.entityprovider.extension.LearningTrackingProvider;
+
+public interface ExternalIntegrationProvider extends LearningTrackingProvider {
 
     /**
      * The recommended param key to use for sending in session ids in requests

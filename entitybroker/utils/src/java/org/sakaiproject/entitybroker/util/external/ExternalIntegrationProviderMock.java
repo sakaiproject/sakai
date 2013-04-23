@@ -89,4 +89,11 @@ public class ExternalIntegrationProviderMock implements ExternalIntegrationProvi
         return defaultValue;
     }
 
+    /* (non-Javadoc)
+     * @see org.sakaiproject.entitybroker.entityprovider.extension.LearningTrackingProvider#registerStatement(java.lang.String, java.lang.String, java.lang.String, java.lang.String, java.lang.Boolean, java.lang.Float)
+     */
+    public void registerStatement(String prefix, String actorEmail, String verbStr, String objectURI, Boolean resultSuccess, Float resultScaledScore) {
+        // nothing to do
+    }
+
 }

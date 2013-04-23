@@ -34,6 +34,7 @@ import org.sakaiproject.entitybroker.entityprovider.extension.ActionReturn;
 import org.sakaiproject.entitybroker.entityprovider.extension.BrowseEntity;
 import org.sakaiproject.entitybroker.entityprovider.extension.EntityData;
 import org.sakaiproject.entitybroker.entityprovider.extension.Formats;
+import org.sakaiproject.entitybroker.entityprovider.extension.LearningTrackingProvider;
 import org.sakaiproject.entitybroker.entityprovider.extension.PropertiesProvider;
 import org.sakaiproject.entitybroker.entityprovider.extension.SearchProvider;
 import org.sakaiproject.entitybroker.entityprovider.extension.TagProvider;
@@ -46,10 +47,10 @@ import org.sakaiproject.entitybroker.util.EntityResponse;
  * This service interface defines the capabilities of the entity broker system<br/> 
  * It allows Sakai system methods, developers, etc. to access Sakai entity information (new and old)
  * 
- * @author Aaron Zeckoski (aaronz@vt.edu)
+ * @author Aaron Zeckoski (azeckoski @ unicon.net) (azeckoski @ vt.edu)
  * @author Antranig Basman (antranig@caret.cam.ac.uk)
  */
-public interface EntityBroker extends PropertiesProvider, TagProvider, SearchProvider {
+public interface EntityBroker extends PropertiesProvider, TagProvider, SearchProvider, LearningTrackingProvider {
 
     /**
      * Check if an entity exists by the globally unique reference string, (the global reference
