@@ -28,6 +28,8 @@ import org.apache.wicket.PageParameters;
 import org.apache.wicket.ResourceReference;
 import org.apache.wicket.extensions.markup.html.repeater.data.table.IColumn;
 import org.apache.wicket.extensions.markup.html.repeater.data.table.PropertyColumn;
+import org.apache.wicket.markup.html.WebMarkupContainer;
+import org.apache.wicket.markup.html.basic.Label;
 import org.apache.wicket.markup.html.link.Link;
 import org.apache.wicket.model.IModel;
 import org.apache.wicket.model.Model;
@@ -90,39 +92,57 @@ public class ScoResultsPage extends BaseResultsPage {
 		parentParams.put("learnerId", learner.getId());
 		parentParams.put("attemptNumber", attemptNumber);
 		
-		IModel breadcrumbModel = new StringResourceModel("uberparent.breadcrumb", this, new Model(contentPackage));
-		addBreadcrumb(breadcrumbModel, ResultsListPage.class, uberparentParams, true);	
-		addBreadcrumb(new Model(learner.getDisplayName()), LearnerResultsPage.class, parentParams, true);
-
-		ActivityReport report = resultService.getActivityReport(contentPackage.getContentPackageId(), learner.getId(), attemptNumber, scoId);
-		
-		List<Interaction> interactions = null;
-		
-		if (report != null) {
-			addBreadcrumb(new Model(report.getTitle()), ScoResultsPage.class, pageParams, false);
-			
-			add(new ScorePanel("scorePanel", report.getScore()));
-			add(new ProgressPanel("progressPanel", report.getProgress()));
-
-			interactions = report.getInteractions();
+		// bjones86 - SCO-94 - deny users who do not have scorm.view.results permission
+		String context = lms.currentContext();
+		boolean canViewResults = lms.canViewResults( context );
+		Label heading = new Label( "heading2", new ResourceModel( "page.heading.notAllowed" ) );
+		add( heading );
+		if( !canViewResults )
+		{
+			heading.setVisibilityAllowed( true );
+			add( new WebMarkupContainer( "scorePanel" ) );
+			add( new WebMarkupContainer( "progressPanel" ) );
+			add( new WebMarkupContainer( "interactionPresenter" ) );
 		}
+		else
+		{
+			// bjones86 - SCO-94
+			heading.setVisibilityAllowed( false );
 		
-		else {
-			addBreadcrumb(new Model("[no module]"), ScoResultsPage.class, pageParams, false);
+			IModel breadcrumbModel = new StringResourceModel("uberparent.breadcrumb", this, new Model(contentPackage));
+			addBreadcrumb(breadcrumbModel, ResultsListPage.class, uberparentParams, true);	
+			addBreadcrumb(new Model(learner.getDisplayName()), LearnerResultsPage.class, parentParams, true);
+	
+			ActivityReport report = resultService.getActivityReport(contentPackage.getContentPackageId(), learner.getId(), attemptNumber, scoId);
 			
-			add(new ScorePanel("scorePanel", new Score()));
-			add(new ProgressPanel("progressPanel", new Progress()));
+			List<Interaction> interactions = null;
 			
-			interactions = new ArrayList<Interaction>();
+			if (report != null) {
+				addBreadcrumb(new Model(report.getTitle()), ScoResultsPage.class, pageParams, false);
+				
+				add(new ScorePanel("scorePanel", report.getScore()));
+				add(new ProgressPanel("progressPanel", report.getProgress()));
+	
+				interactions = report.getInteractions();
+			}
 			
+			else {
+				addBreadcrumb(new Model("[no module]"), ScoResultsPage.class, pageParams, false);
+				
+				add(new ScorePanel("scorePanel", new Score()));
+				add(new ProgressPanel("progressPanel", new Progress()));
+				
+				interactions = new ArrayList<Interaction>();
+				
+			}
+			
+			InteractionProvider dataProvider = new InteractionProvider(interactions);
+			dataProvider.setTableTitle("Interactions");
+			EnhancedDataPresenter presenter = new EnhancedDataPresenter("interactionPresenter", getColumns(), dataProvider);
+			add(presenter);
+			
+			presenter.setVisible(interactions != null && interactions.size() > 0);
 		}
-		
-		InteractionProvider dataProvider = new InteractionProvider(interactions);
-		dataProvider.setTableTitle("Interactions");
-		EnhancedDataPresenter presenter = new EnhancedDataPresenter("interactionPresenter", getColumns(), dataProvider);
-		add(presenter);
-		
-		presenter.setVisible(interactions != null && interactions.size() > 0);
 	}
 	
 	@Override
