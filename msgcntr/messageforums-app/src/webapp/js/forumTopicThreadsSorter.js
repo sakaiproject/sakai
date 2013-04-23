@@ -110,9 +110,12 @@ jQuery.fn.threadsSorter = function() {
 		}
 		
 		/* Making header looks similar to sakai other sorting tables' header */
+       /* MSGCNTR-806 - change to 'inherit' so that it picks up local styles for
+        * links in headers
+        */
 		function decorateHeaders(){	
-			var cssObj = { 'text-decoration': 'underline',
-						'color':'#3355bb'
+			var cssObj = { 'text-decoration': 'inherit',
+						'color':'inherit'
 						}
 			$('.header').each( function () {
 				var str = $(this).text().split(" ");
