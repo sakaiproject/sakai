@@ -28,11 +28,11 @@
   <name>Sakai Scorm Project</name>
   <version>3.0.5-SNAPSHOT</version>
   <scm>
-    <connection>scm:svn:https://source.sakaiproject.org/contrib/scorm/SCORM.2004.3ED.RTE/tags/3.1.0
+    <connection>scm:svn:https://source.sakaiproject.org/contrib/scorm/SCORM.2004.3ED.RTE/trunk
 		</connection>
-    <developerConnection>scm:svn:https://source.sakaiproject.org/contrib/scorm/SCORM.2004.3ED.RTE/tags/3.1.0
+    <developerConnection>scm:svn:https://source.sakaiproject.org/contrib/scorm/SCORM.2004.3ED.RTE/trunk
 		</developerConnection>
-    <url>https://source.sakaiproject.org/contrib/scorm/SCORM.2004.3ED.RTE/tags/3.1.0
+    <url>https://source.sakaiproject.org/contrib/scorm/SCORM.2004.3ED.RTE/trunk
 		</url>
   </scm>
   <properties>
