@@ -30,7 +30,7 @@ function insertAfter( referenceNode, newNode )
  * $monthselect_id The id attribute of the month selection dropdown list (html SELECT tag)
  * $dayselect_id   The id attribute of the day selection dropdown list (html SELECT tag)
  */
-function chef_dateselectionwidgetpopup(yearselect_id, monthselect_id, dayselect_id, calendar_id)
+function chef_dateselectionwidgetpopup(yearselect_id, monthselect_id, dayselect_id, calendar_id, calendar_title)
 {		
 
 	// if calendar_id not defined, generate it 
@@ -57,6 +57,9 @@ function chef_dateselectionwidgetpopup(yearselect_id, monthselect_id, dayselect_
  		var yearselectNode  = document.getElementById(yearselect_id);
 	}
 
+	if (calendar_title == undefined || calendar_title == '') {
+		calendar_title = 'Popup date selector';
+	}
 
 	//Replace document.write as they break the div replication in webkit and they are flaky in firefox
 
@@ -65,7 +68,7 @@ function chef_dateselectionwidgetpopup(yearselect_id, monthselect_id, dayselect_
 	imageNode.src='/library/calendar/images/calendar/cal.gif';
 	imageNode.alt='';
 	imageNode.id=calendar_id;
-	imageNode.title='Popup date selector';
+	imageNode.title=calendar_title;
 	imageNode.style.cursor="pointer";
 /*
 	old - IE7 fails to register setAttribute in dynam. added elems
