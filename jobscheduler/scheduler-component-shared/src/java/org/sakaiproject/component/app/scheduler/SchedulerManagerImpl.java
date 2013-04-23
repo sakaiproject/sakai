@@ -83,6 +83,7 @@ public class SchedulerManagerImpl implements SchedulerManager
   private SchedulerFactory schedFactory;
   private Scheduler scheduler;
   private static final Log LOG = LogFactory.getLog(SchedulerManagerImpl.class);
+  private boolean startScheduler = true;
 
   private LinkedList<TriggerListener>
       globalTriggerListeners = new LinkedList<TriggerListener>();
@@ -249,7 +250,11 @@ public void init()
       }
 
       //scheduler.addGlobalTriggerListener(globalTriggerListener);
-      scheduler.start();
+      if (isStartScheduler()) {
+          scheduler.start();
+      } else {
+          LOG.info("Not Started Scheduler, startScheduler=false");
+      }
     }
     catch (Exception e)
     {
@@ -661,5 +666,12 @@ public void init()
    public JobBeanWrapper getJobBeanWrapper(String beanWrapperId) {
       return (JobBeanWrapper) getBeanJobs().get(beanWrapperId);
    }
-   
+
+   public boolean isStartScheduler() {
+       return startScheduler;
+   }
+
+   public void setStartScheduler(boolean startScheduler) {
+       this.startScheduler = startScheduler;
+   }
 }
