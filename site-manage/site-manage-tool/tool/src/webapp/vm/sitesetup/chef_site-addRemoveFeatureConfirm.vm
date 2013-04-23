@@ -105,68 +105,71 @@
 			#end
 		#end
 		#foreach ($newTool in $selectedTools)
-			#set($newToolTitle = "")
-			#foreach($t in $toolRegistrationList)
-				#if ($t.getId() == $newTool)
-					#set($newToolTitle = $validator.escapeHtml($t.getTitle()))
+		 	## SAK-16600 to exclude the home tool here
+			#if (!$homeToolId.equals($newTool))
+				#set($newToolTitle = "")
+				#foreach($t in $toolRegistrationList)
+					#if ($t.getId() == $newTool)
+						#set($newToolTitle = $validator.escapeHtml($t.getTitle()))
+					#end
 				#end
-			#end
-			#set($found=false)
-			#foreach ($oldTool in $oldSelectedTools)
-				#if ($oldTool.equals($newTool))
+				#set($found=false)
+				#foreach ($oldTool in $oldSelectedTools)
+					#if ($oldTool.equals($newTool))
+						#set($found=true)
+					#end
+				#end
+				#if(!$found && $!extraSelectedToolList.contains($newTool))
 					#set($found=true)
 				#end
-			#end
-			#if(!$found && $!extraSelectedToolList.contains($newTool))
-				#set($found=true)
-			#end
-			#if (!$found)
-				<span class="highlight">
-			#end
-			#if ($newTool == "sakai.mailbox")
-				$!newToolTitle 
-				#if ($!allowPageOrderHelper)
-					($validator.escapeHtml($!toolRegistrationTitleList.get($!newTool)))
+				#if (!$found)
+					<span class="highlight">
 				#end
-				: $!emailId@$serverName
-			#elseif ($!multipleToolIdTitleMap.containsKey($newTool))
-				## show tool title
-				$validator.escapeHtml($!multipleToolIdTitleMap.get($newTool))
-				#if ($!allowPageOrderHelper)
-					($validator.escapeHtml($!toolRegistrationTitleList.get($!newTool)))
-				#end
-				## show tool configuration
-				#if ($!multipleToolIdTitleMap.containsKey($toolId))
-					#set($properties = $!multipleToolConfiguration.get($toolId))
-					#if (!$properties.isEmpty())
-						##show configurations
-						(	
-							#foreach ($property in $!properties.keySet())
-								$property : $validator.escapeHtml($properties.get($property))
-							#end
-						)
+				#if ($newTool == "sakai.mailbox")
+					$!newToolTitle 
+					#if ($!allowPageOrderHelper)
+						($validator.escapeHtml($!toolRegistrationTitleList.get($!newTool)))
 					#end
-		   #end
-					## get tool configuration
-					#set($attributeHashtable=false)
-					#set($attributeHashtable=$!multipleToolConfiguration.get($newTool))
-					#if (!$!attributeHashtable.isEmpty())
-						## show attributes
-						(#foreach ($attribute in $!attributeHashtable.keySet())
-							$validator.escapeHtml($!attributeHashtable.get($attribute))
-						#end)
+					: $!emailId@$serverName
+				#elseif ($!multipleToolIdTitleMap.containsKey($newTool))
+					## show tool title
+					$validator.escapeHtml($!multipleToolIdTitleMap.get($newTool))
+					#if ($!allowPageOrderHelper)
+						($validator.escapeHtml($!toolRegistrationTitleList.get($!newTool)))
 					#end
-			#else
-				$!newToolTitle
-				## exclude Home tool 
-				#if (!$!newTool.equals($homeToolId) && $!allowPageOrderHelper)
-					($validator.escapeHtml($!toolRegistrationTitleList.get($!newTool)))
+					## show tool configuration
+					#if ($!multipleToolIdTitleMap.containsKey($toolId))
+						#set($properties = $!multipleToolConfiguration.get($toolId))
+						#if (!$properties.isEmpty())
+							##show configurations
+							(	
+								#foreach ($property in $!properties.keySet())
+									$property : $validator.escapeHtml($properties.get($property))
+								#end
+							)
+						#end
+			   #end
+						## get tool configuration
+						#set($attributeHashtable=false)
+						#set($attributeHashtable=$!multipleToolConfiguration.get($newTool))
+						#if (!$!attributeHashtable.isEmpty())
+							## show attributes
+							(#foreach ($attribute in $!attributeHashtable.keySet())
+								$validator.escapeHtml($!attributeHashtable.get($attribute))
+							#end)
+						#end
+				#else
+					$!newToolTitle
+					## exclude Home tool 
+					#if (!$!newTool.equals($homeToolId) && $!allowPageOrderHelper)
+						($validator.escapeHtml($!toolRegistrationTitleList.get($!newTool)))
+					#end
 				#end
+				#if (!$found)
+					</span>
+				#end
+				<br />
 			#end
-			#if (!$found)
-				</span>
-			#end
-			<br />
 		#end
 		## for LTI tools
 		#if (!$!ltiTools.isEmpty())

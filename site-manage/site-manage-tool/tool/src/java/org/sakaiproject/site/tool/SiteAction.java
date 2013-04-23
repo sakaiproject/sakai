@@ -1737,7 +1737,9 @@ public class SiteAction extends PagedResourceActionII {
 				context.put("backIndex", "13");	// back to new site information page
 			}
 			context.put("homeToolId", TOOL_ID_HOME);
-			context.put("toolsByGroup", (LinkedHashMap<String,List>) state.getAttribute(STATE_TOOL_GROUP_LIST)); 
+			context.put("toolsByGroup", (LinkedHashMap<String,List>) state.getAttribute(STATE_TOOL_GROUP_LIST));
+			
+			context.put("toolGroupMultiples", getToolGroupMultiples(state, (List) state.getAttribute(STATE_TOOL_REGISTRATION_LIST)));
 
 			return (String) getContext(data).get("template") + TEMPLATE[4];
 
@@ -3703,10 +3705,9 @@ public class SiteAction extends PagedResourceActionII {
 		Set multipleToolIdSet = (Set) state.getAttribute(STATE_MULTIPLE_TOOL_ID_SET);
 		Map multipleToolIdTitleMap = state.getAttribute(STATE_MULTIPLE_TOOL_ID_TITLE_MAP) != null? (Map) state.getAttribute(STATE_MULTIPLE_TOOL_ID_TITLE_MAP):new HashMap();
 		Map<String,List> toolGroupMultiples = new HashMap<String, List>();
-		List tools;
 		for(Iterator iter = list.iterator(); iter.hasNext();)
 		{
-			String toolId = (String)iter.next();
+			String toolId = ((MyTool)iter.next()).getId();
 			String originId = findOriginalToolId(state, toolId);
 			// is this tool in the list of multipeToolIds?
 			if (multipleToolIdSet.contains(originId)) {
@@ -3715,7 +3716,7 @@ public class SiteAction extends PagedResourceActionII {
 					if (!toolGroupMultiples.containsKey(originId)) {
 						toolGroupMultiples.put(originId,  new ArrayList());
 					}
-					tools = toolGroupMultiples.get(originId);
+					List tools = toolGroupMultiples.get(originId);
 					MyTool tool = new MyTool();
 					tool.id = toolId;
 					tool.title = (String) multipleToolIdTitleMap.get(toolId);
@@ -3723,6 +3724,8 @@ public class SiteAction extends PagedResourceActionII {
 					tool.selected = true;
 					// is a toolMultiple ever *required*?
 					tools.add(tool);
+					// update the tools list for this tool id
+					toolGroupMultiples.put(originId, tools);
 				}
 			}
 		}
@@ -10242,7 +10245,8 @@ private Map<String,List> getToolGroupList(SessionState state, String type, Site 
 
 				if (toolId.equals(TOOL_ID_HOME)) {
 					homeSelected = true;
-					idsSelected.add(toolId);
+					if (!idsSelected.contains(toolId)) 
+						idsSelected.add(toolId);
 				} 
 				else if (toolId.startsWith(LTITOOL_ID_PREFIX))
 				{
@@ -10291,16 +10295,22 @@ private Map<String,List> getToolGroupList(SessionState state, String type, Site 
 							}
 						}
 					}
-					else if ("sakai.mailbox".equals(toolId) && !existTools.contains(toolId)) {
+					else if ("sakai.mailbox".equals(toolId)) {
 						// get the email alias when an Email Archive tool
 						// has been selected
-						goToToolConfigPage = true;
 						String alias = getSiteAlias(mailArchiveChannelReference((String) state.getAttribute(STATE_SITE_INSTANCE_ID)));
 						if (alias != null) {
 							state.setAttribute(STATE_TOOL_EMAIL_ADDRESS, alias);
 						}
+						// go to the config page
+						if (!existTools.contains(toolId))
+						{
+							goToToolConfigPage = true;
+						}
+						
 					}
-					idsSelected.add(toolId);
+					if (!idsSelected.contains(toolId)) 
+						idsSelected.add(toolId);
 				}
 
 			}
