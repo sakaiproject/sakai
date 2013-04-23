@@ -60,7 +60,7 @@
                     <p class="checkbox indnt1">
                         <input type="radio" name="itemType" id="$type" value="$type" #if ($type == $typeSelected) checked="checked" #end/>
                         <label for = "$type">
-                            $tlang.getFormattedMessage("sitetype.websit", $type)
+                            $tlang.getFormattedMessage("sitetype.websit", $tlang.getString("sitetype.setup$type"))
                         </label>    
                     </p>        
                     #if ($type == $courseSiteType && $canAddCourse)
