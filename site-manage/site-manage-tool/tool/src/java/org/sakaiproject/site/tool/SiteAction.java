@@ -7014,6 +7014,7 @@ private Map<String,List> getToolGroupList(SessionState state, String type, Site 
 
 			state.setAttribute(STATE_TEMPLATE_INDEX, params
 					.getString("continue"));
+			resetVisitedTemplateListToIndex(state, (String) state.getAttribute(STATE_TEMPLATE_INDEX));
 
 			// refresh the whole page
 			scheduleTopRefresh();
