@@ -205,7 +205,7 @@
                                         <h4 class="specialLink">
                                             <a href="$siteType">
                                                 <span class="open"  style="display: none">&#9662;</span><span class="closed"> &#9656;</span>
-                                                 <em>$siteType</em>
+                                                 <em>$siteType.replace("_", " ")</em>
                                                  <span class="siteTypeRowBlurb"></span>
                                              </a>
                                          </h4>
