@@ -84,6 +84,7 @@ import com.sun.faces.util.MessageFactory;
 //sakai2 - doesn't implement ToolBean as sakai does.
 public class SyllabusTool
 {
+	private Map<String, Map<String, Boolean>> ACCESS_CACHE = new HashMap<String, Map<String, Boolean>>();
   private static final int MAX_REDIRECT_LENGTH = 512; // according to HBM file
   private static final int MAX_TITLE_LENGTH = 256;    // according to HBM file
   
@@ -1891,7 +1892,22 @@ public class SyllabusTool
     //sakai2 - use Placement to get context instead of getting currentSitePageId from PortalService in sakai.
     Placement placement = ToolManager.getCurrentPlacement();
     String currentSiteId = placement.getContext();
+    String currentUser = UserDirectoryService.getCurrentUser().getId();
+    if(ACCESS_CACHE.containsKey(currentUser)){
+    	if(ACCESS_CACHE.get(currentUser).containsKey(currentSiteId)){
+    		//this is cached, return value
+    		return ACCESS_CACHE.get(currentUser).get(currentSiteId);
+    	}
+    }
+    //since we are here, we know the value wasn't cache, so look it up
     boolean allowOrNot = SiteService.allowUpdateSite(currentSiteId);
+    //store value in cache:
+    Map<String, Boolean> siteAccess = ACCESS_CACHE.get(currentUser);
+    if(siteAccess == null){
+    	siteAccess = new HashMap<String, Boolean>();
+    }
+    siteAccess.put(currentSiteId, Boolean.valueOf(allowOrNot));
+    ACCESS_CACHE.put(currentUser, siteAccess);
     return allowOrNot;
   }
   
