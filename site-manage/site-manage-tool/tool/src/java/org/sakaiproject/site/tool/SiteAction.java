@@ -7806,7 +7806,7 @@ private Map<String,List> getToolGroupList(SessionState state, String type, Site 
 									addAlert(
 											state,
 											rb.getString( rb.getFormattedMessage("sitegen.siteinfolist.lastmaintainuser", maintainRoleString )));
-								} else {dd
+								} else {
 									Member userMember = realmEdit
 											.getMember(userId);
 									if (userMember != null) {
