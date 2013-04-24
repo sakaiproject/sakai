@@ -7707,11 +7707,10 @@ private Map<String,List> getToolGroupList(SessionState state, String type, Site 
 				|| SiteService.allowUpdateSiteMembership(s.getId())) {
 			try {
 				AuthzGroup realmEdit = AuthzGroupService.getAuthzGroup(realmId);
-				// does the site has maintain type user(s) before updating
-				// participants?
+				// SAK-23029 - create list of maintainers to compare to removal list
 				String maintainRoleString = realmEdit.getMaintainRole();
-				boolean hadMaintainUser = !realmEdit.getUsersHasRole(
-						maintainRoleString).isEmpty();
+				Set<String> maintainers = realmEdit.getUsersHasRole(maintainRoleString);  // this list will empty as maintainers are removed
+                boolean hadMaintainUser = !maintainers.isEmpty();	// store whether list started with some maintainers 
 
 				// update participant roles
 				List participants = collectionToList((Collection) state.getAttribute(STATE_PARTICIPANT_LIST));
@@ -7795,20 +7794,29 @@ private Map<String,List> getToolGroupList(SessionState state, String type, Site 
 						String rId = (String) removals.get(i);
 						try {
 							User user = UserDirectoryService.getUser(rId);
-							// save role for permission check
-							if (user != null)
-							{
+							 // save role for permission check
+							if (user != null) {
 								String userId = user.getId();
-								Member userMember = realmEdit.getMember(userId);
-								if (userMember != null)
-								{
-									Role role = userMember.getRole();
-									if (role != null)
-									{
-										roles.add(role.getId());
+								// SAK 23029 If selected user for removal is a maintainer, remove it from the maintainers list
+								if (maintainers.contains(userId)) {
+									maintainers.remove(userId);
+								}
+								// are there no more maintainers or did the site orginally have no maintainers?
+								if (maintainers.isEmpty() && (hadMaintainUser == true)) {
+									addAlert(
+											state,
+											rb.getString( rb.getFormattedMessage("sitegen.siteinfolist.lastmaintainuser", maintainRoleString )));
+								} else {dd
+									Member userMember = realmEdit
+											.getMember(userId);
+									if (userMember != null) {
+										Role role = userMember.getRole();
+										if (role != null) {
+											roles.add(role.getId());
+										}
+										realmEdit.removeMember(userId);
+										usersDeleted.add("uid=" + userId);
 									}
-									realmEdit.removeMember(userId);
-									usersDeleted.add("uid=" + userId);
 								}
 							}
 						} catch (UserNotDefinedException e) {
@@ -7830,40 +7838,38 @@ private Map<String,List> getToolGroupList(SessionState state, String type, Site 
 							}
 					    }
 				}
+				AuthzGroupService.save(realmEdit);
 
-				if (hadMaintainUser
-						&& realmEdit.getUsersHasRole(maintainRoleString)
-								.isEmpty()) {
-					// if after update, the "had maintain type user" status
-					// changed, show alert message and don't save the update
-					addAlert(state, rb
-							.getString("sitegen.siteinfolist.nomaintainuser")
-							+ maintainRoleString + ".");
-				} else {
-					
-					AuthzGroupService.save(realmEdit);
+				// then update all related group realms for the role
+				doUpdate_related_group_participants(s, realmId);
 
-					// then update all related group realms for the role
-					doUpdate_related_group_participants(s, realmId);
-					
-					// post event about the participant update
-					EventTrackingService.post(EventTrackingService.newEvent(SiteService.SECURE_UPDATE_SITE_MEMBERSHIP, realmEdit.getId(),false));
-					
-					// check the configuration setting, whether logging membership change at individual level is allowed
-					if (ServerConfigurationService.getBoolean(SiteHelper.WSETUP_TRACK_USER_MEMBERSHIP_CHANGE, false))
-					{
-						// event for each individual update
-						for (String userChangedRole : userUpdated)
-						{
-							EventTrackingService.post(EventTrackingService.newEvent(org.sakaiproject.site.api.SiteService.EVENT_USER_SITE_MEMBERSHIP_UPDATE, userChangedRole,true));
-						}
-						// event for each individual remove
-						for (String userDeleted : usersDeleted)
-						{
-							EventTrackingService.post(EventTrackingService.newEvent(org.sakaiproject.site.api.SiteService.EVENT_USER_SITE_MEMBERSHIP_REMOVE, userDeleted,true));
-						}
+				// post event about the participant update
+				EventTrackingService.post(EventTrackingService.newEvent(
+						SiteService.SECURE_UPDATE_SITE_MEMBERSHIP,
+						realmEdit.getId(), false));
+
+				// check the configuration setting, whether logging membership
+				// change at individual level is allowed
+				if (ServerConfigurationService.getBoolean(
+						SiteHelper.WSETUP_TRACK_USER_MEMBERSHIP_CHANGE, false)) {
+					// event for each individual update
+					for (String userChangedRole : userUpdated) {
+						EventTrackingService
+								.post(EventTrackingService
+										.newEvent(
+												org.sakaiproject.site.api.SiteService.EVENT_USER_SITE_MEMBERSHIP_UPDATE,
+												userChangedRole, true));
+					}
+					// event for each individual remove
+					for (String userDeleted : usersDeleted) {
+						EventTrackingService
+								.post(EventTrackingService
+										.newEvent(
+												org.sakaiproject.site.api.SiteService.EVENT_USER_SITE_MEMBERSHIP_REMOVE,
+												userDeleted, true));
 					}
 				}
+				
 			} catch (GroupNotDefinedException e) {
 				addAlert(state, rb.getString("java.problem2"));
 				M_log.warn(this + ".doUpdate_participant: IdUnusedException " + s.getTitle() + "(" + realmId + "). ", e);
