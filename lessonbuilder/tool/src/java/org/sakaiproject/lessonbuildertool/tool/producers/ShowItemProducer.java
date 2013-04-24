@@ -178,6 +178,19 @@ public class ShowItemProducer implements ViewComponentProducer, NavigationCaseRe
 
 	    String helpurl = (String)toolSession.getAttribute("sakai-portal:help-action");
 	    String reseturl = (String)toolSession.getAttribute("sakai-portal:reset-action");
+	    String skinName = null;
+	    String skinRepo = null;
+	    String iconBase = null;
+
+	    if (helpurl != null || reseturl != null) {
+		skinName = simplePageBean.getCurrentSite().getSkin();
+		System.out.println("skinname " + skinName);
+		if (skinName == null)
+		    skinName = ServerConfigurationService.getString("skin.default", "default");
+		skinRepo = ServerConfigurationService.getString("skin.repo", "/library/skin");
+		iconBase = skinRepo + "/" + skinName + "/images/";
+		System.out.println("iconbase " + iconBase);
+	    }
 
 	    if (helpurl != null) {
 		UILink.make(tofill, "helpbutton2").
@@ -186,6 +199,7 @@ public class ShowItemProducer implements ViewComponentProducer, NavigationCaseRe
 		    decorate(new UIFreeAttributeDecorator("title",
 				 messageLocator.getMessage("simplepage.help-button")));
 		UIOutput.make(tofill, "helpimage2").
+		    decorate(new UIFreeAttributeDecorator("src", iconBase + "help.gif")).
 		    decorate(new UIFreeAttributeDecorator("alt",
 				 messageLocator.getMessage("simplepage.help-button")));
 		UIOutput.make(tofill, "helpnewwindow2",
@@ -199,6 +213,7 @@ public class ShowItemProducer implements ViewComponentProducer, NavigationCaseRe
 		    decorate(new UIFreeAttributeDecorator("title",
 			        messageLocator.getMessage("simplepage.reset-button")));
 		UIOutput.make(tofill, "resetimage2").
+		    decorate(new UIFreeAttributeDecorator("src", iconBase + "reload.gif")).
 		    decorate(new UIFreeAttributeDecorator("alt",
 			        messageLocator.getMessage("simplepage.reset-button")));
 	    }
