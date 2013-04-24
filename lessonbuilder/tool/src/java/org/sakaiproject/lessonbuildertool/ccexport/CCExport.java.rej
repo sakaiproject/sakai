@@ -1,0 +1,299 @@
+***************
+*** 42,49 ****
+  import org.sakaiproject.content.api.ContentResource;
+  
+  import org.sakaiproject.lessonbuildertool.tool.beans.SimplePageBean;
+  
+- 
+  public class CCExport {
+  
+      private File root;
+--- 43,52 ----
+  import org.sakaiproject.content.api.ContentResource;
+  
+  import org.sakaiproject.lessonbuildertool.tool.beans.SimplePageBean;
++ import org.sakaiproject.lessonbuildertool.ccexport.SamigoExport;
++ import org.sakaiproject.lessonbuildertool.ccexport.ZipPrintStream;
++ import uk.org.ponder.messageutil.MessageLocator;
+  
+  public class CCExport {
+  
+      private File root;
+***************
+*** 51,58 ****
+      long nextid = 1;
+    
+      SimplePageBean simplePageBean;
+-     ContentHostingService contentHostingService;
+      HttpServletResponse response;
+  
+      class Resource {
+  	String sakaiId;
+--- 54,75 ----
+      long nextid = 1;
+    
+      SimplePageBean simplePageBean;
++     static ContentHostingService contentHostingService;
++     public void setContentHostingService(ContentHostingService chs) {
++ 	contentHostingService = chs;
++     }
++     static SamigoExport samigoExport;
++     public void setSamigoExport(SamigoExport se) {
++ 	samigoExport = se;
++     }
++     private MessageLocator messageLocator;
++     public void setMessageLocator(MessageLocator x) {
++ 	messageLocator = x;
++     }
++ 
+      HttpServletResponse response;
++     File errFile = null;
++     PrintStream errStream = null;
+  
+      class Resource {
+  	String sakaiId;
+***************
+*** 62,67 ****
+  
+      // map of all file resource to be included in cartridge
+      Map<String, Resource> fileMap = new HashMap<String, Resource>();
+  
+  
+      /*
+--- 79,86 ----
+  
+      // map of all file resource to be included in cartridge
+      Map<String, Resource> fileMap = new HashMap<String, Resource>();
++     // map of all Samigo tests
++     Map<String, Resource> samigoMap = new HashMap<String, Resource>();
+  
+  
+      /*
+***************
+*** 76,92 ****
+       * contents of the site is brought over.
+       */
+  
+-     public void doExport(String siteId, HttpServletResponse httpServletResponse, ContentHostingService chs, 
+- 			 SimplePageBean bean) {
+  	response = httpServletResponse;
+  	simplePageBean = bean;
+- 	contentHostingService = chs;
+  
+  	if (! startExport())
+  	    return;
+  	if (! addAllFiles(siteId))
+  	    return;
+- 	addAllTests();
+  	download();
+  
+      }
+--- 95,110 ----
+       * contents of the site is brought over.
+       */
+  
++     public void doExport(String siteId, HttpServletResponse httpServletResponse, SimplePageBean bean) {
+  	response = httpServletResponse;
+  	simplePageBean = bean;
+  
+  	if (! startExport())
+  	    return;
+  	if (! addAllFiles(siteId))
+  	    return;
++ 	if (! addAllSamigo(siteId))
++ 	    return;
+  	download();
+  
+      }
+***************
+*** 100,105 ****
+  	    if (root.exists())
+  		root.delete();
+  	    root.mkdir();
+  	} catch (Exception e) {
+  	    simplePageBean.setErrKey("simplepage.exportcc-fileerr", e.getMessage());
+  	    return false;
+--- 118,126 ----
+  	    if (root.exists())
+  		root.delete();
+  	    root.mkdir();
++ 	    errFile = new File(root, "export-errors");
++ 	    errStream = new PrintStream(errFile);
++ 	    
+  	} catch (Exception e) {
+  	    simplePageBean.setErrKey("simplepage.exportcc-fileerr", e.getMessage());
+  	    return false;
+***************
+*** 150,156 ****
+  	return true;
+      }
+  
+-     public boolean outputAllFiles (ZipOutputStream out) {
+  	try {
+  	    for (Map.Entry<String, Resource> entry: fileMap.entrySet()) {
+  		System.out.println(entry.getKey() + " " + entry.getValue().location);
+--- 171,177 ----
+  	return true;
+      }
+  
++     public boolean outputAllFiles (ZipPrintStream out) {
+  	try {
+  	    for (Map.Entry<String, Resource> entry: fileMap.entrySet()) {
+  		System.out.println(entry.getKey() + " " + entry.getValue().location);
+***************
+*** 180,202 ****
+  
+      }
+  
+-     public void addAllTests() {
+      }
+  
+-     public boolean outputManifest(ZipOutputStream out) {
+  	try {
+  	    ZipEntry zipEntry = new ZipEntry("imsmanifest.xml");
+  	    out.putNextEntry(zipEntry);
+- 	    out.write(
+- "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n<manifest identifier=\"sakai1\"\n  xmlns=\"http://www.imsglobal.org/xsd/imsccv1p2/imscp_v1p1\"\nxmlns:lom=\"http://ltsc.ieee.org/xsd/imsccv1p2/LOM/resource\"\nxmlns:lomimscc=\"http://ltsc.ieee.org/xsd/imsccv1p2/LOM/manifest\"\nxmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\"\nxsi:schemaLocation=\"                                                                                                                        \n  http://ltsc.ieee.org/xsd/imsccv1p2/LOM/resource http://www.imsglobal.org/profile/cc/ccv1p2/LOM/ccv1p2_lomresource_v1p0.xsd                  \n  http://www.imsglobal.org/xsd/imsccv1p2/imscp_v1p1 http://www.imsglobal.org/profile/cc/ccv1p2/ccv1p2_imscp_v1p2_v1p0.xsd                     \n  http://ltsc.ieee.org/xsd/imsccv1p2/LOM/manifest http://www.imsglobal.org/profile/cc/ccv1p2/LOM/ccv1p2_lommanifest_v1p0.xsd\">\n  <metadata>\n    <schema>IMS Common Cartridge</schema>\n    <schemaversion>1.2.0</schemaversion>\n    <lomimscc:lom>\n      <lomimscc:general>\n	<lomimscc:title>\n	  <lomimscc:string language=\"en-US\">Sakai Export</lomimscc:string>\n	</lomimscc:title>\n	<lomimscc:description>\n	  <lomimscc:string language=\"en-US\">Sakai Export, including only files from site</lomimscc:string>\n	</lomimscc:description>\n	<lomimscc:keyword>\n	  <lomimscc:string language=\"en-US\">Export</lomimscc:string>\n	</lomimscc:keyword>\n      </lomimscc:general>\n    </lomimscc:lom>\n  </metadata>\n  <resources>\n".getBytes());
+  
+  	    for (Map.Entry<String, Resource> entry: fileMap.entrySet()) {
+- 		out.write(("    <resource href=\"" + entry.getValue().location + "\" identifier=\"" + entry.getValue().resourceId + 
+- 			   "\" type=\"webcontent\">\n      <file href=\"" + entry.getValue().location + "\"/>\n    </resource>\n").getBytes());
+  	    }
+  
+- 	    out.write("  </resources>\n</manifest>\n".getBytes());
+  
+  	} catch (Exception e) {
+  	    simplePageBean.setErrKey("simplepage.exportcc-fileerr", e.getMessage());
+  	    return false;
+--- 201,297 ----
+  
+      }
+  
++     public boolean addAllSamigo(String siteId) {
++ 	List<String> tests = samigoExport.getEntitiesInSite(siteId);
++ 	if (tests == null)
++ 	    return true;
++ 	for (String sakaiId: tests) {
++ 	    Resource res = new Resource();
++ 	    res.resourceId = getResourceId();
++ 	    res.location = res.resourceId + ".xml";
++ 	    res.sakaiId = sakaiId;
++ 	    System.out.println(res.sakaiId + " " + res.resourceId + " " + res.location);
++ 	    samigoMap.put(res.sakaiId, res);
++ 	}
++ 
++ 	return true;
+      }
+  
++     public boolean outputAllSamigo(ZipPrintStream out) {
+  	try {
++ 	    for (Map.Entry<String, Resource> entry: samigoMap.entrySet()) {
++ 
++ 		ZipEntry zipEntry = new ZipEntry(entry.getValue().location);
++ 
++ 		out.putNextEntry(zipEntry);
++ 		boolean ok = samigoExport.outputEntity(entry.getValue().sakaiId, out, errStream);
++ 		if (!ok)
++ 		    return false;
++ 
++ 	    }
++ 	} catch (Exception e) {
++ 	    simplePageBean.setErrKey("simplepage.exportcc-fileerr", e.getMessage());
++ 	    return false;
++ 	}
++ 
++ 	return true;
++ 
++     }
++ 
++     public boolean outputManifest(ZipPrintStream out) {
++ 	try {
+  	    ZipEntry zipEntry = new ZipEntry("imsmanifest.xml");
+  	    out.putNextEntry(zipEntry);
++ 	    out.print(
++ 		      "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n<manifest identifier=\"sakai1\"\n  xmlns=\"http://www.imsglobal.org/xsd/imsccv1p2/imscp_v1p1\"\nxmlns:lom=\"http://ltsc.ieee.org/xsd/imsccv1p2/LOM/resource\"\nxmlns:lomimscc=\"http://ltsc.ieee.org/xsd/imsccv1p2/LOM/manifest\"\nxmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\"\nxsi:schemaLocation=\"                                                                                                                        \n  http://ltsc.ieee.org/xsd/imsccv1p2/LOM/resource http://www.imsglobal.org/profile/cc/ccv1p2/LOM/ccv1p2_lomresource_v1p0.xsd                  \n  http://www.imsglobal.org/xsd/imsccv1p2/imscp_v1p1 http://www.imsglobal.org/profile/cc/ccv1p2/ccv1p2_imscp_v1p2_v1p0.xsd                     \n  http://ltsc.ieee.org/xsd/imsccv1p2/LOM/manifest http://www.imsglobal.org/profile/cc/ccv1p2/LOM/ccv1p2_lommanifest_v1p0.xsd\">\n  <metadata>\n    <schema>IMS Common Cartridge</schema>\n    <schemaversion>1.2.0</schemaversion>\n    <lomimscc:lom>\n      <lomimscc:general>\n	<lomimscc:title>\n	  <lomimscc:string language=\"en-US\">Sakai Export</lomimscc:string>\n	</lomimscc:title>\n	<lomimscc:description>\n	  <lomimscc:string language=\"en-US\">Sakai Export, including only files from site</lomimscc:string>\n	</lomimscc:description>\n	<lomimscc:keyword>\n	  <lomimscc:string language=\"en-US\">Export</lomimscc:string>\n	</lomimscc:keyword>\n      </lomimscc:general>\n    </lomimscc:lom>\n  </metadata>\n ");
+  
++ 	    out.println("  <organizations>");
++ 
++ 	    out.println("  <organization identifier=\"page\" structure=\"rooted-hierarchy\">");
++ 	    out.println("    <item identifier=\"I_1\">");
++ 	    out.println("      <item identifer=\"I_1_1\">");
++ 	    out.println("        <title>Dummy page</title>");
++ 	    int n = 0;
++ 	    for (Map.Entry<String, Resource> entry: samigoMap.entrySet()) {
++ 		out.println("        <item idenitifer=\"I_I_1_" + n + "\" identifierref=\"" + entry.getValue().resourceId + "\">");
++ 		out.println("          <title>test " + n + "</title>");
++ 		out.println("        </item>");
++ 	    }
++ 	    out.println("      </item>");
++ 	    out.println("    </item>");
++ 	    out.println("  </organization>");
++ 	    out.println("  </organizations>");
++ 	    out.println("  <resources>");
+  	    for (Map.Entry<String, Resource> entry: fileMap.entrySet()) {
++ 		out.print(("    <resource href=\"" + entry.getValue().location + "\" identifier=\"" + entry.getValue().resourceId + 
++ 			   "\" type=\"webcontent\">\n      <file href=\"" + entry.getValue().location + "\"/>\n    </resource>\n"));
+  	    }
+  
++ 	    for (Map.Entry<String, Resource> entry: samigoMap.entrySet()) {
++ 		out.print(("    <resource href=\"" + entry.getValue().location + "\" identifier=\"" + entry.getValue().resourceId + 
++ 			   "\" type=\"imsqti_xmlv1p2/imscc_xmlv1p2/assessment\">\n      <file href=\"" + entry.getValue().location + "\"/>\n    </resource>\n"));
++ 	    }
+  
++ 	    // add error log at the very end
++ 	    String errId = getResourceId();
++ 
++ 	    out.println(("    <resource href=\"export-errors\" identifier=\"" + errId + 
++ 			   "\" type=\"webcontent\">\n      <file href=\"export-errors\"/>\n    </resource>"));
++ 	    
++ 	    out.println("  </resources>\n</manifest>");
++ 
++ 	    errStream.close();
++ 	    zipEntry = new ZipEntry("export-error");
++ 	    out.putNextEntry(zipEntry);
++ 	    InputStream contentStream = null;
++ 	    try {
++ 		contentStream = new FileInputStream(errFile);
++ 		IOUtils.copy(contentStream, out);
++ 	    } finally {
++ 		if (contentStream != null) {
++ 		    contentStream.close();
++ 		}
++ 	    }
+  	} catch (Exception e) {
+  	    simplePageBean.setErrKey("simplepage.exportcc-fileerr", e.getMessage());
+  	    return false;
+***************
+*** 210,224 ****
+      public boolean download() {
+  
+          OutputStream htmlOut = null;
+- 	ZipOutputStream out = null;
+          try {
+  	    htmlOut = response.getOutputStream();
+- 	    out = new ZipOutputStream(htmlOut);
+  
+  	    response.setHeader("Content-disposition", "inline; filename=sakai-export.imscc");
+  	    response.setContentType("application/zip");
+  	    
+  	    outputAllFiles (out);
+  	    outputManifest (out);
+  	    
+  	    if (out != null)
+--- 305,320 ----
+      public boolean download() {
+  
+          OutputStream htmlOut = null;
++ 	ZipPrintStream out = null;
+          try {
+  	    htmlOut = response.getOutputStream();
++ 	    out = new ZipPrintStream(htmlOut);
+  
+  	    response.setHeader("Content-disposition", "inline; filename=sakai-export.imscc");
+  	    response.setContentType("application/zip");
+  	    
+  	    outputAllFiles (out);
++ 	    outputAllSamigo (out);
+  	    outputManifest (out);
+  	    
+  	    if (out != null)
