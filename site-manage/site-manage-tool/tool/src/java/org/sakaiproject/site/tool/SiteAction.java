@@ -7825,8 +7825,7 @@ private Map<String,List> getToolGroupList(SessionState state, String type, Site 
 					}
 				}
 
-				// if user doesn't have update, don't let them add
-				// or remove any role with site.upd in it.
+				// if user doesn't have update, don't let them add or remove any role with site.upd in it.
 
 				if (!AuthzGroupService.allowUpdate(realmId)) {
 				    // see if any changed have site.upd
