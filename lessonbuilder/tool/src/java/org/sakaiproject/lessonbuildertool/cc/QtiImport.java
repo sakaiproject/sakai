@@ -814,6 +814,18 @@ public class QtiImport {
 
 	if (debug) System.err.println("question: " + question);
 
+	// the full Qti spec has multiple material and response_str, alternating. 
+	// So roses are {} and violets are {} also
+	//   is shown as
+	// material: roses are
+	// response_str
+	// material: and violets are
+	// response_str
+	// also
+	// However the CC profile only allows one material and response_str.
+
+	// thus this loop is unnecessary, but for the moment I'm leaving it
+
 	Node response = getFirstByName(presentation, "response_str");
 	while (response != null) {
 	    Node fib = getFirstByName(response, "render_fib");
@@ -890,7 +902,7 @@ public class QtiImport {
 		}
 	    } else if (conditionvar != null) {
 		// if there's an <or>, use it
-		// now check for both varequal and varsubset
+		// now check for both varequal and varsubstring
 		Node varequal = getFirstByName(conditionvar, "varequal");
 		while (varequal != null) {
 		    String vtext = getNodeText(varequal);
@@ -915,7 +927,7 @@ public class QtiImport {
 		}
 
 		// and varsubset
-		Node varsubset = getFirstByName(conditionvar, "varsubset");
+		Node varsubset = getFirstByName(conditionvar, "varsubstring");
 		while (varsubset != null) {
 		    String vtext = getNodeText(varsubset);
 		    String vident = getAttribute(varsubset, "respident");
@@ -1020,15 +1032,27 @@ public class QtiImport {
 	out.println("    <flow class=\"Block\">");
 	out.println("    <flow class=\"Block\">");
 	out.println("      <material>");
-	out.println("        <mattext charset=\"ascii-us\" texttype=\"text/html\" xml:space=\"default\"><![CDATA[" + question + "<p> 1. ]]></mattext>");
+
+	// there's an issue here. The restricted CC profile is unable to handle a blank in the middle
+	// of the question. So the samples all put ___ in the question to show where the real blank is.
+	// Samigo will then insert a box at the end of the question. I originally thought it would be
+	// nice to put that on a separate line. The probelm is that if we then do a CC export, we've added
+	// junk that wasn't in the original, so repeated export and import keeps adding things. It seems
+	// like it's safest to leave the text alone.
+	
+	//out.println("        <mattext charset=\"ascii-us\" texttype=\"text/html\" xml:space=\"default\"><![CDATA[" + question + "<p> 1. ]]></mattext>");
+	out.println("        <mattext charset=\"ascii-us\" texttype=\"text/html\" xml:space=\"default\"><![CDATA[" + question + "]]></mattext>");
 	out.println("      </material>");
 	
+// following should not be needed with CC profile
+// if it is actually needed we need to save the original text
 	for (int i = 2; i <= answers.size(); i++) {
 	    out.println("      <material>");
 	    out.println("        <mattext charset=\"ascii-us\" texttype=\"text/html\" xml:space=\"default\"><![CDATA[<p> "+i+". ]]></mattext>");
 	    out.println("      </material>");
 	}
 
+//  this loop should happen only once.
 	for (Shortans ans: answers) {
 	    String rident = ans.rident;
 	    if (ident == null)

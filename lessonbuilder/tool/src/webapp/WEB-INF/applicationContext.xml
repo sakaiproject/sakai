@@ -275,5 +275,21 @@ simplePageBean.selectPage
     	</constructor-arg>
     	</bean>
 
+ 	<bean id="org.sakaiproject.lessonbuildertool.ccexport.CCExport"
+	      class="org.sakaiproject.lessonbuildertool.ccexport.CCExport">
+	  <property name="contentHostingService"><ref bean="org.sakaiproject.content.api.ContentHostingService"/></property>
+	  <property name="samigoExport"><ref bean="org.sakaiproject.lessonbuildertool.ccexport.SamigoExport"/></property>
+	  <property name="messageLocator" ref="messageLocator"/>
+	</bean>
+
+ 	<bean id="org.sakaiproject.lessonbuildertool.ccexport.SamigoExport"
+	      class="org.sakaiproject.lessonbuildertool.ccexport.SamigoExport"
+              init-method="init"
+              destroy-method="destroy">
+	  
+	  <property name="publishedAssessmentFacadeQueries"><ref bean="PublishedAssessmentFacadeQueries" /></property>
+	  <property name="messageLocator" ref="messageLocator"/>
+	  <property name="simplePageToolDao" ref="org.sakaiproject.lessonbuildertool.model.SimplePageToolDao" />
+	</bean>
 
  </beans>
