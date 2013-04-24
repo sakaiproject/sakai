@@ -64,7 +64,7 @@
         </property>
         
         <set name="attachments" lazy="true" sort="natural"
-             cascade="all-delete-orphan">
+             cascade="all-delete-orphan" batch-size="50">
             <key column="syllabusId"/>                        
             <one-to-many class="org.sakaiproject.component.app.syllabus.SyllabusAttachmentImpl"/>            
         </set>                

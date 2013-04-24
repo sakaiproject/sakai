@@ -101,7 +101,7 @@ public class SyllabusTool
 
     protected boolean justCreated = false;
     
-    protected ArrayList attachmentList = new ArrayList();
+    protected ArrayList attachmentList = null;
     
     public DecoratedSyllabusEntry(SyllabusData en)
     {
@@ -196,14 +196,17 @@ public class SyllabusTool
     
     public ArrayList getAttachmentList()
     {
-      Set tempList = syllabusManager.getSyllabusAttachmentsForSyllabusData(in_entry);
+    	if(attachmentList == null){
+    		attachmentList = new ArrayList();
+    		Set tempList = syllabusManager.getSyllabusAttachmentsForSyllabusData(in_entry);
 
-      Iterator iter = tempList.iterator();
-      while(iter.hasNext())
-      {
-        SyllabusAttachment sa = (SyllabusAttachment)iter.next();
-        attachmentList.add(sa);
-      }
+    		Iterator iter = tempList.iterator();
+    		while(iter.hasNext())
+    		{
+    			SyllabusAttachment sa = (SyllabusAttachment)iter.next();
+    			attachmentList.add(sa);
+    		}
+    	}
       
       return attachmentList;
     }
