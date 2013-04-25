@@ -719,9 +719,8 @@ ul#otherSiteList li a span, ul.otherSitesCategorList li a span {
 }
 /* search elements for flat other sites tray search */
 #otherSiteSearch {
-    position: absolute;
-    top: 15px;
-    left:10px;
+    margin: 15px;
+    float: left;
 }
 #otherSiteSearch span#noSearchResults {
     padding-left: 10px;
@@ -736,6 +735,8 @@ ul#otherSiteList li a span, ul.otherSitesCategorList li a span {
 }
 /* specific to  categorized view */
 #otherSitesCategorWrap {
+    float: none;
+    clear: both;
     margin: 5px;
     max-height: 300px !important;
     overflow: auto;
