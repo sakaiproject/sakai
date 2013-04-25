@@ -35,17 +35,22 @@ import java.util.List;
 import java.util.ArrayList;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipOutputStream;
+import java.util.regex.Pattern;
+import java.util.regex.Matcher;
 import javax.servlet.http.HttpServletResponse;
 import org.apache.commons.io.IOUtils;
-
+import org.apache.commons.lang.StringEscapeUtils;
 import org.sakaiproject.content.api.ContentCollection;
 import org.sakaiproject.content.api.ContentEntity;
 import org.sakaiproject.content.api.ContentHostingService;
 import org.sakaiproject.content.api.ContentResource;
+import org.sakaiproject.component.cover.ServerConfigurationService;
 
+import org.sakaiproject.lessonbuildertool.SimplePageItem;
 import org.sakaiproject.lessonbuildertool.tool.beans.SimplePageBean;
 import org.sakaiproject.lessonbuildertool.ccexport.SamigoExport;
 import org.sakaiproject.lessonbuildertool.ccexport.ZipPrintStream;
+import org.sakaiproject.lessonbuildertool.model.SimplePageToolDao;
 import uk.org.ponder.messageutil.MessageLocator;
 
 public class CCExport {
@@ -63,14 +68,20 @@ public class CCExport {
     public void setSamigoExport(SamigoExport se) {
 	samigoExport = se;
     }
-    private MessageLocator messageLocator;
+    static MessageLocator messageLocator;
     public void setMessageLocator(MessageLocator x) {
 	messageLocator = x;
+    }
+    static SimplePageToolDao simplePageToolDao;
+    public void setSimplePageToolDao(Object dao) {
+	simplePageToolDao = (SimplePageToolDao) dao;
     }
 
     HttpServletResponse response;
     File errFile = null;
     PrintStream errStream = null;
+    String siteId = null;
+    static String server = ServerConfigurationService.getServerName();
 
     class Resource {
 	String sakaiId;
@@ -96,9 +107,10 @@ public class CCExport {
      * contents of the site is brought over.
      */
 
-    public void doExport(String siteId, HttpServletResponse httpServletResponse, SimplePageBean bean) {
+    public void doExport(String sid, HttpServletResponse httpServletResponse, SimplePageBean bean) {
 	response = httpServletResponse;
 	simplePageBean = bean;
+	siteId = sid;
 
 	if (! startExport())
 	    return;
@@ -225,7 +237,7 @@ public class CCExport {
 		ZipEntry zipEntry = new ZipEntry(entry.getValue().location);
 
 		out.putNextEntry(zipEntry);
-		boolean ok = samigoExport.outputEntity(entry.getValue().sakaiId, out, errStream);
+		boolean ok = samigoExport.outputEntity(entry.getValue().sakaiId, out, errStream, this);
 		if (!ok)
 		    return false;
 
@@ -269,8 +281,8 @@ public class CCExport {
 	    }
 
 	    for (Map.Entry<String, Resource> entry: samigoMap.entrySet()) {
-		out.print(("    <resource href=\"" + entry.getValue().location + "\" identifier=\"" + entry.getValue().resourceId + 
-			   "\" type=\"imsqti_xmlv1p2/imscc_xmlv1p2/assessment\">\n      <file href=\"" + entry.getValue().location + "\"/>\n    </resource>\n"));
+		out.print(("    <resource href=\"" + StringEscapeUtils.escapeXml(entry.getValue().location) + "\" identifier=\"" + entry.getValue().resourceId + 
+			   "\" type=\"imsqti_xmlv1p2/imscc_xmlv1p2/assessment\">\n      <file href=\"" + StringEscapeUtils.escapeXml(entry.getValue().location) + "\"/>\n    </resource>\n"));
 	    }
 
 	    // add error log at the very end
@@ -329,5 +341,58 @@ public class CCExport {
 	return true;
 
     }
+
+    public String fixup (String s) {
+	// http://lessonbuilder.sakaiproject.org/53605/
+	StringBuilder ret = new StringBuilder();
+	String sakaiIdBase = "/group/" + siteId;
+	Pattern target = Pattern.compile("/access/content/group/" + siteId + "|http://lessonbuilder.sakaiproject.org/", Pattern. CASE_INSENSITIVE);
+	Matcher matcher = target.matcher(s);
+	int index = 0;
+	while (true) {
+	    if (!matcher.find()) {
+		ret.append(s.substring(index));
+		break;
+	    }		
+	    int start = matcher.start();
+	    if (s.regionMatches(false, start, "/access", 0, 7)) { // matched /access/content...
+		int last = start + "/access/content/group/".length() + siteId.length();
+		if (s.regionMatches(true, (start - server.length()), server, 0, server.length())) {    // servername before it
+		    start -= server.length();
+		    if (s.regionMatches(true, start - 7, "http://", 0, 7)) {   // http:// or https:// before that
+			start -= 7;
+		    } else if (s.regionMatches(true, start - 8, "https://", 0, 8)) {
+			start -= 8;
+		    }
+		}
+		ret.append(s.substring(index, start));
+		ret.append("$IMS-CC-FILEBASE$");
+		index = last;  // start here next time
+	    } else { // matched http://lessonbuilder.sakaiproject.org/
+		int last = matcher.end(); // should be start of an integer
+		int endnum = s.length();  // end of the integer
+		for (int i = last; i < s.length(); i++) {
+		    if ("0123456789".indexOf(s.charAt(i)) < 0) {
+			endnum = i;
+			break;
+		    }
+		}
+		String numString = s.substring(last, endnum);
+		if (numString.length() >= 1) {
+		    Long itemId = new Long(numString);
+		    SimplePageItem item = simplePageToolDao.findItem(itemId);
+		    String sakaiId = item.getSakaiId();
+		    int itemType = item.getType();
+		    if ((itemType == SimplePageItem.RESOURCE || itemType == SimplePageItem.MULTIMEDIA) && 
+			sakaiId.startsWith(sakaiIdBase)) {
+			ret.append(s.substring(index, start));
+			ret.append("$IMS-CC-FILEBASE$" + sakaiId.substring(sakaiIdBase.length()));
+			index = endnum;
+		    }
+		}
+	    }
+	}
+	return StringEscapeUtils.escapeXml(ret.toString());
+    }		
 
 }

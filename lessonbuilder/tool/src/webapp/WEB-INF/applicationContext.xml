@@ -280,6 +280,7 @@ simplePageBean.selectPage
 	  <property name="contentHostingService"><ref bean="org.sakaiproject.content.api.ContentHostingService"/></property>
 	  <property name="samigoExport"><ref bean="org.sakaiproject.lessonbuildertool.ccexport.SamigoExport"/></property>
 	  <property name="messageLocator" ref="messageLocator"/>
+	  <property name="simplePageToolDao" ref="org.sakaiproject.lessonbuildertool.model.SimplePageToolDao" />
 	</bean>
 
  	<bean id="org.sakaiproject.lessonbuildertool.ccexport.SamigoExport"

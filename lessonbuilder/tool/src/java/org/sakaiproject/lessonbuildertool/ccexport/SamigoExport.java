@@ -44,6 +44,7 @@ import java.util.Map;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
+import org.apache.commons.lang.StringEscapeUtils;
 import org.sakaiproject.component.cover.ServerConfigurationService;
 
 import org.sakaiproject.lessonbuildertool.service.LessonSubmission;
@@ -178,7 +179,7 @@ public class SamigoExport {
 	return ret;
     }
 
-    public boolean outputEntity(String samigoId, ZipPrintStream out, PrintStream errStream) {
+    public boolean outputEntity(String samigoId, ZipPrintStream out, PrintStream errStream, CCExport ccExport) {
 	int i = samigoId.indexOf("/");
 	String publishedAssessmentString = samigoId.substring(i+1);
 	Long publishedAssessmentId = new Long(publishedAssessmentString);
@@ -196,7 +197,7 @@ public class SamigoExport {
 	out.println("<?xml version=\"1.0\" encoding=\"ISO-8859-1\"?>");
 	out.println("<questestinterop xmlns=\"http://www.imsglobal.org/xsd/ims_qtiasiv1p2\"");
 	out.println("xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\" xsi:schemaLocation=\"http://www.imsglobal.org/xsd/ims_qtiasiv1p2 http://www.imsglobal.org/profile/cc/ccv1p2/ccv1p2_qtiasiv1p2p1_v1p0.xsd\">");
-	out.println("  <assessment ident=\"QDB_1\" title=\"Pretest\">");
+	out.println("  <assessment ident=\"QDB_1\" title=\"" + StringEscapeUtils.escapeXml(assessmentTitle) + "\">");
 	out.println("    <section ident=\"S_1\">");
 
 	for (ItemDataIfc item: publishedItemList) {
@@ -320,7 +321,7 @@ public class SamigoExport {
 	    } else
 		text = item.getText();
 
-	    out.println("            <mattext texttype=\"text/html\">" + text + "</mattext>");
+	    out.println("            <mattext texttype=\"text/html\">" + ccExport.fixup(text) + "</mattext>");
 	    out.println("          </material>");
 
 	    if (type.equals(TypeIfc.MULTIPLE_CHOICE) ||type.equals(TypeIfc.MULTIPLE_CORRECT) || type.equals(TypeIfc.MULTIPLE_CORRECT_SINGLE_SELECTION) || type.equals(TypeIfc.TRUE_FALSE)) {
@@ -335,7 +336,7 @@ public class SamigoExport {
 		    
 		    out.println("              <response_label ident=\"" + answerId + "\">");
 		    out.println("                <material>");
-		    out.println("                  <mattext texttype=\"text/html\">" + answer.getText() + "</mattext>");
+		    out.println("                  <mattext texttype=\"text/html\">" + ccExport.fixup(answer.getText()) + "</mattext>");
 		    out.println("                </material>");
 		    out.println("              </response_label>");
 		}
@@ -416,9 +417,9 @@ public class SamigoExport {
 			}
 
 			if (substr)
-			    out.println("              <varsubstring case=\"No\" respident=\"" + answerId + "\">" + answer + "</varequal>");
+			    out.println("              <varsubstring case=\"No\" respident=\"" + answerId + "\">" + StringEscapeUtils.escapeXml(answer) + "</varequal>");
 			else
-			    out.println("              <varequal case=\"No\" respident=\"" + answerId + "\">" + answer + "</varequal>");
+			    out.println("              <varequal case=\"No\" respident=\"" + answerId + "\">" + StringEscapeUtils.escapeXml(answer) + "</varequal>");
 		    }
 
 		    out.println("            </conditionvar>");
