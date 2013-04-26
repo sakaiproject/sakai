@@ -2,9 +2,11 @@ var dragStartIndex;
 
 function setupAccordion(iframId, isInstructor){
 	var activeVar = false;
-	if($( "#accordion" ).children("h3").size() == 1){
+	if($( "#accordion .group" ).children("h3").size() == 1){
 		//since there is only 1 option, might was well keep it open instead of collapsed
 		activeVar = 0;
+		//only one to expand, might as well hide the expand all link:
+		$("#expandLink").hide();
 	}
 	$( "#accordion" ).accordion({ 
 		header: "> div > h3",
