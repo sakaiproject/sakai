@@ -27,9 +27,12 @@ import java.io.PrintWriter;
 import java.io.IOException;
 import java.io.InputStream;
 
+import java.util.HashMap;
 import java.util.Map;
 import java.util.Properties;
 import java.util.ResourceBundle;
+import java.util.List;
+import java.util.Enumeration;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
@@ -75,12 +78,20 @@ import org.apache.velocity.VelocityContext;
 import org.apache.velocity.context.Context;
 import org.apache.velocity.app.VelocityEngine;
 
+import org.sakaiproject.component.cover.ComponentManager;
+
+// lti service
+import org.sakaiproject.lti.api.LTIService;
+
+
 /**
  * a simple SakaiIFrame Portlet
  */
 public class SakaiIFrame extends GenericPortlet {
 
 	private static final Log M_log = LogFactory.getLog(SakaiIFrame.class);
+	
+	private LTIService m_ltiService = (LTIService) ComponentManager.get("org.sakaiproject.lti.api.LTIService");
 
 	// This is old-style internationalization (i.e. not dynamic based
 	// on user preference) to do that would make this depend on
@@ -198,8 +209,7 @@ public class SakaiIFrame extends GenericPortlet {
 
 	public void doEdit(RenderRequest request, RenderResponse response)
 		throws PortletException, IOException {
-
-			// System.out.println("==== doEdit called ====");
+			
 			response.setContentType("text/html");
 			PrintWriter out = response.getWriter();
 			String title = getTitleString(request);
@@ -215,45 +225,43 @@ public class SakaiIFrame extends GenericPortlet {
 			context.put("doCancel", "sakai.cancel");
 			context.put("doUpdate", "sakai.update");
 
+			// get current site
 			Placement placement = ToolManager.getCurrentPlacement();
-			context.put("title", validator.escapeHtml(placement.getTitle(), false));
-			String source = placement.getPlacementConfig().getProperty(SOURCE);
-			if ( source == null ) source = "";
-			context.put("source",source);
-			String height = placement.getPlacementConfig().getProperty(HEIGHT);
-			context.put("height",height);
-
+			String siteId = "";
 			ToolConfiguration toolConfig = SiteService.findTool(placement.getId());
 			if ( toolConfig != null )
 			{
-				try
+				siteId = toolConfig.getSiteId();
+			}
+			// find the right LTIContent object for this page
+			Map<String,Object> foundContent = null;
+			List<Map<String,Object>> contents = m_ltiService.getContents(null,null,0,0);
+			HashMap<String, Map<String, Object>> linkedLtiContents = new HashMap<String, Map<String, Object>>();
+			for ( Map<String,Object> content : contents ) {
+				String sId = StringUtils.trimToNull((String) content.get(m_ltiService.LTI_SITE_ID));
+				if (sId != null && sId.equals(siteId))
 				{
-					Site site = SiteService.getSite(toolConfig.getSiteId());
-					String siteId = site.getId();
-					SitePage page = site.getPage(toolConfig.getPageId());
-
-					// if this is the only tool on that page, update the page's title also
-					if ((page.getTools() != null) && (page.getTools().size() == 1))
+					String ltiToolId = content.get(m_ltiService.LTI_TOOL_ID).toString();
+					Map<String, Object> ltiToolValues = m_ltiService.getTool(Long.valueOf(ltiToolId));
+					String toolTitle = (String) ltiToolValues.get(LTIService.LTI_TITLE);
+					if (toolTitle != null && toolTitle.equals(toolConfig.getTitle()))
 					{
-						context.put("showPopup", Boolean.TRUE);
-						boolean popup = "true".equals(placement.getPlacementConfig().getProperty(POPUP));
-						context.put("popup", Boolean.valueOf(popup));
-
-						boolean maximize = "true".equals(placement.getPlacementConfig().getProperty(MAXIMIZE));
-						context.put("maximize", Boolean.valueOf(maximize));
-
-						context.put("pageTitleEditable", Boolean.TRUE);
-						context.put("page_title",  validator.escapeHtml(page.getTitle(), false));
+						// we have found the right LTIToolContent for this page
+						foundContent = content;
+						// exit the loop
+						break;
 					}
 				}
-				catch (Throwable e)
-				{
-				}
 			}
-
+			
+			String foundLtiToolId = foundContent.get(m_ltiService.LTI_TOOL_ID).toString();
+			String[] contentToolModel=m_ltiService.getContentModel(Long.valueOf(foundLtiToolId));
+			// attach the ltiToolId to each model attribute, so that we could have the tool configuration page for multiple tools
+			Map<String, Object> ltiTool = m_ltiService.getTool(Long.valueOf(foundLtiToolId));
+			String formInput=m_ltiService.formInput(foundContent, contentToolModel);
+			context.put("formInput", formInput);
+			
 			vHelper.doTemplate(vengine, "/vm/edit.vm", context, out);
-
-			// System.out.println("==== doEdit done ====");
 		}
 
 	public void doHelp(RenderRequest request, RenderResponse response)
@@ -312,95 +320,16 @@ public class SakaiIFrame extends GenericPortlet {
 			Placement placement = ToolManager.getCurrentPlacement();
 			// get the site toolConfiguration, if this is part of a site.
 			ToolConfiguration toolConfig = SiteService.findTool(placement.getId());
-
-			String height = request.getParameter(HEIGHT);
-			if (height.equals(rb.getString("gen.heisomelse")))
+			String id = request.getParameter(LTIService.LTI_ID);
+			String toolId = request.getParameter(LTIService.LTI_TOOL_ID);
+			Properties reqProps = new Properties();
+			Enumeration names = request.getParameterNames();
+			while (names.hasMoreElements())
 			{
-				String customHeight = request.getParameter(CUSTOM_HEIGHT);
-				if ((customHeight != null) && (!customHeight.equals("")))
-				{
-					if (!checkDigits(customHeight))
-					{
-						addAlert(request,rb.getString("java.alert.pleentval"));
-						return;
-					}
-					height = customHeight + "px";
-					placement.getPlacementConfig().setProperty(HEIGHT, height);
-				}
-				else
-				{
-					addAlert(request,rb.getString("java.alert.pleentval"));
-					return;
-				}
+				String name = (String) names.nextElement();
+				reqProps.setProperty(name, request.getParameter(name));
 			}
-			else
-			{
-				placement.getPlacementConfig().setProperty(HEIGHT, height);
-			}
-
-
-			// title
-			String title = request.getParameter(TITLE);
-			if (StringUtils.isBlank(title))
-			{
-				addAlert(request,rb.getString("gen.tootit.empty"));
-				return;			
-				// SAK-19515 check for LENGTH of tool title
-			} 
-			else if (title.length() > MAX_TITLE_LENGTH)
-			{
-				addAlert(request,rb.getString("gen.tootit.toolong"));
-				return;			
-			}
-			placement.setTitle(title);
-
-			try
-			{
-				Site site = SiteService.getSite(toolConfig.getSiteId());
-				SitePage page = site.getPage(toolConfig.getPageId());
-				page.setTitleCustom(true);
-
-				// for web content tool, if it is a site page tool, and the only tool on the page, update the page title / popup.
-				if (toolConfig != null)
-				{
-					// if this is the only tool on that page, update the page's title also
-					if ((page.getTools() != null) && (page.getTools().size() == 1))
-					{
-						// String newPageTitle = data.getParameters().getString(FORM_PAGE_TITLE);
-						String newPageTitle = request.getParameter(FORM_PAGE_TITLE);
-
-						if (StringUtils.isBlank(newPageTitle))
-						{
-							addAlert(request,rb.getString("gen.pagtit.empty"));
-							return;		
-						}
-						else if (newPageTitle.length() > MAX_TITLE_LENGTH)
-						{
-							addAlert(request,rb.getString("gen.pagtit.toolong"));
-							return;			
-						}
-						page.setTitle(newPageTitle);				
-					}
-				}
-
-				SiteService.save(site);
-			}
-			catch (Exception ignore)
-			{
-				M_log.warn("doConfigure_update: " + ignore);
-			}
-
-			// popup and maximize
-			String spop = request.getParameter("popup");
-			if ( ! "true".equals(spop) ) spop = "false";
-			placement.getPlacementConfig().setProperty(POPUP, spop);
-			String smax = request.getParameter("maximize");
-			if ( ! "true".equals(smax) ) smax = "false";
-			placement.getPlacementConfig().setProperty(MAXIMIZE, smax);
-			String source = request.getParameter("source");
-			if ( source == null ) source = "";
-			placement.getPlacementConfig().setProperty(SOURCE, source);
-
+			Object retval = m_ltiService.updateContent(Long.parseLong(id), reqProps);
 			placement.save();
 
 			response.setPortletMode(PortletMode.VIEW);
