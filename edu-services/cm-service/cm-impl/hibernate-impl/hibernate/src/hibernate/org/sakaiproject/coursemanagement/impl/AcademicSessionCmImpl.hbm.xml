@@ -38,7 +38,7 @@
 
     <query name="findAcademicSessions">
         <![CDATA[
-        from AcademicSessionCmImpl as term order by term.startDate
+        from AcademicSessionCmImpl as term order by term.startDate desc
         ]]>
     </query>
 
@@ -46,7 +46,7 @@
         <![CDATA[
         from AcademicSessionCmImpl as term where
         	term.current=true
-        	order by term.startDate
+        	order by term.startDate desc
         ]]>
     </query>
 
