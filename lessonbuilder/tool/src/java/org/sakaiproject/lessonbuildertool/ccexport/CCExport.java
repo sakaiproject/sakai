@@ -87,6 +87,7 @@ public class CCExport {
 	String sakaiId;
 	String resourceId;
 	String location;
+	List<String> dependencies;
     }
 
     // map of all file resource to be included in cartridge
@@ -174,6 +175,7 @@ public class CCExport {
 	res.sakaiId = sakaiId;
 	res.resourceId = getResourceId();
 	res.location = location;
+	res.dependencies = new ArrayList<String>();
 
 	fileMap.put(sakaiId, res);
 
@@ -249,8 +251,9 @@ public class CCExport {
 	for (String sakaiId: tests) {
 	    Resource res = new Resource();
 	    res.resourceId = getResourceId();
-	    res.location = "cc-object-" + res.resourceId.substring(3) + ".xml";
+	    res.location = "cc-objects/" + res.resourceId + ".xml";
 	    res.sakaiId = sakaiId;
+	    res.dependencies = new ArrayList<String>();
 	    samigoMap.put(res.sakaiId, res);
 	}
 
@@ -264,7 +267,7 @@ public class CCExport {
 		ZipEntry zipEntry = new ZipEntry(entry.getValue().location);
 
 		out.putNextEntry(zipEntry);
-		boolean ok = samigoExport.outputEntity(entry.getValue().sakaiId, out, errStream, this);
+		boolean ok = samigoExport.outputEntity(entry.getValue().sakaiId, out, errStream, this, entry.getValue());
 		if (!ok)
 		    return false;
 
@@ -311,20 +314,23 @@ public class CCExport {
 	    }
 
 	    for (Map.Entry<String, Resource> entry: samigoMap.entrySet()) {
-		out.print(("    <resource href=\"" + StringEscapeUtils.escapeXml(entry.getValue().location) + "\" identifier=\"" + entry.getValue().resourceId + 
-			   "\" type=\"imsqti_xmlv1p2/imscc_xmlv1p2/assessment\">\n      <file href=\"" + StringEscapeUtils.escapeXml(entry.getValue().location) + "\"/>\n    </resource>\n"));
+		out.println("    <resource href=\"" + StringEscapeUtils.escapeXml(entry.getValue().location) + "\" identifier=\"" + entry.getValue().resourceId + "\" type=\"imsqti_xmlv1p2/imscc_xmlv1p2/assessment\">");
+		out.println("      <file href=\"" + StringEscapeUtils.escapeXml(entry.getValue().location) + "\"/>");
+		for (String d: entry.getValue().dependencies)
+		    out.println("      <dependency identifierref=\"" + d + "\"/>");
+		out.println("    </resource>");
 	    }
 
 	    // add error log at the very end
 	    String errId = getResourceId();
 
-	    out.println(("    <resource href=\"export-errors\" identifier=\"" + errId + 
-			   "\" type=\"webcontent\">\n      <file href=\"export-errors\"/>\n    </resource>"));
+	    out.println(("    <resource href=\"cc-objects/export-errors\" identifier=\"" + errId + 
+			   "\" type=\"webcontent\">\n      <file href=\"cc-objects/export-errors\"/>\n    </resource>"));
 	    
 	    out.println("  </resources>\n</manifest>");
 
 	    errStream.close();
-	    zipEntry = new ZipEntry("export-errors");
+	    zipEntry = new ZipEntry("cc-objects/export-errors");
 	    out.putNextEntry(zipEntry);
 	    InputStream contentStream = null;
 	    try {
@@ -378,20 +384,25 @@ public class CCExport {
 
     }
 
-    public String fixup (String s) {
+    public String fixup (String s, Resource resource) {
 	// http://lessonbuilder.sakaiproject.org/53605/
 	StringBuilder ret = new StringBuilder();
 	String sakaiIdBase = "/group/" + siteId;
 	Pattern target = Pattern.compile("/access/content/group/" + siteId + "|http://lessonbuilder.sakaiproject.org/", Pattern. CASE_INSENSITIVE);
 	Matcher matcher = target.matcher(s);
+	// technically / isn't allowed in an unquoted attribute, but sometimes people
+	// use sloppy HTML	
+	Pattern wordend = Pattern.compile("[^-a-zA-Z0-9._:/]");
 	int index = 0;
 	while (true) {
 	    if (!matcher.find()) {
 		ret.append(s.substring(index));
 		break;
 	    }		
+	    String sakaiId = null;
 	    int start = matcher.start();
 	    if (s.regionMatches(false, start, "/access", 0, 7)) { // matched /access/content...
+		int sakaistart = start + "/access/content".length(); //start of sakaiid, can't find end until we figure out quoting
 		int last = start + "/access/content/group/".length() + siteId.length();
 		if (s.regionMatches(true, (start - server.length()), server, 0, server.length())) {    // servername before it
 		    start -= server.length();
@@ -401,8 +412,22 @@ public class CCExport {
 			start -= 8;
 		    }
 		}
+		// need to find sakaiend. To do that we need to find the close quote
+		int sakaiend = 0;
+		char quote = s.charAt(start-1);
+		if (quote == '\'' || quote == '"')  // quoted, this is easy
+		    sakaiend = s.indexOf(quote, sakaistart);
+		else { // not quoted. find first char not legal in unquoted attribute
+		    Matcher wordendMatch = wordend.matcher(s);
+		    if (wordendMatch.find(sakaistart)) {
+			sakaiend = wordendMatch.start();
+		    }
+		    else
+			sakaiend = s.length();
+		}
+		sakaiId = s.substring(sakaistart, sakaiend);
 		ret.append(s.substring(index, start));
-		ret.append("$IMS-CC-FILEBASE$");
+		ret.append("$IMS-CC-FILEBASE$..");
 		index = last;  // start here next time
 	    } else { // matched http://lessonbuilder.sakaiproject.org/
 		int last = matcher.end(); // should be start of an integer
@@ -417,14 +442,20 @@ public class CCExport {
 		if (numString.length() >= 1) {
 		    Long itemId = new Long(numString);
 		    SimplePageItem item = simplePageToolDao.findItem(itemId);
-		    String sakaiId = item.getSakaiId();
+		    sakaiId = item.getSakaiId();
 		    int itemType = item.getType();
 		    if ((itemType == SimplePageItem.RESOURCE || itemType == SimplePageItem.MULTIMEDIA) && 
 			sakaiId.startsWith(sakaiIdBase)) {
 			ret.append(s.substring(index, start));
-			ret.append("$IMS-CC-FILEBASE$" + sakaiId.substring(sakaiIdBase.length()));
+			ret.append("$IMS-CC-FILEBASE$.." + sakaiId.substring(sakaiIdBase.length()));
 			index = endnum;
 		    }
+		}
+	    }
+	    if (sakaiId != null) {
+		Resource r = fileMap.get(sakaiId);
+		if (r != null) {
+		    resource.dependencies.add(r.resourceId);
 		}
 	    }
 	}

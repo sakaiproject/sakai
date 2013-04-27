@@ -180,7 +180,7 @@ public class SamigoExport {
 	return ret;
     }
 
-    public boolean outputEntity(String samigoId, ZipPrintStream out, PrintStream errStream, CCExport bean) {
+    public boolean outputEntity(String samigoId, ZipPrintStream out, PrintStream errStream, CCExport bean, CCExport.Resource resource) {
 	int i = samigoId.indexOf("/");
 	String publishedAssessmentString = samigoId.substring(i+1);
 	Long publishedAssessmentId = new Long(publishedAssessmentString);
@@ -323,7 +323,7 @@ public class SamigoExport {
 	    } else
 		text = item.getText();
 
-	    out.println("            <mattext texttype=\"text/html\">" + ccExport.fixup(text) + "</mattext>");
+	    out.println("            <mattext texttype=\"text/html\">" + ccExport.fixup(text, resource) + "</mattext>");
 	    out.println("          </material>");
 
 	    if (type.equals(TypeIfc.MULTIPLE_CHOICE) ||type.equals(TypeIfc.MULTIPLE_CORRECT) || type.equals(TypeIfc.MULTIPLE_CORRECT_SINGLE_SELECTION) || type.equals(TypeIfc.TRUE_FALSE)) {
@@ -338,7 +338,7 @@ public class SamigoExport {
 		    
 		    out.println("              <response_label ident=\"" + answerId + "\">");
 		    out.println("                <material>");
-		    out.println("                  <mattext texttype=\"text/html\">" + ccExport.fixup(answer.getText()) + "</mattext>");
+		    out.println("                  <mattext texttype=\"text/html\">" + ccExport.fixup(answer.getText(), resource) + "</mattext>");
 		    out.println("                </material>");
 		    out.println("              </response_label>");
 		}
