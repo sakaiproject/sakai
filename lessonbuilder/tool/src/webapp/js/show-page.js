@@ -199,11 +199,6 @@ $(function() {
 			return false;
 		});
 		
-		$('#export-cc').click(function(){
-			$("#export-cc-input").click();
-			return false;
-		    });
-
 		$('#import-cc-submit').click(function() {
 			// prevent double clicks
 			if (!importccactive)

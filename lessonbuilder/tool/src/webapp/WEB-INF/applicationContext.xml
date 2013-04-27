@@ -78,7 +78,7 @@ simplePageBean.hasReleaseDate,
 simplePageBean.height,
 simplePageBean.hidePage,
 simplePageBean.importCc,
-simplePageBean.exportCc,
+simplePageBean.importtop,
 simplePageBean.isMultimedia,
 simplePageBean.isWebsite,
 simplePageBean.itemId,
@@ -292,5 +292,13 @@ simplePageBean.selectPage
 	  <property name="messageLocator" ref="messageLocator"/>
 	  <property name="simplePageToolDao" ref="org.sakaiproject.lessonbuildertool.model.SimplePageToolDao" />
 	</bean>
+
+	<bean parent="viewParamsRegistrarParent">
+          <property name="viewID" value="exportCc" />
+          <property name="viewParamsClass"
+		    value="org.sakaiproject.lessonbuildertool.tool.view.ExportCCViewParameters" />
+	</bean>
+
+
 
  </beans>

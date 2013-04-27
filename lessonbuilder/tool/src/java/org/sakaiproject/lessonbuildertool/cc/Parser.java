@@ -211,14 +211,14 @@ public class Parser extends AbstractParser {
 	    resource.getAttributeValue(CC_RES_TYPE).equals(QUESTION_BANK1) ||
 	    resource.getAttributeValue(CC_RES_TYPE).equals(QUESTION_BANK2)) {
 	    // I know it's not really an item, but it uses the same code as an assessment
-	    the_handler.setCCItemXml(null, resource, this, utils);
-          processResource(resource, the_handler);
-          qbp.parseContent(the_handler, utils, resource, isProtected(resource));
-        } else
-    // this shouldn't be needed, but blackboard doesn't declare dependencies
-    // processresource will load files and check dependencies but won't do any objects
-    // such as tests or forums that haven't already been loaded through items
-          processResource(resource, the_handler);
+	    the_handler.setCCItemXml(null, resource, this, utils, true);
+	    processResource(resource, the_handler);
+	    qbp.parseContent(the_handler, utils, resource, isProtected(resource));
+        } else {
+	    // create the resource if it wasn't already on a page
+	    the_handler.setCCItemXml(null, resource, this, utils, true);
+	    processResource(resource, the_handler);
+	}
       }
       the_handler.endManifest();
     } catch (JDOMException e) {
@@ -292,7 +292,7 @@ public class Parser extends AbstractParser {
 
       the_handler.startCCItem(the_item.getAttributeValue(CC_ITEM_ID),
                               the_item.getChildText(CC_ITEM_TITLE, ns.cc_ns()));
-      the_handler.setCCItemXml(the_item, resource, this, utils);
+      the_handler.setCCItemXml(the_item, resource, this, utils, false);
       ContentParser parser=parsers.get(resource.getAttributeValue(CC_RES_TYPE));
       if (parser==null) {
 	  System.out.println("content type not recognised " + resource.getAttributeValue(CC_RES_TYPE));

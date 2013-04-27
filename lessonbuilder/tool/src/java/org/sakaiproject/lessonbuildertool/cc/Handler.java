@@ -55,7 +55,7 @@ public interface Handler {
   
   public void startCCItem(String the_id, String the_title);
   
-  public void setCCItemXml(Element the_xml, Element resource, AbstractParser parser, CartridgeLoader loader);
+  public void setCCItemXml(Element the_xml, Element resource, AbstractParser parser, CartridgeLoader loader, boolean nopage);
   
   public void endCCItem();
   

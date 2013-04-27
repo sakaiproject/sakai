@@ -275,6 +275,7 @@ public class SimplePageBean {
 	private String quiztool = null;
 	private String topictool = null;
 	private String assigntool = null;
+        private boolean importtop = false;
 	
 	private Integer editPrivs = null;
 	private String currentSiteId = null;
@@ -565,6 +566,10 @@ public class SimplePageBean {
 
 	public void setHasReleaseDate(boolean hasReleaseDate) {
 		this.hasReleaseDate = hasReleaseDate;
+	}
+
+        public void setImporttop(boolean i) {
+	    this.importtop = i;
 	}
 
     // gets called for non-checked boxes also, but q will be null
@@ -4885,11 +4890,6 @@ public class SimplePageBean {
 		return ret && path.delete();
 	}
 
-	public void exportCc () {
-	    CCExport ccExport = new CCExport();
-	    ccExport.doExport(getCurrentSiteId(), httpServletResponse, this);
-	}
-
 	public void importCc() {
 	    if (!canEditPage())
 		return;
@@ -4945,7 +4945,7 @@ public class SimplePageBean {
 			    topicobject = q;
 		    }
 
-		    parser.parse(new PrintHandler(this, cartridgeLoader, simplePageToolDao, quizobject, topicobject, bltiEntity, assignobject));
+		    parser.parse(new PrintHandler(this, cartridgeLoader, simplePageToolDao, quizobject, topicobject, bltiEntity, assignobject, importtop));
 		    setTopRefresh();
 		} catch (Exception e) {
 		    setErrKey("simplepage.cc-error", "");

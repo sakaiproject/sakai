@@ -1710,7 +1710,7 @@ public class LessonBuilderEntityProducer extends AbstractEntityProvider
 
 		toolSession.removeAttribute("lessonbuilder.errors");
 
-		parser.parse(new PrintHandler(simplePageBean, cartridgeLoader, simplePageToolDao, quizEntity, forumEntity, bltiEntity, assignmentEntity));
+		parser.parse(new PrintHandler(simplePageBean, cartridgeLoader, simplePageToolDao, quizEntity, forumEntity, bltiEntity, assignmentEntity, false));
 		
 		List <String> errors = simplePageBean.errMessages();
 		if (errors == null)

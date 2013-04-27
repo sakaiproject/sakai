@@ -85,6 +85,7 @@ import org.sakaiproject.lessonbuildertool.tool.view.CommentsViewParameters;
 import org.sakaiproject.lessonbuildertool.tool.view.FilePickerViewParameters;
 import org.sakaiproject.lessonbuildertool.tool.view.GeneralViewParameters;
 import org.sakaiproject.lessonbuildertool.tool.view.QuestionGradingPaneViewParameters;
+import org.sakaiproject.lessonbuildertool.tool.view.ExportCCViewParameters;
 import org.sakaiproject.memory.api.Cache;
 import org.sakaiproject.memory.api.MemoryService;
 import org.sakaiproject.time.api.TimeService;
@@ -652,9 +653,11 @@ public class ShowPageProducer implements ViewComponentProducer, DefaultView, Nav
 				    // The problem is that even if I make the button look like a link it won't show up the same in
 				    // screen readers, so I really need to trigger it with a link
 				    UIOutput.make(tofill, "export-cc-group");
-				    UIForm form = UIForm.make(tofill, "export-cc-form");
-				    UICommand.make(form, "export-cc-input", "#{simplePageBean.exportCc}");
-				    UIOutput.make(tofill, "export-cc");
+				    ExportCCViewParameters view = new ExportCCViewParameters("exportCc");
+				    view.setExportcc(true);
+				    UIInternalLink.make(tofill, "export-cc", messageLocator.getMessage("simplepage.export_cc"), view);
+				    //  UICommand.make(form, "export-cc-input", "#{simplePageBean.exportCc}");
+				    // UIOutput.make(tofill, "export-cc");
 				}				    
 
 			}
@@ -2869,6 +2872,9 @@ public class ShowPageProducer implements ViewComponentProducer, DefaultView, Nav
 
 		UICommand.make(form, "import-cc-submit", messageLocator.getMessage("simplepage.save_message"), "#{simplePageBean.importCc}");
 		UICommand.make(form, "mm-cancel", messageLocator.getMessage("simplepage.cancel"), null);
+
+		UIBoundBoolean.make(form, "import-toplevel", "#{simplePageBean.importtop}", false);
+
 
 		class ToolData {
 			String toolId;

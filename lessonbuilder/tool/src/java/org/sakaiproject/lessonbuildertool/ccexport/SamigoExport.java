@@ -48,7 +48,6 @@ import org.apache.commons.lang.StringEscapeUtils;
 import org.sakaiproject.component.cover.ServerConfigurationService;
 
 import org.sakaiproject.lessonbuildertool.service.LessonSubmission;
-import org.sakaiproject.lessonbuildertool.tool.beans.SimplePageBean;
 import org.sakaiproject.lessonbuildertool.tool.beans.SimplePageBean.UrlItem;
 
 import org.sakaiproject.tool.assessment.data.dao.assessment.AssessmentAccessControl;
@@ -139,6 +138,8 @@ public class SamigoExport {
 	messageLocator = m;
     }
 
+    CCExport ccExport = null;
+
     public final static String SAM_PUB="sam_pub";
 
     public void init () {
@@ -179,10 +180,11 @@ public class SamigoExport {
 	return ret;
     }
 
-    public boolean outputEntity(String samigoId, ZipPrintStream out, PrintStream errStream, CCExport ccExport) {
+    public boolean outputEntity(String samigoId, ZipPrintStream out, PrintStream errStream, CCExport bean) {
 	int i = samigoId.indexOf("/");
 	String publishedAssessmentString = samigoId.substring(i+1);
 	Long publishedAssessmentId = new Long(publishedAssessmentString);
+	ccExport = bean;
 
 	PublishedAssessmentFacade assessment = pubService.getPublishedAssessment(publishedAssessmentString);
 
@@ -417,7 +419,7 @@ public class SamigoExport {
 			}
 
 			if (substr)
-			    out.println("              <varsubstring case=\"No\" respident=\"" + answerId + "\">" + StringEscapeUtils.escapeXml(answer) + "</varequal>");
+			    out.println("              <varsubstring case=\"No\" respident=\"" + answerId + "\">" + StringEscapeUtils.escapeXml(answer) + "</varsubstring>");
 			else
 			    out.println("              <varequal case=\"No\" respident=\"" + answerId + "\">" + StringEscapeUtils.escapeXml(answer) + "</varequal>");
 		    }

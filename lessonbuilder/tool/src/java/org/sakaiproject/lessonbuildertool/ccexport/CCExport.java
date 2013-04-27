@@ -47,10 +47,11 @@ import org.sakaiproject.content.api.ContentResource;
 import org.sakaiproject.component.cover.ServerConfigurationService;
 
 import org.sakaiproject.lessonbuildertool.SimplePageItem;
-import org.sakaiproject.lessonbuildertool.tool.beans.SimplePageBean;
 import org.sakaiproject.lessonbuildertool.ccexport.SamigoExport;
 import org.sakaiproject.lessonbuildertool.ccexport.ZipPrintStream;
 import org.sakaiproject.lessonbuildertool.model.SimplePageToolDao;
+import org.sakaiproject.tool.cover.SessionManager;
+import org.sakaiproject.tool.api.ToolSession;
 import uk.org.ponder.messageutil.MessageLocator;
 
 public class CCExport {
@@ -59,7 +60,6 @@ public class CCExport {
     private String rootPath;
     long nextid = 1;
   
-    SimplePageBean simplePageBean;
     static ContentHostingService contentHostingService;
     public void setContentHostingService(ContentHostingService chs) {
 	contentHostingService = chs;
@@ -95,6 +95,31 @@ public class CCExport {
     Map<String, Resource> samigoMap = new HashMap<String, Resource>();
 
 
+    // the error messages are a problem. They won't show until the next page display
+    // however errrors at this level are unusual, and we interrupt the download, so the
+    // user should never see an incomplete one. Most common errors have to do with
+    // problems converting for CC format. Those go into a log file that's included in
+    // the ZIP, so the user will see those errors (if he knows the look)
+
+    public static void setErrMessage(String s) {
+	ToolSession toolSession = SessionManager.getCurrentToolSession();
+	if (toolSession == null) {
+	    System.out.println("Lesson Builder error not in tool: " + s);
+	    return;
+	}
+	List<String> errors = (List<String>)toolSession.getAttribute("lessonbuilder.errors");
+	if (errors == null)
+	    errors = new ArrayList<String>();
+	errors.add(s);
+	toolSession.setAttribute("lessonbuilder.errors", errors);
+    }
+
+    public static void setErrKey(String key, String text ) {
+	if (text == null)
+	    text = "";
+	setErrMessage(messageLocator.getMessage(key).replace("{}", text));
+    }
+
     /*
      * maintain global lists of resources, adding as they are referenced on a page or
      * adding all resources of a kind, depending. Each type of resource has a map
@@ -107,9 +132,8 @@ public class CCExport {
      * contents of the site is brought over.
      */
 
-    public void doExport(String sid, HttpServletResponse httpServletResponse, SimplePageBean bean) {
+    public void doExport(String sid, HttpServletResponse httpServletResponse) {
 	response = httpServletResponse;
-	simplePageBean = bean;
 	siteId = sid;
 
 	if (! startExport())
@@ -135,7 +159,7 @@ public class CCExport {
 	    errStream = new PrintStream(errFile);
 	    
 	} catch (Exception e) {
-	    simplePageBean.setErrKey("simplepage.exportcc-fileerr", e.getMessage());
+	    setErrKey("simplepage.exportcc-fileerr", e.getMessage());
 	    return false;
 	}
 	return true;
@@ -161,7 +185,7 @@ public class CCExport {
 	    ContentCollection baseCol = contentHostingService.getCollection(base);
 	    return addAllFiles(baseCol, base.length());
 	} catch (Exception e) {
-	    simplePageBean.setErrKey("simplepage.exportcc-fileerr", e.getMessage());
+	    setErrKey("simplepage.exportcc-fileerr", e.getMessage());
 	    return false;
 	}
 
@@ -178,7 +202,7 @@ public class CCExport {
 		    addAllFiles((ContentCollection)e, baselen);
 	    }
 	} catch (Exception e) {
-	    simplePageBean.setErrKey("simplepage.exportcc-fileerr", e.getMessage());
+	    setErrKey("simplepage.exportcc-fileerr", e.getMessage());
 	    return false;
 	}
 	return true;
@@ -187,7 +211,6 @@ public class CCExport {
     public boolean outputAllFiles (ZipPrintStream out) {
 	try {
 	    for (Map.Entry<String, Resource> entry: fileMap.entrySet()) {
-		System.out.println(entry.getKey() + " " + entry.getValue().location);
 
 		ZipEntry zipEntry = new ZipEntry(entry.getValue().location);
 
@@ -206,7 +229,7 @@ public class CCExport {
 		}
 	    }
 	} catch (Exception e) {
-	    simplePageBean.setErrKey("simplepage.exportcc-fileerr", e.getMessage());
+	    setErrKey("simplepage.exportcc-fileerr", e.getMessage());
 	    return false;
 	}
 
@@ -218,12 +241,16 @@ public class CCExport {
 	List<String> tests = samigoExport.getEntitiesInSite(siteId);
 	if (tests == null)
 	    return true;
+	// These are going to be loaded into the final file system. I considered
+	// putting them in a separate directory to avoid conflicting with real files.
+	// However this would force all URLs to be written with ../ at the start,
+	// which is probably more dangerous, as it depends upon loaders making the
+	// same interpretation of a somewhat ambiguous specification.
 	for (String sakaiId: tests) {
 	    Resource res = new Resource();
 	    res.resourceId = getResourceId();
-	    res.location = res.resourceId + ".xml";
+	    res.location = "cc-object-" + res.resourceId.substring(3) + ".xml";
 	    res.sakaiId = sakaiId;
-	    System.out.println(res.sakaiId + " " + res.resourceId + " " + res.location);
 	    samigoMap.put(res.sakaiId, res);
 	}
 
@@ -243,7 +270,7 @@ public class CCExport {
 
 	    }
 	} catch (Exception e) {
-	    simplePageBean.setErrKey("simplepage.exportcc-fileerr", e.getMessage());
+	    setErrKey("simplepage.exportcc-fileerr", e.getMessage());
 	    return false;
 	}
 
@@ -260,6 +287,7 @@ public class CCExport {
 
 	    out.println("  <organizations>");
 
+	    if (false) {
 	    out.println("  <organization identifier=\"page\" structure=\"rooted-hierarchy\">");
 	    out.println("    <item identifier=\"I_1\">");
 	    out.println("      <item identifer=\"I_1_1\">");
@@ -273,6 +301,8 @@ public class CCExport {
 	    out.println("      </item>");
 	    out.println("    </item>");
 	    out.println("  </organization>");
+	    }
+
 	    out.println("  </organizations>");
 	    out.println("  <resources>");
 	    for (Map.Entry<String, Resource> entry: fileMap.entrySet()) {
@@ -294,7 +324,7 @@ public class CCExport {
 	    out.println("  </resources>\n</manifest>");
 
 	    errStream.close();
-	    zipEntry = new ZipEntry("export-error");
+	    zipEntry = new ZipEntry("export-errors");
 	    out.putNextEntry(zipEntry);
 	    InputStream contentStream = null;
 	    try {
@@ -306,7 +336,7 @@ public class CCExport {
 		}
 	    }
 	} catch (Exception e) {
-	    simplePageBean.setErrKey("simplepage.exportcc-fileerr", e.getMessage());
+	    setErrKey("simplepage.exportcc-fileerr", e.getMessage());
 	    return false;
 	}
 
@@ -334,7 +364,13 @@ public class CCExport {
 		out.close();
 
         } catch (Exception ioe) {
-	    simplePageBean.setErrKey("simplepage.exportcc-fileerr", ioe.getMessage());
+	    if (out != null) {
+		try {
+		    out.close();
+		} catch (Exception ignore) {
+		}
+	    }
+	    setErrKey("simplepage.exportcc-fileerr", ioe.getMessage());
 	    return false;
 	}
 

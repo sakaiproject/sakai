@@ -158,13 +158,14 @@ public class PrintHandler extends DefaultHandler implements AssessmentHandler, D
   boolean usesMentor = false;
   boolean usesPatternMatch = false;
   boolean usesCurriculum = false;
+  boolean importtop = false;
 
     // this is the CC file name for all files added
   private Set<String> filesAdded = new HashSet<String>();
     // this is the CC file name (of the XML file) -> Sakaiid for non-file items
   private Map<String,String> itemsAdded = new HashMap<String,String>();
 
-  public PrintHandler(SimplePageBean bean, CartridgeLoader utils, SimplePageToolDao dao, LessonEntity q, LessonEntity l, LessonEntity b, LessonEntity a) {
+  public PrintHandler(SimplePageBean bean, CartridgeLoader utils, SimplePageToolDao dao, LessonEntity q, LessonEntity l, LessonEntity b, LessonEntity a, boolean itop) {
       super();
       this.utils = utils;
       this.simplePageBean = bean;
@@ -174,6 +175,7 @@ public class PrintHandler extends DefaultHandler implements AssessmentHandler, D
       this.topictool = l;
       this.bltitool = b;
       this.assigntool = a;
+      this.importtop = itop;
   }
 
   public void setAssessmentDetails(String the_ident, String the_title) {
@@ -237,6 +239,16 @@ public class PrintHandler extends DefaultHandler implements AssessmentHandler, D
 	  return null;
       }
 
+      if (importtop) {
+	  try {
+	      ContentCollection top = ContentHostingService.getCollection(ContentHostingService.getSiteCollection(siteId));
+	      return top;
+	  } catch (Exception e) {
+	      simplePageBean.setErrKey("simplepage.create.resource.failed",name + " " +e);
+	      return null;
+	  }
+      }
+
       if (name == null) 
 	  name = "Common Cartridge";
       if (name.trim().length() == 0) 
@@ -284,7 +296,7 @@ public class PrintHandler extends DefaultHandler implements AssessmentHandler, D
 	  }
       }
       if (collection == null) {
-	  simplePageBean.setErrKey("simplepage.resource100: ", name);
+	  simplePageBean.setErrKey("simplepage.resource100", name);
 	  return null;
       }
       return collection;
@@ -298,7 +310,7 @@ public class PrintHandler extends DefaultHandler implements AssessmentHandler, D
 	  return null;
   }
 
-  public void setCCItemXml(Element the_xml, Element resource, AbstractParser parser, CartridgeLoader loader) {
+  public void setCCItemXml(Element the_xml, Element resource, AbstractParser parser, CartridgeLoader loader, boolean nopage) {
       if (all)
 	  System.err.println("\nadd item to page " + pages.get(pages.size()-1).getTitle() +
 			 " xml: "+the_xml + 
@@ -324,15 +336,17 @@ public class PrintHandler extends DefaultHandler implements AssessmentHandler, D
 		  usesMentor = true;
 	  }
       }	  
+      if (nopage)
+	  hide = true;
 
       // for question banks we don't need a current page, as we don't put banks on a page
-      if (pages.size() == 0 && !isBank)
+      if (pages.size() == 0 && !isBank && !nopage)
 	  startCCFolder(null);
 
       int top = pages.size()-1;
-      SimplePage page = isBank ? null : pages.get(top);
+      SimplePage page = (isBank || nopage) ? null : pages.get(top);
 
-      Integer seq = isBank? 0 : sequences.get(top);
+      Integer seq = (isBank || nopage) ? 0 : sequences.get(top);
       String title = null;
       if (the_xml == null)
 	  title = "Question Pool";
@@ -506,7 +520,7 @@ public class PrintHandler extends DefaultHandler implements AssessmentHandler, D
 
 		  } catch (Exception e) {
 		      System.out.println("CC import error creating or parsing QTI file " + fileName + " " +  e);
-		      simplePageBean.setErrKey("simplepage.resource100", e.toString());
+		      simplePageBean.setErrKey("simplepage.create.object.failed", e.toString());
 		  }
 
 		  inputStream.close();
@@ -522,8 +536,9 @@ public class PrintHandler extends DefaultHandler implements AssessmentHandler, D
 	      }
 
 	  } else if (type.equals(CC_QUESTION_BANK0) || type.equals(CC_QUESTION_BANK1))
-	      ;
-	  else if (type.equals(CC_BLTI0) || type.equals(CC_BLTI1)) { 
+	      ; // handled elsewhere
+	  // current code seems to assume that BLTI tool is part of the page so skip if no page
+	  else if (!nopage && (type.equals(CC_BLTI0) || type.equals(CC_BLTI1))) { 
 	      String filename = getFileName(resource);
 	      Element ltiXml =  parser.getXML(loader, filename);
 	      XMLOutputter outputter = new XMLOutputter();
@@ -569,6 +584,8 @@ public class PrintHandler extends DefaultHandler implements AssessmentHandler, D
 			System.out.println("LTI Import Failed..");
 		    }
 		}
+	  } else if (type.equals(CC_WEBCONTENT) && hide) {
+	      // handled elsewhere
 	  } else
 	      System.err.println("implemented type: " + resource.getAttributeValue(TYPE));
       } catch (Exception e) {
@@ -656,7 +673,8 @@ public class PrintHandler extends DefaultHandler implements AssessmentHandler, D
 	  return;
 
       InputStream infile = null;
-      try {
+      for (int tries = 1; tries < 3; tries++) {
+        try {
 	  infile = utils.getFile(the_file_id);
 	  String name = the_file_id;
 	  int slash = the_file_id.lastIndexOf("/");
@@ -664,6 +682,7 @@ public class PrintHandler extends DefaultHandler implements AssessmentHandler, D
 	      name = name.substring(slash+1);
 	  String extension = Validator.getFileExtension(name);
 	  String type = ContentTypeImageService.getContentType(extension);
+
 
 	  ContentResourceEdit edit = ContentHostingService.addResource(baseName + the_file_id);
 
@@ -676,9 +695,23 @@ public class PrintHandler extends DefaultHandler implements AssessmentHandler, D
 	  ContentHostingService.commitResource(edit, NotificationService.NOTI_NONE);
 	  filesAdded.add(the_file_id);
 
-      } catch (Exception e) {
+        } catch (IdUsedException e) {
+	  // remove existing if we are importing whole site.
+	  // otherwise this is an error (and should be impossible, as this is a new directory)
+	  if (importtop && tries == 1) {
+	      try {
+		  ContentHostingService.removeResource(baseName + the_file_id);
+		  continue;
+	      } catch (Exception e1) {
+	      }
+	  }
 	  simplePageBean.setErrKey("simplepage.create.resource.failed", e + ": " + the_file_id);
 	  System.out.println("CC loader: unable to get file " + the_file_id + " error: " + e);
+        } catch (Exception e) {
+	  simplePageBean.setErrKey("simplepage.create.resource.failed", e + ": " + the_file_id);
+	  System.out.println("CC loader: unable to get file " + the_file_id + " error: " + e);
+        }
+        break;  // if we get to the end, no need to retry; really a goto would be clearer
       }
   }
 
