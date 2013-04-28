@@ -131,9 +131,21 @@ public class AssignmentExport {
 
 	    String deleted = assignment.getProperties().getProperty(ResourceProperties.PROP_ASSIGNMENT_DELETED);
 	    if ((deleted == null || "".equals(deleted)) && !assignment.getDraft()) {
-		ret.add(LessonEntity.ASSIGNMENT + "/" + assignment.getId().toString());
 		AssignmentContent content = assignment.getContent();
 		List<Reference>attachments = content.getAttachments();
+
+		String instructions = content.getInstructions();
+		
+		// special case. one attachment and nothing else.
+		// just export the attachment
+		String intendeduse = null;
+		if ((instructions == null || instructions.trim().equals("")) &&
+		    (attachments != null && attachments.size() == 1)) {
+		    intendeduse = "assignment";  // simple case. just set intended use for attachment
+		} else { // complex case. need to do full assignment generation
+		    ret.add(LessonEntity.ASSIGNMENT + "/" + assignment.getId().toString());
+		}
+
 		for (Reference ref: attachments) {
 		    String sakaiId = ref.getReference();
 		    if (sakaiId.startsWith("/content/"))
@@ -143,8 +155,10 @@ public class AssignmentExport {
 		    if (! sakaiId.startsWith(siteRef)) {  // if in resources, already included
 			int lastSlash = sakaiId.lastIndexOf("/");
 			String lastAtom = sakaiId.substring(lastSlash + 1);
-			bean.addFile(sakaiId, "attachments/" + assignment.getId() + "/" + lastAtom);
-		    }			    
+			bean.addFile(sakaiId, "attachments/" + assignment.getId() + "/" + lastAtom, intendeduse);
+		    } else if (intendeduse != null) {  // already there, just set intended use
+			bean.setIntendeduse(sakaiId, intendeduse);
+		    }
 		}
 	    }
 	}
@@ -179,9 +193,11 @@ public class AssignmentExport {
 	out.println("<!DOCTYPE html PUBLIC \"-//W3C//DTD XHTML 1.0 Transitional//EN\"  \"http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd\">");
 	out.println("<html xmlns=\"http://www.w3.org/1999/xhtml\" lang=\"en\" xml:lang=\"en\">");
 	out.println("<body>");
-	out.println("<div>");
-	out.println(instructions);
-	out.println("</div>");
+	if (instructions != null && !instructions.trim().equals("")) {
+	    out.println("<div>");
+	    out.println(instructions);
+	    out.println("</div>");
+	}
 	for (Reference ref: attachments) {
 	    String sakaiId = ref.getReference();
 	    if (sakaiId.startsWith("/content/"))

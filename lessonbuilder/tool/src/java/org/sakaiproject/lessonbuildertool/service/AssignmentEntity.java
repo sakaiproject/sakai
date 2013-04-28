@@ -751,7 +751,9 @@ public class AssignmentEntity implements LessonEntity, AssignmentInterface {
 	try {
 	    AssignmentContentEdit c = AssignmentService.addAssignmentContent(context);
 	    c.setTitle(title);
-	    c.setInstructions(messageLocator.getMessage("simplepage.assign_seeattach"));
+	    // no instructions. It causes problems on export, because we can' recognize it as the special case.
+	    c.setInstructions("");
+	    // c.setInstructions(messageLocator.getMessage("simplepage.assign_seeattach"));
 	    c.setHonorPledge(1);  // no 
 	    c.setTypeOfSubmission(3);  // inline and attachment
 	    c.setAllowReviewService(false);

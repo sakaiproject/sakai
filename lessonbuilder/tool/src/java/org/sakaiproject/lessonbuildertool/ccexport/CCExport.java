@@ -93,6 +93,7 @@ public class CCExport {
 	String sakaiId;
 	String resourceId;
 	String location;
+	String use;
 	List<String> dependencies;
     }
 
@@ -180,6 +181,13 @@ public class CCExport {
        	return "res" + (nextid++);
     }
 
+    public void setIntendeduse (String sakaiId, String intendeduse) {
+	Resource ref = fileMap.get(sakaiId);
+	if (ref == null)
+	    return;
+	ref.use = intendeduse;
+    }
+
     String getLocation(String sakaiId) {
 	Resource ref = fileMap.get(sakaiId);
 	if (ref == null)
@@ -188,11 +196,16 @@ public class CCExport {
     }
 
     public void addFile(String sakaiId, String location) {
+	addFile(sakaiId, location, null);
+    }
+
+    public void addFile(String sakaiId, String location, String use) {
 	Resource res = new Resource();
 	res.sakaiId = sakaiId;
 	res.resourceId = getResourceId();
 	res.location = location;
 	res.dependencies = new ArrayList<String>();
+	res.use = use;
 
 	fileMap.put(sakaiId, res);
 
@@ -215,9 +228,15 @@ public class CCExport {
 
 	    List<ContentEntity> members = baseCol.getMemberResources();
 	    for (ContentEntity e: members) {
-		if (e instanceof ContentResource)
+
+		// don't export things we generate. Can lead to collisions
+		String filename = e.getId().substring(baselen);
+		if (filename.equals("cc-objects/export-errors") || filename.equals("cc-objects"))
+		    continue;
+
+		if (e instanceof ContentResource) {
 		    addFile(e.getId(), e.getId().substring(baselen));
-		else
+		} else 
 		    addAllFiles((ContentCollection)e, baselen);
 	    }
 	} catch (Exception e) {
@@ -272,6 +291,7 @@ public class CCExport {
 	    res.location = "cc-objects/" + res.resourceId + ".xml";
 	    res.sakaiId = sakaiId;
 	    res.dependencies = new ArrayList<String>();
+	    res.use = null;
 	    samigoMap.put(res.sakaiId, res);
 	}
 
@@ -310,6 +330,7 @@ public class CCExport {
 	    res.location = "attachments/" + sakaiId.substring(slash+1) + "/assignmentpage.html";
 	    res.sakaiId = sakaiId;
 	    res.dependencies = new ArrayList<String>();
+	    res.use = null;
 	    assignmentMap.put(res.sakaiId, res);
 	}
 
@@ -365,8 +386,12 @@ public class CCExport {
 	    out.println("  </organizations>");
 	    out.println("  <resources>");
 	    for (Map.Entry<String, Resource> entry: fileMap.entrySet()) {
-		out.print(("    <resource href=\"" + StringEscapeUtils.escapeXml(entry.getValue().location) + "\" identifier=\"" + entry.getValue().resourceId + 
-			   "\" type=\"webcontent\">\n      <file href=\"" + StringEscapeUtils.escapeXml(entry.getValue().location) + "\"/>\n    </resource>\n"));
+		String use = "";
+		if (entry.getValue().use != null)
+		    use = " intendeduse=\"" + entry.getValue().use + "\"";
+		out.println("    <resource href=\"" + StringEscapeUtils.escapeXml(entry.getValue().location) + "\" identifier=\"" + entry.getValue().resourceId + "\" type=\"webcontent\"" + use + ">");
+		out.println("      <file href=\"" + StringEscapeUtils.escapeXml(entry.getValue().location) + "\"/>");
+		out.println("    </resource>");
 	    }
 
 	    for (Map.Entry<String, Resource> entry: samigoMap.entrySet()) {
