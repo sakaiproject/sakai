@@ -159,6 +159,7 @@ public class PrintHandler extends DefaultHandler implements AssessmentHandler, D
   boolean usesPatternMatch = false;
   boolean usesCurriculum = false;
   boolean importtop = false;
+  Integer assignmentNumber = 1;
 
     // this is the CC file name for all files added
   private Set<String> filesAdded = new HashSet<String>();
@@ -371,20 +372,40 @@ public class PrintHandler extends DefaultHandler implements AssessmentHandler, D
 		  else if (intendedUse.equals("syllabus"))
 		      item.setDescription(simplePageBean.getMessageLocator().getMessage("simplepage.import_cc_syllabus"));
 		  else if (assigntool != null && intendedUse.equals("assignment")) {
-		      AssignmentInterface a = (AssignmentInterface) assigntool;
-		      // file hasn't been written yet to contenthosting. A2 requires it to be there
-		      addFile(resource.getAttributeValue(HREF));
-		      String assignmentId = a.importObject(title, sakaiId, mime); // sakaiid for assignment
-		      if (assignmentId!= null) {
-			 item = simplePageToolDao.makeItem(page.getPageId(), seq, SimplePageItem.ASSIGNMENT, assignmentId, title);
-			 sakaiId = assignmentId;
+		      String fileName = getFileName(resource);
+		      if (itemsAdded.get(fileName) == null) {
+			  itemsAdded.put(fileName, SimplePageItem.DUMMY); // don't add the same test more than once
+			  AssignmentInterface a = (AssignmentInterface) assigntool;
+			  // file hasn't been written yet to contenthosting. A2 requires it to be there
+			  addFile(resource.getAttributeValue(HREF));
+			  String assignmentId = a.importObject(title, sakaiId, mime); // sakaiid for assignment
+			  if (assignmentId!= null) {
+			      item = simplePageToolDao.makeItem(page.getPageId(), seq, SimplePageItem.ASSIGNMENT, assignmentId, title);
+			      sakaiId = assignmentId;
+			  }
 		      }
 		  }
 	      }
 	      simplePageBean.saveItem(item);
 	      sequences.set(top, seq+1);
-	  }
-	  else if (type.equals(CC_WEBLINK0) || type.equals(CC_WEBLINK1) || type.equals(CC_WEBLINK2)){
+	  } else if (type.equals(CC_WEBCONTENT)) { // i.e. hidden. if it's an assignment have to load it
+	      String intendedUse = resource.getAttributeValue(INTENDEDUSE);
+	      if (assigntool != null && intendedUse != null && intendedUse.equals("assignment")) {
+		  String fileName = getFileName(resource);
+		  if (itemsAdded.get(fileName) == null) {
+		      itemsAdded.put(fileName, SimplePageItem.DUMMY); // don't add the same test more than once
+		      String sakaiId = baseName + resource.getAttributeValue(HREF);
+		      String extension = Validator.getFileExtension(sakaiId);
+		      String mime = ContentTypeImageService.getContentType(extension);
+		      AssignmentInterface a = (AssignmentInterface) assigntool;
+		      // file hasn't been written yet to contenthosting. A2 requires it to be there
+		      addFile(resource.getAttributeValue(HREF));
+		      // in this case there's no item to take a title from
+		      String atitle = simplePageBean.getMessageLocator().getMessage("simplepage.importcc-assigntitle").replace("{}", (assignmentNumber++).toString());
+		      String assignmentId = a.importObject(atitle, sakaiId, mime); // sakaiid for assignment
+		  }
+	      }
+	  } else if (type.equals(CC_WEBLINK0) || type.equals(CC_WEBLINK1) || type.equals(CC_WEBLINK2)){
 	      String filename = getFileName(resource);
 	      Element linkXml =  parser.getXML(loader, filename);
 	      Namespace linkNs = ns.link_ns();

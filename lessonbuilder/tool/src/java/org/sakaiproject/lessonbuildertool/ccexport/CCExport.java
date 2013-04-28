@@ -48,6 +48,7 @@ import org.sakaiproject.component.cover.ServerConfigurationService;
 
 import org.sakaiproject.lessonbuildertool.SimplePageItem;
 import org.sakaiproject.lessonbuildertool.ccexport.SamigoExport;
+import org.sakaiproject.lessonbuildertool.ccexport.AssignmentExport;
 import org.sakaiproject.lessonbuildertool.ccexport.ZipPrintStream;
 import org.sakaiproject.lessonbuildertool.model.SimplePageToolDao;
 import org.sakaiproject.tool.cover.SessionManager;
@@ -68,6 +69,11 @@ public class CCExport {
     public void setSamigoExport(SamigoExport se) {
 	samigoExport = se;
     }
+    static AssignmentExport assignmentExport;
+    public void setAssignmentExport(AssignmentExport se) {
+	assignmentExport = se;
+    }
+
     static MessageLocator messageLocator;
     public void setMessageLocator(MessageLocator x) {
 	messageLocator = x;
@@ -94,6 +100,8 @@ public class CCExport {
     Map<String, Resource> fileMap = new HashMap<String, Resource>();
     // map of all Samigo tests
     Map<String, Resource> samigoMap = new HashMap<String, Resource>();
+    // map of all Assignments
+    Map<String, Resource> assignmentMap = new HashMap<String, Resource>();
 
 
     // the error messages are a problem. They won't show until the next page display
@@ -143,6 +151,8 @@ public class CCExport {
 	    return;
 	if (! addAllSamigo(siteId))
 	    return;
+	if (! addAllAssignments(siteId))
+	    return;
 	download();
 
     }
@@ -168,6 +178,13 @@ public class CCExport {
 
     String getResourceId () {
        	return "res" + (nextid++);
+    }
+
+    String getLocation(String sakaiId) {
+	Resource ref = fileMap.get(sakaiId);
+	if (ref == null)
+	    return null;
+	return ref.location;
     }
 
     public void addFile(String sakaiId, String location) {
@@ -224,6 +241,7 @@ public class CCExport {
 		try {
 		    contentStream = resource.streamContent();
 		    IOUtils.copy(contentStream, out);
+		} catch (Exception e) {
 		} finally {
 		    if (contentStream != null) {
 			contentStream.close();
@@ -281,6 +299,44 @@ public class CCExport {
 
     }
 
+    public boolean addAllAssignments(String siteId) {
+	List<String> assignments = assignmentExport.getEntitiesInSite(siteId, this);
+	if (assignments == null)
+	    return true;
+	for (String sakaiId: assignments) {
+	    Resource res = new Resource();
+	    res.resourceId = getResourceId();
+	    int slash = sakaiId.indexOf("/");
+	    res.location = "attachments/" + sakaiId.substring(slash+1) + "/assignmentpage.html";
+	    res.sakaiId = sakaiId;
+	    res.dependencies = new ArrayList<String>();
+	    assignmentMap.put(res.sakaiId, res);
+	}
+
+	return true;
+    }
+
+    public boolean outputAllAssignments(ZipPrintStream out) {
+	try {
+	    for (Map.Entry<String, Resource> entry: assignmentMap.entrySet()) {
+
+		ZipEntry zipEntry = new ZipEntry(entry.getValue().location);
+
+		out.putNextEntry(zipEntry);
+		boolean ok = assignmentExport.outputEntity(entry.getValue().sakaiId, out, errStream, this, entry.getValue());
+		if (!ok)
+		    return false;
+
+	    }
+	} catch (Exception e) {
+	    setErrKey("simplepage.exportcc-fileerr", e.getMessage());
+	    return false;
+	}
+
+	return true;
+
+    }
+
     public boolean outputManifest(ZipPrintStream out) {
 	try {
 	    ZipEntry zipEntry = new ZipEntry("imsmanifest.xml");
@@ -309,12 +365,20 @@ public class CCExport {
 	    out.println("  </organizations>");
 	    out.println("  <resources>");
 	    for (Map.Entry<String, Resource> entry: fileMap.entrySet()) {
-		out.print(("    <resource href=\"" + entry.getValue().location + "\" identifier=\"" + entry.getValue().resourceId + 
-			   "\" type=\"webcontent\">\n      <file href=\"" + entry.getValue().location + "\"/>\n    </resource>\n"));
+		out.print(("    <resource href=\"" + StringEscapeUtils.escapeXml(entry.getValue().location) + "\" identifier=\"" + entry.getValue().resourceId + 
+			   "\" type=\"webcontent\">\n      <file href=\"" + StringEscapeUtils.escapeXml(entry.getValue().location) + "\"/>\n    </resource>\n"));
 	    }
 
 	    for (Map.Entry<String, Resource> entry: samigoMap.entrySet()) {
 		out.println("    <resource href=\"" + StringEscapeUtils.escapeXml(entry.getValue().location) + "\" identifier=\"" + entry.getValue().resourceId + "\" type=\"imsqti_xmlv1p2/imscc_xmlv1p2/assessment\">");
+		out.println("      <file href=\"" + StringEscapeUtils.escapeXml(entry.getValue().location) + "\"/>");
+		for (String d: entry.getValue().dependencies)
+		    out.println("      <dependency identifierref=\"" + d + "\"/>");
+		out.println("    </resource>");
+	    }
+
+	    for (Map.Entry<String, Resource> entry: assignmentMap.entrySet()) {
+		out.println("    <resource href=\"" + StringEscapeUtils.escapeXml(entry.getValue().location) + "\" identifier=\"" + entry.getValue().resourceId + "\" type=\"webcontent\" intendeduse=\"assignment\">");
 		out.println("      <file href=\"" + StringEscapeUtils.escapeXml(entry.getValue().location) + "\"/>");
 		for (String d: entry.getValue().dependencies)
 		    out.println("      <dependency identifierref=\"" + d + "\"/>");
@@ -364,6 +428,7 @@ public class CCExport {
 	    
 	    outputAllFiles (out);
 	    outputAllSamigo (out);
+	    outputAllAssignments (out);
 	    outputManifest (out);
 	    
 	    if (out != null)
@@ -382,6 +447,12 @@ public class CCExport {
 
 	return true;
 
+    }
+
+    public void addDependency(Resource resource, String sakaiId) {
+	Resource ref = fileMap.get(sakaiId);
+	if (ref != null)
+	    resource.dependencies.add(ref.resourceId);
     }
 
     public String fixup (String s, Resource resource) {

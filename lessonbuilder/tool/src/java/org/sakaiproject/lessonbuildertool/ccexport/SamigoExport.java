@@ -49,6 +49,7 @@ import org.sakaiproject.component.cover.ServerConfigurationService;
 
 import org.sakaiproject.lessonbuildertool.service.LessonSubmission;
 import org.sakaiproject.lessonbuildertool.tool.beans.SimplePageBean.UrlItem;
+import org.sakaiproject.lessonbuildertool.service.LessonEntity;
 
 import org.sakaiproject.tool.assessment.data.dao.assessment.AssessmentAccessControl;
 import org.sakaiproject.tool.assessment.data.dao.assessment.AssessmentData;
@@ -140,8 +141,6 @@ public class SamigoExport {
 
     CCExport ccExport = null;
 
-    public final static String SAM_PUB="sam_pub";
-
     public void init () {
 	// currently nothing to do
 
@@ -171,7 +170,7 @@ public class SamigoExport {
 	for (PublishedAssessmentFacade assessment: plist) {
 
 	    if (assessment.getStatus().equals(AssessmentIfc.ACTIVE_STATUS)) {
-		ret.add(SAM_PUB + "/" + assessment.getPublishedAssessmentId().toString());
+		ret.add(LessonEntity.SAM_PUB + "/" + assessment.getPublishedAssessmentId().toString());
 	    }
 
 
