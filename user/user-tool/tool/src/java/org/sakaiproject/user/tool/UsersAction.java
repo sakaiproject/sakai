@@ -1258,6 +1258,14 @@ public class UsersAction extends PagedResourceActionII
 					return false;
 				}
 			}
+
+                  // Still needs super user to change super user password
+                  // If the current user isn't a super user but is trying to change the password or email of a super user print an error
+			if (!SecurityService.isSuperUser() && SecurityService.isSuperUser(user.getId())) {
+			    addAlert(state, rb.getString("useact.youdonot4"));
+			    return false;
+			}
+
 			
 			// eid, pw, type might not be editable
 			if (eid != null) user.setEid(eid);
