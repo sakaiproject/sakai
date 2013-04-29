@@ -68,6 +68,8 @@ import org.sakaiproject.lessonbuildertool.SimplePageItem;
 import org.sakaiproject.lessonbuildertool.model.SimplePageToolDao;
 import org.sakaiproject.db.cover.SqlService;
 import org.sakaiproject.db.api.SqlReader;
+import org.sakaiproject.content.api.ContentResource;
+import org.sakaiproject.content.cover.ContentHostingService;
 import java.sql.Connection;
 import java.sql.ResultSet;
 import org.sakaiproject.lessonbuildertool.ccexport.ZipPrintStream;
@@ -81,6 +83,7 @@ import org.sakaiproject.assignment.api.AssignmentContentEdit;
 import org.sakaiproject.assignment.cover.AssignmentService;
 import org.sakaiproject.entity.api.Reference;
 import org.sakaiproject.entity.api.ResourceProperties;
+import org.sakaiproject.util.Validator;
 
 
 /*
@@ -150,9 +153,22 @@ public class AssignmentExport {
 		    String sakaiId = ref.getReference();
 		    if (sakaiId.startsWith("/content/"))
 			sakaiId = sakaiId.substring("/content".length());
+
+		    String url = null;
+		    // if it is a URL, need the URL rather than copying the file
+		    try {
+			ContentResource resource = ContentHostingService.getResource(sakaiId);
+			String type = resource.getResourceType();
+			if ("org.sakaiproject.content.types.urlResource".equals(type)) {
+			    url = new String(resource.getContent());
+			}
+		    } catch (Exception e) {
+		    }
 		    
 		    // if attachment isn't a file in resources, arrange for it to be included
-		    if (! sakaiId.startsWith(siteRef)) {  // if in resources, already included
+		    if (url != null)
+			;  // if it's a URL we don't need a file
+		    else if (! sakaiId.startsWith(siteRef)) {  // if in resources, already included
 			int lastSlash = sakaiId.lastIndexOf("/");
 			String lastAtom = sakaiId.substring(lastSlash + 1);
 			bean.addFile(sakaiId, "attachments/" + assignment.getId() + "/" + lastAtom, intendeduse);
@@ -202,21 +218,37 @@ public class AssignmentExport {
 	    String sakaiId = ref.getReference();
 	    if (sakaiId.startsWith("/content/"))
 		sakaiId = sakaiId.substring("/content".length());
+
+	    String URL = null;
+	    // if it is a URL, need the URL rather than copying the file
+	    try {
+		ContentResource res = ContentHostingService.getResource(sakaiId);
+		String type = res.getContentType();
+		if ("text/url".equals(type)) {
+		    URL = new String(res.getContent());
+		}
+	    } catch (Exception e) {
+	    }
+
 	    String location = bean.getLocation(sakaiId);
 	    int lastSlash = sakaiId.lastIndexOf("/");
 	    String lastAtom = sakaiId.substring(lastSlash + 1);
-	    String URL = null;
-	    if (location.startsWith(attachmentDir))
-		URL = lastAtom;  // if in attachment dir, relative reference
-	    else
-		URL = "../../" + location;  // else it's in the normal site content
-	    URL = URL.replaceAll("//", "/");
-	    try {
-		out.println("<a href=\"" + URLEncoder.encode(URL, "UTF-8") + "\">" + StringEscapeUtils.escapeHtml(lastAtom) + "</a><br/>");
-	    } catch (java.io.UnsupportedEncodingException e) {
-		System.out.println("UTF-8 unsupported");
+
+	    if (URL != null) {
+		out.println("<a href=\"" + URL + "\">" + StringEscapeUtils.escapeHtml(URL) + "</a><br/>");
+	    } else {
+		if (location.startsWith(attachmentDir))
+		    URL = lastAtom;  // if in attachment dir, relative reference
+		else
+		    URL = "../../" + location;  // else it's in the normal site content
+		URL = URL.replaceAll("//", "/");
+		try {
+		    out.println("<a href=\"" + URLEncoder.encode(URL, "UTF-8") + "\">" + StringEscapeUtils.escapeHtml(lastAtom) + "</a><br/>");
+		} catch (java.io.UnsupportedEncodingException e) {
+		    System.out.println("UTF-8 unsupported");
+		}
+		bean.addDependency(resource, sakaiId);
 	    }
-	    bean.addDependency(resource, sakaiId);
 	}
 	out.println("</body>");
 	out.println("</html>");
