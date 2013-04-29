@@ -652,8 +652,9 @@ public class PrintHandler extends DefaultHandler implements AssessmentHandler, D
       if (usesRole)
 	  simplePageBean.setErrKey("simplepage.cc-uses-role", 
 	     (usesMentor ? simplePageBean.getMessageLocator().getMessage("simplepage.cc-uses-mentor") : null));
-      if (usesPatternMatch)
-	  simplePageBean.setErrKey("simplepage.import_cc_usespattern", null);
+      // the pattern match is restricted enough that we can actually do it
+      // if (usesPatternMatch)
+      //  simplePageBean.setErrKey("simplepage.import_cc_usespattern", null);
       if (usesCurriculum)
 	  simplePageBean.setErrKey("simplepage.cc-uses-curriculum", null);
 

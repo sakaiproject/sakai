@@ -140,6 +140,10 @@ public class QtiImport {
 	    NodeList varequal=((Element)itemnode).getElementsByTagName("varequal");
 	    if (varequal != null && varequal.item(0) != null)
 		return "Fill In the Blank";
+	    NodeList varsubstring=((Element)itemnode).getElementsByTagName("varsubstring");
+	    if (varsubstring != null && varsubstring.item(0) != null)
+		return "Fill In the Blank";
+
 	}
 	
 	return "Short Answers/Essay";
@@ -809,8 +813,9 @@ public class QtiImport {
 	question = getMatText(material);
 
 	// flag pattern match questions as needing review.
-	if (isPattern)
-            question = bean.getMessageLocator().getMessage("simplepage.import_cc_pattern") + " " + question;
+	// no longer. we actually implement them correctly
+	//	if (isPattern)
+	//            question = bean.getMessageLocator().getMessage("simplepage.import_cc_pattern") + " " + question;
 
 	if (debug) System.err.println("question: " + question);
 
@@ -1225,6 +1230,7 @@ public class QtiImport {
 	    return false;
 	}
 	
+	int numcorrect = 0;
 	while (respcondl != null) {
 	    String rctitle = getAttribute(respcondl, "title");
 	    String contin = getAttribute(respcondl, "continue");
@@ -1248,7 +1254,7 @@ public class QtiImport {
 		}
 	    } else if (conditionvar != null)  { // normal alternative. can't do much if no conditionvar
 		Node varequal = getFirstByName(conditionvar, "varequal");
-		if (varequal != null) {
+		while (varequal != null) {
 		    String vtext = getNodeText(varequal);
 		    // don't use the respident because there's only one variable
 		    Mcans answer = null;
@@ -1281,8 +1287,9 @@ public class QtiImport {
 			&& getAttribute(setvar, "varname").equalsIgnoreCase("score")
 			&& "100".equals(getNodeText(setvar))) {
 			answer.correct = true;
+			numcorrect++;
 		    }
-
+		    varequal = getNextByName(varequal, "varequal");		    
 		    // look for answer specific feedback
 		    Node disfeedback = getFirstByName(respcondl, "displayfeedback");
 		    while (disfeedback != null) {
@@ -1346,6 +1353,8 @@ public class QtiImport {
 	    out.println("        <fieldentry>True False</fieldentry>");
 	else if (rcardinality != null && rcardinality.toLowerCase().equals("multiple"))
 	    out.println("        <fieldentry>Multiple Correct Answer</fieldentry>");
+	else if (numcorrect > 1)
+	    out.println("        <fieldentry>Multiple Correct Single Selection</fieldentry>");	    
 	else
 	    out.println("        <fieldentry>Multiple Choice</fieldentry>");
 	out.println("      </qtimetadatafield>");

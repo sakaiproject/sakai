@@ -237,18 +237,26 @@ public class SamigoExport {
 	    String profile = "cc.multiple_choice.v0p1";
 	    Long type = item.getTypeId();
 
-	    if (type.equals(TypeIfc.MULTIPLE_CHOICE) || type.equals(TypeIfc.MULTIPLE_CHOICE_SURVEY)) {
+	    if (type.equals(TypeIfc.MULTIPLE_CHOICE) || type.equals(TypeIfc.MULTIPLE_CHOICE_SURVEY) || type.equals(TypeIfc.MULTIPLE_CORRECT_SINGLE_SELECTION)) {
 		type = TypeIfc.MULTIPLE_CHOICE; // normalize it
 		profile = "cc.multiple_choice.v0p1";
-	    } else if (type.equals(TypeIfc.MULTIPLE_CORRECT) || type.equals(TypeIfc.MULTIPLE_CORRECT_SINGLE_SELECTION)) {
+	    } else if (type.equals(TypeIfc.MULTIPLE_CORRECT)) {
 		profile = "cc.multiple_response.v0p1";
 	    } else if (type.equals(TypeIfc.TRUE_FALSE)) {
 		profile = "cc.true_false.v0p1"; 
 	    } else if (type.equals(TypeIfc.ESSAY_QUESTION)) {
 		profile = "cc.essay.v0p1"; 
 	    } else if (type.equals(TypeIfc.FILL_IN_BLANK) || type.equals(TypeIfc.FILL_IN_NUMERIC) ) {
+		String answerString = answerlist.get(0).getText();
+		// only limited pattern match is supported. It has to be just one alternative, and
+		// it can only be a substring. I classify anything starting or ending in *, and with one
+		// alternative as pattern match, otherwise FIB, and give error except for the one proper case
+		if (answerString.indexOf("*") >= 0 && answerString.indexOf("|") < 0)
+		    profile = "cc.pattern_match.v0p1";
+		else
+		    profile = "cc.fib.v0p1"; 
 		type = TypeIfc.FILL_IN_BLANK; // normalize
-		profile = "cc.fib.v0p1"; 
+
 	    } else {
 		errStream.println(messageLocator.getMessage("simplepage.exportcc-sam-undefinedtype").replace("{1}", title).replace("{2}",assessmentTitle)); 
 	    }		
@@ -334,10 +342,12 @@ public class SamigoExport {
 		    String answerId = "QUE_" + itemId + "_" + answer.getSequence();
 		    if (type.equals(TypeIfc.TRUE_FALSE))
 			answerId = answer.getText().toLowerCase();
-		    
+		    String atext = answer.getText();
+		    if (atext == null || atext.trim().equals(""))
+			continue;
 		    out.println("              <response_label ident=\"" + answerId + "\">");
 		    out.println("                <material>");
-		    out.println("                  <mattext texttype=\"text/html\">" + ccExport.fixup(answer.getText(), resource) + "</mattext>");
+		    out.println("                  <mattext texttype=\"text/html\">" + ccExport.fixup(atext, resource) + "</mattext>");
 		    out.println("                </material>");
 		    out.println("              </response_label>");
 		}
@@ -352,13 +362,24 @@ public class SamigoExport {
 		out.println("          <respcondition continue=\"No\">");
 		out.println("            <conditionvar>");
 		if (type.equals(TypeIfc.MULTIPLE_CHOICE) || type.equals(TypeIfc.TRUE_FALSE)) {
-		    out.println("              <varequal respident=\"QUE_" + itemId + "_RL\">" + correctItem + "</varequal>");
+		    if (correctSet.size() > 1)
+			out.println("              <or>");
+		    for (AnswerIfc answer: answerlist) {
+			String answerId = itemId + "_" + answer.getSequence();
+			if (correctSet.contains(answer.getSequence()))
+			    out.println("              <varequal case=\"Yes\" respident=\"QUE_" + itemId + "_RL\">QUE_" + itemId + "_" + answer.getSequence() + "</varequal>");
+		    }
+		    if (correctSet.size() > 1)
+			out.println("              </or>");
 		} else if (type.equals(TypeIfc.MULTIPLE_CORRECT) || type.equals(TypeIfc.MULTIPLE_CORRECT_SINGLE_SELECTION)) {
 		    if (type.equals(TypeIfc.MULTIPLE_CORRECT_SINGLE_SELECTION))
 			errStream.println(messageLocator.getMessage("simplepage.exportcc-sam-mcss").replace("{1}", title).replace("{2}",assessmentTitle));
 		    out.println("              <and>");
 		    for (AnswerIfc answer: answerlist) {
 			String answerId = itemId + "_" + answer.getSequence();
+			String atext = answer.getText();
+			if (atext == null || atext.trim().equals(""))
+			    continue;
 			if (correctSet.contains(answer.getSequence())) {
 			    out.println("              <varequal case=\"Yes\" respident=\"QUE_" + itemId + "_RL\">QUE_" + itemId + "_" + answer.getSequence() + "</varequal>");
 			} else {
@@ -393,6 +414,12 @@ public class SamigoExport {
 		    String answerId = "QUE_" + itemId + "_RL";
 		    String answerString = answerlist.get(0).getText();
 		    String[] answerArray = answerString.split("\\|");
+		    boolean toomanystars = false;
+		    if (answerString.indexOf("*") >= 0 && answerString.indexOf("|") >= 0) {
+			errStream.println(messageLocator.getMessage("simplepage.exportcc-sam-fib-too-many-star").replace("{1}", title).replace("{2}",assessmentTitle).replace("{3}", answerString));
+			toomanystars = true;
+		    }
+
 		    for (String answer: answerArray) {
 			boolean substr = false;
 			boolean hasStar = answer.indexOf("*") >= 0;
@@ -400,21 +427,24 @@ public class SamigoExport {
 
 			// this isn't a perfect test. Not much we can do with * in the middle of a string
 			// and just at the end or just at the beginning isn't a perfect match to this.
+			// if more than one alternative, don't treat as matching, since that format isn't legal
 
-			if (answer.startsWith("*")) {
-			    answer = answer.substring(1);
-			    substr = true;
-			}
-			if (answer.endsWith("*")) {
-			    answer = answer.substring(0, answer.length()-1);
-			    substr = true;
+			if (!toomanystars) {
+			    if (answer.startsWith("*")) {
+				answer = answer.substring(1);
+				substr = true;
+			    }
+			    if (answer.endsWith("*")) {
+				answer = answer.substring(0, answer.length()-1);
+				substr = true;
+			    }
 			}
 				
 			if (hasStar) {
 			    if (substr)
 				errStream.println(messageLocator.getMessage("simplepage.exportcc-sam-fib-star").replace("{1}", title).replace("{2}",assessmentTitle).replace("{3}", orig).replace("{4}", answer));
 			    else 
-				errStream.println(messageLocator.getMessage("simplepage.exportcc-sam-fib-bad=star").replace("{1}", title).replace("{2}",assessmentTitle).replace("{3}", orig));
+				errStream.println(messageLocator.getMessage("simplepage.exportcc-sam-fib-bad-star").replace("{1}", title).replace("{2}",assessmentTitle).replace("{3}", orig));
 			}
 
 			if (substr)
