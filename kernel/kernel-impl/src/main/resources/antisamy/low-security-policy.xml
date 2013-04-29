@@ -412,6 +412,13 @@
             </regexp-list>
          </attribute>
 
+        <!-- https://jira.sakaiproject.org/browse/KNL-1061 -->
+        <attribute name="data-mathml">
+          <regexp-list>
+            <regexp name="anything" />
+          </regexp-list>
+        </attribute>
+
     </common-attributes>
 
 
@@ -1084,7 +1091,7 @@
                 </regexp-list>
             </attribute>
         </tag>
-        
+
     </tag-rules>
 
 
