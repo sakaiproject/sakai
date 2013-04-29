@@ -206,6 +206,12 @@ public class QtiImport {
 	return child;
     }
 
+    Node getNextElement(Node node) {
+	while (node != null && node.getNodeType() != Node.ELEMENT_NODE)
+	    node = node.getNextSibling();
+	return node;
+    }
+
     // at least in 2.3, Samigo is unable to import MATIMAGE, despite the
     // fact that it produces them. So I stick the image into the HTML
     // of the question
@@ -1253,7 +1259,18 @@ public class QtiImport {
 		    disfeedback = getNextByName(disfeedback, "displayfeedback");			
 		}
 	    } else if (conditionvar != null)  { // normal alternative. can't do much if no conditionvar
-		Node varequal = getFirstByName(conditionvar, "varequal");
+		// in this profile, the only possibilities are a simple varequal, an <or> of varequals, or an <and> of varequal and <not> varequal.
+		Node firsttest = getNextElement(conditionvar.getFirstChild());
+		Node varequal = null;
+		if (firsttest.getNodeName().equals("varequal"))
+		    varequal = firsttest;  // just one varequal. use it
+		else if (firsttest.getNodeName().equals("or"))
+		    varequal = getNextElement(firsttest.getFirstChild());   // or, use all of its children
+		else if (firsttest.getNodeName().equals("and")) {
+		    varequal = firsttest.getFirstChild();   // and, has both varequal and not under it. 
+		    if (!varequal.getNodeName().equals("varequal"))
+			varequal = getNextByName(varequal,"varequal");  // first next must be a <not>, find first varequal
+		}
 		while (varequal != null) {
 		    String vtext = getNodeText(varequal);
 		    // don't use the respident because there's only one variable
