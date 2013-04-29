@@ -195,7 +195,7 @@ public interface LearningResourceStoreService {
          * @param verbStr a string indicating the action, "did"
          * @param objectURI URI indicating the object of the statement, "this"
          * @param resultSuccess true if the result was successful (pass) or false if not (fail), "well"
-         * @param resultScaledScore Score from 0 to 1.0 where 0=0% and 1.0=100%
+         * @param resultScaledScore Score from -1.0 to 1.0 where 0=0% and 1.0=100%
          */
         public LRS_Statement(String actorEmail, String verbStr, String objectURI, boolean resultSuccess, float resultScaledScore) {
             this(new LRS_Actor(actorEmail), new LRS_Verb(verbStr), new LRS_Object(objectURI));
