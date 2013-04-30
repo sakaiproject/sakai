@@ -95,6 +95,7 @@
     <regexp name="positiveLength" value="((\+)?0|(\+)?([0-9]+(\.[0-9]+)?)(em|ex|px|in|cm|mm|pt|pc))" />
     <regexp name="percentage" value="(-|\+)?([0-9]+(\.[0-9]+)?)%" />
     <regexp name="positivePercentage" value="(\+)?([0-9]+(\.[0-9]+)?)%" />
+    <regexp name="ISO8601DateTime" value="([\+-]?\d{4}(?!\d{2}\b))((-?)((0[1-9]|1[0-2])(\3([12]\d|0[1-9]|3[01]))?|W([0-4]\d|5[0-2])(-?[1-7])?|(00[1-9]|0[1-9]\d|[12]\d{2}|3([0-5]\d|6[1-6])))([T\s]((([01]\d|2[0-3])((:?)[0-5]\d)?|24\:?00)([\.,]\d+(?!:))?)?(\17[0-5]\d([\.,]\d+)?)?([zZ]|([\+-])([01]\d|2[0-3]):?([0-5]\d)?)?)?)?" />
 
     <regexp name="absolute-size" value="(xx-small|x-small|small|medium|large|x-large|xx-large)" />
     <regexp name="relative-size" value="(larger|smaller)" />
@@ -755,8 +756,15 @@
             </attribute>
             <attribute name="media"/>
         </tag>
-        
-        <tag name="span" action="validate"/>
+
+        <tag name="span" action="validate">
+            <!-- https://jira.sakaiproject.org/browse/KNL-1065 -->
+            <attribute name="rel">
+                <regexp-list>
+                    <regexp name="anything"/>
+                </regexp-list>
+            </attribute>
+        </tag>
 
         <tag name="div" action="validate">
             <attribute name="align"/>
@@ -1089,6 +1097,32 @@
             <attribute name="controller">
                 <regexp-list>
                     <regexp name="boolean" />
+                </regexp-list>
+            </attribute>
+        </tag>
+
+        <!-- https://jira.sakaiproject.org/browse/KNL-1065 -->
+        <tag name="ins" action="validate">
+            <attribute name="cite">
+                <regexp-list>
+                    <regexp name="anything" />
+                </regexp-list>
+            </attribute>
+            <attribute name="datetime">
+                <regexp-list>
+                    <regexp name="ISO8601DateTime" />
+                </regexp-list>
+            </attribute>
+        </tag>
+        <tag name="del" action="validate">
+            <attribute name="cite">
+                <regexp-list>
+                    <regexp name="anything" />
+                </regexp-list>
+            </attribute>
+            <attribute name="datetime">
+                <regexp-list>
+                    <regexp name="ISO8601DateTime" />
                 </regexp-list>
             </attribute>
         </tag>
