@@ -413,13 +413,6 @@
             </regexp-list>
          </attribute>
 
-        <!-- https://jira.sakaiproject.org/browse/KNL-1061 -->
-        <attribute name="data-mathml">
-          <regexp-list>
-            <regexp name="anything" />
-          </regexp-list>
-        </attribute>
-
     </common-attributes>
 
 
@@ -796,7 +789,14 @@
             <attribute name="vspace">
                 <regexp-list>
                     <regexp name="number"/>
-                </regexp-list>          
+                </regexp-list>
+            </attribute>
+
+            <!-- https://jira.sakaiproject.org/browse/KNL-1061 -->
+            <attribute name="data-mathml">
+              <regexp-list>
+                <regexp name="anything" />
+              </regexp-list>
             </attribute>
         </tag>
 

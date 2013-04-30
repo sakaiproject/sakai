@@ -695,6 +695,25 @@ public class FormattedTextTest extends TestCase {
         assertTrue( result.contains("/url/to/cite.html"));
     }
 
+    public void testKNL_1061() {
+        // https://jira.sakaiproject.org/browse/KNL-1061
+        String strFromBrowser = null;
+        String result = null;
+        StringBuilder errorMessages = null;
+
+        formattedText.setDefaultUseLegacyCleaner(false); // FORCE antisamy
+
+        strFromBrowser = "<div class=\"classValue\">divValue</div><img border=\"0\" data-mathml=\"%3Cmrow%3E%0A%20%20%20%20%20%20%20%20%3Cmo%20selected%3D%22true%22%3E%26frac23%3B%3C/mo%3E%0A%3C/mrow%3E\" id=\"MathMLEq1\" src=\"http://nightly2.sakaiproject.org:8085/access/content/group/mercury/fmath-equation-94BDA89D-E911-283D-53C1-32D6CCE53EB0.png\" />";
+        errorMessages = new StringBuilder();
+        result = formattedText.processFormattedText(strFromBrowser, errorMessages);
+        assertNotNull(result);
+        assertFalse( errorMessages.length() > 10 );
+        assertTrue( result.contains("<div "));
+        assertTrue( result.contains("divValue"));
+        assertTrue( result.contains("<img"));
+        assertTrue( result.contains("data-mathml"));
+        assertTrue( result.contains("%20selected%3D"));
+    }
 
     public void testBasicUrlMatch() {
         assertEquals("I like <a href=\"http://www.apple.com\">http://www.apple.com</a> and stuff", formattedText.encodeUrlsAsHtml(formattedText.escapeHtml("I like http://www.apple.com and stuff")));
