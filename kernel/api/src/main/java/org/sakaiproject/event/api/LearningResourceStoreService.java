@@ -40,6 +40,7 @@ import java.util.Map;
  * @author Aaron Zeckoski (azeckoski @ vt.edu)
  */
 public interface LearningResourceStoreService {
+    static String SAKAI_OBJECTS_PREFIX = "http://sakaiproject.org/expapi/activity/";
 
     /**
      * Register an activity statement with the LRS
@@ -72,6 +73,17 @@ public interface LearningResourceStoreService {
      * @return true if the provider replaced another one with the same ID, false if it was the first one
      */
     public boolean registerProvider(LearningResourceStoreProvider provider);
+
+    /**
+     * Converts the Sakai event object data into an Actor
+     * 
+     * @param event a Sakai Event with userID or sessionId set (so we can try to determine the user)
+     * @return the actor for the user related to the event OR null if no user can be determined from the event
+     */
+    public LRS_Actor getEventActor(Event event);
+
+
+    // Service CLASSes
 
     public static class LRS_Statement {
         // actor, verb, and object are required
@@ -566,7 +578,6 @@ public interface LearningResourceStoreService {
          * the same URI as references to different activities, regardless of any information which indicates 
          * two authors or organizations may have used the same activity URI.
          */
-        static String SAKAI_OBJECTS_PREFIX = "http://sakaiproject.org/expapi/activity/";
         /**
          * URI. An activity URI must always refer to a single unique activity.
          * If a URL, the URL should refer to metadata for this activity
@@ -588,6 +599,13 @@ public interface LearningResourceStoreService {
          * Example: { "en-US" => "ran", "es" => "corrió" }
          */
         Map<String, String> activityName;
+        /**
+         * OPTIONAL:
+         * A language map containing the human readable description of the Activity.
+         * Example: { "en-US" => "User completed quiz 1" }
+         */
+        Map<String, String> descMap;
+        
         /**
          * use of the empty constructor is restricted
          */
@@ -625,6 +643,14 @@ public interface LearningResourceStoreService {
             this.activityType = type;
         }
         /**
+         * OPTIONAL:
+         * A language map containing the human readable description of the Activity.
+         * Example: { "en-US" => "User completed quiz 1" }
+         */
+        public void setDescription(Map<String, String> desc) {
+            this.descMap = desc;
+        }
+        /**
          * OPTIONAL: 
          * A language map containing the human readable display representation 
          * of the object in at least one language. This does not have any impact 
@@ -654,7 +680,13 @@ public interface LearningResourceStoreService {
         public String getActivityType() {
             return activityType;
         }
-        /* (non-Javadoc)
+        /**
+         * @see #descMap
+         */
+        public Map<String,String> getDescription() {
+            return descMap;
+        }
+        /**
          * @see java.lang.Object#toString()
          */
         @Override
@@ -968,6 +1000,7 @@ public interface LearningResourceStoreService {
             if (!this.activitiesMap.containsKey(contextType) || this.activitiesMap.get(contextType) == null) {
                 this.activitiesMap.put(contextType, new LinkedHashMap<String, String>());
             }
+            activityId = (activityId.indexOf("://") == -1 ? SAKAI_OBJECTS_PREFIX + activityId : activityId);
             this.activitiesMap.get(contextType).put("id", activityId);
         }
         /**

@@ -274,9 +274,11 @@ public class BaseLearningResourceStoreService implements LearningResourceStoreSe
 
     private static class ExperienceObserver implements Observer {
         final BaseLearningResourceStoreService lrss;
+
         public ExperienceObserver(BaseLearningResourceStoreService lrss) {
             this.lrss = lrss;
         }
+
         @Override
         public void update(Observable observable, Object object) {
             if (object != null && object instanceof Event) {
@@ -318,11 +320,10 @@ public class BaseLearningResourceStoreService implements LearningResourceStoreSe
         return statement;
     }
 
-    /**
-     * @param event an Event
-     * @return the actor for the user related to the event (OR null if no user can be found)
+    /* (non-Javadoc)
+     * @see org.sakaiproject.event.api.LearningResourceStoreService#getEventActor(org.sakaiproject.event.api.Event)
      */
-    private LRS_Actor getEventActor(Event event) {
+    public LRS_Actor getEventActor(Event event) {
         LRS_Actor actor = null;
         User user = null;
         if (event.getUserId() != null) {
@@ -369,16 +370,22 @@ public class BaseLearningResourceStoreService implements LearningResourceStoreSe
             verb = new LRS_Verb(SAKAI_VERB.exited);
         } else if ("content.read".equals(event.getEvent())) {
             verb = new LRS_Verb(SAKAI_VERB.interacted);
+        } else if ("content.new".equals(event.getEvent())) {
+            verb = new LRS_Verb(SAKAI_VERB.shared);
         }
         return verb;
     }
 
     private LRS_Object getEventObject(Event event) {
         LRS_Object object = null;
-        if ("user.login".equals(event.getEvent()) || "user.logout".equals(event.getEvent())) {
-            object = new LRS_Object(serverConfigurationService.getPortalUrl(), "session");
+        if ("user.login".equals(event.getEvent())) {
+            object = new LRS_Object(serverConfigurationService.getPortalUrl(), "session-started");
+        } else if ("user.logout".equals(event.getEvent())) {
+            object = new LRS_Object(serverConfigurationService.getAccessUrl() + event.getResource(), "session-ended");
         } else if ("content.read".equals(event.getEvent())) {
-            object = new LRS_Object(serverConfigurationService.getAccessUrl()+event.getResource(), "read");
+            object = new LRS_Object(serverConfigurationService.getAccessUrl() + event.getResource(), "read-resource");
+        } else if ("content.new".equals(event.getEvent())) {
+            object = new LRS_Object(serverConfigurationService.getAccessUrl() + event.getResource(), "new-resource");
         }
         return object;
     }
@@ -387,7 +394,7 @@ public class BaseLearningResourceStoreService implements LearningResourceStoreSe
         String origin = null;
         if ("user.login".equals(event.getEvent()) || "user.logout".equals(event.getEvent())) {
             origin = ORIGIN_SAKAI_SYSTEM;
-        } else if ("content.read".equals(event.getEvent())) {
+        } else if ("content.read".equals(event.getEvent()) || "content.new".equals(event.getEvent())) {
             origin = ORIGIN_SAKAI_CONTENT;
         } else {
             origin = event.getEvent();
