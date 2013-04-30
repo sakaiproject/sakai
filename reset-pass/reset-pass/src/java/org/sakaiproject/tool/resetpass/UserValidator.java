@@ -19,7 +19,6 @@ public class UserValidator implements Validator {
 	private static Log m_log  = LogFactory.getLog(UserValidator.class);
 	
 	public boolean supports(Class clazz) {
-		// TODO Auto-generated method stub
 		return clazz.equals(User.class);
 	}
 
@@ -42,7 +41,6 @@ public class UserValidator implements Validator {
 	}
 	
 	public void validate(Object obj, Errors errors) {
-		// TODO Auto-generated method stub
 		RetUser retUser = (RetUser)obj;
 		m_log.debug("validating user " + retUser.getEmail());
 		
