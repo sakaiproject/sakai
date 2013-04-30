@@ -60,21 +60,23 @@ public class UserValidator implements Validator {
 		User user = (User)i.next();
 		m_log.debug("got user " + user.getId() + " of type " + user.getType());
 		if (securityService.isSuperUser(user.getId())) {
-				m_log.warn("tryng to change superuser password");
-				errors.reject("wrongtype","wrong type");
-				return;
-		}
-		String[] roles = serverConfigurationService.getStrings("resetRoles");
-		if (roles == null ){
-			roles = new String[]{"guest"};
-		}
-		List<String> rolesL = Arrays.asList(roles);
-		if (!rolesL.contains(user.getType())) {
-			m_log.warn("this is a type don't change");
+			m_log.warn("tryng to change superuser password");
 			errors.reject("wrongtype","wrong type");
 			return;
 		}
-		
+		boolean allroles = serverConfigurationService.getBoolean("resetPass.resetAllRoles",false);
+		if (!allroles){
+		    String[] roles = serverConfigurationService.getStrings("resetRoles");
+		    if (roles == null ){
+		        roles = new String[]{"guest"};
+		    }
+		    List<String> rolesL = Arrays.asList(roles);
+		    if (!rolesL.contains(user.getType())) {
+		        m_log.warn("this is a type don't change");
+		        errors.reject("wrongtype","wrong type");
+		        return;
+		    }
+		}
 		retUser.setUser(user);
 	}
 
