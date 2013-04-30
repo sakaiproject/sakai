@@ -10,6 +10,7 @@ import org.apache.commons.logging.LogFactory;
 import org.sakaiproject.component.api.ServerConfigurationService;
 import org.sakaiproject.user.api.User;
 import org.sakaiproject.user.api.UserDirectoryService;
+import org.sakaiproject.authz.api.SecurityService;
 import org.springframework.validation.Errors;
 import org.springframework.validation.Validator;
 
@@ -35,6 +36,11 @@ public class UserValidator implements Validator {
 		this.userDirectoryService = ds;
 	}
 	
+	private SecurityService securityService;
+	public void setSecurityService(SecurityService ss){
+		this.securityService = ss;
+	}
+	
 	public void validate(Object obj, Errors errors) {
 		// TODO Auto-generated method stub
 		RetUser retUser = (RetUser)obj;
@@ -53,6 +59,11 @@ public class UserValidator implements Validator {
 		Iterator<User> i = c.iterator();
 		User user = (User)i.next();
 		m_log.debug("got user " + user.getId() + " of type " + user.getType());
+		if (securityService.isSuperUser(user.getId())) {
+				m_log.warn("tryng to change superuser password");
+				errors.reject("wrongtype","wrong type");
+				return;
+		}
 		String[] roles = serverConfigurationService.getStrings("resetRoles");
 		if (roles == null ){
 			roles = new String[]{"guest"};

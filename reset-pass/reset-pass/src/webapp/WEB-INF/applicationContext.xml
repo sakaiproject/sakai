@@ -22,6 +22,8 @@
 			ref="org.sakaiproject.user.api.UserDirectoryService" />
 			<property name="serverConfigurationService"
 			ref="org.sakaiproject.component.api.ServerConfigurationService" />
+			<property name="securityService"
+			ref="org.sakaiproject.authz.api.SecurityService" />
  	 </bean>
      </property>
    </bean>
