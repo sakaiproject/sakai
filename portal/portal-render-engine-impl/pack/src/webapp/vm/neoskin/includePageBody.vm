@@ -384,9 +384,6 @@
 						<a href="javascript:;" onclick="return portalChat.closeVideoCall('${uuid}');" class="video_on" title="End video call">
 							<img src="/library/image/silk/webcam_delete.png" width="16" height="16" border="0" alt=""/>
 						</a>
-						<a href="javascript:;" onclick="return portalChat.maximizeVideoCall('${uuid}');" class="video_on" title="Maximize video call">
-							<img src="/library/image/silk/monitor.png" width="16" height="16" border="0" alt=""/>
-						</a>
 					</div>
 					<div id="pc_connection_${uuid}_videoin" class="pc_connection_videochat_bar_right">
 						Incomming video call
