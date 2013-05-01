@@ -40,7 +40,7 @@ import java.util.Map;
  * @author Aaron Zeckoski (azeckoski @ vt.edu)
  */
 public interface LearningResourceStoreService {
-    static String SAKAI_OBJECTS_PREFIX = "http://sakaiproject.org/expapi/activity/";
+    static String XAPI_ACTIVITIES_PREFIX = "http://adlnet.gov/expapi/activities/";
 
     /**
      * Register an activity statement with the LRS
@@ -108,11 +108,6 @@ public interface LearningResourceStoreService {
          * Set by LRS.
          */
         String id = null;
-        /**
-         * Indicates that the statement has been voided.
-         * NOTE: Default=false, voided=true
-         */
-        boolean voided = false;
         /**
          * Timestamp of when what this statement describes happened.
          * If null, the LRS will set this to the stored time.
@@ -278,12 +273,6 @@ public interface LearningResourceStoreService {
             return id;
         }
         /**
-         * @see #voided
-         */
-        public boolean isVoided() {
-            return voided;
-        }
-        /**
          * @see #timestamp
          */
         public Date getTimestamp() {
@@ -340,7 +329,7 @@ public interface LearningResourceStoreService {
                         + ", actor=" + actor + ", verb=" + verb + ", object=" + object 
                         + (result==null?"":", result=" + result) 
                         + (context==null?"":", context=" + context) 
-                        + ", voided=" + voided + "]";
+                        + "]";
             }
             return s;
         }
@@ -445,7 +434,7 @@ public interface LearningResourceStoreService {
          * such as "fired a weapon", "fired a kiln", or "fired an employee". 
          * In this case, a URI should identify one of these specific meanings, not the word "fired".
          */
-        static String ADLNET_VERBS_PREFIX = "http://www.adlnet.gov/expapi/verbs/";
+        static String XAPI_VERBS_PREFIX = "http://www.adlnet.gov/expapi/verbs/";
         static String SAKAI_VERBS_PREFIX = "http://sakaiproject.org/expapi/verbs/";
         /**
          * Set of Sakai verbs (limited set of verbs that make sense for use in Sakai)
@@ -511,7 +500,7 @@ public interface LearningResourceStoreService {
             if (verb == null) {
                 throw new IllegalArgumentException("LRS_Verb SAKAI_VERB verb cannot be null");
             }
-            id = ADLNET_VERBS_PREFIX + verb.name();
+            id = XAPI_VERBS_PREFIX + verb.name();
         }
         /**
          * Create a verb to indicate what the user did.
@@ -627,14 +616,14 @@ public interface LearningResourceStoreService {
         }
         /**
          * @param uri activity URI that refers to a single unique activity. (e.g. http://example.com/activity/spelling-test)
-         * @param activityType activity URI that refers to the type of activity. (e.g. http://sakaiproject.org/expapi/activity/assessment)
+         * @param activityType activity URI that refers to the type of activity. (e.g. http://adlnet.gov/expapi/activities/assessment)
          */
         public LRS_Object(String uri, String activityType) {
             this(uri);
             if (activityType == null) {
                 throw new IllegalArgumentException("LRS_Object type cannot be null");
             }
-            this.activityType = (activityType.indexOf("://") == -1 ? SAKAI_OBJECTS_PREFIX + activityType : activityType);
+            this.activityType = (activityType.indexOf("://") == -1 ? XAPI_ACTIVITIES_PREFIX + activityType : activityType);
         }
         /**
          * @param activityType activity URI that refers to the type of activity. (e.g. assessment)
@@ -718,11 +707,11 @@ public interface LearningResourceStoreService {
          */
         Number max;
         /**
-         * true if successful, false if not, or not specified
+         * true if successful, false if not, or null for unknown
          */
         Boolean success;
         /**
-         * true if completed, false if not, or not specified
+         * true if completed, false if not, or null for unknown
          */
         Boolean completion;
         /**
@@ -739,6 +728,15 @@ public interface LearningResourceStoreService {
          * use of the empty constructor is restricted
          */
         protected LRS_Result() {
+        }
+        /**
+         * Simplest possible result, only indicates if it was completed or not,
+         * generally should be used only when nothing else will fit
+         * @param completion true if completed, false if not (cannot be null)
+         */
+        public LRS_Result(boolean completion) {
+            this();
+            this.completion = completion;
         }
         /**
          * @param scaled Score from -1.0 to 1.0 where 0=0% and 1.0=100%
@@ -827,21 +825,31 @@ public interface LearningResourceStoreService {
         }
         /**
          * @param success true if successful, false if not, or null if not specified
+         * @see #success
          */
         public void setSuccess(Boolean success) {
             this.success = success;
         }
         /**
          * @param completion true if completed, false if not, or null if not specified
+         * @see #completion
          */
         public void setCompletion(Boolean completion) {
             this.completion = completion;
         }
         /**
          * @param duration Time spent on the activity in seconds, set to -1 to clear this
+         * @see #duration
          */
         public void setDuration(int duration) {
             this.duration = duration;
+        }
+        /**
+         * @param A response appropriately formatted for the given Activity.
+         * @see #response
+         */
+        public void setResponse(String response) {
+            this.response = response;
         }
         // GETTERS
         /**
@@ -907,7 +915,7 @@ public interface LearningResourceStoreService {
             if (min != null && max != null) {
                 points += ",min=" + min + ",max=" + max;
             }
-            return "Result["+points+(success?" success":" fail")+(completion?" complete":" incomplete")+ "]";
+            return "Result["+points+(response!=null?" response="+response:"")+(success!=null?(success?" success":" fail"):"")+(completion!=null?(completion?" complete":" incomplete"):"")+ "]";
         }
     }
 
@@ -985,7 +993,7 @@ public interface LearningResourceStoreService {
         }
         /**
          * @param contextType must be "parent", "grouping", and "other"
-         * @param activityId a URI or key identifying the activity type (e.g. http://example.adlnet.gov/xapi/example/test)
+         * @param activityId a URI or key identifying the activity type (e.g. http://adlnet.gov/expapi/activities/test)
          */
         public void setActivity(String contextType, String activityId) {
             if (contextType == null || "".equals(contextType)) {
@@ -1000,7 +1008,7 @@ public interface LearningResourceStoreService {
             if (!this.activitiesMap.containsKey(contextType) || this.activitiesMap.get(contextType) == null) {
                 this.activitiesMap.put(contextType, new LinkedHashMap<String, String>());
             }
-            activityId = (activityId.indexOf("://") == -1 ? SAKAI_OBJECTS_PREFIX + activityId : activityId);
+            activityId = (activityId.indexOf("://") == -1 ? XAPI_ACTIVITIES_PREFIX + activityId : activityId);
             this.activitiesMap.get(contextType).put("id", activityId);
         }
         /**
