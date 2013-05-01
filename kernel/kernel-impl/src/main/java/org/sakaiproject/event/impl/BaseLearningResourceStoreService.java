@@ -36,7 +36,6 @@ import org.sakaiproject.event.api.EventTrackingService;
 import org.sakaiproject.event.api.LearningResourceStoreProvider;
 import org.sakaiproject.event.api.LearningResourceStoreService;
 import org.sakaiproject.event.api.LearningResourceStoreService.LRS_Verb.SAKAI_VERB;
-import org.sakaiproject.site.api.SiteService;
 import org.sakaiproject.tool.api.Session;
 import org.sakaiproject.tool.api.SessionManager;
 import org.sakaiproject.user.api.User;
@@ -484,11 +483,6 @@ public class BaseLearningResourceStoreService implements LearningResourceStoreSe
     SessionManager sessionManager;
     public void setSessionManager(SessionManager sessionManager) {
         this.sessionManager = sessionManager;
-    }
-
-    SiteService siteService;
-    public void setSiteService(SiteService siteService) {
-        this.siteService = siteService;
     }
 
     UserDirectoryService userDirectoryService;
