@@ -51,6 +51,8 @@ import org.sakaiproject.chat2.model.ChatFunctions;
 import org.sakaiproject.chat2.model.PresenceObserver;
 import org.sakaiproject.chat2.tool.ColorMapper;
 import org.sakaiproject.component.cover.ServerConfigurationService;
+import org.sakaiproject.component.cover.ComponentManager;
+import org.sakaiproject.event.api.EventTrackingService;
 import org.sakaiproject.courier.api.CourierService;
 import org.sakaiproject.event.api.UsageSession;
 import org.sakaiproject.event.cover.UsageSessionService;
@@ -1345,6 +1347,10 @@ public class ChatTool implements RoomObserver, PresenceObserver {
        }
        else if (Integer.parseInt(getMessageOptions()) == MESSAGEOPTIONS_NO_MESSAGES) {
            maxMessages = 0;
+       }
+       EventTrackingService ets = (EventTrackingService) ComponentManager.get(EventTrackingService.class);
+       if (ets != null && dChannel != null && dChannel.getChatChannel() != null) {
+           ets.post(ets.newEvent("chat.read", dChannel.getChatChannel().getReference(), false));
        }
        return getMessages(getContext(), xDaysOld, maxMessages, true);
    }
