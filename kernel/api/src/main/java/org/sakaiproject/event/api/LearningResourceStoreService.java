@@ -726,7 +726,12 @@ public interface LearningResourceStoreService {
         Number max;
         /**
          * string representation of the grade (e.g. A, B, C, D, F, pass, fail, first, second, etc.)
-         * NOTE: this should be encoded into the XAPI extension for the result. Example for "A" (lowercase, strip spaces, and append in the id):
+         * NOTE: this should be encoded into the XAPI extension for the result. Example for "A":
+         * "extensions": {
+         *    "http://sakaiproject.org/xapi/activities/grade": "A"
+         * }
+         * 
+         * Or the more complex and supposedly portable way (lowercase, strip spaces, and append in the id):
          * "result" : {
          *     .....
          *     "extensions" : {
