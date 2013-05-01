@@ -725,6 +725,26 @@ public interface LearningResourceStoreService {
          */
         Number max;
         /**
+         * string representation of the grade (e.g. A, B, C, D, F, pass, fail, first, second, etc.)
+         * NOTE: this should be encoded into the XAPI extension for the result. Example for "A" (lowercase, strip spaces, and append in the id):
+         * "result" : {
+         *     .....
+         *     "extensions" : {
+         *         "http://sakaiproject.org/xapi/extensions/result/classification" : {
+         *             "objectType" : "activity",
+         *             "id":"http://sakaiproject.org/xapi/activities/grade-a",
+         *             "definition" : { 
+         *                "type" : "http://sakaiproject.org/xapi/activitytypes/grade_classification",
+         *                "name" : {
+         *                    "en-US":"A"
+         *                }
+         *             }
+         *         }
+         *     }
+         * }
+         */
+        String grade;
+        /**
          * true if successful, false if not, or null for unknown
          */
         Boolean success;
@@ -784,6 +804,19 @@ public interface LearningResourceStoreService {
             setScore(null, raw, min, max);
             this.success = success;
         }
+        /**
+         * NOTE: always use the numeric score when possible, this is only to be used when you cannot convert to a numeric score
+         * @param grade a string grade value (will be stored as an extension), cannot be null or empty
+         * @param success true if successful, false if not, or null for not specified
+         * @see #grade
+         */
+        public LRS_Result(String grade, Boolean success) {
+            this();
+            if (grade == null || "".equals(grade)) {
+                throw new IllegalArgumentException("LRS_Result grade cannot be null or empty");
+            }
+            this.success = success;
+        }
         // TODO optional extensions?
         /**
          * Set the score to a floating point scaled range value
@@ -840,6 +873,14 @@ public interface LearningResourceStoreService {
                 }
             }
             setRawScore(raw);
+        }
+        /**
+         * NOTE: always use the numeric score when possible, this is only to be used when you cannot convert to a numeric score
+         * @param grade a string grade value (will be stored as an extension), null to clear
+         * @see #grade
+         */
+        public void setGrade(String grade) {
+            this.grade = grade;
         }
         /**
          * @param success true if successful, false if not, or null if not specified
