@@ -136,12 +136,27 @@ public class CourseManagementServiceHibernateImpl extends HibernateDaoSupport im
 		return ((CourseSetCmImpl)getCourseSet(courseSetEid)).getCanonicalCourses();
 	}
 
-	public List<AcademicSession> getAcademicSessions() {
-		return getHibernateTemplate().findByNamedQuery("findAcademicSessions");
+	public List <AcademicSession> getAcademicSessions() {
+	    return (List <AcademicSession>) getHibernateTemplate().execute(new HibernateCallback() {
+		@Override
+		public List <AcademicSession> doInHibernate(Session session) {
+		    Query query = session.getNamedQuery("findAcademicSessions");
+		    query.setCacheable(true);
+		    return query.list();
+		}
+	    });
+
 	}
 
-	public List<AcademicSession> getCurrentAcademicSessions() {
-		return getHibernateTemplate().findByNamedQuery("findCurrentAcademicSessions");
+	public List <AcademicSession> getCurrentAcademicSessions() {
+	    return (List <AcademicSession>) getHibernateTemplate().execute(new HibernateCallback() {
+		@Override
+		public List <AcademicSession> doInHibernate(Session session) {
+		    Query query = session.getNamedQuery("findCurrentAcademicSessions");
+		    query.setCacheable(true);
+		    return query.list();
+		}
+	    });
 	}
 
 	public AcademicSession getAcademicSession(final String eid) throws IdNotFoundException {
