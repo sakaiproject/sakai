@@ -2407,6 +2407,8 @@ public class AnnouncementAction extends PagedResourceActionII
 					}
 				}
 			}
+			// indicate the announcement was viewed
+			eventTrackingService.post(eventTrackingService.newEvent("annc.view", message.getReference(), false));
 		}
 		catch (IdUnusedException e)
 		{
