@@ -398,10 +398,6 @@ function setRubricRowChoice($it) {
 		var score = $(this).attr("class");
 		$(this).addClass("selectedPeerCell");
 
-		//console.log({
-			"category": rowCat,
-			"score": score
-		});
 		addRubricSelection(rowCat, score);
 	});
 }
