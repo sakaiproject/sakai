@@ -181,7 +181,7 @@ function PortalChat() {//
     	$('#pc_chat_'+uuid+'_video_content').hide();
 	    $('#pc_connection_'+uuid+'_videoin').hide();
 		$('#pc_connection_'+uuid+'_videochat_bar .video_on').hide();
-		if (!this.videoCall.webRTC.isWebRTCEnabled()) {
+		if (!this.videoCall.webRTC.isWebRTCEnabled() || !this.hasVideoEnabled(uuid)) {
 		   $('#pc_connection_'+uuid+'_videochat_bar').hide();
         } else {
         	if (!minimised) {
@@ -361,8 +361,9 @@ function PortalChat() {//
 		for(var i=0,j=connections.length;i<j;i++) {
 		    connections[i].online = false;
 			for(var k=0,m=online.length;k<m;k++) {
-				if(online[k] === connections[i].uuid) {
+				if(online[k].id === connections[i].uuid) {
 					connections[i].online = true;
+					connections[i].video = online[k].video;
 					onlineConnections.push(connections[i]);
 				}
 			}
@@ -534,9 +535,10 @@ function PortalChat() {//
         if(match && match.length == 2) siteId = match[1];
         
         var onlineString = portalChat.offline ? 'false' : 'true';
+        var videoString = this.videoCall.webRTC.isWebRTCEnabled() ? 'true' : 'false'; 
 
 		jQuery.ajax({
-			url : '/direct/portal-chat/' + portal.user.id + '/latestData.json?auto=true&siteId=' + siteId + '&online=' + onlineString,
+			url : '/direct/portal-chat/' + portal.user.id + '/latestData.json?auto=true&siteId=' + siteId + '&online=' + onlineString + '&video=' + videoString,
 			dataType : "json",
 			cache: false,
 			success : function (data,status) {
@@ -565,7 +567,7 @@ function PortalChat() {//
                     var presentUser = data.data.presentUsers[i];
                     var alreadyIn = false;
                     for(var k=0,m=data.data.online.length;k<m;k++) {
-                        if(presentUser.id === data.data.online[k]) {
+                        if(presentUser.id === data.data.online[k].id) {
                             alreadyIn = true;
                             break;
                         }
@@ -788,9 +790,8 @@ function PortalChat() {//
 		$('#pc_connection_'+uuid+'_videochat_bar .video_on').hide();
     }
 
-    this.maximizeVideoCall = function (uuid) {
-    	// ToDo Maximize Video Canvas
-    	$("#pc_chat_"+uuid+"_video_content").show();
+    this.hasVideoEnabled = function (uuid) {
+    	return portalChat.currentConnectionsMap[uuid].video;
     }
     
     this.setVideoStatus = function (uuid,text,display){

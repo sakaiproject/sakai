@@ -61,6 +61,8 @@ public class PCServiceEntityProvider extends AbstractEntityProvider implements R
 
     /* Heartbeat messages start with this */
     private final String HEARTBEAT_PREAMBLE = "heartbeat:";
+    /* Heartbeat video messages start with this */
+    private final String HEARTBEAT_VIDEO_PREAMBLE = "heartvideobeat:";
     /* Message messages start with this */
     private final String MESSAGE_PREAMBLE = "message:";
     /* Message messages start with this */
@@ -118,7 +120,7 @@ public class PCServiceEntityProvider extends AbstractEntityProvider implements R
      *  to the number of app servers in your cluster times the max number of threads per app server. This is
      *  configurable in sakai.properties as portalchat.heartbeatmap.size.
      */
-	private Map<String,Date> heartbeatMap;
+	private Map<String,Object[]> heartbeatMap;
 
     /* JGroups channel for keeping the above maps in sync across nodes in a Sakai cluster */
     private Channel clusterChannel = null;
@@ -174,7 +176,7 @@ public class PCServiceEntityProvider extends AbstractEntityProvider implements R
         }
         
         int heartbeatMapSize = serverConfigurationService.getInt("portalchat.heartbeatmap.size",1000);
-        heartbeatMap = new ConcurrentHashMap<String,Date>(heartbeatMapSize,0.75F,64);
+        heartbeatMap = new ConcurrentHashMap<String,Object[]>(heartbeatMapSize,0.75F,64);
 
         // SAK-20565. Get handles on the profile2 connections methods if available. If not, unset the connectionsAvailable flag.
         ComponentManager componentManager = org.sakaiproject.component.cover.ComponentManager.getInstance();
@@ -284,13 +286,13 @@ public class PCServiceEntityProvider extends AbstractEntityProvider implements R
 		}
 		
 		Date now = new Date();
-		Date lastHeartbeat = null;
+		Object [] lastHeartbeat = null;
 		
 		lastHeartbeat = heartbeatMap.get(to);
 		
 		if(lastHeartbeat == null) return "OFFLINE";
 			
-		if((now.getTime() - lastHeartbeat.getTime()) >= 5000L)
+		if((now.getTime() - ((Date)lastHeartbeat[0]).getTime()) >= 5000L)
 			return "OFFLINE";
 		String peerMessage = (String) params.get("peerMessage");	
 	
@@ -316,15 +318,13 @@ public class PCServiceEntityProvider extends AbstractEntityProvider implements R
 			
         if(clustered) {
             try {
-		 Message msg = null;
-		if (message!=null){
+            	Message msg = null;
+            	if (message!=null) {
 	                msg = new Message(null, null, MESSAGE_PREAMBLE + currentUser.getId() + ":" + to + ":" + message);
-		}else if (peerMessage != null){
-		       
+            	} else if (peerMessage != null) {
 	                msg = new Message(null, null, VIDEO_MESSAGE_PREAMBLE + currentUser.getId() + ":" + to + ":" + peerMessage);
-		}
-		
-        	clusterChannel.send(msg);
+            	}
+            	clusterChannel.send(msg);
             } catch (Exception e) {
                 logger.error("Error sending JGroups message", e);
             }
@@ -373,10 +373,12 @@ public class PCServiceEntityProvider extends AbstractEntityProvider implements R
 		
 		public String id;
 		public String displayName;
+		public boolean video;
 		
-		public PortalChatUser(String id,String displayName) {
+		public PortalChatUser(String id,String displayName,boolean video) {
 			this.id = id;
 			this.displayName = displayName;
+			this.video = video;
 		}
 	}
 
@@ -398,6 +400,7 @@ public class PCServiceEntityProvider extends AbstractEntityProvider implements R
 		}
 		
 		String online = (String) params.get("online");
+		String video = (String) params.get("video");
 		
 		if(logger.isDebugEnabled()) logger.debug("online: " + online);
 		
@@ -405,13 +408,13 @@ public class PCServiceEntityProvider extends AbstractEntityProvider implements R
 			
 			if(logger.isDebugEnabled()) logger.debug(currentUser.getEid() + " is online. Stamping their heartbeat ...");
 			
-			heartbeatMap.put(currentUser.getId(),new Date());
+			heartbeatMap.put(currentUser.getId(),new Object[]{new Date(),video});
 
             if(clustered) {
             	
             	if(logger.isDebugEnabled()) logger.debug("We are clustered. Propagating heartbeat ...");
             	
-                Message msg = new Message(null, null, HEARTBEAT_PREAMBLE + currentUser.getId());
+                Message msg = new Message(null, null, ("true".equals(video)?HEARTBEAT_VIDEO_PREAMBLE:HEARTBEAT_PREAMBLE) + currentUser.getId());
                 try {
                     clusterChannel.send(msg);
                     if(logger.isDebugEnabled()) logger.debug("Heartbeat message sent.");
@@ -443,7 +446,7 @@ public class PCServiceEntityProvider extends AbstractEntityProvider implements R
 		String siteId = (String) params.get("siteId");
 		
 		if(logger.isDebugEnabled()) logger.debug("Site ID: " +  siteId);
-
+		
         if(siteId != null && siteId.length() > 0) {
 			// A site id has been specified, so we refresh our presence at the 
 			// location and retrieve the present users
@@ -452,13 +455,14 @@ public class PCServiceEntityProvider extends AbstractEntityProvider implements R
 			List<User> presentSakaiUsers = presenceService.getPresentUsers(siteId + "-presence");
 			presentSakaiUsers.remove(currentUser);
 			for(User user : presentSakaiUsers) {
-				presentUsers.add(new PortalChatUser(user.getId(), user.getDisplayName()));
+				presentUsers.add(new PortalChatUser(user.getId(), user.getDisplayName(), "true".equals(heartbeatMap.get(user.getId())[1])));
 			}
         }
 		
 		List<Object> connections = getConnectionsForUser(currentUser.getId());
 		
-		List<String> onlineConnections = new ArrayList<String>(connections.size());
+		//List<String> onlineConnections = new ArrayList<String>(connections.size());
+		List<PortalChatUser> onlineConnections = new ArrayList<PortalChatUser>(connections.size());
 		
 		Date now = new Date();
 		
@@ -485,14 +489,14 @@ public class PCServiceEntityProvider extends AbstractEntityProvider implements R
                 continue;
             }
 			
-			Date lastHeartbeat = null;
+			Object [] lastHeartbeat = null;
 			
 			lastHeartbeat = heartbeatMap.get(uuid);
 			
 			if(lastHeartbeat == null) continue;
 			
-			if((now.getTime() - lastHeartbeat.getTime()) < 5000L) {
-				onlineConnections.add(uuid);
+			if((now.getTime() - ((Date)lastHeartbeat[0]).getTime()) < 5000L) {
+				onlineConnections.add(new PortalChatUser(uuid,uuid,"true".equals(lastHeartbeat[1])));
 			}
 		}
 		
@@ -663,7 +667,10 @@ public class PCServiceEntityProvider extends AbstractEntityProvider implements R
             String message = (String) o;
             if (message.startsWith(HEARTBEAT_PREAMBLE)) {
                 String onlineUserId = message.substring(HEARTBEAT_PREAMBLE.length());
-                heartbeatMap.put(onlineUserId, new Date());
+                heartbeatMap.put(onlineUserId, new Object[]{new Date(),"false"});
+            } else if (message.startsWith(HEARTBEAT_VIDEO_PREAMBLE)) {
+                String onlineUserId = message.substring(HEARTBEAT_VIDEO_PREAMBLE.length());
+                heartbeatMap.put(onlineUserId,  new Object[]{new Date(),"true"});
             } else if (message.startsWith(MESSAGE_PREAMBLE)) {
                 Address address = clusterChannel.getAddress();
                 String[] parts = message.split(":");
