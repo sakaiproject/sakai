@@ -3419,10 +3419,10 @@ public class ShowPageProducer implements ViewComponentProducer, DefaultView, Nav
 		 * 
 		 * Creation of rubrics is currently disabled until testing is complete.
 		 * **************************************************************************
-		 */
+		 
 		
 		UIOutput.make(form, "peer-evaluation-creation");
-		
+		*/
 		UIBoundBoolean.make(form, "peer-eval-check", "#{simplePageBean.peerEval}");
 		UIInput.make(form, "peer-eval-input-title", "#{simplePageBean.rubricTitle}");
 		UIInput.make(form, "peer-eval-input-row", "#{simplePageBean.rubricRow}");
