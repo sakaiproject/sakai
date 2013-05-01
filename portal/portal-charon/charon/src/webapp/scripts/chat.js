@@ -17,6 +17,7 @@ function PortalChat() {//
 	this.originalTitle = document.title;
 	this.connectionsAvailable = true;
 	this.videoCall = null;
+	this.videoOff = false;
 
 	/** Set up the webRTC references depending on the navigator is executed */
 
@@ -360,6 +361,7 @@ function PortalChat() {//
 	
 		for(var i=0,j=connections.length;i<j;i++) {
 		    connections[i].online = false;
+		    connections[i].video = false;
 			for(var k=0,m=online.length;k<m;k++) {
 				if(online[k].id === connections[i].uuid) {
 					connections[i].online = true;
@@ -381,7 +383,21 @@ function PortalChat() {//
 				for(var k = 0,m=portalChat.currentConnections.length;k<m;k++) {
 					if(portalChat.currentConnections[k].uuid === connections[i].uuid) {
 						present = true;
-					 	if(portalChat.currentConnections[k].online != connections[i].online) {
+					 	if(portalChat.currentConnections[k].online != connections[i].online 
+					 			|| portalChat.currentConnections[k].video != connections[i].video) {
+					 		if (connections[i].video) {
+				        		if ($('#pc_chat_with_' + portalChat.currentConnections[k].uuid).css('height')!='auto') {
+				        			$('#pc_chat_with_' + portalChat.currentConnections[k].uuid).css('height','318px');
+				        		}
+					        	$('#pc_chat_with_' + portalChat.currentConnections[k].uuid).attr('data-height','318');
+					 			$('#pc_connection_'+portalChat.currentConnections[k].uuid+'_videochat_bar').show();
+					 		} else {
+				        		if ($('#pc_chat_with_' + portalChat.currentConnections[k].uuid).css('height')!='auto') {
+				        			$('#pc_chat_with_' + portalChat.currentConnections[k].uuid).css('height','300px');
+				        		}
+					        	$('#pc_chat_with_' + portalChat.currentConnections[k].uuid).attr('data-height','300');
+					 			$('#pc_connection_'+portalChat.currentConnections[k].uuid+'_videochat_bar').hide();
+					 		}
 							statusSame = false;
 						}
 						break;
@@ -437,10 +453,25 @@ function PortalChat() {//
 		}
 		else {
 			for(var i = 0,j=siteUsers.length;i<j;i++) {
-				var inCurrentData = false;
+				var inCurrentData = true;
 				for(var k = 0,m=portalChat.currentSiteUsers.length;k<m;k++) {
 					if(portalChat.currentSiteUsers[k].id === siteUsers[i].id) {
-						inCurrentData = true;
+						if(portalChat.currentSiteUsers[k].video != siteUsers[i].video) {
+							inCurrentData = false;
+					 		if (siteUsers[i].video) {
+				        		if ($('#pc_chat_with_' + portalChat.currentSiteUsers[k].id).css('height')!='auto') {
+				        			$('#pc_chat_with_' + portalChat.currentSiteUsers[k].id).css('height','318px');
+				        		}
+					        	$('#pc_chat_with_' + portalChat.currentSiteUsers[k].id).attr('data-height','318');
+					 			$('#pc_connection_'+portalChat.currentSiteUsers[k].id+'_videochat_bar').show();
+					 		} else {
+				        		if ($('#pc_chat_with_' + portalChat.currentSiteUsers[k].id).css('height')!='auto') {
+				        			$('#pc_chat_with_' + portalChat.currentSiteUsers[k].id).css('height','300px');
+				        		}
+					        	$('#pc_chat_with_' + portalChat.currentSiteUsers[k].id).attr('data-height','300');
+					 			$('#pc_connection_'+portalChat.currentSiteUsers[k].id+'_videochat_bar').hide();
+					 		}
+						}
 						break;
 					}
 				}
@@ -535,7 +566,7 @@ function PortalChat() {//
         if(match && match.length == 2) siteId = match[1];
         
         var onlineString = portalChat.offline ? 'false' : 'true';
-        var videoString = this.videoCall.webRTC.isWebRTCEnabled() ? 'true' : 'false'; 
+        var videoString = this.videoCall.webRTC.isWebRTCEnabled() && !this.videoOff ? 'true' : 'false'; 
 
 		jQuery.ajax({
 			url : '/direct/portal-chat/' + portal.user.id + '/latestData.json?auto=true&siteId=' + siteId + '&online=' + onlineString + '&video=' + videoString,
@@ -718,6 +749,7 @@ function PortalChat() {//
     }
 
     this.openVideoCall = function (uuid,incomming) {
+    	if (incomming && this.videoOff) return;
 		// If a chat window is already open for this sender, show video.
 		var messagePanel = $("#pc_chat_with_" + uuid);
 		if(!messagePanel.length) {
@@ -849,6 +881,13 @@ function PortalChat() {//
 					portalChat.showOfflineConnections = true;
 			    }
 
+				if(portalChat.getSetting('videoOff',false)) {
+					$('#pc_video_off_checkbox').attr('checked','checked');
+                    portalChat.videoOff = true;
+				} else {
+                    portalChat.videoOff = false;
+				}
+				
 			    portalChat.setGetLatestDataInterval();
             } else {
                 // Not a logged in user. Clear the cached data in sessionStorage.
@@ -889,6 +928,16 @@ function PortalChat() {//
 				}
 			});
 	
+			$('#pc_video_off_checkbox').click(function () {
+				if($(this).attr('checked') == 'checked') {
+					portalChat.setSetting('videoOff',true,true);
+					portalChat.videoOff = true;
+				} else {
+					portalChat.setSetting('videoOff',false);
+					portalChat.videoOff = false;
+				}
+			});
+			
 			// Handle return press in the edit fields
 			$('.pc_editor').live('keypress',function (e,ui) {
 	

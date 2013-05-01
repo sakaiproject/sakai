@@ -309,6 +309,7 @@
                     <div id="pc_options">
                         <div id="pc_show_off_ctrl"><input type="checkbox" id="pc_showoffline_connections_checkbox"/><label for="pc_showoffline_connections_checkbox">${rloader.pc_showoffline_connections_checkbox}</label></div>
                         <div id="pc_go_off_ctrl"><input type="checkbox" id="pc_go_offline_checkbox"/><label for="pc_go_offline_checkbox">${rloader.pc_go_offline_checkbox}</label></div>
+                        <div id="pc_video_off_ctrl"><input type="checkbox" id="pc_video_off_checkbox"/><label for="pc_video_off_checkbox">${rloader.pc_video_off_checkbox}</label></div>
                     </div>
                     <div id="pc_users">
                         <div id="pc_connections_wrapper">
@@ -334,7 +335,16 @@
 			#if ( $neoAvatar ) 
                             <img class="pc_connection_image" src="/direct/profile/${connection.uuid}/image"/>
 			#end
-                            <span class="pc_connection_display_name">${connection.displayName}</span>{if connection.online}<img class="pc_display_status_bullet" src="/library/image/silk/bullet_green.png" border="0"/>{else}<img class="pc_display_status_bullet" src="/library/image/silk/bullet_red.png" border="0"/>{/if}
+                            <span class="pc_connection_display_name">${connection.displayName}</span>
+                            {if connection.online}
+         	                   {if connection.video}
+                            	   <img class="pc_display_status_bullet" src="/library/image/silk/user_green.png" border="0"/>
+                           	   {else}
+                           	       <img class="pc_display_status_bullet" src="/library/image/silk/bullet_green.png" border="0"/>
+                               {/if}
+                            {else}
+                            	<img class="pc_display_status_bullet" src="/library/image/silk/bullet_red.png" border="0"/>
+                            {/if}
                         </a>
                         {if connection.online == false}
                             <a href="javascript:;" onclick="portalChat.pingConnection('${connection.uuid}');" title="$rloader.getString("pc_ping") ${connection.displayName} $rloader.getString("pc_ping_connection")"><img src="/library/image/silk/bell.png" width="16" height="16" border="0"/></a>
@@ -355,7 +365,12 @@
 			#if ( $neoAvatar ) 
                             <img class="pc_user_image" src="/direct/profile/${user.id}/image" />
 			#end
-                            <span class="pc_site_display_name">${user.displayName}</span><img class="pc_display_status_bullet" src="/library/image/silk/bullet_green.png" border="0"/>
+                            <span class="pc_site_display_name">${user.displayName}</span>
+                            {if user.video}
+                              <img class="pc_display_status_bullet" src="/library/image/silk/user_green.png" border="0"/>
+                            {else}
+                              <img class="pc_display_status_bullet" src="/library/image/silk/bullet_green.png" border="0"/>
+                            {/if}
                         </a>
                     </li>
                 {/for}
