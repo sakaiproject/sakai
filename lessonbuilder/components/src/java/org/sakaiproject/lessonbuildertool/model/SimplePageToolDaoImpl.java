@@ -62,6 +62,10 @@ import org.sakaiproject.lessonbuildertool.SimplePageQuestionResponseTotals;
 import org.sakaiproject.lessonbuildertool.SimplePageQuestionResponseTotalsImpl;
 import org.sakaiproject.lessonbuildertool.SimpleStudentPage;
 import org.sakaiproject.lessonbuildertool.SimpleStudentPageImpl;
+import org.sakaiproject.lessonbuildertool.SimplePagePeerEval;
+import org.sakaiproject.lessonbuildertool.SimplePagePeerEvalImpl;
+import org.sakaiproject.lessonbuildertool.SimplePagePeerEvalResult;
+import org.sakaiproject.lessonbuildertool.SimplePagePeerEvalResultImpl;
 import org.sakaiproject.tool.api.ToolManager;
 import org.sakaiproject.user.cover.UserDirectoryService;
 import org.springframework.dao.DataAccessException;
@@ -893,44 +897,7 @@ public class SimplePageToolDaoImpl extends HibernateDaoSupport implements Simple
 		return new SimplePageQuestionAnswerImpl(0, text, correct);
 	}
 	
-	public boolean saveQuestionAnswer(SimplePageQuestionAnswer questionAnswer, SimplePageItem question) {
-		if(!canEditPage(question.getPageId())) {
-		    log.warn("User tried to edit question on page without edit permission. PageId: " + question.getPageId());
-		    return false;
-		}
-		
-		long oldid = questionAnswer.getId();
-
-		// find new id number, max + 1
-		List answers = (List)question.getJsonAttribute("answers");
-		Long max = -1L;
-		if (answers == null) {
-		    answers = new JSONArray();
-		    question.setJsonAttribute("answers", answers);
-		} else
-		    for (Object a: answers) {
-			Map answer = (Map) a;
-			Long id = (Long)answer.get("id");
-			if (id == oldid) {
-			    // entry exists. replace it
-			    answer.put("text", questionAnswer.getText());
-			    answer.put("correct", (Boolean)questionAnswer.isCorrect());
-			    return true;
-			}
-			if (id > max)
-			    max = id;
-		    }
-		
-		// create and add the json form of the answer
-		Map newAnswer = new JSONObject();
-		newAnswer.put("id", (Long)(max + 1));
-		newAnswer.put("text", questionAnswer.getText());
-		newAnswer.put("correct", (Boolean)questionAnswer.isCorrect());
-		answers.add(newAnswer);
-
-		return true;
-	}
-
+	
     // only implemented for existing questions, i.e. questions with id numbers
 	public boolean deleteQuestionAnswer(SimplePageQuestionAnswer questionAnswer, SimplePageItem question) {
 		if(!canEditPage(question.getPageId())) {
@@ -1005,8 +972,52 @@ public class SimplePageToolDaoImpl extends HibernateDaoSupport implements Simple
 
 		return id;
 	}
+	
+  
+	public void clearPeerEvalRows(SimplePageItem question) {
+		question.setJsonAttribute("rows", null);
+	}
 
+	public Long maxPeerEvalRow(SimplePageItem question)  {
+		Long max = 0L;
+		List rows = (List)question.getJsonAttribute("rows");
+		if (rows == null)
+		    return max;
+		for (Object a: rows) {
+		    Map row = (Map) a;
+		    Long i = (Long)row.get("id");
+		    if (i > max)
+			max = i;
+		}
+		return max;
+	}
 
+	public void addPeerEvalRow(SimplePageItem question, Long id, String text) {
+		// no need to check security. that happens when item is saved
+		
+		List rows = (List)question.getJsonAttribute("rows");
+		if (rows == null) {
+		  	rows = new JSONArray();
+		    question.setJsonAttribute("rows", rows);
+		    if(id <= 0L) 
+		    	id = 1L;
+		    }else if (id <= 0L) {
+		    	Long max = 0L;
+		    	for (Object r: rows) {
+		    		Map row =(Map) r;
+		    		Long i = (Long)row.get("id");
+		    		if(i > max)
+		    			max = i;
+		    	}
+		    	id = max +1; 
+		    }
+		Map newRow = new JSONObject();
+		newRow.put("id", id);
+		newRow.put("rowText",text);
+		rows.add(newRow);
+
+	}
+	
 	public SimplePageItem copyItem(SimplePageItem old) {
 		SimplePageItem item =  new SimplePageItemImpl();
 		item.setPageId(old.getPageId());
@@ -1031,6 +1042,7 @@ public class SimplePageToolDaoImpl extends HibernateDaoSupport implements Simple
 		item.setShowComments(old.getShowComments());
 		item.setForcedCommentsAnonymous(old.getForcedCommentsAnonymous());
 		item.setAttributeString(old.getAttributeString()); // copy via json
+		item.setShowPeerEval(old.getShowPeerEval());
 
 		//		Map<String, SimplePageItemAttributeImpl> attrs = ((SimplePageItemImpl)old).getAttributes();
 		//		if (attrs != null) {
@@ -1130,4 +1142,55 @@ public class SimplePageToolDaoImpl extends HibernateDaoSupport implements Simple
 	    }
 	}
 
+	public SimplePagePeerEval findPeerEval(long itemId) {
+		SimplePageItem item = findItem(itemId);
+	
+		List rows = (List)item.getJsonAttribute("rows");
+		if (rows == null)
+		    return null;
+		for (Object a: rows) {
+		    Map row = (Map) a;
+		}
+		return null;
+	}
+
+	public List<SimplePagePeerEvalResult> findPeerEvalResult(long pageId,String userId,String gradee) 
+	 //List<String> ids = SqlService.dbRead("select b.id from lesson_builder_pages a,lesson_builder_items b where a.siteId = ? and a.pageId = b.pageId and b.sakaiId = '/dummy'", fields, null);
+	{
+		DetachedCriteria d = DetachedCriteria.forClass(SimplePagePeerEvalResult.class)
+			    .add(Restrictions.eq("pageId", pageId))
+			    .add(Restrictions.eq("grader", userId))
+			    .add(Restrictions.eq("gradee", gradee));
+				
+
+			List<SimplePagePeerEvalResult> list = getHibernateTemplate().findByCriteria(d);
+			List<SimplePagePeerEvalResult> newList= new ArrayList<SimplePagePeerEvalResult>();
+			
+			for(SimplePagePeerEvalResult eval: list){
+				if(eval.getSelected())
+					newList.add(eval);
+			}
+			
+			return newList;
+	}
+
+	public SimplePagePeerEvalResult makePeerEvalResult(long pageId, String gradee,String grader, String rowText, int columnValue){
+		return new SimplePagePeerEvalResultImpl(pageId, gradee, grader, rowText, columnValue);
+	}
+	
+	public List<SimplePagePeerEvalResult> findPeerEvalResultByOwner(long pageId,String pageOwner){
+		DetachedCriteria d = DetachedCriteria.forClass(SimplePagePeerEvalResult.class)
+			    .add(Restrictions.eq("pageId", pageId))
+			    .add(Restrictions.eq("gradee", pageOwner));
+
+		List<SimplePagePeerEvalResult> list = getHibernateTemplate().findByCriteria(d);
+		List<SimplePagePeerEvalResult> newList= new ArrayList<SimplePagePeerEvalResult>();
+		
+		for(SimplePagePeerEvalResult eval: list){
+			if(eval.getSelected())
+				newList.add(eval);
+		}
+		
+		return newList;
+	}
 }

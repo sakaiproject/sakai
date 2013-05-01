@@ -38,7 +38,7 @@
 	<property name="anonymous" type="boolean" />
 	<property name="showComments" type="boolean" />
 	<property name="forcedCommentsAnonymous" type="boolean" />
-	
+	<property name="showPeerEval" type="boolean" />
 	<property name="gradebookId" type="string" length="35" />
 	<property name="gradebookPoints" type="integer" />
 	<property name="gradebookTitle" type="string" length="200" />

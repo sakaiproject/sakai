@@ -51,6 +51,8 @@ import java.util.Locale;
 import java.util.Map;
 import java.util.StringTokenizer;
 import java.util.TimeZone;
+import java.util.Calendar;
+import java.text.SimpleDateFormat;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
@@ -72,6 +74,7 @@ import org.sakaiproject.lessonbuildertool.SimplePageLogEntry;
 import org.sakaiproject.lessonbuildertool.SimplePageQuestionAnswer;
 import org.sakaiproject.lessonbuildertool.SimplePageQuestionResponse;
 import org.sakaiproject.lessonbuildertool.SimplePageQuestionResponseTotals;
+import org.sakaiproject.lessonbuildertool.SimplePagePeerEvalResult;
 import org.sakaiproject.lessonbuildertool.SimpleStudentPage;
 import org.sakaiproject.lessonbuildertool.model.SimplePageToolDao;
 import org.sakaiproject.lessonbuildertool.service.BltiInterface;
@@ -134,6 +137,7 @@ import uk.org.ponder.rsf.viewstate.SimpleViewParameters;
 import uk.org.ponder.rsf.viewstate.ViewParameters;
 import uk.org.ponder.rsf.viewstate.ViewParamsReporter;
 
+
 /**
  * This produces the primary view of the page. It also handles the editing of
  * the properties of most of the items (through JQuery dialogs).
@@ -143,6 +147,8 @@ import uk.org.ponder.rsf.viewstate.ViewParamsReporter;
 public class ShowPageProducer implements ViewComponentProducer, DefaultView, NavigationCaseReporter, ViewParamsReporter {
 	private static Log log = LogFactory.getLog(ShowPageProducer.class);
 
+	String reqStar = "<span class=\"reqStar\">*</span>";
+	
 	private SimplePageBean simplePageBean;
 	private SimplePageToolDao simplePageToolDao;
 	private FormatAwareDateInputEvolver dateevolver;
@@ -542,8 +548,8 @@ public class ShowPageProducer implements ViewComponentProducer, DefaultView, Nav
 			// contents. The Chrome guys refuse to fix this so it just applies to Javascript
 			httpServletResponse.setHeader("X-XSS-Protection", "0");
 		}
-
-
+		
+		
 		if (currentPage == null || pageItem == null) {
 			UIOutput.make(tofill, "error-div");
 			if (canEditPage) {
@@ -601,6 +607,7 @@ public class ShowPageProducer implements ViewComponentProducer, DefaultView, Nav
 				    ownerName = simplePageBean.getCurrentSite().getGroup(group).getTitle();
 				else
 				    ownerName = UserDirectoryService.getUser(owner).getDisplayName();
+				
 			    } catch (Exception ignore) {};
 			    if (ownerName != null && !ownerName.equals(title))
 				title += " (" + ownerName + ")";
@@ -954,7 +961,7 @@ public class ShowPageProducer implements ViewComponentProducer, DefaultView, Nav
 
 				boolean listItem = !(i.getType() == SimplePageItem.TEXT || i.getType() == SimplePageItem.MULTIMEDIA
 						|| i.getType() == SimplePageItem.COMMENTS || i.getType() == SimplePageItem.STUDENT_CONTENT
-						|| i.getType() == SimplePageItem.QUESTION);
+						|| i.getType() == SimplePageItem.QUESTION || i.getType() == SimplePageItem.PEEREVAL);
 				// (i.getType() == SimplePageItem.PAGE &&
 				// "button".equals(i.getFormat())))
 
@@ -980,6 +987,7 @@ public class ShowPageProducer implements ViewComponentProducer, DefaultView, Nav
 				case SimplePageItem.STUDENT_CONTENT: itemClassName = "studentContentType"; break;
 				case SimplePageItem.QUESTION: itemClassName = "question"; break;
 				case SimplePageItem.BLTI: itemClassName = "bltiType"; break;
+				case SimplePageItem.PEEREVAL: itemClassName = "peereval"; break;
 				}
 
 				if (listItem)
@@ -1718,7 +1726,7 @@ public class ShowPageProducer implements ViewComponentProducer, DefaultView, Nav
 							addedCommentsScript = true;
 							UIOutput.make(tofill, "delete-dialog");
 						}
-
+						
 						// forced comments have to be edited on the main page
 						if (canEditPage) {
 							// Checks to make sure that the comments item isn't on a student page.
@@ -1787,8 +1795,113 @@ public class ShowPageProducer implements ViewComponentProducer, DefaultView, Nav
 					    }
 					    UICommand.make(form, "add-comment", "#{simplePageBean.addComment}");
 					}
-
+				
+				}else if (i.getType() == SimplePageItem.PEEREVAL){
+					
+					String owner=currentPage.getOwner();
+					String currentUser=UserDirectoryService.getCurrentUser().getId();
+					Long pageId=currentPage.getPageId();
+					
+					UIOutput.make(tableRow, "peerReviewRubricStudent");
+					UIOutput.make(tableRow, "peer-review-form");
+					makePeerRubric(tableRow,i, makeStudentRubric);
+					
+					boolean isOpen = false;
+					boolean isPastDue = false;
+					
+					String peerEvalDateOpenStr = i.getAttribute("rubricOpenDate");
+					String peerEvalDateDueStr  = i.getAttribute("rubricDueDate");
+					boolean peerEvalAllowSelfGrade = Boolean.parseBoolean(i.getAttribute("rubricAllowSelfGrade"));
+					boolean gradingSelf = owner.equals(currentUser) && peerEvalAllowSelfGrade;
+				
+					if (peerEvalDateOpenStr != null && peerEvalDateDueStr != null) {
+						Date peerEvalNow = new Date();
+						Date peerEvalOpen = new Date(Long.valueOf(peerEvalDateOpenStr));
+						Date peerEvalDue = new Date(Long.valueOf(peerEvalDateDueStr));
+						
+						isOpen = peerEvalNow.after(peerEvalOpen);
+						isPastDue = peerEvalNow.after(peerEvalDue);
+					}
+					
+					if(isOpen){
+						
+						if(owner.equals(currentUser)){ //owner gets their own data
+							class PeerEvaluation{
+								String category;
+								public int grade, count;
+								public PeerEvaluation(String category, int grade){this.category=category;this.grade=grade;count=1;}
+								public void increment(){count++;}
+								public boolean equals(Object o){
+									if ( !(o instanceof PeerEvaluation) ) return false;
+									PeerEvaluation pe = (PeerEvaluation)o;
+									return category.equals(pe.category) && grade==pe.grade;
+								}
+								public String toString(){return category + " " + grade + " [" + count + "]";}
+							}
+							
+							ArrayList<PeerEvaluation> myEvaluations = new ArrayList<PeerEvaluation>(); 
+							
+							List<SimplePagePeerEvalResult> evaluations = simplePageToolDao.findPeerEvalResultByOwner(pageId.longValue(), owner);
+							if(evaluations!=null)
+								for(SimplePagePeerEvalResult eval : evaluations){
+									PeerEvaluation target=new PeerEvaluation(eval.getRowText(), eval.getColumnValue());
+									int targetIndex=myEvaluations.indexOf(target);
+									if(targetIndex!=-1){
+										myEvaluations.get(targetIndex).increment();
+									}
+									else
+										myEvaluations.add(target);
+								}
+							
+							UIOutput.make(tableRow, "my-existing-peer-eval-data");
+							for(PeerEvaluation eval: myEvaluations){
+								UIBranchContainer evalData = UIBranchContainer.make(tableRow, "my-peer-eval-data:");
+								UIOutput.make(evalData, "peer-eval-row-text", eval.category);
+								UIOutput.make(evalData, "peer-eval-grade", String.valueOf(eval.grade));
+								UIOutput.make(evalData, "peer-eval-count", String.valueOf(eval.count));
+							}
+						}
+						
+						if(!owner.equals(currentUser) || gradingSelf){
+							List<SimplePagePeerEvalResult> evaluations = simplePageToolDao.findPeerEvalResult(pageId, currentUser, owner);
+							//existing evaluation data
+							if(evaluations!=null && evaluations.size()!=0){	
+								UIOutput.make(tableRow, "existing-peer-eval-data");
+								for(SimplePagePeerEvalResult eval : evaluations){
+									UIBranchContainer evalData = UIBranchContainer.make(tableRow, "peer-eval-data:");
+									UIOutput.make(evalData, "peer-eval-row-text", eval.getRowText());
+									UIOutput.make(evalData, "peer-eval-grade", String.valueOf(eval.getColumnValue()));
+								}
+							}
+							
+							//form for peer evaluation results
+							UIForm form = UIForm.make(tofill, "rubricSelection");
+							UIInput.make(form, "rubricPeerGrade", "#{simplePageBean.rubricPeerGrade}");
+							UICommand.make(form, "update-peer-eval-grade", messageLocator.getMessage("simplepage.edit"), "#{simplePageBean.savePeerEvalResult}");
+						}
+						
+						//buttons
+						UIOutput.make(tableRow, "add-peereval-link");
+						UIOutput.make(tableRow, "add-peereval-text", messageLocator.getMessage("simplepage.view-peereval"));
+						
+						if(isPastDue){
+							UIOutput.make(tableRow, "peer-eval-grade-directions", messageLocator.getMessage("simplepage.peer-eval.past-due-date"));
+						}else if(!owner.equals(currentUser) || gradingSelf){	
+							UIOutput.make(tableRow, "save-peereval-link");
+							UIOutput.make(tableRow, "save-peereval-text", messageLocator.getMessage("simplepage.save"));
+							UIOutput.make(tableRow, "cancel-peereval-link");
+							UIOutput.make(tableRow, "cancel-peereval-text", messageLocator.getMessage("simplepage.cancel"));
+							
+							UIOutput.make(tableRow, "peer-eval-grade-directions", messageLocator.getMessage("simplepage.peer-eval.click-on-cell"));
+						}else{ //owner who cannot grade himself
+							UIOutput.make(tableRow, "peer-eval-grade-directions", messageLocator.getMessage("simplepage.peer-eval.cant-eval-yourself"));
+						}
+						
+						if(canEditPage)
+							UIOutput.make(tableRow, "peerReviewRubricStudent-edit");//lines up rubric with edit btn column for users with editing privs
+					}
 				}else if(i.getType() == SimplePageItem.STUDENT_CONTENT) {
+					
 					UIOutput.make(tableRow, "studentSpan");
 
 					boolean isAvailable = simplePageBean.isItemAvailable(i);
@@ -1905,7 +2018,7 @@ public class ShowPageProducer implements ViewComponentProducer, DefaultView, Nav
 								CommentsGradingPaneViewParameters gp = new CommentsGradingPaneViewParameters(CommentGradingPaneProducer.VIEW_ID);
 								gp.placementId = toolManager.getCurrentPlacement().getId();
 								gp.commentsItemId = i.getId();
-								gp.pageId = currentPage.getPageId();
+								gp.pageId = currentPage.getPageId(); 
 								gp.pageItemId = pageItem.getId();
 								gp.studentContentItem = true;
 							
@@ -1927,6 +2040,73 @@ public class ShowPageProducer implements ViewComponentProducer, DefaultView, Nav
 							UIOutput.make(tableRow, "studentMaxPoints2", String.valueOf(i.getAltPoints()));
 							UIOutput.make(tableRow, "studentitem-required", String.valueOf(i.isRequired()));
 							UIOutput.make(tableRow, "studentitem-prerequisite", String.valueOf(i.isPrerequisite()));
+							UIOutput.make(tableRow, "peer-eval", String.valueOf(i.getShowPeerEval()));
+							makePeerRubric(tableRow,i, makeMaintainRubric);
+							makeSamplePeerEval(tableRow);
+							
+							String peerEvalDate = i.getAttribute("rubricOpenDate");
+							String peerDueDate = i.getAttribute("rubricDueDate");
+							
+							SimpleDateFormat sdf = new SimpleDateFormat("MM/dd/yyyy");
+							SimpleDateFormat stf = new SimpleDateFormat("hh:mm a");
+							Calendar peerevalcal = Calendar.getInstance();
+							
+							if (peerEvalDate != null && peerDueDate != null) {
+								DateFormat df = DateFormat.getDateTimeInstance(DateFormat.MEDIUM, DateFormat.SHORT, M_locale);
+								
+								//Open date from attribute string
+								peerevalcal.setTimeInMillis(Long.valueOf(peerEvalDate));
+								
+								String dateStr = sdf.format(peerevalcal.getTime());
+								String timeStr = stf.format(peerevalcal.getTime());
+								
+								UIOutput.make(tableRow, "peer-eval-open-date", dateStr);
+								UIOutput.make(tableRow, "peer-eval-open-time", timeStr);
+								
+								//Due date from attribute string
+								peerevalcal.setTimeInMillis(Long.valueOf(peerDueDate));
+								
+								dateStr = sdf.format(peerevalcal.getTime());
+								timeStr = stf.format(peerevalcal.getTime());
+								
+								UIOutput.make(tableRow, "peer-eval-due-date", dateStr);
+								UIOutput.make(tableRow, "peer-eval-due-time", timeStr);
+								UIOutput.make(tableRow, "peer-eval-allow-self", i.getAttribute("rubricAllowSelfGrade"));
+								
+							}else{
+								//Default open and due date
+								Date now = new Date();
+								peerevalcal.setTime(now);
+								
+								//Default open date: now
+								String dateStr = sdf.format(peerevalcal.getTime());
+								String timeStr = stf.format(peerevalcal.getTime());
+								
+								UIOutput.make(tableRow, "peer-eval-open-date", dateStr);
+								UIOutput.make(tableRow, "peer-eval-open-time", timeStr);
+								
+								//Default due date: 7 days from now
+								Date later = new Date(peerevalcal.getTimeInMillis() + 604800000);
+								peerevalcal.setTime(later);
+								
+								dateStr = sdf.format(peerevalcal.getTime());
+								timeStr = stf.format(peerevalcal.getTime());
+								
+								//System.out.println("Setting date to " + dateStr + " and time to " + timeStr);
+								
+								UIOutput.make(tableRow, "peer-eval-due-date", dateStr);
+								UIOutput.make(tableRow, "peer-eval-due-time", timeStr);
+								UIOutput.make(tableRow, "peer-eval-allow-self", i.getAttribute("rubricAllowSelfGrade"));
+							}
+							
+							//Peer Eval Stats link
+							GeneralViewParameters view = new GeneralViewParameters(PeerEvalStatsProducer.VIEW_ID);
+							view.setSendingPage(currentPage.getPageId());
+							view.setItemId(i.getId());
+							if(i.getShowPeerEval()){
+								UILink link = UIInternalLink.make(tableRow, "peer-eval-stats-link", view);
+							}
+							
 							String itemGroupString = simplePageBean.getItemGroupString(i, null, true);
 							if (itemGroupString != null) {
 								String itemGroupTitles = simplePageBean.getItemGroupTitles(itemGroupString);
@@ -3233,6 +3413,35 @@ public class ShowPageProducer implements ViewComponentProducer, DefaultView, Nav
 		UIBoundBoolean.make(form, "student-required", "#{simplePageBean.required}");
 		UIBoundBoolean.make(form, "student-prerequisite", "#{simplePageBean.prerequisite}");
 		
+		/* **************************************************************************
+		 * Peer Evaluation Rubrics addon for Student Content tool.
+		 * @email Rutgers Sakai <devs@sakai.rutgers.edu>
+		 * 
+		 * Creation of rubrics is currently disabled until testing is complete.
+		 * **************************************************************************
+		 */
+		
+		UIOutput.make(form, "peer-evaluation-creation");
+		
+		UIBoundBoolean.make(form, "peer-eval-check", "#{simplePageBean.peerEval}");
+		UIInput.make(form, "peer-eval-input-title", "#{simplePageBean.rubricTitle}");
+		UIInput.make(form, "peer-eval-input-row", "#{simplePageBean.rubricRow}");
+		
+        UIOutput.make(form, "peer_eval_open_date_label", messageLocator.getMessage("simplepage.peer-eval.open_date"));
+       
+        UIInput openDateField = UIInput.make(form, "peer_eval_open_date:", "#{simplePageBean.peerEvalOpenDate}");
+        dateevolver.setStyle(FormatAwareDateInputEvolver.DATE_TIME_INPUT); 
+        dateevolver.evolveDateInput(openDateField);
+        
+        UIOutput.make(form, "peer_eval_due_date_label", messageLocator.getMessage("simplepage.peer-eval.due_date"));
+        UIInput dueDateField = UIInput.make(form, "peer_eval_due_date:", "#{simplePageBean.peerEvalDueDate}");
+        dateevolver.setStyle(FormatAwareDateInputEvolver.DATE_TIME_INPUT); 
+        dateevolver.evolveDateInput(dueDateField);
+        
+        UIBoundBoolean.make(form, "peer-eval-allow-selfgrade", "#{simplePageBean.peerEvalAllowSelfGrade}");
+        
+        
+        
 		UIBoundBoolean.make(form, "student-graded", "#{simplePageBean.graded}");
 		UIInput.make(form, "student-max", "#{simplePageBean.maxPoints}");
 
@@ -3245,6 +3454,9 @@ public class ShowPageProducer implements ViewComponentProducer, DefaultView, Nav
 		UICommand.make(form, "delete-student-item", messageLocator.getMessage("simplepage.delete"), "#{simplePageBean.deleteItem}");
 		UICommand.make(form, "update-student", messageLocator.getMessage("simplepage.edit"), "#{simplePageBean.updateStudent}");
 		UICommand.make(form, "cancel-student", messageLocator.getMessage("simplepage.cancel"), null);
+		
+		// RU Rubrics
+		UIOutput.make(tofill, "peer-eval-create-dialog").decorate(new UIFreeAttributeDecorator("title", messageLocator.getMessage("simplepage.peer-eval-create-title")));
 	}
 	
 	private void createQuestionDialog(UIContainer tofill, SimplePage currentPage) {
@@ -3578,4 +3790,70 @@ public class ShowPageProducer implements ViewComponentProducer, DefaultView, Nav
 		}
 		return itemPath;
 	}
+	
+	//Output rubric data for a Student Content box. 
+	private String[] makeStudentRubric  = {"peer-eval-title-student", "peer-eval-row-student:", "peerReviewIdStudent", "peerReviewTextStudent"};
+	private String[] makeMaintainRubric = {"peer-eval-title", 		 "peer-eval-row:", 		  "peerReviewId", 		 "peerReviewText"};
+	
+	private void makePeerRubric(UIContainer parent, SimplePageItem i, String[] peerReviewRsfIds)
+	{
+		//System.out.println("makePeerRubric(): i.getAttributesString() " + i.getAttributeString());
+		//System.out.println("makePeerRubric(): i.getAttribute(\"rubricTitle\") " + i.getAttribute("rubricTitle"));
+		//System.out.println("makePeerRubric(): i.getJsonAttribute(\"rows\") " + i.getJsonAttribute("rows"));
+		
+		UIOutput.make(parent, peerReviewRsfIds[0], String.valueOf(i.getAttribute("rubricTitle")));
+		
+		class RubricRow implements Comparable{
+			public int id;
+			public String text;
+			public RubricRow(int id, String text){ this.id=id; this.text=text;}
+			public int compareTo(Object o){
+				RubricRow r = (RubricRow)o;
+				if(id==r.id)
+					return 0;
+				if(id>r.id)
+					return 1;
+				return -1;
+			}
+		}
+		
+		ArrayList<RubricRow> rows = new ArrayList<RubricRow>();
+		List categories = (List) i.getJsonAttribute("rows");
+		if(categories != null){
+			for(Object o: categories){
+				Map cat = (Map)o;
+				rows.add(new RubricRow(Integer.parseInt(String.valueOf(cat.get("id"))), String.valueOf(cat.get("rowText"))));
+			}
+		}
+		//else{System.out.println("This rubric has no rows.");}
+		
+		Collections.sort(rows);
+		for(RubricRow row : rows){
+			UIBranchContainer peerReviewRows = UIBranchContainer.make(parent, peerReviewRsfIds[1]);
+			UIOutput.make(peerReviewRows, peerReviewRsfIds[2], String.valueOf(row.id));
+			UIOutput.make(peerReviewRows, peerReviewRsfIds[3], row.text);
+		}
+	}
+	
+	private void makeSamplePeerEval(UIContainer parent)
+	{
+		UIOutput.make(parent, "peer-eval-sample-title", "Sample Peer Evaluation");
+		
+		UIBranchContainer peerReviewRows = UIBranchContainer.make(parent, "peer-eval-sample-data:");
+		UIOutput.make(peerReviewRows, "peer-eval-sample-id", "1");
+		UIOutput.make(peerReviewRows, "peer-eval-sample-text", messageLocator.getMessage("simplepage.peer-eval.sample.1"));
+		
+		peerReviewRows = UIBranchContainer.make(parent, "peer-eval-sample-data:");
+		UIOutput.make(peerReviewRows, "peer-eval-sample-id", "2");
+		UIOutput.make(peerReviewRows, "peer-eval-sample-text", messageLocator.getMessage("simplepage.peer-eval.sample.2"));
+		
+		peerReviewRows = UIBranchContainer.make(parent, "peer-eval-sample-data:");
+		UIOutput.make(peerReviewRows, "peer-eval-sample-id", "3");
+		UIOutput.make(peerReviewRows, "peer-eval-sample-text", messageLocator.getMessage("simplepage.peer-eval.sample.3"));
+		
+		peerReviewRows = UIBranchContainer.make(parent, "peer-eval-sample-data:");
+		UIOutput.make(peerReviewRows, "peer-eval-sample-id", "4");
+		UIOutput.make(peerReviewRows, "peer-eval-sample-text", messageLocator.getMessage("simplepage.peer-eval.sample.4"));
+	}
+
 }

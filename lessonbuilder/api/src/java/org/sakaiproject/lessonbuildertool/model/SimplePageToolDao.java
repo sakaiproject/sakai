@@ -32,10 +32,13 @@ import org.sakaiproject.lessonbuildertool.SimplePageComment;
 import org.sakaiproject.lessonbuildertool.SimplePageGroup;
 import org.sakaiproject.lessonbuildertool.SimplePageItem;
 import org.sakaiproject.lessonbuildertool.SimplePageLogEntry;
+
 import org.sakaiproject.lessonbuildertool.SimplePageQuestionAnswer;
 import org.sakaiproject.lessonbuildertool.SimplePageQuestionResponse;
 import org.sakaiproject.lessonbuildertool.SimplePageQuestionResponseTotals;
 import org.sakaiproject.lessonbuildertool.SimpleStudentPage;
+import org.sakaiproject.lessonbuildertool.SimplePagePeerEval;
+import org.sakaiproject.lessonbuildertool.SimplePagePeerEvalResult;
 
 public interface SimplePageToolDao {
 
@@ -206,9 +209,7 @@ public interface SimplePageToolDao {
     public SimpleStudentPage makeStudentPage(long itemId, long pageId, String title, String author, String group);
     
     public SimplePageQuestionAnswer makeQuestionAnswer(String text, boolean correct);
-    
-    public boolean saveQuestionAnswer(SimplePageQuestionAnswer questionAnswer, SimplePageItem item);
-    
+     
     public boolean deleteQuestionAnswer(SimplePageQuestionAnswer questionAnswer, SimplePageItem item);
 
     public void clearQuestionAnswers(SimplePageItem question);
@@ -234,5 +235,21 @@ public interface SimplePageToolDao {
     public void incrementQRCount(long questionId, long responseId);
 
     public void syncQRTotals(SimplePageItem item);
+    
+    public void addPeerEvalRow(SimplePageItem question, Long id, String text);
 
+    public void clearPeerEvalRows(SimplePageItem question);
+    
+    public Long maxPeerEvalRow(SimplePageItem question);
+    
+    public SimplePagePeerEval findPeerEval(long ItemId);
+    
+    //public List<SimplePageItem> getPeerEvalItems (SimplePageItem item);
+    
+    public SimplePagePeerEvalResult makePeerEvalResult(long pageId, String gradee, String grader, String rowText, int columnValue);
+    
+    public List<SimplePagePeerEvalResult> findPeerEvalResult(long pageId, String userId, String gradee);
+    
+    public List<SimplePagePeerEvalResult> findPeerEvalResultByOwner(long pageId,String grader);
+    
 }

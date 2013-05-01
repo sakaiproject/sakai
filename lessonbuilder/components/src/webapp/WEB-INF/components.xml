@@ -19,6 +19,7 @@
 		<value>org/sakaiproject/lessonbuildertool/simplestudentpage.hbm.xml</value>
 		<value>org/sakaiproject/lessonbuildertool/simplepagequestionresponse.hbm.xml</value>
 		<value>org/sakaiproject/lessonbuildertool/simplepagequestionresponsetotals.hbm.xml</value>
+		<value>org/sakaiproject/lessonbuildertool/simplepagepeerevalresult.hbm.xml</value>
       </list>
     </property>
   </bean>

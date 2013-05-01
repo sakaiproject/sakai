@@ -58,7 +58,8 @@ public class SimplePageItemImpl implements SimplePageItem  {
 	public static final int COMMENTS = 9;
 	public static final int STUDENT_CONTENT = 10;
 	public static final int QUESTION = 11;
-        public static final int BLTI = 12;
+    public static final int BLTI = 12;
+    public static final int PEEREVAL = 13;
 
     // must agree with definition in hbm file
 	public static final int MAXNAME = 100;
@@ -104,6 +105,8 @@ public class SimplePageItemImpl implements SimplePageItem  {
 	private String altGradebookTitle;
 	private boolean groupOwned = false;
 	private String ownerGroups = null;
+	
+	private boolean showPeerEval = false;
 	
 	/* All future fields should be added as attributes instead of
 	 * additional columns. This is actually a JSONObject, but we can't
@@ -572,6 +575,14 @@ public class SimplePageItemImpl implements SimplePageItem  {
 	public static void setSimplePageToolDao(SimplePageToolDao dao) {
 	    simplePageToolDao = dao;
 	}
+	
+	public void setShowPeerEval(Boolean review){
+		this.showPeerEval= review !=null? review:false;
+	}
+	public Boolean getShowPeerEval(){
+		return new Boolean(showPeerEval);
+	}
+	
 
 }
 

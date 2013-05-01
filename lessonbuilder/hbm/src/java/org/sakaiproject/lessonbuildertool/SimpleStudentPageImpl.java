@@ -18,6 +18,7 @@ public class SimpleStudentPageImpl implements SimpleStudentPage {
 	private boolean deleted = false; // Shows whether or not this was deleted by the instructor.
 	
 	private Double points; // Number of points given if this was graded
+	private Long peerEvalSection;
 	
 	public SimpleStudentPageImpl() { }
 	
@@ -29,6 +30,7 @@ public class SimpleStudentPageImpl implements SimpleStudentPage {
 		this.group = group;
 		this.groupOwned = false;
 		this.commentsSection = null;
+		this.peerEvalSection = null;
 	}
 	
 	public long getId() {
@@ -117,11 +119,16 @@ public class SimpleStudentPageImpl implements SimpleStudentPage {
 		}
 		this.deleted = deleted;
 	}
-	
 	public Double getPoints() {
 		return points;
 	}
 	public void setPoints(Double points) {
 		this.points = points;
+	}
+	public Long getPeerEvalSection() {
+		return peerEvalSection;
+	}
+	public void setPeerEvalSection(Long section) {
+		this.peerEvalSection = section;
 	}
 }

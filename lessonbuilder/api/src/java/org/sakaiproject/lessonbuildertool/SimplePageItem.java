@@ -45,6 +45,7 @@ public interface SimplePageItem {
 	public static final int STUDENT_CONTENT = 10;
 	public static final int QUESTION = 11;
     public static final int BLTI = 12;
+    public static final int PEEREVAL = 13;
 
     // sakaiId used for an item copied from another site with no real content
 	public static final String DUMMY = "/dummy";
@@ -198,4 +199,9 @@ public interface SimplePageItem {
     public String getAttributeString();
 
     public void setAttributeString(String s);
+    
+    public void setShowPeerEval(Boolean review);
+	
+    public Boolean getShowPeerEval();
+ 
 }

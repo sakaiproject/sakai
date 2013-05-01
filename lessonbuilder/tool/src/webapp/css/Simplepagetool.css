@@ -254,10 +254,10 @@ a.edit-link:link, a.edit-link:visited, a.itemLink:link, a.itemLink:visited, a.mu
 .link-div .usebutton {
 	font-size: 160%
 }
-.add-comment-button {
+.add-comment-button, .add-peereval-button {
 	margin: 7px 0px 2px 0px
 }
-.add-comment-button span {
+.add-comment-button span, .add-peereval-button span {
 	padding: 2px 8px 2px 8px
 }
 .noDisplay {
@@ -413,6 +413,15 @@ img {
 	border-radius: 2px;
 	color: black !important;
 }
+#peer-eval-create-table td, #peer-eval-create-table th {
+	padding:5px;
+	border: 1px solid black !important;
+}
+#peer-eval-create-table thead{
+	background-color: grey;
+	color: white;
+}
+/* #peer-eval-create-table tbody tr td:first-of-type{ padding-left:30px; } */
 #question-correct-text, #question-incorrect-text {
 	width: 400px;
 	height: 55px;

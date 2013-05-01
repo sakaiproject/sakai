@@ -45,6 +45,7 @@ function resizeiframe(id) {
 <script type="text/javascript" src="$context/js/jquery-ui-1.9.2.custom.min.js"></script>
 <script type="text/javascript" src="$context/js/jqBarGraph.1.1.customized.js"></script>
 <script type="text/javascript" src="$context/js/hoverIntent.js"></script>
+<script type="text/javascript" src="$context/js/peer-eval.js"></script>
 <script type="text/javascript" src="$context/js/show-page.js"></script>
 <script type="text/javascript" src="$context/js/gradingAjax.js"></script>
 
@@ -212,7 +213,7 @@ function resizeiframe(id) {
 		<ul id="error-list" rsf:id="error-list:">
 		  <li id="error-item" rsf:id="error-item:"><span id="error-item-text" rsf:id="error-item-text">missing page</span></li>
 		</ul>
-
+		
 		<div class="itemclass" rsf:id="itemContainer:" role="main" style="z-index: 1;">
 			<div style="display:none" rsf:id="current-item-id"></div>
 			
@@ -396,7 +397,6 @@ function resizeiframe(id) {
 						<span style="display:none" rsf:id="commentsGrade" class="commentsGrade"></span>
 						<span style="display:none" rsf:id="commentsMaxPoints" class="commentsMaxPoints"></span>
 					</td>
-					
 					<td rsf:id="student-td" class="edit-col"><div><a href="#" class="usebutton edit-student" onclick="return false" rsf:id="edit-student"></a></div></td>
 					
 					<td rsf:id="studentSpan">
@@ -424,11 +424,30 @@ function resizeiframe(id) {
  							    </div>
  							  </div>
  							</div>
+ 							<div class="add-comment-button" style="float:right;">
+							  <a rsf:id="peer-eval-stats-link" class="usebutton switchLink"><span style="font-weight:normal; color:#555" rsf:id="msg=simplepage.peer-eval-stats"></span></a>
+							</div>
 						</div>
 						
 						<div style="display:none" rsf:id="studentId" class="student-id"></div>
 						<div style="display:none" rsf:id="studentAnon" class="studentAnon"></div>
 						<div style="display:none" rsf:id="studentComments" class="studentComments"></div>
+						<div style="display:none" rsf:id="peer-eval" class="peer-eval"></div>
+						<div style="display:none" rsf:id="peer-eval-title" class="peer-eval-title"></div>
+						<div style="display:none" rsf:id="peer-eval-open-date" class="peer-eval-open-date"></div>
+						<div style="display:none" rsf:id="peer-eval-open-time" class="peer-eval-open-time"></div>
+						<div style="display:none" rsf:id="peer-eval-due-date" class="peer-eval-due-date"></div>
+						<div style="display:none" rsf:id="peer-eval-due-time" class="peer-eval-due-time"></div>
+						<div style="display:none" rsf:id="peer-eval-allow-self" class="peer-eval-allow-self"></div>
+						<div style="display:none" rsf:id="peer-eval-row:" class="peer-eval-row">
+							<span rsf:id="peerReviewId" class="peerReviewId"></span>
+							<span rsf:id="peerReviewText" class="peerReviewText"></span>
+						</div>
+						<div style="display:none" rsf:id="peer-eval-sample-title" class="peer-eval-sample-title"></div>
+						<div style="display:none" rsf:id="peer-eval-sample-data:" class="peer-eval-sample-data">
+							<span rsf:id="peer-eval-sample-id" class="peer-eval-sample-id"></span>
+							<span rsf:id="peer-eval-sample-text" class="peer-eval-sample-text"></span>
+						</div>
 						<div style="display:none" rsf:id="forcedAnon" class="forcedAnon"></div>
 						<span style="display:none" rsf:id="studentGrade" class="studentGrade"></span>
 						<span style="display:none" rsf:id="studentMaxPoints" class="studentMaxPoints"></span>
@@ -441,6 +460,45 @@ function resizeiframe(id) {
 						<span style="display:none" rsf:id="studentitem-prerequisite" class="studentitem-prerequisite"></span>
 					</td>
 					
+					<td rsf:id="peerReviewRubricStudent-edit" class="edit-col"></td>
+					<td rsf:id="peerReviewRubricStudent" style="width:100%;" colspan="2">
+						<div class="add-peereval-button">
+							<a rsf:id="add-peereval-link" class="usebutton switchLink" onclick=""><span style="font-weight:normal; color:#555" rsf:id="add-peereval-text"></span></a>
+						</div>
+						<div rsf:id="existing-peer-eval-data" class="existing-peer-eval-data" style="display:none;">
+							<div rsf:id="peer-eval-data:" class="peer-eval-data">
+								<div rsf:id="peer-eval-row-text" class="peer-eval-row-text" ></div>
+								<div rsf:id="peer-eval-grade" class="peer-eval-grade" ></div>
+							</div>
+						</div>
+						<div rsf:id="my-existing-peer-eval-data" class="my-existing-peer-eval-data" style="display:none;">
+							<div rsf:id="my-peer-eval-data:" class="my-peer-eval-data">
+								<div rsf:id="peer-eval-row-text" class="peer-eval-row-text" ></div>
+								<div rsf:id="peer-eval-grade" class="peer-eval-grade" ></div>
+								<div rsf:id="peer-eval-count" class="peer-eval-count" ></div>
+							</div>
+						</div>
+						<!-- hidden by default until .add-peereval-button is clicked -->
+						<div class="peer-eval-div" style="display:none; max-width:800px;">
+							<h3><span rsf:id="peer-eval-title-student" class="peer-eval-title-student"></span><span rsf:id="peer-eval-grade-directions" style="float:right;"></span></h3>
+							<form action="#" rsf:id="peer-review-form" class="peer-review-form">
+								<table id="peer-eval-create-table" style="width: 100%; height: 100%; border: 1px solid black;">
+									<thead><tr><th></th><th>4</th><th>3</th><th>2</th><th>1</th><th>0</th></tr></thead>
+									<tbody>
+										<tr rsf:id="peer-eval-row-student:" class="peer-eval-row">
+											<td>
+												<span rsf:id="peerReviewTextStudent" class="peerReviewText"></span>
+												<span style="display:none;" rsf:id="peerReviewIdStudent" class="peerReviewId"></span>
+											</td>
+											<td class="4"></td><td class="3"></td><td class="2"></td><td class="1"></td><td class="0"></td>
+										</tr>
+									</tbody>
+								</table>
+							</form>
+							<a rsf:id="cancel-peereval-link" class="usebutton switchLink cancel-peereval-link" onclick="return false;"><span style="font-weight:normal; color:#555" rsf:id="cancel-peereval-text"></span></a>
+							<a rsf:id="save-peereval-link" class="usebutton switchLink save-peereval-link" onclick="saveRubricSelection();"><span style="font-weight:normal; color:#555" rsf:id="save-peereval-text"></span></a>
+						</div>
+					</td>
 					
 					<td rsf:id="question-td" class="edit-col"><div><a href="#" class="usebutton edit-question" onclick="return false" rsf:id="edit-question"></a></div></td>
 					
@@ -541,6 +599,11 @@ function resizeiframe(id) {
 			<p rsf:id="msg=simplepage.ckeditor" id="simplepage.ckeditor"></p>
 		</div>
 		
+		<form class="rubricSelection" rsf:id="rubricSelection" style="display:none;">
+			<input type="text" class="rubricPeerGrade" id="rubricPeerGrade" rsf:id="rubricPeerGrade"></input>
+			<input class="bold" type="submit" onclick="return true;" id="update-peer-eval-grade" rsf:id="update-peer-eval-grade" />
+		</form>
+	
 		<form class="gradingForm" rsf:id="gradingForm" style="display:none;">
 			<input type="hidden" class="idField" id="gradingForm-id" rsf:id="gradingForm-id"></input>
 			<input type="hidden" class="jsIdField" id="gradingForm-jsId" rsf:id="gradingForm-jsId"></input>
@@ -1184,6 +1247,40 @@ function resizeiframe(id) {
 				</form>
 			</div>
 			
+			<!-- /* RU Rubrics */ -->
+			<!-- The create rubric form will not reload the page on submit like the the other dialog boxes. 
+			Instead, the data is placed in the parent dialog box (student-dialog). -->
+			<div id="peer-eval-create-dialog" rsf:id="peer-eval-create-dialog">
+				<!-- On open, it needs to pull the related information in and set the values... -->
+				<form class="peer-eval-create-form">
+					<div id="peer-eval-create-div">
+					<div id="rubric-title">
+					<label for="rubric-title">Title</label>
+					<!-- Put the rubric title input here. -->
+					</div>
+					<br /><br />
+					<table id="peer-eval-create-table" style="width: 100%; height: 100%; border: 1px solid black;">
+					<thead><tr>
+					<th></th>
+					<th>4</th>
+					<th>3</th>
+					<th>2</th>
+					<th>1</th>
+					<th>0</th>
+					</tr></thead>
+					<tbody></tbody>
+					</table><button id="addRowBtn" rsf:id="msg=simplepage.student-peer-review-add-row">Add Row</button>
+					</div><!-- end #peer-eval-create-div -->
+				</form>
+				<div id="peer-review-buttonset" class="ui-dialog-buttonpane ui-widget-content ui-helper-clearfix">
+					<div class="ui-dialog-buttonset">
+						<button onclick="closePeerReviewDialog(); return false;" rsf:id="msg=simplepage.cancel_message"></button>
+						<button onclick="createRubric(); return false;" id="createRubricBtn" rsf:id="msg=simplepage.save_message"></button>
+						<button onclick="updateRubric(); return false;" id="updateRubricBtn" style="display:none;" rsf:id="msg=simplepage.save_message"></button>
+					</div>
+				</div>
+			</div>
+			
 			<div id="student-dialog" rsf:id="student-dialog">
 				<form action="#" rsf:id="student-form">
 					<div class="border">
@@ -1210,7 +1307,49 @@ function resizeiframe(id) {
 							
 							<label for="student-comments-max" class="indent3"><span rsf:id="msg=simplepage.comments-max"></span></label>
 							<input type="text" name="student-comments-max" id="student-comments-max" rsf:id="student-comments-max" /><br />
+							
+							<div rsf:id="peer-evaluation-creation"><br />
+								
+    							<input type="checkbox" name="peer-eval-check" id="peer-eval-check" rsf:id="peer-eval-check" />
+    							<label for="peer-eval-check"><span rsf:id="msg=simplepage.student-peer-review-add"></span></label><br />
+    							
+    							<span class="indent" rsf:id="msg=simplepage.student-peer-review-select-rubric">Please select a rubric!</span><br />
+    							<div id="available-rubrics-container"></div>
+    							<a id="student-peer-review-create" class="indent" style="text-decoration:underline;">
+    								<span rsf:id="msg=simplepage.student-peer-review-create"></span>
+    							</a><br />
+    							
+    							<div id="peer-eval-open-date" class="indent">
+    								<span class="reqStar">*</span>
+    								<label for="openDate"><span rsf:id="peer_eval_open_date_label"></span></label><br />
+    								<div style="margin-left:3em">
+    									<span rsf:id="peer_eval_open_date:">
+    										<input type="text"
+    											name="open_date_dummy" value="MM/DD/YYYY"
+    											size="12" maxlength="10" /> 
+    										<img src="../images/calendar.gif"  alt="calendar" /> 
+    									</span>
+    								</div>
+    							</div>
+    							
+    							<div id="peer-eval-due-date" class="indent">
+    								<span class="reqStar">*</span>
+    								<label for="openDate"><span rsf:id="peer_eval_due_date_label"></span></label><br />
+    								<div style="margin-left:3em">
+    									<span rsf:id="peer_eval_due_date:">
+    										<input type="text" 
+    											name="due_date_dummy" value="MM/DD/YYYY"
+    											size="12" maxlength="10" /> 
+    										<img src="../images/calendar.gif"  alt="calendar" /> 
+    									</span>
+    								</div>
+    							</div>
+    							<div id="peer-eval-allow-self-div" class="indent">
+    								<input type="checkbox" name="peer-eval-allow-selfgrade" id="peer-eval-allow-selfgrade"  rsf:id="peer-eval-allow-selfgrade"/><label for="peer-eval-allow-selfgrade"><span rsf:id="msg=simplepage.peer-eval-allow-selfgrade"></span></label>
+    							</div>
+    						</div>
 						</div>
+						
 						<div align="left" style="margin-top:1em">
 						  <input type="checkbox" name="student-group-owned" id="student-group-owned" rsf:id="student-group-owned" /><label for="student-group-owned"><span rsf:id="msg=simplepage.owner-groups"></span></label>
 						  <div id="student-group-show">
@@ -1239,7 +1378,17 @@ function resizeiframe(id) {
 
 					</div>
 					<br />
-
+					
+					<!-- RU Rubrics **************************************************** -->
+					<div id="peer-eval-input-cloneable" style="display:none;">
+						<input type="text" rsf:id="peer-eval-input-row" class="peer-eval-input-row" style="width:80%;" />
+						<button onclick="deleteNotLast(this);">X</button>
+					</div>
+					<div id="peer-eval-title-cloneable" style="display:none;">
+						<input type="text" rsf:id="peer-eval-input-title" class="peer-eval-input-title" value="Peer Review" style="width:80%;" />
+					</div>
+					<div id="peer-eval-rows-for-submission" style="display:none;"></div>
+					
 					<div class="border2">
 						<div style="margin-top:5px; margin-bottom:5px;">
 							<b style="margin-left:50px;"><span rsf:id="msg=simplepage.delete"></span>:</b>
@@ -1252,7 +1401,7 @@ function resizeiframe(id) {
 
 				</form>
 			</div>
-			
+
 			<div id="question-dialog" rsf:id="question-dialog">
 				<form action="#" rsf:id="question-form">
 					<div class="border">
