@@ -36,8 +36,6 @@ import org.sakaiproject.event.api.EventTrackingService;
 import org.sakaiproject.event.api.LearningResourceStoreProvider;
 import org.sakaiproject.event.api.LearningResourceStoreService;
 import org.sakaiproject.event.api.LearningResourceStoreService.LRS_Verb.SAKAI_VERB;
-import org.sakaiproject.exception.IdUnusedException;
-import org.sakaiproject.site.api.Site;
 import org.sakaiproject.site.api.SiteService;
 import org.sakaiproject.tool.api.Session;
 import org.sakaiproject.tool.api.SessionManager;
@@ -387,16 +385,8 @@ public class BaseLearningResourceStoreService implements LearningResourceStoreSe
             if (StringUtils.startsWith(e, "wiki")) {
                 eventContext = StringUtils.replace(eventContext, "/site/", "");
             }
-            // TODO try to convert the context to a site and then into LRS_Context?
-            context = new LRS_Context("grouping", serverConfigurationService.getPortalUrl()+"/site/"+eventContext);
-            /*
-            try {
-                Site site = siteService.getSite(eventContext);
-                context = new LRS_Context(contextType, activityId)
-            } catch (IdUnusedException e1) {
-                // nothing to do here
-                context = null;
-            }*/
+            // the site is the parent for all event activities
+            context = new LRS_Context("parent", serverConfigurationService.getPortalUrl()+"/site/"+eventContext);
         }
         return context;
     }
@@ -417,6 +407,8 @@ public class BaseLearningResourceStoreService implements LearningResourceStoreSe
                 verb = new LRS_Verb(SAKAI_VERB.experienced);
             } else if ("syllabus.read".equals(e)) {
                 verb = new LRS_Verb(SAKAI_VERB.experienced);
+            } else if ("lessonbuilder.read".equals(e)) {
+                verb = new LRS_Verb(SAKAI_VERB.experienced);
             }
         }
         return verb;
@@ -426,20 +418,25 @@ public class BaseLearningResourceStoreService implements LearningResourceStoreSe
         LRS_Object object = null;
         if (event != null) {
             String e = StringUtils.lowerCase(event.getEvent());
+            /*
+             * NOTE: use the following terms "view", "add", "edit", "delete"
+             */
             if ("user.login".equals(e)) {
                 object = new LRS_Object(serverConfigurationService.getPortalUrl(), "session-started");
             } else if ("user.logout".equals(e)) {
                 object = new LRS_Object(serverConfigurationService.getPortalUrl()+"/logout", "session-ended");
             } else if ("content.read".equals(e)) {
-                object = new LRS_Object(serverConfigurationService.getAccessUrl() + event.getResource(), "read-resource");
+                object = new LRS_Object(serverConfigurationService.getAccessUrl() + event.getResource(), "view-resource");
             } else if ("content.new".equals(e)) {
-                object = new LRS_Object(serverConfigurationService.getAccessUrl() + event.getResource(), "new-resource");
+                object = new LRS_Object(serverConfigurationService.getAccessUrl() + event.getResource(), "add-resource");
             } else if ("content.revise".equals(e)) {
-                object = new LRS_Object(serverConfigurationService.getAccessUrl() + event.getResource(), "update-resource");
+                object = new LRS_Object(serverConfigurationService.getAccessUrl() + event.getResource(), "edit-resource");
             } else if ("rews.read".equals(e)) {
-                object = new LRS_Object(serverConfigurationService.getPortalUrl() + event.getResource(), "read-news");
+                object = new LRS_Object(serverConfigurationService.getPortalUrl() + event.getResource(), "view-news");
             } else if ("syllabus.read".equals(e)) {
                 object = new LRS_Object(serverConfigurationService.getPortalUrl() + event.getResource(), "view-syllabus");
+            } else if ("lessonbuilder.read".equals(e)) {
+                object = new LRS_Object(serverConfigurationService.getPortalUrl() + event.getResource(), "view-lesson");
             }
         }
         return object;
@@ -457,6 +454,8 @@ public class BaseLearningResourceStoreService implements LearningResourceStoreSe
                 origin = "news";
             } else if ("syllabus.read".equals(e)) {
                 origin = "syllabus";
+            } else if ("lessonbuilder.read".equals(e)) {
+                origin = "lessonbuilder";
             } else {
                 origin = e;
             }

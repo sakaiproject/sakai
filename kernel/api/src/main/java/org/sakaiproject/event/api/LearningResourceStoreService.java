@@ -36,6 +36,8 @@ import java.util.Map;
  * necessary for using the Experience API (XAPI). The Experience API (XAPI) is also known as "next-gen SCORM" 
  * or previously the TinCanAPI. The concept of the LRS was introduced to the e-learning industry in 2011, 
  * and is a shift to the way e-learning specifications function.
+ * Experience API current spec:
+ * https://github.com/adlnet/xAPI-Spec/blob/master/xAPI.md
  * 
  * @author Aaron Zeckoski (azeckoski @ vt.edu)
  */
@@ -958,7 +960,9 @@ public interface LearningResourceStoreService {
         String revision;
         /**
          * A map of the types of context to learning activities “activity” this statement is related to.
-         * Valid context types are: "parent", "grouping", and "other".
+         * Many Statements do not just involve one Object Activity that is the focus, but relate to other contextually relevant Activities. 
+         * "Context Activities" allow for these related Activities to be represented in a structured manner.
+         * Valid context types are: "parent", "grouping", "category", and "other".
          * For example, if I am studying a textbook, for a test, the textbook is the activity the statement is about, 
          * but the test is a context activity, and the context type is "other".
          * "other" : {"id" : "http://example.adlnet.gov/xapi/example/test"}
@@ -971,6 +975,10 @@ public interface LearningResourceStoreService {
          * }
          */
         Map<String, Map<String, String>> activitiesMap;
+        /**
+         * Platform used in the experience of this learning activity.
+         */
+        String platform = "SakaiCLE";
         // TODO include fields like team, platform, language, statement, and extensions
         /**
          * use of the empty constructor is restricted
@@ -1063,6 +1071,12 @@ public interface LearningResourceStoreService {
          */
         public Map<String, Map<String, String>> getActivitiesMap() {
             return activitiesMap;
+        }
+        /**
+         * @see #revision
+         */
+        public String getPlatform() {
+            return platform;
         }
         /* (non-Javadoc)
          * @see java.lang.Object#toString()
