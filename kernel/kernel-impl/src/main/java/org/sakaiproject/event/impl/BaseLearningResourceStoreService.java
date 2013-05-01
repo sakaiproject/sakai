@@ -36,6 +36,9 @@ import org.sakaiproject.event.api.EventTrackingService;
 import org.sakaiproject.event.api.LearningResourceStoreProvider;
 import org.sakaiproject.event.api.LearningResourceStoreService;
 import org.sakaiproject.event.api.LearningResourceStoreService.LRS_Verb.SAKAI_VERB;
+import org.sakaiproject.exception.IdUnusedException;
+import org.sakaiproject.site.api.Site;
+import org.sakaiproject.site.api.SiteService;
 import org.sakaiproject.tool.api.Session;
 import org.sakaiproject.tool.api.SessionManager;
 import org.sakaiproject.user.api.User;
@@ -295,6 +298,8 @@ public class BaseLearningResourceStoreService implements LearningResourceStoreSe
     }
 
     /**
+     * Convenience method to turn events into statements,
+     * this can only work for simple events where there is little student interaction
      * @param event an Event
      * @return a statement if one can be formed OR null if not
      */
@@ -307,6 +312,10 @@ public class BaseLearningResourceStoreService implements LearningResourceStoreSe
                 if (object != null) {
                     LRS_Actor actor = getEventActor(event);
                     statement = new LRS_Statement(actor, verb, object);
+                    LRS_Context c = getEventContext(event);
+                    if (c != null) {
+                        statement.setContext(c);
+                    }
                 } else {
                     statement = null;
                 }
@@ -358,51 +367,105 @@ public class BaseLearningResourceStoreService implements LearningResourceStoreSe
                 log.warn("LRS Actor: No email set for user ("+user.getId()+"), using generated one: "+actorEmail);
             }
             actor = new LRS_Actor(actorEmail);
+            if (StringUtils.isNotEmpty(user.getDisplayName())) {
+                actor.setName(user.getDisplayName());
+            }
         }
         return actor;
     }
 
+    /**
+     * @param event
+     * @return a valid context for the event (based on the site/course) OR null if one cannot be determined
+     */
+    private LRS_Context getEventContext(Event event) {
+        LRS_Context context = null;
+        if (event != null && event.getContext() != null) {
+            String eventContext = event.getContext();
+            String e = StringUtils.lowerCase(event.getEvent());
+            // NOTE: wiki puts /site/ in front of the context, others are just the site_id
+            if (StringUtils.startsWith(e, "wiki")) {
+                eventContext = StringUtils.replace(eventContext, "/site/", "");
+            }
+            // TODO try to convert the context to a site and then into LRS_Context?
+            context = new LRS_Context("grouping", serverConfigurationService.getPortalUrl()+"/site/"+eventContext);
+            /*
+            try {
+                Site site = siteService.getSite(eventContext);
+                context = new LRS_Context(contextType, activityId)
+            } catch (IdUnusedException e1) {
+                // nothing to do here
+                context = null;
+            }*/
+        }
+        return context;
+    }
+
     private LRS_Verb getEventVerb(Event event) {
         LRS_Verb verb = null;
-        if ("user.login".equals(event.getEvent())) {
-            verb = new LRS_Verb(SAKAI_VERB.initialized);
-        } else if ("user.logout".equals(event.getEvent())) {
-            verb = new LRS_Verb(SAKAI_VERB.exited);
-        } else if ("content.read".equals(event.getEvent())) {
-            verb = new LRS_Verb(SAKAI_VERB.interacted);
-        } else if ("content.new".equals(event.getEvent())) {
-            verb = new LRS_Verb(SAKAI_VERB.shared);
+        if (event != null) {
+            String e = StringUtils.lowerCase(event.getEvent());
+            if ("user.login".equals(e)) {
+                verb = new LRS_Verb(SAKAI_VERB.initialized);
+            } else if ("user.logout".equals(e)) {
+                verb = new LRS_Verb(SAKAI_VERB.exited);
+            } else if ("content.read".equals(e)) {
+                verb = new LRS_Verb(SAKAI_VERB.interacted);
+            } else if ("content.new".equals(e) || "content.revise".equals(e)) {
+                verb = new LRS_Verb(SAKAI_VERB.shared);
+            } else if ("rews.read".equals(e)) {
+                verb = new LRS_Verb(SAKAI_VERB.experienced);
+            } else if ("syllabus.read".equals(e)) {
+                verb = new LRS_Verb(SAKAI_VERB.experienced);
+            }
         }
         return verb;
     }
 
     private LRS_Object getEventObject(Event event) {
         LRS_Object object = null;
-        if ("user.login".equals(event.getEvent())) {
-            object = new LRS_Object(serverConfigurationService.getPortalUrl(), "session-started");
-        } else if ("user.logout".equals(event.getEvent())) {
-            object = new LRS_Object(serverConfigurationService.getAccessUrl() + event.getResource(), "session-ended");
-        } else if ("content.read".equals(event.getEvent())) {
-            object = new LRS_Object(serverConfigurationService.getAccessUrl() + event.getResource(), "read-resource");
-        } else if ("content.new".equals(event.getEvent())) {
-            object = new LRS_Object(serverConfigurationService.getAccessUrl() + event.getResource(), "new-resource");
+        if (event != null) {
+            String e = StringUtils.lowerCase(event.getEvent());
+            if ("user.login".equals(e)) {
+                object = new LRS_Object(serverConfigurationService.getPortalUrl(), "session-started");
+            } else if ("user.logout".equals(e)) {
+                object = new LRS_Object(serverConfigurationService.getPortalUrl()+"/logout", "session-ended");
+            } else if ("content.read".equals(e)) {
+                object = new LRS_Object(serverConfigurationService.getAccessUrl() + event.getResource(), "read-resource");
+            } else if ("content.new".equals(e)) {
+                object = new LRS_Object(serverConfigurationService.getAccessUrl() + event.getResource(), "new-resource");
+            } else if ("content.revise".equals(e)) {
+                object = new LRS_Object(serverConfigurationService.getAccessUrl() + event.getResource(), "update-resource");
+            } else if ("rews.read".equals(e)) {
+                object = new LRS_Object(serverConfigurationService.getPortalUrl() + event.getResource(), "read-news");
+            } else if ("syllabus.read".equals(e)) {
+                object = new LRS_Object(serverConfigurationService.getPortalUrl() + event.getResource(), "view-syllabus");
+            }
         }
         return object;
     }
 
     private String getEventOrigin(Event event) {
         String origin = null;
-        if ("user.login".equals(event.getEvent()) || "user.logout".equals(event.getEvent())) {
-            origin = ORIGIN_SAKAI_SYSTEM;
-        } else if ("content.read".equals(event.getEvent()) || "content.new".equals(event.getEvent())) {
-            origin = ORIGIN_SAKAI_CONTENT;
-        } else {
-            origin = event.getEvent();
+        if (event != null) {
+            String e = StringUtils.lowerCase(event.getEvent());
+            if ("user.login".equals(e) || "user.logout".equals(e)) {
+                origin = ORIGIN_SAKAI_SYSTEM;
+            } else if ("content.read".equals(e) || "content.new".equals(e) || "content.revise".equals(e)) {
+                origin = ORIGIN_SAKAI_CONTENT;
+            } else if ("rews.read".equals(e)) {
+                origin = "news";
+            } else if ("syllabus.read".equals(e)) {
+                origin = "syllabus";
+            } else {
+                origin = e;
+            }
         }
         return origin;
     }
 
 
+    // INJECTION
 
     ApplicationContext applicationContext;
     public void setApplicationContext(ApplicationContext applicationContext) throws BeansException {
@@ -422,6 +485,11 @@ public class BaseLearningResourceStoreService implements LearningResourceStoreSe
     SessionManager sessionManager;
     public void setSessionManager(SessionManager sessionManager) {
         this.sessionManager = sessionManager;
+    }
+
+    SiteService siteService;
+    public void setSiteService(SiteService siteService) {
+        this.siteService = siteService;
     }
 
     UserDirectoryService userDirectoryService;

@@ -247,6 +247,22 @@ public interface LearningResourceStoreService {
                 this.rawMap = null;
             }
         }
+        /**
+         * Set or clear (using null) the context for this statement
+         * @param context
+         * @see #context
+         */
+        public void setContext(LRS_Context context) {
+            this.context = context;
+        }
+        /**
+         * Set or clear (using null) the result for this statement
+         * @param result
+         * @see #result
+         */
+        public void setResult(LRS_Result result) {
+            this.result = result;
+        }
         // GETTERS
         /**
          * @see #populated
@@ -972,7 +988,7 @@ public interface LearningResourceStoreService {
             this.instructor = instructor;
         }
         /**
-         * @param contextType must be "parent", "grouping", and "other"
+         * @param contextType must be "parent", "grouping", "category", and "other"
          * @param activityId a URI or key identifying the activity type (e.g. http://example.adlnet.gov/xapi/example/test)
          */
         public LRS_Context(String contextType, String activityId) {
