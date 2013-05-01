@@ -5,7 +5,8 @@ function WebRTC() {
 	this.webrtcDetectedBrowser = null;
 	this.currentPeerConnectionsMap = {};
 	this.signalService = null;
-	
+	this.localMediaStream = null;
+
 	this.pc_config = {
 		"iceServers" : [ {
 			"url" : "stun:stun.l.google.com:19302"
@@ -15,14 +16,14 @@ function WebRTC() {
 	this.init = function(signalService) {
 		// First of all we try to detect which navigator is trying to use the
 		// videoconference from getUserMedia diferences
-		if (navigator.mozGetUserMedia){
+		if (navigator.mozGetUserMedia) {
 			this.webrtcDetectedBrowser = "firefox";
 			navigator.getUserMedia = navigator.mozGetUserMedia;
 			RTCPeerConnection = mozRTCPeerConnection;
 			RTCSessionDescription = mozRTCSessionDescription;
 			RTCIceCandidate = mozRTCIceCandidate;
-		}else if (navigator.webkitGetUserMedia) {
-			this.webrtcDetectedBrowser = "chrome";	
+		} else if (navigator.webkitGetUserMedia) {
+			this.webrtcDetectedBrowser = "chrome";
 			navigator.getUserMedia = navigator.webkitGetUserMedia;
 			RTCPeerConnection = webkitRTCPeerConnection;
 		} else if (navigator.getUserMedia) {
@@ -30,37 +31,12 @@ function WebRTC() {
 		} else {
 			this.webrtcDetectedBrowser = "nonwebrtc";
 		}
-		
-		// Setup the generic objects
 
-		// Adapt the getUserMedia with all the prefixs to ensure that any of
-		// that will work for you
-	/*
-	 * navigator.getUserMedia = (navigator.getUserMedia || // Opera
-	 * navigator.webkitGetUserMedia || // webkit based browsers like chrome
-	 * navigator.mozGetUserMedia // mozilla firefox // navigator.msGetUserMedia
-	 * //Microsoft -- uncomment when it really with all browsers );
-	 *  // Addapt the window.URL object window.URL = (window.URL ||
-	 * window.webkitURL || window.mozURL || window.msURL);
-	 *  // Adapt the RTCPeerConnection object
-	 * 
-	 * RTCPeerConnection = (RTCPeerConnection || webkitRTCPeerConnection ||
-	 * mozRTCPeerConnection);
-	 */
-		/*
-		 * RTCSessionDescription = (RTCSessionDescription ||
-		 * mozRTCSessionDescription);
-		 */
-
-		// Adapt the RTCIceCandidate object
-		/* RTCIceCandidate = (mozRTCIceCandidate); */
 		this.signalService = signalService; // Use the signal service provided
-											// by instantiator
 		var webRTCClass = this;
-		this.signalService.onReceive  = function (userid,message){
-			webRTCClass.onReceive (userid,message); // Called custom method when
-													// signalService receives
-													// some videomessage
+
+		this.signalService.onReceive = function(userid, message) {
+			webRTCClass.onReceive(userid, message); // Called custom method when
 		}
 	}
 
@@ -69,55 +45,70 @@ function WebRTC() {
 		var callConnection = this.currentPeerConnectionsMap[userid];
 
 		if (callConnection == null) {
-			callConnection = this.setupPeerConnection(userid,success,fail);
+			callConnection = this.setupPeerConnection(userid, success, fail);
 			callConnection.isCaller = true;
 		}
-		
+
 		var webRTCClass = this;
-		navigator.getUserMedia({
-			audio : true,
-			video : true
-		}, function(localMediaStream) {
-			/* Call started function to fire rendering effects on the screen */
-			started(userid,localMediaStream);
-			callConnection.localMediaStream = localMediaStream;
-			webRTCClass.offerStream(callConnection, userid,success,fail); // WebRTC. ?
-		},fail);
+
+		if (this.localMediaStream != null) {
+			started(userid, webRTCClass.localMediaStream);
+			callConnection.localMediaStream = webRTCClass.localMediaStream;
+			webRTCClass.offerStream(callConnection, userid, success, fail); // WebRTC.
+		} else {
+
+			navigator.getUserMedia({
+				audio : true,
+				video : true
+			}, function(localMediaStream) {
+				/* Call started function to fire rendering effects on the screen */
+				started(userid, localMediaStream);
+				webRTCClass.localMediaStream = localMediaStream;
+				callConnection.localMediaStream = localMediaStream;
+				webRTCClass.offerStream(callConnection, userid, success, fail); // WebRTC.
+				// ?
+			}, fail);
+		}
 	}
 
 	/*
 	 * Provide this function. It will be called when receiving a incoming call
 	 */
 	this.onReceiveCall = function(userid) {
-		
+
 	}
 
 	/* Call this function to start the answer process to a previous call */
 
-	this.answerCall = function(userid,startAnswer, success, fail) {
+	this.answerCall = function(userid, startAnswer, success, fail) {
 		var callConnection = this.currentPeerConnectionsMap[userid];
-		
+
 		// Set up the triggered functions
 		callConnection.onsuccessconn = success;
 		callConnection.onfail = fail;
 		callConnection.isCaller = false;
-		
-		
+
 		var webRTCClass = this;
-		
-		if (this.localMediaStream != null) {
+
+		if (webRTCClass.localMediaStream != null) {
 			// offerStream(pc, to, this.localMediaStream, false);
+			startAnswer(userid, webRTCClass.localMediaStream);
+			callConnection.localMediaStream = webRTCClass.localMediaStream;
+			webRTCClass.offerStream(callConnection, userid, success, fail); // WebRTC.
+
 		} else {
 			navigator.getUserMedia({
 				audio : true,
 				video : true
 			}, function(localMediaStream) {
 				/* Call started function to fire rendering effects on the screen */
-				startAnswer(userid,localMediaStream);
+				startAnswer(userid, localMediaStream);
+				webRTCClass.localMediaStream = localMediaStream;
 				callConnection.localMediaStream = localMediaStream;
-				webRTCClass.offerStream(callConnection, userid,success,fail); // WebRTC. ?
+				webRTCClass.offerStream(callConnection, userid, success, fail); // WebRTC.
+				// ?
 			}, fail);
-		
+
 		}
 	}
 
@@ -128,35 +119,67 @@ function WebRTC() {
 	 * /*Call this function to announce you want to hangup, success callback is
 	 * launched when the pair get the request, fail in other case
 	 */
-	this.hangUp = function(userid, success, fail) {
-
-	}
+	this.hangUp = function(userid) {
+		var callConnection = this.currentPeerConnectionsMap[userid];
+		var pc = callConnection.rtcPeerConnection;
+		
+		if (callConnection.localMediaStream != null){
+			pc.removeStream(callConnection.localMediaStream);
+		}
+	
+		if (callConnection.remoteMediaStream != null){
+			pc.removeStream(callConnection.remoteMediaStream);
+		}
+	
+		pc.close();
+		
+		//If it was the last connection we stop the webcam
+		delete this.currentPeerConnectionsMap[userid];
+		var keys = Object.keys(this.currentPeerConnectionsMap);
+		
+		if (keys.length < 1 && this.localMediaStream != null){ 
+			this.localMediaStream.stop();
+			this.localMediaStream = null;
+		}
+		
+		
+		this.signalService.send(userid, JSON.stringify({
+			"bye" : "bye"
+		}));
+		
+	}	
 
 	/*
-	 * Provide this function. It will be called when hungup request is received,
+	 * Provide this function. It will be called when hangup request is received,
 	 * or connection is lost
 	 */
 	this.onHangUp = function(userid) {
-			
+
+	}
+	
+	/*
+	 * Provide this function. It will be called when a ignore response is received,
+	 */
+	
+	this.onIgnore = function (userid){
+		
 	}
 
 	/* Use this helper function to hook the media stream to a especified element */
 	this.attachMediaStream = function(element, stream) {
-			if (this.webrtcDetectedBrowser == "firefox"){
-				element.mozSrcObject = stream;
-			    element.play();
-			}else if (this.webrtcDetectedBrowser = "chrome"){
-			    element.src = webkitURL.createObjectURL(stream);
-			}
+		if (this.webrtcDetectedBrowser == "firefox") {
+			element.mozSrcObject = stream;
 			element.play();
+		} else if (this.webrtcDetectedBrowser = "chrome") {
+			element.src = webkitURL.createObjectURL(stream);
+		}
+		element.play();
 	}
 
-	this.offerStream = function(callConnection, to,successCall,failedCall) {
+	this.offerStream = function(callConnection, to, successCall, failedCall) {
 		var pc = callConnection.rtcPeerConnection;
-		
-		pc.addStream(callConnection.localMediaStream);
 
-		// this.currentPeerConnectionsMap[to] = pc;
+		pc.addStream(callConnection.localMediaStream);
 
 		var webRTCClass = this;
 
@@ -164,19 +187,23 @@ function WebRTC() {
 		 * Declare the success function to be launched when remote stream is
 		 * added
 		 */
-	
-		
+
 		if (callConnection.isCaller) {
 			pc.createOffer(function(desc) {
-				webRTCClass.gotDescription(to, desc); //we won't call success, we will wait until peer offers the stream.
+
+				// we won't call success, we will wait until peer offers the
+				// stream.
+				webRTCClass.gotDescription(to, desc);
 			});
 		} else {
 			pc.createAnswer(function(desc) {
 				webRTCClass.gotDescription(to, desc);
-				successCall (to,callConnection.remoteStream); //In this case we have to wait here to declare the success, instead on addStream
+
+				// In this case we have to declare the success, instead
+				// on addStream
+				successCall(to, callConnection.remoteMediaStream); // In this
 			});
 		}
-
 
 	}
 
@@ -187,17 +214,27 @@ function WebRTC() {
 	}
 
 	this.setupPeerConnection = function(userid, successConn, failConn) {
-		
+
 		var pc = new RTCPeerConnection(this.pc_config);
-			
+
 		// send any ice candidates to the other peer
-		var callConnection = new CallConnection (pc,successConn,failConn);
-		
-		
+		var callConnection = new CallConnection(pc, successConn, failConn);
+
+		pc.onicechange = function(event) {
+			console.info("onicechange +" + pc.iceState);
+		}
+
+		pc.onicechange = function(event) {
+			console.info("onicechange +" + pc.iceState);
+		}
+
+		pc.onstatechange = function(event) {
+			console.info("onicechange +" + pc.readyState);
+		}
+
 		var signalService = this.signalService;
 		var webRTCClass = this;
-		
-		
+
 		pc.onicecandidate = function(event) {
 			if (event.candidate) {
 				signalService.send(userid, JSON.stringify({
@@ -208,82 +245,93 @@ function WebRTC() {
 				}));
 			}
 		};
-		
+
 		pc.onaddstream = function(event) {
-				callConnection.remoteStream = event.stream
-			    
-				if (callConnection.onsuccessconn != null) { /* In this case we have declared what to do in case of success connection (Offer)*/
-					callConnection.onsuccessconn(userid, event.stream);
-				}
-				 
+			callConnection.remoteMediaStream = event.stream;
+
+			if (callConnection.onsuccessconn != null) { 
+			
+				/* 
+				 * In this case we have declared what to do
+				 * in case of success connection (Offer)
+				 */
+				callConnection.onsuccessconn(userid, event.stream);
+			}
+
 		};
-		
-		this.currentPeerConnectionsMap[userid] = callConnection; 
-		
+		this.currentPeerConnectionsMap[userid] = callConnection;
+
 		return callConnection;
 	}
-	
-	this.gotDescription = function (uuid,desc){
+
+	this.gotDescription = function(uuid, desc) {
 		var callConnection = this.currentPeerConnectionsMap[uuid];
 		var pc = callConnection.rtcPeerConnection;
-		
-		
-		 if (pc != null){
-			 pc.setLocalDescription(desc);
-			 this.signalService.send(uuid,JSON.stringify({"sdp":desc }));
+
+		if (pc != null) {
+			pc.setLocalDescription(desc);
+			this.signalService.send(uuid, JSON.stringify({
+				"sdp" : desc
+			}));
 		}
 	}
-	
+
 	/*
 	 * That function is called when the signal service receive a message
 	 */
-	this.onReceive = function (from,message){
+	this.onReceive = function(from, message) {
 		var signal = JSON.parse(message.content);
 
 		if (signal.sdp) {
-			
+
 			var callConnection = this.currentPeerConnectionsMap[from];
-			
+
 			if (callConnection == null) {
 				callConnection = this.setupPeerConnection(from);
 				this.currentPeerConnectionsMap[from] = callConnection;
 			}
-			
+
 			var pc = callConnection.rtcPeerConnection;
 			pc.setRemoteDescription(new RTCSessionDescription(signal.sdp));
-			
-			
-			
-			
-			if (signal.sdp.type=="offer"){
-				this.onReceiveCall (from);	
-			}else if (signal.sdp.type="response"){
-				// this.onReceiveAnswer(userid)
-				
+
+			if (signal.sdp.type == "offer") {
+				this.onReceiveCall(from);
 			}
 
 		} else if (signal.candidate != null) {
-				var callConnection = this.currentPeerConnectionsMap[from];
+			var callConnection = this.currentPeerConnectionsMap[from];
+			if (callConnection != null) {
 				var pc = callConnection.rtcPeerConnection;
 				pc.addIceCandidate(new RTCIceCandidate({
-				sdpMLineIndex : signal.label,
-				candidate : signal.candidate
-			}));
+					sdpMLineIndex : signal.label,
+					candidate : signal.candidate
+
+				}));
+			}
+		} else if (signal.bye != null) {
+			var callConnection = this.currentPeerConnectionsMap[from];
+			if (callConnection != null ) {
+				if (signal.bye === "bye"){
+					this.onHangUp(from);
+				}else if (signal.bye === "ignore"){
+					this.onIgnore(from);
+				}
+				//In the case of not having a previous connection could be a refuse message
+			
+				
+			}
 		}
 	}
-	
-	
+
 }
-
-
 
 /* Object to handle connection and call success, fail events */
 
-function CallConnection (pc,success,failed){
-	this.rtcPeerConnection =pc;
+function CallConnection(pc, success, failed) {
+	this.rtcPeerConnection = pc;
 	this.onsuccessconn = success;
 	this.onfailedconn = failed;
 	this.isCaller = null;
-	this.remoteStream = null;
+	this.localMediaStream = null;
+	this.remoteMediaStream = null;
 }
-

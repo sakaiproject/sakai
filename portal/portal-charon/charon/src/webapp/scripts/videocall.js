@@ -1,6 +1,6 @@
 /*
  * Mock video controller. 
- * It uses webrtc-adapter.js to handle all the comunication
+ * It uses webrtc-adapter.js to handle all the communication
  */
 
 function VideoCall() {
@@ -10,6 +10,7 @@ function VideoCall() {
 
 	/* Define the actions executed in each event */
 
+	
 	this.doCall = function(uuid,onSuccessStartCall,onSuccessConnection,onFailConnection){
 
 		var videoCallObject = this; 
@@ -23,14 +24,12 @@ function VideoCall() {
 						videoCallObject.successCall (userid,localMediaStream);  
 						onSuccessConnection (userid);
 					},onFailConnection);
-	
-	
 	}
 
  	this.doAnswer = function(uuid,onSuccessStartCall,onSuccessConnection,onFailConnection){
 
 		var videoCallObject = this; 
-			
+
 		this.webRTC.answerCall(uuid,
 					function (userid,localMediaStream){
 						videoCallObject.startAnswer (userid,localMediaStream);  
@@ -42,14 +41,11 @@ function VideoCall() {
 					},onFailConnection);
 	
 	}
-
+ 	
+ 	this.doClose = function (uuid){
+ 		this.webRTC.hangUp(uuid);
+ 	}
 	
-	
-	this.successCall = function (uuid, remoteMediaStream) {
-		 this.webRTC.attachMediaStream(document.getElementById("pc_chat_" + uuid
-				+ "_remote_video"), remoteMediaStream);
-	}
-
 	this.startCall = function (uuid, localMediaStream) {
 		this.webRTC.attachMediaStream(document.getElementById("pc_chat_" + uuid
 				+ "_local_video"), localMediaStream);
@@ -60,15 +56,39 @@ function VideoCall() {
 				+ "_local_video"), localMediaStream);
 	}
 
+	this.successCall = function (uuid, remoteMediaStream) {
+		 this.webRTC.attachMediaStream(document.getElementById("pc_chat_" + uuid
+				+ "_remote_video"), remoteMediaStream);
+	}
+
 	this.failedCall = function (uuid) {
-		alert("Call failed");
+		
 	}
 
-	this.receiveMessage = function (uid, message) {
-		this.mockSignalService.onReceive(uid, message);
+	this.receiveMessage = function (uuid, message) {
+		this.mockSignalService.onReceive(uuid, message);
 	}
 
+	this.refuseCall = function (uuid){
+		this.mockSignalService.send(uuid, JSON.stringify({
+			"bye" : "ignore"
+		}));
+	}
 	
+	this.onHangUp = function (uid){ // Just declared		
+	
+	}
+
+	/* It retrieves the current userid list of active webconnections */
+
+	this.getActiveUserIdVideoCalls = function (){
+		var currentUserIdConnections = {};
+		if (this.webRTC!=null){
+			currentUserIdConnections = Object.keys(this.webRTC.currentPeerConnectionsMap);
+		}
+		return currentUserIdConnections;	
+	}
+		
 	
 	this.init = function (pChat){
 
@@ -76,22 +96,20 @@ function VideoCall() {
 		
 		this.mockSignalService = new SignalService(pChat);
 		this.webRTC.init(this.mockSignalService);
-
+		this.webRTC.onHangUp = this.onHangUp;
+		this.webRTC.onIgnore = function (userid){
+			pChat.closeVideoCall (userid);
+			pChat.setVideoStatus(userid,"User refused your request", true);
+		}
+		
 		/* This is a way to determine what to do when a webrtc call is received */
 	    var videoCallObject = this;
 		
 	    this.webRTC.onReceiveCall = function(userid) {
-			pChat.setVideoStatus(userid,"You have an incomming call, waiting for a response...", true);
+			pChat.setVideoStatus(userid,"You have an incomming call...", true);
 			pChat.openVideoCall (userid,true);
 		}
-
-		this.webRTC.hangUp = function(userid, success, fail) {
-			pChat.closeVideoCall(userid);
-		}
-
-		this.webRTC.onHangUp = function(userid) {
-		}
-		
+				
 	}
 }
 /*

@@ -19,13 +19,7 @@ function PortalChat() {//
 	this.videoCall = null;
 	this.videoOff = false;
 
-	/** Set up the webRTC references depending on the navigator is executed */
-
-	navigator.getUserMedia = navigator.getUserMedia || navigator.webkitGetUserMedia ||
-                                            navigator.mozGetUserMedia || navigator.msGetUserMedia;
-        window.URL = window.URL || window.webkitURL;
-
-    /**
+	/**
      *  Utility for rendering trimpath templates. Takes the id of the template,
      *  an object with the data to be mixed in, and the id of the element to render into
      */
@@ -107,6 +101,11 @@ function PortalChat() {//
 				'peerMessage':content
 			},
 			success : function (text,status) {
+				if('OFFLINE' === text) {
+					/* The peer is disconnected you can close the connection*/
+					portalChat.setVideoStatus(userid, "User went unexpectly", true);
+					portalChat.closeVideoCall (to);
+				} 
 			},
 			error : function (xhr,textStatus,error) {
 
@@ -206,7 +205,7 @@ function PortalChat() {//
 		$('#pc_chat_with_' + uuid).remove();
 
 		this.currentChats.splice(removed,1);
-
+		
 		sessionStorage.removeItem('pcsession_' + uuid);
 
 		return false;
@@ -759,14 +758,15 @@ function PortalChat() {//
 		if (incomming) {
 			$('#pc_connection_'+uuid+'_videoin').show();
 		} else {
-			this.videoCall.doCall(uuid,function (uuid){
-				//hide the buttons 
-				// show a new cancel button
-				//show a image initializating
-				portalChat.setVideoStatus (uuid,"Connecting ...");
-			},this.showVideoCall,function (uuid){
-					alert ("Sorry Video Call failed!");
-					this.closeVideoCall (uuid);
+			this.videoCall.doCall(uuid,
+				function (uuid){
+					portalChat.setVideoStatus (uuid,"Waiting for peer...",true);
+				},function(uuid){
+					portalChat.setVideoStatus (uuid,"Call accepted, establishing connection ",true);
+					portalChat.showVideoCall(uuid);
+				},function (uuid){
+					portalChat.setVideoStatus (uuid,"Call not accepted or failed",true);
+					portalChat.closeVideoCall (uuid);
 			});
 		     //temporaly show my video
 			this.showVideoCall(uuid);
@@ -776,14 +776,15 @@ function PortalChat() {//
     
     
     this.acceptVideoCall = function (uuid){
-    		this.videoCall.doAnswer (uuid,function (uuid){
-					//hide the buttons 
-					// show a new cancel button
-					//show a image initializating
-    			    portalChat.setVideoStatus (uuid,"Connecting ...",true);
-    				},this.showVideoCall,function(){
-    						alert ("Sorry Video Call could no be established");
-    						this.closeVideoCall(uuid);
+    		this.videoCall.doAnswer (uuid,
+    				function (uuid){
+    					portalChat.setVideoStatus (uuid,"Connecting ...",true);
+    				},function (uuid){
+    					portalChat.setVideoStatus (uuid,"Connection established",true);
+    					portalChat.showVideoCall(uuid)
+    				},function(){
+    						portalChat.setVideoStatus (uuid,"Call failed",true);
+    						portalChat.closeVideoCall(uuid);
     				});
     }
     
@@ -793,6 +794,8 @@ function PortalChat() {//
 
     this.ignoreVideoCall = function(uuid) {
     	$('#pc_connection_'+uuid+'_videoin').hide();
+    	this.setVideoStatus(uuid, "You ignored that call", true);
+    	this.videoCall.refuseCall (uuid);
     }
     
     this.showVideoCall = function(uuid) {
@@ -814,6 +817,12 @@ function PortalChat() {//
     }
     
     this.closeVideoCall = function (uuid) {
+    	portalChat.setVideoStatus(uuid, "You have hung up!", true);
+		this.videoCall.doClose (uuid);
+    	this.hideVideoCall(uuid);
+    }
+    
+    this.hideVideoCall = function (uuid){
     	$("#pc_chat_"+uuid+"_video_content").hide();
     	$("#pc_chat_with_" + uuid).css('height','318px');
     	$("#pc_chat_with_" + uuid).css('margin-top','0px');
@@ -845,7 +854,16 @@ function PortalChat() {//
                 
             	/*Initialize videoChat */
             	portalChat.videoCall = new VideoCall();
+            	
+            	
+            	portalChat.videoCall.onHangUp = function (userid){
+            		portalChat.setVideoStatus(userid, "User has hung up", true);
+            		portalChat.videoCall.doClose (userid);
+            		portalChat.hideVideoCall(userid);
+            	};
+            	
             	portalChat.videoCall.init(portalChat);
+            
             	
             	
             	$('#chatToggle').click(function () {
