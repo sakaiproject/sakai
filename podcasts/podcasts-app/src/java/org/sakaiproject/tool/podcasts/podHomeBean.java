@@ -55,6 +55,8 @@ import org.sakaiproject.api.app.podcasts.PodcastService;
 import org.sakaiproject.api.app.podcasts.exception.PodcastException;
 import org.sakaiproject.authz.api.PermissionsHelper;
 import org.sakaiproject.component.cover.ServerConfigurationService;
+import org.sakaiproject.component.cover.ComponentManager;
+import org.sakaiproject.event.api.EventTrackingService;
 import org.sakaiproject.content.api.ContentResource;
 import org.sakaiproject.entity.api.Entity;
 import org.sakaiproject.entity.api.EntityPropertyNotDefinedException;
@@ -773,6 +775,13 @@ public class podHomeBean {
 			// if cannot update site (ie, student) only display published podcasts
 			if (! podcastPermissionsService.canUpdateSite(podcastService.getSiteId())) {
 				contents = podcastService.filterPodcasts(contents);
+			}
+
+			// SAK-23566 indicate the student viewed their grades
+			EventTrackingService ets = (EventTrackingService) ComponentManager.get(EventTrackingService.class);
+			String podcastFolderId = podcastService.retrievePodcastFolderId(podcastService.getSiteId());
+			if (ets != null && podcastFolderId != null) {
+			    ets.post(ets.newEvent("podcast.read", podcastFolderId, false));
 			}
 
 		} 
