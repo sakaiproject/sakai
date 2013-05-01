@@ -49,6 +49,7 @@ import org.sakaiproject.component.cover.ServerConfigurationService;
 import org.sakaiproject.lessonbuildertool.SimplePageItem;
 import org.sakaiproject.lessonbuildertool.ccexport.SamigoExport;
 import org.sakaiproject.lessonbuildertool.ccexport.AssignmentExport;
+import org.sakaiproject.lessonbuildertool.ccexport.ForumsExport;
 import org.sakaiproject.lessonbuildertool.ccexport.ZipPrintStream;
 import org.sakaiproject.lessonbuildertool.model.SimplePageToolDao;
 import org.sakaiproject.tool.cover.SessionManager;
@@ -72,6 +73,10 @@ public class CCExport {
     static AssignmentExport assignmentExport;
     public void setAssignmentExport(AssignmentExport se) {
 	assignmentExport = se;
+    }
+    static ForumsExport forumsExport;
+    public void setForumsExport(ForumsExport se) {
+	forumsExport = se;
     }
 
     static MessageLocator messageLocator;
@@ -103,6 +108,9 @@ public class CCExport {
     Map<String, Resource> samigoMap = new HashMap<String, Resource>();
     // map of all Assignments
     Map<String, Resource> assignmentMap = new HashMap<String, Resource>();
+    // map of all Forums
+    Map<String, Resource> forumsMap = new HashMap<String, Resource>();
+
 
 
     // the error messages are a problem. They won't show until the next page display
@@ -153,6 +161,8 @@ public class CCExport {
 	if (! addAllSamigo(siteId))
 	    return;
 	if (! addAllAssignments(siteId))
+	    return;
+	if (! addAllForums(siteId))
 	    return;
 	download();
 
@@ -355,6 +365,42 @@ public class CCExport {
 	}
 
 	return true;
+    }
+
+    public boolean addAllForums(String siteId) {
+	List<String> forums = forumsExport.getEntitiesInSite(siteId, this);
+	if (forums == null)
+	    return true;
+	for (String sakaiId: forums) {
+	    Resource res = new Resource();
+	    res.resourceId = getResourceId();
+	    res.location = "cc-objects/" + res.resourceId + ".xml";
+	    res.sakaiId = sakaiId;
+	    res.dependencies = new ArrayList<String>();
+	    res.use = null;
+	    forumsMap.put(res.sakaiId, res);
+	}
+	return true;
+    }
+
+    public boolean outputAllForums(ZipPrintStream out) {
+	try {
+	    for (Map.Entry<String, Resource> entry: forumsMap.entrySet()) {
+		ZipEntry zipEntry = new ZipEntry(entry.getValue().location);
+
+		out.putNextEntry(zipEntry);
+		boolean ok = forumsExport.outputEntity(entry.getValue().sakaiId, out, errStream, this, entry.getValue());
+		if (!ok)
+		    return false;
+
+	    }
+	} catch (Exception e) {
+	    System.out.println("problem in outputallforums " + e);
+	    setErrKey("simplepage.exportcc-fileerr", e.getMessage());
+	    return false;
+	}
+
+	return true;
 
     }
 
@@ -410,6 +456,14 @@ public class CCExport {
 		out.println("    </resource>");
 	    }
 
+	    for (Map.Entry<String, Resource> entry: forumsMap.entrySet()) {
+		out.println("    <resource href=\"" + StringEscapeUtils.escapeXml(entry.getValue().location) + "\" identifier=\"" + entry.getValue().resourceId + "\" type=\"imsdt_xmlv1p2\">");
+		out.println("      <file href=\"" + StringEscapeUtils.escapeXml(entry.getValue().location) + "\"/>");
+		for (String d: entry.getValue().dependencies)
+		    out.println("      <dependency identifierref=\"" + d + "\"/>");
+		out.println("    </resource>");
+	    }
+
 	    // add error log at the very end
 	    String errId = getResourceId();
 
@@ -454,6 +508,7 @@ public class CCExport {
 	    outputAllFiles (out);
 	    outputAllSamigo (out);
 	    outputAllAssignments (out);
+	    outputAllForums (out);
 	    outputManifest (out);
 	    
 	    if (out != null)

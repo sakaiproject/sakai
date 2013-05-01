@@ -442,6 +442,8 @@ public class PrintHandler extends DefaultHandler implements AssessmentHandler, D
 	      Element topicXml =  parser.getXML(loader, filename);
 	      Namespace topicNs = ns.topic_ns();
 	      String topicTitle = topicXml.getChildText(TITLE, topicNs);
+	      if (topicTitle == null)
+		  topicTitle = simplePageBean.getMessageLocator().getMessage("simplepage.cc-defaulttopic");
 	      String text = topicXml.getChildText(TEXT, topicNs);
 	      boolean texthtml = false;
 	      if (text != null) {
@@ -451,12 +453,17 @@ public class PrintHandler extends DefaultHandler implements AssessmentHandler, D
 		      texthtml = true;
 	      }
 
-	      // I'm going to assume that URLs in the CC files are legal, but if
-	      // I add to them I nneed to URLencode what I add
 	      String base = baseUrl + filename;
 	      int slash = base.lastIndexOf("/");
 	      if (slash >= 0)
 		  base = base.substring(0, slash+1); // include trailing slash
+
+	      if (texthtml) {
+		  text =  text.replaceAll("\\$IMS-CC-FILEBASE\\$", base);
+	      }
+
+	      // I'm going to assume that URLs in the CC files are legal, but if
+	      // I add to them I nneed to URLencode what I add
 
 	      Element attachmentlist = topicXml.getChild(ATTACHMENTS, topicNs);
 	      List<Element>attachments = new ArrayList<Element>();
@@ -467,6 +474,9 @@ public class PrintHandler extends DefaultHandler implements AssessmentHandler, D
 		  attachmentHrefs.add(a.getAttributeValue(HREF));
 
 	      ForumInterface f = (ForumInterface)topictool;
+
+	      if (nopage)
+		  title = simplePageBean.getMessageLocator().getMessage("simplepage.cc-defaultforum");
 
 	      // System.out.println("about to call forum import base " + base);
 	      // title is for the cartridge. That will be used as the forum

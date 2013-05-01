@@ -158,8 +158,8 @@ public class AssignmentExport {
 		    // if it is a URL, need the URL rather than copying the file
 		    try {
 			ContentResource resource = ContentHostingService.getResource(sakaiId);
-			String type = resource.getResourceType();
-			if ("org.sakaiproject.content.types.urlResource".equals(type)) {
+			String type = resource.getContentType();
+			if ("text/url".equals(type)) {
 			    url = new String(resource.getContent());
 			}
 		    } catch (Exception e) {
@@ -244,6 +244,7 @@ public class AssignmentExport {
 		URL = URL.replaceAll("//", "/");
 		try {
 		    out.println("<a href=\"" + URLEncoder.encode(URL, "UTF-8") + "\">" + StringEscapeUtils.escapeHtml(lastAtom) + "</a><br/>");
+
 		} catch (java.io.UnsupportedEncodingException e) {
 		    System.out.println("UTF-8 unsupported");
 		}

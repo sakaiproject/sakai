@@ -280,6 +280,7 @@ simplePageBean.selectPage
 	  <property name="contentHostingService"><ref bean="org.sakaiproject.content.api.ContentHostingService"/></property>
 	  <property name="samigoExport"><ref bean="org.sakaiproject.lessonbuildertool.ccexport.SamigoExport"/></property>
 	  <property name="assignmentExport"><ref bean="org.sakaiproject.lessonbuildertool.ccexport.AssignmentExport"/></property>
+	  <property name="forumsExport"><ref bean="org.sakaiproject.lessonbuildertool.ccexport.ForumsExport"/></property>
 	  <property name="messageLocator" ref="messageLocator"/>
 	  <property name="simplePageToolDao" ref="org.sakaiproject.lessonbuildertool.model.SimplePageToolDao" />
 	</bean>
@@ -298,7 +299,14 @@ simplePageBean.selectPage
 	      class="org.sakaiproject.lessonbuildertool.ccexport.AssignmentExport"
               init-method="init"
               destroy-method="destroy">
-	  
+	  <property name="messageLocator" ref="messageLocator"/>
+	  <property name="simplePageToolDao" ref="org.sakaiproject.lessonbuildertool.model.SimplePageToolDao" />
+	</bean>
+
+ 	<bean id="org.sakaiproject.lessonbuildertool.ccexport.ForumsExport"
+	      class="org.sakaiproject.lessonbuildertool.ccexport.ForumsExport"
+              init-method="init"
+              destroy-method="destroy">
 	  <property name="messageLocator" ref="messageLocator"/>
 	  <property name="simplePageToolDao" ref="org.sakaiproject.lessonbuildertool.model.SimplePageToolDao" />
 	</bean>

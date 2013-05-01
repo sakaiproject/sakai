@@ -285,7 +285,7 @@ public class SamigoExport {
 		}
 	    }
 
-	    out.println("      <item ident=\"QUE_" + itemId + "\" title=\"" + title + "\">");
+	    out.println("      <item ident=\"QUE_" + itemId + "\" title=\"" + StringEscapeUtils.escapeXml(title) + "\">");
 	    out.println("        <itemmetadata>");
 	    out.println("          <qtimetadata>");
 	    out.println("            <qtimetadatafield>");
