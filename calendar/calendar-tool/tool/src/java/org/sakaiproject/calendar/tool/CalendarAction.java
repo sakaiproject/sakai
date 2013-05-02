@@ -2438,8 +2438,7 @@ extends VelocityPortletStateAction
 		    String calendarRef = state.getPrimaryCalendarReference();
 		    if (ets != null && calendarRef != null) {
 		        // need to cleanup the cal references which look like /calendar/calendar/4ea74c4d-3f9e-4c32-b03f-15e7915e6051/main
-		        String eventRef = StringUtils.startsWith(calendarRef, "/calendar/calendar") ? StringUtils.substring(calendarRef, 9) : calendarRef;
-		        eventRef = StringUtils.replace(eventRef, "/main", "/"+stateName);
+		        String eventRef = StringUtils.replace(calendarRef, "/main", "/"+stateName);
 		        String calendarEventId = state.getCalendarEventId();
 		        if (StringUtils.isNotBlank(calendarEventId)) {
 		            eventRef += "/"+calendarEventId;
