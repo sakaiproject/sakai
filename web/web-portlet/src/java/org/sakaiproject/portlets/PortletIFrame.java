@@ -360,7 +360,7 @@ public class PortletIFrame extends GenericPortlet {
 				    if (ets != null) {
 				        String eventRef = "/web/"+placement.getContext()+"/id/"+placement.getId()+"/url/"+url;
 				        eventRef = StringUtils.abbreviate(eventRef, 240); // ensure the ref won't pass 255 chars
-				        ets.post(ets.newEvent("web.read", eventRef, false));
+				        ets.post(ets.newEvent("webcontent.read", eventRef, false));
 				    }
 				}
 
