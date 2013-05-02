@@ -26,6 +26,10 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.TreeMap;
 
+import org.apache.commons.lang.StringUtils;
+import org.sakaiproject.component.cover.ComponentManager;
+import org.sakaiproject.event.api.EventTrackingService;
+
 import uk.ac.cam.caret.sakai.rwiki.service.api.RWikiObjectService;
 import uk.ac.cam.caret.sakai.rwiki.service.api.dao.ObjectProxy;
 import uk.ac.cam.caret.sakai.rwiki.service.api.model.RWikiObject;
@@ -181,6 +185,14 @@ public class RenderBean
 	 */
 	public String getRenderedPage()
 	{
+	    // SAK-23566 capture the view wiki page events
+	    if (rwo != null && rwo.getName() != null) {
+	        // KNOWN ISSUE: getRenderedPage is also called when editing, there doesn't seem to be a way to tell the difference
+	        EventTrackingService ets = (EventTrackingService) ComponentManager.get(EventTrackingService.class);
+	        if (ets != null) {
+	            ets.post(ets.newEvent("wiki.read", StringUtils.abbreviate(rwo.getName(), 250), false));
+	        }
+	    }
 		return toolRenderService.renderPage(rwo);
 	}
 
