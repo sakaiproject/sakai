@@ -398,15 +398,35 @@ public class BaseLearningResourceStoreService implements LearningResourceStoreSe
                 verb = new LRS_Verb(SAKAI_VERB.initialized);
             } else if ("user.logout".equals(e)) {
                 verb = new LRS_Verb(SAKAI_VERB.exited);
+            } else if ("annc.read".equals(e)) {
+                verb = new LRS_Verb(SAKAI_VERB.experienced);
+            } else if ("calendar.read".equals(e)) {
+                verb = new LRS_Verb(SAKAI_VERB.experienced);
+            } else if ("chat.new".equals(e)) {
+                verb = new LRS_Verb(SAKAI_VERB.responded);
+            } else if ("chat.read".equals(e)) {
+                verb = new LRS_Verb(SAKAI_VERB.experienced);
             } else if ("content.read".equals(e)) {
                 verb = new LRS_Verb(SAKAI_VERB.interacted);
             } else if ("content.new".equals(e) || "content.revise".equals(e)) {
                 verb = new LRS_Verb(SAKAI_VERB.shared);
-            } else if ("rews.read".equals(e)) {
+            } else if ("gradebook.read".equals(e)) {
+                verb = new LRS_Verb(SAKAI_VERB.experienced);
+            } else if ("lessonbuilder.read".equals(e)) {
+                verb = new LRS_Verb(SAKAI_VERB.experienced);
+            } else if ("news.read".equals(e)) {
+                verb = new LRS_Verb(SAKAI_VERB.experienced);
+            } else if ("podcast.read".equals(e) || "podcast.read.public".equals(e) || "podcast.read.site".equals(e)) {
                 verb = new LRS_Verb(SAKAI_VERB.experienced);
             } else if ("syllabus.read".equals(e)) {
                 verb = new LRS_Verb(SAKAI_VERB.experienced);
-            } else if ("lessonbuilder.read".equals(e)) {
+            } else if ("webcontent.read".equals(e)) {
+                verb = new LRS_Verb(SAKAI_VERB.experienced);
+            } else if ("wiki.new".equals(e)) {
+                verb = new LRS_Verb(SAKAI_VERB.initialized);
+            } else if ("wiki.revise".equals(e)) {
+                verb = new LRS_Verb(SAKAI_VERB.shared);
+            } else if ("wiki.read".equals(e)) {
                 verb = new LRS_Verb(SAKAI_VERB.experienced);
             }
         }
@@ -424,18 +444,36 @@ public class BaseLearningResourceStoreService implements LearningResourceStoreSe
                 object = new LRS_Object(serverConfigurationService.getPortalUrl(), "session-started");
             } else if ("user.logout".equals(e)) {
                 object = new LRS_Object(serverConfigurationService.getPortalUrl()+"/logout", "session-ended");
+            } else if ("annc.read".equals(e)) {
+                object = new LRS_Object(serverConfigurationService.getPortalUrl() + event.getResource(), "view-announcement");
+            } else if ("calendar.read".equals(e)) {
+                object = new LRS_Object(serverConfigurationService.getPortalUrl() + event.getResource(), "view-calendar");
+            } else if ("chat.new".equals(e) || "chat.read".equals(e)) {
+                object = new LRS_Object(serverConfigurationService.getPortalUrl() + event.getResource(), "view-chats");
             } else if ("content.read".equals(e)) {
                 object = new LRS_Object(serverConfigurationService.getAccessUrl() + event.getResource(), "view-resource");
             } else if ("content.new".equals(e)) {
                 object = new LRS_Object(serverConfigurationService.getAccessUrl() + event.getResource(), "add-resource");
             } else if ("content.revise".equals(e)) {
                 object = new LRS_Object(serverConfigurationService.getAccessUrl() + event.getResource(), "edit-resource");
-            } else if ("rews.read".equals(e)) {
-                object = new LRS_Object(serverConfigurationService.getPortalUrl() + event.getResource(), "view-news");
-            } else if ("syllabus.read".equals(e)) {
-                object = new LRS_Object(serverConfigurationService.getPortalUrl() + event.getResource(), "view-syllabus");
+            } else if ("gradebook.read".equals(e)) {
+                object = new LRS_Object(serverConfigurationService.getPortalUrl() + event.getResource(), "view-grades");
             } else if ("lessonbuilder.read".equals(e)) {
                 object = new LRS_Object(serverConfigurationService.getPortalUrl() + event.getResource(), "view-lesson");
+            } else if ("news.read".equals(e)) {
+                object = new LRS_Object(serverConfigurationService.getPortalUrl() + event.getResource(), "view-news");
+            } else if ("podcast.read".equals(e) || "podcast.read.public".equals(e) || "podcast.read.site".equals(e)) {
+                object = new LRS_Object(serverConfigurationService.getPortalUrl() + event.getResource(), "view-podcast");
+            } else if ("syllabus.read".equals(e)) {
+                object = new LRS_Object(serverConfigurationService.getPortalUrl() + event.getResource(), "view-syllabus");
+            } else if ("webcontent.read".equals(e)) {
+                object = new LRS_Object(serverConfigurationService.getPortalUrl() + event.getResource(), "view-web-content");
+            } else if ("wiki.new".equals(e)) {
+                object = new LRS_Object(serverConfigurationService.getPortalUrl() + event.getResource(), "add-wiki-page");
+            } else if ("wiki.revise".equals(e)) {
+                object = new LRS_Object(serverConfigurationService.getPortalUrl() + event.getResource(), "edit-wiki-page");
+            } else if ("wiki.read".equals(e)) {
+                object = new LRS_Object(serverConfigurationService.getPortalUrl() + event.getResource(), "view-wiki-page");
             }
         }
         return object;
@@ -447,14 +485,28 @@ public class BaseLearningResourceStoreService implements LearningResourceStoreSe
             String e = StringUtils.lowerCase(event.getEvent());
             if ("user.login".equals(e) || "user.logout".equals(e)) {
                 origin = ORIGIN_SAKAI_SYSTEM;
+            } else if ("annc.read".equals(e)) {
+                origin = "announcement";
+            } else if ("calendar.read".equals(e)) {
+                origin = "calendar";
+            } else if ("chat.new".equals(e) || "chat.read".equals(e)) {
+                origin = "chat";
             } else if ("content.read".equals(e) || "content.new".equals(e) || "content.revise".equals(e)) {
                 origin = ORIGIN_SAKAI_CONTENT;
-            } else if ("rews.read".equals(e)) {
-                origin = "news";
-            } else if ("syllabus.read".equals(e)) {
-                origin = "syllabus";
+            } else if ("gradebook.read".equals(e)) {
+                origin = "gradebook";
             } else if ("lessonbuilder.read".equals(e)) {
                 origin = "lessonbuilder";
+            } else if ("news.read".equals(e)) {
+                origin = "news";
+            } else if ("podcast.read".equals(e) || "podcast.read.public".equals(e) || "podcast.read.site".equals(e)) {
+                origin = "podcast";
+            } else if ("syllabus.read".equals(e)) {
+                origin = "syllabus";
+            } else if ("webcontent.read".equals(e)) {
+                origin = "webcontent";
+            } else if ("wiki.new".equals(e) || "wiki.revise".equals(e) || "wiki.read".equals(e)) {
+                origin = "rwiki";
             } else {
                 origin = e;
             }
