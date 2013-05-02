@@ -964,6 +964,12 @@ public interface LearningResourceStoreService {
         public String getResponse() {
             return response;
         }
+        /**
+         * @see #grade
+         */
+        public String getGrade() {
+            return grade;
+        }
         /* (non-Javadoc)
          * @see java.lang.Object#toString()
          */
@@ -979,7 +985,7 @@ public interface LearningResourceStoreService {
             if (min != null && max != null) {
                 points += ",min=" + min + ",max=" + max;
             }
-            return "Result["+points+(response!=null?" response="+response:"")+(success!=null?(success?" success":" fail"):"")+(completion!=null?(completion?" complete":" incomplete"):"")+ "]";
+            return "Result["+points+(grade!=null?" "+grade:"")+(response!=null?" response="+response:"")+(success!=null?(success?" success":" fail"):"")+(completion!=null?(completion?" complete":" incomplete"):"")+ "]";
         }
     }
 
