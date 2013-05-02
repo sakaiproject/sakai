@@ -1805,6 +1805,10 @@ public class ItemHelper12Impl extends ItemHelperBase
         		  addAnswerFeedbackPartialCredit(itemXml, value,
         				  isInsert, xpathIndex, "" + label, partialCredit); //--mustansar
         	  }
+        	  else {
+        		  addAnswerFeedback(itemXml, value,
+            			  isInsert, xpathIndex, "" + label  );
+        	  }
           }
           else 
           { // for MC Mulitiple Correct
