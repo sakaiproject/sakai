@@ -749,13 +749,15 @@ public class ItemFacade implements Serializable, ItemDataIfc, Comparable {
    * @return
    */
   public String getItemMetaDataByLabel(String label) {
-    for (Iterator i = this.itemMetaDataSet.iterator(); i.hasNext(); ) {
-      ItemMetaDataIfc itemMetaData = (ItemMetaDataIfc) i.next();
-      if (itemMetaData.getLabel().equals(label)) {
-        return itemMetaData.getEntry();
-      }
-    }
-    return null;
+	  if (this.itemMetaDataSet != null) {
+		  for (Iterator i = this.itemMetaDataSet.iterator(); i.hasNext(); ) {
+			  ItemMetaDataIfc itemMetaData = (ItemMetaDataIfc) i.next();
+			  if (itemMetaData.getLabel().equals(label)) {
+				  return itemMetaData.getEntry();
+			  }
+		  }
+	  }
+	  return null;
   }
 
   /**
