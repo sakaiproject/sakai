@@ -258,7 +258,7 @@
 								#end
 							</td>
 							<td headers="term">
-								#if($site.getType()==$!courseSiteType)
+								#if($!courseSiteTypeStrings.contains($site.getType()))
 									#set($term = "")
 									#set($term = $properties.getProperty('term'))
 									$!term

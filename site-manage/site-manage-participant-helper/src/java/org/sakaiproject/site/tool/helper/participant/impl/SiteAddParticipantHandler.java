@@ -1,5 +1,6 @@
 package org.sakaiproject.site.tool.helper.participant.impl;
 
+import java.util.Arrays;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
@@ -26,6 +27,7 @@ import org.sakaiproject.exception.IdUnusedException;
 import org.sakaiproject.site.api.Site;
 import org.sakaiproject.site.api.SiteService;
 import org.sakaiproject.site.util.Participant;
+import org.sakaiproject.site.util.SiteTypeUtil;
 import org.sakaiproject.sitemanage.api.SiteHelper;
 import org.sakaiproject.sitemanage.api.UserNotificationProvider;
 import org.sakaiproject.tool.api.SessionManager;
@@ -293,15 +295,7 @@ public class SiteAddParticipantHandler {
      */
     public boolean isCourseSite()
     {
-    	boolean rv = false;
-		String courseSiteType = getServerConfigurationString("courseSiteType", "course");
-		if (site == null)
-			init();
-		if (site != null && courseSiteType.equals(site.getType()))
-		{
-			rv = true;
-		}
-		return rv;
+    	return site != null ? SiteTypeUtil.isCourseSite(site.getType()): false;
     }
     
     /**

@@ -180,7 +180,7 @@ function redirectBasedOnSelection(){
 					$tlang.getString("nscourse.current_displaying_courses_sections_for_id")
 				</label>	
 				<input type="text" name="userId" id="userId-id" value="$userId"/>
-				<input type="hidden" name="itemType" value="$!courseSiteType" />
+				<input type="hidden" name="itemType" value="$!siteType" />
 				<input type="hidden" name="selectTerm" value="$term.eid" />
 				<input type="button" accesskey="s" name="eventSubmit_doChange_user" value="$tlang.getString("nscourse.change_button")"
 					onclick="document.getElementById('option').value='change_user'; document.addCourseForm.submit(); return false;"

@@ -124,6 +124,7 @@ import org.sakaiproject.site.util.SiteParticipantHelper;
 import org.sakaiproject.site.util.SiteSetupQuestionFileParser;
 import org.sakaiproject.site.util.SiteTextEditUtil;
 import org.sakaiproject.site.util.ToolComparator;
+import org.sakaiproject.site.util.SiteTypeUtil;
 import org.sakaiproject.sitemanage.api.SectionField;
 import org.sakaiproject.sitemanage.api.SiteHelper;
 import org.sakaiproject.sitemanage.api.model.SiteSetupQuestion;
@@ -613,9 +614,6 @@ public class SiteAction extends PagedResourceActionII {
 	// the string marks the protocol part in url
 	private static final String PROTOCOL_STRING = "://";
 	
-	// the string for course site type
-	private static final String STATE_COURSE_SITE_TYPE = "state_course_site_type";
-	
 	/**
 	 * {@link org.sakaiproject.component.api.ServerConfigurationService} property.
 	 * If <code>false</code>, ensures that a site's joinability settings are not affected should
@@ -1010,12 +1008,6 @@ public class SiteAction extends PagedResourceActionII {
 						new Vector());
 			}
 		}
-		
-		// course site type
-		if (state.getAttribute(STATE_COURSE_SITE_TYPE) == null)
-		{
-			state.setAttribute(STATE_COURSE_SITE_TYPE, ServerConfigurationService.getString("courseSiteType", "course"));
-		}
 
 		if (state.getAttribute(STATE_TOP_PAGE_MESSAGE) == null) {
 			state.setAttribute(STATE_TOP_PAGE_MESSAGE, Integer.valueOf(0));
@@ -1359,9 +1351,8 @@ public class SiteAction extends PagedResourceActionII {
 
 		ResourceProperties siteProperties = null;
 
-		// course site type
-		String courseSiteType = (String) state.getAttribute(STATE_COURSE_SITE_TYPE);
-		context.put("courseSiteType", courseSiteType);
+		// course site types
+		context.put("courseSiteTypeStrings", SiteService.getSiteTypeStrings("course"));
 		
 		//can the user create course sites?
 		context.put(STATE_SITE_ADD_COURSE, SiteService.allowAddCourseSite());
@@ -1539,7 +1530,6 @@ public class SiteAction extends PagedResourceActionII {
 				types.addAll(mTypes);
 			}
 			context.put("siteTypes", types);
-			context.put("courseSiteTypeStrings", SiteService.getSiteTypeStrings("course"));
             context.put("templateControls", ServerConfigurationService.getString("templateControls", ""));
 			// put selected/default site type into context
 			String typeSelected = (String) state.getAttribute(STATE_TYPE_SELECTED);
@@ -1560,15 +1550,7 @@ public class SiteAction extends PagedResourceActionII {
 			 * 
 			 */
 			String type = (String) state.getAttribute(STATE_SITE_TYPE);
-			if (type != null && type.equalsIgnoreCase(courseSiteType)) {
-				context.put("isCourseSite", Boolean.TRUE);
-				context.put("isProjectSite", Boolean.FALSE);
-			} else {
-				context.put("isCourseSite", Boolean.FALSE);
-				if (type != null && type.equalsIgnoreCase("project")) {
-					context.put("isProjectSite", Boolean.TRUE);
-				}
-			}
+			setTypeIntoContext(context, type);
 			
 			List requiredTools = ServerConfigurationService.getToolsRequired(type);
 			// look for legacy "home" tool
@@ -1697,8 +1679,8 @@ public class SiteAction extends PagedResourceActionII {
 			 */
 			state.removeAttribute(STATE_TOOL_GROUP_LIST);
 			
-			 type = (String) state.getAttribute(STATE_SITE_TYPE);
-			setTypeIntoContext(context, type,courseSiteType);
+			type = (String) state.getAttribute(STATE_SITE_TYPE);
+			setTypeIntoContext(context, type);
 
 			Map<String,List> groupTools = getToolGroupList(state, type, site);
 			state.setAttribute(STATE_TOOL_GROUP_LIST, groupTools);
@@ -1794,7 +1776,7 @@ public class SiteAction extends PagedResourceActionII {
 			 */
 			siteInfo = (SiteInfo) state.getAttribute(STATE_SITE_INFO);
 			String siteType = (String) state.getAttribute(STATE_SITE_TYPE);
-			if (siteType != null && siteType.equalsIgnoreCase(courseSiteType)) {
+			if (SiteTypeUtil.isCourseSite(siteType)) {
 				context.put("isCourseSite", Boolean.TRUE);
 				context.put("disableCourseSelection", ServerConfigurationService.getString("disable.course.site.skin.selection", "false").equals("true")?Boolean.TRUE:Boolean.FALSE);
 				context.put("isProjectSite", Boolean.FALSE);
@@ -1825,7 +1807,7 @@ public class SiteAction extends PagedResourceActionII {
 				}
 			} else {
 				context.put("isCourseSite", Boolean.FALSE);
-				if (siteType != null && siteType.equalsIgnoreCase("project")) {
+				if (SiteTypeUtil.isProjectSite(siteType)) {
 					context.put("isProjectSite", Boolean.TRUE);
 				}
 
@@ -2017,7 +1999,7 @@ public class SiteAction extends PagedResourceActionII {
 						}
 						
 						// show the Edit Class Roster menu
-						if (ServerConfigurationService.getBoolean("site.setup.allow.editRoster", true) && siteType != null && siteType.equals(courseSiteType)) {
+						if (ServerConfigurationService.getBoolean("site.setup.allow.editRoster", true) && siteType != null && SiteTypeUtil.isCourseSite(siteType)) {
 							b.add(new MenuEntry(rb.getString("java.editc"),
 									"doMenu_siteInfo_editClass"));
 						}
@@ -2199,7 +2181,7 @@ public class SiteAction extends PagedResourceActionII {
 					context.put("contactEmail", contactEmail);
 				}
 				
-				if (siteType != null && siteType.equalsIgnoreCase(courseSiteType)) {
+				if (SiteTypeUtil.isCourseSite(siteType)) {
 					context.put("isCourseSite", Boolean.TRUE);
 					
 					coursesIntoContext(state, context, site);
@@ -2369,7 +2351,7 @@ public class SiteAction extends PagedResourceActionII {
 			context.put("siteTitleEditable", Boolean.valueOf(siteTitleEditable(state, siteType)));
 			context.put("titleMaxLength", state.getAttribute(STATE_SITE_TITLE_MAX));
 
-			if (siteType != null && siteType.equalsIgnoreCase(courseSiteType)) {
+			if (SiteTypeUtil.isCourseSite(siteType)) {
 				context.put("isCourseSite", Boolean.TRUE);
 				context.put("isProjectSite", Boolean.FALSE);
 
@@ -2444,7 +2426,7 @@ public class SiteAction extends PagedResourceActionII {
 				
 			} else {
 				context.put("isCourseSite", Boolean.FALSE);
-				if (siteType != null && siteType.equalsIgnoreCase("project")) {
+				if (SiteTypeUtil.isProjectSite(siteType)) {
 					context.put("isProjectSite", Boolean.TRUE);
 				}
 
@@ -2454,7 +2436,7 @@ public class SiteAction extends PagedResourceActionII {
 			}
 
 			// about skin and icon selection
-			skinIconSelection(context, state, siteType != null && siteType.equalsIgnoreCase(courseSiteType), site, siteInfo);
+			skinIconSelection(context, state, SiteTypeUtil.isCourseSite(siteType), site, siteInfo);
 
 			if (state.getAttribute(SiteHelper.SITE_CREATE_SITE_TITLE) != null) {
 				context.put("titleEditableSiteType", Boolean.FALSE);
@@ -2495,14 +2477,14 @@ public class SiteAction extends PagedResourceActionII {
 			context.put("displaySiteAlias", Boolean.valueOf(displaySiteAlias()));
 			siteProperties = site.getProperties();
 			siteType = (String) state.getAttribute(STATE_SITE_TYPE);
-			if (siteType != null && siteType.equalsIgnoreCase(courseSiteType)) {
+			if (SiteTypeUtil.isCourseSite(siteType)) {
 				context.put("isCourseSite", Boolean.TRUE);
 				context.put("siteTerm", siteInfo.term);
 			} else {
 				context.put("isCourseSite", Boolean.FALSE);
 			}
 			// about skin and icon selection
-			skinIconSelection(context, state, siteType != null && siteType.equalsIgnoreCase(courseSiteType), site, siteInfo);
+			skinIconSelection(context, state, SiteTypeUtil.isCourseSite(siteType), site, siteInfo);
 			
 			context.put("oTitle", site.getTitle());
 			context.put("title", siteInfo.title);
@@ -2699,15 +2681,7 @@ public class SiteAction extends PagedResourceActionII {
 				context.put("continue", "10");
 
 				siteType = (String) state.getAttribute(STATE_SITE_TYPE);
-				if (siteType != null && siteType.equalsIgnoreCase(courseSiteType)) {
-					context.put("isCourseSite", Boolean.TRUE);
-					context.put("isProjectSite", Boolean.FALSE);
-				} else {
-					context.put("isCourseSite", Boolean.FALSE);
-					if (siteType != null && siteType.equalsIgnoreCase("project")) {
-						context.put("isProjectSite", Boolean.TRUE);
-					}
-				}
+				setTypeIntoContext(context, siteType);
 			}
 			return (String) getContext(data).get("template") + TEMPLATE[18];
 		case 26:
@@ -2947,7 +2921,7 @@ public class SiteAction extends PagedResourceActionII {
 			 */
 			context.put("siteTitle", site.getTitle());
 			String sType = site.getType();
-			if (sType != null && sType.equals(courseSiteType)) {
+			if (sType != null && SiteTypeUtil.isCourseSite(sType)) {
 				context.put("isCourseSite", Boolean.TRUE);
 				context.put("currentTermId", site.getProperties().getProperty(
 						Site.PROP_SITE_TERM));
@@ -3103,6 +3077,8 @@ public class SiteAction extends PagedResourceActionII {
 			
 			// Added by bjones86 - determine to skip manual course site create link in worksite setup
 			context.put( "skipManualCourseCreation", ServerConfigurationService.getBoolean( "wsetup.skipManualCourseCreation", Boolean.FALSE));
+			
+			context.put("siteType", state.getAttribute(STATE_TYPE_SELECTED));
 			
 			return (String) getContext(data).get("template") + TEMPLATE[36];
 		case 37:
@@ -4909,10 +4885,10 @@ public class SiteAction extends PagedResourceActionII {
 		} else {
 			state.setAttribute(STATE_TYPE_SELECTED, type);
 			setNewSiteType(state, type);
-			if (type.equalsIgnoreCase((String) state.getAttribute(STATE_COURSE_SITE_TYPE))) {
+			if (SiteTypeUtil.isCourseSite(type)) {
 				// redirect
 				redirectCourseCreation(params, state, "selectTerm");
-			} else if ("project".equals(type)) {
+			} else if (SiteTypeUtil.isProjectSite(type)) {
 				state.setAttribute(STATE_TEMPLATE_INDEX, "13");
 			} else if (pSiteTypes != null && pSiteTypes.contains(type)) {
 				// if of customized type site use pre-defined site info and exclude
@@ -5353,17 +5329,18 @@ public class SiteAction extends PagedResourceActionII {
 	 * @param	context			current context 
 	 * @param	type				current type
 	 * @return	courseSiteType	type of 'course'
-	 */	private void setTypeIntoContext(Context context, String type, String courseSiteType) {
-		if (type != null && type.equalsIgnoreCase(courseSiteType)) {
+	 */	
+	private void setTypeIntoContext(Context context, String type) {
+		if (type != null && SiteTypeUtil.isCourseSite(type)) {
 			context.put("isCourseSite", Boolean.TRUE);
 			context.put("isProjectSite", Boolean.FALSE);
 		} else {
 			context.put("isCourseSite", Boolean.FALSE);
-			if (type != null && type.equalsIgnoreCase("project")) {
+			if (type != null && SiteTypeUtil.isProjectSite(type)) {
 				context.put("isProjectSite", Boolean.TRUE);
 			}
 		}
-}
+	}
 
 
 /** SAK16600
@@ -6000,7 +5977,7 @@ private Map<String,List> getToolGroupList(SessionState state, String type, Site 
 
 			// for course sites
 			String siteType = (String) state.getAttribute(STATE_SITE_TYPE);
-			if (siteType != null && siteType.equalsIgnoreCase((String) state.getAttribute(STATE_COURSE_SITE_TYPE))) {
+			if (SiteTypeUtil.isCourseSite(siteType)) {
 				AcademicSession term = null;
 				if (state.getAttribute(STATE_TERM_SELECTED) != null) {
 					term = (AcademicSession) state
@@ -6566,7 +6543,7 @@ private Map<String,List> getToolGroupList(SessionState state, String type, Site 
 	 * 
 	 */
 	private void sendSiteNotification(SessionState state, Site site, List notifySites) {
-		boolean courseSite = site.getType() != null && site.getType().equals((String) state.getAttribute(STATE_COURSE_SITE_TYPE));
+		boolean courseSite = SiteTypeUtil.isCourseSite(site.getType());
 		
 		String term_name = "";
 		if (state.getAttribute(STATE_TERM_SELECTED) != null) {
@@ -7394,7 +7371,7 @@ private Map<String,List> getToolGroupList(SessionState state, String type, Site 
 	 */
 	private boolean siteTitleEditable(SessionState state, String site_type) {
 		return site_type != null 
-				&& (!site_type.equals((String) state.getAttribute(STATE_COURSE_SITE_TYPE))
+				&& (!SiteTypeUtil.isCourseSite(site_type)
 					||	(state.getAttribute(TITLE_EDITABLE_SITE_TYPE) != null 
 							&& ((List) state.getAttribute(TITLE_EDITABLE_SITE_TYPE)).contains(site_type)));
 	}
@@ -7515,8 +7492,8 @@ private Map<String,List> getToolGroupList(SessionState state, String type, Site 
 				if (cms == null)
 				{
 					// if there is no CourseManagementService, disable the process of creating course site
-					String courseType = ServerConfigurationService.getString("courseSiteType", (String) state.getAttribute(STATE_COURSE_SITE_TYPE));
-					types.remove(courseType);
+					List<String> courseTypes = SiteTypeUtil.getCourseSiteTypes();
+					types.remove(courseTypes);
 				}
 					
 				state.setAttribute(STATE_SITE_TYPES, types);
@@ -8433,7 +8410,7 @@ private Map<String,List> getToolGroupList(SessionState state, String type, Site 
 								importToolContent(oldSiteId, site, false);
 	
 								String siteType = site.getType();
-								if (siteType != null && siteType.equals((String) state.getAttribute(STATE_COURSE_SITE_TYPE))) {
+								if (SiteTypeUtil.isCourseSite(siteType)) {
 									// for course site, need to
 									// read in the input for
 									// term information
@@ -8458,7 +8435,7 @@ private Map<String,List> getToolGroupList(SessionState state, String type, Site 
 								try 
 								{
 									AuthzGroup realmEdit = AuthzGroupService.getAuthzGroup(realm);
-									if (siteType != null && siteType.equals((String) state.getAttribute(STATE_COURSE_SITE_TYPE))) 
+									if (SiteTypeUtil.isCourseSite(siteType)) 
 									{
 										// also remove the provider id attribute if any
 										realmEdit.setProviderGroupId(null);
