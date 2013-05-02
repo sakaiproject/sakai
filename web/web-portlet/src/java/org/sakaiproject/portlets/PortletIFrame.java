@@ -75,6 +75,8 @@ import org.sakaiproject.tool.cover.SessionManager;
 import org.sakaiproject.event.api.UsageSession;
 import org.sakaiproject.event.cover.UsageSessionService;
 import org.sakaiproject.component.cover.ServerConfigurationService;
+import org.sakaiproject.component.cover.ComponentManager;
+import org.sakaiproject.event.api.EventTrackingService;
 
 import org.sakaiproject.site.api.Site;
 import org.sakaiproject.site.api.SitePage;
@@ -351,6 +353,16 @@ public class PortletIFrame extends GenericPortlet {
 				context.put("maximize", Boolean.valueOf(maximize));
 				context.put("placement", placement.getId().replaceAll("[^a-zA-Z0-9]","_"));
 				context.put("loadTime", new Long(xframeLoad));
+
+				// SAK-23566 capture the view calendar events
+				if (placement != null && placement.getContext() != null && placement.getId() != null) {
+				    EventTrackingService ets = (EventTrackingService) ComponentManager.get(EventTrackingService.class);
+				    if (ets != null) {
+				        String eventRef = "/web/"+placement.getContext()+"/id/"+placement.getId()+"/url/"+url;
+				        eventRef = StringUtils.abbreviate(eventRef, 240); // ensure the ref won't pass 255 chars
+				        ets.post(ets.newEvent("web.read", eventRef, false));
+				    }
+				}
 
                 // TODO: state.setAttribute(TARGETPAGE_URL,config.getProperty(TARGETPAGE_URL));
                 // TODO: state.setAttribute(TARGETPAGE_NAME,config.getProperty(TARGETPAGE_NAME));
