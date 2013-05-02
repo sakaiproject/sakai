@@ -22,6 +22,7 @@
 package org.sakaiproject.util;
 
 import java.io.IOException;
+import java.text.Normalizer;
 import java.util.Iterator;
 import java.util.Properties;
 
@@ -236,11 +237,11 @@ public class ParameterParser
 			org.apache.commons.fileupload.FileItem item = (org.apache.commons.fileupload.FileItem) o;
 			try
             {
-	            return new FileItem(item.getName(), item.getContentType(), item.getInputStream());
+	            return new FileItem(Normalizer.normalize(item.getName(), Normalizer.Form.NFC), item.getContentType(), item.getInputStream());
             }
             catch (IOException e)
             {
-            	return new FileItem(item.getName(), item.getContentType(), item.get());
+            	return new FileItem(Normalizer.normalize(item.getName(), Normalizer.Form.NFC), item.getContentType(), item.get());
             }
 		}
 

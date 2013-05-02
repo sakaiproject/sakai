@@ -27,6 +27,11 @@ import java.io.InputStream;
 import java.io.OutputStream;
 import java.io.UnsupportedEncodingException;
 
+import org.sakaiproject.component.cover.ServerConfigurationService;
+
+import java.util.Collection;
+
+import eu.medsea.mimeutil.MimeUtil;
 /**
  * <p>
  * FileItem is ...
@@ -72,6 +77,7 @@ public class FileItem
 	{
 		if (fileName != null) m_name = fileName.trim();
 		if (fileType != null) m_type = fileType.trim();
+        m_type = detectType(m_type);
 		m_body = null;
 		m_bodyBytes = body;
 		m_inputStream = null;
@@ -81,10 +87,25 @@ public class FileItem
 	{
 		if (fileName != null) m_name = fileName.trim();
 		if (fileType != null) m_type = fileType.trim();
+        m_type = detectType(m_type);
 		m_body = null;
 		m_bodyBytes = null;
 		m_inputStream = stream;
 	}
+
+    public String detectType(String mimeType) { 
+        if (ServerConfigurationService.getBoolean("content.typedetection.mimi-util",false) == true) {
+          MimeUtil mimeUtil = new MimeUtil();  
+          Collection mimeTypes = null;
+          if (this.m_inputStream != null) 
+            mimeTypes = mimeUtil.getMimeTypes(this.m_inputStream);
+          else if (this.m_bodyBytes != null)
+            mimeTypes = mimeUtil.getMimeTypes(this.m_bodyBytes);
+          if (mimeTypes != null)
+            mimeType = MimeUtil.getFirstMimeType(mimeTypes.toString()).toString();
+        }
+        return mimeType;
+    }
 
 	/**
 	 */
