@@ -81,6 +81,7 @@ import org.sakaiproject.entity.cover.EntityManager;
 import org.sakaiproject.entitybroker.EntityBroker;
 import org.sakaiproject.entitybroker.entityprovider.extension.ActionReturn;
 import org.sakaiproject.entitybroker.EntityReference;
+import org.sakaiproject.event.api.EventTrackingService;
 import org.sakaiproject.event.api.SessionState;
 import org.sakaiproject.exception.IdInvalidException;
 import org.sakaiproject.exception.IdUnusedException;
@@ -2423,6 +2424,28 @@ extends VelocityPortletStateAction
 		else if (stateName.equals(STATE_SET_FREQUENCY))
 		{
 			buildFrequencyContext(portlet, context, runData, state);
+		}
+
+		if (stateName.equals("description") 
+		        || stateName.equals("year") 
+		        || stateName.equals("month") 
+		        || stateName.equals("day") 
+		        || stateName.equals("week")
+		        || stateName.equals("list")
+		        ) {
+		    // SAK-23566 capture the view calendar events
+		    EventTrackingService ets = (EventTrackingService) ComponentManager.get(EventTrackingService.class);
+		    String calendarRef = state.getPrimaryCalendarReference();
+		    if (ets != null && calendarRef != null) {
+		        // need to cleanup the cal references which look like /calendar/calendar/4ea74c4d-3f9e-4c32-b03f-15e7915e6051/main
+		        String eventRef = StringUtils.startsWith(calendarRef, "/calendar/calendar") ? StringUtils.substring(calendarRef, 9) : calendarRef;
+		        eventRef = StringUtils.replace(eventRef, "/main", "/"+stateName);
+		        String calendarEventId = state.getCalendarEventId();
+		        if (StringUtils.isNotBlank(calendarEventId)) {
+		            eventRef += "/"+calendarEventId;
+		        }
+		        ets.post(ets.newEvent("calendar.read", eventRef, false));
+		    }
 		}
 
 		TimeZone timeZone = TimeService.getLocalTimeZone();
