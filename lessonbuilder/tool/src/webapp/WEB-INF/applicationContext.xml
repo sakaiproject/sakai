@@ -291,6 +291,7 @@ simplePageBean.peerEvalAllowSelfGrade
 	  <property name="samigoExport"><ref bean="org.sakaiproject.lessonbuildertool.ccexport.SamigoExport"/></property>
 	  <property name="assignmentExport"><ref bean="org.sakaiproject.lessonbuildertool.ccexport.AssignmentExport"/></property>
 	  <property name="forumsExport"><ref bean="org.sakaiproject.lessonbuildertool.ccexport.ForumsExport"/></property>
+	  <property name="bltiExport"><ref bean="org.sakaiproject.lessonbuildertool.ccexport.BltiExport"/></property>
 	  <property name="messageLocator" ref="messageLocator"/>
 	  <property name="simplePageToolDao" ref="org.sakaiproject.lessonbuildertool.model.SimplePageToolDao" />
 	</bean>
@@ -315,6 +316,14 @@ simplePageBean.peerEvalAllowSelfGrade
 
  	<bean id="org.sakaiproject.lessonbuildertool.ccexport.ForumsExport"
 	      class="org.sakaiproject.lessonbuildertool.ccexport.ForumsExport"
+              init-method="init"
+              destroy-method="destroy">
+	  <property name="messageLocator" ref="messageLocator"/>
+	  <property name="simplePageToolDao" ref="org.sakaiproject.lessonbuildertool.model.SimplePageToolDao" />
+	</bean>
+
+ 	<bean id="org.sakaiproject.lessonbuildertool.ccexport.BltiExport"
+	      class="org.sakaiproject.lessonbuildertool.ccexport.BltiExport"
               init-method="init"
               destroy-method="destroy">
 	  <property name="messageLocator" ref="messageLocator"/>

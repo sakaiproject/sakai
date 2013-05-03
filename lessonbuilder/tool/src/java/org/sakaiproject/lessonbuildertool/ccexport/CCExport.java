@@ -33,6 +33,8 @@ import java.util.Map;
 import java.util.HashMap;
 import java.util.List;
 import java.util.ArrayList;
+import java.util.Set;
+import java.util.HashSet;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipOutputStream;
 import java.util.regex.Pattern;
@@ -54,6 +56,10 @@ import org.sakaiproject.lessonbuildertool.ccexport.ZipPrintStream;
 import org.sakaiproject.lessonbuildertool.model.SimplePageToolDao;
 import org.sakaiproject.tool.cover.SessionManager;
 import org.sakaiproject.tool.api.ToolSession;
+import org.sakaiproject.tool.api.Placement;
+import org.sakaiproject.tool.cover.SessionManager;
+import org.sakaiproject.tool.cover.ToolManager;
+
 import uk.org.ponder.messageutil.MessageLocator;
 
 public class CCExport {
@@ -77,6 +83,10 @@ public class CCExport {
     static ForumsExport forumsExport;
     public void setForumsExport(ForumsExport se) {
 	forumsExport = se;
+    }
+    static BltiExport bltiExport;
+    public void setBltiExport(BltiExport se) {
+      bltiExport = se;
     }
 
     static MessageLocator messageLocator;
@@ -110,7 +120,11 @@ public class CCExport {
     Map<String, Resource> assignmentMap = new HashMap<String, Resource>();
     // map of all Forums
     Map<String, Resource> forumsMap = new HashMap<String, Resource>();
-
+    // map of all Blti instances
+    Map<String, Resource> bltiMap = new HashMap();
+ 
+    // to prevent pages from being output more than once
+    Set<Long> pagesDone = new HashSet();
 
 
     // the error messages are a problem. They won't show until the next page display
@@ -163,6 +177,8 @@ public class CCExport {
 	if (! addAllAssignments(siteId))
 	    return;
 	if (! addAllForums(siteId))
+	    return;
+	if (!addAllBlti(siteId))
 	    return;
 	download();
 
@@ -404,6 +420,206 @@ public class CCExport {
 
     }
 
+    public boolean addAllBlti(String siteId) {
+	List<String> bltis = bltiExport.getEntitiesInSite(siteId, this);
+	if (bltis == null)
+	    return true;
+	for (String sakaiId : bltis) {
+	    Resource res = new Resource();
+	    res.resourceId = getResourceId();
+	    res.location = ("cc-objects/" + res.resourceId + ".xml");
+	    res.sakaiId = sakaiId;
+	    res.dependencies = new ArrayList();
+	    res.use = null;
+	    bltiMap.put(res.sakaiId, res);
+	}
+	return true;
+    }
+
+    public boolean outputAllBlti(ZipPrintStream out) {
+	try {
+	    for (Map.Entry entry : bltiMap.entrySet()) {
+		ZipEntry zipEntry = new ZipEntry(((Resource)entry.getValue()).location);
+		
+		out.putNextEntry(zipEntry);
+		boolean ok = bltiExport.outputEntity(((Resource)entry.getValue()).sakaiId, out, this.errStream, this, (Resource)entry.getValue());
+		if (!ok)
+		    return false;
+	    }
+	} catch (Exception e) {
+	    System.out.println("problem in outputallforums " + e);
+	    setErrKey("simplepage.exportcc-fileerr", e.getMessage());
+	    return false;
+	}
+	return true;
+    }
+
+    public boolean outputAllTexts(ZipPrintStream out) {
+	try {
+	    List<SimplePageItem> items = simplePageToolDao.findTextItemsInSite(this.siteId);
+	    
+	    for (SimplePageItem item : items) {
+		String location = "attachments/item-" + item.getId() + ".html";
+		
+		ZipEntry zipEntry = new ZipEntry(location);
+		out.putNextEntry(zipEntry);
+
+		out.println("<!DOCTYPE html PUBLIC \"-//W3C//DTD XHTML 1.0 Transitional//EN\"  \"http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd\">");
+		out.println("<html xmlns=\"http://www.w3.org/1999/xhtml\" lang=\"en\" xml:lang=\"en\">");
+		out.println("<body>");
+		out.print(item.getHtml());
+		out.println("</body>");
+		out.println("</html>");
+
+		Resource res = new Resource();
+		res.sakaiId = ("/text/" + item.getId());
+		res.resourceId = getResourceId();
+		res.location = location;
+		res.dependencies = new ArrayList();
+		res.use = null;
+		
+		fileMap.put(res.sakaiId, res);
+	    }
+	} catch (Exception e) {
+	    setErrKey("simplepage.exportcc-fileerr", e.getMessage());
+	    return false;
+	}
+	return true;
+    }
+
+    public boolean outputLessons(ZipPrintStream out)  {
+	out.println("  <organization identifier=\"page\" structure=\"rooted-hierarchy\">");
+	out.println("    <item identifier=\"I_1\">");
+	List<SimplePageItem> sitePages = simplePageToolDao.findItemsInSite(ToolManager.getCurrentPlacement().getContext());
+
+	for (SimplePageItem i : sitePages)
+	    pagesDone.add(Long.valueOf(i.getSakaiId()));
+	for (SimplePageItem i : sitePages) {
+	    outputLessonPage(out, Long.valueOf(i.getSakaiId()), i.getName(), 6, true);
+	}
+	out.println("    </item>");
+	out.println("  </organization>");
+	return true;
+    }
+    
+    public void outputIndent(ZipPrintStream out, int indent) {
+	for (int i = 0; i < indent; i++)
+	    out.print(" ");
+    }
+
+    public SimplePageItem outputLessonPage(ZipPrintStream out, Long pageId, String title, int indent, boolean shownext) {
+	SimplePageItem next = null;
+	boolean multiplenext = false;
+	
+	pagesDone.add(pageId);
+
+	outputIndent(out, indent); out.println("<item identifer=\"page_" + pageId + "\">");
+	outputIndent(out, indent + 2); out.println("<title>" + StringEscapeUtils.escapeHtml(title) + "</title>");
+
+	List<SimplePageItem> items = simplePageToolDao.findItemsOnPage(pageId.longValue());
+	for (SimplePageItem item : items) {
+	    if (item.getNextPage()) {
+		if (next == null) {
+		    next = item;
+		}
+		else if (!multiplenext) {
+		    next = null;
+		    multiplenext = true;
+		}
+	    }
+	}
+
+	for (SimplePageItem item : items) {
+	    Resource res = null;
+	    String sakaiId = null;
+	    String itemString = null;
+
+	    switch (item.getType()) {
+	    case SimplePageItem.PAGE:
+		Long pId = Long.valueOf(item.getSakaiId());
+		if (this.pagesDone.contains(pId)) {
+		    this.errStream.println(messageLocator.getMessage("simplepage.exportcc-pagealreadydone").replace("{1}", title).replace("{2}", item.getName()));
+		} else if ((next != null) && (item.getId() == next.getId())) {
+		    if (shownext) {
+			SimplePageItem n = outputLessonPage(out, pId, item.getName(), indent + 2, false);
+			while ((n != null) && (!this.pagesDone.contains(pId = Long.valueOf(n.getSakaiId())))) {
+			    n = outputLessonPage(out, pId, n.getName(), indent + 2, false);
+			}
+			if ((n != null) && (this.pagesDone.contains(pId))) {
+			    errStream.println(messageLocator.getMessage("simplepage.exportcc-pagealreadydone").replace("{1}", title).replace("{2}", item.getName()));
+			}
+		    }
+		} else {
+		    outputLessonPage(out, pId, item.getName(), indent + 2, true);
+		}
+		break;
+	    case SimplePageItem.RESOURCE:
+	    case SimplePageItem.MULTIMEDIA:
+		res = (Resource)this.fileMap.get(item.getSakaiId());
+		break;
+	    case SimplePageItem.ASSIGNMENT:
+		sakaiId = item.getSakaiId();
+		if (sakaiId.indexOf("/", 1) < 0)
+		    sakaiId = "assignment/" + sakaiId;
+		else
+		    sakaiId = sakaiId.substring(1);
+		res = (Resource)this.assignmentMap.get(sakaiId);
+		break;
+	    case SimplePageItem.ASSESSMENT:
+		sakaiId = item.getSakaiId();
+		if (sakaiId.indexOf("/", 1) < 0)
+		    sakaiId = "sam_pub/" + sakaiId;
+		else
+		    sakaiId = sakaiId.substring(1);
+		res = (Resource)samigoMap.get(sakaiId);
+		break;
+	    case SimplePageItem.TEXT:
+		res = (Resource)fileMap.get("/text/" + item.getId());
+		break;
+	    case SimplePageItem.FORUM:
+		res = (Resource)forumsMap.get(item.getSakaiId().substring(1));
+		break;
+	    case SimplePageItem.BLTI:
+		res = (Resource)bltiMap.get(item.getSakaiId().substring(1));
+		break;
+	    case SimplePageItem.COMMENTS:
+	    case SimplePageItem.STUDENT_CONTENT:
+	    case SimplePageItem.QUESTION:
+	    case SimplePageItem.PEEREVAL:
+		switch (item.getType()) {
+		case SimplePageItem.COMMENTS:
+		    itemString = messageLocator.getMessage("simplepage.comments-section");
+		    break;
+		case SimplePageItem.STUDENT_CONTENT:
+		    itemString = messageLocator.getMessage("simplepage.student-content");
+		    break;
+		case SimplePageItem.QUESTION:
+		    itemString = messageLocator.getMessage("simplepage.questionName");
+		    break;
+		case SimplePageItem.PEEREVAL:
+		    itemString = messageLocator.getMessage("simplepage.peerEval-secotion");
+		    break;
+		}
+		errStream.println(messageLocator.getMessage("simplepage.exportcc-bad-type").replace("{1}", title).replace("{2}", item.getName()).replace("{3}", itemString));
+		break;
+	    }
+	    if (res != null) {
+		outputIndent(out, indent + 2); out.println("<item idenitifer=\"item_" + item.getId() + "\" identifierref=\"" + res.resourceId + "\">");
+		String ititle = item.getName();
+		
+		if ((ititle == null) || (ititle.equals("")))
+		    ititle = messageLocator.getMessage("simplepage.cc-texttitle");
+		outputIndent(out, indent + 4); out.println("<title>" + StringEscapeUtils.escapeHtml(ititle) + "</title>");
+		outputIndent(out, indent + 2); out.println("</item>"); 
+	    }
+	}
+	outputIndent(out, indent); out.println("</item>");
+	if (shownext) {
+	    return null;
+	}
+	return next;
+    }
+
     public boolean outputManifest(ZipPrintStream out) {
 	try {
 	    ZipEntry zipEntry = new ZipEntry("imsmanifest.xml");
@@ -412,24 +628,9 @@ public class CCExport {
 		      "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n<manifest identifier=\"sakai1\"\n  xmlns=\"http://www.imsglobal.org/xsd/imsccv1p2/imscp_v1p1\"\nxmlns:lom=\"http://ltsc.ieee.org/xsd/imsccv1p2/LOM/resource\"\nxmlns:lomimscc=\"http://ltsc.ieee.org/xsd/imsccv1p2/LOM/manifest\"\nxmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\"\nxsi:schemaLocation=\"                                                                                                                        \n  http://ltsc.ieee.org/xsd/imsccv1p2/LOM/resource http://www.imsglobal.org/profile/cc/ccv1p2/LOM/ccv1p2_lomresource_v1p0.xsd                  \n  http://www.imsglobal.org/xsd/imsccv1p2/imscp_v1p1 http://www.imsglobal.org/profile/cc/ccv1p2/ccv1p2_imscp_v1p2_v1p0.xsd                     \n  http://ltsc.ieee.org/xsd/imsccv1p2/LOM/manifest http://www.imsglobal.org/profile/cc/ccv1p2/LOM/ccv1p2_lommanifest_v1p0.xsd\">\n  <metadata>\n    <schema>IMS Common Cartridge</schema>\n    <schemaversion>1.2.0</schemaversion>\n    <lomimscc:lom>\n      <lomimscc:general>\n	<lomimscc:title>\n	  <lomimscc:string language=\"en-US\">Sakai Export</lomimscc:string>\n	</lomimscc:title>\n	<lomimscc:description>\n	  <lomimscc:string language=\"en-US\">Sakai Export, including only files from site</lomimscc:string>\n	</lomimscc:description>\n	<lomimscc:keyword>\n	  <lomimscc:string language=\"en-US\">Export</lomimscc:string>\n	</lomimscc:keyword>\n      </lomimscc:general>\n    </lomimscc:lom>\n  </metadata>\n ");
 
 	    out.println("  <organizations>");
-
-	    if (false) {
-	    out.println("  <organization identifier=\"page\" structure=\"rooted-hierarchy\">");
-	    out.println("    <item identifier=\"I_1\">");
-	    out.println("      <item identifer=\"I_1_1\">");
-	    out.println("        <title>Dummy page</title>");
-	    int n = 0;
-	    for (Map.Entry<String, Resource> entry: samigoMap.entrySet()) {
-		out.println("        <item idenitifer=\"I_I_1_" + n + "\" identifierref=\"" + entry.getValue().resourceId + "\">");
-		out.println("          <title>test " + n + "</title>");
-		out.println("        </item>");
-	    }
-	    out.println("      </item>");
-	    out.println("    </item>");
-	    out.println("  </organization>");
-	    }
-
+	    outputLessons(out);
 	    out.println("  </organizations>");
+
 	    out.println("  <resources>");
 	    for (Map.Entry<String, Resource> entry: fileMap.entrySet()) {
 		String use = "";
@@ -460,6 +661,14 @@ public class CCExport {
 		out.println("    <resource href=\"" + StringEscapeUtils.escapeXml(entry.getValue().location) + "\" identifier=\"" + entry.getValue().resourceId + "\" type=\"imsdt_xmlv1p2\">");
 		out.println("      <file href=\"" + StringEscapeUtils.escapeXml(entry.getValue().location) + "\"/>");
 		for (String d: entry.getValue().dependencies)
+		    out.println("      <dependency identifierref=\"" + d + "\"/>");
+		out.println("    </resource>");
+	    }
+
+	    for (Map.Entry entry : this.bltiMap.entrySet()) {
+		out.println("    <resource href=\"" + StringEscapeUtils.escapeXml(((Resource)entry.getValue()).location) + "\" identifier=\"" + ((Resource)entry.getValue()).resourceId + "\" type=\"imsbasiclti_xmlv1p0\">");
+		out.println("      <file href=\"" + StringEscapeUtils.escapeXml(((Resource)entry.getValue()).location) + "\"/>");
+		for (String d : ((Resource)entry.getValue()).dependencies)
 		    out.println("      <dependency identifierref=\"" + d + "\"/>");
 		out.println("    </resource>");
 	    }
@@ -510,6 +719,8 @@ public class CCExport {
 	    outputAllAssignments (out);
 	    outputAllForums (out);
 	    outputManifest (out);
+	    outputAllBlti(out);
+	    outputAllTexts(out);
 	    
 	    if (out != null)
 		out.close();

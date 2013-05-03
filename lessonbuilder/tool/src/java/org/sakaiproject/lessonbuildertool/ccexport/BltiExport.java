@@ -1,0 +1,142 @@
+package org.sakaiproject.lessonbuildertool.ccexport;
+
+import java.io.PrintStream;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.List;
+import java.util.Map;
+import org.apache.commons.lang.StringEscapeUtils;
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
+import org.sakaiproject.component.cover.ComponentManager;
+import org.sakaiproject.lessonbuildertool.model.SimplePageToolDao;
+import org.sakaiproject.lti.api.LTIService;
+import uk.org.ponder.messageutil.MessageLocator;
+
+public class BltiExport {
+    private static Log log = LogFactory.getLog(AssignmentExport.class);
+    private static SimplePageToolDao simplePageToolDao;
+    static MessageLocator messageLocator = null;
+
+    CCExport ccExport = null;
+
+    protected static LTIService ltiService = null;
+
+    public void setSimplePageToolDao(Object dao) {
+	simplePageToolDao = (SimplePageToolDao)dao;
+    }
+
+    public void setMessageLocator(MessageLocator m) {
+	messageLocator = m;
+    }
+
+    public void init() {
+	log.info("init()");
+
+	if (ltiService == null) {
+	    Object service = ComponentManager.get("org.sakaiproject.lti.api.LTIService");
+	    if (service == null) {
+		log.info("can't find LTI Service -- disabling LTI support");
+		return;
+	    }
+	    ltiService = (LTIService)service;
+	    log.info("LTI Export initialized");
+	}
+    }
+
+    public void destroy() {
+	log.info("destroy()");
+    }
+
+    public List<String> getEntitiesInSite(String siteId, CCExport bean) {
+	List<String> ret = new ArrayList();
+	if (ltiService == null)
+	    return ret;
+	List<Map<String,Object>> contents = ltiService.getContents(null, null, 0, 0);
+	for (Map<String,Object> content : contents) {
+	    Long id = getLong(content.get("id"));
+	    if (id.longValue() != -1L)
+		ret.add("blti/" + id);
+	}
+	return ret;
+    }
+
+    public boolean outputEntity(String bltiRef, ZipPrintStream out, PrintStream errStream, CCExport bean, CCExport.Resource resource) {
+	int i = bltiRef.indexOf("/");
+	String id = bltiRef.substring(i + 1);
+	this.ccExport = bean;
+
+	Long bkey = getLong(id);
+	Map content = ltiService.getContent(bkey);
+	if (content == null)
+	    return false;
+	Long toolKey = getLongNull(content.get("tool_id"));
+	if (toolKey == null)
+	    return false;
+	Map tool = ltiService.getTool(toolKey);
+	
+	String title = (String)tool.get("title");
+	String launch_url = (String)tool.get("launch_url");
+	String custom1 = (String)tool.get("custom");
+	if (content.get("title") != null)
+	    title = (String)content.get("title");
+	if (content.get("launch_url") != null)
+	    launch_url = (String)content.get("launch_url");
+	String custom2 = (String)content.get("custom");
+
+	List<String> custom = new ArrayList<String>();
+	if ((custom1 != null) && (!custom1.trim().equals("")))
+	    custom.addAll(Arrays.asList(custom1.split("\n")));
+	if ((custom2 != null) && (!custom2.trim().equals(""))) {
+	    custom.addAll(Arrays.asList(custom2.split("\n")));
+	}
+	out.println("<?xml version=\"1.0\" encoding=\"UTF-8\"?>");
+	out.println("<cartridge_basiclti_link xmlns=\"http://www.imsglobal.org/xsd/imslticc_v1p0\"");
+	out.println("      xmlns:blti = \"http://www.imsglobal.org/xsd/imsbasiclti_v1p0\"");
+	out.println("      xmlns:lticm =\"http://www.imsglobal.org/xsd/imslticm_v1p0\"");
+	out.println("      xmlns:lticp =\"http://www.imsglobal.org/xsd/imslticp_v1p0\"");
+	out.println("      xmlns:xsi = \"http://www.w3.org/2001/XMLSchema-instance\"");
+	out.println("      xsi:schemaLocation = \"http://www.imsglobal.org/xsd/imslticc_v1p0 http://www.imsglobal.org/xsd/lti/ltiv1p0/imslticc_v1p0.xsd http://www.imsglobal.org/xsd/imsbasiclti_v1p0 http://www.imsglobal.org/xsd/lti/ltiv1p0/imsbasiclti_v1p0.xsd  http://www.imsglobal.org/xsd/imslticm_v1p0 http://www.imsglobal.org/xsd/lti/ltiv1p0/imslticm_v1p0.xsd http://www.imsglobal.org/xsd/imslticp_v1p0 http://www.imsglobal.org/xsd/lti/ltiv1p0/imslticp_v1p0.xsd\">");
+	
+	out.println("      <blti:title>" + StringEscapeUtils.escapeXml(title) + "</blti:title>");
+	out.println("      <blti:launch_url>" + StringEscapeUtils.escapeXml(launch_url) + "</blti:launch_url>");
+
+	if (custom.size() > 0) {
+	    out.println("      <blti:custom>");
+
+	    for (String attr : custom) {
+		int k = attr.indexOf("=");
+		if (k >= 0) {
+		    String key = attr.substring(0, k).trim();
+		    String value = attr.substring(k + 1).trim();
+		    out.println("        <lticm:property name=\"" + StringEscapeUtils.escapeXml(key) + "\">" + StringEscapeUtils.escapeXml(value) + "</lticm:property>");
+		}
+	    }
+	    out.println("      </blti:custom>");
+	}
+	out.println("</cartridge_basiclti_link>");
+	return true;
+    }
+
+    public Long getLong(Object key) {
+	Long retval = getLongNull(key);
+	if (retval != null)
+	    return retval;
+	return new Long(-1L);
+    }
+
+    public Long getLongNull(Object key) {
+	if (key == null)
+	    return null;
+	if ((key instanceof Number))
+	    return new Long(((Number)key).longValue());
+	if ((key instanceof String)) {
+	    try {
+		return new Long((String)key);
+	    } catch (Exception e) {
+		return null;
+	    }
+	}
+	return null;
+    }
+}
