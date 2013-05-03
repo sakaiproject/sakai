@@ -44,6 +44,7 @@
         anonymous tinyint null,
         showComments tinyint null,
         forcedCommentsAnonymous tinyint null,
+        showPeerEval tinyint null,
         gradebookId varchar(35) null,
         gradebookPoints int null,
         gradebookTitle varchar(200) null,
@@ -85,6 +86,18 @@
         groupid varchar(36) null,
         cssSheet varchar(250) null,
         primary key (pageId)
+    );
+
+    create table lesson_builder_peer_eval_results (
+        PEER_EVAL_RESULT_ID numeric(19,0) identity not null,
+        PAGE_ID numeric(19,0) not null,
+        TIME_POSTED datetime null,
+        GRADER varchar(255) not null,
+        GRADEE varchar(255) not null,
+        ROW_TEXT varchar(255) not null,
+        COLUMN_VALUE int not null,
+        SELECTED tinyint null,
+        primary key (PEER_EVAL_RESULT_ID)
     );
 
     create table lesson_builder_q_responses (

@@ -44,6 +44,7 @@
         anonymous number(1,0),
         showComments number(1,0),
         forcedCommentsAnonymous number(1,0),
+        showPeerEval number(1,0),
         gradebookId varchar2(35),
         gradebookPoints number(10,0),
         gradebookTitle varchar2(200),
@@ -87,6 +88,18 @@
         primary key (pageId)
     );
 
+    create table lesson_builder_peer_eval_results (
+        PEER_EVAL_RESULT_ID number(19,0) not null,
+        PAGE_ID number(19,0) not null,
+        TIME_POSTED date,
+        GRADER varchar2(255) not null,
+        GRADEE varchar2(255) not null,
+        ROW_TEXT varchar2(255) not null,
+        COLUMN_VALUE number(10,0) not null,
+        SELECTED number(1,0),
+        primary key (PEER_EVAL_RESULT_ID)
+    );
+
     create table lesson_builder_q_responses (
         id number(19,0) not null,
         timeAnswered date not null,
@@ -124,5 +137,7 @@
         points double precision,
         primary key (id)
     );
+
+    create sequence LB_PEER_EVAL_RESULT_S;
 
     create sequence hibernate_sequence;
