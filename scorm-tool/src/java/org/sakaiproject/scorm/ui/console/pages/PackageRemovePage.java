@@ -26,6 +26,10 @@ import java.util.List;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.apache.wicket.PageParameters;
+import org.apache.wicket.ajax.AjaxRequestTarget;
+import org.apache.wicket.ajax.IAjaxCallDecorator;
+import org.apache.wicket.ajax.calldecorator.AjaxPostprocessingCallDecorator;
+import org.apache.wicket.extensions.ajax.markup.html.IndicatingAjaxButton;
 import org.apache.wicket.extensions.markup.html.repeater.data.table.DataTable;
 import org.apache.wicket.extensions.markup.html.repeater.data.table.IColumn;
 import org.apache.wicket.extensions.markup.html.repeater.data.table.PropertyColumn;
@@ -33,6 +37,8 @@ import org.apache.wicket.markup.html.basic.Label;
 import org.apache.wicket.markup.html.form.Button;
 import org.apache.wicket.markup.html.form.Form;
 import org.apache.wicket.markup.repeater.data.ListDataProvider;
+import org.apache.wicket.model.CompoundPropertyModel;
+import org.apache.wicket.model.IModel;
 import org.apache.wicket.model.Model;
 import org.apache.wicket.model.ResourceModel;
 import org.apache.wicket.spring.injection.annot.SpringBean;
@@ -53,46 +59,85 @@ public class PackageRemovePage extends ConsoleBasePage {
 	private Label alertLabel;
 	private Button submitButton;
 	
-	public PackageRemovePage(final PageParameters params) {
-		String title = params.getString("title");
-		final long contentPackageId = params.getLong("contentPackageId");
-		
-		ContentPackage contentPackage = new ContentPackage(title, contentPackageId);
-		
-		List<ContentPackage> list = new LinkedList<ContentPackage>();
-		list.add(contentPackage);
-		
-		List<IColumn> columns = new LinkedList<IColumn>();
-		columns.add(new PropertyColumn(new Model("Content Package"), "title", "title"));
-		
-		DataTable removeTable = new DataTable("removeTable", columns.toArray(new IColumn[columns.size()]), 
-				new ListDataProvider(list), 3);
-		
-		
-		Form removeForm = new Form("removeForm") {
-			
-			private static final long serialVersionUID = 1L;
-			
-			@Override
-			protected void onSubmit() {
-				try {
-					contentService.removeContentPackage(contentPackageId);
-					setResponsePage(PackageListPage.class);
-				} catch (ResourceNotDeletedException rnde) {
-					log.warn("Failed to delete all underlying resources ", rnde);
-					alertLabel.setDefaultModel(new ResourceModel("exception.remove"));
-					submitButton.setVisible(false);
-					setResponsePage(PackageRemovePage.class, params);
-				}
-			}
-			
-		};
-		removeForm.add(alertLabel = new Label("alert", new ResourceModel("verify.remove")));
-		removeForm.add(removeTable);
-		removeForm.add(submitButton = new Button("submit"));
-		removeForm.add(new CancelButton("cancel", PackageListPage.class));
-		
-		add(removeForm);
+	public PackageRemovePage( final PageParameters params )
+	{
+		// bjones86 - SCO-98 - disable buttons and add spinner on submit
+		add( new FileRemoveForm( "removeForm", params ) );
 	}
 	
+	/**
+	 * SCO-98 - disable buttons and add spinner on submit
+	 * 
+	 * @author bjones86
+	 */
+	public class FileRemoveForm extends Form
+	{
+		private static final long serialVersionUID = 1L;
+		
+		public FileRemoveForm( String id, final PageParameters params )
+		{
+			super( id );
+			IModel model = new CompoundPropertyModel( this );
+			this.setModel( model );
+			
+			String title = params.getString( "title" );
+			final long contentPackageId = params.getLong( "contentPackageId" );
+			
+			ContentPackage contentPackage = new ContentPackage( title, contentPackageId );
+			
+			List<ContentPackage> list = new LinkedList<ContentPackage>();
+			list.add( contentPackage );
+			
+			List<IColumn> columns = new LinkedList<IColumn>();
+			columns.add( new PropertyColumn( new Model( "Content Package" ), "title", "title" ) );
+			
+			DataTable removeTable = new DataTable( "removeTable", columns.toArray( new IColumn[columns.size()] ), 
+					new ListDataProvider( list ), 3 );
+			
+			final Label alertLabel = new Label( "alert", new ResourceModel( "verify.remove" ) );
+			final CancelButton btnCancel = new CancelButton( "btnCancel", PackageListPage.class );
+			IndicatingAjaxButton btnSubmit = new IndicatingAjaxButton( "btnSubmit", this )
+			{
+				private static final long serialVersionUID = 1L;
+				
+				@Override
+				protected IAjaxCallDecorator getAjaxCallDecorator()
+				{
+					return new AjaxPostprocessingCallDecorator( super.getAjaxCallDecorator() )
+					{
+						private static final long serialVersionUID = 1L;
+						
+						@Override
+						public CharSequence postDecorateScript( CharSequence script )
+						{
+							// Disable the submit and cancel buttons on click
+							return script + "this.disabled = true; document.getElementsByName( \"btnCancel\" )[0].disabled = true;";
+						}
+					};
+				}
+				
+				@Override
+				protected void onSubmit( AjaxRequestTarget target, Form<?> form )
+				{
+					try
+					{
+						contentService.removeContentPackage( contentPackageId );
+						setResponsePage( PackageListPage.class );
+					}
+					catch( ResourceNotDeletedException rnde )
+					{
+						log.warn( "Failed to delete all underlying resources ", rnde );
+						alertLabel.setDefaultModel( new ResourceModel( "exception.remove" ) );
+						target.addComponent( alertLabel );
+						setResponsePage( PackageRemovePage.class, params );
+					}
+				}
+			};
+			
+			add( alertLabel );
+			add( removeTable );
+			add( btnCancel );
+			add( btnSubmit );
+		}
+	}
 }
