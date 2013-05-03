@@ -36,7 +36,7 @@ public class UploadPage extends ConsoleBasePage implements ScormConstants {
 	
 	private static Log log = LogFactory.getLog(FileUploadForm.class);
 	
-	// bjones86 - OWL-614 sakai.property to enable/disable (show/hide) email sending (drop down)
+	// bjones86 - SCO-97 sakai.property to enable/disable (show/hide) email sending (drop down)
 	private static final String SAK_PROP_SCORM_ENABLE_EMAIL = "scorm.enable.email";
 	@SpringBean( name = "org.sakaiproject.component.api.ServerConfigurationService" )
 	ServerConfigurationService serverConfigurationService;
@@ -87,7 +87,7 @@ public class UploadPage extends ConsoleBasePage implements ScormConstants {
 			add(fileUploadField = new FileUploadField("fileInput"));
 			add(new CheckBox("fileValidated"));
 			
-			// bjones86 - OWL-614 sakai.property to enable/disable (show/hide) email sending (drop down)
+			// bjones86 - SCO-97 sakai.property to enable/disable (show/hide) email sending (drop down)
 			@SuppressWarnings( { "unchecked", "rawtypes" } )
 			DropDownChoice emailNotificationDropDown = new DropDownChoice( "priority", 
 					Arrays.asList( new Integer[] { NotificationService.NOTI_NONE, NotificationService.NOTI_OPTIONAL, 
@@ -119,7 +119,7 @@ public class UploadPage extends ConsoleBasePage implements ScormConstants {
 		                }
 					} );
 			
-			// bjones86 - OWL-614 sakai.property to enable/disable (show/hide) email sending (drop down)
+			// bjones86 - SCO-97 sakai.property to enable/disable (show/hide) email sending (drop down)
 			boolean enableEmail = serverConfigurationService.getBoolean( SAK_PROP_SCORM_ENABLE_EMAIL, true );
 			Label priorityLabel = new Label( "lblPriority", new ResourceModel( "upload.priority.label" ) );
 			if( !enableEmail )
