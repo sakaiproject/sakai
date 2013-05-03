@@ -6,6 +6,7 @@ import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.apache.wicket.PageParameters;
 import org.apache.wicket.ResourceReference;
+import org.apache.wicket.markup.html.basic.Label;
 import org.apache.wicket.markup.html.form.CheckBox;
 import org.apache.wicket.markup.html.form.DropDownChoice;
 import org.apache.wicket.markup.html.form.Form;
@@ -15,9 +16,10 @@ import org.apache.wicket.markup.html.form.upload.FileUploadField;
 import org.apache.wicket.model.CompoundPropertyModel;
 import org.apache.wicket.model.IModel;
 import org.apache.wicket.model.Model;
+import org.apache.wicket.model.ResourceModel;
 import org.apache.wicket.spring.injection.annot.SpringBean;
 import org.apache.wicket.util.lang.Bytes;
-import org.sakaiproject.component.cover.ServerConfigurationService;
+import org.sakaiproject.component.api.ServerConfigurationService;
 import org.sakaiproject.event.api.NotificationService;
 import org.sakaiproject.scorm.api.ScormConstants;
 import org.sakaiproject.scorm.service.api.ScormContentService;
@@ -33,6 +35,11 @@ public class UploadPage extends ConsoleBasePage implements ScormConstants {
 	private static ResourceReference PAGE_ICON = new ResourceReference(ConsoleBasePage.class, "res/table_add.png");
 	
 	private static Log log = LogFactory.getLog(FileUploadForm.class);
+	
+	// bjones86 - OWL-614 sakai.property to enable/disable (show/hide) email sending (drop down)
+	private static final String SAK_PROP_SCORM_ENABLE_EMAIL = "scorm.enable.email";
+	@SpringBean( name = "org.sakaiproject.component.api.ServerConfigurationService" )
+	ServerConfigurationService serverConfigurationService;
 	
 	@SpringBean(name="org.sakaiproject.scorm.service.api.ScormContentService")
 	ScormContentService contentService;
@@ -79,31 +86,52 @@ public class UploadPage extends ConsoleBasePage implements ScormConstants {
 			
 			add(fileUploadField = new FileUploadField("fileInput"));
 			add(new CheckBox("fileValidated"));
-			add(new DropDownChoice("priority", Arrays.asList(new Integer[]{NotificationService.NOTI_NONE, NotificationService.NOTI_OPTIONAL, NotificationService.NOTI_REQUIRED}), new IChoiceRenderer(){
-
-				public Object getDisplayValue(Object object) {
-	                switch (((Integer)object)) {
-                    case NotificationService.NOTI_NONE:
-	                    return getLocalizer().getString("NotificationService.NOTI_NONE", UploadPage.this);
-                    case NotificationService.NOTI_OPTIONAL:
-	                    return getLocalizer().getString("NotificationService.NOTI_OPTIONAL", UploadPage.this);
-                    case NotificationService.NOTI_REQUIRED:
-	                    return getLocalizer().getString("NotificationService.NOTI_REQUIRED", UploadPage.this);
-
-                    }
-	                return "";
-                }
-
-				public String getIdValue(Object object, int index) {
-					if (object == null) {
-						return "";
-					}
-
-					return object.toString();
-                }
-				
-				
-			}));
+			
+			// bjones86 - OWL-614 sakai.property to enable/disable (show/hide) email sending (drop down)
+			@SuppressWarnings( { "unchecked", "rawtypes" } )
+			DropDownChoice emailNotificationDropDown = new DropDownChoice( "priority", 
+					Arrays.asList( new Integer[] { NotificationService.NOTI_NONE, NotificationService.NOTI_OPTIONAL, 
+							NotificationService.NOTI_REQUIRED } ), 
+					new IChoiceRenderer()
+					{
+						private static final long serialVersionUID = 1L;
+		
+						public Object getDisplayValue( Object object )
+						{
+			                switch( ((Integer) object) )
+			                {
+			                    case NotificationService.NOTI_NONE:
+				                    return getLocalizer().getString( "NotificationService.NOTI_NONE", UploadPage.this );
+			                    case NotificationService.NOTI_OPTIONAL:
+				                    return getLocalizer().getString( "NotificationService.NOTI_OPTIONAL", UploadPage.this );
+			                    case NotificationService.NOTI_REQUIRED:
+				                    return getLocalizer().getString( "NotificationService.NOTI_REQUIRED", UploadPage.this );
+		                    }
+			                
+			                return "";
+		                }
+		
+						public String getIdValue( Object object, int index )
+						{
+							if( object == null )
+								return "";
+							return object.toString();
+		                }
+					} );
+			
+			// bjones86 - OWL-614 sakai.property to enable/disable (show/hide) email sending (drop down)
+			boolean enableEmail = serverConfigurationService.getBoolean( SAK_PROP_SCORM_ENABLE_EMAIL, true );
+			Label priorityLabel = new Label( "lblPriority", new ResourceModel( "upload.priority.label" ) );
+			if( !enableEmail )
+			{
+				emailNotificationDropDown.setEnabled( false );
+				emailNotificationDropDown.setVisibilityAllowed( false );
+				priorityLabel.setEnabled( false );
+				priorityLabel.setVisibilityAllowed( false );
+			}
+			add( priorityLabel );
+			add( emailNotificationDropDown );
+			
 			add(new CancelButton("cancel", PackageListPage.class));
 		}
 
@@ -115,7 +143,7 @@ public class UploadPage extends ConsoleBasePage implements ScormConstants {
 		            try {
 		            	String resourceId = resourceService.putArchive(upload.getInputStream(), upload.getClientFileName(), upload.getContentType(), isFileHidden(), getPriority());
 		            	
-		            	int status = contentService.storeAndValidate(resourceId, isFileValidated(), ServerConfigurationService.getString("scorm.zip.encoding", "UTF-8"));
+		            	int status = contentService.storeAndValidate(resourceId, isFileValidated(), serverConfigurationService.getString("scorm.zip.encoding", "UTF-8"));
 		            	
 		            	if (status == VALIDATION_SUCCESS)
 		            		setResponsePage(PackageListPage.class);
