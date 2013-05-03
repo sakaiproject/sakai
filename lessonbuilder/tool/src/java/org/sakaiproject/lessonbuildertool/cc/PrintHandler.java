@@ -715,7 +715,6 @@ public class PrintHandler extends DefaultHandler implements AssessmentHandler, D
 	  String extension = Validator.getFileExtension(name);
 	  String type = ContentTypeImageService.getContentType(extension);
 
-
 	  ContentResourceEdit edit = ContentHostingService.addResource(baseName + the_file_id);
 
 	  edit.setContentType(type);
@@ -879,6 +878,7 @@ public class PrintHandler extends DefaultHandler implements AssessmentHandler, D
       if (all)
 	  System.err.println("manifest md xml: "+the_md);    
       // NOTE: need to handle languages
+      if (the_md != null) {
       Element general = the_md.getChild(GENERAL, ns.lomimscc_ns());
       if (general != null) {
 	  Element tnode = general.getChild(TITLE, ns.lomimscc_ns());
@@ -891,11 +891,11 @@ public class PrintHandler extends DefaultHandler implements AssessmentHandler, D
 	  }
 
       }
+      }
       if (title == null || title.equals(""))
 	  title = "Cartridge";
       if ("".equals(description))
 	  description = null;
-
       ContentCollection baseCollection = makeBaseFolder(title);
       baseName = baseCollection.getId();
       baseUrl = baseCollection.getUrl();

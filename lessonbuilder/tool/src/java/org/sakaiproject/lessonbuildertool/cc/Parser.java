@@ -239,8 +239,10 @@ public class Parser extends AbstractParser {
       if (lom!=null) {
         the_handler.setManifestMetadataXml(lom);
         the_handler.endManifestMetadata();
-      }
-    }
+      } else
+        the_handler.setManifestMetadataXml(null);
+    } else
+        the_handler.setManifestMetadataXml(null);
   }
 
   private boolean
