@@ -38,10 +38,11 @@ should be included in file importing DeliveryMessages
      <h:dataTable value="#{itemText.answerArraySorted}" var="answer">
         <h:column>
           <%-- inputBlock --%>
-          <h:panelGroup rendered="#{answer.text !=null && answer.text!=''}">
+          <h:panelGroup rendered="#{answer.text !=null && answer.text!=''}" styleClass="inputBlock">
 		    <%-- Show answer text --%>
 		    <h:graphicImage id="image1" url="/images/radiounchecked.gif"/>
-		    <h:outputText styleClass="inputBlock" escape="false" value="#{answer.label}. #{answer.text}" />
+		    <h:outputText escape="false" value="#{answer.label}. " />
+			<h:outputText escape="false" value="#{answer.text}" styleClass="mcAnswerText"/>
           </h:panelGroup>
         </h:column>
 		<h:column>
