@@ -513,7 +513,7 @@ public class CCExport {
 	
 	pagesDone.add(pageId);
 
-	outputIndent(out, indent); out.println("<item identifer=\"page_" + pageId + "\">");
+	outputIndent(out, indent); out.println("<item identifier=\"page_" + pageId + "\">");
 	outputIndent(out, indent + 2); out.println("<title>" + StringEscapeUtils.escapeHtml(title) + "</title>");
 
 	List<SimplePageItem> items = simplePageToolDao.findItemsOnPage(pageId.longValue());
@@ -608,7 +608,7 @@ public class CCExport {
 		String ititle = item.getName();
 		
 		if ((ititle == null) || (ititle.equals("")))
-		    ititle = messageLocator.getMessage("simplepage.cc-texttitle");
+		    ititle = messageLocator.getMessage("simplepage.importcc-texttitle");
 		outputIndent(out, indent + 4); out.println("<title>" + StringEscapeUtils.escapeHtml(ititle) + "</title>");
 		outputIndent(out, indent + 2); out.println("</item>"); 
 	    }
@@ -718,9 +718,9 @@ public class CCExport {
 	    outputAllSamigo (out);
 	    outputAllAssignments (out);
 	    outputAllForums (out);
-	    outputManifest (out);
 	    outputAllBlti(out);
 	    outputAllTexts(out);
+	    outputManifest (out);
 	    
 	    if (out != null)
 		out.close();
