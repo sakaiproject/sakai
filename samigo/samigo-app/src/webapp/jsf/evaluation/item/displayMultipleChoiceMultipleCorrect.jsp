@@ -47,7 +47,7 @@ include file for displaying multiple choice questions
       </h:selectManyCheckbox>
     </h:column>
     <h:column rendered="#{answer.text!=null && answer.text!=''}">
-      <h:outputText value="#{answer.text}" escape="false" />
+      <h:outputText styleClass="mcAnswerText" value="#{answer.text}" escape="false" />
     </h:column>
    </h:dataTable>
    </h:column>

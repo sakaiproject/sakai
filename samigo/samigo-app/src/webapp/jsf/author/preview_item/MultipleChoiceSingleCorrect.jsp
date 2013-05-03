@@ -37,7 +37,8 @@ should be included in file importing DeliveryMessages
          
           <h:graphicImage id="image2" rendered="#{!answer.isCorrect}" alt="#{authorMessages.not_correct}" url="/images/radiounchecked.gif"/>
         
-          <h:outputText escape="false" value="#{answer.label}. #{answer.text}" />
+          <h:outputText escape="false" value="#{answer.label}. " />
+          <h:outputText escape="false" value="#{answer.text}" styleClass="mcAnswerText"/>
 </h:panelGroup>
 </h:column><h:column>
  

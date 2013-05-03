@@ -492,3 +492,8 @@ table.listHierEventLog {
 	overflow: auto;
 	height: 100%;
 }
+
+.mcAnswerText {
+	display:inline-table;
+	width: 90%;
+}

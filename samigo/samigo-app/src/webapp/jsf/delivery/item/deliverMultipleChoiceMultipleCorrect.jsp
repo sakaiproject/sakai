@@ -47,7 +47,7 @@ should be included in file importing DeliveryMessages
                  || delivery.actionString=='gradeAssessment'}" />
      <h:outputText value=" #{selection.answer.label}" escape="false" />
      <h:outputText value="#{deliveryMessages.dot}" rendered="#{selection.answer.label ne ''}" />
-     <h:outputText value=" #{selection.answer.text}" escape="false" />
+     <h:outputText value=" #{selection.answer.text}" styleClass="mcAnswerText" escape="false" />
      <f:verbatim></label></f:verbatim>
     </h:column>
     <h:column>
