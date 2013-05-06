@@ -5429,7 +5429,10 @@ private Map<String,List> getToolGroupList(SessionState state, String type, Site 
 	 */
 	private String getGroupName(String groupId) {
 		String groupName = ToolManager.getLocalizedToolProperty(groupId,"title");
-		if (groupName=="") { groupName = "Localized Groupname Not Found";}
+		if (groupName =="" || groupName == null ) { 
+			groupName = "Localized Groupname Not Found";
+			M_log.info("Localized groupName not found for groupId " + groupId);
+		}
 		return groupName;
 	}
 	/*
