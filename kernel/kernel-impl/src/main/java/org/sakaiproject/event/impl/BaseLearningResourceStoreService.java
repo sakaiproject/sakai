@@ -338,7 +338,8 @@ public class BaseLearningResourceStoreService implements LearningResourceStoreSe
             } catch (UserNotDefinedException e) {
                 user = null;
             }
-        } else if (event.getSessionId() != null) {
+        }
+        if (user == null && event.getSessionId() != null) {
             Session session = this.sessionManager.getSession(event.getSessionId());
             if (session != null) {
                 try {
