@@ -165,6 +165,19 @@ languages, as follows:
     Translated by: Daniel Merino, Pablo San Roman 
     Contact: Daniel Merino (daniel.merino@unavarra.es), Pablo San Roman (pablo.sanroman@unavarra.es)
     Local ID: eu
+ 
+27) English (Australian)
+    Status: Underway for 2.10
+    Translated by: Steve Swinsburg
+    Contact: Steve Swinsburg (steve.swinsburg@gmail.com)
+    Local ID: en_AU
+    
+28) English (British)
+    Status: Underway for 2.10
+    Translated by: Steve Swinsburg
+    Contact: Steve Swinsburg (steve.swinsburg@gmail.com)
+    Local ID: en_GB
+       
 
 The default language locale must be defined at boot time (though this 
 can be over-ridden by user preferences), by setting the tomcat 
