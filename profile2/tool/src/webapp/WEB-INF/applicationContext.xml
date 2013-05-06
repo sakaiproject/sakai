@@ -44,6 +44,13 @@
 		<property name="sakaiProxy" ref="org.sakaiproject.profile2.logic.SakaiProxy" />
 	</bean>
 	
+	<bean parent="org.sakaiproject.entitybroker.entityprovider.AbstractEntityProvider" 
+		class="org.sakaiproject.profile2.tool.entityprovider.RosterEntityProvider">
+		<property name="siteService" ref="org.sakaiproject.site.api.SiteService" />
+        <property name="authzGroupService" ref="org.sakaiproject.authz.api.AuthzGroupService" />
+        <property name="profileLogic" ref="org.sakaiproject.profile2.logic.ProfileLogic" />
+	</bean>
+	
 	<!-- ENTITY PROVIDERS END -->
        
 </beans>
