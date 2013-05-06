@@ -62,7 +62,7 @@ public class ReportHandlerHook {
 
           log.debug("Handing viewparams and response off to the reportExporter");
 	  CCExport ccExport = new CCExport();
-	  ccExport.doExport(siteId, response);
+	  ccExport.doExport(siteId, response, (ExportCCViewParameters)viewparams);
 
           return true;
       }

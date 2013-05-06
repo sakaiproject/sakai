@@ -29,6 +29,7 @@ import uk.org.ponder.rsf.viewstate.SimpleViewParameters;
 public class ExportCCViewParameters extends SimpleViewParameters {
 
 	private boolean exportcc = false;
+        private String version = "1.2";
 
 	public ExportCCViewParameters() {
 		super();
@@ -44,6 +45,14 @@ public class ExportCCViewParameters extends SimpleViewParameters {
 
 	public boolean getExportcc() {
 	    return exportcc;
+	}
+
+        public void setVersion(String s) {
+	    version = s;
+	}
+
+	public String getVersion() {
+	    return version;
 	}
 
 }

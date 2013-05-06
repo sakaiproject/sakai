@@ -132,6 +132,14 @@ $(function() {
 			draggable: false
 		});
 	
+		$('#export-cc-dialog').dialog({
+			autoOpen: false,
+			width: 600,
+			modal: false,
+			resizable: false,
+			draggable: false
+		});
+
 		$('#comments-dialog').dialog({
 			autoOpen: false,
 			width: 600,
@@ -222,6 +230,28 @@ $(function() {
 			return false;
 		});
 		
+		$('#export-cc').click(function(){
+			closeDropdown();
+			var position =  $(this).position();
+			$("#export-cc-dialog").dialog("option", "position", [position.left, position.top]);
+			oldloc = $(".dropdown a");
+			$('#export-cc-dialog').dialog('open');
+			checksize($('#export-cc-dialog'));
+			return false;
+		});
+
+		$('#export-cc-submit').click(function(){
+			// jquery click doesn't actually click, so get the js object and do a native click call
+                        if ($('#export-cc-v11').attr('checked') == 'checked') {
+                            $("#export-cc-link").attr('href', $("#export-cc-link").attr('href').replace(/version=[0-9.]*/, "version=1.1"));
+                        } else {
+                            $("#export-cc-link").attr('href', $("#export-cc-link").attr('href').replace(/version=[0-9.]*/, "version=1.2"));
+                        }
+			$("#export-cc-link").get(0).click();
+			closeExportCcDialog();
+			return false;
+		    });
+
 		$('#import-cc-submit').click(function() {
 			// prevent double clicks
 			if (!importccactive)
@@ -283,6 +313,7 @@ $(function() {
 			$("#add-multimedia-dialog").dialog("option", "width", outerWidth-10);
 			$("#edit-title-dialog").dialog("option", "width", outerWidth-10);
 			$("#import-cc-dialog").dialog("option", "width", outerWidth-10);
+			$("#export-cc-dialog").dialog("option", "width", outerWidth-10);
 			$("#new-page-dialog").dialog("option", "width", outerWidth-10);
 			$("#remove-page-dialog").dialog("option", "width", outerWidth-10);
 			$("#youtube-dialog").dialog("option", "width", outerWidth-10);
@@ -1371,6 +1402,7 @@ $(function() {
 				$('#youtube-dialog').dialog('isOpen') ||
 				$('#movie-dialog').dialog('isOpen') ||
 				$('#import-cc-dialog').dialog('isOpen') ||
+				$('#export-cc-dialog').dialog('isOpen') ||
 				$('#comments-dialog').dialog('isOpen') ||
 				$('#student-dialog').dialog('isOpen')) ||
 				$('#question-dialog').dialog('isOpen')) {
@@ -1587,6 +1619,11 @@ function closeNewPageDialog() {
 
 function closeImportCcDialog() {
 	$('#import-cc-dialog').dialog('close');
+	oldloc.focus();
+}
+
+function closeExportCcDialog() {
+	$('#export-cc-dialog').dialog('close');
 	oldloc.focus();
 }
 

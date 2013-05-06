@@ -177,12 +177,9 @@ function resizeiframe(id) {
 		    <a href="#" role="menuitem" rsf:id="import-cc" id="import-cc"><span rsf:id="msg=simplepage.import_cc_button"></span></a>
 		    <span rsf:id="msg=simplepage.importcc-descrip"></span>
 		    <br />
-		    <span rsf:id="export-cc-group">
-		      <form style="display:none" rsf:id="export-cc-form"><input rsf:id="export-cc-input" type="submit"  id="export-cc-input"></input></form>
-		      <a href="#" role="menuitem" rsf:id="export-cc" id="export-cc"><span rsf:id="msg=simplepage.export_cc"></span></a>
-		      <span rsf:id="msg=simplepage.exportcc-descrip"></span>
-		      <br />
-		    </span>
+		    <a href="#" role="menuitem" rsf:id="export-cc" id="export-cc"><span rsf:id="msg=simplepage.export_cc"></span></a>
+		    <span rsf:id="msg=simplepage.exportcc-descrip"></span>
+		    <br />
 		  </span>
 		  
 		  <span rsf:id="permissions-descrip">
@@ -970,6 +967,26 @@ function resizeiframe(id) {
 					  <p>
 					    <input class="bold" type="submit" id="import-cc-submit" rsf:id="import-cc-submit" />
 					    <input type="submit" rsf:id="mm-cancel" onclick="closeImportCcDialog(); return false" />
+					  </p>
+					  <p class="hideOnDialog" id="loading" rsf:id="msg=simplepage.loading">
+					  </p>
+
+
+					</div>
+				</form>
+			</div>
+
+			<div id="export-cc-dialog" rsf:id="export-cc-dialog">
+				<form action="#" rsf:id="export-cc-form" method="post" enctype="multipart/form-data">
+					<div class="border">					
+					  <p class="required">
+					    <input type="checkbox" id="export-cc-v11" rsf:id="export-cc-v11"/>
+					    <label rsf:id="msg=simplepage.exportcc-use11" for="export-cc-v11" id="export-cc-v11-label">Use v1.1</label> <br />
+					  </p>
+					  <a href="#" style="display:none" rsf:id="export-cc-link" id="export-cc-link"></a>
+					  <p>
+					    <input class="bold" type="submit" id="export-cc-submit" rsf:id="export-cc-submit" />
+					    <input type="submit" rsf:id="export-cc-cancel" onclick="closeExportCcDialog(); return false" />
 					  </p>
 					  <p class="hideOnDialog" id="loading" rsf:id="msg=simplepage.loading">
 					  </p>

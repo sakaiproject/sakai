@@ -655,18 +655,7 @@ public class ShowPageProducer implements ViewComponentProducer, DefaultView, Nav
 				UIOutput.make(tofill, "toppage-descrip");
 				UIOutput.make(tofill, "new-page").decorate(new UIFreeAttributeDecorator("title", messageLocator.getMessage("simplepage.new-page-tooltip")));
 				UIOutput.make(tofill, "import-cc").decorate(new UIFreeAttributeDecorator("title", messageLocator.getMessage("simplepage.import_cc")));
-				if (allowCcExport) {
-				    // OK so this is weird. An invisible form, which is submitted by onclick attached to the <A> following.
-				    // The problem is that even if I make the button look like a link it won't show up the same in
-				    // screen readers, so I really need to trigger it with a link
-				    UIOutput.make(tofill, "export-cc-group");
-				    ExportCCViewParameters view = new ExportCCViewParameters("exportCc");
-				    view.setExportcc(true);
-				    UIInternalLink.make(tofill, "export-cc", messageLocator.getMessage("simplepage.export_cc"), view);
-				    //  UICommand.make(form, "export-cc-input", "#{simplePageBean.exportCc}");
-				    // UIOutput.make(tofill, "export-cc");
-				}				    
-
+				UIOutput.make(tofill, "export-cc").decorate(new UIFreeAttributeDecorator("title", messageLocator.getMessage("simplepage.export_cc")));
 			}
 			
 			// Checks to see that user can edit and that this is either a top level page,
@@ -2382,6 +2371,7 @@ public class ShowPageProducer implements ViewComponentProducer, DefaultView, Nav
 		createNewPageDialog(tofill, currentPage, pageItem);
 		createRemovePageDialog(tofill, currentPage, pageItem);
 		createImportCcDialog(tofill);
+		createExportCcDialog(tofill);
 		createYoutubeDialog(tofill, currentPage);
 		createMovieDialog(tofill, currentPage);
 		createCommentsDialog(tofill);
@@ -3177,6 +3167,23 @@ public class ShowPageProducer implements ViewComponentProducer, DefaultView, Nav
 			}
 		}
 
+
+	}
+
+	private void createExportCcDialog(UIContainer tofill) {
+		UIOutput.make(tofill, "export-cc-dialog").decorate(new UIFreeAttributeDecorator("title", messageLocator.getMessage("simplepage.export-cc-title")));
+
+		UIForm form = UIForm.make(tofill, "export-cc-form");
+
+		UIOutput.make(form, "export-cc-v11"); // value is handled by JS, so RSF doesn't need to treat it as input
+		UICommand.make(form, "export-cc-submit", messageLocator.getMessage("simplepage.exportcc-download"), "#{simplePageBean.importCc}");
+		UICommand.make(form, "export-cc-cancel", messageLocator.getMessage("simplepage.cancel"), null);
+
+		// the actual submission is with a GET. The submit button clicks this link.
+		ExportCCViewParameters view = new ExportCCViewParameters("exportCc");
+		view.setExportcc(true);
+		view.setVersion("1.2");
+		UIInternalLink.make(form, "export-cc-link", "export cc link", view);
 
 	}
 

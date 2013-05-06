@@ -10,6 +10,7 @@ import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.sakaiproject.component.cover.ComponentManager;
 import org.sakaiproject.lessonbuildertool.model.SimplePageToolDao;
+import org.sakaiproject.component.cover.ServerConfigurationService;
 import org.sakaiproject.lti.api.LTIService;
 import uk.org.ponder.messageutil.MessageLocator;
 
@@ -61,7 +62,7 @@ public class BltiExport {
 	return ret;
     }
 
-    public boolean outputEntity(String bltiRef, ZipPrintStream out, PrintStream errStream, CCExport bean, CCExport.Resource resource) {
+    public boolean outputEntity(String bltiRef, ZipPrintStream out, PrintStream errStream, CCExport bean, CCExport.Resource resource, int version) {
 	int i = bltiRef.indexOf("/");
 	String id = bltiRef.substring(i + 1);
 	this.ccExport = bean;
@@ -91,15 +92,26 @@ public class BltiExport {
 	    custom.addAll(Arrays.asList(custom2.split("\n")));
 	}
 	out.println("<?xml version=\"1.0\" encoding=\"UTF-8\"?>");
-	out.println("<cartridge_basiclti_link xmlns=\"http://www.imsglobal.org/xsd/imslticc_v1p0\"");
-	out.println("      xmlns:blti = \"http://www.imsglobal.org/xsd/imsbasiclti_v1p0\"");
-	out.println("      xmlns:lticm =\"http://www.imsglobal.org/xsd/imslticm_v1p0\"");
-	out.println("      xmlns:lticp =\"http://www.imsglobal.org/xsd/imslticp_v1p0\"");
-	out.println("      xmlns:xsi = \"http://www.w3.org/2001/XMLSchema-instance\"");
-	out.println("      xsi:schemaLocation = \"http://www.imsglobal.org/xsd/imslticc_v1p0 http://www.imsglobal.org/xsd/lti/ltiv1p0/imslticc_v1p0.xsd http://www.imsglobal.org/xsd/imsbasiclti_v1p0 http://www.imsglobal.org/xsd/lti/ltiv1p0/imsbasiclti_v1p0.xsd  http://www.imsglobal.org/xsd/imslticm_v1p0 http://www.imsglobal.org/xsd/lti/ltiv1p0/imslticm_v1p0.xsd http://www.imsglobal.org/xsd/imslticp_v1p0 http://www.imsglobal.org/xsd/lti/ltiv1p0/imslticp_v1p0.xsd\">");
+	switch (version) {
+	case CCExport.V11:
+	    out.println("<cartridge_basiclti_link");
+	    out.println("      xmlns=\"http://www.imsglobal.org/xsd/imslticc_v1p0\"");
+	    out.println("      xmlns:blti=\"http://www.imsglobal.org/xsd/imsbasiclti_v1p0\"");
+	    out.println("      xmlns:lticm=\"http://www.imsglobal.org/xsd/imslticm_v1p0\"");
+	    out.println("      xmlns:lticp=\"http://www.imsglobal.org/xsd/imslticp_v1p0\"");
+	    out.println("      xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\"");
+	    out.println("      xsi:schemaLocation=\"http://www.imsglobal.org/xsd/imslticc_v1p0 http://www.imsglobal.org/xsd/lti/ltiv1p0/imslticc_v1p0.xsd http://www.imsglobal.org/xsd/imslticp_v1p0 http://www.imsglobal.org/xsd/lti/ltiv1p0/imslticp_v1p0.xsd http://www.imsglobal.org/xsd/imslticm_v1p0 http://www.imsglobal.org/xsd/lti/ltiv1p0/imslticm_v1p0.xsd http://www.imsglobal.org/xsd/imsbasiclti_v1p0 http://www.imsglobal.org/xsd/lti/ltiv1p0/imsbasiclti_v1p0p1.xsd\">");
+	    break;
+	default:
+	    out.println("<cartridge_basiclti_link xmlns=\"http://www.imsglobal.org/xsd/imslticc_v1p0\"");
+	    out.println("      xmlns:blti = \"http://www.imsglobal.org/xsd/imsbasiclti_v1p0\"");
+	    out.println("      xmlns:lticm =\"http://www.imsglobal.org/xsd/imslticm_v1p0\"");
+	    out.println("      xmlns:lticp =\"http://www.imsglobal.org/xsd/imslticp_v1p0\"");
+	    out.println("      xmlns:xsi = \"http://www.w3.org/2001/XMLSchema-instance\"");
+	    out.println("      xsi:schemaLocation = \"http://www.imsglobal.org/xsd/imslticc_v1p0 http://www.imsglobal.org/xsd/lti/ltiv1p0/imslticc_v1p0p1.xsd http://www.imsglobal.org/xsd/imsbasiclti_v1p0 http://www.imsglobal.org/xsd/lti/ltiv1p0/imsbasiclti_v1p0p1.xsd  http://www.imsglobal.org/xsd/imslticm_v1p0 http://www.imsglobal.org/xsd/lti/ltiv1p0/imslticm_v1p0.xsd http://www.imsglobal.org/xsd/imslticp_v1p0 http://www.imsglobal.org/xsd/lti/ltiv1p0/imslticp_v1p0.xsd\">");
+	}
 	
 	out.println("      <blti:title>" + StringEscapeUtils.escapeXml(title) + "</blti:title>");
-	out.println("      <blti:launch_url>" + StringEscapeUtils.escapeXml(launch_url) + "</blti:launch_url>");
 
 	if (custom.size() > 0) {
 	    out.println("      <blti:custom>");
@@ -114,6 +126,11 @@ public class BltiExport {
 	    }
 	    out.println("      </blti:custom>");
 	}
+	out.println("      <blti:launch_url>" + StringEscapeUtils.escapeXml(launch_url) + "</blti:launch_url>");
+	out.println("      <blti:vendor>");
+	out.println("        <lticp:code>" + StringEscapeUtils.escapeXml(ServerConfigurationService.getServerName()) + "</lticp:code>");
+	out.println("        <lticp:name>" + StringEscapeUtils.escapeXml(ServerConfigurationService.getString("ui.institution", "Sakai")) + "</lticp:name>");
+	out.println("      </blti:vendor>");
 	out.println("</cartridge_basiclti_link>");
 	return true;
     }
