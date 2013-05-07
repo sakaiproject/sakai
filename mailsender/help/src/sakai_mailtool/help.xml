@@ -40,7 +40,7 @@
       <property name="categories">
          <list>
             <bean id="mailsenderCategory" class="org.sakaiproject.component.app.help.model.CategoryBean">
-               <property name="name"><value>mailsender</value></property>
+               <property name="name"><value>Email</value></property>
                <property name="resources">
                   <list>
                     <ref bean="mailsenderContent1"/>
