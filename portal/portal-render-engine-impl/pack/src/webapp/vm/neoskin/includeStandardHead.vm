@@ -91,9 +91,10 @@ ${sakai_html_head_js}
 #if ( $neoChat && $loggedIn )
 <script type="text/javascript" language="JavaScript" src="/portal/scripts/jquery.idle-timer.js"></script>
 <script type="text/javascript" language="JavaScript" src="/portal/scripts/chat.js"></script>
+#if ( $neoChatVideo )
 <script type="text/javascript" language="JavaScript" src="/portal/scripts/videocall.js"></script>
 <script type="text/javascript" language="JavaScript" src="/portal/scripts/webrtc-adapter.js"></script>
-
+#end
 #end
 #if ( ${styleable} )
 <script type="text/javascript" 

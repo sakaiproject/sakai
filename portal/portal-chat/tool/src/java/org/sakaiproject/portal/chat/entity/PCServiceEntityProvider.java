@@ -61,8 +61,8 @@ public class PCServiceEntityProvider extends AbstractEntityProvider implements R
 
     /* Heartbeat messages start with this */
     private final String HEARTBEAT_PREAMBLE = "heartbeat:";
-    /* Heartbeat video messages start with this */
-    private final String HEARTBEAT_VIDEO_PREAMBLE = "heartvideobeat:";
+    /* Heartbeat messages separator */
+    private final String HEARTBEAT_SEPARATOR = ":";
     /* Message messages start with this */
     private final String MESSAGE_PREAMBLE = "message:";
     /* Message messages start with this */
@@ -382,6 +382,14 @@ public class PCServiceEntityProvider extends AbstractEntityProvider implements R
 		}
 	}
 
+	public class PortalVideoStunServer {
+		public String url;
+		
+		public PortalVideoStunServer(String url) {
+			this.url = "stun:"+url;
+		}
+	}
+	
     /**
      * The JS client calls this to grab the latest data in one call. Connections, latest messages, online users
      * and present users (in a site) are all returned in one lump of JSON. If the online parameter is supplied and
@@ -414,7 +422,7 @@ public class PCServiceEntityProvider extends AbstractEntityProvider implements R
             	
             	if(logger.isDebugEnabled()) logger.debug("We are clustered. Propagating heartbeat ...");
             	
-                Message msg = new Message(null, null, ("true".equals(video)?HEARTBEAT_VIDEO_PREAMBLE:HEARTBEAT_PREAMBLE) + currentUser.getId());
+                Message msg = new Message(null, null, HEARTBEAT_PREAMBLE + video + HEARTBEAT_SEPARATOR + currentUser.getId());
                 try {
                     clusterChannel.send(msg);
                     if(logger.isDebugEnabled()) logger.debug("Heartbeat message sent.");
@@ -593,6 +601,31 @@ public class PCServiceEntityProvider extends AbstractEntityProvider implements R
 		return "success";
 	}
 
+	@EntityCustomAction(action = "servers", viewKey = EntityView.VIEW_SHOW)
+	public Map<String,Object> handleServers(EntityReference ref)
+	{
+		User currentUser = userDirectoryService.getCurrentUser();
+		User anon = userDirectoryService.getAnonymousUser();
+		
+		if(anon.equals(currentUser)) {
+			throw new SecurityException("You must be logged in to use this service");
+		}
+		
+		String userId = ref.getId();
+		
+		String [] servers = serverConfigurationService.getStrings("portal.neochat.video.stuns");
+		if (servers==null) {
+			servers = new String[]{"stun.l.google.com:19302"};
+		}
+		List<PortalVideoStunServer> serverList = new ArrayList<PortalVideoStunServer>();
+		for (String server:servers) {
+			serverList.add(new PortalVideoStunServer(server));
+		}
+		Map<String,Object> data = new HashMap<String,Object>(4);
+		data.put("iceServers", serverList);
+		return data;
+	}
+	
     /**
      * Implements a threadsafe addition to the message map
      */
@@ -666,11 +699,10 @@ public class PCServiceEntityProvider extends AbstractEntityProvider implements R
         if (o instanceof String) {
             String message = (String) o;
             if (message.startsWith(HEARTBEAT_PREAMBLE)) {
-                String onlineUserId = message.substring(HEARTBEAT_PREAMBLE.length());
-                heartbeatMap.put(onlineUserId, new Object[]{new Date(),"false"});
-            } else if (message.startsWith(HEARTBEAT_VIDEO_PREAMBLE)) {
-                String onlineUserId = message.substring(HEARTBEAT_VIDEO_PREAMBLE.length());
-                heartbeatMap.put(onlineUserId,  new Object[]{new Date(),"true"});
+            	String messageContent = message.substring(HEARTBEAT_PREAMBLE.length());
+                String onlineUserId = messageContent.substring(messageContent.indexOf(HEARTBEAT_SEPARATOR)+1);
+                String video = messageContent.substring(0,messageContent.indexOf(HEARTBEAT_SEPARATOR));
+                heartbeatMap.put(onlineUserId, new Object[]{new Date(),video});
             } else if (message.startsWith(MESSAGE_PREAMBLE)) {
                 Address address = clusterChannel.getAddress();
                 String[] parts = message.split(":");

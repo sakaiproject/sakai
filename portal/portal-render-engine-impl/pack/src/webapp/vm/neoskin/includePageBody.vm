@@ -337,7 +337,7 @@
 			#end
                             <span class="pc_connection_display_name">${connection.displayName}</span>
                             {if connection.online}
-         	                   {if connection.video}
+         	                   {if connection.video!='none'}
                             	   <img class="pc_display_status_bullet" src="/library/image/silk/user_green.png" border="0"/>
                            	   {else}
                            	       <img class="pc_display_status_bullet" src="/library/image/silk/bullet_green.png" border="0"/>
@@ -366,7 +366,7 @@
                             <img class="pc_user_image" src="/direct/profile/${user.id}/image" />
 			#end
                             <span class="pc_site_display_name">${user.displayName}</span>
-                            {if user.video}
+                            {if user.video!='none'}
                               <img class="pc_display_status_bullet" src="/library/image/silk/user_green.png" border="0"/>
                             {else}
                               <img class="pc_display_status_bullet" src="/library/image/silk/bullet_green.png" border="0"/>

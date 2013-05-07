@@ -49,7 +49,7 @@ function WebRTC() {
 		        };
 		    }
 		} else {
-			this.webrtcDetectedBrowser = "nonwebrtc";
+			this.webrtcDetectedBrowser = "none";
 		}
 
 		this.signalService = signalService; // Use the signal service provided
@@ -61,6 +61,16 @@ function WebRTC() {
 			// method
 			// when
 		}
+		jQuery
+		.ajax({
+			url : '/direct/portal-chat/' + portal.user.id + '/servers.json',
+			dataType : "json",
+			cache : false,
+			success : function(data, status) {
+				this.pc_config = data.data;
+			}
+		});
+		
 	}
 
 	/* Call this process to start a video call */
@@ -239,7 +249,7 @@ function WebRTC() {
 	/* Suport functions */
 
 	this.isWebRTCEnabled = function() {
-		return this.webrtcDetectedBrowser != "nonwebrtc";
+		return this.webrtcDetectedBrowser != "none";
 	}
 
 	this.setupPeerConnection = function(userid, videoAgentType, successConn,

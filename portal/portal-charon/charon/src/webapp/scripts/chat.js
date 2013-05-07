@@ -209,7 +209,7 @@ function PortalChat() {//
 		$('#pc_chat_' + uuid + '_video_content').hide();
 		$('#pc_connection_' + uuid + '_videoin').hide();
 		$('#pc_connection_' + uuid + '_videochat_bar .video_on').hide();
-		if (!this.videoCall.isVideoEnabled() || !this.getVideoAgent(uuid)) {
+		if (!this.videoCall || !this.videoCall.isVideoEnabled() || !this.hasVideoAgent(uuid)) {
 			$('#pc_connection_' + uuid + '_videochat_bar').hide();
 		} else {
 			if (!minimised) {
@@ -407,7 +407,7 @@ function PortalChat() {//
 
 		for ( var i = 0, j = connections.length; i < j; i++) {
 			connections[i].online = false;
-			connections[i].video = false;
+			connections[i].video = 'none';
 			for ( var k = 0, m = online.length; k < m; k++) {
 				if (online[k].id === connections[i].uuid) {
 					connections[i].online = true;
@@ -430,7 +430,7 @@ function PortalChat() {//
 						present = true;
 						if (portalChat.currentConnections[k].online != connections[i].online
 								|| portalChat.currentConnections[k].video != connections[i].video) {
-							if (connections[i].video) {
+							if (connections[i].video!='none') {
 								if ($(
 										'#pc_chat_with_'
 												+ portalChat.currentConnections[k].uuid)
@@ -535,7 +535,7 @@ function PortalChat() {//
 					if (portalChat.currentSiteUsers[k].id === siteUsers[i].id) {
 						if (portalChat.currentSiteUsers[k].video != siteUsers[i].video) {
 							inCurrentData = false;
-							if (siteUsers[i].video) {
+							if (siteUsers[i].video!='none') {
 								if ($(
 										'#pc_chat_with_'
 												+ portalChat.currentSiteUsers[k].id)
@@ -673,11 +673,7 @@ function PortalChat() {//
 			siteId = match[1];
 
 		var onlineString = portalChat.offline ? 'false' : 'true';
-		// var videoString = this.videoCall.isVideoEnabled() && !this.videoOff ?
-		// 'true' : 'false';
-		var videoString = this.videoCall.isVideoEnabled() && !this.videoOff ? this.videoCall
-				.getVideoAgent()
-				: 'false';
+		var videoString = (this.videoCall && !this.videoOff)?this.videoCall.getVideoAgent():'none';
 
 		jQuery
 				.ajax({
@@ -980,6 +976,10 @@ function PortalChat() {//
 		$('#pc_connection_' + uuid + '_videochat_bar .video_on').hide();
 	}
 
+	this.hasVideoAgent = function(uuid) {
+		return this.getVideoAgent(uuid)!='none';
+	}
+
 	this.getVideoAgent = function(uuid) {
 		return portalChat.currentConnectionsMap[uuid].video;
 	}
@@ -1013,16 +1013,18 @@ function PortalChat() {//
 							if (portal.loggedIn) {
 
 								/* Initialize videoChat */
-								portalChat.videoCall = new VideoCall();
-
-								portalChat.videoCall.onHangUp = function(userid) {
-									portalChat.setVideoStatus(userid,
-											"User has hung up", true);
-									portalChat.videoCall.doClose(userid);
-									portalChat.hideVideoCall(userid);
-								};
-
-								portalChat.videoCall.init(portalChat);
+								if (typeof VideoCall === 'function') {
+									portalChat.videoCall = new VideoCall();
+	
+									portalChat.videoCall.onHangUp = function(userid) {
+										portalChat.setVideoStatus(userid,
+												"User has hung up", true);
+										portalChat.videoCall.doClose(userid);
+										portalChat.hideVideoCall(userid);
+									};
+	
+									portalChat.videoCall.init(portalChat);
+								}
 
 								$('#chatToggle').click(function() {
 									portalChat.toggleChat();
