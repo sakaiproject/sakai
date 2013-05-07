@@ -109,6 +109,15 @@ import org.sakaiproject.entity.api.Reference;
 import org.sakaiproject.entity.api.ResourceProperties;
 import org.sakaiproject.entity.api.ResourcePropertiesEdit;
 import org.sakaiproject.entitybroker.DeveloperHelperService;
+import org.sakaiproject.event.api.Event;
+import org.sakaiproject.event.api.LearningResourceStoreService;
+import org.sakaiproject.event.api.LearningResourceStoreService.LRS_Actor;
+import org.sakaiproject.event.api.LearningResourceStoreService.LRS_Context;
+import org.sakaiproject.event.api.LearningResourceStoreService.LRS_Object;
+import org.sakaiproject.event.api.LearningResourceStoreService.LRS_Result;
+import org.sakaiproject.event.api.LearningResourceStoreService.LRS_Statement;
+import org.sakaiproject.event.api.LearningResourceStoreService.LRS_Verb;
+import org.sakaiproject.event.api.LearningResourceStoreService.LRS_Verb.SAKAI_VERB;
 import org.sakaiproject.event.cover.EventTrackingService;
 import org.sakaiproject.exception.IdUnusedException;
 import org.sakaiproject.service.gradebook.shared.Assignment;
@@ -133,6 +142,7 @@ import org.sakaiproject.tool.messageforums.ui.ForumRankBean;
 import org.sakaiproject.tool.messageforums.ui.PermissionBean;
 import org.sakaiproject.tool.messageforums.ui.SiteGroupBean;
 import org.sakaiproject.user.api.User;
+import org.sakaiproject.user.api.UserNotDefinedException;
 import org.sakaiproject.user.cover.UserDirectoryService;
 import org.sakaiproject.util.FormattedText;
 import org.sakaiproject.util.ResourceLoader;
@@ -1817,6 +1827,12 @@ public class DiscussionForumTool
     prepareRemoveAttach.clear();
     siteGroups.clear();
     createTopicsForGroups = false;
+    LearningResourceStoreService lrss = (LearningResourceStoreService) ComponentManager
+            .get("org.sakaiproject.event.api.LearningResourceStoreService");
+    if (null != lrss) {
+        Event event = EventTrackingService.newEvent("msgcntr", "topic created", true);
+        lrss.registerStatement(getStatementForUserPosted(lrss.getEventActor(event), selectedTopic.getTopic().getTitle(), SAKAI_VERB.interacted), "msgcntr");
+    }
     return TOPIC_SETTING_REVISE;
 
   }
@@ -1898,7 +1914,12 @@ public class DiscussionForumTool
     		updateSynopticMessagesForForumComparingOldMessagesCount(getSiteId(), forumId, null, beforeChangeHM, SynopticMsgcntrManager.NUM_OF_ATTEMPTS);
     	}
     }
-    
+    LearningResourceStoreService lrss = (LearningResourceStoreService) ComponentManager
+            .get("org.sakaiproject.event.api.LearningResourceStoreService");
+    if (null != lrss) {
+        Event event = EventTrackingService.newEvent("msgcntr", "topic created", true);
+        lrss.registerStatement(getStatementForUserPosted(lrss.getEventActor(event), selectedTopic.getTopic().getTitle(), SAKAI_VERB.interacted), "msgcntr");
+    }
     return processReturnToOriginatingPage();
     //reset();
     //return MAIN;
@@ -2293,7 +2314,6 @@ public class DiscussionForumTool
   public String processActionDisplayTopic()
   {
     LOG.debug("processActionDisplayTopic()");
-
     return displayTopicById(TOPIC_ID);
   }
 
@@ -2615,7 +2635,12 @@ public class DiscussionForumTool
 	    }
 	    // don't need this here b/c done in processActionGetDisplayThread();
 	    // selectedTopic = getDecoratedTopic(topic);
-	    
+        LearningResourceStoreService lrss = (LearningResourceStoreService) ComponentManager
+                .get("org.sakaiproject.event.api.LearningResourceStoreService");
+        if (null != lrss) {
+            Event event = EventTrackingService.newEvent("msgcntr", "view thread", true);
+            lrss.registerStatement(getStatementForUserReadViewed(lrss.getEventActor(event), threadMessage.getTitle(), "thread"), "msgcntr");
+        }
 	    return processActionGetDisplayThread();	  
   }
   
@@ -2693,7 +2718,13 @@ public class DiscussionForumTool
     //get thread from message
     getThreadFromMessage();
     refreshSelectedMessageSettings(message);
-    // selectedTopic= new DiscussionTopicBean(message.getTopic());
+    // selectedTopic= new DiscussionTopicBean(message.getTopic()); 
+    LearningResourceStoreService lrss = (LearningResourceStoreService) ComponentManager
+            .get("org.sakaiproject.event.api.LearningResourceStoreService");
+    if (null != lrss) {
+        Event event = EventTrackingService.newEvent("msgcntr", "view thread", true);
+        lrss.registerStatement(getStatementForUserReadViewed(lrss.getEventActor(event), message.getTitle(), "thread"), "msgcntr");
+    }
     return MESSAGE_VIEW;
   }
   
@@ -2782,7 +2813,12 @@ public class DiscussionForumTool
 	    
 	    refreshSelectedMessageSettings(message);  
     }
-    
+    LearningResourceStoreService lrss = (LearningResourceStoreService) ComponentManager
+            .get("org.sakaiproject.event.api.LearningResourceStoreService");
+    if (null != lrss) {
+        Event event = EventTrackingService.newEvent("msgcntr", "view thread", true);
+        lrss.registerStatement(getStatementForUserReadViewed(lrss.getEventActor(event), selectedMessage.getMessage().getTitle(), "thread"), "msgcntr");
+    }
     return null;
   }
 
@@ -2823,7 +2859,12 @@ public class DiscussionForumTool
 	    
 	    refreshSelectedMessageSettings(message);  
     }
-    
+    LearningResourceStoreService lrss = (LearningResourceStoreService) ComponentManager
+            .get("org.sakaiproject.event.api.LearningResourceStoreService");
+    if (null != lrss) {
+        Event event = EventTrackingService.newEvent("msgcntr", "view thread", true);
+        lrss.registerStatement(getStatementForUserReadViewed(lrss.getEventActor(event), selectedMessage.getMessage().getTitle(), "thread"), "msgcntr");
+    }
     return null;
   }
   
@@ -3315,6 +3356,12 @@ public class DiscussionForumTool
     }
     topicClickCount++;
     if(resetTopicById(externalTopicId)){
+        LearningResourceStoreService lrss = (LearningResourceStoreService) ComponentManager
+                .get("org.sakaiproject.event.api.LearningResourceStoreService");
+        if (null != lrss) {
+            Event event = EventTrackingService.newEvent("msgcntr", "view topics", true);
+            lrss.registerStatement(getStatementForUserReadViewed(lrss.getEventActor(event), selectedTopic.getTopic().getTitle(), "topic"), "msgcntr");
+        }
     	return ALL_MESSAGES;
     } else {
     	return gotoMain();
@@ -3601,6 +3648,12 @@ public class DiscussionForumTool
     	LOG.error("DiscussionForumTool: processDfMsgPost", e);
     	setErrorMessage(getResourceBundleString(ERROR_POSTING_THREAD));
     	gotoMain();
+    }
+    LearningResourceStoreService lrss = (LearningResourceStoreService) ComponentManager
+            .get("org.sakaiproject.event.api.LearningResourceStoreService");
+    if (null != lrss) {
+        Event event = EventTrackingService.newEvent("msgcntr", "responded", true);
+        lrss.registerStatement(getStatementForUserPosted(lrss.getEventActor(event), dMsg.getTitle(), SAKAI_VERB.responded), "msgcntr");
     }
     return ALL_MESSAGES;
   }
@@ -4465,7 +4518,12 @@ public class DiscussionForumTool
   		
   		//now update the parent thread:
     	updateThreadLastUpdatedValue(dMsg, SynopticMsgcntrManager.NUM_OF_ATTEMPTS);
-  		
+        LearningResourceStoreService lrss = (LearningResourceStoreService) ComponentManager
+                .get("org.sakaiproject.event.api.LearningResourceStoreService");
+        if (null != lrss) {
+            Event event = EventTrackingService.newEvent("msgcntr", "responded", true);
+            lrss.registerStatement(getStatementForUserPosted(lrss.getEventActor(event), dMsg.getTitle(), SAKAI_VERB.responded), "msgcntr");
+        }
   	}catch(Exception e){
   		LOG.error("DiscussionForumTool: processDfReplyMsgPost", e);
   		setErrorMessage(getResourceBundleString(ERROR_POSTING_THREAD));
@@ -4748,7 +4806,12 @@ public class DiscussionForumTool
     	setErrorMessage(getResourceBundleString(ERROR_POSTING_THREAD));
     	gotoMain();
     }
-
+    LearningResourceStoreService lrss = (LearningResourceStoreService) ComponentManager
+            .get("org.sakaiproject.event.api.LearningResourceStoreService");
+    if (null != lrss) {
+        Event event = EventTrackingService.newEvent("msgcntr", "responded", true);
+        lrss.registerStatement(getStatementForUserPosted(lrss.getEventActor(event), selectedMessage.getMessage().getTitle(), SAKAI_VERB.responded), "msgcntr");
+    }
     return MESSAGE_VIEW;
   }
 
@@ -6183,6 +6246,7 @@ public class DiscussionForumTool
 	  
 	  NumberFormat nf = DecimalFormat.getInstance(new ResourceLoader().getLocale());
 	  Double gradeAsDouble = null;
+	  double pointsPossibleAsDouble = 0.0;
 	  try {
 	      gradeAsDouble = new Double (nf.parse(gradePoint).doubleValue());
 	  } catch(ParseException pe) {
@@ -6193,7 +6257,7 @@ public class DiscussionForumTool
 
 	  if (gradeByPoints) {
 	      try {
-	          double pointsPossibleAsDouble = nf.parse(gbItemPointsPossible).doubleValue();
+	          pointsPossibleAsDouble = nf.parse(gbItemPointsPossible).doubleValue();
 	          if((gradeAsDouble.doubleValue() > pointsPossibleAsDouble) && !grade_too_large_make_sure) {
 	              setErrorMessage(getResourceBundleString(TOO_LARGE_GRADE));
 	              grade_too_large_make_sure = true;
@@ -6206,12 +6270,11 @@ public class DiscussionForumTool
 	                  " to determine if entered grade is greater than points possible");
 	      }	  
 	  }
-    
+    String studentUid = null;
     try 
     {   
         String selectedAssignName = ((SelectItem)assignments.get((Integer.valueOf(selectedAssign)).intValue())).getLabel();
         String gradebookUuid = ToolManager.getCurrentPlacement().getContext();
-        String studentUid;
         if(selectedMessage == null && selectedGradedUserId != null && !"".equals(selectedGradedUserId)){
         	studentUid = selectedGradedUserId;
         }else{
@@ -6249,7 +6312,18 @@ public class DiscussionForumTool
     }else if(selectedForum != null){
     	eventRef = getEventReference(selectedForum.getForum());
     }
-    EventTrackingService.post(EventTrackingService.newEvent(DiscussionForumService.EVENT_FORUMS_GRADE, eventRef, true));
+    LearningResourceStoreService lrss = (LearningResourceStoreService) ComponentManager
+            .get("org.sakaiproject.event.api.LearningResourceStoreService");
+    Event event = EventTrackingService.newEvent(DiscussionForumService.EVENT_FORUMS_GRADE, eventRef, true);
+    EventTrackingService.post(event);
+    try {
+        lrss.registerStatement(getStatementForGrade(studentUid, lrss.getEventActor(event), selectedTopic.getTopic().getTitle(), 
+                gradeAsDouble, pointsPossibleAsDouble), "msgcntr");
+    } catch (UserNotDefinedException e) {
+        if (LOG.isDebugEnabled()) {
+            LOG.debug(e);
+        }
+    }
     
     gradeNotify = false; 
     selectedAssign = DEFAULT_GB_ITEM; 
@@ -8375,7 +8449,10 @@ public class DiscussionForumTool
     Long topicId = selectedTopic.getTopic().getId();
 
 	duplicateTopic(topicId, forum, false);
-
+    LearningResourceStoreService lrss = (LearningResourceStoreService) ComponentManager
+            .get("org.sakaiproject.event.api.LearningResourceStoreService");
+    Event event = EventTrackingService.newEvent("msgcntr", "topic created", true);
+    lrss.registerStatement(getStatementForUserPosted(lrss.getEventActor(event), selectedTopic.getTopic().getTitle(), SAKAI_VERB.interacted), "msgcntr");
     reset();
     return gotoMain();
   }
@@ -9488,5 +9565,57 @@ public class DiscussionForumTool
 		}
 		return returnRank;
 	}
+
+    private LRS_Statement getStatementForUserReadViewed(LRS_Actor student, String subject, String target) {
+        String url = ServerConfigurationService.getPortalUrl();
+        LRS_Verb verb = new LRS_Verb(SAKAI_VERB.interacted);
+        LRS_Object lrsObject = new LRS_Object(url + "/forums", "viewed-" + target);
+        HashMap<String, String> nameMap = new HashMap<String, String>();
+        nameMap.put("en-US", "User viewed " + target);
+        lrsObject.setActivityName(nameMap);
+        HashMap<String, String> descMap = new HashMap<String, String>();
+        descMap.put("en-US", "User viewed " + target + " with subject: " + subject);
+        lrsObject.setDescription(descMap);
+        return new LRS_Statement(student, verb, lrsObject);
+    }
+
+    private LRS_Statement getStatementForUserPosted(LRS_Actor student, String subject, SAKAI_VERB sakaiVerb) {
+        String url = ServerConfigurationService.getPortalUrl();
+        LRS_Verb verb = new LRS_Verb(sakaiVerb);
+        LRS_Object lrsObject = new LRS_Object(url + "/forums", sakaiVerb == SAKAI_VERB.responded ? "post-to-thread" : "created-topic");
+        HashMap<String, String> nameMap = new HashMap<String, String>();
+        nameMap.put("en-US", sakaiVerb == SAKAI_VERB.responded ? "User responded to a thread" : "User created a new topic");
+        lrsObject.setActivityName(nameMap);
+        HashMap<String, String> descMap = new HashMap<String, String>();
+        descMap.put("en-US", (sakaiVerb == SAKAI_VERB.responded ? "User responded to a thread with subject: "
+                : "User created a new topic with subject: ") + subject);
+        lrsObject.setDescription(descMap);
+        return new LRS_Statement(student, verb, lrsObject);
+    }
+    
+    private LRS_Statement getStatementForGrade(String studentUid, LRS_Actor instructor, String forumTitle, double score, double maxScore)
+            throws UserNotDefinedException {
+        LRS_Verb verb = new LRS_Verb(SAKAI_VERB.scored);
+        LRS_Object lrsObject = new LRS_Object(ServerConfigurationService.getPortalUrl() + "/forums", "received-grade-forum");
+        HashMap<String, String> nameMap = new HashMap<String, String>();
+        nameMap.put("en-US", "User received a grade");
+        lrsObject.setActivityName(nameMap);
+        HashMap<String, String> descMap = new HashMap<String, String>();
+        descMap.put("en-US", "User received a grade for their forum post: " + forumTitle);
+        lrsObject.setDescription(descMap);
+        User studentUser = UserDirectoryService.getUser(studentUid);
+        LRS_Actor student = new LRS_Actor(studentUser.getEmail());
+        student.setName(studentUser.getDisplayName());
+        LRS_Context context = new LRS_Context(instructor);
+        context.setActivity("other", "assignment");
+        LRS_Statement statement = new LRS_Statement(student, verb, lrsObject, getLRS_Result(score, maxScore), context);
+        return statement;
+    }
+
+    private LRS_Result getLRS_Result(double score, double maxScore) {
+        LRS_Result result = new LRS_Result(new Float(score), new Float(0.0), new Float(maxScore), null);
+        result.setCompletion(true);
+        return result;
+    }
 }
 

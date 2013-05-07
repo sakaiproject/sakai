@@ -74,10 +74,18 @@ import org.sakaiproject.component.app.messageforums.MembershipItem;
 import org.sakaiproject.component.app.messageforums.dao.hibernate.HiddenGroupImpl;
 import org.sakaiproject.component.app.messageforums.dao.hibernate.PrivateMessageImpl;
 import org.sakaiproject.component.app.messageforums.dao.hibernate.PrivateTopicImpl;
+import org.sakaiproject.component.cover.ComponentManager;
 import org.sakaiproject.component.cover.ServerConfigurationService;
 import org.sakaiproject.content.api.ContentHostingService;
 import org.sakaiproject.content.api.FilePickerHelper;
 import org.sakaiproject.entity.api.Reference;
+import org.sakaiproject.event.api.Event;
+import org.sakaiproject.event.api.LearningResourceStoreService;
+import org.sakaiproject.event.api.LearningResourceStoreService.LRS_Actor;
+import org.sakaiproject.event.api.LearningResourceStoreService.LRS_Object;
+import org.sakaiproject.event.api.LearningResourceStoreService.LRS_Statement;
+import org.sakaiproject.event.api.LearningResourceStoreService.LRS_Verb;
+import org.sakaiproject.event.api.LearningResourceStoreService.LRS_Verb.SAKAI_VERB;
 import org.sakaiproject.event.cover.EventTrackingService;
 import org.sakaiproject.exception.IdUnusedException;
 import org.sakaiproject.site.api.Group;
@@ -1517,6 +1525,10 @@ public void processChangeSelectView(ValueChangeEvent eve)
     }
     //default setting for moveTo
     moveToTopic=selectedTopicId;
+    LearningResourceStoreService lrss = (LearningResourceStoreService) ComponentManager
+            .get("org.sakaiproject.event.api.LearningResourceStoreService");
+    Event event = EventTrackingService.newEvent("msgcntr", "read private message", true);
+    lrss.registerStatement(getStatementForUserReadPvtMsg(lrss.getEventActor(event), getDetailMsg().getMsg().getTitle()), "msgcntr");
     return SELECTED_MESSAGE_PG;
   }
 
@@ -2003,9 +2015,13 @@ private   int   getNum(char letter,   String   a)
 
     //reset contents
     resetComposeContents();
-
-    EventTrackingService.post(EventTrackingService.newEvent(DiscussionForumService.EVENT_MESSAGES_ADD, getEventMessage(pMsg), false));
-
+    
+    LearningResourceStoreService lrss = (LearningResourceStoreService) ComponentManager
+            .get("org.sakaiproject.event.api.LearningResourceStoreService");
+    Event event = EventTrackingService.newEvent(DiscussionForumService.EVENT_MESSAGES_ADD, getEventMessage(pMsg), false);
+    EventTrackingService.post(event);
+    lrss.registerStatement(getStatementForUserSentPvtMsg(lrss.getEventActor(event), getDetailMsg().getMsg().getTitle(), SAKAI_VERB.shared), "msgcntr");
+    
     if(fromMainOrHp != null && !"".equals(fromMainOrHp))
     {
     	String tmpBackPage = fromMainOrHp;
@@ -2312,6 +2328,10 @@ private   int   getNum(char letter,   String   a)
       getDetailMsg().setHasPre(thisDmb.getHasPre()) ;
 
     }    
+    LearningResourceStoreService lrss = (LearningResourceStoreService) ComponentManager
+            .get("org.sakaiproject.event.api.LearningResourceStoreService");
+    Event event = EventTrackingService.newEvent("msgcntr", "read private message", true);
+    lrss.registerStatement(getStatementForUserReadPvtMsg(lrss.getEventActor(event), getDetailMsg().getMsg().getTitle()), "msgcntr");
     return null;
   }
 
@@ -2363,7 +2383,10 @@ private   int   getNum(char letter,   String   a)
       getDetailMsg().setHasNext(thisDmb.getHasNext());
       getDetailMsg().setHasPre(thisDmb.getHasPre()) ;
     }
-    
+    LearningResourceStoreService lrss = (LearningResourceStoreService) ComponentManager
+            .get("org.sakaiproject.event.api.LearningResourceStoreService");
+    Event event = EventTrackingService.newEvent("msgcntr", "read private message", true);
+        lrss.registerStatement(getStatementForUserReadPvtMsg(lrss.getEventActor(event), getDetailMsg().getMsg().getTitle()), "msgcntr");
     return null;
   }
   
@@ -2607,7 +2630,11 @@ private   int   getNum(char letter,   String   a)
     	
     	if(!rrepMsg.getDraft()){
     		incrementSynopticToolInfo(recipients.keySet(), false);
-    		EventTrackingService.post(EventTrackingService.newEvent(DiscussionForumService.EVENT_MESSAGES_RESPONSE, getEventMessage(rrepMsg), false));
+    	    LearningResourceStoreService lrss = (LearningResourceStoreService) ComponentManager
+    	            .get("org.sakaiproject.event.api.LearningResourceStoreService");
+    	    Event event = EventTrackingService.newEvent(DiscussionForumService.EVENT_MESSAGES_RESPONSE, getEventMessage(rrepMsg), false);
+    	    EventTrackingService.post(event);
+    	    lrss.registerStatement(getStatementForUserSentPvtMsg(lrss.getEventActor(event), getDetailMsg().getMsg().getTitle(), SAKAI_VERB.responded), "msgcntr");
     	}
     	//reset contents
     	resetComposeContents();
@@ -2954,7 +2981,11 @@ private   int   getNum(char letter,   String   a)
     	if(!rrepMsg.getDraft()){
     		//update Synoptic tool info
     		incrementSynopticToolInfo(recipients.keySet(), false);
-    		EventTrackingService.post(EventTrackingService.newEvent(DiscussionForumService.EVENT_MESSAGES_FORWARD, getEventMessage(rrepMsg), false));
+            LearningResourceStoreService lrss = (LearningResourceStoreService) ComponentManager
+                    .get("org.sakaiproject.event.api.LearningResourceStoreService");
+            Event event = EventTrackingService.newEvent(DiscussionForumService.EVENT_MESSAGES_FORWARD, getEventMessage(rrepMsg), false);
+            EventTrackingService.post(event);
+            lrss.registerStatement(getStatementForUserSentPvtMsg(lrss.getEventActor(event), getDetailMsg().getMsg().getTitle(), SAKAI_VERB.responded), "msgcntr");
     	}
     	//reset contents
     	resetComposeContents();    	    	
@@ -3210,7 +3241,11 @@ private   int   getNum(char letter,   String   a)
 		  if(!rrepMsg.getDraft()){
 			  //update Synoptic tool info
 			  incrementSynopticToolInfo(returnSet.keySet(), false);
-			  EventTrackingService.post(EventTrackingService.newEvent(DiscussionForumService.EVENT_MESSAGES_FORWARD, getEventMessage(rrepMsg), false));
+	          LearningResourceStoreService lrss = (LearningResourceStoreService) ComponentManager
+	                    .get("org.sakaiproject.event.api.LearningResourceStoreService");
+	          Event event = EventTrackingService.newEvent(DiscussionForumService.EVENT_MESSAGES_FORWARD, getEventMessage(rrepMsg), false);
+	          EventTrackingService.post(event);
+	          lrss.registerStatement(getStatementForUserSentPvtMsg(lrss.getEventActor(event), getDetailMsg().getMsg().getTitle(), SAKAI_VERB.responded), "msgcntr");
 		  }
 		  //reset contents
 		  resetComposeContents();
@@ -5125,4 +5160,30 @@ private   int   getNum(char letter,   String   a)
 		public Locale getUserLocale(){
 			return new ResourceLoader().getLocale();
 		}
+
+    private LRS_Statement getStatementForUserReadPvtMsg(LRS_Actor student, String subject) {
+        String url = ServerConfigurationService.getPortalUrl();
+        LRS_Verb verb = new LRS_Verb(SAKAI_VERB.interacted);
+        LRS_Object lrsObject = new LRS_Object(url + "/privateMessage", "read-private-message");
+        HashMap<String, String> nameMap = new HashMap<String, String>();
+        nameMap.put("en-US", "User read a private message");
+        lrsObject.setActivityName(nameMap);
+        HashMap<String, String> descMap = new HashMap<String, String>();
+        descMap.put("en-US", "User read a private message with subject: " + subject);
+        lrsObject.setDescription(descMap);
+        return new LRS_Statement(student, verb, lrsObject);
+    }
+
+    private LRS_Statement getStatementForUserSentPvtMsg(LRS_Actor student, String subject, SAKAI_VERB sakaiVerb) {
+        String url = ServerConfigurationService.getPortalUrl();
+        LRS_Verb verb = new LRS_Verb(sakaiVerb);
+        LRS_Object lrsObject = new LRS_Object(url + "/privateMessage", "send-private-message");
+        HashMap<String, String> nameMap = new HashMap<String, String>();
+        nameMap.put("en-US", "User sent a private message");
+        lrsObject.setActivityName(nameMap);
+        HashMap<String, String> descMap = new HashMap<String, String>();
+        descMap.put("en-US", "User sent a private message with subject: " + subject);
+        lrsObject.setDescription(descMap);
+        return new LRS_Statement(student, verb, lrsObject);
+    }
 }
