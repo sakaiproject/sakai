@@ -67,7 +67,7 @@ function WebRTC() {
 			dataType : "json",
 			cache : false,
 			success : function(data, status) {
-				this.pc_config = data.data;
+				webRTCClass.pc_config = data.data;
 			}
 		});
 		
