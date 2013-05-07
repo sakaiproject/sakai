@@ -6,6 +6,7 @@ function WebRTC() {
 	this.currentPeerConnectionsMap = {};
 	this.signalService = null;
 	this.localMediaStream = null;
+	this.debug = true;
 
 	this.pc_config = {
 		"iceServers" : [ {
@@ -35,18 +36,23 @@ function WebRTC() {
 		this.signalService = signalService; // Use the signal service provided
 		var webRTCClass = this;
 
-		this.signalService.onReceive = function(userid, message) {
-			webRTCClass.onReceive(userid, message); // Called custom method when
+		this.signalService.onReceive = function(userid, message, videoAgentType) {
+			webRTCClass.onReceive(userid, message, videoAgentType); // Called
+			// custom
+			// method
+			// when
 		}
 	}
 
 	/* Call this process to start a video call */
-	this.doCall = function(userid, started, success, fail) {
+	this.doCall = function(userid, videoAgentType, started, success, fail) {
 		var callConnection = this.currentPeerConnectionsMap[userid];
 
 		if (callConnection == null) {
-			callConnection = this.setupPeerConnection(userid, success, fail);
+			callConnection = this.setupPeerConnection(userid, videoAgentType,
+					success, fail);
 			callConnection.isCaller = true;
+
 		}
 
 		var webRTCClass = this;
@@ -80,7 +86,8 @@ function WebRTC() {
 
 	/* Call this function to start the answer process to a previous call */
 
-	this.answerCall = function(userid, startAnswer, success, fail) {
+	this.answerCall = function(userid, videoAgentType, startAnswer, success,
+			fail) {
 		var callConnection = this.currentPeerConnectionsMap[userid];
 
 		// Set up the triggered functions
@@ -121,33 +128,35 @@ function WebRTC() {
 	 */
 	this.hangUp = function(userid) {
 		var callConnection = this.currentPeerConnectionsMap[userid];
-		var pc = callConnection.rtcPeerConnection;
-		
-		if (callConnection.localMediaStream != null){
-			pc.removeStream(callConnection.localMediaStream);
+		if (callConnection != null) {
+			var pc = callConnection.rtcPeerConnection;
+
+			if (pc != null) {
+
+				if (callConnection.localMediaStream != null) {
+					pc.removeStream(callConnection.localMediaStream);
+				}
+
+				if (callConnection.remoteMediaStream != null) {
+					pc.removeStream(callConnection.remoteMediaStream);
+				}
+
+				pc.close();
+			}
+			// If it was the last connection we stop the webcam
+			delete this.currentPeerConnectionsMap[userid];
+			var keys = Object.keys(this.currentPeerConnectionsMap);
+
+			if (keys.length < 1 && this.localMediaStream != null) {
+				this.localMediaStream.stop();
+				this.localMediaStream = null;
+			}
+
+			this.signalService.send(userid, JSON.stringify({
+				"bye" : "bye"
+			}));
 		}
-	
-		if (callConnection.remoteMediaStream != null){
-			pc.removeStream(callConnection.remoteMediaStream);
-		}
-	
-		pc.close();
-		
-		//If it was the last connection we stop the webcam
-		delete this.currentPeerConnectionsMap[userid];
-		var keys = Object.keys(this.currentPeerConnectionsMap);
-		
-		if (keys.length < 1 && this.localMediaStream != null){ 
-			this.localMediaStream.stop();
-			this.localMediaStream = null;
-		}
-		
-		
-		this.signalService.send(userid, JSON.stringify({
-			"bye" : "bye"
-		}));
-		
-	}	
+	}
 
 	/*
 	 * Provide this function. It will be called when hangup request is received,
@@ -156,13 +165,14 @@ function WebRTC() {
 	this.onHangUp = function(userid) {
 
 	}
-	
+
 	/*
-	 * Provide this function. It will be called when a ignore response is received,
+	 * Provide this function. It will be called when a ignore response is
+	 * received,
 	 */
-	
-	this.onIgnore = function (userid){
-		
+
+	this.onIgnore = function(userid) {
+
 	}
 
 	/* Use this helper function to hook the media stream to a especified element */
@@ -213,12 +223,45 @@ function WebRTC() {
 		return this.webrtcDetectedBrowser != "nonwebrtc";
 	}
 
-	this.setupPeerConnection = function(userid, successConn, failConn) {
+	this.setupPeerConnection = function(userid, videoAgentType, successConn,
+			failConn) {
 
-		var pc = new RTCPeerConnection(this.pc_config);
+		var pc_constrains = {
+			'optional' : []
+		};
+
+		if (videoAgentType != null) {
+			/*
+			 * Let's start to defining some compatibility scenarios to perform
+			 * the negotiation If have videoAgentTupe I supose that I am the
+			 * caller
+			 */
+
+			// Case 1 : Me = Chrome other Fireforx
+			if (this.webrtcDetectedBrowser === "chrome"
+					&& videoAgentType === "firefox") {
+				pc_constrains['optional'] = [ {
+					'DtlsSrtpKeyAgreement' : 'true'
+				} ];
+			} else if (this.webrtcDetectedBrowser === "firefox"
+					&& videoAgentType === "chrome") {
+				pc_constrains['optional'] = [ {
+					'DtlsSrtpKeyAgreement' : 'true'
+				} ];
+				pc_constrains['mandatory'] = new Object();
+				pc_constrains['mandatory'] = {
+					'MozDontOfferDataChannel' : true
+				};
+			}
+
+		}
+
+		var pc = new RTCPeerConnection(this.pc_config, pc_constrains);
 
 		// send any ice candidates to the other peer
 		var callConnection = new CallConnection(pc, successConn, failConn);
+
+		callConnection.remoteVideoAgentType = videoAgentType;
 
 		pc.onicechange = function(event) {
 			console.info("onicechange +" + pc.iceState);
@@ -249,11 +292,11 @@ function WebRTC() {
 		pc.onaddstream = function(event) {
 			callConnection.remoteMediaStream = event.stream;
 
-			if (callConnection.onsuccessconn != null) { 
-			
-				/* 
-				 * In this case we have declared what to do
-				 * in case of success connection (Offer)
+			if (callConnection.onsuccessconn != null) {
+
+				/*
+				 * In this case we have declared what to do in case of success
+				 * connection (Offer)
 				 */
 				callConnection.onsuccessconn(userid, event.stream);
 			}
@@ -268,6 +311,11 @@ function WebRTC() {
 		var callConnection = this.currentPeerConnectionsMap[uuid];
 		var pc = callConnection.rtcPeerConnection;
 
+		if (callConnection.remoteVideoAgentType == "chrome"
+				&& this.webrtcDetectedBrowser == "firefox") {
+			desc.sdp = this.getInteropSDP(desc.sdp);
+		}
+
 		if (pc != null) {
 			pc.setLocalDescription(desc);
 			this.signalService.send(uuid, JSON.stringify({
@@ -279,15 +327,18 @@ function WebRTC() {
 	/*
 	 * That function is called when the signal service receive a message
 	 */
-	this.onReceive = function(from, message) {
+	this.onReceive = function(from, message, videoAgentType) {
 		var signal = JSON.parse(message.content);
+
+		if (this.debug = true)
+			console.log(message);
 
 		if (signal.sdp) {
 
 			var callConnection = this.currentPeerConnectionsMap[from];
 
 			if (callConnection == null) {
-				callConnection = this.setupPeerConnection(from);
+				callConnection = this.setupPeerConnection(from, videoAgentType);
 				this.currentPeerConnectionsMap[from] = callConnection;
 			}
 
@@ -310,17 +361,25 @@ function WebRTC() {
 			}
 		} else if (signal.bye != null) {
 			var callConnection = this.currentPeerConnectionsMap[from];
-			if (callConnection != null ) {
-				if (signal.bye === "bye"){
+			if (callConnection != null) {
+				if (signal.bye === "bye") {
 					this.onHangUp(from);
-				}else if (signal.bye === "ignore"){
+				} else if (signal.bye === "ignore") {
 					this.onIgnore(from);
 				}
-				//In the case of not having a previous connection could be a refuse message
-			
-				
+				// In the case of not having a previous connection could be a
+				// refuse message
+
 			}
 		}
+	}
+
+	this.getInteropSDP = function(sdp) {
+		var inline = 'a=crypto:1 AES_CM_128_HMAC_SHA1_80 inline:ABCDEFGHIJKLMNOPQRSTUVWXYZ01234567890abc\r\nc=IN';
+		sdp = sdp.indexOf('a=crypto') == -1 ? sdp.replace(/c=IN/g, inline)
+				: sdp;
+
+		return sdp;
 	}
 
 }
@@ -334,4 +393,5 @@ function CallConnection(pc, success, failed) {
 	this.isCaller = null;
 	this.localMediaStream = null;
 	this.remoteMediaStream = null;
+	this.remoteVideoAgentType = null;
 }

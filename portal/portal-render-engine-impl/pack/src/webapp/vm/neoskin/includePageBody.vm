@@ -415,7 +415,7 @@
 					<div class="pc_chat_video_remote">
 						<video id="pc_chat_${uuid}_remote_video" class="pc_chat_video" autoplay></video>
 						<div class="pc_chat_video_local">
-							<video id="pc_chat_${uuid}_local_video" class="pc_chat_video_min" autoplay></video>
+							<video id="pc_chat_${uuid}_local_video" class="pc_chat_video_min" autoplay muted="true"></video>
 						</div>
 					</div>
 

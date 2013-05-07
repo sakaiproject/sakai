@@ -373,9 +373,9 @@ public class PCServiceEntityProvider extends AbstractEntityProvider implements R
 		
 		public String id;
 		public String displayName;
-		public boolean video;
+		public String video;
 		
-		public PortalChatUser(String id,String displayName,boolean video) {
+		public PortalChatUser(String id,String displayName,String video) {
 			this.id = id;
 			this.displayName = displayName;
 			this.video = video;
@@ -455,7 +455,7 @@ public class PCServiceEntityProvider extends AbstractEntityProvider implements R
 			List<User> presentSakaiUsers = presenceService.getPresentUsers(siteId + "-presence");
 			presentSakaiUsers.remove(currentUser);
 			for(User user : presentSakaiUsers) {
-				presentUsers.add(new PortalChatUser(user.getId(), user.getDisplayName(), "true".equals(heartbeatMap.get(user.getId())[1])));
+				presentUsers.add(new PortalChatUser(user.getId(), user.getDisplayName(),(String) heartbeatMap.get(user.getId())[1]));
 			}
         }
 		
@@ -496,7 +496,7 @@ public class PCServiceEntityProvider extends AbstractEntityProvider implements R
 			if(lastHeartbeat == null) continue;
 			
 			if((now.getTime() - ((Date)lastHeartbeat[0]).getTime()) < 5000L) {
-				onlineConnections.add(new PortalChatUser(uuid,uuid,"true".equals(lastHeartbeat[1])));
+				onlineConnections.add(new PortalChatUser(uuid,uuid,(String) lastHeartbeat[1]));
 			}
 		}
 		

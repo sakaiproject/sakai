@@ -1,21 +1,21 @@
 /*
- * Mock video controller. 
+ * Video controller. 
  * It uses webrtc-adapter.js to handle all the communication
  */
 
 function VideoCall() {
 
 	this.webRTC = null; // WebRTC handler
-	this.mockSignalService = null;
+	this.signalService = null;
 
 	/* Define the actions executed in each event */
 
 	
-	this.doCall = function(uuid,onSuccessStartCall,onSuccessConnection,onFailConnection){
+	this.doCall = function(uuid,videoAgentType,onSuccessStartCall,onSuccessConnection,onFailConnection){
 
 		var videoCallObject = this; 
 			
-		this.webRTC.doCall(uuid,
+		this.webRTC.doCall(uuid,videoAgentType,
 					function (userid,localMediaStream){
 						videoCallObject.startCall (userid,localMediaStream);  
 						onSuccessStartCall (userid);
@@ -26,11 +26,11 @@ function VideoCall() {
 					},onFailConnection);
 	}
 
- 	this.doAnswer = function(uuid,onSuccessStartCall,onSuccessConnection,onFailConnection){
+ 	this.doAnswer = function(uuid,videoAgentType,onSuccessStartCall,onSuccessConnection,onFailConnection){
 
 		var videoCallObject = this; 
 
-		this.webRTC.answerCall(uuid,
+		this.webRTC.answerCall(uuid,videoAgentType,
 					function (userid,localMediaStream){
 						videoCallObject.startAnswer (userid,localMediaStream);  
 						onSuccessStartCall (userid);
@@ -42,6 +42,14 @@ function VideoCall() {
 	
 	}
  	
+ 	this.isVideoEnabled = function (){
+ 		return this.webRTC.isWebRTCEnabled();
+ 	}
+ 	
+ 	this.getVideoAgent = function (){
+ 		return this.webRTC.webrtcDetectedBrowser;
+ 	}
+ 		
  	this.doClose = function (uuid){
  		this.webRTC.hangUp(uuid);
  	}
@@ -65,12 +73,12 @@ function VideoCall() {
 		
 	}
 
-	this.receiveMessage = function (uuid, message) {
-		this.mockSignalService.onReceive(uuid, message);
+	this.receiveMessage = function (uuid, message,videoAgentType) {
+		this.signalService.onReceive(uuid, message,videoAgentType);
 	}
 
 	this.refuseCall = function (uuid){
-		this.mockSignalService.send(uuid, JSON.stringify({
+		this.signalService.send(uuid, JSON.stringify({
 			"bye" : "ignore"
 		}));
 	}
@@ -94,8 +102,8 @@ function VideoCall() {
 
 		this.webRTC = new WebRTC();
 		
-		this.mockSignalService = new SignalService(pChat);
-		this.webRTC.init(this.mockSignalService);
+		this.signalService = new SignalService(pChat);
+		this.webRTC.init(this.signalService);
 		this.webRTC.onHangUp = this.onHangUp;
 		this.webRTC.onIgnore = function (userid){
 			pChat.closeVideoCall (userid);
