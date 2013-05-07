@@ -527,8 +527,8 @@ public class CourseManagementAdministrationTest extends CourseManagementTestBase
 		cmAdmin.setCurrentAcademicSessions(Arrays.asList(new String[] {"nowTerm", "nextTerm"}));
 		academicSessions = cm.getCurrentAcademicSessions();
 		Assert.assertEquals(2, academicSessions.size());
-		Assert.assertEquals("nowTerm", academicSessions.get(0).getEid());
-		Assert.assertEquals("nextTerm", academicSessions.get(1).getEid());
+		Assert.assertEquals("nextTerm", academicSessions.get(0).getEid());
+		Assert.assertEquals("nowTerm", academicSessions.get(1).getEid());
 	}
 
 }

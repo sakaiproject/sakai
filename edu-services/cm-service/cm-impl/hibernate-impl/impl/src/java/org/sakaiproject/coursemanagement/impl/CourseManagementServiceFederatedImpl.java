@@ -223,8 +223,7 @@ public class CourseManagementServiceFederatedImpl implements
 				resultSet.addAll(list);
 			}
 		}
-		// The federated list should be sorted by start date.
-		Collections.sort(resultSet, startDateComparator);
+		// The federated list uses the sort provided by the db
 		return resultSet;
 	}
 
@@ -423,8 +422,7 @@ public class CourseManagementServiceFederatedImpl implements
 				resultSet.addAll(list);
 			}
 		}
-		// Sort the academic sessions by start date
-		Collections.sort(resultSet, startDateComparator);
+		// The federated list uses the sort provided by the db
 		return resultSet;
 	}
 
@@ -656,21 +654,6 @@ public class CourseManagementServiceFederatedImpl implements
 		}
 		return false;
 	}
-
-	protected static Comparator<AcademicSession> startDateComparator = new Comparator<AcademicSession>() {
-		public int compare(AcademicSession as1, AcademicSession as2) {
-			if(as1.getStartDate() == null && as2.getStartDate() == null) {
-				return 0;
-			}
-			if(as1.getStartDate() == null && as2.getStartDate() != null) {
-				return -1;
-			}
-			if(as1.getStartDate() != null && as2.getStartDate() == null) {
-				return 1;
-			}
-			return as1.getStartDate().compareTo(as2.getStartDate());
-		}
-	};
 
 	public Set<Section> findEnrolledSections(String userId) {
 		Set<Section> resultSet = new HashSet<Section>();
