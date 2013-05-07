@@ -36,6 +36,9 @@ import javax.faces.event.ActionListener;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
+import org.sakaiproject.component.cover.ComponentManager;
+import org.sakaiproject.event.api.Event;
+import org.sakaiproject.event.api.LearningResourceStoreService;
 import org.sakaiproject.event.cover.EventTrackingService;
 import org.sakaiproject.event.cover.NotificationService;
 import org.sakaiproject.tool.assessment.data.dao.assessment.EventLogData;
@@ -47,7 +50,6 @@ import org.sakaiproject.tool.assessment.services.GradingService;
 import org.sakaiproject.tool.assessment.services.assessment.EventLogService;
 import org.sakaiproject.tool.assessment.services.assessment.PublishedAssessmentService;
 import org.sakaiproject.tool.assessment.ui.bean.delivery.DeliveryBean;
-import org.sakaiproject.tool.assessment.ui.bean.shared.PersonBean;
 import org.sakaiproject.tool.assessment.ui.listener.util.ContextUtil;
 import org.sakaiproject.tool.assessment.ui.web.session.SessionUtil;
 
@@ -176,7 +178,10 @@ public class LinearAccessDeliveryActionListener extends DeliveryActionListener
           eventLogFacade.setData(eventLogData);
           eventService.saveOrUpdateEventLog(eventLogFacade);           	  
     	// ONC event log end  
-    	      	  
+          LearningResourceStoreService lrss = (LearningResourceStoreService) ComponentManager
+                  .get("org.sakaiproject.event.api.LearningResourceStoreService");
+          StringBuffer lrssMetaInfo = new StringBuffer("Assesment: " + delivery.getAssessmentTitle());
+          lrssMetaInfo.append(", Past Due?: " + delivery.getPastDue());
     	  int action = delivery.getActionMode();
     	  if (action == DeliveryBean.TAKE_ASSESSMENT) {
     		  StringBuffer eventRef = new StringBuffer("publishedAssessmentId");
@@ -190,7 +195,11 @@ public class LinearAccessDeliveryActionListener extends DeliveryActionListener
     			  int timeRemaining = Integer.parseInt(delivery.getTimeLimit()) - Integer.parseInt(delivery.getTimeElapse());
     			  eventRef.append(timeRemaining);
     		  }
-    		  EventTrackingService.post(EventTrackingService.newEvent("sam.assessment.take", eventRef.toString(), true));
+    		  Event event = EventTrackingService.newEvent("sam.assessment.take", eventRef.toString(), true);
+    		  EventTrackingService.post(event);
+    		  if (null != lrss) {
+                  lrss.registerStatement(getStatementForTakeAssessment(lrss.getEventActor(event), event, lrssMetaInfo.toString()), "samigo");
+    		  }
     	  }
     	  else if (action == DeliveryBean.TAKE_ASSESSMENT_VIA_URL) {
     		  StringBuffer eventRef = new StringBuffer("publishedAssessmentId");
@@ -206,7 +215,12 @@ public class LinearAccessDeliveryActionListener extends DeliveryActionListener
     		  }
     		  PublishedAssessmentService publishedAssessmentService = new PublishedAssessmentService();
     		  String siteId = publishedAssessmentService.getPublishedAssessmentOwner(Long.valueOf(delivery.getAssessmentId()));
-    		  EventTrackingService.post(EventTrackingService.newEvent("sam.assessment.take.via_url", eventRef.toString(), siteId, true, NotificationService.NOTI_REQUIRED));
+    		  Event event = EventTrackingService.newEvent("sam.assessment.take", eventRef.toString(), siteId, true, NotificationService.NOTI_REQUIRED);
+    		  EventTrackingService.post(event);
+    		  lrssMetaInfo.append(", Assesment taken via URL.");
+    		  if (null != lrss) {
+                  lrss.registerStatement(getStatementForTakeAssessment(lrss.getEventActor(event), event, lrssMetaInfo.toString()), "samigo");
+    		  }
     	  }    	  
       }
       else {
