@@ -203,7 +203,7 @@ public class AssignmentExport {
 	String attachmentDir = "attachments/" + assignment.getId() + "/";
 
 	AssignmentContent content = assignment.getContent();
-	String instructions = content.getInstructions();
+	String instructions = bean.relFixup(content.getInstructions(), resource);
 	List<Reference>attachments = content.getAttachments();
 
 	out.println("<!DOCTYPE html PUBLIC \"-//W3C//DTD XHTML 1.0 Transitional//EN\"  \"http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd\">");
