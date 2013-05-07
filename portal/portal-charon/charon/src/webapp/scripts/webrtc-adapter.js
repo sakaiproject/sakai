@@ -17,18 +17,37 @@ function WebRTC() {
 	this.init = function(signalService) {
 		// First of all we try to detect which navigator is trying to use the
 		// videoconference from getUserMedia diferences
-		if (navigator.mozGetUserMedia) {
+		if (navigator.getUserMedia) {
+			this.webrtcDetectedBrowser = "webrtcenabled";
+		}else if (navigator.mozGetUserMedia) {
 			this.webrtcDetectedBrowser = "firefox";
 			navigator.getUserMedia = navigator.mozGetUserMedia;
 			RTCPeerConnection = mozRTCPeerConnection;
 			RTCSessionDescription = mozRTCSessionDescription;
 			RTCIceCandidate = mozRTCIceCandidate;
+			
+			MediaStream.prototype.getVideoTracks = function() {
+				return [];
+			};
+
+			MediaStream.prototype.getAudioTracks = function() {
+				return [];
+			};
+			
+			
 		} else if (navigator.webkitGetUserMedia) {
 			this.webrtcDetectedBrowser = "chrome";
 			navigator.getUserMedia = navigator.webkitGetUserMedia;
 			RTCPeerConnection = webkitRTCPeerConnection;
-		} else if (navigator.getUserMedia) {
-			// this.webrtcDetectedBrowser = "webrtcenabled";
+			
+		    if (!webkitRTCPeerConnection.prototype.getLocalStreams) {
+		        webkitRTCPeerConnection.prototype.getLocalStreams = function() {
+		            return this.localStreams;
+		        };
+		        webkitRTCPeerConnection.prototype.getRemoteStreams = function() {
+		            return this.remoteStreams;
+		        };
+		    }
 		} else {
 			this.webrtcDetectedBrowser = "nonwebrtc";
 		}
