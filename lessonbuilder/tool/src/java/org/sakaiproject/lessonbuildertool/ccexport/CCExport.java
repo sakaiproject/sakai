@@ -293,9 +293,33 @@ public class CCExport {
 		zipEntry.setSize(resource.getContentLength());
 		out.putNextEntry(zipEntry);
 		InputStream contentStream = null;
+					    
+		// see if this is HTML. If so, we need to scan it.
+		String filename = entry.getKey();
+		int lastdot = filename.lastIndexOf(".");
+		int lastslash = filename.lastIndexOf("/");
+		String extension = "";
+		if (lastdot >= 0 && lastdot > lastslash)
+		    extension = filename.substring(lastdot+1);
+		String mimeType = resource.getContentType();
+		boolean isHtml = false;
+		if (mimeType != null && (mimeType.startsWith("http") || mimeType.equals("")))
+		    mimeType = null;
+		if (mimeType != null && (mimeType.equals("text/html") || mimeType.equals("application/xhtml+xml"))
+				|| mimeType == null && (extension.equals("html") || extension.equals("htm"))) {
+		    isHtml = true;
+		}
+
 		try {
-		    contentStream = resource.streamContent();
-		    IOUtils.copy(contentStream, out);
+		    if (isHtml) {
+			// treat html separately. Need to convert urls to relative
+			String content = new String(resource.getContent());
+			content = relFixup(content, entry.getValue());
+			out.print(content);
+		    } else {
+			contentStream = resource.streamContent();
+			IOUtils.copy(contentStream, out);
+		    }
 		} catch (Exception e) {
 		} finally {
 		    if (contentStream != null) {
@@ -883,5 +907,120 @@ public class CCExport {
 	}
 	return StringEscapeUtils.escapeXml(ret.toString());
     }		
+
+    // turns the links into relative links
+    public String relFixup (String s, Resource resource) {
+	// http://lessonbuilder.sakaiproject.org/53605/
+	StringBuilder ret = new StringBuilder();
+	String sakaiIdBase = "/group/" + siteId;
+	Pattern target = Pattern.compile("/access/content/group/" + siteId + "|http://lessonbuilder.sakaiproject.org/", Pattern. CASE_INSENSITIVE);
+	Matcher matcher = target.matcher(s);
+	// technically / isn't allowed in an unquoted attribute, but sometimes people
+	// use sloppy HTML	
+	Pattern wordend = Pattern.compile("[^-a-zA-Z0-9._:/]");
+	int index = 0;
+	while (true) {
+	    if (!matcher.find()) {
+		ret.append(s.substring(index));
+		break;
+	    }		
+	    String sakaiId = null;
+	    int start = matcher.start();
+	    if (s.regionMatches(false, start, "/access", 0, 7)) { // matched /access/content...
+		int sakaistart = start + "/access/content".length(); //start of sakaiid, can't find end until we figure out quoting
+		int last = start + "/access/content/group/".length() + siteId.length();
+		if (s.regionMatches(true, (start - server.length()), server, 0, server.length())) {    // servername before it
+		    start -= server.length();
+		    if (s.regionMatches(true, start - 7, "http://", 0, 7)) {   // http:// or https:// before that
+			start -= 7;
+		    } else if (s.regionMatches(true, start - 8, "https://", 0, 8)) {
+			start -= 8;
+		    }
+		}
+		// need to find sakaiend. To do that we need to find the close quote
+		int sakaiend = 0;
+		char quote = s.charAt(start-1);
+		if (quote == '\'' || quote == '"')  // quoted, this is easy
+		    sakaiend = s.indexOf(quote, sakaistart);
+		else { // not quoted. find first char not legal in unquoted attribute
+		    Matcher wordendMatch = wordend.matcher(s);
+		    if (wordendMatch.find(sakaistart)) {
+			sakaiend = wordendMatch.start();
+		    }
+		    else
+			sakaiend = s.length();
+		}
+		last = sakaiend;
+		sakaiId = s.substring(sakaistart, sakaiend);
+		ret.append(s.substring(index, start));
+		// do the mapping. resource.location is a relative URL of the page we're looking at
+		// sakaiid is the URL of the object, starting /group/
+		String base = getParent(resource.location);
+		String thisref = sakaiId.substring(sakaiIdBase.length()+1);
+		String relative = relativize(thisref, base);
+		ret.append(relative.toString());
+		index = last;  // start here next time
+	    } else { // matched http://lessonbuilder.sakaiproject.org/
+		int last = matcher.end(); // should be start of an integer
+		int endnum = s.length();  // end of the integer
+		for (int i = last; i < s.length(); i++) {
+		    if ("0123456789".indexOf(s.charAt(i)) < 0) {
+			endnum = i;
+			break;
+		    }
+		}
+		String numString = s.substring(last, endnum);
+		if (numString.length() >= 1) {
+		    Long itemId = new Long(numString);
+		    SimplePageItem item = simplePageToolDao.findItem(itemId);
+		    sakaiId = item.getSakaiId();
+		    int itemType = item.getType();
+		    if ((itemType == SimplePageItem.RESOURCE || itemType == SimplePageItem.MULTIMEDIA) && 
+			sakaiId.startsWith(sakaiIdBase)) {
+			ret.append(s.substring(index, start));
+			String base = getParent(resource.location);
+			String thisref = sakaiId.substring(sakaiIdBase.length()+1);
+			String relative = relativize(thisref, base);
+			ret.append(relative);
+			index = endnum;
+		    }
+		}
+	    }
+	    if (sakaiId != null) {
+		Resource r = fileMap.get(sakaiId);
+		if (r != null) {
+		    resource.dependencies.add(r.resourceId);
+		}
+	    }
+	}
+	return ret.toString();
+    }		
+
+    // return base directory of file, including trailing /
+    // "" if it is in home directory
+    public String getParent(String s) {
+	int i = s.lastIndexOf("/");
+	if (i < 0)
+	    return "";
+	else
+	    return s.substring(0, i+1);
+    }
+
+    // return relative path to target from base
+    // base is assumed to be "" or ends in /
+    public String relativize(String target, String base) {
+	if (base.equals(""))
+	    return target;
+	if (target.startsWith(base))
+	    return target.substring(base.length());
+	else {
+	    int i = base.lastIndexOf("/", base.length()-2);
+	    if (i < 0)
+		base = "";
+	    else
+		base = base.substring(0, i+1); // include /
+	    return "../" + relativize(target, base);
+	}
+    }
 
 }
