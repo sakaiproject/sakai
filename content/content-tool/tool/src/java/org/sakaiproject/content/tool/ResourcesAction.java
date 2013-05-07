@@ -5874,6 +5874,7 @@ protected static final String PARAM_PAGESIZE = "collections_per_page";
 					{
 						addAlert(state, alert);
 					}
+					ContentHostingService.cancelResource(resource);
 				}
 			} 
 			catch (IdUnusedException e) 
