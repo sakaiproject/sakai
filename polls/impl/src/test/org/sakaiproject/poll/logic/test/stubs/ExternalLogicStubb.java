@@ -30,6 +30,7 @@ import java.util.TimeZone;
 import org.sakaiproject.poll.logic.ExternalLogic;
 import org.sakaiproject.poll.logic.test.TestDataPreload;
 import org.sakaiproject.poll.model.PollRolePerms;
+import org.sakaiproject.poll.model.Vote;
 import org.sakaiproject.tool.api.ToolSession;
 
 public class ExternalLogicStubb implements ExternalLogic {
@@ -195,4 +196,14 @@ public class ExternalLogicStubb implements ExternalLogic {
 		// TODO Auto-generated method stub
 		return null;
 	}
+
+    @Override
+    public void registerStatement(String pollText, Vote vote) {
+        // TODO Auto-generated method stub
+    }
+
+    @Override
+    public void registerStatement(String pollText, boolean newPoll) {
+        // TODO Auto-generated method stub
+    }
 }

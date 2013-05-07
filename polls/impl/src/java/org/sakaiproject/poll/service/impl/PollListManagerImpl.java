@@ -197,6 +197,7 @@ public class PollListManagerImpl implements PollListManager,EntityTransferrer {
             return false;
         }
         log.debug(" Poll  " + t.toString() + "successfuly saved");
+        externalLogic.registerStatement(t.getText(), newPoll);
         if (newPoll)
         	externalLogic.postEvent("poll.add", "poll/site/"
                     + t.getSiteId() + "/poll/" + t.getId(), true);
