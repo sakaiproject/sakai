@@ -262,7 +262,7 @@
     background: -ms-linear-gradient(top, rgb(238, 238, 238), rgb(252, 198, 198));
     background: linear-gradient(top, rgb(238, 238, 238), rgb(252, 198, 198));
 }
-#pc_showoffline_connections_checkbox, #pc_go_offline_checkbox {
+#pc_showoffline_connections_checkbox, #pc_go_offline_checkbox, #pc_video_off_checkbox {
     margin-right: 3px;
     margin-left: -1px;
 }
