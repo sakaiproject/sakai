@@ -277,10 +277,9 @@ public class UserPrefsTool
 
 	/**
 	 * SAK-11460:  With DTHML More Sites, there are potentially two
-	 * "Customize Tab" pages, namely "tab.jsp" (for the pre-DHTML more
-	 * sites), and "tab-dhtml-moresites.jsp".  Which one is used depends on the
-	 * sakai.properties "portal.use.dhtml.more".  Default is to use
-	 * the pre-DTHML page.
+	 * "Customize Tab" pages, namely "tab.jsp" (for the Drag and Drop)
+	 * and "tab-dhtml-moresites.jsp".  Which one is used depends on the
+	 * sakai.properties "prefs.tabs.dragdrop".
 	 */
 	private String m_TabOutcome = "tab";
 	
@@ -782,10 +781,10 @@ public class UserPrefsTool
 	public UserPrefsTool()
 	{
 		// Is DTHML more site enabled?
-		if (ServerConfigurationService.getBoolean ("portal.use.dhtml.more", false))
-			m_TabOutcome = "tabDHTMLMoreSites";
-		else
+		if (ServerConfigurationService.getBoolean ("prefs.tabs.dragdrop", true))
 			m_TabOutcome = "tab";
+		else
+			m_TabOutcome = "tabDHTMLMoreSites";
 
 		//Tab order configuration
 		String defaultPreference="prefs_tab_title, prefs_noti_title, prefs_timezone_title, prefs_lang_title";

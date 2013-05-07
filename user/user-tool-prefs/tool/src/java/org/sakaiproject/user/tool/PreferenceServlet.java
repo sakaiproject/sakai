@@ -51,10 +51,10 @@ public class PreferenceServlet extends JsfTool {
 
 		if(tablist[0].equals(Notification)) defaultPage="noti";
 		else if(tablist[0].equals(CustomTab)){			
-			if (ServerConfigurationService.getBoolean ("portal.use.dhtml.more", false))
-				defaultPage = "tab-dhtml-moresites";
-			else
+			if (ServerConfigurationService.getBoolean ("prefs.tabs.dragdrop", true))
 				defaultPage="tab";
+			else
+				defaultPage = "tab-dhtml-moresites";
 		}
 		else if(tablist[0].equals(Timezone)) defaultPage="timezone";
 		else if (tablist[0].equals(Language)) defaultPage="locale";
