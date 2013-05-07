@@ -39,6 +39,9 @@
         .TableColumn {
           text-align: center
         }
+        .TableColumnLeft {
+          text-align: left
+        }
        .TableClass {
          border-style: dotted;
          border-width: 0.5px;
@@ -111,12 +114,16 @@
 
       </script>
       
-      <div id="timer-warning" style="display:none" title="&nbsp;<span class='skip'> 
-      	<h:outputText value="#{deliveryMessages.warning_2} " />
-      	<h:outputText value="#{deliveryMessages.five_minutes_left1} " />
-      	<h:outputText value="#{deliveryMessages.five_minutes_left2}" /></span>">
-      	<h3><h:outputText value="#{deliveryMessages.five_minutes_left1}" /></h3>
-      	<p><h:outputText value="#{deliveryMessages.five_minutes_left2}" /></p>
+ 
+       <div id="timer-warning" style="display:none" title="&nbsp;<span class='skip'>
+         <h:outputText value="#{deliveryMessages.five_minutes_left1} " />
+	     <h:outputText value="#{deliveryMessages.five_minutes_left2}" />
+	     <h:outputText value="#{deliveryMessages.five_minutes_left3}" /></span>">
+      	 <h:panelGrid columns="1" rowClasses="TableColumn, TableColumnLeft, TableColumnLeft" width="100%"  border="0">
+           <h:outputText value="<b>#{deliveryMessages.five_minutes_left1}</b>" escape="false"/>
+      	   <h:outputText value="<br/>#{deliveryMessages.five_minutes_left2}" escape="false"/>
+      	   <h:outputText value="#{deliveryMessages.five_minutes_left3}"  escape="false"/>
+      	 </h:panelGrid>
       </div>
  
  <h:outputText value="<div class='portletBody' style='#{delivery.settings.divBgcolor};#{delivery.settings.divBackground}'>" escape="false"/>
