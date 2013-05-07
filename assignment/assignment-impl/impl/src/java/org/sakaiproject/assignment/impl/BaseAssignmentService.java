@@ -113,6 +113,14 @@ import org.sakaiproject.entity.api.Reference;
 import org.sakaiproject.entity.api.ResourceProperties;
 import org.sakaiproject.entity.api.ResourcePropertiesEdit;
 import org.sakaiproject.event.api.Event;
+import org.sakaiproject.event.api.LearningResourceStoreService;
+import org.sakaiproject.event.api.LearningResourceStoreService.LRS_Actor;
+import org.sakaiproject.event.api.LearningResourceStoreService.LRS_Context;
+import org.sakaiproject.event.api.LearningResourceStoreService.LRS_Object;
+import org.sakaiproject.event.api.LearningResourceStoreService.LRS_Result;
+import org.sakaiproject.event.api.LearningResourceStoreService.LRS_Statement;
+import org.sakaiproject.event.api.LearningResourceStoreService.LRS_Verb;
+import org.sakaiproject.event.api.LearningResourceStoreService.LRS_Verb.SAKAI_VERB;
 import org.sakaiproject.event.cover.EventTrackingService;
 import org.sakaiproject.event.cover.NotificationService;
 import org.sakaiproject.exception.IdInvalidException;
@@ -2627,7 +2635,15 @@ public abstract class BaseAssignmentService implements AssignmentService, Entity
 				else
 				{
 					// graded and saved before releasing it
-					EventTrackingService.post(EventTrackingService.newEvent(AssignmentConstants.EVENT_GRADE_ASSIGNMENT_SUBMISSION, submissionRef, true));
+                    Event event = EventTrackingService.newEvent(AssignmentConstants.EVENT_GRADE_ASSIGNMENT_SUBMISSION, submissionRef, true);
+                    EventTrackingService.post(event);
+                    LearningResourceStoreService lrss = (LearningResourceStoreService) ComponentManager
+                            .get("org.sakaiproject.event.api.LearningResourceStoreService");
+                    if (null != lrss && StringUtils.isNotEmpty(s.getGrade())) {
+                        for (User user : s.getSubmitters()) {
+                            lrss.registerStatement(getStatementForAssignmentGraded(lrss.getEventActor(event), event, a, s, user), "assignment");
+                        }
+                    }
 				}
 			}
 			else if (returnedTime != null && s.getGraded() && (submittedTime == null/*returning non-submissions*/ 
@@ -2635,7 +2651,15 @@ public abstract class BaseAssignmentService implements AssignmentService, Entity
 											|| (submittedTime != null && submittedTime.after(returnedTime) && s.getTimeLastModified().after(submittedTime))/*grading the resubmitted assignment*/))
 			{
 				// releasing a submitted assignment or releasing grade to an unsubmitted assignment
-				EventTrackingService.post(EventTrackingService.newEvent(AssignmentConstants.EVENT_GRADE_ASSIGNMENT_SUBMISSION, submissionRef, true));
+                Event event = EventTrackingService.newEvent(AssignmentConstants.EVENT_GRADE_ASSIGNMENT_SUBMISSION, submissionRef, true);
+                EventTrackingService.post(event);
+                LearningResourceStoreService lrss = (LearningResourceStoreService) ComponentManager
+                        .get("org.sakaiproject.event.api.LearningResourceStoreService");
+                if (null != lrss && StringUtils.isNotEmpty(s.getGrade())) {
+                    for (User user : s.getSubmitters()) {
+                        lrss.registerStatement(getStatementForAssignmentGraded(lrss.getEventActor(event), event, a, s, user), "assignment");
+                    }
+                }
 				
 				// if this is releasing grade, depending on the release grade notification setting, send email notification to student
 				sendGradeReleaseNotification(s.getGradeReleased(), a.getProperties().getProperty(Assignment.ASSIGNMENT_RELEASEGRADE_NOTIFICATION_VALUE), s.getSubmitters(), s);
@@ -2645,7 +2669,16 @@ public abstract class BaseAssignmentService implements AssignmentService, Entity
 			else if (submittedTime == null) /*grading non-submission*/
 			{
 				// releasing a submitted assignment or releasing grade to an unsubmitted assignment
-				EventTrackingService.post(EventTrackingService.newEvent(AssignmentConstants.EVENT_GRADE_ASSIGNMENT_SUBMISSION, submissionRef, true));
+                Event event = EventTrackingService.newEvent(AssignmentConstants.EVENT_GRADE_ASSIGNMENT_SUBMISSION, submissionRef, true);
+                EventTrackingService.post(event);
+                LearningResourceStoreService lrss = (LearningResourceStoreService) ComponentManager
+                        .get("org.sakaiproject.event.api.LearningResourceStoreService");
+                if (null != lrss) {
+                    for (User user : s.getSubmitters()) {
+                        lrss.registerStatement(getStatementForUnsubmittedAssignmentGraded(lrss.getEventActor(event), event, a, s, user),
+                                "sakai.assignment");
+                    }
+                }
 			}
 			else
 			{
@@ -13608,5 +13641,54 @@ public abstract class BaseAssignmentService implements AssignmentService, Entity
                 }
         }
 
+    private LRS_Statement getStatementForAssignmentGraded(LRS_Actor instructor, Event event, Assignment a, AssignmentSubmission s,
+            User studentUser) {
+        LRS_Verb verb = new LRS_Verb(SAKAI_VERB.scored);
+        LRS_Object lrsObject = new LRS_Object(m_serverConfigurationService.getPortalUrl() + event.getResource(),
+                "received-grade-assignment");
+        HashMap<String, String> nameMap = new HashMap<String, String>();
+        nameMap.put("en-US", "User received a grade");
+        lrsObject.setActivityName(nameMap);
+        HashMap<String, String> descMap = new HashMap<String, String>();
+        descMap.put("en-US", "User received a grade for their assginment: " + a.getTitle() + "; Submission #: " + s.getResubmissionNum());
+        lrsObject.setDescription(descMap);
+        LRS_Actor student = new LRS_Actor(studentUser.getEmail());
+        student.setName(studentUser.getDisplayName());
+        LRS_Context context = new LRS_Context(instructor);
+        context.setActivity("other", "assignment");
+        LRS_Statement statement = new LRS_Statement(student, verb, lrsObject, getLRS_Result(a, s, true), context);
+        return statement;
+    }
+
+    private LRS_Result getLRS_Result(Assignment a, AssignmentSubmission s, boolean completed) {
+        LRS_Result result = null;
+        AssignmentContent content = a.getContent();
+        if (3 == content.getTypeOfGrade() && NumberUtils.isNumber(s.getGradeDisplay())) { // Points
+            result = new LRS_Result(new Float(s.getGradeDisplay()), new Float(0.0), new Float(content.getMaxGradePointDisplay()), null);
+            result.setCompletion(completed);
+        } else {
+            result = new LRS_Result(completed);
+            result.setGrade(s.getGradeDisplay());
+        }
+        return result;
+    }
+
+    private LRS_Statement getStatementForUnsubmittedAssignmentGraded(LRS_Actor instructor, Event event, Assignment a,
+            AssignmentSubmission s, User studentUser) {
+        LRS_Verb verb = new LRS_Verb(SAKAI_VERB.scored);
+        LRS_Object lrsObject = new LRS_Object(m_serverConfigurationService.getAccessUrl() + event.getResource(), "received-grade-unsubmitted-assignment");
+        HashMap<String, String> nameMap = new HashMap<String, String>();
+        nameMap.put("en-US", "User received a grade");
+        lrsObject.setActivityName(nameMap);
+        HashMap<String, String> descMap = new HashMap<String, String>();
+        descMap.put("en-US", "User received a grade for an unsubmitted assginment: " + a.getTitle());
+        lrsObject.setDescription(descMap);
+        LRS_Actor student = new LRS_Actor(studentUser.getEmail());
+        student.setName(studentUser.getDisplayName());
+        LRS_Context context = new LRS_Context(instructor);
+        context.setActivity("other", "assignment");
+        LRS_Statement statement = new LRS_Statement(student, verb, lrsObject, getLRS_Result(a, s, false), context);
+        return statement;
+    }
 } // BaseAssignmentService
 
