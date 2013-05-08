@@ -1014,6 +1014,8 @@ public class CCExport {
 	if (target.startsWith(base))
 	    return target.substring(base.length());
 	else {
+	    // get parent directory of base directory.
+	    // base directory ends in /
 	    int i = base.lastIndexOf("/", base.length()-2);
 	    if (i < 0)
 		base = "";

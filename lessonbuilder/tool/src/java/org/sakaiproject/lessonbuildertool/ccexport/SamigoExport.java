@@ -371,14 +371,22 @@ public class SamigoExport {
 		out.println("          <respcondition continue=\"No\">");
 		out.println("            <conditionvar>");
 		if (type.equals(TypeIfc.MULTIPLE_CHOICE) || type.equals(TypeIfc.TRUE_FALSE)) {
-		    if (correctSet.size() > 1)
-			out.println("              <or>");
+		    int remaining = -1; // default to allow all correct answers
+		    if (correctSet.size() > 1) {
+			if (version < CCExport.V12) {
+			    errStream.println(messageLocator.getMessage("simplepage.exportcc-sam-mcss").replace("{1}", title).replace("{2}",assessmentTitle)); 
+			    remaining = 1;
+			} else
+			    out.println("              <or>");
+		    }
 		    for (AnswerIfc answer: answerlist) {
 			String answerId = itemId + "_" + answer.getSequence();
-			if (correctSet.contains(answer.getSequence()))
+			if (correctSet.contains(answer.getSequence()) && remaining != 0) {
 			    out.println("              <varequal case=\"Yes\" respident=\"QUE_" + itemId + "_RL\">QUE_" + itemId + "_" + answer.getSequence() + "</varequal>");
+			    remaining--;
+			}
 		    }
-		    if (correctSet.size() > 1)
+		    if (correctSet.size() > 1 && remaining < 0)
 			out.println("              </or>");
 		} else if (type.equals(TypeIfc.MULTIPLE_CORRECT) || type.equals(TypeIfc.MULTIPLE_CORRECT_SINGLE_SELECTION)) {
 		    if (type.equals(TypeIfc.MULTIPLE_CORRECT_SINGLE_SELECTION))

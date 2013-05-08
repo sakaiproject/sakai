@@ -107,6 +107,11 @@ public class AssignmentExport {
 	messageLocator = m;
     }
 
+    static AssignmentExport next = null;
+    public void setNext(AssignmentExport n) {
+	next = n;
+    }
+
     CCExport ccExport = null;
 
     public void init () {
@@ -121,13 +126,9 @@ public class AssignmentExport {
 	log.info("destroy()");
     }
 
-    // find topics in site, but organized by forum
-    public List<String> getEntitiesInSite(String siteId, CCExport bean) {
+    public List<AssignmentItem> getItemsInSite(String siteId) {
+	List<AssignmentItem> ret = new ArrayList<AssignmentItem>();
 
-	List<String> ret = new ArrayList<String>();
-	String siteRef = "/group/" + siteId + "/";
-
-	// security. assume this is only used in places where it's OK, so skip security checks
 	Iterator i = AssignmentService.getAssignmentsForContext(siteId);
 	while (i.hasNext()) {
 	    Assignment assignment = (Assignment)i.next();
@@ -136,59 +137,110 @@ public class AssignmentExport {
 	    if ((deleted == null || "".equals(deleted)) && !assignment.getDraft()) {
 		AssignmentContent content = assignment.getContent();
 		List<Reference>attachments = content.getAttachments();
-
 		String instructions = content.getInstructions();
-		
-		// special case. one attachment and nothing else.
-		// just export the attachment
-		String intendeduse = null;
-		if ((instructions == null || instructions.trim().equals("")) &&
-		    (attachments != null && attachments.size() == 1)) {
-		    intendeduse = "assignment";  // simple case. just set intended use for attachment
-		} else { // complex case. need to do full assignment generation
-		    ret.add(LessonEntity.ASSIGNMENT + "/" + assignment.getId().toString());
-		}
 
+		AssignmentItem item = new AssignmentItem();
+		item.id = LessonEntity.ASSIGNMENT + "/" + assignment.getId().toString();
+		item.instructions = instructions;
+		item.attachments = new ArrayList<String>();
 		for (Reference ref: attachments) {
-		    String sakaiId = ref.getReference();
-		    if (sakaiId.startsWith("/content/"))
-			sakaiId = sakaiId.substring("/content".length());
-
-		    String url = null;
-		    // if it is a URL, need the URL rather than copying the file
-		    try {
-			ContentResource resource = ContentHostingService.getResource(sakaiId);
-			String type = resource.getContentType();
-			if ("text/url".equals(type)) {
-			    url = new String(resource.getContent());
-			}
-		    } catch (Exception e) {
-		    }
-		    
-		    // if attachment isn't a file in resources, arrange for it to be included
-		    if (url != null)
-			;  // if it's a URL we don't need a file
-		    else if (! sakaiId.startsWith(siteRef)) {  // if in resources, already included
-			int lastSlash = sakaiId.lastIndexOf("/");
-			String lastAtom = sakaiId.substring(lastSlash + 1);
-			bean.addFile(sakaiId, "attachments/" + assignment.getId() + "/" + lastAtom, intendeduse);
-		    } else if (intendeduse != null) {  // already there, just set intended use
-			bean.setIntendeduse(sakaiId, intendeduse);
-		    }
+		    item.attachments.add(ref.getReference());
 		}
+		ret.add(item);
 	    }
 	}
+
+	if (next != null) {
+	    List<AssignmentItem>nextList = next.getItemsInSite(siteId);
+	    ret.addAll(nextList);
+	}
+	
 	return ret;
     }
 
-    // this is weird, because it's a web content, not a learning application. So we need to produce an HTML file
-    // with instructions and relative references to any attachments
 
-    public boolean outputEntity(String assignmentRef, ZipPrintStream out, PrintStream errStream, CCExport bean, CCExport.Resource resource) {
+    // find topics in site, but organized by forum
+    public List<String> getEntitiesInSite(String siteId, CCExport bean) {
+
+	List<String> ret = new ArrayList<String>();
+	String siteRef = "/group/" + siteId + "/";
+
+	List<AssignmentItem>items = getItemsInSite(siteId);
+
+	for (AssignmentItem item: items) {
+
+	    String instructions = item.instructions;
+	    List<String>attachments = item.attachments;
+		
+	    // special case. one attachment and nothing else.
+	    // just export the attachment
+	    String intendeduse = null;
+	    if ((instructions == null || instructions.trim().equals("")) &&
+		(attachments != null && attachments.size() == 1)) {
+		intendeduse = "assignment";  // simple case. just set intended use for attachment
+	    } else { // complex case. need to do full assignment generation
+		ret.add(item.id);
+	    }
+
+	    // arrange to include the attachments
+	    for (String sakaiId: attachments) {
+
+		if (sakaiId.startsWith("/content/"))
+		    sakaiId = sakaiId.substring("/content".length());
+		
+		String url = null;
+		// if it is a URL, need the URL rather than copying the file
+		try {
+		    ContentResource resource = ContentHostingService.getResource(sakaiId);
+		    String type = resource.getContentType();
+		    if ("text/url".equals(type)) {
+			url = new String(resource.getContent());
+		    }
+		} catch (Exception e) {
+		}
+		    
+		// if attachment isn't a file in resources, arrange for it to be included
+		if (url != null)
+		    ;  // if it's a URL we don't need a file
+		else if (! sakaiId.startsWith(siteRef)) {  // if in resources, already included
+		    String assignmentId = item.id;
+		    int i = assignmentId.indexOf("/");
+		    assignmentId = assignmentId.substring(i+1);
+		    int lastSlash = sakaiId.lastIndexOf("/");
+		    String lastAtom = sakaiId.substring(lastSlash + 1);
+		    bean.addFile(sakaiId, "attachments/" + assignmentId + "/" + lastAtom, intendeduse);
+		} else if (intendeduse != null) {  // already there, just set intended use
+		    bean.setIntendeduse(sakaiId, intendeduse);
+		}
+	    }
+	}
+
+	return ret;
+    }
+
+    public static class AssignmentItem {
+	public String id;
+	public String title;
+	public String instructions;
+	public List<String> attachments;
+    }
+
+
+    public AssignmentItem getContents(String assignmentRef) {
+
+	if (!assignmentRef.startsWith(LessonEntity.ASSIGNMENT + "/")) {
+	    if (next == null)
+		return null;
+	    else 
+		return next.getContents(assignmentRef);
+	}
+
+	AssignmentItem ret = new AssignmentItem();
+	ret.attachments = new ArrayList<String>();
 
 	int i = assignmentRef.indexOf("/");
 	String assignmentId = assignmentRef.substring(i+1);
-	ccExport = bean;
+	ret.id = assignmentId;
 
 	Assignment assignment = null;
 
@@ -196,15 +248,42 @@ public class AssignmentExport {
 	    assignment = AssignmentService.getAssignment(assignmentId);
 	} catch (Exception e) {
 	    System.out.println("failed to find " + assignmentId);
-	    return false;
+	    return null;
 	}
 
-	String title = assignment.getTitle();
-	String attachmentDir = "attachments/" + assignment.getId() + "/";
-
+	ret.title = assignment.getTitle();
+	
 	AssignmentContent content = assignment.getContent();
-	String instructions = bean.relFixup(content.getInstructions(), resource);
+	ret.instructions = content.getInstructions();
+
 	List<Reference>attachments = content.getAttachments();
+
+	for (Reference ref: attachments) {
+	    String sakaiId = ref.getReference();
+
+	    ret.attachments.add(sakaiId);
+	}
+	
+	return ret;
+    }
+
+
+    // this is weird, because it's a web content, not a learning application. So we need to produce an HTML file
+    // with instructions and relative references to any attachments
+
+    public boolean outputEntity(String assignmentRef, ZipPrintStream out, PrintStream errStream, CCExport bean, CCExport.Resource resource) {
+
+	AssignmentItem contents = getContents(assignmentRef);
+	if (contents == null)
+	    return false;
+	
+	ccExport = bean;
+
+	String title = contents.title;
+	String attachmentDir = "attachments/" + contents.id + "/";
+
+	String instructions = bean.relFixup(contents.instructions, resource);
+	List<String>attachments = contents.attachments;
 
 	out.println("<!DOCTYPE html PUBLIC \"-//W3C//DTD XHTML 1.0 Transitional//EN\"  \"http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd\">");
 	out.println("<html xmlns=\"http://www.w3.org/1999/xhtml\" lang=\"en\" xml:lang=\"en\">");
@@ -214,8 +293,7 @@ public class AssignmentExport {
 	    out.println(instructions);
 	    out.println("</div>");
 	}
-	for (Reference ref: attachments) {
-	    String sakaiId = ref.getReference();
+	for (String sakaiId: attachments) {
 	    if (sakaiId.startsWith("/content/"))
 		sakaiId = sakaiId.substring("/content".length());
 
