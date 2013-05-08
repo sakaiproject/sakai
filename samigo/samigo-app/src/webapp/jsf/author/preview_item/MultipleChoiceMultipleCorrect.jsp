@@ -27,9 +27,9 @@ should be included in file importing DeliveryMessages
   <!-- ATTACHMENTS -->
   <%@ include file="/jsf/author/preview_item/attachment.jsp" %>
 
-  <h:dataTable value="#{question.itemData.itemTextArraySorted}" var="itemText">
+  <h:dataTable value="#{question.itemData.itemTextArraySorted}" var="itemText" width="100%">
     <h:column>
-      <h:dataTable value="#{itemText.answerArraySorted}" var="answer">
+      <h:dataTable value="#{itemText.answerArraySorted}" var="answer" width="100%">
         <h:column> 
          <h:panelGroup rendered="#{answer.text != null && answer.text ne ''}">
           <h:graphicImage id="image1" rendered="#{answer.isCorrect}"

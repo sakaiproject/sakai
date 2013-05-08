@@ -49,7 +49,7 @@ should be included in file importing DeliveryMessages
   <f:verbatim></div></f:verbatim>
 
 
-  <h:dataTable value="#{question.selectionArray}" var="selection">
+  <h:dataTable value="#{question.selectionArray}" var="selection" width="100%">
     <h:column rendered="#{delivery.feedback eq 'true' &&
        delivery.feedbackComponent.showCorrectResponse && !delivery.noFeedback=='true'}">
       <h:graphicImage id="image"

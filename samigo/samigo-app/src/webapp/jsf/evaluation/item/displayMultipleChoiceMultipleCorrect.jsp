@@ -26,7 +26,7 @@ include file for displaying multiple choice questions
   <h:outputText value="#{question.text}"  escape="false"/>
   <h:dataTable value="#{question.itemTextArray}" var="itemText">
    <h:column>
-   <h:dataTable value="#{itemText.answerArraySorted}" var="answer">
+   <h:dataTable value="#{itemText.answerArraySorted}" var="answer" width="100%">
     <h:column rendered="#{answer.text!=null && answer.text!=''}">
       <h:graphicImage id="image6" rendered="#{answer.isCorrect}"
         alt="#{evaluationMessages.alt_correct}" url="/images/delivery/checkmark.gif" >
