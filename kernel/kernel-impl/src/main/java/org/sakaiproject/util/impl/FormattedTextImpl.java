@@ -374,7 +374,7 @@ public class FormattedTextImpl implements FormattedText
         } else if (Level.NONE.equals(level)) {
             checkForEvilTags = false; // disable scan
         }
-        if (useLegacySakaiCleaner && antiSamyHigh == null) {
+        if (!useLegacySakaiCleaner && antiSamyHigh == null) {
             useLegacySakaiCleaner = false;
             M_log.warn("Cannot use the new html cleaner (useLegacySakaiCleaner=false), Antisamy cleaner not available, falling back to the legacy cleaner");
         }
