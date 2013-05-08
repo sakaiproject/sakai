@@ -881,6 +881,12 @@ function PortalChat() {//
 				+ "</div><span class=\"pc_messagedate\">" + dateString
 				+ "</span></li>");
 	}
+	
+	this.maximizeVideoCall = function (uuid){
+		var remoteVideo = document.getElementById("pc_chat_" + uuid
+				+ "_remote_video");
+		this.videoCall.maximizeVideo (remoteVideo);
+	}
 
 	this.openVideoCall = function(uuid, incomming) {
 		if (incomming && this.videoOff)
