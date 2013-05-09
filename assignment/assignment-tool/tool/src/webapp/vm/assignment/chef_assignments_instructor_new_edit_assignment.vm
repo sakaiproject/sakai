@@ -4,7 +4,26 @@
 ## Assignments - Instructor new Assignment view
 <script type="text/javascript">
 $(document).ready(function() {
-	 setupAssignNew();
+ 	setupAssignNew();
+ 	#if($turnitin_forceSingleAttachment)
+	 	$("#new_assignment_use_review_service").click(function (){
+	 		var checked = this.checked;
+	 		if(checked){
+	 			$("#subType").val(5);
+	 		}
+	 		$("#subType > option").each(function(){
+	 			if(checked){
+	 				if($(this).val() != 5){
+	 					$(this).attr('disabled', 'disabled');
+	 				}
+	 			}else{
+	 				$(this).removeAttr('disabled');
+	 			
+	 			}
+	 		});
+	 	});
+ 	#end
+
 });
 </script>
 
