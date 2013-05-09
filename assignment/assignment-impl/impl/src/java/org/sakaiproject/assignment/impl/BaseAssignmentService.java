@@ -451,7 +451,10 @@ public abstract class BaseAssignmentService implements AssignmentService, Entity
 				if(isAllowed) return true;
 			}
 			
-			return false;
+                        if (SECURE_ADD_ASSIGNMENT_SUBMISSION.equals(lock) && assignment.isGroup())
+                                return SecurityService.unlock(lock, resource); 
+                        else
+                                return false;
 		}
 		else
 		{
@@ -4841,7 +4844,7 @@ public abstract class BaseAssignmentService implements AssignmentService, Entity
 	                {
 	                    if (allowGradeSubmission(a.getReference()))
 	                    {
-	                        if (!a.isGroup()) {
+	                        if (a.isGroup()) {
 	                            // temporarily allow the user to read and write from assignments (asn.revise permission)
 	                            SecurityService.pushAdvisor(
 	                                    new MySecurityAdvisor(

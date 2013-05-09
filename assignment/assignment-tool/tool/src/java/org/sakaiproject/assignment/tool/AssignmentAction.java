@@ -3254,16 +3254,18 @@ public class AssignmentAction extends PagedResourceActionII
 			    Iterator<SubmitterSubmission> _ssubmits = userSubmissions.iterator();
 			    while (_ssubmits.hasNext()) {
 			        SubmitterSubmission _ss = _ssubmits.next();
-			        User[] _users = _ss.getSubmission().getSubmitters();
-			        for (int i=0; _users != null && i < _users.length; i ++) {
-			            String _agrade = _ss.getSubmission().getGradeForUser(_users[i].getId());
-			            if (_agrade != null) {
-			                _ugrades.put(
-			                        _users[i].getId(),
-			                        assignment.getContent() != null && assignment.getContent().getTypeOfGrade() == 3 ?
-			                                displayGrade(state, _agrade): _agrade);
-			            }
-			        }
+				if (_ss != null && _ss.getSubmission() != null) {
+			        	User[] _users = _ss.getSubmission().getSubmitters();
+			        	for (int i=0; _users != null && i < _users.length; i ++) {
+			            		String _agrade = _ss.getSubmission().getGradeForUser(_users[i].getId());
+			            		if (_agrade != null) {
+			                		_ugrades.put(
+			                        	_users[i].getId(),
+			                        	assignment.getContent() != null && assignment.getContent().getTypeOfGrade() == 3 ?
+			                                	displayGrade(state, _agrade): _agrade);
+			            		}	
+			        	}
+				}
 			    }
 
 			    context.put("value_grades", _ugrades);
