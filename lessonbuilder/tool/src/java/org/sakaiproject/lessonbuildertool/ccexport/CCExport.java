@@ -40,6 +40,8 @@ import java.util.zip.ZipOutputStream;
 import java.util.regex.Pattern;
 import java.util.regex.Matcher;
 import javax.servlet.http.HttpServletResponse;
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
 import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang.StringEscapeUtils;
 import org.sakaiproject.content.api.ContentCollection;
@@ -66,6 +68,8 @@ import uk.org.ponder.messageutil.MessageLocator;
 import uk.org.ponder.rsf.viewstate.ViewParameters;
 
 public class CCExport {
+
+    private static Log log = LogFactory.getLog(CCExport.class);
 
     private File root;
     private String rootPath;
@@ -140,7 +144,7 @@ public class CCExport {
     public static void setErrMessage(String s) {
 	ToolSession toolSession = SessionManager.getCurrentToolSession();
 	if (toolSession == null) {
-	    System.out.println("Lesson Builder error not in tool: " + s);
+	    log.error("Lesson Builder error not in tool: " + s);
 	    return;
 	}
 	List<String> errors = (List<String>)toolSession.getAttribute("lessonbuilder.errors");
@@ -286,12 +290,28 @@ public class CCExport {
 	try {
 	    for (Map.Entry<String, Resource> entry: fileMap.entrySet()) {
 
+		// normally this is a file ID for contenthosting.
+		// But jforum gives us an actual filesystem filename. We stick /// on
+		// the front to make that clear. inSakai is contenthosting.
+		boolean inSakai = !entry.getKey().startsWith("///"); 
+
 		ZipEntry zipEntry = new ZipEntry(entry.getValue().location);
 
-		ContentResource resource = contentHostingService.getResource(entry.getKey());
+		// for contenthosting
+		ContentResource resource = null;
+		// for raw file
+		File infile = null;
+		InputStream instream = null;
+		if (inSakai) {
+		    resource = contentHostingService.getResource(entry.getKey());
+		    zipEntry.setSize(resource.getContentLength());
+		} else {
+		    infile = new File(entry.getKey().substring(3));
+		    instream = new FileInputStream(infile);
+		}
 
-		zipEntry.setSize(resource.getContentLength());
 		out.putNextEntry(zipEntry);
+
 		InputStream contentStream = null;
 					    
 		// see if this is HTML. If so, we need to scan it.
@@ -301,7 +321,9 @@ public class CCExport {
 		String extension = "";
 		if (lastdot >= 0 && lastdot > lastslash)
 		    extension = filename.substring(lastdot+1);
-		String mimeType = resource.getContentType();
+		String mimeType = null;
+		if (inSakai)
+		    mimeType = resource.getContentType();
 		boolean isHtml = false;
 		if (mimeType != null && (mimeType.startsWith("http") || mimeType.equals("")))
 		    mimeType = null;
@@ -313,14 +335,26 @@ public class CCExport {
 		try {
 		    if (isHtml) {
 			// treat html separately. Need to convert urls to relative
-			String content = new String(resource.getContent());
+			String content = null;
+			if (inSakai)
+			    content = new String(resource.getContent());
+			else {
+			    byte[] b = new byte[(int) infile.length()];  
+			    instream.read(b);  			    
+			    content = new String(b);
+			}
 			content = relFixup(content, entry.getValue());
 			out.print(content);
 		    } else {
-			contentStream = resource.streamContent();
+			if (inSakai)
+			    contentStream = resource.streamContent();
+			else 
+			    contentStream = instream;
 			IOUtils.copy(contentStream, out);
 		    }
+
 		} catch (Exception e) {
+		    log.error("Lessons export error outputting file " + e);
 		} finally {
 		    if (contentStream != null) {
 			contentStream.close();
@@ -328,6 +362,7 @@ public class CCExport {
 		}
 	    }
 	} catch (Exception e) {
+	    log.error("Lessons export error outputting file " + e);
 	    setErrKey("simplepage.exportcc-fileerr", e.getMessage());
 	    return false;
 	}
@@ -445,7 +480,7 @@ public class CCExport {
 
 	    }
 	} catch (Exception e) {
-	    System.out.println("problem in outputallforums " + e);
+	    log.error("problem in outputallforums " + e);
 	    setErrKey("simplepage.exportcc-fileerr", e.getMessage());
 	    return false;
 	}
@@ -481,7 +516,7 @@ public class CCExport {
 		    return false;
 	    }
 	} catch (Exception e) {
-	    System.out.println("problem in outputallforums " + e);
+	    log.error("problem in outputallforums " + e);
 	    setErrKey("simplepage.exportcc-fileerr", e.getMessage());
 	    return false;
 	}

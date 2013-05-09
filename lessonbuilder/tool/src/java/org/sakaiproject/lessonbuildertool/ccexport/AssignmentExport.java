@@ -291,7 +291,7 @@ public class AssignmentExport {
 	if (instructions != null && !instructions.trim().equals("")) {
 	    out.println("<div>");
 	    out.println(instructions);
-	    out.println("</div>");
+	    out.println("</div> ");
 	}
 	for (String sakaiId: attachments) {
 	    if (sakaiId.startsWith("/content/"))

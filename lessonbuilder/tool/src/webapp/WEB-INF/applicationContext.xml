@@ -322,6 +322,16 @@ simplePageBean.peerEvalAllowSelfGrade
 	  <property name="simplePageToolDao" ref="org.sakaiproject.lessonbuildertool.model.SimplePageToolDao" />
 	</bean>
 
+ 	<bean id="org.sakaiproject.lessonbuildertool.ccexport.JForumExport"
+	      class="org.sakaiproject.lessonbuildertool.ccexport.JForumExport"
+              init-method="init"
+              destroy-method="destroy">
+	  <property name="messageLocator" ref="messageLocator"/>
+	  <property name="simplePageToolDao" ref="org.sakaiproject.lessonbuildertool.model.SimplePageToolDao" />
+	  <property name="prev" ref="org.sakaiproject.lessonbuildertool.ccexport.ForumsExport" />
+	</bean>
+
+
  	<bean id="org.sakaiproject.lessonbuildertool.ccexport.BltiExport"
 	      class="org.sakaiproject.lessonbuildertool.ccexport.BltiExport"
               init-method="init"

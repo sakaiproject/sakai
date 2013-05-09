@@ -119,6 +119,11 @@ public class ForumsExport {
 	messageLocator = m;
     }
 
+    static ForumsExport next = null;
+    public void setNext(ForumsExport n) {
+	next = n;
+    }
+
     static MessageForumsForumManager forumManager = (MessageForumsForumManager)
 	ComponentManager.get("org.sakaiproject.api.app.messageforums.MessageForumsForumManager");
     static MessageForumsMessageManager messageManager = (MessageForumsMessageManager)
@@ -139,6 +144,66 @@ public class ForumsExport {
 	log.info("destroy()");
     }
 
+    public static class ForumAttachment {
+	public String logical;
+	public String physical;
+    }
+
+    public static class ForumItem {
+	public String id;
+	public String title;
+	public String text;
+	public List<ForumAttachment> attachments;
+    }
+
+    public List<ForumItem> getItemsInSite(String siteId) {
+	List<ForumItem> ret = new ArrayList<ForumItem>();
+
+	String siteRef = "/group/" + siteId + "/";
+
+	Site site = null;
+	try {
+	    site = SiteService.getSite(siteId);
+	} catch (Exception impossible) {
+	    // if site doesn't exist, it seems silly to try any more tools
+	    return null;
+	}
+
+	if(site.getToolForCommonId("sakai.forums") == null) {
+	    // Forums is not in this site. Move on to the next provider.
+	    if (next != null)
+		return next.getItemsInSite(siteId);
+	    return null;
+	}
+
+	for (DiscussionForum forum: forumManager.getForumsForMainPage()) {
+	    if (!forum.getDraft()) {
+		for (DiscussionTopic topic: (Set<DiscussionTopic>)forum.getTopicsSet()) {
+		    if (topic.getDraft().equals(Boolean.FALSE)) {
+			ForumItem item = new ForumItem();
+			item.attachments = new ArrayList<ForumAttachment>();
+			item.id = LessonEntity.FORUM_TOPIC + "/" + topic.getId();
+
+			List<Attachment> attachments = topic.getAttachments();
+			for (Attachment attachment: attachments) {
+			    String sakaiId = attachment.getAttachmentId();
+			    ForumAttachment a = new ForumAttachment();
+			    a.logical = sakaiId;
+			    a.physical = sakaiId;
+			    item.attachments.add(a);
+			}
+			ret.add(item);
+		    }
+		}
+	    }
+	}
+
+	if (next != null)
+	    ret.addAll(next.getItemsInSite(siteId));
+
+	return ret;
+    }
+
     // find topics in site
     public List<String> getEntitiesInSite(String siteId, CCExport bean) {
 
@@ -146,66 +211,64 @@ public class ForumsExport {
 
 	List<String> ret = new ArrayList<String>();
 
-	// LSNBLDR-21. If the tool is not in the current site we shouldn't query
-	// for topics owned by the tool.
-	Site site = null;
-	try {
-	    site = SiteService.getSite(ToolManager.getCurrentPlacement().getContext());
-	} catch (Exception impossible) {
-	    return ret;
-	}
-    	
-	if(site.getToolForCommonId("sakai.forums") == null) {
-	    // Forums is not in this site. Move on to the next provider.
-	    return ret;
-	}
+	List<ForumItem> items = getItemsInSite(siteId);
 
-	for (DiscussionForum forum: forumManager.getForumsForMainPage()) {
-	    if (!forum.getDraft()) {
-		for (DiscussionTopic topic: (Set<DiscussionTopic>)forum.getTopicsSet()) {
-		    if (topic.getDraft().equals(Boolean.FALSE)) {
-			ret.add(LessonEntity.FORUM_TOPIC + "/" + topic.getId());
-			List<Attachment> attachments = topic.getAttachments();
-			for (Attachment attachment: attachments) {
-			    String sakaiId = attachment.getAttachmentId();
-			
-			    // this code is to identify attachments that aren't in the normal
-			    // site resources. In that case we have to make a copy of it
-			    String url = null;
-			    // if it is a URL, need the URL rather than copying the file
-			    try {
-				ContentResource res = ContentHostingService.getResource(sakaiId);
-				String type = res.getContentType();
-				if ("text/url".equals(type)) {
-				    url = new String(res.getContent());
-				}
-			    } catch (Exception e) {
-			    }
-			
-			    if (url != null)
-				;  // if it's a URL we don't need a file
-			    else if (! sakaiId.startsWith(siteRef)) {  // if in resources, already included
-				int lastSlash = sakaiId.lastIndexOf("/");
-				String lastAtom = sakaiId.substring(lastSlash + 1);
-				bean.addFile(sakaiId, "attachments/msgcntr-topic-" + topic.getId() + "/" + lastAtom, null);
-			    }
+	for (ForumItem item: items) {
+
+	    ret.add(item.id);
+
+	    List<ForumAttachment> attachments = item.attachments;
+	    for (ForumAttachment attach: attachments) {
+		// this code is to identify attachments that aren't in the normal
+		// site resources. In that case we have to make a copy of it
+		String url = null;
+		// if it is a URL, need the URL rather than copying the file
+		String logical = attach.logical;
+		String physical = attach.physical;
+		if (!physical.startsWith("///")) {
+		    try {
+			ContentResource res = ContentHostingService.getResource(physical);
+			String type = res.getContentType();
+			if ("text/url".equals(type)) {
+			    url = new String(res.getContent());
 			}
+		    } catch (Exception e) {
 		    }
+		}
+			
+		if (url != null)
+		    ;  // if it's a URL we don't need a file
+		else if (! physical.startsWith(siteRef)) {  // if in resources, already included
+		    int lastSlash = logical.lastIndexOf("/");
+		    String lastAtom = logical.substring(lastSlash + 1);
+		    bean.addFile(physical, "attachments/" + item.id + "/" + lastAtom, null);
 		}
 	    }
 	}
 	return ret;
     }
 
-    public boolean outputEntity(String forumRef, ZipPrintStream out, PrintStream errStream, CCExport bean, CCExport.Resource resource, int version) {
+    public ForumItem getContents(String forumRef) {
+
+	if (!forumRef.startsWith(LessonEntity.FORUM_TOPIC + "/")) {
+	    if (next == null)
+		return null;
+	    else 
+		return next.getContents(forumRef);
+	}
 
 	int i = forumRef.indexOf("/");
 	String forumString = forumRef.substring(i+1);
 	Long forumId = new Long(forumString);
 
 	Topic topic = forumManager.getTopicById(true, forumId);
+	if (topic == null)
+	    return null;
 
-	String title = topic.getTitle();
+	ForumItem ret = new ForumItem();
+
+	ret.id = forumRef;
+	ret.title = topic.getTitle();
 	String text = topic.getExtendedDescription();  // html
 	if (text == null || text.trim().equals("")) {
 	    text = topic.getShortDescription();
@@ -214,8 +277,25 @@ public class ForumsExport {
 	}
 	if (text == null)
 	    text = "";
+	ret.text = text;
+	ret.attachments = new ArrayList<ForumAttachment>();
 
 	List<Attachment> attachments = topic.getAttachments();
+	for (Attachment attachment: attachments) {
+	    String sakaiId = attachment.getAttachmentId();
+	    ForumAttachment a = new ForumAttachment();
+	    a.logical = sakaiId;
+	    a.physical = sakaiId;
+
+	    ret.attachments.add(a);
+	}
+
+	return ret;
+    }
+
+    public boolean outputEntity(String forumRef, ZipPrintStream out, PrintStream errStream, CCExport bean, CCExport.Resource resource, int version) {
+
+	ForumItem item = getContents(forumRef);
 
 // according to the spec, attachments must be Learnning Object web content. That is, they can
 // be files but not URLs, and they must be in a special directory for this forum topic.
@@ -231,38 +311,39 @@ public class ForumsExport {
 	default:
 	    out.println("<topic xmlns=\"http://www.imsglobal.org/xsd/imsccv1p2/imsdt_v1p2\" xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\" xsi:schemaLocation=\"http://www.imsglobal.org/xsd/imsccv1p2/imsdt_v1p2 http://www.imsglobal.org/profile/cc/ccv1p2/ccv1p2_imsdt_v1p2.xsd\">");
 	}
-	out.println("  <title>" + StringEscapeUtils.escapeXml(title) + "</title>");
+	out.println("  <title>" + StringEscapeUtils.escapeXml(item.title) + "</title>");
 
-	ccExport = bean;
+	String text = "<div>" + item.text + " </div>";
 
-	text = "<div>" + text + "</div>";
+	for (ForumAttachment a: item.attachments) {
 
-	for (Attachment attachment: attachments) {
-	    String sakaiId = attachment.getAttachmentId();
-
-	    String location = bean.getLocation(sakaiId);
-	    int lastSlash = sakaiId.lastIndexOf("/");
-	    String lastAtom = sakaiId.substring(lastSlash + 1);
+	    String logical = a.logical;
+	    String physical = a.physical;
+	    String location = bean.getLocation(physical);
+	    int lastSlash = logical.lastIndexOf("/");
+	    String lastAtom = logical.substring(lastSlash + 1);
 
 	    String URL = null;
 
-	    try {
-		ContentResource res = ContentHostingService.getResource(sakaiId);
-		String type = res.getContentType();
-		if ("text/url".equals(type)) {
-		    URL = new String(res.getContent());
+	    if (!physical.startsWith("///")) {
+		try {
+		    ContentResource res = ContentHostingService.getResource(physical);
+		    String type = res.getContentType();
+		    if ("text/url".equals(type)) {
+			URL = new String(res.getContent());
+		    }
+		} catch (Exception e) {
 		}
-	    } catch (Exception e) {
 	    }
 
 	    if (URL != null)
 		lastAtom = URL; // for URL use the whole URL for the text
 	    else {
-		URL = "../" + bean.getLocation(sakaiId); 
+		URL = "../" + bean.getLocation(physical); 
 		URL = "$IMS-CC-FILEBASE$" + Validator.escapeUrl(URL.replaceAll("//", "/"));
 	    }
 	    text += "\n<a href=\"" + URL + "\">" + StringEscapeUtils.escapeHtml(lastAtom) + "</a><br/>";
-	    bean.addDependency(resource, sakaiId);
+	    bean.addDependency(resource, physical);
 	}
 	out.println("  <text texttype=\"text/html\">" + bean.fixup(text, resource) + "</text>");
 	out.println("</topic>");
