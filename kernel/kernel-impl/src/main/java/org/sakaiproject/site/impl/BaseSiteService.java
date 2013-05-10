@@ -654,7 +654,6 @@ public abstract class BaseSiteService implements SiteService, Observer
 		{
 			String ref = siteReference(site.getId());
 			Site copy = new BaseSite(this, site, true);
-			clearUserCacheForSite(site);
 			m_siteCache.put(ref, copy, m_cacheSeconds);
 			return true;
 		}
