@@ -223,7 +223,15 @@ function resizeFrame(){
 			<input type="hidden" name="announceTo" id="pubview" value="pubview" checked="checked" />
 		#elseif (($!publicDisable && ($show_group =="false")) || $pubviewset)
 			## no show this selection, but set default to site
-			<input type="hidden" name="announceTo" id="site" value="site" checked="checked" />
+			<input type="radio" name="announceToDisabled" id="site" value="site" checked="checked" disabled="true"/>
+			<input type="hidden" name="announceTo" value="site" checked="checked"/>
+			#if ($pubviewset)
+				## If the channel is public save it as site view, but show that we will display to public.
+				## This means if channel is un-made public announcement will revert to site access (correctly).
+				<label for="site">$tlang.getString("displayto.public")</label>
+			#else
+				<label for="site">$tlang.getString("displayto.site")</label>
+			#end
 		#else
 			#if ($allowAddChannelMessage)
 				<p class="checkbox">
