@@ -70,6 +70,7 @@ import org.sakaiproject.content.cover.ContentTypeImageService;
 import org.sakaiproject.lessonbuildertool.SimplePage;
 import org.sakaiproject.lessonbuildertool.SimplePageItem;
 import org.sakaiproject.lessonbuildertool.tool.beans.SimplePageBean;
+import org.sakaiproject.lessonbuildertool.service.GroupPermissionsService;
 import org.sakaiproject.lessonbuildertool.model.SimplePageToolDao;
 import org.sakaiproject.content.api.ContentCollectionEdit;
 import org.sakaiproject.content.api.ContentCollection;
@@ -155,7 +156,6 @@ public class PrintHandler extends DefaultHandler implements AssessmentHandler, D
   private LessonEntity assigntool = null;
   private Set<String>roles = null;
   boolean usesRole = false;
-  boolean usesMentor = false;
   boolean usesPatternMatch = false;
   boolean usesCurriculum = false;
   boolean importtop = false;
@@ -311,6 +311,16 @@ public class PrintHandler extends DefaultHandler implements AssessmentHandler, D
 	  return null;
   }
 
+  public String getGroupForRole(String role) {
+      // if group already exists, this will return the existing one
+      try {
+	  return GroupPermissionsService.makeGroup(siteId, role);
+      } catch (Exception e) {
+	  System.err.println("Unable to create group " + role);
+	  return null;
+      }
+  }
+
   public void setCCItemXml(Element the_xml, Element resource, AbstractParser parser, CartridgeLoader loader, boolean nopage) {
       if (all)
 	  System.err.println("\nadd item to page " + pages.get(pages.size()-1).getTitle() +
@@ -323,18 +333,20 @@ public class PrintHandler extends DefaultHandler implements AssessmentHandler, D
       boolean isBank = type.equals(CC_QUESTION_BANK0) || type.equals(CC_QUESTION_BANK1) || type.equals(CC_QUESTION_BANK2);
 
       boolean hide = false;
+      List<String>roles = new ArrayList<String>();
       Iterator mdroles = resource.getDescendants(new ElementFilter("intendedEndUserRole", ns.lom_ns()));
       if (mdroles != null) {
-	  if (mdroles.hasNext()) // if there are any roles, assume hidden unless learner role
-	      hide = true; 
 	  while (mdroles.hasNext()) {
 	      Element role = (Element)mdroles.next();
-	      if ("Learner".equals(role.getChildText("value",  ns.lom_ns())))
-		  hide = false; // all other roles hide the item
-	      else
+	      if (!"Learner".equals(role.getChildText("value",  ns.lom_ns()))) {
 		  usesRole = true;
-	      if ("Mentor".equals(role.getChildText("value",  ns.lom_ns())))
-		  usesMentor = true;
+	      }
+	      if ("Mentor".equals(role.getChildText("value",  ns.lom_ns()))) {
+		  roles.add(getGroupForRole("Mentor"));
+	      }
+	      if ("Instructor".equals(role.getChildText("value",  ns.lom_ns()))) {
+		  roles.add(getGroupForRole("Instructor"));
+	      }
 	  }
       }	  
       if (nopage)
@@ -374,7 +386,7 @@ public class PrintHandler extends DefaultHandler implements AssessmentHandler, D
 		  else if (assigntool != null && intendedUse.equals("assignment")) {
 		      String fileName = getFileName(resource);
 		      if (itemsAdded.get(fileName) == null) {
-			  itemsAdded.put(fileName, SimplePageItem.DUMMY); // don't add the same test more than once
+			  // itemsAdded.put(fileName, SimplePageItem.DUMMY); // don't add the same test more than once
 			  AssignmentInterface a = (AssignmentInterface) assigntool;
 			  // file hasn't been written yet to contenthosting. A2 requires it to be there
 			  addFile(resource.getAttributeValue(HREF));
@@ -387,6 +399,11 @@ public class PrintHandler extends DefaultHandler implements AssessmentHandler, D
 		  }
 	      }
 	      simplePageBean.saveItem(item);
+	      if (roles.size() > 0) {  // has to be written already or we can't set groups
+		  // file hasn't been written yet to contenthosting. setitemgroups requires it to be there
+		  addFile(resource.getAttributeValue(HREF));
+		  simplePageBean.setItemGroups(item, roles.toArray(new String[0]));
+	      }
 	      sequences.set(top, seq+1);
 	  } else if (type.equals(CC_WEBCONTENT)) { // i.e. hidden. if it's an assignment have to load it
 	      String intendedUse = resource.getAttributeValue(INTENDEDUSE);
@@ -434,6 +451,8 @@ public class PrintHandler extends DefaultHandler implements AssessmentHandler, D
 		  item.setHtml(simplePageBean.getTypeOfUrl(url));  // checks the web site to see what it actually is
 		  item.setSameWindow(true);
 		  simplePageBean.saveItem(item);
+		  if (roles.size() > 0)
+		      simplePageBean.setItemGroups(item, roles.toArray(new String[0]));
 		  sequences.set(top, seq+1);
 	      }
 	      
@@ -493,6 +512,8 @@ public class PrintHandler extends DefaultHandler implements AssessmentHandler, D
 		  // System.out.println("about to add formum item");
 		  SimplePageItem item = simplePageToolDao.makeItem(page.getPageId(), seq, SimplePageItem.FORUM, sakaiId, title);
 		  simplePageBean.saveItem(item);
+		  if (roles.size() > 0)
+		      simplePageBean.setItemGroups(item, roles.toArray(new String[0]));
 		  sequences.set(top, seq+1);
 		  // System.out.println("finished with forum item");
 	      }
@@ -563,6 +584,8 @@ public class PrintHandler extends DefaultHandler implements AssessmentHandler, D
 	      if (!isBank && !hide) {
 		  SimplePageItem item = simplePageToolDao.makeItem(page.getPageId(), seq, SimplePageItem.ASSESSMENT, (sakaiId == null ? SimplePageItem.DUMMY : sakaiId), title);
 		  simplePageBean.saveItem(item);
+		  if (roles.size() > 0)
+		      simplePageBean.setItemGroups(item, roles.toArray(new String[0]));
 		  sequences.set(top, seq+1);
 	      }
 
@@ -610,6 +633,8 @@ public class PrintHandler extends DefaultHandler implements AssessmentHandler, D
 			SimplePageItem item = simplePageToolDao.makeItem(page.getPageId(), seq, SimplePageItem.BLTI, sakaiId, title);
 			item.setHeight(""); // default depends upon format, so it's supplied at runtime
 			simplePageBean.saveItem(item);
+			if (roles.size() > 0)
+			    simplePageBean.setItemGroups(item, roles.toArray(new String[0]));
 			sequences.set(top, seq+1);
 		    } else {
 			System.out.println("LTI Import Failed..");
@@ -660,8 +685,7 @@ public class PrintHandler extends DefaultHandler implements AssessmentHandler, D
       if (all)
 	  System.err.println("end manifest");
       if (usesRole)
-	  simplePageBean.setErrKey("simplepage.cc-uses-role", 
-	     (usesMentor ? simplePageBean.getMessageLocator().getMessage("simplepage.cc-uses-mentor") : null));
+	  simplePageBean.setErrKey("simplepage.cc-uses-role", null);
       // the pattern match is restricted enough that we can actually do it
       // if (usesPatternMatch)
       //  simplePageBean.setErrKey("simplepage.import_cc_usespattern", null);
