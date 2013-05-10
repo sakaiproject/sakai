@@ -332,6 +332,8 @@ public class SiteHandler extends WorksiteHandler
 			}
 		}
 
+		rcontext.put("siteId", siteId);
+
 		// should we consider a frameset ?
 		boolean doFrameSet = includeFrameset(rcontext, res, req, session, page);
 				
