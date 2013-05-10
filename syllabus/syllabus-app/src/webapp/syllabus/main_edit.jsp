@@ -7,13 +7,12 @@
 <script type="text/javascript" src="/library/js/jquery/jquery-ui/js/jquery-ui.js"></script>
 <link type="text/css" href="/library/js/jquery/jquery-ui/css/smoothness/jquery-ui.css" rel="stylesheet" media="screen" />
 <script type="text/javascript" src="js/jquery-ui-timepicker-addon.js"></script>
-
-<f:view>
+ <f:view>
 <script>
   var startDateValues = new Array();
   var dateFormat = '<h:outputText value="#{msgs.jqueryDatePickerDateFormat}"/>';
   var timeFormat = '<h:outputText value="#{msgs.jqueryDatePickerTimeFormat}"/>';
-
+  var dataChanged = false;
   $(function() {
     $('.dateInput').datetimepicker({
     	hour: 8,
@@ -79,6 +78,11 @@
   		}
   		startDateValues[$(this).attr('id')] = $(this).val();
   	});
+  	
+  	//setup data change listener
+  	$('input').change(function() {
+    	dataChanged = true;
+	});
   });
   
 	function toggleCalendarCheckbox(postCheckbox){
@@ -91,7 +95,29 @@
 			}
 		});
 	}
+	
+	var deleteClick;
+            
+	function assignWarningClick(link) {
+  		if (link.onclick == confirmPost) {
+    		return;
+  		}
+                
+  		deleteClick = link.onclick;
+  		link.onclick = confirmPost;
+	}
 
+	function confirmPost(){
+		if(dataChanged){
+			var agree=confirm('<h:outputText value="#{msgs.main_edit_confirmDataChanged}"/>');
+			if (agree)
+				return deleteClick();
+			else
+				return false ;
+		}else{
+			return deleteClick();
+		}
+	}
  </script>
 <jsp:useBean id="msgs" class="org.sakaiproject.util.ResourceLoader" scope="session">
    <jsp:setProperty name="msgs" property="baseName" value="org.sakaiproject.tool.syllabus.bundle.Messages"/>
@@ -102,21 +128,25 @@
 		<h:form>
 		  <sakai:tool_bar>
 		  <%-- (gsilver) cannot pass a needed title attribute to these next items --%>
-			<sakai:tool_bar_item
-			    action="#{SyllabusTool.processListNew}"
-					value="#{msgs.bar_new}" 
+		  	<h:commandLink action="#{SyllabusTool.processListNew}" 
+		  		value="#{msgs.bar_new}" 
+		  		styleClass="actionLink" 
+		  		onmousedown="assignWarningClick(this);"
 			    rendered="#{SyllabusTool.editAble == 'true'}" />
- 		    <sakai:tool_bar_item
+ 		    <h:commandLink
 					action="#{SyllabusTool.processRedirect}"
 					value="#{msgs.bar_redirect}" 
+					onmousedown="assignWarningClick(this);"
 			    rendered="#{SyllabusTool.editAble == 'true'}" />
- 		    <sakai:tool_bar_item
+ 		    <h:commandLink
 					action="#{SyllabusTool.processStudentView}"
 					value="#{msgs.bar_student_view}" 
+					onmousedown="assignWarningClick(this);"
 		   			rendered="#{SyllabusTool.editAble == 'true'}" />
-		   	<sakai:tool_bar_item
+		   	<h:commandLink
 					action="#{SyllabusTool.processListNewBulk}"
 					value="#{msgs.bar_new_bulk}" 
+					onmousedown="assignWarningClick(this);"
 		   			rendered="#{SyllabusTool.editAble == 'true'}" />
    	      </sakai:tool_bar>
    	      <h:messages globalOnly="true" styleClass="alertMessage" rendered="#{!empty facesContext.maximumSeverity}" />
@@ -130,9 +160,7 @@
 							</f:facet>
 							<h:inputText value="#{eachEntry.entry.title}"/>
 							<f:verbatim><br/></f:verbatim>
-							<h:commandLink action="#{eachEntry.processListRead}" title="#{msgs.goToItem} #{eachEntry.entry.title}">
-								<h:outputText value="edit details"/>
-							</h:commandLink>
+							<h:commandLink action="#{eachEntry.processListRead}" value="#{msgs.edit_details}" title="#{msgs.goToItem} #{eachEntry.entry.title}" onmousedown="assignWarningClick(this);"/>
 							
 							
 						</h:column>
