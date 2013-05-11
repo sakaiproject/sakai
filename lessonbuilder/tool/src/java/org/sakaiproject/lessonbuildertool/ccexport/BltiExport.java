@@ -55,7 +55,7 @@ public class BltiExport {
 	    return ret;
 	List<Map<String,Object>> contents = ltiService.getContents(null, null, 0, 0);
 	for (Map<String,Object> content : contents) {
-	    Long id = getLong(content.get("id"));
+	    Long id = getLong(content.get(LTIService.LTI_ID));
 	    if (id.longValue() != -1L)
 		ret.add("blti/" + id);
 	}
@@ -71,19 +71,17 @@ public class BltiExport {
 	Map content = ltiService.getContent(bkey);
 	if (content == null)
 	    return false;
-	Long toolKey = getLongNull(content.get("tool_id"));
+	Long toolKey = getLongNull(content.get(LTIService.LTI_TOOL_ID));
 	if (toolKey == null)
 	    return false;
 	Map tool = ltiService.getTool(toolKey);
 	
-	String title = (String)tool.get("title");
-	String launch_url = (String)tool.get("launch_url");
-	String custom1 = (String)tool.get("custom");
-	if (content.get("title") != null)
-	    title = (String)content.get("title");
-	if (content.get("launch_url") != null)
-	    launch_url = (String)content.get("launch_url");
-	String custom2 = (String)content.get("custom");
+	String title = (String)tool.get(LTIService.LTI_TITLE);
+	String launch_url = (String)tool.get(LTIService.LTI_LAUNCH);
+	String custom1 = (String)tool.get(LTIService.LTI_CUSTOM);
+	if (content.get(LTIService.LTI_TITLE) != null)
+	    title = (String)content.get(LTIService.LTI_TITLE);
+	String custom2 = (String)content.get(LTIService.LTI_CUSTOM);
 
 	List<String> custom = new ArrayList<String>();
 	if ((custom1 != null) && (!custom1.trim().equals("")))
