@@ -27,7 +27,7 @@ import org.sakaiproject.sitestats.api.EventStat;
 /**
  * @author <a href="mailto:nuno@ufp.pt">Nuno Fernandes</a>
  */
-public class EventStatImpl implements EventStat, Serializable {
+public class EventStatImpl implements EventStat, Serializable, Comparable<EventStat>{
 	private static final long	serialVersionUID	= 1L;
 	private long	id;
 	private String	siteId;
@@ -180,6 +180,41 @@ public class EventStatImpl implements EventStat, Serializable {
 				&& date.equals(other.getDate());
 	}
 	
+	@Override
+	public int compareTo(EventStat other) {
+		int val = siteId.compareTo(other.getSiteId());
+		if (val != 0) return val;
+		val = userId.compareTo(other.getUserId());
+		if (val != 0) return val;
+		val = eventId.compareTo(other.getEventId());
+		if (val != 0) return val;
+		val = date.compareTo(other.getDate());
+		if (val != 0) return val;
+		val = Long.signum(count - other.getCount());
+		if (val != 0) return val;
+		val = compare(toolId, other.getToolId());
+		if (val != 0) return val;
+		val = Long.signum(id - other.getId());
+		if (val != 0) return val;
+		return val;
+	}
+	
+	private int compare(String one, String two) {
+		if (one == null) {
+			if (two == null) {
+				return 0;
+			} else {
+				return 1;
+			}
+		} else {
+			if (two == null) {
+				return -1;
+			} else {
+				return one.compareTo(two);
+			}
+		}
+	}
+	
 	public boolean equalExceptForCount(Object o) {
 		if(o == null) return false;
 		if(!(o instanceof EventStatImpl)) return false;
@@ -197,6 +232,7 @@ public class EventStatImpl implements EventStat, Serializable {
 	}
 
 	public int hashCode() {
+		// Why do we have strange hashCode rules for objects without a siteId?
 		if(siteId == null) return Integer.MIN_VALUE;
 		String hashStr = this.getClass().getName() + ":" 
 				+ id
@@ -212,4 +248,5 @@ public class EventStatImpl implements EventStat, Serializable {
 	public String toString(){
 		return siteId + " : " + userId + " : " + eventId + " : " + toolId + " : " + count + " : " + date;
 	}
+
 }

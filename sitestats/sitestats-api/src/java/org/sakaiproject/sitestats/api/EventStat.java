@@ -22,7 +22,7 @@ package org.sakaiproject.sitestats.api;
  * Represents a record from the SST_EVENTS table.
  * @author Nuno Fernandes
  */
-public interface EventStat extends Stat {
+public interface EventStat extends Stat, Comparable<EventStat> {
 	/** Get the the event Id (eg. 'content.read') this record refers to. */
 	public String getEventId();
 	/** Set the the event Id (eg. 'content.read') this record refers to. */
