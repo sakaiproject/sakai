@@ -26,6 +26,7 @@ import lombok.Setter;
 import org.sakaiproject.api.common.edu.person.SakaiPerson;
 import org.sakaiproject.api.common.edu.person.SakaiPersonManager;
 import org.sakaiproject.entity.api.Entity;
+import org.sakaiproject.entitybroker.EntityReference;
 import org.sakaiproject.event.api.Event;
 import org.sakaiproject.profile2.logic.ProfileLogic;
 import org.sakaiproject.profile2.logic.SakaiProxy;
@@ -270,10 +271,9 @@ public class ProfileContentProducer implements EntityContentProducer {
 	public boolean matches(String ref) {
 		if (logger.isDebugEnabled())
 			logger.debug("matches(" + ref + ")");
-
-		String[] parts = ref.split(Entity.SEPARATOR);
-
-		if ("profile".equals(parts[1]))
+		
+		EntityReference reference = new EntityReference(ref);
+		if ("profile".equals(reference.getPrefix()))
 			return true;
 
 		return false;
