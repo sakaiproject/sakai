@@ -916,51 +916,37 @@ public class StatsUpdateManagerImpl extends HibernateDaoSupport implements Runna
 		}
 	}
 	
-	private void doUpdateEventStatObjects(Session session, Collection<EventStat> objects) {
-		if(objects == null) return;
+	private void doUpdateEventStatObjects(Session session, Collection<EventStat> o) {
+		if(o == null) return;
+		List<EventStat> objects = new ArrayList<EventStat>(o);
+		//Collections.sort(objects);
 		Iterator<EventStat> i = objects.iterator();
+		
 		while(i.hasNext()){
 			EventStat eUpdate = i.next();
-			String eExistingSiteId = null;
-			EventStat eExisting = null;
-			try{
-				Criteria c = session.createCriteria(EventStatImpl.class);
-				c.add(Expression.eq("siteId", eUpdate.getSiteId()));
-				c.add(Expression.eq("eventId", eUpdate.getEventId()));
-				c.add(Expression.eq("userId", eUpdate.getUserId()));
-				c.add(Expression.eq("date", eUpdate.getDate()));
-				try{
-					eExisting = (EventStat) c.uniqueResult();
-				}catch(HibernateException ex){
-					try{
-						List events = c.list();
-						if ((events!=null) && (events.size()>0)){
-							LOG.debug("More than 1 result when unique result expected.", ex);
-							eExisting = (EventStat) c.list().get(0);
-						}else{
-							LOG.debug("No result found", ex);
-							eExisting = null;
-						}
-					}catch(Exception ex3){
-						eExisting = null;
-					}
-				}catch(Exception ex2){
-					LOG.debug("Probably ddbb error when loading data at java object", ex2);
-					System.out.println("Probably ddbb error when loading data at java object!!!!!!!!");
-					
-				}
-				if(eExisting == null) 
-					eExisting = eUpdate;
-				else
-					eExisting.setCount(eExisting.getCount() + eUpdate.getCount());
-	
-				eExistingSiteId = eExisting.getSiteId();
-			}catch(Exception ex){
-				//If something happens, skip the event processing
-				ex.printStackTrace();
+			if ((eUpdate.getSiteId()==null) || (eUpdate.getSiteId().trim().length() == 0)) {
+				continue;
 			}
-			if ((eExistingSiteId!=null) && (eExistingSiteId.trim().length()>0))
-					session.saveOrUpdate(eExisting);
+			try{
+				SQLQuery createQuery = session.createSQLQuery("update SST_EVENTS set event_count = (event_count + :count) where site_id = :siteId and event_id = :eventId and user_id = :userId and event_date = :date");
+				
+				createQuery.setString("siteId", eUpdate.getSiteId());
+				createQuery.setString("eventId", eUpdate.getEventId());
+				createQuery.setString("userId", eUpdate.getUserId());
+				createQuery.setDate("date", eUpdate.getDate());
+				createQuery.setLong("count", eUpdate.getCount());
+				int updated = createQuery.executeUpdate();
+				if (updated == 0) {
+					// Add the row.
+					session.save(eUpdate);
+				} else if (updated > 1) {
+					throw new IllegalStateException("Should never have more than one row");
+				}
+	
+			}catch(NullPointerException ex){
+				//If something happens, skip the event processing
+				LOG.error("Failed to update count.", ex);
+			}
 		}
 	}
 
