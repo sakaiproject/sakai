@@ -30,7 +30,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.Observable;
 import java.util.Observer;
-import java.util.Set;
 import java.util.concurrent.locks.ReentrantLock;
 
 import org.apache.commons.lang.StringUtils;
@@ -39,6 +38,7 @@ import org.apache.commons.logging.LogFactory;
 import org.hibernate.Criteria;
 import org.hibernate.HibernateException;
 import org.hibernate.Query;
+import org.hibernate.SQLQuery;
 import org.hibernate.Session;
 import org.hibernate.Transaction;
 import org.hibernate.criterion.Expression;
@@ -530,11 +530,14 @@ public class StatsUpdateManagerImpl extends HibernateDaoSupport implements Runna
 	// ################################################################
 	// Event process methods
 	// ################################################################	
-	private void preProcessEvent(Event e) {
+	private void preProcessEvent(Event event) {
 		totalEventsProcessed++;
-		String userId = e.getUserId();
-		e = fixMalFormedEvents(e);
-		if(getRegisteredEvents().contains(e.getEvent()) && isValidEvent(e)){
+		String userId = event.getUserId();
+		Event e = fixMalFormedEvents(event);
+		if (e == null) {
+			return;
+		}
+		if(isRegisteredEvent(e.getEvent()) && isValidEvent(e)){
 			
 			// site check
 			String siteId = parseSiteId(e);
@@ -626,7 +629,7 @@ public class StatsUpdateManagerImpl extends HibernateDaoSupport implements Runna
 			return;
 		Date date = getTruncatedDate(dateTime);
 		// update		
-		if(getRegisteredEvents().contains(eventId) && !StatsManager.SITEVISITEND_EVENTID.equals(eventId)){
+		if(isRegisteredEvent(eventId) && !StatsManager.SITEVISITEND_EVENTID.equals(eventId)){
 			// add to eventStatMap
 			String key = userId+siteId+eventId+date;
 			synchronized(eventStatMap){
@@ -753,6 +756,10 @@ public class StatsUpdateManagerImpl extends HibernateDaoSupport implements Runna
 		} 
 		
 	}
+
+	protected boolean isRegisteredEvent(String eventId) {
+		return M_ers.isRegisteredEvent(eventId);
+	}
 	
 	//STAT-299 consolidate a server event
 	private void consolidateServerEvent(Date dateTime, String eventId) {
@@ -819,7 +826,7 @@ public class StatsUpdateManagerImpl extends HibernateDaoSupport implements Runna
 							}
 							doUpdateEventStatObjects(session, tmp1);
 						}
-						
+
 						// do: ResourceStat
 						if(resourceStatMap.size() > 0) {
 							Collection<ResourceStat> tmp2 = null;
@@ -1487,12 +1494,7 @@ public class StatsUpdateManagerImpl extends HibernateDaoSupport implements Runna
 		}
 		return site;
 	}
-	
-	/** Get all registered events */
-	private Collection<String> getRegisteredEvents() {
-		return M_ers.getEventIds();
-	}
-	
+
 	/** Get all server events **/
 	private Collection<String> getServerEvents() {
 		return M_ers.getServerEventIds();

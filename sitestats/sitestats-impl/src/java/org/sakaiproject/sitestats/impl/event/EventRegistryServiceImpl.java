@@ -383,6 +383,13 @@ public class EventRegistryServiceImpl implements EventRegistry, EventRegistrySer
 	public EventFactory getEventFactory() {
 		return new EventFactoryImpl();
 	}
+	
+	/**
+	 * {@inheritDoc}
+	 */
+	public boolean isRegisteredEvent(String eventId) {
+		return getEventIds().contains(eventId);
+	}
 
 	// ################################################################
 	// Utility Methods
