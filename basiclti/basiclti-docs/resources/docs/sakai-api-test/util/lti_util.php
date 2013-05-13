@@ -664,6 +664,37 @@ function handleOAuthBodyPOST($oauth_consumer_key, $oauth_consumer_secret)
     return $postdata;
 }
 
+function do_get($url, $header = false) {
+    $response = get_stream($url, $header);
+    if ( $response !== false ) return $response;
+/*
+    $response = get_socket($url, $header);
+    if ( $response !== false ) return $response;
+    $response = get_curl($url, $header);
+    if ( $response !== false ) return $response;
+*/
+    echo("Unable to GET<br/>\n");
+    echo("Url=$url <br/>\n");
+    echo("Headers:<br/>\n$headers<br/>\n");
+    throw new Exception("Unable to get");
+}
+
+function get_stream($url, $header) {
+    $params = array('http' => array(
+        'method' => 'GET',
+        'header' => $header
+        ));
+
+    $ctx = stream_context_create($params);
+    try {
+        $fp = @fopen($url, 'r', false, $ctx);
+        $response = @stream_get_contents($fp);
+    } catch (Exception $e) {
+        return false;
+    }
+    return $response;
+}
+
 function sendOAuthBodyPOST($method, $endpoint, $oauth_consumer_key, $oauth_consumer_secret, $content_type, $body)
 {
     $hash = base64_encode(sha1($body, TRUE));
@@ -764,7 +795,7 @@ function post_stream($url, $body, $header) {
 
     $ctx = stream_context_create($params);
     try {
-        $fp = @fopen($endpoint, 'r', false, $ctx);
+        $fp = @fopen($url, 'r', false, $ctx);
         $response = @stream_get_contents($fp);
     } catch (Exception $e) {
         return false;
