@@ -919,7 +919,7 @@ public class StatsUpdateManagerImpl extends HibernateDaoSupport implements Runna
 	private void doUpdateEventStatObjects(Session session, Collection<EventStat> o) {
 		if(o == null) return;
 		List<EventStat> objects = new ArrayList<EventStat>(o);
-		//Collections.sort(objects);
+		Collections.sort(objects);
 		Iterator<EventStat> i = objects.iterator();
 		
 		while(i.hasNext()){
@@ -950,8 +950,10 @@ public class StatsUpdateManagerImpl extends HibernateDaoSupport implements Runna
 		}
 	}
 
-	private void doUpdateResourceStatObjects(Session session, Collection<ResourceStat> objects) {
-		if(objects == null) return;
+	private void doUpdateResourceStatObjects(Session session, Collection<ResourceStat> o) {
+		if(o == null) return;
+		List<ResourceStat> objects = new ArrayList<ResourceStat>(o);
+		Collections.sort(objects);
 		Iterator<ResourceStat> i = objects.iterator();
 		while(i.hasNext()){
 			ResourceStat eUpdate = i.next();
@@ -998,8 +1000,10 @@ public class StatsUpdateManagerImpl extends HibernateDaoSupport implements Runna
 		}
 	}
 	
-	private void doUpdateSiteActivityObjects(Session session, Collection<SiteActivity> objects) {
-		if(objects == null) return;
+	private void doUpdateSiteActivityObjects(Session session, Collection<SiteActivity> o) {
+		if(o == null) return;
+		List<SiteActivity> objects = new ArrayList<SiteActivity>(o);
+		Collections.sort(objects);
 		Iterator<SiteActivity> i = objects.iterator();
 		while(i.hasNext()){
 			SiteActivity eUpdate = i.next();
@@ -1045,8 +1049,10 @@ public class StatsUpdateManagerImpl extends HibernateDaoSupport implements Runna
 		}
 	}
 	
-	private void doUpdateSiteVisitsObjects(Session session, Collection<SiteVisits> objects, Map<UniqueVisitsKey, Integer> map) {
-		if(objects == null) return;
+	private void doUpdateSiteVisitsObjects(Session session, Collection<SiteVisits> o, Map<UniqueVisitsKey, Integer> map) {
+		if(o == null) return;
+		List<SiteVisits> objects = new ArrayList<SiteVisits>(o);
+		Collections.sort(objects);
 		Iterator<SiteVisits> i = objects.iterator();
 		while(i.hasNext()){
 			SiteVisits eUpdate = i.next();
@@ -1093,8 +1099,10 @@ public class StatsUpdateManagerImpl extends HibernateDaoSupport implements Runna
 		}
 	}
 	
-	private void doUpdateSiteVisitTimeObjects(Session session, Collection<SitePresence> objects) {
-		if(objects == null) return;
+	private void doUpdateSiteVisitTimeObjects(Session session, Collection<SitePresence> o) {
+		if(o == null) return;
+		List<SitePresence> objects = new ArrayList<SitePresence>(o);
+		Collections.sort(objects);
 		Iterator<SitePresence> i = objects.iterator();
 		while(i.hasNext()){
 			SitePresence eUpdate = i.next();
@@ -1139,8 +1147,10 @@ public class StatsUpdateManagerImpl extends HibernateDaoSupport implements Runna
 		}
 	}
 	
-	private void doUpdateServerStatObjects(Session session, Collection<ServerStat> objects) {
-		if(objects == null) return;
+	private void doUpdateServerStatObjects(Session session, Collection<ServerStat> o) {
+		if(o == null) return;
+		List<ServerStat> objects = new ArrayList<ServerStat>(o);
+		Collections.sort(objects);
 		Iterator<ServerStat> i = objects.iterator();
 		while(i.hasNext()){
 			ServerStat eUpdate = i.next();
@@ -1182,8 +1192,10 @@ public class StatsUpdateManagerImpl extends HibernateDaoSupport implements Runna
 		}
 	}
 	
-	private void doUpdateUserStatObjects(Session session, Collection<UserStat> objects) {
-		if(objects == null) return;
+	private void doUpdateUserStatObjects(Session session, Collection<UserStat> o) {
+		if(o == null) return;
+		List<UserStat> objects = new ArrayList<UserStat>(o);
+		Collections.sort(objects);
 		Iterator<UserStat> i = objects.iterator();
 		while(i.hasNext()){
 			UserStat eUpdate = i.next();
@@ -1271,8 +1283,10 @@ public class StatsUpdateManagerImpl extends HibernateDaoSupport implements Runna
 		return map;
 	}
 	
-	private void doUpdateSitePresencesObjects(Session session, Collection<SitePresenceConsolidation> objects) {
-		if(objects == null) return;
+	private void doUpdateSitePresencesObjects(Session session, Collection<SitePresenceConsolidation> o) {
+		if(o == null) return;
+		List<SitePresenceConsolidation> objects = new ArrayList<SitePresenceConsolidation>(o);
+		Collections.sort(objects);
 		Iterator<SitePresenceConsolidation> i = objects.iterator();
 		while(i.hasNext()){
 			try{
@@ -1547,7 +1561,7 @@ public class StatsUpdateManagerImpl extends HibernateDaoSupport implements Runna
 		}
 	}
 	
-	private static class SitePresenceConsolidation {
+	private static class SitePresenceConsolidation implements Comparable<SitePresenceConsolidation>{
 		public boolean firstEventIsPresEnd;
 		public Date firstPresEndDate;
 		public SitePresence sitePresence;
@@ -1565,6 +1579,15 @@ public class StatsUpdateManagerImpl extends HibernateDaoSupport implements Runna
 				this.firstEventIsPresEnd = true;
 				this.firstPresEndDate = firstPresEndDate;
 			}
+		}
+
+		@Override
+		public int compareTo(SitePresenceConsolidation other) {
+			int val = sitePresence.compareTo(other.sitePresence);
+			if (val != 0) return val;
+			val = firstPresEndDate.compareTo(other.firstPresEndDate);
+			if (val != 0) return val;
+			return (firstEventIsPresEnd?1:0) - (other.firstEventIsPresEnd?1:0);
 		}
 
 		@Override
@@ -1593,6 +1616,7 @@ public class StatsUpdateManagerImpl extends HibernateDaoSupport implements Runna
 			else buff.append("null");
 			return buff.toString();
 		}
+
 		
 	}
 	

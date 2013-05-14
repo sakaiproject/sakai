@@ -20,7 +20,7 @@ package org.sakaiproject.sitestats.api;
 
 import java.util.Date;
 
-public interface SiteActivity {
+public interface SiteActivity extends Comparable<SiteActivity>{
 	/** Get the db row id. */
 	public long getId();
 	

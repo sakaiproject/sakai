@@ -34,6 +34,19 @@ public class ServerStatImpl implements ServerStat, Serializable {
 	private String eventId;
 	private long count;
 
+
+	@Override
+	public int compareTo(ServerStat other) {
+		int val = eventId.compareTo(other.getEventId());
+		if (val != 0) return val;
+		val = date.compareTo(other.getDate());
+		if (val != 0) return val;
+		val = Long.signum(count - other.getCount());
+		if (val != 0) return val;
+		val = Long.signum(id - other.getId());
+		return val;
+	}
+
 	public boolean equals(Object o) {
 		if(o == null) return false;
 		if(!(o instanceof ServerStatImpl)) return false;
@@ -112,5 +125,6 @@ public class ServerStatImpl implements ServerStat, Serializable {
 	public void setCount(long count) {
 		this.count = count;
 	}
+
 
 }

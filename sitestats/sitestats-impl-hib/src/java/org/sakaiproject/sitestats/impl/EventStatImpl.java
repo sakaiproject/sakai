@@ -195,7 +195,6 @@ public class EventStatImpl implements EventStat, Serializable, Comparable<EventS
 		val = compare(toolId, other.getToolId());
 		if (val != 0) return val;
 		val = Long.signum(id - other.getId());
-		if (val != 0) return val;
 		return val;
 	}
 	
