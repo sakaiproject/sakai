@@ -21,8 +21,8 @@ require_once("util/lti_util.php");
     $lmsdata = array(
       "lti_message_type" => "ToolProxyRegistrationRequest",
       "lti_version" => "LTI-2p0",
-      "reg_key" => "120988f929-274612",
-      "reg_password" => "123secret",
+      "reg_key" => "98765",
+      "reg_password" => "secret",
       "tc_profile_url" => str_replace("tc.php", "tc_profile.php", $cur_url),
       "launch_presentation_return_url" => str_replace("tc.php", "tc_continue.php", $cur_url)
       );

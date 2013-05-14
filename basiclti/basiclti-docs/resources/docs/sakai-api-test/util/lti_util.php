@@ -720,6 +720,8 @@ function sendOAuthBodyPOST($method, $endpoint, $oauth_consumer_key, $oauth_consu
 }
 
 function do_post($url, $body, $header) {
+    global $last_http_response;
+    $last_http_response = false;
     $response = post_curl($url, $body, $header);
     if ( $response !== false ) return $response;
     $response = post_socket($url, $body, $header);
@@ -786,6 +788,8 @@ function post_socket($endpoint, $data, $moreheaders=false) {
 
 function post_curl($url, $body, $header) {
   if ( ! function_exists('curl_init') ) return false;
+  global $last_http_response;
+
   $ch = curl_init();
   curl_setopt($ch, CURLOPT_URL, $url);
 
@@ -805,6 +809,9 @@ function post_curl($url, $body, $header) {
 
   // Send to remote and return data to caller.
   $result = curl_exec($ch);
+  $info = curl_getinfo($ch);
+  $last_http_response = $info['http_code'];
+echo("$last_http_response \n");
   curl_close($ch);
   return $result;
 }
