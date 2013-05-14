@@ -43,7 +43,8 @@
 		</table>
 		#if ($item.resourceTypeDef.hasNotificationDialog())
 			#if($item.isDropbox())
-				#if($model.userIsMaintainer() || $dropboxNotificationAllowed)
+				## SAK-18932 show email checkbox only when possible to use it
+				#if($dropboxNotificationAllowed)
 					<p class="act">
 						<input type="checkbox" name="notify_dropbox" id="notify_dropbox" value="true" /> 
 						<label for="notify_dropbox">

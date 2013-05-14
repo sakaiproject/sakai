@@ -3907,6 +3907,14 @@ protected static final String PARAM_PAGESIZE = "collections_per_page";
 			//item.setPubviewPossible(! preventPublicDisplay);
 			item.metadataGroupsIntoContext(context);
 			
+			// copied from ResourcesHelperAction since the context created in that class is not available to a template used here.
+			if(parent.isDropbox)
+			{
+				String dropboxNotificationsProperty = getDropboxNotificationsProperty();
+				logger.debug("dropboxNotificationAllowed: buildCreateWizardContext: "+ Boolean.valueOf(ResourcesAction.DROPBOX_NOTIFICATIONS_ALLOW.equals(dropboxNotificationsProperty)));
+				context.put("dropboxNotificationAllowed", Boolean.valueOf(ResourcesAction.DROPBOX_NOTIFICATIONS_ALLOW.equals(dropboxNotificationsProperty)));
+			}
+			
 			context.put("item", item);
 			
 			state.setAttribute(STATE_CREATE_WIZARD_ITEM, item);
@@ -3983,6 +3991,7 @@ protected static final String PARAM_PAGESIZE = "collections_per_page";
 			// not show the public option or notification when in dropbox mode
 			context.put("dropboxMode", Boolean.TRUE);
 			String dropboxNotificationsProperty = getDropboxNotificationsProperty();
+			logger.debug("dropboxNotificationAllowed: buildDeleteConfirmContext: "+ Boolean.valueOf(DROPBOX_NOTIFICATIONS_ALLOW.equals(dropboxNotificationsProperty)));
 			context.put("dropboxNotificationAllowed", Boolean.valueOf(DROPBOX_NOTIFICATIONS_ALLOW.equals(dropboxNotificationsProperty)));
 		}
 		context.put("homeCollection", (String) state.getAttribute (STATE_HOME_COLLECTION_ID));
@@ -5031,6 +5040,14 @@ protected static final String PARAM_PAGESIZE = "collections_per_page";
 			state.setAttribute(STATE_REVISE_PROPERTIES_ITEM, item);
 		}
 		item.metadataGroupsIntoContext(context);
+		
+		if(item.isDropbox)
+		{
+			String dropboxNotificationsProperty = getDropboxNotificationsProperty();
+			logger.debug("dropboxNotificationAllowed: buildReviseMetadataContext: "+ Boolean.valueOf(ResourcesAction.DROPBOX_NOTIFICATIONS_ALLOW.equals(dropboxNotificationsProperty)));
+			context.put("dropboxNotificationAllowed", Boolean.valueOf(ResourcesAction.DROPBOX_NOTIFICATIONS_ALLOW.equals(dropboxNotificationsProperty)));
+		}
+		
 		context.put("item", item);
 		
 		String chhbeanname = "";
