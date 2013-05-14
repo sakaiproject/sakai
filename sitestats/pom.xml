@@ -29,7 +29,7 @@
         <commons-beanutils.version>1.7.0</commons-beanutils.version>
         <easymock.version>2.4</easymock.version>
         <h2.version>1.1.111</h2.version>
-        <mysql.version>3.1.14</mysql.version>
+        <mysql.version>5.1.25</mysql.version>
         <!-- <ojdbc.version>10.2.0.2.0</ojdbc.version> -->
         <fop.version>1.0</fop.version>
         <poi.version>3.7</poi.version>
