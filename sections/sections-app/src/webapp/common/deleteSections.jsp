@@ -27,15 +27,15 @@
         <t:div>
             <h:outputText value="#{msgs.overview_delete_section_confirmation_post}"/>
         </t:div>
-    
-        <t:div styleClass="act deleteButtons">
-            <h:commandButton
-                action="#{overviewBean.deleteSections}"
-                value="#{msgs.overview_delete_short}"
-                styleClass="active" />
-            <h:commandButton action="overview" value="#{msgs.cancel}"/>
-        </t:div>        
-    </t:div>
+    </t:div>    
+    <t:div styleClass="act deleteButtons">
+        <h:commandButton
+            action="#{overviewBean.deleteSections}"
+            value="#{msgs.overview_delete_short}"
+            styleClass="active" />
+        <h:commandButton action="overview" value="#{msgs.cancel}"/>
+    </t:div>        
+
 
 </h:form>
 </div>
