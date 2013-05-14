@@ -24,7 +24,7 @@ import java.util.Date;
  * Record with time spent in site, by date and user.
  * @author Nuno Fernandes
  */
-public interface SitePresence extends Stat {
+public interface SitePresence extends Stat, Comparable<SitePresence> {
 
 	/** Get time spent (in milliseconds) */
 	public long getDuration();

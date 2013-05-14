@@ -19,7 +19,7 @@
 package org.sakaiproject.sitestats.api;
 
 
-public interface SiteVisits extends Stat {
+public interface SiteVisits extends Stat, Comparable<SiteVisits> {
 	/** Get the total visits for this context and date. */
 	public long getTotalVisits();
 	

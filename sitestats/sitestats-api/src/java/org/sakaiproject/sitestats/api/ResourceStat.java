@@ -23,7 +23,7 @@ package org.sakaiproject.sitestats.api;
  * Represents a record from the SST_RESOURCES table.
  * @author Nuno Fernandes
  */
-public interface ResourceStat extends Stat{
+public interface ResourceStat extends Stat, Comparable<ResourceStat>{
 	/** Get the the resource reference (eg. '/content/group/site_id/filename.txt') this record refers to. */
 	public String getResourceRef();
 	/** Set the the resource reference (eg. '/content/group/site_id/filename.txt') this record refers to. */

@@ -34,6 +34,21 @@ public class SiteVisitsImpl implements SiteVisits, Serializable {
 	private long totalVisits;
 	private long totalUnique;
 
+	@Override
+	public int compareTo(SiteVisits other) {
+		int val = siteId.compareTo(other.getSiteId());
+		if (val != 0) return val;
+		val = date.compareTo(other.getDate());
+		if (val != 0) return val;
+		val = Long.signum(totalVisits - other.getTotalVisits());
+		if (val != 0) return val;
+		val = Long.signum(totalUnique - other.getTotalUnique());
+		if (val != 0) return val;
+		val = Long.signum(id - other.getId());
+		return val;
+	}
+
+	@Override
 	public boolean equals(Object o) {
 		if(o == null) return false;
 		if(!(o instanceof SiteVisitsImpl)) return false;
@@ -45,6 +60,7 @@ public class SiteVisitsImpl implements SiteVisits, Serializable {
 				&& totalUnique == other.getTotalUnique();
 	}
 
+	@Override
 	public int hashCode() {
 		if(siteId == null) return Integer.MIN_VALUE;
 		String hashStr = this.getClass().getName() + ":" 
