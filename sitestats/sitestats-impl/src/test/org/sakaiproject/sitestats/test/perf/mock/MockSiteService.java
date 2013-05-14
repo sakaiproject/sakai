@@ -115,8 +115,7 @@ public class MockSiteService implements SiteService {
 
 	@Override
 	public Site getSite(String id) throws IdUnusedException {
-		// TODO Auto-generated method stub
-		return null;
+		return new MockSite(id);
 	}
 
 	@Override
