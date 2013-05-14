@@ -104,7 +104,7 @@ $tool_proxy = <<< EOF
           "default_value": "Sample PHP Launch",
           "key": "resource.name"
         },
-        "resource_type": "sample-php",
+        "resource_type": "sakai-api-test",
         "description": {
           "default_value": "Sample PHP Launch",
           "key": "resource.description"

@@ -387,18 +387,21 @@ class OAuthRequest {
    * builds the Authorization: header
    */
   public function to_header() {
-    $out ='Authorization: OAuth realm=""';
+    // $out ='Authorization: OAuth realm=""';
+    $out ='Authorization: OAuth ';
     $total = array();
+    $comma = '';
     foreach ($this->parameters as $k => $v) {
       if (substr($k, 0, 5) != "oauth") continue;
       if (is_array($v)) {
         throw new OAuthException('Arrays not supported in headers');
       }
-      $out .= ',' .
+      $out .= $comma .
               OAuthUtil::urlencode_rfc3986($k) .
               '="' .
               OAuthUtil::urlencode_rfc3986($v) .
               '"';
+      $comma = ',';
     }
     return $out;
   }

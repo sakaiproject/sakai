@@ -36,35 +36,6 @@ user_id=2 (ASCII)
 */
 
 print "<pre>\n";
-$tc_profile_url = $_POST['tc_profile_url'];
-if ( strlen($tc_profile_url) > 1 ) {
-    $tc_profile_json = do_get($tc_profile_url);
-    // echo($tc_profile_json);
-    $tc_profile = json_decode($tc_profile_json);
-    // print_r($tc_profile);
-}
-
-$cur_url = curPageURL();
-echo($cur_url."\n");
-$cur_base = str_replace("tp.php","",$cur_url);
-
-$reg_key = $_POST['reg_key'];
-$reg_password = $_POST['reg_password'];
-
-$tp_profile = json_decode($tool_proxy);
-$tp_profile->tool_proxy_guid = $reg_key;
-// Re-register
-$tp_profile->tool_profile->message[0]->path = $cur_url;
-
-// Launch Request
-$tp_profile->tool_profile->resource_handler[0]->message[0]->path = "tool.php";
-
-$tp_profile->tool_profile->base_url_choice[0]->secure_base_url = $cur_base;
-$tp_profile->tool_profile->base_url_choice[0]->default_base_url = $cur_base;
-
-$tp_profile->security_contract->shared_secret = 'secret';
-print_r($tp_profile);
-
 
 print "Raw POST Parameters:\n\n";
 ksort($_POST);
@@ -79,6 +50,75 @@ foreach($_GET as $key => $value ) {
     if (get_magic_quotes_gpc()) $value = stripslashes($value);
     print htmlentities($key) . "=" . htmlentities($value) . " (".mb_detect_encoding($value).")\n";
 }
+
+$launch_presentation_return_url = $_POST['launch_presentation_return_url'];
+
+$tc_profile_url = $_POST['tc_profile_url'];
+if ( strlen($tc_profile_url) > 1 ) {
+    $tc_profile_json = do_get($tc_profile_url);
+    // echo($tc_profile_json);
+    $tc_profile = json_decode($tc_profile_json);
+    // print_r($tc_profile);echo("\n<hr>\n");
+}
+
+// Find the registration URL
+
+$tc_services = $tc_profile->service_offered;
+// var_dump($tc_services);
+$endpoint = false;
+foreach ($tc_services as $tc_service) {
+   // var_dump($tc_service);
+   $id = $tc_service->{'@id'};
+   if ( $id != "ltitcp:ToolProxy.collection" ) continue;
+   $endpoint = $tc_service->endpoint;
+}
+
+$cur_url = curPageURL();
+$cur_base = str_replace("tp.php","",$cur_url);
+
+$reg_key = $_POST['reg_key'];
+$reg_password = $_POST['reg_password'];
+
+$tp_profile = json_decode($tool_proxy);
+
+// Tweak the stock profile
+$tp_profile->tool_proxy_guid = $reg_key;
+$tp_profile->{'@id'} = $cur_base . uniqid();
+$tp_profile->tool_consumer_profile = $tc_profile_url;
+
+// Re-register
+$tp_profile->tool_profile->message[0]->path = $cur_url;
+
+// Launch Request
+$tp_profile->tool_profile->resource_handler[0]->message[0]->path = "tool.php";
+
+$tp_profile->tool_profile->base_url_choice[0]->secure_base_url = $cur_base;
+$tp_profile->tool_profile->base_url_choice[0]->default_base_url = $cur_base;
+
+$tp_profile->security_contract->shared_secret = 'secret';
+// print_r($tp_profile);
+
+$reg_key = $_POST['reg_key'];
+$reg_password = $_POST['reg_password'];
+$body = json_encode($tp_profile);
+print "\n<hr/>\n";
+echo($endpoint."\n");
+echo($reg_key."\n");
+echo($reg_password."\n");
+print "\n<hr/>\n";
+echo(htmlentities($body));
+print "\n<hr/>\n";
+
+$response = sendOAuthBodyPOST("POST", $endpoint, $reg_key, $reg_password, "application/vnd.ims.lti.v2.ToolProxy+json", $body);
+
+global $last_base_string;
+echo($last_base_strig);
+
+print "\n<hr/>\n";
+echo(htmlentities($response));
+
 print "</pre>";
+
+echo('<p><a href="'.$launch_presentation_return_url.'">Continue to launch_presentation_url</a></p>'."\n");
 
 ?>

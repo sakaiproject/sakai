@@ -9,7 +9,7 @@ require_once 'OAuth.php';
 // with minimum values to meet the protocol
 function is_lti_request() {
    $good_message_type = $_REQUEST["lti_message_type"] == "basic-lti-launch-request";
-   $good_lti_version = $_REQUEST["lti_version"] == "LTI-1p0";
+   $good_lti_version = $_REQUEST["lti_version"] == "LTI-1p0" || $_REQUEST["lti_version"] == "LTI-2p0";
    $resource_link_id = $_REQUEST["resource_link_id"];
    if ($good_message_type and $good_lti_version and isset($resource_link_id) ) return(true);
    return false;
@@ -711,7 +711,7 @@ function sendOAuthBodyPOST($method, $endpoint, $oauth_consumer_key, $oauth_consu
     // Pass this back up "out of band" for debugging
     global $LastOAuthBodyBaseString;
     $LastOAuthBodyBaseString = $acc_req->get_signature_base_string();
-    // echo($LastOAuthBodyBaseString."\n");
+    echo($LastOAuthBodyBaseString."\n");
 
     $header = $acc_req->to_header();
     $header = $header . "\r\nContent-Type: " . $content_type . "\r\n";
@@ -720,11 +720,9 @@ function sendOAuthBodyPOST($method, $endpoint, $oauth_consumer_key, $oauth_consu
 }
 
 function do_post($url, $body, $header) {
-    $response = post_socket($url, $body, $header);
-    if ( $response !== false ) return $response;
-    $response = post_stream($url, $body, $header);
-    if ( $response !== false ) return $response;
     $response = post_curl($url, $body, $header);
+    if ( $response !== false ) return $response;
+    $response = post_socket($url, $body, $header);
     if ( $response !== false ) return $response;
     echo("Unable to post<br/>\n");
     echo("Url=$url <br/>\n");
@@ -786,34 +784,16 @@ function post_socket($endpoint, $data, $moreheaders=false) {
     return false;
 }
 
-function post_stream($url, $body, $header) {
-    $params = array('http' => array(
-        'method' => 'POST',
-        'content' => $body,
-        'header' => $header
-        ));
-
-    $ctx = stream_context_create($params);
-    try {
-        $fp = @fopen($url, 'r', false, $ctx);
-        $response = @stream_get_contents($fp);
-    } catch (Exception $e) {
-        return false;
-    }
-    return $response;
-}
-
-
-function post_curl($url, $xml, $header) {
+function post_curl($url, $body, $header) {
   if ( ! function_exists('curl_init') ) return false;
   $ch = curl_init();
   curl_setopt($ch, CURLOPT_URL, $url);
 
-  // For xml, change the content-type.
-  curl_setopt ($ch, CURLOPT_HTTPHEADER, $header);
+  $headers = explode("\n",$header);
+  curl_setopt ($ch, CURLOPT_HTTPHEADER, $headers);
 
   curl_setopt($ch, CURLOPT_POST, 1);
-  curl_setopt($ch, CURLOPT_POSTFIELDS, $xml);
+  curl_setopt($ch, CURLOPT_POSTFIELDS, $body);
 
   curl_setopt($ch, CURLOPT_RETURNTRANSFER, 1); // ask for results to be returned
 /*
