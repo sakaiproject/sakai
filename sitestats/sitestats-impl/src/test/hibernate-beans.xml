@@ -16,7 +16,7 @@
 
     <!-- Data source -->
     <bean id="javax.sql.DataSource"
-        class="org.springframework.jdbc.datasource.DriverManagerDataSource">
+        class="org.apache.commons.dbcp.BasicDataSource">
         <property name="driverClassName">
             <value>${hibernate.connection.driver_class}</value>
         </property>
