@@ -2020,7 +2020,7 @@ private   int   getNum(char letter,   String   a)
             .get("org.sakaiproject.event.api.LearningResourceStoreService");
     Event event = EventTrackingService.newEvent(DiscussionForumService.EVENT_MESSAGES_ADD, getEventMessage(pMsg), false);
     EventTrackingService.post(event);
-    lrss.registerStatement(getStatementForUserSentPvtMsg(lrss.getEventActor(event), getDetailMsg().getMsg().getTitle(), SAKAI_VERB.shared), "msgcntr");
+    lrss.registerStatement(getStatementForUserSentPvtMsg(lrss.getEventActor(event), pMsg.getTitle(), SAKAI_VERB.shared), "msgcntr");
     
     if(fromMainOrHp != null && !"".equals(fromMainOrHp))
     {
