@@ -921,8 +921,6 @@ function PortalChat() {//
 										"Call not accepted or failed", true);
 								portalChat.closeVideoCall(uuid);
 							});
-			// temporaly show my video
-			this.showVideoCall(uuid);
 		}
 	}
 
@@ -954,8 +952,6 @@ function PortalChat() {//
 		$("#pc_chat_" + uuid + "_video_content").show();
 		if (chatDiv.hasClass('pc_minimised')) {
 			portalChat.toggleChatWindow(uuid);
-		} else {
-
 		}
 		if (chatDiv.css('height') != 'auto') {
 			chatDiv.css('height', '512px');
@@ -965,6 +961,7 @@ function PortalChat() {//
 		$('#pc_connection_' + uuid + '_videoin').hide();
 		$('#pc_connection_' + uuid + '_videochat_bar .video_off').hide();
 		$('#pc_connection_' + uuid + '_videochat_bar .video_on').show();
+		portalChat.showMyVideo();
 	}
 
 	this.closeVideoCall = function(uuid) {
@@ -973,6 +970,21 @@ function PortalChat() {//
 		this.hideVideoCall(uuid);
 	}
 
+	this.showMyVideo = function() {
+		$('#pc_chat_local_video_content').show();
+		$('#pc_chat_local_video_content').attr('data-video',($('#pc_chat_local_video_content').attr('data-video')-0)+1);
+		if (!portalChat.expanded) {
+			portalChat.toggleChat();
+		}
+	}
+
+	this.hideMyVideo = function() {
+		$('#pc_chat_local_video_content').attr('data-video',($('#pc_chat_local_video_content').attr('data-video')-0)-1);
+		if ($('#pc_chat_local_video_content').attr('data-video')=='0') {
+		    $('#pc_chat_local_video_content').hide();
+		}
+	}
+	
 	this.hideVideoCall = function(uuid) {
 		$("#pc_chat_" + uuid + "_video_content").hide();
 		$("#pc_chat_with_" + uuid).css('height', '318px');
@@ -980,6 +992,7 @@ function PortalChat() {//
 		$("#pc_chat_with_" + uuid).attr('data-height', '318');
 		$('#pc_connection_' + uuid + '_videochat_bar .video_off').show();
 		$('#pc_connection_' + uuid + '_videochat_bar .video_on').hide();
+		portalChat.hideMyVideo();
 	}
 
 	this.hasVideoAgent = function(uuid) {

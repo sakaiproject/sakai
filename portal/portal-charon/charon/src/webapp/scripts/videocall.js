@@ -55,13 +55,11 @@ function VideoCall() {
  	}
 	
 	this.startCall = function (uuid, localMediaStream) {
-		this.webRTC.attachMediaStream(document.getElementById("pc_chat_" + uuid
-				+ "_local_video"), localMediaStream);
+		this.webRTC.attachMediaStream(document.getElementById("pc_chat_local_video"), localMediaStream);
 	}
 
 	this.startAnswer = function (uuid, localMediaStream) {
-		this.webRTC.attachMediaStream(document.getElementById("pc_chat_" + uuid
-				+ "_local_video"), localMediaStream);
+		this.webRTC.attachMediaStream(document.getElementById("pc_chat_local_video"), localMediaStream);
 	}
 
 	this.maximizeVideo = function (videoElement){

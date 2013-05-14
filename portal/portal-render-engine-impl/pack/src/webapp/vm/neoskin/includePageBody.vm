@@ -305,6 +305,9 @@
 	#end
             <div id="pc" tabindex="-1">
 		<div id="pc_title">${rloader.pc_title}<div><a href="#" id="pc_chat_close" title="${rloader.pc_chat_close}"><span class="skip">${rloader.pc_chat_close}</span><img src="/library/image/silk/cross.png" alt=""/></a></div></div>
+				<div id="pc_chat_local_video_content" class="pc_chat_video_local" data-video="0">
+					<video id="pc_chat_local_video" class="pc_chat_video_min" autoplay muted="true"></video>
+				</div>
                 <div id="pc_content">
                     <div id="pc_options">
                         <div id="pc_show_off_ctrl"><input type="checkbox" id="pc_showoffline_connections_checkbox"/><label for="pc_showoffline_connections_checkbox">${rloader.pc_showoffline_connections_checkbox}</label></div>
@@ -417,11 +420,7 @@
 				<div id="pc_chat_${uuid}_video_content" class="pc_chat_video_content">
 					<div class="pc_chat_video_remote">
 						<video id="pc_chat_${uuid}_remote_video" class="pc_chat_video" autoplay >
-						
 						</video>
-						<div class="pc_chat_video_local">
-							<video id="pc_chat_${uuid}_local_video" class="pc_chat_video_min" autoplay muted="true"></video>
-						</div>
 					</div>
 
 
