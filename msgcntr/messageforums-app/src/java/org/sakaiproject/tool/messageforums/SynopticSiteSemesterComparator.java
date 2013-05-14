@@ -51,14 +51,14 @@ public class SynopticSiteSemesterComparator implements Comparator<SynopticMsgcnt
 					int o1SemesterRank = SPRING.equals(o1Semester) ? 0 : FALL.equals(o1Semester) ? 2 : 1;
 					int o2SemesterRank = SPRING.equals(o2Semester) ? 0 : FALL.equals(o2Semester) ? 2 : 1;
 					
-					return (o1SemesterRank < o2SemesterRank) ? 1 : 0;
+					return (o1SemesterRank < o2SemesterRank) ? 1 : -1;
 				}
 			}						
 			else
-				return o1Year.compareTo(o2Year) == 1 ? 0 : 1;
+				return o1Year.compareTo(o2Year) * -1;
 		}else if(o1Matcher.matches()){
 			//o1 is a course site and o2 is not
-			return 0;
+			return -1;
 		}else if(o2Matcher.matches()){
 			//o2 is a course site and o1 is not
 			return 1;
