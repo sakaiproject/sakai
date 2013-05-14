@@ -724,7 +724,7 @@ hr.itemSeparator{
 }
 .shorttext label,.filepicker  label{
 	margin-right: 1em;
-	width: 14.5em;
+	min-width: 19.5em;
 	font-weight: normal;
 	float: left;
 }
