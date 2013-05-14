@@ -12,7 +12,7 @@ session_start();
 <body style="font-family:sans-serif;">
 <?php
 echo("<p><b>IMS LTI 2.0 Consumer</b></p>\n");
-echo("<p>This is a very simple reference implementaton of the LMS admin UI (i.e. consumer) for IMS LTI 1.2.</p>\n");
+echo("<p>This is a very simple reference implementaton of the LMS admin UI (i.e. consumer) for IMS LTI 2.0.</p>\n");
 
 require_once("util/lti_util.php");
 
