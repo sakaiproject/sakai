@@ -5979,7 +5979,7 @@ private Map<String,List> getToolGroupList(SessionState state, String type, Site 
 			ResourcePropertiesEdit rp = site.getPropertiesEdit();
 
 			// for course sites
-			String siteType = (String) state.getAttribute(STATE_SITE_TYPE);
+			String siteType = site.getType();
 			if (SiteTypeUtil.isCourseSite(siteType)) {
 				AcademicSession term = null;
 				if (state.getAttribute(STATE_TERM_SELECTED) != null) {
@@ -10605,6 +10605,8 @@ private Map<String,List> getToolGroupList(SessionState state, String type, Site 
 				Site templateSite = (Site) state.getAttribute(STATE_TEMPLATE_SITE);
 				if (templateSite != null) {
 					site = SiteService.addSite(id, templateSite);
+					// set site type
+					site.setType(SiteTypeUtil.getTargetSiteType(templateSite.getType()));
 				} else {
 					site = SiteService.addSite(id, siteInfo.site_type);
 				}
@@ -11929,6 +11931,8 @@ private Map<String,List> getToolGroupList(SessionState state, String type, Site 
 				// create a new site based on the template
 				try {
 					edit = SiteService.addSite(id, template);
+					// set site type
+					edit.setType(SiteTypeUtil.getTargetSiteType(template.getType()));
 				} catch (Exception e) {
 					M_log.warn(this + ".addSiteTypeFeatures:" + " add/edit site id=" + id, e);
 				}
