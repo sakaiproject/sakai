@@ -22,7 +22,7 @@
  *
  **********************************************************************************/
 -->
-<beans>
+<beans default-lazy-init="true">
 
 	
 	
@@ -79,7 +79,7 @@
 	
 	
 	
-  <bean id="org.sakaiproject.search.api.SearchService"
+  <bean id="org.sakaiproject.search.component.service.impl.ConcurrentSearchServiceImpl"
     class="org.sakaiproject.search.component.service.impl.ConcurrentSearchServiceImpl" 
     init-method="init" >
     
@@ -119,7 +119,7 @@
     <property name="journalSettings" ref="org.sakaiproject.search.api.JournalSettings"/>
   </bean> 
      
-  <bean id="org.sakaiproject.search.api.SearchIndexBuilder"
+  <bean id="org.sakaiproject.search.component.service.impl.SearchIndexBuilderImpl"
     class="org.sakaiproject.search.component.service.impl.SearchIndexBuilderImpl" 
     init-method="init" >
     <property name="searchBuilderItemDao"><ref bean="searchBuilderItemDao" /></property>

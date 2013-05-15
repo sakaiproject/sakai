@@ -22,10 +22,10 @@
  *
  **********************************************************************************/
 -->
-<beans>
+<beans default-lazy-init="true">
  
 
-  <bean id="org.sakaiproject.search.api.SearchService"
+  <bean id="org.sakaiproject.search.component.service.impl.SearchServiceImpl"
     class="org.sakaiproject.search.component.service.impl.SearchServiceImpl" 
     init-method="init" >
     
@@ -67,7 +67,7 @@
     </property>
   </bean> 
      
-  <bean id="org.sakaiproject.search.api.SearchIndexBuilder"
+  <bean id="org.sakaiproject.search.component.service.impl.SearchIndexBuilderImpl"
     class="org.sakaiproject.search.component.service.impl.SearchIndexBuilderImpl" 
     init-method="init" >
     <property name="searchBuilderItemDao"><ref bean="searchBuilderItemDao" /></property>

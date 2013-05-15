@@ -1,13 +1,13 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!DOCTYPE beans PUBLIC "-//SPRING//DTD BEAN//EN" "http://www.springframework.org/dtd/spring-beans.dtd">
-<beans default-lazy-init="false">
-    <bean id="org.sakaiproject.search.api.SearchService"
+<beans default-lazy-init="true">
+    <bean id="org.sakaiproject.search.elasticsearch.ElasticSearchService"
           class="org.sakaiproject.search.elasticsearch.ElasticSearchService" init-method="init" destroy-method="destroy">
         <property name="triggerFunctions">
             <list/>
         </property>
         <property name="notificationService" ref="org.sakaiproject.event.api.NotificationService"/>
-        <property name="indexBuilder" ref="org.sakaiproject.search.api.SearchIndexBuilder"/>
+        <property name="indexBuilder" ref="org.sakaiproject.search.elasticsearch.ElasticSearchIndexBuilder"/>
         <property name="eventTrackingService" ref="org.sakaiproject.event.api.EventTrackingService"/>
         <property name="serverConfigurationService"><ref bean="org.sakaiproject.component.api.ServerConfigurationService"/></property>
         <property name="userDirectoryService"><ref bean="org.sakaiproject.user.api.UserDirectoryService" /></property>
@@ -15,7 +15,7 @@
         <property name="siteService" ref="org.sakaiproject.site.api.SiteService"/>
         <property name="filter" ref="org.sakaiproject.search.elasticsearch.filter.impl.SearchSecurityFilter"/>
     </bean>
-    <bean id="org.sakaiproject.search.api.SearchIndexBuilder"
+    <bean id="org.sakaiproject.search.elasticsearch.ElasticSearchIndexBuilder"
           class="org.sakaiproject.search.elasticsearch.ElasticSearchIndexBuilder"
           init-method="init">
         <property name="siteService"><ref bean="org.sakaiproject.site.api.SiteService"/></property>
