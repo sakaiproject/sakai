@@ -87,11 +87,11 @@
  			</h:panelGrid>
  
  			<div class="longtext">
+			    <h:outputText value="#{msgs.empty_content_validate} #{SyllabusTool.evilTagMsg}" styleClass="alertMessage"  rendered="#{SyllabusTool.displayEvilTagMsg}" escape="false" />
  				<label for="" style="float:none;display:block">
  					<h:outputText value="#{msgs.syllabus_content}"/>
  				</label>
 				<sakai:inputRichText textareaOnly="#{SyllabusTool.mobileSession}" rows="20" cols="120" id="syllabus_compose_edit" value="#{SyllabusTool.syllabusDataAsset}" />
-			    <h:outputText value="#{msgs.empty_content_validate} #{SyllabusTool.evilTagMsg}" styleClass="alertMessage"  rendered="#{SyllabusTool.displayEvilTagMsg}" escape="false" />
  			</div>
 			<div class="checkbox indnt1">
 				<h:selectOneRadio value="#{SyllabusTool.syllabusDataView}" layout="pageDirection" styleClass="checkbox">
