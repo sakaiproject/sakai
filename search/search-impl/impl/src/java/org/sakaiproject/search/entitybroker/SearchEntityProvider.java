@@ -32,17 +32,12 @@ import org.sakaiproject.entitybroker.entityprovider.extension.Formats;
 import org.sakaiproject.entitybroker.entityprovider.search.Restriction;
 import org.sakaiproject.entitybroker.entityprovider.search.Search;
 import org.sakaiproject.entitybroker.util.AbstractEntityProvider;
-import org.sakaiproject.search.api.InvalidSearchQueryException;
-import org.sakaiproject.search.api.SearchList;
-import org.sakaiproject.search.api.SearchResult;
-import org.sakaiproject.search.api.SearchService;
+import org.sakaiproject.search.api.*;
 import org.sakaiproject.site.api.Site;
 import org.sakaiproject.site.api.SiteService;
 import org.sakaiproject.user.api.UserDirectoryService;
 
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.List;
+import java.util.*;
 
 /**
  * Entity provider for Entity broker giving access to search services through a an HTTP method
@@ -54,6 +49,7 @@ public class SearchEntityProvider extends AbstractEntityProvider implements Acti
     private static final int DEFAULT_RESULT_COUNT = 10;
     private UserDirectoryService userDirectoryService;
     private SearchService searchService;
+    private SearchIndexBuilder searchIndexBuilder;
     private SiteService siteService;
 
     /**
@@ -108,6 +104,21 @@ public class SearchEntityProvider extends AbstractEntityProvider implements Acti
         } catch (InvalidSearchQueryException e) {
             throw new IllegalArgumentException(e);
         }
+    }
+
+    /**
+     * Get the list of tools handled by the search engine.
+     *
+     * @return a list of supported tools
+     */
+    @EntityCustomAction(action = "tools", viewKey = EntityView.VIEW_SHOW)
+    public Set<String> getTools() {
+        List<EntityContentProducer> entityContentProducers = searchIndexBuilder.getContentProducers();
+        Set<String> tools = new HashSet<String>(entityContentProducers.size());
+        for (EntityContentProducer entityContentProducer : entityContentProducers) {
+            tools.add(entityContentProducer.getTool());
+        }
+        return tools;
     }
 
     /**
@@ -176,6 +187,10 @@ public class SearchEntityProvider extends AbstractEntityProvider implements Acti
 
     public void setUserDirectoryService(UserDirectoryService userDirectoryService) {
         this.userDirectoryService = userDirectoryService;
+    }
+
+    public void setSearchIndexBuilder(SearchIndexBuilder searchIndexBuilder) {
+        this.searchIndexBuilder = searchIndexBuilder;
     }
 
     /**
