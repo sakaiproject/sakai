@@ -715,6 +715,27 @@ public class FormattedTextTest extends TestCase {
         assertTrue( result.contains("%20selected%3D"));
     }
 
+    public void testKNL_1071() {
+        // https://jira.sakaiproject.org/browse/KNL-1071
+        String strFromBrowser = null;
+        String result = null;
+        StringBuilder errorMessages = null;
+
+        formattedText.setDefaultUseLegacyCleaner(false); // FORCE antisamy
+
+        strFromBrowser = "<p><span style=\"background-color:yellow;\">aaa </span><tt>bbb </tt><code>ccc </code><kbd>ddd </kbd><del>eee </del><span dir=\"rtl\">fff </span><cite>ggg</cite></p>";
+
+        errorMessages = new StringBuilder();
+        result = formattedText.processFormattedText(strFromBrowser, errorMessages);
+        assertNotNull(result);
+        assertFalse( errorMessages.length() > 0 );
+        assertTrue( result.contains("<tt>"));
+        assertTrue( result.contains("ddd"));
+        assertTrue( result.contains("<cite>"));
+        assertTrue( result.contains("<kbd>"));
+        assertTrue( result.contains("<span dir=\"rtl\""));
+    }
+
     public void testBasicUrlMatch() {
         assertEquals("I like <a href=\"http://www.apple.com\">http://www.apple.com</a> and stuff", formattedText.encodeUrlsAsHtml(formattedText.escapeHtml("I like http://www.apple.com and stuff")));
     }
