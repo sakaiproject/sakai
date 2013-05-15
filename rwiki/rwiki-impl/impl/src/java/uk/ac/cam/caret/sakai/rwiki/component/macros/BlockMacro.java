@@ -91,7 +91,7 @@ public class BlockMacro extends BaseMacro
 		writer.write("<div"); //$NON-NLS-1$
 		if (cssClass != null && !"".equals(cssClass)) //$NON-NLS-1$
 		{
-			cssClass = cssClass.replaceAll("[^A-Za-z0-9]", "");
+			cssClass = cssClass.replaceAll("[^A-Za-z0-9-_]", "");
 			writer.write(" class='"); //$NON-NLS-1$
 			writer.write(cssClass); //$NON-NLS-1$ //$NON-NLS-2$
 			writer.write('\'');
