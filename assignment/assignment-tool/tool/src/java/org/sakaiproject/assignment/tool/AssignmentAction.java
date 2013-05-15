@@ -4590,6 +4590,10 @@ public class AssignmentAction extends PagedResourceActionII
 			if (feedbackCommentString != null)
 			{
 				sEdit.setFeedbackComment(feedbackCommentString);
+			} 
+			else 
+			{
+				sEdit.setFeedbackComment("");
 			}
 
 			// the instructor inline feedback
