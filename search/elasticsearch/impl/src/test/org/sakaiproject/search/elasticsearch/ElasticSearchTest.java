@@ -77,6 +77,8 @@ public class ElasticSearchTest {
     @Mock
     EntityContentProducer entityContentProducer;
 
+
+
     @Mock
     Site site;
 
@@ -287,9 +289,31 @@ public class ElasticSearchTest {
         elasticSearchIndexBuilder.registerEntityContentProducer(entityContentProducer);
     }
 
+/*    @Test
+    public void testAddingResourceWithNoContent(){
+        Resource resource = new Resource(null, "xyz", "resource_with_no_content");
+
+        when(event.getResource()).thenReturn(resource.getName());
+        when(entityContentProducer.matches("resource_with_no_content")).thenReturn(false);
+        List resourceList = new ArrayList();
+        resourceList.add(resource);
+        when(entityContentProducer.getSiteContentIterator("xyz")).thenReturn(resourceList.iterator());
+
+        elasticSearchIndexBuilder.addResource(notification, event);
+        wait(5000);
+        assertTrue(elasticSearchService.getNDocs() == 0);
+
+    }*/
+
+
     private void addResources() {
-        for (Event event : events) {
-            elasticSearchIndexBuilder.addResource(notification, event);
+        for (Event event : events)  {
+            try {
+                elasticSearchIndexBuilder.addResource(notification, event);
+            } catch (Exception e) {
+                e.printStackTrace();
+                assertFalse("problem adding event: " + event.getEvent(), true);
+            }
         }
     }
 
@@ -297,7 +321,7 @@ public class ElasticSearchTest {
     public void testAddResource() {
         elasticSearchIndexBuilder.addResource(notification, event);
         addResources();
-        wait(3000);
+        wait(5000);
         assertTrue(elasticSearchService.getNDocs() == 106);
     }
 
@@ -321,7 +345,7 @@ public class ElasticSearchTest {
         elasticSearchIndexBuilder.addResource(notification, event);
         wait(2000);
         assertTrue(elasticSearchService.getNDocs() == 1);
-        elasticSearchIndexBuilder.deleteDocument(resourceName, entityContentProducer);
+        elasticSearchIndexBuilder.deleteDocument(resourceName, siteId);
         wait(2000);
         assertTrue(elasticSearchService.getNDocs() == 0);
         try {
@@ -368,7 +392,7 @@ public class ElasticSearchTest {
             assertNotNull(list.get(0) ) ;
             assertEquals(list.get(0).getReference(),resourceName);
             SearchResult result = list.get(0);
-            assertTrue(result.getSearchResult().toLowerCase().contains("<b>") );
+            assertTrue(result.getSearchResult().toLowerCase().contains("<b>"));
         } catch (InvalidSearchQueryException e) {
             e.printStackTrace();
             fail();
@@ -408,16 +432,16 @@ public class ElasticSearchTest {
         assertTrue(elasticSearchService.getNDocs() == 106);
 
         elasticSearchService.refreshSite(siteId);
-        wait(2000);
-
+        wait(1000);
+        assertTrue(elasticSearchIndexBuilder.getPendingDocuments() > 0);
         elasticSearchIndexBuilder.processContentQueue();
-        wait(2000);
 
-        assertTrue(elasticSearchIndexBuilder.getPendingDocuments() == 0);
+        wait(2000);
+        assertTrue("the number of pending docs is " + elasticSearchIndexBuilder.getPendingDocuments() + ", expecting 0.",
+                elasticSearchIndexBuilder.getPendingDocuments() == 0);
         assertTrue(elasticSearchService.getNDocs() == 106);
 
     }
-
 
     @Test
     public void testRefresh() {
@@ -429,16 +453,45 @@ public class ElasticSearchTest {
 
     @Test
     public void testRebuild(){
+        elasticSearchIndexBuilder.setContentIndexBatchSize(200);
+        elasticSearchIndexBuilder.setBulkRequestSize(400);
+
+
         elasticSearchIndexBuilder.addResource(notification, event);
+
+        // add in a resource with no content
+        String resourceName = "billy bob";
+        Resource resource = new Resource(null, siteId, resourceName);
+        resources.put(resourceName, resource);
+        Event newEvent = mock(Event.class);
+
+        when(newEvent.getResource()).thenReturn(resource.getName());
+        events.add(newEvent);
+        when(entityContentProducer.matches(newEvent)).thenReturn(true);
+        when(entityContentProducer.matches(resourceName)).thenReturn(true);
+
+        when(entityContentProducer.getSiteId(resourceName)).thenReturn(siteId);
+        when(entityContentProducer.getAction(newEvent)).thenReturn(SearchBuilderItem.ACTION_ADD);
+        when(entityContentProducer.getContent(resourceName)).thenReturn(null);
+        when(entityContentProducer.getType(resourceName)).thenReturn("sakai:content");
+        when(entityContentProducer.getId(resourceName)).thenReturn(resourceName);
+        when(entityContentProducer.getTitle(resourceName)).thenReturn(resourceName);
+
         addResources();
+
+        when(entityContentProducer.getSiteContentIterator(siteId)).thenReturn(resources.keySet().iterator());
+
         wait(2000);
+
         elasticSearchService.rebuildInstance();
-        wait(5000);
+        wait(3000);
         assertTrue(elasticSearchIndexBuilder.getPendingDocuments() > 0);
-        wait(10000);
+        elasticSearchIndexBuilder.processContentQueue();
+        wait(3000);
         verify(entityContentProducer, atLeast(106)).getContent(any(String.class));
-        //assertTrue(elasticSearchIndexBuilder.getPendingDocuments() == 0);
-        //assertTrue(elasticSearchService.getNDocs() == 106);
+        assertTrue("pending doc=" + elasticSearchIndexBuilder.getPendingDocuments() + ", expecting 0",
+                elasticSearchIndexBuilder.getPendingDocuments() == 0);
+        assertTrue("num doc=" + elasticSearchService.getNDocs() + ", expecting 106.", elasticSearchService.getNDocs() == 106);
     }
 
     public class Resource {
