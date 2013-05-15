@@ -989,6 +989,8 @@ public abstract class BaseSiteService implements SiteService, Observer
 			iter.next().update(site);
 		}
 
+		site.setFullyLoaded(true);
+
 		// complete the edit
 		storage().save(site);
 		cacheSite(site);

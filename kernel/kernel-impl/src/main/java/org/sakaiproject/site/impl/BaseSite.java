@@ -665,6 +665,8 @@ public class BaseSite implements Site
 			m_groups.add(new BaseGroup(siteService, group, this, exact));
 		}
 		m_groupsLazy = other.m_groupsLazy;
+
+		m_fullyLoaded = other.m_fullyLoaded;
 	}
 
 	/**
@@ -1914,6 +1916,9 @@ public class BaseSite implements Site
 		return m_fullyLoaded;
 	}
 
+	public void setFullyLoaded(boolean flag) {
+		m_fullyLoaded = flag;
+	}
 
 
 }
