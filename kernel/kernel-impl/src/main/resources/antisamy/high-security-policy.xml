@@ -156,6 +156,15 @@
             </regexp-list>
         </attribute>
 
+        <!-- https://jira.sakaiproject.org/browse/KNL-1071 -->
+        <attribute name="dir" description="The 'dir' of any HTML attribute specifies the base direction of directionally neutral text">
+            <literal-list>
+                <literal value="ltr"/>
+                <literal value="rtl"/>
+                <literal value="inherit"/>
+            </literal-list>
+        </attribute>
+
         <attribute name="lang" description="The 'lang' attribute tells the browser what language the element's attribute values and content are written in">
             <regexp-list>
                 <regexp value="[a-zA-Z]{2,20}"/>
@@ -430,6 +439,7 @@
         <attribute name="class"/>
         <!-- Not valid in base, br, frame, frameset, hr, iframe, param, and script elements.  -->
         <attribute name="lang"/>
+        <attribute name="dir"/>
     </global-tag-attributes>
 
     <!-- You can declare tags here that will not be removed, filtered, validated or truncated, but encoded using HTML entities -->
@@ -1127,6 +1137,22 @@
             </attribute>
         </tag>
 
+        <!-- https://jira.sakaiproject.org/browse/KNL-1071 -->
+        <tag name="address" action="validate"/>
+        <!-- Indicates an abbreviated form (e.g., WWW, HTTP, URI, Mass., etc.). -->
+        <tag name="abbr" action="validate"/>
+        <!-- Indicates an acronym (e.g., WAC, radar, etc.). -->
+        <tag name="acronym" action="validate"/>
+        <!-- Indicates that this is the defining instance of the enclosed term. -->
+        <tag name="dfn" action="validate"/>
+        <!-- Indicates text to be entered by the user. -->
+        <tag name="kbd" action="validate"/>
+        <!-- Short inline quotation: http://www.w3.org/TR/html401/struct/text.html#edef-Q -->
+        <tag name="q" action="validate"/>
+        <!-- TT stands for teletype and renders as monospaced text -->
+        <tag name="tt" action="validate"/>
+        <!-- Indicates an instance of a variable or program argument. -->
+        <tag name="var" action="validate"/>
     </tag-rules>
 
 
