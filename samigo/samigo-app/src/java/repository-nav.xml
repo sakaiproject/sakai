@@ -93,32 +93,8 @@
          jdbc-type="VARCHAR"
       />
 
-  </class-descriptor>  <class-descriptor
-      class="org.navigoproject.data.ItemResultBean"
-      table="ITEM_RESULT"
-  >
-    <field-descriptor
-         name="assessmentId"
-         column="ASSESSMENT_ID"
-         jdbc-type="VARCHAR"
-         primarykey="true"
-      />
-      
-    <field-descriptor
-         name="itemId"
-         column="ITEM_ID"
-         jdbc-type="VARCHAR"
-         primarykey="true"
-      />
-
-     <field-descriptor
-         name="elementId"
-         column="ELEMENT_ID"
-         jdbc-type="VARCHAR"
-      />
-
   </class-descriptor>
-  
+
   <class-descriptor
       class="org.navigoproject.data.RealizationBean"
       table="QTI_ASSESSMENT_TAKEN"
