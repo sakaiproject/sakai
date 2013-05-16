@@ -45,6 +45,7 @@ import javax.servlet.http.HttpServletRequest;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.apache.myfaces.custom.fileupload.UploadedFile;
+import org.apache.poi.hssf.OldExcelFormatException;
 import org.apache.poi.hssf.usermodel.HSSFCell;
 import org.apache.poi.hssf.usermodel.HSSFRow;
 import org.apache.poi.hssf.usermodel.HSSFSheet;
@@ -991,6 +992,11 @@ public class SpreadsheetUploadBean extends GradebookDependentBean implements Ser
 		}
 		catch(IOException ioe) {
             FacesUtil.addErrorMessage(getLocalizedString("upload_view_config_error"));
+            return null;
+		}
+		//SAK-23610 POI doesn't support Excel 5 
+		catch (OldExcelFormatException oex) {
+            FacesUtil.addErrorMessage(getLocalizedString("upload_view_oldformat_error"));
             return null;
 		}
 		finally {
