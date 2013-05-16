@@ -30,7 +30,9 @@
 %><%@ page import="org.sakaiproject.lessonbuildertool.model.SimplePageToolDao" %><%
 %><%@ page import="org.sakaiproject.event.cover.EventTrackingService" %><%
 %><%@ page import="org.sakaiproject.component.cover.ServerConfigurationService" %><%
-%><%@ page import="org.sakaiproject.lessonbuildertool.SimplePage" %>
+%><%@ page import="org.sakaiproject.lessonbuildertool.SimplePage" %><%
+%><%@ page import="org.apache.commons.lang.StringEscapeUtils" %>
+
 
 <html xmlns="http://www.w3.org/1999/xhtml">
 <head>
@@ -62,7 +64,7 @@
     try {
         site = SiteService.getSite(siteId);
     } catch (Exception e) {
-	out.println(e);
+	out.println(StringEscapeUtils.escapeHtml(e.toString()));
 	return;
     }
 
@@ -77,7 +79,7 @@
 
     if (!(SecurityService.unlock(userId, SiteService.SECURE_UPDATE_SITE, siteReference) ||
 	  SecurityService.isSuperUser())) {
-	out.println("sorry, you aren't allowed to update this site " + userId + " " + siteReference);
+	out.println(StringEscapeUtils.escapeHtml("sorry, you aren't allowed to update this site " + userId + " " + siteReference));
 	return;
     }
 
@@ -102,7 +104,7 @@
     
     SitePage sitePage = site.getPage(simplePage.getToolId());
     if (sitePage == null) {
-	out.println("removePage can't find site page for " + simplePage.getPageId());
+	out.println(StringEscapeUtils.escapeHtml("removePage can't find site page for " + simplePage.getPageId()));
 	return;
     }
     
@@ -111,7 +113,7 @@
     try {
 	SiteService.save(site);
     } catch (Exception e) {
-	out.println("removePage unable to save site " + e);
+	out.println(StringEscapeUtils.escapeHtml("removePage unable to save site " + e));
     }
 		
     EventTrackingService.post(EventTrackingService.newEvent("lessonbuilder.remove", "/lessonbuilder/page/" + simplePage.getPageId(), true));
