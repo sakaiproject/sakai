@@ -21,6 +21,7 @@
 
 package org.sakaiproject.util;
 
+import java.util.Date;
 import java.util.Enumeration;
 import java.util.HashMap;
 import java.util.Hashtable;
@@ -472,6 +473,13 @@ public class BaseResourceProperties implements ResourceProperties, SerializableP
 
 	} // getTimeProperty
 
+	
+	public Date getDateProperty(String name) throws EntityPropertyNotDefinedException, EntityPropertyTypeException
+	{
+		Time time = getTimeProperty(name);
+		return new Date(time.getTime());
+	}
+	
 	/**
 	 * Access a named property as a User.
 	 * 
