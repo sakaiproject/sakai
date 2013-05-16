@@ -88,7 +88,7 @@
 	<property name="userDirectoryService"><ref bean="org.sakaiproject.user.api.UserDirectoryService" /></property>
 	<property name="sessionManager"><ref bean="org.sakaiproject.tool.api.SessionManager" /></property>
         
-	<property name="searchIndexBuilder"><ref bean="org.sakaiproject.search.api.SearchIndexBuilder" /></property>
+	<property name="searchIndexBuilder"><ref bean="org.sakaiproject.search.component.service.impl.SearchIndexBuilderImpl" /></property>
     <property name="indexStorage"><ref bean="org.sakaiproject.search.index.IndexStorage" /></property>
     
     
@@ -204,7 +204,7 @@
     class="org.sakaiproject.search.filter.impl.SearchSecurityFilter" 
     init-method="init">
     <property name="entityManager"><ref bean="org.sakaiproject.entity.api.EntityManager" /></property>    
-    <property name="searchIndexBuilder"><ref bean="org.sakaiproject.search.api.SearchIndexBuilder" /></property>
+    <property name="searchIndexBuilder"><ref bean="org.sakaiproject.search.component.service.impl.SearchIndexBuilderImpl" /></property>
   </bean>
   
   <bean id="dateRelevanceSort" 
@@ -230,7 +230,7 @@
     	id="org.sakaiproject.search.api.SearchService.parallel.index.concurrentIndexManager"
 	   	init-method="init" 
     	destroy-method="destroy" >
-    	<property name="searchService"><ref bean="org.sakaiproject.search.api.SearchService" /></property>
+    	<property name="searchService"><ref bean="org.sakaiproject.search.component.service.impl.ConcurrentSearchServiceImpl" /></property>
 		<property name="indexListenerCloser"><ref bean="org.sakaiproject.search.api.SearchService.parallel.index.closer" /></property>
 		<property name="tasks" >
 			<list>
@@ -344,7 +344,7 @@
 			<property name="componentManager"><ref bean="org.sakaiproject.search.api.SearchService.parallel.index.componentManager" /></property>
 			<property name="eventTrackingService"><ref bean="org.sakaiproject.event.api.EventTrackingService" /></property>
 			<property name="indexWorker"><ref bean="org.sakaiproject.search.api.SearchService.parallel.index.transactionalIndexWorker" /></property>
-			<property name="searchService"><ref bean="org.sakaiproject.search.api.SearchService" /></property>
+			<property name="searchService"><ref bean="org.sakaiproject.search.component.service.impl.ConcurrentSearchServiceImpl" /></property>
 			<property name="journalSettings"><ref bean="org.sakaiproject.search.api.JournalSettings" /></property>			
 			<property name="userDirectoryService"><ref bean="org.sakaiproject.user.api.UserDirectoryService" /></property>
     		<property name="securityService"><ref bean="org.sakaiproject.authz.api.SecurityService" /></property>
@@ -382,7 +382,7 @@
     	destroy-method="destroy" >
     	    <property name="autoDdl"><value>${auto.ddl}</value></property>
 			<property name="datasource"><ref bean="javax.sql.DataSource"/></property>
-    		<property name="searchIndexBuilder"><ref bean="org.sakaiproject.search.api.SearchIndexBuilder" /></property>
+    		<property name="searchIndexBuilder"><ref bean="org.sakaiproject.search.component.service.impl.SearchIndexBuilderImpl" /></property>
 			<property name="sequence"><ref bean="org.sakaiproject.search.api.SearchService.parallel.index.itemQueueLock"/></property>
 			<property name="siteService" ref="org.sakaiproject.site.api.SiteService"/>
 			<property name="threadLocalManager" ref="org.sakaiproject.thread_local.api.ThreadLocalManager"/>
@@ -430,7 +430,7 @@
     id="org.sakaiproject.search.api.SearchService.parallel.index.transactionalIndexWorker"
 	   	init-method="init" 
     	destroy-method="destroy" >
-    		<property name="searchIndexBuilder"><ref bean="org.sakaiproject.search.api.SearchIndexBuilder" /></property>
+    		<property name="searchIndexBuilder"><ref bean="org.sakaiproject.search.component.service.impl.SearchIndexBuilderImpl" /></property>
 			<property name="serverConfigurationService"><ref bean="org.sakaiproject.component.api.ServerConfigurationService" /></property>
 			<property name="transactionIndexManager"><ref bean="org.sakaiproject.search.api.SearchService.parallel.index.transactionIndexManager" /></property>
 			<property name="threadLocalManager"><ref bean="org.sakaiproject.thread_local.api.ThreadLocalManager" /></property>
