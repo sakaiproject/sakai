@@ -76,7 +76,7 @@ from PERMISSIONS_SRC_TEMP TMPSRC
 JOIN SAKAI_REALM_ROLE SRR ON (TMPSRC.ROLE_NAME = SRR.ROLE_NAME)
 JOIN SAKAI_REALM_FUNCTION SRF ON (TMPSRC.FUNCTION_NAME = SRF.FUNCTION_NAME);
 
--- insert the new functions into the roles of any existing realm that has the role (don't convert the "!site.helper")
+-- insert the new functions into the roles of any existing realm that has the role (don't convert the "!site.helper" or "!user.template")
 INSERT INTO SAKAI_REALM_RL_FN (REALM_KEY, ROLE_KEY, FUNCTION_KEY)
 SELECT
     SRRFD.REALM_KEY, SRRFD.ROLE_KEY, TMP.FUNCTION_KEY
@@ -84,7 +84,7 @@ FROM
     (SELECT DISTINCT SRRF.REALM_KEY, SRRF.ROLE_KEY FROM SAKAI_REALM_RL_FN SRRF) SRRFD
     JOIN PERMISSIONS_TEMP TMP ON (SRRFD.ROLE_KEY = TMP.ROLE_KEY)
     JOIN SAKAI_REALM SR ON (SRRFD.REALM_KEY = SR.REALM_KEY)
-    WHERE SR.REALM_ID != '!site.helper'
+    WHERE SR.REALM_ID != '!site.helper' AND SR.REALM_ID NOT LIKE '!user.template%'
     AND NOT EXISTS (
         SELECT 1
             FROM SAKAI_REALM_RL_FN SRRFI
@@ -283,7 +283,7 @@ from PERMISSIONS_SRC_TEMP TMPSRC
 join SAKAI_REALM_ROLE SRR on (TMPSRC.ROLE_NAME = SRR.ROLE_NAME)
 join SAKAI_REALM_FUNCTION SRF on (TMPSRC.FUNCTION_NAME = SRF.FUNCTION_NAME);
 
--- insert the new functions into the roles of any existing realm that has the role (don't convert the "!site.helper")
+-- insert the new functions into the roles of any existing realm that has the role (don't convert the "!site.helper" or "!user.template")
 insert into SAKAI_REALM_RL_FN (REALM_KEY, ROLE_KEY, FUNCTION_KEY)
 select
     SRRFD.REALM_KEY, SRRFD.ROLE_KEY, TMP.FUNCTION_KEY
@@ -291,7 +291,7 @@ from
     (select distinct SRRF.REALM_KEY, SRRF.ROLE_KEY from SAKAI_REALM_RL_FN SRRF) SRRFD
     join PERMISSIONS_TEMP TMP on (SRRFD.ROLE_KEY = TMP.ROLE_KEY)
     join SAKAI_REALM SR on (SRRFD.REALM_KEY = SR.REALM_KEY)
-    where SR.REALM_ID != '!site.helper'
+    where SR.REALM_ID != '!site.helper' AND SR.REALM_ID NOT LIKE '!user.template%'
     and not exists (
         select 1
             from SAKAI_REALM_RL_FN SRRFI
@@ -395,7 +395,7 @@ from PERMISSIONS_SRC_TEMP TMPSRC
 JOIN SAKAI_REALM_ROLE SRR ON (TMPSRC.ROLE_NAME = SRR.ROLE_NAME)
 JOIN SAKAI_REALM_FUNCTION SRF ON (TMPSRC.FUNCTION_NAME = SRF.FUNCTION_NAME);
 
--- insert the new functions into the roles of any existing realm that has the role (don't convert the "!site.helper")
+-- insert the new functions into the roles of any existing realm that has the role (don't convert the "!site.helper" or "!user.template")
 INSERT INTO SAKAI_REALM_RL_FN (REALM_KEY, ROLE_KEY, FUNCTION_KEY)
 SELECT
     SRRFD.REALM_KEY, SRRFD.ROLE_KEY, TMP.FUNCTION_KEY
@@ -403,7 +403,7 @@ FROM
     (SELECT DISTINCT SRRF.REALM_KEY, SRRF.ROLE_KEY FROM SAKAI_REALM_RL_FN SRRF) SRRFD
     JOIN PERMISSIONS_TEMP TMP ON (SRRFD.ROLE_KEY = TMP.ROLE_KEY)
     JOIN SAKAI_REALM SR ON (SRRFD.REALM_KEY = SR.REALM_KEY)
-    WHERE SR.REALM_ID != '!site.helper'
+    WHERE SR.REALM_ID != '!site.helper' AND SR.REALM_ID NOT LIKE '!user.template%'
     AND NOT EXISTS (
         SELECT 1
             FROM SAKAI_REALM_RL_FN SRRFI
@@ -444,7 +444,7 @@ INSERT INTO SAKAI_REALM_RL_FN VALUES((select REALM_KEY from SAKAI_REALM where RE
 -- JOIN SAKAI_REALM_ROLE SRR ON (TMPSRC.ROLE_NAME = SRR.ROLE_NAME)
 -- JOIN SAKAI_REALM_FUNCTION SRF ON (TMPSRC.FUNCTION_NAME = SRF.FUNCTION_NAME);
 
--- insert the new functions into the roles of any existing realm that has the role (don't convert the "!site.helper")
+-- insert the new functions into the roles of any existing realm that has the role (don't convert the "!site.helper" or "!user.template")
 -- INSERT INTO SAKAI_REALM_RL_FN (REALM_KEY, ROLE_KEY, FUNCTION_KEY)
 -- SELECT
 --    SRRFD.REALM_KEY, SRRFD.ROLE_KEY, TMP.FUNCTION_KEY
@@ -452,7 +452,7 @@ INSERT INTO SAKAI_REALM_RL_FN VALUES((select REALM_KEY from SAKAI_REALM where RE
 --    (SELECT DISTINCT SRRF.REALM_KEY, SRRF.ROLE_KEY FROM SAKAI_REALM_RL_FN SRRF) SRRFD
 --    JOIN PERMISSIONS_TEMP TMP ON (SRRFD.ROLE_KEY = TMP.ROLE_KEY)
 --    JOIN SAKAI_REALM SR ON (SRRFD.REALM_KEY = SR.REALM_KEY)
---    WHERE SR.REALM_ID != '!site.helper'
+--    WHERE SR.REALM_ID != '!site.helper' AND SR.REALM_ID NOT LIKE '!user.template%'
 --    AND NOT EXISTS (
 --        SELECT 1
 --            FROM SAKAI_REALM_RL_FN SRRFI
