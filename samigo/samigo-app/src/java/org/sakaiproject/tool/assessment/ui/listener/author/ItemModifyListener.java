@@ -540,7 +540,7 @@ public class ItemModifyListener implements ActionListener
   }
 
   private void populateItemTextForCalculatedQuestion(ItemAuthorBean itemauthorbean, ItemFacade itemfacade, ItemBean bean) {
-      CalculatedQuestionBean calcQuestionBean = new CalculatedQuestionBean(); 
+      CalculatedQuestionBean calcQuestionBean = new CalculatedQuestionBean();
       String instructions = itemfacade.getInstruction();
       GradingService gs = new GradingService();
       List<String> variables = gs.extractVariables(instructions);
@@ -584,6 +584,9 @@ public class ItemModifyListener implements ActionListener
               }
           }
       }
+      // extract the calculation formulas and populate the calcQuestionBean (we are ignoring the error returns for now)
+      CalculatedQuestionExtractListener.createCalculationsFromInstructions(calcQuestionBean, instructions, gs);
+      CalculatedQuestionExtractListener.validateCalculations(calcQuestionBean, gs);
       bean.setCalculatedQuestion(calcQuestionBean);
   }
   

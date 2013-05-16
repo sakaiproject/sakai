@@ -2109,7 +2109,7 @@ public class DeliveryActionListener
 
   }
 */
-  
+
   /**
    * CALCULATED_QUESTION
    * This method essentially will convert a CalculatedQuestion item which is initially structured
@@ -2118,104 +2118,103 @@ public class DeliveryActionListener
    */
   public void populateCalculatedQuestion(ItemDataIfc item, ItemContentsBean bean, DeliveryBean delivery)
   {
-	long gradingId = determineCalcQGradingId(delivery);
-	String agentId = determineCalcQAgentId(delivery, bean);
-	  
-	HashMap answersMap = new HashMap();
-	GradingService service = new GradingService();
-	// texts is the display text that will show in the question. AnswersMap gets populated with
-	// pairs such as key:x, value:42.0
-	ArrayList<String> texts = service.extractCalcQAnswersArray(answersMap, item, gradingId, agentId);
-	String questionText = texts.get(0);
-	
-	ItemTextIfc text = (ItemTextIfc) item.getItemTextArraySorted().toArray()[0];
-    List<FinBean> fins = new ArrayList<FinBean>();
-    bean.setInstruction(questionText); // will be referenced in table of contents
-    
-    int numOfAnswers = answersMap.size();
-    
-    int i = 0;
-    ArrayList calcQuestionEntities = text.getAnswerArraySorted();
-    
-    // Here's where I had to do it a little messy, so I'll explain. The variable are like
-    // matching pairs so they are stored as answers. But this question has real answers
-    // too. So I recycle the answer object I stored the variables in again to represent
-    // answers too.
-    // I sort this list by answer id so that it will come back from the student in a 
-    // predictable order.
-    Collections.sort(calcQuestionEntities, new Comparator<AnswerIfc>(){
-    	public int compare(AnswerIfc a1, AnswerIfc a2) {
-    		return a1.getId().compareTo(a2.getId());
-    	}
-    });
-    
-    Iterator<AnswerIfc> iter = calcQuestionEntities.iterator();
-    while (iter.hasNext())
-    {
-    	if (i == numOfAnswers) break; // AnswerArray holds the vars so there may be more than we need
-    	
-      AnswerIfc answer = iter.next();
-      
-      answer.setIsCorrect(true);
-      
-      FinBean fbean = new FinBean();
-      fbean.setItemContentsBean(bean);
-      fbean.setAnswer(answer);
-      if(texts.toArray().length>i)
-        fbean.setText( (String) texts.toArray()[i++]);
-      else
-        fbean.setText("");
-      fbean.setHasInput(true); // input box
+      long gradingId = determineCalcQGradingId(delivery);
+      String agentId = determineCalcQAgentId(delivery, bean);
 
-      ArrayList<ItemGradingData> datas = bean.getItemGradingDataArray();
-      if (datas == null || datas.isEmpty())
-      {
-        fbean.setIsCorrect(false);
-      }
-      else
-      {
-        for (ItemGradingData data : datas) {
-          
-          if ((data.getPublishedAnswerId()!=null) && (data.getPublishedAnswerId().equals(answer.getId())))
-          {
-        	fbean.setItemGradingData(data);
-            fbean.setResponse(FormattedText.convertFormattedTextToPlaintext(data.getAnswerText()));
-            fbean.setIsCorrect(false);
-            if (answer.getText() == null)
-            {
-              answer.setText("");
-            }
-            StringTokenizer st2 = new StringTokenizer(answer.getText(), "|");
-            while (st2.hasMoreTokens())
-            {
-              String nextT = st2.nextToken();
-              log.debug("nextT = " + nextT);
-              //  mark answer as correct if autoscore > 0
+      HashMap<Integer, String> answersMap = new HashMap<Integer, String>();
+      GradingService service = new GradingService();
+      // texts is the display text that will show in the question. AnswersMap gets populated with
+      // pairs such as key:x, value:42.0
+      List<String> texts = service.extractCalcQAnswersArray(answersMap, item, gradingId, agentId);
+      String questionText = texts.get(0);
 
-              if (data.getAutoScore() != null &&
-                  data.getAutoScore().doubleValue() > 0.0)
-               {
-                fbean.setIsCorrect(true);
-              }
-            }
+      ItemTextIfc text = (ItemTextIfc) item.getItemTextArraySorted().toArray()[0];
+      List<FinBean> fins = new ArrayList<FinBean>();
+      bean.setInstruction(questionText); // will be referenced in table of contents
+
+      int numOfAnswers = answersMap.size();
+
+      int i = 0;
+      List<AnswerIfc> calcQuestionEntities = text.getAnswerArraySorted();
+
+      // Here's where I had to do it a little messy, so I'll explain. The variable are like
+      // matching pairs so they are stored as answers. But this question has real answers
+      // too. So I recycle the answer object I stored the variables in again to represent
+      // answers too.
+      // I sort this list by answer id so that it will come back from the student in a 
+      // predictable order.
+      Collections.sort(calcQuestionEntities, new Comparator<AnswerIfc>(){
+          public int compare(AnswerIfc a1, AnswerIfc a2) {
+              return a1.getId().compareTo(a2.getId());
           }
-        }
+      });
+
+      Iterator<AnswerIfc> iter = calcQuestionEntities.iterator();
+      while (iter.hasNext())
+      {
+          if (i == numOfAnswers) break; // AnswerArray holds the vars so there may be more than we need
+
+          AnswerIfc answer = iter.next();
+
+          answer.setIsCorrect(true);
+
+          FinBean fbean = new FinBean();
+          fbean.setItemContentsBean(bean);
+          fbean.setAnswer(answer);
+          if (texts.toArray().length>i) {
+              fbean.setText( (String) texts.toArray()[i++]);
+          } else {
+              fbean.setText("");
+          }
+          fbean.setHasInput(true); // input box
+
+          ArrayList<ItemGradingData> datas = bean.getItemGradingDataArray();
+          if (datas == null || datas.isEmpty())
+          {
+              fbean.setIsCorrect(false);
+          } else {
+              for (ItemGradingData data : datas) {
+
+                  if ((data.getPublishedAnswerId()!=null) && (data.getPublishedAnswerId().equals(answer.getId())))
+                  {
+                      fbean.setItemGradingData(data);
+                      fbean.setResponse(FormattedText.convertFormattedTextToPlaintext(data.getAnswerText()));
+                      fbean.setIsCorrect(false);
+                      if (answer.getText() == null)
+                      {
+                          answer.setText("");
+                      }
+                      StringTokenizer st2 = new StringTokenizer(answer.getText(), "|");
+                      while (st2.hasMoreTokens())
+                      {
+                          String nextT = st2.nextToken();
+                          log.debug("nextT = " + nextT);
+                          //  mark answer as correct if autoscore > 0
+
+                          if (data.getAutoScore() != null &&
+                                  data.getAutoScore().doubleValue() > 0.0)
+                          {
+                              fbean.setIsCorrect(true);
+                          }
+                      }
+                  }
+              }
+          }
+          fins.add(fbean);
       }
+
+      FinBean fbean = new FinBean();
+      if(texts.toArray().length>i)
+          fbean.setText( (String) texts.toArray()[i]);
+      else
+          fbean.setText("");
+      fbean.setHasInput(false);
       fins.add(fbean);
-    }
 
-    FinBean fbean = new FinBean();
-    if(texts.toArray().length>i)
-      fbean.setText( (String) texts.toArray()[i]);
-     else
-      fbean.setText("");
-    fbean.setHasInput(false);
-    fins.add(fbean);
+      bean.setFinArray((ArrayList) fins);
 
-    bean.setFinArray((ArrayList) fins);
-	    
   }
-  
+
   public String getAgentString(){
     PersonBean person = (PersonBean) ContextUtil.lookupBean("person");
     String agentString = person.getId();
@@ -2640,8 +2639,8 @@ public class DeliveryActionListener
 	  String keysString = "";
 	  GradingService service = new GradingService();
 	
-	HashMap answersMap = new HashMap();
-	ArrayList texts = service.extractCalcQAnswersArray(answersMap, item, gradingId, agentId);
+	HashMap<Integer, String> answersMap = new HashMap<Integer, String>();
+	service.extractCalcQAnswersArray(answersMap, item, gradingId, agentId); // return value not used, answersMap is populated
 	
 	int answerSequence = 1; // this corresponds to the sequence value assigned in extractCalcQAnswersArray()
 	while(answerSequence <= answersMap.size()) {

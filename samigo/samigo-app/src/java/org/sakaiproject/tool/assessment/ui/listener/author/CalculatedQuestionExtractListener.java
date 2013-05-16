@@ -26,14 +26,15 @@ import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.regex.Pattern;
-import java.util.regex.Matcher;
 import javax.faces.application.FacesMessage;
 import javax.faces.context.FacesContext;
 import javax.faces.event.AbortProcessingException;
 import javax.faces.event.ActionEvent;
 import javax.faces.event.ActionListener;
+
+import org.apache.commons.lang.StringUtils;
 import org.sakaiproject.tool.assessment.services.GradingService;
+import org.sakaiproject.tool.assessment.ui.bean.author.CalculatedQuestionCalculationBean;
 import org.sakaiproject.tool.assessment.ui.bean.author.CalculatedQuestionFormulaBean;
 import org.sakaiproject.tool.assessment.ui.bean.author.CalculatedQuestionVariableBean;
 import org.sakaiproject.tool.assessment.ui.bean.author.ItemAuthorBean;
@@ -41,7 +42,6 @@ import org.sakaiproject.tool.assessment.ui.bean.author.ItemBean;
 import org.sakaiproject.tool.assessment.ui.bean.author.CalculatedQuestionBean;
 import org.sakaiproject.tool.assessment.ui.listener.util.ContextUtil;
 import org.sakaiproject.tool.assessment.util.SamigoExpressionError;
-import org.sakaiproject.tool.assessment.util.SamigoExpressionParser;
 
 public class CalculatedQuestionExtractListener implements ActionListener{
     private static final String ERROR_MESSAGE_BUNDLE = "org.sakaiproject.tool.assessment.bundle.AuthorMessages";
@@ -91,40 +91,42 @@ public class CalculatedQuestionExtractListener implements ActionListener{
      */
     public List<String> validate(ItemBean item) {
         List<String> errors = new ArrayList<String>();
-        
+
         // prepare any already existing variables and formula for new extracts
         this.initializeVariables(item);
         this.initializeFormulas(item);
-        
+
         GradingService service = new GradingService();
-        String instructions = item.getInstruction();        
+        String instructions = item.getInstruction();
         List<String> formulaNames = service.extractFormulas(instructions);
-        List<String> variableNames = service.extractVariables(instructions);        
-        
+        List<String> variableNames = service.extractVariables(instructions);
+
         errors.addAll(validateExtractedNames(variableNames, formulaNames));
-        
+
         // add new variables and formulas
         // verify that at least one variable and formula are defined
         if (errors.size() == 0) {
             errors.addAll(createFormulasFromInstructions(item, formulaNames));
-            errors.addAll(createVariablesFromInstructions(item, variableNames));       
+            errors.addAll(createVariablesFromInstructions(item, variableNames));
+            errors.addAll(createCalculationsFromInstructions(item.getCalculatedQuestion(), item.getItemText(), service));
         }
-        
+
         // validate variable min and max and formula tolerance
         if (errors.size() == 0) {
             errors.addAll(validateMinMax(item));
             errors.addAll(validateTolerance(item));
         }
-            
-        // don't bother looking at formulas if any data validations have failed for far.
+
+        // don't bother looking at formulas if any data validations have failed
         if (errors.size() == 0) {
             errors.addAll(validateFormulas(item, service));
+            errors.addAll(validateCalculations(item.getCalculatedQuestion(), service));
         } else {
             errors.add(getErrorMessage("formulas_not_validated"));
         }
         return errors;
     }
-    
+
     /**
      * initializeVariables() prepares any previously defined variables for updates
      * that occur when extracting new variables from instructions
@@ -136,9 +138,9 @@ public class CalculatedQuestionExtractListener implements ActionListener{
             bean.setActive(false);
             bean.setValidMax(true);
             bean.setValidMin(true);
-        }        
+        }
     }
-    
+
     /**
      * initializeFormulas() prepares any previously defined formulas for updates
      * that occur when extracting new formulas from instructions 
@@ -150,9 +152,9 @@ public class CalculatedQuestionExtractListener implements ActionListener{
             bean.setActive(false);
             bean.setValidFormula(true);
             bean.setValidTolerance(true);
-        }        
+        }
     }
-    
+
     /**
      * createFormulasFromInstructions adds any formulas that exist in the list of formulaNames
      * but do not already exist in the question
@@ -163,7 +165,7 @@ public class CalculatedQuestionExtractListener implements ActionListener{
         List<String> errors = new ArrayList<String>();
         Map<String, CalculatedQuestionFormulaBean> formulas = item.getCalculatedQuestion().getFormulas();
         Map<String, CalculatedQuestionVariableBean> variables = item.getCalculatedQuestion().getVariables();
-          
+
         // add any missing formulas
         for (String formulaName : formulaNames) {
             if (!formulas.containsKey(formulaName)) {
@@ -175,16 +177,16 @@ public class CalculatedQuestionExtractListener implements ActionListener{
                 CalculatedQuestionFormulaBean bean = formulas.get(formulaName);
                 bean.setActive(true);
             }
-        }                 
+        }
         if (item.getCalculatedQuestion().getActiveFormulas().size() == 0) {
             errors.add(getErrorMessage("no_formulas_defined"));
         }
         return errors;
     }
-    
+
     /**
-     * createVariablesFromInstructions adds any variables that exist in the list of variableNames
-     * but do not already exist in the question
+     * createVariablesFromInstructions adds any variables that exist in the list
+     * of variableNames but do not already exist in the question
      * @param item
      * @param variableNames
      */
@@ -192,7 +194,7 @@ public class CalculatedQuestionExtractListener implements ActionListener{
         List<String> errors = new ArrayList<String>();
         Map<String, CalculatedQuestionFormulaBean> formulas = item.getCalculatedQuestion().getFormulas();
         Map<String, CalculatedQuestionVariableBean> variables = item.getCalculatedQuestion().getVariables();
-        
+
         // add any missing variables
         for (String variableName : variableNames) {
             if (!variables.containsKey(variableName)) {
@@ -204,9 +206,29 @@ public class CalculatedQuestionExtractListener implements ActionListener{
                 CalculatedQuestionVariableBean bean = variables.get(variableName);
                 bean.setActive(true);
             }
-        }         
+        }
         if (item.getCalculatedQuestion().getActiveVariables().size() == 0) {
             errors.add(getErrorMessage("no_variables_defined"));
+        }
+        return errors;
+    }
+
+    /**
+     * Finds the calculations in the instructions and places them in the CalculatedQuestionBean
+     * 
+     * @param calculatedQuestionBean
+     * @param instructions
+     * @param service
+     * @return list of error messages (empty if there are none)
+     */
+    static List<String> createCalculationsFromInstructions(CalculatedQuestionBean calculatedQuestionBean, String instructions, GradingService service) {
+        List<String> errors = new ArrayList<String>();
+        List<String> calculations = service.extractCalculations(instructions);
+        if (!calculations.isEmpty()) {
+            for (String calculation : calculations) {
+                CalculatedQuestionCalculationBean calc = new CalculatedQuestionCalculationBean(calculation);
+                calculatedQuestionBean.addCalculation(calc);
+            }
         }
         return errors;
     }
@@ -220,29 +242,29 @@ public class CalculatedQuestionExtractListener implements ActionListener{
      */
     private List<String> validateExtractedNames(List<String> variableNames, List<String> formulaNames) {
         List<String> errors = new ArrayList<String>();
-        
+
         // formula validations
         for (String formula : formulaNames) {
             if (formula == null || formula.length() == 0) {
-                errors.add(getErrorMessage("formula_name_empty"));                
+                errors.add(getErrorMessage("formula_name_empty"));
             } else {
                 if (!formula.matches("[a-zA-Z]\\w*")) {
-                    errors.add(getErrorMessage("formula_name_invalid"));                
+                    errors.add(getErrorMessage("formula_name_invalid"));
                 }
             }
-        }        
-        
+        }
+
         // variable validations
         for (String variable : variableNames) {
             if (variable == null || variable.length() == 0) {
-                errors.add(getErrorMessage("variable_name_empty"));                
+                errors.add(getErrorMessage("variable_name_empty"));
             } else {
                 if (!variable.matches("[a-zA-Z]\\w*")) {
-                    errors.add(getErrorMessage("variable_name_invalid"));                
+                    errors.add(getErrorMessage("variable_name_invalid"));
                 }
             }
-        }        
-        
+        }
+
         // throw an error if variables and formulas share any names
         // don't continue processing if there are problems with the extract
         if (!Collections.disjoint(formulaNames, variableNames)) {
@@ -250,7 +272,7 @@ public class CalculatedQuestionExtractListener implements ActionListener{
         }
         return errors;
     }
-    
+
     /**
      * validateTolerance() verifies that formula tolerances are positive numbers
      * @param item
@@ -259,16 +281,16 @@ public class CalculatedQuestionExtractListener implements ActionListener{
     private List<String> validateTolerance(ItemBean item) {
         List<String> errors = new ArrayList<String>();
         CalculatedQuestionBean question = item.getCalculatedQuestion();
-        
+
         // formula tolerances must be numbers or percentages
         for (CalculatedQuestionFormulaBean formula : question.getActiveFormulas().values()) {
             String toleranceStr = formula.getTolerance().trim();
-            
+
             // cannot be blank
             if (toleranceStr == null || toleranceStr.length() == 0) {
-                errors.add(getErrorMessage("empty_field"));                    
+                errors.add(getErrorMessage("empty_field"));
                 formula.setValidTolerance(false);
-            }            
+            }
 
             // no non-number characters (although percentage is allowed
             // allow a negative here, we'll catch negative tolerances in another place
@@ -278,16 +300,17 @@ public class CalculatedQuestionExtractListener implements ActionListener{
                     formula.setValidTolerance(false);
                 }
             }
-            
-            // if not a percentage, try to convert to a double to validate format
+
+            // if not a percentage, try to convert to a double to validate
+            // format
             if (formula.getValidTolerance()) {
                 if (!toleranceStr.matches("[0-9]+\\.?[0-9]*\\%")) {
                     try {
                         double tolerance = Double.parseDouble(toleranceStr);
-                        
+
                         // this strips out any leading spaces or zeroes
                         formula.setTolerance(Double.toString(tolerance));
-                        
+
                         if (tolerance < 0) {
                             errors.add(getErrorMessage("tolerance_negative"));
                             formula.setValidTolerance(false);
@@ -301,7 +324,7 @@ public class CalculatedQuestionExtractListener implements ActionListener{
         }
         return errors;
     }
-    
+
     /**
      * validateMinMax() looks at each variable and ensures that the 
      * min and max are valid numbers.  It also verifies that the min is less 
@@ -311,52 +334,52 @@ public class CalculatedQuestionExtractListener implements ActionListener{
      */
     private List<String> validateMinMax(ItemBean item) {
         List<String> errors = new ArrayList<String>();
-        CalculatedQuestionBean question = item.getCalculatedQuestion();               
-        
+        CalculatedQuestionBean question = item.getCalculatedQuestion();
+
         for (CalculatedQuestionVariableBean variable : question.getActiveVariables().values()) {
-            
+
             // min
             String minStr = variable.getMin().trim();
             double min = 0d;
             if (minStr == null || minStr.length() == 0) {
-                errors.add(getErrorMessage("empty_field"));                    
+                errors.add(getErrorMessage("empty_field"));
                 variable.setValidMin(false);
             }
             if (variable.getValidMin()) {
-                try {                    
+                try {
                     min = Double.parseDouble(minStr);
-                    
+
                     // this strips out any leading spaces or zeroes
                     variable.setMin(Double.toString(min));
                 } catch (NumberFormatException n) {
-                    errors.add(getErrorMessage("invalid_min"));                    
+                    errors.add(getErrorMessage("invalid_min"));
                     variable.setValidMin(false);
                 }
             }
-            
+
             // max
             String maxStr = variable.getMax().trim();
             double max = 0d;
             if (maxStr == null || maxStr.length() == 0) {
-                errors.add(getErrorMessage("empty_field"));                    
+                errors.add(getErrorMessage("empty_field"));
                 variable.setValidMax(false);
             }
             if (variable.getValidMax()) {
                 try {
                     max = Double.parseDouble(maxStr);
-                    
+
                     // this strips out any leading spaces or zeroes
                     variable.setMax(Double.toString(max));
                 } catch (NumberFormatException n) {
-                    errors.add(getErrorMessage("invalid_max"));       
+                    errors.add(getErrorMessage("invalid_max"));
                     variable.setValidMax(false);
-                }                
+                }
             }
-            
+
             // max < min
-            if (variable.getValidMax() && variable.getValidMin()) { 
+            if (variable.getValidMax() && variable.getValidMin()) {
                 if (max < min) {
-                    errors.add(getErrorMessage("max_less_than_min"));                    
+                    errors.add(getErrorMessage("max_less_than_min"));
                     variable.setValidMin(false);
                     variable.setValidMax(false);
                 }
@@ -364,7 +387,77 @@ public class CalculatedQuestionExtractListener implements ActionListener{
         }
         return errors;
     }
-    
+
+    /**
+     * Takes a populated calculatedQuestionBean and validates the calculations and populates the
+     * calculation values and sample data (and status)
+     * 
+     * @param calculatedQuestionBean
+     * @param service
+     * @return a list of validation errors to display
+     */
+    static List<String> validateCalculations(CalculatedQuestionBean calculatedQuestionBean, GradingService service) {
+        List<String> errors = new ArrayList<String>();
+        if (service == null) {
+            service = new GradingService();
+        }
+
+        // list of variables to substitute
+        Map<String, String> variableRangeMap = new HashMap<String, String>();
+        for (CalculatedQuestionVariableBean variable : calculatedQuestionBean.getActiveVariables().values()) {
+            String match = variable.getMin() + "|" + variable.getMax() + "," + variable.getDecimalPlaces();
+            variableRangeMap.put(variable.getName(), match);
+        }
+
+        int attemptCnt = 0;
+        while (attemptCnt < 100 && errors.size() == 0) {
+            // create random values for the variables to substitute into the formulas (using dummy values)
+            Map<String, String> answersMap = service.determineRandomValuesForRanges(variableRangeMap, 1, 1, "dummy", attemptCnt);
+
+            // evaluate each calculation
+            for (CalculatedQuestionCalculationBean cqcb : calculatedQuestionBean.getCalculationsList()) {
+                String formulaStr = GradingService.cleanFormula(cqcb.getText());
+                if (formulaStr == null || formulaStr.length() == 0) {
+                    String msg = getErrorMessage("empty_field");
+                    cqcb.setStatus(msg);
+                    errors.add(msg);
+                } else {
+                    String substitutedFormulaStr = service.replaceMappedVariablesWithNumbers(formulaStr, answersMap);
+                    cqcb.setFormula(substitutedFormulaStr);
+                    // look for wrapped variables that haven't been replaced (undefined variable)
+                    List<String> unwrappedVariables = service.extractVariables(substitutedFormulaStr);
+                    if (unwrappedVariables.size() > 0) {
+                        String msg = getErrorMessage("samigo_formula_error_9");
+                        cqcb.setStatus(msg);
+                        errors.add(msg);
+                    } else {
+                        try {
+                            if (service.isNegativeSqrt(substitutedFormulaStr)) {
+                                String msg = getErrorMessage("samigo_formula_error_8");
+                                cqcb.setStatus(msg);
+                                errors.add(msg);
+                            } else {
+                                String formulaValue = service.processFormulaIntoValue(substitutedFormulaStr, 5); // throws exceptions if formula is invalid
+                                cqcb.setValue(formulaValue);
+                                cqcb.setText(formulaStr);
+                            }
+                        } catch (SamigoExpressionError e) {
+                            String msg = getErrorMessage("samigo_formula_error_" + Integer.valueOf(e.get_id()));
+                            cqcb.setStatus(msg);
+                            errors.add(msg);
+                        } catch (Exception e) {
+                            String msg = getErrorMessage("samigo_formula_error_500");
+                            cqcb.setStatus(msg);
+                            errors.add(msg);
+                        }
+                    }
+                }
+            }
+            attemptCnt++;
+        }
+        return errors;
+    }
+
     /**
      * validateFormulas() iterates through all of the formula definitions.  It 
      * creates valid dummy values for all of the defined variables, substitutes those
@@ -377,7 +470,6 @@ public class CalculatedQuestionExtractListener implements ActionListener{
      */
     private List<String> validateFormulas(ItemBean item, GradingService service) {
         List<String> errors = new ArrayList<String>();
-        SamigoExpressionParser parser = new SamigoExpressionParser();
         if (service == null) {
             service = new GradingService();
         }
@@ -407,7 +499,7 @@ public class CalculatedQuestionExtractListener implements ActionListener{
                 
                 if (formulaStr == null || formulaStr.length() == 0) {
                     formulaBean.setValidFormula(false);
-                    errors.add(getErrorMessage("empty_field"));                    
+                    errors.add(getErrorMessage("empty_field"));
                 } else {
                     String substitutedFormulaStr = service.replaceMappedVariablesWithNumbers(formulaStr, answersMap);
                     
@@ -418,14 +510,11 @@ public class CalculatedQuestionExtractListener implements ActionListener{
                         errors.add(getErrorMessage("samigo_formula_error_9"));
                     } else {
                         try {
-                            if (isNegativeSqrt(substitutedFormulaStr, service)) {
+                            if (service.isNegativeSqrt(substitutedFormulaStr)) {
                                 formulaBean.setValidFormula(false);
                                 errors.add(getErrorMessage("samigo_formula_error_8"));
                             } else {
-                                String numericAnswerString = parser.parse(substitutedFormulaStr);
-                                if (!service.isAnswerValid(numericAnswerString)) {                                
-                                    throw new Exception("invalid answer, try again");
-                                }
+                                service.processFormulaIntoValue(substitutedFormulaStr, 5); // throws exceptions on failure
                             }
                         } catch (SamigoExpressionError e) {
                             formulaBean.setValidFormula(false);
@@ -448,59 +537,10 @@ public class CalculatedQuestionExtractListener implements ActionListener{
      * @param errorCode
      * @return
      */
-    private String getErrorMessage(String errorCode) {
+    private static String getErrorMessage(String errorCode) {
         String err = ContextUtil.getLocalizedString(ERROR_MESSAGE_BUNDLE, 
                 errorCode);
         return err;
     }
-    
-    /**
-     * isNegativeSqrt() looks at the incoming expression and looks specifically
-     * to see if it executes the SQRT function.  If it does, it evaluates it.  If
-     * it has an error, it assumes that the SQRT function tried to evaluate a 
-     * negative number and evaluated to NaN.
-     * <p>Note - the incoming expression should have no variables.  They should 
-     * have been replaced before this function was called
-     * @param expression a mathematical formula, with all variables replaced by
-     * real values, to be evaluated
-     * @return true if the function uses the SQRT function, and the SQRT function
-     * evaluates as an error; else false
-     * @throws SamigoExpressionError if the evaluation of the SQRT function throws
-     * som other parse error
-     */
-    private boolean isNegativeSqrt(String expression, GradingService service) throws SamigoExpressionError {
-        Pattern sqrt = Pattern.compile("sqrt\\s*\\(");
 
-        boolean isNegative = false;
-        if (expression == null) {
-            expression = "";
-        }
-        if (service == null) {
-            service = new GradingService();
-        }
-        expression = expression.toLowerCase();
-        Matcher matcher = sqrt.matcher(expression);
-        while (matcher.find()) {
-            int x = matcher.end();
-            int p = 1;  //Parentheses left to match
-            int len = expression.length();
-            while (p > 0 && x < len) {
-                if (expression.charAt(x) == ')') {
-                    --p;
-                } else if (expression.charAt(x) == '(') {
-                    ++p;
-                }
-                ++x;
-            }
-            if (p == 0) {
-                String sqrtExpression = expression.substring(matcher.start(), x);
-                SamigoExpressionParser parser = new SamigoExpressionParser();
-                String numericAnswerString = parser.parse(sqrtExpression);
-                if (!service.isAnswerValid(numericAnswerString)) {
-                    isNegative = true;
-                }            
-            }
-        }
-        return isNegative;
-    }
 }

@@ -28,7 +28,7 @@ public class SamigoExpressionError extends Exception {
    * @PARAM id    id of the message
    * @PARAM str   a string which will be filled in in the message
    */
-  SamigoExpressionError(final int id, final String str)
+  public SamigoExpressionError(final int id, final String str)
   { 
     row_ = -1;
     col_ = -1;

@@ -29,16 +29,19 @@ import java.util.Comparator;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Vector;
 
 public class CalculatedQuestionBean implements Serializable {
 
     private static final long serialVersionUID = -5567978724454506570L;
     private Map<String, CalculatedQuestionFormulaBean> formulas;
     private Map<String, CalculatedQuestionVariableBean> variables;
+    private List<CalculatedQuestionCalculationBean> calculations;
 
     public CalculatedQuestionBean() {
         formulas = new HashMap<String, CalculatedQuestionFormulaBean>();
         variables = new HashMap<String, CalculatedQuestionVariableBean>();
+        calculations = new Vector<CalculatedQuestionCalculationBean>();
     }
 
     public Map<String, CalculatedQuestionFormulaBean> getFormulas() {
@@ -59,7 +62,7 @@ public class CalculatedQuestionBean implements Serializable {
         }
         return results;
     }
-    
+
     /**
      * getFormulasList returns a List of all formulas, sorted by formula name
      * @return
@@ -73,7 +76,7 @@ public class CalculatedQuestionBean implements Serializable {
         });
         return beanList;
     }
-    
+
     public void addFormula(CalculatedQuestionFormulaBean formula) {
         formulas.put(formula.getName(), formula);
     }
@@ -89,7 +92,7 @@ public class CalculatedQuestionBean implements Serializable {
     public Map<String, CalculatedQuestionVariableBean> getVariables() {
         return variables;
     }
-    
+
     /**
      * getActiveVariables() returns a map of all variables that return getActive() of true
      * @return a map of all variables that return getActive() of true.  If no variables are active,
@@ -104,7 +107,7 @@ public class CalculatedQuestionBean implements Serializable {
         }
         return results;
     }
-    
+
     /**
      * getVariablesList returns a List of all variables, sorted by variable name
      * @return
@@ -126,8 +129,27 @@ public class CalculatedQuestionBean implements Serializable {
     public CalculatedQuestionVariableBean getVariable(String name) {
         return variables.get(name);
     }
-    
+
     public void removeVariable(String name) {
         variables.remove(name);
-    }    
+    }
+
+    // CALCULATIONS
+
+    public List<CalculatedQuestionCalculationBean> getCalculationsList() {
+        return this.calculations;
+    }
+
+    public boolean isHasCalculations() {
+        return !this.calculations.isEmpty();
+    }
+
+    public void addCalculation(CalculatedQuestionCalculationBean calc) {
+        this.calculations.add(calc);
+    }
+
+    public void clearCalculations() {
+        this.calculations.clear();
+    }
+
 }

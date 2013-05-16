@@ -308,7 +308,47 @@ confirmation dialog
 				rendered="#{itemauthor.currentItem.calculatedQuestion.formulasList eq '[]'}"/>
 	</div>
 
-	<br/>
+    <!-- display calculations -->
+    <div class="longtext"> <h:outputLabel value="#{authorMessages.calc_question_calculation_label} " /></div>
+    <div class="tier2">
+        <h:dataTable cellpadding="0" cellspacing="0" styleClass="listHier" id="calculations" 
+                value="#{itemauthor.currentItem.calculatedQuestion.calculationsList}" var="calculation"
+                rendered="#{itemauthor.currentItem.calculatedQuestion.hasCalculations}">
+          <h:column>
+            <f:facet name="header">
+              <h:outputText value="" />
+            </f:facet>
+            <h:outputText value="" />
+          </h:column>
+          <h:column>
+            <f:facet name="header">
+              <h:outputText value="#{authorMessages.calc_question_calculation_col}" />
+            </f:facet>
+            <h:outputText escape="false" value="#{calculation.text}" />
+          </h:column>
+          <h:column>
+            <f:facet name="header">
+              <h:outputText value="#{authorMessages.calc_question_calculation_sample_col}" />
+            </f:facet>
+            <h:outputText escape="false" value="#{calculation.formula}" />
+          </h:column>
+          <h:column>
+            <f:facet name="header">
+              <h:outputText value="" />
+            </f:facet>
+            <h:outputText value="#{calculation.value}" />
+          </h:column>
+          <h:column>
+            <f:facet name="header">
+              <h:outputText value="#{authorMessages.calc_question_calculation_status_col}" />
+            </f:facet>
+            <h:outputText value="#{calculation.status}" />
+          </h:column>
+        </h:dataTable>
+        <h:outputLabel value="<p>#{authorMessages.calc_question_no_calculations}</p>" 
+                rendered="#{! itemauthor.currentItem.calculatedQuestion.hasCalculations}"/>
+    </div>
+
 	<br/>
 	<br/>
     <!-- 6 PART -->
