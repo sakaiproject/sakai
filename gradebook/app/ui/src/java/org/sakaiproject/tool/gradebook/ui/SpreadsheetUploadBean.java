@@ -49,6 +49,10 @@ import org.apache.poi.hssf.usermodel.HSSFCell;
 import org.apache.poi.hssf.usermodel.HSSFRow;
 import org.apache.poi.hssf.usermodel.HSSFSheet;
 import org.apache.poi.hssf.usermodel.HSSFWorkbook;
+import org.apache.poi.xssf.usermodel.XSSFCell;
+import org.apache.poi.xssf.usermodel.XSSFRow;
+import org.apache.poi.xssf.usermodel.XSSFSheet;
+import org.apache.poi.xssf.usermodel.XSSFWorkbook;
 import org.sakaiproject.component.cover.ComponentManager;
 import org.sakaiproject.component.cover.ServerConfigurationService;
 import org.sakaiproject.content.api.ContentResource;
@@ -897,6 +901,7 @@ public class SpreadsheetUploadBean extends GradebookDependentBean implements Ser
         }
         long maxFileSizeInBytes = 1024L * 1024L * maxFileSizeInMB;
         boolean isXlsImport = false;
+        boolean isOOXMLimport = false;
 
 	    if (upFile != null) {
 	        if (upFile != null && logger.isDebugEnabled()) {
@@ -909,6 +914,8 @@ public class SpreadsheetUploadBean extends GradebookDependentBean implements Ser
 	            isXlsImport = false;
 	        } else if (upFile.getName().endsWith("xls")) {
 	            isXlsImport = true;
+	        } else if (upFile.getName().endsWith("xlsx")) {
+	            isOOXMLimport = true;
 	        } else {
 	            FacesUtil.addErrorMessage(getLocalizedString("upload_view_filetype_error",new String[] {upFile.getName()}));
 	            return null;
@@ -939,6 +946,8 @@ public class SpreadsheetUploadBean extends GradebookDependentBean implements Ser
 		            isXlsImport = false;
 		        } else if (pickedFileDesc.endsWith("xls")) {
 		            isXlsImport = true;
+		        } else if (pickedFileDesc.endsWith("xlsx")) {
+		        	isOOXMLimport = true;
 		        } else {
 		            FacesUtil.addErrorMessage(getLocalizedString("import_entire_filetype_error",new String[] {pickedFileDesc}));
 		            return null;
@@ -974,7 +983,9 @@ public class SpreadsheetUploadBean extends GradebookDependentBean implements Ser
 		try {
 		    if (isXlsImport) {
                 contents = excelToArray(inputStream);
-            } else {
+		    } else if (isOOXMLimport) {
+                contents = excelOOXMLToArray(inputStream);
+		    } else {
                 contents = csvtoArray(inputStream);
             }
 		}
@@ -2344,6 +2355,54 @@ public class SpreadsheetUploadBean extends GradebookDependentBean implements Ser
 
     }
 
+    /**
+     * Parse newer OOXML Excel Spreadsheets
+     * @param inputStreams
+     * @return
+     * @throws IOException
+     */
+    private List<String> excelOOXMLToArray(InputStream inputStreams) throws IOException {
+    	XSSFWorkbook wb  = new XSSFWorkbook(inputStreams);
+
+        //Convert an Excel OOXML (.xslx) file to csv
+    	XSSFSheet sheet = wb.getSheetAt(0);
+        List<String> array = new ArrayList<String>();
+        Iterator it = sheet.rowIterator();
+        while (it.hasNext()){
+        	XSSFRow row = (XSSFRow) it.next();
+            String rowAsString = fromXSSFRowtoCSV(row);
+            if (rowAsString.replaceAll(",", "").replaceAll("\"", "").equals("")) {
+                continue;
+            }
+            array.add(fromXSSFRowtoCSV(row));
+        }
+        return array;
+    }
+
+    private String fromXSSFRowtoCSV(XSSFRow row){
+        StringBuffer csvRow = new StringBuffer();
+        int l = row.getLastCellNum();
+        for (int i=0;i<l;i++){
+            XSSFCell cell = row.getCell((short)i);
+            String cellValue = "";
+            if (cell == null || cell.getCellType() == HSSFCell.CELL_TYPE_BLANK) {
+                cellValue = "";
+            } else if (cell.getCellType()== HSSFCell.CELL_TYPE_STRING){
+                cellValue = "\"" + cell.getStringCellValue() + "\"";
+            } else if (cell.getCellType() == HSSFCell.CELL_TYPE_NUMERIC){
+                double value = cell.getNumericCellValue();
+                cellValue = getNumberFormat().format(value);
+                cellValue = "\"" + cellValue + "\"";
+            }
+
+            csvRow.append(cellValue);
+
+            if (i<l){
+                csvRow.append(getCsvDelimiter().toCharArray()[0]);
+            }
+        }
+        return csvRow.toString();
+    }
 
     /**
      * Process an upload ActionEvent from spreadsheetUpload.jsp or spreadsheetEntireGBImport.jsp
