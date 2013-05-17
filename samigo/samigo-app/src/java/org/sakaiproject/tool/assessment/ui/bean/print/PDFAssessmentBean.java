@@ -14,7 +14,6 @@ import java.util.GregorianCalendar;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
-import java.util.ResourceBundle;
 
 import javax.faces.context.FacesContext;
 import javax.servlet.http.HttpServletResponse;
@@ -53,6 +52,7 @@ import org.sakaiproject.tool.assessment.ui.listener.delivery.DeliveryActionListe
 import org.sakaiproject.tool.assessment.ui.listener.util.ContextUtil;
 
 import org.sakaiproject.util.FormattedText;
+import org.sakaiproject.util.ResourceLoader;
 
 import org.sakaiproject.component.cover.ServerConfigurationService;
 
@@ -70,13 +70,13 @@ public class PDFAssessmentBean implements Serializable {
 
 	private static Log log = LogFactory.getLog(PDFAssessmentBean.class);
 
-	private static ResourceBundle printMessages = ResourceBundle.getBundle("org.sakaiproject.tool.assessment.bundle.PrintMessages");
+	private ResourceLoader printMessages = new ResourceLoader("org.sakaiproject.tool.assessment.bundle.PrintMessages");
 
-	private static ResourceBundle authorMessages = ResourceBundle.getBundle("org.sakaiproject.tool.assessment.bundle.AuthorMessages");
+	private ResourceLoader authorMessages = new ResourceLoader("org.sakaiproject.tool.assessment.bundle.AuthorMessages");
 
-	private static ResourceBundle deliveryMessages = ResourceBundle.getBundle("org.sakaiproject.tool.assessment.bundle.DeliveryMessages");
+	private ResourceLoader deliveryMessages = new ResourceLoader("org.sakaiproject.tool.assessment.bundle.DeliveryMessages");
 
-	private static ResourceBundle commonMessages = ResourceBundle.getBundle("org.sakaiproject.tool.assessment.bundle.CommonMessages");
+	private ResourceLoader commonMessages = new ResourceLoader("org.sakaiproject.tool.assessment.bundle.CommonMessages");
 
 	private String intro = "";
 
