@@ -392,6 +392,17 @@ span.searchTargetLink { margin-right:50px; }
 			  </span>
 		  </li>
 		#end
+
+          <li>
+			  <span class="searchTargetLink">
+			    <a name="PickResource" id="PickResource" title="$tlang.getString("resource.pick.resource")"  href="#">
+                    $tlang.getString("resource.resourcepicker")</td>
+			    </a>
+			    <span class="baseUrl" style="display:none;">#contentLink("Main")&sakai_action=doImportCitationFromResourceUrl</span>
+				<span class="pickerUrl" style="display:none;">/library/editor/FCKeditor/editor/filemanager/browser/default/browser.html?Connector=/sakai-fck-connector/web/editor/filemanager/browser/default/connectors/jsp/connector/$contentCollectionId&CurrentFolder=$contentCollectionId&langCode=en</span>
+			    <span class="popupTitle" style="display:none;">$tlang.getString("popup.title.resourcepicker")</span>
+			  </span>
+          </li>
 		
 	    #if(! $fromListPage)
 		  <li>

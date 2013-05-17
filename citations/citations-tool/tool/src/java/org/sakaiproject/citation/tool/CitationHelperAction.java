@@ -117,6 +117,8 @@ import org.sakaiproject.tool.api.Tool;
 import org.sakaiproject.tool.api.ToolException;
 import org.sakaiproject.tool.api.ToolManager;
 import org.sakaiproject.tool.api.ToolSession;
+import org.sakaiproject.user.api.User;
+import org.sakaiproject.user.cover.UserDirectoryService;
 import org.sakaiproject.util.FileItem;
 import org.sakaiproject.util.ParameterParser;
 import org.sakaiproject.util.Resource;
@@ -3721,6 +3723,49 @@ public class CitationHelperAction extends VelocityPortletPaneledAction
 		setMode(state, Mode.NEW_RESOURCE);
 
 	}  // doRemoveAllCitations
+	
+	public void doImportCitationFromResourceUrl( RunData data )
+	{
+		// get the state object
+		SessionState state = ((JetspeedRunData)data).getPortletSessionState (((JetspeedRunData)data).getJs_peid ());
+	    ParameterParser params = data.getParameters();
+	    String resourceUrl = params.getString("resourceUrl");
+	
+	    CitationCollection collection = getCitationCollection(state, false);
+	        
+	    if(resourceUrl != null)
+	    {
+	        if(logger.isDebugEnabled()) logger.debug("RESOURCE URL: " + resourceUrl);
+	        
+	        String resourceId = resourceUrl.substring(resourceUrl.indexOf("/group"));
+	        
+	        if(logger.isDebugEnabled()) logger.debug("RESOURCE ID: " + resourceId);
+	        
+	        ContentHostingService contentService = (ContentHostingService) ComponentManager.get("org.sakaiproject.content.api.ContentHostingService");
+	        try
+	        {
+	            ContentResource resource = contentService.getResource(resourceId);
+	            ResourceProperties props = resource.getProperties();
+	            String displayName = props.getProperty(ResourceProperties.PROP_DISPLAY_NAME);
+	            Citation citation = citationService.addCitation("unknown");
+	            citation.setDisplayName(displayName);
+	            citation.setCitationProperty("resourceId", resourceId);
+	            //User user = UserDirectoryService.getUser(props.getProperty(ResourceProperties.PROP_CREATOR));
+	            //citation.setCitationProperty(Schema.CREATOR,user.getLastName() + ", " + user.getFirstName());
+	            String urlId = citation.addCustomUrl(resourceUrl, resourceUrl);
+	            citation.setPreferredUrl(urlId);
+	            collection.add(citation);
+	            citationService.save(collection);
+	        } catch (Exception e) {
+	            e.printStackTrace();
+	        }
+	    }
+	          
+	    state.setAttribute("sort", CitationCollection.SORT_BY_TITLE);
+	           
+	    setMode(state, Mode.LIST);
+
+	} // doImportCitationsFromResourceUrl
 	
 	public void doShowReorderCitations( RunData data )
 	{

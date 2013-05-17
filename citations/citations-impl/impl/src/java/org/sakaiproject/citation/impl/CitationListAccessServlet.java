@@ -369,8 +369,10 @@ public class CitationListAccessServlet implements HttpAccess
     	    			out.println("\t\t\t\t |");
     	    		}
     				}
+    			} else {
+    				// We only want to show the open url if no custom urls have been specified.
+    				out.println("\t\t\t\t<a href=\"" + citation.getOpenurl() + "\" target=\"_blank\">" + ConfigurationService.getSiteConfigOpenUrlLabel() + "</a>");
     			}
-    			out.println("\t\t\t\t<a href=\"" + citation.getOpenurl() + "\" target=\"_blank\">" + ConfigurationService.getSiteConfigOpenUrlLabel() + "</a>");
     			/* not using view citation link - using toggle triangle
     			out.println("\t\t\t\t<a id=\"link_" + escapedId + "\" href=\"#\" onclick=\"viewFullCitation('" + escapedId + "'); return false;\">"
     					+ rb.getString( "action.view" ) + "</a>" );
