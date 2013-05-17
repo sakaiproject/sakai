@@ -24,6 +24,12 @@ should be included in file importing DeliveryMessages
 **********************************************************************************/
 --%>
 -->
+
+<script type="text/javascript" language="JavaScript"
+	src="/samigo-app/js/jquery-1.3.2.min.js"></script>
+<script type="text/javascript" language="JavaScript"
+	src="/samigo-app/js/jquery-ui-1.7.2.custom.min.js"></script>
+	
 <h:outputText value="<script type='text/javascript'>" escape="false" />
 <h:outputText value="var selectedRadioButton#{question.itemData.itemId};" escape="false" />
 <h:outputText value="function uncheckRadioButtons#{question.itemData.itemId}(radioButton) {" escape="false" />
