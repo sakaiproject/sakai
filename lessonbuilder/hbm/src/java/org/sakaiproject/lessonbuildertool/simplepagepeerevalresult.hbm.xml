@@ -5,7 +5,7 @@
 <hibernate-mapping>
 
       <!-- create the primary key id, using native is typically the best way -->
-	<class name="org.sakaiproject.lessonbuildertool.SimplePagePeerEvalResultImpl" table="lesson_builder_peer_eval_results">
+	<class name="org.sakaiproject.lessonbuildertool.SimplePagePeerEvalResultImpl" table="lesson_builder_p_eval_results">
     		<id name="peerEvalResultId" column="PEER_EVAL_RESULT_ID" type="long">
 					<generator class="native">
 						<param name="sequence">LB_PEER_EVAL_RESULT_S</param>
