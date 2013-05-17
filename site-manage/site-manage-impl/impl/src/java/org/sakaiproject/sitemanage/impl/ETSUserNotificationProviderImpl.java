@@ -415,7 +415,7 @@ public class ETSUserNotificationProviderImpl implements UserNotificationProvider
 	@SuppressWarnings("unchecked")
 	private void loadTemplate(String templateFileName, String templateRegistrationString) 
 	{
-		M_log.info(this + " loading tempalte " + templateFileName);
+		M_log.info(this + " loading template " + templateFileName);
 		//we need a user session to avoid potential NPE's
 		Session sakaiSession = sessionManager.getCurrentSession();
 		try {
@@ -469,7 +469,7 @@ public class ETSUserNotificationProviderImpl implements UserNotificationProvider
 			template.setOwner("admin");
 			template.setLastModified(new Date());
 			this.emailTemplateService.saveTemplate(template);
-			M_log.info(this + " user notification tempalte " + key + " added");
+			M_log.info(this + " user notification template " + key + " added");
 		}
 		else
 		{
@@ -485,7 +485,7 @@ public class ETSUserNotificationProviderImpl implements UserNotificationProvider
 				existingTemplate.setOwner("admin");
 				existingTemplate.setLastModified(new Date());
 				this.emailTemplateService.updateTemplate(existingTemplate);
-			M_log.info(this + " user notification tempalte " + key + " updated to newer version");
+			M_log.info(this + " user notification template " + key + " updated to newer version");
 			}
 		}
 			
