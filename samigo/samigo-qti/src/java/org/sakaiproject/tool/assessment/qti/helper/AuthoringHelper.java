@@ -540,7 +540,7 @@ public class AuthoringHelper
           return true;
       }
       catch (SAXException ex) {
-          log.debug("The xml is not valid QTI format.");
+          log.debug("The xml is not valid QTI format.", ex);
       }
       return false;
   }

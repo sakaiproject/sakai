@@ -1542,7 +1542,12 @@ public class ExtractionHelper
           for(int i = 0; i < allFeedbackList.size(); i++) {   
         	  s = (String) allFeedbackList.get(i);
           	  af = s.split(":::");
-          	  allFeedbacksMap.put(af[0], af[1]);
+		  if (af.length == 2) {
+		    allFeedbacksMap.put(af[0], af[1]);
+		  }
+		  else {
+		    log.warn("allFeedbackMap size != 2 on "+s);
+		  }
           }
       }
 
