@@ -591,23 +591,29 @@ var setupCategTools = function(){
  //   }
     
     // SAK-16600 
-    // hide or display an item.  
+    // hide or display an item.  ignore if item is disabled
     function setChecked(myId,checkVal){
-    	//var selSet = $('#toolSelectionList ul').find('#selected_' + normalizedId(myId));		
-    	if (checkVal== true){
+    	//var selSet = $('#toolSelectionList ul').find('#selected_' + normalizedId(myId));	
+    	//var id = normalizedId(myId);
+    	var item = $('#toolHolder').find('input[:checkbox][id=' + myId + ']');
+    	// ignore if item is disabled
+    	if (!item.is(':disabled')) {
+    	
+    		if (checkVal== true){
              	sorttoolSelectionList();
              	showToolSelection(myId,1500);
                 $('#toolHolder').find('input[type="checkbox"][id=' + myId + ']').attr('checked', checkVal).next('label').css('font-weight', 'bold');
     		
-    	} else {
-         	hideToolSelection(myId,1000);
-            $('#toolHolder').find('input[type="checkbox"][id=' + myId + ']').next('label').css('font-weight', 'normal');
+    		} else {
+    			hideToolSelection(myId,1000);
+    			$('#toolHolder').find('input[type="checkbox"][id=' + myId + ']').next('label').css('font-weight', 'normal');
+    		}
+    		// toggle checked
+    		$('#toolHolder').find('input[type="checkbox"][id=' + myId + ']').attr("checked",checkVal);
+    		//setupCategTools();
     	}
-    	// toggle checked
-    	$('#toolHolder').find('input[type="checkbox"][id=' + myId + ']').attr("checked",checkVal);
-    	//setupCategTools();
-    }
 
+    }
     // loop through list of tools; creating entry for each unique instance and hiding unselected
     var sourceList = $('input[name="selectedTools"][type="checkbox"]');
     $.each(sourceList, function(){
@@ -743,14 +749,9 @@ var setupCategTools = function(){
         if ($(this).attr('id') === "selectAll") {
             $('.sel_unsel_core em').hide();
             $('.sel_unsel_core em#unSelectAll').show();
-
             $.each($(this).closest('li').find('input[type="checkbox"]'), function(){
-                var myId = normalizedId($(this).attr('id'));               
-        		var iconId = iconizedId($(this).attr('id'));
-                $('#toolSelectionList ul').find('#' + myId).fadeIn('slow');
+        		setChecked($(this).attr('id'),true);
             });
-            $(this).closest('li').find('label').css('font-weight', 'bold');
-            $(this).closest('li').find('input[type="checkbox"]').attr('checked', true);
             utils.resizeFrame('grow');
             setupCategTools();
         }
@@ -758,12 +759,8 @@ var setupCategTools = function(){
             $('.sel_unsel_core em').hide();
             $('.sel_unsel_core em#selectAll').show();
             $.each($(this).closest('li').find(':checked'), function(){
-                var myId = normalizedId($(this).attr('id'));
-                var iconId = iconizedId($(this).attr('id'));
-                $('#toolSelectionList ul').find('#' + myId).fadeOut('fast');
+                setChecked($(this).attr('id'),false);
             });
-            $(this).closest('li').find('input[type="checkbox"]').attr('checked', false);
-            $(this).closest('li').find('label').css('font-weight', 'normal');
             utils.resizeFrame('grow');
         }
         $(this).closest('li').find('span.checkedCount').text($(this).closest('li').find(':checked').length).show(); 

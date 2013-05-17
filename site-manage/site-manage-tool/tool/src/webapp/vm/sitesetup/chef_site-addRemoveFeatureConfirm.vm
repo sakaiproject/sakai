@@ -103,6 +103,7 @@
 			#if (!$oldSelectedHome)
 				</span>
 			#end
+			<br/>
 		#end
 		#foreach ($newTool in $selectedTools)
 		 	## SAK-16600 to exclude the home tool here
@@ -177,8 +178,6 @@
 				#set($ltiToolId=$ltiTool.getKey())
 				#set($ltiToolValues=$ltiTool.getValue())
 				#set($ltiToolTitle=$ltiToolValues.get("title"))
-				#set($ltiToolDescription=$ltiToolValues.get("description"))
-				#set($ltiToolProperties=$ltiToolValues.get("reqProperties"))
 				#if (!$!oldLtiTools.containsKey($ltiToolId))
 					## highlight for newly selected lti tools
 					<span class="highlight">

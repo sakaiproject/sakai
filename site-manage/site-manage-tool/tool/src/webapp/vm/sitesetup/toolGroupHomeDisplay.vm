@@ -2,12 +2,11 @@
 #set($hometoolId=$hometool.getId())
 <li id="row-home">
 	<div class="toolListControl">
-		<input type="hidden" name="selectedTools" value="$!hometoolId" /> 
-    	<input type="checkbox" name="selectedTools" value="$!hometoolId" id="sakai.home"
-        	if ($!hometool.isSelected()==true)
+		<input type="checkbox" name="selectedTools" value="$!hometoolId" id="$!hometoolId"
+        	#if ($!hometool.getSelected())
         	    checked="checked"
-        	end
-        	#if ($!hometool.isRequired==true)
+        	#end
+        	#if ($!hometool.isRequired())
         	    checked="checked" disabled="disabled"
         	#end
     	/>

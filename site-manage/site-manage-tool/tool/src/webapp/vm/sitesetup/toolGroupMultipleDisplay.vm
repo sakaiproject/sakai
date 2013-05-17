@@ -34,7 +34,6 @@
                             #foreach($tool in $!extraSelectedToolList)
                                 <input type="hidden" name="selectedTools" value="$tool" />
                             #end
-                            
                             ## generate list of all tools in groups
                             #foreach($tool in $mapEntry.value)
                                 #set ($rowCount=0)
@@ -48,10 +47,10 @@
                                             </li>
                                      #end
                                      ## SAK-16600 Tool Multiples
-                                     <li id="row-$rowCount">
                                      #if ($!toolId.equals($!homeToolId))
                                              #parse("/vm/sitesetup/toolGroupHomeDisplay.vm")
                                      #else 
+                                     	<li id="row-$rowCount">
                                             <div class="toolListControl">
                                                 <input type="checkbox" name="selectedTools" value="$toolId" id="$toolId"
                                                 #if ($tool.isRequired())
@@ -126,12 +125,11 @@
                 #end
         </ol>
     </div>
-
     <div id="toolSelectionList">
     <h4>Selected tools</h4>
     <div id="toolSelectionListMessage" style="display:none" class="instruction">No tools selected</div>
     <ul>
     </ul>
-    </div>
+</div>
 </div>
 <div id="moreInfoHolder" style="display:none; height:500px;width:700px;overflow:auto"><img src="" id="moreImageSrc"/></div>
