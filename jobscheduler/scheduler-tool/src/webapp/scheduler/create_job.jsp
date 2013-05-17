@@ -14,7 +14,10 @@
 					  
 					  <h:panelGroup>
   					  <h:inputText id="job_name" value="#{schedulerTool.jobName}"
-  					               required="true" validator="#{schedulerTool.validateJobName}"/>
+  					               maxlength="#{schedulerTool.jobNameMaxLength}" size="40"
+  					               required="true" validator="#{schedulerTool.validateJobName}">
+  					    <f:validateLength maximum="#{schedulerTool.jobNameMaxLength}"/>
+  					  </h:inputText>
   					  <h:message for="job_name" styleClass="chefRequiredInline"/>
   					</h:panelGroup>  					
   					  					  					

@@ -15,7 +15,10 @@
 						<h:outputText value="#{msgs.trigger_name}"/>					  					  					  
 					  <h:panelGroup>
   					  <h:inputText id="trigger_name" value="#{schedulerTool.triggerName}"
-  					               required="true" validator="#{schedulerTool.validateTriggerName}"/>
+  					               maxlength="#{schedulerTool.triggerNameMaxLength}" size="40"
+  					               required="true" validator="#{schedulerTool.validateTriggerName}">
+  					    <f:validateLength maximum="#{schedulerTool.triggerNameMaxLength}"/>
+  					  </h:inputText>
   					  <h:message for="trigger_name" styleClass="chefRequiredInline"/>
   					</h:panelGroup>  					
   					
