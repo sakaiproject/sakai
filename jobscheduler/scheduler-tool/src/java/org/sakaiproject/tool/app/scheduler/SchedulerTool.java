@@ -615,6 +615,9 @@ public class SchedulerTool
        
        // create the job and show the list of jobs
       scheduler.addJob(jd, false);
+      jobName = null;
+      // Clear out the form.
+      selectedClass = null;
       processRefreshJobs();
       return "jobs";
     }
@@ -723,6 +726,9 @@ public class SchedulerTool
               return null;
           }
           scheduler.addJob(jd, false);
+          // Clear out the form
+          jobName = null;
+          jobDetail = null;
           processRefreshJobs();
           return "jobs";
       }
