@@ -78,7 +78,7 @@
 <h:outputLink title="" id="parenttogglelink"  onclick="toggleRowsForSelectList(this)" onkeypress="toggleRowsForSelectList(this)" value="#" styleClass="treefolder" rendered="#{questionpool.tree.hasChildList}" >
 <h:graphicImage alt="#{questionPoolMessages.alt_togglelink}" id="spacer_for_mozilla" style="border:0" height="14" width="30" value="/images/delivery/spacer.gif" />
 </h:outputLink>
-<h:outputLink id="togglelink" title=""  styleClass="treedoc" rendered="#{questionpool.tree.hasNoChildList}" >
+<h:outputLink id="togglelink" title="" value="#" styleClass="treedoc" rendered="#{questionpool.tree.hasNoChildList}" >
 <h:graphicImage id="spacer_for_mozilla1" alt="#{questionPoolMessages.alt_togglelink}" style="border:0" height="14" width="30" value="/images/delivery/spacer.gif" />
 </h:outputLink>
 
