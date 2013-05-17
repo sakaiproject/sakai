@@ -1,1 +1,0 @@
-ACHTUNG!  It appears that the *.sql files in this module are not read at startup.  See instead /scheduler-component-shared/src/sql.
