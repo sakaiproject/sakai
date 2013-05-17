@@ -37,14 +37,14 @@
 
     <bean id="org.sakaiproject.api.app.scheduler.SchedulerManager"
         class="org.sakaiproject.component.app.scheduler.SchedulerManagerImpl"
-        init-method="init" destroy-method="destroy">        
+        init-method="init" destroy-method="destroy">
+        <property name="serverConfigurationService" ref="org.sakaiproject.component.api.ServerConfigurationService"/>
         <property name="qrtzJobs">
-            <set>                
+            <set>
             </set>
         </property>
-        <property name="qrtzPropFile">
-            <value>quartz.properties</value>
-        </property>    
+        <property name="qrtzPropFile" value="quartz.properties"/>
+        <property name="qrtzPropFileSakai" value="sakai.quartz.properties"/>
         <property name="globalTriggerListener">
             <bean class="org.sakaiproject.component.app.scheduler.GlobalTriggerListener">
                 <property name="triggerEventManager">
