@@ -130,7 +130,7 @@
         </navigation-case>
         <navigation-case>
             <from-outcome>jobs</from-outcome>
-            <to-view-id>/scheduler/main.jsp</to-view-id>
+            <to-view-id>/scheduler/jobs.jsp</to-view-id>
         </navigation-case>
     </navigation-rule>
 	
