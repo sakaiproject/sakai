@@ -307,6 +307,21 @@
 		<div id="pc_title">${rloader.pc_title}<div><a href="#" id="pc_chat_close" title="${rloader.pc_chat_close}"><span class="skip">${rloader.pc_chat_close}</span><img src="/library/image/silk/cross.png" alt=""/></a></div></div>
 				<div id="pc_chat_local_video_content" class="pc_chat_video_local" data-video="0">
 					<video id="pc_chat_local_video" class="pc_chat_video_min" autoplay muted="true"></video>
+					<div id="local_video_bar" pc_connection_videochat_bar>
+						<a href="javascript:;" id="disable_video" onclick="return portalChat.disableVideo();" class="video_on" title="Disable your video ">
+							<img src="/library/image/silk/webcam_delete.png" width="16" height="16" border="0" alt=""/>
+						</a>
+						<a href="javascript:;" id="enable_video" onclick="return portalChat.enableVideo();" class="video_on" style="display:none" title="Enable your video ">
+							<img src="/library/image/silk/webcam.png" width="16" height="16" border="0" alt=""/>
+						</a>
+						<a href="javascript:;" id="mute" onclick="return portalChat.mute();" class="video_on" title="Mute your audio ">
+							<img src="/library/image/silk/sound_delete.png" width="16" height="16" border="0" alt=""/>
+						</a>
+						<a href="javascript:;" id="unmute" onclick="return portalChat.unmute();" class="video_on" style="display:none" title="Unmute your audio ">
+							<img src="/library/image/silk/sound.png" width="16" height="16" border="0" alt=""/>
+						</a>
+
+					</div>
 				</div>
                 <div id="pc_content">
                     <div id="pc_options">

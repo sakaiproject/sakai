@@ -1,4 +1,4 @@
-/*
+/*	
  * Video controller. 
  * It uses webrtc-adapter.js to handle all the communication
  */
@@ -90,6 +90,24 @@ function VideoCall() {
 			"bye" : "ignore"
 		}));
 	}
+	
+	this.enableVideo = function (){
+		this.webRTC.enableLocalVideo();
+	}
+
+	this.disableVideo = function (){
+		this.webRTC.disableLocalVideo();
+	}
+
+	this.mute = function (){
+		this.webRTC.muteLocalAudio();
+	}
+
+	this.unmute = function (){
+		this.webRTC.unmuteLocalAudio();
+	}
+
+	
 	
 	this.onHangUp = function (uid){ // Just declared		
 	

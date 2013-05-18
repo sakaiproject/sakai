@@ -410,6 +410,22 @@ function WebRTC() {
 
 		return sdp;
 	}
+	
+	this.enableLocalVideo = function (){
+		this.localMediaStream.getVideoTracks()[0].enabled=true;
+	
+	}
+	this.disableLocalVideo = function (){
+		this.localMediaStream.getVideoTracks()[0].enabled=false;
+	}
+
+	this.muteLocalAudio = function (){
+		this.localMediaStream.getAudioTracks()[0].enabled=false;
+	
+	}
+	this.unmuteLocalAudio = function (){
+		this.localMediaStream.getAudioTracks()[0].enabled=true;
+	}
 
 }
 

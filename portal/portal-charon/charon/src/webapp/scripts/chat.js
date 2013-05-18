@@ -887,6 +887,32 @@ function PortalChat() {//
 				+ "_remote_video");
 		this.videoCall.maximizeVideo (remoteVideo);
 	}
+	
+	this.disableVideo = function (){
+		this.videoCall.disableVideo ();
+		$('#enable_video').show();
+		$('#pc_chat_local_video').hide();
+		$('#disable_video').hide();
+	}
+	
+	this.enableVideo = function (){
+		this.videoCall.enableVideo ();
+		$('#disabĺe_video').show();
+		$('#pc_chat_local_video').show();
+		$('#enable_video').hide();
+	}
+	
+	this.mute = function (){
+		this.videoCall.mute ();
+		$('#unmute').show();
+		$('#mute').hide();
+	}
+	
+	this.unmute = function (){
+		this.videoCall.unmute ();
+		$('#mute').show();
+		$('#unmute').hide();
+	}
 
 	this.openVideoCall = function(uuid, incomming) {
 		if (incomming && this.videoOff)
