@@ -30,22 +30,23 @@ import org.quartz.Trigger;
 import org.quartz.TriggerListener;
 import org.sakaiproject.api.app.scheduler.events.TriggerEvent;
 import org.sakaiproject.api.app.scheduler.events.TriggerEventManager;
-import org.sakaiproject.component.cover.ServerConfigurationService;
+import org.sakaiproject.component.api.ServerConfigurationService;
 
 public class GlobalTriggerListener implements TriggerListener
 {
 
   private boolean isViewAllSelected = false;
   private TriggerEventManager eventManager = null;
+  private ServerConfigurationService serverConfigurationService = null;
 
   public void setTriggerEventManager (TriggerEventManager eMgr)
   {
       eventManager = eMgr;
   }
 
-  public TriggerEventManager getTriggerEventManager()
+  public void setServerConfigurationService(ServerConfigurationService serverConfigurationService)
   {
-      return eventManager;
+    this.serverConfigurationService = serverConfigurationService;
   }
 
   public String getName()
@@ -58,7 +59,7 @@ public class GlobalTriggerListener implements TriggerListener
    * @return
    */
   private String getServerId() {
-	  return ServerConfigurationService.getServerId();
+	  return serverConfigurationService.getServerId();
   }
   
   public void triggerFired(Trigger trigger,

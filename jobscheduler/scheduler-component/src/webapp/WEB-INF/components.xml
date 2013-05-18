@@ -39,6 +39,7 @@
         class="org.sakaiproject.component.app.scheduler.SchedulerManagerImpl"
         init-method="init" destroy-method="destroy">
         <property name="serverConfigurationService" ref="org.sakaiproject.component.api.ServerConfigurationService"/>
+        <property name="sqlService" ref="org.sakaiproject.db.api.SqlService"/>
         <property name="qrtzJobs">
             <set>
             </set>
@@ -51,6 +52,7 @@
                     <ref bean="org.sakaiproject.api.app.scheduler.events.TriggerEventManager"/>
                     <!--bean class="org.sakaiproject.component.app.scheduler.events.TriggerEventManagerImpl"/-->
                 </property>
+                <property name="serverConfigurationService" ref="org.sakaiproject.component.api.ServerConfigurationService"/>
             </bean>
         </property>
         <property name="globalTriggerListeners">

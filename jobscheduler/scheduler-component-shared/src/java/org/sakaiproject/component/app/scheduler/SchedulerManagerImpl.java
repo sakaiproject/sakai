@@ -91,6 +91,7 @@ public class SchedulerManagerImpl implements SchedulerManager
   private ServerConfigurationService serverConfigurationService;
   private SchedulerFactory schedFactory;
   private Scheduler scheduler;
+  private SqlService sqlService;
 
 
   private LinkedList<TriggerListener>
@@ -105,10 +106,6 @@ public void init()
   {
     try
     {
-
-      SqlService sqlService = org.sakaiproject.db.cover.SqlService
-      .getInstance();
-
       qrtzProperties = initQuartzConfiguration();
 
       qrtzProperties.setProperty("org.quartz.scheduler.instanceId", serverId);
@@ -616,6 +613,11 @@ public void init()
   public void setDataSource(DataSource dataSource)
   {
     this.dataSource = dataSource;
+  }
+
+  public void setSqlService(SqlService sqlService)
+  {
+    this.sqlService = sqlService;
   }
 
   /**
