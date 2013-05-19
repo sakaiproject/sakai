@@ -230,8 +230,12 @@ function PortalChat() {//
 			}
 		}
 
+		if( $("#pc_chat_" + uuid + "_video_content").is(':visible'))	 {
+			this.closeVideoCall(uuid);			
+		}
+			
 		$('#pc_chat_with_' + uuid).remove();
-
+		
 		this.currentChats.splice(removed, 1);
 
 		sessionStorage.removeItem('pcsession_' + uuid);
@@ -890,28 +894,29 @@ function PortalChat() {//
 	
 	this.disableVideo = function (){
 		this.videoCall.disableVideo ();
-		$('#enable_video').show();
+		$('#enable_local_video').show();
 		$('#pc_chat_local_video').hide();
-		$('#disable_video').hide();
+		$('#disable_local_video').hide();
 	}
 	
 	this.enableVideo = function (){
 		this.videoCall.enableVideo ();
-		$('#disabĺe_video').show();
+		
+		$('#disable_local_video').show();
 		$('#pc_chat_local_video').show();
-		$('#enable_video').hide();
+		$('#enable_local_video').hide();
 	}
 	
 	this.mute = function (){
 		this.videoCall.mute ();
-		$('#unmute').show();
-		$('#mute').hide();
+		$('#unmute_local_audio').show();
+		$('#mute_local_audio').hide();
 	}
 	
 	this.unmute = function (){
 		this.videoCall.unmute ();
-		$('#mute').show();
-		$('#unmute').hide();
+		$('#mute_local_audio').show();
+		$('#unmute_local_audio').hide();
 	}
 
 	this.openVideoCall = function(uuid, incomming) {
