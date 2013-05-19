@@ -1,11 +1,9 @@
-function PortalChat() {//
+function PortalChat() {
 
 	this.showOfflineConnections = false;
 	this.currentConnections = {};
 	this.onlineConnections = [];
 	this.currentConnectionsMap = {};
-	this.currentPeerConnectionsMap = {};
-	this.localMediaStream = null;
 	this.currentSiteUsers = {};
 	this.currentSiteUsersMap = {};
 	this.expanded = false;
@@ -15,93 +13,77 @@ function PortalChat() {//
 	this.connectionErrors = 0;
 	this.MAX_CONTENT_HEIGHT = 250;
 	this.originalTitle = document.title;
-	this.connectionsAvailable = true;
+    this.connectionsAvailable = true;
 	this.videoCall = null;
 	this.videoOff = false;
+	
+    /**
+     *  Utility for rendering trimpath templates. Takes the id of the template,
+     *  an object with the data to be mixed in, and the id of the element to render into
+     */
+	this.renderTemplate = function (templateId,contextObject,outputId) {
+   		var templateNode = document.getElementById(templateId);
+   		var firstNode = templateNode.firstChild;
 
-	/**
-	 * Utility for rendering trimpath templates. Takes the id of the template,
-	 * an object with the data to be mixed in, and the id of the element to
-	 * render into
-	 */
-	this.renderTemplate = function(templateId, contextObject, outputId) {
-		var templateNode = document.getElementById(templateId);
-		var firstNode = templateNode.firstChild;
+   		var template = null;
 
-		var template = null;
+   		if ( firstNode && firstNode.nodeType === 8 ) {
+       		template = firstNode.data.toString();
+   		} else {
+       		template = templateNode.innerHTML.toString();
+   		}
 
-		if (firstNode && firstNode.nodeType === 8) {
-			template = firstNode.data.toString();
-		} else {
-			template = templateNode.innerHTML.toString();
-		}
+   		var trimpathTemplate = TrimPath.parseTemplate(template,templateId);
+   
+   		var render = trimpathTemplate.process(contextObject);
 
-		var trimpathTemplate = TrimPath.parseTemplate(template, templateId);
-
-		var render = trimpathTemplate.process(contextObject);
-
-		if (outputId) {
-			document.getElementById(outputId).innerHTML = render;
-		}
-
-		return render;
+   		if (outputId) {
+       		document.getElementById(outputId).innerHTML = render;
+   		}
+   
+   		return render;
 	}
 
-	this.sendMessageToUser = function(to, content) {
 
-		jQuery
-				.ajax({
-					url : "/direct/portal-chat/new",
-					dataType : "text",
-					cache : false,
-					type : 'POST',
-					data : {
-						'to' : to,
-						'message' : content
-					},
-					success : function(text, status) {
-						var messagePanel = $("#pc_connection_chat_" + to
-								+ "_messages");
+	this.sendMessageToUser = function (to,content) {
 
-						if ('OFFLINE' === text) {
-							var toDisplayName = portalChat.currentConnectionsMap[to].displayName;
-							messagePanel.append("<div><br /></div>");
-							messagePanel
-									.append("<div><span class=\"pc_displayname\">"
-											+ toDisplayName
-											+ " is offline</span></div>");
-						} else {
-							var date = new Date();
-							portalChat.addToMessageStream(to, {
-								'from' : portal.user.id,
-								'content' : content,
-								'timestamp' : date.getTime()
-							});
-							var dateString = portalChat.formatDate(new Date());
+		jQuery.ajax({
+			url : "/direct/portal-chat/new",
+			dataType : "text",
+			cache: false,
+			type: 'POST',
+			data: {
+				'to':to,
+				'message':content
+			},
+			success : function (text,status) {
+				var messagePanel = $("#pc_connection_chat_" + to + "_messages");
 
-							portalChat.appendMessageToChattersPanel({
-								'content' : content,
-								'panelUuid' : to,
-								'from' : portal.user.id,
-								'dateString' : dateString,
-								'fromDisplayName' : 'You'
-							});
+				if('OFFLINE' === text) {
+					var toDisplayName = portalChat.currentConnectionsMap[to].displayName;
+					messagePanel.append("<div><br /></div>");
+					messagePanel.append("<div><span class=\"pc_displayname\">" + toDisplayName + " is offline</span></div>");
+				} else {
+					var date = new Date();
+					portalChat.addToMessageStream(to,{'from':portal.user.id,'content':content,'timestamp':date.getTime()});
+					var dateString = portalChat.formatDate(new Date());
 
-							$('#pc_editor_for_' + to).val('');
-						}
+                    portalChat.appendMessageToChattersPanel({'content': content, 'panelUuid': to, 'from': portal.user.id, 'dateString': dateString, 'fromDisplayName': 'You'});
 
-						portalChat.scrollToBottom(to);
-					},
-					error : function(xhr, textStatus, error) {
+				    $('#pc_editor_for_' + to).val('');
+				}
 
-						if (403 == xhr.status) {
-							portalChat.handleSecurityError();
-						}
+				portalChat.scrollToBottom(to);
+			},
+			error : function (xhr,textStatus,error) {
 
-						alert("Failed to send message. Reason: " + textStatus
-								+ ". Error: " + error);
-					}
-				});
+		        if(403 == xhr.status) {
+                    portalChat.handleSecurityError();
+                }
+
+				alert("Failed to send message. Reason: " + textStatus + ". Error: " + error);
+			}
+		});
 	}
 
 	this.sendVideoMessageToUser = function(to, content) {
@@ -139,70 +121,58 @@ function PortalChat() {//
 	 * This is a bad news failure. Clear the getLatestData interval.
 	 */
 	this.handleSecurityError = function() {
-		// alert("Sakai security error. Maybe your Sakai session has timed
-		// out?");
+	    //alert("Sakai security error. Maybe your Sakai session has timed out?");
 		portalChat.clearGetLatestDataInterval();
 		return;
 	}
 
-	/**
-	 * If one doesn't exist already, creates a window for the chatter
-	 * represented by uuid.
-	 */
-	this.setupChatWindow = function(uuid, minimised) {
+    /**
+     * If one doesn't exist already, creates a window for the chatter represented by uuid.
+     */
+	this.setupChatWindow  = function (uuid,minimised) {
 
 		var connection = this.currentConnectionsMap[uuid];
 
-		// This should never happen, but sometimes it does ...
-		if (!connection) {
-			return false;
-		}
+        // This should never happen, but sometimes it does ...
+        if(!connection) {
+            return false;
+        }
 
 		// Create the div target
 
 		var id = "pc_chat_with_" + uuid;
 
 		// If we already have a chat window, return.
-		if ($('#' + id).length)
-			return false;
+		if($('#' + id).length) return false;
 
-		// Append a new chat div to the container
-		$('#pc_chat_window_container')
-				.prepend(
-						"<div id=\""
-								+ id
-								+ "\" class=\"pc_chat_window\" data-height=\"300\"></div>");
+        // Append a new chat div to the container
+		$('#pc_chat_window_container').prepend("<div id=\"" + id + "\" class=\"pc_chat_window\" data-height=\"300\"></div>");
 
-		this.renderTemplate('pc_connection_chat_template', connection, id);
+		this.renderTemplate('pc_connection_chat_template',connection,id);
 
 		this.currentChats.push(uuid);
 
-		if (minimised) {
+		if(minimised) {
 			$('#pc_connection_chat_' + uuid + '_content').hide();
 			var chatDiv = $('#' + id);
-			chatDiv.css('height', 'auto');
-			chatDiv.addClass('pc_minimised');
+			chatDiv.css('height','auto');
+            chatDiv.addClass('pc_minimised');
 		} else {
-			$('#' + id).addClass('pc_maximised');
-		}
+            $('#' + id).addClass('pc_maximised');
+        }
 
 		var chatSessionString = sessionStorage['pcsession_' + uuid];
-		var chatSession;
-		if (chatSessionString) {
-			chatSession = JSON.parse(chatSessionString);
-			// There is currently a message stream for this chatter
+        var  chatSession;
+		if(chatSessionString) {
+            chatSession = JSON.parse(chatSessionString);
+            // There is currently a message stream for this chatter
 			chatSession.minimised = minimised;
 		} else {
-			// There is no message stream for this chatter. Set up a new one.
-			chatSession = {
-				'uuid' : uuid,
-				'minimised' : minimised,
-				'messages' : []
-			};
+            // There is no message stream for this chatter. Set up a new one.
+			chatSession = {'uuid': uuid, 'minimised': minimised, 'messages': []};
 		}
 
-		sessionStorage
-				.setItem('pcsession_' + uuid, JSON.stringify(chatSession));
+		sessionStorage.setItem('pcsession_' + uuid,JSON.stringify(chatSession));
 
 		$('#pc_editor_for_' + uuid).focus();
 		// Test if video is enabled
@@ -218,25 +188,26 @@ function PortalChat() {//
 			$('#' + id).attr('data-height', '318');
 		}
 
-		return false;
+
+        return false;
 	}
 
-	this.closeChatWindow = function(uuid) {
+	this.closeChatWindow = function (uuid) {
 		var removed = -1;
-		for ( var i = 0, j = this.currentChats.length; i < j; i++) {
-			if (uuid === this.currentChats[i]) {
+		for(var i=0,j=this.currentChats.length;i<j;i++) {
+			if(uuid === this.currentChats[i]) {
 				removed = i;
-				break;
+                break;
 			}
 		}
-
-		if( $("#pc_chat_" + uuid + "_video_content").is(':visible'))	 {
+		
+		if( $("#pc_chat_" + uuid + "_video_content").is(':visible')){
 			this.closeVideoCall(uuid);			
 		}
-			
+
 		$('#pc_chat_with_' + uuid).remove();
-		
-		this.currentChats.splice(removed, 1);
+
+		this.currentChats.splice(removed,1);
 
 		sessionStorage.removeItem('pcsession_' + uuid);
 
@@ -244,121 +215,110 @@ function PortalChat() {//
 	}
 
 	/**
-	 * Show the content, hide the expand link, show the collapse link and set
-	 * the expanded flag in the settings cookie.
+	 * Show the content, hide the expand link, show the collapse link and set the
+	 * expanded flag in the settings cookie.
 	 */
-	this.toggleChat = function() {
+	this.toggleChat = function () {
 
-		if (!this.expanded) {
+		if(!this.expanded) {
 
-			// var pcc = $('#pc_content');
+			//var pcc = $('#pc_content');
 			var pc = $('#pc');
 
-			// pcc.show();
+			//pcc.show();
 			pc.show();
 
-			// $('#presenceArea').toggle(false);
+            //$('#presenceArea').toggle(false);
 
-			this.setSetting('expanded', true);
+			this.setSetting('expanded',true);
 			this.expanded = true;
 
-			var pc_users = $('#pc_users');
+            var pc_users = $('#pc_users');
 
-			if (pc_users.height() > this.MAX_CONTENT_HEIGHT) {
+			if(pc_users.height() > this.MAX_CONTENT_HEIGHT) {
 				pc_users.height(this.MAX_CONTENT_HEIGHT);
 			}
 
-			$('#pc').css('height', 'auto');
+			$('#pc').css('height','auto');
 		} else {
 
-			// $('#pc_content').hide();
+			//$('#pc_content').hide();
 			$('#pc').hide();
 
-			$('#pc').css('height', 'auto');
+			$('#pc').css('height','auto');
 
-			this.setSetting('expanded', false);
+			this.setSetting('expanded',false);
 			this.expanded = false;
 
-			// $('#presenceArea').toggle(true);
+            //$('#presenceArea').toggle(true);
 		}
 
 		return false;
 	}
 
-	this.toggleChatWindow = function(uuid) {
+	this.toggleChatWindow = function (uuid) {
 
 		var chatDiv = $('#pc_chat_with_' + uuid);
 
-		if (chatDiv.length < 1)
-			return;
+		if(chatDiv.length < 1) return;
 
 		var chatSessionString = sessionStorage['pcsession_' + uuid];
 		var chatSession;
 
-		if (chatDiv.hasClass('pc_maximised')) {
+		if(chatDiv.hasClass('pc_maximised')) {
 
 			$('#pc_connection_chat_' + uuid + '_content').hide();
-			chatDiv.addClass('pc_minimised');
-			chatDiv.removeClass('pc_maximised');
-			chatDiv.css('height', 'auto');
-			if (chatSessionString) {
-				chatSession = JSON.parse(chatSessionString);
+            chatDiv.addClass('pc_minimised');
+            chatDiv.removeClass('pc_maximised');
+			chatDiv.css('height','auto');
+			if(chatSessionString) {
+		        chatSession = JSON.parse(chatSessionString);
 				chatSession.minimised = true;
-			} else {
-				chatSession = {
-					'uuid' : uuid,
-					'minimised' : true,
-					'messages' : []
-				};
 			}
-		} else {
+			else {
+				chatSession = {'uuid': uuid, 'minimised': true, 'messages': []};
+			}
+		}
+		else {
 			$('#pc_connection_chat_' + uuid + '_content').show();
-			chatDiv.removeClass('pc_minimised');
-			chatDiv.addClass('pc_maximised');
-			chatDiv.css('height', chatDiv.attr('data-height') + 'px');
-			$('#pc_chat_with_' + uuid + ' > .pc_connection_chat_title')
-					.removeClass('pc_new_message');
+            chatDiv.removeClass('pc_minimised');
+            chatDiv.addClass('pc_maximised');
+            chatDiv.css('height', chatDiv.attr('data-height') + 'px');
+			$('#pc_chat_with_' + uuid + ' > .pc_connection_chat_title').removeClass('pc_new_message');
 			this.scrollToBottom(uuid);
-			if (chatSessionString) {
-				chatSession = JSON.parse(chatSessionString);
+			if(chatSessionString) {
+		        chatSession = JSON.parse(chatSessionString);
 				chatSession.minimised = false;
-			} else {
-				chatSession = {
-					'uuid' : uuid,
-					'minimised' : false,
-					'messages' : []
-				};
+			}
+			else {
+				chatSession = {'uuid': uuid, 'minimised': false,'messages': []};
 			}
 
 			$('#pc_editor_for_' + uuid).focus();
 		}
 
-		sessionStorage
-				.setItem('pcsession_' + uuid, JSON.stringify(chatSession));
+		sessionStorage.setItem('pcsession_' + uuid,JSON.stringify(chatSession));
 	}
 
-	this.scrollToBottom = function(uuid) {
-		$(document).ready(
-				function() {
-					var objDiv = document.getElementById("pc_connection_chat_"
-							+ uuid + "_messages");
-					// Arbitrary. Just nice and big.
-					objDiv.scrollTop = 100000;
-				});
+	this.scrollToBottom = function (uuid) {
+		$(document).ready(function () {
+			var objDiv = document.getElementById("pc_connection_chat_" + uuid + "_messages");
+            // Arbitrary. Just nice and big.
+			objDiv.scrollTop = 100000;
+		});
 	}
 
 	/**
 	 * Creates a nice, human readable date from the passed in Date object
 	 */
-	this.formatDate = function(date) {
+	this.formatDate = function (date) {
 		var minutes = date.getMinutes();
-		if (minutes < 10)
-			minutes = '0' + minutes;
+		if(minutes < 10) minutes = '0' + minutes;
 		var hours = date.getHours();
-		if (hours < 10)
-			hours = '0' + hours;
+		if(hours < 10) hours = '0' + hours;
 		return hours + ":" + minutes;
 	}
+
 
 	/**
 	 * Append a message to the messages area.
@@ -378,15 +338,13 @@ function PortalChat() {//
 			// No current chat window for this sender. Create one.
 			this.setupChatWindow(from, true);
 		} else if ($('#pc_connection_chat_' + from + '_content').css('display') === 'none') {
-			// The sender's chat window is currently minimised so we want to
-			// flash it to
+            // The sender's chat window is currently minimised so we want to flash it to
 			// draw attention to it.
 			flashIt = true;
 		}
 
 		if (flashIt) {
-			$('#pc_chat_with_' + from + ' > .pc_connection_chat_title')
-					.addClass('pc_new_message');
+			$('#pc_chat_with_' + from + ' > .pc_connection_chat_title').addClass('pc_new_message');
 		}
 
 		var fromDisplayName = this.currentConnectionsMap[from].displayName;
@@ -394,26 +352,21 @@ function PortalChat() {//
 		messagePanel = $("#pc_connection_chat_" + from + "_messages");
 
 		var dateString = this.formatDate(new Date(timestamp));
-		portalChat.appendMessageToChattersPanel({
-			'content' : content,
-			'panelUuid' : from,
-			'from' : from,
-			'dateString' : dateString,
-			'fromDisplayName' : fromDisplayName
-		});
+        portalChat.appendMessageToChattersPanel({'content': content, 'panelUuid': from, 'from': from, 'dateString': dateString, 'fromDisplayName': fromDisplayName});
 
 		this.scrollToBottom(from);
 	}
 
-	this.updateConnections = function(connections, online) {
+	this.updateConnections = function (connections,online) {
 
-		var onlineConnections = [];
+        var onlineConnections = [];
 
-		for ( var i = 0, j = connections.length; i < j; i++) {
-			connections[i].online = false;
-			connections[i].video = 'none';
-			for ( var k = 0, m = online.length; k < m; k++) {
-				if (online[k].id === connections[i].uuid) {
+	
+		for(var i=0,j=connections.length;i<j;i++) {
+		    connections[i].online = false;
+		    connections[i].video = 'none';
+			for(var k=0,m=online.length;k<m;k++) {
+				if(online[k].id === connections[i].uuid) {
 					connections[i].online = true;
 					connections[i].video = online[k].video;
 					onlineConnections.push(connections[i]);
@@ -423,216 +376,158 @@ function PortalChat() {//
 
 		var changed = false;
 
-		if (portalChat.currentConnections.length != connections.length) {
+		if(portalChat.currentConnections.length != connections.length) {
 			changed = true;
-		} else {
-			for ( var i = 0, j = connections.length; i < j; i++) {
+		}
+		else {
+			for(var i = 0,j=connections.length;i<j;i++) {
 				var present = false;
 				var statusSame = true;
-				for ( var k = 0, m = portalChat.currentConnections.length; k < m; k++) {
-					if (portalChat.currentConnections[k].uuid === connections[i].uuid) {
+				for(var k = 0,m=portalChat.currentConnections.length;k<m;k++) {
+					if(portalChat.currentConnections[k].uuid === connections[i].uuid) {
 						present = true;
 						if (portalChat.currentConnections[k].online != connections[i].online
-								|| portalChat.currentConnections[k].video != connections[i].video) {
+									|| portalChat.currentConnections[k].video != connections[i].video) {
 							if (connections[i].video!='none') {
-								if ($(
-										'#pc_chat_with_'
-												+ portalChat.currentConnections[k].uuid)
-										.css('height') != 'auto') {
-									$(
-											'#pc_chat_with_'
-													+ portalChat.currentConnections[k].uuid)
-											.css('height', '318px');
+								if ($('#pc_chat_with_'+ portalChat.currentConnections[k].uuid).css('height') != 'auto') {
+									$('#pc_chat_with_'+ portalChat.currentConnections[k].uuid).css('height', '318px');
 								}
-								$(
-										'#pc_chat_with_'
-												+ portalChat.currentConnections[k].uuid)
-										.attr('data-height', '318');
-								$(
-										'#pc_connection_'
-												+ portalChat.currentConnections[k].uuid
-												+ '_videochat_bar').show();
+								$('#pc_chat_with_'+ portalChat.currentConnections[k].uuid).attr('data-height', '318');
+								$('#pc_connection_'+ portalChat.currentConnections[k].uuid+ '_videochat_bar').show();
 							} else {
-								if ($(
-										'#pc_chat_with_'
-												+ portalChat.currentConnections[k].uuid)
-										.css('height') != 'auto') {
-									$(
-											'#pc_chat_with_'
-													+ portalChat.currentConnections[k].uuid)
-											.css('height', '300px');
+								if ($('#pc_chat_with_'+ portalChat.currentConnections[k].uuid).css('height') != 'auto') {
+									$('#pc_chat_with_'+ portalChat.currentConnections[k].uuid).css('height', '300px');
 								}
-								$(
-										'#pc_chat_with_'
-												+ portalChat.currentConnections[k].uuid)
-										.attr('data-height', '300');
-								$(
-										'#pc_connection_'
-												+ portalChat.currentConnections[k].uuid
-												+ '_videochat_bar').hide();
+								$('#pc_chat_with_'+ portalChat.currentConnections[k].uuid).attr('data-height', '300');
+								$('#pc_connection_'	+portalChat.currentConnections[k].uuid+ '_videochat_bar').hide();
 							}
-							statusSame = false;
+							statusSame=false;
 						}
 						break;
 					}
 				}
 
-				if (!present || !statusSame) {
+				if(!present || !statusSame) {
 					changed = true;
 					break;
 				}
 			}
 		}
 
-		if (changed) {
+		if(changed) {
 
-			sessionStorage.pcCurrentConnections = JSON.stringify(connections);
-			sessionStorage.pcOnlineConnections = JSON
-					.stringify(onlineConnections);
+		    sessionStorage.pcCurrentConnections = JSON.stringify(connections);
+		    sessionStorage.pcOnlineConnections = JSON.stringify(onlineConnections);
 
 			portalChat.currentConnections = connections;
 
 			portalChat.currentConnectionsMap = {};
 
-			for ( var i = 0, j = connections.length; i < j; i++) {
+			for(var i=0,j=connections.length;i<j;i++) {
 				portalChat.currentConnectionsMap[connections[i].uuid] = connections[i];
 			}
 
 			// Bit of a hack really.
-			portalChat.currentConnectionsMap[portal.user.id] = {
-				'displayName' : 'You'
-			};
+			portalChat.currentConnectionsMap[portal.user.id] = {'displayName':'You'};
 
-			sessionStorage.pcCurrentConnectionsMap = JSON
-					.stringify(portalChat.currentConnectionsMap);
+		    sessionStorage.pcCurrentConnectionsMap = JSON.stringify(portalChat.currentConnectionsMap);
 
 			portalChat.onlineConnections = onlineConnections;
 
-			if (portalChat.showOfflineConnections == true) {
-				portalChat.renderTemplate('pc_connections_template', {
-					'connections' : portalChat.currentConnections
-				}, 'pc_connections');
+			if(portalChat.showOfflineConnections == true) {
+				portalChat.renderTemplate('pc_connections_template',{'connections':portalChat.currentConnections},'pc_connections');
 			} else {
-				portalChat.renderTemplate('pc_connections_template', {
-					'connections' : portalChat.onlineConnections
-				}, 'pc_connections');
+				portalChat.renderTemplate('pc_connections_template',{'connections':portalChat.onlineConnections},'pc_connections');
 			}
 
 			portalChat.sortConnections();
-		}
+        }
 	}
 
 	/**
-	 * If the list supplied differs from the current one, update the site users
-	 * list
-	 */
-	this.updateSiteUsers = function(siteUsers) {
+     * If the list supplied differs from the current one, update the site users list
+     */
+	this.updateSiteUsers = function (siteUsers) {
 
 		var changed = false;
 
-		if (portalChat.currentSiteUsers.length != siteUsers.length) {
+		if(portalChat.currentSiteUsers.length != siteUsers.length) {
 			changed = true;
-		} else {
-			for ( var i = 0, j = siteUsers.length; i < j; i++) {
+		}
+		else {
+			for(var i = 0,j=siteUsers.length;i<j;i++) {
 				var inCurrentData = true;
-				for ( var k = 0, m = portalChat.currentSiteUsers.length; k < m; k++) {
-					if (portalChat.currentSiteUsers[k].id === siteUsers[i].id) {
+				for(var k = 0,m=portalChat.currentSiteUsers.length;k<m;k++) {
+					if(portalChat.currentSiteUsers[k].id === siteUsers[i].id) {
 						if (portalChat.currentSiteUsers[k].video != siteUsers[i].video) {
 							inCurrentData = false;
 							if (siteUsers[i].video!='none') {
-								if ($(
-										'#pc_chat_with_'
-												+ portalChat.currentSiteUsers[k].id)
-										.css('height') != 'auto') {
-									$(
-											'#pc_chat_with_'
-													+ portalChat.currentSiteUsers[k].id)
-											.css('height', '318px');
+								if ($('#pc_chat_with_'+ portalChat.currentSiteUsers[k].id).css('height') != 'auto') {
+									$('#pc_chat_with_'+ portalChat.currentSiteUsers[k].id).css('height', '318px');
 								}
-								$(
-										'#pc_chat_with_'
-												+ portalChat.currentSiteUsers[k].id)
-										.attr('data-height', '318');
-								$(
-										'#pc_connection_'
-												+ portalChat.currentSiteUsers[k].id
-												+ '_videochat_bar').show();
+								$('#pc_chat_with_'+ portalChat.currentSiteUsers[k].id).attr('data-height', '318');
+								$('#pc_connection_'+ portalChat.currentSiteUsers[k].id+ '_videochat_bar').show();
 							} else {
-								if ($(
-										'#pc_chat_with_'
-												+ portalChat.currentSiteUsers[k].id)
-										.css('height') != 'auto') {
-									$(
-											'#pc_chat_with_'
-													+ portalChat.currentSiteUsers[k].id)
-											.css('height', '300px');
+								if ($('#pc_chat_with_'+ portalChat.currentSiteUsers[k].id).css('height') != 'auto') {
+									$('#pc_chat_with_'+ portalChat.currentSiteUsers[k].id).css('height', '300px');
 								}
-								$(
-										'#pc_chat_with_'
-												+ portalChat.currentSiteUsers[k].id)
-										.attr('data-height', '300');
-								$(
-										'#pc_connection_'
-												+ portalChat.currentSiteUsers[k].id
-												+ '_videochat_bar').hide();
+								$('#pc_chat_with_'+ portalChat.currentSiteUsers[k].id).attr('data-height', '300');
+								$('#pc_connection_'+ portalChat.currentSiteUsers[k].id+ '_videochat_bar').hide();
 							}
 						}
 						break;
 					}
 				}
 
-				if (!inCurrentData) {
+				if(!inCurrentData) {
 					changed = true;
 					break;
 				}
 			}
 		}
 
-		if (changed) {
-			sessionStorage.pcCurrentSiteUsers = JSON.stringify(siteUsers);
+		if(changed) {
+		    sessionStorage.pcCurrentSiteUsers = JSON.stringify(siteUsers);
 
 			portalChat.currentSiteUsers = siteUsers;
 
-			if (portalChat.currentSiteUsers.length > 0) {
-				portalChat.renderTemplate('pc_site_users_template', {
-					'siteUsers' : portalChat.currentSiteUsers
-				}, 'pc_site_users');
-			} else {
-				$('#pc_site_users').html('');
-			}
+            if(portalChat.currentSiteUsers.length > 0) {
+			    portalChat.renderTemplate('pc_site_users_template',{'siteUsers':portalChat.currentSiteUsers},'pc_site_users');
+            } else {
+                $('#pc_site_users').html('');
+            }
 
-			for ( var i = 0, j = portalChat.currentSiteUsers.length; i < j; i++) {
-				portalChat.currentSiteUsers[i].uuid = portalChat.currentSiteUsers[i].id;
+			for(var i=0,j=portalChat.currentSiteUsers.length;i<j;i++) {
+                portalChat.currentSiteUsers[i].uuid = portalChat.currentSiteUsers[i].id;
 				portalChat.currentConnectionsMap[portalChat.currentSiteUsers[i].uuid] = portalChat.currentSiteUsers[i];
 			}
 
-			sessionStorage.pcCurrentConnectionsMap = JSON
-					.stringify(portalChat.currentConnectionsMap);
+		    sessionStorage.pcCurrentConnectionsMap = JSON.stringify(portalChat.currentConnectionsMap);
 
 			portalChat.sortSiteUsers();
-		}
+        }
 
 	}
 
-	this.sortConnections = function() {
+	this.sortConnections = function () {
 
-		$(document).ready(function() {
-			$("#pc_connections").html($(".pc_connection").sort(function(a, b) {
-				var val1 = a.children[0].children[1].innerHTML;
-				var val2 = b.children[0].children[1].innerHTML;
-				return val1 == val2 ? 0 : val1 < val2 ? -1 : 1;
-			}));
+		$(document).ready(function (){
+            $("#pc_connections").html($(".pc_connection").sort(function (a, b) {
+                var val1 = a.children[0].children[1].innerHTML;
+                var val2 = b.children[0].children[1].innerHTML;
+                return val1 == val2 ? 0 : val1 < val2 ? -1 : 1;
+            }));
 		});
 	}
 
-	this.sortSiteUsers = function() {
+	this.sortSiteUsers = function () {
 
-		$(document).ready(function() {
-			$("#pc_site_users").html($(".pc_site_user").sort(function(a, b) {
-				var val1 = a.children[0].children[1].innerHTML;
-				var val2 = b.children[0].children[1].innerHTML;
-				return val1 == val2 ? 0 : val1 < val2 ? -1 : 1;
-			}));
+		$(document).ready(function (){
+            $("#pc_site_users").html($(".pc_site_user").sort(function (a, b) {
+                var val1 = a.children[0].children[1].innerHTML;
+                var val2 = b.children[0].children[1].innerHTML;
+                return val1 == val2 ? 0 : val1 < val2 ? -1 : 1;
+            }));
 		});
 	}
 
@@ -654,241 +549,212 @@ function PortalChat() {//
 		}
 	}
 
-	this.updateVideoMessages = function(messages) {
+   this.updateVideoMessages = function(messages) {
 		for ( var i = 0, j = messages.length; i < j; i++) {
 			this.onvideomessage(messages[i].from, messages[i]);
 		}
 	}
 
 	this.onvideomessage = function(uuid, message) {
-		this.videoCall.receiveMessage(uuid, message,this.getVideoAgent(uuid)); // message function. It
-														// will send to rtc to
-														// process it
+		// message function. It will send to rtc to process it
+		this.videoCall.receiveMessage(uuid, message,this.getVideoAgent(uuid)); 
 	}
 
-	this.getLatestData = function() {
+	this.getLatestData = function () {
 
-		// Grab the site id from the url. We need to pass it to the presence
-		// code in the chat entity provider.
-		var url = document.location.href;
-		var match = /site\/([\w-]*)/.exec(url);
-		var siteId = '';
-		if (match && match.length == 2)
-			siteId = match[1];
-
-		var onlineString = portalChat.offline ? 'false' : 'true';
+        // Grab the site id from the url. We need to pass it to the presence code in the chat entity provider.
+        var url = document.location.href;
+        var match = /site\/([\w-]*)/.exec(url);
+        var siteId = '';
+        if(match && match.length == 2) siteId = match[1];
+        
+        var onlineString = portalChat.offline ? 'false' : 'true';
 		var videoString = (this.videoCall && !this.videoOff)?this.videoCall.getVideoAgent():'none';
 
-		jQuery
-				.ajax({
-					url : '/direct/portal-chat/' + portal.user.id
-							+ '/latestData.json?auto=true&siteId=' + siteId
-							+ '&online=' + onlineString + '&video='
-							+ videoString,
-					dataType : "json",
-					cache : false,
-					success : function(data, status) {
-						portalChat.updateMessages(data.data.messages);
-						portalChat.updateVideoMessages(data.data.videoMessages);
-						// SAK-20565. Profile2 may not be installed, so no
-						// connections :(
-						if (portalChat.connectionsAvailable === true) {
-							if (data.data.connectionsAvailable) {
-								$('#pc_connections_wrapper').show();
-								portalChat
-										.updateConnections(
-												data.data.connections,
-												data.data.online);
-							} else {
-								$('#pc_connections_wrapper').hide();
 
-								// No point checking again as profile2 can't be
-								// installed without a full restart
-								portalChat.connectionsAvailable = false;
-								portalChat.setSetting('connectionsAvailable',
-										false);
-							}
-						}
+		jQuery.ajax({
+			url : '/direct/portal-chat/' + portal.user.id + '/latestData.json?auto=true&siteId=' + siteId + '&online=' + onlineString + '&video=' + videoString,
+			dataType : "json",
+			cache: false,
+			success : function (data,status) {
+				portalChat.updateMessages(data.data.messages);
+				portalChat.updateVideoMessages(data.data.videoMessages);
 
-						portalChat.updateSiteUsers(data.data.presentUsers);
+                // SAK-20565. Profile2 may not be installed, so no connections :(
+                if(portalChat.connectionsAvailable === true) {
+                    if(data.data.connectionsAvailable) {
+                        $('#pc_connections_wrapper').show();
+                        portalChat.updateConnections(data.data.connections,data.data.online);
+                    } else {
+                        $('#pc_connections_wrapper').hide();
 
-						var totalChattable = data.data.online.length;
+                        // No point checking again as profile2 can't be installed without a full restart
+                        portalChat.connectionsAvailable = false;
+		                portalChat.setSetting('connectionsAvailable',false);
+                    }
+                }
 
-						// SAK-22260. Don't count the same person twice ...
-						for ( var i = 0, j = data.data.presentUsers.length; i < j; i++) {
-							var presentUser = data.data.presentUsers[i];
-							var alreadyIn = false;
-							for ( var k = 0, m = data.data.online.length; k < m; k++) {
-								if (presentUser.id === data.data.online[k].id) {
-									alreadyIn = true;
-									break;
-								}
-							}
-							if (alreadyIn == false) {
-								totalChattable++;
-							}
-						}
+                portalChat.updateSiteUsers(data.data.presentUsers);
 
-						if (totalChattable > 0) {
-							$('#chattableCount').html(totalChattable + '');
-							$('#chattableCount').removeClass('empty').addClass(
-									'present');
-						} else {
-							$('#chattableCount').html(' ');
-							$('#chattableCount').removeClass('present')
-									.addClass('empty');
-						}
-					},
-					error : function(xhr, textStatus, error) {
+                var totalChattable = data.data.online.length;
 
-						if (403 == xhr.status) {
-							portalChat.handleSecurityError();
-							return;
-						}
+                // SAK-22260. Don't count the same person twice ...
+                for(var i=0,j=data.data.presentUsers.length;i<j;i++) {
+                    var presentUser = data.data.presentUsers[i];
+                    var alreadyIn = false;
+                    for(var k=0,m=data.data.online.length;k<m;k++) {
+                        if(presentUser.id === data.data.online[k].id) {
+                            alreadyIn = true;
+                            break;
+                        }
+                    }
+                    if(alreadyIn == false) {
+                        totalChattable++;
+                    }
+                }
 
-						if (portalChat.connectionErrors >= 2) {
-							portalChat.clearGetLatestDataInterval();
-							portalChat.connectionErrors = 0;
-							alert("getLatestMessages: It looks like the chat server is unavailable. Check your network connection.");
-						} else {
-							portalChat.connectionErrors = portalChat.connectionErrors + 1;
-						}
-					}
-				});
+                if(totalChattable > 0) {
+                    $('#chattableCount').html(totalChattable + '');
+                    $('#chattableCount').removeClass('empty').addClass('present');
+                } else {
+                    $('#chattableCount').html(' ');
+                    $('#chattableCount').removeClass('present').addClass('empty');
+                }
+			},
+			error : function (xhr,textStatus,error) {
+
+				if(403 == xhr.status) {
+                    portalChat.handleSecurityError();
+                    return;
+                }
+
+				if(portalChat.connectionErrors >= 2) {
+					portalChat.clearGetLatestDataInterval();
+					portalChat.connectionErrors = 0;
+					alert("getLatestMessages: It looks like the chat server is unavailable. Check your network connection.");
+				} else { 
+					portalChat.connectionErrors = portalChat.connectionErrors + 1;
+				}
+			}
+		});
 	}
 
-	this.addToMessageStream = function(uuid, message) {
+	this.addToMessageStream = function (uuid,message) {
 
 		var chatSessionString = sessionStorage['pcsession_' + uuid];
 		var chatSession;
-		if (chatSessionString) {
-			chatSession = JSON.parse(sessionStorage['pcsession_' + uuid]);
-			if (chatSession.messages) {
-				chatSession.messages.push(message);
-			} else {
-				chatSession.messages = [ message ];
-			}
+		if(chatSessionString) {
+		    chatSession = JSON.parse(sessionStorage['pcsession_' + uuid]);
+			if(chatSession.messages) {
+			    chatSession.messages.push(message);
+            } else {
+				chatSession.messages = [message];
+            }
 		} else {
-			chatSession = {
-				'uuid' : uuid,
-				'minimised' : false,
-				'messages' : [ message ]
-			};
+			chatSession = {'uuid': uuid, 'minimised': false, 'messages': [message]};
 		}
 
-		sessionStorage
-				.setItem('pcsession_' + uuid, JSON.stringify(chatSession));
+		sessionStorage.setItem('pcsession_' + uuid, JSON.stringify(chatSession));
 	}
 
-	this.pingConnection = function(userId) {
+	this.pingConnection = function (userId) {
 
-		jQuery
-				.ajax({
-					url : '/direct/portal-chat/' + userId + '/ping',
-					dataType : "text",
-					cache : false,
-					success : function(text, status) {
-						$('#pc_pinged_popup_' + userId).show();
-						setTimeout(function() {
-							$('#pc_pinged_popup_' + userId).fadeOut(800);
-						}, 500);
-					},
-					error : function(xmlHttpRequest, textStatus, error) {
+		jQuery.ajax({
+			url : '/direct/portal-chat/' + userId + '/ping',
+			dataType : "text",
+			cache: false,
+			success : function (text,status) {
+                $('#pc_pinged_popup_' + userId).show();
+                setTimeout(function () { $('#pc_pinged_popup_' + userId).fadeOut(800); },500);
+			},
+			error : function (xmlHttpRequest,textStatus,error) {
 
-						if (403 == xhr.status) {
-							portalChat.handleSecurityError();
-						}
+				if(403 == xhr.status) {
+                    portalChat.handleSecurityError();
+                }
 
-						if (portalChat.connectionErrors >= 2) {
-							portalChat.clearGetLatestDataInterval();
-							portalChat.connectionErrors = 0;
-							alert("pingConnection: It looks like the chat server is unavailable. Check your network connection.");
-						} else {
-							portalChat.connectionErrors = portalChat.connectionErrors + 1;
-						}
-					}
-				});
+				if(portalChat.connectionErrors >= 2) {
+					portalChat.clearGetLatestDataInterval();
+					portalChat.connectionErrors = 0;
+					alert("pingConnection: It looks like the chat server is unavailable. Check your network connection.");
+				} else { 
+					portalChat.connectionErrors = portalChat.connectionErrors + 1;
+				}
+			}
+		});
 	}
 
-	this.setSetting = function(setting, value, persistent) {
+    this.setSetting = function (setting,value,persistent) {
 
-		var storage = (persistent) ? localStorage : sessionStorage;
+        var storage = (persistent) ? localStorage : sessionStorage;
 
 		var mySettings = {};
 		var mySettingsString = storage.pcSettings;
-		if (mySettingsString) {
+		if(mySettingsString) {
 			mySettings = JSON.parse(mySettingsString);
 		}
 		mySettings[setting] = value;
 		storage.pcSettings = JSON.stringify(mySettings);
 	}
 
-	this.getSetting = function(setting, persistent) {
+	this.getSetting = function (setting, persistent) {
 
-		var storage = (persistent) ? localStorage : sessionStorage;
+        var storage = (persistent) ? localStorage : sessionStorage;
 
 		var mySettings = {};
 		var mySettingsString = storage.pcSettings;
-		if (mySettingsString) {
+		if(mySettingsString) {
 			mySettings = JSON.parse(mySettingsString);
 		}
 
 		return mySettings[setting];
 	}
 
-	this.setGetLatestDataInterval = function() {
-		if (portalChat.getLatestDataInterval === null) {
-			portalChat.getLatestDataInterval = window.setInterval(function() {
-				portalChat.getLatestData();
-			}, 5000);
-		}
-	}
+    this.setGetLatestDataInterval = function () {
+        if(portalChat.getLatestDataInterval === null) {
+		    portalChat.getLatestDataInterval = window.setInterval(function () {portalChat.getLatestData();},5000);
+        }
+    }
 
-	this.clearGetLatestDataInterval = function() {
-		window.clearInterval(portalChat.getLatestDataInterval);
-		portalChat.getLatestDataInterval = null;
-	}
+    this.clearGetLatestDataInterval = function () {
+	    window.clearInterval(portalChat.getLatestDataInterval);
+        portalChat.getLatestDataInterval = null;
+    }
 
-	this.appendMessageToChattersPanel = function(params) {
-		var content = params['content'];
-		var panelUuid = params['panelUuid'];
-		var from = params['from'];
-		var dateString = params['dateString'];
-		var alt = params['alt'];
+    this.appendMessageToChattersPanel = function(params) {
+        var content = params['content'];
+        var panelUuid = params['panelUuid'];
+        var from = params['from'];
+        var dateString = params['dateString'];
+        var alt = params['alt'];
 
-		var avatarPermitted;
-		if ($('#avatarPermitted').length === 1) {
-			avatarPermitted = true;
-		} else {
-			avatarPermitted = false;
-		}
+        var avatarPermitted;
+        if($('#avatarPermitted').length===1){
+            avatarPermitted =true;
+        } else {
+            avatarPermitted =false;
+        }
 
-		var avatarOrName = "";
-		if (avatarPermitted) {
-			avatarOrName = "<img src=\"/direct/profile/" + from
-					+ "/image\" alt=\"" + alt + "\" title=\"" + alt + "\"/>";
-		} else {
-			avatarOrName = "<span class=\"pc_displayname\">" + alt + "</span>";
-		}
+        var avatarOrName="";
+        if (avatarPermitted){
+            avatarOrName = "<img src=\"/direct/profile/" + from + "/image\" alt=\"" + alt + "\" title=\"" + alt + "\"/>";
+        } else {
+            avatarOrName="<span class=\"pc_displayname\">" + alt + "</span>";
+        }
 
-		// Escape markup
-		content = content.replace(/&/g, '&amp;').replace(/>/g, '&gt;').replace(
-				/</g, '&lt;').replace(/"/g, '&quot;');
+        // Escape markup
+        content = content.replace(/&/g, '&amp;').replace(/>/g, '&gt;').replace(/</g, '&lt;').replace(/"/g, '&quot;');
 
-		// Decode any unicode escapes
-		content = JSON.parse('"' + content + '"');
+        // Decode any unicode escapes
+        content = JSON.parse('"' + content + '"');
 
 		var messagePanel = $("#pc_connection_chat_" + panelUuid + "_messages");
 
-		messagePanel.append("<li>" + avatarOrName
-				+ "<div class=\"pc_message\">" + content
-				+ "</div><span class=\"pc_messagedate\">" + dateString
-				+ "</span></li>");
-	}
-	
+		messagePanel.append("<li>"+ avatarOrName + "<div class=\"pc_message\">" + content + "</div><span class=\"pc_messagedate\">" + dateString + "</span></li>");
+    }
+    
 	this.maximizeVideoCall = function (uuid){
-		var remoteVideo = document.getElementById("pc_chat_" + uuid
-				+ "_remote_video");
+		var remoteVideo = document.getElementById("pc_chat_" + uuid + "_remote_video");
 		this.videoCall.maximizeVideo (remoteVideo);
 	}
 	
@@ -1062,20 +928,17 @@ function PortalChat() {//
 
 							if (portal.loggedIn) {
 
-								/* Initialize videoChat */
 								if (typeof VideoCall === 'function') {
 									portalChat.videoCall = new VideoCall();
-	
+
 									portalChat.videoCall.onHangUp = function(userid) {
-										portalChat.setVideoStatus(userid,
-												"User has hung up", true);
+										portalChat.setVideoStatus(userid,"User has hung up", true);
 										portalChat.videoCall.doClose(userid);
 										portalChat.hideVideoCall(userid);
 									};
-	
 									portalChat.videoCall.init(portalChat);
 								}
-
+					
 								$('#chatToggle').click(function() {
 									portalChat.toggleChat();
 									// $('#presenceArea').toggle();
