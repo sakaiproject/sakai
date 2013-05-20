@@ -1,5 +1,7 @@
 package org.sakaiproject.search.adapter;
 
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
 import org.sakaiproject.component.cover.ComponentManager;
 import org.sakaiproject.component.cover.ServerConfigurationService;
 import org.sakaiproject.event.api.Event;
@@ -8,6 +10,7 @@ import org.sakaiproject.search.api.EntityContentProducer;
 import org.sakaiproject.search.api.SearchIndexBuilder;
 import org.sakaiproject.search.model.SearchBuilderItem;
 
+import java.lang.reflect.Method;
 import java.util.List;
 
 /**
@@ -16,6 +19,7 @@ import java.util.List;
  * @author Colin Hebert
  */
 public class SearchIndexBuilderAdapter implements SearchIndexBuilder {
+    private static Log log = LogFactory.getLog(SearchIndexBuilderAdapter.class);
     private static final String SEARCH_BUILDER_IMPL_PROPERTY = "search.indexbuilder.impl";
     /**
      * Defaults to the elastic search implementation if nothing was provided.
@@ -112,5 +116,31 @@ public class SearchIndexBuilderAdapter implements SearchIndexBuilder {
     @Override
     public boolean isExcludeUserSites() {
         return searchIndexBuilder.isExcludeUserSites();
+    }
+
+    public void setOnlyIndexSearchToolSites(boolean onlyIndexSearchToolSites) {
+        try {
+            Method method = searchIndexBuilder.getClass().getMethod("setOnlyIndexSearchToolSites", new Class[]{boolean.class});
+            method.invoke(searchIndexBuilder, onlyIndexSearchToolSites);
+            log.trace("######### searchIndexBuilder.getSearchServer() = " + searchIndexBuilder.isOnlyIndexSearchToolSites());
+        } catch (NoSuchMethodException e) {
+            log.debug(searchIndexBuilder.getClass().getName() + " does not have a method called setOnlyIndexSearchToolSites.");
+        } catch (Exception e) {
+            log.error(e.getMessage(), e);
+        }
+    }
+
+
+    public void setExcludeUserSites(boolean excludeUserSites) {
+        try {
+            Method method = searchIndexBuilder.getClass().getMethod("setExcludeUserSites", new Class[]{boolean.class});
+            method.invoke(searchIndexBuilder, excludeUserSites);
+            log.trace("######### searchIndexBuilder.getSearchServer() = " + searchIndexBuilder.isExcludeUserSites());
+        } catch (NoSuchMethodException e) {
+            log.debug(searchIndexBuilder.getClass().getName() + " does not have a method called setExcludeUserSites.");
+        } catch (Exception e) {
+            log.error(e.getMessage(), e);
+        }
+
     }
 }
