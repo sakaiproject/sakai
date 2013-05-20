@@ -50,7 +50,7 @@
     <dependency>
       <groupId>com.novell.ldap</groupId>
       <artifactId>jldap</artifactId>
-      <version>2009.10.07</version>
+      <version>2009-10-07</version>
     </dependency>
     <dependency>
       <groupId>jmock</groupId>
