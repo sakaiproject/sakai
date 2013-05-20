@@ -264,6 +264,94 @@ public class GradingServiceTest extends AbstractTransactionalSpringContextTests 
         result = gradingService.processFormulaIntoValue("\n  5 \n +  2.0\n +  3  ", 0);
         assertNotNull(result);
         assertEquals("10", result);
+
+        // https://jira.sakaiproject.org/browse/SAM-2157
+        // 500 formula processor error occurs when either ^ or / is entered in a Formula (at any time) 
+        result = gradingService.processFormulaIntoValue("2^2", 0);
+        assertNotNull(result);
+        assertEquals("4", result);
+        result = gradingService.processFormulaIntoValue("2^1", 0);
+        assertNotNull(result);
+        assertEquals("2", result);
+        result = gradingService.processFormulaIntoValue("2^0", 0);
+        assertNotNull(result);
+        assertEquals("1", result);
+        result = gradingService.processFormulaIntoValue("10^1", 0);
+        assertNotNull(result);
+        assertEquals("10", result);
+        result = gradingService.processFormulaIntoValue("1^10", 0);
+        assertNotNull(result);
+        assertEquals("1", result);
+        result = gradingService.processFormulaIntoValue("2 ^ 2", 0); // with spaces
+        assertNotNull(result);
+        assertEquals("4", result);
+
+        result = gradingService.processFormulaIntoValue("2/2", 0);
+        assertNotNull(result);
+        assertEquals("1", result);
+        result = gradingService.processFormulaIntoValue("2/1", 0);
+        assertNotNull(result);
+        assertEquals("2", result);
+        result = gradingService.processFormulaIntoValue("0/2", 0);
+        assertNotNull(result);
+        assertEquals("0", result);
+        result = gradingService.processFormulaIntoValue("10/2", 0);
+        assertNotNull(result);
+        assertEquals("5", result);
+        result = gradingService.processFormulaIntoValue("2/10", 1);
+        assertNotNull(result);
+        assertEquals("0.2", result);
+        result = gradingService.processFormulaIntoValue("2 / 2", 0); // with spaces
+        assertNotNull(result);
+        assertEquals("1", result);
+
+        // 500 error occurs when when asin or acos is entered in the formula fields
+        result = gradingService.processFormulaIntoValue("sin(0)", 2);
+        assertNotNull(result);
+        assertEquals("0", result);
+        result = gradingService.processFormulaIntoValue("cos(0)", 2);
+        assertNotNull(result);
+        assertEquals("1", result);
+        result = gradingService.processFormulaIntoValue("tan(0)", 2);
+        assertNotNull(result);
+        assertEquals("0", result);
+        result = gradingService.processFormulaIntoValue("sin(PI)", 2);
+        assertNotNull(result);
+        assertEquals("0", result);
+        result = gradingService.processFormulaIntoValue("cos(PI)", 2);
+        assertNotNull(result);
+        assertEquals("-1", result);
+        result = gradingService.processFormulaIntoValue("tan(PI)", 2);
+        assertNotNull(result);
+        assertEquals("0", result);
+        result = gradingService.processFormulaIntoValue("sin(1)", 2);
+        assertNotNull(result);
+        assertEquals("0.84", result);
+        result = gradingService.processFormulaIntoValue("cos(1)", 2);
+        assertNotNull(result);
+        assertEquals("0.54", result);
+        result = gradingService.processFormulaIntoValue("tan(1)", 2);
+        assertNotNull(result);
+        assertEquals("1.56", result);
+
+        result = gradingService.processFormulaIntoValue("asin(0)", 2);
+        assertNotNull(result);
+        assertEquals("0", result);
+        result = gradingService.processFormulaIntoValue("acos(0)", 2);
+        assertNotNull(result);
+        assertEquals("1.57", result);
+        result = gradingService.processFormulaIntoValue("atan(0)", 2);
+        assertNotNull(result);
+        assertEquals("0", result);
+        result = gradingService.processFormulaIntoValue("asin(1)", 2);
+        assertNotNull(result);
+        assertEquals("1.57", result);
+        result = gradingService.processFormulaIntoValue("acos(1)", 2);
+        assertNotNull(result);
+        assertEquals("0", result);
+        result = gradingService.processFormulaIntoValue("atan(1)", 2);
+        assertNotNull(result);
+        assertEquals("0.78", result);
     }
 
     public void testReplaceMappedVariablesWithNumbers() throws Exception {

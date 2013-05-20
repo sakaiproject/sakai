@@ -26,10 +26,11 @@ import java.math.BigDecimal;
 import java.util.*;
 
 
-
-
 public class SamigoExpressionParser
 {
+
+  public static String INFINITY = "Infinity";
+  public static String NaN = "NaN";
 
   /**
    * finalructor.
@@ -92,6 +93,12 @@ public class SamigoExpressionParser
         }
       }
 
+      // infinity and NaN cannot be processed correctly
+      if (Double.isInfinite(ans)) {
+          throw new SamigoExpressionError(402, expr);
+      } else if (Double.isNaN(ans)) {
+          throw new SamigoExpressionError(401, expr);
+      }
       // round the answer for accuracy (hopefully)
       ans = BigDecimal.valueOf(ans).setScale(decimals, BigDecimal.ROUND_HALF_UP).doubleValue();
       //ans = (double)Math.round(ans * (decimals * 10l)) / (decimals * 10.0d);

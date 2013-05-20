@@ -143,6 +143,8 @@ public class SamigoExpressionError extends Exception {
       
       // error in functions
       case 400: return "Integer value expected in function %s";
+      case 401: return "Result of %s is not a number (NaN)";
+      case 402: return "Result of %s is infinity (Infinity)";
       
       // unknown error
       case 500: return "%s";
