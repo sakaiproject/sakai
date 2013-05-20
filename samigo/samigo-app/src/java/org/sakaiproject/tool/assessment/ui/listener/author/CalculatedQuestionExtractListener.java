@@ -32,7 +32,6 @@ import javax.faces.event.AbortProcessingException;
 import javax.faces.event.ActionEvent;
 import javax.faces.event.ActionListener;
 
-import org.apache.commons.lang.StringUtils;
 import org.sakaiproject.tool.assessment.services.GradingService;
 import org.sakaiproject.tool.assessment.ui.bean.author.CalculatedQuestionCalculationBean;
 import org.sakaiproject.tool.assessment.ui.bean.author.CalculatedQuestionFormulaBean;
@@ -108,7 +107,7 @@ public class CalculatedQuestionExtractListener implements ActionListener{
         if (errors.size() == 0) {
             errors.addAll(createFormulasFromInstructions(item, formulaNames));
             errors.addAll(createVariablesFromInstructions(item, variableNames));
-            errors.addAll(createCalculationsFromInstructions(item.getCalculatedQuestion(), item.getItemText(), service));
+            errors.addAll(createCalculationsFromInstructions(item.getCalculatedQuestion(), instructions, service));
         }
 
         // validate variable min and max and formula tolerance
@@ -215,6 +214,7 @@ public class CalculatedQuestionExtractListener implements ActionListener{
 
     /**
      * Finds the calculations in the instructions and places them in the CalculatedQuestionBean
+     * (destroys anything that was already there)
      * 
      * @param calculatedQuestionBean
      * @param instructions
@@ -223,6 +223,7 @@ public class CalculatedQuestionExtractListener implements ActionListener{
      */
     static List<String> createCalculationsFromInstructions(CalculatedQuestionBean calculatedQuestionBean, String instructions, GradingService service) {
         List<String> errors = new ArrayList<String>();
+        calculatedQuestionBean.clearCalculations(); // reset the current set and extract a new one
         List<String> calculations = service.extractCalculations(instructions);
         if (!calculations.isEmpty()) {
             for (String calculation : calculations) {
@@ -429,13 +430,13 @@ public class CalculatedQuestionExtractListener implements ActionListener{
                     if (unwrappedVariables.size() > 0) {
                         String msg = getErrorMessage("samigo_formula_error_9");
                         cqcb.setStatus(msg);
-                        errors.add(msg);
+                        errors.add(msg + " :"+substitutedFormulaStr);
                     } else {
                         try {
                             if (service.isNegativeSqrt(substitutedFormulaStr)) {
                                 String msg = getErrorMessage("samigo_formula_error_8");
                                 cqcb.setStatus(msg);
-                                errors.add(msg);
+                                errors.add(msg + " :"+substitutedFormulaStr);
                             } else {
                                 String formulaValue = service.processFormulaIntoValue(substitutedFormulaStr, 5); // throws exceptions if formula is invalid
                                 cqcb.setValue(formulaValue);
@@ -444,11 +445,11 @@ public class CalculatedQuestionExtractListener implements ActionListener{
                         } catch (SamigoExpressionError e) {
                             String msg = getErrorMessage("samigo_formula_error_" + Integer.valueOf(e.get_id()));
                             cqcb.setStatus(msg);
-                            errors.add(msg);
+                            errors.add(msg + " :"+substitutedFormulaStr);
                         } catch (Exception e) {
                             String msg = getErrorMessage("samigo_formula_error_500");
                             cqcb.setStatus(msg);
-                            errors.add(msg);
+                            errors.add(msg + " :"+substitutedFormulaStr);
                         }
                     }
                 }
@@ -507,7 +508,7 @@ public class CalculatedQuestionExtractListener implements ActionListener{
                     List<String> unwrappedVariables = service.extractVariables(substitutedFormulaStr);
                     if (unwrappedVariables.size() > 0) {
                         formulaBean.setValidFormula(false);
-                        errors.add(getErrorMessage("samigo_formula_error_9"));
+                        errors.add(getErrorMessage("samigo_formula_error_9") + " :"+substitutedFormulaStr);
                     } else {
                         try {
                             if (service.isNegativeSqrt(substitutedFormulaStr)) {
