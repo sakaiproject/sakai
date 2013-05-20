@@ -96,21 +96,20 @@ public class GradingService
 
   // CALCULATED_QUESTION
   final String OPEN_BRACKET = "\\{";
-  final String NOT_OPEN_BRACKET = "[^\\{]";
   final String CLOSE_BRACKET = "\\}";
-  final String NOT_CLOSE_BRACKET = "[^\\}]?"; // non-greedy
-  final String CALCULATION_OPEN = "[[";
-  final String CALCULATION_CLOSE = "]]";
+  final String CALCULATION_OPEN = "[["; // not regex safe
+  final String CALCULATION_CLOSE = "]]"; // not regex safe
   /**
    * regular expression for matching the contents of a variable or formula name 
    * in Calculated Questions
    * NOTE: Old regex: ([\\w\\s\\.\\-\\^\\$\\!\\&\\@\\?\\*\\%\\(\\)\\+=#`~&:;|,/<>\\[\\]\\\\\\'\"]+?)
    * was way too complicated.
    */
-  final String CALCQ_VAR_FORM_NAME = "[^\\{\\}]+?"; // non-greedy
+  final String CALCQ_VAR_FORM_NAME = "[a-zA-Z][^\\{\\}]*?"; // non-greedy (must start wtih alpha)
   final String CALCQ_VAR_FORM_NAME_EXPRESSION = "("+CALCQ_VAR_FORM_NAME+")";
 
-  final Pattern CALCQ_ANSWER_PATTERN = Pattern.compile(NOT_OPEN_BRACKET + OPEN_BRACKET + CALCQ_VAR_FORM_NAME_EXPRESSION + CLOSE_BRACKET + NOT_CLOSE_BRACKET);
+  // variable match - (?<!\{)\{([^\{\}]+?)\}(?!\}) - means any sequence inside braces without a braces before or after
+  final Pattern CALCQ_ANSWER_PATTERN = Pattern.compile("(?<!\\{)" + OPEN_BRACKET + CALCQ_VAR_FORM_NAME_EXPRESSION + CLOSE_BRACKET + "(?!\\})");
   final Pattern CALCQ_FORMULA_PATTERN = Pattern.compile(OPEN_BRACKET + OPEN_BRACKET + CALCQ_VAR_FORM_NAME_EXPRESSION + CLOSE_BRACKET + CLOSE_BRACKET);
   final Pattern CALCQ_FORMULA_SPLIT_PATTERN = Pattern.compile("(" + OPEN_BRACKET + OPEN_BRACKET + CALCQ_VAR_FORM_NAME + CLOSE_BRACKET + CLOSE_BRACKET + ")");
   final Pattern CALCQ_CALCULATION_PATTERN = Pattern.compile("\\[\\[([^\\[\\]]+?)\\]\\]?"); // non-greedy
@@ -2209,7 +2208,6 @@ Here are the definition and 12 cases I came up with (lydia, 01/2006):
   private List<String> extractCalculatedQuestionKeyFromItemText(String itemText, Pattern identifierPattern) {
       LinkedHashSet<String> keys = new LinkedHashSet<String>();
       if (itemText != null && itemText.trim().length() > 0) {
-          itemText = " "+itemText+" "; // this is needed to allow the regex to match properly
           Matcher keyMatcher = identifierPattern.matcher(itemText);
           while (keyMatcher.find()) {
               String match = keyMatcher.group(1);

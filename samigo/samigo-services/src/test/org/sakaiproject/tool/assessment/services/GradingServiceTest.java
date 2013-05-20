@@ -121,6 +121,101 @@ public class GradingServiceTest extends AbstractTransactionalSpringContextTests 
 
     }
 
+    public void testExtractVariablesFormulas() {
+        List<String> results = null;
+        String text = null;
+
+        text = "{A}+{B}={{D}} Hint: [[{A}-{B}]]";
+        results = gradingService.extractVariables(text);
+        assertNotNull(results);
+        assertEquals(2, results.size());
+        assertEquals("A", results.get(0));
+        assertEquals("B", results.get(1));
+        results = gradingService.extractFormulas(text);
+        assertNotNull(results);
+        assertEquals(1, results.size());
+        assertEquals("D", results.get(0));
+
+        text = "{aaa11}+{bbb}={{dAnSw_3r}} Hint: [[{aaa11}-{bbb}]]";
+        results = gradingService.extractVariables(text);
+        assertNotNull(results);
+        assertEquals(2, results.size());
+        assertEquals("aaa11", results.get(0));
+        assertEquals("bbb", results.get(1));
+        results = gradingService.extractFormulas(text);
+        assertNotNull(results);
+        assertEquals(1, results.size());
+        assertEquals("dAnSw_3r", results.get(0));
+
+        text = "{A} + {B} = {{D}} Hint: [[ {A} + {B} ]]";
+        results = gradingService.extractVariables(text);
+        assertNotNull(results);
+        assertEquals(2, results.size());
+        assertEquals("A", results.get(0));
+        assertEquals("B", results.get(1));
+        results = gradingService.extractFormulas(text);
+        assertNotNull(results);
+        assertEquals(1, results.size());
+        assertEquals("D", results.get(0));
+
+        text = "{A}*{B}={{D}} Hint: [[{A}*{B}]]";
+        results = gradingService.extractVariables(text);
+        assertNotNull(results);
+        assertEquals(2, results.size());
+        assertEquals("A", results.get(0));
+        assertEquals("B", results.get(1));
+        results = gradingService.extractFormulas(text);
+        assertNotNull(results);
+        assertEquals(1, results.size());
+        assertEquals("D", results.get(0));
+
+        text = "{A}-{B}={{D}} Hint: [[{A}-{B}]]";
+        results = gradingService.extractVariables(text);
+        assertNotNull(results);
+        assertEquals(2, results.size());
+        assertEquals("A", results.get(0));
+        assertEquals("B", results.get(1));
+        results = gradingService.extractFormulas(text);
+        assertNotNull(results);
+        assertEquals(1, results.size());
+        assertEquals("D", results.get(0));
+
+        text = "{A}/{B}={{D}} Hint: [[{A}/{B}]]";
+        results = gradingService.extractVariables(text);
+        assertNotNull(results);
+        assertEquals(2, results.size());
+        assertEquals("A", results.get(0));
+        assertEquals("B", results.get(1));
+        results = gradingService.extractFormulas(text);
+        assertNotNull(results);
+        assertEquals(1, results.size());
+        assertEquals("D", results.get(0));
+
+        // single variable
+        text = "{A}={{D}} Hint: [[{A}]]";
+        results = gradingService.extractVariables(text);
+        assertNotNull(results);
+        assertEquals(1, results.size());
+        assertEquals("A", results.get(0));
+        results = gradingService.extractFormulas(text);
+        assertNotNull(results);
+        assertEquals(1, results.size());
+        assertEquals("D", results.get(0));
+
+        // 3 variables
+        text = "{A}+{B}+{C}={{D}} Hint: [[{A}+{B}+{C}]]";
+        results = gradingService.extractVariables(text);
+        assertNotNull(results);
+        assertEquals(3, results.size());
+        assertEquals("A", results.get(0));
+        assertEquals("B", results.get(1));
+        assertEquals("C", results.get(2));
+        results = gradingService.extractFormulas(text);
+        assertNotNull(results);
+        assertEquals(1, results.size());
+        assertEquals("D", results.get(0));
+    }
+
     public void testExtractInstructionSegments() {
         List<String> results = null;
 
