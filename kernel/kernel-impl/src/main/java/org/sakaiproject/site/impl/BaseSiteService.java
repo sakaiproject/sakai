@@ -993,6 +993,15 @@ public abstract class BaseSiteService implements SiteService, Observer
 
 		// complete the edit
 		storage().save(site);
+		
+		// Check to see if an this is an interesting enough change to invalidate the user-site cache.
+		// For now, we just check if the title changed because that persists in the portal navigation.
+		// As with other areas, if the main and user-site caches were more integrated (keeping references
+		// for users rather than copies), we would not have to synchronize explicitly here.
+		Site cached = getCachedSite(site.getId());
+		if (cached != null && site.getTitle() != null && !site.getTitle().equals(cached.getTitle())) {
+			clearUserCacheForSite(site);
+		}
 		cacheSite(site);
 
 		// save any modified azgs
