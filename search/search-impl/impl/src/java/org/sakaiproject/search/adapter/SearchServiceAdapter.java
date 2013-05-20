@@ -1,11 +1,15 @@
 package org.sakaiproject.search.adapter;
 
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
 import org.sakaiproject.component.cover.ComponentManager;
 import org.sakaiproject.component.cover.ServerConfigurationService;
 import org.sakaiproject.search.api.*;
 import org.sakaiproject.search.model.SearchBuilderItem;
 
 import java.io.IOException;
+import java.lang.reflect.InvocationTargetException;
+import java.lang.reflect.Method;
 import java.util.List;
 import java.util.Map;
 
@@ -15,6 +19,7 @@ import java.util.Map;
  * @author Colin Hebert
  */
 public class SearchServiceAdapter implements SearchService {
+    private static Log log = LogFactory.getLog(SearchServiceAdapter.class);
     private static final String SEARCH_IMPL_PROPERTY = "search.service.impl";
     /**
      * Defaults to the elastic search implementation if nothing was provided.
@@ -148,6 +153,22 @@ public class SearchServiceAdapter implements SearchService {
     @Override
     public String[] getSearchSuggestions(String searchString, String currentSite, boolean allMySites) {
         return searchService.getSearchSuggestions(searchString, currentSite, allMySites);
+    }
+
+    /**
+     * provides some backwards compatibility for impls that doesn't support setting this property.
+     * @param searchServer
+     */
+    public void setSearchServer(boolean searchServer) {
+        try {
+            Method method = searchService.getClass().getMethod("setSearchServer", new Class[]{boolean.class});
+            method.invoke(searchService, searchServer);
+            log.trace("######### searchService.getSearchServer() = " + searchService.isSearchServer());
+        } catch (NoSuchMethodException e) {
+            log.debug(searchService.getClass().getName() + " does not have a method called setSearchServer.");
+        } catch (Exception e) {
+            log.error(e.getMessage(), e);
+        }
     }
 
     @Override
