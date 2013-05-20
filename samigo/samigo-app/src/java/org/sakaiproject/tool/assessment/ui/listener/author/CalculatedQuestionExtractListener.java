@@ -512,16 +512,17 @@ public class CalculatedQuestionExtractListener implements ActionListener{
                         try {
                             if (service.isNegativeSqrt(substitutedFormulaStr)) {
                                 formulaBean.setValidFormula(false);
-                                errors.add(getErrorMessage("samigo_formula_error_8"));
+                                errors.add(getErrorMessage("samigo_formula_error_8") + " :"+substitutedFormulaStr);
                             } else {
                                 service.processFormulaIntoValue(substitutedFormulaStr, 5); // throws exceptions on failure
                             }
                         } catch (SamigoExpressionError e) {
                             formulaBean.setValidFormula(false);
-                            errors.add(getErrorMessage("samigo_formula_error_" + Integer.valueOf(e.get_id())));
+                            String msg = getErrorMessage("samigo_formula_error_" + Integer.valueOf(e.get_id()));
+                            errors.add(msg + " :"+substitutedFormulaStr);
                         } catch (Exception e) {
                             formulaBean.setValidFormula(false);
-                            errors.add(getErrorMessage("samigo_formula_error_500"));
+                            errors.add(getErrorMessage("samigo_formula_error_500") + " :"+substitutedFormulaStr);
                         }
                     }
                 }
