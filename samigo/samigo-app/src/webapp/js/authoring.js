@@ -125,6 +125,12 @@ switchPartialCredit(fieldname,prevCorrectBtn);
 }
 
 function switchPartialCredit(newCorrect,oldCorrect){
+   var pInput = document.getElementById('itemForm:mcchoices:0:partialCredit');
+   if(typeof(pInput) == 'undefined' || pInput == null){
+      // partial credit function is disabled
+      return;
+   }	
+   
    var toggleDiv=document.getElementById('partialCredit_toggle');
    if( typeof(toggleDiv) == 'undefined' ||toggleDiv == null){
       return;
@@ -171,6 +177,12 @@ function resetInsertAnswerSelectMenus(){
 }
 
 function disablePartialCreditField(){
+ var pInput = document.getElementById('itemForm:mcchoices:0:partialCredit');
+ if(typeof(pInput) == 'undefined' || pInput == null){
+    // partial credit function is disabled
+    return;
+ }
+ 
  var inputs= document.getElementsByTagName("INPUT");
 
  for (var i = 0; i < inputs.length; i++) {
