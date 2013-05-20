@@ -18,6 +18,7 @@
  */
 package org.sakaiproject.sitestats.test.mocks;
 
+import java.util.Date;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
@@ -262,5 +263,7 @@ public class FakeResourceProperties implements ResourceProperties {
 		// TODO Auto-generated method stub
 		return null;
 	}
-
+    public Date getDateProperty(String name) {
+	return null;
+    }
 }
