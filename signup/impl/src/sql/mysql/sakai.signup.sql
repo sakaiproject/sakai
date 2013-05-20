@@ -1,3 +1,17 @@
+alter table signup_site_groups drop foreign key FKC72B75255084316;
+alter table signup_sites drop foreign key FKCCD4AC25CB1E8A17;
+alter table signup_ts drop foreign key FK41154B06CB1E8A17;
+alter table signup_ts_attendees drop foreign key FKBAB08100CDB30B3D;
+alter table signup_ts_waitinglist drop foreign key FK3AB9A8B2CDB30B3D;
+alter table signup_attachments drop foreign key FK3BCB709CB1E8A17;
+drop table if exists signup_meetings;
+drop table if exists signup_site_groups;
+drop table if exists signup_sites;
+drop table if exists signup_ts;
+drop table if exists signup_ts_attendees;
+drop table if exists signup_ts_waitinglist;
+drop table if exists signup_attachments;
+
 create table signup_meetings (
 	id bigint not null auto_increment, 
 	version integer not null, 
@@ -12,8 +26,8 @@ create table signup_meetings (
 	end_time datetime not null, 
 	signup_begins datetime, 
 	signup_deadline datetime, 
-	canceled bit, locked bit,
-	locked bit, locked bit,
+	canceled bit, 
+	locked bit,
 	receive_email_owner bit default false,
 	default_send_email_by_owner bit(1) default '\0',
 	recurrence_id bigint,
@@ -21,35 +35,35 @@ create table signup_meetings (
 	allow_waitList bit(1) default 1,
   	allow_comment bit(1) default 1,
   	eid_input_mode bit(1) default '\0',
-  	auto_reminder bit(1) default '\0', 
+  	auto_reminder bit(1) default '\0',
   	allow_attendance bit(1) default '\0',
   	create_groups bit(1) default '\0',
   	maxnumof_slot integer default 1,
   	vevent_uuid  VARCHAR(255)  default NULL,
 	primary key (id)
-) type=InnoDB;
+) ENGINE=InnoDB;
 
 create table signup_site_groups (
 	signup_site_id bigint not null, 
 	title varchar(255), 
 	group_id varchar(255) not null, 
-	calendar_event_id varchar(255), 
+	calendar_event_id varchar(2000), 
 	calendar_id varchar(255), 
 	list_index integer not null, 
 	primary key (signup_site_id, list_index)
-) type=InnoDB;
+) ENGINE=InnoDB;
 
 create table signup_sites (
 	id bigint not null auto_increment, 
 	version integer not null, 
 	title varchar(255), 
 	site_id varchar(255) not null, 
-	calendar_event_id varchar(255), 
+	calendar_event_id varchar(2000), 
 	calendar_id varchar(255), 
 	meeting_id bigint not null, 
 	list_index integer, 
 	primary key (id)
-) type=InnoDB;
+) ENGINE=InnoDB;
 
 create table signup_ts (
 	id bigint not null auto_increment, 
@@ -60,11 +74,11 @@ create table signup_ts (
 	display_attendees bit, 
 	canceled bit, locked bit, 
 	meeting_id bigint not null, 
-	list_index integer,
-	group_id  VARCHAR(255)  DEFAULT NULL,
+	list_index integer, 
+	group_id varchar(255),
 	vevent_uuid VARCHAR(255) DEFAULT NULL,
 	primary key (id)
-) type=InnoDB;
+) ENGINE=InnoDB;
 
 create table signup_ts_attendees (
 	timeslot_id bigint not null, 
@@ -74,9 +88,9 @@ create table signup_ts_attendees (
 	calendar_event_id varchar(255), 
 	calendar_id varchar(255), 
 	list_index integer not null, 
-  	attended bit(1) default '\0',
+	attended bit(1) default '\0',
 	primary key (timeslot_id, list_index)
-) type=InnoDB;
+) ENGINE=InnoDB;
 
 create table signup_ts_waitinglist (
 	timeslot_id bigint not null, 
@@ -85,10 +99,10 @@ create table signup_ts_waitinglist (
 	signup_site_id varchar(255) not null, 
 	calendar_event_id varchar(255), 
 	calendar_id varchar(255), 
-	list_index integer not null,
-	attended bit(1) default '\0',
+	list_index integer not null, 
+  	attended bit(1) default '\0',
 	primary key (timeslot_id, list_index)
-) type=InnoDB;
+) ENGINE=InnoDB;
 
 
 CREATE TABLE  signup_attachments (
@@ -106,8 +120,8 @@ CREATE TABLE  signup_attachments (
   	last_modified_by varchar(255) NOT NULL,
   	last_modified_date datetime NOT NULL,
   	list_index integer not null,
-  PRIMARY KEY  (meeting_id,list_index),
-) ENGINE=InnoDB
+  PRIMARY KEY  (meeting_id,list_index)
+) ENGINE=InnoDB;
 
 
 
@@ -141,3 +155,4 @@ alter table signup_attachments
 	add constraint FK3BCB709CB1E8A17 
 	foreign key (meeting_id) 
 	references signup_meetings (id);
+

@@ -18,7 +18,7 @@ create table signup_meetings (
 	title varchar(255) not null, 
 	description text, 
 	location varchar(255) not null,
-	category varchat(255) default null,
+	category varchar(255) default null,
 	meeting_type varchar(50) not null, 
 	creator_user_id varchar(255) not null,
 	coordinators_user_Ids   varchar(1000) default null,
@@ -26,8 +26,8 @@ create table signup_meetings (
 	end_time datetime not null, 
 	signup_begins datetime, 
 	signup_deadline datetime, 
-	canceled bit, locked bit,
-	locked bit, locked bit,
+	canceled bit, 
+	locked bit,
 	receive_email_owner bit default false,
 	default_send_email_by_owner bit(1) default '\0',
 	recurrence_id bigint,
@@ -41,7 +41,7 @@ create table signup_meetings (
   	maxnumof_slot integer default 1,
   	vevent_uuid  VARCHAR(255)  default NULL,
 	primary key (id)
-) type=InnoDB;
+) ENGINE=InnoDB;
 
 create table signup_site_groups (
 	signup_site_id bigint not null, 
@@ -51,7 +51,7 @@ create table signup_site_groups (
 	calendar_id varchar(255), 
 	list_index integer not null, 
 	primary key (signup_site_id, list_index)
-) type=InnoDB;
+) ENGINE=InnoDB;
 
 create table signup_sites (
 	id bigint not null auto_increment, 
@@ -63,7 +63,7 @@ create table signup_sites (
 	meeting_id bigint not null, 
 	list_index integer, 
 	primary key (id)
-) type=InnoDB;
+) ENGINE=InnoDB;
 
 create table signup_ts (
 	id bigint not null auto_increment, 
@@ -78,7 +78,7 @@ create table signup_ts (
 	group_id varchar(255),
 	vevent_uuid VARCHAR(255) DEFAULT NULL,
 	primary key (id)
-) type=InnoDB;
+) ENGINE=InnoDB;
 
 create table signup_ts_attendees (
 	timeslot_id bigint not null, 
@@ -90,7 +90,7 @@ create table signup_ts_attendees (
 	list_index integer not null, 
 	attended bit(1) default '\0',
 	primary key (timeslot_id, list_index)
-) type=InnoDB;
+) ENGINE=InnoDB;
 
 create table signup_ts_waitinglist (
 	timeslot_id bigint not null, 
@@ -102,7 +102,7 @@ create table signup_ts_waitinglist (
 	list_index integer not null, 
   	attended bit(1) default '\0',
 	primary key (timeslot_id, list_index)
-) type=InnoDB;
+) ENGINE=InnoDB;
 
 
 CREATE TABLE  signup_attachments (
@@ -120,8 +120,8 @@ CREATE TABLE  signup_attachments (
   	last_modified_by varchar(255) NOT NULL,
   	last_modified_date datetime NOT NULL,
   	list_index integer not null,
-  PRIMARY KEY  (meeting_id,list_index),
-) ENGINE=InnoDB
+  PRIMARY KEY  (meeting_id,list_index)
+) ENGINE=InnoDB;
 
 
 
