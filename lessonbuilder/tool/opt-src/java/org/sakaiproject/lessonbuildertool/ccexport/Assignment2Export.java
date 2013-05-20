@@ -188,7 +188,8 @@ public class Assignment2Export extends AssignmentExport {
 
 	if (next != null) {
 	    List<AssignmentItem>nextList = next.getItemsInSite(siteId);
-	    ret.addAll(nextList);
+	    if (nextList != null)
+		ret.addAll(nextList);
 	}
 
 	return ret;

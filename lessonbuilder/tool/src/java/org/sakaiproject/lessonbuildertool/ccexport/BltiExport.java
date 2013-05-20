@@ -53,7 +53,14 @@ public class BltiExport {
 	List<String> ret = new ArrayList();
 	if (ltiService == null)
 	    return ret;
-	List<Map<String,Object>> contents = ltiService.getContents(null, null, 0, 0);
+	List<Map<String,Object>> contents = null;
+	try {
+	    contents = ltiService.getContents(null, null, 0, 0);
+	} catch (Exception e) {
+	    // this should never happen, but we saw it once
+	    return null;
+	}
+		
 	for (Map<String,Object> content : contents) {
 	    Long id = getLong(content.get(LTIService.LTI_ID));
 	    if (id.longValue() != -1L)

@@ -198,8 +198,11 @@ public class ForumsExport {
 	    }
 	}
 
-	if (next != null)
-	    ret.addAll(next.getItemsInSite(siteId));
+	if (next != null) {
+	    List<ForumItem> newItems = next.getItemsInSite(siteId);
+	    if (newItems != null)
+		ret.addAll(newItems);
+	}
 
 	return ret;
     }
