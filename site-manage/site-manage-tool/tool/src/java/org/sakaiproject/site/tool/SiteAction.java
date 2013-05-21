@@ -556,8 +556,8 @@ public class SiteAction extends PagedResourceActionII {
 
 	public static final String SITE_DUPLICATED_NAME = "site_duplicated_named";
 
-	// types of site whose title can be editable
-	public static final String TITLE_EDITABLE_SITE_TYPE = "title_editable_site_type";
+	// types of site whose title can not be editable
+	public static final String TITLE_NOT_EDITABLE_SITE_TYPE = "title_not_editable_site_type";
 	
 	// maximum length of a site title
 	private  static final String STATE_SITE_TITLE_MAX = "site_title_max_length";
@@ -1017,12 +1017,14 @@ public class SiteAction extends PagedResourceActionII {
 			setupIcons(state);
 		}
 		
-		if (ServerConfigurationService.getStrings("titleEditableSiteType") != null) {
-			state.setAttribute(TITLE_EDITABLE_SITE_TYPE, new ArrayList(Arrays
+		if (ServerConfigurationService.getStrings("site.type.titleNotEditable") != null) {
+			state.setAttribute(TITLE_NOT_EDITABLE_SITE_TYPE, new ArrayList(Arrays
 					.asList(ServerConfigurationService
-							.getStrings("titleEditableSiteType"))));
+							.getStrings("site.type.titleNotEditable"))));
 		} else {
-			state.setAttribute(TITLE_EDITABLE_SITE_TYPE, new Vector());
+			state.setAttribute(TITLE_NOT_EDITABLE_SITE_TYPE, new ArrayList(Arrays
+					.asList(new String[]{ServerConfigurationService
+							.getString("courseSiteType", "course")})));
 		}
 
 		if (state.getAttribute(EDIT_VIEW_ROSTER_SITE_TYPE) == null) {
@@ -2301,14 +2303,6 @@ public class SiteAction extends PagedResourceActionII {
 
 			// about skin and icon selection
 			skinIconSelection(context, state, SiteTypeUtil.isCourseSite(siteType), site, siteInfo);
-
-			if (state.getAttribute(SiteHelper.SITE_CREATE_SITE_TITLE) != null) {
-				context.put("titleEditableSiteType", Boolean.FALSE);
-				siteInfo.title = (String)state.getAttribute(SiteHelper.SITE_CREATE_SITE_TITLE);
-			} else {
-				context.put("titleEditableSiteType", state
-						.getAttribute(TITLE_EDITABLE_SITE_TYPE));
-			}
 
 			// those manual inputs
 			context.put("form_requiredFields", sectionFieldProvider.getRequiredFields());
@@ -7337,9 +7331,8 @@ private Map<String,List> getToolGroupList(SessionState state, String type, Site 
 	 */
 	private boolean siteTitleEditable(SessionState state, String site_type) {
 		return site_type != null 
-				&& (!SiteTypeUtil.isCourseSite(site_type)
-					||	(state.getAttribute(TITLE_EDITABLE_SITE_TYPE) != null 
-							&& ((List) state.getAttribute(TITLE_EDITABLE_SITE_TYPE)).contains(site_type)));
+				&& ((state.getAttribute(TITLE_NOT_EDITABLE_SITE_TYPE) != null 
+					&& !((List) state.getAttribute(TITLE_NOT_EDITABLE_SITE_TYPE)).contains(site_type)));
 	}
 	
 	/**
