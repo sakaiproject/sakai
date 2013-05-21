@@ -152,11 +152,4 @@
 		<property name="dashboardLogic" ref="org.sakaiproject.dash.logic.DashboardLogic" />
 		<property name="dashboardCommonLogic" ref="org.sakaiproject.dash.app.DashboardCommonLogic" />
 	</bean>
-	
-	<bean parent="org.sakaiproject.entitybroker.entityprovider.AbstractEntityProvider" 
-		class="org.sakaiproject.dash.entityprovider.DashboardEntityProvider">
-		<property name="sakaiProxy" ref="org.sakaiproject.dash.app.SakaiProxy" />
-		<property name="dashboardLogic" ref="org.sakaiproject.dash.logic.DashboardLogic" />
-	</bean>   
-       
 </beans>
