@@ -21,6 +21,7 @@
 
 package org.sakaiproject.tool.assessment.ui.listener.author;
 
+import java.math.BigDecimal;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashMap;
@@ -339,6 +340,15 @@ public class CalculatedQuestionExtractListener implements ActionListener{
 
         for (CalculatedQuestionVariableBean variable : question.getActiveVariables().values()) {
 
+            // decimal
+            String decimalStr = variable.getDecimalPlaces().trim();
+            int decimals;
+            try {
+                decimals = Integer.parseInt(decimalStr);
+            } catch (NumberFormatException e) {
+                decimals = 2; // default when decimals is not known
+            }
+
             // min
             String minStr = variable.getMin().trim();
             double min = 0d;
@@ -348,10 +358,12 @@ public class CalculatedQuestionExtractListener implements ActionListener{
             }
             if (variable.getValidMin()) {
                 try {
-                    min = Double.parseDouble(minStr);
-
-                    // this strips out any leading spaces or zeroes
-                    variable.setMin(Double.toString(min));
+                    BigDecimal bd = new BigDecimal(minStr);
+                    bd = bd.setScale(decimals);
+                    bd = bd.stripTrailingZeros();
+                    min = bd.doubleValue();
+                    String value = bd.toPlainString();
+                    variable.setMin(value);
                 } catch (NumberFormatException n) {
                     errors.add(getErrorMessage("invalid_min"));
                     variable.setValidMin(false);
@@ -367,10 +379,12 @@ public class CalculatedQuestionExtractListener implements ActionListener{
             }
             if (variable.getValidMax()) {
                 try {
-                    max = Double.parseDouble(maxStr);
-
-                    // this strips out any leading spaces or zeroes
-                    variable.setMax(Double.toString(max));
+                    BigDecimal bd = new BigDecimal(maxStr);
+                    bd = bd.setScale(decimals);
+                    bd = bd.stripTrailingZeros();
+                    max = bd.doubleValue();
+                    String value = bd.toPlainString();
+                    variable.setMax(value);
                 } catch (NumberFormatException n) {
                     errors.add(getErrorMessage("invalid_max"));
                     variable.setValidMax(false);
