@@ -23,8 +23,11 @@ package org.sakaiproject.content.tool;
 
 import java.io.File;
 import java.io.InputStream;
+import java.io.UnsupportedEncodingException;
 import java.net.MalformedURLException;
+import java.net.URI;
 import java.net.URL;
+import java.net.URLEncoder;
 import java.text.Format;
 import java.text.NumberFormat;
 import java.text.SimpleDateFormat;
@@ -8632,17 +8635,28 @@ protected static final String PARAM_PAGESIZE = "collections_per_page";
 				ContentResourceEdit resource = ContentHostingService.addResource(collectionId,Validator.escapeResourceName(basename),Validator.escapeResourceName(extension),MAXIMUM_ATTEMPTS_FOR_UNIQUENESS);
 				
 				extractContent(fp, resource);
-
+								
 				// SAK-23171 - cleanup the URL spaces
-				String url = new String(resource.getContent());
-				String cleanedURL = StringUtils.trim(url);
-				cleanedURL = StringUtils.replace(cleanedURL, " ", "%20");
-				if (!StringUtils.equals(url, cleanedURL)) {
+				String originalUrl = new String(resource.getContent());
+				String cleanedURL = StringUtils.trim(originalUrl);
+				//cleanedURL = StringUtils.replace(cleanedURL, " ", "%20");
+				
+				// SAK-23587 - properly escape the URL where required
+				try {
+					URL url = new URL(cleanedURL);
+					URI uri = new URI(url.getProtocol(), url.getUserInfo(), url.getHost(), url.getPort(), url.getPath(), url.getQuery(), url.getRef());
+					cleanedURL = uri.toString();
+				} catch (Exception e) {
+					//ok to ignore, just use the original url
+					logger.debug("URL can not be encoded: " + e.getClass() + ":" + e.getCause());
+				}
+				
+				if (!StringUtils.equals(originalUrl, cleanedURL)) {
 				    // the url was cleaned up, log it and update it
-				    logger.info("Resources URL cleanup changed url to '"+cleanedURL+"' from '"+url+"'");
+				    logger.info("Resources URL cleanup changed url to '"+cleanedURL+"' from '"+originalUrl+"'");
 				    resource.setContent(cleanedURL.getBytes());
 				}
-
+				
 				resource.setContentType(fp.getRevisedMimeType());
 				resource.setResourceType(pipe.getAction().getTypeId());
 				int notification = NotificationService.NOTI_NONE;

@@ -25,6 +25,9 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.UnsupportedEncodingException;
 import java.net.MalformedURLException;
+import java.net.URI;
+import java.net.URL;
+import java.net.URLDecoder;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
@@ -633,6 +636,13 @@ public class ResourcesHelperAction extends VelocityPortletPaneledAction
 		}
 		else if(ResourceType.TYPE_URL.equals(typeId))
 		{
+			String decodedUrl = pipe.getContentstring();
+			try {
+				decodedUrl = URLDecoder.decode(pipe.getContentstring(), "UTF-8");
+			} catch (Exception e){
+				//cant decode, continue anyway with original string
+			}
+			context.put("decodedUrl", decodedUrl);
 			template = REVISE_URL_TEMPLATE;
 		}
 		else if(ResourceType.TYPE_UPLOAD.equals(typeId) && mimetype != null && ResourceType.MIME_TYPE_HTML.equals(mimetype))
@@ -869,6 +879,17 @@ public class ResourcesHelperAction extends VelocityPortletPaneledAction
 		}
 		else if(ResourceType.TYPE_URL.equals(resourceType))
 		{
+			
+			// SAK-23587 - properly escape the URL where required
+			try {
+				URL url = new URL(content);
+				URI uri = new URI(url.getProtocol(), url.getUserInfo(), url.getHost(), url.getPort(), url.getPath(), url.getQuery(), url.getRef());
+				content = uri.toString();
+			} catch (Exception e) {
+				//ok to ignore, just use the original url
+				logger.debug("URL can not be encoded: " + e.getClass() + ":" + e.getCause());
+			}
+			
 			pipe.setRevisedMimeType(ResourceType.MIME_TYPE_URL);
 			pipe.setNotification(noti);
 		}
