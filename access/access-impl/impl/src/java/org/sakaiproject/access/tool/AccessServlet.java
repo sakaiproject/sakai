@@ -340,6 +340,7 @@ public class AccessServlet extends VmServlet
 		catch (EntityNotDefinedException e)
 		{
 			// the request was not valid in some way
+			M_log.error("dispatch(): ref: " + ref.getReference() + e);
 			sendError(res, HttpServletResponse.SC_NOT_FOUND);
 			return;
 		}
@@ -357,6 +358,7 @@ public class AccessServlet extends VmServlet
 			}
 
 			// otherwise reject the request
+			M_log.error("dispatch(): ref: " + ref.getReference() + e);
 			sendError(res, HttpServletResponse.SC_FORBIDDEN);
 		}
 
