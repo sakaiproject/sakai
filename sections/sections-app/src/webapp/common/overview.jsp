@@ -43,7 +43,7 @@
             <t:div>
                 <h:outputText value="#{section.title}"/>
             </t:div>
-            <t:div styleClass="itemAction">
+            <t:div styleClass="itemAction" rendered="#{ ! section.readOnly }">
                 <h:panelGroup rendered="#{ ! overviewBean.externallyManaged && overviewBean.sectionManagementEnabled}">
                     <h:commandLink action="editSection" value="#{msgs.overview_link_edit}">
                         <f:param name="sectionUuid" value="#{section.uuid}"/>
@@ -146,7 +146,7 @@
             <f:facet name="header">
                 <h:outputText value="#{msgs.overview_table_header_remove}" />
             </f:facet>
-            <h:selectBooleanCheckbox id="remove" value="#{section.flaggedForRemoval}"/>
+            <h:selectBooleanCheckbox id="remove" value="#{section.flaggedForRemoval}" rendered="#{ ! section.readOnly }"/>
         </h:column>
     </sec:rowGroupTable>
 

@@ -111,6 +111,7 @@
             </h:column>
 
             <h:column>
+            	<t:div rendered="#{ ! section.readOnly }">
                 <h:commandLink
                     actionListener="#{studentViewBean.processJoinSection}"
                     rendered="#{section.joinable && studentViewBean.joinAllowed}">
@@ -131,6 +132,7 @@
 								    </h:outputFormat>
 
                 </h:commandLink>
+                </t:div>
                 <h:outputText
                     value="#{msgs.student_view_full}"
                     rendered="#{section.full}"/>

@@ -31,6 +31,9 @@ import java.util.Comparator;
 import java.util.Date;
 import java.util.Iterator;
 import java.util.List;
+import java.util.Arrays;
+import java.util.Set;
+import java.util.HashSet;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
@@ -41,6 +44,8 @@ import org.sakaiproject.tool.section.jsf.JsfUtil;
 import org.sakaiproject.tool.section.jsf.RowGroupable;
 import org.sakaiproject.util.ResourceLoader;
 import org.sakaiproject.time.cover.TimeService;
+import org.sakaiproject.component.api.ServerConfigurationService;
+import org.sakaiproject.component.cover.ComponentManager;
 /**
  * Decorates a CourseSection for use in the instructor's (and TA's) page views.
  *
@@ -53,6 +58,7 @@ public class SectionDecorator implements RowGroupable,Serializable, Comparable{
 
     public static final int NAME_TRUNCATION_LENGTH = 20;
     public static final int LOCATION_TRUNCATION_LENGTH = 15;
+    public static final String READ_ONLY_SECTION_CATEGORIES = "section.info.readonly.section.categories";
 
     protected CourseSection section;
     protected String categoryForDisplay;
@@ -66,6 +72,10 @@ public class SectionDecorator implements RowGroupable,Serializable, Comparable{
     /* Whether this decorator should show the number of spots available as a negative
       * number or zero when the section is overenrolled */
     protected boolean showNegativeSpots;
+
+    // SAK-23495
+    protected boolean readOnly;
+    private static Set<String> readOnlyCategories;
 
     /**
      * Creates a SectionDecorator from a vanilla CourseSection.
@@ -81,6 +91,17 @@ public class SectionDecorator implements RowGroupable,Serializable, Comparable{
                 decoratedMeetings.add(new MeetingDecorator((Meeting)iter.next()));
             }
         }
+        if (readOnlyCategories == null) {
+            readOnlyCategories = new HashSet<String>();
+            ServerConfigurationService serverConfigurationService = (ServerConfigurationService) ComponentManager.get(ServerConfigurationService.class);
+            if (serverConfigurationService != null) {
+                String[] readOnlySectionCategories = serverConfigurationService.getStrings(READ_ONLY_SECTION_CATEGORIES);
+                if (readOnlySectionCategories != null) {
+                    readOnlyCategories = new HashSet<String>(Arrays.asList(readOnlySectionCategories));
+                }
+            }
+        }
+        this.readOnly = readOnlyCategories.contains(section.getCategory());  
     }
 
     /**
@@ -115,6 +136,9 @@ public class SectionDecorator implements RowGroupable,Serializable, Comparable{
         // Needed for serialization
     }
 
+    public boolean isReadOnly() {
+    	return readOnly;
+    }
     public List getInstructorNames() {
         return instructorNames;
     }
