@@ -31,7 +31,9 @@ import java.io.OutputStream;
 import java.io.UnsupportedEncodingException;
 import java.net.SocketException;
 import java.net.URI;
+import java.net.URLDecoder;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.Comparator;
@@ -6387,7 +6389,12 @@ SiteContentAdvisorProvider, SiteContentAdvisorTypeRegistry, EntityTransferrerRef
 					// An invalid URI format will get caught by the outermost catch block 
 					URI uri = new URI(new String(content, "UTF-8"));
 					eventTrackingService.post(eventTrackingService.newEvent(EVENT_RESOURCE_READ, resource.getReference(null), false));
-					res.sendRedirect(uri.toASCIIString());
+					
+					//SAK-23587 process any macros present in this URL
+					String decodedUrl = URLDecoder.decode(uri.toString(), "UTF-8");
+					decodedUrl = expandMacros(decodedUrl);
+					
+					res.sendRedirect(decodedUrl);
 					
 				} else {
 					// we have a text/url mime type, but the body is too long to issue as a redirect
@@ -13495,6 +13502,93 @@ SiteContentAdvisorProvider, SiteContentAdvisorTypeRegistry, EntityTransferrerRef
 			extractZipArchive.extractArchive(resourceId);
         }
     }
+    
+    
+	private static final String MACRO_SITE_ID             = "${SITE_ID}";
+	private static final String MACRO_USER_ID             = "${USER_ID}";
+	private static final String MACRO_USER_EID            = "${USER_EID}";
+	private static final String MACRO_USER_FIRST_NAME     = "${USER_FIRST_NAME}";
+	private static final String MACRO_USER_LAST_NAME      = "${USER_LAST_NAME}";
+	private static final String MACRO_USER_ROLE           = "${USER_ROLE}";
+	private static final String MACRO_SESSION_ID          = "${SESSION_ID}";
+
+	private static final String MACRO_DEFAULT_ALLOWED = "${USER_ID},${USER_EID},${USER_FIRST_NAME},${USER_LAST_NAME},${SITE_ID},${USER_ROLE}";
+
+
+	/**
+     * Expands a URL that may contain a set of predefined macros, into the full URL. 
+     * This should only ever happen when its about to be redirected to, ie never stored and never displayed
+     * so that people dont accidentally send an expanded URL containing personally identifying information to someone else, for example.
+     * @param url original url that may contain macros
+     * @return url with macros expanded
+     * 
+     * Note that much of this is from the web content tool. Arbitrary site properties are purposely NOT handled yet, for simplicity. They can be added as desired.
+     */
+    private String expandMacros(String url) {
+    	
+    	if(M_log.isDebugEnabled()){
+    		M_log.debug("Original url: " + url);
+    	}
+    	
+    	if (!StringUtils.contains(url, "${")) {
+			return url;
+		}
+    	
+    	//handled explicitly like this for backwards compatibility since comma separated strings from SCS are not supported in all versions of Sakai yet.
+    	String allowedMacros = m_serverConfigurationService.getString("content.allowed.macros", MACRO_DEFAULT_ALLOWED);
+    	List<String> macros = new ArrayList<String>();
+    	if(StringUtils.isNotBlank(allowedMacros)) {
+    		macros = Arrays.asList(StringUtils.split(allowedMacros, ','));
+    	}
+    	
+    	for(String macro: macros) {
+    		url = StringUtils.replace(url, macro, getMacroValue(macro));
+    	}
+    	
+    	if(M_log.isDebugEnabled()){
+    		M_log.debug("Expanded url: " + url);
+    	}
+    	
+    	return url;
+    }
+    
+    /**
+     * Helper to get the value for a given macro.
+     * @param macroName
+     * @return
+     */
+    private String getMacroValue(String macroName) {
+		try {
+			if (macroName.equals(MACRO_USER_ID)) {
+				return userDirectoryService.getCurrentUser().getId();
+			}
+			if (macroName.equals(MACRO_USER_EID)) {
+				return userDirectoryService.getCurrentUser().getEid();
+			}
+			if (macroName.equals(MACRO_USER_FIRST_NAME)) {
+				return userDirectoryService.getCurrentUser().getFirstName();
+			}
+			if (macroName.equals(MACRO_USER_LAST_NAME)) {
+				return userDirectoryService.getCurrentUser().getLastName();
+			}
+			if (macroName.equals(MACRO_USER_ROLE)) {
+				return m_siteService.getSite(toolManager.getCurrentPlacement().getContext()).getMember(userDirectoryService.getCurrentUser().getId()).getRole().getId();
+			}
+			if (macroName.equals(MACRO_SESSION_ID)) {
+				return sessionManager.getCurrentSession().getId();
+			}
+			if (macroName.equals(MACRO_SITE_ID)) {
+				return toolManager.getCurrentPlacement().getContext();
+			}
+
+		}
+		catch (Exception e) {
+			return "";
+		}
+		
+		//unsupported, use macro name as is.
+		return macroName;
+	}
 
 } // BaseContentService
 
