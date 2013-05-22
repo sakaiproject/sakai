@@ -493,7 +493,7 @@ public interface GradebookService {
 			AssignmentHasIllegalPointsException;
 
 	/**
-	 * @deprecated Replaced by {@link addExternalAssessment(String, String, String, Boolean)}
+	 * @deprecated Replaced by {@link GradebookExternalAssessmentService#addExternalAssessment(String, String, String, Boolean)}
 	 */
 	public void addExternalAssessment(String gradebookUid, String externalId,
 			String externalUrl, String title, double points, Date dueDate,
@@ -503,7 +503,7 @@ public interface GradebookService {
 			AssignmentHasIllegalPointsException;
 
 	/**
-	 * @deprecated Replaced by {@link updateExternalAssessment(String, String, String, String, Double, Date)}
+	 * @deprecated Replaced by {@link GradebookExternalAssessmentService#updateExternalAssessment(String, String, String, String, Double, Date)}
 	 */
 	public void updateExternalAssessment(String gradebookUid,
 			String externalId, String externalUrl, String title, double points,

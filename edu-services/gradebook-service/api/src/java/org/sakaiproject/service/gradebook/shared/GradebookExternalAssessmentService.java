@@ -119,6 +119,21 @@ public interface GradebookExternalAssessmentService {
 			String title, double points, Date dueDate)
 	        throws GradebookNotFoundException, AssessmentNotFoundException,
             ConflictingAssignmentNameException, AssignmentHasIllegalPointsException;
+    
+    /**
+     *  Update an external assessment
+     * @param gradebookUid
+     * @param externalId
+     * @param externalUrl
+     * @param title
+     * @param points
+     * @param dueDate
+     * @param ungraded
+     * @throws GradebookNotFoundException
+     * @throws AssessmentNotFoundException
+     * @throws ConflictingAssignmentNameException
+     * @throws AssignmentHasIllegalPointsException
+     */
     public void updateExternalAssessment(String gradebookUid, String externalId, String externalUrl,
   			String title, Double points, Date dueDate, Boolean ungraded)
   	        throws GradebookNotFoundException, AssessmentNotFoundException,
