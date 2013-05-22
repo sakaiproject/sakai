@@ -2957,7 +2957,12 @@ public class DavServlet extends HttpServlet
 
 		String path = getRelativePath(req);
 
-		copyResource(req, resp, true);
+		boolean success = copyResource(req, resp, true);
+		// https://jira.sakaiproject.org/browse/SAK-23639
+		// Remove this call to deleteResource if rename() is fixed
+		if (success) {
+		    deleteResource(path, req, resp);
+		}
 
 	}
 
@@ -4105,14 +4110,16 @@ public class DavServlet extends HttpServlet
 		{
 		    boolean isCollection = contentHostingService.getProperties(source).getBooleanProperty(ResourceProperties.PROP_IS_COLLECTION);
 
+		    /* https://jira.sakaiproject.org/browse/SAK-23639
 		    if (move) {
 		    	contentHostingService.rename(source, dest);
 		    }
-		    else if (isCollection) {
-		    	copyCollection(source, dest);
-		    }
-		    else {
-		    	contentHostingService.copy(source, dest);
+		    else */
+		    // NOTE: moves cause a copy as below and a delete around line 2960, if rename() is fixed the remove that code also
+		    if (isCollection) {
+		        copyCollection(source, dest);
+		    } else {
+		        contentHostingService.copy(source, dest);
 		    }
 		}
 		catch (EntityPropertyNotDefinedException e)
