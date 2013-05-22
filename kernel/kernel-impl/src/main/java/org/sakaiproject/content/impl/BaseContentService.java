@@ -13504,16 +13504,13 @@ SiteContentAdvisorProvider, SiteContentAdvisorTypeRegistry, EntityTransferrerRef
     }
     
     
-	private static final String MACRO_SITE_ID             = "${SITE_ID}";
 	private static final String MACRO_USER_ID             = "${USER_ID}";
 	private static final String MACRO_USER_EID            = "${USER_EID}";
 	private static final String MACRO_USER_FIRST_NAME     = "${USER_FIRST_NAME}";
 	private static final String MACRO_USER_LAST_NAME      = "${USER_LAST_NAME}";
-	private static final String MACRO_USER_ROLE           = "${USER_ROLE}";
 	private static final String MACRO_SESSION_ID          = "${SESSION_ID}";
 
-	private static final String MACRO_DEFAULT_ALLOWED = "${USER_ID},${USER_EID},${USER_FIRST_NAME},${USER_LAST_NAME},${SITE_ID},${USER_ROLE}";
-
+	private static final String MACRO_DEFAULT_ALLOWED = "${USER_ID},${USER_EID},${USER_FIRST_NAME},${USER_LAST_NAME}";
 
 	/**
      * Expands a URL that may contain a set of predefined macros, into the full URL. 
@@ -13522,7 +13519,11 @@ SiteContentAdvisorProvider, SiteContentAdvisorTypeRegistry, EntityTransferrerRef
      * @param url original url that may contain macros
      * @return url with macros expanded
      * 
-     * Note that much of this is from the web content tool. Arbitrary site properties are purposely NOT handled yet, for simplicity. They can be added as desired.
+     * Note that much of this is from the web content tool though site related properties have been removed. This is actually called from /access/ which has no site context so
+     * any lookups of site_id or user role (which infers a site) will not work. The site_id may be able to be passed in, as the original resource does have context,
+     * however that needs to be more fully explored for security reasons and as such, has not been included.
+     * 
+     * See SAK-23587
      */
     private String expandMacros(String url) {
     	
@@ -13571,18 +13572,13 @@ SiteContentAdvisorProvider, SiteContentAdvisorTypeRegistry, EntityTransferrerRef
 			if (macroName.equals(MACRO_USER_LAST_NAME)) {
 				return userDirectoryService.getCurrentUser().getLastName();
 			}
-			if (macroName.equals(MACRO_USER_ROLE)) {
-				return m_siteService.getSite(toolManager.getCurrentPlacement().getContext()).getMember(userDirectoryService.getCurrentUser().getId()).getRole().getId();
-			}
 			if (macroName.equals(MACRO_SESSION_ID)) {
 				return sessionManager.getCurrentSession().getId();
-			}
-			if (macroName.equals(MACRO_SITE_ID)) {
-				return toolManager.getCurrentPlacement().getContext();
 			}
 
 		}
 		catch (Exception e) {
+			M_log.error("Error resolving macro:" + macroName + ": " + e.getClass() + ": " + e.getCause());
 			return "";
 		}
 		
