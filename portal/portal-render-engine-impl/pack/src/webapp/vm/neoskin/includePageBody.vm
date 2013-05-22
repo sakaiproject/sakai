@@ -308,16 +308,16 @@
 					<video id="pc_chat_local_video" class="pc_chat_video_min" autoplay muted="true"></video>
 					<div id="local_video_bar">
 						
-						<a href="javascript:;" id="disable_local_video" onclick="return portalChat.disableVideo();" title="Disable your video">
+						<a href="javascript:;" id="disable_local_video" onclick="return videoCall.disableVideo();" title="Disable your video">
 							<img src="/library/image/silk/webcam_delete.png" width="16" height="16" border="0" alt=""/>
 						</a>
-						<a href="javascript:;" id="enable_local_video" onclick="return portalChat.enableVideo();" style="display:none" title="Enable your video">
+						<a href="javascript:;" id="enable_local_video" onclick="return videoCall.enableVideo();" style="display:none" title="Enable your video">
 							<img src="/library/image/silk/webcam.png" width="16" height="16" border="0" alt=""/>
 						</a>
-						<a href="javascript:;" id="mute_local_audio" onclick="return portalChat.mute();"  title="Mute your audio ">
+						<a href="javascript:;" id="mute_local_audio" onclick="return videoCall.mute();"  title="Mute your audio ">
 							<img src="/library/image/silk/sound_delete.png" width="16" height="16" border="0" alt=""/>
 						</a>
-						<a href="javascript:;" id="unmute_local_audio" onclick="return portalChat.unmute();" style="display:none" title="Unmute your audio ">
+						<a href="javascript:;" id="unmute_local_audio" onclick="return videoCall.unmute();" style="display:none" title="Unmute your audio ">
 							<img src="/library/image/silk/sound.png" width="16" height="16" border="0" alt=""/>
 						</a>
 
@@ -412,22 +412,22 @@
                 </div>
 				<div id="pc_connection_${uuid}_videochat_bar" class="pc_connection_videochat_bar">
 					<div class="pc_connection_videochat_bar_left">
-						<a href="javascript:;" onclick="return portalChat.openVideoCall('${uuid}',false);" class="video_off" title="Video call" >
+						<a href="javascript:;" onclick="return videoCall.openVideoCall('${uuid}',false);" class="video_off" title="Video call" >
 							<img src="/library/image/silk/webcam.png" width="16" height="16" border="0" alt=""/>
 						</a>
-						<a href="javascript:;" onclick="return portalChat.closeVideoCall('${uuid}');" class="video_on" title="End video call">
+						<a href="javascript:;" onclick="return videoCall.closeVideoCall('${uuid}');" class="video_on" title="End video call">
 							<img src="/library/image/silk/webcam_delete.png" width="16" height="16" border="0" alt=""/>
 						</a>
-						<a href="javascript:;" onclick="return portalChat.maximizeVideoCall('${uuid}');" class="video_on" title="Maximize video call">
+						<a href="javascript:;" onclick="return videoCall.maximizeVideoCall('${uuid}');" class="video_on" title="Maximize video call">
 							<img src="/library/image/silk/monitor.png" width="16" height="16" border="0" alt=""/>
 						</a>
 					</div>
 					<div id="pc_connection_${uuid}_videoin" class="pc_connection_videochat_bar_right">
 						Incomming video call
-						<a href="javascript:;" onclick="return portalChat.acceptVideoCall('${uuid}');" title="Accept video call">
+						<a href="javascript:;" onclick="return videoCall.acceptVideoCall('${uuid}');" title="Accept video call">
 							<img src="/library/image/silk/accept.png" width="16" height="16" border="0" alt=""/>
 						</a>
-						<a href="javascript:;" onclick="return portalChat.ignoreVideoCall('${uuid}');" title="Ignore video call">
+						<a href="javascript:;" onclick="return videoCall.ignoreVideoCall('${uuid}');" title="Ignore video call">
 							<img src="/library/image/silk/cancel.png" width="16" height="16" border="0" alt=""/>
 						</a>
 					</div>

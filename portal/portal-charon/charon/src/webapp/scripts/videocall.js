@@ -91,26 +91,10 @@ function VideoCall() {
 		}));
 	}
 	
-	this.enableVideo = function (){
-		this.webRTC.enableLocalVideo();
-	}
-
-	this.disableVideo = function (){
-		this.webRTC.disableLocalVideo();
-	}
-
-	this.mute = function (){
-		this.webRTC.muteLocalAudio();
-	}
-
-	this.unmute = function (){
-		this.webRTC.unmuteLocalAudio();
-	}
-
-	
-	
-	this.onHangUp = function (uid){ // Just declared		
-	
+	this.onHangUp = function (userid){ // Just declared		
+		videoCall.setVideoStatus(userid,"User has hung up", true);
+		videoCall.doClose(userid);
+		videoCall.hideVideoCall(userid);
 	}
 
 	/* It retrieves the current userid list of active webconnections */
@@ -124,42 +108,244 @@ function VideoCall() {
 	}
 		
 	
-	this.init = function (pChat){
+	this.init = function (){
 
 		this.webRTC = new WebRTC();
 		
-		this.signalService = new SignalService(pChat);
+		this.signalService = new SignalService(portalChat);
 		this.webRTC.init(this.signalService);
 		this.webRTC.onHangUp = this.onHangUp;
 		this.webRTC.onIgnore = function (userid){
-			pChat.closeVideoCall (userid);
-			pChat.setVideoStatus(userid,"User refused your request", true);
+			videoCall.closeVideoCall (userid);
+			videoCall.setVideoStatus(userid,"User refused your request", true);
 		}
 		
 		/* This is a way to determine what to do when a webrtc call is received */
 	    var videoCallObject = this;
 		
 	    this.webRTC.onReceiveCall = function(userid) {
-			pChat.setVideoStatus(userid,"You have an incomming call...", true);
-			pChat.openVideoCall (userid,true);
+			videoCall.setVideoStatus(userid,"You have an incomming call...", true);
+			videoCall.openVideoCall (userid,true);
 		}
+	    
+	    
+		$('#pc_video_off_checkbox').click(
+				function() {
+					if ($(this).attr('checked') == 'checked') {
+						portalChat.setSetting(
+								'videoOff', true,
+								true);
+						portalChat.videoOff = true;
+					} else {
+						portalChat.setSetting(
+								'videoOff', false);
+						portalChat.videoOff = false;
+					}
+				});
+
+	    
 				
 	}
+	
+	
+	this.maximizeVideoCall = function (uuid){
+		var remoteVideo = document.getElementById("pc_chat_" + uuid + "_remote_video");
+		this.maximizeVideo (remoteVideo);
+	}
+	
+	this.disableVideo = function (){
+		this.webRTC.disableLocalVideo();
+		$('#enable_local_video').show();
+		$('#pc_chat_local_video').hide();
+		$('#disable_local_video').hide();
+	}
+	
+	this.enableVideo = function (){
+		this.webRTC.enableLocalVideo();
+		$('#disable_local_video').show();
+		$('#pc_chat_local_video').show();
+		$('#enable_local_video').hide();
+	}
+	
+	this.mute = function (){
+		this.webRTC.muteLocalAudio();
+		$('#unmute_local_audio').show();
+		$('#mute_local_audio').hide();
+	}
+	
+	this.unmute = function (){
+		this.webRTC.unmuteLocalAudio();
+		$('#mute_local_audio').show();
+		$('#unmute_local_audio').hide();
+	}
+
+	this.onvideomessage = function(uuid, message) {
+		// message function. It will send to rtc to process it
+		this.receiveMessage(uuid, message,this.getRemoteVideoAgent(uuid)); 
+	}
+	
+	this.hasVideoAgent = function(uuid) {
+		return this.getRemoteVideoAgent(uuid)!='none';
+	}
+
+	this.getRemoteVideoAgent = function(uuid) {
+		return portalChat.currentConnectionsMap[uuid].video;
+	}
+	
+	this.openVideoCall = function(uuid, incomming) {
+		if (incomming && this.videoOff)
+			return;
+		// If a chat window is already open for this sender, show video.
+		var messagePanel = $("#pc_chat_with_" + uuid);
+		if (!messagePanel.length) {
+			// No current chat window for this sender. Create one.
+			portalChat.setupChatWindow(uuid, true);
+		}
+
+		if (incomming) {
+			$('#pc_connection_' + uuid + '_videoin').show();
+		} else {
+			
+					videoCall.doCall(
+							uuid,
+							videoCall.getVideoAgent(uuid),
+							function(uuid) {
+								videoCall.setVideoStatus(uuid,
+										"Waiting for peer...", true);
+							},
+							function(uuid) {
+								videoCall
+										.setVideoStatus(
+												uuid,
+												"Call accepted, establishing connection ",
+												true);
+								videoCall.showVideoCall(uuid);
+							}, function(uuid) {
+								videoCall.setVideoStatus(uuid,
+										"Call not accepted or failed", true);
+								videoCall.closeVideoCall(uuid);
+							});
+		}
+	}
+	
+	this.acceptVideoCall = function(uuid) {
+		videoCall.doAnswer(uuid, videoCall.getVideoAgent(uuid), function(
+				uuid) {
+			videoCall.setVideoStatus(uuid, "Connecting ...", true);
+		}, function(uuid) {
+			videoCall.setVideoStatus(uuid, "Connection established", true);
+			videoCall.showVideoCall(uuid)
+		}, function() {
+			videoCall.setVideoStatus(uuid, "Call failed", true);
+			videoCall.closeVideoCall(uuid);
+		});
+	}
+
+	this.receiveVideoCall = function(uuid) {
+		$('#pc_connection_' + uuid + '_videoin').show();
+	}
+
+	this.ignoreVideoCall = function(uuid) {
+		$('#pc_connection_' + uuid + '_videoin').hide();
+		this.setVideoStatus(uuid, "You ignored that call", true);
+		videoCall.refuseCall(uuid);
+	}
+
+	this.showVideoCall = function(uuid) {
+		var chatDiv = $("#pc_chat_with_" + uuid);
+		$("#pc_chat_" + uuid + "_video_content").show();
+		if (chatDiv.hasClass('pc_minimised')) {
+			portalChat.toggleChatWindow(uuid);
+		}
+		if (chatDiv.css('height') != 'auto') {
+			chatDiv.css('height', '512px');
+			chatDiv.css('margin-top', '-192px');
+		}
+		chatDiv.attr('data-height', '512');
+		$('#pc_connection_' + uuid + '_videoin').hide();
+		$('#pc_connection_' + uuid + '_videochat_bar .video_off').hide();
+		$('#pc_connection_' + uuid + '_videochat_bar .video_on').show();
+		videoCall.showMyVideo();
+	}
+
+	this.closeVideoCall = function(uuid) {
+		videoCall.setVideoStatus(uuid, "You have hung up!", true);
+		videoCall.doClose(uuid);
+		this.hideVideoCall(uuid);
+	}
+
+	this.showMyVideo = function() {
+		$('#pc_chat_local_video_content').show();
+		$('#pc_chat_local_video_content').attr('data-video',($('#pc_chat_local_video_content').attr('data-video')-0)+1);
+		if (!portalChat.expanded) {
+			portalChat.toggleChat();
+		}
+	}
+
+	this.hideMyVideo = function() {
+		$('#pc_chat_local_video_content').attr('data-video',($('#pc_chat_local_video_content').attr('data-video')-0)-1);
+		if ($('#pc_chat_local_video_content').attr('data-video')=='0') {
+		    $('#pc_chat_local_video_content').hide();
+		}
+	}
+	
+	this.hideVideoCall = function(uuid) {
+		$("#pc_chat_" + uuid + "_video_content").hide();
+		$("#pc_chat_with_" + uuid).css('height', '318px');
+		$("#pc_chat_with_" + uuid).css('margin-top', '0px');
+		$("#pc_chat_with_" + uuid).attr('data-height', '318');
+		$('#pc_connection_' + uuid + '_videochat_bar .video_off').show();
+		$('#pc_connection_' + uuid + '_videochat_bar .video_on').hide();
+		videoCall.hideMyVideo();
+	}
+
+
+	this.setVideoStatus = function(uuid, text, display) {
+		if (display) {
+			$(
+					"#pc_connection_"
+							+ uuid
+							+ "_videochat_bar > .pc_chat_video_statusbar > span")
+					.text(text);
+			$(
+					"#pc_connection_" + uuid
+							+ "_videochat_bar > .pc_chat_video_statusbar")
+					.show();
+		} else {
+			$(
+					"#pc_connection_" + uuid
+							+ "_videochat_bar > .pc_chat_video_statusbar")
+					.hide();
+		}
+
+	}
+
+
+
+	
+	
 }
 /*
  * Create webRTC object to handle the videocalls
  */
 
 // It must be replaced by a genuine signaling method
-function SignalService(pChat) {
+function SignalService(videoCall) {
 
 	this.send = function(userid, content) {
-		pChat.sendVideoMessageToUser(userid, content);
+		portalChat.sendVideoMessageToUser(userid, content);
 	}
 
 	this.onReceive = function(userid, content) {
 		/*That is a empty function, redeclared on initialization methods, only here to make sense when revising code */
 	}
+	
 }
 
+/*Initialize an object to work with*/
+
+if (typeof VideoCall === 'function') {
+	var videoCall = new VideoCall();
+	videoCall.init();
+}
 

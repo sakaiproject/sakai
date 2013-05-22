@@ -14,7 +14,7 @@ function PortalChat() {
 	this.MAX_CONTENT_HEIGHT = 250;
 	this.originalTitle = document.title;
     this.connectionsAvailable = true;
-	this.videoCall = null;
+	videoCall = null;
 	this.videoOff = false;
 	
     /**
@@ -43,7 +43,6 @@ function PortalChat() {
    
    		return render;
 	}
-
 
 	this.sendMessageToUser = function (to,content) {
 
@@ -100,9 +99,9 @@ function PortalChat() {
 			success : function(text, status) {
 				if ('OFFLINE' === text) {
 					/* The peer is disconnected you can close the connection */
-					portalChat.setVideoStatus(to, "User went unexpectly",
+					videoCall.setVideoStatus(to, "User went unexpectly",
 							true);
-					portalChat.closeVideoCall(to);
+					videoCall.closeVideoCall(to);
 				}
 			},
 			error : function(xhr, textStatus, error) {
@@ -179,7 +178,7 @@ function PortalChat() {
 		$('#pc_chat_' + uuid + '_video_content').hide();
 		$('#pc_connection_' + uuid + '_videoin').hide();
 		$('#pc_connection_' + uuid + '_videochat_bar .video_on').hide();
-		if (!this.videoCall || !this.videoCall.isVideoEnabled() || !this.hasVideoAgent(uuid)) {
+		if (!videoCall || !videoCall.isVideoEnabled() || !videoCall.hasVideoAgent(uuid)) {
 			$('#pc_connection_' + uuid + '_videochat_bar').hide();
 		} else {
 			if (!minimised) {
@@ -187,7 +186,6 @@ function PortalChat() {
 			}
 			$('#' + id).attr('data-height', '318');
 		}
-
 
         return false;
 	}
@@ -202,7 +200,7 @@ function PortalChat() {
 		}
 		
 		if( $("#pc_chat_" + uuid + "_video_content").is(':visible')){
-			this.closeVideoCall(uuid);			
+			videoCall.closeVideoCall(uuid);			
 		}
 
 		$('#pc_chat_with_' + uuid).remove();
@@ -319,11 +317,10 @@ function PortalChat() {
 		return hours + ":" + minutes;
 	}
 
-
 	/**
 	 * Append a message to the messages area.
 	 */
-	this.appendMessage = function(message) {
+	this.appendMessage = function (message) {
 
 		var from = message.from;
 		var content = message.content;
@@ -334,21 +331,21 @@ function PortalChat() {
 
 		var flashIt = false;
 
-		if (!messagePanel.length) {
-			// No current chat window for this sender. Create one.
-			this.setupChatWindow(from, true);
-		} else if ($('#pc_connection_chat_' + from + '_content').css('display') === 'none') {
+		if(!messagePanel.length) {
+            // No current chat window for this sender. Create one.
+			this.setupChatWindow(from,true);
+		} else if($('#pc_connection_chat_' + from + '_content').css('display') === 'none') {
             // The sender's chat window is currently minimised so we want to flash it to
-			// draw attention to it.
+            // draw attention to it.
 			flashIt = true;
 		}
 
-		if (flashIt) {
+		if(flashIt) {
 			$('#pc_chat_with_' + from + ' > .pc_connection_chat_title').addClass('pc_new_message');
 		}
 
 		var fromDisplayName = this.currentConnectionsMap[from].displayName;
-		var userId = this.currentConnectionsMap[from].uuid;
+        var userId =this.currentConnectionsMap[from].uuid;
 		messagePanel = $("#pc_connection_chat_" + from + "_messages");
 
 		var dateString = this.formatDate(new Date(timestamp));
@@ -531,35 +528,30 @@ function PortalChat() {
 		});
 	}
 
-	this.updateMessages = function(messages) {
+    this.updateMessages = function (messages) {
 
-		for ( var i = 0, j = messages.length; i < j; i++) {
+		for(var i=0,j=messages.length;i<j;i++) {
 			portalChat.appendMessage(messages[i]);
-			portalChat.addToMessageStream(messages[i].from, messages[i]);
+			portalChat.addToMessageStream(messages[i].from,messages[i]);
 		}
 
-		if (messages.length > 0) {
+		if(messages.length > 0) {
 
 			var lastMessage = messages[messages.length - 1];
 			var fromDisplayName = portalChat.currentConnectionsMap[lastMessage.from].displayName;
-
-			if (document.hasFocus() == false) {
+			if(document.hasFocus() == false) {
 				document.title = 'Message from ' + fromDisplayName;
 			}
-		}
-	}
+        }
+    }
 
    this.updateVideoMessages = function(messages) {
 		for ( var i = 0, j = messages.length; i < j; i++) {
-			this.onvideomessage(messages[i].from, messages[i]);
+			videoCall.onvideomessage(messages[i].from, messages[i]);
 		}
 	}
 
-	this.onvideomessage = function(uuid, message) {
-		// message function. It will send to rtc to process it
-		this.videoCall.receiveMessage(uuid, message,this.getVideoAgent(uuid)); 
-	}
-
+	
 	this.getLatestData = function () {
 
         // Grab the site id from the url. We need to pass it to the presence code in the chat entity provider.
@@ -569,7 +561,7 @@ function PortalChat() {
         if(match && match.length == 2) siteId = match[1];
         
         var onlineString = portalChat.offline ? 'false' : 'true';
-		var videoString = (this.videoCall && !this.videoOff)?this.videoCall.getVideoAgent():'none';
+		var videoString = (videoCall && !this.videoOff)? videoCall.getVideoAgent():'none';
 
 
 		jQuery.ajax({
@@ -752,486 +744,214 @@ function PortalChat() {
 
 		messagePanel.append("<li>"+ avatarOrName + "<div class=\"pc_message\">" + content + "</div><span class=\"pc_messagedate\">" + dateString + "</span></li>");
     }
-    
-	this.maximizeVideoCall = function (uuid){
-		var remoteVideo = document.getElementById("pc_chat_" + uuid + "_remote_video");
-		this.videoCall.maximizeVideo (remoteVideo);
-	}
+
+
+	this.init = function () {
+
+		$(document).ready(function () {
+			
+            if(portal.loggedIn) {
+                $('#chatToggle').click(function () {
+			        portalChat.toggleChat();
+                    //$('#presenceArea').toggle();
+                });
+
+				var myCurrentConnectionsString = sessionStorage.pcCurrentConnections;
+				if(myCurrentConnectionsString) {
+					portalChat.currentConnections = JSON.parse(myCurrentConnectionsString);
+				    portalChat.currentConnectionsMap = JSON.parse(sessionStorage.pcCurrentConnectionsMap);
+					portalChat.onlineConnections = JSON.parse(sessionStorage.pcOnlineConnections);
+				}
+                      
+				var myCurrentPresentUsersString = sessionStorage.pcCurrentSiteUsers;
+                if(myCurrentPresentUsersString) {
+					portalChat.currentSiteUsers = JSON.parse(myCurrentPresentUsersString);
+					//portalChat.currentSiteUsersMap = JSON.parse(sessionStorage.pcCurrentSiteUsersMap);
+				}
+                        
+				if(!myCurrentConnectionsString && !myCurrentPresentUsersString) {
+					portalChat.getLatestData();
+				}
+
+				if(portalChat.getSetting('offline',true)) {
+					$('#pc_go_offline_checkbox').attr('checked','checked');
+                    portalChat.offline = true;
+				} else {
+                    portalChat.offline = false;
+				}
+
+				if(portalChat.getSetting('showOfflineConnections')) {
+					portalChat.showOfflineConnections = true;
+			    }
+				
+				if (portalChat.getSetting('videoOff', false)) {
+					$('#pc_video_off_checkbox').attr('checked','checked');
+					portalChat.videoOff = true;
+				} else {
+					portalChat.videoOff = false;
+				}
+
+			    portalChat.setGetLatestDataInterval();
+            } else {
+                // Not a logged in user. Clear the cached data in sessionStorage.
+		        sessionStorage.removeItem('pcCurrentConnections');
+		        sessionStorage.removeItem('pcCurrentConnectionsMap');
+		        sessionStorage.removeItem('pcOnlineConnections');
+		        sessionStorage.removeItem('pcCurrentSiteUsers');
+		        sessionStorage.removeItem('pcCurrentSiteUsersMap');
+            }
+
+			$('#pc_showoffline_connections_checkbox').click(function () {
+				if($(this).attr('checked') == 'checked') {
+					portalChat.showOfflineConnections = true;
+					portalChat.renderTemplate('pc_connections_template',{'connections':portalChat.currentConnections},'pc_connections');
+					var pc_users = $('#pc_users');
+					if(pc_users.height() > portalChat.MAX_CONTENT_HEIGHT) pc_users.height(portalChat.MAX_CONTENT_HEIGHT);
+					portalChat.setSetting('showOfflineConnections',true);
+				} else {
+					portalChat.showOfflineConnections = false;
+					portalChat.renderTemplate('pc_connections_template',{'connections':portalChat.onlineConnections},'pc_connections');
+					$('#pc_connections').css('height','auto');
+					portalChat.setSetting('showOfflineConnections',false);
+				}
+
+				portalChat.sortConnections();
+			});
 	
-	this.disableVideo = function (){
-		this.videoCall.disableVideo ();
-		$('#enable_local_video').show();
-		$('#pc_chat_local_video').hide();
-		$('#disable_local_video').hide();
-	}
+			$('#pc_go_offline_checkbox').click(function () {
+				if($(this).attr('checked') == 'checked') {
+					portalChat.setSetting('offline',true,true);
+					portalChat.offline = true;
+
+				} else {
+					portalChat.setSetting('offline',false);
+					portalChat.offline = false;
+
+					portalChat.setGetLatestDataInterval();
+				}
+			});
+
+			$('#pc_video_off_checkbox').click(
+					function() {
+						if ($(this).attr('checked') == 'checked') {
+							portalChat.setSetting('videoOff', true,true);
+							portalChat.videoOff = true;
+						} else {
+							portalChat.setSetting('videoOff', false);
+							portalChat.videoOff = false;
+						}
+					});
 	
-	this.enableVideo = function (){
-		this.videoCall.enableVideo ();
-		
-		$('#disable_local_video').show();
-		$('#pc_chat_local_video').show();
-		$('#enable_local_video').hide();
-	}
+			// Handle return press in the edit fields
+			$('.pc_editor').live('keypress',function (e,ui) {
 	
-	this.mute = function (){
-		this.videoCall.mute ();
-		$('#unmute_local_audio').show();
-		$('#mute_local_audio').hide();
-	}
+				if(e.keyCode == 13) {
+                    
+					var editorId = e.target.id;
+                    //do nothing if no value
+					if (e.target.value !== '') {
+                        var uuid = editorId.split("pc_editor_for_")[1];
+                        portalChat.sendMessageToUser(uuid, e.target.value);
+                    }
+				}
+			});
 	
-	this.unmute = function (){
-		this.videoCall.unmute ();
-		$('#mute_local_audio').show();
-		$('#unmute_local_audio').hide();
-	}
+			if(portalChat.getSetting('expanded') && portal.loggedIn) {
+                portalChat.toggleChat();
+            }
 
-	this.openVideoCall = function(uuid, incomming) {
-		if (incomming && this.videoOff)
-			return;
-		// If a chat window is already open for this sender, show video.
-		var messagePanel = $("#pc_chat_with_" + uuid);
-		if (!messagePanel.length) {
-			// No current chat window for this sender. Create one.
-			portalChat.setupChatWindow(uuid, true);
-		}
-
-		if (incomming) {
-			$('#pc_connection_' + uuid + '_videoin').show();
-		} else {
-			this.videoCall
-					.doCall(
-							uuid,
-							portalChat.getVideoAgent(uuid),
-							function(uuid) {
-								portalChat.setVideoStatus(uuid,
-										"Waiting for peer...", true);
-							},
-							function(uuid) {
-								portalChat
-										.setVideoStatus(
-												uuid,
-												"Call accepted, establishing connection ",
-												true);
-								portalChat.showVideoCall(uuid);
-							}, function(uuid) {
-								portalChat.setVideoStatus(uuid,
-										"Call not accepted or failed", true);
-								portalChat.closeVideoCall(uuid);
-							});
-		}
-	}
-
-	this.acceptVideoCall = function(uuid) {
-		this.videoCall.doAnswer(uuid, portalChat.getVideoAgent(uuid), function(
-				uuid) {
-			portalChat.setVideoStatus(uuid, "Connecting ...", true);
-		}, function(uuid) {
-			portalChat.setVideoStatus(uuid, "Connection established", true);
-			portalChat.showVideoCall(uuid)
-		}, function() {
-			portalChat.setVideoStatus(uuid, "Call failed", true);
-			portalChat.closeVideoCall(uuid);
-		});
-	}
-
-	this.receiveVideoCall = function(uuid) {
-		$('#pc_connection_' + uuid + '_videoin').show();
-	}
-
-	this.ignoreVideoCall = function(uuid) {
-		$('#pc_connection_' + uuid + '_videoin').hide();
-		this.setVideoStatus(uuid, "You ignored that call", true);
-		this.videoCall.refuseCall(uuid);
-	}
-
-	this.showVideoCall = function(uuid) {
-		var chatDiv = $("#pc_chat_with_" + uuid);
-		$("#pc_chat_" + uuid + "_video_content").show();
-		if (chatDiv.hasClass('pc_minimised')) {
-			portalChat.toggleChatWindow(uuid);
-		}
-		if (chatDiv.css('height') != 'auto') {
-			chatDiv.css('height', '512px');
-			chatDiv.css('margin-top', '-192px');
-		}
-		chatDiv.attr('data-height', '512');
-		$('#pc_connection_' + uuid + '_videoin').hide();
-		$('#pc_connection_' + uuid + '_videochat_bar .video_off').hide();
-		$('#pc_connection_' + uuid + '_videochat_bar .video_on').show();
-		portalChat.showMyVideo();
-	}
-
-	this.closeVideoCall = function(uuid) {
-		portalChat.setVideoStatus(uuid, "You have hung up!", true);
-		this.videoCall.doClose(uuid);
-		this.hideVideoCall(uuid);
-	}
-
-	this.showMyVideo = function() {
-		$('#pc_chat_local_video_content').show();
-		$('#pc_chat_local_video_content').attr('data-video',($('#pc_chat_local_video_content').attr('data-video')-0)+1);
-		if (!portalChat.expanded) {
-			portalChat.toggleChat();
-		}
-	}
-
-	this.hideMyVideo = function() {
-		$('#pc_chat_local_video_content').attr('data-video',($('#pc_chat_local_video_content').attr('data-video')-0)-1);
-		if ($('#pc_chat_local_video_content').attr('data-video')=='0') {
-		    $('#pc_chat_local_video_content').hide();
-		}
-	}
+		    var connectionsAvailableSetting = portalChat.getSetting('connectionsAvailable');
+		    if(connectionsAvailableSetting !== undefined && connectionsAvailableSetting === false) {
+                // SAK-20565. Profile2 may not be installed,so no connections :(
+               $('#pc_connections_wrapper').hide();
+            }
 	
-	this.hideVideoCall = function(uuid) {
-		$("#pc_chat_" + uuid + "_video_content").hide();
-		$("#pc_chat_with_" + uuid).css('height', '318px');
-		$("#pc_chat_with_" + uuid).css('margin-top', '0px');
-		$("#pc_chat_with_" + uuid).attr('data-height', '318');
-		$('#pc_connection_' + uuid + '_videochat_bar .video_off').show();
-		$('#pc_connection_' + uuid + '_videochat_bar .video_on').hide();
-		portalChat.hideMyVideo();
-	}
+			// Clear all of the intervals when the window is closed
+			$(window).bind('unload',function () {
+				portalChat.clearGetLatestDataInterval();
+			});
 
-	this.hasVideoAgent = function(uuid) {
-		return this.getVideoAgent(uuid)!='none';
-	}
+			$(document).bind('focus',function () {
+				document.title = portalChat.originalTitle;
+			});
 
-	this.getVideoAgent = function(uuid) {
-		return portalChat.currentConnectionsMap[uuid].video;
-	}
+            // Explicitly close presence panel. This also handles clicks bubbled up from the close icon.
+            $('#pc_title').click(function(e){
+                e.preventDefault();
+                portalChat.toggleChat();
+            })
+	
+			if(portalChat.currentConnections.length > 0) {
+				if(portalChat.showOfflineConnections) {
+					portalChat.renderTemplate('pc_connections_template',{'connections':portalChat.currentConnections},'pc_connections');
+					$('#pc_showoffline_connections_checkbox').attr('checked','checked');
+				} else {
+					portalChat.renderTemplate('pc_connections_template',{'connections':portalChat.onlineConnections},'pc_connections');
+					$('#pc_showoffline_connections_checkbox').removeAttr('checked');
+				}
 
-	this.setVideoStatus = function(uuid, text, display) {
-		if (display) {
-			$(
-					"#pc_connection_"
-							+ uuid
-							+ "_videochat_bar > .pc_chat_video_statusbar > span")
-					.text(text);
-			$(
-					"#pc_connection_" + uuid
-							+ "_videochat_bar > .pc_chat_video_statusbar")
-					.show();
-		} else {
-			$(
-					"#pc_connection_" + uuid
-							+ "_videochat_bar > .pc_chat_video_statusbar")
-					.hide();
-		}
+				var pc_users = $('#pc_users');
+				if(pc_users.height() > portalChat.MAX_CONTENT_HEIGHT) pc_users.height(portalChat.MAX_CONTENT_HEIGHT);
+				portalChat.sortConnections();
+			}
 
-	}
+			if(portalChat.currentSiteUsers.length > 0) {
+				portalChat.renderTemplate('pc_site_users_template',{'siteUsers':portalChat.currentSiteUsers},'pc_site_users');
+				portalChat.sortSiteUsers();
+			}
+	
+			// Check if there are any messages streams active. If there are, setup chat windows for each
+			for(var key in sessionStorage) {
+                // Chat session key start with pcsession_
+                if(key.indexOf('pcsession_') != 0) {
+                    continue;
+                }
+				var storedMessageStream = sessionStorage[key];
+	
+				if(storedMessageStream) {
+	
+					var sms = JSON.parse(storedMessageStream);
+	
+					portalChat.setupChatWindow(sms.uuid,sms.minimised);
+	
+					// Now we've setup the chat window we can add the messages.
+	
+					var messagePanel = $("#pc_connection_chat_" + sms.uuid + "_messages");
+	
+					var messages = sms.messages;
+	
+					for(var k=0,m=messages.length;k<m;k++) {
+						var message = messages[k];
+                        var userId =portalChat.currentConnectionsMap[message.from].uuid;
+                        if (userId == undefined){
+                            userId=portal.user.id
+                        }
+						var dateString = portalChat.formatDate(new Date(parseInt(message.timestamp)));
+						var fromDisplayName = portalChat.currentConnectionsMap[message.from].displayName;
 
-	this.init = function() {
+                        portalChat.appendMessageToChattersPanel({'content': message.content, 'panelUuid': sms.uuid, 'from': userId, 'dateString': dateString, 'fromDisplayName': fromDisplayName});
+					}
 
-		$(document)
-				.ready(
-						function() {
-
-							if (portal.loggedIn) {
-
-								if (typeof VideoCall === 'function') {
-									portalChat.videoCall = new VideoCall();
-
-									portalChat.videoCall.onHangUp = function(userid) {
-										portalChat.setVideoStatus(userid,"User has hung up", true);
-										portalChat.videoCall.doClose(userid);
-										portalChat.hideVideoCall(userid);
-									};
-									portalChat.videoCall.init(portalChat);
-								}
-					
-								$('#chatToggle').click(function() {
-									portalChat.toggleChat();
-									// $('#presenceArea').toggle();
-								});
-
-								var myCurrentConnectionsString = sessionStorage.pcCurrentConnections;
-								if (myCurrentConnectionsString) {
-									portalChat.currentConnections = JSON
-											.parse(myCurrentConnectionsString);
-									portalChat.currentConnectionsMap = JSON
-											.parse(sessionStorage.pcCurrentConnectionsMap);
-									portalChat.onlineConnections = JSON
-											.parse(sessionStorage.pcOnlineConnections);
-								}
-
-								var myCurrentPresentUsersString = sessionStorage.pcCurrentSiteUsers;
-								if (myCurrentPresentUsersString) {
-									portalChat.currentSiteUsers = JSON
-											.parse(myCurrentPresentUsersString);
-									// portalChat.currentSiteUsersMap =
-									// JSON.parse(sessionStorage.pcCurrentSiteUsersMap);
-								}
-
-								if (!myCurrentConnectionsString
-										&& !myCurrentPresentUsersString) {
-									portalChat.getLatestData();
-								}
-
-								if (portalChat.getSetting('offline', true)) {
-									$('#pc_go_offline_checkbox').attr(
-											'checked', 'checked');
-									portalChat.offline = true;
-								} else {
-									portalChat.offline = false;
-								}
-
-								if (portalChat
-										.getSetting('showOfflineConnections')) {
-									portalChat.showOfflineConnections = true;
-								}
-
-								if (portalChat.getSetting('videoOff', false)) {
-									$('#pc_video_off_checkbox').attr('checked',
-											'checked');
-									portalChat.videoOff = true;
-								} else {
-									portalChat.videoOff = false;
-								}
-
-								portalChat.setGetLatestDataInterval();
-							} else {
-								// Not a logged in user. Clear the cached data
-								// in sessionStorage.
-								sessionStorage
-										.removeItem('pcCurrentConnections');
-								sessionStorage
-										.removeItem('pcCurrentConnectionsMap');
-								sessionStorage
-										.removeItem('pcOnlineConnections');
-								sessionStorage.removeItem('pcCurrentSiteUsers');
-								sessionStorage
-										.removeItem('pcCurrentSiteUsersMap');
-							}
-
-							$('#pc_showoffline_connections_checkbox')
-									.click(
-											function() {
-												if ($(this).attr('checked') == 'checked') {
-													portalChat.showOfflineConnections = true;
-													portalChat
-															.renderTemplate(
-																	'pc_connections_template',
-																	{
-																		'connections' : portalChat.currentConnections
-																	},
-																	'pc_connections');
-													var pc_users = $('#pc_users');
-													if (pc_users.height() > portalChat.MAX_CONTENT_HEIGHT)
-														pc_users
-																.height(portalChat.MAX_CONTENT_HEIGHT);
-													portalChat
-															.setSetting(
-																	'showOfflineConnections',
-																	true);
-												} else {
-													portalChat.showOfflineConnections = false;
-													portalChat
-															.renderTemplate(
-																	'pc_connections_template',
-																	{
-																		'connections' : portalChat.onlineConnections
-																	},
-																	'pc_connections');
-													$('#pc_connections').css(
-															'height', 'auto');
-													portalChat
-															.setSetting(
-																	'showOfflineConnections',
-																	false);
-												}
-
-												portalChat.sortConnections();
-											});
-
-							$('#pc_go_offline_checkbox')
-									.click(
-											function() {
-												if ($(this).attr('checked') == 'checked') {
-													portalChat.setSetting(
-															'offline', true,
-															true);
-													portalChat.offline = true;
-
-												} else {
-													portalChat.setSetting(
-															'offline', false);
-													portalChat.offline = false;
-
-													portalChat
-															.setGetLatestDataInterval();
-												}
-											});
-
-							$('#pc_video_off_checkbox')
-									.click(
-											function() {
-												if ($(this).attr('checked') == 'checked') {
-													portalChat.setSetting(
-															'videoOff', true,
-															true);
-													portalChat.videoOff = true;
-												} else {
-													portalChat.setSetting(
-															'videoOff', false);
-													portalChat.videoOff = false;
-												}
-											});
-
-							// Handle return press in the edit fields
-							$('.pc_editor')
-									.live(
-											'keypress',
-											function(e, ui) {
-
-												if (e.keyCode == 13) {
-
-													var editorId = e.target.id;
-													// do nothing if no value
-													if (e.target.value !== '') {
-														var uuid = editorId
-																.split("pc_editor_for_")[1];
-														portalChat
-																.sendMessageToUser(
-																		uuid,
-																		e.target.value);
-													}
-												}
-											});
-
-							if (portalChat.getSetting('expanded')
-									&& portal.loggedIn) {
-								portalChat.toggleChat();
-							}
-
-							var connectionsAvailableSetting = portalChat
-									.getSetting('connectionsAvailable');
-							if (connectionsAvailableSetting !== undefined
-									&& connectionsAvailableSetting === false) {
-								// SAK-20565. Profile2 may not be installed,so
-								// no connections :(
-								$('#pc_connections_wrapper').hide();
-							}
-
-							// Clear all of the intervals when the window is
-							// closed
-							$(window).bind('unload', function() {
-								portalChat.clearGetLatestDataInterval();
-							});
-
-							$(document).bind('focus', function() {
-								document.title = portalChat.originalTitle;
-							});
-
-							// Explicitly close presence panel. This also
-							// handles clicks bubbled up from the close icon.
-							$('#pc_title').click(function(e) {
-								e.preventDefault();
-								portalChat.toggleChat();
-							})
-
-							if (portalChat.currentConnections.length > 0) {
-								if (portalChat.showOfflineConnections) {
-									portalChat
-											.renderTemplate(
-													'pc_connections_template',
-													{
-														'connections' : portalChat.currentConnections
-													}, 'pc_connections');
-									$('#pc_showoffline_connections_checkbox')
-											.attr('checked', 'checked');
-								} else {
-									portalChat
-											.renderTemplate(
-													'pc_connections_template',
-													{
-														'connections' : portalChat.onlineConnections
-													}, 'pc_connections');
-									$('#pc_showoffline_connections_checkbox')
-											.removeAttr('checked');
-								}
-
-								var pc_users = $('#pc_users');
-								if (pc_users.height() > portalChat.MAX_CONTENT_HEIGHT)
-									pc_users
-											.height(portalChat.MAX_CONTENT_HEIGHT);
-								portalChat.sortConnections();
-							}
-
-							if (portalChat.currentSiteUsers.length > 0) {
-								portalChat
-										.renderTemplate(
-												'pc_site_users_template',
-												{
-													'siteUsers' : portalChat.currentSiteUsers
-												}, 'pc_site_users');
-								portalChat.sortSiteUsers();
-							}
-
-							// Check if there are any messages streams active.
-							// If there are, setup chat windows for each
-							for ( var key in sessionStorage) {
-								// Chat session key start with pcsession_
-								if (key.indexOf('pcsession_') != 0) {
-									continue;
-								}
-								var storedMessageStream = sessionStorage[key];
-
-								if (storedMessageStream) {
-
-									var sms = JSON.parse(storedMessageStream);
-
-									portalChat.setupChatWindow(sms.uuid,
-											sms.minimised);
-
-									// Now we've setup the chat window we can
-									// add the messages.
-
-									var messagePanel = $("#pc_connection_chat_"
-											+ sms.uuid + "_messages");
-
-									var messages = sms.messages;
-
-									for ( var k = 0, m = messages.length; k < m; k++) {
-										var message = messages[k];
-										var userId = portalChat.currentConnectionsMap[message.from].uuid;
-										if (userId == undefined) {
-											userId = portal.user.id
-										}
-										var dateString = portalChat
-												.formatDate(new Date(
-														parseInt(message.timestamp)));
-										var fromDisplayName = portalChat.currentConnectionsMap[message.from].displayName;
-
-										portalChat
-												.appendMessageToChattersPanel({
-													'content' : message.content,
-													'panelUuid' : sms.uuid,
-													'from' : userId,
-													'dateString' : dateString,
-													'fromDisplayName' : fromDisplayName
-												});
-									}
-
-									portalChat.scrollToBottom(sms.uuid);
-								}
-							}
-
-						});
-
-		// 15 minutes
-		$.idleTimer(900000);
-
-		$(document).bind("idle.idleTimer", function() {
-			portalChat.clearGetLatestDataInterval();
-		}).bind("active.idleTimer", function() {
-			portalChat.setGetLatestDataInterval();
+					portalChat.scrollToBottom(sms.uuid);
+				}
+			}
 		});
 
-	} // init
+        // 15 minutes
+        $.idleTimer(900000);
 
-	this.init();
+        $(document).bind("idle.idleTimer", function(){
+            portalChat.clearGetLatestDataInterval();
+        }).bind("active.idleTimer", function(){
+            portalChat.setGetLatestDataInterval();
+        });
+
+	} //init
+
+	this.init();	
+
+
 }
-
 // Portal chat depends on session storage and JSON. If either aren't
 // supported in the browser, don't show it.
 if (typeof sessionStorage !== 'undefined' && typeof JSON !== 'undefined') {

@@ -427,6 +427,7 @@ function WebRTC() {
 		this.localMediaStream.getAudioTracks()[0].enabled=true;
 	}
 
+
 }
 
 /* Object to handle connection and call success, fail events */
