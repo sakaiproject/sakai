@@ -358,7 +358,7 @@ public class PortletIFrame extends GenericPortlet {
 				if (placement != null && placement.getContext() != null && placement.getId() != null) {
 				    EventTrackingService ets = (EventTrackingService) ComponentManager.get(EventTrackingService.class);
 				    if (ets != null) {
-				        String eventRef = "/web/"+placement.getContext()+"/id/"+placement.getId()+"/url/"+url;
+				        String eventRef = "/web/"+placement.getContext()+"/id/"+placement.getId()+"/url/"+URLEncoder.encode(url, "UTF-8");
 				        eventRef = StringUtils.abbreviate(eventRef, 240); // ensure the ref won't pass 255 chars
 				        ets.post(ets.newEvent("webcontent.read", eventRef, false));
 				    }
