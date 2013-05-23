@@ -101,7 +101,7 @@ function removeOptionalAttributeBlock(elem) {
 				<label for="pwcur">
 					$tlang.getString("usecre.vercurpass")
 				</label>
-			#if ($service.allowUpdateUserPassword($user.Id) || !$user)
+			#if ($service.allowUpdateUserName($user.Id) || $service.allowUpdateUserEmail($user.Id) || $service.allowUpdateUserPassword($user.Id) || !$user)
 				<input type="password" name="pwcur" id="pwcur" />
 			#else
 				&nbsp;
