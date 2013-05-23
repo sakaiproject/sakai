@@ -7,14 +7,15 @@ function VideoCall() {
 
 	this.webRTC = null; // WebRTC handler
 	this.signalService = null;
-
+	this.currentCalls = new Array();
+	this.callTimeout = 25; // Timeout in secs
 	/* Define the actions executed in each event */
 
 	
 	this.doCall = function(uuid,videoAgentType,onSuccessStartCall,onSuccessConnection,onFailConnection){
 
 		var videoCallObject = this; 
-			
+
 		this.webRTC.doCall(uuid,videoAgentType,
 					function (userid,localMediaStream){
 						videoCallObject.startCall (userid,localMediaStream);  
@@ -50,8 +51,13 @@ function VideoCall() {
  		return this.webRTC.webrtcDetectedBrowser;
  	}
  		
- 	this.doClose = function (uuid){
- 		this.webRTC.hangUp(uuid);
+ 	this.doClose = function (uuid,skipBye){
+ 		if (!skipBye) {
+ 			delete this.currentCalls[uuid];
+ 		} else {
+ 			this.currentCalls[uuid].status = "CANCELLING";
+ 		}
+ 		this.webRTC.hangUp(uuid,skipBye);
  	}
 	
 	this.startCall = function (uuid, localMediaStream) {
@@ -124,8 +130,24 @@ function VideoCall() {
 	    var videoCallObject = this;
 		
 	    this.webRTC.onReceiveCall = function(userid) {
+			if (videoCall.currentCalls[userid]) {
+				if (videoCall.currentCalls[userid].status == "SYNC") {
+					// I'm calling to the same user at the same time, discard !!
+					delete videoCall.currentCalls[userid];
+				} else if (videoCall.currentCalls[userid].status == "ESTABLISHING") {
+					// We call each other at the same time
+					if (userid<myselfId) {
+						// I discard the call and go with the answer (do not send bye)
+						videoCall.doClose(userid,true);
+					} else {
+						// I do the call discard the answer
+						return;
+					}  
+				}
+			}
 			videoCall.setVideoStatus(userid,"You have an incomming call...", true);
 			videoCall.openVideoCall (userid,true);
+			setTimeout('videoCall.doAnswerTimeout("'+userid+'")',videoCall.callTimeout*1000);
 		}
 	    
 	    
@@ -181,7 +203,17 @@ function VideoCall() {
 
 	this.onvideomessage = function(uuid, message) {
 		// message function. It will send to rtc to process it
-		this.receiveMessage(uuid, message,this.getRemoteVideoAgent(uuid)); 
+		this.receiveMessage(uuid, message,this.getRemoteVideoAgent(uuid));
+	}
+	
+	this.currentCallsProceed = function() {
+		// Go On with Current Sync Calls
+		$.each(Object.keys(this.currentCalls),function(key,value){
+			if (videoCall.currentCalls[value].status=="SYNC") {
+				videoCall.currentCalls[value].status = "ESTABLISHING";
+				videoCall.currentCalls[value].proceed();
+			}
+		});
 	}
 	
 	this.hasVideoAgent = function(uuid) {
@@ -192,6 +224,19 @@ function VideoCall() {
 		return portalChat.currentConnectionsMap[uuid].video;
 	}
 	
+	this.doTimeout = function(uuid) {
+		if (videoCall.currentCalls[uuid] && videoCall.currentCalls[uuid].status == "ESTABLISHING") {
+			videoCall.setVideoStatus(uuid,"Call timeout!",true);
+			videoCall.doClose(uuid);
+		}
+	}
+
+	this.doAnswerTimeout = function(uuid) {
+		if ($('#pc_connection_' + uuid + '_videoin').is(":visible") && (!this.webRTC.currentPeerConnectionsMap[uuid] || (this.currentCalls[uuid] && this.currentCalls[uuid].status=="CANCELLING"))) {
+			this.ignoreVideoCall(uuid);
+		}
+	}
+
 	this.openVideoCall = function(uuid, incomming) {
 		if (incomming && this.videoOff)
 			return;
@@ -205,30 +250,47 @@ function VideoCall() {
 		if (incomming) {
 			$('#pc_connection_' + uuid + '_videoin').show();
 		} else {
-			
-					videoCall.doCall(
-							uuid,
-							videoCall.getVideoAgent(uuid),
-							function(uuid) {
-								videoCall.setVideoStatus(uuid,
-										"Waiting for peer...", true);
-							},
-							function(uuid) {
-								videoCall
-										.setVideoStatus(
-												uuid,
-												"Call accepted, establishing connection ",
-												true);
-								videoCall.showVideoCall(uuid);
-							}, function(uuid) {
-								videoCall.setVideoStatus(uuid,
-										"Call not accepted or failed", true);
-								videoCall.closeVideoCall(uuid);
-							});
+			if (!this.currentCalls[uuid]) {
+			  videoCall.setVideoStatus(uuid,"Establishing wait...", true);
+			  this.currentCalls[uuid] = { 
+					  "status":"SYNC",
+					  "proceed":function() {
+							videoCall.doCall(
+									uuid,
+									videoCall.getVideoAgent(uuid),
+									function(uuid) {
+										videoCall.setVideoStatus(uuid,"Waiting for peer...", true);
+										setTimeout('videoCall.doTimeout("'+uuid+'")',videoCall.callTimeout*1000);
+									},
+									function(uuid) {
+										videoCall.currentCalls[uuid].status = "ESTABLISHED";
+										videoCall.setVideoStatus(uuid,"Call accepted, establishing connection ",true);
+										videoCall.showVideoCall(uuid);
+									}, 
+									function(uuid) {
+										videoCall.setVideoStatus(uuid,"Call not accepted or failed", true);
+										videoCall.closeVideoCall(uuid);
+									});
+					  }
+			  }
+			  // Test if destination is calling me at the same time
+			  //portalChat.getLatestData();
+			} else {
+				// You're already calling
+				videoCall.setVideoStatus(uuid,"Call in progress...", true);
+			}
 		}
 	}
 	
 	this.acceptVideoCall = function(uuid) {
+		if (this.currentCalls[uuid]) {
+			this.currentCalls[uuid].status = "ACCEPTED";
+		}
+		if (!this.webRTC.currentPeerConnectionsMap[uuid]) {
+			$('#pc_connection_' + uuid + '_videoin').hide();
+			videoCall.setVideoStatus(uuid, "Answer timeout!", true);
+			return;
+		}
 		videoCall.doAnswer(uuid, videoCall.getVideoAgent(uuid), function(
 				uuid) {
 			videoCall.setVideoStatus(uuid, "Connecting ...", true);
@@ -246,6 +308,9 @@ function VideoCall() {
 	}
 
 	this.ignoreVideoCall = function(uuid) {
+		if (this.currentCalls[uuid]) {
+			this.currentCalls[uuid].status = "CANCELLED";
+		}
 		$('#pc_connection_' + uuid + '_videoin').hide();
 		this.setVideoStatus(uuid, "You ignored that call", true);
 		videoCall.refuseCall(uuid);

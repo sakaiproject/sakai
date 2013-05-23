@@ -155,7 +155,7 @@ function WebRTC() {
 	 * /*Call this function to announce you want to hangup, success callback is
 	 * launched when the pair get the request, fail in other case
 	 */
-	this.hangUp = function(userid) {
+	this.hangUp = function(userid,skipBye) {
 		var callConnection = this.currentPeerConnectionsMap[userid];
 		if (callConnection != null) {
 			var pc = callConnection.rtcPeerConnection;
@@ -181,9 +181,9 @@ function WebRTC() {
 				this.localMediaStream = null;
 			}
 
-			this.signalService.send(userid, JSON.stringify({
-				"bye" : "bye"
-			}));
+			if (!skipBye) {
+				this.signalService.send(userid, JSON.stringify({"bye" : "bye"}));
+			}
 		}
 	}
 
@@ -359,10 +359,14 @@ function WebRTC() {
 	this.onReceive = function(from, message, videoAgentType) {
 		var signal = JSON.parse(message.content);
 
-		if (this.debug = true)
+		if (this.debug)
 			console.log(message);
 
 		if (signal.sdp) {
+
+			if (signal.sdp.type == "offer") {
+				this.onReceiveCall(from);
+			}
 
 			var callConnection = this.currentPeerConnectionsMap[from];
 
@@ -373,10 +377,6 @@ function WebRTC() {
 
 			var pc = callConnection.rtcPeerConnection;
 			pc.setRemoteDescription(new RTCSessionDescription(signal.sdp));
-
-			if (signal.sdp.type == "offer") {
-				this.onReceiveCall(from);
-			}
 
 		} else if (signal.candidate != null) {
 			var callConnection = this.currentPeerConnectionsMap[from];

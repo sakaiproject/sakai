@@ -15,6 +15,7 @@ function PortalChat() {
 	this.originalTitle = document.title;
     this.connectionsAvailable = true;
 	videoCall = null;
+	myselfId = null;
 	this.videoOff = false;
 	
     /**
@@ -99,8 +100,7 @@ function PortalChat() {
 			success : function(text, status) {
 				if ('OFFLINE' === text) {
 					/* The peer is disconnected you can close the connection */
-					videoCall.setVideoStatus(to, "User went unexpectly",
-							true);
+					videoCall.setVideoStatus(to, "User went unexpectly", true);
 					videoCall.closeVideoCall(to);
 				}
 			},
@@ -545,10 +545,12 @@ function PortalChat() {
         }
     }
 
-   this.updateVideoMessages = function(messages) {
+   this.updateVideoMessages = function(myId,messages) {
+	    myselfId = myId;
 		for ( var i = 0, j = messages.length; i < j; i++) {
 			videoCall.onvideomessage(messages[i].from, messages[i]);
 		}
+		videoCall.currentCallsProceed();
 	}
 
 	
@@ -570,7 +572,7 @@ function PortalChat() {
 			cache: false,
 			success : function (data,status) {
 				portalChat.updateMessages(data.data.messages);
-				portalChat.updateVideoMessages(data.data.videoMessages);
+				portalChat.updateVideoMessages(data.entityId,data.data.videoMessages);
 
                 // SAK-20565. Profile2 may not be installed, so no connections :(
                 if(portalChat.connectionsAvailable === true) {
