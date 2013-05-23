@@ -1206,6 +1206,7 @@ public interface ContentHostingService extends EntityProducer
 	 *            if copied item is a collection and the new id is already in use or if the copied item is not a collection and a unique id cannot be found in some arbitrary number of attempts (@see MAXIMUM_ATTEMPTS_FOR_UNIQUENESS).
 	 * @exception ServerOverloadException
 	 *            if the server is configured to write the resource body to the filesystem and the save fails.
+	 * @deprecated DO NOT USE THIS, it does not work and will ALWAYS throw an UnsupportedOperationException - https://jira.sakaiproject.org/browse/KNL-1078
 	 */
 	public String rename(String id, String new_id) throws PermissionException, IdUnusedException, TypeException, InUseException,
 			OverQuotaException, InconsistentException, IdUsedException, ServerOverloadException;

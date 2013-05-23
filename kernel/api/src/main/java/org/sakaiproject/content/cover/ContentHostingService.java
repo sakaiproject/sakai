@@ -681,6 +681,9 @@ public class ContentHostingService
 		service.moveIntoFolder(param0, param1);
 	}
 
+	/**
+	 * @deprecated DO NOT USE THIS, it does not work and will ALWAYS throw an UnsupportedOperationException - https://jira.sakaiproject.org/browse/KNL-1078
+	 */
 	public static void rename(java.lang.String param0, java.lang.String param1)
 			throws org.sakaiproject.exception.PermissionException, org.sakaiproject.exception.IdUnusedException,
 			org.sakaiproject.exception.TypeException, org.sakaiproject.exception.InUseException,

@@ -4448,10 +4448,14 @@ SiteContentAdvisorProvider, SiteContentAdvisorTypeRegistry, EntityTransferrerRef
 	 *            if copied item is a collection and the new id is already in use or if the copied item is not a collection and a unique id cannot be found in some arbitrary number of attempts (@see MAXIMUM_ATTEMPTS_FOR_UNIQUENESS).
 	 * @exception ServerOverloadException
 	 *            if the server is configured to write the resource body to the filesystem and the save fails.
+	 * @deprecated DO NOT USE THIS, it does not work and will ALWAYS throw an UnsupportedOperationException - https://jira.sakaiproject.org/browse/KNL-1078
 	 */
 	public String rename(String id, String new_id) throws IdUnusedException, TypeException, PermissionException, InUseException,
 	OverQuotaException, InconsistentException, IdUsedException, ServerOverloadException
 	{
+	    throw new UnsupportedOperationException("the rename() method is not properly implemented and should NOT be used - https://jira.sakaiproject.org/browse/KNL-1078");
+	    /* Commented out for https://jira.sakaiproject.org/browse/KNL-1078
+	     * 
 		// Note - this could be implemented in this base class using a copy and a delete
 		// and then overridden in those derived classes which can support
 		// a direct rename operation.
@@ -4505,6 +4509,7 @@ SiteContentAdvisorProvider, SiteContentAdvisorTypeRegistry, EntityTransferrerRef
             removeResource(thisResource, false); // force content to not be removed
         }
 		return new_id;
+		*/
 
 	} // rename
 
