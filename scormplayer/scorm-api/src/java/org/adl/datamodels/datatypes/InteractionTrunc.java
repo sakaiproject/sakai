@@ -56,7 +56,7 @@ public class InteractionTrunc {
 		switch (iType) {
 		case InteractionValidator.MULTIPLE_CHOICE: {
 			// Check for an empty set
-			if (iValue.trim().length() == 0) {
+			if (StringUtils.isBlank(iValue)) {
 				// Value OK
 				break;
 			}
@@ -138,7 +138,7 @@ public class InteractionTrunc {
 			break;
 		}
 		case InteractionValidator.MATCHING: {
-			if (iValue.trim().length() == 0) {
+			if (StringUtils.isBlank(iValue)) {
 				// Value OK
 				break;
 			}

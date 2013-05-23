@@ -544,7 +544,7 @@ public class InteractionValidatorImpl extends InteractionValidator {
 				}
 
 				if (equal) {
-					if (maxString1.trim().length() > 0 || maxString2.trim().length() > 0) {
+					if (StringUtils.isNotBlank(maxString1) || StringUtils.isNotBlank(maxString2)) {
 						equal = realValidator.compare(maxString1, maxString2, null);
 					}
 				}
@@ -775,12 +775,12 @@ public class InteractionValidatorImpl extends InteractionValidator {
 		case MATCHING: {
 			// Should we allow a total empty value
 			if (!mAllowEmpty) {
-				if (iValue.trim().length() == 0) {
+				if (StringUtils.isBlank(iValue)) {
 					valid = DMErrorCodes.TYPE_MISMATCH;
 					break;
 				}
 			} else {
-				if (iValue.trim().length() == 0) {
+				if (StringUtils.isBlank(iValue)) {
 					// valid -- we're done
 					break;
 				}
@@ -967,12 +967,12 @@ public class InteractionValidatorImpl extends InteractionValidator {
 									Double min = null;
 									Double max = null;
 
-									if (minString.trim().length() > 0) {
+									if (StringUtils.isNotBlank(minString)) {
 										min = new Double(minString);
 
 									}
 
-									if (maxString.trim().length() > 0) {
+									if (StringUtils.isNotBlank(maxString)) {
 										max = new Double(maxString);
 									}
 
@@ -1072,12 +1072,12 @@ public class InteractionValidatorImpl extends InteractionValidator {
 							Double min = null;
 							Double max = null;
 
-							if (minString.trim().length() > 0) {
+							if (StringUtils.isNotBlank(minString)) {
 								min = new Double(minString);
 
 							}
 
-							if (maxString.trim().length() > 0) {
+							if (StringUtils.isNotBlank(maxString)) {
 								max = new Double(maxString);
 							}
 

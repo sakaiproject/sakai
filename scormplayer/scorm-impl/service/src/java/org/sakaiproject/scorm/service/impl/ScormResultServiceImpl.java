@@ -29,6 +29,7 @@ import org.adl.api.ecmascript.APIErrorCodes;
 import org.adl.datamodels.DMInterface;
 import org.adl.datamodels.DMProcessingInfo;
 import org.adl.datamodels.IDataManager;
+import org.apache.commons.lang.StringUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.sakaiproject.scorm.api.ScormConstants;
@@ -354,7 +355,7 @@ public abstract class ScormResultServiceImpl implements ScormResultService {
 	private double getRealValue(String element, IDataManager dataManager) {
 		String result = getValue(element, dataManager);
 
-		if (result.trim().length() == 0 || result.equals("unknown"))
+		if (StringUtils.isBlank(result) || result.equals("unknown"))
 			return -1.0;
 
 		double d = -1.0;
@@ -372,7 +373,7 @@ public abstract class ScormResultServiceImpl implements ScormResultService {
 	private int getRealValueAsInt(String element, IDataManager dataManager) {
 		String result = getValue(element, dataManager);
 
-		if (result.trim().length() == 0 || result.equals("unknown"))
+		if (StringUtils.isBlank(result) || result.equals("unknown"))
 			return -1;
 
 		int i = -1;
@@ -391,7 +392,7 @@ public abstract class ScormResultServiceImpl implements ScormResultService {
 	private int getRealValueAsIntScaled(String element, IDataManager dataManager) {
 		String result = getValue(element, dataManager);
 
-		if (result.trim().length() == 0 || result.equals("unknown"))
+		if (StringUtils.isBlank(result) || result.equals("unknown"))
 			return -1;
 
 		int i = -1;

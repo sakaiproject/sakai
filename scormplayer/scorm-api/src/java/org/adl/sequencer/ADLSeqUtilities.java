@@ -32,6 +32,7 @@ import javax.xml.xpath.XPathConstants;
 import javax.xml.xpath.XPathFactory;
 
 import org.adl.util.debug.DebugIndicator;
+import org.apache.commons.lang.StringUtils;
 import org.w3c.dom.NamedNodeMap;
 import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
@@ -2497,7 +2498,7 @@ public class ADLSeqUtilities {
 	 */
 	private static boolean isEmpty(String iValue) {
 
-		return (iValue.trim().length() == 0);
+		return (StringUtils.isBlank(iValue));
 	}
 
 	/**

@@ -24,6 +24,7 @@ import java.util.ArrayList;
 import java.util.LinkedList;
 import java.util.List;
 
+import org.apache.commons.lang.StringUtils;
 import org.apache.wicket.PageParameters;
 import org.apache.wicket.ResourceReference;
 import org.apache.wicket.extensions.markup.html.repeater.data.table.IColumn;
@@ -159,7 +160,7 @@ public class ScoResultsPage extends BaseResultsPage {
 		prevParams.put("scoId", previousId);
 		
 		Link link = new BookmarkablePageLabeledLink("previousLink", new ResourceModel("previous.link.label"), ScoResultsPage.class, prevParams);
-		link.setVisible(previousId.trim().length() > 0);
+		link.setVisible(StringUtils.isNotBlank(previousId));
 		return link;
 	}
 
@@ -170,7 +171,7 @@ public class ScoResultsPage extends BaseResultsPage {
 	
 	@Override
 	protected boolean isPreviousLinkVisible(String[] siblingIds) {
-		return siblingIds[0] != null && !siblingIds[0].equals("");
+		return StringUtils.isNotEmpty(siblingIds[0]);
 	}
 	
 	@Override
@@ -188,7 +189,7 @@ public class ScoResultsPage extends BaseResultsPage {
 		
 		Link link = new BookmarkablePageLabeledLink("nextLink", new ResourceModel("next.link.label"), ScoResultsPage.class, nextParams);
 
-		link.setVisible(nextId.trim().length() > 0);
+		link.setVisible(StringUtils.isNotBlank(nextId));
 		return link;
 	}
 	
