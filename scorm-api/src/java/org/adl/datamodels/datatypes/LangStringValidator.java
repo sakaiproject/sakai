@@ -31,6 +31,7 @@ import java.util.Vector;
 import org.adl.datamodels.DMDelimiter;
 import org.adl.datamodels.DMErrorCodes;
 import org.adl.datamodels.DMTypeValidator;
+import org.apache.commons.lang.StringUtils;
 
 /**
  * <br><br>
@@ -372,7 +373,7 @@ public class LangStringValidator extends DMTypeValidator implements Serializable
 				country2 = iSecond;
 
 				// Make sure there is a string to check
-				if (country1.trim().length() > 0 && country2.trim().length() > 0) {
+				if (StringUtils.isNotBlank(country1) && StringUtils.isNotBlank(country2)) {
 					// Look for the next dash
 					curDash1 = country1.indexOf("-");
 					curDash2 = country2.indexOf("-");
@@ -443,7 +444,7 @@ public class LangStringValidator extends DMTypeValidator implements Serializable
 						}
 					}
 				} else {
-					if (country1.trim().length() > 0 || country2.trim().length() > 0) {
+					if (StringUtils.isNotBlank(country1) || StringUtils.isNotBlank(country2)) {
 						// One of the string has a country code defined
 						equal = false;
 						done = true;
@@ -644,7 +645,7 @@ public class LangStringValidator extends DMTypeValidator implements Serializable
 					lang = iValue.substring(curDash);
 
 					// Make sure there is a string to check
-					if (lang.trim().length() > 0) {
+					if (StringUtils.isNotBlank(lang)) {
 						// Find the next '-'
 						curDash = lang.indexOf("-");
 					} else {
@@ -686,7 +687,7 @@ public class LangStringValidator extends DMTypeValidator implements Serializable
 				String country = iValue.substring(curDash);
 
 				// Make sure there is a string to check
-				if (country.trim().length() > 0) {
+				if (StringUtils.isNotBlank(country)) {
 					// Look for the next dash
 					curDash = country.indexOf("-");
 

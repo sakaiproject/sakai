@@ -26,6 +26,7 @@ import java.net.URLDecoder;
 
 import javax.servlet.http.HttpServletRequest;
 
+import org.apache.commons.lang.StringUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.apache.wicket.AttributeModifier;
@@ -96,7 +97,7 @@ public abstract class ResourceNavigator implements INavigable, Serializable {
 		String resourceId = sessionBean.getContentPackage().getResourceId();		
 		String launchLine = sessionBean.getLaunchData().getLaunchLine();
 		
-		if (launchLine == null || launchLine.trim().length() == 0)
+		if (StringUtils.isBlank(launchLine))
 			return null;
 		
 		if (launchLine.startsWith("/"))

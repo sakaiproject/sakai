@@ -23,6 +23,7 @@ package org.sakaiproject.scorm.ui.reporting.pages;
 import java.util.LinkedList;
 import java.util.List;
 
+import org.apache.commons.lang.StringUtils;
 import org.apache.wicket.PageParameters;
 import org.apache.wicket.ResourceReference;
 import org.apache.wicket.extensions.markup.html.repeater.data.table.IColumn;
@@ -121,7 +122,7 @@ public class LearnerResultsPage extends BaseResultsPage {
 		prevParams.put("learnerId", previousId);
 		
 		Link link = new BookmarkablePageLabeledLink("previousLink", new ResourceModel("previous.link.label"), LearnerResultsPage.class, prevParams);
-		link.setVisible(previousId.trim().length() > 0);
+		link.setVisible(StringUtils.isNotEmpty(previousId));
 		return link;
 		
 		/*PageParameters prevParams = new PageParameters();
@@ -139,7 +140,7 @@ public class LearnerResultsPage extends BaseResultsPage {
 		
 		boolean showPrevious = false;
 
-		if (previousLearnerIds.trim().length() > 0) {
+		if (StringUtils.isNotEmpty(previousLearnerIds)) {
 			int indexOf = previousLearnerIds.indexOf(',');
 			String currentLearnerId = previousLearnerIds.substring(0, indexOf);
 			
@@ -172,7 +173,7 @@ public class LearnerResultsPage extends BaseResultsPage {
 
 		Link link = new BookmarkablePageLabeledLink("nextLink", new ResourceModel("next.link.label"), LearnerResultsPage.class, nextParams);
 
-		link.setVisible(nextId.trim().length() > 0);
+		link.setVisible(StringUtils.isNotBlank(nextId));
 		return link;
 		
 		/*PageParameters nextParams = new PageParameters();
@@ -192,7 +193,7 @@ public class LearnerResultsPage extends BaseResultsPage {
 
 		boolean showNext = false;
 			
-		if (nextLearnerIds.trim().length() > 0) {
+		if (StringUtils.isNotBlank(nextLearnerIds)) {
 			int indexOf = nextLearnerIds.indexOf(',');
 			String currentLearnerId = nextLearnerIds.substring(0, indexOf);
 			

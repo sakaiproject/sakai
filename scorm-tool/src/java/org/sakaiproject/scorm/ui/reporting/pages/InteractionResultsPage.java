@@ -24,6 +24,7 @@ package org.sakaiproject.scorm.ui.reporting.pages;
 import java.util.LinkedList;
 import java.util.List;
 
+import org.apache.commons.lang.StringUtils;
 import org.apache.wicket.PageParameters;
 import org.apache.wicket.ResourceReference;
 import org.apache.wicket.extensions.markup.html.repeater.data.table.IColumn;
@@ -126,7 +127,7 @@ public class InteractionResultsPage extends BaseResultsPage {
 		prevParams.put("interactionId", previousId);
 		
 		Link link = new BookmarkablePageLabeledLink("previousLink", new ResourceModel("previous.link.label"), InteractionResultsPage.class, prevParams);
-		link.setVisible(previousId.trim().length() > 0);
+		link.setVisible(StringUtils.isNotBlank(previousId));
 		return link;
 	}
 	
@@ -147,7 +148,7 @@ public class InteractionResultsPage extends BaseResultsPage {
 		
 		Link link = new BookmarkablePageLabeledLink("nextLink", new ResourceModel("next.link.label"), InteractionResultsPage.class, nextParams);
 
-		link.setVisible(nextId.trim().length() > 0);
+		link.setVisible(StringUtils.isNotBlank(nextId));
 		return link;
 	}
 	

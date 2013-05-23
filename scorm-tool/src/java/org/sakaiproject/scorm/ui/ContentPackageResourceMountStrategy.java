@@ -48,6 +48,7 @@ import java.util.Iterator;
 import java.util.Map;
 import java.util.Map.Entry;
 
+import org.apache.commons.lang.StringUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.apache.wicket.Application;
@@ -97,7 +98,7 @@ public class ContentPackageResourceMountStrategy extends AbstractRequestTargetUr
 		Map parameters = requestParameters.getParameters();
 		String resourceName = (String)parameters.get("resourceName");
 		
-		if (resourceName != null && resourceName.trim().length() > 0) {
+		if (StringUtils.isNotBlank(resourceName)) {
 			if (!url.endsWith("/"))
 				url.append("/");
 

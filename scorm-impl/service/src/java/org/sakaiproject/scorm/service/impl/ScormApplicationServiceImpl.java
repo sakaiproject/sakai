@@ -25,6 +25,7 @@ import org.adl.sequencer.IValidRequests;
 import org.adl.sequencer.SeqNavRequests;
 import org.adl.sequencer.SeqObjective;
 import org.adl.validator.contentpackage.ILaunchData;
+import org.apache.commons.lang.StringUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.sakaiproject.scorm.adl.ADLConsultant;
@@ -308,7 +309,7 @@ public abstract class ScormApplicationServiceImpl implements ScormApplicationSer
 	private double getRealValue(String element, IDataManager dataManager) {
 		String result = getValue(element, dataManager);
 
-		if (result.trim().length() == 0 || result.equals("unknown"))
+		if (StringUtils.isBlank(result) || result.equals("unknown"))
 			return -1.0;
 
 		double d = -1.0;
@@ -395,7 +396,7 @@ public abstract class ScormApplicationServiceImpl implements ScormApplicationSer
 	private String getValueAsString(String element, IDataManager dataManager) {
 		String result = getValue(element, dataManager);
 
-		if (result.trim().length() == 0 || result.equals("unknown"))
+		if (StringUtils.isBlank(result) || result.equals("unknown"))
 			return null;
 
 		return result;
@@ -1129,7 +1130,7 @@ public abstract class ScormApplicationServiceImpl implements ScormApplicationSer
 	public ScoBean produceScoBean(String scoId, SessionBean sessionBean) {
 		ScoBean scoBean = null;
 
-		if (null == scoId || scoId.equals("undefined") || scoId.trim().length() == 0) {
+		if (StringUtils.isBlank(scoId) || scoId.equals("undefined")) {
 			// If no sco id is passed then we simply grab it from the sessionBean 
 			scoId = sessionBean.getScoId();
 			if (log.isDebugEnabled()) {
