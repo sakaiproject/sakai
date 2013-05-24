@@ -202,7 +202,9 @@
 			</h:column>
 			<h:column id="_msg_subject">
 				<f:facet name="header">
-					<h:outputText value="#{msgs.cdfm_thread}" />
+				        <h:outputLink value="#" title="#{msgs.sort_thread}">
+				          <h:outputText value="#{msgs.cdfm_thread}" /> 
+					</h:outputLink>
 				</f:facet>
 				<h:outputText escape="false" value="<a id=\"#{message.message.id}\" name=\"#{message.message.id}\"></a>" />
 					<%-- display deleted message linked if any child messages (not deleted)
@@ -301,7 +303,9 @@
 			</h:column>
 			<h:column>
 				<f:facet name="header">
+				   <h:outputLink value="#" title="#{msgs.sort_author}">
 					<h:outputText value="#{msgs.cdfm_authoredby}" />
+				   </h:outputLink>
 				</f:facet>
 				<h:panelGroup rendered="#{!message.deleted}" >
                     <h:outputText value="#{message.message.author}" rendered="#{!ForumTool.instructor}"/>
@@ -315,7 +319,9 @@
 				<%-- date column --%>
 			<h:column>
 				<f:facet name="header">
+				    <h:outputLink value="#" title="#{msgs.sort_date}">
 					<h:outputText value="#{msgs.cdfm_date}" />
+				    </h:outputLink>
 				</f:facet>
 				<h:panelGroup rendered="#{!message.deleted}" >
 					<h:outputText value="#{message.message.created}" rendered="#{message.read}">
