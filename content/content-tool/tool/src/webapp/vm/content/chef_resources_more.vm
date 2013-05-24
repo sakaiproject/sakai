@@ -138,9 +138,9 @@
 				<tr> 
 					<th> 
 						$tlang.getString("gen.original")
-					</t>
-					<th>
-						$item.contentString
+					</th>
+					<td>
+						$contentString
 					</td>
 				</tr>
 			#end

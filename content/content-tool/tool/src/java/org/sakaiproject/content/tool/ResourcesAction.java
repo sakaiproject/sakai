@@ -938,6 +938,11 @@ protected static final String PARAM_PAGESIZE = "collections_per_page";
 		
 		context.put("siteTitle", state.getAttribute(STATE_SITE_TITLE));
 
+		if (item.isUrl())
+		{
+			context.put("contentString", getEditItem(entityId, homeCollectionId, data).getContentstring());
+		}
+
 		return TEMPLATE_MORE;
 
 	}	// buildMoreContext
