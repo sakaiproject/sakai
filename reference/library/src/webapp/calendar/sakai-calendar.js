@@ -30,7 +30,7 @@ function insertAfter( referenceNode, newNode )
  * $monthselect_id The id attribute of the month selection dropdown list (html SELECT tag)
  * $dayselect_id   The id attribute of the day selection dropdown list (html SELECT tag)
  */
-function chef_dateselectionwidgetpopup(yearselect_id, monthselect_id, dayselect_id, calendar_id, calendar_title)
+function chef_dateselectionwidgetpopup(yearselect_id, monthselect_id, dayselect_id, calendar_id, calendar_title, locale)
 {		
 
 	// if calendar_id not defined, generate it 
@@ -61,6 +61,10 @@ function chef_dateselectionwidgetpopup(yearselect_id, monthselect_id, dayselect_
 		calendar_title = 'Popup date selector';
 	}
 
+	if (locale == undefined) {
+		locale = '';
+	}
+
 	//Replace document.write as they break the div replication in webkit and they are flaky in firefox
 
 	//Create the popup calendar image and insert after the year selectbox)
@@ -74,7 +78,7 @@ function chef_dateselectionwidgetpopup(yearselect_id, monthselect_id, dayselect_
 	old - IE7 fails to register setAttribute in dynam. added elems
 	imageNode.setAttribute("onClick", "popupCalendar('"+inputfield_id+"')"); 
 */
-	imageNode.onclick = new Function("popupCalendar('"+inputfield_id+"')");
+	imageNode.onclick = new Function("popupCalendar('"+inputfield_id+"', '"+locale+"')");
 	insertAfter(yearselectNode,imageNode);
 
 	//Insert the hidden field node and insert it after the year select box (doesn't really matter it's hidden)
@@ -162,14 +166,15 @@ function updateSelect(selectObj, newSelection)
  * Called when the calendar button is clicked on - causes the popup
  * calendar to be displayed.
  */
-function popupCalendar(inputfield_id)
+function popupCalendar(inputfield_id, locale)
 {
 	// make sure calendar date is synchronized with dropdown date
 	updatePopupsFromDropdowns();
 	var inputfield = document.getElementById(inputfield_id);
 	var calObj = new calendar2(inputfield);
 	calObj.callback = updateDropdownsFromPopups;
-	calObj.popup(null, "/library/calendar/html/");
+	calObj.locale = locale;
+	calObj.popup(null, "/sakai-calendar-connector/calendar/jsp/");
 }
 
 
