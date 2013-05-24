@@ -97,14 +97,47 @@
                 #set($temp = $timer)
                 #set($timer = $timer - 12)
             #end
-            <td width="5%" rowspan="2" align="right" bgcolor="#eeeeee" class="borderWhite" nowrap="nowrap">$timer $timeType</td>
+            <td width="5%" rowspan="2" align="right" bgcolor="#eeeeee" class="borderWhite" nowrap="nowrap">
+            #foreach ($format in $timeFormat)
+                #if ($format == "h")
+                    $timer
+                #elseif ($format == "a")
+                    $timeType
+                #elseif ($format == "H")
+                    #if ($temp > 12)
+                        ${temp}:00
+                    #else
+                        ${timer}:00
+                    #end
+                #end
+            #end
+            </td>
             #if ($temp>12) #set($timer = $temp) #end
         #elseif ( $page == "third" )
-            <td width="5%" rowspan="2" align="right" bgcolor="#eeeeee" class="borderWhite" nowrap="nowrap">$timer $timeType</td>
+            <td width="5%" rowspan="2" align="right" bgcolor="#eeeeee" class="borderWhite" nowrap="nowrap">
+            #foreach ($format in $timeFormat)
+                #if ($format == "h")
+                    $timer
+                #elseif ($format == "a")
+                    $timeType
+                #elseif ($format == "H")
+                    #set ($temp = $timer + 12)
+                    ${temp}:00
+                #end
+            #end
+            </td>
         #elseif ($page == "first")            
             <td width="5%" rowspan="2" align="right" bgcolor="#eeeeee" class="borderWhite" nowrap="nowrap">
-            #if($timer == 0) 12 #else $timer #end
-            $timeType</td>
+            #foreach ($format in $timeFormat)
+                #if ($format == "h")
+                    #if($timer == 0) 12 #else $timer #end
+                #elseif ($format == "a")
+                    $timeType
+                #elseif ($format == "H")
+                    ${timer}:00
+                #end
+            #end
+            </td>
         #end
 
         #set($timer = $timer + 1)

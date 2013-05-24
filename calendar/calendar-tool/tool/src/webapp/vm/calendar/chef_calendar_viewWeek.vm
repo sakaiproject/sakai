@@ -489,13 +489,43 @@
             <tr valign="top" bgcolor="#FFFFFF" >
             #if($fractiontime == "false")
                 #if($timer == 12)
-                    <td align="right" bgcolor="#eeeeee" rowspan="2" class="borderWhite">$timer $pmString </td>
+                    <td align="right" bgcolor="#eeeeee" rowspan="2" class="borderWhite">
+                    #foreach ($format in $timeFormat)
+                        #if ($format == "h")
+                            $timer
+                        #elseif ($format == "a")
+                            $pmString
+                        #elseif ($format == "H")
+                            ${timer}:00
+                        #end
+                    #end
+                    </td>
                 #elseif($timer<=11)
-                    <td align="right" bgcolor="#eeeeee" rowspan="2" class="borderWhite">$timer $amString </td>
+                    <td align="right" bgcolor="#eeeeee" rowspan="2" class="borderWhite">
+                    #foreach ($format in $timeFormat)
+                        #if ($format == "h")
+                            $timer
+                        #elseif ($format == "a")
+                            $amString
+                        #elseif ($format == "H")
+                            ${timer}:00
+                        #end
+                    #end
+                    </td>
                 #else
                     #set($temp = $timer)
                     #set($timer = $timer - 12)
-                    <td align="right" bgcolor="#eeeeee" rowspan="2" class="borderWhite">$timer $pmString </td>
+                    <td align="right" bgcolor="#eeeeee" rowspan="2" class="borderWhite">
+                    #foreach ($format in $timeFormat)
+                        #if ($format == "h")
+                            $timer
+                        #elseif ($format == "a")
+                            $pmString
+                        #elseif ($format == "H")
+                            ${temp}:00
+                        #end
+                    #end
+                    </td>
                     #set($timer = $temp)
                 #end
                 #set($fractiontime ="true")
@@ -803,7 +833,17 @@
                     #set($temp = $timer)
                     #set($timer = $timer - 12)
                 #if($timer<12)
-                    <td align="right" bgcolor="#eeeeee" rowspan="2" class="borderWhite">$timer PM </td>
+                    <td align="right" bgcolor="#eeeeee" rowspan="2" class="borderWhite">
+                    #foreach ($format in $timeFormat)
+                        #if ($format == "h")
+                            $timer
+                        #elseif ($format == "a")
+                            $pmString
+                        #elseif ($format == "H")
+                            ${temp}:00
+                        #end
+                    #end
+                    </td>
                     #set($timer = $temp)
                 #elseif($timer ==12)
                     <td align="right" bgcolor="#eeeeee" rowspan="2" class="borderWhite">$timer AM </td>
@@ -839,11 +879,31 @@
             <tr valign="top" bgcolor="#FFFFFF"> 
             #if($fractiontime == "false")
                 #if($timer == 12)
-                    <td align="right" bgcolor="#eeeeee" rowspan=2 class="borderWhite">$timer AM </td>
+                    <td align="right" bgcolor="#eeeeee" rowspan=2 class="borderWhite">
+                    #foreach ($format in $timeFormat)
+                        #if ($format == "h")
+                            $timer
+                        #elseif ($format == "a")
+                            $amString
+                        #elseif ($format == "H")
+                            0:00
+                        #end
+                    #end
+                    </td>
                 #elseif($timer>12)
                     #set($temp = $timer)
                     #set($timer = $timer - 12)
-                    <td align="right" bgcolor="#eeeeee" rowspan=2 class="borderWhite">$timer AM </td>
+                    <td align="right" bgcolor="#eeeeee" rowspan=2 class="borderWhite">
+                    #foreach ($format in $timeFormat)
+                        #if ($format == "h")
+                            $timer
+                        #elseif ($format == "a")
+                            $amString
+                        #elseif ($format == "H")
+                            ${timer}:00
+                        #end
+                    #end
+                    </td>
                     #set($timer = $temp)
                 #else
                     <td align="right" bgcolor="#eeeeee" rowspan=2 class="borderWhite">$timer PM </td>
