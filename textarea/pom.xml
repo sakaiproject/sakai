@@ -19,5 +19,6 @@
   </scm>
   <modules>
     <module>FCKeditor/connector</module>
+    <module>calendar</module>
   </modules>
 </project>
