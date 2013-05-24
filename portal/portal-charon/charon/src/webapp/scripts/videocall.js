@@ -169,6 +169,9 @@ function VideoCall() {
 				
 	}
 	
+	this.hasVideoChatActive = function (uuid) {
+		return this.currentCalls[uuid];
+	}
 	
 	this.maximizeVideoCall = function (uuid){
 		var remoteVideo = document.getElementById("pc_chat_" + uuid + "_remote_video");
@@ -356,9 +359,11 @@ function VideoCall() {
 	
 	this.hideVideoCall = function(uuid) {
 		$("#pc_chat_" + uuid + "_video_content").hide();
-		$("#pc_chat_with_" + uuid).css('height', '318px');
-		$("#pc_chat_with_" + uuid).css('margin-top', '0px');
-		$("#pc_chat_with_" + uuid).attr('data-height', '318');
+		if($("#pc_chat_with_" + uuid).hasClass('pc_maximised')) {
+			$("#pc_chat_with_" + uuid).css('height', '318px');
+			$("#pc_chat_with_" + uuid).css('margin-top', '0px');
+			$("#pc_chat_with_" + uuid).attr('data-height', '318');
+		}
 		$('#pc_connection_' + uuid + '_videochat_bar .video_off').show();
 		$('#pc_connection_' + uuid + '_videochat_bar .video_on').hide();
 		videoCall.hideMyVideo();
