@@ -332,6 +332,17 @@
 			{
 				element = (element.nodeType == 1 || element.nodeType == 9) ? element : element.parentNode;
 				deleteFileItem(element);
+
+				## Remove the deleted item from calendars' array
+				for (var i = 0; document.calendars != null && i < document.calendars.length; i++)
+				{
+					if (!document.getElementById(document.calendars[i][0]))
+					{
+						document.calendars.splice(i, 1);
+						document.calendarcounter--;
+						i--;
+					}
+				}
 			}
 		}
 		return false;
