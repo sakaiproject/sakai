@@ -716,6 +716,10 @@
 			{
 				newElement.value = "true";
 			}
+			else if(root.id.match(/^description${DOT}\d+$/))
+			{
+				newElement.value = "";
+			}
 			else if(root.id.match(/^hidden_true${DOT}\d+$/))
 			{
 				newElement.checked = false;
