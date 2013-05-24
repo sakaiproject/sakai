@@ -111,7 +111,7 @@
 				</h:panelGroup>
 				<h:panelGroup rendered="#{!item.assignment.externallyMaintained}">
   					<t:inputCalendar id="dueDate" value="#{item.assignment.dueDate}" renderAsPopup="true" renderPopupButtonAsImage="true"
-  							popupTodayString="#{msgs.date_entry_today_is}" popupWeekString="#{msgs.date_entry_week_header}" />
+  							popupTodayString="#{msgs.date_entry_today_is}" popupWeekString="#{msgs.date_entry_week_header}" popupDateFormat="#{msgs.date_entry_format}" popupGotoString="#{msgs.date_entry_goto}" />
 					<h:message for="dueDate" styleClass="alertMessageInline" />
 				</h:panelGroup>
 	
