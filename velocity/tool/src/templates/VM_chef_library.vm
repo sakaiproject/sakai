@@ -524,7 +524,7 @@ ${extra}")
 	## Everything is in an our own external JavaScript library
 	<script type="text/javascript" src="#libraryLink('calendar/sakai-calendar.js')"></script>
 	## Call a JavaScript function from within the library to do setup
-	<script type="text/javascript">chef_dateselectionwidgetpopup('$yearselect_id', '$monthselect_id', '$dayselect_id', null, "$calendar_title");</script>
+	<script type="text/javascript">chef_dateselectionwidgetpopup('$yearselect_id', '$monthselect_id', '$dayselect_id', null, "$calendar_title", '$!tlang.locale');</script>
 #end
 
 
