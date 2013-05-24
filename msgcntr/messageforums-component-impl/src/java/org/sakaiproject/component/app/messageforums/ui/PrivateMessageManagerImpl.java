@@ -76,6 +76,7 @@ import org.sakaiproject.tool.api.ToolSession;
 import org.sakaiproject.tool.cover.ToolManager;
 import org.sakaiproject.user.api.User;
 import org.sakaiproject.user.cover.UserDirectoryService;
+import org.sakaiproject.util.ResourceLoader;
 import org.springframework.orm.hibernate3.HibernateCallback;
 import org.springframework.orm.hibernate3.HibernateOptimisticLockingFailureException;
 import org.springframework.orm.hibernate3.support.HibernateDaoSupport;
@@ -90,6 +91,8 @@ public class PrivateMessageManagerImpl extends HibernateDaoSupport implements
   private static final String QUERY_AGGREGATE_COUNT = "findAggregatePvtMsgCntForUserInContext";  
   private static final String QUERY_MESSAGES_BY_USER_TYPE_AND_CONTEXT = "findPrvtMsgsByUserTypeContext";
   private static final String QUERY_MESSAGES_BY_ID_WITH_RECIPIENTS = "findPrivateMessageByIdWithRecipients";
+  
+  private static final String MESSAGECENTER_BUNDLE = "org.sakaiproject.api.app.messagecenter.bundle.Messages";
   
   private AreaManager areaManager;
   private MessageForumsMessageManager messageManager;
@@ -1263,8 +1266,20 @@ public class PrivateMessageManagerImpl extends HibernateDaoSupport implements
   private String buildMessageBody(PrivateMessage message) {
 	  User currentUser = UserDirectoryService.getCurrentUser();
 	  StringBuilder body = new StringBuilder(message.getBody());
+	  
+	  StringBuilder fromString = new StringBuilder();
+	  fromString.append("<p>");
+	  if (ServerConfigurationService.getBoolean("msg.displayEid", true)) {
+	      fromString.append(getResourceBundleString("pvt_email_from_with_eid", 
+                      new Object[] {currentUser.getDisplayName(), currentUser.getEid(), currentUser.getEmail() }));
+	  } else {
+	      fromString.append(getResourceBundleString("pvt_email_from", 
+	              new Object[] {currentUser.getDisplayName(), currentUser.getEmail() }));
+	  }
+	  
+	  fromString.append("</p>");
 
-	  body.insert(0, "From: " + currentUser.getDisplayName() + "<p/>"); 
+	  body.insert(0, fromString.toString());
 
 	  // need to determine if there are "hidden" recipients to this message.
 	  // If so, we need to replace them with "Undisclosed Recipients"
@@ -1314,7 +1329,7 @@ public class PrivateMessageManagerImpl extends HibernateDaoSupport implements
 	      }
 	  }
 
-	  body.insert(0, "To: " + sendToString + "<p/>");
+	  body.insert(0, "<p>" + getResourceBundleString("pvt_email_to", new Object[] {sendToString}) + "<p/>");
 
 	  if (message.getAttachments() != null && message.getAttachments().size() > 0) {
 
@@ -1840,6 +1855,12 @@ return topicTypeUuid;
 //	 ResourceLoader rb = new ResourceLoader(MESSAGECENTER_BUNDLE);
 
       return areaManager.getResourceBundleString(key);
+  }
+  
+  private String getResourceBundleString(String key, Object[] replacementValues) 
+  {
+      final ResourceLoader rb = new ResourceLoader(MESSAGECENTER_BUNDLE);
+      return rb.getFormattedMessage(key, replacementValues);   
   }
 
   /**
