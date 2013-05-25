@@ -1178,7 +1178,7 @@ public class MessageForumStatisticsBean {
 	
 	public void toggleSortByUser3(String sortByType) {
 		if (sortByUser3.equals(sortByType)) {
-	       if (ascendingForAllTopics) {
+	       if (ascendingForUser3) {
 	    	   ascendingForUser3 = false;
 	       } else {
 	    	   ascendingForUser3 = true;
