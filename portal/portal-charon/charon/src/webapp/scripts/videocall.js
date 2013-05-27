@@ -33,12 +33,12 @@ function VideoCall() {
 
 		this.webRTC.answerCall(uuid,videoAgentType,
 					function (userid,localMediaStream){
-						videoCallObject.startAnswer (userid,localMediaStream);  
+						videoCallObject.startAnswer (userid,localMediaStream);
 						onSuccessStartCall (userid);
 					},
 					function (userid,localMediaStream){
-						videoCallObject.successCall (userid,localMediaStream);  
 						onSuccessConnection (userid);
+						videoCallObject.successCall (userid,localMediaStream);
 					},onFailConnection);
 	
 	}
@@ -61,10 +61,12 @@ function VideoCall() {
  	}
 	
 	this.startCall = function (uuid, localMediaStream) {
+		this.showMyVideo()
 		this.webRTC.attachMediaStream(document.getElementById("pc_chat_local_video"), localMediaStream);
 	}
 
 	this.startAnswer = function (uuid, localMediaStream) {
+		this.showMyVideo()
 		this.webRTC.attachMediaStream(document.getElementById("pc_chat_local_video"), localMediaStream);
 	}
 
@@ -79,8 +81,11 @@ function VideoCall() {
 	}
 	
 	this.successCall = function (uuid, remoteMediaStream) {
-		 this.webRTC.attachMediaStream(document.getElementById("pc_chat_" + uuid
+	 
+		this.webRTC.attachMediaStream(document.getElementById("pc_chat_" + uuid
 				+ "_remote_video"), remoteMediaStream);
+		videoCall.setVideoStatus (uuid,videoMessages.pc_video_status_connection_established,"video");
+			
 	}
 
 	this.failedCall = function (uuid) {
@@ -97,10 +102,12 @@ function VideoCall() {
 		}));
 	}
 	
-	this.onHangUp = function (userid){ // Just declared		
-		videoCall.setVideoStatus(userid,"User has hung up", true);
-		videoCall.doClose(userid);
-		videoCall.hideVideoCall(userid);
+	this.onHangUp = function (uuid){ // Just declared		
+		videoCall.setVideoStatus(uuid,videoMessages.pc_video_status_user_hung,"finished");
+		videoCall.doClose(uuid);
+		$('#pc_connection_' + uuid + '_videochat_bar .video_off').show();
+		$('#pc_connection_' + uuid + '_videochat_bar .video_on').hide();
+		videoCall.hideMyVideo();
 	}
 
 	/* It retrieves the current userid list of active webconnections */
@@ -123,7 +130,7 @@ function VideoCall() {
 		this.webRTC.onHangUp = this.onHangUp;
 		this.webRTC.onIgnore = function (userid){
 			videoCall.closeVideoCall (userid);
-			videoCall.setVideoStatus(userid,"User refused your request", true);
+			videoCall.setVideoStatus(userid,videoMessages.pc_video_status_user_refused, "failed");
 		}
 		
 		/* This is a way to determine what to do when a webrtc call is received */
@@ -145,8 +152,8 @@ function VideoCall() {
 					}  
 				}
 			}
-			videoCall.setVideoStatus(userid,"You have an incomming call...", true);
 			videoCall.openVideoCall (userid,true);
+			videoCall.setVideoStatus(userid,videoMessages.pc_video_status_incomming_call, "waiting");
 			setTimeout('videoCall.doAnswerTimeout("'+userid+'")',videoCall.callTimeout*1000);
 		}
 	    
@@ -203,7 +210,7 @@ function VideoCall() {
 		$('#mute_local_audio').show();
 		$('#unmute_local_audio').hide();
 	}
-
+	
 	this.onvideomessage = function(uuid, message) {
 		// message function. It will send to rtc to process it
 		this.receiveMessage(uuid, message,this.getRemoteVideoAgent(uuid));
@@ -229,7 +236,7 @@ function VideoCall() {
 	
 	this.doTimeout = function(uuid) {
 		if (videoCall.currentCalls[uuid] && videoCall.currentCalls[uuid].status == "ESTABLISHING") {
-			videoCall.setVideoStatus(uuid,"Call timeout!",true);
+			videoCall.setVideoStatus(uuid,videoMessages.pc_video_status_call_timeout,"failed");
 			videoCall.doClose(uuid);
 		}
 	}
@@ -251,10 +258,14 @@ function VideoCall() {
 		}
 
 		if (incomming) {
+			this.showVideoCall (uuid);
+			$('#pc_connection_' + uuid+ '_videochat_bar > .pc_connection_videochat_bar_left ').hide();
 			$('#pc_connection_' + uuid + '_videoin').show();
 		} else {
 			if (!this.currentCalls[uuid]) {
-			  videoCall.setVideoStatus(uuid,"Establishing wait...", true);
+			  videoCall.setVideoStatus(uuid,videoMessages.pc_video_status_setup, "waiting");
+			  this.showVideoCall (uuid);
+			  
 			  this.currentCalls[uuid] = { 
 					  "status":"SYNC",
 					  "proceed":function() {
@@ -262,17 +273,17 @@ function VideoCall() {
 									uuid,
 									videoCall.getVideoAgent(uuid),
 									function(uuid) {
-										videoCall.setVideoStatus(uuid,"Waiting for peer...", true);
+										videoCall.setVideoStatus(uuid,videoMessages.pc_video_status_waiting_peer, "waiting");
 										setTimeout('videoCall.doTimeout("'+uuid+'")',videoCall.callTimeout*1000);
 									},
 									function(uuid) {
 										videoCall.currentCalls[uuid].status = "ESTABLISHED";
-										videoCall.setVideoStatus(uuid,"Call accepted, establishing connection ",true);
-										videoCall.showVideoCall(uuid);
+										videoCall.setVideoStatus(uuid,videoMessages.pc_video_status_connection_established,"video");
 									}, 
 									function(uuid) {
-										videoCall.setVideoStatus(uuid,"Call not accepted or failed", true);
-										videoCall.closeVideoCall(uuid);
+										videoCall.setVideoStatus(uuid,videoMessages.pc_video_status_call_not_accepted, "failed");
+										videoCall.doClose(uuid);
+										
 									});
 					  }
 			  }
@@ -280,7 +291,7 @@ function VideoCall() {
 			  //portalChat.getLatestData();
 			} else {
 				// You're already calling
-				videoCall.setVideoStatus(uuid,"Call in progress...", true);
+				videoCall.setVideoStatus(uuid,videoMessages.pc_video_status_call_in_progress, "waiting");
 			}
 		}
 	}
@@ -291,17 +302,22 @@ function VideoCall() {
 		}
 		if (!this.webRTC.currentPeerConnectionsMap[uuid]) {
 			$('#pc_connection_' + uuid + '_videoin').hide();
-			videoCall.setVideoStatus(uuid, "Answer timeout!", true);
+			$('#pc_connection_' + uuid + '_videochat_bar > .pc_connection_videochat_bar_left ').show();
+			videoCall.setVideoStatus(uuid, videoMessages.pc_video_status_answer_timeout, "failed");
 			return;
 		}
+		videoCall.setVideoStatus(uuid, videoMessages.pc_video_status_setup, "waiting");
+		$('#pc_connection_' + uuid + '_videoin').hide();
+		
 		videoCall.doAnswer(uuid, videoCall.getVideoAgent(uuid), function(
 				uuid) {
-			videoCall.setVideoStatus(uuid, "Connecting ...", true);
+			$('#pc_connection_' + uuid + '_videochat_bar > .pc_connection_videochat_bar_left ').show();
+			videoCall.setVideoStatus(uuid, videoMessages.pc_video_status_setup, "waiting");
 		}, function(uuid) {
-			videoCall.setVideoStatus(uuid, "Connection established", true);
-			videoCall.showVideoCall(uuid)
+			videoCall.setVideoStatus(uuid, videoMessages.pc_video_status_connection_established, "waiting");
 		}, function() {
-			videoCall.setVideoStatus(uuid, "Call failed", true);
+			$('#pc_connection_' + uuid + '_videochat_bar > .pc_connection_videochat_bar_left ').show();
+			videoCall.setVideoStatus(uuid, videoMessages.pc_video_status_call_failed, "failed");
 			videoCall.closeVideoCall(uuid);
 		});
 	}
@@ -315,8 +331,10 @@ function VideoCall() {
 			this.currentCalls[uuid].status = "CANCELLED";
 		}
 		$('#pc_connection_' + uuid + '_videoin').hide();
-		this.setVideoStatus(uuid, "You ignored that call", true);
+		this.setVideoStatus(uuid, videoMessages.pv_video_status_you_ignored, "finished");
 		videoCall.refuseCall(uuid);
+		videoCall.closeVideoCall(uuid);
+		$('#pc_connection_' + uuid+ '_videochat_bar > .pc_connection_videochat_bar_left ').show();
 	}
 
 	this.showVideoCall = function(uuid) {
@@ -333,13 +351,16 @@ function VideoCall() {
 		$('#pc_connection_' + uuid + '_videoin').hide();
 		$('#pc_connection_' + uuid + '_videochat_bar .video_off').hide();
 		$('#pc_connection_' + uuid + '_videochat_bar .video_on').show();
-		videoCall.showMyVideo();
+		//videoCall.showMyVideo();
 	}
 
 	this.closeVideoCall = function(uuid) {
-		videoCall.setVideoStatus(uuid, "You have hung up!", true);
+		videoCall.setVideoStatus(uuid, videoMessages.pc_video_status_hangup, "finished");
 		videoCall.doClose(uuid);
-		this.hideVideoCall(uuid);
+		//this.hideVideoCall(uuid);
+		$('#pc_connection_' + uuid + '_videochat_bar .video_off').show();
+		$('#pc_connection_' + uuid + '_videochat_bar .video_on').hide();
+		videoCall.hideMyVideo();	
 	}
 
 	this.showMyVideo = function() {
@@ -357,7 +378,7 @@ function VideoCall() {
 		}
 	}
 	
-	this.hideVideoCall = function(uuid) {
+	/*this.hideVideoCall = function(uuid) {
 		$("#pc_chat_" + uuid + "_video_content").hide();
 		if($("#pc_chat_with_" + uuid).hasClass('pc_maximised')) {
 			$("#pc_chat_with_" + uuid).css('height', '318px');
@@ -367,26 +388,33 @@ function VideoCall() {
 		$('#pc_connection_' + uuid + '_videochat_bar .video_off').show();
 		$('#pc_connection_' + uuid + '_videochat_bar .video_on').hide();
 		videoCall.hideMyVideo();
-	}
+	}*/
 
 
-	this.setVideoStatus = function(uuid, text, display) {
-		if (display) {
-			$(
-					"#pc_connection_"
-							+ uuid
-							+ "_videochat_bar > .pc_chat_video_statusbar > span")
-					.text(text);
-			$(
-					"#pc_connection_" + uuid
-							+ "_videochat_bar > .pc_chat_video_statusbar")
-					.show();
-		} else {
-			$(
-					"#pc_connection_" + uuid
-							+ "_videochat_bar > .pc_chat_video_statusbar")
-					.hide();
-		}
+	this.setVideoStatus = function(uuid, text,visibleElement) {
+
+		if (visibleElement!=null){
+			$("#pc_chat_"+ uuid	+ "_video_content > .statusElement").hide();
+			
+			if (visibleElement==='video'){
+				$("#pc_chat_"+ uuid	+ "_video_content > .pc_chat_video_remote").fadeIn();
+			}else if (visibleElement==='waiting'){
+				$("#pc_chat_"+ uuid	+ "_video_content > .bubblingG").show();
+			}else if (visibleElement === 'failed'){
+				$("#pc_chat_"+ uuid	+ "_video_content > .pc_chat_video_failed").show();
+			}else if (visibleElement === 'finished'){
+				$("#pc_chat_"+ uuid	+ "_video_content > .pc_chat_video_finished").show();
+			}
+		}//If any else int visible Element nothing changes
+		
+		$("#pc_chat_" + uuid	+ "_video_content > .pc_chat_video_statusbar > span").text(text);
+		$("#pc_chat_" + uuid + "_video_content > .pc_chat_video_statusbar").show();
+		/*	if (!keepDisplayed) {
+				$(
+					"#pc_chat" + uuid
+							+ "_video_content > .pc_chat_video_statusbar")
+					.hide(400);
+		}*/
 
 	}
 

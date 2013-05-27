@@ -100,7 +100,7 @@ function PortalChat() {
 			success : function(text, status) {
 				if ('OFFLINE' === text) {
 					/* The peer is disconnected you can close the connection */
-					videoCall.setVideoStatus(to, "User went unexpectly", true);
+					videoCall.setVideoStatus(to, videoMessages.pc_video_status_user_hung, true);
 					videoCall.closeVideoCall(to);
 				}
 			},

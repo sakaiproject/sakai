@@ -307,19 +307,10 @@
 				<div id="pc_chat_local_video_content" class="pc_chat_video_local" data-video="0">
 					<video id="pc_chat_local_video" class="pc_chat_video_min" autoplay muted="true"></video>
 					<div id="local_video_bar">
-						
-						<a href="javascript:;" id="disable_local_video" onclick="return videoCall.disableVideo();" title="Disable your video">
-							<img src="/library/image/silk/webcam_delete.png" width="16" height="16" border="0" alt=""/>
-						</a>
-						<a href="javascript:;" id="enable_local_video" onclick="return videoCall.enableVideo();" style="display:none" title="Enable your video">
-							<img src="/library/image/silk/webcam.png" width="16" height="16" border="0" alt=""/>
-						</a>
-						<a href="javascript:;" id="mute_local_audio" onclick="return videoCall.mute();"  title="Mute your audio ">
-							<img src="/library/image/silk/sound_delete.png" width="16" height="16" border="0" alt=""/>
-						</a>
-						<a href="javascript:;" id="unmute_local_audio" onclick="return videoCall.unmute();" style="display:none" title="Unmute your audio ">
-							<img src="/library/image/silk/sound.png" width="16" height="16" border="0" alt=""/>
-						</a>
+						<a href="javascript:;" id="disable_local_video" onclick="return videoCall.disableVideo();" title="${rloader.pc_video_disable_local_video_title}" class="video_button video_cam_enable"></a>
+						<a href="javascript:;" id="enable_local_video" onclick="return videoCall.enableVideo();" style="display:none" title="${rloader.pc_video_enable_local_video_title}" class="video_button video_cam_disable"></a>
+						<a href="javascript:;" id="mute_local_audio" onclick="return videoCall.mute();"  title="${rloader.pc_video_mute_local_audio_title}" class="video_button video_mic_enable"></a>
+						<a href="javascript:;" id="unmute_local_audio" onclick="return videoCall.unmute();" style="display:none" title="${rloader.pc_video_unmute_local_audio_title}" class="video_button video_mic_disable"></a>
 
 					</div>
 				</div>
@@ -412,29 +403,32 @@
                 </div>
 				<div id="pc_connection_${uuid}_videochat_bar" class="pc_connection_videochat_bar">
 					<div class="pc_connection_videochat_bar_left">
-						<a href="javascript:;" onclick="return videoCall.openVideoCall('${uuid}',false);" class="video_off" title="Video call" >
-							<img src="/library/image/silk/webcam.png" width="16" height="16" border="0" alt=""/>
-						</a>
-						<a href="javascript:;" onclick="return videoCall.closeVideoCall('${uuid}');" class="video_on" title="End video call">
-							<img src="/library/image/silk/webcam_delete.png" width="16" height="16" border="0" alt=""/>
-						</a>
-						<a href="javascript:;" onclick="return videoCall.maximizeVideoCall('${uuid}');" class="video_on" title="Maximize video call">
-							<img src="/library/image/silk/monitor.png" width="16" height="16" border="0" alt=""/>
-						</a>
+						<a href="javascript:;" onclick="return videoCall.openVideoCall('${uuid}',false);" class="video_off video_button video_call" title="${rloader.pc_video_do_videocall_title}" ></a>
+						<a href="javascript:;" onclick="return videoCall.closeVideoCall('${uuid}');" class="video_on video_button video_close" title="${rloader.pc_video_end_title}" ></a>
+						<a href="javascript:;" onclick="return videoCall.maximizeVideoCall('${uuid}');" class="video_on video_button video_maxi" title="${rloader.pc_video_maximize_title}" ></a>
 					</div>
 					<div id="pc_connection_${uuid}_videoin" class="pc_connection_videochat_bar_right">
-						Incomming video call
-						<a href="javascript:;" onclick="return videoCall.acceptVideoCall('${uuid}');" title="Accept video call">
-							<img src="/library/image/silk/accept.png" width="16" height="16" border="0" alt=""/>
-						</a>
-						<a href="javascript:;" onclick="return videoCall.ignoreVideoCall('${uuid}');" title="Ignore video call">
-							<img src="/library/image/silk/cancel.png" width="16" height="16" border="0" alt=""/>
-						</a>
+						<span>${rloader.pc_video_askforincoming}</span>
+						<a href="javascript:;" onclick="return videoCall.acceptVideoCall('${uuid}');" class="video_button video_call" title="${rloader.pc_video_accept_title}"></a>
+						<a href="javascript:;" onclick="return videoCall.ignoreVideoCall('${uuid}');" class="video_button video_close" title="${rloader.pc_video_ingnore_title}"></a>
 					</div>
-					<div style="display:none" class="pc_chat_video_statusbar"><span></span></div>
+					
                 </div>
 				<div id="pc_chat_${uuid}_video_content" class="pc_chat_video_content">
-					<div class="pc_chat_video_remote">
+					<div style="display:none;" class="pc_chat_video_statusbar"><span></span></div>
+					<div style="display:none;" class="statusElement pc_chat_video_failed" ><span>:(</span></div>
+					<div style="display:none;" class="statusElement pc_chat_video_finished" ></div>
+					
+					<div style="display:none;" class="statusElement bubblingG">
+						<span class="bubblingG_1">
+						</span>
+						<span class="bubblingG_2">
+						</span>
+						<span class="bubblingG_3">
+						</span>
+					</div>
+					
+					<div stye="display:none;" class="statusElement pc_chat_video_remote">
 						<video id="pc_chat_${uuid}_remote_video" class="pc_chat_video" autoplay >
 						</video>
 					</div>
