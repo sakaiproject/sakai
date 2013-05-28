@@ -15,6 +15,7 @@
 			init-method="init"
 			destroy-method="destroy"
 			singleton="true">
+	      <property name="serverConfigurationService" ref="org.sakaiproject.component.api.ServerConfigurationService"/>
 	</bean>
 	
 	<bean id="org.sakaiproject.sitemanage.api.AffiliatedSectionProvider"

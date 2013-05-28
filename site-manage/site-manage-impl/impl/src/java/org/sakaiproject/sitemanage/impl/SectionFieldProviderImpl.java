@@ -28,17 +28,23 @@ import org.apache.commons.logging.LogFactory;
 import org.sakaiproject.sitemanage.api.SectionField;
 import org.sakaiproject.sitemanage.api.SectionFieldProvider;
 import org.sakaiproject.util.ResourceLoader;
+import org.sakaiproject.component.api.ServerConfigurationService;
 
 public class SectionFieldProviderImpl implements SectionFieldProvider {
 	private static final Log log = LogFactory.getLog(SectionFieldProviderImpl.class);
+	private static ServerConfigurationService serverConfigurationService;
+
+	public void setServerConfigurationService(ServerConfigurationService serverConfigurationService) {
+	    this.serverConfigurationService = serverConfigurationService;
+	}
 
 	public List<SectionField> getRequiredFields() {
 		ResourceLoader resourceLoader = new ResourceLoader("SectionFields");
 		List<SectionField> fieldList = new ArrayList<SectionField>();
 
-		fieldList.add(new SectionFieldImpl(resourceLoader.getString("required_fields_subject"), null, 8));
-		fieldList.add(new SectionFieldImpl(resourceLoader.getString("required_fields_course"), null, 3));
-		fieldList.add(new SectionFieldImpl(resourceLoader.getString("required_fields_section"), null, 3));		
+		fieldList.add(new SectionFieldImpl(resourceLoader.getString("required_fields_subject"), null, serverConfigurationService.getInt("wsetup.sectionfield.required_fields_subject.max",8)));
+		fieldList.add(new SectionFieldImpl(resourceLoader.getString("required_fields_course"), null, serverConfigurationService.getInt("wsetup.sectionfield.required_fields_course.max",3)));
+		fieldList.add(new SectionFieldImpl(resourceLoader.getString("required_fields_section"), null, serverConfigurationService.getInt("wsetup.sectionfield.required_fields_section.max",3)));		
 		
 		return fieldList;
 	}
