@@ -272,6 +272,11 @@ public class ProfileContentProducer implements EntityContentProducer {
 		if (logger.isDebugEnabled())
 			logger.debug("matches(" + ref + ")");
 		
+		if (ref == null || !ref.startsWith("/")) {
+			logger.info(ref + " is not a valid reference");
+			return false;
+		}
+		
 		EntityReference reference = new EntityReference(ref);
 		if ("profile".equals(reference.getPrefix()))
 			return true;
