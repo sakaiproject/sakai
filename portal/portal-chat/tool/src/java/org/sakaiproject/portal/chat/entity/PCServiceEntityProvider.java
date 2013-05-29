@@ -455,7 +455,6 @@ public class PCServiceEntityProvider extends AbstractEntityProvider implements R
 		
 		List<Object> connections = getConnectionsForUser(currentUser.getId());
 		
-		//List<String> onlineConnections = new ArrayList<String>(connections.size());
 		List<PortalChatUser> onlineConnections = new ArrayList<PortalChatUser>(connections.size());
 		
 		Date now = new Date();
