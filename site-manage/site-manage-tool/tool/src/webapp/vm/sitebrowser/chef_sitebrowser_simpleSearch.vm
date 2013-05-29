@@ -7,6 +7,10 @@
 </script>
 <script type="text/javascript" language="JavaScript">
     $(document).ready(function(){
+       if(!$('#selectTerm')[0]) {
+           // selectTerm element doesn't exist
+           return;
+       }
        $("input:radio").click(function(){
            if($(this).attr('class')=='siteTypeTerm') {
                $('#selectTerm').attr('disabled','')
