@@ -15,7 +15,6 @@ function PortalChat() {
 	this.originalTitle = document.title;
     this.connectionsAvailable = true;
 	videoCall = null;
-	myselfId = null;
 	this.videoOff = false;
 
     /**
@@ -554,8 +553,7 @@ function PortalChat() {
         }
     }
 
-   this.updateVideoMessages = function(myId,messages) {
-	    myselfId = myId;
+   this.updateVideoMessages = function(messages) {
 		for ( var i = 0, j = messages.length; i < j; i++) {
 			videoCall.onvideomessage(messages[i].from, messages[i]);
 		}
@@ -581,7 +579,7 @@ function PortalChat() {
 			cache: false,
 			success : function (data,status) {
 				portalChat.updateMessages(data.data.messages);
-				portalChat.updateVideoMessages(data.entityId,data.data.videoMessages);
+				portalChat.updateVideoMessages(data.data.videoMessages);
 
                 // SAK-20565. Profile2 may not be installed, so no connections :(
                 if(portalChat.connectionsAvailable === true) {

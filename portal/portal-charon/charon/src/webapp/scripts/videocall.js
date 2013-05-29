@@ -143,7 +143,7 @@ function VideoCall() {
 					delete videoCall.currentCalls[userid];
 				} else if (videoCall.currentCalls[userid].status == "ESTABLISHING") {
 					// We call each other at the same time
-					if (userid<myselfId) {
+					if (userid<portal.user.id) {
 						// I discard the call and go with the answer (do not send bye)
 						videoCall.doClose(userid,true);
 					} else {
