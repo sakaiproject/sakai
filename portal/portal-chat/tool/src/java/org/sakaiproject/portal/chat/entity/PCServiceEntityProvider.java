@@ -75,6 +75,11 @@ public class PCServiceEntityProvider extends AbstractEntityProvider implements R
 
     /* SAK-20565. Gets set to false if Profile2 isn't available */
     private boolean connectionsAvailable = true;
+    
+    /* Setting used to configure if site users should be available in the chat. */
+    private boolean showSiteUsers = true;
+    
+    private int pollInterval = 5000;
 
     /* SAK-20565. We now use reflection to call the profile connection methods */
     private Object profileServiceObject = null;
@@ -139,7 +144,11 @@ public class PCServiceEntityProvider extends AbstractEntityProvider implements R
         portalUrl = serverConfigurationService.getServerUrl() + "/portal";
 
         serverName = serverConfigurationService.getServerName();
+        
+        pollInterval = serverConfigurationService.getInt("portal.chat.pollInterval", 5000);
 
+        showSiteUsers = serverConfigurationService.getBoolean("portal.chat.showSiteUsers", true);
+        
         try {
             String channelId = serverConfigurationService.getString("portalchat.cluster.channel");
             if(channelId != null && !channelId.equals("")) {
@@ -292,38 +301,30 @@ public class PCServiceEntityProvider extends AbstractEntityProvider implements R
 		
 		if(lastHeartbeat == null) return "OFFLINE";
 			
-		if((now.getTime() - ((Date)lastHeartbeat[0]).getTime()) >= 5000L)
+		if((now.getTime() - ((Date)lastHeartbeat[0]).getTime()) >= pollInterval)
 			return "OFFLINE";
-		String peerMessage = (String) params.get("peerMessage");	
-	
-		String message = (String) params.get("message");
 
-		if(message == null && peerMessage==null ) throw new IllegalArgumentException("You must supply a message");
+		boolean videomessage = false;
+		String message = (String) params.get("message");
+		if (message == null) {
+			message = (String) params.get("peerMessage");
+			videomessage = true;
+		} 
+		if(message == null) throw new IllegalArgumentException("You must supply a message");
 		
 		// Sanitise the message. XSS attacks. Unescape single quotes. They are valid.
-	 	if (message!= null){	
-			message = StringEscapeUtils.escapeHtml4(
-							StringEscapeUtils.escapeEcmaScript(message)).replaceAll("\\\\'","'");
-		}
+		message = StringEscapeUtils.escapeHtml4(
+						StringEscapeUtils.escapeEcmaScript(message)).replaceAll("\\\\'","'");
+
 		//message = message.replaceAll("\\\\'","'");
-		//dd
-		//
-		//
-		if (message!=null){
-		        addMessageToMap(new UserMessage(currentUser.getId(), to, message));
-		}
-		if (peerMessage != null){
-			addVideoMessageToMap(new UserVideoMessage(currentUser.getId(),to,peerMessage));
-		}
-			
+
+		if (!videomessage) addMessageToMap(new UserMessage(currentUser.getId(), to, message));
+		else addVideoMessageToMap(new UserVideoMessage(currentUser.getId(),to,message));
+		
         if(clustered) {
             try {
-            	Message msg = null;
-            	if (message!=null) {
-	                msg = new Message(null, null, MESSAGE_PREAMBLE + currentUser.getId() + ":" + to + ":" + message);
-            	} else if (peerMessage != null) {
-	                msg = new Message(null, null, VIDEO_MESSAGE_PREAMBLE + currentUser.getId() + ":" + to + ":" + peerMessage);
-            	}
+                Message msg = videomessage?new Message(null, null, VIDEO_MESSAGE_PREAMBLE + currentUser.getId() + ":" + to + ":" + message):
+                	new Message(null, null, MESSAGE_PREAMBLE + currentUser.getId() + ":" + to + ":" + message);
             	clusterChannel.send(msg);
             } catch (Exception e) {
                 logger.error("Error sending JGroups message", e);
@@ -455,7 +456,7 @@ public class PCServiceEntityProvider extends AbstractEntityProvider implements R
 		
 		if(logger.isDebugEnabled()) logger.debug("Site ID: " +  siteId);
 		
-        if(siteId != null && siteId.length() > 0) {
+        if(siteId != null && siteId.length() > 0 && showSiteUsers) {
 			// A site id has been specified, so we refresh our presence at the 
 			// location and retrieve the present users
 			String location = siteId + "-presence";
@@ -503,7 +504,7 @@ public class PCServiceEntityProvider extends AbstractEntityProvider implements R
 			
 			if(lastHeartbeat == null) continue;
 			
-			if((now.getTime() - ((Date)lastHeartbeat[0]).getTime()) < 5000L) {
+			if((now.getTime() - ((Date)lastHeartbeat[0]).getTime()) < pollInterval) {
 				onlineConnections.add(new PortalChatUser(uuid,uuid,(String) lastHeartbeat[1]));
 			}
 		}
@@ -535,15 +536,13 @@ public class PCServiceEntityProvider extends AbstractEntityProvider implements R
 	            sendClearVideoMessage(currentUserId);
 		}
 
-
-
-		
 		Map<String,Object> data = new HashMap<String,Object>(4);
 		
 		data.put("connections", connections);
 		data.put("messages", messages);
 		data.put("videoMessages", videoMessages);
 		data.put("online", onlineConnections);
+		data.put("showSiteUsers", showSiteUsers);
 		data.put("presentUsers", presentUsers);
 		data.put("connectionsAvailable", connectionsAvailable);
 		
@@ -721,8 +720,8 @@ public class PCServiceEntityProvider extends AbstractEntityProvider implements R
                 String userId = message.substring(CLEAR_PREAMBLE.length());
                 synchronized (messageMap) {
                     messageMap.remove(userId);
-		}
-           }else if (message.startsWith(VIDEO_CLEAR_PREAMBLE)) {
+				}
+           	} else if (message.startsWith(VIDEO_CLEAR_PREAMBLE)) {
                 String userId = message.substring(VIDEO_CLEAR_PREAMBLE.length());
                 synchronized (videoMessageMap) {
                     videoMessageMap.remove(userId);

@@ -186,6 +186,8 @@ public class SkinnableCharonPortal extends HttpServlet implements Portal
 	
 	private String gatewaySiteUrl;
 
+	private String gatewayPdaSiteUrl;
+
 	private WorksiteHandler worksiteHandler;
 
 	private SiteHandler siteHandler;
@@ -524,6 +526,7 @@ public class SkinnableCharonPortal extends HttpServlet implements Portal
 
 		rcontext.put("portalTopUrl", portalTopUrl);
 		rcontext.put("loggedIn", Boolean.valueOf(session.getUserId() != null));
+		rcontext.put("siteId", siteId);
 
 		if (placement != null)
 		{
@@ -853,7 +856,6 @@ public class SkinnableCharonPortal extends HttpServlet implements Portal
 				parts = option.split("/");
 			}
 
-
 			Map<String, PortalHandler> handlerMap = portalService.getHandlerMap(this);
 
 			PortalHandler ph;
@@ -865,8 +867,8 @@ public class SkinnableCharonPortal extends HttpServlet implements Portal
 
 			// begin SAK-19089
 			// if not logged in and accessing "/" and not from PDA, redirect to gatewaySiteUrl
-			if ((gatewaySiteUrl != null) && (option == null || "/".equals(option)) 
-					&& (!pdaHandler) && (session.getUserId() == null)) 
+			if ((gatewaySiteUrl != null) && (option == null || "/".equals(option) || "/pda".equals(option)) 
+					/* && (!pdaHandler) */ && (session.getUserId() == null)) 
 			{
 				// redirect to gatewaySiteURL 
 				res.sendRedirect(gatewaySiteUrl);
@@ -874,6 +876,16 @@ public class SkinnableCharonPortal extends HttpServlet implements Portal
 			}
 			// end SAK-19089
 
+			// begin SAK-22991
+			// if not logged in and from PDA, redirect to gatewayPdaSiteUrl
+			if ((gatewayPdaSiteUrl != null) && (option == null ||  "/pda".equals(option)) && (session.getUserId() == null)) 
+			{
+				// redirect to gatewaySiteURL 
+				res.sendRedirect(gatewayPdaSiteUrl);
+				return;
+			}
+			
+			// end SAK-19089
 			// SAK-22633 - Only forward site urls to PDAHandler
 			if (pdaHandler && parts.length > 1 && "site".equals(parts[1])){
 				//Mobile access
@@ -1651,6 +1663,8 @@ public class SkinnableCharonPortal extends HttpServlet implements Portal
 
                         rcontext.put("neoChat", 
 				ServerConfigurationService.getBoolean("portal.neochat", true));
+                        rcontext.put("portalChatPollInterval", 
+				ServerConfigurationService.getInt("portal.chat.pollInterval", 5000));
                         rcontext.put("neoAvatar", 
 				ServerConfigurationService.getBoolean("portal.neoavatar", true));
                         rcontext.put("neoChatVideo", 
@@ -1925,6 +1939,8 @@ public class SkinnableCharonPortal extends HttpServlet implements Portal
 		handlerPrefix = ServerConfigurationService.getString("portal.handler.default", "site");
 		
 		gatewaySiteUrl = ServerConfigurationService.getString("gatewaySiteUrl", null);
+		
+		gatewayPdaSiteUrl = ServerConfigurationService.getString("gatewayPdaSiteUrl", null);
 		
 		sakaiTutorialEnabled = ServerConfigurationService.getBoolean("portal.use.tutorial", true);
 
@@ -2231,9 +2247,9 @@ public class SkinnableCharonPortal extends HttpServlet implements Portal
 			skin = ServerConfigurationService.getString("skin.default");
 		}
 		String templates = ServerConfigurationService.getString("portal.templates", "neoskin");
-		String prefix = ServerConfigurationService.getString("portal.neoprefix", "neo-");
+		String prefix = portalService.getSkinPrefix();
 		// Don't add the prefix twice
-		if ( "neoskin".equals(templates) && ! skin.startsWith(prefix) ) skin = prefix + skin;
+		if ( "neoskin".equals(templates) && !StringUtils.startsWith(skin, prefix) ) skin = prefix + skin;
 		return skin;
 	}
 

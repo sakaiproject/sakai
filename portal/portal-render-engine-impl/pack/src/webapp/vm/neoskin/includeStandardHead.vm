@@ -90,6 +90,9 @@ ${sakai_html_head_js}
 #end
 #if ( $neoChat && $loggedIn )
 <script type="text/javascript" language="JavaScript" src="/portal/scripts/jquery.idle-timer.js"></script>
+<script type="text/javascript" language="JavaScript">
+	var portalChatPollInterval = ${portalChatPollInterval};
+</script>
 <script type="text/javascript" language="JavaScript" src="/portal/scripts/chat.js"></script>
 #if ( $neoChatVideo )
 <script type="text/javascript" language="JavaScript" src="/portal/scripts/webrtc-adapter.js"></script>

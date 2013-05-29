@@ -309,5 +309,10 @@ public interface PortalService
 	 * @return The configured Editor instance for this placement.
 	 */
 	Editor getActiveEditor(Placement placement);
+	
+	/**
+	 * @return the skin prefix. Will return empty string if no prefix is set. 
+	 */
+	public String getSkinPrefix();
 
 }

@@ -17,7 +17,7 @@ function PortalChat() {
 	videoCall = null;
 	myselfId = null;
 	this.videoOff = false;
-	
+
     /**
      *  Utility for rendering trimpath templates. Takes the id of the template,
      *  an object with the data to be mixed in, and the id of the element to render into
@@ -596,23 +596,30 @@ function PortalChat() {
                     }
                 }
 
-                portalChat.updateSiteUsers(data.data.presentUsers);
+                if(data.data.showSiteUsers) {
+                    $('.pc_users_wrapper').show();
+                    portalChat.updateSiteUsers(data.data.presentUsers);
+                } else {
+                    $('.pc_users_wrapper').hide();
+                }
 
                 var totalChattable = data.data.online.length;
 
                 // SAK-22260. Don't count the same person twice ...
-                for(var i=0,j=data.data.presentUsers.length;i<j;i++) {
-                    var presentUser = data.data.presentUsers[i];
-                    var alreadyIn = false;
-                    for(var k=0,m=data.data.online.length;k<m;k++) {
-                        if(presentUser.id === data.data.online[k].id) {
-                            alreadyIn = true;
-                            break;
-                        }
-                    }
-                    if(alreadyIn == false) {
-                        totalChattable++;
-                    }
+                if(data.data.showSiteUsers && data.data.presentUsers) {
+	                for(var i=0,j=data.data.presentUsers.length;i<j;i++) {
+    	                var presentUser = data.data.presentUsers[i];
+        	            var alreadyIn = false;
+            	        for(var k=0,m=data.data.online.length;k<m;k++) {
+                	        if(presentUser.id === data.data.online[k].id) {
+                    	        alreadyIn = true;
+                        	    break;
+                        	}
+                    	}
+                        if(alreadyIn == false) {
+                            totalChattable++;
+	                	}
+                	}
                 }
 
                 if(totalChattable > 0) {
@@ -714,7 +721,7 @@ function PortalChat() {
 
     this.setGetLatestDataInterval = function () {
         if(portalChat.getLatestDataInterval === null) {
-		    portalChat.getLatestDataInterval = window.setInterval(function () {portalChat.getLatestData();},5000);
+		    portalChat.getLatestDataInterval = window.setInterval(function () {portalChat.getLatestData();}, portalChatPollInterval);
         }
     }
 
@@ -875,6 +882,9 @@ function PortalChat() {
                 // SAK-20565. Profile2 may not be installed,so no connections :(
                $('#pc_connections_wrapper').hide();
             }
+
+            // Will be set by getLatestData with the right value.
+            $('.pc_users_wrapper').hide();
 	
 			// Clear all of the intervals when the window is closed
 			$(window).bind('unload',function () {
