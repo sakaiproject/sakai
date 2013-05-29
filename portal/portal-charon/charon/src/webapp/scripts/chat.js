@@ -95,7 +95,8 @@ function PortalChat() {
 			type : 'POST',
 			data : {
 				'to' : to,
-				'peerMessage' : content
+				'message' : content,
+				'video' : true
 			},
 			success : function(text, status) {
 				if ('OFFLINE' === text) {

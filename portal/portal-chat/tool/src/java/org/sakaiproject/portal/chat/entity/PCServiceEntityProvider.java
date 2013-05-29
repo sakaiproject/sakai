@@ -6,6 +6,7 @@ import java.io.OutputStream;
 import java.lang.reflect.Method;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collection;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
@@ -69,8 +70,6 @@ public class PCServiceEntityProvider extends AbstractEntityProvider implements R
     private final String VIDEO_MESSAGE_PREAMBLE = "videomessage:";
     /* Clear messages start with this */
     private final String CLEAR_PREAMBLE = "clear:";
-    /* Clear video messages start with this */
-    private final String VIDEO_CLEAR_PREAMBLE = "videoclear:";
 
 
     /* SAK-20565. Gets set to false if Profile2 isn't available */
@@ -116,16 +115,13 @@ public class PCServiceEntityProvider extends AbstractEntityProvider implements R
 	
 	/* A mapping of a list of messages onto the user id they are intended for */
 	private Map<String, List<UserMessage>> messageMap = new HashMap<String,List<UserMessage>>();
-
-	/*A mapping of list of messages connection  video connection */
-	private Map<String, List<UserVideoMessage>> videoMessageMap = new HashMap<String,List<UserVideoMessage>>();
 	
     /*
      *  A mapping of timestamps onto the user id that sent the heartbeat. The initial capacity should be set
      *  to the number of app servers in your cluster times the max number of threads per app server. This is
      *  configurable in sakai.properties as portalchat.heartbeatmap.size.
      */
-	private Map<String,Object[]> heartbeatMap;
+	private Map<String,UserMessage> heartbeatMap;
 
     /* JGroups channel for keeping the above maps in sync across nodes in a Sakai cluster */
     private Channel clusterChannel = null;
@@ -185,7 +181,7 @@ public class PCServiceEntityProvider extends AbstractEntityProvider implements R
         }
         
         int heartbeatMapSize = serverConfigurationService.getInt("portalchat.heartbeatmap.size",1000);
-        heartbeatMap = new ConcurrentHashMap<String,Object[]>(heartbeatMapSize,0.75F,64);
+        heartbeatMap = new ConcurrentHashMap<String,UserMessage>(heartbeatMapSize,0.75F,64);
 
         // SAK-20565. Get handles on the profile2 connections methods if available. If not, unset the connectionsAvailable flag.
         ComponentManager componentManager = org.sakaiproject.component.cover.ComponentManager.getInstance();
@@ -295,36 +291,31 @@ public class PCServiceEntityProvider extends AbstractEntityProvider implements R
 		}
 		
 		Date now = new Date();
-		Object [] lastHeartbeat = null;
+		UserMessage lastHeartbeat = null;
 		
 		lastHeartbeat = heartbeatMap.get(to);
 		
 		if(lastHeartbeat == null) return "OFFLINE";
 			
-		if((now.getTime() - ((Date)lastHeartbeat[0]).getTime()) >= pollInterval)
+		if((now.getTime() - lastHeartbeat.timestamp) >= pollInterval)
 			return "OFFLINE";
 
-		boolean videomessage = false;
 		String message = (String) params.get("message");
-		if (message == null) {
-			message = (String) params.get("peerMessage");
-			videomessage = true;
-		} 
 		if(message == null) throw new IllegalArgumentException("You must supply a message");
+		boolean videomessage = "true".equals(params.get("video"));
 		
 		// Sanitise the message. XSS attacks. Unescape single quotes. They are valid.
-		message = StringEscapeUtils.escapeHtml4(
+		if (!videomessage) { 
+			message = StringEscapeUtils.escapeHtml4(
 						StringEscapeUtils.escapeEcmaScript(message)).replaceAll("\\\\'","'");
-
+		}
 		//message = message.replaceAll("\\\\'","'");
 
-		if (!videomessage) addMessageToMap(new UserMessage(currentUser.getId(), to, message));
-		else addVideoMessageToMap(new UserVideoMessage(currentUser.getId(),to,message));
+		addMessageToMap(new UserMessage(currentUser.getId(), to, message, videomessage));
 		
         if(clustered) {
             try {
-                Message msg = videomessage?new Message(null, null, VIDEO_MESSAGE_PREAMBLE + currentUser.getId() + ":" + to + ":" + message):
-                	new Message(null, null, MESSAGE_PREAMBLE + currentUser.getId() + ":" + to + ":" + message);
+                Message msg = new Message(null, null, (videomessage?VIDEO_MESSAGE_PREAMBLE:MESSAGE_PREAMBLE) + currentUser.getId() + ":" + to + ":" + message);
             	clusterChannel.send(msg);
             } catch (Exception e) {
                 logger.error("Error sending JGroups message", e);
@@ -341,35 +332,28 @@ public class PCServiceEntityProvider extends AbstractEntityProvider implements R
 	public class UserMessage {
 		
 		public String from;
-	        public String to;
+	    public String to;
 		public String content;
 		public long timestamp;
+		public boolean video;
 		
 		private UserMessage() {
 
 		}
 
-        private UserMessage(String from, String to, String content) {
+		private UserMessage(String videoContent) {
+			this("","",videoContent,false);
+		}
+		
+        private UserMessage(String from, String to, String content, boolean video) {
             this.to = to;
 			this.from = from;
 			this.content = content;
 			this.timestamp = (new Date()).getTime();
+			this.video = video;
 		}
 	}
 
-	public class UserVideoMessage extends UserMessage {
-
-		private UserVideoMessage (){
-			super ();
-		}
-
-	        private UserVideoMessage(String from, String to, String content) {
-			super (from,to,content);
-		}
-	}
-		
-
-	
 	public class PortalChatUser {
 		
 		public String id;
@@ -417,7 +401,7 @@ public class PCServiceEntityProvider extends AbstractEntityProvider implements R
 			
 			if(logger.isDebugEnabled()) logger.debug(currentUser.getEid() + " is online. Stamping their heartbeat ...");
 			
-			heartbeatMap.put(currentUser.getId(),new Object[]{new Date(),video});
+			heartbeatMap.put(currentUser.getId(),new UserMessage(video));
 
             if(clustered) {
             	
@@ -438,12 +422,8 @@ public class PCServiceEntityProvider extends AbstractEntityProvider implements R
 			synchronized(messageMap) {
 				messageMap.remove(currentUser.getId());
 			}
-			synchronized(videoMessageMap){
-				videoMessageMap.remove(currentUser.getId());
-			}
 
 	      sendClearMessage(currentUser.getId());
-	      sendClearVideoMessage(currentUser.getId());
 
 			if(logger.isDebugEnabled()) logger.debug(currentUser.getEid() + " is offline. Returning an empty data map ...");
 			
@@ -464,7 +444,7 @@ public class PCServiceEntityProvider extends AbstractEntityProvider implements R
 			List<User> presentSakaiUsers = presenceService.getPresentUsers(siteId + "-presence");
 			presentSakaiUsers.remove(currentUser);
 			for(User user : presentSakaiUsers) {
-				presentUsers.add(new PortalChatUser(user.getId(), user.getDisplayName(),(String) heartbeatMap.get(user.getId())[1]));
+				presentUsers.add(new PortalChatUser(user.getId(), user.getDisplayName(),heartbeatMap.get(user.getId()).content));
 			}
         }
 		
@@ -498,42 +478,31 @@ public class PCServiceEntityProvider extends AbstractEntityProvider implements R
                 continue;
             }
 			
-			Object [] lastHeartbeat = null;
+			UserMessage lastHeartbeat = null;
 			
 			lastHeartbeat = heartbeatMap.get(uuid);
 			
 			if(lastHeartbeat == null) continue;
 			
-			if((now.getTime() - ((Date)lastHeartbeat[0]).getTime()) < pollInterval) {
-				onlineConnections.add(new PortalChatUser(uuid,uuid,(String) lastHeartbeat[1]));
+			if((now.getTime() - lastHeartbeat.timestamp) < pollInterval) {
+				onlineConnections.add(new PortalChatUser(uuid,uuid,lastHeartbeat.content));
 			}
 		}
 		
 		List<UserMessage> messages = new ArrayList<UserMessage>();
-		List<UserVideoMessage> videoMessages = new ArrayList<UserVideoMessage>();
+		List<UserMessage> videoMessages = new ArrayList<UserMessage>();
 
 		String currentUserId = currentUser.getId();
 		
 		synchronized(messageMap) {
 			if(messageMap.containsKey(currentUserId)) {
 				// Grab the user's messages
-				messages = messageMap.get(currentUserId);
+				splitMessages(messageMap.get(currentUserId),videoMessages,messages);
 				// Now we can reset the replicated map.
 				messageMap.remove(currentUserId);
 			}
 
 	            sendClearMessage(currentUserId);
-		}
-
-		synchronized(videoMessageMap) {
-			if(videoMessageMap.containsKey(currentUserId)) {
-				// Grab the user's messages
-				videoMessages = videoMessageMap.get(currentUserId);
-				// Now we can reset the replicated map.
-				videoMessageMap.remove(currentUserId);
-			}
-
-	            sendClearVideoMessage(currentUserId);
 		}
 
 		Map<String,Object> data = new HashMap<String,Object>(4);
@@ -549,6 +518,16 @@ public class PCServiceEntityProvider extends AbstractEntityProvider implements R
 		return data;
 	}
 
+	public void splitMessages(Collection<UserMessage> target, Collection<UserMessage> success, Collection<UserMessage> fails) {
+	    for (UserMessage element: target) {
+	        if (element.video) {
+	            success.add(element);
+	        } else {
+	        	fails.add(element);
+	        }
+	    }
+	}
+	
     private void sendClearMessage(String userId) {
         if(clustered) {
             try {
@@ -559,20 +538,6 @@ public class PCServiceEntityProvider extends AbstractEntityProvider implements R
                 clusterChannel.send(msg);
             } catch (Exception e) {
                 logger.error("Error sending JGroups clear message", e);
-            }
-        }
-    }
-
-    private void sendClearVideoMessage(String userId) {
-        if(clustered) {
-            try {
-            	
-            	if(logger.isDebugEnabled()) logger.debug("Sending videoMessagMap clear message for " + userId + " ...");
-            	
-                Message msg = new Message(null, null, VIDEO_CLEAR_PREAMBLE + userId);
-                clusterChannel.send(msg);
-            } catch (Exception e) {
-                logger.error("Error sending JGroups clear video message", e);
             }
         }
     }
@@ -643,24 +608,6 @@ public class PCServiceEntityProvider extends AbstractEntityProvider implements R
         }   
     }
 
-
-    private void addVideoMessageToMap(UserVideoMessage m) {
-        synchronized (videoMessageMap) {
-            List<UserVideoMessage> current = videoMessageMap.get(m.to);
-
-            if (current != null) {
-                List<UserVideoMessage> copy = new ArrayList<UserVideoMessage>(current.size());
-                copy.addAll(current);
-                copy.add(m);
-                videoMessageMap.put(m.to, copy);
-            } else {
-                videoMessageMap.put(m.to, Arrays.asList(m));
-            }
-        }   
-    }
-
-
-
 	private class EmailSender implements Runnable {
 		private Thread runner;
 
@@ -701,31 +648,19 @@ public class PCServiceEntityProvider extends AbstractEntityProvider implements R
             	String messageContent = message.substring(HEARTBEAT_PREAMBLE.length());
                 String onlineUserId = messageContent.substring(messageContent.indexOf(HEARTBEAT_SEPARATOR)+1);
                 String video = messageContent.substring(0,messageContent.indexOf(HEARTBEAT_SEPARATOR));
-                heartbeatMap.put(onlineUserId, new Object[]{new Date(),video});
-            } else if (message.startsWith(MESSAGE_PREAMBLE)) {
+                heartbeatMap.put(onlineUserId, new UserMessage(video));
+            } else if (message.startsWith(MESSAGE_PREAMBLE) || message.startsWith(VIDEO_MESSAGE_PREAMBLE)) {
                 Address address = clusterChannel.getAddress();
                 String[] parts = message.split(":");
                 String from = parts[1];
                 String to = parts[2];
                 String m = parts[3];
-                addMessageToMap(new UserMessage(from, to, m));
-            }  else if (message.startsWith(VIDEO_MESSAGE_PREAMBLE)) {
-                Address address = clusterChannel.getAddress();
-                String[] parts = message.split(":");
-                String from = parts[1];
-                String to = parts[2];
-                String m = parts[3];
-                addVideoMessageToMap(new UserVideoMessage(from, to, m));
+                addMessageToMap(new UserMessage(from, to, m, message.startsWith(VIDEO_MESSAGE_PREAMBLE)));
             } else if (message.startsWith(CLEAR_PREAMBLE)) {
                 String userId = message.substring(CLEAR_PREAMBLE.length());
                 synchronized (messageMap) {
                     messageMap.remove(userId);
 				}
-           	} else if (message.startsWith(VIDEO_CLEAR_PREAMBLE)) {
-                String userId = message.substring(VIDEO_CLEAR_PREAMBLE.length());
-                synchronized (videoMessageMap) {
-                    videoMessageMap.remove(userId);
-                }
             } 
         }
     }
