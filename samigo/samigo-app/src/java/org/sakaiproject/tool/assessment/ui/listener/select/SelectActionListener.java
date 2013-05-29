@@ -531,7 +531,7 @@ public class SelectActionListener
     String reviewAscending = ContextUtil.lookupParam("reviewableAscending");
     String takeAscending = ContextUtil.lookupParam("takeAscending");
 
-    if (takeOrder != null && !takeOrder.trim().equals("")) {
+    if (takeOrder != null && !takeOrder.trim().equals("") && !takeOrder.equals("null")) {
       bean.setTakeableSortOrder(takeOrder);
     }
 
@@ -539,7 +539,7 @@ public class SelectActionListener
       bean.setReviewableSortOrder(reviewOrder);
     }
 
-    if (takeAscending != null && !takeAscending.trim().equals("")) {
+    if (takeAscending != null && !takeAscending.trim().equals("") && !takeAscending.equals("null")) {
       try {
         bean.setTakeableAscending((Boolean.valueOf(takeAscending)).booleanValue());
       }
