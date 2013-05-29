@@ -39,7 +39,7 @@ sakai.getSiteInfo = function(trigger, dialogTarget, nosd, nold){
                 }
             }
             sitetitle = data.title.escapeHTML();
-            content = ("<h4><span id=\'owner\'></span>" + email + "</h4>" + "<br /><p class=\'textPanelFooter\' id=\'shortdesc\'>" + $(shortdesc).text() + "</p><br />" + "<div class=\"textPanel\">" + desc + "</div>");
+            content = ("<h4><span id=\'owner\'></span>" + email + "</h4>" + "<br /><p class=\'textPanelFooter\' id=\'shortdesc\'>" + shortdesc.escapeHTML() + "</p><br />" + "<div class=\"textPanel\">" + desc + "</div>");
             $("#" + dialogTarget).html(content);
             $("#" + dialogTarget + ' #shortdesc').text(shortdesc);
             $("#" + dialogTarget + ' #owner').text(owner);
