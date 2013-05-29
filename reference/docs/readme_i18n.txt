@@ -7,9 +7,9 @@ localized and internationalized. Translations are underway in many
 languages, as follows:
 
 1) Chinese/Simplified (China)
-   Status: released  (last update Sakai 2.5)
-   Translated by: Tianhua Ding, Kun Lv (and others)
-   Contact: n/a (unmaintained)
+   Status: released  (updated up to 2.9)
+   Translated by: Fudan University
+   Contact: È´òÁè∫ (gaojun@fudan.edu.cn)
    Local ID: zh_CN
    
 2) Korean
@@ -19,9 +19,9 @@ languages, as follows:
    Local ID: ko_KR
    
 3) Japanese
-   Status: released
-   Translated by: Shoji Kajita (and others)
-   Contact: Shoji Kajita kajita@nagoya-u.jp
+   Status: released (updated up to 2.9)
+   Translated by: Ja Sakai Community
+   Contact: Ja Sakai Community (dev@sakaiproject.jp)
    Local ID: ja_JP
    
 4) Dutch
@@ -63,9 +63,9 @@ languages, as follows:
    Local ID: sk_SK
     
 10) Catalan
-    Status: released
-    Translated by: n/a
-    Contact: Alex BallestÈ 
+    Status: released (updated up to 2.9)
+    Translated by: Universitat de Lleida (UdL)
+    Contact: Alexandre Ballest√© (alexandre.balleste@udl.cat)
     Local ID: ca_ES
     
 11) Chinese/Traditional (Taiwan)
@@ -81,9 +81,9 @@ languages, as follows:
     Local ID: fr_CA
 	 
 13) Spanish (Spain)
-    Status: released
-    Translated by: David Rold·n MartÌnez, Diego del Blanco, Ra˙l Mengod
-    Contact: Federico Jesús Carvajal Rodrigo (fcarvajal@abierta.upv.es)
+    Status: released (updated up to 2.9)
+    Translated by: UPV and SAMOO
+    Contact: Valerio Cern√≠ (vacercon@upvnet.upv.es)
     Local ID: es_ES
 
 14) Spanish (Mexico)
@@ -96,7 +96,7 @@ languages, as follows:
 15) Spanish (Argentina)
     Status: ??
     Translated by: n/a
-    Contact: Sebastián Barreiro (sbarreiro@gmail.com)
+    Contact: Sebasti¬án Barreiro (sbarreiro@gmail.com)
     Local ID: es_AR
     
 16) Spanish (Chile)
@@ -127,7 +127,7 @@ languages, as follows:
 20) Turkish
     Status: 2.8 initial release
     Translated by: n/a
-    Contact: Yasin ÷ZARSLAN <ozarslan@gmail.com>
+    Contact: Yasin √ñZARSLAN <ozarslan@gmail.com>
     Local ID: tr_TR
                 
 21) Mongolian
@@ -155,9 +155,9 @@ languages, as follows:
     Local ID:km_KH 
     
 25) French (France)
-   Status: First release in 2.6.x/2.6.1, 2.6.x maintained
-   Translated by: (see files comments)
-   Contact: Jean-Francois Leveque (jean-francois.leveque@upmc.fr)
+   Status: released (updated up to 2.9)
+   Translated by: French Sakai Community
+   Contact: Jean-Fran√ßois L√©v√™que (jean-francois.leveque@upmc.fr)
    Local ID: fr_FR
 
 26) Basque
@@ -165,6 +165,19 @@ languages, as follows:
     Translated by: Daniel Merino, Pablo San Roman 
     Contact: Daniel Merino (daniel.merino@unavarra.es), Pablo San Roman (pablo.sanroman@unavarra.es)
     Local ID: eu
+ 
+27) English (Australian)
+    Status: Underway for 2.10
+    Translated by: Steve Swinsburg
+    Contact: Steve Swinsburg (steve.swinsburg@gmail.com)
+    Local ID: en_AU
+    
+28) English (British)
+    Status: Underway for 2.10
+    Translated by: Steve Swinsburg
+    Contact: Steve Swinsburg (steve.swinsburg@gmail.com)
+    Local ID: en_GB
+       
 
 The default language locale must be defined at boot time (though this 
 can be over-ridden by user preferences), by setting the tomcat 

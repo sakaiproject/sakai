@@ -361,7 +361,6 @@ so for example <div class="tabHolder workspace"> so that different site types ca
 }	
 /*a ul - the li below are outer wrappers for the links to sites */
 #siteLinkList{
-	white-space: nowrap;
 	list-style-image:none;
 	list-style-position:outside;
 	list-style-type:none;
