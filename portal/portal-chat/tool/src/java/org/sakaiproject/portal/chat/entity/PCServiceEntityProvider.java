@@ -80,6 +80,9 @@ public class PCServiceEntityProvider extends AbstractEntityProvider implements R
     
     private int pollInterval = 5000;
 
+    // SAK-23349
+    private boolean isVideoEnabled = false;
+
     /* SAK-20565. We now use reflection to call the profile connection methods */
     private Object profileServiceObject = null;
     private Method getConnectionsForUserMethod = null;
@@ -145,6 +148,8 @@ public class PCServiceEntityProvider extends AbstractEntityProvider implements R
 
         showSiteUsers = serverConfigurationService.getBoolean("portal.chat.showSiteUsers", true);
         
+        isVideoEnabled = serverConfigurationService.getBoolean("portal.neochat.video", false);
+
         try {
             String channelId = serverConfigurationService.getString("portalchat.cluster.channel");
             if(channelId != null && !channelId.equals("")) {
@@ -497,7 +502,7 @@ public class PCServiceEntityProvider extends AbstractEntityProvider implements R
 		synchronized(messageMap) {
 			if(messageMap.containsKey(currentUserId)) {
 				// Grab the user's messages
-				splitMessages(messageMap.get(currentUserId),videoMessages,messages);
+				messages = splitMessages(messageMap.get(currentUserId),videoMessages);
 				// Now we can reset the replicated map.
 				messageMap.remove(currentUserId);
 			}
@@ -518,14 +523,20 @@ public class PCServiceEntityProvider extends AbstractEntityProvider implements R
 		return data;
 	}
 
-	public void splitMessages(Collection<UserMessage> target, Collection<UserMessage> success, Collection<UserMessage> fails) {
-	    for (UserMessage element: target) {
-	        if (element.video) {
-	            success.add(element);
-	        } else {
-	        	fails.add(element);
-	        }
-	    }
+	// Return plain messages and add video messages to video list
+	public List<UserMessage> splitMessages(List<UserMessage> source, List<UserMessage> video) {
+		List<UserMessage> plain = source;
+		if (isVideoEnabled) {
+			plain = new ArrayList<UserMessage>();
+		    for (UserMessage element: source) {
+		        if (element.video) {
+		            video.add(element);
+		        } else {
+		        	plain.add(element);
+		        }
+		    }
+		}
+	    return plain;
 	}
 	
     private void sendClearMessage(String userId) {
