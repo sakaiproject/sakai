@@ -51,6 +51,7 @@ import javax.servlet.http.HttpServletResponse;
 
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.io.filefilter.WildcardFileFilter;
+import org.apache.commons.lang.ArrayUtils;
 import org.apache.commons.lang.StringUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
@@ -182,6 +183,11 @@ public class SiteAction extends PagedResourceActionII {
 	private static ResourceLoader cfgRb = new ResourceLoader("multipletools");
 
 	private Locale comparator_locale = rb.getLocale();	
+	
+	private org.sakaiproject.user.api.UserDirectoryService userDirectoryService = (org.sakaiproject.user.api.UserDirectoryService) ComponentManager.get(
+			org.sakaiproject.user.api.UserDirectoryService.class );
+	private org.sakaiproject.authz.api.SecurityService securityService = (org.sakaiproject.authz.api.SecurityService) ComponentManager.get(
+			org.sakaiproject.authz.api.SecurityService.class );
 	
 	private org.sakaiproject.coursemanagement.api.CourseManagementService cms = (org.sakaiproject.coursemanagement.api.CourseManagementService) ComponentManager
 			.get(org.sakaiproject.coursemanagement.api.CourseManagementService.class);
@@ -718,6 +724,12 @@ public class SiteAction extends PagedResourceActionII {
 	private final static String SORT_ORDER_SECTION = "worksitesetup.sort.order.section";
 
 	private List prefLocales = new ArrayList();
+	
+	private boolean 		isAdmin				= false;
+	private boolean 		propertiesNotFound 	= false;
+	private List<String> 	allowedRoles 		= new ArrayList<String>();
+	private static final String VM_ALLOWED_ROLES_DROP_DOWN 		= "allowedRoles";
+	private static final String SAK_PROP_ALLOWED_ROLES_FOR_ADD	= "sitemanage.addParticipants.allowedRoles";
 	
 	// state variable for whether any multiple instance tool has been selected
 	private String STATE_MULTIPLE_TOOL_INSTANCE_SELECTED = "state_multiple_tool_instance_selected";
@@ -2160,6 +2172,8 @@ public class SiteAction extends PagedResourceActionII {
 
 			roles = getRoles(state);
 			context.put("roles", roles);
+			
+			context.put( VM_ALLOWED_ROLES_DROP_DOWN, getAllowedRoles( state ) );
 
 			// will have the choice to active/inactive user or not
 			String activeInactiveUser = ServerConfigurationService.getString(
@@ -7490,6 +7504,14 @@ private Map<String,List> getToolGroupList(SessionState state, String type, Site 
 			int siteTitleMaxLength = ServerConfigurationService.getInt("site.title.maxlength", 25);
 			state.setAttribute(STATE_SITE_TITLE_MAX, siteTitleMaxLength);
 		}
+		
+		// SAK-23257
+		isAdmin = securityService.isSuperUser();
+		propertiesNotFound = false;
+		allowedRoles = Arrays.asList( 
+        		ArrayUtils.nullToEmpty( ServerConfigurationService.getStrings( SAK_PROP_ALLOWED_ROLES_FOR_ADD ) ) );
+        if( allowedRoles.isEmpty() )
+                propertiesNotFound = true;
 
 	} // init
 
@@ -7685,6 +7707,20 @@ private Map<String,List> getToolGroupList(SessionState state, String type, Site 
 						if (roleChange) {
 						    roles.add(roleId);
 						    roles.add(oldRoleId);
+						}
+						
+						// SAK-23257
+						if( !propertiesNotFound )
+						{
+							for( String roleName : roles )
+							{
+								Role role = realmEdit.getRole( roleName );
+								if( !getAllowedRoles( state ).contains( role ) )
+								{
+									addAlert( state, rb.getFormattedMessage( "java.roleperm", new Object[] { roleName } ) );
+								    return;
+								}
+							}
 						}
 						
 						if (roleChange || activeGrantChange)
@@ -9488,6 +9524,41 @@ private Map<String,List> getToolGroupList(SessionState state, String type, Site 
 		return roles;
 
 	} // getRoles
+	
+	/**
+	 * Get a list of the 'allowed roles' as defined in sakai.properties.
+	 * If the properties are not found, just return all the roles.
+	 * If the user is an admin, return all the roles
+	 * 
+	 * @author bjones86 - SAK-23257
+	 * 
+	 * @param state
+	 * @return A list of 'allowed' role objects
+	 */
+	private List getAllowedRoles( SessionState state )
+	{
+		// Get all the roles available
+		List roles = getRoles( state );
+		List<Role> retVal = new ArrayList<Role>();
+		
+		// Loop through them
+		for( Object obj : roles )
+		{
+			Role r = (Role) obj;
+			
+			// If the user is an admin, or if the sakai.properties were not found, just add the role to the list
+			if( isAdmin || propertiesNotFound )
+				retVal.add( r );
+			
+			// Otherwise, only add the role if it's in the list of allowed roles
+        	else
+        		for( String role : allowedRoles )
+        			if( role.equalsIgnoreCase( r.getId() ) )
+        				retVal.add( r );
+		}
+		
+		return retVal;
+	}
 	
 	/**
 	 * getRoles

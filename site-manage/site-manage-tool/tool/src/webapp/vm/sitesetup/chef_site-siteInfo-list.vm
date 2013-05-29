@@ -568,21 +568,29 @@ function printPreview(target){
 							#if ($!isMyWorkspace)
 								$uRole
 							#elseif ($allowUpdateSiteMembership)
-								<label class="skip" for="role$uniqname">$tlang.getString("sitegen.siteinfolist.role.select")  $participant.getDisplayId()</label>
+								#set( $hasAllowedRole = "false" )
+								#foreach( $role in $allowedRoles )
+									#if( $role.Id == $uRole )
+										#set( $hasAllowedRole = "true" )
+									#end
+								#end
+							
+								#if( $hasAllowedRole == "true" )
+									<label class="skip" for="role$uniqname">$tlang.getString( "sitegen.siteinfolist.role.select" )  $participant.getDisplayId()</label>
 								<select id="role$uniqname" name="role$uniqname">
-								    #set($hasRestrictedRole = "false")
-								    #foreach($role in $roles)
-								        #if(($role.Id == $uRole) && $role.isProviderOnly())
-								            #set($hasRestrictedRole = "true")
+									    #set( $hasRestrictedRole = "false" )
+									    #foreach( $role in $allowedRoles )
+									        #if( ($role.Id == $uRole) && $role.isProviderOnly() )
+									            #set( $hasRestrictedRole = "true" )
 								        #end
 								    #end
-									#foreach($r in $roles)
-										#if($r.Id == $uRole)
+										#foreach( $r in $allowedRoles )
+											#if( $r.Id == $uRole )
 										<option value ="$r.Id" selected>
 											$r.Id
 										</option>
 										#else
-											#if(!($r.isProviderOnly() || ($hasRestrictedRole == "true")))
+												#if( !($r.isProviderOnly() || ($hasRestrictedRole == "true")) )
 											<option value ="$r.Id">
 												$r.Id 
 											</option>
@@ -590,6 +598,10 @@ function printPreview(target){
 										#end
 									#end
 								</select>
+									
+							#else
+									$uRole
+								#end
 							#else
 								$!uRole
 							#end
@@ -633,7 +645,7 @@ function printPreview(target){
 		</form>
 		<h4>$tlang.getString("sitegen.siteinfolist.roledes")</h4>
 			<dl>
-				#foreach ($role in $roles)
+				#foreach( $role in $allowedRoles )
 					##		#set ($description = false)
 					<dt>
 						$role.Id

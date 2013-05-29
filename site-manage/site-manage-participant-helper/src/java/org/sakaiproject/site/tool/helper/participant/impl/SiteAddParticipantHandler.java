@@ -13,6 +13,7 @@ import java.util.Vector;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.apache.commons.validator.EmailValidator;
+import org.apache.commons.lang.ArrayUtils;
 import org.apache.commons.lang.StringUtils;
 
 import org.sakaiproject.accountvalidator.logic.ValidationLogic;
@@ -21,6 +22,7 @@ import org.sakaiproject.authz.api.AuthzGroupService;
 import org.sakaiproject.authz.api.AuthzPermissionException;
 import org.sakaiproject.authz.api.GroupNotDefinedException;
 import org.sakaiproject.authz.api.Role;
+import org.sakaiproject.authz.api.SecurityService;
 import org.sakaiproject.component.api.ServerConfigurationService;
 import org.sakaiproject.event.cover.EventTrackingService;
 import org.sakaiproject.exception.IdUnusedException;
@@ -101,6 +103,16 @@ public class SiteAddParticipantHandler {
 	public String getOfficialAccountParticipant() {
 		return officialAccountParticipant;
 	}
+	
+	private SecurityService securityService;
+	public void setSecurityService( SecurityService securityService )
+	{
+		this.securityService = securityService;
+	}
+	
+	private boolean 		isAdmin				= false;
+	private boolean 		propertiesNotFound 	= false;
+	private List<String> 	allowedRoles 		= new ArrayList<String>();
 
 	private UserDirectoryService userDirectoryService;	
 	public void setUserDirectoryService(UserDirectoryService userDirectoryService) {
@@ -257,11 +269,19 @@ public class SiteAddParticipantHandler {
             try {    
                 site = siteService.getSite(siteId);
                 realm = authzGroupService.getAuthzGroup(siteService.siteReference(siteId));
-                for(Iterator<Role> i = realm.getRoles().iterator(); i.hasNext();)
-                { 
-                	Role r = (Role) i.next();
-                	roles.add(r);
-                }
+            
+                // SAK-23257
+                isAdmin = securityService.isSuperUser();
+                propertiesNotFound = false;
+                allowedRoles = Arrays.asList( 
+                		ArrayUtils.nullToEmpty( serverConfigurationService.getStrings( "sitemanage.addParticipants.allowedRoles" ) ) );
+                if( allowedRoles.isEmpty() )
+                	propertiesNotFound = true;
+                if( propertiesNotFound )
+                	for( Iterator<Role> itr = realm.getRoles().iterator(); itr.hasNext(); )
+                		roles.add( (Role) itr.next() );
+                else
+                	roles = getAllowedRoles();
             
             } catch (IdUnusedException e) {
                 // The siteId we were given was bogus
@@ -273,6 +293,38 @@ public class SiteAddParticipantHandler {
             
         }
     }
+    
+    /**
+	 * Get a list of the 'allowed roles' as defined in sakai.properties.
+	 * If the properties are not found, just return all the roles.
+	 * If the user is an admin, return all the roles
+	 * 
+	 * @author bjones86 - SAK-23257
+	 * 
+	 * @param state
+	 * @return A list of 'allowed' role objects
+	 */
+	private List<Role> getAllowedRoles()
+	{
+		List<Role> retVal = new ArrayList<Role>();
+		
+		for( Iterator<Role> i = realm.getRoles().iterator(); i.hasNext(); )
+        { 
+        	Role r = (Role) i.next();
+        	
+        	// If the user is an admin, or if the properties weren't found, just add the role to the list
+        	if( isAdmin || propertiesNotFound )
+        		retVal.add( r );
+        	
+        	// Otherwise, only add the role if it's in the list of allowed roles
+        	else
+        		for( String role : allowedRoles )
+        			if( role.equalsIgnoreCase( r.getId() ) )
+        				retVal.add( r );
+        }
+		
+		return retVal;
+	}
     
     /**
      * get the site title
@@ -547,6 +599,18 @@ public class SiteAddParticipantHandler {
 							continue;
 						    }
 						    okRoles.add(role);
+						}
+						
+						// SAK-23257
+						if( !propertiesNotFound )
+						{
+							Role r = realmEdit.getRole( role );
+							if( !getAllowedRoles().contains( r ) )
+							{
+								targettedMessageList.addMessage( new TargettedMessage( "java.roleperm", new Object[] { role }, 
+										TargettedMessage.SEVERITY_ERROR ) );
+								continue;
+							}
 						}
 
 						try {
