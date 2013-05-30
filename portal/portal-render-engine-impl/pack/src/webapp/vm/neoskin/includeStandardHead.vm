@@ -36,6 +36,10 @@
 	};
 </script>
 
+#if ( $loggedIn )
+<script type="text/javascript" language="JavaScript" src="/portal/scripts/sessionstoragemanager.js"></script>
+#end
+
 <!-- this causes problems for layout needs investigating -->
     <link href="/portal/styles/portalstyles.css" type="text/css" rel="stylesheet" media="all" />
 <!--[if gte IE 5]><![if lt IE 7]>
