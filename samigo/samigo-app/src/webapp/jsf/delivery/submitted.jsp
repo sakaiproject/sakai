@@ -72,6 +72,7 @@ window.close();
 <!--h:outputText value="<div class='portletBody' style='background:#{delivery.settings.divBgcolor}; background-image: url(http://www.w3.org/WAI/UA/TS/html401/images/test-background.gif)>;'" escape="false"/-->
  <!-- content... -->
 <h3><h:outputText value="#{deliveryMessages.submission}" /></h3>
+<h:outputText styleClass="messageSamigo3" value="#{deliveryMessages.timeOutSubmission}" rendered="#{delivery.timeOutSubmission=='true'}"/>
 <div class="tier1">
 <h4>
   <h:outputText value="#{delivery.assessmentTitle} " escape="false"/>

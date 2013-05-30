@@ -43,11 +43,29 @@
 			resizable: false,
 			draggable: false
 		});
-			
+		
+		$('#timer-expired-warning').dialog({
+			autoOpen: false,
+			width: 400,
+			modal: true,
+			resizable: false,
+			draggable: false,
+			closeOnEscape: false,
+			open: function (event,ui) { 
+				$(".ui-dialog-titlebar", $(this).parent()).hide(); 
+				$(this).css("background", "#EEEEEE");
+			}
+		});
 	});
 
 	function showTimerWarning() {
 		$('#timer-warning').dialog('open');
 		return false;
 	}		
+	
+	function showTimerExpiredWarning(submitfunction) {
+		$('#timer-expired-warning').dialog('open');
+		setTimeout(submitfunction,5000);
+		return false;
+	}
 </script>
