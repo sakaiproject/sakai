@@ -3118,18 +3118,18 @@ private   int   getNum(char letter,   String   a)
 			  replyrecipientaddtmp = UserDirectoryService.getUser(tmpPMR.getUserId());
 		  } catch (UserNotDefinedException e) {
 			  // TODO Auto-generated catch block
-			  e.printStackTrace();
+			  LOG.warn("Unable to find user : " + tmpPMR.getUserId(), e);
 		  }
 
-
-		  if (replyrecipientaddtmp == null)
-			  throw new IllegalStateException(
-					  "User replyrecipientaddtmp == null!");
-		  if(!(replyrecipientaddtmp.getDisplayName()).equals(getUserName()) && !tmpPMR.getBcc())//&&(!(replyrecipientaddtmp.getDisplayName()).equals(msgauther)))
-		  {
-			  returnSet.put(replyrecipientaddtmp, tmpPMR.getBcc());
+		  if (replyrecipientaddtmp == null){
+			  LOG.warn("continuing passed user : "+tmpPMR.getUserId());
+			  //throw new IllegalStateException("User replyrecipientaddtmp == null!");
+		  }else{
+		  	if(!(replyrecipientaddtmp.getDisplayName()).equals(getUserName()) && !tmpPMR.getBcc())//&&(!(replyrecipientaddtmp.getDisplayName()).equals(msgauther)))
+		  	{
+				  returnSet.put(replyrecipientaddtmp, tmpPMR.getBcc());
+		        }
 		  }
-
 	  }
 
 	  if(currentMessage.getRecipientsAsText() != null && !"".equals(currentMessage.getRecipientsAsText())){
