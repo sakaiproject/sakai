@@ -147,7 +147,7 @@
 						<f:verbatim></a></h3></f:verbatim>
 						<f:verbatim><div></f:verbatim>
 							<f:verbatim><div></f:verbatim>
-							<syllabus:syllabus_htmlShowArea value="#{eachEntry.entry.asset}" />
+							<h:outputText value="#{eachEntry.entry.asset}" escape="false"/>
 							<f:verbatim></div></f:verbatim>
 							<h:dataTable value="#{eachEntry.attachmentList}" var="eachAttach" styleClass="indnt1">
 							  <h:column>
