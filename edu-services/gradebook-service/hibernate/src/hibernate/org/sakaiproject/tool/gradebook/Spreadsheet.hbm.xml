@@ -16,7 +16,7 @@
   ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~-->
 
 <!DOCTYPE hibernate-mapping PUBLIC "-//Hibernate/Hibernate Mapping DTD//EN"
-	"http://hibernate.sourceforge.net/hibernate-mapping-3.0.dtd">
+	"http://www.hibernate.org/dtd/hibernate-mapping-3.0.dtd">
 <hibernate-mapping default-cascade="none" package="org.sakaiproject.tool.gradebook"
 	default-lazy="false">
 	<class name="org.sakaiproject.tool.gradebook.Spreadsheet" table="GB_SPREADSHEET_T">
@@ -33,7 +33,7 @@
 
 		<property name="name" column="NAME" type="string" not-null="true"/>
 
-		<property name="content" column="CONTENT" type="text" not-null="true" length="16777215"/>
+		<property name="content" column="CONTENT" type="materialized_clob" not-null="true" length="16777215"/>
 
         <property name="dateCreated" column="DATE_CREATED" type="timestamp" not-null="true"/>
 
