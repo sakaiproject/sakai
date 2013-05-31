@@ -1,7 +1,7 @@
 <?xml version="1.0"?>
 <!DOCTYPE hibernate-mapping PUBLIC
     "-//Hibernate/Hibernate Mapping DTD 2.0//EN"
-    "http://hibernate.sourceforge.net/hibernate-mapping-3.0.dtd" >
+    "http://www.hibernate.org/dtd/hibernate-mapping-3.0.dtd" >
 
 <hibernate-mapping>
 
@@ -17,7 +17,7 @@
         <property name="jobName" column="jobName" type="string" not-null="true"/>
         <property name="triggerName" column="triggerName" type="string"/>
         <property name="time" column="eventTime" not-null="true" index="schdulr_trggr_vnts_eventTime"/>
-        <property name="message" column="message" type="text"/>
+        <property name="message" column="message" type="materialized_clob"/>
         <property name="serverId" column="serverId" type="string" />
     </class>
 
