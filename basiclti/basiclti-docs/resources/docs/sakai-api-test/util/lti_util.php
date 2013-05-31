@@ -685,16 +685,28 @@ function sendOAuthBodyPOST($method, $endpoint, $oauth_consumer_key, $oauth_consu
     $header = $acc_req->to_header();
     $header = $header . "\r\nContent-Type: " . $content_type . "\r\n";
 
+    global $LastPOSTHeader;
+    $LastPOSTHeader = $header;
+
     return do_post($endpoint,$body,$header);
 }
 
+// Sadly this tries several approaches depending on 
+// the PHP version and configuration.  You can use only one
+// if you know what version of PHP is working and how it will be 
+// configured...
 function do_post($url, $body, $header) {
+    global $LastPOSTMethod;
     $response = post_socket($url, $body, $header);
+    $LastPOSTMethod = "Socket";
     if ( $response !== false ) return $response;
     $response = post_stream($url, $body, $header);
+    $LastPOSTMethod = "Stream";
     if ( $response !== false ) return $response;
     $response = post_curl($url, $body, $header);
+    $LastPOSTMethod = "CURL";
     if ( $response !== false ) return $response;
+    $LastPOSTMethod = "Error";
     echo("Unable to post<br/>\n");
     echo("Url=$url <br/>\n");
     echo("Headers:<br/>\n$headers<br/>\n");
@@ -764,7 +776,7 @@ function post_stream($url, $body, $header) {
 
     $ctx = stream_context_create($params);
     try {
-        $fp = @fopen($endpoint, 'r', false, $ctx);
+        $fp = @fopen($url, 'r', false, $ctx);
         $response = @stream_get_contents($fp);
     } catch (Exception $e) {
         return false;
@@ -778,7 +790,8 @@ function post_curl($url, $xml, $header) {
   $ch = curl_init();
   curl_setopt($ch, CURLOPT_URL, $url);
 
-  // For xml, change the content-type.
+  // Make sure that the header is an array
+  $header = explode("\n", $header);
   curl_setopt ($ch, CURLOPT_HTTPHEADER, $header);
 
   curl_setopt($ch, CURLOPT_POST, 1);

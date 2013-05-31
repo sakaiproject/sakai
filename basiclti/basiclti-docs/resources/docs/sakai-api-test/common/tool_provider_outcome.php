@@ -91,6 +91,8 @@ $response = sendOAuthBodyPOST($method, $endpoint, $oauth_consumer_key, $oauth_co
 global $LastOAuthBodyBaseString;
 $lbs = $LastOAuthBodyBaseString;
 
+global $LastPOSTHeader;
+$lph = $LastPOSTHeader;
 
 try { 
     $retval = parseResponse($response);
@@ -110,10 +112,14 @@ $response = str_replace(">","&gt;",$response);
 echo($response);
 
 echo("\n\n------------ WE SENT ------------\n");
+global $LastPOSTMethod;
+echo("Post implementation:".$LastPOSTMethod."\n");
+print_r($lph);
+echo("\n");
 $postBody = str_replace("<","&lt;",$postBody);
 $postBody = str_replace(">","&gt;",$postBody);
 echo($postBody);
-echo("\nBase String:\n");
+echo("\n\nBase String:\n");
 echo($lbs);
 echo("\n</pre>\n");
 
