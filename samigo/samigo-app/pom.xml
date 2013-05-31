@@ -128,7 +128,6 @@
         <dependency>
             <groupId>javax.mail</groupId>
             <artifactId>mail</artifactId>
-            <version>1.4.3</version>
         </dependency>
 	<dependency>
             <groupId>javax.servlet.jsp</groupId>
@@ -179,9 +178,9 @@
             <artifactId>poi-ooxml</artifactId>
             <version>3.7</version>
         </dependency>
-		<dependency>
-            <groupId>org.hibernate</groupId>
-            <artifactId>hibernate</artifactId>
+        <dependency>
+            <groupId>org.springframework</groupId>
+            <artifactId>spring-web</artifactId>
         </dependency>
         <dependency>
             <groupId>org.springframework</groupId>
@@ -229,6 +228,11 @@
             <version>2.0.2</version>
         </dependency>
         <!-- test -->
+        <dependency>
+            <groupId>org.springframework</groupId>
+            <artifactId>spring-context</artifactId>
+            <scope>test</scope>
+        </dependency>
         <dependency>
             <groupId>junit</groupId>
             <artifactId>junit</artifactId>

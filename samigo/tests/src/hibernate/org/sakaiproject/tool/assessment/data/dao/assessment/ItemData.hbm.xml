@@ -1,7 +1,7 @@
 <?xml version="1.0"?>
 <!DOCTYPE hibernate-mapping PUBLIC
   "-//Hibernate/Hibernate Mapping DTD//EN"
-  "http://hibernate.sourceforge.net/hibernate-mapping-3.0.dtd">
+  "http://www.hibernate.org/dtd/hibernate-mapping-3.0.dtd">
 
 <hibernate-mapping default-lazy="false">
   <class name="org.sakaiproject.tool.assessment.data.dao.assessment.ItemData" table="SAM_ITEM_T">
@@ -88,7 +88,7 @@
       <column name="SEQUENCE" not-null="true" sql-type="integer" />
     </property>
     <property name="text">
- 	<column name="TEXT" not-null="false" sql-type="text" />
+      <column name="TEXT" not-null="false" type="materialized_clob" />
     </property>
     <set name="answerSet" table="SAM_ANSWER_T" cascade="all" inverse="true" lazy="false" order-by="sequence asc">
        <key column="ITEMTEXTID"/>

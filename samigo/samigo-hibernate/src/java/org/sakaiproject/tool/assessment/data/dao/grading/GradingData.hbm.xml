@@ -1,7 +1,7 @@
 <?xml version="1.0"?>
 <!DOCTYPE hibernate-mapping PUBLIC
   "-//Hibernate/Hibernate Mapping DTD//EN"
-  "http://hibernate.sourceforge.net/hibernate-mapping-3.0.dtd">
+  "http://www.hibernate.org/dtd/hibernate-mapping-3.0.dtd">
 
 <hibernate-mapping default-lazy="false">
   <class name="org.sakaiproject.tool.assessment.data.dao.grading.ItemGradingData" table="SAM_ITEMGRADING_T">
@@ -17,7 +17,7 @@
     <property name="submittedDate" type="timestamp" column="SUBMITTEDDATE" not-null="false" />
     <property name="publishedAnswerId" type="long" column="PUBLISHEDANSWERID" not-null="false" index="SAM_ITEMGRADING_PUBANS_I"  unique-key="uniqueStudentResponse" />
     <property name="rationale" type="string" length="4000" column="RATIONALE" not-null="false" />
-    <property name="answerText" type="text" column="ANSWERTEXT" not-null="false" />
+    <property name="answerText" type="materialized_clob" column="ANSWERTEXT" not-null="false" />
     <property name="autoScore" type="double" column="AUTOSCORE" not-null="false" />
     <property name="overrideScore" type="double" column="OVERRIDESCORE" not-null="false" />
     <property name="comments" type="string" length="4000" column="COMMENTS" not-null="false" />

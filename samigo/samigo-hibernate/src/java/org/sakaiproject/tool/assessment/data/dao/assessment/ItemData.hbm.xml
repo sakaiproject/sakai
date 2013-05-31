@@ -1,7 +1,7 @@
 <?xml version="1.0"?>
 <!DOCTYPE hibernate-mapping PUBLIC
   "-//Hibernate/Hibernate Mapping DTD//EN"
-  "http://hibernate.sourceforge.net/hibernate-mapping-3.0.dtd">
+  "http://www.hibernate.org/dtd/hibernate-mapping-3.0.dtd">
 
 <hibernate-mapping default-lazy="false">
   <class name="org.sakaiproject.tool.assessment.data.dao.assessment.ItemData" table="SAM_ITEM_T">
@@ -17,7 +17,7 @@
     <property name="sequence" type="integer" column="SEQUENCE" not-null="false" />
     <property name="duration" type="integer" column="DURATION" not-null="false" />
     <property name="triesAllowed" type="integer" column="TRIESALLOWED" not-null="false" />
-    <property name="instruction" type="text" column="INSTRUCTION" not-null="false" />
+    <property name="instruction" type="materialized_clob" column="INSTRUCTION" not-null="false" />
     <property name="description" type="string" length="4000" column="DESCRIPTION" not-null="false" />
     <property name="typeId" type="long" column="TYPEID" not-null="true" />
     <property name="grade" type="string" length="80" column="GRADE" not-null="false" />
@@ -69,7 +69,7 @@
     <many-to-one name="item" class="org.sakaiproject.tool.assessment.data.dao.assessment.ItemData"
       column="ITEMID" not-null="true" index="SAM_ITEMTEXT_ITEMID_I" />
     <property name="sequence" type="long" column="SEQUENCE" not-null="true" />
-<property name="text" type="text" column="TEXT" not-null="false" />
+<property name="text" type="materialized_clob" column="TEXT" not-null="false" />
     <set name="answerSet" table="SAM_ANSWER_T" cascade="all" inverse="true" lazy="false" order-by="sequence asc">
        <key column="ITEMTEXTID"/>
        <one-to-many class="org.sakaiproject.tool.assessment.data.dao.assessment.Answer"/>
@@ -110,7 +110,7 @@
       column="ITEMTEXTID" not-null="true" index="SAM_ANSWER_ITEMTEXTID_I" />
     <many-to-one name="item" class="org.sakaiproject.tool.assessment.data.dao.assessment.ItemData"
       column="ITEMID" not-null="true" />
-    <property name="text" type="text" column="TEXT" not-null="false" />
+    <property name="text" type="materialized_clob" column="TEXT" not-null="false" />
     <property name="sequence" type="long" column="SEQUENCE" not-null="true" />
     <property name="label" type="string" length="20" column="LABEL" not-null="false" />
     <property name="isCorrect" type="boolean" column="ISCORRECT" not-null="false" />

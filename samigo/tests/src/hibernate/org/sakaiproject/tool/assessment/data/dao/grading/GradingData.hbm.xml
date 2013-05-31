@@ -1,7 +1,7 @@
 <?xml version="1.0"?>
 <!DOCTYPE hibernate-mapping PUBLIC
   "-//Hibernate/Hibernate Mapping DTD//EN"
-  "http://hibernate.sourceforge.net/hibernate-mapping-3.0.dtd">
+  "http://www.hibernate.org/dtd/hibernate-mapping-3.0.dtd">
 
 <hibernate-mapping default-lazy="false">
   <class name="org.sakaiproject.tool.assessment.data.dao.grading.ItemGradingData" table="SAM_ITEMGRADING_T">
@@ -29,7 +29,7 @@
       <column name="RATIONALE" not-null="false" sql-type="varchar(4000)" />
     </property>
     <property name="answerText">
- 	<column name="ANSWERTEXT" not-null="false" sql-type="text" />
+      <column name="ANSWERTEXT" not-null="false" type="materialized_clob" />
     </property>
     <property name="autoScore">
       <column name="AUTOSCORE" not-null="false" sql-type="double" />
