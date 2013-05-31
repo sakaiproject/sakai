@@ -8,7 +8,8 @@
 	<bean id="messageLocator" class="uk.org.ponder.springutil.SpringMessageLocator">
 		<property name="messageSource">
 			<bean
-				class="org.springframework.context.support.ReloadableResourceBundleMessageSource">
+				class="org.springframework.context.support.ReloadableResourceBundleMessageSource"
+				depends-on="TLABPostProcessorLoader">
 				<property name="basename">
 					<value>WEB-INF/bundle/Messages</value>
 				</property>

@@ -34,6 +34,16 @@
             <artifactId>sakai-kernel-util</artifactId>
         </dependency>
 
+        <!-- Spring -->
+        <dependency>
+            <groupId>org.springframework</groupId>
+            <artifactId>spring-core</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>org.springframework</groupId>
+            <artifactId>spring-web</artifactId>
+        </dependency>
+
         <!-- java mail -->
         <dependency>
             <groupId>javax.activation</groupId>
