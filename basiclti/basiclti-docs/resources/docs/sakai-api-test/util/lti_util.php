@@ -749,8 +749,10 @@ function post_socket($endpoint, $data, $moreheaders=false) {
     $headers .= $eol.$data;
     // echo("\n"); echo($headers); echo("\n");
     // echo("PORT=".$url['port']);
+    $hostname = $url['host'];
+    if ( $url['port'] == 443 ) $hostname = "ssl://" . $hostname;
     try {
-        $fp = fsockopen($url['host'], $url['port'], $errno, $errstr, 30);
+        $fp = fsockopen($hostname, $url['port'], $errno, $errstr, 30);
         if($fp) {
             fputs($fp, $headers);
             $result = '';
