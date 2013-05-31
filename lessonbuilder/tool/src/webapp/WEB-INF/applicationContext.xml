@@ -19,7 +19,8 @@
  
 
   <bean id="messageSource" 
-	class="org.sakaiproject.lessonbuildertool.util.ResourceLoaderMessageSource"> 
+      class="org.sakaiproject.lessonbuildertool.util.ResourceLoaderMessageSource"
+      depends-on="TLABPostProcessorLoader">
     <property name="basename" value="classpath:messages"/> 
     <property name="cacheSeconds" value="10" /> 
   </bean> 

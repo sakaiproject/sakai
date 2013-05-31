@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!DOCTYPE hibernate-mapping PUBLIC "-//Hibernate/Hibernate Mapping DTD 3.0//EN"
-	"http://hibernate.sourceforge.net/hibernate-mapping-3.0.dtd">
+	"http://www.hibernate.org/dtd/hibernate-mapping-3.0.dtd">
 
 <hibernate-mapping>
 
@@ -20,7 +20,7 @@
 	<property name="pageId" type="long" not-null="true" />
 	<property name="timePosted" type="timestamp" not-null="true" />
 	<property name="author" type="string" length="36" not-null="true" />
-	<property name="comment" type="text" column="commenttext" />
+	<property name="comment" type="materialized_clob" column="commenttext" />
 	<property name="UUID" type="string" length="36" not-null="true" />
 	<property name="html" type="boolean" not-null="true" />
 	<property name="points" type="double" />

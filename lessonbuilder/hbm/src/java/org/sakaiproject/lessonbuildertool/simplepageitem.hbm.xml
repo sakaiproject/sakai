@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!DOCTYPE hibernate-mapping PUBLIC "-//Hibernate/Hibernate Mapping DTD 3.0//EN"
-	"http://hibernate.sourceforge.net/hibernate-mapping-3.0.dtd">
+	"http://www.hibernate.org/dtd/hibernate-mapping-3.0.dtd">
 	
 <hibernate-mapping>
 
@@ -21,7 +21,7 @@
 	<property name="type" type="integer" not-null="true" />
 	<property name="sakaiId" type="string" length="250" />
 	<property name="name" type="string" length="100" />
-	<property name="html" type="text" length="200000" />
+	<property name="html" type="materialized_clob" length="200000" />
 	<property name="description" type="text" />
 	<property name="height" type="string" length="8" />
 	<property name="width" type="string" length="8" />
@@ -48,7 +48,7 @@
 	<property name="groupOwned" type="boolean" />
 	<property name="ownerGroups" type="text" />
 	
-	<property name="attributeString" type="text" />
+	<property name="attributeString" type="materialized_clob" />
 
    </class>
 </hibernate-mapping>
