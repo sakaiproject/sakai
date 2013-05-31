@@ -9,8 +9,6 @@ Lesson Builder is a way to structure content. Use cases include
 * Online certification, which needs to require certain items to be
   done, and sometimes to limit access until prerequistes are met.
 
-I'll still be doing work, but this version should be usable.
-
 Our thanks go to Joshua Ryan, whose Simple Page Tool is the basis for
 this code. (You may note that some files and classes are still named
 SimplePage. We have changed the package name and enough other things
@@ -24,48 +22,47 @@ SECURITY WARNING
 In order to prevent "cross-site scripting" attacks, Sakai takes two
 precautions that would interfere with Lessons:
 
-* When you prepare content using an HTML editor, most of Sakai will
+1) When you prepare content using an HTML editor, most of Sakai will
   remove Javascript and other "dangerous" types of content
-* When you upload an HTML file to resources, and a user clicks on 
+2) When you upload an HTML file to resources, and a user clicks on 
   its link, the Resource tool will download the HTML file rather
   than displaying it.
 
-Sakai's behavior is configurable. By default, it doesn't either of
-those things in older versions of Sakai. Starting in Sakai 2.9.2,
-Lessons will filter dangerous content in HTML.
+Default settings:
 
-* If you add text using the "add text" button, we will display the
-  HTML without modification before Sakai 2.9.2. Starting with 2.9.2
-  we will use the kernel's HTML filtering. It should allow EMBED
-  but prohibit Javascript.
-* When you upload HTML files through Lessons, we will show them as
-  HTML in your browser.
+Sakai:  both checks
+Lessons before 2.9.2: neither check
+Lessons starting 2.9.2:  1 but not 2
 
-If you want the normal Sakai precautions to apply within Lessons,
-add the following properties in sakai.properties:
+Sakai's behavior is configurable. To get both checks:
 
 lessonbuilder.filterhtml=true
 lessonbuilder.inlinehtml=false
 
-If you do this, you can still enable specific sites to use 
-Javascript and display HTML:
+To get neither check (which we strongly recommend):
 
-* To allow an instance of Lessons to show "add text" blocks without
-  removing Javascript, add the property
+lessonbuilder.filterhtml=false
+lessonbuilder.inlinehtml=true
+
+If you do the checks, you can change the behavior for 
+individual instances of Lessons:
+
+* To control showing removeing "dangerous" HTML from "add text" blocks,
+add the property
     filterHtml
-  to the instance of Lessons
+with value true or false to the instance of Lessons
 
 As an administrator, use the Sites tool to find the site.
 Use the "pages" button to show the pages in the site. That
 will show a list of pages. Click on the pageid for the specific
 instance of Lessons. Click "Properties". Add the property "filterHtml"
-with value "false".
+with value "true" or "false".
 
 * To allow specific HTML files to be displayed rather than downloaded,
   as an administrator, go to Resources. Find the site's resources.
   Do "edit details" for the specific HTML file or for the folder in
   which it is located. Click the box that says "Allow HTML file"
-  and save.
+  and save (or clear it to prohibit).
 
 Starting with Sakai 2.9.2 lessonbuilder.filterhtml and the
 filterhtml instance property can also be set to explicit antisamy
@@ -75,11 +72,22 @@ true is equivalent to low, false to none.
 
 The default is false before Sakai 2.9.2, true starting with 2.9.2.
 
+TEMPORARAY (We hope) NOTE ON BUILDING:
+
+Jira LSNBLDR-236 made a change to the database setup. This change
+was needed because trunk (2.10) moved to a new version of Hibernate.
+Hibernate made an incompatible change that required us to change
+all columns that used to be "text" to "materialized_clob." Until
+this is fixed, for 2.8 and 2.9 you'll need to modify
+hbm/src/java/org/sakaiproject/lessonbuildertool/*.hbm.xml
+replaceing all occurences of "materialized_clob" to "text".
+
 BUILDING
 
 To build, the normal Sakai maven commands will work. However you'll
 probably need to edit pom.xml to change versions. The main pom.xml
 file in this directory is all you should have to change. pom files
+
 in other directories take their information from this one.
 
 You'll need to change two things;
@@ -167,7 +175,13 @@ script, schemaupdate, that reads lessonbuilder.sql for the old version
 and the new version, and produces a file that will update your schema
 from one to the other.
 
-You'll want to go to hbm/src/ddl and do "mvn clean install sakai:deploy"
+You'll want to go to hbm/src/ddl and do build the current .sql files.
+For trunk (2.10) you should run "ant" in that directory. For 2.8 and 
+2.9, you will want to do "mvn clean install sakai:deploy". (These 
+approaches use different versions of Hibernate, which are needed
+because of the change from "text" to "materialized_clob" discussed
+above.
+
 That will read the hibernate files and produce the following file
 that has all the declarations that Hibernate would use:
 
