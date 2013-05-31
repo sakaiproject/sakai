@@ -477,7 +477,7 @@ public class HelpManagerImpl extends HibernateDaoSupport implements HelpManager
 	 * Get entire Collection of Resources.
 	 * @return collection of resources
 	 */
-	protected Collection<Resource> getResources()
+	protected Collection<? extends Resource> getResources()
 	{
 		return getHibernateTemplate().loadAll(ResourceBean.class);
 	}
