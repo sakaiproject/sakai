@@ -1,5 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
+<project xmlns="http://maven.apache.org/POM/4.0.0"
+    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+    xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
     <modelVersion>4.0.0</modelVersion>
 
     <parent>
@@ -15,23 +17,6 @@
 
     <description>This project creates a WAR containing the Lesson Builder Tool for Sakai.</description>
 
-    <repositories>
-<!-- 
-  To enable YAFT, MNEME, and Assignments 2, uncomment the repository, dependencies and plugin below.
-  Look for all comment blocks that start with OPTIONAL. Remove that whole line, and the matching close
- -->
-<!-- OPTIONAL
-        <repository>
-            <id>local-hack</id>
-            <name>Backup API copies</name>
-            <layout>default</layout>
-	    <url>https://sakai.rutgers.edu/stats/repos</url>
-            <snapshots>
-                <enabled>true</enabled>
-            </snapshots>
-        </repository>
--->
-    </repositories>
     <dependencies>
 
         <dependency>
@@ -63,7 +48,7 @@
             <groupId>org.sakaiproject.edu-services.gradebook</groupId>
             <artifactId>gradebook-service-api</artifactId>
         </dependency>
-	<dependency>
+        <dependency>
             <groupId>org.sakaiproject.entitybroker</groupId>
             <artifactId>entitybroker-api</artifactId>
         </dependency>
@@ -116,15 +101,15 @@
             <version>${sakai.samigo.version}</version>
             <scope>provided</scope>
         </dependency>
-	<dependency>
-	  <groupId>commons-lang</groupId>
-	  <artifactId>commons-lang</artifactId>
-	</dependency>
-	<dependency>
-	  <groupId>commons-io</groupId>
-	  <artifactId>commons-io</artifactId>
-	  <scope>provided</scope>
-	</dependency>
+        <dependency>
+            <groupId>commons-lang</groupId>
+            <artifactId>commons-lang</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>commons-io</groupId>
+            <artifactId>commons-io</artifactId>
+            <scope>provided</scope>
+        </dependency>
         <dependency>
             <groupId>javax.servlet</groupId>
             <artifactId>servlet-api</artifactId>
@@ -192,76 +177,12 @@
             <type>war</type>
         </dependency>
         <dependency>
-	  <groupId>commons-fileupload</groupId>
-	  <artifactId>commons-fileupload</artifactId>
+            <groupId>commons-fileupload</groupId>
+            <artifactId>commons-fileupload</artifactId>
         </dependency>
-
-<!-- OPTIONAL
-        <dependency>
-            <groupId>org.sakaiproject.yaft</groupId>
-            <artifactId>yaft-api</artifactId>
-            <version>${sakai.yaft.version}</version>
-            <scope>provided</scope>
-        </dependency>
-
-        <dependency> 
-	  <groupId>org.etudes.mneme</groupId>
-	  <artifactId>etudes-mneme-api</artifactId> 
-          <version>${sakai.mneme.version}</version> 
-	  <scope>${sakai.mneme.scope}</scope> 
-	</dependency> 
-
-	<dependency>
-            <groupId>org.sakaiproject.assignment2</groupId>
-            <artifactId>sakai-assignment2-api</artifactId>
-		<version>1.0-rc-1</version>
-            <scope>provided</scope>
-        </dependency>
-
--->
     </dependencies>
 
     <build>
-
-<!-- OPTIONAL
-      <plugins>
-	<plugin>
-          <groupId>org.codehaus.mojo</groupId>
-          <artifactId>build-helper-maven-plugin</artifactId>
-          <version>1.7</version>
-          <executions>
-            <execution>
-              <id>add-source</id>
-              <phase>generate-sources</phase>
-              <goals>
-		<goal>add-source</goal>
-              </goals>
-              <configuration>
-		<sources>
-                  <source>opt-src/java</source>
-		</sources>
-              </configuration>
-            </execution>
-	    <execution>
-              <id>add-resource</id>
-              <phase>generate-resources</phase>
-              <goals>
-		<goal>add-resource</goal>
-              </goals>
-              <configuration>
-		<resources>
-                  <resource>
-                    <directory>opt-src/webapp/WEB-INF</directory>
-                    <targetPath>${project.build.directory}/lessonbuilder-tool-${project.version}/WEB-INF</targetPath>
-                  </resource>
-              </resources>
-            </configuration>
-          </execution>
-          </executions>
-	</plugin>
-      </plugins>
--->
-
         <resources>
             <resource>
                 <directory>${basedir}/src/resources</directory>
@@ -274,4 +195,85 @@
             </resource>
         </resources>
     </build>
+    <profiles>
+        <profile>
+            <id>optional</id>
+            <activation>
+                <activeByDefault>false</activeByDefault>
+            </activation>
+            <repositories>
+                <!-- 
+                    To enable YAFT, MNEME, and Assignments 2, uncomment the repository, dependencies and plugin below.
+                    Look for all comment blocks that start with OPTIONAL. Remove that whole line, and the matching close
+                -->
+                <repository>
+                    <id>local-hack</id>
+                    <name>Backup API copies</name>
+                    <layout>default</layout>
+                    <url>https://sakai.rutgers.edu/stats/repos</url>
+                    <snapshots>
+                        <enabled>true</enabled>
+                    </snapshots>
+                </repository>
+            </repositories>
+            <build>
+                <plugins>
+                    <plugin>
+                        <groupId>org.codehaus.mojo</groupId>
+                        <artifactId>build-helper-maven-plugin</artifactId>
+                        <version>1.7</version>
+                        <executions>
+                            <execution>
+                                <id>add-source</id>
+                                <phase>generate-sources</phase>
+                                <goals>
+                                    <goal>add-source</goal>
+                                </goals>
+                                <configuration>
+                                    <sources>
+                                        <source>opt-src/java</source>
+                                    </sources>
+                                </configuration>
+                            </execution>
+                            <execution>
+                                <id>add-resource</id>
+                                <phase>generate-resources</phase>
+                                <goals>
+                                    <goal>add-resource</goal>
+                                </goals>
+                                <configuration>
+                                    <resources>
+                                        <resource>
+                                            <directory>opt-src/webapp/WEB-INF</directory>
+                                            <targetPath>${project.build.directory}/lessonbuilder-tool-${project.version}/WEB-INF</targetPath>
+                                        </resource>
+                                    </resources>
+                                </configuration>
+                            </execution>
+                        </executions>
+                    </plugin>
+                </plugins>
+            </build>
+            <dependencies>
+                <dependency>
+                    <groupId>org.sakaiproject.yaft</groupId>
+                    <artifactId>yaft-api</artifactId>
+                    <version>${sakai.yaft.version}</version>
+                    <scope>provided</scope>
+                </dependency>
+                <dependency>
+                    <groupId>org.etudes.mneme</groupId>
+                    <artifactId>etudes-mneme-api</artifactId>
+                    <version>${sakai.mneme.version}</version>
+                    <scope>${sakai.mneme.scope}</scope>
+                </dependency>
+                <dependency>
+                    <groupId>org.sakaiproject.assignment2</groupId>
+                    <artifactId>sakai-assignment2-api</artifactId>
+                    <version>1.0-rc-1</version>
+                    <scope>provided</scope>
+                </dependency>
+            </dependencies>
+        </profile>
+    </profiles>
 </project>
