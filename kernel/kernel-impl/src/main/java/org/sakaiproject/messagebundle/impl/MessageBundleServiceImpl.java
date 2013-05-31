@@ -26,7 +26,8 @@ import org.sakaiproject.messagebundle.api.MessageBundleService;
 import org.sakaiproject.messagebundle.api.MessageBundleProperty;
 
 import org.hibernate.*;
-import org.hibernate.type.NullableType;
+import org.hibernate.type.BasicType;
+import org.hibernate.type.StandardBasicTypes;
 import org.hibernate.type.Type;
 import org.springframework.beans.BeanUtils;
 import org.springframework.orm.hibernate3.HibernateCallback;
@@ -78,7 +79,7 @@ public class MessageBundleServiceImpl extends HibernateDaoSupport implements Mes
 
     public int getSearchCount(String searchQuery, String module, String baseName, String locale) {
         List<String> values = new ArrayList<String>();
-        List<NullableType> types = new ArrayList<NullableType>();
+        List<BasicType> types = new ArrayList<BasicType>();
         StringBuffer queryString = new StringBuffer("");
 
         try {
@@ -87,9 +88,9 @@ public class MessageBundleServiceImpl extends HibernateDaoSupport implements Mes
                 values.add("%" + searchQuery + "%");
                 values.add("%" + searchQuery + "%");
                 values.add(searchQuery);
-                types.add(Hibernate.STRING);
-                types.add(Hibernate.STRING);
-                types.add(Hibernate.STRING);
+                types.add(StandardBasicTypes.STRING);
+                types.add(StandardBasicTypes.STRING);
+                types.add(StandardBasicTypes.STRING);
             }
             if (module != null && module.length() > 0) {
                 if (queryString.length() > 0) {
@@ -97,7 +98,7 @@ public class MessageBundleServiceImpl extends HibernateDaoSupport implements Mes
                 }
                 queryString.append("moduleName = ? ");
                 values.add(module);
-                types.add(Hibernate.STRING);
+                types.add(StandardBasicTypes.STRING);
 
             }
             if (baseName != null && baseName.length() > 0) {
@@ -106,7 +107,7 @@ public class MessageBundleServiceImpl extends HibernateDaoSupport implements Mes
                 }
                 queryString.append("baseName = ?");
                 values.add(baseName);
-                types.add(Hibernate.STRING);
+                types.add(StandardBasicTypes.STRING);
 
             }
             if (locale != null && locale.length() > 0) {
@@ -115,7 +116,7 @@ public class MessageBundleServiceImpl extends HibernateDaoSupport implements Mes
                 }
                 queryString.append("locale = ?");
                 values.add(locale);
-                types.add(Hibernate.STRING);
+                types.add(StandardBasicTypes.STRING);
 
             }
 

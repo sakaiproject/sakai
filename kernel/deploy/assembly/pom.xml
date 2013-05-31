@@ -25,6 +25,11 @@
   <dependencies>
     
     <dependency>
+      <groupId>org.slf4j</groupId>
+      <artifactId>slf4j-log4j12</artifactId>
+      <scope>compile</scope>
+    </dependency>
+    <dependency>
       <groupId>org.sakaiproject.kernel</groupId>
       <artifactId>sakai-kernel-component</artifactId>
       <version>${project.version}</version>
@@ -78,17 +83,17 @@
 
     <dependency>
       <groupId>org.springframework</groupId>
-      <artifactId>spring</artifactId>
+      <artifactId>spring-core</artifactId>
       <scope>compile</scope>
     </dependency>
     <dependency>
-      <groupId>hsqldb</groupId>
+      <groupId>org.hsqldb</groupId>
       <artifactId>hsqldb</artifactId>
       <scope>compile</scope>
     </dependency>
     <dependency>
-      <groupId>cglib</groupId>
-      <artifactId>cglib-nodep</artifactId>
+      <groupId>org.javassist</groupId>
+      <artifactId>javassist</artifactId>
       <scope>compile</scope>
     </dependency>
     <dependency>
@@ -123,7 +128,7 @@
     </dependency>
     <dependency>
       <groupId>org.hibernate</groupId>
-      <artifactId>hibernate</artifactId>
+      <artifactId>hibernate-core</artifactId>
       <scope>compile</scope>
       <exclusions>
 	<exclusion>
@@ -132,6 +137,12 @@
 	</exclusion>
       </exclusions>
     </dependency>
+    <dependency>
+      <groupId>org.hibernate</groupId>
+      <artifactId>hibernate-ehcache</artifactId>
+      <scope>compile</scope>
+    </dependency>
+
     <dependency>
       <groupId>javax.sql</groupId>
       <artifactId>jdbc-stdext</artifactId>

@@ -155,13 +155,13 @@ public abstract class PrecachingDbUserService extends DbUserService
             log.debug("USER PRECACHE BEGINNING");
             log.debug("doCacheRefresh(): using siteUserIdsQuery==" + siteUserIdsQuery);
         }
-        @SuppressWarnings("unchecked")
-        List<Map<String, String>> results = directDbAccess.getJdbcTemplate().queryForList(siteUserIdsQuery);
+        //@SuppressWarnings("unchecked")
+        List<Map<String, Object>> results = directDbAccess.getJdbcTemplate().queryForList(siteUserIdsQuery);
         List<String> userIds = new ArrayList<String>();
-        for (Map<String, String> row : results) {
-            String userId = row.get("USER_ID");
+        for (Map<String, Object> row : results) {
+            Object userId = row.get("USER_ID");
             if (userId != null) {
-                userIds.add(userId);
+                userIds.add(userId.toString());
             }
         }
 

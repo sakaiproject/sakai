@@ -1,3 +1,21 @@
+/**********************************************************************************
+ *
+ * Copyright (c) 2006, 2008, 2013 Sakai Foundation
+ *
+ * Licensed under the Educational Community License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *       http://www.opensource.org/licenses/ECL-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ *
+ **********************************************************************************/
+
 package org.sakaiproject.messagebundle.impl.test;
 
 import java.util.Iterator;
@@ -6,17 +24,14 @@ import java.util.Locale;
 import java.util.Map;
 import java.util.ResourceBundle;
 
-import junit.extensions.TestSetup;
 import junit.framework.Assert;
-import junit.framework.Test;
-import junit.framework.TestSuite;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
-import org.sakaiproject.component.api.ServerConfigurationService;
+import org.hibernate.SessionFactory;
 import org.sakaiproject.messagebundle.api.MessageBundleProperty;
-import org.sakaiproject.messagebundle.api.MessageBundleService;
-import org.sakaiproject.test.SakaiKernelTestBase;
+import org.sakaiproject.messagebundle.impl.MessageBundleServiceImpl;
+import org.springframework.test.AbstractTransactionalSpringContextTests;
 
 /**
  * Created by IntelliJ IDEA.
@@ -25,13 +40,11 @@ import org.sakaiproject.test.SakaiKernelTestBase;
  * Time: 12:45:12 PM
  * To change this template use File | Settings | File Templates.
  */
-public class MessageBundleTest extends SakaiKernelTestBase {
+public class MessageBundleTest extends AbstractTransactionalSpringContextTests {
 	private static Log log = LogFactory.getLog(MessageBundleTest.class);
 
-	private static ServerConfigurationService serverConfigurationService;
-    private static MessageBundleService messageBundleService;
-
-    private static String CONFIG = "../kernel-component/src/main/webapp/WEB-INF/components.xml";
+	
+    private static MessageBundleServiceImpl messageBundleService;
 
     static ResourceBundle resourceBundleEN;
     static ResourceBundle resourceBundleFr;
@@ -42,26 +55,12 @@ public class MessageBundleTest extends SakaiKernelTestBase {
     static String baseName;
     static String moduleName;
 
-
-	public static Test suite() {
-		TestSetup setup = new TestSetup(new TestSuite(MessageBundleTest.class)) {
-			protected void setUp() throws Exception {
-				try {
-					oneTimeSetup("messagebundle", CONFIG);
-                    oneTimeSetupAfter();
-				} catch (Exception e) {
-					log.warn(e);
-				}
-			}
-			protected void tearDown() throws Exception {
-				oneTimeTearDown();
-			}
-		};
-		return setup;
+    
+    protected String[] getConfigLocations() {
+		return new String[] {"/spring-hibernate.xml"};
 	}
 
-
-	static protected  void oneTimeSetupAfter() throws Exception {
+	protected  void onSetUpInTransaction()  {
 
          localeEn = new Locale("en");
          localeFr = new Locale("fr");
@@ -69,8 +68,10 @@ public class MessageBundleTest extends SakaiKernelTestBase {
          baseName = "basename";
          moduleName = "modulename";
 
-		serverConfigurationService = (ServerConfigurationService)getService(ServerConfigurationService.class.getName());
-        messageBundleService = (MessageBundleService)getService(MessageBundleService.class.getName());
+		
+        messageBundleService =  new MessageBundleServiceImpl(); 
+        messageBundleService.setSessionFactory((SessionFactory)applicationContext.getBean("sessionFactory"));
+        
         Assert.assertNotNull(messageBundleService);
         resourceBundleEN = ResourceBundle.getBundle("org/sakaiproject/messagebundle/impl/test/bundle", localeEn);
         resourceBundleFr = ResourceBundle.getBundle("org/sakaiproject/messagebundle/impl/test/bundle", localeFr);

@@ -42,7 +42,11 @@
     <inceptionYear>2003</inceptionYear>
     <properties>
          <sakai.jdk.version>1.6</sakai.jdk.version>
-	 <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
+         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
+         <kernel.spring.version>3.2.3.RELEASE</kernel.spring.version>
+         <kernel.hibernate.version>3.6.10.Final</kernel.hibernate.version>
+         <kernel.hibernate.annotations.version>3.2.0.Final</kernel.hibernate.annotations.version>
+         <kernel.hibernate.jpa.version>1.0.1.Final</kernel.hibernate.jpa.version>
     </properties>
     <mailingLists>
         <mailingList>
@@ -416,6 +420,15 @@
                 <enabled>false</enabled>
             </snapshots>
         </repository>
+        <repository>
+            <id>jboss</id>
+            <name>JBoss Maven Repository</name>
+            <layout>default</layout>
+            <url>http://repository.jboss.org/maven2</url>
+            <snapshots>
+                <enabled>false</enabled>
+            </snapshots>
+        </repository>
         <!--
             <repository> <id>apache-repo</id> <name>apache-repo</name>
             <layout>default</layout> <url>
@@ -509,49 +522,73 @@
             <!-- 3rd party APIs/Implementations -->
             <dependency>
                 <groupId>org.springframework</groupId>
-                <artifactId>spring</artifactId>
-                <version>2.5.6.SEC03</version>
+                <artifactId>spring-core</artifactId>
+                <version>${kernel.spring.version}</version>
                 <scope>provided</scope>
             </dependency>
             <dependency>
                 <groupId>org.springframework</groupId>
                 <artifactId>spring-test</artifactId>
-                <version>2.5.6.SEC03</version>
+                <version>${kernel.spring.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>org.springframework</groupId>
+                <artifactId>spring-aop</artifactId>
+                <version>${kernel.spring.version}</version>
+                <scope>provided</scope>
             </dependency>
             <dependency>
                 <groupId>org.springframework</groupId>
                 <artifactId>spring-beans</artifactId>
-                <version>2.5.6.SEC03</version>
+                <version>${kernel.spring.version}</version>
                 <scope>provided</scope>
             </dependency>
             <dependency>
                 <groupId>org.springframework</groupId>
                 <artifactId>spring-context</artifactId>
-                <version>2.5.6.SEC03</version>
+                <version>${kernel.spring.version}</version>
                 <scope>provided</scope>
             </dependency>
             <dependency>
                 <groupId>org.springframework</groupId>
                 <artifactId>spring-context-support</artifactId>
-                <version>2.5.6.SEC03</version>
+                <version>${kernel.spring.version}</version>
                 <scope>provided</scope>
             </dependency>
             <dependency>
                 <groupId>org.springframework</groupId>
-                <artifactId>spring-core</artifactId>
-                <version>2.5.6.SEC03</version>
+                <artifactId>spring-expression</artifactId>
+                <version>${kernel.spring.version}</version>
+                <scope>provided</scope>
+            </dependency>
+            <dependency>
+                <groupId>org.springframework</groupId>
+                <artifactId>spring-jdbc</artifactId>
+                <version>${kernel.spring.version}</version>
+                <scope>provided</scope>
+            </dependency>
+            <dependency>
+                <groupId>org.springframework</groupId>
+                <artifactId>spring-orm</artifactId>
+                <version>${kernel.spring.version}</version>
+                <scope>provided</scope>
+            </dependency>
+            <dependency>
+                <groupId>org.springframework</groupId>
+                <artifactId>spring-tx</artifactId>
+                <version>${kernel.spring.version}</version>
                 <scope>provided</scope>
             </dependency>
             <dependency>
                 <groupId>org.springframework</groupId>
                 <artifactId>spring-web</artifactId>
-                <version>2.5.6.SEC03</version>
+                <version>${kernel.spring.version}</version>
                 <scope>provided</scope>
             </dependency>
             <dependency>
                 <groupId>org.springframework</groupId>
                 <artifactId>spring-webmvc</artifactId>
-                <version>2.5.6.SEC03</version>
+                <version>${kernel.spring.version}</version>
             </dependency>
             <dependency>
                 <groupId>javax.activation</groupId>
@@ -643,34 +680,50 @@
                 <scope>provided</scope>
             </dependency>
             <!--  needed by Ehcache (and jackrabbit) -->
-	    <dependency>
-	      <groupId>org.slf4j</groupId>
-	      <artifactId>slf4j-log4j12</artifactId>
-	      <version>1.4.2</version>
-	      <scope>provided</scope>
-	    </dependency>
-	    <dependency>
-	      <groupId>org.slf4j</groupId>
-	      <artifactId>slf4j-api</artifactId>
-	      <version>1.4.2</version>
-	      <scope>provided</scope>
-	    </dependency>
             <dependency>
-                <groupId>org.hibernate</groupId>
-                <artifactId>hibernate</artifactId>
-                <version>3.2.7.ga</version>
+                <groupId>org.slf4j</groupId>
+                <artifactId>slf4j-log4j12</artifactId>
+                <version>1.5.8</version>
                 <scope>provided</scope>
-                <exclusions>
-                    <exclusion>
-                        <!-- Due to artifact now being ehcache-core eclipse:eclipse was including
-                             both copies of the JAR in the project. -->
-                        <groupId>net.sf.ehcache</groupId>
-                        <artifactId>ehcache</artifactId>
-                    </exclusion>
-                </exclusions>
             </dependency>
             <dependency>
-                <groupId>hsqldb</groupId>
+                <groupId>org.slf4j</groupId>
+                <artifactId>slf4j-api</artifactId>
+                <version>1.5.8</version>
+                <scope>provided</scope>
+            </dependency>
+            <dependency>
+                <groupId>org.hibernate</groupId>
+                <artifactId>hibernate-core</artifactId>
+                <version>${kernel.hibernate.version}</version>
+                <scope>provided</scope>
+            </dependency>
+            <dependency>
+                <groupId>org.hibernate</groupId>
+                <artifactId>hibernate-commons-annotations</artifactId>
+                <version>${kernel.hibernate.annotations.version}</version>
+                <scope>provided</scope>
+            </dependency>
+            <dependency>
+                <groupId>org.hibernate.javax.persistence</groupId>
+                <artifactId>hibernate-jpa-2.0-api</artifactId>
+                <version>${kernel.hibernate.jpa.version}</version>
+                <scope>provided</scope>
+            </dependency>
+            <dependency>
+                <groupId>org.hibernate</groupId>
+                <artifactId>hibernate-ehcache</artifactId>
+                <version>${kernel.hibernate.version}</version>
+                <scope>provided</scope>
+            </dependency>
+            <dependency>
+                <groupId>org.javassist</groupId>
+                <artifactId>javassist</artifactId>
+                <version>3.16.1-GA</version>
+                <scope>provided</scope>
+            </dependency>
+            <dependency>
+                <groupId>org.hsqldb</groupId>
                 <artifactId>hsqldb</artifactId>
                 <version>1.8.0.10</version>
                 <scope>provided</scope>
