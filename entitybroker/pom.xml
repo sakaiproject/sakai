@@ -33,7 +33,10 @@
         or comments to Aaron Zeckoski (azeckoski@gmail.com, aaronz@vt.edu).</description>
         
     <properties>
-        <hsqldb.version>1.8.0.5</hsqldb.version>
+        <!-- Now picked up from master dependencyManagement. This version is   -->
+        <!-- probably stale, but accurate as of 2.10 Spring/Hibernate upgrade. -->
+        <!-- <sakai.spring.test.version>3.2.3.RELEASE</sakai.spring.test.version> -->
+        <!-- <hsqldb.version>2.2.8</hsqldb.version> -->
         <easymock.version>2.0</easymock.version>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
     </properties>
