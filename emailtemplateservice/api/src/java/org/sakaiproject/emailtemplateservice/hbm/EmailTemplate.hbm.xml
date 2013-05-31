@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!DOCTYPE hibernate-mapping PUBLIC "-//Hibernate/Hibernate Mapping DTD 3.0//EN"
-          "http://hibernate.sourceforge.net/hibernate-mapping-3.0.dtd">
+          "http://www.hibernate.org/dtd/hibernate-mapping-3.0.dtd">
 
 <!-- Evaluation project lead: Aaron Zeckoski (aaronz@vt.edu) -->
 <hibernate-mapping default-cascade="none">
@@ -19,18 +19,18 @@
             <column name="OWNER" not-null="true" length="255" />
         </property>
         <!-- the subject -->
-        <property name="subject" type="text">
+        <property name="subject" type="materialized_clob">
 	        <column name="SUBJECT" not-null="true" length="100000000"/>
         </property>
         <property name="from" type="java.lang.String">
 	        <column name="emailfrom" not-null="false" length="255"/>
         </property>
         <!-- the email template message -->
-        <property name="message" type="text">
+        <property name="message" type="materialized_clob">
              <column name="MESSAGE" not-null="true" length="100000000"/>
         </property>
         <!-- the email template message in html-->
-        <property name="htmlMessage" type="text">
+        <property name="htmlMessage" type="materialized_clob">
             <column name="HTMLMESSAGE" not-null="false" length="100000000"/>
         </property>
         <property name="key" type="java.lang.String" index="email_templ_key">
