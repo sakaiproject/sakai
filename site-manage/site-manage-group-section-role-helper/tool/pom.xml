@@ -19,10 +19,6 @@
     <inceptionYear>2003</inceptionYear>
     <packaging>war</packaging>
 
-    <properties>
-       <rsfutil.version>0.7.5</rsfutil.version>
-    </properties>
-
     <dependencies>
         <dependency>
             <groupId>org.sakaiproject.kernel</groupId>
