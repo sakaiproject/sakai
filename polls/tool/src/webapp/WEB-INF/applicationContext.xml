@@ -38,7 +38,8 @@
 		Spring messageSource replaces JSF message-bundle from faces-config.xml
 	-->
 	<bean id="messageSource"
-		class="org.sakaiproject.util.ResourceLoaderMessageSource">
+		class="org.sakaiproject.util.ResourceLoaderMessageSource"
+		depends-on="TLABPostProcessorLoader">
 		<property name="basename"
 			value="classpath:org/sakaiproject/poll/bundle/Messages" />
 		<property name="cacheSeconds" value="10" />

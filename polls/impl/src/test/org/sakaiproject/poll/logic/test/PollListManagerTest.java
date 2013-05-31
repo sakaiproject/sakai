@@ -83,12 +83,12 @@ public class PollListManagerTest extends AbstractTransactionalSpringContextTests
     	externalLogicStubb.currentUserId = TestDataPreload.USER_UPDATE;
     	
     	//we shouldNot find this poll
-    	Poll pollFail = pollListManager.getPollById(Long.valueOf(99));
+    	Poll pollFail = pollListManager.getPollById(Long.valueOf(9999999));
     	assertNull(pollFail);
     	
-    	//this one should exist
+    	//this one should exist -- the preload saves one poll and remembers its ID
     	externalLogicStubb.currentUserId = TestDataPreload.USER_UPDATE;
-    	Poll poll1 = pollListManager.getPollById(Long.valueOf(1));
+    	Poll poll1 = pollListManager.getPollById(tdp.getFirstPollId());
     	assertNotNull(poll1);
     	
     	//it should have options
@@ -98,7 +98,7 @@ public class PollListManagerTest extends AbstractTransactionalSpringContextTests
     	//we expect this one to fails
 		externalLogicStubb.currentUserId = TestDataPreload.USER_NO_ACCEESS;
 		try {
-			Poll poll2 = pollListManager.getPollById(Long.valueOf(1));
+			Poll poll2 = pollListManager.getPollById(tdp.getFirstPollId());
 			fail("should not be allowed to read this poll");
 		} 
 		catch (SecurityException e) {
@@ -196,7 +196,8 @@ public class PollListManagerTest extends AbstractTransactionalSpringContextTests
 			e.printStackTrace();
 		} 
 		catch (IllegalArgumentException e) {
-			e.printStackTrace();
+			// Successful tests should be quiet. IllegalArgumentException is actually expected on a null ID.
+			//e.printStackTrace();
 		}
 		
 		pollListManager.savePoll(poll1);
@@ -231,8 +232,8 @@ public class PollListManagerTest extends AbstractTransactionalSpringContextTests
 			pollListManager.deletePoll(poll1);
 			fail();
 		} catch (SecurityException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
+			// Successful tests should be quiet. SecurityException is expected here.
+			//e.printStackTrace();
 		}
 		
 		

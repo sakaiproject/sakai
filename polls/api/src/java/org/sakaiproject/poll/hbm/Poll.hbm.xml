@@ -1,7 +1,7 @@
 <?xml version="1.0"?>
 <!DOCTYPE hibernate-mapping PUBLIC
       "-//Hibernate/Hibernate Mapping DTD 3.0//EN"
-          "http://hibernate.sourceforge.net/hibernate-mapping-3.0.dtd">
+          "http://www.hibernate.org/dtd/hibernate-mapping-3.0.dtd">
 
 <hibernate-mapping>
 	<!-- put your value object in the class name, the table name is optional
@@ -28,13 +28,13 @@
 		<property name="siteId" type="string" length="255" not-null="true">
             <column name="POLL_SITE_ID"/>
         </property>
-   		<property name="details" type="text" not-null="false">
+   		<property name="details" type="materialized_clob" not-null="false">
             <column name="POLL_DETAILS"/>
         </property>
 		<property name="creationDate" type="timestamp" not-null="true">
             <column name="POLL_CREATION_DATE"/>
         </property>	
-		<property name="text" type="text" not-null="true">
+		<property name="text" type="materialized_clob" not-null="true">
             <column name="POLL_TEXT"/>
         </property>
    		<property name="voteOpen" type="timestamp" not-null="true">

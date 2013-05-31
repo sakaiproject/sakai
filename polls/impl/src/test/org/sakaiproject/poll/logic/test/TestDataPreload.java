@@ -83,8 +83,12 @@ public class TestDataPreload {
 	
 	//used for poll read
 	public final static String PERM_SITE_VISIT = "site.visit";
-	
-	
+
+	private Long firstPollId = null;
+
+	public Long getFirstPollId() {
+		return firstPollId;
+	}
 	
 	/**
 	 * Preload a bunch of test data into the database
@@ -102,6 +106,8 @@ public class TestDataPreload {
 		poll1.setText("something");
 		poll1.setOwner(USER_UPDATE);
 		dao.save(poll1);
+
+		firstPollId = poll1.getPollId();
 		
 		//add some options
 		Option option1 = new Option();

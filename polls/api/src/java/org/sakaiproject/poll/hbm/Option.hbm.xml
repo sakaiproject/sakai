@@ -1,7 +1,7 @@
 <?xml version="1.0"?>
 <!DOCTYPE hibernate-mapping PUBLIC
       "-//Hibernate/Hibernate Mapping DTD 3.0//EN"
-          "http://hibernate.sourceforge.net/hibernate-mapping-3.0.dtd">
+          "http://www.hibernate.org/dtd/hibernate-mapping-3.0.dtd">
 
 <hibernate-mapping>
 	<!-- put your value object in the class name, the table name is optional
@@ -26,7 +26,7 @@
 		<property name="pollId" type="long" not-null="true">
             <column name="OPTION_POLL_ID"/>
         </property>
-		<property name="optionText" type="text" length="255" not-null="true">
+		<property name="optionText" type="materialized_clob" length="255" not-null="true">
             <column name="OPTION_TEXT"/>
         </property>
         <property name="UUId" type="string" length="255" not-null="true">
