@@ -28,11 +28,23 @@
     </dependency>
     <dependency>
       <groupId>org.hibernate</groupId>
-      <artifactId>hibernate</artifactId>
+      <artifactId>hibernate-core</artifactId>
+    </dependency>
+    <dependency>
+      <groupId>org.hibernate</groupId>
+      <artifactId>hibernate-ehcache</artifactId>
+    </dependency>
+    <dependency>
+      <groupId>org.javassist</groupId>
+      <artifactId>javassist</artifactId>
     </dependency>
     <dependency>
       <groupId>org.springframework</groupId>
-      <artifactId>spring</artifactId>
+      <artifactId>spring-core</artifactId>
+    </dependency>
+    <dependency>
+      <groupId>org.springframework</groupId>
+      <artifactId>spring-orm</artifactId>
     </dependency>
     <dependency>
       <groupId>org.sakaiproject.kernel</groupId>
@@ -55,6 +67,21 @@
       <groupId>antlr</groupId>
       <artifactId>antlr</artifactId>
       <version>2.7.6rc1</version>
+    </dependency>
+    <dependency>
+      <groupId>org.springframework</groupId>
+      <artifactId>spring-context</artifactId>
+      <scope>test</scope>
+    </dependency>
+    <dependency>
+      <groupId>org.springframework</groupId>
+      <artifactId>spring-tx</artifactId>
+      <scope>test</scope>
+    </dependency>
+    <dependency>
+      <groupId>org.springframework</groupId>
+      <artifactId>spring-jdbc</artifactId>
+      <scope>test</scope>
     </dependency>
     <dependency>
       <groupId>org.sakaiproject.edu-services.gradebook</groupId>
@@ -113,9 +140,8 @@
 <!-- Please contact the gradebook development team before removing these -->
 <!-- Uncomment as necessary to run tests, or to generate new db schemas -->
     <dependency>
-      <groupId>hsqldb</groupId>
+      <groupId>org.hsqldb</groupId>
       <artifactId>hsqldb</artifactId>
-      <version>1.7.3.0</version>
     </dependency>
 <!-- Since none of these JDBC libraries will be used except in standalone test -->
 <!-- builds, we specify the '_g' Oracle JAR to obtain more debugging information. -->
@@ -208,7 +234,7 @@
     <dependency>
       <groupId>log4j</groupId>
       <artifactId>log4j</artifactId>
-      <version>1.2.9</version>
+      <version>1.2.17</version>
     </dependency>
     <dependency>
       <groupId>dom4j</groupId>

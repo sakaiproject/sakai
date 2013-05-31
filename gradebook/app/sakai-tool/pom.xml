@@ -70,9 +70,8 @@
 <!-- Please contact the gradebook development team before removing these -->
 <!-- Uncomment as necessary to run tests, or to generate new db schemas -->
     <dependency>
-      <groupId>hsqldb</groupId>
+      <groupId>org.hsqldb</groupId>
       <artifactId>hsqldb</artifactId>
-      <version>1.7.3.0</version>
     </dependency>
 <!-- Since none of these JDBC libraries will be used except in standalone test -->
 <!-- builds, we specify the '_g' Oracle JAR to obtain more debugging information. -->

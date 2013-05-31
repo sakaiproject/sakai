@@ -14,7 +14,8 @@
     </bean>
     
     <!-- handles configuration of internationalization messages -->
-		<bean id="messageSource" parent="messageSourceParent">
+    <bean id="messageSource" parent="messageSourceParent"
+        depends-on="TLABPostProcessorLoader">
       <property name="basename" value="WEB-INF/bundle/messages" />
     </bean>
    
