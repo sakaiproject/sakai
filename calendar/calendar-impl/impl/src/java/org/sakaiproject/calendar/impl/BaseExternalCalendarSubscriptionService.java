@@ -279,6 +279,11 @@ public class BaseExternalCalendarSubscriptionService implements
 		}
 	}
 
+	public void destroy()
+	{
+		// Nothing to clean up for now.
+	}
+
 	public boolean isEnabled()
 	{
 		return enabled;
