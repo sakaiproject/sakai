@@ -1,9 +1,8 @@
 alter table lesson_builder_items add showPeerEval bit;
 alter table lesson_builder_items add groupOwned bit;
-alter table lesson_builder_items add ownerGroups text;
-alter table lesson_builder_items add attributeString text;
-alter table lesson_builder_pages add groupid varchar(36);
-    create table lesson_builder_peer_eval_results (
+alter table lesson_builder_items add ownerGroups longtext;
+alter table lesson_builder_items add attributeString longtext;
+    create table lesson_builder_p_eval_results (
         PEER_EVAL_RESULT_ID bigint not null auto_increment,
         PAGE_ID bigint not null,
         TIME_POSTED datetime,
@@ -15,15 +14,16 @@ alter table lesson_builder_pages add groupid varchar(36);
         primary key (PEER_EVAL_RESULT_ID)
     );
 
+alter table lesson_builder_pages add groupid varchar(36);
     create table lesson_builder_q_responses (
         id bigint not null auto_increment,
         timeAnswered datetime not null,
         questionId bigint not null,
         userId varchar(255) not null,
         correct bit not null,
-        shortanswer text,
+        shortanswer longtext,
         multipleChoiceId bigint,
-        originalText text,
+        originalText longtext,
         overridden bit not null,
         points double precision,
         primary key (id)

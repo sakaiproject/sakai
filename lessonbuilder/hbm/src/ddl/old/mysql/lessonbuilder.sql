@@ -5,7 +5,7 @@
         pageId bigint not null,
         timePosted datetime not null,
         author varchar(36) not null,
-        commenttext longtext,
+        commenttext text,
         UUID varchar(36) not null,
         html bit not null,
         points double precision,
@@ -16,7 +16,7 @@
         id bigint not null auto_increment,
         itemId varchar(255) not null,
         groupId varchar(255) not null,
-        groups longtext,
+        groups text,
         primary key (id)
     );
 
@@ -27,11 +27,11 @@
         type integer not null,
         sakaiId varchar(250),
         name varchar(100),
-        html longtext,
-        description longtext,
+        html text,
+        description text,
         height varchar(8),
         width varchar(8),
-        alt longtext,
+        alt text,
         nextPage bit,
         format varchar(255),
         required bit,
@@ -40,20 +40,16 @@
         subrequirement bit,
         requirementText varchar(20),
         sameWindow bit,
-        groups longtext,
+        groups text,
         anonymous bit,
         showComments bit,
         forcedCommentsAnonymous bit,
-        showPeerEval bit,
         gradebookId varchar(35),
         gradebookPoints integer,
         gradebookTitle varchar(200),
         altGradebook varchar(35),
         altPoints integer,
         altGradebookTitle varchar(200),
-        groupOwned bit,
-        ownerGroups longtext,
-        attributeString longtext,
         primary key (id)
     );
 
@@ -71,18 +67,6 @@
         primary key (id)
     );
 
-    create table lesson_builder_p_eval_results (
-        PEER_EVAL_RESULT_ID bigint not null auto_increment,
-        PAGE_ID bigint not null,
-        TIME_POSTED datetime,
-        GRADER varchar(255) not null,
-        GRADEE varchar(255) not null,
-        ROW_TEXT varchar(255) not null,
-        COLUMN_VALUE integer not null,
-        SELECTED bit,
-        primary key (PEER_EVAL_RESULT_ID)
-    );
-
     create table lesson_builder_pages (
         pageId bigint not null auto_increment,
         toolId varchar(250) not null,
@@ -95,31 +79,8 @@
         gradebookPoints double precision,
         owner varchar(36),
         groupOwned bit,
-        groupid varchar(36),
         cssSheet varchar(250),
         primary key (pageId)
-    );
-
-    create table lesson_builder_q_responses (
-        id bigint not null auto_increment,
-        timeAnswered datetime not null,
-        questionId bigint not null,
-        userId varchar(255) not null,
-        correct bit not null,
-        shortanswer longtext,
-        multipleChoiceId bigint,
-        originalText longtext,
-        overridden bit not null,
-        points double precision,
-        primary key (id)
-    );
-
-    create table lesson_builder_qr_totals (
-        id bigint not null auto_increment,
-        questionId bigint,
-        responseId bigint,
-        respcount bigint,
-        primary key (id)
     );
 
     create table lesson_builder_student_pages (
@@ -130,7 +91,6 @@
         title varchar(100) not null,
         owner varchar(36) not null,
         groupOwned bit not null,
-        groupid varchar(36),
         commentsSection bigint,
         lastCommentChange datetime,
         deleted bit,

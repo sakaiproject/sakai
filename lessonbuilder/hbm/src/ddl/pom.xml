@@ -49,112 +49,13 @@
                 <!-- hibernate ddl generation -->
                 <groupId>org.codehaus.mojo</groupId>
                 <artifactId>hibernate3-maven-plugin</artifactId>
-                <version>2.1</version>
+               <version>3.0</version>
                 <configuration>
-                    <components>
-                        <component>
-                            <name>hbm2ddl</name>
-                            <outputDirectory>.</outputDirectory>
-                        </component>
-                    </components>
-                    <componentProperties>
-                        <configurationfile>hibernate.cfg.xml</configurationfile>
-                        <propertyfile>hibernate-hsqldb.properties</propertyfile>
-                        <outputfilename>hsqldb/${project.ddl.name}.sql</outputfilename>
-                        <drop>false</drop>
-                        <create>true</create>
-                        <export>false</export>
-                        <jdk5>true</jdk5>
-                        <format>true</format>
-                    </componentProperties>
+		  <hibernatetool destdir="${build.dir}/generated">
+		    <configuration configurationfile="hibernate.cfg.xml"/>
+		    <hbm2ddl export="false" outputfilename="sql.ddl"/>
+		  </hibernatetool>
                 </configuration>
-                <executions>
-                    <execution>
-                        <id>export-hsqldb</id>
-                        <phase>process-classes</phase>
-                        <goals>
-                            <goal>hbm2ddl</goal>
-                        </goals>
-                    </execution>
-                    <execution>
-                        <id>export-mysql</id>
-                        <phase>process-classes</phase>
-                        <goals>
-                            <goal>hbm2ddl</goal>
-                        </goals>
-                        <configuration>
-                            <componentProperties>
-                                <propertyfile>hibernate-mysql.properties</propertyfile>
-                                <outputfilename>mysql/${project.ddl.name}.sql</outputfilename>
-                            </componentProperties>
-                        </configuration>
-                    </execution>
-                    <execution>
-                        <id>export-oracle</id>
-                        <phase>process-classes</phase>
-                        <goals>
-                            <goal>hbm2ddl</goal>
-                        </goals>
-                        <configuration>
-                            <componentProperties>
-                                <propertyfile>hibernate-oracle.properties</propertyfile>
-                                <outputfilename>oracle/${project.ddl.name}.sql</outputfilename>
-                            </componentProperties>
-                        </configuration>
-                    </execution>
-                    <execution>
-                        <id>export-db2</id>
-                        <phase>process-classes</phase>
-                        <goals>
-                            <goal>hbm2ddl</goal>
-                        </goals>
-                        <configuration>
-                            <componentProperties>
-                                <propertyfile>hibernate-db2.properties</propertyfile>
-                                <outputfilename>db2/${project.ddl.name}.sql</outputfilename>
-                            </componentProperties>
-                        </configuration>
-                    </execution>
-                    <execution>
-                        <id>export-mssql</id>
-                        <phase>process-classes</phase>
-                        <goals>
-                            <goal>hbm2ddl</goal>
-                        </goals>
-                        <configuration>
-                            <componentProperties>
-                                <propertyfile>hibernate-mssql.properties</propertyfile>
-                                <outputfilename>mssql/${project.ddl.name}.sql</outputfilename>
-                            </componentProperties>
-                        </configuration>
-                    </execution>
-                    <execution>
-                        <id>export-derby</id>
-                        <phase>process-classes</phase>
-                        <goals>
-                            <goal>hbm2ddl</goal>
-                        </goals>
-                        <configuration>
-                            <componentProperties>
-                                <propertyfile>hibernate-derby.properties</propertyfile>
-                                <outputfilename>derby/${project.ddl.name}.sql</outputfilename>
-                            </componentProperties>
-                        </configuration>
-                    </execution>
-                    <execution>
-                        <id>export-postgres</id>
-                        <phase>process-classes</phase>
-                        <goals>
-                            <goal>hbm2ddl</goal>
-                        </goals>
-                        <configuration>
-                            <componentProperties>
-                                <propertyfile>hibernate-postgres.properties</propertyfile>
-                                <outputfilename>postgres/${project.ddl.name}.sql</outputfilename>
-                            </componentProperties>
-                        </configuration>
-                    </execution>
-                </executions>
             </plugin>
         </plugins>
     </build>
