@@ -47,11 +47,19 @@
       <!-- spring and hibernate -->
 		<dependency>
 			<groupId>org.springframework</groupId>
-			<artifactId>spring</artifactId>
+			<artifactId>spring-core</artifactId>
+		</dependency>
+		<dependency>
+			<groupId>org.springframework</groupId>
+			<artifactId>spring-orm</artifactId>
+		</dependency>
+		<dependency>
+			<groupId>org.springframework</groupId>
+			<artifactId>spring-tx</artifactId>
 		</dependency>
 		<dependency>
 			<groupId>org.hibernate</groupId>
-			<artifactId>hibernate</artifactId>
+			<artifactId>hibernate-core</artifactId>
 		</dependency>
 
       <!-- Various Sakai dependencies -->
@@ -91,16 +99,20 @@
 
 
       <!-- testing dependencies -->
+      <!-- The spring-mock stuff seems to have been rolled into spring-test -->
+		<!--<dependency>-->
+			<!--<groupId>org.springframework</groupId>-->
+			<!--<artifactId>spring-mock</artifactId>-->
+			<!--<version>2.0.6</version>-->
+			<!--<scope>provided</scope>-->
+		<!--</dependency>-->
 		<dependency>
 			<groupId>org.springframework</groupId>
-			<artifactId>spring-mock</artifactId>
-			<version>2.0.6</version>
-			<scope>provided</scope>
+			<artifactId>spring-test</artifactId>
 		</dependency>
 		<dependency>
-			<groupId>hsqldb</groupId>
+			<groupId>org.hsqldb</groupId>
 			<artifactId>hsqldb</artifactId>
-			<version>1.8.0.5</version>
 			<scope>provided</scope>
 		</dependency>
 		<dependency>

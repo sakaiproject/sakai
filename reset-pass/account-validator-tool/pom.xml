@@ -19,7 +19,6 @@
    </parent>
 
    <properties>
-      <rsfutil.version>0.7.5</rsfutil.version>
    </properties>
 
    <dependencies>
