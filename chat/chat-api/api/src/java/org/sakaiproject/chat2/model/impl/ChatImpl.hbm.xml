@@ -1,7 +1,7 @@
 <?xml version="1.0"?>
 <!DOCTYPE hibernate-mapping
     PUBLIC "-//Hibernate/Hibernate Mapping DTD 3.0//EN"
-    "http://hibernate.sourceforge.net/hibernate-mapping-3.0.dtd">
+    "http://www.hibernate.org/dtd/hibernate-mapping-3.0.dtd">
 
 <hibernate-mapping package="org.sakaiproject.chat2.model"
 	default-lazy="true">
@@ -55,7 +55,7 @@
 
 		<property name="messageDate" column="MESSAGE_DATE"
 			type="java.util.Date" index="CHAT_MESSAGE_DATE_I" />
-		<property name="body" column="BODY" type="text" not-null="true" />
+		<property name="body" column="BODY" type="materialized_clob" not-null="true" />
 		<property name="migratedMessageId" type="string" length="99" />
 	</class>
 
