@@ -22,7 +22,7 @@
 	<property name="sakaiId" type="string" length="250" />
 	<property name="name" type="string" length="100" />
 	<property name="html" type="materialized_clob" length="200000" />
-	<property name="description" type="text" />
+	<property name="description" type="materialized_clob" />
 	<property name="height" type="string" length="8" />
 	<property name="width" type="string" length="8" />
 	<property name="alt" type="string" length = "500" />
@@ -34,7 +34,7 @@
 	<property name="subrequirement" type="boolean" />
 	<property name="requirementText" type="string" length="20" />
 	<property name="sameWindow" type="boolean" />
-	<property name="groups" type="text" />
+	<property name="groups" type="materialized_clob" />
 	<property name="anonymous" type="boolean" />
 	<property name="showComments" type="boolean" />
 	<property name="forcedCommentsAnonymous" type="boolean" />
@@ -46,7 +46,7 @@
 	<property name="altPoints" type="integer" />
 	<property name="altGradebookTitle" type="string" length="200" />
 	<property name="groupOwned" type="boolean" />
-	<property name="ownerGroups" type="text" />
+	<property name="ownerGroups" type="materialized_clob" />
 	
 	<property name="attributeString" type="materialized_clob" />
 
