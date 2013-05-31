@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!DOCTYPE hibernate-mapping PUBLIC "-//Hibernate/Hibernate Mapping DTD 3.0//EN"
-          "http://hibernate.sourceforge.net/hibernate-mapping-3.0.dtd">
+          "http://www.hibernate.org/dtd/hibernate-mapping-3.0.dtd">
 
 <hibernate-mapping package="org.sakaiproject.assignment.api.model" default-lazy="false">
 
@@ -23,7 +23,7 @@
             	<column name="ASSIGNMENT_ID"/>
       	  	</property>
         
-        	<property name="text" type="text" not-null="false" length="16777215">
+		<property name="text" type="materialized_clob" not-null="false" length="16777215">
             	<column name="TEXT"/>
         	</property>
         
@@ -44,7 +44,7 @@
             	<column name="TITLE"/>
         	</property>
         
-        	<property name="text" type="text" not-null="false" length="16777215">
+		<property name="text" type="materialized_clob" not-null="false" length="16777215">
             	<column name="TEXT"/>
         	</property>
         
@@ -81,7 +81,7 @@
             <column name="ASSIGNMENT_ID"/>
         </property>
         
-        <property name="note" type="text" not-null="false" length="16777215">
+        <property name="note" type="materialized_clob" not-null="false" length="16777215">
             <column name="NOTE"/>
         </property>
         
