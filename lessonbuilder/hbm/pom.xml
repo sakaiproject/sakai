@@ -36,34 +36,11 @@
     <build>
         <resources>
             <resource>
-                <directory>src/java</directory>
+                <directory>${hbms}</directory>
                 <includes>
                     <include>**/*.xml</include>
                 </includes>
             </resource>
         </resources>
-
-        <plugins>
-            <plugin>
-                <artifactId>maven-antrun-plugin</artifactId>
-                <executions>
-                    <execution>
-                        <phase>process-resources</phase>
-                        <configuration>
-                            <tasks>
-                                <copy todir="../tool/src/ddl/">
-                                    <fileset file="src/java/org/sakaiproject/lessonbuildertool/simplepageitem.hbm.xml" />
-                                    <fileset file="src/java/org/sakaiproject/lessonbuildertool/simplepage.hbm.xml" />
-                                    <fileset file="src/java/org/sakaiproject/lessonbuildertool/simplepagelogentry.hbm.xml" />
-                                </copy>
-                            </tasks>
-                        </configuration>
-                        <goals>
-                            <goal>run</goal>
-                        </goals>
-                    </execution>
-                </executions>
-            </plugin>
-        </plugins>
     </build>
 </project>

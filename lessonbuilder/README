@@ -72,16 +72,6 @@ true is equivalent to low, false to none.
 
 The default is false before Sakai 2.9.2, true starting with 2.9.2.
 
-TEMPORARAY (We hope) NOTE ON BUILDING:
-
-Jira LSNBLDR-236 made a change to the database setup. This change
-was needed because trunk (2.10) moved to a new version of Hibernate.
-Hibernate made an incompatible change that required us to change
-all columns that used to be "text" to "materialized_clob." Until
-this is fixed, for 2.8 and 2.9 you'll need to modify
-hbm/src/java/org/sakaiproject/lessonbuildertool/*.hbm.xml
-replaceing all occurences of "materialized_clob" to "text".
-
 BUILDING
 
 To build, the normal Sakai maven commands will work. However you'll
@@ -120,6 +110,9 @@ pom.xml in your "master" directory to see the version numbers for
 entitybroker, assignment, msgcntr, and samigo. Normally assignment,
 msgcntr and samigo will match the version of Sakai, although that
 may not always be true. entitybroker has separate version numbering.
+
+Also, make sure you set the correct value for <hbms>, newhbm for
+2.10 and later, oldhbm for 2.8 and 2.9.
 
 Other than that, the properties can be left as is. In particular,
 don't change the version of RSF. We depend upon a newer version than
