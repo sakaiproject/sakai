@@ -1,7 +1,7 @@
 <?xml version="1.0"?>
 <!DOCTYPE hibernate-mapping PUBLIC 
   "-//Hibernate/Hibernate Mapping DTD 3.0//EN"
-  "http://hibernate.sourceforge.net/hibernate-mapping-3.0.dtd">
+  "http://www.hibernate.org/dtd/hibernate-mapping-3.0.dtd">
 <!-- 
 /**********************************************************************************
  * $URL:  $
@@ -52,7 +52,7 @@
 			<generator class="uuid.hex" />
 		</id>
 		<property name="rwikiid" length="36" not-null="true" index="irwikicurrentcontent_rwi" />
-		<property name="content" not-null="false" type="text" length="16777215" access="field"/> <!-- SAK-20790, set access to field to prevent Hibernate from calling the getter -->
+		<property name="content" not-null="false" type="materialized_clob" length="16777215" access="field"/> <!-- SAK-20790, set access to field to prevent Hibernate from calling the getter -->
 	</class>
 	<!--
 	Version 2 schema 
@@ -65,7 +65,7 @@
 			<generator class="uuid.hex" />
 		</id>
 		<property name="rwikiid" length="36" not-null="true" index="irwikihistorycontent_rwi"/>
-		<property name="content" not-null="false" type="text" length="16777215" access="field"/> <!-- SAK-20790, set access to field to prevent Hibernate from calling the getter -->
+		<property name="content" not-null="false" type="materialized_clob" length="16777215" access="field"/> <!-- SAK-20790, set access to field to prevent Hibernate from calling the getter -->
 	</class>
 	
 	<!-- 
@@ -88,7 +88,7 @@
 		<property name="realm" not-null="false" type="string" index="irwikihistory_realm" length="255" />
 		<!-- this is the content of the wiki -->
 		<!-- MOVED to seperate conten ovject
-		<property name="content" not-null="false" type="text" />
+		<property name="content" not-null="false" type="materialized_clob" />
 		-->
 		<!-- enough for about 400 pages, dont want to use a clob here -->
 		<property name="referenced" not-null="false" length="4000" index="irwikihistory_ref" />
@@ -136,7 +136,7 @@
 	
 	<!-- this is the content of the wiki -->
 	<!-- MOVED TO SEPERATE CONTENT OBJECT
-	<property name="content" not-null="false" type="text" />
+	<property name="content" not-null="false" type="materialized_clob" />
 	-->
 
     <!-- enough for about 400 pages, dont want to use a clob here -->

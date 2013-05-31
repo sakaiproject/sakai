@@ -1,7 +1,7 @@
 <?xml version="1.0"?>
 <!DOCTYPE hibernate-mapping PUBLIC 
   "-//Hibernate/Hibernate Mapping DTD 3.0//EN"
-  "http://hibernate.sourceforge.net/hibernate-mapping-3.0.dtd">
+  "http://www.hibernate.org/dtd/hibernate-mapping-3.0.dtd">
   <!-- 
 /**********************************************************************************
  * $URL:  $
@@ -54,7 +54,7 @@
           <property name="lastseen" column="lastseen" type="timestamp" />
           <property name="prefcontext" column="prefcontext" type="string" length="255" />
           <property name="preftype" column="preftype" type="string"  length="64" />
-          <property name="preference" column="preference" type="text" />
+          <property name="preference" column="preference" type="materialized_clob" />
       </class>
       <!-- 
       Chat message sent, page, space, user and session.
@@ -72,7 +72,7 @@
           <property name="pagespace" column="pagespace" type="string" index="irwikipm_pagespace" length="255"/>
           <property name="pagename" column="pagename" type="string"  index="irwikipm_pagename" length="255" />
           <property name="lastseen" column="lastseen" type="timestamp" />
-          <property name="message" type="text" />
+          <property name="message" type="materialized_clob" />
       </class>
       
       <class name="uk.ac.cam.caret.sakai.rwiki.message.model.RwikiTriggerImpl"
@@ -85,7 +85,7 @@
           <property name="pagespace" column="pagespace" type="string" index="irwikipt_pagespace" length="255"/>
           <property name="pagename" column="pagename" type="string"  index="irwikipt_pavename" length="255" />
           <property name="lastseen" column="lastseen" type="timestamp" />
-          <property name="triggerspec" type="text" />
+          <property name="triggerspec" type="materialized_clob" />
       </class>
       
       
