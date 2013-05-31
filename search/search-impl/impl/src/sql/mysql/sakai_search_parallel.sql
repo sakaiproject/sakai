@@ -1,7 +1,8 @@
 
-alter table searchbuilderitem add index isearchbuilderitem_name (name);
-alter table searchbuilderitem add index isearchbuilderitem_ctx (context);
-alter table searchbuilderitem add index isearchbuilderitem_act_sta (searchstate,searchaction);
+-- Already handled by Hibernate as of 3.6.x
+-- alter table searchbuilderitem add index isearchbuilderitem_name (name);
+-- alter table searchbuilderitem add index isearchbuilderitem_ctx (context);
+-- alter table searchbuilderitem add index isearchbuilderitem_act_sta (searchstate,searchaction);
 
 
 
