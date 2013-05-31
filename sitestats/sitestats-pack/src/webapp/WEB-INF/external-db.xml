@@ -9,7 +9,7 @@
 		<property name="mappingResources" ref="org.sakaiproject.sitestats.HibernateMappings"/>
 		<property name="hibernateProperties" ref="org.sakaiproject.sitestats.externalDbHibernateProperties"/>
 		<property name="dataSource" ref="org.sakaiproject.sitestats.externalDbDataSource"/>
-		<property name="schemaUpdate" value="#{sitestats.externalDb.auto.ddl}"/>
+		<property name="schemaUpdate" value="@{sitestats.externalDb.auto.ddl}"/>		
 		
 		<property name="cacheProvider">
 			<bean class="org.sakaiproject.springframework.orm.hibernate.SakaiCacheProvider">
@@ -36,7 +36,7 @@
 		lazy-init="true" depends-on="sitestatsDbPropertyConfigurer">
 		<property name="properties">
 			<props>
-				<prop key="hibernate.dialect">#{sitestats.externalDb.hibernate.dialect}</prop>
+				<prop key="hibernate.dialect">@{sitestats.externalDb.hibernate.dialect}</prop>
 				<prop key="hibernate.query.factory_class">org.hibernate.hql.ast.ASTQueryTranslatorFactory</prop>
 				<prop key="hibernate.show_sql">${hibernate.show_sql}</prop>
 				<prop key="hibernate.query.substitutions">

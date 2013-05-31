@@ -76,12 +76,12 @@
         <property name="contentHostingService" ref="org.sakaiproject.content.api.ContentHostingService"/>
         <property name="contentTypeImageService" ref="org.sakaiproject.content.api.ContentTypeImageService"/>
 		<!-- Hibernate related -->
-		<property name="sessionFactory" ref="#{sitestats.db}SitestatsSessionFactory" />
+		<property name="sessionFactory" ref="@{sitestats.db}SitestatsSessionFactory" />
 	</bean>
 	<!-- Transaction proxy: StatsManager -->
 	<bean id="org.sakaiproject.sitestats.api.StatsManagerTransactionProxyFactoryBean"
 		class="org.springframework.transaction.interceptor.TransactionProxyFactoryBean">		
-		<property name="transactionManager" ref="#{sitestats.db}SitestatsTransactionManager" />
+		<property name="transactionManager" ref="@{sitestats.db}SitestatsTransactionManager" />
 		<property name="target" ref="org.sakaiproject.sitestats.api.StatsManager"/>
 		<property name="transactionAttributes">
 			<props><prop key="*">PROPAGATION_REQUIRED</prop></props>
@@ -156,12 +156,12 @@
         <property name="eventTrackingService" ref="org.sakaiproject.event.api.EventTrackingService"/>
 		<property name="memoryService" ref="org.sakaiproject.memory.api.MemoryService" />
         <!-- Hibernate related -->
-        <property name="sessionFactory" ref="#{sitestats.db}SitestatsSessionFactory" />
+        <property name="sessionFactory" ref="@{sitestats.db}SitestatsSessionFactory" />
 	</bean>
     <!-- Transaction proxy: ReportManager -->
     <bean id="org.sakaiproject.sitestats.api.report.ReportManagerTransactionProxyFactoryBean"
         class="org.springframework.transaction.interceptor.TransactionProxyFactoryBean">        
-        <property name="transactionManager" ref="#{sitestats.db}SitestatsTransactionManager" />
+        <property name="transactionManager" ref="@{sitestats.db}SitestatsTransactionManager" />
         <property name="target" ref="org.sakaiproject.sitestats.api.report.ReportManager"/>
         <property name="transactionAttributes">
             <props><prop key="*">PROPAGATION_REQUIRED</prop></props>
@@ -222,7 +222,7 @@
 		<!-- /OPTIONS -->
 			
 		<!-- Sakai services -->
-		<property name="sessionFactory" ref ="#{sitestats.db}SitestatsSessionFactory" />
+		<property name="sessionFactory" ref ="@{sitestats.db}SitestatsSessionFactory" />
 		<property name="statsManager" ref="org.sakaiproject.sitestats.api.StatsManager" />
 		<property name="eventRegistryService" ref="org.sakaiproject.sitestats.api.event.EventRegistryService"/>
 		<property name="siteService" ref="org.sakaiproject.site.api.SiteService"/>
@@ -234,7 +234,7 @@
 	<!-- Transaction proxy: StatsUpdateManager -->
 	<bean id="org.sakaiproject.sitestats.api.StatsUpdateManagerTransactionProxyFactoryBean"
 		class="org.springframework.transaction.interceptor.TransactionProxyFactoryBean">		
-		<property name="transactionManager" ref="#{sitestats.db}SitestatsTransactionManager" />
+		<property name="transactionManager" ref="@{sitestats.db}SitestatsTransactionManager" />
 		<property name="target" ref="org.sakaiproject.sitestats.api.StatsUpdateManager"/>
 		<property name="transactionAttributes">
 			<props><prop key="*">PROPAGATION_REQUIRED</prop></props>
@@ -339,12 +339,12 @@
     <bean id="org.sakaiproject.sitestats.api.DBHelper"
         class="org.sakaiproject.sitestats.impl.DBHelper"
         singleton="true" init-method="init">
-        <property name="sessionFactory" ref="#{sitestats.db}SitestatsSessionFactory" />
+        <property name="sessionFactory" ref="@{sitestats.db}SitestatsSessionFactory" />
     </bean>
     <!-- Transaction proxy: ReportManager -->
     <bean id="org.sakaiproject.sitestats.api.DBHelperTransactionProxyFactoryBean"
         class="org.springframework.transaction.interceptor.TransactionProxyFactoryBean">        
-        <property name="transactionManager" ref="#{sitestats.db}SitestatsTransactionManager" />
+        <property name="transactionManager" ref="@{sitestats.db}SitestatsTransactionManager" />
         <property name="target" ref="org.sakaiproject.sitestats.api.DBHelper"/>
         <property name="transactionAttributes">
             <props><prop key="*">PROPAGATION_REQUIRED</prop></props>
