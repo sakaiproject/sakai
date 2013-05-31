@@ -30,9 +30,13 @@ require_once("../util/lti_util.php");
 $request_headers = OAuthUtil::get_headers();
 $hct = $request_headers['Content-Type'];
 if ( ! isset($hct) ) $hct = $request_headers['Content-type'];
+if ( ! isset($hct) ) $hct = $_SERVER['CONTENT_TYPE'];
 if (strpos($hct,'application/xml') === false ) {
    header('Content-Type: text/plain');
-   // print_r($request_headers);
+
+   echo("Data dump:");
+   print_r($request_headers);
+   print_r($_SERVER);
    die("Must be content type xml, found ".$hct);
 }
 
