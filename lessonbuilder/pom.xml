@@ -25,6 +25,8 @@
         <module>tool</module>
     </modules>
     
+<!-- NOTE: see also the "optional" profile in tools/pom.xml. That will enable support for several contrib tools -->
+
     <profiles>
         <profile>
             <id>default</id>

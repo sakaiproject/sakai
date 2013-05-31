@@ -118,6 +118,10 @@ Other than that, the properties can be left as is. In particular,
 don't change the version of RSF. We depend upon a newer version than
 the rest of Sakai.
 
+If you want support for several contrib tools, (Assignment2, and
+partial support for YAFT and Mneme), activate the "optional" 
+profile in tool/pom.xml.
+
 DATABASE SETUP
 
 If you run with auto.ddl set, Lesson Builder will create the
@@ -322,10 +326,10 @@ LessonBuilder will support quizes from Mneme, topics from JForum or
 YAFT, assignments from Assignment 2 and external tools using Basic
 LTI. If your system doesn't use them, you can ignore this section.
 
-Mneme, Assignment 2, and YAFT are commented out in the build, to
+Mneme, Assignment 2, and YAFT are disabled in the build, to
 comply with Sakai rules about contrib tools. To enable them, look in
-tool/pom.xml. It should be obvious what needs to be uncommented. That
-should be the only change necessary.
+tool/pom.xml, find the "optional" profile, and change
+"activebydefault" to "true".
 
 The Mneme, Jforum, Assignment 2, YAFT and BLTI code starts by checking
 whether those modules are actually present. If not, it disables
