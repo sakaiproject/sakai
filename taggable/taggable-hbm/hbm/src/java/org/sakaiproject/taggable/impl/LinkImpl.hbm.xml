@@ -1,7 +1,7 @@
 <?xml version="1.0"?>
 <!DOCTYPE hibernate-mapping
     PUBLIC "-//Hibernate/Hibernate Mapping DTD//EN"
-    "http://hibernate.sourceforge.net/hibernate-mapping-3.0.dtd">
+    "http://www.hibernate.org/dtd/hibernate-mapping-3.0.dtd">
 
 <hibernate-mapping package="org.sakaiproject.taggable.impl" default-lazy="true" auto-import="false">
 
@@ -20,9 +20,9 @@
      
     <property name="tagCriteriaRef" column="TAG_CRITERIA_REF" length="255" not-null="true" />
 
-    <property name="rubric" column="RUBRIC" type="text" />
+    <property name="rubric" column="RUBRIC" type="materialized_clob"/>
 
-    <property name="rationale" column="RATIONALE" type="text" />
+    <property name="rationale" column="RATIONALE" type="materialized_clob"/>
 
 	<property name="exportString" column="EXPORT_STRING" not-null="true" />
 
