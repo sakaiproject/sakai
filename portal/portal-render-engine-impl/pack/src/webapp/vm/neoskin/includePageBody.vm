@@ -303,7 +303,7 @@
 		<span id="avatarPermitted" class="skip"></span>
 	#end
             <div id="pc" tabindex="-1">
-		<div id="pc_title">${rloader.pc_title}<div><a href="#" id="pc_chat_close" title="${rloader.pc_chat_close}"><span class="skip">${rloader.pc_chat_close}</span><img src="/library/image/silk/cross.png" alt=""/></a></div></div>
+		<div id="pc_title">${rloader.pc_title}<div id="pc_title_close"><a href="#" id="pc_chat_close" title="${rloader.pc_chat_close}"><span class="skip">${rloader.pc_chat_close}</span><img src="/library/image/silk/cross.png" alt=""/></a></div></div>
 				<div id="pc_chat_local_video_content" class="pc_chat_video_local" data-video="0">
 					<video id="pc_chat_local_video" class="pc_chat_video_min" autoplay muted="true"></video>
 					<div id="local_video_bar">

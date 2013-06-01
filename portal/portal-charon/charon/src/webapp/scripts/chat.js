@@ -896,10 +896,23 @@ function PortalChat() {
 
             // Explicitly close presence panel. This also handles clicks bubbled up from the close icon.
             $('#pc_title').click(function(e){
+            	if ($(e.target).is('img')) return;
                 e.preventDefault();
-                portalChat.toggleChat();
+        		if ($('#pc_chat_local_video_content').is(':visible')) {
+        			if ($('#pc_content').is(':visible')) {
+        				$('#pc_content').hide();
+        			} else {
+        				$('#pc_content').show();
+        			}
+        		} else {
+        			portalChat.toggleChat();
+        		}
             })
-	
+            $('#pc_title_close').click(function(e){
+                e.preventDefault();
+               	portalChat.toggleChat();
+            })
+
 			if(portalChat.currentConnections.length > 0) {
 				if(portalChat.showOfflineConnections) {
 					portalChat.renderTemplate('pc_connections_template',{'connections':portalChat.currentConnections},'pc_connections');
