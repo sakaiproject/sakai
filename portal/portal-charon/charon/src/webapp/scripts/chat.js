@@ -100,7 +100,7 @@ function PortalChat() {
 			success : function(text, status) {
 				if ('OFFLINE' === text) {
 					/* The peer is disconnected you can close the connection */
-					videoCall.setVideoStatus(to, videoMessages.pc_video_status_user_hung, true);
+					videoCall.setVideoStatus(to, videoMessages.pc_video_status_user_hung, "finished");
 					videoCall.closeVideoCall(to);
 				}
 			},
@@ -200,6 +200,7 @@ function PortalChat() {
 		}
 		
 		if( $("#pc_chat_" + uuid + "_video_content").is(':visible')){
+			videoCall.setVideoStatus(uuid, videoMessages.pc_video_status_hangup, "finished");
 			videoCall.closeVideoCall(uuid);			
 		}
 

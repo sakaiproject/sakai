@@ -331,7 +331,7 @@ function VideoCall() {
 			this.currentCalls[uuid].status = "CANCELLED";
 		}
 		$('#pc_connection_' + uuid + '_videoin').hide();
-		this.setVideoStatus(uuid, videoMessages.pv_video_status_you_ignored, "finished");
+		this.setVideoStatus(uuid, videoMessages.pc_video_status_you_ignored, "finished");
 		videoCall.refuseCall(uuid);
 		videoCall.closeVideoCall(uuid);
 		$('#pc_connection_' + uuid+ '_videochat_bar > .pc_connection_videochat_bar_left ').show();
@@ -354,8 +354,8 @@ function VideoCall() {
 		//videoCall.showMyVideo();
 	}
 
-	this.closeVideoCall = function(uuid) {
-		videoCall.setVideoStatus(uuid, videoMessages.pc_video_status_hangup, "finished");
+	this.closeVideoCall = function(uuid,ui) {
+		if (ui) videoCall.setVideoStatus(uuid, videoMessages.pc_video_status_hangup, "finished");
 		videoCall.doClose(uuid);
 		//this.hideVideoCall(uuid);
 		$('#pc_connection_' + uuid + '_videochat_bar .video_off').show();

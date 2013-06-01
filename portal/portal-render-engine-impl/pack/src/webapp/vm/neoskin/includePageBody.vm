@@ -404,7 +404,7 @@
 				<div id="pc_connection_${uuid}_videochat_bar" class="pc_connection_videochat_bar">
 					<div class="pc_connection_videochat_bar_left">
 						<a href="javascript:;" onclick="return videoCall.openVideoCall('${uuid}',false);" class="video_off video_button video_call" title="${rloader.pc_video_do_videocall_title}" ></a>
-						<a href="javascript:;" onclick="return videoCall.closeVideoCall('${uuid}');" class="video_on video_button video_close" title="${rloader.pc_video_end_title}" ></a>
+						<a href="javascript:;" onclick="return videoCall.closeVideoCall('${uuid}',true);" class="video_on video_button video_close" title="${rloader.pc_video_end_title}" ></a>
 						<a href="javascript:;" onclick="return videoCall.maximizeVideoCall('${uuid}');" class="video_on video_button video_maxi" title="${rloader.pc_video_maximize_title}" ></a>
 					</div>
 					<div id="pc_connection_${uuid}_videoin" class="pc_connection_videochat_bar_right">
