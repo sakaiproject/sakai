@@ -800,8 +800,8 @@ function PortalChat() {
 				if(portalChat.getSetting('showOfflineConnections')) {
 					portalChat.showOfflineConnections = true;
 			    }
-				
-				if (portalChat.getSetting('videoOff', false)) {
+
+				if (portalChat.getSetting('videoOff')) {
 					$('#pc_video_off_checkbox').attr('checked','checked');
 					portalChat.videoOff = true;
 				} else {
@@ -851,7 +851,7 @@ function PortalChat() {
 			$('#pc_video_off_checkbox').click(
 					function() {
 						if ($(this).attr('checked') == 'checked') {
-							portalChat.setSetting('videoOff', true,true);
+							portalChat.setSetting('videoOff', true);
 							portalChat.videoOff = true;
 						} else {
 							portalChat.setSetting('videoOff', false);
