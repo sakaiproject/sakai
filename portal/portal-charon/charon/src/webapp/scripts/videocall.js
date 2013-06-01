@@ -288,7 +288,8 @@ function VideoCall() {
 					  }
 			  }
 			  // Test if destination is calling me at the same time
-			  //portalChat.getLatestData();
+			  // Forced if pollInterval is too large avoid wait more than 7 seconds to call.
+			  if (portalChatPollInterval>7000) portalChat.getLatestData();
 			} else {
 				// You're already calling
 				videoCall.setVideoStatus(uuid,videoMessages.pc_video_status_call_in_progress, "waiting");
