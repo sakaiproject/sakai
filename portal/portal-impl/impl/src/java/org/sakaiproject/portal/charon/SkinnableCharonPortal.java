@@ -1796,6 +1796,7 @@ public class SkinnableCharonPortal extends HttpServlet implements Portal
 						// get the text and image as configured
 						message2 = StringUtils.trimToNull(ServerConfigurationService
 								.getString("xlogin.text"));
+						if (message2 == null) message2 = rloader.getString("log.xlogin");
 						image2 = StringUtils.trimToNull(ServerConfigurationService
 								.getString("xlogin.icon"));
 						logInOutUrl2 = ServerConfigurationService.getString("portalPath")
