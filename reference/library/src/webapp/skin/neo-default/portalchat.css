@@ -285,7 +285,6 @@
 .pc_connection_videochat_bar {
     font-size: 14px;
     font-weight: bold;
-    cursor: pointer;
     color: black;
     background: #aaa;
     overflow: hidden;
