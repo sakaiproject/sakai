@@ -333,12 +333,13 @@
 	float: left;
 	width: 25%;
 }
-.pc_connection_videochat_bar_right {
-    font-size: 12px;
-    font-weight: bold;
-	float: right;
+.pc_connection_videochat_bar_answer {
+	font-size: 12px;
+	font-weight: bold;
+  	float: left;
 	width: 75%;
-	text-align: right;
+	text-align: left;
+	vertical-align: middle;
 }
 .pc_chat_video_content{
 	background-color: #000;
