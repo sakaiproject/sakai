@@ -8,9 +8,16 @@ function VideoCall() {
 	this.webRTC = null; // WebRTC handler
 	this.signalService = null;
 	this.currentCalls = new Array();
-	this.callTimeout = portalVideoChatTimeout + (portalChatPollInterval/1000); // Timeout in secs
+	this.callTimeout = 0; // Timeout in msecs
 	/* Define the actions executed in each event */
 
+	// Initialize timeout
+	this.getCallTimeout = function() {
+		if (this.callTimeout==0) {
+			this.callTimeout = portalVideoChatTimeout*1000 + portalChatPollInterval;
+		}
+		return this.callTimeout;
+	}
 	
 	this.doCall = function(uuid,videoAgentType,onSuccessStartCall,onSuccessConnection,onFailConnection){
 
@@ -154,7 +161,7 @@ function VideoCall() {
 			}
 			videoCall.openVideoCall (userid,true);
 			videoCall.setVideoStatus(userid,videoMessages.pc_video_status_incomming_call, "waiting");
-			setTimeout('videoCall.doAnswerTimeout("'+userid+'")',videoCall.callTimeout*1000);
+			setTimeout('videoCall.doAnswerTimeout("'+userid+'")',videoCall.getCallTimeout());
 		}
 	    
 	    
@@ -274,7 +281,7 @@ function VideoCall() {
 									videoCall.getVideoAgent(uuid),
 									function(uuid) {
 										videoCall.setVideoStatus(uuid,videoMessages.pc_video_status_waiting_peer, "waiting");
-										setTimeout('videoCall.doTimeout("'+uuid+'")',videoCall.callTimeout*1000);
+										setTimeout('videoCall.doTimeout("'+uuid+'")',videoCall.getCallTimeout());
 									},
 									function(uuid) {
 										videoCall.currentCalls[uuid].status = "ESTABLISHED";
