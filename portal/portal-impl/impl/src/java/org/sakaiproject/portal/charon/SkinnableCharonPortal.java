@@ -1669,6 +1669,8 @@ public class SkinnableCharonPortal extends HttpServlet implements Portal
 				ServerConfigurationService.getBoolean("portal.neoavatar", true));
                         rcontext.put("neoChatVideo", 
 				ServerConfigurationService.getBoolean("portal.neochat.video", true));
+                        rcontext.put("portalVideoChatTimeout", 
+				ServerConfigurationService.getInt("portal.neochat.video.timeout", 25));
 
 
                         if(sakaiTutorialEnabled && thisUser != null) {

@@ -8,7 +8,7 @@ function VideoCall() {
 	this.webRTC = null; // WebRTC handler
 	this.signalService = null;
 	this.currentCalls = new Array();
-	this.callTimeout = 25; // Timeout in secs
+	this.callTimeout = portalVideoChatTimeout + (portalChatPollInterval/1000); // Timeout in secs
 	/* Define the actions executed in each event */
 
 	

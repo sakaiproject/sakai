@@ -103,6 +103,7 @@ ${sakai_html_head_js}
 <script type="text/javascript" language="JavaScript" src="/portal/scripts/videocall.js"></script>
 
 <script type="text/javascript">
+	var portalVideoChatTimeout = ${portalVideoChatTimeout};
 	var videoMessages = {
 		"pc_video_status_setup":"${rloader.pc_video_status_setup}",
 		"pc_video_status_user_hung":"${rloader.pc_video_status_user_hung}",
