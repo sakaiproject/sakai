@@ -175,21 +175,28 @@ function PortalChat() {
 
 		$('#pc_editor_for_' + uuid).focus();
 		// Test if video is enabled
-		$('#pc_chat_' + uuid + '_video_content').hide();
-		$('#pc_connection_' + uuid + '_videoin').hide();
-		$('#pc_connection_' + uuid + '_videochat_bar .video_on').hide();
-		if (!videoCall || !videoCall.isVideoEnabled() || !videoCall.hasVideoAgent(uuid)) {
-			$('#pc_connection_' + uuid + '_videochat_bar').hide();
-		} else {
-			if (!minimised) {
-				$('#' + id).css('height', '318px');
-			}
-			$('#' + id).attr('data-height', '318');
-		}
+		this.setupVideoChatBar(uuid, !videoCall || !videoCall.isVideoEnabled() || !videoCall.hasVideoAgent(uuid), minimised);
 
         return false;
 	}
 
+	this.setupVideoChatBar = function (uuid,notEnabled,minimised) {
+		$('#pc_chat_' + uuid + '_video_content').hide();
+		$('#pc_connection_' + uuid + '_videoin').hide();
+		$('#pc_connection_' + uuid + '_videochat_bar .video_on').hide();
+		if (notEnabled) {
+			$('#pc_connection_' + uuid + '_videochat_bar').hide();
+			$('#pc_chat_with_' + uuid).css('height', '300px');
+			$('#pc_chat_with_' + uuid).attr('data-height', '300');
+		} else {
+			$('#pc_connection_' + uuid + '_videochat_bar').show();
+			if (!minimised) {
+				$('#pc_chat_with_' + uuid).css('height', '318px');
+			}
+			$('#pc_chat_with_' + uuid).attr('data-height', '318');
+		}
+	}
+	
 	this.closeChatWindow = function (uuid) {
 		var removed = -1;
 		for(var i=0,j=this.currentChats.length;i<j;i++) {
@@ -387,20 +394,11 @@ function PortalChat() {
 						if (portalChat.currentConnections[k].online != connections[i].online
 									|| portalChat.currentConnections[k].video != connections[i].video) {
 							if (connections[i].video!='none') {
-								if ($('#pc_chat_with_'+ portalChat.currentConnections[k].uuid).css('height') != 'auto') {
-									$('#pc_chat_with_'+ portalChat.currentConnections[k].uuid).css('height', '318px');
-								}
-								$('#pc_chat_with_'+ portalChat.currentConnections[k].uuid).attr('data-height', '318');
-								$('#pc_connection_'+ portalChat.currentConnections[k].uuid+ '_videochat_bar').show();
+								portalChat.setupVideoChatBar(portalChat.currentConnections[k].uuid,
+										false,$('#pc_chat_with_'+ portalChat.currentConnections[k].uuid).css('height') == 'auto');
 							} else {
 								if (!videoCall.hasVideoChatActive(portalChat.currentConnections[k].uuid)) {
-									if ($('#pc_chat_with_'+ portalChat.currentConnections[k].uuid).css('height') != 'auto') {
-										$('#pc_chat_with_'+ portalChat.currentConnections[k].uuid).css('height', '300px');
-									}
-									$('#pc_chat_with_'+ portalChat.currentConnections[k].uuid).attr('data-height', '300');
-									$('#pc_connection_'	+portalChat.currentConnections[k].uuid+ '_videochat_bar').hide();
-								} else {
-									connections[i].video='connected';
+									portalChat.setupVideoChatBar(portalChat.currentConnections[k].uuid,true);
 								}
 							}
 							statusSame=false;
@@ -464,20 +462,11 @@ function PortalChat() {
 						if (portalChat.currentSiteUsers[k].video != siteUsers[i].video) {
 							inCurrentData = false;
 							if (siteUsers[i].video!='none') {
-								if ($('#pc_chat_with_'+ portalChat.currentSiteUsers[k].id).css('height') != 'auto') {
-									$('#pc_chat_with_'+ portalChat.currentSiteUsers[k].id).css('height', '318px');
-								}
-								$('#pc_chat_with_'+ portalChat.currentSiteUsers[k].id).attr('data-height', '318');
-								$('#pc_connection_'+ portalChat.currentSiteUsers[k].id+ '_videochat_bar').show();
+								portalChat.setupVideoChatBar(portalChat.currentSiteUsers[k].uuid,
+										false,$('#pc_chat_with_'+ portalChat.currentSiteUsers[k].uuid).css('height') == 'auto');
 							} else {
 								if (!videoCall.hasVideoChatActive(portalChat.currentSiteUsers[k].id)) {
-									if ($('#pc_chat_with_'+ portalChat.currentSiteUsers[k].id).css('height') != 'auto') {
-										$('#pc_chat_with_'+ portalChat.currentSiteUsers[k].id).css('height', '300px');
-									}
-									$('#pc_chat_with_'+ portalChat.currentSiteUsers[k].id).attr('data-height', '300');
-									$('#pc_connection_'+ portalChat.currentSiteUsers[k].id+ '_videochat_bar').hide();
-								} else {
-									siteUsers[i].video = 'connected';
+									portalChat.setupVideoChatBar(portalChat.currentSiteUsers[k].uuid,true);
 								}
 							}
 						}

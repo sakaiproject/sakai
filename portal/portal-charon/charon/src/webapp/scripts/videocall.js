@@ -348,6 +348,7 @@ function VideoCall() {
 			chatDiv.css('margin-top', '-192px');
 		}
 		chatDiv.attr('data-height', '512');
+		$('#pc_connection_' + uuid + '_videochat_bar').show();
 		$('#pc_connection_' + uuid + '_videoin').hide();
 		$('#pc_connection_' + uuid + '_videochat_bar .video_off').hide();
 		$('#pc_connection_' + uuid + '_videochat_bar .video_on').show();
