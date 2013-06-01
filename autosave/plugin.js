@@ -11,7 +11,6 @@
     CKEDITOR.plugins.add("autosave", {
         lang: ['de', 'en'],
         init: function (editor) {
-            
             // Checks If there is data available and load it
             if (localStorage.getItem('autosave' + editor.id)) {
 
@@ -27,8 +26,11 @@
                 }
 
                 if (confirm(editor.lang.autosave.loadSavedContent)) {
-
-                    editor.setData(localStorage.getItem('autosave' + editor.id));
+                    if (editor.plugins.bbcode) {
+                        editor._.data = autoSavedContent;
+                    } else {
+                        editor.setData(autoSavedContent);
+                    }
                 }
 
                 localStorage.removeItem('autosave' + editor.id);
@@ -48,19 +50,17 @@
         var delay = CKEDITOR.config.autosave_delay != null ? CKEDITOR.config.autosave_delay : 10;
         timeOutId = setTimeout(onTimer, delay * 1000, event);
     };
-    var onTimer = function(event) {
+    var onTimer = function (event) {
         if (savingActive) {
             startTimer(event);
-        } else if (event.editor.checkDirty()) {
+        } else if (event.editor.checkDirty() || event.editor.plugins.bbcode) {
             savingActive = true;
 
             // save content
             localStorage.setItem('autosave' + event.editor.id, event.editor.getData());
 
-            //alert("Auto-Saved");
-
             savingActive = false;
-        }
+        } 
     };
 
     // localStorage detection
