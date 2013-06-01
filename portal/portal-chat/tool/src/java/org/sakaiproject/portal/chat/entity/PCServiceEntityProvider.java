@@ -372,11 +372,11 @@ public class PCServiceEntityProvider extends AbstractEntityProvider implements R
 		}
 	}
 
-	public class PortalVideoStunServer {
+	public class PortalVideoServer {
 		public String url;
 		
-		public PortalVideoStunServer(String url) {
-			this.url = "stun:"+url;
+		public PortalVideoServer(String url) {
+			this.url = url;
 		}
 	}
 	
@@ -587,13 +587,13 @@ public class PCServiceEntityProvider extends AbstractEntityProvider implements R
 		
 		String userId = ref.getId();
 		
-		String [] servers = serverConfigurationService.getStrings("portal.neochat.video.stuns");
+		String [] servers = serverConfigurationService.getStrings("portal.neochat.video.servers");
 		if (servers==null) {
-			servers = new String[]{"stun.l.google.com:19302"};
+			servers = new String[]{"stun:stun.l.google.com:19302"};
 		}
 		List<PortalVideoStunServer> serverList = new ArrayList<PortalVideoStunServer>();
 		for (String server:servers) {
-			serverList.add(new PortalVideoStunServer(server));
+			serverList.add(new PortalVideoServer(server));
 		}
 		Map<String,Object> data = new HashMap<String,Object>(4);
 		data.put("iceServers", serverList);
