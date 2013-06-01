@@ -65,15 +65,16 @@ function VideoCall() {
  			this.currentCalls[uuid].status = "CANCELLING";
  		}
  		this.webRTC.hangUp(uuid,skipBye);
+		videoCall.hideMyVideo();
  	}
 	
 	this.startCall = function (uuid, localMediaStream) {
-		this.showMyVideo()
+		this.showMyVideo();
 		this.webRTC.attachMediaStream(document.getElementById("pc_chat_local_video"), localMediaStream);
 	}
 
 	this.startAnswer = function (uuid, localMediaStream) {
-		this.showMyVideo()
+		this.showMyVideo();
 		this.webRTC.attachMediaStream(document.getElementById("pc_chat_local_video"), localMediaStream);
 	}
 
@@ -114,7 +115,6 @@ function VideoCall() {
 		videoCall.doClose(uuid);
 		$('#pc_connection_' + uuid + '_videochat_bar .video_off').show();
 		$('#pc_connection_' + uuid + '_videochat_bar .video_on').hide();
-		videoCall.hideMyVideo();
 	}
 
 	/* It retrieves the current userid list of active webconnections */
@@ -366,10 +366,8 @@ function VideoCall() {
 	this.closeVideoCall = function(uuid,ui) {
 		if (ui) videoCall.setVideoStatus(uuid, videoMessages.pc_video_status_hangup, "finished");
 		videoCall.doClose(uuid);
-		//this.hideVideoCall(uuid);
 		$('#pc_connection_' + uuid + '_videochat_bar .video_off').show();
 		$('#pc_connection_' + uuid + '_videochat_bar .video_on').hide();
-		videoCall.hideMyVideo();	
 	}
 
 	this.showMyVideo = function() {
