@@ -591,7 +591,7 @@ public class PCServiceEntityProvider extends AbstractEntityProvider implements R
 		if (servers==null) {
 			servers = new String[]{"stun:stun.l.google.com:19302"};
 		}
-		List<PortalVideoStunServer> serverList = new ArrayList<PortalVideoStunServer>();
+		List<PortalVideoServer> serverList = new ArrayList<PortalVideoServer>();
 		for (String server:servers) {
 			serverList.add(new PortalVideoServer(server));
 		}
