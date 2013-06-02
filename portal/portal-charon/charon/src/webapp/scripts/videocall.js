@@ -64,8 +64,8 @@ function VideoCall() {
  		} else {
  			this.currentCalls[uuid].status = "CANCELLING";
  		}
- 		this.webRTC.hangUp(uuid,skipBye);
 		videoCall.hideMyVideo();
+ 		this.webRTC.hangUp(uuid,skipBye);
  	}
 	
 	this.startCall = function (uuid, localMediaStream) {
@@ -113,6 +113,7 @@ function VideoCall() {
 	this.onHangUp = function (uuid){ // Just declared		
 		videoCall.setVideoStatus(uuid,videoMessages.pc_video_status_user_hung,"finished");
 		videoCall.doClose(uuid);
+		$('#pc_connection_' + uuid + '_videochat_bar > .pc_connection_videochat_bar_left ').show();
 		$('#pc_connection_' + uuid + '_videochat_bar .video_off').show();
 		$('#pc_connection_' + uuid + '_videochat_bar .video_on').hide();
 	}
@@ -245,6 +246,8 @@ function VideoCall() {
 		if (videoCall.currentCalls[uuid] && videoCall.currentCalls[uuid].status == "ESTABLISHING") {
 			videoCall.setVideoStatus(uuid,videoMessages.pc_video_status_call_timeout,"failed");
 			videoCall.doClose(uuid);
+			$('#pc_connection_' + uuid + '_videochat_bar .video_off').show();
+			$('#pc_connection_' + uuid + '_videochat_bar .video_on').hide();
 		}
 	}
 
@@ -386,19 +389,6 @@ function VideoCall() {
 		}
 	}
 	
-	/*this.hideVideoCall = function(uuid) {
-		$("#pc_chat_" + uuid + "_video_content").hide();
-		if($("#pc_chat_with_" + uuid).hasClass('pc_maximised')) {
-			$("#pc_chat_with_" + uuid).css('height', '318px');
-			$("#pc_chat_with_" + uuid).css('margin-top', '0px');
-			$("#pc_chat_with_" + uuid).attr('data-height', '318');
-		}
-		$('#pc_connection_' + uuid + '_videochat_bar .video_off').show();
-		$('#pc_connection_' + uuid + '_videochat_bar .video_on').hide();
-		videoCall.hideMyVideo();
-	}*/
-
-
 	this.setVideoStatus = function(uuid, text,visibleElement) {
 
 		if (visibleElement!=null){

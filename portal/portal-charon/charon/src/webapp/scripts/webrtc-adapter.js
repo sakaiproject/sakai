@@ -88,7 +88,6 @@ function WebRTC() {
 
 		if (this.localMediaStream != null) {
 			started(userid, webRTCClass.localMediaStream);
-			callConnection.localMediaStream = webRTCClass.localMediaStream;
 			webRTCClass.offerStream(callConnection, userid, success, fail); // WebRTC.
 		} else {
 
@@ -97,11 +96,22 @@ function WebRTC() {
 				video : true
 			}, function(localMediaStream) {
 				/* Call started function to fire rendering effects on the screen */
-				started(userid, localMediaStream);
-				webRTCClass.localMediaStream = localMediaStream;
-				callConnection.localMediaStream = localMediaStream;
-				webRTCClass.offerStream(callConnection, userid, success, fail); // WebRTC.
+				//Let's check if the connection is currently in the connection map
+				if (webRTCClass.currentPeerConnectionsMap[userid] != null){ 
+					webRTCClass.localMediaStream = localMediaStream;
+					started(userid, webRTCClass.localMediaStream);
+					webRTCClass.offerStream(callConnection, userid, success, fail); // WebRTC.
 				// ?
+				}else{
+					//In the case it does not exits and there is no more connections then stop and close the localvideo
+					var keys = Object.keys(webRTCClass.currentPeerConnectionsMap);
+
+					if (keys.length < 1 && localMediaStream != null) {
+						localMediaStream.stop();
+						localMediaStream = null;
+					}
+			}
+
 			}, fail);
 		}
 	}
@@ -127,9 +137,7 @@ function WebRTC() {
 		var webRTCClass = this;
 
 		if (webRTCClass.localMediaStream != null) {
-			// offerStream(pc, to, this.localMediaStream, false);
 			startAnswer(userid, webRTCClass.localMediaStream);
-			callConnection.localMediaStream = webRTCClass.localMediaStream;
 			webRTCClass.offerStream(callConnection, userid, success, fail); // WebRTC.
 
 		} else {
@@ -138,10 +146,19 @@ function WebRTC() {
 				video : true
 			}, function(localMediaStream) {
 				/* Call started function to fire rendering effects on the screen */
-				startAnswer(userid, localMediaStream);
-				webRTCClass.localMediaStream = localMediaStream;
-				callConnection.localMediaStream = localMediaStream;
-				webRTCClass.offerStream(callConnection, userid, success, fail); // WebRTC.
+				if (webRTCClass.currentPeerConnectionsMap[userid] != null){ 
+					webRTCClass.localMediaStream = localMediaStream;
+					startAnswer(userid, webRTCClass.localMediaStream );
+					webRTCClass.offerStream(callConnection, userid, success, fail); // WebRTC.
+				}else{
+					//In the case it does not exits and there is no more connections then stop and close the localvideo
+						var keys = Object.keys(webRTCClass.currentPeerConnectionsMap);
+
+						if (keys.length < 1 && localMediaStream != null) {
+							localMediaStream.stop();
+							localMediaStream = null;
+						}
+				}
 				// ?
 			}, fail);
 
@@ -161,11 +178,7 @@ function WebRTC() {
 			var pc = callConnection.rtcPeerConnection;
 
 			if (pc != null) {
-
-				if (callConnection.localMediaStream != null) {
-					pc.removeStream(callConnection.localMediaStream);
-				}
-
+				
 				if (callConnection.remoteMediaStream != null) {
 					pc.removeStream(callConnection.remoteMediaStream);
 				}
@@ -218,7 +231,7 @@ function WebRTC() {
 	this.offerStream = function(callConnection, to, successCall, failedCall) {
 		var pc = callConnection.rtcPeerConnection;
 
-		pc.addStream(callConnection.localMediaStream);
+		pc.addStream(this.localMediaStream);
 
 		var webRTCClass = this;
 
@@ -437,7 +450,6 @@ function CallConnection(pc, success, failed) {
 	this.onsuccessconn = success;
 	this.onfailedconn = failed;
 	this.isCaller = null;
-	this.localMediaStream = null;
 	this.remoteMediaStream = null;
 	this.remoteVideoAgentType = null;
 }
