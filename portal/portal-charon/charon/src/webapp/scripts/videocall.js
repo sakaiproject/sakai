@@ -348,19 +348,20 @@ function VideoCall() {
 	this.showVideoCall = function(uuid) {
 		var chatDiv = $("#pc_chat_with_" + uuid);
 		$("#pc_chat_" + uuid + "_video_content").show();
-		if (chatDiv.hasClass('pc_minimised')) {
-			portalChat.toggleChatWindow(uuid);
+		
+		if (!chatDiv.hasClass('pc_minimised')) {
+			
+			if (chatDiv.css('height') != 'auto') {
+					chatDiv.css('height', '512px');
+					chatDiv.css('margin-top', '-192px');
+			}
 		}
-		if (chatDiv.css('height') != 'auto') {
-			chatDiv.css('height', '512px');
-			chatDiv.css('margin-top', '-192px');
-		}
+		
 		chatDiv.attr('data-height', '512');
 		$('#pc_connection_' + uuid + '_videochat_bar').show();
 		$('#pc_connection_' + uuid + '_videoin').hide();
 		$('#pc_connection_' + uuid + '_videochat_bar .video_off').hide();
 		$('#pc_connection_' + uuid + '_videochat_bar .video_on').show();
-		//videoCall.showMyVideo();
 	}
 
 	this.closeVideoCall = function(uuid,ui) {
