@@ -376,7 +376,7 @@
 			#end
                             <span class="pc_site_display_name">${user.displayName}</span>
                             {if user.video!='none'}
-                              <img class="pc_display_status_bullet" src="/library/image/silk/user_green.png" border="0"/>
+                              <img class="pc_display_status_bullet" src="/library/image/silk/video_cam_available.png" style="right:0px" border="0"/>
                             {else}
                               <img class="pc_display_status_bullet" src="/library/image/silk/bullet_green.png" border="0"/>
                             {/if}
