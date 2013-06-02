@@ -90,6 +90,32 @@ function VideoCall() {
 		}
 	}
 	
+	this.isFullScreenEnabled = function (uuid){
+		var fullscreenEnabled = document.fullscreenEnabled || document.mozFullScreenEnabled || document.webkitFullscreenEnabled;
+		
+		if (fullscreenEnabled){
+			var remoteVideo = document.getElementById("pc_chat_" + uuid + "_remote_video");
+			var fullscreenElement = document.fullscreenElement || document.mozFullScreenElement || document.webkitFullscreenElement;
+		
+			if (fullscreenElement == remoteVideo){
+				return true
+			}
+		}
+		
+		return false;
+	}
+	
+	
+	this.minimizeVideo = function (){
+		if ("chrome" == this.getVideoAgent()){
+			 document.webkitCancelFullScreen();
+		}else if ("firefox" == this.getVideoAgent()){
+			document.mozCancelFullScreen();
+		}else {
+			document.cancelFullScreen();
+		}
+	}
+	
 	this.successCall = function (uuid, remoteMediaStream) {
 	 
 		this.webRTC.attachMediaStream(document.getElementById("pc_chat_" + uuid
@@ -112,7 +138,13 @@ function VideoCall() {
 		}));
 	}
 	
-	this.onHangUp = function (uuid){ // Just declared		
+	this.onHangUp = function (uuid){ // Just declared
+		//check if the connection you want to close is in fullScreen
+		
+		if (videoCall.isFullScreenEnabled(uuid)){
+			videoCall.minimizeVideo();
+		}
+			
 		videoCall.setVideoStatus(uuid,videoMessages.pc_video_status_user_hung,"finished");
 		videoCall.doClose(uuid);
 		$('#pc_connection_' + uuid + '_videochat_bar .video_off').show();
@@ -193,6 +225,9 @@ function VideoCall() {
 		var remoteVideo = document.getElementById("pc_chat_" + uuid + "_remote_video");
 		this.maximizeVideo (remoteVideo);
 	}
+	
+	
+	
 	
 	this.disableVideo = function (){
 		this.webRTC.disableLocalVideo();
@@ -353,7 +388,6 @@ function VideoCall() {
 		$("#pc_chat_" + uuid + "_video_content").show();
 		
 		if (!chatDiv.hasClass('pc_minimised')) {
-			portalChat.toggleChatWindow(uuid);
 						
 			if (chatDiv.css('height') != 'auto') {
 					chatDiv.css('height', '512px');
