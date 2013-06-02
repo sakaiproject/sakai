@@ -1,7 +1,7 @@
-/*	
- * Video controller. 
- * It uses webrtc-adapter.js to handle all the communication
- */
+ /*
+  *  Video controller. 
+  * It uses webrtc-adapter.js to handle all the communication
+  */
 
 function VideoCall() {
 
@@ -147,6 +147,7 @@ function VideoCall() {
 			
 		videoCall.setVideoStatus(uuid,videoMessages.pc_video_status_user_hung,"finished");
 		videoCall.doClose(uuid);
+		$('#pc_connection_' + uuid + '_videochat_bar > .pc_connection_videochat_bar_left ').show();
 		$('#pc_connection_' + uuid + '_videochat_bar .video_off').show();
 		$('#pc_connection_' + uuid + '_videochat_bar .video_on').hide();
 	}
@@ -226,9 +227,6 @@ function VideoCall() {
 		this.maximizeVideo (remoteVideo);
 	}
 	
-	
-	
-	
 	this.disableVideo = function (){
 		this.webRTC.disableLocalVideo();
 		$('#enable_local_video').show();
@@ -282,6 +280,8 @@ function VideoCall() {
 		if (videoCall.currentCalls[uuid] && videoCall.currentCalls[uuid].status == "ESTABLISHING") {
 			videoCall.setVideoStatus(uuid,videoMessages.pc_video_status_call_timeout,"failed");
 			videoCall.doClose(uuid);
+			$('#pc_connection_' + uuid + '_videochat_bar .video_off').show();
+			$('#pc_connection_' + uuid + '_videochat_bar .video_on').hide();
 		}
 	}
 
@@ -292,7 +292,6 @@ function VideoCall() {
 	}
 
 	this.openVideoCall = function(uuid, incomming) {
-		var minimized = false;
 		if (incomming && this.videoOff)
 			return;
 		// If a chat window is already open for this sender, show video.
@@ -388,7 +387,7 @@ function VideoCall() {
 		$("#pc_chat_" + uuid + "_video_content").show();
 		
 		if (!chatDiv.hasClass('pc_minimised')) {
-						
+			
 			if (chatDiv.css('height') != 'auto') {
 					chatDiv.css('height', '512px');
 					chatDiv.css('margin-top', '-192px');
