@@ -184,16 +184,25 @@ function PortalChat() {
 		$('#pc_chat_' + uuid + '_video_content').hide();
 		$('#pc_connection_' + uuid + '_videoin').hide();
 		$('#pc_connection_' + uuid + '_videochat_bar .video_on').hide();
+		var chatDiv = $('#pc_chat_with_' + uuid);
 		if (notEnabled) {
 			$('#pc_connection_' + uuid + '_videochat_bar').hide();
-			$('#pc_chat_with_' + uuid).css('height', '300px');
-			$('#pc_chat_with_' + uuid).attr('data-height', '300');
+			chatDiv.css('height', '300px');
+			chatDiv.css('margin-top', '0px');
+			chatDiv.attr('data-height', '300');
 		} else {
 			$('#pc_connection_' + uuid + '_videochat_bar').show();
 			if (!minimised) {
-				$('#pc_chat_with_' + uuid).css('height', '318px');
+				chatDiv.css('height', '318px');
+				chatDiv.css('margin-top', '-18px');
+			} else {
+	            if (chatDiv.hasClass('video_active')) {
+	            	chatDiv.css('margin-top', '49px');
+	            } else {
+	            	chatDiv.css('margin-top', '241px');
+	            }
 			}
-			$('#pc_chat_with_' + uuid).attr('data-height', '318');
+			chatDiv.attr('data-height', '318');
 		}
 	}
 	
@@ -277,6 +286,11 @@ function PortalChat() {
             chatDiv.addClass('pc_minimised');
             chatDiv.removeClass('pc_maximised');
 			chatDiv.css('height','auto');
+			if (chatDiv.hasClass('video_active')) {
+				chatDiv.css('margin-top', '49px');
+			} else {
+				chatDiv.css('margin-top', ((chatDiv.attr('data-height')>300)?'241':'260')+'px');
+			}
 			if(chatSessionString) {
 		        chatSession = JSON.parse(chatSessionString);
 				chatSession.minimised = true;
@@ -290,6 +304,11 @@ function PortalChat() {
             chatDiv.removeClass('pc_minimised');
             chatDiv.addClass('pc_maximised');
             chatDiv.css('height', chatDiv.attr('data-height') + 'px');
+            if (chatDiv.hasClass('video_active')) {
+            	chatDiv.css('margin-top', '-212px');
+            } else {
+            	chatDiv.css('margin-top', ((chatDiv.attr('data-height')>300)?'-18':'0')+'px');
+            }
 			$('#pc_chat_with_' + uuid + ' > .pc_connection_chat_title').removeClass('pc_new_message');
 			this.scrollToBottom(uuid);
 			if(chatSessionString) {

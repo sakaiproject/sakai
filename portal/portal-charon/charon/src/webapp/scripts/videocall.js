@@ -387,11 +387,10 @@ function VideoCall() {
 		$("#pc_chat_" + uuid + "_video_content").show();
 		
 		if (!chatDiv.hasClass('pc_minimised')) {
-			
-			if (chatDiv.css('height') != 'auto') {
-					chatDiv.css('height', '512px');
-					chatDiv.css('margin-top', '-192px');
-			}
+			chatDiv.css('height', '512px');
+			chatDiv.css('margin-top', '-212px');
+		} else {
+			chatDiv.css('margin-top', '49px');
 		}
 		
 		chatDiv.addClass('video_active');
