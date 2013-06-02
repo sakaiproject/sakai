@@ -64,8 +64,10 @@ function VideoCall() {
  		} else {
  			this.currentCalls[uuid].status = "CANCELLING";
  		}
-		videoCall.hideMyVideo();
  		this.webRTC.hangUp(uuid,skipBye);
+ 		var chatDiv = $("#pc_chat_with_" + uuid);
+		chatDiv.removeClass("video_active");
+		videoCall.hideMyVideo();
  	}
 	
 	this.startCall = function (uuid, localMediaStream) {
@@ -113,7 +115,6 @@ function VideoCall() {
 	this.onHangUp = function (uuid){ // Just declared		
 		videoCall.setVideoStatus(uuid,videoMessages.pc_video_status_user_hung,"finished");
 		videoCall.doClose(uuid);
-		$('#pc_connection_' + uuid + '_videochat_bar > .pc_connection_videochat_bar_left ').show();
 		$('#pc_connection_' + uuid + '_videochat_bar .video_off').show();
 		$('#pc_connection_' + uuid + '_videochat_bar .video_on').hide();
 	}
@@ -246,8 +247,6 @@ function VideoCall() {
 		if (videoCall.currentCalls[uuid] && videoCall.currentCalls[uuid].status == "ESTABLISHING") {
 			videoCall.setVideoStatus(uuid,videoMessages.pc_video_status_call_timeout,"failed");
 			videoCall.doClose(uuid);
-			$('#pc_connection_' + uuid + '_videochat_bar .video_off').show();
-			$('#pc_connection_' + uuid + '_videochat_bar .video_on').hide();
 		}
 	}
 
@@ -258,6 +257,7 @@ function VideoCall() {
 	}
 
 	this.openVideoCall = function(uuid, incomming) {
+		var minimized = false;
 		if (incomming && this.videoOff)
 			return;
 		// If a chat window is already open for this sender, show video.
@@ -353,14 +353,17 @@ function VideoCall() {
 		$("#pc_chat_" + uuid + "_video_content").show();
 		
 		if (!chatDiv.hasClass('pc_minimised')) {
-			
+			portalChat.toggleChatWindow(uuid);
+						
 			if (chatDiv.css('height') != 'auto') {
 					chatDiv.css('height', '512px');
 					chatDiv.css('margin-top', '-192px');
 			}
 		}
 		
-		chatDiv.attr('data-height', '512');
+		chatDiv.addClass('video_active');
+		chatDiv.attr('data-height', '512px');
+		
 		$('#pc_connection_' + uuid + '_videochat_bar').show();
 		$('#pc_connection_' + uuid + '_videoin').hide();
 		$('#pc_connection_' + uuid + '_videochat_bar .video_off').hide();
@@ -376,15 +379,13 @@ function VideoCall() {
 
 	this.showMyVideo = function() {
 		$('#pc_chat_local_video_content').show();
-		$('#pc_chat_local_video_content').attr('data-video',($('#pc_chat_local_video_content').attr('data-video')-0)+1);
 		if (!portalChat.expanded) {
 			portalChat.toggleChat();
 		}
 	}
 
 	this.hideMyVideo = function() {
-		$('#pc_chat_local_video_content').attr('data-video',($('#pc_chat_local_video_content').attr('data-video')-0)-1);
-		if ($('#pc_chat_local_video_content').attr('data-video')=='0') {
+		if ($('.video_active').length < 1) {
 		    $('#pc_chat_local_video_content').hide();
 		}
 	}
