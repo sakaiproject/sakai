@@ -105,7 +105,7 @@
 .pc_connection_display_name, .pc_site_display_name {
     padding: 0;
     display: block;
-    float: left;
+    float: left !important;
     width: 89% !important;
 }
 .pc_site_display_name {
