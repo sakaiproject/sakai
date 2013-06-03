@@ -2193,6 +2193,9 @@ public class SiteAction extends PagedResourceActionII {
                     M_log.warn(this + "  IdUnusedException " + realmId);
             }
             
+            //SAK-23468 put create variables into context
+            addSiteCreationValuesIntoContext(context,site);
+            
 			return (String) getContext(data).get("template") + TEMPLATE[12];
 
 		case 13:
@@ -3597,6 +3600,13 @@ public class SiteAction extends PagedResourceActionII {
 	}
 
 
+	// SAK-23468
+	private void addSiteCreationValuesIntoContext(Context context, Site site) {
+		context.put("SITE_STATUS_TITLE", site.getTitle());
+		context.put("SITE_STATUS_ID", site.getId());
+		context.put("SITE_STATUS_ISPUBLISHED", site.isPublished());
+	}	
+	
 	/**
 	 * show site skin and icon selections or not
 	 * @param state
