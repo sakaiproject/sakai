@@ -292,6 +292,13 @@
     height: 18px;
     border-bottom: 1px solid #ccc;
 }
+.pc_connection_videochat_bar_right {
+    font-size: 15px;
+    font-weight: bold;
+	float: right;
+	width: 75%;
+	text-align: right;
+}
 
 #local_video_bar{
     font-size: 14px;
