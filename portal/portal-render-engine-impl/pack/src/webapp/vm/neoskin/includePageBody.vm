@@ -346,15 +346,20 @@
 			#end
                             <span class="pc_connection_display_name">${connection.displayName}</span>
                             {if connection.online}
-         	                   {if connection.video!='none'}
-                            	   <img class="pc_display_status_bullet" src="/library/image/silk/video_cam_available.png" style="right:0px" border="0"/>
-                           	   {else}
+         	                   {if connection.video=='none'}
                            	       <img class="pc_display_status_bullet" src="/library/image/silk/bullet_green.png" border="0"/>
                                {/if}
                             {else}
                             	<img class="pc_display_status_bullet" src="/library/image/silk/bullet_red.png" border="0"/>
                             {/if}
                         </a>
+                        {if connection.online}
+     	                   {if connection.video!='none'}
+	                        <a id="${connection.uuid}_link" class="pc_user_link" href="javascript:;" onclick="return videoCall.directVideoCall('${connection.uuid}',false);">
+                        	   <img class="pc_display_status_bullet" src="/library/image/silk/video_cam_available.png" style="right:0px" border="0"/>
+                        	</a>
+                           {/if}
+                        {/if}
                         {if connection.online == false}
                             <a href="javascript:;" onclick="portalChat.pingConnection('${connection.uuid}');" title="$rloader.getString("pc_ping") ${connection.displayName} $rloader.getString("pc_ping_connection")"><img src="/library/image/silk/bell.png" width="16" height="16" border="0"/></a>
                        		<span id="pc_pinged_popup_${connection.uuid}" class="pc_pinged_popup">${rloader.pc_pinged_popup}</span>
@@ -375,12 +380,15 @@
                             <img class="pc_user_image" src="/direct/profile/${user.id}/image" />
 			#end
                             <span class="pc_site_display_name">${user.displayName}</span>
-                            {if user.video!='none'}
-                              <img class="pc_display_status_bullet" src="/library/image/silk/video_cam_available.png" style="right:0px" border="0"/>
-                            {else}
+                            {if user.video=='none'}
                               <img class="pc_display_status_bullet" src="/library/image/silk/bullet_green.png" border="0"/>
                             {/if}
                         </a>
+                        {if user.video!='none'}
+                         <a id="${user.id}_link" class="pc_user_link" href="javascript:;" onclick="return videoCall.directVideoCall('${user.id}',false);">
+                          <img class="pc_display_status_bullet" src="/library/image/silk/video_cam_available.png" style="right:0px" border="0"/>
+                         </a>
+                        {/if}
                     </li>
                 {/for}
             -->

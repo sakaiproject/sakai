@@ -291,6 +291,11 @@ function VideoCall() {
 		}
 	}
 
+	this.directVideoCall = function(uuid) {
+		portalChat.toggleChat();
+		this.openVideoCall(uuid,false);
+	}
+	
 	this.openVideoCall = function(uuid, incomming) {
 		if (incomming && this.videoOff)
 			return;
@@ -412,12 +417,17 @@ function VideoCall() {
 	this.showMyVideo = function() {
 		$('#pc_chat_local_video_content').show();
 		if (!portalChat.expanded) {
+			$('#pc_content').hide();
 			portalChat.toggleChat();
 		}
 	}
 
 	this.hideMyVideo = function() {
 		if ($('.video_active').length < 1) {
+			if (portalChat.expanded) {
+				$('#pc_content').show();
+				portalChat.toggleChat();
+			}
 		    $('#pc_chat_local_video_content').hide();
 		}
 	}
