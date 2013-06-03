@@ -420,7 +420,9 @@
 						<a href="javascript:;" onclick="return videoCall.ignoreVideoCall('${uuid}');" class="video_button video_close" title="${rloader.pc_video_ingnore_title}"></a>
 						<span>${rloader.pc_video_askforincoming}</span>
 					</div>
-					
+					<div id="pc_connection_${uuid}_videotime" class="pc_connection_videochat_bar_right">
+						<span id="pc_connection_${uuid}_time">00:00</span>
+					</div>
                 </div>
 				<div id="pc_chat_${uuid}_video_content" class="pc_chat_video_content">
 					<div style="display:none;" class="pc_chat_video_statusbar"><span></span></div>

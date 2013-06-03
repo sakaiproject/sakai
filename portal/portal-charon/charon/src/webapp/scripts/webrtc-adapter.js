@@ -452,4 +452,5 @@ function CallConnection(pc, success, failed) {
 	this.isCaller = null;
 	this.remoteMediaStream = null;
 	this.remoteVideoAgentType = null;
+	this.startTime = new Date();
 }

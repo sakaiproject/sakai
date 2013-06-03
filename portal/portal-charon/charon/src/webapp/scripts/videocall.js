@@ -214,8 +214,9 @@ function VideoCall() {
 					}
 				});
 
-	    
-				
+		// Call Time Updater
+		setInterval('videoCall.updateVideoTimes();',1000);
+		
 	}
 	
 	this.hasVideoChatActive = function (uuid) {
@@ -264,6 +265,33 @@ function VideoCall() {
 			if (videoCall.currentCalls[value].status=="SYNC") {
 				videoCall.currentCalls[value].status = "ESTABLISHING";
 				videoCall.currentCalls[value].proceed();
+			}
+		});
+	}
+	
+	this.formatTime = function(time) {
+		var hours = time.getHours()-1;
+		if (hours<10) hours = '0'+hours;
+		if (hours=='00') hours = '';
+		else hours = hours+':';
+		var minutes = time.getMinutes();
+		if (minutes<10) minutes = '0'+minutes;
+		minutes = minutes +':';
+		var seconds = time.getSeconds();
+		if (seconds<10) seconds = '0'+seconds;
+		return hours + minutes + seconds;
+	}
+	
+	this.getCallTime = function(uuid) {
+		return this.webRTC.currentPeerConnectionsMap[uuid].startTime;
+	}
+	
+	this.updateVideoTimes = function() {
+		// Update time for current calls
+		$.each(Object.keys(this.webRTC.currentPeerConnectionsMap),function(key,value){
+			if (videoCall.getCallTime(value)) {
+				var time = new Date(new Date() - videoCall.getCallTime(value));
+				$('#pc_connection_'+value+'_time').html(videoCall.formatTime(time));
 			}
 		});
 	}
