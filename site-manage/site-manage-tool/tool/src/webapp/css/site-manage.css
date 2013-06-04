@@ -770,3 +770,56 @@ background: linear-gradient(to bottom, #884e2c 0%,#6b3d21 100%);
 .multitool {
  padding-left :30px !important
 }
+
+#newSiteAlert {
+    position:absolute;
+    top:25px;
+    left:30%;
+    right:30%;
+    padding:15px;
+    border:1px solid #ccc;
+    background: #ffe;
+    -webkit-border-radius: 3px;
+    -moz-border-radius: 3px;
+    border-radius: 3px;
+    box-shadow:2px 2px 2px #cccccc;
+    vertical-align:middle;
+}
+#newSiteAlert .newSiteAlertActions {float:right;margin-right:10px}
+#newSiteAlert .newSiteAlertActions a {
+    -webkit-border-radius: 3px;
+    -moz-border-radius: 3px;
+    border-radius: 3px;
+    padding:3px 6px;
+    border: 1px solid #d6d7d9;
+    background: #e3e4e5;
+    background: -moz-linear-gradient(top, #e3e4e5 0%, #d9d9d9 100%);
+    background: -webkit-gradient(linear, left top, left bottom, color-stop(0%,#e3e4e5), color-stop(100%,#d9d9d9));
+    background: -webkit-linear-gradient(top, #e3e4e5 0%,#d9d9d9 100%);
+    background: -o-linear-gradient(top, #e3e4e5 0%,#d9d9d9 100%);
+    background: -ms-linear-gradient(top, #e3e4e5 0%,#d9d9d9 100%);
+    background: linear-gradient(to bottom, #e3e4e5 0%,#d9d9d9 100%);
+    text-decoration: none !important;
+    margin:0px 0px 0 5px;
+    font-size:12px
+    
+      background: -moz-linear-gradient(center top , #F6F6F5 0%, #E0E0E0 93%, #E0E0E0 97%, #E9E9E9 100%) repeat scroll 0 0 transparent !important;
+    border: 1px solid #E0E3E5 !important;
+    border-radius: 3px 3px 3px 3px;
+    box-shadow: 0 1px 1px 0 #999999 !important;
+    color: #555555 !important;
+    font-size: 11px !important;
+    font-weight: bold !important;
+    height: 24px !important;
+    margin-left: 0 !important;
+    margin-right: 3px;
+    text-shadow: 0 2px 3px #FFFFFF !important;
+    
+}
+#newSiteAlert  a.newSiteAlertClose {
+    text-decoration: none;
+    font-size:120%;
+    position:absolute;
+    top:5px;
+    right:5px;
+}

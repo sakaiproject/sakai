@@ -816,3 +816,42 @@ var setupCategTools = function(){
     
 };
 
+var setupRecentSite = function(){
+
+    var target = $('#newSiteAlert').attr('class');
+
+    if (sessionStorage.getItem(target)) {
+        $('#newSiteAlert').hide();
+    }
+    
+    $('.newSiteAlertClose').click(function(e){
+        e.preventDefault();
+        $(this).closest('div').fadeOut('slow');
+        sessionStorage.setItem(target, true);
+    })
+
+    $('#newSiteAlertPublish').click(function(e){
+        e.preventDefault();
+        var reqUrl = '/direct/site/' + target + '/edit';
+        jQuery.ajax({
+            type: 'POST',
+            data: 'published=true',
+            url: reqUrl,
+            contentType: 'application/x-www-form-urlencoded; charset=UTF-8',
+            success: function(){
+                $('#newSiteAlertPublish').fadeOut('slow', function(){
+                    $('#' + target).closest('tr').addClass('selectedSelected')
+                    $('#newSiteAlertPublishMess').fadeIn('5000');
+                    $('#' + target).closest('tr').fadeOut('slow', function(){
+                        var publishedString = $('#newSiteAlertPublishMess').text();
+                        $(this).find('td[headers="published"]').text(publishedString).css('font-weight', 'bold');
+                        $(this).fadeIn('1000');
+                    });
+                });
+                
+            }
+        });
+        
+        
+    })
+}
