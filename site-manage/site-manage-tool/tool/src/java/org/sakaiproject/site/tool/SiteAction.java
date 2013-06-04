@@ -383,7 +383,12 @@ public class SiteAction extends PagedResourceActionII {
 	private static final String STATE_SITE_ADD_PROJECT = "canAddProject";
 		
 	private static final String STATE_PROJECT_SITE_TYPE = "project";
-			
+	
+	// SAK-23468
+	private static final String STATE_NEW_SITE_STATUS_ISPUBLISHED = "newSiteStatusIsPublished";
+	private static final String STATE_NEW_SITE_STATUS_TITLE = "newSiteStatusTitle";
+	private static final String STATE_NEW_SITE_STATUS_ID = "newSiteStatusID";
+	
 
 	// %%% get rid of the IdAndText tool lists and just use ToolConfiguration or
 	// ToolRegistration lists
@@ -1529,6 +1534,9 @@ public class SiteAction extends PagedResourceActionII {
 			
 			context.put("allowAddSite",allowAddSite);
 
+			//SAK-23468 put create variables into context
+            addSiteCreationValuesIntoContext(context,state);
+
 			
 			return (String) getContext(data).get("template") + TEMPLATE[0];
 		case 1:
@@ -2193,8 +2201,6 @@ public class SiteAction extends PagedResourceActionII {
                     M_log.warn(this + "  IdUnusedException " + realmId);
             }
             
-            //SAK-23468 put create variables into context
-            addSiteCreationValuesIntoContext(context,site);
             
 			return (String) getContext(data).get("template") + TEMPLATE[12];
 
@@ -3601,10 +3607,22 @@ public class SiteAction extends PagedResourceActionII {
 
 
 	// SAK-23468
-	private void addSiteCreationValuesIntoContext(Context context, Site site) {
-		context.put("SITE_STATUS_TITLE", site.getTitle());
-		context.put("SITE_STATUS_ID", site.getId());
-		context.put("SITE_STATUS_ISPUBLISHED", site.isPublished());
+	private void addSiteCreationValuesIntoContext(Context context, SessionState state) {
+		context.put(STATE_NEW_SITE_STATUS_ISPUBLISHED, state.getAttribute(STATE_NEW_SITE_STATUS_ISPUBLISHED));
+		String siteTitle = (String) state.getAttribute(STATE_NEW_SITE_STATUS_TITLE);
+		String siteID = (String) state.getAttribute(STATE_NEW_SITE_STATUS_ID);
+		context.put(STATE_NEW_SITE_STATUS_TITLE, siteTitle);
+		context.put(STATE_NEW_SITE_STATUS_ID, siteID);
+	}	
+	
+	
+	// SAK-23468 
+	private void setNewSiteStateParameters(Site site, SessionState state){
+		if (site != null) {
+			state.setAttribute(STATE_NEW_SITE_STATUS_ISPUBLISHED, Boolean.valueOf(site.isPublished()));
+			state.setAttribute(STATE_NEW_SITE_STATUS_ID, site.getId());
+			state.setAttribute(STATE_NEW_SITE_STATUS_TITLE, site.getTitle());
+		}
 	}	
 	
 	/**
@@ -5831,6 +5849,10 @@ private Map<String,List> getToolGroupList(SessionState state, String type, Site 
 			addNewSite(params, state);
 
 			Site site = getStateSite(state);
+			
+			// SAK-23468  Add new site params to state
+			setNewSiteStateParameters(site, state);
+			
 			
 			// Since the option to input aliases is presented to users prior to
 			// the new site actually being created, it doesn't really make sense 
@@ -10688,7 +10710,7 @@ private Map<String,List> getToolGroupList(SessionState state, String type, Site 
 
 				// commit newly added site in order to enable related realm
 				commitSite(site);
-
+				
 			} catch (IdUsedException e) {
 				addAlert(state, rb.getFormattedMessage("java.sitewithid.exists", new Object[]{id}));
 				M_log.warn(this + ".addNewSite: " + rb.getFormattedMessage("java.sitewithid.exists", new Object[]{id}), e);
