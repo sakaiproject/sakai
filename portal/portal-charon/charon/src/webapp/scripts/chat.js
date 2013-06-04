@@ -207,6 +207,10 @@ function PortalChat() {
 	}
 	
 	this.closeChatWindow = function (uuid) {
+	    if ($("#pc_chat_" + uuid + "_video_content").is(':visible') && videoCall.getCurrentCallStatus(uuid)!='ESTABLISHED') {
+	        // Call in progress wait to close
+	    	return;
+	    }
 		var removed = -1;
 		for(var i=0,j=this.currentChats.length;i<j;i++) {
 			if(uuid === this.currentChats[i]) {
