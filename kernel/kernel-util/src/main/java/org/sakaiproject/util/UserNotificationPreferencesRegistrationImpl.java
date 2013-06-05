@@ -22,6 +22,7 @@
 package org.sakaiproject.util;
 
 import java.util.HashMap;
+import java.util.Locale;
 import java.util.Map;
 import java.util.Map.Entry;
 
@@ -171,7 +172,18 @@ public abstract class UserNotificationPreferencesRegistrationImpl implements Use
 	 * {@inheritDoc}
 	 */
 	public Map<String, String> getOptions() {
-		return this.options;
+		ResourceLoader loader = getLocalResourceLoader();
+		if (loader == null || loader.getLocale().equals(Locale.getDefault())) {
+			return options;
+		}
+
+		Map<String, String> optionsMap = getRawOptions();
+		Map<String, String> processedOptions = new HashMap<String, String>();
+		for (Entry<String, String> entry : optionsMap.entrySet()) {
+			String value = loader.getString(entry.getValue());
+			processedOptions.put(entry.getKey(), value);
+		}
+		return processedOptions;
 	}
 
 	/**
@@ -223,7 +235,11 @@ public abstract class UserNotificationPreferencesRegistrationImpl implements Use
 	 * {@inheritDoc}
 	 */
 	public String getSectionTitle() {
-		return sectionTitle;
+		ResourceLoader loader = getLocalResourceLoader();
+		if (loader == null || loader.getLocale().equals(Locale.getDefault())) {
+			return sectionTitle;
+		}
+		return loader.getString(getSectionTitleBundleKey());
 	}
 
 	/**
@@ -238,14 +254,22 @@ public abstract class UserNotificationPreferencesRegistrationImpl implements Use
 	 * {@inheritDoc}
 	 */
 	public String getSectionDescription() {
-		return sectionDescription;
+		ResourceLoader loader = getLocalResourceLoader();
+		if (loader == null || loader.getLocale().equals(Locale.getDefault())) {
+			return sectionDescription;
+		}
+		return loader.getString(getSectionDescriptionBundleKey());
 	}
 
 	/**
 	 * Gets the display text for the Site Override Section
 	 */
 	public String getSectionTitleOverride() {
-		return sectionTitleOverride;
+		ResourceLoader loader = getLocalResourceLoader();
+		if (loader == null || loader.getLocale().equals(Locale.getDefault())) {
+			return sectionTitleOverride;
+		}
+		return loader.getString(getOverrideSectionTitleBundleKey());
 	}
 
 	/**
