@@ -1722,6 +1722,9 @@ public class UserPrefsTool
 		ResourceLoader rl = new ResourceLoader();
 		Locale loc = rl.setContextLocale(null);		
 
+		// reset notification items with the locale
+		initRegisteredNotificationItems();
+
 		locUpdated = true; // set for display of text massage
 		return "locale";
 	}
