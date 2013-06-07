@@ -823,6 +823,19 @@ var setupRecentSite = function(){
     if (sessionStorage.getItem(target)) {
         $('#newSiteAlert').hide();
     }
+  
+    var queryUrl = '/direct/site/' + target + ".json";
+    
+    jQuery.ajax({
+        type: 'GET',
+        url: queryUrl,
+        dataType: 'json',
+        success: function(data){
+            if (data.published === false) {
+                $('#newSiteAlertActions').show();
+            }
+        }
+    });
     
     $('.newSiteAlertClose').click(function(e){
         e.preventDefault();

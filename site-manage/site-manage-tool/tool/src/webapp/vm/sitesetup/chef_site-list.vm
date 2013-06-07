@@ -299,7 +299,7 @@
         <div id="newSiteAlert" class="$newSiteStatusID">
             <span class="newSiteAlertMessage"><a title="$newSiteStatusTitle" href="/portal/site/$newSiteStatusID" target="_top">$newSiteStatusTitle</a> $tlang.getString("sitdup.hasbeedup") </span>
             #if (!$newSiteStatusIsPublished)
-                <div class="newSiteAlertActions">
+                <div id="newSiteAlertActions" class="newSiteAlertActions" style="display:none">
                     <a href="#" id="newSiteAlertPublish" class="$newSiteStatusID">$tlang.getString("sitetype.publishSite")</a>
                     <span id="newSiteAlertPublishMess" class="messageSuccess" style="display:none">$tlang.getString("list.publi")</span>
                 </div>
