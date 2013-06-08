@@ -3420,20 +3420,12 @@ public class ShowPageProducer implements ViewComponentProducer, DefaultView, Nav
 		UIBoundBoolean.make(form, "student-required", "#{simplePageBean.required}");
 		UIBoundBoolean.make(form, "student-prerequisite", "#{simplePageBean.prerequisite}");
 		
-		/* **************************************************************************
-		 * Peer Evaluation Rubrics addon for Student Content tool.
-		 * @email Rutgers Sakai <devs@sakai.rutgers.edu>
-		 * 
-		 * Creation of rubrics is currently disabled until testing is complete.
-		 * **************************************************************************
-		 
-		
 		UIOutput.make(form, "peer-evaluation-creation");
-		*/
+		
 		UIBoundBoolean.make(form, "peer-eval-check", "#{simplePageBean.peerEval}");
 		UIInput.make(form, "peer-eval-input-title", "#{simplePageBean.rubricTitle}");
 		UIInput.make(form, "peer-eval-input-row", "#{simplePageBean.rubricRow}");
-		
+
         UIOutput.make(form, "peer_eval_open_date_label", messageLocator.getMessage("simplepage.peer-eval.open_date"));
        
         UIInput openDateField = UIInput.make(form, "peer_eval_open_date:", "#{simplePageBean.peerEvalOpenDate}");
@@ -3446,8 +3438,6 @@ public class ShowPageProducer implements ViewComponentProducer, DefaultView, Nav
         dateevolver.evolveDateInput(dueDateField);
         
         UIBoundBoolean.make(form, "peer-eval-allow-selfgrade", "#{simplePageBean.peerEvalAllowSelfGrade}");
-        
-        
         
 		UIBoundBoolean.make(form, "student-graded", "#{simplePageBean.graded}");
 		UIInput.make(form, "student-max", "#{simplePageBean.maxPoints}");
