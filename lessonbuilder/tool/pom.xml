@@ -262,7 +262,7 @@
                     <scope>provided</scope>
                 </dependency>
                 <dependency>
-                    <groupId>org.etudes.mneme</groupId>
+                    <groupId>org.etudes</groupId>
                     <artifactId>etudes-mneme-api</artifactId>
                     <version>${sakai.mneme.version}</version>
                     <scope>${sakai.mneme.scope}</scope>

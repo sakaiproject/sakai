@@ -51,7 +51,7 @@
  		<!-- the following 3 definitions are only used if the optional features are enabled (via -P optional build profile) in tool/pom.xml. If you have enabled it, You should replace these with the versions you actually use. If you use only some of the optional components, leave these versions for the ones you don't use. They will allow the build to work, but the system will detect at runtime thta the feature isn't present, and not present it to users -->
 		<lb.hbm.location>src/java</lb.hbm.location>
                 <sakai.yaft.version>1.3.0-SNAPSHOT</sakai.yaft.version>
-                <sakai.mneme.version>1.2-hack</sakai.mneme.version>
+                <sakai.mneme.version>2.1.2</sakai.mneme.version>
                 <sakai.mneme.scope>compile</sakai.mneme.scope>
                 <!-- 
                      RSF versions are now picked up from master by default, so
@@ -72,7 +72,7 @@
                 <sakai.samigo.version>2.8.1</sakai.samigo.version>
 		<!-- the following 3 definitions are only used if the optional features enabled (via '-P optional' build profile in tool/pom.xml -->
                 <sakai.yaft.version>1.3.0-SNAPSHOT</sakai.yaft.version>
-                <sakai.mneme.version>1.2-hack</sakai.mneme.version>
+                <sakai.mneme.version>2.1.2</sakai.mneme.version>
                 <sakai.mneme.scope>compile</sakai.mneme.scope>
                 <rsfutil.version>0.7.7</rsfutil.version>
 		<lb.hbm.location>old-src/java</lb.hbm.location>
