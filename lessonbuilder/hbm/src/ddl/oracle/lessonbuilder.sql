@@ -16,7 +16,7 @@
         id number(19,0) not null,
         itemId varchar2(255 char) not null,
         groupId varchar2(255 char) not null,
-        groups long,
+        groups clob,
         primary key (id)
     );
 

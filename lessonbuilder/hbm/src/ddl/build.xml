@@ -2,10 +2,10 @@
 <project basedir="." name="Export schema">
 
 <path id="toolslib">
- <path location="hibernate-tools.jar" />
- <path location="hibernate3.jar" />
- <path location="freemarker.jar" />
- <fileset dir="lib">
+ <fileset dir="lib/hibernate">
+    <include name="**/*.jar/"/>
+ </fileset>
+ <fileset dir="lib/tools">
     <include name="**/*.jar/"/>
  </fileset>
 </path>
