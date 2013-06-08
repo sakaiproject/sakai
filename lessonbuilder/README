@@ -75,12 +75,13 @@ The default is false before Sakai 2.9.2, true starting with 2.9.2.
 BUILDING
 
 To build, the normal Sakai maven commands will work. However you'll
-probably need to edit pom.xml to change versions. The main pom.xml
-file in this directory is all you should have to change. pom files
+probably need to edit pom.xml to change versions. For versions
+before 2.10 you'll probably need changes in pom.xml, tool/pom.xml
+and components/pom.xml
 
-in other directories take their information from this one.
+other directories take their information from this one.
 
-You'll need to change two things;
+You'll need to change three things;
 
 1) Near the top, in the <parent> declaration, the version
 should match your version of Sakai. Currently it is
@@ -111,8 +112,12 @@ entitybroker, assignment, msgcntr, and samigo. Normally assignment,
 msgcntr and samigo will match the version of Sakai, although that
 may not always be true. entitybroker has separate version numbering.
 
-Also, make sure you set the correct value for <hbms>, newhbm for
-2.10 and later, oldhbm for 2.8 and 2.9.
+3) Some changes occured with both Spring and Hibernate between
+2.9 and 2.10. The code is currently set for 2.10. To use it
+with 2.9 and earlier, you'll need to change the value
+for the property <hbms> from newhbm to  oldhbm.
+And in component/pom.xml and tool/pom.xml you'll need to
+disable the profile "newspring".
 
 Other than that, the properties can be left as is. In particular,
 don't change the version of RSF. We depend upon a newer version than
