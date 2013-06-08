@@ -16,7 +16,7 @@
         id numeric(19,0) identity not null,
         itemId varchar(255) not null,
         groupId varchar(255) not null,
-        groups varchar(500) null,
+        groups text null,
         primary key (id)
     );
 
@@ -28,7 +28,7 @@
         sakaiId varchar(250) null,
         name varchar(100) null,
         html text null,
-        description varchar(500) null,
+        description text null,
         height varchar(8) null,
         width varchar(8) null,
         alt varchar(500) null,
@@ -40,7 +40,7 @@
         subrequirement tinyint null,
         requirementText varchar(20) null,
         sameWindow tinyint null,
-        groups varchar(500) null,
+        groups text null,
         anonymous tinyint null,
         showComments tinyint null,
         forcedCommentsAnonymous tinyint null,
@@ -52,7 +52,7 @@
         altPoints int null,
         altGradebookTitle varchar(200) null,
         groupOwned tinyint null,
-        ownerGroups varchar(4000) null,
+        ownerGroups text null,
         attributeString text null,
         primary key (id)
     );
@@ -71,6 +71,18 @@
         primary key (id)
     );
 
+    create table lesson_builder_p_eval_results (
+        PEER_EVAL_RESULT_ID numeric(19,0) identity not null,
+        PAGE_ID numeric(19,0) not null,
+        TIME_POSTED datetime null,
+        GRADER varchar(255) not null,
+        GRADEE varchar(255) not null,
+        ROW_TEXT varchar(255) not null,
+        COLUMN_VALUE int not null,
+        SELECTED tinyint null,
+        primary key (PEER_EVAL_RESULT_ID)
+    );
+
     create table lesson_builder_pages (
         pageId numeric(19,0) identity not null,
         toolId varchar(250) not null,
@@ -86,18 +98,6 @@
         groupid varchar(36) null,
         cssSheet varchar(250) null,
         primary key (pageId)
-    );
-
-    create table lesson_builder_peer_eval_results (
-        PEER_EVAL_RESULT_ID numeric(19,0) identity not null,
-        PAGE_ID numeric(19,0) not null,
-        TIME_POSTED datetime null,
-        GRADER varchar(255) not null,
-        GRADEE varchar(255) not null,
-        ROW_TEXT varchar(255) not null,
-        COLUMN_VALUE int not null,
-        SELECTED tinyint null,
-        primary key (PEER_EVAL_RESULT_ID)
     );
 
     create table lesson_builder_q_responses (

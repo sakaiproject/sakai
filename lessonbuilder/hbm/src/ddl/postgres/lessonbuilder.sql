@@ -16,7 +16,7 @@
         id int8 not null,
         itemId varchar(255) not null,
         groupId varchar(255) not null,
-        groups varchar(500),
+        groups text,
         primary key (id)
     );
 
@@ -28,7 +28,7 @@
         sakaiId varchar(250),
         name varchar(100),
         html text,
-        description varchar(500),
+        description text,
         height varchar(8),
         width varchar(8),
         alt varchar(500),
@@ -40,7 +40,7 @@
         subrequirement bool,
         requirementText varchar(20),
         sameWindow bool,
-        groups varchar(500),
+        groups text,
         anonymous bool,
         showComments bool,
         forcedCommentsAnonymous bool,
@@ -52,7 +52,7 @@
         altPoints int4,
         altGradebookTitle varchar(200),
         groupOwned bool,
-        ownerGroups varchar(4000),
+        ownerGroups text,
         attributeString text,
         primary key (id)
     );
@@ -71,6 +71,18 @@
         primary key (id)
     );
 
+    create table lesson_builder_p_eval_results (
+        PEER_EVAL_RESULT_ID int8 not null,
+        PAGE_ID int8 not null,
+        TIME_POSTED timestamp,
+        GRADER varchar(255) not null,
+        GRADEE varchar(255) not null,
+        ROW_TEXT varchar(255) not null,
+        COLUMN_VALUE int4 not null,
+        SELECTED bool,
+        primary key (PEER_EVAL_RESULT_ID)
+    );
+
     create table lesson_builder_pages (
         pageId int8 not null,
         toolId varchar(250) not null,
@@ -86,18 +98,6 @@
         groupid varchar(36),
         cssSheet varchar(250),
         primary key (pageId)
-    );
-
-    create table lesson_builder_peer_eval_results (
-        PEER_EVAL_RESULT_ID int8 not null,
-        PAGE_ID int8 not null,
-        TIME_POSTED timestamp,
-        GRADER varchar(255) not null,
-        GRADEE varchar(255) not null,
-        ROW_TEXT varchar(255) not null,
-        COLUMN_VALUE int4 not null,
-        SELECTED bool,
-        primary key (PEER_EVAL_RESULT_ID)
     );
 
     create table lesson_builder_q_responses (

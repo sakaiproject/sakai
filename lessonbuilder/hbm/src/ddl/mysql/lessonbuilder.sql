@@ -5,7 +5,7 @@
         pageId bigint not null,
         timePosted datetime not null,
         author varchar(36) not null,
-        commenttext longtext,
+        commenttext text,
         UUID varchar(36) not null,
         html bit not null,
         points double precision,
@@ -16,7 +16,7 @@
         id bigint not null auto_increment,
         itemId varchar(255) not null,
         groupId varchar(255) not null,
-        groups longtext,
+        groups text,
         primary key (id)
     );
 
@@ -27,11 +27,11 @@
         type integer not null,
         sakaiId varchar(250),
         name varchar(100),
-        html longtext,
-        description longtext,
+        html mediumtext,
+        description text,
         height varchar(8),
         width varchar(8),
-        alt longtext,
+        alt text,
         nextPage bit,
         format varchar(255),
         required bit,
@@ -40,7 +40,7 @@
         subrequirement bit,
         requirementText varchar(20),
         sameWindow bit,
-        groups longtext,
+        groups text,
         anonymous bit,
         showComments bit,
         forcedCommentsAnonymous bit,
@@ -52,8 +52,8 @@
         altPoints integer,
         altGradebookTitle varchar(200),
         groupOwned bit,
-        ownerGroups longtext,
-        attributeString longtext,
+        ownerGroups text,
+        attributeString text,
         primary key (id)
     );
 
@@ -106,9 +106,9 @@
         questionId bigint not null,
         userId varchar(255) not null,
         correct bit not null,
-        shortanswer longtext,
+        shortanswer text,
         multipleChoiceId bigint,
-        originalText longtext,
+        originalText text,
         overridden bit not null,
         points double precision,
         primary key (id)
