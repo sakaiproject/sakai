@@ -1479,7 +1479,9 @@ public class ShowPageProducer implements ViewComponentProducer, DefaultView, Nav
 					    String movieUrl = i.getItemURL(simplePageBean.getCurrentSiteId(),currentPage.getOwner());
 					    // the jwm javascript doesn't like the RSF generated IDs
 					    // put in our own div with simple id's
-					    UIVerbatim.make(tableRow, "jwmovie", "<div id=\"jwm" + (++jwmcount) + "\"></div>");
+					    UIComponent jwdiv = UIOutput.make(tableRow, "jwmovie");
+					    jwdiv.updateFullID("jwm" + (++jwmcount));
+					    
 					    String sizeString = "";
 					    if (lengthOk(height) && height.getOld().indexOf("%") < 0)
 						sizeString = ",height: " + height.getOld();
