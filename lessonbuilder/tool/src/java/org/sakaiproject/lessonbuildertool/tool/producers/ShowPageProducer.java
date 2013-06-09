@@ -320,6 +320,7 @@ public class ShowPageProducer implements ViewComponentProducer, DefaultView, Nav
 
 		boolean iframeJavascriptDone = false;
 		boolean jwLoaded = false;
+		int jwmcount = 0;
 		
 		// security model:
 		// canEditPage and canReadPage are normal Sakai privileges. They apply
@@ -1476,14 +1477,16 @@ public class ShowPageProducer implements ViewComponentProducer, DefaultView, Nav
 					    }
 					    UIOutput.make(tableRow, "movieSpan");
 					    String movieUrl = i.getItemURL(simplePageBean.getCurrentSiteId(),currentPage.getOwner());
-					    UIComponent movieDiv = UIOutput.make(tableRow, "jwmovie"); // dummy div to replace with player
+					    // the jwm javascript doesn't like the RSF generated IDs
+					    // put in our own div with simple id's
+					    UIVerbatim.make(tableRow, "jwmovie", "<div id=\"jwm" + (++jwmcount) + "\"></div>");
 					    String sizeString = "";
 					    if (lengthOk(height) && height.getOld().indexOf("%") < 0)
 						sizeString = ",height: " + height.getOld();
 					    if (lengthOk(width) && width.getOld().indexOf("%") < 0)
 						sizeString += ",width: " + width.getOld();
 
-					    UIVerbatim.make(tableRow, "jwscript", "jwplayer(\"" + movieDiv.getFullID() + "\").setup({file:\"" + movieUrl + "\"" + sizeString + "});");
+					    UIVerbatim.make(tableRow, "jwscript", "jwplayer(\"jwm" + jwmcount + "\").setup({file:\"" + movieUrl + "\"" + sizeString + "});");
 					    if (canEditPage) {
 						UIOutput.make(tableRow, "movieId", String.valueOf(i.getId()));
 						UIOutput.make(tableRow, "movieHeight", getOrig(height));
