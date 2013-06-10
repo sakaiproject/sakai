@@ -28,6 +28,7 @@ package org.sakaiproject.lessonbuildertool.service;
 import java.io.Serializable;
 import java.net.URI;
 import java.net.URISyntaxException;
+import java.net.InetAddress;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
@@ -238,6 +239,14 @@ public class LessonBuilderEntityProducer extends AbstractEntityProvider
 	  servers.add(serverName);
       if (serverId != null)
 	  servers.add(serverId);
+      try {
+	  String hostName = InetAddress.getLocalHost().getHostName();
+	  servers.add(hostName);
+	  hostName = InetAddress.getLocalHost().getCanonicalHostName();
+	  servers.add(hostName);
+      } catch (Exception ignore) {
+      }
+      servers.add("localhost");
       // if neither is defined we're in trouble;
       if (servers.size() == 0)
 	  System.out.println("LessonBuilderEntityProducer ERROR: neither servername nor serverid defined in sakai.properties");
@@ -1544,7 +1553,12 @@ public class LessonBuilderEntityProducer extends AbstractEntityProvider
 	    } else if ("http".equals(uri.getScheme())
 		|| "https".equals(uri.getScheme())) {
 		if (uri.getHost() != null) {
-		    if (uri.getHost().equals(context.getOldServer())) {
+		    // oldserver is the server that this archive is coming from
+		    // oldserver null means it's a local copy, e.g. duplicate site
+		    // for null we match URL against all of our server names
+		    String oldServer = context.getOldServer();
+		    if (oldServer == null && servers.contains(uri.getHost()) ||
+			uri.getHost().equals(oldServer)) {
 			// Drop the protocol and the host.
 			uri = new URI(null, null, null, -1, uri.getPath(),
 				      uri.getQuery(), uri.getFragment());
