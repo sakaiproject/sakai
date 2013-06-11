@@ -11,6 +11,7 @@
 	<sakai:view toolCssHref="/messageforums-tool/css/msgcntr.css">
       <h:form id="revise">
         <script type="text/javascript" src="/library/js/jquery-ui-latest/js/jquery.min.js"></script>
+        <sakai:script contextBase="/messageforums-tool" path="/js/messages.js"/>
 		<script type="text/javascript">
 			$(document).ready(function(){
 				//fade permission block and then disable all the inputs/selects in the permission include so as not to confuse people

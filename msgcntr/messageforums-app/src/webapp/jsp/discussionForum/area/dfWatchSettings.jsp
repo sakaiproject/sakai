@@ -13,6 +13,7 @@
       <h:form id="revise">
         		<script type="text/javascript" src="/library/js/jquery.js"></script>
        		<sakai:script contextBase="/messageforums-tool" path="/js/sak-10625.js"/>
+       		<sakai:script contextBase="/messageforums-tool" path="/js/messages.js"/>
 <!--jsp/discussionForum/area/dfWatchSettings.jsp-->
         <sakai:tool_bar_message value="#{msgs.watch_forums_options}" />
 				<p class="instruction">

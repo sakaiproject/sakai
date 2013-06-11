@@ -12,7 +12,7 @@
 	  <h:form id="pvtMsgFolderRevise">
 	         		<script type="text/javascript" src="/library/js/jquery.js"></script>
        		<sakai:script contextBase="/messageforums-tool" path="/js/sak-10625.js"/>
-		
+			<sakai:script contextBase="/messageforums-tool" path="/js/messages.js"/>
     <sakai:tool_bar_message value="#{msgs.pvt_rename_folder_label}" />
     <h:messages styleClass="alertMessage" id="errorMessages" rendered="#{! empty facesContext.maximumSeverity}" /> 
  

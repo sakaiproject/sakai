@@ -12,7 +12,7 @@
   	    <script type="text/javascript" src="/library/js/jquery.js"></script>
        	<sakai:script contextBase="/messageforums-tool" path="/js/sak-10625.js"/>
        	<sakai:script contextBase="/messageforums-tool" path="/js/forum.js"/>
-       	
+       	<sakai:script contextBase="/messageforums-tool" path="/js/messages.js"/>
        	<script type="text/javascript">
   			$(document).ready(function() {
 				$(".messageBody").each(function(index){

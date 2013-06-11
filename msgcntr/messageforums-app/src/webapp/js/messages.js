@@ -55,3 +55,31 @@ function mySetMainFrameHeight(id)
 	}
 }
 
+// MSGCNTR-53
+$(document).ready(function(){
+	  if ($('#displayWait').length<=0) {
+		  $("body").append('<img id="displayWait" src="/messageforums-tool/images/wait_sakai.gif" width="50" height="50" style="display:none" />');
+	  }
+	  var loadUI = function() {
+		  $.getScript("/messageforums-tool/js/jquery.blockUI.js",
+			function(){
+			  $('input[type=submit]').click(function() {
+		        $.blockUI({ 
+		            message: $('#displayWait'), 
+		            css: { 
+		                top:  ($(window).height() - 50) /2 + 'px', 
+		                left: ($(window).width() - 50) /2 + 'px', 
+		                width: '50px' 
+		            } 
+		        }); 
+		        setTimeout($.unblockUI, 10000); 			  
+			  });
+		    });
+	  }
+	  // I need UI js
+	  if (!$.progressbar) {
+		$.getScript("/library/js/jquery-ui-latest/js/jquery-ui.min.js",loadUI);
+	  } else {
+		loadUI();  
+	  }
+});

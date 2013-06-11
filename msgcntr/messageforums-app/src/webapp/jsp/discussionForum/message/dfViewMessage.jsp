@@ -14,6 +14,7 @@
 			<sakai:script contextBase="/messageforums-tool" path="/js/forum.js"/>
 			<sakai:script contextBase="/messageforums-tool" path="/js/sak-10625.js"/>
 			<sakai:script contextBase="/messageforums-tool" path="/js/forum.js"/>
+			<sakai:script contextBase="/messageforums-tool" path="/js/messages.js"/>
 			
 			<!--jsp/discussionForum/message/dfViewMessage.jsp-->
 			<script type="text/javascript">

@@ -17,7 +17,7 @@
        		<sakai:script contextBase="/messageforums-tool" path="/js/sak-10625.js"/>
 		<sakai:script contextBase="/messageforums-tool" path="/js/permissions_header.js"/>
 		<sakai:script contextBase="/messageforums-tool" path="/js/forum.js"/>
-
+		<sakai:script contextBase="/messageforums-tool" path="/js/messages.js"/>
 <%
 	  	String thisId = request.getParameter("panel");
   		if (thisId == null) 

@@ -15,7 +15,7 @@
 	<script type="text/javascript" src="/messageforums-tool/js/jquery.charcounter.js"> </script>
 	<sakai:script contextBase="/messageforums-tool" path="/js/permissions_header.js"/>
 	<sakai:script contextBase="/messageforums-tool" path="/js/forum.js"/>
-	
+	<sakai:script contextBase="/messageforums-tool" path="/js/messages.js"/>
 	<sakai:script contextBase="/messageforums-tool" path="/js/datetimepicker.js"/>             		             		
 	<%
 	  	String thisId = request.getParameter("panel");

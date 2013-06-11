@@ -12,6 +12,7 @@
 	<sakai:view title="#{msgs.cdfm_default_template_organize}" toolCssHref="/messageforums-tool/css/msgcntr.css">           
        		<script type="text/javascript" src="/library/js/jquery.js"></script>
        		<sakai:script contextBase="/messageforums-tool" path="/js/sak-10625.js"/>
+       		<sakai:script contextBase="/messageforums-tool" path="/js/messages.js"/>
    <f:verbatim>
       <script language="javascript">
       

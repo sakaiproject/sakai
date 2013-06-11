@@ -22,6 +22,7 @@ if (thisId == null)
        		<sakai:script contextBase="/messageforums-tool" path="/js/forum.js"/>
 			<%--			--%>
        		<sakai:script contextBase="/messageforums-tool" path="/js/sak-10625.js"/>
+       		<sakai:script contextBase="/messageforums-tool" path="/js/messages.js"/>
 
 		<script type="text/javascript">
 			$(document).ready(function(){

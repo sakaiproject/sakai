@@ -138,6 +138,7 @@
        		<script type="text/javascript" language="JavaScript" src="/library/js/jquery-ui-latest/js/jquery.min.js"></script>
        		<script type="text/javascript" language="JavaScript" src="/library/js/jquery-ui-latest/js/jquery-ui.min.js"></script>
   			<sakai:script contextBase="/messageforums-tool" path="/js/dialog.js"/>
+  			<sakai:script contextBase="/messageforums-tool" path="/js/messages.js"/>
   			<link rel="stylesheet" type="text/css" href="/messageforums-tool/css/dialog.css" />
   			
   			<script type="text/javascript">
