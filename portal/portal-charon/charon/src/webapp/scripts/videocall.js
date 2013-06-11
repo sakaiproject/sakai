@@ -47,6 +47,12 @@ function VideoCall() {
 		return val;
 	}
 	
+	this.getCurrentCallTime = function (uuid) {
+		var val = this.currentCalls[uuid]?this.currentCalls[uuid].calltime:null;
+		if (this.debug) console.log("Current status: "+uuid+":"+val);
+		return val;
+	}
+	
 	this.doCall = function(uuid,videoAgentType,onSuccessStartCall,onSuccessConnection,onFailConnection){
 
 		var videoCallObject = this; 
@@ -207,7 +213,8 @@ function VideoCall() {
 	    var videoCallObject = this;
 		
 	    this.webRTC.onReceiveCall = function(userid) {
-			if (videoCall.getCurrentCall(userid)) {
+	    	var callTime = null;
+	    	if (videoCall.getCurrentCall(userid)) {
 				if (videoCall.getCurrentCallStatus(userid) == "SYNC") {
 					// I'm calling to the same user at the same time, discard !!
 					videoCall.changeCallStatus(userid, "ANSWERING");
@@ -221,12 +228,19 @@ function VideoCall() {
 						return;
 					}  
 				}
+				callTime = videoCall.getCurrentCallTime(userid);
+				
 			} else {
-				videoCall.createNewCall(userid,{'status':'ANSWERING'});
+				callTime = new Date().getTime();
+				videoCall.createNewCall(userid,{
+					'status':'ANSWERING',
+					'calltime':callTime
+				});
 			}
-			videoCall.openVideoCall (userid,true);
+			
+	    	videoCall.openVideoCall (userid,true);
 			videoCall.setVideoStatus(userid,videoMessages.pc_video_status_incomming_call, "waiting");
-			setTimeout('videoCall.doAnswerTimeout("'+userid+'")',videoCall.getCallTimeout());
+			setTimeout('videoCall.doAnswerTimeout("'+userid+'",'+callTime+	')',videoCall.getCallTimeout());
 		}
 	    
 	    
@@ -334,8 +348,8 @@ function VideoCall() {
 		return portalChat.currentConnectionsMap[uuid].video;
 	}
 	
-	this.doTimeout = function(uuid) {
-		if (videoCall.getCurrentCallStatus(uuid) == "ESTABLISHING") {
+	this.doTimeout = function(uuid,callTime) {
+		if (videoCall.getCurrentCallStatus(uuid) == "ESTABLISHING" && videoCall.getCurrentCallTime (uuid) == callTime) {
 			videoCall.setVideoStatus(uuid,videoMessages.pc_video_status_call_timeout,"failed");
 			videoCall.doClose(uuid);
 			$('#pc_connection_' + uuid + '_videochat_bar .video_off').show();
@@ -343,8 +357,8 @@ function VideoCall() {
 		}
 	}
 
-	this.doAnswerTimeout = function(uuid) {
-		if ($('#pc_connection_' + uuid + '_videoin').is(":visible") && (!this.webRTC.currentPeerConnectionsMap[uuid] || this.getCurrentCallStatus(uuid)=="CANCELLING")) {
+	this.doAnswerTimeout = function(uuid,callTime) {
+		if ($('#pc_connection_' + uuid + '_videoin').is(":visible") && (!this.webRTC.currentPeerConnectionsMap[uuid] || this.getCurrentCallStatus(uuid)=="CANCELLING") && videoCall.getCurrentCallTime (uuid) == callTime) {
 			this.ignoreVideoCall(uuid);
 		}
 	}
@@ -372,16 +386,18 @@ function VideoCall() {
 			if (!this.getCurrentCall(uuid)) {
 			  videoCall.setVideoStatus(uuid,videoMessages.pc_video_status_setup, "waiting");
 			  this.showVideoCall (uuid);
+			  var callTime = new Date().getTime();
 			  
 			  this.createNewCall(uuid,{ 
 					  "status":"SYNC",
+					  "calltime" : callTime,
 					  "proceed":function() {
 							videoCall.doCall(
 									uuid,
 									videoCall.getVideoAgent(uuid),
 									function(uuid) {
 										videoCall.setVideoStatus(uuid,videoMessages.pc_video_status_waiting_peer, "waiting");
-										setTimeout('videoCall.doTimeout("'+uuid+'")',videoCall.getCallTimeout());
+										setTimeout('videoCall.doTimeout("'+uuid+'",'+callTime+')',videoCall.getCallTimeout());
 									},
 									function(uuid) {
 										videoCall.changeCallStatus(uuid,"ESTABLISHED");
@@ -538,7 +554,10 @@ function SignalService(videoCall) {
 	}
 
 	this.onReceive = function(userid, content) {
-		/*That is a empty function, redeclared on initialization methods, only here to make sense when revising code */
+		/*
+		 * That is a empty function, redeclared on initialization methods, only
+		 * here to make sense when revising code
+		 */
 	}
 	
 }
