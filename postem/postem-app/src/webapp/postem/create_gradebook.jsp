@@ -37,14 +37,21 @@
 								
 				<sakai:panel_titled>
 					<h:panelGrid styleClass="jsfFormTable" width="80%" columns="2">
-
 						<h:outputLabel for="title" styleClass="shorttext" style="font-weight: bold;">
 						  <h:outputText value="#{msgs.gradebook_title}"/>
 						</h:outputLabel>
 						<h:inputText id="title" value="#{PostemTool.currentGradebook.title}"/>
-								
-						<h:outputText style="font-weight: bold;" value="#{msgs.gradebook_choosefile}"/>
+					</h:panelGrid>											
+                    <%--
 						<corejsf:upload value="#{PostemTool.csv}" />
+                    --%>
+                    <sakai:button_bar>
+                    <%-- (gsilver) cannot pass a needed title atribute to these next items --%>
+                        <sakai:button_bar_item
+                            action="#{PostemTool.processAddAttachRedirect}" 
+                            value="#{msgs.gradebook_choosefile}"/>
+                        <h:outputText value="#{PostemTool.attachmentTitle}"/>
+                    </sakai:button_bar>
 
 						<%--<h:outputText value="#{msgs.delimiter}" style="font-weight: bold;" />
 					  <h:selectOneRadio styleClass="checkbox" value="#{PostemTool.delimiter}" layout="pageDirection">
@@ -52,6 +59,7 @@
   			      <f:selectItem itemValue="tab" itemLabel="#{msgs.tab_delim}"/>
 			      </h:selectOneRadio>--%>
 
+					<h:panelGrid styleClass="jsfFormTable" width="80%" columns="2">
 						<h:outputText value="#{msgs.gradebook_feedbackavail}" style="font-weight: bold;"/>
 						<h:panelGroup styleClass="checkbox">
 						  <h:selectBooleanCheckbox id="release" value="#{PostemTool.currentGradebook.release}" />

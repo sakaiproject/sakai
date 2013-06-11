@@ -76,6 +76,10 @@ public interface Gradebook {
 
 	public void setTemplate(Template template);
 
+    public void setFileReference(String fileReference);
+
+    public String getFileReference();
+
 	public List getHeadings();
 
 	public void setHeadings(List headings);

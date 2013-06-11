@@ -50,6 +50,8 @@ public class GradebookImpl implements Gradebook, Comparable, Serializable {
 
 	protected String creator;
 	
+    protected String fileReference;
+	
 	protected String creatorEid;
 
 	protected Timestamp created;
@@ -137,6 +139,14 @@ public class GradebookImpl implements Gradebook, Comparable, Serializable {
 		this.title = title;
 	}
 
+	public String getFileReference() {
+		return fileReference;
+	}
+
+	public void setFileReference(String fileReference) {
+		this.fileReference = fileReference;
+	}
+
 	public String getCreator() {
 		return creator;
 	}
@@ -146,6 +156,7 @@ public class GradebookImpl implements Gradebook, Comparable, Serializable {
 		setCreatorEid(creator);
 
 	}
+	
 	
 	public String getCreatorEid() {
 		return creatorEid;

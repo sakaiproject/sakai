@@ -26,7 +26,7 @@ import java.util.SortedSet;
 
 public interface GradebookManager {
 	public Gradebook createGradebook(String title, String creator,
-			String context, List headings, SortedSet students, Template template);
+			String context, List headings, SortedSet students, Template template, String fileReference);
 
 	public Gradebook createEmptyGradebook(String creator, String context);
 
@@ -51,7 +51,7 @@ public interface GradebookManager {
 	public void updateGrades(Gradebook gradebook, List headings,
 			SortedSet students);
 
-	public void updateTemplate(Gradebook gradebook, String template);
+	public void updateTemplate(Gradebook gradebook, String template, String fileReference);
 
 	public void deleteGradebook(final Gradebook gradebook);
 

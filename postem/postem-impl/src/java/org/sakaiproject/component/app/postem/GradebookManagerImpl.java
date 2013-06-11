@@ -61,7 +61,7 @@ public class GradebookManagerImpl extends HibernateDaoSupport implements
 	public static final String RELEASED = "released";
 
 	public Gradebook createGradebook(String title, String creator,
-			String context, List headings, SortedSet students, Template template) {
+			String context, List headings, SortedSet students, Template template, String fileReference) {
 		if (title == null || creator == null || context == null || headings == null
 				|| students == null) {
 			throw new IllegalArgumentException("Null Argument");
@@ -69,6 +69,8 @@ public class GradebookManagerImpl extends HibernateDaoSupport implements
 
 			Gradebook grades = new GradebookImpl(title, creator, context, headings,
 					students, template);
+
+            grades.setFileReference(fileReference);
 			Iterator si = students.iterator();
 			while (si.hasNext()) {
 				((StudentGradesImpl) si.next()).setGradebook(grades);
@@ -283,7 +285,8 @@ public class GradebookManagerImpl extends HibernateDaoSupport implements
 		getHibernateTemplate().saveOrUpdate(gradebook);
 	}
 
-	public void updateTemplate(Gradebook gradebook, String template) {
+	public void updateTemplate(Gradebook gradebook, String template, String fileReference) {
+		gradebook.setFileReference(fileReference);
 		gradebook.setTemplate(createTemplate(template));
 		getHibernateTemplate().saveOrUpdate(gradebook);
 	}

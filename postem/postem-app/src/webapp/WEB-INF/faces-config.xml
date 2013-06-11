@@ -43,6 +43,11 @@
       <value>#{Components["org.sakaiproject.api.app.postem.data.GradebookManager"]}</value>
     </managed-property>
     
+    <managed-property>
+        <description>contentHostingService</description>
+        <property-name>contentHostingService</property-name>
+        <value>#{Components["org.sakaiproject.content.api.ContentHostingService"]}</value>
+    </managed-property>
     
   </managed-bean>
 

@@ -77,7 +77,10 @@
 
     <servlet>
         <servlet-name>sakai.postem</servlet-name>
+        <!--
         <servlet-class>org.sakaiproject.jsf.util.JsfTool</servlet-class>
+        -->
+        <servlet-class>org.sakaiproject.tool.postem.PostemFilePickerServlet</servlet-class>
         <init-param>
             <param-name>default</param-name>
             <param-value>main</param-value>
