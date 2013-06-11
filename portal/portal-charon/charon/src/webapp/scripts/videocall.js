@@ -386,8 +386,11 @@ function VideoCall() {
 									function(uuid) {
 										videoCall.changeCallStatus(uuid,"ESTABLISHED");
 										videoCall.setVideoStatus(uuid,videoMessages.pc_video_status_connection_established,"video");
-									}, 
+									}, 	
 									function(uuid) {
+										$('#pc_connection_' + uuid + '_videochat_bar > .pc_connection_videochat_bar_left ').show();
+										$('#pc_connection_' + uuid + '_videochat_bar .video_off').show();
+										$('#pc_connection_' + uuid + '_videochat_bar .video_on').hide();
 										videoCall.setVideoStatus(uuid,videoMessages.pc_video_status_call_not_accepted, "failed");
 										videoCall.doClose(uuid);
 										
@@ -424,6 +427,8 @@ function VideoCall() {
 			videoCall.setVideoStatus(uuid, videoMessages.pc_video_status_connection_established, "waiting");
 		}, function() {
 			$('#pc_connection_' + uuid + '_videochat_bar > .pc_connection_videochat_bar_left ').show();
+			$('#pc_connection_' + uuid + '_videochat_bar .video_off').show();
+			$('#pc_connection_' + uuid + '_videochat_bar .video_on').hide();
 			videoCall.setVideoStatus(uuid, videoMessages.pc_video_status_call_failed, "failed");
 			videoCall.closeVideoCall(uuid);
 		});
