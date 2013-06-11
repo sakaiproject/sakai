@@ -6,7 +6,7 @@ function WebRTC() {
 	this.currentPeerConnectionsMap = {};
 	this.signalService = null;
 	this.localMediaStream = null;
-	this.debug = true;
+	this.debug = false;
 
 	this.pc_config = {
 		"iceServers" : [ {
