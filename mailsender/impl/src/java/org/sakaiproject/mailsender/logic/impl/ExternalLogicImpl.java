@@ -18,8 +18,6 @@ package org.sakaiproject.mailsender.logic.impl;
 
 import static org.sakaiproject.mailsender.logic.impl.MailConstants.PROTOCOL_SMTP;
 
-import java.io.File;
-import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
@@ -61,7 +59,6 @@ import org.sakaiproject.tool.api.ToolManager;
 import org.sakaiproject.user.api.User;
 import org.sakaiproject.user.api.UserDirectoryService;
 import org.sakaiproject.user.api.UserNotDefinedException;
-import org.springframework.web.multipart.MultipartFile;
 
 /**
  * This is the implementation for logic which is external to our app logic
