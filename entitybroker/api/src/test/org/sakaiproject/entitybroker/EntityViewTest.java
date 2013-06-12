@@ -316,6 +316,14 @@ public class EntityViewTest extends TestCase {
       assertEquals("this has spaces", ev.getPathSegment(3) );
       assertEquals(null, ev.getPathSegment(4) );
 
+      ev = new EntityView("/myprefix/myid/stuff/this_is_a_site.with.periods.in.the.name");
+      assertNotNull(ev);
+      assertEquals("myprefix", ev.getPathSegment(0) );
+      assertEquals("myid", ev.getPathSegment(1) );
+      assertEquals("stuff", ev.getPathSegment(2) );
+      assertEquals("this_is_a_site.with.periods.in.the.name", ev.getPathSegment(3) );
+      assertEquals(null, ev.getPathSegment(4) );
+
    }
 
    public void testGetPathSegments() {

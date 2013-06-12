@@ -149,7 +149,7 @@ public class EntityHandlerImplTest extends TestCase {
         }
 
         // types that cannot handle the return requested
-        req = new EntityHttpServletRequest("GET", DIRECT_PREFIX + TestData.REF4 + ".xxxx");
+        req = new EntityHttpServletRequest("GET", DIRECT_PREFIX + TestData.REF4 + ".csv");
         res = new EntityHttpServletResponse();
         try {
             entityHandler.handleEntityAccess(req, res, null);

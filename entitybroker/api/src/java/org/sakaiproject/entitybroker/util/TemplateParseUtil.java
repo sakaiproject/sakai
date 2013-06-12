@@ -21,15 +21,19 @@
 package org.sakaiproject.entitybroker.util;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 import java.util.UUID;
 import java.util.Map.Entry;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 import org.sakaiproject.entitybroker.EntityView;
+import org.sakaiproject.entitybroker.entityprovider.extension.Formats;
 
 /**
  * Utility class to handle the URL template parsing (entity template parsing)
@@ -142,6 +146,10 @@ public class TemplateParseUtil {
     * Stores the preloaded processed default templates
     */
    public static final List<PreProcessedTemplate> defaultPreprocessedTemplates;
+   /**
+    * Contains a set of all the common extensions
+    */
+   public static Set<String> commonExtensions = new HashSet<String>(20);
 
    // static initializer
    static {
@@ -154,6 +162,21 @@ public class TemplateParseUtil {
       defaultTemplates.add( new Template(TEMPLATE_LIST, TEMPLATE_PREFIX) );
 
       defaultPreprocessedTemplates = preprocessTemplates(defaultTemplates);
+
+      // populate the list of common extensions
+      Collections.addAll(commonExtensions, Formats.JSON_EXTENSIONS);
+      Collections.addAll(commonExtensions, Formats.XML_EXTENSIONS);
+      Collections.addAll(commonExtensions, Formats.HTML_EXTENSIONS);
+      Collections.addAll(commonExtensions, Formats.FORM_EXTENSIONS);
+      Collections.addAll(commonExtensions, Formats.JSONP_EXTENSIONS);
+      Collections.addAll(commonExtensions, Formats.ATOM_EXTENSIONS);
+      Collections.addAll(commonExtensions, Formats.RSS_EXTENSIONS);
+      // also image extensions and other common ones
+      commonExtensions.add("png");
+      commonExtensions.add("jpg");
+      commonExtensions.add("gif");
+      commonExtensions.add("jpeg");
+      commonExtensions.add("csv");
    }
 
    /**
@@ -317,6 +340,11 @@ public class TemplateParseUtil {
                 stripped = input.substring(0, extensionLoc);
                 if ( (input.length() - 1) > extensionLoc) {
                    extension = input.substring(extensionLoc + 1);
+                   // we only consider it an extension if we recognize the type
+                   if (!commonExtensions.contains(extension)) {
+                       stripped = input;
+                       extension = null;
+                   }
                 }
              }
          }
