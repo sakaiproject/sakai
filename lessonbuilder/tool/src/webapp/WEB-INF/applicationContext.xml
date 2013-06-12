@@ -242,7 +242,8 @@ simplePageBean.peerEvalAllowSelfGrade
 
   </bean>
 
-  <bean class="org.sakaiproject.lessonbuildertool.service.LessonBuilderAccessService"
+  <bean id="org.sakaiproject.lessonbuildertool.service.LessonBuilderAccessService"
+	class="org.sakaiproject.lessonbuildertool.service.LessonBuilderAccessService"
         init-method="init"
         destroy-method="destroy"
         singleton="true">

@@ -57,6 +57,13 @@ import java.text.SimpleDateFormat;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
+import javax.crypto.Cipher;
+import javax.crypto.KeyGenerator;
+import javax.crypto.Mac;
+import javax.crypto.SecretKey;
+import javax.crypto.spec.SecretKeySpec;
+import javax.xml.bind.DatatypeConverter;
+
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.sakaiproject.component.cover.ComponentManager;
@@ -89,6 +96,7 @@ import org.sakaiproject.lessonbuildertool.tool.view.FilePickerViewParameters;
 import org.sakaiproject.lessonbuildertool.tool.view.GeneralViewParameters;
 import org.sakaiproject.lessonbuildertool.tool.view.QuestionGradingPaneViewParameters;
 import org.sakaiproject.lessonbuildertool.tool.view.ExportCCViewParameters;
+import org.sakaiproject.lessonbuildertool.service.LessonBuilderAccessService;
 import org.sakaiproject.memory.api.Cache;
 import org.sakaiproject.memory.api.MemoryService;
 import org.sakaiproject.time.api.TimeService;
@@ -159,6 +167,7 @@ public class ShowPageProducer implements ViewComponentProducer, DefaultView, Nav
 	private static MemoryService memoryService = (MemoryService)ComponentManager.get(MemoryService.class);
 	private ToolManager toolManager;
 	public TextInputEvolver richTextEvolver;
+	private LessonBuilderAccessService lessonBuilderAccessService;
 	
 	private Map<String,String> imageToMimeMap;
 	public void setImageToMimeMap(Map<String,String> map) {
@@ -189,6 +198,7 @@ public class ShowPageProducer implements ViewComponentProducer, DefaultView, Nav
         private static final String DEFAULT_JW_TYPES = "video/x-flv,video/mp4,video/x-m4v,video/webm";
     // jw can also handle audio: audio/mp4,audio/mpeg,audio/ogg
         private static String[] jwTypes = null;
+        private String sessionPar = null;
 
     // WARNING: this must occur after memoryService, for obvious reasons. 
     // I'm doing it this way because it doesn't appear that Spring can do this kind of initialization
@@ -1488,6 +1498,9 @@ public class ShowPageProducer implements ViewComponentProducer, DefaultView, Nav
 					    if (lengthOk(width) && width.getOld().indexOf("%") < 0)
 						sizeString += ",width: " + width.getOld();
 
+					    String sessionParameter = getSessionParameter();
+					    if (sessionParameter != null)
+						movieUrl = movieUrl + "?lb.session=" + sessionParameter;
 					    UIVerbatim.make(tableRow, "jwscript", "jwplayer(\"jwm" + jwmcount + "\").setup({file:\"" + movieUrl + "\"" + sizeString + "});");
 					    if (canEditPage) {
 						UIOutput.make(tableRow, "movieId", String.valueOf(i.getId()));
@@ -1525,8 +1538,12 @@ public class ShowPageProducer implements ViewComponentProducer, DefaultView, Nav
 						// this requires session.parameter.allow=true in sakai.properties
 						// don't pass the arg unless that is set, since the whole point of defaulting
 						// off is to not expose the session id
-						if (allowSessionId)
-						    movieUrl = movieUrl + "?sakai.session=" + SessionManager.getCurrentSession().getId();
+						String sessionParameter = getSessionParameter();
+						if (sessionParameter != null)
+						    movieUrl = movieUrl + "?lb.session=" + sessionParameter;
+
+						//	if (allowSessionId)
+						//  movieUrl = movieUrl + "?sakai.session=" + SessionManager.getCurrentSession().getId();
 						String oMimeType = mimeType; // in case we change it for
 						// FLV or others
 						boolean useFlvPlayer = false;
@@ -1563,7 +1580,7 @@ public class ShowPageProducer implements ViewComponentProducer, DefaultView, Nav
 						boolean useEmbed = ieVersion > 0 && !mimeType.equals("application/x-shockwave-flash");
 
 						if (useEmbed) {
-							item2 = UIOutput.make(tableRow, "movieEmbed").decorate(new UIFreeAttributeDecorator("src", movieUrl)).decorate(new UIFreeAttributeDecorator("alt", messageLocator.getMessage("simplepage.mm_player").replace("{}", abbrevUrl(i.getURL()))));
+						    item2 = UIOutput.make(tableRow, "movieEmbed").decorate(new UIFreeAttributeDecorator("src", movieUrl)).decorate(new UIFreeAttributeDecorator("alt", messageLocator.getMessage("simplepage.mm_player").replace("{}", abbrevUrl(i.getURL()))));
 						} else {
 							item2 = UIOutput.make(tableRow, "movieObject").decorate(new UIFreeAttributeDecorator("data", movieUrl)).decorate(new UIFreeAttributeDecorator("title", messageLocator.getMessage("simplepage.mm_player").replace("{}", abbrevUrl(i.getURL()))));
 						}
@@ -2384,6 +2401,41 @@ public class ShowPageProducer implements ViewComponentProducer, DefaultView, Nav
 		createQuestionDialog(tofill, currentPage);
 	}
 
+    // get encrypted version of session id. This is our equivalent of session.id, except that we
+    // encrypt it so it can't be used for anything else in case someone captures it.
+    // we can't use time to avoid replay, as some time can go by between display of the page and
+    // when the user clicks. The only thing this can be used for is reading multimedia files. I
+    // think we're willing to risk that. I used to use session.id, but by default that's now off, 
+    // and turning it on to use it here would expose us to more serious risks.  Cache the encryption.
+    // we could include the whole URL in the encryption if it was worth the additional over head.
+    // I think it's not.
+
+        public String getSessionParameter() {
+	    // local cache in this module.
+	    if (sessionPar != null)
+		return sessionPar;
+	    // cache in session, since this is clearly always the same fo ra given session.
+	    Session session = SessionManager.getCurrentSession();
+	    sessionPar = (String)session.getAttribute("lb.encryptedid");
+	    if (sessionPar != null)
+		return sessionPar;
+
+	    // not cached. Compute it
+	    try {
+		Cipher sessionCipher = Cipher.getInstance("Blowfish");
+		sessionCipher.init(Cipher.ENCRYPT_MODE, lessonBuilderAccessService.getSessionKey());
+		String sessionId = SessionManager.getCurrentSession().getId();
+		byte[] sessionBytes = sessionId.getBytes("UTF8");
+		sessionBytes = sessionCipher.doFinal(sessionBytes);
+		sessionPar = DatatypeConverter.printHexBinary(sessionBytes);
+		session.setAttribute("lb.encryptedid", sessionPar);
+		return sessionPar;
+	    } catch (Exception e) {
+		System.out.println("unable to generate encrypted session id " + e);
+		return null;
+	    }
+	}
+
 	public void setSimplePageBean(SimplePageBean simplePageBean) {
 		this.simplePageBean = simplePageBean;
 	}
@@ -2696,6 +2748,10 @@ public class ShowPageProducer implements ViewComponentProducer, DefaultView, Nav
 
 	public void setToolManager(ToolManager m) {
 		toolManager = m;
+	}
+
+	public void setLessonBuilderAccessService (LessonBuilderAccessService a) {
+		lessonBuilderAccessService = a;
 	}
 
 	public ViewParameters getViewParameters() {

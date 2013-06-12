@@ -33,6 +33,13 @@ import java.util.List;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
+import javax.crypto.Cipher;
+import javax.crypto.KeyGenerator;
+import javax.crypto.Mac;
+import javax.crypto.SecretKey;
+import javax.crypto.spec.SecretKeySpec;
+import javax.xml.bind.DatatypeConverter;
+
 import org.sakaiproject.time.api.Time;
 import org.sakaiproject.time.cover.TimeService;
 import org.sakaiproject.authz.api.SecurityAdvisor;
@@ -70,6 +77,8 @@ import org.sakaiproject.tool.api.ToolManager;
 import org.sakaiproject.tool.api.Placement;
 import org.sakaiproject.util.Validator;
 import org.sakaiproject.util.Web;
+import org.sakaiproject.id.cover.IdManager;
+import org.sakaiproject.tool.api.Session;
 
 import uk.org.ponder.messageutil.MessageLocator;
 
@@ -79,6 +88,9 @@ import uk.org.ponder.messageutil.MessageLocator;
  * </p>
  */
 public class LessonBuilderAccessService {
+
+	public static final String ATTR_SESSION = "sakai.session";
+
 	LessonBuilderAccessAPI lessonBuilderAccessAPI = null;
 
 	public void setLessonBuilderAccessAPI(LessonBuilderAccessAPI s) {
@@ -173,6 +185,13 @@ public class LessonBuilderAccessService {
 	public static final String INLINEHTML = "lessonbuilder.inlinehtml";
 	private boolean inlineHtml = ServerConfigurationService.getBoolean(INLINEHTML, true);
 
+        // uuid is the private key for sharing the session id
+        private SecretKey sessionKey = null;
+    
+	public SecretKey getSessionKey() {
+	    return sessionKey;
+	}
+	    
 	// cache for availability check. Is the item available?
 	// we cache only positive answers, because they can easily change
 	// from no to yes in less than 10 min. going back is very unusual
@@ -194,6 +213,14 @@ public class LessonBuilderAccessService {
 		lessonBuilderAccessAPI.setHttpAccess(getHttpAccess());
 
 		accessCache = memoryService.newCache("org.sakaiproject.lessonbuildertool.service.LessonBuilderAccessService.cache");
+
+		// wrap key data in Key/IV specs to pass to cipher
+		try {
+		    sessionKey = KeyGenerator.getInstance("Blowfish").generateKey();
+		} catch (Exception e) {
+		    System.out.println("unable to init cipher for session " + e);
+		}
+
 	}
 
 	public void destroy() {
@@ -237,14 +264,38 @@ public class LessonBuilderAccessService {
 					refId = "";
 				}
 
-				if (!refId.startsWith("/item"))
+				if (!refId.startsWith("/item")) {
 					throw new EntityNotDefinedException(ref.getReference());
+				}
 
 				String itemString = refId.substring("/item/".length());
 				// string is of form /item/NNN/url. get the number
 				int i = itemString.indexOf("/");
-				if (i < 0)
+				if (i < 0) {
 					throw new EntityNotDefinedException(ref.getReference());
+				}
+
+				// get session. The problem here is that some multimedia tools don't reliably
+				// pass JSESSIONID
+
+				String sessionParam = req.getParameter("lb.session");
+
+				if (sessionParam != null) {
+				    try {
+					Cipher sessionCipher = Cipher.getInstance("Blowfish");
+					sessionCipher.init(Cipher.DECRYPT_MODE, sessionKey);
+					byte[] sessionBytes = DatatypeConverter.parseHexBinary(sessionParam);
+					sessionBytes = sessionCipher.doFinal(sessionBytes);
+					String sessionId = new String(sessionBytes);
+
+					Session s = sessionManager.getSession(sessionId);
+					req.setAttribute(ATTR_SESSION, s);                              
+					sessionManager.setCurrentSession(s);                            
+
+				    } catch (Exception e) {
+					System.out.println("unable to decode lb.session " + e);
+				    }
+				}
 
 				String id = itemString.substring(i);
 				itemString = itemString.substring(0, i);
@@ -275,9 +326,10 @@ public class LessonBuilderAccessService {
 					// first let's make sure the user is allowed to access
 					// the containing page
 
-					if (!canReadPage(currentSiteId))
+					if (!canReadPage(currentSiteId)) {
 					    throw new EntityPermissionException(sessionManager.getCurrentSessionUserId(), 
 					       ContentHostingService.AUTH_RESOURCE_READ, ref.getReference());
+					}
 					    
 					// If the resource is the actual one in the item, or
 					// it is in the containing folder, then do lesson builder checking.
@@ -440,20 +492,20 @@ public class LessonBuilderAccessService {
 						if (contentType.equalsIgnoreCase(ResourceProperties.TYPE_URL)) {
 							if (len < MAX_URL_LENGTH) {
 								byte[] content = resource.getContent();
-								if ((content == null) || (content.length == 0))
+								if ((content == null) || (content.length == 0)) {
 									throw new IdUnusedException(ref.getReference());
-								
+								}								
 								// 	An invalid URI format will get caught by the
 								// 	outermost catch block
 								URI uri = new URI(new String(content, "UTF-8"));
 								eventTrackingService.post(eventTrackingService.newEvent(ContentHostingService.EVENT_RESOURCE_READ,
 										resource.getReference(null), false));
 								res.sendRedirect(uri.toASCIIString());
-							} else
+							} else {
 								// 	we have a text/url mime type, but the body is too
 								// 	long to issue as a redirect
 								throw new EntityNotDefinedException(ref.getReference());
-
+							}
 						} else {
 							
 							// 	use the last part, the file name part of the id, for
@@ -530,9 +582,9 @@ public class LessonBuilderAccessService {
 
 								try {
 									content = resource.streamContent();
-									if (content == null)
+									if (content == null) {
 										throw new IdUnusedException(ref.getReference());
-
+									}
 									res.setContentType(contentType);
 									res.addHeader("Content-Disposition", disposition);
 									// not now res.addHeader("Accept-Ranges",

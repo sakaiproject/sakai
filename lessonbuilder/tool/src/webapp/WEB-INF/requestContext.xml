@@ -53,6 +53,7 @@
 		<property name="httpServletResponse" ref="httpServletResponse" />
 		<property name="httpServletRequest" ref="httpServletRequest" />
 		<property name="toolManager" ref="org.sakaiproject.tool.api.ActiveToolManager" />
+		<property name="lessonBuilderAccessService" ref="org.sakaiproject.lessonbuildertool.service.LessonBuilderAccessService" />
 		<property name="richTextEvolver" ref="richTextEvolver" />
 		<property name="imageToMimeMap" ref="org.sakaiproject.lessonbuildertool.util.ImageToMimeMap"/>
 	</bean>
