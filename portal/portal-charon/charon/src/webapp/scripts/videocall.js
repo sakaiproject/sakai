@@ -9,7 +9,7 @@ function VideoCall() {
 	this.signalService = null;
 	this.currentCalls = new Array();
 	this.callTimeout = 0; // Timeout in msecs
-	this.debug = true;
+	this.debug = false;
 	/* Define the actions executed in each event */
 
 	// Initialize timeout
@@ -25,18 +25,18 @@ function VideoCall() {
 	} 
 	
 	this.createNewCall = function(uuid,obj) {
-		if (this.debug) console.log("Creo call for: "+uuid);
+		if (this.debug) console.log("New call to: "+uuid);
 		return this.currentCalls[uuid] = obj;
 	}
 
 	this.removeCurrentCall = function(uuid) {
-		if (this.debug) console.log("Remove call for: "+uuid);
+		if (this.debug) console.log("Remove call to: "+uuid);
 		delete this.currentCalls[uuid];
 	}
 
 	this.changeCallStatus = function(uuid,value) {
 		if (this.currentCalls[uuid]) {
-			if (this.debug) console.log("Cambio status: "+uuid+":"+value);
+			if (this.debug) console.log("Change status: "+uuid+":"+value);
 			this.currentCalls[uuid].status = value;
 		}
 	}
