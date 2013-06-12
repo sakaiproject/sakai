@@ -181,6 +181,7 @@ function PortalChat() {
 	}
 
 	this.setupVideoChatBar = function (uuid,notEnabled,minimised) {
+		if (videoCall.getCurrentCallStatus(uuid)) return;
 		$('#pc_chat_' + uuid + '_video_content').hide();
 		$('#pc_connection_' + uuid + '_videoin').hide();
 		$('#pc_connection_' + uuid + '_videochat_bar .video_on').hide();
