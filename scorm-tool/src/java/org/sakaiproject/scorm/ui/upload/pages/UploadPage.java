@@ -6,6 +6,10 @@ import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.apache.wicket.PageParameters;
 import org.apache.wicket.ResourceReference;
+import org.apache.wicket.ajax.AjaxRequestTarget;
+import org.apache.wicket.ajax.IAjaxCallDecorator;
+import org.apache.wicket.ajax.calldecorator.AjaxPostprocessingCallDecorator;
+import org.apache.wicket.extensions.ajax.markup.html.IndicatingAjaxButton;
 import org.apache.wicket.markup.html.basic.Label;
 import org.apache.wicket.markup.html.form.CheckBox;
 import org.apache.wicket.markup.html.form.DropDownChoice;
@@ -132,35 +136,66 @@ public class UploadPage extends ConsoleBasePage implements ScormConstants {
 			add( priorityLabel );
 			add( emailNotificationDropDown );
 			
-			add(new CancelButton("cancel", PackageListPage.class));
+			
+			// bjones86 - SCO-98 - disable buttons on submit, add spinner
+			final CancelButton btnCancel = new CancelButton( "btnCancel", PackageListPage.class );
+			IndicatingAjaxButton btnSubmit = new IndicatingAjaxButton( "btnSubmit", this )
+			{
+				private static final long serialVersionUID = 1L;
+				
+				@Override
+				protected IAjaxCallDecorator getAjaxCallDecorator()
+				{
+					return new AjaxPostprocessingCallDecorator( super.getAjaxCallDecorator() )
+					{
+						private static final long serialVersionUID = 1L;
+						
+						@Override
+						public CharSequence postDecorateScript( CharSequence script )
+						{
+							// Disable the submit and cancel buttons on click
+							return script + "this.disabled = true; document.getElementsByName( \"btnCancel\" )[0].disabled = true;";
+						}
+					};
+				}
+				@Override
+				protected void onSubmit( AjaxRequestTarget target, Form<?> form )
+				{					
+					if( fileUploadField != null )
+					{
+						final FileUpload upload = fileUploadField.getFileUpload();
+				        if( upload != null )
+				        {
+				            try
+				            {
+				            	String resourceId = resourceService.putArchive( upload.getInputStream(), upload.getClientFileName(),
+				            			upload.getContentType(), isFileHidden(), getPriority() );
+				            	int status = contentService.storeAndValidate( resourceId, isFileValidated(), 
+				            			serverConfigurationService.getString( "scorm.zip.encoding", "UTF-8" ) );
+				            	
+				            	if( status == VALIDATION_SUCCESS )
+				            		setResponsePage( PackageListPage.class );
+				            	else
+				            	{
+					            	PageParameters params = new PageParameters();
+					            	params.add( "resourceId", resourceId );
+					            	params.put( "status", status );
+					            	setResponsePage( ConfirmPage.class, params );
+				            	}
+				            }
+				            catch( Exception e )
+				            {
+				            	UploadPage.this.warn( getLocalizer().getString( "upload.failed", UploadPage.this, new Model( e ) ) );
+				                log.error( "Failed to upload file", e );
+				            }
+				        }
+					}
+				}
+			};
+			add( btnCancel );
+			add( btnSubmit );			
 		}
 
-		@Override
-		protected void onSubmit() {
-			if (fileUploadField != null) {
-				final FileUpload upload = fileUploadField.getFileUpload();
-		        if (upload != null) {
-		            try {
-		            	String resourceId = resourceService.putArchive(upload.getInputStream(), upload.getClientFileName(), upload.getContentType(), isFileHidden(), getPriority());
-		            	
-		            	int status = contentService.storeAndValidate(resourceId, isFileValidated(), serverConfigurationService.getString("scorm.zip.encoding", "UTF-8"));
-		            	
-		            	if (status == VALIDATION_SUCCESS)
-		            		setResponsePage(PackageListPage.class);
-		            	else {
-			            	PageParameters params = new PageParameters();
-			            	params.add("resourceId", resourceId);
-			            	params.put("status", status);
-			            	
-			            	setResponsePage(ConfirmPage.class, params);
-		            	}
-		            } catch (Exception e) {
-		            	UploadPage.this.warn(getLocalizer().getString("upload.failed", UploadPage.this, new Model(e)));
-		                log.error("Failed to upload file", e);
-		            }
-		        }
-			}
-		}
 
 		public boolean isFileHidden() {
 			return fileHidden;
