@@ -11,7 +11,7 @@
 		<h:form id="pvtMsgFolderAdd">
 		       		<script type="text/javascript" src="/library/js/jquery.js"></script>
        		<sakai:script contextBase="/messageforums-tool" path="/js/sak-10625.js"/>
-			<sakai:script contextBase="/messageforums-tool" path="/js/msgcntr-53.js"/>
+			<sakai:script contextBase="/messageforums-tool" path="/js/messages.js"/>
 			  <sakai:tool_bar_message value="#{msgs.pvt_msgs_label} #{msgs.pvt_create_folder}" />
 			 
 				<div class="instruction">
