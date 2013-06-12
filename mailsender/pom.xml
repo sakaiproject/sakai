@@ -63,7 +63,7 @@
                 <sakai.mailarchive.version>2.8.1</sakai.mailarchive.version>
                 <sakai.message.groupId>org.sakaiproject</sakai.message.groupId>
                 <sakai.message.version>2.8.1</sakai.message.version>
-                <rsfutil.version>0.7.7</rsfutil.version>
+                <rsfutil.version>0.7.5</rsfutil.version>
                 <sakairsf.components.version>0.7.5</sakairsf.components.version> 
                 <sakairsf.version>0.7.5</sakairsf.version>
 
@@ -79,7 +79,7 @@
                 <sakai.mailarchive.version>2.7.2</sakai.mailarchive.version>
                 <sakai.message.groupId>org.sakaiproject</sakai.message.groupId>
                 <sakai.message.version>2.7.2</sakai.message.version>
-                <rsfutil.version>0.7.7</rsfutil.version>
+                <rsfutil.version>0.7.5</rsfutil.version>
                 <sakairsf.components.version>0.7.5</sakairsf.components.version>
                 <sakairsf.version>0.7.5</sakairsf.version> 
 
