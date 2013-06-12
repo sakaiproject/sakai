@@ -175,7 +175,7 @@ public abstract class ScormResultServiceImpl implements ScormResultService {
 	public Attempt getNewstAttempt(long contentPackageId, String learnerId) {
 		return attemptDao().lookupNewest(contentPackageId, learnerId);
 	}
-	
+
 	public List<Attempt> getAttempts(String courseId, String learnerId) {
 		return attemptDao().find(courseId, learnerId);
 	}
@@ -447,7 +447,7 @@ public abstract class ScormResultServiceImpl implements ScormResultService {
 			for (int i = 0; i < dataManagers.size(); i++) {
 				IDataManager dm = dataManagers.get(i);
 
-				if (dm.getScoId().equals(scoId)) {
+				if (StringUtils.equals(dm.getScoId(), scoId)) {
 
 					if (i - 1 >= 0) {
 						prevId = dataManagers.get(i - 1).getScoId();
@@ -869,9 +869,9 @@ public abstract class ScormResultServiceImpl implements ScormResultService {
 	public void saveAttempt(Attempt attempt) {
 		attemptDao().save(attempt);
 	}
-	
+
 	public int countAttempts(long contentPackageId, String learnerId) {
-	    return attemptDao().count(contentPackageId, learnerId);
+		return attemptDao().count(contentPackageId, learnerId);
 	}
 
 }
