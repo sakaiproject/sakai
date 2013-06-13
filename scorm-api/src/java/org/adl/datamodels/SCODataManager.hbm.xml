@@ -13,9 +13,12 @@
 		
 		<property name="contentPackageId" column="CONTENT_PACKAGE_ID"/>
 		
-		<property name="courseId" column="COURSE_ID"/>
+		<property name="courseId" column="COURSE_ID"/> 
 		
-		<property name="scoId" column="SCO_ID"/>
+		<property name="scoId" column="SCO_ID" not-null="true"/> 
+        <!-- 
+           alter table SCORM_DATAMANAGER_T MODIFY SCO_ID varchar(255) not null;
+         -->
 		
 		<property name="activityId" column="ACTIVITY_ID"/>
 
