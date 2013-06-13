@@ -118,6 +118,7 @@ import org.sakaiproject.exception.ServerOverloadException;
 import org.sakaiproject.exception.TypeException;
 import org.sakaiproject.site.api.Group;
 import org.sakaiproject.site.api.Site;
+import org.sakaiproject.site.api.Group;
 import org.sakaiproject.site.cover.SiteService;
 import org.sakaiproject.time.api.Time;
 import org.sakaiproject.time.api.TimeBreakdown;
@@ -135,6 +136,7 @@ import org.sakaiproject.util.ParameterParser;
 import org.sakaiproject.util.Resource;
 import org.sakaiproject.util.ResourceLoader;
 import org.sakaiproject.util.Validator;
+import org.sakaiproject.util.FileItem;
 import org.w3c.dom.Element;
 
 /**
@@ -508,6 +510,8 @@ public class ResourcesAction
 
 	private static final String MODE_DAV = "webdav";
 	
+	private static final String MODE_DROPBOX_MULTIPLE_FOLDERS_UPLOAD = "dropboxMultipleFoldersUpload";
+	
 	private static final String MODE_QUOTA = "quota";
 
 	/************** the edit context *****************************************/
@@ -771,6 +775,8 @@ protected static final String PARAM_PAGESIZE = "collections_per_page";
 
 	private static final String TEMPLATE_DROPBOX_OPTIONS = "content/sakai_dropbox_options";
 
+	private static final String TEMPLATE_DROPBOX_MULTIPLE_FOLDERS_UPLOAD = "resources/sakai_dropbox_multiple_folders_upload";
+	
 	private static final String TEMPLATE_MORE = "content/chef_resources_more";
 
 	private static final String TEMPLATE_NEW_LIST = "content/sakai_resources_list";
@@ -4210,6 +4216,7 @@ protected static final String PARAM_PAGESIZE = "collections_per_page";
 			if(dropboxMode)
 			{
 				context.put("showDropboxOptions", Boolean.TRUE.toString());
+				context.put("showDropboxMultipleFoldersUpload", Boolean.TRUE.toString());
 			}
 			else
 			{
@@ -4746,6 +4753,10 @@ protected static final String PARAM_PAGESIZE = "collections_per_page";
 		else if (mode.equals (MODE_DROPBOX_OPTIONS))
 		{
 			template = buildDropboxOptionsPanelContext (portlet, context, data, state);
+		}
+		else if (mode.equals (MODE_DROPBOX_MULTIPLE_FOLDERS_UPLOAD))
+		{
+			template = buildDropboxMultipleFoldersUploadPanelContext (portlet, context, data, state);
 		}
 		else if (mode.equals (MODE_REORDER))
 		{
@@ -8864,7 +8875,260 @@ protected static final String PARAM_PAGESIZE = "collections_per_page";
 		}
 		
 	}
-	
+
+
+	// https://jira.sakaiproject.org/browse/SAK-5350
+
+	/**
+	 * Build the context to upload files to multiple users and groups
+	 * SAK-5350
+	 * @param portlet
+	 * @param context
+	 * @param data
+	 * @param state
+	 * @return
+	 */
+	public String buildDropboxMultipleFoldersUploadPanelContext(VelocityPortlet portlet, Context context, RunData data, SessionState state) {
+	    context.put("tlang", trb);
+	    context.put("clang", rb);
+	    String home = (String) state.getAttribute(STATE_HOME_COLLECTION_ID);
+	    List<List<String>> usersDropboxList = new ArrayList();
+	    try {
+	        Site site = SiteService.getSite(ToolManager.getCurrentPlacement().getContext());
+	        String siteType = site.getType();
+	        if (siteType != null && "course".equals(siteType)) {
+	            context.put("isCourseSite", true);
+	        } else {
+	            context.put("isCourseSite", false);
+	        }
+	        Collection<Group> site_groups = site.getGroups();
+
+	        // Adding Groups to selector
+	        for (Iterator<Group> it = site_groups.iterator(); it.hasNext();) {
+	            Group grp = (Group) it.next();
+	            List<String> tempList = new ArrayList<String>();
+	            StringBuilder sb = new StringBuilder();
+	            tempList.add(grp.getId());
+	            sb.append(trb.getString("multiple.file.upload.group")).append(" ").append(grp.getTitle());
+	            tempList.add(sb.toString());
+	            tempList.add("group");
+	            usersDropboxList.add(tempList);
+	        }
+
+	        // form the azGroups for a context-as-implemented-by-site
+	        Collection azGroups = new Vector(2);
+	        azGroups.add(SiteService.siteReference(site.getId()));
+	        azGroups.add("!site.helper");
+	        // get the user ids who has dropbox.own permissions
+	        Set userIds = AuthzGroupService.getUsersIsAllowed(ContentHostingService.AUTH_DROPBOX_OWN, azGroups);
+
+	        // Adding users to selector
+	        for (Iterator<String> it = userIds.iterator(); it.hasNext();) {
+	            String tempUserId = it.next();
+	            try {
+	                User tempUser = UserDirectoryService.getUser(tempUserId);
+	                String userDisplayName = "";
+	                String lastName = tempUser.getLastName();
+	                String firstName = tempUser.getFirstName();
+	                if (lastName != null && !"".equals(lastName)) {
+	                    if (firstName != null && !"".equals(firstName)) {
+	                        userDisplayName = lastName + ", " + firstName;
+	                    } else {
+	                        userDisplayName = lastName;
+	                    }
+	                } else {
+	                    userDisplayName = tempUser.getDisplayName();
+	                    if (userDisplayName == null || "".equals(userDisplayName)) {
+	                        userDisplayName = tempUser.getEid();
+	                    }
+	                }
+	                List<String> tempList = new ArrayList<String>();
+	                tempList.add(tempUserId);
+	                tempList.add(userDisplayName);
+	                tempList.add("user");
+	                usersDropboxList.add(tempList);
+	            } catch (UserNotDefinedException e) {
+	                logger.error("User is not defined", e);
+	            }
+	        }
+	    } catch (Exception ex) {
+	        logger.error("Exception while getting users collections", ex);
+	    }
+	    context.put("usersDropboxList", usersDropboxList);
+	    return TEMPLATE_DROPBOX_MULTIPLE_FOLDERS_UPLOAD;
+	} // buildDropboxMultipleFoldersUploadPanelContext
+
+	/**
+	 * Handle a request to upload a file in multiple folders.
+	 * SAK-5350
+	 * @param runData
+	 */
+	public void doDropboxMultipleFoldersUpload(RunData runData) {
+	    SessionState state = ((JetspeedRunData) runData).getPortletSessionState(((JetspeedRunData) runData).getJs_peid());
+	    // go into upload file in multiple folders
+	    state.setAttribute(STATE_MODE, MODE_DROPBOX_MULTIPLE_FOLDERS_UPLOAD);
+	} // doDropboxMultipleFoldersUpload
+
+	/**
+	 * doMultipleFoldersUpload upload the file to multiple users folder
+	 * SAK-5350
+	 * @param data
+	 */
+	public void doMultipleFoldersUpload(RunData data) {
+	    logger.debug(this + ".doMultipleFoldersUpload()");
+	    SessionState state = ((JetspeedRunData) data).getPortletSessionState(((JetspeedRunData) data).getJs_peid());
+	    ParameterParser params = data.getParameters();
+	    String siteId = ToolManager.getCurrentPlacement().getContext();
+	    // Getting parameters
+	    FileItem fileitem = params.getFileItem("MultipleFolderContent");
+	    String displayName = params.getString("MultipleFolderDisplayName");
+	    String[] multipleDropboxSelected = params.getStrings("usersDropbox-selection");
+	    Set usersCollectionIds = new TreeSet();
+
+	    if (fileitem == null) {
+	        String max_file_size_mb = (String) state.getAttribute(STATE_FILE_UPLOAD_MAX_SIZE);
+	        int max_bytes = 1024 * 1024;
+	        try {
+	            max_bytes = Integer.parseInt(max_file_size_mb) * 1024 * 1024;
+	        } catch (Exception e) {
+	            // if unable to parse an integer from the value in the properties file, use 1 MB as a default
+	            max_file_size_mb = "1";
+	            max_bytes = 1024 * 1024;
+	        }
+
+	        String max_bytes_string = ResourcesAction.getFileSizeString(max_bytes, rb);
+	        // "The user submitted a file to upload but it was too big!"
+	        addAlert(state, trb.getFormattedMessage("size.exceeded", new Object[] { max_bytes_string }));
+	        state.setAttribute(STATE_MODE, MODE_DROPBOX_MULTIPLE_FOLDERS_UPLOAD);
+	        return;
+
+	    } else if (fileitem.getFileName() == null || fileitem.getFileName().length() == 0) {
+	        // no file selected -- skip this one
+	        addAlert(state, trb.getString("multiple.file.upload.nofileselected"));
+	        state.setAttribute(STATE_MODE, MODE_DROPBOX_MULTIPLE_FOLDERS_UPLOAD);
+	        return;
+
+	    } else if (fileitem.getFileName().length() > 0) {
+	        String filename = Validator.getFileName(fileitem.getFileName());
+	        if (displayName == null) {
+	            displayName = filename;
+	        } else if ("".equals(displayName)) {
+	            displayName = filename;
+	        }
+	        InputStream stream;
+	        String SEPARATOR = "/";
+	        String COLLECTION_DROPBOX = "/group-user/";
+	        stream = fileitem.getInputStream();
+	        String contentType = fileitem.getContentType();
+	        byte[] body = fileitem.get();
+	        ContentResourceEdit cr = null;
+	        String extension = "";
+	        String basename = filename.trim();
+	        if (filename.contains(".")) {
+	            String[] parts = filename.split("\\.");
+	            basename = parts[0];
+	            if (parts.length > 1) {
+	                extension = parts[parts.length - 1];
+	            }
+	            for (int i = 1; i < parts.length - 1; i++) {
+	                basename += "." + parts[i];
+	                // extension = parts[i + 1];
+	            }
+	        }
+	        if (multipleDropboxSelected == null) {
+	            addAlert(state, trb.getString("multiple.file.upload.nousersselected"));
+	            state.setAttribute(STATE_MODE, MODE_DROPBOX_MULTIPLE_FOLDERS_UPLOAD);
+	            return;
+	        } else if (multipleDropboxSelected.length < 1) {
+	            // no users selected
+	            addAlert(state, trb.getString("multiple.file.upload.nousersselected"));
+	            state.setAttribute(STATE_MODE, MODE_DROPBOX_MULTIPLE_FOLDERS_UPLOAD);
+	            return;
+	        } else {
+	            // Fill Collections with users
+	            for (int i = 0; i < multipleDropboxSelected.length; i++) {
+	                try {
+	                    UserDirectoryService.getUser(multipleDropboxSelected[i]);
+	                    // If the user exists, add to collection
+	                    usersCollectionIds.add(multipleDropboxSelected[i]);
+	                } catch (UserNotDefinedException ex) {
+	                    try {
+	                        Site site = SiteService.getSite(siteId);
+	                        Group grp = site.getGroup(multipleDropboxSelected[i]);
+
+	                        // form the azGroups for a
+	                        // context-as-implemented-by-site
+	                        Collection azGroups = new Vector(2);
+	                        azGroups.add(SiteService.siteReference(site.getId()));
+	                        azGroups.add("!site.helper");
+	                        // get the user ids who has dropbox.own permissions
+	                        Set<String> dbOwnsUserIds = AuthzGroupService.getUsersIsAllowed(ContentHostingService.AUTH_DROPBOX_OWN, azGroups);
+
+	                        for (Iterator<org.sakaiproject.authz.api.Member> it = grp.getMembers().iterator(); it.hasNext();) {
+	                            String userIdInGroup = it.next().getUserId();
+	                            if (dbOwnsUserIds.contains(userIdInGroup)) {
+	                                usersCollectionIds.add(userIdInGroup);
+	                            }
+	                        }
+	                    } catch (IdUnusedException e) {
+	                        // Error finding a previously selected group.
+	                        logger.error("Error in " + this + ".doMultipleFoldersUpload(): Unable to find selected Group", e);
+	                    }
+	                }
+	            }
+	        }
+
+	        try {
+	            for (Iterator it = usersCollectionIds.iterator(); it.hasNext();) {
+	                // A site Dropbox Collection ID will be /group-user/SITE_ID/USER_ID/
+	                String collectionId = COLLECTION_DROPBOX + siteId + SEPARATOR + it.next() + SEPARATOR;
+	                cr = ContentHostingService.addResource(collectionId, Validator.escapeResourceName(basename),
+	                        Validator.escapeResourceName(extension), MAXIMUM_ATTEMPTS_FOR_UNIQUENESS);
+
+	                // Add the actual contents of the file and content type
+	                cr.setContent(body);
+	                cr.setContentType(contentType);
+
+	                // fill up its properties
+	                ResourcePropertiesEdit resourceProperties = cr.getPropertiesEdit();
+	                resourceProperties.addProperty(ResourceProperties.PROP_IS_COLLECTION, Boolean.FALSE.toString());
+	                resourceProperties.addProperty(ResourceProperties.PROP_DISPLAY_NAME, displayName);
+	                resourceProperties.addProperty(ResourceProperties.PROP_CONTENT_LENGTH, new Integer(body.length).toString());
+
+	                // now to commit the changes
+	                boolean notification = params.getBoolean("notify_dropbox");
+	                int noti = NotificationService.NOTI_NONE;
+
+	                if (notification) {
+	                    noti = NotificationService.NOTI_REQUIRED;
+	                }
+	                ContentHostingService.commitResource(cr, noti);
+	            }
+	        } catch (PermissionException e) {
+	            addAlert(state, trb.getString("alert.perm"));
+	            logger.warn("PermissionException " + e);
+	        } catch (IdUnusedException e) {
+	            logger.warn("IdUnusedException: Error while getting dropbox collection, this error happens when a selected group contains a maintain user");
+	        } catch (IdInvalidException e) {
+	            logger.warn("IdInvalidException " + e);
+	        } catch (IdUniquenessException e) {
+	            logger.warn("IdUniquenessException " + e);
+	        } catch (IdLengthException e) {
+	            addAlert(state, trb.getFormattedMessage("alert.toolong", new String[] { e.getMessage() }));
+	            logger.warn("IdLengthException " + e);
+	        } catch (OverQuotaException e) {
+	            addAlert(state, trb.getFormattedMessage("alert.overquota", new String[] { filename }));
+	            logger.warn("OverQuotaException " + e);
+	        } catch (ServerOverloadException e) {
+	            addAlert(state, trb.getFormattedMessage("alert.unable1", new String[] { filename }));
+	            logger.warn("ServerOverloadException " + e);
+	        }
+	    }
+	    state.setAttribute(STATE_LIST_SELECTIONS, new TreeSet());
+	    state.setAttribute(STATE_MODE, MODE_LIST);
+	}
+
+
 	// BEGIN SAK-23304 additions:
 	
 	/**
