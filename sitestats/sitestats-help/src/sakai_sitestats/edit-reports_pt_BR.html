@@ -1,0 +1,105 @@
+﻿<!-- Translated by: LARC: Laboratory of Computer Architecture and Networks - USP - University of Sao Paulo - Sao Paulo, Brazil --> 
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.0 Transitional//EN">
+<html version="-//W3C//DTD HTML 3.2//EN">
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+<title>Site Stats: Adicionar/Editar/Duplicar/Deletar Relatórios</title>
+<link type="text/css" href="/library/skin/tool_base.css" rel="stylesheet">
+<link type="text/css" href="/library/skin/default/tool.css" rel="stylesheet">
+</head>
+<body>
+<div class="helpBody"> 
+
+<p>Nessa página:</p>
+<ul>
+    <li><a href="#edit">Adicionar/Editar um relatório</a></li>
+    <li><a href="#duplicate">Duplicar um relatório</a></li>
+    <li><a href="#delete">Deletar um relatório</a></li>
+</ul>
+
+<hr />
+
+<a name="edit"></a>
+<h3>Adicionar/Editar um relatório</h3>
+<ul>
+  <li>Clique na página Relatórios da ferramenta;</li>
+  <li>Clique em <strong>Adicionar</strong> (ou <strong>Editar</strong> abaixo do título de um relatório) para editar a definição do relatório.</li>
+  <li>A página de editar relatório será apresentada. Configurar o relatório em conformidade as suas necessidades:
+    
+    <h4>Relatório</h4>
+    Esta opção é recolhida por padrão. Se você deseja salvar o relatório clique no link <strong>Exibir</strong> para exibir as opções adicionais:
+    <ul>
+        <li><strong>Título</strong>: O título do relatório.</li>
+        <li><strong>Descrição</strong>: A descrição do relatório.</li>
+    </ul>
+    
+    <h4>Qual?</h4>
+    Esta opção permite configurar o tipo de atividade para relatar.
+    <ul>
+        <li><strong>Visitas</strong>: Visitas ao Site.</li>
+        <li><strong>Eventos</strong>: Atividade na ferramenta (atividade pode ser selecionada por ferramenta ou por evento).</li>
+        <li><strong>Repositório</strong>: Atividades no Repositório (arquivo/pasta). Essa seleção pode ser filtrada por:
+            <ul>
+                <li><strong>Ação</strong>: Novo (arquivo enviado/pasta criada), Ler(arquivo aberto para leitura), Revisar (detalhes do arquivo ou conteúdo alterado) ou Deletar (arquivo/pasta deletado).</li>
+                <li><strong>Repositório</strong>: Restringe o relatório para arquivos/pasta selecionados ou arquivos em pastas selecionadas.</li>
+            </ul>
+        </li>
+    </ul>
+    
+    <h4>Quando?</h4>
+    Esta opção permite configurar o período de tempo para relatar.
+    <ul>
+        <li><strong>Tudo</strong>: Todas as atividades do site desde sua criação.</li>
+        <li><strong>Últimos 7 dias</strong>: Atividades dos últimos 7 dias.</li>
+        <li><strong>Últimos 30 dias</strong>: Atividades dos últimos 30 dias.</li>
+        <li><strong>Últimos 365 dias</strong>: Atividades dos últimos 365 dias.</li>
+        <li><strong>Personalizado</strong>: Atividade a partir de um intervalo de tempo especificado pelo usuário.</li>
+    </ul>
+    
+    <h4>Quem?</h4>
+    Esta opção permite configurar os usuários a relatar.
+    <ul>
+        <li><strong>Todos</strong>: Todos os usuários do site.</li>
+        <li><strong>Papel</strong>: Usuários com um papel especifico.</li>
+        <li><strong>Grupo</strong>: Usuários de um grupo especifico.</li>
+        <li><strong>Personalizado</strong>: Os usuários selecionados a partir da lista apresentada. Vários usuários podem ser selecionados pressionando as teclas CTRL (para a seleção disjunta) ou ALT (para seleção de intervalo) enquanto clica com o mouse.</li>
+        <li><strong>Nenhum</strong>: Para relatar os usuários que não correspondem a todas as condições de relatórios específicos (por exemplo, a seleção de "visita" + "Todas" data + "Nenhum" irá relatar os usuários que nunca visitou o site).</li>
+    </ul>
+    
+    <h4>Como?</h4>
+    
+	Esta opção permite configurar a forma como o relatório será apresentado.
+    <ul>
+        <li><strong>Totais por</strong>: Define como agrupar dados do relatório (por exemplo, selecionar "Usuário" + "Data" apresentará um relatório agrupado por usuário e data). Vários campos podem ser selecionados pressionando as teclas CTRL (para a seleção disjunta) ou ALT (para seleção de intervalo) enquanto clica com o mouse.</li>
+        <li><strong>Número de resultados</strong>: Permite limitar o número de resultados do relatório.</li>
+        <li><strong>Apresentação</strong>: Define como o relatório será apresentado (tabela e/ou gráfico).</li>
+        <li><strong>Tipo de gráfico</strong>: Define o tipo de gráfico a ser apresentado (barra, torta ou timeseries (linha ou barra)).</li>
+        <li><strong>Fonte de dados do gráfico</strong>: Define a principal fonte de dados do gráfico. Apenas os campos selecionados em <strong>Totais por</strong> serão selecionáveis.</li>
+        <li><strong>Agrupados por</strong>: (somente Gráfico de barras) Define o campo de agrupamento para os dados do gráfico. Somente os campos selecionados em <strong>Totais por</strong> serão selecionáveis.</li>
+    </ul>
+    
+  </li>
+</ul>
+<hr />
+
+
+<a name="duplicate"></a>
+<h3>Duplicar um relatório</h3>
+Qualquer relatório pode ser duplicado (relatórios definidos pelo usuário e relatórios pré-definidos):
+<ul>
+  <li>Clique na página Relatórios da ferramenta;</li>
+  <li>Clique em <strong>Duplicar</strong> abaixo do título do relatório; uma cópia do relatório relacionado será criado com o título "Cópia de [título do relatório]"</li>
+</ul>
+<hr />
+
+
+<a name="delete"></a>
+<h3>Deletar um relatório</h3>
+<ul>
+  <li>Clique na página Relatórios da ferramenta;</li>
+  <li>Click <strong>Delete</strong> abaixo do título do relatório; depois de confirmar o relatório será excluído.</li>
+</ul>
+
+</div>
+</body>
+</html>

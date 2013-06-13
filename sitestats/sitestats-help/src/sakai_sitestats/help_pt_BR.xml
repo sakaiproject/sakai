@@ -1,0 +1,56 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE beans PUBLIC "-//SPRING//DTD BEAN//EN" "http://www.springframework.org/dtd/spring-beans.dtd">
+<beans>
+    <bean id="sitestatsOverview" class="org.sakaiproject.component.app.help.model.ResourceBean">
+        <property name="docId"><value>sitestats-overview_pt_BR</value></property>
+        <property name="name"><value>Site Stats: Resumo</value></property>
+        <property name="location"><value>/sakai_sitestats/sitestats-overview_pt_BR.html</value></property>
+		<property name="defaultForTool"><value>sakai.sitestats</value></property>
+    </bean>
+    <bean id="summaryStatistics" class="org.sakaiproject.component.app.help.model.ResourceBean">
+        <property name="docId"><value>sstSummaryStatistics_pt_BR</value></property>
+        <property name="name"><value>Resumo das Estatísticas</value></property>
+        <property name="location"><value>/sakai_sitestats/overview_pt_BR.html</value></property>
+    </bean>
+    <bean id="viewReports" class="org.sakaiproject.component.app.help.model.ResourceBean">
+        <property name="docId"><value>sstViewReports_pt_BR</value></property>
+        <property name="name"><value>Visualizar Relatórios</value></property>
+        <property name="location"><value>/sakai_sitestats/view-reports_pt_BR.html</value></property>
+    </bean>
+    <bean id="printReports" class="org.sakaiproject.component.app.help.model.ResourceBean">
+        <property name="docId"><value>sstPrintReports_pt_BR</value></property>
+        <property name="name"><value>Imprimir/Exportar Relatórios para arquivo</value></property>
+        <property name="location"><value>/sakai_sitestats/print-reports_pt_BR.html</value></property>
+    </bean>
+    <bean id="addEditDeleteReports" class="org.sakaiproject.component.app.help.model.ResourceBean">
+        <property name="docId"><value>sstAddEditDeleteReports_pt_BR</value></property>
+        <property name="name"><value>Adicionar/Editar/Duplicar/Deletar Relatórios</value></property>
+        <property name="location"><value>/sakai_sitestats/edit-reports_pt_BR.html</value></property>
+    </bean>
+    <bean id="editPreferences" class="org.sakaiproject.component.app.help.model.ResourceBean">
+        <property name="docId"><value>sstEditPreferences_pt_BR</value></property>
+        <property name="name"><value>Editar Preferencias</value></property>
+        <property name="location"><value>/sakai_sitestats/edit-preferences_pt_BR.html</value></property>
+    </bean>
+  
+    <bean id="org.sakaiproject.api.app.help.TableOfContents" class="org.sakaiproject.component.app.help.model.TableOfContentsBean">
+        <property name="name"><value>root</value></property>
+        <property name="categories">
+            <list>
+                <bean id="sitestatsCategory" class="org.sakaiproject.component.app.help.model.CategoryBean">
+                    <property name="name"><value>Site Stats</value></property>
+                    <property name="resources">
+                        <list>
+                            <ref bean="sitestatsOverview"/>
+                            <ref bean="summaryStatistics"/>
+                            <ref bean="viewReports"/>
+                            <ref bean="printReports"/>
+                            <ref bean="addEditDeleteReports"/>
+                            <ref bean="editPreferences"/>
+                        </list>
+                    </property>
+                </bean>
+            </list>
+        </property>
+    </bean>
+</beans>
