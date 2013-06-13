@@ -520,10 +520,10 @@ function VideoCall() {
 				$("#pc_chat_"+ uuid	+ "_video_content > .bubblingG").show();
 			}else if (visibleElement === 'failed'){
 				$("#pc_chat_"+ uuid	+ "_video_content > .pc_chat_video_failed").show();
-				setTimeout('portalChat.setupVideoChatBar("'+uuid+'",'+!videoCall.hasVideoAgent(uuid)+','+$('#pc_chat_with_'+uuid).hasClass('pc_minimised')+');',5000);
+				setTimeout('portalChat.setupVideoChatBar("'+uuid+'",'+!videoCall.hasVideoAgent(uuid)+');',5000);
 			}else if (visibleElement === 'finished'){
 				$("#pc_chat_"+ uuid	+ "_video_content > .pc_chat_video_finished").show();
-				setTimeout('portalChat.setupVideoChatBar("'+uuid+'",'+!videoCall.hasVideoAgent(uuid)+','+$('#pc_chat_with_'+uuid).hasClass('pc_minimised')+');',5000);
+				setTimeout('portalChat.setupVideoChatBar("'+uuid+'",'+!videoCall.hasVideoAgent(uuid)+');',5000);
 			}
 		}//If any else int visible Element nothing changes
 		

@@ -193,7 +193,8 @@ function PortalChat() {
 			chatDiv.attr('data-height', '300');
 		} else {
 			$('#pc_connection_' + uuid + '_videochat_bar').show();
-			if (!minimised) {
+			var isMinimised = (typeof minimised === "undefined")?chatDiv.hasClass('pc_minimised'):minimised;
+			if (!isMinimised) {
 				chatDiv.css('height', '318px');
 				chatDiv.css('margin-top', '-18px');
 			} else {
