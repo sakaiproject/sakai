@@ -453,6 +453,12 @@ public class AccessServlet extends VmServlet
 		} 
 		
 		
+		// if there is a Range: header for partial content and we haven't done basic auth, refuse the request	(SAK-23678)
+		if (req.getHeader("Range") != null) {
+			sendError(res, HttpServletResponse.SC_FORBIDDEN);
+			return;
+		}
+
 		// get the Sakai session
 		Session session = SessionManager.getCurrentSession();
 
