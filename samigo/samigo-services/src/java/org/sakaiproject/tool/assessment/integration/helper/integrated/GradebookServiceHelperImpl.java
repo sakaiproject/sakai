@@ -30,7 +30,6 @@ import org.apache.commons.logging.LogFactory;
 import org.apache.commons.math.util.MathUtils;
 import org.sakaiproject.exception.IdUnusedException;
 import org.sakaiproject.service.gradebook.shared.GradebookExternalAssessmentService;
-import org.sakaiproject.service.gradebook.shared.GradebookService;
 import org.sakaiproject.site.api.Site;
 import org.sakaiproject.site.api.SitePage;
 import org.sakaiproject.site.api.ToolConfiguration;
@@ -199,21 +198,27 @@ public void removeExternalAssessment(String gradebookUId,
       String title = StringEscapeUtils.unescapeHtml(publishedAssessment.getTitle());
       if(!g.isAssignmentDefined(gradebookUId, title))
       {
-        g.addExternalAssessment(gradebookUId,
-                              publishedAssessment.getPublishedAssessmentId().
-                              toString(), null,
-                              title,
-                              publishedAssessment.getTotalScore().doubleValue(),
-                              publishedAssessment.getAssessmentAccessControl().
-                              getDueDate(),
-                              appName); // Use the app name from sakai
+        
+        g.addExternalAssessment(gradebookUId, 
+        						getExternalId(publishedAssessment.getPublishedAssessmentId()), 
+        						null, 
+        						title, 
+        						publishedAssessment.getTotalScore().doubleValue(), 
+        						publishedAssessment.getAssessmentAccessControl().
+                                getDueDate(), 
+        						appName,
+        						false);
         added = true;
       }
     }
     return added;
   }
 
-  /**
+  private String getExternalId(Long publishedAssessmentId) {
+	return "/samigo/" + publishedAssessmentId.toString();
+}
+
+/**
    * Update a gradebook.
    * @param publishedAssessment the published assessment
    * @param g  the Gradebook Service
@@ -237,7 +242,8 @@ public void removeExternalAssessment(String gradebookUId,
 				publishedAssessment.getTitle(),
 				publishedAssessment.getTotalScore().doubleValue(),
 				publishedAssessment.getAssessmentAccessControl().
-				getDueDate());
+				getDueDate(),
+				false);
     return true;
   }
 
@@ -269,7 +275,7 @@ public void removeExternalAssessment(String gradebookUId,
     Double score = Double.valueOf(fScore).doubleValue();
     log.info("rounded:  " + ag.getFinalScore() + " to: " + score.toString() );
     g.updateExternalAssessmentScore(gradebookUId,
-      ag.getPublishedAssessmentId().toString(),
+      getExternalId(ag.getPublishedAssessmentId()),
       ag.getAgentId(),  score.toString());
     if (testErrorHandling){
       throw new Exception("Encountered an error in update ExternalAssessmentScore.");
@@ -285,7 +291,7 @@ public void removeExternalAssessment(String gradebookUId,
 		  return;
 	  }
 	  g.updateExternalAssessmentScores(gradebookUId,
-			  publishedAssessmentId.toString(),
+			  getExternalId(publishedAssessmentId),
 			  studentUidsToScores);
 
 	  if (testErrorHandling){
