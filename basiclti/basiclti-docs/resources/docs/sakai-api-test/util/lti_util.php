@@ -730,14 +730,16 @@ function do_post($url, $body, $header) {
     global $last_http_response;
     global $LastPOSTMethod;
     $last_http_response = false;
+    $response = false;
+    // Prefer curl because it checks if it works before trying
+    $response = post_curl($url, $body, $header);
+    $LastPOSTMethod = "CURL";
+    if ( $response !== false ) return $response;
     $response = post_socket($url, $body, $header);
     $LastPOSTMethod = "Socket";
     if ( $response !== false ) return $response;
     $response = post_stream($url, $body, $header);
     $LastPOSTMethod = "Stream";
-    if ( $response !== false ) return $response;
-    $response = post_curl($url, $body, $header);
-    $LastPOSTMethod = "CURL";
     if ( $response !== false ) return $response;
     $LastPOSTMethod = "Error";
     echo("Unable to post<br/>\n");
@@ -749,6 +751,8 @@ function do_post($url, $body, $header) {
 
 // From: http://php.net/manual/en/function.file-get-contents.php
 function post_socket($endpoint, $data, $moreheaders=false) {
+  if ( ! function_exists('fsockopen') ) return false;
+  if ( ! function_exists('stream_get_transports') ) return false;
     $url = parse_url($endpoint);
 
     if (!isset($url['port'])) {
@@ -800,6 +804,23 @@ function post_socket($endpoint, $data, $moreheaders=false) {
         return false;
     }
     return false;
+}
+
+function post_stream($url, $body, $header) {
+    $params = array('http' => array(
+        'method' => 'POST',
+        'content' => $body,
+        'header' => $header
+        ));
+
+    $ctx = stream_context_create($params);
+    try {
+        $fp = @fopen($url, 'r', false, $ctx);
+        $response = @stream_get_contents($fp);
+    } catch (Exception $e) {
+        return false;
+    }
+    return $response;
 }
 
 function post_curl($url, $body, $header) {
