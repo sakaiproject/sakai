@@ -10,12 +10,14 @@ session_start();
   <meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
 </head>
 <body style="font-family:sans-serif;">
+<a href="http://www.sakaiger.com" target="_new">
+<img src="http://www.sakaiger.com/images/Sakaiger.png" align="right"></a>
 <h1>Sakai LTI Unit Tests</h1>
 <p>
-This code is smaple code and unit test code for IMS LTI 1.1 
+This code is sample code and unit test code for IMS LTI 1.1 
 that is maintained in the Sakai project.  It not only
 supports the IMS LTI 1.1 code - it also supports the Sakai
-LTI extensions.  Any questions, please send a note to Dr. Chuck.
+LTI extensions.  
 </p>
 <p>
 The latest Sakai LTI documentation is here:
@@ -59,6 +61,12 @@ I host a copy of this code at:<br/>
 https://online.dr-chuck.com/sakai-api-test/</a>
 - it is good to test with https as much as you can to avoid surprises when you swtich 
 from http to https.
+</p>
+<p>
+<b>Note:</b> I recently found a problem in the www.dr-chuck.com hosted version of this code because 
+1and1 (my hosting provider) seems to eat Authorization headers so making grade callbacks to 
+www.dr-chuck.com won't work.   Hence the move to online.dr-chuck.com - with the added benefit of 
+https testing as well.
 </p>
 <p>
 If you have questions, contact Dr. Chuck.
