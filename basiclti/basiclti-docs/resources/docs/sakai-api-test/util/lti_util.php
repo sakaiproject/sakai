@@ -9,7 +9,7 @@ require_once 'OAuth.php';
 // with minimum values to meet the protocol
 function is_lti_request() {
    $good_message_type = $_REQUEST["lti_message_type"] == "basic-lti-launch-request";
-   $good_lti_version = $_REQUEST["lti_version"] == "LTI-1p0";
+   $good_lti_version = $_REQUEST["lti_version"] == "LTI-1p0" || $_REQUEST["lti_version"] == "LTI-2p0";
    $resource_link_id = $_REQUEST["resource_link_id"];
    if ($good_message_type and $good_lti_version and isset($resource_link_id) ) return(true);
    return false;
@@ -664,6 +664,37 @@ function handleOAuthBodyPOST($oauth_consumer_key, $oauth_consumer_secret)
     return $postdata;
 }
 
+function do_get($url, $header = false) {
+    $response = get_stream($url, $header);
+    if ( $response !== false ) return $response;
+/*
+    $response = get_socket($url, $header);
+    if ( $response !== false ) return $response;
+    $response = get_curl($url, $header);
+    if ( $response !== false ) return $response;
+*/
+    echo("Unable to GET<br/>\n");
+    echo("Url=$url <br/>\n");
+    echo("Headers:<br/>\n$headers<br/>\n");
+    throw new Exception("Unable to get");
+}
+
+function get_stream($url, $header) {
+    $params = array('http' => array(
+        'method' => 'GET',
+        'header' => $header
+        ));
+
+    $ctx = stream_context_create($params);
+    try {
+        $fp = @fopen($url, 'r', false, $ctx);
+        $response = @stream_get_contents($fp);
+    } catch (Exception $e) {
+        return false;
+    }
+    return $response;
+}
+
 function sendOAuthBodyPOST($method, $endpoint, $oauth_consumer_key, $oauth_consumer_secret, $content_type, $body)
 {
     $hash = base64_encode(sha1($body, TRUE));
@@ -680,7 +711,7 @@ function sendOAuthBodyPOST($method, $endpoint, $oauth_consumer_key, $oauth_consu
     // Pass this back up "out of band" for debugging
     global $LastOAuthBodyBaseString;
     $LastOAuthBodyBaseString = $acc_req->get_signature_base_string();
-    // echo($LastOAuthBodyBaseString."\n");
+    echo($LastOAuthBodyBaseString."\n");
 
     $header = $acc_req->to_header();
     $header = $header . "\r\nContent-Type: " . $content_type . "\r\n";
@@ -696,7 +727,9 @@ function sendOAuthBodyPOST($method, $endpoint, $oauth_consumer_key, $oauth_consu
 // if you know what version of PHP is working and how it will be 
 // configured...
 function do_post($url, $body, $header) {
+    global $last_http_response;
     global $LastPOSTMethod;
+    $last_http_response = false;
     $response = post_socket($url, $body, $header);
     $LastPOSTMethod = "Socket";
     if ( $response !== false ) return $response;
@@ -769,26 +802,10 @@ function post_socket($endpoint, $data, $moreheaders=false) {
     return false;
 }
 
-function post_stream($url, $body, $header) {
-    $params = array('http' => array(
-        'method' => 'POST',
-        'content' => $body,
-        'header' => $header
-        ));
-
-    $ctx = stream_context_create($params);
-    try {
-        $fp = @fopen($url, 'r', false, $ctx);
-        $response = @stream_get_contents($fp);
-    } catch (Exception $e) {
-        return false;
-    }
-    return $response;
-}
-
-
-function post_curl($url, $xml, $header) {
+function post_curl($url, $body, $header) {
   if ( ! function_exists('curl_init') ) return false;
+  global $last_http_response;
+
   $ch = curl_init();
   curl_setopt($ch, CURLOPT_URL, $url);
 
@@ -797,7 +814,7 @@ function post_curl($url, $xml, $header) {
   curl_setopt ($ch, CURLOPT_HTTPHEADER, $header);
 
   curl_setopt($ch, CURLOPT_POST, 1);
-  curl_setopt($ch, CURLOPT_POSTFIELDS, $xml);
+  curl_setopt($ch, CURLOPT_POSTFIELDS, $body);
 
   curl_setopt($ch, CURLOPT_RETURNTRANSFER, 1); // ask for results to be returned
 /*
@@ -809,6 +826,8 @@ function post_curl($url, $xml, $header) {
 
   // Send to remote and return data to caller.
   $result = curl_exec($ch);
+  $info = curl_getinfo($ch);
+  $last_http_response = $info['http_code'];
   curl_close($ch);
   return $result;
 }
