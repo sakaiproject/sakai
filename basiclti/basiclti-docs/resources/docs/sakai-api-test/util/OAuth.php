@@ -387,10 +387,12 @@ class OAuthRequest {
    * builds the Authorization: header
    */
   public function to_header() {
-    // $out ='Authorization: OAuth realm=""';
-    $out ='Authorization: OAuth ';
+    $out ='Authorization: OAuth realm=""';
+    $comma = ',';
+    // Hack for RoR implementations that do not handle realm properly
+    // $out ='Authorization: OAuth ';
+    // $comma = '';
     $total = array();
-    $comma = '';
     foreach ($this->parameters as $k => $v) {
       if (substr($k, 0, 5) != "oauth") continue;
       if (is_array($v)) {
