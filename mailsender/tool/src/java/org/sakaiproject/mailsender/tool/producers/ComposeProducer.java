@@ -34,7 +34,9 @@ import uk.org.ponder.rsf.components.UIInput;
 import uk.org.ponder.rsf.components.UILink;
 import uk.org.ponder.rsf.components.UIMessage;
 import uk.org.ponder.rsf.components.UIOutput;
+import uk.org.ponder.rsf.components.decorators.UIColumnsDecorator;
 import uk.org.ponder.rsf.components.decorators.UIFreeAttributeDecorator;
+import uk.org.ponder.rsf.components.decorators.UIRowsDecorator;
 import uk.org.ponder.rsf.evolvers.TextInputEvolver;
 import uk.org.ponder.rsf.flow.jsfnav.NavigationCase;
 import uk.org.ponder.rsf.flow.jsfnav.NavigationCaseReporter;
@@ -155,6 +157,12 @@ public class ComposeProducer implements ViewComponentProducer, NavigationCaseRep
 		// create the content editor
 		UIInput content = UIInput.make(mainForm, "content-div:", emailBean + ".content");
 		richTextEvolver.evolveTextInput(content);
+
+		// We have to make the textarea 30 rows so that when we resize the iframe we get a size that will be roughly
+		// the same as when the WYSIWYG editor has loaded. This is all because we don't resize the iframe after
+		// the WYSIWYG has loaded, SAK-23692 may be better in future.
+		// This can't be done before the rich text evolver has run.
+		content.decorate(new UIRowsDecorator(30));
 
 		// create 'send me a copy' checkbox
 		UIBoundBoolean.make(mainForm, "sendMeCopy", emailBean + ".config.sendMeACopy");
