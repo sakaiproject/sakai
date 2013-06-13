@@ -642,6 +642,9 @@ public class JLDAPDirectoryProvider implements UserDirectoryProvider, LdapConnec
 				if ( cachedUserData == null ) {
 					usersToSearchInLDAP.put(eid, userEdit);
 					cnt++;
+				} else {
+			 		// populate userEdit with cached ldap data:
+					mapUserDataOntoUserEdit(cachedUserData, userEdit);
 				}
 				
 				// We need to make sure this query isn't larger than maxQuerySize
