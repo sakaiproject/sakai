@@ -312,6 +312,8 @@ var RcptSelect = function()
 						if (!isTLM) {
 							RcptSelect.toggleSelectAll(jQuery(link).siblings('input[type=checkbox]:first').attr('id'));
 						}
+						// We do this in the callback (once the HTML has been added to the DOM).
+						resetFrame();
 					});
 
 				// update the page
@@ -339,7 +341,6 @@ var RcptSelect = function()
 
 			// take down the wait sign
 			jQuery('body').css('cursor', 'default');
-			resetFrame();
 		},
 
 		/**
