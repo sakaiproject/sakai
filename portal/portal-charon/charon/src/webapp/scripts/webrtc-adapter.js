@@ -402,6 +402,9 @@ function WebRTC() {
 					candidate : signal.candidate
 
 				}));
+			}else{
+				//For now, we send a bye signal in M2 we will try to reconnect.
+				this.signalService.send(from, JSON.stringify({"bye" : "bye"}));
 			}
 		} else if (signal.bye != null) {
 			var callConnection = this.currentPeerConnectionsMap[from];
