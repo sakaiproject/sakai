@@ -389,6 +389,10 @@ class OAuthRequest {
   public function to_header() {
     // $out ='Authorization: OAuth realm=""';
     $out ='Authorization: OAuth ';
+    $comma = ',';
+    // Hack for RoR implementations that do not handle realm properly
+    // $out ='Authorization: OAuth ';
+    // $comma = '';
     $total = array();
     $comma = '';
     foreach ($this->parameters as $k => $v) {
