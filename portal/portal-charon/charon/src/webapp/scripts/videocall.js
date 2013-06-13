@@ -184,6 +184,7 @@ function VideoCall() {
 		$('#pc_connection_' + uuid + '_videochat_bar > .pc_connection_videochat_bar_left ').show();
 		$('#pc_connection_' + uuid + '_videochat_bar .video_off').show();
 		$('#pc_connection_' + uuid + '_videochat_bar .video_on').hide();
+		$('#pc_connection_' + uuid + '_videoin').hide();
 	}
 
 	/* It retrieves the current userid list of active webconnections */
