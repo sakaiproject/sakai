@@ -78,7 +78,7 @@
 					<ul role="menu">
 				#foreach ( $site in $subSites ) 
 						<li>
-							<a href="${site.siteUrl}" title="${site.siteTitle}" role="menuitem">
+							<a href="${site.siteUrl}" title="${rloader.subsite} ${site.fullTitle}" role="menuitem">
 							<span class="toolMenuIcon ${sitePages.subsiteClass}"></span><span class="menuTitle">${rloader.subsite} ${site.siteTitle}</span>
 							</a>
 						</li>
