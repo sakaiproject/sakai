@@ -141,7 +141,7 @@ function switchPartialCredit(newCorrect,oldCorrect){
              var position= oldCorrect.split(":");
              var  prevcorrId="itemForm:mcchoices:"+position[2]+":partialCredit";
              var pInput= document.getElementById(prevcorrId);
-             pInput.valueOf().value=0;
+             pInput.value=0;
              pInput.style.borderStyle = "solid double";
              pInput.style.borderColor="red";
 			 pInput.disabled=false;
@@ -154,7 +154,7 @@ function switchPartialCredit(newCorrect,oldCorrect){
          position= newCorrect.split(":");
          var currCorrId="itemForm:mcchoices:"+position[2]+":partialCredit";
          var correctPInput= document.getElementById(currCorrId);
-         correctPInput.valueOf().value=100;
+         correctPInput.value=100;
 		 correctPInput.disabled=true;
   }
 }
@@ -192,7 +192,7 @@ function disablePartialCreditField(){
           var subElement= radiobtn.name.split(":");
           var currCorrId="itemForm:mcchoices:"+subElement[2]+":partialCredit";
 		  var correctPInput= document.getElementById(currCorrId);
-		  correctPInput.valueOf().value=100;
+		  correctPInput.value=100;
           correctPInput.disabled=true;
        }   
     }
