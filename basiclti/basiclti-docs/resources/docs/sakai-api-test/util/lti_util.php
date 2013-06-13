@@ -716,16 +716,30 @@ function sendOAuthBodyPOST($method, $endpoint, $oauth_consumer_key, $oauth_consu
     $header = $acc_req->to_header();
     $header = $header . "\r\nContent-Type: " . $content_type . "\r\n";
 
+    global $LastPOSTHeader;
+    $LastPOSTHeader = $header;
+
     return do_post($endpoint,$body,$header);
 }
 
+// Sadly this tries several approaches depending on 
+// the PHP version and configuration.  You can use only one
+// if you know what version of PHP is working and how it will be 
+// configured...
 function do_post($url, $body, $header) {
     global $last_http_response;
+    global $LastPOSTMethod;
     $last_http_response = false;
-    $response = post_curl($url, $body, $header);
-    if ( $response !== false ) return $response;
     $response = post_socket($url, $body, $header);
+    $LastPOSTMethod = "Socket";
     if ( $response !== false ) return $response;
+    $response = post_stream($url, $body, $header);
+    $LastPOSTMethod = "Stream";
+    if ( $response !== false ) return $response;
+    $response = post_curl($url, $body, $header);
+    $LastPOSTMethod = "CURL";
+    if ( $response !== false ) return $response;
+    $LastPOSTMethod = "Error";
     echo("Unable to post<br/>\n");
     echo("Url=$url <br/>\n");
     echo("Headers:<br/>\n$headers<br/>\n");
@@ -768,8 +782,10 @@ function post_socket($endpoint, $data, $moreheaders=false) {
     $headers .= $eol.$data;
     // echo("\n"); echo($headers); echo("\n");
     // echo("PORT=".$url['port']);
+    $hostname = $url['host'];
+    if ( $url['port'] == 443 ) $hostname = "ssl://" . $hostname;
     try {
-        $fp = fsockopen($url['host'], $url['port'], $errno, $errstr, 30);
+        $fp = fsockopen($hostname, $url['port'], $errno, $errstr, 30);
         if($fp) {
             fputs($fp, $headers);
             $result = '';
@@ -793,8 +809,9 @@ function post_curl($url, $body, $header) {
   $ch = curl_init();
   curl_setopt($ch, CURLOPT_URL, $url);
 
-  $headers = explode("\n",$header);
-  curl_setopt ($ch, CURLOPT_HTTPHEADER, $headers);
+  // Make sure that the header is an array
+  $header = explode("\n", $header);
+  curl_setopt ($ch, CURLOPT_HTTPHEADER, $header);
 
   curl_setopt($ch, CURLOPT_POST, 1);
   curl_setopt($ch, CURLOPT_POSTFIELDS, $body);
@@ -811,7 +828,6 @@ function post_curl($url, $body, $header) {
   $result = curl_exec($ch);
   $info = curl_getinfo($ch);
   $last_http_response = $info['http_code'];
-echo("$last_http_response \n");
   curl_close($ch);
   return $result;
 }

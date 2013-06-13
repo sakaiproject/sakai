@@ -39,7 +39,7 @@ if ( $context->valid ) {
    $found = false;
     if ( $_POST['lis_result_sourcedid'] && $_POST['lis_outcome_service_url'] ) {
         print "<p>\n";
-        print '<a href="common/tool_provider_outcome.php?sourcedid='.$sourcedid;
+        print '<a href="common/tool_provider_outcome.php?sourcedid='.urlencode($sourcedid);
         print '&key='.urlencode($_POST['oauth_consumer_key']);
         print '&seret=secret';
         print '&url='.urlencode($_POST['lis_outcome_service_url']).'">';

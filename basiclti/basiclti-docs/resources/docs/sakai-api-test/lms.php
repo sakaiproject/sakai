@@ -125,12 +125,3 @@ function lmsdataToggle() {
   print($content);
 
 ?>
-<hr>
-<p>
-Note: Unpublished drafts of IMS Specifications are only available to 
-IMS members and any software based on an unpublished draft is subject to change.
-Sample code is provided to help developers understand the specification more quickly.
-Simply interoperating with this sample implementation code does not 
-allow one to claim compliance with a specification.
-<p>
-<a href="http://developers.imsglobal.org/">IMS Developer Community</a>
