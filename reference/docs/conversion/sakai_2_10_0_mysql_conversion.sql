@@ -858,3 +858,6 @@ alter table SAM_PUBLISHEDANSWER_T CHANGE PARTIAL_CREDIT PARTIAL_CREDIT double;
 alter table SAM_PUBLISHEDITEM_T CHANGE SCORE SCORE double;
 alter table SAM_PUBLISHEDITEM_T CHANGE DISCOUNT DISCOUNT double;
 -- End SAM-2087
+
+-- SAM-2088 
+update GB_GRADABLE_OBJECT_T set external_id=concat('/samigo/',external_id) where external_id not like '/%';
