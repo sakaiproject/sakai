@@ -35,8 +35,43 @@ associated sites. If you do not choose to associate this site with an existing
 account, a new guest account will be created for you using this email
 address. In the future, login to ${localSakaiName} using the
 guest account username and its associated password.&lt;/p&gt;</messagehtml>
- <locale></locale>
-</emailTemplate>
-	
+		<locale></locale>
+	</emailTemplate>
+	<emailTemplate>
+		<subject>欢迎加入 ${localSakaiName} ！</subject>
+		<message>${addedBy} (${addedByEmail}) 邀请您加入 ${localSakaiName} 中的 ${memberSites} 站点。
+
+您可以通过 ${url} 接受本邀请。
+
+${localSakaiName} 是什么？
+${localSakaiName} 是 ${institution} 的学习管理系统。其中包含了很多课程站点、
+管理站点、研究小组、图书馆以及学生社群。作为访客，您被邀请加入一个 ${localSakaiName} 站点。
+在此站点中，您可以浏览相关材料，您或许也可以创建或编辑相关材料（这取决于您被赋予的角色）。
+
+如果我已经有 ${localSakaiName} 帐号了，该怎么办？
+如果您曾使用过 ${localSakaiName}，那么您已经拥有了一个 ${localSakaiName} 帐号。
+如此，我们强烈建议您接受上面的邀请，然后指定您准备使用哪个 ${localSakaiName} 帐号。
+这可以避免您使用多个帐号，而每个帐号关联着不同的站点的情况。如果您不将此站点关联到已有帐号，
+那么将会为您创建新访客帐号，并以此email地址为用户名。今后，您可以使用这个访客帐号及相
+关密码访问 ${localSakaiName} 。</message>
+
+		<messagehtml>&lt;p&gt;${addedBy} (${addedByEmail}) 邀请您加入 &lt;strong&gt;${localSakaiName}&lt;/strong&gt; 中的 ${memberSites} 站点。&lt;/p&gt;
+
+&lt;p&gt;&lt;a href=${url}&gt;您可以通过 ${url} 接受本邀请。&lt;/a&gt;&lt;/p&gt;
+
+&lt;h2&gt; ${localSakaiName} 是什么？&lt;/h2&gt;
+&lt;p&gt;${localSakaiName} 是 ${institution} 的学习管理系统。其中包含了很多课程站点、
+管理站点、研究小组、图书馆以及学生社群。作为访客，您被邀请加入一个 ${localSakaiName} 站点。
+在此站点中，您可以浏览相关材料，您或许也可以创建或编辑相关材料（这取决于您被赋予的角色）。&lt;/p&gt;
+
+
+&lt;h2&gt;如果我已经有 ${localSakaiName} 帐号了，该怎么办？&lt;/h2&gt;
+&lt;p&gt;如果您曾使用过 ${localSakaiName}，那么您已经拥有了一个 ${localSakaiName} 帐号。
+如此，我们强烈建议您接受上面的邀请，然后指定您准备使用哪个 ${localSakaiName} 帐号。
+这可以避免您使用多个帐号，而每个帐号关联着不同的站点的情况。如果您不将此站点关联到已有帐号，
+那么将会为您创建新访客帐号，并以此email地址为用户名。今后，您可以使用这个访客帐号及相
+关密码访问 ${localSakaiName} 。&lt;/p&gt;</messagehtml>
+		<locale>zh_CN</locale>
+	</emailTemplate>
 
 </emailTemplates>
