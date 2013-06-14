@@ -8,7 +8,7 @@
     bottom: 28px;
     /* Needs to be to the right of the expanded presence block. See presenceArea. */
     right: 18px;
-    z-index: 2001;
+    z-index: 9999;
     margin: 0px;
     padding: 0px;
     display: none;
@@ -549,5 +549,14 @@ background-position: center;
 	background-image: url('images/video_cam_disable.png');
 }
 
+#pc_chat_scroll_bar {
+	display: none;
+	float: right;
+	margin-top: 6px;
+}
 
-
+.goclass {
+	display: inline;
+	margin-left: 2px;
+	margin-right: 4px;
+}
