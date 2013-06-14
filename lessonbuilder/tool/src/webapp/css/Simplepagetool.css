@@ -53,9 +53,6 @@
 	left: 10px;
 	margin: 20px;
 }
-.neoPortletTitleWrap {
-	padding-bottom: 6px
-}
 .breadcrumbs a[title="Reset"] {
 
 }
@@ -808,104 +805,6 @@ div[role="dialog"] {
         background: url(images/reload_h.png) center left no-repeat !important
     }
 */
-.neoPortletTitleWrap {
-    border-bottom: 2px solid #319DCE;
-    border-radius:0
-}
-.portletTitle {
-    width: 100%;
-    height: 100%;
-    overflow: hidden;
-}
-.portletTitle .action {
-    padding: 2px -1px 6px 2px;
-    text-align: right;
-    vertical-align: middle;
-}
-.portletTitle .action a#jsr-edit {
-    padding: 2px;
-    background: url(../images/page_edit.gif) center right no-repeat;
-}
-.portletTitle .action a#jsr-edit:hover {
-    background: url(../images/page_edit.gif) center right no-repeat
-}
-.portletTitle .action img {
-    margin: 0;
-    vertical-align: text-bottom;
-    width: 18px;
-    border: none;
-    height: 18px;
-}
-.portletTitle .action a.help {
-    background: url(../images/help.gif) center right no-repeat;
-    text-align: left;
-    padding: 0;
-    text-decoration: none !important;
-    width: 1em;
-    height: 1.5em;
-    outline: none;
-}
-.portletTitle .title a:focus, .portletTitle .action a:focus {
-    outline: black dotted thin
-}
-.portletTitle .action a.help:hover, .portletTitle .action a.help:focus {
-    background: url(../images/help_h.gif) center right no-repeat
-}
-.portletTitle .action a.tool-directurl{
-    padding:2px;
-    background: url(/library/image/silk/link.png) center right no-repeat;
-}
-.portletTitle .action a.tool-directurl:hover{
-    background: url(/library/image/silk/link_go.png) center right no-repeat;
-}
-.direct-url-wrap {
-    font-size: 85%;
-    color: #555;
-}
-.direct-url-wrap textarea {
-    color: #000;
-    overflow:auto;
-    width:250px;
-    display:block;
-}
-.portletTitle .title {
-    padding: 2px 4px 6px 0;
-    height: 1em;
-    float: left;
-    color: #000;
-}
-.portletTitle .title img {
-    margin: 0;
-    vertical-align: text-bottom;
-    width: 18px;
-    border: none;
-    height: 18px;
-}
-.portletTitle .title h2 {
-    display: inline;
-    margin: 0;
-    padding: 0;
-    color: #444;
-    font-weight: bold;
-    font-family: 'Helvetica Neue', Arial, sans-serif;
-    font-size: 1.2em !important;
-}
-.portletTitle .title h2 a {
-    text-decoration: none;    
-}
-.portletTitle .title h2 .siteTitle {
-    color: #333
-}
-.portletTitle .title a.reload {
-    background: url(../images/reload.gif) center left no-repeat;
-    text-decoration: none !important;
-    border: 1px solid #fff;
-    height: 1.5em;
-    outline: none;
-}
-.portletTitle .title a.reload:hover, .portletTitle .title a.reload:focus {
-    background: url(../images/reload_h.gif) center left no-repeat
-}
 
 /*
  alternate treatment for list - can go in tool.css
