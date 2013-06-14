@@ -101,6 +101,23 @@ CKEDITOR.plugins.add( 'movieplayer',
 	 requires : [ 'fakeobjects', 'flash', 'iframedialog' ],
    //http://alfonsoml.blogspot.com/2009/12/plugin-localization-in-ckeditor-vs.html
    lang: ['en','pt'],
+   getPlaceholderCss : function () {
+       return 'img.cke_movieplayer' +
+		    '{' +
+		    'background-image: url(' + CKEDITOR.getUrl( this.path + 'images/placeholder.png' ) + ');' +
+		    'background-position: center center;' +
+		    'background-repeat: no-repeat;' +
+		    'border: 1px solid #a9a9a9;' +
+		    'width: 80px;' +
+		    'height: 80px;' +
+		    '}';
+   },
+   onLoad: function() {
+       //v4
+       if (CKEDITOR.addCss) {
+	   CKEDITOR.addCss(this.getPlaceholderCss());
+       }
+   },
    init: function( editor )
    {
       var command = editor.addCommand( 'movie.cmd', new CKEDITOR.dialogCommand( 'movie.dlg' ) );
@@ -112,17 +129,10 @@ CKEDITOR.plugins.add( 'movieplayer',
          command: 'movie.cmd',
 	 icon:  thispath + 'filmreel.gif'
       });
-			editor.addCss(
-				'img.cke_movieplayer' +
-				'{' +
-					'background-image: url(' + CKEDITOR.getUrl( this.path + 'images/placeholder.png' ) + ');' +
-					'background-position: center center;' +
-					'background-repeat: no-repeat;' +
-					'border: 1px solid #a9a9a9;' +
-					'width: 80px;' +
-					'height: 80px;' +
-				'}'
-				)
+      //v3
+      if (editor.addCss) { 
+	  editor.addCss(this.getPlaceholderCss());
+      }
 	//movie_plugin.js
     CKEDITOR.dialog.add( 'movie.dlg', function( api ) {
             var dialogDef = {

@@ -66,7 +66,7 @@
 								if (evt) {
 										var editor = evt.editor;
 										space = getSpaceElement(editor);
-										space.setHtml( editor.lang.WordCountTxt + " : " + getWordCount(editor.getData()) );
+										space.setHtml( editor.lang.wordcount.WordCountTxt + " : " + getWordCount(editor.getData()) );
 								}
 						}
 
@@ -79,16 +79,19 @@
             editor.on('key', ShowWordCount);
             editor.on('paste', ShowWordCount);
 
-						editor.on( 'themeSpace', function( evt )
-								{
-										//Creating bottom
-										if ( evt.data.space == 'bottom' )
-										{
-												evt.data.html +=
-														'<span id="' + spaceId + '_label" class="cke_voice_label">' + editor.lang.elementsPath.eleLabel + '</span>' +
-														'<div id="' + spaceId + '" style="float:right" class="cke_wordcount" role="group" aria-labelledby="' + spaceId + '_label">' + emptyHtml + '</div>';
-										}
-								})
+	    var createBottom = function (evt) {
+		//Creating bottom
+		if ( evt.data.space == 'bottom' )
+		{
+		    evt.data.html +=
+//			'<span id="' + spaceId + '_label" class="cke_voice_label">' + editor.lang.elementsPath.eleLabel + '</span>' +
+			'<div id="' + spaceId + '" style="float:right" class="cke_wordcount" role="group" aria-labelledby="' + spaceId + '_label">' + emptyHtml + '</div>';
+		}
+	    };
+	    //v4
+	    editor.on('uiSpace', createBottom);
+	    //v3
+	    editor.on('themeSpace', createBottom);
         }
     });
 })();
