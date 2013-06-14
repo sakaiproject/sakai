@@ -1,6 +1,6 @@
 
 create table dash_availability_check 
-( id number not null primary key, entity_ref varchar2(265) not null, 
+( id number not null primary key, entity_ref varchar2(255) not null, 
 entity_type_id varchar2(255) not null, scheduled_time timestamp(0) not null); 
 create sequence dash_availability_check_seq start with 1 increment by 1 nomaxvalue; 
 create unique index dash_avail_check_idx on dash_availability_check(entity_ref, scheduled_time); 
@@ -9,7 +9,7 @@ create index dash_avail_check_time_idx on dash_availability_check(scheduled_time
 create table dash_calendar_item 
 ( id number not null primary key, calendar_time timestamp(0) not null, calendar_time_label_key varchar2(40), 
 title varchar2(255) not null, 
-entity_ref varchar2(265) not null, entity_type number not null, subtype varchar2(255), context_id number not null, 
+entity_ref varchar2(255) not null, entity_type number not null, subtype varchar2(255), context_id number not null, 
 repeating_event_id number, sequence_num integer ); 
 create sequence dash_calendar_item_seq start with 1 increment by 1 nomaxvalue; 
 create index dash_cal_time_idx on dash_calendar_item (calendar_time); 
@@ -59,7 +59,7 @@ create sequence dash_event_seq start with 1 increment by 1 nomaxvalue;
 
 create table dash_news_item ( id number not null primary key, 
 news_time timestamp(0) not null, news_time_label_key varchar2(40), title varchar2(255) not null, 
-entity_ref varchar2(265) not null, 
+entity_ref varchar2(255) not null, 
 entity_type number not null, subtype varchar2(255), context_id number not null, grouping_id varchar2(90) ); 
 create sequence dash_news_item_seq start with 1 increment by 1 nomaxvalue; 
 create index dash_news_time_idx on dash_news_item (news_time); 
@@ -81,7 +81,7 @@ create unique index dash_person_sakai_id_idx on dash_person (sakai_id);
 create table dash_repeating_event (id number not null primary key, 
 first_time timestamp(0) not null, last_time timestamp(0), frequency varchar2(40) not null, max_count integer, 
 calendar_time_label_key varchar2(40), title varchar2(255) not null, 
-entity_ref varchar2(265) not null, subtype varchar2(255), entity_type number not null, context_id number not null ); 
+entity_ref varchar2(255) not null, subtype varchar2(255), entity_type number not null, context_id number not null ); 
 create sequence dash_repeating_event_seq start with 1 increment by 1 nomaxvalue; 
 create index dash_repeating_event_first_idx on dash_repeating_event (first_time); 
 create index dash_repeating_event_last_idx on dash_repeating_event (last_time);
