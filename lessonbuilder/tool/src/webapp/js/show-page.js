@@ -753,6 +753,7 @@ $(function() {
             $('li').removeClass('editInProgress');
 			var position =  $(this).position();
 			
+			$('#question-error-container').hide();
 			$("#questionEditId").val("-1");
 			$("#question-text-input").val("");
 			$("#question-answer-input").val("");
@@ -2134,12 +2135,25 @@ function checkQuestionGradedForm() {
 
 // Prepares the question dialog to be submitted
 function prepareQuestionDialog() {
+    alert($("#question-gradebook-title"));
+	if ($("#question-graded").attr("checked") && !isFinite(parseFloat($("#question-max").val()))) {
+	    $('#question-error').text(msg("simplepage.integer-expected"));
+	    $('#question-error-container').show();
+	    return false;
+	} else if($("#question-graded").attr("checked") && $("#question-gradebook-title") == '') {
+	    $('#question-error').text(msg("simplepage.gbname-expected"));
+	    $('#question-error-container').show();
+	    return false;
+	} else
+	    $('#question-error-container').hide();
+
 	updateMultipleChoiceAnswers();
 	updateShortanswers();
 	
 	// RSF bugs out if we don't undisable these before submitting
 	$("#multipleChoiceSelect").removeAttr("disabled");
 	$("#shortanswerSelect").removeAttr("disabled");
+	return true;
 }
 
 // Reset the multiple choice answers to prevent problems when submitting a shortanswer

@@ -657,6 +657,7 @@ function resizeiframe(id) {
 			  <p rsf:id="msg=simplepage.site" id="simplepage.site"></p>
 			  <p rsf:id="msg=simplepage.system" id="simplepage.system"></p>
 			  <p rsf:id="msg=simplepage.integer-expected" id="simplepage.integer-expected"></p>
+			  <p rsf:id="msg=simplepage.gbname-expected" id="simplepage.gbname-expected"></p>
 			  <p rsf:id="msg=simplepage.width-height" id="simplepage.width-height"></p>
 			  <p rsf:id="msg=simplepage.nothing-over-100-percent" id="simplepage.nothing-over-100-percent"></p>
 			</div>
@@ -1419,6 +1420,13 @@ function resizeiframe(id) {
 			</div>
 			
 			<div id="question-dialog" rsf:id="question-dialog">
+			  <div class="ui-widget" id="question-error-container">
+			    <div class="ui-state-error ui-corner-all" style="padding: 0 .7em;"> 
+			      <p><span class="ui-icon ui-icon-alert" style="float: left; margin-right: .3em;"></span> 
+				<strong rsf:id="msg=simplepage.error_colon"></strong> <span id="question-error"></span></p>
+			    </div>
+			  </div>
+
                 <form action="#" rsf:id="question-form" class="controlsPanel">
                     <div class="border controlsPanel">
                         <input type="hidden" rsf:id="questionEditId" id="questionEditId" />
@@ -1509,7 +1517,7 @@ function resizeiframe(id) {
                         </div>
                     </div>
                     <p class="act">
-                        <input class="bold" type="submit" onclick="prepareQuestionDialog(); return true;" id="update-question" rsf:id="update-question" />
+                        <input class="bold" type="submit" onclick="return prepareQuestionDialog();" id="update-question" rsf:id="update-question" />
                         <input type="submit" rsf:id="cancel-question" onclick="closeQuestionDialog(); return false" />
                         <input type="submit" class="deleteButton" rsf:id="delete-question-item" />
                     </p>
