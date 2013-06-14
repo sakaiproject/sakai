@@ -279,10 +279,11 @@
 				<div id="footerAppTray">
 #if ( $neoChat )
 					<div id="footerAppChat" style="display:none">
-						<a href="#" id="chatToggle"><img src="/library/image/silk/comment.png" style="vertical-align: middle;" alt="" /> ${rloader.pc_title} 
+						<a href="#" id="chatToggle"><img src="/library/image/silk/comment.png" style="vertical-align: middle; margin-top: 6px; margin-bottom: 5px;" alt="" /> ${rloader.pc_title} 
 						<span id="chattableCount"></span>
 						</a>
 						<!-- chat tray, will hold chat containers (as many as ongoing chats) -->
+						<div id="pc_chat_scroll_bar"><div class="goclass" id="goleft"><img src="/library/image/silk/arrow_left.png" style="vertical-align: middle;" alt="" /></div><div class="goclass" id="goright"><img src="/library/image/silk/arrow_right.png" style="vertical-align: middle;" alt="" /></div></div>
 					</div>	
 #else
 #if ( ${sitePages.pageNavShowPresenceLoggedIn})
@@ -454,7 +455,7 @@
             </div>
 
             <!-- Chat windows get prepended to this container -->
-            <div style="bottom: 0px;" id="pc_chat_window_container"></div>
+            <div style="bottom: 0px;" id="pc_chat_window_container"><div id="pc_chat_window_scroller"></div></div>
 
             <!-- END FLOATING CHAT STUFF -->
 

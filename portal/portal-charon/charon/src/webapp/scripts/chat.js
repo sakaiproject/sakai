@@ -16,6 +16,7 @@ function PortalChat() {
     this.connectionsAvailable = true;
 	videoCall = null;
 	this.videoOff = false;
+	this.openWindows = 0;
 
     /**
      *  Utility for rendering trimpath templates. Takes the id of the template,
@@ -145,7 +146,14 @@ function PortalChat() {
 		if($('#' + id).length) return false;
 
         // Append a new chat div to the container
-		$('#pc_chat_window_container').prepend("<div id=\"" + id + "\" class=\"pc_chat_window\" data-height=\"300\"></div>");
+		$('#pc_chat_window_scroller').prepend("<div id=\"" + id + "\" class=\"pc_chat_window\" data-height=\"300\"></div>");
+		this.openWindows++;
+		var openSize = ((262*this.openWindows)+50);
+		$('#pc_chat_window_scroller').css("width",openSize+"px");
+		$('#pc_chat_window_container').css("right","225px");
+		if ($("#footerAppTray").position().left < openSize) {
+			$("#pc_chat_scroll_bar").show();
+		}
 
 		this.renderTemplate('pc_connection_chat_template',connection,id);
 
@@ -228,6 +236,17 @@ function PortalChat() {
 		}
 
 		$('#pc_chat_with_' + uuid).remove();
+		this.openWindows--;
+		var openSize = ((262*this.openWindows)+50);
+		$('#pc_chat_window_scroller').css("width",openSize+"px");
+		var right = $("#pc_chat_window_container").css("right");
+		right = right.substring(0,right.indexOf("px"))-0;
+		if (right!=225) {
+			$("#pc_chat_window_container").css("right",(right+262)+"px");
+		}
+		if ($("#footerAppTray").position().left > openSize) {
+			$("#pc_chat_scroll_bar").hide();
+		}
 
 		this.currentChats.splice(removed,1);
 
@@ -983,6 +1002,31 @@ function PortalChat() {
 					portalChat.scrollToBottom(sms.uuid);
 				}
 			}
+			
+			$("#goright").click(function(){
+				var freeSpace = $("#footerAppTray").position().left;
+				var openSize = $('#pc_chat_window_scroller').css("width");
+				openSize = openSize.substring(0,openSize.indexOf("px"))-0;
+				var right = $("#pc_chat_window_container").css("right");
+				right = right.substring(0,right.indexOf("px"))-0;
+				if (openSize>freeSpace) {
+					if (right==225) return;
+					$("#pc_chat_window_container").css("right",(right+262)+"px");
+				}
+			});
+			
+			$("#goleft").click(function(){
+				var freeSpace = $("#footerAppTray").position().left;
+				var openSize = $('#pc_chat_window_scroller').css("width");
+				openSize = openSize.substring(0,openSize.indexOf("px"))-0;
+				var right = $("#pc_chat_window_container").css("right");
+				right = right.substring(0,right.indexOf("px"))-0;
+				if (openSize>freeSpace) {
+					if (openSize+right-225<freeSpace) return;
+					$("#pc_chat_window_container").css("right",(right-262)+"px");
+				}
+			});
+			
 		});
 
         // 15 minutes
