@@ -316,6 +316,51 @@ public class PortalSiteHelperImpl implements PortalSiteHelper
 	}
 
 	/**
+	 * SAK-23567 Gets an array with 2 int values {left,right}
+	 * 	left: left percentage (before cut separator)
+	 * 	right: right percentage (after separator)
+	 */
+	protected int [] getCutMethod(String siteTitleCutMethodString) {
+ 		String [] siteTitleCutMethod = siteTitleCutMethodString.split(":");
+ 		int [] cutMethod = new int[]{100,0};
+ 		try {
+ 			if (siteTitleCutMethod.length==2) {
+ 				cutMethod[0] = Integer.parseInt(siteTitleCutMethod[0]);
+ 				cutMethod[1] = Integer.parseInt(siteTitleCutMethod[1]);
+ 				if (cutMethod[0]+cutMethod[1]!=100) throw new Exception();
+ 			}
+ 		} catch (Throwable ex) {
+ 			cutMethod[0] = 100; cutMethod[1] = 0;
+ 		}
+ 		return cutMethod;
+	}
+	/**
+	 * SAK-23567 Gets the resumed version of the title
+	 */
+	protected String getResumeTitle(String fullTitle,String cutMethod,int siteTitleMaxLength,String cutSeparator) {
+		String titleStr = fullTitle;
+		if ( titleStr != null )
+		{
+			titleStr = titleStr.trim();
+			if ( titleStr.length() > siteTitleMaxLength && siteTitleMaxLength >= 10 ) 
+			{
+		 		int [] siteTitleCutMethod = getCutMethod(cutMethod);
+				int begin = Math.round(((siteTitleMaxLength-cutSeparator.length())*siteTitleCutMethod[0])/100);
+				int end = Math.round(((siteTitleMaxLength-cutSeparator.length())*siteTitleCutMethod[1])/100);
+				// Adjust odd character to the begin
+				begin += (siteTitleMaxLength - (begin + cutSeparator.length() + end));  
+				titleStr = ((begin>0)?titleStr.substring(0,begin):"") + cutSeparator +((end>0)?titleStr.substring(titleStr.length()-end):"");
+			} 
+			else if ( titleStr.length() > siteTitleMaxLength ) 
+			{
+				titleStr = titleStr.substring(0,siteTitleMaxLength);
+			}
+			//titleStr = titleStr.trim();
+		}
+		return titleStr;
+	}
+	
+	/**
 	 * Explode a site into a map suitable for use in the map
 	 * 
 	 * @see org.sakaiproject.portal.api.PortalSiteHelper#convertSiteToMap(javax.servlet.http.HttpServletRequest,
@@ -341,22 +386,11 @@ public class PortalSiteHelperImpl implements PortalSiteHelper
 		m.put("isMyWorkspace", Boolean.valueOf(myWorkspaceSiteId != null
 				&& (s.getId().equals(myWorkspaceSiteId) || effectiveSite
 						.equals(myWorkspaceSiteId))));
- 		int siteTitleMaxLength = ServerConfigurationService.getInt("site.title.maxlength", 25);
-		String titleStr = s.getTitle();
-		String fullTitle = titleStr;
-		if ( titleStr != null )
-		{
-			titleStr = titleStr.trim();
-			if ( titleStr.length() > siteTitleMaxLength && siteTitleMaxLength >= 10 ) 
-			{
-				titleStr = titleStr.substring(0,siteTitleMaxLength-4) + " ...";
-			} 
-			else if ( titleStr.length() > siteTitleMaxLength ) 
-			{
-				titleStr = titleStr.substring(0,siteTitleMaxLength);
-			}
-			titleStr = titleStr.trim();
-		}
+		String fullTitle = s.getTitle();
+		String titleStr = getResumeTitle(fullTitle
+				,ServerConfigurationService.getString("site.title.cut.method", "100:0")
+				,ServerConfigurationService.getInt("site.title.maxlength", 25)
+				,ServerConfigurationService.getString("site.title.cut.separator", " ..."));
 		m.put("siteTitle", Web.escapeHtml(titleStr));
 		m.put("fullTitle", Web.escapeHtml(fullTitle));
 		m.put("siteDescription", s.getHtmlDescription());

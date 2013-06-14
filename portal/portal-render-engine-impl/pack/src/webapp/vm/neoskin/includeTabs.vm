@@ -203,7 +203,7 @@
 						</li>
 					#else
 						<li>
-							<a href="${site.siteUrl}" title="${site.fullTitle}"><span  class="fullTitle">${site.fullTitle}</span></a><a href="#" id="${site.siteId}"class="toolMenus">&nbsp;<span class="skip">Tools</span></a>
+							<a href="${site.siteUrl}" title="${site.fullTitle}"><span  class="fullTitle">${site.siteTitle}</span></a><a href="#" id="${site.siteId}"class="toolMenus">&nbsp;<span class="skip">Tools</span></a>
 						</li>
 					#end
 				#end
@@ -214,7 +214,7 @@
 			<div id="otherSiteMenuWrap">
      			<ul id="otherSiteList" role="navigation">
 					#foreach( $site in $tabsSites.tabsMoreSites )
-						<li><a href="${site.siteUrl}" title="${site.fullTitle}" id="${site.siteId}" class="moreSitesLink"><span class="fullTitle">${site.fullTitle}</span></a><a href="javascript:;" id="${site.siteId}" class="toolMenus" tabindex="-1">&nbsp;<span class="skip">Tools</span></a></li>
+						<li><a href="${site.siteUrl}" title="${site.fullTitle}" id="${site.siteId}" class="moreSitesLink"><span class="fullTitle">${site.siteTitle}</span></a><a href="javascript:;" id="${site.siteId}" class="toolMenus" tabindex="-1">&nbsp;<span class="skip">Tools</span></a></li>
 					#end	
       			</ul>
 			</div>
