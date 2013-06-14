@@ -17,12 +17,12 @@
 	<div class="portletBody">
 	
 	<p rsf:id="debugstuff"> junk </p>
-
+    <h3><span rsf:id="title-label"></span><span class="bold" style="margin-left:5px;" rsf:id="page-title"></span></h3>
 		<form rsf:id="page_form">
 			<div rsf:id="instructions">Enter your page content below</div>
 			
 			<div class="longtext">
-	            <span rsf:id="title-label"></span><span class="bold" style="margin-left:5px;" rsf:id="page-title"></span>
+	            
 				<textarea rsf:id="page:">
 				</textarea>
 			</div>
@@ -63,12 +63,10 @@ jQuery(document).ready(function($) {
 			  </div>
 			</div>
 
-			<br />
-
 			<p class="act">
 				<input accesskey ="s" rsf:id="save" value="Save" type="submit" class="active" />
 				<input accesskey ="x" rsf:id="cancel" value="Cancel" type="submit"/>
-				<input type="submit" style="position:relative;left:50px;" rsf:id="delete" class="ConfirmDelete" />
+                <input type="submit" rsf:id="delete" class="deleteButton" />
 			</p>						
 		</form>
 	</div>

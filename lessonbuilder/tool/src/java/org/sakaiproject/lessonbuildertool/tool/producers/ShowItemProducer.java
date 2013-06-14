@@ -184,12 +184,10 @@ public class ShowItemProducer implements ViewComponentProducer, NavigationCaseRe
 
 	    if (helpurl != null || reseturl != null) {
 		skinName = simplePageBean.getCurrentSite().getSkin();
-		System.out.println("skinname " + skinName);
 		if (skinName == null)
 		    skinName = ServerConfigurationService.getString("skin.default", "default");
 		skinRepo = ServerConfigurationService.getString("skin.repo", "/library/skin");
 		iconBase = skinRepo + "/" + skinName + "/images/";
-		System.out.println("iconbase " + iconBase);
 	    }
 
 	    if (helpurl != null) {

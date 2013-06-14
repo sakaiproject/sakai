@@ -26,7 +26,7 @@
 		
 		<h3 rsf:id="msg=simplepage.create_topic" class="offscreen"></h3>
 
-		<div rsf:id="forum-create:" style="margin-left:2em">
+		<div rsf:id="forum-create:">
 		  <a href="#" rsf:id="forum-create-link"></a>
 		</div>
 
@@ -34,16 +34,20 @@
 
 		<form action="#" rsf:id="forum-picker">
 		<span rsf:id="forum-span"/>
-		<table id="list" border="0" role="list">
-			<tr rsf:id="forum:" role="listitem">
-				<td><span rsf:id="name" style="font-weight:bold"></span><input type="radio" rsf:id="select" style="margin-left:1em"/> <a href="#" rsf:id="link" target="_blank"></a></td>
-			</tr>
-		</table>
+        <table id="list" border="0" role="list" class="listHier" cellpadding="0" cellspacing="0" style="width:auto">
+            <tr rsf:id="forum:" role="listitem">
+                <td>
+                    <h4 rsf:id="name"></h4>
+                    <input type="radio" rsf:id="select" /> <a href="#" rsf:id="link" target="_blank"></a>
+                </td>
+            </tr>
+        </table>
 		
 		<input type="hidden" rsf:id="item-id" id="item-id" />
-
-		<input type="submit" class="bold" rsf:id="submit" />
-		<input type="submit" rsf:id="cancel" />
+        <p class="act">    
+    		<input type="submit" class="bold" rsf:id="submit" />
+    		<input type="submit" rsf:id="cancel" />
+         </p>
 		</form>
 	</div>
 </body>

@@ -53,6 +53,7 @@ public class GeneralViewParameters extends SimpleViewParameters {
 	public long studentItemId;
 	
 	public String author; // An author whose comments should be highlighted
+	public String placementId = null;
 
 	public GeneralViewParameters() {
 		super();
@@ -176,5 +177,15 @@ public class GeneralViewParameters extends SimpleViewParameters {
 	public String getClearAttr() {
 		return clearAttr;
 	}
+
+	public void setPlacementId(String s) {
+		this.placementId = s;
+	}
+
+	public String getPlacementId() {
+		return placementId;
+	}
+
+
 
 }

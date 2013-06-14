@@ -10,6 +10,7 @@ import java.util.Locale;
 import java.text.SimpleDateFormat;
 import java.text.DateFormat;
 import java.util.Calendar;
+import java.net.URLEncoder;
 
 import org.sakaiproject.lessonbuildertool.SimplePageComment;
 import org.sakaiproject.lessonbuildertool.SimplePageItem;
@@ -33,6 +34,7 @@ import uk.org.ponder.localeutil.LocaleGetter;
 import uk.org.ponder.rsf.components.UIBranchContainer;
 import uk.org.ponder.rsf.components.UIContainer;
 import uk.org.ponder.rsf.components.UIInternalLink;
+import uk.org.ponder.rsf.components.UILink;
 import uk.org.ponder.rsf.components.UIOutput;
 import uk.org.ponder.rsf.components.UIVerbatim;
 import uk.org.ponder.rsf.components.decorators.UIFreeAttributeDecorator;
@@ -436,15 +438,17 @@ public class CommentsProducer implements ViewComponentProducer, ViewParamsReport
 		
 		if(filter && simplePageBean.getEditPrivs() == 0) {
 			UIOutput.make(commentContainer, "contextSpan");
-			GeneralViewParameters eParams = new GeneralViewParameters(ShowPageProducer.VIEW_ID, comment.getPageId());
-			eParams.setPath("none");
-			eParams.author = comment.getAuthor();
-			
+
+			// because this is called via /faces, the full Sakai context is not set up.
+			// in particular, UIInternalLink will generate the wrong thing. Thus we
+			// make up a full URL ourselves.
+			String pars = "/portal/tool/" + URLEncoder.encode(params.placementId) + "/ShowPage?path=none" +
+			    "&author=" + URLEncoder.encode(comment.getAuthor());
 			// Need to provide the item ID
 			if(!params.studentContentItem && params.pageItemId != -1L) {
-				eParams.setItemId(params.pageItemId);
+			    pars += "&itemId=" + URLEncoder.encode(Long.toString(params.pageItemId));
 			}
-			UIInternalLink contextLink = UIInternalLink.make(commentContainer, "contextLink", messageLocator.getMessage("simplepage.show-context"), eParams);
+			UILink contextLink = UILink.make(commentContainer, "contextLink", messageLocator.getMessage("simplepage.show-context"), pars);
 			if (itemToPageowner == null)
 			    contextLink.decorate( new UIFreeAttributeDecorator("title", messageLocator.getMessage("simplepage.context-link-title-1").
 									       replace("{}", author)));

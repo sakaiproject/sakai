@@ -326,6 +326,7 @@ $(function() {
 		
 		$(".edit-youtube").click(function(){
 			closeDropdown();
+            $('li').removeClass('editInProgress');
 			$("#editgroups-youtube").after($("#grouplist"));
 			$("#grouplist").hide();
 			$("#editgroups-youtube").hide();
@@ -350,6 +351,8 @@ $(function() {
 			$("#youtubeWidth").val(row.find(".mm-width").text());
 			$("#description4").val(row.find(".description").text());
 			var position =  row.position();
+            $('.edit-col').addClass('edit-colHidden');
+            $(this).closest('li').addClass('editInProgress');
 			$("#youtube-dialog").dialog("option", "position", [position.left, position.top]);
 			oldloc = $(this);
 			$('#youtube-dialog').dialog('open');
@@ -365,6 +368,7 @@ $(function() {
 
 		$('.edit-movie').click(function(){
 			closeDropdown();
+            $('li').removeClass('editInProgress');
 	                //var object = this.parentNode.parentNode.childNodes[3].childNodes[1];                                                                
 			$("#expert-movie").hide();
 			$("#expert-movie-toggle-div").show();
@@ -396,6 +400,8 @@ $(function() {
 			$("#description3").val(row.find(".description").text());
 			$("#mimetype4").val(row.find(".mm-type").text());
 			var position =  row.position();
+            $('.edit-col').addClass('edit-colHidden');
+            $(this).closest('li').addClass('editInProgress');
 			$("#movie-dialog").dialog("option", "position", [position.left, position.top]);
 			oldloc = $(this);
 			$("#movie-dialog").dialog('open');
@@ -406,6 +412,7 @@ $(function() {
 		
 		$(".edit-comments").click(function(){
 			closeDropdown();
+            $('li').removeClass('editInProgress');
 			$("#editgroups-comments").after($("#grouplist"));
 			$("#grouplist").hide();
 			$("#editgroups-comments").hide();
@@ -462,6 +469,8 @@ $(function() {
 			}
 			
 			var position = row.position();
+            $('.edit-col').addClass('edit-colHidden');
+            $(this).closest('li').addClass('editInProgress');
 			$("#comments-dialog").dialog("option", "position", [position.left, position.top]);
 			oldloc = $(this);
 			$('#comments-dialog').dialog('open');
@@ -477,6 +486,7 @@ $(function() {
 
 		$(".edit-student").click(function(){
 			closeDropdown();
+            $('li').removeClass('editInProgress');
 			$("#editgroups-student").after($("#grouplist"));
 			$("#grouplist").hide();
 			$("#editgroups-student").hide();
@@ -656,6 +666,8 @@ $(function() {
 			}
 			
 			var position = row.position();
+            $('.edit-col').addClass('edit-colHidden');
+            $(this).closest('li').addClass('editInProgress');
 			$("#student-dialog").dialog("option", "position", [position.left, position.top]);
 			oldloc = $(this);
 			$('#student-dialog').dialog('open');
@@ -738,6 +750,7 @@ $(function() {
 		
 		$('.question-link').click(function(){
 			closeDropdown();
+            $('li').removeClass('editInProgress');
 			var position =  $(this).position();
 			
 			$("#questionEditId").val("-1");
@@ -759,8 +772,6 @@ $(function() {
 			
 			$("#question-correct-text").val("");
 			$("#question-incorrect-text").val("");
-			
-			$("#delete-question-div").hide();
 			
 			$("#question-dialog").dialog("option", "position", [position.left, position.top]);
 			oldloc = $(this);
@@ -890,6 +901,10 @@ $(function() {
 			$("#delete-question-div").show();
 			
 			var position = row.position();
+            $("#delete-question-div").hide();
+            $('.edit-col').addClass('edit-colHidden');
+            $(this).closest('li').addClass('editInProgress');
+
 			$("#question-dialog").dialog("option", "position", [position.left, position.top]);
 			oldloc = $(this);
 			$('#question-dialog').dialog('open');
@@ -930,6 +945,9 @@ $(function() {
 		
 		$(".edit-link").click(function(){
 			closeDropdown();
+            $('li').removeClass('editInProgress');
+            $('.edit-col').addClass('edit-colHidden');
+            $(this).closest('li').addClass('editInProgress');
 			$("#require-label2").hide();
 			$("#item-required2").hide();
 			$("#assignment-dropdown-selection").hide();
@@ -1194,7 +1212,7 @@ $(function() {
 			setUpRequirements();
 		        $("#item-id").val(row.find(".current-item-id2").text());
 			$("#edit-item-error-container").hide();
-			var position =  $(this).position();
+			var position =  $(this).closest('li').position();
 			$("#edit-item-dialog").dialog("option", "position", [position.left, position.top]);
 			oldloc = $(this);
 			$("#edit-item-dialog").dialog('open');
@@ -1242,6 +1260,7 @@ $(function() {
 			$("#mm-choose").attr("href",href);
 			$("#add-multimedia-dialog").prev().children(".ui-dialog-title").text($(this).text());
 			var position =  $(this).position();
+            
 			$("#add-multimedia-dialog").dialog("option", "position", [position.left, position.top]);
 			$(".mm-additional").show();
 			$(".mm-additional-website").hide();
@@ -1299,6 +1318,7 @@ $(function() {
 
 		$(".multimedia-edit").click(function(){
 			closeDropdown();
+            $('li').removeClass('editInProgress');
 			$("#expert-multimedia").hide();
 			$("#expert-multimedia-toggle-div").show();
 			$("#editgroups-mm").after($("#grouplist"));
@@ -1339,6 +1359,9 @@ $(function() {
 				   "pageItemId=" + row.find(".mm-itemid").text()));
 			$("#multimedia-item-id").val(row.find(".mm-itemid").text());
 			var position =  row.position();
+            $('.edit-col').addClass('edit-colHidden');
+            $(this).closest('li').addClass('editInProgress');
+
 			$("#edit-multimedia-dialog").dialog("option", "position", [position.left, position.top]);
 			oldloc = $(this);
 			$("#edit-multimedia-dialog").dialog('open');
@@ -1388,7 +1411,7 @@ $(function() {
 		});
 		
 		$('body').bind('dialogopen', function(event) {
-			hideMultimedia();
+            //hideMultimedia();
 		});
 		
 		$('body').bind('dialogclose', function(event) {
@@ -1406,7 +1429,9 @@ $(function() {
 				$('#comments-dialog').dialog('isOpen') ||
 				$('#student-dialog').dialog('isOpen')) ||
 				$('#question-dialog').dialog('isOpen')) {
-					unhideMultimedia();
+                    //unhideMultimedia();
+                    $('.edit-col').removeClass('edit-colHidden');
+                    $('li').removeClass('editInProgress')
 				}
 		});
 		 
@@ -1461,7 +1486,8 @@ $(function() {
 
 	} // Closes admin if statement
 
-	$(".showPollGraph").click(function() {
+	$(".showPollGraph").click(function(e) {
+        e.preventDefault();
 		var pollGraph = $(this).parents(".questionDiv").find(".questionPollGraph");
 		
 		if($(this).find("span").text() === $(this).parent().find(".show-poll").text()) {
@@ -1485,7 +1511,7 @@ $(function() {
 			$(this).find("span").text($(this).parent().find(".show-poll").text());
 		}
 		
-		setMainFrameHeight(window.name);
+        resizeFrame('grow')
 	});
 	
 	function submitgrading(item) {
@@ -1603,6 +1629,7 @@ function closeMultimediaEditDialog() {
 function closeAddMultimediaDialog() {
 	$("#add-multimedia-dialog").dialog("close");
 	oldloc.focus();
+    $(oldloc).closest('li').removeClass('editInProgress');
 }
 
 function closeEditTitleDialog() {
@@ -2130,3 +2157,22 @@ function resetShortanswers() {
 	$("#extraShortanswers").empty();
 }
 
+
+resizeFrame = function (updown) {
+      var frame = parent.document.getElementById( window.name );
+      if( frame ) {
+        if(updown=='shrink')
+        {
+        var clientH = document.body.clientHeight + 30;
+      }
+      else
+      {
+      var clientH = document.body.clientHeight + 30;
+      }
+        $( frame ).height( clientH );
+      } else {
+        throw( "resizeFrame did not get the frame (using name=" + window.name + ")" );
+      }
+    };
+
+    

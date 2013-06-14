@@ -990,8 +990,15 @@ public class ShowPageProducer implements ViewComponentProducer, DefaultView, Nav
 				case SimplePageItem.PEEREVAL: itemClassName = "peereval"; break;
 				}
 
-				if (listItem)
+
+
+				if (listItem){
 				    itemClassName = itemClassName + " listType";
+				}
+				if (canEditPage) {
+						itemClassName = itemClassName + "  canEdit";
+				}
+
 				tableRow.decorate(new UIFreeAttributeDecorator("class", itemClassName));
 
 				// you really need the HTML file open at the same time to make
@@ -1122,7 +1129,7 @@ public class ShowPageProducer implements ViewComponentProducer, DefaultView, Nav
 					    // right. Otherwise the
 					    // description block will display underneath
 					    if ("button".equals(i.getFormat())) {
-						linkdiv.decorate(new UIFreeAttributeDecorator("style", "float:left"));
+						linkdiv.decorate(new UIFreeAttributeDecorator("style", "float:none"));
 					    }
 					    // for accessibility
 					    if (navButton) {
@@ -1588,7 +1595,7 @@ public class ShowPageProducer implements ViewComponentProducer, DefaultView, Nav
 							item2.decorate(new UIFreeAttributeDecorator("type", mimeType));
 						}
 						if (canEditPage) {
-							item2.decorate(new UIFreeAttributeDecorator("style", "border: 1px solid black"));
+							//item2.decorate(new UIFreeAttributeDecorator("style", "border: 1px solid black"));
 						}
 
 						// some object types seem to need a specification
@@ -3087,7 +3094,7 @@ public class ShowPageProducer implements ViewComponentProducer, DefaultView, Nav
 		fileparams.setResourceType(true);
 		fileparams.viewID = ResourcePickerProducer.VIEW_ID;
 		
-		UILink link = UIInternalLink.make(form, "mm-choose", messageLocator.getMessage("simplepage.choose_existing"), fileparams);
+		UILink link = UIInternalLink.make(form, "mm-choose", messageLocator.getMessage("simplepage.choose_existing_or"), fileparams);
 
 		UICommand.make(form, "mm-add-item", messageLocator.getMessage("simplepage.save_message"), "#{simplePageBean.addMultimedia}");
 		UIInput.make(form, "mm-item-id", "#{simplePageBean.itemId}");

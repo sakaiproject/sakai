@@ -13,9 +13,9 @@ function fixurls() {
     pageurl = pageurl.substring(0,pi);
     $('a[target="_lbcomments"]').each(function(index, value) {
 	    var linkurl = $(this).attr('href');
-	    var li = linkurl.indexOf("/faces/") + 6;
+	    var li = linkurl.indexOf("/faces/");
 	    if (li >= 0) {
-		linkurl = pageurl + linkurl.substring(li);
+		linkurl = pageurl + linkurl.substring(li+6);
 		$(this).attr('href',linkurl);
 	    }
 	});
