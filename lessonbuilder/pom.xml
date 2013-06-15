@@ -27,6 +27,7 @@
     
 <!-- NOTE: see also the "optional" profile in tools/pom.xml. That will enable support for several contrib tools -->
 <!-- NOTE 2: for releases before 2.10, in components/pom.xml and tool/pom.xml, disable the "newspring" profile -->
+<!-- NOTE 3: for releases before 2.10, in tool/pom.xml, enable the the "28-hack" profile -->
 
     <profiles>
         <profile>

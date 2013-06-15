@@ -3,6 +3,7 @@ package org.sakaiproject.lessonbuildertool.tool.beans;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.HashSet;
+import java.util.Set;
 import java.util.Collection;
 
 import org.sakaiproject.lessonbuildertool.SimplePageComment;
@@ -13,6 +14,8 @@ import org.sakaiproject.lessonbuildertool.SimpleStudentPage;
 import org.sakaiproject.lessonbuildertool.model.SimplePageToolDao;
 import org.sakaiproject.lessonbuildertool.service.GradebookIfc;
 import org.sakaiproject.authz.cover.AuthzGroupService;
+import org.sakaiproject.authz.api.Member;
+import org.sakaiproject.authz.api.AuthzGroup;
 
 public class GradingBean {
 	public String id;
@@ -137,18 +140,15 @@ public class GradingBean {
 		    if (group == null)
 			r = gradebookIfc.updateExternalAssessmentScore(simplePageBean.getCurrentSiteId(), pageItem.getGradebookId(), page.getOwner(), Double.toString(Double.valueOf(points)));
 		    else {
-			HashSet<String>groups = new HashSet<String>();
-			if (group != null)
-			    group = "/site/" + simplePageBean.getCurrentSiteId() + "/group/" + group;
-			groups.add(group);
-                            Collection<String>users = AuthzGroupService.getAuthzUsersInGroups(groups);
+			group = "/site/" + simplePageBean.getCurrentSiteId() + "/group/" + group;
+			AuthzGroup g = AuthzGroupService.getAuthzGroup(group);
+			Set<Member> members = g.getMembers();
 			// if we have more than one user, in theory some might fail and some succeed. For the
 			// moment just update the grade 
 			r = true;
-                            for (String u: users)
-                                gradebookIfc.updateExternalAssessmentScore(simplePageBean.getCurrentSiteId(), pageItem.getGradebookId(),
-								       u, Double.toString(Double.valueOf(points)));
-			
+			for (Member m: members)
+			    gradebookIfc.updateExternalAssessmentScore(simplePageBean.getCurrentSiteId(), pageItem.getGradebookId(),
+				m.getUserId(), Double.toString(Double.valueOf(points)));
 		    }
 		}catch(Exception ex) {
 		    System.out.println("Exception updating grade " + ex);

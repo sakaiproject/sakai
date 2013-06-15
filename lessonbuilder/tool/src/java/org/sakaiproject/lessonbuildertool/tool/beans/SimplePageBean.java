@@ -59,6 +59,8 @@ import org.apache.commons.logging.LogFactory;
 import org.sakaiproject.authz.api.SecurityAdvisor;
 import org.sakaiproject.authz.api.SecurityService;
 import org.sakaiproject.authz.cover.AuthzGroupService;
+import org.sakaiproject.authz.api.AuthzGroup;
+import org.sakaiproject.authz.api.Member;
 import org.sakaiproject.component.cover.ServerConfigurationService;
 import org.sakaiproject.content.api.ContentCollection;
 import org.sakaiproject.content.api.ContentCollectionEdit;
@@ -6015,13 +6017,15 @@ public class SimplePageBean {
 				String group = c.getGroup();
 				if (group != null)
 				    group = "/site/" + getCurrentSiteId() + "/group/" + group;
-				HashSet groups = new HashSet<Group>();
-
-				groups.add(group);
-				Collection<String>users = AuthzGroupService.getAuthzUsersInGroups(groups);
-				for (String user: users) {
-				    gradebookIfc.updateExternalAssessmentScore(getCurrentSiteId(), pageItem.getGradebookId(),
-					       user, String.valueOf(c.getPoints()));
+				try {
+				    AuthzGroup g = AuthzGroupService.getAuthzGroup(group);
+				    Set<Member> members = g.getMembers();
+				    for (Member m: members) {
+					gradebookIfc.updateExternalAssessmentScore(getCurrentSiteId(), pageItem.getGradebookId(),
+					      m.getUserId(), String.valueOf(c.getPoints()));
+				    }
+				} catch (Exception e) {
+				    System.out.println("unable to get members of group " + group);
 				}
 			    }
 			}

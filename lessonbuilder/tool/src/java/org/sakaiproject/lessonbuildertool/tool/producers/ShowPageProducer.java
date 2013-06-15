@@ -738,10 +738,18 @@ public class ShowPageProducer implements ViewComponentProducer, DefaultView, Nav
 		String skinRepo = null;
 		String iconBase = null;
 
+		UIComponent titlediv = UIOutput.make(tofill, "titlediv");
+		// we need to do special CSS for old portal
+		if (helpurl == null)
+		    titlediv.decorate(new UIStyleDecorator("oldPortal"));		
+
 		if (helpurl != null || reseturl != null) {
 		    skinName = simplePageBean.getCurrentSite().getSkin();
 		    if (skinName == null)
 			skinName = ServerConfigurationService.getString("skin.default", "default");
+		    // weird hack. automatically add neo if neo portal enabled
+		    if (!skinName.startsWith("neo"))
+			skinName = "neo-" + skinName;
 		    skinRepo = ServerConfigurationService.getString("skin.repo", "/library/skin");
 		    iconBase = skinRepo + "/" + skinName + "/images/";
 		}
