@@ -225,7 +225,7 @@ a.edit-link:link, a.edit-link:visited, a.itemLink:link, a.itemLink:visited, a.mu
 }
 .mainList li.canEdit > div {
     position: relative;
-    padding-left: 35px
+    padding-left: 40px
 }
 .mainList li.canEdit > div.edit-col {
     float:left;
