@@ -92,8 +92,7 @@ ri
         allow(sp, "allowlori")
 ) { %>
 <form method="post" action="<%=launchURL.toString()%>">
-<!-- If key and secret are final, then either xml or launch final means no launch change by the user -->
-<% if ( ( allow(sp,"launch") && allow(sp,"xml") ) || allow(sp,"key") || allow(sp,"secret") ) { %>
+<% if ( allow(sp,"launch") || allow(sp,"xml") || allow(sp,"key") || allow(sp,"secret") ) { %>
 
 <h3><%=rb.getString("required.information") %></h3>
 <% if ( allow(sp,"launch") && allow(sp,"xml") ) { %>

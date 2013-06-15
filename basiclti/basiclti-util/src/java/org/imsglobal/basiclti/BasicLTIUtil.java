@@ -31,6 +31,9 @@ import static org.imsglobal.basiclti.BasicLTIConstants.TOOL_CONSUMER_INSTANCE_UR
 import net.oauth.OAuthAccessor;
 import net.oauth.OAuthConsumer;
 import net.oauth.OAuthMessage;
+import net.oauth.OAuthValidator;
+import net.oauth.SimpleOAuthValidator;
+import net.oauth.signature.OAuthSignatureMethod;
 
 import java.util.HashMap;
 import java.util.List;
@@ -368,6 +371,72 @@ public class BasicLTIUtil {
 			throw new Error(e);
 		}
 
+	}
+
+	/**
+	 * Check if the properties are properly signed
+	 * 
+	 * @deprecated See:
+	 *             {@link BasicLTIUtil#checkProperties(Map, String, String, String, String, String, String, String, String, String)}
+	 * 
+	 * @param postProp
+	 * @param url
+	 * @param method
+	 * @param oauth_consumer_key
+	 * @param oauth_consumer_secret
+	 * @return
+	 */
+	public static boolean checkProperties(Properties postProp, String url,
+			String method, String oauth_consumer_key, String oauth_consumer_secret) 
+    {
+
+		return checkProperties( convertToMap(postProp), url, method, 
+                oauth_consumer_key, oauth_consumer_secret);
+	}
+
+	/**
+	 * Check if the fields are properly signed
+	 * 
+	 * @param postProp
+	 * @param url
+	 * @param method
+	 * @param oauth_consumer_key
+	 * @param oauth_consumer_secret
+
+	 * @return
+	 */
+	public static boolean checkProperties(
+			Map<String, String> postProp, String url, String method,
+			String oauth_consumer_key, String oauth_consumer_secret) {
+
+		OAuthMessage oam = new OAuthMessage(method, url, postProp.entrySet());
+		OAuthConsumer cons = new OAuthConsumer("about:blank", oauth_consumer_key,
+				oauth_consumer_secret, null);
+        OAuthValidator oav = new SimpleOAuthValidator();
+
+
+        OAuthAccessor acc = new OAuthAccessor(cons);
+
+        String base_string = null;
+        try {
+            base_string = OAuthSignatureMethod.getBaseString(oam);
+        } catch (Exception e) {
+            M_log.warning(e.getLocalizedMessage());
+            base_string = null;
+            return false;
+        }
+
+        try {
+            oav.validateMessage(oam, acc);
+        } catch (Exception e) {
+            M_log.warning("Provider failed to validate message");
+            M_log.warning(e.getLocalizedMessage());
+            if (base_string != null) {
+                M_log.warning(base_string);
+            }
+            return false;
+        }
+        return true;
 	}
 
 	/**
