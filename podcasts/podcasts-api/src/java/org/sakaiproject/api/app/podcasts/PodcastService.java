@@ -64,7 +64,7 @@ public interface PodcastService // extends EntityProducer
 	public static final String COLLECTION_PODCASTS_DESCRIPTION = "Common Folder for All Site Podcasts";
 
 	/** This string gives the Service name (class w/ package prefix) for podcast service **/
-	public static final String PODCASTS_SERVICE_NAME = "org.sakaiproject.api.app.syllabus.PodcastService";
+	public static final String PODCASTS_SERVICE_NAME = "org.sakaiproject.api.app.podcasts.PodcastService";
 
 	/** This string is the name of the property used when displaying and sorting the podcasts **/
 	public static final String DISPLAY_DATE = "displayDate";
