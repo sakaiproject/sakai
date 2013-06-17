@@ -54,7 +54,7 @@
             },
             "contents": {
                 "type": "string",
-                "analyzer": "snowball",
+                "analyzer": "standard",
                 "index": "analyzed",
                 "store": "no"
             }

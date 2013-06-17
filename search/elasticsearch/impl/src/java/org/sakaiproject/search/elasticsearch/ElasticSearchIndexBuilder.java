@@ -278,14 +278,15 @@ public class ElasticSearchIndexBuilder implements SearchIndexBuilder {
         }
         EntityContentProducer ecp = newEntityContentProducer(event);
         String siteId = ecp.getSiteId(resourceName);
-        String id = ecp.getId(resourceName);
 
 
         if (ecp == null || ecp.getSiteId(resourceName) == null) {
             log.debug("Not indexing " + resourceName + " as it has no context");
             return;
         }
-        if (onlyIndexSearchToolSites) {
+ 
+       String id = ecp.getId(resourceName);
+       if (onlyIndexSearchToolSites) {
             try {
                 Site s = siteService.getSite(siteId);
                 ToolConfiguration t = s.getToolForCommonId(SEARCH_TOOL_ID);

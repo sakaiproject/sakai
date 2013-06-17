@@ -7,7 +7,6 @@ import org.apache.commons.logging.LogFactory;
 import org.apache.lucene.analysis.Analyzer;
 import org.apache.lucene.analysis.StopAnalyzer;
 import org.apache.lucene.analysis.TokenStream;
-import org.apache.lucene.analysis.snowball.SnowballAnalyzer;
 import org.apache.lucene.analysis.standard.StandardAnalyzer;
 import org.apache.lucene.index.Term;
 import org.apache.lucene.search.BooleanClause;
@@ -42,7 +41,7 @@ public class ElasticSearchResult implements SearchResult {
     private String newUrl;
     private InternalTermsFacet facet;
     private SearchIndexBuilder searchIndexBuilder;
-    private static Analyzer analyzer = new SnowballAnalyzer(Version.LUCENE_36,"English", StopAnalyzer.ENGLISH_STOP_WORDS_SET);
+    private static Analyzer analyzer = new StandardAnalyzer(Version.LUCENE_36, StopAnalyzer.ENGLISH_STOP_WORDS_SET);
     private String searchTerms;
 
     public ElasticSearchResult(SearchHit hit, InternalTermsFacet facet, SearchIndexBuilder searchIndexBuilder, String searchTerms) {
@@ -50,6 +49,7 @@ public class ElasticSearchResult implements SearchResult {
         this.facet = facet;
         this.searchIndexBuilder = searchIndexBuilder;
         this.searchTerms = searchTerms;
+
     }
 
 
@@ -120,7 +120,7 @@ public class ElasticSearchResult implements SearchResult {
                 }
             }
             String text = sb.toString();
-            TokenStream tokenStream = analyzer.tokenStream(
+            TokenStream tokenStream = analyzer.reusableTokenStream(
                     SearchService.FIELD_CONTENTS, new StringReader(text));
             return hightlighter.getBestFragments(tokenStream, text, 5, " ... "); //$NON-NLS-1$
         } catch (IOException e) {

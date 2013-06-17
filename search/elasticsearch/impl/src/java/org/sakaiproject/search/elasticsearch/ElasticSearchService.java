@@ -319,7 +319,7 @@ public class ElasticSearchService implements SearchService {
     @Override
     public SearchList search(String searchTerms, List<String> siteIds, int searchStart, int searchEnd) throws InvalidSearchQueryException {
         SearchResponse response = search(searchTerms, siteIds, searchStart, searchEnd, null, null, new ArrayList<String>());
-        return new ElasticSearchList(searchTerms, response, this, indexBuilder, FACET_NAME, filter);
+        return new ElasticSearchList(searchTerms.toLowerCase(), response, this, indexBuilder, FACET_NAME, filter);
     }
 
     @Override

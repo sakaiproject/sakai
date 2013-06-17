@@ -8,9 +8,9 @@
             }
         },
         "analyzer": {
-            "snowball": {
-                "type": "snowball",
-                "language": "English"
+            "standard": {
+                "type": "standard",
+                "max_token_length" : "255"
             },
             "str_search_analyzer": {
                 "tokenizer": "keyword",
