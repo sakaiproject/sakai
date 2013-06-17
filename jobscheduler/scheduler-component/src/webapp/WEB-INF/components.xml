@@ -104,6 +104,9 @@
         <property name="serverConfigurationService">
         	<ref bean="org.sakaiproject.component.api.ServerConfigurationService"/>
         </property>
+        <property name="autoDdl">
+            <value>${auto.ddl}</value>
+        </property>
     </bean>   
     
     <bean id="eventPurgeJob" class="org.sakaiproject.component.app.scheduler.jobs.eventpurge.EventLogPurgeJob">
