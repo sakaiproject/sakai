@@ -7,8 +7,8 @@
 <div id="toolHolderWW"> 
     <div id="toolHolderW">
         <div id="collExpContainer">
-            <a id="expandAll" href="#">+ expand all</a>
-            <a id="contractAll" style="display:none" href="#"> - collapse all</a>
+            <a id="expandAll" href="#">$tlang.getString("feat.expand.all")</a>
+            <a id="contractAll" style="display:none" href="#">$tlang.getString("feat.collapse.all")</a>
         </div>
         <ol id="toolHolder">
             #set ($groupCount = 0)
@@ -23,8 +23,8 @@
                                 <span class="checkedCount"></span>
                                 #if ($groupCount == 1) 
                                     <span class="sel_unsel_core">
-                                        <em id="selectAll" class="selectAll" href="#" style="display: none;"> - select all</em>
-                                        <em id="unSelectAll" class="selectAll" href="#" style="display: none;"> - unselect all</em>
+                                        <em id="selectAll" class="selectAll" href="#" style="display: none;">$tlang.getString("feat.select.all")</em>
+                                        <em id="unSelectAll" class="selectAll" href="#" style="display: none;">$tlang.getString("feat.unselect.all")</em>
                                     </span>
                                 #end
                             </a>
@@ -101,7 +101,7 @@
                                                         #end
                                                     #end
                                                     #if ($tool.getMoreInfo() && ($tool.getMoreInfo() != ""))
-                                                        <a class="moreInfoTool" id="moreInfoLink" title='$tool.getTitle()' href="$tool.getMoreInfo()" target="_blank">More info</a>
+                                                        <a class="moreInfoTool" id="moreInfoLink" title='$tool.getTitle()' href="$tool.getMoreInfo()" target="_blank">$tlang.getString("feat.more.info")</a>
                                                      #end
                                             </div>
                                      #end
@@ -126,8 +126,8 @@
         </ol>
     </div>
     <div id="toolSelectionList">
-    <h4>Selected tools</h4>
-    <div id="toolSelectionListMessage" style="display:none" class="instruction">No tools selected</div>
+    <h4>$tlang.getString("feat.selected.tools")</h4>
+    <div id="toolSelectionListMessage" style="display:none" class="instruction">$tlang.getString("feat.selected.tools.none")</div>
     <ul>
     </ul>
 </div>
