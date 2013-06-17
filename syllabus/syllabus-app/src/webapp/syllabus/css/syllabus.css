@@ -417,3 +417,38 @@ COLOR:#000000;
 .ui-timepicker-rtl{ direction: rtl; }
 .ui-timepicker-rtl dl { text-align: right; }
 .ui-timepicker-rtl dl dd { margin: 0 65px 10px 10px; }
+
+.editItem:hover {
+    background-image: url("/library/image/silk/pencil.png");
+    background-position: right center;
+    background-repeat: no-repeat;
+    padding-right: 22px;
+}
+.bodyInput{
+	padding-left: 22px !important;
+	background-position: left top !important;
+	padding-right: 0px !important;
+}
+div.ui-tooltip {
+   	max-width: 8000px;
+}
+
+a.draft{
+	color: grey !important
+}
+.ui-accordion .ui-accordion-header{
+	overflow: auto !important;
+}
+ /* IE has layout issues when sorting (see #5413) */
+.group { zoom: 1 }
+
+.actionIcon{
+	padding-right: .5em;
+}
+.editItemTitle{
+	padding-left: .5em;
+}
+
+.startTimeInput, .endTimeInput{
+	padding-right: 22px;
+}

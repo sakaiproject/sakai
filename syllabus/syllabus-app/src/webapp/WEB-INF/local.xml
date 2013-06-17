@@ -10,6 +10,8 @@
 		<property name="syllabusManager" ref="org.sakaiproject.api.app.syllabus.SyllabusManager"/>
 		<property name="siteService" ref="org.sakaiproject.site.api.SiteService"/>
 		<property name="toolManager" ref="org.sakaiproject.tool.api.ToolManager"/>
+		<property name="syllabusService" ref="org.sakaiproject.api.app.syllabus.SyllabusService"/>
+		<property name="contentHostingService" ref="org.sakaiproject.content.api.ContentHostingService"/>
 	</bean>
 
 </beans>

@@ -516,21 +516,29 @@ public class SyllabusManagerImpl extends HibernateDaoSupport implements Syllabus
    */
   public void saveSyllabus(SyllabusData data)
   {
-    //calendar check
-	updateCalendarSettings(data);
-    getHibernateTemplate().saveOrUpdate(data);
-    updateSyllabusAttachmentsViewState(data);
-  //update calendar attachments
-    if(data.getAttachments() != null && data.getAttachments().size() > 0){
-    	if(data.getCalendarEventIdStartDate() != null
-    			&& !"".equals(data.getCalendarEventIdStartDate())){
-    		addCalendarAttachments(data.getSyllabusItem().getContextId(), data.getCalendarEventIdStartDate(), new ArrayList(data.getAttachments()));
-    	}
-    	if(data.getCalendarEventIdEndDate() != null
-    			&& !"".equals(data.getCalendarEventIdEndDate())){
-    		addCalendarAttachments(data.getSyllabusItem().getContextId(), data.getCalendarEventIdEndDate(), new ArrayList(data.getAttachments()));
-    	}
-    }
+	  saveSyllabus(data, true);
+  }
+  
+  public void saveSyllabus(SyllabusData data, boolean updateCalendar){
+	  if(updateCalendar){
+		  //calendar check
+		  updateCalendarSettings(data);
+	  }
+	  getHibernateTemplate().saveOrUpdate(data);
+	  if(updateCalendar){
+		  updateSyllabusAttachmentsViewState(data);
+		  //update calendar attachments
+		  if(data.getAttachments() != null && data.getAttachments().size() > 0){
+			  if(data.getCalendarEventIdStartDate() != null
+					  && !"".equals(data.getCalendarEventIdStartDate())){
+				  addCalendarAttachments(data.getSyllabusItem().getContextId(), data.getCalendarEventIdStartDate(), new ArrayList(data.getAttachments()));
+			  }
+			  if(data.getCalendarEventIdEndDate() != null
+					  && !"".equals(data.getCalendarEventIdEndDate())){
+				  addCalendarAttachments(data.getSyllabusItem().getContextId(), data.getCalendarEventIdEndDate(), new ArrayList(data.getAttachments()));
+			  }
+		  }
+	  }
   }  
 
   public SyllabusData getSyllabusData(final String dataId)

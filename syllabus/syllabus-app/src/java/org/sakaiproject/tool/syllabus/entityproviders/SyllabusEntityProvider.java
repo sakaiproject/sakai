@@ -1,6 +1,7 @@
 package org.sakaiproject.tool.syllabus.entityproviders;
 
 import java.io.Serializable;
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Calendar;
@@ -21,6 +22,8 @@ import org.sakaiproject.api.app.syllabus.SyllabusAttachment;
 import org.sakaiproject.api.app.syllabus.SyllabusData;
 import org.sakaiproject.api.app.syllabus.SyllabusItem;
 import org.sakaiproject.api.app.syllabus.SyllabusManager;
+import org.sakaiproject.api.app.syllabus.SyllabusService;
+import org.sakaiproject.content.api.ContentHostingService;
 import org.sakaiproject.entitybroker.EntityReference;
 import org.sakaiproject.entitybroker.EntityView;
 import org.sakaiproject.entitybroker.entityprovider.EntityProvider;
@@ -49,7 +52,7 @@ public class SyllabusEntityProvider extends AbstractEntityProvider implements En
 {
 
 	public final static String ENTITY_PREFIX = "syllabus";
-
+	private final static SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd HH:mm");
 	@Override
 	public String getEntityPrefix() {
 		return ENTITY_PREFIX;
@@ -185,6 +188,12 @@ public class SyllabusEntityProvider extends AbstractEntityProvider implements En
 	
 	@Setter
 	private ToolManager toolManager;
+	
+	@Setter
+	private SyllabusService syllabusService;
+	
+	@Setter
+	private ContentHostingService contentHostingService;
 
 	
 	/**
@@ -262,77 +271,200 @@ public class SyllabusEntityProvider extends AbstractEntityProvider implements En
 	
 	public void updateEntity(EntityReference ref, Object entity, Map<String, Object> params){
 		if(params != null){
-			if(params.containsKey("move")){
-				//this is a re-order update:
-				try{
-					int move = Integer.parseInt(params.get("move").toString());
-					boolean ascend = move > 0;
-					move = Math.abs(move);
-					SyllabusData data = syllabusManager.getSyllabusData(ref.getId());
-					SyllabusItem item = syllabusManager.getSyllabusItem(data.getSyllabusItem().getSurrogateKey());
-					Long tmp = data.getSyllabusItem().getSurrogateKey();
-					//now that we have an obj that has SiteId, let's verify that the user has access to modify it:
-					if(!isMaintainer(item.getContextId())){
+			if(params.containsKey("add") && params.containsKey("title") && params.containsKey("siteId")){
+				String siteId = (String) params.get("siteId");
+				if(!"".equals(siteId.trim())){
+					//check that this user is truly the maintainer
+					if(!isMaintainer(siteId)){
 						throw new IllegalArgumentException("User doesn't have access to modify this site.");
 					}
-					
-					if(data != null){
-						boolean foundItem = false;
-						int arrayCount = 0;
-						List<SyllabusData> movedData = new ArrayList<SyllabusData>();
-						String error = "";
-						Set syllabusData = syllabusManager.getSyllabiForSyllabusItem(item);
-						if(syllabusData != null){
-							for(SyllabusData d : (Set<SyllabusData>) syllabusData){
-								if(d.getSyllabusId().equals(data.getSyllabusId())){
-									foundItem = true;
-									if(ascend){
-										//we don't need to loop anymore
+					String title = (String) params.get("title");
+					title = title.trim();
+					if(!"".equals(title)){
+						SyllabusItem item = syllabusManager.getSyllabusItemByContextId(siteId);
+						int initPosition = syllabusManager.findLargestSyllabusPosition(item).intValue() + 1;
+						SyllabusData data = syllabusManager.createSyllabusDataObject(title, new Integer(initPosition), null, null, SyllabusData.ITEM_DRAFT, "none");
+						syllabusManager.addSyllabusToSyllabusItem(item, data);
+					}
+				}
+			}else{
+				//edit an existing item:
+				
+				SyllabusData data = syllabusManager.getSyllabusData(ref.getId());
+				SyllabusItem item = syllabusManager.getSyllabusItem(data.getSyllabusItem().getSurrogateKey());
+				data.setSyllabusItem(item);
+				//now that we have an obj that has SiteId, let's verify that the user has access to modify it:
+				if(!isMaintainer(item.getContextId())){
+					throw new IllegalArgumentException("User doesn't have access to modify this site.");
+				}
+
+				if(params.containsKey("move")){
+					//this is a re-order update:
+					try{
+						int move = Integer.parseInt(params.get("move").toString());
+						boolean ascend = move > 0;
+						move = Math.abs(move);				
+						if(data != null){
+							boolean foundItem = false;
+							int arrayCount = 0;
+							List<SyllabusData> movedData = new ArrayList<SyllabusData>();
+							String error = "";
+							Set syllabusData = syllabusManager.getSyllabiForSyllabusItem(item);
+							if(syllabusData != null){
+								for(SyllabusData d : (Set<SyllabusData>) syllabusData){
+									if(d.getSyllabusId().equals(data.getSyllabusId())){
+										foundItem = true;
+										if(ascend){
+											//we don't need to loop anymore
+											break;
+										}
+									}else{
+										if((ascend && !foundItem) || (!ascend && foundItem)){
+											movedData.add(d);
+											arrayCount++;
+										}
+									}
+									if(!ascend && arrayCount >= move){
 										break;
 									}
-								}else{
-									if((ascend && !foundItem) || (!ascend && foundItem)){
-										movedData.add(d);
-										arrayCount++;
-									}
 								}
-								if(!ascend && arrayCount >= move){
-									break;
+								if("".equals(error)){
+									if(ascend){
+										//reverse the array if we are ascending
+										Collections.reverse(movedData);
+									}
+									int count = 0;
+									for (Iterator iterator = movedData.iterator(); iterator.hasNext();) {
+										SyllabusData d = (SyllabusData) iterator.next();
+										if(count < move){
+											//unfortunately, the positions aren't predictable like a simple pattern 1,2,3,4...
+											//but can be a random pattern like 1,4,5,6,9...  This means we can only swap positions
+											Integer p1 = data.getPosition();
+											Integer p2 = d.getPosition();
+											data.setPosition(new Integer(p2));
+											d.setPosition(new Integer(p1));
+										}else{
+											//this isn't being moved
+											iterator.remove();
+										}
+										count++;
+									}
+									//now that the positions are swapped, store it:
+									for(SyllabusData d : movedData){
+										syllabusManager.updateSyllabudDataPosition(d, d.getPosition());
+									}
+									syllabusManager.updateSyllabudDataPosition(data, data.getPosition());
+								}else{
+									log.warn("Error while changing syllabus position: " + error);
 								}
 							}
-							if("".equals(error)){
-								if(ascend){
-									//reverse the array if we are ascending
-									Collections.reverse(movedData);
+						}
+					}catch(Exception e){
+						log.warn("Move value wasn't a valid number: " + params.get("move"));
+					}
+				}else if(params.containsKey("name")){
+					if("title".equals(params.get("name"))){
+						String title = (String) params.get("value");
+						if(title != null && !"".equals(title.trim())){
+							data.setTitle(title.trim());
+							syllabusManager.saveSyllabus(data);
+						}
+					}else if("body".equals(params.get("name"))){
+						String body = (String) params.get("value");
+						data.setAsset(body);
+						syllabusManager.saveSyllabus(data);
+					}else if("startDate".equals(params.get("name"))){
+						String startDate = (String) params.get("value");
+						if(startDate == null || "".equals(startDate)){
+							data.setStartDate(null);
+						}else{
+							try{
+								Date sDate = dateFormat.parse(startDate);
+								if(data.getEndDate() == null || data.getEndDate().after(sDate)){
+									data.setStartDate(sDate);
+								}else{
+									throw new IllegalArgumentException("End Date must be after start date");
 								}
-								int count = 0;
-								for (Iterator iterator = movedData.iterator(); iterator.hasNext();) {
-									SyllabusData d = (SyllabusData) iterator.next();
-									if(count < move){
-										//unfortunately, the positions aren't predictable like a simple pattern 1,2,3,4...
-										//but can be a random pattern like 1,4,5,6,9...  This means we can only swap positions
-										Integer p1 = data.getPosition();
-										Integer p2 = d.getPosition();
-										data.setPosition(new Integer(p2));
-										d.setPosition(new Integer(p1));
-									}else{
-										//this isn't being moved
-										iterator.remove();
-									}
-									count++;
+							}catch(Exception e){
+								log.error(e.getMessage(), e);
+								throw new IllegalArgumentException("Date isn't in the correct format: " + startDate + ", should be: yyyy-MM-dd HH:mm");
+							}
+						}
+						syllabusManager.saveSyllabus(data);
+					}else if("endDate".equals(params.get("name"))){
+						String endDate = (String) params.get("value");
+						if(endDate == null || "".equals(endDate)){
+							data.setEndDate(null);
+						}else{
+							try {
+								Date eDate = dateFormat.parse(endDate);
+								if(data.getStartDate() == null || eDate.after(data.getStartDate())){
+									data.setEndDate(eDate);
+								}else{
+									throw new IllegalArgumentException("End Date must be after start date");
 								}
-								//now that the positions are swapped, store it:
-								for(SyllabusData d : movedData){
-									syllabusManager.updateSyllabudDataPosition(d, d.getPosition());
-								}
-								syllabusManager.updateSyllabudDataPosition(data, data.getPosition());
-							}else{
-								log.warn("Error while changing syllabus position: " + error);
+							} catch (Exception e) {
+								log.error(e.getMessage(), e);
+								throw new IllegalArgumentException("Date isn't in the correct format: " + endDate + ", should be: yyyy-MM-dd HH:mm");
+							}
+						}
+						syllabusManager.saveSyllabus(data);
+					}
+				}else if(params.containsKey("toggle") && params.containsKey("status")){
+					String statusStr = (String) params.get("status");
+					boolean status = false;
+					if("true".equals(statusStr)){
+						status = true;
+					}
+					if("publish".equals(params.get("toggle"))){
+						if(status){
+							data.setStatus(SyllabusData.ITEM_POSTED);
+						}else{
+							data.setStatus(SyllabusData.ITEM_DRAFT);
+						}
+						syllabusManager.saveSyllabus(data);
+						syllabusService.draftChangeSyllabus(data, item.getContextId());					
+					}else if("linkCalendar".equals(params.get("toggle"))){
+						if(status){
+							data.setLinkCalendar(true);
+						}else{
+							data.setLinkCalendar(false);
+						}
+						syllabusManager.saveSyllabus(data);
+					}
+				}else if(params.containsKey("delete")){
+					//Delete item
+					syllabusService.deletePostedSyllabus(data, item.getContextId());
+					Set syllabusAttachments = syllabusManager.getSyllabusAttachmentsForSyllabusData(data);
+					Iterator iter = syllabusAttachments.iterator();
+					while(iter.hasNext())
+					{
+						SyllabusAttachment attach = (SyllabusAttachment)iter.next();
+						String id = attach.getAttachmentId();
+
+						syllabusManager.removeSyllabusAttachSyllabusData(data, attach);  
+						if(id.toLowerCase().startsWith("/attachment"))
+							try{
+								contentHostingService.removeResource(id);
+							}catch(Exception e){
+								log.error(e.getMessage(), e);
+							}
+					}
+					syllabusManager.removeCalendarEvents(data);
+					syllabusManager.removeSyllabusFromSyllabusItem(item, data);
+				}else if(params.containsKey("deleteAttachment") && params.containsKey("attachmentId")){
+					//delete attachment
+					String attachmentIdStr = (String) params.get("attachmentId");
+					if(!"".equals(attachmentIdStr.trim())){
+						syllabusManager.removeSyllabusAttachSyllabusData(data, syllabusManager.getSyllabusAttachment(attachmentIdStr));
+						if(attachmentIdStr.toLowerCase().startsWith("/attachment")){
+							try{
+								contentHostingService.removeResource(attachmentIdStr);
+							}catch(Exception e){
+								log.error(e.getMessage(), e);
 							}
 						}
 					}
-				}catch(Exception e){
-					log.warn("Move value wasn't a valid number: " + params.get("move"));
 				}
 			}
 		}

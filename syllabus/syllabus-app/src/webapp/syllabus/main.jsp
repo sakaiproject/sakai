@@ -21,10 +21,16 @@
   		}
 	%>
 
-<script type="text/javascript" src="/library/js/jquery.js"></script>
+<script type="text/javascript" src="js/jquery-1.9.1.js"></script>
 <script type="text/javascript" src="js/jquery-ui-1.10.1.custom.min.js"></script>
+<script type="text/javascript" src="js/jqueryui-editable.js"></script>
+<script type="text/javascript" src="js/moment.min.js"></script>
 <script type="text/javascript" src="js/syllabus.js"></script>
+<sakai:stylesheet path="/syllabus/css/jqueryui-editable.css" />
+<script type="text/javascript" src="js/jquery-ui-timepicker-addon.js"></script>
 <sakai:stylesheet path="/syllabus/css/ui-lightness/jquery-ui-1.10.1.custom.min.css" />
+<sakai:stylesheet path="/syllabus/css/syllabus.css" />
+
 <script language="JavaScript">
 	// if redirected, just open in another window else
 	// open with size approx what actual print out will look like
@@ -38,27 +44,70 @@
 	}
 	
 	$(function() {
-		setupAccordion('<%= org.sakaiproject.util.Web.escapeJavascript(thisId)%>'<h:outputText value=", true" rendered="#{SyllabusTool.editAble == 'true'}"/>);
+		var msgs = {
+					syllabus_title: "<h:outputText value="#{msgs.syllabus_title}"/>",
+					clickToAddTitle: "<h:outputText value="#{msgs.clickToAddTitle}"/>",
+					startdatetitle: "<h:outputText value="#{msgs.startdatetitle}"/>",
+					clickToAddStartDate: "<h:outputText value="#{msgs.clickToAddStartDate}"/>",
+					enddatetitle: "<h:outputText value="#{msgs.enddatetitle}"/>",
+					clickToAddEndDate: "<h:outputText value="#{msgs.clickToAddEndDate}"/>",
+					clickToAddBody: "<h:outputText value="#{msgs.clickToAddBody}"/>",
+					saved: "<h:outputText value="#{msgs.saved}"/>",
+					error: "<h:outputText value="#{msgs.error}"/>",
+					required: "<h:outputText value="#{msgs.required}"/>",
+					startBeforeEndDate: "<h:outputText value="#{msgs.startBeforeEndDate}"/>",
+					calendarDatesNeeded: "<h:outputText value="#{msgs.calendarDatesNeeded}"/>"
+				};
+		setupAccordion('<%= org.sakaiproject.util.Web.escapeJavascript(thisId)%>',<h:outputText value="#{SyllabusTool.editAble == 'true' ? true : false}"/>, msgs);
+		if(<h:outputText value="#{SyllabusTool.editAble == 'true'}"/>){
+			setupEditable(msgs, '<%= org.sakaiproject.util.Web.escapeJavascript(thisId)%>');
+			//draft/publish toggle:
+			setupToggleImages("publish", "publish", "publishOn", "publishOff", msgs);
+			//Calendar Toggle
+			setupToggleImages("linkCalendar", "linkCal", "linkCalOn", "linkCalOff", msgs);
+		}else{
+			//remove CSS classes (otherwise you get those hover over "pencil edit" images
+			$(".editItem").removeClass("editItem");
+		}
 	});
 	
+	function showConfirmDeleteHelper(deleteButton, event){
+		var msgs = {
+					saved: "<h:outputText value="#{msgs.saved}"/>",
+					error: "<h:outputText value="#{msgs.error}"/>",
+					bar_delete: "<h:outputText value="#{msgs.bar_delete}"/>",
+					bar_cancel: "<h:outputText value="#{msgs.bar_cancel}"/>",
+					confirmDelete: "<h:outputText value="#{msgs.confirmDelete}"/>",
+					deleteItemTitle: "<h:outputText value="#{msgs.deleteItemTitle}"/>"
+					};
+		showConfirmDelete(deleteButton, msgs, event);
+	}
 	
+	function showConfirmDeleteAttachmentHelper(deleteButton, event){
+		var msgs = {
+					saved: "<h:outputText value="#{msgs.saved}"/>",
+					error: "<h:outputText value="#{msgs.error}"/>",
+					bar_delete: "<h:outputText value="#{msgs.bar_delete}"/>",
+					bar_cancel: "<h:outputText value="#{msgs.bar_cancel}"/>",
+					confirmDelete: "<h:outputText value="#{msgs.confirmDelete}"/>",
+					deleteAttachmentTitle: "<h:outputText value="#{msgs.deleteAttachmentTitle}"/>"
+					};
+		showConfirmDeleteAttachment(deleteButton, msgs, event);
+	}
+	
+	function showConfirmAddHelper(){
+		var msgs = {
+					saved: "<h:outputText value="#{msgs.saved}"/>",
+					error: "<h:outputText value="#{msgs.error}"/>",
+					bar_new: "<h:outputText value="#{msgs.bar_new}"/>",
+					bar_cancel: "<h:outputText value="#{msgs.bar_cancel}"/>",
+					syllabus_title: "<h:outputText value="#{msgs.syllabus_title}"/>",
+					addItemTitle: "<h:outputText value="#{msgs.addItemTitle}"/>",
+					required: "<h:outputText value="#{msgs.required}"/>"
+					};
+		showConfirmAdd(msgs,'<%= org.sakaiproject.util.Web.escapeJavascript(thisId)%>');
+	}
 </script>
-<style>
-	a.draft{
-		color: grey !important
-	}
-	.ui-accordion .ui-accordion-header{
-		overflow: auto !important;
-	}
-	 /* IE has layout issues when sorting (see #5413) */
-	.group { zoom: 1 }
-	
-	.imgMove{
-		position: relative;
-		top: 2px;
-		right: 8px;
-	}
-</style>
 
 <%-- gsilver: global things about syllabus tool:
 1 ) what happens to empty lists - still generate a table?
@@ -68,51 +117,120 @@
 		<%--gsilver: would be best if used all sakai tags, or none, 2 blocks
 		following just gets tries to get around the mix --%>		
 		<syllabus:syllabus_ifnot test="#{SyllabusTool.editAble}">
-			<f:verbatim><ul class="navIntraTool actionToolbar"></f:verbatim>
-				<f:verbatim><li class="firstToolBarItem"></f:verbatim>
-					<f:verbatim><span></f:verbatim>
-						<sakai:tool_bar_item
-			    			action="#{SyllabusTool.processCreateAndEdit}"
-							value="#{msgs.bar_create_edit}" />
-					<f:verbatim></span></f:verbatim>
-				<f:verbatim></li></f:verbatim>
-				<f:verbatim><li></f:verbatim>
-					<f:verbatim><span></f:verbatim>
+			<f:verbatim><ul class="navIntraTool actionToolbar">
+				<li class="firstToolBarItem">
+					<span>
+							<a href="#" onclick="showConfirmAddHelper();">
+								<img src="/library/image/silk/add.png" class="actionImage add" title="</f:verbatim><h:outputText value="#{msgs.clickToAddNewItem}"/><f:verbatim>">&nbsp;&nbsp;
+								</f:verbatim><h:outputText value="#{msgs.addItemTitle}"/><f:verbatim>
+							</a>
+							<input type="hidden" id="siteId" value="</f:verbatim><h:outputText value="#{SyllabusTool.siteId}"/><f:verbatim>">
+					</span>
+				</li>
+				<li>
+					<span>
+					</f:verbatim>
+						<h:commandLink action="#{SyllabusTool.processListNewBulkMain}">
+							<h:graphicImage url="/images/AddBulk.png"/>
+							<f:verbatim>&nbsp;&nbsp;</f:verbatim>
+							<h:outputText value="#{msgs.bar_new_bulk}"/>
+						</h:commandLink>
+					<f:verbatim>
+					</span>
+				</li>
+				<li>
+					<span>
+					</f:verbatim>
+						<h:commandLink action="#{SyllabusTool.processCreateAndEdit}">
+							<f:verbatim><img src="/library/image/silk/pencil.png">&nbsp;&nbsp;</f:verbatim>
+							<h:outputText value="#{msgs.bar_create_edit}"/>
+						</h:commandLink>
+					<f:verbatim>
+					</span>
+				</li>
+				<li>
+					<span>
+					</f:verbatim>
+						<h:commandLink action="#{SyllabusTool.processRedirect}">
+							<f:verbatim><img src="/library/image/silk/arrow_switch.png">&nbsp;&nbsp;</f:verbatim>
+							<h:outputText value="#{msgs.bar_redirect}"/>
+						</h:commandLink>
+					<f:verbatim>
+					</span>
+				</li>
+				<li>
+					<span>
+							<a href="#" id="expandLink" onclick="expandAccordion('<%= org.sakaiproject.util.Web.escapeJavascript(thisId)%>')">
+								<img src="/library/image/silk/arrow_out.png"/>&nbsp;&nbsp;
+								</f:verbatim>
+									<h:outputText value="#{msgs.expandAll}"/>
+								<f:verbatim>
+							</a>
+							<a href="#" id="collapseLink" style="display:none" onclick="collapseAccordion('<%= org.sakaiproject.util.Web.escapeJavascript(thisId)%>')">
+								<img src="/library/image/silk/arrow_in.png"/>&nbsp;&nbsp;
+								</f:verbatim>
+									<h:outputText value="#{msgs.collapseAll}"/>
+								<f:verbatim>
+							</a>
+					</span>
+				</li>
+				<li>
+					<span>
+					</f:verbatim>
 						<h:outputLink id="print" value="javascript:printFriendly('#{SyllabusTool.printFriendlyUrl}');">
 							<h:graphicImage url="/images/printer.png" alt="#{msgs.print_friendly}" title="#{msgs.print_friendly}" />
+							<f:verbatim>&nbsp;&nbsp;</f:verbatim>
+							<h:outputText value="#{msgs.printView}"/>
 						</h:outputLink>
-					<f:verbatim></span></f:verbatim>
-				<f:verbatim></li></f:verbatim>
-			<f:verbatim></ul></f:verbatim>			
+					<f:verbatim>
+					</span>
+				</li>
+			</ul></f:verbatim>			
 		
 		</syllabus:syllabus_ifnot>
 
 		<syllabus:syllabus_if test="#{SyllabusTool.editAble}" >
 
-			<f:verbatim><ul class="navIntraTool actionToolbar"></f:verbatim>
-				<f:verbatim><li class="firstToolBarItem"></f:verbatim>
-					<f:verbatim><span></f:verbatim>
-						<h:outputLink id="printIcon" value="javascript:printFriendly('#{SyllabusTool.printFriendlyUrl}');">
-							<h:graphicImage url="/images/printer.png" alt="#{msgs.print_friendly}" title="#{msgs.print_friendly}" />
-						</h:outputLink>
-					<f:verbatim></span></f:verbatim>
-				<f:verbatim></li></f:verbatim>
-			<f:verbatim></ul></f:verbatim>			
+			<f:verbatim>
+				<ul class="navIntraTool actionToolbar">
+					<li class="firstToolBarItem">
+						<span>
+								<a href="#" id="expandLink" onclick="expandAccordion('<%= org.sakaiproject.util.Web.escapeJavascript(thisId)%>')">
+									<img src="/library/image/silk/arrow_out.png"/>&nbsp;&nbsp;
+									</f:verbatim>
+										<h:outputText value="#{msgs.expandAll}"/>
+									<f:verbatim>
+								</a>
+								<a href="#" id="collapseLink" style="display:none" onclick="collapseAccordion('<%= org.sakaiproject.util.Web.escapeJavascript(thisId)%>')">
+									<img src="/library/image/silk/arrow_in.png"/>&nbsp;&nbsp;
+									</f:verbatim>
+										<h:outputText value="#{msgs.collapseAll}"/>
+									<f:verbatim>
+								</a>
+						</span>
+					</li>
+					<li>
+						<span>
+							</f:verbatim>
+								<h:outputLink id="printIcon" value="javascript:printFriendly('#{SyllabusTool.printFriendlyUrl}');">
+									<h:graphicImage url="/images/printer.png" alt="#{msgs.print_friendly}" title="#{msgs.print_friendly}" />
+									<f:verbatim>&nbsp;&nbsp;</f:verbatim>
+									<h:outputText value="#{msgs.printView}"/>
+								</h:outputLink>
+							<f:verbatim>
+						</span>
+					</li>
+				</ul>
+			</f:verbatim>			
 				
 			</syllabus:syllabus_if>
 			<syllabus:syllabus_if test="#{SyllabusTool.syllabusItem.redirectURL}">
 					<f:verbatim>
+						<div>
+							<span id="successInfo" class="success" style="display:none; float: left;"></span>
+							<span id="warningInfo" class="alertMessage" style="display:none; float: left;"></span>
+						</div>
 						<br/>
-						<a href="#" id="expandLink" style="float: right" onclick="expandAccordion('<%= org.sakaiproject.util.Web.escapeJavascript(thisId)%>')">
-						</f:verbatim>
-							<h:outputText value="#{msgs.expandAll}"/>
-						<f:verbatim>
-						</a>
-						<a href="#" id="collapseLink" style="float: right; display:none" onclick="collapseAccordion('<%= org.sakaiproject.util.Web.escapeJavascript(thisId)%>')">
-						</f:verbatim>
-							<h:outputText value="#{msgs.collapseAll}"/>
-						<f:verbatim>
-						</a>
 						<br/>
 						<br/>
 						<div id="accordion">
@@ -121,15 +239,23 @@
 						<f:verbatim><div class="group" syllabusItem="</f:verbatim>
 						<h:outputText value="#{eachEntry.entry.syllabusId}"/>
 						<f:verbatim>"><h3></f:verbatim>
-						<h:graphicImage url="/images/cursor_drag_arrow.png" rendered="#{SyllabusTool.editAble == 'true'}" styleClass="imgMove"/>
+						<f:subview id="actionIcons" rendered="#{SyllabusTool.editAble == 'true'}">
+							<h:graphicImage url="/images/cursor_drag_arrow.png" title="#{msgs.dragToReorder}"  styleClass="actionIcon"/>
+							<h:graphicImage url="/images/lightbulb.gif" styleClass="actionIcon publish publishOn" title="#{msgs.clickToUnpublish}" style="#{eachEntry.status == eachEntry.draftStatus ? 'display:none' : ''}"/>
+							<h:graphicImage url="/images/lightbulb_off.gif" styleClass="actionIcon publish publishOff" title="#{msgs.clickToPublish}" style="#{eachEntry.status == eachEntry.draftStatus ? '' : 'display:none'}"/>
+							<h:graphicImage url="/images/calendar_view_month.png" rendered="#{SyllabusTool.calendarExistsForSite}" title="#{msgs.clickToRemoveCal}" styleClass="actionIcon linkCal linkCalOn" style="#{eachEntry.entry.linkCalendar ? '' : 'display:none'}"/>
+							<h:graphicImage url="/images/calendar_view_month_no.png" rendered="#{SyllabusTool.calendarExistsForSite}" title="#{msgs.clickToAddCal}" styleClass="actionIcon linkCal linkCalOff" style="#{eachEntry.entry.linkCalendar ? 'display:none' : ''}"/>
+							<f:verbatim>
+								<img src="/library/image/silk/cross.png" class="actionImage delete" onclick="showConfirmDeleteHelper(this, event);" title="</f:verbatim><h:outputText value="#{msgs.clickToDelete}"/><f:verbatim>">
+							</f:verbatim>
+						</f:subview>
 						<f:verbatim><a href="#" </f:verbatim>
 							<f:subview id="draftclass" rendered="#{eachEntry.status == eachEntry.draftStatus}">
 								<f:verbatim>class="draft"</f:verbatim>
 							</f:subview>
-							<f:verbatim>></f:verbatim>		 
-							<h:outputText rendered="#{eachEntry.status == eachEntry.draftStatus}" value="#{msgs.mainDraft} - "/> 
-							<h:outputText value="#{eachEntry.entry.title}" />
-							<f:subview id="date" rendered="#{eachEntry.entry.startDate != null || eachEntry.entry.endDate != null}">
+							<f:verbatim>></f:verbatim>
+							<h:outputText styleClass="editItem editItemTitle" value="#{eachEntry.entry.title}" />
+							<f:subview id="dateStudent" rendered="#{!SyllabusTool.editAble && (eachEntry.entry.startDate != null || eachEntry.entry.endDate != null)}">
 								<f:verbatim><span style="font-weight: normal; color: grey; float: right"></f:verbatim>
 									<h:outputText value="#{eachEntry.entry.startDate}">
 										<f:convertDateTime type="date" pattern="EEE MMM dd, yyyy hh:mm a"/>
@@ -143,33 +269,133 @@
 									</h:outputText>
 								<f:verbatim></span></f:verbatim>
 							</f:subview>
-							
-						<f:verbatim></a></h3></f:verbatim>
+							<f:subview id="dateInstructor" rendered="#{SyllabusTool.editAble == 'true'}">
+								<f:verbatim><span style="font-weight: normal; color: grey; float: right"></f:verbatim>
+									<h:outputText styleClass="editItem startTimeInput" value="#{eachEntry.entry.startDate}">
+										<f:convertDateTime type="date" pattern="MM/dd/yyyy h:mm a"/>
+									</h:outputText>
+									<h:outputText styleClass="editItem endTimeInput" value="#{eachEntry.entry.endDate}">
+								  		<f:convertDateTime type="date" pattern="MM/dd/yyyy h:mm a"/>
+									</h:outputText>
+								<f:verbatim></span></f:verbatim>
+							</f:subview>
+						<f:verbatim>
+							</a>
+							</h3>
+						</f:verbatim>
 						<f:verbatim><div></f:verbatim>
-							<f:verbatim><div></f:verbatim>
+							<f:verbatim><div class="editItem bodyInput" data-tpl='<textarea cols="120" id="textAreaWysiwyg" style="display:none"></textarea><img id="loading" style="margin: 2em;" src="images/loading.gif"/>'></f:verbatim>
 							<h:outputText value="#{eachEntry.entry.asset}" escape="false"/>
 							<f:verbatim></div></f:verbatim>
+							
+							<%/* view/add attachments */%>
 							<h:dataTable value="#{eachEntry.attachmentList}" var="eachAttach" styleClass="indnt1">
-							  <h:column>
+								<h:column>
 									<f:facet name="header">
 										<h:outputText value="" />
 									</f:facet>
 									<sakai:contentTypeMap fileType="#{eachAttach.type}" mapType="image" var="imagePath" pathPrefix="/library/image/"/>									
 									<h:graphicImage id="exampleFileIcon" value="#{imagePath}" />	
-									<h:outputLink value="#{eachAttach.url}" target="_blank" title="#{msgs.openLinkNewWindow}">
+									<h:outputLink styleClass="attachment" value="#{eachAttach.url}" target="_blank" title="#{msgs.openLinkNewWindow}">
 										<h:outputText value=" "/><h:outputText value="#{eachAttach.name}"/>
 									</h:outputLink>
+									<f:subview id="removeItem" rendered="#{SyllabusTool.editAble == 'true'}">
+										<f:verbatim>
+										&nbsp;
+											<a attachmentId='</f:verbatim><h:outputText value="#{eachAttach.syllabusAttachId}"/><f:verbatim>' 
+												href="#" onclick="showConfirmDeleteAttachmentHelper(this, event);" title="</f:verbatim><h:outputText value="#{msgs.clickToRemoveAttachment}"/><f:verbatim>">
+												<img src="/library/image/silk/cross.png">
+											</a>
+										</f:verbatim>
+									</f:subview>
 								</h:column>
 							</h:dataTable>
+							<f:subview id="instructorAddAttach" rendered="#{SyllabusTool.editAble == 'true'}">
+								<f:verbatim>
+									<br/>
+								</f:verbatim>
+								<h:commandLink action="#{SyllabusTool.processAddAttachRedirect}">
+									<f:verbatim>
+										<img src="/library/image/silk/add.png">
+									</f:verbatim>
+									<h:outputText value="#{msgs.add_attach}"/>
+									<f:param name="itemId" value="#{eachEntry.entry.syllabusId}"/>
+								</h:commandLink>
+								<f:verbatim>
+									<br/>
+								</f:verbatim>
+							</f:subview>
+							<%/* instructor view attachments */%>
+							<f:subview id="instructorAttachments" rendered="1 == 0">
+								<h:commandLink action="#{SyllabusTool.processAddAttachRedirect}" value="#{msgs.add_attach}">
+										<f:param name="itemId" value="#{eachEntry.entry.syllabusId}"/>
+								</h:commandLink>
+	
+								<syllabus:syllabus_table value="#{eachEntry.attachmentList}" var="eachAttach" summary="#{msgs.edit_att_list_summary}" styleClass="listHier lines nolines">
+									<h:column rendered="#{!empty eachEntry.attachmentList}">
+										<f:facet name="header">
+											<h:outputText value="#{msgs.attachmentTitle}" />
+										</f:facet>
+										<f:verbatim><h5></f:verbatim>
+										<sakai:contentTypeMap fileType="#{eachAttach.type}" mapType="image" var="imagePath" pathPrefix="/library/image/"/>									
+										<h:graphicImage id="exampleFileIcon" value="#{imagePath}" />
+										<h:outputText value="#{eachAttach.name}"/>
+										<f:verbatim></h5></f:verbatim>
+										<f:verbatim><div class="itemAction"></f:verbatim>
+	
+										<h:commandLink action="#{SyllabusTool.processDeleteAttach}" 
+											onfocus="document.forms[0].onsubmit();" title="#{msgs.removeAttachmentLink} #{eachAttach.name}">
+												<h:outputText value="#{msgs.mainEditHeaderRemove}"/>
+												<f:param value="#{eachAttach.syllabusAttachId}" name="syllabus_current_attach"/>
+										</h:commandLink>
+										<f:verbatim></div></f:verbatim>
+									</h:column>
+								  <h:column rendered="#{!empty eachEntry.attachmentList}">
+									<f:facet name="header">
+										<h:outputText value="#{msgs.size}" />
+									</f:facet>
+									<h:outputText value="#{eachAttach.size}"/>
+								</h:column>
+								<h:column rendered="#{!empty eachEntry.attachmentList}">
+									<f:facet name="header">
+										<h:outputText value="#{msgs.type}" />
+									</f:facet>
+									<h:outputText value="#{eachAttach.type}"/>
+								</h:column>
+						  		<h:column rendered="#{!empty eachEntry.attachmentList}">
+									<f:facet name="header">
+										<h:outputText value="#{msgs.created_by}" />
+									</f:facet>
+									<h:outputText value="#{eachAttach.createdBy}"/>
+								</h:column>
+								<h:column rendered="#{!empty eachEntry.attachmentList}">
+									<f:facet name="header">
+										<h:outputText value="#{msgs.last_modified}" />
+									</f:facet>
+									<h:outputText value="#{eachAttach.lastModifiedBy}"/>
+								</h:column>
+							</syllabus:syllabus_table>
+						</f:subview>
 						<f:verbatim></div></div></f:verbatim>
 					</t:dataList>
-				<f:verbatim></div></f:verbatim>
 				<h:outputText value="#{msgs.syllabus_noEntry}" styleClass="instruction" rendered="#{SyllabusTool.displayNoEntryMsg}"/>
 			</syllabus:syllabus_if>				
 			<syllabus:syllabus_ifnot test="#{SyllabusTool.syllabusItem.redirectURL}">
   			<syllabus:syllabus_iframe redirectUrl="#{SyllabusTool.syllabusItem.redirectURL}" width="100%" height="500"/>
 			</syllabus:syllabus_ifnot>
-
+			<f:verbatim>
+				<div id="confirmDelete" style="display:none">
+			</f:verbatim>
+			<h:outputText value="#{msgs.confirmDelete}"/>
+			<f:verbatim>
+					<span id="deleteTitle"></span>
+					<span id="deleteId" sylte="display:none"></span>
+					<p class="act">
+						<input type="button" name="deleteItem" value="</f:verbatim><h:outputText value="#{msgs.delConfRemoved}"/><f:verbatim>" title="</f:verbatim><h:outputText value="#{msgs.delConfRemoved}"/><f:verbatim>" onlclick="">
+						<input type="button" name="cancelDelete" value="</f:verbatim><h:outputText value="#{msgs.cancel}"/><f:verbatim>" title="</f:verbatim><h:outputText value="#{msgs.cancel}"/><f:verbatim>" onlclick="">
+					</p>
+				</div>
+			</f:verbatim>
 		</h:form>
 	</sakai:view_content>
 	</sakai:view_container>

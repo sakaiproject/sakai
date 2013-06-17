@@ -52,6 +52,7 @@ public interface SyllabusManager
   public void swapSyllabusDataPositions(final SyllabusItem syllabusItem, final SyllabusData d1, final SyllabusData d2);
   
   public void saveSyllabus(SyllabusData data);
+  public void saveSyllabus(SyllabusData data, boolean updateCalendar);
   
   public Integer findLargestSyllabusPosition(final SyllabusItem syllabusItem);
   

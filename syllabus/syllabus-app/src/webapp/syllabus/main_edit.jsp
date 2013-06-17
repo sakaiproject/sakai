@@ -129,25 +129,32 @@
 		  <sakai:tool_bar>
 		  <%-- (gsilver) cannot pass a needed title attribute to these next items --%>
 		  	<h:commandLink action="#{SyllabusTool.processListNew}" 
-		  		value="#{msgs.bar_new}" 
 		  		styleClass="actionLink" 
 		  		onmousedown="assignWarningClick(this);"
-			    rendered="#{SyllabusTool.editAble == 'true'}" />
- 		    <h:commandLink
-					action="#{SyllabusTool.processRedirect}"
-					value="#{msgs.bar_redirect}" 
-					onmousedown="assignWarningClick(this);"
-			    rendered="#{SyllabusTool.editAble == 'true'}" />
- 		    <h:commandLink
-					action="#{SyllabusTool.processStudentView}"
-					value="#{msgs.bar_student_view}" 
-					onmousedown="assignWarningClick(this);"
-		   			rendered="#{SyllabusTool.editAble == 'true'}" />
+			    rendered="#{SyllabusTool.editAble == 'true'}">
+			    	<f:verbatim>
+			    		<img src="/library/image/silk/add.png"/>&nbsp;&nbsp;
+			    	</f:verbatim>
+			    	<h:outputText value="#{msgs.bar_new}"/>
+			</h:commandLink>
 		   	<h:commandLink
-					action="#{SyllabusTool.processListNewBulk}"
-					value="#{msgs.bar_new_bulk}" 
+					action="#{SyllabusTool.processListNewBulkMainEdit}"
 					onmousedown="assignWarningClick(this);"
-		   			rendered="#{SyllabusTool.editAble == 'true'}" />
+		   			rendered="#{SyllabusTool.editAble == 'true'}">
+		   				<h:graphicImage url="/images/AddBulk.png"/>
+						<f:verbatim>&nbsp;&nbsp;</f:verbatim>
+						<h:outputText value="#{msgs.bar_new_bulk}"/>
+		   	</h:commandLink>
+		   	<h:commandLink
+					action="#{SyllabusTool.processStudentView}"
+					onmousedown="assignWarningClick(this);"
+		   			rendered="#{SyllabusTool.editAble == 'true'}">
+		   				<f:verbatim>
+			    			<img src="/library/image/silk/arrow_undo.png"/>&nbsp;&nbsp;
+			    		</f:verbatim>
+			    		<h:outputText value="#{msgs.bar_student_view}"/>
+			</h:commandLink>
+		   			
    	      </sakai:tool_bar>
    	      <h:messages globalOnly="true" styleClass="alertMessage" rendered="#{!empty facesContext.maximumSeverity}" />
 	      <syllabus:syllabus_if test="#{SyllabusTool.syllabusItem.redirectURL}">

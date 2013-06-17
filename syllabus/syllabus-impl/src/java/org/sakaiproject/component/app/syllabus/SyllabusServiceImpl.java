@@ -1082,7 +1082,14 @@ public class SyllabusServiceImpl implements SyllabusService, EntityTransferrer, 
 
 	public void deletePostedSyllabus(SyllabusData data)
 	{
-    BaseResourceEdit bre = new BaseResourceEdit(data.getSyllabusId().toString(), data);
+		Placement placement = ToolManager.getCurrentPlacement();
+		String siteId = placement.getContext();
+		deletePostedSyllabus(data, siteId);
+	}
+	
+	public void deletePostedSyllabus(SyllabusData data, String siteId)
+	{
+    BaseResourceEdit bre = new BaseResourceEdit(data.getSyllabusId().toString(), data, siteId);
     
     addLiveSyllabusProperties(bre);
     
@@ -1278,8 +1285,12 @@ public class SyllabusServiceImpl implements SyllabusService, EntityTransferrer, 
 
 	public void draftChangeSyllabus(SyllabusData data)
 	{
-    BaseResourceEdit bre = new BaseResourceEdit(data.getSyllabusId().toString(), data);
-    
+		Placement placement = ToolManager.getCurrentPlacement();
+		String siteId = placement.getContext();
+		draftChangeSyllabus(data, siteId);
+	}
+    public void draftChangeSyllabus(SyllabusData data, String siteId){
+    BaseResourceEdit bre = new BaseResourceEdit(data.getSyllabusId().toString(), data, siteId);
     addLiveSyllabusProperties(bre);
     
     bre.setEvent(EVENT_SYLLABUS_DRAFT_CHANGE);

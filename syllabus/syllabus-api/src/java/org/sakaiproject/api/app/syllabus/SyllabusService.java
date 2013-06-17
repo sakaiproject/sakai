@@ -58,11 +58,15 @@ public interface SyllabusService extends EntityProducer
 	
 	public void deletePostedSyllabus(SyllabusData data);
 	
+	public void deletePostedSyllabus(SyllabusData data, String siteId);
+	
 	public void readSyllabus(SyllabusData data);
 	
 	public void draftNewSyllabus(SyllabusData data);
 	
 	public void draftChangeSyllabus(SyllabusData data);
+	
+	public void draftChangeSyllabus(SyllabusData data, String siteId);
 	
 	public List getMessages(String id);
 	
