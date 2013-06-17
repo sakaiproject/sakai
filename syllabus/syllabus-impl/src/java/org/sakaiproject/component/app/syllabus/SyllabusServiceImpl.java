@@ -686,7 +686,7 @@ public class SyllabusServiceImpl implements SyllabusService, EntityTransferrer, 
                                         syData.getTitle(), (new Integer(
                                             initPosition)), syData.getAsset(),
                                         syData.getView(), syData.getStatus(),
-                                        syData.getEmailNotification());
+                                        syData.getEmailNotification(), syData.getStartDate(), syData.getEndDate(), syData.isLinkCalendar());
                             		Set attachSet = new TreeSet();
                             		for(int m=0; m<attachStringList.size(); m++)
                             		{
@@ -707,7 +707,7 @@ public class SyllabusServiceImpl implements SyllabusService, EntityTransferrer, 
                             		syData.setAttachments(attachSet);
                                 
                                 syllabusManager.addSyllabusToSyllabusItem(
-                                    syllabusItem, syData);
+                                    syllabusItem, syData, false);
 
                               }
                             }
@@ -795,9 +795,9 @@ public class SyllabusServiceImpl implements SyllabusService, EntityTransferrer, 
                   SyllabusData newToSyData = syllabusManager
                   		  .createSyllabusDataObject(toSyData.getTitle(),
                           positionNo, toSyData.getAsset(), toSyData.getView(),
-                          toSyData.getStatus(), toSyData.getEmailNotification());
+                          toSyData.getStatus(), toSyData.getEmailNotification(), toSyData.getStartDate(), toSyData.getEndDate(), toSyData.isLinkCalendar());
                   
-                  syllabusManager.addSyllabusToSyllabusItem(toSyItem, newToSyData);
+                  syllabusManager.addSyllabusToSyllabusItem(toSyItem, newToSyData, false);
                 }
             }
             else
@@ -1221,7 +1221,7 @@ public class SyllabusServiceImpl implements SyllabusService, EntityTransferrer, 
 										positionNo, toSyData.getAsset(),
 										toSyData.getView(), toSyData
 												.getStatus(), toSyData
-												.getEmailNotification());
+												.getEmailNotification(), toSyData.getStartDate(), toSyData.getEndDate(), toSyData.isLinkCalendar());
 						Set attachSet = syllabusManager.getSyllabusAttachmentsForSyllabusData(toSyData);
 						Iterator attachIter = attachSet.iterator();
 						Set newAttachSet = new TreeSet();
@@ -1242,7 +1242,7 @@ public class SyllabusServiceImpl implements SyllabusService, EntityTransferrer, 
 						}
 						newToSyData.setAttachments(newAttachSet);
 						syllabusManager.addSyllabusToSyllabusItem(toSyItem,
-								newToSyData);
+								newToSyData, false);
 				  }
 				} 
 				else 

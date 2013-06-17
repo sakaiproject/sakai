@@ -43,7 +43,7 @@ public interface SyllabusManager
   public void removeSyllabusFromSyllabusItem(final SyllabusItem syllabusItem, final SyllabusData syllabusData);
   
   public SyllabusData createSyllabusDataObject(String title, Integer position,
-      String assetId, String view, String status, String emailNotification);
+      String assetId, String view, String status, String emailNotification, Date startDate, Date endDate, boolean linkCalendar);
   
   public void removeSyllabusDataObject(SyllabusData o);
   

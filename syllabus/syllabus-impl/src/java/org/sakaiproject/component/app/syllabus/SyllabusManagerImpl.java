@@ -167,7 +167,8 @@ public class SyllabusManagerImpl extends HibernateDaoSupport implements Syllabus
    * @param emailNotification 
    */
   public SyllabusData createSyllabusDataObject(String title, Integer position,
-        String asset, String view, String status, String emailNotification)      
+        String asset, String view, String status, String emailNotification,
+        Date startDate, Date endDate, boolean linkCalendar)      
   {
     if (position == null)
     {
@@ -183,8 +184,10 @@ public class SyllabusManagerImpl extends HibernateDaoSupport implements Syllabus
       data.setView(view);
       data.setStatus(status);
       data.setEmailNotification(emailNotification);
-            
-      saveSyllabus(data);
+      data.setStartDate(startDate);
+      data.setEndDate(endDate);
+      data.setLinkCalendar(linkCalendar);
+      saveSyllabus(data, false);
       return data;
     }
   }
