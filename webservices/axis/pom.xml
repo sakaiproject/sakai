@@ -89,7 +89,7 @@
 	      	<version>0.5</version>
 	    </dependency> 
 		<dependency>
-			<groupId>org.opensymphony.quartz</groupId>
+			<groupId>org.quartz-scheduler</groupId>
 			<artifactId>quartz</artifactId>
 			<version>${sakai.quartz.version}</version>
 			<scope>provided</scope>
