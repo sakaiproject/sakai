@@ -813,7 +813,10 @@ var setupCategTools = function(){
         $("span.ui-dialog-title").text(moreInfoTitle);
         $('#moreInfoHolder').dialog('open');
     });
-    
+
+    if ($('.toolGroup').length <= 2) {
+        $('.sel_unsel_core, #collExpContainer').hide();
+    }
 };
 
 var setupRecentSite = function(){
