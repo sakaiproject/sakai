@@ -198,7 +198,6 @@ public class ShowPageProducer implements ViewComponentProducer, DefaultView, Nav
         private static final String DEFAULT_JW_TYPES = "video/x-flv,video/mp4,video/x-m4v,video/webm";
     // jw can also handle audio: audio/mp4,audio/mpeg,audio/ogg
         private static String[] jwTypes = null;
-        private String sessionPar = null;
 
     // WARNING: this must occur after memoryService, for obvious reasons. 
     // I'm doing it this way because it doesn't appear that Spring can do this kind of initialization
@@ -1513,7 +1512,7 @@ public class ShowPageProducer implements ViewComponentProducer, DefaultView, Nav
 					    if (lengthOk(width) && width.getOld().indexOf("%") < 0)
 						sizeString += ",width: " + width.getOld();
 
-					    String sessionParameter = getSessionParameter();
+					    String sessionParameter = getSessionParameter(movieUrl);
 					    if (sessionParameter != null)
 						movieUrl = movieUrl + "?lb.session=" + sessionParameter;
 					    UIVerbatim.make(tableRow, "jwscript", "jwplayer(\"jwm" + jwmcount + "\").setup({file:\"" + movieUrl + "\"" + sizeString + "});");
@@ -1553,7 +1552,7 @@ public class ShowPageProducer implements ViewComponentProducer, DefaultView, Nav
 						// this requires session.parameter.allow=true in sakai.properties
 						// don't pass the arg unless that is set, since the whole point of defaulting
 						// off is to not expose the session id
-						String sessionParameter = getSessionParameter();
+						String sessionParameter = getSessionParameter(movieUrl);
 						if (sessionParameter != null)
 						    movieUrl = movieUrl + "?lb.session=" + sessionParameter;
 
@@ -2425,26 +2424,22 @@ public class ShowPageProducer implements ViewComponentProducer, DefaultView, Nav
     // we could include the whole URL in the encryption if it was worth the additional over head.
     // I think it's not.
 
-        public String getSessionParameter() {
-	    // local cache in this module.
-	    if (sessionPar != null)
-		return sessionPar;
-	    // cache in session, since this is clearly always the same fo ra given session.
-	    Session session = SessionManager.getCurrentSession();
-	    sessionPar = (String)session.getAttribute("lb.encryptedid");
-	    if (sessionPar != null)
-		return sessionPar;
+    // url is /access/lessonbuilder/item/NNN/url. Because the server side
+    // sees a reference starting with /item, we send that.
+        public String getSessionParameter(String url) {
+	    UsageSession session = UsageSessionService.getSession();
+	    if (!url.startsWith("/access/lessonbuilder"))
+		return null;
+	    url = url.substring("/access/lessonbuilder".length());
 
-	    // not cached. Compute it
 	    try {
 		Cipher sessionCipher = Cipher.getInstance("Blowfish");
 		sessionCipher.init(Cipher.ENCRYPT_MODE, lessonBuilderAccessService.getSessionKey());
-		String sessionId = SessionManager.getCurrentSession().getId();
-		byte[] sessionBytes = sessionId.getBytes("UTF8");
+		String sessionParam = session.getId() + ":" + url;
+		byte[] sessionBytes = sessionParam.getBytes("UTF8");
 		sessionBytes = sessionCipher.doFinal(sessionBytes);
-		sessionPar = DatatypeConverter.printHexBinary(sessionBytes);
-		session.setAttribute("lb.encryptedid", sessionPar);
-		return sessionPar;
+		sessionParam = DatatypeConverter.printHexBinary(sessionBytes);
+		return sessionParam;
 	    } catch (Exception e) {
 		System.out.println("unable to generate encrypted session id " + e);
 		return null;

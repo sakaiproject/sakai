@@ -66,6 +66,7 @@ import org.sakaiproject.exception.ServerOverloadException;
 import org.sakaiproject.exception.TypeException;
 import org.sakaiproject.lessonbuildertool.LessonBuilderAccessAPI;
 import org.sakaiproject.lessonbuildertool.SimplePageItem;
+import org.sakaiproject.lessonbuildertool.SimplePageProperty;
 import org.sakaiproject.lessonbuildertool.SimplePage;
 import org.sakaiproject.lessonbuildertool.model.SimplePageToolDao;
 import org.sakaiproject.lessonbuildertool.tool.beans.SimplePageBean;
@@ -73,6 +74,8 @@ import org.sakaiproject.memory.api.Cache;
 import org.sakaiproject.memory.api.MemoryService;
 import org.sakaiproject.site.api.SiteService;
 import org.sakaiproject.tool.api.SessionManager;
+import org.sakaiproject.event.api.UsageSession;
+import org.sakaiproject.event.cover.UsageSessionService;
 import org.sakaiproject.tool.api.ToolManager;
 import org.sakaiproject.tool.api.Placement;
 import org.sakaiproject.util.Validator;
@@ -214,11 +217,35 @@ public class LessonBuilderAccessService {
 
 		accessCache = memoryService.newCache("org.sakaiproject.lessonbuildertool.service.LessonBuilderAccessService.cache");
 
-		// wrap key data in Key/IV specs to pass to cipher
-		try {
-		    sessionKey = KeyGenerator.getInstance("Blowfish").generateKey();
-		} catch (Exception e) {
-		    System.out.println("unable to init cipher for session " + e);
+		SimplePageItem metaItem = null;
+		// Get crypto session key from metadata item
+		//   we have to keep it in the database so it's the same on all servers
+		// There's no entirely sound way to create the item if it doesn't exist
+		//   other than by getting a table lock. Fortunately this will only be
+		//   needed when the entry is created.
+
+		SimplePageProperty prop = simplePageToolDao.findProperty("accessCryptoKey");
+		if (prop == null) {
+		    try {
+			sessionKey = KeyGenerator.getInstance("Blowfish").generateKey();
+			// need string version to save in item
+			byte[] keyBytes = ((SecretKeySpec)sessionKey).getEncoded();
+			// set attribute to hex version of key
+			prop = simplePageToolDao.makeProperty("accessCryptoKey", DatatypeConverter.printHexBinary(keyBytes));
+			simplePageToolDao.quickSaveItem(prop);
+		    } catch (Exception e) {
+			System.out.println("unable to init cipher for session " + e);
+			// in case of race condition, our save will fail, but we'll be able to get a value
+			// saved by someone else
+			simplePageToolDao.flush();
+			prop = simplePageToolDao.findProperty("accessCryptoKey");
+		    }
+		}
+
+		if (prop != null) {
+		    String keyString = prop.getValue();
+		    byte[] keyBytes = DatatypeConverter.parseHexBinary(keyString);
+		    sessionKey = new SecretKeySpec(keyBytes, "Blowfish");
 		}
 
 	}
@@ -258,6 +285,9 @@ public class LessonBuilderAccessService {
 					Collection copyrightAcceptedRefs) throws EntityPermissionException, EntityNotDefinedException,
 					EntityAccessOverloadException, EntityCopyrightException {
 				
+			    // preauthorized by encrypted key
+				boolean isAuth = false;
+
 				// if the id is null, the request was for just ".../content"
 				String refId = ref.getId();
 				if (refId == null) {
@@ -286,11 +316,18 @@ public class LessonBuilderAccessService {
 					sessionCipher.init(Cipher.DECRYPT_MODE, sessionKey);
 					byte[] sessionBytes = DatatypeConverter.parseHexBinary(sessionParam);
 					sessionBytes = sessionCipher.doFinal(sessionBytes);
-					String sessionId = new String(sessionBytes);
+					String sessionString = new String(sessionBytes);
+					int j = sessionString.indexOf(":");
+					String sessionId = sessionString.substring(0, j);
+					String url = sessionString.substring(j+1);
 
-					Session s = sessionManager.getSession(sessionId);
-					req.setAttribute(ATTR_SESSION, s);                              
-					sessionManager.setCurrentSession(s);                            
+					UsageSession s = UsageSessionService.getSession(sessionId);
+					if (s == null || s.isClosed() || url == null || ! url.equals(refId)) {
+					    throw new EntityPermissionException(sessionManager.getCurrentSessionUserId(), 
+					       ContentHostingService.AUTH_RESOURCE_READ, ref.getReference());
+					} else {
+					    isAuth = true;
+					}
 
 				    } catch (Exception e) {
 					System.out.println("unable to decode lb.session " + e);
@@ -326,7 +363,7 @@ public class LessonBuilderAccessService {
 					// first let's make sure the user is allowed to access
 					// the containing page
 
-					if (!canReadPage(currentSiteId)) {
+					if (!isAuth && !canReadPage(currentSiteId)) {
 					    throw new EntityPermissionException(sessionManager.getCurrentSessionUserId(), 
 					       ContentHostingService.AUTH_RESOURCE_READ, ref.getReference());
 					}
@@ -334,6 +371,8 @@ public class LessonBuilderAccessService {
 					// If the resource is the actual one in the item, or
 					// it is in the containing folder, then do lesson builder checking.
 					// otherwise do normal resource checking
+
+					if (!isAuth) {
 
 					boolean useLb = false;
 
@@ -451,6 +490,8 @@ public class LessonBuilderAccessService {
 					    }
 					}
 					
+					}
+
 					// access checks are OK, get the thing
 
 					// first see if it's not in resources, i.e.

@@ -39,6 +39,7 @@ import org.sakaiproject.lessonbuildertool.SimplePageQuestionResponseTotals;
 import org.sakaiproject.lessonbuildertool.SimpleStudentPage;
 import org.sakaiproject.lessonbuildertool.SimplePagePeerEval;
 import org.sakaiproject.lessonbuildertool.SimplePagePeerEvalResult;
+import org.sakaiproject.lessonbuildertool.SimplePageProperty;
 
 public interface SimplePageToolDao {
 
@@ -52,6 +53,9 @@ public interface SimplePageToolDao {
     // edit is actually part of the current site.
 	public boolean canEditPage();
 	public boolean canEditPage(long pageid);
+
+    // session flush
+	public void flush();
 
     // returns a list of all items on the page, ordered by sequence number
 	public List<SimplePageItem> findItemsOnPage(long pageId);
@@ -80,6 +84,10 @@ public interface SimplePageToolDao {
 
 	public SimplePageItem findItem(long id);
 	
+	public SimplePageProperty findProperty(String attribute);
+
+	public SimplePageProperty makeProperty(String attribute, String value);
+
 	public List<SimplePageComment> findComments(long commentWidgetId);
 	
 	public List<SimplePageComment> findCommentsOnItems(List<Long> commentItemIds);
