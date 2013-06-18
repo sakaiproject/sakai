@@ -144,7 +144,7 @@ import uk.org.ponder.rsf.view.ViewComponentProducer;
 import uk.org.ponder.rsf.viewstate.SimpleViewParameters;
 import uk.org.ponder.rsf.viewstate.ViewParameters;
 import uk.org.ponder.rsf.viewstate.ViewParamsReporter;
-
+import org.apache.commons.lang.StringEscapeUtils;
 
 /**
  * This produces the primary view of the page. It also handles the editing of
@@ -1515,7 +1515,7 @@ public class ShowPageProducer implements ViewComponentProducer, DefaultView, Nav
 					    String sessionParameter = getSessionParameter(movieUrl);
 					    if (sessionParameter != null)
 						movieUrl = movieUrl + "?lb.session=" + sessionParameter;
-					    UIVerbatim.make(tableRow, "jwscript", "jwplayer(\"jwm" + jwmcount + "\").setup({file:\"" + movieUrl + "\"" + sizeString + "});");
+					    UIVerbatim.make(tableRow, "jwscript", "jwplayer(\"jwm" + jwmcount + "\").setup({file:\"" + StringEscapeUtils.escapeJavaScript(movieUrl) + "\"" + sizeString + "});");
 					    if (canEditPage) {
 						UIOutput.make(tableRow, "movieId", String.valueOf(i.getId()));
 						UIOutput.make(tableRow, "movieHeight", getOrig(height));
