@@ -127,7 +127,7 @@ sub addimage ($$$)
   my $svn = "/usr/bin/svn";
 
   system("cd $imgdir ; $wget $kbmedia/$imgurl");
-  #system("$svn add $imgdir/$imgbasename");
+  system("$svn add $imgdir/$imgbasename");
 }
 
 ### Check for referenced but not included files
