@@ -40,6 +40,8 @@ import uk.org.ponder.rsf.view.ComponentChecker;
 import uk.org.ponder.rsf.view.ViewComponentProducer;
 import uk.org.ponder.rsf.viewstate.ViewParameters;
 import uk.org.ponder.rsf.viewstate.ViewParamsReporter;
+import org.apache.commons.lang.StringEscapeUtils;
+
 
 public class LinkTrackerProducer implements ViewComponentProducer, ViewParamsReporter {
 	public static final String VIEW_ID = "LinkTracker";
@@ -91,7 +93,7 @@ public class LinkTrackerProducer implements ViewComponentProducer, ViewParamsRep
 		if (i != null && simplePageBean.isItemAvailable(i)) {
 
 		    simplePageBean.track(itemId, null);
-		    String js = "window.location = \"" + params.getURL() + "\"";
+		    String js = "window.location = \"" + StringEscapeUtils.escapeJavaScript(params.getURL()) + "\"";
 		    if (params.getRefresh())
 			js = "window.top.opener.location.reload(true);" + js;
 		    UIVerbatim.make(tofill, "redirect", js);
