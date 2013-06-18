@@ -20,4 +20,4 @@ PERL_MM_USE_DEFAULT=1 perl -MCPAN -Mlocal::lib -e 'install XML::Simple'
 PERL_MM_USE_DEFAULT=1 perl -MCPAN -Mlocal::lib -e 'install XML::Parser::PerlSAX'
 
 #svn co https://source.sakaiproject.org/svn/sakai/trunk sakai-trunk
-mkdir docs && mkdir -p sakai-trunk/help_images
+mkdir docs

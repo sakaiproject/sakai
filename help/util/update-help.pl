@@ -31,7 +31,7 @@ my $xsl = "$cwd/kb-to-help.xsl";
 my $docrepo;
 my $svnrepo;
 my $preview;
-my $offline = 1;
+my $offline = 0;
 
 my $result = GetOptions ("docs=s" => \$docrepo,
    "svn=s" => \$svnrepo,
@@ -85,7 +85,7 @@ my $docs_kb = $xml->XMLin("$docrepo/docs_kb.xml");
 # Fetch any update documents from docs or newdocs collections
 # - timestamp is newer, or file doesn't exist locally
 
-#	print $i . " " . $docs_local->{document}->{$i}->{timestamp}, "\n";
+	#print $i . " " . $docs_local->{document}->{$i}->{timestamp}, "\n";
 
 foreach my $docid (keys %{$docs_kb->{document}})
    {
@@ -163,12 +163,13 @@ update_svn_collection($svnrepo, $docrepo);
 
 # Check for included images
 
-checkimages($docrepo, $svnrepo . "/help-images", $KbMediaUrl);
+checkimages($docrepo, $svnrepo . "/help/help-tool/src/webapp/TOCDisplay/image/", $KbMediaUrl);
 
 #### ----- Commit changes to svn
 
 if (!$offline) {
-    commit_svn_changes($svnrepo, $svn_user, $svn_pass, $svn_comment);
+    #commit_svn_changes($svnrepo, $svn_user, $svn_pass, $svn_comment);
+    echo "NOTICE: You need to commit your SVN changes!"
 }
 
 #### ----- Consistency checks on the document collections

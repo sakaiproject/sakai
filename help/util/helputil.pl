@@ -48,13 +48,18 @@ sub update_svn_collection ($$)
 
  # Match the pattern */src/*/*.html
 
- my @filelist = glob("$svnrepo/*/src/*/*.html");
+ print "$svnrepo $docrepo\n";
+ my @filelist = glob("$svnrepo/*/*-help/src/*/*.html");
  foreach my $helpfile (@filelist) {
     if ($helpfile =~ /\/([a-z]{4})\.html/) {
         my $fileid = $1;
         if (-s "$docrepo/$fileid.html") {
+        	print "Helpfile for '$fileid' copied from '$docrepo'\n";
                 copy("$docrepo/$fileid.html", $helpfile);
         }
+    }
+    else {
+	print "No match for $helpfile\n";
     }
  }
 
@@ -122,7 +127,7 @@ sub addimage ($$$)
   my $svn = "/usr/bin/svn";
 
   system("cd $imgdir ; $wget $kbmedia/$imgurl");
-  system("$svn add $imgdir/$imgbasename");
+  #system("$svn add $imgdir/$imgbasename");
 }
 
 ### Check for referenced but not included files
