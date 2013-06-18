@@ -27,7 +27,9 @@ permissions, see <a href="content.hlp?docId=arax">Permissions and roles: Overvie
 
 
 
-<ul><li><a href="#1">Overview</a></li><li><a href="#2">Managing groups</a></li><li><a href="#3">Creating a group</a></li><li><a href="#4">Editing a group</a></li><li><a href="#5">Deleting a group</a>
+<ul><li><a href="#1">Overview</a></li><li><a href="#2">Managing groups</a></li><li><a href="#3">Creating groups</a>
+<ul><li><a href="#man">Manually</a></li><li><a href="#auto">Automatically</a></li><li><a href="#csv">From a spreadsheet</a></li></ul>
+</li><li><a href="#4">Editing groups</a></li><li><a href="#5">Deleting groups</a>
 </li></ul>
 
 <hr />
@@ -51,7 +53,8 @@ group.
 <br /><br />
 </li><li><strong>Assignments:</strong> Post
 assignments for a group. However, you cannot link assignments with
-group access into the Gradebook.
+group access to the Gradebook.
+
 
 <br /><br />
 </li><li><strong>Forums:</strong> Assign forum and topic permissions for groups;
@@ -112,9 +115,11 @@ groups, and from the top, click <strong><code>Edit</code></strong>.
 
 <p><a href="#top">Back to top</a></p>
 
-<a name="3"> </a><h3>Creating a group</h3>
+<a name="3"> </a><h3>Creating groups</h3>
 
-<p>To create a new group:</p>
+<a name="man"> </a><h4>Creating groups manually</h4>
+
+<p>To create a new group manually:</p>
 
 <ol><li>Navigate to the group management interface for your site (see <a href="#2">Managing groups</a> above).
 
@@ -122,7 +127,7 @@ groups, and from the top, click <strong><code>Edit</code></strong>.
 </li><li>Click <strong><code>Create New Group</code></strong>.
 
 <br /><br />
-</li><li>In the "Title" field, enter a title for your group (e.g.,
+</li><li>In the "Group Title" field, enter a title for your group (e.g.,
 <code>Project team 1</code>). You may also add a text
 description.
 
@@ -140,12 +145,8 @@ to move all site participants to the right-hand window, select any
 participants you do not want in the group, and click <strong><code>&lt;</code></strong> to
 remove them.</p>
 </li><li>When you're finished, click <strong><code>Add</code></strong>.
-
 </li></ol>
 
-<p>To create a group containing all users with a specific role, click <strong><code>Auto
-Groups</code></strong>, check the role(s) that you want to create groups for, and then
-click <strong><code>Update</code></strong>.</p>
 
 <p><strong>Note:</strong> It is not possible to create a new group
 based on existing group (i.e., duplicate an existing group).</p>
@@ -153,9 +154,103 @@ based on existing group (i.e., duplicate an existing group).</p>
 
 <p><a href="#top">Back to top</a></p>
 
+<a name="auto"> </a><h4>Creating groups automatically</h4>
+
+<p>Using the Auto Groups option, you can create a new group containing all 
+users within a specific role, or create a number of random groups composed
+of members of a specific role.</p>
+
+<p>To create a new group containing all users within a specific role:</p>
+
+<ol><li>Navigate to the group management interface for your site (see <a href="#2">Managing groups</a> above).
+
+<br /><br />
+</li><li>Click <strong><code>Auto Groups</code></strong>.
+
+<br /><br />
+</li><li>Check the box next to each role for which you would like a group created.
+
+<br /><br />
+</li><li>Click <strong><code>Update</code></strong> to create your group(s). 
+</li></ol>
+
+<p>To create random groups composed of users in a specified role:</p>
+
+<ol><li>Navigate to the group management interface for your site (see <a href="#2">Managing groups</a> above).
+
+
+<br /><br />
+</li><li>Click <strong><code>Auto Groups</code></strong>.
+
+<br /><br />
+</li><li>Check the box next to the role for which you would like to
+randomly generate groups.
+
+<p><strong>Note:</strong> You can use the random group creation option
+with only one role at a time.</p>
+</li><li>Select <strong><code>Create random groups from members with selected
+role(s)</code></strong>.
+
+<br /><br />
+</li><li>Choose whether you would like to specify the number of
+groups (<strong><code>Split by number of groups needed</code></strong>) or the number of
+participants in each group (<strong><code>Split by number of users needed per
+group</code></strong>).
+
+<br /><br />
+</li><li>Next to "Group Title", enter a title for your groups. When the
+groups are generated, each will use the name you specified followed by
+a hyphen and a number (e.g., Test-1, Test-2, Test-3).
+
+<br /><br />
+</li><li>Enter the number of users or groups needed.
+
+<br /><br />
+</li><li>Click <strong><code>Update</code></strong> to generate your groups.
+</li></ol>
+
+<p><a href="#top">Back to top</a></p>
+
+<a name="csv"> </a><h4>Creating groups from a spreadsheet</h4>
+
+<p>You can import groups from a file in comma-separated variable
+(<code>.csv</code>) format.  If you use Microsoft Excel, you can save a
+file as a <code>.csv</code> file rather than a standard Excel file.
+Your file should meet the following requirements:</p>
+
+<ul><li>The first column should contain group titles, and the second column
+should contain usernames.
+</li><li>Do not include a row of column headers.
+</li><li>If you are editing the file in a text editor (rather than Excel), separate
+the fields only with commas, with no spaces.
+</li><li>If an entry contains a space, surround it with double quotation marks.
+</li></ul>
+
+<p>To import groups from your <code>.csv</code> file:</p>
+
+<ol><li>Navigate to the group management interface for your site (see <a href="#2">Managing groups</a> above).
+
+<br /><br />
+</li><li>Click <strong><code>Import from file</code></strong>.
+
+<br /><br />
+</li><li>Click <strong><code>Browse</code></strong> to find the appropriate file on your
+computer, and then click <strong><code>Open</code></strong>.
+
+<br /><br />
+</li><li>Click <strong><code>Continue</code></strong>.
+
+<br /><br />
+</li><li>On the <code>Verify the imported data</code> page, review the
+groups and group members in your upload. If the content is correct, click
+<strong><code>Import groups</code></strong>.
+</li></ol>
+
+<p><a href="#top">Back to top</a></p>
+
 <a name="4"> </a>
 
-<h3>Editing a group</h3>
+<h3>Editing groups</h3>
 
 <p>To edit a group:</p>
 
@@ -165,7 +260,7 @@ based on existing group (i.e., duplicate an existing group).</p>
 </li><li>Next to the group title, click <strong><code>Edit</code></strong>.
 
 <br /><br />
-</li><li>You may revise the "Title" and "Description" fields.  You may also
+</li><li>You may revise the "Group Title" and "Description" fields.  You may also
 add or remove group members as described above.
 
 <br /><br />
@@ -176,7 +271,7 @@ add or remove group members as described above.
 
 <a name="5"> </a>
 
-<h3>Deleting a group</h3>
+<h3>Deleting groups</h3>
 
 <p>To delete a group:</p>
 
