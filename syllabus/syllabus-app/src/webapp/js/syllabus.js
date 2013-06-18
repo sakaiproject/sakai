@@ -2,7 +2,7 @@ var dragStartIndex;
 var editing = false;
 var editorIndex = 1;
 
-function setupAccordion(iframId, isInstructor, msgs){
+function setupAccordion(iframId, isInstructor, msgs, openDataId){
 	var activeVar = false;
 	if($( "#accordion .group" ).children("h3").size() <= 1){
 		//since there is only 1 option, might was well keep it open instead of collapsed
@@ -51,6 +51,11 @@ function setupAccordion(iframId, isInstructor, msgs){
 		}
 		});
 	}
+	if(openDataId && openDataId != ''){
+		//instructor is working on this data item, keep it open and focused on when refreshing
+		$( "#accordion div[syllabusItem=" + openDataId + "].group .ui-accordion-header").click().focus();
+		
+	}
 	
 	$( "#accordion div.group:first-child h3:first-child").focus();
 }
@@ -58,6 +63,11 @@ function setupAccordion(iframId, isInstructor, msgs){
 // if the containing frame is small, then offsetHeight is pretty good for all but ie/xp.
 // ie/xp reports clientHeight == offsetHeight, but has a good scrollHeight
 function mySetMainFrameHeight(id)
+{
+	mySetMainFrameHeight(id, null);
+}
+
+function mySetMainFrameHeight(id, minHeight)
 {
 	// run the script only if this window's name matches the id parameter
 	// this tells us that the iframe in parent by the name of 'id' is the one who spawned us
@@ -104,7 +114,9 @@ function mySetMainFrameHeight(id)
 		newHeight = 32760;
 
 		// no need to be smaller than...
-		//if (height < 200) height = 200;
+		if(minHeight && minHeight > newHeight){
+			newHeight = minHeight;
+		}
 		objToResize.height=newHeight + "px";
 	
 		var s = " scrollH: " + scrollH + " offsetH: " + offsetH + " clientH: " + clientH + " innerDocScrollH: " + innerDocScrollH + " Read height: " + height + " Set height to: " + newHeight;
@@ -230,7 +242,7 @@ function setupEditable(msgs, iframId){
 					sakai.editor.launch("textAreaWysiwyg" + editorIndex, {}, width, 300);
 					editorIndex++;
 					$(".editable-buttons").css({"display":"block", "margin-left":"0px","margin-top":"7px"});
-					mySetMainFrameHeight(iframId);
+					mySetMainFrameHeight(iframId, 600);
 			}, 1000);
 	});
 }

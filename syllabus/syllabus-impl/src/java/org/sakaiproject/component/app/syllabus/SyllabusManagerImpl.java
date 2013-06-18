@@ -936,7 +936,7 @@ public class SyllabusManagerImpl extends HibernateDaoSupport implements Syllabus
 				CalendarEventEdit event = calendar.getEditEvent(calendarEventId, CalendarService.EVENT_ADD_CALENDAR);
 				if(event != null){
 					for(Reference ref : event.getAttachments()){
-						if(ref.getReference().equals(attachment.getAttachmentId())){
+						if(ref.getId().equals(attachment.getAttachmentId())){
 							event.removeAttachment(ref);
 							break;
 						}

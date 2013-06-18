@@ -457,7 +457,18 @@ public class SyllabusEntityProvider extends AbstractEntityProvider implements En
 					//delete attachment
 					String attachmentIdStr = (String) params.get("attachmentId");
 					if(!"".equals(attachmentIdStr.trim())){
-						syllabusManager.removeSyllabusAttachSyllabusData(data, syllabusManager.getSyllabusAttachment(attachmentIdStr));
+						SyllabusAttachment attachment = syllabusManager.getSyllabusAttachment(attachmentIdStr);
+						syllabusManager.removeSyllabusAttachSyllabusData(data, attachment);
+						//update calendar attachments
+						if(data.getCalendarEventIdStartDate() != null
+								&& !"".equals(data.getCalendarEventIdStartDate())){
+							syllabusManager.removeCalendarAttachments(item.getContextId(), data.getCalendarEventIdStartDate(), attachment);
+						}
+						if(data.getCalendarEventIdEndDate() != null
+								&& !"".equals(data.getCalendarEventIdEndDate())){
+							syllabusManager.removeCalendarAttachments(item.getContextId(), data.getCalendarEventIdEndDate(), attachment);
+						}
+						
 						if(attachmentIdStr.toLowerCase().startsWith("/attachment")){
 							try{
 								contentHostingService.removeResource(attachmentIdStr);

@@ -58,7 +58,8 @@
 					startBeforeEndDate: "<h:outputText value="#{msgs.startBeforeEndDate}"/>",
 					calendarDatesNeeded: "<h:outputText value="#{msgs.calendarDatesNeeded}"/>"
 				};
-		setupAccordion('<%= org.sakaiproject.util.Web.escapeJavascript(thisId)%>',<h:outputText value="#{SyllabusTool.editAble == 'true' ? true : false}"/>, msgs);
+		setupAccordion('<%= org.sakaiproject.util.Web.escapeJavascript(thisId)%>',<h:outputText value="#{SyllabusTool.editAble == 'true' ? true : false}"/>, msgs, 
+							'<h:outputText value="#{SyllabusTool.openDataId}"/>');
 		if(<h:outputText value="#{SyllabusTool.editAble == 'true'}"/>){
 			setupEditable(msgs, '<%= org.sakaiproject.util.Web.escapeJavascript(thisId)%>');
 			//draft/publish toggle:

@@ -556,7 +556,6 @@ public class SyllabusTool
     //session to see if the file picker selected any
     attachments = new ArrayList();
     attachments = getAttachments();
-    openDataId = "";
     if(attachments.size() > 0){
     	//user selected attachments, let's find which item it is for and add 
     	ToolSession session = SessionManager.getCurrentToolSession();
@@ -567,13 +566,24 @@ public class SyllabusTool
     			//find data entry:
     			for(DecoratedSyllabusEntry entry : (List<DecoratedSyllabusEntry>) entries){
     				if(entry.getEntry().getSyllabusId().equals(dataId)){
+    					boolean added = false;
     					for(int i=0; i<attachments.size(); i++)
     					{
     						syllabusManager.addSyllabusAttachToSyllabusData(entry.getEntry(), (SyllabusAttachment)attachments.get(i));
-    						//entry.getEntry().getAttachments().add(attachments.get(i));
+    						added = true;
     					}
-    					//set openDataId to let the UI know to open it by default
-    					openDataId = dataIdStr;
+    					//update the calendar data for this item since the attachments have chnaged:
+    					if(added){
+    						 //update calendar attachments
+    				          if(entry.getEntry().getCalendarEventIdStartDate() != null
+    				        		  && !"".equals(entry.getEntry().getCalendarEventIdStartDate())){
+    				        	  syllabusManager.addCalendarAttachments(siteId, entry.getEntry().getCalendarEventIdStartDate(), attachments);
+    				          }
+    				          if(entry.getEntry().getCalendarEventIdEndDate() != null
+    				        		  && !"".equals(entry.getEntry().getCalendarEventIdEndDate())){
+    				        	  syllabusManager.addCalendarAttachments(siteId, entry.getEntry().getCalendarEventIdEndDate(), attachments);
+    				          }
+    					}
     					break;
     				}
     			}
@@ -3107,7 +3117,12 @@ public void setBulkEntry(BulkSyllabusEntry bulkEntry) {
 }
 
 public String getOpenDataId() {
-	return openDataId;
+	ToolSession session = SessionManager.getCurrentToolSession();
+	if(session.getAttribute(SESSION_ATTACHMENT_DATA_ID) != null){
+		return (String) session.getAttribute(SESSION_ATTACHMENT_DATA_ID);
+	}else{
+		return "";
+	}
 }
 
 public void setOpenDataId(String openDataId) {
