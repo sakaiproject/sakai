@@ -169,7 +169,7 @@
 	                        #end
 		                </td>
 	                 #end
-                <tr>
+                </tr>
 			#end
 			</tbody>
 		</table>
