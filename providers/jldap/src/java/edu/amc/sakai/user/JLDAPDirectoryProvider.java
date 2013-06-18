@@ -631,20 +631,20 @@ public class JLDAPDirectoryProvider implements UserDirectoryProvider, LdapConnec
 				userEdit = (UserEdit) userEdits.next();
 				String eid = userEdit.getEid();
 				
-				// Do nothing with this eid if it is in the blacklist
 				if ( !(isSearchableEid(eid)) ) {
 					userEdits.remove();
-					continue;
-				}
-				
-				// Check the cache before sending the request to LDAP
-				LdapUserData cachedUserData = getCachedUserEntry(eid);
-				if ( cachedUserData == null ) {
-					usersToSearchInLDAP.put(eid, userEdit);
-					cnt++;
+					//proceed ahead with this (perhaps the final) iteration
+					//usersToSearchInLDAP needs to be processed unless empty
 				} else {
-			 		// populate userEdit with cached ldap data:
-					mapUserDataOntoUserEdit(cachedUserData, userEdit);
+					// Check the cache before sending the request to LDAP
+					LdapUserData cachedUserData = getCachedUserEntry(eid);
+					if ( cachedUserData == null ) {
+						usersToSearchInLDAP.put(eid, userEdit);
+						cnt++;
+					} else {
+						// populate userEdit with cached ldap data:
+						mapUserDataOntoUserEdit(cachedUserData, userEdit);
+					}
 				}
 				
 				// We need to make sure this query isn't larger than maxQuerySize
