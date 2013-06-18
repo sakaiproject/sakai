@@ -559,6 +559,9 @@ var setupCategTools = function(){
     
     // SAK-16600
     function iconizedId(myId) {
+        if (myId.length > 36){
+            myId = myId.substring(36)            
+        }
     	var iconId = myId.replace(/\./g, '-') ;
     	return iconId;
     }
