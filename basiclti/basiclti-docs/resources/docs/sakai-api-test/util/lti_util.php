@@ -831,7 +831,7 @@ function post_curl($url, $body, $header) {
   curl_setopt($ch, CURLOPT_URL, $url);
 
   // Make sure that the header is an array
-  $header = explode("\n", trim($header) );
+  $header = explode("\n", trim($header));
   curl_setopt ($ch, CURLOPT_HTTPHEADER, $header);
 
   curl_setopt($ch, CURLOPT_POST, 1);
