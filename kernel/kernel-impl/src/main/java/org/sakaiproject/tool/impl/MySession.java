@@ -456,6 +456,7 @@ public class MySession implements Session, HttpSession, Serializable
 	public void setMaxInactiveInterval(int interval)
 	{
 		m_inactiveInterval = interval;
+		resetExpirationTimeSuggestion(); // added for KNL-1088
 	}
 
 	/**
