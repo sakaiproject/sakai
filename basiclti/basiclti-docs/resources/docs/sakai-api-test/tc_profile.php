@@ -76,7 +76,7 @@ echo <<< EOF
       "@id": "ltitcp:ToolProxy.collection",
       "endpoint": "$cur_url/tc_register.php",
       "format": "application/vnd.ims.lti.v2.ToolProxy+json",
-      "action": "POST"
+      "action": [ "POST" ]
     },
     {
       "@type" : "RestService",
@@ -93,7 +93,7 @@ echo <<< EOF
       "@id": "ltitcp:iLTI1_1.outcomes",
       "endpoint": "$cur_url/common/tool_consumer_outcome.php",
       "format": "application/xml",
-      "action": "POST"
+      "action": [ "POST" ]
     }
   ]
 }
