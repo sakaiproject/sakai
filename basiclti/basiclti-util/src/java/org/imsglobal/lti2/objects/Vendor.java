@@ -10,7 +10,7 @@ public class Vendor {
 
     private String code;
     private Name name;
-    private Description_ description;
+    private Description description;
     private String website;
     private String timestamp;
     private Contact contact;
@@ -32,11 +32,11 @@ public class Vendor {
         this.name = name;
     }
 
-    public Description_ getDescription() {
+    public Description getDescription() {
         return description;
     }
 
-    public void setDescription(Description_ description) {
+    public void setDescription(Description description) {
         this.description = description;
     }
 
