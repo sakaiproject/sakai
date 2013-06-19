@@ -266,11 +266,17 @@ public abstract class BasicMemoryService implements MemoryService, Observer
 			final long misses = cache.getStatistics().getCacheMisses();
 			final long total = hits + misses;
 			final long hitRatio = ((total > 0) ? ((100l * hits) / total) : 0);
+			// Even when we're not collecting statistics ehcache knows how
+			// many objects are in the cache
 			buf.append(cache.getName() + ": " + 
-					" count:" + cache.getStatistics().getObjectCount() +
-					" hits:" + hits +
+					" count:" + cache.getStatistics().getObjectCount());
+			if (cache.isStatisticsEnabled()) {
+				buf.append(" hits:" + hits +
 					" misses:" + misses + 
 					" hit%:" + hitRatio);
+			} else {
+				buf.append(" NO statistics (not enabled for cache)");
+			}
 			buf.append("\n");
 		}
 

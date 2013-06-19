@@ -30,6 +30,7 @@
                             Optional attribute. A value of 0 means that and Element can live for infinity
         overflowToDisk    - Sets whether elements can overflow to disk when the in-memory cache
                             has reached the maxInMemory limit.
+        statistics        - Sets whether ehcache should collect statistics on the cache.
 
         -->
     <defaultCache
@@ -38,6 +39,7 @@
         timeToIdleSeconds="300"
         timeToLiveSeconds="300"
         overflowToDisk="false"
+        statistics="true"
         />
 
     <!--Predefined caches.  Add your cache configuration settings here.
@@ -60,6 +62,7 @@
                             Optional attribute. A value of 0 means that an Element can live for infinity
         overflowToDisk    - Sets whether elements can overflow to disk when the in-memory cache
                             has reached the maxInMemory limit.
+        statistics        - Sets whether ehcache should collect statistics on the cache.
 
         -->
 
@@ -71,7 +74,9 @@
       eternal="false"
       timeToIdleSeconds="300"
       timeToLiveSeconds="300"
-      overflowToDisk="false" />
+      overflowToDisk="false"
+      statistics="true"
+      />
 
     <cache 
       name="org.hibernate.cache.StandardQueryCache"
@@ -79,7 +84,9 @@
       eternal="false"
       timeToIdleSeconds="300"
       timeToLiveSeconds="300"
-      overflowToDisk="false" />
+      overflowToDisk="false"
+      statistics="true"
+      />
 
 
     <cache 
@@ -88,6 +95,8 @@
       eternal="false"
       timeToIdleSeconds="7200"
       timeToLiveSeconds="7200"
-      overflowToDisk="false" />
+      overflowToDisk="false"
+      statistics="true"
+      />
 
 </ehcache>
