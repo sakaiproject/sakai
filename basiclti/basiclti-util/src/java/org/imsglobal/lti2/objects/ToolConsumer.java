@@ -44,6 +44,12 @@ public class ToolConsumer {
     private List<Service_offered> service_offered = new ArrayList<Service_offered>();
     private Map<String, Object> additionalProperties = new HashMap<String, Object>();
 
+    public static String[] STANDARD_CAPABILITIES = {
+        "Person.name.given" , "Person.name.family" , "Person.email.primary" ,
+        "User.image" , "Result.sourcedId" , "basic-lti-launch-request" , 
+        "Result.autocreate",
+        "Result.sourcedGUID" } ;
+
     // Constructor
     public ToolConsumer(String guid, Product_instance product_instance) {
         this._context.add("http://www.imsglobal.org/imspurl/lti/v2/ctx/ToolConsumerProfile");

@@ -1,5 +1,7 @@
 package org.imsglobal.lti2.objects;
 
+import java.util.List;
+import java.util.Collections;
 import static org.junit.Assert.*;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
@@ -29,7 +31,13 @@ public class ToolConsumerTest {
             "http://www.sakaiproject.org", "support@sakaiproject.org");
         Product_info info = new Product_info("CTools", "2.9.2", "The Sakai installation for UMich", fam);
         Product_instance instance = new Product_instance("ctools-001", info, "support@ctools.umich.edu");
-        ToolConsumer x = new ToolConsumer("00292902192", instance);
+
+        ToolConsumer consumer = new ToolConsumer("00292902192", instance);
+        List<Service_offered> services = consumer.getService_offered();
+        services.add(StandardServices.LTI2Registration("about:blank"));
+        services.add(StandardServices.LTI1Outcomes("about:blank"));
+        List<String> capabilities = consumer.getCapability_enabled();
+        Collections.addAll(capabilities,ToolConsumer.STANDARD_CAPABILITIES);
 
         ObjectMapper mapper = new ObjectMapper();
         try {
@@ -37,8 +45,8 @@ public class ToolConsumerTest {
             ObjectWriter writer = mapper.defaultPrettyPrintingWriter();
             // ***IMPORTANT!!!*** for Jackson 2.x use the line below instead of the one above: 
             // ObjectWriter writer = mapper.writer().withDefaultPrettyPrinter();
-            System.out.println(writer.writeValueAsString(x));
-            // System.out.println(mapper.writeValueAsString(x));
+            System.out.println(writer.writeValueAsString(consumer));
+            // System.out.println(mapper.writeValueAsString(consumer));
         }
         catch (Exception e) {
             e.printStackTrace();

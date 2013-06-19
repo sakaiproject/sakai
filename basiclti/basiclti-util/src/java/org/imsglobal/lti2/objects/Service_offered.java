@@ -3,6 +3,9 @@ package org.imsglobal.lti2.objects;
 
 import java.util.HashMap;
 import java.util.Map;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Collections;
 import javax.annotation.Generated;
 import org.codehaus.jackson.annotate.JsonAnyGetter;
 import org.codehaus.jackson.annotate.JsonAnySetter;
@@ -30,9 +33,25 @@ public class Service_offered {
     @JsonProperty("format")
     private String format;
     @JsonProperty("action")
-    private String action;
+    private List<String> action = new ArrayList<String>();
     private Map<String, Object> additionalProperties = new HashMap<String, Object>();
 
+    public Service_offered(String endpoint, String id, String type, String format, String action) {
+        this.endpoint = endpoint;
+        this._id = id;
+        this._type = type;
+        this.format = format;
+        this.action.add(action);
+    }
+
+    public Service_offered(String endpoint, String id, String type, String format, String[] action) {
+        this.endpoint = endpoint;
+        this._id = id;
+        this._type = type;
+        this.format = format;
+        Collections.addAll(this.action, action);
+    }
+    
     @JsonProperty("@type")
     public String get_type() {
         return _type;
@@ -74,12 +93,12 @@ public class Service_offered {
     }
 
     @JsonProperty("action")
-    public String getAction() {
+    public List<String> getAction() {
         return action;
     }
 
     @JsonProperty("action")
-    public void setAction(String action) {
+    public void setAction(List<String> action) {
         this.action = action;
     }
 
