@@ -261,7 +261,7 @@ public class AssessmentEntityProducer implements EntityTransferrer,
 				
 				String assessmentDesc = assessmentFacade.getDescription();
 				if(assessmentDesc != null){
-					assessmentDesc = replaceAllRefs(assessmentDesc, entrySet);
+					assessmentDesc = org.sakaiproject.util.cover.LinkMigrationHelper.migrateAllLinks(entrySet, assessmentDesc);
 					if(!assessmentDesc.equals(assessmentFacade.getDescription())){
 						//need to save since a ref has been updated:
 						needToUpdate = true;
@@ -274,7 +274,7 @@ public class AssessmentEntityProducer implements EntityTransferrer,
 					SectionFacade section = (SectionFacade) sectionList.get(i);
 					String sectionDesc = section.getDescription();
 					if(sectionDesc != null){
-						sectionDesc = replaceAllRefs(sectionDesc, entrySet);
+						sectionDesc = org.sakaiproject.util.cover.LinkMigrationHelper.migrateAllLinks(entrySet, sectionDesc);
 						if(!sectionDesc.equals(section.getDescription())){
 							//need to save since a ref has been updated:
 							needToUpdate = true;
@@ -289,7 +289,7 @@ public class AssessmentEntityProducer implements EntityTransferrer,
 						
 						String itemIntr = item.getInstruction();
 						if(itemIntr != null){
-							itemIntr = replaceAllRefs(itemIntr, entrySet);
+							itemIntr = org.sakaiproject.util.cover.LinkMigrationHelper.migrateAllLinks(entrySet, itemIntr);
 							if(!itemIntr.equals(item.getInstruction())){
 								//need to save since a ref has been updated:
 								needToUpdate = true;
@@ -299,7 +299,7 @@ public class AssessmentEntityProducer implements EntityTransferrer,
 						
 						String itemDesc = item.getDescription();
 						if(itemDesc != null){
-							itemDesc = replaceAllRefs(itemDesc, entrySet);
+							itemDesc = org.sakaiproject.util.cover.LinkMigrationHelper.migrateAllLinks(entrySet, itemDesc);
 							if(!itemDesc.equals(item.getDescription())){
 								//need to save since a ref has been updated:
 								needToUpdate = true;
@@ -392,19 +392,4 @@ public class AssessmentEntityProducer implements EntityTransferrer,
 			}
 		}
 	}
-	
-	private String replaceAllRefs(String msgBody, Set<Entry<String, String>> entrySet){
-		if(msgBody != null){
-			Iterator<Entry<String, String>> entryItr = entrySet.iterator();
-			while(entryItr.hasNext()) {
-				Entry<String, String> entry = (Entry<String, String>) entryItr.next();
-				String fromContextRef = entry.getKey();
-				if(msgBody.contains(fromContextRef)){					
-					msgBody = msgBody.replace(fromContextRef, entry.getValue());
-				}								
-			}
-		}	
-		return msgBody;		
-	}
-	
 }
