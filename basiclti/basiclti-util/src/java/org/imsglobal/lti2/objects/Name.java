@@ -24,6 +24,11 @@ public class Name {
     private String key;
     private Map<String, Object> additionalProperties = new HashMap<String, Object>();
 
+    public Name(String name) {
+        this.default_value = name;
+        this.key = "product.vendor.name";
+    }
+
     @JsonProperty("default_value")
     public String getDefault_value() {
         return default_value;

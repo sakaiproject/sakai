@@ -21,6 +21,10 @@ public class Support {
     private String email;
     private Map<String, Object> additionalProperties = new HashMap<String, Object>();
 
+    public Support(String email) {
+        this.email = email;
+    }
+
     @JsonProperty("email")
     public String getEmail() {
         return email;

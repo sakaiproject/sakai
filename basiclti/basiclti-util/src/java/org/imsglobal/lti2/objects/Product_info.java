@@ -33,6 +33,14 @@ public class Product_info {
     private Product_family product_family;
     private Map<String, Object> additionalProperties = new HashMap<String, Object>();
 
+    Product_info(String instance_name, String instance_version, String instance_description, 
+        Product_family product_family) {
+        this.product_name = new Product_name(instance_name);
+        this.product_version = instance_version;
+        this.description = new Description(instance_description);
+        this.product_family = product_family;
+    }
+
     @JsonProperty("product_name")
     public Product_name getProduct_name() {
         return product_name;

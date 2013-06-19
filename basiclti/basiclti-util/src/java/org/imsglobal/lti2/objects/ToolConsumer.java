@@ -44,6 +44,14 @@ public class ToolConsumer {
     private List<Service_offered> service_offered = new ArrayList<Service_offered>();
     private Map<String, Object> additionalProperties = new HashMap<String, Object>();
 
+    // Constructor
+    public ToolConsumer(String guid, Product_instance product_instance) {
+        this._context.add("http://www.imsglobal.org/imspurl/lti/v2/ctx/ToolConsumerProfile");
+        this._type = "ToolConsumerProfile";
+        this.lti_version = "LTI-2p0";
+        this.product_instance = product_instance;
+    }
+
     @JsonProperty("@context")
     public List<String> get_context() {
         return _context;

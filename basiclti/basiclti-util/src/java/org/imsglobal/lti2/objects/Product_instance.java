@@ -27,6 +27,12 @@ public class Product_instance {
     private Support support;
     private Map<String, Object> additionalProperties = new HashMap<String, Object>();
 
+    public Product_instance(String guid, Product_info info, String support_email) {
+        this.guid = guid;
+        this.product_info = info;
+        this.support = new Support(support_email);
+    }
+
     @JsonProperty("guid")
     public String getGuid() {
         return guid;

@@ -24,6 +24,12 @@ public class Product_family {
     private Vendor vendor;
     private Map<String, Object> additionalProperties = new HashMap<String, Object>();
 
+    public Product_family(String product_code, String vendor_code, String vendor_name, 
+        String vendor_description, String vendor_website, String vendor_contact) {
+        this.code = product_code;
+        this.vendor = new Vendor(vendor_code, vendor_name, vendor_description, vendor_website, vendor_contact);
+    }
+
     @JsonProperty("code")
     public String getCode() {
         return code;

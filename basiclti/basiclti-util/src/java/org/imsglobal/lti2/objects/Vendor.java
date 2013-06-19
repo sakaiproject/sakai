@@ -36,6 +36,13 @@ public class Vendor {
     private Contact contact;
     private Map<String, Object> additionalProperties = new HashMap<String, Object>();
 
+    public Vendor(String code, String name, String description, String website, String contact) {
+        this.code = code;
+        this.name = new Name(name);
+        this.description = new Description(description);
+        this.website = website;
+        this.contact = new Contact(contact);
+    }
     @JsonProperty("code")
     public String getCode() {
         return code;

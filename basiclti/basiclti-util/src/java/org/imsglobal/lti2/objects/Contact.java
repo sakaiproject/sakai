@@ -21,6 +21,10 @@ public class Contact {
     private String email;
     private Map<String, Object> additionalProperties = new HashMap<String, Object>();
 
+    public Contact(String email) {
+        this.email = email;
+    }
+
     @JsonProperty("email")
     public String getEmail() {
         return email;
