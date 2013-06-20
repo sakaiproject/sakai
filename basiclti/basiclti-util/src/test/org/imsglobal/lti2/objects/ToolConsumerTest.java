@@ -29,7 +29,9 @@ public class ToolConsumerTest {
         Product_family fam = new Product_family("SakaiCLE", "CLE", "Sakai Project",
             "Amazing open source Collaboration and Learning Environment.", 
             "http://www.sakaiproject.org", "support@sakaiproject.org");
-        Product_info info = new Product_info("CTools", "2.9.2", "The Sakai installation for UMich", fam);
+
+        Product_info info = new Product_info("CTools", "4.0", "The Sakai installation for UMich", fam);
+
         Product_instance instance = new Product_instance("ctools-001", info, "support@ctools.umich.edu");
 
         ToolConsumer consumer = new ToolConsumer("00292902192", instance);
