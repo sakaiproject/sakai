@@ -62,7 +62,6 @@ public abstract class SessionComponent implements SessionManager, SessionStore
 {
 	/** Our log (commons). */
 	private static Log M_log = LogFactory.getLog(SessionComponent.class);
-    public static final int MAX_SESSION_LENGTH = 36;
 
 	/** The sessions - keyed by session id. */
 	protected Map<String, Session> m_sessions = new ConcurrentHashMap<String, Session>();
@@ -268,8 +267,6 @@ public abstract class SessionComponent implements SessionManager, SessionStore
 			M_log.warn("makeSessionId fallback to Uuid!",e);
 		}
 		
-        //Trim the sessionId to MAX_SESSION_LENGTH characters
-        sessionId = sessionId.substring(0, Math.min(MAX_SESSION_LENGTH, sessionId.length()));
 		return sessionId;
 	}
 	
