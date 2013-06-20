@@ -26,7 +26,6 @@ import java.util.List;
 
 import org.sakaiproject.authz.api.SecurityAdvisor;
 import org.sakaiproject.authz.api.SecurityService;
-import org.sakaiproject.tool.api.Session;
 import org.sakaiproject.user.api.User;
 
 /**
@@ -161,9 +160,6 @@ public class MockSecurityService implements SecurityService
 		return null;
 	}
 
-	public Session clearUserEffectiveRolesBySession(String sessionId) {
-	    // TODO Auto-generated method stub
-	    return null;
-	}
+
 
 }
