@@ -28,7 +28,6 @@ import java.util.List;
 import java.util.Stack;
 import java.util.Vector;
 
-import org.apache.commons.lang.StringUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.sakaiproject.authz.api.AuthzGroupService;
@@ -522,52 +521,24 @@ public abstract class SakaiSecurity implements SecurityService
 	/**
 	 * {@inheritDoc}
 	 */
+	
 	public void clearUserEffectiveRoles() {
 		
 		// get all the roleswaps from the session and clear them
 		
 		Session session = sessionManager().getCurrentSession();
-		try {
-		    clearUserEffectiveRolesBySession(session);
-		} catch (Exception e) {
-		    M_log.warn("Could not clear clear roles for session which could not be found on this server: "+session);
+		
+		for (Enumeration<String> e = session.getAttributeNames(); e.hasMoreElements();)
+		{
+			String name = e.nextElement();
+			if (name.startsWith(ROLESWAP_PREFIX)) {
+				clearUserEffectiveRole(name.substring(ROLESWAP_PREFIX.length()));
+			}
 		}
+		
+		return;
 	}
-
-	/**
-	 * {@inheritDoc}
-	 */
-	public Session clearUserEffectiveRolesBySession(String sessionId) {
-	    // added for KNL-1035
-	    Session session;
-	    if (StringUtils.isEmpty(sessionId)) {
-	        session = sessionManager().getCurrentSession();
-	    } else {
-	        session = sessionManager().getSession(sessionId);
-	    }
-	    if (session == null) {
-	        throw new IllegalArgumentException("clearUserEffectiveRolesBySession Could not find session by id ("+sessionId+") or find current session");
-	    }
-	    clearUserEffectiveRolesBySession(session);
-	    return session;
-	}
-
-	/**
-	 * KNL-1035 clear out the effective roles for a single session (part of logout for a session)
-	 * @param session
-	 */
-	private void clearUserEffectiveRolesBySession(Session session) {
-	    if (session == null) {
-	        throw new IllegalArgumentException("clearUserEffectiveRolesBySession session is null and cannot be");
-	    }
-	    for (Enumeration<String> e = session.getAttributeNames(); e.hasMoreElements();) {
-	        String name = e.nextElement();
-	        if (StringUtils.startsWith(name, ROLESWAP_PREFIX)) {
-	            clearUserEffectiveRole(name.substring(ROLESWAP_PREFIX.length()));
-	        }
-	    }
-	}
-
+	
 	/**
 	 * Clear the results of security lookups involving the given authz group from the security lookup cache.
 	 * 
@@ -586,5 +557,4 @@ public abstract class SakaiSecurity implements SecurityService
 		
 		return;
 	}
-
 }

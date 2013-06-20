@@ -24,7 +24,6 @@ package org.sakaiproject.authz.api;
 import java.util.Collection;
 import java.util.List;
 
-import org.sakaiproject.tool.api.Session;
 import org.sakaiproject.user.api.User;
 
 /**
@@ -187,12 +186,5 @@ public interface SecurityService
 	 * Clear all effective roles for this user. Should be called on logout.
 	 */
 	void clearUserEffectiveRoles();
-
-	/**
-	 * Clear all effective roles with the session.
-	 * @param sessionId the session identifier
-	 * @throws IllegalArgumentException if the session cannot be found (on this server)
-	 */
-	Session clearUserEffectiveRolesBySession(String sessionId);
-
+	
 }

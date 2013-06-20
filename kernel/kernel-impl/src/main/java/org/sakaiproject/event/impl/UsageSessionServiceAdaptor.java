@@ -28,8 +28,7 @@ import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
 import java.sql.ResultSet;
 import java.sql.SQLException;
-import java.util.Collections;
-import java.util.Comparator;
+import java.util.ArrayList;
 import java.util.Enumeration;
 import java.util.Formatter;
 import java.util.Iterator;
@@ -40,7 +39,6 @@ import java.util.Vector;
 
 import javax.servlet.http.HttpServletRequest;
 
-import org.apache.commons.lang.StringUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.sakaiproject.authz.api.AuthzGroupService;
@@ -57,7 +55,6 @@ import org.sakaiproject.id.api.IdManager;
 import org.sakaiproject.memory.api.Cache;
 import org.sakaiproject.memory.api.MemoryService;
 import org.sakaiproject.thread_local.api.ThreadLocalManager;
-import org.sakaiproject.time.api.Time;
 import org.sakaiproject.time.api.TimeService;
 import org.sakaiproject.tool.api.Session;
 import org.sakaiproject.tool.api.SessionManager;
@@ -306,7 +303,7 @@ public abstract class UsageSessionServiceAdaptor implements UsageSessionService
 			}
 			
 			// create the usage session and bind it to the session
-			session = new BaseUsageSession(this, s.getId(), serverConfigurationService().getServerIdInstance(), userId,
+			session = new BaseUsageSession(this, idManager().createUuid(), serverConfigurationService().getServerIdInstance(), userId,
 					remoteAddress, hostName, userAgent);
 
 			// store
@@ -428,13 +425,6 @@ public abstract class UsageSessionServiceAdaptor implements UsageSessionService
 
 		return rv;
 	}
-	
-	/**
-	 * @inheritDoc
-	 */
-	public List<UsageSession> getSessionsByUserId(String userId) {
-		return m_storage.getSessionsByUserId(userId); // KNL-1035
-	}
 
 	/**
 	 * @inheritDoc
@@ -555,86 +545,26 @@ public abstract class UsageSessionServiceAdaptor implements UsageSessionService
 			}
 		}
 
-		// KNL-1035 - kick user's legacy session if the user login too much
-		logoutOldestSessionsPastTheMaxForUser(uid);
-
 		// post the login event
 		eventTrackingService().post(eventTrackingService().newEvent(event != null ? event : EVENT_LOGIN, null, true));
 
 		return true;
 	}
 
+	
 	/**
-	 * If the user logs in too much in a short time, it's not a normal situation. 
-	 * Kick the oldest session of the user refer to the 'max.sessions.per.user' property.
-	 * KNL-1035
-	 * @param userId the internal user id
-	 */
-	private void logoutOldestSessionsPastTheMaxForUser(String userId) {
-		int maxSessionsPerUser = serverConfigurationService().getInt("session.max.per.user", 0);
-		if (maxSessionsPerUser > 0) {
-			if (M_log.isDebugEnabled()) M_log.debug("Running logoutOldestSessionsPastTheMaxForUser using maxSessionsPerUser: "+maxSessionsPerUser);
-			List<UsageSession> currentUserSessions = getSessionsByUserId(userId);
-			if (currentUserSessions.size() > maxSessionsPerUser) {
-				Collections.sort(currentUserSessions, new Comparator<UsageSession>() {
-					@Override
-					public int compare(UsageSession uSession1, UsageSession uSession2) {
-						Time time1 = uSession1.getStart();
-						Time time2 = uSession2.getStart();
-						if (time1.before(time2)) {
-							return -1;
-						}
-						if (time1.after(time2)) {
-							return 1;
-						}
-						return 0;
-					}
-				});
-				int sessionsToLogout = currentUserSessions.size() - maxSessionsPerUser;
-				if (M_log.isDebugEnabled()) M_log.debug("Logging out "+sessionsToLogout+" sessions for user: "+userId);
-				for (UsageSession usageSession : currentUserSessions) {
-					if (sessionsToLogout <= 0) {
-						break; // exit the loop after max diff sessions have been expired
-					}
-					if (serverConfigurationService().getServerIdInstance() != null 
-					        && serverConfigurationService().getServerIdInstance().equals(usageSession.getServer())) {
-					    // Make sure the session is on this server before we try to log it out
-					    try {
-					        logout(usageSession.getId());
-					        if (M_log.isDebugEnabled()) M_log.debug("Logged out session ("+usageSession.getId()+") number ("+sessionsToLogout+") sessions for user ("+userId+")");
-					        sessionsToLogout--;
-					    } catch (IllegalArgumentException e) {
-					        if (M_log.isDebugEnabled()) M_log.debug("Failed to logout out session ("+usageSession.getId()+") number ("+sessionsToLogout+") sessions for user ("+userId+"): "+e);
-					    }
-					}
-				}
-				M_log.info("Old session cleanup logged out "+sessionsToLogout+" sessions past the max ("+maxSessionsPerUser+") (out of "+currentUserSessions.size()+") for user: "+userId);
-			}
-		}
-	}
-
-	/**
-	 * Logout the session defined by this id
-	 * KNL-1035
-	 * @param sessionId the Sakai session id
-	 * @throws IllegalArgumentException if the sessionId is invalid (on this server)
-	 */
-	private void logout(String sessionId)
-	{
-		userDirectoryService().destroyAuthentication();
-		Session session = securityService.clearUserEffectiveRolesBySession(sessionId);
-		/* invalidate the sakai session, which makes it unavailable, unbinds all the bound objects,
-		 * including the session, which will close and generate the logout event
-		 */
-		session.invalidate();
-	}
-
-	/* (non-Javadoc)
-	 * @see org.sakaiproject.event.api.UsageSessionService#logout()
+	 * @inheritDoc
 	 */
 	public void logout()
 	{
-		logout(null);
+		userDirectoryService().destroyAuthentication();
+
+		securityService.clearUserEffectiveRoles();
+		
+		// invalidate the sakai session, which makes it unavailable, unbinds all the bound objects,
+		// including the session, which will close and generate the logout event
+		Session sakaiSession = sessionManager().getCurrentSession();
+		sakaiSession.invalidate();
 	}
 
 	/**
@@ -697,13 +627,6 @@ public abstract class UsageSessionServiceAdaptor implements UsageSessionService
 		 * @return The List (UsageSession) of session objects for these ids.
 		 */
 		List getSessions(List ids);
-		
-		/**
-		 * Access a List of sessions belonging to the given user (by internal id).
-		 * @param userId the internal id of the user (if blank or null then no sessions are returned)
-		 * @return The List (UsageSession) belong to the given user OR empty if none found
-		 */
-		List<UsageSession> getSessionsByUserId(String userId);
 
 		/**
 		 * Access a List of active usage sessions by *arbitrary criteria* for the session ids.
@@ -982,34 +905,6 @@ public abstract class UsageSessionServiceAdaptor implements UsageSessionService
 			return rv;
 
 		} // getSession
-
-		/* (non-Javadoc)
-		 * @see org.sakaiproject.event.impl.UsageSessionServiceAdaptor.Storage#getSessionsByUserId(java.lang.String)
-		 */
-		@SuppressWarnings("unchecked")
-		public List<UsageSession> getSessionsByUserId(String userId) {
-		    // KNL-1035 - check the db for usage sessions for a given user
-		    List<UsageSession> sessions;
-		    if (StringUtils.isEmpty(userId)) {
-		        M_log.warn("Called getSessionsByUserId without a userId (empty or null), no sessions will be returned");
-		        sessions = Collections.emptyList();
-		    } else {
-
-		        String statement = usageSessionServiceSql.getSakaiSessionSql4();
-		        // send in the internal id of the user as paramaeter
-		        Object[] fields = new Object[]{userId};
-		        sessions = sqlService().dbRead(statement, fields, new SqlReader() {
-		            public Object readSqlResultRecord(ResultSet result) {
-		                try {
-		                    return new BaseUsageSession(UsageSessionServiceAdaptor.this, result);
-		                } catch (SQLException ignore) {
-		                    return null;
-		                }
-		            }
-		        });
-		    }
-		    return sessions;
-		}
 
 		/**
 		 * @inheritDoc

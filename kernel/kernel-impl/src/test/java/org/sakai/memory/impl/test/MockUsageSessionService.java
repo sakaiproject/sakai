@@ -21,7 +21,6 @@
 
 package org.sakai.memory.impl.test;
 
-import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 
@@ -212,9 +211,5 @@ public class MockUsageSessionService implements UsageSessionService
 		// TODO Auto-generated method stub
 		return null;
 	}
-
-    public List<UsageSession> getSessionsByUserId(String userId) {
-        return new ArrayList<UsageSession>(0);
-    }
-
+	
 }
