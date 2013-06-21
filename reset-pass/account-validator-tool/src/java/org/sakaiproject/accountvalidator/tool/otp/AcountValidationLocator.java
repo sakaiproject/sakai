@@ -19,6 +19,7 @@
  */
 package org.sakaiproject.accountvalidator.tool.otp;
 
+import java.util.Arrays;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.Iterator;
@@ -64,6 +65,12 @@ public class AcountValidationLocator implements BeanLocator  {
 	public static final String UNKOWN_PREFIX = "unkown";
 	
 	private Map<String, Object> delivered = new HashMap<String, Object>();
+
+	//For calculating password entropy
+	public static final char[] CHAR_LOWERS = { 'a', 'b', 'c', 'd', 'e', 'f', 'g', 'h', 'i', 'j', 'k', 'l', 'm', 'n', 'o', 'p', 'q', 'r', 's', 't', 'u', 'v', 'w', 'x', 'y', 'z' };
+	public static final char[] CHAR_UPPERS = { 'A', 'B', 'C', 'D', 'E', 'F', 'G', 'H', 'I', 'J', 'K', 'L', 'M', 'N', 'O', 'P', 'Q', 'R', 'S', 'T', 'U', 'V', 'W', 'X', 'Y', 'Z' };
+	public static final char[] CHAR_DIGITS = { '0', '1', '2', '3', '4', '5', '6', '7', '8', '9' };
+	public static final char[] CHAR_SPECIALS = { '!', '$', '*', '+', '-', '.', '=', '?', '@', '^', '_', '|', '~' };
 	
 	private ValidationLogic validationLogic;
 	public void setValidationLogic(ValidationLogic vl) {
@@ -225,6 +232,22 @@ public class AcountValidationLocator implements BeanLocator  {
 						tml.addMessage(new TargettedMessage("validate.passNotMatch", new Object[]{}, TargettedMessage.SEVERITY_ERROR));
 						return "error!";
 					}
+
+					if (serverConfigurationService.getBoolean("account-validator.validate.passwords", false))
+					{
+						//verify that the password strength is sufficient
+
+						String displayId = u.getDisplayId();
+
+						int minimumEntropy = serverConfigurationService.getInt("account-validator.minimum.password.entropy", 16);
+						if (!passwordIsStrong(item.getPassword(), displayId, minimumEntropy))
+						{
+							userDirectoryService.cancelEdit(u);
+							tml.addMessage(new TargettedMessage("validate.tooWeak", new Object[]{}, TargettedMessage.SEVERITY_ERROR));
+							return "error!";
+						}
+					}
+
 					u.setPassword(item.getPassword());
 					
 					// Do they have to accept terms and conditions.
@@ -289,6 +312,84 @@ public class AcountValidationLocator implements BeanLocator  {
 		
 		return "success";
 	}
+
+	/**
+	 * To verify that a password's strength is sufficient.
+	 * Based on verifyPasswordStrength() in
+	 * http://grepcode.com/file/repo1.maven.org/maven2/org.owasp.esapi/esapi/2.0_rc10/org/owasp/esapi/reference/FileBasedAuthenticator.java
+	 * @param password
+	 * 	The password whose strength is being checked
+	 * @param displayId
+	 * 	The user's displayId, which the password will be compared against. Skips this check if null
+	 * @param minimumEntropy
+	 * 	The minimum allowed entropy for the password
+	 * @return true if the entropy calculated by this algorithm is greater than minimumEntropy, false otherwise
+	 */
+	public boolean passwordIsStrong(String password, String displayId, int minimumEntropy)
+	{
+		if (password == null)
+		{
+			return false;
+		}
+
+		if (displayId != null)
+		{
+			int length = displayId.length();
+			for (int i = 0; i < length -2; i++)
+			{
+				String sub = displayId.substring(i, i + 3);
+				if (password.indexOf(sub) > -1)
+				{
+					return false;
+				}
+			}
+		}
+
+		// new password must have enough character sets and length
+		int charsets = 0;
+		for (int i = 0; i < password.length(); i++)
+		{
+			if (Arrays.binarySearch(CHAR_LOWERS, password.charAt(i)) >= 0)
+			{
+				charsets++;
+				break;
+			}
+		}
+		for (int i = 0; i < password.length(); i++)
+		{
+			if (Arrays.binarySearch(CHAR_UPPERS, password.charAt(i)) >= 0)
+			{
+				charsets++;
+				break;
+			}
+		}
+		for (int i = 0; i < password.length(); i++)
+		{
+			if (Arrays.binarySearch(CHAR_DIGITS, password.charAt(i)) >= 0)
+			{
+				charsets++;
+				break;
+			}
+		}
+		for (int i = 0; i < password.length(); i++)
+		{
+			if (Arrays.binarySearch(CHAR_SPECIALS, password.charAt(i)) >= 0)
+			{
+				charsets++;
+				break;
+			}
+		}
+
+		// calculate and verify password strength
+		int strength = password.length() * charsets;
+		if (strength < minimumEntropy)
+		{
+			return false;
+		}
+
+		return true;
+	}
+
 	private boolean validateLogin(String userId, String password) {
 		try {
 			User u = userDirectoryService.authenticate(userDirectoryService.getUserEid(userId), password);
