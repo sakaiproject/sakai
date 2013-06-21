@@ -465,6 +465,12 @@ public interface LTIService {
 		"allowcustom:checkbox:label=bl_allowcustom",
 		"xmlimport:text:hidden=true:maxlength=16384",
 		"splash:textarea:label=bl_splash:rows=5:cols=25:maxlength=4096",
+		// BLTI-230 - LTI 2.0
+		"reg_state:integer:label=bl_reg_state:hidden=false",
+		"reg_launch:url:label=bl_reg_launch:maxlength=1024:hidden=false",
+		"reg_key:text:label=bl_reg_key:hidden=false:maxlength=255",
+		"reg_password:text:label=bl_reg_password:hidden=false:maxlength=255",
+		// End of BLTI-230 - LTI 2.0
 		"created_at:autodate", 
 		"updated_at:autodate" };
 

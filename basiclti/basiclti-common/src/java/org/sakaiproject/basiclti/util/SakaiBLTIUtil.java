@@ -27,6 +27,8 @@ import org.imsglobal.basiclti.BasicLTIUtil;
 import org.imsglobal.basiclti.BasicLTIConstants;
 import org.sakaiproject.linktool.LinkToolUtil;
 
+import org.imsglobal.lti2.LTI2Constants;
+
 import org.sakaiproject.tool.api.Session;
 import org.sakaiproject.tool.cover.SessionManager;
 import org.sakaiproject.user.api.User;
@@ -636,6 +638,50 @@ public class SakaiBLTIUtil {
 		// System.out.println("toolProps="+toolProps);
 
 		return postLaunchHTML(toolProps, ltiProps, rb);
+	}
+
+    // An LTI 2.0 Registration launch
+	// This must return an HTML message as the [0] in the array
+	// If things are successful - the launch URL is in [1]
+	public static String[] postRegisterHTML(Map<String,Object> tool, ResourceLoader rb)
+	{
+		if ( tool == null ) {
+			return postError("<p>" + getRB(rb, "error.tool.missing" ,"Tool item is missing or improperly configured.")+"</p>" ); 
+		}
+
+		int status = getInt(tool.get("reg_state"));
+		if ( status != 1 ) return postError("<p>" + getRB(rb, "error.lti2.badstate" ,"Tool is in the wrong state to register")+"</p>" ); 
+
+		String launch_url = (String) tool.get("reg_launch");
+		if ( launch_url == null ) return postError("<p>" + getRB(rb, "error.lti2.noreg" ,"This tool is has no registration url.")+"</p>" );
+
+		String password = (String) tool.get("reg_password");
+		String key = (String) tool.get("reg_key");
+
+		if ( password == null || key == null ) {
+			return postError("<p>" + getRB(rb, "error.lti2.partial" ,"Tool item is incomplete, missing a key and password.")+"</p>" ); 
+		}
+
+		// Start building up the properties
+		Properties ltiProps = new Properties();
+
+		setProperty(ltiProps, BasicLTIConstants.LTI_VERSION, LTI2Constants.LTI2_VERSION_STRING);
+		setProperty(ltiProps, LTI2Constants.REG_KEY,key);
+		setProperty(ltiProps, LTI2Constants.REG_PASSWORD,password);
+		setProperty(ltiProps, LTI2Constants.TC_PROFILE_URL,"about:blank");
+		setProperty(ltiProps, BasicLTIConstants.LAUNCH_PRESENTATION_RETURN_URL, "about:blank");
+		setProperty(ltiProps, BasicLTIUtil.BASICLTI_SUBMIT, getRB(rb, "launch.button", "Press to Launch External Tool"));
+
+		int debug = getInt(tool.get("debug"));
+		debug = 1;
+
+		System.out.println("ltiProps="+ltiProps);
+
+		boolean dodebug = debug == 1;
+		String postData = BasicLTIUtil.postLaunchHTML(ltiProps, launch_url, dodebug);
+
+		String [] retval = { postData, launch_url };
+		return retval;
 	}
 
 	// This must return an HTML message as the [0] in the array
