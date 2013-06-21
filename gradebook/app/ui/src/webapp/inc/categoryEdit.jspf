@@ -64,9 +64,9 @@
 				</h:column>
 				<h:column>
 					<f:facet name="header">
-						<h:outputText value="#{msgs.cat_extra_credit}" />
+						<h:outputText value="#{msgs.extra_credit}" />
 					</f:facet>
-					<h:outputLabel for="catExtraCredit" value="#{msgs.cat_extra_credit}"  styleClass="skip" />
+					<h:outputLabel for="catExtraCredit" value="#{msgs.extra_credit}"  styleClass="skip" />
 					<h:selectBooleanCheckbox id="catExtraCredit" value="#{category.isExtraCredit}" onchange="javascript:updateRunningTotal(this.form);"/>
 				</h:column>
 				<h:column>

@@ -36,7 +36,7 @@
 					<h:outputText value=""/>
 					<h:panelGrid columns="2" columnClasses="prefixedCheckbox">
 						<h:selectBooleanCheckbox id="extraCredit" value="#{spreadsheetUploadBean.assignment.isExtraCredit}" onkeypress="return submitOnEnter(event, 'gbForm:saveButton');"/>
-						<h:outputLabel for="extraCredit" value="#{msgs.add_assignment_extra_credit}" />
+						<h:outputLabel for="extraCredit" value="#{msgs.extra_credit}" />
 					</h:panelGrid>
            
 					<h:panelGroup>
