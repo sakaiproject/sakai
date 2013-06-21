@@ -118,6 +118,7 @@
 							<input name="pw" type="password" id="pw" />
 							<input name="submit" type="submit" id="submit" value="${loginWording}" />
 						</form>
+						<script type="text/javascript" src="/library/js/caps-lock-checker.js"></script>
 					#end
 					</div>
 					<!-- end login component -->
