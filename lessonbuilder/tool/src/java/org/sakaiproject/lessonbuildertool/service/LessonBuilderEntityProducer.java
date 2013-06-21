@@ -749,27 +749,6 @@ public class LessonBuilderEntityProducer extends AbstractEntityProvider
 		   if (s != null && !s.equals("null"))
 		       item.setAltPoints(Integer.valueOf(s));
 
-		   s = itemElement.getAttribute("gradebookId");
-		   if (s != null && !s.equals("null") && !s.equals("")) {
-			   String title = item.getGradebookTitle();
-			   if(title == null || title.equals("null") || title.equals("")) {
-				   title = s;
-			   }
-			   gradebookIfc.addExternalAssessment(siteId, s, null, title, Double.valueOf(itemElement.getAttribute("gradebookPoints")), null, "Lesson Builder");
-			   item.setGradebookId(s);
-		   }
-		   
-		   s = itemElement.getAttribute("altGradebook");
-		   if (s != null && !s.equals("null") && !s.equals("")) {
-			   String title = item.getAltGradebookTitle();
-			   if(title == null || title.equals("null") || title.equals("")) {
-				   title = s;
-			   }
-			   gradebookIfc.addExternalAssessment(siteId, s, null, title, Double.valueOf(itemElement.getAttribute("altPoints")), null, "Lesson Builder");
-			   item.setAltGradebook(s);
-		   }
-		   
-
 		   s = itemElement.getAttribute("groupOwned");
 		   if (s != null)
 		       item.setGroupOwned(s.equals("true"));
@@ -804,6 +783,58 @@ public class LessonBuilderEntityProducer extends AbstractEntityProvider
 
 		   simplePageToolDao.quickSaveItem(item);
 		   itemMap.put(itemId, item.getId());
+
+		   boolean needupdate = false;
+
+		   // these need the item number, so do after save
+		   s = itemElement.getAttribute("gradebookId");
+		   if (s != null && !s.equals("null") && !s.equals("")) {
+		       // update item number in both gradebook id and title
+			   String title = item.getGradebookTitle();
+			   if(title == null || title.equals("null") || title.equals("")) {
+				   title = s;
+			   }
+			   // update gb id
+			   int ii = s.lastIndexOf(":");
+			   s = s.substring(0, ii+1) + item.getId();
+			   // update title
+			   // can't do this, because Gradebook 2 will create items with the original name.
+			   // the plan is to use user-defined names so we avoid this whole problem.
+			   if (false) {
+			       ii = title.lastIndexOf(":");
+			       title = title.substring(0, ii+1) + item.getId() + ")";
+			   }
+
+			   gradebookIfc.addExternalAssessment(siteId, s, null, title, Double.valueOf(itemElement.getAttribute("gradebookPoints")), null, "Lesson Builder");
+			   needupdate = true;
+			   item.setGradebookId(s);
+		   }
+		   
+		   s = itemElement.getAttribute("altGradebook");
+		   if (s != null && !s.equals("null") && !s.equals("")) {
+		       // update item number in both gradebook id and title
+			   String title = item.getAltGradebookTitle();
+			   if(title == null || title.equals("null") || title.equals("")) {
+				   title = s;
+			   }
+			   // update gb id
+			   int ii = s.lastIndexOf(":");
+			   s = s.substring(0, ii+1) + item.getId();
+			   // update title
+			   // can't do this, because Gradebook 2 will create items with the original name.
+			   // the plan is to use user-defined names so we avoid this whole problem.
+			   if (false) {
+			       ii = title.lastIndexOf(":");
+			       title = title.substring(0, ii+1) + item.getId() + ")";
+			   }			       
+			   gradebookIfc.addExternalAssessment(siteId, s, null, title, Double.valueOf(itemElement.getAttribute("altPoints")), null, "Lesson Builder");
+			   needupdate = true;
+			   item.setAltGradebook(s);
+		   }
+
+		   // have to save again, I believe
+		   if (needupdate)
+		       simplePageToolDao.quickUpdate(item);
 
 		   // these needs item id, so it has to be done here
 		   // save item ID to object id. This will allow references to be fixed up.

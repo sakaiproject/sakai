@@ -75,61 +75,29 @@ The default is false before Sakai 2.9.2, true starting with 2.9.2.
 BUILDING
 
 To build, the normal Sakai maven commands will work. However you'll
-probably need to edit pom.xml to change versions. For versions
-before 2.10 you'll probably need changes in pom.xml, tool/pom.xml
-and components/pom.xml
+probably need to edit pom.xml to change versions.
 
-other directories take their information from this one.
-
-You'll need to change four things;
+You'll need to change 2 things, and consider a third:
 
 1) Near the top, in the <parent> declaration, the version
 should match your version of Sakai. Currently it is
 2.10-SNAPHOT. For 2.8 you'd use 2.8.0, 2.8.1, etc.
 
 2) Look for the <profile> declaration. There are two
-profiles. The default is set for 2.9 and later. If you're
-building for 2.7 or 2.8, move the <activation> lines
+profiles. The default is set for 2.10. You'll want to
+choose the profile for your version of Sakai. Move the
+<activiation> lines
 
             <activation>
                 <activeByDefault>true</activeByDefault>
             </activation>
 
-from the profile saying <id>default</id> down to the second profile,
-with <id>sakai-2.8</id> So it would read
-
-            <id>sakai-2.8</id>
-            <activation>
-                <activeByDefault>true</activeByDefault>
-            </activation>
+to the appropriate profile.
 
 You can also use this sakai-2.8 profile with 2.7.
 
-Then for the profile you're using (either default or 2.8), set the
-appropriate version numbers for the components we use. You can look at
-pom.xml in your "master" directory to see the version numbers for
-entitybroker, assignment, msgcntr, and samigo. Normally assignment,
-msgcntr and samigo will match the version of Sakai, although that
-may not always be true. entitybroker has separate version numbering.
-
-3) Some changes occured with both Spring and Hibernate between
-2.9 and 2.10. The code is currently set for 2.10. To use it
-with 2.9 and earlier, you'll need to change the value
-for the property <hbms> from newhbm to  oldhbm.
-And in component/pom.xml and tool/pom.xml you'll need to
-disable the profile "newspring".
-
-4) 2.9 added a new interface, which we have to use to get optimal
-site copying. To allow the code to compile in 2.8, we supply a
-dummy declaration. in tool/pom.xml, find the profile "28-hack"
-and enable it if you're on 2.8 or before.
-
-Other than that, the properties can be left as is. In particular,
-don't change the version of RSF. We depend upon a newer version than
-the rest of Sakai.
-
-If you want support for several contrib tools, (Assignment2, and
-partial support for YAFT and Mneme), activate the "optional" 
+3) If you want support for several contrib tools, (Assignment2, and
+partial support for YAFT and Mneme), activate the "optional"
 profile in tool/pom.xml.
 
 DATABASE SETUP

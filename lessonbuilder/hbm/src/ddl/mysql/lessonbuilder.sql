@@ -100,6 +100,13 @@
         primary key (pageId)
     );
 
+    create table lesson_builder_properties (
+        id bigint not null auto_increment,
+        attribute varchar(255) not null unique,
+        value longtext,
+        primary key (id)
+    );
+
     create table lesson_builder_q_responses (
         id bigint not null auto_increment,
         timeAnswered datetime not null,

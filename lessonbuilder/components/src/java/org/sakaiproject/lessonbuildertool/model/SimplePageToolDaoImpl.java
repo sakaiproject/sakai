@@ -1222,4 +1222,39 @@ public class SimplePageToolDaoImpl extends HibernateDaoSupport implements Simple
 		
 		return newList;
 	}
+
+	class Cons {
+	    String car;
+	    String cdr;
+	}
+
+	public List<String>findGradebookIds(final String gradebookUid) {
+
+	    Object [] fields = new Object[1];
+	    fields[0] = gradebookUid;
+	    List<Cons> ids = SqlService.dbRead("select a.gradebookId, a.altGradebook from lesson_builder_items a, lesson_builder_pages b where a.pageId = b.pageId and b.siteId = ? and (a.gradebookId is not null or a.altGradebook is not null)", fields, new SqlReader() {
+    		public Object readSqlResultRecord(ResultSet result) {
+    			try {
+			    Cons pair = new Cons();
+			    pair.car = result.getString(1);
+			    pair.cdr = result.getString(2);
+			    return pair;
+    			} catch (SQLException e) {
+			    log.warn("findGradebookIds " + gradebookUid + " : " + e);
+			    return null;
+    			}
+    		}
+		});
+	    
+	    List<String>ret = new ArrayList<String>();
+	    for (Cons p: ids) {
+		if (p.car != null && p.car.length() > 0)
+		    ret.add(p.car);
+		if (p.cdr != null && p.cdr.length() > 0)
+		    ret.add(p.cdr);
+	    }
+
+	    return ret;
+	}
+	    
 }

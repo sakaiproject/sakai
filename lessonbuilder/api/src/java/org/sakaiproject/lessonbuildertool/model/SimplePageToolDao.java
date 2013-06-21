@@ -260,4 +260,6 @@ public interface SimplePageToolDao {
     
     public List<SimplePagePeerEvalResult> findPeerEvalResultByOwner(long pageId,String grader);
     
+    public List<String>findGradebookIds(String gradebookUid);
+
 }

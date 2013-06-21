@@ -100,6 +100,13 @@
         primary key (pageId)
     );
 
+    create table lesson_builder_properties (
+        id number(19,0) not null,
+        attribute varchar2(255 char) not null unique,
+        value clob,
+        primary key (id)
+    );
+
     create table lesson_builder_q_responses (
         id number(19,0) not null,
         timeAnswered timestamp not null,
