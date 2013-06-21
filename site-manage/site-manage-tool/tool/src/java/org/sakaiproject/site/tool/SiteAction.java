@@ -1535,7 +1535,7 @@ public class SiteAction extends PagedResourceActionII {
 			context.put("allowAddSite",allowAddSite);
 
 			//SAK-23468 put create variables into context
-            addSiteCreationValuesIntoContext(context,state);
+            		addSiteCreationValuesIntoContext(context,state);
 
 			
 			return (String) getContext(data).get("template") + TEMPLATE[0];
@@ -3606,13 +3606,17 @@ public class SiteAction extends PagedResourceActionII {
 	}
 
 
-	// SAK-23468
+	// SAK-23468 If this is after an add site, the 
 	private void addSiteCreationValuesIntoContext(Context context, SessionState state) {
-		context.put(STATE_NEW_SITE_STATUS_ISPUBLISHED, state.getAttribute(STATE_NEW_SITE_STATUS_ISPUBLISHED));
-		String siteTitle = (String) state.getAttribute(STATE_NEW_SITE_STATUS_TITLE);
 		String siteID = (String) state.getAttribute(STATE_NEW_SITE_STATUS_ID);
-		context.put(STATE_NEW_SITE_STATUS_TITLE, siteTitle);
-		context.put(STATE_NEW_SITE_STATUS_ID, siteID);
+		if (siteID != null) {  // make sure this message is only seen immediately after a new site is created.
+			context.put(STATE_NEW_SITE_STATUS_ISPUBLISHED, state.getAttribute(STATE_NEW_SITE_STATUS_ISPUBLISHED));
+			String siteTitle = (String) state.getAttribute(STATE_NEW_SITE_STATUS_TITLE);
+			context.put(STATE_NEW_SITE_STATUS_TITLE, siteTitle);
+			context.put(STATE_NEW_SITE_STATUS_ID, siteID);
+			// remove the values from state so the values are gone on the next call to chef_site-list
+			//clearNewSiteStateParameters(state);
+		}
 	}	
 	
 	
@@ -3624,6 +3628,14 @@ public class SiteAction extends PagedResourceActionII {
 			state.setAttribute(STATE_NEW_SITE_STATUS_TITLE, site.getTitle());
 		}
 	}	
+
+	// SAK-23468 
+        private void clearNewSiteStateParameters(SessionState state) {
+		state.removeAttribute(STATE_NEW_SITE_STATUS_ISPUBLISHED);
+		state.removeAttribute(STATE_NEW_SITE_STATUS_ID);
+		state.removeAttribute(STATE_NEW_SITE_STATUS_TITLE);
+
+	}
 	
 	/**
 	 * show site skin and icon selections or not

@@ -830,19 +830,6 @@ var setupRecentSite = function(){
         $('#newSiteAlert').hide();
     }
   
-    var queryUrl = '/direct/site/' + target + ".json";
-    
-    jQuery.ajax({
-        type: 'GET',
-        url: queryUrl,
-        dataType: 'json',
-        success: function(data){
-            if (data.published === false) {
-                $('#newSiteAlertActions').show();
-            }
-        }
-    });
-    
     $('.newSiteAlertClose').click(function(e){
         e.preventDefault();
         $(this).closest('div').fadeOut('slow');
