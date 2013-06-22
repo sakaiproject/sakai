@@ -3,7 +3,7 @@
  * For licensing, see LICENSE.html or http://ckeditor.com/license
  */
 
-(function() {
+(function () {
     if (!supportsLocalStorage()) {
         return;
     }
@@ -11,16 +11,18 @@
     CKEDITOR.plugins.add("autosave", {
         lang: ['de', 'en'],
         init: function (editor) {
+            var autoSaveKey = editor.config.autosave_SaveKey != null ? autosave_SaveKey : 'autosave' + editor.id;
+            
             // Checks If there is data available and load it
-            if (localStorage.getItem('autosave' + editor.id)) {
+            if (localStorage.getItem(autoSaveKey)) {
 
-                var autoSavedContent = localStorage.getItem('autosave' + editor.id);
+                var autoSavedContent = localStorage.getItem(autoSaveKey);
                 var editorLoadedContent = editor.getData();
                 
                 // check if the loaded editor content is the same as the autosaved content
                 if (editorLoadedContent == autoSavedContent) {
 
-                    localStorage.removeItem('autosave' + editor.id);
+                    localStorage.removeItem(autoSaveKey);
 
                     return;
                 }
@@ -33,7 +35,7 @@
                     }
                 }
 
-                localStorage.removeItem('autosave' + editor.id);
+                localStorage.removeItem(autoSaveKey);
             }
 
             editor.on('key', startTimer);
@@ -43,7 +45,7 @@
     var timeOutId = 0,
         savingActive = false;
 
-    var startTimer = function(event) {
+    var startTimer = function (event) {
         if (timeOutId) {
             clearTimeout(timeOutId);
         }
@@ -55,9 +57,11 @@
             startTimer(event);
         } else if (event.editor.checkDirty() || event.editor.plugins.bbcode) {
             savingActive = true;
+            var editor = event.editor,
+                autoSaveKey = event.editor.config.autosave_SaveKey != null ? autosave_SaveKey : 'autosave' + event.editor.id;
 
             // save content
-            localStorage.setItem('autosave' + event.editor.id, event.editor.getData());
+            localStorage.setItem(autoSaveKey, editor.getData());
 
             savingActive = false;
         } 
@@ -65,6 +69,6 @@
 
     // localStorage detection
     function supportsLocalStorage() {
-        return typeof(Storage) !== 'undefined';
+        return typeof (Storage) !== 'undefined';
     }
 })();
