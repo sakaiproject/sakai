@@ -193,11 +193,14 @@ public class ShowPageProducer implements ViewComponentProducer, DefaultView, Nav
 	public static final String VIEW_ID = "ShowPage";
 	private static final String DEFAULT_TYPES = "mp4,mov,m2v,3gp,wmv,mp3,swf,wav";
 	private static String[] multimediaTypes = null;
-        private static final String DEFAULT_MP4_TYPES = "video/mp4,video/x-m4v";
+    // mp4 means it plays with the flash player if HTML5 doesn't work.
+    // flv is also played with the flash player, but it doesn't get a backup <OBJECT> inside the player
+    // Strobe claims to handle MOV files as well, but I feel safer passing them to quicktime, though that requires Quicktime installation
+        private static final String DEFAULT_MP4_TYPES = "video/mp4,video/m4v";
         private static String[] mp4Types = null;
-        private static final String DEFAULT_JW_TYPES = "video/x-flv,video/mp4,video/x-m4v,video/webm";
+        private static final String DEFAULT_HTML5_TYPES = "video/mp4,video/m4v,video/webm,video/ogg";
     // jw can also handle audio: audio/mp4,audio/mpeg,audio/ogg
-        private static String[] jwTypes = null;
+        private static String[] html5Types = null;
 
     // WARNING: this must occur after memoryService, for obvious reasons. 
     // I'm doing it this way because it doesn't appear that Spring can do this kind of initialization
@@ -328,8 +331,6 @@ public class ShowPageProducer implements ViewComponentProducer, DefaultView, Nav
 		    .decorate(new UIFreeAttributeDecorator("xml:lang", localegetter.get().getLanguage()));        
 
 		boolean iframeJavascriptDone = false;
-		boolean jwLoaded = false;
-		int jwmcount = 0;
 		
 		// security model:
 		// canEditPage and canReadPage are normal Sakai privileges. They apply
@@ -453,13 +454,13 @@ public class ShowPageProducer implements ViewComponentProducer, DefaultView, Nav
 			Arrays.sort(mp4Types);
 		}
 
-		if (jwTypes == null) {
-			String jTypes = ServerConfigurationService.getString("lessonbuilder.jw.types", DEFAULT_JW_TYPES);
-			jwTypes = jTypes.split(",");
-			for (int i = 0; i < jwTypes.length; i++) {
-				jwTypes[i] = jwTypes[i].trim().toLowerCase();
+		if (html5Types == null) {
+			String jTypes = ServerConfigurationService.getString("lessonbuilder.html5.types", DEFAULT_HTML5_TYPES);
+			html5Types = jTypes.split(",");
+			for (int i = 0; i < html5Types.length; i++) {
+				html5Types[i] = html5Types[i].trim().toLowerCase();
 			}
-			Arrays.sort(jwTypes);
+			Arrays.sort(html5Types);
 		}
 
 		// remember that page tool was reset, so we need to give user the option
@@ -1484,51 +1485,6 @@ public class ShowPageProducer implements ViewComponentProducer, DefaultView, Nav
 						// use EMBED. OBJECT does work with Flash.
 						// application/xhtml+xml is XHTML.
 
-					} else if (mimeType != null && 
-						   (Arrays.binarySearch(jwTypes, mimeType) >= 0) &&
-						   ServerConfigurationService.getBoolean("lessonbuilder.usejwplayer", false)) {
-					    
-					    if (!jwLoaded) {
-						UIOutput.make(tableRow, "jwload");
-						jwLoaded = true;
-					    }
-
-					    // new jw player code. uses javascript, so separate from normal embed
-					    // duplicates code from next section, but anything else is too confusing
-					    if (itemGroupString != null) {
-						UIOutput.make(tableRow, "item-group-titles5", itemGroupTitles);
-						UIOutput.make(tableRow, "item-groups5", itemGroupString);
-					    }
-					    UIOutput.make(tableRow, "movieSpan");
-					    String movieUrl = i.getItemURL(simplePageBean.getCurrentSiteId(),currentPage.getOwner());
-					    // the jwm javascript doesn't like the RSF generated IDs
-					    // put in our own div with simple id's
-					    UIComponent jwdiv = UIOutput.make(tableRow, "jwmovie");
-					    jwdiv.updateFullID("jwm" + (++jwmcount));
-					    
-					    String sizeString = "";
-					    if (lengthOk(height) && height.getOld().indexOf("%") < 0)
-						sizeString = ",height: " + height.getOld();
-					    if (lengthOk(width) && width.getOld().indexOf("%") < 0)
-						sizeString += ",width: " + width.getOld();
-
-					    String sessionParameter = getSessionParameter(movieUrl);
-					    if (sessionParameter != null)
-						movieUrl = movieUrl + "?lb.session=" + sessionParameter;
-					    UIVerbatim.make(tableRow, "jwscript", "jwplayer(\"jwm" + jwmcount + "\").setup({file:\"" + StringEscapeUtils.escapeJavaScript(movieUrl) + "\"" + sizeString + "});");
-					    if (canEditPage) {
-						UIOutput.make(tableRow, "movieId", String.valueOf(i.getId()));
-						UIOutput.make(tableRow, "movieHeight", getOrig(height));
-						UIOutput.make(tableRow, "movieWidth", getOrig(width));
-						UIOutput.make(tableRow, "mimetype5", mimeType);
-						UIOutput.make(tableRow, "current-item-id6", Long.toString(i.getId()));
-						
-						UIOutput.make(tableRow, "movie-td");
-						UILink.make(tableRow, "edit-movie", messageLocator.getMessage("simplepage.editItem"), "").decorate(new UIFreeAttributeDecorator("title", messageLocator.getMessage("simplepage.edit-title.url").replace("{}", abbrevUrl(i.getURL()))));
-					    }
-					    
-					    UIOutput.make(tableRow, "description3", i.getDescription());
-						    
 					} else if ((mimeType != null && !mimeType.equals("text/html") && !mimeType.equals("application/xhtml+xml")) || (mimeType == null && Arrays.binarySearch(multimediaTypes, extension) >= 0)) {
 
 						if (mimeType == null)
@@ -1561,11 +1517,26 @@ public class ShowPageProducer implements ViewComponentProducer, DefaultView, Nav
 						String oMimeType = mimeType; // in case we change it for
 						// FLV or others
 						boolean useFlvPlayer = false;
-						boolean useJwPlayer = false;
-						// in theory m4v can be DMRed. But Apple's DRM is
-						// useless on a web page, so it's got to be an
-						// unprotected file.
+
+						// isMp4 means we try the flash player (if not HTML5)
+						// we also try the flash player for FLV but for mp4 we do an
+						// additional backup if flash fails, but that doesn't make sense for FLV
 						boolean isMp4 = Arrays.binarySearch(mp4Types, mimeType) >= 0;
+						boolean isHtml5 = Arrays.binarySearch(html5Types, mimeType) >= 0;
+						
+						// wrap whatever stuff we decide to put out in HTML5 if appropriate
+						// javascript is used to do the wrapping, because RSF can't really handle this
+						if (isHtml5) {
+						    UIComponent h5video = UIOutput.make(tableRow, "h5video");
+						    UIComponent h5source = UIOutput.make(tableRow, "h5source");
+						    if (lengthOk(height) && height.getOld().indexOf("%") < 0)
+							h5video.decorate(new UIFreeAttributeDecorator("height", height.getOld()));
+						    if (lengthOk(width) && width.getOld().indexOf("%") < 0)
+							h5video.decorate(new UIFreeAttributeDecorator("width", width.getOld()));
+						    h5source.decorate(new UIFreeAttributeDecorator("src", movieUrl)).
+							decorate(new UIFreeAttributeDecorator("type", mimeType));
+						}
+
 						// FLV is special. There's no player for flash video in
 						// the browser
 						// it shows with a special flash program, which I
@@ -1574,12 +1545,7 @@ public class ShowPageProducer implements ViewComponentProducer, DefaultView, Nav
 						// same code
 						if (mimeType != null && (mimeType.equals("video/x-flv") || isMp4)) {
 							mimeType = "application/x-shockwave-flash";
-							useJwPlayer = ServerConfigurationService.getBoolean("lessonbuilder.usejwplayer", false);
-							if (useJwPlayer) {
-								movieUrl = "/lessonbuilder-tool/templates/jwflvplayer.swf";
-							} else {
-								movieUrl = "/lessonbuilder-tool/templates/StrobeMediaPlayback.swf";
-							}
+							movieUrl = "/lessonbuilder-tool/templates/StrobeMediaPlayback.swf";
 							useFlvPlayer = true;
 						}
 						// for IE, if we're not supplying a player it's safest
@@ -1612,7 +1578,7 @@ public class ShowPageProducer implements ViewComponentProducer, DefaultView, Nav
 
 						if (!useEmbed) {
 							if (useFlvPlayer) {
-								UIOutput.make(tableRow, "flashvars").decorate(new UIFreeAttributeDecorator("value", (useJwPlayer ? "file=" : "src=") + URLEncoder.encode(myUrl() + i.getItemURL(simplePageBean.getCurrentSiteId(),currentPage.getOwner()))));
+								UIOutput.make(tableRow, "flashvars").decorate(new UIFreeAttributeDecorator("value", "src=" + URLEncoder.encode(myUrl() + i.getItemURL(simplePageBean.getCurrentSiteId(),currentPage.getOwner()))));
 							}
 
 							UIOutput.make(tableRow, "movieURLInject").decorate(new UIFreeAttributeDecorator("value", movieUrl));
