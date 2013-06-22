@@ -55,24 +55,29 @@ $launch_presentation_return_url = $_POST['launch_presentation_return_url'];
 
 $tc_profile_url = $_POST['tc_profile_url'];
 if ( strlen($tc_profile_url) > 1 ) {
+	echo("Retrieving profile from ".$tc_profile_url."\n");
     $tc_profile_json = do_get($tc_profile_url);
+	echo("Retrieved ".strlen($tc_profile_json)." characters.\n");
     // echo($tc_profile_json);
+	echo("Parsing JSON..\n");
     $tc_profile = json_decode($tc_profile_json);
     // print_r($tc_profile);echo("\n<hr>\n");
+	// TODO: Handle error here...
 }
 
 // Find the registration URL
 
 $tc_services = $tc_profile->service_offered;
+echo("Found ".count($tc_services)." services profile..\n");
 // var_dump($tc_services);
 $endpoint = false;
 foreach ($tc_services as $tc_service) {
-   // var_dump($tc_service);
    $id = $tc_service->{'@id'};
+    echo("Service: ".$id."\n");
    if ( $id != "ltitcp:ToolProxy.collection" ) continue;
+   // var_dump($tc_service);
    $endpoint = $tc_service->endpoint;
 }
-
 $cur_url = curPageURL();
 $cur_base = str_replace("tp.php","",$cur_url);
 
@@ -102,10 +107,10 @@ $reg_key = $_POST['reg_key'];
 $reg_password = $_POST['reg_password'];
 $body = json_encode($tp_profile);
 print "\n<hr/>\n";
-echo($endpoint."\n");
+echo("Registering....\n");
+echo("Endpoint=".$endpoint."\n");
 echo($reg_key."\n");
 echo($reg_password."\n");
-print "\n<hr/>\n";
 echo(htmlentities($body));
 print "\n<hr/>\n";
 
@@ -115,6 +120,7 @@ global $last_base_string;
 echo($last_base_strig);
 
 print "\n<hr/>\n";
+echo("Html Response:\n");
 echo(htmlentities($response));
 
 print "</pre>";
