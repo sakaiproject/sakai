@@ -99,24 +99,7 @@ import org.codehaus.jackson.map.ObjectWriter;
  * 
  * This program is directly exposed as a URL to receive IMS Basic LTI messages
  * so it must be carefully reviewed and any changes must be looked at carefully.
- * Here are some issues:
  * 
- * - This uses the RemoteHostFilter so by default it only accepts local IP
- * addresses. This configuration can be changed in web.xml or using the
- * webservices.allow, etc (see RemoteHostFilter)
- * 
- * - This will only function when it is enabled via sakai.properties
- * 
- * - This servlet makes use of security advisors - once an advisor has been
- * added, it must be removed - often in a finally. Also the code below only adds
- * the advisor for very short segments of code to allow for easier review.
- * 
- * Implemented using a SHA-1 hash of the effective context_id and then stores
- * the original context_id in a site.property "lti_context_id" which will be
- * useful for later reference. Since SHA-1 hashes to 40 chars, that would leave
- * us 59 chars (i.e. 58 + ":") to use for LTI key. This also means that the new
- * maximum supported size of an effective context_id is the maximum message size
- * of SHA-1: maximum length of (264 ? 1) bits.
  */
 
 @SuppressWarnings("deprecation")
@@ -229,41 +212,25 @@ public class LTI2Service extends HttpServlet {
 		out.println(output);
 	}
 
-	// /imsblis/lti2/part3/part4
 	protected void doGet(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
-		String rpi = request.getPathInfo();
-		String uri = request.getRequestURI();
-		String [] parts = uri.split("/");
-		if ( parts.length < 4 ) {
-			response.setStatus(HttpServletResponse.SC_FORBIDDEN); // TODO: Get this right
-			return;
-		}
-		String operation = parts[3];
-		if ( "tc_profile".equals(operation) && parts.length == 5 ) {
-			String profile_id = parts[4];
-			getToolConsumerProfile(request,response,profile_id);
-			return;
-		}
-		response.setStatus(HttpServletResponse.SC_FORBIDDEN); // TODO: Get this right
+		doPost(request,response);
 	}
 
 	protected void getToolConsumerProfile(HttpServletRequest request, 
 		HttpServletResponse response,String profile_id)
 	{
-System.out.println("profile_id = "+profile_id);
 		Long toolKey = foorm.getLongKey(profile_id);
 		if ( toolKey < 0 ) {
 			response.setStatus(HttpServletResponse.SC_FORBIDDEN); // TODO: Get this right
 			return;
 		}
 		Map<String,Object> tool = ltiService.getToolDao(toolKey, null);
-System.out.println("tool="+tool);
-		String serverUrl = ServerConfigurationService.getServerUrl();
 		if ( tool == null ) {
 			response.setStatus(HttpServletResponse.SC_FORBIDDEN); // TODO: Get this right
 			return;
 		}
 
+		String serverUrl = ServerConfigurationService.getServerUrl();
         Product_family fam = new Product_family("SakaiCLE", "CLE", "Sakai Project",
             "Amazing open source Collaboration and Learning Environment.", 
             "http://www.sakaiproject.org", "support@sakaiproject.org");
@@ -272,9 +239,9 @@ System.out.println("tool="+tool);
 
         Product_instance instance = new Product_instance("ctools-001", info, "support@ctools.umich.edu");
 
-        ToolConsumer consumer = new ToolConsumer("00292902192", instance);
+        ToolConsumer consumer = new ToolConsumer(profile_id+"", instance);
         List<Service_offered> services = consumer.getService_offered();
-        services.add(StandardServices.LTI2Registration(serverUrl+"/imsblis/lti2/tc_registration/"));
+        services.add(StandardServices.LTI2Registration(serverUrl+"/imsblis/lti2/tc_registration/"+profile_id));
         services.add(StandardServices.LTI1Outcomes(serverUrl+"/imsblis/service/"));
         List<String> capabilities = consumer.getCapability_enabled();
         Collections.addAll(capabilities,ToolConsumer.STANDARD_CAPABILITIES);
@@ -298,7 +265,29 @@ System.out.println("tool="+tool);
 	}
 
 	@SuppressWarnings("unchecked")
-		protected void doPost(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
+	// /imsblis/lti2/part3/part4
+	protected void doPost(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
+		String ipAddress = request.getRemoteAddr();
+		M_log.debug("Basic LTI Service request from IP=" + ipAddress);
+
+		String rpi = request.getPathInfo();
+		String uri = request.getRequestURI();
+		String [] parts = uri.split("/");
+		if ( parts.length < 4 ) {
+			response.setStatus(HttpServletResponse.SC_FORBIDDEN); // TODO: Get this right
+			return;
+		}
+		String controller = parts[3];
+		if ( "tc_profile".equals(controller) && parts.length == 5 ) {
+			String profile_id = parts[4];
+			getToolConsumerProfile(request,response,profile_id);
+			return;
+		} else if ( "tc_registration".equals(controller) && parts.length == 5 ) {
+			String profile_id = parts[4];
+			registerToolProviderProfile(request, response, profile_id);
+			return;
+		}
+		response.setStatus(HttpServletResponse.SC_FORBIDDEN); // TODO: Get this right
 			String contentType = request.getContentType();
 			if ( contentType != null && contentType.startsWith("application/json") ) {
 				doPostJSON(request, response);
@@ -306,6 +295,84 @@ System.out.println("tool="+tool);
             // TODO: OOPS
 
 		}
+
+	public void registerToolProviderProfile(HttpServletRequest request,HttpServletResponse response, 
+		String profile_id)
+	{
+		Long toolKey = foorm.getLongKey(profile_id);
+		if ( toolKey < 0 ) {
+			response.setStatus(HttpServletResponse.SC_FORBIDDEN); // TODO: Get this right
+			return;
+		}
+		Map<String,Object> tool = ltiService.getToolDao(toolKey, null);
+		if ( tool == null ) {
+			response.setStatus(HttpServletResponse.SC_FORBIDDEN); // TODO: Get this right
+			return;
+		}
+
+		IMSJSONRequest jsonRequest = new IMSJSONRequest(request);
+
+		if ( ! jsonRequest.valid ) {
+			System.out.println("CRAP:"+ jsonRequest.errorMessage);
+			return;
+		}
+		// System.out.println(jsonRequest.getPostBody());
+		JSONObject jsonObject = (JSONObject) JSONValue.parse(jsonRequest.getPostBody());
+		// System.out.println("OBJ:"+jsonObject);
+
+		String tool_proxy_guid = (String) jsonObject.get("tool_proxy_guid");
+		System.out.println("TPG="+tool_proxy_guid);
+
+		JSONObject security_contract = (JSONObject) jsonObject.get("security_contract");
+		String shared_secret = (String) security_contract.get("shared_secret");
+
+		JSONObject tool_profile = (JSONObject) jsonObject.get("tool_profile");
+		JSONArray base_url_choices = (JSONArray) tool_profile.get("base_url_choice");
+		String secure_base_url = null;
+		String default_base_url = null;
+		for ( Object o : base_url_choices ) {
+			JSONObject url_choice = (JSONObject) o;
+			secure_base_url = (String) url_choice.get("secure_base_url");
+			default_base_url = (String) url_choice.get("default_base_url");
+		}
+		
+		String path = null;
+		JSONArray resource_handlers = (JSONArray) tool_profile.get("resource_handler");
+		JSONArray parameters = null;
+		for(Object o : resource_handlers ) {
+			JSONObject resource_handler = (JSONObject) o;
+			JSONArray messages = (JSONArray) resource_handler.get("message");
+			for ( Object m : messages ) {
+				JSONObject message = (JSONObject) m;
+				String message_type = (String) message.get("message_type");
+				if ( ! "basic-lti-launch-request".equals(message_type) ) continue;
+				path = (String) message.get("path");
+				parameters = (JSONArray) message.get("parameter");
+			}
+		}
+		System.out.println("secret="+shared_secret);
+		System.out.println("BU="+secure_base_url+" DBU="+default_base_url);
+		System.out.println("path="+path);
+		System.out.println("parameters="+parameters);
+
+		String launch_url = secure_base_url;
+		if ( launch_url == null ) launch_url = default_base_url;
+		// TODO: Deal with double slashes
+		launch_url = launch_url + "/" + path;
+		System.out.println("Launch="+launch_url);
+
+		Map<String, Object> newProps = new TreeMap<String, Object> ();
+		newProps.put(LTIService.LTI_CONSUMERKEY, "12345"); // TODO: trace this through
+		newProps.put(LTIService.LTI_SECRET, shared_secret);
+		newProps.put(LTIService.LTI_LAUNCH, launch_url);
+		newProps.put(LTIService.LTI_PARAMETERS, parameters.toString());
+		newProps.put(LTIService.LTI_SITE_ID, null);
+		// public Object updateToolDao(Long key, Map<String, Object> newProps, String siteId);
+		System.out.println("newProps="+newProps);
+		Object obj = ltiService.updateToolDao(toolKey, newProps, "~admin");
+		System.out.println("YO..."+obj);
+
+	}
 
     /* IMS JSON version of this service */
 	public void doErrorJSON(HttpServletRequest request,HttpServletResponse response, 
@@ -335,7 +402,6 @@ System.out.println("tool="+tool);
 	@SuppressWarnings("unchecked")
 		protected void doPostJSON(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
 			String ipAddress = request.getRemoteAddr();
-
 			M_log.debug("Basic LTI Service request from IP=" + ipAddress);
 
 			String allowLori = ServerConfigurationService.getString(

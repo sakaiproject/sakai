@@ -213,6 +213,15 @@ public interface LTIService {
 
 	/**
 	 * 
+	 * @param key
+	 * @param newProps
+	 * @param siteId
+	 * @return
+	 */
+	public Object updateToolDao(Long key, Map<String, Object> newProps, String siteId);
+
+	/**
+	 * 
 	 * @param search
 	 * @param order
 	 * @param first
@@ -470,6 +479,7 @@ public interface LTIService {
 		"reg_launch:url:label=bl_reg_launch:maxlength=1024:hidden=false",
 		"reg_key:text:label=bl_reg_key:hidden=false:maxlength=255",
 		"reg_password:text:label=bl_reg_password:hidden=false:maxlength=255",
+		"parameters:textarea:label=bl_parameters:rows=5:cols=25:maxlength=1024",
 		// End of BLTI-230 - LTI 2.0
 		"created_at:autodate", 
 		"updated_at:autodate" };
@@ -525,5 +535,12 @@ public interface LTIService {
 	static final String LTI_NOTE = 	"note";
 	static final String LTI_PLACEMENTSECRET = 	"placementsecret";
 	static final String LTI_OLDPLACEMENTSECRET = 	"oldplacementsecret";
+	// BLTI-230 - LTI 2.0
+	static final String LTI_REG_STATE = "reg_state";
+	static final String LTI_REG_LAUNCH = "reg_launch";
+	static final String LTI_REG_KEY = "reg_key";
+	static final String LTI_REG_PASSWORD = "reg_password";
+	static final String LTI_PARAMETERS = "parameters";
+	// End of BLTI-230 - LTI 2.0
 
 }

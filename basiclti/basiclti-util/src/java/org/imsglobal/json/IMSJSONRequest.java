@@ -87,13 +87,6 @@ public class IMSJSONRequest {
 	// Load but do not check the authentication
 	public void loadFromRequest(HttpServletRequest request) 
 	{
-		String contentType = request.getContentType();
-		if ( ! "application/json".equals(contentType) ) {
-			errorMessage = "Content Type must be application/json";
-			Log.info(errorMessage+"\n"+contentType);
-			return;
-		}
-
 		header = request.getHeader("Authorization");
 		System.out.println("Header: "+header);
 		oauth_body_hash = null;
