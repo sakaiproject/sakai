@@ -25,6 +25,7 @@ import java.io.PrintWriter;
 import java.net.URL;
 import java.util.Arrays;
 import java.util.List;
+import java.util.Collections;
 import java.util.ArrayList;
 import java.util.Map;
 import java.util.TreeMap;
@@ -78,6 +79,7 @@ import org.sakaiproject.util.ResourceLoader;
 import org.sakaiproject.basiclti.util.SakaiBLTIUtil;
 import org.imsglobal.basiclti.BasicLTIConstants;
 import org.imsglobal.lti2.LTI2Constants;
+import org.imsglobal.lti2.objects.*;
 import org.sakaiproject.basiclti.util.ShaUtil;
 import org.sakaiproject.util.FormattedText;
 
@@ -86,6 +88,11 @@ import org.imsglobal.json.IMSJSONRequest;
 import org.sakaiproject.lti.api.LTIService;
 import org.sakaiproject.util.foorm.SakaiFoorm;
 import org.sakaiproject.util.foorm.FoormUtil;
+
+import org.codehaus.jackson.JsonGenerationException;
+import org.codehaus.jackson.map.JsonMappingException;
+import org.codehaus.jackson.map.ObjectMapper;
+import org.codehaus.jackson.map.ObjectWriter;
 
 /**
  * Notes:
@@ -222,13 +229,72 @@ public class LTI2Service extends HttpServlet {
 		out.println(output);
 	}
 
+	// /imsblis/lti2/part3/part4
 	protected void doGet(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
 		String rpi = request.getPathInfo();
-		if ( rpi.startsWith("/return-url") ) {
-			handleReturnUrl(request, response);
+		String uri = request.getRequestURI();
+		String [] parts = uri.split("/");
+		if ( parts.length < 4 ) {
+			response.setStatus(HttpServletResponse.SC_FORBIDDEN); // TODO: Get this right
 			return;
-		} 
-		doPost(request, response);
+		}
+		String operation = parts[3];
+		if ( "tc_profile".equals(operation) && parts.length == 5 ) {
+			String profile_id = parts[4];
+			getToolConsumerProfile(request,response,profile_id);
+			return;
+		}
+		response.setStatus(HttpServletResponse.SC_FORBIDDEN); // TODO: Get this right
+	}
+
+	protected void getToolConsumerProfile(HttpServletRequest request, 
+		HttpServletResponse response,String profile_id)
+	{
+System.out.println("profile_id = "+profile_id);
+		Long toolKey = foorm.getLongKey(profile_id);
+		if ( toolKey < 0 ) {
+			response.setStatus(HttpServletResponse.SC_FORBIDDEN); // TODO: Get this right
+			return;
+		}
+		Map<String,Object> tool = ltiService.getToolDao(toolKey, null);
+System.out.println("tool="+tool);
+		String serverUrl = ServerConfigurationService.getServerUrl();
+		if ( tool == null ) {
+			response.setStatus(HttpServletResponse.SC_FORBIDDEN); // TODO: Get this right
+			return;
+		}
+
+        Product_family fam = new Product_family("SakaiCLE", "CLE", "Sakai Project",
+            "Amazing open source Collaboration and Learning Environment.", 
+            "http://www.sakaiproject.org", "support@sakaiproject.org");
+
+        Product_info info = new Product_info("CTools", "4.0", "The Sakai installation for UMich", fam);
+
+        Product_instance instance = new Product_instance("ctools-001", info, "support@ctools.umich.edu");
+
+        ToolConsumer consumer = new ToolConsumer("00292902192", instance);
+        List<Service_offered> services = consumer.getService_offered();
+        services.add(StandardServices.LTI2Registration(serverUrl+"/imsblis/lti2/tc_registration/"));
+        services.add(StandardServices.LTI1Outcomes(serverUrl+"/imsblis/service/"));
+        List<String> capabilities = consumer.getCapability_enabled();
+        Collections.addAll(capabilities,ToolConsumer.STANDARD_CAPABILITIES);
+
+        ObjectMapper mapper = new ObjectMapper();
+        try {
+            // http://stackoverflow.com/questions/6176881/how-do-i-make-jackson-pretty-print-the-json-content-it-generates
+            ObjectWriter writer = mapper.defaultPrettyPrintingWriter();
+            // ***IMPORTANT!!!*** for Jackson 2.x use the line below instead of the one above: 
+            // ObjectWriter writer = mapper.writer().withDefaultPrettyPrinter();
+            // System.out.println(mapper.writeValueAsString(consumer));
+			response.setContentType("application/json");
+			PrintWriter out = response.getWriter();
+			out.println(writer.writeValueAsString(consumer));
+            // System.out.println(writer.writeValueAsString(consumer));
+        }
+        catch (Exception e) {
+            e.printStackTrace();
+        }
+
 	}
 
 	@SuppressWarnings("unchecked")

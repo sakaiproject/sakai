@@ -282,7 +282,7 @@ public class BasicLTISecurityServiceImpl implements EntityProducer {
 							   String toolStr = refId.substring(5);
 							   Long toolKey = foorm.getLongKey(toolStr);
 							   if ( toolKey >= 0 ) tool = ltiService.getToolDao(toolKey, ref.getContext());
-							   retval = SakaiBLTIUtil.postRegisterHTML(tool, rb);
+							   retval = SakaiBLTIUtil.postRegisterHTML(toolKey, tool, rb);
 						   } 
 						   else if ( refId.startsWith("content:") && refId.length() > 8 ) 
 						   {
