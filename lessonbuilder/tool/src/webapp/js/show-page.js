@@ -1617,8 +1617,7 @@ $(function() {
 	     } catch (err) {
 	     }
 	     if (html5ok) {
-		 var next = html5.next();
-		 source.after(next);
+		 html5.next().remove();
 	     } else {
 		 html5.remove();
 	     }

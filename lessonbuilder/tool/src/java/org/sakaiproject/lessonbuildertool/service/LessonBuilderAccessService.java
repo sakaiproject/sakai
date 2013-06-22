@@ -26,9 +26,19 @@ package org.sakaiproject.lessonbuildertool.service;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
+import java.io.BufferedInputStream;
 import java.net.URI;
 import java.util.Collection;
 import java.util.List;
+import java.util.ArrayList;
+import java.util.Iterator;
+import java.util.StringTokenizer;
+
+import org.apache.commons.io.IOUtils;
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
+
+import java.net.SocketException;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
@@ -91,6 +101,8 @@ import uk.org.ponder.messageutil.MessageLocator;
  * </p>
  */
 public class LessonBuilderAccessService {
+
+	private static Log M_log = LogFactory.getLog(LessonBuilderAccessService.class);
 
 	public static final String ATTR_SESSION = "sakai.session";
 
@@ -187,6 +199,7 @@ public class LessonBuilderAccessService {
 	protected static final int STREAM_BUFFER_SIZE = 102400;
 	public static final String INLINEHTML = "lessonbuilder.inlinehtml";
 	private boolean inlineHtml = ServerConfigurationService.getBoolean(INLINEHTML, true);
+        protected static final String MIME_SEPARATOR = "SAKAI_MIME_BOUNDARY";
 
         // uuid is the private key for sharing the session id
         private SecretKey sessionKey = null;
@@ -597,6 +610,7 @@ public class LessonBuilderAccessService {
 								disposition = "attachment; filename=\"" + fileName + "\"";
 							}
 							
+
 							// NOTE: Only set the encoding on the content we have
 							// to.
 							// Files uploaded by the user may have been created with
@@ -610,74 +624,236 @@ public class LessonBuilderAccessService {
 								contentType = contentType + "; charset=" + encoding;
 							}
 
-							// not yet
-							// ArrayList<Range> ranges = parseRange(req, res, len);
+							// from contenthosting
 
-							// if (req.getHeader("Range") == null || (ranges ==
-							// null) || (ranges.isEmpty())) {
-							if (true) {
-								// stream the content using a small buffer to keep
-								// memory managed
-								InputStream content = null;
-								OutputStream out = null;
+		        ArrayList<Range> ranges = parseRange(req, res, len);
 
-								try {
-									content = resource.streamContent();
-									if (content == null) {
-										throw new IdUnusedException(ref.getReference());
-									}
-									res.setContentType(contentType);
-									res.addHeader("Content-Disposition", disposition);
-									// not now res.addHeader("Accept-Ranges",
-									// "bytes");
-									// http://bugs.sun.com/bugdatabase/view_bug.do?bug_id=4187336
-									if (len <= Integer.MAX_VALUE) {
-										res.setContentLength((int) len);
-									} else {
-										res.addHeader("Content-Length", Long.toString(len));
-									}
+		        if (req.getHeader("Range") == null || (ranges == null) || (ranges.isEmpty())) {
+		        	
+					// stream the content using a small buffer to keep memory managed
+					InputStream content = null;
+					OutputStream out = null;
+	
+					try
+					{
+						content = resource.streamContent();
+						if (content == null)
+						{
+							throw new IdUnusedException(ref.getReference());
+						}
+	
+						res.setContentType(contentType);
+						res.addHeader("Content-Disposition", disposition);
+						res.addHeader("Accept-Ranges", "bytes");
+						// http://bugs.sun.com/bugdatabase/view_bug.do?bug_id=4187336
+ 						if (len <= Integer.MAX_VALUE){
+ 							res.setContentLength((int)len);
+ 						} else {
+ 							res.addHeader("Content-Length", Long.toString(len));
+ 						}
 
-									// set the buffer of the response to match what
-									// we are reading from the request
-									if (len < STREAM_BUFFER_SIZE) {
-										res.setBufferSize((int) len);
-									} else {
-										res.setBufferSize(STREAM_BUFFER_SIZE);
-									}
-
-									out = res.getOutputStream();
-									
-									copyRange(content, out, 0, len - 1);
-								} catch (ServerOverloadException e) {
-									throw e;
-								} catch (Exception ignore) {} finally {
-									// be a good little program and close the stream
-									// - freeing up valuable system resources
-									if (content != null) {
-										content.close();
-									}
-
-									if (out != null) {
-										try {
-											out.close();
-										} catch (Exception ignore) {}
-									}
-								}
-
-								// Track event - only for full reads
-								eventTrackingService.post(eventTrackingService.newEvent(ContentHostingService.EVENT_RESOURCE_READ,
-										resource.getReference(null), false));
-
+						// set the buffer of the response to match what we are reading from the request
+						if (len < STREAM_BUFFER_SIZE)
+						{
+							res.setBufferSize((int)len);
+						}
+						else
+						{
+							res.setBufferSize(STREAM_BUFFER_SIZE);
+						}
+	
+						out = res.getOutputStream();
+	
+						copyRange(content, out, 0, len-1);
+					}
+					catch (ServerOverloadException e)
+					{
+						throw e;
+					}
+					catch (Exception ignore)
+					{
+					}
+					finally
+					{
+						// be a good little program and close the stream - freeing up valuable system resources
+						if (content != null)
+						{
+							content.close();
+						}
+	
+						if (out != null)
+						{
+							try
+							{
+								out.close();
 							}
+							catch (Exception ignore)
+							{
+							}
+						}
+					}
+					
+
+		        }
+		        else 
+		        {
+		        	// Output partial content. Adapted from Apache Tomcat 5.5.27 DefaultServlet.java
+		        	
+		        	res.setStatus(HttpServletResponse.SC_PARTIAL_CONTENT);
+
+		            if (ranges.size() == 1) {
+
+		            	// Single response
+		            	
+		                Range range = (Range) ranges.get(0);
+		                res.addHeader("Content-Range", "bytes "
+		                                   + range.start
+		                                   + "-" + range.end + "/"
+		                                   + range.length);
+		                long length = range.end - range.start + 1;
+		                if (length < Integer.MAX_VALUE) {
+		                    res.setContentLength((int) length);
+		                } else {
+		                    // Set the content-length as String to be able to use a long
+		                    res.setHeader("content-length", "" + length);
+		                }
+
+						res.addHeader("Content-Disposition", disposition);
+
+		                if (contentType != null) {
+		                    res.setContentType(contentType);
+		                }
+
+						// stream the content using a small buffer to keep memory managed
+						InputStream content = null;
+						OutputStream out = null;
+		
+						try
+						{
+							content = resource.streamContent();
+							if (content == null)
+							{
+								throw new IdUnusedException(ref.getReference());
+							}
+				
+							// set the buffer of the response to match what we are reading from the request
+							if (len < STREAM_BUFFER_SIZE)
+							{
+								res.setBufferSize((int)len);
+							}
+							else
+							{
+								res.setBufferSize(STREAM_BUFFER_SIZE);
+							}
+		
+							out = res.getOutputStream();
+
+							copyRange(content, out, range.start, range.end);
 
 						}
+						catch (ServerOverloadException e)
+						{
+							throw e;
+						}
+						catch (SocketException e)
+						{
+							//a socket exception usualy means the client aborted the connection or similar
+							if (M_log.isDebugEnabled())
+							{
+								M_log.debug("SocketExcetion", e);
+							}
+						}
+						catch (Exception ignore)
+						{
+						}
+						finally
+						{
+							// be a good little program and close the stream - freeing up valuable system resources
+							if (content != null)
+							{
+								content.close();
+							}
+		
+							if (out != null)
+							{
+								try
+								{
+									out.close();
+								}
+								catch (IOException ignore)
+								{
+									// ignore
+								}
+							}
+						}
+		              
+		            } else {
+
+		            	// Multipart response
+
+		            	res.setContentType("multipart/byteranges; boundary=" + MIME_SEPARATOR);
+
+						// stream the content using a small buffer to keep memory managed
+						OutputStream out = null;
+		
+						try
+						{
+							// set the buffer of the response to match what we are reading from the request
+							if (len < STREAM_BUFFER_SIZE)
+							{
+								res.setBufferSize((int)len);
+							}
+							else
+							{
+								res.setBufferSize(STREAM_BUFFER_SIZE);
+							}
+		
+							out = res.getOutputStream();
+
+			            	copyRanges(resource, out, ranges.iterator(), contentType);
+
+						}
+						catch (SocketException e)
+						{
+							//a socket exception usualy means the client aborted the connection or similar
+							if (M_log.isDebugEnabled())
+							{
+								M_log.debug("SocketExcetion", e);
+							}
+						}
+						catch (Exception ignore)
+						{
+							M_log.error("Swallowing exception", ignore);
+						}
+						finally
+						{
+							// be a good little program and close the stream - freeing up valuable system resources
+							if (out != null)
+							{
+								try
+								{
+									out.close();
+								}
+								catch (IOException ignore)
+								{
+									// ignore
+								}
+							}
+						}
+		              
+		            } // output multiple ranges
+
+		        } // output partial content 
+
+						}
+
 					} catch (Exception t) {
 					    throw new EntityNotDefinedException(ref.getReference());
 					    // following won't work in 2.7.1
 					    // throw new EntityNotDefinedException(ref.getReference(), t);
 					}
 					
-				}catch(Exception ex) {
+				} catch(Exception ex) {
 					throw new EntityNotDefinedException(ref.getReference());
 				}finally {
 				    if(pushedAdvisor) securityService.popAdvisor();
@@ -685,6 +861,281 @@ public class LessonBuilderAccessService {
 			}
 		};
 	}
+
+	/**
+	 * Range inner class. From Apache Tomcat DefaultServlet.java 
+	 *
+	 */
+    protected class Range {
+
+        public long start;
+        public long end;
+        public long length;
+
+        /**
+         * Validate range.
+         */
+        public boolean validate() {
+            if (end >= length)
+                end = length - 1;
+            return ( (start >= 0) && (end >= 0) && (start <= end)
+                     && (length > 0) );
+        }
+
+        public void recycle() {
+            start = 0;
+            end = 0;
+            length = 0;
+        }
+
+    }
+
+    /**
+     * Parse the range header.
+     *
+     * @param request The servlet request we are processing
+     * @param response The servlet response we are creating
+     * @return Vector of ranges
+     */
+    protected ArrayList<Range> parseRange(HttpServletRequest request,
+                                HttpServletResponse response,
+                                long fileLength)
+        throws IOException {
+
+    	/* Commented out pending implementation of last-modified / if-modified.
+    	 * See http://jira.sakaiproject.org/jira/browse/SAK-3916
+    	
+        // Checking If-Range
+
+    	String headerValue = request.getHeader("If-Range");
+
+        if (headerValue != null) {
+
+            long headerValueTime = (-1L);
+            try {
+                headerValueTime = request.getDateHeader("If-Range");
+            } catch (Exception e) {
+                ;
+            }
+
+            String eTag = getETag(resourceAttributes);
+            long lastModified = resourceAttributes.getLastModified();
+
+            if (headerValueTime == (-1L)) {
+
+                // If the ETag the client gave does not match the entity
+                // etag, then the entire entity is returned.
+                if (!eTag.equals(headerValue.trim()))
+                    return FULL;
+
+            } else {
+
+                // If the timestamp of the entity the client got is older than
+                // the last modification date of the entity, the entire entity
+                // is returned.
+                if (lastModified > (headerValueTime + 1000))
+                    return FULL;
+
+            }
+
+        }
+        
+    	*/
+    	
+        if (fileLength == 0)
+            return null;
+
+        // Retrieving the range header (if any is specified
+        String rangeHeader = request.getHeader("Range");
+
+        if (rangeHeader == null)
+            return null;
+        // bytes is the only range unit supported (and I don't see the point
+        // of adding new ones).
+        if (!rangeHeader.startsWith("bytes")) {
+            response.addHeader("Content-Range", "bytes */" + fileLength);
+            response.sendError
+                (HttpServletResponse.SC_REQUESTED_RANGE_NOT_SATISFIABLE);
+            return null;
+        }
+
+        rangeHeader = rangeHeader.substring(6);
+
+        // Vector which will contain all the ranges which are successfully
+        // parsed.
+        ArrayList result = new ArrayList();
+        StringTokenizer commaTokenizer = new StringTokenizer(rangeHeader, ",");
+
+        // Parsing the range list
+        while (commaTokenizer.hasMoreTokens()) {
+            String rangeDefinition = commaTokenizer.nextToken().trim();
+
+            Range currentRange = new Range();
+            currentRange.length = fileLength;
+
+            int dashPos = rangeDefinition.indexOf('-');
+
+            if (dashPos == -1) {
+                response.addHeader("Content-Range", "bytes */" + fileLength);
+                response.sendError
+                    (HttpServletResponse.SC_REQUESTED_RANGE_NOT_SATISFIABLE);
+                return null;
+            }
+
+            if (dashPos == 0) {
+
+                try {
+                    long offset = Long.parseLong(rangeDefinition);
+                    currentRange.start = fileLength + offset;
+                    currentRange.end = fileLength - 1;
+                } catch (NumberFormatException e) {
+                    response.addHeader("Content-Range",
+                                       "bytes */" + fileLength);
+                    response.sendError
+                        (HttpServletResponse
+                         .SC_REQUESTED_RANGE_NOT_SATISFIABLE);
+                    return null;
+                }
+
+            } else {
+
+                try {
+                    currentRange.start = Long.parseLong
+                        (rangeDefinition.substring(0, dashPos));
+                    if (dashPos < rangeDefinition.length() - 1)
+                        currentRange.end = Long.parseLong
+                            (rangeDefinition.substring
+                             (dashPos + 1, rangeDefinition.length()));
+                    else
+                        currentRange.end = fileLength - 1;
+                } catch (NumberFormatException e) {
+                    response.addHeader("Content-Range",
+                                       "bytes */" + fileLength);
+                    response.sendError
+                        (HttpServletResponse
+                         .SC_REQUESTED_RANGE_NOT_SATISFIABLE);
+                    return null;
+                }
+
+            }
+
+            if (!currentRange.validate()) {
+                response.addHeader("Content-Range", "bytes */" + fileLength);
+                response.sendError
+                    (HttpServletResponse.SC_REQUESTED_RANGE_NOT_SATISFIABLE);
+                return null;
+            }
+
+            result.add(currentRange);
+        }
+
+        return result;
+    }
+
+    /**
+     * Copy the partial contents of the specified input stream to the specified
+     * output stream.
+     * 
+     * @param istream The input stream to read from
+     * @param ostream The output stream to write to
+     * @param start Start of the range which will be copied
+     * @param end End of the range which will be copied
+     * @return Exception which occurred during processing
+     */
+    protected IOException copyRange(InputStream istream,
+                                  OutputStream ostream,
+                                  long start, long end) {
+
+    	try {
+            istream.skip(start);
+        } catch (IOException e) {
+            return e;
+        }
+
+        IOException exception = null;
+        long bytesToRead = end - start + 1;
+
+        byte buffer[] = new byte[STREAM_BUFFER_SIZE];
+        int len = buffer.length;
+        while ( (bytesToRead > 0) && (len >= buffer.length)) {
+            try {
+                len = istream.read(buffer);
+                if (bytesToRead >= len) {
+                    ostream.write(buffer, 0, len);
+                    bytesToRead -= len;
+                } else {
+                    ostream.write(buffer, 0, (int) bytesToRead);
+                    bytesToRead = 0;
+                }
+            } catch (IOException e) {
+                exception = e;
+                len = -1;
+            }
+            if (len < buffer.length)
+                break;
+        }
+
+        return exception;
+    }
+
+  
+    /**
+     * Copy the contents of the specified input stream to the specified
+     * output stream in a set of chunks as per the specified ranges.
+     *
+     * @param InputStream The input stream to read from
+     * @param out The output stream to write to
+     * @param ranges Enumeration of the ranges the client wanted to retrieve
+     * @param contentType Content type of the resource
+     * @exception IOException if an input/output error occurs
+     */
+    protected void copyRanges(ContentResource content, OutputStream out,
+                      Iterator ranges, String contentType)
+        throws IOException {
+
+        IOException exception = null;
+                        
+        while ( (exception == null) && (ranges.hasNext()) ) {
+
+            Range currentRange = (Range) ranges.next();
+                  
+            // Writing MIME header.
+            IOUtils.write("\r\n--" + MIME_SEPARATOR + "\r\n", out);
+            if (contentType != null)
+                IOUtils.write("Content-Type: " + contentType + "\r\n", out);
+            IOUtils.write("Content-Range: bytes " + currentRange.start
+                           + "-" + currentRange.end + "/"
+                           + currentRange.length + "\r\n", out);
+            IOUtils.write("\r\n", out);
+
+            // Printing content
+			InputStream in = null;
+			try {
+				in = content.streamContent();
+			} catch (ServerOverloadException se) {
+				exception = new IOException("ServerOverloadException reported getting inputstream");
+			}
+			
+            InputStream istream =
+                new BufferedInputStream(in, STREAM_BUFFER_SIZE);
+          
+            exception = copyRange(istream, out, currentRange.start, currentRange.end);
+
+            try {
+                istream.close();
+            } catch (IOException e) {
+            	// ignore
+            }
+        }
+
+        IOUtils.write("\r\n--" + MIME_SEPARATOR + "--\r\n", out);
+        
+        // Rethrow any exception that has occurred
+        if (exception != null) {
+            throw exception;
+        }
+    }
+
 
 	// simplified versions of stuff from BaseContentService
 
@@ -762,41 +1213,6 @@ public class LessonBuilderAccessService {
 		return isAvailable(parent);
 	    else
 		return true;
-	}
-
-	protected IOException copyRange(InputStream istream, OutputStream ostream, long start, long end) {
-
-		try {
-			istream.skip(start);
-		} catch (IOException e) {
-			return e;
-		}
-
-		IOException exception = null;
-		long bytesToRead = end - start + 1;
-
-		byte buffer[] = new byte[STREAM_BUFFER_SIZE];
-		int len = buffer.length;
-		while ((bytesToRead > 0) && (len >= buffer.length)) {
-			try {
-				len = istream.read(buffer);
-				if (bytesToRead >= len) {
-					ostream.write(buffer, 0, len);
-					bytesToRead -= len;
-				} else {
-					ostream.write(buffer, 0, (int) bytesToRead);
-					bytesToRead = 0;
-				}
-			} catch (IOException e) {
-				exception = e;
-				len = -1;
-			}
-			if (len < buffer.length) {
-				break;
-			}
-		}
-
-		return exception;
 	}
 
 	public boolean canReadPage(String siteId) {
