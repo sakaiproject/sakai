@@ -1618,6 +1618,7 @@ $(function() {
 	     }
 	     if (html5ok) {
 		 html5.next().remove();
+		 html5.show();
 	     } else {
 		 html5.remove();
 	     }
