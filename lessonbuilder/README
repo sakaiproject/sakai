@@ -472,7 +472,7 @@ VIDEO PLAYERS
 Aside from Youtube (which uses a special player), Lessons handles
 video with three different approaches
 
-* the HTML5 video tag
+* the HTML5 video and audio tag
 * the Strobe player, from Adobe
 * the normal OBJECT and EMBED tags
 
@@ -490,15 +490,15 @@ to pick a player.
 Unforunately this approach is less than foolproof. The API for HTML5
 lets us ask whether the player can handle the MIME type, but several
 browsers response "maybe". Hence we only try for types we think should
-work. That is currently MP4, webm, and ogg. The list may be configured
-in sakai.properties
+work. That is currently MP4, webm, and ogg for video and MP3, ogg and
+WAV for audio. The list may be configured in sakai.properties
 
-lessonbuilder.html5.types=video/mp4,video/m4v,video/webm,video/ogg
+lessonbuilder.html5.types=video/mp4,video/m4v,video/webm,video/ogg,audio/mpeg,audio/ogg,audio/wav
 
 Similarly, we only try Strobe for things we think will likely work.
 Currently
 
-lessonbuilder.mp4.types=video/mp4,video/m4v
+lessonbuilder.mp4.types=video/mp4,video/m4v,audio/mpeg
 
 plus Flash (video/x-flv). In fact, Strobe claims to handle MOV files
 as well, but it seems safer to let Quicktime handle that. This does
