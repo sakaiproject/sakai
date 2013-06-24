@@ -47,7 +47,7 @@
     <dependency>
       <groupId>commons-logging</groupId>
       <artifactId>commons-logging</artifactId>
-      <version>1.0.4</version>
+      <version>${sakai.commons-logging.version}</version>
       <type>jar</type>
     </dependency>
 <!--org.sakaiprojectsakai-user-util${sakai.version}-->
