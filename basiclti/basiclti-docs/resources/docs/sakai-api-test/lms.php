@@ -112,7 +112,7 @@ function lmsdataToggle() {
   $parms["oauth_callback"] = "about:blank";
   if ( $outcomes ) {
     $parms["lis_outcome_service_url"] = $outcomes;
-    $parms["lis_result_sourcedid"] = "feb-123-456-2929::28883";
+    $parms["lis_result_sourcedid"] = '{"zap" : "Funky JSON 1234 Sourcedid <>&lt;"}';
   }
     
   $parms['launch_presentation_css_url'] = $cssurl;

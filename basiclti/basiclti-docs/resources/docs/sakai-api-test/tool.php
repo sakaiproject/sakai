@@ -22,7 +22,6 @@ echo("<p><b>Sakai External Tool API Test Harness</b></p>\n");
 
 $sourcedid = $_REQUEST['lis_result_sourcedid'];
 if (get_magic_quotes_gpc()) $sourcedid = stripslashes($sourcedid);
-$sourcedid = htmlentities($sourcedid);
 
 if ( $context->valid ) {
    print "<p style=\"color:green\">Launch Validated.<p>\n";

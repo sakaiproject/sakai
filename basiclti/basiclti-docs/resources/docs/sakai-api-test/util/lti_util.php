@@ -119,6 +119,7 @@ class BLTI {
         // Store the launch information in the session for later
         $newinfo = array();
         foreach($_POST as $key => $value ) {
+		    if (get_magic_quotes_gpc()) $value = stripslashes($value);
             if ( $key == "basiclti_submit" ) continue;
             if ( strpos($key, "oauth_") === false ) {
                 $newinfo[$key] = $value;
@@ -744,8 +745,8 @@ function do_post($url, $body, $header) {
     $LastPOSTMethod = "Error";
     echo("Unable to post<br/>\n");
     echo("Url=$url <br/>\n");
-    echo("Headers:<br/>\n$headers<br/>\n");
-    echo("Body:<br/>\n$data<br/>\n");
+    echo("Headers:<br/>\n$header<br/>\n");
+    echo("Body:<br/>\n$body<br/>\n");
     throw new Exception("Unable to post");
 }
 
