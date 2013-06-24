@@ -76,6 +76,7 @@
         <sakai.kernel.version>1.4.0-SNAPSHOT</sakai.kernel.version>
         <!-- Standard dependency versions -->
         <sakai.commons.lang.version>2.5</sakai.commons.lang.version>
+        <sakai.commons-logging.version>1.1.1</sakai.commons-logging.version>
         <sakai.commons.fileupload.version>1.2.1</sakai.commons.fileupload.version>
         <sakai.ehcache.groupId>net.sf.ehcache</sakai.ehcache.groupId>
         <sakai.ehcache.artifactId>ehcache-core</sakai.ehcache.artifactId>
