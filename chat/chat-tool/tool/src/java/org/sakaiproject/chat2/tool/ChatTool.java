@@ -1254,7 +1254,9 @@ public class ChatTool implements RoomObserver, PresenceObserver {
 	   
 	   if(getCanRenderMessageOptions()){
 
-		   SelectItem item1 = new SelectItem(Integer.toString(MESSAGEOPTIONS_ALL_MESSAGES), getMessageFromBundle("allMessages"));
+		   // Commenting out the original here for now in case this is ever truly implemented.  Instead, display the true maximum limit
+		   // SelectItem item1 = new SelectItem(Integer.toString(MESSAGEOPTIONS_ALL_MESSAGES), getMessageFromBundle("allMessages"));
+		   SelectItem item1 = new SelectItem(Integer.toString(MESSAGEOPTIONS_ALL_MESSAGES), getCustomOptionText(ChatChannel.FILTER_BY_NUMBER, getChatManager().getMessagesMax()));
 		   SelectItem item2 = new SelectItem(Integer.toString(MESSAGEOPTIONS_MESSAGES_BY_NUMBER), getCustomOptionText(ChatChannel.FILTER_BY_NUMBER, numberParam));
 		   SelectItem item3 = new SelectItem(Integer.toString(MESSAGEOPTIONS_MESSAGES_BY_DATE), getCustomOptionText(ChatChannel.FILTER_BY_TIME, timeParam));
 		   SelectItem item4 = new SelectItem(Integer.toString(MESSAGEOPTIONS_NO_MESSAGES), getCustomOptionText(ChatChannel.FILTER_NONE, 0));
@@ -1267,7 +1269,9 @@ public class ChatTool implements RoomObserver, PresenceObserver {
 		   String filter = dChannel != null ? dChannel.getChatChannel().getFilterType() : "";
 		   SelectItem item = null;
 		   if(filter.equals(ChatChannel.FILTER_ALL)){
-			   item = new SelectItem(Integer.toString(MESSAGEOPTIONS_ALL_MESSAGES), getMessageFromBundle("allMessages"));
+			   // Commenting out the original here for now in case this is ever truly implemented.  Instead, display the true maximum limit
+			   // item = new SelectItem(Integer.toString(MESSAGEOPTIONS_ALL_MESSAGES), getMessageFromBundle("allMessages"));
+			   item = new SelectItem(Integer.toString(MESSAGEOPTIONS_ALL_MESSAGES), getCustomOptionText(ChatChannel.FILTER_BY_NUMBER, getChatManager().getMessagesMax()));
 		   }else if(filter.equals(ChatChannel.FILTER_BY_NUMBER)){
 			   item = new SelectItem(Integer.toString(MESSAGEOPTIONS_MESSAGES_BY_NUMBER), getCustomOptionText(ChatChannel.FILTER_BY_NUMBER, numberParam));
 		   }else if(filter.equals(ChatChannel.FILTER_BY_TIME)){
