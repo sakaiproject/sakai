@@ -6,7 +6,7 @@ function WebRTC() {
 	this.currentPeerConnectionsMap = {};
 	this.signalService = null;
 	this.localMediaStream = null;
-	this.debug = false;
+	this.debug = true;
 
 	this.pc_config = {
 		"iceServers" : [ {
@@ -272,6 +272,7 @@ function WebRTC() {
 
 		var pc_constrains = {
 			'optional' : []
+		
 		};
 
 		if (videoAgentType != null) {
@@ -300,6 +301,8 @@ function WebRTC() {
 
 		}
 
+		var webRTCClass = this;
+		
 		var pc = new RTCPeerConnection(this.pc_config, pc_constrains);
 
 		// send any ice candidates to the other peer
@@ -308,17 +311,57 @@ function WebRTC() {
 		callConnection.remoteVideoAgentType = videoAgentType;
 
 		pc.onicechange = function(event) {
-			console.info("onicechange +" + pc.iceState);
-		}
-
-		pc.onicechange = function(event) {
-			console.info("onicechange +" + pc.iceState);
+			console.info("onicechange +" + userid + " state " + pc.iceState);
 		}
 
 		pc.onstatechange = function(event) {
-			console.info("onicechange +" + pc.readyState);
+			console.info("onstatechange  " + userid + " state " + pc.readyState);
 		}
 
+		pc.onsignalingstatechange = function (event){
+			console.info ("onsignalingstatechange " + userid + " state " + pc.signalingState);
+		}
+		
+		pc.oniceconnectionstatechange = function (event){
+			console.info ("oniceconnectionstatechange " + userid + " state " + pc.iceConnectionState);
+			if (pc.iceConnectionState == "disconnected"){
+				videoCall.setVideoStatus(userid,videoMessages.pc_video_status_waiting_peer, "waiting");
+				setTimeout(function (){
+						var status = videoCall.getCurrentCallStatus(userid);
+						console.info ("Etado =" + status);
+						if (pc.iceConnectionState == "disconnected" && status !=  null && status == "ESTABLISHED") {
+							// in this case and while site/tool changing mechanism is no implemented just call when you were a caller
+							var currentPeerConnection = webRTCClass.currentPeerConnectionsMap[userid];
+							if (currentPeerConnection.isCaller){
+								pc.createOffer(function(desc) {
+								// stream.
+									webRTCClass.gotDescription(userid, desc);
+								});
+							}else{
+								//wait for the call for 10 secs and if nothings happens then hang up
+								setTimeout (function (){
+									var status_answer = videoCall.getCurrentCallStatus(userid);
+									
+									if (pc.iceConnectionState == "disconnected" && status_answer !=  null && status_answer == "ESTABLISHED") {
+										videoCall.doClose(userid, false);
+									}	
+								},10000);
+							}
+							
+						} 
+				},5000);
+			}else if (pc.iceConnectionState == "connected"){
+				videoCall.setVideoStatus (userid,videoMessages.pc_video_status_connection_established,"video");
+			}else if (pc.iceConnectionState == "closed"){
+				var status = videoCall.getCurrentCallStatus(userid);
+				if (status == "ESTABLISHED"){
+					webRTCClass.hangUp(userid, true);
+				}
+				
+			}
+			
+		}
+		
 		var signalService = this.signalService;
 		var webRTCClass = this;
 
@@ -332,7 +375,12 @@ function WebRTC() {
 				}));
 			}
 		};
-
+		
+		
+		pc.onnegotiationneeded = function() {
+		    console.info('`negotiationneeded` triggered');
+		};
+		
 		pc.onaddstream = function(event) {
 			callConnection.remoteMediaStream = event.stream;
 
@@ -362,7 +410,9 @@ function WebRTC() {
 
 		if (pc != null) {
 			pc.setLocalDescription(desc);
+			
 			this.signalService.send(uuid, JSON.stringify({
+				"fromstate": pc.iceConnectionState,
 				"sdp" : desc
 			}));
 		}
@@ -380,7 +430,14 @@ function WebRTC() {
 		if (signal.sdp) {
 
 			if (signal.sdp.type == "offer") {
-				this.onReceiveCall(from);
+				var callConnection = this.currentPeerConnectionsMap[from];
+				
+				if (signal.fromstate=="disconnected" && callConnection == null) {// To avoid get offers when you was a receiver and changed the page
+					this.signalService.send(from, JSON.stringify({"bye" : "bye"}));
+					return;
+				}else {
+					this.onReceiveCall(from);
+				}
 			}
 
 			var callConnection = this.currentPeerConnectionsMap[from];
