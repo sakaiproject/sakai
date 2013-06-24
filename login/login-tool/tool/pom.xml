@@ -50,7 +50,7 @@
     <dependency>
       <groupId>commons-logging</groupId>
       <artifactId>commons-logging</artifactId>
-      <version>1.0.4</version>
+      <version>${sakai.commons-logging.version}</version>
     </dependency>
     <!-- TODO bind to release version when it is ready 0.1? -->
     <dependency>
