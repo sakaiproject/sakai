@@ -191,14 +191,14 @@ public class ShowPageProducer implements ViewComponentProducer, DefaultView, Nav
 	public MessageLocator messageLocator;
 	private LocaleGetter localegetter;
 	public static final String VIEW_ID = "ShowPage";
-	private static final String DEFAULT_TYPES = "mp4,mov,m2v,3gp,wmv,mp3,swf,wav";
+	private static final String DEFAULT_TYPES = "mp4,mov,m2v,3gp,3g2,avi,m4v,mpg,rm,vob,wmv,mp3,swf,wav,aif,m4a,mid,mpa,ra,wma";
 	private static String[] multimediaTypes = null;
     // mp4 means it plays with the flash player if HTML5 doesn't work.
     // flv is also played with the flash player, but it doesn't get a backup <OBJECT> inside the player
     // Strobe claims to handle MOV files as well, but I feel safer passing them to quicktime, though that requires Quicktime installation
-        private static final String DEFAULT_MP4_TYPES = "video/mp4,video/m4v";
+        private static final String DEFAULT_MP4_TYPES = "video/mp4,video/m4v,audio/mpeg";
         private static String[] mp4Types = null;
-        private static final String DEFAULT_HTML5_TYPES = "video/mp4,video/m4v,video/webm,video/ogg";
+        private static final String DEFAULT_HTML5_TYPES = "video/mp4,video/m4v,video/webm,video/ogg,audio/mpeg,audio/ogg,audio/wav";
     // jw can also handle audio: audio/mp4,audio/mpeg,audio/ogg
         private static String[] html5Types = null;
 
@@ -1527,8 +1527,9 @@ public class ShowPageProducer implements ViewComponentProducer, DefaultView, Nav
 						// wrap whatever stuff we decide to put out in HTML5 if appropriate
 						// javascript is used to do the wrapping, because RSF can't really handle this
 						if (isHtml5) {
-						    UIComponent h5video = UIOutput.make(tableRow, "h5video");
-						    UIComponent h5source = UIOutput.make(tableRow, "h5source");
+						    boolean isAudio = mimeType.startsWith("audio/");
+						    UIComponent h5video = UIOutput.make(tableRow, (isAudio? "h5audio" : "h5video"));
+						    UIComponent h5source = UIOutput.make(tableRow, (isAudio? "h5asource" : "h5source"));
 						    if (lengthOk(height) && height.getOld().indexOf("%") < 0)
 							h5video.decorate(new UIFreeAttributeDecorator("height", height.getOld()));
 						    if (lengthOk(width) && width.getOld().indexOf("%") < 0)
@@ -1543,7 +1544,7 @@ public class ShowPageProducer implements ViewComponentProducer, DefaultView, Nav
 						// supply. For the moment MP4 is
 						// shown with the same player so it uses much of the
 						// same code
-						if (mimeType != null && (mimeType.equals("video/x-flv") || isMp4)) {
+						if (mimeType != null && (mimeType.equals("video/x-flv") || mimeType.equals("video/flv") || isMp4)) {
 							mimeType = "application/x-shockwave-flash";
 							movieUrl = "/lessonbuilder-tool/templates/StrobeMediaPlayback.swf";
 							useFlvPlayer = true;
