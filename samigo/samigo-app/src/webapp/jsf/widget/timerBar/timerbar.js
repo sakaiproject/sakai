@@ -123,14 +123,19 @@ function showCountDown(){
   var presentS=present.getSeconds();
 
   var theTime=((endH*3600)+(endM*60)+endS) -((presentH*3600)+(presentM*60)+presentS);
+  if (theTime >= 86400) {
+	  theTime = theTime - 86400;
+  }
+  
   if (theTime<=0) {
 	stopTimer();
 	//alert('theTime=' + theTime);
   }
-  else {
+  else {  
     var remainH=Math.floor(theTime/3600);
     var remainM=Math.floor((theTime%3600)/60);
     var remainS=(theTime%3600)%60;
+    
     var h='';var m='';var s='';
     if(remainH<=9) h='0';
     if(remainM<=9) m='0';
@@ -150,6 +155,9 @@ function progressTimerBar(){
     var presentM=present.getMinutes();
     var presentS=present.getSeconds();
     var remainTime=((endH*3600)+(endM*60)+endS) -((presentH*3600)+(presentM*60)+presentS);
+    if (remainTime >= 86400) {
+    	remainTime = remainTime - 86400;
+    }
 	//alert("remainTime=" + remainTime);
     window.status="Loaded....";
     var setRedBar = false;
