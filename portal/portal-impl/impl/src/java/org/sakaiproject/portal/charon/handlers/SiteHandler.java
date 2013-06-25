@@ -772,6 +772,17 @@ public class SiteHandler extends WorksiteHandler
 				// rcontext.put("tabsSitLog",
 				// Web.escapeHtml(rb.getString("sit_log")));
 			}
+
+			boolean allowAddSite = false;
+			if(SiteService.allowAddCourseSite()) {
+				allowAddSite = true;
+			} else if (SiteService.allowAddPortfolioSite()) {
+				allowAddSite = true;
+			} else if (SiteService.allowAddProjectSite()) {
+				allowAddSite = true;
+			}
+
+			rcontext.put("allowAddSite",allowAddSite);
 		}
 	}
 	/**
