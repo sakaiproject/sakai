@@ -657,8 +657,9 @@ public class SakaiBLTIUtil {
 
 		String password = (String) tool.get("reg_password");
 		String key = (String) tool.get("reg_key");
+		String consumerkey = (String) tool.get("consumerkey");
 
-		if ( password == null || key == null ) {
+		if ( password == null || key == null || consumerkey == null) {
 			return postError("<p>" + getRB(rb, "error.lti2.partial" ,"Tool item is incomplete, missing a key and password.")+"</p>" ); 
 		}
 
@@ -671,7 +672,7 @@ public class SakaiBLTIUtil {
 		setProperty(ltiProps, BasicLTIUtil.BASICLTI_SUBMIT, getRB(rb, "launch.button", "Press to Launch External Tool"));
 
         String serverUrl = ServerConfigurationService.getServerUrl();
-		setProperty(ltiProps, LTI2Constants.TC_PROFILE_URL,serverUrl+"/imsblis/lti2/tc_profile/"+toolKey);
+		setProperty(ltiProps, LTI2Constants.TC_PROFILE_URL,serverUrl+"/imsblis/lti2/tc_profile/"+consumerkey);
 		setProperty(ltiProps, BasicLTIConstants.LAUNCH_PRESENTATION_RETURN_URL, "about:blank");
 
 		int debug = getInt(tool.get("debug"));

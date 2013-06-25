@@ -352,9 +352,7 @@ public abstract class BaseLTIService implements LTIService {
 	}
 
 	protected boolean isAdmin(String siteId) {
-		if ( siteId == null ) {
-			throw new java.lang.RuntimeException("isAdmin() requires non-null siteId");
-		}
+		if ( siteId == null ) return true;  // Should only happen in Dao calls
 		if (!ADMIN_SITE.equals(siteId) ) return false;
 		return isMaintain(siteId);
 	}

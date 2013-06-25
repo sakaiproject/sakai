@@ -219,12 +219,21 @@ public class LTI2Service extends HttpServlet {
 	protected void getToolConsumerProfile(HttpServletRequest request, 
 		HttpServletResponse response,String profile_id)
 	{
-		Long toolKey = foorm.getLongKey(profile_id);
-		if ( toolKey < 0 ) {
+System.out.println("profile_id="+profile_id);
+		String search = LTIService.LTI_CONSUMERKEY + " = '" + profile_id + "'";
+		List<Map<String, Object>> tools = ltiService.getToolsDao(search, null, 0, 0, "~admin");
+
+        Map<String,Object> tool = null;
+		if ( tools.size() == 1 ) tool = tools.get(0);
+
+		if ( tool == null ) {
 			response.setStatus(HttpServletResponse.SC_FORBIDDEN); // TODO: Get this right
 			return;
 		}
-		Map<String,Object> tool = ltiService.getToolDao(toolKey, null);
+System.out.println("tool="+tool);
+		Long toolKey = foorm.getLong(tool.get(LTIService.LTI_ID));
+System.out.println("toolKey="+toolKey);
+
 		if ( tool == null ) {
 			response.setStatus(HttpServletResponse.SC_FORBIDDEN); // TODO: Get this right
 			return;
@@ -299,16 +308,20 @@ public class LTI2Service extends HttpServlet {
 	public void registerToolProviderProfile(HttpServletRequest request,HttpServletResponse response, 
 		String profile_id)
 	{
-		Long toolKey = foorm.getLongKey(profile_id);
-		if ( toolKey < 0 ) {
-			response.setStatus(HttpServletResponse.SC_FORBIDDEN); // TODO: Get this right
-			return;
-		}
-		Map<String,Object> tool = ltiService.getToolDao(toolKey, null);
+System.out.println("profile_id="+profile_id);
+		String search = LTIService.LTI_CONSUMERKEY + " = '" + profile_id + "'";
+		List<Map<String, Object>> tools = ltiService.getToolsDao(search, null, 0, 0, "~admin");
+
+        Map<String,Object> tool = null;
+		if ( tools.size() == 1 ) tool = tools.get(0);
+
 		if ( tool == null ) {
 			response.setStatus(HttpServletResponse.SC_FORBIDDEN); // TODO: Get this right
 			return;
 		}
+System.out.println("tool="+tool);
+		Long toolKey = foorm.getLong(tool.get(LTIService.LTI_ID));
+System.out.println("toolKey="+toolKey);
 
 		IMSJSONRequest jsonRequest = new IMSJSONRequest(request);
 
@@ -362,16 +375,28 @@ public class LTI2Service extends HttpServlet {
 		System.out.println("Launch="+launch_url);
 
 		Map<String, Object> newProps = new TreeMap<String, Object> ();
-		newProps.put(LTIService.LTI_CONSUMERKEY, "12345"); // TODO: trace this through
 		newProps.put(LTIService.LTI_SECRET, shared_secret);
 		newProps.put(LTIService.LTI_LAUNCH, launch_url);
 		newProps.put(LTIService.LTI_PARAMETERS, parameters.toString());
-		newProps.put(LTIService.LTI_SITE_ID, null);
-		// public Object updateToolDao(Long key, Map<String, Object> newProps, String siteId);
 		System.out.println("newProps="+newProps);
-		Object obj = ltiService.updateToolDao(toolKey, newProps, "~admin");
+		Object obj = ltiService.updateToolDao(toolKey, newProps, null);
 		System.out.println("YO..."+obj);
 
+		/* http://www.imsglobal.org/lti/v2p0pd/ltiIMGv2p0pd.html section 10.1
+		
+		HTTP/1.0 201 Created
+		Date: Thu, 10 May 2012 11:09:42 GMT
+		Content-Type: application/vnd.ims.lti.v2.ToolProxy.id+json
+		Content-Length: 256
+		Location: https://lms.server.com/ToolProxy/869e5ce5-214c-4e85-86c6-b99e8458a592
+ 
+		{
+			"@context" : "http://www.imsglobal.org/imspurl/lti/v2/ctx/ToolProxyId",
+			"@type" : "ToolProxy",
+			"@id" : "https://lms.server.com/ToolProxy/869e5ce5-214c-4e85-86c6-b99e8458a592",
+			"tool_proxy_guid" : "869e5ce5-214c-4e85-86c6-b99e8458a592"
+		}
+		*/
 	}
 
     /* IMS JSON version of this service */

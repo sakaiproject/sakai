@@ -567,6 +567,16 @@ public class DBLTIService extends BaseLTIService implements LTIService {
 				fields[0] = siteId;
 			}
 		}
+
+		if ( search != null && search.length() > 0 ) {
+			if ( whereClause.length() > 0 ) {
+				whereClause += " AND (" + search + ") ";
+			} else { 
+				whereClause += " (" + search + ") ";
+			}
+		}
+		// System.out.println("whereClause = "+whereClause);
+				
 		if ( whereClause.length() > 0 ) statement += " WHERE " + whereClause;
 
 		if (last != 0) {
@@ -700,6 +710,7 @@ public class DBLTIService extends BaseLTIService implements LTIService {
 		// int count = m_sql.dbWriteCount(sql, fields, null, null, false);
 
 		int count = jdbcTemplate.update(sql, fields);
+		// System.out.println("count="+count);
 
 		return count == 1;
 	}
