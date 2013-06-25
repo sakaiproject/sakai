@@ -41,14 +41,14 @@ print "Raw POST Parameters:\n\n";
 ksort($_POST);
 foreach($_POST as $key => $value ) {
     if (get_magic_quotes_gpc()) $value = stripslashes($value);
-    print htmlentities($key) . "=" . htmlentities($value) . " (".mb_detect_encoding($value).")\n";
+    print htmlent_utf8($key) . "=" . htmlent_utf8($value) . " (".mb_detect_encoding($value).")\n";
 }
 
 print "\nRaw GET Parameters:\n\n";
 ksort($_GET);
 foreach($_GET as $key => $value ) {
     if (get_magic_quotes_gpc()) $value = stripslashes($value);
-    print htmlentities($key) . "=" . htmlentities($value) . " (".mb_detect_encoding($value).")\n";
+    print htmlent_utf8($key) . "=" . htmlent_utf8($value) . " (".mb_detect_encoding($value).")\n";
 }
 
 $launch_presentation_return_url = $_POST['launch_presentation_return_url'];
@@ -111,7 +111,7 @@ echo("Registering....\n");
 echo("Endpoint=".$endpoint."\n");
 echo($reg_key."\n");
 echo($reg_password."\n");
-echo(htmlentities($body));
+echo(htmlent_utf8($body));
 print "\n<hr/>\n";
 
 $response = sendOAuthBodyPOST("POST", $endpoint, $reg_key, $reg_password, "application/vnd.ims.lti.v2.ToolProxy+json", $body);
@@ -121,7 +121,7 @@ echo($last_base_strig);
 
 print "\n<hr/>\n";
 echo("Html Response:\n");
-echo(htmlentities($response));
+echo(htmlent_utf8($response));
 
 print "</pre>";
 

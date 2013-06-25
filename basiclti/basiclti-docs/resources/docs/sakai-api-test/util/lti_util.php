@@ -15,6 +15,14 @@ function is_lti_request() {
    return false;
 }
 
+function htmlspec_utf8($string) {
+	return htmlspecialchars($string,ENT_QUOTES,$encoding = 'UTF-8');
+}
+
+function htmlent_utf8($string) {
+	return htmlentities($string,ENT_QUOTES,$encoding = 'UTF-8');
+}
+
 // Basic LTI Class that does the setup and provides utility
 // functions
 class BLTI {
@@ -333,9 +341,9 @@ class BLTI {
     }
 
     if ( headers_sent() ) {
-      echo('<a href="'.htmlentities($location).'">Continue</a>'."\n");
+      echo('<a href="'.htmlent_utf8($location).'">Continue</a>'."\n");
     } else {
-        $location = htmlentities($this->addSession($location));
+        $location = htmlent_utf8($this->addSession($location));
       header("Location: $location");
     }
     }
@@ -459,8 +467,8 @@ function signParameters($oldparms, $endpoint, $method, $oauth_consumer_key, $oau
     }
     $submit_text = $newparms['ext_submit'];
     foreach($newparms as $key => $value ) {
-        $key = htmlspecialchars($key);
-        $value = htmlspecialchars($value);
+        $key = htmlspec_utf8($key);
+        $value = htmlspec_utf8($value);
         if ( $key == "ext_submit" ) {
             $r .= "<input type=\"submit\" name=\"";
         } else {
@@ -492,8 +500,8 @@ function signParameters($oldparms, $endpoint, $method, $oauth_consumer_key, $oau
         $r .= $endpoint . "<br/>\n&nbsp;<br/>\n";
         $r .=  "<b>".get_string("basiclti_parameters","basiclti")."</b><br/>\n";
         foreach($newparms as $key => $value ) {
-            $key = htmlspecialchars($key);
-            $value = htmlspecialchars($value);
+            $key = htmlspec_utf8($key);
+            $value = htmlspec_utf8($value);
             $r .= "$key = $value<br/>\n";
         }
         $r .= "&nbsp;<br/>\n";

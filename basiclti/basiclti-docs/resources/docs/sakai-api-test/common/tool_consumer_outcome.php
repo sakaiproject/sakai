@@ -110,7 +110,7 @@ if ( $operation == "replaceResultRequest" ) {
         echo(sprintf($response,uniqid(),'failure', "Score not between 0.0 and 1.0",$message_ref,$body_tag));
         exit();
     }
-    echo(sprintf($response,uniqid(),'success', "Score for ".htmlentities($sourcedid)." is now $score",$message_ref,$body_tag));
+    echo(sprintf($response,uniqid(),'success', "Score for ".htmlspec_utf8($sourcedid)." is now $score",$message_ref,$body_tag));
     $gradebook[$sourcedid] = $score;
 } else if ( $operation == "readResultRequest" ) {
     $score =  $gradebook[$sourcedid];
