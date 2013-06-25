@@ -15,6 +15,14 @@ function is_lti_request() {
    return false;
 }
 
+function htmlspec_utf8($string) {
+	return htmlspecialchars($string,ENT_QUOTES,$encoding = 'UTF-8');
+}
+
+function htmlent_utf8($string) {
+	return htmlentities($string,ENT_QUOTES,$encoding = 'UTF-8');
+}
+
 // Basic LTI Class that does the setup and provides utility
 // functions
 class BLTI {
@@ -119,6 +127,7 @@ class BLTI {
         // Store the launch information in the session for later
         $newinfo = array();
         foreach($_POST as $key => $value ) {
+		    if (get_magic_quotes_gpc()) $value = stripslashes($value);
             if ( $key == "basiclti_submit" ) continue;
             if ( strpos($key, "oauth_") === false ) {
                 $newinfo[$key] = $value;
@@ -332,9 +341,9 @@ class BLTI {
     }
 
     if ( headers_sent() ) {
-      echo('<a href="'.htmlentities($location).'">Continue</a>'."\n");
+      echo('<a href="'.htmlent_utf8($location).'">Continue</a>'."\n");
     } else {
-        $location = htmlentities($this->addSession($location));
+        $location = htmlent_utf8($this->addSession($location));
       header("Location: $location");
     }
     }
@@ -458,8 +467,8 @@ function signParameters($oldparms, $endpoint, $method, $oauth_consumer_key, $oau
     }
     $submit_text = $newparms['ext_submit'];
     foreach($newparms as $key => $value ) {
-        $key = htmlspecialchars($key);
-        $value = htmlspecialchars($value);
+        $key = htmlspec_utf8($key);
+        $value = htmlspec_utf8($value);
         if ( $key == "ext_submit" ) {
             $r .= "<input type=\"submit\" name=\"";
         } else {
@@ -491,8 +500,8 @@ function signParameters($oldparms, $endpoint, $method, $oauth_consumer_key, $oau
         $r .= $endpoint . "<br/>\n&nbsp;<br/>\n";
         $r .=  "<b>".get_string("basiclti_parameters","basiclti")."</b><br/>\n";
         foreach($newparms as $key => $value ) {
-            $key = htmlspecialchars($key);
-            $value = htmlspecialchars($value);
+            $key = htmlspec_utf8($key);
+            $value = htmlspec_utf8($value);
             $r .= "$key = $value<br/>\n";
         }
         $r .= "&nbsp;<br/>\n";
@@ -744,8 +753,8 @@ function do_post($url, $body, $header) {
     $LastPOSTMethod = "Error";
     echo("Unable to post<br/>\n");
     echo("Url=$url <br/>\n");
-    echo("Headers:<br/>\n$headers<br/>\n");
-    echo("Body:<br/>\n$data<br/>\n");
+    echo("Headers:<br/>\n$header<br/>\n");
+    echo("Body:<br/>\n$body<br/>\n");
     throw new Exception("Unable to post");
 }
 

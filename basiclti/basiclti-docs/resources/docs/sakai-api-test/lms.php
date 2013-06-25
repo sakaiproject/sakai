@@ -24,10 +24,10 @@ require_once("util/lti_util.php");
       "resource_link_description" => "A weekly blog.",
       "user_id" => "292832126",
       "roles" => "Instructor",  // or Learner
-      "lis_person_name_full" => 'Jane Q. Public',
-      "lis_person_name_family" => 'Public',
-      "lis_person_name_given" => 'Given',
-      "lis_person_contact_email_primary" => "user@school.edu",
+      "lis_person_name_full" => 'Siân Instructor',
+      "lis_person_name_family" => 'Instructor',
+      "lis_person_name_given" => 'Siân',
+      "lis_person_contact_email_primary" => "sian@imscert.org",
       "lis_person_sourcedid" => "school.edu:user",
       "context_id" => "456434513",
       "context_title" => "Design of Personal Environments",
@@ -57,7 +57,7 @@ require_once("util/lti_util.php");
   $outcomes = trim($_REQUEST["outcomes"]);
   if ( ! $outcomes ) {
       $outcomes = str_replace("lms.php","common/tool_consumer_outcome.php",$cur_url);
-      $outcomes .= "?b64=" . htmlentities($b64);
+      $outcomes .= "?b64=" . htmlent_utf8($b64);
   }
 
   $tool_consumer_instance_guid = $lmsdata['tool_consumer_instance_guid'];
@@ -92,7 +92,7 @@ function lmsdataToggle() {
   echo("<fieldset><legend>Launch Data</legend>\n");
   foreach ($lmsdata as $k => $val ) {
       echo($k.": <input type=\"text\" name=\"".$k."\" value=\"");
-      echo(htmlspecialchars($val));
+      echo(htmlspec_utf8($val));
       echo("\"><br/>\n");
   }
   echo("</fieldset>\n");
@@ -112,7 +112,7 @@ function lmsdataToggle() {
   $parms["oauth_callback"] = "about:blank";
   if ( $outcomes ) {
     $parms["lis_outcome_service_url"] = $outcomes;
-    $parms["lis_result_sourcedid"] = "feb-123-456-2929::28883";
+    $parms["lis_result_sourcedid"] = '{"zap" : "Siân JSON 1234 Sourcedid <>&lt;"}';
   }
     
   $parms['launch_presentation_css_url'] = $cssurl;
