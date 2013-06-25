@@ -1584,6 +1584,11 @@ public class ShowPageProducer implements ViewComponentProducer, DefaultView, Nav
 						if (!useEmbed) {
 							if (useFlvPlayer) {
 								UIOutput.make(tableRow, "flashvars").decorate(new UIFreeAttributeDecorator("value", "src=" + URLEncoder.encode(myUrl() + i.getItemURL(simplePageBean.getCurrentSiteId(),currentPage.getOwner()))));
+								// need wmode=opaque for player to stack properly with dialogs, etc.
+								// there is a performance impact, but I'm guessing in our application we don't 
+								// need ultimate performance for embedded video. I'm setting it only for
+								// the player, so flash games and other applications will still get wmode=window
+								UIOutput.make(tableRow, "wmode");
 							}
 
 							UIOutput.make(tableRow, "movieURLInject").decorate(new UIFreeAttributeDecorator("value", movieUrl));
