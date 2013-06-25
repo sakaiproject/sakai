@@ -1572,11 +1572,15 @@ public class ShowPageProducer implements ViewComponentProducer, DefaultView, Nav
 							//item2.decorate(new UIFreeAttributeDecorator("style", "border: 1px solid black"));
 						}
 
-						// some object types seem to need a specification
+						// some object types seem to need a specification, so supply our default if necessary
 						if (lengthOk(height) && lengthOk(width)) {
 							item2.decorate(new UIFreeAttributeDecorator("height", height.getOld())).decorate(new UIFreeAttributeDecorator("width", width.getOld()));
+						} else {
+						    if (oMimeType.startsWith("audio/"))
+							item2.decorate(new UIFreeAttributeDecorator("height", "100")).decorate(new UIFreeAttributeDecorator("width", "400"));
+						    else
+							item2.decorate(new UIFreeAttributeDecorator("height", "300")).decorate(new UIFreeAttributeDecorator("width", "400"));
 						}
-
 						if (!useEmbed) {
 							if (useFlvPlayer) {
 								UIOutput.make(tableRow, "flashvars").decorate(new UIFreeAttributeDecorator("value", "src=" + URLEncoder.encode(myUrl() + i.getItemURL(simplePageBean.getCurrentSiteId(),currentPage.getOwner()))));
@@ -1601,9 +1605,14 @@ public class ShowPageProducer implements ViewComponentProducer, DefaultView, Nav
 								item2.decorate(new UIFreeAttributeDecorator("type", oMimeType));
 							}
 
-							// some object types seem to need a specification
+							// some object types seem to need a specification, so give a default if needed
 							if (lengthOk(height) && lengthOk(width)) {
 								item2.decorate(new UIFreeAttributeDecorator("height", height.getOld())).decorate(new UIFreeAttributeDecorator("width", width.getOld()));
+							} else {
+							    if (oMimeType.startsWith("audio/"))
+								item2.decorate(new UIFreeAttributeDecorator("height", "100")).decorate(new UIFreeAttributeDecorator("width", "100%"));
+							    else
+								item2.decorate(new UIFreeAttributeDecorator("height", "300")).decorate(new UIFreeAttributeDecorator("width", "100%"));
 							}
 
 							if (!useEmbed) {
