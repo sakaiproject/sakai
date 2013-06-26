@@ -839,9 +839,13 @@ function post_curl($url, $body, $header) {
   $ch = curl_init();
   curl_setopt($ch, CURLOPT_URL, $url);
 
-  // Make sure that the header is an array
+  // Make sure that the header is an array and pitch white space
   $header = explode("\n", trim($header));
-  curl_setopt ($ch, CURLOPT_HTTPHEADER, $header);
+  $htrim = Array();
+  foreach ( $header as $h ) {
+    $htrim[] = trim($h);
+  }
+  curl_setopt ($ch, CURLOPT_HTTPHEADER, $htrim);
 
   curl_setopt($ch, CURLOPT_POST, 1);
   curl_setopt($ch, CURLOPT_POSTFIELDS, $body);
