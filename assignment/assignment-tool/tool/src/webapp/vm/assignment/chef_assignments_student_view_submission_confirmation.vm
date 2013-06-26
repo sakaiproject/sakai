@@ -185,7 +185,7 @@
 		#end	
 		#if ($!linkInvoked)
 		<p class="act">
-			<input type="submit" accesskey="x" onClick="window.close();" name="eventSubmit_doConfirm_assignment_submission" value="Close and Exit"  class="active" />
+			<input type="submit" accesskey="x" onClick="window.close();" name="eventSubmit_doConfirm_assignment_submission" value="$tlang.getString("gen.closeexit")"  class="active" />
 		</p>		
 		#else	
 		<p class="act">
