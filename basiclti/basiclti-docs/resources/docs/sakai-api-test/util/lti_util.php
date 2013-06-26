@@ -542,7 +542,7 @@ function do_post_request($url, $data, $optional_headers = null)
   if ($optional_headers !== null) {
      $header = $optional_headers . "\r\n";
   }
-  $header = $header . "Content-type: application/x-www-form-urlencoded\r\n";
+  $header = $header . "Content-Type: application/x-www-form-urlencoded\r\n";
 
   return do_post($url,$data,$header);
 }
