@@ -256,7 +256,10 @@ function WebRTC() {
 				// In this case we have to declare the success, instead
 				// on addStream
 				successCall(to, callConnection.remoteMediaStream); // In this
+				callConnection.hasAnswered = true;
+				callConnection.flushIceSignals ();
 			});
+			
 		}
 
 	}
@@ -452,16 +455,22 @@ function WebRTC() {
 
 		} else if (signal.candidate != null) {
 			var callConnection = this.currentPeerConnectionsMap[from];
+			
 			if (callConnection != null) {
 				var pc = callConnection.rtcPeerConnection;
-				pc.addIceCandidate(new RTCIceCandidate({
-					sdpMLineIndex : signal.label,
-					candidate : signal.candidate
-
-				}));
+				if (!callConnection.isCaller && !callConnection.hasAnswered){
+						callConnection.addIceSignal (signal);
+				}else{
+				
+					pc.addIceCandidate(new RTCIceCandidate({
+						sdpMLineIndex : signal.label,
+						candidate : signal.candidate
+					}));
+				}
 			}else{
 				//For now, we send a bye signal in M2 we will try to reconnect.
-				this.signalService.send(from, JSON.stringify({"bye" : "bye"}));
+				//this.signalService.send(from, JSON.stringify({"bye" : "bye"}));
+				
 			}
 		} else if (signal.bye != null) {
 			var callConnection = this.currentPeerConnectionsMap[from];
@@ -512,7 +521,29 @@ function CallConnection(pc, success, failed) {
 	this.onsuccessconn = success;
 	this.onfailedconn = failed;
 	this.isCaller = null;
+	this.hasAnswered = false;
+	this.retainedIceSignals = new Array();
 	this.remoteMediaStream = null;
 	this.remoteVideoAgentType = null;
 	this.startTime = new Date();
+	
+	this.addIceSignal = function (signal){
+		console.log ("Adding a retained ice signal");
+		this.retainedIceSignals.push (signal);		
+	}
+	
+	this.flushIceSignals = function(){
+		console.log ("flushing ice signals");
+		for (i = 0; i< this.retainedIceSignals.length; i++){
+			var signal = this.retainedIceSignals[i];
+			this.rtcPeerConnection.addIceCandidate(new RTCIceCandidate({
+				sdpMLineIndex : signal.label,
+				candidate : signal.candidate
+			}));
+		}
+		
+		this.retainedIceSignals = new Array ();
+	}
+		
+	
 }
