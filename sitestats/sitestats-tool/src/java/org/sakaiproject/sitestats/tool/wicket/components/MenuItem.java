@@ -67,17 +67,19 @@ public class MenuItem extends Panel {
 	@Override
 	protected void onBeforeRender() {
 		Class currentPageClass = getPage().getClass();
-		if(itemPageClass.equals(currentPageClass)) {
-			if(first) {
-				menuItemLinkHolder.setVisible(false);
-			}else{
-				menuItemLink.setVisible(false);
-			}
-			menuItemLabel.setVisible(true);
-		}else{
-			menuItemLinkHolder.setVisible(true);
-			menuItemLabel.setVisible(false);
-		}
+		//if(itemPageClass.equals(currentPageClass)) {
+		//	if(first) {
+		//		menuItemLinkHolder.setVisible(false);
+		//	}else{
+		//		menuItemLink.setVisible(false);
+		//	}
+		//	menuItemLabel.setVisible(true);
+		//}else{
+		//	menuItemLinkHolder.setVisible(true);
+		//	menuItemLabel.setVisible(false);
+		//}
+		menuItemLinkHolder.setVisible(true);
+		menuItemLabel.setVisible(false);
 		super.onBeforeRender();
 	}
 }
