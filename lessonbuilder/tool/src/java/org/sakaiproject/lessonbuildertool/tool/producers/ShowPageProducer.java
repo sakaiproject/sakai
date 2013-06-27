@@ -1409,7 +1409,7 @@ public class ShowPageProducer implements ViewComponentProducer, DefaultView, Nav
 						UIOutput.make(tableRow, "description2", i.getDescription());
 
 					} else if ((youtubeKey = simplePageBean.getYoutubeKey(i)) != null) {
-						String youtubeUrl = "http://www.youtube.com/embed/" + youtubeKey;
+						String youtubeUrl = "https://www.youtube.com/embed/" + youtubeKey + "?wmode=opaque";
 
 						UIOutput.make(tableRow, "youtubeSpan");
 
@@ -1589,7 +1589,8 @@ public class ShowPageProducer implements ViewComponentProducer, DefaultView, Nav
 								// need ultimate performance for embedded video. I'm setting it only for
 								// the player, so flash games and other applications will still get wmode=window
 								UIOutput.make(tableRow, "wmode");
-							}
+							} else if (mimeType.equals("application/x-shockwave-flash"))
+								UIOutput.make(tableRow, "wmode");
 
 							UIOutput.make(tableRow, "movieURLInject").decorate(new UIFreeAttributeDecorator("value", movieUrl));
 							if (!isMp4) {
