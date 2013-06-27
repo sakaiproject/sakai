@@ -489,21 +489,23 @@ public class SiteEmailNotificationRWiki extends SiteEmailNotification {
 			String siteId = getSite();
 			if (StringUtils.isEmpty(siteId)) {
 				Reference ref = entityManager.newReference(event.getResource());
-				getSiteId(ref.getContext());
+				siteId = getSiteId(ref.getContext());
 			}
-			try {
-				Site site = siteService.getSite(siteId);
-				List<SitePage> pages = site.getPages();
-				for (SitePage p : pages) {
-					Collection<ToolConfiguration> toolConfigurations = p.getTools(new String[] {toolId});
-					// if tool exists in this page, get the page title
-					if (CollectionUtils.isNotEmpty(toolConfigurations)) {
-						toolName = p.getTitle();
-						break;
+			if (StringUtils.isNotEmpty(siteId)) {
+				try {
+					Site site = siteService.getSite(siteId);
+					List<SitePage> pages = site.getPages();
+					for (SitePage p : pages) {
+						Collection<ToolConfiguration> toolConfigurations = p.getTools(new String[] {toolId});
+						// if tool exists in this page, get the page title
+						if (CollectionUtils.isNotEmpty(toolConfigurations)) {
+							toolName = p.getTitle();
+							break;
+						}
 					}
+				} catch (IdUnusedException e) {
+					log.error("Site not found while getting wiki name", e);
 				}
-			} catch (IdUnusedException e) {
-				log.error("Site not found while getting wiki name", e);
 			}
 		}
 		return toolName;
