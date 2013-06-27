@@ -1967,7 +1967,7 @@ function addHighlight() {
 	if(!lessonBuilderAnimationLocked) {
 		if(!$("#dropDownDiv").is(":visible")) {
 			lessonBuilderAnimationLocked = true;
-			hideMultimedia();
+			//hideMultimedia();
 			reposition();
 			$("#dropDownDiv").show("slide", {direction: "up"}, 300, unlockAnimation);
 			$(".add-forum-link").focus();
@@ -1982,7 +1982,7 @@ function removeHighlight() {
 		if($("#dropDownDiv").is(":visible") && !dropdownViaClick) {
 			hasBeenInMenu = false;
 			lessonBuilderAnimationLocked = true;
-			unhideMultimedia();
+			//unhideMultimedia();
 			$("#dropDownDiv").hide("slide", {direction: "up"}, 300, unlockAnimation);
 			$(".dropdown a").focus();
 		}
@@ -1996,13 +1996,13 @@ function toggleDropdown() {
 		if($("#dropDownDiv").is(":visible")) {
 			lessonBuilderAnimationLocked = true;
 			hasBeenInMenu = false;
-			unhideMultimedia();
+			//unhideMultimedia();
 			$("#dropDownDiv").hide("slide", {direction: "up"}, 300, unlockAnimation);
 			dropdownViaClick = false;
 			$(".dropdown a").focus();
 		}else {
 			lessonBuilderAnimationLocked = true;
-			hideMultimedia();
+			//hideMultimedia();
 			reposition();
 			$("#dropDownDiv").show("slide", {direction: "up"}, 300, unlockAnimation);
 			$(".add-forum-link").focus();
@@ -2017,7 +2017,7 @@ function closeDropdown() {
 	if(!lessonBuilderAnimationLocked) {
 		if($("#dropDownDiv").is(":visible")) {
 			hasBeenInMenu = false;
-			unhideMultimedia();
+			//unhideMultimedia();
 			$("#dropDownDiv").hide();
 			dropdownViaClick = false;
 			$(".dropdown a").focus();
