@@ -2159,7 +2159,6 @@ function checkQuestionGradedForm() {
 
 // Prepares the question dialog to be submitted
 function prepareQuestionDialog() {
-    alert($("#question-gradebook-title"));
 	if ($("#question-graded").attr("checked") && !isFinite(parseFloat($("#question-max").val()))) {
 	    $('#question-error').text(msg("simplepage.integer-expected"));
 	    $('#question-error-container').show();
