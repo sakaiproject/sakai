@@ -750,9 +750,9 @@ $(function() {
 		
 		$('.question-link').click(function(){
 			closeDropdown();
-            $('li').removeClass('editInProgress');
+			$('li').removeClass('editInProgress');
 			var position =  $(this).position();
-			
+
 			$('#question-error-container').hide();
 			$("#questionEditId").val("-1");
 			$("#question-text-input").val("");
@@ -902,9 +902,10 @@ $(function() {
 			$("#delete-question-div").show();
 			
 			var position = row.position();
-            $("#delete-question-div").hide();
-            $('.edit-col').addClass('edit-colHidden');
-            $(this).closest('li').addClass('editInProgress');
+			$("#delete-question-div").hide();
+			$('.edit-col').addClass('edit-colHidden');
+			$(this).closest('li').addClass('editInProgress');
+			$('#question-error-container').hide();
 
 			$("#question-dialog").dialog("option", "position", [position.left, position.top]);
 			oldloc = $(this);
@@ -2163,7 +2164,7 @@ function prepareQuestionDialog() {
 	    $('#question-error').text(msg("simplepage.integer-expected"));
 	    $('#question-error-container').show();
 	    return false;
-	} else if($("#question-graded").attr("checked") && $("#question-gradebook-title") == '') {
+	} else if($("#question-graded").attr("checked") && $("#question-gradebook-title").val() == '') {
 	    $('#question-error').text(msg("simplepage.gbname-expected"));
 	    $('#question-error-container').show();
 	    return false;
