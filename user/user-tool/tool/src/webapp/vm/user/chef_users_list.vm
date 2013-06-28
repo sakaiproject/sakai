@@ -26,23 +26,31 @@
 						#if ($pagesize != 0)
 							#if ($goFPButton == "true")
 								<form name="firstpageForm" class="inlineForm" method="post" action="#toolForm("$action")">
+								    <fieldset><legend>$tlang.getString("uselis.first")</legend>
 									<input type="submit" name="eventSubmit_doList_first" value="|&lt;" title="$tlang.getString("uselis.first")" />
+									</fieldset>
 									<input type="hidden" name="sakai_csrf_token" value="$sakai_csrf_token" />
 								</form>
 							#else
 								<form name="firstpageForm" class="inlineForm" method="post" action="#toolForm("$action")">
+								    <fieldset><legend>$tlang.getString("uselis.first")</legend>
 									<input type="submit" name="eventSubmit_doList_first" value="|&lt;" disabled="disabled" />
+									</fieldset>
 									<input type="hidden" name="sakai_csrf_token" value="$sakai_csrf_token" />
 								</form>
 							#end
 							#if ($goPPButton == "true")
 								<form name="prevpageForm" class="inlineForm" method="post" action="#toolForm("$action")">
+								    <fieldset><legend>$tlang.getString('uselis.previous') $pagesize</legend>
 									<input type="submit" name="eventSubmit_doList_prev" value="&lt;" title="$tlang.getString('uselis.previous') $pagesize"  accesskey="p" />
+									</fieldset>
 									<input type="hidden" name="sakai_csrf_token" value="$sakai_csrf_token" />
 								</form>
 							#else
 								<form name="prevpageForm" class="inlineForm" method="post" action="#toolForm("$action")">
+								    <fieldset><legend>$tlang.getString('uselis.previous') $pagesize</legend>
 									<input type="submit" name="eventSubmit_doList_prev" value="&lt;" disabled="disabled" />
+									</fieldset>
 									<input type="hidden" name="sakai_csrf_token" value="$sakai_csrf_token" />
 								</form>
 							#end
@@ -66,23 +74,31 @@
 						#if ($pagesize != 0)
 							#if ($goNPButton == "true")
 								<form name="nextpageForm" class="inlineForm" method="post" action="#toolForm("$action")">
+								    <fieldset><legend>$tlang.getString('uselis.next') $pagesize</legend>
 									<input type="submit" name="eventSubmit_doList_next" value="&gt;" title="$tlang.getString('uselis.next') $pagesize"  accesskey="n" />
+									</fieldset>
 									<input type="hidden" name="sakai_csrf_token" value="$sakai_csrf_token" />
 								</form>
 							#else
 								<form name="nextpageForm" class="inlineForm" method="post" action="#toolForm("$action")">
+								    <fieldset><legend>$tlang.getString('uselis.next') $pagesize</legend>
 									<input type="submit" name="eventSubmit_doList_next" value="&gt;" disabled="disabled" />
+									</fieldset>
 									<input type="hidden" name="sakai_csrf_token" value="$sakai_csrf_token" />
 								</form>
 							#end
 							#if ($goLPButton == "true")
 								<form name="lastpageForm" class="inlineForm" method="post" action="#toolForm("$action")">
+								    <fieldset><legend>$tlang.getString('uselis.last')</legend>
 									<input type="submit" name="eventSubmit_doList_last" value="&gt;|" title="$tlang.getString('uselis.last')" />
+									</fieldset>
 									<input type="hidden" name="sakai_csrf_token" value="$sakai_csrf_token" />
 								</form>
 							#else
 								<form name="lastpageForm" class="inlineForm" method="post" action="#toolForm("$action")">
+								    <fieldset><legend>$tlang.getString('uselis.last')</legend>
 									<input type="submit" name="eventSubmit_doList_last" value="&gt;|" disabled="disabled" />
+									</fieldset>
 									<input type="hidden" name="sakai_csrf_token" value="$sakai_csrf_token" />
 								</form>
 							#end
