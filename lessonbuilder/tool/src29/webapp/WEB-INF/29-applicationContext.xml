@@ -13,6 +13,7 @@
     <property name="simplePageToolDao" ref="org.sakaiproject.lessonbuildertool.model.SimplePageToolDao" />
     <property name="authzGroupService" ref="org.sakaiproject.authz.api.AuthzGroupService"/>
     <property name="securityService" ref="org.sakaiproject.authz.api.SecurityService"/>
+    <property name="memoryService"><ref bean="org.sakaiproject.memory.api.MemoryService"/></property>
   </bean>
 
  </beans>
