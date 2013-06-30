@@ -479,7 +479,8 @@ public interface LTIService {
 		"reg_launch:url:label=bl_reg_launch:maxlength=1024:hidden=false",
 		"reg_key:text:label=bl_reg_key:hidden=false:maxlength=255",
 		"reg_password:text:label=bl_reg_password:hidden=false:maxlength=255",
-		"parameters:textarea:label=bl_parameters:rows=5:cols=25:maxlength=1024",
+		"reg_parameters:textarea:label=bl_reg_parameters:rows=5:cols=25:maxlength=1024",
+		"reg_profile:textarea:label=bl_reg_profile:maxlength=1024:hidden=false",
 		// End of BLTI-230 - LTI 2.0
 		"created_at:autodate", 
 		"updated_at:autodate" };
@@ -540,7 +541,8 @@ public interface LTIService {
 	static final String LTI_REG_LAUNCH = "reg_launch";
 	static final String LTI_REG_KEY = "reg_key";
 	static final String LTI_REG_PASSWORD = "reg_password";
-	static final String LTI_PARAMETERS = "parameters";
+	static final String LTI_REG_PARAMETERS = "reg_parameters";
+	static final String LTI_REG_PROFILE = "reg_profile";
 	// End of BLTI-230 - LTI 2.0
 
 }

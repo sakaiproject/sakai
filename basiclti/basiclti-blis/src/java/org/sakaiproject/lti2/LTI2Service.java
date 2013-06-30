@@ -306,9 +306,10 @@ System.out.println("toolKey="+toolKey);
 		}
 
 	public void registerToolProviderProfile(HttpServletRequest request,HttpServletResponse response, 
-		String profile_id)
+		String profile_id) throws java.io.IOException
 	{
 System.out.println("profile_id="+profile_id);
+		// TODO: Need FOORM.escape
 		String search = LTIService.LTI_CONSUMERKEY + " = '" + profile_id + "'";
 		List<Map<String, Object>> tools = ltiService.getToolsDao(search, null, 0, 0, "~admin");
 
@@ -377,10 +378,12 @@ System.out.println("toolKey="+toolKey);
 		Map<String, Object> newProps = new TreeMap<String, Object> ();
 		newProps.put(LTIService.LTI_SECRET, shared_secret);
 		newProps.put(LTIService.LTI_LAUNCH, launch_url);
-		newProps.put(LTIService.LTI_PARAMETERS, parameters.toString());
+		newProps.put(LTIService.LTI_REG_PARAMETERS, parameters.toString());
 		System.out.println("newProps="+newProps);
+		newProps.put(LTIService.LTI_REG_PROFILE, jsonRequest.getPostBody());
 		Object obj = ltiService.updateToolDao(toolKey, newProps, null);
-		System.out.println("YO..."+obj);
+		boolean success = ( obj instanceof Boolean ) && ( (Boolean) obj == Boolean.TRUE);
+		System.out.println("YO..."+success);
 
 		/* http://www.imsglobal.org/lti/v2p0pd/ltiIMGv2p0pd.html section 10.1
 		
@@ -397,6 +400,18 @@ System.out.println("toolKey="+toolKey);
 			"tool_proxy_guid" : "869e5ce5-214c-4e85-86c6-b99e8458a592"
 		}
 		*/
+		Map jsonResponse = new TreeMap();
+		jsonResponse.put("@context","http://www.imsglobal.org/imspurl/lti/v2/ctx/ToolProxyId");
+		jsonResponse.put("@type", "ToolProxy");
+		String serverUrl = ServerConfigurationService.getServerUrl();
+        jsonResponse.put("@id", serverUrl+"/imsblis/lti2/tc_registration/"+profile_id);
+		jsonResponse.put("tool_proxy_guid", profile_id);
+		response.setContentType("application/vnd.ims.lti.v2.ToolProxy.id+json");
+		response.setStatus(201); // TODO: Get this right
+		String jsonText = JSONValue.toJSONString(jsonResponse);
+		System.out.println(jsonText);
+		PrintWriter out = response.getWriter();
+		out.println(jsonText);
 	}
 
     /* IMS JSON version of this service */
