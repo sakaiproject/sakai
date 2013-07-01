@@ -234,12 +234,12 @@ public class DashboardLogicImpl implements DashboardLogic {
 			List<CalendarItem> items = dao.getCalendarItemsByContext(contextId);
 			if(items == null || items.isEmpty()) {
 				StringBuilder message = new StringBuilder();
-				message.append("Failed attempt to retrieve calendar events in context (");
+				message.append("There is no calendar events in context (");
 				message.append(contextId);
 				message.append(") for new user (");
 				message.append(sakaiUserId);
 				message.append(")");
-				logger.warn(message.toString());
+				logger.info(message.toString());
 			} else {
 				for(CalendarItem item: items) {
 					SourceType sourceType = item.getSourceType();
@@ -270,12 +270,12 @@ public class DashboardLogicImpl implements DashboardLogic {
 			List<NewsItem> items = dao.getNewsItemsByContext(contextId);
 			if(items == null || items.isEmpty()) {
 				StringBuilder message = new StringBuilder();
-				message.append("Failed attempt to retrieve news events in context (");
+				message.append("There is no news events in context (");
 				message.append(contextId);
 				message.append(") for new user (");
 				message.append(sakaiUserId);
 				message.append(")");
-				logger.warn(message.toString());
+				logger.info(message.toString());
 			} else {
 				for(NewsItem item: items) {
 					SourceType sourceType = item.getSourceType();
