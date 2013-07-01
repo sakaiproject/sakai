@@ -23,6 +23,7 @@ package org.sakaiproject.user.tool;
 
 import java.io.InputStreamReader;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Iterator;
 import java.util.LinkedHashMap;
 import java.util.List;
@@ -1285,23 +1286,27 @@ public class UsersAction extends PagedResourceActionII
 				}
 			}
 			
-      // make sure the old password matches, but don't check for super users
-      if (!SecurityService.isSuperUser()) {
-            if (!user.checkPassword(pwcur)) {
-              addAlert(state, rb.getString("usecre.curpass"));
-                      return false;
-            }
-      }
-
-			if (mode == null || !mode.equalsIgnoreCase("remove")) {
-				// make sure we have matching password fields
-				if (StringUtil.different(pw, pwConfirm))
-				{
-					addAlert(state, rb.getString("usecre.pass"));
-					return false;
+			//validate the password only for local users
+			if (!isProvidedType(user.getType())) {
+			
+				// make sure the old password matches, but don't check for super users
+				if (!SecurityService.isSuperUser()) {
+					if (!user.checkPassword(pwcur)) {
+						addAlert(state, rb.getString("usecre.curpass"));
+						return false;
+					}
 				}
+
+				if (mode == null || !mode.equalsIgnoreCase("remove")) {
+					// make sure we have matching password fields
+					if (StringUtil.different(pw, pwConfirm))
+					{
+						addAlert(state, rb.getString("usecre.pass"));
+						return false;
+					}
 	
-				if (pw != null) user.setPassword(pw);
+					if (pw != null) user.setPassword(pw);
+				}
 			}
 		}
 
@@ -1681,5 +1686,19 @@ public class UsersAction extends PagedResourceActionII
 		return u;
 	}
 	
-	
+	/**
+	 * Check to see if the type is in the list of known provided types
+	 * @param userType User's type
+	 * @return
+	 */
+	private boolean isProvidedType(String userType) {
+		boolean provided = false;
+		String[] providedTypes = ServerConfigurationService.getStrings("user.type.provided");
+		if (providedTypes != null && providedTypes.length > 0) {
+			List<String> typeList = Arrays.asList(providedTypes);
+			if (typeList.contains(userType))
+				provided = true;
+		}
+		return provided;
+	}
 }
