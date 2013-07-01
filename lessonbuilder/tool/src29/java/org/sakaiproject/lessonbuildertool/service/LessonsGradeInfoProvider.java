@@ -116,9 +116,28 @@ public class LessonsGradeInfoProvider implements ExternalAssignmentProvider {
 	return true;
     }
 
-    // for the moment we're setting grades individually, so say no
+    // is access to this item restricted by group access
     public boolean isAssignmentGrouped(String id) {
-	return false;
+	int i = id.lastIndexOf(":");
+	if (i < 0)
+	    return false;
+	String itemNum = id.substring(i+1);
+	SimplePageItem item = null;
+	long itemId = 0;
+	try {
+	    itemId = Long.parseLong(itemNum);
+	    item = dao.findItem(itemId);
+	    if (item == null)
+		return false;
+	} catch (Exception e){
+	    return false;
+	}
+
+	Set<String> groupIds = getItemGroups(item);
+	if (groupIds == null)
+	    return false;
+
+	return true;
     }
 
     // my best estimate is about 100 bytes / call. The maximum likely chain is 
