@@ -15,7 +15,7 @@
 		<version name="version" access="field" column="version"/>
 		
 		<property name="title" column="title" type="string" not-null="false" />
-		<property name="siteId" column="site_id" type="string" not-null="true"/>
+		<property name="siteId" column="site_id" type="string" not-null="true" index="IDX_SITE_ID"/>
 		<property name="calendarEventId" column="calendar_event_id" type="string" length="2000" not-null="false"/>
 		<property name="calendarId" column="calendar_id" type="string"  not-null="false"/>
 		
