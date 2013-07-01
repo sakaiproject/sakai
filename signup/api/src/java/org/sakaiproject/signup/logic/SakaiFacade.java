@@ -115,6 +115,16 @@ public interface SakaiFacade {
 	 * @return display name (probably firstname lastname) or "----------" (10
 	 *         hyphens) if none found
 	 */
+	public String getUserDisplayLastFirstName(String userId);
+	
+	/**
+	 * Get the display name for a user by their unique id
+	 * 
+	 * @param userId
+	 *            the current sakai user id (not username)
+	 * @return display name (probably  lastname,firstname) or "----------" (10
+	 *         hyphens) if none found
+	 */
 	public String getUserDisplayName(String userId);
 
 	/**

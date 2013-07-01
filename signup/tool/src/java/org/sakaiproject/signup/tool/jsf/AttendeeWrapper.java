@@ -24,7 +24,6 @@ package org.sakaiproject.signup.tool.jsf;
 
 import org.sakaiproject.signup.model.SignupAttendee;
 import org.sakaiproject.signup.tool.util.PlainTextFormat;
-
 import org.sakaiproject.user.api.User;
 import org.sakaiproject.user.api.UserNotDefinedException;
 import org.sakaiproject.user.cover.UserDirectoryService;
@@ -35,7 +34,7 @@ import org.sakaiproject.user.cover.UserDirectoryService;
  * This class is a wrapper class for SignupAttendee for UI purpose
  * </P>
  */
-public class AttendeeWrapper {
+public class AttendeeWrapper implements Comparable{
 
 	private SignupAttendee signupAttendee;
 
@@ -160,6 +159,30 @@ public class AttendeeWrapper {
 			attendeeEmail=null;
 		}
 		return attendeeEmail;
+	}
+	
+	/**
+	 * for sorting purpose. It's according to string alphabetic order. Last name
+	 * comes first
+	 */
+	public int compareTo(Object o) {
+		if (o == null)
+			return -1;
+		if (!(o instanceof AttendeeWrapper))
+			throw new ClassCastException("Not type of SignupUser");
+
+		AttendeeWrapper other = (AttendeeWrapper) o;
+
+		if (displayName == null)
+			return -1;
+
+		int value = displayName.compareTo(other.getDisplayName());
+		if (value != 0)
+			return value;
+
+
+		return 0;
+
 	}
 
 }

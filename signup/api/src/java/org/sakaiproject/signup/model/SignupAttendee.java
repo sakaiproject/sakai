@@ -22,13 +22,14 @@
  **********************************************************************************/
 package org.sakaiproject.signup.model;
 
+
 /**
  * <p>
  * This class holds the information for signup attendee. It's mapped directly to
  * the DB storage by Hibernate
  * </p>
  */
-public class SignupAttendee {
+public class SignupAttendee implements Comparable{
 
 	/* sakai user id */
 	private String attendeeUserId;
@@ -184,6 +185,30 @@ public class SignupAttendee {
 
 	public void setDisplayName(String displayName) {
 		this.displayName = displayName;
-	}	
+	}
+	
+	/**
+	 * for sorting purpose. It's according to string alphabetic order. Last name
+	 * comes first
+	 */
+	public int compareTo(Object o) {
+		if (o == null)
+			return -1;
+		if (!(o instanceof SignupAttendee))
+			throw new ClassCastException("Not type of SignupAttendee");
+
+		SignupAttendee other = (SignupAttendee) o;
+
+		if (displayName == null)
+			return -1;
+
+		int value = displayName.compareTo(other.getDisplayName());
+		if (value != 0)
+			return value;
+
+
+		return 0;
+
+	}
 
 }

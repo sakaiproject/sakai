@@ -60,6 +60,7 @@ import org.sakaiproject.tool.api.ToolManager;
 import org.sakaiproject.user.api.User;
 import org.sakaiproject.user.api.UserDirectoryService;
 import org.sakaiproject.user.api.UserNotDefinedException;
+import org.sakaiproject.util.ResourceLoader;
 
 /**
  * <p>
@@ -76,6 +77,8 @@ public class SakaiFacadeImpl implements SakaiFacade {
 	private static Log log = LogFactory.getLog(SakaiFacadeImpl.class);
 
 	private FunctionManager functionManager;
+	
+	private static ResourceLoader rb=  new ResourceLoader();
 
 	/**
 	 * set a Sakai FunctionManager object
@@ -283,6 +286,30 @@ public class SakaiFacadeImpl implements SakaiFacade {
 	public String getUserDisplayName(String userId) {
 		try {
 			return userDirectoryService.getUser(userId).getDisplayName();
+		} catch (UserNotDefinedException e) {
+			log.warn("Cannot get user displayname for id: " + userId);
+			return "--------";
+		}
+	}
+	
+	/**
+	 * {@inheritDoc}
+	 */
+	public String getUserDisplayLastFirstName(String userId) {
+		try {
+			String dispLastName= userDirectoryService.getUser(userId).getLastName();
+			if(dispLastName !=null){
+				dispLastName = StringUtils.lowerCase(dispLastName, rb.getLocale());
+				dispLastName = StringUtils.capitalize(dispLastName);
+			}
+			String dispFirstName = userDirectoryService.getUser(userId).getFirstName();
+			if(dispFirstName !=null){
+				dispFirstName = StringUtils.lowerCase(dispFirstName, rb.getLocale());
+				dispFirstName = StringUtils.capitalize(dispFirstName);
+			}
+			String displayname = dispLastName +", " + dispFirstName;
+
+			return displayname;
 		} catch (UserNotDefinedException e) {
 			log.warn("Cannot get user displayname for id: " + userId);
 			return "--------";

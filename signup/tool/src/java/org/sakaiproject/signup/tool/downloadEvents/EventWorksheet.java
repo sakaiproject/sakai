@@ -48,6 +48,7 @@ import org.sakaiproject.util.ResourceLoader;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.Date;
 import java.util.List;
 import java.util.Map;
@@ -252,6 +253,14 @@ public class EventWorksheet implements MeetingTypes, SignupBeanConstants {
 					/*strange thing happen for hibernate, tsItem can be null for mySql 4.x*/
 					List<SignupAttendee> attendees = tsItem == null ? null : getValidAttendees(tsItem.getAttendees());
 					if (attendees != null) {
+						// JIRA Signup-204: do we need to do the sorting here for data sheet? 
+						//it may affect downstream data decoding by other system.
+						for (SignupAttendee s : attendees) {
+							s.setDisplayName(sakaiFacade.getUserDisplayLastFirstName(s.getAttendeeUserId()));
+						}
+						//Sorting by last-first name JIRA Signup-204
+						Collections.sort(attendees);
+						
 						for (SignupAttendee att : attendees) {
 							Row row = sheet.createRow(rowNum++);
 							for (int i = 0; i <= numberOfColumn; i++) {
@@ -267,7 +276,8 @@ public class EventWorksheet implements MeetingTypes, SignupBeanConstants {
 
 							/* attendee name */
 							cell = row.getCell(cellNum++);
-							cell.setCellValue(attendee ==null? "--" :attendee.getDisplayName());
+							//cell.setCellValue(attendee ==null? "--" :attendee.getDisplayName());
+							cell.setCellValue(attendee ==null? "--" :att.getDisplayName());
 
 							cell = row.getCell(cellNum++);
 							cell.setCellValue(attendee ==null? "--" : attendee.getDisplayId());
@@ -689,7 +699,7 @@ public class EventWorksheet implements MeetingTypes, SignupBeanConstants {
 					if (attendees != null && attendees.size() > rowHighNum) {
 						rowHighNum = attendees.size();
 					}
-					aNames = getNames(attendees);
+					aNames = getNames(attendees, true);
 				}
 				if (tsItem.isCanceled() && isOrganizer(wrapper.getMeeting())) {
 					aNames = rb.getString("event_is_canceled");
@@ -721,7 +731,7 @@ public class EventWorksheet implements MeetingTypes, SignupBeanConstants {
 					if (waiters != null && waiters.size() > rowHighNum) {
 						rowHighNum = waiters.size();
 					}
-					fieldValue = getNames(waiters);
+					fieldValue = getNames(waiters, false);
 				} else {
 					fieldValue = getYourStatus(tsItem);
 				}
@@ -875,6 +885,26 @@ public class EventWorksheet implements MeetingTypes, SignupBeanConstants {
 		StringBuffer sb = new StringBuffer();
 		for (SignupAttendee att : attendees) {
 			sb.append(sakaiFacade.getUserDisplayName(att.getAttendeeUserId()));
+			sb.append("\n");
+		}
+		/* remove the last'\n' one */
+		return sb.length() > 1 ? sb.substring(0, sb.length() - 1) : "";
+	}
+	
+	private String getNames(List<SignupAttendee> attendees, boolean needSorting) {
+		if (attendees == null)
+			return "";
+
+		StringBuffer sb = new StringBuffer();
+		for (SignupAttendee s : attendees) {
+			s.setDisplayName(sakaiFacade.getUserDisplayLastFirstName(s.getAttendeeUserId()));
+		}
+		//sorting by last name Jira: Signup-204
+		if(needSorting)
+			Collections.sort(attendees);
+		
+		for (SignupAttendee att : attendees) {
+			sb.append(att.getDisplayName());
 			sb.append("\n");
 		}
 		/* remove the last'\n' one */

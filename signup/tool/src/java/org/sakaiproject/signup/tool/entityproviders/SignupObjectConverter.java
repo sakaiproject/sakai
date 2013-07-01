@@ -146,6 +146,7 @@ public class SignupObjectConverter {
 				one.setCanceled(item.isCanceled());
 				one.setDisplayAttendees(item.isDisplayAttendees());
 				one.setMaxNoOfAttendees(item.getMaxNoOfAttendees());
+				//TODO JIRA sorting Signup-204 in future
 				one.setAttendees(convertToSignupParticipants(one, item.getAttendees(), item.isDisplayAttendees(),
 						false, isOrganizer, sakaiFacade));
 				one.setWaitingList(convertToSignupParticipants(one, item.getWaitingList(), item.isDisplayAttendees(),

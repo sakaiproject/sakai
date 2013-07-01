@@ -984,7 +984,7 @@ public class NewSignupMeetingBean implements MeetingTypes, SignupMessageTypes, S
 		if (isDuplicateAttendee(timeslotWrapper.getTimeSlot(), attendee)) {
 			Utilities.addErrorMessage(Utilities.rb.getString("attendee.already.in.timeslot"));
 		} else {
-			timeslotWrapper.addAttendee(attendee, sakaiFacade.getUserDisplayName(attendeeUserId));
+			timeslotWrapper.addAttendee(attendee, sakaiFacade.getUserDisplayLastFirstName(attendeeUserId));
 		}
 
 		return "";

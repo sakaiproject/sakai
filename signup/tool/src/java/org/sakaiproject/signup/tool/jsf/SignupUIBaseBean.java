@@ -162,7 +162,7 @@ abstract public class SignupUIBaseBean implements SignupBeanConstants, SignupMes
 			//clean the list
 			List<SignupAttendee> cleanedList = getValidAttendees(elm.getAttendees());
 			for (SignupAttendee attendee : cleanedList) {
-				AttendeeWrapper attWrp = new AttendeeWrapper(attendee, sakaiFacade.getUserDisplayName(attendee
+				AttendeeWrapper attWrp = new AttendeeWrapper(attendee, sakaiFacade.getUserDisplayLastFirstName(attendee
 						.getAttendeeUserId()));
 				attWrp.setPositionIndex(posIndex++);
 				attendeeWrp.add(attWrp);
@@ -172,6 +172,15 @@ abstract public class SignupUIBaseBean implements SignupBeanConstants, SignupMes
 					//setCurrentUserSignedup(true);
 					totalSignedupSlots++;
 			}
+			
+			//sorting by displayname
+			//JIRA: Signup-204
+			posIndex = 0;
+			Collections.sort(attendeeWrp);
+			for (AttendeeWrapper attWrp : attendeeWrp) {
+				attWrp.setPositionIndex(posIndex++);
+			}
+			
 			tsw.setAttendeeWrappers(attendeeWrp);
 
 			tsw.setWaitingList(wrapWaiters(elm.getWaitingList()));
@@ -268,7 +277,7 @@ abstract public class SignupUIBaseBean implements SignupBeanConstants, SignupMes
 		List<AttendeeWrapper> attendeeWrp = new ArrayList<AttendeeWrapper>();
 		for (SignupAttendee attendee : attendees) {
 			attendeeWrp
-					.add(new AttendeeWrapper(attendee, sakaiFacade.getUserDisplayName(attendee.getAttendeeUserId())));
+					.add(new AttendeeWrapper(attendee, sakaiFacade.getUserDisplayLastFirstName(attendee.getAttendeeUserId())));
 		}
 
 		return attendeeWrp;
