@@ -729,10 +729,7 @@ abstract public class SignupUIBaseBean implements SignupBeanConstants, SignupMes
 		try{	
 			filePath = calendarHelper.createCalendarFile(Collections.singletonList(calendarHelper.generateVEventForMeeting(meetingWrapper.getMeeting())));
 		}catch(NullPointerException ne){
-			logger.error("The Scheduler tool may not be availabe for the site");
-			String warningFileName = Utilities.rb.getString("ics_file_name_for_missing_scheduler_tool");
-			String warningMsg = Utilities.rb.getString("ics_warning_msg_for_missing_scheduler_tool");			
-			sendDownloadWarning(warningFileName,warningMsg);
+			handleICSDownloadWarningToUser();
 			return;
 		}
 		
@@ -744,6 +741,32 @@ abstract public class SignupUIBaseBean implements SignupBeanConstants, SignupMes
 			//TODO this could set an error and return perhaps.
 		}
 		
+	}
+	
+	public void downloadICSForMeetingTimeSlot(TimeslotWrapper timeslotWrapper) {
+		String filePath;
+		try{	
+			filePath = calendarHelper.createCalendarFile(Collections.singletonList(calendarHelper.generateVEventForTimeslot(meetingWrapper.getMeeting(), timeslotWrapper.getTimeSlot())));;
+		}catch(NullPointerException ne){
+			handleICSDownloadWarningToUser();
+			return;
+		}
+		
+		if(StringUtils.isNotBlank(filePath)) {
+			logger.debug("filepath: " + filePath);
+			sendDownload(filePath, ICS_MIME_TYPE);
+		} else {
+			logger.error("Could not generate file for download");
+			//TODO this could set an error and return perhaps.
+		}
+		
+	}
+	
+	private void handleICSDownloadWarningToUser(){
+		logger.error("The Scheduler tool may not be availabe for the site");
+		String warningFileName = Utilities.rb.getString("ics_file_name_for_missing_scheduler_tool");
+		String warningMsg = Utilities.rb.getString("ics_warning_msg_for_missing_scheduler_tool");			
+		sendDownloadWarning(warningFileName,warningMsg);
 	}
 	
 	/**

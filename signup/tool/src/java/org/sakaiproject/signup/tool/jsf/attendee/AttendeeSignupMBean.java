@@ -313,17 +313,7 @@ public class AttendeeSignupMBean extends SignupUIBaseBean {
 	 */
 	public void downloadICSForTimeslot() {
 		TimeslotWrapper timeslotWrapper = (TimeslotWrapper) timeslotWrapperTable.getRowData();
-		
-		String filePath = calendarHelper.createCalendarFile(Collections.singletonList(calendarHelper.generateVEventForTimeslot(meetingWrapper.getMeeting(), timeslotWrapper.getTimeSlot())));;
-
-		if(StringUtils.isNotBlank(filePath)) {
-			logger.debug("filepath: " + filePath);
-			sendDownload(filePath, ICS_MIME_TYPE);
-		} else {
-			logger.error("Could not generate file for download");
-			//TODO this could set an error and return perhaps.
-		}
-		
+		downloadICSForMeetingTimeSlot(timeslotWrapper);
 	}
 
 }
