@@ -30,5 +30,13 @@
     class="uk.ac.cam.caret.sakai.rwiki.tool.service.impl.ToolRenderServiceImpl"
     init-method="init" >
   </bean>
+  
+  <bean parent="org.sakaiproject.entitybroker.entityprovider.AbstractEntityProvider" 
+		class="uk.ac.cam.caret.sakai.rwiki.tool.entityproviders.RWikiEntityProvider">
+	<property name="objectService"><ref bean="uk.ac.cam.caret.sakai.rwiki.service.api.RWikiObjectService"/></property>
+	<property name="renderService"><ref bean="uk.ac.cam.caret.sakai.rwiki.service.api.RenderService"/></property>
+	<property name="userDirectoryService"><ref bean="org.sakaiproject.user.api.UserDirectoryService"/></property>
+  </bean>
+  
 </beans>	
 
