@@ -4988,7 +4988,7 @@ public class AnnouncementAction extends PagedResourceActionII
 
 		if ((sortedBy == null) || sortedBy.equals(""))
 		{
-			sortedBy= getCurrentOrder();
+			sortedBy = isOnWorkspaceTab() ? SORT_DATE : getCurrentOrder();
 			asc = false;
 		}
 		SortedIterator rvSorted = new SortedIterator(rv.iterator(), new AnnouncementComparator(sortedBy, asc));
