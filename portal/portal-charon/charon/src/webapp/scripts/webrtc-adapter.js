@@ -63,11 +63,12 @@ function WebRTC() {
 		}
 		jQuery
 		.ajax({
-			url : '/direct/portal-chat/' + portal.user.id + '/servers.json',
+			url : '/direct/portal-chat/' + portal.user.id + '/servers.json?video='+videoCall.getVideoAgent(),
 			dataType : "json",
 			cache : false,
 			success : function(data, status) {
 				webRTCClass.pc_config = data.data;
+				if (this.debug) console.log(webRTCClass.pc_config);
 			}
 		});
 		

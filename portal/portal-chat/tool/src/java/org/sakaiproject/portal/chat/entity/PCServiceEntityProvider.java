@@ -601,7 +601,7 @@ public class PCServiceEntityProvider extends AbstractEntityProvider implements R
 	}
 
 	@EntityCustomAction(action = "servers", viewKey = EntityView.VIEW_SHOW)
-	public Map<String,Object> handleServers(EntityReference ref)
+	public Map<String,Object> handleServers(EntityReference ref, Map<String,Object> params)
 	{
 		User currentUser = userDirectoryService.getCurrentUser();
 		User anon = userDirectoryService.getAnonymousUser();
@@ -616,9 +616,10 @@ public class PCServiceEntityProvider extends AbstractEntityProvider implements R
 		if (servers==null) {
 			servers = new String[]{"stun:stun.l.google.com:19302"};
 		}
+		String videotype = (String) params.get("video");
 		List<PortalVideoServer> serverList = new ArrayList<PortalVideoServer>();
 		for (String server:servers) {
-			serverList.add(new PortalVideoServer(server,heartbeatMap.get(userId).content));
+			serverList.add(new PortalVideoServer(server,videotype));
 		}
 		Map<String,Object> data = new HashMap<String,Object>(4);
 		data.put("iceServers", serverList);
