@@ -531,3 +531,9 @@ table.emailTable td.valueColumn {
 	color: #888;
 	margin-left: 10px;
 }
+
+/* control CKEditor window size*/
+.cke_contents {
+		height: 160px !important;
+		width:700px !important;
+}
