@@ -9,7 +9,7 @@ function VideoCall() {
 	this.signalService = null;
 	this.currentCalls = new Array();
 	this.callTimeout = 0; // Timeout in msecs
-	this.debug = true;
+	this.debug = false;
 	/* Define the actions executed in each event */
 
 	// Initialize timeout
@@ -212,7 +212,6 @@ function VideoCall() {
 		
 		/* This is a way to determine what to do when a webrtc call is received */
 	    var videoCallObject = this;
-		var reconnection = false;
 		
 	    this.webRTC.onReceiveCall = function(userid) {
 	    	var callTime = null;
@@ -229,9 +228,6 @@ function VideoCall() {
 						// I do the call discard the answer
 						return;
 					}  
-				}else if (videoCall.getCurrentCallStatus(userid) == "ESTABLISHED"){//In this case it'a a network lose reconnection
-						reconnection = true;	
-						videoCall.acceptVideoCall(userid);
 				}
 				callTime = videoCall.getCurrentCallTime(userid);
 				
@@ -243,10 +239,7 @@ function VideoCall() {
 				});
 			}
 			
-	    	if (!reconnection){
-	    		videoCall.openVideoCall (userid,true);
-	    	}
-	    	
+	    	videoCall.openVideoCall (userid,true);
 			videoCall.setVideoStatus(userid,videoMessages.pc_video_status_incomming_call, "waiting");
 			setTimeout('videoCall.doAnswerTimeout("'+userid+'",'+callTime+	')',videoCall.getCallTimeout());
 		}
