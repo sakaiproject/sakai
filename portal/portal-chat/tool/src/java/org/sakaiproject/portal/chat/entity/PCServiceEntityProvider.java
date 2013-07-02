@@ -15,6 +15,7 @@ import java.util.concurrent.ConcurrentHashMap;
 
 import org.apache.log4j.Logger;
 import org.apache.commons.lang3.StringEscapeUtils;
+import org.apache.commons.lang3.StringUtils;
 import org.sakaiproject.component.api.ComponentManager;
 import org.sakaiproject.component.api.ServerConfigurationService;
 import org.sakaiproject.email.api.EmailService;
@@ -55,7 +56,9 @@ public class PCServiceEntityProvider extends AbstractEntityProvider implements R
 	protected final Logger logger = Logger.getLogger(getClass());
 	/** messages. */
 	private static ResourceLoader rb = new ResourceLoader("portal-chat");
-
+	// webRTC server url format
+	private static String WEBRTC_SERVER = "^(turn|stun):(([^:]*):{0,1}([^:]*)@){0,1}([a-z0-9]+([-_.]{1}[a-z0-9]+)*.[a-z]{2,5}(:[0-9]{1,5}){0,1})$";
+	
 	public final static String ENTITY_PREFIX = "portal-chat";
 
     /* JGROUPS MESSAGE PREFIXES */
@@ -374,9 +377,31 @@ public class PCServiceEntityProvider extends AbstractEntityProvider implements R
 
 	public class PortalVideoServer {
 		public String url;
+		public String credential;
+		public String username;
+		public String host;
+		public String protocol;
 		
-		public PortalVideoServer(String url) {
-			this.url = url;
+		public PortalVideoServer(String urlformat, String video) {
+			if (urlformat.matches(WEBRTC_SERVER)) {
+				this.protocol = urlformat.replaceFirst(WEBRTC_SERVER, "$1");
+				this.username = urlformat.replaceFirst(WEBRTC_SERVER, "$3");
+				this.credential = urlformat.replaceFirst(WEBRTC_SERVER, "$4");
+				this.host = urlformat.replaceFirst(WEBRTC_SERVER, "$5");
+				this.url = this.protocol+":"+
+						(StringUtils.isBlank(this.username)?
+								// Without user
+								this.host:
+								// With user
+								("chrome".equals(video)?
+										// Chrome format
+										this.username+"@"+this.host:
+											// Firefox format
+											this.host));
+			} else {
+				logger.warn("WebRTC Server doesn't match expected format!!");
+				this.url = urlformat;
+			}
 		}
 	}
 	
@@ -593,7 +618,7 @@ public class PCServiceEntityProvider extends AbstractEntityProvider implements R
 		}
 		List<PortalVideoServer> serverList = new ArrayList<PortalVideoServer>();
 		for (String server:servers) {
-			serverList.add(new PortalVideoServer(server));
+			serverList.add(new PortalVideoServer(server,heartbeatMap.get(userId).content));
 		}
 		Map<String,Object> data = new HashMap<String,Object>(4);
 		data.put("iceServers", serverList);
