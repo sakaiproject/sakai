@@ -331,6 +331,15 @@
         as the "class" attribute on generated markup.
       </description>
     </attribute>
+
+    <attribute>
+      <name>current</name>
+      <required>false</required>
+      <rtexprvalue>false</rtexprvalue>
+      <type>boolean</type>
+      <description>Flag indicating whether or not this component represents the current page</description>
+    </attribute>
+
   </tag>
 
 

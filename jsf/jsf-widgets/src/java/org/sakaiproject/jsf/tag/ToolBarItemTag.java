@@ -21,20 +21,43 @@
 
 package org.sakaiproject.jsf.tag;
 
+import javax.faces.component.UIComponent;
+
 import org.sakaiproject.jsf.util.JSFDepends;
+import org.sakaiproject.jsf.util.TagUtil;
 
 
 public class ToolBarItemTag extends JSFDepends.CommandButtonTag
 {
-  public String getComponentType()
-  {
-    return "org.sakaiproject.ToolBarItem";
-  }
 
-  public String getRendererType()
-  {
-    return "org.sakaiproject.ToolBarItem";
-  }
+    /**
+     * Indicates if the tool bar item is "current" - i.e. represents the current view being rendered
+     * In other words, if this is current then it is the tool bar item indicating the current page the user is viewing
+     */
+    String current = null; // NOTE: MUST be a string to work right
+    public String getCurrent() {
+        return current;
+    }
+    public void setCurrent(String current) {
+        this.current = current;
+    }
+
+    protected void setProperties(UIComponent component) {
+        super.setProperties(component);
+        if (current != null) {
+            TagUtil.setBoolean(component, "current", current);
+        }
+    }
+
+    public String getComponentType()
+    {
+        return "org.sakaiproject.ToolBarItem";
+    }
+
+    public String getRendererType()
+    {
+        return "org.sakaiproject.ToolBarItem";
+    }
 }
 
 

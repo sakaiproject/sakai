@@ -56,6 +56,7 @@ public class ToolBarItemRenderer extends JSFDepends.CommandLinkRenderer
       ResponseWriter writer = context.getResponseWriter();
       writer.write(""); //normally, add aria and class attributes and close the span
     }
+
   }
 
   public void encodeChildren(FacesContext context, UIComponent component) throws IOException

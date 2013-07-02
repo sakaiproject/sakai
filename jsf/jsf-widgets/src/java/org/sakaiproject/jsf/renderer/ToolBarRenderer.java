@@ -62,7 +62,7 @@ public class ToolBarRenderer extends Renderer
 		return;
 	}
     ResponseWriter writer = context.getResponseWriter();
-    writer.write("<ul class=\"navIntraTool actionToolbar\">");
+    writer.write("<ul class=\"navIntraTool actionToolbar jsfToolbar\">");
 
     return;
   }
@@ -94,16 +94,19 @@ public class ToolBarRenderer extends Renderer
     if (clientId != null)
     {
       writer.startElement("ul", component);
+      //writer.append(" class=\"jsfToolbar\" "); // we don't seem to get here
     }
 
-    List children = component.getChildren();
+    @SuppressWarnings("unchecked")
+    List<UIComponent> children = component.getChildren();
 
     // this is a special separator attribute, not supported by UIData
     String separator = (String) RendererUtil.getAttribute(context, component, "separator");
     if (separator==null) separator="";
 
     boolean first = true;
-    for (Iterator iter = children.iterator(); iter.hasNext();)
+    boolean foundCurrent = false;
+    for (Iterator<UIComponent> iter = children.iterator(); iter.hasNext();)
     {
       UIComponent child = (UIComponent)iter.next();
       // should instead leave the span open, and the item should then add class and aria attributes
@@ -111,11 +114,30 @@ public class ToolBarRenderer extends Renderer
       if (child.isRendered()) {
          if (!first)   
          {
-        	 writer.write("<li><span>");
+        	 writer.write("<li>");
          }
          else
          {
-        	 writer.write("<li class=\"firstToolBarItem\"><span>");
+        	 writer.write("<li class=\"firstToolBarItem\">");
+         }
+         // SAK-23062 improve JSF options menu
+         boolean current = false;
+         if (!foundCurrent) {
+             // check for the "current" attribute on the custom tag, mark that item as current if it set to true
+             boolean hasCurrentIndicated = (child.getAttributes().get("current") != null); // NOTE: child.getAttributes().containsKey("current") will NOT work here
+             current = (hasCurrentIndicated && ((Boolean)child.getAttributes().get("current")).booleanValue());
+             /* this breaks too many other things
+             if (!hasCurrentIndicated && !"javax.faces.Link".equals(child.getRendererType())) {
+                 // basically - if it is not a link, it is probably the current item
+                 current = true;
+             }
+             */
+         }
+         if (current) {
+             foundCurrent = true;
+             writer.write("<span class=\"current\">");
+         } else {
+             writer.write("<span>");
          }
          RendererUtil.encodeRecursive(context, child);
     	 writer.write("</span></li> ");
