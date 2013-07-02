@@ -25,8 +25,8 @@
 		</div>
 		
 		<sakai:tool_bar rendered="#{overviewBean.userAbleToEditAssessments}">
-    		<sakai:tool_bar_item value="#{msgs.overview_add_item}"    action="#{overviewBean.navigateToAddAssignment}" />
-   			<sakai:tool_bar_item value="#{msgs.overview_import_item}" action="#{overviewBean.navigateToSpreadsheet}" />
+    		<sakai:tool_bar_item value="#{msgs.overview_add_item}"    action="#{overviewBean.navigateToAddAssignment}" current="false" style="sakai_jsf_not_current_marker" />
+   			<sakai:tool_bar_item value="#{msgs.overview_import_item}" action="#{overviewBean.navigateToSpreadsheet}" current="false" style="sakai_jsf_not_current_marker" />
   		</sakai:tool_bar>
   		
   						
