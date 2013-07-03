@@ -8,7 +8,7 @@
   	<description>An RSS/Atom feed reader.</description>
   	<url>https://wiki.jasig.org/display/PLT/Simple+RSS+Portlet</url>
   	
-  	<version>1.2.0</version>
+  	<version>1.2.1-SNAPSHOT</version>
   	<packaging>war</packaging>
   	
   	<parent>
@@ -43,7 +43,7 @@
 		<connection>scm:git:git@github.com:steveswinsburg/simple-rss-portlet.git</connection>
 		<developerConnection>scm:git:git@github.com:steveswinsburg/simple-rss-portlet.git</developerConnection>
 		<url>https://github.com/steveswinsburg/simple-rss-portlet</url>
-	  <tag>simple-rss-portlet-1.2.0</tag>
+	  <tag>HEAD</tag>
   </scm> 
 
     <dependencies>
