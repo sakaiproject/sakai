@@ -127,7 +127,7 @@ public class DelegatedAccessDaoImpl extends JdbcDaoSupport implements DelegatedA
 				String query = getStatement("select.hierarchyNode");
 				String inParams = "(";
 				for(int i = 0; i < subSiteRefs.length; i++){
-					inParams += "'" + subSiteRefs[i] + "'";
+					inParams += "'" + subSiteRefs[i].replace("'", "''") + "'"; //escape apostrophe
 					if(i < subSiteRefs.length - 1){
 						inParams += ",";
 					}
@@ -236,7 +236,7 @@ public class DelegatedAccessDaoImpl extends JdbcDaoSupport implements DelegatedA
 				
 				String inParams = "(";
 				for(int i = 0; i < subSiteRefs.length; i++){
-					inParams += "'" + subSiteRefs[i] + "'";
+					inParams += "'" + subSiteRefs[i].replace("'", "''") + "'";
 					if(i < subSiteRefs.length - 1){
 						inParams += ",";
 					}
@@ -269,7 +269,7 @@ public class DelegatedAccessDaoImpl extends JdbcDaoSupport implements DelegatedA
 				//to be on the safe side, I added oracle limit restriction, but hopefully no one is searching for
 				//more than 1000 instructors
 				for(int i = 0; i < instructorIds.length && i < ORACLE_IN_CLAUSE_SIZE_LIMIT; i++){
-					inParams += "'" + instructorIds[i] + "'";
+					inParams += "'" + instructorIds[i].replace("'", "''") + "'";
 					if(i < instructorIds.length - 1){
 						inParams += ",";
 					}
@@ -327,7 +327,7 @@ public class DelegatedAccessDaoImpl extends JdbcDaoSupport implements DelegatedA
 				String query = getStatement("select.sitesProp");
 				String propInParams = "(";
 				for(int i = 0; i < props.length; i++){
-					propInParams += "'" + props[i] + "'";
+					propInParams += "'" + props[i].replace("'", "''") + "'";
 					if(i < props.length - 1){
 						propInParams += ",";
 					}
@@ -338,7 +338,7 @@ public class DelegatedAccessDaoImpl extends JdbcDaoSupport implements DelegatedA
 				propInParams += ")";
 				String inParams = "(";
 				for(int i = 0; i < subSiteRefs.length; i++){
-					inParams += "'" + subSiteRefs[i] + "'";
+					inParams += "'" + subSiteRefs[i].replace("'", "''") + "'";
 					if(i < subSiteRefs.length - 1){
 						inParams += ",";
 					}
@@ -396,7 +396,7 @@ public class DelegatedAccessDaoImpl extends JdbcDaoSupport implements DelegatedA
 				String query = getStatement("select.nodes.and.perms.for.user");
 				String inParams = "(";
 				for(int i = 0; i < subSiteRefs.length; i++){
-					inParams += "'" + subSiteRefs[i] + "'";
+					inParams += "'" + subSiteRefs[i].replace("'", "''") + "'";
 					if(i < subSiteRefs.length - 1){
 						inParams += ",";
 					}
@@ -452,7 +452,7 @@ public class DelegatedAccessDaoImpl extends JdbcDaoSupport implements DelegatedA
 				String query = getStatement("select.activeSites");
 				String inParams = "(";
 				for(int i = 0; i < subSiteRefs.length; i++){
-					inParams += "'" + subSiteRefs[i] + "'";
+					inParams += "'" + subSiteRefs[i].replace("'", "''") + "'";
 					if(i < subSiteRefs.length - 1){
 						inParams += ",";
 					}
@@ -496,7 +496,7 @@ public class DelegatedAccessDaoImpl extends JdbcDaoSupport implements DelegatedA
 				
 				String inParams = "(";
 				for(int i = 0; i < subSiteRefs.length; i++){
-					inParams += "'" + subSiteRefs[i] + "'";
+					inParams += "'" + subSiteRefs[i].replace("'", "''") + "'";
 					if(i < subSiteRefs.length - 1){
 						inParams += ",";
 					}
@@ -531,7 +531,7 @@ public class DelegatedAccessDaoImpl extends JdbcDaoSupport implements DelegatedA
 				
 				String inParams = "(";
 				for(int i = 0; i < subSiteRefs.length; i++){
-					inParams += "'" + subSiteRefs[i] + "'";
+					inParams += "'" + subSiteRefs[i].replace("'", "''") + "'";
 					if(i < subSiteRefs.length - 1){
 						inParams += ",";
 					}
@@ -579,7 +579,7 @@ public class DelegatedAccessDaoImpl extends JdbcDaoSupport implements DelegatedA
 				String query = getStatement("select.delegatedaccess.user.hasworkspacetool");
 				String inParams = "(";
 				for(int i = 0; i < subSiteRefs.length; i++){
-					inParams += "'" + subSiteRefs[i] + "'";
+					inParams += "'" + subSiteRefs[i].replace("'", "''") + "'";
 					if(i < subSiteRefs.length - 1){
 						inParams += ",";
 					}
