@@ -814,13 +814,17 @@ public class ExtractionHelper
     else if (releasedTo != null && releasedTo.indexOf("Selected Groups") > -1){
     	releasedTo = AgentFacade.getCurrentSiteName();
     }
+    else if (releasedTo != null && releasedTo.indexOf(AuthoringConstantStrings.ANONYMOUS) > -1){
+	releasedTo = AuthoringConstantStrings.ANONYMOUS;
+    }
     else {
     	if (AgentFacade.getCurrentSiteName() != null) {
     		releasedTo = AgentFacade.getCurrentSiteName();
     	}
-    	else {
-    		control.setReleaseTo(releasedTo);
-    	}
+    }
+
+    if (releasedTo != null) {
+	control.setReleaseTo(releasedTo);
     }
     
     // Timed Assessment
