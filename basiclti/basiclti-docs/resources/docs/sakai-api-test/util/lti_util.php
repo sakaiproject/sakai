@@ -576,6 +576,20 @@ function do_post_request($url, $data, $optional_headers = null)
     return array("launch_url" => $launch_url, "custom" => $custom ) ;
   }
 
+  function addCustom(&$parms, $custom) {
+    foreach ( $custom as $key => $val) {
+      $key = strtolower($key);
+      $nk = "";
+      for($i=0; $i < strlen($key); $i++) {
+        $ch = substr($key,$i,1);
+        if ( $ch >= "a" && $ch <= "z" ) $nk .= $ch;
+        else if ( $ch >= "0" && $ch <= "9" ) $nk .= $ch;
+        else $nk .= "_";
+      }
+      $parms["custom_".$nk] = $val;
+    }
+  }
+
   function curPageURL() {
     $pageURL = (!isset($_SERVER['HTTPS']) || $_SERVER['HTTPS'] != "on")
              ? 'http'

@@ -11,57 +11,59 @@ session_start();
 </head>
 <body style="font-family:sans-serif;">
 <?php
-echo("<p><b>IMS LTI 1.1 Consumer Launch</b></p>\n");
+echo("<p><b>Sakai Unit Tests for IMS LTI 1.1 Consumer Launch</b></p>\n");
 echo("<p>This is a very simple reference implementaton of the LMS side (i.e. consumer) for IMS LTI 1.1.</p>\n");
 
 require_once("util/lti_util.php");
+require_once("cert.php");
 
-    $cur_url = curPageURL();
+$cert_num = 0;
+if ( isset($_REQUEST['cert_num']) ) $cert_num = $_REQUEST['cert_num'] + 0;
 
-    $lmsdata = array(
-      "resource_link_id" => "120988f929-274612",
-      "resource_link_title" => "Weekly Blog",
-      "resource_link_description" => "A weekly blog.",
-      "user_id" => "292832126",
-      "roles" => "Instructor",  // or Learner
-      "lis_person_name_full" => 'Siân Instructor',
-      "lis_person_name_family" => 'Instructor',
-      "lis_person_name_given" => 'Siân',
-      "lis_person_contact_email_primary" => "sian@imscert.org",
-      "lis_person_sourcedid" => "school.edu:user",
-      "context_id" => "456434513",
-      "context_title" => "Design of Personal Environments",
-      "context_label" => "SI182",
-      "tool_consumer_info_product_family_code" => "ims",
-      "tool_consumer_info_version" => "1.1",
-      "tool_consumer_instance_guid" => "lmsng.school.edu",
-      "tool_consumer_instance_description" => "University of School (LMSng)",
-      // 'launch_presentation_return_url' => $cur_url
-      );
+$cur_url = curPageURL();
+echo("<p>Certification launch data sets: ");
+for ( $i=0; $i <=5; $i++) {
+   echo('<a href="'.$curPageUrl.'?cert_num='.$i.'">'.$i."</a>\n");
+}
+echo("</p>");
 
-  foreach ($lmsdata as $k => $val ) {
-      if ( $_POST[$k] && strlen($_POST[$k]) > 0 ) {
-          $lmsdata[$k] = $_POST[$k];
-      }
-  }
+$lmsdata = $lmsdata_cert[$cert_num];
 
-  $key = trim($_REQUEST["key"]);
-  if ( ! $key ) $key = "12345";
-  $secret = trim($_REQUEST["secret"]);
-  if ( ! $secret ) $secret = "secret";
-  $endpoint = trim($_REQUEST["endpoint"]);
-  $b64 = base64_encode($key.":::".$secret);
-  if ( ! $endpoint ) $endpoint = str_replace("lms.php","tool.php",$cur_url);
-  $cssurl = str_replace("lms.php","lms.css",$cur_url);
+foreach ($lmsdata as $k => $val ) {
+    if ( $_POST[$k] && strlen($_POST[$k]) > 0 ) {
+      $lmsdata[$k] = $_POST[$k];
+    }
+}
 
-  $outcomes = trim($_REQUEST["outcomes"]);
-  if ( ! $outcomes ) {
-      $outcomes = str_replace("lms.php","common/tool_consumer_outcome.php",$cur_url);
-      $outcomes .= "?b64=" . htmlent_utf8($b64);
-  }
+$key = "12345";
+if ( isset($_SESSION["key"]) ) $key = $_SESSION["key"];
+if ( isset($_REQUEST["key"]) ) $key = trim($_REQUEST["key"]);
+$_SESSION["key"] = $key;
 
-  $tool_consumer_instance_guid = $lmsdata['tool_consumer_instance_guid'];
-  $tool_consumer_instance_description = $lmsdata['tool_consumer_instance_description'];
+$secret = "secret";
+if ( isset($_SESSION["secret"]) ) $secret = $_SESSION["secret"];
+if ( isset($_REQUEST["secret"]) ) $secret = trim($_REQUEST["secret"]);
+$_SESSION["secret"] = $secret;
+
+$endpoint = trim($_REQUEST["endpoint"]);
+$b64 = base64_encode($key.":::".$secret);
+if ( ! $endpoint ) {
+    if ( isset($_REQUEST['cert_num']) ) {
+        $endpoint = "http://www.imsglobal.org/developers/alliance/LTI/cert/tc_tool.php?x=With%20Space&y=yes";
+    } else {
+        $endpoint = str_replace("lms.php","tool.php",$cur_url);
+    }
+}
+$cssurl = str_replace("lms.php","lms.css",$cur_url);
+
+$outcomes = trim($_REQUEST["outcomes"]);
+if ( ! $outcomes ) {
+    $outcomes = str_replace("lms.php","common/tool_consumer_outcome.php",$cur_url);
+    $outcomes .= "?b64=" . htmlent_utf8($b64);
+}
+
+$tool_consumer_instance_guid = $lmsdata['tool_consumer_instance_guid'];
+$tool_consumer_instance_description = $lmsdata['tool_consumer_instance_description'];
 
 ?>
 <script language="javascript"> 
@@ -79,19 +81,23 @@ function lmsdataToggle() {
 </script>
 <a id="displayText" href="javascript:lmsdataToggle();">Toggle Resource and Launch Data</a>
 <?php
-  echo("<div id=\"lmsDataForm\" style=\"display:block\">\n");
+  if ( isset($_REQUEST["cert_num"]) && $secret != "secret" ) {
+      echo("<div id=\"lmsDataForm\" style=\"display:none\">\n");
+  } else {
+      echo("<div id=\"lmsDataForm\" style=\"display:block\">\n");
+  }
   echo("<form method=\"post\">\n");
   echo("<input type=\"submit\" value=\"Recompute Launch Data\">\n");
   echo("<input type=\"submit\" name=\"reset\" value=\"Reset\">\n");
   echo("<fieldset><legend>LTI Resource</legend>\n");
   $disabled = '';
-  echo("Launch URL: <input size=\"60\" type=\"text\" $disabled size=\"60\" name=\"endpoint\" value=\"$endpoint\">\n");
-  echo("<br/>Key: <input type\"text\" name=\"key\" $disapbled size=\"60\" value=\"$key\">\n");
-  echo("<br/>Secret: <input type\"text\" name=\"secret\" $disabled size=\"60\" value=\"$secret\">\n");
+  echo("Launch URL: <input size=\"120\" type=\"text\" $disabled name=\"endpoint\" value=\"$endpoint\">\n");
+  echo("<br/>Key: <input type\"text\" name=\"key\" $disapbled size=\"90\" value=\"$key\">\n");
+  echo("<br/>Secret: <input type\"text\" name=\"secret\" $disabled size=\"90\" value=\"$secret\">\n");
   echo("</fieldset><p>");
   echo("<fieldset><legend>Launch Data</legend>\n");
   foreach ($lmsdata as $k => $val ) {
-      echo($k.": <input type=\"text\" name=\"".$k."\" value=\"");
+      echo($k.": <input type=\"text\" size=\"60\" name=\"".$k."\" value=\"");
       echo(htmlspec_utf8($val));
       echo("\"><br/>\n");
   }
@@ -115,9 +121,14 @@ function lmsdataToggle() {
     $parms["lis_result_sourcedid"] = '{"zap" : "Siân JSON 1234 Sourcedid <>&lt;"}';
   }
     
-  $parms['launch_presentation_css_url'] = $cssurl;
+if ( strpos($cur_url, "localhost" ) === FALSE ) $parms['launch_presentation_css_url'] = $cssurl;
 
-  $parms = signParameters($parms, $endpoint, "POST", $key, $secret, 
+addCustom($parms, array(
+    "simple_key" => "custom_simple_value",
+    "Complex!@#$^*(){}[]KEY" => "Complex!@#$^*(){}[]½Value"
+));
+
+$parms = signParameters($parms, $endpoint, "POST", $key, $secret, 
 "Press to Launch", $tool_consumer_instance_guid, $tool_consumer_instance_description);
 
   $content = postLaunchHTML($parms, $endpoint, true, 
