@@ -57,7 +57,7 @@ public class PCServiceEntityProvider extends AbstractEntityProvider implements R
 	/** messages. */
 	private static ResourceLoader rb = new ResourceLoader("portal-chat");
 	// webRTC server url format
-	private static String WEBRTC_SERVER = "^(turn|stun):(([^:]*):{0,1}([^:]*)@){0,1}([a-z0-9]+([-_.]{1}[a-z0-9]+)*.[a-z]{2,5}(:[0-9]{1,5}){0,1})$";
+	private static String WEBRTC_SERVER = "^(turn|stun):(([^:]*):([^@]*)@){0,1}([^:@]*(:[0-9]{1,5}){0,1})$";
 	
 	public final static String ENTITY_PREFIX = "portal-chat";
 
@@ -376,31 +376,19 @@ public class PCServiceEntityProvider extends AbstractEntityProvider implements R
 	}
 
 	public class PortalVideoServer {
-		public String url;
-		public String credential;
-		public String username;
-		public String host;
 		public String protocol;
+		public String host;
+		public String username;
+		public String credential;
 		
-		public PortalVideoServer(String urlformat, String video) {
+		public PortalVideoServer(String urlformat) {
 			if (urlformat.matches(WEBRTC_SERVER)) {
 				this.protocol = urlformat.replaceFirst(WEBRTC_SERVER, "$1");
 				this.username = urlformat.replaceFirst(WEBRTC_SERVER, "$3");
 				this.credential = urlformat.replaceFirst(WEBRTC_SERVER, "$4");
 				this.host = urlformat.replaceFirst(WEBRTC_SERVER, "$5");
-				this.url = this.protocol+":"+
-						(StringUtils.isBlank(this.username)?
-								// Without user
-								this.host:
-								// With user
-								("chrome".equals(video)?
-										// Chrome format
-										this.username+"@"+this.host:
-											// Firefox format
-											this.host));
 			} else {
 				logger.warn("WebRTC Server doesn't match expected format!!");
-				this.url = urlformat;
 			}
 		}
 	}
@@ -601,7 +589,7 @@ public class PCServiceEntityProvider extends AbstractEntityProvider implements R
 	}
 
 	@EntityCustomAction(action = "servers", viewKey = EntityView.VIEW_SHOW)
-	public Map<String,Object> handleServers(EntityReference ref, Map<String,Object> params)
+	public Map<String,Object> handleServers(EntityReference ref)
 	{
 		User currentUser = userDirectoryService.getCurrentUser();
 		User anon = userDirectoryService.getAnonymousUser();
@@ -616,10 +604,9 @@ public class PCServiceEntityProvider extends AbstractEntityProvider implements R
 		if (servers==null) {
 			servers = new String[]{"stun:stun.l.google.com:19302"};
 		}
-		String videotype = (String) params.get("video");
 		List<PortalVideoServer> serverList = new ArrayList<PortalVideoServer>();
 		for (String server:servers) {
-			serverList.add(new PortalVideoServer(server,videotype));
+			serverList.add(new PortalVideoServer(server));
 		}
 		Map<String,Object> data = new HashMap<String,Object>(4);
 		data.put("iceServers", serverList);

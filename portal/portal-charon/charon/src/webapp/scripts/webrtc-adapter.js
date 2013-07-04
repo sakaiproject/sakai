@@ -63,17 +63,42 @@ function WebRTC() {
 		}
 		jQuery
 		.ajax({
-			url : '/direct/portal-chat/' + portal.user.id + '/servers.json?video='+videoCall.getVideoAgent(),
+			url : '/direct/portal-chat/' + portal.user.id + '/servers.json',
 			dataType : "json",
 			cache : false,
 			success : function(data, status) {
 				webRTCClass.pc_config = data.data;
-				if (this.debug) console.log(webRTCClass.pc_config);
+				$.each(webRTCClass.pc_config.iceServers,function(key,value){
+					value.url = webRTCClass.getUrlFromIce(value);
+				});
+				if (webRTCClass.debug) console.log(webRTCClass.pc_config);
 			}
 		});
 		
 	}
 
+	// This method constructs adecuated URL for current browser
+	this.getUrlFromIce = function(ice) {
+		if (ice.protocol.toLowerCase()=='stun') {
+			if (this.webrtcDetectedBrowser=='firefox' && !ice.host.match(/^([0-9]{1,3}\.?){4}(:[0-9]{1,5}){0,1}$/)) {
+				return ""; // Firefox only support IP's in stun hosts
+			} else {
+				return ice.protocol+":"+ice.host;
+			}
+		} else {
+			if (this.webrtcDetectedBrowser=='firefox') {
+				return ""; // Firefox only support stun
+			} else {
+				if (parseInt(navigator.userAgent.match(/Chrom(e|ium)\/([0-9]+)\./)[2]) >= 28) {
+					return ice.protocol+":"+ice.host;
+				} else {
+					return ice.protocol+":"+ice.username+"@"+ice.host;
+				}
+				
+			}
+		} 
+	}
+	
 	/* Call this process to start a video call */
 	this.doCall = function(userid, videoAgentType, started, success, fail) {
 		var callConnection = this.currentPeerConnectionsMap[userid];
