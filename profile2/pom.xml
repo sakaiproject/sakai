@@ -198,7 +198,7 @@
     	<wicket.version>1.4.21</wicket.version>
     	<log4j.version>1.2.14</log4j.version>
     	<slf4j.version>1.4.2</slf4j.version>
-    	<twitter4j.version>2.1.2</twitter4j.version>
+    	<twitter4j.version>3.0.3</twitter4j.version>
     	<wicketstuff.objectautocomplete.version>1.4.21</wicketstuff.objectautocomplete.version>
     	<genericdao.version>0.9.18</genericdao.version>
     	<commons.codec.version>1.4</commons.codec.version>
