@@ -48,7 +48,7 @@ sakai.editor.editors.ckeditor.launch = function(targetId, config, w, h) {
     var country = sakai.locale && sakai.locale.userCountry || null;
 
     var ckconfig = {
-        skin: 'v2',
+        skin: 'moono',
         defaultLanguage: 'en',
         language: language + (country ? '-' + country.toLowerCase() : ''),
         height: 310,
@@ -95,7 +95,7 @@ sakai.editor.editors.ckeditor.launch = function(targetId, config, w, h) {
             ['Maximize', 'ShowBlocks']
         ],
         toolbar: 'Full',
-        resize_dir: 'vertical',
+        resize_dir: 'both',
         //SAK-23418
         pasteFromWordRemoveFontStyles : false,
         pasteFromWordRemoveStyles : false
@@ -153,7 +153,7 @@ sakai.editor.editors.ckeditor.launch = function(targetId, config, w, h) {
 			 //ckconfig.extraPlugins+="movieplayer,wordcount,atd-ckeditor,stylesheetparser";
 			 //ckconfig.contentsCss = basePath+'/atd-ckeditor/atd.css';
 
-			 ckconfig.extraPlugins+="movieplayer,wordcount,fmath_formula";
+			 ckconfig.extraPlugins+="fmath_formula";
     })();
 
 	  CKEDITOR.replace(targetId, ckconfig);
