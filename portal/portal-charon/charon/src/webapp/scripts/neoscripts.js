@@ -420,8 +420,12 @@ jQuery(document).ready(function(){
     
     // prepend site title to tool title
     // here as reminder to work on an actual breadcrumb integrated with neo style tool updates
-    var siteTitle = ($('.nav-selected span:first').text())
+    //var siteTitle = ($('.nav-selected span:first').text())
+    var siteTitle = portal.siteTitle;
     if (siteTitle) {
+	if (portal.shortDescription) {
+	    siteTitle = siteTitle + " ("+portal.shortDescription+")"
+	}
         $('.portletTitle h2').prepend('<span class=\"siteTitle\">' + siteTitle + ':</span> ')
     }
     

@@ -333,6 +333,12 @@ public class SiteHandler extends WorksiteHandler
 		}
 
 		rcontext.put("siteId", siteId);
+                boolean showShortDescription = Boolean.valueOf(ServerConfigurationService.getBoolean("portal.title.shortdescription.show", false));
+
+		if (showShortDescription) {
+		  rcontext.put("shortDescription", Web.escapeHtml(site.getShortDescription()));
+		}
+		rcontext.put("siteTitle", Web.escapeHtml(site.getTitle()));
 
 		// should we consider a frameset ?
 		boolean doFrameSet = includeFrameset(rcontext, res, req, session, page);
@@ -766,6 +772,17 @@ public class SiteHandler extends WorksiteHandler
 				// rcontext.put("tabsSitLog",
 				// Web.escapeHtml(rb.getString("sit_log")));
 			}
+
+			boolean allowAddSite = false;
+			if(SiteService.allowAddCourseSite()) {
+				allowAddSite = true;
+			} else if (SiteService.allowAddPortfolioSite()) {
+				allowAddSite = true;
+			} else if (SiteService.allowAddProjectSite()) {
+				allowAddSite = true;
+			}
+
+			rcontext.put("allowAddSite",allowAddSite);
 		}
 	}
 	/**

@@ -19,6 +19,8 @@
 		"portalPath": "$!{portalPath}",
 		"loggedOutUrl": "$!{loggedOutUrl}",
         "siteId": "$!{siteId}",
+	"siteTitle": "$!{siteTitle}",
+	"shortDescription" : "$!{shortDescription}",
         "locale": "$!{locale}",
 		"user": {
 			"id": "$!{userId}",
