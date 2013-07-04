@@ -24,6 +24,7 @@ import java.util.List;
 
 import lombok.Setter;
 
+import org.apache.commons.io.FileUtils;
 import org.apache.commons.lang.StringUtils;
 import org.apache.log4j.Logger;
 import org.sakaiproject.profile2.dao.ProfileDao;
@@ -256,24 +257,22 @@ public class ProfileImageLogicImpl implements ProfileImageLogic {
 				image.setOfficialImageEncoded(data);
 			}
 		} else if(StringUtils.equals(officialImageSource, ProfileConstants.OFFICIAL_IMAGE_SETTING_FILESYSTEM)){
-			String basepath = sakaiProxy.getOfficialImagesDirectory();
-			String filename = basepath + "/" + userUuid + ".jpg";
-
-			User user = sakaiProxy.getUserById(userUuid);
-			String userEid = user.getEid();
 			
-			String firstLetter = userEid.substring(0,1);
-	        String secondLetter = userEid.substring(1,2);
-			filename = basepath + "/" + firstLetter + "/" + secondLetter + "/" + userEid + ".jpg";
+			//get the path based on the config from sakai.properties, basedir, pattern etc
+			String filename = getOfficialImageFileSystemPath(userUuid);
 
 			File file = new File(filename);
 
 			try {
 				byte[] data = getBytesFromFile(file);
-				image.setUploadedImage(data);
+				if(data != null) {
+					image.setUploadedImage(data);
+				} else {
+					image.setExternalImageUrl(defaultImageUrl);
+				}
 			}
 			catch (IOException e) {
-				log.error("Could not find official profile image file: " + filename + ". The default profile image will be used instead.");
+				log.error("Could not find/read official profile image file: " + filename + ". The default profile image will be used instead.");
 				image.setExternalImageUrl(defaultImageUrl);
 			}
 		}
@@ -802,36 +801,64 @@ public class ProfileImageLogicImpl implements ProfileImageLogic {
 		return imageUrl;
 	}
 	
-	public static byte[] getBytesFromFile(File file) throws IOException {
-        InputStream is = new FileInputStream(file);
+	/**
+	 * Read a file to a byte array.
+	 * 
+	 * @param file
+	 * @return byte[] if file ok, or null if its too big
+	 * @throws IOException
+	 */
+	private static byte[] getBytesFromFile(File file) throws IOException {
     
-        // Get the size of the file
-        long length = file.length();
-    
-        if (length > Integer.MAX_VALUE) {
-            // File is too large
-        }
-    
-        // Create the byte array to hold the data
-        byte[] bytes = new byte[(int)length];
-    
-        // Read in the bytes
-        int offset = 0;
-        int numRead = 0;
-        while (offset < bytes.length
-               && (numRead=is.read(bytes, offset, bytes.length-offset)) >= 0) {
-            offset += numRead;
-        }
-    
-        // Ensure all the bytes have been read in
-        if (offset < bytes.length) {
-            throw new IOException("Could not completely read file "+file.getName());
-        }
-    
-        // Close the input stream and return bytes
-        is.close();
-        return bytes;
-    }
+		// Get the size of the file
+		long length = file.length();
+		
+		if (length > (ProfileConstants.MAX_IMAGE_UPLOAD_SIZE * FileUtils.ONE_MB)) {
+			log.error("File too large: " + file.getCanonicalPath());  
+			return null;
+		}
+		
+		// return file contents
+		return FileUtils.readFileToByteArray(file);
+   }
+	
+	/**
+	 * Helper to get the path to the official image on the filesystem. This could be in one of several patterns.
+	 * @param userUuid
+	 * @return
+	 */
+	private String getOfficialImageFileSystemPath(String userUuid) {
+		
+		//get basepath, common to all
+		String basepath = sakaiProxy.getOfficialImagesDirectory();
+		
+		//get the pattern
+		String pattern = sakaiProxy.getOfficialImagesFileSystemPattern();
+		
+		//get user, common for all
+		User user = sakaiProxy.getUserById(userUuid);
+		String userEid = user.getEid();
+		
+		String filename = null;
+		
+		//create the path based on the basedir and pattern
+		if(StringUtils.equals(pattern, "ALL_IN_ONE")) {
+			filename = 	basepath + File.separator + userEid + ".jpg";
+		}
+		//insert more patterns here as required. Dont forget to update SakaiProxy and confluence with details.
+		else {
+			//DEFAULT
+			String firstLetter = userEid.substring(0,1);
+			String secondLetter = userEid.substring(1,2);
+			filename = basepath + File.separator + firstLetter + File.separator + secondLetter + File.separator + userEid + ".jpg";
+		}
+		
+		if(log.isDebugEnabled()){
+			log.debug("Path to official image on filesystem is: " + filename);
+		}
+		
+		return filename;
+	}
 	
 	@Setter
 	private SakaiProxy sakaiProxy;

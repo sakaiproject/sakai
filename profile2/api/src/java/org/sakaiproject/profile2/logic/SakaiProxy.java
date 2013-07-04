@@ -639,7 +639,34 @@ public interface SakaiProxy {
 	 */
 	public String getOfficialImageSource();
 	
+	/**
+	 * Gets the value of the profile2.official.image.directory attribute from sakai.properties.
+	 * If not set, defaults to /official-photos
+	 * 
+	 * This should be specified if profile2.picture.type=official
+	 * 
+	 * @return The root directory where official images are stored
+	 */
 	public String getOfficialImagesDirectory();
+	
+	/**
+	 * Get the value of the profile2.official.image.directory.pattern attribute from sakai.properties.
+	 * If not set, defaults to DEFAULT.
+	 * 
+	 * <br />
+	 * Options:
+	 * <ul>
+	 * <li>DEFAULT = first letter of a user's eid, then a slash, then the second letter of the eid 
+	 * followed by a slash and finally the eid suffixed by '.jpg'. 
+	 * For example BASEDIR/a/d/adrian.jpg, BASEDIR/s/t/steve.jpg</li>
+	 * <li>ALL_IN_ONE = all files in the one directory.
+	 * For example BASEDIR/adrian.jpg, BASEDIR/steve.jpg</li>
+	 * </ul>
+	 * 
+	 * This is optional but if you have your images on the filesystem in a pattern that isnt default, you need to set a pattern.
+	 * @return
+	 */
+	public String getOfficialImagesFileSystemPattern();
 	
 	/**
 	 * Gets the value of the profile2.official.image.attribute from sakai.properties

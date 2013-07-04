@@ -77,6 +77,11 @@
 			<groupId>net.sf.opencsv</groupId>
 			<artifactId>opencsv</artifactId>
 		</dependency>
+  		<dependency>
+  			<groupId>commons-io</groupId>
+  			<artifactId>commons-io</artifactId>
+  			<scope>provided</scope>
+  		</dependency> 
    		<!-- 
 		<dependency>
       		<groupId>org.sakaiproject.tinyurl</groupId>

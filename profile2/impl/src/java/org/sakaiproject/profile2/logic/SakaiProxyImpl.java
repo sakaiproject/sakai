@@ -1274,16 +1274,19 @@ public class SakaiProxyImpl implements SakaiProxy {
 	}
 	
 	/**
-	 * Gets the value of the profile2.official.image.directory attribute from sakai.properties.
-	 * If not set, defaults to /official-photos
-	 * 
-	 * This should be specified if profile2.picture.type=official
-	 * 
-	 * @return The root directory where official images are stored
-	 */
+ 	* {@inheritDoc}
+ 	*/
 	public String getOfficialImagesDirectory() {
 		return serverConfigurationService.getString("profile2.official.image.directory", "/official-photos");
 	}
+	
+	/**
+ 	* {@inheritDoc}
+ 	*/
+	public String getOfficialImagesFileSystemPattern() {
+		return serverConfigurationService.getString("profile2.official.image.directory.pattern", "DEFAULT");
+	}
+	
 	
 	/**
  	* {@inheritDoc}
