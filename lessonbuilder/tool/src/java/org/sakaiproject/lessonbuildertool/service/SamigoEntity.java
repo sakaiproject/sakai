@@ -940,4 +940,8 @@ public class SamigoEntity implements LessonEntity, QuizEntity {
 	return null;
     }
 
+    public String getSiteId() {
+	return publishedAssessmentFacadeQueries.getPublishedAssessmentSiteId(Long.toString(id));
+    }
+
 }

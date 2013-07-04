@@ -43,4 +43,8 @@ public interface SimplePageGroup {
 
     public String getGroups();
 
+    public String getSiteId();
+
+    public void setSiteId(String s);
+
 }

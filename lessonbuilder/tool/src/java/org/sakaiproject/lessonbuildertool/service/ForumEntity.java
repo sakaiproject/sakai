@@ -69,6 +69,7 @@ import org.sakaiproject.site.cover.SiteService;
 import org.sakaiproject.authz.cover.AuthzGroupService;
 import org.sakaiproject.id.cover.IdManager;
 import org.sakaiproject.component.cover.ServerConfigurationService;             
+import org.sakaiproject.db.cover.SqlService;
 
 import org.sakaiproject.memory.api.Cache;
 import org.sakaiproject.memory.api.CacheRefresher;
@@ -1200,6 +1201,24 @@ public class ForumEntity extends HibernateDaoSupport implements LessonEntity, Fo
 	    }
 	}
 
+	return null;
+
+    }
+
+    public String getSiteId() {
+	// should be this:
+	// return topic.getBaseForum().getArea().getContextId();
+	// but requires a hibernate session, which doesn't exit.
+	String sql = "select c.context_id from MFR_TOPIC_T a,MFR_OPEN_FORUM_T b,MFR_AREA_T c where a.id=? and a.of_surrogateKey=b.id and b.surrogatekey=c.id";
+
+	Object fields[] = new Object[1];
+	fields[0] = id;
+
+	List<String> siteIds = SqlService.dbRead(sql, fields, null);
+
+	if (siteIds != null && siteIds.size() > 0)
+	    return siteIds.get(0);
+	
 	return null;
 
     }

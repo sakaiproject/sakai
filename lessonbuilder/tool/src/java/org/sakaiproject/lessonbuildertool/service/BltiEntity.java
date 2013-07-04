@@ -530,5 +530,13 @@ public class BltiEntity implements LessonEntity, BltiInterface {
 	    return nextEntity.findObject(objectid, objectMap, siteid);
 	return null;
     }
+    
+    public String getSiteId() {
+	loadContent();
+	if ( content == null ) return null;
+	return (String) content.get(LTIService.LTI_SITE_ID);
+    }
+
+
 
 }

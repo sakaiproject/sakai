@@ -166,7 +166,6 @@ public class Assignment2Entity implements LessonEntity, AssignmentInterface {
     //	if (ToolManager.getTool("sakai.assignment2") != null)
 	if (ComponentManager.get("org.sakaiproject.assignment2.service.api.Assignment2Service") != null)
 	    haveA2 = true;
-	System.out.println("Assignment2Entity init: haveA2 = " + haveA2);
 
 	if (haveA2) {
 	    assignmentCache = memoryService
@@ -285,6 +284,7 @@ public class Assignment2Entity implements LessonEntity, AssignmentInterface {
 	    }
 	    
 	} catch (Exception e) {
+	    System.out.println("Assignment2Entity Eexception " + e);
 	    ret = null;
 	} finally {
 	    try {
@@ -804,6 +804,19 @@ public class Assignment2Entity implements LessonEntity, AssignmentInterface {
 	    System.out.println("invoke failed " + e);
 	}
 
+	return null;
+    }
+
+    public String getSiteId() {
+	// can't use getassignment because it assumes we are working
+	// with current site
+	String sql="select context from A2_ASSIGNMENT_T where assignment_id = ?";
+	Object fields[] = new Object[1];
+	fields[0] = id;
+	
+	List<String> contexts = SqlService.dbRead(sql, fields, null);
+	if (contexts != null && contexts.size() > 0)
+	    return contexts.get(0);
 	return null;
     }
 

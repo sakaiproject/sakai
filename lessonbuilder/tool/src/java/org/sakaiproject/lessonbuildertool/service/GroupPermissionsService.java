@@ -45,6 +45,8 @@ import org.sakaiproject.lessonbuildertool.service.LessonEntity;
 import org.sakaiproject.site.api.Group;
 import org.sakaiproject.site.api.Site;
 import org.sakaiproject.site.cover.SiteService;
+import org.sakaiproject.db.cover.SqlService;
+import org.sakaiproject.db.api.SqlReader;
 
 /**
  * Sets up and removes group permissions for assignments and tests. This is to be used so that
@@ -70,6 +72,15 @@ public class GroupPermissionsService {
         static private LessonEntity assignmentEntity = null;
         public void setAssignmentEntity(Object e) {
 	    assignmentEntity = (LessonEntity)e;
+	}
+
+        static private LessonEntity bltiEntity = null;
+        public void setBltiEntity(Object e) {
+	    bltiEntity = (LessonEntity)e;
+        }
+	
+	public void init () {
+	    convertGroupsTable();
 	}
 
 	public static String makeGroup(String siteId, String title) throws IOException {
@@ -202,6 +213,84 @@ public class GroupPermissionsService {
 		}
 
 		return true;
+	}
+
+        public LessonEntity getEntity(String sakaiId) {
+	    LessonEntity lessonEntity = null;
+	    String prefix = null;
+	    int i = sakaiId.indexOf("/",1);
+	    if (i > 0) {
+		prefix = sakaiId.substring(1, i);
+		System.out.println("prefix " + prefix);
+		if (prefix.equals(LessonEntity.ASSIGNMENT) ||
+		    prefix.equals(LessonEntity.ASSIGNMENT2))
+		    lessonEntity = assignmentEntity.getEntity(sakaiId);
+		else if (prefix.equals(LessonEntity.SAM_PUB) ||
+			 prefix.equals(LessonEntity.MNEME))
+		    lessonEntity = quizEntity.getEntity(sakaiId);
+		else if (prefix.equals(LessonEntity.FORUM_TOPIC) ||
+			 prefix.equals(LessonEntity.JFORUM_TOPIC) ||
+			 prefix.equals(LessonEntity.YAFT_TOPIC))
+		    lessonEntity = forumEntity.getEntity(sakaiId);
+		else if (prefix.equals(LessonEntity.BLTI))
+		    lessonEntity = bltiEntity.getEntity(sakaiId);			 
+		else
+		    return null;
+	    } else {
+		// old format
+		if (sakaiId.indexOf("-") >= 0)
+		    // id with - in it is assignment
+		    lessonEntity = assignmentEntity.getEntity(sakaiId);		    
+		else
+		    // without - it is Samigo
+		    lessonEntity = quizEntity.getEntity(sakaiId);
+	    }		    
+
+	    return lessonEntity;
+	}
+
+	// this is a one-time conversion. It seeems silly to add this query to the Dao
+	// the code is here rather than components to avoid a possible dependency loop. It's not a good idea
+	// for tool components to refer to each other
+	void convertGroupsTable() {
+
+	    // find entries created without siteId
+	    // because this is only needed for old entries, don't need to update the code if we add providers
+	    // for additional tools. This query should be immediate if conversion is done
+	    List <String> sakaiIds = SqlService.dbRead("select itemId from lesson_builder_groups where siteId is null", null, null);                                              
+	    if (sakaiIds == null)
+		return;
+
+	    SecurityService.pushAdvisor(new SecurityAdvisor() {
+		    public SecurityAdvice isAllowed(String userId, String function, String reference) {
+			return SecurityAdvice.ALLOWED;
+		    }
+		});
+
+	    try {
+		for (String sakaiId: sakaiIds) {
+		    String siteId = null;
+		    System.out.println("sakaiid " + sakaiId);
+		    LessonEntity lessonEntity = getEntity(sakaiId);
+		    System.out.println("entity " + lessonEntity);
+		    if (lessonEntity != null) {
+			siteId = lessonEntity.getSiteId();
+			System.out.println("siteid " + siteId);
+		    }
+		    if (siteId == null)
+			siteId = "--";
+
+		    // if we can't find a siteId set it to -- so we don't keep back trying to handle the entry
+
+		    Object [] fields = new String[2];
+		    fields[0] = siteId;
+		    fields[1] = sakaiId;
+		    
+		    SqlService.dbWrite("update lesson_builder_groups set siteId = ? where itemId = ?", fields);
+		}		
+	    } finally {
+		SecurityService.popAdvisor();
+	    }
 	}
 
 }

@@ -29,13 +29,15 @@ public class SimplePageGroupImpl implements SimplePageGroup {
 	private String itemId;  // this is actually the sakaiID
 	private String groupId;
 	private String groups;
+        private String siteId;
 
 	public SimplePageGroupImpl() {}
 
-	public SimplePageGroupImpl(String itemId, String groupId, String groups) {
+	public SimplePageGroupImpl(String itemId, String groupId, String groups, String siteId) {
 		this.itemId = itemId;
 		this.groupId = groupId;
 		this.groups = groups;
+		this.siteId = siteId;
 	}
 
 	public void setId(long id) {
@@ -70,5 +72,12 @@ public class SimplePageGroupImpl implements SimplePageGroup {
 		return groups;
 	}
 
+	public void setSiteId(String s) {
+		this.siteId = s;
+	}
+
+	public String getSiteId() {
+		return siteId;
+	}
 
 }

@@ -2362,7 +2362,7 @@ public class SimplePageBean {
 					    String groups = getItemGroupString (i, lessonEntity, true);
 					    ourGroupName = "Access: " + getNameOfSakaiItem(i);
 					    String groupId = GroupPermissionsService.makeGroup(getCurrentPage().getSiteId(), ourGroupName);
-					    saveItem(simplePageToolDao.makeGroup(i.getSakaiId(), groupId, groups));
+					    saveItem(simplePageToolDao.makeGroup(i.getSakaiId(), groupId, groups, getCurrentPage().getSiteId()));
 
 					    // update the tool access control to point to our access control group
 					    

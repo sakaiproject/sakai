@@ -181,4 +181,7 @@ public interface LessonEntity {
     // isn't ours.
     public String findObject(String objectid, Map<String,String>objectMap, String siteid);
 
+    // siteId for the object
+    public String getSiteId();
+
 }

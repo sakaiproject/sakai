@@ -474,4 +474,12 @@ public class MnemeEntity implements LessonEntity, QuizEntity {
 
     }
 
+    public String getSiteId() {
+	if (assessment == null)
+	    assessment = getAssessment(id);
+	if (assessment == null)
+	    return null;
+	return assessment.getContext();
+    }
+
 }

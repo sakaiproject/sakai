@@ -157,10 +157,12 @@ simplePageBean.peerEvalAllowSelfGrade
   </bean>
   
   <bean id="org.sakaiproject.lessonbuildertool.service.GroupPermissionsService"
-	class="org.sakaiproject.lessonbuildertool.service.GroupPermissionsService">
+	class="org.sakaiproject.lessonbuildertool.service.GroupPermissionsService"
+	init-method="init">
     <property name="forumEntity" ref="org.sakaiproject.lessonbuildertool.service.ForumEntity"/>
     <property name="quizEntity" ref="org.sakaiproject.lessonbuildertool.service.SamigoEntity"/>
     <property name="assignmentEntity" ref="org.sakaiproject.lessonbuildertool.service.AssignmentEntity"/>
+    <property name="bltiEntity" ref="org.sakaiproject.lessonbuildertool.service.BltiEntity"/>
   </bean>
 
   <bean id="org.sakaiproject.lessonbuildertool.service.JForumEntity"

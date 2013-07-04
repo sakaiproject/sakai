@@ -711,5 +711,22 @@ public class JForumEntity implements LessonEntity, ForumInterface {
 	return null;
 
     }
+    public String getSiteId() {
+	if (type != TYPE_JFORUM_TOPIC)
+	    return null;
+
+	String sql = "select c.course_id from jforum_topics a,jforum_forums b,jforum_sakai_course_categories c where a.topic_id = ? and a.forum_id=b.forum_id and b.categories_id=c.categories_id";
+
+	Object fields[] = new Object[1];
+	fields[0] = (Integer)id;
+
+	List<String>siteIds = SqlService.dbRead(sql, fields, null);
+	if (siteIds != null && siteIds.size() > 0) 
+	    return siteIds.get(0);
+
+	return null;
+
+    }
+
 
 }

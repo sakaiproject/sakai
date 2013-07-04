@@ -900,9 +900,9 @@ public class SimplePageToolDaoImpl extends HibernateDaoSupport implements Simple
 	}
 
 
-    public SimplePageGroup makeGroup(String itemId, String groupId, String groups) {
-		return new SimplePageGroupImpl(itemId, groupId, groups);
-    }
+	public SimplePageGroup makeGroup(String itemId, String groupId, String groups, String siteId) {
+		return new SimplePageGroupImpl(itemId, groupId, groups, siteId);
+	}
 
 	public SimplePageQuestionResponse makeQuestionResponse(String userId, long questionId) {
 		return new SimplePageQuestionResponseImpl(userId, questionId);
@@ -1257,4 +1257,32 @@ public class SimplePageToolDaoImpl extends HibernateDaoSupport implements Simple
 	    return ret;
 	}
 	    
+    // items in lesson_builder_groups for specified site, map of itemId to groups
+    public Map<String,String> getExternalAssigns(String siteId) {
+
+    	Object [] fields = new Object[1];
+    	fields[0] = siteId;
+
+    	List<Cons> assigns = SqlService.dbRead("select itemId, groups from lesson_builder_groups where siteId = ?", fields, new SqlReader() {
+    		public Object readSqlResultRecord(ResultSet result) {
+    			try {
+			    Cons cons = new Cons();
+			    cons.car = result.getString(1);
+			    cons.cdr = result.getString(2);
+			    return cons;
+    			} catch (SQLException e) {
+    				log.warn("getExternalAssigns: " + e);
+    				return null;
+    			}
+    		}
+	    });
+	
+	Map<String,String>ret = new HashMap<String,String>();
+	for (Cons cons: assigns) {
+	    if (cons != null)
+		ret.put(cons.car, cons.cdr);
+	}
+	return ret;
+    }
+
 }

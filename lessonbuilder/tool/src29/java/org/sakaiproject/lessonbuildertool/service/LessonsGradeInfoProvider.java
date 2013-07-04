@@ -48,6 +48,8 @@ import org.sakaiproject.tool.api.SessionManager;
 import org.sakaiproject.tool.api.SessionManager;
 import org.sakaiproject.user.cover.UserDirectoryService;
 import org.sakaiproject.user.api.User;
+import org.sakaiproject.db.cover.SqlService;
+import org.sakaiproject.db.api.SqlReader;
 
 import org.sakaiproject.memory.api.Cache;
 import org.sakaiproject.memory.api.CacheRefresher;
@@ -325,6 +327,18 @@ public class LessonsGradeInfoProvider implements ExternalAssignmentProvider {
 		ret.add(externalId);
 	}
 				       
+	// list of items we have modified the group membership for. We have to override the
+	// value returned by the tool itself
+	Map<String, ArrayList<String>> otherTools = getExternalAssigns(gradebookUid);
+	for (Map.Entry<String, ArrayList<String>> entry: otherTools.entrySet()) {
+	    if (entry.getValue() == null)
+		ret.add(entry.getKey());
+	    else {
+		List<AuthzGroup> matched = authzGroupService.getAuthzUserGroupIds(entry.getValue(), userId);
+		if (matched.size() > 0)
+		    ret.add(entry.getKey());
+	    }
+	}
 	return ret;
     }
 
@@ -385,7 +399,96 @@ public class LessonsGradeInfoProvider implements ExternalAssignmentProvider {
 	    }
 	}
 
+	// now handle other tools. If we modified their groups, we need to find the original groups
+	// and return the users that match those groups
+	// find list of items we've modified
+	// map of external ID to list of original groups for that item
+	Map<String, ArrayList<String>> otherTools = getExternalAssigns(gradebookUid);
+	// for each externalId
+	for (Map.Entry<String, ArrayList<String>> entry: otherTools.entrySet()) {
+	    String externalId = entry.getKey();
+	    // if no group restriction
+	    if (entry.getValue() == null) {
+		// add this item to all students
+		for (String userId : studentIds) 
+		    if (allExternals.containsKey(userId))
+			allExternals.get(userId).add(externalId);
+	    } else {
+		// otherwise find users that are in the groups
+		Set<String> okUsers = new HashSet<String>(authzGroupService.getAuthzUsersInGroups(new HashSet<String>(entry.getValue())));
+		okUsers.retainAll(studentIds);
+		// and add this item just to them
+		for (String u : okUsers)
+		    if (allExternals.containsKey(u)) {
+			allExternals.get(u).add(externalId);
+		    }
+	    }
+	}
 	return allExternals;
+    }
+
+    // return list of items where we've replaced the group with our own
+    // returns map externalId -> group list
+    public Map<String,ArrayList<String>> getExternalAssigns(String gradebookUid) {
+	Map<String,ArrayList<String>> ret = new HashMap<String,ArrayList<String>>();
+	
+	// should this use the Dao? Not clear that it makes sense in the Lessons dao.
+	// I don't see a good approach in gradebook to do this. We could fetch all assignments
+	// and check externally maintained, but this is performace critical, so I had to do that.
+
+	// find the external items in the gradebook. Unfortunately we can have
+	// items in the lesson_builder_groups table that aren't in the gradebook
+	
+	String sql = "select b.external_id from GB_GRADEBOOK_T a, GB_GRADABLE_OBJECT_T b where a.gradebook_uid=? and a.id=b.GRADEBOOK_ID and b.EXTERNALLY_MAINTAINED=1";
+	Object[] fields = new Object[1];
+	fields[0] = gradebookUid;
+	List<String> externalIds = SqlService.dbRead(sql, fields, null);
+	if (externalIds == null)
+	    return null;
+	Set<String> externalIdSet = new HashSet<String>(externalIds);
+
+	// map sakaiId to group list as text
+	Map<String,String> externals = dao.getExternalAssigns(gradebookUid);
+
+	for (Map.Entry<String,String> entry: externals.entrySet()) {
+	    String sakaiId = entry.getKey();
+	    String externalId = null;
+	    // only handle item types for which we actually hack on the group membership
+	    // internal LB items are handled elsewhere, so this is just assignments and Samigo
+	    // assignment 2 and Forums use gradebook items that aren't external, so group
+	    // membership isn't relevant. We have to map from format of sakaiId to format
+	    // of gradebook's external ID. GB uses just the item number for Samigo, and
+	    // the full reference for Assignment
+	    if (sakaiId.startsWith("/sam_pub/"))
+		externalId = sakaiId.substring("/sam_pub/".length());
+	    else if (sakaiId.startsWith("/assignment/"))
+		externalId = "/assignment/a/" + gradebookUid + "/" + sakaiId.substring("/assignment/".length());
+	    // sam and assignment is all we deal with, so anything else
+	    // in new format we skip. Following is old format sakaiid's where
+	    // the ID numbers were included with no type information
+	    else if (sakaiId.startsWith("/"))
+		continue;
+	    else if (sakaiId.indexOf("-") >= 0)  // old format assignment
+		externalId = "/assignment/a/" + gradebookUid + "/" + sakaiId;
+	    else
+		externalId = sakaiId; // old format Samigo
+	    // in our groups table but not in gradebook, don't need it
+	    if (!externalIdSet.contains(externalId))
+		continue;
+	    
+	    // have external ID, get group list
+	    ArrayList<String>groups = null;
+	    String groupString = entry.getValue();
+	    if (groupString != null && !groupString.equals("")) {
+		groups = new ArrayList<String>();
+		String [] groupArray = groupString.split(",");
+		for (String groupId: groupArray) {
+		    groups.add("/site/" + gradebookUid + "/group/" + groupId);
+		}
+	    }
+	    ret.put(externalId, groups);
+	}
+	return ret;
     }
 
     public void setGradebookExternalAssessmentService(GradebookExternalAssessmentService geaService) {

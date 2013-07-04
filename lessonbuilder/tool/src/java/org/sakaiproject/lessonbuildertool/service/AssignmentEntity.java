@@ -788,4 +788,12 @@ public class AssignmentEntity implements LessonEntity, AssignmentInterface {
 	return null;
     }
 
+    public String getSiteId() {
+	if (assignment == null)
+	    assignment = getAssignment(id);
+	if (assignment == null)
+	    return null;
+	return assignment.getContext();
+    }
+
 }

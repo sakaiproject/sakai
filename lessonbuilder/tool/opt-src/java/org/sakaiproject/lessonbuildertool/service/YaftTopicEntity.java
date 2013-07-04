@@ -357,4 +357,19 @@ public class YaftTopicEntity implements LessonEntity, ForumInterface {
 	    return nextEntity.findObject(objectid, objectMap, siteid);
 	return null;
     }
+
+    public String getSiteId() {
+
+	if (type == TYPE_YAFT_TOPIC) {
+	    if (discussion == null && forumService != null)
+		discussion = forumService.getDiscussion(id, false);
+	    if (discussion == null)
+		return null;
+	    return discussion.getSiteId();
+	}
+
+	return null;
+    }
+
+
 }

@@ -20,5 +20,6 @@
 	<property name="itemId" type="string" not-null="true" />
 	<property name="groupId" type="string" not-null="true" />
 	<property name="groups" type="materialized_clob" />
+	<property name="siteId" type="string" length="250" />
    </class>
 </hibernate-mapping>

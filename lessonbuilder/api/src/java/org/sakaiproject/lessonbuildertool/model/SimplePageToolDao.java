@@ -206,7 +206,7 @@ public interface SimplePageToolDao {
 
     public SimplePageItem makeItem(long pageId, int sequence, int type, String sakaiId, String name);
 
-    public SimplePageGroup makeGroup(String itemId, String groupId, String groups);
+    public SimplePageGroup makeGroup(String itemId, String groupId, String groups, String siteId);
 
     public SimplePageQuestionResponse makeQuestionResponse(String userId, long questionId);
     
@@ -261,5 +261,9 @@ public interface SimplePageToolDao {
     public List<SimplePagePeerEvalResult> findPeerEvalResultByOwner(long pageId,String grader);
     
     public List<String>findGradebookIds(String gradebookUid);
+
+    // items in lesson_builder_groups for specified site, map of itemId to groups
+    public Map<String,String> getExternalAssigns(String siteId);
+
 
 }
