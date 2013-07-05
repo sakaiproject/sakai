@@ -25,6 +25,9 @@ echo("<p>Certification launch data sets: ");
 for ( $i=0; $i <=5; $i++) {
    echo('<a href="'.$curPageUrl.'?cert_num='.$i.'">'.$i."</a>\n");
 }
+if ( isset($_REQUEST['cert_num']) ) {
+    echo('<br/>Before running the certification tests, you must first <a href="http://www.imsglobal.org/developers/alliance/LTI/cert/index.php" target="_blank">Login</a> and set up the tests using your IMS membership credentials.'."\n");
+}
 echo("</p>");
 
 $lmsdata = $lmsdata_cert[$cert_num];
