@@ -49,7 +49,6 @@ if ( isset($_REQUEST["secret"]) ) $secret = trim($_REQUEST["secret"]);
 $_SESSION["secret"] = $secret;
 
 $endpoint = trim($_REQUEST["endpoint"]);
-$b64 = base64_encode($key.":::".$secret.":::".uniqid());
 if ( ! $endpoint ) {
     if ( isset($_REQUEST['cert_num']) ) {
         $endpoint = "http://www.imsglobal.org/developers/alliance/LTI/cert/tc_tool.php?x=With%20Space&y=yes";
@@ -59,11 +58,9 @@ if ( ! $endpoint ) {
 }
 $cssurl = str_replace("lms.php","lms.css",$cur_url);
 
-$outcomes = trim($_REQUEST["outcomes"]);
-if ( ! $outcomes ) {
-    $outcomes = str_replace("lms.php","common/tool_consumer_outcome.php",$cur_url);
-    $outcomes .= "?b64=" . $b64;
-}
+$b64 = base64_encode($key.":::".$secret.":::".uniqid());
+$outcomes = str_replace("lms.php","common/tool_consumer_outcome.php",$cur_url);
+$outcomes .= "?b64=" . $b64;
 
 $tool_consumer_instance_guid = $lmsdata['tool_consumer_instance_guid'];
 $tool_consumer_instance_description = $lmsdata['tool_consumer_instance_description'];
@@ -119,10 +116,8 @@ function lmsdataToggle() {
 
   // Add oauth_callback to be compliant with the 1.0A spec
   $parms["oauth_callback"] = "about:blank";
-  if ( $outcomes ) {
-    $parms["lis_outcome_service_url"] = $outcomes;
-    $parms["lis_result_sourcedid"] = '{"zap" : "Siân JSON 1234 Sourcedid <>&lt;"}';
-  }
+  $parms["lis_outcome_service_url"] = $outcomes;
+  $parms["lis_result_sourcedid"] = '{"zap" : "Siân JSON 1234 Sourcedid <>&lt;"}';
     
 if ( strpos($cur_url, "localhost" ) === FALSE ) $parms['launch_presentation_css_url'] = $cssurl;
 
