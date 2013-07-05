@@ -43,7 +43,7 @@ if (typeof(ScormSjax) == "undefined")
 	ScormSjax = { };
 
 ScormSjax.sjaxCall = function sjaxCall(prefix, arg1, arg2, successHandler, failureHandler, precondition, channel) {
-	var url = prefix + '&arg1=' + arg1 + '&arg2=' + arg2 + '&callNumber=' + call_number;
+	var url = prefix + '&arg1=' + encodeURIComponent(arg1) + '&arg2=' + encodeURIComponent(arg2) + '&callNumber=' + encodeURIComponent(call_number);
 	
 	var transport = null;
 	
@@ -191,7 +191,7 @@ ScormSjax.sjaxCall = function sjaxCall(prefix, arg1, arg2, successHandler, failu
 
 
 ScormSjax.xyzsjaxCall = function xyzsjaxCall(prefix, arg1, arg2, successHandler, failureHandler, precondition, channel) {
-	var url = prefix + '&arg1=' + arg1 + '&arg2=' + arg2 + '&callNumber=' + call_number;	
+	var url = prefix + '&arg1=' + encodeURIComponent(arg1) + '&arg2=' + encodeURIComponent(arg2) + '&callNumber=' + encodeURIComponent(call_number);	
 	var t = Wicket.Ajax.getTransport();
 
 	Wicket.Log.info("GET " +  url);
@@ -452,7 +452,7 @@ ScormSjax.processHeaderContribution = function processHeaderContribution(steps, 
 ScormSjax.xsjaxCall = function xsjaxCall(url, arg1, arg2, successHandler, failureHandler, precondition, channel) {
 	//Wicket.Log.info("Calling sjaxCall with url: " + url + " sco: " + scoId + " arg1: " + arg1 + " arg2: " + arg2);
 		
-	var call = new Wicket.Ajax.Call(url + '&arg1=' + arg1 + '&arg2=' + arg2 + '&callNumber=' + call_number, function() {}, function() {}, null);
+	var call = new Wicket.Ajax.Call(url + '&arg1=' + encodeURIComponent(arg1) + '&arg2=' + encodeURIComponent(arg2) + '&callNumber=' + encodeURIComponent(call_number), function() {}, function() {}, null);
 	
 	if (typeof(precondition) != "undefined" && precondition != null) {
 		call.request.precondition = precondition;
