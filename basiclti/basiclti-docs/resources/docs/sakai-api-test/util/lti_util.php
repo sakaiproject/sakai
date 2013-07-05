@@ -956,6 +956,7 @@ function getPOXResponse() {
                 <imsx_severity>status</imsx_severity>
                 <imsx_description>%s</imsx_description>
                 <imsx_messageRefIdentifier>%s</imsx_messageRefIdentifier>
+                <imsx_operationRefIdentifier>%s</imsx_operationRefIdentifier>
             </imsx_statusInfo>
         </imsx_POXResponseHeaderInfo>
     </imsx_POXHeader>
