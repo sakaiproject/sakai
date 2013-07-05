@@ -17,6 +17,7 @@
         itemId varchar(255) not null,
         groupId varchar(255) not null,
         groups longvarchar,
+        siteId varchar(250),
         primary key (id)
     );
 

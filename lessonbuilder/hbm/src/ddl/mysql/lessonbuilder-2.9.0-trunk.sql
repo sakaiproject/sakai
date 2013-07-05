@@ -1,3 +1,4 @@
+alter table lesson_builder_groups add siteId varchar(250);
 alter table lesson_builder_items add showPeerEval bit;
 alter table lesson_builder_items add groupOwned bit;
 alter table lesson_builder_items add ownerGroups longtext;
@@ -15,6 +16,13 @@ alter table lesson_builder_items add attributeString longtext;
     );
 
 alter table lesson_builder_pages add groupid varchar(36);
+    create table lesson_builder_properties (
+        id bigint not null auto_increment,
+        attribute varchar(255) not null unique,
+        value longtext,
+        primary key (id)
+    );
+
     create table lesson_builder_q_responses (
         id bigint not null auto_increment,
         timeAnswered datetime not null,

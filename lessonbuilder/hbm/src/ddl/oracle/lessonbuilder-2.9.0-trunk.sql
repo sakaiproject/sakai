@@ -1,3 +1,4 @@
+alter table lesson_builder_groups add siteId varchar2(250 char);
 alter table lesson_builder_items add showPeerEval number(1,0);
 alter table lesson_builder_items add groupOwned number(1,0);
 alter table lesson_builder_items add ownerGroups clob;
@@ -15,6 +16,13 @@ alter table lesson_builder_items add attributeString clob;
     );
 
 alter table lesson_builder_pages add groupid varchar2(36 char);
+    create table lesson_builder_properties (
+        id number(19,0) not null,
+        attribute varchar2(255 char) not null unique,
+        value clob,
+        primary key (id)
+    );
+
     create table lesson_builder_q_responses (
         id number(19,0) not null,
         timeAnswered timestamp not null,

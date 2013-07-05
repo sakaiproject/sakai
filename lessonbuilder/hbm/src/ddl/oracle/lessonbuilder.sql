@@ -17,6 +17,7 @@
         itemId varchar2(255 char) not null,
         groupId varchar2(255 char) not null,
         groups clob,
+        siteId varchar2(250 char),
         primary key (id)
     );
 

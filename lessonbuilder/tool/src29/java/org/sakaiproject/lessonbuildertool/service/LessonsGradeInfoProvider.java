@@ -103,6 +103,8 @@ public class LessonsGradeInfoProvider implements ExternalAssignmentProvider {
     // at the end and that looking up by ID
 
     public boolean isAssignmentDefined(String id) {
+	if (!id.startsWith("lesson-builder:"))
+	    return false;
 	int i = id.lastIndexOf(":");
 	if (i < 0)
 	    return false;
@@ -120,6 +122,8 @@ public class LessonsGradeInfoProvider implements ExternalAssignmentProvider {
 
     // is access to this item restricted by group access
     public boolean isAssignmentGrouped(String id) {
+	if (!id.startsWith("lesson-builder:"))
+	    return false;
 	int i = id.lastIndexOf(":");
 	if (i < 0)
 	    return false;
@@ -293,38 +297,28 @@ public class LessonsGradeInfoProvider implements ExternalAssignmentProvider {
 
 	String userId = UserDirectoryService.getCurrentUser().getId();
 
-	List<String> externalIds = dao.findGradebookIds(gradebookUid);
-	for (String externalId : externalIds) {
-	    int i = externalId.lastIndexOf(":");
-	    if (i < 0)
-		continue;
-
-	    String itemNum = externalId.substring(i+1);
-	    SimplePageItem item = null;
-	    long itemId = 0;
-	    try {
-		itemId = Long.parseLong(itemNum);
-		item = dao.findItem(itemId);
-		if (item == null)
-		    continue;
-	    } catch (Exception e){
-		continue;
-	    }
+	List<SimplePageItem> externalItems = dao.findGradebookItems(gradebookUid);
+	for (SimplePageItem item : externalItems) {
 
 	    Set<String> groupIds = getItemGroups(item);
 	    /// System.out.println("item " + item.getId() + " " + groupIds);
 	    if (groupIds ==  null) {
-		// no group restriction. add this item
-		ret.add(externalId);
-		continue;
+		if (item.getGradebookId() != null)
+		    ret.add(item.getGradebookId());
+		if (item.getAltGradebook() != null)
+		    ret.add(item.getAltGradebook());
 	    }
 
 	    ArrayList<String> groups = new ArrayList<String>();
 	    for (String groupId: groupIds)
 		groups.add("/site/" + gradebookUid + "/group/" + groupId);
 	    List<AuthzGroup> matched = authzGroupService.getAuthzUserGroupIds(groups, userId);
-	    if (matched.size() > 0)
-		ret.add(externalId);
+	    if (matched.size() > 0) {
+		if (item.getGradebookId() != null)
+		    ret.add(item.getGradebookId());
+		if (item.getAltGradebook() != null)
+		    ret.add(item.getAltGradebook());
+	    }
 	}
 				       
 	// list of items we have modified the group membership for. We have to override the
@@ -359,28 +353,18 @@ public class LessonsGradeInfoProvider implements ExternalAssignmentProvider {
             allExternals.put(studentId, new ArrayList<String>());
 	}
 
-	List<String> externalIds = dao.findGradebookIds(gradebookUid);
-	for (String externalId : externalIds) {
-	    int i = externalId.lastIndexOf(":");
-	    if (i < 0)
-		continue;
-	    String itemNum = externalId.substring(i+1);
-	    SimplePageItem item = null;
-	    long itemId = 0;
-	    try {
-		itemId = Long.parseLong(itemNum);
-		item = dao.findItem(itemId);
-		if (item == null)
-		    continue;
-	    } catch (Exception e){
-		continue;
-	    }
+	List<SimplePageItem> externalItems = dao.findGradebookItems(gradebookUid);
+	for (SimplePageItem item: externalItems) {
+
 	    Set<String> groupIds = getItemGroups(item);
 	    if (groupIds == null) {
 		// no restriction add to all users
 		for (String userId : studentIds)
 		    if (allExternals.containsKey(userId)) {
-			allExternals.get(userId).add(externalId);
+			if (item.getGradebookId() != null)
+			    allExternals.get(userId).add(item.getGradebookId());
+			if (item.getAltGradebook() != null)
+			    allExternals.get(userId).add(item.getAltGradebook());
 		    }
 	    } else {
 		// restricted to group
@@ -394,7 +378,10 @@ public class LessonsGradeInfoProvider implements ExternalAssignmentProvider {
 		okUsers.retainAll(studentIds);
 		for (String userId : okUsers)
 		    if (allExternals.containsKey(userId)) {
-			allExternals.get(userId).add(externalId);
+			if (item.getGradebookId() != null)
+			    allExternals.get(userId).add(item.getGradebookId());
+			if (item.getAltGradebook() != null)
+			    allExternals.get(userId).add(item.getAltGradebook());
 		    }
 	    }
 	}
@@ -434,7 +421,7 @@ public class LessonsGradeInfoProvider implements ExternalAssignmentProvider {
 	
 	// should this use the Dao? Not clear that it makes sense in the Lessons dao.
 	// I don't see a good approach in gradebook to do this. We could fetch all assignments
-	// and check externally maintained, but this is performace critical, so I had to do that.
+	// and check externally maintained, but this is performace critical, so I hate to do that.
 
 	// find the external items in the gradebook. Unfortunately we can have
 	// items in the lesson_builder_groups table that aren't in the gradebook

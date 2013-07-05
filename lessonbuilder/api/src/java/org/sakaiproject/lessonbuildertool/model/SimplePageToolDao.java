@@ -260,7 +260,7 @@ public interface SimplePageToolDao {
     
     public List<SimplePagePeerEvalResult> findPeerEvalResultByOwner(long pageId,String grader);
     
-    public List<String>findGradebookIds(String gradebookUid);
+    public List<SimplePageItem>findGradebookItems(String gradebookUid);
 
     // items in lesson_builder_groups for specified site, map of itemId to groups
     public Map<String,String> getExternalAssigns(String siteId);

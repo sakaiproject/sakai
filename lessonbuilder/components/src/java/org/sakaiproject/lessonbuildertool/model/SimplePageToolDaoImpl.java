@@ -1228,33 +1228,10 @@ public class SimplePageToolDaoImpl extends HibernateDaoSupport implements Simple
 	    String cdr;
 	}
 
-	public List<String>findGradebookIds(final String gradebookUid) {
+	public List<SimplePageItem>findGradebookItems(final String gradebookUid) {
 
-	    Object [] fields = new Object[1];
-	    fields[0] = gradebookUid;
-	    List<Cons> ids = SqlService.dbRead("select a.gradebookId, a.altGradebook from lesson_builder_items a, lesson_builder_pages b where a.pageId = b.pageId and b.siteId = ? and (a.gradebookId is not null or a.altGradebook is not null)", fields, new SqlReader() {
-    		public Object readSqlResultRecord(ResultSet result) {
-    			try {
-			    Cons pair = new Cons();
-			    pair.car = result.getString(1);
-			    pair.cdr = result.getString(2);
-			    return pair;
-    			} catch (SQLException e) {
-			    log.warn("findGradebookIds " + gradebookUid + " : " + e);
-			    return null;
-    			}
-    		}
-		});
-	    
-	    List<String>ret = new ArrayList<String>();
-	    for (Cons p: ids) {
-		if (p.car != null && p.car.length() > 0)
-		    ret.add(p.car);
-		if (p.cdr != null && p.cdr.length() > 0)
-		    ret.add(p.cdr);
-	    }
-
-	    return ret;
+	    String hql = "select item from org.sakaiproject.lessonbuildertool.SimplePageItem item, org.sakaiproject.lessonbuildertool.SimplePage page where item.pageId = page.pageId and page.siteId = :site and (item.gradebookId is not null or item.altGradebook is not null)";
+	    return getHibernateTemplate().findByNamedParam(hql, "site", gradebookUid);
 	}
 	    
     // items in lesson_builder_groups for specified site, map of itemId to groups
