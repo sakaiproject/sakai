@@ -22,7 +22,7 @@ if ( isset($_REQUEST['cert_num']) ) $cert_num = $_REQUEST['cert_num'] + 0;
 
 $cur_url = curPageURL();
 echo("<p>Certification launch data sets: ");
-for ( $i=0; $i <=5; $i++) {
+for ( $i=0; $i < count($lmsdata_cert); $i++) {
    echo('<a href="'.$curPageUrl.'?cert_num='.$i.'">'.$i."</a>\n");
 }
 if ( isset($_REQUEST['cert_num']) ) {

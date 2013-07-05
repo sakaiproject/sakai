@@ -72,31 +72,34 @@ $lmsdata_tmp = array(
 		$lmsdata_common, $lmsdata_users[0], $lmsdata_courses[0], $lmsdata_resources[1],
 		array("ext_note" => "Instructor from first course second resource") ),
 	2 => array_merge( 
+		$lmsdata_common, $lmsdata_users[0], $lmsdata_courses[1], $lmsdata_resources[2],
+		array("ext_note" => "Instructor from second course") ),
+	3 => array_merge( 
 		$lmsdata_common, $lmsdata_users[1], $lmsdata_courses[1], $lmsdata_resources[2],
 		array("ext_note" => "Learner from second course") ),
 	// Copies for less privacy
-	3 => array_merge( 
-		$lmsdata_common, $lmsdata_users[1], $lmsdata_courses[1], $lmsdata_resources[2],
-		array("ext_note" => "Learner from second course minus name") ),
 	4 => array_merge( 
 		$lmsdata_common, $lmsdata_users[1], $lmsdata_courses[1], $lmsdata_resources[2],
-		array("ext_note" => "Learner from second course minus email") ),
+		array("ext_note" => "Learner from second course minus name") ),
 	5 => array_merge( 
+		$lmsdata_common, $lmsdata_users[1], $lmsdata_courses[1], $lmsdata_resources[2],
+		array("ext_note" => "Learner from second course minus email") ),
+	6 => array_merge( 
 		$lmsdata_common, $lmsdata_users[1], $lmsdata_courses[1], $lmsdata_resources[2],
 		array("ext_note" => "Learner from second course no info") ),
 );
 
-// Remove name from [3]
-unset($lmsdata_tmp[3]["lis_person_name_family"]);
-unset($lmsdata_tmp[3]["lis_person_name_given"]);
+// Remove name from [4]
+unset($lmsdata_tmp[4]["lis_person_name_family"]);
+unset($lmsdata_tmp[4]["lis_person_name_given"]);
 
-// Remove email from [4]
-unset($lmsdata_tmp[4]["lis_person_contact_email_primary"]);
-
-// Remove all from [5]
-unset($lmsdata_tmp[5]["lis_person_name_family"]);
-unset($lmsdata_tmp[5]["lis_person_name_given"]);
+// Remove email from [5]
 unset($lmsdata_tmp[5]["lis_person_contact_email_primary"]);
+
+// Remove all from [6]
+unset($lmsdata_tmp[6]["lis_person_name_family"]);
+unset($lmsdata_tmp[6]["lis_person_name_given"]);
+unset($lmsdata_tmp[6]["lis_person_contact_email_primary"]);
 
 $lmsdata_cert = array();
 foreach($lmsdata_tmp as $k => $v) {
