@@ -2168,6 +2168,20 @@ function prepareQuestionDialog() {
 	    $('#question-error').text(msg("simplepage.gbname-expected"));
 	    $('#question-error-container').show();
 	    return false;
+	} else if ($("#question-text-input").val() == '') {
+	    $('#question-error').text(msg("simplepage.missing-question-text"));
+	    $('#question-error-container').show();
+	    return false;
+	} else if ($("#multipleChoiceSelect").attr("checked") == 'checked' && 
+		   $(".question-multiplechoice-answer").filter(function(index){return $(this).val() != '';}).length < 2) {
+	    $('#question-error').text(msg("simplepage.question-need-2"));
+	    $('#question-error-container').show();
+	    return false;
+	} else if ($("#shortanswerSelect").attr("checked") == 'checked' && 
+		   $(".question-shortanswer-answer").filter(function(index){return $(this).val()!="";}).length < 1) {
+	    $('#question-error').text(msg("simplepage.question-need-1"));
+	    $('#question-error-container').show();
+	    return false;
 	} else
 	    $('#question-error-container').hide();
 
