@@ -247,6 +247,11 @@ $(function() {
                         } else {
                             $("#export-cc-link").attr('href', $("#export-cc-link").attr('href').replace(/version=[0-9.]*/, "version=1.2"));
                         }
+                        if ($('#export-cc-bank').attr('checked') == 'checked') {
+                            $("#export-cc-link").attr('href', $("#export-cc-link").attr('href').replace(/bank=[01]/, "bank=1"));
+                        } else {
+                            $("#export-cc-link").attr('href', $("#export-cc-link").attr('href').replace(/bank=[01]/, "bank=0"));
+                        }
 			$("#export-cc-link").get(0).click();
 			closeExportCcDialog();
 			return false;

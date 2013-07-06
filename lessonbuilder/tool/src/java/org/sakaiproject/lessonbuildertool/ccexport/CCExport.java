@@ -111,6 +111,7 @@ public class CCExport {
     String siteId = null;
     static String server = ServerConfigurationService.getServerName();
     int version = V12;
+    boolean doBank = false;
 
     class Resource {
 	String sakaiId;
@@ -124,6 +125,7 @@ public class CCExport {
     Map<String, Resource> fileMap = new HashMap<String, Resource>();
     // map of all Samigo tests
     Map<String, Resource> samigoMap = new HashMap<String, Resource>();
+    Resource samigoBank = null;
     // map of all Assignments
     Map<String, Resource> assignmentMap = new HashMap<String, Resource>();
     // map of all Forums
@@ -181,6 +183,8 @@ public class CCExport {
 	siteId = sid;
 	if ("1.1".equals(params.getVersion()))
 	    version = V11;
+	if ("1".equals(params.getBank()))
+	    doBank = true;
 
 	if (! startExport())
 	    return;
@@ -211,6 +215,7 @@ public class CCExport {
 	    errStream = new PrintStream(errFile);
 	    
 	} catch (Exception e) {
+	    log.error("Lessons export error outputting file, startExport " + e);
 	    setErrKey("simplepage.exportcc-fileerr", e.getMessage());
 	    return false;
 	}
@@ -256,7 +261,11 @@ public class CCExport {
 	    String base = contentHostingService.getSiteCollection(siteId);
 	    ContentCollection baseCol = contentHostingService.getCollection(base);
 	    return addAllFiles(baseCol, base.length());
+	} catch (org.sakaiproject.exception.IdUnusedException e) {
+	    setErrKey("simplepage.exportcc-noresource", e.getMessage());
+	    return false;
 	} catch (Exception e) {
+	    log.error("Lessons export error outputting file, addAllFiles " + e);
 	    setErrKey("simplepage.exportcc-fileerr", e.getMessage());
 	    return false;
 	}
@@ -280,6 +289,7 @@ public class CCExport {
 		    addAllFiles((ContentCollection)e, baselen);
 	    }
 	} catch (Exception e) {
+	    log.error("Lessons export error outputting file, addAllFiles 2 " + e);
 	    setErrKey("simplepage.exportcc-fileerr", e.getMessage());
 	    return false;
 	}
@@ -362,7 +372,7 @@ public class CCExport {
 		}
 	    }
 	} catch (Exception e) {
-	    log.error("Lessons export error outputting file " + e);
+	    log.error("Lessons export error outputting file, outputAllFiles " + e);
 	    setErrKey("simplepage.exportcc-fileerr", e.getMessage());
 	    return false;
 	}
@@ -389,7 +399,15 @@ public class CCExport {
 	    res.use = null;
 	    samigoMap.put(res.sakaiId, res);
 	}
-
+	if (doBank && samigoExport.havePoolItems()) {
+	    Resource res = new Resource();
+	    res.resourceId = getResourceId();
+	    res.location = "cc-objects/" + res.resourceId + ".xml";
+	    res.sakaiId = null;
+	    res.dependencies = new ArrayList<String>();
+	    res.use = null;
+	    samigoBank = res;
+	}
 	return true;
     }
 
@@ -398,14 +416,21 @@ public class CCExport {
 	    for (Map.Entry<String, Resource> entry: samigoMap.entrySet()) {
 
 		ZipEntry zipEntry = new ZipEntry(entry.getValue().location);
-
 		out.putNextEntry(zipEntry);
 		boolean ok = samigoExport.outputEntity(entry.getValue().sakaiId, out, errStream, this, entry.getValue(), version);
 		if (!ok)
 		    return false;
 
 	    }
+	    if (samigoBank != null) {
+		ZipEntry zipEntry = new ZipEntry(samigoBank.location);
+		out.putNextEntry(zipEntry);
+		boolean ok = samigoExport.outputBank(out, errStream, this, samigoBank, version);
+		if (!ok)
+		    return false;
+	    }
 	} catch (Exception e) {
+	    log.error("output sam " + e);
 	    setErrKey("simplepage.exportcc-fileerr", e.getMessage());
 	    return false;
 	}
@@ -445,6 +470,7 @@ public class CCExport {
 
 	    }
 	} catch (Exception e) {
+	    log.error("Lessons export error outputting file, outputAllAssignments " + e);
 	    setErrKey("simplepage.exportcc-fileerr", e.getMessage());
 	    return false;
 	}
@@ -480,7 +506,7 @@ public class CCExport {
 
 	    }
 	} catch (Exception e) {
-	    log.error("problem in outputallforums " + e);
+	    log.error("problem in outputallforums, outputAllForums " + e);
 	    setErrKey("simplepage.exportcc-fileerr", e.getMessage());
 	    return false;
 	}
@@ -516,7 +542,7 @@ public class CCExport {
 		    return false;
 	    }
 	} catch (Exception e) {
-	    log.error("problem in outputallforums " + e);
+	    log.error("problem in outputallforums, outputAllBlti " + e);
 	    setErrKey("simplepage.exportcc-fileerr", e.getMessage());
 	    return false;
 	}
@@ -550,6 +576,7 @@ public class CCExport {
 		fileMap.put(res.sakaiId, res);
 	    }
 	} catch (Exception e) {
+	    log.error("Lessons export error outputting file, outputAllTexts " + e);
 	    setErrKey("simplepage.exportcc-fileerr", e.getMessage());
 	    return false;
 	}
@@ -734,16 +761,19 @@ public class CCExport {
 	    out.println("  </organizations>");
 
 	    String qtiid = null;
+	    String bankid = null;
 	    String topicid = null;
 	    String usestr = "";
 	    switch (version) {
 	    case V11:
 		qtiid = "imsqti_xmlv1p2/imscc_xmlv1p1/assessment";
+		bankid = "imsqti_xmlv1p2/imscc_xmlv1p1/question-bank";
 		topicid = "imsdt_xmlv1p1";
 		usestr = "";
 		break;
 	    default:
 		qtiid = "imsqti_xmlv1p2/imscc_xmlv1p2/assessment";
+		bankid = "imsqti_xmlv1p2/imscc_xmlv1p2/question-bank";
 		topicid = "imsdt_xmlv1p2";
 		usestr = " intendeduse=\"assignment\"";
 	    }
@@ -768,6 +798,14 @@ public class CCExport {
 		out.println("    </resource>");
 	    }
 
+	    // question bank
+	    if (samigoBank != null) {
+		out.println("    <resource href=\"" + StringEscapeUtils.escapeXml(samigoBank.location) + "\" identifier=\"" + samigoBank.resourceId + "\" type=\"" + bankid + "\">");
+		out.println("      <file href=\"" + StringEscapeUtils.escapeXml(samigoBank.location) + "\"/>");
+		for (String d: samigoBank.dependencies)
+		    out.println("      <dependency identifierref=\"" + d + "\"/>");
+		out.println("    </resource>");
+	    }
 	    for (Map.Entry<String, Resource> entry: assignmentMap.entrySet()) {
 		out.println("    <resource href=\"" + StringEscapeUtils.escapeXml(entry.getValue().location) + "\" identifier=\"" + entry.getValue().resourceId + "\" type=\"webcontent\"" + usestr + ">");
 		out.println("      <file href=\"" + StringEscapeUtils.escapeXml(entry.getValue().location) + "\"/>");
@@ -813,6 +851,7 @@ public class CCExport {
 		}
 	    }
 	} catch (Exception e) {
+	    log.error("Lessons export error outputting file, outputManifest " + e);
 	    setErrKey("simplepage.exportcc-fileerr", e.getMessage());
 	    return false;
 	}
@@ -851,6 +890,7 @@ public class CCExport {
 		} catch (Exception ignore) {
 		}
 	    }
+	    log.error("Lessons export error outputting file, download " + ioe);
 	    setErrKey("simplepage.exportcc-fileerr", ioe.getMessage());
 	    return false;
 	}

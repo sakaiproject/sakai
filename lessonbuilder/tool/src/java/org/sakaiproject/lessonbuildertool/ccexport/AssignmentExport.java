@@ -87,9 +87,7 @@ import org.sakaiproject.util.Validator;
 
 
 /*
- * set up as a singleton, but also instantiated by CCExport.
- * The purpose of the singleton setup is just to get the dependencies.
- * So they are all declared static.
+ * set up as a singleton, but CCExport is not.
  */
 
 public class AssignmentExport {
@@ -111,8 +109,6 @@ public class AssignmentExport {
     public void setNext(AssignmentExport n) {
 	next = n;
     }
-
-    CCExport ccExport = null;
 
     public void init () {
 	// currently nothing to do
@@ -278,8 +274,6 @@ public class AssignmentExport {
 	if (contents == null)
 	    return false;
 	
-	ccExport = bean;
-
 	String title = contents.title;
 	String attachmentDir = "attachments/" + contents.id + "/";
 

@@ -30,6 +30,7 @@ public class ExportCCViewParameters extends SimpleViewParameters {
 
 	private boolean exportcc = false;
         private String version = "1.2";
+        private String bank = "1";
 
 	public ExportCCViewParameters() {
 		super();
@@ -53,6 +54,14 @@ public class ExportCCViewParameters extends SimpleViewParameters {
 
 	public String getVersion() {
 	    return version;
+	}
+
+        public void setBank(String s) {
+	    bank = s;
+	}
+
+	public String getBank() {
+	    return bank;
 	}
 
 }

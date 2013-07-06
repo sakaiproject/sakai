@@ -19,8 +19,6 @@ public class BltiExport {
     private static SimplePageToolDao simplePageToolDao;
     static MessageLocator messageLocator = null;
 
-    CCExport ccExport = null;
-
     protected static LTIService ltiService = null;
 
     public void setSimplePageToolDao(Object dao) {
@@ -72,7 +70,6 @@ public class BltiExport {
     public boolean outputEntity(String bltiRef, ZipPrintStream out, PrintStream errStream, CCExport bean, CCExport.Resource resource, int version) {
 	int i = bltiRef.indexOf("/");
 	String id = bltiRef.substring(i + 1);
-	this.ccExport = bean;
 
 	Long bkey = getLong(id);
 	Map content = ltiService.getContent(bkey);

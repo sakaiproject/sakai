@@ -99,9 +99,7 @@ import org.sakaiproject.util.Validator;
 import org.sakaiproject.util.FormattedText;
 
 /*
- * set up as a singleton, but also instantiated by CCExport.
- * The purpose of the singleton setup is just to get the dependencies.
- * So they are all declared static.
+ * set up as a singleton, but CCExport is not
  */
 
 public class ForumsExport {
@@ -128,9 +126,6 @@ public class ForumsExport {
 	ComponentManager.get("org.sakaiproject.api.app.messageforums.MessageForumsForumManager");
     static MessageForumsMessageManager messageManager = (MessageForumsMessageManager)
 	ComponentManager.get("org.sakaiproject.api.app.messageforums.MessageForumsMessageManager");
-
-
-    CCExport ccExport = null;
 
     public void init () {
 	// currently nothing to do
@@ -216,7 +211,8 @@ public class ForumsExport {
 
 	List<ForumItem> items = getItemsInSite(siteId);
 
-	for (ForumItem item: items) {
+	if (items != null)
+  	  for (ForumItem item: items) {
 
 	    ret.add(item.id);
 

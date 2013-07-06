@@ -67,10 +67,13 @@ import org.sakaiproject.tool.assessment.data.ifc.assessment.ItemDataIfc;
 import org.sakaiproject.tool.assessment.data.ifc.assessment.ItemTextIfc;
 import org.sakaiproject.tool.assessment.data.ifc.assessment.PublishedAssessmentIfc;
 import org.sakaiproject.tool.assessment.data.ifc.assessment.SectionDataIfc;
+import org.sakaiproject.tool.assessment.data.ifc.questionpool.QuestionPoolDataIfc;
 import org.sakaiproject.tool.assessment.data.ifc.shared.TypeIfc;
+
 
 import org.sakaiproject.tool.assessment.facade.AssessmentFacade;
 import org.sakaiproject.tool.assessment.facade.AssessmentFacadeQueries;
+import org.sakaiproject.tool.assessment.facade.QuestionPoolFacadeQueriesAPI;
 import org.sakaiproject.tool.assessment.facade.AuthzQueriesFacadeAPI;
 import org.sakaiproject.tool.assessment.facade.PublishedAssessmentFacade;
 import org.sakaiproject.tool.assessment.facade.PublishedAssessmentFacadeQueriesAPI;
@@ -87,6 +90,7 @@ import org.sakaiproject.tool.assessment.services.assessment.PublishedAssessmentS
 
 import org.w3c.dom.Document;
 
+import org.sakaiproject.user.cover.UserDirectoryService;
 import org.sakaiproject.site.api.Group;
 import org.sakaiproject.site.api.Site;
 import org.sakaiproject.site.cover.SiteService;
@@ -109,9 +113,7 @@ import java.sql.ResultSet;
 import org.sakaiproject.lessonbuildertool.ccexport.ZipPrintStream;
 
 /*
- * set up as a singleton, but also instantiated by CCExport.
- * The purpose of the singleton setup is just to get the dependencies.
- * So they are all declared static.
+ * set up as a singleton. But CCexport is not.
  */
 
 public class SamigoExport {
@@ -134,12 +136,17 @@ public class SamigoExport {
     	this.publishedAssessmentFacadeQueries = p;
     }
 
+    static QuestionPoolFacadeQueriesAPI questionPoolFacadeQueries;
+
+    public void setQuestionPoolFacadeQueries(
+	QuestionPoolFacadeQueriesAPI p) {
+    	this.questionPoolFacadeQueries = p;
+    }
+
     static MessageLocator messageLocator = null;
     public void setMessageLocator(MessageLocator m) {
 	messageLocator = m;
     }
-
-    CCExport ccExport = null;
 
     public void init () {
 	// currently nothing to do
@@ -179,21 +186,38 @@ public class SamigoExport {
 	return ret;
     }
 
-    public boolean outputEntity(String samigoId, ZipPrintStream out, PrintStream errStream, CCExport bean, CCExport.Resource resource, int version) {
+    // are there any items in a pool?
+
+    public boolean havePoolItems() {
+
+	List<QuestionPoolDataIfc>pools = questionPoolFacadeQueries.getBasicInfoOfAllPools(UserDirectoryService.getCurrentUser().getId());
+
+	if (pools != null && pools.size() > 0) {
+	    int poolno = 1;
+	    for (QuestionPoolDataIfc pool: pools) {
+		List<ItemDataIfc> itemList = questionPoolFacadeQueries.getAllItems(pool.getQuestionPoolId());
+		if (itemList != null && itemList.size() > 0)
+		    return true;
+	    }
+	}
+
+	return false;
+    }
+
+    public boolean outputEntity(String samigoId, ZipPrintStream out, PrintStream errStream, CCExport ccExport, CCExport.Resource resource, int version) {
 	int i = samigoId.indexOf("/");
 	String publishedAssessmentString = samigoId.substring(i+1);
 	Long publishedAssessmentId = new Long(publishedAssessmentString);
-	ccExport = bean;
 
 	PublishedAssessmentFacade assessment = pubService.getPublishedAssessment(publishedAssessmentString);
 
 	List<ItemDataIfc> publishedItemList = preparePublishedItemList(assessment);
 
-	boolean anonymousGrading = assessment.getEvaluationModel().getAnonymousGrading().equals(EvaluationModelIfc.ANONYMOUS_GRADING);
+	// boolean anonymousGrading = assessment.getEvaluationModel().getAnonymousGrading().equals(EvaluationModelIfc.ANONYMOUS_GRADING);
 
 	String assessmentTitle = assessment.getTitle();
 
-	SortedMap<Long,String> questions = new TreeMap<Long,String>();
+	// SortedMap<Long,String> questions = new TreeMap<Long,String>();
 
 	out.println("<?xml version=\"1.0\" encoding=\"ISO-8859-1\"?>");
 
@@ -210,9 +234,66 @@ public class SamigoExport {
 	out.println("  <assessment ident=\"QDB_1\" title=\"" + StringEscapeUtils.escapeXml(assessmentTitle) + "\">");
 	out.println("    <section ident=\"S_1\">");
 
-	for (ItemDataIfc item: publishedItemList) {
-	    String itemId = item.getSection().getSequence() + "_" + item.getSequence();
-	    String title = item.getSection().getSequence() + "." + item.getSequence();
+	outputQuestions(publishedItemList, null, assessmentTitle, out, errStream, ccExport, resource, version);
+
+	out.println("    </section>");
+	out.println("  </assessment>");
+	out.println("</questestinterop>");
+
+	return true;
+   }
+
+    public boolean outputBank(ZipPrintStream out, PrintStream errStream, CCExport ccExport, CCExport.Resource resource, int version) {
+
+	out.println("<?xml version=\"1.0\" encoding=\"ISO-8859-1\"?>");
+
+	switch (version) {
+	case CCExport.V11:
+	    out.println("<questestinterop xmlns=\"http://www.imsglobal.org/xsd/ims_qtiasiv1p2\"");
+	    out.println("xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\" xsi:schemaLocation=\"http://www.imsglobal.org/xsd/ims_qtiasiv1p2 http://www.imsglobal.org/profile/cc/ccv1p1/ccv1p1_qtiasiv1p2p1_v1p0.xsd\">");
+	    break;
+	default:
+	    out.println("<questestinterop xmlns=\"http://www.imsglobal.org/xsd/ims_qtiasiv1p2\"");
+	    out.println("xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\" xsi:schemaLocation=\"http://www.imsglobal.org/xsd/ims_qtiasiv1p2 http://www.imsglobal.org/profile/cc/ccv1p2/ccv1p2_qtiasiv1p2p1_v1p0.xsd\">");
+	}
+
+	out.println("  <objectbank ident=\"QDB_1\">");
+
+	List<QuestionPoolDataIfc>pools = questionPoolFacadeQueries.getBasicInfoOfAllPools(UserDirectoryService.getCurrentUser().getId());
+
+	if (pools != null && pools.size() > 0) {
+	    int poolno = 1;
+	    for (QuestionPoolDataIfc pool: pools) {
+		List<ItemDataIfc> itemList = questionPoolFacadeQueries.getAllItems(pool.getQuestionPoolId());
+		if (itemList != null && itemList.size() > 0)
+		    outputQuestions(itemList, ("pool" + (poolno++)), pool.getTitle(), out, errStream, ccExport, resource, version);
+	    }
+	}
+
+	out.println("  </objectbank>");
+	out.println("</questestinterop>");
+
+	return true;
+   }
+
+
+    void outputQuestions(List<ItemDataIfc> itemList, String assessmentSeq, String assessmentTitle, ZipPrintStream out, PrintStream errStream, CCExport ccExport, CCExport.Resource resource, int version) {
+
+       int seq = 1;
+
+	for (ItemDataIfc item: itemList) {
+
+	    SectionDataIfc section = item.getSection();
+	    String itemId = null;
+	    String title = null;
+
+	    if (section != null) {
+		itemId = item.getSection().getSequence() + "_" + item.getSequence();
+		title = item.getSection().getSequence() + "." + item.getSequence();
+	    } else {
+		itemId = assessmentSeq + "_" + seq;
+		title = assessmentTitle + " " + (seq++);
+	    }
 
 	    Set<ItemTextIfc> texts = item.getItemTextSet();
 	    List<ItemTextIfc> textlist = new ArrayList<ItemTextIfc>();
@@ -480,12 +561,7 @@ public class SamigoExport {
 
 	    out.println("      </item>");
 	}
-	out.println("    </section>");
-	out.println("  </assessment>");
-	out.println("</questestinterop>");
-
-	return true;
-   }
+    }
 
     public List<ItemDataIfc> preparePublishedItemList(PublishedAssessmentIfc publishedAssessment){
 	List<ItemDataIfc> ret = new ArrayList();

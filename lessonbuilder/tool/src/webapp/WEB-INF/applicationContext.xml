@@ -306,6 +306,7 @@ simplePageBean.peerEvalAllowSelfGrade
               destroy-method="destroy">
 	  
 	  <property name="publishedAssessmentFacadeQueries"><ref bean="PublishedAssessmentFacadeQueries" /></property>
+	  <property name="questionPoolFacadeQueries"><ref bean="QuestionPoolFacadeQueries" /></property>
 	  <property name="messageLocator" ref="messageLocator"/>
 	  <property name="simplePageToolDao" ref="org.sakaiproject.lessonbuildertool.model.SimplePageToolDao" />
 	</bean>
