@@ -414,6 +414,21 @@ public class LessonsGradeInfoProvider implements ExternalAssignmentProvider {
 	return allExternals;
     }
 
+    // for the moment just our own assignments
+    public List<String> getAllExternalAssignments(String gradebookUid) {
+	List<String> ret = new ArrayList<String>();
+
+	List<SimplePageItem> externalItems = dao.findGradebookItems(gradebookUid);
+	for (SimplePageItem item: externalItems) {
+	    if (item.getGradebookId() != null)
+		ret.add(item.getGradebookId());
+	    if (item.getAltGradebook() != null)
+		ret.add(item.getAltGradebook());
+	}	    
+
+	return ret;
+    }
+
     // return list of items where we've replaced the group with our own
     // returns map externalId -> group list
     public Map<String,ArrayList<String>> getExternalAssigns(String gradebookUid) {
