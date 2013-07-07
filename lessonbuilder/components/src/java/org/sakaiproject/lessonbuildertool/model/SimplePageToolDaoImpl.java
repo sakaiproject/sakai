@@ -1223,43 +1223,26 @@ public class SimplePageToolDaoImpl extends HibernateDaoSupport implements Simple
 		return newList;
 	}
 
-	class Cons {
-	    String car;
-	    String cdr;
-	}
-
 	public List<SimplePageItem>findGradebookItems(final String gradebookUid) {
 
 	    String hql = "select item from org.sakaiproject.lessonbuildertool.SimplePageItem item, org.sakaiproject.lessonbuildertool.SimplePage page where item.pageId = page.pageId and page.siteId = :site and (item.gradebookId is not null or item.altGradebook is not null)";
 	    return getHibernateTemplate().findByNamedParam(hql, "site", gradebookUid);
 	}
 	    
-    // items in lesson_builder_groups for specified site, map of itemId to groups
-    public Map<String,String> getExternalAssigns(String siteId) {
+	// items in lesson_builder_groups for specified site, map of itemId to groups
+	public Map<String,String> getExternalAssigns(String siteId) {
 
-    	Object [] fields = new Object[1];
-    	fields[0] = siteId;
+	    DetachedCriteria d = DetachedCriteria.forClass(SimplePageGroup.class)
+		.add(Restrictions.eq("siteId", siteId));
 
-    	List<Cons> assigns = SqlService.dbRead("select itemId, groups from lesson_builder_groups where siteId = ?", fields, new SqlReader() {
-    		public Object readSqlResultRecord(ResultSet result) {
-    			try {
-			    Cons cons = new Cons();
-			    cons.car = result.getString(1);
-			    cons.cdr = result.getString(2);
-			    return cons;
-    			} catch (SQLException e) {
-    				log.warn("getExternalAssigns: " + e);
-    				return null;
-    			}
-    		}
-	    });
-	
-	Map<String,String>ret = new HashMap<String,String>();
-	for (Cons cons: assigns) {
-	    if (cons != null)
-		ret.put(cons.car, cons.cdr);
+	    List<SimplePageGroup> list = getHibernateTemplate().findByCriteria(d);
+
+	    Map<String,String>ret = new HashMap<String,String>();	
+	    for (SimplePageGroup group: list)
+		ret.put(group.getItemId(), group.getGroups());
+
+	    return ret;
+	    
 	}
-	return ret;
-    }
 
 }

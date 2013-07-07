@@ -307,17 +307,19 @@ public class LessonsGradeInfoProvider implements ExternalAssignmentProvider {
 		    ret.add(item.getGradebookId());
 		if (item.getAltGradebook() != null)
 		    ret.add(item.getAltGradebook());
-	    }
-
-	    ArrayList<String> groups = new ArrayList<String>();
-	    for (String groupId: groupIds)
-		groups.add("/site/" + gradebookUid + "/group/" + groupId);
-	    List<AuthzGroup> matched = authzGroupService.getAuthzUserGroupIds(groups, userId);
-	    if (matched.size() > 0) {
-		if (item.getGradebookId() != null)
-		    ret.add(item.getGradebookId());
-		if (item.getAltGradebook() != null)
-		    ret.add(item.getAltGradebook());
+	    } else {
+		ArrayList<String> groups = new ArrayList<String>();
+		for (String groupId: groupIds) {
+		    System.out.println("groups " + groups);
+		    groups.add("/site/" + gradebookUid + "/group/" + groupId);
+		}
+		List<AuthzGroup> matched = authzGroupService.getAuthzUserGroupIds(groups, userId);
+		if (matched.size() > 0) {
+		    if (item.getGradebookId() != null)
+			ret.add(item.getGradebookId());
+		    if (item.getAltGradebook() != null)
+			ret.add(item.getAltGradebook());
+		}
 	    }
 	}
 				       
