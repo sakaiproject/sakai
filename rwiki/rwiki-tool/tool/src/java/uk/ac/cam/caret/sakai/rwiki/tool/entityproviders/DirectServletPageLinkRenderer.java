@@ -1,5 +1,11 @@
 package uk.ac.cam.caret.sakai.rwiki.tool.entityproviders;
 
+import java.io.UnsupportedEncodingException;
+import java.net.URLEncoder;
+
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
+
 import uk.ac.cam.caret.sakai.rwiki.service.api.PageLinkRenderer;
 import uk.ac.cam.caret.sakai.rwiki.tool.bean.ViewBean;
 import uk.ac.cam.caret.sakai.rwiki.utils.NameHelper;
@@ -12,6 +18,8 @@ import uk.ac.cam.caret.sakai.rwiki.utils.XmlEscaper;
  */
 public class DirectServletPageLinkRenderer implements PageLinkRenderer {
 	
+	private static Log log = LogFactory.getLog(DirectServletPageLinkRenderer.class);
+	
 	private boolean cachable = false;
 
 	private boolean useCache = false;
@@ -19,16 +27,19 @@ public class DirectServletPageLinkRenderer implements PageLinkRenderer {
 	public String localRealm;
 
 	public String localSpace;
+	
+	public String extension;
 
 	public DirectServletPageLinkRenderer(String localRealm) {
 		
-		this(localRealm, localRealm);
+		this(localRealm, localRealm,"json");
 	}
 
-	public DirectServletPageLinkRenderer(String localSpace, String localRealm) {
+	public DirectServletPageLinkRenderer(String localSpace, String localRealm, String extension) {
 		
 		this.localSpace = localSpace;
 		this.localRealm = localRealm;
+		this.extension = extension;
 	}
 
 	public void appendLink(StringBuffer buffer, String name, String view) {
@@ -44,9 +55,14 @@ public class DirectServletPageLinkRenderer implements PageLinkRenderer {
 		{
 			vb.setAnchor(anchor);
 		}
-		buffer.append("<a class=\"wiki-page-link\" href=\"")
-				.append("/direct/" + RWikiEntityProvider.ENTITY_PREFIX + localRealm + "/page/" + view + ".json")
+		
+		try {
+			buffer.append("<a class=\"wiki-page-link\" href=\"")
+				.append(URLEncoder.encode("/direct/" + RWikiEntityProvider.ENTITY_PREFIX + localRealm + "/page/" + view + "." + extension,"UTF-8"))
 				.append("\">" + XmlEscaper.xmlEscape(view) + "</a>");
+		} catch(UnsupportedEncodingException e) {
+			log.error("UTF-8 is unsupported in the the encoding of URLs. The url was not appended.");
+		}
 	}
 
 	public void appendCreateLink(StringBuffer buffer, String name, String view) {

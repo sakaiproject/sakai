@@ -21,8 +21,8 @@ public class SparsePage extends SparserPage {
 	@Getter
 	private String html = "";
 	
-	public SparsePage(String name, String siteId) {
-		super(name,siteId);
+	public SparsePage(String name, String siteId, String format) {
+		super(name,siteId, format);
 	}
 	
 	public void addComment(SparseComment comment) {

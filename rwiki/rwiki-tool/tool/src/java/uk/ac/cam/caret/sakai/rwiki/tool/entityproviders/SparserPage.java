@@ -1,7 +1,12 @@
 package uk.ac.cam.caret.sakai.rwiki.tool.entityproviders;
 
+import java.io.UnsupportedEncodingException;
+import java.net.URLEncoder;
 import java.util.ArrayList;
 import java.util.List;
+
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
 
 import lombok.Getter;
 import lombok.Setter;
@@ -13,6 +18,8 @@ import lombok.Setter;
  * @author Adrian Fish <adrian.r.fish@gmail.com>
  */
 public class SparserPage {
+	
+	private static Log log = LogFactory.getLog(SparserPage.class);
 	
 	@Getter
 	private List<SparserPage> childPages = new ArrayList<SparserPage>();
@@ -28,10 +35,14 @@ public class SparserPage {
 	@Getter
 	private int numberOfComments = 0;
 	
-	public SparserPage(String name,String siteId) {
+	public SparserPage(String name,String siteId,String format) {
 		super();
 		this.name = name;
-		this.url = "/direct/wiki/site/" + siteId + "/page/" + name + ".json";
+		try {
+			this.url = URLEncoder.encode("/direct/wiki/site/" + siteId + "/page/" + name + "." + format,"UTF-8");
+		} catch(UnsupportedEncodingException e) {
+			log.error("UTF-8 is unsupported in the the encoding of URLs. The url was not set.");
+		}
 	}
 	
 	public void addChildPage(SparserPage childPage) {

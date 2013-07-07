@@ -60,7 +60,7 @@ public class RWikiEntityProvider extends AbstractEntityProvider implements AutoR
 	}
 	
 	public String[] getHandledOutputFormats() {
-		return new String[] { Formats.JSON };
+		return new String[] { Formats.JSON, Formats.XML };
 	}
 	
 	@EntityCustomAction(action = "site", viewKey = EntityView.VIEW_LIST)
@@ -72,15 +72,17 @@ public class RWikiEntityProvider extends AbstractEntityProvider implements AutoR
 			throw new EntityException("You must be logged in to retrieve pages","",HttpServletResponse.SC_UNAUTHORIZED);
 		}
 		
+		String format = view.getFormat();
+		
 		if(view.getPathSegments().length == 3) {
 			
 			// This is a request for the site's page graph
 		
 			String siteId = view.getPathSegment(2);
         
-			SparserPage homePage = new SparserPage("home",siteId);
+			SparserPage homePage = new SparserPage("home",siteId, format);
         
-			getSubPages(homePage, "/site/" + siteId, siteId, userId);
+			getSubPages(homePage, "/site/" + siteId, siteId, userId, format);
         
 			return homePage;
 			
@@ -101,9 +103,9 @@ public class RWikiEntityProvider extends AbstractEntityProvider implements AutoR
 					log.warn("User '" + userId + "' does not have read permissions for page '" + page.getName() + "'. This page will not be returned in the JSON.");
 					throw new EntityException("Forbidden: You do not have permission to read this page","",HttpServletResponse.SC_FORBIDDEN);
 				}
-				SparsePage sparsePage = new SparsePage(pageName,siteId);
+				SparsePage sparsePage = new SparsePage(pageName,siteId, format);
 				String localSpace = NameHelper.localizeSpace(page.getName(),defaultRealm);
-				DirectServletPageLinkRenderer plr = new DirectServletPageLinkRenderer(localSpace, defaultRealm);
+				DirectServletPageLinkRenderer plr = new DirectServletPageLinkRenderer(localSpace, defaultRealm, format);
 				String rendered = renderService.renderPage(page, localSpace, plr);
 				sparsePage.setHtml(rendered);
 				addComments(page,sparsePage);
@@ -121,7 +123,7 @@ public class RWikiEntityProvider extends AbstractEntityProvider implements AutoR
 		}
 	}
 	
-	private void getSubPages(SparserPage parent, String realm,String siteId, String userId) {
+	private void getSubPages(SparserPage parent, String realm,String siteId, String userId, String format) {
 		
         RWikiObject page = objectService.getRWikiObject(parent.getName(), realm);
         
@@ -142,9 +144,9 @@ public class RWikiEntityProvider extends AbstractEntityProvider implements AutoR
 				if(!"".equals(childName)) {
 					childName = childName.substring(childName.lastIndexOf("/") + 1);
 					if(objectService.exists(childName,realm)) {
-						SparserPage child = new SparserPage(childName,siteId);
+						SparserPage child = new SparserPage(childName,siteId,format);
 						parent.addChildPage(child);
-						getSubPages(child,realm,siteId,userId);
+						getSubPages(child,realm,siteId,userId,format);
 					}
 				}
 			}
