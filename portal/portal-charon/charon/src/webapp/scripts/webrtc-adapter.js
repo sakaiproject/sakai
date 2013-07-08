@@ -361,7 +361,30 @@ function WebRTC() {
 		pc.onstatechange = function(event) {
 			console.info("onicechange +" + pc.readyState);
 		}
+		
+		
+		if (this.webrtcDetectedBrowser=='chrome' && parseInt(navigator.userAgent.match(/Chrom(e|ium)\/([0-9]+)\./)[2]) >= 27) {
+			pc.oniceconnectionstatechange = function (event){
 
+				if(this.debug) console.info ("oniceconnectionstatechange " + userid + " state " + pc.iceConnectionState);
+				
+				if (pc.iceConnectionState == "disconnected"){
+					videoCall.setVideoStatus(userid,videoMessages.pc_video_status_waiting_peer, "waiting");
+				
+					setTimeout(function (){
+						if (pc.iceConnectionState == "disconnected"){
+							var status = videoCall.getCurrentCallStatus(userid);
+							if (status == "ESTABLISHED"){
+								webRTCClass.onHangUp(userid);
+							}
+						}else if (pc.iceConnectionState == "connected"){
+							videoCall.setVideoStatus(userid,videoMessages.pc_video_status_connection_established,"video");
+						}
+					},5000);
+				}
+			}
+		}
+		
 		var signalService = this.signalService;
 		var webRTCClass = this;
 
