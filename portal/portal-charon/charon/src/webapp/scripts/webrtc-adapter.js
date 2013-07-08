@@ -214,9 +214,9 @@ function WebRTC() {
 
 			if (pc != null) {
 				
-				if (callConnection.remoteMediaStream != null) {
+				/*if (callConnection.remoteMediaStream != null) {
 					pc.removeStream(callConnection.remoteMediaStream);
-				}
+				}*/ //not sure if its necessary 
 
 				pc.close();
 			}
