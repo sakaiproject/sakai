@@ -68,9 +68,16 @@ function WebRTC() {
 			cache : false,
 			success : function(data, status) {
 				webRTCClass.pc_config = data.data;
+				var iceServers = [];
+				
 				$.each(webRTCClass.pc_config.iceServers,function(key,value){
 					value.url = webRTCClass.getUrlFromIce(value);
+					if (value.url!=""){
+						iceServers.push(value);
+					}
 				});
+				webRTCClass.pc_config.iceServers = iceServers;
+				
 				if (webRTCClass.debug) console.log(webRTCClass.pc_config);
 			}
 		});
@@ -269,12 +276,22 @@ function WebRTC() {
 		 */
 
 		if (callConnection.isCaller) {
+			var constrains = {optional:[]};
+			
+			if (this.webrtcDetectedBrowser == "firefox"){
+				constrains["mandatory"] ={
+			            OfferToReceiveAudio: true,
+			            OfferToReceiveVideo: true,
+			            MozDontOfferDataChannel: true
+			        }
+			}
+			
 			pc.createOffer(function(desc) {
 
 				// we won't call success, we will wait until peer offers the
 				// stream.
 				webRTCClass.gotDescription(to, desc);
-			});
+			},failedCall,constrains);
 		} else {
 			pc.createAnswer(function(desc) {
 				webRTCClass.gotDescription(to, desc);
@@ -282,7 +299,7 @@ function WebRTC() {
 				// In this case we have to declare the success, instead
 				// on addStream
 				successCall(to, callConnection.remoteMediaStream); // In this
-			});
+			},failedCall);
 		}
 
 	}
