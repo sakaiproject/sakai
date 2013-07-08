@@ -2760,6 +2760,8 @@ public class ShowPageProducer implements ViewComponentProducer, DefaultView, Nav
 		if (usageSession == null)
 		    return 0;
 		browserString = usageSession.getUserAgent();
+		if (browserString == null)
+		    return 0;
 		int ieIndex = browserString.indexOf(" MSIE ");
 		int ieVersion = 0;
 		if (ieIndex >= 0) {
