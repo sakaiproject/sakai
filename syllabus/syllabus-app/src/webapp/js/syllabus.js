@@ -259,7 +259,10 @@ function showMessage(message, success){
 		spanItem = $("#warningInfo");
 	}
 	$(spanItem).html(message);
+	var topPos = window.parent.$("body").scrollTop();
+	$(spanItem).css("top", topPos); 
 	$(spanItem).show();
+	
 	setTimeout(function(){$(spanItem).fadeOut();}, 5000);
 }
 
@@ -354,6 +357,7 @@ function showConfirmDeleteAttachment(deleteButton, msgs, event){
 	$('<div></div>').appendTo('body')
 		.html('<div><h6>' + msgs.confirmDelete + " '" + title + "'?</h6></div>")
 		.dialog({
+			position: { my: 'left center', at: 'right center', of: $(deleteButton)},
 			modal: true, title: msgs.deleteAttachmentTitle, zIndex: 10000, autoOpen: true,
 			width: 'auto', resizable: true,
 			buttons: [
@@ -389,6 +393,7 @@ function showConfirmDelete(deleteButton, msgs, event){
 	$('<div></div>').appendTo('body')
 		.html('<div><h6>' + msgs.confirmDelete + " '" + title + "'?</h6></div>")
 		.dialog({
+			position: { my: 'left center', at: 'right center', of: $(deleteButton)},
 			modal: true, title: msgs.deleteItemTitle, zIndex: 10000, autoOpen: true,
 			width: 'auto', resizable: true,
 			buttons: [
@@ -413,6 +418,7 @@ function showConfirmDelete(deleteButton, msgs, event){
 			],
 			close: function (event, ui) {
 				$(this).remove();
+				return false;
 			}
 	});
 	event.stopPropagation();
@@ -422,6 +428,7 @@ function showConfirmAdd(msgs, mainframeId){
 	$('<div></div>').appendTo('body')
 		.html('<div><h6>' + msgs.syllabus_title + "</h6><input type='text' id='newTitle'/></div><div style='display:none' id='requiredTitle' class='warning'>" + msgs.required + "</div>")
 		.dialog({
+			position: { my: 'center top', at: 'center top', of: $(document)},
 			modal: true, title: msgs.addItemTitle, zIndex: 10000, autoOpen: true,
 			width: 'auto', resizable: true,
 			buttons: [
@@ -455,6 +462,7 @@ function showConfirmAdd(msgs, mainframeId){
 			],
 			close: function (event, ui) {
 				$(this).remove();
+				return false;
 			},
 			open: function(event){
 				if($( "#accordion .group" ).children("h3").size() <= 1){

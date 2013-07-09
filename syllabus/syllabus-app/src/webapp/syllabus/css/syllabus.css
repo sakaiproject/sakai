@@ -452,3 +452,13 @@ a.draft{
 .startTimeInput, .endTimeInput{
 	padding-right: 22px;
 }
+
+.popupMessage{
+	background-color: #ffe;
+	position: absolute;
+	top: 20px;
+	z-index: 1000;
+	left: 30%;
+	right: 30%;
+	width: auto !important;
+}

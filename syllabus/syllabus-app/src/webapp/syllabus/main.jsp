@@ -121,7 +121,7 @@
 			<f:verbatim><ul class="navIntraTool actionToolbar">
 				<li class="firstToolBarItem">
 					<span>
-							<a href="#" onclick="showConfirmAddHelper();">
+							<a href="javascript:void(0)" onclick="showConfirmAddHelper();">
 								<img src="/library/image/silk/add.png" class="actionImage add" title="</f:verbatim><h:outputText value="#{msgs.clickToAddNewItem}"/><f:verbatim>">&nbsp;&nbsp;
 								</f:verbatim><h:outputText value="#{msgs.addItemTitle}"/><f:verbatim>
 							</a>
@@ -161,13 +161,13 @@
 				</li>
 				<li>
 					<span>
-							<a href="#" id="expandLink" onclick="expandAccordion('<%= org.sakaiproject.util.Web.escapeJavascript(thisId)%>')">
+							<a href="javascript:void(0)" id="expandLink" onclick="expandAccordion('<%= org.sakaiproject.util.Web.escapeJavascript(thisId)%>')">
 								<img src="/library/image/silk/arrow_out.png"/>&nbsp;&nbsp;
 								</f:verbatim>
 									<h:outputText value="#{msgs.expandAll}"/>
 								<f:verbatim>
 							</a>
-							<a href="#" id="collapseLink" style="display:none" onclick="collapseAccordion('<%= org.sakaiproject.util.Web.escapeJavascript(thisId)%>')">
+							<a href="javascript:void(0)" id="collapseLink" style="display:none" onclick="collapseAccordion('<%= org.sakaiproject.util.Web.escapeJavascript(thisId)%>')">
 								<img src="/library/image/silk/arrow_in.png"/>&nbsp;&nbsp;
 								</f:verbatim>
 									<h:outputText value="#{msgs.collapseAll}"/>
@@ -196,13 +196,13 @@
 				<ul class="navIntraTool actionToolbar">
 					<li class="firstToolBarItem">
 						<span>
-								<a href="#" id="expandLink" onclick="expandAccordion('<%= org.sakaiproject.util.Web.escapeJavascript(thisId)%>')">
+								<a href="javascript:void(0)" id="expandLink" onclick="expandAccordion('<%= org.sakaiproject.util.Web.escapeJavascript(thisId)%>')">
 									<img src="/library/image/silk/arrow_out.png"/>&nbsp;&nbsp;
 									</f:verbatim>
 										<h:outputText value="#{msgs.expandAll}"/>
 									<f:verbatim>
 								</a>
-								<a href="#" id="collapseLink" style="display:none" onclick="collapseAccordion('<%= org.sakaiproject.util.Web.escapeJavascript(thisId)%>')">
+								<a href="javascript:void(0)" id="collapseLink" style="display:none" onclick="collapseAccordion('<%= org.sakaiproject.util.Web.escapeJavascript(thisId)%>')">
 									<img src="/library/image/silk/arrow_in.png"/>&nbsp;&nbsp;
 									</f:verbatim>
 										<h:outputText value="#{msgs.collapseAll}"/>
@@ -228,8 +228,8 @@
 			<syllabus:syllabus_if test="#{SyllabusTool.syllabusItem.redirectURL}">
 					<f:verbatim>
 						<div>
-							<span id="successInfo" class="success" style="display:none; float: left;"></span>
-							<span id="warningInfo" class="alertMessage" style="display:none; float: left;"></span>
+							<span id="successInfo" class="success popupMessage" style="display:none; float: left;"></span>
+							<span id="warningInfo" class="alertMessage popupMessage" style="display:none; float: left;"></span>
 						</div>
 						<br/>
 						<br/>
@@ -250,7 +250,7 @@
 								<img src="/library/image/silk/cross.png" class="actionImage delete" onclick="showConfirmDeleteHelper(this, event);" title="</f:verbatim><h:outputText value="#{msgs.clickToDelete}"/><f:verbatim>">
 							</f:verbatim>
 						</f:subview>
-						<f:verbatim><a href="#" </f:verbatim>
+						<f:verbatim><a href="javascript:void(0)" </f:verbatim>
 							<f:subview id="draftclass" rendered="#{eachEntry.status == eachEntry.draftStatus}">
 								<f:verbatim>class="draft"</f:verbatim>
 							</f:subview>
@@ -304,7 +304,7 @@
 										<f:verbatim>
 										&nbsp;
 											<a attachmentId='</f:verbatim><h:outputText value="#{eachAttach.syllabusAttachId}"/><f:verbatim>' 
-												href="#" onclick="showConfirmDeleteAttachmentHelper(this, event);" title="</f:verbatim><h:outputText value="#{msgs.clickToRemoveAttachment}"/><f:verbatim>">
+												href="javascript:void(0)" onclick="showConfirmDeleteAttachmentHelper(this, event);" title="</f:verbatim><h:outputText value="#{msgs.clickToRemoveAttachment}"/><f:verbatim>">
 												<img src="/library/image/silk/cross.png">
 											</a>
 										</f:verbatim>
