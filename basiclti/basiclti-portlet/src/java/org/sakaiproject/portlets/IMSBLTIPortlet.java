@@ -170,6 +170,27 @@ public class IMSBLTIPortlet extends GenericPortlet {
 			String context = getContext();
 			Placement placement = ToolManager.getCurrentPlacement();
 
+			// Get the properties
+			Properties sakaiProperties = getSakaiProperties();
+			String placementSecret = getSakaiProperty(sakaiProperties,"imsti.placementsecret");
+			String allowOutcomes = getSakaiProperty(sakaiProperties,"imsti.allowoutcomes");
+			String allowSettings = getSakaiProperty(sakaiProperties,"imsti.allowsettings");
+			String allowRoster = getSakaiProperty(sakaiProperties,"imsti.allowroster");
+			String allowLORI = getSakaiProperty(sakaiProperties,"imsti.allowlori");
+			String assignment = getSakaiProperty(sakaiProperties,"imsti.assignent");
+
+			if ( placementSecret == null && 
+			   ( "on".equals(allowOutcomes) || "on".equals(allowSettings) || 
+			     "on".equals(allowRoster) || "on".equals(allowLORI) ) ) {
+				String uuid = UUID.randomUUID().toString();
+				Date date = new Date();
+				SimpleDateFormat sdf = new SimpleDateFormat(ISO_8601_FORMAT);
+				String date_secret = sdf.format(date);
+				placement.getPlacementConfig().setProperty("imsti.placementsecret", uuid);
+				placement.getPlacementConfig().setProperty("imsti.placementsecretdate", date_secret);
+				placement.save();
+			}
+
 			// Check to see if out launch will be successful
 			String[] retval = SakaiBLTIUtil.postLaunchHTML(placement.getId(), rb);
 			if ( retval.length > 1 ) {
