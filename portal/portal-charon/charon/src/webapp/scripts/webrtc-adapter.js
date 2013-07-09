@@ -7,6 +7,11 @@ function WebRTC() {
 	this.signalService = null;
 	this.localMediaStream = null;
 	this.debug = false;
+	
+	this.firefoxAllowed = false; //Turn that variable to true if you want to support firefox, 
+								 //but its implementation is still unmature and some performance has
+								 //been detected.
+	
 
 	this.pc_config = {
 		"iceServers" : [ {
@@ -19,7 +24,7 @@ function WebRTC() {
 		// videoconference from getUserMedia diferences
 		if (navigator.getUserMedia) {
 			this.webrtcDetectedBrowser = "webrtcenabled";
-		}else if (navigator.mozGetUserMedia) {
+		}else if (this.firefoxAllowed && navigator.mozGetUserMedia ) {
 			this.webrtcDetectedBrowser = "firefox";
 			navigator.getUserMedia = navigator.mozGetUserMedia;
 			RTCPeerConnection = mozRTCPeerConnection;
@@ -99,7 +104,7 @@ function WebRTC() {
 				if (parseInt(navigator.userAgent.match(/Chrom(e|ium)\/([0-9]+)\./)[2]) >= 28) {
 					return ice.protocol+":"+ice.host;
 				} else {
-					return ice.protocol+":"+ice.username+"@"+ice.host;
+					return ice.protocol+":"+encodeURIComponent(ice.username)+"@"+ice.host;
 				}
 				
 			}
