@@ -277,15 +277,42 @@ public class SamigoExport {
    }
 
 
+    class Feedback {
+	String id;
+	String text;
+    }
+
     void outputQuestions(List<ItemDataIfc> itemList, String assessmentSeq, String assessmentTitle, ZipPrintStream out, PrintStream errStream, CCExport ccExport, CCExport.Resource resource, int version) {
 
        int seq = 1;
+
+       // feedback:
+       // item: Map<String, String> where keys are org.sakaiproject.tool.assessment.data.ifc.assessment.ItemFeedbackIfc.
+       //  CORRECT_FEEDBACK = "Correct Feedback";
+       //  INCORRECT_FEEDBACK = "InCorrect Feedback";
+       //  GENERAL_FEEDBACK = "General Feedback";
+       // but may be easiest to use item.getItemFeedback(type)
+       //   or getCorrectItemFeedback, getInCorrectItemFeedback, getGeneralItemFeedback
+       //  for individual answers,
+       //  answer: Set, 
+       //  org.sakaiproject.tool.assessment.data.ifc.assessment.AnswerFeedbackIfc.
+       //  CORRECT_FEEDBACK = "Correct Feedback";
+       //  INCORRECT_FEEDBACK = "InCorrect Feedback";
+       //   GENERAL_FEEDBACK = "General Feedback";
+       //  ANSWER_FEEDBACK = "answerfeedback";
+       // matching has correct and/or incorrect for each answer
+       // multiple choice has general feedback for each answer
+       // answer_feedback doesn't seem to be used
+       // probably easier to use answer.getAnswerFeedback(type)
+       // or answer.getCorrectAnswerFeedback, getInCorrectAnswerFeedback, getGeneralAnswerFeedback, getTheAnswerFeedback
 
 	for (ItemDataIfc item: itemList) {
 
 	    SectionDataIfc section = item.getSection();
 	    String itemId = null;
 	    String title = null;
+
+	    List<Feedback> feedbacks = new ArrayList<Feedback>();
 
 	    if (section != null) {
 		itemId = item.getSection().getSequence() + "_" + item.getSequence();
@@ -326,8 +353,11 @@ public class SamigoExport {
 
 	    String profile = "cc.multiple_choice.v0p1";
 	    Long type = item.getTypeId();
+	    boolean survey = false;
 
 	    if (type.equals(TypeIfc.MULTIPLE_CHOICE) || type.equals(TypeIfc.MULTIPLE_CHOICE_SURVEY) || type.equals(TypeIfc.MULTIPLE_CORRECT_SINGLE_SELECTION)) {
+		if (type.equals(TypeIfc.MULTIPLE_CHOICE_SURVEY))
+		    survey = true;
 		type = TypeIfc.MULTIPLE_CHOICE; // normalize it
 		profile = "cc.multiple_choice.v0p1";
 	    } else if (type.equals(TypeIfc.MULTIPLE_CORRECT)) {
@@ -363,9 +393,10 @@ public class SamigoExport {
 	    Set<Long> correctSet = new HashSet<Long>();
 	    String correctItem = "";
 	    
+	    // CC doesn't have survey questoins. We treat them as multiple correct single selection
 	    if (answerlist.size() > 0) {
 		for (AnswerIfc answer: answerlist) {
-		    if (answer.getIsCorrect()) {
+		    if (survey || answer.getIsCorrect()) {
 			if (type.equals(TypeIfc.TRUE_FALSE))
 			    correctItem = answer.getText().toLowerCase();
 			else
@@ -424,6 +455,7 @@ public class SamigoExport {
 	    out.println("          </material>");
 
 	    if (type.equals(TypeIfc.MULTIPLE_CHOICE) ||type.equals(TypeIfc.MULTIPLE_CORRECT) || type.equals(TypeIfc.MULTIPLE_CORRECT_SINGLE_SELECTION) || type.equals(TypeIfc.TRUE_FALSE)) {
+		// mc has general for each item, correct and incorrect, survey has general
 
 		out.println("          <response_lid ident=\"QUE_" + itemId + "_RL\" rcardinality=\"" + cardinality + "\">");
 		out.println("            <render_choice>");
@@ -449,6 +481,40 @@ public class SamigoExport {
 		out.println("          <outcomes>");
 		out.println("            <decvar maxvalue=\"100\" minvalue=\"0\" varname=\"SCORE\" vartype=\"Decimal\"/>");
 		out.println("          </outcomes>");
+		
+		if (item.getGeneralItemFeedback() != null) {
+		    out.println("          <respcondition continue=\"Yes\">");
+		    out.println("            <conditionvar><other/></conditionvar>");
+                    out.println("            <displayfeedback feedbacktype=\"Response\" linkrefid=\"general_fb\" />");
+		    out.println("          </respcondition>");
+		    Feedback feedback = new Feedback();
+		    feedback.id = "general_fb";
+		    feedback.text = item.getGeneralItemFeedback();
+		    feedbacks.add(feedback);
+		}
+
+		for (AnswerIfc answer: answerlist) {
+		    if (answer.getGeneralAnswerFeedback() != null) {
+			String atext = answer.getText();
+			if (atext == null || atext.trim().equals(""))
+			    continue;
+
+			String answerId = "QUE_" + itemId + "_" + answer.getSequence();
+			if (type.equals(TypeIfc.TRUE_FALSE))
+			    answerId = answer.getText().toLowerCase();
+			out.println("          <respcondition continue=\"Yes\">");
+			out.println("              <conditionvar>");
+			out.println("                <varequal respident=\"QUE_" + itemId + "_RL\">" + answerId + "</varequal>");
+			out.println("              </conditionvar>");
+			out.println("              <displayfeedback feedbacktype=\"Response\" linkrefid=\"" + answerId + "_fb\" />");
+			out.println("          </respcondition>");
+			Feedback feedback = new Feedback();
+			feedback.id = answerId + "_fb";
+			feedback.text = answer.getGeneralAnswerFeedback();
+			feedbacks.add(feedback);
+		    }
+		} 			
+
 		out.println("          <respcondition continue=\"No\">");
 		out.println("            <conditionvar>");
 		if (type.equals(TypeIfc.MULTIPLE_CHOICE) || type.equals(TypeIfc.TRUE_FALSE)) {
@@ -461,9 +527,11 @@ public class SamigoExport {
 			    out.println("              <or>");
 		    }
 		    for (AnswerIfc answer: answerlist) {
-			String answerId = itemId + "_" + answer.getSequence();
+			String answerId = "QUE_" + itemId + "_" + answer.getSequence();
+			if (type.equals(TypeIfc.TRUE_FALSE))
+			    answerId = answer.getText().toLowerCase();
 			if (correctSet.contains(answer.getSequence()) && remaining != 0) {
-			    out.println("              <varequal case=\"Yes\" respident=\"QUE_" + itemId + "_RL\">QUE_" + itemId + "_" + answer.getSequence() + "</varequal>");
+			    out.println("              <varequal case=\"Yes\" respident=\"QUE_" + itemId + "_RL\">" + answerId + "</varequal>");
 			    remaining--;
 			}
 		    }
@@ -490,11 +558,29 @@ public class SamigoExport {
 		}
 		out.println("            </conditionvar>");
 		out.println("            <setvar action=\"Set\" varname=\"SCORE\">100</setvar>");
+		if (item.getCorrectItemFeedback() != null) {
+		    out.println("            <displayfeedback feedbacktype=\"Response\" linkrefid=\"correct_fb\"/>");
+		    Feedback feedback = new Feedback();
+		    feedback.id = "correct_fb";
+		    feedback.text = item.getCorrectItemFeedback();
+		    feedbacks.add(feedback);
+		}
 		out.println("          </respcondition>");
+		if (item.getInCorrectItemFeedback() != null) {
+		    out.println("         <respcondition>");
+		    out.println("           <conditionvar><other/></conditionvar>");
+		    out.println("           <displayfeedback feedbacktype=\"Response\" linkrefid=\"general_incorrect_fb\" />");
+		    out.println("         </respcondition>");
+		    Feedback feedback = new Feedback();
+		    feedback.id = "general_incorrect_fb";
+		    feedback.text = item.getInCorrectItemFeedback();
+		    feedbacks.add(feedback);
+		}
 		out.println("        </resprocessing>");
 	    } 
 
 	    if (type.equals(TypeIfc.FILL_IN_BLANK) || type.equals(TypeIfc.ESSAY_QUESTION)) {
+		// FIB has correct or incorrect, essay has general
 
 		out.println("          <response_str ident=\"QUE_" + itemId + "_RL\">");
 		out.println("            <render_fib columns=\"30\" rows=\"1\"/>");
@@ -506,6 +592,18 @@ public class SamigoExport {
 		    out.println("          <outcomes>");
 		    out.println("            <decvar maxvalue=\"100\" minvalue=\"0\" varname=\"SCORE\" vartype=\"Decimal\"/>");
 		    out.println("          </outcomes>");
+
+		    if (item.getGeneralItemFeedback() != null) {
+			out.println("          <respcondition continue=\"Yes\">");
+			out.println("            <conditionvar><other/></conditionvar>");
+			out.println("            <displayfeedback feedbacktype=\"Response\" linkrefid=\"general_fb\" />");
+			out.println("          </respcondition>");
+			Feedback feedback = new Feedback();
+			feedback.id = "general_fb";
+			feedback.text = item.getGeneralItemFeedback();
+			feedbacks.add(feedback);
+		    }
+
 		    out.println("          <respcondition continue=\"No\">");
 		    out.println("            <conditionvar>");
 		    
@@ -553,12 +651,56 @@ public class SamigoExport {
 
 		    out.println("            </conditionvar>");
 		    out.println("            <setvar action=\"Set\" varname=\"SCORE\">100</setvar>");
+		    if (item.getCorrectItemFeedback() != null) {
+			out.println("            <displayfeedback feedbacktype=\"Response\" linkrefid=\"correct_fb\"/>");
+			Feedback feedback = new Feedback();
+			feedback.id = "correct_fb";
+			feedback.text = item.getCorrectItemFeedback();
+			feedbacks.add(feedback);
+		    }
 		    out.println("          </respcondition>");
+		    if (item.getInCorrectItemFeedback() != null) {
+			out.println("         <respcondition>");
+			out.println("           <conditionvar><other/></conditionvar>");
+			out.println("           <displayfeedback feedbacktype=\"Response\" linkrefid=\"general_incorrect_fb\" />");
+			out.println("         </respcondition>");
+			Feedback feedback = new Feedback();
+			feedback.id = "general_incorrect_fb";
+			feedback.text = item.getInCorrectItemFeedback();
+			feedbacks.add(feedback);
+		    }
 		    out.println("        </resprocessing>");
 		}
 	    } 
-	    // essay has no resprocessing
 
+	    if (type.equals(TypeIfc.ESSAY_QUESTION)) {
+		// essay has no resprocessing except if there is general feedback
+		if (item.getGeneralItemFeedback() != null) {
+		    out.println("        <resprocessing>");
+		    out.println("          <outcomes>");
+		    out.println("            <decvar maxvalue=\"100\" minvalue=\"0\" varname=\"SCORE\" vartype=\"Decimal\"/>");
+		    out.println("          </outcomes>");
+		    out.println("          <respcondition continue=\"No\">");
+		    out.println("            <conditionvar><other/></conditionvar>");
+		    out.println("            <displayfeedback feedbacktype=\"Response\" linkrefid=\"general_fb\" />");
+		    out.println("          </respcondition>");
+		    out.println("        </resprocessing>");
+		    Feedback feedback = new Feedback();
+		    feedback.id = "general_fb";
+		    feedback.text = item.getGeneralItemFeedback();
+		    feedbacks.add(feedback);
+		}
+	    }
+
+	    if (feedbacks.size() > 0) {
+		for (Feedback feedback: feedbacks) {
+		    out.println("        <itemfeedback ident=\"" + feedback.id + "\">");
+		    out.println("          <material>");
+		    out.println("            <mattext texttype=\"text/html\">" + ccExport.fixup(feedback.text, resource) + "</mattext>");
+		    out.println("          </material>");
+		    out.println("        </itemfeedback>");
+		}
+	    }
 	    out.println("      </item>");
 	}
     }

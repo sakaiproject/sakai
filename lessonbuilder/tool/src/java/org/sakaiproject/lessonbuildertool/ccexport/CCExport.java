@@ -432,6 +432,7 @@ public class CCExport {
 	} catch (Exception e) {
 	    log.error("output sam " + e);
 	    setErrKey("simplepage.exportcc-fileerr", e.getMessage());
+	    e.printStackTrace();
 	    return false;
 	}
 
