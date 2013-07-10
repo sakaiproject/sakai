@@ -262,7 +262,11 @@ function showMessage(message, success){
 	var topPos = 0;
 	//set topPos to top of the scroll bar for this iFrame
 	try{
-		topPos = $(window.parent.$("body")).scrollTop();
+		topPos = $(window.parent.$("html,body")).scrollTop();
+		if(topPos == 0){
+			//try a different method to be sure
+			topPos = $(window.parent.$("body")).scrollTop();
+		}
 	}catch(e){}
 	//if this is an iframe, adjust top by the offset of the iframe
 	try{

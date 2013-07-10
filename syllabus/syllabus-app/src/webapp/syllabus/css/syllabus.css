@@ -454,7 +454,7 @@ a.draft{
 }
 
 .popupMessage{
-	background-color: #ffe;
+	background-color: #ffe !important;
 	position: absolute;
 	top: 20px;
 	z-index: 1000;
