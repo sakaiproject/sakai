@@ -347,7 +347,7 @@
 			#end
                             <span class="pc_connection_display_name">${connection.displayName}</span>
                             {if connection.online}
-         	                   {if connection.video=='none'}
+         	                   {if connection.video=='none' || !videoCall || !videoCall.isVideoEnabled()}
                            	       <img class="pc_display_status_bullet" src="/library/image/silk/bullet_green.png" border="0"/>
                                {/if}
                             {else}
@@ -355,8 +355,8 @@
                             {/if}
                         </a>
                         {if connection.online}
-     	                   {if connection.video!='none'}
-	                        <a id="${connection.uuid}_link" class="pc_user_link" href="javascript:;" onclick="if (videoCall.isVideoEnabled()) return videoCall.directVideoCall('${connection.uuid}',false);">
+     	                   {if connection.video!='none' && videoCall && videoCall.isVideoEnabled()}
+	                        <a id="${connection.uuid}_link" class="pc_user_link" href="javascript:;" onclick="return videoCall.directVideoCall('${connection.uuid}',false);">
                         	   <img class="pc_display_status_bullet" src="/library/image/silk/video_cam_available.png" style="right:0px" border="0"/>
                         	</a>
                            {/if}
@@ -381,12 +381,12 @@
                             <img class="pc_user_image" src="/direct/profile/${user.id}/image" />
 			#end
                             <span class="pc_site_display_name">${user.displayName}</span>
-                            {if user.video=='none'}
+                            {if user.video=='none' || !videoCall || !videoCall.isVideoEnabled()}
                               <img class="pc_display_status_bullet" src="/library/image/silk/bullet_green.png" border="0"/>
                             {/if}
                         </a>
-                        {if user.video!='none'}
-                         <a id="${user.id}_link" class="pc_user_link" href="javascript:;" onclick="if (videoCall.isVideoEnabled()) return videoCall.directVideoCall('${user.id}',false);">
+                        {if user.video!='none' && videoCall && videoCall.isVideoEnabled()}
+                         <a id="${user.id}_link" class="pc_user_link" href="javascript:;" onclick="return videoCall.directVideoCall('${user.id}',false);">
                           <img class="pc_display_status_bullet" src="/library/image/silk/video_cam_available.png" style="right:0px" border="0"/>
                          </a>
                         {/if}
