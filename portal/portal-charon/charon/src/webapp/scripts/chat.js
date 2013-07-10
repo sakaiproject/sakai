@@ -617,8 +617,8 @@ function PortalChat() {
 			dataType : "json",
 			cache: false,
 			success : function (data,status) {
-				portalChat.updateMessages(data.data.messages);
-				if (videoCall) portalChat.updateVideoMessages(data.data.videoMessages);
+				if (data.data.messages) portalChat.updateMessages(data.data.messages);
+				if (videoCall && data.data.videoMessages) portalChat.updateVideoMessages(data.data.videoMessages);
 
                 // SAK-20565. Profile2 may not be installed, so no connections :(
                 if(portalChat.connectionsAvailable === true) {
@@ -641,7 +641,7 @@ function PortalChat() {
                     $('.pc_users_wrapper').hide();
                 }
 
-                var totalChattable = data.data.online.length;
+                var totalChattable = data.data.online?data.data.online.length:0;
 
                 // SAK-22260. Don't count the same person twice ...
                 if(data.data.showSiteUsers && data.data.presentUsers) {
