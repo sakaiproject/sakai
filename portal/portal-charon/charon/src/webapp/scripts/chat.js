@@ -629,8 +629,8 @@ function PortalChat() {
                         $('#pc_connections_wrapper').hide();
 
                         // No point checking again as profile2 can't be installed without a full restart
-                        portalChat.connectionsAvailable = false;
-		                portalChat.setSetting('connectionsAvailable',false);
+                        //portalChat.connectionsAvailable = false;
+		                //portalChat.setSetting('connectionsAvailable',false);
                     }
                 }
 
