@@ -45,6 +45,12 @@
       <property name="location"><value>/sakai_lessonbuildertool/addtopics.html</value></property>
    </bean>
 
+   <bean id="lessonbuildertoolAddWebsite" class="org.sakaiproject.component.app.help.model.ResourceBean">
+      <property name="docId"><value>lessonbuildertoolAddWebsite</value></property>
+      <property name="name"><value>Load content from another web site (ZIP file)</value></property>
+      <property name="location"><value>/sakai_lessonbuildertool/addwebsite.html</value></property>
+   </bean>
+
    <bean id="lessonbuildertoolAddSubpages" class="org.sakaiproject.component.app.help.model.ResourceBean">
       <property name="docId"><value>lessonbuildertoolAddSubpages</value></property>
       <property name="name"><value>Add Additional Pages to a Page</value></property>
@@ -103,6 +109,12 @@
       <property name="docId"><value>lessonbuildertoolCCImport</value></property>
       <property name="name"><value>Import a file in Common Cartridge Format</value></property>
       <property name="location"><value>/sakai_lessonbuildertool/ccimport.html</value></property>
+   </bean>
+
+   <bean id="lessonbuildertoolCCExport" class="org.sakaiproject.component.app.help.model.ResourceBean">
+      <property name="docId"><value>lessonbuildertoolCCExport</value></property>
+      <property name="name"><value>Export a file in Common Cartridge Format</value></property>
+      <property name="location"><value>/sakai_lessonbuildertool/ccexport.html</value></property>
    </bean>
 
    <bean id="org.sakaiproject.api.app.help.TableOfContents" class="org.sakaiproject.component.app.help.model.TableOfContentsBean">

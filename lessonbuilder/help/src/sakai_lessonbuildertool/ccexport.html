@@ -1,0 +1,60 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html><head>
+<title>Export Common Cartridge</title>
+<style type="text/css">
+		/* Style for specific inline images */
+		
+		/* Style for specific ordered lists */
+		
+		/* Style for specific table cells */
+		</style>
+<link type="text/css" href="/library/skin/tool_base.css" media="all" rel="stylesheet" />
+<link type="text/css" href="/library/skin/default/tool.css" media="all" rel="stylesheet" />
+</head>
+<body>
+<div class="helpBody">
+<h2>Export Common Cartridge</h2>
+
+<a name="top"> </a>
+
+<p> This function allows you to save (download) a file in IMS Common Cartridge
+Format containing the contents of the current site.
+Other course management
+systems such as Blackboard can load the contents of a course
+in Common Cartridge format. So this can be used to move content
+between course management systems. It can also be used if you simply want
+to save the contents of your site in a form that can be used later.</p>
+
+<p> Note that the Common Cartidge format only handles some aspects of
+a site. Details will be lost. E.g. only the most common types of quiz
+question will be saved. And items that Lessons would put inline on the page
+(e.g. blocks of text added with "Add Text" and movies added with "Add Multimedia")
+will appear as links when the Common Cartridge file is loaded.<p>
+
+<p> The export will contain a file in the resources area called
+cc-objects/export-errors. It will contain a list of any problems in
+exporting, including questions and Lessons content that can't be
+handled by the Common Cartridge format.</p>
+
+<p> Here are the types of content that will be included:</p>
+<ul>
+<li> Lessons pages</li>
+<li> Quizes in Samigo. (Mneme is currently not exported.)</li>
+<li> Assignments in Assignments or Assignments 2.</li>
+<li> Forum topics in Forums and jForum</li>
+</ul>
+
+<p> Note that most other systems do not recognize assignments. They
+simply import the text of the assignmentn as a document.</p>
+
+<p> Currently Sakai can save in Common Cartridge versions 1.1 and 1.2.
+1.2 is the default. We've seen problems trying to load 1.2 files into
+Moodle and Blackboard, so we recommend using version 1.1 for them.
+The only significant difference is that 1.2 is supposed to understand
+Assignments, and also quiz questions of type "Multiple Correct, Single Answer."
+However no implementation we've found other than Sakai actually treats
+these types correctly.</p>
+
+
+</div>
+</body></html>
