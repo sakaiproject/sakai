@@ -259,11 +259,25 @@ function showMessage(message, success){
 		spanItem = $("#warningInfo");
 	}
 	$(spanItem).html(message);
-	var topPos = window.parent.$("body").scrollTop();
+	var topPos = 0;
+	//set topPos to top of the scroll bar for this iFrame
+	try{
+		topPos = $(window.parent.$("body")).scrollTop();
+	}catch(e){}
+	//if this is an iframe, adjust top by the offset of the iframe
+	try{
+		if(topPos != 0){
+			topPos = topPos - $(window.parent.$("iframe")).offset().top; 
+		}
+	}catch(e){}
+	//unless the users scrolls past the iframe, the position will be negative... just make it 0
+	if(topPos < 0){
+		topPos = 0;
+	}
 	$(spanItem).css("top", topPos); 
 	$(spanItem).show();
 	
-	setTimeout(function(){$(spanItem).fadeOut();}, 5000);
+	setTimeout(function(){$(spanItem).fadeOut();}, 4000);
 }
 
 function postAjax(id, params, msgs){
