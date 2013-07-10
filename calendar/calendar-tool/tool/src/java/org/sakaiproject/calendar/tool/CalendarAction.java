@@ -26,6 +26,7 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.text.DateFormat;
 import java.text.NumberFormat;
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
@@ -3117,7 +3118,8 @@ extends VelocityPortletStateAction
 		context.put("tlang",rb);
 		context.put("config",configProps);
 		context.put("yearArray",yearObj);
-		context.put("year",Integer.valueOf(calObj.getYear()));
+		SimpleDateFormat formatter = new SimpleDateFormat(rb.getString("viewy.date_format"), rb.getLocale());
+		context.put("year", formatter.format(calObj.getTime()));
 		context.put("date",dateObj1);
 		state.setState("year");
 		
@@ -3221,8 +3223,8 @@ extends VelocityPortletStateAction
 		calObj.setDay(dateObj1.getYear(),dateObj1.getMonth(),dateObj1.getDay());
 		
 		// retrieve the information from day, month and year to calObj again since calObj changed during the process of CalMonth().
-		context.put("nameOfMonth",calendarUtilGetMonth(calObj.getMonthInteger()));
-		context.put("year", Integer.valueOf(calObj.getYear()));
+		SimpleDateFormat formatter = new SimpleDateFormat(rb.getString("viewm.date_format"), rb.getLocale());
+		context.put("viewingDate", formatter.format(calObj.getTime()));
 		context.put("monthArray",monthObj2);
 		context.put("tlang",rb);
 		context.put("config",configProps);

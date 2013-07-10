@@ -723,11 +723,9 @@ public class CalendarBean {
 	}
 
 	public String getCaption() {
-		Calendar c = Calendar.getInstance(getCurrentUserTimezone(), msgs.getLocale());
-		c.setTime(getViewingDate());
-		String month = msgs.getString(months[c.get(Calendar.MONTH)]);
-		String year = c.get(Calendar.YEAR) + "";
-		return month + ", " + year;
+		SimpleDateFormat formatter = new SimpleDateFormat(msgs.getString("viewm.date_format"), msgs.getLocale());
+		formatter.setTimeZone(getCurrentUserTimezone());
+		return formatter.format(getViewingDate());
 	}
 
 	public boolean isViewingSelectedDay() {
