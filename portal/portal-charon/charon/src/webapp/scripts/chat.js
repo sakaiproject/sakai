@@ -837,11 +837,15 @@ function PortalChat() {
 					portalChat.showOfflineConnections = true;
 			    }
 
-				if (portalChat.getSetting('videoOff')) {
-					$('#pc_video_off_checkbox').attr('checked','checked');
-					portalChat.videoOff = true;
+				if (videoCall && videoCall.isVideoEnabled()) { 
+					if (portalChat.getSetting('videoOff')) {
+						$('#pc_video_off_checkbox').attr('checked','checked');
+						portalChat.videoOff = true;
+					} else {
+						portalChat.videoOff = false;
+					}
 				} else {
-					portalChat.videoOff = false;
+					$('#pc_video_off_ctrl').hide();
 				}
 
 			    portalChat.setGetLatestDataInterval();
