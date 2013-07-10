@@ -877,7 +877,7 @@ function PortalChat() {
 					portalChat.offline = true;
 
 				} else {
-					portalChat.setSetting('offline',false);
+					portalChat.setSetting('offline',false,true);
 					portalChat.offline = false;
 
 					portalChat.setGetLatestDataInterval();
