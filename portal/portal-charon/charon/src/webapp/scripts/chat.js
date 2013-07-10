@@ -101,8 +101,10 @@ function PortalChat() {
 			success : function(text, status) {
 				if ('OFFLINE' === text) {
 					/* The peer is disconnected you can close the connection */
-					videoCall.setVideoStatus(to, videoMessages.pc_video_status_user_hung, "finished");
-					videoCall.closeVideoCall(to);
+					if (videoCall) {
+						videoCall.setVideoStatus(to, videoMessages.pc_video_status_user_hung, "finished");
+						videoCall.closeVideoCall(to);
+					}
 				}
 			},
 			error : function(xhr, textStatus, error) {
@@ -189,7 +191,7 @@ function PortalChat() {
 	}
 
 	this.setupVideoChatBar = function (uuid,notEnabled,minimised) {
-		if (videoCall.getCurrentCallStatus(uuid)) return;
+		if (videoCall && videoCall.getCurrentCallStatus(uuid)) return;
 		$('#pc_chat_' + uuid + '_video_content').hide();
 		$('#pc_connection_' + uuid + '_videoin').hide();
 		$('#pc_connection_' + uuid + '_videochat_bar .video_on').hide();
@@ -217,7 +219,7 @@ function PortalChat() {
 	}
 	
 	this.closeChatWindow = function (uuid) {
-		var currentCallStatus = videoCall.getCurrentCallStatus(uuid);
+		var currentCallStatus = videoCall?videoCall.getCurrentCallStatus(uuid):null;
 	    if ($("#pc_chat_" + uuid + "_video_content").is(':visible') && currentCallStatus && currentCallStatus!='ESTABLISHED') {
 	        // Call in progress wait to close
 	    	return;
@@ -442,7 +444,7 @@ function PortalChat() {
 								portalChat.setupVideoChatBar(portalChat.currentConnections[k].uuid,
 										false,$('#pc_chat_with_'+ portalChat.currentConnections[k].uuid).css('height') == 'auto');
 							} else {
-								if (!videoCall.hasVideoChatActive(portalChat.currentConnections[k].uuid)) {
+								if (videoCall && !videoCall.hasVideoChatActive(portalChat.currentConnections[k].uuid)) {
 									portalChat.setupVideoChatBar(portalChat.currentConnections[k].uuid,true);
 								}
 							}
@@ -614,7 +616,7 @@ function PortalChat() {
 			cache: false,
 			success : function (data,status) {
 				portalChat.updateMessages(data.data.messages);
-				portalChat.updateVideoMessages(data.data.videoMessages);
+				if (videoCall) portalChat.updateVideoMessages(data.data.videoMessages);
 
                 // SAK-20565. Profile2 may not be installed, so no connections :(
                 if(portalChat.connectionsAvailable === true) {
