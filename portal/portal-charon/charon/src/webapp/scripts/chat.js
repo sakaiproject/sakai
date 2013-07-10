@@ -196,14 +196,16 @@ function PortalChat() {
 		$('#pc_connection_' + uuid + '_videoin').hide();
 		$('#pc_connection_' + uuid + '_videochat_bar .video_on').hide();
 		var chatDiv = $('#pc_chat_with_' + uuid);
+		var isMinimised = (typeof minimised === "undefined")?chatDiv.hasClass('pc_minimised'):minimised;
 		if (notEnabled) {
 			$('#pc_connection_' + uuid + '_videochat_bar').hide();
-			chatDiv.css('height', '300px');
-			chatDiv.css('margin-top', '0px');
 			chatDiv.attr('data-height', '300');
+			if (!isMinimised) {
+				chatDiv.css('height', '300px');
+				chatDiv.css('margin-top', '0px');
+			}
 		} else {
 			$('#pc_connection_' + uuid + '_videochat_bar').show();
-			var isMinimised = (typeof minimised === "undefined")?chatDiv.hasClass('pc_minimised'):minimised;
 			if (!isMinimised) {
 				chatDiv.css('height', '318px');
 				chatDiv.css('margin-top', '-18px');
