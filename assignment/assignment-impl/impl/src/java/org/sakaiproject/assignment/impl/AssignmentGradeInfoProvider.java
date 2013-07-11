@@ -33,6 +33,7 @@ import org.apache.commons.logging.LogFactory;
 
 import org.sakaiproject.assignment.api.Assignment;
 import org.sakaiproject.assignment.api.AssignmentService;
+import org.sakaiproject.assignment.impl.BaseAssignmentService;
 import org.sakaiproject.authz.api.AuthzGroup;
 import org.sakaiproject.authz.api.AuthzGroupService;
 import org.sakaiproject.authz.api.SecurityService;
@@ -43,11 +44,12 @@ import org.sakaiproject.exception.IdUnusedException;
 import org.sakaiproject.exception.PermissionException;
 import org.sakaiproject.site.api.SiteService;
 import org.sakaiproject.service.gradebook.shared.ExternalAssignmentProvider;
+import org.sakaiproject.service.gradebook.shared.ExternalAssignmentProviderCompat;
 import org.sakaiproject.service.gradebook.shared.GradebookExternalAssessmentService;
 import org.sakaiproject.tool.api.SessionManager;
 import org.sakaiproject.tool.api.SessionManager;
 
-public class AssignmentGradeInfoProvider implements ExternalAssignmentProvider {
+public class AssignmentGradeInfoProvider implements ExternalAssignmentProvider, ExternalAssignmentProviderCompat {
 
     private Log log = LogFactory.getLog(AssignmentGradeInfoProvider.class);
 
@@ -143,6 +145,25 @@ public class AssignmentGradeInfoProvider implements ExternalAssignmentProvider {
         List assignments = assignmentService.getListAssignmentsForContext(gradebookUid);
         for (Assignment a : (List<Assignment>) assignments) {
             externalIds.add(a.getReference());
+        }
+        return externalIds;
+    }
+
+    public List<String> getAllExternalAssignments(String gradebookUid) {
+        // We check and cast here on the very slim chance that something other than
+        // a BaseAssignmentService is registered as the service. If that is the case,
+        // we won't have access to the protected method to get unfiltered assignments
+        // and the best we can do is return the filtered list, which is exposed on
+        // the AssignmentService interface.
+
+        List<String> externalIds = new ArrayList<String>();
+        if (assignmentService instanceof BaseAssignmentService) {
+            List assignments = ((BaseAssignmentService) assignmentService).getUnfilteredAssignments(gradebookUid);
+            for (Assignment a : (List<Assignment>) assignments) {
+                externalIds.add(a.getReference());
+            }
+        } else {
+            externalIds = getExternalAssignmentsForCurrentUser(gradebookUid);
         }
         return externalIds;
     }
