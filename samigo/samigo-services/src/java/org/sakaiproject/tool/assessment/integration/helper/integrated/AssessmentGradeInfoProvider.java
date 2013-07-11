@@ -38,6 +38,7 @@ import org.sakaiproject.authz.api.Member;
 import org.sakaiproject.entitybroker.EntityReference;
 import org.sakaiproject.exception.IdUnusedException;
 import org.sakaiproject.service.gradebook.shared.ExternalAssignmentProvider;
+import org.sakaiproject.service.gradebook.shared.ExternalAssignmentProviderCompat;
 import org.sakaiproject.service.gradebook.shared.GradebookExternalAssessmentService;
 import org.sakaiproject.site.api.Group;
 import org.sakaiproject.site.api.Site;
@@ -54,7 +55,7 @@ import org.sakaiproject.user.api.UserDirectoryService;
 /**
  * Provides info to the gradebook about which assessments are visible
  */
-public class AssessmentGradeInfoProvider implements ExternalAssignmentProvider {
+public class AssessmentGradeInfoProvider implements ExternalAssignmentProvider, ExternalAssignmentProviderCompat {
 
     private Log log = LogFactory.getLog(AssessmentGradeInfoProvider.class);
     private GradebookExternalAssessmentService geaService;
@@ -174,6 +175,18 @@ public class AssessmentGradeInfoProvider implements ExternalAssignmentProvider {
             externalIds.add(pub.getPublishedAssessmentId().toString());
         }
         return externalIds;
+    }
+
+    public List<String> getAllExternalAssignments(String gradebookUid) {
+        List allPublished = PersistenceService.getInstance().getPublishedAssessmentFacadeQueries().
+            getBasicInfoOfAllPublishedAssessments2("title", true, gradebookUid);
+
+        List<String> allExternals = new ArrayList<String>();
+        for (PublishedAssessmentFacade pub : (List<PublishedAssessmentFacade>) allPublished) {
+            String assessmentId = pub.getPublishedAssessmentId().toString();
+            allExternals.add(assessmentId);
+        }
+        return allExternals;
     }
 
     public Map<String, List<String>> getAllExternalAssignments(String gradebookUid, Collection<String> studentIds) {
