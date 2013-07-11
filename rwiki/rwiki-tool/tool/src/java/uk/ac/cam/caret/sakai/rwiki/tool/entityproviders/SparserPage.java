@@ -39,7 +39,7 @@ public class SparserPage {
 		super();
 		this.name = name;
 		try {
-			this.url = URLEncoder.encode("/direct/wiki/site/" + siteId + "/page/" + name + "." + format,"UTF-8");
+			this.url = "/direct/" + RWikiEntityProvider.ENTITY_PREFIX + "/" + siteId + "/page/" + URLEncoder.encode(name,"UTF-8").replaceAll("\\+","%20") + "." + format;
 		} catch(UnsupportedEncodingException e) {
 			log.error("UTF-8 is unsupported in the the encoding of URLs. The url was not set.");
 		}

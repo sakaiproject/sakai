@@ -58,7 +58,7 @@ public class DirectServletPageLinkRenderer implements PageLinkRenderer {
 		
 		try {
 			buffer.append("<a class=\"wiki-page-link\" href=\"")
-				.append(URLEncoder.encode("/direct/" + RWikiEntityProvider.ENTITY_PREFIX + localRealm + "/page/" + view + "." + extension,"UTF-8"))
+				.append("/direct/" + RWikiEntityProvider.ENTITY_PREFIX + localRealm + "/page/" + URLEncoder.encode(view,"UTF-8").replaceAll("\\+","%20") + "." + extension)
 				.append("\">" + XmlEscaper.xmlEscape(view) + "</a>");
 		} catch(UnsupportedEncodingException e) {
 			log.error("UTF-8 is unsupported in the the encoding of URLs. The url was not appended.");
