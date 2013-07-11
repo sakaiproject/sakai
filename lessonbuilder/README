@@ -102,96 +102,60 @@ profile in tool/pom.xml.
 
 DATABASE SETUP
 
-If you run with auto.ddl set, Lesson Builder will create the
-necessary tables. Otherwise BEFORE YOU DEPLOY IT, please
-take the appropriate sql file, e.g.
+NEW INSTALLATIONS
 
-./hbm/src/ddl/mysql/lessonbuilder.sql
+Hibernate will normally set up the database for you if this is a new
+Sakai installation, or if you are adding Lessons for the first time.
+If you choose not to use hibernate, before you start the system use
+the primary database setup file, which is
 
-Indices are created separately, so once the tables exist
-you will want to create the indices using
+   hbm/src/ddl/mysql/lessonbuilder.sql
 
-./components/src/ddl/mysql/simplepage.sql
+using oracle rather than mysql if appropriate.
 
-You may get an error because there is one index created by
-the first sql script.
+UPDATES BETWEEN OFFICIAL RELEASES
 
-DATABASE UPDATES WITH AUTODDL
+We supply update scripts between official Sakai releases. Currently
+these go only between Lessons 1.4.x versions associated with 2.9.x.
+For 2.10 we'll supply a script that goes between the last 2.9.x and
+2.10. Scripts are in ./components/src/ddl/, e.g.
 
-When moving from an old version to a new one, the easiest approach
-is to have auto.ddl on. In that case, the update should happen
-automatically. Unfortunately a few changes can't happen automatically.
-So you may find files in ./components/src/ddl/mysql for specific
-changes, e.g.
+   components/target/classes/mysql/simplepage.for-2.9.3.sql
 
-./components/src/ddl/mysql/simplepage.pre29-to29.sql
+If you are on 2.9.0, going to 2.9.3, you need for 2.9.2 and 2.9.3
+scripts (if the 2.9.2 script exists for your database).
 
-Comments at the start of the files will give more detalis. We
-hope that they will be harmless if used when they are not needed,
-but the comments will note that.
+OTHER UPDATES
 
+If you are moving between things other than official releases, things
+get more complex, particularly if you're moving to trunk from 1.4.x.
 
-DATABASE UPDATES WITHOUT AUTODDL
+In general you need three things:
 
-When moving from an old version to a new one, you need to do two
-separate things: (1) things that Hibernate would do if auto.ddl
-were on and (2) other changes.
+1) Adding new tables and columns to tables is handled by Hibernate.
+If you run with autoddl off, we supply a script that will add all
+tables needed to go from 2.9.x to trunk:
 
-Starting with the 2.9 release of Sakai, we will include update scripts
-that do what Hibernate would do, e.g.
+   hbm/src/ddl/mysql/lessonbuilder-2.9.0-trunk.sql
 
-hbm/src/ddl/mysql/lessonbuilder-2.9.0-2.10.0.sql
+This file is updated as trunk changes. If you are moving between trunk
+versions, you'll need some but not all changes from this file.
+In hbm/src/ddl there's a procedure to generate an update file between
+any two versions, but it's probably easier just to look at the commands
+in the file and see which are needed.
 
-These scripts are not perfect. They will only work if you are going 
-between two versions of Lessons that shipped with a Sakai release.
+2) Creating indices. Hibernate doesn't do this. Files of the form
+     ./components/src/ddl/mysql/simplepage.sql
+contain the CREATE INDEX commands. They should happen automatically,
+even if autoddl is off. But you may want to review them manually to
+make sure all indices have been created.
 
-In other situations, you can make your own update script. There is a
-script, schemaupdate, that reads lessonbuilder.sql for the old version
-and the new version, and produces a file that will update your schema
-from one to the other.
-
-You'll want to go to hbm/src/ddl and do build the current .sql files.
-For trunk (2.10) you should run "ant" in that directory. For 2.8 and 
-2.9, you will want to do "mvn clean install sakai:deploy". (These 
-approaches use different versions of Hibernate, which are needed
-because of the change from "text" to "materialized_clob" discussed
-above.
-
-That will read the hibernate files and produce the following file
-that has all the declarations that Hibernate would use:
-
-hbm/src/ddl/mysql/lessonbuilder.sql 
-
-Then go to your new surce, do the same thing, and put the copy from
-the old source here:
-
-hbm/src/ddl/old/mysql/lessonbuilder.sql 
-
-Then run
-
-hbm/src/ddl/old/schemaupdate
-
-This will produce an update script for you in
-
-hbm/src/ddl/mysql/
-
-So to update without auto.ddl, 
-
-1. generate and load the update script (or if you're going between two
-versions shipped with Sakai starting with 2.9, use the update scrip I
-supply).
-
-2. Use the follwoing to upgrade indices.
-
-./components/src/ddl/mysql/simplepage.sql
-
-3. Look for  any other scripts in ./components/src/ddl/mysql that
-apply to your change, e.g.
-
-./components/src/ddl/mysql/simplepage.pre29-to29.sql
-
-However we're going to try and avoid special scripts like that
-in the future if possible.
+3) Updating existing colums. Typically these are changes to make a
+text field longer. Hibernate won't do this. The files in
+     ./components/src/ddl/mysql
+such as components/target/classes/mysql/simplepage.for-2.9.3.sql
+will have these changes. So far there are no changes in trunk
+that aren't also in 1.4.x.
 
 
 TOMCAT
