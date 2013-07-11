@@ -70,8 +70,8 @@ public class ValidationAccount {
 	private Integer status;
 	private String eid;
 
-	private String firstName;
-	private String surname;
+	private String firstName = "";
+	private String surname = "";
 	private Integer accountStatus;
 	
 	private String password;
