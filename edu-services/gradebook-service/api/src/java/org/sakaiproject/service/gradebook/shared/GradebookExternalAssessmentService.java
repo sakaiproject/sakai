@@ -232,6 +232,10 @@ public interface GradebookExternalAssessmentService {
 	/**
 	 * Check with the appropriate external service if a specific assignment is
 	 * available to a specific user (i.e., the user is in an appropriate group).
+	 * Note that this method will return true if the assignment exists in the
+	 * gradebook and is marked as externally maintained while no provider
+	 * recognizes it; this is to maintain a safer default (no change from the
+	 * 2.8 release) for tools that have not implemented a provider.
 	 * 
 	 * @param gradebookUid The gradebook's unique identifier
 	 * @param externalId The external assessment's external identifier
@@ -242,7 +246,9 @@ public interface GradebookExternalAssessmentService {
 
 	/**
 	 * Retrieve all assignments for a gradebook that are marked as externally
-	 * maintained and are visible to the current user.
+	 * maintained and are visible to the current user. Assignments may be included
+	 * with a null providerAppKey, indicating that the gradebook references the
+	 * assignment, but no provider claims responsibility for it.
 	 *
 	 * @param gradebookUid The gradebook's unique identifier
 	 * @return A map from the externalId of each activity to the providerAppKey
@@ -251,7 +257,7 @@ public interface GradebookExternalAssessmentService {
 		throws GradebookNotFoundException;
 
 	/**
-	 * Retrieve a list of all visible, external assignments
+	 * Retrieve a list of all visible, external assignments for a set of users.
 	 *
 	 * @param gradebookUid The gradebook's unique identifier
 	 * @param studentIds The collection of student IDs for which to retrieve assignments
