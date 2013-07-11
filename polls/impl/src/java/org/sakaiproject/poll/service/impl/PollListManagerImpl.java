@@ -403,7 +403,7 @@ public class PollListManagerImpl implements PollListManager,EntityTransferrer {
             return true;
 
         if (externalLogic.isAllowedInLocation(PERMISSION_DELETE_OWN, externalLogic.getSiteRefFromId(poll.getSiteId()))
-        		&& poll.getOwner().equals(externalLogic.getCurrentuserReference()))
+        		&& poll.getOwner().equals(externalLogic.getCurrentUserId()))
             return true;
 
         return false;
