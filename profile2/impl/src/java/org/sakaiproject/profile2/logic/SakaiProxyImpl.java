@@ -1284,7 +1284,7 @@ public class SakaiProxyImpl implements SakaiProxy {
  	* {@inheritDoc}
  	*/
 	public String getOfficialImagesFileSystemPattern() {
-		return serverConfigurationService.getString("profile2.official.image.directory.pattern", "DEFAULT");
+		return serverConfigurationService.getString("profile2.official.image.directory.pattern", "TWO_DEEP");
 	}
 	
 	

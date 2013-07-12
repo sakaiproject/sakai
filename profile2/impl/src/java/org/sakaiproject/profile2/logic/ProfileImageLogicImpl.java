@@ -845,9 +845,13 @@ public class ProfileImageLogicImpl implements ProfileImageLogic {
 		if(StringUtils.equals(pattern, "ALL_IN_ONE")) {
 			filename = 	basepath + File.separator + userEid + ".jpg";
 		}
+		else if(StringUtils.equals(pattern, "ONE_DEEP")) {
+			String firstLetter = userEid.substring(0,1);
+			filename = basepath + File.separator + firstLetter + File.separator + userEid + ".jpg";
+		}
 		//insert more patterns here as required. Dont forget to update SakaiProxy and confluence with details.
 		else {
-			//DEFAULT
+			//TWO_DEEP is default
 			String firstLetter = userEid.substring(0,1);
 			String secondLetter = userEid.substring(1,2);
 			filename = basepath + File.separator + firstLetter + File.separator + secondLetter + File.separator + userEid + ".jpg";

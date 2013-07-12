@@ -651,12 +651,14 @@ public interface SakaiProxy {
 	
 	/**
 	 * Get the value of the profile2.official.image.directory.pattern attribute from sakai.properties.
-	 * If not set, defaults to DEFAULT.
+	 * If not set, defaults to TWO_DEEP.
 	 * 
 	 * <br />
 	 * Options:
 	 * <ul>
-	 * <li>DEFAULT = first letter of a user's eid, then a slash, then the second letter of the eid 
+	 * <li>ONE_DEEP = first letter of a user's eid, then a slash, then the eid suffixed by '.jpg'. 
+	 * For example BASEDIR/a/adrian.jpg, BASEDIR/s/steve.jpg</li>
+	 * <li>TWO_DEEP = first letter of a user's eid, then a slash, then the second letter of the eid 
 	 * followed by a slash and finally the eid suffixed by '.jpg'. 
 	 * For example BASEDIR/a/d/adrian.jpg, BASEDIR/s/t/steve.jpg</li>
 	 * <li>ALL_IN_ONE = all files in the one directory.
