@@ -63,7 +63,8 @@
 			<ref bean="org_sakaiproject_tool_gradebook_facades_Authn" />
 		</property>
 		<property name="eventTrackingService" ref="org_sakaiproject_tool_gradebook_facades_EventTrackingService" />
-		<property name="gradebookService" ref="org_sakaiproject_service_gradebook_GradebookService" />
+		<!-- This would be a circular dependency, so for now, we get it from the ComponentManager. -->
+		<!-- <property name="gradebookService" ref="org_sakaiproject_service_gradebook_GradebookService" /> -->
 	</bean>
 
 	<bean id="org_sakaiproject_service_gradebook_GradebookServiceTarget"

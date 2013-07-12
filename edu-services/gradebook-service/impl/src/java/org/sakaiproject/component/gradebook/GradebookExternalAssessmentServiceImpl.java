@@ -42,6 +42,7 @@ import org.apache.commons.logging.LogFactory;
 import org.hibernate.HibernateException;
 import org.hibernate.Query;
 import org.hibernate.Session;
+import org.sakaiproject.component.cover.ComponentManager;
 import org.sakaiproject.component.cover.ServerConfigurationService;
 import org.sakaiproject.service.gradebook.shared.AssessmentNotFoundException;
 import org.sakaiproject.service.gradebook.shared.AssignmentHasIllegalPointsException;
@@ -76,6 +77,10 @@ public class GradebookExternalAssessmentServiceImpl extends BaseHibernateManager
 
     public void setGradebookService(GradebookService gradebookService) {
         this.gradebookService = gradebookService;
+    }
+
+    public GradebookService getGradebookService() {
+        return (GradebookService) ComponentManager.get("org.sakaiproject.service.gradebook.GradebookService");
     }
 
 	private ConcurrentHashMap<String, ExternalAssignmentProvider> externalProviders =
@@ -543,7 +548,7 @@ public class GradebookExternalAssessmentServiceImpl extends BaseHibernateManager
 		// identified as items under its authority. This maintains the behavior prior to the grouping support
 		// introduced for the 2.9 release (SAK-11485 and SAK-19688), where a tool that does not have a provider
 		// implemented does not have its items filtered for student views and grading.
-		List<org.sakaiproject.service.gradebook.shared.Assignment> gbAssignments = gradebookService.getViewableAssignmentsForCurrentUser(gradebookUid);
+		List<org.sakaiproject.service.gradebook.shared.Assignment> gbAssignments = getGradebookService().getViewableAssignmentsForCurrentUser(gradebookUid);
 		for (org.sakaiproject.service.gradebook.shared.Assignment assignment : gbAssignments) {
 			String id = assignment.getExternalId();
 			if (assignment.isExternallyMaintained() && !providedAssignments.contains(id) && !visibleAssignments.containsKey(id)) {
@@ -603,7 +608,7 @@ public class GradebookExternalAssessmentServiceImpl extends BaseHibernateManager
 		//             but are not reported by any provider should be included for everyone. This is
 		//             to accommodate tools that use the external assessment mechanisms but have not
 		//             implemented an ExternalAssignmentProvider.
-		List<org.sakaiproject.service.gradebook.shared.Assignment> allAssignments = gradebookService.getAssignments(gradebookUid);
+		List<org.sakaiproject.service.gradebook.shared.Assignment> allAssignments = getGradebookService().getAssignments(gradebookUid);
 		for (org.sakaiproject.service.gradebook.shared.Assignment assignment : allAssignments) {
 			String id = assignment.getExternalId();
 			if (assignment.isExternallyMaintained() && !providedAssignments.contains(id)) {
