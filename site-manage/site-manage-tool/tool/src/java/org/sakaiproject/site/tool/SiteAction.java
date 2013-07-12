@@ -13348,6 +13348,10 @@ private Map<String,List> getToolGroupList(SessionState state, String type, Site 
 					addRequestedSection(state);
 				}
 				if (state.getAttribute(STATE_MESSAGE) == null) {
+					// no manual add
+					state.removeAttribute(STATE_MANUAL_ADD_COURSE_NUMBER);
+					state.removeAttribute(STATE_MANUAL_ADD_COURSE_FIELDS);
+
 					if (getStateSite(state) == null) {
 						if (state.getAttribute(STATE_TEMPLATE_SITE) != null)
 						{
