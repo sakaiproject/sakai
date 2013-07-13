@@ -176,7 +176,7 @@ public class LTIAdminTool extends VelocityPortletPaneledAction
 		state.removeAttribute(STATE_SUCCESS);
 
 		// this is for the "site tools" panel
-		List<Map<String,Object>> contents = ltiService.getContents(null,null,0,500);
+		List<Map<String,Object>> contents = ltiService.getContents(null,null,0,1000);
 		for ( Map<String,Object> content : contents ) {
 			
 			Long tool_id_long = null;
