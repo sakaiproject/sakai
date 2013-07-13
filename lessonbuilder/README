@@ -117,32 +117,15 @@ UPDATES BETWEEN OFFICIAL RELEASES
 
 We supply update scripts between official Sakai releases. Currently
 these go only between Lessons 1.4.x versions associated with 2.9.x.
-For 2.10 we'll supply a script that goes between the last 2.9.x and
-2.10. Scripts are in ./components/src/ddl/, e.g.
+So they are not yet relevant to trunk.
 
-   components/target/classes/mysql/simplepage.for-2.9.3.sql
-
-If you are on 2.9.0, going to 2.9.3, you need for 2.9.2 and 2.9.3
-scripts (if the 2.9.2 script exists for your database).
-
-OTHER UPDATES
-
-If you are moving between things other than official releases, things
-get more complex, particularly if you're moving to trunk from 1.4.x.
+DATABASE UPDATES INVOLVING TRUNK WITH HIBERNATE
 
 In general you need three things:
 
 1) Adding new tables and columns to tables is handled by Hibernate.
 If you run with autoddl off, we supply a script that will add all
 tables needed to go from 2.9.x to trunk:
-
-   hbm/src/ddl/mysql/lessonbuilder-2.9.0-trunk.sql
-
-This file is updated as trunk changes. If you are moving between trunk
-versions, you'll need some but not all changes from this file.
-In hbm/src/ddl there's a procedure to generate an update file between
-any two versions, but it's probably easier just to look at the commands
-in the file and see which are needed.
 
 2) Creating indices. Hibernate doesn't do this. Files of the form
      ./components/src/ddl/mysql/simplepage.sql
@@ -151,11 +134,24 @@ even if autoddl is off. But you may want to review them manually to
 make sure all indices have been created.
 
 3) Updating existing colums. Typically these are changes to make a
-text field longer. Hibernate won't do this. The files in
-     ./components/src/ddl/mysql
-such as components/target/classes/mysql/simplepage.for-2.9.3.sql
-will have these changes. So far there are no changes in trunk
-that aren't also in 1.4.x.
+text field longer. Hibernate won't do this. The commands are in
+     ./components/src/ddl/mysql/simplepage.for-2.9.2.sql
+     ./components/src/ddl/mysql/simplepage.for-2.9.3.sql
+Only mysql has one for 2.9.2. All 3 databases have one for 2.9.3.
+
+
+DATABASE UPDATES INVOLVING TRUNK MANUALLY
+
+If you are moving from 2.9.0 or later to trunk, or between versions
+of trunk, the following should have all command you need:
+
+   hbm/src/ddl/mysql/lessonbuilder-2.9.0-trunk.sql
+
+Depending upon which version you're coming from, some of the commands
+will not be needed. Nothing is deleted by them, so it should be safe
+to do all of them, as long as you understand that you'll get errors
+such as duplicate index or things already existing.
+
 
 
 TOMCAT
