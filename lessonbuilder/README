@@ -102,6 +102,12 @@ profile in tool/pom.xml.
 
 DATABASE SETUP
 
+If you have auto.ddl on, you'll get a reasonable database creation of
+update automatically. All you might be missing is a few text fields that
+should really be made longer. But see below for more detailed
+instructions.
+
+
 NEW INSTALLATIONS
 
 Hibernate will normally set up the database for you if this is a new
