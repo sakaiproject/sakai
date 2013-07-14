@@ -117,7 +117,10 @@ the primary database setup file, which is
 
    hbm/src/ddl/mysql/lessonbuilder.sql
 
-using oracle rather than mysql if appropriate.
+using oracle rather than mysql if appropriate.  Index creation
+will be done automatically, from
+     ./components/src/ddl/mysql/simplepage.sql
+which is always done by the system
 
 UPDATES BETWEEN OFFICIAL RELEASES
 
@@ -158,6 +161,19 @@ will not be needed. Nothing is deleted by them, so it should be safe
 to do all of them, as long as you understand that you'll get errors
 such as duplicate index or things already existing.
 
+DATABASE UPDATES FROM OLDER VERSIONS
+
+If you have been using a copy of Lessons from before 2.9.0 was
+released, we strongly recommend enabling auto.ddl the first time
+you start with the new version. In that case see the section above
+on updating with Hibernate.
+
+But in this case you should also use 
+   components/src/ddl/*/simplepage.pre29-to29.sql
+for your database before doing anything else.
+
+If you really can't use auto-ddl, there is a process for generating
+an update script, but it's a bit complex to document here. 
 
 
 TOMCAT
