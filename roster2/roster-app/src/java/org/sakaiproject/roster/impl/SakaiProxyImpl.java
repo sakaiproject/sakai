@@ -16,6 +16,7 @@
 package org.sakaiproject.roster.impl;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -24,6 +25,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
+import org.apache.commons.lang.ArrayUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.sakaiproject.api.privacy.PrivacyManager;
@@ -433,14 +435,18 @@ public class SakaiProxyImpl implements SakaiProxy {
 	private Set<Member> filterHiddenMembers(Set<Member> membership,
 			String currentUserId, String siteId, AuthzGroup authzGroup) {
 
+		log.debug("filterHiddenMembers");
+		
 		if (isAllowed(currentUserId,
 				RosterFunctions.ROSTER_FUNCTION_VIEWHIDDEN, authzGroup)) {
+
+			log.debug("permission to view all, including hidden");
 
 			return membership;
 		}
 
 		Set<Member> filteredMembership = new HashSet<Member>();
-
+		
 		Set<String> userIds = new HashSet<String>();
 		for (Member member : membership) {
 			userIds.add(member.getUserEid());
@@ -449,12 +455,39 @@ public class SakaiProxyImpl implements SakaiProxy {
 		Set<String> hiddenUserIds = privacyManager.findHidden(
 				"/site/" + siteId, userIds);
 
+		//get the list of visible roles, optional config.
+		//if set, the only users visible in the tool will be those with their role defined in this list
+		String[] visibleRoles = serverConfigurationService.getStrings("roster2.visibleroles");
+		
+		boolean filterRoles = ArrayUtils.isNotEmpty(visibleRoles);
+
+		log.debug("visibleRoles: " + ArrayUtils.toString(visibleRoles));
+		log.debug("filterRoles: " + filterRoles);
+		
+		// determine filtered membership
 		for (Member member : membership) {
-			if (!hiddenUserIds.contains(member.getUserEid())) {
+			
+			// skip if privacy restricted
+			if (hiddenUserIds.contains(member.getUserEid())) {
+				continue;
+			}
+			
+			// now filter out users based on their role
+			if(filterRoles) {
+				String memberRoleId = member.getRole().getId();
+				if(ArrayUtils.contains(visibleRoles, memberRoleId)){
+					filteredMembership.add(member);
+					log.debug("Filter added: " + member.getUserEid());
+				}
+			} else {
+				log.debug("Added: " + member.getUserEid());
 				filteredMembership.add(member);
 			}
+			
 		}
-
+		
+		log.debug("filteredMembership.size(): " + filteredMembership.size());
+		
 		return filteredMembership;
 	}
 	
