@@ -436,8 +436,21 @@ public abstract class BaseAssignmentService implements AssignmentService, Entity
 	 */
 	protected boolean unlockCheckWithGroups(String lock, String resource, Assignment assignment)
 	{
-		Collection groupIds = assignment.getGroups();
+		// SAK-23755 addons:
+		// super user should be allowed
+		if (SecurityService.isSuperUser())
+			return true;
+	
+		// all.groups permission should apply down to group level
+		String context = assignment.getContext();
+		String userId = SessionManager.getCurrentSessionUserId();
+		if (allowAllGroups(context) && AuthzGroupService.isAllowed(userId,lock, context))
+		{
+			return true;
+		}
 		
+		// group level users
+		Collection groupIds = assignment.getGroups();
 		if(groupIds != null && groupIds.size() > 0)
 		{
 			Iterator i = groupIds.iterator();
@@ -445,8 +458,7 @@ public abstract class BaseAssignmentService implements AssignmentService, Entity
 			{
 				String groupId = (String) i.next();
 				boolean isAllowed
-					= AuthzGroupService.isAllowed(
-							SessionManager.getCurrentSessionUserId(),lock,groupId);
+					= AuthzGroupService.isAllowed(userId,lock,groupId);
 				
 				if(isAllowed) return true;
 			}
