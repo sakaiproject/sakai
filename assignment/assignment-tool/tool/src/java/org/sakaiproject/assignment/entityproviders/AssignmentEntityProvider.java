@@ -265,6 +265,7 @@ public class AssignmentEntityProvider extends AbstractEntityProvider implements 
 	private SiteService siteService;
 
 	
+	// HTML is deliberately not handled here, so that it will be handled by RedirectingAssignmentEntityServlet
 	public String[] getHandledOutputFormats() {
 		return new String[] { Formats.XML, Formats.JSON, Formats.FORM };
 	}
