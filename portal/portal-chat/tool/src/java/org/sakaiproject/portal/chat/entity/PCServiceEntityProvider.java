@@ -12,8 +12,14 @@ import java.util.List;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 
-import org.apache.log4j.Logger;
 import org.apache.commons.lang3.StringEscapeUtils;
+import org.apache.log4j.Logger;
+import org.jgroups.Address;
+import org.jgroups.Channel;
+import org.jgroups.JChannel;
+import org.jgroups.Message;
+import org.jgroups.Receiver;
+import org.jgroups.View;
 import org.sakaiproject.component.api.ComponentManager;
 import org.sakaiproject.component.api.ServerConfigurationService;
 import org.sakaiproject.email.api.EmailService;
@@ -31,17 +37,11 @@ import org.sakaiproject.entitybroker.entityprovider.capabilities.Outputable;
 import org.sakaiproject.entitybroker.entityprovider.extension.Formats;
 import org.sakaiproject.entitybroker.exception.EntityException;
 import org.sakaiproject.entitybroker.util.AbstractEntityProvider;
+import org.sakaiproject.portal.api.PortalChatPermittedHelper;
 import org.sakaiproject.presence.api.PresenceService;
 import org.sakaiproject.user.api.User;
 import org.sakaiproject.user.api.UserDirectoryService;
 import org.sakaiproject.util.ResourceLoader;
-
-import org.jgroups.Address;
-import org.jgroups.Channel;
-import org.jgroups.JChannel;
-import org.jgroups.Message;
-import org.jgroups.Receiver;
-import org.jgroups.View;
 
 /**
  * Provides all the RESTful targets for the portal chat code in chat.js. Clustering
@@ -56,6 +56,7 @@ public class PCServiceEntityProvider extends AbstractEntityProvider implements R
 	private static ResourceLoader rb = new ResourceLoader("portal-chat");
 
 	public final static String ENTITY_PREFIX = "portal-chat";
+	
 
     /* JGROUPS MESSAGE PREFIXES */
 
@@ -81,7 +82,12 @@ public class PCServiceEntityProvider extends AbstractEntityProvider implements R
     private Method setProfileMethod = null;
     private Method setPrivacyMethod = null;
     private Method setPreferencesMethod = null;
-	
+
+    private PortalChatPermittedHelper portalChatPermittedHelper;
+	public void setPortalChatPermittedHelper(PortalChatPermittedHelper portalChatPermittedHelper) {
+		this.portalChatPermittedHelper = portalChatPermittedHelper;
+	}
+
 	private UserDirectoryService userDirectoryService;
 	public void setUserDirectoryService(UserDirectoryService userDirectoryService) {
 		this.userDirectoryService = userDirectoryService;
@@ -251,9 +257,38 @@ public class PCServiceEntityProvider extends AbstractEntityProvider implements R
             logger.error("Failed to invoke the getConnectionsForUser method. Returning an empty connections list ...", e);
         }
 
-        return connections;
+        List<Object> connectionsWithPermissions = new ArrayList<Object>();
+        for(Object personObject : connections) {
+
+            String connectionUuid = null;
+
+            try {
+            	connectionUuid = (String) getUuidMethod.invoke(personObject,null);
+                
+                // Null all the person stuff to reduce the download size
+                if(setProfileMethod != null) {
+                    setProfileMethod.invoke(personObject,new Object[] {null});
+                }
+                if(setPrivacyMethod != null) {
+                    setPrivacyMethod.invoke(personObject,new Object[] {null});
+                }
+                if(setPreferencesMethod != null) {
+                    setPreferencesMethod.invoke(personObject,new Object[] {null});
+                }
+                
+            } catch(Exception e) {
+                logger.error("Failed to invoke getUuid on a Person instance. Skipping this person ...",e);
+                continue;
+            }
+
+            // Only add the connection if that person is allowed to use portal chat.
+            if(portalChatPermittedHelper.checkChatPermitted(connectionUuid)) {
+            	connectionsWithPermissions.add(personObject);
+            }
+        }        
+        return connectionsWithPermissions;
     }
-	
+
 	public String getEntityPrefix() {
 		return ENTITY_PREFIX;
 	}
@@ -343,10 +378,12 @@ public class PCServiceEntityProvider extends AbstractEntityProvider implements R
 		
 		public String id;
 		public String displayName;
+		public boolean offline = false;
 		
-		public PortalChatUser(String id,String displayName) {
+		public PortalChatUser(String id, String displayName, boolean offline) {
 			this.id = id;
 			this.displayName = displayName;
+			this.offline = offline;
 		}
 	}
 
@@ -418,7 +455,9 @@ public class PCServiceEntityProvider extends AbstractEntityProvider implements R
 			List<User> presentSakaiUsers = presenceService.getPresentUsers(siteId + "-presence");
 			presentSakaiUsers.remove(currentUser);
 			for(User user : presentSakaiUsers) {
-				presentUsers.add(new PortalChatUser(user.getId(), user.getDisplayName()));
+				// Flag this user as offline if they can't access portal chat
+				boolean offline = !portalChatPermittedHelper.checkChatPermitted(user.getId());
+				presentUsers.add(new PortalChatUser(user.getId(), user.getDisplayName(), offline));
 			}
         }
 		
@@ -617,4 +656,6 @@ public class PCServiceEntityProvider extends AbstractEntityProvider implements R
 
 	public void viewAccepted(View arg0) {
 	}
+
+
 }

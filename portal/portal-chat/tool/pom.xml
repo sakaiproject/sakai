@@ -35,6 +35,13 @@
     </repositories>
 
     <dependencies>
+    	<dependency>
+			<groupId>org.sakaiproject.portal</groupId>
+   			<artifactId>sakai-portal-api</artifactId>
+            <version>${project.version}</version>
+            <scope>provided</scope>
+    	</dependency>
+    
         <dependency>
             <groupId>org.sakaiproject.kernel</groupId>
             <artifactId>sakai-kernel-api</artifactId>

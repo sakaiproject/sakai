@@ -40,7 +40,6 @@ import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
-import org.apache.commons.lang.BooleanUtils;
 import org.apache.commons.lang.StringUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
@@ -55,6 +54,7 @@ import org.sakaiproject.exception.PermissionException;
 import org.sakaiproject.portal.api.Editor;
 import org.sakaiproject.portal.api.PageFilter;
 import org.sakaiproject.portal.api.Portal;
+import org.sakaiproject.portal.api.PortalChatPermittedHelper;
 import org.sakaiproject.portal.api.PortalHandler;
 import org.sakaiproject.portal.api.PortalRenderContext;
 import org.sakaiproject.portal.api.PortalRenderEngine;
@@ -113,15 +113,11 @@ import org.sakaiproject.tool.api.ToolSession;
 import org.sakaiproject.tool.api.ToolURL;
 import org.sakaiproject.tool.cover.ActiveToolManager;
 import org.sakaiproject.tool.cover.SessionManager;
-import org.sakaiproject.user.api.PreferencesEdit;
 import org.sakaiproject.user.api.Preferences;
-import org.sakaiproject.user.api.User;
-import org.sakaiproject.user.api.UserAlreadyDefinedException;
-import org.sakaiproject.user.api.UserEdit;
-import org.sakaiproject.user.api.UserLockedException;
-import org.sakaiproject.user.api.UserNotDefinedException;
-import org.sakaiproject.user.api.UserPermissionException;
+import org.sakaiproject.user.api.PreferencesEdit;
 import org.sakaiproject.user.api.PreferencesService;
+import org.sakaiproject.user.api.User;
+import org.sakaiproject.user.api.UserNotDefinedException;
 import org.sakaiproject.user.cover.UserDirectoryService;
 import org.sakaiproject.util.BasicAuth;
 import org.sakaiproject.util.EditorConfiguration;
@@ -167,6 +163,11 @@ public class SkinnableCharonPortal extends HttpServlet implements Portal
 	private boolean enableDirect = false;
 
 	private PortalService portalService;
+	
+	/**
+	 * Chat helper.
+	 */
+	private PortalChatPermittedHelper chatHelper;
 
 	private static final String PADDING = "&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;";
 
@@ -1569,9 +1570,9 @@ public class SkinnableCharonPortal extends HttpServlet implements Portal
 			String thisUser = SessionManager.getCurrentSessionUserId();
 			
 			//Get user preferences
-      PreferencesService preferencesService = (PreferencesService) ComponentManager.get(PreferencesService.class);
+            PreferencesService preferencesService = (PreferencesService) ComponentManager.get(PreferencesService.class);
 
-      Preferences prefs = preferencesService.getPreferences(thisUser);
+            Preferences prefs = preferencesService.getPreferences(thisUser);
 
 			boolean showServerTime = ServerConfigurationService.getBoolean("portal.show.time", true);
 			if (showServerTime) {
@@ -1661,8 +1662,11 @@ public class SkinnableCharonPortal extends HttpServlet implements Portal
 				rcontext.put("bottomNav", l);
 			}
 
-                        rcontext.put("neoChat", 
-				ServerConfigurationService.getBoolean("portal.neochat", true));
+                        boolean neoChatAvailable
+                            = ServerConfigurationService.getBoolean("portal.neochat", true)
+                                && chatHelper.checkChatPermitted(thisUser);
+
+                        rcontext.put("neoChat", neoChatAvailable);
                         rcontext.put("portalChatPollInterval", 
 				ServerConfigurationService.getInt("portal.chat.pollInterval", 5000));
                         rcontext.put("neoAvatar", 
@@ -1931,6 +1935,7 @@ public class SkinnableCharonPortal extends HttpServlet implements Portal
 		siteHelper = new PortalSiteHelperImpl(this, findPageAliases);
 
 		portalService = org.sakaiproject.portal.api.cover.PortalService.getInstance();
+		chatHelper = org.sakaiproject.portal.api.cover.PortalChatPermittedHelper.getInstance();
 		M_log.info("init()");
 
 		forceContainer = ServerConfigurationService.getBoolean("login.use.xlogin.to.relogin", true);

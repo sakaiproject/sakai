@@ -349,13 +349,17 @@
             <div id="pc_site_users_template" style="display:none;"><!--
                 {for user in siteUsers}
                     <li class="pc_site_user">
+                        {if !user.offline}
                         <a id="${user.id}_link" class="pc_user_link" href="javascript:;" onclick="return portalChat.setupChatWindow('${user.id}');">
+                        {/if}
 							## TODO: the width and height below should be set to be whatever the server-side scaling sets it to be (to avoid jiggle)
 			#if ( $neoAvatar ) 
                             <img class="pc_user_image" src="/direct/profile/${user.id}/image" />
 			#end
-                            <span class="pc_site_display_name">${user.displayName}</span><img class="pc_display_status_bullet" src="/library/image/silk/bullet_green.png" border="0"/>
+                            <span class="pc_site_display_name">${user.displayName}</span>{if user.offline == false}<img class="pc_display_status_bullet" src="/library/image/silk/bullet_green.png" border="0"/>{else}<img class="pc_display_status_bullet" src="/library/image/silk/bullet_red.png" border="0"/>{/if}
+                        {if user.offline == false}
                         </a>
+                        {/if}
                     </li>
                 {/for}
             -->
