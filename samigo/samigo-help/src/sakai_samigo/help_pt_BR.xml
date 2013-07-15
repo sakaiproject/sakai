@@ -1,0 +1,231 @@
+﻿<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE beans PUBLIC "-//SPRING//DTD BEAN//EN" "http://www.springframework.org/dtd/spring-beans.dtd">
+
+<beans>
+   <bean id="samigoAbout" class="org.sakaiproject.component.app.help.model.ResourceBean">
+      <property name="docId"><value>arfu_pt_BR</value></property>
+      <property name="name"><value>Testes/Quizzes</value></property>
+      <property name="location"><value>/sakai_samigo/arfu_pt_BR.html</value></property>
+      <property name="defaultForTool"><value>sakai.samigo</value></property>
+   </bean>
+
+   <bean id="samigoOverview" class="org.sakaiproject.component.app.help.model.ResourceBean">
+      <property name="docId"><value>arfk_pt_BR</value></property>
+      <property name="name"><value>Testes/Quizzes: Resumo</value></property>
+      <property name="location"><value>/sakai_samigo/arfk_pt_BR.html</value></property>
+   </bean>
+   
+   <bean id="createAssessment" class="org.sakaiproject.component.app.help.model.ResourceBean">
+      <property name="docId"><value>ardm_pt_BR</value></property>
+      <property name="name"><value>Criar Nova Avaliação</value></property>
+      <property name="location"><value>/sakai_samigo/ardm_pt_BR.html</value></property>
+   </bean>
+   
+   <bean id="createQuestions" class="org.sakaiproject.component.app.help.model.ResourceBean">
+      <property name="docId"><value>aqyr_pt_BR</value></property>
+      <property name="name"><value>Criar Perguntas</value></property>
+      <property name="location"><value>/sakai_samigo/aqyr_pt_BR.html</value></property>
+   </bean>
+   
+   <bean id="previewAssessment" class="org.sakaiproject.component.app.help.model.ResourceBean">
+      <property name="docId"><value>arde_pt_BR</value></property>
+      <property name="name"><value>Avaliação Prévia</value></property>
+      <property name="location"><value>/sakai_samigo/arde_pt_BR.html</value></property>
+   </bean>
+   
+   <bean id="restrictAccess" class="org.sakaiproject.component.app.help.model.ResourceBean">
+      <property name="docId"><value>arcs_pt_BR</value></property>
+      <property name="name"><value>Restringir o Acesso a Avaliações Publicadas</value></property>
+      <property name="location"><value>/sakai_samigo/arcs_pt_BR.html</value></property>
+   </bean>
+   
+   <bean id="orderQuestions" class="org.sakaiproject.component.app.help.model.ResourceBean">
+      <property name="docId"><value>arec_pt_BR</value></property>
+      <property name="name"><value>Ordenar Perguntas</value></property>
+      <property name="location"><value>/sakai_samigo/arec_pt_BR.html</value></property>
+   </bean>
+   
+   <bean id="availableSettings" class="org.sakaiproject.component.app.help.model.ResourceBean">
+      <property name="docId"><value>arag_pt_BR</value></property>
+      <property name="name"><value>Configurações Disponíveis</value></property>
+      <property name="location"><value>/sakai_samigo/arag_pt_BR.html</value></property>
+   </bean>
+   
+   <bean id="questionTypes" class="org.sakaiproject.component.app.help.model.ResourceBean">
+      <property name="docId"><value>argy_pt_BR</value></property>
+      <property name="name"><value>Tipos de Perguntas Disponíveis</value></property>
+      <property name="location"><value>/sakai_samigo/argy_pt_BR.html</value></property>
+   </bean>
+   
+   <bean id="formattingToolbar" class="org.sakaiproject.component.app.help.model.ResourceBean">
+      <property name="docId"><value>arbr_pt_BR</value></property>
+      <property name="name"><value>Formatar Barra de Ferramentas</value></property>
+      <property name="location"><value>/sakai_samigo/arbr_pt_BR.html</value></property>
+   </bean>
+   
+   <bean id="addTemplate" class="org.sakaiproject.component.app.help.model.ResourceBean">
+      <property name="docId"><value>ardr_pt_BR</value></property>
+      <property name="name"><value>Adicionar/Criar/Editar/Deletar Modelo</value></property>
+      <property name="location"><value>/sakai_samigo/ardr_pt_BR.html</value></property>
+   </bean>
+   
+   <bean id="giveAssessment" class="org.sakaiproject.component.app.help.model.ResourceBean">
+      <property name="docId"><value>arek_pt_BR</value></property>
+      <property name="name"><value>Dar uma Avaliação</value></property>
+      <property name="location"><value>/sakai_samigo/arek_pt_BR.html</value></property>
+   </bean>
+   
+   <bean id="publishAssessment" class="org.sakaiproject.component.app.help.model.ResourceBean">
+      <property name="docId"><value>ardc_pt_BR</value></property>
+      <property name="name"><value>Publicar uma Avaliação</value></property>
+      <property name="location"><value>/sakai_samigo/ardc_pt_BR.html</value></property>
+   </bean>
+   
+   <bean id="modifyAssessment" class="org.sakaiproject.component.app.help.model.ResourceBean">
+      <property name="docId"><value>arab_pt_BR</value></property>
+      <property name="name"><value>Modificar Avaliação</value></property>
+      <property name="location"><value>/sakai_samigo/arab_pt_BR.html</value></property>
+   </bean>
+   
+   <bean id="modifyPublishedAssessment" class="org.sakaiproject.component.app.help.model.ResourceBean">
+      <property name="docId"><value>arbq_pt_BR</value></property>
+      <property name="name"><value>Modificar Avaliação Publicada</value></property>
+      <property name="location"><value>/sakai_samigo/arbq_pt_BR.html</value></property>
+   </bean>
+   
+   <bean id="retractAssessment" class="org.sakaiproject.component.app.help.model.ResourceBean">
+      <property name="docId"><value>arba_pt_BR</value></property>
+      <property name="name"><value>Recolher Avaliação Publicada</value></property>
+      <property name="location"><value>/sakai_samigo/arba_pt_BR.html</value></property>
+   </bean>
+   
+   <bean id="deleteAssessment" class="org.sakaiproject.component.app.help.model.ResourceBean">
+      <property name="docId"><value>arcx_pt_BR</value></property>
+      <property name="name"><value>Deletar Avaliação</value></property>
+      <property name="location"><value>/sakai_samigo/arcx_pt_BR.html</value></property>
+   </bean>
+   
+   <bean id="exportAssessment" class="org.sakaiproject.component.app.help.model.ResourceBean">
+      <property name="docId"><value>aqys_pt_BR</value></property>
+      <property name="name"><value>Exportar Avaliação</value></property>
+      <property name="location"><value>/sakai_samigo/aqys_pt_BR.html</value></property>
+   </bean>
+   
+   <bean id="questionPool" class="org.sakaiproject.component.app.help.model.ResourceBean">
+      <property name="docId"><value>arbx_pt_BR</value></property>
+      <property name="name"><value>Conjunto de Perguntas</value></property>
+      <property name="location"><value>/sakai_samigo/arbx_pt_BR.html</value></property>
+   </bean>
+   
+   <bean id="addQuestionPool" class="org.sakaiproject.component.app.help.model.ResourceBean">
+      <property name="docId"><value>arej_pt_BR</value></property>
+      <property name="name"><value>Adicionar/Mover/Copiar/Remover Conjunto de Perguntas</value></property>
+      <property name="location"><value>/sakai_samigo/arej_pt_BR.html</value></property>
+   </bean>
+   
+   <bean id="addQuestions" class="org.sakaiproject.component.app.help.model.ResourceBean">
+      <property name="docId"><value>ardf_pt_BR</value></property>
+      <property name="name"><value>Adicionar Perguntas em Conjunto de Perguntas</value></property>
+      <property name="location"><value>/sakai_samigo/ardf_pt_BR.html</value></property>
+   </bean>
+   
+   <bean id="controlAccess" class="org.sakaiproject.component.app.help.model.ResourceBean">
+      <property name="docId"><value>arev_pt_BR</value></property>
+      <property name="name"><value>Controlar Acesso a Conjunto de Perguntas</value></property>
+      <property name="location"><value>/sakai_samigo/arev_pt_BR.html</value></property>
+   </bean>
+   
+   <bean id="moveQuestions" class="org.sakaiproject.component.app.help.model.ResourceBean">
+      <property name="docId"><value>areg_pt_BR</value></property>
+      <property name="name"><value>Mover Perguntas</value></property>
+      <property name="location"><value>/sakai_samigo/areg_pt_BR.html</value></property>
+   </bean>
+   
+   <bean id="editMetadata" class="org.sakaiproject.component.app.help.model.ResourceBean">
+      <property name="docId"><value>arbz_pt_BR</value></property>
+      <property name="name"><value>Editar Metadados</value></property>
+      <property name="location"><value>/sakai_samigo/arbz_pt_BR.html</value></property>
+   </bean>
+   
+   <bean id="createSurvey" class="org.sakaiproject.component.app.help.model.ResourceBean">
+      <property name="docId"><value>arcq_pt_BR</value></property>
+      <property name="name"><value>Criar Biblioteca</value></property>
+      <property name="location"><value>/sakai_samigo/arcq_pt_BR.html</value></property>
+   </bean>
+   
+   <bean id="takeAssessment" class="org.sakaiproject.component.app.help.model.ResourceBean">
+      <property name="docId"><value>arbn_pt_BR</value></property>
+      <property name="name"><value>Tomar Avaliação</value></property>
+      <property name="location"><value>/sakai_samigo/arbn_pt_BR.html</value></property>
+   </bean>
+   
+   <bean id="resumeAssessment" class="org.sakaiproject.component.app.help.model.ResourceBean">
+      <property name="docId"><value>ardi_pt_BR</value></property>
+      <property name="name"><value>Retomando a Avaliação</value></property>
+      <property name="location"><value>/sakai_samigo/ardi_pt_BR.html</value></property>
+   </bean>
+   
+   <bean id="viewScores" class="org.sakaiproject.component.app.help.model.ResourceBean">
+      <property name="docId"><value>aszx_pt_BR</value></property>
+      <property name="name"><value>Visualizar Notas dos Alunos e Respostas</value></property>
+      <property name="location"><value>/sakai_samigo/aszx_pt_BR.html</value></property>
+   </bean>
+
+   <bean id="createQuickCreate" class="org.sakaiproject.component.app.help.model.ResourceBean">
+      <property name="docId"><value>azms_pt_BR</value></property>
+      <property name="name"><value>Diferenças entre Criar e Criar Rápido</value></property>
+      <property name="location"><value>/sakai_samigo/azms_pt_BR.html</value></property>
+   </bean>
+
+   <bean id="scoresInGb" class="org.sakaiproject.component.app.help.model.ResourceBean">
+      <property name="docId"><value>arro_pt_BR</value></property>
+      <property name="name"><value>Enviar Pontuações de Avaliação para Quadro de Notas</value></property>
+      <property name="location"><value>/sakai_samigo/arro_pt_BR.html</value></property>
+   </bean>
+
+    <bean id="org.sakaiproject.api.app.help.TableOfContents" 
+          class="org.sakaiproject.component.app.help.model.TableOfContentsBean">
+      <property name="name"><value>root</value></property>
+      <property name="categories">
+         <list>
+            <bean id="samigoCategory" class="org.sakaiproject.component.app.help.model.CategoryBean">
+               <property name="name"><value>Testes e Quizzes</value></property>
+               <property name="resources">
+                  <list>
+                     <ref bean="samigoAbout"/>
+                     <ref bean="samigoOverview"/>
+					 <ref bean="createAssessment"/>
+					 <ref bean="createQuestions"/>
+					 <ref bean="createQuickCreate"/>
+					 <ref bean="previewAssessment"/>
+					 <ref bean="restrictAccess"/>
+					 <ref bean="orderQuestions"/>
+					 <ref bean="availableSettings"/>
+					 <ref bean="questionTypes"/>
+					 <ref bean="formattingToolbar"/>
+					 <ref bean="addTemplate"/>
+					 <ref bean="giveAssessment"/>
+					 <ref bean="publishAssessment"/>
+					 <ref bean="modifyAssessment"/>
+					 <ref bean="modifyPublishedAssessment"/>
+					 <ref bean="retractAssessment"/>
+					 <ref bean="deleteAssessment"/>
+					 <ref bean="exportAssessment"/>
+					 <ref bean="questionPool"/>
+					 <ref bean="addQuestionPool"/>
+					 <ref bean="addQuestions"/>
+					 <ref bean="controlAccess"/>
+					 <ref bean="moveQuestions"/>
+					 <ref bean="editMetadata"/>
+					 <ref bean="createSurvey"/>
+					 <ref bean="takeAssessment"/>
+					 <ref bean="resumeAssessment"/>
+					 <ref bean="viewScores"/>
+					 <ref bean="scoresInGb"/>
+                  </list>
+               </property>
+            </bean>
+           </list>
+         </property>
+       </bean>
+</beans>
