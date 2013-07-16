@@ -30,6 +30,7 @@ import org.sakaiproject.entitybroker.entityprovider.EntityProvider;
 import org.sakaiproject.entitybroker.entityprovider.annotations.EntityCustomAction;
 import org.sakaiproject.entitybroker.entityprovider.capabilities.ActionsExecutable;
 import org.sakaiproject.entitybroker.entityprovider.capabilities.AutoRegisterEntityProvider;
+import org.sakaiproject.entitybroker.entityprovider.capabilities.DescribePropertiesable;
 import org.sakaiproject.entitybroker.entityprovider.capabilities.Describeable;
 import org.sakaiproject.entitybroker.entityprovider.capabilities.Outputable;
 import org.sakaiproject.entitybroker.entityprovider.capabilities.RESTful;
@@ -48,7 +49,7 @@ import org.sakaiproject.tool.api.ToolManager;
  * Entity provider for the Syllabus tool
  */
 @CommonsLog
-public class SyllabusEntityProvider extends AbstractEntityProvider implements EntityProvider, AutoRegisterEntityProvider, ActionsExecutable, Outputable, Describeable, RESTful
+public class SyllabusEntityProvider extends AbstractEntityProvider implements EntityProvider, AutoRegisterEntityProvider, ActionsExecutable, Outputable, Describeable, RESTful, DescribePropertiesable
 {
 
 	public final static String ENTITY_PREFIX = "syllabus";
@@ -499,5 +500,16 @@ public class SyllabusEntityProvider extends AbstractEntityProvider implements En
 	
 	public String[] getHandledInputFormats(){
 		return new String[] { Formats.XML, Formats.JSON, Formats.HTML};
+	}
+
+	/**
+	 * The following two methods are so we can have our properties file nested in sub directories that the current syllabus bundle already provides
+	 * @return
+	 */
+	public String getBaseName() {
+		return "org/sakaiproject/tool/syllabus/bundle/syllabus";
+	}
+	public ClassLoader getResourceClassLoader() {
+		return SyllabusEntityProvider.class.getClassLoader();
 	}
 }
