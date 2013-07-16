@@ -34,7 +34,6 @@ import javax.faces.event.AbortProcessingException;
 import javax.faces.event.ActionEvent;
 import javax.faces.event.ActionListener;
 
-import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.sakaiproject.component.cover.ServerConfigurationService;
@@ -316,7 +315,11 @@ public class AuthorActionListener
 				  publishedAssessmentSettingsBean.setAssessmentId(f.getPublishedAssessmentId());
 				  String [] groupsAuthorized = publishedAssessmentSettingsBean.getGroupsAuthorized();
 				  for (int i = 0; i < groupsAuthorized.length; i++) {
-					  CollectionUtils.addIgnoreNull(userIdList, groupUsersIdMap.get(groupsAuthorized[i]));
+					  if (groupUsersIdMap.get(groupsAuthorized[i]) != null) {
+						  for (String userId : groupUsersIdMap.get(groupsAuthorized[i])) {
+							  userIdList.add(userId);
+						  }
+					  }
 				  }
 			  }
 			  else {
