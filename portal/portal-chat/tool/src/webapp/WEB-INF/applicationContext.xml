@@ -9,5 +9,6 @@
 		<property name="emailService"><ref bean="org.sakaiproject.email.api.EmailService"/></property>
 		<property name="serverConfigurationService"><ref bean="org.sakaiproject.component.api.ServerConfigurationService"/></property>
 		<property name="presenceService"><ref bean="org.sakaiproject.presence.api.PresenceService"/></property>
+		<property name="portalChatPermittedHelper"><ref bean="org.sakaiproject.portal.api.PortalChatPermittedHelper"/></property>
 	</bean>
 </beans>

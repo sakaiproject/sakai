@@ -58,4 +58,12 @@
     	class="org.sakaiproject.portal.service.EditorRegistryImpl" singleton="true" init-method="init" lazy-init="false" destroy-method="destroy">
     </bean>
 
+	<bean id="org.sakaiproject.portal.api.PortalChatPermittedHelper"
+    	class="org.sakaiproject.portal.service.PortalChatPermittedHelperImpl"
+        singleton="true" init-method="init">
+		<property name="securityService" ><ref bean="org.sakaiproject.authz.api.SecurityService" /></property>
+	    <property name="siteService"><ref bean="org.sakaiproject.site.api.SiteService" /></property>
+	    <property name="functionManager"><ref bean="org.sakaiproject.authz.api.FunctionManager" /></property>
+	    <property name="serverConfigurationService"><ref bean="org.sakaiproject.component.api.ServerConfigurationService" /></property>
+	</bean>
 </beans>
