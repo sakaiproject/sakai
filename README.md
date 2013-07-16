@@ -22,3 +22,10 @@ Licensed under the terms of the MIT License.
 ````
 config.extraPlugins = 'autosave';
 ````
+
+#####Optional
+The Default autosavekey can be overidden from the config ...
+
+````
+config.autosave_SaveKey = 'autosaveKey';
+````
