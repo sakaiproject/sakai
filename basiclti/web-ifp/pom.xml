@@ -6,9 +6,9 @@
         <groupId>org.sakaiproject.basiclti</groupId>
         <version>2.2-SNAPSHOT</version>
     </parent>
-  <name>sakai-web-portlet</name>
+  <name>sakai-web-portlet-basiclti</name>
   <groupId>org.sakaiproject.basiclti</groupId>
-  <artifactId>sakai-web-portlet</artifactId>
+  <artifactId>sakai-web-portlet-basiclti</artifactId>
   <organization>
     <name>The Sakai Foundation</name>
     <url>http://sakaiproject.org/</url>
