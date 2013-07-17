@@ -8,10 +8,10 @@
 	<bean id="messageLocator" class="uk.org.ponder.springutil.SpringMessageLocator">
 		<property name="messageSource">
 			<bean
-				class="org.springframework.context.support.ReloadableResourceBundleMessageSource"
+				class="org.sakaiproject.util.ResourceLoaderMessageSource"
 				depends-on="TLABPostProcessorLoader">
 				<property name="basename">
-					<value>WEB-INF/bundle/Messages</value>
+					<value>classpath:Messages</value>
 				</property>
 				<property name="cacheSeconds">
 					<value>10</value>
