@@ -444,7 +444,7 @@ public abstract class BaseAssignmentService implements AssignmentService, Entity
 		// all.groups permission should apply down to group level
 		String context = assignment.getContext();
 		String userId = SessionManager.getCurrentSessionUserId();
-		if (allowAllGroups(context) && AuthzGroupService.isAllowed(userId,lock, context))
+		if (allowAllGroups(context) && AuthzGroupService.isAllowed(userId,lock, SiteService.siteReference(context)))
 		{
 			return true;
 		}
