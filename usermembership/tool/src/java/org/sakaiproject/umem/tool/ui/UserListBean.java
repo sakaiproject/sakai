@@ -341,7 +341,7 @@ public class UserListBean {
 								u.getDisplayName(), 
 								u.getEmail(), 
 								u.getType(), 
-								USER_AUTH_INTERNAL, 
+								msgs.getString("user_auth_internal"), 
 								(u.getCreatedTime() == null) ? "" : u.getCreatedTime().toStringLocalDate(), 
 								(u.getModifiedTime() == null) ? "" : u.getModifiedTime().toStringLocalDate()
 								)
@@ -375,7 +375,7 @@ public class UserListBean {
 								u.getDisplayName(), 
 								u.getEmail(), 
 								u.getType(), 
-								USER_AUTH_EXTERNAL, 
+								msgs.getString("user_auth_external"), 
 								(u.getCreatedTime() == null) ? "" : u.getCreatedTime().toStringLocalDate(), 
 								(u.getModifiedTime() == null) ? "" : u.getModifiedTime().toStringLocalDate()
 								)
@@ -560,10 +560,10 @@ public class UserListBean {
 					if(i<userTypeLimitToList.length-1)
 						all.append(",");
 				}
-				userTypes.add(0,new SelectItem(all.toString(),USER_TYPE_ALL));
+				userTypes.add(0,new SelectItem(all.toString(), msgs.getString("user_type_all")));
 			}else
 			{					
-				userTypes.add(new SelectItem(USER_TYPE_ALL));
+				userTypes.add(new SelectItem(USER_TYPE_ALL, msgs.getString("user_type_all")));
 				Connection c = null;
 				Statement st = null;
 				ResultSet rs = null;
@@ -598,7 +598,7 @@ public class UserListBean {
 						}
 					}
 				}
-				userTypes.add(new SelectItem(USER_TYPE_NONE));
+				userTypes.add(new SelectItem(USER_TYPE_NONE, msgs.getString("user_type_none")));
 			}
 		}
 		return userTypes;
@@ -618,9 +618,9 @@ public class UserListBean {
 
 	public List getUserAuthorities() {
 		userAuthorities = new ArrayList();
-		userAuthorities.add(new SelectItem(USER_AUTH_ALL));
-		userAuthorities.add(new SelectItem(USER_AUTH_INTERNAL));
-		userAuthorities.add(new SelectItem(USER_AUTH_EXTERNAL));
+		userAuthorities.add(new SelectItem(USER_AUTH_ALL, msgs.getString("user_auth_all")));
+		userAuthorities.add(new SelectItem(USER_AUTH_INTERNAL, msgs.getString("user_auth_internal")));
+		userAuthorities.add(new SelectItem(USER_AUTH_EXTERNAL, msgs.getString("user_auth_external")));
 		return userAuthorities;
 	}
 
