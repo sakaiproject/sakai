@@ -82,8 +82,8 @@ languages, as follows:
 	 
 13) Spanish (Spain)
     Status: released (updated up to 2.9)
-    Translated by: UPV and SAMOO
-    Contact: Valerio Cerní (vacercon@upvnet.upv.es)
+    Translated by: SAMOO
+    Contact: Miguel Carro (farreri.sakai@gmail.com)
     Local ID: es_ES
 
 14) Spanish (Mexico)
