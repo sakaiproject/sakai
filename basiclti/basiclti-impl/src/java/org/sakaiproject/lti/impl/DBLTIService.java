@@ -270,7 +270,7 @@ public class DBLTIService extends BaseLTIService implements LTIService {
 
 		Long visible = foorm.getLongNull(tool.get(LTIService.LTI_VISIBLE));
 		if ( visible == null ) visible = new Long(0);
-		if ( ! isAdmin(siteId) ) {
+		if ( ! isAdmin(siteId, isMaintainRole) ) {
 			if ( visible == 1 ) {
 				return rb.getString("error.invalid.toolid");
 			}
@@ -373,7 +373,7 @@ public class DBLTIService extends BaseLTIService implements LTIService {
 		// a tool that is stealthed
 		Long visible = foorm.getLongNull(tool.get(LTIService.LTI_VISIBLE));
 		if ( visible == null ) visible = new Long(0);
-		if ( ( !isAdmin(siteId) ) && ( ! oldToolKey.equals(newToolKey) )  ) {
+		if ( ( !isAdmin(siteId, isMaintainRole) ) && ( ! oldToolKey.equals(newToolKey) )  ) {
 			if ( visible == 1 ) {
 				return rb.getString("error.invalid.toolid");
 			}
@@ -434,7 +434,7 @@ public class DBLTIService extends BaseLTIService implements LTIService {
 			theKey = foorm.formSqlKey(fullModel);
 		}
 		if ((Arrays.asList(columns).indexOf(LTIService.LTI_SITE_ID) >= 0)) {
-			if (!isAdmin(siteId) && newMapping.get(LTIService.LTI_SITE_ID) == null) {
+			if (!isAdmin(siteId, isMaintainRole) && newMapping.get(LTIService.LTI_SITE_ID) == null) {
 				newMapping.put(LTIService.LTI_SITE_ID, siteId);
 			}
 		}
@@ -516,7 +516,7 @@ public class DBLTIService extends BaseLTIService implements LTIService {
 		Object fields[] = null;
 		String[] columns = foorm.getFields(model);
 
-		if (siteId != null && Arrays.asList(columns).indexOf(LTIService.LTI_SITE_ID) >= 0 && !isAdmin(siteId)) {
+		if (siteId != null && Arrays.asList(columns).indexOf(LTIService.LTI_SITE_ID) >= 0 && !isAdmin(siteId, isMaintainRole)) {
 			statement += " AND (SITE_ID = ? OR SITE_ID IS NULL)";
 			fields = new Object[2];
 			fields[0] = key;
@@ -548,15 +548,15 @@ public class DBLTIService extends BaseLTIService implements LTIService {
 	 */
 	public List<Map<String, Object>> getThingsDao(String table, String[] model, String search,
 			String order, int first, int last, String siteId, boolean isMaintainRole) {
-		if (table == null || model == null || siteId == null ) {
-			throw new IllegalArgumentException("siteId, table, and model must be non-null");
+		if (table == null || model == null ) {
+			throw new IllegalArgumentException("table and model must be non-null");
 		}
 		String statement = "SELECT " + foorm.formSelect(model) + " FROM " + table;
 		String[] columns = foorm.getFields(model);
 		String whereClause = "";
 
 		Object fields[] = null;
-		if ( ! isAdmin(siteId) ) {
+		if ( ! isAdmin(siteId, isMaintainRole) ) {
 			if (Arrays.asList(columns).indexOf(LTIService.LTI_VISIBLE) >= 0 && 
 				Arrays.asList(columns).indexOf(LTIService.LTI_SITE_ID) >= 0 ) {
 				whereClause = " ("+LTIService.LTI_SITE_ID+" = ? OR "+
@@ -600,7 +600,7 @@ public class DBLTIService extends BaseLTIService implements LTIService {
 
 		// Hack to insure that We *Can* delete this since SqlService cannot tell us if updates
 		// work
-		if (!isAdmin(siteId)) {
+		if (!isAdmin(siteId, isMaintainRole)) {
 			Object thing = getThingDao(table, model, key, siteId, isMaintainRole);
 			if (thing == null || !(thing instanceof Map)) {
 				return false;
@@ -613,7 +613,7 @@ public class DBLTIService extends BaseLTIService implements LTIService {
 			}
 		}
 
-		if (Arrays.asList(columns).indexOf(LTIService.LTI_SITE_ID) >= 0 && !isAdmin(siteId) ) {
+		if (Arrays.asList(columns).indexOf(LTIService.LTI_SITE_ID) >= 0 && !isAdmin(siteId, isMaintainRole) ) {
 			if (!isMaintainRole) {
 				M_log.info("Non-maintain attemped delete on " + table);
 				return false;
@@ -681,7 +681,7 @@ public class DBLTIService extends BaseLTIService implements LTIService {
 		}
 
 		if ( (Arrays.asList(columns).indexOf(LTIService.LTI_SITE_ID) >= 0)) {
-			if ( !isAdmin(siteId) && newMapping.get(LTIService.LTI_SITE_ID) == null) {
+			if ( !isAdmin(siteId, isMaintainRole) && newMapping.get(LTIService.LTI_SITE_ID) == null) {
 				newMapping.put(LTIService.LTI_SITE_ID, siteId);
 			}
 		}
@@ -689,7 +689,7 @@ public class DBLTIService extends BaseLTIService implements LTIService {
 		String sql = "UPDATE " + table + " SET " + foorm.updateForm(newMapping)
 			+ " WHERE id=" + key.toString();
 
-		if ( isMaintainRole && !isAdmin(siteId) && (Arrays.asList(columns).indexOf(LTIService.LTI_SITE_ID) >= 0)) {
+		if ( isMaintainRole && !isAdmin(siteId, isMaintainRole) && (Arrays.asList(columns).indexOf(LTIService.LTI_SITE_ID) >= 0)) {
 			sql += " AND SITE_ID = '" + siteId + "'";
 			foorm.setField(newMapping, LTIService.LTI_SITE_ID, siteId);
 		}

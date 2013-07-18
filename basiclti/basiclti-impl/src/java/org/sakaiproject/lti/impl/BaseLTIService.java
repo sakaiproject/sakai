@@ -265,7 +265,7 @@ public abstract class BaseLTIService implements LTIService {
 	 */
 	protected String[] getContentModelDao(Map<String, Object> tool, String siteId, boolean isMaintainRole) {
 		String[] retval = foorm.filterForm(tool, CONTENT_MODEL);
-		if (!isAdmin(siteId)) retval = foorm.filterForm(null, retval, null, ".*:role=admin.*");
+		if (!isAdmin(siteId, isMaintainRole)) retval = foorm.filterForm(null, retval, null, ".*:role=admin.*");
 		return retval;
 	}
 
@@ -352,11 +352,15 @@ public abstract class BaseLTIService implements LTIService {
 	}
 
 	protected boolean isAdmin(String siteId) {
+		return isAdmin(siteId,isMaintain(siteId));
+	}
+
+	protected boolean isAdmin(String siteId, boolean isMaintainRole) {
 		if ( siteId == null ) {
 			throw new java.lang.RuntimeException("isAdmin() requires non-null siteId");
 		}
 		if (!ADMIN_SITE.equals(siteId) ) return false;
-		return isMaintain(siteId);
+		return isMaintainRole;
 	}
 
 	/**
@@ -865,7 +869,7 @@ public abstract class BaseLTIService implements LTIService {
 
 		String siteStr = (String) content.get(LTI_SITE_ID);
 		// only admin can remve content from other site
-		if ( ! siteId.equals(siteStr) && !isAdmin() ) {
+		if ( ! siteId.equals(siteStr) && !isAdmin(siteId, isMaintainRole) ) {
 			return rb.getString("error.placement.not.found");
 		}
 
