@@ -176,7 +176,7 @@ public class LTIAdminTool extends VelocityPortletPaneledAction
 		state.removeAttribute(STATE_SUCCESS);
 
 		// this is for the "site tools" panel
-		List<Map<String,Object>> contents = ltiService.getContents(null,null,0,1000);
+		List<Map<String,Object>> contents = ltiService.getContents(null,null,0,5000);
 		for ( Map<String,Object> content : contents ) {
 			
 			Long tool_id_long = null;
@@ -234,7 +234,7 @@ public class LTIAdminTool extends VelocityPortletPaneledAction
 		context.put("getContext", contextString);
 		
 		// this is for the system tool panel
-		List<Map<String,Object>> contents = ltiService.getContents(null,null,0,500);
+		List<Map<String,Object>> contents = ltiService.getContents(null,null,0,5000);
 		List<Map<String,Object>> tools = ltiService.getTools(null,null,0,0);
 		if (tools != null && !tools.isEmpty())
 		{
@@ -411,7 +411,7 @@ public class LTIAdminTool extends VelocityPortletPaneledAction
 		context.put("tool",tool);
 		
 		// get the tool usage count
-		HashMap<String, List<String>> ltiToolsCount = getLtiToolUsageCount(ltiService.getContents(null,null,0,500));
+		HashMap<String, List<String>> ltiToolsCount = getLtiToolUsageCount(ltiService.getContents(null,null,0,5000));
 		List<String> toolSite = ltiToolsCount.containsKey(id)?ltiToolsCount.get(id):new ArrayList<String>();
 		Set<String> toolUniqueSite = new HashSet<String>();
 		toolUniqueSite.addAll(toolSite);
@@ -448,7 +448,7 @@ public class LTIAdminTool extends VelocityPortletPaneledAction
 			
 			// remove all content object and site links if any
 			// this is for the "site tools" panel
-			List<Map<String,Object>> contents = ltiService.getContents(null,null,0,500);
+			List<Map<String,Object>> contents = ltiService.getContents(null,null,0,5000);
 			for ( Map<String,Object> content : contents ) {
 				
 				Long tool_id_long = null;
@@ -724,7 +724,7 @@ public class LTIAdminTool extends VelocityPortletPaneledAction
 			addAlert(state,rb.getString("error.maintain.view"));
 			return "lti_error";
 		}
-		List<Map<String,Object>> contents = ltiService.getContents(null,null,0,500);
+		List<Map<String,Object>> contents = ltiService.getContents(null,null,0,5000);
 		for ( Map<String,Object> content : contents ) {
 			String plstr = (String) content.get(LTIService.LTI_PLACEMENT);
 			ToolConfiguration tool = SiteService.findTool(plstr);
