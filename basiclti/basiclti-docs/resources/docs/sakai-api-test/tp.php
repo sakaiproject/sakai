@@ -115,8 +115,6 @@ $reg_password = $_POST['reg_password'];
 $tp_profile = json_decode($tool_proxy);
 
 // Tweak the stock profile
-$tp_profile->tool_proxy_guid = $reg_key;
-$tp_profile->{'@id'} = $cur_base . uniqid();
 $tp_profile->tool_consumer_profile = $tc_profile_url;
 
 // Re-register
