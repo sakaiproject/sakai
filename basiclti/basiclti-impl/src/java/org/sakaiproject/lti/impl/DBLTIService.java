@@ -277,22 +277,24 @@ public class DBLTIService extends BaseLTIService implements LTIService {
 		}
 
 		String[] contentModel = getContentModelDao(tool, siteId, isMaintainRole);
+		String[] columns = foorm.getFields(contentModel);
 		
 		// Since page title and title are both required and dynamically hideable, 
 		// They may not be in the model.  If they are not there, add them for the purpose
 		// of the insert, and then copy the values from the tool.
 		List<String> contentModelList = new ArrayList<String>(Arrays.asList(contentModel));
-		if (!contentModelList.contains(LTI_TITLE) || !contentModelList.contains(LTI_PAGETITLE))
+		List<String> contentModelColumns = new ArrayList<String>(Arrays.asList(columns));
+		if (!contentModelColumns.contains(LTI_TITLE) || !contentModelColumns.contains(LTI_PAGETITLE))
 		{
 			String toolTitle = (String) tool.get(LTI_TITLE);
 			if ( toolTitle == null ) toolTitle = "...";  // should not happen
-			if (!contentModelList.contains(LTI_TITLE))
+			if (!contentModelColumns.contains(LTI_TITLE))
 			{
 				contentModelList.add(LTI_TITLE + ":text");
 				newProps.put(LTI_TITLE, toolTitle);
 			}
 
-			if (!contentModelList.contains(LTI_PAGETITLE))
+			if (!contentModelColumns.contains(LTI_PAGETITLE))
 			{
 				// May happen for old / upgraded tool items
 				String pageTitle = (String) tool.get(LTI_PAGETITLE);
