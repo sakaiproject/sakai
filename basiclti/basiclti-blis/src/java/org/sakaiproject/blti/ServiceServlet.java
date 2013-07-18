@@ -1084,13 +1084,23 @@ public class ServiceServlet extends HttpServlet {
             List<Map<String,String>> resultList = new ArrayList<Map<String,String>>();
 
 			recursivelyAddResourcesXML(context_id, thePage, nl, seq, resultList);
+			// One success means overall status is a success
+			boolean success = false;
+			for ( Map<String,String> result : resultList ) {
+				if ( "success".equals(result.get("/status")) ) success = true;
+			}
 
             Map<String,Object> theMap = new TreeMap<String,Object>();
             theMap.put("/addCourseResourcesResponse/resources/resource",resultList);
             String theXml = XMLMap.getXMLFragment(theMap, true);
 
 			response.setContentType("application/xml");
-			String output = pox.getResponseSuccess("Items Added",theXml);
+			String output = null;
+			if ( success ) {
+				output = pox.getResponseSuccess("Items Added",theXml);
+			} else {
+				output = pox.getResponseFailure("Items were not added", null);
+			}
 
 			PrintWriter out = response.getWriter();
 			out.println(output);

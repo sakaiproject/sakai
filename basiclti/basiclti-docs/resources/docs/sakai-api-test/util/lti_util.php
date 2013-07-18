@@ -424,7 +424,7 @@ class TrivialOAuthDataStore extends OAuthDataStore {
 function signParameters($oldparms, $endpoint, $method, $oauth_consumer_key, $oauth_consumer_secret,
     $submit_text = false, $org_id = false, $org_desc = false)
 {
-    global $last_base_string;
+    global $LastOAuthBodyBaseString;
     $parms = $oldparms;
     if ( ! isset($parms["lti_version"]) ) $parms["lti_version"] = "LTI-1p0";
     if ( ! isset($parms["lti_message_type"]) ) $parms["lti_message_type"] = "basic-lti-launch-request";
@@ -442,7 +442,7 @@ function signParameters($oldparms, $endpoint, $method, $oauth_consumer_key, $oau
     $acc_req->sign_request($hmac_method, $test_consumer, $test_token);
 
     // Pass this back up "out of band" for debugging
-    $last_base_string = $acc_req->get_signature_base_string();
+    $LastOAuthBodyBaseString = $acc_req->get_signature_base_string();
 
     $newparms = $acc_req->get_parameters();
 
@@ -458,7 +458,7 @@ function signParameters($oldparms, $endpoint, $method, $oauth_consumer_key, $oau
 }
 
   function postLaunchHTML($newparms, $endpoint, $debug=false, $iframeattr=false) {
-    global $last_base_string;
+    global $LastOAuthBodyBaseString;
     $r = "<div id=\"ltiLaunchFormSubmitArea\">\n";
     if ( $iframeattr ) {
         $r = "<form action=\"".$endpoint."\" name=\"ltiLaunchForm\" id=\"ltiLaunchForm\" method=\"post\" target=\"basicltiLaunchFrame\" encType=\"application/x-www-form-urlencoded\">\n" ;
@@ -505,7 +505,7 @@ function signParameters($oldparms, $endpoint, $method, $oauth_consumer_key, $oau
             $r .= "$key = $value<br/>\n";
         }
         $r .= "&nbsp;<br/>\n";
-        $r .= "<p><b>".get_string("basiclti_base_string","basiclti")."</b><br/>\n".$last_base_string."</p>\n";
+        $r .= "<p><b>".get_string("basiclti_base_string","basiclti")."</b><br/>\n".$LastOAuthBodyBaseString."</p>\n";
         $r .= "</div>\n";
     }
     $r .= "</form>\n";
@@ -542,7 +542,7 @@ function do_post_request($url, $data, $optional_headers = null)
   if ($optional_headers !== null) {
      $header = $optional_headers . "\r\n";
   }
-  $header = $header . "Content-type: application/x-www-form-urlencoded\r\n";
+  $header = $header . "Content-Type: application/x-www-form-urlencoded\r\n";
 
   return do_post($url,$data,$header);
 }
@@ -574,6 +574,20 @@ function do_post_request($url, $data, $optional_headers = null)
       $custom["custom_".$nk] = $value;
     }
     return array("launch_url" => $launch_url, "custom" => $custom ) ;
+  }
+
+  function addCustom(&$parms, $custom) {
+    foreach ( $custom as $key => $val) {
+      $key = strtolower($key);
+      $nk = "";
+      for($i=0; $i < strlen($key); $i++) {
+        $ch = substr($key,$i,1);
+        if ( $ch >= "a" && $ch <= "z" ) $nk .= $ch;
+        else if ( $ch >= "0" && $ch <= "9" ) $nk .= $ch;
+        else $nk .= "_";
+      }
+      $parms["custom_".$nk] = $val;
+    }
   }
 
   function curPageURL() {
@@ -720,7 +734,6 @@ function sendOAuthBodyPOST($method, $endpoint, $oauth_consumer_key, $oauth_consu
     // Pass this back up "out of band" for debugging
     global $LastOAuthBodyBaseString;
     $LastOAuthBodyBaseString = $acc_req->get_signature_base_string();
-    echo($LastOAuthBodyBaseString."\n");
 
     $header = $acc_req->to_header();
     $header = $header . "\r\nContent-Type: " . $content_type . "\r\n";
@@ -835,13 +848,20 @@ function post_stream($url, $body, $header) {
 function post_curl($url, $body, $header) {
   if ( ! function_exists('curl_init') ) return false;
   global $last_http_response;
+  global $LastHeadersSent;
+  global $LastHeadersReceived;
 
   $ch = curl_init();
   curl_setopt($ch, CURLOPT_URL, $url);
 
-  // Make sure that the header is an array
+  // Make sure that the header is an array and pitch white space
+  $LastHeadersSent = trim($header);
   $header = explode("\n", trim($header));
-  curl_setopt ($ch, CURLOPT_HTTPHEADER, $header);
+  $htrim = Array();
+  foreach ( $header as $h ) {
+    $htrim[] = trim($h);
+  }
+  curl_setopt ($ch, CURLOPT_HTTPHEADER, $htrim);
 
   curl_setopt($ch, CURLOPT_POST, 1);
   curl_setopt($ch, CURLOPT_POSTFIELDS, $body);
@@ -936,6 +956,7 @@ function getPOXResponse() {
                 <imsx_severity>status</imsx_severity>
                 <imsx_description>%s</imsx_description>
                 <imsx_messageRefIdentifier>%s</imsx_messageRefIdentifier>
+                <imsx_operationRefIdentifier>%s</imsx_operationRefIdentifier>
             </imsx_statusInfo>
         </imsx_POXResponseHeaderInfo>
     </imsx_POXHeader>

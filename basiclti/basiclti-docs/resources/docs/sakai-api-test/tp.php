@@ -4,6 +4,7 @@ ini_set("display_errors", 1);
 
 // Load up the LTI Support code
 require_once 'util/lti_util.php';
+require_once 'util/json_indent.php';  // Until all PHP's are > 5.4
 require_once 'tp_messages.php';
 
 session_start();
@@ -12,11 +13,36 @@ header('Content-Type: text/html; charset=utf-8');
 // Initialize, all secrets are 'secret', do not set session, and do not redirect
 $context = new BLTI("secret", false, false);
 
+global $div_id;
+$div_id = 1;
+
+function togglePre($title, $content) {
+    global $div_id;
+	echo('<h4>'.$title);
+	echo(' (<a href="#" onclick="dataToggle('."'".$div_id."'".');return false;">Toggle</a>)</h4>'."\n");
+	echo('<pre id="'.$div_id.'" style="display:none; border: solid 1px">'."\n");
+	echo($content);
+	echo("</pre>\n");
+	$div_id = $div_id + 1;
+}
+
 ?>
 <html>
 <head>
   <title>Sakai External Tool API Test Harness 2.0</title>
   <meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
+<script language="javascript"> 
+function dataToggle(divName) {
+    var ele = document.getElementById(divName);
+    if(ele.style.display == "block") {
+        ele.style.display = "none";
+    }
+    else {
+        ele.style.display = "block";
+    }
+} 
+  //]]> 
+</script>
 </head>
 <body style="font-family:sans-serif; background-color:#add8e6">
 <?php
@@ -35,22 +61,24 @@ tc_profile_url=http://localhost:4000/tool_consumer_profiles/fdb32840-9d7b-0130-4
 user_id=2 (ASCII)
 */
 
-print "<pre>\n";
-
-print "Raw POST Parameters:\n\n";
 ksort($_POST);
+$output = "";
 foreach($_POST as $key => $value ) {
     if (get_magic_quotes_gpc()) $value = stripslashes($value);
-    print htmlent_utf8($key) . "=" . htmlent_utf8($value) . " (".mb_detect_encoding($value).")\n";
+    $output = $output . htmlent_utf8($key) . "=" . htmlent_utf8($value) . " (".mb_detect_encoding($value).")\n";
 }
+togglePre("Raw POST Parameters", $output);
 
-print "\nRaw GET Parameters:\n\n";
+
+$output = "";
 ksort($_GET);
 foreach($_GET as $key => $value ) {
     if (get_magic_quotes_gpc()) $value = stripslashes($value);
-    print htmlent_utf8($key) . "=" . htmlent_utf8($value) . " (".mb_detect_encoding($value).")\n";
+    $output = $output . htmlent_utf8($key) . "=" . htmlent_utf8($value) . " (".mb_detect_encoding($value).")\n";
 }
+if ( strlen($output) > 0 ) togglePre("Raw GET Parameters", $output);
 
+echo("<pre>\n");
 $launch_presentation_return_url = $_POST['launch_presentation_return_url'];
 
 $tc_profile_url = $_POST['tc_profile_url'];
@@ -58,15 +86,15 @@ if ( strlen($tc_profile_url) > 1 ) {
 	echo("Retrieving profile from ".$tc_profile_url."\n");
     $tc_profile_json = do_get($tc_profile_url);
 	echo("Retrieved ".strlen($tc_profile_json)." characters.\n");
-    // echo($tc_profile_json);
-	echo("Parsing JSON..\n");
+	echo("</pre>\n");
+    togglePre("Retrieved Consumer Profile",$tc_profile_json);
     $tc_profile = json_decode($tc_profile_json);
-    // print_r($tc_profile);echo("\n<hr>\n");
 	// TODO: Handle error here...
 }
 
 // Find the registration URL
 
+echo("<pre>\n");
 $tc_services = $tc_profile->service_offered;
 echo("Found ".count($tc_services)." services profile..\n");
 // var_dump($tc_services);
@@ -87,8 +115,6 @@ $reg_password = $_POST['reg_password'];
 $tp_profile = json_decode($tool_proxy);
 
 // Tweak the stock profile
-$tp_profile->tool_proxy_guid = $reg_key;
-$tp_profile->{'@id'} = $cur_base . uniqid();
 $tp_profile->tool_consumer_profile = $tc_profile_url;
 
 // Re-register
@@ -106,24 +132,21 @@ $tp_profile->security_contract->shared_secret = 'secret';
 $reg_key = $_POST['reg_key'];
 $reg_password = $_POST['reg_password'];
 $body = json_encode($tp_profile);
-print "\n<hr/>\n";
+$body = json_indent($body);
+
 echo("Registering....\n");
 echo("Endpoint=".$endpoint."\n");
 echo($reg_key."\n");
 echo($reg_password."\n");
-echo(htmlent_utf8($body));
-print "\n<hr/>\n";
+echo("</pre>\n");
+togglePre("Registration Request",htmlent_utf8($body));
 
 $response = sendOAuthBodyPOST("POST", $endpoint, $reg_key, $reg_password, "application/vnd.ims.lti.v2.ToolProxy+json", $body);
 
-global $last_base_string;
-echo($last_base_strig);
+global $LastOAuthBodyBaseString;
+togglePre("Registration Request Base String",$LastOAuthBodyBaseString);
 
-print "\n<hr/>\n";
-echo("Html Response:\n");
-echo(htmlent_utf8($response));
-
-print "</pre>";
+togglePre("Registration Response",htmlent_utf8(json_indent($response)));
 
 echo('<p><a href="'.$launch_presentation_return_url.'">Continue to launch_presentation_url</a></p>'."\n");
 

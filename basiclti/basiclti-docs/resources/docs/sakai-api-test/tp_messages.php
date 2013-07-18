@@ -6,9 +6,7 @@ $tool_proxy = <<< EOF
     "http://purl.org/blackboard/ctx/v1/iconStyle"
   ],
   "@type": "ToolProxy",
-  "@id": "http://localhost:5000a2bc3ce0-9a8b-0130-4f3b-406c8f217861",
   "lti_version": "LTI-2p0",
-  "tool_proxy_guid": "__GUID__",
   "tool_consumer_profile": "http://localhost:4000/tool_consumer_profiles/e051b830-9a8a-0130-4f3a-406c8f217861",
   "tool_profile": {
     "product_instance": {

@@ -173,7 +173,7 @@ if ( document.getElementById("UISwitcher") ) switchui();
 
 <% } %>
 
-<% if ( allowOutcomes && allow(sp,"gradable") ) { %>
+<% if ( allowOutcomes && allow(sp,"allowoutcomes") ) { %>
 <h3><%=rb.getString("gradable.information") %></h3>
 <p  class="shorttext" style="clear:none;">
 <label for="imsti.newassignment"><%=rb.getString("gradable.newassignment") %></label>
@@ -183,7 +183,7 @@ if ( document.getElementById("UISwitcher") ) switchui();
 
 <% } %>
 
-<% if ( allowOutcomes && allow(sp,"gradable") && assignments != null ) { %>
+<% if ( allowOutcomes && allow(sp,"allowoutcomes") && assignments != null ) { %>
 <p  class="shorttext" style="clear:none;">
 <%=rb.getString("gradable.title") %>
 <select name="imsti.assignment">

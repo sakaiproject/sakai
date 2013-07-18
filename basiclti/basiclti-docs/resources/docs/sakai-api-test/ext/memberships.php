@@ -74,9 +74,9 @@ foreach($newdata as $key => $value ) {
     print "$key=$value (".mb_detect_encoding($value).")\n";
 }
 
-global $last_base_string;
+global $LastOAuthBodyBaseString;
 echo "\nBase String:\n</pre><p>\n";
-echo $last_base_string;
+echo $LastOAuthBodyBaseString;
 echo "\n</p>\n<pre>\n";
 
 $retval = do_post_request($url, http_build_query($newdata));

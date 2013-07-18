@@ -105,7 +105,7 @@ public class LessonsFacade {
 		SimplePage subPage = simplePageToolDao.makePage(actualPage.getToolId(), actualPage.getSiteId(), nameStr, parent, topParent);
 		List<String>elist = new ArrayList<String>();
 		simplePageToolDao.saveItem(subPage,  elist, "ERROR WAS HERE", false);
-		System.out.println("Page Saved "+elist);
+		M_log.debug("Page Saved "+elist);
 
 		// System.out.println("subPage="+subPage);
 		String selectedEntity = String.valueOf(subPage.getPageId());
@@ -115,12 +115,13 @@ public class LessonsFacade {
 		subPageItem.setFormat("");
 		elist = new ArrayList<String>();
 		simplePageToolDao.saveItem(subPageItem,  elist, "ERROR WAS HERE", false);
-		System.out.println("Item Saved "+elist);
+		M_log.debug("Item Saved "+elist);
 		// System.out.println("subItem = "+subPageItem);
 		return subPageItem;
 	}
 
     public static String doImportTool(String siteId, String launchUrl, String bltiTitle, String strXml, String custom)
+	throws Exception
     {
 		if ( ltiService == null ) return null;
 
@@ -138,61 +139,59 @@ public class LessonsFacade {
 			toolName = toolUrl;
 		}
 
+		// Check for global tool configurations (prefer global)
 		Map<String,Object> theTool = null;
-		List<Map<String,Object>> tools = ltiService.getToolsDao(null,null,0,0,siteId);
-        String lastLaunch = "";
+		List<Map<String,Object>> tools = ltiService.getToolsDao(null,null,0,0,"!admin");
+		String lastLaunch = "";
 		for ( Map<String,Object> tool : tools ) {
 			String toolLaunch = (String) tool.get(LTIService.LTI_LAUNCH);
+			// Prefer the longest match
 			if ( toolUrl.startsWith(toolLaunch) && toolLaunch.length() > lastLaunch.length()) {
 				theTool = tool;
-                lastLaunch = toolLaunch;
-				break;
+				lastLaunch = toolLaunch;
 			}
 		}
 
+		// Check for within-site tool configurations (prefer global)
 		if ( theTool == null ) {
-            M_log.debug("Inserting tool - "+toolUrl);
-			Properties props = new Properties ();
-			props.setProperty(LTIService.LTI_LAUNCH,toolUrl);
-			props.setProperty(LTIService.LTI_TITLE, toolName);
-			props.setProperty(LTIService.LTI_PAGETITLE, toolName);
-			props.setProperty(LTIService.LTI_CONSUMERKEY, LTIService.LTI_SECRET_INCOMPLETE);
-			props.setProperty(LTIService.LTI_SECRET, LTIService.LTI_SECRET_INCOMPLETE);
-
-			props.setProperty(LTIService.LTI_ALLOWCUSTOM, "1");
-			props.setProperty(LTIService.LTI_SENDNAME, "1");
-			props.setProperty(LTIService.LTI_SENDEMAILADDR, "1");
-			props.setProperty(LTIService.LTI_ALLOWTITLE, "1");
-			props.setProperty(LTIService.LTI_ALLOWPAGETITLE, "1");
-			props.setProperty(LTIService.LTI_ALLOWLAUNCH, "1");
-			props.setProperty(LTIService.LTI_ALLOWOUTCOMES, "1");
-			props.setProperty(LTIService.LTI_ALLOWROSTER, "1");
-
-			props.setProperty(LTIService.LTI_SITE_ID,siteId);
-
-            // Go ahead and throw up...
-            Object result = ltiService.insertToolDao(props, siteId);
-
-			if ( result instanceof String ) {
-				M_log.error("Could not insert tool - "+result);
+			tools = ltiService.getToolsDao(null,null,0,0,siteId);
+			lastLaunch = "";
+			for ( Map<String,Object> tool : tools ) {
+				String toolLaunch = (String) tool.get(LTIService.LTI_LAUNCH);
+				// Prefer the longest match
+				if ( toolUrl.startsWith(toolLaunch) && toolLaunch.length() > lastLaunch.length()) {
+					theTool = tool;
+					lastLaunch = toolLaunch;
+				}
 			}
-			if ( result instanceof Long ) theTool = ltiService.getToolDao((Long) result, siteId);
+		}
+
+		// If we still do not have a tool configuration throw an error
+		if ( theTool == null ) {
+			M_log.error("LORI Launch configuration not found- "+toolUrl);
+			throw new Exception("LORI Launch configuration not found");
 		}
 	
+		// Found a tool - time to insert content
 		Map<String,Object> theContent = null;
 		Long contentKey = null;
 		if ( theTool != null ) {
 			Properties props = new Properties ();
-			props.setProperty(LTIService.LTI_TOOL_ID,foorm.getLong(theTool.get(LTIService.LTI_ID)).toString());
-            props.setProperty(LTIService.LTI_PLACEMENTSECRET, UUID.randomUUID().toString());
+			String toolId = foorm.getLong(theTool.get(LTIService.LTI_ID)).toString();
+			props.setProperty(LTIService.LTI_TOOL_ID,toolId);
+			props.setProperty(LTIService.LTI_PLACEMENTSECRET, UUID.randomUUID().toString());
 			props.setProperty(LTIService.LTI_TITLE, bltiTitle);
 			props.setProperty(LTIService.LTI_PAGETITLE, bltiTitle);
 			props.setProperty(LTIService.LTI_LAUNCH,launchUrl);
+			props.setProperty(LTIService.LTI_SITE_ID,siteId);
+
 			if ( strXml != null) props.setProperty(LTIService.LTI_XMLIMPORT,strXml);
 			if ( custom != null ) props.setProperty(LTIService.LTI_CUSTOM,custom);
 
-            // Throw upwards..
-            Object result = ltiService.insertContentDao(props, siteId);
+			M_log.debug("Inserting content associted with toolId="+toolId);
+
+			// Insert as admin into siteId, on error throw upwards
+			Object result = ltiService.insertContentDao(props, "!admin");
 			if ( result instanceof String ) {
 				M_log.error("Could not insert content - "+result);
 			} else {
@@ -210,9 +209,9 @@ public class LessonsFacade {
 
 	public static boolean addLessonsLaunch(SimplePageItem thePage, String sakaiId, String nameStr, int startPos) 
 	{
-            M_log.debug("Adding LTI content item "+sakaiId);
+			M_log.debug("Adding LTI content item "+sakaiId);
 			Long pageNum = Long.valueOf(thePage.getSakaiId());
-            M_log.debug("Page ="+thePage.getSakaiId()+" title="+thePage.getName());
+			M_log.debug("Parent Page="+thePage.getSakaiId()+" title="+thePage.getName());
 
 			SimplePageItem item = simplePageToolDao.makeItem(thePage.getPageId(), startPos, SimplePageItem.BLTI, sakaiId, nameStr);
 			item.setHeight(""); // default depends upon format, so it's supplied at runtime
