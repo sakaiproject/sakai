@@ -66,7 +66,11 @@ public class LessonsGradeInfoProvider implements ExternalAssignmentProvider {
 
     // caching
     private static Cache cache = null;
-    protected static final int DEFAULT_EXPIRATION = 10 * 60;
+    // currently using 10 sec. The real goal is to prevent continual
+    // reevaluation of items as we follow different paths. I.e. we mostly
+    // care about it during a single transaction. But I'm using the normal
+    // default of 10 min
+    protected static final int DEFAULT_EXPIRATION = 60 * 10;
 
     // Sakai Service Beans
     private GradebookExternalAssessmentService geaService;
@@ -166,15 +170,13 @@ public class LessonsGradeInfoProvider implements ExternalAssignmentProvider {
     // and groups allowed to use the page it's on
 
     Set<String> getItemGroups (SimplePageItem item, Set<Long>seen) {
-	/// System.out.println("item " + item.getId() + " groups");
 
 	// null is a possible value. Because get returns null if something isn't
 	// in the cache, use "null" for null. could also check whether it's in the cache
 	// but documentation says this is expensive
-	//	Object cached = cache.get(item.getId());
-	Object cached = null; // for testing
+	Object cached = cache.get(item.getId());
+	//	Object cached = null; // for testing
 	if (cached != null) {
-	    System.out.println("returning cached");
 	    if (cached instanceof String) // "null"
 		return null;
 	    return (Set<String>)cached;
