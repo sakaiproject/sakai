@@ -46,6 +46,7 @@ import org.sakaiproject.announcement.api.AnnouncementMessageEdit;
 import org.sakaiproject.announcement.api.AnnouncementMessageHeader;
 import org.sakaiproject.announcement.api.AnnouncementMessageHeaderEdit;
 import org.sakaiproject.announcement.cover.AnnouncementService;
+import org.sakaiproject.announcement.tool.AnnouncementActionState.DisplayOptions;
 import org.sakaiproject.alias.cover.AliasService;
 import org.sakaiproject.alias.api.Alias;
 import org.sakaiproject.authz.api.PermissionsHelper;
@@ -245,6 +246,8 @@ public class AnnouncementAction extends PagedResourceActionII
    private EventTrackingService eventTrackingService = null;
    
    private EntityBroker entityBroker;
+   
+   private static final String DEFAULT_TEMPLATE="announcement/chef_announcements";
    
    /*
 	 * Returns the current order
@@ -966,7 +969,14 @@ public class AnnouncementAction extends PagedResourceActionII
 		boolean menu_delete = true;
 		boolean menu_revise = true;
 		boolean menu_reorder = true;
- 
+		
+		// check the state status to decide which vm to render
+		String statusName = state.getStatus();
+		if (statusName != null)
+		{
+			template = getTemplate(portlet, context, rundata, sstate, state, template);
+		}
+		
 		try
 		{
 			if (AnnouncementService.allowGetChannel(channelId) && isOkayToDisplayMessageMenu(state))
@@ -974,81 +984,85 @@ public class AnnouncementAction extends PagedResourceActionII
 				// get the channel name throught announcement service API
 				channel = AnnouncementService.getAnnouncementChannel(channelId);
 
-				if (channel.allowGetMessages() && !state.getCurrentSortedBy().equals(SORT_GROUPTITLE)
-						&& !state.getCurrentSortedBy().equals(SORT_GROUPDESCRIPTION))
+				if (DEFAULT_TEMPLATE.equals(template))
 				{
-					// this checks for any possibility of an add, channel or any site group
-					menu_new = channel.allowAddMessage();
-
-					List messages = null;
-
-					String view = (String) sstate.getAttribute(STATE_SELECTED_VIEW);
-
-					if (view != null)
+					// only query for messages for the list view
+					if (channel.allowGetMessages() && !state.getCurrentSortedBy().equals(SORT_GROUPTITLE)
+							&& !state.getCurrentSortedBy().equals(SORT_GROUPDESCRIPTION))
 					{
-                  if (view.equals(VIEW_MODE_ALL))
+						// this checks for any possibility of an add, channel or any site group
+						menu_new = channel.allowAddMessage();
+	
+						List messages = null;
+	
+						String view = (String) sstate.getAttribute(STATE_SELECTED_VIEW);
+	
+						if (view != null)
+						{
+	                  if (view.equals(VIEW_MODE_ALL))
+							{
+								messages = getMessages(channel, null, true, state, portlet);
+							}
+							else if (view.equals(VIEW_MODE_BYGROUP))
+							{
+								messages = getMessagesByGroups(site, channel, null, true, state, portlet);
+							}
+							else if (view.equals(VIEW_MODE_PUBLIC))
+							{
+								messages = getMessagesPublic(site, channel, null, true, state, portlet);
+							}
+						}
+						else
 						{
 							messages = getMessages(channel, null, true, state, portlet);
 						}
-						else if (view.equals(VIEW_MODE_BYGROUP))
+						//readResourcesPage expects messages to be in session, so put the entire messages list in the session
+						sstate.setAttribute("messages", messages);
+						//readResourcesPage just orders the list correctly, so we can trim a correct list
+						messages = readResourcesPage(sstate, 1, messages.size() + 1);
+						//this will trim the list for us to put into the session
+						messages = trimListToMaxNumberOfAnnouncements(messages, state.getDisplayOptions());
+						//now put it back into the session so we can prepare the page with a correctly sorted and trimmed message list
+						sstate.setAttribute("messages", messages);
+						
+						messages = prepPage(sstate);
+						
+						sstate.setAttribute(STATE_MESSAGES, messages);
+	
+						menu_delete = false;
+						for (int i = 0; i < messages.size(); i++)
 						{
-							messages = getMessagesByGroups(site, channel, null, true, state, portlet);
+							AnnouncementWrapper message = (AnnouncementWrapper) messages.get(i);
+	
+							// If any message is allowed to be removed
+							// Also check to see if the AnnouncementWrapper object thinks
+							// that this message is editable from the default site.
+							if (message.editable && channel.allowRemoveMessage(message))
+							{
+								menu_delete = true;
+								break;
+							}
 						}
-						else if (view.equals(VIEW_MODE_PUBLIC))
+	
+						menu_revise = false;
+						for (int i = 0; i < messages.size(); i++)
 						{
-							messages = getMessagesPublic(site, channel, null, true, state, portlet);
+							// if any message is allowed to be edited
+							if (channel.allowEditMessage(((Message) messages.get(i)).getId()))
+							{
+								menu_revise = true;
+								break;
+							}
 						}
 					}
 					else
+					// if the messages in this channel are not allow to be accessed
 					{
-						messages = getMessages(channel, null, true, state, portlet);
-					}
-					//readResourcesPage expects messages to be in session, so put the entire messages list in the session
-					sstate.setAttribute("messages", messages);
-					//readResourcesPage just orders the list correctly, so we can trim a correct list
-					messages = readResourcesPage(sstate, 1, messages.size() + 1);
-					//this will trim the list for us to put into the session
-					messages = trimListToMaxNumberOfAnnouncements(messages, state.getDisplayOptions());
-					//now put it back into the session so we can prepare the page with a correctly sorted and trimmed message list
-					sstate.setAttribute("messages", messages);
-					
-					messages = prepPage(sstate);
-					
-					sstate.setAttribute(STATE_MESSAGES, messages);
-
-					menu_delete = false;
-					for (int i = 0; i < messages.size(); i++)
-					{
-						AnnouncementWrapper message = (AnnouncementWrapper) messages.get(i);
-
-						// If any message is allowed to be removed
-						// Also check to see if the AnnouncementWrapper object thinks
-						// that this message is editable from the default site.
-						if (message.editable && channel.allowRemoveMessage(message))
-						{
-							menu_delete = true;
-							break;
-						}
-					}
-
-					menu_revise = false;
-					for (int i = 0; i < messages.size(); i++)
-					{
-						// if any message is allowed to be edited
-						if (channel.allowEditMessage(((Message) messages.get(i)).getId()))
-						{
-							menu_revise = true;
-							break;
-						}
-					}
+						menu_new = channel.allowAddMessage();
+						menu_revise = false;
+						menu_delete = false;
+					} // if-else
 				}
-				else
-				// if the messages in this channel are not allow to be accessed
-				{
-					menu_new = channel.allowAddMessage();
-					menu_revise = false;
-					menu_delete = false;
-				} // if-else
 			}
 			else
 			// if the channel is not allowed to access
@@ -1096,9 +1110,6 @@ public class AnnouncementAction extends PagedResourceActionII
 				menu_delete = false;
 			} // if-else
 		} // try-catch
-				
-		// check the state status to decide which vm to render
-		String statusName = state.getStatus();
 		
 		AnnouncementActionState.DisplayOptions displayOptions = state.getDisplayOptions();
 		
@@ -1133,11 +1144,6 @@ public class AnnouncementAction extends PagedResourceActionII
 		context.put("allow_new", Boolean.valueOf(menu_new));
 		context.put("allow_delete", Boolean.valueOf(menu_delete));
 		context.put("allow_revise", Boolean.valueOf(menu_revise));
-
-		if (statusName != null)
-		{
-			template = getTemplate(portlet, context, rundata, sstate, state, template);
-		}
 
 		if (channel != null)
 		{
