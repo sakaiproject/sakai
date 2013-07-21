@@ -39,6 +39,10 @@
             }
 
             editor.on('key', startTimer);
+
+            editor.on('destroy', function () {
+                localStorage.setItem(autoSaveKey, editor.getData());
+            });
         }
     });
 
