@@ -35,7 +35,6 @@ import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
 import org.sakaiproject.authz.api.Member;
-import org.sakaiproject.entitybroker.EntityReference;
 import org.sakaiproject.exception.IdUnusedException;
 import org.sakaiproject.service.gradebook.shared.ExternalAssignmentProvider;
 import org.sakaiproject.service.gradebook.shared.ExternalAssignmentProviderCompat;
@@ -76,25 +75,11 @@ public class AssessmentGradeInfoProvider implements ExternalAssignmentProvider, 
         return "samigo";
     }
 
-    /**
-     * 
-     * @param id
-     * @return the PublishedAssessment or null if not found
-     */
     private PublishedAssessmentIfc getPublishedAssessment(String id) {
-        //id is a ref
-    	EntityReference ref = new EntityReference(id);
-    	//Check this is a samigo object
-    	if (!getAppKey().equals(ref.getPrefix())) {
-    		if (log.isDebugEnabled()) {
-    			log.debug("We arent responsible for: " + id);
-    		}
-    		return null;
-    	}
-    	PublishedAssessmentService pas = new PublishedAssessmentService();
+        PublishedAssessmentService pas = new PublishedAssessmentService();
         PublishedAssessmentIfc a;
         try {
-            a = pas.getPublishedAssessment(ref.getId());
+            a = pas.getPublishedAssessment(id);
         } catch (Exception e) {
             // NumberFormatException is thrown on non-numeric IDs
             if (log.isDebugEnabled()) {
@@ -116,17 +101,14 @@ public class AssessmentGradeInfoProvider implements ExternalAssignmentProvider, 
         if (log.isDebugEnabled()) {
             log.debug("Samigo provider isAssignmentGrouped: " + id);
         }
-        //id is a ref
-    	EntityReference ref = new EntityReference(id);
-        String assignId = ref.getId();
         PublishedAssessmentService pas = new PublishedAssessmentService();
         boolean grouped = false;
         try {
-            grouped = pas.isReleasedToGroups(assignId);
+            grouped = pas.isReleasedToGroups(id);
         } catch (Exception e) {
             //isReleasedToGroups does not error check
             if (log.isDebugEnabled()) {
-                log.debug("Assignment lookup failed for ID: " + assignId + " -- " + e.getMessage());
+                log.debug("Assignment lookup failed for ID: " + id + " -- " + e.getMessage());
             }
         }
         return grouped;
@@ -138,7 +120,7 @@ public class AssessmentGradeInfoProvider implements ExternalAssignmentProvider, 
         if (log.isDebugEnabled()) {
             log.debug("Samigo provider isAssignmentVisible: " + id + ", " + userId);
         }
-        
+
         PublishedAssessmentIfc pub = getPublishedAssessment(id);
         if (pub == null) {
             return false;
