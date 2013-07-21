@@ -5523,7 +5523,12 @@ private Map<String,List> getToolGroupList(SessionState state, String type, Site 
 	 */
 	private List getUngroupedTools(String ungroupedName, Map<String,List> toolsByGroup, SessionState state, String type, File moreInforDir, String countryCode, Site site) {
 		// Get all tools for site
-		List ungroupedTools = (List) state.getAttribute(STATE_TOOL_REGISTRATION_LIST);
+		List ungroupedToolsOld = (List) state.getAttribute(STATE_TOOL_REGISTRATION_LIST);
+		
+		// copy the list of tools to avoid ConcurrentModificationException
+		List<MyTool> ungroupedTools = new Vector<MyTool>();
+		ungroupedTools.addAll(ungroupedToolsOld);
+		
 		// Grab tool multiples too
 		// get all the groups that are available for this site type
 		for (Iterator<String> toolgroupitr = toolsByGroup.keySet().iterator(); toolgroupitr.hasNext();) {
