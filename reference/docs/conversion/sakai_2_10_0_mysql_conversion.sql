@@ -859,9 +859,6 @@ alter table SAM_PUBLISHEDITEM_T CHANGE SCORE SCORE double;
 alter table SAM_PUBLISHEDITEM_T CHANGE DISCOUNT DISCOUNT double;
 -- End SAM-2087
 
--- SAM-2088 
-update GB_GRADABLE_OBJECT_T set external_id=concat('/samigo/',external_id) where external_id not like '/%';
-
 
 -- Upgrade for Quartz 1.6 to 1.8 - SAK-20384
 
