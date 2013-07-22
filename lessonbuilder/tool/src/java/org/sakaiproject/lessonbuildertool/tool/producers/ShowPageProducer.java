@@ -744,12 +744,20 @@ public class ShowPageProducer implements ViewComponentProducer, DefaultView, Nav
 		    titlediv.decorate(new UIStyleDecorator("oldPortal"));		
 
 		if (helpurl != null || reseturl != null) {
+		    // these URLs are defined if we're in the neo portal
+		    // in that case we need our own help and reset icons. We want
+		    // to take them from the current skin, so find its prefix.
+		    // unfortunately the neoportal tacks neo- on front of the skin
+		    // name, so this is more complex than you might think.
+
 		    skinName = simplePageBean.getCurrentSite().getSkin();
 		    if (skinName == null)
 			skinName = ServerConfigurationService.getString("skin.default", "default");
 		    // weird hack. automatically add neo if neo portal enabled
-		    if (!skinName.startsWith("neo"))
-			skinName = "neo-" + skinName;
+
+		    String prefix = ServerConfigurationService.getString("portal.neoprefix", "neo-");
+		    if (!skinName.startsWith(prefix))
+			skinName = prefix + skinName;
 		    skinRepo = ServerConfigurationService.getString("skin.repo", "/library/skin");
 		    iconBase = skinRepo + "/" + skinName + "/images/";
 		}
