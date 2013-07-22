@@ -46,6 +46,7 @@ import javax.xml.transform.TransformerFactory;
 import javax.xml.transform.dom.DOMSource;
 import javax.xml.transform.stream.StreamResult;
 
+import org.apache.commons.lang.StringUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.sakaiproject.alias.api.Alias;
@@ -550,12 +551,22 @@ public abstract class BaseAnnouncementService extends BaseMessageService impleme
 	/**
 	 * Form a tracking event string based on a security function string.
 	 * 
-	 * @param secure
-	 *        The security function string.
+	 * @param secure The security function string.
+	 *     NOTE: if this input is null or blank then event id will default to "annc.INVALID_KEY",
+	 *           this is only because throwing an exception here would be very disruptive and returning
+	 *           a null or blank for the event id would cause other failures (SAK-23804)
 	 * @return The event tracking string.
 	 */
-	protected String eventId(String secure)
-	{
+	protected String eventId(String secure) {
+		// https://jira.sakaiproject.org/browse/SAK-23804
+		if (StringUtils.isBlank(secure)) {
+		    try {
+		        throw new IllegalArgumentException("anouncement eventId() input cannot be null or blank");
+		    } catch (Exception e) {
+		        secure = "INVALID_KEY";
+		        M_log.error("Bad call to BaseAnnouncementService.eventId(String) - input string is blank, generating '"+secure+"' event name and logging trace", e);
+		    }
+		}
 		return SECURE_ANNC_ROOT + secure;
 
 	} // eventId
