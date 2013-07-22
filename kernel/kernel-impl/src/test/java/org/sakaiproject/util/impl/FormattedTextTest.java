@@ -736,6 +736,27 @@ public class FormattedTextTest extends TestCase {
         assertTrue( result.contains("<span dir=\"rtl\""));
     }
 
+    public void testKNL_1096() {
+        // https://jira.sakaiproject.org/browse/KNL-1096
+        String strFromBrowser = null;
+        String result = null;
+        StringBuilder errorMessages = null;
+
+        formattedText.setDefaultUseLegacyCleaner(false); // FORCE antisamy
+
+        strFromBrowser = "<object width=\"560\" height=\"315\"><param name=\"movie\" value=\"//www.youtube.com/v/JNSK0647wJI?version=3&amp;hl=en_US\"></param><param name=\"allowFullScreen\" value=\"true\"></param><param name=\"allowscriptaccess\" value=\"always\"></param><embed src=\"//www.youtube.com/v/JNSK0647wJI?version=3&amp;hl=en_US\" type=\"application/x-shockwave-flash\" width=\"560\" height=\"315\" allowscriptaccess=\"always\" allowfullscreen=\"true\"></embed></object>";
+
+        errorMessages = new StringBuilder();
+        result = formattedText.processFormattedText(strFromBrowser, errorMessages);
+        assertNotNull(result);
+        assertFalse( errorMessages.length() > 0 );
+        assertTrue( result.contains("<object"));
+        assertTrue( result.contains("<param"));
+        assertTrue( result.contains("value=\"//www.youtube.com/v/JNSK0647wJI"));
+        assertTrue( result.contains("src=\"//www.youtube.com/v/JNSK0647wJI"));
+    }
+
+
     public void testBasicUrlMatch() {
         assertEquals("I like <a href=\"http://www.apple.com\">http://www.apple.com</a> and stuff", formattedText.encodeUrlsAsHtml(formattedText.escapeHtml("I like http://www.apple.com and stuff")));
     }
