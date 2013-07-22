@@ -5367,19 +5367,20 @@ private Map<String,List> getToolGroupList(SessionState state, String type, Site 
 		}
 	}
 	}
-	// TODO sort and add methods to remove highlighted groupNames from sort (i.e. where 'Core' defaults to top of list)
-	M_log.debug("setToolGroupList:complete");
 	
 	// add ungroups tools to end of toolGroup list if selected
-	Boolean showUngroupedTools = ServerConfigurationService.getBoolean("config.sitemanage.showUngrouped",false);
-	if (showUngroupedTools.booleanValue()==true) {
-		String ungroupedName = ServerConfigurationService.getString("config.sitemanage.ungroupedToolGroupName","Ungrouped Tools");
-		toolGroup.put(ungroupedName, getUngroupedTools(ungroupedName,  toolGroup, state, type, moreInfoDir, countryCode, site));
-	}
+	String ungroupedName = ServerConfigurationService.getString("config.sitemanage.ungroupedToolGroupName","Ungrouped Tools");
+	List ungroupedTools = getUngroupedTools(ungroupedName,  toolGroup, state, type, moreInfoDir, countryCode, site);
+	if (ungroupedTools.size() > 0) 
+		toolGroup.put(ungroupedName, ungroupedTools);
+	
 	// add external tools to end of toolGroup list
 	String externaltoolgroupname = ServerConfigurationService.getString("config.sitemanage.externalToolGroupName","Plugin Tools");
-	toolGroup.put(externaltoolgroupname, getLtiToolGroup(externaltoolgroupname, moreInfoDir, countryCode, site));
-	// set checkhome too SAK-23208
+	List externalTools = getLtiToolGroup(externaltoolgroupname, moreInfoDir, countryCode, site);
+	if (externalTools.size() > 0 ) 
+		toolGroup.put(externaltoolgroupname, externalTools);
+      
+	// Home page should be auto-selected
 	if (checkhome==true) {
 		state.setAttribute(STATE_TOOL_HOME_SELECTED, new Boolean(true));
 	}
