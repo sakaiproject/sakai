@@ -450,7 +450,12 @@ public abstract class BaseAssignmentService implements AssignmentService, Entity
 		}
 		
 		// group level users
-		Collection groupIds = assignment.getGroups();
+		Collection groupIds = null;
+		//SAK-23235 this method can be passed a null assignment -DH
+		if (assignment != null) 
+		{
+			groupIds = assignment.getGroups();
+		}
 		if(groupIds != null && groupIds.size() > 0)
 		{
 			Iterator i = groupIds.iterator();
