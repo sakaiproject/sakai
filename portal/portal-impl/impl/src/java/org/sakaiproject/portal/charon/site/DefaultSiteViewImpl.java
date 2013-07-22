@@ -240,7 +240,7 @@ public class DefaultSiteViewImpl extends AbstractSiteViewImpl
 		if ( prefsToolUrl != null ) {
 			renderContextMap.put("prefsToolUrl", prefsToolUrl);
 		}
-		if ( canAddSite && worksiteToolUrl != null ) {
+		if ( worksiteToolUrl != null ) {
 			renderContextMap.put("worksiteToolUrl", worksiteToolUrl);
 		}
 		if (serverConfigurationService.getBoolean("portal.use.tutorial", true)){

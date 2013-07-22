@@ -173,12 +173,13 @@
 				<h4>${rloader.sit_drawer}</h4>
 			#end
 		</div>
+        <ul id="otherSitesMenu">
             #if (${tabsSites.worksiteToolUrl})
-                <ul id="otherSitesMenu">
                     <li><a id="allSites" href="${tabsSites.worksiteToolUrl}?sakai_nav_minimized=true&sakai.state.reset=true"><span>${rloader.sit_allsites}</span></a></li>
                     #if ($allowAddSite)
                     <li><a id="newSite" href="${tabsSites.worksiteToolUrl}?sakai_nav_minimized=true&panel=Shortcut&sakai_action=doNew_site&sakai.state.reset=true"><span>${rloader.sit_newsite}</span></a></li>
                     #end
+            #end
                     #if (${tabsSites.prefsToolUrl})
                         <li><a href="${tabsSites.prefsToolUrl}?sakai_nav_minimized=true"><span>${rloader.sit_preferences}</span></a></li>
                     #end
@@ -186,7 +187,6 @@
                         <a href="#" onclick="closeDrawer()" title="${rloader.sit_othersitesclose}"><span>X</span><span class="skip">${rloader.sit_othersitesclose}</span></a>
                     </li>
                 </ul>
-            #end
 		#if ($useDHTMLMore)
 			<div id="otherSitesCategorWrap">
 			### TODO: format well
