@@ -138,6 +138,7 @@
         <dependency>
             <groupId>org.springframework</groupId>
             <artifactId>${sakai.spring.artifactId}</artifactId>
+            <version>${sakai.spring.version}</version> 
         </dependency>      
         <dependency>
             <groupId>org.springframework</groupId>
