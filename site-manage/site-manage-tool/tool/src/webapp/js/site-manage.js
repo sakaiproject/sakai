@@ -798,12 +798,9 @@ var setupCategTools = function(){
  
     $('.moreInfoTool').click(function(e){
         e.preventDefault();
-        //$('#moreInfoHolder').html('this is a test');
-        var moreInfo = document.getElementById("moreInfoLink");
-	var moreInfoTitle = moreInfo.getAttribute("title");
-        var moreInfoImageSrc = moreInfo.getAttribute("href");
-    // change/give the src attribute the value
-    $('#moreInfoHolder img').attr('src',moreInfoImageSrc);
+        var moreInfoTitle = this.getAttribute("title");
+        var moreInfoSrc = this.getAttribute("href");
+        $('#moreInfoHolder').load(moreInfoSrc);
         $("#moreInfoHolder").dialog({
             autoOpen: false,
             height: 500,

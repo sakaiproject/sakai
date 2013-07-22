@@ -101,7 +101,7 @@
                                                         #end
                                                     #end
                                                     #if ($tool.getMoreInfo() && ($tool.getMoreInfo() != ""))
-                                                        <a class="moreInfoTool" id="moreInfoLink" title='$tool.getTitle()' href="$tool.getMoreInfo()" target="_blank">$tlang.getString("feat.more.info")</a>
+                                                        &nbsp;(<a class="moreInfoTool" title='$tool.getTitle()' href="$tool.getMoreInfo()" target="_blank">$tlang.getString("feat.more.info")</a>)
                                                      #end
                                             </div>
                                      #end
