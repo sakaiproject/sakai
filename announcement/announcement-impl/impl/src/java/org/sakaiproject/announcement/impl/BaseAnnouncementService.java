@@ -115,7 +115,6 @@ public abstract class BaseAnnouncementService extends BaseMessageService impleme
 
 	/** private constants definitions */
 	private final static String SAKAI_ANNOUNCEMENT_TOOL_ID = "sakai.announcements";
-	private final static String ANNOUNCEMENT_CHANNEL_PROPERTY = "channel";
 	private static final String PORTLET_CONFIG_PARM_MERGED_CHANNELS = "mergedAnnouncementChannels";
 
 	
@@ -1397,7 +1396,7 @@ public abstract class BaseAnnouncementService extends BaseMessageService impleme
 			{
 				Set<Entry<String, String>> entrySet = (Set<Entry<String, String>>) transversalMap.entrySet();
 				
-				String channelId = ServerConfigurationService.getString("channel", null);
+				String channelId = ServerConfigurationService.getString(ANNOUNCEMENT_CHANNEL_PROPERTY, null);
 
 				String toSiteId = toContext;
 
@@ -1874,7 +1873,7 @@ public abstract class BaseAnnouncementService extends BaseMessageService impleme
 		{
 			if(cleanup == true)
 			{
-				String channelId = ServerConfigurationService.getString("channel", null);
+				String channelId = ServerConfigurationService.getString(ANNOUNCEMENT_CHANNEL_PROPERTY, null);
 				
 				String toSiteId = toContext;
 				

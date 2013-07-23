@@ -64,6 +64,9 @@ public interface AnnouncementService extends MessageService
 	/** The Reference type for an announcement */
 	public static final String REF_TYPE_ANNOUNCEMENT = "announcement";
 	
+    /** The property name of the channel to use instead of the site channel */
+    public final static String ANNOUNCEMENT_CHANNEL_PROPERTY = "channel";
+
 	/** The Reference type for an announcement rss feed */
 	public static final String REF_TYPE_ANNOUNCEMENT_RSS = "rss";
 	
