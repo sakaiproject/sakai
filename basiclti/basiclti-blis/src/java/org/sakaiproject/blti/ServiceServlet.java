@@ -72,6 +72,7 @@ import org.sakaiproject.event.cover.UsageSessionService;
 import org.sakaiproject.id.cover.IdManager;
 import org.sakaiproject.site.api.Site;
 import org.sakaiproject.site.api.SitePage;
+import org.sakaiproject.exception.IdUnusedException;
 import org.sakaiproject.site.api.ToolConfiguration;
 import org.sakaiproject.site.cover.SiteService;
 import org.sakaiproject.tool.api.Session;
@@ -795,6 +796,7 @@ public class ServiceServlet extends HttpServlet {
                 output = pox.getResponseFailure(msg, null);
             }
 			out.println(output);
+			M_log.debug(output);
 		}
 
 
@@ -998,19 +1000,52 @@ public class ServiceServlet extends HttpServlet {
 				return;
 			}
 
+			// First make sure that we have Lessons in the site
+			SitePage lessonsPage = null;
+			ToolConfiguration lessonsConfig = null;
+			try {
+				Site site = SiteService.getSite(siteId);
+				for (SitePage page : (List<SitePage>)site.getPages()) {
+					for(ToolConfiguration tool : (List<ToolConfiguration>) page.getTools()) {
+						String tid = tool.getToolId();
+						if ( "sakai.lessonbuildertool".equals(tid) ) {
+							lessonsPage = page;
+							lessonsConfig = tool;
+							break;
+						}
+					}
+				}
+			} catch (IdUnusedException ex) {
+				doErrorXML(request, response, pox, "outcomes.notools", "sourcedid", null);
+				M_log.warn("Could not scan site for Lessons tool.");
+				return;
+			}
+
+			if ( lessonsConfig == null ) {
+				M_log.warn("Could not find sakai.lessonbulder in site="+siteId);
+				doErrorXML(request, response, pox, "outcomes.nolessons", "sourcedid", null);
+				return;
+			}
+
+			// Now lets find the structure within Lessons
 			List<Long> structureList = new ArrayList<Long>();
 
-		    List<SimplePageItem> sitePages = LessonsFacade.findItemsInSite(context_id);
-            List<Map<String,Object>> structureMap = iteratePagesXML(sitePages,structureList,0);
+			List<SimplePageItem> sitePages = LessonsFacade.findItemsInSite(context_id);
+			List<Map<String,Object>> structureMap = iteratePagesXML(sitePages,structureList,0);
 
-			response.setContentType("application/xml");
-			String output = pox.getResponseUnsupported("No Lessons content found in site");
-			if ( structureMap.size() > 0 ) {
-				Map<String,Object> theMap = new TreeMap<String,Object>();
-				theMap.put("/getCourseStructureResponse/resources/resource",structureMap);
-				String theXml = XMLMap.getXMLFragment(theMap, true);
-				output = pox.getResponseSuccess("processCourseStructureXml", theXml);
+			if ( structureMap.size() < 1 ) {
+				Map<String,Object> cMap = new TreeMap<String,Object>();
+				cMap.put("/folderId","0");
+				cMap.put("/title",lessonsPage.getTitle());
+				cMap.put("/description",lessonsPage.getTitle());
+				cMap.put("/type","folder");
+				structureMap.add(cMap);
 			}
+
+			Map<String,Object> theMap = new TreeMap<String,Object>();
+			theMap.put("/getCourseStructureResponse/resources/resource",structureMap);
+			String theXml = XMLMap.getXMLFragment(theMap, true);
+			String output = pox.getResponseSuccess("processCourseStructureXml", theXml);
 
 			PrintWriter out = response.getWriter();
 			out.println(output);
@@ -1049,6 +1084,36 @@ public class ServiceServlet extends HttpServlet {
 					// System.out.println("item="+i.getName()+"id="+i.getId()+" sakaiId="+i.getSakaiId());
 					thePage = i;
 					break;
+				}
+			}
+
+			// No pages in Lessons yet... 
+			// If we can find the Lessons tool, lets add its first page. 
+			if ( thePage == null ) {
+				M_log.debug("Creating top page...");
+				SitePage lessonsPage = null;
+				ToolConfiguration lessonsConfig = null;
+				try {
+					Site site = SiteService.getSite(siteId);
+					for (SitePage page : (List<SitePage>)site.getPages()) {
+						for(ToolConfiguration tool : (List<ToolConfiguration>) page.getTools()) {
+							String tid = tool.getToolId();
+							if ( "sakai.lessonbuildertool".equals(tid) ) {
+								lessonsPage = page;
+								lessonsConfig = tool;
+								break;
+							}
+						}
+					}
+				} catch (IdUnusedException ex) {
+					M_log.warn("Could not load site.");
+				}
+				if ( lessonsConfig == null ) {
+					M_log.warn("Could not find sakai.lessonbulder in site="+siteId);
+				} else {
+					String title = lessonsPage.getTitle();
+					String toolId = lessonsConfig.getPageId();
+					thePage = LessonsFacade.addFirstPage(siteId, toolId, title);
 				}
 			}
 
