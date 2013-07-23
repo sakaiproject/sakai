@@ -683,7 +683,7 @@ public abstract class DbAuthzGroupService extends BaseAuthzGroupService implemen
 			        }
 			    });
 
-			    if (serverConfigurationService().getBoolean("authz.cacheGrants", false)) {
+                if (serverConfigurationService().getBoolean("authz.cacheGrants", true)) {
 			        Map<String, Map> payLoad = new HashMap<String, Map>();
 
 			        payLoad.put(REALM_ROLES_CACHE,realm.m_roles);
@@ -2958,7 +2958,7 @@ public abstract class DbAuthzGroupService extends BaseAuthzGroupService implemen
 	
 	public void update(Observable arg0, Object arg) {
 		// No need to listen for events if we are not caching the authz grants
-		if (arg == null || !(arg instanceof Event) || !serverConfigurationService().getBoolean("authz.cacheGrants", false)) 
+        if (arg == null || !(arg instanceof Event) || !serverConfigurationService().getBoolean("authz.cacheGrants", true))
 			return;
 		Event event = (Event) arg;
 		
