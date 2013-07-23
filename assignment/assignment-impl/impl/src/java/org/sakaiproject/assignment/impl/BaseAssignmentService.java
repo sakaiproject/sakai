@@ -1918,7 +1918,7 @@ public abstract class BaseAssignmentService implements AssignmentService, Entity
 	{
 	    AnnouncementService aService = org.sakaiproject.announcement.cover.AnnouncementService.getInstance();
 	    AnnouncementChannel channel = null;
-	    String channelId = m_serverConfigurationService.getString("channel", null);
+        String channelId = m_serverConfigurationService.getString(m_announcementService.ANNOUNCEMENT_CHANNEL_PROPERTY, null);
 	    if (channelId == null)
 	    {
 	        channelId = m_announcementService.channelReference(contextId, SiteService.MAIN_CONTAINER);
