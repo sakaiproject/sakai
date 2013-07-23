@@ -7811,7 +7811,7 @@ protected static final String PARAM_PAGESIZE = "collections_per_page";
 			
 			if(uploadMax == null && uploadCeiling == null)
 			{
-				state.setAttribute(STATE_FILE_UPLOAD_MAX_SIZE, "1");
+				state.setAttribute(STATE_FILE_UPLOAD_MAX_SIZE, "20");
 			}
 			else if(uploadCeiling == null)
 			{
