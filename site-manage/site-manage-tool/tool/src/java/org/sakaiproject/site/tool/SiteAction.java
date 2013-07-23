@@ -3570,27 +3570,30 @@ public class SiteAction extends PagedResourceActionII {
 		Set multipleToolIdSet = (Set) state.getAttribute(STATE_MULTIPLE_TOOL_ID_SET);
 		Map multipleToolIdTitleMap = state.getAttribute(STATE_MULTIPLE_TOOL_ID_TITLE_MAP) != null? (Map) state.getAttribute(STATE_MULTIPLE_TOOL_ID_TITLE_MAP):new HashMap();
 		Map<String,List> toolGroupMultiples = new HashMap<String, List>();
-		for(Iterator iter = list.iterator(); iter.hasNext();)
+		if ( list != null )
 		{
-			String toolId = ((MyTool)iter.next()).getId();
-			String originId = findOriginalToolId(state, toolId);
-			// is this tool in the list of multipeToolIds?
-			if (multipleToolIdSet.contains(originId)) {
-				// is this the original tool or a multiple having uniqueId+originalToolId?
-				if (!originId.equals(toolId)) {
-					if (!toolGroupMultiples.containsKey(originId)) {
-						toolGroupMultiples.put(originId,  new ArrayList());
+			for(Iterator iter = list.iterator(); iter.hasNext();)
+			{
+				String toolId = ((MyTool)iter.next()).getId();
+				String originId = findOriginalToolId(state, toolId);
+				// is this tool in the list of multipeToolIds?
+				if (multipleToolIdSet.contains(originId)) {
+					// is this the original tool or a multiple having uniqueId+originalToolId?
+					if (!originId.equals(toolId)) {
+						if (!toolGroupMultiples.containsKey(originId)) {
+							toolGroupMultiples.put(originId,	 new ArrayList());
+						}
+						List tools = toolGroupMultiples.get(originId);
+						MyTool tool = new MyTool();
+						tool.id = toolId;
+						tool.title = (String) multipleToolIdTitleMap.get(toolId);
+						// tool comes from toolRegistrationSelectList so selected should be true
+						tool.selected = true;
+						// is a toolMultiple ever *required*?
+						tools.add(tool);
+						// update the tools list for this tool id
+						toolGroupMultiples.put(originId, tools);
 					}
-					List tools = toolGroupMultiples.get(originId);
-					MyTool tool = new MyTool();
-					tool.id = toolId;
-					tool.title = (String) multipleToolIdTitleMap.get(toolId);
-					// tool comes from toolRegistrationSelectList so selected should be true
-					tool.selected = true;
-					// is a toolMultiple ever *required*?
-					tools.add(tool);
-					// update the tools list for this tool id
-					toolGroupMultiples.put(originId, tools);
 				}
 			}
 		}
@@ -5528,7 +5531,8 @@ private Map<String,List> getToolGroupList(SessionState state, String type, Site 
 		
 		// copy the list of tools to avoid ConcurrentModificationException
 		List<MyTool> ungroupedTools = new Vector<MyTool>();
-		ungroupedTools.addAll(ungroupedToolsOld);
+		if ( ungroupedToolsOld != null )
+			ungroupedTools.addAll(ungroupedToolsOld);
 		
 		// Grab tool multiples too
 		// get all the groups that are available for this site type
