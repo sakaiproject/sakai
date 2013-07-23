@@ -46,9 +46,9 @@ public interface ExternalIntegrationProvider extends LearningTrackingProvider {
      */
     public String getServerUrl();
 
-	/**
-	 * Gets the entitybroker.maxJSONLevel config string from sakai.properties via ServerConfigurationService. Defaults to 5.
-	 */
+	    /**
+     * Gets the entitybroker.maxJSONLevel config string from sakai.properties via ServerConfigurationService. Defaults to 7.
+     */
     public String getMaxJSONLevel();
 
     /**
