@@ -2129,7 +2129,7 @@ public class CharonPortal extends HttpServlet
 		PrintWriter out = res.getWriter();
 		// If we have turned on auto-state reset on navigation, we generate the
 		// "site-reset" "worksite-reset" and "gallery-reset" urls
-		if ("true".equals(ServerConfigurationService.getString(CONFIG_AUTO_RESET)))
+        if ("true".equalsIgnoreCase(ServerConfigurationService.getString(CONFIG_AUTO_RESET)))
 		{
 			portalPrefix = portalPrefix + "-reset";
 		}
@@ -2371,7 +2371,7 @@ public class CharonPortal extends HttpServlet
 
 		// If we have turned on auto-state reset on navigation, we generate the
 		// "site-reset" "worksite-reset" and "gallery-reset" urls
-		if ("true".equals(ServerConfigurationService.getString(CONFIG_AUTO_RESET)))
+        if ("true".equalsIgnoreCase(ServerConfigurationService.getString(CONFIG_AUTO_RESET)))
 		{
 			prefix = prefix + "-reset";
 		}

@@ -606,7 +606,7 @@ public class SiteHandler extends WorksiteHandler
 
 			// If we have turned on auto-state reset on navigation, we generate
 			// the "site-reset" "worksite-reset" and "gallery-reset" urls
-			if ("true".equals(ServerConfigurationService
+            if ("true".equalsIgnoreCase(ServerConfigurationService
 					.getString(Portal.CONFIG_AUTO_RESET)))
 			{
 				prefix = prefix + "-reset";

@@ -195,7 +195,7 @@ public class WorksiteHandler extends PageHandler
 				Map pageMap = portal.getSiteHelper().pageListToMap(req, loggedIn, site, page, toolContextPath, 
 					portalPrefix, 
 					/* doPages */true,
-					/* resetTools */"true".equals(ServerConfigurationService
+					/* resetTools */"true".equalsIgnoreCase(ServerConfigurationService
 							.getString(Portal.CONFIG_AUTO_RESET)),
 					/* includeSummary */false);
  				rcontext.put("sitePages", pageMap);
