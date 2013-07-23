@@ -243,7 +243,7 @@ public class SakaiBLTIUtil {
 		String theRole = "Learner";
 		if ( SecurityService.isSuperUser() )
 		{
-			theRole = "Instructor,Administrator";
+			theRole = "Instructor,Administrator,urn:lti:instrole:ims/lis/Administrator,urn:lti:sysrole:ims/lis/Administrator";
 		}
 		else if ( SiteService.allowUpdateSite(context) ) 
 		{

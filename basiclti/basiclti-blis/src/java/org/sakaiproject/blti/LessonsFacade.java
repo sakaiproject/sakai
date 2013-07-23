@@ -120,6 +120,23 @@ public class LessonsFacade {
 		return subPageItem;
 	}
 
+	// Borrowed from SimplePageBean.java#getCurrentPageId
+	public static SimplePageItem addFirstPage(String siteId, String toolId, String title)
+	{
+		M_log.debug("Adding top page site="+siteId+" toolId="+toolId+" title="+title);
+		SimplePage page = simplePageToolDao.makePage(toolId, siteId, title, null, null);
+        List<String>elist = new ArrayList<String>();
+		if (!simplePageToolDao.saveItem(page,elist, "ERROR WAS HERE", false)) return null;
+		M_log.debug("SimplePage added="+page.getPageId());
+
+		// Add the dummy item associtated with the page
+		Long l = page.getPageId();
+		SimplePageItem i = simplePageToolDao.makeItem(0, 0, SimplePageItem.PAGE, l.toString(), title);
+		simplePageToolDao.saveItem(i,elist, "ERROR WAS HERE", false);
+		M_log.debug("SimplePageItem added="+i.getId());
+		return i;
+	}
+
     public static String doImportTool(String siteId, String launchUrl, String bltiTitle, String strXml, String custom)
 	throws Exception
     {

@@ -8,9 +8,6 @@
 	<bean parent="org.sakaiproject.entitybroker.entityprovider.AbstractEntityProvider" 
 		class="org.sakaiproject.blti.entityprovider.BLTIEventsEntityProvider">
 	</bean>
-    <bean parent="org.sakaiproject.entitybroker.entityprovider.AbstractEntityProvider" 
-        class="org.sakaiproject.blti.entityprovider.SkeletonEntityProvider">
-    </bean>
 	<!-- ENTITY PROVIDERS END -->
        
 </beans>
