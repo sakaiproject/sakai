@@ -353,12 +353,13 @@ public class PCServiceEntityProvider extends AbstractEntityProvider implements R
 						StringEscapeUtils.escapeEcmaScript(message)).replaceAll("\\\\'","'");
 		}
 		//message = message.replaceAll("\\\\'","'");
-
+		UserMessage userMessage = new UserMessage(currentUser.getId(), to, message, videomessage);
 		addMessageToMap(new UserMessage(currentUser.getId(), to, message, videomessage));
 		
         if(clustered) {
             try {
-                Message msg = new Message(null, null, (videomessage?VIDEO_MESSAGE_PREAMBLE:MESSAGE_PREAMBLE) + currentUser.getId() + ":" + to + ":" + message);
+            	if(logger.isDebugEnabled()) logger.debug("Sending "+(videomessage?"video":"")+"message to cluster ...");
+                Message msg = new Message(null, null, userMessage);
             	clusterChannel.send(msg);
             } catch (Exception e) {
                 logger.error("Error sending JGroups message", e);
@@ -456,13 +457,14 @@ public class PCServiceEntityProvider extends AbstractEntityProvider implements R
 			
 			if(logger.isDebugEnabled()) logger.debug(currentUser.getEid() + " is online. Stamping their heartbeat ...");
 			
-			heartbeatMap.put(currentUser.getId(),new UserMessage(video));
+			UserMessage userMessage = new UserMessage(currentUser.getId(),null,video,false);
+			heartbeatMap.put(currentUser.getId(),userMessage);
 
             if(clustered) {
             	
             	if(logger.isDebugEnabled()) logger.debug("We are clustered. Propagating heartbeat ...");
             	
-                Message msg = new Message(null, null, HEARTBEAT_PREAMBLE + video + HEARTBEAT_SEPARATOR + currentUser.getId());
+                Message msg = new Message(null, null, userMessage);
                 try {
                     clusterChannel.send(msg);
                     if(logger.isDebugEnabled()) logger.debug("Heartbeat message sent.");
@@ -595,8 +597,8 @@ public class PCServiceEntityProvider extends AbstractEntityProvider implements R
             try {
             	
             	if(logger.isDebugEnabled()) logger.debug("Sending messagMap clear message for " + userId + " ...");
-            	
-                Message msg = new Message(null, null, CLEAR_PREAMBLE + userId);
+            	UserMessage userMessage = new UserMessage(userId,null,CLEAR_PREAMBLE,true);
+                Message msg = new Message(null, null, userMessage);
                 clusterChannel.send(msg);
             } catch (Exception e) {
                 logger.error("Error sending JGroups clear message", e);
@@ -704,25 +706,22 @@ public class PCServiceEntityProvider extends AbstractEntityProvider implements R
      */
     public void receive(Message msg) {
         Object o = msg.getObject();
-        if (o instanceof String) {
-            String message = (String) o;
-            if (message.startsWith(HEARTBEAT_PREAMBLE)) {
-            	String messageContent = message.substring(HEARTBEAT_PREAMBLE.length());
-                String onlineUserId = messageContent.substring(messageContent.indexOf(HEARTBEAT_SEPARATOR)+1);
-                String video = messageContent.substring(0,messageContent.indexOf(HEARTBEAT_SEPARATOR));
-                heartbeatMap.put(onlineUserId, new UserMessage(video));
-            } else if (message.startsWith(MESSAGE_PREAMBLE) || message.startsWith(VIDEO_MESSAGE_PREAMBLE)) {
-                Address address = clusterChannel.getAddress();
-                String[] parts = message.split(":");
-                String from = parts[1];
-                String to = parts[2];
-                String m = parts[3];
-                addMessageToMap(new UserMessage(from, to, m, message.startsWith(VIDEO_MESSAGE_PREAMBLE)));
-            } else if (message.startsWith(CLEAR_PREAMBLE)) {
-                String userId = message.substring(CLEAR_PREAMBLE.length());
-                synchronized (messageMap) {
-                    messageMap.remove(userId);
-				}
+        if (o instanceof UserMessage) {
+            UserMessage message = (UserMessage) o;
+            if (message.to==null) {
+            	if (CLEAR_PREAMBLE.equals(message.content)) {
+                    String userId = message.from;
+                    synchronized (messageMap) {
+                        messageMap.remove(userId);
+    				}
+            	} else {
+            		if(logger.isDebugEnabled()) logger.debug("Received heartbeat from cluster ...");
+            		heartbeatMap.put(message.from, message);
+            	}
+            } else  {
+            	if(logger.isDebugEnabled()) logger.debug("Received "+(message.video?"video":"")+"message from cluster ...");
+                if(logger.isDebugEnabled()) logger.debug("Received from "+message.from+" data "+message.content+" ...");
+                addMessageToMap(message);
             } 
         }
     }
