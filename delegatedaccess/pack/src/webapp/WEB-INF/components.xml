@@ -105,7 +105,7 @@
 	
 	<!-- Cache: ttl=1 hour -->
     <bean id="org.sakaiproject.delegatedaccess.cache"
-        class="org.springframework.cache.ehcache.EhCacheFactoryBean">
+        class="org.sakaiproject.memory.util.EhCacheFactoryBean">
         <property name="cacheManager">
             <ref bean="org.sakaiproject.memory.api.MemoryService.cacheManager"/>
         </property>
@@ -126,7 +126,7 @@
     </bean>
 
 	<bean id="org.sakaiproject.delegatedaccess.logic.ProjectLogic.nodeCache"
-	    class="org.springframework.cache.ehcache.EhCacheFactoryBean">
+	    class="org.sakaiproject.memory.util.EhCacheFactoryBean">
 	  <property name="cacheManager">
 	    <ref bean="org.sakaiproject.memory.api.MemoryService.cacheManager"/>
 	  </property>
@@ -136,7 +136,7 @@
 	</bean>
 	
 	<bean id="org.sakaiproject.delegatedaccess.logic.ProjectLogic.restrictedAuthToolsCache"
-	    class="org.springframework.cache.ehcache.EhCacheFactoryBean">
+	    class="org.sakaiproject.memory.util.EhCacheFactoryBean">
 	  <property name="cacheManager">
 	    <ref bean="org.sakaiproject.memory.api.MemoryService.cacheManager"/>
 	  </property>
@@ -146,7 +146,7 @@
 	</bean>
 
 	<bean id="org.sakaiproject.delegatedaccess.logic.ProjectLogic.restrictedPublicToolsCache"
-	    class="org.springframework.cache.ehcache.EhCacheFactoryBean">
+	    class="org.sakaiproject.memory.util.EhCacheFactoryBean">
 	  <property name="cacheManager">
 	    <ref bean="org.sakaiproject.memory.api.MemoryService.cacheManager"/>
 	  </property>
