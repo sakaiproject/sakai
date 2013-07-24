@@ -608,7 +608,7 @@ public class GradebookExternalAssessmentServiceImpl extends BaseHibernateManager
 		//             but are not reported by any provider should be included for everyone. This is
 		//             to accommodate tools that use the external assessment mechanisms but have not
 		//             implemented an ExternalAssignmentProvider.
-		List<org.sakaiproject.service.gradebook.shared.Assignment> allAssignments = getGradebookService().getAssignments(gradebookUid);
+		List<org.sakaiproject.service.gradebook.shared.Assignment> allAssignments = getGradebookService().getViewableAssignmentsForCurrentUser(gradebookUid);
 		for (org.sakaiproject.service.gradebook.shared.Assignment assignment : allAssignments) {
 			String id = assignment.getExternalId();
 			if (assignment.isExternallyMaintained() && !providedAssignments.contains(id)) {
