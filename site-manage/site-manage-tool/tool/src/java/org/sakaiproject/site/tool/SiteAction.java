@@ -5344,18 +5344,22 @@ private Map<String,List> getToolGroupList(SessionState state, String type, Site 
 					newTool.multiple = false;
 				} else {
 					Tool tr = ToolManager.getTool(id);
-					if (tr != null) {
-						String toolId = tr.getId();
-						newTool = new MyTool();
-						newTool.title = tr.getTitle();
-						newTool.id = toolId;
-						newTool.description = tr.getDescription();
-						newTool.group = groupName;
-						newTool.moreInfo =  getMoreInfoUrl(moreInfoDir, toolId);
-						newTool.required = ServerConfigurationService.toolGroupIsRequired(groupId,toolId);
-						newTool.selected = ServerConfigurationService.toolGroupIsSelected(groupId,toolId);
-						// does tool allow multiples and if so are they already defined?
-						newTool.multiple = isMultipleInstancesAllowed(toolId); // SAK-16600 - this flag will allow action for template#3 to massage list into new format
+					if (tr != null) 
+					{
+							String toolId = tr.getId();
+							if (isSiteTypeInToolCategory(type, tr) && notStealthOrHiddenTool(toolId) ) // SAK 23808
+							{
+								newTool = new MyTool();
+								newTool.title = tr.getTitle();
+								newTool.id = toolId;
+								newTool.description = tr.getDescription();
+								newTool.group = groupName;
+								newTool.moreInfo =  getMoreInfoUrl(moreInfoDir, toolId);
+								newTool.required = ServerConfigurationService.toolGroupIsRequired(groupId,toolId);
+								newTool.selected = ServerConfigurationService.toolGroupIsSelected(groupId,toolId);
+								// does tool allow multiples and if so are they already defined?
+								newTool.multiple = isMultipleInstancesAllowed(toolId); // SAK-16600 - this flag will allow action for template#3 to massage list into new format
+							}
 					}
 				}
 				if (newTool != null) {
@@ -5363,6 +5367,7 @@ private Map<String,List> getToolGroupList(SessionState state, String type, Site 
 					if (newTool.selected) {
 						selectedTools.add(newTool.id);
 					}
+					newTool = null;
 				}
 			}
 			M_log.debug(groupName + ": loaded " + new Integer(toolsInGroup.size()).toString() + " tools");
@@ -5552,7 +5557,7 @@ private Map<String,List> getToolGroupList(SessionState state, String type, Site 
 			}
 		}
 		// remove all toolMultiples
-		Map toolMultiples = getToolGroupMultiples(state, ungroupedTools);
+		/*Map toolMultiples = getToolGroupMultiples(state, ungroupedTools);
 		if (toolMultiples != null) {
 			for(Iterator tmiter = toolMultiples.keySet().iterator(); tmiter.hasNext();) {
 				String toolId = (String) tmiter.next();
@@ -5564,7 +5569,7 @@ private Map<String,List> getToolGroupList(SessionState state, String type, Site 
 					}
 				}
 			}
-		}
+		}*/
 		
 		// assign group name to all remaining tools
 		for (Iterator listitr = ungroupedTools.iterator(); listitr.hasNext(); ) {
@@ -10270,9 +10275,32 @@ private Map<String,List> getToolGroupList(SessionState state, String type, Site 
 	private boolean notStealthOrHiddenTool(String toolId) {
 		Tool tool = ToolManager.getTool(toolId);
 		Set<Tool> tools = ToolManager.findTools(Collections.emptySet(), null);
-		return tool != null && tools.contains(tool);
+		boolean result =  tool != null && tools.contains(tool);
+		return result;
 
 	}
+
+
+	/**
+	 * Is the siteType listed in the tool properties list of categories?
+	 * @param siteType
+	 * @param tool
+	 * @return
+	 * SAK 23808
+	 */
+	private boolean isSiteTypeInToolCategory(String siteType, Tool tool) {
+		Set<Tool> tools = ToolManager.findTools(Collections.emptySet(), null);
+		Set<String> categories = tool.getCategories();
+		Iterator<String> iterator = categories.iterator();
+	    while(iterator.hasNext()) {
+	        String nextCat = iterator.next();
+	        if(nextCat.equals(siteType)) {
+	            return true;
+	        }
+	    }
+	    return false;	        
+	}
+
 
 	/**
 	 * getFeatures gets features for a new site
