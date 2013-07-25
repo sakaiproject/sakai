@@ -1,12 +1,13 @@
 package org.sakaiproject.portal.chat.entity;
 
 import java.io.File;
+import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
+import java.io.Serializable;
 import java.lang.reflect.Method;
 import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.Collection;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
@@ -21,7 +22,6 @@ import org.jgroups.JChannel;
 import org.jgroups.Message;
 import org.jgroups.Receiver;
 import org.jgroups.View;
-import org.apache.commons.lang3.StringUtils;
 import org.sakaiproject.component.api.ComponentManager;
 import org.sakaiproject.component.api.ServerConfigurationService;
 import org.sakaiproject.email.api.EmailService;
@@ -61,21 +61,6 @@ public class PCServiceEntityProvider extends AbstractEntityProvider implements R
 	
 	public final static String ENTITY_PREFIX = "portal-chat";
 	
-
-    /* JGROUPS MESSAGE PREFIXES */
-
-    /* Heartbeat messages start with this */
-    private final String HEARTBEAT_PREAMBLE = "heartbeat:";
-    /* Heartbeat messages separator */
-    private final String HEARTBEAT_SEPARATOR = ":";
-    /* Message messages start with this */
-    private final String MESSAGE_PREAMBLE = "message:";
-    /* Message messages start with this */
-    private final String VIDEO_MESSAGE_PREAMBLE = "videomessage:";
-    /* Clear messages start with this */
-    private final String CLEAR_PREAMBLE = "clear:";
-
-
     /* SAK-20565. Gets set to false if Profile2 isn't available */
     private boolean connectionsAvailable = true;
     
@@ -373,29 +358,59 @@ public class PCServiceEntityProvider extends AbstractEntityProvider implements R
 	    return new String[] { Formats.HTML };
 	}
 	
-	public class UserMessage {
+	public class UserMessage implements Serializable {
+		
+		private static final long serialVersionUID = 1L;
 		
 		public String from;
 	    public String to;
 		public String content;
 		public long timestamp;
 		public boolean video;
+		public boolean clear;
 		
 		private UserMessage() {
 
 		}
 
-		private UserMessage(String videoContent) {
-			this("","",videoContent,false);
+		private UserMessage(String from, boolean clear) {
+			this(from,null,null,false,clear);
 		}
-		
-        private UserMessage(String from, String to, String content, boolean video) {
+
+		private UserMessage(String from, String to, String content, boolean video) {
+			this(from,to,content,video,false);
+		}
+
+		private UserMessage(String from, String content) {
+			this(from,null,content,false,false);
+		}
+
+        private UserMessage(String from, String to, String content, boolean video, boolean clear) {
             this.to = to;
 			this.from = from;
 			this.content = content;
 			this.timestamp = (new Date()).getTime();
 			this.video = video;
+			this.clear = clear;
 		}
+        
+        private void writeObject(java.io.ObjectOutputStream out) throws IOException {
+        	out.writeObject(from);
+        	out.writeObject(to);
+        	out.writeObject(content);
+        	out.writeObject(timestamp);
+        	out.writeObject(video);
+        	out.writeObject(clear);
+        }
+        
+        private void readObject(java.io.ObjectInputStream in) throws IOException, ClassNotFoundException {
+        	this.from = (String)in.readObject();
+        	this.to = (String)in.readObject();
+        	this.content = (String)in.readObject();
+        	this.timestamp = (Long)in.readObject();
+        	this.video = (Boolean)in.readObject();
+        	this.clear = (Boolean)in.readObject();
+        }
 	}
 
 	public class PortalChatUser {
@@ -457,7 +472,7 @@ public class PCServiceEntityProvider extends AbstractEntityProvider implements R
 			
 			if(logger.isDebugEnabled()) logger.debug(currentUser.getEid() + " is online. Stamping their heartbeat ...");
 			
-			UserMessage userMessage = new UserMessage(currentUser.getId(),null,video,false);
+			UserMessage userMessage = new UserMessage(currentUser.getId(),video);
 			heartbeatMap.put(currentUser.getId(),userMessage);
 
             if(clustered) {
@@ -597,7 +612,7 @@ public class PCServiceEntityProvider extends AbstractEntityProvider implements R
             try {
             	
             	if(logger.isDebugEnabled()) logger.debug("Sending messagMap clear message for " + userId + " ...");
-            	UserMessage userMessage = new UserMessage(userId,null,CLEAR_PREAMBLE,true);
+            	UserMessage userMessage = new UserMessage(userId,true);
                 Message msg = new Message(null, null, userMessage);
                 clusterChannel.send(msg);
             } catch (Exception e) {
@@ -709,7 +724,7 @@ public class PCServiceEntityProvider extends AbstractEntityProvider implements R
         if (o instanceof UserMessage) {
             UserMessage message = (UserMessage) o;
             if (message.to==null) {
-            	if (CLEAR_PREAMBLE.equals(message.content)) {
+            	if (message.clear) {
                     String userId = message.from;
                     synchronized (messageMap) {
                         messageMap.remove(userId);
@@ -720,7 +735,6 @@ public class PCServiceEntityProvider extends AbstractEntityProvider implements R
             	}
             } else  {
             	if(logger.isDebugEnabled()) logger.debug("Received "+(message.video?"video":"")+"message from cluster ...");
-                if(logger.isDebugEnabled()) logger.debug("Received from "+message.from+" data "+message.content+" ...");
                 addMessageToMap(message);
             } 
         }
