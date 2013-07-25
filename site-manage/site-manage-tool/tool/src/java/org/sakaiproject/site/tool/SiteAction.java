@@ -5371,18 +5371,20 @@ private Map<String,List> getToolGroupList(SessionState state, String type, Site 
 				}
 			}
 			M_log.debug(groupName + ": loaded " + new Integer(toolsInGroup.size()).toString() + " tools");
-			toolGroup.put(groupName, toolsInGroup);
+			if (toolsInGroup.size() > 0) {
+				toolGroup.put(groupName, toolsInGroup);
+			}
 		}
 	}
 	}
-	
-	// add ungroups tools to end of toolGroup list 
-    	String ungroupedName = ServerConfigurationService.getString("config.sitemanage.ungroupedToolGroupName","Ungrouped Tools");
-	List ungroupedList = getUngroupedTools(ungroupedName,  toolGroup, state, type, moreInfoDir, countryCode, site);
-	if (ungroupedList.size() > 0) {
-	        toolGroup.put(ungroupedName, ungroupedList );
-	}
-	
+
+
+       // add ungroups tools to end of toolGroup list
+       String ungroupedName = ServerConfigurationService.getString("config.sitemanage.ungroupedToolGroupName","Ungrouped Tools");
+       List ungroupedList = getUngroupedTools(ungroupedName,  toolGroup, state, type, moreInfoDir, countryCode, site);
+       if (ungroupedList.size() > 0) {
+               toolGroup.put(ungroupedName, ungroupedList );
+       }
 	
 	// add external tools to end of toolGroup list
 	String externaltoolgroupname = ServerConfigurationService.getString("config.sitemanage.externalToolGroupName","Plugin Tools");
@@ -5541,7 +5543,7 @@ private Map<String,List> getToolGroupList(SessionState state, String type, Site 
 		if ( ungroupedToolsOld != null )
 			ungroupedTools.addAll(ungroupedToolsOld);
 		
-		// Grab tool multiples too
+		// Grab tool les too
 		// get all the groups that are available for this site type
 		for (Iterator<String> toolgroupitr = toolsByGroup.keySet().iterator(); toolgroupitr.hasNext();) {
 			String groupName = toolgroupitr.next();
@@ -5559,7 +5561,7 @@ private Map<String,List> getToolGroupList(SessionState state, String type, Site 
 			}
 		}
 		// remove all toolMultiples
-		/*Map toolMultiples = getToolGroupMultiples(state, ungroupedTools);
+		Map toolMultiples = getToolGroupMultiples(state, ungroupedTools);
 		if (toolMultiples != null) {
 			for(Iterator tmiter = toolMultiples.keySet().iterator(); tmiter.hasNext();) {
 				String toolId = (String) tmiter.next();
@@ -5571,7 +5573,7 @@ private Map<String,List> getToolGroupList(SessionState state, String type, Site 
 					}
 				}
 			}
-		}*/
+		}
 		
 		// assign group name to all remaining tools
 		for (Iterator listitr = ungroupedTools.iterator(); listitr.hasNext(); ) {
