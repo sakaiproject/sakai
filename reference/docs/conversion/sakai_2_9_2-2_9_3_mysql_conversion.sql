@@ -16,3 +16,13 @@ create index lesson_builder_item_gb on lesson_builder_items(gradebookid);
 create index lesson_builder_item_altgb on lesson_builder_items(altGradebook);
 create index lesson_builder_prop_idx on lesson_builder_properties(attribute);
 -- end LSNBLDR-227
+
+-- BLTI-238
+ALTER TABLE lti_mapping MODIFY     matchpattern VARCHAR(255);
+ALTER TABLE lti_mapping MODIFY     launch VARCHAR(255);
+ALTER TABLE lti_content MODIFY     title VARCHAR(255);
+ALTER TABLE lti_tools   MODIFY     title VARCHAR(255);
+ALTER TABLE lti_tools   MODIFY     launch TEXT(1024);
+ALTER TABLE lti_tools   MODIFY     consumerkey VARCHAR(255);
+ALTER TABLE lti_tools   MODIFY     secret VARCHAR(255);
+-- end BLTI-238
