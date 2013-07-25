@@ -5376,11 +5376,13 @@ private Map<String,List> getToolGroupList(SessionState state, String type, Site 
 	}
 	}
 	
-	// add ungroups tools to end of toolGroup list if selected
-	String ungroupedName = ServerConfigurationService.getString("config.sitemanage.ungroupedToolGroupName","Ungrouped Tools");
-	List ungroupedTools = getUngroupedTools(ungroupedName,  toolGroup, state, type, moreInfoDir, countryCode, site);
-	if (ungroupedTools.size() > 0) 
-		toolGroup.put(ungroupedName, ungroupedTools);
+	// add ungroups tools to end of toolGroup list 
+    	String ungroupedName = ServerConfigurationService.getString("config.sitemanage.ungroupedToolGroupName","Ungrouped Tools");
+	List ungroupedList = getUngroupedTools(ungroupedName,  toolGroup, state, type, moreInfoDir, countryCode, site);
+	if (ungroupedList.size() > 0) {
+	        toolGroup.put(ungroupedName, ungroupedList );
+	}
+	
 	
 	// add external tools to end of toolGroup list
 	String externaltoolgroupname = ServerConfigurationService.getString("config.sitemanage.externalToolGroupName","Plugin Tools");
