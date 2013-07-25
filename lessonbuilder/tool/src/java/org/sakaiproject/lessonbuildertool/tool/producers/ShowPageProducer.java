@@ -756,7 +756,7 @@ public class ShowPageProducer implements ViewComponentProducer, DefaultView, Nav
 		    // weird hack. automatically add neo if neo portal enabled
 
 		    String prefix = ServerConfigurationService.getString("portal.neoprefix", "neo-");
-		    if (!skinName.startsWith(prefix))
+		    if (prefix != null && !skinName.startsWith(prefix))
 			skinName = prefix + skinName;
 		    skinRepo = ServerConfigurationService.getString("skin.repo", "/library/skin");
 		    iconBase = skinRepo + "/" + skinName + "/images/";
