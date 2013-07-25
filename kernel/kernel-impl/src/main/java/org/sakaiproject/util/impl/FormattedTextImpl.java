@@ -34,6 +34,7 @@ import org.apache.commons.lang.StringEscapeUtils;
 import org.apache.commons.lang.StringUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
+import org.apache.commons.validator.UrlValidator;
 import org.w3c.dom.Element;
 
 import org.owasp.validator.html.AntiSamy;
@@ -1329,6 +1330,32 @@ public class FormattedTextImpl implements FormattedText
             return "";
         }
     }
+
+    /* (non-Javadoc)
+     * @see org.sakaiproject.util.api.FormattedText#validateURL(java.lang.String)
+     */
+    public boolean validateURL(String urlToValidate) {
+        if (StringUtils.isBlank(urlToValidate)) return false;
+
+        // For a protocol-relative URL, we validate with protocol attached 
+        // RFC 1808 Section 4
+        if ((urlToValidate.startsWith("//")) && (urlToValidate.indexOf("://") == -1))
+        {
+            urlToValidate = "http:" + urlToValidate;
+        }
+
+        // For a site-relative URL, we validate with host name and protocol attached 
+        // SAK-13787 SAK-23752
+        if ((urlToValidate.startsWith("/")) && (urlToValidate.indexOf("://") == -1))
+        {
+            urlToValidate = "http://127.0.0.1:8080" + urlToValidate;
+        }
+
+        // Validate the url
+        UrlValidator urlValidator = new UrlValidator();
+        return urlValidator.isValid(urlToValidate);
+    }
+
 
     // PRIVATE STUFF
 

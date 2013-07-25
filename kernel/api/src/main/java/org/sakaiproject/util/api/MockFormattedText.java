@@ -172,4 +172,9 @@ public class MockFormattedText implements FormattedText {
         return value;
     }
 
+    public boolean validateURL(String urlToValidate) {
+        log.warn(WARNING);
+        return false;
+    }
+
 }

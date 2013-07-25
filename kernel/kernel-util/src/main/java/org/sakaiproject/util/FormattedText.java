@@ -161,4 +161,11 @@ public class FormattedText {
         return getFormattedText().decodeNumericCharacterReferences(value);
     }
 
+    /**
+     * @see org.sakaiproject.util.api.FormattedText#validateURL(String)
+     */
+    public static boolean validateURL(String urlToValidate) {
+        return getFormattedText().validateURL(urlToValidate);
+    }
+
 }

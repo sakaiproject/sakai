@@ -118,6 +118,11 @@
 		<artifactId>commons-lang</artifactId>
 	</dependency>
     <dependency>
+      <groupId>commons-validator</groupId>
+      <artifactId>commons-validator</artifactId>
+      <version>1.3.1</version>
+    </dependency>
+    <dependency>
         <!-- for parsing CSV data from config service files -->
         <groupId>net.sf.opencsv</groupId>
         <artifactId>opencsv</artifactId>

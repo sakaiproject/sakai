@@ -296,7 +296,7 @@ public interface FormattedText {
      * previous form.
      * 
      * @param value
-     * @return
+     * @return converted text
      */
     public String convertOldFormattedText(String value);
 
@@ -355,5 +355,16 @@ public interface FormattedText {
      * @return value fully escaped using URL rules.
      */
     public String escapeUrl(String value);
+
+    /**
+     * General utility to validate a URL.
+     * The idea is to encode the rules we have for URLs we are willing
+     * to put in src="URL" or href="URL" places within our code,
+     * relative URLs must start with "/"
+     * 
+     * @param urlToValidate a URL that might be placed in Sakai content
+     * @return true if the URL is valid OR false if it fails the tests
+     */
+    public boolean validateURL(String urlToValidate);
 
 }
