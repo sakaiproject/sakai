@@ -4486,7 +4486,13 @@ public class SimplePageBean {
 
        private String getYoutubeKeyFromUrl(String URL) {
 	   // 	see if it has a Youtube ID
-	   if (URL.startsWith("http://www.youtube.com/") || URL.startsWith("http://youtube.com/")) {
+	   int offset = 0;
+	   if (URL.startsWith("http:"))
+	       offset = 5;
+	   else if (URL.startsWith("https:"))
+	       offset = 6;
+
+	   if (URL.startsWith("//www.youtube.com/", offset) || URL.startsWith("//youtube.com/", offset)) {
 	       Matcher match = YOUTUBE_PATTERN.matcher(URL);
 	       if (match.find()) {
 		   return normalizeParams(match.group(1));
@@ -4495,7 +4501,7 @@ public class SimplePageBean {
 	       if (match.find()) {
 		   return normalizeParams(match.group(1));
 	       }
-	   }else if(URL.startsWith("http://youtu.be/")) {
+	   }else if(URL.startsWith("//youtu.be/", offset)) {
 	       Matcher match = SHORT_YOUTUBE_PATTERN.matcher(URL);
 	       if(match.find()) {
 		   return normalizeParams(match.group(1));
