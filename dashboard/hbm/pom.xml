@@ -1,0 +1,66 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
+    <modelVersion>4.0.0</modelVersion>
+
+    <parent>
+        <groupId>org.sakaiproject.dash</groupId>
+        <artifactId>dashboard</artifactId>
+        <version>1.0-SNAPSHOT</version>
+    </parent>
+
+    <name>sakai-dashboard-hbm</name>
+    <groupId>org.sakaiproject.dash</groupId>
+    <artifactId>dashboard-hbm</artifactId>
+    <packaging>jar</packaging>
+
+    <properties>
+        <deploy.target>shared</deploy.target>
+    </properties>
+
+    <dependencies>
+        <dependency>
+            <groupId>${project.groupId}</groupId>
+            <artifactId>dashboard-api</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>org.sakaiproject.kernel</groupId>
+            <artifactId>sakai-component-manager</artifactId>
+        </dependency>
+    </dependencies>
+
+    <build>
+        <resources>
+            <resource>
+                <directory>src/java</directory>
+                <includes>
+                    <include>**/*.xml</include>
+                </includes>
+            </resource>
+        </resources>
+
+        <!--
+        <plugins>
+            <plugin>
+                <artifactId>maven-antrun-plugin</artifactId>
+                <executions>
+                    <execution>
+                        <phase>process-resources</phase>
+                        <configuration>
+                            <tasks>
+                                <copy todir="../tool/src/ddl/">
+                                    <fileset file="src/java/org/sakaiproject/lessonbuildertool/simplepageitem.hbm.xml" />
+                                    <fileset file="src/java/org/sakaiproject/lessonbuildertool/simplepage.hbm.xml" />
+                                    <fileset file="src/java/org/sakaiproject/lessonbuildertool/simplepagelogentry.hbm.xml" />
+                                </copy>
+                            </tasks>
+                        </configuration>
+                        <goals>
+                            <goal>run</goal>
+                        </goals>
+                    </execution>
+                </executions>
+            </plugin>
+        </plugins>
+        -->
+    </build>
+</project>

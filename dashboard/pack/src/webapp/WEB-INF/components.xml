@@ -31,6 +31,11 @@
     	<property name="cache" ref="org.sakaiproject.dash.cache" />	
     </bean>
 	
+    <bean id="org.sakaiproject.dash.logic.EventCopy"
+        class="org.sakaiproject.dash.logic.EventCopy">
+    	<property name="sakaiProxy" ref="org.sakaiproject.dash.app.SakaiProxy"></property>
+    </bean>
+
 	<bean id="org.sakaiproject.dash.logic.DashboardLogic" 
     	class="org.sakaiproject.dash.logic.DashboardLogicImpl"
     	init-method="init" destroy-method="destroy">
@@ -146,10 +151,111 @@
 		init-method="init">
 		<property name="dashboardLogic" ref="org.sakaiproject.dash.logic.DashboardLogic"></property>
 	</bean>
-    <bean parent="org.sakaiproject.entitybroker.entityprovider.AbstractEntityProvider" 
+	
+	<bean parent="org.sakaiproject.entitybroker.entityprovider.AbstractEntityProvider" 
 		class="org.sakaiproject.dash.entityprovider.DashboardEntityProvider">
 		<property name="sakaiProxy" ref="org.sakaiproject.dash.app.SakaiProxy" />
 		<property name="dashboardLogic" ref="org.sakaiproject.dash.logic.DashboardLogic" />
 		<property name="dashboardCommonLogic" ref="org.sakaiproject.dash.app.DashboardCommonLogic" />
 	</bean>
+
+  <!-- This is the helper that will register the above bean with the ScheduleManager
+    Things to note:
+      - id must end with the same bean id from above
+      - class must be the class of the SpringJobBeanWrapper, ie don't change it.
+      - the beanId property must match the bean id from above
+      - the jobName property is the text that will be rendered in the list of jobs in Sakai
+  -->
+  <bean id="org.sakaiproject.api.app.scheduler.JobBeanWrapper.dashboardCollectionJob" class="org.sakaiproject.component.app.scheduler.jobs.SpringJobBeanWrapper" singleton="true" init-method="init">
+      <property name="beanId">
+          <value>DashAggregateJob</value>
+      </property>
+      <property name="jobName">
+          <value>Dashboard Aggregate Job</value>
+      </property>
+      <property name="schedulerManager">
+          <ref bean="org.sakaiproject.api.app.scheduler.SchedulerManager" />
+      </property>
+  </bean>
+
+  
+
+  <bean id="org.sakaiproject.dash.dao.SessionFactory"
+      parent="org.sakaiproject.springframework.orm.hibernate.SessionFactoryBase">
+      <property name="mappingResources">
+          <list>
+              <value>org/sakaiproject/dash/dao/JobRunImpl.hbm.xml</value>
+          </list>
+      </property>
+  </bean>
+
+  <bean id="org.sakaiproject.dash.dao.HibernateTransactionManager"
+      class="org.springframework.orm.hibernate3.HibernateTransactionManager">
+      <property name="sessionFactory">
+          <ref bean="org.sakaiproject.dash.dao.SessionFactory" />
+      </property>
+  </bean>
+
+  <bean id="org.sakaiproject.dash.dao.DashHibernateDaoTarget"
+      class="org.sakaiproject.dash.dao.DashHibernateDao">
+      <property name="sessionFactory">
+          <ref bean="org.sakaiproject.dash.dao.SessionFactory" />
+      </property>
+  </bean>
+
+
+  <bean id="org.sakaiproject.dash.dao.DashHibernateDaoProxy"
+      class="org.springframework.transaction.interceptor.TransactionProxyFactoryBean">
+      <property name="transactionManager">
+          <ref bean="org.sakaiproject.dash.dao.HibernateTransactionManager" />
+      </property>
+      <property name="target">
+          <ref bean="org.sakaiproject.dash.dao.DashHibernateDaoTarget" />
+      </property>
+      <property name="transactionAttributes">
+          <props>
+              <prop key="*">PROPAGATION_REQUIRED</prop>
+          </props>
+      </property>
+  </bean>
+
+    <!-- DashUpdateJob _______________________________________________________
+__________________________________ -->
+    <bean id="DashAggregateJob"
+        class="org.sakaiproject.dash.jobs.DashAggregateJob"
+        init-method="init">
+        <!-- OPTIONS: -->
+            <!-- Maximum number of processed events per job run. -->
+            <property name="maxEventsPerRun" value="50000" />
+
+            <!-- Number of processed events in each sql query. -->
+            <property name="sqlBlockSize" value="1000" />
+
+            <!-- Starting eventId to be processed.
+                WARNING: This value is only read on the first job run; after that, job status is tracked in DASH_JOB_RUN table... If not specified, the job will use the most recent EVENT_ID from SAKAI_EVENT table when Sakai start s up.
+             -->
+            <!-- 
+            <property name="startEventId" value="-1" />
+            -->
+
+            <!-- Specify db properties below if SAKAI_EVENT and SAKAI_SESSION tables lives on a different database of Sakai -->
+            <!--
+            <property name="driverClassName" value="com.mysql.jdbc.Driver"/>
+            <property name="url" value="jdbc:mysql://127.0.0.1:3306/GEPUV?useUnicode=true&amp;characterEncoding=UTF-8&amp;autoReconnect=true"/>
+            <property name="username" value="dbuser"/>
+            <property name="password" value="dbpassword"/>
+            -->
+        <!-- /OPTIONS -->
+
+        <!-- Sakai services -->
+        <property name="dashHibernateDao" ref="org.sakaiproject.dash.dao.DashHibernateDaoTarget" />
+        <property name="sqlService" ref="org.sakaiproject.db.api.SqlService" />
+    	<property name="sakaiProxy" ref="org.sakaiproject.dash.app.SakaiProxy"></property>
+		<property name="dashboardLogic" ref="org.sakaiproject.dash.logic.DashboardLogic"></property>
+    </bean>
+
+
+   <!--  if you have multiple jobs you can wire them in here, simply copy the above example blocks and modify as needed -->
+
+
 </beans>

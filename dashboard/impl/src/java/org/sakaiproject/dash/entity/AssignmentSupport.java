@@ -406,14 +406,14 @@ public class AssignmentSupport {
 				String assnReference = assn.getReference();
 				
 				NewsItem newsItem = dashboardLogic.createNewsItem(assn.getTitle(), event.getEventTime(), "assignment.added", assnReference, context, sourceType, null);
-				CalendarItem calendarDueDateItem = null;
-				calendarDueDateItem = dashboardLogic.createCalendarItem(assn.getTitle(), new Date(assn.getDueTime().getTime()), "assignment.due.date", assnReference, context, sourceType, (String) null, (RepeatingCalendarItem) null, (Integer) null);
-				CalendarItem calendarCloseDateItem = assn.getCloseTime().equals(assn.getDueTime())? null : dashboardLogic.createCalendarItem(assn.getTitle(), new Date(assn.getCloseTime().getTime()), "assignment.close.date", assnReference, context, sourceType, (String) null, (RepeatingCalendarItem) null, (Integer) null);
+				CalendarItem calendarDueDateItem = calendarDueDateItem = dashboardLogic.createCalendarItem(assn.getTitle(), new Date(assn.getDueTime().getTime()), "assignment.due.date", assnReference, context, sourceType, (String) null, (RepeatingCalendarItem) null, (Integer) null);
+				CalendarItem calendarCloseDateItem = dashboardLogic.createCalendarItem(assn.getTitle(), new Date(assn.getCloseTime().getTime()), "assignment.close.date", assnReference, context, sourceType, (String) null, (RepeatingCalendarItem) null, (Integer) null);
 
-				// add the news links as appropriate
-				dashboardLogic.createNewsLinks(newsItem);
 
 				if(dashboardLogic.isAvailable(assnReference, IDENTIFIER)) {
+					// add the news links as appropriate
+					dashboardLogic.createNewsLinks(newsItem);
+					
 					if (calendarDueDateItem != null)
 					{
 						// create links for due date Calendar item
@@ -627,30 +627,28 @@ public class AssignmentSupport {
 					nItem.setNewsTime(newTime);
 					// update the open time
 					dashboardLogic.reviseNewsItemTime(assnReference, newTime, nItem.getGroupingIdentifier());
-					
-					if(!dashboardLogic.isAvailable(assnReference, IDENTIFIER)) {
-						// update NewsItem links 
-						dashboardLogic.updateNewsLinks(assnReference);
-						// schedule the availability check into future date
-						dashboardLogic.scheduleAvailabilityCheck(assnReference, IDENTIFIER, new Date(assn.getOpenTime().getTime()));
-					}
-					else
-					{
-						// create all NewsItem links
-						dashboardLogic.createNewsLinks(nItem);
-					}
 				}
 				else
 				{
-					// add NewsItem and links
+					// add NewsItem and calendar items
 					nItem = dashboardLogic.createNewsItem(assn.getTitle(), event.getEventTime(), "assignment.added", assnReference, context, sourceType, null);
+				}
+				
+				if(! dashboardLogic.isAvailable(assnReference, IDENTIFIER))
+				{						
+					// remove all news and calendar links
+					dashboardLogic.removeNewsLinks(assnReference);
+					dashboardLogic.removeCalendarLinks(assnReference);
+					// assignment is not open yet, schedule for check later
+					dashboardLogic.scheduleAvailabilityCheck(assnReference, IDENTIFIER, new Date(assn.getOpenTime().getTime()));
+				}
+				else
+				{
+					// create news links and calendar links
 					dashboardLogic.createNewsLinks(nItem);
-					
-					if(! dashboardLogic.isAvailable(assnReference, IDENTIFIER))
-					{
-						// assignment is not open yet, schedule for check later
-						dashboardLogic.scheduleAvailabilityCheck(assnReference, IDENTIFIER, new Date(assn.getOpenTime().getTime()));
-					}
+					createUpdateAssigmentCalendarItem(context, sourceType, assn.getTitle(), assn.getReference(), new Date(assn.getDueTime().getTime()), "assignment.due.date", new Date(assn.getOpenTime().getTime()));
+					createUpdateAssigmentCalendarItem(context, sourceType, assn.getTitle(), assn.getReference(), new Date(assn.getCloseTime().getTime()), "assignment.close.date", new Date(assn.getOpenTime().getTime()));
+			
 				}
 			}
 		}
@@ -686,14 +684,7 @@ public class AssignmentSupport {
 			if(entity != null && entity instanceof Assignment) {
 				// get the assignment entity and its current title
 				Assignment assn = (Assignment) entity;
-				String assnReference = assn.getReference();
-				CalendarItem cItem = dashboardLogic.getCalendarItem(assnReference, "assignment.due.date", null);
-				
-				if (cItem != null)
-				{
-					Date newTime = new Date(assn.getDueTime().getTime());
-					dashboardLogic.reviseCalendarItemTime(assnReference, "assignment.due.date", null, newTime);
-				}
+				createUpdateAssigmentCalendarItem(context, sourceType, assn.getTitle(), assn.getReference(), new Date(assn.getDueTime().getTime()), "assignment.due.date", new Date(assn.getOpenTime().getTime()));
 			}
 		}
 	}
@@ -728,14 +719,7 @@ public class AssignmentSupport {
 			if(entity != null && entity instanceof Assignment) {
 				// get the assignment entity and its current title
 				Assignment assn = (Assignment) entity;
-				String assnReference = assn.getReference();
-				CalendarItem cItem = dashboardLogic.getCalendarItem(assnReference, "assignment.close.date", null);
-				
-				if (cItem != null)
-				{
-					Date newTime = new Date(assn.getCloseTime().getTime());
-					dashboardLogic.reviseCalendarItemTime(assnReference, "assignment.close.date", null, newTime);
-				}
+				createUpdateAssigmentCalendarItem(context, sourceType, assn.getTitle(), assn.getReference(), new Date(assn.getCloseTime().getTime()), "assignment.close.date", new Date(assn.getOpenTime().getTime()));
 			}
 		}
 	}
@@ -770,5 +754,40 @@ public class AssignmentSupport {
 			EntitySupportUtil.updateNewsItemTimeTitle(event);
 		}
 
+	}
+	
+	/**
+	 * Util method. Used when handling the assignment update due date or update close date event 
+	 * @param context
+	 * @param sourceType
+	 * @param assnTitle
+	 * @param assnReference
+	 * @param calendarItemTime
+	 * @param calendarItemLabel
+	 * @param assignmentOpenDate
+	 */
+	private void createUpdateAssigmentCalendarItem(Context context,
+			SourceType sourceType, String assnTitle, String assnReference, Date calendarItemTime, String calendarItemLabel, Date assignmentOpenDate) {
+		CalendarItem cItem = dashboardLogic.getCalendarItem(assnReference, calendarItemLabel, null);
+		
+		if (cItem != null)
+		{
+
+			dashboardLogic.reviseCalendarItemTime(assnReference, calendarItemLabel, null, calendarItemTime);
+		}
+		else
+		{
+			// create a CalendarItem if there is none before
+			CalendarItem dateItem = dashboardLogic.createCalendarItem(assnTitle, calendarItemTime, calendarItemLabel, assnReference, context, sourceType, null, null, null);
+			if(dashboardLogic.isAvailable(assnReference, IDENTIFIER)) {
+				// if the assignment is open now, add date link
+				dashboardLogic.createCalendarLinks(dateItem);
+			}
+			else
+			{
+				// otherwise, schedule a check for availability
+				dashboardLogic.scheduleAvailabilityCheck(assnReference, IDENTIFIER, assignmentOpenDate);
+			}
+		}
 	}
 }
