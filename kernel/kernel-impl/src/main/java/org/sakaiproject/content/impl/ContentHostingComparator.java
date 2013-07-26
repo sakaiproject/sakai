@@ -69,7 +69,7 @@ public class ContentHostingComparator implements Comparator
 	 * 
 	 * @param property
 	 *        The property name used for the sort.
-	 * @param asc
+	 * @param ascending
 	 *        true if the sort is to be ascending (false for descending).
 	 */
 	public ContentHostingComparator(String property, boolean ascending, boolean is_smart) {
