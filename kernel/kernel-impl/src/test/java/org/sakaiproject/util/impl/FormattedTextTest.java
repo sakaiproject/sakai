@@ -756,6 +756,15 @@ public class FormattedTextTest extends TestCase {
         assertTrue( result.contains("src=\"//www.youtube.com/v/JNSK0647wJI"));
     }
 
+    public void testValidateURL() {
+        // https://jira.sakaiproject.org/browse/KNL-1100
+        boolean result = false;
+        result = formattedText.validateURL("http://www.vt.edu/");
+        assertTrue(result);
+        result = formattedText.validateURL("XXXXXXXX");
+        assertFalse(result);
+    }
+
 
     public void testBasicUrlMatch() {
         assertEquals("I like <a href=\"http://www.apple.com\">http://www.apple.com</a> and stuff", formattedText.encodeUrlsAsHtml(formattedText.escapeHtml("I like http://www.apple.com and stuff")));
