@@ -44,7 +44,6 @@ import java.util.Date;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
-import org.apache.commons.validator.UrlValidator;
 
 import javax.portlet.GenericPortlet;
 import javax.portlet.RenderRequest;
@@ -339,7 +338,7 @@ public class PortletIFrame extends GenericPortlet {
             //System.out.println("special="+special+" source="+source+" pgc="+placement.getContext()+" macroExpansion="+macroExpansion+" passPid="+passPid+" PGID="+placement.getId()+" sakaiPropertiesUrlKey="+sakaiPropertiesUrlKey+" url="+url);
 
 			if ( url != null && url.trim().length() > 0 ) {
-				if ( ! validateUrl(url) ) {
+				if ( ! FormattedText.validateURL(url) ) {
 					M_log.warn("invalid URL suppressed placement="+placement.getId()+" site="+placement.getContext()+" url="+url);
 					url = "about:blank";
 				}
@@ -681,7 +680,7 @@ public class PortletIFrame extends GenericPortlet {
             }
 
             // If we have a URL from the user, lets validate it
-            if ((!StringUtils.isBlank(source)) && (!validateUrl(source)) ) {
+            if ((!StringUtils.isBlank(source)) && (!FormattedText.validateURL(source)) ) {
                 addAlert(request, rb.getString("gen.url.invalid"));
                 return;
             }
@@ -699,7 +698,7 @@ public class PortletIFrame extends GenericPortlet {
             }
 
             // If we have an infourl from the user, lets validate it
-            if ((!StringUtils.isBlank(infoUrl)) && (!validateUrl(infoUrl)) ) {
+            if ((!StringUtils.isBlank(infoUrl)) && (!FormattedText.validateURL(infoUrl)) ) {
                 addAlert(request, rb.getString("gen.url.invalid"));
                 return;
             }
@@ -1250,33 +1249,6 @@ public class PortletIFrame extends GenericPortlet {
             config.setProperty(key,mconfig.getProperty(key));
         }
         return config;
-    }
-
-    // General utility to validate a URL - move this to Kernel 
-    // The idea is to encode the rules we have for URLs we are willing
-    // to put in src= or href= places within our code
-    // relative URLs must start with "/"
-    private boolean validateUrl(String urlToValidate)
-    {
-        if (StringUtils.isBlank(urlToValidate)) return false;
-
-        // For a protocol-relative URL, we validate with protocol attached 
-        // RFC 1808 Section 4
-        if ((urlToValidate.startsWith("//")) && (urlToValidate.indexOf("://") == -1))
-        {
-            urlToValidate = "http:" + urlToValidate;
-        }
-
-        // For a site-relative URL, we validate with host name and protocol attached 
-        // SAK-13787 SAK-23752
-        if ((urlToValidate.startsWith("/")) && (urlToValidate.indexOf("://") == -1))
-        {
-            urlToValidate = "http://127.0.0.1:8080" + urlToValidate;
-        }
-
-        // Validate the url
-        UrlValidator urlValidator = new UrlValidator();
-        return urlValidator.isValid(urlToValidate);
     }
 
     /**
