@@ -74,10 +74,15 @@
             <artifactId>json-simple</artifactId>
             <version>1.1</version>
         </dependency>
+
+        <!-- BLTI-233 - we hard-code this to a solid version of the LessonBuilder API 
+             rather than 1.4-SNAPHOT to avoid a circular dependency.  We will want to
+             track this as time passes - but the portion of this API we use is not likely
+             to change too much.  -->
         <dependency>
             <groupId>org.sakaiproject.lessonbuilder</groupId>
             <artifactId>sakai-lessonbuildertool-api</artifactId>
-            <version>1.4-SNAPSHOT</version>
+            <version>1.4.1</version>
             <scope>provided</scope>
         </dependency>
 
