@@ -321,7 +321,7 @@ table.calendar .event {
 /* skinned cell of standard tab. data table */
 .listHier td {
     vertical-align: top;
-    padding: .3em .4em !important;
+    padding: .3em .4em;
 }
 /* lines - provides rules and hover effects on some tables */
 table.lines {
