@@ -454,43 +454,7 @@ public class DBLTIService extends BaseLTIService implements LTIService {
 		// System.out.println("Insert SQL="+sql);
 		final Object[] fields = foorm.getInsertObjects(newMapping);
 
-		// Requires KNL-767
-		/* Long retval = m_sql.dbInsert(null, sql, fields, LTIService.LTI_ID); */
-
-		// In this version we don't get the key back for HSQL - not ideal - but works without
-		// KNL-767
-
-		/* Workaround */
-		Long retval = new Long(-1);
-		// HSQL does not support getGeneratedKeys() - Yikes
-		if ("hsqldb".equals(m_sql.getVendor())) {
-			try {
-				retval = m_sql.dbInsert(null, sql, fields, LTIService.LTI_ID);
-			} catch (Exception e) { // KNL-767 is not fixed
-				M_log.warn("Falling back to jdbcTemplate.update because KNL-767 is not fixed.");
-				M_log
-					.warn("The previous traceback was not-fatal and will go away when KNL-767 is fixed.");
-				M_log
-					.warn("Spring JDBC cannot get a key back from an HSQL insert, but at least the insert works.");
-				jdbcTemplate.update(sql, fields); // At least insert the data
-			}
-		} else {
-
-			KeyHolder keyHolder = new GeneratedKeyHolder();
-
-			jdbcTemplate.update(new PreparedStatementCreator() {
-					public PreparedStatement createPreparedStatement(Connection connection)
-					throws SQLException {
-					PreparedStatement ps = connection.prepareStatement(sql, new String[] { LTIService.LTI_ID });
-					for (int i = 0; i < fields.length; i++) {
-					ps.setObject(i + 1, fields[i]);
-					}
-					return ps;
-					}
-					}, keyHolder);
-			retval = foorm.getLong(keyHolder.getKey());
-		}
-		/* end of workaround */
+		Long retval = m_sql.dbInsert(null, sql, fields, LTIService.LTI_ID);
 
 		// System.out.println("Insert="+retval);
 		return retval;
@@ -637,10 +601,8 @@ public class DBLTIService extends BaseLTIService implements LTIService {
 			fields[0] = key;
 		}
 
-		// TODO: Once KNL-775 is safely in
-		// return m_sql.dbWriteCount(statement, fields, null, null, false) == 1;
-
-		return jdbcTemplate.update(statement, fields) == 1;
+		int count = m_sql.dbWriteCount(statement, fields, null, null, false);
+		return count == 1;
 	}
 
 	/**
@@ -708,12 +670,9 @@ public class DBLTIService extends BaseLTIService implements LTIService {
 		Object[] fields = foorm.getUpdateObjects(newMapping);
 		// System.out.println("Fields="+Arrays.toString(fields));
 
-		// TODO: Once KNL-775 is safely in
-		// int count = m_sql.dbWriteCount(sql, fields, null, null, false);
+		int count = m_sql.dbWriteCount(sql, fields, null, null, false);
 
-		int count = jdbcTemplate.update(sql, fields);
 		// System.out.println("count="+count);
-
 		return count == 1;
 	}
 

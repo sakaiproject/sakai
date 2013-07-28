@@ -32,8 +32,4 @@
             <artifactId>basiclti-impl</artifactId>
         </dependency>
     </dependencies>
-    
-    <build>
-        <resources />
-    </build>
 </project>

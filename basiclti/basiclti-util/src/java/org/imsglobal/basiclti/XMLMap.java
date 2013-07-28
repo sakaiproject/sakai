@@ -558,7 +558,7 @@ public class XMLMap {
 					Object listObj = listIter.next();
 					doDebug(d,"Processing List element@"+newPos+" "+listObj.getClass().getName());
 					if ( listObj instanceof String ) {
-						storeInDom(document, parentNode, key, (String) obj, newPos, d);
+						storeInDom(document, parentNode, key, (String) listObj, newPos, d);
 						newPos++;
 					} if ( listObj instanceof Map ) {
 						Map subMap = (Map) listObj;
@@ -759,7 +759,7 @@ public class XMLMap {
 			tf.transform (new javax.xml.transform.dom.DOMSource (node),
 					new javax.xml.transform.stream.StreamResult (baStream));
 			return baStream.toString();
-		} catch (Exception e)  {
+		} catch (javax.xml.transform.TransformerException e)  {
 			return null;
 		}
 	}

@@ -434,7 +434,7 @@ public class ProviderServlet extends HttpServlet {
           }
           // store modified tool_id back in payload
           payload.put("tool_id", tool_id);
-          final String allowedToolsConfig = ServerConfigurationService.getString("basiclti.provider.allowedtools", null);
+          final String allowedToolsConfig = ServerConfigurationService.getString("basiclti.provider.allowedtools", "");
 
           final String[] allowedTools = allowedToolsConfig.split(":");
           final List<String> allowedToolsList = Arrays.asList(allowedTools);
