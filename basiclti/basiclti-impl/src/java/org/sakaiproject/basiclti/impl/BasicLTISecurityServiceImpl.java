@@ -315,9 +315,11 @@ public class BasicLTISecurityServiceImpl implements EntityProducer {
 									   ltiService.filterContent(content, tool);
 								   }
 							   }
-							   String splash = (String) tool.get("splash");
+							   String splash = null;
+							   if ( tool != null ) splash = (String) tool.get("splash");
 							   String splashParm = req.getParameter("splash");
-							   String siteId = (String) tool.get(LTIService.LTI_SITE_ID);
+							   String siteId = null;
+							   if ( tool != null ) siteId = (String) tool.get(LTIService.LTI_SITE_ID);
 							   if ( splashParm == null && splash != null && splash.trim().length() > 1 )
 							   {
 									// XSS Note: Administrator-created tools can put HTML in the splash.
