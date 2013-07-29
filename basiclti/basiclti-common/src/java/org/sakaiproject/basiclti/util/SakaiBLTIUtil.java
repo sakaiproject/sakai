@@ -280,7 +280,7 @@ public class SakaiBLTIUtil {
 		}
 
 		// Add the generic information
-		addGlobalData(props, rb);
+		addGlobalData(site, props, rb);
 		addRoleInfo(props, context);
 		addSiteInfo(props, site);
 
@@ -425,7 +425,7 @@ public class SakaiBLTIUtil {
 		}
 	} 
 
-	public static void addGlobalData(Properties props, ResourceLoader rb)
+	public static void addGlobalData(Site site, Properties props, ResourceLoader rb)
 	{
 
 		if ( rb != null ) setProperty(props,BasicLTIConstants.LAUNCH_PRESENTATION_LOCALE,rb.getLocale().toString()); 
@@ -446,6 +446,14 @@ public class SakaiBLTIUtil {
 		String tool_css = ServerConfigurationService.getString("basiclti.consumer.launch_presentation_css_url",null);
 		if ( tool_css == null ) tool_css = getOurServerUrl() + CSSUtils.getCssToolBase();
 		setProperty(props,BasicLTIConstants.LAUNCH_PRESENTATION_CSS_URL, tool_css);  
+
+		// Send along the CSS URL list
+		String tool_css_all = ServerConfigurationService.getString("basiclti.consumer.ext_sakai_launch_presentation_css_url_all",null);
+		if ( tool_css_all == null ) {
+			tool_css_all = getOurServerUrl() + CSSUtils.getCssToolBase() + ',' + getOurServerUrl() + CSSUtils.getCssToolSkin(site);
+		}
+		setProperty(props,"ext_sakai_" + BasicLTIConstants.LAUNCH_PRESENTATION_CSS_URL + "_list", tool_css_all);  
+
 
 		// Let tools know we are coming from Sakai
 		String sakaiVersion = ServerConfigurationService.getString("version.sakai","2");
@@ -515,7 +523,7 @@ public class SakaiBLTIUtil {
 		// Start building up the properties
 		Properties ltiProps = new Properties();
 		Properties toolProps = new Properties();
-		addGlobalData(ltiProps, rb);
+		addGlobalData(site, ltiProps, rb);
 		addSiteInfo(ltiProps, site);
 		addRoleInfo(ltiProps, context);
 
