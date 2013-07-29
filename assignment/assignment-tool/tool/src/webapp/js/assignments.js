@@ -40,9 +40,9 @@ function setupAssignNew(){
                 $('#' + nodeType + '_title').val('');
                 $('#' + nodeType + '_title_holder').val('');
                 // uncheck all checkboxes 
-                $('#allPurposeGroupLists input[@type=checkbox]').attr('checked', '');
+                $('#allPurposeGroupLists input[type=checkbox]').attr('checked', '');
                 $('#allPurposeGroupLists label').removeClass('selectedItem');
-                $('#allPurposeAttachShowWhen input[@type=checkbox]').attr('checked', '');
+                $('#allPurposeAttachShowWhen input[type=checkbox]').attr('checked', '');
                 $('#allPurposeAttachShowWhen #allPurposeHide1').attr('checked', 'checked');
                 $('#allPurposeAttachShowWhen #allPurposeHide2').attr('checked', '');
                 $('#allPurposeAttachShowWhen select').val('1');

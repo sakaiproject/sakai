@@ -50,6 +50,20 @@ public interface AssignmentSupplementItemService {
 	 */
 	public List<String> getAttachmentListForSupplementItem(AssignmentSupplementItemWithAttachment item);
 	
+	/**
+	 * reset the attachment list
+	 * @param item
+	 * @return
+	 */
+	public boolean cleanAttachment(AssignmentSupplementItemWithAttachment item);
+
+	/**
+	 * remove the AssignmentSupplementItemAttachment object
+	 * @param attachment
+	 * @return
+	 */
+	public boolean removeAttachment(AssignmentSupplementItemAttachment attachment);
+
 	/*************** model answer ******************/
 	
 	/**

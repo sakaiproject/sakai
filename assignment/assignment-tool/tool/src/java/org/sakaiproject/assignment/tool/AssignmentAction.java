@@ -6486,7 +6486,10 @@ public class AssignmentAction extends PagedResourceActionII
 			// to delete the model answer
 			AssignmentModelAnswerItem mAnswer = m_assignmentSupplementItemService.getModelAnswer(aId);
 			if (mAnswer != null)
+			{
+				m_assignmentSupplementItemService.cleanAttachment(mAnswer);
 				m_assignmentSupplementItemService.removeModelAnswer(mAnswer);
+			}
 		}
 		else if (state.getAttribute(MODELANSWER_TEXT) != null)
 		{
@@ -6529,7 +6532,11 @@ public class AssignmentAction extends PagedResourceActionII
 			// to remove allPurpose item
 			AssignmentAllPurposeItem nAllPurpose = m_assignmentSupplementItemService.getAllPurposeItem(aId);
 			if (nAllPurpose != null)
+			{
+				m_assignmentSupplementItemService.cleanAttachment(nAllPurpose);
+				m_assignmentSupplementItemService.cleanAllPurposeItemAccess(nAllPurpose);
 				m_assignmentSupplementItemService.removeAllPurposeItem(nAllPurpose);
+			}
 		}
 		else if (state.getAttribute(ALLPURPOSE_TITLE) != null)
 		{
