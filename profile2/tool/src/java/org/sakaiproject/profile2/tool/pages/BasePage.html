@@ -40,22 +40,29 @@
 </head>     
 <body>
 	
-	<div class="navIntraTool">
-		<span id="page-links">
+	<ul class="navIntraTool actionToolBar">
+		<li class="firstToolBarItem">
 			<a wicket:id="myProfileLink" class="icon profile"><span wicket:id="myProfileLabel" tabindex="0">[myProfileLabel]</span></a>
+		</li>
+		<li>
 			<a wicket:id="myPicturesLink" class="icon pictures"><span wicket:id="myPicturesLabel" tabindex="0">[myPicturesLabel]</span></a>
-			<!-- <a wicket:id="myFeedsLink" class="icon feeds"><span wicket:id="myFeedsLabel">[myFeedsLabel]</span></a>-->
+		</li>
+		<li>
 			<a wicket:id="myFriendsLink" class="icon connections"><span wicket:id="myFriendsLabel" tabindex="0">[myFriendsLabel]</span><span wicket:id="newRequestsLabel" class="new-items-count">[newRequestsLabel]</span></a>
+		</li>
+		<li>
 			<a wicket:id="myMessagesLink" class="icon messages"><span wicket:id="myMessagesLabel" tabindex="0">[myMessagesLabel]</span><span wicket:id="newMessagesLabel" class="new-items-count">[newMessagesLabel]</span></a>
-			
-			
+		</li>
+		<li>
 			<a wicket:id="searchLink" class="icon search"><span wicket:id="searchLabel" tabindex="0">[searchLabel]</span></a>
-			
+		</li>
+		<li>
 			<a wicket:id="myPrivacyLink" class="icon privacy"><span wicket:id="myPrivacyLabel" tabindex="0">[myPrivacyLabel]</span></a>
+		</li>
+		<li>
 			<a wicket:id="preferencesLink" class="icon preferences"><span wicket:id="preferencesLabel" tabindex="0">[preferencesLabel]</span></a>
-			<!-- <a wicket:id="rssLink" class="rssLink"><img wicket:id="icon"/></a>-->
-		</span>
-	</div>
+		</li>
+	</ul>
 	<div class="portletBody">
 		<wicket:child />
 	</div>
