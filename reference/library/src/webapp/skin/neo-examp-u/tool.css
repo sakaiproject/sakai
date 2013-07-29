@@ -1255,3 +1255,14 @@ input[type="checkbox"][disabled="disabled"], input[type="checkbox"][disabled="tr
 .listNav input[type="submit"], .listNav input[type="button"] {
     height: 20px !important
 }
+@media screen and (max-device-width: 480px) {
+.login td.logo {
+    width: 175px;
+    background: #fff url(images/x-login-logo-sm.png) no-repeat;
+    background-position: 10px 20px;
+    border-width: 1px 0 1px 1px;
+    border-style: solid;
+    border-color: #ccc;
+}
+
+}
