@@ -49,6 +49,11 @@
             <artifactId>sakai-privacy-api</artifactId>
         </dependency>
         <dependency>
+            <groupId>org.sakaiproject.portal</groupId>
+            <artifactId>sakai-portal-util</artifactId>
+            <version>${sakai.version}</version>
+        </dependency>
+        <dependency>
                 <groupId>org.springframework</groupId>
                 <artifactId>spring-core</artifactId>
         </dependency>

@@ -46,6 +46,8 @@ import org.sakaiproject.component.cover.ServerConfigurationService;
 import org.sakaiproject.component.cover.ComponentManager;
 import org.sakaiproject.util.ResourceLoader;
 import org.sakaiproject.util.Web;
+import org.sakaiproject.portal.util.CSSUtils;
+
 
 /**
  * Some Sakai Utility code for IMS Basic LTI
@@ -442,7 +444,7 @@ public class SakaiBLTIUtil {
 
 		// Send along the CSS URL
 		String tool_css = ServerConfigurationService.getString("basiclti.consumer.launch_presentation_css_url",null);
-		if ( tool_css == null ) tool_css = getOurServerUrl() + "/library/skin/default/tool.css";  
+		if ( tool_css == null ) tool_css = getOurServerUrl() + CSSUtils.getCssToolBase();
 		setProperty(props,BasicLTIConstants.LAUNCH_PRESENTATION_CSS_URL, tool_css);  
 
 		// Let tools know we are coming from Sakai
