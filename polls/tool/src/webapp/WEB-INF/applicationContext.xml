@@ -10,6 +10,19 @@
     <!-- entity providers -->
 	<bean
 		parent="org.sakaiproject.entitybroker.entityprovider.AbstractEntityProvider"
+		class="org.sakaiproject.poll.tool.entityproviders.PollsEntityProvider">
+		<property name="pollListManager"
+			ref="org.sakaiproject.poll.logic.PollListManager" />
+		<property name="pollVoteManager"
+			ref="org.sakaiproject.tool.poll.api.PollVoteManager" />
+		<property name="usageSessionService"
+			ref="org.sakaiproject.event.api.UsageSessionService"/>
+		<property name="userDirectoryService"
+            ref="org.sakaiproject.user.api.UserDirectoryService"/>
+	</bean>
+	
+	<bean
+		parent="org.sakaiproject.entitybroker.entityprovider.AbstractEntityProvider"
 		class="org.sakaiproject.poll.tool.entityproviders.PollEntityProvider">
 		<property name="pollListManager"
 			ref="org.sakaiproject.poll.logic.PollListManager" />

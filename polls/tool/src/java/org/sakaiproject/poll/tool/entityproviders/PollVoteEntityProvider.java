@@ -94,6 +94,7 @@ public class PollVoteEntityProvider extends AbstractEntityProvider implements Co
         return PREFIX;
     }
 
+    @Deprecated
     public boolean entityExists(String id) {
         if (id == null) {
             return false;
@@ -106,6 +107,7 @@ public class PollVoteEntityProvider extends AbstractEntityProvider implements Co
         return exists;
     }
 
+    @Deprecated
     public String createEntity(EntityReference ref, Object entity, Map<String, Object> params) {
         String userId = userDirectoryService.getCurrentUser().getId();
         Vote vote = (Vote) entity;
@@ -174,6 +176,7 @@ public class PollVoteEntityProvider extends AbstractEntityProvider implements Co
         return new Vote();
     }
 
+    @Deprecated
     public Object getEntity(EntityReference ref) {
     	String id = ref.getId();
         String currentUser = developerHelperService.getCurrentUserReference();
@@ -209,6 +212,7 @@ public class PollVoteEntityProvider extends AbstractEntityProvider implements Co
         return vote;
     }
 
+    @Deprecated
     public List<?> getEntities(EntityReference ref, Search search) {
         String currentUserId = userDirectoryService.getCurrentUser().getId();
         
@@ -247,6 +251,7 @@ public class PollVoteEntityProvider extends AbstractEntityProvider implements Co
         	return anonymizeVotes(votes);
     }
 
+    @Deprecated
     private List<?> anonymizeVotes(List<Vote> votes) {
     	List<Vote> ret = new ArrayList<Vote>();
     	String userId = userDirectoryService.getCurrentUser().getId();
@@ -271,6 +276,7 @@ public class PollVoteEntityProvider extends AbstractEntityProvider implements Co
 	 * Allows a user to create multiple Vote objects at once, taking one or more
 	 * pollOption parameters.
 	 */
+    @Deprecated
 	@EntityCustomAction(action = "vote", viewKey = EntityView.VIEW_NEW)
 	public List<Vote> vote(EntityView view, EntityReference ref, String prefix, Search search, OutputStream out,
 			Map<String, Object> params) {
@@ -380,6 +386,7 @@ public class PollVoteEntityProvider extends AbstractEntityProvider implements Co
      * @param id
      * @return
      */
+    @Deprecated
     private Vote getVoteById(String id) {
         Long voteId;
         try {
@@ -391,6 +398,7 @@ public class PollVoteEntityProvider extends AbstractEntityProvider implements Co
         return vote;
     }
 
+    @Deprecated
     public void updateEntity(EntityReference ref, Object entity, Map<String, Object> params) {
         throw new UnsupportedOperationException("Votes cannot currently be updated: " + ref);
     }

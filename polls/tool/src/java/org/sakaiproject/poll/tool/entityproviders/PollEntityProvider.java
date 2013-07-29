@@ -81,6 +81,7 @@ public class PollEntityProvider extends AbstractEntityProvider implements CoreEn
     /* (non-Javadoc)
      * @see org.sakaiproject.entitybroker.entityprovider.CoreEntityProvider#entityExists(java.lang.String)
      */
+    @Deprecated
     public boolean entityExists(String id) {
         if (id == null) {
             return false;
@@ -97,6 +98,7 @@ public class PollEntityProvider extends AbstractEntityProvider implements CoreEn
      * @param id
      * @return
      */
+    @Deprecated
     private Poll getPollById(String id) {
         Long pollId;
         try {
@@ -111,6 +113,7 @@ public class PollEntityProvider extends AbstractEntityProvider implements CoreEn
     /**
      * Note that details is the only optional field
      */
+    @Deprecated
     public String createEntity(EntityReference ref, Object entity, Map<String, Object> params) {
         Poll poll = (Poll) entity;
         poll.setCreationDate(new Date());
@@ -140,6 +143,7 @@ public class PollEntityProvider extends AbstractEntityProvider implements CoreEn
         return new Poll();
     }
 
+    @Deprecated
     public void updateEntity(EntityReference ref, Object entity, Map<String, Object> params) {
         String id = ref.getId();
         if (id == null) {
@@ -170,6 +174,7 @@ public class PollEntityProvider extends AbstractEntityProvider implements CoreEn
         pollListManager.savePoll(current);
     }
 
+    @Deprecated
     public Object getEntity(EntityReference ref) {
         String id = ref.getId();
         if (id == null) {
@@ -224,6 +229,7 @@ public class PollEntityProvider extends AbstractEntityProvider implements CoreEn
         return poll;
     }
 
+    @Deprecated
     public void deleteEntity(EntityReference ref, Map<String, Object> params) {
         String id = ref.getId();
         if (id == null) {
@@ -241,6 +247,7 @@ public class PollEntityProvider extends AbstractEntityProvider implements CoreEn
         }
     }
 
+    @Deprecated
     public List<?> getEntities(EntityReference ref, Search search) {
 	System.out.println("get entities");
         // get the setting which indicates if we are getting polls we can admin or polls we can take
