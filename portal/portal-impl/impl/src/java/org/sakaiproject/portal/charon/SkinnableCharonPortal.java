@@ -98,6 +98,7 @@ import org.sakaiproject.portal.render.cover.ToolRenderService;
 import org.sakaiproject.portal.util.ErrorReporter;
 import org.sakaiproject.portal.util.ToolURLManagerImpl;
 import org.sakaiproject.portal.util.URLUtils;
+import org.sakaiproject.portal.util.CSSUtils;
 import org.sakaiproject.site.api.Site;
 import org.sakaiproject.site.api.SitePage;
 import org.sakaiproject.site.api.ToolConfiguration;
@@ -1409,12 +1410,12 @@ public class SkinnableCharonPortal extends HttpServlet implements Portal
 		String templates = ServerConfigurationService.getString("portal.templates", "neoskin");
 		String skinRepo = ServerConfigurationService.getString("skin.repo");
 		// Adjust skin name if we are in the neo Portal
-		skin = getSkin(skin);
 		String headCssToolBase = "<link href=\""
-			+ skinRepo
-			+ "/tool_base.css\" type=\"text/css\" rel=\"stylesheet\" media=\"all\" />\n";
-		String headCssToolSkin = "<link href=\"" + skinRepo + "/" + skin
-		+ "/tool.css\" type=\"text/css\" rel=\"stylesheet\" media=\"all\" />\n";
+			+ CSSUtils.getCssToolBase()
+			+ "\" type=\"text/css\" rel=\"stylesheet\" media=\"all\" />\n";
+		String headCssToolSkin = "<link href=\"" 
+			+ CSSUtils.getCssToolSkin(skin)
+			+ "\" type=\"text/css\" rel=\"stylesheet\" media=\"all\" />\n";
 		String headCss = headCssToolBase + headCssToolSkin;
 		
 		Editor editor = portalService.getActiveEditor(placement);
@@ -2246,15 +2247,7 @@ public class SkinnableCharonPortal extends HttpServlet implements Portal
 	 */
 	protected String getSkin(String skin)
 	{
-		if (skin == null)
-		{
-			skin = ServerConfigurationService.getString("skin.default");
-		}
-		String templates = ServerConfigurationService.getString("portal.templates", "neoskin");
-		String prefix = portalService.getSkinPrefix();
-		// Don't add the prefix twice
-		if ( "neoskin".equals(templates) && !StringUtils.startsWith(skin, prefix) ) skin = prefix + skin;
-		return skin;
+		return CSSUtils.adjustCssSkinFolder(skin);
 	}
 
 }
