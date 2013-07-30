@@ -227,9 +227,10 @@ function setupEditable(msgs, iframId){
 			postAjax($(this).parents('div.group').attr("syllabusItem"), params, msgs);
 		}
 	}).on( "tooltipopen", function( event, ui ) {
-		
+		var innerHtml = $(this).closest(".bodyInput").html();
 		setTimeout(function(){
 					$("#textAreaWysiwyg").attr("id","textAreaWysiwyg" + editorIndex).focus();
+					$("#textAreaWysiwyg" + editorIndex).val(innerHtml);
 					$("#loading").hide();
 					$(".editable-submit").click(function(event) {
 						editorClick(event);

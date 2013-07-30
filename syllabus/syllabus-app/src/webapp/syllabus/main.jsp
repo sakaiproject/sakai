@@ -326,57 +326,6 @@
 									<br/>
 								</f:verbatim>
 							</f:subview>
-							<%/* instructor view attachments */%>
-							<f:subview id="instructorAttachments" rendered="1 == 0">
-								<h:commandLink action="#{SyllabusTool.processAddAttachRedirect}" value="#{msgs.add_attach}">
-										<f:param name="itemId" value="#{eachEntry.entry.syllabusId}"/>
-								</h:commandLink>
-	
-								<syllabus:syllabus_table value="#{eachEntry.attachmentList}" var="eachAttach" summary="#{msgs.edit_att_list_summary}" styleClass="listHier lines nolines">
-									<h:column rendered="#{!empty eachEntry.attachmentList}">
-										<f:facet name="header">
-											<h:outputText value="#{msgs.attachmentTitle}" />
-										</f:facet>
-										<f:verbatim><h5></f:verbatim>
-										<sakai:contentTypeMap fileType="#{eachAttach.type}" mapType="image" var="imagePath" pathPrefix="/library/image/"/>									
-										<h:graphicImage id="exampleFileIcon" value="#{imagePath}" />
-										<h:outputText value="#{eachAttach.name}"/>
-										<f:verbatim></h5></f:verbatim>
-										<f:verbatim><div class="itemAction"></f:verbatim>
-	
-										<h:commandLink action="#{SyllabusTool.processDeleteAttach}" 
-											onfocus="document.forms[0].onsubmit();" title="#{msgs.removeAttachmentLink} #{eachAttach.name}">
-												<h:outputText value="#{msgs.mainEditHeaderRemove}"/>
-												<f:param value="#{eachAttach.syllabusAttachId}" name="syllabus_current_attach"/>
-										</h:commandLink>
-										<f:verbatim></div></f:verbatim>
-									</h:column>
-								  <h:column rendered="#{!empty eachEntry.attachmentList}">
-									<f:facet name="header">
-										<h:outputText value="#{msgs.size}" />
-									</f:facet>
-									<h:outputText value="#{eachAttach.size}"/>
-								</h:column>
-								<h:column rendered="#{!empty eachEntry.attachmentList}">
-									<f:facet name="header">
-										<h:outputText value="#{msgs.type}" />
-									</f:facet>
-									<h:outputText value="#{eachAttach.type}"/>
-								</h:column>
-						  		<h:column rendered="#{!empty eachEntry.attachmentList}">
-									<f:facet name="header">
-										<h:outputText value="#{msgs.created_by}" />
-									</f:facet>
-									<h:outputText value="#{eachAttach.createdBy}"/>
-								</h:column>
-								<h:column rendered="#{!empty eachEntry.attachmentList}">
-									<f:facet name="header">
-										<h:outputText value="#{msgs.last_modified}" />
-									</f:facet>
-									<h:outputText value="#{eachAttach.lastModifiedBy}"/>
-								</h:column>
-							</syllabus:syllabus_table>
-						</f:subview>
 						<f:verbatim></div></div></f:verbatim>
 					</t:dataList>
 				<h:outputText value="#{msgs.syllabus_noEntry}" styleClass="instruction" rendered="#{SyllabusTool.displayNoEntryMsg}"/>
