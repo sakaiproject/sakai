@@ -743,7 +743,7 @@ public abstract class BaseLTIService implements LTIService {
 		}
 		
 		Long key = new Long(id);
-		Map<String,Object> content = getContent(key, siteId);
+		Map<String,Object> content = getContentDao(key, siteId, isAdminRole, isMaintainRole);
 		if (  content == null ) {
 			retval = new String("1" + rb.getString("error.content.not.found"));
 			return retval;
@@ -769,7 +769,7 @@ public abstract class BaseLTIService implements LTIService {
 				// Record the new placement in the content item
 				Properties newProps = new Properties();
 				newProps.setProperty(LTI_PLACEMENT, tool.getId());
-				retval = updateContent(key, newProps, siteId);
+				retval = updateContentDao(key, newProps, siteId, isAdminRole, isMaintainRole);
 			}
 			catch (PermissionException ee)
 			{
@@ -829,18 +829,22 @@ public abstract class BaseLTIService implements LTIService {
 
 		try
 		{
-			Site site = siteService.getSite(siteId);
+			Site site = siteService.getSite(siteStr);
 			String sitePageId = tool.getPageId();
-	
-			site.removePage(site.getPage(sitePageId));
-	
-			try {
-				siteService.save(site);
-			} catch (Exception e) {
-				return rb.getString("error.placement.not.removed");
+			SitePage page = site.getPage(sitePageId);
+
+			if ( page != null ) {
+				site.removePage(page);
+				try {
+					siteService.save(site);
+				} catch (Exception e) {
+					return rb.getString("error.placement.not.removed");
+				}
+			} else {
+				M_log.warn(this + " LTI content="+key+" placement="+tool.getId()+" could not find page in site=" + siteStr);
 			}
 	
-			// Record the new placement in the content item
+			// Remove the placement from the content item
 			Properties newProps = new Properties();
 			newProps.setProperty(LTIService.LTI_PLACEMENT, "");
 			Object retval = updateContentDao(key, newProps, siteId, isAdminRole, isMaintainRole);
@@ -854,7 +858,7 @@ public abstract class BaseLTIService implements LTIService {
 		}
 		catch (IdUnusedException ee)
 		{
-			M_log.warn(this + " cannot add page and basic lti tool to site " + siteId);
+			M_log.warn(this + " LTI content="+key+" placement="+tool.getId()+" could not remove page from site=" + siteStr);
 			return new String(rb.getFormattedMessage("error.link.placement.update", new Object[]{key.toString()}));
 		}
 	}

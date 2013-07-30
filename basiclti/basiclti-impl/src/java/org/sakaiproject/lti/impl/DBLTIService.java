@@ -258,8 +258,7 @@ public class DBLTIService extends BaseLTIService implements LTIService {
 	 * @see org.sakaiproject.lti.api.LTIService#deleteContent(java.lang.Long, java.lang.String, boolean)
 	 */
 	public boolean deleteContentDao(Long key, String siteId, boolean isAdminRole, boolean isMaintainRole) {
-		// remove the content link first
-		deleteContentLink(key);
+		deleteContentLinkDao(key, siteId, isAdminRole, isMaintainRole);
 		return deleteThingDao("lti_content", LTIService.CONTENT_MODEL, key, siteId, isAdminRole, isMaintainRole);
 	}
 
