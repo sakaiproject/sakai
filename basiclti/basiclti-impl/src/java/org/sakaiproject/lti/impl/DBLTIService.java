@@ -129,7 +129,7 @@ public class DBLTIService extends BaseLTIService implements LTIService {
 	 */
 	public Object insertMapping(Properties newProps) {
 		return insertThingDao("lti_mapping", LTIService.MAPPING_MODEL, null, 
-			newProps, getContext(), isMaintain(getContext()));
+			newProps, getContext(), isAdmin(getContext()), isMaintain(getContext()));
 	}
 
 	/**
@@ -139,7 +139,7 @@ public class DBLTIService extends BaseLTIService implements LTIService {
 	 * @see org.sakaiproject.lti.api.LTIService#getMapping(java.lang.Long)
 	 */
 	public Map<String, Object> getMapping(Long key) {
-		return getThingDao("lti_mapping", LTIService.MAPPING_MODEL, key, getContext(), isMaintain(getContext()));
+		return getThingDao("lti_mapping", LTIService.MAPPING_MODEL, key, getContext(), isAdmin(getContext()), isMaintain(getContext()));
 	}
 
 	/**
@@ -149,7 +149,7 @@ public class DBLTIService extends BaseLTIService implements LTIService {
 	 * @see org.sakaiproject.lti.api.LTIService#deleteMapping(java.lang.Long)
 	 */
 	public boolean deleteMapping(Long key) {
-		return deleteThingDao("lti_mapping", LTIService.MAPPING_MODEL, key, getContext(), isMaintain(getContext()));
+		return deleteThingDao("lti_mapping", LTIService.MAPPING_MODEL, key, getContext(), isAdmin(getContext()), isMaintain(getContext()));
 	}
 
 	/**
@@ -161,7 +161,7 @@ public class DBLTIService extends BaseLTIService implements LTIService {
 	 */
 	public Object updateMapping(Long key, Object newProps) {
 		return updateThingDao("lti_mapping", LTIService.MAPPING_MODEL, null, 
-			key, newProps, getContext(), isMaintain(getContext()));
+			key, newProps, getContext(), isAdmin(getContext()), isMaintain(getContext()));
 	}
 
 	/**
@@ -173,7 +173,7 @@ public class DBLTIService extends BaseLTIService implements LTIService {
 	 */
 	public List<Map<String, Object>> getMappings(String search, String order, int first, int last) {
 		return getThingsDao("lti_mapping", LTIService.MAPPING_MODEL, search, order, 
-			first, last, getContext(), isMaintain(getContext()));
+			first, last, getContext(), isAdmin(getContext()), isMaintain(getContext()));
 	}
 
 	// TODO: Actually check mappings
@@ -187,8 +187,8 @@ public class DBLTIService extends BaseLTIService implements LTIService {
 	/**
 	 * 
 	 */
-	public Object insertToolDao(Properties newProps, String siteId, boolean isMaintainRole) {
-		return insertThingDao("lti_tools", LTIService.TOOL_MODEL, null, newProps, siteId, isMaintainRole);
+	public Object insertToolDao(Properties newProps, String siteId, boolean isAdminRole, boolean isMaintainRole) {
+		return insertThingDao("lti_tools", LTIService.TOOL_MODEL, null, newProps, siteId, isAdminRole, isMaintainRole);
 	}
 
 	/**
@@ -197,9 +197,9 @@ public class DBLTIService extends BaseLTIService implements LTIService {
 	 * 
 	 * @see org.sakaiproject.lti.api.LTIService#getToolDao(java.lang.Long, java.lang.String, boolean)
 	 */
-	protected Map<String, Object> getToolDao(Long key, String siteId, boolean isMaintainRole) 
+	protected Map<String, Object> getToolDao(Long key, String siteId, boolean isAdminRole, boolean isMaintainRole) 
 	{
-		Map<String, Object> retval = getThingDao("lti_tools", LTIService.TOOL_MODEL, key, siteId, isMaintainRole);
+		Map<String, Object> retval = getThingDao("lti_tools", LTIService.TOOL_MODEL, key, siteId, isAdminRole, isMaintainRole);
 		if (retval == null)
 			return retval;
 		String launch_url = (String) retval.get(LTIService.LTI_LAUNCH);
@@ -219,8 +219,8 @@ public class DBLTIService extends BaseLTIService implements LTIService {
 	 * 
 	 * @see org.sakaiproject.lti.api.LTIService#deleteToolDao(java.lang.Long, java.lang.String, boolean)
 	 */
-	public boolean deleteToolDao(Long key, String siteId, boolean isMaintainRole) {
-		return deleteThingDao("lti_tools", LTIService.TOOL_MODEL, key, siteId, isMaintainRole);
+	public boolean deleteToolDao(Long key, String siteId, boolean isAdminRole, boolean isMaintainRole) {
+		return deleteThingDao("lti_tools", LTIService.TOOL_MODEL, key, siteId, isAdminRole, isMaintainRole);
 	}
 
 	/**
@@ -230,8 +230,8 @@ public class DBLTIService extends BaseLTIService implements LTIService {
 	 * @see org.sakaiproject.lti.impl.BaseLTIService#updateToolDao(java.lang.Long,
 	 *      java.lang.Object, java.lang.String, boolean)
 	 */
-	public Object updateToolDao(Long key, Object newProps, String siteId, boolean isMaintainRole) {
-		return updateThingDao("lti_tools", LTIService.TOOL_MODEL, null, key, (Object) newProps, siteId, isMaintainRole);
+	public Object updateToolDao(Long key, Object newProps, String siteId, boolean isAdminRole, boolean isMaintainRole) {
+		return updateThingDao("lti_tools", LTIService.TOOL_MODEL, null, key, (Object) newProps, siteId, isAdminRole, isMaintainRole);
 	}
 
 	/**
@@ -242,14 +242,16 @@ public class DBLTIService extends BaseLTIService implements LTIService {
 	 *      int, int, java.lang.String, boolean)
 	 */
 	public List<Map<String, Object>> getToolsDao(String search, String order, int first,
-			int last, String siteId, boolean isMaintainRole) {
-		return getThingsDao("lti_tools", LTIService.TOOL_MODEL, search, order, first, last, siteId, isMaintainRole);
+			int last, String siteId, boolean isAdminRole, boolean isMaintainRole) {
+		return getThingsDao("lti_tools", LTIService.TOOL_MODEL, search, order, first, last, siteId, isAdminRole, isMaintainRole);
 	}
 
 	/**
 	 * 
 	 */
-	protected Object insertContentDao(Properties newProps, String siteId, boolean isMaintainRole) {
+	protected Object insertContentDao(Properties newProps, String siteId, 
+		boolean isAdminRole, boolean isMaintainRole) 
+	{
 		String toolId = newProps.getProperty(LTIService.LTI_TOOL_ID);
 		if (toolId == null)
 			return rb.getString("error.missing.toolid");
@@ -262,7 +264,7 @@ public class DBLTIService extends BaseLTIService implements LTIService {
 
 		// Load the tool we are aiming for Using DAO
 		Map<String, Object> tool = null;
-		tool = getToolDao(toolKey, siteId, isMaintainRole);
+		tool = getToolDao(toolKey, siteId, isAdminRole, isMaintainRole);
 			
 		if ( tool == null ) {
 			return rb.getString("error.invalid.toolid");
@@ -270,13 +272,13 @@ public class DBLTIService extends BaseLTIService implements LTIService {
 
 		Long visible = foorm.getLongNull(tool.get(LTIService.LTI_VISIBLE));
 		if ( visible == null ) visible = new Long(0);
-		if ( ! isAdmin(siteId, isMaintainRole) ) {
+		if ( ! isAdminRole ) {
 			if ( visible == 1 ) {
 				return rb.getString("error.invalid.toolid");
 			}
 		}
 
-		String[] contentModel = getContentModelDao(tool, siteId, isMaintainRole);
+		String[] contentModel = getContentModelDao(tool, siteId, isAdminRole, isMaintainRole);
 		String[] columns = foorm.getFields(contentModel);
 		
 		// Since page title and title are both required and dynamically hideable, 
@@ -307,7 +309,7 @@ public class DBLTIService extends BaseLTIService implements LTIService {
 		
 		if (contentModel == null)
 			return rb.getString("error.invalid.toolid");
-		return insertThingDao("lti_content", contentModel, LTIService.CONTENT_MODEL, newProps, siteId, isMaintainRole);
+		return insertThingDao("lti_content", contentModel, LTIService.CONTENT_MODEL, newProps, siteId, isAdminRole, isMaintainRole);
 	}
 
 	/**
@@ -316,8 +318,8 @@ public class DBLTIService extends BaseLTIService implements LTIService {
 	 * 
 	 * @see org.sakaiproject.lti.api.LTIService#getContentDao(java.lang.Long, java.lang.String, boolean)
 	 */
-	public Map<String, Object> getContentDao(Long key, String siteId, boolean isMaintainRole) {
-		Map<String, Object> retval = getThingDao("lti_content", LTIService.CONTENT_MODEL, key, siteId, isMaintainRole);
+	public Map<String, Object> getContentDao(Long key, String siteId, boolean isAdminRole, boolean isMaintainRole) {
+		Map<String, Object> retval = getThingDao("lti_content", LTIService.CONTENT_MODEL, key, siteId, isAdminRole, isMaintainRole);
 		if (retval == null) return retval;
 		retval.put("launch_url", getContentLaunch(retval));
 		return retval;
@@ -329,10 +331,10 @@ public class DBLTIService extends BaseLTIService implements LTIService {
 	 * 
 	 * @see org.sakaiproject.lti.api.LTIService#deleteContent(java.lang.Long, java.lang.String, boolean)
 	 */
-	public boolean deleteContentDao(Long key, String siteId, boolean isMaintainRole) {
+	public boolean deleteContentDao(Long key, String siteId, boolean isAdminRole, boolean isMaintainRole) {
 		// remove the content link first
 		deleteContentLink(key);
-		return deleteThingDao("lti_content", LTIService.CONTENT_MODEL, key, siteId, isMaintainRole);
+		return deleteThingDao("lti_content", LTIService.CONTENT_MODEL, key, siteId, isAdminRole, isMaintainRole);
 	}
 
 	/**
@@ -342,9 +344,9 @@ public class DBLTIService extends BaseLTIService implements LTIService {
 	 * @see org.sakaiproject.lti.impl.BaseLTIService#updateContentDao(java.lang.Long, 
 	 *      java.lang.Object, java.lang.String, boolean)
 	 */
-	public Object updateContentDao(Long key, Object newProps, String siteId, boolean isMaintainRole) {
+	public Object updateContentDao(Long key, Object newProps, String siteId, boolean isAdminRole, boolean isMaintainRole) {
 		// Load the content item
-		Map<String,Object> content = getContentDao(key, siteId, isMaintainRole);
+		Map<String,Object> content = getContentDao(key, siteId, isAdminRole, isMaintainRole);
 		if (  content == null ) {
 			return rb.getString("error.content.not.found");
 		}
@@ -364,7 +366,7 @@ public class DBLTIService extends BaseLTIService implements LTIService {
 		if ( newToolKey == null || newToolKey < 0 ) newToolKey = oldToolKey;
 
 		// Load the tool we are aiming for
-		Map<String, Object> tool = getToolDao(newToolKey, siteId, isMaintainRole);
+		Map<String, Object> tool = getToolDao(newToolKey, siteId, isAdminRole, isMaintainRole);
 		if ( tool == null ) {
 			return rb.getString("error.invalid.toolid");
 		}
@@ -373,18 +375,18 @@ public class DBLTIService extends BaseLTIService implements LTIService {
 		// a tool that is stealthed
 		Long visible = foorm.getLongNull(tool.get(LTIService.LTI_VISIBLE));
 		if ( visible == null ) visible = new Long(0);
-		if ( ( !isAdmin(siteId, isMaintainRole) ) && ( ! oldToolKey.equals(newToolKey) )  ) {
+		if ( ( !isAdminRole ) && ( ! oldToolKey.equals(newToolKey) )  ) {
 			if ( visible == 1 ) {
 				return rb.getString("error.invalid.toolid");
 			}
 		}
 
-		String[] contentModel = getContentModelDao(tool, siteId, isMaintainRole);
+		String[] contentModel = getContentModelDao(tool, siteId, isAdminRole, isMaintainRole);
 		if (contentModel == null)
 			return rb.getString("error.invalid.toolid");
 
 		return updateThingDao("lti_content", contentModel, LTIService.CONTENT_MODEL, 
-			key, newProps, siteId, isMaintainRole);
+			key, newProps, siteId, isAdminRole, isMaintainRole);
 	}
 
 	/**
@@ -395,9 +397,9 @@ public class DBLTIService extends BaseLTIService implements LTIService {
 	 *      java.lang.String, int, int)
 	 */
 	public List<Map<String, Object>> getContentsDao(String search, String order, int first,
-			int last, String siteId, boolean isMaintainRole) {
+			int last, String siteId, boolean isAdminRole, boolean isMaintainRole) {
 		List<Map<String, Object>> contents = getThingsDao("lti_content",
-				LTIService.CONTENT_MODEL, search, order, first, last, siteId, isMaintainRole);
+				LTIService.CONTENT_MODEL, search, order, first, last, siteId, isAdminRole, isMaintainRole);
 		for (Map<String, Object> content : contents) {
 			content.put("launch_url", getContentLaunch(content));
 		}
@@ -409,7 +411,7 @@ public class DBLTIService extends BaseLTIService implements LTIService {
 	 * 
 	 */
 	public Object insertThingDao(String table, String[] formModel, String[] fullModel,
-			Properties newProps, String siteId, boolean isMaintainRole) {
+			Properties newProps, String siteId, boolean isAdminRole, boolean isMaintainRole) {
 
 		if (table == null || formModel == null || newProps == null || siteId == null) {
 			throw new IllegalArgumentException(
@@ -434,7 +436,7 @@ public class DBLTIService extends BaseLTIService implements LTIService {
 			theKey = foorm.formSqlKey(fullModel);
 		}
 		if ((Arrays.asList(columns).indexOf(LTIService.LTI_SITE_ID) >= 0)) {
-			if (!isAdmin(siteId, isMaintainRole) && newMapping.get(LTIService.LTI_SITE_ID) == null) {
+			if (!isAdminRole && newMapping.get(LTIService.LTI_SITE_ID) == null) {
 				newMapping.put(LTIService.LTI_SITE_ID, siteId);
 			}
 		}
@@ -470,7 +472,7 @@ public class DBLTIService extends BaseLTIService implements LTIService {
 	 * @return
 	 */
 	private Map<String, Object> getThingDao(String table, String[] model, Long key,
-			String siteId, boolean isMaintainRole)
+			String siteId, boolean isAdminRole, boolean isMaintainRole)
 	{
 		if (table == null || model == null || key == null) {
 			throw new IllegalArgumentException("table, model, and key must all be non-null");
@@ -480,7 +482,7 @@ public class DBLTIService extends BaseLTIService implements LTIService {
 		Object fields[] = null;
 		String[] columns = foorm.getFields(model);
 
-		if (siteId != null && Arrays.asList(columns).indexOf(LTIService.LTI_SITE_ID) >= 0 && !isAdmin(siteId, isMaintainRole)) {
+		if (siteId != null && Arrays.asList(columns).indexOf(LTIService.LTI_SITE_ID) >= 0 && !isAdminRole ) {
 			statement += " AND (SITE_ID = ? OR SITE_ID IS NULL)";
 			fields = new Object[2];
 			fields[0] = key;
@@ -511,7 +513,7 @@ public class DBLTIService extends BaseLTIService implements LTIService {
 	 * @return
 	 */
 	public List<Map<String, Object>> getThingsDao(String table, String[] model, String search,
-			String order, int first, int last, String siteId, boolean isMaintainRole) {
+			String order, int first, int last, String siteId, boolean isAdminRole, boolean isMaintainRole) {
 		if (table == null || model == null ) {
 			throw new IllegalArgumentException("table and model must be non-null");
 		}
@@ -520,7 +522,7 @@ public class DBLTIService extends BaseLTIService implements LTIService {
 		String whereClause = "";
 
 		Object fields[] = null;
-		if ( ! isAdmin(siteId, isMaintainRole) ) {
+		if ( ! isAdminRole ) {
 			if (Arrays.asList(columns).indexOf(LTIService.LTI_VISIBLE) >= 0 && 
 				Arrays.asList(columns).indexOf(LTIService.LTI_SITE_ID) >= 0 ) {
 				whereClause = " ("+LTIService.LTI_SITE_ID+" = ? OR "+
@@ -554,7 +556,9 @@ public class DBLTIService extends BaseLTIService implements LTIService {
 	 * @param isMaintainRole
 	 * @return
 	 */
-	public boolean deleteThingDao(String table, String[] model, Long key, String siteId, boolean isMaintainRole) {
+	public boolean deleteThingDao(String table, String[] model, Long key, String siteId, 
+		boolean isAdminRole, boolean isMaintainRole) 
+	{
 		if (table == null || model == null || key == null) {
 			throw new IllegalArgumentException("table, model, and key must all be non-null");
 		}
@@ -564,8 +568,8 @@ public class DBLTIService extends BaseLTIService implements LTIService {
 
 		// Hack to insure that We *Can* delete this since SqlService cannot tell us if updates
 		// work
-		if (!isAdmin(siteId, isMaintainRole)) {
-			Object thing = getThingDao(table, model, key, siteId, isMaintainRole);
+		if (!isAdminRole) {
+			Object thing = getThingDao(table, model, key, siteId, isAdminRole, isMaintainRole);
 			if (thing == null || !(thing instanceof Map)) {
 				return false;
 			}
@@ -577,7 +581,7 @@ public class DBLTIService extends BaseLTIService implements LTIService {
 			}
 		}
 
-		if (Arrays.asList(columns).indexOf(LTIService.LTI_SITE_ID) >= 0 && !isAdmin(siteId, isMaintainRole) ) {
+		if (Arrays.asList(columns).indexOf(LTIService.LTI_SITE_ID) >= 0 && !isAdminRole ) {
 			if (!isMaintainRole) {
 				M_log.info("Non-maintain attemped delete on " + table);
 				return false;
@@ -606,7 +610,7 @@ public class DBLTIService extends BaseLTIService implements LTIService {
 	 * @return
 	 */
 	public Object updateThingDao(String table, String[] formModel, String[] fullModel, Long key, Object newProps, String siteId) {
-		return updateThingDao(table, formModel, fullModel, key, newProps, siteId, isMaintain(siteId));
+		return updateThingDao(table, formModel, fullModel, key, newProps, siteId, isAdmin(siteId), isMaintain(siteId));
 	}
 
 	/**
@@ -621,7 +625,8 @@ public class DBLTIService extends BaseLTIService implements LTIService {
 	 * @return
 	 */
 	public Object updateThingDao(String table, String[] formModel, String[] fullModel,
-			Long key, Object newProps, String siteId, boolean isMaintainRole) {
+			Long key, Object newProps, String siteId, boolean isAdminRole, boolean isMaintainRole) 
+	{
 		if (table == null || formModel == null || key == null || newProps == null) {
 			throw new IllegalArgumentException(
 					"table, model, key, and newProps must all be non-null");
@@ -643,7 +648,7 @@ public class DBLTIService extends BaseLTIService implements LTIService {
 		}
 
 		if ( (Arrays.asList(columns).indexOf(LTIService.LTI_SITE_ID) >= 0)) {
-			if ( !isAdmin(siteId, isMaintainRole) && newMapping.get(LTIService.LTI_SITE_ID) == null) {
+			if ( !isAdminRole && newMapping.get(LTIService.LTI_SITE_ID) == null) {
 				newMapping.put(LTIService.LTI_SITE_ID, siteId);
 			}
 		}
@@ -651,7 +656,7 @@ public class DBLTIService extends BaseLTIService implements LTIService {
 		String sql = "UPDATE " + table + " SET " + foorm.updateForm(newMapping)
 			+ " WHERE id=" + key.toString();
 
-		if ( isMaintainRole && !isAdmin(siteId, isMaintainRole) && (Arrays.asList(columns).indexOf(LTIService.LTI_SITE_ID) >= 0)) {
+		if ( isMaintainRole && !isAdminRole && (Arrays.asList(columns).indexOf(LTIService.LTI_SITE_ID) >= 0)) {
 			sql += " AND SITE_ID = '" + siteId + "'";
 			foorm.setField(newMapping, LTIService.LTI_SITE_ID, siteId);
 		}
