@@ -1,6 +1,7 @@
 var dragStartIndex;
 var editing = false;
 var editorIndex = 1;
+var bodiesLoaded = false;
 
 function setupAccordion(iframId, isInstructor, msgs, openDataId){
 	var activeVar = false;
@@ -218,10 +219,16 @@ function setupEditable(msgs, iframId){
 		emptytext: msgs.clickToAddBody,
 		onblur: "ignore",
 		display: function(value, sourceData) {
-			//clear out old html
-			$(this).html("");
-			//set the new html
-			$(this).append(value);
+			//when the display is first displayed (loading the page), the value is plain text (no html),
+			//do so not change anything for the first load (use a boolean set after this jquery: bodiesLoaded)
+			//after it's been loaded and the value changes, we need to update the html with the new value to display the
+			//change properly to the user
+			if(bodiesLoaded){
+				//clear out old html
+				$(this).html("");
+				//set the new html
+				$(this).append(value);
+			}
 		},
 		url: function(params) {
 			postAjax($(this).parents('div.group').attr("syllabusItem"), params, msgs);
@@ -246,6 +253,7 @@ function setupEditable(msgs, iframId){
 					mySetMainFrameHeight(iframId, 600);
 			}, 1000);
 	});
+	bodiesLoaded = true;
 }
 
 function editorClick(event){
