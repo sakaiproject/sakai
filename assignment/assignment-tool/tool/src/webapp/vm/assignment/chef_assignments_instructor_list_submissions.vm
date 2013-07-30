@@ -119,38 +119,37 @@
 			<input type="hidden" name="eventSubmit_doView_submission_list_option" value="x" />
 			## show the view by group choice when there is at least one group defined
 			#if (!$assignment.isGroup())
-			#if ($!groups.hasNext())
-			<div class="navPanel">
-				<div class="viewNav">
-						<label for="view">
-							$tlang.getString("gen.view2")
-						</label>
-						<span class="skip">$tlang.getString("newassig.selectmessage")</span>
-						<select id="view" name="view" size="1" tabindex="3" onchange="document.getElementById('option').value='changeView';document.viewForm.submit();return false;">
-							#if (!$showSubmissionByFilterSearchOnly)
-								<option value="all" #if($!view.equals("all"))selected="selected"#end >$tlang.getString('gen.viewallgroupssections')</option>
-							#else
-								<option value="" >$tlang.getString('please_select_group')</option>
-							#end
-							#foreach($aGroup in $groups)
-								<option value="$!aGroup.Reference" #if($!view.equals($!aGroup.Reference))selected="selected"#end >$validator.escapeHtml($aGroup.Title)</option>
-							#end
-						</select>
-					</div>
-				</div>
-			#end
-			<p />
-			<label for="$form_search" class="skip">$tlang.getString("search")</label>
-			<input value="$validator.escapeHtml($searchString)" name="search" id="$form_search" type="text" class="searchField"  size="20" />
-			<input type="button" value="$tlang.getString('search')" 
-				onclick="document.getElementById('option').value='search';document.viewForm.submit();return false;" />
-			#if (($!searchString) && (!$searchString.equals("")))
-				<input type="button" class="button" value="$tlang.getString("search_clear")" 
-					onclick="document.getElementById('option').value='clearSearch';document.viewForm.submit();return false;" />
-				#end
-			</div>
-			</div>
-                        #end
+    			#if ($!groups.hasNext())
+        			<div class="navPanel">
+        				<div class="viewNav">
+    						<label for="view">
+    							$tlang.getString("gen.view2")
+    						</label>
+    						<span class="skip">$tlang.getString("newassig.selectmessage")</span>
+    						<select id="view" name="view" size="1" tabindex="3" onchange="document.getElementById('option').value='changeView';document.viewForm.submit();return false;">
+    							#if (!$showSubmissionByFilterSearchOnly)
+    								<option value="all" #if($!view.equals("all"))selected="selected"#end >$tlang.getString('gen.viewallgroupssections')</option>
+    							#else
+    								<option value="" >$tlang.getString('please_select_group')</option>
+    							#end
+    							#foreach($aGroup in $groups)
+    								<option value="$!aGroup.Reference" #if($!view.equals($!aGroup.Reference))selected="selected"#end >$validator.escapeHtml($aGroup.Title)</option>
+    							#end
+    						</select>
+    					</div>
+    				</div>
+    			#end
+    			<p>
+        			<label for="$form_search" class="skip">$tlang.getString("search_students")</label>
+        			<input value="$validator.escapeHtml($searchString)" name="search" id="$form_search" type="text" class="searchField"  size="20" />
+        			<input type="button" value="$tlang.getString('search')" 
+        				onclick="document.getElementById('option').value='search';document.viewForm.submit();return false;" />
+            			#if (($!searchString) && (!$searchString.equals("")))
+            				<input type="button" class="button" value="$tlang.getString("search_clear")" 
+            					onclick="document.getElementById('option').value='clearSearch';document.viewForm.submit();return false;" />
+            			#end
+                </p>
+            #end
 		#set ($submissionType = $assignment.getContent().getTypeOfSubmission())
 			#set ($showMsg = false)
 			#set ($showMsg = $!allMsgNumber)
