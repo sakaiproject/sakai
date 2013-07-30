@@ -134,9 +134,9 @@ public class DBLTIService extends BaseLTIService implements LTIService {
 	 * 
 	 * @see org.sakaiproject.lti.api.LTIService#getToolDao(java.lang.Long, java.lang.String, boolean)
 	 */
-	protected Map<String, Object> getToolDao(Long key, String siteId, boolean isAdminRole, boolean isMaintainRole) 
+	protected Map<String, Object> getToolDao(Long key, String siteId, boolean isAdminRole) 
 	{
-		return getThingDao("lti_tools", LTIService.TOOL_MODEL, key, siteId, isAdminRole, isMaintainRole);
+		return getThingDao("lti_tools", LTIService.TOOL_MODEL, key, siteId, isAdminRole);
 	}
 
 	/**
@@ -168,8 +168,8 @@ public class DBLTIService extends BaseLTIService implements LTIService {
 	 *      int, int, java.lang.String, boolean)
 	 */
 	public List<Map<String, Object>> getToolsDao(String search, String order, int first,
-			int last, String siteId, boolean isAdminRole, boolean isMaintainRole) {
-		return getThingsDao("lti_tools", LTIService.TOOL_MODEL, search, order, first, last, siteId, isAdminRole, isMaintainRole);
+			int last, String siteId, boolean isAdminRole) {
+		return getThingsDao("lti_tools", LTIService.TOOL_MODEL, search, order, first, last, siteId, isAdminRole);
 	}
 
 	/**
@@ -190,7 +190,7 @@ public class DBLTIService extends BaseLTIService implements LTIService {
 
 		// Load the tool we are aiming for Using DAO
 		Map<String, Object> tool = null;
-		tool = getToolDao(toolKey, siteId, isAdminRole, isMaintainRole);
+		tool = getToolDao(toolKey, siteId, isAdminRole);
 			
 		if ( tool == null ) {
 			return rb.getString("error.invalid.toolid");
@@ -204,7 +204,7 @@ public class DBLTIService extends BaseLTIService implements LTIService {
 			}
 		}
 
-		String[] contentModel = getContentModelDao(tool, siteId, isAdminRole, isMaintainRole);
+		String[] contentModel = getContentModelDao(tool, isAdminRole);
 		String[] columns = foorm.getFields(contentModel);
 		
 		// Since page title and title are both required and dynamically hideable, 
@@ -244,8 +244,8 @@ public class DBLTIService extends BaseLTIService implements LTIService {
 	 * 
 	 * @see org.sakaiproject.lti.api.LTIService#getContentDao(java.lang.Long, java.lang.String, boolean)
 	 */
-	public Map<String, Object> getContentDao(Long key, String siteId, boolean isAdminRole, boolean isMaintainRole) {
-		Map<String, Object> retval = getThingDao("lti_content", LTIService.CONTENT_MODEL, key, siteId, isAdminRole, isMaintainRole);
+	public Map<String, Object> getContentDao(Long key, String siteId, boolean isAdminRole) {
+		Map<String, Object> retval = getThingDao("lti_content", LTIService.CONTENT_MODEL, key, siteId, isAdminRole);
 		if (retval == null) return retval;
 		retval.put("launch_url", getContentLaunch(retval));
 		return retval;
@@ -271,7 +271,7 @@ public class DBLTIService extends BaseLTIService implements LTIService {
 	 */
 	public Object updateContentDao(Long key, Object newProps, String siteId, boolean isAdminRole, boolean isMaintainRole) {
 		// Load the content item
-		Map<String,Object> content = getContentDao(key, siteId, isAdminRole, isMaintainRole);
+		Map<String,Object> content = getContentDao(key, siteId, isAdminRole);
 		if (  content == null ) {
 			return rb.getString("error.content.not.found");
 		}
@@ -291,7 +291,7 @@ public class DBLTIService extends BaseLTIService implements LTIService {
 		if ( newToolKey == null || newToolKey < 0 ) newToolKey = oldToolKey;
 
 		// Load the tool we are aiming for
-		Map<String, Object> tool = getToolDao(newToolKey, siteId, isAdminRole, isMaintainRole);
+		Map<String, Object> tool = getToolDao(newToolKey, siteId, isAdminRole);
 		if ( tool == null ) {
 			return rb.getString("error.invalid.toolid");
 		}
@@ -306,7 +306,7 @@ public class DBLTIService extends BaseLTIService implements LTIService {
 			}
 		}
 
-		String[] contentModel = getContentModelDao(tool, siteId, isAdminRole, isMaintainRole);
+		String[] contentModel = getContentModelDao(tool, isAdminRole);
 		if (contentModel == null)
 			return rb.getString("error.invalid.toolid");
 
@@ -322,9 +322,9 @@ public class DBLTIService extends BaseLTIService implements LTIService {
 	 *      java.lang.String, int, int)
 	 */
 	public List<Map<String, Object>> getContentsDao(String search, String order, int first,
-			int last, String siteId, boolean isAdminRole, boolean isMaintainRole) {
+			int last, String siteId, boolean isAdminRole) {
 		List<Map<String, Object>> contents = getThingsDao("lti_content",
-				LTIService.CONTENT_MODEL, search, order, first, last, siteId, isAdminRole, isMaintainRole);
+				LTIService.CONTENT_MODEL, search, order, first, last, siteId, isAdminRole);
 		for (Map<String, Object> content : contents) {
 			content.put("launch_url", getContentLaunch(content));
 		}
@@ -397,7 +397,7 @@ public class DBLTIService extends BaseLTIService implements LTIService {
 	 * @return
 	 */
 	private Map<String, Object> getThingDao(String table, String[] model, Long key,
-			String siteId, boolean isAdminRole, boolean isMaintainRole)
+			String siteId, boolean isAdminRole)
 	{
 		if (table == null || model == null || key == null) {
 			throw new IllegalArgumentException("table, model, and key must all be non-null");
@@ -438,7 +438,7 @@ public class DBLTIService extends BaseLTIService implements LTIService {
 	 * @return
 	 */
 	public List<Map<String, Object>> getThingsDao(String table, String[] model, String search,
-			String order, int first, int last, String siteId, boolean isAdminRole, boolean isMaintainRole) {
+			String order, int first, int last, String siteId, boolean isAdminRole) {
 		if (table == null || model == null ) {
 			throw new IllegalArgumentException("table and model must be non-null");
 		}
@@ -494,7 +494,7 @@ public class DBLTIService extends BaseLTIService implements LTIService {
 		// Hack to insure that We *Can* delete this since SqlService cannot tell us if updates
 		// work
 		if (!isAdminRole) {
-			Object thing = getThingDao(table, model, key, siteId, isAdminRole, isMaintainRole);
+			Object thing = getThingDao(table, model, key, siteId, isAdminRole);
 			if (thing == null || !(thing instanceof Map)) {
 				return false;
 			}
