@@ -665,8 +665,8 @@ public class ShowPageProducer implements ViewComponentProducer, DefaultView, Nav
 			if (pageItem.getPageId() == 0) { // top level page
 				UIOutput.make(tofill, "toppage-descrip");
 				UIOutput.make(tofill, "new-page").decorate(new UIFreeAttributeDecorator("title", messageLocator.getMessage("simplepage.new-page-tooltip")));
-				UIOutput.make(tofill, "import-cc").decorate(new UIFreeAttributeDecorator("title", messageLocator.getMessage("simplepage.import_cc")));
-				UIOutput.make(tofill, "export-cc").decorate(new UIFreeAttributeDecorator("title", messageLocator.getMessage("simplepage.export_cc")));
+				UIOutput.make(tofill, "import-cc").decorate(new UIFreeAttributeDecorator("title", messageLocator.getMessage("simplepage.import_cc.tooltip")));
+				UIOutput.make(tofill, "export-cc").decorate(new UIFreeAttributeDecorator("title", messageLocator.getMessage("simplepage.export_cc.tooltip")));
 			}
 			
 			// Checks to see that user can edit and that this is either a top level page,
@@ -2843,11 +2843,11 @@ public class ShowPageProducer implements ViewComponentProducer, DefaultView, Nav
 			createToolBarLink(QuizPickerProducer.VIEW_ID, tofill, "add-quiz", "simplepage.quiz", currentPage, "simplepage.quiz");
 			
 			UIOutput.make(tofill, "forum-descrip");
-			createToolBarLink(ForumPickerProducer.VIEW_ID, tofill, "add-forum", "simplepage.forum", currentPage, "simplepage.forum");
+			createToolBarLink(ForumPickerProducer.VIEW_ID, tofill, "add-forum", "simplepage.forum", currentPage, "simplepage.forum.tooltip");
 			// in case we're on an old system without current BLTI
 			if (bltiEntity != null && ((BltiInterface)bltiEntity).servicePresent()) {
 			    UIOutput.make(tofill, "blti-descrip");
-			    createToolBarLink(BltiPickerProducer.VIEW_ID, tofill, "add-blti", "simplepage.blti", currentPage, "simplepage.blti");
+			    createToolBarLink(BltiPickerProducer.VIEW_ID, tofill, "add-blti", "simplepage.blti", currentPage, "simplepage.blti.tooltip");
 			}
 			UIOutput.make(tofill, "permissions-descrip");
 			createToolBarLink(PermissionsHelperProducer.VIEW_ID, tofill, "permissions", "simplepage.permissions", currentPage, "simplepage.permissions.tooltip");
@@ -2855,11 +2855,13 @@ public class ShowPageProducer implements ViewComponentProducer, DefaultView, Nav
 			GeneralViewParameters eParams = new GeneralViewParameters(VIEW_ID);
 			eParams.addTool = GeneralViewParameters.COMMENTS;
 			UIOutput.make(tofill, "student-descrip");
-			UIInternalLink.make(tofill, "add-comments", messageLocator.getMessage("simplepage.comments"), eParams);
+			UIInternalLink.make(tofill, "add-comments", messageLocator.getMessage("simplepage.comments"), eParams).
+			    decorate(new UITooltipDecorator(messageLocator.getMessage("simplepage.comments.tooltip")));
 			
 			eParams = new GeneralViewParameters(VIEW_ID);
 			eParams.addTool = GeneralViewParameters.STUDENT_CONTENT;
-			UIInternalLink.make(tofill, "add-content", messageLocator.getMessage("simplepage.add-content"), eParams);
+			UIInternalLink.make(tofill, "add-content", messageLocator.getMessage("simplepage.add-content"), eParams).
+			    decorate(new UITooltipDecorator(messageLocator.getMessage("simplepage.student-descrip")));
 		}
 	}
 
