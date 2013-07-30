@@ -8,7 +8,7 @@
 	    <meta http-equiv="Content-Style-Type" content="text/css" />
 	    <title>${uiService}</title>
 	    <script type="text/javascript" language="JavaScript" src="${pageScriptPath}headscripts.js"></script>
-	    <meta name="viewport" content="width=320, user-scalable=no"/>
+		<meta name="viewport" content="width=device-width"/>
 	</head>
 	<body>
 		

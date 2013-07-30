@@ -9,7 +9,7 @@
 	    <title>${uiService}</title>
 		<script type="text/javascript" src="/library/js/jquery/1.4.2/jquery-1.4.2.min.js"></script>
 		<script type="text/javascript" language="JavaScript" src="${pageScriptPath}headscripts.js"></script>
-		<meta name="viewport" content="width=320, user-scalable=no"/>
+		<meta name="viewport" content="width=device-width"/>
 		#if ( $isPDA )
     		<link href="${pageSkinRepo}/${pageSkin}/pda.css" type="text/css" rel="stylesheet" media="all" />
 		#end
