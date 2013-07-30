@@ -152,7 +152,7 @@ public class MySearch extends BasePage {
 		searchForm.add(new Label("connectionsLabel", new ResourceModel("text.search.include.connections")));
 		// model is true (include connections by default)
 		connectionsCheckBox = new CheckBox("connectionsCheckBox", new Model<Boolean>(true));
-		connectionsCheckBox.setMarkupId("incudeconnectionsinput");
+		connectionsCheckBox.setMarkupId("includeconnectionsinput");
 		connectionsCheckBox.setOutputMarkupId(true);
 		searchForm.add(connectionsCheckBox);
 				
