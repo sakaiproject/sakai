@@ -176,10 +176,6 @@ public abstract class BaseLTIService implements LTIService {
 			M_log.warn(str + "=Missing LTIService Translation");
 		}
 
-		strings = foorm.checkI18NStrings(LTIService.MAPPING_MODEL, rb);
-		for (String str : strings) {
-			M_log.warn(str + "=Missing LTIService Translation");
-		}
 	}
 
 	/**
@@ -192,15 +188,6 @@ public abstract class BaseLTIService implements LTIService {
 	/**********************************************************************************************************************************************************************************************************************************************************
 	 * LTIService implementation
 	 *********************************************************************************************************************************************************************************************************************************************************/
-
-	/**
-	 * 
-	 */
-	public String[] getMappingModel() {
-		if (isAdmin())
-			return MAPPING_MODEL;
-		return null;
-	}
 
 	/**
 	 * 
@@ -418,35 +405,6 @@ public abstract class BaseLTIService implements LTIService {
 	 * @return
 	 */
 	public abstract Object updateToolDao(Long key, Object newProps, String siteId, boolean isAdminRole, boolean isMaintainRole);
-
-	/**
-	 * 
-	 * {@inheritDoc}
-	 * 
-	 * @see org.sakaiproject.lti.api.LTIService#updateMapping(java.lang.Long, java.util.Map)
-	 */
-	public Object updateMapping(Long key, Map<String, Object> newProps) {
-		return updateMapping(key, (Object) newProps);
-	}
-
-	/**
-	 * 
-	 * {@inheritDoc}
-	 * 
-	 * @see org.sakaiproject.lti.api.LTIService#updateMapping(java.lang.Long,
-	 *      java.util.Properties)
-	 */
-	public Object updateMapping(Long key, Properties newProps) {
-		return updateMapping(key, (Object) newProps);
-	}
-
-	/**
-	 * 
-	 * @param key
-	 * @param newProps
-	 * @return
-	 */
-	public abstract Object updateMapping(Long key, Object newProps);
 
 	/**
 	 * 

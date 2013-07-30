@@ -113,75 +113,12 @@ public class DBLTIService extends BaseLTIService implements LTIService {
 			boolean doReset = false;
 			if (doReset) M_log.error("DO NOT RUN IN PRODUCTION WITH doReset TRUE");
 
-			foorm.autoDDL("lti_mapping", LTIService.MAPPING_MODEL, m_sql, m_autoDdl, doReset, M_log);
 			foorm.autoDDL("lti_content", LTIService.CONTENT_MODEL, m_sql, m_autoDdl, doReset, M_log);
 			foorm.autoDDL("lti_tools", LTIService.TOOL_MODEL, m_sql, m_autoDdl, doReset, M_log);
 			super.init();
 		} catch (Exception t) {
 			M_log.warn("init(): ", t);
 		}
-	}
-
-	/* Mapping methods */
-
-	/**
-	 * 
-	 */
-	public Object insertMapping(Properties newProps) {
-		return insertThingDao("lti_mapping", LTIService.MAPPING_MODEL, null, 
-			newProps, getContext(), isAdmin(getContext()), isMaintain(getContext()));
-	}
-
-	/**
-	 * 
-	 * {@inheritDoc}
-	 * 
-	 * @see org.sakaiproject.lti.api.LTIService#getMapping(java.lang.Long)
-	 */
-	public Map<String, Object> getMapping(Long key) {
-		return getThingDao("lti_mapping", LTIService.MAPPING_MODEL, key, getContext(), isAdmin(getContext()), isMaintain(getContext()));
-	}
-
-	/**
-	 * 
-	 * {@inheritDoc}
-	 * 
-	 * @see org.sakaiproject.lti.api.LTIService#deleteMapping(java.lang.Long)
-	 */
-	public boolean deleteMapping(Long key) {
-		return deleteThingDao("lti_mapping", LTIService.MAPPING_MODEL, key, getContext(), isAdmin(getContext()), isMaintain(getContext()));
-	}
-
-	/**
-	 * 
-	 * {@inheritDoc}
-	 * 
-	 * @see org.sakaiproject.lti.impl.BaseLTIService#updateMapping(java.lang.Long,
-	 *      java.lang.Object)
-	 */
-	public Object updateMapping(Long key, Object newProps) {
-		return updateThingDao("lti_mapping", LTIService.MAPPING_MODEL, null, 
-			key, newProps, getContext(), isAdmin(getContext()), isMaintain(getContext()));
-	}
-
-	/**
-	 * 
-	 * {@inheritDoc}
-	 * 
-	 * @see org.sakaiproject.lti.api.LTIService#getMappings(java.lang.String,
-	 *      java.lang.String, int, int)
-	 */
-	public List<Map<String, Object>> getMappings(String search, String order, int first, int last) {
-		return getThingsDao("lti_mapping", LTIService.MAPPING_MODEL, search, order, 
-			first, last, getContext(), isAdmin(getContext()), isMaintain(getContext()));
-	}
-
-	// TODO: Actually check mappings
-	/**
-	 * 
-	 */
-	public String checkMapping(String url) {
-		return url;
 	}
 
 	/**
@@ -199,18 +136,7 @@ public class DBLTIService extends BaseLTIService implements LTIService {
 	 */
 	protected Map<String, Object> getToolDao(Long key, String siteId, boolean isAdminRole, boolean isMaintainRole) 
 	{
-		Map<String, Object> retval = getThingDao("lti_tools", LTIService.TOOL_MODEL, key, siteId, isAdminRole, isMaintainRole);
-		if (retval == null)
-			return retval;
-		String launch_url = (String) retval.get(LTIService.LTI_LAUNCH);
-		if (launch_url != null) {
-			String newLaunch = checkMapping(launch_url);
-			if (!newLaunch.equals(launch_url)) {
-				retval.put("x_launch", launch_url);
-				retval.put(LTIService.LTI_LAUNCH, newLaunch);
-			}
-		}
-		return retval;
+		return getThingDao("lti_tools", LTIService.TOOL_MODEL, key, siteId, isAdminRole, isMaintainRole);
 	}
 
 	/**
