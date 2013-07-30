@@ -818,7 +818,7 @@ div[role="dialog"] {
 }
 .portletTitle .action {
     padding: 2px -1px 6px 2px;
-    text-align: right;
+    float: right;
     vertical-align: middle;
 }
 .portletTitle .action a#jsr-edit {
