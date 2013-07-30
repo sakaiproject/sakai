@@ -178,6 +178,14 @@ public class DBLTIService extends BaseLTIService implements LTIService {
 	protected Object insertContentDao(Properties newProps, String siteId, 
 		boolean isAdminRole, boolean isMaintainRole) 
 	{
+		if ( newProps == null ) {
+			throw new IllegalArgumentException(
+					"newProps must be non-null");
+		}
+		if (siteId == null && !isAdminRole ) {
+			throw new IllegalArgumentException("siteId must be non-null for non-admins");
+		}
+
 		String toolId = newProps.getProperty(LTIService.LTI_TOOL_ID);
 		if (toolId == null)
 			return rb.getString("error.missing.toolid");
@@ -269,7 +277,17 @@ public class DBLTIService extends BaseLTIService implements LTIService {
 	 * @see org.sakaiproject.lti.impl.BaseLTIService#updateContentDao(java.lang.Long, 
 	 *      java.lang.Object, java.lang.String, boolean)
 	 */
-	public Object updateContentDao(Long key, Object newProps, String siteId, boolean isAdminRole, boolean isMaintainRole) {
+	public Object updateContentDao(Long key, Object newProps, String siteId, 
+		boolean isAdminRole, boolean isMaintainRole) 
+	{
+		if ( key == null || newProps == null ) {
+			throw new IllegalArgumentException(
+					"both key and newProps must be non-null");
+		}
+		if (siteId == null && !isAdminRole ) {
+			throw new IllegalArgumentException("siteId must be non-null for non-admins");
+		}
+
 		// Load the content item
 		Map<String,Object> content = getContentDao(key, siteId, isAdminRole);
 		if (  content == null ) {
@@ -338,9 +356,12 @@ public class DBLTIService extends BaseLTIService implements LTIService {
 	public Object insertThingDao(String table, String[] formModel, String[] fullModel,
 			Properties newProps, String siteId, boolean isAdminRole, boolean isMaintainRole) {
 
-		if (table == null || formModel == null || newProps == null || siteId == null) {
+		if (table == null || formModel == null || newProps == null ) {
 			throw new IllegalArgumentException(
-					"siteId, table, model, and newProps must all be non-null");
+					"table, model, and newProps must all be non-null");
+		}
+		if (siteId == null && !isAdminRole ) {
+			throw new IllegalArgumentException("siteId must be non-null for non-admins");
 		}
 
 		if (!isMaintainRole) return null;
@@ -360,10 +381,10 @@ public class DBLTIService extends BaseLTIService implements LTIService {
 			columns = foorm.getFields(fullModel);
 			theKey = foorm.formSqlKey(fullModel);
 		}
-		if ((Arrays.asList(columns).indexOf(LTIService.LTI_SITE_ID) >= 0)) {
-			if (!isAdminRole && newMapping.get(LTIService.LTI_SITE_ID) == null) {
-				newMapping.put(LTIService.LTI_SITE_ID, siteId);
-			}
+
+		// Only admins can insert things into sites other than the current site
+		if (!isAdminRole && (Arrays.asList(columns).indexOf(LTIService.LTI_SITE_ID) >= 0)) {
+			newMapping.put(LTIService.LTI_SITE_ID, siteId);
 		}
 		String seqName = foorm.getSqlSequence(table, theKey, m_sql.getVendor());
 
@@ -402,12 +423,16 @@ public class DBLTIService extends BaseLTIService implements LTIService {
 		if (table == null || model == null || key == null) {
 			throw new IllegalArgumentException("table, model, and key must all be non-null");
 		}
+		if (siteId == null && !isAdminRole ) {
+			throw new IllegalArgumentException("siteId must be non-null for non-admins");
+		}
 		String statement = "SELECT " + foorm.formSelect(model) + " from " + table
 			+ " WHERE id = ?";
 		Object fields[] = null;
 		String[] columns = foorm.getFields(model);
 
-		if (siteId != null && Arrays.asList(columns).indexOf(LTIService.LTI_SITE_ID) >= 0 && !isAdminRole ) {
+		// Non-admins only see global (SITE_ID IS NULL) or in their site
+		if (!isAdminRole && Arrays.asList(columns).indexOf(LTIService.LTI_SITE_ID) >= 0 ) {
 			statement += " AND (SITE_ID = ? OR SITE_ID IS NULL)";
 			fields = new Object[2];
 			fields[0] = key;
@@ -438,14 +463,20 @@ public class DBLTIService extends BaseLTIService implements LTIService {
 	 * @return
 	 */
 	public List<Map<String, Object>> getThingsDao(String table, String[] model, String search,
-			String order, int first, int last, String siteId, boolean isAdminRole) {
+		String order, int first, int last, String siteId, boolean isAdminRole) 
+	{
 		if (table == null || model == null ) {
 			throw new IllegalArgumentException("table and model must be non-null");
 		}
+		if (siteId == null && !isAdminRole ) {
+			throw new IllegalArgumentException("siteId must be non-null for non-admins");
+		}
+
 		String statement = "SELECT " + foorm.formSelect(model) + " FROM " + table;
 		String[] columns = foorm.getFields(model);
 		String whereClause = "";
 
+		// Only admins can see invisible items and items from any site
 		Object fields[] = null;
 		if ( ! isAdminRole ) {
 			if (Arrays.asList(columns).indexOf(LTIService.LTI_VISIBLE) >= 0 && 
@@ -487,12 +518,18 @@ public class DBLTIService extends BaseLTIService implements LTIService {
 		if (table == null || model == null || key == null) {
 			throw new IllegalArgumentException("table, model, and key must all be non-null");
 		}
+		if (siteId == null && !isAdminRole ) {
+			throw new IllegalArgumentException("siteId must be non-null for non-admins");
+		}
+
+		if (!isMaintainRole) return false;
+
 		String statement = "DELETE FROM " + table + " WHERE id = ?";
 		Object fields[] = null;
 		String[] columns = foorm.getFields(model);
 
-		// Hack to insure that We *Can* delete this since SqlService cannot tell us if updates
-		// work
+		// TODO: Check if this is needed on all three databases now that KNL-775 is in place
+		// Hack to insure that we *can* delete this since SqlService cannot tell us if deletes work
 		if (!isAdminRole) {
 			Object thing = getThingDao(table, model, key, siteId, isAdminRole);
 			if (thing == null || !(thing instanceof Map)) {
@@ -506,11 +543,8 @@ public class DBLTIService extends BaseLTIService implements LTIService {
 			}
 		}
 
-		if (Arrays.asList(columns).indexOf(LTIService.LTI_SITE_ID) >= 0 && !isAdminRole ) {
-			if (!isMaintainRole) {
-				M_log.info("Non-maintain attemped delete on " + table);
-				return false;
-			}
+		// Only admins can delete by id irrespective of the current site
+		if (!isAdminRole && Arrays.asList(columns).indexOf(LTIService.LTI_SITE_ID) >= 0 ) {
 			statement += " AND SITE_ID = ?";
 			fields = new Object[2];
 			fields[0] = key;
@@ -556,8 +590,11 @@ public class DBLTIService extends BaseLTIService implements LTIService {
 			throw new IllegalArgumentException(
 					"table, model, key, and newProps must all be non-null");
 		}
+		if (siteId == null && !isAdminRole ) {
+			throw new IllegalArgumentException("siteId must be non-null for non-admins");
+		}
 
-		if (!isMaintainRole) return null;
+		if (!isMaintainRole) return false;
 
 		HashMap<String, Object> newMapping = new HashMap<String, Object>();
 
@@ -572,10 +609,9 @@ public class DBLTIService extends BaseLTIService implements LTIService {
 			columns = foorm.getFields(fullModel);
 		}
 
-		if ( (Arrays.asList(columns).indexOf(LTIService.LTI_SITE_ID) >= 0)) {
-			if ( !isAdminRole && newMapping.get(LTIService.LTI_SITE_ID) == null) {
-				newMapping.put(LTIService.LTI_SITE_ID, siteId);
-			}
+		// Only admins can update *into* a site
+		if ( !isAdminRole && (Arrays.asList(columns).indexOf(LTIService.LTI_SITE_ID) >= 0)) {
+			newMapping.put(LTIService.LTI_SITE_ID, siteId);
 		}
 
 		String sql = "UPDATE " + table + " SET " + foorm.updateForm(newMapping)
