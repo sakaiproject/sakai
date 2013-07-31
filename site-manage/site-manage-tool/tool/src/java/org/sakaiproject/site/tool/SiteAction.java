@@ -6783,32 +6783,6 @@ private Map<String,List> getToolGroupList(SessionState state, String type, Site 
 	}
 
 	/**
-	 * do called when "eventSubmit_do" is in the request parameters to c
-	 */
-	public void doAdd_custom_link(RunData data) {
-		SessionState state = ((JetspeedRunData) data)
-				.getPortletSessionState(((JetspeedRunData) data).getJs_peid());
-		ParameterParser params = data.getParameters();
-		if ((params.getString("name")) == null
-				|| (params.getString("url") == null)) {
-			Tool tr = ToolManager.getTool(WEB_CONTENT_TOOL_ID);
-			Site site = getStateSite(state);
-			SitePage page = site.addPage();
-			page.setTitle(params.getString("name")); // the visible label on
-			// the tool menu
-			ToolConfiguration tool = page.addTool();
-			tool.setTool(WEB_CONTENT_TOOL_ID, tr);
-			tool.setTitle(params.getString("name"));
-			commitSite(site);
-		} else {
-			addAlert(state, rb.getString("java.reqmiss"));
-			state.setAttribute(STATE_TEMPLATE_INDEX, params
-					.getString("templateIndex"));
-		}
-
-	} // doAdd_custom_link
-
-	/**
 	 * toolId might be of form original tool id concatenated with number
 	 * find whether there is an counterpart in the the multipleToolIdSet
 	 * @param state
@@ -11510,8 +11484,11 @@ private Map<String,List> getToolGroupList(SessionState state, String type, Site 
 							String attributeInput = StringUtils.trimToNull(params.getString(attribute + "_" + id));
 							if (attributeInput != null)
 							{
-								// save the attribute input
-								attributes.put(attribute, attributeInput);
+								// save the attribute input if valid, otherwise generate alert
+								if ( FormattedText.validateURL(attributeInput) ) 
+									attributes.put(attribute, attributeInput);
+								else
+									addAlert(state, rb.getString("java.invurl"));
 							}
 						}
 						multipleToolConfiguration.put(id, attributes);
