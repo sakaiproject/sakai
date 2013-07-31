@@ -1575,7 +1575,7 @@ public class SiteAction extends PagedResourceActionII {
 			String type = (String) state.getAttribute(STATE_SITE_TYPE);
 			setTypeIntoContext(context, type);
 
-			Map<String,List> groupTools = getToolGroupList(state, type, site);
+			Map<String,List> groupTools = getTools(state, type, site);
 			state.setAttribute(STATE_TOOL_GROUP_LIST, groupTools);
 			
 			// information related to LTI tools
@@ -5265,43 +5265,102 @@ public class SiteAction extends PagedResourceActionII {
 
 /** SAK16600
  * Set the state variables for tool registration list basd on current site type, save to STATE_TOOL_GROUP_LIST.  This list should include
- * all tool types - normal, home, multiples and blti.
+ * all tool types - normal, home, multiples and blti.  Note that if the toolOrder.xml is in the original format, this list will consist of 
+ * all tools in a single group
  * @param state
  * @param is type
  * @param site
  */
-private Map<String,List> getToolGroupList(SessionState state, String type, Site site) {
+private Map<String,List> getTools(SessionState state, String type, Site site) {
 
 	boolean checkhome =  state.getAttribute(STATE_TOOL_HOME_SELECTED) != null ?((Boolean) state.getAttribute(STATE_TOOL_HOME_SELECTED)).booleanValue():true;
+	boolean isNewToolOrderType = ServerConfigurationService.getBoolean("config.sitemanage.useToolGroup", false);
 	M_log.debug("setToolGroupList:Loading group list for " + type);
 	String countryCode = rb.getLocale().getCountry();
 	Map<String,List> toolGroup = new LinkedHashMap<String,List>();
 	MyTool newTool = null;
 	
 	File moreInfoDir = new File(moreInfoPath);
-
-	List<String> selectedTools = new ArrayList<String>();
+	List toolList;
 	
-	// get all the groups that are available for this site type
-	List groups = ServerConfigurationService.getCategoryGroups(type);  // ,sortType)
-	if (groups.isEmpty())
-	{
-		List toolList = (List) state.getAttribute(STATE_TOOL_REGISTRATION_LIST);
+	// SAK-23811
+	// if this is old order type, get all tools by siteType
+	if (isNewToolOrderType == false) {
+		String defaultListName = rb.getString("tool.group.default");
+		toolGroup.put(rb.getString(defaultListName), getOrderedToolList(defaultListName, type, checkhome));		
+	} else {	
+		// get all the groups that are available for this site type
+		List groups = ServerConfigurationService.getCategoryGroups(type);  // ,sortType)
+		for(Iterator<String> itr = groups.iterator(); itr.hasNext();) {
+			String groupId = itr.next();
+			String groupName = getGroupName(groupId);
+			toolList = getGroupedToolList(groupId, groupName, type, checkhome, moreInfoDir);
+			if (toolList.size() > 0) {
+				toolGroup.put(groupName, toolList);
+			}
+		}
+	    // add ungroups tools to end of toolGroup list
+	    String ungroupedName = ServerConfigurationService.getString("config.sitemanage.ungroupedToolGroupName","Ungrouped Tools");
+	    List ungroupedList = getUngroupedTools(ungroupedName,  toolGroup, state, type, moreInfoDir, countryCode, site);
+	    if (ungroupedList.size() > 0) {
+	       toolGroup.put(ungroupedName, ungroupedList );
+	    }		
+	}
+
+	// add external tools to end of toolGroup list
+	String externaltoolgroupname = ServerConfigurationService.getString("config.sitemanage.externalToolGroupName","Plugin Tools");
+	List externalTools = getLtiToolGroup(externaltoolgroupname, moreInfoDir, countryCode, site);
+	if (externalTools.size() > 0 ) 
+		toolGroup.put(externaltoolgroupname, externalTools);
+	
+	// Home page should be auto-selected
+	if (checkhome==true) {
+		state.setAttribute(STATE_TOOL_HOME_SELECTED, new Boolean(true));
+	}
+	
+	// refresh selectedList
+	List<String> selectedTools = new ArrayList<String>();
+	for(Iterator itr = toolGroup.keySet().iterator();  itr.hasNext(); )  {
+		String key = (String) itr.next();
+		List toolGroupSelectedList =(List) toolGroup.get(key);
+		for (Iterator listItr = toolGroupSelectedList.iterator(); listItr.hasNext();) {
+			MyTool tool = (MyTool) listItr.next();
+			if (tool.selected) {
+				selectedTools.add(tool.id);
+			}
+		}
+	}
+	return toolGroup;
+}
+
+	// SAK-23811 return list of myTools
+	private List getOrderedToolList(String groupName, String type, boolean checkhome) {
+		MyTool newTool = null;
+		List toolsInOrderedList = new ArrayList();
+		List toolList = (List) ServerConfigurationService.getToolOrder(type);
 		// mark the required tools
 		List requiredTools = ServerConfigurationService.getToolsRequired(type);
-		
 		// add Home tool only once
 		boolean hasHomeTool = false;
-		for (Object tool:toolList)
+		for (Iterator itr = toolList.iterator(); itr.hasNext(); ) 
 		{
-			String toolId = ((MyTool) tool).getId();
+			String toolId = (String) itr.next();
 			if (TOOL_ID_HOME.equals(toolId))
 			{
 				hasHomeTool = true;
-			}
-			if (requiredTools != null && requiredTools.contains(toolId))
-			{
-				((MyTool) tool).required = true;
+			} 
+			Tool tr = ToolManager.getTool(toolId);
+			if (tr != null) {
+				newTool = new MyTool();
+				newTool.title = tr.getTitle();
+				newTool.id = toolId;
+				newTool.description = tr.getDescription();
+				newTool.group = groupName;
+				if (requiredTools != null && requiredTools.contains(toolId))
+				{
+					newTool.required = true;
+				}
+				toolsInOrderedList.add(newTool);
 			}
 		}
 		
@@ -5315,89 +5374,60 @@ private Map<String,List> getToolGroupList(SessionState state, String type, Site 
 			newTool.selected = checkhome;
 			newTool.required =  false;
 			newTool.multiple = false;
-			toolList.add(0, newTool);
-		}
-		toolGroup.put(rb.getString("tool.group.default"), toolList);
+			toolsInOrderedList.add(0, newTool);
+		}		
+		return toolsInOrderedList;
 	}
-	else
-	{
-	// create master list of all tools
-	for(Iterator<String> itr = groups.iterator(); itr.hasNext();) {
-		String groupId = itr.next();
-		String groupName = getGroupName(groupId);
+
+	// SAK-23811
+	private List getGroupedToolList(String groupId, String type, String groupName, boolean checkhome, File moreInfoDir ) {
+		List toolsInGroup = new ArrayList();
+		MyTool newTool = null;
 		List toolList = ServerConfigurationService.getToolGroup(groupId);
 		// empty list
-		if (toolList == null) {
-			toolGroup.put(groupName,new ArrayList());
-		} else {
-			List toolsInGroup = new ArrayList();
+		if (toolList != null) {
 			for(Iterator<String> iter = toolList.iterator(); iter.hasNext();) {
-				String id = iter.next();
-				String relativeWebPath = null;
-				if (id.equals(TOOL_ID_HOME)) { // SAK-23208
-					newTool = new MyTool();
-					newTool.id = id;
-					newTool.title = rb.getString("java.home");
-					newTool.description = rb.getString("java.home");
-					newTool.selected = checkhome;
-					newTool.required = ServerConfigurationService.toolGroupIsRequired(groupId,TOOL_ID_HOME);
-					newTool.multiple = false;
-				} else {
-					Tool tr = ToolManager.getTool(id);
-					if (tr != null) 
-					{
-							String toolId = tr.getId();
-							if (isSiteTypeInToolCategory(type, tr) && notStealthOrHiddenTool(toolId) ) // SAK 23808
-							{
-								newTool = new MyTool();
-								newTool.title = tr.getTitle();
-								newTool.id = toolId;
-								newTool.description = tr.getDescription();
-								newTool.group = groupName;
-								newTool.moreInfo =  getMoreInfoUrl(moreInfoDir, toolId);
-								newTool.required = ServerConfigurationService.toolGroupIsRequired(groupId,toolId);
-								newTool.selected = ServerConfigurationService.toolGroupIsSelected(groupId,toolId);
-								// does tool allow multiples and if so are they already defined?
-								newTool.multiple = isMultipleInstancesAllowed(toolId); // SAK-16600 - this flag will allow action for template#3 to massage list into new format
-							}
+					String id = iter.next();
+					String relativeWebPath = null;
+					if (id.equals(TOOL_ID_HOME)) { // SAK-23208
+						newTool = new MyTool();
+						newTool.id = id;
+						newTool.title = rb.getString("java.home");
+						newTool.description = rb.getString("java.home");
+						newTool.selected = checkhome;
+						newTool.required = ServerConfigurationService.toolGroupIsRequired(groupId,TOOL_ID_HOME);
+						newTool.multiple = false;
+					} else {
+						Tool tr = ToolManager.getTool(id);
+						if (tr != null) 
+						{
+								String toolId = tr.getId();
+								if (isSiteTypeInToolCategory(type, tr) && notStealthOrHiddenTool(toolId) ) // SAK 23808
+								{
+									newTool = new MyTool();
+									newTool.title = tr.getTitle();
+									newTool.id = toolId;
+									newTool.description = tr.getDescription();
+									newTool.group = groupName;
+									newTool.moreInfo =  getMoreInfoUrl(moreInfoDir, toolId);
+									newTool.required = ServerConfigurationService.toolGroupIsRequired(groupId,toolId);
+									newTool.selected = ServerConfigurationService.toolGroupIsSelected(groupId,toolId);
+									// does tool allow multiples and if so are they already defined?
+									newTool.multiple = isMultipleInstancesAllowed(toolId); // SAK-16600 - this flag will allow action for template#3 to massage list into new format
+								}
+						}
 					}
-				}
-				if (newTool != null) {
-					toolsInGroup.add(newTool);
-					if (newTool.selected) {
-						selectedTools.add(newTool.id);
+					if (newTool != null) {
+						toolsInGroup.add(newTool);
+						newTool = null;
 					}
-					newTool = null;
-				}
-			}
-			M_log.debug(groupName + ": loaded " + new Integer(toolsInGroup.size()).toString() + " tools");
-			if (toolsInGroup.size() > 0) {
-				toolGroup.put(groupName, toolsInGroup);
 			}
 		}
-	}
+		M_log.debug(groupName + ": loaded " + new Integer(toolsInGroup.size()).toString() + " tools");
+		return toolsInGroup;
+		
 	}
 
-
-       // add ungroups tools to end of toolGroup list
-       String ungroupedName = ServerConfigurationService.getString("config.sitemanage.ungroupedToolGroupName","Ungrouped Tools");
-       List ungroupedList = getUngroupedTools(ungroupedName,  toolGroup, state, type, moreInfoDir, countryCode, site);
-       if (ungroupedList.size() > 0) {
-               toolGroup.put(ungroupedName, ungroupedList );
-       }
-	
-	// add external tools to end of toolGroup list
-	String externaltoolgroupname = ServerConfigurationService.getString("config.sitemanage.externalToolGroupName","Plugin Tools");
-	List externalTools = getLtiToolGroup(externaltoolgroupname, moreInfoDir, countryCode, site);
-	if (externalTools.size() > 0 ) 
-		toolGroup.put(externaltoolgroupname, externalTools);
-      
-	// Home page should be auto-selected
-	if (checkhome==true) {
-		state.setAttribute(STATE_TOOL_HOME_SELECTED, new Boolean(true));
-	}
-	return toolGroup;
-}
 	/*
 	 * Given groupId, return localized name from tools.properties
 	 */
