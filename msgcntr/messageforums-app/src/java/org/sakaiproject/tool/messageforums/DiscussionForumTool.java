@@ -630,8 +630,7 @@ public class DiscussionForumTool
 	    	 Set<Long> topicIdsForCounts = new HashSet<Long>();
 	    	 for (DiscussionForum forum: tempForums) {
 	    		 if ((!forum.getDraft() && forum.getAvailability())
-	    				 || hasOverridingPermissions
-	    				 || forum.getCreatedBy().equals(getUserId()))
+	    				 || hasOverridingPermissions)
 	    		 { // this is the start of the big forum if
 
 	    			 tempSortedForums.add(forum);
@@ -640,9 +639,7 @@ public class DiscussionForumTool
 	    				 DiscussionTopic currTopic = (DiscussionTopic)itor.next();
 
 	    				 if ((currTopic.getDraft().equals(Boolean.FALSE) && currTopic.getAvailability())
-	    						 || isInstructor()
-	    						 || SecurityService.isSuperUser()
-	    						 || currTopic.getCreatedBy().equals(getUserId()))
+	    						 || hasOverridingPermissions)
 	    				 { // this is the start of the big topic if
 	    					 DiscussionTopicBean decoTopic = new DiscussionTopicBean(currTopic, (DiscussionForum)currTopic.getOpenForum(), uiPermissionsManager, forumManager);
 	    					 if (readFullDescription) decoTopic.setReadFullDesciption(true);
