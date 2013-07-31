@@ -451,7 +451,7 @@ public class BasicNewsService implements NewsService, EntityTransferrer
 					+ SiteService.MAIN_CONTAINER + ".\n");
 			
 			// get the default news url
-			String defaultUrl = ServerConfigurationService.getString("news.feedURL");
+			String defaultUrl = ServerConfigurationService.getString("news.feedURL", "http://sakaiproject.org/news-rss-feed");
 			
 			// start with an element with our very own (service) name
 			Element element = doc.createElement(SERVICE_NAME);
