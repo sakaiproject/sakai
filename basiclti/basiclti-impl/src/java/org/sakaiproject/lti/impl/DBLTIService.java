@@ -173,7 +173,7 @@ public class DBLTIService extends BaseLTIService implements LTIService {
 	}
 
 	/**
-	 * 
+	 * @return Returns String (falure) or Long (key on success)
 	 */
 	protected Object insertContentDao(Properties newProps, String siteId, 
 		boolean isAdminRole, boolean isMaintainRole) 
@@ -185,6 +185,8 @@ public class DBLTIService extends BaseLTIService implements LTIService {
 		if (siteId == null && !isAdminRole ) {
 			throw new IllegalArgumentException("siteId must be non-null for non-admins");
 		}
+
+		if (!isMaintainRole) return null;
 
 		String toolId = newProps.getProperty(LTIService.LTI_TOOL_ID);
 		if (toolId == null)
@@ -349,9 +351,8 @@ public class DBLTIService extends BaseLTIService implements LTIService {
 		return contents;
 	}
 
-	// Returns String (falure) or Long (key on success)
 	/**
-	 * 
+	 * @return Returns String (falure) or Long (key on success)
 	 */
 	public Object insertThingDao(String table, String[] formModel, String[] fullModel,
 			Properties newProps, String siteId, boolean isAdminRole, boolean isMaintainRole) {
@@ -527,21 +528,6 @@ public class DBLTIService extends BaseLTIService implements LTIService {
 		String statement = "DELETE FROM " + table + " WHERE id = ?";
 		Object fields[] = null;
 		String[] columns = foorm.getFields(model);
-
-		// TODO: Check if this is needed on all three databases now that KNL-775 is in place
-		// Hack to insure that we *can* delete this since SqlService cannot tell us if deletes work
-		if (!isAdminRole) {
-			Object thing = getThingDao(table, model, key, siteId, isAdminRole);
-			if (thing == null || !(thing instanceof Map)) {
-				return false;
-			}
-
-			String thingSite = (String) foorm.getField(thing, LTIService.LTI_SITE_ID);
-
-			if (thingSite == null || !thingSite.equals(siteId)) {
-				return false;
-			}
-		}
 
 		// Only admins can delete by id irrespective of the current site
 		if (!isAdminRole && Arrays.asList(columns).indexOf(LTIService.LTI_SITE_ID) >= 0 ) {
