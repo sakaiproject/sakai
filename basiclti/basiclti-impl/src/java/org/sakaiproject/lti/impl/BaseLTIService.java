@@ -189,68 +189,43 @@ public abstract class BaseLTIService implements LTIService {
 	 * LTIService implementation
 	 *********************************************************************************************************************************************************************************************************************************************************/
 
-	/**
-	 * 
-	 * {@inheritDoc}
-	 * 
-	 * @see org.sakaiproject.lti.api.LTIService#getToolModel()
-	 */
+	/* Tool Model */
 	public String[] getToolModel() {
-		return getToolModelDao(getContext(), isAdmin(), isMaintain());
+		return getToolModelDao(isAdmin());
 	}
 
-	/**
-	 * 
-	 * {@inheritDoc}
-	 * 
-	 * @see org.sakaiproject.lti.api.LTIService#getToolModelDao()
-	 */
-	public String[] getToolModelDao(String siteId) {
-		return getToolModelDao(siteId, true, true);
+	public String[] getToolModelDao() {
+		return getToolModelDao(true);
 	}
 
-	/**
-	 * 
-	 * {@inheritDoc}
-	 * 
-	 * @see org.sakaiproject.lti.api.LTIService#getToolModelDao(java.lang.String, boolean)
-	 */
-	public String[] getToolModelDao(String siteId, boolean isAdminRole, boolean isMaintainRole) {
-		if (isAdmin(siteId)) return TOOL_MODEL;
-		if (isMaintainRole) return foorm.filterForm(null, TOOL_MODEL, null, ".*:role=admin.*");
-		return null;
+	public String[] getToolModelDao(boolean isAdminRole) {
+		if (isAdminRole) return TOOL_MODEL;
+		return foorm.filterForm(null, TOOL_MODEL, null, ".*:role=admin.*");
 	}
 
 
 	/* Content Model */
-	public String[] getContentModel(Map<String, Object> tool) {
-		return getContentModelDao(tool, getContext(), isAdmin(), isMaintain());
-	}
-
 	public String[] getContentModel(Long tool_id) {
-		if (!isMaintain()) return null;
-		Map<String, Object> tool = getToolDao(tool_id, getContext(), isAdmin(), isMaintain());
-		if (tool == null) return null;
-		return getContentModelDao(tool, getContext(), isAdmin(), isMaintain());
+		Map<String, Object> tool = getToolDao(tool_id, getContext(), isAdmin());
+		return getContentModelDao(tool, isAdmin());
 	}
+
+	public String[] getContentModel(Map<String, Object> tool) {
+		return getContentModelDao(tool, isAdmin());
+	}
+
+	// Note that there is no
+	//   public String[] getContentModelDao(Long tool_id, String siteId) 
+	// on purpose - if code is doing Dao style it can retrieve its own tool
 
 	/**
 	 * 
 	 * {@inheritDoc}
 	 * 
-	 * @see org.sakaiproject.lti.api.LTIService#getContentModel(Map<String,Object>, java.lang.String)
+	 * @see org.sakaiproject.lti.api.LTIService#getContentModelDao(Map<String, Object>, java.lang.String, boolean)
 	 */
-	public String[] getContentModelDao(Map<String, Object> tool, String siteId) {
-		return getContentModelDao(tool, siteId, true, true);
-	}
-
-	/**
-	 * 
-	 * {@inheritDoc}
-	 * 
-	 * @see org.sakaiproject.lti.api.LTIService#getContentModel(Map<String, Object>, java.lang.String, boolean)
-	 */
-	protected String[] getContentModelDao(Map<String, Object> tool, String siteId, boolean isAdminRole, boolean isMaintainRole) {
+	protected String[] getContentModelDao(Map<String, Object> tool, boolean isAdminRole) {
+		if ( tool == null ) return null;
 		String[] retval = foorm.filterForm(tool, CONTENT_MODEL);
 		if (!isAdminRole) retval = foorm.filterForm(null, retval, null, ".*:role=admin.*");
 		return retval;
@@ -590,25 +565,25 @@ public abstract class BaseLTIService implements LTIService {
 	}
 
 	public Map<String, Object> getTool(Long key) {
-		return getToolDao(key, getContext(), isAdmin(), isMaintain());
+		return getToolDao(key, getContext(), isAdmin());
 	}
 
 	public Map<String, Object> getToolDao(Long key, String siteId)
 	{
-		return getToolDao(key, siteId, true, true);
+		return getToolDao(key, siteId, true);
 	}
 
-	protected abstract Map<String, Object> getToolDao(Long key, String siteId, boolean isAdminRole, boolean isMaintainRole);
+	protected abstract Map<String, Object> getToolDao(Long key, String siteId, boolean isAdminRole);
 
 	public List<Map<String, Object>> getTools(String search, String order, int first, int last) {
-		return getToolsDao(search, order, first, last, getContext(), isAdmin(), isMaintain());
+		return getToolsDao(search, order, first, last, getContext(), isAdmin());
 	}
 
 	public List<Map<String, Object>> getToolsDao(String search, String order, int first, int last, String siteId) {
-		return getToolsDao(search, order, first, last, siteId, true, true);
+		return getToolsDao(search, order, first, last, siteId, true);
 	}
 
-	protected abstract List<Map<String, Object>> getToolsDao(String search, String order, int first, int last, String siteId, boolean isAdminRole, boolean isMaintain);
+	protected abstract List<Map<String, Object>> getToolsDao(String search, String order, int first, int last, String siteId, boolean isAdminRole);
 
 	public Object insertContent(Properties newProps) {
 		return insertContentDao(newProps, getContext(), isAdmin(), isMaintain());
@@ -622,34 +597,34 @@ public abstract class BaseLTIService implements LTIService {
 	protected abstract Object insertContentDao(Properties newProps, String siteId, boolean isAdminRole, boolean isMaintainRole);
 
 	public Map<String, Object> getContent(Long key) {
-		return getContentDao(key, getContext(), isAdmin(), isMaintain());
+		return getContentDao(key, getContext(), isAdmin());
 	}
 
 	public Map<String, Object> getContent(Long key, String siteId) {
-		return getContentDao(key, siteId, isAdmin(), isMaintain());
+		return getContentDao(key, siteId, isAdmin());
 	}
 	
 	// This is with absolutely no site checking...
 	public Map<String, Object> getContentDao(Long key) {
-		return getContentDao(key, null, true, true);
+		return getContentDao(key, null, true);
 	}
 
 	public Map<String, Object> getContentDao(Long key, String siteId) {
-		return getContentDao(key, siteId, true, true);
+		return getContentDao(key, siteId, true);
 	}
 
-	protected abstract Map<String, Object> getContentDao(Long key, String siteId, boolean isAdminRole, boolean isMaintainRole);
+	protected abstract Map<String, Object> getContentDao(Long key, String siteId, boolean isAdminRole);
 
 	public List<Map<String, Object>> getContents(String search, String order, int first, int last) 
 	{
-		return getContentsDao(search, order, first, last, getContext(), isAdmin(), isMaintain());
+		return getContentsDao(search, order, first, last, getContext(), isAdmin());
 	}
 
 	public List<Map<String, Object>> getContentsDao(String search, String order, int first, int last, String siteId) {
-		return getContentsDao(search, order, first, last, siteId, true, true);
+		return getContentsDao(search, order, first, last, siteId, true);
 	}
 
-	protected abstract List<Map<String, Object>> getContentsDao(String search, String order, int first, int last, String siteId, boolean isAdminRole, boolean isMaintainRole);
+	protected abstract List<Map<String, Object>> getContentsDao(String search, String order, int first, int last, String siteId, boolean isAdminRole);
 
 	public Object insertToolContent(String id, String toolId, Properties reqProps)
 	{
@@ -687,7 +662,7 @@ public abstract class BaseLTIService implements LTIService {
 		} else {
 			contentKey = new Long(id);
 			Long toolKey = new Long(toolId);
-			Map<String,Object> tool = getToolDao(toolKey, siteId, isAdminRole, isMaintainRole);
+			Map<String,Object> tool = getToolDao(toolKey, siteId, isAdminRole);
 			if ( tool == null ) {
 				retval = rb.getString("error.tool.not.found");
 			}
@@ -743,7 +718,7 @@ public abstract class BaseLTIService implements LTIService {
 		}
 		
 		Long key = new Long(id);
-		Map<String,Object> content = getContent(key, siteId);
+		Map<String,Object> content = getContentDao(key, siteId, isAdminRole);
 		if (  content == null ) {
 			retval = new String("1" + rb.getString("error.content.not.found"));
 			return retval;
@@ -769,7 +744,7 @@ public abstract class BaseLTIService implements LTIService {
 				// Record the new placement in the content item
 				Properties newProps = new Properties();
 				newProps.setProperty(LTI_PLACEMENT, tool.getId());
-				retval = updateContent(key, newProps, siteId);
+				retval = updateContentDao(key, newProps, siteId, isAdminRole, isMaintainRole);
 			}
 			catch (PermissionException ee)
 			{
@@ -806,7 +781,7 @@ public abstract class BaseLTIService implements LTIService {
 			return rb.getString("error.id.not.found");
 		}
 		
-		Map<String,Object> content = getContentDao(key, siteId, isAdminRole, isMaintainRole);
+		Map<String,Object> content = getContentDao(key, siteId, isAdminRole);
 		if (  content == null ) {
 			return rb.getString("error.content.not.found");
 		}
@@ -829,18 +804,22 @@ public abstract class BaseLTIService implements LTIService {
 
 		try
 		{
-			Site site = siteService.getSite(siteId);
+			Site site = siteService.getSite(siteStr);
 			String sitePageId = tool.getPageId();
-	
-			site.removePage(site.getPage(sitePageId));
-	
-			try {
-				siteService.save(site);
-			} catch (Exception e) {
-				return rb.getString("error.placement.not.removed");
+			SitePage page = site.getPage(sitePageId);
+
+			if ( page != null ) {
+				site.removePage(page);
+				try {
+					siteService.save(site);
+				} catch (Exception e) {
+					return rb.getString("error.placement.not.removed");
+				}
+			} else {
+				M_log.warn(this + " LTI content="+key+" placement="+tool.getId()+" could not find page in site=" + siteStr);
 			}
 	
-			// Record the new placement in the content item
+			// Remove the placement from the content item
 			Properties newProps = new Properties();
 			newProps.setProperty(LTIService.LTI_PLACEMENT, "");
 			Object retval = updateContentDao(key, newProps, siteId, isAdminRole, isMaintainRole);
@@ -854,7 +833,7 @@ public abstract class BaseLTIService implements LTIService {
 		}
 		catch (IdUnusedException ee)
 		{
-			M_log.warn(this + " cannot add page and basic lti tool to site " + siteId);
+			M_log.warn(this + " LTI content="+key+" placement="+tool.getId()+" could not remove page from site=" + siteStr);
 			return new String(rb.getFormattedMessage("error.link.placement.update", new Object[]{key.toString()}));
 		}
 	}

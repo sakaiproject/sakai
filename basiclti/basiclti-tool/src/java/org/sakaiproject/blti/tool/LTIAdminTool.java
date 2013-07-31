@@ -696,9 +696,10 @@ public class LTIAdminTool extends VelocityPortletPaneledAction
 		Properties reqProps = data.getParameters().getProperties();
 		String id = data.getParameters().getString(LTIService.LTI_ID);
 		String toolId = data.getParameters().getString(LTIService.LTI_TOOL_ID);
-		String title = data.getParameters().getString(LTIService.LTI_PAGETITLE);
 		Object retval = ltiService.insertToolContent(id, toolId, reqProps);
 		
+		Long contentKey = null;
+		Map<String,Object> content = null;
 		if ( retval instanceof String ) 
 		{
 			addAlert(state, (String) retval);
@@ -715,15 +716,22 @@ public class LTIAdminTool extends VelocityPortletPaneledAction
 		{
 			// the return value is the content key Long value
 			id = ((Long) retval).toString();
+			contentKey = new Long(id);
+			content = ltiService.getContent(contentKey);
+			if ( content == null ) {
+				addAlert(state, rb.getString("error.content.not.found"));
+				switchPanel(state, "Error");
+				state.setAttribute(STATE_POST,reqProps);
+				state.setAttribute(STATE_CONTENT_ID,id);
+				return;
+			}
 		}
 
 		String returnUrl = reqProps.getProperty("returnUrl");
 		if ( returnUrl != null )
 		{
 			if ( id != null ) {
-				Long contentKey = new Long(id);
 				if ( returnUrl.startsWith("about:blank") ) { // Redirect to the item
-					Map<String,Object> content = ltiService.getContent(contentKey);
 					if ( content != null ) {
 						String launch = (String) ltiService.getContentLaunch(content);
 						if ( launch != null ) returnUrl = launch;
@@ -751,6 +759,15 @@ public class LTIAdminTool extends VelocityPortletPaneledAction
 		}
 		state.setAttribute(STATE_SUCCESS,success);
 		
+		String title = data.getParameters().getString(LTIService.LTI_PAGETITLE);
+
+		// Take the title from the content (or tool) definition
+		if (title == null || title.trim().length() < 1 ) {
+			if ( content != null ) {
+				title = (String) content.get(ltiService.LTI_PAGETITLE);
+			}
+		}
+
 		if (reqProps.getProperty("add_site_link") != null)
 		{
 			// this is to add site link:
