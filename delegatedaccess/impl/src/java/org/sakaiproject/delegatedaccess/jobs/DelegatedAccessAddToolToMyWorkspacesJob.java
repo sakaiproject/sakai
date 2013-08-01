@@ -15,6 +15,7 @@ import org.sakaiproject.delegatedaccess.util.DelegatedAccessConstants;
 import org.sakaiproject.hierarchy.HierarchyService;
 import org.sakaiproject.site.api.Site;
 import org.sakaiproject.site.api.SitePage;
+import org.sakaiproject.site.api.ToolConfiguration;
 import org.sakaiproject.api.app.scheduler.ScheduledInvocationCommand;
 
 public class DelegatedAccessAddToolToMyWorkspacesJob implements ScheduledInvocationCommand{
@@ -61,6 +62,12 @@ public class DelegatedAccessAddToolToMyWorkspacesJob implements ScheduledInvocat
 					if(workspace != null){
 						SitePage page = workspace.addPage();
 						page.addTool("sakai.delegatedaccess");
+						//check if the workspace already has the become user tool, if not add it:
+						ToolConfiguration tool = workspace.getToolForCommonId("sakai.su");
+						if(tool == null && projectLogic.hasAllowBecomeUserPerm(siteId.substring(1))){
+							SitePage suPage = workspace.addPage();
+							suPage.addTool("sakai.su");
+						}
 						sakaiProxy.saveSite(workspace);
 					}
 				}

@@ -14,13 +14,13 @@ import org.apache.wicket.model.StringResourceModel;
 import org.sakaiproject.delegatedaccess.model.NodeModel;
 import org.sakaiproject.delegatedaccess.util.DelegatedAccessConstants;
 
-public class EditablePanelAdvancedOptions extends Panel{
+public class EditablePanelAdvancedUserOptions extends Panel{
 
 	private NodeModel nodeModel;
 	private TreeNode node;
 	private boolean loadedFlag = false;
 	
-	public EditablePanelAdvancedOptions(String id, IModel inputModel, final NodeModel nodeModel, final TreeNode node, final int userType){
+	public EditablePanelAdvancedUserOptions(String id, IModel inputModel, final NodeModel nodeModel, final TreeNode node){
 		super(id);
 		
 		this.nodeModel = nodeModel;
@@ -73,8 +73,7 @@ public class EditablePanelAdvancedOptions extends Panel{
 		Label advancedOptionsInstructions = new Label("advancedOptionsInstructions", new StringResourceModel("advancedOptionsDesc", null));
 		advancedOptionsSpan.add(advancedOptionsInstructions);
 		
-		advancedOptionsSpan.add(new EditablePanelCheckbox("editablePanelCheckbox", new PropertyModel(node,  "userObject.shoppingPeriodRevokeInstructorEditable"), (NodeModel) ((DefaultMutableTreeNode) node).getUserObject(), node, DelegatedAccessConstants.TYPE_ADVANCED_OPT));
-		advancedOptionsSpan.add(new EditablePanelCheckbox("revokePublicOptCheckbox", new PropertyModel(node,  "userObject.shoppingPeriodRevokeInstructorPublicOpt"), (NodeModel) ((DefaultMutableTreeNode) node).getUserObject(), node, DelegatedAccessConstants.TYPE_ADVANCED_OPT));
+		advancedOptionsSpan.add(new EditablePanelCheckbox("allowBecomeUserCheckbox", new PropertyModel(node,  "userObject.allowBecomeUser"), (NodeModel) ((DefaultMutableTreeNode) node).getUserObject(), node, DelegatedAccessConstants.TYPE_ADVANCED_OPT));
 	}
 	
 }

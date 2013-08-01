@@ -54,6 +54,8 @@ public class NodeModel implements Serializable {
 	private boolean shoppingPeriodRevokeInstructorPublicOptOrig = false;
 	private String[] subAdminSiteAccess = null;
 	private boolean isActive = true;
+	private boolean allowBecomeUser = false;
+	private boolean allowBecomeUserOrig = false;
 	
 	/**
 	 * this function should be called after a save in order to reset the original values to their current value.
@@ -71,6 +73,7 @@ public class NodeModel implements Serializable {
 		shoppingPeriodEndDateOrig = shoppingPeriodEndDate;
 		shoppingPeriodRevokeInstructorEditableOrig = shoppingPeriodRevokeInstructorEditable;
 		shoppingPeriodRevokeInstructorPublicOptOrig = shoppingPeriodRevokeInstructorPublicOpt;
+		allowBecomeUserOrig = allowBecomeUser;
 	}
 	
 	public NodeModel(String nodeId, HierarchyNodeSerialized node,
@@ -79,7 +82,7 @@ public class NodeModel implements Serializable {
 			Date shoppingPeriodEndDate, boolean addedDirectChildrenFlag, boolean shoppingPeriodAdmin,
 			String modifiedBy, Date modified,
 			Date shoppingAdminModified, String shoppingAdminModifiedBy, boolean accessAdmin, boolean shoppingPeriodRevokeInstructorEditable,
-			boolean shoppingPeriodRevokeInstructorPublicOpt){
+			boolean shoppingPeriodRevokeInstructorPublicOpt, boolean allowBecomeUser){
 
 		this.nodeId = nodeId;
 		this.node = node;
@@ -111,6 +114,8 @@ public class NodeModel implements Serializable {
 		this.shoppingPeriodRevokeInstructorEditableOrig = shoppingPeriodRevokeInstructorEditable;
 		this.shoppingPeriodRevokeInstructorPublicOpt = shoppingPeriodRevokeInstructorPublicOpt;
 		this.shoppingPeriodRevokeInstructorPublicOptOrig = shoppingPeriodRevokeInstructorPublicOpt;
+		this.allowBecomeUser = allowBecomeUser;
+		this.allowBecomeUserOrig = allowBecomeUser;
 	}
 
 	private List<ListOptionSerialized> copyListOptions(List<ListOptionSerialized> tools){
@@ -172,7 +177,7 @@ public class NodeModel implements Serializable {
 			return isModified(shoppingPeriodStartDate, shoppingPeriodStartDateOrig, shoppingPeriodEndDate, shoppingPeriodEndDateOrig,
 					realm, realmOrig, role, roleOrig, convertListToArray(getSelectedRestrictedAuthTools()), convertListToArray(getSelectedRestrictedAuthToolsOrig()), 
 					convertListToArray(getSelectedRestrictedPublicTools()), convertListToArray(getSelectedRestrictedPublicToolsOrig()), shoppingPeriodRevokeInstructorEditable, shoppingPeriodRevokeInstructorEditableOrig,
-					shoppingPeriodRevokeInstructorPublicOpt, shoppingPeriodRevokeInstructorPublicOptOrig);
+					shoppingPeriodRevokeInstructorPublicOpt, shoppingPeriodRevokeInstructorPublicOptOrig, allowBecomeUser, allowBecomeUserOrig);
 		}
 
 		return false;
@@ -181,7 +186,7 @@ public class NodeModel implements Serializable {
 	public boolean isModified(Date shoppingStartDateOld, Date shoppingStartDateNew,
 			Date shoppingEndDateOld, Date shoppingEndDateNew, String realmOld, String realmNew, String roleOld, String roleNew,
 			String[] authToolsOld, String[] authToolsNew, String[] publicToolsOld, String[] publicToolsNew, boolean shoppingPeriodRevokeInstructorEditable, boolean shoppingPeriodRevokeInstructorEditableOrig,
-			boolean shoppingPeriodRevokeInstructorPublicOpt, boolean shoppingPeriodRevokeInstructorPublicOptOrig){
+			boolean shoppingPeriodRevokeInstructorPublicOpt, boolean shoppingPeriodRevokeInstructorPublicOptOrig, boolean allowBeomeUser, boolean allowBecomeUserOrig){
 		if(realmOld != null && realmNew != null){
 			if(!realmOld.equals(realmNew))
 				return true;
@@ -256,6 +261,9 @@ public class NodeModel implements Serializable {
 			return true;
 		}
 		
+		if(allowBeomeUser != allowBecomeUserOrig){
+			return true;
+		}
 		
 		
 		return false;
@@ -870,5 +878,35 @@ public class NodeModel implements Serializable {
 	
 	public boolean isSiteNode(){
 		return node != null && node.title != null && node.title.startsWith("/site/");
+	}
+
+	public boolean isAllowBecomeUser() {
+		return allowBecomeUser;
+	}
+
+	public void setAllowBecomeUser(boolean allowBecomeUser) {
+		this.allowBecomeUser = allowBecomeUser;
+	}
+	
+	public boolean getNodeAllowBecomeUser(){
+		if(isDirectAccess()){
+			return isAllowBecomeUser();
+		}else{
+			return getInheritedAllowBecomeUser();
+		}
+	}
+
+	public boolean getInheritedAllowBecomeUser(){
+		return getInheritedAllowBecomeUserHelper(parentNode);
+	}
+	
+	public boolean getInheritedAllowBecomeUserHelper(NodeModel parent){
+		if(parent == null){
+			return false;
+		} else if (parent.isDirectAccess()) {
+			return parent.isAllowBecomeUser();
+		}else{
+			return getInheritedAllowBecomeUserHelper(parent.getParentNode());
+		}
 	}
 }

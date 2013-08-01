@@ -172,6 +172,13 @@ public interface ProjectLogic {
 	public boolean hasAccessAdminNodes(String userId);
 	
 	/**
+	 * returns whether the user has any "allowBecomeUser" permission
+	 * @param userId
+	 * @return
+	 */
+	public boolean hasAllowBecomeUserPerm(String userId);
+	
+	/**
 	 * Returns a map of {siteRef, nodeId}
 	 * @param siteRef
 	 * @param hierarchyId
@@ -290,4 +297,14 @@ public interface ProjectLogic {
 	 * Schedules the AddDAMyworkspace job to run immediately
 	 */
 	public void scheduleAddDAMyworkspaceJobStatus();
+	
+	/**
+	 * returns true if the user has site access and has the "allowBecomeUser" permission set for
+	 * this site or any of it's parents
+	 * 
+	 * @param userId
+	 * @param siteRef
+	 * @return
+	 */
+	public boolean isUserAllowBecomeUser(String userId, String siteRef);
 }

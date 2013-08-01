@@ -150,6 +150,9 @@ public class ProjectLogicImpl implements ProjectLogic {
 				saveShoppingPeriodEndDate(nodeModel.getShoppingPeriodEndDate(), nodeModel.getNodeId());
 				saveShoppingPeriodRevokeInstructorEditable(nodeModel.isShoppingPeriodRevokeInstructorEditable(), nodeModel.getNodeId());
 				saveShoppingPeriodRevokeInstructorPublicOpt(nodeModel.isShoppingPeriodRevokeInstructorPublicOpt(), nodeModel.getNodeId());
+			}else{
+				//save non-shopping period user specific data
+				saveAllowBecomeUser(nodeModel.isAllowBecomeUser(), userId, nodeModel.getNodeId());
 			}
 		}
 		
@@ -255,6 +258,12 @@ public class ProjectLogicImpl implements ProjectLogic {
 	private void saveShoppingPeriodRevokeInstructorPublicOpt(boolean bool, String nodeId){
 		if(bool){
 			hierarchyService.assignUserNodePerm(DelegatedAccessConstants.SHOPPING_PERIOD_USER, nodeId, DelegatedAccessConstants.NODE_PERM_SHOPPING_REVOKE_INSTRUCTOR_PUBLIC_OPT, false);
+		}
+	}
+	
+	private void saveAllowBecomeUser(boolean bool, String userId, String nodeId){
+		if(bool){
+			hierarchyService.assignUserNodePerm(userId, nodeId, DelegatedAccessConstants.NODE_PERM_ALLOW_BECOME_USER, false);
 		}
 	}
 		
@@ -983,6 +992,15 @@ public class ProjectLogicImpl implements ProjectLogic {
 		}
 		return false;
 	}
+	
+	private boolean isAllowBecomeUser(Set<String> perms){
+		for(String perm : perms){
+			if(perm.startsWith(DelegatedAccessConstants.NODE_PERM_ALLOW_BECOME_USER)){
+				return true;
+			}
+		}
+		return false;
+	}
 
 	private boolean getIsDirectAccess(Set<String> perms){
 		for(String perm : perms){
@@ -1036,6 +1054,7 @@ public class ProjectLogicImpl implements ProjectLogic {
 			String modifiedBy = null;
 			boolean shoppingPeriodRevokeInstructorEditable = false;
 			boolean shoppingPeriodRevokeInstructorPublicOpt = false;
+			boolean allowBecomeUser = false;
 			
 			//you must copy in order not to pass changes to other nodes
 			List<ListOptionSerialized> restrictedAuthTools = copyListOptions(blankRestrictedTools);
@@ -1059,6 +1078,7 @@ public class ProjectLogicImpl implements ProjectLogic {
 				modifiedBy = getModifiedBy(perms);
 				shoppingPeriodRevokeInstructorEditable = isShoppingPeriodRevokeInstructorEditable(perms);
 				shoppingPeriodRevokeInstructorPublicOpt = isShoppingPeriodRevokeInstructorPublicOpt(perms);
+				allowBecomeUser = isAllowBecomeUser(perms);
 			}
 			NodeModel parentNodeModel = null;
 			if(parent != null){
@@ -1068,7 +1088,7 @@ public class ProjectLogicImpl implements ProjectLogic {
 			NodeModel childNodeModel = new NodeModel(node.id, node, directAccess, realm, role, parentNodeModel, 
 					restrictedAuthTools, restrictedPublicTools, startDate, endDate, addDirectChildren && !children.isEmpty(), shoppingPeriodAdmin,
 					modifiedBy, modified, shoppingAdminModified, shoppingAdminModifiedBy, accessAdmin, shoppingPeriodRevokeInstructorEditable,
-					shoppingPeriodRevokeInstructorPublicOpt);
+					shoppingPeriodRevokeInstructorPublicOpt, allowBecomeUser);
 			//this could be an accessAdmin modifying another user, let's check:
 			if(accessAdminNodeIds != null){
 				//if accessAdminNodeIds isn't null, this means we need to restrict this tree to these nodes by
@@ -1397,6 +1417,7 @@ public class ProjectLogicImpl implements ProjectLogic {
 			boolean accessAdmin = false;
 			boolean shoppingPeriodRevokeInstructorEditable = false;
 			boolean shoppingPeriodRevokeInstructorPublicOpt = false;
+			boolean allowBecomeUser = false;
 			
 			DefaultMutableTreeNode child = new DelegatedAccessMutableTreeNode();
 			if(!shoppingPeriodTool && DelegatedAccessConstants.SHOPPING_PERIOD_USER.equals(userId)){
@@ -1416,11 +1437,12 @@ public class ProjectLogicImpl implements ProjectLogic {
 				accessAdmin = getIsAccessAdmin(perms);
 				shoppingPeriodRevokeInstructorEditable = isShoppingPeriodRevokeInstructorEditable(perms);
 				shoppingPeriodRevokeInstructorPublicOpt = isShoppingPeriodRevokeInstructorPublicOpt(perms);
+				allowBecomeUser = isAllowBecomeUser(perms);
 			}
 			NodeModel node = new NodeModel(childNode.id, childNode, directAccess, realm, role,
 					((NodeModel) parentNode.getUserObject()), restrictedAuthTools, restrictedPublicTools, startDate, endDate, 
 					false, shoppingPeriodAdmin,
-					modifiedBy, modified, shoppingAdminModified, shoppingAdminModifiedBy, accessAdmin, shoppingPeriodRevokeInstructorEditable, shoppingPeriodRevokeInstructorPublicOpt);
+					modifiedBy, modified, shoppingAdminModified, shoppingAdminModifiedBy, accessAdmin, shoppingPeriodRevokeInstructorEditable, shoppingPeriodRevokeInstructorPublicOpt, allowBecomeUser);
 			child.setUserObject(node);
 
 			boolean shoppingAvailable = true;
@@ -1486,11 +1508,12 @@ public class ProjectLogicImpl implements ProjectLogic {
 		String modifiedBy = getModifiedBy(perms);
 		boolean shoppingPeriodRevokeInstructorEditable = isShoppingPeriodRevokeInstructorEditable(perms);
 		boolean shoppingPeriodRevokeInstructorPublicOpt = isShoppingPeriodRevokeInstructorPublicOpt(perms);
+		boolean allowBecomeUser = isAllowBecomeUser(perms);
 		
 		NodeModel nodeModel = new NodeModel(node.id, node, getIsDirectAccess(nodePerms),
 				realm, role, parentNodeModel, restrictedAuthTools, restrictedPublicTools, startDate, endDate, false, shoppingPeriodAdmin,
 				modifiedBy, modified, shoppingAdminModified, shoppingAdminModifiedBy, accessAdmin, shoppingPeriodRevokeInstructorEditable,
-				shoppingPeriodRevokeInstructorPublicOpt);
+				shoppingPeriodRevokeInstructorPublicOpt, allowBecomeUser);
 		return nodeModel;
 	}
 
@@ -1603,6 +1626,16 @@ public class ProjectLogicImpl implements ProjectLogic {
 		Set<HierarchyNode> accessAdminNodes = hierarchyService.getNodesForUserPerm(userId, DelegatedAccessConstants.NODE_PERM_ACCESS_ADMIN); 
 		return accessAdminNodes != null && accessAdminNodes.size() > 0;
 	}
+	
+	public boolean hasAllowBecomeUserPerm(String userId){
+		if(userId == null || "".equals(userId)){
+			return false;
+		}
+		Set<HierarchyNode> accessAdminNodes = hierarchyService.getNodesForUserPerm(userId, DelegatedAccessConstants.NODE_PERM_ALLOW_BECOME_USER); 
+		return accessAdminNodes != null && accessAdminNodes.size() > 0;
+	}
+	
+	
 	
 	public Map<String, List<String>> getNodesBySiteRef(String[] siteRefs, String hierarchyId){
 		return dao.getNodesBySiteRef(siteRefs, hierarchyId);
@@ -1951,11 +1984,18 @@ public class ProjectLogicImpl implements ProjectLogic {
 				boolean hasAnyAccess = false;
 				//check if user has any access at all to determine if we need to add or remove the tool
 				hasAnyAccess = hasDelegatedAccessNodes(userId);
+				boolean hasAllowBecomeUserPerm = false;
+				if(hasAnyAccess){
+					//we know the user has at least one site.visit permission, let's see if they have any
+					//allowBecomeUser perms
+					hasAllowBecomeUserPerm = hasAllowBecomeUserPerm(userId);
+				}
 				if(!hasAnyAccess)
 					hasAnyAccess = hasShoppingPeriodAdminNodes(userId);
 				if(!hasAnyAccess)
 					hasAnyAccess = hasAccessAdminNodes(userId);
 				
+				//Check for Delegated Access Tool
 				ToolConfiguration tool = workspace.getToolForCommonId("sakai.delegatedaccess");
 				if(hasAnyAccess && tool == null){
 					//user has access but doesn't have the DA tool, we need to add it
@@ -1965,6 +2005,19 @@ public class ProjectLogicImpl implements ProjectLogic {
 				}else if(!hasAnyAccess && tool != null){
 					//user doesn't have any access in DA but their MyWorkspace still has the DA tool, remove it:
 					workspace.removePage(tool.getContainingPage());
+					sakaiProxy.saveSite(workspace);
+				}
+				
+				//Check for Become User tool
+				ToolConfiguration becomeUserTool = workspace.getToolForCommonId("sakai.su");
+				if(hasAnyAccess && hasAllowBecomeUserPerm && becomeUserTool == null){
+					//user has access and allowBecomeUser perm but doesn't have the become user tool, we need to add it
+					SitePage page = workspace.addPage();
+					page.addTool("sakai.su");
+					sakaiProxy.saveSite(workspace);
+				}else if((!hasAnyAccess || !hasAllowBecomeUserPerm) && becomeUserTool != null){
+					//user doesn't have any access or allowBecomeUser perm in DA but their MyWorkspace still has the become user tool, remove it:
+					workspace.removePage(becomeUserTool.getContainingPage());
 					sakaiProxy.saveSite(workspace);
 				}
 			}
@@ -2334,5 +2387,21 @@ public class ProjectLogicImpl implements ProjectLogic {
 				"org.sakaiproject.delegatedaccess.jobs.DelegatedAccessAddToolToMyWorkspacesJob", "");
 		
 		updateAddDAMyworkspaceJobStatus("0");
+	}
+	
+	public boolean isUserAllowBecomeUser(String userId, String siteRef){
+		Map<String, List<String>> nodeIds = getNodesBySiteRef(new String[]{siteRef}, DelegatedAccessConstants.HIERARCHY_ID);
+		if(nodeIds != null && nodeIds.containsKey(siteRef) && nodeIds.get(siteRef) != null && nodeIds.get(siteRef).size() == 1){
+			//we found the site, now look up this user's permission for this node
+			String nodeId = nodeIds.get(siteRef).get(0);
+			NodeModel model = getNodeModel(nodeId, userId);
+			if(model != null){
+				return model.getNodeAccess() && model.getNodeAllowBecomeUser();
+			}else{
+				return false;
+			}
+		}else{
+			return false;
+		}
 	}
 }

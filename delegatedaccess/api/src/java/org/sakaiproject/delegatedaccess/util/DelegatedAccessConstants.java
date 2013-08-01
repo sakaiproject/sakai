@@ -48,6 +48,7 @@ public class DelegatedAccessConstants {
 	public static final String NODE_PERM_SHOPPING_ADMIN_MODIFIED_BY = "shoppingAdminModifiedBy:";
 	public static final String NODE_PERM_SHOPPING_REVOKE_INSTRUCTOR_EDITABLE = "shoppingRevokeInstructorEditable";
 	public static final String NODE_PERM_SHOPPING_REVOKE_INSTRUCTOR_PUBLIC_OPT = "shoppingRevokeInstructorPublicOpt";
+	public static final String NODE_PERM_ALLOW_BECOME_USER = "allowBecomeUser";
 	public static final String NODE_PERM_ACCESS_ADMIN = "accessAdmin";
 	/**
 	 * A list of all DA permissions that can be assigned to a user.
@@ -55,7 +56,7 @@ public class DelegatedAccessConstants {
 	public static final String[] NODE_PERMS = {NODE_PERM_REALM_PREFIX, NODE_PERM_ROLE_PREFIX, NODE_PERM_DENY_TOOL_PREFIX, NODE_PERM_DENY_TOOL2_PREFIX,
 												NODE_PERM_TERM_PREFIX, NODE_PERM_SITE_VISIT, NODE_PERM_MODIFIED, NODE_PERM_MODIFIED_BY, NODE_PERM_SHOPPING_START_DATE,
 												NODE_PERM_SHOPPING_END_DATE, NODE_PERM_SHOPPING_ADMIN, NODE_PERM_SHOPPING_ADMIN_MODIFIED, NODE_PERM_SHOPPING_ADMIN_MODIFIED_BY,
-												NODE_PERM_SHOPPING_REVOKE_INSTRUCTOR_EDITABLE, NODE_PERM_SHOPPING_REVOKE_INSTRUCTOR_PUBLIC_OPT, NODE_PERM_ACCESS_ADMIN};
+												NODE_PERM_SHOPPING_REVOKE_INSTRUCTOR_EDITABLE, NODE_PERM_SHOPPING_REVOKE_INSTRUCTOR_PUBLIC_OPT, NODE_PERM_ACCESS_ADMIN, NODE_PERM_ALLOW_BECOME_USER};
 	public static final String EVENT_ADD_USER_PERMS = "dac.nodeperms.add";
 	public static final String EVENT_DELETE_USER_PERMS = "dac.nodeperms.delete";
 	public static final String EVENT_MODIFIED_USER_PERMS = "dac.nodeperms.modified";
@@ -72,7 +73,7 @@ public class DelegatedAccessConstants {
 	public static final int TYPE_ACCESS = 1;
 	public static final int TYPE_ACCESS_SHOPPING_PERIOD_USER = 2;
 	public static final int TYPE_ACCESS_ADMIN = 4;
-	public static final int TYPE_SHOPPING_ADVANCED_OPT = 5;
+	public static final int TYPE_ADVANCED_OPT = 5;
 	public static final int TYPE_LISTFIELD_TOOLS = 1;
 	public static final int TYPE_LISTFIELD_TERMS = 2;
 	public static final int TYPE_SHOPPING_PERIOD_ADMIN = 3;

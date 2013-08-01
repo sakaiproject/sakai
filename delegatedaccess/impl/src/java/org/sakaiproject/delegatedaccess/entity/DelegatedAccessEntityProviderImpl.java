@@ -252,7 +252,7 @@ public class DelegatedAccessEntityProviderImpl implements DelegatedAccessEntityP
 		
 		//only update if there were true modifications
 		if(directAccessOrig != directAccess || node.isModified(startDateOrig, startDateNew, endDateOrig, endDateNew,
-				realmOrig, realmNew, roleOrig, roleNew, authToolsOrig, authToolsNew, publicToolsOrig, publicToolsNew, false, false, false, false)){
+				realmOrig, realmNew, roleOrig, roleNew, authToolsOrig, authToolsNew, publicToolsOrig, publicToolsNew, false, false, false, false, node.isAllowBecomeUser(), node.isAllowBecomeUser())){
 			DefaultMutableTreeNode treeNode = new DelegatedAccessMutableTreeNode();
 			treeNode.setUserObject(node);
 			projectLogic.updateNodePermissionsForUser(treeNode, DelegatedAccessConstants.SHOPPING_PERIOD_USER);
