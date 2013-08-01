@@ -33,6 +33,7 @@ import java.util.HashMap;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Set;
+import java.util.UUID;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
@@ -88,6 +89,7 @@ public class LTIAdminTool extends VelocityPortletPaneledAction
 	private static String STATE_TOOL_ID = "lti:state_tool_id";
 	private static String STATE_CONTENT_ID = "lti:state_content_id";
 	private static String STATE_REDIRECT_URL = "lti:state_redirect_url";
+	private static String STATE_LTI2_TOOL_ID = "lti2:state_tool_id";
 
 	private static String SECRET_HIDDEN = "***************";
 	
@@ -314,6 +316,47 @@ public class LTIAdminTool extends VelocityPortletPaneledAction
 		return ltiToolsCount;
 	}
 
+	public String buildToolRegisterPanelContext(VelocityPortlet portlet, Context context, 
+			RunData data, SessionState state)
+	{
+		context.put("tlang", rb);
+		if ( ! ltiService.isMaintain() ) {
+			addAlert(state,rb.getString("error.maintain.register"));
+			return "lti_error";
+		}
+		context.put("messageSuccess",state.getAttribute(STATE_SUCCESS));
+
+		String [] mappingForm = foorm.filterForm(ltiService.getToolModel(), "^title:.*|^reg_launch:.*|^id:.*", null);
+		String id = data.getParameters().getString(LTIService.LTI_ID);
+		if ( id == null ) {
+			addAlert(state,rb.getString("error.id.not.found"));
+			return "lti_main";
+		}	
+		Long key = new Long(id);
+		Map<String,Object> tool = ltiService.getTool(key);
+		if (  tool == null ) {
+			addAlert(state,rb.getString("error.tool.not.found"));
+			return "lti_main";
+		}
+
+        Long reg_state = foorm.getLongNull(tool.get(LTIService.LTI_REG_STATE));
+		String reg_key = (String) tool.get(LTIService.LTI_REG_KEY);
+		String reg_password = (String) tool.get(LTIService.LTI_REG_PASSWORD);
+		String consumerkey = (String) tool.get(LTIService.LTI_CONSUMERKEY);
+		if ( reg_state != 1 || reg_key == null || reg_password == null || consumerkey == null) {	
+			addAlert(state,rb.getString("error.register.not.ready"));
+			return "lti_main";
+		}
+
+		String formOutput = ltiService.formOutput(tool, mappingForm);
+		context.put("formOutput", formOutput);
+		String registerURL = "/access/basiclti/site/~admin/tool:" + key;
+		context.put("registerURL",registerURL);
+		
+		state.removeAttribute(STATE_SUCCESS);
+		return "lti_tool_register";
+	}
+
 	public void doEndHelper(RunData data, Context context)
 	{
 		// Request a shortcut transfer back to the tool we are helping
@@ -379,7 +422,31 @@ public class LTIAdminTool extends VelocityPortletPaneledAction
 		if ( ! LTIService.LTI_SECRET_INCOMPLETE.equals(tool.get(LTIService.LTI_SECRET)) ) {
 			tool.put(LTIService.LTI_SECRET,SECRET_HIDDEN);		
 		}
+
+		// Deal with the differences between LTI 1 and LTI 2
+		Long reg_state = foorm.getLongNull(tool.get(LTIService.LTI_REG_STATE));
+		boolean isLTI1 = reg_state == null || reg_state == 0;
+		if ( isLTI1 ) {
+			mappingForm = foorm.filterForm(mappingForm, null, ".*:only=view.*|.*:only=lti2.*");
+		} else {
+			mappingForm = foorm.filterForm(mappingForm, null, ".*:only=view.*|.*:only=lti1.*");
+		}
+
+		// Extract the reg_state to make it view only
+		String fieldInfo = foorm.getFormField(mappingForm, "reg_state");
+		fieldInfo = fieldInfo.replace(":hidden=true","");
+        String formStatus = ltiService.formOutput(tool, fieldInfo);
+		context.put("formStatus", formStatus);
+
+		// Remove reg_state from the editable part of the model
+		mappingForm = foorm.filterForm(mappingForm, null, "^reg_state:.*");
+
+		// If we are not admin, hide url, key, and secret
+		if ( ! isLTI1 && ! ltiService.isAdmin() ) {
+			mappingForm = foorm.filterForm(mappingForm, null, "^launch:.*|^consumerkey:.*|^secret:.*");
+		}
 		String formInput = ltiService.formInput(tool, mappingForm);
+
 		context.put("formInput", formInput);
 		state.removeAttribute(STATE_SUCCESS);
 		return "lti_tool_insert";
@@ -485,6 +552,18 @@ public class LTIAdminTool extends VelocityPortletPaneledAction
 	public String buildToolInsertPanelContext(VelocityPortlet portlet, Context context, 
 			RunData data, SessionState state)
 	{
+		return buildToolInsertPanelContext(portlet, context, data, state, true);
+	}
+
+	public String buildLTI2InsertPanelContext(VelocityPortlet portlet, Context context, 
+			RunData data, SessionState state)
+	{
+		return buildToolInsertPanelContext(portlet, context, data, state, false);
+	}
+
+	public String buildToolInsertPanelContext(VelocityPortlet portlet, Context context, 
+			RunData data, SessionState state, boolean isLTI1)
+	{
 		context.put("tlang", rb);
 		if ( ! ltiService.isMaintain() ) {
 			addAlert(state,rb.getString("error.edit.maintain"));
@@ -492,7 +571,15 @@ public class LTIAdminTool extends VelocityPortletPaneledAction
 		}
 		context.put("doToolAction", BUTTON + "doToolPut");
 		context.put("messageSuccess",state.getAttribute(STATE_SUCCESS));
+		context.put("reg_state",new Integer(isLTI1 ? 0 : 1));
 		String [] mappingForm = ltiService.getToolModel();
+
+        if ( isLTI1 ) {
+            mappingForm = foorm.filterForm(mappingForm, null, ".*:only=edit.*|.*:only=lti2.*");
+        } else {
+            mappingForm = foorm.filterForm(mappingForm, ".*:lti2_insert.*", null);
+        }
+
 		Properties previousPost = (Properties) state.getAttribute(STATE_POST);
 		String formInput = ltiService.formInput(previousPost, mappingForm);
 		context.put("formInput",formInput);
@@ -514,9 +601,6 @@ public class LTIAdminTool extends VelocityPortletPaneledAction
 			return;
 		}
 		Properties reqProps = data.getParameters().getProperties();
-		String id = data.getParameters().getString(LTIService.LTI_ID);
-		Object retval = null;
-		String success = null;
 
 		String newSecret = reqProps.getProperty(LTIService.LTI_SECRET);
 		if ( SECRET_HIDDEN.equals(newSecret) ) {
@@ -529,6 +613,21 @@ public class LTIAdminTool extends VelocityPortletPaneledAction
 			reqProps.setProperty(LTIService.LTI_SECRET, newSecret);
 		}
 
+		String id = data.getParameters().getString(LTIService.LTI_ID);
+
+		// If this is an insert of an LTI2.x tool, fill in the missing bits.
+		String reg_state = data.getParameters().getString(LTIService.LTI_REG_STATE);
+		boolean lti2Insert = false;
+		if ( id == null && "1".equals(reg_state) ) {
+			reqProps.setProperty(LTIService.LTI_REG_KEY, UUID.randomUUID().toString());
+			// TODO: We should show off and encrypt the REG_PASSWORD too..
+			reqProps.setProperty(LTIService.LTI_REG_PASSWORD, UUID.randomUUID().toString());
+			reqProps.setProperty(LTIService.LTI_CONSUMERKEY, UUID.randomUUID().toString());
+			lti2Insert = true;
+		}
+
+		String success = null;
+		Object retval = null;
 		if ( id == null ) 
 		{
 			retval = ltiService.insertTool(reqProps);
@@ -545,10 +644,16 @@ public class LTIAdminTool extends VelocityPortletPaneledAction
 			addAlert(state, (String) retval);
 			state.setAttribute(STATE_ID,id);
 			return;
-		}
+		} 
 
 		state.setAttribute(STATE_SUCCESS,success);
-		switchPanel(state, "ToolSystem");
+		if ( lti2Insert && retval instanceof Long ) {
+			Long insertedKey = (Long) retval;
+			switchPanel(state, "ToolRegister&id="+insertedKey);
+		} else {
+			switchPanel(state, "ToolSystem");
+		}
+
 	}
 
 	/** Content related methods ------------------------------ */

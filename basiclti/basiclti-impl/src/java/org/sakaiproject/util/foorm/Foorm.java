@@ -1363,6 +1363,16 @@ public class Foorm {
 		return "    " + field + " " + schema;
 	}
 
+	public String getFormField(String [] formDefinition, String fieldName)
+	{
+		for (String formField : formDefinition) {
+			Properties info = parseFormString(formField);
+			String field = info.getProperty("field", null);
+			if ( fieldName.equals(field) ) return formField;
+		}
+		return null;
+	}
+
 	/**
 	 * 
 	 * @param table

@@ -1,18 +1,21 @@
 <div class="portletBody">
 	<h3>
-		$tlang.getString("tool.put")
+		$tlang.getString("tool.delete")
 	</h3>
 	#if ($messageSuccess)<div class="messageSuccess">$tlang.getString("gen.success") $validator.escapeHtml($messageSuccess)</div><div class="clear"></div>#end
 	#if ($alertMessage)<div class="alertMessage">$tlang.getString("gen.alert") $validator.escapeHtml($alertMessage)</div><div class="clear"></div>#end
 	<form action="#toolForm("")" method="post" name="customizeForm" >
-		$formInput
-                <input type="hidden" name="reg_state" value="$reg_state" />
-                <input type="hidden" name="sakai_csrf_token" value="$sakai_csrf_token" />
+		$formOutput
 		<p class="act">
-			<input type="submit" accesskey ="s" class="active" name="$doToolAction" 
-				value="$tlang.getString('gen.save')" />
-			<input type="submit" accesskey ="x" name="$doCancel" value="$tlang.getString('gen.cancel')" 
+ 			<input type="submit" accesskey ="r" class="active" name="$tlang.getString('gen.register')" 
+				value="$tlang.getString('gen.register')" onclick="location = '$registerURL';return false;"/>
+			<input type="submit" accesskey ="x" name="$tlang.getString('gen.cancel')" value="$tlang.getString('gen.cancel')" 
  				onclick="location = '$sakai_ActionURL.setPanel("ToolSystem")';return false;">
 		</p>
 	</form>
+	<!-- Create a large amount of vertical space so the iframe works... -->
+	<div style="height: 1000px">
+    &nbsp;
+	</div>
+	<hr/>
 </div>
