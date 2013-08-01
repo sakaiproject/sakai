@@ -152,7 +152,7 @@
 											#foreach ($tId in $!importSiteTools.keys())
 									#if ($tId == $newTool)
 													(
-														#set($importSiteIds = $importSiteTools.get($toolId))
+														#set($importSiteIds = $importSiteTools.get($tId))
 														#foreach($importSiteId in $importSiteIds)
 															#set($importSite = $siteService.getSite($importSiteId))
 															$validator.escapeHtml($importSite.getTitle()),
