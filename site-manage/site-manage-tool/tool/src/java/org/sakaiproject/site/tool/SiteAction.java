@@ -5380,7 +5380,7 @@ private Map<String,List> getTools(SessionState state, String type, Site site) {
 	}
 
 	// SAK-23811
-	private List getGroupedToolList(String groupId, String type, String groupName, boolean checkhome, File moreInfoDir ) {
+	private List getGroupedToolList(String groupId, String groupName, String type, boolean checkhome, File moreInfoDir ) {
 		List toolsInGroup = new ArrayList();
 		MyTool newTool = null;
 		List toolList = ServerConfigurationService.getToolGroup(groupId);
