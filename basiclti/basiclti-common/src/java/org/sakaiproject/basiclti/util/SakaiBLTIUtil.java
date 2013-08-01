@@ -653,7 +653,7 @@ public class SakaiBLTIUtil {
     // An LTI 2.0 Registration launch
 	// This must return an HTML message as the [0] in the array
 	// If things are successful - the launch URL is in [1]
-	public static String[] postRegisterHTML(Long toolKey, Map<String,Object> tool, ResourceLoader rb)
+	public static String[] postRegisterHTML(Long toolKey, Map<String,Object> tool, ResourceLoader rb, String placementId)
 	{
 		if ( tool == null ) {
 			return postError("<p>" + getRB(rb, "error.tool.missing" ,"Tool item is missing or improperly configured.")+"</p>" ); 
@@ -678,12 +678,13 @@ public class SakaiBLTIUtil {
 
 		setProperty(ltiProps, BasicLTIConstants.LTI_VERSION, LTI2Constants.LTI2_VERSION_STRING);
 		setProperty(ltiProps, LTI2Constants.REG_KEY,key);
+		// TODO: Lets show off and encrypt this secret too...
 		setProperty(ltiProps, LTI2Constants.REG_PASSWORD,password);
 		setProperty(ltiProps, BasicLTIUtil.BASICLTI_SUBMIT, getRB(rb, "launch.button", "Press to Launch External Tool"));
 
         String serverUrl = ServerConfigurationService.getServerUrl();
 		setProperty(ltiProps, LTI2Constants.TC_PROFILE_URL,serverUrl+"/imsblis/lti2/tc_profile/"+consumerkey);
-		setProperty(ltiProps, BasicLTIConstants.LAUNCH_PRESENTATION_RETURN_URL, "about:blank");
+		setProperty(ltiProps, BasicLTIConstants.LAUNCH_PRESENTATION_RETURN_URL, serverUrl + "/portal/tool/"+placementId+"?panel=RegComplete&id="+toolKey);
 
 		int debug = getInt(tool.get("debug"));
 		debug = 1;

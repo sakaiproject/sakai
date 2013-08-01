@@ -320,6 +320,15 @@ System.out.println("profile_id="+profile_id);
 			response.setStatus(HttpServletResponse.SC_FORBIDDEN); // TODO: Get this right
 			return;
 		}
+
+		// TODO: Check the signature with REG_KEY and REG_SECRET (make sure to encrypt)
+
+		Long reg_state = foorm.getLong(tool.get(LTIService.LTI_REG_STATE));
+		if ( reg_state != 1 ) {
+			response.setStatus(HttpServletResponse.SC_FORBIDDEN); // TODO: Get this right
+			return;
+		}
+		
 System.out.println("tool="+tool);
 		Long toolKey = foorm.getLong(tool.get(LTIService.LTI_ID));
 System.out.println("toolKey="+toolKey);
@@ -339,6 +348,8 @@ System.out.println("toolKey="+toolKey);
 
 		JSONObject security_contract = (JSONObject) jsonObject.get("security_contract");
 		String shared_secret = (String) security_contract.get("shared_secret");
+		// Blank out the new shared secret
+		security_contract.put("shared_secret", "*********");
 
 		JSONObject tool_profile = (JSONObject) jsonObject.get("tool_profile");
 		JSONArray base_url_choices = (JSONArray) tool_profile.get("base_url_choice");
@@ -376,11 +387,19 @@ System.out.println("toolKey="+toolKey);
 		System.out.println("Launch="+launch_url);
 
 		Map<String, Object> newProps = new TreeMap<String, Object> ();
+
+		// TODO: Make sure to encrypt that password...
 		newProps.put(LTIService.LTI_SECRET, shared_secret);
 		newProps.put(LTIService.LTI_LAUNCH, launch_url);
 		newProps.put(LTIService.LTI_REG_PARAMETERS, parameters.toString());
+
+		// Indicate registration complete and kill the interim info
+		newProps.put(LTIService.LTI_REG_STATE, "2");
+		newProps.put(LTIService.LTI_REG_KEY, "");
+		newProps.put(LTIService.LTI_REG_PASSWORD, "");
 		System.out.println("newProps="+newProps);
-		newProps.put(LTIService.LTI_REG_PROFILE, jsonRequest.getPostBody());
+
+		newProps.put(LTIService.LTI_REG_PROFILE, jsonObject.toString());
 		Object obj = ltiService.updateToolDao(toolKey, newProps, null);
 		boolean success = ( obj instanceof Boolean ) && ( (Boolean) obj == Boolean.TRUE);
 		System.out.println("YO..."+success);

@@ -350,11 +350,22 @@ public class LTIAdminTool extends VelocityPortletPaneledAction
 
 		String formOutput = ltiService.formOutput(tool, mappingForm);
 		context.put("formOutput", formOutput);
-		String registerURL = "/access/basiclti/site/~admin/tool:" + key;
+		Placement placement = toolManager.getCurrentPlacement();
+		String registerURL = "/access/basiclti/site/~admin/tool:" + key + "?placement=" + placement.getId();
+
 		context.put("registerURL",registerURL);
 		
 		state.removeAttribute(STATE_SUCCESS);
 		return "lti_tool_register";
+	}
+
+	public String buildRegCompletePanelContext(VelocityPortlet portlet, Context context, 
+			RunData data, SessionState state)
+	{
+
+		// TODO: Check all of the passed in parameters
+		state.setAttribute(STATE_SUCCESS,"Welcome back from registration..");
+		return buildToolViewPanelContext(portlet, context, data, state);
 	}
 
 	public void doEndHelper(RunData data, Context context)
@@ -387,6 +398,13 @@ public class LTIAdminTool extends VelocityPortletPaneledAction
 		Long key = new Long(id);
 		Map<String,Object> tool = ltiService.getTool(key);
 		if (  tool == null ) return "lti_main";	
+
+		// Extract the reg_state to make it view only
+		String fieldInfo = foorm.getFormField(mappingForm, "reg_state");
+		fieldInfo = fieldInfo.replace(":hidden=true","");
+        String formStatus = ltiService.formOutput(tool, fieldInfo);
+		context.put("formStatus", formStatus);
+
 		tool.put(LTIService.LTI_SECRET,SECRET_HIDDEN);
 		tool.put(LTIService.LTI_CONSUMERKEY,SECRET_HIDDEN);
 		String formOutput = ltiService.formOutput(tool, mappingForm);
@@ -505,7 +523,7 @@ public class LTIAdminTool extends VelocityPortletPaneledAction
 		Object retval = null;
 		if ( id == null ) {
 			addAlert(state,rb.getString("error.id.not.found"));
-			switchPanel(state, "Main");
+			switchPanel(state, "ToolSystem");
 			return;
 		}
 		Long key = new Long(id);
@@ -542,10 +560,10 @@ public class LTIAdminTool extends VelocityPortletPaneledAction
 				}
 			}
 			
-			switchPanel(state, "Main");
+			switchPanel(state, "ToolSystem");
 		} else {
 			addAlert(state,rb.getString("error.delete.fail"));
-			switchPanel(state, "Main");
+			switchPanel(state, "ToolSystem");
 		}
 	}
 
