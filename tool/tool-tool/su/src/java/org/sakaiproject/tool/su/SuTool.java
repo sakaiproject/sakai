@@ -21,6 +21,8 @@
 
 package org.sakaiproject.tool.su;
 
+import java.lang.reflect.Method;
+import java.util.List;
 import java.util.Vector;
 
 import javax.faces.application.FacesMessage;
@@ -31,14 +33,18 @@ import org.apache.commons.logging.LogFactory;
 import org.sakaiproject.authz.api.AuthzGroupService;
 import org.sakaiproject.authz.api.SecurityService;
 import org.sakaiproject.component.api.ServerConfigurationService;
+import org.sakaiproject.component.cover.ComponentManager;
 import org.sakaiproject.event.api.Event;
 import org.sakaiproject.event.api.EventTrackingService;
 import org.sakaiproject.event.api.UsageSessionService;
+import org.sakaiproject.site.api.Site;
+import org.sakaiproject.site.api.SiteService.SelectionType;
 import org.sakaiproject.tool.api.Session;
 import org.sakaiproject.tool.api.SessionManager;
 import org.sakaiproject.user.api.User;
 import org.sakaiproject.user.api.UserDirectoryService;
 import org.sakaiproject.user.api.UserNotDefinedException;
+import org.sakaiproject.util.RequestFilter;
 import org.sakaiproject.util.ResourceLoader;
 
 /**
@@ -86,10 +92,31 @@ public class SuTool
 	private String message = "";
 
 	private boolean confirm = false;
-
+	
+	private Class delegatedAccessLogicHelper = null;
+	private Object delegatedAccessLogic = null;
+	private Method hasDelegatedAccessNodes = null;
+	private Method initializeDelegatedAccessSession = null;
+	private Method isUserAllowBecomeUser = null;
+	private boolean allowDelegatedAccessBecomeUser = false;
+	
 	// base constructor
 	public SuTool()
 	{
+		try{
+			delegatedAccessLogicHelper = RequestFilter.class.getClassLoader().loadClass("org.sakaiproject.delegatedaccess.logic.ProjectLogic");
+			delegatedAccessLogic = ComponentManager.get(delegatedAccessLogicHelper);
+			hasDelegatedAccessNodes = delegatedAccessLogicHelper.getMethod("hasDelegatedAccessNodes", new Class[]{String.class});
+			initializeDelegatedAccessSession = delegatedAccessLogicHelper.getMethod("initializeDelegatedAccessSession", new Class[]{});
+			isUserAllowBecomeUser = delegatedAccessLogicHelper.getMethod("isUserAllowBecomeUser", new Class[]{String.class, String.class});
+			//only allow become user logic for Delegated Access if the allowBecomeUser method exist
+			if(isUserAllowBecomeUser != null){
+				allowDelegatedAccessBecomeUser = true;
+			}
+		}catch(Exception e){
+			M_log.info("Could not inject Delegated Access logic bean, either doesn't exist or there is a bigger problem");
+			M_log.info(e.getMessage(), e);
+		}
 	}
 
 	/**
@@ -102,12 +129,6 @@ public class SuTool
 		FacesContext fc = FacesContext.getCurrentInstance();
 		userinfo = null;
 		message = "";
-
-		if (!getAllowed())
-		{
-			confirm = false;
-			return "unauthorized";
-		}
 
 		try
 		{
@@ -133,6 +154,13 @@ public class SuTool
 				confirm = false;
 				return "error";
 			}
+		}
+		
+		if (!getAllowed(userinfo))
+		{
+			confirm = false;
+			userinfo = null;
+			return "unauthorized";
 		}
 		
 		// don't try to become yourself
@@ -178,7 +206,15 @@ public class SuTool
 		sakaiSession.setUserId(validatedUserId);
 		sakaiSession.setUserEid(validatedUserEid);
 		M_authzGroupService.refreshUser(validatedUserId);
-
+		//if DA is present, initialize the user's DA settings:
+		if(initializeDelegatedAccessSession != null){
+			try{
+				initializeDelegatedAccessSession.invoke(delegatedAccessLogic, new Object[]{});
+			}catch(Exception e){
+				M_log.error(e.getMessage(), e);
+			}
+		}
+		
 		return "redirect";
 	}
 
@@ -196,13 +232,105 @@ public class SuTool
 	{
 		Session sakaiSession = M_session.getCurrentSession();
 		FacesContext fc = FacesContext.getCurrentInstance();
-
-		if (!M_security.isSuperUser())
+		//allow the user to access the tool if they are either a DA user or Super Admin
+		if (!M_security.isSuperUser() && sakaiSession.getAttribute("delegatedaccess.accessmapflag") != null)
 		{
 			message = msgs.getString("unauthorized") + " " + sakaiSession.getUserId();
 			M_log.error("[SuTool] Fatal Error: " + message);
 			fc.addMessage("allowed", new FacesMessage(FacesMessage.SEVERITY_FATAL, message, message));
 			allowed = false;
+		}
+		else
+		{
+			allowed = true;
+		}
+
+		return allowed;
+	}
+	
+	public boolean getAllowed(User userinfo)
+	{
+		Session sakaiSession = M_session.getCurrentSession();
+		FacesContext fc = FacesContext.getCurrentInstance();
+
+		if (!M_security.isSuperUser())
+		{
+			//current user is not a super admin, let's make sure they are not becoming a user they are not allowed to become
+			if(!M_security.isSuperUser(userinfo.getId())){
+				//Delegated Access check
+				//is the user a DA user?  If so, check their access as well as the become user accsess, otherwise, deny
+				if(allowDelegatedAccessBecomeUser && getDelegatedAccessUser()){
+					//this flag is only set when a user is a DA user
+					//now check if the become user is a DA user, if so, then do not allow a DA user to become another DA user
+					if(!getDelegatedAccessUser(userinfo.getId())){
+						//the user is not a DA user, so lets check if the user is a member of any sites that the 
+						//current user has DA access to visit
+						String currentUserId = sakaiSession.getUserId();
+						String currentUserEid = sakaiSession.getUserEid();
+						List siteList = null;
+						try{
+							sakaiSession.setUserId(userinfo.getId());
+							sakaiSession.setUserEid(userinfo.getEid());
+							siteList = org.sakaiproject.site.cover.SiteService.getSites(SelectionType.ACCESS, null, null, null, null, null);
+						}catch(Exception e){
+							M_log.info(e.getMessage(), e);
+						}finally{
+							sakaiSession.setUserId(currentUserId);
+							sakaiSession.setUserEid(currentUserEid);
+						}
+						if(siteList != null && siteList.size() > 0){
+							boolean anyAccess = false;
+							try{
+								for(Site site : (List<Site>) siteList){
+									Object val = isUserAllowBecomeUser.invoke(delegatedAccessLogic, new Object[]{sakaiSession.getUserId(), site.getReference()});
+									if(val != null && val instanceof Boolean && ((Boolean) val)){
+										//this user has site access and "become user" permission for this site
+										anyAccess = true;
+										break;
+									}
+								}
+							}catch(Exception e){
+								M_log.info(e.getMessage(), e);
+							}
+							if(anyAccess){
+								//this means that the current user has access to a site that the userinfo user is a member of, so
+								//let them become this user
+								allowed = true;
+							}else{
+								//current user can't become a user that isn't within their DA access
+								message = msgs.getString("unauthorized_danoaccess");
+								M_log.error("[SuTool] Fatal Error: " + message + " " + sakaiSession.getUserId());
+								fc.addMessage("allowed", new FacesMessage(FacesMessage.SEVERITY_FATAL, message, message));
+								allowed = false;
+							}
+						}else{
+							//the userinfo user either doesn't have any sites to access or there was an error
+							message = msgs.getString("unauthorized_da");
+							M_log.info("[SuTool] Fatal Error: " + message + " " + sakaiSession.getUserId());
+							fc.addMessage("allowed", new FacesMessage(FacesMessage.SEVERITY_FATAL, message, message));
+							allowed = false;
+						}
+					}else{
+						//current user is trying to become a DA user, which isn't allowed
+						message = msgs.getString("unauthorized_da");
+						M_log.info("[SuTool] Fatal Error: " + message + " " + sakaiSession.getUserId());
+						fc.addMessage("allowed", new FacesMessage(FacesMessage.SEVERITY_FATAL, message, message));
+						allowed = false;
+					}
+				}else{
+					//current user is not a DA user and not a super user, so they have no access
+					message = msgs.getString("unauthorized");
+					M_log.info("[SuTool] Fatal Error: " + message + " " + sakaiSession.getUserId());
+					fc.addMessage("allowed", new FacesMessage(FacesMessage.SEVERITY_FATAL, message, message));
+					allowed = false;
+				}
+			}else{
+				//non admin users can't become an admin user
+				message = msgs.getString("unauthorized_superuser");
+				M_log.info("[SuTool] Fatal Error: " + message + " " + sakaiSession.getUserId());
+				fc.addMessage("allowed", new FacesMessage(FacesMessage.SEVERITY_FATAL, message, message));
+				allowed = false;
+			}
 		}
 		else
 		{
@@ -240,4 +368,29 @@ public class SuTool
 		this.userinfo = userinfo;
 	}
 
+	public String getMessage(){
+		return message;
+	}
+	
+	public Boolean getSuperUser(){
+		return M_security.isSuperUser();
+	}
+	
+	public Boolean getDelegatedAccessUser(){
+		return getDelegatedAccessUser(M_session.getCurrentSessionUserId());
+	}
+	
+	public Boolean getDelegatedAccessUser(String userId){
+		if(hasDelegatedAccessNodes != null){
+			try {
+				Object hasAccess = hasDelegatedAccessNodes.invoke(delegatedAccessLogic, new Object[]{userId});
+				if(hasAccess != null && hasAccess instanceof Boolean && ((Boolean) hasAccess)){
+					return Boolean.TRUE;
+				}
+			} catch (Exception e){
+				M_log.error(e.getMessage(), e);
+			}
+		}
+		return Boolean.FALSE;	
+	}
 }

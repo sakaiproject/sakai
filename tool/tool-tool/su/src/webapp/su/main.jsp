@@ -19,6 +19,7 @@
 
 	<h:form id="su">
 	  <sakai:instruction_message value="#{msgs.instructions}" />
+	  <sakai:instruction_message value="#{msgs.instructions_da}" rendered="#{SuTool.delegatedAccessUser && !SuTool.superUser}"/>
 
 		<p><h:message for="su" errorClass="alertMessage" infoClass="instruction" showSummary="true" showDetail="false"/></p>
 
