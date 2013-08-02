@@ -228,6 +228,11 @@ function setupEditable(msgs, iframId){
 				$(this).html("");
 				//set the new html
 				$(this).append(value);
+				//we want the user's to be able to click links in their body text without
+				//having the edit popup
+				$(this).find("a").click(function (event){
+					event.stopPropagation();
+				});
 			}
 		},
 		url: function(params) {
@@ -252,6 +257,11 @@ function setupEditable(msgs, iframId){
 					$(".editable-buttons").css({"display":"block", "margin-left":"0px","margin-top":"7px"});
 					mySetMainFrameHeight(iframId, 600);
 			}, 1000);
+	});
+	//we want the user's to be able to click links in their body text without
+	//having the edit popup
+	$(".bodyInput a").click(function (event){
+		event.stopPropagation();
 	});
 	bodiesLoaded = true;
 }
