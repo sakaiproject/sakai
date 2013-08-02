@@ -43,7 +43,9 @@ import javax.servlet.http.HttpServletResponse;
 import org.apache.commons.lang.StringUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
-import org.sakaiproject.authz.cover.SecurityService;
+import org.sakaiproject.authz.api.SecurityAdvisor;
+import org.sakaiproject.authz.api.SecurityAdvisor.SecurityAdvice;
+import org.sakaiproject.authz.api.SecurityService;
 import org.sakaiproject.component.cover.ComponentManager;
 import org.sakaiproject.component.cover.ServerConfigurationService;
 import org.sakaiproject.entity.api.ResourceProperties;
@@ -164,6 +166,8 @@ public class SkinnableCharonPortal extends HttpServlet implements Portal
 	private boolean enableDirect = false;
 
 	private PortalService portalService;
+	
+	private SecurityService securityService = null;
 	
 	/**
 	 * Chat helper.
@@ -700,7 +704,7 @@ public class SkinnableCharonPortal extends HttpServlet implements Portal
 		// Must have site.upd to see the Edit button
 		if (result.getJSR168EditUrl() != null && site != null)
 		{
-			if (SecurityService.unlock(SiteService.SECURE_UPDATE_SITE, site
+			if (securityService.unlock(SiteService.SECURE_UPDATE_SITE, site
 					.getReference()))
 			{
 				String editUrl = Web.serverUrl(req) + result.getJSR168EditUrl();
@@ -1679,8 +1683,25 @@ public class SkinnableCharonPortal extends HttpServlet implements Portal
                         		rcontext.put("tutorial", true);
                         		//now save this in the user's prefefences so we don't show it again
                         		PreferencesEdit preferences = null;
+                        		SecurityAdvisor secAdv = null;
                         		try {
+                        			secAdv = new SecurityAdvisor(){
+                        				@Override
+                        				public SecurityAdvice isAllowed(String userId, String function,
+                        						String reference) {
+                        					if("prefs.add".equals(function) || "prefs.upd".equals(function)){
+                        						return SecurityAdvice.ALLOWED;
+                        					}
+                        					return null;
+                        				}
+                        			};
+                        			securityService.pushAdvisor(secAdv);
                         			preferences = preferencesService.edit(thisUser);
+                            		if (preferences != null) {
+                            			ResourcePropertiesEdit props = preferences.getPropertiesEdit();
+                            			props.addProperty("sakaiTutorialFlag", "1");
+                            			preferencesService.commit(preferences);   
+                            		}
                         		} catch (Exception e1) {
                         			try {
                         				preferences = preferencesService.add(thisUser);
@@ -1689,11 +1710,10 @@ public class SkinnableCharonPortal extends HttpServlet implements Portal
                         			} catch (PermissionException e2) {
                         				M_log.error(e2);
                         			}
-                        		}
-                        		if (preferences != null) {
-                        			ResourcePropertiesEdit props = preferences.getPropertiesEdit();
-                        			props.addProperty("sakaiTutorialFlag", "1");
-                        			preferencesService.commit(preferences);   
+                        		}finally{
+                        			if(secAdv != null){
+                        				securityService.popAdvisor(secAdv);
+                        			}
                         		}
                         	}
                         }
@@ -1936,6 +1956,7 @@ public class SkinnableCharonPortal extends HttpServlet implements Portal
 		siteHelper = new PortalSiteHelperImpl(this, findPageAliases);
 
 		portalService = org.sakaiproject.portal.api.cover.PortalService.getInstance();
+		securityService = (SecurityService) ComponentManager.get("org.sakaiproject.authz.api.SecurityService");
 		chatHelper = org.sakaiproject.portal.api.cover.PortalChatPermittedHelper.getInstance();
 		M_log.info("init()");
 
