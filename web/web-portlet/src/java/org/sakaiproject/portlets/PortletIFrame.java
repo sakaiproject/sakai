@@ -44,6 +44,7 @@ import java.util.Date;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
+import org.apache.commons.httpclient.util.URIUtil;
 
 import javax.portlet.GenericPortlet;
 import javax.portlet.RenderRequest;
@@ -352,7 +353,8 @@ public class PortletIFrame extends GenericPortlet {
                 if ( csrfToken != null ) context.put("sakai_csrf_token", csrfToken);
 				context.put("tlang", rb);
 				context.put("validator", validator);
-				context.put("source",url);
+				// http://stackoverflow.com/questions/573184/java-convert-string-to-valid-uri-object
+				context.put("source",URIUtil.encodeQuery(url));
 				context.put("height",height);
 				sendAlert(request,context);
 				context.put("popup", Boolean.valueOf(popup));
@@ -450,7 +452,6 @@ public class PortletIFrame extends GenericPortlet {
 	public void doEdit(RenderRequest request, RenderResponse response)
 		throws PortletException, IOException 
     {
-
 			// System.out.println("==== doEdit called ====");
 			response.setContentType("text/html");
 			PrintWriter out = response.getWriter();
