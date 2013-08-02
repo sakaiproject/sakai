@@ -591,6 +591,7 @@ public class PortletIFrame extends GenericPortlet {
 			    context.put("custom_height", strings[0]);
 			    height = rb.getString("gen.heisomelse");
 		    }
+		    context.put("height", height);
 
 	    	// TODO: tracking event
 		
