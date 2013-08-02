@@ -888,3 +888,29 @@ ALTER TABLE QRTZ_SIMPLE_TRIGGERS MODIFY TIMES_TRIGGERED BIGINT(10) NOT NULL;
 
 -- Increase size
 ALTER TABLE QRTZ_CRON_TRIGGERS MODIFY CRON_EXPRESSION VARCHAR(120) NOT NULL;
+
+--------------------------
+--
+-- SAK-23812 Peer Review feature for Assignments
+--
+--------------------------
+
+CREATE TABLE ASN_PEER_ASSESSMENT_ITEM_T  ( 
+	SUBMISSION_ID   	varchar(255) NOT NULL,
+	ASSESSOR_USER_ID	varchar(255) NOT NULL,
+	ASSIGNMENT_ID   	varchar(255) NOT NULL,
+	SCORE           	int(11) NULL,
+	REVIEW_COMMENT         	varchar(6000) NULL,
+	REMOVED         	bit(1) NULL,
+	PRIMARY KEY(SUBMISSION_ID,ASSESSOR_USER_ID)
+);
+
+create index PEER_ASSESSOR_I on ASN_PEER_ASSESSMENT_ITEM_T (SUBMISSION_ID, ASSESSOR_USER_ID);
+create index PEER_ASSESSOR2_I on ASN_PEER_ASSESSMENT_ITEM_T (ASSIGNMENT_ID, ASSESSOR_USER_ID);
+
+----------------------
+--
+-- END SAK-23812 Peer Review feature for Assignments
+--
+----------------------
+
