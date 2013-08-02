@@ -1,10 +1,13 @@
 package org.sakaiproject.delegatedaccess.tool.pages;
 
+import java.util.Map;
+
 import javax.swing.tree.DefaultMutableTreeNode;
 import javax.swing.tree.TreeNode;
 
 import org.apache.wicket.ajax.AjaxRequestTarget;
 import org.apache.wicket.ajax.markup.html.AjaxLink;
+import org.apache.wicket.markup.html.WebComponent;
 import org.apache.wicket.markup.html.WebMarkupContainer;
 import org.apache.wicket.markup.html.basic.Label;
 import org.apache.wicket.markup.html.panel.Panel;
@@ -13,6 +16,7 @@ import org.apache.wicket.model.PropertyModel;
 import org.apache.wicket.model.StringResourceModel;
 import org.sakaiproject.delegatedaccess.model.NodeModel;
 import org.sakaiproject.delegatedaccess.util.DelegatedAccessConstants;
+import org.sakaiproject.delegatedaccess.utils.PropertyEditableColumnAdvancedUserOptions;
 
 public class EditablePanelAdvancedUserOptions extends Panel{
 
@@ -20,7 +24,7 @@ public class EditablePanelAdvancedUserOptions extends Panel{
 	private TreeNode node;
 	private boolean loadedFlag = false;
 	
-	public EditablePanelAdvancedUserOptions(String id, IModel inputModel, final NodeModel nodeModel, final TreeNode node){
+	public EditablePanelAdvancedUserOptions(String id, IModel inputModel, final NodeModel nodeModel, final TreeNode node, Map<String, Object> settings){
 		super(id);
 		
 		this.nodeModel = nodeModel;
@@ -73,7 +77,19 @@ public class EditablePanelAdvancedUserOptions extends Panel{
 		Label advancedOptionsInstructions = new Label("advancedOptionsInstructions", new StringResourceModel("advancedOptionsDesc", null));
 		advancedOptionsSpan.add(advancedOptionsInstructions);
 		
-		advancedOptionsSpan.add(new EditablePanelCheckbox("allowBecomeUserCheckbox", new PropertyModel(node,  "userObject.allowBecomeUser"), (NodeModel) ((DefaultMutableTreeNode) node).getUserObject(), node, DelegatedAccessConstants.TYPE_ADVANCED_OPT));
+		//Allow Become User:
+		
+		//check settings to see if user can update the allow become user checkbox:
+		Boolean allowBecomeUser = Boolean.FALSE;
+		if(settings.containsKey(PropertyEditableColumnAdvancedUserOptions.SETTINGS_ALLOW_SET_BECOME_USER) 
+				&& settings.get(PropertyEditableColumnAdvancedUserOptions.SETTINGS_ALLOW_SET_BECOME_USER) instanceof Boolean){
+			allowBecomeUser = (Boolean) settings.get(PropertyEditableColumnAdvancedUserOptions.SETTINGS_ALLOW_SET_BECOME_USER);
+		}
+		EditablePanelCheckbox allowBecomeUserCheckbox = new EditablePanelCheckbox("allowBecomeUserCheckbox", new PropertyModel(node,  "userObject.allowBecomeUser"), (NodeModel) ((DefaultMutableTreeNode) node).getUserObject(), node, DelegatedAccessConstants.TYPE_ADVANCED_OPT);
+		if(!allowBecomeUser){
+			allowBecomeUserCheckbox.setEnabled(false);
+		}
+		advancedOptionsSpan.add(allowBecomeUserCheckbox);
 	}
 	
 }

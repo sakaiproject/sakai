@@ -638,4 +638,8 @@ public class SakaiProxyImpl implements SakaiProxy {
 	public void setSessionUserId(String userId){
 		sessionManager.getCurrentSession().setUserId(userId);
 	}
+	
+	public boolean allowAccessAdminsSetBecomeUserPerm(){
+		return serverConfigurationService.getBoolean(DelegatedAccessConstants.PROPERTIES_ACCESS_ADMIN_ALLOW_SET_ALLOW_BECOME_USER, true);
+	}
 }

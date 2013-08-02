@@ -403,4 +403,13 @@ public interface SakaiProxy {
 	 * @return
 	 */
 	public void setSessionUserId(String userId);
+	
+	/**
+	 * Returns a sakai.property: delegatedaccess.allow.accessadmin.set.allowBecomeUser (default true)
+	 * This property determines whether an Access Admin is able to set the advanced option permission
+	 * "allowBecomeUser".
+	 * 
+	 * @return
+	 */
+	public boolean allowAccessAdminsSetBecomeUserPerm();
 }

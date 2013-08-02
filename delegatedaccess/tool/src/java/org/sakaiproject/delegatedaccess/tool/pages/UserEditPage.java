@@ -1,6 +1,7 @@
 package org.sakaiproject.delegatedaccess.tool.pages;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -120,7 +121,10 @@ public class UserEditPage  extends BaseTreePage{
 		}
 		columnsList.add(new PropertyEditableColumnList(new ColumnLocation(Alignment.RIGHT, 96, Unit.PX), new StringResourceModel("restrictedToolsHeader", null).getString(),
 				"userObject.restrictedAuthTools", DelegatedAccessConstants.TYPE_ACCESS, DelegatedAccessConstants.TYPE_LISTFIELD_TOOLS));
-		columnsList.add(new PropertyEditableColumnAdvancedUserOptions(new ColumnLocation(Alignment.RIGHT, 75, Unit.PX), new StringResourceModel("advanced", null).getString(), ""));
+		//setup advanced options settings:
+		Map<String, Object> advSettings = new HashMap<String, Object>();
+		advSettings.put(PropertyEditableColumnAdvancedUserOptions.SETTINGS_ALLOW_SET_BECOME_USER, sakaiProxy.isSuperUser() || sakaiProxy.allowAccessAdminsSetBecomeUserPerm());
+		columnsList.add(new PropertyEditableColumnAdvancedUserOptions(new ColumnLocation(Alignment.RIGHT, 75, Unit.PX), new StringResourceModel("advanced", null).getString(), "", advSettings));
 		IColumn columns[] = columnsList.toArray(new IColumn[columnsList.size()]);
 
 		//if the user isn't a super user, they should only be able to edit the nodes they 

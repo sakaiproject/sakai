@@ -95,6 +95,7 @@ public class DelegatedAccessConstants {
 	public static final String PROPERTIES_SYNC_MYWORKSPACE_TOOL = "delegatedaccess.sync.myworkspacetool";
 	public static final String PROPERTIES_SHOPPING_INSTRUCTOR_EDITABLE = "delegatedaccess.shopping.instructorEditable";
 	public static final String PROPERTIES_HIDE_ROLES_FOR_VIEW_ACCESS = "delegatedaccess.siteaccess.instructorViewable.hiddenRoles";
+	public static final String PROPERTIES_ACCESS_ADMIN_ALLOW_SET_ALLOW_BECOME_USER = "delegatedaccess.allow.accessadmin.set.allowBecomeUser";
 	public static final String NODE_PERM_SITE_HIERARCHY_JOB_LAST_RUN_DATE = "siteHierarchyJobLastRunDate:";
 	public static final String SITE_HIERARCHY_USER = "777dv0f43bd90sdf012uf";
 	public static final int MAX_SITES_PER_PAGE = 10000;

@@ -1,5 +1,7 @@
 package org.sakaiproject.delegatedaccess.tool.pages;
 
+import java.util.Map;
+
 import javax.swing.tree.TreeNode;
 
 import org.apache.wicket.ajax.AjaxRequestTarget;
@@ -15,7 +17,7 @@ public class EditablePanelAdvancedUserOptionsText extends Panel{
 
 	private boolean loadedFlag = false;
 	
-	public EditablePanelAdvancedUserOptionsText(String id, IModel inputModel, final NodeModel nodeModel, final TreeNode node) {
+	public EditablePanelAdvancedUserOptionsText(String id, IModel inputModel, final NodeModel nodeModel, final TreeNode node, Map<String, Object> settings) {
 		super(id);
 		
 		final WebMarkupContainer inheritedSpan = new WebMarkupContainer("inheritedSpan");

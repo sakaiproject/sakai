@@ -1,5 +1,7 @@
 package org.sakaiproject.delegatedaccess.utils;
 
+import java.util.Map;
+
 import javax.swing.tree.DefaultMutableTreeNode;
 import javax.swing.tree.TreeNode;
 
@@ -17,9 +19,12 @@ import org.sakaiproject.delegatedaccess.tool.pages.EditablePanelEmpty;
 
 public class PropertyEditableColumnAdvancedUserOptions extends PropertyRenderableColumn{
 
-
-	public PropertyEditableColumnAdvancedUserOptions(ColumnLocation location, String header, String propertyExpression) {
+	public static final String SETTINGS_ALLOW_SET_BECOME_USER = "allowBecomeUser";
+	private Map<String, Object> settings;
+	
+	public PropertyEditableColumnAdvancedUserOptions(ColumnLocation location, String header, String propertyExpression, Map<String, Object> settings) {
 		super(location, header, propertyExpression);
+		this.settings = settings;
 	}
 
 	/**
@@ -32,9 +37,9 @@ public class PropertyEditableColumnAdvancedUserOptions extends PropertyRenderabl
 		}
 		
 		if(((NodeModel) ((DefaultMutableTreeNode) node).getUserObject()).isDirectAccess()){
-			return new EditablePanelAdvancedUserOptions(id, new PropertyModel(node, getPropertyExpression()), (NodeModel) ((DefaultMutableTreeNode) node).getUserObject(), node);
+			return new EditablePanelAdvancedUserOptions(id, new PropertyModel(node, getPropertyExpression()), (NodeModel) ((DefaultMutableTreeNode) node).getUserObject(), node, settings);
 		}else{
-			return new EditablePanelAdvancedUserOptionsText(id, new PropertyModel(node, getPropertyExpression()), (NodeModel) ((DefaultMutableTreeNode) node).getUserObject(), node);
+			return new EditablePanelAdvancedUserOptionsText(id, new PropertyModel(node, getPropertyExpression()), (NodeModel) ((DefaultMutableTreeNode) node).getUserObject(), node, settings);
 		}
 	}
 
