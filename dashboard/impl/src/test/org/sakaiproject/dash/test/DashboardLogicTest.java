@@ -35,6 +35,7 @@ import org.sakaiproject.dash.logic.DashboardConfigImpl;
 import org.sakaiproject.dash.logic.DashboardLogicImpl;
 import org.sakaiproject.dash.logic.TaskLock;
 import org.sakaiproject.dash.mock.DashboardDaoMock;
+import org.sakaiproject.dash.mock.MockTransactionManager;
 import org.sakaiproject.dash.mock.SakaiProxyMock;
 import org.sakaiproject.dash.model.CalendarItem;
 import org.sakaiproject.dash.model.Context;
@@ -42,6 +43,7 @@ import org.sakaiproject.dash.model.NewsItem;
 import org.sakaiproject.dash.model.RepeatingCalendarItem;
 import org.sakaiproject.dash.model.SourceType;
 import org.springframework.test.AbstractTransactionalSpringContextTests;
+import org.springframework.transaction.PlatformTransactionManager;
 
 /**
  * 
@@ -129,7 +131,8 @@ public class DashboardLogicTest extends AbstractTransactionalSpringContextTests
 		this.sakaiProxy = new SakaiProxyMock();
 		DashboardDao dao = new DashboardDaoMock();
 		this.dashboardCommonLogic = new DashboardCommonLogicImpl();
-		DashboardLogicImpl dashboardLogic = new DashboardLogicImpl();
+		PlatformTransactionManager txManager = new MockTransactionManager();
+		DashboardLogicImpl dashboardLogic = new DashboardLogicImpl(txManager );
 		dashboardLogic.setDao(dao);
 		DashboardConfig dashboardConfig = new DashboardConfigImpl();
 		dashboardLogic.setDashboardConfig(dashboardConfig);
@@ -311,7 +314,8 @@ public class DashboardLogicTest extends AbstractTransactionalSpringContextTests
 		this.dashboardCommonLogic = new DashboardCommonLogicImpl();
 		DashboardDao dao = new DashboardDaoMock();
 		
-		DashboardLogicImpl dashboardLogic = new DashboardLogicImpl();
+		PlatformTransactionManager txManager = new MockTransactionManager();
+		DashboardLogicImpl dashboardLogic = new DashboardLogicImpl(txManager );
 		
 		dashboardLogic.setDao(dao );
 		DashboardConfig dashboardConfig = new DashboardConfigImpl();
@@ -362,7 +366,8 @@ public class DashboardLogicTest extends AbstractTransactionalSpringContextTests
 		this.dashboardCommonLogic = new DashboardCommonLogicImpl();
 		DashboardDao dao = new DashboardDaoMock();
 		
-		DashboardLogicImpl dashboardLogic = new DashboardLogicImpl();
+		PlatformTransactionManager txManager = new MockTransactionManager();
+		DashboardLogicImpl dashboardLogic = new DashboardLogicImpl(txManager );
 		
 		dashboardLogic.setDao(dao );
 		DashboardConfig dashboardConfig = new DashboardConfigImpl();

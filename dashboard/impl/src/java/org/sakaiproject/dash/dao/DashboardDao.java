@@ -63,6 +63,13 @@ public interface DashboardDao {
 	public boolean addCalendarLink(CalendarLink calendarLink);
 	
 	/**
+	 * Save each calendar link in a collection of calendar-links. 
+	 * @param calendarLinks
+	 * @return the number of links that were added.
+	 */
+	public int addCalendarLinks(List<CalendarLink> calendarLinks);
+	
+	/**
 	 * @param context
 	 * @return
 	 */
@@ -80,6 +87,13 @@ public interface DashboardDao {
 	 */
 	public boolean addNewsLink(NewsLink newsLink);
 	
+	/**
+	 * Save each news link in a collection of news-links.  
+	 * @param newsLinks
+	 * @return the number of links that were added.
+	 */
+	public int addNewsLinks(List<NewsLink> newsLinks);
+
 	/**
 	 * @param person
 	 * @return
@@ -562,6 +576,5 @@ public interface DashboardDao {
 	public boolean addTaskLock(TaskLock taskLock);
 
 	public boolean updateTaskLock(String task, String serverId, Date lastUpdate);
-
 
 }

@@ -36,9 +36,16 @@
     	<property name="sakaiProxy" ref="org.sakaiproject.dash.app.SakaiProxy"></property>
     </bean>
 
-	<bean id="org.sakaiproject.dash.logic.DashboardLogic" 
+	<bean id="txManager" class="org.springframework.jdbc.datasource.DataSourceTransactionManager">
+  		<property name="dataSource" ref="javax.sql.DataSource"/>
+	</bean>
+	
+  	<bean id="org.sakaiproject.dash.logic.DashboardLogic" 
     	class="org.sakaiproject.dash.logic.DashboardLogicImpl"
     	init-method="init" destroy-method="destroy">
+  		<constructor-arg>
+      		<ref local="txManager"/>
+    	</constructor-arg>
     	<property name="sakaiProxy" ref="org.sakaiproject.dash.app.SakaiProxy"></property>
     	<property name="dao" ref="org.sakaiproject.dash.dao.DashboardDao" />	
     	<property name="cache" ref="org.sakaiproject.dash.cache" />	

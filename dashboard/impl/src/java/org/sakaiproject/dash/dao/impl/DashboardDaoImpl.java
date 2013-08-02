@@ -22,6 +22,7 @@
 package org.sakaiproject.dash.dao.impl;
 
 import java.net.URL;
+import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.ArrayList;
@@ -63,9 +64,11 @@ import org.sakaiproject.dash.model.SourceType;
 import org.springframework.dao.DataAccessException;
 import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.dao.EmptyResultDataAccessException;
+import org.springframework.jdbc.core.BatchPreparedStatementSetter;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.jdbc.core.RowMapper;
 import org.springframework.jdbc.core.support.JdbcDaoSupport;
+import org.springframework.transaction.annotation.Transactional;
 
 /**
  * Implementation of ProjectDao 
@@ -161,20 +164,15 @@ public class DashboardDaoImpl extends JdbcDaoSupport implements DashboardDao {
 			}
 			int result = template.update(sql,params);
 			
-			return true;
+			return result > 0;
 		} catch (DataIntegrityViolationException e) {
 			// this means we're trying to insert a duplicate
 			log.warn("addCalendarItem() " + e);
-			return false;
 		} catch (DataAccessException ex) {
             log.warn("addCalendarItem: Error executing query: " + ex.getClass() + ":" + ex.getMessage());
 	        // System.out.println("addCalendarItem: Error executing query: " + ex.getClass() + ":" + ex.getMessage());
-            return false;
-		} catch (Exception e) {
-	        log.warn("addCalendarItem: Error executing query: " + e.getClass() + ":" + e.getMessage());
-	        // System.out.println("addCalendarItem: Error executing query: " + e.getClass() + ":" + e.getMessage());
-	        return false;
-		}
+		} 
+		return false;
 	}
 
 	/* (non-Javadoc)
@@ -201,6 +199,51 @@ public class DashboardDaoImpl extends JdbcDaoSupport implements DashboardDao {
            log.warn("addCalendarLink: Error executing query: " + ex.getClass() + ":" + ex.getMessage());
            return false;
 		}
+	}
+
+	/* (non-Javadoc)
+	 * @see org.sakaiproject.dash.dao.DashboardDao#addCalendarLink(org.sakaiproject.dash.model.CalendarLink)
+	 */
+	public int addCalendarLinks(final List<CalendarLink> calendarLinks) {
+		if(log.isDebugEnabled()) {
+			log.debug("addCalendarLinks( " + calendarLinks.size() + ")");
+		}
+		
+		//  person_id, item_id, context_id, realm_id
+		int count = 0;
+		try {
+			String sql = getStatement("insert.CalendarLink");
+			int[] updates = getJdbcTemplate().batchUpdate(sql, new BatchPreparedStatementSetter(){
+
+				@Override
+				public void setValues(PreparedStatement ps, int i)
+						throws SQLException {
+					CalendarLink calendarLink = calendarLinks.get(i);
+					ps.setLong(1, calendarLink.getPerson().getId());
+					ps.setLong(2, calendarLink.getCalendarItem().getId());
+					ps.setLong(3, calendarLink.getContext().getId());
+					ps.setBoolean(4, calendarLink.isHidden());
+					ps.setBoolean(5, calendarLink.isSticky());
+				}
+
+				@Override
+				public int getBatchSize() {
+					return calendarLinks.size();
+				}
+				
+			});
+			if(updates != null && updates.length > 0) {
+				for(int u : updates) {
+					count += u;
+				}
+			}
+		} catch (DataIntegrityViolationException e) {
+			// this means we're trying to insert a duplicate
+			log.debug("addCalendarLinks() " + e);
+		} catch (DataAccessException ex) {
+           log.warn("addCalendarLinks: Error executing query: " + ex.getClass() + ":" + ex.getMessage());
+		}
+		return count;
 	}
 
 	/* (non-Javadoc)
@@ -255,21 +298,22 @@ public class DashboardDaoImpl extends JdbcDaoSupport implements DashboardDao {
 		}
 		
 		try {
-			getJdbcTemplate().update(getStatement("insert.NewsItem"),
+			JdbcTemplate template = getJdbcTemplate();
+			template.update(getStatement("insert.NewsItem"),
 				new Object[]{newsItem.getNewsTime(), newsItem.getTitle(), newsItem.getNewsTimeLabelKey(), newsItem.getEntityReference(),
 						subtype, newsItem.getSourceType().getId(), newsItem.getContext().getId(), newsItem.getGroupingIdentifier()}
 			);
+
 			return true;
 		} catch (DataIntegrityViolationException e) {
 			// this means we're trying to insert a duplicate
 			log.debug("addNewsItem() " + e);
-			return false;
 		} catch (DataAccessException ex) {
            log.warn("addNewsItem: Error executing query: " + ex.getClass() + ":" + ex.getMessage());
-           return false;
 		}
+        return false;
 	}
-
+	
 	/* (non-Javadoc)
 	 * @see org.sakaiproject.dash.dao.DashboardDao#addNewsLink(org.sakaiproject.dash.model.NewsLink)
 	 */
@@ -281,6 +325,7 @@ public class DashboardDaoImpl extends JdbcDaoSupport implements DashboardDao {
 		//  person_id, item_id, context_id, realm_id
 		
 		try {
+			
 			getJdbcTemplate().update(getStatement("insert.NewsLink"),
 				new Object[]{newsLink.getPerson().getId(), newsLink.getNewsItem().getId(), 
 						newsLink.getContext().getId(), newsLink.isHidden(), newsLink.isSticky()}
@@ -294,6 +339,51 @@ public class DashboardDaoImpl extends JdbcDaoSupport implements DashboardDao {
            log.warn("addNewsLink: Error executing query: " + ex.getClass() + ":" + ex.getMessage());
            return false;
 		}
+	}
+
+	/* (non-Javadoc)
+	 * @see org.sakaiproject.dash.dao.DashboardDao#addNewsLinks(java.util.List)
+	 */
+	public int addNewsLinks(final List<NewsLink> newsLinks) {
+		if(log.isDebugEnabled()) {
+			log.debug("addNewsLinks( " + newsLinks.size() + ")");
+		}
+		
+		//  person_id, item_id, context_id, realm_id
+		int count = 0;
+		try {
+			String sql = getStatement("insert.NewsLink");
+			int[] updates = getJdbcTemplate().batchUpdate(sql, new BatchPreparedStatementSetter(){
+
+				@Override
+				public void setValues(PreparedStatement ps, int i)
+						throws SQLException {
+					NewsLink newsLink = newsLinks.get(i);
+					ps.setLong(1, newsLink.getPerson().getId());
+					ps.setLong(2, newsLink.getNewsItem().getId());
+					ps.setLong(3, newsLink.getContext().getId());
+					ps.setBoolean(4, newsLink.isHidden());
+					ps.setBoolean(5, newsLink.isSticky());
+				}
+
+				@Override
+				public int getBatchSize() {
+					return newsLinks.size();
+				}
+				
+			});
+			if(updates != null && updates.length > 0) {
+				for(int u : updates) {
+					count += u;
+				}
+			}
+		} catch (DataIntegrityViolationException e) {
+			// this means we're trying to insert a duplicate
+			log.debug("addNewsLink() " + e);
+		} catch (DataAccessException ex) {
+           log.warn("addNewsLink: Error executing query: " + ex.getClass() + ":" + ex.getMessage());
+		}
+		return count;
 	}
 
 	/* (non-Javadoc)
@@ -2022,6 +2112,7 @@ public class DashboardDaoImpl extends JdbcDaoSupport implements DashboardDao {
 		if(autoddl) {
 			initTables();
 		}
+		
 	}
 	
 	/**

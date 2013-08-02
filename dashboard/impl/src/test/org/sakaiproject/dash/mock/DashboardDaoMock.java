@@ -898,4 +898,13 @@ public class DashboardDaoMock implements DashboardDao {
 		return assigned;
 	}
 
+	@Override
+	public int addNewsLinks(List<NewsLink> newsLinks) {
+		// TODO Auto-generated method stub
+		return 0;
+	}
+
+	public int addCalendarLinks(List<CalendarLink> calendarLinks) {
+		return 0;
+	}
 }

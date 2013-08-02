@@ -21,6 +21,7 @@
 
 package org.sakaiproject.dash.logic;
 
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Date;
 import java.util.HashMap;
@@ -51,12 +52,22 @@ import org.sakaiproject.dash.model.RepeatingCalendarItem;
 import org.sakaiproject.dash.model.SourceType;
 import org.sakaiproject.site.api.Site;
 import org.sakaiproject.user.api.User;
+import org.springframework.transaction.PlatformTransactionManager;
+import org.springframework.transaction.TransactionStatus;
+import org.springframework.transaction.support.TransactionCallback;
+import org.springframework.transaction.support.TransactionTemplate;
+import org.springframework.util.Assert;
 
 /**
  * 
  *
  */
 public class DashboardLogicImpl implements DashboardLogic {
+
+	public DashboardLogicImpl(PlatformTransactionManager transactionManager) {
+	    Assert.notNull(transactionManager, "The 'transactionManager' argument must not be null.");
+		this.transactionTemplate = new TransactionTemplate(transactionManager);
+	}
 
 	private static Logger logger = Logger.getLogger(DashboardUserLogicImpl.class);
 	
@@ -81,13 +92,20 @@ public class DashboardLogicImpl implements DashboardLogic {
 	protected Date horizon = new Date();
 
 	protected Date delay = null;
-
+	
 
 	
 	/************************************************************************
+	 * Constructor-assigned transaction template
+	 ************************************************************************/
+	
+	// single TransactionTemplate shared amongst methods in this instance
+	private final TransactionTemplate transactionTemplate;
+		
+	/************************************************************************
 	 * Spring-injected classes
 	 ************************************************************************/
-		
+	
 	protected SakaiProxy sakaiProxy;
 	public void setSakaiProxy(SakaiProxy proxy) {
 		this.sakaiProxy = proxy;
@@ -115,6 +133,8 @@ public class DashboardLogicImpl implements DashboardLogic {
 
 	public void init() {
 		logger.info("init()");
+		
+		//this.transactionTemplate = new TransactionTemplate();
 	
 		Integer weeksToHorizon = dashboardConfig.getConfigValue(DashboardConfig.PROP_WEEKS_TO_HORIZON, DEFAULT_WEEKS_TO_HORIZON);
 		this.horizon = new Date(System.currentTimeMillis() + weeksToHorizon.longValue() * 7L * ONE_DAY);
@@ -226,6 +246,7 @@ public class DashboardLogicImpl implements DashboardLogic {
 		if(logger.isDebugEnabled()) {
 			logger.debug("addCalendarLinks(" + sakaiUserId + "," + contextId + ") ");
 		}
+		int count = 0;
 		Person person = this.getOrCreatePerson(sakaiUserId);
 		if(person == null) {
 			logger.warn("Failed attempt to add calendar links for non-existent user: " + sakaiUserId);
@@ -241,17 +262,40 @@ public class DashboardLogicImpl implements DashboardLogic {
 				message.append(")");
 				logger.info(message.toString());
 			} else {
+				final List<CalendarLink> calendarLinks = new ArrayList<CalendarLink>();
 				for(CalendarItem item: items) {
 					SourceType sourceType = item.getSourceType();
 					DashboardEntityInfo dashboardEntityInfo = this.dashboardEntityInfoMap.get(sourceType.getIdentifier());
 					if(dashboardEntityInfo != null && dashboardEntityInfo.isUserPermitted(sakaiUserId, item.getEntityReference(), item.getContext().getContextId())) {
 						CalendarLink calendarLink = new CalendarLink(person, item, item.getContext(), false, false);
-						dao.addCalendarLink(calendarLink);
+						calendarLinks.add(calendarLink);
 					}
+				}
+				if(calendarLinks.size() > 0) {
+					
+					count = (Integer) this.transactionTemplate.execute(new TransactionCallback(){
+
+						@Override
+						public Object doInTransaction(TransactionStatus status) {
+							
+							int count = dao.addCalendarLinks(calendarLinks);
+							return count;
+						}});
+					
 				}
 			}
 		}
-		
+		if(logger.isDebugEnabled()) {
+			StringBuilder buf = new StringBuilder("addCalendarLinks(");
+			buf.append(sakaiUserId);
+			buf.append(",");
+			buf.append(contextId );
+			buf.append(") added ");
+			buf.append(count);
+			buf.append(" calendarLinks");
+			logger.debug(buf);
+		}
+
 	}
 	
 	/* (non-Javadoc)
@@ -262,6 +306,7 @@ public class DashboardLogicImpl implements DashboardLogic {
 		if(logger.isDebugEnabled()) {
 			logger.debug("addNewsLinks(" + sakaiUserId + "," + contextId + ") ");
 		}
+		int count = 0;
 		Person person = this.getOrCreatePerson(sakaiUserId);
 		if(person == null) {
 			logger.warn("Attempting to add news links for non-existent user: " + sakaiUserId);
@@ -277,15 +322,36 @@ public class DashboardLogicImpl implements DashboardLogic {
 				message.append(")");
 				logger.info(message.toString());
 			} else {
+				final List<NewsLink> newsLinks = new ArrayList<NewsLink>();
 				for(NewsItem item: items) {
 					SourceType sourceType = item.getSourceType();
 					DashboardEntityInfo dashboardEntityInfo = this.dashboardEntityInfoMap.get(sourceType.getIdentifier());
 					if(dashboardEntityInfo != null && dashboardEntityInfo.isUserPermitted(sakaiUserId, item.getEntityReference(), item.getContext().getContextId()) ) {
 						NewsLink newsLink = new NewsLink(person, item, item.getContext(), false, false);
-						dao.addNewsLink(newsLink);
+						newsLinks.add(newsLink);
 					}
 				}
+				if(newsLinks.size() > 0) {
+					
+					count = (Integer) this.transactionTemplate.execute(new TransactionCallback(){
+
+						@Override
+						public Object doInTransaction(TransactionStatus status) {
+							int count = dao.addNewsLinks(newsLinks);
+							return count;
+						}});
+				}
 			}
+		}
+		if(logger.isDebugEnabled()) {
+			StringBuilder buf = new StringBuilder("addNewsLinks(");
+			buf.append(sakaiUserId);
+			buf.append(",");
+			buf.append(contextId );
+			buf.append(") added ");
+			buf.append(count);
+			buf.append(" newsLinks");
+			logger.debug(buf);
 		}
 	}
 	
@@ -293,20 +359,26 @@ public class DashboardLogicImpl implements DashboardLogic {
 	 * @see org.sakaiproject.dash.logic.DashboardLogic#createCalendarItem(java.lang.String, java.util.Date, java.lang.String, java.lang.String, org.sakaiproject.dash.model.Context, org.sakaiproject.dash.model.SourceType, java.lang.String, org.sakaiproject.dash.model.RepeatingCalendarItem, java.lang.Integer)
 	 */
 	@Override
-	public CalendarItem createCalendarItem(String title, Date calendarTime,
-			String calendarTimeLabelKey, String entityReference, Context context,
-			SourceType sourceType, String subtype, RepeatingCalendarItem repeatingCalendarItem, Integer sequenceNumber) {
-		
-		CalendarItem calendarItem = new CalendarItem(title, calendarTime,
-				calendarTimeLabelKey, entityReference, context, sourceType, subtype, repeatingCalendarItem, sequenceNumber);
-		
-		CalendarItem rv = null;
-		boolean success = dao.addCalendarItem(calendarItem);
-		if(success) {
-			rv = dao.getCalendarItem(entityReference, calendarTimeLabelKey, sequenceNumber);
-		}
-		
-		return rv;
+	public CalendarItem createCalendarItem(final String title, final Date calendarTime,
+			final String calendarTimeLabelKey, final String entityReference, 
+			final Context context, final SourceType sourceType, final String subtype, 
+			final RepeatingCalendarItem repeatingCalendarItem, final Integer sequenceNumber) {
+
+		return (CalendarItem) transactionTemplate.execute(new TransactionCallback(){
+
+			@Override
+			public Object doInTransaction(TransactionStatus status) {
+				CalendarItem calendarItem = new CalendarItem(title, calendarTime,
+						calendarTimeLabelKey, entityReference, context, sourceType, 
+						subtype, repeatingCalendarItem, sequenceNumber);
+				
+				CalendarItem rv = null;
+				boolean success = dao.addCalendarItem(calendarItem);
+				if(success) {
+					rv = dao.getCalendarItem(entityReference, calendarTimeLabelKey, sequenceNumber);
+				}
+				return rv;
+			}});
 	}
 
 	/* (non-Javadoc)
@@ -317,11 +389,13 @@ public class DashboardLogicImpl implements DashboardLogic {
 		if(logger.isDebugEnabled()) {
 			logger.debug("createCalendarLinks(" + calendarItem + ")");
 		}
+		int count = 0;
 		if(calendarItem != null) {
 			DashboardEntityInfo dashboardEntityInfo = this.dashboardEntityInfoMap.get(calendarItem.getSourceType().getIdentifier());
 			if(dashboardEntityInfo != null) {
 				Set<String> usersWithLinks = dao.listUsersWithLinks(calendarItem);
 				
+				List<CalendarLink> calendarLinks = new ArrayList<CalendarLink>();
 				List<String> sakaiIds = dashboardEntityInfo.getUsersWithAccess(calendarItem.getEntityReference());
 				for(String sakaiId : sakaiIds) {
 					if(usersWithLinks.contains(sakaiId)) {
@@ -332,12 +406,24 @@ public class DashboardLogicImpl implements DashboardLogic {
 							logger.warn("Error retrieving user " + sakaiId);
 						} else {
 							CalendarLink link = new CalendarLink(person, calendarItem, calendarItem.getContext(), false, false);
-							dao.addCalendarLink(link);
+							calendarLinks.add(link);
 						}
 					}
 				}
+				if(calendarLinks.size() > 0) {
+					count = dao.addCalendarLinks(calendarLinks);
+				}
 			}
 		}
+		if(logger.isDebugEnabled()) {
+			StringBuilder buf = new StringBuilder("createCalendarLinks(");
+			buf.append(calendarItem.getId());
+			buf.append(") added ");
+			buf.append(count);
+			buf.append(" calendarLinks");
+			logger.debug(buf);
+		}
+
 	}
 	
 	/* (non-Javadoc)
@@ -371,15 +457,23 @@ public class DashboardLogicImpl implements DashboardLogic {
 	 * @see org.sakaiproject.dash.logic.DashboardLogic#createNewsItem(java.lang.String, java.util.Date, java.lang.String, java.lang.String, org.sakaiproject.dash.model.Context, org.sakaiproject.dash.model.SourceType, java.lang.String)
 	 */
 	@Override
-	public NewsItem createNewsItem(String title, Date newsTime,
-			String labelKey, String entityReference, Context context, SourceType sourceType, String subtype) {
+	public NewsItem createNewsItem(final String title, final Date newsTime,
+			final String labelKey, final String entityReference, final Context context, 
+			final SourceType sourceType, final String subtype) {
 		
-		NewsItem newsItem = new NewsItem(title, newsTime, 
-				labelKey, entityReference, context, sourceType, subtype);
+		// transaction
+		return (NewsItem) transactionTemplate.execute(new TransactionCallback(){
+
+			@Override
+			public Object doInTransaction(TransactionStatus status) {
+				NewsItem newsItem = new NewsItem(title, newsTime, 
+						labelKey, entityReference, context, sourceType, subtype);
+				
+				dao.addNewsItem(newsItem);
+
+				return dao.getNewsItem(entityReference) ;
+			}});
 		
-		dao.addNewsItem(newsItem);
-		
-		return dao.getNewsItem(entityReference) ;
 	}
 
 	/* (non-Javadoc)
@@ -394,16 +488,20 @@ public class DashboardLogicImpl implements DashboardLogic {
 			DashboardEntityInfo dashboardEntityInfo = this.dashboardEntityInfoMap.get(newsItem.getSourceType().getIdentifier());
 			List<String> sakaiIds = dashboardEntityInfo.getUsersWithAccess(newsItem.getEntityReference());
 			if(sakaiIds != null && sakaiIds.size() > 0) {
+				List<NewsLink> newsLinks = new ArrayList<NewsLink>();
 				for(String sakaiId : sakaiIds) {
 					try {
 						Person person = getOrCreatePerson(sakaiId);
 						if(person != null) {
 							NewsLink link = new NewsLink(person, newsItem, newsItem.getContext(), false, false);
-							dao.addNewsLink(link);
+							newsLinks.add(link);
 						}
 					} catch(Exception e) {
 						logger.warn("Error trying to retrieve or add person " + sakaiId + " for news-item " + newsItem, e);
 					}
+				}
+				if(newsLinks.size() > 0) {
+					dao.addNewsLinks(newsLinks);
 				}
 			}
 		}
@@ -914,6 +1012,7 @@ public class DashboardLogicImpl implements DashboardLogic {
 	@Override
 	public void updateCalendarLinks(String entityReference) {
 		List<CalendarItem> items = dao.getCalendarItems(entityReference);
+		int count = 0;
 		if(items != null && items.size() > 0) {
 			CalendarItem firstItem = items.get(0);
 			DashboardEntityInfo dashboardEntityInfo = this.dashboardEntityInfoMap.get(firstItem.getSourceType().getIdentifier());
@@ -941,16 +1040,30 @@ public class DashboardLogicImpl implements DashboardLogic {
 				}
 			}
 			
+			List<CalendarLink> calendarLinks = new ArrayList<CalendarLink>();
 			for(String sakaiUserId : addSet) {
 				Person person = dao.getPersonBySakaiId(sakaiUserId);
 				if(person != null) {
 					for(CalendarItem item : items) {
 						CalendarLink link = new CalendarLink(person, item, item.getContext(),false, false);
-						dao.addCalendarLink(link);
+						calendarLinks.add(link);
 					}
 				}
 			}
+			if(calendarLinks.size() > 0) {
+				count = dao.addCalendarLinks(calendarLinks);
+			}
+			// TODO: Log count
 		}
+		if(logger.isDebugEnabled()) {
+			StringBuilder buf = new StringBuilder("updateCalendarLinks(");
+			buf.append(entityReference);
+			buf.append(") added ");
+			buf.append(count);
+			buf.append(" calendarLinks");
+			logger.debug(buf);
+		}
+
 	}
 	
 	/* (non-Javadoc)
@@ -985,14 +1098,18 @@ public class DashboardLogicImpl implements DashboardLogic {
 					dao.deleteNewsLink(person.getId(), item.getId());
 				}
 			}
-			
+
+			List<NewsLink> newsLinks = new ArrayList<NewsLink>();
 			for(String sakaiUserId : addSet) {
 				Person person = dao.getPersonBySakaiId(sakaiUserId);
 				if(person != null) {
 					logger.debug("Attempting to add link for person: " + person);
 					NewsLink link = new NewsLink(person, item, item.getContext(),false, false);
-					dao.addNewsLink(link);
+					newsLinks.add(link);
 				}
+			}
+			if(newsLinks.size() > 0) {
+				dao.addNewsLinks(newsLinks);
 			}
 		}
 	}
