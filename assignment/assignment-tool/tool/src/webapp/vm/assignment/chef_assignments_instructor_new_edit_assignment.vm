@@ -111,6 +111,15 @@ $(document).ready(function() {
 		}
 	*#
 	
+	function togglePeerAssessmentOptions(checked){
+		var section = document.getElementById("peerAssessmentOptions");
+		if(checked){
+			section.style.display="block";
+		}else{
+			section.style.display="none";
+		}
+	}
+	
 	function toggleReviewServiceOptions(checked){
 		var section = document.getElementById("reviewServiceOptions");
 		if(checked){
@@ -919,6 +928,96 @@ $(document).ready(function() {
 				</p>
 			#end
 		#end
+		## Peer Assessment
+		#if ($allowPeerAssessment)
+			<div style="display:block">
+				<h4>
+				$peerAssessmentName
+				</h4>
+				<div class="checkbox  indnt2">
+					#if ($!value_UsePeerAssessment.equals("true"))
+						<input id="$name_UsePeerAssessment" name="$name_UsePeerAssessment" type="checkbox" value="true" checked="checked" onclick="togglePeerAssessmentOptions(this.checked)"/>
+					#else
+						<input id="$name_UsePeerAssessment" name="$name_UsePeerAssessment" type="checkbox" value="true"  onclick="togglePeerAssessmentOptions(this.checked)"/>
+					#end
+					<label for="$name_UsePeerAssessment">
+						$peerAssessmentUse
+					</label>
+				</div>
+				#if ($!value_UsePeerAssessment.equals("true"))
+					<div id="peerAssessmentOptions" class="indnt3">
+				#else
+					<div id="peerAssessmentOptions" style="display:none" class="indnt3">
+				#end
+					<p class="instruction">
+						$tlang.getString("peerassessment.note")
+					</p>
+					$tlang.getString("peerassessment.periodfinishes")
+					<div class="indnt4">
+						#chef_dateselectionwidgetwithtitles($name_PeerPeriodYear $name_PeerPeriodMonth $name_PeerPeriodDay $!value_year_from $!value_year_to $value_PeerPeriodYear $value_PeerPeriodMonth $value_PeerPeriodDay $dateFormat $tlang.getString("dateselectionwidget.month") $tlang.getString("dateselectionwidget.day") $tlang.getString("dateselectionwidget.year") "")
+						&nbsp;$tlang.getString("gen.at")&nbsp; 
+			            <label class="skip" for="$name_PeerPeriodHour">$tlang.getString("dateselectionwidget.hour")</label>
+						<select name="$name_PeerPeriodHour" id="$name_PeerPeriodHour" title="$tlang.getString("dateselectionwidget.hour")">
+							#foreach ($i in [1..12])
+								#if ($value_PeerPeriodHour==$i)
+									<option value="$i" selected="selected">$i</option>
+								#else
+									<option value="$i">$i</option>
+								#end
+							#end
+						</select>
+			            <label class="skip" for="$name_PeerPeriodMin">$tlang.getString("dateselectionwidget.minute")</label>
+						<select name="$name_PeerPeriodMin" id="$name_PeerPeriodMin" title="$tlang.getString("dateselectionwidget.minute")">
+							#foreach ($i in [0, 5, 10, 15, 20, 25, 30, 35, 40, 45, 50, 55])
+								<option value="$i" #if($i == $value_PeerPeriodMin)selected="selected"#end>#if($i ==0)00#elseif($i == 5)05#else$i#end</option>
+							#end
+						</select>
+			            <label class="skip" for="$name_PeerPeriodAMPM">$tlang.getString("dateselectionwidget.ampm")</label>
+						<select name="$name_PeerPeriodAMPM" id="$name_PeerPeriodAMPM" title="$tlang.getString("dateselectionwidget.ampm")">
+							#foreach ($i in ["AM", "PM"])
+								#if ($i == $value_PeerPeriodAMPM)
+									<option value="$i" selected="selected">$i</option>
+								#else
+										<option value="$i">$i</option>
+								#end
+							#end
+						</select>
+					</div>
+					##Anonymous Eval
+					#if ($!value_PeerAssessmentAnonEval.equals("true"))
+						<input id="$name_PeerAssessmentAnonEval" name="$name_PeerAssessmentAnonEval" type="checkbox" value="true" checked="checked"/>
+					#else
+						<input id="$name_PeerAssessmentAnonEval" name="$name_PeerAssessmentAnonEval" type="checkbox" value="true"/>
+					#end
+					<label for="$name_PeerAssessmentAnonEval">
+						$tlang.getString("peerassessment.anonymousEvaluation")
+					</label>
+					<br/>
+					##Students View Reviews
+					#if ($!value_PeerAssessmentStudentViewReviews.equals("true"))
+						<input id="$name_PeerAssessmentStudentViewReviews" name="$name_PeerAssessmentStudentViewReviews" type="checkbox" value="true" checked="checked"/>
+					#else
+						<input id="$name_PeerAssessmentStudentViewReviews" name="$name_PeerAssessmentStudentViewReviews" type="checkbox" value="true"/>
+					#end
+					<label for="$name_PeerAssessmentStudentViewReviews">
+						$tlang.getString("peerassessment.studentViewReviews")
+					</label>
+					<br/>
+					##Number of Submissions for review
+					<input name="$name_PeerAssessmentNumReviews" id="$name_PeerAssessmentNumReviews" value="$!value_PeerAssessmentNumReviews" type="text" size="5" maxlength="11"/>
+					<label for="$name_PeerAssessmentNumReviews">
+						$tlang.getString("peerassessment.numSubmissions")
+					</label>
+					<br/>
+					$tlang.getString("peerassessment.reviewInstructions")
+					<br/>
+					<textarea name="$name_PeerAssessmentInstructions" id="$name_PeerAssessmentInstructions" cols="80" rows="30" wrap="virtual">$validator.escapeHtmlTextarea($!value_PeerAssessmentInstructions)</textarea>
+					#chef_setupformattedtextarea($name_PeerAssessmentInstructions)
+				</div>
+			</div>
+		#end
+		
+		
 		## group/section support
 		#if ($allowAddSiteAssignment)
 			#if ($!groups)

@@ -302,6 +302,43 @@ public interface Assignment extends Entity, Comparable
 	 * @return The AssignmentAccess access mode for the Assignment.
 	 */
 	AssignmentAccess getAccess();
+	
+	public Time getPeerAssessmentPeriod();
+ 	
+	public boolean getPeerAssessmentAnonEval();
+
+	public boolean getPeerAssessmentStudentViewReviews();
+
+	public int getPeerAssessmentNumReviews();
+
+	public String getPeerAssessmentInstructions();
+	/**
+	 * Access whether this AssignmentContent allows peer assessment.
+	 * 
+	 * @return true if the AssignmentContent allows peer assessment, false otherwise.
+	 */
+	public boolean getAllowPeerAssessment();
+	
+	/**
+	 * peer assessment is set for this assignment and the current time 
+	 * falls between the assignment close time and the peer asseessment period time
+	 * @return
+	 */
+	public boolean isPeerAssessmentOpen();
+	
+	/**
+	 * peer assessment is set for this assignment but the close time hasn't passed
+	 * @return
+	 */
+	public boolean isPeerAssessmentPending();
+	
+	/**
+	 * peer assessment is set for this assignment but the current time is passed 
+	 * the peer assessment period
+	 * @return
+	 */
+	public boolean isPeerAssessmentClosed();
+
 
 	/**
 	 * <p>

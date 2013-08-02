@@ -36,5 +36,9 @@
             <groupId>org.sakaiproject.taggable</groupId>
             <artifactId>sakai-taggable-api</artifactId>
         </dependency>
+        <dependency>
+            <groupId>org.sakaiproject.scheduler</groupId>
+            <artifactId>scheduler-api</artifactId>
+        </dependency>
     </dependencies>
 </project>

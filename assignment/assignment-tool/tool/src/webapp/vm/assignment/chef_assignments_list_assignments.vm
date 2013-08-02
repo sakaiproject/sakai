@@ -521,11 +521,22 @@ function allowClick(object)
 								   $!assignment.getStatus()
 								#else
 									#if ($!submission)
-										$submission.getStatus()
-										#if ($submission.getSubmitted()) 
-											#if ($assignment.getDueTime() && $submission.getTimeSubmitted() && $submission.getTimeSubmitted().after($assignment.getDueTime()))
+										#if($assignment.isPeerAssessmentOpen())
+											##student has submitted, check if the assignment is peer assessment
+											##and if the time is available
+											<a href="#toolLinkParam("$action" "doEdit_review" "assignmentId=$validator.escapeUrl($assignmentReference)")">
+												$tlang.getString("gen.review")
+											</a>
+										#elseif ($assignment.isPeerAssessmentPending() && $submission.getSubmitted())
+											##student has submitted but the review period hasn't started
+											$tlang.getString("peerassessment.reviewStarts") $!assignment.closeTime.toStringLocalFull()
+										#else
+											$submission.getStatus()
+											#if ($submission.getSubmitted()) 
+												#if ($assignment.getDueTime() && $submission.getTimeSubmitted() && $submission.getTimeSubmitted().after($assignment.getDueTime()))
                                                                                         	<span class="highlight">$tlang.getString("gen.late2")</span>
                                                                                 	#end
+											#end
 										#end
 									#else
 										$tlang.getString("gen.notsta")

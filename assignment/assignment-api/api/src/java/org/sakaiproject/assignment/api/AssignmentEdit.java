@@ -182,4 +182,23 @@ public interface AssignmentEdit extends Assignment, Edit
 	 *        The Assignment's order.
 	 */
 	public void setPosition_order(int position_order);
+	
+	/**
+	 * Does this Assignment allow using the peer assessment?
+	 * 
+	 * @param allow -
+	 *        true if the Assignment allows peer assessment, false otherwise?
+	 */
+	public void setAllowPeerAssessment(boolean allow);
+
+	public void setPeerAssessmentPeriod(Time time);
+
+	public void setPeerAssessmentAnonEval(boolean anonEval);
+
+	public void setPeerAssessmentStudentViewReviews(boolean studentViewReviews);
+
+	public void setPeerAssessmentNumReviews(int numReviews);
+
+	public void setPeerAssessmentInstructions(String instructions);
+
 }

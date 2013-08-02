@@ -150,6 +150,10 @@
             			#end
                 </p>
             #end
+		#set($disableGrade=false)
+		#if($assignment.getAllowPeerAssessment() == true && $assignment.isPeerAssessmentClosed() == false)
+			#set($disableGrade=true)
+		#end
 		#set ($submissionType = $assignment.getContent().getTypeOfSubmission())
 			#set ($showMsg = false)
 			#set ($showMsg = $!allMsgNumber)
@@ -161,13 +165,15 @@
 				<div class="listNav">
 						## download all
 							<a href="" onclick="javascript:document.getElementById('option').value='download';document.viewForm.submit();return false;" title="$!tlang.getString('downall')">$!tlang.getString('downall')</a>
-						## upload all
-							|  <a href="" onclick="javascript:document.getElementById('option').value='upload';document.viewForm.submit();return false;" title="$!tlang.getString('uploadall.title')">$!tlang.getString('uploadall.title')</a>
-						|  <a href="" onclick="javascript:document.getElementById('option').value='releaseGrades';document.viewForm.submit();return false;" 
-						#if ($withGrade)
-							title="$!tlang.getString('relgrad')">$!tlang.getString('relgrad')</a>
-						#else
-							title="$!tlang.getString('relcommented')">$!tlang.getString('relcommented')</a>
+						#if(!$disableGrade)
+							## upload all
+								|  <a href="" onclick="javascript:document.getElementById('option').value='upload';document.viewForm.submit();return false;" title="$!tlang.getString('uploadall.title')">$!tlang.getString('uploadall.title')</a>
+							|  <a href="" onclick="javascript:document.getElementById('option').value='releaseGrades';document.viewForm.submit();return false;" 
+							#if ($withGrade)
+								title="$!tlang.getString('relgrad')">$!tlang.getString('relgrad')</a>
+							#else
+								title="$!tlang.getString('relcommented')">$!tlang.getString('relcommented')</a>
+							#end
 						#end
 						#if ($taggable)
 							#foreach ($provider in $providers)
@@ -190,7 +196,8 @@
 		#else
 		<div class="navPanel">
 			<div class="viewNav">
-							#set ($gradeType = $assignment.getContent().TypeOfGrade)
+			#set ($gradeType = $assignment.getContent().TypeOfGrade)
+			#if(!$disableGrade)
 				<form name="defaultGradeForm" class="inlineForm" method="post" action="#toolForm($action)">
 					<input type="hidden" name="$!form_action" value="setScore" />
 					<label for="defaultGrade_1" style="display:block" class="textPanelFooter">$!form_label</label>
@@ -219,6 +226,7 @@
 					<input type="button" accesskey="a" class="active"  name="apply" value="$tlang.getString('gen.applygrade')" onclick="document.defaultGradeForm.submit();" title="$tlang.getString("gen.applygrade")" />
 					<input type="hidden" name="sakai_csrf_token" value="$sakai_csrf_token" />
 				</form>
+			#end
 			</div>
 			<div class="listNav">
 				<div class="instruction">
@@ -454,6 +462,9 @@
 							</p>
 						</div>	
 			</div>
+			#if($disableGrade)
+				<div class="highlight">$tlang.getString("peerassessment.cantgrade")&nbsp;$assignment.getPeerAssessmentPeriod().toStringLocalFull()</div>
+			#end
 			## show all submission
 			<table class="listHier lines nolines" id ="submissionList" cellpadding="0" cellspacing="0" summary="$tlang.getString("gen.viewassliststudentsummary")">
 				<tr>
@@ -504,6 +515,14 @@
 							#end 
 						</a>
 					</th>
+					#if ($assignment.getAllowPeerAssessment() == true)
+						<th id="peerAssessment">
+							$tlang.getString("peerassessment.reviewedby")
+						</th>
+						<th id="peerAssessmentGrade">
+							$tlang.getString("peerassessment.reviewergrade")
+						</th>
+					#end
 					#if ($withGrade)
 						<th id="grade">
 							<a href="#" onclick="location='#toolLinkParam("AssignmentAction" "doSort_grade_submission" "criteria=$!sort_submitGrade")'; return false;"  title="$tlang.getString("gen.sorbygra")">
@@ -618,29 +637,32 @@
 								       #end
 								       </div>
 								    #end
-
-									<div class="itemAction">
-										<a href="#toolLinkParam("AssignmentAction" "doGrade_submission" "assignmentId=$validator.escapeUrl($assignment.Reference)&submissionId=$validator.escapeUrl($submission.Reference)")" title="$tlang.getString("listsub.grasub")">$!tlang.getString("gen.assign.gra")<span class="skip">:$validator.escapeHtml($submitterName)</span></a>
-										#foreach ($provider in $providers)
-											#set ($item = $producer.getItem($submission, $siteUser.getId()))
-											#set ($helperInfo = false)
-											#set ($helperInfo = $provider.provider.getItemHelperInfo($item.reference))
-											#if ($helperInfo)
-												| <a href="#toolLinkParam("$action" "doHelp_item" "itemRef=$validator.escapeUrl($item.reference)&providerId=$validator.escapeUrl($provider.provider.id)")" title="$!helperInfo.description">$!helperInfo.name</a>
+									#if(!$disableGrade)
+										<div class="itemAction">
+											<a href="#toolLinkParam("AssignmentAction" "doGrade_submission" "assignmentId=$validator.escapeUrl($assignment.Reference)&submissionId=$validator.escapeUrl($submission.Reference)")" title="$tlang.getString("listsub.grasub")">$!tlang.getString("gen.assign.gra")<span class="skip">:$validator.escapeHtml($submitterName)</span></a>
+											#foreach ($provider in $providers)
+												#set ($item = $producer.getItem($submission, $siteUser.getId()))
+												#set ($helperInfo = false)
+												#set ($helperInfo = $provider.provider.getItemHelperInfo($item.reference))
+												#if ($helperInfo)
+													| <a href="#toolLinkParam("$action" "doHelp_item" "itemRef=$validator.escapeUrl($item.reference)&providerId=$validator.escapeUrl($provider.provider.id)")" title="$!helperInfo.description">$!helperInfo.name</a>
+												#end
 											#end
-										#end
-									</div>
+										</div>
+									#end
 								#else
-									<a href="#toolLinkParam("AssignmentAction" "doGrade_submission" "assignmentId=$validator.escapeUrl($assignment.Reference)&submissionId=$validator.escapeUrl($submission.Reference)")" title="$tlang.getString("listsub.grasub")">
-										#if (!$!submission.submitted)
-											#set($submittedText = $!submission.submittedText)
-											#set($submittedAttachments = $submission.submittedAttachments)
-											#if ($!submittedText.length() > 0 || $!submittedAttachments.size() > 0 )
-											<span class="highlight">$tlang.getString("gen.dra2") </span>
+									#if(!$disableGrade)
+										<a href="#toolLinkParam("AssignmentAction" "doGrade_submission" "assignmentId=$validator.escapeUrl($assignment.Reference)&submissionId=$validator.escapeUrl($submission.Reference)")" title="$tlang.getString("listsub.grasub")">
+											#if (!$!submission.submitted)
+												#set($submittedText = $!submission.submittedText)
+												#set($submittedAttachments = $submission.submittedAttachments)
+												#if ($!submittedText.length() > 0 || $!submittedAttachments.size() > 0 )
+												<span class="highlight">$tlang.getString("gen.dra2") </span>
+												#end
 											#end
-										#end
-										$validator.escapeHtml($submitterName)
-									</a>
+											$validator.escapeHtml($submitterName)
+										</a>
+									#end
 								#end
 							</td>
 							<td headers="submitted">
@@ -659,6 +681,44 @@
 							<td headers="status">
 								$submission.getStatus()
 							</td>
+							#if ($assignment.getAllowPeerAssessment() == true)
+								<td>
+									#if($!submission)
+										#foreach($item in $peerAssessmentItems.get($submission.getId()))
+											<a href='#toolLinkParam("$action" "doView_submissionReviews" "submissionId=$submission.getId()&assessorId=$item.getAssessorUserId()&assignmentId=$validator.escapeUrl($!assignment.Reference)")'>
+											#if($item.isRemoved())
+												<span style="text-decoration: line-through">
+											#else
+												<span>
+											#end
+											#if($reviewersMap.containsKey($item.getAssessorUserId()))
+												$!reviewersMap.get($item.getAssessorUserId()).sortName
+											#else
+												$!item.getAssessorUserId()
+											#end
+											</span>
+											</a>
+											#if($!item.getScoreDisplay().length() > 0)
+												<img src="/library/image/silk/accept.png"/>
+											#end
+											<br/>
+										#end
+									#end
+								</td>
+								<td>
+									#if($!submission)
+										#foreach($item in $peerAssessmentItems.get($submission.getId()))
+											#if($item.isRemoved())
+												<span style="text-decoration: line-through">
+											#else
+												<span>
+											#end
+											$!item.getScoreDisplay()<br/>
+											</span>
+										#end
+									#end
+								</td>
+							#end
 							#if ($withGrade)
 								<td headers="grade">
 									#if($!submission)

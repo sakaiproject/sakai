@@ -95,7 +95,13 @@
                 <artifactId>sakai-assignment-bundles</artifactId>
                 <version>${project.version}</version>
             </dependency>
-        </dependencies>
+            <dependency>
+            	<groupId>org.sakaiproject.scheduler</groupId>
+            	<artifactId>scheduler-api</artifactId>
+            	<version>${sakai.scheduler.version}</version>
+            	<scope>provided</scope>
+	    </dependency>
+	</dependencies>
     </dependencyManagement>
     
 </project>

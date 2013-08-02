@@ -73,6 +73,7 @@ import org.sakaiproject.assignment.api.AssignmentService;
 import org.sakaiproject.assignment.api.AssignmentSubmission;
 import org.sakaiproject.assignment.api.AssignmentSubmissionEdit;
 import org.sakaiproject.assignment.taggable.api.AssignmentActivityProducer;
+import org.sakaiproject.assignment.api.AssignmentPeerAssessmentService;
 import org.sakaiproject.authz.api.AuthzGroup;
 import org.sakaiproject.authz.api.AuthzPermissionException;
 import org.sakaiproject.authz.api.GroupNotDefinedException;
@@ -228,6 +229,11 @@ public abstract class BaseAssignmentService implements AssignmentService, Entity
 	protected ContentReviewService contentReviewService;
 	public void setContentReviewService(ContentReviewService contentReviewService) {
 		this.contentReviewService = contentReviewService;
+	}
+	
+	private AssignmentPeerAssessmentService assignmentPeerAssessmentService = null;
+	public void setAssignmentPeerAssessmentService(AssignmentPeerAssessmentService assignmentPeerAssessmentService){
+		this.assignmentPeerAssessmentService = assignmentPeerAssessmentService;
 	}
 
 	String newline = "<br />\n";
@@ -1583,6 +1589,13 @@ public abstract class BaseAssignmentService implements AssignmentService, Entity
 		// complete the edit
 		m_assignmentStorage.commit(assignment);
 
+		//update peer assessment information:
+		if(!assignment.getDraft() && assignment.getAllowPeerAssessment()){
+			assignmentPeerAssessmentService.schedulePeerReview(assignment.getId());
+		}else{
+			assignmentPeerAssessmentService.removeScheduledPeerReview(assignment.getId());
+		}
+
 		// track it
 		EventTrackingService.post(EventTrackingService.newEvent(((BaseAssignmentEdit) assignment).getEvent(), assignment
 				.getReference(), true));
@@ -2347,7 +2360,7 @@ public abstract class BaseAssignmentService implements AssignmentService, Entity
 
 		// complete the edit
 		m_contentStorage.commit(content);
-
+				
 		// track it
 		EventTrackingService.post(EventTrackingService.newEvent(((BaseAssignmentContentEdit) content).getEvent(), content
 				.getReference(), true));
@@ -7247,6 +7260,18 @@ public abstract class BaseAssignmentService implements AssignmentService, Entity
 
 		/** The assignment access. */
 		protected AssignmentAccess m_access = AssignmentAccess.SITE;
+		
+		protected boolean m_allowPeerAssessment;
+
+		protected Time m_peerAssessmentPeriodTime;
+
+		protected boolean m_peerAssessmentAnonEval;
+
+		protected boolean m_peerAssessmentStudentViewReviews;
+
+		protected int m_peerAssessmentNumReviews;
+
+		protected String m_peerAssessmentInstructions;
 
 		/**
 		 * constructor
@@ -7280,6 +7305,12 @@ public abstract class BaseAssignmentService implements AssignmentService, Entity
 			m_draft = true;
 			m_groups = new ArrayList();
 			m_position_order = 0;
+			m_allowPeerAssessment = false;
+			m_peerAssessmentPeriodTime = null;
+			m_peerAssessmentAnonEval = false;
+			m_peerAssessmentStudentViewReviews = false;
+			m_peerAssessmentNumReviews = 0;
+			m_peerAssessmentInstructions = null;
 		}
 
 		/**
@@ -7330,6 +7361,19 @@ public abstract class BaseAssignmentService implements AssignmentService, Entity
 			{
 				M_log.warn(": BaseAssignment(Element) " + e.getMessage());
 			}
+			m_allowPeerAssessment = getBool(el.getAttribute("allowpeerassessment"));
+			m_peerAssessmentPeriodTime = getTimeObject(el.getAttribute("peerassessmentperiodtime"));
+			m_peerAssessmentAnonEval = getBool(el.getAttribute("peerassessmentanoneval"));
+			m_peerAssessmentStudentViewReviews = getBool(el.getAttribute("peerassessmentstudentviewreviews"));
+			String numReviews = el.getAttribute("peerassessmentnumreviews");
+			m_peerAssessmentNumReviews = 0;
+			if(numReviews != null && !"".equals(numReviews)){
+				try{
+					m_peerAssessmentNumReviews = Integer.parseInt(numReviews);
+				}catch(Exception e){}
+			}
+			m_peerAssessmentInstructions = el.getAttribute("peerassessmentinstructions");
+
 
 			// READ THE AUTHORS
 			m_authors = new ArrayList();
@@ -7454,6 +7498,20 @@ public abstract class BaseAssignmentService implements AssignmentService, Entity
 							{
 								m_position_order = 0; // prevents null pointer if there is no position_order defined as well as helps with the sorting
 							}
+							
+							m_allowPeerAssessment = getBool(attributes.getValue("allowpeerassessment"));
+							m_peerAssessmentPeriodTime = getTimeObject(attributes.getValue("peerassessmentperiodtime"));
+							m_peerAssessmentAnonEval = getBool(attributes.getValue("peerassessmentanoneval"));
+							m_peerAssessmentStudentViewReviews = getBool(attributes.getValue("peerassessmentstudentviewreviews"));
+							String numReviews = attributes.getValue("peerassessmentnumreviews");
+							m_peerAssessmentNumReviews = 0;
+							if(numReviews != null && !"".equals(numReviews)){
+								try{
+									m_peerAssessmentNumReviews = Integer.parseInt(numReviews);
+								}catch(Exception e){}
+							}
+							m_peerAssessmentInstructions = attributes.getValue("peerassessmentinstructions");
+
 
 							// READ THE AUTHORS
 							m_authors = new ArrayList();
@@ -7550,6 +7608,12 @@ public abstract class BaseAssignmentService implements AssignmentService, Entity
 			assignment.setAttribute("dropdeaddate", getTimeString(m_dropDeadTime));
 			assignment.setAttribute("closedate", getTimeString(m_closeTime));
 			assignment.setAttribute("position_order", Long.valueOf(m_position_order).toString().trim());
+			assignment.setAttribute("allowpeerassessment", getBoolString(m_allowPeerAssessment));
+			assignment.setAttribute("peerassessmentperiodtime", getTimeString(m_peerAssessmentPeriodTime));
+			assignment.setAttribute("peerassessmentanoneval", getBoolString(m_peerAssessmentAnonEval));
+			assignment.setAttribute("peerassessmentstudentviewreviews", getBoolString(m_peerAssessmentStudentViewReviews));
+			assignment.setAttribute("peerassessmentnumreviews", "" + m_peerAssessmentNumReviews);
+			assignment.setAttribute("peerassessmentinstructions", m_peerAssessmentInstructions);
 
 			
 				M_log.debug(this + " BASE ASSIGNMENT : TOXML : saved regular properties");
@@ -7628,6 +7692,13 @@ public abstract class BaseAssignmentService implements AssignmentService, Entity
 				m_properties.addAll(assignment.getProperties());
 				m_groups = assignment.getGroups();
 				m_access = assignment.getAccess();
+				m_allowPeerAssessment = assignment.getAllowPeerAssessment();
+				m_peerAssessmentPeriodTime = assignment.getPeerAssessmentPeriod();
+				m_peerAssessmentAnonEval = assignment.getPeerAssessmentAnonEval();
+				m_peerAssessmentStudentViewReviews = assignment.getPeerAssessmentStudentViewReviews();
+				m_peerAssessmentNumReviews = assignment.getPeerAssessmentNumReviews();
+				m_peerAssessmentInstructions = assignment.getPeerAssessmentInstructions();
+
 			}
 		}
 
@@ -7745,7 +7816,73 @@ public abstract class BaseAssignmentService implements AssignmentService, Entity
 		{
 			return m_title;
 		}
+		
+		public Time getPeerAssessmentPeriod()
+		{
+			return m_peerAssessmentPeriodTime;
+		}
 
+		public boolean getPeerAssessmentAnonEval(){
+			return m_peerAssessmentAnonEval;
+		}
+
+		public boolean getPeerAssessmentStudentViewReviews(){
+			return m_peerAssessmentStudentViewReviews;
+		}
+
+		public int getPeerAssessmentNumReviews(){
+			return m_peerAssessmentNumReviews;
+		}
+
+		public String getPeerAssessmentInstructions(){
+			return m_peerAssessmentInstructions;
+		}
+
+		public boolean getAllowPeerAssessment()
+		{
+			return m_allowPeerAssessment;
+		}
+
+		/**
+		 * peer assessment is set for this assignment and the current time 
+		 * falls between the assignment close time and the peer asseessment period time
+		 * @return
+		 */
+		public boolean isPeerAssessmentOpen(){
+			if(getAllowPeerAssessment()){
+				Time now = TimeService.newTime();
+				return now.before(getPeerAssessmentPeriod()) && now.after(getCloseTime());
+			}else{
+				return false;
+			}
+		}
+		
+		/**
+		 * peer assessment is set for this assignment but the close time hasn't passed
+		 * @return
+		 */
+		public boolean isPeerAssessmentPending(){
+			if(getAllowPeerAssessment()){
+				Time now = TimeService.newTime();
+				return now.before(getCloseTime());
+			}else{
+				return false;
+			}
+		}
+		/**
+		 * peer assessment is set for this assignment but the current time is passed 
+		 * the peer assessment period
+		 * @return
+		 */
+		public boolean isPeerAssessmentClosed(){
+			if(getAllowPeerAssessment()){
+				Time now = TimeService.newTime();
+				return now.after(getPeerAssessmentPeriod());
+			}else{
+				return false;
+			}
+		}
+		
 		/**
 		 * @inheritDoc
 		 */
@@ -8137,6 +8274,32 @@ public abstract class BaseAssignmentService implements AssignmentService, Entity
 			m_title = title;
 		}
 
+		public void setPeerAssessmentPeriod(Time time)
+		{
+			m_peerAssessmentPeriodTime = time;
+		}
+
+		public void setAllowPeerAssessment(boolean allow)
+		{
+			m_allowPeerAssessment = allow;
+		}
+
+		public void setPeerAssessmentAnonEval(boolean anonEval){
+			m_peerAssessmentAnonEval = anonEval;
+		}
+
+		public void setPeerAssessmentStudentViewReviews(boolean studentViewReviews){
+			m_peerAssessmentStudentViewReviews = studentViewReviews;
+		}
+
+		public void setPeerAssessmentNumReviews(int numReviews){
+			m_peerAssessmentNumReviews = numReviews;
+		}
+
+		public void setPeerAssessmentInstructions(String instructions){
+			m_peerAssessmentInstructions = instructions;
+		}
+
 		/**
 		 * Set the reference of the AssignmentContent of this Assignment.
 		 * 
@@ -8506,7 +8669,7 @@ public abstract class BaseAssignmentService implements AssignmentService, Entity
 		
 		
 		protected boolean m_allowAttachments;
-		
+
 		protected boolean m_allowReviewService;
 		
 		protected boolean m_allowStudentViewReport;
@@ -9763,7 +9926,7 @@ public abstract class BaseAssignmentService implements AssignmentService, Entity
 		{
 			m_allowReviewService = allow;
 		}
-		
+
 		/**
 		 * Does this Assignment allow students to view the report?
 		 * 

@@ -396,6 +396,23 @@
 						#end
 					</ul>
 				#end
+				
+				##Show reviewer feedback from peer review (if exist and the peer review is closed)
+				#if ($peerReviews)
+					#set ($size = 1)
+					<h3>$tlang.getString("gen.peerReviews") </h3>
+					#foreach($review in $peerReviews)
+						<h5>$tlang.getString("gen.reviewer") #$size</h5>
+						<br/>
+						<b>$tlang.getString("gen.score"):</b> $review.getScoreDisplay()
+						<br/>
+						#if($!review.getComment() && $review.getComment().length()>0)
+							<b>$tlang.getString("gen.comments"):</b> 
+							<div class="textPanel">$validator.escapeHtmlFormattedText($review.getComment())</div>
+						#end
+						#set($size = $size + 1)
+					#end
+				#end
 			#end
 		<form action="#toolForm("AssignmentAction")" method="post" >
 			<div class="act">
