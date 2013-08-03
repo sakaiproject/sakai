@@ -1977,6 +1977,7 @@ function addHighlight() {
 			reposition();
 			$("#dropDownDiv").show("slide", {direction: "up"}, 300, unlockAnimation);
 			$(".add-forum-link").focus();
+			checksize($('#dropDownDiv'));
 		}
 	}
 	//$(this).addClass("hovering");
@@ -1988,8 +1989,8 @@ function removeHighlight() {
 		if($("#dropDownDiv").is(":visible") && !dropdownViaClick) {
 			hasBeenInMenu = false;
 			lessonBuilderAnimationLocked = true;
-			unhideMultimedia();
 			$("#dropDownDiv").hide("slide", {direction: "up"}, 300, unlockAnimation);
+			unhideMultimedia();
 			$(".dropdown a").focus();
 		}
 	}
@@ -2002,8 +2003,8 @@ function toggleDropdown() {
 		if($("#dropDownDiv").is(":visible")) {
 			lessonBuilderAnimationLocked = true;
 			hasBeenInMenu = false;
-			unhideMultimedia();
 			$("#dropDownDiv").hide("slide", {direction: "up"}, 300, unlockAnimation);
+			unhideMultimedia();
 			dropdownViaClick = false;
 			$(".dropdown a").focus();
 		}else {
@@ -2012,6 +2013,7 @@ function toggleDropdown() {
 			reposition();
 			$("#dropDownDiv").show("slide", {direction: "up"}, 300, unlockAnimation);
 			$(".add-forum-link").focus();
+			checksize($('#dropDownDiv'));
 			dropdownViaClick = true;
 		}
 	}
@@ -2023,8 +2025,8 @@ function closeDropdown() {
 	if(!lessonBuilderAnimationLocked) {
 		if($("#dropDownDiv").is(":visible")) {
 			hasBeenInMenu = false;
-			unhideMultimedia();
 			$("#dropDownDiv").hide();
+			unhideMultimedia();
 			dropdownViaClick = false;
 			$(".dropdown a").focus();
 		}
