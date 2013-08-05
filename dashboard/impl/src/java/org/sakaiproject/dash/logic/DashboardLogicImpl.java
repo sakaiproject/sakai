@@ -134,8 +134,6 @@ public class DashboardLogicImpl implements DashboardLogic {
 	public void init() {
 		logger.info("init()");
 		
-		//this.transactionTemplate = new TransactionTemplate();
-	
 		Integer weeksToHorizon = dashboardConfig.getConfigValue(DashboardConfig.PROP_WEEKS_TO_HORIZON, DEFAULT_WEEKS_TO_HORIZON);
 		this.horizon = new Date(System.currentTimeMillis() + weeksToHorizon.longValue() * 7L * ONE_DAY);
 	
