@@ -445,7 +445,10 @@ public class LessonBuilderAccessService {
 						    pushedAdvisor = false;
 						}
 						// our version of allowget does not check hidden but does everything else
-						if (!allowGetResource(id, currentSiteId)) {
+						// if it's a student page, however use the normal check so students can't
+						// use this to bypass release control
+						if (owner == null && !allowGetResource(id, currentSiteId) ||
+						    owner != null && !contentHostingService.allowGetResource(id)) {
 						    throw new EntityPermissionException(sessionManager.getCurrentSessionUserId(), 
 							      ContentHostingService.AUTH_RESOURCE_READ, ref.getReference());
 						}
