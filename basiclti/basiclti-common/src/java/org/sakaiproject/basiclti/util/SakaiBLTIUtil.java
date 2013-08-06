@@ -681,8 +681,9 @@ public class SakaiBLTIUtil {
 		// TODO: Lets show off and encrypt this secret too...
 		setProperty(ltiProps, LTI2Constants.REG_PASSWORD,password);
 		setProperty(ltiProps, BasicLTIUtil.BASICLTI_SUBMIT, getRB(rb, "launch.button", "Press to Launch External Tool"));
+		setProperty(ltiProps, BasicLTIConstants.LTI_MESSAGE_TYPE, BasicLTIConstants.LTI_MESSAGE_TYPE_TOOLPROXYREGISTRATIONREQUEST);
 
-        String serverUrl = ServerConfigurationService.getServerUrl();
+		String serverUrl = getOurServerUrl();
 		setProperty(ltiProps, LTI2Constants.TC_PROFILE_URL,serverUrl+"/imsblis/lti2/tc_profile/"+consumerkey);
 		setProperty(ltiProps, BasicLTIConstants.LAUNCH_PRESENTATION_RETURN_URL, serverUrl + "/portal/tool/"+placementId+"?panel=RegComplete&id="+toolKey);
 

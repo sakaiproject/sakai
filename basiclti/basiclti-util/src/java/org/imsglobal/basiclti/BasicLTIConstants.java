@@ -232,6 +232,8 @@ public class BasicLTIConstants {
 	 * parameter is required.
 	 */
 	public static final String LTI_MESSAGE_TYPE = "lti_message_type";
+	public static final String LTI_MESSAGE_TYPE_TOOLPROXYREGISTRATIONREQUEST = "ToolProxyRegistrationRequest";
+	public static final String LTI_MESSAGE_TYPE_BASICLTILAUNCHREQUEST = "basic-lti-launch-request";
 	/**
 	 * lti_version=LTI-1p0
 	 * <p>

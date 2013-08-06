@@ -455,6 +455,7 @@ public class LTIAdminTool extends VelocityPortletPaneledAction
 		fieldInfo = fieldInfo.replace(":hidden=true","");
         String formStatus = ltiService.formOutput(tool, fieldInfo);
 		context.put("formStatus", formStatus);
+		context.put("reg_state",new Integer(isLTI1 ? 0 : 1));
 
 		// Remove reg_state from the editable part of the model
 		mappingForm = foorm.filterForm(mappingForm, null, "^reg_state:.*");

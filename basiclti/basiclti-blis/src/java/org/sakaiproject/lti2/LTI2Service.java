@@ -364,6 +364,8 @@ System.out.println("toolKey="+toolKey);
 		String path = null;
 		JSONArray resource_handlers = (JSONArray) tool_profile.get("resource_handler");
 		JSONArray parameters = null;
+
+		// TODO: Handle more than one tool registration message
 		for(Object o : resource_handlers ) {
 			JSONObject resource_handler = (JSONObject) o;
 			JSONArray messages = (JSONArray) resource_handler.get("message");
@@ -382,8 +384,8 @@ System.out.println("toolKey="+toolKey);
 
 		String launch_url = secure_base_url;
 		if ( launch_url == null ) launch_url = default_base_url;
-		// TODO: Deal with double slashes
-		launch_url = launch_url + "/" + path;
+		if ( ! launch_url.endsWith("/") && ! path.startsWith("/") ) launch_url = launch_url + "/";
+		launch_url = launch_url + path;
 		System.out.println("Launch="+launch_url);
 
 		Map<String, Object> newProps = new TreeMap<String, Object> ();
