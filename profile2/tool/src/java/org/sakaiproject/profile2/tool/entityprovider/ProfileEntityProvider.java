@@ -148,7 +148,7 @@ public class ProfileEntityProvider extends AbstractEntityProvider implements Cor
 			image = imageLogic.getProfileImage(uuid, null, null, ProfileConstants.PROFILE_IMAGE_MAIN, siteId);
 		}
 		if(wantsOfficial) {
-			image = imageLogic.getOfficialProfileImage(uuid);
+			image = imageLogic.getOfficialProfileImage(uuid, siteId);
 		}
 		
 		if(image == null) {

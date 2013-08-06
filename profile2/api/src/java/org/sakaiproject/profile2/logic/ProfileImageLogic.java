@@ -64,9 +64,10 @@ public interface ProfileImageLogic {
 	/**
 	 * Gets the official profile image for a user.
 	 * @param userUuid
+	 * @param siteId siteId to check that the requesting user has roster.viewofficialphoto permission
 	 * @return The ProfileImage object, populated with either a url or binary data.
 	 */
-	public ProfileImage getOfficialProfileImage(String userUuid);
+	public ProfileImage getOfficialProfileImage(String userUuid, String siteId);
 	
 	/**
 	 * Get the profile image for a user. Takes into account all global settings, user preferences, privacy and permissions in the given site.
