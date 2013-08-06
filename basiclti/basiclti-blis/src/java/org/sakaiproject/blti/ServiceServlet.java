@@ -793,7 +793,12 @@ public class ServiceServlet extends HttpServlet {
             if ( pox == null ) {
                 output = IMSPOXRequest.getFatalResponse(msg);
             } else {
-                output = pox.getResponseFailure(msg, null);
+		String body = null;
+		String operation = pox.getOperation();
+		if ( operation != null ) {
+			body = "<"+operation.replace("Request", "Response")+"/>";
+		}
+                output = pox.getResponseFailure(msg, null, body);
             }
 			out.println(output);
 			M_log.debug(output);
@@ -1394,16 +1399,18 @@ public class ServiceServlet extends HttpServlet {
 				if ( isRead ) {
 					theGrade = g.getAssignmentScoreString(siteId, assignment, user_id);
 					String sGrade = "";
-					dGrade = new Double(theGrade);
-					dGrade = dGrade / assignmentObject.getPoints();
-					if ( dGrade != 0.0 ) sGrade = dGrade.toString();
+					if ( theGrade != null && theGrade.length() > 0 ) {
+						dGrade = new Double(theGrade);
+						dGrade = dGrade / assignmentObject.getPoints();
+						sGrade = dGrade.toString();
+					}
 					theMap.put("/readResultResponse/result/sourcedId", sourced_id);
 					theMap.put("/readResultResponse/result/resultScore/textString", sGrade);
 					theMap.put("/readResultResponse/result/resultScore/language", "en");
 					message = "Result read";
 				} else if ( isDelete ) { 
 					// It would be nice to empty it out but we can't
-					g.setAssignmentScore(siteId, assignment, user_id, new Double(0.0), "External Outcome");
+					g.setAssignmentScore(siteId, assignment, user_id, null, "External Outcome");
 					M_log.info("Delete Score site=" + siteId + " assignment="+ assignment + " user_id=" + user_id);
 					theMap.put("/deleteResultResponse", "");
 					message = "Result deleted";

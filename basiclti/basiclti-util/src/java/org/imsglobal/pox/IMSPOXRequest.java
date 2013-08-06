@@ -397,6 +397,11 @@ public class IMSPOXRequest {
 		return getResponse(desc, null, null, null, minor, null);
 	}
 
+	public String getResponseFailure(String desc, Properties minor, String bodyString)
+	{
+		return getResponse(desc, null, null, null, minor, bodyString);
+	}
+
 	public String getResponseSuccess(String desc, String bodyString)
 	{
 		return getResponse(desc, MAJOR_SUCCESS, null, null, null, bodyString);
