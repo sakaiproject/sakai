@@ -1678,14 +1678,11 @@ public class AssessmentGradingFacadeQueries extends HibernateDaoSupport implemen
 	    final HibernateCallback hcb = new HibernateCallback(){
 	    	public Object doInHibernate(Session session) throws HibernateException, SQLException {
 	    		Query q = session.createQuery(
-	    				"select pia " +
-	    				"from PublishedItemData pia " +
-	    				"where pia.itemId in (" +
 	    				"select p.itemId " +
 	    				"from PublishedItemData p, AssessmentGradingData a, ItemGradingData i " +
 	    				"where a.publishedAssessmentId=? and a.forGrade=? and p.section.id=? " +
 	    				"and i.assessmentGradingId = a.assessmentGradingId " +
-	    				"and p.itemId = i.publishedItemId) ");
+	    				"and p.itemId = i.publishedItemId ");
 
 	    		q.setLong(0, publishedAssessmentId.longValue());
 	    		q.setBoolean(1, true);
@@ -1695,13 +1692,30 @@ public class AssessmentGradingFacadeQueries extends HibernateDaoSupport implemen
 	    };
 	    List assessmentGradings = getHibernateTemplate().executeFind(hcb);
 
+	    final Collection<Long> itemIds = new ArrayList<Long>();
 	    Iterator iter = assessmentGradings.iterator();
-	    PublishedItemData publishedItemData;
 	    while(iter.hasNext()) {
-	    	publishedItemData = (PublishedItemData) iter.next();
-	    	log.debug("itemId = " + publishedItemData.getItemId());
-	    	itemSet.add(publishedItemData);
+    		itemIds.add((Long) iter.next());
 	    }
+    
+	    final HibernateCallback hcb2 = new HibernateCallback() {
+	    	public Object doInHibernate(Session session) throws HibernateException, SQLException {
+	    		Query q = session.createQuery(
+	    				"select pia from PublishedItemData pia where pia.itemId in ( :idList )");
+	    		q.setParameterList("idList", itemIds);   		
+	    		return q.list();
+	    	};
+	    };
+
+	    List publishedItems = getHibernateTemplate().executeFind(hcb2);
+	    Iterator pubIter = publishedItems.iterator();
+	    PublishedItemData publishedItemData2;
+	    while(pubIter.hasNext()) {
+	    	publishedItemData2 = (PublishedItemData) pubIter.next();
+	    	log.debug("itemId = " + publishedItemData2.getItemId());
+	    	itemSet.add(publishedItemData2);
+	    }
+	    
 	    return itemSet;
   }
 
