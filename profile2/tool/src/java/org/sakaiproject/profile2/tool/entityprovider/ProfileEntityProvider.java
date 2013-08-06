@@ -95,6 +95,9 @@ public class ProfileEntityProvider extends AbstractEntityProvider implements Cor
 			throw new EntityNotFoundException("Invalid user.", ref.getId());
 		}
 		
+		//check for siteId in the request
+		String siteId = requestGetter.getRequest().getParameter("siteId");
+		
 		//get the full profile for the user, takes care of privacy checks against the current user
 		UserProfile userProfile = profileLogic.getUserProfile(uuid);
 		if(userProfile == null) {
