@@ -26,6 +26,7 @@ import java.io.File;
 import java.io.IOException;
 import java.io.InputStreamReader;
 import java.io.OutputStreamWriter;
+import java.net.ConnectException;
 import java.net.URL;
 
 import javax.servlet.ServletException;
@@ -139,8 +140,15 @@ public class ContentServlet extends HttpServlet
                       if (url == null) {
                     	  M_log.warn("Help document " + docId + " not found at: " + resource.getLocation());
                       } else {
-	                      BufferedReader br = new BufferedReader(
-	                              new InputStreamReader(url.openStream(),"UTF-8"));
+                    	  BufferedReader br = null;
+                    	  try {
+                    		  br = new BufferedReader(new InputStreamReader(url.openStream(),"UTF-8"));
+                    	  }
+                    	  catch (ConnectException e){
+                    		  M_log.info("ConnectException on " + url.getPath());
+                    		  res.sendRedirect(resource.getLocation());
+                    		  return;
+                    	  }
 	                      try {
 	                          String sbuf;
 	                          while ((sbuf = br.readLine()) != null)
