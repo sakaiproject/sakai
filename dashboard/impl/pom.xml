@@ -52,7 +52,7 @@
 	    </profile>
 
 	    <profile>
-		<id>sakai-2.9</id>
+		<id>sakai2.9</id>
 		<dependencies>
 		    <dependency>
 			<groupId>org.hibernate</groupId>
