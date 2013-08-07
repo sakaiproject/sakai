@@ -7,6 +7,8 @@ require_once("util/lti_util.php");
 
 $cur_url = str_replace("/tc_profile.php","",curPageURL());
 
+// Is guid, the oauth_consumer_key ???
+
 echo <<< EOF
 {
   "@context": [
@@ -65,10 +67,9 @@ echo <<< EOF
        "Person.email.primary" ,
        "User.image" ,
        "Result.sourcedId" ,
-       "basic-lti-launch-request" ,
-    "basic-lti-launch-request",
-    "Result.autocreate",
-    "Result.sourcedGUID"
+       "basic-lti-launch-request",
+       "Result.autocreate",
+       "Result.sourcedGUID"
   ],
   "service_offered": [
     {
@@ -79,18 +80,8 @@ echo <<< EOF
       "action": [ "POST" ]
     },
     {
-      "@type" : "RestService",
-      "@id" : "http://lms.server.com/profile/b6ffa601-ce1d-4549-9ccf-145670a964d4#Result.item",
-      "format" : "application/vnd.ims.lis.v2.Result+json",
-      "endpoint" : "$cur_url/common/tc_rest_outcome.php?sourcedid={sourcedId}",
-      "action" : [
-        "GET",
-        "PUT"
-      ]
-    },
-    {
       "@type": "XMLService",
-      "@id": "ltitcp:iLTI1_1.outcomes",
+      "@id": "ltitcp:LTI1_1.outcomes",
       "endpoint": "$cur_url/common/tool_consumer_outcome.php",
       "format": "application/xml",
       "action": [ "POST" ]

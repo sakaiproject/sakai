@@ -1,13 +1,10 @@
 <?php 
 $tool_proxy = <<< EOF
 {
-  "@context": [
-    "http://www.imsglobal.org/imspurl/lti/v2/ctx/ToolProxy",
-    "http://purl.org/blackboard/ctx/v1/iconStyle"
-  ],
+  "@context": "http://www.imsglobal.org/imspurl/lti/v2/ctx/ToolProxy",
   "@type": "ToolProxy",
   "lti_version": "LTI-2p0",
-  "tool_consumer_profile": "http://localhost:4000/tool_consumer_profiles/e051b830-9a8a-0130-4f3a-406c8f217861",
+  "tool_consumer_profile": "__TODO_SHOULD_THIS_BE_THE_WHOLE_PROFILE_OR_JUST_A_URL_SEE_5_6__",
   "tool_profile": {
     "product_instance": {
       "product_info": {
@@ -23,10 +20,10 @@ $tool_proxy = <<< EOF
         "product_family": {
           "code": "assessment-tool",
           "vendor": {
-            "website": "{http://localhost:5000}",
-            "code": "fabericious.org",
+            "website": "__REPLACE__",
+            "code": "sakaiproject.org",
             "name": {
-              "default_value": "Fab",
+              "default_value": "Sakai",
               "key": "tool.vendor.name"
             },
             "timestamp": "2013-05-13T09:08:16-04:00",
@@ -74,7 +71,7 @@ $tool_proxy = <<< EOF
         "path": "__LAUNCH_REGISTRATION__",
         "parameter": [
           {
-            "variable": "$ToolConsumerProfile.url",
+            "variable": "ToolConsumerProfile.url",
             "name": "tc_profile_url"
           }
         ]
@@ -82,6 +79,7 @@ $tool_proxy = <<< EOF
     ],
     "resource_handler": [
       {
+        "resource_type": "__REPLACE__urn:lti:ResourceType:acme.example.com/nitrolab/homework",
         "message": [
           {
             "path": "__LAUNCH_PATH__",
@@ -91,7 +89,7 @@ $tool_proxy = <<< EOF
                 "name": "pi"
               },
               {
-                "variable": "$Person.email.primary",
+                "variable": "Person.email.primary",
                 "name": "user_primary_email"
               }
             ],
@@ -102,7 +100,6 @@ $tool_proxy = <<< EOF
           "default_value": "Sample PHP Launch",
           "key": "resource.name"
         },
-        "resource_type": "sakai-api-test",
         "description": {
           "default_value": "Sample PHP Launch",
           "key": "resource.description"
@@ -128,14 +125,14 @@ $tool_proxy = <<< EOF
       {
         "@type": "RestService",
         "@id": "ltitcp:ToolProxy.collection",
-        "service": "http://localhost:4000/tools",
+        "service": __TODOFROM_ID_INTC_PROFILE__"http://localhost:4000/tools",
         "action": "POST",
         "format": "application/vnd.ims.lti.v2.ToolProxy+json"
       },
       {
         "@type": "RestService",
         "@id": "ltitcp:ToolProxy.item",
-        "service": "http://localhost:4000/tools/a2c17620-9a8b-0130-4f3a-406c8f217861",
+        "service": "__TODO__http://localhost:4000/tools/a2c17620-9a8b-0130-4f3a-406c8f217861",
         "action": [
           "GET",
           "PUT"
@@ -145,7 +142,7 @@ $tool_proxy = <<< EOF
       {
         "@type": "RestService",
         "@id": "ltitcp:Result.item",
-        "service": "http://localhost:4000/resources/Result/{sourcedId}",
+        "service": "__TODO__http://localhost:4000/resources/Result/{sourcedId}",
         "action": [
           "GET",
           "PUT"

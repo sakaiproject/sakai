@@ -119,9 +119,14 @@ $tp_profile->tool_consumer_profile = $tc_profile_url;
 
 // Re-register
 $tp_profile->tool_profile->message[0]->path = $cur_url;
+$tp_profile->tool_profile->product_instance->product_info->product_family->vendor->website = $cur_base;
+$tp_profile->tool_profile->product_instance->product_info->product_family->vendor->timestamp = "2013-07-13T09:08:16-04:00";
+$tp_profile->tool_profile->product_instance->guid = "TODO-what-is-this-12345";
+$tp_profile->tool_profile->product_instance->service_provider->guid = "TODO-what-is-this-456789";
 
 // Launch Request
 $tp_profile->tool_profile->resource_handler[0]->message[0]->path = "tool.php";
+$tp_profile->tool_profile->resource_handler[0]->resource_type = "urn:lti:ResourceType:".$cur_base."/sakai/ltiunit";
 
 $tp_profile->tool_profile->base_url_choice[0]->secure_base_url = $cur_base;
 $tp_profile->tool_profile->base_url_choice[0]->default_base_url = $cur_base;
@@ -133,6 +138,10 @@ $reg_key = $_POST['reg_key'];
 $reg_password = $_POST['reg_password'];
 $body = json_encode($tp_profile);
 $body = json_indent($body);
+
+echo("Services deemed to be adequate for our tool...\n");
+echo("Credit card information validated...\n");
+echo("<hr/>\n");
 
 echo("Registering....\n");
 echo("Endpoint=".$endpoint."\n");
