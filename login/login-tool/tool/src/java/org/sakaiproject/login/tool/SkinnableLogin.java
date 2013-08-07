@@ -22,6 +22,7 @@ package org.sakaiproject.login.tool;
 
 import java.io.IOException;
 import java.io.PrintWriter;
+import java.net.URL;
 
 import javax.security.auth.login.LoginException;
 import javax.servlet.ServletConfig;
@@ -192,7 +193,11 @@ public class SkinnableLogin extends HttpServlet implements Login {
 				
 				//SAK-21498 choice page for selecting auth sources
 				showAuthChoice = serverConfigurationService.getBoolean("login.auth.choice", false);
-				if (showAuthChoice) {
+				URL helperUrl = new URL((String) session.getAttribute(Tool.HELPER_DONE_URL));
+				String helperPath = helperUrl == null ? null : helperUrl.getPath();
+
+				if (showAuthChoice && !(StringUtils.isEmpty(helperPath) || helperPath.equals("/portal") || 
+						helperPath.equals("/portal/") || helperPath.equals("/portal/pda") || helperPath.equals("/portal/pda/"))) {
 					String xloginUrl = serverConfigurationService.getPortalUrl() + "/xlogin";
 					
 					// Present the choice template
