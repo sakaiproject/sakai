@@ -430,6 +430,15 @@ public class LessonBuilderAccessService {
 						try {
 						    usersite = UserDirectoryService.getUserId(usersite);
 						} catch (Exception e) {};
+						String itemcreator = item.getAttribute("addedby");
+						// suppose a member of the group adds a resource from another member of
+						// the group. (This will only work if they have read access to it.)
+						// We don't want to gimick access in that case. I think if you
+						// add your own item, you've given consent. But not if someone else does.
+						// itemcreator == null is for items added before this patch. I'm going to
+						// continue to allow access for them, to avoid breaking existing content.
+						if (usersite != null && itemcreator != null && !usersite.equals(itemcreator))
+						    usersite = null;
 					    }							
 					    // for a student page, if it's in one of the groups' worksites, allow it
 					    // The assumption is that only one of those people can put content in the

@@ -1128,6 +1128,7 @@ public class SimplePageBean {
 		
 		i.setDescription(description);
 		i.setSameWindow(false);
+		i.setAttribute("addedby", getCurrentUserId());
 		update(i);
 
 		return "importing";
@@ -4954,6 +4955,9 @@ public class SimplePageBean {
 				item.setName(name);
 			}
 			
+			// remember who added it, for permission checks
+			item.setAttribute("addedby", getCurrentUserId());
+
 			if (mimeType != null) {
 				item.setHtml(mimeType);
 			} else {
