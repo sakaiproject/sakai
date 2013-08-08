@@ -1263,6 +1263,9 @@ public class HelpManagerImpl extends HibernateDaoSupport implements HelpManager
 
 		// find out what we want to ignore
 		List<String> hideHelp = Arrays.asList(StringUtils.split(serverConfigurationService.getString("help.hide"), ","));
+		if (hideHelp == null) {
+		    hideHelp = new ArrayList<String> ();
+		}
 
 		for (Tool tool : toolSet) {
 			if (tool != null && tool.getId() != null && !hideHelp.contains(tool.getId()))
