@@ -46,7 +46,6 @@
                                                 <input type="hidden" name="selectedTools" value="$toolId" />
                                             </li>
                                      #end
-                                     ## SAK-16600 Tool Multiples
                                      #if ($!toolId.equals($!homeToolId))
                                              #parse("/vm/sitesetup/toolGroupHomeDisplay.vm")
                                      #else 
