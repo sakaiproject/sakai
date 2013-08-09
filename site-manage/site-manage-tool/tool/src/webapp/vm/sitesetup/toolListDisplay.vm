@@ -63,7 +63,7 @@
                 #set ($rowCount=0)
                 #foreach($tool in $toolRegistrationList)
                     #set($toolId = $tool.getId())
-                    #if (!$toolId.equals("sakai.basiclti"))
+                    #if (!$toolId.equals("sakai.web.168"))
                         ## SAK-22108: exclude the Basic LTI tools, since they would be listed separately down the list
                         #set ($rowCount=$rowCount + 1)
                         #if ($!defaultTools.indexOf($toolId) != -1)
