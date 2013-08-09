@@ -214,6 +214,18 @@ public class LTIAdminTool extends VelocityPortletPaneledAction
 	public String buildToolSystemPanelContext(VelocityPortlet portlet, Context context, 
 			RunData data, SessionState state)
 	{
+			return buildToolSystemPanelContext(portlet, context, data, state, false);
+	}
+	
+	public String buildDeploySystemPanelContext(VelocityPortlet portlet, Context context, 
+			RunData data, SessionState state)
+	{
+			return buildToolSystemPanelContext(portlet, context, data, state, true);
+	}
+
+	public String buildToolSystemPanelContext(VelocityPortlet portlet, Context context, 
+			RunData data, SessionState state, boolean isLTI2)
+	{
 		context.put("tlang", rb);
 		if ( ! ltiService.isMaintain() ) {
 			addAlert(state,rb.getString("error.maintain.edit"));
@@ -282,7 +294,7 @@ public class LTIAdminTool extends VelocityPortletPaneledAction
 		menu.add(new MenuEntry(rb.getString("tool.in.system"), false, "doNav_tool_system"));
 		context.put("menu", menu);
 		
-		return "lti_tool_system";
+		return isLTI2 ? "lti_deploy_system" : "lti_tool_system";
 	}
 	
 	/**
@@ -316,7 +328,7 @@ public class LTIAdminTool extends VelocityPortletPaneledAction
 		return ltiToolsCount;
 	}
 
-	public String buildToolRegisterPanelContext(VelocityPortlet portlet, Context context, 
+	public String buildDeployRegisterPanelContext(VelocityPortlet portlet, Context context, 
 			RunData data, SessionState state)
 	{
 		context.put("tlang", rb);
@@ -351,12 +363,12 @@ public class LTIAdminTool extends VelocityPortletPaneledAction
 		String formOutput = ltiService.formOutput(tool, mappingForm);
 		context.put("formOutput", formOutput);
 		Placement placement = toolManager.getCurrentPlacement();
-		String registerURL = "/access/basiclti/site/~admin/tool:" + key + "?placement=" + placement.getId();
+		String registerURL = "/access/basiclti/site/~admin/deploy:" + key + "?placement=" + placement.getId();
 
 		context.put("registerURL",registerURL);
 		
 		state.removeAttribute(STATE_SUCCESS);
-		return "lti_tool_register";
+		return "lti_deploy_register";
 	}
 
 	public String buildRegCompletePanelContext(VelocityPortlet portlet, Context context, 
@@ -571,18 +583,6 @@ public class LTIAdminTool extends VelocityPortletPaneledAction
 	public String buildToolInsertPanelContext(VelocityPortlet portlet, Context context, 
 			RunData data, SessionState state)
 	{
-		return buildToolInsertPanelContext(portlet, context, data, state, true);
-	}
-
-	public String buildLTI2InsertPanelContext(VelocityPortlet portlet, Context context, 
-			RunData data, SessionState state)
-	{
-		return buildToolInsertPanelContext(portlet, context, data, state, false);
-	}
-
-	public String buildToolInsertPanelContext(VelocityPortlet portlet, Context context, 
-			RunData data, SessionState state, boolean isLTI1)
-	{
 		context.put("tlang", rb);
 		if ( ! ltiService.isMaintain() ) {
 			addAlert(state,rb.getString("error.edit.maintain"));
@@ -590,14 +590,10 @@ public class LTIAdminTool extends VelocityPortletPaneledAction
 		}
 		context.put("doToolAction", BUTTON + "doToolPut");
 		context.put("messageSuccess",state.getAttribute(STATE_SUCCESS));
-		context.put("reg_state",new Integer(isLTI1 ? 0 : 1));
+		context.put("reg_state",new Integer(0));
 		String [] mappingForm = ltiService.getToolModel();
 
-        if ( isLTI1 ) {
-            mappingForm = foorm.filterForm(mappingForm, null, ".*:only=edit.*|.*:only=lti2.*");
-        } else {
-            mappingForm = foorm.filterForm(mappingForm, ".*:lti2_insert.*", null);
-        }
+        mappingForm = foorm.filterForm(mappingForm, null, ".*:only=edit.*|.*:only=lti2.*");
 
 		Properties previousPost = (Properties) state.getAttribute(STATE_POST);
 		String formInput = ltiService.formInput(previousPost, mappingForm);
@@ -634,17 +630,6 @@ public class LTIAdminTool extends VelocityPortletPaneledAction
 
 		String id = data.getParameters().getString(LTIService.LTI_ID);
 
-		// If this is an insert of an LTI2.x tool, fill in the missing bits.
-		String reg_state = data.getParameters().getString(LTIService.LTI_REG_STATE);
-		boolean lti2Insert = false;
-		if ( id == null && "1".equals(reg_state) ) {
-			reqProps.setProperty(LTIService.LTI_REG_KEY, UUID.randomUUID().toString());
-			// TODO: We should show off and encrypt the REG_PASSWORD too..
-			reqProps.setProperty(LTIService.LTI_REG_PASSWORD, UUID.randomUUID().toString());
-			reqProps.setProperty(LTIService.LTI_CONSUMERKEY, UUID.randomUUID().toString());
-			lti2Insert = true;
-		}
-
 		String success = null;
 		Object retval = null;
 		if ( id == null ) 
@@ -666,11 +651,83 @@ public class LTIAdminTool extends VelocityPortletPaneledAction
 		} 
 
 		state.setAttribute(STATE_SUCCESS,success);
+		switchPanel(state, "ToolSystem");
+	}
+
+	public String buildDeployInsertPanelContext(VelocityPortlet portlet, Context context, 
+			RunData data, SessionState state)
+	{
+		context.put("tlang", rb);
+		if ( ! ltiService.isAdmin() ) {
+			addAlert(state,rb.getString("error.edit.maintain"));
+			return "lti_error";
+		}
+		context.put("doToolAction", BUTTON + "doDeployPut");
+		context.put("messageSuccess",state.getAttribute(STATE_SUCCESS));
+		context.put("reg_state",new Integer(1));
+		String [] mappingForm = ltiService.getDeployModel();
+
+        mappingForm = foorm.filterForm(mappingForm, null, ".*:hide=insert.*");
+
+		Properties previousPost = (Properties) state.getAttribute(STATE_POST);
+		String formInput = ltiService.formInput(previousPost, mappingForm);
+		context.put("formInput",formInput);
+		state.removeAttribute(STATE_POST);
+		state.removeAttribute(STATE_SUCCESS);
+		return "lti_deploy_insert";
+	}
+	// Insert or edit
+	public void doDeployPut(RunData data, Context context)
+	{
+
+		String peid = ((JetspeedRunData) data).getJs_peid();
+		SessionState state = ((JetspeedRunData) data).getPortletSessionState(peid);
+
+		if ( ! ltiService.isAdmin() ) {
+			addAlert(state,rb.getString("error.maintain.delete"));
+			switchPanel(state,"Error");
+			return;
+		}
+		Properties reqProps = data.getParameters().getProperties();
+
+		String id = data.getParameters().getString(LTIService.LTI_ID);
+
+		// If we are inserting, fill in the blanks
+		if ( id == null ) {
+			reqProps.setProperty(LTIService.LTI_REG_KEY, UUID.randomUUID().toString());
+			// TODO: We should show off and encrypt the REG_PASSWORD too..
+			reqProps.setProperty(LTIService.LTI_REG_PASSWORD, UUID.randomUUID().toString());
+			reqProps.setProperty(LTIService.LTI_CONSUMERKEY, UUID.randomUUID().toString());
+		}
+
+		String success = null;
+		Object retval = null;
+		boolean lti2Insert = false;
+		if ( id == null ) 
+		{
+			retval = ltiService.insertDeployDao(reqProps);
+			success = rb.getString("success.created");
+			lti2Insert = true;
+		} else {
+			Long key = new Long(id);
+			retval = ltiService.updateDeployDao(key, reqProps);
+			success = rb.getString("success.updated");
+		}
+
+		if ( retval instanceof String ) 
+		{
+			state.setAttribute(STATE_POST,reqProps);
+			addAlert(state, (String) retval);
+			state.setAttribute(STATE_ID,id);
+			return;
+		} 
+
+		state.setAttribute(STATE_SUCCESS,success);
 		if ( lti2Insert && retval instanceof Long ) {
 			Long insertedKey = (Long) retval;
-			switchPanel(state, "ToolRegister&id="+insertedKey);
+			switchPanel(state, "DeployRegister&id="+insertedKey);
 		} else {
-			switchPanel(state, "ToolSystem");
+			switchPanel(state, "DeploySystem");
 		}
 
 	}

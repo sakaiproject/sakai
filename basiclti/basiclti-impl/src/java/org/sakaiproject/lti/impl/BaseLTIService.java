@@ -838,4 +838,32 @@ public abstract class BaseLTIService implements LTIService {
 		}
 	}
 
+	// The methods for deployment objects
+	public String[] getDeployModel() {
+		return DEPLOY_MODEL;
+	}
+
+	protected abstract Object insertDeployDao(Properties newProps, String siteId, boolean isAdminRole, boolean isMaintainRole);
+
+	public Object insertDeployDao(Properties newProps) {
+		return insertContentDao(newProps, null, true, true);
+	}
+
+	protected abstract Object updateDeployDao(Long key, Object newProps, String siteId, boolean isAdminRole, boolean isMaintainRole);
+
+	public Object updateDeployDao(Long key, Object newProps) {
+		return updateDeployDao(key, newProps, null, true, true);
+	}
+
+	abstract boolean deleteDeployDao(Long key, String siteId, boolean isAdminRole, boolean isMaintainRole);
+
+	public boolean deleteDeployDao(Long key) {
+		return deleteDeployDao(key, null, true, true);
+	}
+
+	protected abstract Map<String, Object> getDeployDao(Long key, String siteId, boolean isAdminRole);
+	public Map<String, Object> getDeployDao(Long key) {
+		return getDeployDao(key, null, true);
+	}
+
 }

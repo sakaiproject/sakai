@@ -352,6 +352,61 @@ public class DBLTIService extends BaseLTIService implements LTIService {
 	}
 
 	/**
+	 * 
+	 */
+	public Object insertDeployDao(Properties newProps, String siteId, boolean isAdminRole, boolean isMaintainRole) {
+		if ( ! isAdminRole ) throw new IllegalArgumentException("Currently we support admins/Dao access");
+		return insertThingDao("lti_deploy", LTIService.DEPLOY_MODEL, null, newProps, siteId, isAdminRole, isMaintainRole);
+	}
+
+	/**
+	 * 
+	 * {@inheritDoc}
+	 * 
+	 * @see org.sakaiproject.lti.api.LTIService#getDeployDao(java.lang.Long, java.lang.String, boolean)
+	 */
+	protected Map<String, Object> getDeployDao(Long key, String siteId, boolean isAdminRole) 
+	{
+		if ( ! isAdminRole ) throw new IllegalArgumentException("Currently we support admins/Dao access");
+		return getThingDao("lti_deploy", LTIService.DEPLOY_MODEL, key, siteId, isAdminRole);
+	}
+
+	/**
+	 * 
+	 * {@inheritDoc}
+	 * 
+	 * @see org.sakaiproject.lti.api.LTIService#deleteDeployDao(java.lang.Long, java.lang.String, boolean)
+	 */
+	public boolean deleteDeployDao(Long key, String siteId, boolean isAdminRole, boolean isMaintainRole) {
+		if ( ! isAdminRole ) throw new IllegalArgumentException("Currently we support admins/Dao access");
+		return deleteThingDao("lti_deploy", LTIService.DEPLOY_MODEL, key, siteId, isAdminRole, isMaintainRole);
+	}
+
+	/**
+	 * 
+	 * {@inheritDoc}
+	 * 
+	 * @see org.sakaiproject.lti.impl.BaseLTIService#updateDeployDao(java.lang.Long,
+	 *      java.lang.Object, java.lang.String, boolean)
+	 */
+	public Object updateDeployDao(Long key, Object newProps, String siteId, boolean isAdminRole, boolean isMaintainRole) {
+		if ( ! isAdminRole ) throw new IllegalArgumentException("Currently we support admins/Dao access");
+		return updateThingDao("lti_deploy", LTIService.DEPLOY_MODEL, null, key, newProps, siteId, isAdminRole, isMaintainRole);
+	}
+
+	/**
+	 * 
+	 * {@inheritDoc}
+	 * 
+	 * @see org.sakaiproject.lti.api.LTIService#getDeploysDao(java.lang.String, java.lang.String,
+	 *      int, int, java.lang.String, boolean)
+	 */
+	public List<Map<String, Object>> getDeploysDao(String search, String order, int first,
+			int last, String siteId, boolean isAdminRole) {
+		return getThingsDao("lti_deploy", LTIService.DEPLOY_MODEL, search, order, first, last, siteId, isAdminRole);
+	}
+
+	/**
 	 * @return Returns String (falure) or Long (key on success)
 	 */
 	public Object insertThingDao(String table, String[] formModel, String[] fullModel,
@@ -363,6 +418,10 @@ public class DBLTIService extends BaseLTIService implements LTIService {
 		}
 		if (siteId == null && !isAdminRole ) {
 			throw new IllegalArgumentException("siteId must be non-null for non-admins");
+		}
+
+		if ( ! (newProps instanceof Properties || newProps instanceof Map )  ) {
+			throw new IllegalArgumentException("newProps must Properties or Map<String, Object>");
 		}
 
 		if (!isMaintainRole) return null;
@@ -588,6 +647,10 @@ public class DBLTIService extends BaseLTIService implements LTIService {
 		}
 		if (siteId == null && !isAdminRole ) {
 			throw new IllegalArgumentException("siteId must be non-null for non-admins");
+		}
+	
+		if ( ! (newProps instanceof Properties || newProps instanceof Map)  ) {
+			throw new IllegalArgumentException("newProps must Properties or Map<String, Object>");
 		}
 
 		if (!isMaintainRole) return false;
