@@ -244,10 +244,17 @@ public class SignupMeeting implements MeetingTypes, SignupMessageTypes {
 
 		return id.equals(other.getId());
 	}
-
+	
+	@Override
 	public int hashCode() {
-		return title.hashCode() + 2 * description.hashCode();
-	}
+		final int prime = 31;
+		int result = 1;
+		result = prime * result
+				+ ((description == null) ? 0 : description.hashCode());
+		result = prime * result + ((id == null) ? 0 : id.hashCode());
+		result = prime * result + ((title == null) ? 0 : title.hashCode());
+		return result;
+	}	
 
 	/**
 	 * This method will obtain the SignupTimeslot object according to the
