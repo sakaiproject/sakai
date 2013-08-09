@@ -110,6 +110,7 @@ import org.sakaiproject.user.cover.UserDirectoryService;
 import org.sakaiproject.exception.IdUnusedException;
 import org.sakaiproject.util.ResourceLoader;
 import org.sakaiproject.util.FormattedText;
+import org.sakaiproject.portal.util.CSSUtils;
 
 import uk.org.ponder.localeutil.LocaleGetter;
 import uk.org.ponder.messageutil.MessageLocator;
@@ -210,6 +211,8 @@ public class ShowPageProducer implements ViewComponentProducer, DefaultView, Nav
         String browserString = ""; // set by checkIEVersion;
 
 	protected static final int DEFAULT_EXPIRATION = 10 * 60;
+
+	static final String ICONSTYLE = "\n.portletTitle .action img {\n        background: url({}/help.gif) center right no-repeat;\n}\n.portletTitle .action img:hover, .portletTitle .action img:focus {\n        background: url({}/help_h.gif) center right no-repeat\n}\n.portletTitle .title img {\n        background: url({}/reload.gif) center left no-repeat;\n}\n.portletTitle .title img:hover, .portletTitle .title img:focus {\n        background: url({}/reload_h.gif) center left no-repeat\n}\n";
 
 	public String getViewID() {
 		return VIEW_ID;
@@ -750,16 +753,11 @@ public class ShowPageProducer implements ViewComponentProducer, DefaultView, Nav
 		    // unfortunately the neoportal tacks neo- on front of the skin
 		    // name, so this is more complex than you might think.
 
-		    skinName = simplePageBean.getCurrentSite().getSkin();
-		    if (skinName == null)
-			skinName = ServerConfigurationService.getString("skin.default", "default");
-		    // weird hack. automatically add neo if neo portal enabled
-
-		    String prefix = ServerConfigurationService.getString("portal.neoprefix", "neo-");
-		    if (prefix != null && !skinName.startsWith(prefix))
-			skinName = prefix + skinName;
 		    skinRepo = ServerConfigurationService.getString("skin.repo", "/library/skin");
-		    iconBase = skinRepo + "/" + skinName + "/images/";
+		    iconBase = skinRepo + "/" + CSSUtils.adjustCssSkinFolder(null) + "/images";
+
+		    UIVerbatim.make(tofill, "iconstyle", ICONSTYLE.replace("{}", iconBase));
+
 		}
 
 		if (helpurl != null) {
@@ -769,7 +767,6 @@ public class ShowPageProducer implements ViewComponentProducer, DefaultView, Nav
 			decorate(new UIFreeAttributeDecorator("title",
 				 messageLocator.getMessage("simplepage.help-button")));
 		    UIOutput.make(tofill, (pageItem.getPageId() == 0 ? "helpimage" : "helpimage2")).
-			decorate(new UIFreeAttributeDecorator("src", iconBase + "help.gif")).
 			decorate(new UIFreeAttributeDecorator("alt",
 			         messageLocator.getMessage("simplepage.help-button")));
 		    UIOutput.make(tofill, (pageItem.getPageId() == 0 ? "helpnewwindow" : "helpnewwindow2"), 
@@ -783,7 +780,6 @@ public class ShowPageProducer implements ViewComponentProducer, DefaultView, Nav
 			decorate(new UIFreeAttributeDecorator("title",
 			        messageLocator.getMessage("simplepage.reset-button")));
 		    UIOutput.make(tofill, (pageItem.getPageId() == 0 ? "resetimage" : "resetimage2")).
-			decorate(new UIFreeAttributeDecorator("src", iconBase + "reload.gif")).
 			decorate(new UIFreeAttributeDecorator("alt",
 			        messageLocator.getMessage("simplepage.reset-button")));
 		}

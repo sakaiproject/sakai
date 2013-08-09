@@ -8,7 +8,7 @@
         <groupId>org.sakaiproject.lessonbuilder</groupId>
         <artifactId>lessonbuilder</artifactId>
         <version>1.5-SNAPSHOT</version>
-	<relativePath>../pom.xml</relativePath>
+        <relativePath>../pom.xml</relativePath>
     </parent>
 
     <name>sakai-lessonbuildertool-tool</name>
@@ -205,6 +205,7 @@
                   <sources>
                     <source>${src1}/java</source>
                     <source>${src2}/java</source>
+                    <source>${src3}/java</source>
                   </sources>
                 </configuration>
               </execution>

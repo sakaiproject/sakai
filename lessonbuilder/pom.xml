@@ -29,8 +29,12 @@
       <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding> 
 
       <!-- set default values. will be overriden in profiles -->
+      <!-- src1 is for opt-src if you use optional tools -->
       <src1>dummy</src1>
+      <!-- src2 is for special version-specific code -->
       <src2>dummy</src2>
+      <!-- src3 is for src28-9, which has CSSUtils for pre-2.10 -->
+      <src3>dummy</src3>
 
     <!-- the following properties are used only if contrib tools are enabled -->
     <!-- they are listed here rather than in the profile so you just have to look here to adjust things -->
@@ -92,6 +96,11 @@
 	      <groupId>org.springframework</groupId>
 	      <artifactId>spring-tx</artifactId>
             </dependency>
+            <dependency>
+              <groupId>org.sakaiproject.portal</groupId>
+              <artifactId>sakai-portal-util</artifactId>
+              <version>${sakai.version}</version>
+            </dependency>
 	  </dependencies>
 
         </profile>
@@ -102,6 +111,7 @@
           <properties>
 	    <hbms>oldhbm</hbms>
 	    <src2>src29</src2>
+	    <src3>src28-9</src3>
             <sakai.assignment.groupId>org.sakaiproject.assignment</sakai.assignment.groupId>
           </properties>
         </profile>
@@ -113,6 +123,7 @@
 	    <!-- old versions of hbm.xml files, for 2.8 / 2.9 -->
 	    <hbms>oldhbm</hbms>
 	    <src2>src28</src2>
+	    <src3>src28-9</src3>
             <sakai.assignment.groupId>org.sakaiproject</sakai.assignment.groupId>
 
 	    <!-- need additional properties because they are not in master in 2.9 -->
