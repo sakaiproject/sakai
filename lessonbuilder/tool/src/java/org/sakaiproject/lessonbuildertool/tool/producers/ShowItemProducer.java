@@ -36,6 +36,7 @@ import org.sakaiproject.site.api.Site;
 import org.sakaiproject.site.api.SitePage;
 import org.sakaiproject.site.api.ToolConfiguration;
 import org.sakaiproject.site.cover.SiteService;
+import org.sakaiproject.portal.util.CSSUtils;
 
 import uk.org.ponder.messageutil.MessageLocator;
 import uk.org.ponder.localeutil.LocaleGetter;                                                                                          
@@ -77,7 +78,10 @@ public class ShowItemProducer implements ViewComponentProducer, NavigationCaseRe
 	private SimplePageBean simplePageBean;
 	private SimplePageToolDao simplePageToolDao;
 	public MessageLocator messageLocator;
-	public LocaleGetter localeGetter;                                                                                             
+	public LocaleGetter localeGetter;
+
+	static final String ICONSTYLE = "\n.portletTitle .action img {\n        background: url({}/help.gif) center right no-repeat;\n}\n.portletTitle .action img:hover, .portletTitle .action img:focus {\n        background: url({}/help_h.gif) center right no-repeat\n}\n.portletTitle .title img {\n        background: url({}/reload.gif) center left no-repeat;\n}\n.portletTitle .title img:hover, .portletTitle .title img:focus {\n        background: url({}/reload_h.gif) center left no-repeat\n}\n";
+
 	public static final String VIEW_ID = "ShowItem";
 
 	public String getViewID() {
@@ -183,11 +187,11 @@ public class ShowItemProducer implements ViewComponentProducer, NavigationCaseRe
 	    String iconBase = null;
 
 	    if (helpurl != null || reseturl != null) {
-		skinName = simplePageBean.getCurrentSite().getSkin();
-		if (skinName == null)
-		    skinName = ServerConfigurationService.getString("skin.default", "default");
+
 		skinRepo = ServerConfigurationService.getString("skin.repo", "/library/skin");
-		iconBase = skinRepo + "/" + skinName + "/images/";
+		iconBase = skinRepo + "/" + CSSUtils.adjustCssSkinFolder(null) + "/images";
+		UIVerbatim.make(tofill, "iconstyle", ICONSTYLE.replace("{}", iconBase));
+
 	    }
 
 	    if (helpurl != null) {
@@ -197,7 +201,6 @@ public class ShowItemProducer implements ViewComponentProducer, NavigationCaseRe
 		    decorate(new UIFreeAttributeDecorator("title",
 				 messageLocator.getMessage("simplepage.help-button")));
 		UIOutput.make(tofill, "helpimage2").
-		    decorate(new UIFreeAttributeDecorator("src", iconBase + "help.gif")).
 		    decorate(new UIFreeAttributeDecorator("alt",
 				 messageLocator.getMessage("simplepage.help-button")));
 		UIOutput.make(tofill, "helpnewwindow2",
@@ -211,7 +214,6 @@ public class ShowItemProducer implements ViewComponentProducer, NavigationCaseRe
 		    decorate(new UIFreeAttributeDecorator("title",
 			        messageLocator.getMessage("simplepage.reset-button")));
 		UIOutput.make(tofill, "resetimage2").
-		    decorate(new UIFreeAttributeDecorator("src", iconBase + "reload.gif")).
 		    decorate(new UIFreeAttributeDecorator("alt",
 			        messageLocator.getMessage("simplepage.reset-button")));
 	    }
