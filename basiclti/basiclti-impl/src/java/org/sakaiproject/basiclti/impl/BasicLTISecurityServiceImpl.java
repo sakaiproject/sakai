@@ -276,18 +276,20 @@ public class BasicLTISecurityServiceImpl implements EntityProducer {
 
 						   String refId = ref.getId();
 						   String [] retval = null;
-						   if ( refId.startsWith("deploy:") && refId.length() > 5 )  
+						   if ( refId.startsWith("deploy:") && refId.length() > 7 )  
 						   {
 						       if ("!admin".equals(ref.getContext()) ) 
 						       {
 							       throw new EntityPermissionException(SessionManager.getCurrentSessionUserId(), "basiclti", ref.getReference());
 						       }
-							   Map<String,Object> tool = null;
-							   String toolStr = refId.substring(5);
-							   Long toolKey = foorm.getLongKey(toolStr);
-							   if ( toolKey >= 0 ) tool = ltiService.getDeployDao(toolKey);
+							   Map<String,Object> deploy = null;
+							   String deployStr = refId.substring(7);
+							   Long deployKey = foorm.getLongKey(deployStr);
+							   if ( deployKey >= 0 ) deploy = ltiService.getDeployDao(deployKey);
                                String placementId = req.getParameter("placement");
-							   retval = SakaiBLTIUtil.postRegisterHTML(toolKey, tool, rb, placementId);
+System.out.println("deployStr="+deployStr+" deployKey="+deployKey+" placementId="+placementId);
+System.out.println(deploy);
+							   retval = SakaiBLTIUtil.postRegisterHTML(deployKey, deploy, rb, placementId);
 						   } 
 						   else if ( refId.startsWith("content:") && refId.length() > 8 ) 
 						   {

@@ -221,20 +221,20 @@ public class LTI2Service extends HttpServlet {
 	{
 System.out.println("profile_id="+profile_id);
 		String search = LTIService.LTI_CONSUMERKEY + " = '" + profile_id + "'";
-		List<Map<String, Object>> tools = ltiService.getToolsDao(search, null, 0, 0, "~admin");
+		List<Map<String, Object>> deploys = ltiService.getDeploysDao(search, null, 0, 0);
 
-        Map<String,Object> tool = null;
-		if ( tools.size() == 1 ) tool = tools.get(0);
+        Map<String,Object> deploy = null;
+		if ( deploys.size() == 1 ) deploy = deploys.get(0);
 
-		if ( tool == null ) {
+		if ( deploy == null ) {
 			response.setStatus(HttpServletResponse.SC_FORBIDDEN); // TODO: Get this right
 			return;
 		}
-System.out.println("tool="+tool);
-		Long toolKey = foorm.getLong(tool.get(LTIService.LTI_ID));
-System.out.println("toolKey="+toolKey);
+System.out.println("deploy="+deploy);
+		Long deployKey = foorm.getLong(deploy.get(LTIService.LTI_ID));
+System.out.println("deployKey="+deployKey);
 
-		if ( tool == null ) {
+		if ( deploy == null ) {
 			response.setStatus(HttpServletResponse.SC_FORBIDDEN); // TODO: Get this right
 			return;
 		}
@@ -311,27 +311,27 @@ System.out.println("toolKey="+toolKey);
 System.out.println("profile_id="+profile_id);
 		// TODO: Need FOORM.escape
 		String search = LTIService.LTI_CONSUMERKEY + " = '" + profile_id + "'";
-		List<Map<String, Object>> tools = ltiService.getToolsDao(search, null, 0, 0, "~admin");
+		List<Map<String, Object>> deploys = ltiService.getDeploysDao(search, null, 0, 0);
 
-        Map<String,Object> tool = null;
-		if ( tools.size() == 1 ) tool = tools.get(0);
+        Map<String,Object> deploy = null;
+		if ( deploys.size() == 1 ) deploy = deploys.get(0);
 
-		if ( tool == null ) {
+		if ( deploy == null ) {
 			response.setStatus(HttpServletResponse.SC_FORBIDDEN); // TODO: Get this right
 			return;
 		}
 
 		// TODO: Check the signature with REG_KEY and REG_SECRET (make sure to encrypt)
 
-		Long reg_state = foorm.getLong(tool.get(LTIService.LTI_REG_STATE));
+		Long reg_state = foorm.getLong(deploy.get(LTIService.LTI_REG_STATE));
 		if ( reg_state != 1 ) {
 			response.setStatus(HttpServletResponse.SC_FORBIDDEN); // TODO: Get this right
 			return;
 		}
 		
-System.out.println("tool="+tool);
-		Long toolKey = foorm.getLong(tool.get(LTIService.LTI_ID));
-System.out.println("toolKey="+toolKey);
+System.out.println("deploy="+deploy);
+		Long deployKey = foorm.getLong(deploy.get(LTIService.LTI_ID));
+System.out.println("deployKey="+deployKey);
 
 		IMSJSONRequest jsonRequest = new IMSJSONRequest(request);
 
@@ -343,8 +343,8 @@ System.out.println("toolKey="+toolKey);
 		JSONObject jsonObject = (JSONObject) JSONValue.parse(jsonRequest.getPostBody());
 		// System.out.println("OBJ:"+jsonObject);
 
-		String tool_proxy_guid = (String) jsonObject.get("tool_proxy_guid");
-		System.out.println("TPG="+tool_proxy_guid);
+		String deploy_proxy_guid = (String) jsonObject.get("tool_proxy_guid");
+		System.out.println("TPG="+deploy_proxy_guid);
 
 		JSONObject security_contract = (JSONObject) jsonObject.get("security_contract");
 		String shared_secret = (String) security_contract.get("shared_secret");
@@ -402,7 +402,7 @@ System.out.println("toolKey="+toolKey);
 		System.out.println("newProps="+newProps);
 
 		newProps.put(LTIService.LTI_REG_PROFILE, jsonObject.toString());
-		Object obj = ltiService.updateToolDao(toolKey, newProps, null);
+		Object obj = ltiService.updateDeployDao(deployKey, newProps);
 		boolean success = ( obj instanceof Boolean ) && ( (Boolean) obj == Boolean.TRUE);
 		System.out.println("YO..."+success);
 

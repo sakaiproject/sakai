@@ -214,18 +214,6 @@ public class LTIAdminTool extends VelocityPortletPaneledAction
 	public String buildToolSystemPanelContext(VelocityPortlet portlet, Context context, 
 			RunData data, SessionState state)
 	{
-			return buildToolSystemPanelContext(portlet, context, data, state, false);
-	}
-	
-	public String buildDeploySystemPanelContext(VelocityPortlet portlet, Context context, 
-			RunData data, SessionState state)
-	{
-			return buildToolSystemPanelContext(portlet, context, data, state, true);
-	}
-
-	public String buildToolSystemPanelContext(VelocityPortlet portlet, Context context, 
-			RunData data, SessionState state, boolean isLTI2)
-	{
 		context.put("tlang", rb);
 		if ( ! ltiService.isMaintain() ) {
 			addAlert(state,rb.getString("error.maintain.edit"));
@@ -294,7 +282,7 @@ public class LTIAdminTool extends VelocityPortletPaneledAction
 		menu.add(new MenuEntry(rb.getString("tool.in.system"), false, "doNav_tool_system"));
 		context.put("menu", menu);
 		
-		return isLTI2 ? "lti_deploy_system" : "lti_tool_system";
+		return "lti_tool_system";
 	}
 	
 	/**
@@ -326,58 +314,6 @@ public class LTIAdminTool extends VelocityPortletPaneledAction
 			}
 		}
 		return ltiToolsCount;
-	}
-
-	public String buildDeployRegisterPanelContext(VelocityPortlet portlet, Context context, 
-			RunData data, SessionState state)
-	{
-		context.put("tlang", rb);
-		if ( ! ltiService.isMaintain() ) {
-			addAlert(state,rb.getString("error.maintain.register"));
-			return "lti_error";
-		}
-		context.put("messageSuccess",state.getAttribute(STATE_SUCCESS));
-
-		String [] mappingForm = foorm.filterForm(ltiService.getToolModel(), "^title:.*|^reg_launch:.*|^id:.*", null);
-		String id = data.getParameters().getString(LTIService.LTI_ID);
-		if ( id == null ) {
-			addAlert(state,rb.getString("error.id.not.found"));
-			return "lti_main";
-		}	
-		Long key = new Long(id);
-		Map<String,Object> tool = ltiService.getTool(key);
-		if (  tool == null ) {
-			addAlert(state,rb.getString("error.tool.not.found"));
-			return "lti_main";
-		}
-
-        Long reg_state = foorm.getLongNull(tool.get(LTIService.LTI_REG_STATE));
-		String reg_key = (String) tool.get(LTIService.LTI_REG_KEY);
-		String reg_password = (String) tool.get(LTIService.LTI_REG_PASSWORD);
-		String consumerkey = (String) tool.get(LTIService.LTI_CONSUMERKEY);
-		if ( reg_state != 1 || reg_key == null || reg_password == null || consumerkey == null) {	
-			addAlert(state,rb.getString("error.register.not.ready"));
-			return "lti_main";
-		}
-
-		String formOutput = ltiService.formOutput(tool, mappingForm);
-		context.put("formOutput", formOutput);
-		Placement placement = toolManager.getCurrentPlacement();
-		String registerURL = "/access/basiclti/site/~admin/deploy:" + key + "?placement=" + placement.getId();
-
-		context.put("registerURL",registerURL);
-		
-		state.removeAttribute(STATE_SUCCESS);
-		return "lti_deploy_register";
-	}
-
-	public String buildRegCompletePanelContext(VelocityPortlet portlet, Context context, 
-			RunData data, SessionState state)
-	{
-
-		// TODO: Check all of the passed in parameters
-		state.setAttribute(STATE_SUCCESS,"Welcome back from registration..");
-		return buildToolViewPanelContext(portlet, context, data, state);
 	}
 
 	public void doEndHelper(RunData data, Context context)
@@ -654,6 +590,8 @@ public class LTIAdminTool extends VelocityPortletPaneledAction
 		switchPanel(state, "ToolSystem");
 	}
 
+	/** Deployment related methods ------------------------------ */
+
 	public String buildDeployInsertPanelContext(VelocityPortlet portlet, Context context, 
 			RunData data, SessionState state)
 	{
@@ -662,7 +600,7 @@ public class LTIAdminTool extends VelocityPortletPaneledAction
 			addAlert(state,rb.getString("error.edit.maintain"));
 			return "lti_error";
 		}
-		context.put("doToolAction", BUTTON + "doDeployPut");
+		context.put("doDeployAction", BUTTON + "doDeployPut");
 		context.put("messageSuccess",state.getAttribute(STATE_SUCCESS));
 		context.put("reg_state",new Integer(1));
 		String [] mappingForm = ltiService.getDeployModel();
@@ -676,10 +614,11 @@ public class LTIAdminTool extends VelocityPortletPaneledAction
 		state.removeAttribute(STATE_SUCCESS);
 		return "lti_deploy_insert";
 	}
+
 	// Insert or edit
 	public void doDeployPut(RunData data, Context context)
 	{
-
+System.out.println("doDeployPut");
 		String peid = ((JetspeedRunData) data).getJs_peid();
 		SessionState state = ((JetspeedRunData) data).getPortletSessionState(peid);
 
@@ -692,6 +631,7 @@ public class LTIAdminTool extends VelocityPortletPaneledAction
 
 		String id = data.getParameters().getString(LTIService.LTI_ID);
 
+System.out.println("doDeployPut id="+id);
 		// If we are inserting, fill in the blanks
 		if ( id == null ) {
 			reqProps.setProperty(LTIService.LTI_REG_KEY, UUID.randomUUID().toString());
@@ -706,6 +646,7 @@ public class LTIAdminTool extends VelocityPortletPaneledAction
 		if ( id == null ) 
 		{
 			retval = ltiService.insertDeployDao(reqProps);
+System.out.println("retval="+retval);
 			success = rb.getString("success.created");
 			lti2Insert = true;
 		} else {
@@ -731,6 +672,172 @@ public class LTIAdminTool extends VelocityPortletPaneledAction
 		}
 
 	}
+
+	public String buildDeployRegisterPanelContext(VelocityPortlet portlet, Context context, 
+			RunData data, SessionState state)
+	{
+		context.put("tlang", rb);
+		if ( ! ltiService.isMaintain() ) {
+			addAlert(state,rb.getString("error.maintain.register"));
+			return "lti_error";
+		}
+		context.put("messageSuccess",state.getAttribute(STATE_SUCCESS));
+
+		String [] mappingForm = foorm.filterForm(ltiService.getDeployModel(), "^title:.*|^reg_launch:.*|^id:.*", null);
+		String id = data.getParameters().getString(LTIService.LTI_ID);
+System.out.println("Register id="+id);
+		if ( id == null ) {
+			addAlert(state,rb.getString("error.id.not.found"));
+			return "lti_error";
+		}	
+		Long key = new Long(id);
+		Map<String,Object> deploy = ltiService.getDeployDao(key);
+		if (  deploy == null ) {
+			addAlert(state,rb.getString("error.deploy.not.found"));
+			return "lti_error";
+		}
+
+        Long reg_state = foorm.getLongNull(deploy.get(LTIService.LTI_REG_STATE));
+		String reg_key = (String) deploy.get(LTIService.LTI_REG_KEY);
+		String reg_password = (String) deploy.get(LTIService.LTI_REG_PASSWORD);
+		String consumerkey = (String) deploy.get(LTIService.LTI_CONSUMERKEY);
+		if ( reg_state != 1 || reg_key == null || reg_password == null || consumerkey == null) {	
+			addAlert(state,rb.getString("error.register.not.ready"));
+			return "lti_error";
+		}
+
+		String formOutput = ltiService.formOutput(deploy, mappingForm);
+		context.put("formOutput", formOutput);
+		Placement placement = toolManager.getCurrentPlacement();
+		String registerURL = "/access/basiclti/site/~admin/deploy:" + key + "?placement=" + placement.getId();
+
+		context.put("registerURL",registerURL);
+		
+System.out.println("Register...");
+		state.removeAttribute(STATE_SUCCESS);
+		return "lti_deploy_register";
+	}
+
+	public String buildRegCompletePanelContext(VelocityPortlet portlet, Context context, 
+			RunData data, SessionState state)
+	{
+
+		// TODO: Check all of the passed in parameters
+		state.setAttribute(STATE_SUCCESS,"Welcome back from registration..");
+		return buildToolViewPanelContext(portlet, context, data, state);
+	}
+
+	public String buildDeploySystemPanelContext(VelocityPortlet portlet, Context context, 
+			RunData data, SessionState state)
+	{
+		context.put("tlang", rb);
+		if ( ! ltiService.isAdmin() ) {
+			addAlert(state,rb.getString("error.maintain.edit"));
+			return "lti_error";
+		}
+		String contextString = toolManager.getCurrentPlacement().getContext();
+		context.put("ltiService", ltiService);
+		state.removeAttribute(STATE_POST);
+		state.removeAttribute(STATE_SUCCESS);
+
+		context.put("messageSuccess",state.getAttribute(STATE_SUCCESS));
+		context.put("getContext", contextString);
+		
+		List<Map<String,Object>> deploys = ltiService.getDeploysDao(null,null,0,5000);
+	    context.put("deploys", deploys);
+		
+		return "lti_deploy_system";
+	}
+
+	/**
+	 * iterator through the whole system and find out the lti tool usage pattern, e.g. site count,etc
+	 * @param contents
+	 * @return
+	 */
+	private HashMap<String, List<String>> getLtiDeployUsageCount(
+			List<Map<String, Object>> tools, List<Map<String, Object>> contents) {
+
+		HashMap<String, List<String>> ltiToolsCount = new HashMap<String, List<String>> ();
+		for ( Map<String,Object> content : contents ) {
+			String ltiToolId = content.get(ltiService.LTI_TOOL_ID).toString();
+			String siteId = StringUtils.trimToNull((String) content.get(ltiService.LTI_SITE_ID));
+			if (siteId != null)
+			{
+				if (ltiToolsCount.containsKey(ltiToolId))
+				{
+					List<String> siteIds = ltiToolsCount.get(ltiToolId);
+					siteIds.add(siteId);
+					ltiToolsCount.put(ltiToolId, siteIds);
+				}
+				else
+				{
+					// new entry
+					List<String> siteIds = new ArrayList<String>();
+					siteIds.add(siteId);
+					ltiToolsCount.put(ltiToolId, siteIds);
+				}
+			}
+		}
+		return ltiToolsCount;
+	}
+
+	public String buildDeployDeletePanelContext(VelocityPortlet portlet, Context context, 
+			RunData data, SessionState state)
+	{
+		context.put("tlang", rb);
+		if ( ! ltiService.isAdmin() ) {
+			addAlert(state,rb.getString("error.maintain.delete"));
+			return "lti_error";
+		}
+		context.put("doAction", BUTTON + "doDeployDelete");
+		String id = data.getParameters().getString(LTIService.LTI_ID);
+		if ( id == null ) {
+			addAlert(state,rb.getString("error.id.not.found"));
+			return "lti_deploy_system";
+		}	
+		Long key = new Long(id);
+		Map<String,Object> deploy = ltiService.getDeployDao(key);
+		if (  deploy == null ) {
+			addAlert(state,rb.getString("error.deploy.not.found"));
+			return "lti_deploy_system";
+		}
+		context.put("deploy",deploy);
+		context.put("ltiService", ltiService);
+		
+		state.removeAttribute(STATE_SUCCESS);
+		return "lti_deploy_delete";
+	}
+
+	// Insert or edit
+	public void doDeployDelete(RunData data, Context context)
+	{
+		String peid = ((JetspeedRunData) data).getJs_peid();
+		SessionState state = ((JetspeedRunData) data).getPortletSessionState(peid);
+
+		if ( ! ltiService.isMaintain() ) {
+			addAlert(state,rb.getString("error.maintain.delete"));
+			switchPanel(state, "Error");
+			return;
+		}
+		Properties reqProps = data.getParameters().getProperties();
+		String id = data.getParameters().getString(LTIService.LTI_ID);
+		Object retval = null;
+		if ( id == null ) {
+			addAlert(state,rb.getString("error.id.not.found"));
+			switchPanel(state, "Deploy");
+			return;
+		}
+		Long key = new Long(id);
+		// also remove the link
+		if ( ltiService.deleteDeployDao(key) )
+		{
+			state.setAttribute(STATE_SUCCESS,rb.getString("success.deleted"));
+		} else {
+			addAlert(state,rb.getString("error.delete.fail"));
+		}
+		switchPanel(state, "Refresh");
+	}
+
 
 	/** Content related methods ------------------------------ */
 
@@ -1109,13 +1216,13 @@ public class LTIAdminTool extends VelocityPortletPaneledAction
 		String id = data.getParameters().getString(LTIService.LTI_ID);
 		if ( id == null ) {
 			addAlert(state,rb.getString("error.id.not.found"));
-			return "lti_main";
+			return "lti_deploy_system";
 		}	
 		Long key = new Long(id);
 		Map<String,Object> content = ltiService.getContent(key);
 		if (  content == null ) {
 			addAlert(state,rb.getString("error.content.not.found"));
-			return "lti_main";
+			return "lti_deploy_system";
 		}
 		Long tool_id_long = null;
 		try{
@@ -1150,7 +1257,7 @@ public class LTIAdminTool extends VelocityPortletPaneledAction
 		Object retval = null;
 		if ( id == null ) {
 			addAlert(state,rb.getString("error.id.not.found"));
-			switchPanel(state, "Content");
+			switchPanel(state, "DeploySystem");
 			return;
 		}
 		Long key = new Long(id);
@@ -1176,13 +1283,13 @@ public class LTIAdminTool extends VelocityPortletPaneledAction
 		String id = data.getParameters().getString(LTIService.LTI_ID);
 		if ( id == null ) {
 			addAlert(state,rb.getString("error.id.not.found"));
-			return "lti_main";
+			return "lti_deploy_system";
 		}	
 		Long key = new Long(id);
 		Map<String,Object> content = ltiService.getContent(key);
 		if (  content == null ) {
 			addAlert(state,rb.getString("error.content.not.found"));
-			return "lti_main";
+			return "lti_deploy_system";
 		}
 		context.put("content",content);
 		state.removeAttribute(STATE_SUCCESS);

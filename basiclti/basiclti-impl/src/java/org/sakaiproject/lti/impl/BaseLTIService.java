@@ -176,6 +176,10 @@ public abstract class BaseLTIService implements LTIService {
 			M_log.warn(str + "=Missing LTIService Translation");
 		}
 
+		strings = foorm.checkI18NStrings(LTIService.DEPLOY_MODEL, rb);
+		for (String str : strings) {
+			M_log.warn(str + "=Missing LTIService Translation");
+		}
 	}
 
 	/**
@@ -846,7 +850,7 @@ public abstract class BaseLTIService implements LTIService {
 	protected abstract Object insertDeployDao(Properties newProps, String siteId, boolean isAdminRole, boolean isMaintainRole);
 
 	public Object insertDeployDao(Properties newProps) {
-		return insertContentDao(newProps, null, true, true);
+		return insertDeployDao(newProps, null, true, true);
 	}
 
 	protected abstract Object updateDeployDao(Long key, Object newProps, String siteId, boolean isAdminRole, boolean isMaintainRole);
@@ -865,5 +869,11 @@ public abstract class BaseLTIService implements LTIService {
 	public Map<String, Object> getDeployDao(Long key) {
 		return getDeployDao(key, null, true);
 	}
+
+	public List<Map<String, Object>> getDeploysDao(String search, String order, int first, int last) {
+		return getDeploysDao(search, order, first, last, null, true);
+	}
+
+	protected abstract List<Map<String, Object>> getDeploysDao(String search, String order, int first, int last, String siteId, boolean isAdminRole);
 
 }

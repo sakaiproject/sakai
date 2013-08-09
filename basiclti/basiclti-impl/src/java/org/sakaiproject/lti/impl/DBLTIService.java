@@ -115,6 +115,7 @@ public class DBLTIService extends BaseLTIService implements LTIService {
 
 			foorm.autoDDL("lti_content", LTIService.CONTENT_MODEL, m_sql, m_autoDdl, doReset, M_log);
 			foorm.autoDDL("lti_tools", LTIService.TOOL_MODEL, m_sql, m_autoDdl, doReset, M_log);
+			foorm.autoDDL("lti_deploy", LTIService.DEPLOY_MODEL, m_sql, m_autoDdl, doReset, M_log);
 			super.init();
 		} catch (Exception t) {
 			M_log.warn("init(): ", t);
@@ -363,18 +364,6 @@ public class DBLTIService extends BaseLTIService implements LTIService {
 	 * 
 	 * {@inheritDoc}
 	 * 
-	 * @see org.sakaiproject.lti.api.LTIService#getDeployDao(java.lang.Long, java.lang.String, boolean)
-	 */
-	protected Map<String, Object> getDeployDao(Long key, String siteId, boolean isAdminRole) 
-	{
-		if ( ! isAdminRole ) throw new IllegalArgumentException("Currently we support admins/Dao access");
-		return getThingDao("lti_deploy", LTIService.DEPLOY_MODEL, key, siteId, isAdminRole);
-	}
-
-	/**
-	 * 
-	 * {@inheritDoc}
-	 * 
 	 * @see org.sakaiproject.lti.api.LTIService#deleteDeployDao(java.lang.Long, java.lang.String, boolean)
 	 */
 	public boolean deleteDeployDao(Long key, String siteId, boolean isAdminRole, boolean isMaintainRole) {
@@ -398,11 +387,24 @@ public class DBLTIService extends BaseLTIService implements LTIService {
 	 * 
 	 * {@inheritDoc}
 	 * 
+	 * @see org.sakaiproject.lti.api.LTIService#getDeployDao(java.lang.Long, java.lang.String, boolean)
+	 */
+	protected Map<String, Object> getDeployDao(Long key, String siteId, boolean isAdminRole) 
+	{
+		if ( ! isAdminRole ) throw new IllegalArgumentException("Currently we support admins/Dao access");
+		return getThingDao("lti_deploy", LTIService.DEPLOY_MODEL, key, siteId, isAdminRole);
+	}
+
+	/**
+	 * 
+	 * {@inheritDoc}
+	 * 
 	 * @see org.sakaiproject.lti.api.LTIService#getDeploysDao(java.lang.String, java.lang.String,
 	 *      int, int, java.lang.String, boolean)
 	 */
-	public List<Map<String, Object>> getDeploysDao(String search, String order, int first,
+	protected List<Map<String, Object>> getDeploysDao(String search, String order, int first,
 			int last, String siteId, boolean isAdminRole) {
+		if ( ! isAdminRole ) throw new IllegalArgumentException("Currently we support admins/Dao access");
 		return getThingsDao("lti_deploy", LTIService.DEPLOY_MODEL, search, order, first, last, siteId, isAdminRole);
 	}
 

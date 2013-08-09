@@ -358,6 +358,17 @@ public interface LTIService {
 
 	/**
 	 * 
+	 * @param search
+	 * @param order
+	 * @param first
+	 * @param last
+	 * @param siteId
+	 * @return
+	 */
+	public List<Map<String, Object>> getDeploysDao(String search, String order, int first, int last);
+
+	/**
+	 * 
 	 * @param row
 	 * @param fieldInfo
 	 * @return
