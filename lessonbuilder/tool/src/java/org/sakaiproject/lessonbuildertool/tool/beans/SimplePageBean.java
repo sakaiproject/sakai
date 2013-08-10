@@ -971,17 +971,18 @@ public class SimplePageBean {
     // get mime type for a URL. connect to the server hosting
     // it and ask them. Sorry, but I don't think there's a better way
 	public String getTypeOfUrl(String url) {
-	    String mimeType = null;
+	    String mimeType = "text/html";
 
 	    // try to find the mime type of the remote resource
 	    // this is only likely to be a problem if someone is pointing to
 	    // a url within Sakai. We think in realistic cases those that are
 	    // files will be handled as files, so anything that comes where
 	    // will be HTML. That's the default if this fails.
+	    URLConnection conn = null;
 	    try {
-		URLConnection conn = new URL(url).openConnection();
-		conn.setConnectTimeout(30000);
-		conn.setReadTimeout(30000);
+		conn = new URL(url).openConnection();
+		conn.setConnectTimeout(10000);
+		conn.setReadTimeout(10000);
 		// generate cookie based on code in  RequestFilter.java
 		//String suffix = System.getProperty("sakai.serverId");
 		//if (suffix == null || suffix.equals(""))
@@ -997,8 +998,17 @@ public class SimplePageBean {
 		    t = t.trim();
 		    mimeType = t;
 		}
-		conn.getInputStream().close();
-	    } catch (Exception e) {log.error("getTypeOfUrl connection error " + e);};
+	    } catch (Exception e) {
+		log.error("getTypeOfUrl connection error " + e);
+	    } finally {
+		if (conn != null) {
+		    try {
+			conn.getInputStream().close();
+		    } catch (Exception e) {
+			log.error("getTypeOfUrl unable to close " + e);
+		    }
+		}
+	    }
 	    return mimeType;
 	}
 
