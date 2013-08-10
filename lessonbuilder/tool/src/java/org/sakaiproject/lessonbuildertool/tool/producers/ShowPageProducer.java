@@ -926,6 +926,12 @@ public class ShowPageProducer implements ViewComponentProducer, DefaultView, Nav
 		// MAIN list of items
 		//
 		// produce the main table
+
+		// Is anything visible?
+		// Note that we don't need to check whether any item is available, since the first visible
+		// item is always available.
+		boolean anyItemVisible = false;
+
 		if (itemList.size() > 0) {
 			UIBranchContainer container = UIBranchContainer.make(tofill, "itemContainer:");
 
@@ -977,10 +983,11 @@ public class ShowPageProducer implements ViewComponentProducer, DefaultView, Nav
 				// (i.getType() == SimplePageItem.PAGE &&
 				// "button".equals(i.getFormat())))
 
-				UIBranchContainer tableRow = UIBranchContainer.make(tableContainer, "item:");
 				if (!simplePageBean.isItemVisible(i)) {
 					continue;
 				}
+				anyItemVisible = true;
+				UIBranchContainer tableRow = UIBranchContainer.make(tableContainer, "item:");
 
 				// set class name showing what the type is, so people can do funky CSS
 
@@ -2360,7 +2367,7 @@ public class ShowPageProducer implements ViewComponentProducer, DefaultView, Nav
 
 		// more warnings: if no item on the page, give faculty instructions,
 		// students an error
-		if (itemList.size() == 0) {
+		if (!anyItemVisible) {
 			if (canEditPage) {
 				UIOutput.make(tofill, "startupHelp")
 				    .decorate(new UIFreeAttributeDecorator("src", 
