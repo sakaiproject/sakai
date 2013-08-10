@@ -152,7 +152,7 @@
 	                <td headers="title"><a href="$sakai_ActionURL.setPanel("DeployView")&id=$deploy.get("id")">$validator.escapeHtml($deploy.get("title"))</td>
 	                <td headers="launch">
 						#set($launch="")
-						#set($launch=$deploy.get("launch"))
+						#set($launch=$deploy.get("reg_launch"))
 						$!launch
 	                </td>
 	                <td headers="site_id">
@@ -163,6 +163,11 @@
 	                <td headers="use">$deploy.get("tool_count")</td> 
 		                <td headers="action">
 	                        	<a href="$sakai_ActionURL.setPanel("DeployEdit")&id=$deploy.get("id")">$tlang.getString("gen.edit")</a> / 
+								#if ($deploy.get("reg_state") == "2")
+	                        	<a href="$sakai_ActionURL.setPanel("DeployRegister")&id=$deploy.get("id")">$tlang.getString("gen.reregister")</a> /
+								#else
+	                        	<a href="$sakai_ActionURL.setPanel("DeployRegister")&id=$deploy.get("id")">$tlang.getString("gen.register")</a> /
+								#end
 	                        	<a href="$sakai_ActionURL.setPanel("DeployDelete")&id=$deploy.get("id")">$tlang.getString("gen.delete")</a>
 		                </td>
                 </tr>

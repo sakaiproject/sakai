@@ -615,6 +615,82 @@ public class LTIAdminTool extends VelocityPortletPaneledAction
 		return "lti_deploy_insert";
 	}
 
+	public String buildDeployViewPanelContext(VelocityPortlet portlet, Context context, 
+			RunData data, SessionState state)
+	{
+		context.put("tlang", rb);
+		if ( ! ltiService.isAdmin() ) {
+			addAlert(state,rb.getString("error.maintain.view"));
+			return "lti_error";
+		}
+		context.put("messageSuccess",state.getAttribute(STATE_SUCCESS));
+		String [] mappingForm = ltiService.getDeployModel();
+		String id = data.getParameters().getString(LTIService.LTI_ID);
+		if ( id == null ) {
+			addAlert(state,rb.getString("error.id.not.found"));
+			return "lti_error";
+		}
+		Long key = new Long(id);
+		Map<String,Object> deploy = ltiService.getDeployDao(key);
+		if (  deploy == null ) return "lti_error";	
+
+		// Extract the reg_state to make it view only
+		String fieldInfo = foorm.getFormField(mappingForm, "reg_state");
+		fieldInfo = fieldInfo.replace(":hidden=true","");
+        String formStatus = ltiService.formOutput(deploy, fieldInfo);
+		context.put("formStatus", formStatus);
+
+		String formOutput = ltiService.formOutput(deploy, mappingForm);
+		context.put("formOutput", formOutput);
+
+        Long reg_state = foorm.getLongNull(deploy.get(LTIService.LTI_REG_STATE));
+		context.put("reg_state",reg_state);
+		context.put("id",id);
+		state.removeAttribute(STATE_SUCCESS);
+		return "lti_deploy_view";
+	}
+
+	public String buildDeployEditPanelContext(VelocityPortlet portlet, Context context, 
+			RunData data, SessionState state)
+	{
+		context.put("tlang", rb);
+		String stateId = (String) state.getAttribute(STATE_ID);
+		state.removeAttribute(STATE_ID);
+		if ( ! ltiService.isAdmin() ) {
+			addAlert(state,rb.getString("error.maintain.edit"));
+			return "lti_error";
+		}
+		context.put("doDeployAction", BUTTON + "doDeployPut");
+		context.put("messageSuccess",state.getAttribute(STATE_SUCCESS));
+		String [] mappingForm = ltiService.getDeployModel();
+		String id = data.getParameters().getString(LTIService.LTI_ID);
+		if ( id == null ) id = stateId;
+		if ( id == null ) {
+			addAlert(state,rb.getString("error.id.not.found"));
+			return "lti_error";
+		}		
+		Long key = new Long(id);
+		Map<String,Object> deploy = ltiService.getDeployDao(key);
+		if (  deploy == null ) return "lti_error";
+
+		// Extract the reg_state to make it view only
+		String fieldInfo = foorm.getFormField(mappingForm, "reg_state");
+		fieldInfo = fieldInfo.replace(":hidden=true","");
+        String formStatus = ltiService.formOutput(deploy, fieldInfo);
+		context.put("formStatus", formStatus);
+		Long reg_state = foorm.getLongNull(deploy.get(LTIService.LTI_REG_STATE));
+		context.put("reg_state",reg_state);
+
+		// Remove reg_state from the editable part of the model
+		mappingForm = foorm.filterForm(mappingForm, null, "^reg_state:.*");
+
+		String formInput = ltiService.formInput(deploy, mappingForm);
+
+		context.put("formInput", formInput);
+		state.removeAttribute(STATE_SUCCESS);
+		return "lti_deploy_insert";
+	}
+
 	// Insert or edit
 	public void doDeployPut(RunData data, Context context)
 	{
@@ -683,7 +759,7 @@ System.out.println("retval="+retval);
 		}
 		context.put("messageSuccess",state.getAttribute(STATE_SUCCESS));
 
-		String [] mappingForm = foorm.filterForm(ltiService.getDeployModel(), "^title:.*|^reg_launch:.*|^id:.*", null);
+		String [] mappingForm = foorm.filterForm(ltiService.getDeployModel(), "^title:.*|^reg_state:.*|^reg_launch:.*|^id:.*", null);
 		String id = data.getParameters().getString(LTIService.LTI_ID);
 System.out.println("Register id="+id);
 		if ( id == null ) {
@@ -705,6 +781,12 @@ System.out.println("Register id="+id);
 			addAlert(state,rb.getString("error.register.not.ready"));
 			return "lti_error";
 		}
+
+		// Extract the reg_state to make it view only
+		String fieldInfo = foorm.getFormField(mappingForm, "reg_state");
+		fieldInfo = fieldInfo.replace(":hidden=true","");
+        String formStatus = ltiService.formOutput(deploy, fieldInfo);
+		context.put("formStatus", formStatus);
 
 		String formOutput = ltiService.formOutput(deploy, mappingForm);
 		context.put("formOutput", formOutput);
