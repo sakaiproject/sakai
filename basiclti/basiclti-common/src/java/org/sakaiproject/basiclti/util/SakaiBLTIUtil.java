@@ -653,7 +653,7 @@ public class SakaiBLTIUtil {
     // An LTI 2.0 Registration launch
 	// This must return an HTML message as the [0] in the array
 	// If things are successful - the launch URL is in [1]
-	public static String[] postRegisterHTML(Long toolKey, Map<String,Object> tool, ResourceLoader rb, String placementId)
+	public static String[] postRegisterHTML(Long deployKey, Map<String,Object> tool, ResourceLoader rb, String placementId)
 	{
 		if ( tool == null ) {
 			return postError("<p>" + getRB(rb, "error.tool.missing" ,"Tool item is missing or improperly configured.")+"</p>" ); 
@@ -685,12 +685,60 @@ public class SakaiBLTIUtil {
 
 		String serverUrl = getOurServerUrl();
 		setProperty(ltiProps, LTI2Constants.TC_PROFILE_URL,serverUrl+"/imsblis/lti2/tc_profile/"+consumerkey);
-		setProperty(ltiProps, BasicLTIConstants.LAUNCH_PRESENTATION_RETURN_URL, serverUrl + "/portal/tool/"+placementId+"?panel=RegComplete&id="+toolKey);
+		setProperty(ltiProps, BasicLTIConstants.LAUNCH_PRESENTATION_RETURN_URL, serverUrl + "/portal/tool/"+placementId+"?panel=RegComplete&id="+deployKey);
 
 		int debug = getInt(tool.get("debug"));
 		debug = 1;
 
 		System.out.println("ltiProps="+ltiProps);
+
+		boolean dodebug = debug == 1;
+		String postData = BasicLTIUtil.postLaunchHTML(ltiProps, launch_url, dodebug);
+
+		String [] retval = { postData, launch_url };
+		return retval;
+	}
+
+    // An LTI 2.0 ReRegistration launch
+	// This must return an HTML message as the [0] in the array
+	// If things are successful - the launch URL is in [1]
+	public static String[] postReRegisterHTML(Long deployKey, Map<String,Object> deploy, ResourceLoader rb, String placementId)
+	{
+		if ( deploy == null ) {
+			return postError("<p>" + getRB(rb, "error.deploy.missing" ,"Deployment is missing or improperly configured.")+"</p>" ); 
+		}
+
+		int status = getInt(deploy.get("reg_state"));
+		if ( status != 2 ) return postError("<p>" + getRB(rb, "error.deploy.badstate" ,"Deployment is in the wrong state to register")+"</p>" ); 
+
+		String launch_url = (String) deploy.get("reg_launch");
+		if ( launch_url == null ) return postError("<p>" + getRB(rb, "error.deploy.noreg" ,"This deployment is has no registration url.")+"</p>" );
+
+		String consumerkey = (String) deploy.get("consumerkey");
+		String secret = (String) deploy.get("secret");
+
+		if ( secret == null || consumerkey == null) {
+			return postError("<p>" + getRB(rb, "error.deploy.partial" ,"Deployment is incomplete, missing a key and secret.")+"</p>" ); 
+		}
+
+		// Start building up the properties
+		Properties ltiProps = new Properties();
+
+		setProperty(ltiProps, BasicLTIConstants.LTI_VERSION, LTI2Constants.LTI2_VERSION_STRING);
+		setProperty(ltiProps, BasicLTIUtil.BASICLTI_SUBMIT, getRB(rb, "launch.button", "Press to Launch External Tool"));
+		setProperty(ltiProps, BasicLTIConstants.LTI_MESSAGE_TYPE, BasicLTIConstants.LTI_MESSAGE_TYPE_TOOLPROXY_RE_REGISTRATIONREQUEST);
+
+		String serverUrl = getOurServerUrl();
+		setProperty(ltiProps, LTI2Constants.TC_PROFILE_URL,serverUrl+"/imsblis/lti2/tc_profile/"+consumerkey);
+		setProperty(ltiProps, BasicLTIConstants.LAUNCH_PRESENTATION_RETURN_URL, serverUrl + "/portal/tool/"+placementId+"?panel=RegComplete&id="+deployKey);
+
+		int debug = getInt(deploy.get("debug"));
+		debug = 1;
+
+		ltiProps = BasicLTIUtil.signProperties(ltiProps, launch_url, "POST", 
+				consumerkey, secret, null, null, null);
+
+		System.out.println("signed ltiProps="+ltiProps);
 
 		boolean dodebug = debug == 1;
 		String postData = BasicLTIUtil.postLaunchHTML(ltiProps, launch_url, dodebug);

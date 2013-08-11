@@ -314,8 +314,10 @@ public class BasicLTIUtil {
 			String tool_consumer_instance_url, String tool_consumer_instance_name,
 			String tool_consumer_instance_contact_email) {
 		postProp = BasicLTIUtil.cleanupProperties(postProp);
-		postProp.put(LTI_VERSION, "LTI-1p0");
-		postProp.put(LTI_MESSAGE_TYPE, "basic-lti-launch-request");
+
+		if ( postProp.get(LTI_VERSION) == null ) postProp.put(LTI_VERSION, "LTI-1p0");
+		if ( postProp.get(LTI_MESSAGE_TYPE) == null ) postProp.put(LTI_MESSAGE_TYPE, "basic-lti-launch-request");
+
 		// Allow caller to internationalize this for us...
 		if (postProp.get(BASICLTI_SUBMIT) == null) {
 			postProp.put(BASICLTI_SUBMIT, "Launch Endpoint with BasicLTI Data");

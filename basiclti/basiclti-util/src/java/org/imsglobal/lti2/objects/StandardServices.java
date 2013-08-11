@@ -4,13 +4,22 @@ package org.imsglobal.lti2.objects;
 public class StandardServices {
 
     public static Service_offered LTI2Registration(String endpoint) {
-        return new Service_offered(endpoint, "ltitcp:ToolProxy.collection", "RestService",
-            "application/vnd.ims.lti.v2.ToolProxy+json", "POST" ) ;
+		Service_offered ret = new Service_offered();
+		ret.setEndpoint(endpoint);
+		ret.set_id(endpoint);    // TODO: Is this right see 5.6 in the docs
+		ret.set_type("RestService");
+		ret.setFormat("application/vnd.ims.lti.v2.ToolProxy+json");
+		ret.setAction("POST");
+		return ret;
     }
 
     public static Service_offered LTI1Outcomes(String endpoint) {
-        return new Service_offered(endpoint, "ltitcp:LTI1_1.outcomes", "XMLService", 
-            "application/xml", "POST");
+		Service_offered ret = new Service_offered();
+		ret.setEndpoint(endpoint);
+		ret.set_id(endpoint);    // TODO: Is this right see 5.6 in the docs
+		ret.set_type("RestService");
+		ret.setFormat("application/vnd.ims.lti.v1_1.Outcome+xml");
+		return ret;
     }
 
 }

@@ -80,6 +80,7 @@ import org.sakaiproject.basiclti.util.SakaiBLTIUtil;
 import org.imsglobal.basiclti.BasicLTIConstants;
 import org.imsglobal.lti2.LTI2Constants;
 import org.imsglobal.lti2.objects.*;
+import org.sakaiproject.lti2.SakaiLTI2Services;
 import org.sakaiproject.basiclti.util.ShaUtil;
 import org.sakaiproject.util.FormattedText;
 
@@ -251,9 +252,26 @@ System.out.println("deployKey="+deployKey);
         ToolConsumer consumer = new ToolConsumer(profile_id+"", instance);
         List<Service_offered> services = consumer.getService_offered();
         services.add(StandardServices.LTI2Registration(serverUrl+"/imsblis/lti2/tc_registration/"+profile_id));
-        services.add(StandardServices.LTI1Outcomes(serverUrl+"/imsblis/service/"));
+
+		Long reg_state = foorm.getLong(deploy.get(LTIService.LTI_REG_STATE));
+		if (foorm.getLong(deploy.get(LTIService.LTI_ALLOWOUTCOMES)) > 0 ) {
+			services.add(StandardServices.LTI1Outcomes(serverUrl+"/imsblis/service/"));
+			services.add(SakaiLTI2Services.BasicOutcomes(serverUrl+"/imsblis/service/"));
+		}
+		if (foorm.getLong(deploy.get(LTIService.LTI_ALLOWROSTER)) > 0 ) {
+			services.add(SakaiLTI2Services.BasicRoster(serverUrl+"/imsblis/service/"));
+		}
+		if (foorm.getLong(deploy.get(LTIService.LTI_ALLOWSETTINGS)) > 0 ) {
+			services.add(SakaiLTI2Services.BasicSettings(serverUrl+"/imsblis/service/"));
+		}
+
+		if (foorm.getLong(deploy.get(LTIService.LTI_ALLOWLORI)) > 0 ) {
+			services.add(SakaiLTI2Services.LORI_XML(serverUrl+"/imsblis/service/"));
+		}
+
         List<String> capabilities = consumer.getCapability_enabled();
         Collections.addAll(capabilities,ToolConsumer.STANDARD_CAPABILITIES);
+		capabilities.add("ToolProxyReregistrationRequest");
 
         ObjectMapper mapper = new ObjectMapper();
         try {

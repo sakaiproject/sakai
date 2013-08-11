@@ -36,6 +36,8 @@ public class Service_offered {
     private List<String> action = new ArrayList<String>();
     private Map<String, Object> additionalProperties = new HashMap<String, Object>();
 
+    public Service_offered() { }
+
     public Service_offered(String endpoint, String id, String type, String format, String action) {
         this.endpoint = endpoint;
         this._id = id;
@@ -100,6 +102,17 @@ public class Service_offered {
     @JsonProperty("action")
     public void setAction(List<String> action) {
         this.action = action;
+    }
+
+	// Convienence methods
+    public void setAction(String action) {
+		this.action = new ArrayList<String>();
+        this.action.add(action);
+    }
+
+    public void setAction(String [] actions) {
+		this.action = new ArrayList<String>();
+        Collections.addAll(this.action, actions);
     }
 
     @JsonAnyGetter

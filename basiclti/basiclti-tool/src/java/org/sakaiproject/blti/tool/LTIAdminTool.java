@@ -777,7 +777,13 @@ System.out.println("Register id="+id);
 		String reg_key = (String) deploy.get(LTIService.LTI_REG_KEY);
 		String reg_password = (String) deploy.get(LTIService.LTI_REG_PASSWORD);
 		String consumerkey = (String) deploy.get(LTIService.LTI_CONSUMERKEY);
-		if ( reg_state != 1 || reg_key == null || reg_password == null || consumerkey == null) {	
+		String secret = (String) deploy.get(LTIService.LTI_SECRET);
+
+		if ( reg_state == 1 && reg_key != null && reg_password != null && consumerkey != null) {	
+			// Good news ...
+		} else if ( reg_state == 2 && secret != null && consumerkey != null) {	
+			// Good news ...
+		} else {
 			addAlert(state,rb.getString("error.register.not.ready"));
 			return "lti_error";
 		}
