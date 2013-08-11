@@ -97,11 +97,11 @@ $tool_proxy = <<< EOF
           }
         ],
         "name": {
-          "default_value": "Sample PHP Launch",
+          "default_value": "Sakai PHP Unit Test",
           "key": "resource.name"
         },
         "description": {
-          "default_value": "Sample PHP Launch",
+          "default_value": "Sakai PHP Unit Test Decription",
           "key": "resource.description"
         }
       }

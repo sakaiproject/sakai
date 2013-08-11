@@ -743,26 +743,59 @@ function sendOAuthBodyPOST($method, $endpoint, $oauth_consumer_key, $oauth_consu
 
     return do_post($endpoint,$body,$header);
 }
+function get_post_sent_debug() {
+    global $LastPOSTMethod;
+    global $LastPOSTURL;
+    global $LastHeadersSent;
+
+    $ret = "POST Used: " . $LastPOSTMethod . "\n" . 
+	     $LastPOSTURL . "\n\n" .
+		 $LastHeadersSent . "\n";
+	return $ret;
+}
+
+function get_post_received_debug() {
+    global $LastPOSTURL;
+    global $last_http_response;
+    global $LastPOSTMethod;
+    global $LastHeadersReceived;
+
+    $ret = "POST Used: " . $LastPOSTMethod . "\n" .
+		 "HTTP Response: " . $last_http_response . "\n" .
+	     $LastPOSTURL . "\n" .
+		 $LastHeadersReceived . "\n";
+	return $ret;
+}
 
 // Sadly this tries several approaches depending on 
 // the PHP version and configuration.  You can use only one
 // if you know what version of PHP is working and how it will be 
 // configured...
 function do_post($url, $body, $header) {
-    global $last_http_response;
+    global $LastPOSTURL;
     global $LastPOSTMethod;
+    global $LastHeadersSent;
+    global $last_http_response;
+    global $LastHeadersReceived;
+    global $LastPostResponse;
+
+	$LastPOSTURL = $url;
+    $LastPOSTMethod = false;
+    $LastHeadersSent = false;
     $last_http_response = false;
-    $response = false;
+    $LastHeadersReceived = false;
+    $lastPOSTResponse = false;
+
     // Prefer curl because it checks if it works before trying
-    $response = post_curl($url, $body, $header);
+    $lastPOSTResponse = post_curl($url, $body, $header);
     $LastPOSTMethod = "CURL";
-    if ( $response !== false ) return $response;
-    $response = post_socket($url, $body, $header);
+    if ( $lastPOSTResponse !== false ) return $lastPOSTResponse;
+    $lastPOSTResponse = post_socket($url, $body, $header);
     $LastPOSTMethod = "Socket";
-    if ( $response !== false ) return $response;
-    $response = post_stream($url, $body, $header);
+    if ( $lastPOSTResponse !== false ) return $lastPOSTResponse;
+    $lastPOSTResponse = post_stream($url, $body, $header);
     $LastPOSTMethod = "Stream";
-    if ( $response !== false ) return $response;
+    if ( $lastPOSTResponse !== false ) return $lastPOSTResponse;
     $LastPOSTMethod = "Error";
     echo("Unable to post<br/>\n");
     echo("Url=$url <br/>\n");
@@ -867,6 +900,7 @@ function post_curl($url, $body, $header) {
   curl_setopt($ch, CURLOPT_POSTFIELDS, $body);
 
   curl_setopt($ch, CURLOPT_RETURNTRANSFER, 1); // ask for results to be returned
+  curl_setopt($ch, CURLOPT_HEADER, 1);
 /*
   if(CurlHelper::checkHttpsURL($url)) {
     curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, 0);
@@ -878,8 +912,11 @@ function post_curl($url, $body, $header) {
   $result = curl_exec($ch);
   $info = curl_getinfo($ch);
   $last_http_response = $info['http_code'];
+  $header_size = curl_getinfo($ch, CURLINFO_HEADER_SIZE);
+  $LastHeadersReceived = substr($result, 0, $header_size);
+  $body = substr($result, $header_size);
   curl_close($ch);
-  return $result;
+  return $body;
 }
 
 /*  $postBody = str_replace(

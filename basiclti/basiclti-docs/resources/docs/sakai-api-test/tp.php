@@ -113,13 +113,23 @@ if ( count($tc_services) < 1 ) die("At a minimum, we need the service to registe
 
 // var_dump($tc_services);
 $endpoint = false;
+$formats = Array();
 foreach ($tc_services as $tc_service) {
    $format = $tc_service->{'format'};
     echo("Service: ".$format."\n");
+   if ( in_array($format, $formats) ) die("Format=".$format." cannot occur multiple times in the service list");
+   $formats[] = $format;
    if ( $format != "application/vnd.ims.lti.v2.ToolProxy+json" ) continue;
    // var_dump($tc_service);
    $endpoint = $tc_service->endpoint;
 }
+
+if ( $endpoint == false ) die("Must have an application/vnd.ims.lti.v2.ToolProxy+json service available.");
+
+echo("\nFound an application/vnd.ims.lti.v2.ToolProxy+json service - nice for us...\n");
+echo("Optional money collection phase complete...\n");
+echo("<hr/>");
+
 $cur_url = curPageURL();
 $cur_base = str_replace("tp.php","",$cur_url);
 
@@ -155,10 +165,6 @@ $tp_profile->security_contract->shared_secret = 'secret';
 $body = json_encode($tp_profile);
 $body = json_indent($body);
 
-echo("Services deemed to be adequate for our tool...\n");
-echo("Credit card information validated...\n");
-echo("<hr/>\n");
-
 echo("Registering....\n");
 echo("Endpoint=".$endpoint."\n");
 echo("Key=".$reg_key."\n");
@@ -171,11 +177,19 @@ togglePre("Registration Request",htmlent_utf8($body));
 
 $response = sendOAuthBodyPOST("POST", $endpoint, $reg_key, $reg_password, "application/vnd.ims.lti.v2.ToolProxy+json", $body);
 
+togglePre("Registration Request Headers",htmlent_utf8(get_post_sent_debug()));
+
 global $LastOAuthBodyBaseString;
 togglePre("Registration Request Base String",$LastOAuthBodyBaseString);
 
+togglePre("Registration Response Headers",htmlent_utf8(get_post_received_debug()));
+
 togglePre("Registration Response",htmlent_utf8(json_indent($response)));
 
+if ( $last_http_response == 201 || $last_http_response == 200 ) {
 echo('<p><a href="'.$launch_presentation_return_url.'">Continue to launch_presentation_url</a></p>'."\n");
+} else {
+echo("Registration failed, http code=".$last_http_response."\n");
+}
 
 ?>
