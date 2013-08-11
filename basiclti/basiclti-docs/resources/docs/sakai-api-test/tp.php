@@ -113,6 +113,13 @@ $reg_key = $_POST['reg_key'];
 $reg_password = $_POST['reg_password'];
 
 $tp_profile = json_decode($tool_proxy);
+if ( $tp_profile == null ) {
+	togglePre("Tool Proxy Raw",htmlent_utf8($tool_proxy));
+    $body = json_encode($tp_profile);
+    $body = json_indent($body);
+    togglePre("Tool Proxy Parsed",htmlent_utf8($body));
+    die("JSON PARSE ERROR ".json_last_error()."\n");
+}
 
 // Tweak the stock profile
 $tp_profile->tool_consumer_profile = $tc_profile_url;

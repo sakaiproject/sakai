@@ -125,7 +125,7 @@ $tool_proxy = <<< EOF
       {
         "@type": "RestService",
         "@id": "ltitcp:ToolProxy.collection",
-        "service": __TODOFROM_ID_INTC_PROFILE__"http://localhost:4000/tools",
+        "service": "__TODOFROM_ID_INTC_PROFILE__http://localhost:4000/tools",
         "action": "POST",
         "format": "application/vnd.ims.lti.v2.ToolProxy+json"
       },
