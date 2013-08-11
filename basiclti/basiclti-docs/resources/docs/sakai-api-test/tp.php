@@ -175,7 +175,8 @@ if ( strlen($endpoint) < 1 || strlen($reg_key) < 1 || strlen($reg_password) < 1 
 
 togglePre("Registration Request",htmlent_utf8($body));
 
-$response = sendOAuthBodyPOST("POST", $endpoint, $reg_key, $reg_password, "application/vnd.ims.lti.v2.ToolProxy+json", $body);
+// $response = sendOAuthBodyPOST("POST", $endpoint, $reg_key, $reg_password, "application/vnd.ims.lti.v2.ToolProxy+json", $body);
+$response = sendOAuthBodyPOST("POST", $endpoint, $reg_key, "BITEME", "application/vnd.ims.lti.v2.ToolProxy+json", $body);
 
 togglePre("Registration Request Headers",htmlent_utf8(get_post_sent_debug()));
 
@@ -187,9 +188,20 @@ togglePre("Registration Response Headers",htmlent_utf8(get_post_received_debug()
 togglePre("Registration Response",htmlent_utf8(json_indent($response)));
 
 if ( $last_http_response == 201 || $last_http_response == 200 ) {
-echo('<p><a href="'.$launch_presentation_return_url.'">Continue to launch_presentation_url</a></p>'."\n");
-} else {
+  echo('<p><a href="'.$launch_presentation_return_url.'">Continue to launch_presentation_url</a></p>'."\n");
+  exit();
+}
+
 echo("Registration failed, http code=".$last_http_response."\n");
+
+// Check to see if they slid us the base string...
+$responseObject = json_decode($response);
+if ( $responseObject != null ) {
+	$base_string = $responseObject->base_string;
+	if ( $base_string != $LastOAuthBodyBaseString ) {
+		$compare = compare_base_strings($LastOAuthBodyBaseString, $base_string);
+		togglePre("Compare Base Strings (ours first)",htmlent_utf8($compare));
+	}
 }
 
 ?>

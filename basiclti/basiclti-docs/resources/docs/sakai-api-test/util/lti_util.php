@@ -1044,4 +1044,57 @@ function parseResponse($response) {
     }
     return $retval;
 }
+
+// Compares base strings, start of the mis-match
+// Returns true if the strings are identical
+// This is setup to be displayed in <pre> tags as newlines are added
+function compare_base_strings($string1, $string2)
+{
+	if ( $string1 == $string2 ) return true;
+
+	$out2 = "";
+	$out1 = "";
+    $chars = 0;
+	$oops = false;
+    for($i=0; $i<strlen($string1)&&$i<strlen($string2); $i++) {
+		if ( $oops || $string1[$i] == $string2[$i] ) {
+			$out1 = $out1 . $string1[$i];
+			$out2 = $out2 . $string2[$i];
+		} else { 
+			$out1 = $out1 . ' ->' . $string1[$i] .'<- ';
+			$out2 = $out2 . ' ->' . $string2[$i] .'<- ';
+			$oops = true;
+		}
+		$chars = $chars + 1;
+		if ( $chars > 79 ) {
+			$out1 .= "\n";
+			$out2 .= "\n";
+			$chars = 0;
+		}
+	}
+	if ( $i < strlen($string1) ) {
+		$out2 = $out2 . ' -> truncated ';
+		for($i=0; $i<strlen($string1); $i++) {
+			$out1 = $out1 . $string1[$i];
+			$chars = $chars + 1;
+			if ( $chars > 79 ) {
+				$out1 .= "\n";
+				$chars = 0;
+			}
+		}
+	}
+
+	if ( $i < strlen($string2) ) {
+		$out1 = $out1 . ' -> truncated ';
+		for($i=0; $i<strlen($string2); $i++) {
+			$out2 = $out2 . $string2[$i];
+			$chars = $chars + 2;
+			if ( $chars > 79 ) {
+				$out2 .= "\n";
+				$chars = 0;
+			}
+		}
+	}
+	return $out1 . "\n-------------\n" . $out2 . "\n";
+}
 ?>
