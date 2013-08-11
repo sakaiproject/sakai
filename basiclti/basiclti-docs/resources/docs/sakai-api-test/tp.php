@@ -175,8 +175,7 @@ if ( strlen($endpoint) < 1 || strlen($reg_key) < 1 || strlen($reg_password) < 1 
 
 togglePre("Registration Request",htmlent_utf8($body));
 
-// $response = sendOAuthBodyPOST("POST", $endpoint, $reg_key, $reg_password, "application/vnd.ims.lti.v2.ToolProxy+json", $body);
-$response = sendOAuthBodyPOST("POST", $endpoint, $reg_key, "BITEME", "application/vnd.ims.lti.v2.ToolProxy+json", $body);
+$response = sendOAuthBodyPOST("POST", $endpoint, $reg_key, $reg_password, "application/vnd.ims.lti.v2.ToolProxy+json", $body);
 
 togglePre("Registration Request Headers",htmlent_utf8(get_post_sent_debug()));
 
