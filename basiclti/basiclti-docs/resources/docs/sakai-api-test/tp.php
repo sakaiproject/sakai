@@ -13,6 +13,8 @@ header('Content-Type: text/html; charset=utf-8');
 // Initialize, all secrets are 'secret', do not set session, and do not redirect
 $context = new BLTI("secret", false, false);
 
+$lti_message_type = $_POST["lti_message_type"];
+
 global $div_id;
 $div_id = 1;
 
@@ -46,26 +48,12 @@ function dataToggle(divName) {
 </head>
 <body style="font-family:sans-serif; background-color:#add8e6">
 <?php
-echo("<p><b>Sakai External Tool API Test Harness 2.0</b></p>\n");
-
-
-
-/* 
-launch_presentation_document_target=window (ASCII)
-launch_presentation_return_url=http://localhost:4000/admin/tool_actions (ASCII)
-lti_message_type=ToolProxyRegistrationRequest (ASCII)
-reg_key=fdb322c0-9d7b-0130-4f3a-406c8f217861 (ASCII)
-reg_password=f26e3b5d90d1b0026b6eead7857bba31 (ASCII)
-roles=urn:lti:sysrole:ims/lti/SysAdmin (ASCII)
-tc_profile_url=http://localhost:4000/tool_consumer_profiles/fdb32840-9d7b-0130-4f3a-406c8f217861 (ASCII)
-user_id=2 (ASCII)
-*/
+echo("<p><b>Sakai LTI 2.0 Test Harness</b></p>\n");
 
 ksort($_POST);
 $output = "";
 foreach($_POST as $key => $value ) {
     if (get_magic_quotes_gpc()) $value = stripslashes($value);
-    $output = $output . htmlent_utf8($key) . "=" . htmlent_utf8($value) . " (".mb_detect_encoding($value).")\n";
 }
 togglePre("Raw POST Parameters", $output);
 
@@ -79,7 +67,27 @@ foreach($_GET as $key => $value ) {
 if ( strlen($output) > 0 ) togglePre("Raw GET Parameters", $output);
 
 echo("<pre>\n");
+
+if ( $lti_message_type == "ToolProxyReregistrationRequest" ) {
+	$reg_key = $_POST['oauth_consumer_key'];
+	$reg_password = "secret";
+} else if ( $lti_message_type == "ToolProxyRegistrationRequest" ) {
+	$reg_key = $_POST['reg_key'];
+	$reg_password = $_POST['reg_password'];
+} else {
+	echo("</pre>");
+	die("lti_message_type not supported ".$lti_message_type);
+}
+
 $launch_presentation_return_url = $_POST['launch_presentation_return_url'];
+
+if ( $lti_message_type == "ToolProxyReregistrationRequest" && ! $context->valid ) {
+	print "Base string:\n";
+	print htmlent_utf8($context->basestring);
+	print "Context dump:\n";
+    print htmlent_utf8($context->dump());
+	die("Signature mismatch");
+}
 
 $tc_profile_url = $_POST['tc_profile_url'];
 if ( strlen($tc_profile_url) > 1 ) {
@@ -89,7 +97,11 @@ if ( strlen($tc_profile_url) > 1 ) {
 	echo("</pre>\n");
     togglePre("Retrieved Consumer Profile",$tc_profile_json);
     $tc_profile = json_decode($tc_profile_json);
-	// TODO: Handle error here...
+	if ( $tc_profile == null ) {
+		die("Unable to parse tc_profile error=".json_last_error());
+	}
+} else {
+    die("We must have a tc_profile_url to continue...");
 }
 
 // Find the registration URL
@@ -97,20 +109,19 @@ if ( strlen($tc_profile_url) > 1 ) {
 echo("<pre>\n");
 $tc_services = $tc_profile->service_offered;
 echo("Found ".count($tc_services)." services profile..\n");
+if ( count($tc_services) < 1 ) die("At a minimum, we need the service to register ourself - doh!\n");
+
 // var_dump($tc_services);
 $endpoint = false;
 foreach ($tc_services as $tc_service) {
-   $id = $tc_service->{'@id'};
-    echo("Service: ".$id."\n");
-   if ( $id != "ltitcp:ToolProxy.collection" ) continue;
+   $format = $tc_service->{'format'};
+    echo("Service: ".$format."\n");
+   if ( $format != "application/vnd.ims.lti.v2.ToolProxy+json" ) continue;
    // var_dump($tc_service);
    $endpoint = $tc_service->endpoint;
 }
 $cur_url = curPageURL();
 $cur_base = str_replace("tp.php","",$cur_url);
-
-$reg_key = $_POST['reg_key'];
-$reg_password = $_POST['reg_password'];
 
 $tp_profile = json_decode($tool_proxy);
 if ( $tp_profile == null ) {
@@ -118,7 +129,7 @@ if ( $tp_profile == null ) {
     $body = json_encode($tp_profile);
     $body = json_indent($body);
     togglePre("Tool Proxy Parsed",htmlent_utf8($body));
-    die("JSON PARSE ERROR ".json_last_error()."\n");
+    die("Unable to parse our own internal Tool Proxy (DOH!) error=".json_last_error()."\n");
 }
 
 // Tweak the stock profile
@@ -141,8 +152,6 @@ $tp_profile->tool_profile->base_url_choice[0]->default_base_url = $cur_base;
 $tp_profile->security_contract->shared_secret = 'secret';
 // print_r($tp_profile);
 
-$reg_key = $_POST['reg_key'];
-$reg_password = $_POST['reg_password'];
 $body = json_encode($tp_profile);
 $body = json_indent($body);
 
@@ -152,9 +161,12 @@ echo("<hr/>\n");
 
 echo("Registering....\n");
 echo("Endpoint=".$endpoint."\n");
-echo($reg_key."\n");
-echo($reg_password."\n");
+echo("Key=".$reg_key."\n");
+echo("Secret=".$reg_password."\n");
 echo("</pre>\n");
+
+if ( strlen($endpoint) < 1 || strlen($reg_key) < 1 || strlen($reg_password) < 1 ) die("Cannot call endpoint - insufficient data...\n");
+
 togglePre("Registration Request",htmlent_utf8($body));
 
 $response = sendOAuthBodyPOST("POST", $endpoint, $reg_key, $reg_password, "application/vnd.ims.lti.v2.ToolProxy+json", $body);
