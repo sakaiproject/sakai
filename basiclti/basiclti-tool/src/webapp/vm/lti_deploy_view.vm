@@ -11,11 +11,11 @@
 		<p class="act">
 			<input type="submit" accesskey ="x" name="doDone" value="$tlang.getString('gen.done')" 
  				onclick="location = '$sakai_ActionURL.setPanel("DeploySystem")';return false;">
-			#if ($reg_state == "2")
-			<input type="submit" accesskey ="r" name="doReRegister" value="$tlang.getString('gen.reregister')" 
+			#if ($reg_state == "0")
+			<input type="submit" accesskey ="r" name="doRegister" value="$tlang.getString('gen.register')" 
  				onclick="location = '$sakai_ActionURL.setPanel("DeployRegister")&id=$id'; return false;"/>
 			#else
-			<input type="submit" accesskey ="r" name="doRegister" value="$tlang.getString('gen.register')" 
+			<input type="submit" accesskey ="r" name="doReRegister" value="$tlang.getString('gen.reregister')" 
  				onclick="location = '$sakai_ActionURL.setPanel("DeployRegister")&id=$id'; return false;"/>
 			#end
 

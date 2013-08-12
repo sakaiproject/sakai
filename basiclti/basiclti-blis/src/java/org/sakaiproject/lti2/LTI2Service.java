@@ -355,16 +355,12 @@ System.out.println("deployKey="+deployKey);
 		Long reg_state = foorm.getLong(deploy.get(LTIService.LTI_REG_STATE));
 		String key = null;
 		String secret = null;
-		if ( reg_state == 1 ) {
+		if ( reg_state == 0 ) {
 			key = (String) deploy.get(LTIService.LTI_REG_KEY);
 			secret = (String) deploy.get(LTIService.LTI_REG_PASSWORD);
-		} else if ( reg_state == 2 ) {  // TODO: For now, we just cruise in by - in the future do a PUT
+		} else {
 			key = (String) deploy.get(LTIService.LTI_CONSUMERKEY);
 			secret = (String) deploy.get(LTIService.LTI_SECRET);
-		} else {
-			response.setStatus(HttpServletResponse.SC_FORBIDDEN); 
-			doErrorJSON(request, response, null, "deploy.register.state", "Deployment is not in correct state", null);
-			return;
 		}
 
 		IMSJSONRequest jsonRequest = new IMSJSONRequest(request);
@@ -420,6 +416,13 @@ System.out.println("deployKey="+deployKey);
 			doErrorJSON(request, response, jsonRequest, "deploy.register.parse", "JSON missing tool_profile", null);
 			return;
 		}
+		JSONObject product_instance = (JSONObject) tool_profile.get("product_instance");
+		if ( product_instance == null  ) {
+			response.setStatus(HttpServletResponse.SC_BAD_REQUEST);
+			doErrorJSON(request, response, jsonRequest, "deploy.register.parse", "JSON missing product_instance", null);
+			return;
+		}
+System.out.println("product_instance="+product_instance);
 		JSONArray base_url_choices = (JSONArray) tool_profile.get("base_url_choice");
 		if ( base_url_choices == null  ) {
 			response.setStatus(HttpServletResponse.SC_BAD_REQUEST);
@@ -536,7 +539,7 @@ System.out.println("thisLaunch="+thisLaunch);
 		deployUpdate.put(LTIService.LTI_SECRET, shared_secret);
 
 		// Indicate registration complete and kill the interim info
-		deployUpdate.put(LTIService.LTI_REG_STATE, "2");
+		deployUpdate.put(LTIService.LTI_REG_STATE, "1");
 		deployUpdate.put(LTIService.LTI_REG_KEY, "");
 		deployUpdate.put(LTIService.LTI_REG_PASSWORD, "");
 System.out.println("deployUpdate="+deployUpdate);

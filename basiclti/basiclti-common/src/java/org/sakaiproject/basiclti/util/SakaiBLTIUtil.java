@@ -660,7 +660,7 @@ public class SakaiBLTIUtil {
 		}
 
 		int status = getInt(tool.get("reg_state"));
-		if ( status != 1 ) return postError("<p>" + getRB(rb, "error.lti2.badstate" ,"Tool is in the wrong state to register")+"</p>" ); 
+		if ( status != 0 ) return postError("<p>" + getRB(rb, "error.lti2.badstate" ,"Tool is in the wrong state to register")+"</p>" ); 
 
 		String launch_url = (String) tool.get("reg_launch");
 		if ( launch_url == null ) return postError("<p>" + getRB(rb, "error.lti2.noreg" ,"This tool is has no registration url.")+"</p>" );
@@ -709,7 +709,7 @@ public class SakaiBLTIUtil {
 		}
 
 		int status = getInt(deploy.get("reg_state"));
-		if ( status != 2 ) return postError("<p>" + getRB(rb, "error.deploy.badstate" ,"Deployment is in the wrong state to register")+"</p>" ); 
+		if ( status == 0 ) return postError("<p>" + getRB(rb, "error.deploy.badstate" ,"Deployment is in the wrong state to register")+"</p>" ); 
 
 		String launch_url = (String) deploy.get("reg_launch");
 		if ( launch_url == null ) return postError("<p>" + getRB(rb, "error.deploy.noreg" ,"This deployment is has no registration url.")+"</p>" );

@@ -347,8 +347,8 @@ public class LTIAdminTool extends VelocityPortletPaneledAction
 		Map<String,Object> tool = ltiService.getTool(key);
 		if (  tool == null ) return "lti_main";	
 
-		// Extract the reg_state to make it view only
-		String fieldInfo = foorm.getFormField(mappingForm, "reg_state");
+		// Extract the version to make it view only
+		String fieldInfo = foorm.getFormField(mappingForm, "version");
 		fieldInfo = fieldInfo.replace(":hidden=true","");
         String formStatus = ltiService.formOutput(tool, fieldInfo);
 		context.put("formStatus", formStatus);
@@ -390,23 +390,19 @@ public class LTIAdminTool extends VelocityPortletPaneledAction
 		}
 
 		// Deal with the differences between LTI 1 and LTI 2
-		Long reg_state = foorm.getLongNull(tool.get(LTIService.LTI_REG_STATE));
-		boolean isLTI1 = reg_state == null || reg_state == 0;
+		Long version = foorm.getLongNull(tool.get(LTIService.LTI_VERSION));
+		boolean isLTI1 = version == LTIService.LTI_VERSION_1;
 		if ( isLTI1 ) {
-			mappingForm = foorm.filterForm(mappingForm, null, ".*:only=view.*|.*:only=lti2.*");
+			mappingForm = foorm.filterForm(mappingForm, null, ".*:only=lti2.*");
 		} else {
-			mappingForm = foorm.filterForm(mappingForm, null, ".*:only=view.*|.*:only=lti1.*");
+			mappingForm = foorm.filterForm(mappingForm, null, ".*:only=lti1.*");
 		}
 
-		// Extract the reg_state to make it view only
-		String fieldInfo = foorm.getFormField(mappingForm, "reg_state");
+		// Extract the version to make it view only
+		String fieldInfo = foorm.getFormField(mappingForm, "version");
 		fieldInfo = fieldInfo.replace(":hidden=true","");
         String formStatus = ltiService.formOutput(tool, fieldInfo);
 		context.put("formStatus", formStatus);
-		context.put("reg_state",new Integer(isLTI1 ? 0 : 1));
-
-		// Remove reg_state from the editable part of the model
-		mappingForm = foorm.filterForm(mappingForm, null, "^reg_state:.*");
 
 		// If we are not admin, hide url, key, and secret
 		if ( ! isLTI1 && ! ltiService.isAdmin() ) {
@@ -526,7 +522,6 @@ public class LTIAdminTool extends VelocityPortletPaneledAction
 		}
 		context.put("doToolAction", BUTTON + "doToolPut");
 		context.put("messageSuccess",state.getAttribute(STATE_SUCCESS));
-		context.put("reg_state",new Integer(0));
 		String [] mappingForm = ltiService.getToolModel();
 
         mappingForm = foorm.filterForm(mappingForm, null, ".*:only=edit.*|.*:only=lti2.*");
@@ -602,7 +597,7 @@ public class LTIAdminTool extends VelocityPortletPaneledAction
 		}
 		context.put("doDeployAction", BUTTON + "doDeployPut");
 		context.put("messageSuccess",state.getAttribute(STATE_SUCCESS));
-		context.put("reg_state",new Integer(1));
+		context.put("reg_state",new Integer(0));
 		String [] mappingForm = ltiService.getDeployModel();
 
         mappingForm = foorm.filterForm(mappingForm, null, ".*:hide=insert.*");
@@ -779,9 +774,9 @@ System.out.println("Register id="+id);
 		String consumerkey = (String) deploy.get(LTIService.LTI_CONSUMERKEY);
 		String secret = (String) deploy.get(LTIService.LTI_SECRET);
 
-		if ( reg_state == 1 && reg_key != null && reg_password != null && consumerkey != null) {	
+		if ( reg_state == 0 && reg_key != null && reg_password != null && consumerkey != null) {	
 			// Good news ...
-		} else if ( reg_state == 2 && secret != null && consumerkey != null) {	
+		} else if ( (reg_state == 1 || reg_state == 2 ) && secret != null && consumerkey != null) {	
 			// Good news ...
 		} else {
 			addAlert(state,rb.getString("error.register.not.ready"));
@@ -812,7 +807,7 @@ System.out.println("Register...");
 
 		// TODO: Check all of the passed in parameters
 		state.setAttribute(STATE_SUCCESS,"Welcome back from registration..");
-		return buildToolViewPanelContext(portlet, context, data, state);
+		return buildDeployViewPanelContext(portlet, context, data, state);
 	}
 
 	public String buildDeploySystemPanelContext(VelocityPortlet portlet, Context context, 

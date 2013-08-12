@@ -290,13 +290,13 @@ public class BasicLTISecurityServiceImpl implements EntityProducer {
                                // System.out.println("deployStr="+deployStr+" deployKey="+deployKey+" placementId="+placementId);
                                // System.out.println(deploy);
                                Long reg_state = foorm.getLongKey(deploy.get(LTIService.LTI_REG_STATE));
-                               if ( reg_state == 2 ) 
+                               if ( reg_state == 0 ) 
                                { 
-                                   retval = SakaiBLTIUtil.postReRegisterHTML(deployKey, deploy, rb, placementId);
+                                   retval = SakaiBLTIUtil.postRegisterHTML(deployKey, deploy, rb, placementId);
                                } 
                                else
                                { 
-                                   retval = SakaiBLTIUtil.postRegisterHTML(deployKey, deploy, rb, placementId);
+                                   retval = SakaiBLTIUtil.postReRegisterHTML(deployKey, deploy, rb, placementId);
                                } 
 						   } 
 						   else if ( refId.startsWith("content:") && refId.length() > 8 ) 
