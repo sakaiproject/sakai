@@ -197,7 +197,7 @@ echo("Registration failed, http code=".$last_http_response."\n");
 $responseObject = json_decode($response);
 if ( $responseObject != null ) {
 	$base_string = $responseObject->base_string;
-	if ( $base_string != $LastOAuthBodyBaseString ) {
+	if ( strlen($base_string) > 0 && strlen($LastOAuthBodyBaseString) > 0 && $base_string != $LastOAuthBodyBaseString ) {
 		$compare = compare_base_strings($LastOAuthBodyBaseString, $base_string);
 		togglePre("Compare Base Strings (ours first)",htmlent_utf8($compare));
 	}
