@@ -307,7 +307,8 @@ System.out.println("deploy="+deploy);
 		String uri = request.getRequestURI();
 		String [] parts = uri.split("/");
 		if ( parts.length < 4 ) {
-			response.setStatus(HttpServletResponse.SC_FORBIDDEN); // TODO: Get this right
+			response.setStatus(HttpServletResponse.SC_BAD_REQUEST); 
+			doErrorJSON(request, response, null, "request.bad.url", "Incorrect url format", null);
 			return;
 		}
 		String controller = parts[3];
@@ -320,14 +321,16 @@ System.out.println("deploy="+deploy);
 			registerToolProviderProfile(request, response, profile_id);
 			return;
 		}
-		response.setStatus(HttpServletResponse.SC_FORBIDDEN); // TODO: Get this right
-			String contentType = request.getContentType();
-			if ( contentType != null && contentType.startsWith("application/json") ) {
-				doPostJSON(request, response);
-			}
-            // TODO: OOPS
-
+		response.setStatus(HttpServletResponse.SC_NOT_IMPLEMENTED); 
+		doErrorJSON(request, response, null, "request.not.implemented", "Unknown request", null);
+/*
+		String contentType = request.getContentType();
+		if ( contentType != null && contentType.startsWith("application/json") ) {
+			doPostJSON(request, response);
 		}
+*/
+
+	}
 
 	public void registerToolProviderProfile(HttpServletRequest request,HttpServletResponse response, 
 		String profile_id) throws java.io.IOException
@@ -376,14 +379,14 @@ System.out.println("deployKey="+deployKey);
 		// Lets check the signature
 		if ( key == null || secret == null ) {
 			response.setStatus(HttpServletResponse.SC_FORBIDDEN); 
-			doErrorJSON(request, response, null, "deploy.register.credentials", "Deployment is missing credentials", null);
+			doErrorJSON(request, response, jsonRequest, "deploy.register.credentials", "Deployment is missing credentials", null);
 			return;
 		}
 
         jsonRequest.validateRequest(key, secret, request);
 		if ( !jsonRequest.valid ) {
 			response.setStatus(HttpServletResponse.SC_FORBIDDEN); 
-			doErrorJSON(request, response, null, "deploy.register.signature", "OAuth signature failure", null);
+			doErrorJSON(request, response, jsonRequest, "deploy.register.signature", "OAuth signature failure", null);
 			return;
 		}
 
@@ -499,6 +502,7 @@ System.out.println("LU="+launch_url);
 			good_resource_handlers.add(resource_handler);
 		}
 
+/*
 		// Loop through resource handlers a second time and create tools
 		for(Object o : good_resource_handlers ) {
 			JSONObject resource_handler = (JSONObject) o;
@@ -517,33 +521,29 @@ System.out.println("LU="+launch_url);
 				parameters = (JSONArray) message.get("parameter");
 				enabled_capability = (JSONArray) message.get("enabled_capability");
 			}
+			// Ignore everything except launch handlers
+			if ( path == null ) continue;
 
 			String thisLaunch = launch_url;
 			if ( ! thisLaunch.endsWith("/") && ! path.startsWith("/") ) thisLaunch = thisLaunch + "/";
 			thisLaunch = thisLaunch + path;
 System.out.println("thisLaunch="+thisLaunch);
 		}
-
-		response.setStatus(HttpServletResponse.SC_NOT_IMPLEMENTED);
-		doErrorJSON(request, response, jsonRequest, "deploy.register.debug", "Stopping early", null);
-/*
+*/
 		Map<String, Object> deployUpdate = new TreeMap<String, Object> ();
 
 		// TODO: Make sure to encrypt that password...
 		deployUpdate.put(LTIService.LTI_SECRET, shared_secret);
-		deployUpdate.put(LTIService.LTI_LAUNCH, launch_url);
-		deployUpdate.put(LTIService.LTI_REG_PARAMETERS, parameters.toString());
 
 		// Indicate registration complete and kill the interim info
 		deployUpdate.put(LTIService.LTI_REG_STATE, "2");
 		deployUpdate.put(LTIService.LTI_REG_KEY, "");
 		deployUpdate.put(LTIService.LTI_REG_PASSWORD, "");
-		System.out.println("deployUpdate="+deployUpdate);
+System.out.println("deployUpdate="+deployUpdate);
 
 		deployUpdate.put(LTIService.LTI_REG_PROFILE, jsonObject.toString());
 		Object obj = ltiService.updateDeployDao(deployKey, deployUpdate);
 		boolean success = ( obj instanceof Boolean ) && ( (Boolean) obj == Boolean.TRUE);
-		System.out.println("YO..."+success);
 
 		Map jsonResponse = new TreeMap();
 		jsonResponse.put("@context","http://www.imsglobal.org/imspurl/lti/v2/ctx/ToolProxyId");
@@ -552,15 +552,14 @@ System.out.println("thisLaunch="+thisLaunch);
         jsonResponse.put("@id", serverUrl+"/imsblis/lti2/tc_registration/"+profile_id);
 		jsonResponse.put("tool_proxy_guid", profile_id);
 		response.setContentType("application/vnd.ims.lti.v2.ToolProxy.id+json");
-		response.setStatus(201); // TODO: Get this right
+		response.setStatus(HttpServletResponse.SC_CREATED); // TODO: Get this right
 		String jsonText = JSONValue.toJSONString(jsonResponse);
-		System.out.println(jsonText);
+		M_log.debug(jsonText);
 		PrintWriter out = response.getWriter();
 		out.println(jsonText);
-*/
 	}
 
-    /* IMS JSON version of this service */
+    /* IMS JSON version of Errors */
 	public void doErrorJSON(HttpServletRequest request,HttpServletResponse response, 
 			IMSJSONRequest json, String s, String message, Exception e) 
 		throws java.io.IOException 
@@ -568,17 +567,17 @@ System.out.println("thisLaunch="+thisLaunch);
 			if (e != null) {
 				M_log.error(e.getLocalizedMessage(), e);
 			}
-			String msg = rb.getString(s) + ": " + message;
-			M_log.info(msg);
+			M_log.info(message);
 			response.setContentType("application/json");
 			Map jsonResponse = new TreeMap();
 			jsonResponse.put("ext_sakai_code", s);
+			jsonResponse.put("ext_sakai_code_text", rb.getString(s));
 
             Map status = null;
             if ( json == null ) {
-                status = IMSJSONRequest.getStatusFailure(msg);
+                status = IMSJSONRequest.getStatusFailure(message);
             } else {
-                status = json.getStatusFailure(msg);
+                status = json.getStatusFailure(message);
 				if ( json.base_string != null ) {
 					jsonResponse.put("base_string", json.base_string);
 				}
