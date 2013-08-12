@@ -8,7 +8,7 @@
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- *             http://www.opensource.org/licenses/ECL-2.0
+ *			 http://www.opensource.org/licenses/ECL-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -111,9 +111,9 @@ public class LTI2Service extends HttpServlet {
 	private static Log M_log = LogFactory.getLog(LTI2Service.class);
 	private static ResourceLoader rb = new ResourceLoader("blis");
 
-    protected static SakaiFoorm foorm = new SakaiFoorm();
+	protected static SakaiFoorm foorm = new SakaiFoorm();
 
-    protected static LTIService ltiService = null;
+	protected static LTIService ltiService = null;
 
 	private final String returnHTML = 
 		"<!DOCTYPE html PUBLIC \"-//W3C//DTD XHTML 1.0 Transitional//EN\"\n" + 
@@ -126,10 +126,10 @@ public class LTI2Service extends HttpServlet {
 		"$gotMessage = GOTMESSAGE;\n" +
 		"if(self.location==top.location) {\n" + 
 		"  if ( $gotMessage ) {\n" +
-		"    document.write($message);\n" +
-		"    document.write($closeText);\n" +
+		"	document.write($message);\n" +
+		"	document.write($closeText);\n" +
 		"  } else {\n" + 
-		"    self.close();\n" +
+		"	self.close();\n" +
 		"  }\n" + 
 		"} else {\n" +
 		"  document.write($message);\n" +
@@ -225,7 +225,7 @@ System.out.println("profile_id="+profile_id);
 		String search = LTIService.LTI_CONSUMERKEY + " = '" + profile_id + "'";
 		List<Map<String, Object>> deploys = ltiService.getDeploysDao(search, null, 0, 0);
 
-        Map<String,Object> deploy = null;
+		Map<String,Object> deploy = null;
 		if ( deploys.size() == 1 ) deploy = deploys.get(0);
 
 		if ( deploy == null ) {
@@ -235,18 +235,18 @@ System.out.println("profile_id="+profile_id);
 System.out.println("deploy="+deploy);
 
 		String serverUrl = ServerConfigurationService.getServerUrl();
-        Product_family fam = new Product_family("SakaiCLE", "CLE", "Sakai Project",
-            "Amazing open source Collaboration and Learning Environment.", 
-            "http://www.sakaiproject.org", "support@sakaiproject.org");
+		Product_family fam = new Product_family("SakaiCLE", "CLE", "Sakai Project",
+			"Amazing open source Collaboration and Learning Environment.", 
+			"http://www.sakaiproject.org", "support@sakaiproject.org");
 
-        Product_info info = new Product_info("CTools", "4.0", "The Sakai installation for UMich", fam);
+		Product_info info = new Product_info("CTools", "4.0", "The Sakai installation for UMich", fam);
 
-        Product_instance instance = new Product_instance("ctools-001", info, "support@ctools.umich.edu");
+		Product_instance instance = new Product_instance("ctools-001", info, "support@ctools.umich.edu");
 
-        ToolConsumer consumer = new ToolConsumer(profile_id+"", instance);
-        List<String> capabilities = consumer.getCapability_enabled();
-        capabilities.add("basic-lti-launch-request");
-        capabilities.add("ToolProxyReregistrationRequest");
+		ToolConsumer consumer = new ToolConsumer(profile_id+"", instance);
+		List<String> capabilities = consumer.getCapability_enabled();
+		capabilities.add("basic-lti-launch-request");
+		capabilities.add("ToolProxyReregistrationRequest");
 
 		if (foorm.getLong(deploy.get(LTIService.LTI_SENDEMAILADDR)) > 0 ) {
 			capabilities.add("Person.email.primary");
@@ -257,8 +257,8 @@ System.out.println("deploy="+deploy);
 			capabilities.add("Person.name.family");
 		}
 
-        List<Service_offered> services = consumer.getService_offered();
-        services.add(StandardServices.LTI2Registration(serverUrl+"/imsblis/lti2/tc_registration/"+profile_id));
+		List<Service_offered> services = consumer.getService_offered();
+		services.add(StandardServices.LTI2Registration(serverUrl+"/imsblis/lti2/tc_registration/"+profile_id));
 
 		if (foorm.getLong(deploy.get(LTIService.LTI_ALLOWOUTCOMES)) > 0 ) {
 			services.add(StandardServices.LTI1Outcomes(serverUrl+"/imsblis/service/"));
@@ -279,21 +279,21 @@ System.out.println("deploy="+deploy);
 			services.add(SakaiLTI2Services.LORI_XML(serverUrl+"/imsblis/service/"));
 		}
 
-        ObjectMapper mapper = new ObjectMapper();
-        try {
-            // http://stackoverflow.com/questions/6176881/how-do-i-make-jackson-pretty-print-the-json-content-it-generates
-            ObjectWriter writer = mapper.defaultPrettyPrintingWriter();
-            // ***IMPORTANT!!!*** for Jackson 2.x use the line below instead of the one above: 
-            // ObjectWriter writer = mapper.writer().withDefaultPrettyPrinter();
-            // System.out.println(mapper.writeValueAsString(consumer));
+		ObjectMapper mapper = new ObjectMapper();
+		try {
+			// http://stackoverflow.com/questions/6176881/how-do-i-make-jackson-pretty-print-the-json-content-it-generates
+			ObjectWriter writer = mapper.defaultPrettyPrintingWriter();
+			// ***IMPORTANT!!!*** for Jackson 2.x use the line below instead of the one above: 
+			// ObjectWriter writer = mapper.writer().withDefaultPrettyPrinter();
+			// System.out.println(mapper.writeValueAsString(consumer));
 			response.setContentType("application/json");
 			PrintWriter out = response.getWriter();
 			out.println(writer.writeValueAsString(consumer));
-            // System.out.println(writer.writeValueAsString(consumer));
-        }
-        catch (Exception e) {
-            e.printStackTrace();
-        }
+			// System.out.println(writer.writeValueAsString(consumer));
+		}
+		catch (Exception e) {
+			e.printStackTrace();
+		}
 
 	}
 
@@ -340,7 +340,7 @@ System.out.println("profile_id="+profile_id);
 		String search = LTIService.LTI_CONSUMERKEY + " = '" + profile_id + "'";
 		List<Map<String, Object>> deploys = ltiService.getDeploysDao(search, null, 0, 0);
 
-        Map<String,Object> deploy = null;
+		Map<String,Object> deploy = null;
 		if ( deploys.size() == 1 ) deploy = deploys.get(0);
 
 		if ( deploy == null ) {
@@ -379,22 +379,22 @@ System.out.println("deployKey="+deployKey);
 			return;
 		}
 
-        jsonRequest.validateRequest(key, secret, request);
+		jsonRequest.validateRequest(key, secret, request);
 		if ( !jsonRequest.valid ) {
 			response.setStatus(HttpServletResponse.SC_FORBIDDEN); 
 			doErrorJSON(request, response, jsonRequest, "deploy.register.signature", "OAuth signature failure", null);
 			return;
 		}
 
-		JSONObject jsonObject = (JSONObject) JSONValue.parse(jsonRequest.getPostBody());
-		// System.out.println("OBJ:"+jsonObject);
-		if ( jsonObject == null  ) {
+		JSONObject providerProfile = (JSONObject) JSONValue.parse(jsonRequest.getPostBody());
+		// System.out.println("OBJ:"+providerProfile);
+		if ( providerProfile == null  ) {
 			response.setStatus(HttpServletResponse.SC_BAD_REQUEST);
 			doErrorJSON(request, response, jsonRequest, "deploy.register.parse", "JSON parse failed", null);
 			return;
 		}
 
-		JSONObject security_contract = (JSONObject) jsonObject.get("security_contract");
+		JSONObject security_contract = (JSONObject) providerProfile.get("security_contract");
 		if ( security_contract == null  ) {
 			response.setStatus(HttpServletResponse.SC_BAD_REQUEST);
 			doErrorJSON(request, response, jsonRequest, "deploy.register.parse", "JSON missing security_contract", null);
@@ -410,129 +410,32 @@ System.out.println("deployKey="+deployKey);
 		// Blank out the new shared secret
 		security_contract.put("shared_secret", "*********");
 
-		JSONObject tool_profile = (JSONObject) jsonObject.get("tool_profile");
-		if ( tool_profile == null  ) {
-			response.setStatus(HttpServletResponse.SC_BAD_REQUEST);
-			doErrorJSON(request, response, jsonRequest, "deploy.register.parse", "JSON missing tool_profile", null);
-			return;
-		}
-		JSONObject product_instance = (JSONObject) tool_profile.get("product_instance");
-		if ( product_instance == null  ) {
-			response.setStatus(HttpServletResponse.SC_BAD_REQUEST);
-			doErrorJSON(request, response, jsonRequest, "deploy.register.parse", "JSON missing product_instance", null);
-			return;
-		}
-System.out.println("product_instance="+product_instance);
-		JSONArray base_url_choices = (JSONArray) tool_profile.get("base_url_choice");
-		if ( base_url_choices == null  ) {
-			response.setStatus(HttpServletResponse.SC_BAD_REQUEST);
-			doErrorJSON(request, response, jsonRequest, "deploy.register.parse", "JSON missing base_url_choices", null);
-			return;
-		}
-		String secure_base_url = null;
-		String default_base_url = null;
-		for ( Object o : base_url_choices ) {
-			JSONObject url_choice = (JSONObject) o;
-			secure_base_url = (String) url_choice.get("secure_base_url");
-			default_base_url = (String) url_choice.get("default_base_url");
-		}
-		
-System.out.println("BU="+secure_base_url+" DBU="+default_base_url);
-		String launch_url = secure_base_url;
-		if ( launch_url == null ) launch_url = default_base_url;
-		if ( launch_url == null ) {
-			response.setStatus(HttpServletResponse.SC_BAD_REQUEST);
-			doErrorJSON(request, response, jsonRequest, "deploy.register.launch", "Unable to determine launch URL", null);
-			return;
-		}
-System.out.println("LU="+launch_url);
-
-		JSONArray resource_handlers = (JSONArray) tool_profile.get("resource_handler");
-		if ( resource_handlers == null  ) {
-			response.setStatus(HttpServletResponse.SC_BAD_REQUEST);
-			doErrorJSON(request, response, jsonRequest, "deploy.register.parse", "JSON missing resource_handlers", null);
-			return;
-		}
-
-		// Loop through resource handlers, read, and check for errors
-		// We do this twice because we don't want to add any tools if
-		// We are going to fail the request.
-		JSONArray good_resource_handlers = new JSONArray();
-		for(Object o : resource_handlers ) {
-			JSONObject resource_handler = (JSONObject) o;
-			String resource_type = (String) resource_handler.get("resource_type");
-			JSONArray messages = (JSONArray) resource_handler.get("message");
-			JSONObject nameObject = (JSONObject) resource_handler.get("name");
-			String name = null;
-			if ( nameObject != null ) name = (String) nameObject.get("default_value");
-			if ( name == null || nameObject == null || resource_type == null || resource_type == null ) {
+		// Parse the tool profile bit and extract the tools with error checking
+		List<Properties> theTools = new ArrayList<Properties> ();
+		Properties info = new Properties();
+		try {
+			String [] retval = BasicLTIUtil.parseToolProfile(theTools, info, providerProfile);
+System.out.println("info = " + info);
+			if ( retval != null ) {
 				response.setStatus(HttpServletResponse.SC_BAD_REQUEST);
-				doErrorJSON(request, response, jsonRequest, "deploy.register.parse", "JSON missing name, default_value, resource_type or message", null);
+				doErrorJSON(request, response, jsonRequest, retval[0], retval[1], null);
 				return;
 			}
-		
-			String path = null;
-			for ( Object m : messages ) {
-				JSONObject message = (JSONObject) m;
-				String message_type = (String) message.get("message_type");
-				if ( ! "basic-lti-launch-request".equals(message_type) ) continue;
-				if ( path != null ) {
-					response.setStatus(HttpServletResponse.SC_BAD_REQUEST);
-					doErrorJSON(request, response, jsonRequest, "deploy.register.messages", "A resource_handler cannot have more than one basic-lti-launch-request message RT="+resource_type, null);
-					return;
-				}
-				path = (String) message.get("path");
-				if ( path == null ) {
-					response.setStatus(HttpServletResponse.SC_BAD_REQUEST);
-					doErrorJSON(request, response, jsonRequest, "deploy.register.nopath", "A basic-lti-launch-request message must have a path RT="+resource_type, null);
-					return;
-				} 
-			}
-
-			// Ignore everything except launch handlers
-			if ( path == null ) continue;
-
-			String thisLaunch = launch_url;
-			if ( ! thisLaunch.endsWith("/") && ! path.startsWith("/") ) thisLaunch = thisLaunch + "/";
-			thisLaunch = thisLaunch + path;
-			if ( ! FormattedText.validateURL(thisLaunch) ) {
-				response.setStatus(HttpServletResponse.SC_BAD_REQUEST);
-				doErrorJSON(request, response, jsonRequest, "deploy.register.badurl", "Launch URL is invalid:"+thisLaunch, null);
-				return;
-			}
-
-			// Passed all the tests...  On to the next phase.
-			good_resource_handlers.add(resource_handler);
+		}
+		catch (Exception e ) {
+			response.setStatus(HttpServletResponse.SC_BAD_REQUEST);
+			doErrorJSON(request, response, jsonRequest, "deploy.parse.exception", "Exception:"+ e.getLocalizedMessage(), e);
+			return;
 		}
 
-/*
-		// Loop through resource handlers a second time and create tools
-		for(Object o : good_resource_handlers ) {
-			JSONObject resource_handler = (JSONObject) o;
-			String resource_type = (String) resource_handler.get("resource_type");
-			JSONArray messages = (JSONArray) resource_handler.get("message");
-			JSONObject nameObject = (JSONObject) resource_handler.get("name");
-			String name = (String) nameObject.get("default_value");
-			String path = null;
-			JSONArray parameters = null;
-			JSONArray enabled_capability = null; // TODO: examine enabled_capability - OK to be empty
-			for ( Object m : messages ) {
-				JSONObject message = (JSONObject) m;
-				String message_type = (String) message.get("message_type");
-				if ( ! "basic-lti-launch-request".equals(message_type) ) continue;
-				path = (String) message.get("path");
-				parameters = (JSONArray) message.get("parameter");
-				enabled_capability = (JSONArray) message.get("enabled_capability");
-			}
-			// Ignore everything except launch handlers
-			if ( path == null ) continue;
-
-			String thisLaunch = launch_url;
-			if ( ! thisLaunch.endsWith("/") && ! path.startsWith("/") ) thisLaunch = thisLaunch + "/";
-			thisLaunch = thisLaunch + path;
-System.out.println("thisLaunch="+thisLaunch);
+		if ( theTools.size() < 1 ) {
+			response.setStatus(HttpServletResponse.SC_BAD_REQUEST);
+			doErrorJSON(request, response, jsonRequest, "deploy.register.notools", "No tools found in profile", null);
+			return;
 		}
-*/
+
+		// TODO: Check all the services...
+
 		Map<String, Object> deployUpdate = new TreeMap<String, Object> ();
 
 		// TODO: Make sure to encrypt that password...
@@ -544,7 +447,7 @@ System.out.println("thisLaunch="+thisLaunch);
 		deployUpdate.put(LTIService.LTI_REG_PASSWORD, "");
 System.out.println("deployUpdate="+deployUpdate);
 
-		deployUpdate.put(LTIService.LTI_REG_PROFILE, jsonObject.toString());
+		deployUpdate.put(LTIService.LTI_REG_PROFILE, providerProfile.toString());
 		Object obj = ltiService.updateDeployDao(deployKey, deployUpdate);
 		boolean success = ( obj instanceof Boolean ) && ( (Boolean) obj == Boolean.TRUE);
 
@@ -552,7 +455,7 @@ System.out.println("deployUpdate="+deployUpdate);
 		jsonResponse.put("@context","http://www.imsglobal.org/imspurl/lti/v2/ctx/ToolProxyId");
 		jsonResponse.put("@type", "ToolProxy");
 		String serverUrl = ServerConfigurationService.getServerUrl();
-        jsonResponse.put("@id", serverUrl+"/imsblis/lti2/tc_registration/"+profile_id);
+		jsonResponse.put("@id", serverUrl+"/imsblis/lti2/tc_registration/"+profile_id);
 		jsonResponse.put("tool_proxy_guid", profile_id);
 		response.setContentType("application/vnd.ims.lti.v2.ToolProxy.id+json");
 		response.setStatus(HttpServletResponse.SC_CREATED); // TODO: Get this right
@@ -562,7 +465,7 @@ System.out.println("deployUpdate="+deployUpdate);
 		out.println(jsonText);
 	}
 
-    /* IMS JSON version of Errors */
+	/* IMS JSON version of Errors */
 	public void doErrorJSON(HttpServletRequest request,HttpServletResponse response, 
 			IMSJSONRequest json, String s, String message, Exception e) 
 		throws java.io.IOException 
@@ -576,15 +479,15 @@ System.out.println("deployUpdate="+deployUpdate);
 			jsonResponse.put("ext_sakai_code", s);
 			jsonResponse.put("ext_sakai_code_text", rb.getString(s));
 
-            Map status = null;
-            if ( json == null ) {
-                status = IMSJSONRequest.getStatusFailure(message);
-            } else {
-                status = json.getStatusFailure(message);
+			Map status = null;
+			if ( json == null ) {
+				status = IMSJSONRequest.getStatusFailure(message);
+			} else {
+				status = json.getStatusFailure(message);
 				if ( json.base_string != null ) {
 					jsonResponse.put("base_string", json.base_string);
 				}
-            }
+			}
 			jsonResponse.put(IMSJSONRequest.STATUS, status);
 			if ( e != null ) {
 				jsonResponse.put("exception", e.getLocalizedMessage());
@@ -748,14 +651,14 @@ System.out.println("deployUpdate="+deployUpdate);
 			if ( parts.length >= 4 ) operation = parts[3];
 
 /*
-            String placementLori = pitch.getProperty("allowlori");
+			String placementLori = pitch.getProperty("allowlori");
 			if ( allowLori != null && "on".equals(placementLori) && "coursestructure".equals(operation) ) {
-			    processCourseStructureJSON(request, response, jsonObject, jsonRequest);
+				processCourseStructureJSON(request, response, jsonObject, jsonRequest);
 			} else if ( allowLori != null && "on".equals(placementLori) && "addcourseresources".equals(operation) ) {
-			    processAddResourcesJSON(request, response, jsonObject, jsonRequest);
+				processAddResourcesJSON(request, response, jsonObject, jsonRequest);
 */
-            if ( false ) {
-                // TODO
+			if ( false ) {
+				// TODO
 			} else { 
 				response.setContentType("application/json");
 				PrintWriter out = response.getWriter();
@@ -799,7 +702,7 @@ System.out.println("deployUpdate="+deployUpdate);
 			for ( String field : fieldList ) {
 				String value = SakaiBLTIUtil.toNull(SakaiBLTIUtil.getCorrectProperty(config,field, placement));
 				if ( field.equals("toolsetting") ) {
-                    value = config.getProperty("toolsetting", null);
+					value = config.getProperty("toolsetting", null);
 					field = LTIService.LTI_SETTINGS;
 				}
 				if ( value == null ) continue;
@@ -885,10 +788,10 @@ System.out.println("deployUpdate="+deployUpdate);
 	}
 
 	// Convienence
-    public static int getInt(Object o)
-    {
+	public static int getInt(Object o)
+	{
 		return FoormUtil.getInt(o);
-    }
+	}
 
 	public void destroy() {
 

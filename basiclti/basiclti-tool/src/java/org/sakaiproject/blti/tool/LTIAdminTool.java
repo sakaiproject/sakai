@@ -39,6 +39,10 @@ import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.apache.commons.lang.StringUtils;
 
+import org.json.simple.JSONValue;
+import org.json.simple.JSONObject;
+import org.json.simple.JSONArray;
+
 import org.sakaiproject.cheftool.Context;
 import org.sakaiproject.cheftool.JetspeedRunData;
 import org.sakaiproject.cheftool.RunData;
@@ -65,6 +69,9 @@ import org.sakaiproject.tool.cover.SessionManager;
 
 import org.sakaiproject.lti.api.LTIService;
 import org.sakaiproject.basiclti.util.SakaiBLTIUtil;
+
+import org.imsglobal.basiclti.BasicLTIUtil;
+
 // import org.sakaiproject.lti.impl.DBLTIService; // HACK
 
 import org.sakaiproject.util.foorm.SakaiFoorm;
@@ -801,13 +808,57 @@ System.out.println("Register...");
 		return "lti_deploy_register";
 	}
 
-	public String buildRegCompletePanelContext(VelocityPortlet portlet, Context context, 
+	public String buildActivatePanelContext(VelocityPortlet portlet, Context context, 
 			RunData data, SessionState state)
 	{
 
-		// TODO: Check all of the passed in parameters
-		state.setAttribute(STATE_SUCCESS,"Welcome back from registration..");
-		return buildDeployViewPanelContext(portlet, context, data, state);
+		// TODO: In the right state, id parameter specified, profile is filled in
+		context.put("tlang", rb);
+		if ( ! ltiService.isAdmin() ) {
+			addAlert(state,rb.getString("error.maintain.view"));
+			return "lti_error";
+		}
+		context.put("messageSuccess",state.getAttribute(STATE_SUCCESS));
+		String [] mappingForm = ltiService.getDeployModel();
+		String id = data.getParameters().getString(LTIService.LTI_ID);
+		if ( id == null ) {
+			addAlert(state,rb.getString("error.id.not.found"));
+			return "lti_error";
+		}
+		Long key = new Long(id);
+		Map<String,Object> deploy = ltiService.getDeployDao(key);
+		if (  deploy == null ) return "lti_error";	
+
+        Long reg_state = foorm.getLongNull(deploy.get(LTIService.LTI_REG_STATE));
+		String profileText = (String) deploy.get(LTIService.LTI_REG_PROFILE);
+		if ( reg_state != 1 || profileText == null || profileText.length() < 1 ) {
+			addAlert(state,rb.getString("error.register.not.ready"));
+			return "lti_error";
+		}
+
+        JSONObject providerProfile = (JSONObject) JSONValue.parse(profileText);
+		List<Properties> theTools = new ArrayList<Properties> ();
+		Properties info = new Properties();
+
+        try {
+            String [] retval = BasicLTIUtil.parseToolProfile(theTools, info, providerProfile);
+System.out.println("info = " + info);
+            if ( retval != null ) {
+				addAlert(state,rb.getString(retval[0])+" "+retval[1]);
+				return "lti_error";
+            }
+		}
+        catch (Exception e ) {
+			addAlert(state,rb.getString("deploy.parse.exception")+" "+e.getLocalizedMessage());
+			return "lti_error";
+        }
+
+        if ( theTools.size() < 1 ) {
+			addAlert(state,rb.getString("deploy.regsiter.notools"));
+			return "lti_error";
+        }
+
+		return "lti_deploy_register";
 	}
 
 	public String buildDeploySystemPanelContext(VelocityPortlet portlet, Context context, 

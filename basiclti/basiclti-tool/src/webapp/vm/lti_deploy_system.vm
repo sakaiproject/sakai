@@ -163,6 +163,9 @@
 	                <td headers="use">$deploy.get("tool_count")</td> 
 		                <td headers="action">
 	                        	<a href="$sakai_ActionURL.setPanel("DeployEdit")&id=$deploy.get("id")">$tlang.getString("gen.edit")</a> / 
+								#if ($deploy.get("reg_state") == "1")
+	                        	<a href="$sakai_ActionURL.setPanel("Activate")&id=$deploy.get("id")">$tlang.getString("gen.activate")</a> /
+								#end
 								#if ($deploy.get("reg_state") == "1" || $deploy.get("reg_state") == "2")
 	                        	<a href="$sakai_ActionURL.setPanel("DeployRegister")&id=$deploy.get("id")">$tlang.getString("gen.reregister")</a> /
 								#else

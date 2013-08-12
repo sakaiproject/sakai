@@ -35,6 +35,10 @@ import net.oauth.OAuthValidator;
 import net.oauth.SimpleOAuthValidator;
 import net.oauth.signature.OAuthSignatureMethod;
 
+import org.json.simple.JSONValue;
+import org.json.simple.JSONObject;
+import org.json.simple.JSONArray;
+
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -62,10 +66,10 @@ import java.util.regex.Pattern;
  *   &lt;title&gt;generated&nbsp;by&nbsp;tp+user&lt;/title&gt;
  *   &lt;description&gt;generated&nbsp;by&nbsp;tp+user&lt;/description&gt;
  *   &lt;custom&gt;
- *     &lt;parameter&nbsp;key=&quot;keyname&quot;&gt;value&lt;/parameter&gt;
+ *	 &lt;parameter&nbsp;key=&quot;keyname&quot;&gt;value&lt;/parameter&gt;
  *   &lt;/custom&gt;
  *   &lt;extensions&nbsp;platform=&quot;www.lms.com&quot;&gt;
- *     &lt;parameter&nbsp;key=&quot;keyname&quot;&gt;value&lt;/parameter&gt;
+ *	 &lt;parameter&nbsp;key=&quot;keyname&quot;&gt;value&lt;/parameter&gt;
  *   &lt;/extensions&gt;
  *   &lt;launch_url&gt;url&nbsp;to&nbsp;the&nbsp;basiclti&nbsp;launch&nbsp;URL&lt;/launch_url&gt;
  *   &lt;secure_launch_url&gt;url&nbsp;to&nbsp;the&nbsp;basiclti&nbsp;launch&nbsp;URL&lt;/secure_launch_url&gt;
@@ -73,15 +77,15 @@ import java.util.regex.Pattern;
  *   &lt;secure_icon&gt;url&nbsp;to&nbsp;an&nbsp;icon&nbsp;for&nbsp;this&nbsp;tool&nbsp;(optional)&lt;/secure_icon&gt;
  *   &lt;cartridge_icon&nbsp;identifierref=&quot;BLTI001_Icon&quot;/&gt;
  *   &lt;vendor&gt;
- *     &lt;code&gt;vendor.com&lt;/code&gt;
- *     &lt;name&gt;Vendor&nbsp;Name&lt;/name&gt;
- *     &lt;description&gt;
+ *	 &lt;code&gt;vendor.com&lt;/code&gt;
+ *	 &lt;name&gt;Vendor&nbsp;Name&lt;/name&gt;
+ *	 &lt;description&gt;
  * &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;This&nbsp;is&nbsp;a&nbsp;Grade&nbsp;Book&nbsp;that&nbsp;supports&nbsp;many&nbsp;column&nbsp;types.
  * &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&lt;/description&gt;
- *     &lt;contact&gt;
- *       &lt;email&gt;support@vendor.com&lt;/email&gt;
- *     &lt;/contact&gt;
- *     &lt;url&gt;http://www.vendor.com/product&lt;/url&gt;
+ *	 &lt;contact&gt;
+ *	   &lt;email&gt;support@vendor.com&lt;/email&gt;
+ *	 &lt;/contact&gt;
+ *	 &lt;url&gt;http://www.vendor.com/product&lt;/url&gt;
  *   &lt;/vendor&gt;
  * &lt;/basic_lti_link&gt;
  * </pre>
@@ -135,7 +139,7 @@ public class BasicLTIUtil {
 	 * performed.
 	 * 
 	 * @param rawProperties
-	 *          A set of properties that will be cleaned.
+	 *		  A set of properties that will be cleaned.
 	 * @return A cleansed version of rawProperties.
 	 */
 	public static Map<String, String> cleanupProperties(
@@ -149,11 +153,11 @@ public class BasicLTIUtil {
 	 * properties per the specified semantics.
 	 * 
 	 * @param rawProperties
-	 *          A set of properties that will be cleaned.
+	 *		  A set of properties that will be cleaned.
 	 * @param blackList
-	 *          An array of {@link String}s which are considered unsafe to be
-	 *          included in launch data. Any matches will be removed from the
-	 *          return.
+	 *		  An array of {@link String}s which are considered unsafe to be
+	 *		  included in launch data. Any matches will be removed from the
+	 *		  return.
 	 * @return A cleansed version of rawProperties.
 	 */
 	public static Map<String, String> cleanupProperties(
@@ -197,8 +201,8 @@ public class BasicLTIUtil {
 	 * 
 	 * @deprecated See {@link #cleanupProperties(Map)}
 	 * @param rawProperties
-	 *          A set of {@link Properties} that will be cleaned. Keys must be of
-	 *          type {@link String}.
+	 *		  A set of {@link Properties} that will be cleaned. Keys must be of
+	 *		  type {@link String}.
 	 * @return A cleansed version of {@link Properties}.
 	 */
 	public static Properties cleanupProperties(final Properties rawProperties) {
@@ -214,9 +218,9 @@ public class BasicLTIUtil {
 	 * 
 	 * @param propertyName
 	 * @return true if propertyName is equal to one of the Strings contained in
-	 *         {@link BasicLTIConstants#validPropertyNames} 
-	 *         or is a custom parameter oe extension parameter ;
-	 *         else return false.
+	 *		 {@link BasicLTIConstants#validPropertyNames} 
+	 *		 or is a custom parameter oe extension parameter ;
+	 *		 else return false.
 	 */
 	public static boolean isSpecifiedPropertyName(final String propertyName) {
 		boolean found = false;
@@ -261,7 +265,7 @@ public class BasicLTIUtil {
 	 * Add the necessary fields and sign.
 	 * 
 	 * @deprecated See:
-	 *             {@link BasicLTIUtil#signProperties(Map, String, String, String, String, String, String, String, String, String)}
+	 *			 {@link BasicLTIUtil#signProperties(Map, String, String, String, String, String, String, String, String, String)}
 	 * 
 	 * @param postProp
 	 * @param url
@@ -269,11 +273,11 @@ public class BasicLTIUtil {
 	 * @param oauth_consumer_key
 	 * @param oauth_consumer_secret
 	 * @param org_id
-	 *          See: {@link BasicLTIConstants#TOOL_CONSUMER_INSTANCE_GUID}
+	 *		  See: {@link BasicLTIConstants#TOOL_CONSUMER_INSTANCE_GUID}
 	 * @param org_desc
-	 *          See: {@link BasicLTIConstants#TOOL_CONSUMER_INSTANCE_DESCRIPTION}
+	 *		  See: {@link BasicLTIConstants#TOOL_CONSUMER_INSTANCE_DESCRIPTION}
 	 * @param org_url
-	 *          See: {@link BasicLTIConstants#TOOL_CONSUMER_INSTANCE_URL}
+	 *		  See: {@link BasicLTIConstants#TOOL_CONSUMER_INSTANCE_URL}
 	 * @return
 	 */
 	public static Properties signProperties(Properties postProp, String url,
@@ -294,16 +298,16 @@ public class BasicLTIUtil {
 	 * @param oauth_consumer_key
 	 * @param oauth_consumer_secret
 	 * @param tool_consumer_instance_guid
-	 *          See: {@link BasicLTIConstants#TOOL_CONSUMER_INSTANCE_GUID}
+	 *		  See: {@link BasicLTIConstants#TOOL_CONSUMER_INSTANCE_GUID}
 	 * @param tool_consumer_instance_description
-	 *          See: {@link BasicLTIConstants#TOOL_CONSUMER_INSTANCE_DESCRIPTION}
+	 *		  See: {@link BasicLTIConstants#TOOL_CONSUMER_INSTANCE_DESCRIPTION}
 	 * @param tool_consumer_instance_url
-	 *          See: {@link BasicLTIConstants#TOOL_CONSUMER_INSTANCE_URL}
+	 *		  See: {@link BasicLTIConstants#TOOL_CONSUMER_INSTANCE_URL}
 	 * @param tool_consumer_instance_name
-	 *          See: {@link BasicLTIConstants#TOOL_CONSUMER_INSTANCE_NAME}
+	 *		  See: {@link BasicLTIConstants#TOOL_CONSUMER_INSTANCE_NAME}
 	 * @param tool_consumer_instance_contact_email
-	 *          See:
-	 *          {@link BasicLTIConstants#TOOL_CONSUMER_INSTANCE_CONTACT_EMAIL}
+	 *		  See:
+	 *		  {@link BasicLTIConstants#TOOL_CONSUMER_INSTANCE_CONTACT_EMAIL}
 	 * @return
 	 */
 	public static Map<String, String> signProperties(
@@ -379,7 +383,7 @@ public class BasicLTIUtil {
 	 * Check if the properties are properly signed
 	 * 
 	 * @deprecated See:
-	 *             {@link BasicLTIUtil#checkProperties(Map, String, String, String, String, String, String, String, String, String)}
+	 *			 {@link BasicLTIUtil#checkProperties(Map, String, String, String, String, String, String, String, String, String)}
 	 * 
 	 * @param postProp
 	 * @param url
@@ -390,10 +394,10 @@ public class BasicLTIUtil {
 	 */
 	public static boolean checkProperties(Properties postProp, String url,
 			String method, String oauth_consumer_key, String oauth_consumer_secret) 
-    {
+	{
 
 		return checkProperties( convertToMap(postProp), url, method, 
-                oauth_consumer_key, oauth_consumer_secret);
+				oauth_consumer_key, oauth_consumer_secret);
 	}
 
 	/**
@@ -414,31 +418,31 @@ public class BasicLTIUtil {
 		OAuthMessage oam = new OAuthMessage(method, url, postProp.entrySet());
 		OAuthConsumer cons = new OAuthConsumer("about:blank", oauth_consumer_key,
 				oauth_consumer_secret, null);
-        OAuthValidator oav = new SimpleOAuthValidator();
+		OAuthValidator oav = new SimpleOAuthValidator();
 
 
-        OAuthAccessor acc = new OAuthAccessor(cons);
+		OAuthAccessor acc = new OAuthAccessor(cons);
 
-        String base_string = null;
-        try {
-            base_string = OAuthSignatureMethod.getBaseString(oam);
-        } catch (Exception e) {
-            M_log.warning(e.getLocalizedMessage());
-            base_string = null;
-            return false;
-        }
+		String base_string = null;
+		try {
+			base_string = OAuthSignatureMethod.getBaseString(oam);
+		} catch (Exception e) {
+			M_log.warning(e.getLocalizedMessage());
+			base_string = null;
+			return false;
+		}
 
-        try {
-            oav.validateMessage(oam, acc);
-        } catch (Exception e) {
-            M_log.warning("Provider failed to validate message");
-            M_log.warning(e.getLocalizedMessage());
-            if (base_string != null) {
-                M_log.warning(base_string);
-            }
-            return false;
-        }
-        return true;
+		try {
+			oav.validateMessage(oam, acc);
+		} catch (Exception e) {
+			M_log.warning("Provider failed to validate message");
+			M_log.warning(e.getLocalizedMessage());
+			if (base_string != null) {
+				M_log.warning(base_string);
+			}
+			return false;
+		}
+		return true;
 	}
 
 	/**
@@ -447,12 +451,12 @@ public class BasicLTIUtil {
 	 * 
 	 * @deprecated Moved to {@link #postLaunchHTML(Map, String, boolean)}
 	 * @param cleanProperties
-	 *          Assumes you have called {@link #cleanupProperties(Properties)}
-	 *          beforehand.
+	 *		  Assumes you have called {@link #cleanupProperties(Properties)}
+	 *		  beforehand.
 	 * @param endpoint
-	 *          The LTI launch url.
+	 *		  The LTI launch url.
 	 * @param debug
-	 *          Useful for viewing the HTML before posting to end point.
+	 *		  Useful for viewing the HTML before posting to end point.
 	 * @return the HTML ready for IFRAME src = inclusion.
 	 */
 	public static String postLaunchHTML(final Properties cleanProperties,
@@ -466,12 +470,12 @@ public class BasicLTIUtil {
 	 * Make sure to call {@link #cleanupProperties(Properties)} before signing.
 	 * 
 	 * @param cleanProperties
-	 *          Assumes you have called {@link #cleanupProperties(Properties)}
-	 *          beforehand.
+	 *		  Assumes you have called {@link #cleanupProperties(Properties)}
+	 *		  beforehand.
 	 * @param endpoint
-	 *          The LTI launch url.
+	 *		  The LTI launch url.
 	 * @param debug
-	 *          Useful for viewing the HTML before posting to end point.
+	 *		  Useful for viewing the HTML before posting to end point.
 	 * @return the HTML ready for IFRAME src = inclusion.
 	 */
 	public static String postLaunchHTML(
@@ -540,29 +544,142 @@ public class BasicLTIUtil {
 			// paint auto submit script
 			text
 				.append(" <script language=\"javascript\"> \n"
-						+ "    document.getElementById(\"ltiLaunchFormSubmitArea\").style.display = \"none\";\n"
-						+ "    nei = document.createElement('input');\n"
-						+ "    nei.setAttribute('type', 'hidden');\n"
-						+ "    nei.setAttribute('name', '"
+						+ "	document.getElementById(\"ltiLaunchFormSubmitArea\").style.display = \"none\";\n"
+						+ "	nei = document.createElement('input');\n"
+						+ "	nei.setAttribute('type', 'hidden');\n"
+						+ "	nei.setAttribute('name', '"
 						+ BASICLTI_SUBMIT
 						+ "');\n"
-						+ "    nei.setAttribute('value', '"
+						+ "	nei.setAttribute('value', '"
 						+ newMap.get(BASICLTI_SUBMIT)
 						+ "');\n"
-						+ "    document.getElementById(\"ltiLaunchForm\").appendChild(nei);\n"
-						+ "    document.ltiLaunchForm.submit(); \n" + " </script> \n");
+						+ "	document.getElementById(\"ltiLaunchForm\").appendChild(nei);\n"
+						+ "	document.ltiLaunchForm.submit(); \n" + " </script> \n");
 		}
 
 		String htmltext = text.toString();
 		return htmltext;
 	}
 
+	// Parse a provider profile with lots of error checking...
+	public static String []  parseToolProfile(List<Properties> theTools, Properties info, JSONObject jsonObject)
+	{
+
+		JSONObject tool_profile = (JSONObject) jsonObject.get("tool_profile");
+		if ( tool_profile == null  ) {
+			return new String[]{"deploy.register.parse", "JSON missing tool_profile"};
+		}
+		JSONObject product_instance = (JSONObject) tool_profile.get("product_instance");
+		if ( product_instance == null  ) {
+			return new String[]{"deploy.register.parse", "JSON missing product_instance"};
+		}
+
+		JSONObject product_info = (JSONObject) product_instance.get("product_info");
+		if ( product_info == null  ) {
+			return new String[]{"deploy.register.parse", "JSON missing product_info"};
+		}
+
+		// We want a name, but don't (yet) demand it
+		JSONObject product_name = product_info == null ? null : (JSONObject) product_info.get("product_name");
+		String productTitle = product_name == null ? null : (String) product_name.get("default_value");
+		JSONObject description = product_info == null ? null : (JSONObject) product_info.get("description");
+		String productDescription = product_name == null ? null : (String) description.get("default_value");
+		if ( productTitle == null || productDescription == null ) {
+			return new String[]{"deploy.register.title", "JSON missing product_name or description "};
+		}
+
+		info.put("product_name", productTitle);
+		info.put("description", productDescription);
+
+		JSONArray base_url_choices = (JSONArray) tool_profile.get("base_url_choice");
+		if ( base_url_choices == null  ) {
+			return new String[]{"deploy.register.parse", "JSON missing base_url_choices"};
+		}
+		String secure_base_url = null;
+		String default_base_url = null;
+		for ( Object o : base_url_choices ) {
+			JSONObject url_choice = (JSONObject) o;
+			secure_base_url = (String) url_choice.get("secure_base_url");
+			default_base_url = (String) url_choice.get("default_base_url");
+		}
+		
+System.out.println("BU="+secure_base_url+" DBU="+default_base_url);
+		String launch_url = secure_base_url;
+		if ( launch_url == null ) launch_url = default_base_url;
+		if ( launch_url == null ) {
+			return new String[]{"deploy.register.launch", "Unable to determine launch URL"};
+		}
+System.out.println("LU="+launch_url);
+
+		JSONArray resource_handlers = (JSONArray) tool_profile.get("resource_handler");
+		if ( resource_handlers == null  ) {
+			return new String[]{"deploy.register.parse", "JSON missing resource_handlers"};
+		}
+
+		// Loop through resource handlers, read, and check for errors
+		for(Object o : resource_handlers ) {
+			JSONObject resource_handler = (JSONObject) o;
+			String resource_type = (String) resource_handler.get("resource_type");
+			if ( resource_type == null ) {
+				return new String[]{"deploy.register.parse", "JSON missing resource_type"};
+			}
+			JSONArray messages = (JSONArray) resource_handler.get("message");
+			if ( messages == null ) {
+				return new String[]{"deploy.register.parse", "JSON missing resource_handler / message"};
+			}
+			JSONObject titleObject = (JSONObject) resource_handler.get("name");
+			String title = titleObject == null ? null : (String) titleObject.get("default_value");
+			if ( title == null || titleObject == null ) {
+				return new String[]{"deploy.register.parse", "JSON missing resource_handler / name / default_value"};
+			}
+		
+			String path = null;
+			JSONArray parameter = null;
+			JSONArray enabled_capability = null; 
+			for ( Object m : messages ) {
+				JSONObject message = (JSONObject) m;
+				String message_type = (String) message.get("message_type");
+				if ( ! "basic-lti-launch-request".equals(message_type) ) continue;
+				if ( path != null ) {
+					return new String[]{"deploy.register.messages", "A resource_handler cannot have more than one basic-lti-launch-request message RT="+resource_type};
+				}
+				path = (String) message.get("path");
+				if ( path == null ) {
+					return new String[]{"deploy.register.nopath", "A basic-lti-launch-request message must have a path RT="+resource_type};
+				} 
+				parameter = (JSONArray) message.get("parameter");
+				enabled_capability = (JSONArray) message.get("enabled_capability");
+			}
+
+			// Ignore everything except launch handlers
+			if ( path == null ) continue;
+
+			// Passed all the tests...  Lets keep it...
+			Properties theTool = new Properties();
+
+			theTool.put("resource_type", resource_type);
+			if ( title == null ) title = productTitle;
+			if ( title != null ) theTool.put("title", title);
+			if ( parameter != null ) theTool.put("parameter", parameter.toString());
+			if ( enabled_capability != null ) theTool.put("enabled_capability", parameter.toString());
+
+			// Someone above us should validate the URL...
+			String thisLaunch = launch_url;
+			if ( ! thisLaunch.endsWith("/") && ! path.startsWith("/") ) thisLaunch = thisLaunch + "/";
+			thisLaunch = thisLaunch + path;
+System.out.println("thisLaunch="+thisLaunch);
+			theTool.put("launch", thisLaunch);
+			theTools.add(theTool);
+		}
+		return null;  // All good
+	}
+
 	/**
 	 * @deprecated See: {@link #parseDescriptor(Map, Map, String)}
 	 * @param launch_info
-	 *          Variable is mutated by this method.
+	 *		  Variable is mutated by this method.
 	 * @param postProp
-	 *          Variable is mutated by this method.
+	 *		  Variable is mutated by this method.
 	 * @param descriptor
 	 * @return
 	 */
@@ -618,9 +735,9 @@ public class BasicLTIUtil {
 	/**
 	 * 
 	 * @param launch_info
-	 *          Variable is mutated by this method.
+	 *		  Variable is mutated by this method.
 	 * @param postProp
-	 *          Variable is mutated by this method.
+	 *		  Variable is mutated by this method.
 	 * @param descriptor
 	 * @return
 	 */
@@ -730,7 +847,7 @@ public class BasicLTIUtil {
 	 * into the Map if the value is not null and is not empty.
 	 * 
 	 * @param map
-	 *          Variable is mutated by this method.
+	 *		  Variable is mutated by this method.
 	 * @param key
 	 * @param value
 	 */
@@ -747,7 +864,7 @@ public class BasicLTIUtil {
 	 * 
 	 * @deprecated See: {@link #setProperty(Map, String, String)}
 	 * @param props
-	 *          Variable is mutated by this method.
+	 *		  Variable is mutated by this method.
 	 * @param key
 	 * @param value
 	 */
@@ -809,15 +926,15 @@ public class BasicLTIUtil {
 	 * </p>
 	 * 
 	 * <pre>
-	 * StringUtils.isBlank(null)      = true
-	 * StringUtils.isBlank("")        = true
-	 * StringUtils.isBlank(" ")       = true
-	 * StringUtils.isBlank("bob")     = false
+	 * StringUtils.isBlank(null)	  = true
+	 * StringUtils.isBlank("")		= true
+	 * StringUtils.isBlank(" ")	   = true
+	 * StringUtils.isBlank("bob")	 = false
 	 * StringUtils.isBlank("  bob  ") = false
 	 * </pre>
 	 * 
 	 * @param str
-	 *          the String to check, may be null
+	 *		  the String to check, may be null
 	 * @return <code>true</code> if the String is null, empty or whitespace
 	 * @since 2.0
 	 */
@@ -840,17 +957,17 @@ public class BasicLTIUtil {
 	 * </p>
 	 * 
 	 * <pre>
-	 * StringUtils.isNotBlank(null)      = false
-	 * StringUtils.isNotBlank("")        = false
-	 * StringUtils.isNotBlank(" ")       = false
-	 * StringUtils.isNotBlank("bob")     = true
+	 * StringUtils.isNotBlank(null)	  = false
+	 * StringUtils.isNotBlank("")		= false
+	 * StringUtils.isNotBlank(" ")	   = false
+	 * StringUtils.isNotBlank("bob")	 = true
 	 * StringUtils.isNotBlank("  bob  ") = true
 	 * </pre>
 	 * 
 	 * @param str
-	 *          the String to check, may be null
+	 *		  the String to check, may be null
 	 * @return <code>true</code> if the String is not empty and not null and not
-	 *         whitespace
+	 *		 whitespace
 	 * @since 2.0
 	 */
 	public static boolean isNotBlank(String str) {
@@ -877,11 +994,11 @@ public class BasicLTIUtil {
 	 * 
 	 * @see java.lang.String#equals(Object)
 	 * @param str1
-	 *          the first String, may be null
+	 *		  the first String, may be null
 	 * @param str2
-	 *          the second String, may be null
+	 *		  the second String, may be null
 	 * @return <code>true</code> if the Strings are equal, case sensitive, or both
-	 *         <code>null</code>
+	 *		 <code>null</code>
 	 */
 	public static boolean equals(String str1, String str2) {
 		return str1 == null ? str2 == null : str1.equals(str2);
@@ -908,11 +1025,11 @@ public class BasicLTIUtil {
 	 * 
 	 * @see java.lang.String#equalsIgnoreCase(String)
 	 * @param str1
-	 *          the first String, may be null
+	 *		  the first String, may be null
 	 * @param str2
-	 *          the second String, may be null
+	 *		  the second String, may be null
 	 * @return <code>true</code> if the Strings are equal, case insensitive, or
-	 *         both <code>null</code>
+	 *		 both <code>null</code>
 	 */
 	public static boolean equalsIgnoreCase(String str1, String str2) {
 		return str1 == null ? str2 == null : str1.equalsIgnoreCase(str2);

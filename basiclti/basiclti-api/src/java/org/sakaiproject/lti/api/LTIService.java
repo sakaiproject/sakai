@@ -462,6 +462,8 @@ public interface LTIService {
 		"newpage:radio:label=bl_newpage:choices=off,on,content",
 		"debug:radio:label=bl_debug:choices=off,on,content",
 		"custom:textarea:label=bl_custom:rows=5:cols=25:maxlength=1024:only=lti1",
+		"parameter:textarea:label=bl_parameter:rows=5:cols=25:maxlength=1024:only=lti2",
+		"enabled_capability:textarea:label=bl_enabled_capability:rows=5:cols=25:maxlength=1024:only=lti2",
 		"allowcustom:checkbox:label=bl_allowcustom",
 		"xmlimport:text:hidden=true:maxlength=16384",
 		"splash:textarea:label=bl_splash:rows=5:cols=25:maxlength=4096",

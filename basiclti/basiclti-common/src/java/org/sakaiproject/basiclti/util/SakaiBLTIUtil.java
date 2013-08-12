@@ -685,7 +685,7 @@ public class SakaiBLTIUtil {
 
 		String serverUrl = getOurServerUrl();
 		setProperty(ltiProps, LTI2Constants.TC_PROFILE_URL,serverUrl+"/imsblis/lti2/tc_profile/"+consumerkey);
-		setProperty(ltiProps, BasicLTIConstants.LAUNCH_PRESENTATION_RETURN_URL, serverUrl + "/portal/tool/"+placementId+"?panel=RegComplete&id="+deployKey);
+		setProperty(ltiProps, BasicLTIConstants.LAUNCH_PRESENTATION_RETURN_URL, serverUrl + "/portal/tool/"+placementId+"?panel=Activate&id="+deployKey);
 
 		int debug = getInt(tool.get("debug"));
 		debug = 1;
@@ -730,7 +730,7 @@ public class SakaiBLTIUtil {
 
 		String serverUrl = getOurServerUrl();
 		setProperty(ltiProps, LTI2Constants.TC_PROFILE_URL,serverUrl+"/imsblis/lti2/tc_profile/"+consumerkey);
-		setProperty(ltiProps, BasicLTIConstants.LAUNCH_PRESENTATION_RETURN_URL, serverUrl + "/portal/tool/"+placementId+"?panel=RegComplete&id="+deployKey);
+		setProperty(ltiProps, BasicLTIConstants.LAUNCH_PRESENTATION_RETURN_URL, serverUrl + "/portal/tool/"+placementId+"?panel=Activate&id="+deployKey);
 
 		int debug = getInt(deploy.get("debug"));
 		debug = 1;
