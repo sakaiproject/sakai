@@ -265,6 +265,14 @@ $(function() {
 			$('#loading').show();
 			return true;
 	    	});
+
+		$('#mm-add-item').click(function() {
+			if ($('#mm-url').val() != '') {
+			    $('#checkingwithhost').show();
+			}
+			return true;
+	    	});
+
 		
 		$('#releaseDiv').click(function(){
 			$('#edit-title-dialog').height(550);
@@ -933,6 +941,7 @@ $(function() {
 			$(".mm-additional").show();
 			$(".mm-additional-website").hide();
 			$(".mm-url-section").show();
+			$("#checkingwithhost").hide();
 			$("#add-multimedia-dialog").dialog('open');
 			checksize($("#add-multimedia-dialog"));
 			// originally I thought it was confusing to start with the focus on some
@@ -1250,6 +1259,7 @@ $(function() {
 			$(".mm-additional").show();
 			$(".mm-additional-website").hide();
 			$(".mm-url-section").show();
+			$("#checkingwithhost").hide();
 			$("#add-multimedia-dialog").dialog('open');
 			checksize($("#add-multimedia-dialog"));
 			//$('.edit-multimedia-input').blur();
@@ -1272,6 +1282,7 @@ $(function() {
 			$(".mm-additional").show();
 			$(".mm-additional-website").hide();
 			$(".mm-url-section").show();
+			$("#checkingwithhost").hide();
 			oldloc = $(this);
 			$("#add-multimedia-dialog").dialog('open');
 			checksize($("#add-multimedia-dialog"));
@@ -1294,6 +1305,7 @@ $(function() {
 			$(".mm-additional").hide();
 			$(".mm-additional-website").hide();
 			$(".mm-url-section").show();
+			$("#checkingwithhost").hide();
 			oldloc = $(this);
 			$("#add-multimedia-dialog").dialog('open');
 			checksize($("#add-multimedia-dialog"));
@@ -1316,6 +1328,7 @@ $(function() {
 			$(".mm-additional-website").show();
 			$(".mm-url-section").hide();
 			oldloc = $(".dropdown a");
+			$("#checkingwithhost").hide();
 			$("#add-multimedia-dialog").dialog('open');
 			checksize($("#add-multimedia-dialog"));
 			//$('.edit-multimedia-input').blur();
@@ -1402,6 +1415,7 @@ $(function() {
 			$(".mm-additional").show();
 			$(".mm-additional-website").hide();
 			$(".mm-url-section").show();
+			$("#checkingwithhost").hide();
 			$("#add-multimedia-dialog").dialog('open');
 			checksize($("#add-multimedia-dialog"));
 			//$('.edit-multimedia-input').blur();
