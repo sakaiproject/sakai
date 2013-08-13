@@ -5,6 +5,9 @@ $tool_proxy = <<< EOF
   "@type": "ToolProxy",
   "lti_version": "LTI-2p0",
   "tool_consumer_profile": "__TODO_SHOULD_THIS_BE_THE_WHOLE_PROFILE_OR_JUST_A_URL_SEE_5_6__",
+  "nasty_json": "How do you handle these characters < > & ' ",
+  "evil_json": "</script><script>alert('evil');</script>",
+  "evil_json2": "\"</script><script>alert('evil');</script>",
   "tool_profile": {
     "product_instance": {
       "product_info": {
@@ -98,6 +101,10 @@ $tool_proxy = <<< EOF
         ],
         "name": {
           "default_value": "Sakai PHP Unit Test",
+          "key": "resource.name"
+        },
+        "short_name": {
+          "default_value": "Sakai Unit",
           "key": "resource.name"
         },
         "description": {

@@ -149,8 +149,16 @@ $tp_profile->tool_consumer_profile = $tc_profile_url;
 $tp_profile->tool_profile->message[0]->path = $cur_url;
 $tp_profile->tool_profile->product_instance->product_info->product_family->vendor->website = $cur_base;
 $tp_profile->tool_profile->product_instance->product_info->product_family->vendor->timestamp = "2013-07-13T09:08:16-04:00";
-$tp_profile->tool_profile->product_instance->guid = "TODO-what-is-this-12345";
-$tp_profile->tool_profile->product_instance->service_provider->guid = "TODO-what-is-this-456789";
+
+// Important - this will be concatenated with the resource type
+$unique = "";
+if ( isset($_SERVER["SCRIPT_FILENAME"]) ) {
+	$unique = md5($_SERVER["SCRIPT_FILENAME"]);
+	$unique = "/" . substr($unique,0,5);
+}
+$tp_profile->tool_profile->product_instance->guid = $cur_base . $unique;
+
+$tp_profile->tool_profile->product_instance->service_provider->guid = "http://www.sakaiproject.org/";
 
 // Launch Request
 $tp_profile->tool_profile->resource_handler[0]->message[0]->path = "tool.php";
