@@ -97,11 +97,11 @@ public class IMSJSONRequest {
 				parm = parm.trim();
 				if ( parm.startsWith("oauth_body_hash=") ) {
 					String [] pieces = parm.split("\"");
-					oauth_body_hash = URLDecoder.decode(pieces[1]);
+					if ( pieces.length == 2 ) oauth_body_hash = URLDecoder.decode(pieces[1]);
 				}
 				if ( parm.startsWith("oauth_consumer_key=") ) {
 					String [] pieces = parm.split("\"");
-					oauth_consumer_key = URLDecoder.decode(pieces[1]);
+					if ( pieces.length == 2 ) oauth_consumer_key = URLDecoder.decode(pieces[1]);
 				}
 			}
 		}		

@@ -532,11 +532,15 @@ public abstract class BaseLTIService implements LTIService {
 		return insertToolDao(newProps, getContext(), isAdmin(), isMaintain());
 	}
 
+	public Object insertTool(Map<String,Object> newProps) {
+		return insertToolDao(newProps, getContext(), isAdmin(), isMaintain());
+	}
+
 	public Object insertToolDao(Properties newProps, String siteId) {
 		return insertToolDao(newProps, siteId, true, true);
 	}
 
-	protected abstract Object insertToolDao(Properties newProps, String siteId, boolean isAdminRole, boolean isMaintainRole);
+	protected abstract Object insertToolDao(Object newProps, String siteId, boolean isAdminRole, boolean isMaintainRole);
 
 	public boolean deleteTool(Long key) {
 		return deleteToolDao(key, getContext(), isAdmin(), isMaintain());

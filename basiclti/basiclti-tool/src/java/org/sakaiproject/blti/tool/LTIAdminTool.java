@@ -867,7 +867,6 @@ System.out.println("Register...");
 		}
 		Properties reqProps = data.getParameters().getProperties();
 		String id = data.getParameters().getString(LTIService.LTI_ID);
-		Object retval = null;
 		if ( id == null ) {
 			addAlert(state,rb.getString("error.id.not.found"));
 			switchPanel(state, "DeploySystem");
@@ -886,18 +885,53 @@ System.out.println("Register...");
 		Properties info = new Properties();
 
 		String prepare = prepareValidate(deploy, theTools, info, state);
-	
-// YYY
 
-/*
-		if ( ------------------------------- )
-		{
-			state.setAttribute(STATE_SUCCESS,rb.getString("success.deleted"));
-		} else {
-			addAlert(state,rb.getString("error.delete.fail"));
+		M_log.info("Starting activation process for id="+key+" title="+info.get("title"));
+
+		int inserts = 0;
+		int updates = 0;
+		String failures = "";
+		for ( Map<String, Object> theTool : theTools ) {
+			Object retval = null;
+			Long toolId = foorm.getLongNull(theTool.get(LTIService.LTI_ID));
+			if ( toolId == null ) {
+				retval = ltiService.insertTool(theTool);
+				if ( retval instanceof String ) {
+					String oops = "Unable to insert "+theTool.get("resource_type")+" "+retval;
+					M_log.error(oops);
+					failures += "\n" + oops;
+				} else {
+					M_log.info("Inserted tool="+retval+" "+theTool.get("resource_type"));
+					inserts++;
+				}
+			} else {
+				retval = ltiService.updateTool(toolId, theTool);
+				if ( retval instanceof String ) {
+					String oops = "Unable to update "+theTool.get("resource_type")+" "+retval;
+					M_log.error(oops);
+					failures += "\n" + oops;
+				} else {
+					M_log.info("Updated tool="+toolId+" "+theTool.get("resource_type"));
+					updates++;
+				}
+			}
 		}
-*/
-		switchPanel(state, "Refresh");
+
+		// We can have a combination of successes and failures...
+		String success = "";
+		if ( inserts > 0 ) success = inserts + " tools inserted ";
+		if ( updates > 0 ) success = updates + " tools updated ";
+		if ( success.length() > 0 ) state.setAttribute(STATE_SUCCESS,success);
+			
+		if ( failures.length() > 0 ) 
+		{
+			state.setAttribute(STATE_POST,reqProps);
+			addAlert(state, failures);
+		} 
+
+		// TODO: Update reg_state to indicate we are activated...
+
+		switchPanel(state, "DeploySystem");
 	}
 
     public String prepareValidate(Map<String,Object> deploy, List<Map<String,Object>> theTools, 
@@ -959,6 +993,8 @@ System.out.println("tool="+tool);
 			} else { 
 				newTool.putAll(deploy); // This will be ignored unless it matches
 				newTool.remove("id");  // The tool does not have an id
+				newTool.remove("created_at");
+				newTool.remove("updated_at");
 			}
 
 			newTool.put("resource_type", resource_full);
@@ -967,6 +1003,7 @@ System.out.println("tool="+tool);
 			// Copy explicitly in case the parser changes slightly
 			if ( profileTool.get("launch") != null ) newTool.put("launch", profileTool.get("launch"));
 			if ( profileTool.get("title") != null ) newTool.put("title", profileTool.get("title"));
+			if ( profileTool.get("title") != null ) newTool.put("pagetitle", profileTool.get("title")); // Duplicate by default
 			if ( profileTool.get("button") != null ) newTool.put("pagetitle", profileTool.get("button")); // Note different fields
 			if ( profileTool.get("description") != null ) newTool.put("description", profileTool.get("description"));
 			if ( profileTool.get("parameter") != null ) newTool.put("parameter", profileTool.get("parameter"));
@@ -988,10 +1025,11 @@ System.out.println("tool="+tool);
 		String contextString = toolManager.getCurrentPlacement().getContext();
 		context.put("ltiService", ltiService);
 		state.removeAttribute(STATE_POST);
-		state.removeAttribute(STATE_SUCCESS);
 
 		context.put("messageSuccess",state.getAttribute(STATE_SUCCESS));
 		context.put("getContext", contextString);
+
+		state.removeAttribute(STATE_SUCCESS);
 		
 		List<Map<String,Object>> deploys = ltiService.getDeploysDao(null,null,0,5000);
 	    context.put("deploys", deploys);
@@ -1084,7 +1122,7 @@ System.out.println("tool="+tool);
 		} else {
 			addAlert(state,rb.getString("error.delete.fail"));
 		}
-		switchPanel(state, "Refresh");
+		switchPanel(state, "DeploySystem");
 	}
 
 

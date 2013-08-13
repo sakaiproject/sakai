@@ -71,6 +71,13 @@ public interface LTIService {
 	/**
 	 * 
 	 * @param newProps
+	 * @return
+	 */
+	public Object insertTool(Map<String,Object> newProps);
+
+	/**
+	 * 
+	 * @param newProps
 	 * @param siteId
 	 * @return
 	 */
@@ -494,6 +501,9 @@ public interface LTIService {
 		"title:text:label=bl_title:required=true:maxlength=255",
 		"pagetitle:text:label=bl_pagetitle:required=true:maxlength=255",
 		"description:textarea:label=bl_description:maxlength=4096",
+		"lti2_status:header:fields=status,visible",
+		"status:radio:label=bl_status:choices=enable,disable",
+		"visible:radio:label=bl_visible:choices=visible,stealth:role=admin",
 		"privacy:header:fields=sendname,sendemailaddr",
 		"sendname:checkbox:label=bl_sendname",
 		"sendemailaddr:checkbox:label=bl_sendemailaddr",

@@ -125,7 +125,7 @@ public class DBLTIService extends BaseLTIService implements LTIService {
 	/**
 	 * 
 	 */
-	public Object insertToolDao(Properties newProps, String siteId, boolean isAdminRole, boolean isMaintainRole) {
+	public Object insertToolDao(Object newProps, String siteId, boolean isAdminRole, boolean isMaintainRole) {
 		return insertThingDao("lti_tools", LTIService.TOOL_MODEL, null, newProps, siteId, isAdminRole, isMaintainRole);
 	}
 
@@ -412,7 +412,7 @@ public class DBLTIService extends BaseLTIService implements LTIService {
 	 * @return Returns String (falure) or Long (key on success)
 	 */
 	public Object insertThingDao(String table, String[] formModel, String[] fullModel,
-			Properties newProps, String siteId, boolean isAdminRole, boolean isMaintainRole) {
+			Object newProps, String siteId, boolean isAdminRole, boolean isMaintainRole) {
 
 		if (table == null || formModel == null || newProps == null ) {
 			throw new IllegalArgumentException(

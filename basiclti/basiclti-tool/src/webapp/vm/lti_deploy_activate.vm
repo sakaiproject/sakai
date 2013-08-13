@@ -17,7 +17,7 @@
 			<br/> Launch:$tool.get("launch")
 			<br/> Resource Type: $tool.get("resource_type")
 			#if ($tool.get("id") ) 
-				<br/><span color="red">(Note tool aready exists for resource_type)</span>
+				<br/><span style="color:red">(Note tool aready exists for resource_type)</span>
 			#end
 		</li>
 		#end
@@ -32,8 +32,14 @@
  				onclick="location = '$sakai_ActionURL.setPanel("DeploySystem")';return false;">
 		</p>
 	</form>
-## <pre>
-## Tool Provider Profile:
-## $profile
-## </pre>
+<p>Profile data:</p>
+<pre id="json"></pre>
+<script type="text/javascript">
+
+data = 
+$profile
+;
+
+document.getElementById("json").innerHTML = JSON.stringify(data, undefined, 2);
+</script>
 </div>
