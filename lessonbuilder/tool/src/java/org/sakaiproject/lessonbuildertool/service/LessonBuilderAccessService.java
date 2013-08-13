@@ -364,6 +364,9 @@ public class LessonBuilderAccessService {
 						throw new EntityNotDefinedException(ref.getReference());
 					}
 					
+	// code here is also in simplePageBean.isItemVisible. change it there
+	// too if you change this logic
+
 					SimplePageItem item = simplePageToolDao.findItem(itemId.longValue());
 					SimplePage currentPage = simplePageToolDao.getPage(item.getPageId());
 					String owner = currentPage.getOwner();  // if student content
@@ -440,9 +443,14 @@ public class LessonBuilderAccessService {
 						if (usersite != null && itemcreator != null && !usersite.equals(itemcreator))
 						    usersite = null;
 					    }							
+
+					// code here is also in simplePageBean.isItemVisible. change it there
+					// too if you change this logic
+
 					    // for a student page, if it's in one of the groups' worksites, allow it
 					    // The assumption is that only one of those people can put content in the
 					    // page, and then only if the can see it.
+
 					    if (owner != null && usersite != null && AuthzGroupService.getUserRole(usersite, group) != null) {
 						// OK
 					    } else if (owner != null && group == null && id.startsWith("/user/" + owner)) {

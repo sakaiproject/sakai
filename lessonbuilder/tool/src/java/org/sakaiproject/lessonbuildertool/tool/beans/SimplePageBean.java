@@ -3972,9 +3972,16 @@ public class SimplePageBean {
 		return (getLogEntry(itemId) != null);
 	}
 
+	public boolean isItemVisible(SimplePageItem item) {
+	    return isItemVisible(item, null);
+	}
+
     // if the item has a group requirement, are we in one of the groups.
     // this is called a lot and is fairly expensive, so results are cached
-	public boolean isItemVisible(SimplePageItem item) {
+    // for student pages, if it's not the owner, use resources test for resources
+    // for a student page, we don't bypass hidden and release date, so it's safest
+    // just to call contentHosting.
+	public boolean isItemVisible(SimplePageItem item, SimplePage page) {
 		if (canEditPage()) {
 		    return true;
 		}
@@ -3985,11 +3992,55 @@ public class SimplePageBean {
 
 		// item is page, and it is hidden or not released
 		if (item.getType() == SimplePageItem.PAGE) {
-		    SimplePage page = getPage(Long.valueOf(item.getSakaiId()));
-		    if (page.isHidden())
+		    SimplePage itemPage = getPage(Long.valueOf(item.getSakaiId()));
+		    if (itemPage.isHidden())
 			return false;
-		    if (page.getReleaseDate() != null && page.getReleaseDate().after(new Date()))
+		    if (itemPage.getReleaseDate() != null && itemPage.getReleaseDate().after(new Date()))
 			return false;
+		} else if (page != null && page.getOwner() != null && (item.getType() == SimplePageItem.RESOURCE || item.getType() == SimplePageItem.MULTIMEDIA)) {
+		    // This code is taken from LessonBuilderAccessService, mostly
+
+		    // for student pages, we give people access to files in the owner's worksite
+		    // get data we need to check that
+
+		    String id = item.getSakaiId();
+		    String owner = page.getOwner();  // if student content
+		    String group = page.getGroup();  // if student content
+		    if (group != null)
+			group = "/site/" + page.getSiteId() + "/group/" + group;
+		    String currentSiteId = page.getSiteId();
+
+		    // if group owned, and /user/xxxx is the person who created the resource
+		    // this will be his uesrid. Note that xxxx is eid, so we need to translate
+		    String usersite = null;
+					    
+		    if (owner != null && group != null && id.startsWith("/user/")) {
+			String username = id.substring(6);
+			int slash = username.indexOf("/");
+			if (slash > 0)
+			    usersite = username.substring(0,slash);
+			// normally it is /user/EID, so convert to userid
+			try {
+			    usersite = UserDirectoryService.getUserId(usersite);
+			} catch (Exception e) {};
+			String itemcreator = item.getAttribute("addedby");
+			if (usersite != null && itemcreator != null && !usersite.equals(itemcreator))
+			    usersite = null;
+		    }
+
+		    if (owner != null && usersite != null && AuthzGroupService.getUserRole(usersite, group) != null) {
+			return true;
+		    } else if (owner != null && group == null && id.startsWith("/user/" + owner)) {
+			return true;
+		    } else {
+			try {
+			    contentHostingService.checkResource(id);
+			    return true;
+			} catch (Exception e) {
+			    // I think we should hide the item no matter what the error is
+			    return false;
+			}
+		    }
 		}
 
 		Collection<String>itemGroups = null;

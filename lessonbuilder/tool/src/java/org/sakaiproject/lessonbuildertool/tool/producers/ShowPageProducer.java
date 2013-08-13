@@ -983,7 +983,7 @@ public class ShowPageProducer implements ViewComponentProducer, DefaultView, Nav
 				// (i.getType() == SimplePageItem.PAGE &&
 				// "button".equals(i.getFormat())))
 
-				if (!simplePageBean.isItemVisible(i)) {
+				if (!simplePageBean.isItemVisible(i, currentPage)) {
 					continue;
 				}
 				anyItemVisible = true;
