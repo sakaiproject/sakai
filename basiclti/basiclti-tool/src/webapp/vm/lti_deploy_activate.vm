@@ -7,14 +7,33 @@
 	<p>
 		$tlang.getString("deploy.activate.note")
 	</p>
+	<h3>
+		Preparing activate these tools from $info.get("title")
+	</h3>
+	<ul>
+		#foreach($tool in $tools)
+		<li>
+			$tool.get("title")
+			<br/> Launch:$tool.get("launch")
+			<br/> Resource Type: $tool.get("resource_type")
+			#if ($tool.get("id") ) 
+				<br/><span color="red">(Note tool aready exists for resource_type)</span>
+			#end
+		</li>
+		#end
+	</ul>
 	<form action="#toolForm("")" method="post" name="customizeForm" >
-		$!formStatus
-		$formOutput
 		<p class="act">
- 			<input type="submit" accesskey ="r" class="active" name="$tlang.getString('gen.activate')" 
-				value="$tlang.getString('gen.activate')" onclick="location = '$activateURL';return false;"/>
+                <input type="hidden" name="sakai_csrf_token" value="$sakai_csrf_token" />
+                <input type="hidden" name="id" value="$deploy.get('id')" />
+ 			<input type="submit" accesskey ="r" class="active" name="$doAction" 
+				value="$tlang.getString('gen.activate')" />
 			<input type="submit" accesskey ="x" name="$tlang.getString('gen.cancel')" value="$tlang.getString('gen.cancel')" 
  				onclick="location = '$sakai_ActionURL.setPanel("DeploySystem")';return false;">
 		</p>
 	</form>
+## <pre>
+## Tool Provider Profile:
+## $profile
+## </pre>
 </div>

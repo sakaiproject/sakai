@@ -129,6 +129,13 @@ public interface LTIService {
 
 	/**
 	 * 
+	 * @param resourceType
+	 * @return
+	 */
+	public Map<String, Object> getToolForResourceTypeDao(String resourceType);
+
+	/**
+	 * 
 	 * @param url
 	 * @return
 	 */
@@ -355,6 +362,14 @@ public interface LTIService {
 	 * @return
 	 */
 	public Map<String, Object> getDeployDao(Long key);
+
+	/**
+	 * Absolutely no checking at all.
+	 * 
+	 * @param consumerKey
+	 * @return
+	 */
+	public Map<String, Object> getDeployForConsumerKeyDao(String consumerKey);
 
 	/**
 	 * 

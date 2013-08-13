@@ -1,5 +1,4 @@
-/**********************************************************************************
- * $URL$
+/********************************************************************************** * $URL$
  * $Id$
  ***********************************************************************************
  *
@@ -43,6 +42,9 @@ import org.json.simple.JSONValue;
 import org.json.simple.JSONObject;
 import org.json.simple.JSONArray;
 
+import org.codehaus.jackson.map.ObjectMapper;
+import org.codehaus.jackson.map.ObjectWriter;
+
 import org.sakaiproject.cheftool.Context;
 import org.sakaiproject.cheftool.JetspeedRunData;
 import org.sakaiproject.cheftool.RunData;
@@ -63,6 +65,7 @@ import org.sakaiproject.site.api.SitePage;
 import org.sakaiproject.site.cover.SiteService;
 import org.sakaiproject.site.api.ToolConfiguration;
 import org.sakaiproject.component.api.ServerConfigurationService;
+import org.sakaiproject.util.FormattedText;
 
 // TODO: FIX THIS
 import org.sakaiproject.tool.cover.SessionManager;
@@ -756,7 +759,7 @@ System.out.println("retval="+retval);
 	{
 		context.put("tlang", rb);
 		if ( ! ltiService.isMaintain() ) {
-			addAlert(state,rb.getString("error.maintain.register"));
+			addAlert(state,rb.getString("error.maintain.activate"));
 			return "lti_error";
 		}
 		context.put("messageSuccess",state.getAttribute(STATE_SUCCESS));
@@ -832,17 +835,86 @@ System.out.println("Register...");
         Long reg_state = foorm.getLongNull(deploy.get(LTIService.LTI_REG_STATE));
 		String profileText = (String) deploy.get(LTIService.LTI_REG_PROFILE);
 		if ( reg_state != 1 || profileText == null || profileText.length() < 1 ) {
-			addAlert(state,rb.getString("error.register.not.ready"));
+			addAlert(state,rb.getString("error.activate.not.ready"));
+			return "lti_error";
+		}
+
+		// Load and check the tools from the profile
+		List<Map<String,Object>> theTools = new ArrayList<Map<String,Object>> ();
+		Properties info = new Properties();
+		String retval = prepareValidate(deploy, theTools, info, state);
+		if ( retval != null ) return retval;
+
+		context.put("info", info);
+		context.put("deploy", deploy);
+		context.put("tools", theTools);
+		context.put("profile", profileText);
+
+		context.put("doAction", BUTTON + "doActivate");
+
+		return "lti_deploy_activate";
+	}
+
+	public void doActivate(RunData data, Context context)
+	{
+		String peid = ((JetspeedRunData) data).getJs_peid();
+		SessionState state = ((JetspeedRunData) data).getPortletSessionState(peid);
+
+		if ( ! ltiService.isAdmin() ) {
+			addAlert(state,rb.getString("error.maintain.delete"));
+			switchPanel(state, "Error");
+			return;
+		}
+		Properties reqProps = data.getParameters().getProperties();
+		String id = data.getParameters().getString(LTIService.LTI_ID);
+		Object retval = null;
+		if ( id == null ) {
+			addAlert(state,rb.getString("error.id.not.found"));
+			switchPanel(state, "DeploySystem");
+			return;
+		}
+
+		Long key = new Long(id);
+		Map<String,Object> deploy = ltiService.getDeployDao(key);
+		if (  deploy == null ) {
+			addAlert(state,rb.getString("error.deploy.not.found"));
+			switchPanel(state, "DeploySystem");
+			return;
+		}
+
+		List<Map<String,Object>> theTools = new ArrayList<Map<String,Object>> ();
+		Properties info = new Properties();
+
+		String prepare = prepareValidate(deploy, theTools, info, state);
+	
+// YYY
+
+/*
+		if ( ------------------------------- )
+		{
+			state.setAttribute(STATE_SUCCESS,rb.getString("success.deleted"));
+		} else {
+			addAlert(state,rb.getString("error.delete.fail"));
+		}
+*/
+		switchPanel(state, "Refresh");
+	}
+
+    public String prepareValidate(Map<String,Object> deploy, List<Map<String,Object>> theTools, 
+		Properties info, SessionState state)
+	{
+        Long reg_state = foorm.getLongNull(deploy.get(LTIService.LTI_REG_STATE));
+		String profileText = (String) deploy.get(LTIService.LTI_REG_PROFILE);
+		if ( reg_state != 1 || profileText == null || profileText.length() < 1 ) {
+			addAlert(state,rb.getString("error.activate.not.ready"));
 			return "lti_error";
 		}
 
         JSONObject providerProfile = (JSONObject) JSONValue.parse(profileText);
-		List<Properties> theTools = new ArrayList<Properties> ();
-		Properties info = new Properties();
 
+		List<Properties> profileTools = new ArrayList<Properties> ();
         try {
-            String [] retval = BasicLTIUtil.parseToolProfile(theTools, info, providerProfile);
-System.out.println("info = " + info);
+            String [] retval = BasicLTIUtil.parseToolProfile(profileTools, info, providerProfile);
             if ( retval != null ) {
 				addAlert(state,rb.getString(retval[0])+" "+retval[1]);
 				return "lti_error";
@@ -850,15 +922,59 @@ System.out.println("info = " + info);
 		}
         catch (Exception e ) {
 			addAlert(state,rb.getString("deploy.parse.exception")+" "+e.getLocalizedMessage());
+			e.printStackTrace();
 			return "lti_error";
         }
 
-        if ( theTools.size() < 1 ) {
-			addAlert(state,rb.getString("deploy.regsiter.notools"));
+		String instance_guid = (String) info.get("instance_guid");
+
+        if ( profileTools.size() < 1 ) {
+			addAlert(state,rb.getString("deploy.activate.notools"));
 			return "lti_error";
         }
 
-		return "lti_deploy_register";
+		// Check them all first
+		for ( Properties profileTool : profileTools ) {
+			String launch = (String) profileTool.get("launch");
+			if ( ! FormattedText.validateURL(launch) ) {
+				addAlert(state,rb.getString("deploy.activate.badlaunch")+" "+launch);
+				return "lti_error";
+			}
+		}
+
+		for ( Properties profileTool : profileTools ) {
+			String resource_type = (String) profileTool.get("resource_type");
+System.out.println("resource_type="+resource_type);
+			String resource_full = instance_guid;
+			if ( ! resource_full.endsWith("/") && ! resource_type.startsWith("/") ) resource_full = resource_full + "/" ;
+			resource_full = resource_full + resource_type;
+System.out.println("resource_full="+resource_full);
+			Map<String,Object> tool = ltiService.getToolForResourceTypeDao(resource_full);
+System.out.println("tool="+tool);
+
+			// Construct a new tool object
+			Map<String, Object> newTool = new HashMap<String, Object> ();
+			if ( tool != null ) {
+				newTool.putAll(tool);
+			} else { 
+				newTool.putAll(deploy); // This will be ignored unless it matches
+				newTool.remove("id");  // The tool does not have an id
+			}
+
+			newTool.put("resource_type", resource_full);
+			newTool.put("deployment_id", deploy.get("id"));
+
+			// Copy explicitly in case the parser changes slightly
+			if ( profileTool.get("launch") != null ) newTool.put("launch", profileTool.get("launch"));
+			if ( profileTool.get("title") != null ) newTool.put("title", profileTool.get("title"));
+			if ( profileTool.get("button") != null ) newTool.put("pagetitle", profileTool.get("button")); // Note different fields
+			if ( profileTool.get("description") != null ) newTool.put("description", profileTool.get("description"));
+			if ( profileTool.get("parameter") != null ) newTool.put("parameter", profileTool.get("parameter"));
+			if ( profileTool.get("enabled_capability") != null ) newTool.put("enabled_capability", profileTool.get("parameter"));
+
+			theTools.add(newTool); 
+		}
+		return null; // Success
 	}
 
 	public String buildDeploySystemPanelContext(VelocityPortlet portlet, Context context, 
@@ -942,7 +1058,6 @@ System.out.println("info = " + info);
 		return "lti_deploy_delete";
 	}
 
-	// Insert or edit
 	public void doDeployDelete(RunData data, Context context)
 	{
 		String peid = ((JetspeedRunData) data).getJs_peid();

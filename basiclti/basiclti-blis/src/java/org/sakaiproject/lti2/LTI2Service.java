@@ -336,13 +336,7 @@ System.out.println("deploy="+deploy);
 		String profile_id) throws java.io.IOException
 	{
 System.out.println("profile_id="+profile_id);
-		// TODO: Need FOORM.escape
-		String search = LTIService.LTI_CONSUMERKEY + " = '" + profile_id + "'";
-		List<Map<String, Object>> deploys = ltiService.getDeploysDao(search, null, 0, 0);
-
-		Map<String,Object> deploy = null;
-		if ( deploys.size() == 1 ) deploy = deploys.get(0);
-
+		Map<String,Object> deploy = ltiService.getDeployForConsumerKeyDao(profile_id);
 		if ( deploy == null ) {
 			response.setStatus(HttpServletResponse.SC_FORBIDDEN); // TODO: Get this right
 			return;
@@ -434,14 +428,16 @@ System.out.println("info = " + info);
 			return;
 		}
 
-		// TODO: Check all the services...
+		// TODO: Loop through and validate all of the launch urls in the tools
+
+		// TODO: Check all the services to make sure we like them ....
 
 		Map<String, Object> deployUpdate = new TreeMap<String, Object> ();
 
 		// TODO: Make sure to encrypt that password...
 		deployUpdate.put(LTIService.LTI_SECRET, shared_secret);
 
-		// Indicate registration complete and kill the interim info
+		// Indicate ready to validate and kill the interim info
 		deployUpdate.put(LTIService.LTI_REG_STATE, "1");
 		deployUpdate.put(LTIService.LTI_REG_KEY, "");
 		deployUpdate.put(LTIService.LTI_REG_PASSWORD, "");

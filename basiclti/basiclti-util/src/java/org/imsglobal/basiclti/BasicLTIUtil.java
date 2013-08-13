@@ -574,6 +574,12 @@ public class BasicLTIUtil {
 			return new String[]{"deploy.register.parse", "JSON missing product_instance"};
 		}
 
+		String instance_guid = (String) product_instance.get("guid");
+		if ( instance_guid == null  ) {
+			return new String[]{"deploy.register.parse", "JSON missing product_info / guid"};
+		}
+		info.put("instance_guid",instance_guid);
+
 		JSONObject product_info = (JSONObject) product_instance.get("product_info");
 		if ( product_info == null  ) {
 			return new String[]{"deploy.register.parse", "JSON missing product_info"};
@@ -632,7 +638,13 @@ System.out.println("LU="+launch_url);
 			if ( title == null || titleObject == null ) {
 				return new String[]{"deploy.register.parse", "JSON missing resource_handler / name / default_value"};
 			}
+
+			JSONObject buttonObject = (JSONObject) resource_handler.get("short_name");
+			String button = buttonObject == null ? null : (String) buttonObject.get("default_value");
 		
+			JSONObject descObject = (JSONObject) resource_handler.get("description");
+			String resourceDescription = descObject == null ? null : (String) descObject.get("default_value");
+
 			String path = null;
 			JSONArray parameter = null;
 			JSONArray enabled_capability = null; 
@@ -660,6 +672,9 @@ System.out.println("LU="+launch_url);
 			theTool.put("resource_type", resource_type);
 			if ( title == null ) title = productTitle;
 			if ( title != null ) theTool.put("title", title);
+			if ( button != null ) theTool.put("button", button);
+			if ( resourceDescription == null ) resourceDescription = productDescription;
+			if ( resourceDescription != null ) theTool.put("description", resourceDescription);
 			if ( parameter != null ) theTool.put("parameter", parameter.toString());
 			if ( enabled_capability != null ) theTool.put("enabled_capability", parameter.toString());
 

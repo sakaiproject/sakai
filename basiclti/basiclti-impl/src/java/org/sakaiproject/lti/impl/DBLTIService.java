@@ -507,6 +507,9 @@ public class DBLTIService extends BaseLTIService implements LTIService {
 		List rv = getResultSet(statement, fields, columns);
 
 		if ((rv != null) && (rv.size() > 0)) {
+			if ( rv.size() > 1 ) {
+				M_log.warn("Warning more than one row returned: "+statement);
+			}
 			return (Map<String, Object>) rv.get(0);
 		}
 		return null;
@@ -693,10 +696,66 @@ public class DBLTIService extends BaseLTIService implements LTIService {
 		return count == 1;
 	}
 
+	/*-- Straight-up API methods ------------------------*/
+
+	public Map<String, Object> getToolForResourceTypeDao(String resourceType)
+	{
+		if (resourceType == null ) {
+			throw new IllegalArgumentException("resourceType must be non-null");
+		}
+
+		String[] model = LTIService.TOOL_MODEL;
+		String statement = "SELECT " + foorm.formSelect(model) + " FROM lti_tools WHERE " + 
+			LTIService.LTI_RESOURCE_TYPE + " = ? ";
+
+		Object [] fields = new Object[1];
+		fields[0] = resourceType;
+
+		List rv = getResultSet(statement, fields);
+
+		if ((rv != null) && (rv.size() > 0)) {
+			if ( rv.size() > 1 ) {
+				M_log.warn("Warning more than one row returned: "+statement);
+			}
+			return (Map<String, Object>) rv.get(0);
+		}
+		return null;
+	}
+
+	public Map<String, Object> getDeployForConsumerKeyDao(String consumerKey)
+	{
+		if (consumerKey == null ) {
+			throw new IllegalArgumentException("consumerKey must be non-null");
+		}
+
+		String[] model = LTIService.DEPLOY_MODEL;
+		String statement = "SELECT " + foorm.formSelect(model) + " FROM lti_DEPLOY WHERE " + 
+			LTIService.LTI_CONSUMERKEY + " = ? ";
+
+		Object [] fields = new Object[1];
+		fields[0] = consumerKey;
+
+		List rv = getResultSet(statement, fields);
+
+		if ((rv != null) && (rv.size() > 0)) {
+			if ( rv.size() > 1 ) {
+				M_log.warn("Warning more than one row returned: "+statement);
+			}
+			return (Map<String, Object>) rv.get(0);
+		}
+		return null;
+	}
+
+
 	// Utility to return a resultset
 	/**
 	 * 
 	 */
+	public List<Map<String, Object>> getResultSet(String statement, Object[] fields)
+	{
+		return getResultSet(statement, fields, null);
+	}
+
 	public List<Map<String, Object>> getResultSet(String statement, Object[] fields,
 			final String[] columns) {
 		// System.out.println("getResultSet sql="+statement+" fields="+fields);
