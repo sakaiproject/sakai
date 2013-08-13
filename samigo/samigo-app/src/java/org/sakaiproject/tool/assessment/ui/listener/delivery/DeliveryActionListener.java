@@ -1623,11 +1623,11 @@ public class DeliveryActionListener
     }
     else if (item.getTypeId().equals(TypeIfc.FILL_IN_BLANK)) // fill in the blank
     {
-      populateFib(item, itemBean);
+      populateFib(item, itemBean, publishedAnswerHash);
     }
     else if (item.getTypeId().equals(TypeIfc.FILL_IN_NUMERIC)) //numeric response
     {
-      populateFin(item, itemBean);
+      populateFin(item, itemBean, publishedAnswerHash);
     }
     else if (item.getTypeId().equals(TypeIfc.ESSAY_QUESTION)) 
     {
@@ -1749,7 +1749,7 @@ public class DeliveryActionListener
     bean.setAnswers(newAnswers); // Change the answers to just text
   }
 
-  public void populateFib(ItemDataIfc item, ItemContentsBean bean)
+  public void populateFib(ItemDataIfc item, ItemContentsBean bean, HashMap<Long, AnswerIfc> publishedAnswerHash)
   {
     // Only one text in FIB
     ItemTextIfc text = (ItemTextIfc) item.getItemTextArraySorted().toArray()[0];
@@ -1785,15 +1785,23 @@ public class DeliveryActionListener
           {
             fbean.setItemGradingData(data);
             fbean.setResponse(FormattedText.convertFormattedTextToPlaintext(data.getAnswerText()));
-            fbean.setIsCorrect(false);
             if (answer.getText() == null)
             {
               answer.setText("");
             }
             
-            if (data.getIsCorrect() != null && data.getIsCorrect().booleanValue())
-            {
-              fbean.setIsCorrect(true);
+            if (data.getIsCorrect() == null) {
+            	GradingService gs = new GradingService();
+            	HashMap<Long, Set<String>> fibmap = new HashMap<Long, Set<String>>();
+            	fbean.setIsCorrect(gs.getFIBResult(data, fibmap, item, publishedAnswerHash));
+            }
+            else {
+            	if (data.getIsCorrect().booleanValue()) {
+            		fbean.setIsCorrect(true);
+            	}
+            	else {
+            		fbean.setIsCorrect(false);
+            	}
             }
           }
         }
@@ -1891,7 +1899,7 @@ public class DeliveryActionListener
   } 
   */
    
-  public void populateFin(ItemDataIfc item, ItemContentsBean bean)
+  public void populateFin(ItemDataIfc item, ItemContentsBean bean, HashMap<Long, AnswerIfc> publishedAnswerHash)
   {
     // Only one text in FIN
     ItemTextIfc text = (ItemTextIfc) item.getItemTextArraySorted().toArray()[0];
@@ -1932,15 +1940,23 @@ public class DeliveryActionListener
         	  
             fbean.setItemGradingData(data);
             fbean.setResponse(FormattedText.convertFormattedTextToPlaintext(data.getAnswerText()));
-            fbean.setIsCorrect(false);
             if (answer.getText() == null)
             {
               answer.setText("");
             }
             
-            if (data.getIsCorrect() != null && data.getIsCorrect().booleanValue())
-            {
-              fbean.setIsCorrect(true);
+            if (data.getIsCorrect() == null) {
+            	GradingService gs = new GradingService();
+            	HashMap<Long, Set<String>> fibmap = new HashMap<Long, Set<String>>();
+            	fbean.setIsCorrect(gs.getFINResult(data, item, publishedAnswerHash));
+            }
+            else {
+            	if (data.getIsCorrect().booleanValue()) {
+            		fbean.setIsCorrect(true);
+            	}
+            	else {
+            		fbean.setIsCorrect(false);
+            	}
             }
           }
         }

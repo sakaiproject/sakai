@@ -203,9 +203,6 @@ public class ItemGradingData implements java.io.Serializable {
 	}
 	
 	public Boolean getIsCorrect() {
-		if (isCorrect == null) {
-			isCorrect = Boolean.FALSE;
-		}
 		return isCorrect;
 	}
 
