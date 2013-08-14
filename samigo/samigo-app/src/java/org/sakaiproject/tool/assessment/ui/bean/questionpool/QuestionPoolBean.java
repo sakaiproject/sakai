@@ -241,6 +241,22 @@ public class QuestionPoolBean implements Serializable
 	  }
   }
 
+  class QuestionSizeComparator implements Comparator<QuestionPoolFacade> {
+	  @Override
+	  public int compare(QuestionPoolFacade i1, QuestionPoolFacade i2) {
+		  if (i1 == null && i2 != null) {
+			  return 1;
+		  }
+		  if (i2 == null && i1 != null) {
+			  return -1;
+		  }
+		  if (i2 == null && i1 == null) {
+			  return 0;
+		  }
+		  return i1.getQuestionPoolItems().size() - i2.getQuestionPoolItems().size();
+	  }
+  }
+
   public void sortQpoolsByProperty(ArrayList sortedList, String sortProperty, boolean sortAscending)
   {
 	  BeanSort sort = new BeanSort(sortedList, sortProperty);
@@ -252,6 +268,8 @@ public class QuestionPoolBean implements Serializable
 	  // optimize the sort on title, which is the one that is almost always used.
 	  if ("title".equals(sortProperty)) {
 		  Collections.sort(sortedList, new TitleComparator());
+	  } else if ("questionSize".equals(sortProperty)) {
+		  Collections.sort(sortedList, new QuestionSizeComparator());
 	  } else {
 		  if ("lastModified".equals(sortProperty))
 		  {
