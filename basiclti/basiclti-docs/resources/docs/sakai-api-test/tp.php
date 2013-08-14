@@ -54,6 +54,7 @@ ksort($_POST);
 $output = "";
 foreach($_POST as $key => $value ) {
     if (get_magic_quotes_gpc()) $value = stripslashes($value);
+    $output = $output . htmlent_utf8($key) . "=" . htmlent_utf8($value) . " (".mb_detect_encoding($value).")\n";
 }
 togglePre("Raw POST Parameters", $output);
 
@@ -150,19 +151,14 @@ $tp_profile->tool_profile->message[0]->path = $cur_url;
 $tp_profile->tool_profile->product_instance->product_info->product_family->vendor->website = $cur_base;
 $tp_profile->tool_profile->product_instance->product_info->product_family->vendor->timestamp = "2013-07-13T09:08:16-04:00";
 
-// Important - this will be concatenated with the resource type
-$unique = "";
-if ( isset($_SERVER["SCRIPT_FILENAME"]) ) {
-	$unique = md5($_SERVER["SCRIPT_FILENAME"]);
-	$unique = "/" . substr($unique,0,5);
-}
-$tp_profile->tool_profile->product_instance->guid = $cur_base . $unique;
+// I want this *not* to be unique per instance
+$tp_profile->tool_profile->product_instance->guid = "urn:sakaiproject:unit-test";
 
 $tp_profile->tool_profile->product_instance->service_provider->guid = "http://www.sakaiproject.org/";
 
 // Launch Request
 $tp_profile->tool_profile->resource_handler[0]->message[0]->path = "tool.php";
-$tp_profile->tool_profile->resource_handler[0]->resource_type = "urn:lti:ResourceType:".$cur_base."/sakai/ltiunit";
+$tp_profile->tool_profile->resource_handler[0]->resource_type = "sakai-api-test-01";
 
 $tp_profile->tool_profile->base_url_choice[0]->secure_base_url = $cur_base;
 $tp_profile->tool_profile->base_url_choice[0]->default_base_url = $cur_base;
