@@ -466,7 +466,7 @@ public class DBLTIService extends BaseLTIService implements LTIService {
 
 		Long retval = m_sql.dbInsert(null, sql, fields, LTIService.LTI_ID);
 
-		// System.out.println("Insert="+retval);
+		M_log.debug("Count="+retval+" Insert="+sql);
 		return retval;
 	}
 
@@ -504,6 +504,7 @@ public class DBLTIService extends BaseLTIService implements LTIService {
 			fields[0] = key;
 		}
 
+		M_log.debug(statement);
 		List rv = getResultSet(statement, fields, columns);
 
 		if ((rv != null) && (rv.size() > 0)) {
@@ -564,8 +565,7 @@ public class DBLTIService extends BaseLTIService implements LTIService {
 				whereClause += " (" + search + ") ";
 			}
 		}
-		// System.out.println("whereClause = "+whereClause);
-				
+
 		if ( whereClause.length() > 0 ) statement += " WHERE " + whereClause;
 
 		if (last != 0) {
@@ -574,7 +574,7 @@ public class DBLTIService extends BaseLTIService implements LTIService {
 			if (pagedStatement != null)
 				statement = pagedStatement;
 		}
-		// System.out.println("statement = " + statement);
+		M_log.debug(statement);
 		return getResultSet(statement, fields, columns);
 	}
 
@@ -615,6 +615,7 @@ public class DBLTIService extends BaseLTIService implements LTIService {
 		}
 
 		int count = m_sql.dbWriteCount(statement, fields, null, null, false);
+		M_log.debug("Count="+count+" Delete="+statement);
 		return count == 1;
 	}
 
@@ -692,7 +693,7 @@ public class DBLTIService extends BaseLTIService implements LTIService {
 
 		int count = m_sql.dbWriteCount(sql, fields, null, null, false);
 
-		// System.out.println("count="+count);
+		M_log.debug("Count="+count+" Update="+sql);
 		return count == 1;
 	}
 
@@ -711,6 +712,7 @@ public class DBLTIService extends BaseLTIService implements LTIService {
 		Object [] fields = new Object[1];
 		fields[0] = resourceType;
 
+		M_log.debug(statement);
 		List rv = getResultSet(statement, fields);
 
 		if ((rv != null) && (rv.size() > 0)) {
@@ -735,6 +737,7 @@ public class DBLTIService extends BaseLTIService implements LTIService {
 		Object [] fields = new Object[1];
 		fields[0] = consumerKey;
 
+		M_log.debug(statement);
 		List rv = getResultSet(statement, fields);
 
 		if ((rv != null) && (rv.size() > 0)) {

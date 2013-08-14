@@ -163,16 +163,16 @@
 	                <td headers="use">$deploy.get("tool_count")</td> 
 		                <td headers="action">
 	                        	<a href="$sakai_ActionURL.setPanel("DeployEdit")&id=$deploy.get("id")">$tlang.getString("gen.edit")</a> / 
+								#if ($deploy.get("reg_state") == "1" || $deploy.get("reg_state") == "2")
+	                        	<a href="$sakai_ActionURL.setPanel("DeployRegister")&id=$deploy.get("id")">$tlang.getString("gen.reregister")</a> /
+								#else
+	                        	<a href="$sakai_ActionURL.setPanel("DeployRegister")&id=$deploy.get("id")">$tlang.getString("gen.register")</a> /
+								#end
 								#if ($deploy.get("reg_state") == "1")
 	                        	<a href="$sakai_ActionURL.setPanel("Activate")&id=$deploy.get("id")">$tlang.getString("gen.activate")</a> /
 								#end
 								#if ($deploy.get("reg_state") == "2")
 	                        	<a href="$sakai_ActionURL.setPanel("Activate")&id=$deploy.get("id")">$tlang.getString("gen.reactivate")</a> /
-								#end
-								#if ($deploy.get("reg_state") == "1" || $deploy.get("reg_state") == "2")
-	                        	<a href="$sakai_ActionURL.setPanel("DeployRegister")&id=$deploy.get("id")">$tlang.getString("gen.reregister")</a> /
-								#else
-	                        	<a href="$sakai_ActionURL.setPanel("DeployRegister")&id=$deploy.get("id")">$tlang.getString("gen.register")</a> /
 								#end
 	                        	<a href="$sakai_ActionURL.setPanel("DeployDelete")&id=$deploy.get("id")">$tlang.getString("gen.delete")</a>
 		                </td>

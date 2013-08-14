@@ -464,7 +464,6 @@ public class LTIAdminTool extends VelocityPortletPaneledAction
 
 	public void doToolDelete(RunData data, Context context)
 	{
-
 		String peid = ((JetspeedRunData) data).getJs_peid();
 		SessionState state = ((JetspeedRunData) data).getPortletSessionState(peid);
 
@@ -729,7 +728,6 @@ public class LTIAdminTool extends VelocityPortletPaneledAction
 			lti2Insert = true;
 		} else {
 			Long key = new Long(id);
-System.out.println("UPDATING reqProps="+reqProps);
 			retval = ltiService.updateDeployDao(key, reqProps);
 			success = rb.getString("success.updated");
 		}
@@ -979,6 +977,15 @@ System.out.println("UPDATING reqProps="+reqProps);
 			}
 		}
 
+		// Make a copy of the deploy object and clean it up
+		Map<String, Object> localDeploy = new HashMap<String, Object> ();
+		localDeploy.putAll(deploy);
+		localDeploy.remove("id");
+		localDeploy.remove("created_at");
+		localDeploy.remove("updated_at");
+		localDeploy.remove("reg_proile");
+
+		// Loop through all of the tools
 		for ( Properties profileTool : profileTools ) {
 			String resource_type = (String) profileTool.get("resource_type");
 			String resource_full = instance_guid;
@@ -990,14 +997,10 @@ System.out.println("UPDATING reqProps="+reqProps);
 			Map<String, Object> newTool = new HashMap<String, Object> ();
 			if ( tool != null ) {
 				newTool.putAll(tool);
-				newTool.putAll(deploy); // Copy settings from the deployment
+				newTool.putAll(localDeploy); // New settings from the deployment
 			} else { 
-				newTool.putAll(deploy); // This will be ignored unless it matches
-				newTool.remove("id");  // Do not copy the id from the deployment
+				newTool.putAll(localDeploy); 
 			}
-
-			newTool.remove("created_at");
-			newTool.remove("updated_at");
 
 			newTool.put("resource_type", resource_full);
 			newTool.put("deployment_id", deploy.get("id"));
