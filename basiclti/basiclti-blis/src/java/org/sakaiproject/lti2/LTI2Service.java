@@ -564,7 +564,7 @@ System.out.println("deployUpdate="+deployUpdate);
 
 			// Send a more generic message back to the caller
 			if ( placement_id == null || user_id == null ) {
-				doErrorJSON(request, response, jsonRequest, "outcomes.lori_api_token_01", "lori_api_token", null);
+				doErrorJSON(request, response, jsonRequest, "outcomes.lori_api_token", "lori_api_token_01", null);
 				return;
 			}
 
@@ -576,14 +576,14 @@ System.out.println("deployUpdate="+deployUpdate);
 			Properties pitch = getPropertiesFromPlacement(placement_id);
 			if ( pitch == null ) {
 				M_log.debug("Error retrieving result_lori_api_token information");
-				doErrorJSON(request, response, jsonRequest, "outcomes.lori_api_token_02", "lori_api_token", null);
+				doErrorJSON(request, response, jsonRequest, "outcomes.lori_api_token", "lori_api_token_02", null);
 				return;
 			}
 	
 			String siteId = pitch.getProperty(LTIService.LTI_SITE_ID);
 			String context_id = (String) jsonObject.get("context_id");
 			if ( siteId == null || ! siteId.equals(context_id)) {
-				doErrorJSON(request, response, jsonRequest, "outcomes.lori_api_token_03", "lori_api_token", null);
+				doErrorJSON(request, response, jsonRequest, "outcomes.lori_api_token", "lori_api_token_03", null);
 				return;
 			}
 
@@ -596,7 +596,7 @@ System.out.println("deployUpdate="+deployUpdate);
 
 			// Send a more generic message back to the caller
 			if (  site == null ) {
-				doErrorJSON(request, response, jsonRequest, "outcomes.lori_api_token_04", "lori_api_token", null);
+				doErrorJSON(request, response, jsonRequest, "outcomes.lori_api_token", "lori_api_token_04", null);
 				return;
 			}
 
@@ -618,7 +618,7 @@ System.out.println("deployUpdate="+deployUpdate);
 
 			// Send a generic message back to the caller
 			if ( placement_secret ==null ) {
-				doErrorJSON(request, response, jsonRequest, "outcomes.lori_api_token_05", "lori_api_token", null);
+				doErrorJSON(request, response, jsonRequest, "outcomes.lori_api_token", "lori_api_token_05", null);
 				return;
 			}
 

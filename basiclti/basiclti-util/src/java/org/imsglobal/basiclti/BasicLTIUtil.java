@@ -591,7 +591,7 @@ public class BasicLTIUtil {
 		JSONObject description = product_info == null ? null : (JSONObject) product_info.get("description");
 		String productDescription = product_name == null ? null : (String) description.get("default_value");
 		if ( productTitle == null || productDescription == null ) {
-			return new String[]{"deploy.register.title", "JSON missing product_name or description "};
+			return new String[]{"deploy.register.parse", "JSON missing product_name or description "};
 		}
 
 		info.put("product_name", productTitle);

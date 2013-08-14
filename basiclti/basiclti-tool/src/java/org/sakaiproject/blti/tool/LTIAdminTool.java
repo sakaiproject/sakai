@@ -527,7 +527,7 @@ public class LTIAdminTool extends VelocityPortletPaneledAction
 	{
 		context.put("tlang", rb);
 		if ( ! ltiService.isMaintain() ) {
-			addAlert(state,rb.getString("error.edit.maintain"));
+			addAlert(state,rb.getString("error.maintain.edit"));
 			return "lti_error";
 		}
 		context.put("doToolAction", BUTTON + "doToolPut");
@@ -602,7 +602,7 @@ public class LTIAdminTool extends VelocityPortletPaneledAction
 	{
 		context.put("tlang", rb);
 		if ( ! ltiService.isAdmin() ) {
-			addAlert(state,rb.getString("error.edit.maintain"));
+			addAlert(state,rb.getString("error.admin.edit"));
 			return "lti_error";
 		}
 		context.put("doDeployAction", BUTTON + "doDeployPut");
@@ -625,7 +625,7 @@ public class LTIAdminTool extends VelocityPortletPaneledAction
 	{
 		context.put("tlang", rb);
 		if ( ! ltiService.isAdmin() ) {
-			addAlert(state,rb.getString("error.maintain.view"));
+			addAlert(state,rb.getString("error.admin.view"));
 			return "lti_error";
 		}
 		context.put("messageSuccess",state.getAttribute(STATE_SUCCESS));
@@ -662,7 +662,7 @@ public class LTIAdminTool extends VelocityPortletPaneledAction
 		String stateId = (String) state.getAttribute(STATE_ID);
 		state.removeAttribute(STATE_ID);
 		if ( ! ltiService.isAdmin() ) {
-			addAlert(state,rb.getString("error.maintain.edit"));
+			addAlert(state,rb.getString("error.admin.edit"));
 			return "lti_error";
 		}
 		context.put("doDeployAction", BUTTON + "doDeployPut");
@@ -699,12 +699,11 @@ public class LTIAdminTool extends VelocityPortletPaneledAction
 	// Insert or edit
 	public void doDeployPut(RunData data, Context context)
 	{
-System.out.println("doDeployPut");
 		String peid = ((JetspeedRunData) data).getJs_peid();
 		SessionState state = ((JetspeedRunData) data).getPortletSessionState(peid);
 
 		if ( ! ltiService.isAdmin() ) {
-			addAlert(state,rb.getString("error.maintain.delete"));
+			addAlert(state,rb.getString("error.admin.edit"));
 			switchPanel(state,"Error");
 			return;
 		}
@@ -712,7 +711,6 @@ System.out.println("doDeployPut");
 
 		String id = data.getParameters().getString(LTIService.LTI_ID);
 
-System.out.println("doDeployPut id="+id);
 		// If we are inserting, fill in the blanks
 		if ( id == null ) {
 			reqProps.setProperty(LTIService.LTI_REG_KEY, UUID.randomUUID().toString());
@@ -727,7 +725,6 @@ System.out.println("doDeployPut id="+id);
 		if ( id == null ) 
 		{
 			retval = ltiService.insertDeployDao(reqProps);
-System.out.println("retval="+retval);
 			success = rb.getString("success.created");
 			lti2Insert = true;
 		} else {
@@ -766,7 +763,6 @@ System.out.println("retval="+retval);
 
 		String [] mappingForm = foorm.filterForm(ltiService.getDeployModel(), "^title:.*|^reg_state:.*|^reg_launch:.*|^id:.*", null);
 		String id = data.getParameters().getString(LTIService.LTI_ID);
-System.out.println("Register id="+id);
 		if ( id == null ) {
 			addAlert(state,rb.getString("error.id.not.found"));
 			return "lti_error";
@@ -806,7 +802,6 @@ System.out.println("Register id="+id);
 
 		context.put("registerURL",registerURL);
 		
-System.out.println("Register...");
 		state.removeAttribute(STATE_SUCCESS);
 		return "lti_deploy_register";
 	}
@@ -815,10 +810,9 @@ System.out.println("Register...");
 			RunData data, SessionState state)
 	{
 
-		// TODO: In the right state, id parameter specified, profile is filled in
 		context.put("tlang", rb);
 		if ( ! ltiService.isAdmin() ) {
-			addAlert(state,rb.getString("error.maintain.view"));
+			addAlert(state,rb.getString("error.admin.activate"));
 			return "lti_error";
 		}
 		context.put("messageSuccess",state.getAttribute(STATE_SUCCESS));
@@ -830,11 +824,10 @@ System.out.println("Register...");
 		}
 		Long key = new Long(id);
 		Map<String,Object> deploy = ltiService.getDeployDao(key);
-		if (  deploy == null ) return "lti_error";	
+		if ( deploy == null ) return "lti_error";	
 
-        Long reg_state = foorm.getLongNull(deploy.get(LTIService.LTI_REG_STATE));
 		String profileText = (String) deploy.get(LTIService.LTI_REG_PROFILE);
-		if ( reg_state != 1 || profileText == null || profileText.length() < 1 ) {
+		if ( profileText == null || profileText.length() < 1 ) {
 			addAlert(state,rb.getString("error.activate.not.ready"));
 			return "lti_error";
 		}
@@ -861,7 +854,7 @@ System.out.println("Register...");
 		SessionState state = ((JetspeedRunData) data).getPortletSessionState(peid);
 
 		if ( ! ltiService.isAdmin() ) {
-			addAlert(state,rb.getString("error.maintain.delete"));
+			addAlert(state,rb.getString("error.admin.activate"));
 			switchPanel(state, "Error");
 			return;
 		}
@@ -917,6 +910,17 @@ System.out.println("Register...");
 			}
 		}
 
+		// Update reg_state to indicate we are activated...
+        Map<String, Object> deployUpdate = new HashMap<String, Object> ();
+        deployUpdate.put(LTIService.LTI_REG_STATE, "2");
+        Object obj = ltiService.updateDeployDao(key, deployUpdate);
+        boolean updated = ( obj instanceof Boolean ) && ( (Boolean) obj == Boolean.TRUE);
+		if ( !updated ) {
+			String oops = "Unable to update deployment key="+key;
+			M_log.error(oops);
+			failures += "\n" + oops;
+		}
+
 		// We can have a combination of successes and failures...
 		String success = "";
 		if ( inserts > 0 ) success = inserts + " tools inserted ";
@@ -929,8 +933,6 @@ System.out.println("Register...");
 			addAlert(state, failures);
 		} 
 
-		// TODO: Update reg_state to indicate we are activated...
-
 		switchPanel(state, "DeploySystem");
 	}
 
@@ -939,7 +941,7 @@ System.out.println("Register...");
 	{
         Long reg_state = foorm.getLongNull(deploy.get(LTIService.LTI_REG_STATE));
 		String profileText = (String) deploy.get(LTIService.LTI_REG_PROFILE);
-		if ( reg_state != 1 || profileText == null || profileText.length() < 1 ) {
+		if ( profileText == null || profileText.length() < 1 ) {
 			addAlert(state,rb.getString("error.activate.not.ready"));
 			return "lti_error";
 		}
@@ -978,13 +980,10 @@ System.out.println("Register...");
 
 		for ( Properties profileTool : profileTools ) {
 			String resource_type = (String) profileTool.get("resource_type");
-System.out.println("resource_type="+resource_type);
 			String resource_full = instance_guid;
 			if ( ! resource_full.endsWith("/") && ! resource_type.startsWith("/") ) resource_full = resource_full + "/" ;
 			resource_full = resource_full + resource_type;
-System.out.println("resource_full="+resource_full);
 			Map<String,Object> tool = ltiService.getToolForResourceTypeDao(resource_full);
-System.out.println("tool="+tool);
 
 			// Construct a new tool object
 			Map<String, Object> newTool = new HashMap<String, Object> ();
@@ -1019,7 +1018,7 @@ System.out.println("tool="+tool);
 	{
 		context.put("tlang", rb);
 		if ( ! ltiService.isAdmin() ) {
-			addAlert(state,rb.getString("error.maintain.edit"));
+			addAlert(state,rb.getString("error.admin.view"));
 			return "lti_error";
 		}
 		String contextString = toolManager.getCurrentPlacement().getContext();

@@ -8,16 +8,16 @@
 		$tlang.getString("deploy.activate.note")
 	</p>
 	<h3>
-		Preparing activate these tools from $info.get("title")
+		$tlang.getString("deploy.provider.name") $info.get("product_name")
 	</h3>
 	<ul>
 		#foreach($tool in $tools)
 		<li>
 			$tool.get("title")
-			<br/> Launch:$tool.get("launch")
-			<br/> Resource Type: $tool.get("resource_type")
+			<br/> $tlang.getString("tool.launch") $tool.get("launch")
+			<br/> $tlang.getString("tool.resource.type") $tool.get("resource_type")
 			#if ($tool.get("id") ) 
-				<br/><span style="color:red">(Note tool aready exists for resource_type)</span>
+			    $tlang.getString("tool.already.exists") 
 			#end
 		</li>
 		#end
