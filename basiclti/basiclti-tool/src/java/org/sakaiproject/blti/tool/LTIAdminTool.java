@@ -729,6 +729,7 @@ public class LTIAdminTool extends VelocityPortletPaneledAction
 			lti2Insert = true;
 		} else {
 			Long key = new Long(id);
+System.out.println("UPDATING reqProps="+reqProps);
 			retval = ltiService.updateDeployDao(key, reqProps);
 			success = rb.getString("success.updated");
 		}
@@ -989,12 +990,14 @@ public class LTIAdminTool extends VelocityPortletPaneledAction
 			Map<String, Object> newTool = new HashMap<String, Object> ();
 			if ( tool != null ) {
 				newTool.putAll(tool);
+				newTool.putAll(deploy); // Copy settings from the deployment
 			} else { 
 				newTool.putAll(deploy); // This will be ignored unless it matches
-				newTool.remove("id");  // The tool does not have an id
-				newTool.remove("created_at");
-				newTool.remove("updated_at");
+				newTool.remove("id");  // Do not copy the id from the deployment
 			}
+
+			newTool.remove("created_at");
+			newTool.remove("updated_at");
 
 			newTool.put("resource_type", resource_full);
 			newTool.put("deployment_id", deploy.get("id"));
