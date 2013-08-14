@@ -20,6 +20,8 @@
 package org.imsglobal.basiclti;
 
 import static org.imsglobal.basiclti.BasicLTIConstants.CUSTOM_PREFIX;
+import static org.imsglobal.basiclti.BasicLTIConstants.EXTENSION_PREFIX;
+import static org.imsglobal.basiclti.BasicLTIConstants.OAUTH_PREFIX;
 import static org.imsglobal.basiclti.BasicLTIConstants.LTI_MESSAGE_TYPE;
 import static org.imsglobal.basiclti.BasicLTIConstants.LTI_VERSION;
 import static org.imsglobal.basiclti.BasicLTIConstants.TOOL_CONSUMER_INSTANCE_CONTACT_EMAIL;
@@ -224,9 +226,9 @@ public class BasicLTIUtil {
 	 */
 	public static boolean isSpecifiedPropertyName(final String propertyName) {
 		boolean found = false;
-		if ( propertyName.startsWith(BasicLTIConstants.CUSTOM_PREFIX) ) return true;
-		if ( propertyName.startsWith(BasicLTIConstants.EXTENSION_PREFIX) ) return true;
-		if ( propertyName.startsWith(BasicLTIConstants.OAUTH_PREFIX) ) return true;
+		if ( propertyName.startsWith(CUSTOM_PREFIX) ) return true;
+		if ( propertyName.startsWith(EXTENSION_PREFIX) ) return true;
+		if ( propertyName.startsWith(OAUTH_PREFIX) ) return true;
 		for (String key : BasicLTIConstants.validPropertyNames) {
 			if (key.equals(propertyName)) {
 				found = true;
@@ -609,13 +611,11 @@ public class BasicLTIUtil {
 			default_base_url = (String) url_choice.get("default_base_url");
 		}
 		
-System.out.println("BU="+secure_base_url+" DBU="+default_base_url);
 		String launch_url = secure_base_url;
 		if ( launch_url == null ) launch_url = default_base_url;
 		if ( launch_url == null ) {
 			return new String[]{"deploy.register.launch", "Unable to determine launch URL"};
 		}
-System.out.println("LU="+launch_url);
 
 		JSONArray resource_handlers = (JSONArray) tool_profile.get("resource_handler");
 		if ( resource_handlers == null  ) {
@@ -682,7 +682,6 @@ System.out.println("LU="+launch_url);
 			String thisLaunch = launch_url;
 			if ( ! thisLaunch.endsWith("/") && ! path.startsWith("/") ) thisLaunch = thisLaunch + "/";
 			thisLaunch = thisLaunch + path;
-System.out.println("thisLaunch="+thisLaunch);
 			theTool.put("launch", thisLaunch);
 			theTools.add(theTool);
 		}

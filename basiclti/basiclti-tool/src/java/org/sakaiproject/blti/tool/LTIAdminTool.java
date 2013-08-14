@@ -193,14 +193,14 @@ public class LTIAdminTool extends VelocityPortletPaneledAction
 			
 			Long tool_id_long = null;
 			try{
-				tool_id_long = new Long(content.get("tool_id").toString());
+				tool_id_long = new Long(content.get(LTIService.LTI_TOOL_ID).toString());
 			}
 			catch (Exception e)
 			{
 				// log the error
-				M_log.error("error parsing tool id " + content.get("tool_id"));
+				M_log.error("error parsing tool id " + content.get(LTIService.LTI_TOOL_ID));
 			}
-			content.put("tool_id_long", tool_id_long);
+			context.put("tool_id_long", tool_id_long);
 			String plstr = (String) content.get(LTIService.LTI_PLACEMENT);
 			ToolConfiguration tool = SiteService.findTool(plstr);
 			if ( tool == null ) {
@@ -492,7 +492,7 @@ public class LTIAdminTool extends VelocityPortletPaneledAction
 				
 				Long tool_id_long = null;
 				try{
-					tool_id_long = new Long(content.get("tool_id").toString());
+					tool_id_long = new Long(content.get(LTIService.LTI_TOOL_ID).toString());
 					if (tool_id_long.equals(key))
 					{
 						// the content with same tool id
@@ -510,7 +510,7 @@ public class LTIAdminTool extends VelocityPortletPaneledAction
 				catch (Exception e)
 				{
 					// log the error
-					M_log.error("error parsing tool id " + content.get("tool_id"));
+					M_log.error("error parsing tool id " + content.get(LTIService.LTI_TOOL_ID));
 				}
 			}
 			
@@ -889,21 +889,21 @@ public class LTIAdminTool extends VelocityPortletPaneledAction
 			if ( toolId == null ) {
 				retval = ltiService.insertTool(theTool);
 				if ( retval instanceof String ) {
-					String oops = "Unable to insert "+theTool.get("resource_type")+" "+retval;
+					String oops = "Unable to insert "+theTool.get(LTIService.LTI_RESOURCE_TYPE)+" "+retval;
 					M_log.error(oops);
 					failures += "\n" + oops;
 				} else {
-					M_log.info("Inserted tool="+retval+" "+theTool.get("resource_type"));
+					M_log.info("Inserted tool="+retval+" "+theTool.get(LTIService.LTI_RESOURCE_TYPE));
 					inserts++;
 				}
 			} else {
 				retval = ltiService.updateTool(toolId, theTool);
 				if ( retval instanceof String ) {
-					String oops = "Unable to update "+theTool.get("resource_type")+" "+retval;
+					String oops = "Unable to update "+theTool.get(LTIService.LTI_RESOURCE_TYPE)+" "+retval;
 					M_log.error(oops);
 					failures += "\n" + oops;
 				} else {
-					M_log.info("Updated tool="+toolId+" "+theTool.get("resource_type"));
+					M_log.info("Updated tool="+toolId+" "+theTool.get(LTIService.LTI_RESOURCE_TYPE));
 					updates++;
 				}
 			}
@@ -970,7 +970,7 @@ public class LTIAdminTool extends VelocityPortletPaneledAction
 
 		// Check them all first
 		for ( Properties profileTool : profileTools ) {
-			String launch = (String) profileTool.get("launch");
+			String launch = (String) profileTool.get(LTIService.LTI_LAUNCH);
 			if ( ! FormattedText.validateURL(launch) ) {
 				addAlert(state,rb.getString("deploy.activate.badlaunch")+" "+launch);
 				return "lti_error";
@@ -980,14 +980,14 @@ public class LTIAdminTool extends VelocityPortletPaneledAction
 		// Make a copy of the deploy object and clean it up
 		Map<String, Object> localDeploy = new HashMap<String, Object> ();
 		localDeploy.putAll(deploy);
-		localDeploy.remove("id");
-		localDeploy.remove("created_at");
-		localDeploy.remove("updated_at");
-		localDeploy.remove("reg_proile");
+		localDeploy.remove(LTIService.LTI_ID);
+		localDeploy.remove(LTIService.LTI_CREATED_AT);
+		localDeploy.remove(LTIService.LTI_UPDATED_AT);
+		localDeploy.remove(LTIService.LTI_REG_PROFILE);
 
 		// Loop through all of the tools
 		for ( Properties profileTool : profileTools ) {
-			String resource_type = (String) profileTool.get("resource_type");
+			String resource_type = (String) profileTool.get(LTIService.LTI_RESOURCE_TYPE);
 			String resource_full = instance_guid;
 			if ( ! resource_full.endsWith("/") && ! resource_type.startsWith("/") ) resource_full = resource_full + "/" ;
 			resource_full = resource_full + resource_type;
@@ -1002,17 +1002,17 @@ public class LTIAdminTool extends VelocityPortletPaneledAction
 				newTool.putAll(localDeploy); 
 			}
 
-			newTool.put("resource_type", resource_full);
-			newTool.put("deployment_id", deploy.get("id"));
+			newTool.put(LTIService.LTI_RESOURCE_TYPE, resource_full);
+			newTool.put(LTIService.LTI_DEPLOYMENT_ID, deploy.get(LTIService.LTI_ID));
 
 			// Copy explicitly in case the parser changes slightly
-			if ( profileTool.get("launch") != null ) newTool.put("launch", profileTool.get("launch"));
-			if ( profileTool.get("title") != null ) newTool.put("title", profileTool.get("title"));
-			if ( profileTool.get("title") != null ) newTool.put("pagetitle", profileTool.get("title")); // Duplicate by default
-			if ( profileTool.get("button") != null ) newTool.put("pagetitle", profileTool.get("button")); // Note different fields
-			if ( profileTool.get("description") != null ) newTool.put("description", profileTool.get("description"));
-			if ( profileTool.get("parameter") != null ) newTool.put("parameter", profileTool.get("parameter"));
-			if ( profileTool.get("enabled_capability") != null ) newTool.put("enabled_capability", profileTool.get("parameter"));
+			if ( profileTool.get(LTIService.LTI_LAUNCH) != null ) newTool.put(LTIService.LTI_LAUNCH, profileTool.get(LTIService.LTI_LAUNCH));
+			if ( profileTool.get(LTIService.LTI_TITLE) != null ) newTool.put(LTIService.LTI_TITLE, profileTool.get(LTIService.LTI_TITLE));
+			if ( profileTool.get(LTIService.LTI_TITLE) != null ) newTool.put(LTIService.LTI_PAGETITLE, profileTool.get(LTIService.LTI_TITLE)); // Duplicate by default
+			if ( profileTool.get("button") != null ) newTool.put(LTIService.LTI_PAGETITLE, profileTool.get("button")); // Note different fields
+			if ( profileTool.get(LTIService.LTI_DESCRIPTION) != null ) newTool.put(LTIService.LTI_DESCRIPTION, profileTool.get(LTIService.LTI_DESCRIPTION));
+			if ( profileTool.get(LTIService.LTI_PARAMETER) != null ) newTool.put(LTIService.LTI_PARAMETER, profileTool.get(LTIService.LTI_PARAMETER));
+			if ( profileTool.get(LTIService.LTI_ENABLED_CAPABILITY) != null ) newTool.put(LTIService.LTI_ENABLED_CAPABILITY, profileTool.get(LTIService.LTI_ENABLED_CAPABILITY));
 
 			theTools.add(newTool); 
 		}
@@ -1518,14 +1518,14 @@ public class LTIAdminTool extends VelocityPortletPaneledAction
 		}
 		Long tool_id_long = null;
 		try{
-			tool_id_long = new Long(content.get("tool_id").toString());
+			tool_id_long = new Long(content.get(LTIService.LTI_TOOL_ID).toString());
 		}
 		catch (Exception e)
 		{
 			// log the error
-			M_log.error("error parsing tool id " + content.get("tool_id"));
+			M_log.error("error parsing tool id " + content.get(LTIService.LTI_TOOL_ID));
 		}
-		content.put("tool_id_long", tool_id_long);
+		context.put("tool_id_long", tool_id_long);
 		context.put("content",content);
 		context.put("ltiService", ltiService);
 		

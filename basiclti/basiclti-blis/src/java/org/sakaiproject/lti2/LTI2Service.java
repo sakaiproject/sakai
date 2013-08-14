@@ -677,7 +677,7 @@ System.out.println("deployUpdate="+deployUpdate);
 		String [] fieldList = { "key", LTIService.LTI_SECRET, LTIService.LTI_PLACEMENTSECRET, 
 				LTIService.LTI_OLDPLACEMENTSECRET, LTIService.LTI_ALLOWSETTINGS, 
 				"assignment", LTIService.LTI_ALLOWROSTER, "releasename", "releaseemail", 
-				"toolsetting", "allowlori"};
+				"toolsetting", LTIService.LTI_ALLOWLORI};
 
 		Properties retval = new Properties();
 

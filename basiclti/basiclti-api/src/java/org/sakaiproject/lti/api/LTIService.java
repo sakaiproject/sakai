@@ -433,13 +433,13 @@ public interface LTIService {
 		"SITE_ID:text:label=bl_content_site_id:required=true:maxlength=99:role=admin",
 		"title:text:label=bl_title:required=true:allowed=true:maxlength=255",
 		"pagetitle:text:label=bl_pagetitle:required=true:allowed=true:maxlength=255",
-		"frameheight:integer:label=bl_frameheight",
+		"frameheight:integer:label=bl_frameheight:allowed=true",
 		"newpage:checkbox:label=bl_newpage",
 		"debug:checkbox:label=bl_debug",
-		"custom:textarea:label=bl_custom:rows=5:cols=25:maxlength=1024",
-		"launch:url:label=bl_launch:maxlength=1024",
-		"consumerkey:text:label=bl_consumerkey:maxlength=255",
-		"secret:text:label=bl_secret:maxlength=255",
+		"custom:textarea:label=bl_custom:rows=5:cols=25:allowed=true:maxlength=1024",
+		"launch:url:label=bl_launch:maxlength=1024:allowed=true",
+		"consumerkey:text:label=bl_consumerkey:allowed=true:maxlength=255",
+		"secret:text:label=bl_secret:allowed=true:maxlength=255",
 		"xmlimport:text:hidden=true:maxlength=16384",
 		"settings:text:hidden=true:maxlength=8096",
 		"placement:text:hidden=true:maxlength=256", 
@@ -558,11 +558,12 @@ public interface LTIService {
 	static final String LTI_ALLOWCUSTOM = "allowcustom";
 	static final String LTI_XMLIMPORT = 	"xmlimport";
 	static final String LTI_CREATED_AT =  "created_at"; 
-	static final String LTI_UPATED_AT = 	"updated_at";
+	static final String LTI_UPDATED_AT = 	"updated_at";
 	static final String LTI_MATCHPATTERN = "matchpattern";
 	static final String LTI_NOTE = 	"note";
 	static final String LTI_PLACEMENTSECRET = 	"placementsecret";
 	static final String LTI_OLDPLACEMENTSECRET = 	"oldplacementsecret";
+	static final String LTI_DEPLOYMENT_ID = 	"deployment_id";
 	// BLTI-230 - LTI 2.0
 	static final String LTI_VERSION = "version";
 	static final Long LTI_VERSION_1 = new Long(0);
@@ -572,8 +573,9 @@ public interface LTIService {
 	static final String LTI_REG_LAUNCH = "reg_launch";
 	static final String LTI_REG_KEY = "reg_key";
 	static final String LTI_REG_PASSWORD = "reg_password";
-	static final String LTI_REG_PARAMETERS = "reg_parameters";
+	static final String LTI_PARAMETER = "parameter";
 	static final String LTI_REG_PROFILE = "reg_profile";
+	static final String LTI_ENABLED_CAPABILITY = "enabled_capability";
 	// End of BLTI-230 - LTI 2.0
 
 }

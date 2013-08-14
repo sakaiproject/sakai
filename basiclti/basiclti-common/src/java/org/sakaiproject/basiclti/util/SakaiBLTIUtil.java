@@ -25,9 +25,10 @@ import java.net.URL;
 
 import org.imsglobal.basiclti.BasicLTIUtil;
 import org.imsglobal.basiclti.BasicLTIConstants;
-import org.sakaiproject.linktool.LinkToolUtil;
 
 import org.imsglobal.lti2.LTI2Constants;
+
+import org.sakaiproject.lti.api.LTIService;
 
 import org.sakaiproject.tool.api.Session;
 import org.sakaiproject.tool.cover.SessionManager;
@@ -49,7 +50,7 @@ import org.sakaiproject.component.cover.ComponentManager;
 import org.sakaiproject.util.ResourceLoader;
 import org.sakaiproject.util.Web;
 import org.sakaiproject.portal.util.CSSUtils;
-
+import org.sakaiproject.linktool.LinkToolUtil;
 
 /**
  * Some Sakai Utility code for IMS Basic LTI
@@ -81,13 +82,13 @@ public class SakaiBLTIUtil {
 	{
 		// Check for global overrides in properties
 		String allowSettings = ServerConfigurationService.getString(BASICLTI_SETTINGS_ENABLED, null);
-		if ( "allowsettings".equals(propName) && ! "true".equals(allowSettings) ) return "false";
+		if ( LTIService.LTI_ALLOWSETTINGS.equals(propName) && ! "true".equals(allowSettings) ) return "false";
 
 		String allowRoster = ServerConfigurationService.getString(BASICLTI_ROSTER_ENABLED, null);
-		if ( "allowroster".equals(propName) && ! "true".equals(allowRoster) ) return "false";
+		if ( LTIService.LTI_ALLOWROSTER.equals(propName) && ! "true".equals(allowRoster) ) return "false";
 
 		String allowLori = ServerConfigurationService.getString(BASICLTI_LORI_ENABLED, null);
-		if ( "allowlori".equals(propName) && ! "true".equals(allowLori) ) return "false";
+		if ( LTIService.LTI_ALLOWLORI.equals(propName) && ! "true".equals(allowLori) ) return "false";
 
 		String allowContentLink = ServerConfigurationService.getString(BASICLTI_CONTENTLINK_ENABLED, null);
 		if ( "contentlink".equals(propName) && ! "true".equals(allowContentLink) ) return null;
@@ -110,7 +111,7 @@ public class SakaiBLTIUtil {
 	{
 		Properties config = placement.getConfig();
 		dPrint("Sakai properties=" + config);
-		String launch_url = toNull(getCorrectProperty(config,"launch", placement));
+		String launch_url = toNull(getCorrectProperty(config,LTIService.LTI_LAUNCH, placement));
 		setProperty(info, "launch_url", launch_url);
 		if ( launch_url == null ) {
 			String xml = toNull(getCorrectProperty(config,"xml", placement));
@@ -118,7 +119,7 @@ public class SakaiBLTIUtil {
 			BasicLTIUtil.parseDescriptor(info, launch, xml);
 		}
 
-		String secret = getCorrectProperty(config,"secret", placement);
+		String secret = getCorrectProperty(config,LTIService.LTI_SECRET, placement);
 
 		// BLTI-195 - Compatibility mode for old-style encrypted secrets
 		if ( secret == null || secret.trim().length() < 1 ) {
@@ -128,16 +129,17 @@ public class SakaiBLTIUtil {
 			}
 		}
 
-		setProperty(info, "secret", secret );
+		setProperty(info, LTIService.LTI_SECRET, secret );
 
+		// This is not "consumerkey" on purpose - we are mimicking the old placement model
 		setProperty(info, "key", getCorrectProperty(config,"key", placement) );
-		setProperty(info, "debug", getCorrectProperty(config,"debug", placement) );
-		setProperty(info, "frameheight", getCorrectProperty(config,"frameheight", placement) );
-		setProperty(info, "newpage", getCorrectProperty(config,"newpage", placement) );
-		setProperty(info, "title", getCorrectProperty(config,"tooltitle", placement) );
+		setProperty(info, LTIService.LTI_DEBUG, getCorrectProperty(config,LTIService.LTI_DEBUG, placement) );
+		setProperty(info, LTIService.LTI_FRAMEHEIGHT, getCorrectProperty(config,LTIService.LTI_FRAMEHEIGHT, placement) );
+		setProperty(info, LTIService.LTI_NEWPAGE, getCorrectProperty(config,LTIService.LTI_NEWPAGE, placement) );
+		setProperty(info, LTIService.LTI_TITLE, getCorrectProperty(config,"tooltitle", placement) );
 
 		// Pull in and parse the custom parameters
-		String customstr = toNull(getCorrectProperty(config,"custom", placement) );
+		String customstr = toNull(getCorrectProperty(config,LTIService.LTI_CUSTOM, placement) );
 		parseCustom(info, customstr);
 
 		if ( info.getProperty("launch_url", null) != null || 
@@ -300,7 +302,7 @@ public class SakaiBLTIUtil {
 
 		// Start setting the Basici LTI parameters
 		setProperty(props,BasicLTIConstants.RESOURCE_LINK_ID,placementId);
-		String pagetitle = toNull(getCorrectProperty(config,"pagetitle", placement));
+		String pagetitle = toNull(getCorrectProperty(config,LTIService.LTI_PAGETITLE, placement));
 		if ( pagetitle != null ) setProperty(props,BasicLTIConstants.RESOURCE_LINK_TITLE,pagetitle);
 		String tooltitle = toNull(getCorrectProperty(config,"tooltitle", placement));
 		if ( tooltitle != null ) setProperty(props,BasicLTIConstants.RESOURCE_LINK_DESCRIPTION,tooltitle);
@@ -344,7 +346,7 @@ public class SakaiBLTIUtil {
 			// We use the tool configuration to force outcomes off regardless of
 			// server settings (i.e. an external tool never wants the outcomes
 			// UI shown because it simply does not handle outcomes).
-			String allowOutcomes = toNull(getCorrectProperty(config,"allowoutcomes", placement));
+			String allowOutcomes = toNull(getCorrectProperty(config,LTIService.LTI_ALLOWOUTCOMES, placement));
 			if ( ! "off".equals(allowOutcomes) ) {
 				assignment = toNull(getCorrectProperty(config,"assignment", placement));
 				allowOutcomes = ServerConfigurationService.getString(
@@ -352,20 +354,20 @@ public class SakaiBLTIUtil {
 				if ( ! "true".equals(allowOutcomes) ) allowOutcomes = null;
 			}
 
-			String allowSettings = toNull(getCorrectProperty(config,"allowsettings", placement));
+			String allowSettings = toNull(getCorrectProperty(config,LTIService.LTI_ALLOWSETTINGS, placement));
 			if ( ! "on".equals(allowSettings) ) allowSettings = null;
 
-			String allowRoster = toNull(getCorrectProperty(config,"allowroster", placement));
+			String allowRoster = toNull(getCorrectProperty(config,LTIService.LTI_ALLOWROSTER, placement));
 			if ( ! "on".equals(allowRoster) ) allowRoster = null;
 
-			String allowLori = toNull(getCorrectProperty(config,"allowlori", placement));
+			String allowLori = toNull(getCorrectProperty(config,LTIService.LTI_ALLOWLORI, placement));
 			if ( ! "on".equals(allowLori) ) allowLori = null;
 
 			String result_sourcedid = getSourceDID(user, placement, config);
 			if ( result_sourcedid != null ) {
 
 				if ( "true".equals(allowOutcomes) && assignment != null ) {
-					setProperty(props,"lis_result_sourcedid", result_sourcedid);  
+					setProperty(props,BasicLTIConstants.LIS_RESULT_SOURCEDID, result_sourcedid);  
 
 					// New Basic Outcomes URL
 					String outcome_url = ServerConfigurationService.getString("basiclti.consumer.ext_ims_lis_basic_outcome_url",null);
@@ -398,7 +400,7 @@ public class SakaiBLTIUtil {
 
 				if ( "on".equals(allowLori) ) {
 					setProperty(props,"ext_lori_api_token", result_sourcedid);  
-					setProperty(props,"lis_result_sourcedid", result_sourcedid);  
+					setProperty(props,BasicLTIConstants.LIS_RESULT_SOURCEDID, result_sourcedid);  
 					String lori_url = ServerConfigurationService.getString("basiclti.consumer.ext_lori_api_url",null);
 					if ( lori_url == null ) lori_url = getOurServerUrl() + "/imsblis/service/";  
 					String lori_url_xml = ServerConfigurationService.getString("basiclti.consumer.ext_lori_api_url_xml",null);
@@ -505,15 +507,15 @@ public class SakaiBLTIUtil {
 			return postError("<p>" + getRB(rb, "error.tool.missing" ,"Tool item is missing or improperly configured.")+"</p>" ); 
 		}
 
-		int status = getInt(tool.get("status"));
+		int status = getInt(tool.get(LTIService.LTI_STATUS));
 		if ( status == 1 ) return postError("<p>" + getRB(rb, "tool.disabled" ,"Tool is currently disabled")+"</p>" ); 
 
 		// Go with the content url first
-		String launch_url = (String) content.get("launch");
-		if ( launch_url == null ) launch_url = (String) tool.get("launch");
+		String launch_url = (String) content.get(LTIService.LTI_LAUNCH);
+		if ( launch_url == null ) launch_url = (String) tool.get(LTIService.LTI_LAUNCH);
 		if ( launch_url == null ) return postError("<p>" + getRB(rb, "error.nolaunch" ,"This tool is not yet configured.")+"</p>" );
 
-		String context = (String) content.get("SITE_ID");
+		String context = (String) content.get(LTIService.LTI_SITE_ID);
 		Site site = null;
 		try {
 			site = SiteService.getSite(context);
@@ -529,48 +531,48 @@ public class SakaiBLTIUtil {
 		addSiteInfo(ltiProps, site);
 		addRoleInfo(ltiProps, context);
 
-		String resource_link_id = "content:"+content.get("id");
+		String resource_link_id = "content:"+content.get(LTIService.LTI_ID);
 		setProperty(ltiProps,BasicLTIConstants.RESOURCE_LINK_ID,resource_link_id);
 
 		setProperty(toolProps, "launch_url", launch_url);
 
-		String secret = (String) content.get("secret");
-		if ( secret == null ) secret = (String) tool.get("secret");
-		String key = (String) content.get("consumerkey");
-		if ( key == null ) key = (String) tool.get("consumerkey");
+		String secret = (String) content.get(LTIService.LTI_SECRET);
+		if ( secret == null ) secret = (String) tool.get(LTIService.LTI_SECRET);
+		String key = (String) content.get(LTIService.LTI_CONSUMERKEY);
+		if ( key == null ) key = (String) tool.get(LTIService.LTI_CONSUMERKEY);
 
-		if ( "-----".equals(key) && "-----".equals(secret) ) {
+		if ( LTIService.LTI_SECRET_INCOMPLETE.equals(key) && LTIService.LTI_SECRET_INCOMPLETE.equals(secret) ) {
 			return postError("<p>" + getRB(rb, "error.tool.partial" ,"Tool item is incomplete, missing a key and secret.")+"</p>" ); 
 		}
 
-		setProperty(toolProps, "secret", secret );
+		setProperty(toolProps, LTIService.LTI_SECRET, secret );
 		setProperty(toolProps, "key", key );
 
-		int debug = getInt(tool.get("debug"));
-		if ( debug == 2 ) debug = getInt(content.get("debug"));
-		setProperty(toolProps, "debug", debug+"");
+		int debug = getInt(tool.get(LTIService.LTI_DEBUG));
+		if ( debug == 2 ) debug = getInt(content.get(LTIService.LTI_DEBUG));
+		setProperty(toolProps, LTIService.LTI_DEBUG, debug+"");
 
-		int frameheight = getInt(tool.get("frameheight"));
-		if ( frameheight == 2 ) frameheight = getInt(content.get("frameheight"));
-		setProperty(toolProps, "frameheight", frameheight+"" );
+		int frameheight = getInt(tool.get(LTIService.LTI_FRAMEHEIGHT));
+		if ( frameheight == 2 ) frameheight = getInt(content.get(LTIService.LTI_FRAMEHEIGHT));
+		setProperty(toolProps, LTIService.LTI_FRAMEHEIGHT, frameheight+"" );
 
-		int newpage = getInt(tool.get("newpage"));
-		if ( newpage == 2 ) newpage = getInt(content.get("newpage"));
-		setProperty(toolProps, "newpage", newpage+"" );
+		int newpage = getInt(tool.get(LTIService.LTI_NEWPAGE));
+		if ( newpage == 2 ) newpage = getInt(content.get(LTIService.LTI_NEWPAGE));
+		setProperty(toolProps, LTIService.LTI_NEWPAGE, newpage+"" );
 
-		String title = (String) content.get("title");
-		if ( title == null ) title = (String) tool.get("title");
+		String title = (String) content.get(LTIService.LTI_TITLE);
+		if ( title == null ) title = (String) tool.get(LTIService.LTI_TITLE);
 		if ( title != null ) setProperty(ltiProps,BasicLTIConstants.RESOURCE_LINK_TITLE,title);
 
 		// Pull in and parse the custom parameters
-		int allowCustom = getInt(tool.get("allowcustom"));
-		if ( allowCustom == 1 ) parseCustom(ltiProps, (String) content.get("custom"));
+		int allowCustom = getInt(tool.get(LTIService.LTI_ALLOWCUSTOM));
+		if ( allowCustom == 1 ) parseCustom(ltiProps, (String) content.get(LTIService.LTI_CUSTOM));
 
 		// Tool custom parameters override content parameters
-		parseCustom(ltiProps, (String) tool.get("custom"));
+		parseCustom(ltiProps, (String) tool.get(LTIService.LTI_CUSTOM));
 
-		int releasename = getInt(tool.get("sendname"));
-		int releaseemail = getInt(tool.get("sendemailaddr"));
+		int releasename = getInt(tool.get(LTIService.LTI_SENDNAME));
+		int releaseemail = getInt(tool.get(LTIService.LTI_SENDEMAILADDR));
 
 		User user = UserDirectoryService.getCurrentUser();
 		if ( user != null )
@@ -591,17 +593,17 @@ public class SakaiBLTIUtil {
 			}
 		}
 
-		int allowoutcomes = getInt(tool.get("allowoutcomes"));
-		int allowroster = getInt(tool.get("allowroster"));
-		int allowsettings = getInt(tool.get("allowsettings"));
-		int allowlori = getInt(tool.get("allowlori"));
-		String placement_secret = (String) content.get("placementsecret");
+		int allowoutcomes = getInt(tool.get(LTIService.LTI_ALLOWOUTCOMES));
+		int allowroster = getInt(tool.get(LTIService.LTI_ALLOWROSTER));
+		int allowsettings = getInt(tool.get(LTIService.LTI_ALLOWSETTINGS));
+		int allowlori = getInt(tool.get(LTIService.LTI_ALLOWLORI));
+		String placement_secret = (String) content.get(LTIService.LTI_PLACEMENTSECRET);
 
 		String result_sourcedid = getSourceDID(user, resource_link_id, placement_secret);
 		if ( result_sourcedid != null ) {
 
 			if ( allowoutcomes == 1 ) {
-				setProperty(ltiProps,"lis_result_sourcedid", result_sourcedid);  
+				setProperty(ltiProps,BasicLTIConstants.LIS_RESULT_SOURCEDID, result_sourcedid);  
 
 				// New Basic Outcomes URL
 				String outcome_url = ServerConfigurationService.getString("basiclti.consumer.ext_ims_lis_basic_outcome_url",null);
@@ -615,7 +617,7 @@ public class SakaiBLTIUtil {
 			if ( allowsettings == 1 ) {
 				setProperty(ltiProps,"ext_ims_lti_tool_setting_id", result_sourcedid);  
 
-				String setting = (String) content.get("settings");
+				String setting = (String) content.get(LTIService.LTI_SETTINGS);
 				if ( setting != null ) {
 					setProperty(ltiProps,"ext_ims_lti_tool_setting", setting);  
 				}
@@ -634,7 +636,7 @@ public class SakaiBLTIUtil {
 
 			if ( allowlori == 1 ) {
 				setProperty(ltiProps,"ext_lori_api_token", result_sourcedid);  
-				setProperty(ltiProps,"lis_result_sourcedid", result_sourcedid);  
+				setProperty(ltiProps,BasicLTIConstants.LIS_RESULT_SOURCEDID, result_sourcedid);  
 				String lori_url = ServerConfigurationService.getString("basiclti.consumer.ext_lori_api_url",null);
 				if ( lori_url == null ) lori_url = getOurServerUrl() + "/imsblis/service/";  
 				String lori_url_xml = ServerConfigurationService.getString("basiclti.consumer.ext_lori_api_url_xml",null);
@@ -659,15 +661,15 @@ public class SakaiBLTIUtil {
 			return postError("<p>" + getRB(rb, "error.tool.missing" ,"Tool item is missing or improperly configured.")+"</p>" ); 
 		}
 
-		int status = getInt(tool.get("reg_state"));
+		int status = getInt(tool.get(LTIService.LTI_REG_STATE));
 		if ( status != 0 ) return postError("<p>" + getRB(rb, "error.lti2.badstate" ,"Tool is in the wrong state to register")+"</p>" ); 
 
-		String launch_url = (String) tool.get("reg_launch");
+		String launch_url = (String) tool.get(LTIService.LTI_REG_LAUNCH);
 		if ( launch_url == null ) return postError("<p>" + getRB(rb, "error.lti2.noreg" ,"This tool is has no registration url.")+"</p>" );
 
-		String password = (String) tool.get("reg_password");
-		String key = (String) tool.get("reg_key");
-		String consumerkey = (String) tool.get("consumerkey");
+		String password = (String) tool.get(LTIService.LTI_REG_PASSWORD);
+		String key = (String) tool.get(LTIService.LTI_REG_KEY);
+		String consumerkey = (String) tool.get(LTIService.LTI_CONSUMERKEY);
 
 		if ( password == null || key == null || consumerkey == null) {
 			return postError("<p>" + getRB(rb, "error.lti2.partial" ,"Tool item is incomplete, missing a key and password.")+"</p>" ); 
@@ -687,7 +689,7 @@ public class SakaiBLTIUtil {
 		setProperty(ltiProps, LTI2Constants.TC_PROFILE_URL,serverUrl+"/imsblis/lti2/tc_profile/"+consumerkey);
 		setProperty(ltiProps, BasicLTIConstants.LAUNCH_PRESENTATION_RETURN_URL, serverUrl + "/portal/tool/"+placementId+"?panel=Activate&id="+deployKey);
 
-		int debug = getInt(tool.get("debug"));
+		int debug = getInt(tool.get(LTIService.LTI_DEBUG));
 		debug = 1;
 
 		System.out.println("ltiProps="+ltiProps);
@@ -714,8 +716,8 @@ public class SakaiBLTIUtil {
 		String launch_url = (String) deploy.get("reg_launch");
 		if ( launch_url == null ) return postError("<p>" + getRB(rb, "error.deploy.noreg" ,"This deployment is has no registration url.")+"</p>" );
 
-		String consumerkey = (String) deploy.get("consumerkey");
-		String secret = (String) deploy.get("secret");
+		String consumerkey = (String) deploy.get(LTIService.LTI_CONSUMERKEY);
+		String secret = (String) deploy.get(LTIService.LTI_SECRET);
 
 		if ( secret == null || consumerkey == null) {
 			return postError("<p>" + getRB(rb, "error.deploy.partial" ,"Deployment is incomplete, missing a key and secret.")+"</p>" ); 
@@ -732,7 +734,7 @@ public class SakaiBLTIUtil {
 		setProperty(ltiProps, LTI2Constants.TC_PROFILE_URL,serverUrl+"/imsblis/lti2/tc_profile/"+consumerkey);
 		setProperty(ltiProps, BasicLTIConstants.LAUNCH_PRESENTATION_RETURN_URL, serverUrl + "/portal/tool/"+placementId+"?panel=Activate&id="+deployKey);
 
-		int debug = getInt(deploy.get("debug"));
+		int debug = getInt(deploy.get(LTIService.LTI_DEBUG));
 		debug = 1;
 
 		ltiProps = BasicLTIUtil.signProperties(ltiProps, launch_url, "POST", 
@@ -784,7 +786,7 @@ public class SakaiBLTIUtil {
 		// Look up the LMS-wide secret and key - default key is guid
 		String key = getToolConsumerInfo(launch_url,"key");
 		if ( key == null ) key = org_guid;
-		String secret = getToolConsumerInfo(launch_url,"secret");
+		String secret = getToolConsumerInfo(launch_url,LTIService.LTI_SECRET);
 
 		// Demand key/secret in a pair
 		if ( key == null || secret == null ) {
@@ -794,7 +796,7 @@ public class SakaiBLTIUtil {
 
 		// If we do not have LMS-wide info, use the local key/secret
 		if ( secret == null ) {
-			secret = toNull(toolProps.getProperty("secret"));
+			secret = toNull(toolProps.getProperty(LTIService.LTI_SECRET));
 			key = toNull(toolProps.getProperty("key"));
 		}
 
@@ -832,7 +834,7 @@ public class SakaiBLTIUtil {
 		if ( ltiProps == null ) return postError("<p>" + getRB(rb, "error.sign", "Error signing message.")+"</p>");
 		dPrint("LAUNCH III="+ltiProps);
 
-		String debugProperty = toolProps.getProperty("debug");
+		String debugProperty = toolProps.getProperty(LTIService.LTI_DEBUG);
 		boolean dodebug = "on".equals(debugProperty) || "1".equals(debugProperty);
 		String postData = BasicLTIUtil.postLaunchHTML(ltiProps, launch_url, dodebug);
 

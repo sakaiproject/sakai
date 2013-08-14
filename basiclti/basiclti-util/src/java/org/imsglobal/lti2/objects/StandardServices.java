@@ -19,6 +19,7 @@ public class StandardServices {
 		ret.set_id(endpoint);    // TODO: Is this right see 5.6 in the docs
 		ret.set_type("RestService");
 		ret.setFormat("application/vnd.ims.lti.v1.Outcome+xml");
+		ret.setAction("POST");
 		return ret;
     }
 
