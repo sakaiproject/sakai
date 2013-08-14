@@ -486,9 +486,30 @@ public class Foorm {
 		sb.append("<input type=\"checkbox\" name=\"");
 		sb.append(field);
 		sb.append("\" value=\"1\" id=\"");
-		sb.append(field + "\"");
+		sb.append(field);
+		sb.append("\"");
 		sb.append(checked);
+		// onclick fires after "checked" is updated so it is the new state of checked
+		// http://stackoverflow.com/questions/4471401/getting-value-of-html-checkbox-from-onclick-onchange-events
+		if ( val == 1 ) {
+			sb.append("onclick=\"if(this.checked) document.getElementById('");
+			sb.append(field);
+			sb.append(".mirror').name = '");
+			sb.append(field);
+			sb.append(".ignore'; else document.getElementById('");
+			sb.append(field);
+			sb.append(".mirror').name = '");
+			sb.append(field);
+			sb.append("';\"");
+		}
 		sb.append("/>");
+		if ( val == 1 ) {
+			sb.append("<input type=\"hidden\" name=\"");
+			sb.append(field);
+			sb.append(".ignore\" id=\"");
+			sb.append(field);
+			sb.append(".mirror\" value=\"0\" />");
+		}
 		sb.append(getI18N(label, loader));
 		sb.append("<br/>\n");
 		formInputEnd(sb, field, label, required, loader);
