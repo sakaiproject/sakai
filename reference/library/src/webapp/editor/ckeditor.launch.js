@@ -87,8 +87,8 @@ sakai.editor.editors.ckeditor.launch = function(targetId, config, w, h) {
             ['BidiLtr', 'BidiRtl' ],
             ['Link','Unlink','Anchor'],
             (sakai.editor.enableResourceSearch
-                ? ['ResourceSearch', 'Image','Movie','Flash','Table','HorizontalRule','Smiley','SpecialChar','fmath_formula']
-                : ['Image','Movie','Flash','Table','HorizontalRule','Smiley','SpecialChar','fmath_formula']),
+                ? ['ResourceSearch', 'Image','Movie','Flash','Table','Iframe','HorizontalRule','Smiley','SpecialChar','fmath_formula']
+                : ['Image','Movie','Flash','Table','Iframe','HorizontalRule','Smiley','SpecialChar','fmath_formula']),
             '/',
             ['Styles','Format','Font','FontSize'],
             ['TextColor','BGColor'],
