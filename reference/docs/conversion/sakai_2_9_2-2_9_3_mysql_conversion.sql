@@ -26,3 +26,7 @@ ALTER TABLE lti_tools   MODIFY     launch TEXT(1024);
 ALTER TABLE lti_tools   MODIFY     consumerkey VARCHAR(255);
 ALTER TABLE lti_tools   MODIFY     secret VARCHAR(255);
 -- end BLTI-238
+
+-- SAM-973
+alter table SAM_ITEMGRADING_t add ISCORRECT bit;
+-- end SAM-973

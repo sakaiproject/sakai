@@ -36,3 +36,7 @@ ALTER TABLE lti_tools MODIFY   (     launch VARCHAR2(1024) );
 ALTER TABLE lti_tools MODIFY   (     consumerkey VARCHAR2(255) );
 ALTER TABLE lti_tools MODIFY   (     secret VARCHAR2(255) );
 -- end BLTI-238
+
+-- SAM-973
+alter table SAM_ITEMGRADING_t add ISCORRECT number(1,0);
+-- end SAM-973
