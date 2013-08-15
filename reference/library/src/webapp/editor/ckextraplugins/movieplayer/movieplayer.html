@@ -17,12 +17,12 @@
     <table cellspacing="5" cellpadding="0" width="100%" border="0">
 	   <tr>
 		  <td width="100%">
-		      <span fckLang="MoviePlayerURL">URL:</span>
+		      <span><script type="text/javascript">document.write(oEditor.lang.movieplayer.MoviePlayerURL);</script></span>
 		  </td>
           <!-- Would be nice if the Browse Server button could go here -->
           <td id="tdBrowse" style="display: none" rowspan="2">
-              <input id="btnBrowse" onclick="BrowseServer();" type="button" value="Browse Server" fckLang="DlgBtnBrowseSe
-rver" />
+              <input id="btnBrowse" onclick="BrowseServer();" type="button" value="Browse Server" />
+              <script type="text/javascript">document.getElementById("btnBrowse").value = oEditor.lang.common.browseServer;</script>
           </td>
 	   </tr>
 	   <tr>
@@ -32,7 +32,7 @@ rver" />
 	   </tr>
 	   <tr>
 	       <td colspan="2">
-		   <small><span fckLang="MoviePlayerURLDesc">Select a .flv, .f4v, .mp4, .3gpp, .m4v or .mov file</span></small>
+		   <small><span><script type="text/javascript">document.write(oEditor.lang.movieplayer.MoviePlayerURLDesc);</script></span></small>
 	       </td>
 	   </tr>
 	</table>
@@ -41,15 +41,15 @@ rver" />
 	</br>				
 	<table cellspacing="5" cellpadding="0" border="0">
         <tr>
-		   <td><span fckLang="MoviePlayerWidth">Width:</span></td>
+		   <td><span><script type="text/javascript">document.write(oEditor.lang.movieplayer.MoviePlayerWidth);</script></span></td>
 		   <td><input id="txtWidth"  type="text" style="width: 50px"/></td>
 		</tr>
         <tr>
-           <td><span fckLang="MoviePlayerHeight">Height:</span></td>
+           <td><span><script type="text/javascript">document.write(oEditor.lang.movieplayer.MoviePlayerHeight);</script></span></td>
            <td><input id="txtHeight" type="text" style="width: 50px"/></td>
         </tr>
         <tr>
-            <td><span fckLang="MoviePlayerAutoplay">Auto Play:</span></td>
+            <td><span><script type="text/javascript">document.write(oEditor.lang.movieplayer.MoviePlayerAutoplay);</script></span></td>
             <td><input type="checkbox" class="CheckBox" id="chkAutoplay"></td>
         </tr>
 	</table>
