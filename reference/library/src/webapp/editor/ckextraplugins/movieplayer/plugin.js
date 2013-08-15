@@ -6,7 +6,7 @@ var isNew=true;
 //var flashPlayer = "/library/editor/ckeditor/plugins/movieplayer/player_flv_maxi.swf";
 var flashPlayer = "/library/editor/ckextraplugins/movieplayer/StrobeMediaPlayback.swf";
 var youtubePlugin = "/library/editor/ckextraplugins/movieplayer/YouTubePlugin.swf";
-var mimeSupported = ['video/mp4','audio/mpeg','application/x-shockwave-flash'];
+var mimeSupported = ['video/mp4','audio/mpeg','application/x-shockwave-flash','video/x-ms-wmv'];
 
 /** Create Movie html */
 
@@ -30,9 +30,14 @@ Movie.prototype.getInnerHTML = function (objectId){
 	if(mimeSupported.contains(this.contentType)) {
 			var addYoutube = "";
 			if(this.url.contains('youtube.com/')) {
-					this.url = this.url.replace(/youtube\.com\/watch\?v=/i, "youtube.com/v/");
-					addYoutube = "&amp;plugin_YouTubePlugin="+youtubePlugin;
+				this.url = this.url.replace(/youtube\.com\/watch\?v=/i, "youtube.com/v/");
+				addYoutube = "&amp;plugin_YouTubePlugin="+youtubePlugin;
 			}
+
+			else if (this.url.contains('youtu.be/')) {
+			    this.url = this.url.replace("/youtu.be/", "youtube.com/v/");
+			    addYoutube = "&amp;plugin_YouTubePlugin="+youtubePlugin;
+		        }
 	
 			// Flash video (FLV)
 			s += '<OBJECT id="movie' + rnd + '" ';
