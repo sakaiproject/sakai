@@ -1,4 +1,16 @@
-CKEDITOR.plugins.setLang('movieplayer','en',
+CKEDITOR.addPluginLang = function( plugin, lang, obj )
+{
+    // v3 using feature detection
+    if (CKEDITOR.skins)
+    {
+        var newObj = {};
+        newObj[ plugin ] = obj;
+        obj = newObj;
+    }
+    CKEDITOR.plugins.setLang( plugin, lang, obj );
+}
+
+CKEDITOR.addPluginLang('movieplayer','en',
     {
         'MoviePlayerBtn':'Movie',
         'MoviePlayerTooltip':'Insert/Edit Movie',

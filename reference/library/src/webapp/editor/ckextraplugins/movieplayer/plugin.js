@@ -125,7 +125,7 @@ CKEDITOR.plugins.add( 'movieplayer',
 
       editor.ui.addButton( 'Movie',
          {
-         label: editor.lang.MoviePlayerTooltip,
+         label: editor.lang.movieplayer.MoviePlayerTooltip,
          command: 'movie.cmd',
 	 icon:  thispath + 'filmreel.gif'
       });
@@ -136,7 +136,7 @@ CKEDITOR.plugins.add( 'movieplayer',
 	//movie_plugin.js
     CKEDITOR.dialog.add( 'movie.dlg', function( api ) {
             var dialogDef = {
-                title : editor.lang.MoviePlayerDlgTitle, minWidth : 390, minHeight : 230,
+                title : editor.lang.movieplayer.MoviePlayerDlgTitle, minWidth : 390, minHeight : 230,
                 contents : [ {
                         id : 'tab1', label : '', title : '', expand : true, padding : 0,
                         elements : [ {
@@ -168,7 +168,7 @@ CKEDITOR.plugins.add( 'movieplayer',
                 onOk : function() {
                     // Accessing dialog elements:
                     if(tab1doc.getElementById('txtUrl').value.length == 0) {
-                        alert(editor.lang.MoviePlayerNoUrl) ;
+                        alert(editor.lang.movieplayer.MoviePlayerNoUrl) ;
                         return false ;
                     }
                     //TODO: What's this do?
