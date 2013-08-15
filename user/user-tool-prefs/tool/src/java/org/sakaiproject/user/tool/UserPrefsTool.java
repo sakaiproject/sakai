@@ -2155,9 +2155,11 @@ public class UserPrefsTool
 	private Map<String, Integer> stringArrayToMap(String[] array) {
 		Map<String, Integer> retMap = new HashMap<String, Integer>();
 		Integer index = 0;
-		for (String key : array) {
+		if (array != null) {
+		    for (String key : array) {
 			retMap.put(key, index);
 			index++;
+		    }
 		}
 		return retMap;
 	}
