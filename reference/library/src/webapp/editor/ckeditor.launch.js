@@ -153,7 +153,7 @@ sakai.editor.editors.ckeditor.launch = function(targetId, config, w, h) {
 			 //ckconfig.extraPlugins+="movieplayer,wordcount,atd-ckeditor,stylesheetparser";
 			 //ckconfig.contentsCss = basePath+'/atd-ckeditor/atd.css';
 
-			 ckconfig.extraPlugins+="fmath_formula";
+			 ckconfig.extraPlugins+="movieplayer,wordcount,fmath_formula";
     })();
 
 	  CKEDITOR.replace(targetId, ckconfig);
