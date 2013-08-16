@@ -146,7 +146,7 @@ function toPoint(id)
 
 
 <div class="tier2">
-  <h:dataTable value="#{delivery.pageContents.partsContents}" var="part">
+  <h:dataTable value="#{delivery.pageContents.partsContents}" var="part" width="100%" border="0">
     <h:column>
       <f:verbatim><h4 class="tier1"></f:verbatim>
       <h:outputText value="#{deliveryMessages.p} #{part.number} #{deliveryMessages.of} #{part.numParts}" />
@@ -161,7 +161,7 @@ function toPoint(id)
       <f:verbatim></div></f:verbatim>
 
       <h:dataTable value="#{part.itemContents}" columnClasses="tier2"
-          var="question" border="0">
+          var="question" border="0" width="100%">
         <h:column>
           <h:outputText value="<a name=\"" escape="false" />
           <h:outputText value="#{part.number}_#{question.number}\"></a>"
