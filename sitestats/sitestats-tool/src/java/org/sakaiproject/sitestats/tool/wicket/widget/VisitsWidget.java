@@ -486,7 +486,7 @@ public class VisitsWidget extends Panel {
 				rp.setHowSortAscending(true);
 				rp.setHowSortBy(StatsManager.T_DATE);
 				r.setReportParams(rp);
-				PagingPosition paging = new PagingPosition(0, 0);
+				PagingPosition paging = new PagingPosition();
 				Report report = Locator.getFacade().getReportManager().getReport(r, true, paging, false);
 				Date firstDate = new Date();
 				if(report.getReportData().size() > 0) {
