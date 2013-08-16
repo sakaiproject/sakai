@@ -980,7 +980,7 @@ public class SimplePageBean {
 	    // will be HTML. That's the default if this fails.
 	    URLConnection conn = null;
 	    try {
-		conn = new URL(url).openConnection();
+		conn = new URL(new URL(ServerConfigurationService.getServerUrl()),url).openConnection();
 		conn.setConnectTimeout(10000);
 		conn.setReadTimeout(10000);
 		// generate cookie based on code in  RequestFilter.java
@@ -3225,8 +3225,22 @@ public class SimplePageBean {
 		String url = linkUrl;
 		url = url.trim();
 
-		if (!url.startsWith("http://") && !url.startsWith("https://")) {
-			url = "http://" + url;
+		// the intent is to handle something like www.cnn.com or www.cnn.com/foo
+		// Note that the result has no protocol. That means it will use the protocol
+		// of the page it's displayed from, which should be right.
+		if (!url.startsWith("http:") && !url.startsWith("https:") && !url.startsWith("/")) {
+		    String atom = url;
+		    int i = atom.indexOf("/");
+		    if (i >= 0)
+			atom = atom.substring(0, i);
+		    // first atom is hostname
+		    if (atom.indexOf(".") >= 0) {
+			String server= ServerConfigurationService.getServerUrl();
+			if (server.startsWith("https:"))
+			    url = "https://" + url;
+			else
+			    url = "http://" + url;
+		    }
 		}
 
 		appendItem(url, url, SimplePageItem.URL);
@@ -4942,10 +4956,22 @@ public class SimplePageBean {
 			} else if (mmUrl != null && !mmUrl.trim().equals("")) {
 				// 	user specified a URL, create the item
 				String url = mmUrl.trim();
-				if (!url.matches("\\w+://.*")) {
-					if (!url.startsWith("//"))
-						url = "//" + url;
-					url = "http:" + url;
+				// if user gives a plain hostname, make it a URL.
+				// ui add https if page is displayed with https. I'm reluctant to use protocol-relative
+				// urls, because I don't know whether all the players understand it.
+				if (!url.startsWith("http:") && !url.startsWith("https:") && !url.startsWith("/")) {
+				    String atom = url;
+				    int i = atom.indexOf("/");
+				    if (i >= 0)
+					atom = atom.substring(0, i);
+				    // first atom is hostname
+				    if (atom.indexOf(".") >= 0) {
+					String server= ServerConfigurationService.getServerUrl();
+					if (server.startsWith("https:"))
+					    url = "https://" + url;
+					else
+					    url = "http://" + url;
+				    }
 				}
 				
 				name = url;

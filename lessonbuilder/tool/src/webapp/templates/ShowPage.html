@@ -668,6 +668,7 @@ function resizeiframe(id) {
 			  <p rsf:id="msg=simplepage.missing-question-text" id="simplepage.missing-question-text"></p>
 			  <p rsf:id="msg=simplepage.question-need-2" id="simplepage.question-need-2"></p>
 			  <p rsf:id="msg=simplepage.question-need-1" id="simplepage.question-need-1"></p>
+			  <p rsf:id="msg=simplepage.httphttps" id="simplepage.httphttps"></p>
 			</div>
 
 			<div id="subpage-dialog" rsf:id="subpage-dialog">
@@ -842,6 +843,12 @@ function resizeiframe(id) {
 			</div>
 
 			<div id="add-multimedia-dialog" rsf:id="add-multimedia-dialog">
+				<div class="ui-widget" id="mm-error-container">
+					<div class="ui-state-error ui-corner-all" style="padding: 0 .7em;"> 
+						<p><span class="ui-icon ui-icon-alert" style="float: left; margin-right: .3em;"></span> 
+						<strong rsf:id="msg=simplepage.error_colon"></strong> <span id="mm-error"></span></p>
+					</div>
+				</div>
                 <form action="#" rsf:id="add-multimedia-form" method="post" enctype="multipart/form-data">
                     <div class="border instructionPanel">
                         <p class="instruction" rsf:id="msg=simplepage.add_file_instructions"></p>

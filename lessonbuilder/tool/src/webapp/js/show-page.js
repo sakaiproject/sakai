@@ -3,6 +3,7 @@ var lessonBuilderAnimationLocked = false;
 var oldloc;
 var requirementType = 0;
 var importccactive = false;
+var insist = false;
 
 // in case user includes the URL of a site that replaces top,
 // give them a way out. Handler is set up in the html file.
@@ -267,6 +268,21 @@ $(function() {
 	    	});
 
 		$('#mm-add-item').click(function() {
+			var url = $('#mm-url').val();
+			if (url != '' && $('#mm-is-mm').val() == 'true') {
+			    // if http on an https page, give a warning
+			    // we only check explicit http because relative protocols will do the right thing
+			    // this is an approximation. probably should check against serverurl, not current page
+			    // but this should normally be right
+			    if (document.URL.indexOf("https:") == 0 && url.indexOf("http:") == 0) {
+				$('#mm-error').text(msg("simplepage.httphttps"));
+				$('#mm-error-container').show();
+				if (!insist) {
+				    insist = true;
+				    return false;
+				}
+			    }
+			}
 			if ($('#mm-url').val() != '') {
 			    $('#checkingwithhost').show();
 			}
@@ -942,6 +958,8 @@ $(function() {
 			$(".mm-additional-website").hide();
 			$(".mm-url-section").show();
 			$("#checkingwithhost").hide();
+			$("#mm-error-container").hide();
+			insist = false;
 			$("#add-multimedia-dialog").dialog('open');
 			checksize($("#add-multimedia-dialog"));
 			// originally I thought it was confusing to start with the focus on some
@@ -1260,6 +1278,8 @@ $(function() {
 			$(".mm-additional-website").hide();
 			$(".mm-url-section").show();
 			$("#checkingwithhost").hide();
+			$("#mm-error-container").hide();
+			insist = false;
 			$("#add-multimedia-dialog").dialog('open');
 			checksize($("#add-multimedia-dialog"));
 			//$('.edit-multimedia-input').blur();
@@ -1283,6 +1303,8 @@ $(function() {
 			$(".mm-additional-website").hide();
 			$(".mm-url-section").show();
 			$("#checkingwithhost").hide();
+			$("#mm-error-container").hide();
+			insist = false;
 			oldloc = $(this);
 			$("#add-multimedia-dialog").dialog('open');
 			checksize($("#add-multimedia-dialog"));
@@ -1306,6 +1328,8 @@ $(function() {
 			$(".mm-additional-website").hide();
 			$(".mm-url-section").show();
 			$("#checkingwithhost").hide();
+			$("#mm-error-container").hide();
+			insist = false;
 			oldloc = $(this);
 			$("#add-multimedia-dialog").dialog('open');
 			checksize($("#add-multimedia-dialog"));
@@ -1329,6 +1353,8 @@ $(function() {
 			$(".mm-url-section").hide();
 			oldloc = $(".dropdown a");
 			$("#checkingwithhost").hide();
+			$("#mm-error-container").hide();
+			insist = false;
 			$("#add-multimedia-dialog").dialog('open');
 			checksize($("#add-multimedia-dialog"));
 			//$('.edit-multimedia-input').blur();
@@ -1416,6 +1442,8 @@ $(function() {
 			$(".mm-additional-website").hide();
 			$(".mm-url-section").show();
 			$("#checkingwithhost").hide();
+			$("#mm-error-container").hide();
+			insist = false;
 			$("#add-multimedia-dialog").dialog('open');
 			checksize($("#add-multimedia-dialog"));
 			//$('.edit-multimedia-input').blur();
