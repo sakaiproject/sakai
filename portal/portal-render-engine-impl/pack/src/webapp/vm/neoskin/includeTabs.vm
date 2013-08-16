@@ -29,9 +29,8 @@
 							<a href="$switchRoleUrl"  id="roleSwitchAnchor"><span>${rloader.rs_exitRoleSwap} $roleUrlValue ${rloader.rs_view}</span></a>
 						#else
 							#if ($roleswapdropdown)
-								<label for ="roleSwitchSelect">${rloader.rs_viewSiteAs}</label>
 								<select id="roleSwitchSelect" onchange="if (this.options[this.selectedIndex].value != '') { parent.location = this.options[this.selectedIndex].value; } else { this.selectedIndex = 0; }">       
-								<option value="" selected="selected">${rloader.rs_selectRole}</option>   
+								<option value="" selected="selected">${rloader.rs_viewSiteAs}</option>   
 								#foreach( $role in $siteRoles)   
 									<option value="$switchRoleUrl$role$panelString">$role</option>       
 								#end     
