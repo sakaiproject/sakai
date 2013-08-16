@@ -1696,20 +1696,25 @@ public class SkinnableCharonPortal extends HttpServlet implements Portal
                         				}
                         			};
                         			securityService.pushAdvisor(secAdv);
-                        			preferences = preferencesService.edit(thisUser);
+                        			
+                        			try {
+                        				preferences = preferencesService.edit(thisUser);
+                        			} catch (IdUnusedException ex1 ) {
+                        				try {
+                        					preferences = preferencesService.add( thisUser );
+                        				} catch (IdUsedException ex2) {
+                        					M_log.error(ex2);
+                        				} catch( PermissionException ex3) {
+                        					M_log.error(ex3);
+                        				}
+                        			}
                             		if (preferences != null) {
                             			ResourcePropertiesEdit props = preferences.getPropertiesEdit();
                             			props.addProperty("sakaiTutorialFlag", "1");
                             			preferencesService.commit(preferences);   
                             		}
                         		} catch (Exception e1) {
-                        			try {
-                        				preferences = preferencesService.add(thisUser);
-                        			} catch (IdUsedException e2) {
-                        				M_log.error(e2);
-                        			} catch (PermissionException e2) {
-                        				M_log.error(e2);
-                        			}
+                        			M_log.error(e1);
                         		}finally{
                         			if(secAdv != null){
                         				securityService.popAdvisor(secAdv);
