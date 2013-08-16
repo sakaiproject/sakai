@@ -943,8 +943,12 @@ public class SimplePageBean {
 			} else {
 				rv = "cancel";
 			}
-
 			placement.save();
+
+			String errString = error.toString();
+			if (errString != null && errString.length() > 0)
+			    setErrMessage(errString);
+
 		} else {
 			rv = "cancel";
 		}
