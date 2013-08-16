@@ -1,4 +1,4 @@
-package org.sakaiproject.lessonbuilder.util;
+package org.sakaiproject.lessonbuildertool.util;
 
 import uk.org.ponder.rsf.processor.support.RootHandlerBeanBase;
 import org.sakaiproject.lessonbuildertool.tool.beans.ReportHandlerHook;

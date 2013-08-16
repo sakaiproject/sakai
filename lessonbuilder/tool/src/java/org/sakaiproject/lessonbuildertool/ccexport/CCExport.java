@@ -1,4 +1,4 @@
-package org.sakaiproject.lessonbuildertool.ccexport;;
+package org.sakaiproject.lessonbuildertool.ccexport;
 
 /***********
  *

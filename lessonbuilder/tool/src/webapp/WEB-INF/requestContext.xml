@@ -257,12 +257,12 @@
           <property name="response" ref="httpServletResponse" />
 	</bean>
 
-        <bean id="rootHandlerBean" class="org.sakaiproject.lessonbuilder.util.RootHandlerBeanOverride" init-method="handle">
+        <bean id="rootHandlerBean" class="org.sakaiproject.lessonbuildertool.util.RootHandlerBeanOverride" init-method="handle">
 	  <property name="rootHandlerBeanBase" ref="overridedRootHandlerBean"/>
           <property name="reportHandlerHook" ref="reportHandlerHook"/>
 	</bean>
 
-        <bean id="overridedRootHandlerBean" parent="rootHandlerBeanBase" init-method="doNothing" class="org.sakaiproject.lessonbuilder.util.OverridedServletRootHandlerBean">
+        <bean id="overridedRootHandlerBean" parent="rootHandlerBeanBase" init-method="doNothing" class="org.sakaiproject.lessonbuildertool.util.OverridedServletRootHandlerBean">
           <property name="httpServletRequest" ref="httpServletRequest" />
           <property name="httpServletResponse" ref="httpServletResponse" />
         </bean>
