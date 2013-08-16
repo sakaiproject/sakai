@@ -358,6 +358,9 @@ public class SiteAction extends PagedResourceActionII {
 	private static final String STATE_EXTRA_SELECTED_TOOL_LIST = "extraSelectedToolList";
 
 	private static final String STATE_TOOL_HOME_SELECTED = "toolHomeSelected";
+   
+	private static final String UNGROUPED_TOOL_TITLE = "systoolgroups.ungrouped";
+	private static final String LTI_TOOL_TITLE		 = "systoolgroups.lti";
 
     //********************
 
@@ -939,7 +942,7 @@ public class SiteAction extends PagedResourceActionII {
 	protected void initState(SessionState state, VelocityPortlet portlet,
 			JetspeedRunData rundata) {
 		ServletContext ctx = rundata.getRequest().getSession().getServletContext();
-		String serverContextPath = ServerConfigurationService.getString("config.sitemanage.moreInfoDir", "/library/image");
+		String serverContextPath = ServerConfigurationService.getString("config.sitemanage.moreInfoDir", "library/image/");
 		libraryPath = File.separator + serverContextPath;
 		moreInfoPath = setMoreInfoPath(ctx) + serverContextPath;
 		// Cleanout if the helper has been asked to start afresh.
@@ -4035,7 +4038,6 @@ public class SiteAction extends PagedResourceActionII {
 
 		state.setAttribute(STATE_TEMPLATE_INDEX, "48");
 
-		// state.setAttribute(STATE_TEMPLATE_INDEX, "28");
 	} // doSave_MtrlSite
 
 	public void doSaveMtrlSiteMsg(RunData data) {
@@ -5287,7 +5289,7 @@ private Map<String,List> getTools(SessionState state, String type, Site site) {
 		toolGroup.put(defaultGroupName, getOrderedToolList(state, defaultGroupName, type, checkhome));		
 	} else {	
 		// get all the groups that are available for this site type
-		List groups = ServerConfigurationService.getCategoryGroups(type);  // ,sortType)
+		List groups = ServerConfigurationService.getCategoryGroups(type);
 		for(Iterator<String> itr = groups.iterator(); itr.hasNext();) {
 			String groupId = itr.next();
 			String groupName = getGroupName(groupId);
@@ -5296,16 +5298,17 @@ private Map<String,List> getTools(SessionState state, String type, Site site) {
 				toolGroup.put(groupName, toolList);
 			}
 		}
-	    // add ungroups tools to end of toolGroup list
-	    String ungroupedName = ServerConfigurationService.getString("config.sitemanage.ungroupedToolGroupName","Ungrouped Tools");
-	    List ungroupedList = getUngroupedTools(ungroupedName,  toolGroup, state, type, moreInfoDir, site);
-	    if (ungroupedList.size() > 0) {
-	       toolGroup.put(ungroupedName, ungroupedList );
-	    }		
+      
+		// add ungroups tools to end of toolGroup list
+		String ungroupedName = getGroupName(UNGROUPED_TOOL_TITLE);
+		List ungroupedList = getUngroupedTools(ungroupedName,	 toolGroup, state, type, moreInfoDir, site);
+		if (ungroupedList.size() > 0) {
+			toolGroup.put(ungroupedName, ungroupedList );
+		}	 
 	}
 
 	// add external tools to end of toolGroup list
-	String externaltoolgroupname = ServerConfigurationService.getString("config.sitemanage.externalToolGroupName","Plugin Tools");
+	String externaltoolgroupname = getGroupName(LTI_TOOL_TITLE);
 	List externalTools = getLtiToolGroup(externaltoolgroupname, moreInfoDir, site);
 	if (externalTools.size() > 0 ) 
 		toolGroup.put(externaltoolgroupname, externalTools);
@@ -5434,12 +5437,8 @@ private Map<String,List> getTools(SessionState state, String type, Site site) {
 	 * Given groupId, return localized name from tools.properties
 	 */
 	private String getGroupName(String groupId) {
-		String groupName = ToolManager.getLocalizedToolProperty(groupId,"title");
-		if (groupName =="" || groupName == null ) { 
-			groupName = "Localized Groupname Not Found";
-			M_log.info("Localized groupName not found for groupId " + groupId);
-		}
-		return groupName;
+		// undefined group will return standard '[missing key]' error string
+		return ToolManager.getLocalizedToolProperty(groupId,"title");
 	}
 	/*
 	 * Using moreInfoDir, if toolId is found in the dir return path otherwise return null
@@ -5574,7 +5573,6 @@ private Map<String,List> getTools(SessionState state, String type, Site site) {
 		if ( ungroupedToolsOld != null )
 			ungroupedTools.addAll(ungroupedToolsOld);
 		
-		// Grab tool les too
 		// get all the groups that are available for this site type
 		for (Iterator<String> toolgroupitr = toolsByGroup.keySet().iterator(); toolgroupitr.hasNext();) {
 			String groupName = toolgroupitr.next();
@@ -5584,10 +5582,6 @@ private Map<String,List> getTools(SessionState state, String type, Site site) {
 				if (ungroupedTools.contains(ungroupedTool)) { 
 					// remove all tools that are in a toolGroup list
 					ungroupedTools.remove(ungroupedTool);
-				//} else {
-				//	if ((toolMultiples.size() > 0) && (toolMultiples.contains(ungroupedTool))) {
-				//		ungroupedTools.remove(ungroupedTool);
-				//	}
 				}
 			}
 		}
