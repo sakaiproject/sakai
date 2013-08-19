@@ -688,9 +688,9 @@ public class ShowPageProducer implements ViewComponentProducer, DefaultView, Nav
 			}
 
 			UIOutput.make(tofill, "dialogDiv");
-		} else if (!canReadPage)
+		} else if (!canReadPage) {
 			return;
-		else {
+        } else {
 			// see if there are any unsatisfied prerequisites
 			List<String> needed = simplePageBean.pagesNeeded(pageItem);
 			if (needed.size() > 0) {
