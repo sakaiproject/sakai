@@ -241,6 +241,17 @@ function setupEditable(msgs, iframId){
 	}).on( "tooltipopen", function( event, ui ) {
 		var innerHtml = $(this).closest(".bodyInput").html();
 		setTimeout(function(){
+					//scroll user to top of the section so they will see the popup box if the
+					//item is very large:
+					var topOffset = $(".ui-tooltip").offset().top;
+					if($("#" + iframId, window.parent.document).parents('html, body').size() > 0){
+						//we are in the portal, grab parent
+						$("#" + iframId, window.parent.document).parents('html, body').animate({scrollTop: topOffset});
+					}else{
+						//we are in tool view w/o portal, grab html/body
+						$('html, body').animate({scrollTop: topOffset});
+					}
+					
 					$("#textAreaWysiwyg").attr("id","textAreaWysiwyg" + editorIndex).focus();
 					$("#textAreaWysiwyg" + editorIndex).val(innerHtml);
 					$("#loading").hide();
