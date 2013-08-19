@@ -255,6 +255,12 @@ function setupEditable(msgs, iframId){
 					sakai.editor.launch("textAreaWysiwyg" + editorIndex, {}, width, 300);
 					editorIndex++;
 					$(".editable-buttons").css({"display":"block", "margin-left":"0px","margin-top":"7px"});
+					//CKEditor needs to run some final functions when the checkbox is clicked:
+					$("button.editable-submit").click(function(event){
+						for ( instance in CKEDITOR.instances ){
+					        CKEDITOR.instances[instance].updateElement();
+						}
+					});
 					mySetMainFrameHeight(iframId, 600);
 			}, 1000);
 	});
