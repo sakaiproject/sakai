@@ -21,6 +21,10 @@
 
 package org.sakaiproject.shortenedurl.impl;
 
+import java.net.MalformedURLException;
+import java.net.URI;
+import java.net.URISyntaxException;
+import java.net.URL;
 import java.sql.SQLException;
 
 import org.apache.commons.lang.RandomStringUtils;
@@ -100,7 +104,7 @@ public class RandomisedUrlService extends HibernateDaoSupport implements Shorten
 	}
 	
 	/**
-	 * Generate a reandomised URL for the given URL but with a much longer key (22 chars vs 6 chars).
+	 * Generate a randomised URL for the given URL but with a much longer key (22 chars vs 6 chars).
 	 * Store it and return it or null if errors.
 	 * 
 	 * @param url - the long URL
@@ -207,9 +211,18 @@ public class RandomisedUrlService extends HibernateDaoSupport implements Shorten
 		
 		//add to cache
 		String url = randomisedUrl.getUrl();
-		addToCache(key, url);
 		
-		return randomisedUrl.getUrl();
+		//SHORTURL-39 encode it, reutn null if failure
+		String encodedUrl = encodeUrl(url);
+		if(StringUtils.isBlank(encodedUrl)) {
+			return null;
+		}
+		
+		log.debug("Encoded URL: " + encodedUrl);
+		
+		addToCache(key, encodedUrl);
+		
+		return encodedUrl;
 	}
 	
 
@@ -373,13 +386,33 @@ public class RandomisedUrlService extends HibernateDaoSupport implements Shorten
 	}
   	
   	/**
-  	 * Ad data to the cache
+  	 * Add data to the cache
   	 * @param k	key
   	 * @param v value
   	 */
   	private void addToCache(String k, String v){
   		log.debug("Added entry to cache, key: " + k +", value: " + v);
 		cache.put(k, v);
+  	}
+  	
+  	/**
+  	 * Encodes a full URL.
+  	 * 
+  	 * @param rawUrl the URL to encode.
+  	 */
+  	private String encodeUrl(String rawUrl) {
+  		
+  		String encodedUrl = null;
+  		
+  		try {
+	  		URL url = new URL(rawUrl);
+	  		URI uri = new URI(url.getProtocol(), url.getUserInfo(), url.getHost(), url.getPort(), url.getPath(), url.getQuery(), url.getRef());
+	  		encodedUrl = uri.toURL().toString();
+  		} catch (Exception e) {
+	  		log.debug("Error encoding url: " + rawUrl +". " + e.getClass() + ": " + e.getMessage());
+		}
+  		
+  		return encodedUrl;
   	}
 
   	
