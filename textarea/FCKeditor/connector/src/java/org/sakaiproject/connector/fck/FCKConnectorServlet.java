@@ -106,6 +106,7 @@ public class FCKConnectorServlet extends HttpServlet {
      
 
      private static final String FCK_ADVISOR_BASE = "fck.security.advisor.";
+     private static final String CK_ADVISOR_BASE = "ck.security.advisor.";
      private static final String FCK_EXTRA_COLLECTIONS_BASE = "fck.extra.collections.";
 
      private String serverUrlPrefix = "";
@@ -182,6 +183,13 @@ public class FCKConnectorServlet extends HttpServlet {
           if (advisor != null) {
                securityService.pushAdvisor(advisor);
           }
+
+	  advisor = (SecurityAdvisor) sessionManager.getCurrentSession()
+               .getAttribute(CK_ADVISOR_BASE + collectionBase);
+          if (advisor != null) {
+               securityService.pushAdvisor(advisor);
+          }
+
           
           Document document = null;
           try {
