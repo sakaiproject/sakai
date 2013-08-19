@@ -1133,7 +1133,7 @@ public class PrivateMessageManagerImpl extends HibernateDaoSupport implements
 
     //build the message body
     List additionalHeaders = new ArrayList(1);
-    additionalHeaders.add("Content-Type: text/html");
+    additionalHeaders.add("Content-Type: text/html; charset=utf-8");
     
 
     /** determines if default in sakai.properties is set, if not will make a reasonable default */
