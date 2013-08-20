@@ -21,6 +21,7 @@
 
 package org.sakaiproject.connector.fck;
 
+import java.io.ByteArrayInputStream;
 import java.io.IOException;
 import java.io.PrintWriter;
 import java.util.ArrayList;
@@ -61,6 +62,7 @@ import org.sakaiproject.entitybroker.entityprovider.extension.EntityData;
 import org.sakaiproject.event.api.NotificationService;
 import org.sakaiproject.exception.IdUsedException;
 import org.sakaiproject.exception.PermissionException;
+import org.sakaiproject.site.api.SiteService;
 import org.sakaiproject.tool.api.SessionManager;
 import org.sakaiproject.util.StringUtil;
 import org.sakaiproject.util.Validator;
@@ -115,6 +117,8 @@ public class FCKConnectorServlet extends HttpServlet {
      private SecurityService securityService = null;
      private SessionManager sessionManager = null;
      private NotificationService notificationService = null;
+     private SiteService siteService = null;
+     private SecurityAdvisor contentNewAdvisor = null;
 
      /**
       * Injects dependencies using the ComponentManager cover.
@@ -146,6 +150,24 @@ public class FCKConnectorServlet extends HttpServlet {
           }
           if (notificationService == null) {
                notificationService = (NotificationService) inject("org.sakaiproject.event.api.NotificationService");
+          }
+          if (siteService == null) {
+              siteService = (SiteService) inject("org.sakaiproject.site.api.SiteService");
+     }
+          if (contentNewAdvisor == null) {
+        	  contentNewAdvisor = new SecurityAdvisor(){
+        		  	public SecurityAdvice isAllowed(String userId, String function, String reference){
+        				try {
+        					securityService.popAdvisor();
+        					return securityService.unlock(userId, "content.new".equals(function)?"content.read":function, reference)?
+        							SecurityAdvice.ALLOWED:SecurityAdvice.NOT_ALLOWED;
+        				} catch (Exception ex) {
+        					return SecurityAdvice.NOT_ALLOWED;
+        				} finally {
+        					securityService.pushAdvisor(this);
+        				}
+        			}
+        	  };
           }
      }
 
@@ -321,6 +343,7 @@ public class FCKConnectorServlet extends HttpServlet {
           String errorMessage = "";
           
           String status="0";
+          ContentResource attachment = null;
 
           if (!"FileUpload".equals(command) && !"QuickUpload".equals(command) && !("QuickUploadEquation").equals(command)) {
                status = "203";
@@ -394,6 +417,9 @@ public class FCKConnectorServlet extends HttpServlet {
                              ResourcePropertiesEdit resourceProperties = contentHostingService.newResourceProperties();
                              resourceProperties.addProperty (ResourceProperties.PROP_DISPLAY_NAME, fileName);
 
+                             if ("QuickUploadEquation".equals(command)) {
+                            	 attachment = bypassAddAttachment(request,fileName,mime,bytes,resourceProperties);
+                             } else {
                              String altRoot = getAltReferenceRoot(currentFolder);
                              if (altRoot != null)
                                   resourceProperties.addProperty (ContentHostingService.PROP_ALTERNATE_REFERENCE, altRoot);
@@ -402,6 +428,8 @@ public class FCKConnectorServlet extends HttpServlet {
 
                              contentHostingService.addResource(currentFolder+fileName, mime, bytes, 
                                     resourceProperties, noti);
+                             }
+
                              done = true;
                          }
                          catch (IdUsedException iue) {
@@ -428,7 +456,7 @@ public class FCKConnectorServlet extends HttpServlet {
           try {
                out = response.getWriter();
                if ("QuickUploadEquation".equals(command)) {
-                   out.println(contentHostingService.getUrl(currentFolder) + fileName);
+                   out.println(attachment!=null?attachment.getUrl():"");
                }
                else {
                    out.println("<script type=\"text/javascript\">");
@@ -438,7 +466,7 @@ public class FCKConnectorServlet extends HttpServlet {
                    out.println("try { document.domain = d ; } catch (e) { break ; }}})() ;");
 
                        out.println("window.parent.OnUploadCompleted(" + status + ",'"
-                               + contentHostingService.getUrl(currentFolder) + fileName
+                               + (attachment!=null?attachment.getUrl():"")
                                + "','" + fileName + "','" + errorMessage + "');");
 
                    out.println("</script>");
@@ -906,4 +934,26 @@ public class FCKConnectorServlet extends HttpServlet {
                return null;
      }
 
+     private ContentResource bypassAddAttachment(HttpServletRequest request, String fileName, String mimeType, byte[] bytes, ResourceProperties props) throws Exception {
+    	 try {
+    		 
+             securityService.pushAdvisor(contentNewAdvisor);
+	         String path = request.getPathInfo();
+			 String resourceId = Validator.escapeResourceName(fileName);
+			 String siteId = "";
+			 if(path.contains("/user/")){
+				 siteId = siteService.getSite("~" + path.replaceAll("\\/user\\/(.*)\\/", "$1")).getId();
+			 } else {
+				 siteId = siteService.getSite(path.replaceAll("\\/group\\/(.*)\\/", "$1")).getId();
+}
+			 String toolName = "fckeditor";
+	    	 
+			 return contentHostingService.addAttachmentResource(resourceId, siteId, toolName, mimeType, new ByteArrayInputStream(bytes), props);
+			 
+    	 } catch (Exception ex) {
+    		 throw ex;
+    	 } finally {
+             securityService.popAdvisor(contentNewAdvisor);
+    	 }
+     }
 }
