@@ -135,6 +135,7 @@ public class IMSBLTIPortlet extends GenericPortlet {
 		fieldList.add("allowroster");
 		fieldList.add("allowlori");
 		fieldList.add("contentlink");
+		fieldList.add("splash");
 	}
 
 	// Simple Debug Print Mechanism
@@ -256,6 +257,9 @@ public class IMSBLTIPortlet extends GenericPortlet {
 		for (String element : fieldList) {
 			String propertyName = placement.getToolId() + "." + element;
 			String propValue = ServerConfigurationService.getString(propertyName,null);
+			if ( "splash".equals(element) && propValue == null ) {
+				propValue = ServerConfigurationService.getString(placement.getToolId() + ".overridesplash",null);
+			}
 			if ( propValue != null && propValue.trim().length() > 0 ) {
 				dPrint("Forcing Final = "+propertyName);
 				config.setProperty("final."+element,"true");

@@ -89,7 +89,7 @@ ri
         allow(sp,"frameheight") || allow(sp,"custom") || 
         allow(sp, "releasename") || allow(sp,"releaseemail")  ||
         allow(sp, "allowroster") || allow(sp,"allowsettings") ||
-        allow(sp, "allowlori")
+        allow(sp, "allowlori") || allow(sp, "splash")
 ) { %>
 <form method="post" action="<%=launchURL.toString()%>">
 <% if ( allow(sp,"launch") || allow(sp,"xml") || allow(sp,"key") || allow(sp,"secret") ) { %>
@@ -330,6 +330,17 @@ if ( document.getElementById("UISwitcher") ) switchui();
 <span class="textPanelFooter"><%=rb.getString("allowsettings.detail") %></span>
 </p>
 
+<% } %>
+
+<% if ( allow(sp,"splash") ) { %>
+<h3><%=rb.getString("launch.splash") %></h3>
+<p class="longtext">
+<label for="imsti.splash" class="textPanelFooter" style="float:none;display:block;width:50%"><%=rb.getString("launch.splash.detail") %></label>
+<textarea rows="10" cols="60"  name="imsti.splash" id="imsti.splash" >
+<%=ov.getProperty("imsti.splash","")%>
+</textarea>
+
+</p>
 <% } %>
 
 <% if ( allow(sp,"custom") ) { %>
