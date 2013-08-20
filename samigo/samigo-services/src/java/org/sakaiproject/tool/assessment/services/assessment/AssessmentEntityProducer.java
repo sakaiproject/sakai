@@ -313,6 +313,9 @@ public class AssessmentEntityProducer implements EntityTransferrer,
 								ItemText itemText = (ItemText) itemTextList.get(k);
 								String text = itemText.getText();
 								if(text != null){
+									// Transfer all of the attachments to the new site
+									text = copyContentHostingAttachments(text, toContext);
+									
 									text = org.sakaiproject.util.cover.LinkMigrationHelper.migrateAllLinks(entrySet, text);
 									if(!text.equals(itemText.getText())){
 										//need to save since a ref has been updated:
@@ -330,41 +333,8 @@ public class AssessmentEntityProducer implements EntityTransferrer,
 										String answerText = answer.getText();
 										
 										if (answerText != null) {
-											// Parse the answer and find all media elements with a "src"
-											String[] sources = StringUtils.splitByWholeSeparator(answerText, "src=\"");
-											
-											Set<String> attachments = new HashSet<String>();
-											for (String source : sources) {
-												String theHref = StringUtils.substringBefore(source, "\"");
-												if (StringUtils.contains(theHref, "/access/content/attachment")) {
-													attachments.add(theHref);
-												}
-											}
-											
-											if (attachments.size() > 0) {
-												log.info("Found " + attachments.size() + " attachments buried in question answers");
-											}
-																				
-											for (String attachment : attachments) {
-												String resourceId = "/attachment/" + StringUtils.substringAfter(attachment, "/access/content/attachment/");
-												String filename = StringUtils.substringAfterLast(attachment, "/");
-												ContentResource cr = null;
-												
-												try {
-													cr = AssessmentService.getContentHostingService().getResource(resourceId);
-												} catch (IdUnusedException e) {
-													log.warn("Could not find resource (" + resourceId + ") that was embedded in a question answer");
-												} catch (TypeException e) {
-													log.warn("TypeException for resource (" + resourceId + ") that was embedded in a question answer", e);
-												} catch (PermissionException e) {
-													log.warn("No permission for resource (" + resourceId + ") that was embedded in a question answer");
-												}
-												
-												if (cr != null) {
-													ContentResource crCopy = service.createCopyOfContentResource(cr.getId(), filename, toContext);
-													answerText = StringUtils.replace(answerText, cr.getId(), crCopy.getId());
-												}
-											}
+											// Transfer all of the attachments embedded in the answer text
+											answerText = copyContentHostingAttachments(answerText, toContext);
 											
 											// Now rewrite the answerText with links to the new site
 											answerText = org.sakaiproject.util.cover.LinkMigrationHelper.migrateAllLinks(entrySet, answerText);
@@ -391,5 +361,46 @@ public class AssessmentEntityProducer implements EntityTransferrer,
 				}
 			}
 		}
+	}
+	
+	private String copyContentHostingAttachments(String text, String toContext) {
+		AssessmentService service = new AssessmentService();
+		ContentResource cr = null;
+		
+		String[] sources = StringUtils.splitByWholeSeparator(text, "src=\"");
+		
+		Set<String> attachments = new HashSet<String>();
+		for (String source : sources) {
+			String theHref = StringUtils.substringBefore(source, "\"");
+			if (StringUtils.contains(theHref, "/access/content/attachment")) {
+				attachments.add(theHref);
+			}
+		}
+		
+		if (attachments.size() > 0) {
+			log.info("Found " + attachments.size() + " attachments buried in question or answer text");
+		
+			for (String attachment : attachments) {
+				String resourceId = "/attachment/" + StringUtils.substringAfter(attachment, "/access/content/attachment/");
+				String filename = StringUtils.substringAfterLast(attachment, "/");
+				
+				try {
+					cr = AssessmentService.getContentHostingService().getResource(resourceId);
+				} catch (IdUnusedException e) {
+					log.warn("Could not find resource (" + resourceId + ") that was embedded in a question or answer");
+				} catch (TypeException e) {
+					log.warn("TypeException for resource (" + resourceId + ") that was embedded in a question or answer", e);
+				} catch (PermissionException e) {
+					log.warn("No permission for resource (" + resourceId + ") that was embedded in a question or answer");
+				}
+				
+				if (cr != null && StringUtils.isNotEmpty(filename)) {
+					ContentResource crCopy = service.createCopyOfContentResource(cr.getId(), filename, toContext);
+					text = StringUtils.replace(text, cr.getId(), crCopy.getId());
+				}
+			}
+		}
+		
+		return text;
 	}
 }
