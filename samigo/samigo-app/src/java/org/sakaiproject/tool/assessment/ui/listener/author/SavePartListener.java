@@ -317,6 +317,11 @@ public class SavePartListener
     		 return false;
     	 }
      }
+     else {
+		 err=ContextUtil.getLocalizedString("org.sakaiproject.tool.assessment.bundle.AuthorMessages","qdrawn_null_error_pos");
+		 context.addMessage(null,new FacesMessage(err ));
+		 return false;
+     }
 
      String randomDiscount = sectionBean.getRandomPartDiscount();
      if (randomDiscount != null && !randomDiscount.equals("")) {
@@ -332,6 +337,11 @@ public class SavePartListener
     		 context.addMessage(null,new FacesMessage(err ));
     		 return false;
     	 }
+     }
+     else {
+		 err=ContextUtil.getLocalizedString("org.sakaiproject.tool.assessment.bundle.AuthorMessages","qdrawn_null_error_neg");
+		 context.addMessage(null,new FacesMessage(err ));
+		 return false; 
      }
      return true;
   }

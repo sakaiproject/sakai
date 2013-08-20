@@ -134,14 +134,14 @@
   <h:outputText value="#{authorMessages.point_value_of_questons}"  />
   <h:panelGrid>
     <h:inputText id="numPointsRandom" disabled="#{sectionBean.type == '1' || !author.isEditPendingAssessmentFlow}" value="#{sectionBean.randomPartScore}" onchange="toPoint(this.id);"/>
-    <h:outputText value="#{authorMessages.note_point_value_for_question}" rendered="#{!sectionBean.pointValueHasOverrided}"/>
+    <h:outputText value="#{authorMessages.note_point_value_for_question}" />
   </h:panelGrid>
    
   <h:outputText value="#{authorMessages.negative_point_value}"  />
   
   <h:panelGrid>
     <h:inputText id="numDiscountRandom" disabled="#{sectionBean.type == '1' || !author.isEditPendingAssessmentFlow}" value="#{sectionBean.randomPartDiscount}" onchange="toPoint(this.id);"/>
-    <h:outputText value="#{authorMessages.note_negative_point_value_part}" rendered="#{!sectionBean.discountValueHasOverrided}"/>
+    <h:outputText value="#{authorMessages.note_negative_point_value_part}" />
   </h:panelGrid>
 
   <h:outputText value="#{authorMessages.type_of_randomization}" />
@@ -202,6 +202,8 @@
           type="org.sakaiproject.tool.assessment.ui.listener.author.EditAssessmentListener" />
      </h:commandButton>
   </p>
+  
+<h:outputText value="#{authorMessages.required}" />
 
 </h:form>
 <!-- end content -->

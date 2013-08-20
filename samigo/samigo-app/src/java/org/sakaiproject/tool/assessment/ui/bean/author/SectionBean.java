@@ -555,13 +555,13 @@ private List attachmentList;
        return randomPartDiscount;
 
     if (section == null)
-       return "";
+       return "0";
 
     if (section.getSectionMetaDataByLabel(SectionDataIfc.DISCOUNT_VALUE_FOR_QUESTION) != null) {
        return section.getSectionMetaDataByLabel(SectionDataIfc.DISCOUNT_VALUE_FOR_QUESTION);
     }
     else {
-       return "";
+       return "0";
     }
   }
 
