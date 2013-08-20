@@ -351,6 +351,14 @@ simplePageBean.peerEvalAllowSelfGrade
 		    value="org.sakaiproject.lessonbuildertool.tool.view.ExportCCViewParameters" />
 	</bean>
 
-
+	<bean id="org.sakaiproject.lessonbuildertool.service.LessonsAccess"
+	class="org.sakaiproject.lessonbuildertool.service.LessonsAccess"
+	init-method="init"
+        destroy-method="destroy">
+	  <property name="simplePageToolDao" ref="org.sakaiproject.lessonbuildertool.model.SimplePageToolDao" />
+	  <property name="authzGroupService" ref="org.sakaiproject.authz.api.AuthzGroupService"/>
+	  <property name="securityService" ref="org.sakaiproject.authz.api.SecurityService"/>
+	  <property name="memoryService"><ref bean="org.sakaiproject.memory.api.MemoryService"/></property>
+	</bean>
 
  </beans>

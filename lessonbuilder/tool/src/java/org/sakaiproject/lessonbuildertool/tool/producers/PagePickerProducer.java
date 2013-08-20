@@ -42,6 +42,7 @@ import org.sakaiproject.lessonbuildertool.tool.view.GeneralViewParameters;
 import org.sakaiproject.lessonbuildertool.model.SimplePageToolDao;
 import org.sakaiproject.tool.api.ToolManager;
 import org.sakaiproject.exception.IdUnusedException;
+import org.sakaiproject.lessonbuildertool.service.LessonsAccess;
 
 import uk.org.ponder.messageutil.MessageLocator;
 import uk.org.ponder.localeutil.LocaleGetter;                                                                                          
@@ -78,6 +79,7 @@ public class PagePickerProducer implements ViewComponentProducer, NavigationCase
 
 	private SimplePageBean simplePageBean;
 	private SimplePageToolDao simplePageToolDao;
+        private LessonsAccess lessonsAccess;
 	private ToolManager toolManager;
 	public MessageLocator messageLocator;
 	public LocaleGetter localeGetter;                                                                                             
@@ -100,6 +102,11 @@ public class PagePickerProducer implements ViewComponentProducer, NavigationCase
 	public void setSimplePageToolDao(Object dao) {
 		simplePageToolDao = (SimplePageToolDao) dao;
 	}
+
+	public void setLessonsAccess(LessonsAccess l) {
+	    lessonsAccess = l;
+	}
+
 
 	public void setToolManager(ToolManager service) {
 		toolManager = service;
@@ -389,7 +396,6 @@ public class PagePickerProducer implements ViewComponentProducer, NavigationCase
 		    	if (note != null)
 		    		UIOutput.make(row, "link-note", note + " ");
 		    	UIOutput.make(row, "link-text", entry.title);
-
 		    	index++;
 
 		    	// for pagepicker or summary if canEdit and page doesn't have an item
@@ -421,7 +427,14 @@ public class PagePickerProducer implements ViewComponentProducer, NavigationCase
 		    	index++;
 
 		    }
-
+		    if (false) {
+			// debug code for development
+		    if (entry != null && entry.pageId != null && lessonsAccess.isPageAccessible(entry.pageId,simplePageBean.getCurrentSiteId(),"c08d3ac9-c717-472a-ad91-7ce0b434f42f")) {
+			System.out.println("yes");
+			UIOutput.make(row, "available");
+		    } else
+			System.out.println("no");
+		    }
 		}
 
 		if (!summaryPage) {
