@@ -347,6 +347,20 @@ public class LessonBuilderAccessService {
 				    }
 				}
 
+				// basically there are two checks to be done: is the item accessible in Lessons,
+				// and is the underlying resource accessible in Sakai.
+				// This code really does check both. Sort of. 
+				// 1) it checks accessibility to the containing page by seeing if it has been visited.
+				//  This is stricter than necessary, but there's no obvious reason to let people use this
+				//  who aren't following an actual URL we gave them.
+				// 2) it checks group access as part of the normal resource permission check. Sakai
+				//  should sync the two. We actually don't check it for items in student home directories,
+				//  as far as I can tell
+				// 3) it checks availability (prerequisites) by calling the code from SimplePageBean
+				// We could rewrite this with the new LessonsAccess methods, but since we have to do
+				// resource permission checking also, and there's some duplication, it doesn't seem worth
+				// rewriting this code. What I've done is review it to make sure it does the same thing.
+
 				String id = itemString.substring(i);
 				itemString = itemString.substring(0, i);
 

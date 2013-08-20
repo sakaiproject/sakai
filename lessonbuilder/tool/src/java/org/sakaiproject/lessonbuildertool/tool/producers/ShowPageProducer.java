@@ -692,6 +692,9 @@ public class ShowPageProducer implements ViewComponentProducer, DefaultView, Nav
 			return;
         } else {
 			// see if there are any unsatisfied prerequisites
+		        // if this isn't a top level page, this will check that the page above is
+		        // accessible. That matters because we check visible, available and release
+		        // only for this page but not for the containing page
 			List<String> needed = simplePageBean.pagesNeeded(pageItem);
 			if (needed.size() > 0) {
 				// yes. error and abort
@@ -715,6 +718,9 @@ public class ShowPageProducer implements ViewComponentProducer, DefaultView, Nav
 						view.setPath(Integer.toString(path.size() - 2));
 						UIInternalLink.make(tofill, "redirect-link", containingPage.title, view);
 						UIOutput.make(tofill, "redirect");
+					} else {
+					    UIOutput.make(tofill, "error-div");
+					    UIOutput.make(tofill, "error", messageLocator.getMessage("simplepage.not_available"));
 					}
 
 					return;

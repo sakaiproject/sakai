@@ -101,6 +101,7 @@ import org.sakaiproject.lessonbuildertool.service.GroupPermissionsService;
 import org.sakaiproject.lessonbuildertool.service.LessonBuilderEntityProducer;
 import org.sakaiproject.lessonbuildertool.service.LessonEntity;
 import org.sakaiproject.lessonbuildertool.service.LessonSubmission;
+import org.sakaiproject.lessonbuildertool.service.LessonsAccess;
 import org.sakaiproject.lessonbuildertool.tool.producers.ShowItemProducer;
 import org.sakaiproject.lessonbuildertool.tool.producers.ShowPageProducer;
 import org.sakaiproject.lessonbuildertool.tool.view.GeneralViewParameters;
@@ -465,6 +466,7 @@ public class SimplePageBean {
 	private SecurityService securityService;
 	private SiteService siteService;
 	private SimplePageToolDao simplePageToolDao;
+	private LessonsAccess lessonsAccess;
 	
 	private MessageLocator messageLocator;
 	public void setMessageLocator(MessageLocator x) {
@@ -1279,6 +1281,11 @@ public class SimplePageBean {
 	public void setSimplePageToolDao(Object dao) {
 		simplePageToolDao = (SimplePageToolDao) dao;
 	}
+
+	public void setLessonsAccess(LessonsAccess a) {
+		lessonsAccess = a;
+	}
+
 
 	public List<SimplePageItem>  getItemsOnPage(long pageid) {
 		List<SimplePageItem>items = itemsCache.get(pageid);
@@ -4421,26 +4428,28 @@ public class SimplePageBean {
 
     // return list of pages needed for current page. This is the primary code
     // used by ShowPageProducer to see whether the user is allowed to the page
-    // (given that they have read permission, of course)
+    // (given that they have read permission, of course). Use LessonsAccess
+    // elsewhere, because there are additional checks in ShowPageProducer that
+    // are not in this code.
     // Note that the same page can occur
     // multiple places, but we're passing the item, so we've got the right one
 	public List<String> pagesNeeded(SimplePageItem item) {
 		String currentPageId = Long.toString(getCurrentPageId());
 		List<String> needed = new ArrayList<String>();
 
-		if (!item.isPrerequisite()){
-			return needed;
-		}
-
 	    // authorized or maybe user is gaming us, or maybe next page code
 	    // sent them to something that isn't available.
 	    // as an optimization check haslogentry first. That will be true if
 	    // they have been here before. Saves us the trouble of doing full
 	    // access checking. Otherwise do a real check. That should only happen
-	    // for next page in odd situations.
+	    // for next page in odd situations. The code in ShowPageProducer checks
+	    // visible and release for this page, so we really need
+	    // available for this item. But to be complete we do need to check
+	    // accessibility of the containing page.
 		if (item.getPageId() > 0) {
 			if (!hasLogEntry(item.getId()) &&
-					!isItemAvailable(item, item.getPageId())) {
+		       	    (!isItemAvailable(item, item.getPageId()) ||
+			     !lessonsAccess.isPageAccessible(item.getPageId(), getCurrentSiteId(), getCurrentUserId()))) {
 				SimplePage parent = getPage(item.getPageId());
 				if (parent != null)
 					needed.add(parent.getTitle());
@@ -4450,8 +4459,16 @@ public class SimplePageBean {
 			return needed;
 		}
 
-	    // we've got a top level page.
+		// we've got a top level page.
+		// There is no containing page, so this is just available (i.e. prerequesites).
+		// We can't use the normal code because we need a list of prerequisite pages.
+
+		if (!item.isPrerequisite()){
+			return needed;
+		}
+
 	    // get dummy items for top level pages in site
+
 		List<SimplePageItem> items = simplePageToolDao.findItemsInSite(getCurrentSite().getId());
 		// sorted by SQL
 

@@ -29,6 +29,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.Arrays;
+import java.util.Date;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
@@ -150,11 +151,20 @@ public class LessonsAccess {
 	    return ret;
 	}
 
+	SimplePage page = dao.getPage(pageId);
+	if (page == null) // should be impossible
+	    return ret;
+
+	if (page.isHidden() || (page.getReleaseDate() != null && page.getReleaseDate().after(new Date()))) {
+	    // not released. Say inaccessible. The assumption is that this is being used only
+	    // for students. Obviously the instructor can bypass release control.
+	    return ret;
+	}	    
+
 	// List of items with this page on it
 	List<SimplePageItem> items = null;
 
 	// if it's a student page, have to handle specially. Find item that has the student content section
-	SimplePage page = dao.getPage(pageId);
 	if (page.getOwner() != null) {
 	    SimpleStudentPage student = dao.findStudentPage(page.getTopParent());
 	    SimplePageItem item = dao.findItem(student.getItemId());
@@ -210,6 +220,11 @@ public class LessonsAccess {
 
 	return ret;
     }
+
+    // note that this doesn't check site permissions. lb.write won't need this
+    // check at all. lb.read needs to be true or this test is irrelevant.
+    // I assume this method will mostly be used by code that wants to do item
+    // checks on its own, so most likely it's already doign the permissions checks
 
     public boolean isPageAccessible(long pageId, String siteId, String currentUserId) {
 

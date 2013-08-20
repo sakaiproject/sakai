@@ -40,6 +40,7 @@ import org.sakaiproject.lessonbuildertool.SimplePageLogEntry;
 import org.sakaiproject.lessonbuildertool.tool.beans.SimplePageBean;
 import org.sakaiproject.lessonbuildertool.tool.view.GeneralViewParameters;
 import org.sakaiproject.lessonbuildertool.model.SimplePageToolDao;
+import org.sakaiproject.component.cover.ServerConfigurationService;
 import org.sakaiproject.tool.api.ToolManager;
 import org.sakaiproject.exception.IdUnusedException;
 import org.sakaiproject.lessonbuildertool.service.LessonsAccess;
@@ -427,13 +428,11 @@ public class PagePickerProducer implements ViewComponentProducer, NavigationCase
 		    	index++;
 
 		    }
-		    if (false) {
-			// debug code for development
-		    if (entry != null && entry.pageId != null && lessonsAccess.isPageAccessible(entry.pageId,simplePageBean.getCurrentSiteId(),"c08d3ac9-c717-472a-ad91-7ce0b434f42f")) {
-			System.out.println("yes");
-			UIOutput.make(row, "available");
-		    } else
-			System.out.println("no");
+		    // debug code for development. this will be removed at some point
+		    if (ServerConfigurationService.getBoolean("lessonbuilder.accessibilitydebug", false)) {
+			if (entry != null && entry.pageId != null && lessonsAccess.isPageAccessible(entry.pageId,simplePageBean.getCurrentSiteId(),"c08d3ac9-c717-472a-ad91-7ce0b434f42f")) {
+			    UIOutput.make(row, "available");
+			} 
 		    }
 		}
 
