@@ -66,6 +66,9 @@ update lesson_builder_items set temp=ownerGroups;
 alter table lesson_builder_items drop column ownerGroups;
 alter table lesson_builder_items rename column temp to ownerGroups;
 
+alter table lesson_builder_items modify gradebookId varchar2(100 char);
+alter table lesson_builder_items modify altGradebook altGradebook varchar2(100 char);
+
 create index lb_group_site on lesson_builder_groups(siteId);
 create index lb_item_gb on lesson_builder_items(gradebookid);
 create index lb_item_altgb on lesson_builder_items(altGradebook);
