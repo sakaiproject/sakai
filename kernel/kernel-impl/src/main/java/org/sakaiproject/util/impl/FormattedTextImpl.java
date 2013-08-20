@@ -34,7 +34,7 @@ import org.apache.commons.lang.StringEscapeUtils;
 import org.apache.commons.lang.StringUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
-import org.apache.commons.validator.UrlValidator;
+import org.apache.commons.validator.routines.UrlValidator;
 import org.w3c.dom.Element;
 
 import org.owasp.validator.html.AntiSamy;
@@ -1352,7 +1352,7 @@ public class FormattedTextImpl implements FormattedText
         }
 
         // Validate the url
-        UrlValidator urlValidator = new UrlValidator();
+        UrlValidator urlValidator = new UrlValidator(UrlValidator.ALLOW_LOCAL_URLS);
         return urlValidator.isValid(urlToValidate);
     }
 

@@ -761,6 +761,8 @@ public class FormattedTextTest extends TestCase {
         boolean result = false;
         result = formattedText.validateURL("http://www.vt.edu/");
         assertTrue(result);
+        result = formattedText.validateURL("http://localhost:8080/access/site/634cce7b-96da-4997-90b1-f99ea3c3973d");
+        assertTrue(result);
         result = formattedText.validateURL("XXXXXXXX");
         assertFalse(result);
     }
