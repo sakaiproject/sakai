@@ -329,7 +329,7 @@ public class IFrameToolRenderService implements ToolRenderService
 
 		// System.out.println("portal.forwardTool siteTool="+siteTool+"
 		// TCP="+toolContextPath+" TPI="+toolPathInfo);
-		String option = req.getPathInfo();
+		String option = URLUtils.getSafePathInfo(req);
 		String[] parts = option.split("/");
 		String toolContextPath = req.getContextPath()
 		+ req.getServletPath() + Web.makePath(parts, 1, 3);

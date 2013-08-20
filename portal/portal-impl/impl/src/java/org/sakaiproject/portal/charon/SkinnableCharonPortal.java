@@ -658,7 +658,7 @@ public class SkinnableCharonPortal extends HttpServlet implements Portal
 		{
 			resetActionUrl = Web.serverUrl(req)
 			+ ServerConfigurationService.getString("portalPath")
-			+ req.getPathInfo() + "?sakai.state.reset=true";
+			+ URLUtils.getSafePathInfo(req) + "?sakai.state.reset=true";
 		}
 
 		// for the help button
@@ -846,7 +846,7 @@ public class SkinnableCharonPortal extends HttpServlet implements Portal
 			Session session = SessionManager.getCurrentSession();
 
 			// recognize what to do from the path
-			String option = req.getPathInfo();
+			String option = URLUtils.getSafePathInfo(req);
 
 			//FindBugs thinks this is not used but is passed to the portal handler
 			String[] parts = {};
@@ -1254,7 +1254,7 @@ public class SkinnableCharonPortal extends HttpServlet implements Portal
 			Session session = SessionManager.getCurrentSession();
 
 			// recognize what to do from the path
-			String option = req.getPathInfo();
+			String option = URLUtils.getSafePathInfo(req);
 
 			// if missing, we have a stray post
 			if ((option == null) || ("/".equals(option)))
@@ -1352,7 +1352,7 @@ public class SkinnableCharonPortal extends HttpServlet implements Portal
 		    // you aren't known to the system.
 		    if (session.getUserId() == null)
 			{
-			    doLogin(req, res, session, req.getPathInfo(), false);
+			    doLogin(req, res, session, URLUtils.getSafePathInfo(req), false);
 			}
 		    // If the login was successful lookup the myworkworkspace site.
 		    if (session.getUserId() != null) {
@@ -1377,7 +1377,7 @@ public class SkinnableCharonPortal extends HttpServlet implements Portal
 			// punt
 			if (session.getUserId() == null)
 			{
-				doLogin(req, res, session, req.getPathInfo(), false);
+				doLogin(req, res, session, URLUtils.getSafePathInfo(req), false);
 				return null;
 			}
 			return placementId; // cannot resolve placement

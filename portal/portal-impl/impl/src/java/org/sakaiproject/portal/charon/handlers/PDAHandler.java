@@ -41,6 +41,7 @@ import org.sakaiproject.portal.api.Portal;
 import org.sakaiproject.portal.api.PortalHandlerException;
 import org.sakaiproject.portal.api.PortalRenderContext;
 import org.sakaiproject.portal.util.ByteArrayServletResponse;
+import org.sakaiproject.portal.util.URLUtils;
 import org.sakaiproject.site.api.SitePage;
 import org.sakaiproject.site.api.ToolConfiguration;
 import org.sakaiproject.site.cover.SiteService;
@@ -209,7 +210,7 @@ public class PDAHandler extends PageHandler
 					if ("yes".equalsIgnoreCase(forceLogin)
 							|| "true".equalsIgnoreCase(forceLogin))
 					{
-						portal.doLogin(req, res, session, req.getPathInfo(), false);
+						portal.doLogin(req, res, session, URLUtils.getSafePathInfo(req), false);
 						return END;
 					}
 				}

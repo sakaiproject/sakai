@@ -42,6 +42,7 @@ import org.sakaiproject.site.api.SitePage;
 import org.sakaiproject.tool.api.Session;
 import org.sakaiproject.tool.api.ToolException;
 import org.sakaiproject.util.ResourceLoader;
+import org.sakaiproject.portal.util.URLUtils;
 
 /**
  * 
@@ -130,7 +131,7 @@ public class WorksiteHandler extends PageHandler
 			// if not logged in, give them a chance
 			if (session.getUserId() == null)
 			{
-				portal.doLogin(req, res, session, req.getPathInfo(), false);
+				portal.doLogin(req, res, session, URLUtils.getSafePathInfo(req), false);
 			}
 			else
 			{

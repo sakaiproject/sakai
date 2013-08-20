@@ -37,6 +37,7 @@ import org.sakaiproject.portal.api.Editor;
 import org.sakaiproject.portal.api.EditorRegistry;
 import org.sakaiproject.portal.api.PortalService;
 import org.sakaiproject.portal.util.ErrorReporter;
+import org.sakaiproject.portal.util.URLUtils;
 import org.sakaiproject.site.api.ToolConfiguration;
 import org.sakaiproject.site.cover.SiteService;
 import org.sakaiproject.util.EditorConfiguration;
@@ -109,7 +110,7 @@ public class EditorServlet extends HttpServlet
 		try
 		{
 			// this is either going to be editor.js or editor-launch.js
-			String path = req.getPathInfo();
+			String path = URLUtils.getSafePathInfo(req);
 			if ((path == null) || (path.length() <= 1)) throw new Exception("no path");
 
 			// get the requested file, ignoring the first "/"

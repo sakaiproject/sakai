@@ -46,6 +46,7 @@ import org.sakaiproject.portal.api.StoredState;
 import org.sakaiproject.portal.render.api.RenderResult;
 import org.sakaiproject.portal.render.cover.ToolRenderService;
 import org.sakaiproject.portal.util.ErrorReporter;
+import org.sakaiproject.portal.util.URLUtils;
 import org.sakaiproject.portal.util.ToolURLManagerImpl;
 import org.sakaiproject.site.api.Site;
 import org.sakaiproject.site.api.SitePage;
@@ -222,7 +223,7 @@ public class CharonPortal extends HttpServlet
 				if (forceLogin == null || "yes".equalsIgnoreCase(forceLogin)
 						|| "true".equalsIgnoreCase(forceLogin))
 				{
-					doLogin(req, res, session, req.getPathInfo(), false);
+					doLogin(req, res, session, URLUtils.getSafePathInfo(req), false);
 					return;
 				}
 				siteId = ServerConfigurationService.getGatewaySiteId();
@@ -255,7 +256,7 @@ public class CharonPortal extends HttpServlet
 			// if not logged in, give them a chance
 			if (session.getUserId() == null)
 			{
-				doLogin(req, res, session, req.getPathInfo(), false);
+				doLogin(req, res, session, URLUtils.getSafePathInfo(req), false);
 			}
 			else
 			{
@@ -347,7 +348,7 @@ public class CharonPortal extends HttpServlet
 			Session session = SessionManager.getCurrentSession();
 
 			// recognize what to do from the path
-			String option = req.getPathInfo();
+			String option = URLUtils.getSafePathInfo(req);
 
 			// if missing, set it to home or gateway
 			if ((option == null) || ("/".equals(option)))
@@ -667,7 +668,7 @@ public class CharonPortal extends HttpServlet
 		// // if not logged in, give them a chance
 		// if (session.getUserId() == null)
 		// {
-		// doLogin(req, res, session, req.getPathInfo(), false);
+		// doLogin(req, res, session, URLUtils.getSafePathInfo(req), false);
 		// }
 		// else
 		// {
@@ -996,7 +997,7 @@ public class CharonPortal extends HttpServlet
 			// if not logged in, give them a chance
 			if (session.getUserId() == null)
 			{
-				doLogin(req, res, session, req.getPathInfo(), false);
+				doLogin(req, res, session, URLUtils.getSafePathInfo(req), false);
 			}
 			else
 			{
@@ -1044,7 +1045,7 @@ public class CharonPortal extends HttpServlet
 			Session session = SessionManager.getCurrentSession();
 
 			// recognize what to do from the path
-			String option = req.getPathInfo();
+			String option = URLUtils.getSafePathInfo(req);
 
 			// if missing, we have a stray post
 			if ((option == null) || ("/".equals(option)))
@@ -1148,7 +1149,7 @@ public class CharonPortal extends HttpServlet
 			// if not logged in, give them a chance
 			if (session.getUserId() == null)
 			{
-				doLogin(req, res, session, req.getPathInfo(), false);
+				doLogin(req, res, session, URLUtils.getSafePathInfo(req), false);
 			}
 			else
 			{
@@ -1261,7 +1262,7 @@ public class CharonPortal extends HttpServlet
 			// if not logged in, give them a chance
 			if (session.getUserId() == null)
 			{
-				doLogin(req, res, session, req.getPathInfo(), false);
+				doLogin(req, res, session, URLUtils.getSafePathInfo(req), false);
 			}
 			else
 			{
@@ -1350,7 +1351,7 @@ public class CharonPortal extends HttpServlet
 			// punt
 			if (session.getUserId() == null)
 			{
-				doLogin(req, res, session, req.getPathInfo() + "?sakai.site="
+				doLogin(req, res, session, URLUtils.getSafePathInfo(req) + "?sakai.site="
 						+ res.encodeURL(siteId), false);
 				return null;
 			}
@@ -1533,7 +1534,7 @@ public class CharonPortal extends HttpServlet
 				// if not logged in, give them a chance
 				if (session.getUserId() == null)
 				{
-					doLogin(req, res, session, req.getPathInfo(), false);
+					doLogin(req, res, session, URLUtils.getSafePathInfo(req), false);
 				}
 				else
 				{
@@ -1683,7 +1684,7 @@ public class CharonPortal extends HttpServlet
 			// if not logged in, give them a chance
 			if (session.getUserId() == null)
 			{
-				doLogin(req, res, session, req.getPathInfo(), false);
+				doLogin(req, res, session, URLUtils.getSafePathInfo(req), false);
 			}
 			else
 			{
