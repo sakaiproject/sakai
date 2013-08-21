@@ -32,7 +32,10 @@ import org.apache.wicket.protocol.http.WebResponse;
 import org.apache.wicket.spring.injection.annot.SpringComponentInjector;
 
 import org.sakaiproject.dash.tool.pages.DashboardPage;
+import org.sakaiproject.dash.tool.pages.DashboardMobilePage;
 import org.sakaiproject.dash.tool.pages.OptionsPage;
+import org.sakaiproject.tool.api.Session;
+import org.sakaiproject.tool.cover.SessionManager;
 
 /**
  * Main application class for our app
@@ -89,8 +92,18 @@ public class MyApplication extends WebApplication {
 	 * 
 	 * @see org.apache.wicket.Application#getHomePage()
 	 */
-	public Class<DashboardPage> getHomePage() {
-		return DashboardPage.class;
+	public Class getHomePage() {
+		Session session = SessionManager.getCurrentSession();
+		Boolean mobileDeviceParam = (Boolean)session.getAttribute("is_mobile_device");
+		if (mobileDeviceParam)
+		{
+			// mobile view
+			return DashboardMobilePage.class;
+		}
+		else
+		{
+			return DashboardPage.class;
+		}
 	}
 	
 	
