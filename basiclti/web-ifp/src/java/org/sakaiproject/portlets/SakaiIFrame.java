@@ -69,6 +69,7 @@ import org.sakaiproject.site.api.Site;
 import org.sakaiproject.site.api.SitePage;
 import org.sakaiproject.site.api.ToolConfiguration;
 import org.sakaiproject.site.cover.SiteService;
+import org.sakaiproject.component.cover.ServerConfigurationService;
 import org.sakaiproject.tool.api.Placement;
 import org.sakaiproject.tool.cover.ToolManager;
 import org.sakaiproject.tool.api.ToolSession;
@@ -189,7 +190,37 @@ public class SakaiIFrame extends GenericPortlet {
 			boolean popup = "true".equals(placement.getPlacementConfig().getProperty(POPUP));
 			boolean maximize = "true".equals(placement.getPlacementConfig().getProperty(MAXIMIZE));
 
+			// Retrieve the corresponding content item and tool to check the launch
+			Map<String, Object> content = null;
+			Map<String, Object> tool = null;
+			int pos = source.indexOf("/content:");
+			if ( pos > 0 ) {
+				pos = pos + "/content:".length();
+				if ( pos < source.length()-1 ) {
+					String sContentId = source.substring(pos);
+					try {
+						Long key = new Long(sContentId);
+						content = m_ltiService.getContent(key);
+						String launch = (String) content.get("launch");
+						Long tool_id = getLongNull(content.get("tool_id"));
+						if ( launch == null && tool_id != null ) {
+							tool = m_ltiService.getTool(tool_id);
+							launch = (String) tool.get("launch");
+						}
+
+						// Force http:// to pop-up if we are https://
+						String serverUrl = ServerConfigurationService.getServerUrl();
+						if ( request.isSecure() || ( serverUrl != null && serverUrl.startsWith("https://") ) ) {
+							if ( launch != null && launch.startsWith("http://") ) popup = true;
+						}
+					} catch (Exception e) {
+						e.printStackTrace();
+					}
+				}
+			}
+
 			if ( source != null && source.trim().length() > 0 ) {
+
 				Context context = new VelocityContext();
 				context.put("tlang", rb);
 				context.put("validator", validator);
@@ -352,5 +383,21 @@ public class SakaiIFrame extends GenericPortlet {
 			if (VALID_DIGITS.indexOf(height.charAt(i)) == -1) return false;
 		}
 		return true;
+	}
+
+	private Long getLongNull(Object key) {
+		if (key == null) return null;
+
+		if (key instanceof Number)
+			return new Long(((Number) key).longValue());
+
+		if (key instanceof String) {
+			try {
+				return new Long((String) key);
+			} catch (Exception e) {
+				return null;
+			}
+		}
+		return null;
 	}
 }
