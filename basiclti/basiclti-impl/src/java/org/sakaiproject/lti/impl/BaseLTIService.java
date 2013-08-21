@@ -628,27 +628,30 @@ public abstract class BaseLTIService implements LTIService {
 
 	public Object insertToolContent(String id, String toolId, Properties reqProps)
 	{
-		return insertToolContentDao(id, toolId, reqProps, getContext());
+		return insertToolContentDao(id, toolId, reqProps, getContext(), isAdmin(), isMaintain());
 	}
 	
+	// TODO: Review the site-manage use cases for this method signature
 	public Object insertToolContent(String id, String toolId, Properties reqProps, String siteId)
 	{
+		if ( isAdmin() || siteId.equals(getContext()) ) {
+			// Is OK
+		} else {
+			M_log.warn("insertToolContent siteId="+siteId+" context="+getContext()+" isAdmin="+isAdmin());
+		}
 		return insertToolContentDao(id, toolId, reqProps, siteId, isAdmin(siteId), isMaintain(siteId));
 	}
 	
-	public Object insertToolContentDao(String id, String toolId, Properties reqProps, String siteId)
-	{
-		return insertToolContentDao(id, toolId, reqProps, siteId, true, true);
-	}
-
 	protected Object insertToolContentDao(String id, String toolId, Properties reqProps, String siteId, boolean isAdminRole, boolean isMaintainRole)
 	{
 		Object retval = null;
 		if ( ! isMaintainRole ) {
 			retval = rb.getString("error.maintain.edit");
+			return retval;
 		}
 		if ( toolId == null ) {
 			retval = rb.getString("error.id.not.found");
+			return retval;
 		}
 
 		// Check to see if we have to fix the tool...
@@ -658,6 +661,7 @@ public abstract class BaseLTIService implements LTIService {
 		if ( id == null ) 
 		{
 			reqProps.setProperty(LTIService.LTI_PLACEMENTSECRET, UUID.randomUUID().toString());
+			// insertContentDao checks to make sure that the TOOL_ID in reqProps is suitable
 			retval = insertContentDao(reqProps, siteId, isAdminRole, isMaintainRole);
 		} else {
 			contentKey = new Long(id);
