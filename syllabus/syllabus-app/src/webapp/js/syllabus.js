@@ -261,7 +261,7 @@ function setupEditable(msgs, iframId){
 					var toolTipLeft = $("#loading").closest(".ui-tooltip").position().left;
 					var accordionLeft = $( "#accordion" ).position().left;
 					var moveLeft = toolTipLeft - accordionLeft - 50;
-					$("#loading").closest(".ui-tooltip").animate({left: "-=" + moveLeft}, 10);
+					$("#loading").closest(".ui-tooltip").animate({left: "-=" + moveLeft, top: (topOffset)}, 10);
 					var width = $( "#accordion" ).width() - 100;
 					sakai.editor.launch("textAreaWysiwyg" + editorIndex, {}, width, 300);
 					editorIndex++;
