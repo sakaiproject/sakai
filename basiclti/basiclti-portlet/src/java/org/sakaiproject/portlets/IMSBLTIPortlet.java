@@ -202,7 +202,7 @@ public class IMSBLTIPortlet extends GenericPortlet {
 				String newPage =  getCorrectProperty(request, "newpage", null);
 				String serverUrl = ServerConfigurationService.getServerUrl();
 				if ( request.isSecure() || ( serverUrl != null && serverUrl.startsWith("https://") ) ) {
-					if ( launch.startsWith("http://") ) {
+					if ( launch != null && launch.startsWith("http://") ) {
 						newPage = "on";
 					}
 				}
