@@ -164,6 +164,7 @@ $tp_profile->tool_profile->base_url_choice[0]->secure_base_url = $cur_base;
 $tp_profile->tool_profile->base_url_choice[0]->default_base_url = $cur_base;
 
 $tp_profile->security_contract->shared_secret = 'secret';
+$tp_profile->security_contract->tool_service = $tc_services;
 // print_r($tp_profile);
 
 $body = json_encode($tp_profile);
