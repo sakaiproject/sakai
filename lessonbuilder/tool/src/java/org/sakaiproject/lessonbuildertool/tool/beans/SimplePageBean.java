@@ -4001,13 +4001,17 @@ public class SimplePageBean {
 	    return isItemVisible(item, null);
 	}
 
+	public boolean isItemVisible(SimplePageItem item, SimplePage page) {
+	    return isItemVisible(item, page, true);
+	}
+
     // if the item has a group requirement, are we in one of the groups.
     // this is called a lot and is fairly expensive, so results are cached
     // for student pages, if it's not the owner, use resources test for resources
     // for a student page, we don't bypass hidden and release date, so it's safest
     // just to call contentHosting.
-	public boolean isItemVisible(SimplePageItem item, SimplePage page) {
-		if (canEditPage()) {
+	public boolean isItemVisible(SimplePageItem item, SimplePage page, boolean testpriv) {
+		if (testpriv && canEditPage()) {
 		    return true;
 		}
 		Boolean ret = visibleCache.get(item.getId());
@@ -4449,7 +4453,7 @@ public class SimplePageBean {
 		if (item.getPageId() > 0) {
 			if (!hasLogEntry(item.getId()) &&
 		       	    (!isItemAvailable(item, item.getPageId()) ||
-			     !lessonsAccess.isPageAccessible(item.getPageId(), getCurrentSiteId(), getCurrentUserId()))) {
+			     !lessonsAccess.isPageAccessible(item.getPageId(), getCurrentSiteId(), getCurrentUserId(), this))){
 				SimplePage parent = getPage(item.getPageId());
 				if (parent != null)
 					needed.add(parent.getTitle());

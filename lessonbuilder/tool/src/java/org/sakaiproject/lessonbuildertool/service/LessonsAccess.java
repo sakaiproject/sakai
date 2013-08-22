@@ -60,6 +60,14 @@ import org.sakaiproject.lessonbuildertool.SimplePageItem;
 import org.sakaiproject.lessonbuildertool.SimplePage;
 import org.sakaiproject.lessonbuildertool.model.SimplePageToolDao;
 import org.sakaiproject.lessonbuildertool.SimpleStudentPage;
+import org.sakaiproject.lessonbuildertool.tool.beans.SimplePageBean;
+
+import uk.org.ponder.messageutil.MessageLocator;
+import org.sakaiproject.tool.api.ToolManager;
+import org.sakaiproject.tool.api.SessionManager;
+import org.sakaiproject.site.api.SiteService;
+import org.sakaiproject.content.api.ContentHostingService;
+import org.sakaiproject.memory.api.MemoryService;
 
 // This class is used to check whether a page or item should be
 // accessible for the user. It checks all conditions. SimplePageBean
@@ -112,10 +120,12 @@ public class LessonsAccess {
 
     public class Path implements Cloneable{
 	Long itemId;
+	boolean topLevel;
 	Set<String>groups;
 	public Path clone() {
 	    Path ret = new Path();
 	    ret.itemId = this.itemId;
+	    ret.topLevel = this.topLevel;
 	    ret.groups = this.groups;
 	    return ret;
 	}
@@ -146,6 +156,7 @@ public class LessonsAccess {
 	if (pageId == 0) {
 	    Path path = new Path();
 	    path.groups = null;
+	    path.topLevel = false;
 	    path.itemId = null;
 	    ret.add(path);
 	    return ret;
@@ -192,6 +203,7 @@ public class LessonsAccess {
 		// is a good test for prerequisites, and a lot less work than the real test.
 		Path path = new Path();
 		path.itemId = item.getId();
+		path.topLevel = (item.getPageId() == 0);
 		path.groups = itemGroups;
 		// TODO: check for duplicates
 		ret.add(path);
@@ -226,7 +238,7 @@ public class LessonsAccess {
     // I assume this method will mostly be used by code that wants to do item
     // checks on its own, so most likely it's already doign the permissions checks
 
-    public boolean isPageAccessible(long pageId, String siteId, String currentUserId) {
+    public boolean isPageAccessible(long pageId, String siteId, String currentUserId, SimplePageBean simplePageBean) {
 
 	Set<Path> paths = getPagePaths(pageId);
 
@@ -236,7 +248,45 @@ public class LessonsAccess {
 		// finds that is accessible a dummy entry is created. So existence
 		// of an entry, dummy or real means it is accessible.
 
-		if (dao.getLogEntry(currentUserId, path.itemId, -1L) == null)
+		if (path.topLevel) {
+		    // top level item. special code that checks tools
+		    // if no prerequisites, top level items are OK
+		    // groups will be checked below, though in fact top level items
+		    // can't be restricted by group
+		    SimplePageItem item = dao.findItem(path.itemId);
+		    if (item.isPrerequisite()){
+			SimplePage currentPage = null;
+			if (simplePageBean == null) {
+			    String pageString = item.getSakaiId();
+			    long pageNum = 0;
+			    try {
+				pageNum = Long.parseLong(pageString, 10);
+			    } catch (Exception e) {
+				continue;
+			    }
+			    currentPage = dao.getPage(pageNum);
+			    if (currentPage == null)
+				continue;
+			}
+
+			simplePageBean = makeSimplePageBean(simplePageBean, siteId, currentPage);
+
+			List<SimplePageItem> items = dao.findItemsInSite(siteId);
+			// sorted by SQL
+
+			boolean ok = true;
+			for (SimplePageItem i : items) {
+			    if (i.getId() == path.itemId)
+				break; //ok
+			    if (i.isRequired() && !simplePageBean.isItemComplete(i) && simplePageBean.isItemVisible(i)) {
+				ok = false;
+				break;
+			    }
+			}
+			if (!ok)
+			    continue;
+		    }
+		} else if (dao.getLogEntry(currentUserId, path.itemId, -1L) == null)
 		    continue;
 
 	    }
@@ -258,6 +308,71 @@ public class LessonsAccess {
 
 	return false;
 
+    }
+
+    public SimplePageBean makeSimplePageBean(SimplePageBean simplePageBean, String siteId, SimplePage currentPage) {
+	if (simplePageBean == null) {
+	    simplePageBean = new SimplePageBean();
+	    simplePageBean.setMessageLocator(messageLocator);
+	    simplePageBean.setToolManager(toolManager);
+	    simplePageBean.setSecurityService(securityService);
+	    simplePageBean.setSessionManager(sessionManager);
+	    simplePageBean.setSiteService(siteService);
+	    simplePageBean.setContentHostingService(contentHostingService);
+	    simplePageBean.setSimplePageToolDao(dao);
+	    simplePageBean.setForumEntity(forumEntity);
+	    simplePageBean.setQuizEntity(quizEntity);
+	    simplePageBean.setAssignmentEntity(assignmentEntity);
+	    simplePageBean.setBltiEntity(bltiEntity);
+	    simplePageBean.setGradebookIfc(gradebookIfc);
+	    simplePageBean.setMemoryService(memoryService);
+	    simplePageBean.setCurrentSiteId(siteId);
+	    simplePageBean.setCurrentPage(currentPage);
+	    simplePageBean.setCurrentPageId(currentPage.getPageId());
+	}
+
+	return simplePageBean;
+    }
+
+
+    // currently does not check site permissions
+    // if you need to evaluate multiple items on a page, please use of create a
+    // simplePageBean and pass it. THat will let us cache a bunch of data between
+    // the calls, and save a lot of database queries
+    public boolean isItemAccessible(long itemId, String siteId, String currentUserId, SimplePageBean simplePageBean) {
+	
+	SimplePageItem item = dao.findItem(itemId);
+	if (item == null)
+	    return false;
+	// top-level pseudo-item is special, as there is no containing page
+	// just test the page it points to
+	if (item.getPageId() == 0L && item.getType() == SimplePageItem.PAGE) {
+	    String pageString = item.getSakaiId();
+	    long pageNum = 0;
+	    try {
+		pageNum = Long.parseLong(pageString, 10);
+	    } catch (Exception e) {
+		return false;
+	    }
+	    return isPageAccessible(pageNum, siteId, currentUserId, simplePageBean);
+	}
+	SimplePage currentPage = dao.getPage(item.getPageId());
+	if (currentPage == null)
+	    return false;
+
+	simplePageBean = makeSimplePageBean(simplePageBean, siteId, currentPage);
+
+	// containing page must be accessible.
+	if (!isPageAccessible(currentPage.getPageId(), siteId, currentUserId, simplePageBean))
+	    return false;
+
+	if (!simplePageBean.isItemAvailable(item, item.getPageId()))
+	    return false;
+
+	if (!simplePageBean.isItemVisible(item, null, false))
+	    return false;
+
+	return true;
     }
 
     public void setAuthzGroupService(AuthzGroupService authzGroupService) {
@@ -284,6 +399,64 @@ public class LessonsAccess {
 	memoryService = m;
     }
 
+    public MessageLocator messageLocator;
+
+    public void setMessageLocator(MessageLocator s) {
+	messageLocator = s;
+    }
+
+    private ToolManager toolManager;
+    
+    public void setToolManager(ToolManager s) {
+	toolManager = s;
+    }
+
+    SessionManager sessionManager = null;
+
+    public void setSessionManager(SessionManager s) {
+	sessionManager = s;
+    }
+
+    private SiteService siteService;
+
+    public void setSiteService(SiteService s) {
+	siteService = s;
+    }
+
+    ContentHostingService contentHostingService = null;
+
+    public void setContentHostingService(ContentHostingService s) {
+	contentHostingService = s;
+    }
+
+    LessonEntity forumEntity = null;
+
+    public void setForumEntity(Object e) {
+	forumEntity = (LessonEntity) e;
+    }
+
+    LessonEntity quizEntity = null;
+    
+    public void setQuizEntity(Object e) {
+	quizEntity = (LessonEntity) e;
+    }
+
+    LessonEntity assignmentEntity = null;
+
+    public void setAssignmentEntity(Object e) {
+	assignmentEntity = (LessonEntity) e;
+    }
+    
+    LessonEntity bltiEntity = null;
+    public void setBltiEntity(Object e) {
+	bltiEntity = (LessonEntity)e;
+    }
+
+    private GradebookIfc gradebookIfc = null;
+
+    public void setGradebookIfc(GradebookIfc g) {
+	gradebookIfc = g;
+    }
 
 }
 

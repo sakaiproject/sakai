@@ -359,6 +359,18 @@ simplePageBean.peerEvalAllowSelfGrade
 	  <property name="authzGroupService" ref="org.sakaiproject.authz.api.AuthzGroupService"/>
 	  <property name="securityService" ref="org.sakaiproject.authz.api.SecurityService"/>
 	  <property name="memoryService"><ref bean="org.sakaiproject.memory.api.MemoryService"/></property>
+
+	  <property name="messageLocator" ref="messageLocator"/>
+	  <property name="toolManager" ref="org.sakaiproject.tool.api.ActiveToolManager" />
+	  <property name="sessionManager"><ref bean="org.sakaiproject.tool.api.SessionManager"/></property>
+	  <property name="siteService" ref="org.sakaiproject.site.api.SiteService" />
+	  <property name="contentHostingService"><ref bean="org.sakaiproject.content.api.ContentHostingService"/></property>
+	  <property name="forumEntity" ref="org.sakaiproject.lessonbuildertool.service.ForumEntity"/>
+	  <property name="quizEntity" ref="org.sakaiproject.lessonbuildertool.service.SamigoEntity"/>
+	  <property name="assignmentEntity" ref="org.sakaiproject.lessonbuildertool.service.AssignmentEntity"/>
+	  <property name="bltiEntity" ref="org.sakaiproject.lessonbuildertool.service.BltiEntity"/>
+	  <property name="gradebookIfc" ref="org.sakaiproject.lessonbuildertool.service.GradebookIfc"/>
+
 	</bean>
 
  </beans>

@@ -430,8 +430,17 @@ public class PagePickerProducer implements ViewComponentProducer, NavigationCase
 		    }
 		    // debug code for development. this will be removed at some point
 		    if (ServerConfigurationService.getBoolean("lessonbuilder.accessibilitydebug", false)) {
-			if (entry != null && entry.pageId != null && lessonsAccess.isPageAccessible(entry.pageId,simplePageBean.getCurrentSiteId(),"c08d3ac9-c717-472a-ad91-7ce0b434f42f")) {
-			    UIOutput.make(row, "available");
+			if (entry != null && entry.pageId != null && lessonsAccess.isPageAccessible(entry.pageId,simplePageBean.getCurrentSiteId(),"c08d3ac9-c717-472a-ad91-7ce0b434f42f", null)) {
+			    UIOutput.make(row, "page1");
+			}
+			if (entry != null && entry.pageId != null && lessonsAccess.isPageAccessible(entry.pageId,simplePageBean.getCurrentSiteId(),"c08d3ac9-c717-472a-ad91-7ce0b434f42f", simplePageBean)) {
+			    UIOutput.make(row, "page2");
+			}
+			if (entry != null && entry.pageId != null && lessonsAccess.isItemAccessible(entry.itemId,simplePageBean.getCurrentSiteId(),"c08d3ac9-c717-472a-ad91-7ce0b434f42f", null)) {
+			    UIOutput.make(row, "item1");
+			}
+			if (entry != null && entry.pageId != null && lessonsAccess.isItemAccessible(entry.itemId,simplePageBean.getCurrentSiteId(),"c08d3ac9-c717-472a-ad91-7ce0b434f42f", simplePageBean)) {
+			    UIOutput.make(row, "item2");
 			} 
 		    }
 		}
