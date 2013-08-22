@@ -233,6 +233,17 @@ public class LessonsAccess {
 	return ret;
     }
 
+    // in testing this code, not that ispageaccessible will sometimes return true
+    // when testing isitemaccessible for an item pointing to the page will not.
+    // there are two reasons:
+    // * ispageaccessible will check all items that point to the page. Isitemaccessible
+    // will just check one of them.
+    // * for a page that is release controlled, ispageaccessible will check whether
+    // there is a log entry for that page. Isitemaccessible will check the actual
+    // condition. This is because doing the full check for every item in multiple paths
+    // is too expensive. The test in ispageaccessible allows any access that will happen
+    // in practice
+
     // note that this doesn't check site permissions. lb.write won't need this
     // check at all. lb.read needs to be true or this test is irrelevant.
     // I assume this method will mostly be used by code that wants to do item
