@@ -29,6 +29,7 @@ import java.io.InputStream;
 import java.io.File;
 
 import java.net.URL;
+import java.net.URI;
 import java.net.URLEncoder;
 import java.net.HttpURLConnection;
 
@@ -101,6 +102,8 @@ import org.sakaiproject.authz.api.AuthzGroup;
 import org.sakaiproject.authz.api.GroupNotDefinedException;
 import org.sakaiproject.authz.api.Role;
 import org.sakaiproject.authz.cover.AuthzGroupService;
+
+import org.apache.commons.validator.routines.UrlValidator;
 
 // Velocity
 import org.apache.velocity.VelocityContext;
@@ -375,7 +378,8 @@ public class PortletIFrame extends GenericPortlet {
             //System.out.println("special="+special+" source="+source+" pgc="+placement.getContext()+" macroExpansion="+macroExpansion+" passPid="+passPid+" PGID="+placement.getId()+" sakaiPropertiesUrlKey="+sakaiPropertiesUrlKey+" url="+url);
 
 			if ( url != null && url.trim().length() > 0 ) {
-				if ( ! FormattedText.validateURL(url) ) {
+				url = sanitizeHrefURL(url);
+				if ( url == null || ! validateURL(url) ) {
 					M_log.warn("invalid URL suppressed placement="+placement.getId()+" site="+placement.getContext()+" url="+url);
 					url = "about:blank";
 				}
@@ -753,7 +757,7 @@ public class PortletIFrame extends GenericPortlet {
             }
 
             // If we have a URL from the user, lets validate it
-            if ((!StringUtils.isBlank(source)) && (!FormattedText.validateURL(source)) ) {
+            if ((!StringUtils.isBlank(source)) && (!validateURL(source)) ) {
                 addAlert(request, rb.getString("gen.url.invalid"));
                 return;
             }
@@ -771,7 +775,7 @@ public class PortletIFrame extends GenericPortlet {
             }
 
             // If we have an infourl from the user, lets validate it
-            if ((!StringUtils.isBlank(infoUrl)) && (!FormattedText.validateURL(infoUrl)) ) {
+            if ((!StringUtils.isBlank(infoUrl)) && (!validateURL(infoUrl)) ) {
                 addAlert(request, rb.getString("gen.url.invalid"));
                 return;
             }
@@ -1332,6 +1336,109 @@ public class PortletIFrame extends GenericPortlet {
         public SessionDataException(String text)
         {
             super(text);
+        }
+    }
+
+	// TODO: When FormattedText KNL-1105 is updated take those methods
+
+    /* (non-Javadoc)
+     * @see org.sakaiproject.util.api.FormattedText#validateURL(java.lang.String)
+     */
+
+    private static final String PROTOCOL_PREFIX = "http:";
+    private static final String HOST_PREFIX = "http://127.0.0.1";
+    private static final String ABOUT_BLANK = "about:blank";
+
+    public boolean validateURL(String urlToValidate) {
+		// return FormattedText.validateURL(urlToValidate); // KNL-1105
+        if (StringUtils.isBlank(urlToValidate)) return false;
+
+		if ( ABOUT_BLANK.equals(urlToValidate) ) return true;
+
+        // Check if the url is "Escapable" - run through the URL-URI-URL gauntlet
+        String escapedURL = sanitizeHrefURL(urlToValidate);
+        if ( escapedURL == null ) return false;
+
+        // For a protocol-relative URL, we validate with protocol attached 
+        // RFC 1808 Section 4
+        if ((urlToValidate.startsWith("//")) && (urlToValidate.indexOf("://") == -1))
+        {
+            urlToValidate = PROTOCOL_PREFIX + urlToValidate;
+        }
+
+        // For a site-relative URL, we validate with host name and protocol attached 
+        // SAK-13787 SAK-23752
+        if ((urlToValidate.startsWith("/")) && (urlToValidate.indexOf("://") == -1))
+        {
+            urlToValidate = HOST_PREFIX + urlToValidate;
+        }
+
+        // Validate the url
+        UrlValidator urlValidator = new UrlValidator(UrlValidator.ALLOW_LOCAL_URLS);
+        return urlValidator.isValid(urlToValidate);
+    }
+
+    /* (non-Javadoc)
+     * @see org.sakaiproject.util.api.FormattedText#sanitizeHrefURL(java.lang.String)
+     */
+    public String sanitizeHrefURL(String urlToEscape) {
+		// return FormattedText.sanitizeHrefURL(urlToEscape); // KNL-1105
+        if ( urlToEscape == null ) return null;
+        if (StringUtils.isBlank(urlToEscape)) return null;
+		if ( ABOUT_BLANK.equals(urlToEscape) ) return ABOUT_BLANK;
+
+        boolean trimProtocol = false;
+        boolean trimHost = false;
+        // For a protocol-relative URL, we validate with protocol attached 
+        // RFC 1808 Section 4
+        if ((urlToEscape.startsWith("//")) && (urlToEscape.indexOf("://") == -1))
+        {
+            urlToEscape = PROTOCOL_PREFIX + urlToEscape;
+            trimProtocol = true;
+        }
+
+        // For a site-relative URL, we validate with host name and protocol attached 
+        // SAK-13787 SAK-23752
+        if ((urlToEscape.startsWith("/")) && (urlToEscape.indexOf("://") == -1))
+        {
+            urlToEscape = HOST_PREFIX + urlToEscape;
+            trimHost = true;
+        }
+
+        // KNL-1105
+        try {
+            URL rawUrl = new URL(urlToEscape);
+            URI uri = new URI(rawUrl.getProtocol(), rawUrl.getUserInfo(), rawUrl.getHost(), 
+                rawUrl.getPort(), rawUrl.getPath(), rawUrl.getQuery(), rawUrl.getRef());
+            URL encoded = uri.toURL();
+            String retval = encoded.toString();
+
+            // Un-trim the added bits
+            if ( trimHost && retval.startsWith(HOST_PREFIX) ) 
+            {
+                retval = retval.substring(HOST_PREFIX.length());
+            }
+
+            if ( trimProtocol && retval.startsWith(PROTOCOL_PREFIX) ) 
+            {
+                retval = retval.substring(PROTOCOL_PREFIX.length());
+            }
+
+            // http://stackoverflow.com/questions/7731919/why-doesnt-uri-escape-escape-single-quotes
+            // We want these to be usable in JavaScript string values so we map single quotes
+            retval = retval.replace("'", "%27");
+            // We want anchors to work
+            retval = retval.replace("%23", "#");
+            // Sorry - these just need to come out - they cause to much trouble
+            // Note that ampersand is not encoded as it is used for parameters.
+            retval = retval.replace("&#", "");
+            return retval;
+        } catch ( java.net.URISyntaxException e ) {
+            M_log.info("Failure during encode of href url: " + e);
+            return null;
+        } catch ( java.net.MalformedURLException e ) {
+            M_log.info("Failure during encode of href url: " + e);
+            return null;
         }
     }
 }

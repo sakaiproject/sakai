@@ -42,6 +42,12 @@
 			<artifactId>commons-httpclient</artifactId>
 			<version>3.1</version>
         </dependency>
+		<!-- remove when KNL-1105 is handled -->
+        <dependency>
+             <groupId>commons-validator</groupId>
+             <artifactId>commons-validator</artifactId>
+             <version>1.4.0</version>
+         </dependency>
         <dependency>
             <groupId>javax.servlet</groupId>
             <artifactId>servlet-api</artifactId>
