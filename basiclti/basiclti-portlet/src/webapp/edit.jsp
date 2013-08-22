@@ -63,34 +63,35 @@ Boolean allowContentLink = (Boolean) rReq.getAttribute("allowContentLink");
 %>
 <portlet:defineObjects/>
 <div class="portletBody">
+<% 
+    if ( allow(sp,"launch") || allow(sp,"xml") ||
+		allow(sp,"secret") || allow(sp,"key") || 
+        allow(sp,"pagetitle") || allow(sp,"tooltitle") ||
+        allow(sp,"newpage") || allow(sp,"maximize") ||
+        allow(sp,"frameheight") || allow(sp, "debug") ||
+        allow(sp, "releasename") || allow(sp,"releaseemail")  ||
+		allow(sp,"custom") || 
+		allow(sp,"allowsettings") || allow(sp, "allowroster") || 
+        allow(sp, "allowoutcomes") || allow(sp, "allowlori") || 
+		allow(sp, "contentlink") || allow(sp, "splash")
+) { 
+    if ( errorMsg != null ) { %>
+		<div class="alertMessage"><%= errorMsg %></div>
+	<% } %>
+
 <ul class="navIntraTool actionToolBar">
 	<li class="firstToolBarItem">
 		<span>
 			<a href="<%=viewURL.toString()%>"><%=rb.getString("edit.exit")%></a>
 		</span>
 	</li>	
-ri
 	<li>
 		<span>
 			<a href="<%=resetURL.toString()%>"><%=rb.getString("edit.clear.prefs")%></a>
 		</span>
 	</li>
 </ul>	
-<% 
-    if ( errorMsg != null ) { %>
-		<div class="alertMessage"><%= errorMsg %></div>
-	<% }
 
-    if ( allow(sp,"launch") || allow(sp,"key") || allow(sp,"secret") || 
-        allow(sp,"xml") ||
-        allow(sp,"pagetitle") || allow(sp,"tooltitle") ||
-        allow(sp,"resource") || allow(sp,"preferwidget") || 
-        allow(sp,"height") || allow(sp,"width") || 
-        allow(sp,"frameheight") || allow(sp,"custom") || 
-        allow(sp, "releasename") || allow(sp,"releaseemail")  ||
-        allow(sp, "allowroster") || allow(sp,"allowsettings") ||
-        allow(sp, "allowlori") || allow(sp, "splash")
-) { %>
 <form method="post" action="<%=launchURL.toString()%>">
 <% if ( allow(sp,"launch") || allow(sp,"xml") || allow(sp,"key") || allow(sp,"secret") ) { %>
 
@@ -359,7 +360,18 @@ if ( document.getElementById("UISwitcher") ) switchui();
     onclick="window.location='<%=viewURL.toString()%>'; return false;"/>
 </p>
 </form>
-<% } else { %>
-<p class="instruction">Configuration has been pre-set and cannot be edited for this placement.</p>
+<% } else { 
+    if ( errorMsg != null ) { %>
+		<div class="alertMessage"><%= errorMsg %></div>
+	<% } %>
+
+<ul class="navIntraTool actionToolBar">
+	<li class="firstToolBarItem">
+		<span>
+			<a href="<%=viewURL.toString()%>"><%=rb.getString("edit.exit")%></a>
+		</span>
+	</li>	
+</ul>	
+<p class="instruction"><%=rb.getString("edit.nothing")%></p>
 <% } %>
 </div>
