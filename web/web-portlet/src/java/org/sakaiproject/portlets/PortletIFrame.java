@@ -42,6 +42,9 @@ import java.util.ResourceBundle;
 import java.util.Locale;
 import java.util.Date;
 
+import java.util.regex.Pattern;
+import java.util.regex.Matcher;
+
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.apache.commons.httpclient.util.URIUtil;
@@ -124,10 +127,6 @@ public class PortletIFrame extends GenericPortlet {
 	VelocityEngine vengine = null;
 
 	private PortletContext pContext;
-
-    private static long xframeCache = 3600*1000*2;
-
-    private static long xframeLoad = 8000;
 
 	// TODO: Perhaps these constancts should come from portlet.xml
 
@@ -214,32 +213,42 @@ public class PortletIFrame extends GenericPortlet {
 
     private static final String MACRO_DEFAULT_ALLOWED = "${USER_ID},${USER_EID},${USER_FIRST_NAME},${USER_LAST_NAME},${SITE_ID},${USER_ROLE}";
 
+	// Default is six hours
     private static final String IFRAME_XFRAME_CACHETIME = "iframe.xframe.cachetime";
-    private static final String IFRAME_XFRAME_CACHETIME_DEFAULT = "7200000";
+    private static final int IFRAME_XFRAME_CACHETIME_DEFAULT = 3600*1000*6;
 
     private static final String XFRAME_LAST_TIME = "xframe-last-time";
     private static final String XFRAME_LAST_STATUS = "xframe-last-status";
 
     private static final String IFRAME_XFRAME_LOADTIME = "iframe.xframe.loadtime";
-    private static final String IFRAME_XFRAME_LOADTIME_DEFAULT = "8000";
+    private static final int IFRAME_XFRAME_LOADTIME_DEFAULT = 8000;
+
+    private static long xframeCache = IFRAME_XFRAME_CACHETIME_DEFAULT;
+    private static long xframeLoad = IFRAME_XFRAME_LOADTIME_DEFAULT;
+
+	// Regular expressions
+    private static final String IFRAME_XFRAME_POPUP = "iframe.xframe.popup";
+    private static final String IFRAME_XFRAME_INLINE = "iframe.xframe.inline";
 
     private static ArrayList allowedMacrosList;
     static
     {
+        xframeCache = IFRAME_XFRAME_CACHETIME_DEFAULT;
         String xframeCacheS = 
-            ServerConfigurationService.getString(IFRAME_XFRAME_CACHETIME, IFRAME_XFRAME_CACHETIME_DEFAULT);
+            ServerConfigurationService.getString(IFRAME_XFRAME_CACHETIME, null);
         try { 
-            xframeCache = Long.parseLong(xframeCacheS);
+            if ( xframeCacheS != null ) xframeCache = Long.parseLong(xframeCacheS);
         } catch (NumberFormatException nfe) {
-            xframeCache = 7200000;
+            xframeCache = IFRAME_XFRAME_CACHETIME_DEFAULT;
         }
 
+        xframeLoad = IFRAME_XFRAME_LOADTIME_DEFAULT;
         String xframeLoadS = 
-            ServerConfigurationService.getString(IFRAME_XFRAME_LOADTIME, IFRAME_XFRAME_LOADTIME_DEFAULT);
+            ServerConfigurationService.getString(IFRAME_XFRAME_LOADTIME, null);
         try { 
-            xframeLoad = Long.parseLong(xframeLoadS);
+            if ( xframeLoadS != null ) xframeLoad = Long.parseLong(xframeLoadS);
         } catch (NumberFormatException nfe) {
-            xframeLoad = 8000;
+            xframeLoad = IFRAME_XFRAME_LOADTIME_DEFAULT;
         }
 
         allowedMacrosList = new ArrayList();
@@ -309,6 +318,7 @@ public class PortletIFrame extends GenericPortlet {
 			// System.out.println("==== doView called ====");
 
 			PrintWriter out = response.getWriter();
+			Context context = new VelocityContext();
 			Placement placement = ToolManager.getCurrentPlacement();
             Properties config = getAllProperties(placement);
 
@@ -321,6 +331,32 @@ public class PortletIFrame extends GenericPortlet {
             String hideOptions = config.getProperty(HIDE_OPTIONS);
 
             String special = getSpecial(config);
+
+			// Handle the situation where we are displaying the worksite information
+			if ( SPECIAL_WORKSITE.equals(special) ) {
+				try
+				{
+					// If the site does not have an info url, we show description or title
+					Site s = SiteService.getSite(placement.getContext());
+					String rv = StringUtils.trimToNull(s.getInfoUrlFull());
+					if (rv == null)
+					{
+						// The description is already escaped in the database...
+						String siteInfo = StringUtils.trimToNull(s.getDescription());
+						if ( siteInfo == null ) {
+							siteInfo = StringUtils.trimToNull(s.getTitle());
+							if ( siteInfo != null ) siteInfo = validator.escapeHtml(siteInfo, false);
+						}
+						context.put("siteInfo", siteInfo);
+						vHelper.doTemplate(vengine, "/vm/info.vm", context, out);
+						return;
+					}
+				}
+				catch (Exception any)
+				{
+					any.printStackTrace();
+				}
+			}
 
 			boolean popup = "true".equals(placement.getPlacementConfig().getProperty(POPUP));
 			boolean maximize = "true".equals(placement.getPlacementConfig().getProperty(MAXIMIZE));
@@ -345,8 +381,7 @@ public class PortletIFrame extends GenericPortlet {
 				}
 
 				// Check if the site sets X-Frame options
-                popup = popup || popupXFrame(placement, url);
-				Context context = new VelocityContext();
+				popup = popup || popupXFrame(request, placement, url);
 
                 Session session = SessionManager.getCurrentSession();
                 String csrfToken = (String) session.getAttribute(UsageSessionService.SAKAI_CSRF_SESSION_ATTRIBUTE);
@@ -387,11 +422,45 @@ public class PortletIFrame extends GenericPortlet {
 		}
 
     // Determine if we should pop up due to an X-Frame-Options : [SAMEORIGIN]
-    public boolean popupXFrame(Placement placement, String url) 
+    public boolean popupXFrame(RenderRequest request, Placement placement, String url) 
     {
         if ( xframeCache < 1 ) return false;
-        if ( ! ( url.startsWith("http://") || url.startsWith("https://") ) ) return false;
 
+        // Only check http:// and https:// urls
+        if ( ! (url.startsWith("http://") || url.startsWith("https://")) ) return false;
+
+        // Check the "Always POPUP" and "Always INLINE" regular expressions
+        String pattern = null;
+        Pattern p = null;
+        Matcher m = null;
+        pattern = ServerConfigurationService.getString(IFRAME_XFRAME_POPUP, null);
+        if ( pattern != null && pattern.length() > 1 ) {
+            p = Pattern.compile(pattern);
+            m = p.matcher(url.toLowerCase());
+            if ( m.find() ) {
+                return true;
+            }
+        }
+        pattern = ServerConfigurationService.getString(IFRAME_XFRAME_INLINE, null);
+        if ( pattern != null && pattern.length() > 1 ) {
+            p = Pattern.compile(pattern);
+            m = p.matcher(url.toLowerCase());
+            if ( m.find() ) {
+                return false;
+            }
+        }
+
+        // Don't check Local URLs
+        String serverUrl = ServerConfigurationService.getServerUrl();
+        if ( url.startsWith(serverUrl) ) return false;
+        if ( url.startsWith(ServerConfigurationService.getAccessUrl()) ) return false;
+
+        // Force http:// to pop-up if we are https://
+        if ( request.isSecure() || ( serverUrl != null && serverUrl.startsWith("https://") ) ) {
+            if ( url.startsWith("http://") ) return true;
+        }
+
+        // Check to see if time has expired...
         Date date = new Date();
         long nowTime = date.getTime();
         
@@ -439,11 +508,13 @@ public class PortletIFrame extends GenericPortlet {
 
         }
         catch (Exception e) {
-            // Fail pretty silently because this could be pretty chatty with bad urs and all
+            // Fail pretty silently because this could be pretty chatty with bad urls and all
             M_log.debug(e.getMessage());
             retval = false;
         }
         placement.getPlacementConfig().setProperty(XFRAME_LAST_STATUS, String.valueOf(retval));
+        // Permanently set popup to true as we don't expect that a site will go back
+        if ( retval == true ) placement.getPlacementConfig().setProperty(POPUP, "true");
         placement.save();
         M_log.debug("Retrieved="+url+" XFrame="+retval);
         return retval;
