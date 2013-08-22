@@ -304,15 +304,15 @@ public class ServiceServlet extends HttpServlet {
 			M_log.debug("Basic LTI Service request from IP=" + ipAddress);
 
 			String allowOutcomes = ServerConfigurationService.getString(
-					SakaiBLTIUtil.BASICLTI_OUTCOMES_ENABLED, null);
+					SakaiBLTIUtil.BASICLTI_OUTCOMES_ENABLED, SakaiBLTIUtil.BASICLTI_OUTCOMES_ENABLED_DEFAULT);
 			if ( ! "true".equals(allowOutcomes) ) allowOutcomes = null;
 
 			String allowSettings = ServerConfigurationService.getString(
-					SakaiBLTIUtil.BASICLTI_SETTINGS_ENABLED, null);
+					SakaiBLTIUtil.BASICLTI_SETTINGS_ENABLED, SakaiBLTIUtil.BASICLTI_SETTINGS_ENABLED_DEFAULT);
 			if ( ! "true".equals(allowSettings) ) allowSettings = null;
 
 			String allowRoster = ServerConfigurationService.getString(
-					SakaiBLTIUtil.BASICLTI_ROSTER_ENABLED, null);
+					SakaiBLTIUtil.BASICLTI_ROSTER_ENABLED, SakaiBLTIUtil.BASICLTI_ROSTER_ENABLED_DEFAULT);
 			if ( ! "true".equals(allowRoster) ) allowRoster = null;
 
 			if (allowOutcomes == null && allowSettings == null && allowRoster == null ) {
@@ -719,7 +719,7 @@ public class ServiceServlet extends HttpServlet {
 			String releaseEmail = pitch.getProperty(LTIService.LTI_SENDEMAILADDR);
 			String assignment = pitch.getProperty("assignment");
 			String allowOutcomes = ServerConfigurationService.getString(
-					SakaiBLTIUtil.BASICLTI_OUTCOMES_ENABLED, null);
+					SakaiBLTIUtil.BASICLTI_OUTCOMES_ENABLED, SakaiBLTIUtil.BASICLTI_OUTCOMES_ENABLED_DEFAULT);
 			if ( ! "true".equals(allowOutcomes) ) allowOutcomes = null;
 
 			String maintainRole = site.getMaintainRole();
@@ -825,11 +825,11 @@ public class ServiceServlet extends HttpServlet {
 			M_log.debug("LTI POX Service request from IP=" + ipAddress);
 
 			String allowOutcomes = ServerConfigurationService.getString(
-					SakaiBLTIUtil.BASICLTI_OUTCOMES_ENABLED, null);
+					SakaiBLTIUtil.BASICLTI_OUTCOMES_ENABLED, SakaiBLTIUtil.BASICLTI_OUTCOMES_ENABLED_DEFAULT);
 			if ( ! "true".equals(allowOutcomes) ) allowOutcomes = null;
 
 			String allowLori = ServerConfigurationService.getString(
-					SakaiBLTIUtil.BASICLTI_LORI_ENABLED, null);
+					SakaiBLTIUtil.BASICLTI_LORI_ENABLED, SakaiBLTIUtil.BASICLTI_LORI_ENABLED_DEFAULT);
 			if ( ! "true".equals(allowLori) ) allowLori = null;
 
 			if (allowOutcomes == null && allowLori == null ) {

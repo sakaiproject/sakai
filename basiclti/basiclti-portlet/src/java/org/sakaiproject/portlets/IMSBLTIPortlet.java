@@ -311,16 +311,16 @@ public class IMSBLTIPortlet extends GenericPortlet {
 
 		request.setAttribute("imsti.oldvalues", oldValues);
 
-		String allowSettings = ServerConfigurationService.getString(SakaiBLTIUtil.BASICLTI_SETTINGS_ENABLED, null);
+		String allowSettings = ServerConfigurationService.getString(SakaiBLTIUtil.BASICLTI_SETTINGS_ENABLED, SakaiBLTIUtil.BASICLTI_SETTINGS_ENABLED_DEFAULT);
 		request.setAttribute("allowSettings", new Boolean("true".equals(allowSettings)));
-		String allowRoster = ServerConfigurationService.getString(SakaiBLTIUtil.BASICLTI_ROSTER_ENABLED, null);
+		String allowRoster = ServerConfigurationService.getString(SakaiBLTIUtil.BASICLTI_ROSTER_ENABLED, SakaiBLTIUtil.BASICLTI_ROSTER_ENABLED_DEFAULT);
 		request.setAttribute("allowRoster", new Boolean("true".equals(allowRoster)));
-		String allowContentLink = ServerConfigurationService.getString(SakaiBLTIUtil.BASICLTI_CONTENTLINK_ENABLED, null);
+		String allowContentLink = ServerConfigurationService.getString(SakaiBLTIUtil.BASICLTI_CONTENTLINK_ENABLED, SakaiBLTIUtil.BASICLTI_CONTENTLINK_ENABLED_DEFAULT);
 		request.setAttribute("allowContentLink", new Boolean("true".equals(allowContentLink)));
 
 		// For outcomes and LORI we check for tools in the site before offering the options
-		String allowOutcomes = ServerConfigurationService.getString(SakaiBLTIUtil.BASICLTI_OUTCOMES_ENABLED, null);
-		String allowLori = ServerConfigurationService.getString(SakaiBLTIUtil.BASICLTI_LORI_ENABLED, null);
+		String allowOutcomes = ServerConfigurationService.getString(SakaiBLTIUtil.BASICLTI_OUTCOMES_ENABLED, SakaiBLTIUtil.BASICLTI_OUTCOMES_ENABLED_DEFAULT);
+		String allowLori = ServerConfigurationService.getString(SakaiBLTIUtil.BASICLTI_LORI_ENABLED, SakaiBLTIUtil.BASICLTI_LORI_ENABLED_DEFAULT);
 
 		boolean foundLessons = false;
 		boolean foundGradebook = false;
@@ -627,10 +627,10 @@ public class IMSBLTIPortlet extends GenericPortlet {
 			String assignment = getFormParameter(request,sakaiProperties,"assignment");
 			String newAssignment = getFormParameter(request,sakaiProperties,"newassignment");
 			String oldPlacementSecret = getSakaiProperty(sakaiProperties,"imsti.placementsecret");
-			String allowOutcomes = ServerConfigurationService.getString(SakaiBLTIUtil.BASICLTI_OUTCOMES_ENABLED, null);
-			String allowSettings = ServerConfigurationService.getString(SakaiBLTIUtil.BASICLTI_SETTINGS_ENABLED, null);
-			String allowRoster = ServerConfigurationService.getString(SakaiBLTIUtil.BASICLTI_ROSTER_ENABLED, null);
-			String allowLori = ServerConfigurationService.getString(SakaiBLTIUtil.BASICLTI_LORI_ENABLED, null);
+			String allowOutcomes = ServerConfigurationService.getString(SakaiBLTIUtil.BASICLTI_OUTCOMES_ENABLED, SakaiBLTIUtil.BASICLTI_OUTCOMES_ENABLED_DEFAULT);
+			String allowSettings = ServerConfigurationService.getString(SakaiBLTIUtil.BASICLTI_SETTINGS_ENABLED, SakaiBLTIUtil.BASICLTI_SETTINGS_ENABLED_DEFAULT);
+			String allowRoster = ServerConfigurationService.getString(SakaiBLTIUtil.BASICLTI_ROSTER_ENABLED, SakaiBLTIUtil.BASICLTI_ROSTER_ENABLED_DEFAULT);
+			String allowLori = ServerConfigurationService.getString(SakaiBLTIUtil.BASICLTI_LORI_ENABLED, SakaiBLTIUtil.BASICLTI_LORI_ENABLED_DEFAULT);
 
 			if ( "true".equals(allowOutcomes) && newAssignment != null && newAssignment.trim().length() > 1 ) {
 				if ( addGradeBookItem(request, newAssignment) ) {
