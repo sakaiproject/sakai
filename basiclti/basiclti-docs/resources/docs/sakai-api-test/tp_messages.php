@@ -135,26 +135,6 @@ $tool_proxy = <<< EOF
         "service": "__TODOFROM_ID_INTC_PROFILE__http://localhost:4000/tools",
         "action": "POST",
         "format": "application/vnd.ims.lti.v2.ToolProxy+json"
-      },
-      {
-        "@type": "RestService",
-        "@id": "ltitcp:ToolProxy.item",
-        "service": "__TODO__http://localhost:4000/tools/a2c17620-9a8b-0130-4f3a-406c8f217861",
-        "action": [
-          "GET",
-          "PUT"
-        ],
-        "format": "application/vnd.ims.lti.v2.ToolProxy+json"
-      },
-      {
-        "@type": "RestService",
-        "@id": "ltitcp:Result.item",
-        "service": "__TODO__http://localhost:4000/resources/Result/{sourcedId}",
-        "action": [
-          "GET",
-          "PUT"
-        ],
-        "format": "application/vnd.ims.lis.v2.Result+json"
       }
     ]
   }

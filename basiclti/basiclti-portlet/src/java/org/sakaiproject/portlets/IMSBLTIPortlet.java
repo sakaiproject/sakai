@@ -135,6 +135,7 @@ public class IMSBLTIPortlet extends GenericPortlet {
 		fieldList.add("allowroster");
 		fieldList.add("allowlori");
 		fieldList.add("contentlink");
+		fieldList.add("splash");
 	}
 
 	// Simple Debug Print Mechanism
@@ -178,6 +179,7 @@ public class IMSBLTIPortlet extends GenericPortlet {
 			String allowRoster = getSakaiProperty(sakaiProperties,"imsti.allowroster");
 			String allowLORI = getSakaiProperty(sakaiProperties,"imsti.allowlori");
 			String assignment = getSakaiProperty(sakaiProperties,"imsti.assignent");
+			String launch = getSakaiProperty(sakaiProperties,"imsti.launch");
 
 			if ( placementSecret == null && 
 			   ( "on".equals(allowOutcomes) || "on".equals(allowSettings) || 
@@ -191,13 +193,19 @@ public class IMSBLTIPortlet extends GenericPortlet {
 				placement.save();
 			}
 
-			// Check to see if out launch will be successful
+			// Check to see if our launch will be successful
 			String[] retval = SakaiBLTIUtil.postLaunchHTML(placement.getId(), rb);
 			if ( retval.length > 1 ) {
 				String iframeUrl = "/access/basiclti/site/"+context+"/"+placement.getId();
 				String frameHeight =  getCorrectProperty(request, "frameheight", null);
 				dPrint("fh="+frameHeight);
 				String newPage =  getCorrectProperty(request, "newpage", null);
+				String serverUrl = ServerConfigurationService.getServerUrl();
+				if ( request.isSecure() || ( serverUrl != null && serverUrl.startsWith("https://") ) ) {
+					if ( launch != null && launch.startsWith("http://") ) {
+						newPage = "on";
+					}
+				}
 				String maximize =  getCorrectProperty(request, "maximize", null);
 				StringBuffer text = new StringBuffer();
 
@@ -256,6 +264,9 @@ public class IMSBLTIPortlet extends GenericPortlet {
 		for (String element : fieldList) {
 			String propertyName = placement.getToolId() + "." + element;
 			String propValue = ServerConfigurationService.getString(propertyName,null);
+			if ( "splash".equals(element) && propValue == null ) {
+				propValue = ServerConfigurationService.getString(placement.getToolId() + ".overridesplash",null);
+			}
 			if ( propValue != null && propValue.trim().length() > 0 ) {
 				dPrint("Forcing Final = "+propertyName);
 				config.setProperty("final."+element,"true");

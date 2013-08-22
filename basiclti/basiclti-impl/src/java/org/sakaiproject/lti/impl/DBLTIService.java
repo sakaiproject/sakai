@@ -430,10 +430,6 @@ public class DBLTIService extends BaseLTIService implements LTIService {
 
 		HashMap<String, Object> newMapping = new HashMap<String, Object>();
 
-		String errors = foorm.formExtract(newProps, formModel, rb, true, newMapping, null);
-		if (errors != null)
-			return errors;
-
 		String[] columns = null;
 		String theKey = null;
 		if (fullModel == null) {
@@ -444,8 +440,18 @@ public class DBLTIService extends BaseLTIService implements LTIService {
 			theKey = foorm.formSqlKey(fullModel);
 		}
 
+		// Insert the SITE_ID if it is not present in case it is required
+		if (!isAdminRole && (Arrays.asList(columns).contains(LTIService.LTI_SITE_ID))) {
+			((Map) newProps).put(LTIService.LTI_SITE_ID, siteId);
+		}
+
+		// Check to see if this insert has all required fields in the proper format
+		String errors = foorm.formExtract(newProps, formModel, rb, true, newMapping, null);
+		if (errors != null)
+			return errors;
+
 		// Only admins can insert things into sites other than the current site
-		if (!isAdminRole && (Arrays.asList(columns).indexOf(LTIService.LTI_SITE_ID) >= 0)) {
+		if (!isAdminRole && (Arrays.asList(columns).contains(LTIService.LTI_SITE_ID))) {
 			newMapping.put(LTIService.LTI_SITE_ID, siteId);
 		}
 		String seqName = foorm.getSqlSequence(table, theKey, m_sql.getVendor());

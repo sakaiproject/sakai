@@ -74,16 +74,16 @@ echo <<< EOF
   "service_offered": [
     {
       "@type": "RestService",
-      "@id": "ltitcp:ToolProxy.collection",
+      "@id": "$cur_url/tc_register.php",
       "endpoint": "$cur_url/tc_register.php",
       "format": "application/vnd.ims.lti.v2.ToolProxy+json",
       "action": [ "POST" ]
     },
     {
-      "@type": "XMLService",
-      "@id": "ltitcp:LTI1_1.outcomes",
+      "@type": "RestService",
+      "@id": "$cur_url/common/tool_consumer_outcome.php",
       "endpoint": "$cur_url/common/tool_consumer_outcome.php",
-      "format": "application/xml",
+      "format": "application/vnd.ims.lti.v1.Outcome+xml",
       "action": [ "POST" ]
     }
   ]

@@ -524,6 +524,23 @@ public class BasicLTIUtil {
 		}
 		text.append("</form>\n");
 		text.append("</div>\n");
+
+		// Paint the auto-pop up if we are transitioning from https: to http:
+		// and are not already the top frame...
+		text.append("<script type=\"text/javascript\">\n");
+		text.append("if (window.top!=window.self) {\n");
+    		text.append("  theform = document.getElementById('ltiLaunchForm');\n");
+		text.append("  if ( theform && theform.action ) {\n");
+		text.append("   formAction = theform.action;\n");
+		text.append("   ourUrl = window.location.href;\n");
+		text.append("   if ( formAction.indexOf('http://') == 0 && ourUrl.indexOf('https://') == 0 ) {\n");
+		text.append("      theform.target = '_blank';\n");
+		text.append("      window.console && console.log('Launching http from https in new window!');\n");
+		text.append("    }\n");
+		text.append("  }\n");
+		text.append("}\n");
+		text.append("</script>\n");
+
 		// paint debug output
 		if (debug) {
 			text.append("<pre>\n");
