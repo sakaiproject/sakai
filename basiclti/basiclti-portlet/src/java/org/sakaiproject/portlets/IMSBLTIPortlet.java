@@ -697,14 +697,23 @@ public class IMSBLTIPortlet extends GenericPortlet {
 
 			// Update the Page Title (button text)
 			String imsTIPageTitle  = getFormParameter(request,sakaiProperties,"pagetitle");
-			if ( imsTIPageTitle != null && imsTIPageTitle.trim().length() > 0 ) {
+			String prefsPageTitle = prefs.getValue("sakai:imsti.pagetitle", null);
+			imsTIPageTitle = imsTIPageTitle == null ? "" : imsTIPageTitle.trim();
+			prefsPageTitle = prefsPageTitle == null ? "" : prefsPageTitle.trim();
+
+			if ( ! imsTIPageTitle.equals(prefsPageTitle) ) {
 				try {
+					if ( imsTIPageTitle.length() > 99 ) imsTIPageTitle = imsTIPageTitle.substring(0,99);
 					ToolConfiguration toolConfig = SiteService.findTool(placement.getId());
 					Site site = SiteService.getSite(toolConfig.getSiteId());
 					SitePage page = site.getPage(toolConfig.getPageId());
-					if ( imsTIPageTitle.length() > 99 ) imsTIPageTitle = imsTIPageTitle.substring(0,99);
-					page.setTitle(imsTIPageTitle.trim());
-					page.setTitleCustom(true);
+					if ( imsTIPageTitle.length() > 1 ) {
+						page.setTitle(imsTIPageTitle.trim());
+						page.setTitleCustom(true);
+					} else {
+						page.setTitle("");
+						page.setTitleCustom(false);
+					}
 					SiteService.save(site);
 				} catch (Exception e) {
 					setErrorMessage(request, rb.getString("error.page.title"));
