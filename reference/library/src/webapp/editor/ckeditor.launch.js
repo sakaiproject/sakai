@@ -50,6 +50,7 @@ sakai.editor.editors.ckeditor.launch = function(targetId, config, w, h) {
     var ckconfig = {
         skin: 'moono',
         defaultLanguage: 'en',
+        allowedContent: true, // http://docs.ckeditor.com/#!/guide/dev_advanced_content_filter-section-3
         language: language + (country ? '-' + country.toLowerCase() : ''),
         height: 310,
         fileConnectorUrl : '/sakai-fck-connector/web/editor/filemanager/browser/default/connectors/jsp/connector' + collectionId + '?' + folder,
@@ -87,8 +88,8 @@ sakai.editor.editors.ckeditor.launch = function(targetId, config, w, h) {
             ['BidiLtr', 'BidiRtl' ],
             ['Link','Unlink','Anchor'],
             (sakai.editor.enableResourceSearch
-                ? ['ResourceSearch', 'Image','Movie','Flash','Table','Iframe','HorizontalRule','Smiley','SpecialChar','fmath_formula']
-                : ['Image','Movie','Flash','Table','Iframe','HorizontalRule','Smiley','SpecialChar','fmath_formula']),
+                ? ['ResourceSearch', 'Image','Movie','Flash','Table','HorizontalRule','Smiley','SpecialChar','fmath_formula']
+                : ['Image','Movie','Flash','Table','HorizontalRule','Smiley','SpecialChar','fmath_formula']),
             '/',
             ['Styles','Format','Font','FontSize'],
             ['TextColor','BGColor'],
