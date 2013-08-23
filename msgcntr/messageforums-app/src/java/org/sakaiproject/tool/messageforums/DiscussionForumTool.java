@@ -9620,5 +9620,10 @@ public class DiscussionForumTool
         result.setCompletion(true);
         return result;
     }
+    
+    private boolean alwaysShowFullDesc = false;
+    public boolean isAlwaysShowFullDesc(){
+    	return ServerConfigurationService.getBoolean("mc.alwaysShowFullDesc", false); 
+    }
 }
 

@@ -138,9 +138,8 @@ $(document).ready(function() {
 		
 <%-- the forum details --%>
 				<h:outputText value="#{forum.forum.shortDescription}" styleClass="shortDescription"/>
-	  
-				<h:outputLink id="forum_extended_show" value="javascript:void(0)" title="#{msgs.cdfm_view}"  styleClass="show"
-						rendered="#{!empty forum.attachList || forum.forum.extendedDescription != '' && forum.forum.extendedDescription != null && forum.forum.extendedDescription != '<br/>'}"
+	  			<f:subview id="longDesc" rendered="#{!empty forum.attachList || (forum.forum.extendedDescription != '' &&  forum.forum.extendedDescription != null && forum.forum.extendedDescription != '<br/>')}">
+				<h:outputLink id="forum_extended_show" value="javascript:void(0)" title="#{msgs.cdfm_view}"  styleClass="show" style="#{ForumTool.alwaysShowFullDesc  ? 'display:none' : 'display:block'}"
 						onclick="toggleExtendedDescription($(this).next('.hide'), $('div.toggle:first', $(this).parents('table.forumHeader')), $(this));">
 					<h:graphicImage url="/images/collapse.gif" /><h:outputText value="#{msgs.cdfm_view}" />
 					<h:outputText value=" #{msgs.cdfm_full_description}"  rendered="#{forum.forum.extendedDescription != '' && forum.forum.extendedDescription != null && forum.forum.extendedDescription != '<br/>'}"/>
@@ -149,14 +148,19 @@ $(document).ready(function() {
 			  </h:outputLink>
 
 				<%--//designNote: these link always show up even after you  have "zeroed out" a long description because it always saves a crlf --%>
-				<h:outputLink id="forum_extended_hide" value="javascript:void(0)" title="#{msgs.cdfm_hide}" style="display:none;" styleClass="hide" 
+				<h:outputLink id="forum_extended_hide" value="javascript:void(0)" title="#{msgs.cdfm_hide}" styleClass="hide" style="#{ForumTool.alwaysShowFullDesc ? 'display:block' : 'display:none'}"
 						onclick="toggleExtendedDescription($(this).prev('.show'), $('div.toggle:first', $(this).parents('table.forumHeader')), $(this));">
 					<h:graphicImage url="/images/expand.gif"/> <h:outputText value="#{msgs.cdfm_hide}" />
 					<h:outputText value=" #{msgs.cdfm_full_description}"  rendered="#{forum.forum.extendedDescription != '' && forum.forum.extendedDescription != null && forum.forum.extendedDescription != '<br/>'}"/>
 					<h:outputText value=" #{msgs.cdfm_and}"  rendered="#{!empty forum.attachList && forum.forum.extendedDescription != '' && forum.forum.extendedDescription != null && forum.forum.extendedDescription != '<br/>'}"/>
 					<h:outputText value=" #{msgs.cdfm_attach}"  rendered="#{!empty forum.attachList}"/>
 			  </h:outputLink>
-				<f:verbatim><div class="toggle" style="display:none;"></f:verbatim>
+			  	<f:subview id="hideLongDesc" rendered="#{!ForumTool.alwaysShowFullDesc}">
+					<f:verbatim><div class="toggle" style="display:none;"></f:verbatim>
+				</f:subview>
+				<f:subview id="showLongDesc" rendered="#{ForumTool.alwaysShowFullDesc}">
+					<f:verbatim><div class="toggle"></f:verbatim>
+				</f:subview>
 					<mf:htmlShowArea value="#{forum.forum.extendedDescription}"  hideBorder="true" />
 					<%-- attachs --%>
 					<h:dataTable  styleClass="attachListTable" value="#{forum.attachList}" var="eachAttach" rendered="#{!empty forum.attachList}" columnClasses="attach,bogus" style="font-size:.9em;width:auto;margin-left:1em" border="0" cellpadding="3" cellspacing="0">
@@ -176,6 +180,7 @@ $(document).ready(function() {
 			</h:column>	
 	  </h:dataTable>
 				<f:verbatim></div></f:verbatim>
+				</f:subview>
 	  </h:panelGroup>
   </h:panelGrid>
 	  <%-- the topic list  --%>
@@ -266,28 +271,29 @@ $(document).ready(function() {
 						<f:verbatim></ul></f:verbatim>														
 							<%--the topic details --%>
 							<h:outputText id="topic_desc" value="#{topic.topic.shortDescription}" styleClass="shortDescription" />
-							
-							<h:outputLink id="forum_extended_show" value="javascript:void(0)" title="#{msgs.cdfm_view}" styleClass="show"
-									rendered="#{!empty topic.attachList || topic.topic.extendedDescription != '' && topic.topic.extendedDescription != null && topic.topic.extendedDescription != '<br/>'}"
-									onclick="toggleExtendedDescription($(this).next('.hide'), $('td div.toggle:first', $(this).parents('tr:first').next('tr')), $(this));">
+							<f:subview id="longDescTopic" rendered="#{!empty topic.attachList || (topic.topic.extendedDescription != '' &&  topic.topic.extendedDescription != null && topic.topic.extendedDescription != '<br/>')}">
+							<h:outputLink id="forum_extended_show" value="javascript:void(0)" title="#{msgs.cdfm_view}" styleClass="show" style="#{ForumTool.alwaysShowFullDesc  ? 'display:none' : 'display:block'}"
+									onclick="toggleExtendedDescription($(this).next('.hide'), $('td div.toggle:first', $(this).parents('tr:first')), $(this));">
 									<h:graphicImage url="/images/collapse.gif"/><h:outputText value="#{msgs.cdfm_view}" />
 									<h:outputText value=" #{msgs.cdfm_full_description}" rendered="#{topic.topic.extendedDescription != '' && topic.topic.extendedDescription != null && topic.topic.extendedDescription != '<br/>'}"/>
 									<h:outputText value=" #{msgs.cdfm_and}" rendered="#{!empty topic.attachList && topic.topic.extendedDescription != '' && topic.topic.extendedDescription != null && topic.topic.extendedDescription != '<br/>'}"/>
 									<h:outputText value=" #{msgs.cdfm_attach}" rendered="#{!empty topic.attachList}"/>
 				    </h:outputLink>  
 				  
-							<h:outputLink id="forum_extended_hide" value="javascript:void(0)" title="#{msgs.cdfm_hide}" style="display:none " styleClass="hide" 
-									rendered="#{!empty topic.attachList || topic.topic.extendedDescription != '' && topic.topic.extendedDescription != null && topic.topic.extendedDescription != '<br/>'}"
-									onclick="toggleExtendedDescription($(this).prev('.show'), $('td div.toggle:first', $(this).parents('tr:first').next('tr')), $(this));">
+							<h:outputLink id="forum_extended_hide" value="javascript:void(0)" title="#{msgs.cdfm_hide}" styleClass="hide" style="#{ForumTool.alwaysShowFullDesc ? 'display:block' : 'display:none'}"
+									onclick="toggleExtendedDescription($(this).prev('.show'), $('td div.toggle:first', $(this).parents('tr:first')), $(this));">
 									<h:graphicImage url="/images/expand.gif"/><h:outputText value="#{msgs.cdfm_hide}" />
 									<h:outputText value=" #{msgs.cdfm_full_description}" rendered="#{topic.topic.extendedDescription != '' && topic.topic.extendedDescription != null && topic.topic.extendedDescription != '<br/>'}"/>
 									<h:outputText value=" #{msgs.cdfm_and}" rendered="#{!empty topic.attachList && topic.topic.extendedDescription != '' && topic.topic.extendedDescription != null && topic.topic.extendedDescription != '<br/>'}"/>
 									<h:outputText value=" #{msgs.cdfm_attach}" rendered="#{!empty topic.attachList}"/>
 				    </h:outputLink>
 
-				 </h:panelGroup>
-						<h:panelGroup>
-							<f:verbatim><div class="toggle" style="display:none;"></f:verbatim>
+							<f:subview id="hideLongDescTopic" rendered="#{!ForumTool.alwaysShowFullDesc}">
+								<f:verbatim><div class="toggle" style="display:none;"></f:verbatim>
+							</f:subview>
+							<f:subview id="showLongDescTopic" rendered="#{ForumTool.alwaysShowFullDesc}">
+								<f:verbatim><div class="toggle"></f:verbatim>
+							</f:subview>
 					<mf:htmlShowArea  id="topic_fullDescription" hideBorder="true"	 value="#{topic.topic.extendedDescription}" />
 								<%--//desNote:attach list --%>
 								<h:dataTable  styleClass="attachListTable" value="#{topic.attachList}" var="eachAttach" rendered="#{!empty topic.attachList}" cellpadding="3" cellspacing="0" columnClasses="attach,bogus" style="font-size:.9em;width:auto;margin-left:1em" border="0">
@@ -312,8 +318,9 @@ $(document).ready(function() {
 			</h:dataTable>
 			--%>
     <f:verbatim></div></f:verbatim>
+    </f:subview>
 						</h:panelGroup>
-
+					
 					</h:panelGrid>
 	 </h:column>
       </h:dataTable>			
