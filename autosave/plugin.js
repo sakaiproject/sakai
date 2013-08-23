@@ -11,7 +11,7 @@
     CKEDITOR.plugins.add("autosave", {
         lang: ['de', 'en', 'zh', 'zh-cn'],
         init: function (editor) {
-            var autoSaveKey = editor.config.autosave_SaveKey != null ? autosave_SaveKey : 'autosave' + editor.id;
+            var autoSaveKey = editor.config.autosave_SaveKey != null ? editor.config.autosave_SaveKey : 'autosave' + editor.id;
             
             // Checks If there is data available and load it
             if (localStorage.getItem(autoSaveKey)) {
@@ -62,7 +62,7 @@
         } else if (event.editor.checkDirty() || event.editor.plugins.bbcode) {
             savingActive = true;
             var editor = event.editor,
-                autoSaveKey = event.editor.config.autosave_SaveKey != null ? autosave_SaveKey : 'autosave' + event.editor.id;
+                autoSaveKey = editor.config.autosave_SaveKey != null ? editor.config.autosave_SaveKey : 'autosave' + editor.id;
 
             // save content
             localStorage.setItem(autoSaveKey, editor.getData());
