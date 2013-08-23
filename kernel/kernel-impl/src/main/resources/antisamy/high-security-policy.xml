@@ -852,7 +852,30 @@
         <!-- List tags -->
 
         <tag name="ul" action="validate"/>
-        <tag name="ol" action="validate"/>
+
+        <tag name="ol" action="validate">
+            <attribute name="start">
+              <regexp-list>
+                <regexp name="number"/>
+              </regexp-list>
+            </attribute>
+            <attribute name="reversed">
+                <literal-list>
+                    <literal value="reversed" />
+                    <regexp-list>
+                        <regexp name="boolean"/>
+                    </regexp-list>
+                </literal-list>
+            </attribute>
+            <attribute name="type">
+                <literal-list>
+                    <literal value="1" />
+                    <literal value="a" />
+                    <literal value="i" />
+                </literal-list>
+            </attribute>
+        </tag>
+
         <tag name="li" action="validate"/>
         
 
