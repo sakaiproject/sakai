@@ -1176,6 +1176,12 @@ public class DiscussionForumTool
       forum.setModerated(areaManager.getDiscusionArea().getModerated()); // default to template setting
       forum.setAutoMarkThreadsRead(areaManager.getDiscusionArea().getAutoMarkThreadsRead()); // default to template setting
       forum.setPostFirst(areaManager.getDiscusionArea().getPostFirst()); // default to template setting
+      if (areaManager.getDiscusionArea().getAvailabilityRestricted()) {
+          forum.setAvailabilityRestricted(true);
+          forum.setOpenDate(areaManager.getDiscusionArea().getOpenDate());
+          forum.setCloseDate(areaManager.getDiscusionArea().getCloseDate());
+      }
+      
       selectedForum = null;
       selectedForum = new DiscussionForumBean(forum, uiPermissionsManager, forumManager);
       if("true".equalsIgnoreCase(ServerConfigurationService.getString("mc.defaultLongDescription")))
