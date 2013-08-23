@@ -94,7 +94,7 @@
         <sakai.spring.version>3.2.3.RELEASE</sakai.spring.version>
         <sakai.spring.test.artifactId>spring-test</sakai.spring.test.artifactId>
         <sakai.spring.test.version>3.2.3.RELEASE</sakai.spring.test.version>
-        <sakai.tomcat.version>7.0.40</sakai.tomcat.version>
+        <sakai.tomcat.version>7.0.42</sakai.tomcat.version>
         <sakai.xerces.impl.version>2.6.2</sakai.xerces.impl.version>
         <sakai.xerces.api.version>2.6.2</sakai.xerces.api.version>
         <rsfutil.version>0.8.0-SNAPSHOT</rsfutil.version> 
