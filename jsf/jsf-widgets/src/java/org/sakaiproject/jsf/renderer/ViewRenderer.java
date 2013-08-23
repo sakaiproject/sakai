@@ -100,6 +100,14 @@ public class ViewRenderer extends Renderer
 			if (headSkinCss != null) writer.write(headSkinCss);
 			if (headJs != null) writer.write(headJs);
 
+			// Useful to include something in the head
+			UIComponent headFacet = component.getFacet("head");
+			if (headFacet!=null) { 
+				headFacet.encodeBegin(context);
+				headFacet.encodeChildren(context);
+				headFacet.encodeEnd(context);
+			}
+			
 			writer.write("</head>\n");
 
 			writer.write("<body");

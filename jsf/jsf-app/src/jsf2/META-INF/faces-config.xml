@@ -1,0 +1,35 @@
+<?xml version="1.0"?>
+
+<!DOCTYPE faces-config PUBLIC
+  "-//Sun Microsystems, Inc.//DTD JavaServer Faces Config 1.1//EN"
+  "http://java.sun.com/dtd/web-facesconfig_1_1.dtd">
+
+<faces-config>
+
+  <!-- =================== Beans ============== -->
+
+	<!-- This bean, placed into the application scope, can be used in managed-bean managed-property
+	     entries to provide backing beans with service components.  It surfaces the registered components
+	     as a map -->
+	<managed-bean>
+		<description>Component Manager Map</description>
+		<managed-bean-name>Components</managed-bean-name>
+		<managed-bean-class>org.sakaiproject.util.ComponentMap</managed-bean-class>
+		<managed-bean-scope>application</managed-bean-scope>
+	</managed-bean>
+
+ <!-- =================== Application Objects ============== -->
+
+	<application>
+		<view-handler>
+			org.sakaiproject.jsf.app.SakaiViewHandlerWrapper
+		</view-handler>
+		<navigation-handler>
+			org.sakaiproject.jsf.app.SakaiNavigationHandler
+		</navigation-handler>
+		<variable-resolver>
+			org.sakaiproject.jsf.app.SakaiVariableResolver
+		</variable-resolver>
+	</application>
+
+</faces-config>

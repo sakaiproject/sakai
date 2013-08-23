@@ -1,0 +1,358 @@
+<?xml version="1.0"?>
+<!DOCTYPE facelet-taglib PUBLIC
+  "-//Sun Microsystems, Inc.//DTD Facelet Taglib 1.0//EN"
+  "facelet-taglib_1_0.dtd">
+<facelet-taglib>
+	<namespace>http://sakaiproject.org/jsf/sakai</namespace>
+	<tag>
+		<tag-name>button_bar</tag-name>
+		<component> 
+			<component-type>org.sakaiproject.ButtonBar</component-type> 
+			<renderer-type>org.sakaiproject.ButtonBar</renderer-type>
+		</component> 
+	</tag>
+	
+	<tag>
+		<tag-name>button_bar_item</tag-name>
+		<component> 
+			<component-type>org.sakaiproject.ButtonBarItem</component-type> 
+			<renderer-type>org.sakaiproject.ButtonBarItem</renderer-type>
+		</component> 
+	</tag>
+
+	<tag>
+		<tag-name>courier</tag-name>
+		<component> 
+			<component-type>org.sakaiproject.Courier</component-type> 
+			<renderer-type>org.sakaiproject.Courier</renderer-type>
+		</component> 
+	</tag>
+    
+
+	<tag>
+		<tag-name>debug</tag-name>
+		<component> 
+			<component-type>org.sakaiproject.Debug</component-type> 
+			<renderer-type>org.sakaiproject.Debug</renderer-type>
+		</component> 
+	</tag>
+
+
+	<tag>
+		<tag-name>doc_properties</tag-name>
+		<component> 
+			<component-type>org.sakaiproject.DocProperties</component-type> 
+		</component> 
+	</tag>
+    
+
+	<tag>
+		<tag-name>doc_section</tag-name>
+		<component> 
+			<component-type>org.sakaiproject.DocSection</component-type> 
+			<renderer-type>org.sakaiproject.DocSection</renderer-type>
+		</component> 
+	</tag>
+
+
+	<tag>
+		<tag-name>doc_section_title</tag-name>
+		<component> 
+			<component-type>org.sakaiproject.DocSectionTitle</component-type>
+			<renderer-type>org.sakaiproject.DocSectionTitle</renderer-type> 
+		</component> 
+	</tag>
+
+
+	<tag>
+		<tag-name>flat_list</tag-name>
+		<component> 
+			<component-type>org.sakaiproject.FlatList</component-type> 
+		</component> 
+	</tag>
+
+	<tag>
+		<tag-name>group_box</tag-name>
+		<component> 
+			<component-type>org.sakaiproject.GroupBox</component-type> 
+			<renderer-type>org.sakaiproject.GroupBox</renderer-type>
+		</component> 
+	</tag>
+    
+
+	<tag>
+		<tag-name>inputRichText</tag-name>
+		<component> 
+			<component-type>org.sakaiproject.InputRichText</component-type>
+			<renderer-type>org.sakaiproject.InputRichText</renderer-type> 
+		</component> 
+	</tag>
+    
+
+	<tag>
+		<tag-name>rich_text_area</tag-name>
+		<component> 
+			<component-type>org.sakaiproject.RichTextArea</component-type> 
+			<renderer-type>org.sakaiproject.RichTextArea</renderer-type>
+		</component> 
+	</tag>
+    
+
+	<tag>
+		<tag-name>instruction_message</tag-name>
+		<component> 
+			<component-type>org.sakaiproject.InstructionMessage</component-type> 
+		</component> 
+	</tag>
+    
+
+	<tag>
+		<tag-name>messages</tag-name>
+		<component> 
+			<component-type>org.sakaiproject.Messages</component-type> 
+		</component> 
+	</tag>
+
+
+	<tag>
+		<tag-name>multiColumn</tag-name>
+		<component> 
+			<component-type>org.sakaiproject.MultiColumn</component-type> 
+			<renderer-type>org.sakaiproject.MultiColumn</renderer-type>
+		</component> 
+	</tag>
+
+
+	<tag>
+		<tag-name>pager</tag-name>
+		<component> 
+			<component-type>org.sakaiproject.Pager</component-type> 
+			<renderer-type>org.sakaiproject.Pager</renderer-type>
+		</component> 
+	</tag>
+    
+
+	<tag>
+		<tag-name>panel_edit</tag-name>
+		<component> 
+			<component-type>org.sakaiproject.PanelEdit</component-type> 
+		</component> 
+	</tag>
+    
+
+	<tag>
+		<tag-name>peer_refresh</tag-name>
+		<component> 
+			<component-type>org.sakaiproject.PeerRefresh</component-type> 
+			<renderer-type>org.sakaiproject.PeerRefresh</renderer-type>
+		</component> 
+	</tag>
+    
+
+	<tag>
+		<tag-name>tool_bar</tag-name>
+		<component> 
+			<component-type>org.sakaiproject.ToolBar</component-type> 
+			<renderer-type>org.sakaiproject.ToolBar</renderer-type>
+		</component> 
+	</tag>
+    
+
+	<tag>
+		<tag-name>tool_bar_item</tag-name>
+		<component> 
+			<component-type>org.sakaiproject.ToolBarItem</component-type>
+			<renderer-type>org.sakaiproject.ToolBarItem</renderer-type> 
+		</component> 
+	</tag>
+    
+
+	<tag>
+		<tag-name>tool_bar_message</tag-name>
+		<component> 
+			<component-type>org.sakaiproject.ToolBarMessage</component-type> 
+			<renderer-type>org.sakaiproject.ToolBarMessage</renderer-type>
+		</component> 
+	</tag>
+    
+
+	<tag>
+		<tag-name>tool_bar_spacer</tag-name>
+		<component> 
+			<component-type>org.sakaiproject.ToolBarSpacer</component-type>
+			<renderer-type>org.sakaiproject.ToolBarSpacer</renderer-type> 
+		</component> 
+	</tag>
+    
+
+	<tag>
+		<tag-name>view</tag-name>
+		<component> 
+			<component-type>org.sakaiproject.View</component-type>
+			<renderer-type>org.sakaiproject.View</renderer-type> 
+		</component> 
+	</tag>
+    
+	<tag>
+		<tag-name>view_content</tag-name>
+		<component> 
+			<component-type>org.sakaiproject.ViewContent</component-type> 
+			<renderer-type>org.sakaiproject.ViewContent</renderer-type>
+		</component> 
+	</tag>
+    
+
+	<tag>
+		<tag-name>view_title</tag-name>
+		<component> 
+			<component-type>org.sakaiproject.ViewTitle</component-type>
+			<renderer-type>org.sakaiproject.ViewTitle</renderer-type> 
+		</component> 
+	</tag>
+    
+
+	<tag>
+		<tag-name>flowState</tag-name>
+		<component> 
+			<component-type>org.sakaiproject.jsf.FlowState</component-type> 
+		</component> 
+	</tag>
+    
+  
+	<tag>
+		<tag-name>contentTypeMap</tag-name>
+		<component> 
+			<component-type>org.sakaiproject.JsfContentTypeMap</component-type> 
+			<renderer-type>org.sakaiproject.JsfContentTypeMap</renderer-type>
+		</component> 
+	</tag>
+    
+	<tag>
+		<tag-name>stylesheet</tag-name>
+		<component> 
+			<component-type>org.sakaiproject.Stylesheet</component-type>
+			<renderer-type>org.sakaiproject.Stylesheet</renderer-type> 
+		</component> 
+	</tag>
+
+	<tag>
+		<tag-name>script</tag-name>
+		<component> 
+			<component-type>org.sakaiproject.Script</component-type>
+			<renderer-type>org.sakaiproject.Script</renderer-type> 
+		</component> 
+	</tag>
+
+	<tag>
+		<tag-name>input_date</tag-name>
+		<component> 
+			<component-type>org.sakaiproject.InputDate</component-type>
+			<renderer-type>org.sakaiproject.InputDate</renderer-type> 
+		</component> 
+	</tag>
+
+	<tag>
+		<tag-name>output_date</tag-name>
+		<component> 
+			<component-type>org.sakaiproject.OutputDate</component-type>
+			<renderer-type>org.sakaiproject.OutputDate</renderer-type> 
+		</component> 
+	</tag>
+
+	<tag>
+		<tag-name>panel_titled</tag-name>
+		<component> 
+			<component-type>org.sakaiproject.PanelTitled</component-type>
+			<renderer-type>org.sakaiproject.GroupBox</renderer-type> 
+		</component> 
+	</tag>
+
+	<tag>
+		<tag-name>inputFileUpload</tag-name>
+		<component> 
+			<component-type>org.sakaiproject.InputFileUpload</component-type>
+			<renderer-type>org.sakaiproject.InputFileUpload</renderer-type> 
+		</component> 
+	</tag>
+	
+	<tag>
+		<tag-name>applet</tag-name>
+		<component> 
+			<component-type>org.sakaiproject.Applet</component-type>
+			<renderer-type>org.sakaiproject.Applet</renderer-type> 
+		</component> 
+	</tag>
+	
+	<tag>
+		<tag-name>dataLine</tag-name>
+		<component> 
+			<component-type>org.sakaiproject.DataLine</component-type>
+			<renderer-type>org.sakaiproject.DataLine</renderer-type> 
+		</component> 
+	</tag>
+	
+	<tag>
+		<tag-name>dynaTable</tag-name>
+		<component> 
+			<component-type>org.sakaiproject.DynaTable</component-type>
+			<renderer-type>org.sakaiproject.DynaTable</renderer-type> 
+		</component> 
+	</tag>
+	
+	<tag>
+		<tag-name>inputColor</tag-name>
+		<component> 
+			<component-type>org.sakaiproject.InputColor</component-type>
+			<renderer-type>org.sakaiproject.InputColor</renderer-type> 
+		</component> 
+	</tag>
+	
+	<tag>
+		<tag-name>hideDivision</tag-name>
+		<component> 
+			<component-type>org.sakaiproject.HideDivision</component-type>
+			<renderer-type>org.sakaiproject.HideDivision</renderer-type> 
+		</component> 
+	</tag>
+
+	<tag>
+		<tag-name>timerBar</tag-name>
+		<component> 
+			<component-type>org.sakaiproject.TimerBar</component-type>
+			<renderer-type>org.sakaiproject.TimerBar</renderer-type> 
+		</component> 
+	</tag>
+	
+	<tag>
+		<tag-name>progressBar</tag-name>
+		<component> 
+			<component-type>org.sakaiproject.ProgressBar</component-type>
+			<renderer-type>org.sakaiproject.ProgressBar</renderer-type> 
+		</component> 
+	</tag>
+
+	<tag>
+		<tag-name>alphaIndex</tag-name>
+		<component> 
+			<component-type>org.sakaiproject.AlphaIndex</component-type>
+			<renderer-type>org.sakaiproject.AlphaIndex</renderer-type> 
+		</component> 
+	</tag>
+	
+	<tag>
+		<tag-name>anchorReference</tag-name>
+		<component> 
+			<component-type>org.sakaiproject.AnchorReference</component-type>
+			<renderer-type>org.sakaiproject.AnchorReference</renderer-type> 
+		</component> 
+	</tag>
+	
+	<tag>
+		<tag-name>separatedList</tag-name>
+		<component> 
+			<component-type>org.sakaiproject.SeparatedList</component-type>
+			<renderer-type>org.sakaiproject.SeparatedList</renderer-type> 
+		</component> 
+	</tag>
+
+</facelet-taglib>

@@ -55,6 +55,12 @@
             <groupId>javax.faces</groupId>
             <artifactId>jsf-api</artifactId>
         </dependency>
+        <dependency>
+            <groupId>javax.faces</groupId>
+            <artifactId>javax.faces-api</artifactId>
+            <version>2.1</version>
+            <scope>provided</scope>
+        </dependency>
     </dependencies>
 
     <build>
@@ -71,7 +77,56 @@
                     <include>META-INF/*.tld</include>
                     <include>META-INF/*.xml</include>
                 </includes>
+                <excludes>
+                	<exclude>jsf2/*.xml</exclude>
+                </excludes>
             </resource>
         </resources>
+        <plugins>
+	      <plugin>
+	        <artifactId>maven-resources-plugin</artifactId>
+	        <executions>
+	          <execution>
+	            <id>copy-resources</id>
+	            <phase>package</phase>
+	            <goals>
+	              <goal>copy-resources</goal>
+	            </goals>
+	            <configuration>
+	              <outputDirectory>${basedir}/target/extra-resources</outputDirectory>
+	              <resources>          
+	                <resource>
+	                  <directory>${basedir}/target/classes</directory>
+	                  <excludes>
+	                  	<exclude>**/faces-config.xml</exclude>
+	                  </excludes>
+	                </resource>
+	                <resource>
+	                  <directory>${basedir}/src/jsf2</directory>
+	                </resource>
+	              </resources>              
+	            </configuration>            
+	          </execution>
+	        </executions>
+	      </plugin>
+	      <plugin>
+	        <groupId>org.apache.maven.plugins</groupId>
+	        <artifactId>maven-jar-plugin</artifactId>
+	        <version>2.4</version>
+	        <executions>
+	          <execution>
+	          	<id>jsf</id>
+	            <phase>package</phase>
+	            <goals>
+	              <goal>jar</goal>
+	            </goals>
+	            <configuration>
+	              <classesDirectory>${basedir}/target/extra-resources</classesDirectory>
+	              <classifier>jsf2</classifier>
+	            </configuration>
+	          </execution>
+	        </executions>
+	      </plugin>
+        </plugins>
     </build>
 </project>

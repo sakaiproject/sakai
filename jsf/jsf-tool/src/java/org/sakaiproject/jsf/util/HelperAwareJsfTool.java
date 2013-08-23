@@ -150,7 +150,7 @@ public class HelperAwareJsfTool extends JsfTool {
 
       // set the information that can be removed from return URLs
       req.setAttribute(URL_PATH, m_path);
-      req.setAttribute(URL_EXT, ".jsp");
+      req.setAttribute(URL_EXT, JSF_FACELETS_EXT);
 
       // set the sakai request object wrappers to provide the native, not Sakai set up, URL information
       // - this assures that the FacesServlet can dispatch to the proper view based on the path info

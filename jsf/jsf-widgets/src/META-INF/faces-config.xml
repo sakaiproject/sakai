@@ -139,6 +139,87 @@
     <component-class>org.sakaiproject.jsf.component.JsfContentTypeMapComponent</component-class>
   </component>
 
+  <!-- Additional Components JSF1.2 -->
+  <component>
+    <component-type>org.sakaiproject.Stylesheet</component-type>
+    <component-class>org.sakaiproject.jsf.component.StylesheetComponent</component-class>
+  </component>
+
+  <component>
+    <component-type>org.sakaiproject.Script</component-type>
+    <component-class>org.sakaiproject.jsf.component.ScriptComponent</component-class>
+  </component>
+
+  <component>
+    <component-type>org.sakaiproject.InputDate</component-type>
+    <component-class>org.sakaiproject.jsf.component.InputDateComponent</component-class>
+  </component>
+
+  <component>
+    <component-type>org.sakaiproject.OutputDate</component-type>
+    <component-class>org.sakaiproject.jsf.component.OutputDateComponent</component-class>
+  </component>
+
+  <component>
+    <component-type>org.sakaiproject.PanelTitled</component-type>
+    <component-class>org.sakaiproject.jsf.component.PanelTitledComponent</component-class>
+  </component>
+
+  <component>
+    <component-type>org.sakaiproject.InputFileUpload</component-type>
+    <component-class>org.sakaiproject.jsf.component.InputFileUploadComponent</component-class>
+  </component>
+
+  <component>
+    <component-type>org.sakaiproject.Applet</component-type>
+    <component-class>org.sakaiproject.jsf.component.AppletComponent</component-class>
+  </component>
+
+  <component>
+    <component-type>org.sakaiproject.DataLine</component-type>
+    <component-class>org.sakaiproject.jsf.component.DataLineComponent</component-class>
+  </component>
+
+  <component>
+    <component-type>org.sakaiproject.DynaTable</component-type>
+    <component-class>org.sakaiproject.jsf.component.DynaTableComponent</component-class>
+  </component>
+
+  <component>
+    <component-type>org.sakaiproject.InputColor</component-type>
+    <component-class>org.sakaiproject.jsf.component.InputColorComponent</component-class>
+  </component>
+
+  <component>
+    <component-type>org.sakaiproject.HideDivision</component-type>
+    <component-class>org.sakaiproject.jsf.component.HideDivisionComponent</component-class>
+  </component>
+
+  <component>
+    <component-type>org.sakaiproject.TimerBar</component-type>
+    <component-class>org.sakaiproject.jsf.component.TimerBarComponent</component-class>
+  </component>
+
+  <component>
+    <component-type>org.sakaiproject.ProgressBar</component-type>
+    <component-class>org.sakaiproject.jsf.component.ProgressBarComponent</component-class>
+  </component>
+
+  <component>
+    <component-type>org.sakaiproject.AlphaIndex</component-type>
+    <component-class>org.sakaiproject.jsf.component.AlphaIndexComponent</component-class>
+  </component>
+
+  <component>
+    <component-type>org.sakaiproject.AnchorReference</component-type>
+    <component-class>org.sakaiproject.jsf.component.AnchorReferenceComponent</component-class>
+  </component>
+
+  <component>
+    <component-type>org.sakaiproject.SeparatedList</component-type>
+    <component-class>org.sakaiproject.jsf.component.SeparatedListComponent</component-class>
+  </component>
+  <!-- Popup and selectCommand not included -->
 
   <!-- =================== Renderers ============== -->
 
