@@ -222,12 +222,7 @@ public class LTI2Service extends HttpServlet {
 		HttpServletResponse response,String profile_id)
 	{
 System.out.println("profile_id="+profile_id);
-		String search = LTIService.LTI_CONSUMERKEY + " = '" + profile_id + "'";
-		List<Map<String, Object>> deploys = ltiService.getDeploysDao(search, null, 0, 0);
-
-		Map<String,Object> deploy = null;
-		if ( deploys.size() == 1 ) deploy = deploys.get(0);
-
+		Map<String,Object> deploy = ltiService.getDeployForConsumerKeyDao(profile_id);
 		if ( deploy == null ) {
 			response.setStatus(HttpServletResponse.SC_FORBIDDEN); // TODO: Get this right
 			return;
@@ -323,12 +318,6 @@ System.out.println("deploy="+deploy);
 		}
 		response.setStatus(HttpServletResponse.SC_NOT_IMPLEMENTED); 
 		doErrorJSON(request, response, null, "request.not.implemented", "Unknown request", null);
-/*
-		String contentType = request.getContentType();
-		if ( contentType != null && contentType.startsWith("application/json") ) {
-			doPostJSON(request, response);
-		}
-*/
 
 	}
 
@@ -504,6 +493,7 @@ System.out.println("deployUpdate="+deployUpdate);
 			out.println(jsonText);
 		}
 
+	// TODO: This is not currently used - but will be important for the new JSON based outcomes
 	@SuppressWarnings("unchecked")
 		protected void doPostJSON(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
 			String ipAddress = request.getRemoteAddr();
@@ -668,7 +658,7 @@ System.out.println("deployUpdate="+deployUpdate);
 
 		}
 
-
+	// TODO: This is also not currently used
 	// Extract the necessary properties from a placement
 	protected Properties getPropertiesFromPlacement(String placement_id)
 	{
