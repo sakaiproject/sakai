@@ -48,6 +48,10 @@ public abstract class OAuthSignatureMethod {
                 getSignature(message)));
     }
 
+    private final String POST_HTTP = "POST&http%3A%2F%2";
+    private final String POST_SECURE = "POST&https%3A%2F%2";
+    private final String GET_HTTP = "GET&http%3A%2F%2";
+    private final String GET_SECURE = "GET&https%3A%2F%2";
     /**
      * Check whether the message has a valid signature.
      * @throws URISyntaxException 
@@ -60,7 +64,23 @@ public abstract class OAuthSignatureMethod {
         message.requireParameters("oauth_signature");
         String signature = message.getSignature();
         String baseString = getBaseString(message);
-        if (!isValid(signature, baseString)) {
+        String otherBaseString = null;
+
+	// Allow for some confusion coming through load balancers
+	if ( baseString.startsWith(POST_HTTP) ) { 
+		otherBaseString = baseString.replaceFirst("^"+POST_HTTP,POST_SECURE);
+	} else if ( baseString.startsWith(POST_SECURE) ) { 
+		otherBaseString = baseString.replaceFirst("^"+POST_SECURE, POST_HTTP);
+	} else if ( baseString.startsWith(GET_HTTP) ) { 
+		otherBaseString = baseString.replaceFirst("^"+GET_HTTP,GET_SECURE);
+	} else if ( baseString.startsWith(GET_SECURE) ) { 
+		otherBaseString = baseString.replaceFirst("^"+GET_SECURE, GET_HTTP);
+	}
+
+	boolean valid = isValid(signature, baseString);
+	if ( ! valid && otherBaseString != null ) valid = isValid(signature, otherBaseString);
+
+        if (!valid) {
             OAuthProblemException problem = new OAuthProblemException(
                     "signature_invalid");
             problem.setParameter("oauth_signature", signature);
