@@ -1080,12 +1080,8 @@ public class DiscussionForumTool
       setErrorMessage(getResourceBundleString(INSUFFICIENT_PRIVILEGES_TO_DELETE_FORUM));
       return gotoMain();
     }
-    //in case XSS was slipped in, make sure we remove it:
     StringBuilder alertMsg = new StringBuilder();
     selectedForum.getForum().setExtendedDescription(FormattedText.processFormattedText(selectedForum.getForum().getExtendedDescription(), alertMsg));
-    selectedForum.getForum().setTitle(FormattedText.processFormattedText(selectedForum.getForum().getTitle(), alertMsg));
-    selectedForum.getForum().setShortDescription(FormattedText.processFormattedText(selectedForum.getForum().getShortDescription(), alertMsg));
-    
     selectedForum.setMarkForDeletion(true);
     return FORUM_SETTING;
   }
@@ -1306,9 +1302,7 @@ public class DiscussionForumTool
     if(selectedForum.getForum()!=null &&
     		(selectedForum.getForum().getShortDescription()!=null))
     {
-    	StringBuilder alertMsg = new StringBuilder();
-    	String formattedShortDesc = FormattedText.processFormattedText(selectedForum.getForum().getShortDescription(), alertMsg);
-    	if(formattedShortDesc.length() > 255){
+    	if(selectedForum.getForum().getShortDescription().length() > 255){
     		setErrorMessage(getResourceBundleString(SHORT_DESC_TOO_LONG));
     		return null;
     	}
@@ -1382,9 +1376,7 @@ public class DiscussionForumTool
     if(selectedForum.getForum()!=null &&
     		(selectedForum.getForum().getShortDescription()!=null))
     {
-    	StringBuilder alertMsg = new StringBuilder();
-    	String formattedShortDesc = FormattedText.processFormattedText(selectedForum.getForum().getShortDescription(), alertMsg);
-    	if(formattedShortDesc.length() > 255){
+    	if(selectedForum.getForum().getShortDescription().length() > 255){
     		setErrorMessage(getResourceBundleString(SHORT_DESC_TOO_LONG));
     		return null;
     	}
@@ -1435,9 +1427,7 @@ public class DiscussionForumTool
     if(selectedForum.getForum()!=null &&
     		(selectedForum.getForum().getShortDescription()!=null))
     {
-    	StringBuilder alertMsg = new StringBuilder();
-    	String formattedShortDesc = FormattedText.processFormattedText(selectedForum.getForum().getShortDescription(), alertMsg);
-    	if(formattedShortDesc.length() > 255){
+    	if(selectedForum.getForum().getShortDescription().length() > 255){
     		setErrorMessage(getResourceBundleString(SHORT_DESC_TOO_LONG));
     		return null;
     	}
@@ -1492,12 +1482,10 @@ public class DiscussionForumTool
     
     StringBuilder alertMsg = new StringBuilder();
     forum.setExtendedDescription(FormattedText.processFormattedText(forum.getExtendedDescription(), alertMsg));
-    forum.setTitle(FormattedText.processFormattedText(forum.getTitle(), alertMsg));
-    String shortDescFormatted = FormattedText.processFormattedText(forum.getShortDescription(), alertMsg);
-	if(shortDescFormatted!=null && shortDescFormatted.length() > 255){
-		shortDescFormatted = shortDescFormatted.substring(0, 255);
+	if(forum.getShortDescription()!=null && forum.getShortDescription().length() > 255){
+		forum.setShortDescription(forum.getShortDescription().substring(0, 255));
 	}
-    forum.setShortDescription(shortDescFormatted);
+    
     
     if ("<br/>".equals(forum.getExtendedDescription()))
 	{
@@ -1774,9 +1762,7 @@ public class DiscussionForumTool
     if(selectedTopic!=null && selectedTopic.getTopic()!=null &&
     		(selectedTopic.getTopic().getShortDescription()!=null))
     {
-    	StringBuilder alertMsg = new StringBuilder();
-    	String formattedShortDesc = FormattedText.processFormattedText(selectedTopic.getTopic().getShortDescription(), alertMsg);
-    	if(formattedShortDesc.length() > 255){
+    	if(selectedTopic.getTopic().getShortDescription().length() > 255){
     		setErrorMessage(getResourceBundleString(SHORT_DESC_TOO_LONG));
     		return null;
     	}
@@ -1860,9 +1846,7 @@ public class DiscussionForumTool
     if(selectedTopic!=null && selectedTopic.getTopic()!=null &&
     		(selectedTopic.getTopic().getShortDescription()!=null))
     {
-    	StringBuilder alertMsg = new StringBuilder();
-    	String formattedShortDesc = FormattedText.processFormattedText(selectedTopic.getTopic().getShortDescription(), alertMsg);
-    	if(formattedShortDesc.length() > 255){
+    	if(selectedTopic.getTopic().getShortDescription().length() > 255){
     		setErrorMessage(getResourceBundleString(SHORT_DESC_TOO_LONG));
     		return null;
     	}
@@ -1947,9 +1931,7 @@ public class DiscussionForumTool
     if(selectedTopic!=null && selectedTopic.getTopic()!=null &&
     		(selectedTopic.getTopic().getShortDescription()!=null))
     {
-    	StringBuilder alertMsg = new StringBuilder();
-    	String formattedShortDesc = FormattedText.processFormattedText(selectedTopic.getTopic().getShortDescription(), alertMsg);
-    	if(formattedShortDesc.length() > 255){
+    	if(selectedTopic.getTopic().getShortDescription().length() > 255){
     		setErrorMessage(getResourceBundleString(SHORT_DESC_TOO_LONG));
     		return null;
     	}
@@ -2005,13 +1987,11 @@ public class DiscussionForumTool
 		beforeChangeHM = SynopticMsgcntrManagerCover.getUserToNewMessagesForForumMap(getSiteId(), topic.getBaseForum().getId(), topic.getId());
         }
 
-    	StringBuilder alertMsg = new StringBuilder();
-    	topic.setTitle(FormattedText.processFormattedText(topic.getTitle(), alertMsg));
-    	String shortDescFormatted = FormattedText.processFormattedText(topic.getShortDescription(), alertMsg);
-    	if(shortDescFormatted!=null && shortDescFormatted.length() > 255){
-    		shortDescFormatted = shortDescFormatted.substring(0, 255);
+    	if(topic.getShortDescription()!=null && topic.getShortDescription().length() > 255){
+    		topic.setShortDescription(topic.getShortDescription().substring(0, 255));
     	}
-    	topic.setShortDescription(shortDescFormatted);
+
+    	StringBuilder alertMsg = new StringBuilder();
     	topic.setExtendedDescription(FormattedText.processFormattedText(topic.getExtendedDescription(), alertMsg));
     	
     	if ("<br/>".equals(topic.getExtendedDescription()))
@@ -2111,8 +2091,6 @@ public class DiscussionForumTool
     //in case XSS was slipped in, make sure we remove it:
     StringBuilder alertMsg = new StringBuilder();
     selectedTopic.getTopic().setExtendedDescription(FormattedText.processFormattedText(selectedTopic.getTopic().getExtendedDescription(), alertMsg));
-    selectedTopic.getTopic().setTitle(FormattedText.processFormattedText(selectedTopic.getTopic().getTitle(), alertMsg));
-    selectedTopic.getTopic().setShortDescription(FormattedText.processFormattedText(selectedTopic.getTopic().getShortDescription(), alertMsg));
     selectedTopic.setMarkForDeletion(true);
     return TOPIC_SETTING;
   }
@@ -3822,7 +3800,7 @@ public class DiscussionForumTool
     if (aMsg != null)
     {
       StringBuilder alertMsg = new StringBuilder();
-      aMsg.setTitle(FormattedText.processFormattedText(getComposeTitle(), alertMsg));
+      aMsg.setTitle(getComposeTitle());
       aMsg.setBody(FormattedText.processFormattedText(getComposeBody(), alertMsg));
       
       if(getUserNameOrEid()!=null){
@@ -4723,7 +4701,7 @@ public class DiscussionForumTool
 		} 
 
 		StringBuilder alertMsg = new StringBuilder();
-		dMsg.setTitle(FormattedText.processFormattedText(getComposeTitle(), alertMsg));
+		dMsg.setTitle(getComposeTitle());
 		dMsg.setBody(FormattedText.processFormattedText(currentBody, alertMsg));
 		dMsg.setDraft(Boolean.FALSE);
 		dMsg.setModified(new Date());
@@ -8304,8 +8282,7 @@ public class DiscussionForumTool
     //in case XSS was slipped in, make sure we remove it:
     StringBuilder alertMsg = new StringBuilder();
     selectedForum.getForum().setExtendedDescription(FormattedText.processFormattedText(selectedForum.getForum().getExtendedDescription(), alertMsg));
-    selectedForum.getForum().setTitle(FormattedText.processFormattedText(getResourceBundleString(DUPLICATE_COPY_TITLE, new Object [] {selectedForum.getForum().getTitle()} ), alertMsg));
-    selectedForum.getForum().setShortDescription(FormattedText.processFormattedText(selectedForum.getForum().getShortDescription(), alertMsg));
+    selectedForum.getForum().setTitle(getResourceBundleString(DUPLICATE_COPY_TITLE, new Object [] {selectedForum.getForum().getTitle()} ));
 
     selectedForum.setMarkForDuplication(true);
     return FORUM_SETTING;
@@ -8324,8 +8301,7 @@ public class DiscussionForumTool
 	  String forumId = getExternalParameterByKey(FORUM_ID);
 	  DiscussionForum forum = forumManager.getForumById(Long.valueOf(forumId));
 	  selectedForum = new DiscussionForumBean(forum, uiPermissionsManager, forumManager);
-      StringBuilder alertMsg = new StringBuilder();
-      selectedForum.getForum().setTitle(FormattedText.processFormattedText(getResourceBundleString(DUPLICATE_COPY_TITLE, new Object[] {selectedForum.getForum().getTitle()}), alertMsg));
+      selectedForum.getForum().setTitle(getResourceBundleString(DUPLICATE_COPY_TITLE, new Object[] {selectedForum.getForum().getTitle()}));
 	  selectedForum.setMarkForDuplication(true);
 	  return FORUM_SETTING;
   }
@@ -8383,8 +8359,7 @@ public class DiscussionForumTool
     //in case XSS was slipped in, make sure we remove it:
     StringBuilder alertMsg = new StringBuilder();
     selectedTopic.getTopic().setExtendedDescription(FormattedText.processFormattedText(selectedTopic.getTopic().getExtendedDescription(), alertMsg));
-    selectedTopic.getTopic().setTitle(FormattedText.processFormattedText(getResourceBundleString(DUPLICATE_COPY_TITLE, new Object[] {selectedTopic.getTopic().getTitle()}), alertMsg));
-    selectedTopic.getTopic().setShortDescription(FormattedText.processFormattedText(selectedTopic.getTopic().getShortDescription(), alertMsg));
+    selectedTopic.getTopic().setTitle(getResourceBundleString(DUPLICATE_COPY_TITLE, new Object[] {selectedTopic.getTopic().getTitle()}));
     selectedTopic.setMarkForDuplication(true);
     return TOPIC_SETTING;
   }
@@ -8415,7 +8390,7 @@ public class DiscussionForumTool
 		  }
 		  selectedTopic = new DiscussionTopicBean(topic, selectedForum.getForum(),uiPermissionsManager, forumManager);
           StringBuilder alertMsg = new StringBuilder();
-          selectedTopic.getTopic().setTitle(FormattedText.processFormattedText(getResourceBundleString(DUPLICATE_COPY_TITLE, new Object[] {selectedTopic.getTopic().getTitle()}), alertMsg));
+          selectedTopic.getTopic().setTitle(getResourceBundleString(DUPLICATE_COPY_TITLE, new Object[] {selectedTopic.getTopic().getTitle()}));
 		  selectedTopic.setMarkForDuplication(true);
 		  return TOPIC_SETTING;
 	  }
@@ -8475,8 +8450,7 @@ public class DiscussionForumTool
         newTitle = fromTopic.getTitle();
 		newTopic.setSortIndex(fromTopic.getSortIndex());
 	} else {
-        StringBuilder alertMsg = new StringBuilder();
-        newTitle = FormattedText.processFormattedText(selectedTopic.getTopic().getTitle(), alertMsg);
+        newTitle = selectedTopic.getTopic().getTitle();
 	}
 	newTopic.setTitle(newTitle);
 	LOG.debug("New Topic Title = " + newTopic.getTitle());
@@ -8590,8 +8564,7 @@ public class DiscussionForumTool
 		forum.setModerated(oldForum.getModerated());
 		forum.setPostFirst(oldForum.getPostFirst());
 		forum.setAutoMarkThreadsRead(oldForum.getAutoMarkThreadsRead()); // default to template setting
-        StringBuilder alertMsg = new StringBuilder();
-        String oldTitle =  FormattedText.processFormattedText(selectedForum.getForum().getTitle(), alertMsg);
+        String oldTitle =  selectedForum.getForum().getTitle();
 		selectedForum = null;
 		selectedForum = new DiscussionForumBean(forum, uiPermissionsManager, forumManager);
 		if("true".equalsIgnoreCase(ServerConfigurationService.getString("mc.defaultLongDescription")))
