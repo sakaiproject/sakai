@@ -63,10 +63,15 @@ public class SakaiBLTIUtil {
 	public static final boolean verbosePrint = false;
 
 	public static final String BASICLTI_OUTCOMES_ENABLED = "basiclti.outcomes.enabled";
+	public static final String BASICLTI_OUTCOMES_ENABLED_DEFAULT = "true";
 	public static final String BASICLTI_SETTINGS_ENABLED = "basiclti.settings.enabled";
+	public static final String BASICLTI_SETTINGS_ENABLED_DEFAULT = "true";
 	public static final String BASICLTI_ROSTER_ENABLED = "basiclti.roster.enabled";
+	public static final String BASICLTI_ROSTER_ENABLED_DEFAULT = "true";
 	public static final String BASICLTI_LORI_ENABLED = "basiclti.lori.enabled";
+	public static final String BASICLTI_LORI_ENABLED_DEFAULT = "true";
 	public static final String BASICLTI_CONTENTLINK_ENABLED = "basiclti.contentlink.enabled";
+	public static final String BASICLTI_CONTENTLINK_ENABLED_DEFAULT = null; // i.e. false
 	public static final String BASICLTI_CONSUMER_USERIMAGE_ENABLED = "basiclti.consumer.userimage.enabled";
 	public static final String BASICLTI_ENCRYPTION_KEY = "basiclti.encryption.key";
 
@@ -81,16 +86,16 @@ public class SakaiBLTIUtil {
 			String propName, Placement placement)
 	{
 		// Check for global overrides in properties
-		String allowSettings = ServerConfigurationService.getString(BASICLTI_SETTINGS_ENABLED, null);
+		String allowSettings = ServerConfigurationService.getString(BASICLTI_SETTINGS_ENABLED, BASICLTI_SETTINGS_ENABLED_DEFAULT);
 		if ( LTIService.LTI_ALLOWSETTINGS.equals(propName) && ! "true".equals(allowSettings) ) return "false";
 
-		String allowRoster = ServerConfigurationService.getString(BASICLTI_ROSTER_ENABLED, null);
+		String allowRoster = ServerConfigurationService.getString(BASICLTI_ROSTER_ENABLED, BASICLTI_ROSTER_ENABLED_DEFAULT);
 		if ( LTIService.LTI_ALLOWROSTER.equals(propName) && ! "true".equals(allowRoster) ) return "false";
 
-		String allowLori = ServerConfigurationService.getString(BASICLTI_LORI_ENABLED, null);
+		String allowLori = ServerConfigurationService.getString(BASICLTI_LORI_ENABLED, BASICLTI_LORI_ENABLED_DEFAULT);
 		if ( LTIService.LTI_ALLOWLORI.equals(propName) && ! "true".equals(allowLori) ) return "false";
 
-		String allowContentLink = ServerConfigurationService.getString(BASICLTI_CONTENTLINK_ENABLED, null);
+		String allowContentLink = ServerConfigurationService.getString(BASICLTI_CONTENTLINK_ENABLED, BASICLTI_CONTENTLINK_ENABLED_DEFAULT);
 		if ( "contentlink".equals(propName) && ! "true".equals(allowContentLink) ) return null;
 
 		// Check for explicit setting in properties
@@ -350,7 +355,7 @@ public class SakaiBLTIUtil {
 			if ( ! "off".equals(allowOutcomes) ) {
 				assignment = toNull(getCorrectProperty(config,"assignment", placement));
 				allowOutcomes = ServerConfigurationService.getString(
-						SakaiBLTIUtil.BASICLTI_OUTCOMES_ENABLED, null);
+						SakaiBLTIUtil.BASICLTI_OUTCOMES_ENABLED, BASICLTI_OUTCOMES_ENABLED_DEFAULT);
 				if ( ! "true".equals(allowOutcomes) ) allowOutcomes = null;
 			}
 

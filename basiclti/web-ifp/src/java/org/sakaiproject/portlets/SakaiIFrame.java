@@ -232,7 +232,7 @@ public class SakaiIFrame extends GenericPortlet {
 
 				vHelper.doTemplate(vengine, "/vm/main.vm", context, out);
 			} else {
-				out.println("Not yet configured");
+				out.println(rb.getString("get.info.notconfig"));
 			}
 
 			// System.out.println("==== doView complete ====");
