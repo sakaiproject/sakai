@@ -290,14 +290,12 @@ public class AreaManagerImpl extends HibernateDaoSupport implements AreaManager 
               }
            }
         }
-        boolean origVal = area.getAvailability();
-        area.setAvailability(ForumScheduleNotificationCover.makeAvailableHelper(area.getAvailabilityRestricted(), area.getOpenDate(), area.getCloseDate()));
+
+        // until we have a settings screen to allow the user to hide all forums,
+        // the area will always be available. 
+        area.setAvailability(true); 
+        
         getHibernateTemplate().saveOrUpdate(area);
-        if(origVal != area.getAvailability()){
-        	//update synoptic info
-        	SynopticMsgcntrManagerCover.resetAllUsersSynopticInfoInSite(area.getContextId());
-        }
-        ForumScheduleNotificationCover.scheduleAvailability(area);
 
         LOG.debug("saveArea executed with areaId: " + area.getId());
     }

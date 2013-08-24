@@ -594,14 +594,9 @@ public class DiscussionForumTool
 	           || isInstructor()){
 	    	 hasOverridingPermissions = true;
 	     }
+	     // MSGCNTR-661 - the template settings are no longer affecting the
+	     // availability, so we need this to always be true
 	     boolean isAreaAvailable = true;
-	     if(!hasOverridingPermissions){
-	    	//grab area to check that is it available:
-	    	 Area area = forumManager.getDiscussionForumArea();
-	    	 if(area != null){
-	    		 isAreaAvailable = area.getAvailability();
-	    	 }	    	 
-	     }
 	     
 	     if(isAreaAvailable){
 	    	 // query the database for all of the forums that are associated with the current site

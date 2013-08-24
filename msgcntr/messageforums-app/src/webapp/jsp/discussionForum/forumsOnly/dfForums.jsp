@@ -23,7 +23,7 @@ org.sakaiproject.tool.cover.SessionManager.getCurrentToolSession().
 
 	<h:form id="msgForum">
   <sakai:tool_bar separator="#{msgs.cdfm_toolbar_separator}" >
-  	<h:graphicImage url="/images/silk/date_delete.png" title="#{msgs.area_restricted_message}" alt="#{msgs.area_restricted_message}" rendered="#{ForumTool.instructor && ForumTool.template.availability == 'false'}" style="margin-right:.5em"/>
+ 
     <sakai:tool_bar_item value="#{msgs.cdfm_new_forum}" action="#{ForumTool.processActionNewForum}" rendered="#{ForumTool.newForum}"/>
     <sakai:tool_bar_item value="#{msgs.cdfm_organize}" action="#{ForumTool.processActionTemplateOrganize}" rendered="#{ForumTool.instructor}" />
 	  <sakai:tool_bar_item value="#{msgs.cdfm_template_setting}" action="#{ForumTool.processActionTemplateSettings}" rendered="#{ForumTool.instructor}" />
