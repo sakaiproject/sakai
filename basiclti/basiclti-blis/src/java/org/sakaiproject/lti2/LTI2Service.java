@@ -104,7 +104,7 @@ public class LTI2Service extends HttpServlet {
 	}
 
 	protected void getToolConsumerProfile(HttpServletRequest request, 
-		HttpServletResponse response,String profile_id)
+			HttpServletResponse response,String profile_id)
 	{
 System.out.println("profile_id="+profile_id);
 		Map<String,Object> deploy = ltiService.getDeployForConsumerKeyDao(profile_id);
@@ -116,8 +116,8 @@ System.out.println("deploy="+deploy);
 
 		String serverUrl = ServerConfigurationService.getServerUrl();
 		Product_family fam = new Product_family("SakaiCLE", "CLE", "Sakai Project",
-			"Amazing open source Collaboration and Learning Environment.", 
-			"http://www.sakaiproject.org", "support@sakaiproject.org");
+				"Amazing open source Collaboration and Learning Environment.", 
+				"http://www.sakaiproject.org", "support@sakaiproject.org");
 
 		Product_info info = new Product_info("CTools", "4.0", "The Sakai installation for UMich", fam);
 
@@ -178,7 +178,9 @@ System.out.println("deploy="+deploy);
 
 	@SuppressWarnings("unchecked")
 	// /imsblis/lti2/part3/part4
-	protected void doPost(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
+	protected void doPost(HttpServletRequest request, HttpServletResponse response) 
+		throws ServletException, IOException 
+	{
 		String ipAddress = request.getRemoteAddr();
 		M_log.debug("Basic LTI Service request from IP=" + ipAddress);
 
@@ -202,11 +204,10 @@ System.out.println("deploy="+deploy);
 		}
 		response.setStatus(HttpServletResponse.SC_NOT_IMPLEMENTED); 
 		doErrorJSON(request, response, null, "request.not.implemented", "Unknown request", null);
-
 	}
 
 	public void registerToolProviderProfile(HttpServletRequest request,HttpServletResponse response, 
-		String profile_id) throws java.io.IOException
+			String profile_id) throws java.io.IOException
 	{
 System.out.println("profile_id="+profile_id);
 		Map<String,Object> deploy = ltiService.getDeployForConsumerKeyDao(profile_id);
@@ -238,7 +239,7 @@ System.out.println("deployKey="+deployKey);
 			return;
 		}
 		// System.out.println(jsonRequest.getPostBody());
-		
+
 		// Lets check the signature
 		if ( key == null || secret == null ) {
 			response.setStatus(HttpServletResponse.SC_FORBIDDEN); 
@@ -338,47 +339,46 @@ System.out.println("deployUpdate="+deployUpdate);
 	public void doErrorJSON(HttpServletRequest request,HttpServletResponse response, 
 			IMSJSONRequest json, String s, String message, Exception e) 
 		throws java.io.IOException 
-	{
-		if (e != null) {
-			M_log.error(e.getLocalizedMessage(), e);
-		}
-		M_log.info(message);
-		response.setContentType("application/json");
-		Map jsonResponse = new TreeMap();
-		jsonResponse.put("ext_sakai_code", s);
-		jsonResponse.put("ext_sakai_code_text", rb.getString(s));
+		{
+			if (e != null) {
+				M_log.error(e.getLocalizedMessage(), e);
+			}
+			M_log.info(message);
+			response.setContentType("application/json");
+			Map jsonResponse = new TreeMap();
+			jsonResponse.put("ext_sakai_code", s);
+			jsonResponse.put("ext_sakai_code_text", rb.getString(s));
 
-		Map status = null;
-		if ( json == null ) {
-			status = IMSJSONRequest.getStatusFailure(message);
-		} else {
-			status = json.getStatusFailure(message);
-			if ( json.base_string != null ) {
-				jsonResponse.put("base_string", json.base_string);
+			Map status = null;
+			if ( json == null ) {
+				status = IMSJSONRequest.getStatusFailure(message);
+			} else {
+				status = json.getStatusFailure(message);
+				if ( json.base_string != null ) {
+					jsonResponse.put("base_string", json.base_string);
+				}
 			}
-		}
-		jsonResponse.put(IMSJSONRequest.STATUS, status);
-		if ( e != null ) {
-			jsonResponse.put("exception", e.getLocalizedMessage());
-			try {
-				StringWriter sw = new StringWriter();
-				PrintWriter pw = new PrintWriter(sw, true);
-				e.printStackTrace(pw);
-				pw.flush();
-				sw.flush();
-				jsonResponse.put("traceback", sw.toString() );
-			} catch ( Exception f ) {
-				jsonResponse.put("traceback", f.getLocalizedMessage());
+			jsonResponse.put(IMSJSONRequest.STATUS, status);
+			if ( e != null ) {
+				jsonResponse.put("exception", e.getLocalizedMessage());
+				try {
+					StringWriter sw = new StringWriter();
+					PrintWriter pw = new PrintWriter(sw, true);
+					e.printStackTrace(pw);
+					pw.flush();
+					sw.flush();
+					jsonResponse.put("traceback", sw.toString() );
+				} catch ( Exception f ) {
+					jsonResponse.put("traceback", f.getLocalizedMessage());
+				}
 			}
-		}
-		String jsonText = JSONValue.toJSONString(jsonResponse);
+			String jsonText = JSONValue.toJSONString(jsonResponse);
 System.out.print(jsonText);
-		PrintWriter out = response.getWriter();
-		out.println(jsonText);
-	}
+			PrintWriter out = response.getWriter();
+			out.println(jsonText);
+		}
 
 	public void destroy() {
-
 	}
 
 }
