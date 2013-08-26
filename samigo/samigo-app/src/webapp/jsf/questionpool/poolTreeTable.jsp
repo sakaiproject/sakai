@@ -84,6 +84,12 @@
   <h:outputText id="copy" value="#{questionPoolMessages.copy}"/>
   <f:param name="qpid" value="#{pool.questionPoolId}"/>
 </h:commandLink>
+<!-- Unshare Pool -->
+<h:outputText rendered="#{questionpool.importToAuthoring != 'true' && pool.ownerId!=questionpool.agentId}" value=" #{questionPoolMessages.separator} " />
+<h:commandLink title="#{questionPoolMessages.t_unsharePool}" rendered="#{questionpool.importToAuthoring != 'true' && pool.ownerId!=questionpool.agentId}" id="unsharelink" immediate="true" action="#{questionpool.startUnsharePool}">
+  <h:outputText id="unshare" value="#{questionPoolMessages.unshare}"/>
+  <f:param name="qpid" value="#{pool.questionPoolId}"/>
+</h:commandLink>
 <!-- Move Pool -->
 <h:outputText rendered="#{questionpool.importToAuthoring != 'true' && authorization.editOwnQuestionPool && pool.ownerId==questionpool.agentId}" value=" #{questionPoolMessages.separator} " />
 <h:commandLink title="#{questionPoolMessages.t_movePool}" rendered="#{questionpool.importToAuthoring != 'true' && authorization.editOwnQuestionPool && pool.ownerId==questionpool.agentId}" id="movelink" immediate="true" action="#{questionpool.startMovePool}">

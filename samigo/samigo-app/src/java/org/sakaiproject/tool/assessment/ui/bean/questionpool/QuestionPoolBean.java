@@ -49,6 +49,7 @@ import org.apache.commons.logging.LogFactory;
 import org.apache.struts.upload.FormFile;
 import org.sakaiproject.tool.assessment.business.questionpool.QuestionPoolTreeImpl;
 import org.sakaiproject.tool.assessment.data.dao.assessment.ItemMetaData;
+import org.sakaiproject.tool.assessment.data.dao.questionpool.QuestionPoolData;
 import org.sakaiproject.tool.assessment.data.ifc.assessment.ItemDataIfc;
 import org.sakaiproject.tool.assessment.data.ifc.questionpool.QuestionPoolDataIfc;
 import org.sakaiproject.tool.assessment.data.model.Tree;
@@ -91,6 +92,9 @@ public class QuestionPoolBean implements Serializable
   private boolean rootPoolSelected;
   private List poolListSelectItems;
   private List poolsToDelete;
+  
+  private QuestionPoolFacade poolToUnshare;
+  
   private List itemsToDelete;
   private String[] selectedPools;
   private String[] selectedQuestions;
@@ -149,6 +153,7 @@ public class QuestionPoolBean implements Serializable
  private String addOrEdit;
   private String outcome;
   private String outcomeEdit;
+  private String unsharePoolSource; 
   private String deletePoolSource;  // either from poolList.jsp , or from editPool.jsp
   private String addPoolSource;  // either from poolList.jsp , or from editPool.jsp
 
@@ -402,6 +407,27 @@ public class QuestionPoolBean implements Serializable
 	return itemsToDelete;
   }
 
+  /**
+   * DOCUMENTATION PENDING
+   *
+   * @return DOCUMENTATION PENDING
+   */
+  public void setPoolToUnshare(QuestionPoolFacade qpool)
+  {
+	poolToUnshare = qpool;
+  }
+  
+  
+  /**
+   * DOCUMENTATION PENDING
+   *
+   * @return DOCUMENTATION PENDING
+   */
+  public QuestionPoolFacade getPoolToUnshare()
+  {
+	return this.poolToUnshare;
+  }
+  
   /**
    * DOCUMENTATION PENDING
    *
@@ -1660,8 +1686,34 @@ public String getAddOrEdit()
       throw new RuntimeException(e);
     }
   }
+  
+  // To allow a user to remove a shared pool from the list of pools (previous confirmation)
+  public String startUnsharePool(){
+	
+	 String poolId = ContextUtil.lookupParam("qpid");
 
+	 QuestionPoolService delegate = new QuestionPoolService();
+	 QuestionPoolFacade qPool = delegate.getPool(new Long(poolId), AgentFacade.getAgentString());
+	        
+	 this.setPoolToUnshare(qPool);
+	 return "unsharePool";
+  }
+  
+  // To allow a user to remove a shared pool from the list of pools (post confirmation)
+  public String unsharePool(){
+	  QuestionPoolService delegate = new QuestionPoolService();
+      QuestionPoolFacade qpool = this.getPoolToUnshare();
+      Long poolId= qpool.getQuestionPoolId();
 
+      delegate.removeQuestionPoolAccess(tree, AgentFacade.getAgentString(), poolId, QuestionPoolData.READ_COPY);
+      //Questionpool has been unshared
+      EventTrackingService.post(EventTrackingService.newEvent("sam.questionpool.unshare", "/sam/" +AgentFacade.getCurrentSiteId() + "/unshared poolId=" + poolId, true));
+      
+      buildTree();
+      setQpDataModelByLevel();
+      
+      return "poolList";
+}
 
 
   public String confirmRemovePool(){
