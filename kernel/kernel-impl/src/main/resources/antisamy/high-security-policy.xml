@@ -781,9 +781,135 @@
             <attribute name="align"/>
         </tag>
 
-    
-        <!-- Image & image related tags -->
         
+        <!-- HTML5 audio video source tags -->
+        <tag name="video" action="validate">
+            <attribute name="height"/>
+            <attribute name="width"/>
+            <attribute name="autoplay">
+                <literal-list>
+                    <literal value="autoplay"/>
+                </literal-list>
+                <regexp-list>
+                    <regexp name="boolean"/>
+                </regexp-list>
+            </attribute>
+            <attribute name="controls">
+                <literal-list>
+                    <literal value="controls"/>
+                </literal-list>
+                <regexp-list>
+                    <regexp name="boolean"/>
+                </regexp-list>
+            </attribute>
+            <attribute name="muted">
+                <literal-list>
+                    <literal value="muted"/>
+                </literal-list>
+                <regexp-list>
+                    <regexp name="boolean"/>
+                </regexp-list>
+            </attribute>
+            <attribute name="loop">
+                <literal-list>
+                    <literal value="loop"/>
+                </literal-list>
+                <regexp-list>
+                    <regexp name="boolean"/>
+                </regexp-list>
+            </attribute>
+            <attribute name="preload">
+                <literal-list>
+                    <literal value="auto"/>
+                    <literal value="metadata"/>
+                    <literal value="none"/>
+                </literal-list>
+                <regexp-list>
+                    <regexp name="boolean"/>
+                </regexp-list>
+            </attribute>
+            <attribute name="src" onInvalid="removeTag">
+                <regexp-list>
+                    <regexp name="onsiteURL"/>
+                    <regexp name="offsiteURL"/>
+                </regexp-list>
+            </attribute>
+            <attribute name="poster" onInvalid="removeTag">
+                <regexp-list>
+                    <regexp name="onsiteURL"/>
+                    <regexp name="offsiteURL"/>
+                </regexp-list>
+            </attribute>
+        </tag>
+
+        <tag name="audio" action="validate">
+            <attribute name="autoplay">
+                <literal-list>
+                    <literal value="autoplay"/>
+                </literal-list>
+                <regexp-list>
+                    <regexp name="boolean"/>
+                </regexp-list>
+            </attribute>
+            <attribute name="controls">
+                <literal-list>
+                    <literal value="controls"/>
+                </literal-list>
+                <regexp-list>
+                    <regexp name="boolean"/>
+                </regexp-list>
+            </attribute>
+            <attribute name="muted">
+                <literal-list>
+                    <literal value="muted"/>
+                </literal-list>
+                <regexp-list>
+                    <regexp name="boolean"/>
+                </regexp-list>
+            </attribute>
+            <attribute name="loop">
+                <literal-list>
+                    <literal value="loop"/>
+                </literal-list>
+                <regexp-list>
+                    <regexp name="boolean"/>
+                </regexp-list>
+            </attribute>
+            <attribute name="preload">
+                <literal-list>
+                    <literal value="auto"/>
+                    <literal value="metadata"/>
+                    <literal value="none"/>
+                </literal-list>
+                <regexp-list>
+                    <regexp name="boolean"/>
+                </regexp-list>
+            </attribute>
+            <attribute name="src" onInvalid="removeTag">
+                <regexp-list>
+                    <regexp name="onsiteURL"/>
+                    <regexp name="offsiteURL"/>
+                </regexp-list>
+            </attribute>
+        </tag>
+        <tag name="source" action="validate">
+            <!-- Not yet supported 
+            <attribute name="media" />
+            -->
+            <attribute name="type" onInvalid="removeTag">
+                <regexp-list>
+                    <regexp name="anything" />
+                </regexp-list>
+            </attribute>
+            <attribute name="src" onInvalid="removeTag">
+                <regexp-list>
+                    <regexp name="onsiteURL"/>
+                    <regexp name="offsiteURL"/>
+                </regexp-list>
+            </attribute>
+        </tag>
+
+        <!-- Image & image related tags -->
         <tag name="img" action="validate">
             <attribute name="src" onInvalid="removeTag">
                 <regexp-list>
