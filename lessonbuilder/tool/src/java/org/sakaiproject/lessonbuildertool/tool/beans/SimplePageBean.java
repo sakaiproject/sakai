@@ -940,6 +940,7 @@ public class SimplePageBean {
 				}
 
 				item.setHtml(html);
+				item.setPrerequisite(this.prerequisite);
 				setItemGroups(item, selectedGroups);
 				update(item);
 			} else {

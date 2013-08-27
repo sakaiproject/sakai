@@ -148,7 +148,7 @@
 	color: #999 !important;
 	text-decoration: underline;
 }
-.disabled:link {
+.disabled:link, .disabled-text-item {
 	color: #cccccc
 }
 .disabled:visited {

@@ -2307,7 +2307,12 @@ public class ShowPageProducer implements ViewComponentProducer, DefaultView, Nav
 
 					UIOutput.make(tableRow, "item-groups-titles-text", itemGroupTitles);
 
-					UIVerbatim.make(tableRow, "content", (i.getHtml() == null ? "" : i.getHtml()));
+                    if(simplePageBean.isItemAvailable(i)) {
+					    UIVerbatim.make(tableRow, "content", (i.getHtml() == null ? "" : i.getHtml()));
+                    } else {
+					    UIVerbatim unavailableText = UIVerbatim.make(tableRow, "content", messageLocator.getMessage("simplepage.textItemUnavailable"));
+						unavailableText.decorate(new UIFreeAttributeDecorator("class", "disabled-text-item"));
+                    }
 
 					// editing is done using a special producer that calls FCK.
 					if (canEditPage) {
