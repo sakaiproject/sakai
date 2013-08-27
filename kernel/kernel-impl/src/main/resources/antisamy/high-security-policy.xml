@@ -789,7 +789,7 @@
                 <regexp-list>
                     <regexp name="onsiteURL"/>
                     <regexp name="offsiteURL"/>
-		    <regexp name="imageURI"/>
+                    <regexp name="imageURI"/>
                 </regexp-list>
             </attribute>
             <attribute name="name"/>
