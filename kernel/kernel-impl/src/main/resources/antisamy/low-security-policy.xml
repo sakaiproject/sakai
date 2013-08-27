@@ -79,6 +79,8 @@
     <regexp name="cssOnsiteUri" value="url\(([\p{L}\p{N}\\/\.\?=\#&amp;;\-_~]+|\#(\w)+)\)" />
     <regexp name="cssOffsiteUri" value="url\((\s)*((ht|f)tp(s?)://)[\p{L}\p{N}]+[~\p{L}\p{N}\p{Zs}\-_\.@#$%&amp;;:,\?=/\+!]*(\s)*\)" />
 
+    <regexp name="imageURI" value="^data:image/.*" />
+
     <!-- This if for CSS Identifiers -->
     <regexp name="cssIdentifier" value="[a-zA-Z0-9\-_]+" />
 
@@ -781,6 +783,7 @@
                 <regexp-list>
                     <regexp name="onsiteURL"/>
                     <regexp name="offsiteURL"/>
+                    <regexp name="imageURI"/>
                 </regexp-list>
             </attribute>
             <attribute name="name"/>
