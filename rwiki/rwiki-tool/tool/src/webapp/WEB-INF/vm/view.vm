@@ -42,7 +42,7 @@
 	#else
 		#set( $rwikiContentStyle = "nosidebar" )
 	#end
-	#if ($renderBean.localisedPageNameLength>255)
+	#if ($renderBean.localisedPageNameLength>200)
 	<div class="navPanel">
 			<div class="viewNav">
 			</div>	
