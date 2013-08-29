@@ -485,6 +485,16 @@
                     <regexp name="boolean"/>
                 </regexp-list>
             </attribute>
+            <attribute name="webkitallowfullscreen">
+                <regexp-list>
+                    <regexp name="boolean"/>
+                </regexp-list>
+            </attribute>
+            <attribute name="mozallowfullscreen">
+                <regexp-list>
+                    <regexp name="boolean"/>
+                </regexp-list>
+            </attribute>
         </tag>
         <tag name="frameset" action="remove"/>
         <tag name="frame" action="remove"/>
