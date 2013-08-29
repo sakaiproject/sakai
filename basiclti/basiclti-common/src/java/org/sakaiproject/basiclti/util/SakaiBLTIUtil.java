@@ -23,6 +23,8 @@ import java.util.Properties;
 import java.util.Map;
 import java.net.URL;
 
+import javax.servlet.http.HttpServletRequest;
+
 import org.imsglobal.basiclti.BasicLTIUtil;
 import org.imsglobal.basiclti.BasicLTIConstants;
 
@@ -925,14 +927,30 @@ public class SakaiBLTIUtil {
 		return default_secret;
 	}
 
-	static private String getOurServerUrl() {
-		String ourUrl = ServerConfigurationService.getString("sakai.rutgers.linktool.serverUrl");
+	// Since ServerConfigurationService.getServerUrl() is wonky because it sometimes looks
+	// at request.getServerName() instead of the serverUrl property we have our own 
+	// priority to determine our current url.
+	// BLTI-273
+	static public String getOurServerUrl() {
+		String ourUrl = ServerConfigurationService.getString("sakai.lti.serverUrl");
+		if (ourUrl == null || ourUrl.equals(""))
+			ourUrl = ServerConfigurationService.getString("serverUrl");
 		if (ourUrl == null || ourUrl.equals(""))
 			ourUrl = ServerConfigurationService.getServerUrl();
 		if (ourUrl == null || ourUrl.equals(""))
 			ourUrl = "http://127.0.0.1:8080";
 
+		if ( ourUrl.endsWith("/")  && ourUrl.length() > 2 ) 
+			ourUrl = ourUrl.substring(0,ourUrl.length()-1);
+
 		return ourUrl;
+	}
+
+	static public String getOurServletPath(HttpServletRequest request)
+	{
+		String URLstr = request.getRequestURL().toString();
+		String retval = URLstr.replaceFirst("^https??://[^/]*",getOurServerUrl());
+		return retval;
 	}
 
 	public static String toNull(String str)

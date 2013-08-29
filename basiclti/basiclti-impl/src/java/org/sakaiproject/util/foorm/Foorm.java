@@ -1296,11 +1296,9 @@ public class Foorm {
 				int value = getInt(getField(controlRow, field));
 				if ( value == 2 || ! isFieldSet(controlRow, field) ) ret.add(line);
 			//  For allowed fields, allow = 0ff (0) or On (1)
-			} else if ("true".equals(allowed) ) {
+			} else {
 				int value = getInt(getField(controlRow, "allow" + field));
 				if ( value == 1 || ! isFieldSet(controlRow, field) ) ret.add(line);
-			} else {
-				ret.add(line);
 			}
 		}
 		return ret.toArray(new String[ret.size()]);

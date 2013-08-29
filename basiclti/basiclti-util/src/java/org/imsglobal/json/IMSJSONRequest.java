@@ -150,8 +150,13 @@ public class IMSJSONRequest {
 	// Assumes data is all loaded
 	public void validateRequest(String oauth_consumer_key, String oauth_secret, HttpServletRequest request) 
 	{
+		validateRequest(oauth_consumer_key, oauth_secret, request, null) ;
+	}
+
+	public void validateRequest(String oauth_consumer_key, String oauth_secret, HttpServletRequest request, String URL) 
+	{
 		valid = false;
-		OAuthMessage oam = OAuthServlet.getMessage(request, null);
+		OAuthMessage oam = OAuthServlet.getMessage(request, URL);
 		OAuthValidator oav = new SimpleOAuthValidator();
 		OAuthConsumer cons = new OAuthConsumer("about:blank#OAuth+CallBack+NotUsed", 
 				oauth_consumer_key, oauth_secret, null);
