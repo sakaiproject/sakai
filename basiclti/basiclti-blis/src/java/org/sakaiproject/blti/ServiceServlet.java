@@ -451,7 +451,8 @@ public class ServiceServlet extends HttpServlet {
 			oauth_secret = SakaiBLTIUtil.decryptSecret(oauth_secret);
 			M_log.debug("oauth_secret (decrypted): "+oauth_secret);
 
-			OAuthMessage oam = OAuthServlet.getMessage(request, null);
+			String URL = SakaiBLTIUtil.getOurServletPath(request);
+			OAuthMessage oam = OAuthServlet.getMessage(request, URL);
 			OAuthValidator oav = new SimpleOAuthValidator();
 			OAuthConsumer cons = new OAuthConsumer("about:blank#OAuth+CallBack+NotUsed", oauth_consumer_key,oauth_secret, null);
 
@@ -937,7 +938,8 @@ public class ServiceServlet extends HttpServlet {
 			oauth_secret = SakaiBLTIUtil.decryptSecret(oauth_secret);
 			M_log.debug("oauth_secret (decrypted): "+oauth_secret);
 
-			pox.validateRequest(oauth_consumer_key, oauth_secret, request);
+			String URL = SakaiBLTIUtil.getOurServletPath(request);
+			pox.validateRequest(oauth_consumer_key, oauth_secret, request, URL);
 			if ( ! pox.valid ) {
 				if (pox.base_string != null) {
 					M_log.warn(pox.base_string);
