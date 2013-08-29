@@ -348,7 +348,7 @@ public class SiteEmailNotificationAnnc extends SiteEmailNotification
 		
 		// get the message
 		AnnouncementMessage msg = (AnnouncementMessage) ref.getEntity();
-		String userId = msg.getAnnouncementHeader().getFrom().getDisplayId();
+		String userId = msg.getAnnouncementHeader().getFrom().getId();
 
 		//checks if "from" email id has to be included? and whether the notification is a delayed notification?. SAK-13512
 		// SAK-20988 - emailFromReplyable@org.sakaiproject.event.api.NotificationService is deprecated
@@ -364,7 +364,9 @@ public class SiteEmailNotificationAnnc extends SiteEmailNotification
 					userEmail = u.getEmail();
 					if ((userEmail != null) && (userEmail.trim().length()) == 0) userEmail = null;
 					
-				} catch (UserNotDefinedException e) {}
+				} catch (UserNotDefinedException e) {
+					M_log.warn("Failed to load user from announcement header: " + userId + ". Will send from no-reply@" + ServerConfigurationService.getServerName()  + " instead.");
+				}
 				
 				// some fallback positions
 				if (userEmail == null) userEmail = "no-reply@" + ServerConfigurationService.getServerName();
