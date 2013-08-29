@@ -1290,16 +1290,21 @@ public class Foorm {
 				throw new IllegalArgumentException(
 						"All model elements must include field name and type");
 			}
-			// We always assume radio and checkbox may be allowed
-			if ("radio".equals(type) || "checkbox".equals(type) ) {
-				// Field = Always Off (0), Always On (1), or Delegate(2)
+
+			// Checkbox and radio buttons are controlled by fields of the same name
+			if (isFieldSet(controlRow, field) && ("radio".equals(type) || "checkbox".equals(type) ) ) {
+				// Field = Always Off (0 or NULL), Always On (1), or Delegate(2)
 				int value = getInt(getField(controlRow, field));
 				if ( value == 2 || ! isFieldSet(controlRow, field) ) ret.add(line);
-			//  For allowed fields, allow = 0ff (0) or On (1)
+			// When there is an allow field in the control row, check it
+			} else if ( isFieldSet(controlRow, "allow" + field) && ! "false".equals(allowed) ) {
+				Object allowRow = getField(controlRow, "allow" + field);
+				int value = getInt(allowRow);
+				if ( value == 1 ) ret.add(line);
 			} else {
-				int value = getInt(getField(controlRow, "allow" + field));
-				if ( value == 1 || ! isFieldSet(controlRow, field) ) ret.add(line);
+				ret.add(line);
 			}
+
 		}
 		return ret.toArray(new String[ret.size()]);
 	}
