@@ -7,32 +7,40 @@ var setupLinks = function(){
      */
     $(".siteLink").live("click", function(e){
         // DO NOT CALL:  e.preventDefault();
-        var itemType = $(this).closest('tr').find('.itemType').text();
-        var entityReference = $(this).closest('tr').find('.entityReference').text();
+        var itemType = $(this).closest('li').find('.itemType').text();
+        var entityReference = $(this).closest('li').find('.entityReference').text();
         reportEvent(e.target, entityReference, itemType, "dash.follow.site.link");
     });
     /*
      * expand an item's contents
      */
     $(".itemLink").live("click", function(e){
+        if( $('#isMobile').length===0){
+            //desktop version
+        }
+        else {
+            //mobile version
+        };
+
         e.preventDefault();
-        var parentRow = $(this).closest('tr');
-        var colCount = $(parentRow).find('td').length;
-        var parentCell = $(this).closest('td');
-        var itemType = $(this).closest('tr').find('.itemType').text();
-        var entityReference = $(this).closest('tr').find('.entityReference').text();
-        var itemCount = $(this).closest('tr').find('.itemCount').text();
+        var parentRow = $(this).closest('li');
+        var colCount = $(parentRow).find('div').length;
+        var parentCell = $(this).closest('div');
+        var itemType = $(this).closest('li').find('.itemType').text();
+        var entityReference = $(this).closest('li').find('.entityReference').text();
+        var itemCount = $(this).closest('li').find('.itemCount').text();
         var callBackUrl = $(this).closest('body').find('.callBackUrl').text();
         
         //if disclosure in DOM, either hide or show, do not request data again
-        if ($(parentRow).next('tr.newRow').length === 1) {
-            $(parentRow).next('tr.newRow').find('.results').fadeToggle('fast', '', function(){
+        if ($(parentRow).next('li.newRow').length === 1) {
+            console.log('already there!')
+            $(parentRow).next('li.newRow').find('.results').fadeToggle('fast', '', function(){
                 $(parentCell).toggleClass('activeCell');
-                $(parentRow).next('tr.newRow').toggle();
+                $(parentRow).next('li.newRow').toggle();
             });
         }
         else {
-            $(parentCell).attr('class', 'activeCell tab');
+            $(parentCell).attr('class', 'activeCell tab span4');
             params = {
                 'entityType': itemType,
                 'entityReference': entityReference,
@@ -130,10 +138,10 @@ var setupLinks = function(){
                         else {
                             results = results + 'This item type has not specified an order :( </div>';
                         }
-                        $('<tr class=\"newRow\"><td colspan=\"' + colCount + '\">' + results + '</td></tr>').insertAfter(parentRow);
-                        $(parentRow).next('tr.newRow').find('.results').slideDown('slow', function(){
+                        $('<li class=\"newRow\"><div>' + results + '</div></li>').insertAfter(parentRow);
+                        $(parentRow).next('li.newRow').find('.results').fadeIn('slow', function(){
                             resizeFrame('grow');
-                            $(parentRow).next('tr.newRow').find('.results').focus();
+                            $(parentRow).next('li.newRow').find('.results').focus();
                         });
                     },
                     error: function(xhr, status, error){
@@ -149,15 +157,15 @@ var setupLinks = function(){
         
     });
     $('.getMore a').live("click", function(){
-        var parentRow = $(this).closest('tr').prev('tr');
-        var colCount = $(parentRow).find('td').length;
+        var parentRow = $(this).closest('li').prev('li');
+        var colCount = '0';
         var callBackUrl = $(this).closest('body').find('.callBackUrl').text();
         var paramContainer = $(parentRow).find('.one');
         params = {
             'entityType': $(paramContainer).find('.itemType').text(),
             'entityReference': $(paramContainer).find('.entityReference').text(),
             'itemCount': $(paramContainer).find('.itemCount').text(),
-            'offset': $(parentRow).next('tr.newRow').find('tr').length
+            'offset': $(parentRow).next('li.newRow').find('li').length
         };
         var initChunk = false;
         renderCollection(callBackUrl, params, parentRow, colCount, initChunk);
@@ -208,54 +216,66 @@ var renderCollection = function(callBackUrl, params, parentRow, colCount, initCh
                 }
                 
                 var link = '';
-                row = '<td class="one">\n<span class="itemType" style="display:none;">' + this.entityType + '</span>\n<span class="actionTargetId" style="display:none;">' + this.newsItemId + '</span>\n<span class="itemCount" style="display:none;">1</span>\n<span class="entityReference" style="display:none;">' + this.entityReference + '</span>\n</td>\n<td class="two date"></td>\n<td class="tab three">\n<a href="#" class="itemLink" target="_top">' + icon + ' ' + this.title + ' <span class="skip">' + json.details + '</span></a><span class="itemLabel">' + this.label + '</span>\n</td>\n<td class="four"></td>\n<td class="action five">\n<a class="' + starAction + '" href="#"><img alt="[ Star/Unstar This ]" src="' + this.starringActionIcon + '" /></a>\n</td>\n<td class="action six">\n' + hideLink + '\n</td>\n';
-                results = results + '<tr class=\"' + this.entityType + ' row' + i % 2 + '\">' + row + '</tr>';
+                row = '<div class="one" style=\"display:none;\">\n<span class="itemType" style="display:none;">' + this.entityType + '</span>\n' + 
+                        '<span class="actionTargetId" style="display:none;">' + this.newsItemId +'</span>\n' +
+                        '<span class="itemCount" style="display:none;">1</span>\n'+
+                        '<span class="entityReference" style="display:none;">' + this.entityReference + '</span>\n'+
+                    '</div>\n'+
+                    '<div class="tab three span4">\n'+
+                        '<a href="#" class="itemLink" target="_top">' + icon + ' ' + this.title + ' <span class="skip">' + json.details + '</span></a>'+
+                        '<span class="itemLabel">' + this.label + '</span>\n'+
+                    '</div>\n'+
+                    '<div class="action span2">\n &nbsp;&nbsp;<a class="' + 
+                        starAction + '" href="#"><img alt="[ Star/Unstar This ]" src="' + 
+                        this.starringActionIcon + '" /></a> ' + hideLink + '\n'+
+                    '</div>\n';
+                results = results + '<li class=\"row-fluid ' + this.entityType + ' row' + i % 2 + '\">' + row + '</li>';
             });
             
             //need to just add rows if it is a "get More" action, otherwise add below
             if (initChunk) {
-                $('<tr class=\"newRow\"><td colspan=\"' + colCount + '\"><div class=\"results newList\" tabindex="-1" style=\"display:none\"><table class=\"itemCollection\" cellpadding=\"0\" cellspacing=\"0\">' + results + '</td></tr></table></div>').insertAfter(parentRow);
-                $(parentRow).next('tr.newRow').find('.results').focus();
+                $('<li class=\"newRow\"><div class=\"results newList\"><ul class=\"itemCollection\">' + results + '</ul></div></li>').insertAfter(parentRow);
             }
             else {
-                $(results).css('display', 'none').insertAfter((parentRow).next('tr').find('table').find('tr:last')).fadeIn('slow');
-                $(parentRow).next('tr').find('table').find('tr').eq(params.offset).attr('tabindex', '-1').focus();
+                $(results).insertAfter((parentRow).next('li').find('ul').find('li:last')).fadeIn('slow');
+                $(parentRow).next('li').find('ul').find('li').eq(params.offset).attr('tabindex', '-1').focus();
             }
             //this needs to be conditional on if being a "get More" action
-            var showingRows = $(parentRow).next('tr.newRow').find('tr').length
+            var showingRows = $(parentRow).next('li.newRow').find('li').length
             
+            console.log(showingRows + ' | ' + totalCount)
             if (showingRows < totalCount) {
-                if ($(parentRow).next('tr.newRow').find('.getMore').length === 0) {
-                    $('<div class="getMore"><a href="#">' + json['more-link'] + '</a><span class=\"showingCount instruction textPanelFooter"></span></div>').insertAfter((parentRow).next('tr.newRow').find('.itemCollection'));
+                if ($(parentRow).next('li.newRow').find('.getMore').length === 0) {
+                    $('<div class="getMore"><a href="#">' + json['more-link'] + '</a><span class=\"showingCount instruction textPanelFooter"></span></div>').insertAfter((parentRow).next('li.newRow').find('.itemCollection'));
                 }
-                $(parentRow).next('tr.newRow').find('.getMore').find('.showingCount').text(updateCount(json['more-status-last'], showingRows, totalCount, parentRow))
+                $(parentRow).next('li.newRow').find('.getMore').find('.showingCount').text(updateCount(json['more-status-last'], showingRows, totalCount, parentRow))
             }
             else {
-                $(parentRow).next('tr.newRow').find('.getMore').fadeOut('slow').remove();
+                $(parentRow).next('li.newRow').find('.getMore').fadeOut('slow').remove();
             }
             
             // add click handlers to star and hide links
             $('div.newList .starThis').live('click', function(e){
-                var targetItemId = $(e.target).closest('tr').find('.actionTargetId').text();
+                var targetItemId = $(e.target).closest('li').find('.actionTargetId').text();
                 updateItemStatus(e.target, 'star', targetItemId);
             });
             $('div.newList .unstarThis').live('click', function(e){
-                var targetItemId = $(e.target).closest('tr').find('.actionTargetId').text();
+                var targetItemId = $(e.target).closest('li').find('.actionTargetId').text();
                 updateItemStatus(e.target, 'unstar', targetItemId);
             });
             $('div.newList .hideThis').live('click', function(e){
-                var targetItemId = $(e.target).closest('tr').find('.actionTargetId').text();
+                var targetItemId = $(e.target).closest('li').find('.actionTargetId').text();
                 updateItemStatus(e.target, 'hide', targetItemId);
             });
             $('div.newList .showThis').live('click', function(e){
-                var targetItemId = $(e.target).closest('tr').find('.actionTargetId').text();
+                var targetItemId = $(e.target).closest('li').find('.actionTargetId').text();
                 updateItemStatus(e.target, 'show', targetItemId);
             });
             
-            $(parentRow).next('tr.newRow').find('.results').slideDown('slow', function(){
+            $(parentRow).next('li.newRow').find('.results').fadeIn('slow', function(){
                 resizeFrame('grow');
                 if (initChunk) {
-                    $(parentRow).next('tr.newRow').find('.results').focus();
+                    $(parentRow).next('li.newRow').find('.results').focus();
                 }
             });
         },

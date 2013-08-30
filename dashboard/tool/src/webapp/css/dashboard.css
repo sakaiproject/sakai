@@ -1,38 +1,5 @@
-/* zero out */
-table {
-    margin: 0;
-    width: 100%;
-    float: none;
-    clear: both
-}
-
-table tr {
-}
-
-.focusedRow:hover td {
-    background:#ffffbb;
-}
-
-.focusedRow:hover .activeCell{
-    background:#09c;
-}
-
-.focusedRow:hover .activeCell a{
-    color:#fff
-    }
-.focusedRow + tr.newRow td .results{
-    border-color:#09c !important
-}
-table tr.even {
-    background: #fff
-}
-
-table tr td {
-    margin: 0;
-    padding: 5px;
-}
 .tab{
-    padding-left:15px;
+    padding:5px;
 }
 .activeCell{
     -webkit-border-top-right-radius: 7px;
@@ -48,48 +15,13 @@ table tr td {
     margin-bottom:5px
 }
 .results {
-     border:2px  solid #b3d9ff;
  }
 .results:focus {
     outline:none
 }
-.newRow td {
-    padding: 00;
-    background: #fff;
+.newRow .results {
 }
 
-table tr.even td {
-}
-
-table tr td a {
-    color: #003399
-}
-
-table tr td.action {
-    width: 17px;
-}
-
-table thead th {
-    padding: 5px;
-    text-align: left
-}
-
-table thead {
-   position: absolute;
-   clip: rect(1px 1px 1px 1px);
-   clip: rect(1px, 1px, 1px, 1px);
-   overflow:hidden;
-   width:1px;
-   height:1px;
-}
-
-table tr:hover {
-    
-}
-
-table tr.newRow:hover {
-    background: #fff
-}
 
 .results {
     -webkit-border-bottom-right-radius: 10px;
@@ -101,7 +33,11 @@ table tr.newRow:hover {
     padding: 10px;
     margin-bottom: 5px;
     font-size: 100%;
-    position:relative
+    position:relative;
+    border:3px solid #B3D9FF;
+    margin-top:-5px;
+    background:#fff;
+    
 }
 
 .results hr {
@@ -264,28 +200,65 @@ ul.attachList li {
 
 /*file and item type listings*/
 img.itemIcon{
-    float:left;
+   /*
+ float:left;
+*/
     vertical-align:bottom;
     padding-top:3px;
     margin-right:5px;
 }
 a.itemLink {
+    /*
     display: block;
     padding: 3px;
     float:left;
+*/
 }
 .itemLabel{
-    display:block;
+    /*
+display:block;
+*/
     color:#555;
-    float:left;
+    /*
+float:left;
+*/
     padding:5px 5px 0 0px;
 }
 .itemLabel:before{
     content:" - ";
 }
+.itemCollection {
+    margin:0;
+    padding:0;
+}
 .itemCollection .itemLabel{
     padding:5px 0 0 0;
 }
+
+.itemCollection .span8{
+    margin-left:0;
+}
+.itemCollection .row-fluid .tab{
+    margin-left:0;
+}
+
+.itemCollection .newRow > div{
+        -webkit-border-bottom-right-radius: 10px;
+    -webkit-border-bottom-left-radius: 10px;
+    -moz-border-radius-bottomright: 10px;
+    -moz-border-radius-bottomleft: 10px;
+    border-bottom-right-radius: 10px;
+    border-bottom-left-radius: 10px;
+    padding: 10px;
+    margin-bottom: 5px;
+    font-size: 100%;
+    position:relative;
+    border:3px solid #B3D9FF;
+    margin-top:-5px;
+    background:#fff;
+    
+}
+
 
 /*file exensions to match*/
 .doc, .rtf, .docx, .docm, .dotx, .dotm {
@@ -342,33 +315,6 @@ a.itemLink {
 
 .swf {
     background: url(../../../../library/image/sakai/shockwave.gif) center left no-repeat !important
-}
-.news td,.sched td{
-    padding: 3px 3px 3px 21px;
-}
-.sched td.date,.news td.date{
-    padding-left:5px;
-    }
-.news .newRow td,.sched .newRow td{
-    padding:0
-}
-.news .one{
-    display:none;
-}
-
-.sched .one,.news .two{
-    width: 30%;
-}
-.sched .two, .sched .tab, .news .three,  .news .tab{
-    width: 40%;
-}
-
-.sched .three,.news .four{
-    width: 25%;
-}
-
-.sched .four,.news .five{
-    width: 5%;
 }
 .listHeader {
     border-bottom: 25px solid #DDDDDD;
@@ -447,7 +393,7 @@ ul.tabPanel{
     background:#ddd
 }
 .panel{
-    padding:5px;
+
 }
 /*
 wrappers for all panels - receive the focus after a tab click
@@ -517,3 +463,21 @@ wrappers for all panels - receive the focus after a tab click
     text-align:center;
     margin:5px;
 }      
+.page .listHeader{
+    display:none;
+}
+
+.itemList {
+    margin:0;
+    padding:0;
+}
+
+.itemList li.row-fluid {
+
+}
+.itemList li.row-fluid > div{
+    padding:5px;
+} 
+.itemList div.newRow > div.span12 .results{
+    border:2px solid #ACD0F5;
+}
