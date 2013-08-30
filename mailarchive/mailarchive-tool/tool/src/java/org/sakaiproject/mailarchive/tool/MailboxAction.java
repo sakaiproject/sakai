@@ -540,6 +540,7 @@ public class MailboxAction extends PagedResourceActionII
 					String email = user.getEmail();
 					context.put("validFrom", email);
 				}
+				context.put(STATE_OPTION_SENDTO, channel.getSendToList());
 			}
 		}
 		catch (IdUnusedException e)

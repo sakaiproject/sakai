@@ -16,7 +16,11 @@
 					#else
 						$tlang.getString("lis.youare")#if($validFrom != "*") $tlang.getString("gen.fro2") $validFrom#else.#end<br />
 					#end
-					$tlang.getString("lis.emasen")
+					#if ($optSendTo)
+						$tlang.getString("lis.emasen")
+					#else
+						$tlang.getString("lis.emasen2")
+					#end
 				</div>	
 	
 				<ul  class="attachList indnt3">
