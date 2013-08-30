@@ -177,12 +177,7 @@ public class LinearAccessDeliveryActionListener extends DeliveryActionListener
               
           eventLogFacade.setData(eventLogData);
           eventService.saveOrUpdateEventLog(eventLogFacade);           	  
-    	// ONC event log end  
-          LearningResourceStoreService lrss = (LearningResourceStoreService) ComponentManager
-                  .get("org.sakaiproject.event.api.LearningResourceStoreService");
-          StringBuffer lrssMetaInfo = new StringBuffer("Assesment: " + delivery.getAssessmentTitle());
-          lrssMetaInfo.append(", Past Due?: " + delivery.getPastDue());
-    	  int action = delivery.getActionMode();
+          int action = delivery.getActionMode();
     	  if (action == DeliveryBean.TAKE_ASSESSMENT) {
     		  StringBuffer eventRef = new StringBuffer("publishedAssessmentId");
     		  eventRef.append(delivery.getAssessmentId());
@@ -197,9 +192,7 @@ public class LinearAccessDeliveryActionListener extends DeliveryActionListener
     		  }
     		  Event event = EventTrackingService.newEvent("sam.assessment.take", eventRef.toString(), true);
     		  EventTrackingService.post(event);
-    		  if (null != lrss) {
-                  lrss.registerStatement(getStatementForTakeAssessment(lrss.getEventActor(event), event, lrssMetaInfo.toString()), "samigo");
-    		  }
+    		  registerIrss(delivery, event, false);
     	  }
     	  else if (action == DeliveryBean.TAKE_ASSESSMENT_VIA_URL) {
     		  StringBuffer eventRef = new StringBuffer("publishedAssessmentId");
@@ -217,10 +210,7 @@ public class LinearAccessDeliveryActionListener extends DeliveryActionListener
     		  String siteId = publishedAssessmentService.getPublishedAssessmentOwner(Long.valueOf(delivery.getAssessmentId()));
     		  Event event = EventTrackingService.newEvent("sam.assessment.take", eventRef.toString(), siteId, true, NotificationService.NOTI_REQUIRED);
     		  EventTrackingService.post(event);
-    		  lrssMetaInfo.append(", Assesment taken via URL.");
-    		  if (null != lrss) {
-                  lrss.registerStatement(getStatementForTakeAssessment(lrss.getEventActor(event), event, lrssMetaInfo.toString()), "samigo");
-    		  }
+    		  registerIrss(delivery, event, true);
     	  }    	  
       }
       else {

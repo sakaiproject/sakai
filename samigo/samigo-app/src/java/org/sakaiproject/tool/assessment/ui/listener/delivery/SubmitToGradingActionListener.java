@@ -131,7 +131,7 @@ public class SubmitToGradingActionListener implements ActionListener {
                 Event event = EventTrackingService.newEvent("", adata.getPublishedAssessmentTitle(), true);
                 LearningResourceStoreService lrss = (LearningResourceStoreService) ComponentManager
                     .get("org.sakaiproject.event.api.LearningResourceStoreService");
-                if (null != lrss) {
+                if (null != lrss && lrss.getEventActor(event) != null) {
                     lrss.registerStatement(getStatementForGradedAssessment(adata, lrss.getEventActor(event), publishedAssessment),
                         "sakai.samigo");
                 }

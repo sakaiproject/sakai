@@ -409,10 +409,7 @@ public class DeliveryActionListener
                       
                   eventLogFacade.setData(eventLogData);
                   eventService.saveOrUpdateEventLog(eventLogFacade);           	  
-                  LearningResourceStoreService lrss = (LearningResourceStoreService) ComponentManager
-                            .get("org.sakaiproject.event.api.LearningResourceStoreService");
-                  StringBuffer lrssMetaInfo = new StringBuffer("Assesment: " + delivery.getAssessmentTitle());
-                  lrssMetaInfo.append(", Past Due?: " + delivery.getPastDue());
+                  
             	  if (action == DeliveryBean.TAKE_ASSESSMENT) {
             		  StringBuffer eventRef = new StringBuffer("publishedAssessmentId=");
             		  eventRef.append(delivery.getAssessmentId());
@@ -428,9 +425,7 @@ public class DeliveryActionListener
                       Event event = EventTrackingService.newEvent("sam.assessment.take",
                               "siteId=" + site_id + ", " + eventRef.toString(), true);
                       EventTrackingService.post(event);
-                      if (null != lrss) {
-                          lrss.registerStatement(getStatementForTakeAssessment(lrss.getEventActor(event), event, lrssMetaInfo.toString()), "samigo");
-                      }
+                      registerIrss(delivery, event, false);
             	  }
             	  else if (action == DeliveryBean.TAKE_ASSESSMENT_VIA_URL) {
             		  StringBuffer eventRef = new StringBuffer("publishedAssessmentId=");
@@ -447,10 +442,7 @@ public class DeliveryActionListener
                       Event event = EventTrackingService.newEvent("sam.assessment.take.via_url",
                                 "siteId=" + site_id + ", " + eventRef.toString(), site_id, true, NotificationService.NOTI_REQUIRED);
                       EventTrackingService.post(event);
-                      lrssMetaInfo.append(", Assesment taken via URL.");
-                      if (null != lrss) {
-                          lrss.registerStatement(getStatementForTakeAssessment(lrss.getEventActor(event), event, lrssMetaInfo.toString()), "samigo");
-                      }
+                      registerIrss(delivery, event, true);
             	  }
               }
               else {
@@ -529,6 +521,19 @@ public class DeliveryActionListener
     	throw e;
     }
 
+  }
+  
+  protected void registerIrss(DeliveryBean delivery, Event event, boolean isViaURL) {
+	  LearningResourceStoreService lrss = (LearningResourceStoreService) ComponentManager
+			  .get("org.sakaiproject.event.api.LearningResourceStoreService");
+	  if (null != lrss && lrss.getEventActor(event) != null) {
+		  StringBuffer lrssMetaInfo = new StringBuffer("Assesment: " + delivery.getAssessmentTitle());
+		  lrssMetaInfo.append(", Past Due?: " + delivery.getPastDue());
+		  if (isViaURL) {
+			  lrssMetaInfo.append(", Assesment taken via URL.");
+		  }
+		  lrss.registerStatement(getStatementForTakeAssessment(lrss.getEventActor(event), event, lrssMetaInfo.toString()), "samigo");
+	  }
   }
 
   /**
