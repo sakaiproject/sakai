@@ -10814,7 +10814,7 @@ private Map<String,List> getTools(SessionState state, String type, Site site) {
 			Map templateCriteria = new HashMap(1);
 			templateCriteria.put("template", "true");
 			
-			templateSites = SiteService.getSites(org.sakaiproject.site.api.SiteService.SelectionType.ANY, null, null, templateCriteria, SortType.TYPE_ASC, null);
+			templateSites = SiteService.getSites(org.sakaiproject.site.api.SiteService.SelectionType.ANY, null, null, templateCriteria, SortType.TITLE_ASC, null);
 		}
 		
 		// If no templates could be found, stick an empty list in the context
