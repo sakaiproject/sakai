@@ -178,6 +178,7 @@ ViewParamsReporter, ActionResultInterceptor {
 				isReset = true;
 			}
 			
+            UIMessage.make(tofill, "validate.or", "validate.or", args);
 			if (!isReset) {
 				UIMessage.make(tofill, "welcome1", "validate.welcome1", args);
 				UIMessage.make(tofill, "welcome", "validate.welcome", args);
