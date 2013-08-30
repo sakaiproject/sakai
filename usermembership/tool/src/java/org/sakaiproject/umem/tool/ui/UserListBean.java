@@ -572,9 +572,9 @@ public class UserListBean {
 					String vendor = M_sql.getVendor();
 					String sql = null;
 					if(vendor.equalsIgnoreCase("oracle")){
-						sql = "select distinct TYPE from SAKAI_USER where TYPE is not null";
+						sql = "select distinct TYPE from SAKAI_USER where TYPE is not null order by TYPE";
 					}else{
-						sql = "select distinct TYPE from SAKAI_USER where TYPE!='' and TYPE is not null;";
+						sql = "select distinct TYPE from SAKAI_USER where TYPE!='' and TYPE is not null order by TYPE;";
 					}
 					st = c.createStatement();
 					rs = st.executeQuery(sql);
@@ -601,6 +601,7 @@ public class UserListBean {
 				userTypes.add(new SelectItem(USER_TYPE_NONE, msgs.getString("user_type_none")));
 			}
 		}
+		
 		return userTypes;
 	}
 
