@@ -67,9 +67,8 @@ echo <<< EOF
        "Person.email.primary" ,
        "User.image" ,
        "Result.sourcedId" ,
-       "basic-lti-launch-request",
        "Result.autocreate",
-       "Result.sourcedGUID"
+       "basic-lti-launch-request"
   ],
   "service_offered": [
     {

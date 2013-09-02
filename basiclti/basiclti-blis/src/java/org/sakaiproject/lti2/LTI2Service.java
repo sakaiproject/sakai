@@ -144,7 +144,6 @@ System.out.println("deploy="+deploy);
 			services.add(StandardServices.LTI1Outcomes(serverUrl+"/imsblis/service/"));
 			services.add(SakaiLTI2Services.BasicOutcomes(serverUrl+"/imsblis/service/"));
 			capabilities.add("Result.sourcedId");
-			capabilities.add("Result.sourcedGUID");
 			capabilities.add("Result.autocreate");
 		}
 		if (foorm.getLong(deploy.get(LTIService.LTI_ALLOWROSTER)) > 0 ) {

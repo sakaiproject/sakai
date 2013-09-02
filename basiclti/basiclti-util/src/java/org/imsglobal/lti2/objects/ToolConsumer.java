@@ -47,8 +47,8 @@ public class ToolConsumer {
     public static String[] STANDARD_CAPABILITIES = {
         "Person.name.given" , "Person.name.family" , "Person.email.primary" ,
         "User.image" , "Result.sourcedId" , "basic-lti-launch-request" , 
-        "Result.autocreate",
-        "Result.sourcedGUID" } ;
+        "Result.autocreate"
+    } ;
 
     // Constructor
     public ToolConsumer(String guid, Product_instance product_instance) {
