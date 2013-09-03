@@ -1290,8 +1290,18 @@ public class Foorm {
 				throw new IllegalArgumentException(
 						"All model elements must include field name and type");
 			}
+			// always allow autodate fields
+			if ("autodate".equals(type))
+			{
+				ret.add(line);
+			}
+			// always allow the SITE_ID field
+			else if ("SITE_ID".equals(field))
+			{
+				ret.add(line);
+			}
 			// We always assume radio and checkbox may be allowed
-			if ("radio".equals(type) || "checkbox".equals(type) ) {
+			else if ("radio".equals(type) || "checkbox".equals(type) ) {
 				// Field = Always Off (0), Always On (1), or Delegate(2)
 				int value = getInt(getField(controlRow, field));
 				if ( value == 2 || ! isFieldSet(controlRow, field) ) ret.add(line);
