@@ -125,6 +125,8 @@ public class ResourcesHelperAction extends VelocityPortletPaneledAction
 	
 	protected static final String MAKE_SITE_PAGE_TEMPLATE = "resources/sakai_make_site_page";
 
+    protected static final String ERROR_PAGE_TEMPLATE = "resources/sakai_error_page";
+
 	/** The content type image lookup service in the State. */
 	private static final String STATE_CONTENT_TYPE_IMAGE_SERVICE = PREFIX + "content_type_image_service";
 	
@@ -302,7 +304,7 @@ public class ResourcesHelperAction extends VelocityPortletPaneledAction
 				}
 			}
 			logger.debug(attributes, new Throwable());
-			return null;
+            return ERROR_PAGE_TEMPLATE;
 		}
 		if(pipe.isActionCompleted())
 		{
@@ -350,6 +352,8 @@ public class ResourcesHelperAction extends VelocityPortletPaneledAction
 			break;
 		default:
 			// hmmmm
+		    logger.info(this + "hmmm");
+			template = buildMakeSitePageContext(portlet, context, data, state);
 			break;
 		}
 		
