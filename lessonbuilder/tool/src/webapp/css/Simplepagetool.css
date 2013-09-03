@@ -148,8 +148,18 @@
 	color: #999 !important;
 	text-decoration: underline;
 }
-.disabled:link, .disabled-text-item {
+.disabled:link {
 	color: #cccccc
+}
+.disabled-multimedia-item {
+	color: #cccccc;
+    margin-top:4px;
+    display: inline-block;
+    /*padding-left: 8px !important;*/
+}
+.disabled-text-item {
+	color: #cccccc;
+    margin-top:4px;
 }
 .disabled:visited {
 	color: #cccccc
@@ -223,10 +233,10 @@ a.edit-link:link, a.edit-link:visited, a.itemLink:link, a.itemLink:visited, a.mu
 .mainList li:hover {
 #    border: 1px solid #B3B3B3;
 }
-.mainList li.canEdit > div {
+/*.mainList li.canEdit > div {
     position: relative;
     padding-left: 40px
-}
+}*/
 .mainList li.canEdit > div.edit-col {
     float:left;
     padding-left: 0;

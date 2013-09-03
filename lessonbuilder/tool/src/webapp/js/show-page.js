@@ -427,6 +427,11 @@ $(function() {
 			$("#movie-height").val(row.find(".mm-height").text());
 			$("#movie-width").val(row.find(".mm-width").text());
 			$("#description3").val(row.find(".description").text());
+			if(row.find(".movie-prerequisite").text() === 'true') {
+                $('#question-prerequisite').attr('checked','checked');
+            } else {
+                $('#question-prerequisite').removeAttr('checked');
+            }
 			$("#mimetype4").val(row.find(".mm-type").text());
 			var position =  row.position();
             $('.edit-col').addClass('edit-colHidden');

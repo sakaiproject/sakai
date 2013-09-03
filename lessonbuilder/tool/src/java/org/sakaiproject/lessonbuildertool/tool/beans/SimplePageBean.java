@@ -5319,6 +5319,7 @@ public class SimplePageBean {
 		item.setHeight(height);
 		item.setWidth(width);
 		item.setDescription(description);
+        item.setPrerequisite(prerequisite);
 		item.setHtml(mimetype);
 		update(item);
 

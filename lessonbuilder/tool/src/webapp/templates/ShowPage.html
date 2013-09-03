@@ -311,7 +311,9 @@ function resizeiframe(id) {
                       <div style="display:none" rsf:id="item-groups2" class="item-groups"></div>
                       <span style="display:none" rsf:id="item-path" class="item-path"></span>
                       </div>
-                    </div>
+                  </div>
+
+                    <div rsf:id="notAvailableText"></div>
     
                     <div rsf:id="imageSpan"><div>
                         <div rsf:id="item-group-titles3" class="item-group-titles"></div>
@@ -365,6 +367,7 @@ function resizeiframe(id) {
                       <div style="display:none" rsf:id="movieHeight" class="mm-height"></div>
                       <div style="display:none" rsf:id="movieWidth" class="mm-width"></div>
                       <div class="description" rsf:id="description3"></div>
+                      <div style="display:none" rsf:id="prerequisite" class="movie-prerequisite"></div>
                       <div style="display:none" rsf:id="mimetype5" class="mm-type"></div>
                       <div style="display:none" rsf:id="current-item-id6" class="mm-itemid"></div>
                       <div style="display:none" rsf:id="item-groups5" class="item-groups"></div>
@@ -847,7 +850,7 @@ function resizeiframe(id) {
 						<p><span class="ui-icon ui-icon-alert" style="float: left; margin-right: .3em;"></span> 
 						<strong rsf:id="msg=simplepage.error_colon"></strong> <span id="mm-error"></span></p>
 					</div>
-				</div>
+                </div>
                 <form action="#" rsf:id="add-multimedia-form" method="post" enctype="multipart/form-data">
                     <div class="border instructionPanel">
                         <p class="instruction" rsf:id="msg=simplepage.add_file_instructions"></p>
@@ -885,7 +888,7 @@ function resizeiframe(id) {
 			</div>
 			
 
-			<div id="edit-multimedia-dialog" rsf:id="edit-multimedia-dialog">
+            <div id="edit-multimedia-dialog" rsf:id="edit-multimedia-dialog">
                 <form action="#" rsf:id="edit-multimedia-form" class="controlsPanel">
                     <div class="">
                         <p class="shorttext required">
@@ -1189,7 +1192,7 @@ function resizeiframe(id) {
                 </form>
 			</div>
 			
-			<div id="movie-dialog" rsf:id="movie-dialog">
+            <div id="movie-dialog" rsf:id="movie-dialog">
 				<div class="ui-widget" id="movie-error-container">
 					<div class="ui-state-error ui-corner-all" style="padding: 0 .7em;"> 
 						<p><span class="ui-icon ui-icon-alert" style="float: left; margin-right: .3em;"></span> 
@@ -1224,6 +1227,10 @@ function resizeiframe(id) {
 						<p id="editgroups-movie" class="edit-group">
 						  <a href="#"><span rsf:id="msg=simplepage.edit-group"></span></a>
 						</p>
+                        <p class="checkbox">
+                            <input type="checkbox" name="question-prerequisite" id="question-prerequisite" rsf:id="question-prerequisite" />
+                            <label for="question-prerequisite"><span rsf:id="msg=simplepage.prerequisites_label"></span></label>
+                        </p>
                        <p class="act">  
                             <input class="bold" type="submit" onclick="event.returnValue = checkMovieForm($('#movie-width').val().trim(), $('#movie-height').val().trim()); return checkMovieForm($('#movie-width').val().trim(), $('#movie-height').val().trim());" id="update-movie" rsf:id="update-movie" />
                             <input type="submit" rsf:id="movie-cancel" onclick="closeMovieDialog(); return false" />
