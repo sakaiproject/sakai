@@ -6,9 +6,9 @@
     -webkit-border-top-left-radius: 7px;
     -moz-border-radius-topright: 7px;
     -moz-border-radius-topleft: 7px;
-    border-top-right-radius: 7px;
+     border-top-right-radius: 7px;
     border-top-left-radius: 7px;
-   background: #b3d9ff;
+    background: #ddd;
  
 }
 .activeCell, .results {
@@ -34,7 +34,7 @@
     margin-bottom: 5px;
     font-size: 100%;
     position:relative;
-    border:3px solid #B3D9FF;
+    border:1px solid #ddd;
     margin-top:-5px;
     background:#fff;
     
@@ -48,13 +48,18 @@
 }
 .results h4 {
     color:#555;
-    font-size:120%;
+    font-size:110%;
     margin:0;
     padding:0 0 10px 0;
-    }
-    
-h3.withNav {
+}
+
+.results .block {
+    margin:10px 0;
+}    
+h3.withNav, #motdTextDiv h3, #motdTextDiv h4{
     margin:1em 0;
+    color:#555;
+    font-size:16px;
 }
 
 .pagerCell {
@@ -148,8 +153,7 @@ h3.withNav {
 }
 
 .metadataLine,.unknownType {
-    font-size: 100%;
-    font-weight:bold;
+    font-size: 90%;
     list-style:none;
     margin:0;
 }
@@ -179,18 +183,10 @@ ul.moreInfo {
 }
 .moreInfo a, .moreInfo a:visited{
     text-decoration:none;
-    color:#000;
-    background:#e6f2ff;
-    padding:5px;
-    -webkit-border-radius: 5px;
-    -moz-border-radius: 5px;
-    border-radius: 5px;
     }
 .moreInfo a:hover{
-    background:#b3d9ff;
     }
 .moreInfo a .size{
-    font-size:9px;
 }
 ul.attachList li {
     background: transparent url(../../../../library/image/sakai/attachments.gif) center left no-repeat;
@@ -214,13 +210,12 @@ a.itemLink {
     float:left;
 */
 }
+
 .itemLabel{
     /*
-display:block;
-*/
+    display:block;
     color:#555;
-    /*
-float:left;
+    float:left;
 */
     padding:5px 5px 0 0px;
 }
@@ -239,11 +234,11 @@ float:left;
     margin-left:0;
 }
 .itemCollection .row-fluid .tab{
-    margin-left:0;
+
 }
 
 .itemCollection .newRow > div{
-        -webkit-border-bottom-right-radius: 10px;
+    -webkit-border-bottom-right-radius: 10px;
     -webkit-border-bottom-left-radius: 10px;
     -moz-border-radius-bottomright: 10px;
     -moz-border-radius-bottomleft: 10px;
@@ -253,12 +248,11 @@ float:left;
     margin-bottom: 5px;
     font-size: 100%;
     position:relative;
-    border:3px solid #B3D9FF;
+    border:1px solid #ddd;
     margin-top:-5px;
     background:#fff;
-    
+    margin-left: 14.8936%;
 }
-
 
 /*file exensions to match*/
 .doc, .rtf, .docx, .docm, .dotx, .dotm {
@@ -317,8 +311,6 @@ float:left;
     background: url(../../../../library/image/sakai/shockwave.gif) center left no-repeat !important
 }
 .listHeader {
-    border-bottom: 25px solid #DDDDDD;
-    margin-bottom: 5px;
 }
 .listHeader td{
     border:2xp solid red  !important;
@@ -356,7 +348,8 @@ ul.tabPanel{
     height:29px;
     margin:-bottom:3px;
 }
-.tabPanel li{float:left; margin-right:2px;background:#eee;
+.tabPanel li{
+    float:left; margin-right:2px;background:#eee;
     -webkit-border-top-left-radius: 7px;
     -webkit-border-top-right-radius: 7px;
     -moz-border-radius-topleft: 7px;
@@ -389,8 +382,23 @@ ul.tabPanel{
     background:url(img/tab-round.png) left 30px;
     display:block;
 }
-.tabPanel .activeTab{
-    background:#ddd
+.nav-tabs li > a{
+    text-decoration:none;
+}
+.nav-tabs .activeTab > a{
+    text-decoration:none;
+    -moz-border-bottom-colors: none;
+    -moz-border-left-colors: none;
+    -moz-border-right-colors: none;
+    -moz-border-top-colors: none;
+    background-color: #FFFFFF;
+    border-color: #DDDDDD #DDDDDD transparent;
+    border-image: none;
+    border-style: solid;
+    border-width: 1px;
+    color: #555555;
+    cursor: default;
+
 }
 .panel{
 
@@ -442,7 +450,6 @@ wrappers for all panels - receive the focus after a tab click
     right:10px;
     padding:3px 6px;
     display:block;
-    
     text-decoration:none;
 }
 .mainPanel{
@@ -450,18 +457,12 @@ wrappers for all panels - receive the focus after a tab click
 }
 .getMore{
     padding:10px;
-    text-align:center
+    padding-left: 16.8936%;
+    margin:
 }
 
 .getMore a{
-    -webkit-border-radius: 5px;
-    -moz-border-radius: 5px;
-    border-radius: 5px;
     text-decoration:none;
-    padding:5px;
-    background: #cceeff;
-    text-align:center;
-    margin:5px;
 }      
 .page .listHeader{
     display:none;

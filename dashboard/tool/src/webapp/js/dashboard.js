@@ -33,14 +33,13 @@ var setupLinks = function(){
         
         //if disclosure in DOM, either hide or show, do not request data again
         if ($(parentRow).next('li.newRow').length === 1) {
-            console.log('already there!')
             $(parentRow).next('li.newRow').find('.results').fadeToggle('fast', '', function(){
                 $(parentCell).toggleClass('activeCell');
                 $(parentRow).next('li.newRow').toggle();
             });
         }
         else {
-            $(parentCell).attr('class', 'activeCell tab span4');
+            $(parentCell).attr('class', 'activeCell tab span6');
             params = {
                 'entityType': itemType,
                 'entityReference': entityReference,
@@ -85,7 +84,7 @@ var setupLinks = function(){
                                     else 
                                         if (json[w + '-label']) {
                                             // a string with a label counterpart
-                                            results = results + '<h5>' + json[w + '-label'] + '</h5><div class="block">' + json[w] + '</div>';
+                                            results = results + '<h5>' + json[w + '-label'] + '</h5><div class="block muted">' + json[w] + '</div>';
                                             
                                         }
                                         else {
@@ -95,7 +94,7 @@ var setupLinks = function(){
                                             }
                                             else {
                                                 //all other strings
-                                                results = results + '<div class="block">' + json[w] + '</div>';
+                                                results = results + '<div class="block muted">' + json[w] + '</div>';
                                             }
                                         }
                                     
@@ -125,7 +124,7 @@ var setupLinks = function(){
                                             if (json['more-info'][i]['info_link-size']) {
                                                 size = ' (' + json['more-info'][i]['info_link-size'] + ') ';
                                             }
-                                            moreinfo = moreinfo + '<li><a ' + target + ' href=\"' + json['more-info'][i]['info_link-url'] + '\" onClick=\"reportEvent(this,\'/dashboard/link' + entityReference + '\',\'' + itemType + '\',\'' + dashEvent + '\');\">' + json['more-info'][i]['info_link-title'] + '<span class=\"size\">' + size + '</span></a></li>';
+                                            moreinfo = moreinfo + '<li><a class=\"btn btn-small\"' + target + ' href=\"' + json['more-info'][i]['info_link-url'] + '\" onClick=\"reportEvent(this,\'/dashboard/link' + entityReference + '\',\'' + itemType + '\',\'' + dashEvent + '\');\">' + json['more-info'][i]['info_link-title'] + '<span class=\"size\">' + size + '</span></a></li>';
                                             
                                         }
                                         results = results + '<ul class=\"moreInfo\">' + moreinfo + ' </ul>';
@@ -216,14 +215,14 @@ var renderCollection = function(callBackUrl, params, parentRow, colCount, initCh
                 }
                 
                 var link = '';
-                row = '<div class="one" style=\"display:none;\">\n<span class="itemType" style="display:none;">' + this.entityType + '</span>\n' + 
+                row = '<div class="one span2" style=\"visibility:hidden;\">\n<span class="itemType" style="display:none;">' + this.entityType + '</span>\n' + 
                         '<span class="actionTargetId" style="display:none;">' + this.newsItemId +'</span>\n' +
                         '<span class="itemCount" style="display:none;">1</span>\n'+
                         '<span class="entityReference" style="display:none;">' + this.entityReference + '</span>\n'+
                     '</div>\n'+
-                    '<div class="tab three span4">\n'+
+                    '<div class="tab three span6">\n'+
                         '<a href="#" class="itemLink" target="_top">' + icon + ' ' + this.title + ' <span class="skip">' + json.details + '</span></a>'+
-                        '<span class="itemLabel">' + this.label + '</span>\n'+
+                        '<span class="itemLabel muted">' + this.label + '</span>\n'+
                     '</div>\n'+
                     '<div class="action span2">\n &nbsp;&nbsp;<a class="' + 
                         starAction + '" href="#"><img alt="[ Star/Unstar This ]" src="' + 
@@ -243,10 +242,10 @@ var renderCollection = function(callBackUrl, params, parentRow, colCount, initCh
             //this needs to be conditional on if being a "get More" action
             var showingRows = $(parentRow).next('li.newRow').find('li').length
             
-            console.log(showingRows + ' | ' + totalCount)
+            //console.log(showingRows + ' | ' + totalCount)
             if (showingRows < totalCount) {
                 if ($(parentRow).next('li.newRow').find('.getMore').length === 0) {
-                    $('<div class="getMore"><a href="#">' + json['more-link'] + '</a><span class=\"showingCount instruction textPanelFooter"></span></div>').insertAfter((parentRow).next('li.newRow').find('.itemCollection'));
+                    $('<div class="getMore"><a class=\"btn btn-small\" href="#">' + json['more-link'] + '</a>&nbsp;&nbsp;&nbsp;<span class=\"showingCount instruction textPanelFooter"></span></div>').insertAfter((parentRow).next('li.newRow').find('.itemCollection'));
                 }
                 $(parentRow).next('li.newRow').find('.getMore').find('.showingCount').text(updateCount(json['more-status-last'], showingRows, totalCount, parentRow))
             }
