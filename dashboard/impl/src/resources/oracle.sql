@@ -22,6 +22,7 @@ item_id number not null, hidden number(1,0) default 0, sticky number(1,0) defaul
 unique (person_id, context_id, item_id) ); 
 create sequence dash_calendar_link_seq start with 1 increment by 1 nomaxvalue; 
 create index dash_calendar_link_idx on dash_calendar_link (person_id, context_id, item_id, hidden, sticky);
+create index dash_calendar_link_item_id_idx on dash_calendar_link (item_id);
 
 create table dash_config ( id number not null primary key, 
 property_name varchar2(99) not null, property_value number(10,0) not null ); 
@@ -71,6 +72,7 @@ create table dash_news_link
 item_id number not null, hidden number(1,0) default 0, sticky number(1,0) default 0, unique (person_id, context_id, item_id) ); 
 create sequence dash_news_link_seq start with 1 increment by 1 nomaxvalue; 
 create index dash_news_link_idx on dash_news_link (person_id, context_id, item_id, hidden, sticky);
+create index dash_news_link_item_id_idx on dash_news_link (item_id);
 
 create table dash_person 
 ( id number not null primary key,user_id varchar2(99) not null, sakai_id varchar2(99) ); 
