@@ -67,7 +67,8 @@ h3.withNav, #motdTextDiv h3, #motdTextDiv h4{
     right: 3px;
     top: 63px;
 }
-.pager {
+
+.pagerCell .pager {
     width:100%;
     color: #aaa;
     text-align: right;

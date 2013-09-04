@@ -1,0 +1,144 @@
+a.ui-link:link, a.ui-link:visited {
+    text-decoration: none;
+    outline: none;
+    border: none;
+}
+
+a.ui-link:link .flink, .flink {
+    color: #2B5FAB !important;
+    text-decoration: none;
+}
+
+a.ui-link:visited .flink, .flink {
+    color: #2B5FAB;
+    text-decoration: none;
+}
+
+.notALink {
+    color: #000;
+    text-decoration: none !important;
+    outline: none !important;
+    border: none !important;
+}
+
+.spacer {
+    padding: 3px
+}
+
+.ctheader {
+}
+
+.tabbify {
+    border-top-left-radius: 10px;
+    border-top-right-radius: 10px;
+    background: #b3b3b3;
+    background: -moz-linear-gradient(top, #b3b3b3 0%, #a1a1a1 100%);
+    background: -webkit-gradient(linear, left top, left bottom, color-stop(0%,#b3b3b3), color-stop(100%,#a1a1a1));
+    background: -webkit-linear-gradient(top, #b3b3b3 0%,#a1a1a1 100%);
+    background: -o-linear-gradient(top, #b3b3b3 0%,#a1a1a1 100%);
+    background: -ms-linear-gradient(top, #b3b3b3 0%,#a1a1a1 100%);
+    background: linear-gradient(to bottom, #b3b3b3 0%,#a1a1a1 100%);
+}
+
+.tabnav .ui-btn-inner {
+    border: 0;
+}
+
+.tabnav .ui-grid-a > *:nth-child(n){
+    margin-right:0;
+} 
+.tabnav {
+    border-bottom: 5px solid #003e8f;
+}
+.itemHeader .tabnav {
+    border-bottom: none;
+}
+
+.tabnav .ui-btn-active, .navtop {
+    background: #004c9f !important;
+    background: -moz-linear-gradient(top, #004c9f 0%, #003e8f 100%) !important;
+    background: -webkit-gradient(linear, left top, left bottom, color-stop(0%,#004c9f), color-stop(100%,#003e8f)) !important;
+    background: -webkit-linear-gradient(top, #004c9f 0%,#003e8f 100%) !important;
+    background: -o-linear-gradient(top, #004c9f 0%,#003e8f 100%) !important;
+    background: -ms-linear-gradient(top, #004c9f 0%,#003e8f 100%) !important;
+    background: linear-gradient(to bottom, #004c9f 0%,#003e8f 100%) !important;
+}
+ .navtop {
+     padding:10px;
+}
+.navtopTitle {
+    text-align:center;
+    width:100% !important;
+}
+.navtopTitleHeader {
+    margin: 0 !important;text-align:center !important;
+}
+#activ .navtop, #events .navtop {
+    margin-bottom:3px
+
+}
+.starLink, .starLinked {
+    background-color: #eee;
+    box-shadow: none;
+}
+.starLink .ui-icon-star {
+    background-color: #ddd;
+}
+.starLinked .ui-icon-star{
+    background-color: #EFCF5E;
+}
+.fileBlock {
+    border-top:1px solid #ccc;
+    border-bottom:1px solid #ccc;
+    margin:0 -15px;
+    padding:15px 15px;
+}
+.textBlob {
+    overflow:visible;
+    white-space:normal;
+    line-height:20px;
+}
+a.listLink.tap {
+    
+}
+
+.itemFooter, .itemFooterFiles {
+    position:fixed;
+    width:100%;
+    bottom:0;
+    text-align:center;
+    background:#ffe;
+    border-top:1px solid #ccc;
+    margin: 0 -15px;
+    padding: 10px;
+}
+.itemFooterFiles {
+    color:#fff;
+    background: #004c9f !important;
+    z-index:1;
+    text-shadow:0 0 0 #FFFFFF;
+}
+h3 {
+    font-size:13px !important;
+    margin: 5px 0 15px 0 !important
+}
+.bottompad {
+    padding-bottom:50px
+}
+.slideMenuPanel {
+    background:#000;margin-top:-5px;
+}
+.slideMenuPanel a {
+    color:#fff;text-decoration:none
+}
+.slideMenuControlWrap{
+    float:right;width:23px;text-align:right;position:absolute;top:8px;right:10px
+}
+.slideMenuControlWrap .menuControl{
+    color:#fff !important
+}
+.tabnav .activeTab {
+    background: #173E8F
+}
+.starContainer{height: 34px;width: 26px;}
+.itemHeaderBack {position:absolute;top:10px;left:10px;width:20px !important;text-decoration:none}
