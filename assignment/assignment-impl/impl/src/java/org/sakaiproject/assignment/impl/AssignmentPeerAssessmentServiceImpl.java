@@ -387,6 +387,7 @@ public class AssignmentPeerAssessmentServiceImpl extends HibernateDaoSupport imp
 					totleScoreStr = totalScore.toString();
 				}
 				edit.setGrade(totleScoreStr);
+				edit.setGraded(true);
 				assignmentService.commitEdit(edit);
 			} catch (IdUnusedException e) {
 				log.error(e.getMessage(), e);
