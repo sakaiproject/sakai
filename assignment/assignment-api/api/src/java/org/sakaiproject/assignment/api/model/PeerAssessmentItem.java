@@ -11,6 +11,8 @@ public class PeerAssessmentItem implements Serializable{
 	private Integer score;
 	private String comment;
 	private boolean removed;
+	//transient variables for displaying information in the UI
+	private String assessorDisplayName;
 	
 	public String getSubmissionId() {
 		return submissionId;
@@ -51,5 +53,13 @@ public class PeerAssessmentItem implements Serializable{
 	//score is stored as a integer value in the DB, but is really a decimal value (divide by 10)
 	public String getScoreDisplay(){
 		return getScore() == null ? "" : "" + score/10.0;
+	}
+	//transient variable that is only set for UI
+	public String getAssessorDisplayName(){
+		return assessorDisplayName;
+	}
+	//transient variable that is only set for UI
+	public void setAssessorDisplayName(String assessorDisplayName) {
+		this.assessorDisplayName = assessorDisplayName;
 	}
 }

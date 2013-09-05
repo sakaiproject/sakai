@@ -1929,6 +1929,15 @@ public class AssignmentAction extends PagedResourceActionII
 					List<PeerAssessmentItem> completedReviews = new ArrayList<PeerAssessmentItem>();
 					for(PeerAssessmentItem review : reviews){
 						if(!review.isRemoved() && review.getScore() != null){
+							//need to set the assessor's display name
+							try {
+								review.setAssessorDisplayName(UserDirectoryService.getUser(review.getAssessorUserId()).getDisplayName());
+							} catch (UserNotDefinedException e) {
+								//reviewer doesn't exist or userId is wrong
+								M_log.error(e.getMessage(), e);
+								//set a default one:
+								review.setAssessorDisplayName(rb.get("gen.reviewer").toString());
+							}
 							completedReviews.add(review);
 						}
 					}
