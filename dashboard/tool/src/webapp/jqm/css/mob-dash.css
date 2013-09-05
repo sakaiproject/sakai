@@ -38,6 +38,8 @@ a.ui-link:visited .flink, .flink {
     background: -o-linear-gradient(top, #b3b3b3 0%,#a1a1a1 100%);
     background: -ms-linear-gradient(top, #b3b3b3 0%,#a1a1a1 100%);
     background: linear-gradient(to bottom, #b3b3b3 0%,#a1a1a1 100%);
+    text-decoration:none !important;
+    color:#fff !important;
 }
 
 .tabnav .ui-btn-inner {
@@ -142,3 +144,98 @@ h3 {
 }
 .starContainer{height: 34px;width: 26px;}
 .itemHeaderBack {position:absolute;top:10px;left:10px;width:20px !important;text-decoration:none}
+
+.listHeader, .pagerCell {
+    display:none;
+}
+#messagePanel, #messageError {
+    z-index:10;
+}
+.ui-content {
+    padding:0
+}
+#schedPanel .row-fluid {
+    border-bottom:1px solid #ccc;
+    padding:10px;
+    position:relative;
+    height:115px;
+}
+
+/*
+components of an item in the schedule view
+*/
+
+/* title */
+#schedPanel .row-fluid .two {
+    position:absolute;
+    top:10px;
+    left:10px;
+}
+/* title label*/
+#schedPanel .row-fluid .two .itemLabel{
+    display:block;
+    margin-top:9px
+}
+.itemLabel:before {
+    content: "";
+}
+/* date */
+#schedPanel .row-fluid .one {
+    position:absolute;
+    top:70px;
+    left:10px;
+}
+/* site link */
+#schedPanel .row-fluid .three {
+    position:absolute;
+    top:96px;
+    left:10px;
+}
+/* star and hide controls */
+#schedPanel .row-fluid .four {
+    position:absolute;
+    top:15px;
+    right:10px;
+}
+#schedPanel .row-fluid .four a {
+    margin: 0 15px;
+}
+
+/*
+components of an item in the event view
+*/
+#newsPanel .row-fluid {
+    border-bottom:1px solid #ccc;
+    padding:10px;
+    position:relative;
+    height:85px;
+}
+
+
+/* title */
+#newsPanel .row-fluid .two {
+    position:absolute;
+    top:69px;
+    left:10px;
+}
+/* site link */
+#newsPanel .row-fluid .three {
+    position:absolute;
+    top:10px;
+    left:10px;
+}
+#newsPanel .row-fluid .four {
+    position:absolute;
+    top:42px;
+    left:10px;
+}
+/* star and hide controls */
+#newsPanel .row-fluid .five {
+    position:absolute;
+    top:15px;
+    right:10px;
+}
+#newsPanel .row-fluid .five a{
+    margin: 0 15px;
+}
+

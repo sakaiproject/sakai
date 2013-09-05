@@ -5,17 +5,16 @@
     </head>
     <body>
         <wicket:extend>
-            <div class="portletBody" style="">
+            <div class="portletBody mobilePage">
                 <div wicket:id="dashboard-page">
-                    <span id="isMobile"></span>
                     <!--
                     TODO: These script and link tags need to be moved to the head tag.
                     Wicket can include them in the head tag if done properly from the java code.
                     -->
                     <link rel="stylesheet" type="text/css" href="jqm/jquery.mobile-1.3.1.min.css" />
-                                        <link rel="stylesheet" type="text/css" href="jqm/css/mob-dash.css" />
-                           <script src="http://code.jquery.com/jquery-1.7.2.min.js">
-        </script>
+                    <link rel="stylesheet" type="text/css" href="jqm/css/mob-dash.css" />
+                    <script src="http://code.jquery.com/jquery-1.7.2.min.js">
+                    </script>
                     <script type="text/javascript" src="js/dashboard.js">
                     </script>
                     <script type="text/javascript" src="jqm/jquery.mobile-1.3.1.min.js">
@@ -30,7 +29,7 @@
                     <div id="motdPanel" wicket:id="motdPanel" class="motdPanel">
                     </div>
                     <!-- start of assignments and events page -->
-                                        <div data-role="page" id="events">
+                    <div data-role="page" id="events">
                         <div data-role="popup" id="dashMenuEvents" class="slideMenuPanel" data-corners="false" data-theme="a" data-shadow="true" data-tolerance="0,0">
                             <div data-role="" data-theme="a" data-corners="false" class="slideMenu">
                                 <a href="#events" data-role="button" data-mini="true" data-corners="false" data-shadows="false" data-theme="x">Show All</a>
@@ -41,7 +40,7 @@
                         <header data-role="header" class="ctheader">
                             <div class="ui-grid-a navtop">
                                 <div class="ui-block-a navtopTitle">
-                                    <h1 role="heading" aria-level="1" class="ui-title navtopTitleHeader">CTools Dashboard  -- recent activity</h1>
+                                    <h1 role="heading" aria-level="1" class="ui-title navtopTitleHeader">CTools Dashboard</h1>
                                 </div>
                                 <div class="ui-block-d slideMenuControlWrap">
                                     <a href="#dashMenuEvents" class="menuControl" data-rel="popup" data-transition="slide"><strong>&#9776;</strong></a>
@@ -58,18 +57,12 @@
                                 </ul>
                             </div>
                         </header>
-
                         <div data-role="content">
                             <div id="calendarPanel" wicket:id="calendarPanel">
                             </div>
                         </div>
                     </div>
-                    
-
-<!--start of recent activity -->
-
-                    
-                    
+                    <!--start of recent activity -->
                     <div data-role="page" id="activ">
                         <div data-role="popup" id="dashMenuActiv" class="slideMenuPanel" data-corners="false" data-theme="a" data-shadow="true" data-tolerance="0,0">
                             <div data-role="" data-theme="a" data-corners="false" class="slideMenu">
@@ -81,7 +74,7 @@
                         <header data-role="header" class="ctheader">
                             <div class="ui-grid-a navtop">
                                 <div class="ui-block-a navtopTitle">
-                                    <h1 role="heading" aria-level="1" class="ui-title navtopTitleHeader">CTools Dashboard -- assignments and events</h1>
+                                    <h1 role="heading" aria-level="1" class="ui-title navtopTitleHeader">CTools Dashboard</h1>
                                 </div>
                                 <div class="ui-block-d slideMenuControlWrap">
                                     <a href="#dashMenuActiv" class="menuControl" data-rel="popup"><strong>&#9776;</strong></a>
@@ -99,9 +92,6 @@
                             </div>
                         </header>
                         <!-- /header -->
-
-
-
                         <div data-role="content">
                             <div id="newsPanel" wicket:id="newsPanel">
                             </div>
@@ -132,7 +122,6 @@
                             </div>
                         </div>
                     </div>
-
                     <div id="results" style="display:none">
                     </div>
                     <div id="instructionHolder" style="display:none">
