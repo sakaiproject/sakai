@@ -547,7 +547,9 @@ public interface GradebookService {
 			String externalId) throws GradebookNotFoundException;
 
 	public Map getImportCourseGrade(String gradebookUid);
-	  
+	public Map getImportCourseGrade(String gradebookUid, boolean useDefault);
+
+
 	/**return Object to avoid circular dependency with sakai-gradebook-tool */
 	public Object getGradebook(String uid) throws GradebookNotFoundException;
 

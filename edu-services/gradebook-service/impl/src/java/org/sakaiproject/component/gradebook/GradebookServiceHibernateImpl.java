@@ -866,7 +866,23 @@ public class GradebookServiceHibernateImpl extends BaseHibernateManager implemen
 		this.externalAssessmentService = externalAssessmentService;
 	}
 
+
+	/**
+	 * @param gradebookUid
+	 * @return A mapping from user display IDs to grades.  If no grade is available for a user, default to zero.
+	 */
 	public Map getImportCourseGrade(String gradebookUid)
+	{
+		return getImportCourseGrade(gradebookUid, true);
+	}
+
+
+	/**
+	 * @param gradebookUid
+	 * @param useDefault If true, assume zero for missing grades.  Otherwise, null.
+	 * @return A mapping from user display IDs to grades.
+	 */
+	public Map getImportCourseGrade(String gradebookUid, boolean useDefault)
 	{
 		HashMap returnMap = new HashMap();
 
@@ -910,8 +926,17 @@ public class GradebookServiceHibernateImpl extends BaseHibernateManager implemen
 					}
 					else
 					{
-						if(!nonAssignment)
-							returnMap.put(enr.getUser().getDisplayId(), (String)gradeMap.getGrade(gradeRecord.getNonNullAutoCalculatedGrade()));
+						if(!nonAssignment) {
+							String grade = null;
+
+							if(useDefault) {
+								grade = (String)gradeMap.getGrade(gradeRecord.getNonNullAutoCalculatedGrade());
+							} else {
+								grade = (String)gradeMap.getGrade(gradeRecord.getAutoCalculatedGrade());
+                                                        }
+
+							returnMap.put(enr.getUser().getDisplayId(), grade);
+						}
 					}
 				}
 			}
