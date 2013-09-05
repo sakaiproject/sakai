@@ -176,6 +176,10 @@ public class BasePage extends WebPage implements IHeaderContributor {
 		if(newMessagesCount == 0) {
 			newMessagesLabel.setVisible(false);
 		}
+		
+		if (!sakaiProxy.isMessagingEnabledGlobally()) {
+			myMessagesLink.setVisible(false);
+		}
 		add(myMessagesLink);
 		
 
