@@ -551,13 +551,16 @@ var setupCategTools = function(){
         });
     };
     
-    // SAK-16600
+    // replace characters in tool id received from backend to allow proper DOM selection by id of target tool
+    // e.g. all '.''s are replaced by _
     function normalizedId(myId) {
     	var normId = myId.replace(/\./g, '_');
     	return normId;
     } 
     
     // SAK-16600
+    // replace additional tool multiple identification characters (i.e. those beyond the base tool's name) with 
+    // underscores to allow proper selection of the tool's associated icon 
     function iconizedId(myId) {
         if (myId.length > 36){
             myId = myId.substring(36)            
@@ -597,7 +600,7 @@ var setupCategTools = function(){
     // hide or display an item.  ignore if item is disabled
     function setChecked(myId,checkVal){
     	//var selSet = $('#toolSelectionList ul').find('#selected_' + normalizedId(myId));	
-    	//var id = normalizedId(myId);
+    	var myId = normalizedId(myId);
     	var item = $('#toolHolder').find('input[:checkbox][id=' + myId + ']');
     	// ignore if item is disabled
     	if (!item.is(':disabled')) {
