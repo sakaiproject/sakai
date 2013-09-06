@@ -284,7 +284,7 @@ public class SyllabusEntityProvider extends AbstractEntityProvider implements En
 					if(!"".equals(title)){
 						SyllabusItem item = syllabusManager.getSyllabusItemByContextId(siteId);
 						int initPosition = syllabusManager.findLargestSyllabusPosition(item).intValue() + 1;
-						SyllabusData data = syllabusManager.createSyllabusDataObject(title, new Integer(initPosition), null, null, SyllabusData.ITEM_DRAFT, "none", null, null, Boolean.FALSE);
+						SyllabusData data = syllabusManager.createSyllabusDataObject(title, new Integer(initPosition), null, null, SyllabusData.ITEM_DRAFT, "none", null, null, Boolean.FALSE, null, null);
 						data.setView("no");
 						syllabusManager.addSyllabusToSyllabusItem(item, data);
 					}

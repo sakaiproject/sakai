@@ -1119,7 +1119,7 @@ public class SyllabusTool
 									cal.set(java.util.Calendar.SECOND, calStartTime.get(java.util.Calendar.SECOND));
 								}
 								SyllabusData syllabusDataObj = syllabusManager.createSyllabusDataObject(bulkEntry.getTitle() + " - " + i,
-										new Integer(initPosition), null, "no", status, "none", startDate, endDate, bulkEntry.isLinkCalendar(), syllabusItem);
+										new Integer(initPosition), null, "no", status, "none", startDate, endDate, bulkEntry.isLinkCalendar(), null, null, syllabusItem);
 								syllabusManager.addSyllabusToSyllabusItem(syllabusItem, syllabusDataObj, false);
 								i++;
 								initPosition++;
@@ -1130,7 +1130,7 @@ public class SyllabusTool
 						//add by bulk items
 						for(int i = 1; i <= bulkItems; i++){
 							syllabusManager.addSyllabusToSyllabusItem(syllabusItem, syllabusManager.createSyllabusDataObject(bulkEntry.getTitle() + " - " + i,
-									new Integer(initPosition), null, "no", status, "none", null, null, false, syllabusItem), false);
+									new Integer(initPosition), null, "no", status, "none", null, null, false, null, null, syllabusItem), false);
 							initPosition++;
 						}
 					}
@@ -1322,7 +1322,7 @@ public class SyllabusTool
         int initPosition = syllabusManager.findLargestSyllabusPosition(
             syllabusItem).intValue() + 1;
         SyllabusData en = syllabusManager.createSyllabusDataObject(null,
-            new Integer(initPosition), null, null, SyllabusData.ITEM_DRAFT, "none", null, null, Boolean.FALSE);
+            new Integer(initPosition), null, null, SyllabusData.ITEM_DRAFT, "none", null, null, Boolean.FALSE, null, null);
         en.setView("no");
 
         entry = new DecoratedSyllabusEntry(en);

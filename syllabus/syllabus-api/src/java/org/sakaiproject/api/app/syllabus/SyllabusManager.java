@@ -43,7 +43,8 @@ public interface SyllabusManager
   public void removeSyllabusFromSyllabusItem(final SyllabusItem syllabusItem, final SyllabusData syllabusData);
   
   public SyllabusData createSyllabusDataObject(String title, Integer position,
-      String assetId, String view, String status, String emailNotification, Date startDate, Date endDate, boolean linkCalendar);
+      String assetId, String view, String status, String emailNotification, Date startDate, Date endDate, boolean linkCalendar, String calendarEventIdStartDate,
+      String calendarEventIdEndDate);
   
   public void removeSyllabusDataObject(SyllabusData o);
   
@@ -86,7 +87,8 @@ public interface SyllabusManager
   
   public void removeCalendarAttachments(String siteId, String calendarEventId, SyllabusAttachment attachment);
 
-  public SyllabusData createSyllabusDataObject(String title, Integer position, String asset, String view, String status, String emailNotification, Date startDate, Date endDate, boolean linkCalendar, SyllabusItem syllabusItem);
+  public SyllabusData createSyllabusDataObject(String title, Integer position, String asset, String view, String status, String emailNotification, Date startDate, Date endDate, 
+		  boolean linkCalendar, String calendarEventIdStartDate, String calendarEventIdEndDate, SyllabusItem syllabusItem);
 
   public void updateSyllabudDataPosition(final SyllabusData d, final Integer position);
 
