@@ -1289,7 +1289,7 @@ public class ShowPageProducer implements ViewComponentProducer, DefaultView, Nav
 						String releaseString = simplePageBean.getReleaseString(i);
 						if (itemGroupString != null || releaseString != null || entityDeleted) {
 							if (itemGroupString != null)
-							    itemGroupString = simplePageBean.getItemGroupTitles(itemGroupString);
+							    itemGroupString = simplePageBean.getItemGroupTitles(itemGroupString, i);
 							if (itemGroupString != null) {
 							    itemGroupString = " [" + itemGroupString + "]";
 							    if (releaseString != null)
@@ -1331,7 +1331,7 @@ public class ShowPageProducer implements ViewComponentProducer, DefaultView, Nav
 						itemGroupString = "";
 						entityDeleted = true;
 					    }
-					    itemGroupTitles = simplePageBean.getItemGroupTitles(itemGroupString);
+					    itemGroupTitles = simplePageBean.getItemGroupTitles(itemGroupString, i);
 					    if (entityDeleted) {
 						if (itemGroupTitles != null)
 						    itemGroupTitles = itemGroupTitles + " " + messageLocator.getMessage("simplepage.deleted-entity");
@@ -1392,7 +1392,7 @@ public class ShowPageProducer implements ViewComponentProducer, DefaultView, Nav
 					// edit dialog
 					if (simplePageBean.isImageType(i)) {
 
-                        if(simplePageBean.isItemAvailable(i)) {
+					    if(canEditPage || simplePageBean.isItemAvailable(i)) {
 						    UIOutput.make(tableRow, "imageSpan");
 
 						    if (itemGroupString != null) {
@@ -1413,11 +1413,11 @@ public class ShowPageProducer implements ViewComponentProducer, DefaultView, Nav
 						    if(lengthOk(height)) {
 							    item.decorate(new UIFreeAttributeDecorator("height", height.getOld()));
 						    }
-                        } else {
+					    } else {
 					        UIVerbatim notAvailableText = UIVerbatim.make(tableRow, "notAvailableText", messageLocator.getMessage("simplepage.textItemUnavailable"));
-                            // Grey it out
+						// Grey it out
 						    notAvailableText.decorate(new UIFreeAttributeDecorator("class", "disabled-text-item"));
-                        }
+					    }
 
 						// stuff for the jquery dialog
 						if (canEditPage) {
@@ -1434,7 +1434,7 @@ public class ShowPageProducer implements ViewComponentProducer, DefaultView, Nav
 					} else if ((youtubeKey = simplePageBean.getYoutubeKey(i)) != null) {
 						String youtubeUrl = "https://www.youtube.com/embed/" + youtubeKey + "?wmode=opaque";
 
-                        if(simplePageBean.isItemAvailable(i)) {
+						if(canEditPage || simplePageBean.isItemAvailable(i)) {
 						    UIOutput.make(tableRow, "youtubeSpan");
 
 						    if (itemGroupString != null) {
@@ -1476,11 +1476,11 @@ public class ShowPageProducer implements ViewComponentProducer, DefaultView, Nav
 						
 						    item.decorate(new UIFreeAttributeDecorator("title", messageLocator.getMessage("simplepage.youtube_player")));
 						    item.decorate(new UIFreeAttributeDecorator("src", youtubeUrl));
-                        } else {
-					        UIVerbatim notAvailableText = UIVerbatim.make(tableRow, "notAvailableText", messageLocator.getMessage("simplepage.textItemUnavailable"));
-                            // Grey it out
+						} else {
+						    UIVerbatim notAvailableText = UIVerbatim.make(tableRow, "notAvailableText", messageLocator.getMessage("simplepage.textItemUnavailable"));
+						    // Grey it out
 						    notAvailableText.decorate(new UIFreeAttributeDecorator("class", "disabled-text-item"));
-                        }
+						}
 
 						if (canEditPage) {
 							UIOutput.make(tableRow, "youtubeId", String.valueOf(i.getId()));
@@ -1536,7 +1536,7 @@ public class ShowPageProducer implements ViewComponentProducer, DefaultView, Nav
 
 						UIOutput.make(tableRow, "movieSpan");
 
-                        if(simplePageBean.isItemAvailable(i)) {
+                        if(canEditPage || simplePageBean.isItemAvailable(i)) {
 
 						    UIComponent item2;
 
@@ -1807,7 +1807,7 @@ public class ShowPageProducer implements ViewComponentProducer, DefaultView, Nav
 							
 							    String itemGroupString = simplePageBean.getItemGroupString(i, null, true);
 							    if (itemGroupString != null) {
-							    	String itemGroupTitles = simplePageBean.getItemGroupTitles(itemGroupString);
+							    	String itemGroupTitles = simplePageBean.getItemGroupTitles(itemGroupString, i);
 							    	if (itemGroupTitles != null) {
 							    		itemGroupTitles = "[" + itemGroupTitles + "]";
 							    	}
@@ -2158,7 +2158,7 @@ public class ShowPageProducer implements ViewComponentProducer, DefaultView, Nav
 							
 							String itemGroupString = simplePageBean.getItemGroupString(i, null, true);
 							if (itemGroupString != null) {
-								String itemGroupTitles = simplePageBean.getItemGroupTitles(itemGroupString);
+								String itemGroupTitles = simplePageBean.getItemGroupTitles(itemGroupString, i);
 								if (itemGroupTitles != null) {
 									itemGroupTitles = "[" + itemGroupTitles + "]";
 								}
@@ -2325,19 +2325,19 @@ public class ShowPageProducer implements ViewComponentProducer, DefaultView, Nav
 					UIOutput.make(tableRow, "itemSpan");
 
 					String itemGroupString = simplePageBean.getItemGroupString(i, null, true);
-					String itemGroupTitles = simplePageBean.getItemGroupTitles(itemGroupString);
+					String itemGroupTitles = simplePageBean.getItemGroupTitles(itemGroupString, i);
 					if (itemGroupTitles != null) {
 						itemGroupTitles = "[" + itemGroupTitles + "]";
 					}
 
 					UIOutput.make(tableRow, "item-groups-titles-text", itemGroupTitles);
 
-                    if(simplePageBean.isItemAvailable(i)) {
+					if(canEditPage || simplePageBean.isItemAvailable(i)) {
 					    UIVerbatim.make(tableRow, "content", (i.getHtml() == null ? "" : i.getHtml()));
-                    } else {
+					} else {
 					    UIVerbatim unavailableText = UIVerbatim.make(tableRow, "content", messageLocator.getMessage("simplepage.textItemUnavailable"));
-						unavailableText.decorate(new UIFreeAttributeDecorator("class", "disabled-text-item"));
-                    }
+					    unavailableText.decorate(new UIFreeAttributeDecorator("class", "disabled-text-item"));
+					}
 
 					// editing is done using a special producer that calls FCK.
 					if (canEditPage) {

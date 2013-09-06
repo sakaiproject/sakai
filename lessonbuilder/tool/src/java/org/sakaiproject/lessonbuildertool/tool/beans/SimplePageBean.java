@@ -2702,9 +2702,11 @@ public class SimplePageBean {
     /// ShowPageProducers needs the item ID list anyway. So to avoid calling the underlying
     // code twice, we take that list and translate to titles, rather than calling
     // getItemGroups again
-	public String getItemGroupTitles(String itemGroups) {
+	public String getItemGroupTitles(String itemGroups, SimplePageItem item) {
+	    String ret = "";
 	    if (itemGroups == null || itemGroups.equals(""))
-		return null;
+		ret = "";
+	    else {
 
 	    List<String> groupNames = new ArrayList<String>();
 	    Site site = getCurrentSite();
@@ -2721,13 +2723,24 @@ public class SimplePageBean {
 		    groupNames.add(messageLocator.getMessage("simplepage.deleted-group"));
 	    }
 	    Collections.sort(groupNames);
-	    String ret = "";
 	    for (String name: groupNames) {
 		if (ret.equals(""))
 		    ret = name;
 		else
 		    ret = ret + "," + name;
 	    }
+
+	    }
+
+	    if (item.isPrerequisite()) {
+		if (ret.equals(""))
+		    ret = messageLocator.getMessage("simplepage.prerequisites_tag");
+		else
+		    ret = messageLocator.getMessage("simplepage.prerequisites_tag") + "; " + ret;
+	    }
+
+	    if (ret.equals(""))
+		return null;
 
 	    return ret;
 	}
