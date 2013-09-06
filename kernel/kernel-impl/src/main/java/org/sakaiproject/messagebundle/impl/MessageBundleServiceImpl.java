@@ -330,7 +330,7 @@ public class MessageBundleServiceImpl extends HibernateDaoSupport implements Mes
         return map;
     }
 
-    private String getIndexKeyName(String baseName, String moduleName, String loc) {
+    protected String getIndexKeyName(String baseName, String moduleName, String loc) {
         return moduleName + "_"  + baseName + "_"  +loc;
     }
 
