@@ -59,6 +59,9 @@ function setupAccordion(iframId, isInstructor, msgs, openDataId){
 	}
 	
 	$( "#accordion div.group:first-child h3:first-child").focus();
+	
+	//set hover over text for collapse/expand arrow:
+	$(".ui-accordion-header-icon").attr("title", msgs.clickToExpandAndCollapse);
 }
 
 // if the containing frame is small, then offsetHeight is pretty good for all but ie/xp.

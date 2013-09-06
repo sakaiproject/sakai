@@ -56,7 +56,8 @@
 					error: "<h:outputText value="#{msgs.error}"/>",
 					required: "<h:outputText value="#{msgs.required}"/>",
 					startBeforeEndDate: "<h:outputText value="#{msgs.startBeforeEndDate}"/>",
-					calendarDatesNeeded: "<h:outputText value="#{msgs.calendarDatesNeeded}"/>"
+					calendarDatesNeeded: "<h:outputText value="#{msgs.calendarDatesNeeded}"/>",
+					clickToExpandAndCollapse: "<h:outputText value="#{msgs.clickToExpandAndCollapse}"/>"
 				};
 		setupAccordion('<%= org.sakaiproject.util.Web.escapeJavascript(thisId)%>',<h:outputText value="#{SyllabusTool.editAble == 'true' ? true : false}"/>, msgs, 
 							'<h:outputText value="#{SyllabusTool.openDataId}"/>');
