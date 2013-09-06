@@ -1414,7 +1414,7 @@ public class ShowPageProducer implements ViewComponentProducer, DefaultView, Nav
 							    item.decorate(new UIFreeAttributeDecorator("height", height.getOld()));
 						    }
 					    } else {
-					        UIVerbatim notAvailableText = UIVerbatim.make(tableRow, "notAvailableText", messageLocator.getMessage("simplepage.textItemUnavailable"));
+					        UIComponent notAvailableText = UIOutput.make(tableRow, "notAvailableText", messageLocator.getMessage("simplepage.textItemUnavailable"));
 						// Grey it out
 						    notAvailableText.decorate(new UIFreeAttributeDecorator("class", "disabled-text-item"));
 					    }
@@ -1477,7 +1477,7 @@ public class ShowPageProducer implements ViewComponentProducer, DefaultView, Nav
 						    item.decorate(new UIFreeAttributeDecorator("title", messageLocator.getMessage("simplepage.youtube_player")));
 						    item.decorate(new UIFreeAttributeDecorator("src", youtubeUrl));
 						} else {
-						    UIVerbatim notAvailableText = UIVerbatim.make(tableRow, "notAvailableText", messageLocator.getMessage("simplepage.textItemUnavailable"));
+						    UIComponent notAvailableText = UIOutput.make(tableRow, "notAvailableText", messageLocator.getMessage("simplepage.textItemUnavailable"));
 						    // Grey it out
 						    notAvailableText.decorate(new UIFreeAttributeDecorator("class", "disabled-text-item"));
 						}
@@ -2335,7 +2335,7 @@ public class ShowPageProducer implements ViewComponentProducer, DefaultView, Nav
 					if(canEditPage || simplePageBean.isItemAvailable(i)) {
 					    UIVerbatim.make(tableRow, "content", (i.getHtml() == null ? "" : i.getHtml()));
 					} else {
-					    UIVerbatim unavailableText = UIVerbatim.make(tableRow, "content", messageLocator.getMessage("simplepage.textItemUnavailable"));
+					    UIComponent unavailableText = UIOutput.make(tableRow, "content", messageLocator.getMessage("simplepage.textItemUnavailable"));
 					    unavailableText.decorate(new UIFreeAttributeDecorator("class", "disabled-text-item"));
 					}
 
