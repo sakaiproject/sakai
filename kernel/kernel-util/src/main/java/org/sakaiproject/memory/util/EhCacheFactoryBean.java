@@ -379,6 +379,18 @@ public class EhCacheFactoryBean implements FactoryBean, BeanNameAware, Initializ
 				logger.debug("Creating new EHCache cache region '" + this.cacheName + "'");
 			}
 			rawCache = createCache();
+            // Not look for any custom configuration.
+            // Check for old configuration properties.
+            if(serverConfigurationService.getString(this.cacheName) == null) {
+                logger.warn("Old cache configuration "+ this.cacheName+ " must be changed to memory."+ this.cacheName);
+            }
+            String config = serverConfigurationService.getString("memory."+ this.cacheName);
+            if (config != null && config.length() > 0) {
+                logger.debug("Found configuration for cache: "+ this.cacheName+ " of: "+ config);
+                new CacheInitializer().configure(config).initialize(
+                        rawCache.getCacheConfiguration());
+            }
+
 			this.cacheManager.addCache(rawCache);
 		}
 		boolean override = false;

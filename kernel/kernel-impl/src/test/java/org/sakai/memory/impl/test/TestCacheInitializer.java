@@ -1,6 +1,6 @@
 package org.sakai.memory.impl.test;
 
-import org.sakaiproject.memory.impl.CacheInitializer;
+import org.sakaiproject.memory.util.CacheInitializer;
 
 import junit.framework.TestCase;
 import net.sf.ehcache.config.CacheConfiguration;

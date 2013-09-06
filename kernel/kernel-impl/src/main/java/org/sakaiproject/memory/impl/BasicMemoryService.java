@@ -51,6 +51,7 @@ import org.sakaiproject.memory.api.GenericMultiRefCache;
 import org.sakaiproject.memory.api.MemoryPermissionException;
 import org.sakaiproject.memory.api.MemoryService;
 import org.sakaiproject.memory.api.MultiRefCache;
+import org.sakaiproject.memory.util.CacheInitializer;
 
 /**
  * <p>
