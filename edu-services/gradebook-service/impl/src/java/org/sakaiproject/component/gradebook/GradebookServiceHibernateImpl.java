@@ -242,10 +242,13 @@ public class GradebookServiceHibernateImpl extends BaseHibernateManager implemen
     	assignmentDefinition.setExternalId(internalAssignment.getExternalId());
     	assignmentDefinition.setReleased(internalAssignment.isReleased());
     	assignmentDefinition.setId(internalAssignment.getId());
+    	assignmentDefinition.setExtraCredit(internalAssignment.isExtraCredit());
     	if(internalAssignment.getCategory() != null) {
     		assignmentDefinition.setCategoryName(internalAssignment.getCategory().getName());
     		assignmentDefinition.setWeight(internalAssignment.getCategory().getWeight());
+    		assignmentDefinition.setCategoryExtraCredit(internalAssignment.getCategory().isExtraCredit());
     	}
+    	
     	assignmentDefinition.setUngraded(internalAssignment.getUngraded());
     	return assignmentDefinition;
     }   
@@ -557,15 +560,15 @@ public class GradebookServiceHibernateImpl extends BaseHibernateManager implemen
 					if (assignmentDef.getCategoryName() != null) {
 						if(!newCategory) {}
 						else if(newCategory && categoryCount == 1) {
-							catId = createCategory(gradebook.getId(), assignmentDef.getCategoryName(), assignmentDef.getWeight(), 0, 0, 0, null);
+							catId = createCategory(gradebook.getId(), assignmentDef.getCategoryName(), assignmentDef.getWeight(), 0, 0, 0, assignmentDef.isCategoryExtraCredit());
 							Category catTempt = getCategory(catId);
 							
 							catList_tempt.add(catTempt);
-							createAssignmentForCategory(gradebook.getId(), catId, assignmentDef.getName(), assignmentDef.getPoints(), assignmentDef.getDueDate(), true, false);
+							createAssignmentForCategory(gradebook.getId(), catId, assignmentDef.getName(), assignmentDef.getPoints(), assignmentDef.getDueDate(), true, false, assignmentDef.isExtraCredit());
 							assignmentsAddedCount++;
 						}
 						else{
-							createAssignmentForCategory(gradebook.getId(), catId, assignmentDef.getName(), assignmentDef.getPoints(), assignmentDef.getDueDate(), true, false);
+							createAssignmentForCategory(gradebook.getId(), catId, assignmentDef.getName(), assignmentDef.getPoints(), assignmentDef.getDueDate(), true, false, assignmentDef.isExtraCredit());
 							assignmentsAddedCount++;
 						}
 					
@@ -573,7 +576,7 @@ public class GradebookServiceHibernateImpl extends BaseHibernateManager implemen
 					//deal with assignments in undefined.
 					else {
 						if (undefined_nb == 0) {
-							createAssignment(gradebook.getId(), assignmentDef.getName(), assignmentDef.getPoints(), assignmentDef.getDueDate(), true, false);
+							createAssignment(gradebook.getId(), assignmentDef.getName(), assignmentDef.getPoints(), assignmentDef.getDueDate(), true, false, assignmentDef.isExtraCredit());
 							assignmentsAddedCount++;
 							
 						}

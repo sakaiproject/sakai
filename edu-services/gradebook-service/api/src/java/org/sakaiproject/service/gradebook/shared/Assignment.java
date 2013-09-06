@@ -43,6 +43,9 @@ public class Assignment implements Serializable {
     private String categoryName;
     private Double weight;
     private boolean ungraded;
+    private boolean extraCredit;
+    //Needed for transfer
+    private boolean categoryExtraCredit;
     
 
     public Assignment() {
@@ -179,5 +182,25 @@ public class Assignment implements Serializable {
 	{
 		this.ungraded = ungraded;
 	}
+	
+	//Extra credit columns
+	public void setExtraCredit(boolean extraCredit) {
+		this.extraCredit = extraCredit;
+	}
 
+	public boolean isExtraCredit() {
+		return extraCredit;
+	}
+
+	public boolean getExtraCredit() {
+		return isExtraCredit();
+	}
+	
+	//Needed for cateogry transfer
+	public void setCategoryExtraCredit(boolean categoryExtraCredit) {
+		this.categoryExtraCredit = categoryExtraCredit;
+	}
+	public boolean isCategoryExtraCredit() {
+		return categoryExtraCredit;
+	}
 }
