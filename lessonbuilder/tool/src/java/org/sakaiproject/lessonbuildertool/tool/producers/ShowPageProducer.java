@@ -2324,13 +2324,15 @@ public class ShowPageProducer implements ViewComponentProducer, DefaultView, Nav
 					// remaining type must be a block of HTML
 					UIOutput.make(tableRow, "itemSpan");
 
-					String itemGroupString = simplePageBean.getItemGroupString(i, null, true);
-					String itemGroupTitles = simplePageBean.getItemGroupTitles(itemGroupString, i);
-					if (itemGroupTitles != null) {
+					if (canEditPage) {
+					    String itemGroupString = simplePageBean.getItemGroupString(i, null, true);
+					    String itemGroupTitles = simplePageBean.getItemGroupTitles(itemGroupString, i);
+					    if (itemGroupTitles != null) {
 						itemGroupTitles = "[" + itemGroupTitles + "]";
+					    }
+					    
+					    UIOutput.make(tableRow, "item-groups-titles-text", itemGroupTitles);
 					}
-
-					UIOutput.make(tableRow, "item-groups-titles-text", itemGroupTitles);
 
 					if(canEditPage || simplePageBean.isItemAvailable(i)) {
 					    UIVerbatim.make(tableRow, "content", (i.getHtml() == null ? "" : i.getHtml()));
