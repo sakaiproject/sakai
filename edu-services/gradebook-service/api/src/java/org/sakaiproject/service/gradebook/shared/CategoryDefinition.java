@@ -34,7 +34,7 @@ public class CategoryDefinition {
     private String name;
     private Double weight;
     private List<Assignment> assignmentList;
-    private boolean extraCredit;
+    
     /**
      * 
      * @return the id of the Category object
@@ -105,14 +105,5 @@ public class CategoryDefinition {
      */
 	public void setAssignmentList(List<Assignment> assignmentList) {
 		this.assignmentList = assignmentList;
-	}
-	
-	//Extra credit columns
-	public void setExtraCredit(boolean extraCredit) {
-		this.extraCredit = extraCredit;
-	}
-
-	public boolean getExtraCredit() {
-		return extraCredit;
 	}
 }
