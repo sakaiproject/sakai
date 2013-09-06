@@ -305,7 +305,7 @@ public class SuTool
 							}
 						}else{
 							//the userinfo user either doesn't have any sites to access or there was an error
-							message = msgs.getString("unauthorized_da");
+							message = msgs.getString("unauthorized_danoaccess");
 							M_log.info("[SuTool] Fatal Error: " + message + " " + sakaiSession.getUserId());
 							fc.addMessage("allowed", new FacesMessage(FacesMessage.SEVERITY_FATAL, message, message));
 							allowed = false;
