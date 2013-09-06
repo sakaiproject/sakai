@@ -275,6 +275,10 @@ a.edit-link:link, a.edit-link:visited, a.itemLink:link, a.itemLink:visited, a.mu
     margin-bottom:0;
 }
 
+.statusCol {
+    vertical-align: top
+}
+
 .statusCol,.contentCol {
  display: inline-block;
 
@@ -284,12 +288,6 @@ a.edit-link:link, a.edit-link:visited, a.itemLink:link, a.itemLink:visited, a.mu
 #    z-index:2;
 }
 
-.canEdit .statusCol {
-  display: inline;
-#    top:-8px;
-#    left: -8px;
-#    z-index: 4;
-}
 .link-div h3.link-div-head {
     display:inline;
     font-size:100%;
