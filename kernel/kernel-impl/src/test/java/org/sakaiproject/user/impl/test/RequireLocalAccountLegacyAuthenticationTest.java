@@ -25,12 +25,13 @@ package org.sakaiproject.user.impl.test;
 import java.util.Collection;
 
 import junit.extensions.TestSetup;
-import junit.framework.Assert;
 import junit.framework.Test;
 import junit.framework.TestSuite;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
+import org.sakaiproject.event.api.EventTrackingService;
+import org.sakaiproject.memory.api.MemoryPermissionException;
 import org.sakaiproject.test.SakaiKernelTestBase;
 import org.sakaiproject.thread_local.api.ThreadLocalManager;
 import org.sakaiproject.user.api.User;
@@ -59,6 +60,7 @@ public class RequireLocalAccountLegacyAuthenticationTest extends SakaiKernelTest
 	// This service is only used to clear out various caches to make sure
 	// we're fetching from the DB.
 	private ThreadLocalManager threadLocalManager;
+	private EventTrackingService eventTrackingService;
 	
 	private static String LOCALLY_STORED_EID = "locallystoreduser";
 	private static String LOCALLY_STORED_PWD = "locallystoreduser-pwd";
@@ -110,39 +112,37 @@ public class RequireLocalAccountLegacyAuthenticationTest extends SakaiKernelTest
 		log.debug("Setting up UserDirectoryServiceIntegrationTest");		
 		userDirectoryService = (UserDirectoryService)getService(UserDirectoryService.class.getName());
 		threadLocalManager = (ThreadLocalManager)getService(ThreadLocalManager.class.getName());
+		eventTrackingService = (EventTrackingService)getService(EventTrackingService.class);
 	}
 
-	public void testWithProvidedUserNotAllowed() throws Exception {
+	public void testWithProvidedUserRequired() throws Exception {
 		userDirectoryProvider.setRequireLocalAccount(true);
 		
 		User user = userDirectoryService.authenticate(LOCALLY_STORED_EID, LOCALLY_STORED_PWD);
-		Assert.assertTrue(user.getEmail().equals(LOCALLY_STORED_EMAIL));
+		assertTrue(user.getEmail().equals(LOCALLY_STORED_EMAIL));
 		clearUserFromServiceCaches(user.getId());
 		user = userDirectoryService.authenticate(PROVIDED_EID, PROVIDED_PWD);
-		Assert.assertTrue(user == null);
+		assertTrue(user == null);
 	}
 	
-	public void testWithProvidedUserAllowed() throws Exception {
+	public void testWithProvidedUserGood() throws Exception {
 		userDirectoryProvider.setRequireLocalAccount(false);
 		
 		User user = userDirectoryService.authenticate(LOCALLY_STORED_EID, LOCALLY_STORED_PWD);
-		Assert.assertTrue(user.getEmail().equals(LOCALLY_STORED_EMAIL));
+		assertTrue(user.getEmail().equals(LOCALLY_STORED_EMAIL));
 		clearUserFromServiceCaches(user.getId());
 		user = userDirectoryService.authenticate(PROVIDED_EID, PROVIDED_PWD);
-		Assert.assertTrue(user.getEmail().equals(PROVIDED_EMAIL));
+		assertTrue(user.getEmail().equals(PROVIDED_EMAIL));
 		clearUserFromServiceCaches(user.getId());
 	}
 
-	/**
-	 * WARNING: There seems to be NO easy way to reset the UserDirectoryService MemoryService-managed
-	 * cache, and so the only way currently to test for real DB storage is to have this line
-	 * in the "sakai.properties" file used for the test:
-	 *   cacheMinutes@org.sakaiproject.user.api.UserDirectoryService=0
-	 */
-	private void clearUserFromServiceCaches(String userId) {
+	private void clearUserFromServiceCaches(String userId) throws MemoryPermissionException {
 		((DbUserService)userDirectoryService).getIdEidCache().removeAll();
 		String ref = "/user/" + userId;
 		threadLocalManager.set(ref, null);
+		// Clear all caches, as it's a test its easier todo this than
+		// set up thread to be a super user which is needed for the MemoryService.resetCachers()
+		eventTrackingService.post(eventTrackingService.newEvent("memory.reset", "", true));
 	}
 
 	public static class TestProvider implements UserDirectoryProvider {
@@ -173,7 +173,7 @@ public class RequireLocalAccountLegacyAuthenticationTest extends SakaiKernelTest
 			}
 		}
 
-		@SuppressWarnings("unchecked")
+		@SuppressWarnings("rawtypes")
 		public void getUsers(Collection users) {
 		}
 

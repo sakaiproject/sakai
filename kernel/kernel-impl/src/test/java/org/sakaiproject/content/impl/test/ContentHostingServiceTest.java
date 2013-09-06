@@ -1,5 +1,7 @@
 package org.sakaiproject.content.impl.test;
 
+import static org.junit.runners.MethodSorters.NAME_ASCENDING;
+
 import java.io.ByteArrayInputStream;
 import java.io.InputStream;
 import java.io.UnsupportedEncodingException;
@@ -11,6 +13,7 @@ import junit.framework.TestSuite;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
+import org.junit.FixMethodOrder;
 import org.sakaiproject.content.api.ContentCollection;
 import org.sakaiproject.content.api.ContentCollectionEdit;
 import org.sakaiproject.content.api.ContentHostingService;
@@ -31,6 +34,7 @@ import org.sakaiproject.test.SakaiKernelTestBase;
 import org.sakaiproject.tool.api.Session;
 import org.sakaiproject.tool.api.SessionManager;
 
+@FixMethodOrder(NAME_ASCENDING)
 public class ContentHostingServiceTest extends SakaiKernelTestBase {
 
 	private static final String SIMPLE_FOLDER1 = "/admin/folder1/";

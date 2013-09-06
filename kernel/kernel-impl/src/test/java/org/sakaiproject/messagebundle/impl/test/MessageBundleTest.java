@@ -18,6 +18,8 @@
 
 package org.sakaiproject.messagebundle.impl.test;
 
+import static org.junit.runners.MethodSorters.NAME_ASCENDING;
+
 import java.util.Iterator;
 import java.util.List;
 import java.util.Locale;
@@ -28,6 +30,7 @@ import junit.framework.Assert;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
+import org.junit.FixMethodOrder;
 import org.hibernate.SessionFactory;
 import org.sakaiproject.messagebundle.api.MessageBundleProperty;
 import org.sakaiproject.messagebundle.impl.MessageBundleServiceImpl;
@@ -40,6 +43,7 @@ import org.springframework.test.AbstractTransactionalSpringContextTests;
  * Time: 12:45:12 PM
  * To change this template use File | Settings | File Templates.
  */
+@FixMethodOrder(NAME_ASCENDING)
 public class MessageBundleTest extends AbstractTransactionalSpringContextTests {
 	private static Log log = LogFactory.getLog(MessageBundleTest.class);
 
