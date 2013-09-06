@@ -1,4 +1,4 @@
-package org.sakaiproject.memory.impl;
+package org.sakaiproject.memory.util;
 
 import java.lang.reflect.Method;
 import java.lang.reflect.Modifier;
