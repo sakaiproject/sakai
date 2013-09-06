@@ -256,10 +256,6 @@ public abstract class BaseHibernateManager extends HibernateDaoSupport {
 			uniqueResult();
 	}
 
-    public Long createAssignment(final Long gradebookId, final String name, final Double points, final Date dueDate, final Boolean isNotCounted, final Boolean isReleased) throws ConflictingAssignmentNameException, StaleObjectModificationException {
-
-        return createAssignment(gradebookId, name, points, dueDate, isNotCounted, isReleased, false);
-    }
     public Long createAssignment(final Long gradebookId, final String name, final Double points, final Date dueDate, final Boolean isNotCounted, final Boolean isReleased, final Boolean isExtraCredit) throws ConflictingAssignmentNameException, StaleObjectModificationException {
         HibernateCallback hc = new HibernateCallback() {
             public Object doInHibernate(Session session) throws HibernateException {
@@ -496,11 +492,6 @@ public abstract class BaseHibernateManager extends HibernateDaoSupport {
     	return categoriesWithAssignments;
     }
     
-    public Long createAssignmentForCategory(final Long gradebookId, final Long categoryId, final String name, final Double points, final Date dueDate, final Boolean isNotCounted, final Boolean isReleased) throws ConflictingAssignmentNameException, StaleObjectModificationException, IllegalArgumentException 
-    {
-        return createAssignmentForCategory(gradebookId,categoryId,name,points,dueDate,isNotCounted,isReleased,false);
-    }
-
     public Long createAssignmentForCategory(final Long gradebookId, final Long categoryId, final String name, final Double points, final Date dueDate, final Boolean isNotCounted, final Boolean isReleased, final Boolean isExtraCredit) throws ConflictingAssignmentNameException, StaleObjectModificationException, IllegalArgumentException 
     {
     	if(gradebookId == null || categoryId == null)

@@ -621,7 +621,8 @@ public class GradebookServiceHibernateImpl extends BaseHibernateManager implemen
 				}
 				
 				// All assignments should be unreleased even if they were released in the original.
-				createAssignment(gradebook.getId(), assignmentDef.getName(), assignmentDef.getPoints(), assignmentDef.getDueDate(), true, false);
+			
+				createAssignment(gradebook.getId(), assignmentDef.getName(), assignmentDef.getPoints(), assignmentDef.getDueDate(), true, false, assignmentDef.isExtraCredit());
 				assignmentsAddedCount++;
 			}	
 			
@@ -686,7 +687,7 @@ public class GradebookServiceHibernateImpl extends BaseHibernateManager implemen
 			}
 			
 			// All assignments should be unreleased even if they were released in the original.
-			createAssignment(gradebook.getId(), assignmentDef.getName(), assignmentDef.getPoints(), assignmentDef.getDueDate(), true, false);
+			createAssignment(gradebook.getId(), assignmentDef.getName(), assignmentDef.getPoints(), assignmentDef.getDueDate(), true, false, assignmentDef.isExtraCredit());
 			assignmentsAddedCount++;
 		}
 		if (log.isInfoEnabled()) log.info("Merge to gradebook " + toGradebookUid + " added " + assignmentsAddedCount + " assignments");
@@ -748,7 +749,7 @@ public class GradebookServiceHibernateImpl extends BaseHibernateManager implemen
         }
 
 		Gradebook gradebook = getGradebook(gradebookUid);
-		createAssignment(gradebook.getId(), assignmentDefinition.getName(), points, assignmentDefinition.getDueDate(), !assignmentDefinition.isCounted(), assignmentDefinition.isReleased());
+		createAssignment(gradebook.getId(), assignmentDefinition.getName(), points, assignmentDefinition.getDueDate(), !assignmentDefinition.isCounted(), assignmentDefinition.isReleased(), assignmentDefinition.isExtraCredit());
 	}
 
 	public void updateAssignment(final String gradebookUid, final String assignmentName, final org.sakaiproject.service.gradebook.shared.Assignment assignmentDefinition) {		
