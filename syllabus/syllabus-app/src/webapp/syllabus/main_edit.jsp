@@ -7,6 +7,8 @@
 <script type="text/javascript" src="/library/js/jquery/jquery-ui/js/jquery-ui.js"></script>
 <link type="text/css" href="/library/js/jquery/jquery-ui/css/smoothness/jquery-ui.css" rel="stylesheet" media="screen" />
 <script type="text/javascript" src="js/jquery-ui-timepicker-addon.js"></script>
+<script type="text/javascript" src="js/syllabus.js"></script>
+<link type="text/css" href="syllabus/css/syllabus.css" rel="stylesheet" media="screen" />
  <f:view>
 <script>
   var startDateValues = new Array();
@@ -96,6 +98,19 @@
 		});
 	}
 	
+	function checkStartEndDates(calendarCheckbox){
+		if(calendarCheckbox.checked){
+			//check that this rows has either start or end dates set
+			var startTime = $(calendarCheckbox).parent().parent().find(".dateInputStart").val();
+			var endTime = $(calendarCheckbox).parent().parent().find(".dateInputEnd").val();
+			if((startTime == null || "" == $.trim(startTime))
+					&& (endTime == null || "" == $.trim(endTime))){
+				showMessage("<h:outputText value="#{msgs.calendarDatesNeeded}"/>", false);
+				calendarCheckbox.checked = false;
+			}
+		}
+	}
+	
 	var deleteClick;
             
 	function assignWarningClick(link) {
@@ -122,7 +137,10 @@
 <jsp:useBean id="msgs" class="org.sakaiproject.util.ResourceLoader" scope="session">
    <jsp:setProperty name="msgs" property="baseName" value="org.sakaiproject.tool.syllabus.bundle.Messages"/>
 </jsp:useBean>
-
+<div>
+	<span id="successInfo" class="success popupMessage" style="display:none; float: left;"></span>
+	<span id="warningInfo" class="alertMessage popupMessage" style="display:none; float: left;"></span>
+</div>
 	<sakai:view_container title="#{msgs.title_list}">
 	<sakai:view_content>
 		<h:form>
@@ -213,7 +231,7 @@
 									</f:verbatim>
 								</h:panelGroup>
 							</f:facet>
-							<h:selectBooleanCheckbox styleClass="calendarBox" value="#{eachEntry.entry.linkCalendar}" title="#{msgs.selectThisCheckBoxCal}" disabled="#{!eachEntry.posted}"/>
+							<h:selectBooleanCheckbox styleClass="calendarBox" value="#{eachEntry.entry.linkCalendar}" title="#{msgs.selectThisCheckBoxCal}" disabled="#{!eachEntry.posted}" onchange="checkStartEndDates(this)"/>
 						</h:column>
 						<h:column rendered="#{! SyllabusTool.displayNoEntryMsg}">
 							<f:facet name="header">
