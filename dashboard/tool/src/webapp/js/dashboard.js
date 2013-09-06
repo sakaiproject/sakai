@@ -15,14 +15,17 @@ var setupLinks = function(){
      * expand an item's contents
      */
     $(".itemLink").live("click", function(e){
-        if( $('#isMobile').length===0){
-            //desktop version
+        var isMobile = "";
+        if ($('.mobilePage').length === 0) {
+            //console.log('is not mobile') //desktop version
+            e.preventDefault();
+            isMobile = false;
         }
         else {
-            //mobile version
+            //console.log('is mobile')
+            isMobile = true;
         };
-
-        e.preventDefault();
+        
         var parentRow = $(this).closest('li');
         var colCount = $(parentRow).find('div').length;
         var parentCell = $(this).closest('div');
@@ -30,6 +33,13 @@ var setupLinks = function(){
         var entityReference = $(this).closest('li').find('.entityReference').text();
         var itemCount = $(this).closest('li').find('.itemCount').text();
         var callBackUrl = $(this).closest('body').find('.callBackUrl').text();
+        
+        //console.log('callBackUrl: ' + callBackUrl)
+        //console.log('entityReference: ' + entityReference)
+        //console.log('itemType:' + itemType)
+        //console.log('parentCell: ' + parentCell) 
+        //console.log('parentRow: ' + parentRow)
+        //console.log('itemCount:' + itemCount)
         
         //if disclosure in DOM, either hide or show, do not request data again
         if ($(parentRow).next('li.newRow').length === 1) {
@@ -137,11 +147,18 @@ var setupLinks = function(){
                         else {
                             results = results + 'This item type has not specified an order :( </div>';
                         }
-                        $('<li class=\"newRow\"><div>' + results + '</div></li>').insertAfter(parentRow);
-                        $(parentRow).next('li.newRow').find('.results').fadeIn('slow', function(){
-                            resizeFrame('grow');
-                            $(parentRow).next('li.newRow').find('.results').focus();
-                        });
+                        if (isMobile) {
+                            $('#itemEvent #itemHolder').html('<div>' + results + '</div>');
+                            $('#itemEvent #itemHolder .results').fadeIn('fast');
+                        }
+                        else {
+                            $('<li class=\"newRow\"><div>' + results + '</div></li>').insertAfter(parentRow);
+                            $(parentRow).next('li.newRow').find('.results').fadeIn('slow', function(){
+                                resizeFrame('grow');
+                                //$(parentRow).next('li.newRow').find('.results').focus();
+                            });
+                            
+                        }
                     },
                     error: function(xhr, status, error){
                         reportError(error)
@@ -215,19 +232,35 @@ var renderCollection = function(callBackUrl, params, parentRow, colCount, initCh
                 }
                 
                 var link = '';
-                row = '<div class="one span2" style=\"visibility:hidden;\">\n<span class="itemType" style="display:none;">' + this.entityType + '</span>\n' + 
-                        '<span class="actionTargetId" style="display:none;">' + this.newsItemId +'</span>\n' +
-                        '<span class="itemCount" style="display:none;">1</span>\n'+
-                        '<span class="entityReference" style="display:none;">' + this.entityReference + '</span>\n'+
-                    '</div>\n'+
-                    '<div class="tab three span6">\n'+
-                        '<a href="#" class="itemLink" target="_top">' + icon + ' ' + this.title + ' <span class="skip">' + json.details + '</span></a>'+
-                        '<span class="itemLabel muted">' + this.label + '</span>\n'+
-                    '</div>\n'+
-                    '<div class="action span2">\n &nbsp;&nbsp;<a class="' + 
-                        starAction + '" href="#"><img alt="[ Star/Unstar This ]" src="' + 
-                        this.starringActionIcon + '" /></a> ' + hideLink + '\n'+
-                    '</div>\n';
+                row = '<div class="one span2" style=\"visibility:hidden;\">\n<span class="itemType" style="display:none;">' + this.entityType + '</span>\n' +
+                '<span class="actionTargetId" style="display:none;">' +
+                this.newsItemId +
+                '</span>\n' +
+                '<span class="itemCount" style="display:none;">1</span>\n' +
+                '<span class="entityReference" style="display:none;">' +
+                this.entityReference +
+                '</span>\n' +
+                '</div>\n' +
+                '<div class="tab three span6">\n' +
+                '<a href="#" class="itemLink" target="_top">' +
+                icon +
+                ' ' +
+                this.title +
+                ' <span class="skip">' +
+                json.details +
+                '</span></a>' +
+                '<span class="itemLabel muted">' +
+                this.label +
+                '</span>\n' +
+                '</div>\n' +
+                '<div class="action span2">\n &nbsp;&nbsp;<a class="' +
+                starAction +
+                '" href="#"><img alt="[ Star/Unstar This ]" src="' +
+                this.starringActionIcon +
+                '" /></a> ' +
+                hideLink +
+                '\n' +
+                '</div>\n';
                 results = results + '<li class=\"row-fluid ' + this.entityType + ' row' + i % 2 + '\">' + row + '</li>';
             });
             
@@ -237,7 +270,7 @@ var renderCollection = function(callBackUrl, params, parentRow, colCount, initCh
             }
             else {
                 $(results).insertAfter((parentRow).next('li').find('ul').find('li:last')).fadeIn('slow');
-                $(parentRow).next('li').find('ul').find('li').eq(params.offset).attr('tabindex', '-1').focus();
+                //$(parentRow).next('li').find('ul').find('li').eq(params.offset).attr('tabindex', '-1').focus();
             }
             //this needs to be conditional on if being a "get More" action
             var showingRows = $(parentRow).next('li.newRow').find('li').length
@@ -393,7 +426,9 @@ var setupDismissMOTD = function(){
         $('.motdPanel').css('display', 'none');
     }
     else {
-        $('.motdPanel').css('display', 'block');
+        if ($('mobilePage').length !== 0) {
+            $('.motdPanel').css('display', 'block');
+        }
     }
     $('#motdTextDivDismiss').click(function(){
         dismissMessage('.motdPanel', currentMOTD);

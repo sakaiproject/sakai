@@ -166,6 +166,11 @@ components of an item in the schedule view
 */
 
 /* title */
+#schedPanel .row-fluid  > div, #newsPanel .row-fluid  > div {
+    /* to help positioning the elements
+     outline:1px solid #ccc;
+     */
+    }
 #schedPanel .row-fluid .two {
     position:absolute;
     top:10px;
@@ -174,7 +179,8 @@ components of an item in the schedule view
 /* title label*/
 #schedPanel .row-fluid .two .itemLabel{
     display:block;
-    margin-top:9px
+    margin-top:9px;
+    font-weight:bold;
 }
 .itemLabel:before {
     content: "";
@@ -182,13 +188,14 @@ components of an item in the schedule view
 /* date */
 #schedPanel .row-fluid .one {
     position:absolute;
-    top:70px;
+    top:95px;
     left:10px;
+    font-weight:bold
 }
 /* site link */
 #schedPanel .row-fluid .three {
     position:absolute;
-    top:96px;
+    top:69px;
     left:10px;
 }
 /* star and hide controls */
@@ -215,8 +222,9 @@ components of an item in the event view
 /* title */
 #newsPanel .row-fluid .two {
     position:absolute;
-    top:69px;
+    top:68px;
     left:10px;
+    font-weight: bold;
 }
 /* site link */
 #newsPanel .row-fluid .three {
@@ -239,3 +247,10 @@ components of an item in the event view
     margin: 0 15px;
 }
 
+.siteLink {
+    text-transform:uppercase;
+    font-weight:normal !important
+}
+.row-fluid a {
+    color:#173E8F !important
+}
