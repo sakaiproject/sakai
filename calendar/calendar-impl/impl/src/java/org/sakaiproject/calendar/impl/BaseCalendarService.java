@@ -2253,6 +2253,7 @@ public abstract class BaseCalendarService implements CalendarService, DoubleStor
 
 							// commit new event
 							m_storage.commitEvent(nCalendar, eEdit);
+							transversalMap.put(oEvent.getId(), eEdit.getId());
 						}
 						catch (InUseException ignore) {}
 					}
