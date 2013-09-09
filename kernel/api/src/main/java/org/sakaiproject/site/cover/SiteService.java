@@ -112,6 +112,10 @@ public class SiteService
 	public static java.lang.String EVENT_SITE_USER_INVALIDATE = org.sakaiproject.site.api.SiteService.EVENT_SITE_USER_INVALIDATE;
 
 	public static java.lang.String EVENT_SITE_VISIT_DENIED = org.sakaiproject.site.api.SiteService.EVENT_SITE_VISIT_DENIED;
+	
+	public static java.lang.String EVENT_SITE_IMPORT_START = org.sakaiproject.site.api.SiteService.EVENT_SITE_IMPORT_START;
+	
+	public static java.lang.String EVENT_SITE_IMPORT_END = org.sakaiproject.site.api.SiteService.EVENT_SITE_IMPORT_END;
 
 	public static boolean allowAccessSite(java.lang.String param0)
 	{

@@ -180,6 +180,16 @@ public interface SiteService extends EntityProducer
 	static final String EVENT_SITE_USER_INVALIDATE = "site.usersite.invalidate";
 
 	/**
+	 * An event for starting the site import
+	 */
+	static final String EVENT_SITE_IMPORT_START = "site.import.start";
+	
+	/**
+	 * An event for ending the site import
+	 */
+	static final String EVENT_SITE_IMPORT_END = "site.import.end";
+	
+	/**
 	 * <p>
 	 * SelectionType enumerates different supported types of selection criteria for getting / counting sites.
 	 * </p>
