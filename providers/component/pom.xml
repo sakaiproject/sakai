@@ -76,13 +76,6 @@
 			
 		</dependency>
 	 	-->
-    <!-- Needed for the K2 Hybrid Provider
-    -->
-    		<dependency>
-    			<groupId>org.sakaiproject.provider</groupId>
-    			<artifactId>sakai-hybrid-provider</artifactId>
-    			<version>2.10-SNAPSHOT</version>
-    		</dependency>
   </dependencies>
   <build>
     <resources />
