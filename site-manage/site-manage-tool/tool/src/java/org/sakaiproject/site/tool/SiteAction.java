@@ -136,6 +136,7 @@ import org.sakaiproject.thread_local.cover.ThreadLocalManager;
 import org.sakaiproject.time.api.Time;
 import org.sakaiproject.time.api.TimeBreakdown;
 import org.sakaiproject.time.cover.TimeService;
+import org.sakaiproject.tool.api.Session;
 import org.sakaiproject.tool.api.Tool;
 import org.sakaiproject.tool.api.ToolException;
 import org.sakaiproject.tool.api.ToolSession;
@@ -678,6 +679,8 @@ public class SiteAction extends PagedResourceActionII {
 	private static final String TOOL_ID_SYNOPTIC_CHAT = "sakai.synoptic.chat";
 	private static final String TOOL_ID_SYNOPTIC_MESSAGECENTER = "sakai.synoptic.messagecenter";
 	private static final String TOOL_ID_SYNOPTIC_DISCUSSION = "sakai.synoptic.discussion";
+	
+	private static final String IMPORT_QUEUED = "import.queued";
 	
 	// map of synoptic tool and the related tool ids
 	private final static Map<String, List<String>> SYNOPTIC_TOOL_ID_MAP;
@@ -2005,6 +2008,14 @@ public class SiteAction extends PagedResourceActionII {
 					context.put("menu", b);
 				}
 
+				if(state.getAttribute(IMPORT_QUEUED) != null){
+					context.put("importQueued", true);
+					state.removeAttribute(IMPORT_QUEUED);
+					if(UserDirectoryService.getCurrentUser().getEmail() == null || "".equals(UserDirectoryService.getCurrentUser().getEmail())){
+						context.put("importQueuedNoEmail", true);
+					}
+				}
+				
 				if (((String) state.getAttribute(STATE_SITE_MODE))
 						.equalsIgnoreCase(SITE_MODE_SITESETUP)) {
 					// editing from worksite setup tool
@@ -8145,7 +8156,7 @@ private Map<String,List> getTools(SessionState state, String type, Site site) {
 	 * here. Some cases not implemented.
 	 */
 	private void actionForTemplate(String direction, int index,
-			ParameterParser params, SessionState state, RunData data) {
+			ParameterParser params, final SessionState state, RunData data) {
 		// Continue - make any permanent changes, Back - keep any data entered
 		// on the form
 		boolean forward = "continue".equals(direction) ? true : false;
@@ -8266,18 +8277,44 @@ private Map<String,List> getTools(SessionState state, String type, Site site) {
 				if (existingSite != null) {
 					// revising a existing site's tool
 					if (select_import_tools(params, state)) {
-						Hashtable importTools = (Hashtable) state
-								.getAttribute(STATE_IMPORT_SITE_TOOL);
-						List selectedTools = originalToolIds((List<String>) state
-								.getAttribute(STATE_TOOL_REGISTRATION_SELECTED_LIST), state);
-						importToolIntoSite(selectedTools, importTools,
-								existingSite);
-
-						existingSite = getStateSite(state); // refresh site for
-						// WC and News
-
-						if (state.getAttribute(STATE_MESSAGE) == null) {
-							commitSite(existingSite);
+						String threadName = "SiteImportThread" + existingSite.getId();
+						boolean found = false;
+						//check all running threads for our named thread
+						//this isn't cluster safe, but this check it more targeted towards
+						//a single user re-importing multiple times during a slow import (which would be on the same server)
+						for(Thread t : Thread.getAllStackTraces().keySet()){
+							if(threadName.equals(t.getName())){
+								found = true;
+								break;
+							}
+						}
+						if(found){
+							//an existing thread is running for this site import, throw warning
+							addAlert(state, rb.getString("java.import.existing"));
+						}else{
+							final Hashtable importTools = (Hashtable) state
+									.getAttribute(STATE_IMPORT_SITE_TOOL);
+							final List selectedTools = originalToolIds((List<String>) state
+									.getAttribute(STATE_TOOL_REGISTRATION_SELECTED_LIST), state);
+							final String userEmail = UserDirectoryService.getCurrentUser().getEmail();
+							final Session session = SessionManager.getCurrentSession();
+							Thread siteImportThread = new Thread(){
+								public void run() {
+									Site existingSite = getStateSite(state);
+									EventTrackingService.post(EventTrackingService.newEvent(SiteService.EVENT_SITE_IMPORT_START, existingSite.getReference(), false));
+									SessionManager.setCurrentSession(session);
+									importToolIntoSite(selectedTools, importTools,
+											existingSite);
+									existingSite = getStateSite(state); // refresh site for
+									// WC and News
+									commitSite(existingSite);
+									userNotificationProvider.notifySiteImportCompleted(userEmail, existingSite.getId(), existingSite.getTitle());
+									EventTrackingService.post(EventTrackingService.newEvent(SiteService.EVENT_SITE_IMPORT_END, existingSite.getReference(), false));
+								}
+							};
+							siteImportThread.setName(threadName);
+							siteImportThread.start();
+							state.setAttribute(IMPORT_QUEUED, rb.get("importQueued"));
 							state.removeAttribute(STATE_IMPORT_SITE_TOOL);
 							state.removeAttribute(STATE_IMPORT_SITES);
 						}
@@ -8304,19 +8341,42 @@ private Map<String,List> getTools(SessionState state, String type, Site site) {
 				if (existingSite != null) {
 					// revising a existing site's tool
 					if (select_import_tools(params, state)) {
-						Hashtable importTools = (Hashtable) state
-								.getAttribute(STATE_IMPORT_SITE_TOOL);
-						List selectedTools = (List) state
-								.getAttribute(STATE_TOOL_REGISTRATION_SELECTED_LIST);
-						// Remove all old contents before importing contents from new site
-						importToolIntoSiteMigrate(selectedTools, importTools,
-								existingSite);
-
-						existingSite = getStateSite(state); // refresh site for
-						// WC and News
-
-						if (state.getAttribute(STATE_MESSAGE) == null) {
-							commitSite(existingSite);
+						String threadName = "SiteImportThread" + existingSite.getId();
+						boolean found = false;
+						//check all running threads for our named thread
+						//this isn't cluster safe, but this check it more targeted towards
+						//a single user re-importing multiple times during a slow import (which would be on the same server)
+						for(Thread t : Thread.getAllStackTraces().keySet()){
+							if(threadName.equals(t.getName())){
+								found = true;
+								break;
+							}
+						}
+						if(found){
+							//an existing thread is running for this site import, throw warning
+							addAlert(state, rb.getString("java.import.existing"));
+						}else{
+							final Hashtable importTools = (Hashtable) state
+									.getAttribute(STATE_IMPORT_SITE_TOOL);
+							final List selectedTools = (List) state
+									.getAttribute(STATE_TOOL_REGISTRATION_SELECTED_LIST);
+							final String userEmail = UserDirectoryService.getCurrentUser().getEmail();
+							final Session session = SessionManager.getCurrentSession();
+							Thread siteImportThread = new Thread(){
+								public void run() {
+									Site existingSite = getStateSite(state);
+									EventTrackingService.post(EventTrackingService.newEvent(SiteService.EVENT_SITE_IMPORT_START, existingSite.getReference(), false));
+									SessionManager.setCurrentSession(session);
+									// Remove all old contents before importing contents from new site
+									importToolIntoSiteMigrate(selectedTools, importTools,
+											existingSite);
+									userNotificationProvider.notifySiteImportCompleted(userEmail, existingSite.getId(), existingSite.getTitle());
+									EventTrackingService.post(EventTrackingService.newEvent(SiteService.EVENT_SITE_IMPORT_END, existingSite.getReference(), false));
+								}
+							};
+							siteImportThread.setName(threadName);
+							siteImportThread.start();
+							state.setAttribute(IMPORT_QUEUED, rb.get("importQueued"));
 							state.removeAttribute(STATE_IMPORT_SITE_TOOL);
 							state.removeAttribute(STATE_IMPORT_SITES);
 						}

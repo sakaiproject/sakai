@@ -541,4 +541,15 @@ public class ETSUserNotificationProviderImpl implements UserNotificationProvider
        }
        return null;
 	}
+	
+	public void notifySiteImportCompleted(String toEmail, String siteId, String siteTitle){
+		if(toEmail != null && !"".equals(toEmail)){
+			String headerTo = toEmail;
+			String replyTo = toEmail;
+			ResourceLoader rb = new ResourceLoader("UserNotificationProvider");
+			String message_subject = rb.getFormattedMessage("java.siteImport.confirmation.subject", new Object[]{siteTitle});
+			String message_body = rb.getFormattedMessage("java.siteImport.confirmation", new Object[]{siteId, siteTitle});
+			emailService.send(getSetupRequestEmailAddress(), toEmail, message_subject, message_body, headerTo, replyTo, null);
+		}
+	}
 }

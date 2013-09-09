@@ -59,6 +59,16 @@ function printPreview(target){
 		<div class="alertMessage">$tlang.getString("gen.alert") $alertMessage</div>
 		<div class="clear"></div>
 	#end
+	#if($importQueued)
+		<div class="information">
+			#if($importQueuedNoEmail)
+				$tlang.getString("importQueuedNoEmail")
+			#else
+				$tlang.getString("importQueued")
+			#end
+		</div>
+		<div class="clear"></div>
+	#end
 	#if ($fromWSetup)
 		<form name="siteForm" id="siteForm" class="inlineForm" action="#toolForm("SiteAction")" method="post">
 			<input type="hidden" name="option" value="x" />

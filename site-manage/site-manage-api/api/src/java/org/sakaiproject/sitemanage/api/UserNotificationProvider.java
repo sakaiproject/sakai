@@ -92,4 +92,12 @@ public interface UserNotificationProvider {
 	 * @param termTitle
 	 */
 	public void notifyCourseRequestRequester(String requestEmail, String supportEmailContent, String termTitle);
+	
+	/**
+	 * Notifies user when the course site import completed
+	 * @param toEmail
+	 * @param siteId
+	 * @param siteTitle
+	 */
+	public void notifySiteImportCompleted(String toEmail, String siteId, String siteTitle);
 }
