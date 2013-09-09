@@ -570,26 +570,25 @@
         <artifactId>dumbster</artifactId>
         <version>1.6</version>
       </dependency>
-      <!-- kernel apis -->
+      <!-- KERNEL -->
       <dependency>
         <groupId>org.sakaiproject.kernel</groupId>
         <artifactId>sakai-component-manager</artifactId>
-        <version>${project.version}</version>
+        <version>${sakai.kernel.version}</version>
         <scope>provided</scope>
       </dependency>
       <dependency>
         <groupId>org.sakaiproject.kernel</groupId>
         <artifactId>sakai-kernel-api</artifactId>
-        <version>${project.version}</version>
+        <version>${sakai.kernel.version}</version>
         <scope>provided</scope>
       </dependency>
       <dependency>
         <groupId>org.sakaiproject.kernel.component.api</groupId>
         <artifactId>sakai-component-manager</artifactId>
-        <version>${project.version}</version>
+        <version>${sakai.kernel.version}</version>
         <scope>provided</scope>
       </dependency>
-      <!-- KERNEL -->
       <dependency>
         <groupId>org.sakaiproject.kernel</groupId>
         <artifactId>sakai-kernel-util</artifactId>
