@@ -52,12 +52,6 @@
       <artifactId>commons-logging</artifactId>
       <version>${sakai.commons-logging.version}</version>
     </dependency>
-    <!-- TODO bind to release version when it is ready 0.1? -->
-    <dependency>
-      <groupId>org.sakaiproject.hybrid</groupId>
-      <artifactId>sakai-hybrid-util</artifactId>
-      <version>${sakai.hybrid.version}</version>
-    </dependency>
     <dependency>
       <groupId>org.sakaiproject.login</groupId>
       <artifactId>login-api</artifactId>
