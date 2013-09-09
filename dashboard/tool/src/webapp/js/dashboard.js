@@ -3,6 +3,12 @@
  */
 var setupLinks = function(){
     /*
+    need to make the whole row clickable and send a trigger to the link
+    but since it is a live action cannot escape propagation
+    $('.row-fluid').click(function(){});
+    */
+    
+    /*
      * go to site link handler (used only to report event)
      */
     $(".siteLink").live("click", function(e){
@@ -18,7 +24,6 @@ var setupLinks = function(){
         var isMobile = "";
         if ($('.mobilePage').length === 0) {
             //console.log('is not mobile') //desktop version
-            e.preventDefault();
             isMobile = false;
         }
         else {
@@ -147,7 +152,8 @@ var setupLinks = function(){
                         else {
                             results = results + 'This item type has not specified an order :( </div>';
                         }
-                        if (isMobile) {
+                        
+                        if (isMobile && $(parentRow).closest('#itemHolder').length !== 1) {
                             $('#itemEvent #itemHolder').html('<div>' + results + '</div>');
                             $('#itemEvent #itemHolder .results').fadeIn('fast');
                         }
@@ -170,13 +176,25 @@ var setupLinks = function(){
                 renderCollection(callBackUrl, params, parentRow, colCount, initChunk);
             }
         }
-        
     });
     $('.getMore a').live("click", function(){
-        var parentRow = $(this).closest('li').prev('li');
+        var parentRow = '';
+        var isMobile = "";
+        if ($('.mobilePage').length === 0) {
+            //console.log('is mobile')
+            parentRow = $(this).closest('li').prev('li');
+            isMobile = false;
+        }
+        else {
+            parentRow = $(this).closest('.newList').find('#paramContainer');
+            isMobile = true;
+        };
+        
         var colCount = '0';
         var callBackUrl = $(this).closest('body').find('.callBackUrl').text();
         var paramContainer = $(parentRow).find('.one');
+            $(paramContainer).css('border','1px solid blue')
+        
         params = {
             'entityType': $(paramContainer).find('.itemType').text(),
             'entityReference': $(paramContainer).find('.entityReference').text(),
@@ -265,25 +283,66 @@ var renderCollection = function(callBackUrl, params, parentRow, colCount, initCh
             });
             
             //need to just add rows if it is a "get More" action, otherwise add below
-            if (initChunk) {
-                $('<li class=\"newRow\"><div class=\"results newList\"><ul class=\"itemCollection\">' + results + '</ul></div></li>').insertAfter(parentRow);
+            var isMobile = "";
+            if ($('.mobilePage').length === 0) {
+                //console.log('is not mobile') //desktop version
+                isMobile = false;
             }
             else {
-                $(results).insertAfter((parentRow).next('li').find('ul').find('li:last')).fadeIn('slow');
-                //$(parentRow).next('li').find('ul').find('li').eq(params.offset).attr('tabindex', '-1').focus();
+                //console.log('is mobile')
+                isMobile = true;
+            };
+            
+            
+            if (isMobile) {
+                if (initChunk) {
+                    $('#itemEvent #itemHolder').html('<div class=\"newList\"><div id=\"paramContainer\" style=\"display:none\"><div class=\"one\"><span class=\"itemType\">' + $(parentRow).find('.itemType').text()  +
+                    
+                    '</span>  | <span class=\"itemCount\">' + $(parentRow).find('.itemCount').text()  +
+                    '</span>  | <span class=\"entityReference\">' + $(parentRow).find('.entityReference').text()  +
+                    '</span>  | <span class=\"offset\">' + $(parentRow).find('.offset').text()  +
+                    '</span></div></div><ul class=\"itemCollection\">' + results + '</ul></div>');
+                }
+                else {
+                    $(results).appendTo('.itemCollection')
+                }
+            }
+            else {
+                if (initChunk) {
+                    $('<li class=\"newRow\"><div class=\"results newList\"><ul class=\"itemCollection\">' + results + '</ul></div></li>').insertAfter(parentRow);
+                }
+                else {
+                    $(results).insertAfter((parentRow).next('li').find('ul').find('li:last')).fadeIn('slow');
+                    //$(parentRow).next('li').find('ul').find('li').eq(params.offset).attr('tabindex', '-1').focus();
+                }
             }
             //this needs to be conditional on if being a "get More" action
-            var showingRows = $(parentRow).next('li.newRow').find('li').length
-            
-            //console.log(showingRows + ' | ' + totalCount)
+            var showingRows = '';
+            if (isMobile) {
+                showingRows = $('#itemHolder').find('.itemCollection').find('li').length
+            }
+            else {
+                showingRows = $(parentRow).next('li.newRow').find('li').length
+            }
+
             if (showingRows < totalCount) {
-                if ($(parentRow).next('li.newRow').find('.getMore').length === 0) {
-                    $('<div class="getMore"><a class=\"btn btn-small\" href="#">' + json['more-link'] + '</a>&nbsp;&nbsp;&nbsp;<span class=\"showingCount instruction textPanelFooter"></span></div>').insertAfter((parentRow).next('li.newRow').find('.itemCollection'));
+                if (isMobile) {
+                    if ($('#itemHolder').find('.getMore').length === 0) {
+                        $('<div class="getMore"><a class=\"btn btn-small\" href="#">' + json['more-link'] + '</a>&nbsp;&nbsp;&nbsp;<span class=\"showingCount instruction textPanelFooter"></span></div>').insertAfter($('.itemCollection'));
+                    }
+                    $('#itemHolder').find('.showingCount').text(updateCount(json['more-status-last'], showingRows, totalCount, parentRow))
                 }
-                $(parentRow).next('li.newRow').find('.getMore').find('.showingCount').text(updateCount(json['more-status-last'], showingRows, totalCount, parentRow))
+                else {
+                    if ($(parentRow).next('li.newRow').find('.getMore').length === 0) {
+                        $('<div class="getMore"><a class=\"btn btn-small\" href="#">' + json['more-link'] + '</a>&nbsp;&nbsp;&nbsp;<span class=\"showingCount instruction textPanelFooter"></span></div>').insertAfter((parentRow).next('li.newRow').find('.itemCollection'));
+                    }
+                    $(parentRow).next('li.newRow').find('.getMore').find('.showingCount').text('bbbb ' + updateCount(json['more-status-last'], showingRows, totalCount, parentRow))
+                }
+                
             }
             else {
                 $(parentRow).next('li.newRow').find('.getMore').fadeOut('slow').remove();
+                $('#itemHolder').find('.getMore').fadeOut('slow').remove();
             }
             
             // add click handlers to star and hide links
@@ -338,10 +397,10 @@ function updateItemStatus(element, dashAction, itemId){
                 $(element).attr('src', json.newIcon);
                 if (dashAction === 'unstar') {
                     $(element).parent('a').attr('class', 'starThis');
-                    $(element).closest('tr').find('.hideThis').show();
+                    $(element).closest('li').find('.hideThis').show();
                 }
                 else {
-                    $(element).closest('tr').find('.hideThis').hide();
+                    $(element).closest('li').find('.hideThis').hide();
                     $(element).parent('a').attr('class', 'unstarThis');
                 }
             }
@@ -378,8 +437,6 @@ var updateCount = function(label, showingRows, totalCount, rowId){
     var repLabel = label.replace('{0}', showingRows).replace('{1}', totalCount);
     return (repLabel)
     // $(parentRow).next('tr.newRow').find('.getMore').find('.showingCount').text(showingRows);
-
-
 }
 
 

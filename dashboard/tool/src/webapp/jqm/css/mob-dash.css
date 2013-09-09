@@ -154,6 +154,11 @@ h3 {
 .ui-content {
     padding:0
 }
+
+/* message that there are no items of this type*/
+#schedPanel > div > p, #newsPanel > div > p{
+    padding:10px;
+}
 #schedPanel .row-fluid {
     border-bottom:1px solid #ccc;
     padding:10px;
@@ -247,10 +252,71 @@ components of an item in the event view
     margin: 0 15px;
 }
 
+#itemHolder .row-fluid {
+    position:relative;
+    padding:10px;
+    border-bottom:1px solid #ccc;
+}
+
+#itemHolder .row-fluid a {
+    font-weight:bold;
+    text-decoration:none
+}
+
+#itemHolder .row-fluid div.action{
+    position:absolute;
+    top:15px;
+    right:15px;
+}
+
+#itemHolder .row-fluid div.action a{
+    margin: 0 15px;
+}
 .siteLink {
     text-transform:uppercase;
     font-weight:normal !important
 }
 .row-fluid a {
     color:#173E8F !important
+}
+
+.activeCell {
+    background:transparent;
+}
+
+.itemCollection .newRow > div{
+    -webkit-border-bottom-right-radius: 0;
+    -webkit-border-bottom-left-radius: 0;
+    -moz-border-radius-bottomright: 0;
+    -moz-border-radius-bottomleft: 0;
+    border-bottom-right-radius: 0;
+    border-bottom-left-radius: 0;
+    padding: 10px;
+    margin-bottom: 0;
+    font-size: 100%;
+    position:relative;
+    border:1px solid #fff;
+    border-bottom:1px solid #ddd !important;
+    margin-top:0;
+    background:#fff;
+    margin-left: 0;
+}
+
+.results {
+    -webkit-border-bottom-right-radius: 0;
+    -webkit-border-bottom-left-radius: 0;
+    -moz-border-radius-bottomright: 0;
+    -moz-border-radius-bottomleft: 0;
+    border-bottom-right-radius: 0;
+    border-bottom-left-radius: 0;
+    border: 1px solid #DDDDDD;
+    font-size: 100%;
+    margin-bottom: 5px;
+    padding: 10px;
+    position: relative;
+}
+
+.getMore a {
+    color:#173E8F !important;
+    font-weight:bold;
 }
