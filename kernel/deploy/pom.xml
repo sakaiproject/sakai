@@ -21,6 +21,5 @@
   <modules>
     <module>common</module>
     <module>shared</module>
-    <module>assembly</module>
   </modules>
 </project>

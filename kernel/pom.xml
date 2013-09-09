@@ -30,6 +30,7 @@
     <module>kernel-impl</module>
     <module>kernel-util</module>
     <module>kernel-storage-util</module>
+    <module>deploy</module>
     <module>test-harness</module>
   </modules>
 
