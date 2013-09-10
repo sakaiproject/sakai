@@ -236,6 +236,13 @@ function setupEditable(msgs, iframId){
 				$(this).find("a").click(function (event){
 					event.stopPropagation();
 				});
+			}else{
+				//there is a bug in x-editable that, when an element hasn't loaded (i.e. just a youtube video (nothing else))
+				//and has a width of 0, will consider the element empty and put in the default empty text and not
+				//display the real value.  Work around is to set the width/height to a number > 0
+				//https://github.com/vitalets/x-editable/issues/344
+				$(this).width(1);
+				$(this).height(1);
 			}
 		},
 		url: function(params) {
@@ -278,6 +285,11 @@ function setupEditable(msgs, iframId){
 					mySetMainFrameHeight(iframId, 600);
 			}, 1000);
 	});
+	//since we set the width/height to 1 to work around a bug, we need to set it back to auto:
+	//https://github.com/vitalets/x-editable/issues/344
+	$(".bodyInput").css('width', 'auto');
+	$(".bodyInput").css('height', 'auto');
+	
 	//we want the user's to be able to click links in their body text without
 	//having the edit popup
 	$(".bodyInput a").click(function (event){
