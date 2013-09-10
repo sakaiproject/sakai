@@ -24,6 +24,8 @@ package org.sakaiproject.portal.util;
 import java.io.IOException;
 import java.io.PrintWriter;
 import java.security.MessageDigest;
+import java.text.DateFormat;
+import java.text.SimpleDateFormat;
 import java.util.Enumeration;
 import java.util.HashMap;
 import java.util.Map;
@@ -670,11 +672,16 @@ public class ErrorReporter
 			HttpSession session = request.getSession(false);
 			if (session != null)
 			{
+				SimpleDateFormat serverLocaleDateFormat = DateFormat.getDateInstance(DateFormat.FULL, Locale.getDefault()); 
 				sb.append(rb.getString("bugreport.session")).append("\n");
 				sb.append(rb.getString("bugreport.session.creation")).append(
 						session.getCreationTime()).append("\n");
 				sb.append(rb.getString("bugreport.session.lastaccess")).append(
 						session.getLastAccessedTime()).append("\n");
+				sb.append(rb.getString("bugreport.session.creationdatetime")).append(
+						serverLocaleDateFormat.format(session.getCreationTime())).append("\n");
+				sb.append(rb.getString("bugreport.session.lastaccessdatetime")).append(
+						serverLocaleDateFormat.format(session.getLastAccessedTime())).append("\n");
 				sb.append(rb.getString("bugreport.session.maxinactive")).append(
 						session.getMaxInactiveInterval()).append("\n");
 				sb.append(rb.getString("bugreport.session.attributes")).append("\n");
