@@ -1,97 +1,51 @@
 <?xml version="1.0"?>
 <project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
-	<modelVersion>4.0.0</modelVersion>
-	<parent>
-		<groupId>org.sakaiproject</groupId>
-        <artifactId>master</artifactId>
-		<version>2.10-SNAPSHOT</version>
-		<relativePath>../master/pom.xml</relativePath>
-	</parent>
-	<name>Reset Password and Account Validator</name>
-	<groupId>org.sakaiproject.reset-pass</groupId>
-	<artifactId>reset-pass</artifactId>
+  <modelVersion>4.0.0</modelVersion>
+  <parent>
+    <groupId>org.sakaiproject</groupId>
+    <artifactId>master</artifactId>
     <version>2.10-SNAPSHOT</version>
-	<packaging>pom</packaging>
-    
-	<modules>
-		<module>reset-pass</module>
-		<module>reset-pass-help</module>
-		<module>assembly</module>
-		<module>account-validator-api</module>
-		<module>account-validator-impl</module>
-		<module>account-validator-pack</module>
-		<module>account-validator-tool</module>
-	</modules>
+    <relativePath>../master/pom.xml</relativePath>
+  </parent>
 
-	<licenses>
-		<license>
-			<name>Educational Community License, Version 2.0</name>
-			<url>http://www.opensource.org/licenses/ecl2.txt/ecl2.txt</url>
-			<distribution>repo</distribution>
-		</license>
-	</licenses>
-    
-	<developers>
-		<developer>
-			<id>david.horwitz@uct.ac.za</id>
-			<name>David Horwitz</name>
-			<email>david.horwitz@uct.ac.za</email>
-			<url>http://blogs.uct.ac.za/blog/daves-blog</url>
-			<organization>
-                Centre for Educational Technology, University of Cape
-                Town
-            </organization>
-			<organizationUrl>http://www.cet.uct.ac.za</organizationUrl>
-			<roles>
-				<role>developer</role>
-				<role>branch manager</role>
-			</roles>
-			<timezone>+2</timezone>
-			<properties>
-				<picUrl>
-					http://www.sakaiproject.org/access/content/group/sakai-community/images/people/horwitzdavid_sakaigers_100x80.jpg
-                </picUrl>
-			</properties>
-		</developer>
-	</developers>
-    
-    <scm>
-        <connection>scm:svn:https://source.sakaiproject.org/svn/reset-pass/trunk</connection>
-        <developerConnection>scm:svn:https://source.sakaiproject.org/svn/reset-pass/trunk</developerConnection>
-        <url>https://source.sakaiproject.org/svn/reset-pass/trunk</url>
-    </scm>
-    
-	<distributionManagement>
-        <site>
-            <id>sakai-site</id>
-            <name>Sakai release Site</name>
-            <url>scpexe://source.sakaiproject.org/var/www/html/release/reset-pass/${project.version}</url>
-        </site>
-    </distributionManagement>
-    
-    <dependencyManagement>
-        <dependencies>
-            <dependency>
-                <groupId>org.sakaiproject.accountvalidator</groupId>
-                <artifactId>accountvalidator-api</artifactId>
-                <version>${project.version}</version>
-                <scope>provided</scope>
-            </dependency>
-        </dependencies>
-    </dependencyManagement>
-    
-    <repositories> 
-		<repository> 
-			<id>sonatype-nexus-snapshots</id> 
-			<name>Sonatype Nexus Snapshots</name> 
-			<url> https://oss.sonatype.org/content/repositories/snapshots </url> 
-			<releases> 
-				<enabled>false</enabled> 
-			</releases> 
-			<snapshots> 
-				<enabled>true</enabled> 
-			</snapshots> 
-		</repository> 
-	</repositories>
+  <name>Reset Password and Account Validator</name>
+  <groupId>org.sakaiproject.reset-pass</groupId>
+  <artifactId>reset-pass</artifactId>
+  <version>2.10-SNAPSHOT</version>
+  <packaging>pom</packaging>
+
+  <modules>
+    <module>reset-pass</module>
+    <module>reset-pass-help</module>
+    <module>account-validator-api</module>
+    <module>account-validator-impl</module>
+    <module>account-validator-pack</module>
+    <module>account-validator-tool</module>
+  </modules>
+
+  <scm>
+    <connection>scm:svn:https://source.sakaiproject.org/svn/reset-pass/trunk</connection>
+    <developerConnection>scm:svn:https://source.sakaiproject.org/svn/reset-pass/trunk</developerConnection>
+    <url>https://source.sakaiproject.org/svn/reset-pass/trunk</url>
+  </scm>
+
+  <distributionManagement>
+    <site>
+      <id>sakai-site</id>
+      <name>Sakai release Site</name>
+      <url>scpexe://source.sakaiproject.org/var/www/html/release/reset-pass/${project.version}</url>
+    </site>
+  </distributionManagement>
+
+  <dependencyManagement>
+    <dependencies>
+      <dependency>
+        <groupId>org.sakaiproject.accountvalidator</groupId>
+        <artifactId>accountvalidator-api</artifactId>
+        <version>${project.version}</version>
+        <scope>provided</scope>
+      </dependency>
+    </dependencies>
+  </dependencyManagement>
 
 </project>
