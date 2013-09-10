@@ -103,6 +103,8 @@
     <rsfutil.version>0.8.0-SNAPSHOT</rsfutil.version>
     <sakairsf.components.version>0.8.0-SNAPSHOT</sakairsf.components.version>
     <sakairsf.version>0.8.0-SNAPSHOT</sakairsf.version>
+    <generic-dao.version>0.9.18</generic-dao.version>
+    <reflectutils.version>0.9.19</reflectutils.version>
     <!-- Sakai modules that are versioned separately -->
     <sakai.announcement.version>2.10-SNAPSHOT</sakai.announcement.version>
     <sakai.assignment.version>2.10-SNAPSHOT</sakai.assignment.version>
