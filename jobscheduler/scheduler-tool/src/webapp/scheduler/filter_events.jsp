@@ -37,9 +37,9 @@
                 <h:outputText value="#{msgs.filter_job_title}"/>
             </h2>
             <h:outputText value="#{msgs.filter_job_instructions}" styleClass="instructions"/><br/>
-            <h:selectManyMenu value="#{schedulerTool.eventPager.jobs}">
+            <h:selectManyListbox value="#{schedulerTool.eventPager.jobs}" size="8" styleClass="jobFilterSelect">
                 <f:selectItems value="#{schedulerTool.scheduledJobs}"/>
-            </h:selectManyMenu>
+            </h:selectManyListbox>
 
             <h2>
                 <h:outputText value="#{msgs.filter_type_title}"/>
