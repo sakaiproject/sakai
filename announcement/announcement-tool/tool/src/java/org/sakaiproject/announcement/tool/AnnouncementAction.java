@@ -71,6 +71,7 @@ import org.sakaiproject.entity.api.EntityPropertyNotDefinedException;
 import org.sakaiproject.entity.api.EntityPropertyTypeException;
 import org.sakaiproject.entity.api.Reference;
 import org.sakaiproject.entity.api.ResourceProperties;
+import org.sakaiproject.entity.api.Entity;
 import org.sakaiproject.entity.cover.EntityManager;
 import org.sakaiproject.entitybroker.EntityBroker;
 import org.sakaiproject.entitybroker.exception.EntityNotFoundException;
@@ -1798,9 +1799,25 @@ public class AnnouncementAction extends PagedResourceActionII
 	 */
 	private boolean canViewHidden(AnnouncementMessage msg, String siteId) 
 	{
-		final boolean b = SecurityService.unlock(AnnouncementService.SECURE_ANNC_READ_DRAFT, msg.getReference())
-							 || SecurityService.unlock(UPDATE_PERMISSIONS, "/site/"+ siteId)
-							 || msg.getHeader().getFrom().getId().equals(SessionManager.getCurrentSessionUserId()) ; 
+
+		// if we are in a roleswapped state, we want to ignore the creator check since it would not necessarily reflect an alternate role
+		String[] refs = StringUtil.split(siteId, Entity.SEPARATOR);
+		String roleswap = null;
+		for (int i = 0; i < refs.length; i++)
+		{
+			
+			roleswap = (String)SessionManager.getCurrentSession().getAttribute("roleswap/site/" + refs[i]);
+			if (roleswap!=null)
+				break;
+		}
+
+		boolean b = SecurityService.unlock(AnnouncementService.SECURE_ANNC_READ_DRAFT, msg.getReference())
+							 || SecurityService.unlock(UPDATE_PERMISSIONS, "/site/"+ siteId);
+		if (roleswap==null)
+		{
+			b = b || msg.getHeader().getFrom().getId().equals(SessionManager.getCurrentSessionUserId()) ; 
+		} 
+		
 		return b;
 	}
 	
