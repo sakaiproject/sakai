@@ -128,7 +128,6 @@
     <sakai.profile.version>2.10-SNAPSHOT</sakai.profile.version>
     <sakai.profile2.version>2.10-SNAPSHOT</sakai.profile2.version>
     <sakai.resetpass.version>2.10-SNAPSHOT</sakai.resetpass.version>
-    <sakai.sakai-mock.version>2.10-SNAPSHOT</sakai.sakai-mock.version>
     <sakai.samigo.version>2.10-SNAPSHOT</sakai.samigo.version>
     <sakai.scheduler.version>2.10-SNAPSHOT</sakai.scheduler.version>
     <sakai.search.version>2.10-SNAPSHOT</sakai.search.version>
@@ -930,7 +929,7 @@
       <dependency>
         <groupId>org.sakaiproject.mock</groupId>
         <artifactId>sakai-mock</artifactId>
-        <version>${sakai.sakai-mock.version}</version>
+        <version>${sakai.version}</version>
       </dependency>
       <dependency>
         <groupId>org.sakaiproject</groupId>
