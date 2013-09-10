@@ -25,9 +25,9 @@ import java.io.IOException;
 import java.io.PrintWriter;
 import java.security.MessageDigest;
 import java.text.DateFormat;
-import java.text.SimpleDateFormat;
 import java.util.Enumeration;
 import java.util.HashMap;
+import java.util.Locale;
 import java.util.Map;
 
 import javax.servlet.ServletException;
@@ -589,7 +589,7 @@ public class ErrorReporter
 		return sb.toString();
 	}
 
-	@SuppressWarnings("unchecked")
+	@SuppressWarnings("rawtypes")
 	private String requestDisplay(HttpServletRequest request)
 	{
 		StringBuilder sb = new StringBuilder();
@@ -672,7 +672,7 @@ public class ErrorReporter
 			HttpSession session = request.getSession(false);
 			if (session != null)
 			{
-				SimpleDateFormat serverLocaleDateFormat = DateFormat.getDateInstance(DateFormat.FULL, Locale.getDefault()); 
+				DateFormat serverLocaleDateFormat = DateFormat.getDateInstance(DateFormat.FULL, Locale.getDefault()); 
 				sb.append(rb.getString("bugreport.session")).append("\n");
 				sb.append(rb.getString("bugreport.session.creation")).append(
 						session.getCreationTime()).append("\n");
