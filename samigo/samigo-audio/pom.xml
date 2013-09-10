@@ -56,7 +56,7 @@
                                 </goals>
                             </execution>
                         </executions>
-           <configuration>
+                        <configuration>
                             <keystore>${sakai.samigo-audio.jarsign.keystore.location}</keystore>
                             <alias>${sakai.samigo-audio.jarsign.alias}</alias>
                             <storepass>${sakai.samigo-audio.jarsign.password}</storepass>
