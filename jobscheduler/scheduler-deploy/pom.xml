@@ -22,7 +22,6 @@
     <inceptionYear>2011</inceptionYear>
 
     <modules>
-        <module>assembly</module>
         <module>shared</module>
     </modules>
     
