@@ -2039,7 +2039,33 @@ public class AssignmentAction extends PagedResourceActionII
 		List assignments = prepPage(state);
 
 		context.put("assignments", assignments.iterator());
-	
+		// allow add assignment?
+		Map<String, Integer> peerAssessmentItemsMap = new HashMap<String, Integer>();
+		boolean allowAddAssignment = AssignmentService.allowAddAssignment(contextString);
+		if(!allowAddAssignment){
+			//this is the same requirement for displaying the assignment link for students
+			//now lets create a map for peer reviews for each eligible assignment
+			for(Assignment assignment : (List<Assignment>) assignments){
+				if(assignment.getAllowPeerAssessment() && assignment.isPeerAssessmentOpen()){
+					List<PeerAssessmentItem> items = assignmentPeerAssessmentService.getPeerAssessmentItems(assignment.getId(), UserDirectoryService.getCurrentUser().getId());
+					if(items == null || items.size() == 0){
+						//something is wrong here, there are no peer assessments for this user, set to -1 for UI to know
+						peerAssessmentItemsMap.put(assignment.getId(), -1);
+					}else{
+						Integer count = 0;
+						//only count peer review items that the student hasn't submitted
+						for(PeerAssessmentItem item : items){
+							if(!item.isSubmitted()){
+								count++;
+							}
+						}
+						peerAssessmentItemsMap.put(assignment.getId(), count);
+					}
+				}
+			}
+		}
+		context.put("peerAssessmentItemsMap", peerAssessmentItemsMap);
+		
 		// allow get assignment
 		context.put("allowGetAssignment", Boolean.valueOf(AssignmentService.allowGetAssignment(contextString)));
 		

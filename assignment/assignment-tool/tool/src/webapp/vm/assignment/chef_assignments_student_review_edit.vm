@@ -117,6 +117,8 @@ function handleEnterKeyPress(ev)
 						$tlang.getString("gen.reviewer"):&nbsp;$reviewer.getDisplayName().concat(" (").concat($reviewer.getDisplayId()).concat(")")
 					#else
 						($reviewNumber $tlang.getString("gen.of") $totalReviews)
+						<br/>
+						$tlang.getString("peerassessment.peerReviewDueDate")&nbsp;$!assignment.peerAssessmentPeriod.toStringLocalFull()
 					#end
 					</span>
 				</h3>
