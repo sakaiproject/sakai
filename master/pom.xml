@@ -123,7 +123,7 @@
     <sakai.message.version>2.10-SNAPSHOT</sakai.message.version>
     <sakai.msgcntr.version>3.0-SNAPSHOT</sakai.msgcntr.version>
     <sakai.portal.version>2.10-SNAPSHOT</sakai.portal.version>
-    <sakai.polls.version>1.6-SNAPSHOT</sakai.polls.version>
+    <sakai.polls.version>2.10-SNAPSHOT</sakai.polls.version>
     <sakai.presence.version>2.10-SNAPSHOT</sakai.presence.version>
     <sakai.profile.version>2.10-SNAPSHOT</sakai.profile.version>
     <sakai.profile2.version>2.10-SNAPSHOT</sakai.profile2.version>
