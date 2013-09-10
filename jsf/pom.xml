@@ -17,7 +17,6 @@
     
     <modules>
         <module>jsf-app</module>
-        <module>jsf-assembly</module>
         <module>jsf-resource</module>
         <module>jsf-spreadsheet</module>
         <module>jsf-tool</module>
@@ -95,19 +94,4 @@
             </dependency>
 	</dependencies>
     </dependencyManagement>
-    
-    <repositories> 
-		<repository> 
-			<id>sonatype-nexus-snapshots</id> 
-			<name>Sonatype Nexus Snapshots</name> 
-			<url> https://oss.sonatype.org/content/repositories/snapshots </url> 
-			<releases> 
-				<enabled>false</enabled> 
-			</releases> 
-			<snapshots> 
-				<enabled>true</enabled> 
-			</snapshots> 
-		</repository> 
-	</repositories>
-    
 </project>
