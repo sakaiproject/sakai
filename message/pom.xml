@@ -17,7 +17,6 @@
 
     <modules>
         <module>message-api/api</module>
-        <module>message-assembly</module>
         <module>message-impl/impl</module>
         <module>message-tool/tool</module>
     </modules>
@@ -46,19 +45,4 @@
             </dependency>
         </dependencies>
     </dependencyManagement>
-    
-    <repositories> 
-		<repository> 
-			<id>sonatype-nexus-snapshots</id> 
-			<name>Sonatype Nexus Snapshots</name> 
-			<url> https://oss.sonatype.org/content/repositories/snapshots </url> 
-			<releases> 
-				<enabled>false</enabled> 
-			</releases> 
-			<snapshots> 
-				<enabled>true</enabled> 
-			</snapshots> 
-		</repository> 
-	</repositories>
-    
 </project>
