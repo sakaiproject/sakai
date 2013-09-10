@@ -389,6 +389,7 @@ function handleEnterKeyPress(ev)
 					#else
 						<input type="button" accesskey="s" name="return" value="$tlang.getString('gen.sav')" onclick="javascript:document.gradeForm.action=document.gradeForm.action+'&submissionId=$validator.escapeUrl($submission.Reference)';document.gradeForm.onsubmit();document.getElementById('option').value='savegrade_review';document.gradeForm.submit();return false;" title="$tlang.getString("gen.sav")" />	
 						<input type="button" accesskey="x" name="cancel" value="$tlang.getString('cancel_changes')" onclick="javascript:document.gradeForm.onsubmit();document.getElementById('option').value='cancelgrade_review';document.gradeForm.submit();return false;" />
+						<input type="button" name="returnSubmit" value="$tlang.getString('gen.subm3')" onclick="javascript:document.gradeForm.action=document.gradeForm.action+'&submissionId=$validator.escapeUrl($submission.Reference)';document.gradeForm.onsubmit();document.getElementById('option').value='submitgrade_review';document.gradeForm.submit();return false;" title="$tlang.getString("gen.subm3")" />
 					#end
 					#if ($!prevSubmissionId)
 						<input type="hidden" name="prevSubmissionId" value = "$!prevSubmissionId" />

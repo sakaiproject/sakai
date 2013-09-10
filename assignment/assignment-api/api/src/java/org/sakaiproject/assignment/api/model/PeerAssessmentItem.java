@@ -11,6 +11,9 @@ public class PeerAssessmentItem implements Serializable{
 	private Integer score;
 	private String comment;
 	private boolean removed;
+	//submitted is only a flag to help with the UI show/hide reviews
+	//that the user still needs to complete (more of a hide flag than a submit)
+	private boolean submitted;
 	//transient variables for displaying information in the UI
 	private String assessorDisplayName;
 	
@@ -61,5 +64,11 @@ public class PeerAssessmentItem implements Serializable{
 	//transient variable that is only set for UI
 	public void setAssessorDisplayName(String assessorDisplayName) {
 		this.assessorDisplayName = assessorDisplayName;
+	}
+	public boolean isSubmitted() {
+		return submitted;
+	}
+	public void setSubmitted(boolean submitted) {
+		this.submitted = submitted;
 	}
 }
