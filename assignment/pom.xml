@@ -1,107 +1,67 @@
 <?xml version="1.0"?>
 <project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
-    <modelVersion>4.0.0</modelVersion>
-    
-    <parent>
-        <groupId>org.sakaiproject</groupId>
-        <artifactId>master</artifactId>
-        <version>2.10-SNAPSHOT</version>
-        <relativePath>../master/pom.xml</relativePath>
-    </parent>
-    
-    <name>sakai-assignment base pom</name>
-    <groupId>org.sakaiproject.assignment</groupId>
-    <artifactId>assignment</artifactId>
+  <modelVersion>4.0.0</modelVersion>
+  <parent>
+    <groupId>org.sakaiproject</groupId>
+    <artifactId>master</artifactId>
     <version>2.10-SNAPSHOT</version>
-    <packaging>pom</packaging>
+    <relativePath>../master/pom.xml</relativePath>
+  </parent>
 
-    <modules>
-        <module>assignment-api/api</module>
-        <module>assignment-assembly</module>
-        <module>assignment-bundles</module>
-        <module>assignment-help</module>
-        <module>assignment-impl/impl</module>
-        <module>assignment-impl/pack</module>
-        <module>assignment-tool/tool</module>
-    </modules>
+  <name>sakai-assignment base pom</name>
+  <groupId>org.sakaiproject.assignment</groupId>
+  <artifactId>assignment</artifactId>
+  <version>2.10-SNAPSHOT</version>
+  <packaging>pom</packaging>
 
-    <scm>
-        <connection>scm:svn:https://source.sakaiproject.org/svn/assignment/trunk</connection>
-        <developerConnection>scm:svn:https://source.sakaiproject.org/svn/assignment/trunk</developerConnection>
-        <url>https://source.sakaiproject.org/svn/assignment/trunk</url>
-    </scm>
+  <modules>
+    <module>assignment-api/api</module>
+    <module>assignment-bundles</module>
+    <module>assignment-help</module>
+    <module>assignment-impl/impl</module>
+    <module>assignment-impl/pack</module>
+    <module>assignment-tool/tool</module>
+  </modules>
 
-    <distributionManagement>
-        <site>
-            <id>sakai-site</id>
-            <name>Sakai release Site</name>
-            <url>scpexe://source.sakaiproject.org/var/www/html/release/assignment/${project.version}</url>
-        </site>
-    </distributionManagement>
+  <scm>
+    <connection>scm:svn:https://source.sakaiproject.org/svn/assignment/trunk</connection>
+    <developerConnection>scm:svn:https://source.sakaiproject.org/svn/assignment/trunk</developerConnection>
+    <url>https://source.sakaiproject.org/svn/assignment/trunk</url>
+  </scm>
 
-    <repositories>
-        <repository>
-            <id>sakai-maven</id>
-            <name>Sakai Maven Repo</name>
-            <layout>default</layout>
-            <url>http://source.sakaiproject.org/maven2</url>
-            <releases>
-                <enabled>true</enabled>
-            </releases>
-            <snapshots>
-                <enabled>false</enabled>
-            </snapshots>
-        </repository>
-        <repository>
-            <id>sakai-maven2-snapshots</id>
-            <name>Sakai Maven Repo</name>
-            <layout>default</layout>
-            <url>http://source.sakaiproject.org/maven2-snapshots</url>
-            <releases>
-                <enabled>false</enabled>
-            </releases>
-            <snapshots>
-                <enabled>true</enabled>
-            </snapshots>
-        </repository>
-        <repository> 
-			<id>sonatype-nexus-snapshots</id> 
-			<name>Sonatype Nexus Snapshots</name> 
-			<url> https://oss.sonatype.org/content/repositories/snapshots </url> 
-			<releases> 
-				<enabled>false</enabled> 
-			</releases> 
-			<snapshots> 
-				<enabled>true</enabled> 
-			</snapshots> 
-		</repository> 
-    </repositories>
+  <distributionManagement>
+    <site>
+      <id>sakai-site</id>
+      <name>Sakai release Site</name>
+      <url>scpexe://source.sakaiproject.org/var/www/html/release/assignment/${project.version}</url>
+    </site>
+  </distributionManagement>
 
-    <dependencyManagement>
-        <dependencies>
-            <dependency>
-                <groupId>${project.groupId}</groupId>
-                <artifactId>sakai-assignment-api</artifactId>
-                <version>${project.version}</version>
-                <scope>provided</scope>
-            </dependency>
-            <dependency>
-                <groupId>${project.groupId}</groupId>
-                <artifactId>sakai-assignment-impl</artifactId>
-                <version>${project.version}</version>
-            </dependency>
-            <dependency>
-                <groupId>${project.groupId}</groupId>
-                <artifactId>sakai-assignment-bundles</artifactId>
-                <version>${project.version}</version>
-            </dependency>
-            <dependency>
-            	<groupId>org.sakaiproject.scheduler</groupId>
-            	<artifactId>scheduler-api</artifactId>
-            	<version>${sakai.scheduler.version}</version>
-            	<scope>provided</scope>
-	    </dependency>
-	</dependencies>
-    </dependencyManagement>
-    
+  <dependencyManagement>
+    <dependencies>
+      <dependency>
+        <groupId>${project.groupId}</groupId>
+        <artifactId>sakai-assignment-api</artifactId>
+        <version>${project.version}</version>
+        <scope>provided</scope>
+      </dependency>
+      <dependency>
+        <groupId>${project.groupId}</groupId>
+        <artifactId>sakai-assignment-impl</artifactId>
+        <version>${project.version}</version>
+      </dependency>
+      <dependency>
+        <groupId>${project.groupId}</groupId>
+        <artifactId>sakai-assignment-bundles</artifactId>
+        <version>${project.version}</version>
+      </dependency>
+      <dependency>
+        <groupId>org.sakaiproject.scheduler</groupId>
+        <artifactId>scheduler-api</artifactId>
+        <version>${sakai.scheduler.version}</version>
+        <scope>provided</scope>
+      </dependency>
+    </dependencies>
+  </dependencyManagement>
+
 </project>
