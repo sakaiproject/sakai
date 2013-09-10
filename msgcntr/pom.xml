@@ -1,78 +1,68 @@
 <?xml version="1.0"?>
 <project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
-    <modelVersion>4.0.0</modelVersion>
-    <parent>
-        <groupId>org.sakaiproject</groupId>
-        <artifactId>master</artifactId>
-        <version>2.10-SNAPSHOT</version>
-		<relativePath>../master/pom.xml</relativePath>
-    </parent>
-    <name>Sakai Message Center Base POM</name>
-    <groupId>org.sakaiproject.msgcntr</groupId>
-    <version>3.0-SNAPSHOT</version>
-    <artifactId>msgcntr</artifactId>
-    <packaging>pom</packaging>
-    <modules>
-        <module>messageforums-api</module>
-        <module>messageforums-app</module>
-        <module>messageforums-components</module>
-        <module>messageforums-component-impl</module>
-        <module>messageforums-hbm</module>
-        <module>messageforums-help</module>
-        <module>messageforums-assembly</module>
-    </modules>
-    <scm>
-        <connection>scm:svn:https://source.sakaiproject.org/svn/msgcntr/trunk</connection>
-        <developerConnection>scm:svn:https://source.sakaiproject.org/svn/msgcntr/trunk</developerConnection>
-        <url>https://source.sakaiproject.org/svn/msgcntr/trunk</url>
-    </scm>
-    <distributionManagement>
-        <site>
-            <id>sakai-site</id>
-            <name>Sakai release Site</name>
-            <url>scpexe://source.sakaiproject.org/var/www/html/release/msgcntr/${project.version}</url>
-        </site>
-    </distributionManagement>
-    <dependencyManagement>
-        <dependencies>
-            <dependency>
-                <groupId>${project.groupId}</groupId>
-                <artifactId>messageforums-api</artifactId>
-                <version>${project.version}</version>
-                <scope>provided</scope>
-            </dependency>
-            <dependency>
-                <groupId>${project.groupId}</groupId>
-                <artifactId>messageforums-component-impl</artifactId>
-                <version>${project.version}</version>
-            </dependency>
-            <dependency>
-                <groupId>${project.groupId}</groupId>
-                <artifactId>messageforums-hbm</artifactId>
-                <version>${project.version}</version>
-                <scope>provided</scope>
-            </dependency>
-            <dependency>
-                <groupId>org.sakaiproject.jsf</groupId>
-                <artifactId>jsf-tool-sun</artifactId>
-                <version>${sakai.jsf.version}</version>
-                <type>pom</type>
-            </dependency>
-        </dependencies>
-    </dependencyManagement>
-    
-    <repositories> 
-		<repository> 
-			<id>sonatype-nexus-snapshots</id> 
-			<name>Sonatype Nexus Snapshots</name> 
-			<url> https://oss.sonatype.org/content/repositories/snapshots </url> 
-			<releases> 
-				<enabled>false</enabled> 
-			</releases> 
-			<snapshots> 
-				<enabled>true</enabled> 
-			</snapshots> 
-		</repository> 
-	</repositories>
-	
+  <modelVersion>4.0.0</modelVersion>
+  <parent>
+    <groupId>org.sakaiproject</groupId>
+    <artifactId>master</artifactId>
+    <version>2.10-SNAPSHOT</version>
+    <relativePath>../master/pom.xml</relativePath>
+  </parent>
+
+  <name>Sakai Message Center Base POM</name>
+  <groupId>org.sakaiproject.msgcntr</groupId>
+  <artifactId>msgcntr</artifactId>
+  <version>3.0-SNAPSHOT</version>
+  <packaging>pom</packaging>
+
+  <modules>
+    <module>messageforums-api</module>
+    <module>messageforums-app</module>
+    <module>messageforums-components</module>
+    <module>messageforums-component-impl</module>
+    <module>messageforums-hbm</module>
+    <module>messageforums-help</module>
+  </modules>
+
+  <scm>
+    <connection>scm:svn:https://source.sakaiproject.org/svn/msgcntr/trunk</connection>
+    <developerConnection>scm:svn:https://source.sakaiproject.org/svn/msgcntr/trunk</developerConnection>
+    <url>https://source.sakaiproject.org/svn/msgcntr/trunk</url>
+  </scm>
+
+  <distributionManagement>
+    <site>
+      <id>sakai-site</id>
+      <name>Sakai release Site</name>
+      <url>scpexe://source.sakaiproject.org/var/www/html/release/msgcntr/${project.version}</url>
+    </site>
+  </distributionManagement>
+
+  <dependencyManagement>
+    <dependencies>
+      <dependency>
+        <groupId>${project.groupId}</groupId>
+        <artifactId>messageforums-api</artifactId>
+        <version>${project.version}</version>
+        <scope>provided</scope>
+      </dependency>
+      <dependency>
+        <groupId>${project.groupId}</groupId>
+        <artifactId>messageforums-component-impl</artifactId>
+        <version>${project.version}</version>
+      </dependency>
+      <dependency>
+        <groupId>${project.groupId}</groupId>
+        <artifactId>messageforums-hbm</artifactId>
+        <version>${project.version}</version>
+        <scope>provided</scope>
+      </dependency>
+      <dependency>
+        <groupId>org.sakaiproject.jsf</groupId>
+        <artifactId>jsf-tool-sun</artifactId>
+        <version>${sakai.jsf.version}</version>
+        <type>pom</type>
+      </dependency>
+    </dependencies>
+  </dependencyManagement>
+
 </project>
