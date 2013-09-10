@@ -1,123 +1,80 @@
 <?xml version="1.0"?>
 <project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
-    <modelVersion>4.0.0</modelVersion>
-
-    <parent>
-        <groupId>org.sakaiproject</groupId>
-        <artifactId>master</artifactId>
-        <version>2.10-SNAPSHOT</version>
-        <relativePath>../master/pom.xml</relativePath>
-    </parent>
-
-    <name>sakai-announcement base pom</name>
-    <groupId>org.sakaiproject.announcement</groupId>
-    <artifactId>announcement</artifactId>
+  <modelVersion>4.0.0</modelVersion>
+  <parent>
+    <groupId>org.sakaiproject</groupId>
+    <artifactId>master</artifactId>
     <version>2.10-SNAPSHOT</version>
-    <packaging>pom</packaging>
+    <relativePath>../master/pom.xml</relativePath>
+  </parent>
 
-    <modules>
-        <module>announcement-api/api</module>
-        <module>announcement-assembly</module>
-        <module>announcement-help</module>
-        <module>announcement-impl/impl</module>
-        <module>announcement-impl/pack</module>
-        <module>announcement-tool/tool</module>
-    </modules>
+  <name>sakai-announcement base pom</name>
+  <groupId>org.sakaiproject.announcement</groupId>
+  <artifactId>announcement</artifactId>
+  <version>2.10-SNAPSHOT</version>
+  <packaging>pom</packaging>
 
-    <properties>
-        <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
-    </properties>
+  <modules>
+    <module>announcement-api/api</module>
+    <module>announcement-help</module>
+    <module>announcement-impl/impl</module>
+    <module>announcement-impl/pack</module>
+    <module>announcement-tool/tool</module>
+  </modules>
 
-    <scm>
-        <connection>scm:svn:https://source.sakaiproject.org/svn/announcement/trunk</connection>
-        <developerConnection>scm:svn:https://source.sakaiproject.org/svn/announcement/trunk</developerConnection>
-        <url>https://source.sakaiproject.org/svn/announcement/trunk</url>
-    </scm>
+  <scm>
+    <connection>scm:svn:https://source.sakaiproject.org/svn/announcement/trunk</connection>
+    <developerConnection>scm:svn:https://source.sakaiproject.org/svn/announcement/trunk</developerConnection>
+    <url>https://source.sakaiproject.org/svn/announcement/trunk</url>
+  </scm>
 
-    <distributionManagement>
-        <site>
-            <id>sakai-site</id>
-            <name>Sakai release Site</name>
-            <url>scpexe://source.sakaiproject.org/var/www/html/release/announcement/${project.version}</url>
-        </site>
-    </distributionManagement>
+  <distributionManagement>
+    <site>
+      <id>sakai-site</id>
+      <name>Sakai release Site</name>
+      <url>scpexe://source.sakaiproject.org/var/www/html/release/announcement/${project.version}</url>
+    </site>
+  </distributionManagement>
 
-    <repositories>
-        <repository>
-            <id>sakai-maven</id>
-            <name>Sakai Maven Repo</name>
-            <layout>default</layout>
-            <url>http://source.sakaiproject.org/maven2</url>
-            <releases>
-                <enabled>true</enabled>
-            </releases>
-            <snapshots>
-                <enabled>false</enabled>
-            </snapshots>
-        </repository>
-        <repository>
-            <id>sakai-maven2-snapshots</id>
-            <name>Sakai Maven Repo</name>
-            <layout>default</layout>
-            <url>http://source.sakaiproject.org/maven2-snapshots</url>
-            <releases>
-                <enabled>false</enabled>
-            </releases>
-            <snapshots>
-                <enabled>true</enabled>
-            </snapshots>
-        </repository>
-		<repository> 
-			<id>sonatype-nexus-snapshots</id> 
-			<name>Sonatype Nexus Snapshots</name> 
-			<url> https://oss.sonatype.org/content/repositories/snapshots </url> 
-			<releases> 
-				<enabled>false</enabled> 
-			</releases> 
-			<snapshots> 
-				<enabled>true</enabled> 
-			</snapshots> 
-		</repository> 
-    </repositories>
-
-    <dependencyManagement>
-        <dependencies>
-            <dependency>
-                <groupId>${project.groupId}</groupId>
-                <artifactId>sakai-announcement-api</artifactId>
-                <version>${project.version}</version>
-                <scope>provided</scope>
-            </dependency>
-            <dependency>
-                <groupId>${project.groupId}</groupId>
-                <artifactId>sakai-announcement-impl</artifactId>
-                <version>${project.version}</version>
-            </dependency>
-            <dependency>
-                <groupId>org.sakaiproject.message</groupId>
-                <artifactId>sakai-message-impl</artifactId>
-                <version>${sakai.message.version}</version>
-            </dependency>
-            <dependency>
-                <groupId>org.sakaiproject.site</groupId>
-                <artifactId>sakai-mergedlist-util</artifactId>
-                <version>${sakai.site.version}</version>
-            </dependency>
-        </dependencies>
-    </dependencyManagement>
-    
+  <dependencyManagement>
     <dependencies>
-        <dependency>
-            <groupId>org.sakaiproject.kernel</groupId>
-            <artifactId>sakai-kernel-api</artifactId>
-        </dependency>
-        <dependency>
-            <groupId>org.sakaiproject.kernel</groupId>
-            <artifactId>sakai-component-manager</artifactId>
-        </dependency>
-        <dependency>
-            <groupId>org.sakaiproject.message</groupId>
-            <artifactId>sakai-message-api</artifactId>
-        </dependency>
+      <dependency>
+        <groupId>${project.groupId}</groupId>
+        <artifactId>sakai-announcement-api</artifactId>
+        <version>${project.version}</version>
+        <scope>provided</scope>
+      </dependency>
+      <dependency>
+        <groupId>${project.groupId}</groupId>
+        <artifactId>sakai-announcement-impl</artifactId>
+        <version>${project.version}</version>
+      </dependency>
+      <dependency>
+        <groupId>org.sakaiproject.message</groupId>
+        <artifactId>sakai-message-impl</artifactId>
+        <version>${sakai.message.version}</version>
+      </dependency>
+      <dependency>
+        <groupId>org.sakaiproject.site</groupId>
+        <artifactId>sakai-mergedlist-util</artifactId>
+        <version>${sakai.site.version}</version>
+      </dependency>
     </dependencies>
+  </dependencyManagement>
+
+  <dependencies>
+    <dependency>
+      <groupId>org.sakaiproject.kernel</groupId>
+      <artifactId>sakai-kernel-api</artifactId>
+    </dependency>
+    <dependency>
+      <groupId>org.sakaiproject.kernel</groupId>
+      <artifactId>sakai-component-manager</artifactId>
+    </dependency>
+    <dependency>
+      <groupId>org.sakaiproject.message</groupId>
+      <artifactId>sakai-message-api</artifactId>
+    </dependency>
+  </dependencies>
+
 </project>
