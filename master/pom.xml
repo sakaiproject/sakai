@@ -138,7 +138,7 @@
     <sakai.taggable.version>2.10-SNAPSHOT</sakai.taggable.version>
     <sakai.velocity-tool.version>2.10-SNAPSHOT</sakai.velocity-tool.version>
     <sakai.warehouse.version>2.10-SNAPSHOT</sakai.warehouse.version>
-    <sakai.webservices.version>1.2-SNAPSHOT</sakai.webservices.version>
+    <sakai.webservices.version>2.10-SNAPSHOT</sakai.webservices.version>
     <!-- Set the source encoding to avoid maven warnings -->
     <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
     <sakai.jdk.version>1.6</sakai.jdk.version>
