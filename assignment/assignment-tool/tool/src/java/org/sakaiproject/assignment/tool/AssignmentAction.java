@@ -3822,6 +3822,7 @@ public class AssignmentAction extends PagedResourceActionII
 					}
 				}
 				if(userSubmissions != null){
+					context.put("totalReviews", userSubmissions.size());
 					//first setup map to make the navigation logic easier:
 					Map<String, List<PeerAssessmentItem>> itemMap = new HashMap<String, List<PeerAssessmentItem>>();
 					for(String userSubmissionId : userSubmissions){
@@ -3840,6 +3841,7 @@ public class AssignmentAction extends PagedResourceActionII
 						String userSubmissionId = userSubmissions.get(i);
 						if(userSubmissionId.equals(submissionId)){
 							//we found the right submission, now find the items
+							context.put("reviewNumber", (i + 1));
 							List<PeerAssessmentItem> submissionItems = itemMap.get(submissionId);
 							if(submissionItems != null){
 								for (int j = 0; j < submissionItems.size(); j++){
