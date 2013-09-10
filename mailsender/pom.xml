@@ -37,7 +37,7 @@
       <properties>
         <!-- Versions for these are inherited from master -->
         <sakai.mailarchive.groupId>org.sakaiproject.mailarchive</sakai.mailarchive.groupId>
-        <sakai.mailarchive.version>2.9.2</sakai.mailarchive.version>
+        <sakai.mailarchive.version>2.10-SNAPSHOT</sakai.mailarchive.version>
         <sakai.message.groupId>org.sakaiproject.message</sakai.message.groupId>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
         <url.localsite>scpexe://source.sakaiproject.org/var/www/html/release/mailsender/${project.version}</url.localsite>
