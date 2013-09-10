@@ -133,7 +133,7 @@
     <sakai.scheduler.version>2.10-SNAPSHOT</sakai.scheduler.version>
     <sakai.search.version>1.5-SNAPSHOT</sakai.search.version>
     <sakai.site.version>2.10-SNAPSHOT</sakai.site.version>
-    <sakai.shortenedurl.version>1.2-SNAPSHOT</sakai.shortenedurl.version>
+    <sakai.shortenedurl.version>2.10-SNAPSHOT</sakai.shortenedurl.version>
     <sakai.sitestats.version>2.4-SNAPSHOT</sakai.sitestats.version>
     <sakai.taggable.version>2.10-SNAPSHOT</sakai.taggable.version>
     <sakai.velocity-tool.version>2.10-SNAPSHOT</sakai.velocity-tool.version>
