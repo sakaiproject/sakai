@@ -1,254 +1,138 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
-    <modelVersion>4.0.0</modelVersion>
-    <parent>
-        <groupId>org.sakaiproject</groupId>
-        <artifactId>master</artifactId>
-        <version>2.10-SNAPSHOT</version>
-		<relativePath>../master/pom.xml</relativePath>
-        <!-- for 2.8 -->
-        <!--
-        <version>2.8.3</version>
-        -->
-        <!-- for 2.7 -->
-        <!--        
-        <version>2.7.10</version>
-        -->
-        <!-- for 2.6 -->
-        <!--
-        <version>2.6.3</version>
-        -->
-    </parent>
+  <modelVersion>4.0.0</modelVersion>
+  <parent>
+    <groupId>org.sakaiproject</groupId>
+    <artifactId>master</artifactId>
+    <version>2.10-SNAPSHOT</version>
+    <relativePath>../master/pom.xml</relativePath>
+  </parent>
 
-    <groupId>org.sakaiproject.mailsender</groupId>
-    <artifactId>mailsender</artifactId>
-    <name>Sakai Mail Sender Project</name>
-    <version>1.8-SNAPSHOT</version>
-    <description>Mail Sender base pom.</description>
-    <organization>
-        <name>Sakai Project</name>
-        <url>http://sakaiproject.org/</url>
-    </organization>
-    <inceptionYear>2007</inceptionYear>
-    <packaging>pom</packaging>
+  <groupId>org.sakaiproject.mailsender</groupId>
+  <artifactId>mailsender</artifactId>
+  <name>Sakai Mail Sender Project</name>
+  <version>1.8-SNAPSHOT</version>
+  <description>Mail Sender base pom.</description>
+  <organization>
+    <name>Sakai Project</name>
+    <url>http://sakaiproject.org/</url>
+  </organization>
+  <inceptionYear>2007</inceptionYear>
+  <packaging>pom</packaging>
 
-    <modules>
-        <module>api</module>
-        <module>assembly</module>
-        <module>help</module>
-        <module>impl</module>
-        <module>pack</module>
-        <module>tool</module>
-    </modules>
-    
-    <profiles>
-        <profile>
-            <id>default</id>
-            <activation>
-                <activeByDefault>true</activeByDefault>
-            </activation>
-            <properties>
-                <!-- Versions for these are inherited from master -->
-                <sakai.mailarchive.groupId>org.sakaiproject.mailarchive</sakai.mailarchive.groupId>
-                <sakai.mailarchive.version>2.9.0-b05</sakai.mailarchive.version>
-                <sakai.message.groupId>org.sakaiproject.message</sakai.message.groupId>
-                <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding> 
-                <url.localsite>scpexe://source.sakaiproject.org/var/www/html/release/mailsender/${project.version}</url.localsite>
-            </properties>
-        </profile>
-        <profile>
-            <id>sakai-2.8</id>
-            <properties>
-                <sakai.mailarchive.groupId>org.sakaiproject</sakai.mailarchive.groupId>
-                <sakai.mailarchive.version>2.8.1</sakai.mailarchive.version>
-                <sakai.message.groupId>org.sakaiproject</sakai.message.groupId>
-                <sakai.message.version>2.8.1</sakai.message.version>
-                <rsfutil.version>0.7.5</rsfutil.version>
-                <sakairsf.components.version>0.7.5</sakairsf.components.version> 
-                <sakairsf.version>0.7.5</sakairsf.version>
+  <modules>
+    <module>api</module>
+    <module>help</module>
+    <module>impl</module>
+    <module>pack</module>
+    <module>tool</module>
+  </modules>
 
+  <profiles>
+    <profile>
+      <id>default</id>
+      <activation>
+        <activeByDefault>true</activeByDefault>
+      </activation>
+      <properties>
+        <!-- Versions for these are inherited from master -->
+        <sakai.mailarchive.groupId>org.sakaiproject.mailarchive</sakai.mailarchive.groupId>
+        <sakai.mailarchive.version>2.9.2</sakai.mailarchive.version>
+        <sakai.message.groupId>org.sakaiproject.message</sakai.message.groupId>
+        <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
+        <url.localsite>scpexe://source.sakaiproject.org/var/www/html/release/mailsender/${project.version}</url.localsite>
+      </properties>
+    </profile>
+    <profile>
+      <id>sakai-2.8</id>
+      <properties>
+        <sakai.mailarchive.groupId>org.sakaiproject</sakai.mailarchive.groupId>
+        <sakai.mailarchive.version>2.8.1</sakai.mailarchive.version>
+        <sakai.message.groupId>org.sakaiproject</sakai.message.groupId>
+        <sakai.message.version>2.8.1</sakai.message.version>
+        <rsfutil.version>0.7.5</rsfutil.version>
+        <sakairsf.components.version>0.7.5</sakairsf.components.version>
+        <sakairsf.version>0.7.5</sakairsf.version>
+        <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
+        <url.localsite>scpexe://source.sakaiproject.org/var/www/html/release/mailsender/${project.version}</url.localsite>
+      </properties>
+    </profile>
+    <profile>
+      <id>sakai-2.7</id>
+      <properties>
+        <sakai.mailarchive.groupId>org.sakaiproject</sakai.mailarchive.groupId>
+        <sakai.mailarchive.version>2.7.2</sakai.mailarchive.version>
+        <sakai.message.groupId>org.sakaiproject</sakai.message.groupId>
+        <sakai.message.version>2.7.2</sakai.message.version>
+        <rsfutil.version>0.7.5</rsfutil.version>
+        <sakairsf.components.version>0.7.5</sakairsf.components.version>
+        <sakairsf.version>0.7.5</sakairsf.version>
+        <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
+        <url.localsite>scpexe://source.sakaiproject.org/var/www/html/release/mailsender/${project.version}</url.localsite>
+      </properties>
+    </profile>
+  </profiles>
 
-                <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding> 
-                <url.localsite>scpexe://source.sakaiproject.org/var/www/html/release/mailsender/${project.version}</url.localsite>
-            </properties>
-        </profile>
-        <profile>
-            <id>sakai-2.7</id>
-            <properties>
-                <sakai.mailarchive.groupId>org.sakaiproject</sakai.mailarchive.groupId>
-                <sakai.mailarchive.version>2.7.2</sakai.mailarchive.version>
-                <sakai.message.groupId>org.sakaiproject</sakai.message.groupId>
-                <sakai.message.version>2.7.2</sakai.message.version>
-                <rsfutil.version>0.7.5</rsfutil.version>
-                <sakairsf.components.version>0.7.5</sakairsf.components.version>
-                <sakairsf.version>0.7.5</sakairsf.version> 
+  <scm>
+    <connection>scm:svn:https://source.sakaiproject.org/svn/mailsender/trunk</connection>
+    <developerConnection>scm:svn:https://source.sakaiproject.org/svn/mailsender/trunk</developerConnection>
+    <url>https://source.sakaiproject.org/svn/mailsender/trunk</url>
+  </scm>
 
-                <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding> 
-                <url.localsite>scpexe://source.sakaiproject.org/var/www/html/release/mailsender/${project.version}</url.localsite>
-            </properties>
-        </profile>
-    </profiles>
-    
-    <developers>
-        <developer>
-            <id>thecarlhall</id>
-            <name>Carl Hall</name>
-            <organization>Hallway Technologies</organization>
-            <roles>
-                <role>architect</role>
-                <role>developer</role>
-            </roles>
-            <timezone>-5</timezone>
-        </developer>
-        <developer>
-            <id>slt</id>
-            <name>Seth Theriault</name>
-            <organization>Columbia University</organization>
-            <roles>
-                <role>developer</role>
-            </roles>
-            <timezone>-5</timezone>
-        </developer>
-        <developer>
-            <id>arwhyte</id>
-            <name>Anthony Whyte</name>
-            <organization>Sakai Foundation / University of Michigan</organization>
-            <roles>
-                <role>pom plumber</role>
-            </roles>
-            <timezone>-5</timezone>
-        </developer>
-        <developer>
-            <id>nfgrilo</id>
-            <name>Nuno Fernandez</name>
-            <organization>Universidate Fernando Pessoa</organization>
-            <roles>
-                <role>translator</role>
-            </roles>
-            <timezone>0</timezone>
-        </developer>
-        <developer>
-            <id>noahbotimer</id>
-            <name>Noah Botimer</name>
-            <organization>University of Michigan</organization>
-            <roles>
-                <role>contributor</role>
-            </roles>
-            <timezone>-6</timezone>
-        </developer>
-        <developer>
-            <id>hedrick</id>
-            <name>Charles Hedrick</name>
-            <organization>Rutgers University</organization>
-            <roles>
-                <role>contributor</role>
-            </roles>
-            <timezone>-5</timezone>
-        </developer>
-    </developers>
+  <distributionManagement>
+    <site>
+      <id>sakai-site</id>
+      <name>Sakai release Site</name>
+      <url>scpexe://source.sakaiproject.org/var/www/html/release/mailsender/${project.version}</url>
+    </site>
+  </distributionManagement>
 
-    <scm>
-        <connection>scm:svn:https://source.sakaiproject.org/svn/mailsender/trunk</connection>
-        <developerConnection>scm:svn:https://source.sakaiproject.org/svn/mailsender/trunk</developerConnection>
-        <url>https://source.sakaiproject.org/svn/mailsender/trunk</url>
-    </scm>
-
-    <distributionManagement>
-        <site>
-            <id>sakai-site</id>
-            <name>Sakai release Site</name>
-            <url>scpexe://source.sakaiproject.org/var/www/html/release/mailsender/${project.version}</url>
-        </site>
-    </distributionManagement>
-
-<!--
+  <dependencyManagement>
     <dependencies>
-        <dependency>
-            <groupId>org.springframework</groupId>
-            <artifactId>spring-webmvc</artifactId>
-            <version>2.5.6.SEC01</version>
-            <scope>provided</scope>
-        </dependency>
-    
+      <dependency>
+        <groupId>${project.groupId}</groupId>
+        <artifactId>mailsender-api</artifactId>
+        <version>${project.version}</version>
+        <scope>provided</scope>
+      </dependency>
+      <dependency>
+        <groupId>${project.groupId}</groupId>
+        <artifactId>mailsender-impl</artifactId>
+        <version>${project.version}</version>
+      </dependency>
+      <!-- RSF -->
+      <dependency>
+        <groupId>uk.org.ponder.sakairsf</groupId>
+        <artifactId>sakairsf</artifactId>
+        <version>${sakairsf.version}</version>
+        <type>jar</type>
+      </dependency>
+      <dependency>
+        <groupId>uk.org.ponder.sakairsf</groupId>
+        <artifactId>SakaiRSFComponents-evolvers</artifactId>
+        <version>${sakairsf.components.version}</version>
+        <type>jar</type>
+      </dependency>
+      <dependency>
+        <groupId>uk.org.ponder.sakairsf</groupId>
+        <artifactId>SakaiRSFComponents-templates</artifactId>
+        <version>${sakairsf.components.version}</version>
+        <type>war</type>
+      </dependency>
+      <dependency>
+        <groupId>uk.org.ponder.rsfutil</groupId>
+        <artifactId>RSFComponents-templates</artifactId>
+        <version>${rsfutil.version}</version>
+        <type>war</type>
+      </dependency>
+      <!-- TESTING -->
+      <dependency>
+        <groupId>org.mockito</groupId>
+        <artifactId>mockito-core</artifactId>
+        <version>1.8.5</version>
+        <scope>test</scope>
+      </dependency>
     </dependencies>
-    -->
-
-    <dependencyManagement>
-        <dependencies>
-            <dependency>
-                <groupId>${project.groupId}</groupId>
-                <artifactId>mailsender-api</artifactId>
-                <version>${project.version}</version>
-                <scope>provided</scope>
-            </dependency>
-            <dependency>
-                <groupId>${project.groupId}</groupId>
-                <artifactId>mailsender-impl</artifactId>
-                <version>${project.version}</version>
-            </dependency>
-            <dependency>
-                <groupId>commons-logging</groupId>
-                <artifactId>commons-logging</artifactId>
-                <version>${sakai.commons-logging.version}</version>
-                <scope>provided</scope>
-            </dependency>
-            <dependency>
-                <groupId>javax.activation</groupId>
-                <artifactId>activation</artifactId>
-                <version>1.0.2</version>
-                <scope>provided</scope>
-            </dependency>
-            <dependency>
-                <groupId>javax.mail</groupId>
-                <artifactId>mail</artifactId>
-                <version>1.4.3</version>
-                <scope>provided</scope>
-            </dependency>
-            <dependency>
-                <groupId>uk.org.ponder.sakairsf</groupId>
-                <artifactId>sakairsf</artifactId>
-                <version>${sakairsf.version}</version>
-                <type>jar</type>
-            </dependency>
-            <dependency>
-                <groupId>uk.org.ponder.sakairsf</groupId>
-                <artifactId>SakaiRSFComponents-evolvers</artifactId>
-                <version>${sakairsf.components.version}</version>
-                <type>jar</type>
-            </dependency>
-            <dependency>
-                <groupId>uk.org.ponder.sakairsf</groupId>
-                <artifactId>SakaiRSFComponents-templates</artifactId>
-                <version>${sakairsf.components.version}</version>
-                <type>war</type>
-            </dependency>
-            <dependency>
-                <groupId>uk.org.ponder.rsfutil</groupId>
-                <artifactId>RSFComponents-templates</artifactId>
-                <version>${rsfutil.version}</version>
-                <type>war</type>
-            </dependency>
-            <dependency>
-                <groupId>org.mockito</groupId>
-                <artifactId>mockito-core</artifactId>
-                <version>1.8.5</version>
-                <scope>test</scope>
-            </dependency>
-        </dependencies>
-    </dependencyManagement>
-    
-    <repositories> 
-		<repository> 
-			<id>sonatype-nexus-snapshots</id> 
-			<name>Sonatype Nexus Snapshots</name> 
-			<url> https://oss.sonatype.org/content/repositories/snapshots </url> 
-			<releases> 
-				<enabled>false</enabled> 
-			</releases> 
-			<snapshots> 
-				<enabled>true</enabled> 
-			</snapshots> 
-		</repository> 
-	</repositories>
+  </dependencyManagement>
 
 </project>
