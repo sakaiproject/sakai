@@ -134,7 +134,7 @@
     <sakai.search.version>2.10-SNAPSHOT</sakai.search.version>
     <sakai.site.version>2.10-SNAPSHOT</sakai.site.version>
     <sakai.shortenedurl.version>2.10-SNAPSHOT</sakai.shortenedurl.version>
-    <sakai.sitestats.version>2.4-SNAPSHOT</sakai.sitestats.version>
+    <sakai.sitestats.version>2.10-SNAPSHOT</sakai.sitestats.version>
     <sakai.taggable.version>2.10-SNAPSHOT</sakai.taggable.version>
     <sakai.velocity-tool.version>2.10-SNAPSHOT</sakai.velocity-tool.version>
     <sakai.warehouse.version>2.10-SNAPSHOT</sakai.warehouse.version>
